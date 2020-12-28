@@ -1,0 +1,9 @@
+{
+    "name": "cordio-ll-nrf52840",
+    "config": {
+        "cryptocell310-acceleration": {
+            "help": "Should the link layer use the Crypto Cell 310 to offload encryption.",
+            "value": 1
+        }
+    }
+}

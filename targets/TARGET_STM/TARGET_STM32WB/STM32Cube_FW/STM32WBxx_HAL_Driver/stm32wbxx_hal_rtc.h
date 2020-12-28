@@ -725,7 +725,7 @@ typedef  void (*pRTC_CallbackTypeDef)(RTC_HandleTypeDef * hrtc); /*!< pointer to
   * @brief Check whether the RTC Alarm associated Exti line interrupt flag is set or not by core 2.
   * @retval Line Status.
   */
-#define __HAL_RTC_ALARM_EXTIC2_GET_FLAG()            (EXTI->PR2 & RTC_EXTI_LINE_ALARM_EVENT)
+#define __HAL_RTC_ALARM_EXTIC2_GET_FLAG()            (EXTI->PR1 & RTC_EXTI_LINE_ALARM_EVENT)
 
 /**
   * @brief Clear the RTC Alarm associated Exti line flag.
@@ -737,7 +737,7 @@ typedef  void (*pRTC_CallbackTypeDef)(RTC_HandleTypeDef * hrtc); /*!< pointer to
   * @brief Clear the RTC Alarm associated Exti line flag.
   * @retval None.
   */
-#define __HAL_RTC_ALARM_EXTIC2_CLEAR_FLAG()          (EXTI->PR2 = (RTC_EXTI_LINE_ALARM_EVENT))
+#define __HAL_RTC_ALARM_EXTIC2_CLEAR_FLAG()          (EXTI->PR1 = (RTC_EXTI_LINE_ALARM_EVENT))
 
 /*----------------------------*/
 /**

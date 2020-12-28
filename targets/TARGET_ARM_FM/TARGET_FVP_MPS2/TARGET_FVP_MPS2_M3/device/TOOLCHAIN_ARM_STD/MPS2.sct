@@ -1,4 +1,4 @@
-#! armcc -E
+#! armclang -E --target=arm-arm-none-eabi -x c -mcpu=cortex-m3
 ;* MPS2 CMSIS Library
 ;*
 ;* Copyright (c) 2006-2019 ARM Limited
@@ -38,14 +38,18 @@
 #include "../memory_zones.h"
 #include "../cmsis_nvic.h"
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-  #define MBED_BOOT_STACK_SIZE 0x400
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+#  if defined(MBED_BOOT_STACK_SIZE)
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE MBED_BOOT_STACK_SIZE
+#  else
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
+#  endif
 #endif
 
 #if (defined(__stack_size__))
     #define STACK_SIZE  __stack_size__
 #else  
-    #define STACK_SIZE  MBED_BOOT_STACK_SIZE
+    #define STACK_SIZE  MBED_CONF_TARGET_BOOT_STACK_SIZE
 #endif
 
 ; The vector table is loaded at address 0x00000000 in Flash memory region.

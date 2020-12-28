@@ -31,7 +31,9 @@
 #include "utest/utest_stack_trace.h"
 #include "tls_tests.h"
 #include "cert.h"
+#ifdef MBED_CONF_APP_BAUD_RATE
 #include "CellularDevice.h"
+#endif
 #include "ip6string.h"
 
 #ifndef ECHO_SERVER_ADDR

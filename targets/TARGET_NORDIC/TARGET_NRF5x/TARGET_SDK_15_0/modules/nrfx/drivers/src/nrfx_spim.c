@@ -247,14 +247,21 @@ nrfx_err_t nrfx_spim_init(nrfx_spim_t  const * const p_instance,
                  NRF_GPIO_PIN_DIR_OUTPUT,
                  NRF_GPIO_PIN_INPUT_CONNECT,
                  NRF_GPIO_PIN_NOPULL,
-                 NRF_GPIO_PIN_S0S1,
+                 // Use High Drive if using SPIM3
+                 (p_instance->drv_inst_idx == NRFX_SPIM3_INST_IDX) ? NRF_GPIO_PIN_H0H1 : NRF_GPIO_PIN_S0S1,
                  NRF_GPIO_PIN_NOSENSE);
     // - MOSI (optional) - output with initial value 0,
     if (p_config->mosi_pin != NRFX_SPIM_PIN_NOT_USED)
     {
         mosi_pin = p_config->mosi_pin;
         nrf_gpio_pin_clear(mosi_pin);
-        nrf_gpio_cfg_output(mosi_pin);
+        nrf_gpio_cfg(p_config->mosi_pin,
+                    NRF_GPIO_PIN_DIR_OUTPUT,
+                    NRF_GPIO_PIN_INPUT_DISCONNECT,
+                    NRF_GPIO_PIN_NOPULL,
+                     // Use High Drive if using SPIM3
+                    (p_instance->drv_inst_idx == NRFX_SPIM3_INST_IDX) ? NRF_GPIO_PIN_H0H1 : NRF_GPIO_PIN_S0S1,
+                    NRF_GPIO_PIN_NOSENSE);
     }
     else
     {
@@ -664,13 +671,11 @@ void nrfx_spim_0_irq_handler(void)
 }
 #endif
 
-#if 0
 #if NRFX_CHECK(NRFX_SPIM1_ENABLED)
 void nrfx_spim_1_irq_handler(void)
 {
     irq_handler(NRF_SPIM1, &m_cb[NRFX_SPIM1_INST_IDX]);
 }
-#endif
 #endif
 
 #if NRFX_CHECK(NRFX_SPIM2_ENABLED)

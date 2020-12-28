@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_cmac_v1.c
-* \version 2.30.3
+* \version 2.30.4
 *
 * \brief
 *  This file provides the source code to the API for the CMAC method

@@ -46,6 +46,12 @@
 
 static SingletonPtr<PlatformMutex> _mutex;
 
+/* DIR is typedeffed to struct DIR_impl in header */
+struct DIR_impl {
+    mbed::DirHandle *handle;
+    struct dirent entry;
+};
+
 #if defined(__ARMCC_VERSION)
 #   include <arm_compat.h>
 #   include <rt_sys.h>
@@ -504,7 +510,7 @@ extern "C" std::FILE *fdopen(int fildes, const char *mode)
 {
     // This is to avoid scanf and the bloat it brings.
     char buf[1 + sizeof fildes]; /* @(integer) */
-    MBED_STATIC_ASSERT(sizeof buf == 5, "Integers should be 4 bytes.");
+    static_assert(sizeof buf == 5, "Integers should be 4 bytes.");
     buf[0] = '@';
     memcpy(buf + 1, &fildes, sizeof fildes);
 
@@ -1297,9 +1303,15 @@ extern "C" DIR *opendir(const char *path)
         return NULL;
     }
 
-    DirHandle *dir;
-    int err = fs->open(&dir, fp.fileName());
+    DIR *dir = new (std::nothrow) DIR;
+    if (!dir) {
+        errno = ENOMEM;
+        return NULL;
+    }
+
+    int err = fs->open(&dir->handle, fp.fileName());
     if (err < 0) {
+        delete dir;
         errno = -err;
         return NULL;
     }
@@ -1309,8 +1321,7 @@ extern "C" DIR *opendir(const char *path)
 
 extern "C" struct dirent *readdir(DIR *dir)
 {
-    static struct dirent ent;
-    int err = dir->read(&ent);
+    int err = dir->handle->read(&dir->entry);
     if (err < 1) {
         if (err < 0) {
             errno = -err;
@@ -1318,12 +1329,13 @@ extern "C" struct dirent *readdir(DIR *dir)
         return NULL;
     }
 
-    return &ent;
+    return &dir->entry;
 }
 
 extern "C" int closedir(DIR *dir)
 {
-    int err = dir->close();
+    int err = dir->handle->close();
+    delete dir;
     if (err < 0) {
         errno = -err;
         return -1;
@@ -1334,17 +1346,17 @@ extern "C" int closedir(DIR *dir)
 
 extern "C" void rewinddir(DIR *dir)
 {
-    dir->rewind();
+    dir->handle->rewind();
 }
 
 extern "C" off_t telldir(DIR *dir)
 {
-    return dir->tell();
+    return dir->handle->tell();
 }
 
 extern "C" void seekdir(DIR *dir, off_t off)
 {
-    dir->seek(off);
+    dir->handle->seek(off);
 }
 
 extern "C" int mkdir(const char *path, mode_t mode)

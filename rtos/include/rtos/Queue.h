@@ -29,6 +29,7 @@
 #include "rtos/Kernel.h"
 #include "platform/mbed_error.h"
 #include "platform/NonCopyable.h"
+#include "platform/mbed_assert.h"
 
 #if MBED_CONF_RTOS_PRESENT || defined(DOXYGEN_ONLY)
 

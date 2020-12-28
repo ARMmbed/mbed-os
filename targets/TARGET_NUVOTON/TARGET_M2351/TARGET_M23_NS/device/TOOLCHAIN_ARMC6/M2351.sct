@@ -1,4 +1,4 @@
-#! armclang -E
+#! armclang -E --target=arm-arm-none-eabi -x c -mcpu=cortex-m23
 
 /*
  * Copyright (c) 2018-2019, Nuvoton Technology Corporation
@@ -20,8 +20,12 @@
 
 #include "../../../device/partition_M2351_mem.h"
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-#define MBED_BOOT_STACK_SIZE    0x400
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+#  if defined(MBED_BOOT_STACK_SIZE)
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE MBED_BOOT_STACK_SIZE
+#  else
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
+#  endif
 #endif
 
 LR_IROM1    MBED_APP_START
@@ -34,7 +38,7 @@ LR_IROM1    MBED_APP_START
         .ANY (+RO)
     }
 
-    ARM_LIB_STACK   MBED_RAM_APP_START    EMPTY   MBED_BOOT_STACK_SIZE
+    ARM_LIB_STACK   MBED_RAM_APP_START    EMPTY   MBED_CONF_TARGET_BOOT_STACK_SIZE
     {
     }
 

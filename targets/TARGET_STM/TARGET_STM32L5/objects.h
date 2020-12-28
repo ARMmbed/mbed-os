@@ -25,6 +25,7 @@
 #include "stm32l5xx_ll_tim.h"
 #include "stm32l5xx_ll_rtc.h"
 #include "stm32l5xx_ll_pwr.h"
+#include "stm32l5xx_ll_rcc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -164,6 +165,22 @@ struct qspi_s {
     PinName io3;
     PinName sclk;
     PinName ssel;
+};
+
+struct ospi_s {
+    OSPI_HandleTypeDef handle;
+    OSPIName ospi;
+    PinName io0;
+    PinName io1;
+    PinName io2;
+    PinName io3;
+    PinName io4;
+    PinName io5;
+    PinName io6;
+    PinName io7;
+    PinName sclk;
+    PinName ssel;
+    PinName dqs;
 };
 
 #ifdef __cplusplus

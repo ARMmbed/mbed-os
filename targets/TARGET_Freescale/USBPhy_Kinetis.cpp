@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2018-2018 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +26,9 @@
 #include "USBPhyHw.h"
 #include "USBEndpoints_Kinetis.h"
 #include "mbed_critical.h"
+#include "platform/mbed_power_mgmt.h"
+#include "cmsis.h"
+
 
 static USBPhyHw *instance;
 

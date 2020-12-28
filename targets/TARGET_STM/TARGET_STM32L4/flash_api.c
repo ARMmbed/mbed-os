@@ -1,5 +1,4 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
  * Copyright (c) 2017 STMicroelectronics
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -95,27 +94,6 @@ int32_t flash_free(flash_t *obj)
     return 0;
 }
 
-static int32_t flash_unlock(void)
-{
-    /* Allow Access to Flash control registers and user Falsh */
-    if (HAL_FLASH_Unlock()) {
-        return -1;
-    } else {
-        return 0;
-    }
-}
-
-static int32_t flash_lock(void)
-{
-    /* Disable the Flash option control register access (recommended to protect
-    the option Bytes against possible unwanted operations) */
-    if (HAL_FLASH_Lock()) {
-        return -1;
-    } else {
-        return 0;
-    }
-}
-
 /** Erase one sector starting at defined address
  *
  * The address should be at sector boundary. This function does not do any check for address alignments
@@ -135,9 +113,11 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
         return -1;
     }
 
-    if (flash_unlock() != HAL_OK) {
+    if (HAL_FLASH_Unlock() != HAL_OK) {
         return -1;
     }
+
+    core_util_critical_section_enter();
 
     /* Clear error programming flags */
     __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_ALL_ERRORS);
@@ -162,7 +142,11 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
         status = -1;
     }
 
-    flash_lock();
+    core_util_critical_section_exit();
+
+    if (HAL_FLASH_Lock() != HAL_OK) {
+        return -1;
+    }
 
     return status;
 }
@@ -193,9 +177,11 @@ int32_t flash_program_page(flash_t *obj, uint32_t address,
         return -1;
     }
 
-    if (flash_unlock() != HAL_OK) {
+    if (HAL_FLASH_Unlock() != HAL_OK) {
         return -1;
     }
+
+    core_util_critical_section_enter();
 
     /* Clear error programming flags */
     __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_ALL_ERRORS);
@@ -233,7 +219,11 @@ int32_t flash_program_page(flash_t *obj, uint32_t address,
         }
     }
 
-    flash_lock();
+    core_util_critical_section_exit();
+
+    if (HAL_FLASH_Lock() != HAL_OK) {
+        return -1;
+    }
 
     return status;
 }

@@ -86,6 +86,17 @@ public:
          */
         virtual char *get_mac_address(char *buf, nsapi_size_t buflen);
 
+        /** Set MAC address on the network interface
+         *
+         *  @param          mac_addr Buffer containing the MAC address in hexadecimal format.
+         *  @param          addr_len Length of provided buffer in bytes (6 or 8)
+         *  @retval         NSAPI_ERROR_OK on success
+         *  @retval         NSAPI_ERROR_UNSUPPORTED if this feature is not supported
+         *  @retval         NSAPI_ERROR_PARAMETER if address is not valid
+         *  @retval         NSAPI_ERROR_BUSY if address can't be set.
+         */
+        virtual nsapi_error_t set_mac_address(uint8_t *mac_addr, nsapi_size_t addr_len);
+
         /** Copies IP address of the network interface to user supplied buffer
          *
          * @param    buf        buffer to which IP address will be copied as "W:X:Y:Z"

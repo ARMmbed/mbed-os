@@ -452,7 +452,7 @@ HAL_StatusTypeDef HAL_SRAM_Read_16b(SRAM_HandleTypeDef *hsram, uint32_t *pAddres
     /* Update the SRAM controller state */
     hsram->State = HAL_SRAM_STATE_BUSY;
 
-    /* Check if the size is a 32-bits mulitple */
+    /* Check if the size is a 32-bits multiple */
     limit = (((BufferSize % 2U) != 0U) ? 1U : 0U);
 
     /* Read data from memory */
@@ -510,7 +510,7 @@ HAL_StatusTypeDef HAL_SRAM_Write_16b(SRAM_HandleTypeDef *hsram, uint32_t *pAddre
     /* Update the SRAM controller state */
     hsram->State = HAL_SRAM_STATE_BUSY;
 
-    /* Check if the size is a 32-bits mulitple */
+    /* Check if the size is a 32-bits multiple */
     limit = (((BufferSize % 2U) != 0U) ? 1U : 0U);
 
     /* Write data to memory */

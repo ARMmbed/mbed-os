@@ -74,6 +74,10 @@ typedef enum {
 } QSPIName;
 
 typedef enum {
+    OSPI_1 = (int)OCTOSPI1_R_BASE
+} OSPIName;
+
+typedef enum {
     USB_FS = (int)USB_BASE,
 } USBName;
 

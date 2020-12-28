@@ -27,9 +27,57 @@
  */
 #include "cmsis.h"
 #include "objects.h"
+#include "platform/mbed_error.h"
 
 int mbed_sdk_inited = 0;
 extern void SetSysClock(void);
+
+#if defined(RCC_LSE_HIGHDRIVE_MODE) || defined(RCC_LSEDRIVE_HIGH)
+#   define LSE_CONFIG_AVAILABLE
+#endif
+
+// set defaults for LSE drive load level
+#if defined(LSE_CONFIG_AVAILABLE)
+
+#   if defined(MBED_CONF_TARGET_LSE_DRIVE_LOAD_LEVEL)
+#       define LSE_DRIVE_LOAD_LEVEL    MBED_CONF_TARGET_LSE_DRIVE_LOAD_LEVEL
+#   else
+#       if defined(RCC_LSE_HIGHDRIVE_MODE) // STM32F4
+#           define LSE_DRIVE_LOAD_LEVEL    RCC_LSE_LOWPOWER_MODE
+#       else
+#           define LSE_DRIVE_LOAD_LEVEL    RCC_LSEDRIVE_LOW
+#       endif
+#   endif
+
+
+/**
+ * @brief configure the LSE crystal driver load
+ * This settings ist target hardware dependend and 
+ * depends on the crystal that is used for LSE clock.
+ * For low power requirements, crystals with low load capacitors can be used and
+ * driver setting is RCC_LSEDRIVE_LOW.
+ * For higher stablity, crystals with higher load capacitys can be used and
+ * driver setting is RCC_LSEDRIVE_HIGH.
+ * 
+ * A detailed description about this setting can be found here:
+ * https://www.st.com/resource/en/application_note/cd00221665-oscillator-design-guide-for-stm8afals-stm32-mcus-and-mpus-stmicroelectronics.pdf
+ * 
+ * LSE maybe used later, but crystal load drive setting is necessary before 
+ * enabling LSE.
+ *   
+ * @param None
+ * @retval None
+ */
+
+static void LSEDriveConfig(void) {
+    HAL_PWR_EnableBkUpAccess();
+    #if defined(__HAL_RCC_LSEDRIVE_CONFIG)
+        __HAL_RCC_LSEDRIVE_CONFIG(LSE_DRIVE_LOAD_LEVEL);
+    #else
+        HAL_RCCEx_SelectLSEMode(LSE_DRIVE_LOAD_LEVEL);
+    #endif
+}
+#endif  // LSE_CONFIG_AVAILABLE
 
 /**
  * @brief Setup the target board-specific configuration
@@ -46,6 +94,72 @@ MBED_WEAK void TargetBSP_Init(void) {
     /** Do nothing */
 }
 
+void GPIO_Full_Init(void) {
+    GPIO_InitTypeDef GPIO_InitStruct;
+
+    GPIO_InitStruct.Pin        = GPIO_PIN_All;
+    GPIO_InitStruct.Mode       = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Speed      = GPIO_SPEED_FREQ_LOW;
+#if !TARGET_STM32F1
+    GPIO_InitStruct.Pull       = GPIO_NOPULL;
+    GPIO_InitStruct.Alternate  = 0;
+#endif
+#if defined(GPIOA)
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    __HAL_RCC_GPIOA_CLK_DISABLE();
+#endif
+#if defined(GPIOB)
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    __HAL_RCC_GPIOB_CLK_DISABLE();
+#endif
+#if defined(GPIOC)
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    __HAL_RCC_GPIOC_CLK_DISABLE();
+#endif
+#if defined(GPIOD)
+    __HAL_RCC_GPIOD_CLK_ENABLE();
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+    __HAL_RCC_GPIOD_CLK_DISABLE();
+#endif
+#if defined(GPIOE)
+    __HAL_RCC_GPIOE_CLK_ENABLE();
+    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+    __HAL_RCC_GPIOE_CLK_DISABLE();
+#endif
+#if defined(GPIOF)
+    __HAL_RCC_GPIOF_CLK_ENABLE();
+    HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
+    __HAL_RCC_GPIOF_CLK_DISABLE();
+#endif
+#if defined(GPIOG)
+    __HAL_RCC_GPIOG_CLK_ENABLE();
+    HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+    __HAL_RCC_GPIOG_CLK_DISABLE();
+#endif
+#if defined(GPIOH)
+    __HAL_RCC_GPIOH_CLK_ENABLE();
+    HAL_GPIO_Init(GPIOH, &GPIO_InitStruct);
+    __HAL_RCC_GPIOH_CLK_DISABLE();
+#endif
+#if defined(GPIOI)
+    __HAL_RCC_GPIOI_CLK_ENABLE();
+    HAL_GPIO_Init(GPIOI, &GPIO_InitStruct);
+    __HAL_RCC_GPIOI_CLK_DISABLE();
+#endif
+#if defined(GPIOJ)
+    __HAL_RCC_GPIOJ_CLK_ENABLE();
+    HAL_GPIO_Init(GPIOJ, &GPIO_InitStruct);
+    __HAL_RCC_GPIOJ_CLK_DISABLE();
+#endif
+#if defined(GPIOK)
+    __HAL_RCC_GPIOK_CLK_ENABLE();
+    HAL_GPIO_Init(GPIOK, &GPIO_InitStruct);
+    __HAL_RCC_GPIOK_CLK_DISABLE();
+#endif
+}
 
 // This function is called after RAM initialization and before main.
 void mbed_sdk_init()
@@ -120,6 +234,21 @@ void mbed_sdk_init()
 
     /* Configure the System clock source, PLL Multiplier and Divider factors,
        AHB/APBx prescalers and Flash settings */
+#if defined(LSE_CONFIG_AVAILABLE)
+    // LSE oscillator drive capability set before LSE is started
+    if (!LL_RCC_LSE_IsReady()) {
+        LSEDriveConfig();
+    }
+#endif
+
+#if defined(MBED_CONF_TARGET_SYSTEM_POWER_SUPPLY)
+#if IS_PWR_SUPPLY(MBED_CONF_TARGET_SYSTEM_POWER_SUPPLY)
+    HAL_PWREx_ConfigSupply(MBED_CONF_TARGET_SYSTEM_POWER_SUPPLY);
+#else
+    #error system_power_supply not configured
+#endif
+#endif
+
     SetSysClock();
     SystemCoreClockUpdate();
 
@@ -135,13 +264,27 @@ void mbed_sdk_init()
     /* wait until CPU2 wakes up from stop mode */
     while (LL_RCC_D2CK_IsReady() == 0);
 #endif /* CORE_M4 */
+
 #else /* Single core */
     // Update the SystemCoreClock variable.
     SystemCoreClockUpdate();
     HAL_Init();
 
-    /* Configure the System clock source, PLL Multiplier and Divider factors,
-       AHB/APBx prescalers and Flash settings */
+#if defined(LSE_CONFIG_AVAILABLE)
+    // LSE oscillator drive capability set before LSE is started
+    if (!LL_RCC_LSE_IsReady()) {
+        LSEDriveConfig();
+    }
+#endif
+
+#if defined(MBED_CONF_TARGET_SYSTEM_POWER_SUPPLY)
+#if IS_PWR_SUPPLY(MBED_CONF_TARGET_SYSTEM_POWER_SUPPLY)
+    HAL_PWREx_ConfigSupply(MBED_CONF_TARGET_SYSTEM_POWER_SUPPLY);
+#else
+    #error system_power_supply not configured
+#endif
+#endif
+
     SetSysClock();
     SystemCoreClockUpdate();
 #endif /* DUAL_CORE */
@@ -165,6 +308,9 @@ void mbed_sdk_init()
     }
 #endif /* ! MBED_CONF_TARGET_LSE_AVAILABLE */
 #endif /* DEVICE_RTC */
+
+    /* Reset all GPIO */
+    GPIO_Full_Init();
 
     /* BSP initialization hook (external RAM, etc) */
     TargetBSP_Init();

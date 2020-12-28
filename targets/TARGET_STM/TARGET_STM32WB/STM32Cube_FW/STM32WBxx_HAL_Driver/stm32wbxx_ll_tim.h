@@ -128,8 +128,12 @@ static const uint8_t SHIFT_TAB_OISx[] =
 #define TIMx_OR_RMP_MASK  0x0000FFFFU
 #define TIM1_OR_RMP_MASK  ((TIM1_OR_ETR_ADC1_RMP | TIM1_OR_TI1_RMP) << TIMx_OR_RMP_SHIFT)
 #define TIM2_OR_RMP_MASK  ((TIM2_OR_TI4_RMP | TIM2_OR_ETR_RMP | TIM2_OR_ITR1_RMP) << TIMx_OR_RMP_SHIFT)
+#if defined(TIM16)
 #define TIM16_OR_RMP_MASK (TIM16_OR_TI1_RMP << TIMx_OR_RMP_SHIFT)
+#endif /* TIM16 */
+#if defined(TIM17)
 #define TIM17_OR_RMP_MASK (TIM17_OR_TI1_RMP << TIMx_OR_RMP_SHIFT)
+#endif /* TIM17 */
 
 /* Mask used to set the TDG[x:0] of the DTG bits of the TIMx_BDTR register */
 #define DT_DELAY_1 ((uint8_t)0x7F)
@@ -456,6 +460,15 @@ typedef struct
 
                                       @note This bit-field can not be modified as long as LOCK level 1 has been programmed. */
 
+  uint32_t BreakAFMode;           /*!< Specifies the alternate function mode of the break input.
+                                      This parameter can be a value of @ref TIM_LL_EC_BREAK_AFMODE
+
+                                      This feature can be modified afterwards using unitary functions @ref LL_TIM_ConfigBRK()
+
+                                      @note Bidirectional break input is only supported by advanced timers instances.
+
+                                      @note This bit-field can not be modified as long as LOCK level 1 has been programmed. */
+
   uint32_t Break2State;          /*!< Specifies whether the TIM Break2 input is enabled or not.
                                       This parameter can be a value of @ref TIM_LL_EC_BREAK2_ENABLE
 
@@ -474,6 +487,15 @@ typedef struct
                                       This parameter can be a value of @ref TIM_LL_EC_BREAK2_FILTER
 
                                       This feature can be modified afterwards using unitary function @ref LL_TIM_ConfigBRK2()
+
+                                      @note This bit-field can not be modified as long as LOCK level 1 has been programmed. */
+
+  uint32_t Break2AFMode;          /*!< Specifies the alternate function mode of the break2 input.
+                                      This parameter can be a value of @ref TIM_LL_EC_BREAK2_AFMODE
+
+                                      This feature can be modified afterwards using unitary functions @ref LL_TIM_ConfigBRK2()
+
+                                      @note Bidirectional break input is only supported by advanced timers instances.
 
                                       @note This bit-field can not be modified as long as LOCK level 1 has been programmed. */
 
@@ -587,8 +609,8 @@ typedef struct
   */
 #define LL_TIM_COUNTERMODE_UP                  0x00000000U          /*!<Counter used as upcounter */
 #define LL_TIM_COUNTERMODE_DOWN                TIM_CR1_DIR          /*!< Counter used as downcounter */
-#define LL_TIM_COUNTERMODE_CENTER_UP           TIM_CR1_CMS_0        /*!< The counter counts up and down alternatively. Output compare interrupt flags of output channels  are set only when the counter is counting down. */
-#define LL_TIM_COUNTERMODE_CENTER_DOWN         TIM_CR1_CMS_1        /*!<The counter counts up and down alternatively. Output compare interrupt flags of output channels  are set only when the counter is counting up */
+#define LL_TIM_COUNTERMODE_CENTER_DOWN         TIM_CR1_CMS_0        /*!< The counter counts up and down alternatively. Output compare interrupt flags of output channels  are set only when the counter is counting down. */
+#define LL_TIM_COUNTERMODE_CENTER_UP           TIM_CR1_CMS_1        /*!<The counter counts up and down alternatively. Output compare interrupt flags of output channels  are set only when the counter is counting up */
 #define LL_TIM_COUNTERMODE_CENTER_UP_DOWN      TIM_CR1_CMS          /*!< The counter counts up and down alternatively. Output compare interrupt flags of output channels  are set only when the counter is counting up or down. */
 /**
   * @}
@@ -905,14 +927,18 @@ typedef struct
   * @{
   */
 #define LL_TIM_ETRSOURCE_LEGACY                0x00000000U                                       /*!< ETR legacy mode */
-#if defined(COMP1) && defined(COMP2)
+#if defined(COMP1)
 #define LL_TIM_ETRSOURCE_COMP1                 TIM1_AF1_ETRSEL_0                                 /*!< ETR input is connected to COMP1_OUT */
+#endif /* COMP1 */
+#if defined(COMP2)
 #define LL_TIM_ETRSOURCE_COMP2                 TIM1_AF1_ETRSEL_1                                 /*!< ETR input is connected to COMP2_OUT */
-#endif /* COMP1 && COMP2 */
+#endif /* COMP2 */
 #define LL_TIM_ETRSOURCE_GPIO                  LL_TIM_ETRSOURCE_LEGACY                           /*!< ETR input is connected to GPIO through TIMx ETR remapping capability */
 #define LL_TIM_ETRSOURCE_ADC1_AWD1             LL_TIM_ETRSOURCE_LEGACY                           /*!< ETR input is connected to ADC1 analog watchdog 1 through TIMx ETR remapping capability */
+#if defined(ADC_SUPPORT_5_MSPS)
 #define LL_TIM_ETRSOURCE_ADC1_AWD2             LL_TIM_ETRSOURCE_LEGACY                           /*!< ETR input is connected to ADC1 analog watchdog 2 through TIMx ETR remapping capability */
 #define LL_TIM_ETRSOURCE_ADC1_AWD3             LL_TIM_ETRSOURCE_LEGACY                           /*!< ETR input is connected to ADC1 analog watchdog 3 through TIMx ETR remapping capability */
+#endif
 /**
   * @}
   */
@@ -1012,10 +1038,12 @@ typedef struct
   * @{
   */
 #define LL_TIM_BKIN_SOURCE_BKIN                TIM1_AF1_BKINE      /*!< BKIN input from AF controller */
-#if defined(COMP1) && defined(COMP2)
+#if defined(COMP1)
 #define LL_TIM_BKIN_SOURCE_BKCOMP1             TIM1_AF1_BKCMP1E    /*!< internal signal: COMP1 output */
+#endif /* COMP1 */
+#if defined(COMP2)
 #define LL_TIM_BKIN_SOURCE_BKCOMP2             TIM1_AF1_BKCMP2E    /*!< internal signal: COMP2 output */
-#endif /* COMP1 && COMP2 */
+#endif /* COMP2 */
 /**
   * @}
   */
@@ -1025,6 +1053,24 @@ typedef struct
   */
 #define LL_TIM_BKIN_POLARITY_LOW               TIM1_AF1_BKINP           /*!< BRK BKIN input is active low */
 #define LL_TIM_BKIN_POLARITY_HIGH              0x00000000U              /*!< BRK BKIN input is active high */
+/**
+  * @}
+  */
+
+/** @defgroup TIM_LL_EC_BREAK_AFMODE BREAK AF MODE
+  * @{
+  */
+#define LL_TIM_BREAK_AFMODE_INPUT              0x00000000U              /*!< Break input BRK in input mode */
+#define LL_TIM_BREAK_AFMODE_BIDIRECTIONAL      TIM_BDTR_BKBID           /*!< Break input BRK in bidirectional mode */
+/**
+  * @}
+  */
+
+/** @defgroup TIM_LL_EC_BREAK2_AFMODE BREAK2 AF MODE
+  * @{
+  */
+#define LL_TIM_BREAK2_AFMODE_INPUT             0x00000000U             /*!< Break2 input BRK2 in input mode */
+#define LL_TIM_BREAK2_AFMODE_BIDIRECTIONAL     TIM_BDTR_BK2BID         /*!< Break2 input BRK2 in bidirectional mode */
 /**
   * @}
   */
@@ -1090,8 +1136,10 @@ typedef struct
   */
 #define LL_TIM_TIM1_ETR_ADC1_RMP_NC    TIM1_OR_RMP_MASK                                              /*!< TIM1_ETR is not connected to ADC1 analog watchdog x */
 #define LL_TIM_TIM1_ETR_ADC1_RMP_AWD1 (TIM1_OR_ETR_ADC1_RMP_0 | TIM1_OR_RMP_MASK)                    /*!< TIM1_ETR is connected to ADC1 analog watchdog 1 */
+#if defined(ADC_SUPPORT_5_MSPS)
 #define LL_TIM_TIM1_ETR_ADC1_RMP_AWD2 (TIM1_OR_ETR_ADC1_RMP_1 | TIM1_OR_RMP_MASK)                    /*!< TIM1_ETR is connected to ADC1 analog watchdog 2 */
 #define LL_TIM_TIM1_ETR_ADC1_RMP_AWD3 (TIM1_OR_ETR_ADC1_RMP | TIM1_OR_RMP_MASK)                      /*!< TIM1_ETR is connected to ADC1 analog watchdog 3 */
+#endif
 /**
   * @}
   */
@@ -1131,14 +1179,20 @@ typedef struct
   * @{
   */
 #define LL_TIM_TIM2_TI4_RMP_GPIO        TIM2_OR_RMP_MASK                                             /*!< TIM2 input capture 4 is connected to GPIO */
-#if defined(COMP1) && defined(COMP2)
+#if defined(COMP1)
 #define LL_TIM_TIM2_TI4_RMP_COMP1       (TIM2_OR_TI4_RMP_0 | TIM2_OR_RMP_MASK)                       /*!< TIM2 input capture 4 is connected to COMP1_OUT */
+#endif /* COMP1 */
+#if defined(COMP2)
 #define LL_TIM_TIM2_TI4_RMP_COMP2       (TIM2_OR_TI4_RMP_1 | TIM2_OR_RMP_MASK)                       /*!< TIM2 input capture 4 is connected to COMP2_OUT */
+#endif /* COMP2 */
+#if defined(COMP1) && defined(COMP2)
 #define LL_TIM_TIM2_TI4_RMP_COMP1_COMP2 (TIM2_OR_TI4_RMP | TIM2_OR_RMP_MASK)                         /*!< TIM2 input capture 4 is connected to logical OR between COMP1_OUT and COMP2_OUT */
 #endif /* COMP1 && COMP2 */
 /**
   * @}
   */
+
+#if defined(TIM16)
 /** @defgroup TIM_LL_EC_TIM16_TI1_RMP  TIM16 External Input Ch1 Remap
   * @{
   */
@@ -1149,7 +1203,9 @@ typedef struct
 /**
   * @}
   */
+#endif /* TIM16 */
 
+#if defined(TIM17)
 /** @defgroup TIM_LL_EC_TIM17_TI1_RMP  TIM17 Timer Input Ch1 Remap
   * @{
   */
@@ -1160,6 +1216,7 @@ typedef struct
 /**
   * @}
   */
+#endif /* TIM17 */
 
 /** @defgroup TIM_LL_EC_OCREF_CLR_INT OCREF clear input selection
   * @{
@@ -1942,8 +1999,8 @@ __STATIC_INLINE uint32_t LL_TIM_CC_IsEnabledChannel(TIM_TypeDef *TIMx, uint32_t 
   */
 __STATIC_INLINE void LL_TIM_OC_ConfigOutput(TIM_TypeDef *TIMx, uint32_t Channel, uint32_t Configuration)
 {
-  register uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
-  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
+   uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
+   __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
   CLEAR_BIT(*pReg, (TIM_CCMR1_CC1S << SHIFT_TAB_OCxx[iChannel]));
   MODIFY_REG(TIMx->CCER, (TIM_CCER_CC1P << SHIFT_TAB_CCxP[iChannel]),
              (Configuration & TIM_CCER_CC1P) << SHIFT_TAB_CCxP[iChannel]);
@@ -1987,8 +2044,8 @@ __STATIC_INLINE void LL_TIM_OC_ConfigOutput(TIM_TypeDef *TIMx, uint32_t Channel,
   */
 __STATIC_INLINE void LL_TIM_OC_SetMode(TIM_TypeDef *TIMx, uint32_t Channel, uint32_t Mode)
 {
-  register uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
-  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
+   uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
+   __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
   MODIFY_REG(*pReg, ((TIM_CCMR1_OC1M  | TIM_CCMR1_CC1S) << SHIFT_TAB_OCxx[iChannel]),  Mode << SHIFT_TAB_OCxx[iChannel]);
 }
 
@@ -2026,8 +2083,8 @@ __STATIC_INLINE void LL_TIM_OC_SetMode(TIM_TypeDef *TIMx, uint32_t Channel, uint
   */
 __STATIC_INLINE uint32_t LL_TIM_OC_GetMode(TIM_TypeDef *TIMx, uint32_t Channel)
 {
-  register uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
-  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
+   uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
+   const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
   return (READ_BIT(*pReg, ((TIM_CCMR1_OC1M  | TIM_CCMR1_CC1S) << SHIFT_TAB_OCxx[iChannel])) >> SHIFT_TAB_OCxx[iChannel]);
 }
 
@@ -2060,7 +2117,7 @@ __STATIC_INLINE uint32_t LL_TIM_OC_GetMode(TIM_TypeDef *TIMx, uint32_t Channel)
   */
 __STATIC_INLINE void LL_TIM_OC_SetPolarity(TIM_TypeDef *TIMx, uint32_t Channel, uint32_t Polarity)
 {
-  register uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
+   uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
   MODIFY_REG(TIMx->CCER, (TIM_CCER_CC1P << SHIFT_TAB_CCxP[iChannel]),  Polarity << SHIFT_TAB_CCxP[iChannel]);
 }
 
@@ -2092,7 +2149,7 @@ __STATIC_INLINE void LL_TIM_OC_SetPolarity(TIM_TypeDef *TIMx, uint32_t Channel, 
   */
 __STATIC_INLINE uint32_t LL_TIM_OC_GetPolarity(TIM_TypeDef *TIMx, uint32_t Channel)
 {
-  register uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
+   uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
   return (READ_BIT(TIMx->CCER, (TIM_CCER_CC1P << SHIFT_TAB_CCxP[iChannel])) >> SHIFT_TAB_CCxP[iChannel]);
 }
 
@@ -2129,7 +2186,7 @@ __STATIC_INLINE uint32_t LL_TIM_OC_GetPolarity(TIM_TypeDef *TIMx, uint32_t Chann
   */
 __STATIC_INLINE void LL_TIM_OC_SetIdleState(TIM_TypeDef *TIMx, uint32_t Channel, uint32_t IdleState)
 {
-  register uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
+   uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
   MODIFY_REG(TIMx->CR2, (TIM_CR2_OIS1 << SHIFT_TAB_OISx[iChannel]),  IdleState << SHIFT_TAB_OISx[iChannel]);
 }
 
@@ -2161,7 +2218,7 @@ __STATIC_INLINE void LL_TIM_OC_SetIdleState(TIM_TypeDef *TIMx, uint32_t Channel,
   */
 __STATIC_INLINE uint32_t LL_TIM_OC_GetIdleState(TIM_TypeDef *TIMx, uint32_t Channel)
 {
-  register uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
+   uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
   return (READ_BIT(TIMx->CR2, (TIM_CR2_OIS1 << SHIFT_TAB_OISx[iChannel])) >> SHIFT_TAB_OISx[iChannel]);
 }
 
@@ -2186,8 +2243,8 @@ __STATIC_INLINE uint32_t LL_TIM_OC_GetIdleState(TIM_TypeDef *TIMx, uint32_t Chan
   */
 __STATIC_INLINE void LL_TIM_OC_EnableFast(TIM_TypeDef *TIMx, uint32_t Channel)
 {
-  register uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
-  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
+   uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
+   __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
   SET_BIT(*pReg, (TIM_CCMR1_OC1FE << SHIFT_TAB_OCxx[iChannel]));
 
 }
@@ -2212,8 +2269,8 @@ __STATIC_INLINE void LL_TIM_OC_EnableFast(TIM_TypeDef *TIMx, uint32_t Channel)
   */
 __STATIC_INLINE void LL_TIM_OC_DisableFast(TIM_TypeDef *TIMx, uint32_t Channel)
 {
-  register uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
-  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
+   uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
+   __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
   CLEAR_BIT(*pReg, (TIM_CCMR1_OC1FE << SHIFT_TAB_OCxx[iChannel]));
 
 }
@@ -2238,9 +2295,9 @@ __STATIC_INLINE void LL_TIM_OC_DisableFast(TIM_TypeDef *TIMx, uint32_t Channel)
   */
 __STATIC_INLINE uint32_t LL_TIM_OC_IsEnabledFast(TIM_TypeDef *TIMx, uint32_t Channel)
 {
-  register uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
-  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
-  register uint32_t bitfield = TIM_CCMR1_OC1FE << SHIFT_TAB_OCxx[iChannel];
+   uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
+   const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
+   uint32_t bitfield = TIM_CCMR1_OC1FE << SHIFT_TAB_OCxx[iChannel];
   return ((READ_BIT(*pReg, bitfield) == bitfield) ? 1UL : 0UL);
 }
 
@@ -2264,8 +2321,8 @@ __STATIC_INLINE uint32_t LL_TIM_OC_IsEnabledFast(TIM_TypeDef *TIMx, uint32_t Cha
   */
 __STATIC_INLINE void LL_TIM_OC_EnablePreload(TIM_TypeDef *TIMx, uint32_t Channel)
 {
-  register uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
-  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
+   uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
+   __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
   SET_BIT(*pReg, (TIM_CCMR1_OC1PE << SHIFT_TAB_OCxx[iChannel]));
 }
 
@@ -2289,8 +2346,8 @@ __STATIC_INLINE void LL_TIM_OC_EnablePreload(TIM_TypeDef *TIMx, uint32_t Channel
   */
 __STATIC_INLINE void LL_TIM_OC_DisablePreload(TIM_TypeDef *TIMx, uint32_t Channel)
 {
-  register uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
-  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
+   uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
+   __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
   CLEAR_BIT(*pReg, (TIM_CCMR1_OC1PE << SHIFT_TAB_OCxx[iChannel]));
 }
 
@@ -2314,9 +2371,9 @@ __STATIC_INLINE void LL_TIM_OC_DisablePreload(TIM_TypeDef *TIMx, uint32_t Channe
   */
 __STATIC_INLINE uint32_t LL_TIM_OC_IsEnabledPreload(TIM_TypeDef *TIMx, uint32_t Channel)
 {
-  register uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
-  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
-  register uint32_t bitfield = TIM_CCMR1_OC1PE << SHIFT_TAB_OCxx[iChannel];
+   uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
+   const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
+   uint32_t bitfield = TIM_CCMR1_OC1PE << SHIFT_TAB_OCxx[iChannel];
   return ((READ_BIT(*pReg, bitfield) == bitfield) ? 1UL : 0UL);
 }
 
@@ -2343,8 +2400,8 @@ __STATIC_INLINE uint32_t LL_TIM_OC_IsEnabledPreload(TIM_TypeDef *TIMx, uint32_t 
   */
 __STATIC_INLINE void LL_TIM_OC_EnableClear(TIM_TypeDef *TIMx, uint32_t Channel)
 {
-  register uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
-  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
+   uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
+   __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
   SET_BIT(*pReg, (TIM_CCMR1_OC1CE << SHIFT_TAB_OCxx[iChannel]));
 }
 
@@ -2370,8 +2427,8 @@ __STATIC_INLINE void LL_TIM_OC_EnableClear(TIM_TypeDef *TIMx, uint32_t Channel)
   */
 __STATIC_INLINE void LL_TIM_OC_DisableClear(TIM_TypeDef *TIMx, uint32_t Channel)
 {
-  register uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
-  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
+   uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
+   __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
   CLEAR_BIT(*pReg, (TIM_CCMR1_OC1CE << SHIFT_TAB_OCxx[iChannel]));
 }
 
@@ -2399,9 +2456,9 @@ __STATIC_INLINE void LL_TIM_OC_DisableClear(TIM_TypeDef *TIMx, uint32_t Channel)
   */
 __STATIC_INLINE uint32_t LL_TIM_OC_IsEnabledClear(TIM_TypeDef *TIMx, uint32_t Channel)
 {
-  register uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
-  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
-  register uint32_t bitfield = TIM_CCMR1_OC1CE << SHIFT_TAB_OCxx[iChannel];
+   uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
+   const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
+   uint32_t bitfield = TIM_CCMR1_OC1CE << SHIFT_TAB_OCxx[iChannel];
   return ((READ_BIT(*pReg, bitfield) == bitfield) ? 1UL : 0UL);
 }
 
@@ -2670,8 +2727,8 @@ __STATIC_INLINE void LL_TIM_SetCH5CombinedChannels(TIM_TypeDef *TIMx, uint32_t G
   */
 __STATIC_INLINE void LL_TIM_IC_Config(TIM_TypeDef *TIMx, uint32_t Channel, uint32_t Configuration)
 {
-  register uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
-  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
+   uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
+   __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
   MODIFY_REG(*pReg, ((TIM_CCMR1_IC1F | TIM_CCMR1_IC1PSC | TIM_CCMR1_CC1S) << SHIFT_TAB_ICxx[iChannel]),
              ((Configuration >> 16U) & (TIM_CCMR1_IC1F | TIM_CCMR1_IC1PSC | TIM_CCMR1_CC1S))  << SHIFT_TAB_ICxx[iChannel]);
   MODIFY_REG(TIMx->CCER, ((TIM_CCER_CC1NP | TIM_CCER_CC1P) << SHIFT_TAB_CCxP[iChannel]),
@@ -2698,8 +2755,8 @@ __STATIC_INLINE void LL_TIM_IC_Config(TIM_TypeDef *TIMx, uint32_t Channel, uint3
   */
 __STATIC_INLINE void LL_TIM_IC_SetActiveInput(TIM_TypeDef *TIMx, uint32_t Channel, uint32_t ICActiveInput)
 {
-  register uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
-  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
+   uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
+   __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
   MODIFY_REG(*pReg, ((TIM_CCMR1_CC1S) << SHIFT_TAB_ICxx[iChannel]), (ICActiveInput >> 16U) << SHIFT_TAB_ICxx[iChannel]);
 }
 
@@ -2722,8 +2779,8 @@ __STATIC_INLINE void LL_TIM_IC_SetActiveInput(TIM_TypeDef *TIMx, uint32_t Channe
   */
 __STATIC_INLINE uint32_t LL_TIM_IC_GetActiveInput(TIM_TypeDef *TIMx, uint32_t Channel)
 {
-  register uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
-  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
+   uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
+   const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
   return ((READ_BIT(*pReg, ((TIM_CCMR1_CC1S) << SHIFT_TAB_ICxx[iChannel])) >> SHIFT_TAB_ICxx[iChannel]) << 16U);
 }
 
@@ -2748,8 +2805,8 @@ __STATIC_INLINE uint32_t LL_TIM_IC_GetActiveInput(TIM_TypeDef *TIMx, uint32_t Ch
   */
 __STATIC_INLINE void LL_TIM_IC_SetPrescaler(TIM_TypeDef *TIMx, uint32_t Channel, uint32_t ICPrescaler)
 {
-  register uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
-  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
+   uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
+   __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
   MODIFY_REG(*pReg, ((TIM_CCMR1_IC1PSC) << SHIFT_TAB_ICxx[iChannel]), (ICPrescaler >> 16U) << SHIFT_TAB_ICxx[iChannel]);
 }
 
@@ -2773,8 +2830,8 @@ __STATIC_INLINE void LL_TIM_IC_SetPrescaler(TIM_TypeDef *TIMx, uint32_t Channel,
   */
 __STATIC_INLINE uint32_t LL_TIM_IC_GetPrescaler(TIM_TypeDef *TIMx, uint32_t Channel)
 {
-  register uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
-  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
+   uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
+   const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
   return ((READ_BIT(*pReg, ((TIM_CCMR1_IC1PSC) << SHIFT_TAB_ICxx[iChannel])) >> SHIFT_TAB_ICxx[iChannel]) << 16U);
 }
 
@@ -2811,8 +2868,8 @@ __STATIC_INLINE uint32_t LL_TIM_IC_GetPrescaler(TIM_TypeDef *TIMx, uint32_t Chan
   */
 __STATIC_INLINE void LL_TIM_IC_SetFilter(TIM_TypeDef *TIMx, uint32_t Channel, uint32_t ICFilter)
 {
-  register uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
-  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
+   uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
+   __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
   MODIFY_REG(*pReg, ((TIM_CCMR1_IC1F) << SHIFT_TAB_ICxx[iChannel]), (ICFilter >> 16U) << SHIFT_TAB_ICxx[iChannel]);
 }
 
@@ -2848,8 +2905,8 @@ __STATIC_INLINE void LL_TIM_IC_SetFilter(TIM_TypeDef *TIMx, uint32_t Channel, ui
   */
 __STATIC_INLINE uint32_t LL_TIM_IC_GetFilter(TIM_TypeDef *TIMx, uint32_t Channel)
 {
-  register uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
-  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
+   uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
+   const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->CCMR1) + OFFSET_TAB_CCMRx[iChannel]));
   return ((READ_BIT(*pReg, ((TIM_CCMR1_IC1F) << SHIFT_TAB_ICxx[iChannel])) >> SHIFT_TAB_ICxx[iChannel]) << 16U);
 }
 
@@ -2877,7 +2934,7 @@ __STATIC_INLINE uint32_t LL_TIM_IC_GetFilter(TIM_TypeDef *TIMx, uint32_t Channel
   */
 __STATIC_INLINE void LL_TIM_IC_SetPolarity(TIM_TypeDef *TIMx, uint32_t Channel, uint32_t ICPolarity)
 {
-  register uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
+   uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
   MODIFY_REG(TIMx->CCER, ((TIM_CCER_CC1NP | TIM_CCER_CC1P) << SHIFT_TAB_CCxP[iChannel]),
              ICPolarity << SHIFT_TAB_CCxP[iChannel]);
 }
@@ -2905,7 +2962,7 @@ __STATIC_INLINE void LL_TIM_IC_SetPolarity(TIM_TypeDef *TIMx, uint32_t Channel, 
   */
 __STATIC_INLINE uint32_t LL_TIM_IC_GetPolarity(TIM_TypeDef *TIMx, uint32_t Channel)
 {
-  register uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
+   uint8_t iChannel = TIM_GET_CHANNEL_INDEX(Channel);
   return (READ_BIT(TIMx->CCER, ((TIM_CCER_CC1NP | TIM_CCER_CC1P) << SHIFT_TAB_CCxP[iChannel])) >>
           SHIFT_TAB_CCxP[iChannel]);
 }
@@ -3294,10 +3351,12 @@ __STATIC_INLINE void LL_TIM_ConfigETR(TIM_TypeDef *TIMx, uint32_t ETRPolarity, u
   * @param  ETRSource This parameter can be one of the following values:
   *         @arg @ref LL_TIM_ETRSOURCE_GPIO
   *         @arg @ref LL_TIM_ETRSOURCE_ADC1_AWD1
-  *         @arg @ref LL_TIM_ETRSOURCE_ADC1_AWD2
-  *         @arg @ref LL_TIM_ETRSOURCE_ADC1_AWD3
-  *         @arg @ref LL_TIM_ETRSOURCE_COMP1
-  *         @arg @ref LL_TIM_ETRSOURCE_COMP2
+  *         @arg @ref LL_TIM_ETRSOURCE_ADC1_AWD2 (*)
+  *         @arg @ref LL_TIM_ETRSOURCE_ADC1_AWD3 (*)
+  *         @arg @ref LL_TIM_ETRSOURCE_COMP1 (*)
+  *         @arg @ref LL_TIM_ETRSOURCE_COMP2 (*)
+  *
+  *  (*) Value not defined in all devices. \n
   * @retval None
   */
 __STATIC_INLINE void LL_TIM_SetETRSource(TIM_TypeDef *TIMx, uint32_t ETRSource)
@@ -3343,8 +3402,18 @@ __STATIC_INLINE void LL_TIM_DisableBRK(TIM_TypeDef *TIMx)
   * @brief  Configure the break input.
   * @note Macro IS_TIM_BREAK_INSTANCE(TIMx) can be used to check whether or not
   *       a timer instance provides a break input.
+  * @note Bidirectional mode is only supported by advanced timer instances.
+  *       Macro IS_TIM_ADVANCED_INSTANCE(TIMx) can be used to check whether or not
+  *       a timer instance is an advanced-control timer.
+  * @note In bidirectional mode (BKBID bit set), the Break input is configured both
+  *        in input mode and in open drain output mode. Any active Break event will
+  *        assert a low logic level on the Break input to indicate an internal break
+  *        event to external devices.
+  * @note When bidirectional mode isn't supported, BreakAFMode must be set to
+  *       LL_TIM_BREAK_AFMODE_INPUT.
   * @rmtoll BDTR         BKP           LL_TIM_ConfigBRK\n
-  *         BDTR         BKF           LL_TIM_ConfigBRK
+  *         BDTR         BKF           LL_TIM_ConfigBRK\n
+  *         BDTR         BKBID         LL_TIM_ConfigBRK
   * @param  TIMx Timer instance
   * @param  BreakPolarity This parameter can be one of the following values:
   *         @arg @ref LL_TIM_BREAK_POLARITY_LOW
@@ -3366,12 +3435,42 @@ __STATIC_INLINE void LL_TIM_DisableBRK(TIM_TypeDef *TIMx)
   *         @arg @ref LL_TIM_BREAK_FILTER_FDIV32_N5
   *         @arg @ref LL_TIM_BREAK_FILTER_FDIV32_N6
   *         @arg @ref LL_TIM_BREAK_FILTER_FDIV32_N8
+  * @param  BreakAFMode This parameter can be one of the following values:
+  *         @arg @ref LL_TIM_BREAK_AFMODE_INPUT
+  *         @arg @ref LL_TIM_BREAK_AFMODE_BIDIRECTIONAL
   * @retval None
   */
-__STATIC_INLINE void LL_TIM_ConfigBRK(TIM_TypeDef *TIMx, uint32_t BreakPolarity,
-                                      uint32_t BreakFilter)
+__STATIC_INLINE void LL_TIM_ConfigBRK(TIM_TypeDef *TIMx, uint32_t BreakPolarity, uint32_t BreakFilter,
+                                      uint32_t BreakAFMode)
 {
-  MODIFY_REG(TIMx->BDTR, TIM_BDTR_BKP | TIM_BDTR_BKF, BreakPolarity | BreakFilter);
+  MODIFY_REG(TIMx->BDTR, TIM_BDTR_BKP | TIM_BDTR_BKF | TIM_BDTR_BKBID, BreakPolarity | BreakFilter | BreakAFMode);
+}
+
+/**
+  * @brief  Disarm the break input (when it operates in bidirectional mode).
+  * @note  The break input can be disarmed only when it is configured in
+  *        bidirectional mode and when when MOE is reset.
+  * @note  Purpose is to be able to have the input voltage back to high-state,
+  *        whatever the time constant on the output .
+  * @rmtoll BDTR         BKDSRM        LL_TIM_DisarmBRK
+  * @param  TIMx Timer instance
+  * @retval None
+  */
+__STATIC_INLINE void LL_TIM_DisarmBRK(TIM_TypeDef *TIMx)
+{
+  SET_BIT(TIMx->BDTR, TIM_BDTR_BKDSRM);
+}
+
+/**
+  * @brief  Re-arm the break input (when it operates in bidirectional mode).
+  * @note  The Break input is automatically armed as soon as MOE bit is set.
+  * @rmtoll BDTR         BKDSRM        LL_TIM_ReArmBRK
+  * @param  TIMx Timer instance
+  * @retval None
+  */
+__STATIC_INLINE void LL_TIM_ReArmBRK(TIM_TypeDef *TIMx)
+{
+  CLEAR_BIT(TIMx->BDTR, TIM_BDTR_BKDSRM);
 }
 
 /**
@@ -3404,8 +3503,18 @@ __STATIC_INLINE void LL_TIM_DisableBRK2(TIM_TypeDef *TIMx)
   * @brief  Configure the break 2 input.
   * @note Macro IS_TIM_BKIN2_INSTANCE(TIMx) can be used to check whether or not
   *       a timer instance provides a second break input.
+  * @note Bidirectional mode is only supported by advanced timer instances.
+  *       Macro IS_TIM_ADVANCED_INSTANCE(TIMx) can be used to check whether or not
+  *       a timer instance is an advanced-control timer.
+  * @note In bidirectional mode (BK2BID bit set), the Break 2 input is configured both
+  *        in input mode and in open drain output mode. Any active Break event will
+  *        assert a low logic level on the Break 2 input to indicate an internal break
+  *        event to external devices.
+  * @note When bidirectional mode isn't supported, Break2AFMode must be set to
+  *       LL_TIM_BREAK2_AFMODE_INPUT.
   * @rmtoll BDTR         BK2P          LL_TIM_ConfigBRK2\n
-  *         BDTR         BK2F          LL_TIM_ConfigBRK2
+  *         BDTR         BK2F          LL_TIM_ConfigBRK2\n
+  *         BDTR         BK2BID        LL_TIM_ConfigBRK2
   * @param  TIMx Timer instance
   * @param  Break2Polarity This parameter can be one of the following values:
   *         @arg @ref LL_TIM_BREAK2_POLARITY_LOW
@@ -3427,11 +3536,42 @@ __STATIC_INLINE void LL_TIM_DisableBRK2(TIM_TypeDef *TIMx)
   *         @arg @ref LL_TIM_BREAK2_FILTER_FDIV32_N5
   *         @arg @ref LL_TIM_BREAK2_FILTER_FDIV32_N6
   *         @arg @ref LL_TIM_BREAK2_FILTER_FDIV32_N8
+  * @param  Break2AFMode This parameter can be one of the following values:
+  *         @arg @ref LL_TIM_BREAK2_AFMODE_INPUT
+  *         @arg @ref LL_TIM_BREAK2_AFMODE_BIDIRECTIONAL
   * @retval None
   */
-__STATIC_INLINE void LL_TIM_ConfigBRK2(TIM_TypeDef *TIMx, uint32_t Break2Polarity, uint32_t Break2Filter)
+__STATIC_INLINE void LL_TIM_ConfigBRK2(TIM_TypeDef *TIMx, uint32_t Break2Polarity, uint32_t Break2Filter,
+                                       uint32_t Break2AFMode)
 {
-  MODIFY_REG(TIMx->BDTR, TIM_BDTR_BK2P | TIM_BDTR_BK2F, Break2Polarity | Break2Filter);
+  MODIFY_REG(TIMx->BDTR, TIM_BDTR_BK2P | TIM_BDTR_BK2F | TIM_BDTR_BK2BID, Break2Polarity | Break2Filter | Break2AFMode);
+}
+
+/**
+  * @brief  Disarm the break 2 input (when it operates in bidirectional mode).
+  * @note  The break 2 input can be disarmed only when it is configured in
+  *        bidirectional mode and when when MOE is reset.
+  * @note  Purpose is to be able to have the input voltage back to high-state,
+  *        whatever the time constant on the output.
+  * @rmtoll BDTR         BK2DSRM       LL_TIM_DisarmBRK2
+  * @param  TIMx Timer instance
+  * @retval None
+  */
+__STATIC_INLINE void LL_TIM_DisarmBRK2(TIM_TypeDef *TIMx)
+{
+  SET_BIT(TIMx->BDTR, TIM_BDTR_BK2DSRM);
+}
+
+/**
+  * @brief  Re-arm the break 2 input (when it operates in bidirectional mode).
+  * @note  The Break 2 input is automatically armed as soon as MOE bit is set.
+  * @rmtoll BDTR         BK2DSRM       LL_TIM_ReArmBRK2
+  * @param  TIMx Timer instance
+  * @retval None
+  */
+__STATIC_INLINE void LL_TIM_ReArmBRK2(TIM_TypeDef *TIMx)
+{
+  CLEAR_BIT(TIMx->BDTR, TIM_BDTR_BK2DSRM);
 }
 
 /**
@@ -3560,7 +3700,7 @@ __STATIC_INLINE uint32_t LL_TIM_IsEnabledAllOutputs(TIM_TypeDef *TIMx)
   */
 __STATIC_INLINE void LL_TIM_EnableBreakInputSource(TIM_TypeDef *TIMx, uint32_t BreakInput, uint32_t Source)
 {
-  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->AF1) + BreakInput));
+   __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->AF1) + BreakInput));
   SET_BIT(*pReg, Source);
 }
 
@@ -3588,7 +3728,7 @@ __STATIC_INLINE void LL_TIM_EnableBreakInputSource(TIM_TypeDef *TIMx, uint32_t B
   */
 __STATIC_INLINE void LL_TIM_DisableBreakInputSource(TIM_TypeDef *TIMx, uint32_t BreakInput, uint32_t Source)
 {
-  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->AF1) + BreakInput));
+   __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->AF1) + BreakInput));
   CLEAR_BIT(*pReg, Source);
 }
 
@@ -3620,7 +3760,7 @@ __STATIC_INLINE void LL_TIM_DisableBreakInputSource(TIM_TypeDef *TIMx, uint32_t 
 __STATIC_INLINE void LL_TIM_SetBreakInputSourcePolarity(TIM_TypeDef *TIMx, uint32_t BreakInput, uint32_t Source,
                                                         uint32_t Polarity)
 {
-  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->AF1) + BreakInput));
+   __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&TIMx->AF1) + BreakInput));
   MODIFY_REG(*pReg, (TIMx_AF1_BKINP << TIM_POSITION_BRK_SOURCE), (Polarity << TIM_POSITION_BRK_SOURCE));
 }
 /**
@@ -3704,8 +3844,8 @@ __STATIC_INLINE void LL_TIM_ConfigDMABurst(TIM_TypeDef *TIMx, uint32_t DMABurstB
   *         TIM2_OR    ITR1_RMP          LL_TIM_SetRemap\n
   *         TIM2_OR    TI4_RMP           LL_TIM_SetRemap\n
   *         TIM2_OR    TI1_RMP           LL_TIM_SetRemap\n
-  *         TIM16_OR   TI1_RMP           LL_TIM_SetRemap\n
-  *         TIM17_OR   TI1_RMP           LL_TIM_SetRemap
+  *         TIM16_OR   TI1_RMP           LL_TIM_SetRemap (***)\n
+  *         TIM17_OR   TI1_RMP           LL_TIM_SetRemap (***)
   * @param  TIMx Timer instance
   * @param  Remap Remap param depends on the TIMx. Description available only
   *         in CHM version of the User Manual (not in .pdf).
@@ -3718,18 +3858,18 @@ __STATIC_INLINE void LL_TIM_ConfigDMABurst(TIM_TypeDef *TIMx, uint32_t DMABurstB
   *            . . ADC1_RMP can be one of the following values
   *            @arg @ref LL_TIM_TIM1_ETR_ADC1_RMP_NC
   *            @arg @ref LL_TIM_TIM1_ETR_ADC1_RMP_AWD1
-  *            @arg @ref LL_TIM_TIM1_ETR_ADC1_RMP_AWD2
-  *            @arg @ref LL_TIM_TIM1_ETR_ADC1_RMP_AWD3
+  *            @arg @ref LL_TIM_TIM1_ETR_ADC1_RMP_AWD2 (**)
+  *            @arg @ref LL_TIM_TIM1_ETR_ADC1_RMP_AWD3 (**)
   *
   *            . . TI1_RMP can be one of the following values
   *            @arg @ref LL_TIM_TIM1_TI1_RMP_GPIO
-  *            @arg @ref LL_TIM_TIM1_TI1_RMP_COMP1 (*)
+  *            @arg @ref LL_TIM_TIM1_TI1_RMP_COMP1 (**)
   *
   *         TIM2: any combination of ITR1_RMP, ETR1_RMP, TI4_RMP where
   *
   *            ITR1_RMP can be one of the following values
   *            @arg @ref LL_TIM_TIM2_ITR1_RMP_NONE
-  *            @arg @ref LL_TIM_TIM2_ITR1_RMP_USB_SOF (*)
+  *            @arg @ref LL_TIM_TIM2_ITR1_RMP_USB_SOF (**)
   *
   *            . . ETR1_RMP can be one of the following values
   *            @arg @ref LL_TIM_TIM2_ETR_RMP_GPIO
@@ -3737,25 +3877,27 @@ __STATIC_INLINE void LL_TIM_ConfigDMABurst(TIM_TypeDef *TIMx, uint32_t DMABurstB
   *
   *            . . TI4_RMP can be one of the following values
   *            @arg @ref LL_TIM_TIM2_TI4_RMP_GPIO
-  *            @arg @ref LL_TIM_TIM2_TI4_RMP_COMP1 (*)
-  *            @arg @ref LL_TIM_TIM2_TI4_RMP_COMP2 (*)
-  *            @arg @ref LL_TIM_TIM2_TI4_RMP_COMP1_COMP2 (*)
+  *            @arg @ref LL_TIM_TIM2_TI4_RMP_COMP1 (**)
+  *            @arg @ref LL_TIM_TIM2_TI4_RMP_COMP2 (**)
+  *            @arg @ref LL_TIM_TIM2_TI4_RMP_COMP1_COMP2 (**)
   *
-  *         TIM16: one of the following values
+  *         TIM16: one of the following values (*)
   *
   *            @arg @ref LL_TIM_TIM16_TI1_RMP_GPIO
   *            @arg @ref LL_TIM_TIM16_TI1_RMP_LSI
   *            @arg @ref LL_TIM_TIM16_TI1_RMP_LSE
   *            @arg @ref LL_TIM_TIM16_TI1_RMP_RTC
   *
-  *         TIM17: one of the following values
+  *         TIM17: one of the following values (*)
   *
   *            @arg @ref LL_TIM_TIM17_TI1_RMP_GPIO
   *            @arg @ref LL_TIM_TIM17_TI1_RMP_MSI
   *            @arg @ref LL_TIM_TIM17_TI1_RMP_HSE_32
   *            @arg @ref LL_TIM_TIM17_TI1_RMP_MCO
   *
-  *         (*)  Value not defined in all devices. \n
+  *  (*)   Timer instance not available on all devices \n
+  *  (**)  Value not defined in all devices.
+  *  (***) Register not available in all devices.
   * @retval None
   */
 __STATIC_INLINE void LL_TIM_SetRemap(TIM_TypeDef *TIMx, uint32_t Remap)

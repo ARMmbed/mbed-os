@@ -3,6 +3,7 @@
 /** @{*/
 /* nsapi.h - The network socket API
  * Copyright (c) 2015 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +27,50 @@
 extern "C" {
 #endif
 
+
+/*
+ * The Type of Service provides an indication of the abstract
+ * parameters of the quality of service desired.  These parameters are
+ * to be used to guide the selection of the actual service parameters
+ * when transmitting a datagram through a particular network.  Several
+ * networks offer service precedence, which somehow treats high
+ * precedence traffic as more important than other traffic (generally
+ * by accepting only traffic above a certain precedence at time of high
+ * load).  The major choice is a three way tradeoff between low-delay,
+ * high-reliability, and high-throughput.
+ * The use of the Delay, Throughput, and Reliability indications may
+ * increase the cost (in some sense) of the service.  In many networks
+ * better performance for one of these parameters is coupled with worse
+ * performance on another.  Except for very unusual cases at most two
+ * of these three indications should be set.
+ */
+#define NSAPI_IPTOS_TOS_MASK          0x1E
+#define NSAPI_IPTOS_TOS(tos)          ((tos) & IPTOS_TOS_MASK)
+#define NSAPI_IPTOS_LOWDELAY          0x10
+#define NSAPI_IPTOS_THROUGHPUT        0x08
+#define NSAPI_IPTOS_RELIABILITY       0x04
+#define NSAPI_IPTOS_LOWCOST           0x02
+#define NSAPI_IPTOS_MINCOST           IPTOS_LOWCOST
+
+/*
+ * The Network Control precedence designation is intended to be used
+ * within a network only.  The actual use and control of that
+ * designation is up to each network. The Internetwork Control
+ * designation is intended for use by gateway control originators only.
+ * If the actual use of these precedence designations is of concern to
+ * a particular network, it is the responsibility of that network to
+ * control the access to, and use of, those precedence designations.
+ */
+#define NSAPI_IPTOS_PREC_MASK                 0xe0
+#define NSAPI_IPTOS_PREC(tos)                ((tos) & IPTOS_PREC_MASK)
+#define NSAPI_IPTOS_PREC_NETCONTROL           0xe0
+#define NSAPI_IPTOS_PREC_INTERNETCONTROL      0xc0
+#define NSAPI_IPTOS_PREC_CRITIC_ECP           0xa0
+#define NSAPI_IPTOS_PREC_FLASHOVERRIDE        0x80
+#define NSAPI_IPTOS_PREC_FLASH                0x60
+#define NSAPI_IPTOS_PREC_IMMEDIATE            0x40
+#define NSAPI_IPTOS_PREC_PRIORITY             0x20
+#define NSAPI_IPTOS_PREC_ROUTINE              0x00
 
 /** Enum of standardized error codes
  *
@@ -272,6 +317,7 @@ typedef enum nsapi_socket_option {
     NSAPI_BIND_TO_DEVICE,    /*!< Bind socket network interface name*/
     NSAPI_LATENCY,           /*!< Read estimated latency to destination */
     NSAPI_STAGGER,           /*!< Read estimated stagger value to destination */
+    NSAPI_IPTOS,             /*!< Set IP type of service to set specific precedence */
 } nsapi_socket_option_t;
 
 typedef enum nsapi_tlssocket_level {

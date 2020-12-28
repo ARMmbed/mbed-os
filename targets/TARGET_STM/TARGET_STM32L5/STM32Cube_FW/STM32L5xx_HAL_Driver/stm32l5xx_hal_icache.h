@@ -216,7 +216,12 @@ typedef struct
   */
 
 /* Exported functions -------------------------------------------------------*/
-/** @defgroup ICACHE_Exported_Functions ICACHE Exported Functions
+/** @addtogroup ICACHE_Exported_Functions
+  * @{
+  */
+
+/** @addtogroup ICACHE_Exported_Functions_Group1
+  * @brief    Initialization and control functions
   * @{
   */
 /* Peripheral Control functions **********************************************/
@@ -229,11 +234,8 @@ HAL_StatusTypeDef HAL_ICACHE_DeInit(void);
 HAL_StatusTypeDef HAL_ICACHE_Invalidate(void);
 /******* Invalidate in non-blocking mode (Interrupt) */
 HAL_StatusTypeDef HAL_ICACHE_Invalidate_IT(void);
-
-/******* IRQHandler and Callbacks used in non-blocking modes (Interrupt) */
-void HAL_ICACHE_IRQHandler(void);
-void HAL_ICACHE_InvalidateCompleteCallback(void);
-void HAL_ICACHE_ErrorCallback(void);
+/******* Wait for Invalidate complete in blocking mode (Polling) */
+HAL_StatusTypeDef HAL_ICACHE_WaitForInvalidateComplete(void);
 
 /******* Performance instruction cache monitoring functions */
 HAL_StatusTypeDef HAL_ICACHE_Monitor_Start(uint32_t MonitorType);
@@ -242,9 +244,34 @@ HAL_StatusTypeDef HAL_ICACHE_Monitor_Reset(uint32_t MonitorType);
 uint32_t HAL_ICACHE_Monitor_GetHitValue(void);
 uint32_t HAL_ICACHE_Monitor_GetMissValue(void);
 
+/**
+  * @}
+  */
+
+/** @addtogroup ICACHE_Exported_Functions_Group2
+  * @brief    IRQ and callback functions
+  * @{
+  */
+/******* IRQHandler and Callbacks used in non-blocking mode (Interrupt) */
+void HAL_ICACHE_IRQHandler(void);
+void HAL_ICACHE_InvalidateCompleteCallback(void);
+void HAL_ICACHE_ErrorCallback(void);
+
+/**
+  * @}
+  */
+
+/** @addtogroup ICACHE_Exported_Functions_Group3
+  * @brief    Memory remapped regions functions
+  * @{
+  */
 /******* Memory remapped regions functions */
 HAL_StatusTypeDef HAL_ICACHE_EnableRemapRegion(uint32_t Region, ICACHE_RegionConfigTypeDef *sRegionConfig);
 HAL_StatusTypeDef HAL_ICACHE_DisableRemapRegion(uint32_t Region);
+
+/**
+  * @}
+  */
 
 /**
   * @}

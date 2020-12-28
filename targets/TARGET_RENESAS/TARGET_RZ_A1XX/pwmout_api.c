@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,22 +47,22 @@ typedef enum {
 } PWMType;
 
 static const PWMType PORT[] = {
-     PWM1A,          // PWM_PWM1A
-     PWM1B,          // PWM_PWM1B
-     PWM1C,          // PWM_PWM1C
-     PWM1D,          // PWM_PWM1D
-     PWM1E,          // PWM_PWM1E
-     PWM1F,          // PWM_PWM1F
-     PWM1G,          // PWM_PWM1G
-     PWM1H,          // PWM_PWM1H
-     PWM2A,          // PWM_PWM2A
-     PWM2B,          // PWM_PWM2B
-     PWM2C,          // PWM_PWM2C
-     PWM2D,          // PWM_PWM2D
-     PWM2E,          // PWM_PWM2E
-     PWM2F,          // PWM_PWM2F
-     PWM2G,          // PWM_PWM2G
-     PWM2H,          // PWM_PWM2H
+    PWM1A,          // PWM_PWM1A
+    PWM1B,          // PWM_PWM1B
+    PWM1C,          // PWM_PWM1C
+    PWM1D,          // PWM_PWM1D
+    PWM1E,          // PWM_PWM1E
+    PWM1F,          // PWM_PWM1F
+    PWM1G,          // PWM_PWM1G
+    PWM1H,          // PWM_PWM1H
+    PWM2A,          // PWM_PWM2A
+    PWM2B,          // PWM_PWM2B
+    PWM2C,          // PWM_PWM2C
+    PWM2D,          // PWM_PWM2D
+    PWM2E,          // PWM_PWM2E
+    PWM2F,          // PWM_PWM2F
+    PWM2G,          // PWM_PWM2G
+    PWM2H,          // PWM_PWM2H
 };
 
 static __IO uint16_t *PWM_MATCH[] = {
@@ -111,23 +112,23 @@ typedef enum {
 
 typedef struct {
     MTU2_PWMType    port;
-    __IO uint16_t * pulse1;
-    __IO uint16_t * pulse2;
-    __IO uint16_t * period1;
-    __IO uint16_t * period2;
-    __IO uint8_t *  tior;
-    __IO uint8_t *  tcr;
-    __IO uint8_t *  tmdr;
+    __IO uint16_t *pulse1;
+    __IO uint16_t *pulse2;
+    __IO uint16_t *period1;
+    __IO uint16_t *period2;
+    __IO uint8_t   *tior;
+    __IO uint8_t   *tcr;
+    __IO uint8_t   *tmdr;
     int             max_period;
 } st_mtu2_ctrl_t;
 
 static st_mtu2_ctrl_t mtu2_ctl[] = {
     { TIOC0A, &MTU2TGRA_0, &MTU2TGRC_0, &MTU2TGRB_0, &MTU2TGRD_0, &MTU2TIORH_0, &MTU2TCR_0, &MTU2TMDR_0,  125000 }, // PWM_TIOC0A
     { TIOC0C, &MTU2TGRC_0, &MTU2TGRA_0, &MTU2TGRB_0, &MTU2TGRD_0, &MTU2TIORL_0, &MTU2TCR_0, &MTU2TMDR_0,  125000 }, // PWM_TIOC0C
-    { TIOC1A, &MTU2TGRA_1, NULL       , &MTU2TGRB_1, NULL       , &MTU2TIOR_1 , &MTU2TCR_1, &MTU2TMDR_1,  503000 }, // PWM_TIOC1A
-    { TIOC1B, &MTU2TGRB_1, NULL       , &MTU2TGRA_1, NULL       , &MTU2TIOR_1 , &MTU2TCR_1, &MTU2TMDR_1,  503000 }, // PWM_TIOC1B
-    { TIOC2A, &MTU2TGRA_2, NULL       , &MTU2TGRB_2, NULL       , &MTU2TIOR_2 , &MTU2TCR_2, &MTU2TMDR_2, 2000000 }, // PWM_TIOC2A
-    { TIOC2B, &MTU2TGRB_2, NULL       , &MTU2TGRA_2, NULL       , &MTU2TIOR_2 , &MTU2TCR_2, &MTU2TMDR_2, 2000000 }, // PWM_TIOC2B
+    { TIOC1A, &MTU2TGRA_1, NULL, &MTU2TGRB_1, NULL, &MTU2TIOR_1, &MTU2TCR_1, &MTU2TMDR_1,  503000 },                // PWM_TIOC1A
+    { TIOC1B, &MTU2TGRB_1, NULL, &MTU2TGRA_1, NULL, &MTU2TIOR_1, &MTU2TCR_1, &MTU2TMDR_1,  503000 },                // PWM_TIOC1B
+    { TIOC2A, &MTU2TGRA_2, NULL, &MTU2TGRB_2, NULL, &MTU2TIOR_2, &MTU2TCR_2, &MTU2TMDR_2, 2000000 },                // PWM_TIOC2A
+    { TIOC2B, &MTU2TGRB_2, NULL, &MTU2TGRA_2, NULL, &MTU2TIOR_2, &MTU2TCR_2, &MTU2TMDR_2, 2000000 },                // PWM_TIOC2B
     { TIOC3A, &MTU2TGRA_3, &MTU2TGRC_3, &MTU2TGRB_3, &MTU2TGRD_3, &MTU2TIORH_3, &MTU2TCR_3, &MTU2TMDR_3, 2000000 }, // PWM_TIOC3A
     { TIOC3C, &MTU2TGRC_3, &MTU2TGRA_3, &MTU2TGRB_3, &MTU2TGRD_3, &MTU2TIORL_3, &MTU2TCR_3, &MTU2TMDR_3, 2000000 }, // PWM_TIOC3C
     { TIOC4A, &MTU2TGRA_4, &MTU2TGRC_4, &MTU2TGRB_4, &MTU2TGRD_4, &MTU2TIORH_4, &MTU2TCR_4, &MTU2TMDR_4, 2000000 }, // PWM_TIOC4A
@@ -138,7 +139,8 @@ static uint16_t init_mtu2_period_ch[5] = {0};
 static int32_t  mtu2_period_ch[5] = {1, 1, 1, 1, 1};
 #endif
 
-void pwmout_init(pwmout_t* obj, PinName pin) {
+void pwmout_init(pwmout_t *obj, PinName pin)
+{
     // determine the channel
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
     MBED_ASSERT(pwm != (PWMName)NC);
@@ -150,7 +152,7 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
         mtu2_init();
 
         obj->pwm = pwm;
-        st_mtu2_ctrl_t * p_mtu2_ctl = &mtu2_ctl[(int)(obj->pwm - MTU2_PWM_OFFSET)];
+        st_mtu2_ctrl_t *p_mtu2_ctl = &mtu2_ctl[(int)(obj->pwm - MTU2_PWM_OFFSET)];
 
         obj->ch  = (uint8_t)(((uint32_t)p_mtu2_ctl->port & 0x000000F0) >> 4);
         if (obj->ch == 4) {
@@ -208,18 +210,20 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     }
 }
 
-void pwmout_free(pwmout_t* obj) {
+void pwmout_free(pwmout_t *obj)
+{
     pwmout_write(obj, 0);
     mtu2_free();
 }
 
-void pwmout_write(pwmout_t* obj, float value) {
+void pwmout_write(pwmout_t *obj, float value)
+{
     uint32_t wk_cycle;
 
     if (obj->pwm >= MTU2_PWM_OFFSET) {
 #ifdef FUMC_MTU2_PWM
         /* PWM by MTU2 */
-        st_mtu2_ctrl_t * p_mtu2_ctl = &mtu2_ctl[(int)(obj->pwm - MTU2_PWM_OFFSET)];
+        st_mtu2_ctrl_t *p_mtu2_ctl = &mtu2_ctl[(int)(obj->pwm - MTU2_PWM_OFFSET)];
         uint8_t tmp_tstr_st;
 
         if (value < 0.0f) {
@@ -229,7 +233,7 @@ void pwmout_write(pwmout_t* obj, float value) {
         } else {
             // Do Nothing
         }
-        wk_cycle = (uint32_t)*p_mtu2_ctl->period1;
+        wk_cycle = (uint32_t) * p_mtu2_ctl->period1;
         if ((obj->ch == 4) || (obj->ch == 3)) {
             tmp_tstr_st = (1 << (obj->ch + 3));
         } else {
@@ -291,7 +295,8 @@ void pwmout_write(pwmout_t* obj, float value) {
     }
 }
 
-float pwmout_read(pwmout_t* obj) {
+float pwmout_read(pwmout_t *obj)
+{
     uint32_t wk_cycle;
     float value;
 
@@ -299,10 +304,10 @@ float pwmout_read(pwmout_t* obj) {
 #ifdef FUMC_MTU2_PWM
         /* PWM by MTU2 */
         uint32_t wk_pulse;
-        st_mtu2_ctrl_t * p_mtu2_ctl = &mtu2_ctl[(int)(obj->pwm - MTU2_PWM_OFFSET)];
+        st_mtu2_ctrl_t *p_mtu2_ctl = &mtu2_ctl[(int)(obj->pwm - MTU2_PWM_OFFSET)];
 
-        wk_cycle = (uint32_t)*p_mtu2_ctl->period1;
-        wk_pulse = (uint32_t)*p_mtu2_ctl->pulse1;
+        wk_cycle = (uint32_t) * p_mtu2_ctl->period1;
+        wk_pulse = (uint32_t) * p_mtu2_ctl->pulse1;
         value = ((float)wk_pulse / (float)wk_cycle);
 #endif
     } else {
@@ -320,16 +325,19 @@ float pwmout_read(pwmout_t* obj) {
     return (value > 1.0f) ? (1.0f) : (value);
 }
 
-void pwmout_period(pwmout_t* obj, float seconds) {
+void pwmout_period(pwmout_t *obj, float seconds)
+{
     pwmout_period_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_period_ms(pwmout_t* obj, int ms) {
+void pwmout_period_ms(pwmout_t *obj, int ms)
+{
     pwmout_period_us(obj, ms * 1000);
 }
 
 #ifdef FUNC_MOTOR_CTL_PWM
-static void set_duty_again(__IO uint16_t *p_pwmpbfr, uint16_t last_cycle, uint16_t new_cycle){
+static void set_duty_again(__IO uint16_t *p_pwmpbfr, uint16_t last_cycle, uint16_t new_cycle)
+{
     uint16_t wk_pwmpbfr;
     float    value;
     uint16_t v;
@@ -342,7 +350,8 @@ static void set_duty_again(__IO uint16_t *p_pwmpbfr, uint16_t last_cycle, uint16
 #endif
 
 #ifdef FUMC_MTU2_PWM
-static void set_mtu2_duty_again(__IO uint16_t *p_pwmpbfr, uint16_t last_cycle, uint16_t new_cycle){
+static void set_mtu2_duty_again(__IO uint16_t *p_pwmpbfr, uint16_t last_cycle, uint16_t new_cycle)
+{
     uint16_t wk_pwmpbfr;
     float    value;
 
@@ -353,7 +362,8 @@ static void set_mtu2_duty_again(__IO uint16_t *p_pwmpbfr, uint16_t last_cycle, u
 #endif
 
 // Set the PWM period, keeping the duty cycle the same.
-void pwmout_period_us(pwmout_t* obj, int us) {
+void pwmout_period_us(pwmout_t *obj, int us)
+{
     uint32_t pclk_base;
     uint32_t wk_cycle;
     uint32_t wk_cks = 0;
@@ -365,7 +375,7 @@ void pwmout_period_us(pwmout_t* obj, int us) {
         int      max_us = 0;
 
         /* PWM by MTU2 */
-        st_mtu2_ctrl_t * p_mtu2_ctl = &mtu2_ctl[(int)(obj->pwm - MTU2_PWM_OFFSET)];
+        st_mtu2_ctrl_t *p_mtu2_ctl = &mtu2_ctl[(int)(obj->pwm - MTU2_PWM_OFFSET)];
         uint8_t tmp_tcr_up;
         uint8_t tmp_tstr_st;
 
@@ -387,10 +397,10 @@ void pwmout_period_us(pwmout_t* obj, int us) {
         wk_cycle_mtu2 = (uint64_t)pclk_base * us;
         while (wk_cycle_mtu2 >= 65535000000) {
             if ((obj->ch == 1) && (wk_cks == 3)) {
-                wk_cks+=2;
+                wk_cks += 2;
             } else if ((obj->ch == 2) && (wk_cks == 3)) {
                 wk_cycle_mtu2 >>= 2;
-                wk_cks+=3;
+                wk_cks += 3;
             }
             wk_cycle_mtu2 >>= 2;
             wk_cks++;
@@ -494,15 +504,44 @@ void pwmout_period_us(pwmout_t* obj, int us) {
     }
 }
 
-void pwmout_pulsewidth(pwmout_t* obj, float seconds) {
+int pwmout_read_period_us(pwmout_t *obj)
+{
+    uint32_t wk_cycle;
+    float value;
+
+    if (obj->pwm >= MTU2_PWM_OFFSET) {
+#ifdef FUMC_MTU2_PWM
+        /* PWM by MTU2 */
+        st_mtu2_ctrl_t *p_mtu2_ctl = &mtu2_ctl[(int)(obj->pwm - MTU2_PWM_OFFSET)];
+
+        wk_cycle = (uint32_t) * p_mtu2_ctl->period1;
+#endif
+    } else {
+#ifdef FUNC_MOTOR_CTL_PWM
+        /* PWM */
+        if (obj->ch == 2) {
+            wk_cycle = PWMPWCYR_2 & 0x03ff;
+        } else {
+            wk_cycle = PWMPWCYR_1 & 0x03ff;
+        }
+#endif
+    }
+
+    return wk_cycle;
+}
+
+void pwmout_pulsewidth(pwmout_t *obj, float seconds)
+{
     pwmout_pulsewidth_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
+void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
+{
     pwmout_pulsewidth_us(obj, ms * 1000);
 }
 
-void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
+void pwmout_pulsewidth_us(pwmout_t *obj, int us)
+{
     float value = 0;
 
     if (obj->pwm >= MTU2_PWM_OFFSET) {
@@ -527,6 +566,23 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
 #endif
     }
     pwmout_write(obj, value);
+}
+
+int pwmout_read_pulsewidth_us(pwmout_t *obj)
+{
+    uint32_t wk_pulse = 0;
+
+    if (obj->pwm >= MTU2_PWM_OFFSET) {
+#ifdef FUMC_MTU2_PWM
+        /* PWM by MTU2 */
+
+        st_mtu2_ctrl_t *p_mtu2_ctl = &mtu2_ctl[(int)(obj->pwm - MTU2_PWM_OFFSET)];
+
+        wk_pulse = (uint32_t) * p_mtu2_ctl->pulse1;
+#endif
+    }
+
+    return wk_pulse;
 }
 
 const PinMap *pwmout_pinmap()

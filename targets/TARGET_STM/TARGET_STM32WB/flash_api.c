@@ -27,7 +27,9 @@
 /*  Family specific include for WB with HW semaphores */
 #include "hw.h"
 #include "hw_conf.h"
+#if MBED_CONF_BLE_PRESENT
 #include "shci.h"
+#endif
 
 /* Used in HCIDriver.cpp/stm32wb_start_ble() */
 int BLE_inited = 0;
@@ -90,6 +92,7 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
         return -1;
     }
 
+#if MBED_CONF_BLE_PRESENT
     if (BLE_inited) {
         /*
         *  Notify the CPU2 that some flash erase activity may be executed
@@ -99,6 +102,7 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
         */
         SHCI_C2_FLASH_EraseActivity(ERASE_ACTIVITY_ON);
     }
+#endif
 
     do {
         /* PESD bit mechanism used by M0+ to protect its timing */
@@ -137,6 +141,7 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 
     while (__HAL_FLASH_GET_FLAG(FLASH_FLAG_CFGBSY));
 
+#if MBED_CONF_BLE_PRESENT
     if (BLE_inited) {
         /**
          *  Notify the CPU2 there will be no request anymore to erase the flash
@@ -144,6 +149,7 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
          */
         SHCI_C2_FLASH_EraseActivity(ERASE_ACTIVITY_OFF);
     }
+#endif
 
     /* Lock the Flash to disable the flash control register access (recommended
        to protect the FLASH memory against possible unwanted operation) */

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_ecc_nist_p.h
-* \version 2.30.3
+* \version 2.30.4
 *
 * \brief
 *  This file provides constant and parameters for the API for the ECC

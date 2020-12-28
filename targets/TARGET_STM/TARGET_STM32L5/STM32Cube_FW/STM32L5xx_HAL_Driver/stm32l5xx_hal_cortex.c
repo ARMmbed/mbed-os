@@ -18,7 +18,7 @@
     ===========================================================
     [..]
     This section provides functions allowing to configure the NVIC interrupts (IRQ).
-    The Cortex-M4 exceptions are managed by CMSIS functions.
+    The Cortex-M33 exceptions are managed by CMSIS functions.
 
     (#) Configure the NVIC Priority Grouping using HAL_NVIC_SetPriorityGrouping() function.
     (#) Configure the priority of the selected IRQ Channels using HAL_NVIC_SetPriority().

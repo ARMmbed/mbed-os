@@ -19,7 +19,7 @@
 #include "netsocket/UDPSocket.h"
 #include "netsocket/DTLSSocketWrapper.h"
 #include "NetworkStack_stub.h"
-#include "features/nanostack/coap-service/test/coap-service/unittest/stub/mbedtls_stub.h"
+#include "connectivity/nanostack/coap-service/test/coap-service/unittest/stub/mbedtls_stub.h"
 #include <cstring> //memset
 
 #include "mbed_error.h"

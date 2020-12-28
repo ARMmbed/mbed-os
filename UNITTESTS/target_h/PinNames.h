@@ -47,6 +47,6 @@ typedef enum {
 #ifdef __cplusplus
 }
 #endif
-#include "pinmap.h"
+#include "hal/pinmap.h"
 
 #endif

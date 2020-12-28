@@ -1,10 +1,14 @@
-#! armcc -E
+#! armclang -E --target=arm-arm-none-eabi -x c -mcpu=cortex-m0plus
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-  #define MBED_BOOT_STACK_SIZE 0x400
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+#  if defined(MBED_BOOT_STACK_SIZE)
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE MBED_BOOT_STACK_SIZE
+#  else
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
+#  endif
 #endif
 
-#define Stack_Size MBED_BOOT_STACK_SIZE
+#define Stack_Size MBED_CONF_TARGET_BOOT_STACK_SIZE
 
 LR_IROM1 0x00000000 0x40000  {    ; load region size_region (256k)
   ER_IROM1 0x00000000 0x40000  {  ; load address = execution address

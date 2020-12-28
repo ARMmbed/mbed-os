@@ -80,11 +80,10 @@ def parse_args():
                                     official_target_names, "MCU")),
                             default=official_target_names)
 
-    compile_cmd.add_argument(
-        "--profiles",
-        nargs='+',
-        metavar="profile",
-        help="build profile(s)")
+    compile_cmd.add_argument("--profiles",
+                             nargs='+',
+                             metavar="profile",
+                             help="build profile(s)")
     
     compile_cmd.add_argument("-j", "--jobs",
                              dest='jobs',
@@ -93,6 +92,7 @@ def parse_args():
                              default=0,
                              help="Number of concurrent jobs. Default: 0/auto (based on host machine's number of CPUs)")
 
+    compile_cmd.add_argument("--cmake", action="store_true", dest="cmake", default=False, help="Use Cmake to build example")
     compile_cmd.add_argument("-v", "--verbose",
                              action="store_true",
                              dest="verbose",
@@ -159,13 +159,13 @@ def do_deploy(_, config, examples):
 
 def do_compile(args, config, examples):
     """Do the compile step"""
-    results = lib.compile_repos(config, args.toolchains, args.mcu, args.profiles, args.verbose, examples, args.jobs)
+    results = lib.compile_repos(config, args.toolchains, args.mcu, args.profiles, args.verbose, examples, args.cmake, args.jobs)
     failures = lib.get_build_summary(results)
     return failures 
     
 def do_update(args, config, examples):
-    """ Test update the mbed-os to the version specified by the tag """
-    return lib.update_mbedos_version(config, args.TAG, examples)
+    """ Test update the example to the version specified by the tag """
+    return lib.update_example_version(config, args.TAG, examples)
 
 def do_list(_, config, examples):
     """List the examples in the config file"""

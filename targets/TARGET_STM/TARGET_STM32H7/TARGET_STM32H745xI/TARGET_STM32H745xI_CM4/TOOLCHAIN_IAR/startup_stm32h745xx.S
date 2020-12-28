@@ -1,7 +1,7 @@
 ;/******************** (C) COPYRIGHT 2019 STMicroelectronics ********************
 ;* File Name          : startup_stm32h745xx.s
 ;* Author             : MCD Application Team
-;* Description        : STM32H747xx devices vector table for EWARM toolchain.
+;* Description        : STM32H745xx devices vector table for EWARM toolchain.
 ;*                      This module performs:
 ;*                      - Set the initial SP
 ;*                      - Set the initial PC == _iar_program_start,
@@ -73,7 +73,7 @@ __vector_table
 
         ; External Interrupts
         DCD     WWDG_IRQHandler                   ; Window WatchDog Interrupt ( wwdg1_it, wwdg2_it)                                                 
-        DCD     PVD_AVD_IRQHandler                ; PVD/AVD through EXTI Line detection                                  
+        DCD     PVD_AVD_IRQHandler                ; PVD/AVD through EXTI Line detection                          
         DCD     TAMP_STAMP_IRQHandler             ; Tamper and TimeStamps through the EXTI line                      
         DCD     RTC_WKUP_IRQHandler               ; RTC Wakeup through the EXTI line                                 
         DCD     FLASH_IRQHandler                  ; FLASH                                                
@@ -98,7 +98,7 @@ __vector_table
         DCD     EXTI9_5_IRQHandler                ; External Line[9:5]s                                              
         DCD     TIM1_BRK_IRQHandler               ; TIM1 Break interrupt        
         DCD     TIM1_UP_IRQHandler                ; TIM1 Update 
-        DCD     TIM1_TRG_COM_IRQHandler           ; TIM1 Trigger and Commutation Interrupt 
+        DCD     TIM1_TRG_COM_IRQHandler           ; TIM1 Trigger and Commutation Interrupt
         DCD     TIM1_CC_IRQHandler                ; TIM1 Capture Compare                                             
         DCD     TIM2_IRQHandler                   ; TIM2                                                 
         DCD     TIM3_IRQHandler                   ; TIM3                                                 
@@ -137,7 +137,7 @@ __vector_table
         DCD     ETH_WKUP_IRQHandler               ; Ethernet Wakeup through EXTI line                          
         DCD     FDCAN_CAL_IRQHandler              ; FDCAN calibration unit interrupt                                 
         DCD     CM7_SEV_IRQHandler                ; CM7 Send event interrupt for CM4
-        DCD     CM4_SEV_IRQHandler                ; CM4 Send event interrupt for CM7            
+        DCD     CM4_SEV_IRQHandler                ; CM4 Send event interrupt for CM7           
         DCD     0                                 ; Reserved             
         DCD     0                                 ; Reserved                           
         DCD     DMA2_Stream5_IRQHandler           ; DMA2 Stream 5                        
@@ -195,7 +195,7 @@ __vector_table
         DCD     MDIOS_IRQHandler                  ;  MDIOS global Interrupt                          
         DCD     JPEG_IRQHandler                   ;  JPEG global Interrupt                           
         DCD     MDMA_IRQHandler                   ;  MDMA global Interrupt                           
-        DCD     0                                 ;  Reserved                            
+        DCD     0                                 ; Reserved                            
         DCD     SDMMC2_IRQHandler                 ;  SDMMC2 global Interrupt                         
         DCD     HSEM1_IRQHandler                  ;  HSEM1 global Interrupt                          
         DCD     HSEM2_IRQHandler                  ;  HSEM2 global Interrupt                          
@@ -219,7 +219,7 @@ __vector_table
         DCD     CRS_IRQHandler                    ;  Clock Recovery Global Interrupt                 
         DCD     ECC_IRQHandler                    ; ECC diagnostic Global Interrupt
         DCD     SAI4_IRQHandler                   ;  SAI4 global interrupt                           
-        DCD     0                                 ; Reserved              
+        DCD     0                                 ; Reserved               
         DCD     HOLD_CORE_IRQHandler              ;  Hold core interrupt                             
         DCD     WAKEUP_PIN_IRQHandler             ;  Interrupt for all 6 wake-up pins 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -984,7 +984,7 @@ CRS_IRQHandler
         PUBWEAK ECC_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1) 
 ECC_IRQHandler 
-        B ECC_IRQHandler
+        B ECC_IRQHandler		
 
         PUBWEAK SAI4_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1) 

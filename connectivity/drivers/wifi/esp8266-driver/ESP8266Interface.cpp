@@ -81,7 +81,8 @@ ESP8266Interface::ESP8266Interface()
       _oob_event_id(0),
       _connect_event_id(0),
       _disconnect_event_id(0),
-      _software_conn_stat(IFACE_STATUS_DISCONNECTED)
+      _software_conn_stat(IFACE_STATUS_DISCONNECTED),
+      _dhcp(true)
 {
     memset(_cbs, 0, sizeof(_cbs));
     memset(ap_ssid, 0, sizeof(ap_ssid));

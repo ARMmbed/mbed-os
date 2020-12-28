@@ -41,6 +41,50 @@
         "qspi_csn": {
             "help": "QSPI chip select pin",
             "value": "QSPI_FLASH1_CSN"
+        },
+        "ospi_io0": {
+            "help": "OSPI data I/O 0 pin",
+            "value": "OSPI_FLASH1_IO0"
+        },
+        "ospi_io1": {
+            "help": "OSPI data I/O 1 pin",
+            "value": "OSPI_FLASH1_IO1"
+        },
+        "ospi_io2": {
+            "help": "OSPI data I/O 2 pin",
+            "value": "OSPI_FLASH1_IO2"
+        },
+        "ospi_io3": {
+            "help": "OSPI data I/O 3 pin",
+            "value": "OSPI_FLASH1_IO3"
+        },
+        "ospi_io4": {
+            "help": "OSPI data I/O 4 pin",
+            "value": "OSPI_FLASH1_IO4"
+        },
+        "ospi_io5": {
+            "help": "OSPI data I/O 5 pin",
+            "value": "OSPI_FLASH1_IO5"
+        },
+        "ospi_io6": {
+            "help": "OSPI data I/O 6 pin",
+            "value": "OSPI_FLASH1_IO6"
+        },
+        "ospi_io7": {
+            "help": "OSPI data I/O 7 pin",
+            "value": "OSPI_FLASH1_IO7"
+        },
+        "ospi_sck": {
+            "help": "OSPI clock pin",
+            "value": "OSPI_FLASH1_SCK"
+        },
+        "ospi_csn": {
+            "help": "OSPI chip select pin",
+            "value": "OSPI_FLASH1_CSN"
+        },
+        "ospi_dqs": {
+            "help": "OSPI dqs pin",
+            "value": "OSPI_FLASH1_DQS"
         }
     }
 }

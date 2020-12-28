@@ -6,9 +6,9 @@
 set(unittest-includes ${unittest-includes}
   .
   ..
-  ../features/mbedtls/inc/mbedtls/
-  ../features/mbedtls/platform/inc/
-  ../features/frameworks/mbed-trace/mbed-trace/
+  ../connectivity/mbedtls/include/mbedtls/
+  ../connectivity/mbedtls/platform/inc/
+  ../platform/mbed-trace/include/mbed-trace/
 )
 
 set(unittest-test-sources

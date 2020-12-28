@@ -29,11 +29,15 @@
 #include "../memory_zones.h"
 #include "../cmsis_nvic.h"
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-  #define MBED_BOOT_STACK_SIZE 0x400
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+#  if defined(MBED_BOOT_STACK_SIZE)
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE MBED_BOOT_STACK_SIZE
+#  else
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
+#  endif
 #endif
 
-#define Stack_Size MBED_BOOT_STACK_SIZE
+#define Stack_Size MBED_CONF_TARGET_BOOT_STACK_SIZE
 
 ; The vector table is loaded at address 0x00000000 in Flash memory region.
 LR_IROM1 FLASH_START FLASH_SIZE  {

@@ -139,7 +139,7 @@ extern "C" {
   * @{
   */
 #define LL_CORDIC_NBREAD_1                 (0x00000000U)             /*!< One 32-bits read containing either only one
-                                                                          32-bit data ouput (Q1.31 format), or two 16-bit
+                                                                          32-bit data output (Q1.31 format), or two 16-bit
                                                                           data output (Q1.15 format) packed in one 32 bits Data */
 #define LL_CORDIC_NBREAD_2                 CORDIC_CSR_NRES           /*!< Two 32-bit Data containing two 32-bits data output
                                                                           (Q1.31 format) */
@@ -240,7 +240,7 @@ extern "C" {
   *         CSR          NARGS         LL_CORDIC_Configure\n
   *         CSR          NRES          LL_CORDIC_Configure\n
   *         CSR          ARGSIZE       LL_CORDIC_Configure\n
-  *         CSR          RESSIZE       LL_CORDIC_Configure
+  *         CSR          RESIZE        LL_CORDIC_Configure
   * @param  CORDICx CORDIC instance
   * @param  Function parameter can be one of the following values:
   *         @arg @ref LL_CORDIC_FUNCTION_COSINE
@@ -519,7 +519,7 @@ __STATIC_INLINE uint32_t LL_CORDIC_GetInSize(CORDIC_TypeDef *CORDICx)
 
 /**
   * @brief  Configure width of output data.
-  * @rmtoll CSR          RESSIZE       LL_CORDIC_SetOutSize
+  * @rmtoll CSR          RESIZE       LL_CORDIC_SetOutSize
   * @param  CORDICx CORDIC Instance
   * @param  OutSize parameter can be one of the following values:
   *         @arg @ref LL_CORDIC_OUTSIZE_32BITS
@@ -533,7 +533,7 @@ __STATIC_INLINE void LL_CORDIC_SetOutSize(CORDIC_TypeDef *CORDICx, uint32_t OutS
 
 /**
   * @brief  Return width of output data.
-  * @rmtoll CSR          RESSIZE       LL_CORDIC_GetOutSize
+  * @rmtoll CSR          RESIZE       LL_CORDIC_GetOutSize
   * @param  CORDICx CORDIC Instance
   * @retval Returned value can be one of the following values:
   *         @arg @ref LL_CORDIC_OUTSIZE_32BITS
@@ -671,7 +671,7 @@ __STATIC_INLINE uint32_t LL_CORDIC_IsEnabledDMAReq_WR(CORDIC_TypeDef *CORDICx)
   */
 __STATIC_INLINE uint32_t LL_CORDIC_DMA_GetRegAddr(CORDIC_TypeDef *CORDICx, uint32_t Direction)
 {
-  register uint32_t data_reg_addr;
+  uint32_t data_reg_addr;
 
   if (Direction == LL_CORDIC_DMA_REG_DATA_OUT)
   {

@@ -22,7 +22,7 @@ Note: You must resolve any conflicts that arise during this cherry-pick process.
   "files" : [
     {
       "src_file" : "CMSIS/Core/Template/ARMv8-M/tz_context.c",
-      "dest_file" : "cmsis/TARGET_CORTEX_M/mbed_tz_context.c"
+      "dest_file" : "cmsis/CMSIS_5/CMSIS/TARGET_CORTEX_M/Source/mbed_tz_context.c"
     },
     ...
     {
@@ -33,7 +33,7 @@ Note: You must resolve any conflicts that arise during this cherry-pick process.
   "folders" : [
     {
       "src_folder" : "CMSIS/Core/Include/",
-      "dest_folder" : "cmsis/TARGET_CORTEX_M/"
+      "dest_folder" : "cmsis/CMSIS_5/CMSIS/TARGET_CORTEX_M/Include"
     },
     ...
     {

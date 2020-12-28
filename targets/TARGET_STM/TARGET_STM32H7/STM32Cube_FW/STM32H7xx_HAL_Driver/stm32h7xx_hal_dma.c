@@ -529,7 +529,9 @@ HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma)
     return HAL_ERROR;
   }
 
+#if defined (BDMA1) /* No DMAMUX available for BDMA1 available on  STM32H7Ax/Bx devices only */
   if(IS_DMA_DMAMUX_ALL_INSTANCE(hdma->Instance) != 0U) /* No DMAMUX available for BDMA1 */
+#endif /* BDMA1 */
   {
     /* Initialize parameters for DMAMUX channel :
     DMAmuxChannel, DMAmuxChannelStatus and DMAmuxChannelStatusMask */

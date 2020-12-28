@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2018-2019 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  * Copyright (c) 2018-2019 STMicroelectronics
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,14 +29,29 @@
 #define IDX_TO_EP(idx)      (((idx) >> 1)|((idx) & 1) << 7)
 
 /* endpoint defines */
-#define NUM_ENDPOINTS           4
+
+#if (MBED_CONF_TARGET_USB_SPEED == USE_USB_OTG_HS)
+
+#define NUM_ENDPOINTS                6
+#define MAX_PACKET_SIZE_NON_ISO      512
+#define MAX_PACKET_SIZE_ISO          1023
+
+#else
+
+#define NUM_ENDPOINTS                4
 #define MAX_PACKET_SIZE_NON_ISO      64
 #define MAX_PACKET_SIZE_ISO          (256 + 128)     // Spec can go up to 1023, only ram for this though
+
+#endif
 
 static const uint32_t tx_ep_sizes[NUM_ENDPOINTS] = {
     MAX_PACKET_SIZE_NON_ISO,
     MAX_PACKET_SIZE_NON_ISO,
     MAX_PACKET_SIZE_NON_ISO,
+#if (MBED_CONF_TARGET_USB_SPEED == USE_USB_OTG_HS)
+    MAX_PACKET_SIZE_NON_ISO,
+    MAX_PACKET_SIZE_NON_ISO,
+#endif
     MAX_PACKET_SIZE_ISO
 };
 
@@ -173,6 +189,18 @@ USBPhyHw::~USBPhyHw()
 
 }
 
+#if defined(TARGET_STM32F1)
+
+#include "drivers/DigitalOut.h"
+
+void USB_reenumerate()
+{
+    // Force USB_DP pin (with external pull up) to 0
+    mbed::DigitalOut usb_dp_pin(USB_DP, 0) ;
+    wait_us(10000); // 10ms
+}
+#endif
+
 void USBPhyHw::init(USBPhyEvents *events)
 {
     const PinMap *map = NULL;
@@ -190,10 +218,12 @@ void USBPhyHw::init(USBPhyEvents *events)
     hpcd.Init.dev_endpoints = NB_ENDPOINT;
     hpcd.Init.ep0_mps = MAX_PACKET_SIZE_EP0;
     hpcd.Init.low_power_enable = DISABLE;
+
 #if !defined(TARGET_STM32F2)
     hpcd.Init.lpm_enable = DISABLE;
     hpcd.Init.battery_charging_enable = DISABLE;
 #endif
+
 #if (MBED_CONF_TARGET_USB_SPEED == USE_USB_OTG_HS)
     hpcd.Instance = USB_OTG_HS;
     hpcd.Init.phy_itface = PCD_PHY_ULPI;
@@ -202,22 +232,48 @@ void USBPhyHw::init(USBPhyEvents *events)
     hpcd.Init.vbus_sensing_enable = ENABLE;
     hpcd.Init.use_external_vbus = DISABLE;
     hpcd.Init.speed = PCD_SPEED_HIGH;
+
     __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
     __HAL_RCC_USB_OTG_HS_ULPI_CLK_ENABLE();
     map = PinMap_USB_HS;
-#elif (MBED_CONF_TARGET_USB_SPEED == USE_USB_OTG_HS)
-    hpcd.Instance = USB_OTG_HS;
-    hpcd.Init.phy_itface = PCD_PHY_EMBEDDED;
-    hpcd.Init.Sof_enable = 1;
-    hpcd.Init.speed = PCD_SPEED_HIGH;
-#elif (MBED_CONF_TARGET_USB_SPEED == USE_USB_OTG_FS)
 
+#elif (MBED_CONF_TARGET_USB_SPEED == USE_USB_HS_IN_FS)
+    hpcd.Instance = USB_OTG_HS;
+    hpcd.Init.phy_itface = USB_OTG_EMBEDDED_PHY;
+    hpcd.Init.Sof_enable = ENABLE;
+    hpcd.Init.speed = PCD_SPEED_FULL;
+    hpcd.Init.dma_enable = DISABLE;
+    hpcd.Init.vbus_sensing_enable = DISABLE;
+    hpcd.Init.use_external_vbus = DISABLE;
+
+    __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
+
+    #ifdef __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE
+        __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
+    #endif
+    #ifdef __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE
+        __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
+    #endif
+     
+    map = PinMap_USB_HS;
+
+#elif (MBED_CONF_TARGET_USB_SPEED == USE_USB_OTG_FS)
     hpcd.Instance = USB_OTG_FS;
     hpcd.Init.phy_itface = PCD_PHY_EMBEDDED;
     hpcd.Init.Sof_enable = 1;
     hpcd.Init.speed = PCD_SPEED_FULL;
+
     __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
+
+    #ifdef __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE
+        __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
+    #endif
+    #ifdef __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE
+        __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
+    #endif
+     
     map = PinMap_USB_FS;
+
 #elif (MBED_CONF_TARGET_USB_SPEED == USE_USB_NO_OTG)
     hpcd.Instance = USB;
     hpcd.Init.phy_itface = PCD_PHY_EMBEDDED;
@@ -225,13 +281,18 @@ void USBPhyHw::init(USBPhyEvents *events)
 
     __HAL_RCC_USB_CLK_ENABLE();
     map = PinMap_USB_FS;
+
+#if defined(TARGET_STM32F1)
+    // USB_DevConnect is empty
+    USB_reenumerate();
+#endif
+
 #endif
 
     // Pass instance for usage inside call back
     instance = this;
 
-    // Configure USB pins and other clocks
-
+    // Configure USB pins
     while (map->pin != NC) {
         pin_function(map->pin, map->function);
         map++;
@@ -271,9 +332,9 @@ void USBPhyHw::init(USBPhyEvents *events)
     // EP2
 #define PMA_EP2_OUT_BASE    (PMA_EP1_IN_ADDR + MAX_PACKET_SIZE_NON_ISO)
 #define PMA_EP2_OUT_ADDR   ((PMA_EP2_OUT_BASE + MAX_PACKET_SIZE_NON_ISO) | (PMA_EP2_OUT_BASE << 16U))
-#define PMA_EP2_IN_ADDR     (PMA_EP2_OUT_BASE + MAX_PACKET_SIZE_NON_ISO * 2)
+#define PMA_EP2_IN_ADDR     (PMA_EP2_OUT_BASE + MAX_PACKET_SIZE_NON_ISO)
 #define PMA_EP2_CMD_ADDR    (PMA_EP2_IN_ADDR + MAX_PACKET_SIZE_NON_ISO)
-    HAL_PCDEx_PMAConfig(&hpcd, LOG_OUT_TO_EP(2), PCD_DBL_BUF, PMA_EP2_OUT_ADDR);  // HAL_PCDEx_PMAConfig always returns HAL_OK
+    HAL_PCDEx_PMAConfig(&hpcd, LOG_OUT_TO_EP(2), PCD_SNG_BUF, PMA_EP2_OUT_ADDR);  // HAL_PCDEx_PMAConfig always returns HAL_OK
     HAL_PCDEx_PMAConfig(&hpcd, LOG_IN_TO_EP(2),  PCD_SNG_BUF, PMA_EP2_CMD_ADDR);  // HAL_PCDEx_PMAConfig always returns HAL_OK
     // EP3
 #define PMA_EP3_OUT_BASE    (PMA_EP2_IN_ADDR + MAX_PACKET_SIZE_NON_ISO)
@@ -303,8 +364,11 @@ void USBPhyHw::init(USBPhyEvents *events)
         total_bytes += fifo_size;
     }
 
+#if (MBED_CONF_TARGET_USB_SPEED != USE_USB_OTG_HS)
     /* 1.25 kbytes */
     MBED_ASSERT(total_bytes <= 1280);
+#endif
+
 #endif
 
     // Configure interrupt vector
@@ -334,25 +398,29 @@ bool USBPhyHw::powered()
 void USBPhyHw::connect()
 {
 #if (MBED_CONF_TARGET_USB_SPEED == USE_USB_NO_OTG)
-    DigitalOut usb_disc_pin(USB_DP, 1) ;
-    wait_ns(1000);
-    usb_disc_pin = 0;
+    // Initializes the USB controller registers
+    USB_DevInit(hpcd.Instance, hpcd.Init); // hpcd.Init not used
 
-    uint32_t wInterrupt_Mask = USB_CNTR_CTRM | USB_CNTR_WKUPM | USB_CNTR_SUSPM | USB_CNTR_ERRM |
-                               USB_CNTR_SOFM | USB_CNTR_ESOFM | USB_CNTR_RESETM;
-    /*Set interrupt mask*/
-    hpcd.Instance->CNTR = wInterrupt_Mask;
-    HAL_PCD_DevConnect(&hpcd); // HAL_PCD_DevConnect always return HAL_OK
-    wait_us(10000);
-#else
+#if defined(TARGET_STM32F1)
+    // USB_DevConnect is empty
+    USB_reenumerate();
+#endif
+
+#endif
+
     HAL_StatusTypeDef ret = HAL_PCD_Start(&hpcd);
     MBED_ASSERT(ret == HAL_OK);
-#endif
+
+    wait_us(10000);
 }
 
 void USBPhyHw::disconnect()
 {
-    HAL_StatusTypeDef ret = HAL_PCD_Stop(&hpcd);
+    /* Disable DP Pull-Up bit to disconnect the Internal PU resistor on USB DP line */
+    USB_DevDisconnect(hpcd.Instance);
+    wait_us(10000);
+
+    HAL_StatusTypeDef ret = HAL_PCD_Stop(&hpcd); // USB_DisableGlobalInt + USB_StopDevice
     MBED_ASSERT(ret == HAL_OK);
 }
 
@@ -390,11 +458,18 @@ void USBPhyHw::remote_wakeup()
 const usb_ep_table_t *USBPhyHw::endpoint_table()
 {
     static const usb_ep_table_t table = {
+#if (MBED_CONF_TARGET_USB_SPEED != USE_USB_OTG_HS)
         1280, // 1.25K for endpoint buffers but space is allocated up front
+#else
+        4096,
+#endif
         {
             {USB_EP_ATTR_ALLOW_CTRL                         | USB_EP_ATTR_DIR_IN_AND_OUT, 0, 0},
             {USB_EP_ATTR_ALLOW_BULK | USB_EP_ATTR_ALLOW_INT | USB_EP_ATTR_DIR_IN_AND_OUT, 0, 0}, // NON ISO
             {USB_EP_ATTR_ALLOW_BULK | USB_EP_ATTR_ALLOW_INT | USB_EP_ATTR_DIR_IN_AND_OUT, 0, 0}, // NON ISO
+#if (MBED_CONF_TARGET_USB_SPEED == USE_USB_OTG_HS)
+            {USB_EP_ATTR_ALLOW_ALL                          | USB_EP_ATTR_DIR_IN_AND_OUT, 0, 0},
+#endif
             {USB_EP_ATTR_ALLOW_ALL                          | USB_EP_ATTR_DIR_IN_AND_OUT, 0, 0},
             {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
             {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
@@ -407,7 +482,9 @@ const usb_ep_table_t *USBPhyHw::endpoint_table()
             {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
             {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
             {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
+#if (MBED_CONF_TARGET_USB_SPEED != USE_USB_OTG_HS)
             {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0}
+#endif
         }
     };
     return &table;

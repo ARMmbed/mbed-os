@@ -1,0 +1,139 @@
+#! armclang -E --target=arm-arm-none-eabi -x c -mcpu=cortex-a9
+;**************************************************
+; Copyright (c) 2017-2020 ARM Ltd.  All rights reserved.
+;**************************************************
+
+; Scatter-file for RTX Example on Versatile Express
+
+; This scatter-file places application code, data, stack and heap at suitable addresses in the memory map.
+
+; Copyright (c) 2017-2020 Arm Lmimited.
+; SPDX-License-Identifier: Apache-2.0
+;
+; Licensed under the Apache License, Version 2.0 (the "License");
+; you may not use this file except in compliance with the License.
+; You may obtain a copy of the License at
+;
+;     http://www.apache.org/licenses/LICENSE-2.0
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS,
+; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+; See the License for the specific language governing permissions and
+; limitations under the License.
+;
+
+#define __RAM_BASE       0x80000000
+#define __RAM_SIZE       0x00400000
+#define __NV_RAM_BASE    0x80000000
+#define __NV_RAM_SIZE    0x00020000
+#define __TTB_BASE       (__NV_RAM_BASE + __NV_RAM_SIZE)
+#define __TTB_SIZE       (0x4000 + 0x1000)
+#define __APP_RAM_START  (__TTB_BASE + __TTB_SIZE)
+
+#define __OCTARAM_BASE   0x60000000
+#define __OCTARAM_SIZE   0x00800000
+
+#define __UND_STACK_SIZE 0x00000100
+#define __SVC_STACK_SIZE 0x00008000
+#define __ABT_STACK_SIZE 0x00000100
+#define __FIQ_STACK_SIZE 0x00000100
+#define __IRQ_STACK_SIZE 0x0000F000
+#define __STACK_SIZE     (__UND_STACK_SIZE + __SVC_STACK_SIZE + __ABT_STACK_SIZE + __FIQ_STACK_SIZE + __IRQ_STACK_SIZE)
+
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x50000000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 0x1000000
+#endif
+
+#if (MBED_APP_START == 0x50000000)
+  #define BOOT_LOADER_SIZE  (0x00004000)
+#else
+  #define BOOT_LOADER_SIZE  (0x00000000)
+#endif
+
+LOAD_TTB    __TTB_BASE __TTB_SIZE ; Page 0 of On-Chip Data Retention RAM
+{
+    TTB     +0 EMPTY 0x4000            
+    { }                           ; Level-1 Translation Table for MMU
+
+    TTB_L2  +0 EMPTY 0x1000            
+    { }                           ; Level-2 Translation Table for MMU
+}
+
+LR_IROM1 MBED_APP_START MBED_APP_SIZE       ; load region size_region
+{
+#if (BOOT_LOADER_SIZE != 0x00000000)
+  BOOT_LOADER_BEGIN MBED_APP_START FIXED
+  {
+    * (BOOT_LOADER)
+  }
+
+  VECTORS (MBED_APP_START + 0x4000) FIXED
+  {
+    * (RESET, +FIRST)         ; Vector table and other startup code
+    * (InRoot$$Sections)      ; All (library) code that must be in a root region
+    * (+RO-CODE)              ; Application RO code (.text)
+  }
+#else
+  VECTORS MBED_APP_START FIXED
+  {
+    * (RESET, +FIRST)         ; Vector table and other startup code
+    * (InRoot$$Sections)      ; All (library) code that must be in a root region
+    * (+RO-CODE)              ; Application RO code (.text)
+  }
+#endif
+
+  RO_DATA    +0
+  { * (+RO-DATA) }              ; Application RO data (.constdata)
+
+  NV      __NV_RAM_BASE UNINIT __NV_RAM_SIZE   ; Page 0 of On-Chip Data Retention RAM
+  { * (.bss.NoInit) }           ; Application RW data Non volatile area
+
+  RAM_CODE   __APP_RAM_START
+  { * (RAM_CODE) }              ; Application RAM_CODE
+
+  RW_DATA     +0 ALIGN 0x8
+  { * (+RW) }                   ; Application RW data (.data)
+
+  RW_IRAM1    +0 ALIGN 0x10
+  { * (+ZI) }                   ; Application ZI data (.bss)
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ; RAM-NC : Internal non-cached RAM region
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  RW_DATA_NC +0 ALIGN 0x1000
+  { * (NC_DATA) }              ; Application RW data Non cached area
+
+  ZI_DATA_NC +0
+  { * (NC_BSS) }               ; Application ZI data Non cached area
+
+  MEMORY_ADJUST +0 ALIGN 0x1000
+  { }
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ; Heap and Stack
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  ARM_LIB_HEAP  +0 EMPTY (__RAM_SIZE - (ImageLimit(MEMORY_ADJUST) - __RAM_BASE) - __STACK_SIZE)
+  { }
+
+  ARM_LIB_STACK (__RAM_BASE + __RAM_SIZE) EMPTY -__STACK_SIZE      ; Stack region growing down
+  { }
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ; RAM-OCTA : OctaRAM region
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  RW_DATA_OCTA __OCTARAM_BASE __OCTARAM_SIZE
+  { * (OCTA_DATA) }              ; Application RW data OctaRAM
+
+  ZI_DATA_OCTA +0
+  { * (OCTA_BSS) }               ; Application ZI data OctaRAM
+
+}
+

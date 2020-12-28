@@ -1,4 +1,4 @@
-#! armcc -E
+#! armclang -E --target=arm-arm-none-eabi -x c -mcpu=cortex-m4
 ;******************************************************************************
 ;  File: ADuCM4050.sct
 ;  Scatter loading file for Analog Devices ADuCM4050 processor
@@ -42,11 +42,15 @@
 
 #define ADUCM_VECTOR_SIZE 0x1A0
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-  #define MBED_BOOT_STACK_SIZE 0x400
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+#  if defined(MBED_BOOT_STACK_SIZE)
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE MBED_BOOT_STACK_SIZE
+#  else
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
+#  endif
 #endif
 
-#define Stack_Size MBED_BOOT_STACK_SIZE
+#define Stack_Size MBED_CONF_TARGET_BOOT_STACK_SIZE
 
 LR_IROM1 MBED_APP_START MBED_APP_SIZE {
     FLASH0 MBED_APP_START ADUCM_VECTOR_SIZE {

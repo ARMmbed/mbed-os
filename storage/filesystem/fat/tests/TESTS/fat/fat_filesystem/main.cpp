@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2017 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -133,28 +134,28 @@ void test_read_dir()
     err = dir.open(&fs, "test_read_dir");
     TEST_ASSERT_EQUAL(0, err);
 
-    struct dirent *de;
+    struct dirent de;
     bool test_dir_found = false;
     bool test_file_found = true;
 
-    while ((de = readdir(&dir))) {
-        printf("d_name: %.32s, d_type: %x\n", de->d_name, de->d_type);
+    while (dir.read(&de) == 1) {
+        printf("d_name: %.32s, d_type: %x\n", de.d_name, de.d_type);
 
-        if (strcmp(de->d_name, ".") == 0) {
+        if (strcmp(de.d_name, ".") == 0) {
             test_dir_found = true;
-            TEST_ASSERT_EQUAL(DT_DIR, de->d_type);
-        } else if (strcmp(de->d_name, "..") == 0) {
+            TEST_ASSERT_EQUAL(DT_DIR, de.d_type);
+        } else if (strcmp(de.d_name, "..") == 0) {
             test_dir_found = true;
-            TEST_ASSERT_EQUAL(DT_DIR, de->d_type);
-        } else if (strcmp(de->d_name, "test_dir") == 0) {
+            TEST_ASSERT_EQUAL(DT_DIR, de.d_type);
+        } else if (strcmp(de.d_name, "test_dir") == 0) {
             test_dir_found = true;
-            TEST_ASSERT_EQUAL(DT_DIR, de->d_type);
-        } else if (strcmp(de->d_name, "test_file") == 0) {
+            TEST_ASSERT_EQUAL(DT_DIR, de.d_type);
+        } else if (strcmp(de.d_name, "test_file") == 0) {
             test_file_found = true;
-            TEST_ASSERT_EQUAL(DT_REG, de->d_type);
+            TEST_ASSERT_EQUAL(DT_REG, de.d_type);
         } else {
             char *buf = new char[NAME_MAX];
-            snprintf(buf, NAME_MAX, "Unexpected file \"%s\"", de->d_name);
+            snprintf(buf, NAME_MAX, "Unexpected file \"%s\"", de.d_name);
             TEST_ASSERT_MESSAGE(false, buf);
         }
     }

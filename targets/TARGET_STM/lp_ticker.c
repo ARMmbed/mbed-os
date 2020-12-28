@@ -112,7 +112,7 @@
 #define RCC_LPTIMCLKSOURCE_LSE    RCC_LPTIM1CLKSOURCE_LSE
 #define RCC_LPTIMCLKSOURCE_LSI    RCC_LPTIM1CLKSOURCE_LSI
 
-#if defined(STM32G0)
+#if defined(STM32G071xx)
 #define LPTIM_MST_IRQ             TIM6_DAC_LPTIM1_IRQn
 #else
 #define LPTIM_MST_IRQ             LPTIM1_IRQn
@@ -170,7 +170,11 @@ void lp_ticker_init(void)
 
     /* Enable LSE clock */
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
+#if MBED_CONF_TARGET_LSE_BYPASS
+    RCC_OscInitStruct.LSEState = RCC_LSE_BYPASS;
+#else
     RCC_OscInitStruct.LSEState = RCC_LSE_ON;
+#endif
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
 
     /* Select the LSE clock as LPTIM peripheral clock */

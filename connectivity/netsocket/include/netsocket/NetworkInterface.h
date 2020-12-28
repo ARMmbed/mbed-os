@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,6 +100,31 @@ public:
      *                  or null if no MAC address is available.
      */
     virtual const char *get_mac_address();
+
+    /** Set the MAC address to the interface.
+     *
+     *  Set the provided MAC address on the network interface. The address must
+     *  be unique globally. The address must be set before calling the interface
+     *  connect() method.
+     *
+     *  Not all interfaces are supporting MAC address set and an error is not returned
+     *  for this method call. Verify the changed MAC address by checking packet
+     *  captures from the used network interface.
+     *
+     *  6-byte EUI-48 MAC addresses are used for Ethernet while Mesh interface is
+     *  using 8-byte EUI-64 address.
+     *
+     *  More information about obtaining MAC address can be found from:
+     *  https://standards.ieee.org/products-services/regauth/index.html
+     *
+     *  @param          mac_addr Buffer containing the MAC address in hexadecimal format.
+     *  @param          addr_len Length of provided buffer in bytes (6 or 8)
+     *  @retval         NSAPI_ERROR_OK on success
+     *  @retval         NSAPI_ERROR_UNSUPPORTED if this feature is not supported
+     *  @retval         NSAPI_ERROR_PARAMETER if address is not valid
+     *  @retval         NSAPI_ERROR_BUSY if address can't be set.
+     */
+    virtual nsapi_error_t set_mac_address(uint8_t *mac_addr, nsapi_size_t addr_len);
 
     /** Get the local IP address
      *

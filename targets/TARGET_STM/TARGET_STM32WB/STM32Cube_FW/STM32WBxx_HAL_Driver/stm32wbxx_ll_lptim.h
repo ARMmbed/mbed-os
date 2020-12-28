@@ -268,26 +268,36 @@ typedef struct
 /**
   * @}
   */
+#if defined(LPTIM_OR_OR)
 
 /** @defgroup LPTIM_EC_INPUT1_SRC Input1 Source
   * @{
   */
 #define LL_LPTIM_INPUT1_SRC_GPIO         0x00000000U            /*!< For LPTIM1 and LPTIM2 */
+#if defined(COMP1)
 #define LL_LPTIM_INPUT1_SRC_COMP1        LPTIM_OR_OR_0          /*!< For LPTIM1 and LPTIM2 */
+#endif
+#if defined(COMP2)
 #define LL_LPTIM_INPUT1_SRC_COMP2        LPTIM_OR_OR_1          /*!< For LPTIM2 */
 #define LL_LPTIM_INPUT1_SRC_COMP1_COMP2  LPTIM_OR_OR            /*!< For LPTIM2 */
+#endif
 /**
   * @}
   */
+#endif /* LPTIM_OR_OR */
+#if defined(LPTIM_OR_OR)
 
 /** @defgroup LPTIM_EC_INPUT2_SRC Input2 Source
   * @{
   */
 #define LL_LPTIM_INPUT2_SRC_GPIO         0x00000000U                   /*!< For LPTIM1 */
+#if defined(COMP2)
 #define LL_LPTIM_INPUT2_SRC_COMP2        LPTIM_OR_OR_1                 /*!< For LPTIM1 */
+#endif
 /**
   * @}
   */
+#endif /* LPTIM_OR_OR */
 
 /**
   * @}
@@ -687,6 +697,7 @@ __STATIC_INLINE uint32_t LL_LPTIM_GetPrescaler(LPTIM_TypeDef *LPTIMx)
 {
   return (uint32_t)(READ_BIT(LPTIMx->CFGR, LPTIM_CFGR_PRESC));
 }
+#if defined(LPTIM_OR_OR)
 
 /**
   * @brief  Set LPTIM input 1 source (default GPIO).
@@ -695,14 +706,17 @@ __STATIC_INLINE uint32_t LL_LPTIM_GetPrescaler(LPTIM_TypeDef *LPTIMx)
   * @param  Src This parameter can be one of the following values:
   *         @arg @ref LL_LPTIM_INPUT1_SRC_GPIO
   *         @arg @ref LL_LPTIM_INPUT1_SRC_COMP1
-  *         @arg @ref LL_LPTIM_INPUT1_SRC_COMP2
-  *         @arg @ref LL_LPTIM_INPUT1_SRC_COMP1_COMP2
+  *         @arg @ref LL_LPTIM_INPUT1_SRC_COMP2 (*)
+  *         @arg @ref LL_LPTIM_INPUT1_SRC_COMP1_COMP2 (*)
+  *         (*) Value not defined for all devices
   * @retval None
   */
 __STATIC_INLINE void LL_LPTIM_SetInput1Src(LPTIM_TypeDef *LPTIMx, uint32_t Src)
 {
   MODIFY_REG(LPTIMx->OR, LPTIM_OR_OR, Src);
 }
+#endif /* LPTIM_OR_OR */
+#if defined(LPTIM_OR_OR)
 
 /**
   * @brief  Set LPTIM input 2 source (default GPIO).
@@ -717,6 +731,7 @@ __STATIC_INLINE void LL_LPTIM_SetInput2Src(LPTIM_TypeDef *LPTIMx, uint32_t Src)
 {
   MODIFY_REG(LPTIMx->OR, LPTIM_OR_OR, Src);
 }
+#endif /* LPTIM_OR_OR */
 
 /**
   * @}

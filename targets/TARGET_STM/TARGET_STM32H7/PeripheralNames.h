@@ -1,32 +1,18 @@
 /* mbed Microcontroller Library
- *******************************************************************************
- * Copyright (c) 2016, STMicroelectronics
+ * SPDX-License-Identifier: BSD-3-Clause
+ ******************************************************************************
+ *
+ * Copyright (c) 2015-2020 STMicroelectronics.
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- * 3. Neither the name of STMicroelectronics nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *******************************************************************************
+ ******************************************************************************
  */
+
 #ifndef MBED_PERIPHERALNAMES_H
 #define MBED_PERIPHERALNAMES_H
 
@@ -39,11 +25,16 @@ extern "C" {
 typedef enum {
     ADC_1 = (int)ADC1_BASE,
     ADC_2 = (int)ADC2_BASE,
+#if ADC3_BASE
     ADC_3 = (int)ADC3_BASE
+#endif
 } ADCName;
 
 typedef enum {
-    DAC_1 = DAC1_BASE
+    DAC_1 = DAC1_BASE,
+#if DAC2_BASE
+    DAC_2 = DAC2_BASE,
+#endif
 } DACName;
 
 typedef enum {
@@ -55,6 +46,12 @@ typedef enum {
     UART_6 = (int)USART6_BASE,
     UART_7 = (int)UART7_BASE,
     UART_8 = (int)UART8_BASE,
+#if UART9_BASE
+    UART_9 = (int)UART9_BASE,
+#endif
+#if USART10_BASE
+    UART_10 = (int)USART10_BASE,
+#endif
     LPUART_1 = (int)LPUART1_BASE
 } UARTName;
 
@@ -76,7 +73,9 @@ typedef enum {
 } I2CName;
 
 typedef enum {
+#if HRTIM1_BASE
     PWM_I  = (int)HRTIM1_BASE,
+#endif
     PWM_1  = (int)TIM1_BASE,
     PWM_2  = (int)TIM2_BASE,
     PWM_3  = (int)TIM3_BASE,
@@ -97,11 +96,30 @@ typedef enum {
 } CANName;
 
 typedef enum {
+#if QSPI_R_BASE
     QSPI_1 = (int)QSPI_R_BASE,
+#endif
+#if OCTOSPI1_R_BASE
+    QSPI_1 = (int)OCTOSPI1_R_BASE,
+#endif
+#if OCTOSPI2_R_BASE
+    QSPI_2 = (int)OCTOSPI2_R_BASE,
+#endif
 } QSPIName;
 
+#if defined OCTOSPI1_R_BASE
 typedef enum {
+    OSPI_1 = (int)OCTOSPI1_R_BASE,
+#if defined OCTOSPI2_R_BASE
+    OSPI_2 = (int)OCTOSPI2_R_BASE,
+#endif
+} OSPIName;
+#endif
+
+typedef enum {
+#if USB_OTG_FS_PERIPH_BASE
     USB_FS = (int)USB_OTG_FS_PERIPH_BASE,
+#endif
     USB_HS = (int)USB_OTG_HS_PERIPH_BASE
 } USBName;
 

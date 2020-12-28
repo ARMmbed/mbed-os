@@ -1,6 +1,7 @@
 /* nsapi_dns.cpp
  * Original work Copyright (c) 2013 Henry Leinen (henry[dot]leinen [at] online [dot] de)
  * Modified work Copyright (c) 2015 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -398,6 +399,7 @@ static nsapi_size_or_error_t nsapi_dns_cache_find(const char *host, nsapi_versio
             // Checks all entries for expired entries
             if (now > dns_cache[i]->expires) {
                 delete dns_cache[i]->host;
+                delete dns_cache[i]->address;
                 delete dns_cache[i];
                 dns_cache[i] = NULL;
             } else if ((version == NSAPI_UNSPEC || version == dns_cache[i]->address[0].version) && //only first IP address version check, others have the same version
@@ -488,11 +490,12 @@ static nsapi_size_or_error_t nsapi_dns_query_multiple(NetworkStack *stack, const
     nsapi_addr *tmp = new (std::nothrow) nsapi_addr_t [MBED_CONF_NSAPI_DNS_ADDRESSES_LIMIT];
     int cached = nsapi_dns_cache_find(host, version, tmp);
     if (cached > 0) {
-        for (int i = 0;  i < MIN(cached, addr_count); i++) {
+        unsigned int us_cached = cached;
+        for (unsigned int i = 0;  i < MIN(us_cached, addr_count); i++) {
             addr[i] = tmp[i];
         }
         delete [] tmp;
-        return MIN(cached, addr_count);
+        return MIN(us_cached, addr_count);
     }
     delete [] tmp;
     // create a udp socket

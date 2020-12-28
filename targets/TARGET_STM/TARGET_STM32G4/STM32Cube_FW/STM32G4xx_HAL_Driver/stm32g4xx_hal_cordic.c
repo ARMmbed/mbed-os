@@ -139,6 +139,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32g4xx_hal.h"
 
+#if defined(CORDIC)
 #ifdef HAL_CORDIC_MODULE_ENABLED
 
 /** @addtogroup STM32G4xx_HAL_Driver
@@ -1337,7 +1338,6 @@ static void CORDIC_DMAError(DMA_HandleTypeDef *hdma)
   * @}
   */
 
-#endif /* HAL_CORDIC_MODULE_ENABLED */
 /**
   * @}
   */
@@ -1345,5 +1345,8 @@ static void CORDIC_DMAError(DMA_HandleTypeDef *hdma)
 /**
   * @}
   */
+
+#endif /* HAL_CORDIC_MODULE_ENABLED */
+#endif /* CORDIC */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

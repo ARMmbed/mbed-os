@@ -359,7 +359,7 @@ typedef enum {
     // Backward legacy names
     USER_BUTTON = BUTTON1,
     PWM_OUT = D3,
-    
+
     /**** USB FS pins ****/
     USB_OTG_FS_DM = PA_11,
     USB_OTG_FS_DP = PA_12,

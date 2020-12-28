@@ -8,7 +8,6 @@
   *           + Initialization and de-initialization functions
   *           + Peripheral Control functions
   *
-  *
   @verbatim
   =============================================================================
                ##### SMARTCARD peripheral extended features  #####
@@ -56,11 +55,17 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+/** @defgroup SMARTCARDEx_Private_Constants SMARTCARD Extended Private Constants
+  * @{
+  */
 /* UART RX FIFO depth */
 #define RX_FIFO_DEPTH 8U
 
 /* UART TX FIFO depth */
 #define TX_FIFO_DEPTH 8U
+/**
+  * @}
+  */
 
 /* Private macros ------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -90,8 +95,7 @@ static void SMARTCARDEx_SetNbDataToProcess(SMARTCARD_HandleTypeDef *hsmartcard);
   * @{
   */
 
-/**
-  * @brief Update on the fly the SMARTCARD block length in RTOR register.
+/** @brief Update on the fly the SMARTCARD block length in RTOR register.
   * @param hsmartcard Pointer to a SMARTCARD_HandleTypeDef structure that contains
   *                    the configuration information for the specified SMARTCARD module.
   * @param BlockLength SMARTCARD block length (8-bit long at most)
@@ -102,8 +106,7 @@ void HAL_SMARTCARDEx_BlockLength_Config(SMARTCARD_HandleTypeDef *hsmartcard, uin
   MODIFY_REG(hsmartcard->Instance->RTOR, USART_RTOR_BLEN, ((uint32_t)BlockLength << USART_RTOR_BLEN_Pos));
 }
 
-/**
-  * @brief Update on the fly the receiver timeout value in RTOR register.
+/** @brief Update on the fly the receiver timeout value in RTOR register.
   * @param hsmartcard Pointer to a SMARTCARD_HandleTypeDef structure that contains
   *                    the configuration information for the specified SMARTCARD module.
   * @param TimeOutValue receiver timeout value in number of baud blocks. The timeout
@@ -116,15 +119,13 @@ void HAL_SMARTCARDEx_TimeOut_Config(SMARTCARD_HandleTypeDef *hsmartcard, uint32_
   MODIFY_REG(hsmartcard->Instance->RTOR, USART_RTOR_RTO, TimeOutValue);
 }
 
-/**
-  * @brief Enable the SMARTCARD receiver timeout feature.
+/** @brief Enable the SMARTCARD receiver timeout feature.
   * @param hsmartcard Pointer to a SMARTCARD_HandleTypeDef structure that contains
   *                    the configuration information for the specified SMARTCARD module.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_SMARTCARDEx_EnableReceiverTimeOut(SMARTCARD_HandleTypeDef *hsmartcard)
 {
-
   if (hsmartcard->gState == HAL_SMARTCARD_STATE_READY)
   {
     /* Process Locked */
@@ -148,15 +149,13 @@ HAL_StatusTypeDef HAL_SMARTCARDEx_EnableReceiverTimeOut(SMARTCARD_HandleTypeDef 
   }
 }
 
-/**
-  * @brief Disable the SMARTCARD receiver timeout feature.
+/** @brief Disable the SMARTCARD receiver timeout feature.
   * @param hsmartcard Pointer to a SMARTCARD_HandleTypeDef structure that contains
   *                    the configuration information for the specified SMARTCARD module.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_SMARTCARDEx_DisableReceiverTimeOut(SMARTCARD_HandleTypeDef *hsmartcard)
 {
-
   if (hsmartcard->gState == HAL_SMARTCARD_STATE_READY)
   {
     /* Process Locked */
@@ -191,12 +190,12 @@ HAL_StatusTypeDef HAL_SMARTCARDEx_DisableReceiverTimeOut(SMARTCARD_HandleTypeDef
  ===============================================================================
                       ##### IO operation functions #####
  ===============================================================================
+    [..]
     This subsection provides a set of FIFO mode related callback functions.
 
     (#) TX/RX Fifos Callbacks:
-        (+) HAL_SMARTCARDEx_RxFifoFullCallback()
-        (+) HAL_SMARTCARDEx_TxFifoEmptyCallback()
-
+        (++) HAL_SMARTCARDEx_RxFifoFullCallback()
+        (++) HAL_SMARTCARDEx_TxFifoEmptyCallback()
 
 @endverbatim
   * @{
@@ -238,15 +237,16 @@ __weak void HAL_SMARTCARDEx_TxFifoEmptyCallback(SMARTCARD_HandleTypeDef *hsmartc
   * @}
   */
 
-/** @defgroup SMARTCARD_Exported_Functions_Group3 Extended Peripheral Peripheral Control functions
+/** @defgroup SMARTCARDEx_Exported_Functions_Group3 Extended Peripheral FIFO Control functions
   *  @brief   SMARTCARD control functions
   *
 @verbatim
  ===============================================================================
-                      ##### Peripheral Control functions #####
+                  ##### Peripheral FIFO Control functions #####
  ===============================================================================
     [..]
-    This subsection provides a set of functions allowing to control the SMARTCARD.
+    This subsection provides a set of functions allowing to control the SMARTCARD
+    FIFO feature.
      (+) HAL_SMARTCARDEx_EnableFifoMode() API enables the FIFO mode
      (+) HAL_SMARTCARDEx_DisableFifoMode() API disables the FIFO mode
      (+) HAL_SMARTCARDEx_SetTxFifoThreshold() API sets the TX FIFO threshold
@@ -440,7 +440,7 @@ HAL_StatusTypeDef HAL_SMARTCARDEx_SetRxFifoThreshold(SMARTCARD_HandleTypeDef *hs
   * @}
   */
 
-/** @defgroup SMARTCARDEx_Private_Functions  SMARTCARD Extended private Functions
+/** @defgroup SMARTCARDEx_Private_Functions  SMARTCARD Extended Private Functions
   * @{
   */
 

@@ -132,7 +132,6 @@
   * @{
   */
 static uint32_t    UTILS_GetPLLOutputFrequency(uint32_t PLL_InputFrequency, LL_UTILS_PLLInitTypeDef *UTILS_PLLInitStruct);
-static ErrorStatus UTILS_SetFlashLatency(uint32_t HCLK4_Frequency);
 static ErrorStatus UTILS_EnablePLLAndSwitchSystem(uint32_t SYSCLK_Frequency, LL_UTILS_ClkInitTypeDef *UTILS_ClkInitStruct);
 static ErrorStatus UTILS_PLL_IsBusy(void);
 
@@ -247,6 +246,102 @@ void LL_SetSystemCoreClock(uint32_t HCLKFrequency)
 {
   /* HCLK clock frequency */
   SystemCoreClock = HCLKFrequency;
+}
+
+/**
+  * @brief  Update number of Flash wait states in line with new frequency and current
+            voltage range.
+  * @param  HCLK4Frequency  HCLK4 frequency
+  * @retval An ErrorStatus enumeration value:
+  *          - SUCCESS: Latency has been modified
+  *          - ERROR: Latency cannot be modified
+  */
+ErrorStatus LL_SetFlashLatency(uint32_t HCLK4Frequency)
+{
+  ErrorStatus status = SUCCESS;
+  uint32_t latency   = LL_FLASH_LATENCY_0;  /* default value 0WS */
+  uint16_t index;
+  uint32_t timeout;
+  uint32_t getlatency;
+#if defined(PWR_CR1_VOS)
+  uint32_t voltagescaling = LL_PWR_GetRegulVoltageScaling();
+  uint32_t maxfreq = (voltagescaling == LL_PWR_REGU_VOLTAGE_SCALE1) ? UTILS_MAX_FREQUENCY_SCALE1 : UTILS_MAX_FREQUENCY_SCALE2;
+#else
+  uint32_t maxfreq = UTILS_MAX_FREQUENCY_SCALE1;
+#endif
+
+  /* Array used for FLASH latency according to HCLK4 Frequency */
+  /* Flash Clock source (HCLK4) range in MHz with a VCORE is range1 */
+  const uint32_t UTILS_CLK_SRC_RANGE_VOS1[] = {18000000U, 36000000U, 54000000U, UTILS_MAX_FREQUENCY_SCALE1};
+
+#if defined(PWR_CR1_VOS)
+  /* Flash Clock source (HCLK4) range in MHz with a VCORE is range2 */
+  const uint32_t UTILS_CLK_SRC_RANGE_VOS2[] = {6000000U, 12000000U, UTILS_MAX_FREQUENCY_SCALE2};
+#endif
+
+  /* Flash Latency range */
+  const uint32_t UTILS_LATENCY_RANGE[] = {LL_FLASH_LATENCY_0, LL_FLASH_LATENCY_1, LL_FLASH_LATENCY_2, LL_FLASH_LATENCY_3};
+
+  /* Frequency cannot be equal to 0 or greater than max clock */
+  if ((HCLK4Frequency == 0U) || (HCLK4Frequency > maxfreq))
+  {
+    status = ERROR;
+  }
+  else
+  {
+#if defined(PWR_CR1_VOS)
+    if (voltagescaling == LL_PWR_REGU_VOLTAGE_SCALE1)
+    {
+      for (index = 0; index < countof(UTILS_CLK_SRC_RANGE_VOS1); index++)
+      {
+        if (HCLK4Frequency <= UTILS_CLK_SRC_RANGE_VOS1[index])
+        {
+          latency = UTILS_LATENCY_RANGE[index];
+          break;
+        }
+      }
+    }
+    else /* SCALE2 */
+    {
+      for (index = 0; index < countof(UTILS_CLK_SRC_RANGE_VOS2); index++)
+      {
+        if (HCLK4Frequency <= UTILS_CLK_SRC_RANGE_VOS2[index])
+        {
+          latency = UTILS_LATENCY_RANGE[index];
+          break;
+        }
+      }
+    }
+#else
+    for (index = 0; index < countof(UTILS_CLK_SRC_RANGE_VOS1); index++)
+    {
+      if (HCLK4Frequency <= UTILS_CLK_SRC_RANGE_VOS1[index])
+      {
+        latency = UTILS_LATENCY_RANGE[index];
+        break;
+      }
+    }
+#endif
+
+    LL_FLASH_SetLatency(latency);
+
+    /* Check that the new number of wait states is taken into account to access the Flash
+       memory by reading the FLASH_ACR register */
+    timeout = 2U;
+    do
+    {
+      /* Wait for Flash latency to be updated */
+      getlatency = LL_FLASH_GetLatency();
+      timeout--;
+    }
+    while ((getlatency != latency) && (timeout > 0U));
+
+    if (getlatency != latency)
+    {
+      status = ERROR;
+    }
+  }
+  return status;
 }
 
 /**
@@ -462,6 +557,7 @@ ErrorStatus LL_PLL_ConfigSystemClock_HSE(uint32_t HSEBypass, LL_UTILS_PLLInitTyp
       /* Enable HSE if not enabled */
       if (LL_RCC_HSE_IsReady() != 1U)
       {
+#if defined(RCC_CR_HSEBYP)
         /* Check if need to enable HSE bypass feature or not */
         if (HSEBypass == LL_UTILS_HSEBYPASS_ON)
         {
@@ -471,7 +567,7 @@ ErrorStatus LL_PLL_ConfigSystemClock_HSE(uint32_t HSEBypass, LL_UTILS_PLLInitTyp
         {
           LL_RCC_HSE_DisableBypass();
         }
-
+#endif
         /* Enable HSE */
         LL_RCC_HSE_Enable();
         while (LL_RCC_HSE_IsReady() != 1U)
@@ -510,84 +606,6 @@ ErrorStatus LL_PLL_ConfigSystemClock_HSE(uint32_t HSEBypass, LL_UTILS_PLLInitTyp
 /** @addtogroup UTILS_LL_Private_Functions
   * @{
   */
-/**
-  * @brief  Update number of Flash wait states in line with new frequency and current
-            voltage range.
-  * @param  HCLK4_Frequency  HCLK4 frequency
-  * @retval An ErrorStatus enumeration value:
-  *          - SUCCESS: Latency has been modified
-  *          - ERROR: Latency cannot be modified
-  */
-static ErrorStatus UTILS_SetFlashLatency(uint32_t HCLK4_Frequency)
-{
-  ErrorStatus status = SUCCESS;
-  uint32_t latency   = LL_FLASH_LATENCY_0;  /* default value 0WS */
-  uint16_t index;
-
-  /* Array used for FLASH latency according to HCLK4 Frequency */
-  /* Flash Clock source (HCLK4) range in MHz with a VCORE is range1 */
-  const uint32_t UTILS_CLK_SRC_RANGE_VOS1[] = {18000000U, 36000000U, 54000000U, UTILS_MAX_FREQUENCY_SCALE1};
-
-#if defined(PWR_CR1_VOS)
-  /* Flash Clock source (HCLK4) range in MHz with a VCORE is range2 */
-  const uint32_t UTILS_CLK_SRC_RANGE_VOS2[] = {6000000U, 12000000U, UTILS_MAX_FREQUENCY_SCALE2};
-#endif
-
-  /* Flash Latency range */
-  const uint32_t UTILS_LATENCY_RANGE[] = {LL_FLASH_LATENCY_0, LL_FLASH_LATENCY_1, LL_FLASH_LATENCY_2, LL_FLASH_LATENCY_3};
-
-  /* Frequency cannot be equal to 0 */
-  if (HCLK4_Frequency == 0U)
-  {
-    status = ERROR;
-  }
-  else
-  {
-#if defined(PWR_CR1_VOS)
-    if (LL_PWR_GetRegulVoltageScaling() == LL_PWR_REGU_VOLTAGE_SCALE1)
-    {
-      for (index = 0; index < countof(UTILS_CLK_SRC_RANGE_VOS1); index++)
-      {
-        if (HCLK4_Frequency <= UTILS_CLK_SRC_RANGE_VOS1[index])
-        {
-          latency = UTILS_LATENCY_RANGE[index];
-          break;
-        }
-      }
-    }
-    else /* SCALE2 */
-    {
-      for (index = 0; index < countof(UTILS_CLK_SRC_RANGE_VOS2); index++)
-      {
-        if (HCLK4_Frequency <= UTILS_CLK_SRC_RANGE_VOS2[index])
-        {
-          latency = UTILS_LATENCY_RANGE[index];
-          break;
-        }
-      }
-    }
-#else
-    for (index = 0; index < countof(UTILS_CLK_SRC_RANGE_VOS1); index++)
-    {
-      if (HCLK4_Frequency <= UTILS_CLK_SRC_RANGE_VOS1[index])
-      {
-        latency = UTILS_LATENCY_RANGE[index];
-        break;
-      }
-    }
-#endif
-
-    LL_FLASH_SetLatency(latency);
-
-    /* Check that the new number of wait states is taken into account to access the Flash
-       memory by reading the FLASH_ACR register */
-    while (LL_FLASH_GetLatency() != latency)
-    {
-    }
-  }
-  return status;
-}
-
 /**
   * @brief  Function to check that PLL can be modified
   * @param  PLL_InputFrequency  PLL input frequency (in Hz)
@@ -679,7 +697,7 @@ static ErrorStatus UTILS_EnablePLLAndSwitchSystem(uint32_t SYSCLK_Frequency, LL_
   if (hclks_frequency_current < hclks_frequency_target)
   {
     /* Set FLASH latency to highest latency */
-    status = UTILS_SetFlashLatency(hclks_frequency_target);
+    status = LL_SetFlashLatency(hclks_frequency_target);
   }
 
   /* Update system clock configuration */
@@ -712,7 +730,7 @@ static ErrorStatus UTILS_EnablePLLAndSwitchSystem(uint32_t SYSCLK_Frequency, LL_
   if (hclks_frequency_current > hclks_frequency_target)
   {
     /* Set FLASH latency to lowest latency */
-    status = UTILS_SetFlashLatency(hclks_frequency_target);
+    status = LL_SetFlashLatency(hclks_frequency_target);
   }
 
   /* Update SystemCoreClock variable */

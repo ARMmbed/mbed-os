@@ -2022,9 +2022,9 @@ void HAL_LPTIM_IRQHandler(LPTIM_HandleTypeDef *hlptim)
 
   /* Repetition counter underflowed (or contains zero) and the LPTIM counter
      overflowed */
-  if(__HAL_LPTIM_GET_FLAG(hlptim, LPTIM_FLAG_UPDATE) != RESET)
+  if (__HAL_LPTIM_GET_FLAG(hlptim, LPTIM_FLAG_UPDATE) != RESET)
   {
-    if(__HAL_LPTIM_GET_IT_SOURCE(hlptim, LPTIM_IT_UPDATE) != RESET)
+    if (__HAL_LPTIM_GET_IT_SOURCE(hlptim, LPTIM_IT_UPDATE) != RESET)
     {
       /* Clear update event flag */
       __HAL_LPTIM_CLEAR_FLAG(hlptim, LPTIM_FLAG_UPDATE);
@@ -2039,9 +2039,9 @@ void HAL_LPTIM_IRQHandler(LPTIM_HandleTypeDef *hlptim)
   }
 
   /* Successful APB bus write to repetition counter register */
-  if(__HAL_LPTIM_GET_FLAG(hlptim, LPTIM_FLAG_REPOK) != RESET)
+  if (__HAL_LPTIM_GET_FLAG(hlptim, LPTIM_FLAG_REPOK) != RESET)
   {
-    if(__HAL_LPTIM_GET_IT_SOURCE(hlptim, LPTIM_IT_REPOK) != RESET)
+    if (__HAL_LPTIM_GET_IT_SOURCE(hlptim, LPTIM_IT_REPOK) != RESET)
     {
       /* Clear successful APB bus write to repetition counter flag */
       __HAL_LPTIM_CLEAR_FLAG(hlptim, LPTIM_FLAG_REPOK);
@@ -2497,17 +2497,17 @@ static HAL_StatusTypeDef LPTIM_WaitForFlag(LPTIM_HandleTypeDef *hlptim, uint32_t
 {
   HAL_StatusTypeDef result = HAL_OK;
   uint32_t count = TIMEOUT * (SystemCoreClock / 20UL / 1000UL);
-    do
+  do
+  {
+    count--;
+    if (count == 0UL)
     {
-      count--;
-      if (count == 0UL)
-      {
-        result = HAL_TIMEOUT;
-      }
+      result = HAL_TIMEOUT;
     }
-    while((!(__HAL_LPTIM_GET_FLAG((hlptim), (flag)))) && (count != 0UL));
+  }
+  while ((!(__HAL_LPTIM_GET_FLAG((hlptim), (flag)))) && (count != 0UL));
 
-    return result;
+  return result;
 }
 
 /**
@@ -2535,17 +2535,17 @@ void LPTIM_Disable(LPTIM_HandleTypeDef *hlptim)
   /* Save LPTIM source clock */
   switch ((uint32_t)hlptim->Instance)
   {
-     case LPTIM1_BASE:
-       tmpclksource = __HAL_RCC_GET_LPTIM1_SOURCE();
-       break;
-     case LPTIM2_BASE:
-       tmpclksource = __HAL_RCC_GET_LPTIM2_SOURCE();
-       break;
-     case LPTIM3_BASE:
-       tmpclksource = __HAL_RCC_GET_LPTIM3_SOURCE();
-       break;
-     default:
-       break;
+    case LPTIM1_BASE:
+      tmpclksource = __HAL_RCC_GET_LPTIM1_SOURCE();
+      break;
+    case LPTIM2_BASE:
+      tmpclksource = __HAL_RCC_GET_LPTIM2_SOURCE();
+      break;
+    case LPTIM3_BASE:
+      tmpclksource = __HAL_RCC_GET_LPTIM3_SOURCE();
+      break;
+    default:
+      break;
   }
 
   /* Save LPTIM configuration registers */
@@ -2559,20 +2559,20 @@ void LPTIM_Disable(LPTIM_HandleTypeDef *hlptim)
   /*********** Reset LPTIM ***********/
   switch ((uint32_t)hlptim->Instance)
   {
-     case LPTIM1_BASE:
-       __HAL_RCC_LPTIM1_FORCE_RESET();
-       __HAL_RCC_LPTIM1_RELEASE_RESET();
-       break;
-     case LPTIM2_BASE:
-       __HAL_RCC_LPTIM2_FORCE_RESET();
-       __HAL_RCC_LPTIM2_RELEASE_RESET();
-       break;
-     case LPTIM3_BASE:
-       __HAL_RCC_LPTIM3_FORCE_RESET();
-       __HAL_RCC_LPTIM3_RELEASE_RESET();
-       break;
-     default:
-       break;
+    case LPTIM1_BASE:
+      __HAL_RCC_LPTIM1_FORCE_RESET();
+      __HAL_RCC_LPTIM1_RELEASE_RESET();
+      break;
+    case LPTIM2_BASE:
+      __HAL_RCC_LPTIM2_FORCE_RESET();
+      __HAL_RCC_LPTIM2_RELEASE_RESET();
+      break;
+    case LPTIM3_BASE:
+      __HAL_RCC_LPTIM3_FORCE_RESET();
+      __HAL_RCC_LPTIM3_RELEASE_RESET();
+      break;
+    default:
+      break;
   }
 
   /*********** Restore LPTIM Config ***********/
@@ -2581,17 +2581,17 @@ void LPTIM_Disable(LPTIM_HandleTypeDef *hlptim)
     /* Force LPTIM source kernel clock from APB */
     switch ((uint32_t)hlptim->Instance)
     {
-       case LPTIM1_BASE:
-         __HAL_RCC_LPTIM1_CONFIG(RCC_LPTIM1CLKSOURCE_PCLK1);
-         break;
-       case LPTIM2_BASE:
-         __HAL_RCC_LPTIM2_CONFIG(RCC_LPTIM2CLKSOURCE_PCLK1);
-         break;
-       case LPTIM3_BASE:
-         __HAL_RCC_LPTIM3_CONFIG(RCC_LPTIM3CLKSOURCE_PCLK1);
-         break;
-       default:
-         break;
+      case LPTIM1_BASE:
+        __HAL_RCC_LPTIM1_CONFIG(RCC_LPTIM1CLKSOURCE_PCLK1);
+        break;
+      case LPTIM2_BASE:
+        __HAL_RCC_LPTIM2_CONFIG(RCC_LPTIM2CLKSOURCE_PCLK1);
+        break;
+      case LPTIM3_BASE:
+        __HAL_RCC_LPTIM3_CONFIG(RCC_LPTIM3CLKSOURCE_PCLK1);
+        break;
+      default:
+        break;
     }
 
     if (tmpCMP != 0UL)
@@ -2640,17 +2640,17 @@ void LPTIM_Disable(LPTIM_HandleTypeDef *hlptim)
     /* Restore LPTIM source kernel clock */
     switch ((uint32_t)hlptim->Instance)
     {
-       case LPTIM1_BASE:
-         __HAL_RCC_LPTIM1_CONFIG(tmpclksource);
-         break;
-       case LPTIM2_BASE:
-         __HAL_RCC_LPTIM2_CONFIG(tmpclksource);
-         break;
-       case LPTIM3_BASE:
-         __HAL_RCC_LPTIM3_CONFIG(tmpclksource);
-         break;
-       default:
-         break;
+      case LPTIM1_BASE:
+        __HAL_RCC_LPTIM1_CONFIG(tmpclksource);
+        break;
+      case LPTIM2_BASE:
+        __HAL_RCC_LPTIM2_CONFIG(tmpclksource);
+        break;
+      case LPTIM3_BASE:
+        __HAL_RCC_LPTIM3_CONFIG(tmpclksource);
+        break;
+      default:
+        break;
     }
   }
 

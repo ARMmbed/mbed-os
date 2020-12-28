@@ -41,7 +41,7 @@
     Channel 2  |           |    YES     |    NO      |    YES     |    YES
                | DAC_OUT2  |    PA5     |     -      |     -      |     -
     ----------------------------------------------------------------------------
-    Note: On this STM32 serie, all devices do not include each DAC instances listed
+    Note: On this STM32 series, all devices do not include each DAC instances listed
           above. Refer to device datasheet for DACx instance availability.
 
       *** DAC Triggers ***
@@ -70,7 +70,7 @@
       (#) HRTimer Step & Reset: HRTIM1 (1)
           (DAC_TRIGGER_HRTIM_RST_TRG1, DAC_TRIGGER_HRTIM_STEP_TRG1...)
 
-      Note: On this STM32 serie, parameter only available if HRTIM feature is
+      Note: On this STM32 series, parameter only available if HRTIM feature is
             supported (refer to device datasheet for supported features list)
 
       *** DAC Buffer mode feature ***
@@ -195,7 +195,7 @@
         ----------------------------------------------------------------------------
         Channel 2  |           |     7      |     -      |    103     |    105
         ----------------------------------------------------------------------------
-        Note: On this STM32 serie, all devices do not include each DAC instances listed
+        Note: On this STM32 series, all devices do not include each DAC instances listed
               above. Refer to device datasheet for DACx instance availability.
 
        *** High frequency interface mode ***
@@ -565,7 +565,7 @@ __weak void HAL_DAC_MspDeInit(DAC_HandleTypeDef *hdac)
   *            @arg DAC_CHANNEL_1: DAC Channel1 selected
   *            @arg DAC_CHANNEL_2: DAC Channel2 selected (1)
   *
-  *         (1) On this STM32 serie, parameter not available on all instances.
+  *         (1) On this STM32 series, parameter not available on all instances.
   *             Refer to device datasheet for channels availability.
   * @retval HAL status
   */
@@ -623,7 +623,7 @@ HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef *hdac, uint32_t Channel)
   *            @arg DAC_CHANNEL_1: DAC Channel1 selected
   *            @arg DAC_CHANNEL_2: DAC Channel2 selected (1)
   *
-  *         (1) On this STM32 serie, parameter not available on all instances.
+  *         (1) On this STM32 series, parameter not available on all instances.
   *             Refer to device datasheet for channels availability.
   * @retval HAL status
   */
@@ -653,7 +653,7 @@ HAL_StatusTypeDef HAL_DAC_Stop(DAC_HandleTypeDef *hdac, uint32_t Channel)
   *            @arg DAC_CHANNEL_1: DAC Channel1 selected
   *            @arg DAC_CHANNEL_2: DAC Channel2 selected (1)
   *
-  *         (1) On this STM32 serie, parameter not available on all instances.
+  *         (1) On this STM32 series, parameter not available on all instances.
   *             Refer to device datasheet for channels availability.
   * @param  pData The destination peripheral Buffer address.
   * @param  Length The length of data to be transferred from memory to DAC peripheral
@@ -793,7 +793,7 @@ HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef *hdac, uint32_t Channel, u
   *            @arg DAC_CHANNEL_1: DAC Channel1 selected
   *            @arg DAC_CHANNEL_2: DAC Channel2 selected (1)
   *
-  *         (1) On this STM32 serie, parameter not available on all instances.
+  *         (1) On this STM32 series, parameter not available on all instances.
   *             Refer to device datasheet for channels availability.
   * @retval HAL status
   */
@@ -920,7 +920,7 @@ void HAL_DAC_IRQHandler(DAC_HandleTypeDef *hdac)
   *            @arg DAC_CHANNEL_1: DAC Channel1 selected
   *            @arg DAC_CHANNEL_2: DAC Channel2 selected (1)
   *
-  *         (1) On this STM32 serie, parameter not available on all instances.
+  *         (1) On this STM32 series, parameter not available on all instances.
   *             Refer to device datasheet for channels availability.
   * @param  Alignment Specifies the data alignment.
   *          This parameter can be one of the following values:
@@ -1052,7 +1052,7 @@ __weak void HAL_DAC_DMAUnderrunCallbackCh1(DAC_HandleTypeDef *hdac)
   *            @arg DAC_CHANNEL_1: DAC Channel1 selected
   *            @arg DAC_CHANNEL_2: DAC Channel2 selected (1)
   *
-  *         (1) On this STM32 serie, parameter not available on all instances.
+  *         (1) On this STM32 series, parameter not available on all instances.
   *             Refer to device datasheet for channels availability.
   * @retval The selected DAC channel data output value.
   */
@@ -1087,7 +1087,7 @@ uint32_t HAL_DAC_GetValue(DAC_HandleTypeDef *hdac, uint32_t Channel)
   *            @arg DAC_CHANNEL_1: DAC Channel1 selected
   *            @arg DAC_CHANNEL_2: DAC Channel2 selected (1)
   *
-  *         (1) On this STM32 serie, parameter not available on all instances.
+  *         (1) On this STM32 series, parameter not available on all instances.
   *             Refer to device datasheet for channels availability.
   * @retval HAL status
   */
@@ -1467,7 +1467,7 @@ HAL_StatusTypeDef HAL_DAC_RegisterCallback(DAC_HandleTypeDef *hdac, HAL_DAC_Call
   * @param  hdac DAC handle
   * @param  CallbackID ID of the callback to be unregistered
   *         This parameter can be one of the following values:
-  *          @arg @ref HAL_DAC_CH1_COMPLETE_CB_ID          DAC CH1 tranfer Complete Callback ID
+  *          @arg @ref HAL_DAC_CH1_COMPLETE_CB_ID          DAC CH1 transfer Complete Callback ID
   *          @arg @ref HAL_DAC_CH1_HALF_COMPLETE_CB_ID     DAC CH1 Half Complete Callback ID
   *          @arg @ref HAL_DAC_CH1_ERROR_ID                DAC CH1 Error Callback ID
   *          @arg @ref HAL_DAC_CH1_UNDERRUN_CB_ID          DAC CH1 UnderRun Callback ID

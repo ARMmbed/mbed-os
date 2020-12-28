@@ -158,7 +158,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
     GPIO_T *gpio_base = NU_PORT_BASE(port_index);
 
     /* We assume BSP has such coding so that we can easily add/remove either irq type. */
-    MBED_STATIC_ASSERT(GPIO_INT_BOTH_EDGE == (GPIO_INT_RISING | GPIO_INT_FALLING),
+    static_assert(GPIO_INT_BOTH_EDGE == (GPIO_INT_RISING | GPIO_INT_FALLING),
         "GPIO_INT_BOTH_EDGE must be bitwise OR of GPIO_INT_RISING and GPIO_INT_FALLING");
     uint32_t irq_type;
     switch (event) {

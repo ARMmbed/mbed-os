@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_hw.h
-* \version 2.30.3
+* \version 2.30.4
 *
 * \brief
 *  This file provides the headers to the API for the utils

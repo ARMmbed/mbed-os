@@ -24,8 +24,6 @@
 ;*
 ;******************************************************************************
 
-            IMPORT |Image$$ARM_LIB_STACK$$ZI$$Limit|
-
                 PRESERVE8
                 THUMB
 
@@ -36,7 +34,8 @@
                 EXPORT  __Vectors_End
                 EXPORT  __Vectors_Size
 
-__Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit| ; Top of Stack
+                IMPORT  |Image$$ARM_LIB_STACK$$ZI$$Limit|
+__Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit|                      ; Top of Stack
                 DCD     Reset_Handler                     ; Reset Handler
                 DCD     NMI_Handler                       ; NMI Handler
                 DCD     HardFault_Handler                 ; Hard Fault Handler
@@ -569,6 +568,11 @@ WAKEUP_PIN_IRQHandler
                 ENDP
 
                 ALIGN
+
+;*******************************************************************************
+; User Stack and Heap initialization
+;*******************************************************************************
+
                  END
 
 ;************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE*****

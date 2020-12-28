@@ -182,7 +182,7 @@
 #if defined(LPUART1)
 #define LPUART_BRR_MIN  0x00000300U  /* LPUART BRR minimum authorized value */
 #define LPUART_BRR_MAX  0x000FFFFFU  /* LPUART BRR maximum authorized value */
-#endif
+#endif /* LPUART1 */
 
 #define UART_BRR_MIN    0x10U        /* UART BRR minimum authorized value */
 #define UART_BRR_MAX    0x0000FFFFU  /* UART BRR maximum authorized value */
@@ -193,6 +193,8 @@
 
 /* Private macros ------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+const uint16_t UARTPrescTable[12] = {1U, 2U, 4U, 6U, 8U, 10U, 12U, 16U, 32U, 64U, 128U, 256U};
+
 /* Private function prototypes -----------------------------------------------*/
 /** @addtogroup UART_Private_Functions
   * @{
@@ -314,7 +316,7 @@ HAL_StatusTypeDef HAL_UART_Init(UART_HandleTypeDef *huart)
     assert_param((IS_UART_INSTANCE(huart->Instance)) || (IS_LPUART_INSTANCE(huart->Instance)));
 #else
     assert_param(IS_UART_INSTANCE(huart->Instance));
-#endif
+#endif /* LPUART1 */
   }
 
   if (huart->gState == HAL_UART_STATE_RESET)
@@ -628,7 +630,7 @@ HAL_StatusTypeDef HAL_UART_DeInit(UART_HandleTypeDef *huart)
   assert_param((IS_UART_INSTANCE(huart->Instance)) || (IS_LPUART_INSTANCE(huart->Instance)));
 #else
   assert_param(IS_UART_INSTANCE(huart->Instance));
-#endif
+#endif /* LPUART1 */
 
   huart->gState = HAL_UART_STATE_BUSY;
 
@@ -2867,11 +2869,11 @@ HAL_StatusTypeDef UART_SetConfig(UART_HandleTypeDef *huart)
   uint32_t tmpreg;
   uint16_t brrtemp;
   UART_ClockSourceTypeDef clocksource;
-  uint32_t usartdiv                   = 0x00000000U;
+  uint32_t usartdiv;
   HAL_StatusTypeDef ret               = HAL_OK;
 #if defined(LPUART1)
-  uint32_t lpuart_ker_ck_pres         = 0x00000000U;
-#endif
+  uint32_t lpuart_ker_ck_pres;
+#endif /* LPUART1 */
   uint32_t pclk;
 
   /* Check the parameters */
@@ -2890,7 +2892,7 @@ HAL_StatusTypeDef UART_SetConfig(UART_HandleTypeDef *huart)
 #else
   assert_param(IS_UART_STOPBITS(huart->Init.StopBits));
   assert_param(IS_UART_ONE_BIT_SAMPLE(huart->Init.OneBitSampling));
-#endif
+#endif /* LPUART1 */
 
   assert_param(IS_UART_PARITY(huart->Init.Parity));
   assert_param(IS_UART_MODE(huart->Init.Mode));
@@ -2929,7 +2931,7 @@ HAL_StatusTypeDef UART_SetConfig(UART_HandleTypeDef *huart)
   }
 #else
   tmpreg |= huart->Init.OneBitSampling;
-#endif
+#endif /* LPUART1 */
   MODIFY_REG(huart->Instance->CR3, USART_CR3_FIELDS, tmpreg);
 
   /*-------------------------- USART PRESC Configuration -----------------------*/
@@ -2948,26 +2950,30 @@ HAL_StatusTypeDef UART_SetConfig(UART_HandleTypeDef *huart)
     switch (clocksource)
     {
       case UART_CLOCKSOURCE_PCLK1:
-        lpuart_ker_ck_pres = (HAL_RCC_GetPCLK1Freq() / UART_GET_DIV_FACTOR(huart->Init.ClockPrescaler));
+        pclk = HAL_RCC_GetPCLK1Freq();
         break;
       case UART_CLOCKSOURCE_HSI:
-        lpuart_ker_ck_pres = ((uint32_t)HSI_VALUE / UART_GET_DIV_FACTOR(huart->Init.ClockPrescaler));
+        pclk = (uint32_t) HSI_VALUE;
         break;
       case UART_CLOCKSOURCE_SYSCLK:
-        lpuart_ker_ck_pres = (HAL_RCC_GetSysClockFreq() / UART_GET_DIV_FACTOR(huart->Init.ClockPrescaler));
+        pclk = HAL_RCC_GetSysClockFreq();
         break;
       case UART_CLOCKSOURCE_LSE:
-        lpuart_ker_ck_pres = ((uint32_t)LSE_VALUE / UART_GET_DIV_FACTOR(huart->Init.ClockPrescaler));
+        pclk = (uint32_t) LSE_VALUE;
         break;
       default:
+        pclk = 0U;
         ret = HAL_ERROR;
         break;
     }
 
-    /* if proper clock source reported */
-    if (lpuart_ker_ck_pres != 0U)
+    /* If proper clock source reported */
+    if (pclk != 0U)
     {
-      /* ensure that Frequency clock is in the range [3 * baudrate, 4096 * baudrate] */
+      /* Compute clock after Prescaler */
+      lpuart_ker_ck_pres = (pclk / UARTPrescTable[huart->Init.ClockPrescaler]);
+
+      /* Ensure that Frequency clock is in the range [3 * baudrate, 4096 * baudrate] */
       if ((lpuart_ker_ck_pres < (3U * huart->Init.BaudRate)) ||
           (lpuart_ker_ck_pres > (4096U * huart->Init.BaudRate)))
       {
@@ -2975,28 +2981,9 @@ HAL_StatusTypeDef UART_SetConfig(UART_HandleTypeDef *huart)
       }
       else
       {
-        switch (clocksource)
-        {
-          case UART_CLOCKSOURCE_PCLK1:
-            pclk = HAL_RCC_GetPCLK1Freq();
-            usartdiv = (uint32_t)(UART_DIV_LPUART(pclk, huart->Init.BaudRate, huart->Init.ClockPrescaler));
-            break;
-          case UART_CLOCKSOURCE_HSI:
-            usartdiv = (uint32_t)(UART_DIV_LPUART(HSI_VALUE, huart->Init.BaudRate, huart->Init.ClockPrescaler));
-            break;
-          case UART_CLOCKSOURCE_SYSCLK:
-            pclk = HAL_RCC_GetSysClockFreq();
-            usartdiv = (uint32_t)(UART_DIV_LPUART(pclk, huart->Init.BaudRate, huart->Init.ClockPrescaler));
-            break;
-          case UART_CLOCKSOURCE_LSE:
-            usartdiv = (uint32_t)(UART_DIV_LPUART(LSE_VALUE, huart->Init.BaudRate, huart->Init.ClockPrescaler));
-            break;
-          default:
-            ret = HAL_ERROR;
-            break;
-        }
-
-        /* It is forbidden to write values lower than 0x300 in the LPUART_BRR register */
+        /* Check computed UsartDiv value is in allocated range 
+           (it is forbidden to write values lower than 0x300 in the LPUART_BRR register) */
+        usartdiv = (uint32_t)(UART_DIV_LPUART(pclk, (uint64_t)huart->Init.BaudRate, huart->Init.ClockPrescaler));
         if ((usartdiv >= LPUART_BRR_MIN) && (usartdiv <= LPUART_BRR_MAX))
         {
           huart->Instance->BRR = usartdiv;
@@ -3005,8 +2992,8 @@ HAL_StatusTypeDef UART_SetConfig(UART_HandleTypeDef *huart)
         {
           ret = HAL_ERROR;
         }
-      } /*   if ( (lpuart_ker_ck_pres < (3 * huart->Init.BaudRate) ) || (lpuart_ker_ck_pres > (4096 * huart->Init.BaudRate) )) */
-    } /* if (lpuart_ker_ck_pres != 0) */
+      } /* if ( (lpuart_ker_ck_pres < (3 * huart->Init.BaudRate) ) || (lpuart_ker_ck_pres > (4096 * huart->Init.BaudRate) )) */
+    } /* if (pclk != 0) */
   }
   /* Check UART Over Sampling to set Baud Rate Register */
   else if (huart->Init.OverSampling == UART_OVERSAMPLING_8)
@@ -3018,33 +3005,36 @@ HAL_StatusTypeDef UART_SetConfig(UART_HandleTypeDef *huart)
     {
       case UART_CLOCKSOURCE_PCLK2:
         pclk = HAL_RCC_GetPCLK2Freq();
-        usartdiv = (uint16_t)(UART_DIV_SAMPLING8(pclk, huart->Init.BaudRate, huart->Init.ClockPrescaler));
         break;
       case UART_CLOCKSOURCE_HSI:
-        usartdiv = (uint16_t)(UART_DIV_SAMPLING8(HSI_VALUE, huart->Init.BaudRate, huart->Init.ClockPrescaler));
+        pclk = (uint32_t) HSI_VALUE;
         break;
       case UART_CLOCKSOURCE_SYSCLK:
         pclk = HAL_RCC_GetSysClockFreq();
-        usartdiv = (uint16_t)(UART_DIV_SAMPLING8(pclk, huart->Init.BaudRate, huart->Init.ClockPrescaler));
         break;
       case UART_CLOCKSOURCE_LSE:
-        usartdiv = (uint16_t)(UART_DIV_SAMPLING8((uint32_t)LSE_VALUE, huart->Init.BaudRate, huart->Init.ClockPrescaler));
+        pclk = (uint32_t) LSE_VALUE;
         break;
       default:
+        pclk = 0U;
         ret = HAL_ERROR;
         break;
     }
 
     /* USARTDIV must be greater than or equal to 0d16 */
-    if ((usartdiv >= UART_BRR_MIN) && (usartdiv <= UART_BRR_MAX))
+    if (pclk != 0U)
     {
-      brrtemp = (uint16_t)(usartdiv & 0xFFF0U);
-      brrtemp |= (uint16_t)((usartdiv & (uint16_t)0x000FU) >> 1U);
-      huart->Instance->BRR = brrtemp;
-    }
-    else
-    {
-      ret = HAL_ERROR;
+      usartdiv = (uint16_t)(UART_DIV_SAMPLING8(pclk, huart->Init.BaudRate, huart->Init.ClockPrescaler));
+      if ((usartdiv >= UART_BRR_MIN) && (usartdiv <= UART_BRR_MAX))
+      {
+        brrtemp = (uint16_t)(usartdiv & 0xFFF0U);
+        brrtemp |= (uint16_t)((usartdiv & (uint16_t)0x000FU) >> 1U);
+        huart->Instance->BRR = brrtemp;
+      }
+      else
+      {
+        ret = HAL_ERROR;
+      }
     }
   }
   else
@@ -3053,31 +3043,34 @@ HAL_StatusTypeDef UART_SetConfig(UART_HandleTypeDef *huart)
     {
       case UART_CLOCKSOURCE_PCLK2:
         pclk = HAL_RCC_GetPCLK2Freq();
-        usartdiv = (uint16_t)(UART_DIV_SAMPLING16(pclk, huart->Init.BaudRate, huart->Init.ClockPrescaler));
         break;
       case UART_CLOCKSOURCE_HSI:
-        usartdiv = (uint16_t)(UART_DIV_SAMPLING16(HSI_VALUE, huart->Init.BaudRate, huart->Init.ClockPrescaler));
+        pclk = (uint32_t) HSI_VALUE;
         break;
       case UART_CLOCKSOURCE_SYSCLK:
         pclk = HAL_RCC_GetSysClockFreq();
-        usartdiv = (uint16_t)(UART_DIV_SAMPLING16(pclk, huart->Init.BaudRate, huart->Init.ClockPrescaler));
         break;
       case UART_CLOCKSOURCE_LSE:
-        usartdiv = (uint16_t)(UART_DIV_SAMPLING16((uint32_t)LSE_VALUE, huart->Init.BaudRate, huart->Init.ClockPrescaler));
+        pclk = (uint32_t) LSE_VALUE;
         break;
       default:
+        pclk = 0U;
         ret = HAL_ERROR;
         break;
     }
 
-    /* USARTDIV must be greater than or equal to 0d16 */
-    if ((usartdiv >= UART_BRR_MIN) && (usartdiv <= UART_BRR_MAX))
+    if (pclk != 0U)
     {
-      huart->Instance->BRR = usartdiv;
-    }
-    else
-    {
-      ret = HAL_ERROR;
+      /* USARTDIV must be greater than or equal to 0d16 */
+      usartdiv = (uint16_t)(UART_DIV_SAMPLING16(pclk, huart->Init.BaudRate, huart->Init.ClockPrescaler));
+      if ((usartdiv >= UART_BRR_MIN) && (usartdiv <= UART_BRR_MAX))
+      {
+        huart->Instance->BRR = usartdiv;
+      }
+      else
+      {
+        ret = HAL_ERROR;
+      }
     }
   }
 

@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +33,7 @@ static PWM_Type *const pwm_addrs[] = PWM_BASE_PTRS;
 extern void pwm_setup();
 extern uint32_t pwm_get_clock();
 
-void pwmout_init(pwmout_t* obj, PinName pin)
+void pwmout_init(pwmout_t *obj, PinName pin)
 {
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
     MBED_ASSERT(pwm != (PWMName)NC);
@@ -93,7 +94,7 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     pinmap_pinout(pin, PinMap_PWM);
 }
 
-void pwmout_free(pwmout_t* obj)
+void pwmout_free(pwmout_t *obj)
 {
     uint32_t instance = (obj->pwm_name >> PWM_SHIFT) & 0x7;
     uint32_t module = (obj->pwm_name >> PWM_MODULE_SHIFT) & 0x3;
@@ -101,7 +102,7 @@ void pwmout_free(pwmout_t* obj)
     PWM_StopTimer(pwm_addrs[instance], (1 << module));
 }
 
-void pwmout_write(pwmout_t* obj, float value)
+void pwmout_write(pwmout_t *obj, float value)
 {
     if (value < 0.0f) {
         value = 0.0f;
@@ -130,7 +131,7 @@ void pwmout_write(pwmout_t* obj, float value)
     PWM_SetPwmLdok(base, (1 << module), true);
 }
 
-float pwmout_read(pwmout_t* obj)
+float pwmout_read(pwmout_t *obj)
 {
     PWM_Type *base = pwm_addrs[(obj->pwm_name >> PWM_SHIFT) & 0x7];
     uint32_t module = (obj->pwm_name >> PWM_MODULE_SHIFT) & 0x3;
@@ -153,18 +154,18 @@ float pwmout_read(pwmout_t* obj)
     return (v > 1.0f) ? (1.0f) : (v);
 }
 
-void pwmout_period(pwmout_t* obj, float seconds)
+void pwmout_period(pwmout_t *obj, float seconds)
 {
     pwmout_period_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_period_ms(pwmout_t* obj, int ms)
+void pwmout_period_ms(pwmout_t *obj, int ms)
 {
     pwmout_period_us(obj, ms * 1000);
 }
 
 // Set the PWM period, keeping the duty cycle the same.
-void pwmout_period_us(pwmout_t* obj, int us)
+void pwmout_period_us(pwmout_t *obj, int us)
 {
     PWM_Type *base = pwm_addrs[(obj->pwm_name >> PWM_SHIFT) & 0x7];
     uint32_t module = (obj->pwm_name >> PWM_MODULE_SHIFT) & 0x3;
@@ -194,17 +195,24 @@ void pwmout_period_us(pwmout_t* obj, int us)
     pwmout_write(obj, dc);
 }
 
-void pwmout_pulsewidth(pwmout_t* obj, float seconds)
+int pwmout_read_period_us(pwmout_t *obj)
+{
+    PWM_Type *base = pwm_addrs[(obj->pwm_name >> PWM_SHIFT) & 0x7];
+    uint32_t module = (obj->pwm_name >> PWM_MODULE_SHIFT) & 0x3;
+    return (base->SM[module].VAL1) & PWM_VAL1_VAL1_MASK;
+}
+
+void pwmout_pulsewidth(pwmout_t *obj, float seconds)
 {
     pwmout_pulsewidth_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_pulsewidth_ms(pwmout_t* obj, int ms)
+void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
 {
     pwmout_pulsewidth_us(obj, ms * 1000);
 }
 
-void pwmout_pulsewidth_us(pwmout_t* obj, int us)
+void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 {
     PWM_Type *base = pwm_addrs[(obj->pwm_name >> PWM_SHIFT) & 0x7];
     uint32_t module = (obj->pwm_name >> PWM_MODULE_SHIFT) & 0x3;
@@ -221,6 +229,20 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us)
     }
     /* Set the load okay bit */
     PWM_SetPwmLdok(base, (1 << module), true);
+}
+
+int pwmout_read_pulsewidth_us(pwmout_t *obj) {
+    uint16_t count;
+    PWM_Type *base = pwm_addrs[(obj->pwm_name >> PWM_SHIFT) & 0x7];
+    uint32_t module = (obj->pwm_name >> PWM_MODULE_SHIFT) & 0x3;
+    uint32_t pwmchannel = obj->pwm_name & 0x1;
+    if (pwmchannel == 0)
+    {
+        count = (base->SM[module].VAL3) & PWM_VAL3_VAL3_MASK;
+    } else
+    {
+        count = (base->SM[module].VAL5) & PWM_VAL5_VAL5_MASK;
+    }
 }
 
 const PinMap *pwmout_pinmap()

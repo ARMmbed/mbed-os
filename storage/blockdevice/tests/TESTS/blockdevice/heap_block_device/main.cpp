@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2017 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +29,7 @@ using namespace utest::v1;
 #define TEST_BLOCK_COUNT 10
 #define TEST_ERROR_MASK 16
 
-#if ((MBED_RAM_SIZE - MBED_BOOT_STACK_SIZE) <= TEST_BLOCK_DEVICE_SIZE)
+#if ((MBED_RAM_SIZE - MBED_CONF_TARGET_BOOT_STACK_SIZE) <= TEST_BLOCK_DEVICE_SIZE)
 #error [NOT_SUPPORTED] Insufficient heap for heap block device tests
 #endif
 

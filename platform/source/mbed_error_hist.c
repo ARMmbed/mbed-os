@@ -21,7 +21,7 @@
 #include "platform/mbed_critical.h"
 
 #if MBED_CONF_PLATFORM_ERROR_HIST_ENABLED
-#include "platform/source/mbed_error_hist.h"
+#include "platform/internal/mbed_error_hist.h"
 
 static mbed_error_ctx mbed_error_ctx_log[MBED_CONF_PLATFORM_ERROR_HIST_SIZE] = {0};
 static int error_log_count = -1;

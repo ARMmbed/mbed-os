@@ -39,6 +39,7 @@
 #include "stm32f4xx_ll_pwr.h"
 #include "stm32f4xx_ll_adc.h"
 #include "stm32f4xx_ll_rtc.h"
+#include "stm32f4xx_ll_rcc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -150,11 +151,7 @@ struct can_s {
 
 #if DEVICE_QSPI
 struct qspi_s {
-#if defined(OCTOSPI1)
-    OSPI_HandleTypeDef handle;
-#else
     QSPI_HandleTypeDef handle;
-#endif
     QSPIName qspi;
     PinName io0;
     PinName io1;

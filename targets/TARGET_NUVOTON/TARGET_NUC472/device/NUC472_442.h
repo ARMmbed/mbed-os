@@ -32521,8 +32521,9 @@ typedef volatile unsigned long  vu32;       ///< Define 32-bit unsigned volatile
 #define FALSE          (0)      ///< Boolean false, define to use in API parameters or return value
 #endif
 
-#define ENABLE         (1)      ///< Enable, define to use in API parameters
-#define DISABLE        (0)      ///< Disable, define to use in API parameters
+/* Not used on Mbed OS. Remove to get around name conflict */
+//#define ENABLE         (1)      ///< Enable, define to use in API parameters
+//#define DISABLE        (0)      ///< Disable, define to use in API parameters
 
 /* Define one bit mask */
 #define BIT0     (0x00000001)       ///< Bit 0 mask of an 32 bit integer

@@ -29,7 +29,7 @@
 #include "platform/CriticalSectionLock.h"
 #include "platform/mbed_assert.h"
 #include "platform/mbed_critical.h"
-#include "platform/source/mbed_os_timer.h"
+#include "platform/internal/mbed_os_timer.h"
 
 using std::milli;
 using std::chrono::duration;
@@ -200,7 +200,7 @@ uint32_t ThisThread::flags_wait_any_for(uint32_t flags, uint32_t millisec, bool 
 
 uint32_t ThisThread::flags_wait_any_for(uint32_t flags, Clock::duration_u32 rel_time, bool clear)
 {
-    return flags_wait_for(flags, rel_time, clear, osFlagsWaitAll);
+    return flags_wait_for(flags, rel_time, clear, osFlagsWaitAny);
 }
 
 uint32_t ThisThread::flags_wait_any_until(uint32_t flags, uint64_t millisec, bool clear)
@@ -223,6 +223,7 @@ void ThisThread::sleep_for(Clock::duration_u32 rel_time)
 #if MBED_CONF_RTOS_PRESENT
     osStatus_t status = osDelay(rel_time.count());
     MBED_ASSERT(status == osOK);
+    (void) status;
 #else
     thread_sleep_for(rel_time.count());
 #endif
@@ -242,10 +243,12 @@ void ThisThread::sleep_until(Clock::time_point abs_time)
         if (abs_time - now > wait_for_u32_max) {
             osStatus_t status = osDelay(wait_for_u32_max.count());
             MBED_ASSERT(status == osOK);
+            (void) status;
             continue;
         } else {
             osStatus_t status = osDelay((abs_time - now).count());
             MBED_ASSERT(status == osOK);
+            (void) status;
             break;
         }
     }

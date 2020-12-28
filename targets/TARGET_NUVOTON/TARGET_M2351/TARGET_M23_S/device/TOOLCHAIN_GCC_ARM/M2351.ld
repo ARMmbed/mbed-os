@@ -22,17 +22,17 @@
 
 #include "../../../device/partition_M2351_mem.h"
 
-#ifndef MBED_BOOT_STACK_SIZE
-#define MBED_BOOT_STACK_SIZE    0x400
+#ifndef MBED_CONF_TARGET_BOOT_STACK_SIZE
+#define MBED_CONF_TARGET_BOOT_STACK_SIZE    0x400
 #endif
 
 #if (TFM_LVL == 0)
 
-StackSize = MBED_BOOT_STACK_SIZE;
+StackSize = MBED_CONF_TARGET_BOOT_STACK_SIZE;
 
 #else
 
-#warning("Ignore MBED_BOOT_STACK_SIZE in Secure PSA build")
+#warning("Ignore MBED_CONF_TARGET_BOOT_STACK_SIZE in Secure PSA build")
 __msp_stack_size__ = 0x00000800;
 __psp_stack_size__ = 0x00000800;
 

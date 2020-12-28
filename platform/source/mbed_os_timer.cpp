@@ -16,9 +16,9 @@
  */
 
 #include "platform/mbed_power_mgmt.h"
-#include "platform/source/mbed_os_timer.h"
 #include "platform/CriticalSectionLock.h"
-#include "platform/source/SysTimer.h"
+#include "platform/internal/SysTimer.h"
+#include "platform/internal/mbed_os_timer.h"
 #include "us_ticker_api.h"
 #include "lp_ticker_api.h"
 #include "mbed_critical.h"
@@ -52,7 +52,11 @@ OsTimer *init_os_timer()
 #elif DEVICE_USTICKER
         os_timer = new (os_timer_data) OsTimer(get_us_ticker_data());
 #else
-        MBED_ERROR("OS timer not available");
+        MBED_ERROR(
+            MBED_MAKE_ERROR(
+                MBED_MODULE_PLATFORM,
+                MBED_ERROR_CODE_CONFIG_UNSUPPORTED),
+            "OS timer not available");
 #endif
     }
 

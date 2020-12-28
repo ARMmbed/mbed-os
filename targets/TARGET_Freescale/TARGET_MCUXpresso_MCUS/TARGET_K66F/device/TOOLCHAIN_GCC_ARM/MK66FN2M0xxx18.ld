@@ -44,8 +44,8 @@
 ** ###################################################################
 */
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-    #define MBED_BOOT_STACK_SIZE 0x400
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+    #define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
 #endif
 
 /* Entry Point */
@@ -55,10 +55,12 @@ __ram_vector_table__ = 1;
 
 /* With the RTOS in use, this does not affect the main stack size. The size of
  * the stack where main runs is determined via the RTOS. */
-__stack_size__ = MBED_BOOT_STACK_SIZE;
+__stack_size__ = MBED_CONF_TARGET_BOOT_STACK_SIZE;
 
 #if !defined(MBED_APP_START)
   #define MBED_APP_START 0
+#elif MBED_APP_START > 0 && MBED_APP_START < 0x410
+    #error MBED_APP_START too small and will overwrite interrupts and flash config
 #endif
 
 #if !defined(MBED_APP_SIZE)
@@ -72,9 +74,13 @@ M_CRASH_DATA_RAM_SIZE = 0x100;
 /* Specify the memory areas */
 MEMORY
 {
+#if MBED_APP_START == 0
   m_interrupts          (RX)  : ORIGIN = MBED_APP_START, LENGTH = 0x400
   m_flash_config        (RX)  : ORIGIN = MBED_APP_START + 0x400, LENGTH = 0x10
   m_text                (RX)  : ORIGIN = MBED_APP_START + 0x410, LENGTH = MBED_APP_SIZE - 0x410
+#else
+  m_text                (RX)  : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
+#endif
   m_data                (RW)  : ORIGIN = 0x1FFF0000, LENGTH = 0x00010000
   m_data_2              (RW)  : ORIGIN = 0x20000000, LENGTH = 0x00030000
 }
@@ -89,6 +95,7 @@ SECTIONS
     . = ALIGN(8);
     KEEP(*(.isr_vector))     /* Startup code */
     . = ALIGN(8);
+#if MBED_APP_START == 0
   } > m_interrupts
 
   .flash_config :
@@ -97,8 +104,9 @@ SECTIONS
     KEEP(*(.FlashConfig))    /* Flash Configuration Field (FCF) */
     . = ALIGN(8);
   } > m_flash_config
-
-  /* The program code and other data goes into internal flash */
+#else
+  } > m_text
+#endif
   .text :
   {
     . = ALIGN(8);

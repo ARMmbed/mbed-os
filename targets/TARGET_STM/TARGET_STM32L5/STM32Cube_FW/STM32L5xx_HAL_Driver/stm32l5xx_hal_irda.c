@@ -40,7 +40,8 @@
             (+++) Configure the declared DMA handle structure with the required Tx/Rx parameters.
             (+++) Configure the DMA Tx/Rx channel.
             (+++) Associate the initialized DMA handle to the IRDA DMA Tx/Rx handle.
-            (+++) Configure the priority and enable the NVIC for the transfer complete interrupt on the DMA Tx/Rx channel.
+            (+++) Configure the priority and enable the NVIC for the transfer
+                  complete interrupt on the DMA Tx/Rx channel.
 
     (#) Program the Baud Rate, Word Length and Parity and Mode(Receiver/Transmitter),
         the normal or low power mode and the clock prescaler in the hirda handle Init structure.
@@ -771,13 +772,16 @@ HAL_StatusTypeDef HAL_IRDA_UnRegisterCallback(IRDA_HandleTypeDef *hirda, HAL_IRD
     (#) In Non-Blocking mode transfers, possible errors are split into 2 categories.
         Errors are handled as follows :
         (++) Error is considered as Recoverable and non blocking : Transfer could go till end, but error severity is
-             to be evaluated by user : this concerns Frame Error, Parity Error or Noise Error in Interrupt mode reception .
-             Received character is then retrieved and stored in Rx buffer, Error code is set to allow user to identify error type,
-             and HAL_IRDA_ErrorCallback() user callback is executed. Transfer is kept ongoing on IRDA side.
+             to be evaluated by user : this concerns Frame Error, Parity Error or Noise Error
+             in Interrupt mode reception .
+             Received character is then retrieved and stored in Rx buffer, Error code is set to allow user
+             to identify error type, and HAL_IRDA_ErrorCallback() user callback is executed.
+             Transfer is kept ongoing on IRDA side.
              If user wants to abort it, Abort services should be called by user.
         (++) Error is considered as Blocking : Transfer could not be completed properly and is aborted.
              This concerns Overrun Error In Interrupt mode reception and all errors in DMA mode.
-             Error code is set to allow user to identify error type, and HAL_IRDA_ErrorCallback() user callback is executed.
+             Error code is set to allow user to identify error type, and
+             HAL_IRDA_ErrorCallback() user callback is executed.
 
 @endverbatim
   * @{
@@ -815,7 +819,7 @@ HAL_StatusTypeDef HAL_IRDA_Transmit(IRDA_HandleTypeDef *hirda, uint8_t *pData, u
     hirda->ErrorCode = HAL_IRDA_ERROR_NONE;
     hirda->gState = HAL_IRDA_STATE_BUSY_TX;
 
-    /* Init tickstart for timeout managment*/
+    /* Init tickstart for timeout management */
     tickstart = HAL_GetTick();
 
     hirda->TxXferSize = Size;
@@ -905,7 +909,7 @@ HAL_StatusTypeDef HAL_IRDA_Receive(IRDA_HandleTypeDef *hirda, uint8_t *pData, ui
     hirda->ErrorCode = HAL_IRDA_ERROR_NONE;
     hirda->RxState = HAL_IRDA_STATE_BUSY_RX;
 
-    /* Init tickstart for timeout managment*/
+    /* Init tickstart for timeout management */
     tickstart = HAL_GetTick();
 
     hirda->RxXferSize = Size;
@@ -1280,7 +1284,7 @@ HAL_StatusTypeDef HAL_IRDA_DMAResume(IRDA_HandleTypeDef *hirda)
     /* Clear the Overrun flag before resuming the Rx transfer*/
     __HAL_IRDA_CLEAR_OREFLAG(hirda);
 
-    /* Reenable PE and ERR (Frame error, noise error, overrun error) interrupts */
+    /* Re-enable PE and ERR (Frame error, noise error, overrun error) interrupts */
     SET_BIT(hirda->Instance->CR1, USART_CR1_PEIE);
     SET_BIT(hirda->Instance->CR3, USART_CR3_EIE);
 
@@ -1380,7 +1384,8 @@ HAL_StatusTypeDef HAL_IRDA_DMAStop(IRDA_HandleTypeDef *hirda)
 HAL_StatusTypeDef HAL_IRDA_Abort(IRDA_HandleTypeDef *hirda)
 {
   /* Disable TXEIE, TCIE, RXNE, PE and ERR (Frame error, noise error, overrun error) interrupts */
-  CLEAR_BIT(hirda->Instance->CR1, (USART_CR1_RXNEIE_RXFNEIE | USART_CR1_PEIE | USART_CR1_TXEIE_TXFNFIE | USART_CR1_TCIE));
+  CLEAR_BIT(hirda->Instance->CR1, (USART_CR1_RXNEIE_RXFNEIE | USART_CR1_PEIE | \
+                                   USART_CR1_TXEIE_TXFNFIE | USART_CR1_TCIE));
   CLEAR_BIT(hirda->Instance->CR3, USART_CR3_EIE);
 
   /* Disable the IRDA DMA Tx request if enabled */
@@ -1578,7 +1583,8 @@ HAL_StatusTypeDef HAL_IRDA_Abort_IT(IRDA_HandleTypeDef *hirda)
   uint32_t abortcplt = 1U;
 
   /* Disable TXEIE, TCIE, RXNE, PE and ERR (Frame error, noise error, overrun error) interrupts */
-  CLEAR_BIT(hirda->Instance->CR1, (USART_CR1_RXNEIE_RXFNEIE | USART_CR1_PEIE | USART_CR1_TXEIE_TXFNFIE | USART_CR1_TCIE));
+  CLEAR_BIT(hirda->Instance->CR1, (USART_CR1_RXNEIE_RXFNEIE | USART_CR1_PEIE | \
+                                   USART_CR1_TXEIE_TXFNFIE | USART_CR1_TCIE));
   CLEAR_BIT(hirda->Instance->CR3, USART_CR3_EIE);
 
   /* If DMA Tx and/or DMA Rx Handles are associated to IRDA Handle, DMA Abort complete callbacks should be initialised
@@ -2322,7 +2328,7 @@ static HAL_StatusTypeDef IRDA_CheckIdleState(IRDA_HandleTypeDef *hirda)
   /* Initialize the IRDA ErrorCode */
   hirda->ErrorCode = HAL_IRDA_ERROR_NONE;
 
-  /* Init tickstart for timeout managment*/
+  /* Init tickstart for timeout management */
   tickstart = HAL_GetTick();
 
   /* Check if the Transmitter is enabled */
@@ -2377,7 +2383,8 @@ static HAL_StatusTypeDef IRDA_WaitOnFlagUntilTimeout(IRDA_HandleTypeDef *hirda, 
     {
       if (((HAL_GetTick() - Tickstart) > Timeout) || (Timeout == 0U))
       {
-        /* Disable TXE, RXNE, PE and ERR (Frame error, noise error, overrun error) interrupts for the interrupt process */
+        /* Disable TXE, RXNE, PE and ERR (Frame error, noise error, overrun error)
+           interrupts for the interrupt process */
         CLEAR_BIT(hirda->Instance->CR1, (USART_CR1_RXNEIE_RXFNEIE | USART_CR1_PEIE | USART_CR1_TXEIE_TXFNFIE));
         CLEAR_BIT(hirda->Instance->CR3, USART_CR3_EIE);
 

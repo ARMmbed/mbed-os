@@ -22,6 +22,8 @@ using namespace mbed;
 using namespace mbed_cellular_util;
 using namespace std::chrono_literals;
 
+constexpr seconds UBLOX_AT_CellularStack::SOCKET_TIMEOUT;
+
 UBLOX_AT_CellularStack::UBLOX_AT_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device) :
     AT_CellularStack(atHandler, cid, stack_type, device)
 {
@@ -169,7 +171,6 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto_impl(CellularSocket 
     MBED_ASSERT(socket->id != -1);
 
     int sent_len = 0;
-    uint8_t ch = 0;
 
     if (socket->proto == NSAPI_UDP) {
         if (size > UBLOX_MAX_PACKET_SIZE) {
@@ -372,7 +373,7 @@ UBLOX_AT_CellularStack::CellularSocket *UBLOX_AT_CellularStack::find_socket(int 
 {
     CellularSocket *socket = NULL;
 
-    for (unsigned int x = 0; (socket == NULL) && (x < _device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT)); x++) {
+    for (ptrdiff_t x = 0; (socket == NULL) && (x < _device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT)); x++) {
         if (_socket) {
             if (_socket[x]->id == id) {
                 socket = (_socket[x]);

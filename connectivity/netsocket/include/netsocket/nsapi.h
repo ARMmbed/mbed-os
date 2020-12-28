@@ -3,6 +3,7 @@
 /** @{*/
 /* nsapi.h - The network socket API
  * Copyright (c) 2015 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +34,9 @@
 #include "netsocket/NetworkInterface.h"
 #include "netsocket/EthInterface.h"
 #include "netsocket/WiFiInterface.h"
+#if MBED_CONF_CELLULAR_PRESENT
 #include "netsocket/CellularInterface.h"
+#endif
 #include "netsocket/MeshInterface.h"
 
 #include "netsocket/Socket.h"

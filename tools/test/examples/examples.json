@@ -60,20 +60,15 @@
       "github":"https://github.com/ARMmbed/mbed-os-example-ble",
       "sub-repo-example": true,
       "subs": [
-            "BLE_BatteryLevel",
-            "BLE_Beacon",
-            "BLE_Button",
+            "BLE_Advertising",
             "BLE_GAP",
-            "BLE_GAPButton",
-            "BLE_GattClient",
-            "BLE_GattServer",
-            "BLE_HeartRate",
-            "BLE_LED",
-            "BLE_LEDBlinker",
+            "BLE_GattClient_CharacteristicUpdates",
+            "BLE_GattClient_CharacteristicWrite",
+            "BLE_GattServer_AddService",
+            "BLE_GattServer_CharacteristicUpdates",
+            "BLE_GattServer_CharacteristicWrite",
             "BLE_PeriodicAdvertising",
-            "BLE_Privacy",
-            "BLE_SM",
-            "BLE_Thermometer"
+            "BLE_SecurityAndPrivacy"
       ],
       "features" : [],
       "targets" : ["NRF52_DK", "DISCO_L475VG_IOT01A"],
@@ -130,20 +125,6 @@
       "test" : true,
       "baud_rate": 9600,
       "compare_log": ["mbed-os-example-wifi/tests/wifi_scan.log"],
-      "auto-update" : true
-    },
-    {
-      "name": "nanostack-border-router",
-      "github":"https://github.com/ARMmbed/nanostack-border-router",
-      "sub-repo-example": false,
-      "subs": [],
-      "features" : [],
-      "targets" : ["K66F", "NUCLEO_F429ZI"],
-      "toolchains" : [],
-      "exporters": [],
-      "compile" : true,
-      "export": true,
-      "test" : false,
       "auto-update" : true
     },
     {
@@ -441,7 +422,7 @@
         "sub-repo-example": false,
         "subs": [],
         "features" : [],
-        "targets" : [ "K66F", "NUCLEO_F429ZI", "ARM_MUSCA_B1"],
+        "targets" : [ "K66F", "NUCLEO_F429ZI"],
         "toolchains" : [],
         "exporters": [],
         "compile" : true,
@@ -466,21 +447,6 @@
         "baud_rate": 9600,
         "compare_log": ["mbed-os-example-atecc608a/tests/atecc608a.log"],
         "auto-update" : true
-    },
-    {
-      "name": "mbed-os-example-aws",
-      "github": "https://github.com/ARMmbed/mbed-os-example-aws",
-      "sub-repo-example": false,
-      "subs": [],
-      "features" : [],
-      "targets" : ["DISCO_L475VG_IOT01A", "K64F", "NUCLEO_F429ZI"],
-      "toolchains" : [],
-      "exporters": [],
-      "compile" : true,
-      "export": true,
-      "test" : false,
-      "baud_rate": 115200,
-      "auto-update" : true
     }
   ]
 }

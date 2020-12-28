@@ -47,10 +47,10 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /**
- * @brief STM32H7xx HAL Driver version number V1.8.0
+ * @brief STM32H7xx HAL Driver version number V1.9.0
    */
 #define __STM32H7xx_HAL_VERSION_MAIN   (0x01UL) /*!< [31:24] main version */
-#define __STM32H7xx_HAL_VERSION_SUB1   (0x08UL) /*!< [23:16] sub1 version */
+#define __STM32H7xx_HAL_VERSION_SUB1   (0x09UL) /*!< [23:16] sub1 version */
 #define __STM32H7xx_HAL_VERSION_SUB2   (0x00UL) /*!< [15:8]  sub2 version */
 #define __STM32H7xx_HAL_VERSION_RC     (0x00UL) /*!< [7:0]  release candidate */
 #define __STM32H7xx_HAL_VERSION         ((__STM32H7xx_HAL_VERSION_MAIN << 24)\
@@ -267,11 +267,11 @@ __weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
     return HAL_ERROR;
   }
 
-  /* Configure the SysTick to have interrupt in 1ms time basis*/
-  if (HAL_SYSTICK_Config(SystemCoreClock / (1000UL / (uint32_t)uwTickFreq)) > 0U)
-  {
-    return HAL_ERROR;
-  }
+    /* Configure the SysTick to have interrupt in 1ms time basis*/
+    if (HAL_SYSTICK_Config(SystemCoreClock / (1000UL / (uint32_t)uwTickFreq)) > 0U)
+    {
+      return HAL_ERROR;
+    }
 
   /* Configure the SysTick IRQ priority */
   if (TickPriority < (1UL << __NVIC_PRIO_BITS))
@@ -873,6 +873,42 @@ void HAL_SYSCFG_VDDMMC_CompensationCodeConfig(uint32_t SYSCFG_PMOSCode, uint32_t
   MODIFY_REG(SYSCFG->CCCR, (SYSCFG_CCCR_NCC_MMC | SYSCFG_CCCR_PCC_MMC), (((uint32_t)(SYSCFG_PMOSCode)<< 4)|(uint32_t)(SYSCFG_NMOSCode)) );
 }
 #endif /* SYSCFG_CCCR_NCC_MMC */
+
+#if defined(SYSCFG_ADC2ALT_ADC2_ROUT0)
+/** @brief  SYSCFG ADC2 internal input alternate connection macros
+  * @param Adc2AltRout0 This parameter can be a value of :
+  *     @arg @ref SYSCFG_ADC2_ROUT0_DAC1_1   DAC1_out1 connected to ADC2 VINP[16]
+  *     @arg @ref SYSCFG_ADC2_ROUT0_VBAT4    VBAT/4 connected to ADC2 VINP[16]
+  */
+void HAL_SYSCFG_ADC2ALT_Rout0Config(uint32_t Adc2AltRout0)
+{
+  /* Check the parameters */
+  assert_param(IS_SYSCFG_ADC2ALT_ROUT0(Adc2AltRout0));
+
+  MODIFY_REG(SYSCFG->ADC2ALT, SYSCFG_ADC2ALT_ADC2_ROUT0, Adc2AltRout0);
+}
+/**
+  * @}
+  */
+#endif /*SYSCFG_ADC2ALT_ADC2_ROUT0*/
+
+#if defined(SYSCFG_ADC2ALT_ADC2_ROUT1)
+/** @brief  SYSCFG ADC2 internal input alternate connection macros
+  * @param Adc2AltRout1  This parameter can be a value of :
+  *     @arg @ref SYSCFG_ADC2_ROUT1_DAC1_2   DAC1_out2 connected to ADC2 VINP[17]
+  *     @arg @ref SYSCFG_ADC2_ROUT1_VREFINT  VREFINT connected to ADC2 VINP[17]
+  */
+void HAL_SYSCFG_ADC2ALT_Rout1Config(uint32_t Adc2AltRout1)
+{
+  /* Check the parameters */
+  assert_param(IS_SYSCFG_ADC2ALT_ROUT1(Adc2AltRout1));
+
+  MODIFY_REG(SYSCFG->ADC2ALT, SYSCFG_ADC2ALT_ADC2_ROUT1, Adc2AltRout1);
+}
+/**
+  * @}
+  */
+#endif /*SYSCFG_ADC2ALT_ADC2_ROUT1*/
 
 /**
   * @brief  Enable the Debug Module during Domain1/CDomain SLEEP mode

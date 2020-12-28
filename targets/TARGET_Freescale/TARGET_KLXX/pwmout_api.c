@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +24,8 @@
 
 static float pwm_clock;
 
-void pwmout_init(pwmout_t* obj, PinName pin) {
+void pwmout_init(pwmout_t *obj, PinName pin)
+{
     // determine the channel
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
     MBED_ASSERT(pwm != (PWMName)NC);
@@ -51,10 +53,11 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     while (clkval > 1) {
         clkdiv++;
         clkval /= 2.0;
-        if (clkdiv == 7)
+        if (clkdiv == 7) {
             break;
+        }
     }
-    
+
     pwm_clock = clkval;
     unsigned int port  = (unsigned int)pin >> PORT_SHIFT;
     unsigned int tpm_n = (pwm >> TPM_SHIFT);
@@ -73,15 +76,16 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
 
     // default to 20ms: standard for servos, and fine for e.g. brightness control
     pwmout_period_ms(obj, 20);
-    pwmout_write    (obj, 0);
+    pwmout_write(obj, 0);
 
     // Wire pinout
     pinmap_pinout(pin, PinMap_PWM);
 }
 
-void pwmout_free(pwmout_t* obj) {}
+void pwmout_free(pwmout_t *obj) {}
 
-void pwmout_write(pwmout_t* obj, float value) {
+void pwmout_write(pwmout_t *obj, float value)
+{
     if (value < 0.0) {
         value = 0.0;
     } else if (value > 1.0) {
@@ -92,36 +96,61 @@ void pwmout_write(pwmout_t* obj, float value) {
     *obj->CNT = 0;
 }
 
-float pwmout_read(pwmout_t* obj) {
+float pwmout_read(pwmout_t *obj)
+{
     float v = (float)(*obj->CnV) / (float)(*obj->MOD + 1);
     return (v > 1.0) ? (1.0) : (v);
 }
 
-void pwmout_period(pwmout_t* obj, float seconds) {
+void pwmout_period(pwmout_t *obj, float seconds)
+{
     pwmout_period_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_period_ms(pwmout_t* obj, int ms) {
+void pwmout_period_ms(pwmout_t *obj, int ms)
+{
     pwmout_period_us(obj, ms * 1000);
 }
 
 // Set the PWM period, keeping the duty cycle the same.
-void pwmout_period_us(pwmout_t* obj, int us) {
+void pwmout_period_us(pwmout_t *obj, int us)
+{
     float dc = pwmout_read(obj);
     *obj->MOD = (uint32_t)(pwm_clock * (float)us) - 1;
     pwmout_write(obj, dc);
 }
 
-void pwmout_pulsewidth(pwmout_t* obj, float seconds) {
+int pwmout_read_period_us(pwmout_t *obj)
+{
+    uint32_t pwm_period = 0;
+    if (pwm_clock > 0) {
+        pwm_period = ((*obj->MOD) + 1) / pwm_clock;
+    }
+    return pwm_period;
+}
+
+void pwmout_pulsewidth(pwmout_t *obj, float seconds)
+{
     pwmout_pulsewidth_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
+void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
+{
     pwmout_pulsewidth_us(obj, ms * 1000);
 }
 
-void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
+void pwmout_pulsewidth_us(pwmout_t *obj, int us)
+{
     *obj->CnV = (uint32_t)(pwm_clock * (float)us);
+}
+
+int pwmout_read_pulsewidth_us(pwmout_t *obj)
+{
+    uint32_t pwm_pulsewidth = 0;
+    if (pwm_clock > 0) {
+        pwm_pulsewidth = (*obj->CnV) / pwm_clock;
+    }
+    return pwm_pulsewidth;
 }
 
 const PinMap *pwmout_pinmap()

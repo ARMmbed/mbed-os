@@ -1,4 +1,5 @@
-#! armcc -E
+#! armclang -E --target=arm-arm-none-eabi -x c -mcpu=cortex-m4
+
 ; Scatter-Loading Description File
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Copyright (c) 2014, STMicroelectronics
@@ -29,26 +30,22 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 #if !defined(MBED_APP_START)
-  #ifdef DISABLE_POST_BINARY_HOOK
-      #define MBED_APP_START 0x08000000
-  #else
-      #define MBED_APP_START 0x08010000
-  #endif
+   #define MBED_APP_START 0x08000000
 #endif
 
 #if !defined(MBED_APP_SIZE)
-  #ifdef DISABLE_POST_BINARY_HOOK
-      #define MBED_APP_SIZE 0x80000
-  #else
-      #define MBED_APP_SIZE (0x80000 - 0x10000)
-  #endif
+   #define MBED_APP_SIZE 0x80000
 #endif
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-  #define MBED_BOOT_STACK_SIZE 0x400
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+#  if defined(MBED_BOOT_STACK_SIZE)
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE MBED_BOOT_STACK_SIZE
+#  else
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
+#  endif
 #endif
 
-#define Stack_Size MBED_BOOT_STACK_SIZE
+#define Stack_Size MBED_CONF_TARGET_BOOT_STACK_SIZE
 
 #define MBED_RAM_START              0x20000000
 #define MBED_RAM_SIZE               0x20000

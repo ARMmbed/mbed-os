@@ -6,7 +6,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2018 STMicroelectronics.
+  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
   * This software component is licensed by ST under BSD 3-Clause license,
@@ -31,7 +31,7 @@
 /** @addtogroup STM32L5xx_HAL_Driver
   * @{
   */
-#if defined (HASH)
+
 /** @addtogroup HASHEx
   * @{
   */
@@ -149,7 +149,7 @@ HAL_StatusTypeDef HAL_HMACEx_SHA256_Step2_3_DMA(HASH_HandleTypeDef *hhash, uint8
 /**
   * @}
   */
-#endif /*  HASH*/
+
 /**
   * @}
   */

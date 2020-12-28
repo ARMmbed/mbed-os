@@ -317,9 +317,13 @@ typedef  void (*pLPTIM_CallbackTypeDef)(LPTIM_HandleTypeDef *hlptim);  /*!< poin
   */
 
 #define LPTIM_INPUT1SOURCE_GPIO          0x00000000U   /*!< For LPTIM1 and LPTIM2 */
+#if defined(COMP1)
 #define LPTIM_INPUT1SOURCE_COMP1         LPTIM_OR_OR_0 /*!< For LPTIM1 and LPTIM2 */
+#endif
+#if defined(COMP2)
 #define LPTIM_INPUT1SOURCE_COMP2         LPTIM_OR_OR_1 /*!< For LPTIM2 */
 #define LPTIM_INPUT1SOURCE_COMP1_COMP2   LPTIM_OR_OR   /*!< For LPTIM2 */
+#endif
 /**
   * @}
   */
@@ -329,7 +333,9 @@ typedef  void (*pLPTIM_CallbackTypeDef)(LPTIM_HandleTypeDef *hlptim);  /*!< poin
   */
 
 #define LPTIM_INPUT2SOURCE_GPIO         0x00000000U                    /*!< For LPTIM1 */
+#if defined(COMP2)
 #define LPTIM_INPUT2SOURCE_COMP2        LPTIM_OR_OR_1                  /*!< For LPTIM1 */
+#endif
 /**
   * @}
   */
@@ -533,55 +539,11 @@ typedef  void (*pLPTIM_CallbackTypeDef)(LPTIM_HandleTypeDef *hlptim);  /*!< poin
 
 #define __HAL_LPTIM_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__) ((((__HANDLE__)->Instance->IER & (__INTERRUPT__)) == (__INTERRUPT__)) ? SET : RESET)
 
-/**
-  * @brief  Enable the LPTIM1 EXTI line in interrupt mode.
-  * @retval None
-  */
 #define __HAL_LPTIM_LPTIM1_EXTI_ENABLE_IT()            (EXTI->IMR1 |= LPTIM_EXTI_LINE_LPTIM1)
-
-/**
-  * @brief  Disable the LPTIM1 EXTI line in interrupt mode.
-  * @retval None
-  */
 #define __HAL_LPTIM_LPTIM1_EXTI_DISABLE_IT()           (EXTI->IMR1 &= ~(LPTIM_EXTI_LINE_LPTIM1))
 
-
-/**
-  * @brief  Enable the LPTIM1 EXTI line in event mode.
-  * @retval None
-  */
-#define __HAL_LPTIM_LPTIM1_EXTI_ENABLE_EVENT()         (EXTI->EMR1 |= LPTIM_EXTI_LINE_LPTIM1)
-
-/**
-  * @brief  Disable the LPTIM1 EXTI line in event mode.
-  * @retval None
-  */
-#define __HAL_LPTIM_LPTIM1_EXTI_DISABLE_EVENT()        (EXTI->EMR1 &= ~(LPTIM_EXTI_LINE_LPTIM1))
-
-/**
-  * @brief  Enable the LPTIM2 EXTI line in interrupt mode.
-  * @retval None
-  */
 #define __HAL_LPTIM_LPTIM2_EXTI_ENABLE_IT()            (EXTI->IMR1 |= LPTIM_EXTI_LINE_LPTIM2)
-
-/**
-  * @brief  Disable the LPTIM2 EXTI line in interrupt mode.
-  * @retval None
-  */
 #define __HAL_LPTIM_LPTIM2_EXTI_DISABLE_IT()           (EXTI->IMR1 &= ~(LPTIM_EXTI_LINE_LPTIM2))
-
-
-/**
-  * @brief  Enable the LPTIM2 EXTI line in event mode.
-  * @retval None
-  */
-#define __HAL_LPTIM_LPTIM2_EXTI_ENABLE_EVENT()         (EXTI->EMR1 |= LPTIM_EXTI_LINE_LPTIM2)
-
-/**
-  * @brief  Disable the LPTIM2 EXTI line in event mode.
-  * @retval None
-  */
-#define __HAL_LPTIM_LPTIM2_EXTI_DISABLE_EVENT()        (EXTI->EMR1 &= ~(LPTIM_EXTI_LINE_LPTIM2))
 
 /**
   * @}
@@ -806,6 +768,8 @@ HAL_LPTIM_StateTypeDef HAL_LPTIM_GetState(LPTIM_HandleTypeDef *hlptim);
 
 #define IS_LPTIM_PULSE(__PULSE__)               ((__PULSE__) <= 0x0000FFFFUL)
 
+#if defined(COMP1)
+#if defined(COMP2)
 #define IS_LPTIM_INPUT1_SOURCE(__INSTANCE__, __SOURCE__)  \
     ((((__INSTANCE__) == LPTIM1) &&                       \
      (((__SOURCE__) == LPTIM_INPUT1SOURCE_GPIO) ||        \
@@ -816,11 +780,35 @@ HAL_LPTIM_StateTypeDef HAL_LPTIM_GetState(LPTIM_HandleTypeDef *hlptim);
       ((__SOURCE__) == LPTIM_INPUT1SOURCE_COMP1) ||       \
       ((__SOURCE__) == LPTIM_INPUT1SOURCE_COMP2) ||       \
       ((__SOURCE__) == LPTIM_INPUT1SOURCE_COMP1_COMP2))))
+#else
+#define IS_LPTIM_INPUT1_SOURCE(__INSTANCE__, __SOURCE__)  \
+    ((((__INSTANCE__) == LPTIM1) &&                       \
+     (((__SOURCE__) == LPTIM_INPUT1SOURCE_GPIO) ||        \
+      ((__SOURCE__) == LPTIM_INPUT1SOURCE_COMP1)))        \
+     ||                                                   \
+     (((__INSTANCE__) == LPTIM2) &&                       \
+     (((__SOURCE__) == LPTIM_INPUT1SOURCE_GPIO) ||        \
+      ((__SOURCE__) == LPTIM_INPUT1SOURCE_COMP1))))
+#endif
+#else
+#define IS_LPTIM_INPUT1_SOURCE(__INSTANCE__, __SOURCE__)  \
+    ((((__INSTANCE__) == LPTIM1) &&                       \
+      ((__SOURCE__) == LPTIM_INPUT1SOURCE_GPIO) )         \
+     ||                                                   \
+     (((__INSTANCE__) == LPTIM2) &&                       \
+      ((__SOURCE__) == LPTIM_INPUT1SOURCE_GPIO)))
+#endif
 
+#if defined(COMP2)
 #define IS_LPTIM_INPUT2_SOURCE(__INSTANCE__, __SOURCE__)  \
      (((__INSTANCE__) == LPTIM1) &&                       \
      (((__SOURCE__) == LPTIM_INPUT2SOURCE_GPIO) ||        \
       ((__SOURCE__) == LPTIM_INPUT2SOURCE_COMP2)))
+#else
+#define IS_LPTIM_INPUT2_SOURCE(__INSTANCE__, __SOURCE__)  \
+     (((__INSTANCE__) == LPTIM1) &&                       \
+     (((__SOURCE__) == LPTIM_INPUT2SOURCE_GPIO)))
+#endif
 
 /**
   * @}

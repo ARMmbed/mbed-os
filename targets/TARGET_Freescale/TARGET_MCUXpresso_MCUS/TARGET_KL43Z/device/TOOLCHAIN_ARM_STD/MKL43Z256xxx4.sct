@@ -1,4 +1,4 @@
-#! armcc -E
+#! armclang -E --target=arm-arm-none-eabi -x c -mcpu=cortex-m0plus
 /*
 ** ###################################################################
 **     Processors:          MKL43Z256VLH4
@@ -69,15 +69,19 @@
 #define m_data_size                    (0x00008000 - m_interrupts_ram_size)
 
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-  #define MBED_BOOT_STACK_SIZE 0x400
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+#  if defined(MBED_BOOT_STACK_SIZE)
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE MBED_BOOT_STACK_SIZE
+#  else
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
+#  endif
 #endif
 
 /* Sizes */
 #if (defined(__stack_size__))
   #define Stack_Size                   __stack_size__
 #else
-  #define Stack_Size                   MBED_BOOT_STACK_SIZE
+  #define Stack_Size                   MBED_CONF_TARGET_BOOT_STACK_SIZE
 #endif
 
 LR_IROM1 m_interrupts_start m_text_start+m_text_size-m_interrupts_start { ; load region size_region

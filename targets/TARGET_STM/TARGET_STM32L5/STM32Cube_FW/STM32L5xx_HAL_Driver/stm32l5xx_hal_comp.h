@@ -588,7 +588,7 @@ typedef  void (*pCOMP_CallbackTypeDef)(COMP_HandleTypeDef *hcomp); /*!< pointer 
   * @}
   */
 
-/** @defgroup COMP_IS_COMP_Definitions COMP private macros to check input parameters
+/** @defgroup COMP_IS_COMP_Private_Definitions COMP private macros to check input parameters
   * @{
   */
 #define IS_COMP_WINDOWMODE(__WINDOWMODE__)  (((__WINDOWMODE__) == COMP_WINDOWMODE_DISABLE)                || \
@@ -607,7 +607,7 @@ typedef  void (*pCOMP_CallbackTypeDef)(COMP_HandleTypeDef *hcomp); /*!< pointer 
                                                                 ((__INPUT_PLUS__) == COMP_INPUT_PLUS_IO2)   )   \
                                                               )
 
-/* Note: On this STM32 serie, comparator input minus parameters are           */
+/* Note: On this STM32 series, comparator input minus parameters are          */
 /*       the same on all COMP instances.                                      */
 /*       However, comparator instance kept as macro parameter for             */
 /*       compatibility with other STM32 families.                             */

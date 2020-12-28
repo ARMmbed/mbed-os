@@ -23,8 +23,12 @@
 #define MBED_RAM1_START             0x60000000
 #define MBED_RAM1_SIZE              0x00100000
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-  #define MBED_BOOT_STACK_SIZE      0x400
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+#  if defined(MBED_BOOT_STACK_SIZE)
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE MBED_BOOT_STACK_SIZE
+#  else
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
+#  endif
 #endif
 
 #define VECTOR_SIZE                 (4*(16 + 142))
@@ -36,7 +40,7 @@ LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {
    .ANY (+RO)
   }
 
-  ARM_LIB_STACK  MBED_RAM_START  EMPTY  MBED_BOOT_STACK_SIZE {
+  ARM_LIB_STACK  MBED_RAM_START  EMPTY  MBED_CONF_TARGET_BOOT_STACK_SIZE {
   }
 
   /* VTOR[TBLOFF] alignment requires:

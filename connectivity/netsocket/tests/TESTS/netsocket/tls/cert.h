@@ -17,6 +17,9 @@
 
 #include "tls_tests.h"
 
+#if defined(MBED_CONF_APP_ECHO_SERVER_USE_CUSTOM_CERT) && MBED_CONF_APP_ECHO_SERVER_USE_CUSTOM_CERT
+#include "custom_cert.h"
+#else
 const char *tls_global::cert = \
                                "-----BEGIN CERTIFICATE-----\n"
                                "MIIEkjCCA3qgAwIBAgIQCgFBQgAAAVOFc2oLheynCDANBgkqhkiG9w0BAQsFADA/\n"
@@ -45,3 +48,4 @@ const char *tls_global::cert = \
                                "PfZ+G6Z6h7mjem0Y+iWlkYcV4PIWL1iwBi8saCbGS5jN2p8M+X+Q7UNKEkROb3N6\n"
                                "KOqkqm57TH2H3eDJAkSnh6/DNFu0Qg==\n"
                                "-----END CERTIFICATE-----\n";
+#endif //#if defined(MBED_CONF_APP_ECHO_SERVER_USE_CUSTOM_CERT) && MBED_CONF_APP_ECHO_SERVER_USE_CUSTOM_CERT 

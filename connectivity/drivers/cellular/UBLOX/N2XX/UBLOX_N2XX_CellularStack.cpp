@@ -22,6 +22,8 @@
 using namespace mbed;
 using namespace mbed_cellular_util;
 
+constexpr seconds UBLOX_N2XX_CellularStack::SOCKET_TIMEOUT;
+
 UBLOX_N2XX_CellularStack::UBLOX_N2XX_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device):
     AT_CellularStack(atHandler, cid, stack_type, device)
 {

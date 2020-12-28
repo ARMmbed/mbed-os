@@ -1,0 +1,23 @@
+{
+    "name": "nanostack",
+    "requires": ["nanostack-eventloop", "coap-service"],
+    "config": {
+        "configuration": {
+            "help": "Build time configuration. Refer to Handbook for valid values. Default: full stack",
+            "value": "nanostack_full"
+        },
+        "trace_max_level": {
+            "help": "One of mbed-trace level defines: TRACE_LEVEL_DEBUG, TRACE_LEVEL_INFO, TRACE_LEVEL_WARN or TRACE_LEVEL_ERROR",
+            "value": null
+        }
+    },
+    "macros": ["NS_USE_EXTERNAL_MBED_TLS"],
+    "target_overrides": {
+        "TB_SENSE_12": {
+            "nanostack.configuration": "lowpan_router"
+        },
+        "KW41Z": {
+            "nanostack.configuration": "lowpan_router"
+        }
+    }
+}

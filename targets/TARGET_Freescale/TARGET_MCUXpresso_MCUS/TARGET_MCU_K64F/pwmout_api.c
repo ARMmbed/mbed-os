@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -158,6 +159,17 @@ void pwmout_period_us(pwmout_t *obj, int us)
     pwmout_write(obj, dc);
 }
 
+int pwmout_read_period_us(pwmout_t *obj)
+{
+    uint32_t pwm_period = 0;
+    if (pwm_clock_mhz > 0) {
+        FTM_Type *base = ftm_addrs[obj->pwm_name >> TPM_SHIFT];
+        uint16_t mod = base->MOD & FTM_MOD_MOD_MASK;
+        pwm_period = ((mod) + 1) / pwm_clock_mhz;
+    }
+    return pwm_period;
+}
+
 void pwmout_pulsewidth(pwmout_t *obj, float seconds)
 {
     pwmout_pulsewidth_us(obj, seconds * 1000000.0f);
@@ -177,6 +189,16 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us)
     base->CONTROLS[obj->pwm_name & 0xF].CnV = value;
     /* Software trigger to update registers */
     FTM_SetSoftwareTrigger(base, true);
+}
+
+int pwmout_read_pulsewidth_us(pwmout_t *obj)
+{
+    uint32_t pwm_pulsewidth = 0;
+    if (pwm_clock_mhz > 0) {
+        FTM_Type *base = ftm_addrs[obj->pwm_name >> TPM_SHIFT];
+        pwm_pulsewidth = (base->CONTROLS[obj->pwm_name & 0xF].CnV) / pwm_clock_mhz;
+    }
+    return pwm_pulsewidth;
 }
 
 const PinMap *pwmout_pinmap()

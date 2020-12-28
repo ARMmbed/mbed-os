@@ -1,5 +1,6 @@
 /* Network interface defaults
  * Copyright (c) 2018 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +19,9 @@
 
 #include "netsocket/EthInterface.h"
 #include "netsocket/WiFiInterface.h"
+#if MBED_CONF_CELLULAR_PRESENT
 #include "netsocket/CellularInterface.h"
+#endif // MBED_CONF_CELLULAR_PRESENT
 #include "netsocket/MeshInterface.h"
 
 /* Weak default instance static classes for the various abstract classes.
@@ -40,10 +43,12 @@ MBED_WEAK MeshInterface *MeshInterface::get_default_instance()
     return get_target_default_instance();
 }
 
+#if MBED_CONF_CELLULAR_PRESENT
 MBED_WEAK CellularInterface *CellularInterface::get_default_instance()
 {
     return get_target_default_instance();
 }
+#endif // MBED_CONF_CELLULAR_PRESENT
 
 /* For other types, we can provide a reasonable get_target_default_instance
  * in some cases. This is done in EthernetInterface.cpp, mbed-mesh-api and
@@ -87,6 +92,7 @@ void WiFiInterface::set_default_parameters()
 #endif
 }
 
+#if MBED_CONF_CELLULAR_PRESENT
 void CellularInterface::set_default_parameters()
 {
     /* CellularInterface is expected to attempt to work without any parameters - we
@@ -108,6 +114,7 @@ void CellularInterface::set_default_parameters()
     set_plmn(MBED_CONF_NSAPI_DEFAULT_CELLULAR_PLMN);
 #endif
 }
+#endif // MBED_CONF_CELLULAR_PRESENT
 
 /* Finally the dispatch from the JSON default interface type to the specific
  * subclasses. It's our job to configure - the default NetworkInterface is
@@ -146,6 +153,7 @@ MBED_WEAK NetworkInterface *NetworkInterface::get_target_default_instance()
     return MeshInterface::get_default_instance();
 }
 #elif MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == CELLULAR
+#if MBED_CONF_CELLULAR_PRESENT
 MBED_WEAK NetworkInterface *NetworkInterface::get_target_default_instance()
 {
     CellularInterface *cellular = CellularInterface::get_default_instance();
@@ -155,6 +163,7 @@ MBED_WEAK NetworkInterface *NetworkInterface::get_target_default_instance()
     cellular->set_default_parameters();
     return cellular;
 }
+#endif // MBED_CONF_CELLULAR_PRESENT
 #elif defined(MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE)
 /* If anyone invents a new JSON value, they must have their own default weak
  * implementation.

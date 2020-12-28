@@ -1,4 +1,4 @@
-#! armcc -E
+#! armclang -E --target=arm-arm-none-eabi -x c -mcpu=cortex-m4
 
 #if !defined(MBED_APP_START)
   #define MBED_APP_START 0x00000000
@@ -8,8 +8,12 @@
   #define MBED_APP_SIZE 0x00080000
 #endif
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-  #define MBED_BOOT_STACK_SIZE      0x400
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+#  if defined(MBED_BOOT_STACK_SIZE)
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE MBED_BOOT_STACK_SIZE
+#  else
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
+#  endif
 #endif
 
 LR_IROM1 MBED_APP_START {
@@ -20,7 +24,7 @@ LR_IROM1 MBED_APP_START {
   }
   
   
-  ARM_LIB_STACK 0x20000000 EMPTY MBED_BOOT_STACK_SIZE {
+  ARM_LIB_STACK 0x20000000 EMPTY MBED_CONF_TARGET_BOOT_STACK_SIZE {
   }
 
   /* VTOR[TBLOFF] alignment requires:

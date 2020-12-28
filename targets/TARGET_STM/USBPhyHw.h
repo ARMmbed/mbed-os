@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2018-2019 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  * Copyright (c) 2018-2019 STMicroelectronics
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +19,13 @@
 #ifndef USBPHYHW_H
 #define USBPHYHW_H
 
-#include "mbed.h"
+#include <string.h>
+
+#include "platform/mbed_toolchain.h"
+#include "platform/mbed_error.h"
+#include "platform/mbed_assert.h"
+#include "platform/mbed_wait_api.h"
+#include "platform/mbed_power_mgmt.h"
 #include "USBPhy.h"
 #include "PeripheralPins.h"
 
@@ -36,7 +43,7 @@
 
 #if MBED_CONF_TARGET_USB_SPEED == USE_USB_NO_OTG
 
-#if defined(TARGET_STM32F3) || defined(TARGET_STM32WB)
+#if defined(TARGET_STM32F1) || defined(TARGET_STM32F3) || defined(TARGET_STM32WB)
 #define USBHAL_IRQn  USB_LP_IRQn
 #else
 #define USBHAL_IRQn  USB_IRQn

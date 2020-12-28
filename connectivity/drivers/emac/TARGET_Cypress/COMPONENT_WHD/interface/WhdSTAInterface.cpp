@@ -234,7 +234,7 @@ nsapi_error_t WhdSTAInterface::set_credentials(const char *ssid, const char *pas
     if ((ssid == NULL) ||
             (strlen(ssid) == 0) ||
             (pass == NULL && (security != NSAPI_SECURITY_NONE && security != NSAPI_SECURITY_WPA2_ENT)) ||
-            (strlen(pass) == 0 && (security != NSAPI_SECURITY_NONE && security != NSAPI_SECURITY_WPA2_ENT)) ||
+            (strlen(pass) == 0 && (security != NSAPI_SECURITY_NONE && security != NSAPI_SECURITY_WPA2_ENT && security != NSAPI_SECURITY_WEP)) ||
             (strlen(pass) > 63 && (security == NSAPI_SECURITY_WPA2 || security == NSAPI_SECURITY_WPA ||
             security == NSAPI_SECURITY_WPA_WPA2 || security == NSAPI_SECURITY_WPA3 || security == NSAPI_SECURITY_WPA3_WPA2))
        ) {
@@ -245,7 +245,7 @@ nsapi_error_t WhdSTAInterface::set_credentials(const char *ssid, const char *pas
     strncpy(_ssid, ssid, sizeof(_ssid));
 
     memset(_pass, 0, sizeof(_pass));
-    strncpy(_pass, pass, sizeof(_pass));
+    memcpy(_pass, pass, sizeof(_pass));
 
     _security = security;
 
@@ -299,9 +299,12 @@ nsapi_error_t WhdSTAInterface::connect()
 
     // setup ssid
     whd_ssid_t ssid;
-    strncpy((char *)ssid.value, _ssid, SSID_NAME_SIZE);
-    ssid.value[SSID_NAME_SIZE - 1] = '\0';
-    ssid.length = strlen((char *)ssid.value);
+    uint8_t ssid_len;
+
+    memset(&ssid, 0, sizeof(whd_ssid_t));
+    ssid_len  = strlen(_ssid);
+    strncpy((char *)ssid.value, _ssid, ssid_len);
+    ssid.length = ssid_len;
 
     // choose network security
     whd_security_t security = whd_fromsecurity(_security);
@@ -321,15 +324,29 @@ nsapi_error_t WhdSTAInterface::connect()
 #endif
     // join the network
     for (i = 0; i < MAX_RETRY_COUNT; i++) {
-        res = (whd_result_t)whd_wifi_join(_whd_emac.ifp,
-                                          &ssid,
-                                          security,
-                                          (const uint8_t *)_pass, strlen(_pass));
-        if (res == WHD_SUCCESS) {
-            break;
+
+    	if (security != WHD_SECURITY_WEP_PSK)
+    	{
+            res = (whd_result_t)whd_wifi_join(_whd_emac.ifp,
+                                              &ssid,
+                                              security,
+                                              (const uint8_t *)_pass, strlen(_pass));
+    	}
+    	else
+    	{
+    		uint8_t key_length = 0;
+
+    		/* key_length =  (index field + length field + _pass[1] ( length ) ) * 4 ( for key index 0, 1, 2, 3) */
+    		key_length = (_pass[1] + 2 )* 4;
+    		res = (whd_result_t)whd_wifi_join(_whd_emac.ifp,
+    		                                   &ssid,
+    		                                   security,
+    		                                   (const uint8_t *)_pass, key_length);
+    	}
+    	if (res == WHD_SUCCESS) {
+                break;
         }
     }
-
     if (res != WHD_SUCCESS) {
         return whd_toerror(res);
     }

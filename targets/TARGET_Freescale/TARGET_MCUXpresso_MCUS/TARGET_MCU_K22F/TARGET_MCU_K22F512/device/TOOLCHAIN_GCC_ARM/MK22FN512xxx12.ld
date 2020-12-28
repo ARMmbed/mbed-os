@@ -48,18 +48,18 @@
 ** ###################################################################
 */
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-    #define MBED_BOOT_STACK_SIZE 0x400
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+    #define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
 #endif
 
-STACK_SIZE = MBED_BOOT_STACK_SIZE;
+STACK_SIZE = MBED_CONF_TARGET_BOOT_STACK_SIZE;
 
 /* Entry Point */
 ENTRY(Reset_Handler)
 
 __ram_vector_table__ = 1;
 
-__stack_size__ = MBED_BOOT_STACK_SIZE;
+__stack_size__ = MBED_CONF_TARGET_BOOT_STACK_SIZE;
 STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x0400;
 M_VECTOR_RAM_SIZE = DEFINED(__ram_vector_table__) ? 0x0400 : 0x0;
 

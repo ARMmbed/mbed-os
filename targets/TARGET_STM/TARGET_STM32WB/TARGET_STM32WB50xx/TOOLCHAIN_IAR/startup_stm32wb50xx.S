@@ -113,7 +113,7 @@ __vector_table
         DCD     USART1_IRQHandler                 ; USART1 Interrupt
         DCD     0                                 ; Reserved
         DCD     0                                 ; Reserved
-        DCD     TSC_IRQHandler                    ; TSC Interrupt
+        DCD     0                                 ; Reserved
         DCD     EXTI15_10_IRQHandler              ; EXTI Lines1[15:10 ]Interrupts
         DCD     RTC_Alarm_IRQHandler              ; RTC Alarms (A and B) Interrupt
         DCD     0                                 ; Reserved
@@ -351,11 +351,6 @@ SPI1_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
 USART1_IRQHandler
         B USART1_IRQHandler
-
-        PUBWEAK TSC_IRQHandler
-        SECTION .text:CODE:NOROOT:REORDER(1)
-TSC_IRQHandler
-        B TSC_IRQHandler
 
         PUBWEAK EXTI15_10_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)

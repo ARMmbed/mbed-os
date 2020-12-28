@@ -21,9 +21,13 @@
 #include "CellularLog.h"
 #include "netsocket/TLSSocket.h"
 
-static const int sslctxID = 1;
 
 using namespace mbed;
+using namespace std::chrono_literals;
+
+constexpr int sslctxID = 1;
+constexpr auto socket_timeout = 1s;
+
 
 TELIT_ME310_CellularStack::TELIT_ME310_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device) :
     AT_CellularStack(atHandler, cid, stack_type, device)
@@ -66,7 +70,6 @@ nsapi_error_t TELIT_ME310_CellularStack::socket_connect(nsapi_socket_t handle, c
         activate_ipeasy_context(_cid);
     }
 
-    int modem_connect_id = -1;
     int err = NSAPI_ERROR_NO_CONNECTION;
 
     int request_connect_id = find_socket_index(socket);
@@ -224,9 +227,7 @@ nsapi_error_t TELIT_ME310_CellularStack::deactivate_ipeasy_context(int context_i
 
 nsapi_error_t TELIT_ME310_CellularStack::create_socket_impl(CellularSocket *socket)
 {
-    int modem_connect_id = -1;
     int remote_port = 1;
-    int err = -1;
 
     if (!is_ipeasy_context_activated(_cid)) {
         tr_debug("IPEasy context not active for %d", _cid);
@@ -399,7 +400,6 @@ nsapi_size_or_error_t TELIT_ME310_CellularStack::socket_recvfrom_impl(CellularSo
             }
 
             if (socket->proto == NSAPI_UDP) {
-                int data_left = -1;
                 // UDP has remote_IP and remote_port parameters
                 _at.read_string(ip_address, sizeof(ip_address));
                 port = _at.read_int();
@@ -408,7 +408,7 @@ nsapi_size_or_error_t TELIT_ME310_CellularStack::socket_recvfrom_impl(CellularSo
                 _at.skip_param();
 
                 srecv_size = _at.read_int();
-                data_left = _at.read_int();
+                _at.read_int();
                 if (srecv_size > size) {
                     srecv_size = size;
                 }
@@ -440,7 +440,7 @@ nsapi_size_or_error_t TELIT_ME310_CellularStack::socket_recvfrom_impl(CellularSo
                 // read() should not fail
                 success = false;
             }
-        } else if (timer.read_ms() < ME310_SOCKET_TIMEOUT) {
+        } else if (timer.elapsed_time() < socket_timeout) {
             // Wait for URCs
             _at.process_oob();
         } else {

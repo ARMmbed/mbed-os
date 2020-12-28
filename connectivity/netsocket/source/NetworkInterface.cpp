@@ -1,5 +1,6 @@
 /* Socket
  * Copyright (c) 2015 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +31,11 @@ void NetworkInterface::set_as_default()
 const char *NetworkInterface::get_mac_address()
 {
     return 0;
+}
+
+nsapi_error_t NetworkInterface::set_mac_address(uint8_t *mac_addr, nsapi_size_t addr_len)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
 }
 
 nsapi_error_t NetworkInterface::get_ip_address(SocketAddress *)

@@ -78,15 +78,16 @@ uint32_t pwmout_get_channel_route(uint32_t channel)
 /*
 * Disables the route location given. Returns true if it was enabled, false if it wasn't.
 */
-bool pwmout_disable_channel_route(uint32_t routeloc) {
+bool pwmout_disable_channel_route(uint32_t routeloc)
+{
 #ifdef TIMER_ROUTEPEN_CC0PEN
-    if(PWM_TIMER->ROUTEPEN & routeloc) {
+    if (PWM_TIMER->ROUTEPEN & routeloc) {
         //This channel was in use, so disable
         PWM_TIMER->ROUTEPEN &= ~routeloc;
         return true;
     }
 #else
-    if(PWM_TIMER->ROUTE & routeloc) {
+    if (PWM_TIMER->ROUTE & routeloc) {
         //This channel was in use, so disable
         PWM_TIMER->ROUTE &= ~routeloc;
         return true;
@@ -98,13 +99,14 @@ bool pwmout_disable_channel_route(uint32_t routeloc) {
 /*
 * Check if a channel is active
 */
-bool pwmout_channel_route_active(uint32_t routeloc) {
+bool pwmout_channel_route_active(uint32_t routeloc)
+{
 #ifdef TIMER_ROUTEPEN_CC0PEN
-    if(PWM_TIMER->ROUTEPEN & routeloc) {
+    if (PWM_TIMER->ROUTEPEN & routeloc) {
         return true;
     }
 #else
-    if(PWM_TIMER->ROUTE & routeloc) {
+    if (PWM_TIMER->ROUTE & routeloc) {
         return true;
     }
 #endif
@@ -114,7 +116,8 @@ bool pwmout_channel_route_active(uint32_t routeloc) {
 /*
 * Set the given route PEN flag
 */
-void pwmout_set_channel_route(uint32_t routeloc) {
+void pwmout_set_channel_route(uint32_t routeloc)
+{
 #ifdef TIMER_ROUTEPEN_CC0PEN
     PWM_TIMER->ROUTEPEN |= routeloc;
 #else
@@ -125,9 +128,10 @@ void pwmout_set_channel_route(uint32_t routeloc) {
 /*
 * Check if all routes are disabled
 */
-bool pwmout_all_inactive(void) {
+bool pwmout_all_inactive(void)
+{
 #ifdef TIMER_ROUTEPEN_CC0PEN
-    if(PWM_TIMER->ROUTEPEN == _TIMER_ROUTEPEN_RESETVALUE) {
+    if (PWM_TIMER->ROUTEPEN == _TIMER_ROUTEPEN_RESETVALUE) {
         return true;
     }
 #else
@@ -148,7 +152,8 @@ void pwmout_enable_pins(pwmout_t *obj, uint8_t enable)
     }
 }
 
-void pwmout_enable(pwmout_t *obj, uint8_t enable){
+void pwmout_enable(pwmout_t *obj, uint8_t enable)
+{
     if (enable) {
         // Set mode to PWM
         PWM_TIMER->CC[obj->channel].CTRL = TIMER_CC_CTRL_MODE_PWM;
@@ -168,13 +173,13 @@ void pwmout_init(pwmout_t *obj, PinName pin)
     CMU_ClockEnable(PWM_TIMER_CLOCK, true);
 
     /* Turn on timer */
-    if(!(PWM_TIMER->STATUS & TIMER_STATUS_RUNNING)) {
+    if (!(PWM_TIMER->STATUS & TIMER_STATUS_RUNNING)) {
         TIMER_Init_TypeDef timerInit = TIMER_INIT_DEFAULT;
         TIMER_Init(PWM_TIMER, &timerInit);
     }
 
     // Set route enable
-    if(pwmout_channel_route_active(pwmout_get_channel_route(obj->channel))) {
+    if (pwmout_channel_route_active(pwmout_get_channel_route(obj->channel))) {
         //This channel was already in use
         //TODO: gracefully handle this case. mbed_error?
         return;
@@ -190,19 +195,19 @@ void pwmout_init(pwmout_t *obj, PinName pin)
     switch (obj->channel) {
         case PWM_CH0:
             PWM_TIMER->ROUTELOC0 &= ~_TIMER_ROUTELOC0_CC0LOC_MASK;
-            PWM_TIMER->ROUTELOC0 |= pinmap_find_function(pin,PinMap_PWM) << _TIMER_ROUTELOC0_CC0LOC_SHIFT;
+            PWM_TIMER->ROUTELOC0 |= pinmap_find_function(pin, PinMap_PWM) << _TIMER_ROUTELOC0_CC0LOC_SHIFT;
             break;
         case PWM_CH1:
             PWM_TIMER->ROUTELOC0 &= ~_TIMER_ROUTELOC0_CC1LOC_MASK;
-            PWM_TIMER->ROUTELOC0 |= pinmap_find_function(pin,PinMap_PWM)<< _TIMER_ROUTELOC0_CC1LOC_SHIFT;
+            PWM_TIMER->ROUTELOC0 |= pinmap_find_function(pin, PinMap_PWM) << _TIMER_ROUTELOC0_CC1LOC_SHIFT;
             break;
         case PWM_CH2:
             PWM_TIMER->ROUTELOC0 &= ~_TIMER_ROUTELOC0_CC2LOC_MASK;
-            PWM_TIMER->ROUTELOC0 |= pinmap_find_function(pin,PinMap_PWM) << _TIMER_ROUTELOC0_CC2LOC_SHIFT;
+            PWM_TIMER->ROUTELOC0 |= pinmap_find_function(pin, PinMap_PWM) << _TIMER_ROUTELOC0_CC2LOC_SHIFT;
             break;
         case PWM_CH3:
             PWM_TIMER->ROUTELOC0 &= ~_TIMER_ROUTELOC0_CC3LOC_MASK;
-            PWM_TIMER->ROUTELOC0 |= pinmap_find_function(pin,PinMap_PWM) << _TIMER_ROUTELOC0_CC3LOC_SHIFT;
+            PWM_TIMER->ROUTELOC0 |= pinmap_find_function(pin, PinMap_PWM) << _TIMER_ROUTELOC0_CC3LOC_SHIFT;
             break;
         default:
             MBED_ASSERT(false);
@@ -211,10 +216,10 @@ void pwmout_init(pwmout_t *obj, PinName pin)
     // On P1, the route location is statically defined for the entire timer.
     PWM_TIMER->ROUTE &= ~_TIMER_ROUTE_LOCATION_MASK;
     // Make sure the route location is not overwritten
-    if(pwmout_all_inactive()) {
-        PWM_TIMER->ROUTE |= pinmap_find_function(pin,PinMap_PWM) << _TIMER_ROUTE_LOCATION_SHIFT;
+    if (pwmout_all_inactive()) {
+        PWM_TIMER->ROUTE |= pinmap_find_function(pin, PinMap_PWM) << _TIMER_ROUTE_LOCATION_SHIFT;
     } else {
-        MBED_ASSERT((PWM_TIMER->ROUTE & _TIMER_ROUTE_LOCATION_MASK) == pinmap_find_function(pin,PinMap_PWM) << _TIMER_ROUTE_LOCATION_SHIFT);
+        MBED_ASSERT((PWM_TIMER->ROUTE & _TIMER_ROUTE_LOCATION_MASK) == pinmap_find_function(pin, PinMap_PWM) << _TIMER_ROUTE_LOCATION_SHIFT);
     }
 #endif
 
@@ -224,7 +229,7 @@ void pwmout_init(pwmout_t *obj, PinName pin)
 
 void pwmout_free(pwmout_t *obj)
 {
-    if(pwmout_disable_channel_route(pwmout_get_channel_route(obj->channel))) {
+    if (pwmout_disable_channel_route(pwmout_get_channel_route(obj->channel))) {
         //Channel was previously enabled, so do housekeeping
         sleep_manager_unlock_deep_sleep();
     } else {
@@ -233,10 +238,10 @@ void pwmout_free(pwmout_t *obj)
 
     pwmout_enable_pins(obj, false);
 
-    if(pwmout_all_inactive()) {
+    if (pwmout_all_inactive()) {
         //Stop timer
         PWM_TIMER->CMD = TIMER_CMD_STOP;
-        while(PWM_TIMER->STATUS & TIMER_STATUS_RUNNING);
+        while (PWM_TIMER->STATUS & TIMER_STATUS_RUNNING);
 
         //Disable clock
         CMU_ClockEnable(PWM_TIMER_CLOCK, false);
@@ -248,14 +253,15 @@ void pwmout_write(pwmout_t *obj, float value)
     pwmout_write_channel(obj->channel, value);
 }
 
-void pwmout_write_channel(uint32_t channel, float value) {
+void pwmout_write_channel(uint32_t channel, float value)
+{
     uint32_t width_cycles = 0;
     if (value < 0.0f) {
         width_cycles = 0;
     } else if (value >= 1.0f) {
         width_cycles = PWM_TIMER->TOPB + 1;
     } else {
-       width_cycles = (uint16_t)((float)PWM_TIMER->TOPB * value);
+        width_cycles = (uint16_t)((float)PWM_TIMER->TOPB * value);
     }
 
     TIMER_CompareBufSet(PWM_TIMER, channel, width_cycles);
@@ -266,14 +272,13 @@ float pwmout_read(pwmout_t *obj)
     return pwmout_calculate_duty(TIMER_CaptureGet(PWM_TIMER, obj->channel), TIMER_TopGet(PWM_TIMER));
 }
 
-float pwmout_calculate_duty(uint32_t width_cycles, uint32_t period_cycles) {
-    if(width_cycles > period_cycles) {
+float pwmout_calculate_duty(uint32_t width_cycles, uint32_t period_cycles)
+{
+    if (width_cycles > period_cycles) {
         return 1.0f;
-    }
-    else if (width_cycles == 0) {
+    } else if (width_cycles == 0) {
         return 0.0f;
-    }
-    else {
+    } else {
         return (float) width_cycles / (float) period_cycles;
     }
 }
@@ -302,7 +307,9 @@ void pwmout_period(pwmout_t *obj, float seconds)
     }
 
     //Check if anything changed
-    if(((PWM_TIMER->CTRL & _TIMER_CTRL_PRESC_MASK) == (pwm_prescaler_div << _TIMER_CTRL_PRESC_SHIFT)) && (TIMER_TopGet(PWM_TIMER) == cycles)) return;
+    if (((PWM_TIMER->CTRL & _TIMER_CTRL_PRESC_MASK) == (pwm_prescaler_div << _TIMER_CTRL_PRESC_SHIFT)) && (TIMER_TopGet(PWM_TIMER) == cycles)) {
+        return;
+    }
 
     //Save previous period for recalculation of duty cycles
     uint32_t previous_period_cycles = PWM_TIMER->TOPB;
@@ -315,8 +322,8 @@ void pwmout_period(pwmout_t *obj, float seconds)
 
     //For each active channel, re-calculate the compare value
     uint32_t channel = 0;
-    while(pwmout_get_channel_route(channel) != 0) {
-        if(pwmout_channel_route_active(channel)) {
+    while (pwmout_get_channel_route(channel) != 0) {
+        if (pwmout_channel_route_active(channel)) {
             //recalc and reset compare value
             pwmout_write_channel(channel, pwmout_calculate_duty(PWM_TIMER->CC[channel].CCVB, previous_period_cycles));
         }
@@ -334,22 +341,32 @@ void pwmout_period_us(pwmout_t *obj, int us)
     pwmout_period(obj, us / 1000000.0f);
 }
 
+int pwmout_read_period_us(pwmout_t *obj)
+{
+    return (TIMER_TopGet(PWM_TIMER) * 1000000) / REFERENCE_FREQUENCY;
+}
+
 void pwmout_pulsewidth(pwmout_t *obj, float seconds)
 {
-    uint16_t width_cycles = (uint16_t) (((float) (REFERENCE_FREQUENCY >> pwm_prescaler_div)) * seconds);
+    uint16_t width_cycles = (uint16_t)(((float)(REFERENCE_FREQUENCY >> pwm_prescaler_div)) * seconds);
     TIMER_CompareBufSet(PWM_TIMER, obj->channel, width_cycles);
 }
 
 void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
 {
-    uint16_t width_cycles = (uint16_t) (((REFERENCE_FREQUENCY >> pwm_prescaler_div) * ms) / 1000);
+    uint16_t width_cycles = (uint16_t)(((REFERENCE_FREQUENCY >> pwm_prescaler_div) * ms) / 1000);
     TIMER_CompareBufSet(PWM_TIMER, obj->channel, width_cycles);
 }
 
 void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 {
-    uint16_t width_cycles = (uint16_t) (((uint64_t)(REFERENCE_FREQUENCY >> pwm_prescaler_div) * (uint64_t)us) / 1000000UL);
+    uint16_t width_cycles = (uint16_t)(((uint64_t)(REFERENCE_FREQUENCY >> pwm_prescaler_div) * (uint64_t)us) / 1000000UL);
     TIMER_CompareBufSet(PWM_TIMER, obj->channel, width_cycles);
+}
+
+int pwmout_read_pulsewidth_us(pwmout_t *obj)
+{
+    return (TIMER_CaptureGet(PWM_TIMER, obj->channel) * 1000000) / REFERENCE_FREQUENCY ;
 }
 
 const PinMap *pwmout_pinmap()

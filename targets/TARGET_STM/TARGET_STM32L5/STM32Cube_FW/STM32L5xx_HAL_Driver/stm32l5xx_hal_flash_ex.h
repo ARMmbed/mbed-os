@@ -36,23 +36,30 @@
   * @{
   */
 
-/* Exported types ------------------------------------------------------------*/
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-/** @addtogroup FLASH_Exported_Types FLASH Exported Types
+/* Private constants ---------------------------------------------------------*/
+/** @defgroup FLASHEx_Private_Constants FLASH Extended Private Constants
+  * @{
+  */
+#define FLASH_BLOCKBASED_NB_REG (4U) /*!< Number of block-based registers available */
+/**
+  * @}
+  */
+
+/* Exported types ------------------------------------------------------------*/
+/** @defgroup FLASHEx_Exported_Types FLASH Exported Types
   * @{
   */
 
 /**
   * @brief  FLASH Block-based security structure definition
   */
-#define FLASH_BLOCKBASED_NB_REG (4U)
-
 typedef struct
 {
   uint32_t Bank;                                        /*!< Configuration of the associated bank of Block-based Secure Area.
                                                             This parameter must be a value of @ref FLASH_Banks */
   uint32_t BBAttributesType;                            /*!< Block-Based Attributes type.
-                                                             This parameter must be a value of @ref FLASH_BB_Attributes */     
+                                                             This parameter must be a value of @ref FLASHEx_BB_Attributes */     
   uint32_t BBAttributes_array[FLASH_BLOCKBASED_NB_REG]; /*!< Each bit specifies the block-based attribute configuration of a page.
                                                              0 means non-secure, 1 means secure */
 } FLASH_BBAttributesTypeDef;
@@ -62,10 +69,11 @@ typedef struct
 #endif
 
 /* Exported constants --------------------------------------------------------*/
-/** @addtogroup FLASHEx_Exported_Constants
+/** @defgroup FLASHEx_Exported_Constants FLASH Extended Exported Constants
   * @{
   */
-/** @defgroup PRIV_MODE_CFG FLASH privilege mode configuration
+
+/** @defgroup FLASHEx_PRIV_MODE_CFG FLASH privilege mode configuration
   * @{
   */
 #define FLASH_PRIV_GRANTED   0x00000000U          /*!< access to Flash registers is granted */
@@ -75,7 +83,7 @@ typedef struct
   */
 
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-/** @defgroup SEC_INVERSION_CFG FLASH security inversion configuration
+/** @defgroup FLASHEx_SEC_INVERSION_CFG FLASH security inversion configuration
   * @{
   */
 #define FLASH_INV_DISABLE    0x00000000U        /*!< Security state of Flash is not inverted */
@@ -85,7 +93,7 @@ typedef struct
   */
 #endif
 
-/** @defgroup LVE_PIN_CFG FLASH LVE pin configuration
+/** @defgroup FLASHEx_LVE_PIN_CFG FLASH LVE pin configuration
   * @{
   */
 #define FLASH_LVE_PIN_CTRL   0x00000000U       /*!< LVEA/B FLASH pin controlled by power controller */
@@ -94,13 +102,14 @@ typedef struct
   * @}
   */
 
-/** @defgroup FLASH_BB_Attributes FLASH Block-Base Attributes
+/** @defgroup FLASHEx_BB_Attributes FLASH Block-Based Attributes
   * @{
   */
 #define FLASH_BB_SEC         0x00000001U       /*!< Flash Block-Based Security Attributes */
 /**
   * @}
   */
+
 /**
   * @}
   */
@@ -129,6 +138,7 @@ void              HAL_FLASHEx_EnableSecHideProtection(uint32_t Banks);
   * @}
   */
 
+/* Extended Peripheral Control functions  ************************************/
 /** @addtogroup FLASHEx_Exported_Functions_Group2
   * @{
   */
@@ -158,7 +168,7 @@ void FLASH_PageErase(uint32_t Page, uint32_t Banks);
   */
 
 /* Private macros ------------------------------------------------------------*/
-/** @defgroup FLASHEx_Private_Macros FLASH Private Macros
+/** @defgroup FLASHEx_Private_Macros FLASH Extended Private Macros
  *  @{
  */
 #define IS_FLASH_CFGPRIVMODE(CFG)          (((CFG) == FLASH_PRIV_GRANTED) || \

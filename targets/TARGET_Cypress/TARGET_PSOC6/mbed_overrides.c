@@ -21,7 +21,6 @@
 #include "cyhal_hwmgr.h"
 #include "cybsp.h"
 #include "cy_mbed_post_init.h"
-#include "mbed_power_mgmt.h"
 #include "mbed_error.h"
 #if MBED_CONF_RTOS_PRESENT
 #include "rtos_idle.h"
@@ -34,22 +33,6 @@
 #if defined(MBED_CONF_TARGET_XIP_ENABLE)
 #include "cy_serial_flash_qspi.h"
 #endif /* defined(MBED_CONF_TARGET_XIP_ENABLE) */
-
-
-#if (defined(CY_CFG_PWR_SYS_IDLE_MODE) && (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_ACTIVE))
-/*******************************************************************************
-* Function Name: active_idle_hook
-****************************************************************************//**
-*
-* Empty idle hook function to prevent the system entering sleep mode
-* automatically any time the system is idle.
-*
-*******************************************************************************/
-static void active_idle_hook(void)
-{
-    /* Do nothing, so the rtos_idle_loop() performs while(1) */
-}
-#endif
 
 MBED_WEAK void cy_mbed_post_bsp_init_hook(void)
 {
@@ -101,19 +84,5 @@ void mbed_sdk_init(void)
 
     /* Enable global interrupts (disabled in CM4 startup assembly) */
     __enable_irq();
-#endif
-
-#if defined (CY_CFG_PWR_SYS_IDLE_MODE)
-    /* Configure the lowest power state the system is allowed to enter
-    * based on the System Idle Power Mode parameter value in the Device
-    * Configurator. The default value is system deep sleep.
-    */
-#if (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_ACTIVE)
-    rtos_attach_idle_hook(&active_idle_hook);
-#elif (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_SLEEP)
-    sleep_manager_lock_deep_sleep();
-#else
-    /* Deep sleep is default state */
-#endif
 #endif
 }

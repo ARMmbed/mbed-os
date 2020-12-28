@@ -21,29 +21,26 @@ dist: xenial
 
 env:
   global:
-    - deps_url="https://mbed-os-ci.s3-eu-west-1.amazonaws.com/jenkins-ci/deps"
+    - deps_url="https://mbed-os-ci-public.s3-eu-west-1.amazonaws.com/jenkins-ci/deps"
     - deps_dir="${HOME}/.cache/deps"
 
 cache:
   pip: true
+  ccache: true
   directories:
     - ${HOME}/.cache/deps
 
-
 before_install:
   - source tools/test/travis-ci/functions.sh
-  - set_status "pending" "Test started."
 
-after_success:
-  - set_status "success" "Success!"
-
-after_failure:
-  - set_status "failure" "Test failed."
-
+addons:
+  apt:
+    packages:
+    - ninja-build
 
 matrix:
   include:
-    
+
     ### Basic Tests ###
     - &basic-vm
       stage: "Basic"
@@ -63,6 +60,7 @@ matrix:
         - pip install scancode-toolkit==3.1.1
       before_script:
         - mkdir -p SCANCODE
+        - mkdir -p SCANCODE_NEW_FILES
         # Fetch remaining information needed for branch comparison
         - git fetch --all --unshallow --tags
         - git fetch origin "${TRAVIS_BRANCH}"
@@ -70,28 +68,36 @@ matrix:
         # scancode does not support list of files, only one file or directory
         # we use SCANCODE directory for all changed files (their copies with full tree)
         - >-
-            git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
+            git diff --name-only --diff-filter=ad FETCH_HEAD..HEAD \
               | ( grep '.\(c\|cpp\|h\|hpp\|py\)$' || true ) \
               | ( grep -v '^tools/test/toolchains/api_test.py' || true ) \
               | while read file; do cp --parents "${file}" SCANCODE; done
         - scancode -l --json-pp scancode.json SCANCODE
-        - python ./tools/test/travis-ci/scancode-evaluate.py -f scancode.json || true
-      after_success:
-        - python ./tools/test/travis-ci/scancode-evaluate.py -f scancode.json
+        - python ./tools/test/travis-ci/scancode-evaluate.py scancode.json || true
+        # run the same but for new files. All new files must have SPDX
+        - >-
+            git diff --name-only --diff-filter=A FETCH_HEAD..HEAD \
+              | ( grep '.\(c\|cpp\|h\|hpp\|py\)$' || true ) \
+              | ( grep -v '^tools/test/toolchains/api_test.py' || true ) \
+              | while read file; do cp --parents "${file}" SCANCODE_NEW_FILES; done
+        - scancode -l --json-pp scancode_new_files.json SCANCODE_NEW_FILES
+        - python ./tools/test/travis-ci/scancode-evaluate.py scancode_new_files.json || true
         - cat scancode-evaluate.log
-        - COUNT=$(cat scancode-evaluate.log | grep 'File:' | wc -l)
+        - COUNT=$(cat scancode-evaluate.log | grep 'File:' | grep -v 'SPDX' | wc -l) || true
+        - python ./tools/test/travis-ci/scancode-evaluate.py scancode_new_files.json
+        - cat scancode-evaluate.log
+        - COUNT_NEW_FILES=$(cat scancode-evaluate.log | grep 'File:' | grep -v 'SPDX' | wc -l) || true
         - |
-          if [ $COUNT == 0 ]; then
+          if [ $COUNT == 0 ] && [ $COUNT_NEW_FILES == 0 ]; then
               echo "License check OK";
-              STATUSM="All licenses OK";
-              set_status "success" "$STATUSM";
+              true;
+            elif [ $COUNT_NEW_FILES != 0 ]; then
+              echo "License check failed, new files with the license issues found";
+              false;
             else
-              echo "License check failed, please review license issues found";
-              STATUSM="Needs review, ${COUNT} license issues found";
-              set_status "success" "$STATUSM";
+              echo "License check failed, please review license issues found in modified files";
+              false;
           fi
-
-
 
     - <<: *basic-vm
       name: "include check"
@@ -101,8 +107,7 @@ matrix:
           ! git grep '^#include\s["'"']mbed.h['"'"]$' -- '*.c' '*.h' '*.cpp' '*.hpp' \
               ':!*platform_mbed.h' ':!*TESTS/*' ':!TEST_APPS/' ':!UNITTESTS/' \
               ':!*tests/*' ':!*targets/*' ':!*TARGET_*' ':!*unsupported/*' \
-              ':!*events/tests/*'
-
+              ':!*events/tests/*' ':!*drivers/tests/*'
 
     ### Docs Tests ###
     - &docs-vm
@@ -111,7 +116,7 @@ matrix:
       env: NAME=astyle
       install:
         - >-
-          curl -L0 https://mbed-os.s3-eu-west-1.amazonaws.com/builds/deps/astyle_3.1_linux.tar.gz --output astyle.tar.gz;
+          curl -L0 https://mbed-os-ci-public.s3-eu-west-1.amazonaws.com/jenkins-ci/deps/astyle_3.1_linux.tar.gz --output astyle.tar.gz;
           mkdir -p BUILD && tar xf astyle.tar.gz -C BUILD;
           cd BUILD/astyle/build/gcc;
           make;
@@ -125,21 +130,22 @@ matrix:
         - >-
           git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
             | ( grep '.*\.\(c\|cpp\|h\|hpp\)$' || true ) \
-            | ( grep -v -f .astyleignore || true ) \
+            | ( grep -v -f .codecheckignore || true ) \
             | while read file; do astyle -n --options=.astylerc "${file}"; done
         - git diff --exit-code --diff-filter=d --color
-      
+
     - <<: *docs-vm
       name: "spellcheck"
       env: NAME=doxy-spellcheck
       install:
         - source_pkg aspell
       script:
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh drivers
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh platform
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh events
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh rtos
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh connectivity/netsocket
+        # TODO: run checks on all directories once all mispellings are fixed
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh drivers .codecheckignore
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh platform .codecheckignore
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh events .codecheckignore
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh rtos .codecheckignore
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh connectivity/netsocket .codecheckignore
 
     - <<: *docs-vm
       name: "doxygen"
@@ -155,6 +161,7 @@ matrix:
           make;
           sudo make install)
         # Create BUILD directory for tests
+        - ccache -s
         - mkdir BUILD
       script:
         # Assert that the Doxygen build produced no warnings.
@@ -170,13 +177,41 @@ matrix:
           find "(" -name "*.a" -or -name "*.ar" ")" -and -not -name "lib*" |
           tee BUILD/badlibs |
           sed -e "s/^/Bad library name found: /" && [ ! -s BUILD/badlibs ]
-        # Assert that all assebler files are named correctly
+        # Assert that all assembler files are named correctly
         # The strange command below asserts that there are exactly 0 libraries
         # that do end with .s
         - >
           find  -name "*.s" | tee BUILD/badasm |
           sed -e "s/^/Bad Assembler file name found: /" && [ ! -s BUILD/badasm ]
 
+    - <<: *docs-vm
+      name: "Frozen tools check"
+      env: NAME=frozen_tools_check
+      script:
+        # Reject any changes to tools that would require a re-release of the
+        # tools for the online compiler.
+        - >-
+            frozen_files=`\
+                git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
+                    | egrep \
+                      -e "^tools/build_api*" \
+                      -e "^tools/config*" \
+                      -e "^tools/export*" \
+                      -e "^tools/notifier*" \
+                      -e "^tools/paths*" \
+                      -e "^tools/resources*" \
+                      -e "^tools/targets*" \
+                      -e "^tools/toolchains*" \
+                      -e "^tools/utils*" \
+                      -e "^$"`
+            if [ -z "$frozen_files" ]; then
+                echo "Success!";
+            else
+                echo -e "Failure: Frozen files were modified\n$frozen_files";
+                echo -e "Please see https://os.mbed.com/blog/entry/Introducing-the-new-Mbed-Tools/" \
+                        "\nfor why we've frozen the legacy tools.";
+                false;
+            fi
 
     ### Python Tests ###
     - &pytools-vm
@@ -225,7 +260,7 @@ matrix:
       env: NAME=tools-py3.7
       python: 3.7
 
-    
+
     ### Extended Tests ###
     - &extended-vm
       stage: "Extended"
@@ -249,26 +284,13 @@ matrix:
         # Check that example compiles without rtos
         - sed -n '/``` cpp/,/```/{/```$/Q;/```/d;p;}' ${EVENTS}/README.md > main.cpp
         - |
-          rm -r rtos/source/TARGET_CORTEX drivers/source/usb connectivity/cellular connectivity/drivers/cellular \
-            connectivity/libraries/ppp connectivity/netsocket features/nanostack features/lwipstack features/frameworks/greentea-client \
-            features/frameworks/utest features/frameworks/unity components BUILD
+          rm -r cmsis/CMSIS_5/CMSIS/RTOS2 cmsis/device/rtos drivers/usb connectivity/cellular connectivity/drivers/cellular \
+            connectivity/libraries/ppp connectivity/netsocket connectivity/nanostack connectivity/lwipstack features/frameworks/greentea-client \
+            features/frameworks/utest features/frameworks/unity BUILD
         - python tools/make.py -t GCC_ARM -m NUCLEO_F103RB --source=. --build=BUILD/NUCLEO_F103RB/GCC_ARM -j0
         # Run profiling tests
         - make -C ${EVENTS}/tests/unit prof | tee prof
-      after_success:
-        # Update status, comparing with master if possible.
-        - |
-          CURR=$(grep -o '[0-9]\+ cycles' prof | awk '{sum += $1} END {print sum}')
-          PREV=$(curl -u "${MBED_BOT}" https://api.github.com/repos/${TRAVIS_REPO_SLUG}/status/master \
-              | jq -re "select(.sha != \"${TRAVIS_COMMIT}\")
-                  | .statuses[] | select(.context == \"travis-ci/${NAME}\").description
-                  | capture(\"runtime is (?<runtime>[0-9]+)\").runtime" \
-              || echo 0)
-
-          delta=""
-          [ "${PREV}" -ne 0 ] && delta="($(printf "%+d" "$(( ${CURR} - ${PREV} ))" cycles)"
-
-          set_status "success" "Success! Runtime is ${CURR} cycles. ${delta}"
+        - ccache -s
 
     - <<: *extended-vm
       name: "littlefs"
@@ -328,17 +350,4 @@ matrix:
             OBJ="$(ls lfs*.o | tr '\n' ' ')"
             CFLAGS+="-DLFS_NO_ASSERT -DLFS_NO_DEBUG -DLFS_NO_WARN -DLFS_NO_ERROR"
             | tee sizes
-      after_success:
-        # Update status, comparing with master if possible.
-        - |
-          CURR=$(tail -n1 sizes | awk '{print $1}')
-          PREV=$(curl -u "${MBED_BOT}" https://api.github.com/repos/${TRAVIS_REPO_SLUG}/status/master \
-              | jq -re "select(.sha != \"${TRAVIS_COMMIT}\")
-                  | .statuses[] | select(.context == \"travis-ci/${NAME}\").description
-                  | capture(\"code size is (?<size>[0-9]+)\").size" \
-              || echo 0)
-
-          delta=""
-          [ "${PREV}" -ne 0 ] && delta="($(printf "%+0.2f%%" "$(<<< "100 * ((${CURR} - ${PREV})/${PREV})" bc -l)"))"
-
-          set_status "success" "Success! Code size is ${CURR}B. ${delta}"
+        - ccache -s

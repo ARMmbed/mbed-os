@@ -1,5 +1,6 @@
 /* Socket
  * Copyright (c) 2015 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -430,7 +431,7 @@ protected:
 // Conversion function for network stacks
 NetworkStack *nsapi_create_stack(nsapi_stack_t *stack)
 {
-    MBED_STATIC_ASSERT(sizeof stack->_stack_buffer >= sizeof(NetworkStackWrapper),
-                       "The nsapi_stack_t stack buffer must fit a NetworkStackWrapper");
+    static_assert(sizeof stack->_stack_buffer >= sizeof(NetworkStackWrapper),
+                  "The nsapi_stack_t stack buffer must fit a NetworkStackWrapper");
     return new (stack->_stack_buffer) NetworkStackWrapper;
 }

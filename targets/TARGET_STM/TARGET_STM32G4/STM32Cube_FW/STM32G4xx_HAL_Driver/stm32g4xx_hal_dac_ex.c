@@ -372,7 +372,7 @@ HAL_StatusTypeDef HAL_DACEx_DualStop_DMA(DAC_HandleTypeDef *hdac, uint32_t Chann
   *            @arg DAC_CHANNEL_1: DAC Channel1 selected
   *            @arg DAC_CHANNEL_2: DAC Channel2 selected (1)
   *
-  *         (1) On this STM32 serie, parameter not available on all instances.
+  *         (1) On this STM32 series, parameter not available on all instances.
   *             Refer to device datasheet for channels availability.
   * @param  Amplitude Select max triangle amplitude.
   *          This parameter can be one of the following values:
@@ -424,7 +424,7 @@ HAL_StatusTypeDef HAL_DACEx_TriangleWaveGenerate(DAC_HandleTypeDef *hdac, uint32
   *            @arg DAC_CHANNEL_1: DAC Channel1 selected
   *            @arg DAC_CHANNEL_2: DAC Channel2 selected (1)
   *
-  *         (1) On this STM32 serie, parameter not available on all instances.
+  *         (1) On this STM32 series, parameter not available on all instances.
   *             Refer to device datasheet for channels availability.
   * @param  Amplitude Unmask DAC channel LFSR for noise wave generation.
   *          This parameter can be one of the following values:
@@ -476,7 +476,7 @@ HAL_StatusTypeDef HAL_DACEx_NoiseWaveGenerate(DAC_HandleTypeDef *hdac, uint32_t 
   *            @arg DAC_CHANNEL_1: DAC Channel1 selected
   *            @arg DAC_CHANNEL_2: DAC Channel2 selected (1)
   *
-  *         (1) On this STM32 serie, parameter not available on all instances.
+  *         (1) On this STM32 series, parameter not available on all instances.
   *             Refer to device datasheet for channels availability.
   * @param  Polarity polarity to be used for wave generation.
   *          This parameter can be one of the following values:
@@ -549,7 +549,7 @@ HAL_StatusTypeDef HAL_DACEx_SawtoothWaveGenerate(DAC_HandleTypeDef *hdac, uint32
   *            @arg DAC_CHANNEL_1: DAC Channel1 selected
   *            @arg DAC_CHANNEL_2: DAC Channel2 selected (1)
   *
-  *         (1) On this STM32 serie, parameter not available on all instances.
+  *         (1) On this STM32 series, parameter not available on all instances.
   *             Refer to device datasheet for channels availability.
   * @retval HAL status
   */
@@ -605,7 +605,7 @@ HAL_StatusTypeDef HAL_DACEx_SawtoothWaveDataReset(DAC_HandleTypeDef *hdac, uint3
   *            @arg DAC_CHANNEL_1: DAC Channel1 selected
   *            @arg DAC_CHANNEL_2: DAC Channel2 selected (1)
   *
-  *         (1) On this STM32 serie, parameter not available on all instances.
+  *         (1) On this STM32 series, parameter not available on all instances.
   *             Refer to device datasheet for channels availability.
   * @retval HAL status
   */
@@ -769,7 +769,7 @@ __weak void HAL_DACEx_DMAUnderrunCallbackCh2(DAC_HandleTypeDef *hdac)
   *            @arg DAC_CHANNEL_1: DAC Channel1 selected
   *            @arg DAC_CHANNEL_2: DAC Channel2 selected (1)
   *
-  *         (1) On this STM32 serie, parameter not available on all instances.
+  *         (1) On this STM32 series, parameter not available on all instances.
   *             Refer to device datasheet for channels availability.
   * @retval Updates DAC_TrimmingValue. , DAC_UserTrimming set to DAC_UserTrimming
   * @retval HAL status
@@ -904,7 +904,7 @@ HAL_StatusTypeDef HAL_DACEx_SelfCalibrate(DAC_HandleTypeDef *hdac, DAC_ChannelCo
   *            @arg DAC_CHANNEL_1: DAC Channel1 selected
   *            @arg DAC_CHANNEL_2: DAC Channel2 selected (1)
   *
-  *         (1) On this STM32 serie, parameter not available on all instances.
+  *         (1) On this STM32 series, parameter not available on all instances.
   *             Refer to device datasheet for channels availability.
   * @param  NewTrimmingValue DAC new trimming value
   * @retval HAL status
@@ -950,7 +950,7 @@ HAL_StatusTypeDef HAL_DACEx_SetUserTrimming(DAC_HandleTypeDef *hdac, DAC_Channel
   *            @arg DAC_CHANNEL_1: DAC Channel1 selected
   *            @arg DAC_CHANNEL_2: DAC Channel2 selected (1)
   *
-  *         (1) On this STM32 serie, parameter not available on all instances.
+  *         (1) On this STM32 series, parameter not available on all instances.
   *             Refer to device datasheet for channels availability.
   * @retval Trimming value : range: 0->31
   *

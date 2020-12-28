@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2018 ARM Limited
+ * Copyright (c) 2018-2020 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +37,10 @@
 #include "QSPIFBlockDevice.h"
 #endif
 
+#if COMPONENT_OSPIF
+#include "OSPIFBlockDevice.h"
+#endif
+
 #if COMPONENT_DATAFLASH
 #include "DataFlashBlockDevice.h"
 #endif
@@ -68,6 +73,7 @@ using namespace utest::v1;
 
 uint8_t num_of_sectors = TEST_NUM_OF_THREADS * TEST_BLOCK_COUNT;
 uint32_t sectors_addr[TEST_NUM_OF_THREADS * TEST_BLOCK_COUNT] = {0};
+bd_size_t max_sector_size = 0;
 
 const struct {
     const char *name;
@@ -85,10 +91,11 @@ enum bd_type {
     dataflash,
     sd,
     flashiap,
+    ospif,
     default_bd
 };
 
-uint8_t bd_arr[5] = {0};
+uint8_t bd_arr[6] = {0};
 
 static uint8_t test_iteration = 0;
 
@@ -130,6 +137,27 @@ static BlockDevice *get_bd_instance(uint8_t bd_type)
                 MBED_CONF_QSPIF_QSPI_CSN,
                 MBED_CONF_QSPIF_QSPI_POLARITY_MODE,
                 MBED_CONF_QSPIF_QSPI_FREQ
+            );
+            return &default_bd;
+#endif
+            break;
+        }
+        case ospif: {
+#if COMPONENT_OSPIF
+            static OSPIFBlockDevice default_bd(
+                MBED_CONF_OSPIF_OSPI_IO0,
+                MBED_CONF_OSPIF_OSPI_IO1,
+                MBED_CONF_OSPIF_OSPI_IO2,
+                MBED_CONF_OSPIF_OSPI_IO3,
+                MBED_CONF_OSPIF_OSPI_IO4,
+                MBED_CONF_OSPIF_OSPI_IO5,
+                MBED_CONF_OSPIF_OSPI_IO6,
+                MBED_CONF_OSPIF_OSPI_IO7,
+                MBED_CONF_OSPIF_OSPI_SCK,
+                MBED_CONF_OSPIF_OSPI_CSN,
+                MBED_CONF_OSPIF_OSPI_DQS,
+                MBED_CONF_OSPIF_OSPI_POLARITY_MODE,
+                MBED_CONF_OSPIF_OSPI_FREQ
             );
             return &default_bd;
 #endif
@@ -261,11 +289,16 @@ void test_init_bd()
     TEST_ASSERT_EQUAL(0, err);
 
     bd_addr_t start_address = 0;
+    bd_size_t curr_sector_size = 0;
     uint8_t i = 0;
     for (; i < num_of_sectors && start_address < block_device->size(); i++) {
         sectors_addr[i] = start_address;
-        DEBUG_PRINTF("start_address = 0x%llx, sector_size = %d\n", start_address, block_device->get_erase_size(start_address));
-        start_address += block_device->get_erase_size(start_address);
+        curr_sector_size = block_device->get_erase_size(start_address);
+        DEBUG_PRINTF("start_address = 0x%llx, sector_size = %d\n", start_address, curr_sector_size);
+        if (curr_sector_size > max_sector_size) {
+            max_sector_size = curr_sector_size;
+        }
+        start_address += curr_sector_size;
     }
     num_of_sectors = i;
 }
@@ -288,24 +321,25 @@ void test_random_program_read_erase()
         }
     }
 
-    bd_size_t block_size = block_device->get_erase_size();
     unsigned addrwidth = ceil(log(float(block_device->size() - 1)) / log(float(16))) + 1;
 
-    uint8_t *write_block = new (std::nothrow) uint8_t[block_size];
-    uint8_t *read_block = new (std::nothrow) uint8_t[block_size];
+    uint8_t *write_buffer = new (std::nothrow) uint8_t[max_sector_size];
+    uint8_t *read_buffer = new (std::nothrow) uint8_t[max_sector_size];
 
-    if (!write_block || !read_block) {
+    if (!write_buffer || !read_buffer) {
         utest_printf("Not enough memory for test\n");
         goto end;
     }
 
     for (int b = 0; b < std::min((uint8_t)TEST_BLOCK_COUNT, num_of_sectors); b++) {
-        basic_erase_program_read_test(block_device, block_size, write_block, read_block, addrwidth, b);
+        // basic_erase_program_read_test() can handle non-uniform sector sizes
+        // and use only part of the buffers if the sector is smaller
+        basic_erase_program_read_test(block_device, max_sector_size, write_buffer, read_buffer, addrwidth, b);
     }
 
 end:
-    delete[] read_block;
-    delete[] write_block;
+    delete[] read_buffer;
+    delete[] write_buffer;
 }
 
 #if defined(MBED_CONF_RTOS_PRESENT)
@@ -318,24 +352,27 @@ static void test_thread_job()
 
     uint8_t sector_per_thread = (num_of_sectors / TEST_NUM_OF_THREADS);
 
-    bd_size_t block_size = block_device->get_erase_size();
     unsigned addrwidth = ceil(log(float(block_device->size() - 1)) / log(float(16))) + 1;
 
-    uint8_t *write_block = new (std::nothrow) uint8_t[block_size];
-    uint8_t *read_block = new (std::nothrow) uint8_t[block_size];
+    uint8_t *write_buffer = new (std::nothrow) uint8_t[max_sector_size];
+    uint8_t *read_buffer = new (std::nothrow) uint8_t[max_sector_size];
 
-    if (!write_block || !read_block) {
-        utest_printf("Not enough memory for test\n");
+    if (!write_buffer || !read_buffer) {
+        // Some targets have sectors up to 256KB each and a relatively small RAM.
+        // This test may not be able to run in this case.
+        utest_printf("Not enough memory for test, is the sector size (%llu) too big?\n", max_sector_size);
         goto end;
     }
 
     for (int b = 0; b < sector_per_thread; b++) {
-        basic_erase_program_read_test(block_device, block_size, write_block, read_block, addrwidth, block_num * sector_per_thread + b);
+        // basic_erase_program_read_test() can handle non-uniform sector sizes
+        // and use only part of the buffers if the sector is smaller
+        basic_erase_program_read_test(block_device, max_sector_size, write_buffer, read_buffer, addrwidth, block_num * sector_per_thread + b);
     }
 
 end:
-    delete[] read_block;
-    delete[] write_block;
+    delete[] read_buffer;
+    delete[] write_buffer;
 }
 
 void test_multi_threads()
@@ -510,11 +547,18 @@ void test_contiguous_erase_write_read()
 
     bd_size_t contiguous_erase_size = stop_address - start_address;
     TEST_ASSERT(contiguous_erase_size > 0);
-    utest_printf("contiguous_erase_size=%d\n", contiguous_erase_size);
+    utest_printf("contiguous_erase_size=0x%" PRIx64 "\n", contiguous_erase_size);
 
     bd_size_t write_read_buf_size = program_size;
-    if (contiguous_erase_size / program_size > 8 && contiguous_erase_size % (program_size * 8) == 0) {
-        write_read_buf_size = program_size * 8;
+
+    // Reading/writing in larger chunks reduces the number of operations,
+    // helping to avoid test timeouts. Try 256-byte chunks if contiguous_erase_size
+    // (which should be a power of 2) is greater than that. If it's less than
+    // that, the test finishes quickly anyway...
+    if ((program_size < 256) && (256 % program_size == 0)
+            && (contiguous_erase_size >= 256) && (contiguous_erase_size % 256 == 0)) {
+        utest_printf("using 256-byte write/read buffer\n");
+        write_read_buf_size = 256;
     }
 
     // Allocate write/read buffer
@@ -584,7 +628,6 @@ void test_program_read_small_data_sizes()
 
     TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "no block device found.");
 
-    bd_size_t erase_size = block_device->get_erase_size();
     bd_size_t program_size = block_device->get_program_size();
     bd_size_t read_size = block_device->get_read_size();
     TEST_ASSERT(program_size > 0);
@@ -606,6 +649,7 @@ void test_program_read_small_data_sizes()
 
     // Determine starting address
     bd_addr_t start_address = 0;
+    bd_size_t erase_size = block_device->get_erase_size(start_address);
 
     for (int i = 1; i <= 7; i++) {
         err = buff_block_device->erase(start_address, erase_size);
@@ -736,13 +780,15 @@ void test_get_type_functionality()
 
 #if COMPONENT_QSPIF
     TEST_ASSERT_EQUAL(0, strcmp(bd_type, "QSPIF"));
+#elif COMPONENT_OSPIF
+    TEST_ASSERT_EQUAL(0, strcmp(bd_type, "OSPIF"));
 #elif COMPONENT_SPIF
     TEST_ASSERT_EQUAL(0, strcmp(bd_type, "SPIF"));
 #elif COMPONENT_DATAFLASH
     TEST_ASSERT_EQUAL(0, strcmp(bd_type, "DATAFLASH"));
 #elif COMPONENT_SD
     TEST_ASSERT_EQUAL(0, strcmp(bd_type, "SD"));
-#elif COMPONET_FLASHIAP
+#elif COMPONENT_FLASHIAP
     TEST_ASSERT_EQUAL(0, strcmp(bd_type, "FLASHIAP"));
 #endif
 }
@@ -799,11 +845,14 @@ int get_bd_count()
 #if COMPONENT_FLASHIAP
     bd_arr[count++] = flashiap;       //4
 #endif
+#if COMPONENT_OSPIF
+    bd_arr[count++] = ospif;          //5
+#endif
 
     return count;
 }
 
-static const char *prefix[] = {"SPIF ", "QSPIF ", "DATAFLASH ", "SD ", "FLASHIAP ", "DEFAULT "};
+static const char *prefix[] = {"SPIF ", "QSPIF ", "DATAFLASH ", "SD ", "FLASHIAP ", "OSPIF ", "DEFAULT "};
 
 int main()
 {

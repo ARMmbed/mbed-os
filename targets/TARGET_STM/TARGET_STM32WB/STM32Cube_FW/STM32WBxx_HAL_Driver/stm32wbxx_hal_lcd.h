@@ -545,9 +545,6 @@ typedef struct
   * @param __FLAG__ specifies the flag to check.
   *        This parameter can be one of the following values:
   *        @arg LCD_FLAG_ENS: LCD Enabled flag. It indicates the LCD controller status.
-  * @note  The ENS bit is set immediately when the LCDEN bit in the LCD_CR
-  *             goes from 0 to 1. On deactivation it reflects the real status of
-  *             LCD so it becomes 0 at the end of the last displayed frame.
   *        @arg LCD_FLAG_SOF: Start of Frame flag. This flag is set by hardware at
   *             the beginning of a new frame, at the same time as the display data is
   *             updated.
@@ -558,6 +555,9 @@ typedef struct
   *        @arg LCD_FLAG_FCRSF: LCD Frame Control Register Synchronization Flag.
   *             This flag is set by hardware each time the LCD_FCR register is updated
   *             in the LCDCLK domain.
+  * @note  The ENS bit is set immediately when the LCDEN bit in the LCD_CR
+  *             goes from 0 to 1. On deactivation it reflects the real status of
+  *             LCD so it becomes 0 at the end of the last displayed frame.
   * @retval The new state of __FLAG__ (TRUE or FALSE).
   */
 #define __HAL_LCD_GET_FLAG(__HANDLE__, __FLAG__)    (((__HANDLE__)->Instance->SR & (__FLAG__)) == (__FLAG__))

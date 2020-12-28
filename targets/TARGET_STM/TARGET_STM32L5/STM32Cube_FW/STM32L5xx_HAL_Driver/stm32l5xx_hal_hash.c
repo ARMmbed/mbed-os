@@ -28,13 +28,13 @@
         (##) When resorting to DMA-based APIs  (e.g. HAL_HASH_xxx_Start_DMA())
             (+++) Enable the DMAx interface clock using
                    __DMAx_CLK_ENABLE()
-            (+++) Configure and enable one DMA stream to manage data transfer from
-                memory to peripheral (input stream). Managing data transfer from
+            (+++) Configure and enable one DMA channel to manage data transfer from
+                memory to peripheral (input channel). Managing data transfer from
                 peripheral to memory can be performed only using CPU.
             (+++) Associate the initialized DMA handle to the HASH DMA handle
                 using  __HAL_LINKDMA()
             (+++) Configure the priority and enable the NVIC for the transfer complete
-                interrupt on the DMA Stream: use
+                interrupt on the DMA channel: use
                  HAL_NVIC_SetPriority() and
                  HAL_NVIC_EnableIRQ()
 
@@ -71,10 +71,10 @@
              well the computed digest.
 
         (##) In DMA mode, multi-buffer HASH and HMAC processing are possible.
-              (+++) HASH processing: once initialization is done, MDMAT bit must be set thru __HAL_HASH_SET_MDMAT() macro.
-             From that point, each buffer can be fed to the Peripheral thru HAL_HASH_xxx_Start_DMA() API.
+              (+++) HASH processing: once initialization is done, MDMAT bit must be set through __HAL_HASH_SET_MDMAT() macro.
+             From that point, each buffer can be fed to the Peripheral through HAL_HASH_xxx_Start_DMA() API.
              Before entering the last buffer, reset the MDMAT bit with __HAL_HASH_RESET_MDMAT()
-             macro then wrap-up the HASH processing in feeding the last input buffer thru the
+             macro then wrap-up the HASH processing in feeding the last input buffer through the
              same API HAL_HASH_xxx_Start_DMA(). The digest can then be retrieved with a call to
              API HAL_HASH_xxx_Finish().
              (+++) HMAC processing (requires to resort to extended functions):
@@ -104,6 +104,40 @@
              the proper location are internally saved in the HASH handle.
 
     (#)Call HAL_HASH_DeInit() to deinitialize the HASH peripheral.
+
+     *** Remarks on message length ***
+     ===================================
+     [..]
+      (#) HAL in interruption mode (interruptions driven)
+
+        (##)Due to HASH peripheral hardware design, the peripheral interruption is triggered every 64 bytes.
+        This is why, for driver implementation simplicity’s sake, user is requested to enter a message the
+        length of which is a multiple of 4 bytes.
+
+        (##) When the message length (in bytes) is not a multiple of words, a specific field exists in HASH_STR
+        to specify which bits to discard at the end of the complete message to process only the message bits
+        and not extra bits.
+
+        (##) If user needs to perform a hash computation of a large input buffer that is spread around various places
+        in memory and where each piece of this input buffer is not necessarily a multiple of 4 bytes in size, it
+        becomes necessary to use a temporary buffer to format the data accordingly before feeding them to the Peripheral.
+        It is advised to the user to
+       (+++) achieve the first formatting operation by software then enter the data
+       (+++) while the Peripheral is processing the first input set, carry out the second formatting operation by software, to be ready when DINIS occurs.
+       (+++) repeat step 2 until the whole message is processed.
+
+     [..]
+      (#) HAL in DMA mode
+
+        (##) Again, due to hardware design, the DMA transfer to feed the data can only be done on a word-basis.
+        The same field described above in HASH_STR is used to specify which bits to discard at the end of the DMA transfer
+        to process only the message bits and not extra bits. Due to hardware implementation, this is possible only at the
+        end of the complete message. When several DMA transfers are needed to enter the message, this is not applicable at
+        the end of the intermediary transfers.
+
+        (##) Similarly to the interruption-driven mode, it is suggested to the user to format the consecutive chunks of data
+        by software while the DMA transfer and processing is on-going for the first parts of the message. Due to the 32-bit alignment
+        required for the DMA transfer, it is underlined that the software formatting operation is more complex than in the IT mode.
 
      *** Callback registration ***
      ===================================
@@ -157,7 +191,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2018 STMicroelectronics.
+  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
   * This software component is licensed by ST under BSD 3-Clause license,
@@ -175,7 +209,7 @@
 /** @addtogroup STM32L5xx_HAL_Driver
   * @{
   */
-#if defined (HASH)
+
 
 /** @defgroup HASH  HASH
   * @brief HASH HAL module driver.
@@ -449,7 +483,7 @@ __weak void HAL_HASH_MspDeInit(HASH_HandleTypeDef *hhash)
   * @brief  Input data transfer complete call back.
   * @note   HAL_HASH_InCpltCallback() is called when the complete input message
   *         has been fed to the Peripheral. This API is invoked only when input data are
-  *         entered under interruption or thru DMA.
+  *         entered under interruption or through DMA.
   * @note   In case of HASH or HMAC multi-buffer DMA feeding case (MDMAT bit set),
   *         HAL_HASH_InCpltCallback() is called at the end of each buffer feeding
   *         to the Peripheral.
@@ -1460,6 +1494,7 @@ HAL_StatusTypeDef HAL_HASH_DMAFeed_ProcessSuspend(HASH_HandleTypeDef *hhash)
 
    /* Make sure there is enough time to suspend the processing */
     tmp_remaining_DMATransferSize_inWords = ((DMA_Channel_TypeDef *)hhash->hdmain->Instance)->CNDTR;
+
     if (tmp_remaining_DMATransferSize_inWords <= HASH_DMA_SUSPENSION_WORDS_LIMIT)
     {
       /* No suspension attempted since almost to the end of the transferred data. */
@@ -1467,7 +1502,7 @@ HAL_StatusTypeDef HAL_HASH_DMAFeed_ProcessSuspend(HASH_HandleTypeDef *hhash)
       return HAL_ERROR;
     }
 
-    /* Wait for DMAS to be reset */
+    /* Wait for BUSY flag to be reset */
     if (HASH_WaitOnFlagUntilTimeout(hhash, HASH_FLAG_BUSY, SET, HASH_TIMEOUTVALUE) != HAL_OK)
     {
        return HAL_TIMEOUT;
@@ -1478,19 +1513,26 @@ HAL_StatusTypeDef HAL_HASH_DMAFeed_ProcessSuspend(HASH_HandleTypeDef *hhash)
       return HAL_ERROR;
     }
 
-    /* Wait for DMAS to be set */
+    /* Wait for BUSY flag to be set */
     if (HASH_WaitOnFlagUntilTimeout(hhash, HASH_FLAG_BUSY, RESET, HASH_TIMEOUTVALUE) != HAL_OK)
     {
        return HAL_TIMEOUT;
     }
     /* Disable DMA channel */
-    /* No need to check the returned value of HAL_DMA_Abort. */
-    /* Only HAL_DMA_ERROR_NO_XFER can be returned in case of error and it's not an error for HASH. */
-    (void) HAL_DMA_Abort(hhash->hdmain);
+    /* Note that the Abort function will
+      - Clear the transfer error flags
+      - Unlock
+      - Set the State
+    */
+    if (HAL_DMA_Abort(hhash->hdmain) !=HAL_OK)
+    {
+      return HAL_ERROR;
+    }
 
     /* Clear DMAE bit */
     CLEAR_BIT(HASH->CR,HASH_CR_DMAE);
 
+    /* Wait for BUSY flag to be reset */
     if (HASH_WaitOnFlagUntilTimeout(hhash, HASH_FLAG_BUSY, SET, HASH_TIMEOUTVALUE) != HAL_OK)
     {
       return HAL_TIMEOUT;
@@ -1687,11 +1729,11 @@ static void HASH_DMAXferCplt(DMA_HandleTypeDef *hdma)
     /* Configure the Number of valid bits in last word of the message */
     __HAL_HASH_SET_NBVALIDBITS(buffersize);
 
-      /* Set the HASH DMA transfert completion call back */
+      /* Set the HASH DMA transfer completion call back */
       hhash->hdmain->XferCpltCallback = HASH_DMAXferCplt;
 
-      /* Enable the DMA In DMA Stream */
-    status = HAL_DMA_Start_IT(hhash->hdmain, inputaddr, (uint32_t)&HASH->DIN, (((buffersize%4U)!=0U) ? ((buffersize+3U)/4U):(buffersize/4U)));
+      /* Enable the DMA In DMA channel */
+    status = HAL_DMA_Start_IT(hhash->hdmain, inputaddr, (uint32_t)&HASH->DIN, (((buffersize %4U)!=0U) ? ((buffersize+(4U-(buffersize %4U)))/4U):(buffersize/4U)));
 
     /* Enable DMA requests */
     SET_BIT(HASH->CR, HASH_CR_DMAE);
@@ -1766,56 +1808,47 @@ static HAL_StatusTypeDef HASH_WriteData(HASH_HandleTypeDef *hhash, uint8_t *pInB
     inputaddr+=4U;
 
     /* If the suspension flag has been raised and if the processing is not about
-       to end, suspend processing */
-    if ((HASH_NBW_PUSHED() == 0U)                     /* If Peripheral FIFO is empty (condition for DINIS to raise) */ \
-     && (buffercounter != 0U)                         /* and if at least one word has been written                  */ \
-     && ((buffercounter+4U) < Size)                   /* and if the processing is not about to end                  */ \
-     && (hhash->SuspendRequest == HAL_HASH_SUSPEND) ) /* and if suspension is requested                             */
+    to end, suspend processing */
+    if ((hhash->SuspendRequest == HAL_HASH_SUSPEND) && ((buffercounter+4U) < Size))
     {
-      /* Wait first for BUSY flag to be cleared */
-      if (HASH_WaitOnFlagUntilTimeout(hhash, HASH_FLAG_BUSY, SET, HASH_TIMEOUTVALUE) == HAL_OK)
+      /* Wait for DINIS = 1, which occurs when 16 32-bit locations are free
+      in the input buffer */
+      if (__HAL_HASH_GET_FLAG(HASH_FLAG_DINIS))
       {
-        /* Wait for DINIS = 1, which occurs when 16 32-bit locations are free
-           in the input buffer.
-           No error management is done if DINIS doesn't raise before time out:
-           input block data feeding is carried on */
-        if (HASH_WaitOnFlagUntilTimeout(hhash, HASH_FLAG_DINIS, RESET, HASH_TIMEOUTVALUE) == HAL_OK)
+        /* Reset SuspendRequest */
+        hhash->SuspendRequest = HAL_HASH_SUSPEND_NONE;
+
+        /* Depending whether the key or the input data were fed to the Peripheral, the feeding point
+        reached at suspension time is not saved in the same handle fields */
+        if ((hhash->Phase == HAL_HASH_PHASE_PROCESS) || (hhash->Phase == HAL_HASH_PHASE_HMAC_STEP_2))
         {
-          /* Reset SuspendRequest */
-          hhash->SuspendRequest = HAL_HASH_SUSPEND_NONE;
+          /* Save current reading and writing locations of Input and Output buffers */
+          hhash->pHashInBuffPtr =  (uint8_t *)inputaddr;
+          /* Save the number of bytes that remain to be processed at this point */
+          hhash->HashInCount    =  Size - (buffercounter + 4U);
+        }
+        else if ((hhash->Phase == HAL_HASH_PHASE_HMAC_STEP_1) || (hhash->Phase == HAL_HASH_PHASE_HMAC_STEP_3))
+        {
+          /* Save current reading and writing locations of Input and Output buffers */
+          hhash->pHashKeyBuffPtr  =  (uint8_t *)inputaddr;
+          /* Save the number of bytes that remain to be processed at this point */
+          hhash->HashKeyCount  =  Size - (buffercounter + 4U);
+        }
+        else
+        {
+          /* Unexpected phase: unlock process and report error */
+          hhash->State = HAL_HASH_STATE_READY;
+          __HAL_UNLOCK(hhash);
+          return HAL_ERROR;
+        }
 
-          /* Depending whether the key or the input data were fed to the Peripheral, the feeding point
-             reached at suspension time is not saved in the same handle fields */
-          if ((hhash->Phase == HAL_HASH_PHASE_PROCESS) || (hhash->Phase == HAL_HASH_PHASE_HMAC_STEP_2))
-          {
-            /* Save current reading and writing locations of Input and Output buffers */
-            hhash->pHashInBuffPtr =  (uint8_t *)inputaddr;
-            /* Save the number of bytes that remain to be processed at this point */
-            hhash->HashInCount    =  Size - (buffercounter + 4U);
-          }
-          else if ((hhash->Phase == HAL_HASH_PHASE_HMAC_STEP_1) || (hhash->Phase == HAL_HASH_PHASE_HMAC_STEP_3))
-          {
-            /* Save current reading and writing locations of Input and Output buffers */
-            hhash->pHashKeyBuffPtr  =  (uint8_t *)inputaddr;
-            /* Save the number of bytes that remain to be processed at this point */
-            hhash->HashKeyCount  =  Size - (buffercounter + 4U);
-          }
-          else
-          {
-            /* Unexpected phase: unlock process and report error */
-            hhash->State = HAL_HASH_STATE_READY;
-            __HAL_UNLOCK(hhash);
-            return HAL_ERROR;
-          }
+        /* Set the HASH state to Suspended and exit to stop entering data */
+        hhash->State = HAL_HASH_STATE_SUSPENDED;
 
-          /* Set the HASH state to Suspended and exit to stop entering data */
-          hhash->State = HAL_HASH_STATE_SUSPENDED;
-
-          return HAL_OK;
-        } /* if (HASH_WaitOnFlagUntilTimeout(hhash, HASH_FLAG_DINIS, RESET, HASH_TIMEOUTVALUE) == HAL_OK) */
-      } /* if (HASH_WaitOnFlagUntilTimeout(hhash, HASH_FLAG_BUSY, SET, HASH_TIMEOUTVALUE) == HAL_OK) */
-    }
-  } /* for(buffercounter = 0; buffercounter < Size; buffercounter+=4) */
+        return HAL_OK;
+      } /* if (__HAL_HASH_GET_FLAG(HASH_FLAG_DINIS))  */
+    } /* if ((hhash->SuspendRequest == HAL_HASH_SUSPEND) && ((buffercounter+4) < Size)) */
+  }   /* for(buffercounter = 0; buffercounter < Size; buffercounter+=4)                 */
 
   /* At this point, all the data have been entered to the Peripheral: exit */
   return  HAL_OK;
@@ -2033,7 +2066,7 @@ static HAL_StatusTypeDef HASH_IT(HASH_HandleTypeDef *hhash)
         return HAL_OK;
       }
 
-      /* Enter input data in the Peripheral thru HASH_Write_Block_Data() call and
+      /* Enter input data in the Peripheral through HASH_Write_Block_Data() call and
         check whether the digest calculation has been triggered */
       if (HASH_Write_Block_Data(hhash) == HASH_DIGEST_CALCULATION_STARTED)
       {
@@ -2898,11 +2931,11 @@ HAL_StatusTypeDef HASH_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, 
   HAL_StatusTypeDef status ;
   HAL_HASH_StateTypeDef State_tmp = hhash->State;
 
-#if defined (HASH_CR_MDMAT)
+
   /* Make sure the input buffer size (in bytes) is a multiple of 4 when MDMAT bit is set
      (case of multi-buffer HASH processing) */
   assert_param(IS_HASH_DMA_MULTIBUFFER_SIZE(Size));
-#endif /* MDMA defined*/
+
    /* If State is ready or suspended, start or resume polling-based HASH processing */
 if((State_tmp == HAL_HASH_STATE_READY) || (State_tmp == HAL_HASH_STATE_SUSPENDED))
   {
@@ -2965,7 +2998,7 @@ if((State_tmp == HAL_HASH_STATE_READY) || (State_tmp == HAL_HASH_STATE_SUSPENDED
 
     }
 
-    /* Set the HASH DMA transfert complete callback */
+    /* Set the HASH DMA transfer complete callback */
     hhash->hdmain->XferCpltCallback = HASH_DMAXferCplt;
     /* Set the DMA error callback */
     hhash->hdmain->XferErrorCallback = HASH_DMAError;
@@ -2973,8 +3006,8 @@ if((State_tmp == HAL_HASH_STATE_READY) || (State_tmp == HAL_HASH_STATE_SUSPENDED
     /* Store number of words already pushed to manage proper DMA processing suspension */
     hhash->NbWordsAlreadyPushed = HASH_NBW_PUSHED();
 
-    /* Enable the DMA In DMA Stream */
-    status = HAL_DMA_Start_IT(hhash->hdmain, inputaddr, (uint32_t)&HASH->DIN, (((inputSize%4U)!=0U) ? ((inputSize+3U)/4U):(inputSize/4U)));
+    /* Enable the DMA In DMA channel */
+    status = HAL_DMA_Start_IT(hhash->hdmain, inputaddr, (uint32_t)&HASH->DIN, (((inputSize %4U)!=0U) ? ((inputSize+(4U-(inputSize %4U)))/4U):(inputSize/4U)));
 
     /* Enable DMA requests */
     SET_BIT(HASH->CR, HASH_CR_DMAE);
@@ -3354,7 +3387,7 @@ if((State_tmp == HAL_HASH_STATE_READY) || (State_tmp == HAL_HASH_STATE_SUSPENDED
     }
 
 
-    /* Set the HASH DMA transfert complete callback */
+    /* Set the HASH DMA transfer complete callback */
     hhash->hdmain->XferCpltCallback = HASH_DMAXferCplt;
     /* Set the DMA error callback */
     hhash->hdmain->XferErrorCallback = HASH_DMAError;
@@ -3362,8 +3395,8 @@ if((State_tmp == HAL_HASH_STATE_READY) || (State_tmp == HAL_HASH_STATE_SUSPENDED
     /* Store number of words already pushed to manage proper DMA processing suspension */
     hhash->NbWordsAlreadyPushed = HASH_NBW_PUSHED();
 
-    /* Enable the DMA In DMA Stream */
-    status = HAL_DMA_Start_IT(hhash->hdmain, inputaddr, (uint32_t)&HASH->DIN,  (((inputSize %4U)!=0U) ? ((inputSize+3U)/4U):(inputSize/4U)));
+    /* Enable the DMA In DMA channel */
+    status = HAL_DMA_Start_IT(hhash->hdmain, inputaddr, (uint32_t)&HASH->DIN, (((inputSize %4U)!=0U) ? ((inputSize+(4U-(inputSize %4U)))/4U):(inputSize/4U)));
     /* Enable DMA requests */
     SET_BIT(HASH->CR, HASH_CR_DMAE);
 
@@ -3394,7 +3427,7 @@ if((State_tmp == HAL_HASH_STATE_READY) || (State_tmp == HAL_HASH_STATE_SUSPENDED
 /**
   * @}
   */
-#endif /*  HASH*/
+
 /**
   * @}
   */
