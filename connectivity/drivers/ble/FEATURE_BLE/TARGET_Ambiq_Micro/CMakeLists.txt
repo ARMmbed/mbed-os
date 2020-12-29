@@ -12,5 +12,5 @@ target_include_directories(mbed-ble
 
 target_sources(mbed-ble
     INTERFACE
-        hal/hci_drv_apollo3.c
+        hal/apollo3/hci_drv_apollo3.c
 )
