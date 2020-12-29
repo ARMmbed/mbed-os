@@ -97,4 +97,6 @@ $ mbedtools configure -t <TOOLCHAIN> -m <MBED_TARGET>
   touch mbed-os.lib && mkdir cmake_build && cd cmake_build && cmake .. -G Ninja -DMBED_BAREMETAL_GREENTEA_TEST=ON && cmake --build .
   ```
 
-Note: These steps will change when `mbedtools` implements a sub-command to invoke Greentea tests
+Notes:
+* These steps will change when `mbedtools` implements a sub-command to invoke Greentea tests
+* Some Greentea tests require specific application configuration files in order to build and run successfully. For example, the `connectivity/mbedtls/tests/TESTS/mbedtls/sanity` test requires the configuration file found at `TESTs/configs/experimental.json`.
