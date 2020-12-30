@@ -25,6 +25,9 @@
 
 #include <new>
 
+#include "mbed-trace/mbed_trace.h"
+#define TRACE_GROUP "BLGS"
+
 namespace ble {
 namespace impl {
 
@@ -98,6 +101,7 @@ ble_error_t GattServer::addService(GattService &service)
     att_service->attGroup.pAttr =
         (attsAttr_t *) alloc_block(attributes_count * sizeof(attsAttr_t));
     if (att_service->attGroup.pAttr == nullptr) {
+        tr_error("Cannot add service (too many attributes)");
         delete att_service;
         return BLE_ERROR_BUFFER_OVERFLOW;
     }
@@ -121,6 +125,7 @@ ble_error_t GattServer::addService(GattService &service)
             //   - att_service->attGroup.pAttr
             //   - blocks allocated for characteristics value
             // NOTE: those are rightfully released when reset() is called.
+            tr_error("Can't add characteristics. Look for [insert_characteristic] traces");
             delete att_service;
             return err;
         }
@@ -651,6 +656,7 @@ ble_error_t GattServer::read(
     uint8_t *att_value = nullptr;
 
     if (AttsGetAttr(att_handle, &att_length, &att_value) != ATT_SUCCESS) {
+        tr_error("Cannot read attribute (not able to get length)");
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
@@ -674,6 +680,7 @@ ble_error_t GattServer::read(
     uint8_t cccd_index;
     if (get_cccd_index_by_cccd_handle(att_handle, cccd_index)) {
         if (connection == DM_CONN_ID_NONE) {
+            tr_error("Cannot read attribute (unknown connection ID)");
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
         uint16_t cccd_value = AttsCccGet(connection, cccd_index);
@@ -703,6 +710,7 @@ ble_error_t GattServer::write(
     uint8_t cccd_index;
     if (get_cccd_index_by_cccd_handle(att_handle, cccd_index)) {
         if (len != sizeof(uint16_t)) {
+            tr_error("Cannot write attribute (len != 2)");
             return BLE_ERROR_INVALID_PARAM;
         }
 
@@ -720,6 +728,7 @@ ble_error_t GattServer::write(
 
     // write the value to the attribute handle
     if (AttsSetAttr(att_handle, len, (uint8_t *) buffer) != ATT_SUCCESS) {
+        tr_error("Cannot write attribute (incorrect write length or attribute cannot be found)");
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
@@ -766,6 +775,7 @@ ble_error_t GattServer::write(
     uint8_t cccd_index;
     if (get_cccd_index_by_cccd_handle(att_handle, cccd_index)) {
         if ((connection == DM_CONN_ID_NONE) || (len != 2)) { // CCCDs are always 16 bits
+            tr_error("Cannot write attribute (unknown connection ID or len != 2)");
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
 
@@ -777,6 +787,7 @@ ble_error_t GattServer::write(
 
     // write the value to the attribute handle
     if (AttsSetAttr(att_handle, len, (uint8_t *) buffer) != ATT_SUCCESS) {
+        tr_error("Cannot write attribute (incorrect write length or attribute cannot be found)");
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
@@ -819,7 +830,6 @@ ble_error_t GattServer::areUpdatesEnabled(
                         *enabled = true;
                         return BLE_ERROR_NONE;
                     }
-
                 }
             }
             *enabled = false;
@@ -827,6 +837,7 @@ ble_error_t GattServer::areUpdatesEnabled(
         }
     }
 
+    tr_error("Cannot determine if updates are enabled (characteristic handle not in table of CCCD handles)")
     return BLE_ERROR_PARAM_OUT_OF_RANGE;
 }
 
@@ -851,6 +862,8 @@ ble_error_t GattServer::areUpdatesEnabled(
             return BLE_ERROR_NONE;
         }
     }
+
+    tr_error("Cannot determine if updates are enabled (characteristic handle not in table of CCCD handles)")
     return BLE_ERROR_PARAM_OUT_OF_RANGE;
 }
 
@@ -924,8 +937,10 @@ GapAdvertisingData::Appearance GattServer::getAppearance()
 
 ble_error_t GattServer::reset(ble::GattServer* server)
 {
+    tr_info("Shutting down GattServer instance. Freeing resources.");
+
     /* Notify that the instance is about to shutdown */
-    if(eventHandler) {
+    if (eventHandler) {
         eventHandler->onShutdown(*server);
     }
 
@@ -1489,6 +1504,7 @@ ble::GattServer::DataWrittenCallbackChain_t &GattServer::onDataWritten()
 ble_error_t GattServer::onDataRead(const DataReadCallback_t &callback)
 {
     if (!isOnDataReadAvailable()) {
+        tr_error("Cannot read data (underlying stack does not emit events)")
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
@@ -1528,6 +1544,9 @@ void GattServer::onConfirmationReceived(EventCallback_t callback)
 
 void GattServer::setEventHandler(EventHandler *handler)
 {
+    if (handler == nullptr) {
+        tr_warning("Setting the GattServer EventHandler pointer to NULL");
+    }
     eventHandler = handler;
 }
 
