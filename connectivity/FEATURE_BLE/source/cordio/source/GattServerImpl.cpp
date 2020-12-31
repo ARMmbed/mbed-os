@@ -28,6 +28,8 @@
 #include "mbed-trace/mbed_trace.h"
 #define TRACE_GROUP "BLGS"
 
+#define TRACE_WRITE_VALUES false
+
 namespace ble {
 namespace impl {
 
@@ -101,7 +103,7 @@ ble_error_t GattServer::addService(GattService &service)
     att_service->attGroup.pAttr =
         (attsAttr_t *) alloc_block(attributes_count * sizeof(attsAttr_t));
     if (att_service->attGroup.pAttr == nullptr) {
-        tr_error("Cannot add service (too many attributes)");
+        tr_error("too many attributes");
         delete att_service;
         return BLE_ERROR_BUFFER_OVERFLOW;
     }
@@ -125,7 +127,7 @@ ble_error_t GattServer::addService(GattService &service)
             //   - att_service->attGroup.pAttr
             //   - blocks allocated for characteristics value
             // NOTE: those are rightfully released when reset() is called.
-            tr_error("Can't add characteristics. Look for [insert_characteristic] traces");
+            tr_error("failed to insert characteristic");
             delete att_service;
             return err;
         }
@@ -204,6 +206,7 @@ ble_error_t GattServer::insert_characteristic(
 {
     bool valid = is_characteristic_valid(characteristic);
     if (!valid) {
+        tr_error("not a valid characteristic");
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -213,6 +216,7 @@ ble_error_t GattServer::insert_characteristic(
     insert_characteristic_declaration_attribute(characteristic, attribute_it);
     ble_error_t err = insert_characteristic_value_attribute(characteristic, attribute_it);
     if (err) {
+        tr_error("failed to insert characteristic value attribute");
         return err;
     }
 
@@ -228,6 +232,7 @@ ble_error_t GattServer::insert_characteristic(
         );
         if (err) {
             return err;
+            tr_error("failed to insert descriptor");
         }
     }
 
@@ -235,6 +240,7 @@ ble_error_t GattServer::insert_characteristic(
     if ((properties & UPDATE_PROPERTIES) && (cccd_created == false)) {
         err = insert_cccd(characteristic, attribute_it);
         if (err) {
+            tr_error("failed to insert CCD");
             return err;
         }
     }
@@ -486,6 +492,7 @@ ble_error_t GattServer::insert_descriptor(
     // handle the special case of a CCCD
     if (descriptor->getUUID() == UUID(BLE_UUID_DESCRIPTOR_CLIENT_CHAR_CONFIG)) {
         if (cccd_cnt >= MBED_CONF_BLE_API_IMPLEMENTATION_MAX_CCCD_COUNT) {
+            tr_error("too many CCCDs in table)");
             return BLE_ERROR_NO_MEM;
         }
 
@@ -593,6 +600,7 @@ ble_error_t GattServer::insert_cccd(
 )
 {
     if (cccd_cnt >= MBED_CONF_BLE_API_IMPLEMENTATION_MAX_CCCD_COUNT) {
+        tr_error("too many CCCDs in table)");
         return BLE_ERROR_NO_MEM;
     }
 
@@ -631,6 +639,7 @@ ble_error_t GattServer::insert_cccd(
                                        false);
 
     if(implicit_cccd == nullptr) {
+        tr_error("failed to create implicit CCCD");
         currentHandle--;
         return BLE_ERROR_NO_MEM;
     }
@@ -656,7 +665,7 @@ ble_error_t GattServer::read(
     uint8_t *att_value = nullptr;
 
     if (AttsGetAttr(att_handle, &att_length, &att_value) != ATT_SUCCESS) {
-        tr_error("Cannot read attribute (not able to get length)");
+        tr_error("not able to get attribute length");
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
@@ -680,7 +689,7 @@ ble_error_t GattServer::read(
     uint8_t cccd_index;
     if (get_cccd_index_by_cccd_handle(att_handle, cccd_index)) {
         if (connection == DM_CONN_ID_NONE) {
-            tr_error("Cannot read attribute (unknown connection ID)");
+            tr_error("unknown connection ID");
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
         uint16_t cccd_value = AttsCccGet(connection, cccd_index);
@@ -694,6 +703,10 @@ ble_error_t GattServer::read(
         return BLE_ERROR_NONE;
     }
 
+#if TRACE_WRITE_VALUES
+    tr_debug("read %s", mbed_trace_array(buffer, buffer_length));
+#endif
+
     // This is not a CCCD. Use the non-connection specific update method.
     return read(att_handle, buffer, buffer_length);
 }
@@ -705,12 +718,16 @@ ble_error_t GattServer::write(
     bool local_only
 )
 {
+#if TRACE_WRITE_VALUES
+    tr_debug("write %s", mbed_trace_array(buffer, len));
+#endif
+
     // Check to see if this is a CCCD, if it is the case update the value for all
     // connections
     uint8_t cccd_index;
     if (get_cccd_index_by_cccd_handle(att_handle, cccd_index)) {
         if (len != sizeof(uint16_t)) {
-            tr_error("Cannot write attribute (len != 2)");
+            tr_error("CCCDs must be 16 bits");
             return BLE_ERROR_INVALID_PARAM;
         }
 
@@ -728,7 +745,7 @@ ble_error_t GattServer::write(
 
     // write the value to the attribute handle
     if (AttsSetAttr(att_handle, len, (uint8_t *) buffer) != ATT_SUCCESS) {
-        tr_error("Cannot write attribute (incorrect write length or attribute cannot be found)");
+        tr_error("invalid length or attribute not found");
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
@@ -771,11 +788,15 @@ ble_error_t GattServer::write(
     bool local_only
 )
 {
+#if TRACE_WRITE_VALUES
+    tr_debug("write %s", mbed_trace_array(buffer, len));
+#endif
+
     // Check to see if this is a CCCD
     uint8_t cccd_index;
     if (get_cccd_index_by_cccd_handle(att_handle, cccd_index)) {
         if ((connection == DM_CONN_ID_NONE) || (len != 2)) { // CCCDs are always 16 bits
-            tr_error("Cannot write attribute (unknown connection ID or len != 2)");
+            tr_error("unknown connection ID or length not 16 bits");
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
 
@@ -787,7 +808,7 @@ ble_error_t GattServer::write(
 
     // write the value to the attribute handle
     if (AttsSetAttr(att_handle, len, (uint8_t *) buffer) != ATT_SUCCESS) {
-        tr_error("Cannot write attribute (incorrect write length or attribute cannot be found)");
+        tr_error("invalid length or attribute not found)");
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
@@ -837,7 +858,7 @@ ble_error_t GattServer::areUpdatesEnabled(
         }
     }
 
-    tr_error("Cannot determine if updates are enabled (characteristic handle not in table of CCCD handles)")
+    tr_error("characteristic handle not in CCCD table")
     return BLE_ERROR_PARAM_OUT_OF_RANGE;
 }
 
@@ -863,7 +884,7 @@ ble_error_t GattServer::areUpdatesEnabled(
         }
     }
 
-    tr_error("Cannot determine if updates are enabled (characteristic handle not in table of CCCD handles)")
+    tr_error("characteristic handle not in CCCD table")
     return BLE_ERROR_PARAM_OUT_OF_RANGE;
 }
 
@@ -937,8 +958,6 @@ GapAdvertisingData::Appearance GattServer::getAppearance()
 
 ble_error_t GattServer::reset(ble::GattServer* server)
 {
-    tr_info("Shutting down GattServer instance. Freeing resources.");
-
     /* Notify that the instance is about to shutdown */
     if (eventHandler) {
         eventHandler->onShutdown(*server);
@@ -1504,7 +1523,7 @@ ble::GattServer::DataWrittenCallbackChain_t &GattServer::onDataWritten()
 ble_error_t GattServer::onDataRead(const DataReadCallback_t &callback)
 {
     if (!isOnDataReadAvailable()) {
-        tr_error("Cannot read data (underlying stack does not emit events)")
+        tr_error("underlying stack does not emit events")
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
@@ -1545,7 +1564,7 @@ void GattServer::onConfirmationReceived(EventCallback_t callback)
 void GattServer::setEventHandler(EventHandler *handler)
 {
     if (handler == nullptr) {
-        tr_warning("Setting the GattServer EventHandler pointer to NULL");
+        tr_warning("argument is a null pointer");
     }
     eventHandler = handler;
 }
