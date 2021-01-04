@@ -4,9 +4,9 @@
 
 target_include_directories(mbed-core
     INTERFACE
-        ./libraries
-        ./libraries/fstorage
-        ./nrf_soc_nosd/
+        libraries
+        libraries/fstorage
+        nrf_soc_nosd
 )
 
 target_sources(mbed-core

@@ -19,7 +19,6 @@ The full profile with the selected printf and C libraries.
 Only a limited set of targets is supported at the moment.
 
 The following targets are supported:
-- NRF52840_DK
 - Ambiq Micro targets
 - Analog Devices targets
 - ARM FM targets
@@ -27,6 +26,7 @@ The following targets are supported:
 - Freescale targets
 - GigaDevice targets
 - MAXIM targets
+- Nordic targets
 - NXP targets
 - Renesas targets
 - Samsung targets
