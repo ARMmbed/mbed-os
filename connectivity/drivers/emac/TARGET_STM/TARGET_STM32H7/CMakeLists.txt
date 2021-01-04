@@ -10,12 +10,12 @@ elseif("NUCLEO_H743ZI2" IN_LIST MBED_TARGET_LABELS)
 endif()
 
 target_include_directories(mbed-emac
-    PRIVATE
+    INTERFACE
         .
         ./lan8742
 )
 
 target_sources(mbed-emac
-    PRIVATE
+    INTERFACE
         lan8742/lan8742.c
 )
