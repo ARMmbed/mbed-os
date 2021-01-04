@@ -3,6 +3,8 @@
 
 if("DISCO_H747I" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_DISCO_H747I)
+elseif("PORTENTA_H7" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_PORTENTA_H7)
 elseif("STM32H7A3xIQ" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_STM32H7A3xIQ)
 endif()
