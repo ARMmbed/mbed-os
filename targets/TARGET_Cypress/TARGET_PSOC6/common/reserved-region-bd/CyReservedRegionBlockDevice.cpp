@@ -39,7 +39,14 @@ int CyReservedRegionBlockDevice::init()
     {
         // Round up to start usable region on an erase boundary
         // May need to wait until after init() to determine erase size (e.g. QSPI)
-        _reserved_region_end = _reserved_region_size + get_erase_size() - (_reserved_region_size % get_erase_size());
+        if (_reserved_region_size % get_erase_size() != 0)
+        {
+            _reserved_region_end = _reserved_region_size + get_erase_size() - (_reserved_region_size % get_erase_size());
+        }
+        else
+        {
+            _reserved_region_end = _reserved_region_size;
+        }
     }
     return status;
 }

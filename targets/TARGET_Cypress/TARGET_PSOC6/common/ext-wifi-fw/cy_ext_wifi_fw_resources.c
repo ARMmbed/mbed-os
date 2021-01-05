@@ -199,8 +199,7 @@ resource_result_t ext_wifi_fw_resource_read(const resource_hnd_t *resource, uint
         *size = (uint32_t)size64;
         wiced_filesystem_file_close (&file_handle);
     }
-#else
-#ifdef USES_RESOURCE_FILESYSTEM
+#elif USES_RESOURCE_FILESYSTEM
     else
     {
         wicedfs_file_t file_hnd;
@@ -224,8 +223,7 @@ resource_result_t ext_wifi_fw_resource_read(const resource_hnd_t *resource, uint
 
         wicedfs_fclose(&file_hnd);
     }
-#endif /* ifdef USES_RESOURCE_FILESYSTEM */
-#endif /* USES_RESOURCE_GENERIC_FILESYSTEM */
+#endif
     return RESOURCE_SUCCESS;
 }
 
