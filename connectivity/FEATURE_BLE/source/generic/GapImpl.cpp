@@ -32,7 +32,10 @@
 #include "source/pal/PalEventQueue.h"
 #include "source/pal/PalSecurityManager.h"
 
+#include "mbed-trace/mbed_trace.h"
 
+#define TRACE_GROUP "BLGP"
+#define TRACE_WRITE_VALUES 0
 // Cordio defines the random address used by connection to be the global one
 #define CORDIO_GLOBAL_RANDOM_ADDRESS_FOR_CONNECTION 1
 
@@ -1610,6 +1613,7 @@ ble_error_t Gap::update_ll_address_resolution_setting()
 #if BLE_ROLE_BROADCASTER
 uint8_t Gap::getMaxAdvertisingSetNumber()
 {
+    tr_info("getting max. advertising set number");
 #if BLE_FEATURE_EXTENDED_ADVERTISING
     if (is_extended_advertising_available()) {
         uint8_t set_number = _pal_gap.get_max_number_of_advertising_sets();
@@ -1617,6 +1621,7 @@ uint8_t Gap::getMaxAdvertisingSetNumber()
     } else
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
     {
+        tr_error("extended advertising not available");
         return 1;
     }
 }
@@ -1654,7 +1659,9 @@ ble_error_t Gap::createAdvertisingSet(
     const AdvertisingParameters &parameters
 )
 {
+    tr_info("attempting to create advertising set");
     if (is_extended_advertising_available() == false) {
+        tr_error("extended advertising not available");
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 
@@ -1676,6 +1683,7 @@ ble_error_t Gap::createAdvertisingSet(
             );
 
             if (err) {
+                tr_error("failed to set advertising parameters");
                 _existing_sets.clear(new_handle);
             } else {
                 *handle = new_handle;
@@ -1694,33 +1702,41 @@ ble_error_t Gap::createAdvertisingSet(
 #if BLE_FEATURE_EXTENDED_ADVERTISING
 ble_error_t Gap::destroyAdvertisingSet(advertising_handle_t handle)
 {
+    tr_info("destroying advertising set %d", handle);
     if (is_extended_advertising_available() == false) {
+        tr_error("extended advertising not available");
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 
     if (handle == LEGACY_ADVERTISING_HANDLE) {
+        tr_error("handle cannot be equal to %d", LEGACY_ADVERTISING_HANDLE);
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (handle >= getMaxAdvertisingSetNumber()) {
+        tr_error("handle cannot be greater than/equal to %d", getMaxAdvertisingSetNumber());
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (!_existing_sets.get(handle)) {
+        tr_error("advertising set does not exist");
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (_pending_sets.get(handle) || _active_sets.get(handle)) {
+        tr_error("advertising set is pending/active");
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 #if BLE_FEATURE_PERIODIC_ADVERTISING
     if (_active_periodic_sets.get(handle)) {
+        tr_error("advertising set is active");
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 #endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
     ble_error_t err = _pal_gap.remove_advertising_set(handle);
     if (err) {
+        tr_error("PAL could not remove advertising set");
         return err;
     }
 
@@ -1739,18 +1755,22 @@ ble_error_t Gap::setAdvertisingParameters(
     const AdvertisingParameters &params
 )
 {
+    tr_info("setting parameters for advertising set %d", handle);
     if (handle >= getMaxAdvertisingSetNumber()) {
+        tr_error("handle cannot be greater than/equal to %d", getMaxAdvertisingSetNumber());
         return BLE_ERROR_INVALID_PARAM;
     }
 
     // It is not permited to reconfigure an advertising set while advertising
     if (_pending_sets.get(handle) || _active_sets.get(handle)) {
+        tr_error("advertising set is pending/active");
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 
 #if BLE_FEATURE_PRIVACY
     // If privacy is enabled, alter the own address type used during advertising
     if (_privacy_enabled && params.getOwnAddressType() != own_address_type_t::RANDOM) {
+        tr_error("privacy is enabled, alter own address type");
         return BLE_ERROR_INVALID_PARAM;
     }
 #endif
@@ -1760,6 +1780,7 @@ ble_error_t Gap::setAdvertisingParameters(
         if (handle == LEGACY_ADVERTISING_HANDLE) {
             return prepare_legacy_advertising_set(params);
         } else {
+            tr_error("handle must be equal to %d", LEGACY_ADVERTISING_HANDLE);
             return BLE_ERROR_INVALID_PARAM;
         }
     } else if (is_extended_advertising_available()) {
@@ -1768,6 +1789,7 @@ ble_error_t Gap::setAdvertisingParameters(
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
     {
         if (handle != LEGACY_ADVERTISING_HANDLE) {
+            tr_error("handle must be equal to %d", LEGACY_ADVERTISING_HANDLE);
             return BLE_ERROR_INVALID_PARAM;
         }
 
@@ -1856,6 +1878,9 @@ ble_error_t Gap::setAdvertisingPayload(
     Span<const uint8_t> payload
 )
 {
+#if TRACE_WRITE_VALUES
+    tr_debug("setting payload for advertising set %d: value = %s", handle, mbed_trace_array(payload, payload.size()));
+#endif
     return setAdvertisingData(
         handle,
         payload,
@@ -1872,6 +1897,9 @@ ble_error_t Gap::setAdvertisingScanResponse(
     Span<const uint8_t> response
 )
 {
+#if TRACE_WRITE_VALUES
+    tr_debug("setting scan response for advertising set %d: value = %s", handle, mbed_trace_array(response, response.size()));
+#endif
     return setAdvertisingData(
         handle,
         response,
@@ -1889,6 +1917,9 @@ ble_error_t Gap::setAdvertisingData(
     bool scan_response
 )
 {
+#if TRACE_WRITE_VALUES
+    tr_debug("setting data for advertising set %d: value = %s", handle, mbed_trace_array(payload, payload.size()));
+#endif
     // type declarations
     typedef advertising_fragment_description_t op_t;
     typedef ble_error_t (PalGap::*legacy_set_data_fn_t)(
@@ -1905,6 +1936,7 @@ ble_error_t Gap::setAdvertisingData(
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING
     if (handle >= getMaxAdvertisingSetNumber()) {
+        tr_error("handle cannot be greater than/equal to %d", getMaxAdvertisingSetNumber());
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -1912,6 +1944,7 @@ ble_error_t Gap::setAdvertisingData(
         if (handle == LEGACY_ADVERTISING_HANDLE) {
             prepare_legacy_advertising_set(AdvertisingParameters{});
         } else {
+            tr_error("handle must be equal to %d", LEGACY_ADVERTISING_HANDLE);
             return BLE_ERROR_INVALID_PARAM;
         }
     }
@@ -1924,6 +1957,7 @@ ble_error_t Gap::setAdvertisingData(
         }
 
         if (payload.size() > LEGACY_ADVERTISING_MAX_SIZE) {
+            tr_error("payload size cannot be greater than %d", LEGACY_ADVERTISING_MAX_SIZE);
             return BLE_ERROR_INVALID_PARAM;
         }
 
@@ -3339,6 +3373,9 @@ ble_error_t Gap::prepare_legacy_advertising_set(const AdvertisingParameters& par
 
 void Gap::setEventHandler(Gap::EventHandler *handler)
 {
+    if (handler == nullptr) {
+        tr_warning("setting event handler to a null pointer");
+    }
     _event_handler = handler;
 }
 
