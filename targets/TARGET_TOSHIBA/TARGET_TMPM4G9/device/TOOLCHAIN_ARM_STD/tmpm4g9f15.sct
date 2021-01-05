@@ -1,4 +1,4 @@
-#! armcc -E -I. --cpu Cortex-M4
+#! armclang -E --target=arm-arm-none-eabi -x c -mcpu=cortex-m4
 /*
  * Copyright(C) 2019, Toshiba Electronic Device Solutions Corporation
  *

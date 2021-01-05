@@ -1,4 +1,4 @@
-#! armcc -E -I. --cpu Cortex-M4
+#! armclang -E --target=arm-arm-none-eabi -x c -mcpu=cortex-m4
 ;;  TMPM46BF10 scatter file
 
 ;;  Vector table starts at 0
