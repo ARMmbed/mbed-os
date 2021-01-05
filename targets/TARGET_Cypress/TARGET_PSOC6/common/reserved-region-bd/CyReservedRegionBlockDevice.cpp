@@ -35,16 +35,12 @@ CyReservedRegionBlockDevice::CyReservedRegionBlockDevice(BlockDevice *underlying
 int CyReservedRegionBlockDevice::init()
 {
     int status = _underlying_bd->init();
-    if (status == BD_ERROR_OK)
-    {
+    if (status == BD_ERROR_OK) {
         // Round up to start usable region on an erase boundary
         // May need to wait until after init() to determine erase size (e.g. QSPI)
-        if (_reserved_region_size % get_erase_size() != 0)
-        {
+        if (_reserved_region_size % get_erase_size() != 0) {
             _reserved_region_end = _reserved_region_size + get_erase_size() - (_reserved_region_size % get_erase_size());
-        }
-        else
-        {
+        } else {
             _reserved_region_end = _reserved_region_size;
         }
     }
@@ -54,8 +50,7 @@ int CyReservedRegionBlockDevice::init()
 int CyReservedRegionBlockDevice::deinit()
 {
     int status = _underlying_bd->deinit();
-    if (status == BD_ERROR_OK)
-    {
+    if (status == BD_ERROR_OK) {
         _reserved_region_end = 0;
     }
     return status;
@@ -113,8 +108,7 @@ const char *CyReservedRegionBlockDevice::get_type() const
 
 int CyReservedRegionBlockDevice::reserved_read(void *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size)
 {
-    if (addr + size > _reserved_region_end || addr % get_read_size() != 0 || size % get_read_size() != 0)
-    {
+    if (addr + size > _reserved_region_end || addr % get_read_size() != 0 || size % get_read_size() != 0) {
         return BD_ERROR_DEVICE_ERROR;
     }
 

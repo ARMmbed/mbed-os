@@ -53,15 +53,14 @@ CyReservedRegionBlockDevice *cy_get_ext_wifi_fw_reserved_region_bd()
 }
 
 extern "C" {
-extern void cy_ext_wifi_fw_resources_update_handles(void *image_addr, unsigned long image_size, void *clm_blob_addr, unsigned long clm_blob_size);
+    extern void cy_ext_wifi_fw_resources_update_handles(void *image_addr, unsigned long image_size, void *clm_blob_addr, unsigned long clm_blob_size);
 }
 
 int cy_update_ext_wifi_fw_location_and_size(mbed::bd_addr_t image_addr, mbed::bd_size_t image_size, mbed::bd_addr_t clm_blob_addr, mbed::bd_size_t clm_blob_size)
 {
     CyReservedRegionBlockDevice *bd = cy_get_ext_wifi_fw_reserved_region_bd();
     // If the reserved region end is NULL, the block device hasn't been initialized yet, so we can't perform this check
-    if ((bd->reserved_region_end() != 0) && (image_addr + image_size > bd->reserved_region_end() || clm_blob_addr + clm_blob_size > bd->reserved_region_end()))
-    {
+    if ((bd->reserved_region_end() != 0) && (image_addr + image_size > bd->reserved_region_end() || clm_blob_addr + clm_blob_size > bd->reserved_region_end())) {
         // Should not exceed originally computed reserved region size, as this will break anything that was using the rest of external storage
         return -1;
     }

@@ -68,9 +68,9 @@ extern "C" {
 *               Static Function Declarations
 ******************************************************/
 uint32_t ext_wifi_fw_host_get_resource_block(whd_driver_t whd_drv, whd_resource_type_t type,
-                                 uint32_t blockno, const uint8_t **data, uint32_t *size_out);
+                                             uint32_t blockno, const uint8_t **data, uint32_t *size_out);
 resource_result_t ext_wifi_fw_resource_read(const resource_hnd_t *resource, uint32_t offset, uint32_t maxsize, uint32_t *size,
-                                void *buffer);
+                                            void *buffer);
 
 extern uint32_t host_platform_resource_size(whd_driver_t whd_drv, whd_resource_type_t resource, uint32_t *size_out);
 extern uint32_t host_get_resource_block_size(whd_driver_t whd_drv, whd_resource_type_t type, uint32_t *size_out);
@@ -119,29 +119,28 @@ void *dynamic_nvram_image = &wifi_nvram_image;
 
 void try_init_external_handles()
 {
-    if (!external_handles_initialized)
-    {
+    if (!external_handles_initialized) {
 #if defined(WLAN_MFG_FIRMWARE)
-        wifi_mfg_firmware_image_external = (resource_hnd_t){
+        wifi_mfg_firmware_image_external = (resource_hnd_t) {
             RESOURCE_IN_EXTERNAL_STORAGE,
             wifi_mfg_firmware_image.size,
-            { .external_storage_context = (void *) (wifi_mfg_firmware_image.val.mem.data - (uint32_t) CY_WIFI_FW_SECTION_START) }
+            { .external_storage_context = (void *)(wifi_mfg_firmware_image.val.mem.data - (uint32_t) CY_WIFI_FW_SECTION_START) }
         };
-        wifi_mfg_firmware_clm_blob_external = (resource_hnd_t){
+        wifi_mfg_firmware_clm_blob_external = (resource_hnd_t) {
             RESOURCE_IN_EXTERNAL_STORAGE,
             wifi_mfg_firmware_clm_blob.size,
-            { .external_storage_context = (void *) (wifi_mfg_firmware_clm_blob.val.mem.data - (uint32_t) CY_WIFI_FW_SECTION_START) }
+            { .external_storage_context = (void *)(wifi_mfg_firmware_clm_blob.val.mem.data - (uint32_t) CY_WIFI_FW_SECTION_START) }
         };
 #else
-        wifi_firmware_image_external = (resource_hnd_t){
+        wifi_firmware_image_external = (resource_hnd_t) {
             RESOURCE_IN_EXTERNAL_STORAGE,
             wifi_firmware_image.size,
-            { .external_storage_context = (void *) (wifi_firmware_image.val.mem.data - (uint32_t) CY_WIFI_FW_SECTION_START) }
+            { .external_storage_context = (void *)(wifi_firmware_image.val.mem.data - (uint32_t) CY_WIFI_FW_SECTION_START) }
         };
-        wifi_firmware_clm_blob_external = (resource_hnd_t){
+        wifi_firmware_clm_blob_external = (resource_hnd_t) {
             RESOURCE_IN_EXTERNAL_STORAGE,
             wifi_firmware_clm_blob.size,
-            { .external_storage_context = (void *) (wifi_firmware_clm_blob.val.mem.data - (uint32_t) CY_WIFI_FW_SECTION_START) }
+            { .external_storage_context = (void *)(wifi_firmware_clm_blob.val.mem.data - (uint32_t) CY_WIFI_FW_SECTION_START) }
         };
 #endif /* defined(WLAN_MFG_FIRMWARE) */
         external_handles_initialized = true;
@@ -158,65 +157,53 @@ void cy_ext_wifi_fw_resources_update_handles(void *image_addr, unsigned long ima
 }
 
 resource_result_t ext_wifi_fw_resource_read(const resource_hnd_t *resource, uint32_t offset, uint32_t maxsize, uint32_t *size,
-                                void *buffer)
+                                            void *buffer)
 {
-    if (offset > resource->size)
-    {
+    if (offset > resource->size) {
         return RESOURCE_OFFSET_TOO_BIG;
     }
 
     *size = MIN(maxsize, resource->size - offset);
 
-    if (resource->location == RESOURCE_IN_MEMORY)
-    {
+    if (resource->location == RESOURCE_IN_MEMORY) {
         memcpy(buffer, &resource->val.mem.data[offset], *size);
-    }
-    else if (resource->location == RESOURCE_IN_EXTERNAL_STORAGE)
-    {
+    } else if (resource->location == RESOURCE_IN_EXTERNAL_STORAGE) {
         return platform_read_external_resource(resource, offset, maxsize, size, buffer);
     }
 #ifdef USES_RESOURCE_GENERIC_FILESYSTEM
-    else
-    {
+    else {
         wiced_file_t file_handle;
         uint64_t size64;
         uint64_t maxsize64 =  maxsize;
         if (WICED_SUCCESS !=
-            wiced_filesystem_file_open (&resource_fs_handle, &file_handle, resource->val.fs.filename,
-                                        WICED_FILESYSTEM_OPEN_FOR_READ) )
-        {
+                wiced_filesystem_file_open(&resource_fs_handle, &file_handle, resource->val.fs.filename,
+                                           WICED_FILESYSTEM_OPEN_FOR_READ)) {
             return RESOURCE_FILE_OPEN_FAIL;
         }
-        if (WICED_SUCCESS != wiced_filesystem_file_seek (&file_handle, (offset + resource->val.fs.offset), SEEK_SET) )
-        {
+        if (WICED_SUCCESS != wiced_filesystem_file_seek(&file_handle, (offset + resource->val.fs.offset), SEEK_SET)) {
             return RESOURCE_FILE_SEEK_FAIL;
         }
-        if (WICED_SUCCESS != wiced_filesystem_file_read (&file_handle, buffer, maxsize64, &size64) )
-        {
-            wiced_filesystem_file_close (&file_handle);
+        if (WICED_SUCCESS != wiced_filesystem_file_read(&file_handle, buffer, maxsize64, &size64)) {
+            wiced_filesystem_file_close(&file_handle);
             return RESOURCE_FILE_READ_FAIL;
         }
         *size = (uint32_t)size64;
-        wiced_filesystem_file_close (&file_handle);
+        wiced_filesystem_file_close(&file_handle);
     }
 #elif USES_RESOURCE_FILESYSTEM
-    else
-    {
+    else {
         wicedfs_file_t file_hnd;
 
-        if (0 != wicedfs_fopen(&resource_fs_handle, &file_hnd, resource->val.fs.filename) )
-        {
+        if (0 != wicedfs_fopen(&resource_fs_handle, &file_hnd, resource->val.fs.filename)) {
             return RESOURCE_FILE_OPEN_FAIL;
         }
 
-        if (0 != wicedfs_fseek(&file_hnd, (long)(offset + resource->val.fs.offset), SEEK_SET) )
-        {
+        if (0 != wicedfs_fseek(&file_hnd, (long)(offset + resource->val.fs.offset), SEEK_SET)) {
             wicedfs_fclose(&file_hnd);
             return RESOURCE_FILE_SEEK_FAIL;
         }
 
-        if (*size != wicedfs_fread(buffer, 1, *size, &file_hnd) )
-        {
+        if (*size != wicedfs_fread(buffer, 1, *size, &file_hnd)) {
             wicedfs_fclose(&file_hnd);
             return RESOURCE_FILE_READ_FAIL;
         }
@@ -228,7 +215,7 @@ resource_result_t ext_wifi_fw_resource_read(const resource_hnd_t *resource, uint
 }
 
 uint32_t ext_wifi_fw_host_get_resource_block(whd_driver_t whd_drv, whd_resource_type_t type,
-                                 uint32_t blockno, const uint8_t **data, uint32_t *size_out)
+                                             uint32_t blockno, const uint8_t **data, uint32_t *size_out)
 {
     uint32_t resource_size;
     uint32_t block_size;
@@ -244,17 +231,14 @@ uint32_t ext_wifi_fw_host_get_resource_block(whd_driver_t whd_drv, whd_resource_
     memset(whd_r_buffer, 0, block_size);
     read_pos = blockno * block_size;
 
-    if (blockno >= block_count)
-    {
+    if (blockno >= block_count) {
         return WHD_BADARG;
     }
 
-    if (type == WHD_RESOURCE_WLAN_FIRMWARE)
-    {
-        result = ext_wifi_fw_resource_read( (const resource_hnd_t *)&WIFI_FIRMWARE_IMAGE, read_pos, block_size, size_out,
-                                whd_r_buffer );
-        if (result != WHD_SUCCESS)
-        {
+    if (type == WHD_RESOURCE_WLAN_FIRMWARE) {
+        result = ext_wifi_fw_resource_read((const resource_hnd_t *)&WIFI_FIRMWARE_IMAGE, read_pos, block_size, size_out,
+                                           whd_r_buffer);
+        if (result != WHD_SUCCESS) {
             return result;
         }
         *data = (uint8_t *)&whd_r_buffer;
@@ -267,26 +251,18 @@ uint32_t ext_wifi_fw_host_get_resource_block(whd_driver_t whd_drv, whd_resource_
          * For sending the entire buffer in single block set size out as following
          *  *size_out = (uint32_t)resource_get_size(&wifi_firmware_image);
          */
-    }
-    else if (type == WHD_RESOURCE_WLAN_NVRAM)
-    {
-        if (NVRAM_SIZE - read_pos > block_size)
-        {
+    } else if (type == WHD_RESOURCE_WLAN_NVRAM) {
+        if (NVRAM_SIZE - read_pos > block_size) {
             *size_out = block_size;
-        }
-        else
-        {
+        } else {
             *size_out = NVRAM_SIZE - read_pos;
         }
-        *data = ( (uint8_t *)NVRAM_IMAGE_VARIABLE ) + read_pos;
-    }
-    else
-    {
-        result = ext_wifi_fw_resource_read( (const resource_hnd_t *)&WIFI_FIRMWARE_CLM_BLOB, read_pos, block_size,
-                                size_out,
-                                whd_r_buffer );
-        if (result != WHD_SUCCESS)
-        {
+        *data = ((uint8_t *)NVRAM_IMAGE_VARIABLE) + read_pos;
+    } else {
+        result = ext_wifi_fw_resource_read((const resource_hnd_t *)&WIFI_FIRMWARE_CLM_BLOB, read_pos, block_size,
+                                           size_out,
+                                           whd_r_buffer);
+        if (result != WHD_SUCCESS) {
             return result;
         }
         *data = (uint8_t *)&whd_r_buffer;
@@ -305,8 +281,7 @@ uint32_t ext_wifi_fw_host_get_resource_block(whd_driver_t whd_drv, whd_resource_
     return WHD_SUCCESS;
 }
 
-whd_resource_source_t cy_ext_wifi_fw_resource_ops =
-{
+whd_resource_source_t cy_ext_wifi_fw_resource_ops = {
     .whd_resource_size = host_platform_resource_size,
     .whd_get_resource_block_size = host_get_resource_block_size,
     .whd_get_resource_no_of_blocks = host_get_resource_no_of_blocks,
