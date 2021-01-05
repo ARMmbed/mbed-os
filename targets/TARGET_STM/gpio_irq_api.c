@@ -149,9 +149,13 @@ static void handle_interrupt_in(uint32_t irq_index, uint32_t max_num_pin_line)
 #else /* TARGET_STM32L5 */
 
             // Clear interrupt flag
+#if defined(DUAL_CORE) && defined(CORE_CM4)
+            if (__HAL_GPIO_EXTID2_GET_FLAG(pin) != RESET) {
+                __HAL_GPIO_EXTID2_CLEAR_FLAG(pin);
+#else
             if (__HAL_GPIO_EXTI_GET_FLAG(pin) != RESET) {
                 __HAL_GPIO_EXTI_CLEAR_FLAG(pin);
-
+#endif
                 if (gpio_channel->channel_ids[gpio_idx] == 0) {
                     continue;
                 }
@@ -499,7 +503,11 @@ void gpio_irq_enable(gpio_irq_t *obj)
     SYSCFG->EXTICR[pin_index >> 2] = temp;
 #endif
 
+#if defined(DUAL_CORE) && defined(CORE_CM4)
+    LL_C2_EXTI_EnableIT_0_31(1 << pin_index);
+#else
     LL_EXTI_EnableIT_0_31(1 << pin_index);
+#endif
 
     /* Restore previous edge interrupt configuration if applicable */
     if (obj->event & IRQ_RISE) {
@@ -523,7 +531,12 @@ void gpio_irq_disable(gpio_irq_t *obj)
     /* Clear EXTI line configuration */
     LL_EXTI_DisableRisingTrig_0_31(1 << pin_index);
     LL_EXTI_DisableFallingTrig_0_31(1 << pin_index);
+
+#if defined(DUAL_CORE) && defined(CORE_CM4)
+    LL_C2_EXTI_DisableIT_0_31(1 << pin_index);
+#else
     LL_EXTI_DisableIT_0_31(1 << pin_index);
+#endif
 
     uint32_t pin = (uint32_t)(1 << (gpio_channel->channel_pin[gpio_idx]));
 
