@@ -316,14 +316,18 @@ public:
      *
      * The process assigns a unique attribute handle to all the elements added
      * into the attribute table. This handle is an ID that must be used for
-     * subsequent interractions with the elements.
+     * subsequent interactions with the elements.
      *
      * @note There is no mirror function that removes a single service.
      * Application code can remove all the registered services by calling
      * reset().
      *
-     * @attention Service, characteristics and descriptors objects registered
-     * within the GattServer must remain reachable until reset() is called.
+     * @attention GattServer allocates its own memory for all the attributes.
+     * The GattServer will set the handles on the service passed in and the
+     * characteristics it contains. You may record the handles you want to
+     * interact with in the future. After that the service and characteristics
+     * you passed in as the parameter may be freed. To write to the GattServer
+     * instances of the characteristics you have to use the saved handles.
      *
      * @param[in] service The service to be added; attribute handle of services,
      * characteristic and characteristic descriptors are updated by the

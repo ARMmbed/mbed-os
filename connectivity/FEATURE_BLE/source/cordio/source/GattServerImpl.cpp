@@ -416,11 +416,34 @@ ble_error_t GattServer::insert_characteristic_value_attribute(
         characteristic->isReadAuthorizationEnabled() ||
         characteristic->isWriteAuthorizationEnabled()
         ) {
-        if (_auth_char_count >= MBED_CONF_BLE_API_IMPLEMENTATION_MAX_CHARACTERISTIC_AUTHORISATION_COUNT) {
+        if (_auth_callbacks_count >= MBED_CONF_BLE_API_IMPLEMENTATION_MAX_CHARACTERISTIC_AUTHORISATION_COUNT) {
             return BLE_ERROR_NO_MEM;
         }
-        _auth_char[_auth_char_count] = characteristic;
-        ++_auth_char_count;
+
+        char_auth_callback *new_cb = (char_auth_callback *) alloc_block(sizeof(char_auth_callback));
+
+        if (!new_cb) {
+            return BLE_ERROR_NO_MEM;
+        }
+
+        new_cb->read_cb = characteristic->readAuthorizationCallback;
+        new_cb->write_cb = characteristic->writeAuthorizationCallback;
+        new_cb->handle = characteristic->getValueHandle();
+        new_cb->update_security = characteristic->getUpdateSecurityRequirement();
+        new_cb->_next = nullptr;
+
+        /* add it to the list */
+        if (_auth_callbacks) {
+            char_auth_callback *last_cb = _auth_callbacks;
+            while (last_cb->_next) {
+                last_cb = last_cb->_next;
+            }
+            last_cb->_next = new_cb;
+        } else {
+            _auth_callbacks = new_cb;
+        };
+
+        ++_auth_callbacks_count;
     }
 
     ++attribute_it;
@@ -941,7 +964,8 @@ ble_error_t GattServer::reset(ble::GattServer* server)
     currentHandle = 0;
     cccd_cnt = 0;
 
-    _auth_char_count = 0;
+    _auth_callbacks_count = 0;
+    _auth_callbacks = nullptr;
 
     AttsCccRegister(cccd_cnt, (attsCccSet_t *) cccds, cccd_cb);
 
@@ -978,8 +1002,8 @@ uint8_t GattServer::atts_read_cb(
     attsAttr_t *pAttr
 )
 {
-    GattCharacteristic *auth_char = getInstance().get_auth_char(handle);
-    if (auth_char && auth_char->isReadAuthorizationEnabled()) {
+    char_auth_callback *auth_cb = getInstance().get_auth_callback(handle);
+    if (auth_cb && auth_cb->read_cb) {
         GattReadAuthCallbackParams read_auth_params = {
             connId,
             handle,
@@ -989,9 +1013,10 @@ uint8_t GattServer::atts_read_cb(
             AUTH_CALLBACK_REPLY_SUCCESS
         };
 
-        GattAuthCallbackReply_t ret = auth_char->authorizeRead(&read_auth_params);
-        if (ret != AUTH_CALLBACK_REPLY_SUCCESS) {
-            return ret & 0xFF;
+        auth_cb->read_cb.call(&read_auth_params);
+
+        if (read_auth_params.authorizationReply != AUTH_CALLBACK_REPLY_SUCCESS) {
+            return read_auth_params.authorizationReply & 0xFF;
         }
 
         pAttr->pValue = read_auth_params.data;
@@ -1021,8 +1046,8 @@ uint8_t GattServer::atts_write_cb(
     attsAttr_t *pAttr
 )
 {
-    GattCharacteristic* auth_char = getInstance().get_auth_char(handle);
-    if (auth_char && auth_char->isWriteAuthorizationEnabled()) {
+    char_auth_callback* auth_cb = getInstance().get_auth_callback(handle);
+    if (auth_cb && auth_cb->write_cb) {
         GattWriteAuthCallbackParams write_auth_params = {
             connId,
             handle,
@@ -1032,9 +1057,10 @@ uint8_t GattServer::atts_write_cb(
             AUTH_CALLBACK_REPLY_SUCCESS
         };
 
-        GattAuthCallbackReply_t ret = auth_char->authorizeWrite(&write_auth_params);
-        if (ret!= AUTH_CALLBACK_REPLY_SUCCESS) {
-            return ret & 0xFF;
+        auth_cb->write_cb.call(&write_auth_params);
+
+        if (write_auth_params.authorizationReply != AUTH_CALLBACK_REPLY_SUCCESS) {
+            return write_auth_params.authorizationReply & 0xFF;
         }
     }
 
@@ -1329,14 +1355,16 @@ void *GattServer::alloc_block(size_t block_size)
     return block->data;
 }
 
-GattCharacteristic *GattServer::get_auth_char(uint16_t value_handle)
+GattServer::char_auth_callback *GattServer::get_auth_callback(uint16_t value_handle)
 {
-    for (size_t i = 0; i < _auth_char_count; ++i) {
-        if (_auth_char[i]->getValueHandle() == value_handle) {
-            return _auth_char[i];
+    GattServer::char_auth_callback* current = _auth_callbacks;
+    while (current) {
+        if (current->handle == value_handle) {
+            break;
         }
+        current = current->_next;
     }
-    return nullptr;
+    return current;
 }
 
 bool GattServer::get_cccd_index_by_cccd_handle(GattAttribute::Handle_t cccd_handle, uint8_t &idx) const
@@ -1364,13 +1392,12 @@ bool GattServer::is_update_authorized(
     GattAttribute::Handle_t value_handle
 )
 {
-    GattCharacteristic *auth_char = get_auth_char(value_handle);
-    if (!auth_char) {
+    char_auth_callback *auth_cb = get_auth_callback(value_handle);
+    if (!auth_cb) {
         return true;
     }
 
-    att_security_requirement_t sec_req =
-        auth_char->getUpdateSecurityRequirement();
+    const att_security_requirement_t sec_req = auth_cb->update_security;
 
     if (sec_req == att_security_requirement_t::NONE) {
         return true;
@@ -1426,8 +1453,8 @@ GattServer::GattServer() :
     cccd_values(),
     cccd_handles(),
     cccd_cnt(0),
-    _auth_char(),
-    _auth_char_count(0),
+    _auth_callbacks(nullptr),
+    _auth_callbacks_count(0),
     generic_access_service(),
     generic_attribute_service(),
     registered_service(nullptr),
