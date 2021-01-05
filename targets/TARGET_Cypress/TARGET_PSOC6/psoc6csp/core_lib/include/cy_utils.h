@@ -32,6 +32,9 @@
 #if !defined(CY_UTILS_H)
 #define CY_UTILS_H
 
+#include <stdbool.h>
+#include <stdint.h>
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
