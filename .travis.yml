@@ -321,3 +321,25 @@ matrix:
             CFLAGS+="-DLFS_NO_ASSERT -DLFS_NO_DEBUG -DLFS_NO_WARN -DLFS_NO_ERROR"
             | tee sizes
         - ccache -s
+    - <<: extended-pinvalidate
+      stage: "Extended"
+      name: "pinvalidate"
+      env: NAME=pinvalidate
+      language: python
+      python: 3.7
+      install:
+        # Install python modules
+        - python -m pip install --upgrade pip==18.1
+        - python -m pip install --upgrade setuptools==40.4.3
+        - pip install tabulate argparse
+        - pip list --verbose
+        # Fetch remaining information needed for branch comparison
+        - git fetch --all --unshallow --tags
+        - git fetch origin "${TRAVIS_BRANCH}"
+      script:
+        - >-
+          git diff --name-only --diff-filter=d \
+            | ( grep '.*\PinNames.h$' || true ) \
+            | while read file; do python ./hal/tests/TESTS/pin_names/pinvalidate.py -vfp "${file}"; done
+        - git diff --exit-code --diff-filter=d --color
+
