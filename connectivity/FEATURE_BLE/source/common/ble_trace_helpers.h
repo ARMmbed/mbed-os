@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef BLE_CLIAPP_BLE_TO_STRING_H
-#define BLE_CLIAPP_BLE_TO_STRING_H
+#ifndef BLE_CLIAPP_BLE_TRACE_HELPERS_H
+#define BLE_CLIAPP_BLE_TRACE_HELPERS_H
 
 #include "ble/SecurityManager.h"
 #include "mbed-trace/mbed_trace.h"
@@ -130,4 +130,4 @@ static inline const char* to_string(Keypress_t keypress)
 
 } // namespace ble
 
-#endif //BLE_CLIAPP_BLE_TO_STRING_H
+#endif //BLE_CLIAPP_BLE_TRACE_HELPERS_H

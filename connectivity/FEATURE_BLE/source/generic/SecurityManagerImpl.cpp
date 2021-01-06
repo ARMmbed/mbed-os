@@ -29,7 +29,7 @@
 #include "source/generic/KVStoreSecurityDb.h"
 
 #include "mbed-trace/mbed_trace.h"
-#include "common/ble_to_string.h"
+#include "common/ble_trace_helpers.h"
 
 #define TRACE_GROUP "BLSM"
 
