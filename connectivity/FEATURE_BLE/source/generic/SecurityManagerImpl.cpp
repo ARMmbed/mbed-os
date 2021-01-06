@@ -28,13 +28,8 @@
 #include "source/generic/FileSecurityDb.h"
 #include "source/generic/KVStoreSecurityDb.h"
 
-// TODO: Move
-//#ifndef FEA_TRACE_SUPPORT
-//#define FEA_TRACE_SUPPORT 1
-//#endif
-
-
 #include "mbed-trace/mbed_trace.h"
+#include "common/ble_to_string.h"
 
 #define TRACE_GROUP "BLSM"
 
@@ -70,105 +65,6 @@ constexpr auto SEC_STATUS_TIMEOUT =
 
 constexpr auto SEC_STATUS_SUCCESS =
     ble::SecurityManager::SEC_STATUS_SUCCESS;
-
-constexpr const char* to_string(bool v) {
-    if (v) {
-        return "true";
-    } else {
-        return "false";
-    }
-}
-
-constexpr const char* to_string(ble::SecurityManager::SecurityIOCapabilities_t capabilities) {
-    switch(capabilities) {
-        case ble::SecurityManager::IO_CAPS_DISPLAY_ONLY:
-            return "IO_CAPS_DISPLAY_ONLY";
-        case ble::SecurityManager::IO_CAPS_DISPLAY_YESNO:
-            return "IO_CAPS_DISPLAY_YESNO";
-        case ble::SecurityManager::IO_CAPS_KEYBOARD_DISPLAY:
-            return "IO_CAPS_KEYBOARD_DISPLAY";
-        case ble::SecurityManager::IO_CAPS_KEYBOARD_ONLY:
-            return "IO_CAPS_KEYBOARD_ONLY";
-        case ble::SecurityManager::IO_CAPS_NONE:
-            return "IO_CAPS_NONE";
-        default:
-            return "unknown";
-    }
-}
-
-constexpr const char* to_string(ble::SecurityManager::SecurityMode_t security_mode) {
-    switch (security_mode) {
-        case ble::SecurityManager::SECURITY_MODE_NO_ACCESS:
-            return "SECURITY_MODE_NO_ACCESS";
-        case ble::SecurityManager::SECURITY_MODE_ENCRYPTION_OPEN_LINK:
-            return "SECURITY_MODE_ENCRYPTION_OPEN_LINK";
-        case ble::SecurityManager::SECURITY_MODE_ENCRYPTION_NO_MITM:
-            return "SECURITY_MODE_ENCRYPTION_NO_MITM";
-        case ble::SecurityManager::SECURITY_MODE_ENCRYPTION_WITH_MITM:
-            return "SECURITY_MODE_ENCRYPTION_WITH_MITM";
-        case ble::SecurityManager::SECURITY_MODE_SIGNED_NO_MITM:
-            return "SECURITY_MODE_SIGNED_NO_MITM";
-        case ble::SecurityManager::SECURITY_MODE_SIGNED_WITH_MITM:
-            return "SECURITY_MODE_SIGNED_WITH_MITM";
-        default:
-            return "Unknown";
-    }
-
-}
-
-
-constexpr const char* passkey_str(const uint8_t* passkey) {
-    if (!passkey) {
-        return "0";
-    } else {
-        return (mbed_trace_array)(passkey, 6);
-    }
-}
-
-const char* to_string(const ble::address_t& address) {
-    return (mbed_trace_array)(address.data(), address.size());
-}
-
-template<size_t size>
-const char* to_string(const ble::byte_array_t<size> &array) {
-    return (mbed_trace_array)(array.data(), array.size());
-}
-
-const char* to_string(const ble::link_encryption_t encryption) {
-    using link_encryption_t = ble::link_encryption_t;
-
-    switch (encryption.value()) {
-        case link_encryption_t::NOT_ENCRYPTED:
-            return "NOT_ENCRYPTED";
-        case link_encryption_t::ENCRYPTION_IN_PROGRESS:
-            return "ENCRYPTION_IN_PROGRESS";
-        case link_encryption_t::ENCRYPTED:
-            return "ENCRYPTED";
-        case link_encryption_t::ENCRYPTED_WITH_MITM:
-            return "ENCRYPTED_WITH_MITM";
-        case link_encryption_t::ENCRYPTED_WITH_SC_AND_MITM:
-            return "ENCRYPTED_WITH_SC_AND_MITM";
-        default:
-            return "Unknown";
-    }
-}
-
-const char* to_string(Keypress_t keypress) {
-    switch (keypress) {
-        case KEYPRESS_STARTED:
-            return "KEYPRESS_STARTED";
-        case KEYPRESS_ENTERED:
-            return "KEYPRESS_ENTERED";
-        case KEYPRESS_ERASED:
-            return "KEYPRESS_ERASED";
-        case KEYPRESS_CLEARED:
-            return "KEYPRESS_CLEARED";
-        case KEYPRESS_COMPLETED:
-            return "KEYPRESS_COMPLETED";
-        default:
-            return "Unknown";
-    }
-}
 
 }
 
