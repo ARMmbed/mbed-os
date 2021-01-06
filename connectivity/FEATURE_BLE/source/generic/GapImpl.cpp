@@ -19,6 +19,9 @@
 #include <algorithm>
 #include <cstdint>
 
+// REMOVE ONCE MOVED TO COMMON FILE
+#include <stdlib.h>
+
 #include "ble/Gap.h"
 #include "ble/SecurityManager.h"
 
@@ -43,6 +46,94 @@ using namespace std::chrono;
 
 MBED_STATIC_ASSERT(BLE_GAP_MAX_ADVERTISING_SETS < 0xFF, "BLE_GAP_MAX_ADVERTISING_SETS must be less than 255");
 MBED_STATIC_ASSERT(BLE_GAP_MAX_ADVERTISING_SETS > 0, "BLE_GAP_MAX_ADVERTISING_SETS must be a positive number");
+
+const char* to_string(ble::advertising_type_t advType) {
+    switch (advType.value()) {
+        case ble::advertising_type_t::CONNECTABLE_UNDIRECTED:
+            return "CONNECTABLE_UNDIRECTED";
+        case ble::advertising_type_t::CONNECTABLE_DIRECTED:
+            return "CONNECTABLE_DIRECTED";
+        case ble::advertising_type_t::SCANNABLE_UNDIRECTED:
+            return "SCANNABLE_UNDIRECTED";
+        case ble::advertising_type_t::NON_CONNECTABLE_UNDIRECTED:
+            return "NON_CONNECTABLE_UNDIRECTED";
+        case ble::advertising_type_t::CONNECTABLE_DIRECTED_LOW_DUTY:
+            return "CONNECTABLE_DIRECTED_LOW_DUTY";
+        case ble::advertising_type_t::CONNECTABLE_NON_SCANNABLE_UNDIRECTED:
+        default:
+            return "unknown";
+    }
+}
+
+const char* to_string(ble::target_peer_address_type_t addressType) {
+    switch (addressType.value()) {
+        case ble::target_peer_address_type_t::PUBLIC:
+            return "PUBLIC";
+        case ble::target_peer_address_type_t::RANDOM:
+            return "RANDOM";
+        default:
+            return "unknown";
+    }
+}
+
+const char* to_string(ble::own_address_type_t addressType) {
+    switch (addressType.value()) {
+        case ble::own_address_type_t::PUBLIC:
+            return "PUBLIC";
+        case ble::own_address_type_t::RANDOM:
+            return "RANDOM";
+        case ble::own_address_type_t::RESOLVABLE_PRIVATE_ADDRESS_PUBLIC_FALLBACK:
+            return "RESOLVABLE_PRIVATE_ADDRESS_PUBLIC_FALLBACK";
+        case ble::own_address_type_t::RESOLVABLE_PRIVATE_ADDRESS_RANDOM_FALLBACK:
+            return "RESOLVABLE_PRIVATE_ADDRESS_RANDOM_FALLBACK";
+        default:
+            return "unknown";
+    }
+}
+
+const char* to_string(ble::advertising_filter_policy_t policy) {
+    switch (policy.value()) {
+        case ble::advertising_filter_policy_t::NO_FILTER:
+            return "NO_FILTER";
+        case ble::advertising_filter_policy_t::FILTER_SCAN_REQUESTS:
+            return "FILTER_SCAN_REQUESTS";
+        case ble::advertising_filter_policy_t::FILTER_CONNECTION_REQUEST:
+            return "FILTER_CONNECTION_REQUEST";
+        case ble::advertising_filter_policy_t::FILTER_SCAN_AND_CONNECTION_REQUESTS:
+            return "FILTER_SCAN_AND_CONNECTION_REQUESTS";
+        default:
+            return "unknown";
+    }
+}
+
+const char* to_string(ble::phy_t phy) {
+    switch (phy.value()) {
+        case ble::phy_t::NONE:
+            return "NONE";
+        case ble::phy_t::LE_1M:
+            return "LE_1M";
+        case ble::phy_t::LE_2M:
+            return "LE_2M";
+        case ble::phy_t::LE_CODED:
+            return "LE_CODED";
+        default:
+            return "unknown";
+    }
+}
+
+const char* to_string(bool v) {
+    if (v) {
+        return "true";
+    } else {
+        return "false";
+    }
+}
+
+static inline const char* to_string(const ble::address_t& address)
+{
+    return (mbed_trace_array)(address.data(), address.size());
+}
+
 
 namespace ble {
 namespace impl {
@@ -1613,7 +1704,6 @@ ble_error_t Gap::update_ll_address_resolution_setting()
 #if BLE_ROLE_BROADCASTER
 uint8_t Gap::getMaxAdvertisingSetNumber()
 {
-    tr_info("getting max. advertising set number");
 #if BLE_FEATURE_EXTENDED_ADVERTISING
     if (is_extended_advertising_available()) {
         uint8_t set_number = _pal_gap.get_max_number_of_advertising_sets();
@@ -1621,7 +1711,6 @@ uint8_t Gap::getMaxAdvertisingSetNumber()
     } else
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
     {
-        tr_error("extended advertising not available");
         return 1;
     }
 }
@@ -1659,9 +1748,9 @@ ble_error_t Gap::createAdvertisingSet(
     const AdvertisingParameters &parameters
 )
 {
-    tr_info("attempting to create advertising set");
+    tr_info("Create advertising set");
     if (is_extended_advertising_available() == false) {
-        tr_error("extended advertising not available");
+        tr_error("Failed: extended advertising not available");
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 
@@ -1683,7 +1772,7 @@ ble_error_t Gap::createAdvertisingSet(
             );
 
             if (err) {
-                tr_error("failed to set advertising parameters");
+                tr_error("Failed: could not set advertising parameters");
                 _existing_sets.clear(new_handle);
             } else {
                 *handle = new_handle;
@@ -1692,6 +1781,7 @@ ble_error_t Gap::createAdvertisingSet(
         }
     }
 
+    tr_info("Success: created advertising set with handle %d", *handle);
     return BLE_ERROR_NO_MEM;
 }
 #endif
@@ -1702,41 +1792,41 @@ ble_error_t Gap::createAdvertisingSet(
 #if BLE_FEATURE_EXTENDED_ADVERTISING
 ble_error_t Gap::destroyAdvertisingSet(advertising_handle_t handle)
 {
-    tr_info("destroying advertising set %d", handle);
+    tr_info("Destroy advertising set with handle %d", handle);
     if (is_extended_advertising_available() == false) {
-        tr_error("extended advertising not available");
+        tr_error("Failed: extended advertising not available");
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 
     if (handle == LEGACY_ADVERTISING_HANDLE) {
-        tr_error("handle cannot be equal to %d", LEGACY_ADVERTISING_HANDLE);
+        tr_error("Failed: non-existent advertising set");
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (handle >= getMaxAdvertisingSetNumber()) {
-        tr_error("handle cannot be greater than/equal to %d", getMaxAdvertisingSetNumber());
+        tr_error("Failed: non-existent advertising set");
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (!_existing_sets.get(handle)) {
-        tr_error("advertising set does not exist");
+        tr_error("Failed: non-existent advertising set");
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (_pending_sets.get(handle) || _active_sets.get(handle)) {
-        tr_error("advertising set is pending/active");
+        tr_error("Failed: advertising set is active");
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 #if BLE_FEATURE_PERIODIC_ADVERTISING
     if (_active_periodic_sets.get(handle)) {
-        tr_error("advertising set is active");
+        tr_error("Failed: advertising set is active");
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 #endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
     ble_error_t err = _pal_gap.remove_advertising_set(handle);
     if (err) {
-        tr_error("PAL could not remove advertising set");
+        tr_error("Failed: PAL could not remove advertising set");
         return err;
     }
 
@@ -1755,22 +1845,60 @@ ble_error_t Gap::setAdvertisingParameters(
     const AdvertisingParameters &params
 )
 {
-    tr_info("setting parameters for advertising set %d", handle);
+    tr_info("Set advertising parameters for set %d: "
+            "_advType=%s "
+            "_minInterval=%lums "
+            "_maxInterval=%lums "
+            "_peerAddressType=%s "
+            "_ownAddressType=%s "
+            "_policy=%s "
+            "_primaryPhy=%s "
+            "_secondaryPhy=%s "
+            "_peerAddress=%s "
+            "_txPower=%d "
+            "_maxSkip=%u "
+            "_channel37=%s "
+            "_channel38=%s "
+            "_channel39=%s "
+            "_anonymous=%s "
+            "_notifyOnScan=%s"
+            "_legacyPDU=%s "
+            "_includeHeaderTxPower=%s",
+            handle,
+            to_string(params.getType()),
+            params.getMinPrimaryInterval().valueInMs(),
+            params.getMaxPrimaryInterval().valueInMs(),
+            to_string(params.getPeerAddressType()),
+            to_string(params.getOwnAddressType()),
+            to_string(params.getFilter()),
+            to_string(params.getPrimaryPhy()),
+            to_string(params.getSecondaryPhy()),
+            to_string(params.getPeerAddress()),
+            params.getTxPower(),
+            params.getSecondaryMaxSkip(),
+            to_string(params.getChannel37()),
+            to_string(params.getChannel38()),
+            to_string(params.getChannel39()),
+            to_string(params.getAnonymousAdvertising()),
+            to_string(params.getScanRequestNotification()),
+            to_string(params.getUseLegacyPDU()),
+            to_string(params.getTxPowerInHeader()));
+
     if (handle >= getMaxAdvertisingSetNumber()) {
-        tr_error("handle cannot be greater than/equal to %d", getMaxAdvertisingSetNumber());
+        tr_error("Failed: non-existent advertising set");
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    // It is not permited to reconfigure an advertising set while advertising
+    // It is not permitted to reconfigure an advertising set while advertising
     if (_pending_sets.get(handle) || _active_sets.get(handle)) {
-        tr_error("advertising set is pending/active");
+        tr_error("Failed: advertising set is active");
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 
 #if BLE_FEATURE_PRIVACY
     // If privacy is enabled, alter the own address type used during advertising
     if (_privacy_enabled && params.getOwnAddressType() != own_address_type_t::RANDOM) {
-        tr_error("privacy is enabled, alter own address type");
+        tr_error("Failed: privacy enabled, cannot use random address");
         return BLE_ERROR_INVALID_PARAM;
     }
 #endif
@@ -1780,7 +1908,7 @@ ble_error_t Gap::setAdvertisingParameters(
         if (handle == LEGACY_ADVERTISING_HANDLE) {
             return prepare_legacy_advertising_set(params);
         } else {
-            tr_error("handle must be equal to %d", LEGACY_ADVERTISING_HANDLE);
+            tr_error("Failed: non-existent advertising set");
             return BLE_ERROR_INVALID_PARAM;
         }
     } else if (is_extended_advertising_available()) {
@@ -1789,7 +1917,7 @@ ble_error_t Gap::setAdvertisingParameters(
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
     {
         if (handle != LEGACY_ADVERTISING_HANDLE) {
-            tr_error("handle must be equal to %d", LEGACY_ADVERTISING_HANDLE);
+            tr_error("Failed: non-existent advertising set");
             return BLE_ERROR_INVALID_PARAM;
         }
 
@@ -1825,12 +1953,52 @@ ble_error_t Gap::setExtendedAdvertisingParameters(
     const AdvertisingParameters &params
 )
 {
+    tr_info("Set extended advertising parameters for set %d: "
+            "_advType=%s "
+            "_minInterval=%lums "
+            "_maxInterval=%lums "
+            "_peerAddressType=%s "
+            "_ownAddressType=%s "
+            "_policy=%s "
+            "_primaryPhy=%s "
+            "_secondaryPhy=%s "
+            "_peerAddress=%s "
+            "_txPower=%d "
+            "_maxSkip=%u "
+            "_channel37=%s "
+            "_channel38=%s "
+            "_channel39=%s "
+            "_anonymous=%s "
+            "_notifyOnScan=%s"
+            "_legacyPDU=%s "
+            "_includeHeaderTxPower=%s",
+            handle,
+            to_string(params.getType()),
+            params.getMinPrimaryInterval().valueInMs(),
+            params.getMaxPrimaryInterval().valueInMs(),
+            to_string(params.getPeerAddressType()),
+            to_string(params.getOwnAddressType()),
+            to_string(params.getFilter()),
+            to_string(params.getPrimaryPhy()),
+            to_string(params.getSecondaryPhy()),
+            to_string(params.getPeerAddress()),
+            params.getTxPower(),
+            params.getSecondaryMaxSkip(),
+            to_string(params.getChannel37()),
+            to_string(params.getChannel38()),
+            to_string(params.getChannel39()),
+            to_string(params.getAnonymousAdvertising()),
+            to_string(params.getScanRequestNotification()),
+            to_string(params.getUseLegacyPDU()),
+            to_string(params.getTxPowerInHeader()));
+
     /* check for illegal parameter combination */
     if ((params.getType() == advertising_type_t::CONNECTABLE_UNDIRECTED ||
          params.getType() == advertising_type_t::CONNECTABLE_DIRECTED) &&
         params.getUseLegacyPDU() == false
     ) {
         /* these types can only be used with legacy PDUs */
+        tr_error("Failed: directed and undirected connections can only be used with legacy PDUs");
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -1878,8 +2046,9 @@ ble_error_t Gap::setAdvertisingPayload(
     Span<const uint8_t> payload
 )
 {
+    tr_info("Set advertising payload for set %d", handle);
 #if TRACE_WRITE_VALUES
-    tr_debug("setting payload for advertising set %d: value = %s", handle, mbed_trace_array(payload, payload.size()));
+    tr_debug("payload=%s", mbed_trace_array(payload, payload.size()));
 #endif
     return setAdvertisingData(
         handle,
@@ -1897,8 +2066,9 @@ ble_error_t Gap::setAdvertisingScanResponse(
     Span<const uint8_t> response
 )
 {
+    tr_info("Set advertising scan response for set %d", handle);
 #if TRACE_WRITE_VALUES
-    tr_debug("setting scan response for advertising set %d: value = %s", handle, mbed_trace_array(response, response.size()));
+    tr_debug("response=%s", mbed_trace_array(response, response.size()));
 #endif
     return setAdvertisingData(
         handle,
@@ -1917,8 +2087,9 @@ ble_error_t Gap::setAdvertisingData(
     bool scan_response
 )
 {
+    tr_info("Set advertising data for set %d", handle);
 #if TRACE_WRITE_VALUES
-    tr_debug("setting data for advertising set %d: value = %s", handle, mbed_trace_array(payload, payload.size()));
+    tr_debug("payload=%s", mbed_trace_array(payload, payload.size()));
 #endif
     // type declarations
     typedef advertising_fragment_description_t op_t;
@@ -1936,7 +2107,7 @@ ble_error_t Gap::setAdvertisingData(
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING
     if (handle >= getMaxAdvertisingSetNumber()) {
-        tr_error("handle cannot be greater than/equal to %d", getMaxAdvertisingSetNumber());
+        tr_error("Failed: non-existent advertising set");
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -1944,7 +2115,7 @@ ble_error_t Gap::setAdvertisingData(
         if (handle == LEGACY_ADVERTISING_HANDLE) {
             prepare_legacy_advertising_set(AdvertisingParameters{});
         } else {
-            tr_error("handle must be equal to %d", LEGACY_ADVERTISING_HANDLE);
+            tr_error("Failed: non-existent advertising set");
             return BLE_ERROR_INVALID_PARAM;
         }
     }
@@ -1957,7 +2128,7 @@ ble_error_t Gap::setAdvertisingData(
         }
 
         if (payload.size() > LEGACY_ADVERTISING_MAX_SIZE) {
-            tr_error("payload size cannot be greater than %d", LEGACY_ADVERTISING_MAX_SIZE);
+            tr_error("Legacy advertising payload size cannot be greater than %d", LEGACY_ADVERTISING_MAX_SIZE);
             return BLE_ERROR_INVALID_PARAM;
         }
 
@@ -3374,7 +3545,7 @@ ble_error_t Gap::prepare_legacy_advertising_set(const AdvertisingParameters& par
 void Gap::setEventHandler(Gap::EventHandler *handler)
 {
     if (handler == nullptr) {
-        tr_warning("setting event handler to a null pointer");
+        tr_warning("Setting GAP event handler to a null pointer");
     }
     _event_handler = handler;
 }
