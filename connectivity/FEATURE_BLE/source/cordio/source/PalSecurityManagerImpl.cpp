@@ -359,7 +359,7 @@ ble_error_t PalSecurityManager::remove_peer_csrk(connection_handle_t connection)
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    tr_info("Connection %d - Remove stack  peer CSRK", connection);
+    tr_info("Connection %d - Remove stack peer CSRK", connection);
 
     size_t connection_index = connection - 1;
 

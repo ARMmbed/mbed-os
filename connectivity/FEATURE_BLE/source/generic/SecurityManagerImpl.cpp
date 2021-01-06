@@ -283,7 +283,7 @@ ble_error_t SecurityManager::generateWhitelistFromBondTable(::ble::whitelist_t *
 #if BLE_ROLE_CENTRAL
 ble_error_t SecurityManager::requestPairing(connection_handle_t connection)
 {
-    tr_info("Request pairing on %d", connection);
+    tr_info("Connection %d - Request pairing", connection);
     if (!_db) {
         tr_error("Failure, DB not initialized");
         return BLE_ERROR_INITIALIZATION_INCOMPLETE;
@@ -291,7 +291,7 @@ ble_error_t SecurityManager::requestPairing(connection_handle_t connection)
 
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
-        tr_error("Connection %d: Failure, control block not available", connection);
+        tr_error("Connection %d - Failure, control block not available", connection);
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -346,14 +346,14 @@ ble_error_t SecurityManager::requestPairing(connection_handle_t connection)
 #if BLE_ROLE_PERIPHERAL
 ble_error_t SecurityManager::acceptPairingRequest(connection_handle_t connection)
 {
-    tr_info("Accept pairing request on %d", connection);
+    tr_info("Connection %d - Accept pairing request", connection);
     if (!_db) {
         tr_error("Failure, db not initialized");
         return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     }
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
-        tr_error("Failure, control block not available for %d", connection);
+        tr_error("Connection %d - Failure, control block not available", connection);
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -412,7 +412,7 @@ ble_error_t SecurityManager::acceptPairingRequest(connection_handle_t connection
 
 ble_error_t SecurityManager::cancelPairingRequest(connection_handle_t connection)
 {
-    tr_info("Cancel pairing request on %d", connection);
+    tr_info("Connection %d - Cancel pairing request", connection);
     if (!_db) {
         tr_error("Failure, db not initialized");
         return BLE_ERROR_INITIALIZATION_INCOMPLETE;
@@ -435,7 +435,7 @@ ble_error_t SecurityManager::setPairingRequestAuthorisation(bool required)
 
 ble_error_t SecurityManager::getPeerIdentity(connection_handle_t connection)
 {
-    tr_info("Request peer identity on %d", connection);
+    tr_info("Connection %d - Request peer identity", connection);
     if (!_db) {
         tr_error("Failure, DB not initialized");
         return BLE_ERROR_INITIALIZATION_INCOMPLETE;
@@ -448,20 +448,20 @@ ble_error_t SecurityManager::getPeerIdentity(connection_handle_t connection)
 
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
-        tr_error("Control block not found for %d", connection);
+        tr_error("Connection %d - Control block not found", connection);
         return BLE_ERROR_INVALID_PARAM;
     }
 
     _db->get_entry_identity(
         [connection,this](SecurityDb::entry_handle_t handle, const SecurityEntryIdentity_t* identity) {
             if (identity) {
-                tr_info("Peer identity address on connection %d retrieved: %s, public: %s",
+                tr_info("Connection %d - Peer identity address retrieved: %s, public: %s",
                     connection,
                     to_string(identity->identity_address),
                     to_string(identity->identity_address_is_public)
                 );
             } else {
-                tr_info("Failed to retrieve peer identity address on connection %d", connection);
+                tr_info("Connection %d - Failed to retrieve peer identity address", connection);
             }
             if (eventHandler) {
                 eventHandler->peerIdentity(
@@ -470,7 +470,7 @@ ble_error_t SecurityManager::getPeerIdentity(connection_handle_t connection)
                     identity ? identity->identity_address_is_public : false
                 );
             } else {
-                tr_warning("Event handler removing while retrieving peer ID address");
+                tr_warning("Event handler removed while retrieving peer ID address");
             }
         },
         cb->db_entry
@@ -529,7 +529,7 @@ ble_error_t SecurityManager::setAuthenticationTimeout(
     uint32_t timeout_in_ms
 )
 {
-    tr_info("Set connection %d authentication timeout: %" PRIu32 " ms", connection, timeout_in_ms);
+    tr_info("Connection %d - Set connection authentication timeout: %" PRIu32 " ms", connection, timeout_in_ms);
     if (!_db) {
         tr_error("Failure, DB not initialized");
         return BLE_ERROR_INITIALIZATION_INCOMPLETE;
@@ -556,7 +556,7 @@ ble_error_t SecurityManager::setLinkSecurity(
     SecurityMode_t securityMode
 )
 {
-    tr_info("Set %d link security %s", connection, to_string(securityMode));
+    tr_info("Connection %d - Set link security: %s", connection, to_string(securityMode));
 
     if (!_db) {
         tr_error("Failure, DB not initialized");
@@ -565,7 +565,7 @@ ble_error_t SecurityManager::setLinkSecurity(
 
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
-        tr_error("Failure, control block not found for connection %d", connection);
+        tr_error("Connection %d - Failure, control block not found", connection);
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -601,7 +601,7 @@ ble_error_t SecurityManager::setLinkSecurity(
 
 ble_error_t SecurityManager::setKeypressNotification(bool enabled)
 {
-    tr_info("User receive keypress notification: %s", to_string(enabled));
+    tr_info("Enable user keypress notification: %s", to_string(enabled));
     if (!_db) {
         tr_error("Failure, DB not initialized");
         return BLE_ERROR_INITIALIZATION_INCOMPLETE;
@@ -644,7 +644,7 @@ ble_error_t SecurityManager::enableSigning(
                 cb->db_entry
             );
         } else {
-            tr_info("CSRK not available, pair to acquire it");
+            tr_info("Connection %d - CSRK not available, pair to acquire it", connection);
             /* create keys if needed and exchange them */
             init_signing();
             if (cb->is_master) {
@@ -694,13 +694,13 @@ ble_error_t SecurityManager::getLinkEncryption(
     }
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
-        tr_error("Failed to retrieve link encryption, no CB for %d", connection);
+        tr_error("Connection %d - Failed to retrieve link encryption: no CB available", connection);
         return BLE_ERROR_INVALID_PARAM;
     }
 
     SecurityDistributionFlags_t* flags = _db->get_distribution_flags(cb->db_entry);
     if (!flags) {
-        tr_error("Failed to retrieve link encryption, empty distribution flags for %d", connection);
+        tr_error("Connection %d - Failed to retrieve link encryption, empty distribution flags", connection);
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -729,7 +729,7 @@ ble_error_t SecurityManager::setLinkEncryption(
     link_encryption_t encryption
 )
 {
-    tr_info("Set %d encryption to %s", connection, to_string(encryption));
+    tr_info("Connection %d - Set encryption: %s", connection, to_string(encryption));
     if (!_db) {
         tr_error("Failure, DB not initialized");
         return BLE_ERROR_INITIALIZATION_INCOMPLETE;
@@ -750,17 +750,17 @@ ble_error_t SecurityManager::setLinkEncryption(
     getLinkEncryption(connection, &current_encryption);
 
     if (current_encryption == link_encryption_t::ENCRYPTION_IN_PROGRESS) {
-        tr_error("Failure, encryption in progress");
+        tr_error("Connection %d - Failure, encryption in progress", connection);
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 
     if (current_encryption == encryption) {
-        tr_info("Link already encrypted to the right level");
+        tr_info("Connection %d - Link already encrypted to the right level", connection);
         /* ignore if the link is already at required state*/
 
     } else if (encryption == link_encryption_t::NOT_ENCRYPTED) {
         // Fail as it is not permitted to turn down encryption
-        tr_error("Failure, forbidden to turn down encryption");
+        tr_error("Connection %d - Failure, forbidden to turn down encryption", connection);
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     } else if (encryption == link_encryption_t::ENCRYPTED) {
 
@@ -771,7 +771,7 @@ ble_error_t SecurityManager::setLinkEncryption(
             cb->encryption_requested = true;
             return enable_encryption(connection);
         } else {
-            tr_info("Encryption level %s sufficient", to_string(current_encryption));
+            tr_info("Connection %d - Encryption level %s sufficient", connection, to_string(current_encryption));
         }
 
     } else if (encryption == link_encryption_t::ENCRYPTED_WITH_MITM) {
@@ -798,7 +798,7 @@ ble_error_t SecurityManager::setLinkEncryption(
         }
 
     } else {
-        tr_error("Failure invalid encryption level");
+        tr_error("Connection %d - Failure invalid encryption level", connection);
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -816,18 +816,18 @@ ble_error_t SecurityManager::getEncryptionKeySize(
 )
 {
     if (!_db) {
-        tr_error("Failed to retrieve encryption key size for %d: DB not initialized", connectionHandle);
+        tr_error("Connection %d - Failed to retrieve encryption key size: DB not initialized", connectionHandle);
         return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     }
     ControlBlock_t *cb = get_control_block(connectionHandle);
     if (!cb) {
-        tr_error("Failed to retrieve encryption key size for %d: no CB", connectionHandle);
+        tr_error("Connection %d - Failed to retrieve encryption key size: no CB", connectionHandle);
         return BLE_ERROR_INVALID_PARAM;
     }
 
     SecurityDistributionFlags_t* flags = _db->get_distribution_flags(cb->db_entry);
     if (!flags) {
-        tr_error("Failed to retrieve encryption key size for %d: no flags retrieved", connectionHandle);
+        tr_error("Connection %d - Failed to retrieve encryption key size: no flags retrieved", connectionHandle);
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -886,11 +886,11 @@ ble_error_t SecurityManager::getSigningKey(connection_handle_t connection, bool 
         /* we don't have the right key so we need to get it first
          * keys exchange will create the signingKey event */
         if (authenticated) {
-            tr_info("Signing key not available, request authentication");
+            tr_info("Connection %d - Signing key not available, request authentication", connection);
             return requestAuthentication(connection);
         } else if (cb->is_master) {
 #if BLE_ROLE_CENTRAL
-            tr_info("Signing key not available, request pairing");
+            tr_info("Connection %d - Signing key not available, request pairing", connection);
             return requestPairing(connection);
 #else
             tr_error("Failure, can't act as master if central role disabled");
@@ -898,7 +898,7 @@ ble_error_t SecurityManager::getSigningKey(connection_handle_t connection, bool 
 #endif
         } else {
 #if BLE_ROLE_PERIPHERAL
-            tr_info("Signing key not available, issue slave security request to pair");
+            tr_info("Connection %d - Signing key not available, issue slave security request to pair", connection);
             return slave_security_request(connection);
 #else
             tr_error("Failure, can't act as slave if peripheral role disabled");
@@ -935,7 +935,7 @@ ble_error_t SecurityManager::setPrivateAddressTimeout(uint16_t timeout_in_second
 
 ble_error_t SecurityManager::requestAuthentication(connection_handle_t connection)
 {
-    tr_info("Request authentication of %d", connection);
+    tr_info("Connection %d - Request authentication", connection);
     if (!_db) {
         tr_error("Failure, DB not initialized");
         return BLE_ERROR_INITIALIZATION_INCOMPLETE;
@@ -954,17 +954,17 @@ ble_error_t SecurityManager::requestAuthentication(connection_handle_t connectio
 
     if (flags->ltk_mitm_protected) {
         if (cb->authenticated) {
-            tr_info("Nothing to do, link %d already authenticated", connection);
+            tr_info("Connection %d - Nothing to do, link already authenticated", connection);
             return BLE_ERROR_NONE;
         } else {
-            tr_info("ltk mitm protected, requesting encryption of %d", connection);
+            tr_info("Connection %d - ltk mitm protected, requesting encryption", connection);
             cb->encryption_requested = true;
             return enable_encryption(connection);
         }
     } else {
         cb->mitm_requested = true;
         if (cb->is_master) {
-            tr_info("ltk not mitm protected, request new pairing for %d", connection);
+            tr_info("Connection %d - ltk not mitm protected, request new pairing", connection);
 #if BLE_ROLE_CENTRAL
             return requestPairing(connection);
 #else
@@ -972,7 +972,7 @@ ble_error_t SecurityManager::requestAuthentication(connection_handle_t connectio
             return BLE_ERROR_NOT_IMPLEMENTED;
 #endif
         } else {
-            tr_info("ltk not mitm protected, issue slave security request for %d", connection);
+            tr_info("Connection %d - ltk not mitm protected, issue slave security request", connection);
 #if BLE_ROLE_PERIPHERAL
             return slave_security_request(connection);
 #else
@@ -1053,7 +1053,7 @@ ble_error_t SecurityManager::setOOBDataUsage(
     bool OOBProvidesMITM
 )
 {
-    tr_info("Set OOB data usage for %d, use OOB = %s, Provides MITM = %s", connection, to_string(useOOB), to_string(OOBProvidesMITM));
+    tr_info("Connection %d - Set OOB data usage: use OOB = %s, Provides MITM = %s", connection, to_string(useOOB), to_string(OOBProvidesMITM));
     if (!_db) {
         tr_error("Failure, DB not initialized");
         return BLE_ERROR_INITIALIZATION_INCOMPLETE;
@@ -1345,6 +1345,7 @@ ble_error_t SecurityManager::init_identity()
 ble_error_t SecurityManager::get_random_data(uint8_t *buffer, size_t size)
 {
     size_t remaining_size = size;
+    uint8_t* it = buffer;
     byte_array_t<8> random_data;
 
     while (remaining_size) {
@@ -1358,7 +1359,7 @@ ble_error_t SecurityManager::get_random_data(uint8_t *buffer, size_t size)
         }
         memcpy(buffer, random_data.data(), copy_size);
         remaining_size -= copy_size;
-        buffer += copy_size;
+        it += copy_size;
     }
 
     tr_info("Random data generated: %s", tr_array(buffer, size));
@@ -1370,7 +1371,7 @@ ble_error_t SecurityManager::get_random_data(uint8_t *buffer, size_t size)
 #if BLE_ROLE_PERIPHERAL
 ble_error_t SecurityManager::slave_security_request(connection_handle_t connection)
 {
-    tr_info("Initiate security request");
+    tr_info("Connection %d - Initiate security request", connection);
     if (!_db) {
         tr_error("Failure, DB not initialized");
         return BLE_ERROR_INITIALIZATION_INCOMPLETE;
@@ -1390,7 +1391,7 @@ ble_error_t SecurityManager::slave_security_request(connection_handle_t connecti
 
 ble_error_t SecurityManager::enable_encryption(connection_handle_t connection)
 {
-    tr_info("Enable encryption of %d", connection);
+    tr_info("Connection %d - Enable encryption", connection);
     if (!_db) {
         tr_error("Failure, DB not initialized");
         return BLE_ERROR_INITIALIZATION_INCOMPLETE;
@@ -1417,7 +1418,7 @@ ble_error_t SecurityManager::enable_encryption(connection_handle_t connection)
             );
             return BLE_ERROR_NONE;
         } else {
-            tr_info("Ltk not available, initiate pairing");
+            tr_info("Connection %d - Ltk not available, initiate pairing", connection);
             return requestPairing(connection);
         }
 #else
@@ -1426,6 +1427,7 @@ ble_error_t SecurityManager::enable_encryption(connection_handle_t connection)
 #endif // BLE_ROLE_CENTRAL
     } else {
 #if BLE_ROLE_PERIPHERAL
+        tr_info("Connection %d - Ltk not available, send slave security request", connection);
         return slave_security_request(connection);
 #else
         tr_error("Invalid state, cannot act as a master if peripheral role disabled");
@@ -1549,7 +1551,7 @@ void SecurityManager::return_csrk_cb(
 
     SecurityDistributionFlags_t* flags = _db->get_distribution_flags(cb->db_entry);
     if (!flags) {
-        tr_error("Signing key invalid for db entry %p, flags not available", db_entry);
+        tr_error("Connection %d - Signing key invalid for db entry %p, flags not available", cb->connection, db_entry);
         return;
     }
 
@@ -1570,13 +1572,13 @@ void SecurityManager::update_oob_presence(connection_handle_t connection)
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
-        tr_error("Failure while updating OOB presence, control block %d not available", connection);
+        tr_error("Connection %d - Failure while updating OOB presence, control block not available", connection);
         return;
     }
 
     SecurityDistributionFlags_t* flags = _db->get_distribution_flags(cb->db_entry);
     if (!flags) {
-        tr_error("Failure while updating OOB presence, no distribution flags set");
+        tr_error("Connection %d - Failure while updating OOB presence, no distribution flags set", connection);
         return;
     }
 
@@ -1593,7 +1595,7 @@ void SecurityManager::update_oob_presence(connection_handle_t connection)
             cb->oob_present = true;
         }
     }
-    tr_info("Update OOB presence for connection %d: %s", connection, to_string(cb->oob_present));
+    tr_info("Connection %d - Update OOB presence: %s", connection, to_string(cb->oob_present));
 }
 
 
@@ -1627,7 +1629,7 @@ void SecurityManager::on_connected(
     MBED_ASSERT(_db);
     ControlBlock_t *cb = acquire_control_block(connection);
     if (!cb) {
-        tr_error("Failed to acquire a control block for the new connection %d", connection);
+        tr_error("Connection %d - Failed to acquire a control block for the new connection", connection);
         return;
     }
 
@@ -1645,7 +1647,7 @@ void SecurityManager::on_connected(
         (peer_address_type == peer_address_type_t::PUBLIC) ||
         (peer_address_type == peer_address_type_t::PUBLIC_IDENTITY);
 
-    tr_info("Connection %d open, ltk: %s, csrk: %s, irk: %s",
+    tr_info("Connection %d - Open: ltk=%s, csrk=%s, irk=%s",
         connection, to_string(flags->ltk_stored), to_string(flags->csrk_stored), to_string(flags->irk_stored));
 
 #if BLE_FEATURE_SIGNING
@@ -1669,12 +1671,12 @@ void SecurityManager::on_disconnected(
     disconnection_reason_t reason
 )
 {
-    tr_info("Process disconnection of %d", connection);
+    tr_info("Connection %d - Process disconnection", connection);
 #if BLE_FEATURE_SECURITY
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
-        tr_error("Error, control block %d not available", connection);
+        tr_error("Connection %d - Error, control block not available", connection);
         return;
     }
 #if BLE_FEATURE_SIGNING
@@ -1753,13 +1755,13 @@ void SecurityManager::on_pairing_request(
     KeyDistribution responder_dist
 )
 {
-    tr_info("pairing request received on %d, use_oob: %s, authentication: %02X, initiator_dist: %02X, responder_dist: %02X",
+    tr_info("Connection %d - pairing request received: use_oob = %s, authentication = %02X, initiator_dist = %02X, responder_dist = %02X",
         connection, to_string(use_oob), authentication.value(), initiator_dist.value(), responder_dist.value()
     );
 
     /* cancel pairing if secure connection paring is not possible */
     if (!_legacy_pairing_allowed && !authentication.get_secure_connections()) {
-        tr_info("Cancel pairing request, peer does not meet SC requirements");
+        tr_info("Connection %d - Cancel pairing request, peer does not meet SC requirements", connection);
         cancelPairingRequest(connection);
         return;
     }
@@ -1777,10 +1779,10 @@ void SecurityManager::on_pairing_request(
 
     if (_pairing_authorisation_required) {
         if (eventHandler) {
-            tr_info("Forwarding pairing request for connection %d to user handler", connection);
+            tr_info("Connection %d - Forwarding pairing request to user handler", connection);
             eventHandler->pairingRequest(connection);
         } else {
-            tr_error("Cannot process pairing request: Require user validation but no handler has been registered.");
+            tr_error("Connection %d - Cannot process pairing request: Require user validation but no handler has been registered.", connection);
         }
     } else {
         acceptPairingRequest(connection);
@@ -1793,7 +1795,7 @@ void SecurityManager::on_pairing_error(
     pairing_failure_t error
 )
 {
-    tr_info("Pairing error %02X received for connection %d", connection, error.value());
+    tr_info("Connection %d - Pairing error %s received", connection, to_string(error.value()));
     set_mitm_performed(connection, false);
 
     if (eventHandler) {
@@ -1807,7 +1809,7 @@ void SecurityManager::on_pairing_error(
      * inform the application of the encryption failure */
     ControlBlock_t *cb = get_control_block(connection);
     if (cb && cb->encryption_requested && cb->encryption_failed && eventHandler) {
-        tr_info("Report encryption failure to app handler");
+        tr_info("Connection %d - Report encryption failure to app handler", connection);
         eventHandler->linkEncryptionResult(
             connection,
             link_encryption_t::NOT_ENCRYPTED
@@ -1818,7 +1820,7 @@ void SecurityManager::on_pairing_error(
 
 void SecurityManager::on_pairing_timed_out(connection_handle_t connection)
 {
-    tr_info("Pairing timed out on connection %d", connection);
+    tr_info("Connection %d - Pairing timed out", connection);
     set_mitm_performed(connection, false);
 
     eventHandler->pairingResult(
@@ -1830,11 +1832,11 @@ void SecurityManager::on_pairing_timed_out(connection_handle_t connection)
 
 void SecurityManager::on_pairing_completed(connection_handle_t connection)
 {
-    tr_info("Pairing succesfuly completed on connection %d", connection);
+    tr_info("Connection %d - Pairing successfully completed", connection);
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (cb) {
-        tr_info("Retrieve identity address of connection %d to register it into resolving list", connection);
+        tr_info("Connection %d - Retrieve identity address to register it into resolving list", connection);
         _db->get_entry_identity(
             mbed::callback(this, &SecurityManager::on_security_entry_retrieved),
             cb->db_entry
@@ -1854,7 +1856,7 @@ void SecurityManager::on_pairing_completed(connection_handle_t connection)
 
 void SecurityManager::on_valid_mic_timeout(connection_handle_t connection)
 {
-    tr_info("Received authentication timeout for connection %d", connection);
+    tr_info("Connection %d - Received authentication timeout", connection);
     (void)connection;
 }
 
@@ -1885,7 +1887,7 @@ void SecurityManager::on_signed_write_verification_failure(
         return;
     }
 
-    tr_info("Received signed write verification failure on connection %d", connection);
+    tr_info("Connection %d - Received signed write verification failure", connection);
 
     const bool signing = cb->signing_override_default ?
 	                         cb->signing_requested :
@@ -1897,12 +1899,12 @@ void SecurityManager::on_signed_write_verification_failure(
             cb->csrk_failures = 0;
             if (cb->is_master) {
 #if BLE_ROLE_CENTRAL
-                tr_info("Signed write verification failure threshold reached, request pairing on connection %d", connection);
+                tr_info("Connection %d - Signed write verification failure threshold reached, request pairing", connection);
                 requestPairing(connection);
 #endif
             } else {
 #if BLE_ROLE_PERIPHERAL
-                tr_info("Signed write verification failure threshold reached, send slave security request on connection %d", connection);
+                tr_info("Connection %d - Signed write verification failure threshold reached, send slave security request", connection);
                 slave_security_request(connection);
 #endif
             }
@@ -1925,7 +1927,7 @@ void SecurityManager::on_slave_security_request(
     AuthenticationMask authentication
 )
 {
-    tr_info("Slave security request received on connection %d, authentication: %02X",
+    tr_info("Connection %d - Slave security request received: authentication = %02X",
         connection, authentication.value());
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
@@ -1953,14 +1955,14 @@ void SecurityManager::on_slave_security_request(
     }
 
     if (pairing_required) {
-        tr_info("Initiate pairing on %d to satisfy slave security request, mitm: %s", connection, to_string(cb->mitm_requested));
+        tr_info("Connection %d - Initiate pairing to satisfy slave security request, mitm: %s", connection, to_string(cb->mitm_requested));
         requestPairing(connection);
     } else if (!cb->encryption_requested) {
         /* this will refresh keys if encryption is already present */
-        tr_info("Enable encryption of connection %d to satisfy slave security request", connection);
+        tr_info("Connection %d - Enable encryption to satisfy slave security request", connection);
         enable_encryption(connection);
     } else {
-        tr_info("Encryption pending, nothing to do to satisfy slave security request of %d", connection);
+        tr_info("Connection %d - Encryption pending, nothing to do to satisfy slave security request", connection);
     }
 }
 #endif // BLE_ROLE_CENTRAL
@@ -1975,7 +1977,7 @@ void SecurityManager::on_link_encryption_result(
     link_encryption_t result
 )
 {
-    tr_info("Link encryption of connection %d updated: %s", connection, to_string(result));
+    tr_info("Connection %d - Link encryption: updated = %s", connection, to_string(result));
 
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -2007,7 +2009,7 @@ void SecurityManager::on_link_encryption_result(
 
         /* if we failed encryption for the first time
          * retry repairing in case slave lost LTK */
-        tr_info("Encryption failed, attempt to pair again, the slave may have lost the shared LTK");
+        tr_info("Connection %d - Encryption failed, attempt to pair again, the slave may have lost the shared LTK", connection);
         requestPairing(cb->connection);
         cb->encryption_failed = true;
         /* don't return an event yet since we are retrying */
@@ -2023,7 +2025,7 @@ void SecurityManager::on_link_encryption_request_timed_out(
     connection_handle_t connection
 )
 {
-    tr_info("Link encryption of connection %d timed out", connection);
+    tr_info("Connection %d - Link encryption timed out", connection);
     eventHandler->linkEncryptionResult(
         connection,
         link_encryption_t::NOT_ENCRYPTED
@@ -2042,21 +2044,21 @@ void SecurityManager::on_passkey_display(
 {
     set_mitm_performed(connection);
     PasskeyAscii ascii_passkey(passkey);
-    tr_info("Received passkey display %.*s for connection %d",
-        ascii_passkey.PASSKEY_LEN, ascii_passkey.value(), connection);
+    tr_info("Connection %d - Received passkey display %.*s",
+        connection, ascii_passkey.PASSKEY_LEN, ascii_passkey.value());
     eventHandler->passkeyDisplay(connection, ascii_passkey.value());
 }
 
 void SecurityManager::on_passkey_request(connection_handle_t connection)
 {
-    tr_info("Received passkey request event on connection %d", connection);
+    tr_info("Connection %d - Received passkey request event", connection);
     set_mitm_performed(connection);
     eventHandler->passkeyRequest(connection);
 }
 
 void SecurityManager::on_legacy_pairing_oob_request(connection_handle_t connection)
 {
-    tr_info("Received OOB request for legacy pairing on connection %d", connection);
+    tr_info("Connection %d - Received OOB request for legacy pairing", connection);
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -2072,7 +2074,7 @@ void SecurityManager::on_legacy_pairing_oob_request(connection_handle_t connecti
 
     if (flags->peer_address == _oob_temporary_key_creator_address
         || cb->local_address == _oob_temporary_key_creator_address) {
-        tr_info("Use OOB temporary key stored localy");
+        tr_info("Connection %d - Use OOB temporary key stored locally", connection);
         set_mitm_performed(connection);
         _pal.legacy_pairing_oob_request_reply(connection, _oob_temporary_key);
 
@@ -2085,10 +2087,10 @@ void SecurityManager::on_legacy_pairing_oob_request(connection_handle_t connecti
 
         cb->legacy_pairing_oob_request_pending = true;
         if (eventHandler) {
-            tr_info("Send OOB request to application");
+            tr_info("Connection %d - Send OOB request to application", connection);
             eventHandler->legacyPairingOobRequest(connection);
         } else {
-            tr_error("OOB requested but no application event handler available");
+            tr_error("Connection %d - OOB requested but no application event handler available", connection);
         }
     }
 }
@@ -2099,7 +2101,7 @@ void SecurityManager::on_keypress_notification(
     ble::Keypress_t keypress
 )
 {
-    tr_info("Keypress notification %s received on connection %d", to_string(keypress), connection);
+    tr_info("Connection %d - Keypress notification %s received", connection, to_string(keypress));
     set_mitm_performed(connection);
     if (!eventHandler) {
         tr_error("Impossible to forward Keypress notification to application, no event handler registered");
@@ -2109,7 +2111,7 @@ void SecurityManager::on_keypress_notification(
 
 void SecurityManager::on_confirmation_request(connection_handle_t connection)
 {
-    tr_info("Confirmation requestreceived on connection %d", connection);
+    tr_info("Connection %d - Confirmation request received", connection);
     set_mitm_performed(connection);
     if (!eventHandler) {
         tr_error("Impossible to forward confirmation request to application, no event handler registered");
@@ -2119,7 +2121,7 @@ void SecurityManager::on_confirmation_request(connection_handle_t connection)
 
 void SecurityManager::on_secure_connections_oob_request(connection_handle_t connection)
 {
-    tr_info("Received SC OOB request on connection %d", connection);
+    tr_info("Connection %d - Received SC OOB request", connection);
     set_mitm_performed(connection);
 
     ControlBlock_t *cb = get_control_block(connection);
@@ -2164,7 +2166,7 @@ void SecurityManager::on_secure_connections_ltk_generated(
     const ltk_t &ltk
 )
 {
-    tr_info("SC LTK generated for connection %d: %s", connection, to_string(ltk));
+    tr_info("Connection %d - SC LTK generated: %s", connection, to_string(ltk));
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -2192,7 +2194,7 @@ void SecurityManager::on_keys_distributed_ltk(
     const ltk_t &ltk
 )
 {
-    tr_info("LTK distributed for connection %d: %s", connection, to_string(ltk));
+    tr_info("Connection %d - LTK distributed: %s", connection, to_string(ltk));
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -2218,7 +2220,7 @@ void SecurityManager::on_keys_distributed_ediv_rand(
     const rand_t &rand
 )
 {
-    tr_info("EDIV and RAND distributed for %d: ediv = %s, rand = %s", connection, to_string(ediv), to_string(rand));
+    tr_info("Connection %d - EDIV and RAND distributed: ediv = %s, rand = %s", connection, to_string(ediv), to_string(rand));
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -2235,7 +2237,7 @@ void SecurityManager::on_keys_distributed_local_ltk(
     const ltk_t &ltk
 )
 {
-    tr_info("Local LTK %s distributed on connection %d", to_string(ltk), connection);
+    tr_info("Connection %d - Local LTK distributed: %s", connection, to_string(ltk));
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -2408,7 +2410,7 @@ void SecurityManager::on_ltk_request(connection_handle_t connection)
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
-        tr_error("Connection %d: Failure, control block not available", connection);
+        tr_error("Connection %d - Failure, control block not available", connection);
         return;
     }
 
