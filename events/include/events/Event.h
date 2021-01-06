@@ -117,8 +117,6 @@ public:
         }
     }
 
-  
-
     /** Configure the delay of an event
      *
      *  @param d    Delay (in milliseconds) before dispatching the event, expressed as a Chrono duration.

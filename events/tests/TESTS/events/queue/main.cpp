@@ -624,7 +624,7 @@ const Case cases[] = {
     Case("Testing mixed dynamic & static events queue", mixed_dynamic_static_events_queue_test),
     Case("Testing static events queue", static_events_queue_test),
     Case("Testing event period values", event_period_tests)
-};      
+};
 
 Specification specification(test_setup, cases);
 
