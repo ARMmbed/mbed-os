@@ -50,6 +50,24 @@ static inline constexpr const char* to_string(ble::SecurityManager::SecurityIOCa
     }
 }
 
+static inline const char* to_string(ble::io_capability_t capabilities)
+{
+    switch (capabilities.value()) {
+        case ble::io_capability_t::DISPLAY_ONLY:
+            return "DISPLAY_ONLY";
+        case ble::io_capability_t::DISPLAY_YES_NO:
+            return "IO_CAPS_DISPLAY_DISPLAY_YES_NOYESNO";
+        case ble::io_capability_t::KEYBOARD_ONLY:
+            return "KEYBOARD_ONLY";
+        case ble::io_capability_t::NO_INPUT_NO_OUTPUT:
+            return "NO_INPUT_NO_OUTPUT";
+        case ble::io_capability_t::KEYBOARD_DISPLAY:
+            return "KEYBOARD_DISPLAY";
+        default:
+            return "unknown";
+    }
+}
+
 static inline constexpr const char* to_string(ble::SecurityManager::SecurityMode_t security_mode)
 {
     switch (security_mode) {
@@ -123,6 +141,42 @@ static inline const char* to_string(Keypress_t keypress)
             return "KEYPRESS_CLEARED";
         case KEYPRESS_COMPLETED:
             return "KEYPRESS_COMPLETED";
+        default:
+            return "Unknown";
+    }
+}
+
+static inline const char *to_string(ble::pairing_failure_t reason)
+{
+    switch (reason.value()) {
+        case ble::pairing_failure_t::PASSKEY_ENTRY_FAILED:
+            return "PASSKEY_ENTRY_FAILED";
+        case ble::pairing_failure_t::OOB_NOT_AVAILABLE:
+            return "OOB_NOT_AVAILABLE";
+        case ble::pairing_failure_t::AUTHENTICATION_REQUIREMENTS:
+            return "AUTHENTICATION_REQUIREMENTS";
+        case ble::pairing_failure_t::CONFIRM_VALUE_FAILED:
+            return "CONFIRM_VALUE_FAILED";
+        case ble::pairing_failure_t::PAIRING_NOT_SUPPORTED:
+            return "PAIRING_NOT_SUPPORTED";
+        case ble::pairing_failure_t::ENCRYPTION_KEY_SIZE:
+            return "ENCRYPTION_KEY_SIZE";
+        case ble::pairing_failure_t::COMMAND_NOT_SUPPORTED:
+            return "COMMAND_NOT_SUPPORTED";
+        case ble::pairing_failure_t::UNSPECIFIED_REASON:
+            return "UNSPECIFIED_REASON";
+        case ble::pairing_failure_t::REPEATED_ATTEMPTS:
+            return "REPEATED_ATTEMPTS";
+        case ble::pairing_failure_t::INVALID_PARAMETERS:
+            return "INVALID_PARAMETERS";
+        case ble::pairing_failure_t::DHKEY_CHECK_FAILED:
+            return "DHKEY_CHECK_FAILED";
+        case ble::pairing_failure_t::NUMERIC_COMPARISON_FAILED:
+            return "NUMERIC_COMPARISON_FAILED";
+        case ble::pairing_failure_t::BR_EDR_PAIRING_IN_PROGRESS:
+            return "BR_EDR_PAIRING_IN_PROGRESS";
+        case ble::pairing_failure_t::CROSS_TRANSPORT_KEY_DERIVATION_OR_GENERATION_NOT_ALLOWED:
+            return "CROSS_TRANSPORT_KEY_DERIVATION_OR_GENERATION_NOT_ALLOWED";
         default:
             return "Unknown";
     }
