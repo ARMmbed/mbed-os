@@ -1125,7 +1125,7 @@ ble_error_t SecurityManager::get_random_data(uint8_t *buffer, size_t size)
     while (size) {
         /* fill out the buffer by reading the random data in chunks
          * and copying it until reaching the set size */
-        size_t copy_size = std::max(size, random_data.size());
+        size_t copy_size = std::min(size, random_data.size());
         ble_error_t ret = _pal.get_random_data(random_data);
         if (ret != BLE_ERROR_NONE) {
             return ret;
