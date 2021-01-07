@@ -1351,13 +1351,13 @@ ble_error_t SecurityManager::get_random_data(uint8_t *buffer, size_t size)
     while (remaining_size) {
         /* fill out the buffer by reading the random data in chunks
          * and copying it until reaching the set size */
-        size_t copy_size = std::max(remaining_size, random_data.size());
+        size_t copy_size = std::min(remaining_size, random_data.size());
         ble_error_t ret = _pal.get_random_data(random_data);
         if (ret != BLE_ERROR_NONE) {
             tr_error("Pal failed at generating remaining %d bytes of random data, abort get_random_data.", size);
             return ret;
         }
-        memcpy(buffer, random_data.data(), copy_size);
+        memcpy(it, random_data.data(), copy_size);
         remaining_size -= copy_size;
         it += copy_size;
     }
