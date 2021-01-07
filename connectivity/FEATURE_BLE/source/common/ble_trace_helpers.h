@@ -182,6 +182,25 @@ static inline const char *to_string(ble::pairing_failure_t reason)
     }
 }
 
+static inline const char *to_string(target_peer_address_type_t type)
+{
+    if (type == target_peer_address_type_t::PUBLIC) {
+        return "PUBLIC";
+    } else {
+        return "RANDOM";
+    }
+}
+
+static inline const char *to_string(privacy_mode_t mode)
+{
+    if (mode == privacy_mode_t::NETWORK) {
+        return "NETWORK";
+    } else {
+        return "DEVICE";
+    }
+}
+
+
 } // namespace ble
 
 #endif //BLE_CLIAPP_BLE_TRACE_HELPERS_H
