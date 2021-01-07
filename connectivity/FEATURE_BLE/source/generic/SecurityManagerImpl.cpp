@@ -1272,7 +1272,7 @@ ble_error_t SecurityManager::init_signing()
     sign_count_t local_sign_counter = _db->get_local_sign_counter();
 
     csrk_t csrk;
-    if (!pcsrk) {
+    if (!pcsrk || *pcsrk == csrk_t{}) {
         ble_error_t ret = get_random_data(csrk.data(), csrk.size());
         if (ret != BLE_ERROR_NONE) {
             tr_error("Failed to create local csrk");
