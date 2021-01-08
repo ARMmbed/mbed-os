@@ -773,6 +773,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
 
 #if BLE_ROLE_PERIPHERAL
         case DM_SEC_PAIR_IND: {
+            tr_info("Handling event DM_SEC_PAIR_IND");
             auto *evt = (dmSecPairIndEvt_t *) msg;
             handler->on_pairing_request(
                 /* connection */ evt->hdr.param,
@@ -787,6 +788,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
 
 #if BLE_ROLE_CENTRAL
         case DM_SEC_SLAVE_REQ_IND: {
+            tr_info("Handling event DM_SEC_SLAVE_REQ_IND");
             auto *evt = (dmSecPairIndEvt_t *) msg;
             handler->on_slave_security_request(
                 /* connection */ evt->hdr.param,
@@ -798,6 +800,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
 
 #if BLE_FEATURE_SECURE_CONNECTIONS
         case DM_SEC_CALC_OOB_IND: {
+            tr_info("Handling event DM_SEC_CALC_OOB_IND");
             auto *evt = (dmSecOobCalcIndEvt_t *) msg;
             handler->on_secure_connections_oob_generated(
                 evt->random,
@@ -807,7 +810,12 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
         }
 
         case DM_SEC_ECC_KEY_IND: {
+            tr_info("Handling event DM_SEC_ECC_KEY_IND");
             auto *evt = (secEccMsg_t *) msg;
+            tr_info("ECC Keys generated: public key x=%s, public key y=%s, private key=%s",
+                tr_array(evt->data.key.pubKey_x, SEC_ECC_KEY_LEN),
+                tr_array(evt->data.key.pubKey_y, SEC_ECC_KEY_LEN),
+                tr_array(evt->data.key.privKey, SEC_ECC_KEY_LEN));
             DmSecSetEccKey(&evt->data.key);
             memcpy(self._public_key_x, evt->data.key.pubKey_x, sizeof(self._public_key_x));
             self._lesc_keys_generated = true;
@@ -815,6 +823,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
         }
 
         case DM_SEC_COMPARE_IND: {
+            tr_info("Handling event DM_SEC_COMPARE_IND");
             auto *evt = (dmSecCnfIndEvt_t *) msg;
             handler->on_passkey_display(
                 /* connection */ evt->hdr.param,
@@ -825,6 +834,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
         }
 
         case DM_SEC_KEYPRESS_IND: {
+            tr_info("Handling event DM_SEC_KEYPRESS_IND");
             auto *evt = (dmSecKeypressIndEvt_t *) msg;
             handler->on_keypress_notification(
                 /* connection */ evt->hdr.param,

@@ -348,7 +348,7 @@ ble_error_t SecurityManager::acceptPairingRequest(connection_handle_t connection
 {
     tr_info("Connection %d - Accept pairing request", connection);
     if (!_db) {
-        tr_error("Failure, db not initialized");
+        tr_error("Failure, DB not initialized");
         return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     }
     ControlBlock_t *cb = get_control_block(connection);
@@ -414,7 +414,7 @@ ble_error_t SecurityManager::cancelPairingRequest(connection_handle_t connection
 {
     tr_info("Connection %d - Cancel pairing request", connection);
     if (!_db) {
-        tr_error("Failure, db not initialized");
+        tr_error("Failure, DB not initialized");
         return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     }
     return _pal.cancel_pairing(connection, pairing_failure_t::UNSPECIFIED_REASON);
@@ -425,7 +425,7 @@ ble_error_t SecurityManager::setPairingRequestAuthorisation(bool required)
 {
     tr_info("Set manual handling of pairing request: %s", to_string(required));
     if (!_db) {
-        tr_error("Failure, db not initialized");
+        tr_error("Failure, DB not initialized");
         return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     }
     _pairing_authorisation_required = required;
@@ -875,7 +875,7 @@ ble_error_t SecurityManager::getSigningKey(connection_handle_t connection, bool 
 
     if (flags->csrk_stored && (flags->csrk_mitm_protected || !authenticated)) {
         /* we have a key that is either authenticated or we don't care if it is
-         * so retrieve it from the db now */
+         * so retrieve it from the DB now */
         _db->get_entry_peer_csrk(
             mbed::callback(this, &SecurityManager::return_csrk_cb),
             cb->db_entry
@@ -1507,12 +1507,12 @@ void SecurityManager::set_peer_csrk_cb(
 {
     ControlBlock_t *cb = get_control_block(db_entry);
     if (!cb) {
-        tr_error("Failure, control block not available for db entry %p", db_entry);
+        tr_error("Failure, control block not available for DB entry %p", db_entry);
         return;
     }
 
     if (!signing) {
-        tr_error("Connection %d - No peer csrk found for db entry %p", cb->connection, db_entry);
+        tr_error("Connection %d - No peer csrk found for DB entry %p", cb->connection, db_entry);
         return;
     }
 
@@ -1545,13 +1545,13 @@ void SecurityManager::return_csrk_cb(
     }
 
     if (!signing) {
-        tr_error("Connection %d - No signing key retrieve for db entry %p", cb->connection, db_entry);
+        tr_error("Connection %d - No signing key retrieve for DB entry %p", cb->connection, db_entry);
         return;
     }
 
     SecurityDistributionFlags_t* flags = _db->get_distribution_flags(cb->db_entry);
     if (!flags) {
-        tr_error("Connection %d - Signing key invalid for db entry %p, flags not available", cb->connection, db_entry);
+        tr_error("Connection %d - Signing key invalid for DB entry %p, flags not available", cb->connection, db_entry);
         return;
     }
 
@@ -1637,7 +1637,7 @@ void SecurityManager::on_connected(
     cb->local_address = local_address;
     cb->is_master = (role == connection_role_t::CENTRAL);
 
-    // get the associated db handle and the distribution flags if any
+    // get the associated DB handle and the distribution flags if any
     cb->db_entry = _db->open_entry(peer_address_type, peer_address);
 
     SecurityDistributionFlags_t* flags = _db->get_distribution_flags(cb->db_entry);
@@ -2046,14 +2046,24 @@ void SecurityManager::on_passkey_display(
     PasskeyAscii ascii_passkey(passkey);
     tr_info("Connection %d - Received passkey display %.*s",
         connection, ascii_passkey.PASSKEY_LEN, ascii_passkey.value());
-    eventHandler->passkeyDisplay(connection, ascii_passkey.value());
+    if (eventHandler) {
+        eventHandler->passkeyDisplay(connection, ascii_passkey.value());
+    } else {
+        tr_warning("Connection %d - No app handler to display pass key");
+    }
+
 }
 
 void SecurityManager::on_passkey_request(connection_handle_t connection)
 {
     tr_info("Connection %d - Received passkey request event", connection);
     set_mitm_performed(connection);
-    eventHandler->passkeyRequest(connection);
+    if (eventHandler) {
+        eventHandler->passkeyRequest(connection);
+    } else {
+        tr_warning("Connection %d - No app handler to forward pass key request");
+    }
+
 }
 
 void SecurityManager::on_legacy_pairing_oob_request(connection_handle_t connection)
@@ -2103,20 +2113,22 @@ void SecurityManager::on_keypress_notification(
 {
     tr_info("Connection %d - Keypress notification %s received", connection, to_string(keypress));
     set_mitm_performed(connection);
-    if (!eventHandler) {
+    if (eventHandler) {
+        eventHandler->keypressNotification(connection, keypress);
+    } else {
         tr_error("Impossible to forward Keypress notification to application, no event handler registered");
     }
-    eventHandler->keypressNotification(connection, keypress);
 }
 
 void SecurityManager::on_confirmation_request(connection_handle_t connection)
 {
     tr_info("Connection %d - Confirmation request received", connection);
     set_mitm_performed(connection);
-    if (!eventHandler) {
+    if (eventHandler) {
+        eventHandler->confirmationRequest(connection);
+    } else {
         tr_error("Impossible to forward confirmation request to application, no event handler registered");
     }
-    eventHandler->confirmationRequest(connection);
 }
 
 void SecurityManager::on_secure_connections_oob_request(connection_handle_t connection)

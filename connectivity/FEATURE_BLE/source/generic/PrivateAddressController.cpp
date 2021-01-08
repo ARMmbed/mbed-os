@@ -370,7 +370,7 @@ ble_error_t PrivateAddressController::resolve_address_on_host(
 
 void PrivateAddressController::on_resolving_list_action_complete()
 {
-    tr_info("Resolving list action conpleted");
+    tr_info("Resolving list action completed");
     process_privacy_control_blocks(true);
 }
 

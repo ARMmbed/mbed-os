@@ -22,7 +22,7 @@
 #include "mbed-trace/mbed_trace.h"
 #include "common/ble_trace_helpers.h"
 
-#define TRACE_GROUP "BLSM"
+#define TRACE_GROUP "BLPR"
 
 namespace ble {
 namespace impl {
@@ -125,7 +125,7 @@ ble_error_t PalPrivateAddressController::add_device_to_resolving_list(
     }
 
     tr_info("Add RPA to LL resolving list: peer address=%s, type=%s, peer irk=%s, local irk=%s",
-        to_string(peer_address_type), to_string(peer_identity_address), to_string(peer_irk), to_string(local_irk));
+        to_string(peer_identity_address), to_string(peer_address_type), to_string(peer_irk), to_string(local_irk));
     DmPrivAddDevToResList(
         peer_address_type.value(),
         peer_identity_address.data(),
@@ -153,7 +153,7 @@ ble_error_t PalPrivateAddressController::remove_device_from_resolving_list(
     }
 
     tr_info("Remove RPA from LL resolving list: peer address=%s, type=%s",
-        to_string(peer_address_type), to_string(peer_identity_address));
+        to_string(peer_identity_address), to_string(peer_address_type));
     DmPrivRemDevFromResList(peer_address_type.value(), peer_identity_address.data(), 0);
     return BLE_ERROR_NONE;
 }
