@@ -143,7 +143,7 @@ public:
     /** Configure the period of an event
      *
      *  @param p   Period (in milliseconds) for repeatedly dispatching an event, expressed as a Chrono duration.
-     *             Period must be either 'non_periodic' or > 0ms. If an invalid period is supplied then a 
+     *             Period must be either non_periodic or > 0ms. If an invalid period is supplied then a 
      *             default non_periodic value is used.
      *             E.g. period(200ms)
      */
@@ -151,9 +151,9 @@ public:
     {
         if (_event) {
             if (p > duration(0)) {
-                _event->period = p;            
-            }
-            else {
+                _event->period = p;
+                
+            } else {
                 if (p != non_periodic) {
                     MBED_WARNING(MBED_ERROR_INVALID_ARGUMENT,
                                  "Invalid period specified, defaulting to non_periodic.");
