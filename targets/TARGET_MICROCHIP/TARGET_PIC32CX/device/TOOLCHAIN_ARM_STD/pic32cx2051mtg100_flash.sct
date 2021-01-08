@@ -41,7 +41,6 @@ LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {    ; load region size_region
   }
   
   RW_IRAM1  (MBED_RAM_START+VECTOR_SIZE)  (MBED_RAM_SIZE-VECTOR_SIZE)  {  ; RW data
-   *.o(.ramfunc)
    .ANY (+RW +ZI)
   }
 
