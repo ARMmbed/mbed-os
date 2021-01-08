@@ -8,33 +8,71 @@
 /*                                                                     */
 /*                                                                     */
 
-#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
-    #define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
+/* Device specific values */
+
+/* Tools provide -DMBED_ROM_START=xxx -DMBED_ROM_SIZE=xxx -DMBED_RAM_START=xxx -DMBED_RAM_SIZE=xxx */
+
+#define VECTORS     113   /* 16+97 */
+
+/* Common - Do not change */
+
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START  MBED_ROM_START
 #endif
 
-STACK_SIZE = MBED_CONF_TARGET_BOOT_STACK_SIZE;
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE  MBED_ROM_SIZE
+#endif
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+    /* This value is normally defined by the tools 
+       to 0x1000 for bare metal and 0x400 for RTOS */
+    #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+/* Round up VECTORS_SIZE to 8 bytes */
+#define VECTORS_SIZE (((VECTORS * 4) + 7) & 0xFFFFFFF8)
 
 MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x01000000, LENGTH = 0x200000
-  RAM (rwx)  : ORIGIN = 0x200001C4, LENGTH = 0x7FE3C
+    FLASH (rx)   : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
+    RAM (rwx)    : ORIGIN = MBED_RAM_START + VECTORS_SIZE, LENGTH = MBED_RAM_SIZE - VECTORS_SIZE
 }
 
-/* MBED: mbed needs to be able to dynamically set the interrupt vector table.
- * We make room for the table at the very beginning of RAM, i.e. at
- * 0x20000000. We need (16+97 * sizeof(uint32_t) = 452 bytes for PIC32CX */
-__vector_size = 0x1c4;
+/* Linker script to place sections and symbol values. Should be used together
+ * with other linker script that defines memory regions FLASH and RAM.
+ * It references following symbols, which must be defined in code:
+ *   Reset_Handler : Entry of reset handler
+ *
+ * It defines following symbols, which code can use without definition:
+ *   __exidx_start
+ *   __exidx_end
+ *   __etext
+ *   __data_start__
+ *   __preinit_array_start
+ *   __preinit_array_end
+ *   __init_array_start
+ *   __init_array_end
+ *   __fini_array_start
+ *   __fini_array_end
+ *   __data_end__
+ *   __bss_start__
+ *   __bss_end__
+ *   __end__
+ *   end
+ *   __HeapLimit
+ *   __StackLimit
+ *   __StackTop
+ *   __stack
+ */
+ENTRY(Reset_Handler)
 
 /* Section Definitions */
 SECTIONS
 {
   .text :
   {
-    KEEP(*(.vectors))
-    __Vectors_End = .;
-    __Vectors_Size = __Vectors_End - __Vectors;
-    __end__ = .;
-
+    KEEP(*(.isr_vector))
     *(.text*)
 
     KEEP(*(.init))
@@ -71,19 +109,16 @@ SECTIONS
   } > FLASH
   __exidx_end = .;
 
-  __etext = .;
+  /* Location counter can end up 2byte aligned with narrow Thumb code but
+   * __etext is assumed by startup code to be the LMA of a section in RAM
+   * which must be 8-byte aligned */
+  __etext = ALIGN (8);
 
   .data : AT (__etext)
   {
     __data_start__ = .;
-    PROVIDE( __start_vector_table__ = .);
-    . += __vector_size;
-    PROVIDE( __end_vector_table__ = .);
-
+    *(vtable)
     *(.data*)
-	
-    . = ALIGN (8);
-    *(.ram)
 
     . = ALIGN(8);
     /* preinit data */
@@ -112,6 +147,19 @@ SECTIONS
 
   } > RAM
 
+  /* Uninitialized data section
+   * This region is not initialized by the C/C++ library and can be used to
+   * store state across soft reboots. */
+  .uninitialized (NOLOAD):
+  {
+  	. = ALIGN(32);
+  	__uninitialized_start = .;
+  	*(.uninitialized)
+  	KEEP(*(.keep.uninitialized))
+  	. = ALIGN(32);
+  	__uninitialized_end = .;
+  } > RAM
+	
   .bss :
   {
     . = ALIGN(8);
@@ -124,12 +172,10 @@ SECTIONS
 
   .heap (COPY):
   {
-    __HeapBase = .;
     __end__ = .;
-    end = __end__;
-    _end = __end__;
-    KEEP(*(.heap*))
-    . = ORIGIN(RAM) + LENGTH(RAM) - STACK_SIZE;
+    PROVIDE(end = .);
+    *(.heap*)
+    . = ORIGIN(RAM) + LENGTH(RAM) - MBED_BOOT_STACK_SIZE;
     __HeapLimit = .;
   } > RAM
 
@@ -138,13 +184,13 @@ SECTIONS
    * values to stack symbols later */
   .stack_dummy (COPY):
   {
-    KEEP(*(.stack*))
+    *(.stack*)
   } > RAM
 
   /* Set stack top to end of RAM, and stack limit move down by
    * size of stack_dummy section */
   __StackTop = ORIGIN(RAM) + LENGTH(RAM);
-  __StackLimit = __StackTop - STACK_SIZE;
+  __StackLimit = __StackTop - MBED_BOOT_STACK_SIZE;
   PROVIDE(__stack = __StackTop);
 
   /* Check if data + heap + stack exceeds RAM limit */
