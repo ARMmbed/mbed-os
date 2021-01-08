@@ -47,17 +47,6 @@ int gpio_is_connected(const gpio_t *obj)
     return ((uint32_t)obj->pin | 0xFFFFFF00 ) != (uint32_t)((PinName)NC);
 }
 
-/*
- * @return the GPIO port mask for this pin
- * Pin and port index encoded in one uint32.
- * First four bits represent the pin number
- * The remaining bits represent the pin mode
- */
-uint32_t gpio_set(PinName pin)
-{
-    return (uint32_t)ioport_pin_to_mask((ioport_pin_t)pin);
-}
-
 void gpio_init(gpio_t *obj, PinName pin)
 {
     ioport_init((ioport_pin_t)pin);

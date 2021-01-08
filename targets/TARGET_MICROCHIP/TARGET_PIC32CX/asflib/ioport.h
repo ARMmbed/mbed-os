@@ -167,7 +167,7 @@ static __always_inline void ioport_init(ioport_pin_t pin)
 		sysclk_enable_peripheral_clock(ID_PIOB);
 	} else if (port == IOPORT_PIOC) {
 		sysclk_enable_peripheral_clock(ID_PIOC);
-	}	else if (port == IOPORT_PIOD) {
+	} else if (port == IOPORT_PIOD) {
 		sysclk_enable_peripheral_clock(ID_PIOD);
 	}
 }
@@ -267,7 +267,16 @@ static __always_inline void ioport_reset_pin_mode(ioport_pin_t pin)
 static __always_inline void ioport_set_port_dir(ioport_port_t port,
 		ioport_port_mask_t mask, enum ioport_direction dir)
 {
-	ioport_set_port_dir(port, mask, dir);
+    PioGroup *pio = ioport_port_to_base(port);
+
+	/* Select mask */
+	pio->PIO_MSKR = mask;
+
+	if (dir == IOPORT_DIR_OUTPUT) {
+		pio->PIO_CFGR |= PIO_CFGR_DIR;
+	} else if (dir == IOPORT_DIR_INPUT) {
+		pio->PIO_CFGR &= ~PIO_CFGR_DIR;
+	}
 }
 
 /**
@@ -279,7 +288,7 @@ static __always_inline void ioport_set_port_dir(ioport_port_t port,
 static __always_inline void ioport_set_pin_dir(ioport_pin_t pin,
 		enum ioport_direction dir)
 {
-	ioport_set_pin_dir(pin, dir);
+    ioport_set_port_dir(ioport_pin_to_port_id(pin), ioport_pin_to_mask(pin), dir);
 }
 
 /**
@@ -310,7 +319,13 @@ static __always_inline void ioport_set_pin_level(ioport_pin_t pin, bool level)
 static __always_inline void ioport_set_port_level(ioport_port_t port,
 		ioport_port_mask_t mask, enum ioport_value level)
 {
-	ioport_set_port_level(port, mask, level);
+	PioGroup *pio = ioport_port_to_base(port);
+
+	if (level) {
+		pio->PIO_SODR = mask;
+	} else {
+		pio->PIO_CODR = mask;
+	}
 }
 
 /**
