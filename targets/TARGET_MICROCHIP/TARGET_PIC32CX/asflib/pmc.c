@@ -648,6 +648,10 @@ uint32_t pmc_enable_periph_clk(uint32_t ul_id)
 		return 1;
 	}
 
+    if (pmc_is_periph_clk_enabled(ul_id)) {
+        return 0;
+    }
+
 	/* Read configuration for the PID */
 	PMC->PMC_PCR = PMC_PCR_PID(ul_id);
 
@@ -677,6 +681,10 @@ uint32_t pmc_disable_periph_clk(uint32_t ul_id)
 	if (ul_id > MAX_PERIPH_ID) {
 		return 1;
 	}
+
+    if (!pmc_is_periph_clk_enabled(ul_id)) {
+        return 0;
+    }
 
 	/* Read configuration for the PID */
 	PMC->PMC_PCR = PMC_PCR_PID(ul_id);

@@ -39,7 +39,7 @@
 #include "compiler.h"
 #include "pic32cx.h"
 #include "usart.h"
-#include "stdio_serial.h"
+// #include "stdio_serial.h"
 #include "uart_serial.h"
 
 #define UART_COUNT    1
@@ -232,8 +232,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
 		
-		/* Configure for asynchronous operation */
-		stdio_serial_init(obj->p_usart, &obj->serial_options);
+		// /* Configure for asynchronous operation */
+		// stdio_serial_init(obj->p_usart, &obj->serial_options);
     } else {
 		/* Configure serial mode */
 		usart_serial_init((usart_if)obj->p_usart, &obj->serial_options);
@@ -318,11 +318,11 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 	}
 
 	/* Configure USART in serial mode */
-    if ((UARTName)obj->p_usart == STDIO_UART) {
-		stdio_serial_init(obj->p_usart, &obj->serial_options);
-    } else {
+    // if ((UARTName)obj->p_usart == STDIO_UART) {
+		// stdio_serial_init(obj->p_usart, &obj->serial_options);
+    // } else {
 		usart_serial_init((usart_if)obj->p_usart, &obj->serial_options);
-	}
+	// }
 }
 
 /******************************************************************************
