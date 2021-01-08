@@ -70,7 +70,7 @@ public:
             _event->equeue = &q->_equeue;
             _event->id = 0;
             _event->delay = duration(0);
-            _event->period = events::non_periodic;
+            _event->period = non_periodic;
 
             _event->post = &Event::event_post<F>;
             _event->dtor = &Event::event_dtor<F>;
@@ -154,11 +154,11 @@ public:
                 _event->period = p;            
             }
             else {
-                if (p != events::non_periodic) {
+                if (p != non_periodic) {
                     MBED_WARNING(MBED_ERROR_INVALID_ARGUMENT,
                                  "Invalid period specified, defaulting to non_periodic.");
                 }
-                _event->period = events::non_periodic;                
+                _event->period = non_periodic;                
             }
         }
     }
