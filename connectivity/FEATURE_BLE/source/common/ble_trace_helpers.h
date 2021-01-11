@@ -21,8 +21,11 @@
 #include "ble/SecurityManager.h"
 #include "mbed-trace/mbed_trace.h"
 #include "pal/GapTypes.h"
+#include "ble-host/include/dm_api.h"
 
 namespace ble {
+
+const char* dm_callback_event_to_string(uint8_t event);
 
 static inline constexpr const char* to_string(bool v)
 {
