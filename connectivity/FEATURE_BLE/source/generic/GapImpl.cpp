@@ -455,6 +455,12 @@ ble_error_t Gap::getAddress(
     address_t &address
 )
 {
+    tr_info("Get address - "
+            "type=%s, "
+            "address=%s",
+            to_string(type),
+            to_string(address));
+
     type = _address_type;
 
     if (_address_type == own_address_type_t::PUBLIC) {
@@ -969,12 +975,15 @@ uint8_t Gap::getMaxWhitelistSize(void) const
 
 ble_error_t Gap::getWhitelist(whitelist_t &whitelist) const
 {
+    tr_info("Get whitelist");
 
     if (initialize_whitelist() == false) {
+        tr_error("Failed: could not initialize whitelist");
         return BLE_ERROR_INVALID_STATE;
     }
 
     if (whitelist.capacity < _whitelist.capacity) {
+        tr_error("Failed: capacity of whitelist less than %d", _whitelist.capacity);
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -988,15 +997,19 @@ ble_error_t Gap::getWhitelist(whitelist_t &whitelist) const
 
 ble_error_t Gap::setWhitelist(const whitelist_t &whitelist)
 {
+    tr_info("Set whitelist");
     if (is_whitelist_valid(whitelist) == false) {
+        tr_error("Failed: not a valid whitelist");
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (initialize_whitelist() == false) {
+        tr_error("Failed: could not initialize whitelist");
         return BLE_ERROR_INVALID_STATE;
     }
 
     if (whitelist.capacity > _whitelist.capacity) {
+        tr_error("Failed: capacity of whitelist greater than %d", _whitelist.capacity);
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -1167,6 +1180,8 @@ ble_error_t Gap::setCentralPrivacyConfiguration(
 #if !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
     if (_private_address_controller.is_controller_privacy_supported()) {
         update_ll_address_resolution_setting();
+    } else {
+        tr_error("Failed to set central privacy configuration: controller privacy not supported");
     }
 #endif // !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
