@@ -226,6 +226,159 @@ static inline const char *to_string(privacy_mode_t mode)
     }
 }
 
+static inline const char* to_string(ble::advertising_type_t advType) {
+    switch (advType.value()) {
+        case ble::advertising_type_t::CONNECTABLE_UNDIRECTED:
+            return "CONNECTABLE_UNDIRECTED";
+        case ble::advertising_type_t::CONNECTABLE_DIRECTED:
+            return "CONNECTABLE_DIRECTED";
+        case ble::advertising_type_t::SCANNABLE_UNDIRECTED:
+            return "SCANNABLE_UNDIRECTED";
+        case ble::advertising_type_t::NON_CONNECTABLE_UNDIRECTED:
+            return "NON_CONNECTABLE_UNDIRECTED";
+        case ble::advertising_type_t::CONNECTABLE_DIRECTED_LOW_DUTY:
+            return "CONNECTABLE_DIRECTED_LOW_DUTY";
+        case ble::advertising_type_t::CONNECTABLE_NON_SCANNABLE_UNDIRECTED:
+            return "CONNECTABLE_NON_SCANNABLE_UNDIRECTED";
+        default:
+            return "unknown";
+    }
+}
+
+static inline const char* to_string(ble::own_address_type_t addressType) {
+    switch (addressType.value()) {
+        case ble::own_address_type_t::PUBLIC:
+            return "PUBLIC";
+        case ble::own_address_type_t::RANDOM:
+            return "RANDOM";
+        case ble::own_address_type_t::RESOLVABLE_PRIVATE_ADDRESS_PUBLIC_FALLBACK:
+            return "RESOLVABLE_PRIVATE_ADDRESS_PUBLIC_FALLBACK";
+        case ble::own_address_type_t::RESOLVABLE_PRIVATE_ADDRESS_RANDOM_FALLBACK:
+            return "RESOLVABLE_PRIVATE_ADDRESS_RANDOM_FALLBACK";
+        default:
+            return "unknown";
+    }
+}
+
+static inline const char* to_string(ble::advertising_filter_policy_t policy) {
+    switch (policy.value()) {
+        case ble::advertising_filter_policy_t::NO_FILTER:
+            return "NO_FILTER";
+        case ble::advertising_filter_policy_t::FILTER_SCAN_REQUESTS:
+            return "FILTER_SCAN_REQUESTS";
+        case ble::advertising_filter_policy_t::FILTER_CONNECTION_REQUEST:
+            return "FILTER_CONNECTION_REQUEST";
+        case ble::advertising_filter_policy_t::FILTER_SCAN_AND_CONNECTION_REQUESTS:
+            return "FILTER_SCAN_AND_CONNECTION_REQUESTS";
+        default:
+            return "unknown";
+    }
+}
+
+static inline const char* to_string(ble::phy_t phy) {
+    switch (phy.value()) {
+        case ble::phy_t::NONE:
+            return "NONE";
+        case ble::phy_t::LE_1M:
+            return "LE_1M";
+        case ble::phy_t::LE_2M:
+            return "LE_2M";
+        case ble::phy_t::LE_CODED:
+            return "LE_CODED";
+        default:
+            return "unknown";
+    }
+}
+
+static inline const char* to_string(ble::scanning_filter_policy_t policy) {
+    switch (policy.value()) {
+        case ble::scanning_filter_policy_t::NO_FILTER:
+            return "NO_FILTER";
+        case ble::scanning_filter_policy_t::FILTER_ADVERTISING:
+            return "FILTER_ADVERTISING";
+        case ble::scanning_filter_policy_t::NO_FILTER_INCLUDE_UNRESOLVABLE_DIRECTED:
+            return "NO_FILTER_INCLUDE_UNRESOLVABLE_DIRECTED";
+        case ble::scanning_filter_policy_t::FILTER_ADVERTISING_INCLUDE_UNRESOLVABLE_DIRECTED:
+            return "FILTER_ADVERTISING_INCLUDE_UNRESOLVABLE_DIRECTED";
+        default:
+            return "unknown";
+    }
+}
+
+static inline const char* to_string(ble::duplicates_filter_t filtering) {
+    switch (filtering.value()) {
+        case ble::duplicates_filter_t::ENABLE:
+            return "ENABLE";
+        case ble::duplicates_filter_t::DISABLE:
+            return "DISABLE";
+        case ble::duplicates_filter_t::PERIODIC_RESET:
+            return "PERIODIC_RESET";
+        default:
+            return "unknown";
+    }
+}
+
+static inline const char* to_string(ble::peer_address_type_t addressType) {
+    switch (addressType.value()) {
+        case ble::peer_address_type_t::PUBLIC:
+            return "PUBLIC";
+        case ble::peer_address_type_t::RANDOM:
+            return "RANDOM";
+        case ble::peer_address_type_t::PUBLIC_IDENTITY:
+            return "PUBLIC_IDENTITY";
+        case ble::peer_address_type_t::RANDOM_STATIC_IDENTITY:
+            return "RANDOM_STATIC_IDENTITY";
+        case ble::peer_address_type_t::ANONYMOUS:
+            return "ANONYMOUS";
+        default:
+            return "unknown";
+    }
+}
+
+static inline const char* to_string(ble::initiator_filter_policy_t policy) {
+    switch(policy.value()) {
+        case ble::initiator_filter_policy_t::NO_FILTER:
+            return "NO_FILTER";
+        case ble::initiator_filter_policy_t::USE_WHITE_LIST:
+            return "USE_WHITE_LIST";
+        default:
+            return "unknown";
+    }
+}
+
+static inline const char* to_string(ble::coded_symbol_per_bit_t sym) {
+    switch (sym.value()) {
+        case ble::coded_symbol_per_bit_t::UNDEFINED:
+            return "UNDEFINED";
+        case ble::coded_symbol_per_bit_t::S2:
+            return "S2";
+        case ble::coded_symbol_per_bit_t::S8:
+            return "S8";
+        default:
+            return "unknown";
+    }
+}
+
+static inline const char* to_string(ble::local_disconnection_reason_t reason) {
+    switch (reason.value()) {
+        case ble::local_disconnection_reason_t::AUTHENTICATION_FAILURE:
+            return "AUTHENTICATION_FAILURE";
+        case ble::local_disconnection_reason_t::USER_TERMINATION:
+            return "USER_TERMINATION";
+        case ble::local_disconnection_reason_t::LOW_RESOURCES:
+            return "LOW_RESOURCES";
+        case ble::local_disconnection_reason_t::POWER_OFF:
+            return "POWER OFF";
+        case ble::local_disconnection_reason_t::UNSUPPORTED_REMOTE_FEATURE:
+            return "UNSUPPORTED_REMOTE_FEATURE";
+        case ble::local_disconnection_reason_t::PAIRING_WITH_UNIT_KEY_NOT_SUPPORTED:
+            return "PAIRING_WITH_UNIT_KEY_NOT_SUPPORTED";
+        case ble::local_disconnection_reason_t::UNACCEPTABLE_CONNECTION_PARAMETERS:
+            return "UNACCEPTABLE_CONNECTION_PARAMETERS";
+        default:
+            return "unknown";
+    }
+}
 
 } // namespace ble
 
