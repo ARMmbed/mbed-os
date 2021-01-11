@@ -36,7 +36,7 @@
 #include "source/pal/PalSecurityManager.h"
 
 #include "mbed-trace/mbed_trace.h"
-#include "ble_trace_helpers.h"
+#include "common/ble_trace_helpers.h"
 
 #define TRACE_GROUP "BLGP"
 
