@@ -27,6 +27,11 @@
 #include "bstream.h"
 #include "hci_mbed_os_adaptation.h"
 
+#include "mbed-trace/mbed_trace.h"
+#include "common/ble_trace_helpers.h"
+
+#define TRACE_GROUP "BLHC"
+
 #define HCI_RESET_RAND_CNT        4
 
 namespace ble {
@@ -69,12 +74,14 @@ CordioHCIDriver::CordioHCIDriver(CordioHCITransportDriver& transport_driver) :
 
 void CordioHCIDriver::initialize()
 {
+    tr_info("CordioHCIDriver initializing");
     _transport_driver.initialize();
     do_initialize();
 }
 
 void CordioHCIDriver::terminate()
 {
+    tr_info("CordioHCIDriver terminating");
     do_terminate();
     _transport_driver.terminate();
 }
@@ -106,6 +113,7 @@ void CordioHCIDriver::set_random_static_address(const ble::address_t& address)
 void CordioHCIDriver::start_reset_sequence()
 {
     /* send an HCI Reset command to start the sequence */
+    tr_info("HCI reset sequence started");
     HciResetCmd();
 }
 
@@ -280,14 +288,21 @@ void CordioHCIDriver::signal_reset_sequence_done()
 
 uint16_t CordioHCIDriver::write(uint8_t type, uint16_t len, uint8_t *pData)
 {
+#if MBED_CONF_CORDIO_TRACE_HCI_PACKETS
+    tr_debug("HOST->LL: %02hhx %s", type, trace_array(pData, len));
+#endif
     return _transport_driver.write(type, len, pData);
 }
 
 void CordioHCIDriver::on_host_stack_inactivity()
 {
 }
+
 void CordioHCIDriver::handle_test_end(bool success, uint16_t packets)
 {
+    MBED_ASSERT(_test_end_handler);
+    tr_info("LE receiver mode ended (success: %s)", to_string(success));
+
     if (_test_end_handler) {
         _test_end_handler(success, packets);
         _test_end_handler = nullptr;
@@ -299,10 +314,12 @@ ble_error_t CordioHCIDriver::rf_test_start_le_receiver_test(
 )
 {
     if (_test_end_handler) {
+        tr_warning("Cannot start LE %s test mode - already started", "receiver");
         return BLE_ERROR_INVALID_STATE;
     }
 
     if (!test_end_handler) {
+        tr_warning("Cannot start LE %s  test mode - invalid handler", "receiver");
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -310,6 +327,8 @@ ble_error_t CordioHCIDriver::rf_test_start_le_receiver_test(
     uint8_t *buf = hciCmdAlloc(HCI_OPCODE_LE_RECEIVER_TEST, HCI_LEN_LE_RECEIVER_TEST);
 
     if (buf) {
+        tr_info("LE %s mode starter on channel %hhd", "receiver", channel);
+
         uint8_t* p = buf + HCI_CMD_HDR_LEN;
         UINT8_TO_BSTREAM(p, channel);
         hciCmdSend(buf);
@@ -325,10 +344,12 @@ ble_error_t CordioHCIDriver::rf_test_start_le_transmitter_test(
 )
 {
     if (_test_end_handler) {
+        tr_warning("Cannot start LE %s test mode - already started", "transmitter");
         return BLE_ERROR_INVALID_STATE;
     }
 
     if (!test_end_handler) {
+        tr_warning("Cannot start LE %s  test mode - invalid handler", "transmitter");
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -336,6 +357,8 @@ ble_error_t CordioHCIDriver::rf_test_start_le_transmitter_test(
     uint8_t *buf = hciCmdAlloc(HCI_OPCODE_LE_TRANSMITTER_TEST, HCI_LEN_LE_TRANSMITTER_TEST);
 
     if (buf) {
+        tr_info("LE %s mode starter on channel %hhd", "transmitter", channel);
+
         uint8_t* p = buf + HCI_CMD_HDR_LEN;
         UINT8_TO_BSTREAM(p, channel);
         UINT8_TO_BSTREAM(p, length);
@@ -350,7 +373,10 @@ ble_error_t CordioHCIDriver::rf_test_start_le_transmitter_test(
 
 ble_error_t CordioHCIDriver::rf_test_end()
 {
+    MBED_ASSERT(_test_end_handler);
+
     if (!_test_end_handler) {
+        tr_info("Cannot end LE transmitter mode test - missing handler (test never started?)");
         return BLE_ERROR_INVALID_STATE;
     }
 
@@ -358,6 +384,7 @@ ble_error_t CordioHCIDriver::rf_test_end()
 
     if (buf) {
         hciCmdSend(buf);
+        tr_info("LE transmitter mode ended");
 
         return BLE_ERROR_NONE;
     }

@@ -20,6 +20,7 @@
 
 #include "ble/SecurityManager.h"
 #include "mbed-trace/mbed_trace.h"
+#include "pal/GapTypes.h"
 
 namespace ble {
 
