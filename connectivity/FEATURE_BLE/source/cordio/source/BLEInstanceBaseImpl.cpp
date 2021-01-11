@@ -52,6 +52,7 @@
 #include "hci_drv.h"
 #include "bstream.h"
 
+#include "stack_adaptation/mbed_wsf_trace.c"
 #include "mbed-trace/mbed_trace.h"
 #include "common/ble_trace_helpers.h"
 
@@ -482,6 +483,10 @@ void BLEInstanceBase::timeoutCallback()
 void BLEInstanceBase::stack_setup()
 {
     MBED_ASSERT(_hci_driver != nullptr);
+
+#if MBED_CONF_MBED_TRACE_ENABLE
+    wsf_mbed_trace_init();
+#endif // MBED_CONF_MBED_TRACE_ENABLE
 
     wsfHandlerId_t handlerId;
 

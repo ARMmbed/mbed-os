@@ -85,6 +85,11 @@
         "trace-hci-packets": {
             "help": "If tracing is enabled at level DEBUG traces will include HCI packet traces.",
             "value": false
+        },
+        "trace-cordio-wsf-traces": {
+            "help": "If tracing is enabled at level DEBUG traces will include WSF traces from Cordio packet traces.",
+            "value": false,
+            "macro_name": "WSF_TRACE_ENABLED"
         }
     },
     "target_overrides": {
