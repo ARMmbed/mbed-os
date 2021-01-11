@@ -47,7 +47,7 @@
 * Initialize a PDM/PCM converter instance using the \ref cyhal_pdm_pcm_init and
 * provide the clock and data pins.<br>
 * See \ref subsection_pdmpcm_snippet_1 for example initialization.
-* \note The clock parameter (const \ref cyhal_clock_divider_t *clk) is optional and
+* \note The clock parameter (const \ref cyhal_clock_t *clk) is optional and
 * can be set to NULL to generate and use an available clock resource with a default
 * frequency.
 *
@@ -90,9 +90,10 @@ PSoC 6 MCU: PDM to I2S</b></a>
 extern "C" {
 #endif
 
-/** \addtogroup group_hal_results
+/** \addtogroup group_hal_results_pdmpcm PDM/PCM HAL Results
+ *  PDM/PCM specific return codes
+ *  \ingroup group_hal_results
  *  \{ *//**
- *  \{ @name PDM/PCM Results
  */
 
 /** The pin PDM/PCM hardware cannot be initialized with the passed in pin */
@@ -107,7 +108,7 @@ extern "C" {
     (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_PDMPCM, 2))
 
 /**
- * \} \}
+ * \}
  */
 
 /** PDM/PCM interrupt triggers */
@@ -152,7 +153,7 @@ typedef void (*cyhal_pdm_pcm_event_callback_t)(void *handler_arg, cyhal_pdm_pcm_
  * @return The status of the init request
  */
 cy_rslt_t cyhal_pdm_pcm_init(cyhal_pdm_pcm_t *obj, cyhal_gpio_t pin_data, cyhal_gpio_t pin_clk,
-                const cyhal_clock_divider_t *clk_source, const cyhal_pdm_pcm_cfg_t *cfg);
+                const cyhal_clock_t *clk_source, const cyhal_pdm_pcm_cfg_t *cfg);
 
 /** Release a PDM/PCM object, behavior is undefined if an asynchronous read is in progress
  *
@@ -176,6 +177,17 @@ cy_rslt_t cyhal_pdm_pcm_start(cyhal_pdm_pcm_t *obj);
  * @return the status of the stop request
  */
 cy_rslt_t cyhal_pdm_pcm_stop(cyhal_pdm_pcm_t *obj);
+
+/** Checks if the specified PDM/PCM peripheral is enabled (regardless of whether any
+  * unread data has been received).
+  *
+  * The PDM/PCM peripheral can be enabled by calling @ref cyhal_pdm_pcm_start and disabled by calling
+  * @ref cyhal_pdm_pcm_stop
+  *
+  * @param[in] obj  The I2S peripheral to check
+  * @return Whether the I2S receive function is enabled.
+  */
+bool cyhal_pdm_pcm_is_enabled(cyhal_pdm_pcm_t *obj);
 
 /** Updates the PDM/PCM channel gains. Each integer increment represent a 0.5 dB value.
  * For example: a gain value of 5 would mean +2.5 dB.

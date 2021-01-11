@@ -176,8 +176,8 @@ cy_rtos_error_t cy_rtos_last_error();
  *
  * This function is called to startup a new thread. If the thread can exit, it must call
  * \ref cy_rtos_exit_thread() just before doing so. All created threads that can terminate, either
- * by themselves or forcefully by another thread MUST be joined in order to cleanup any resources
- * that might have been allocated for them.
+ * by themselves or forcefully by another thread MUST have \ref cy_rtos_join_thread() called on them
+ * by another thread in order to cleanup any resources that might have been allocated for them.
  *
  * @param[out] thread         Pointer to a variable which will receive the new thread handle
  * @param[in]  entry_function Function pointer which points to the main function for the new thread

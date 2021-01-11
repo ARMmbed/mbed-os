@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_syspm.h
-* \version 5.20
+* \version 5.30
 *
 * Provides the function definitions for the power management API.
 *
@@ -717,12 +717,29 @@
 * For more information on the SysPm driver,
 * refer to the technical reference manual (TRM).
 *
-* \section group_syspm_MISRA MISRA-C Compliance
-* The SysPm driver does not have any specific deviations.
-*
 * \section group_syspm_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td rowspan="3">5.30</td>
+*     <td>
+*           Updated \ref Cy_SysPm_LdoSetVoltage() and Cy_SysPm_SystemSetMinRegulatorCurrent()
+*           to extend the wakeup delay from Deep Sleep for 1.1 V LDO for the case when system
+*           regulator is configured to the minimum current mode. Please refer to
+*           \ref group_syspm_system_reg_curr_mode for the more details on system regulator modes.
+*     </td>
+*     <td>Ensure valid VCCD upon wakeup for the system regulator's minimum current mode.</td>
+*   </tr>
+*   <tr>
+*     <td>Fixed MISRA 2012 violations.</td>
+*     <td>MISRA 2012 compliance.</td>
+*   </tr>
+*   <tr>
+*     <td>Updated the \ref Cy_SysPm_CpuEnterDeepSleep() function to ensure the Low-power mode
+*         entry abort when a system call intiated by Cortex-M4 or Cortex-M0+ is pending.</td>
+*     <td>Fixed the issue when the non-blocking flash write intitated by the Cortex-M4 application
+*         fails to complete because the Cortex-M0+ CPU is in Deep Sleep mode.</td>
+*   </tr>
 *   <tr>
 *     <td>5.20</td>
 *     <td>
@@ -1319,7 +1336,7 @@ extern "C" {
 #define CY_SYSPM_DRV_VERSION_MAJOR       5
 
 /** Driver minor version */
-#define CY_SYSPM_DRV_VERSION_MINOR       20
+#define CY_SYSPM_DRV_VERSION_MINOR       30
 
 /** SysPm driver identifier */
 #define CY_SYSPM_ID                      (CY_PDL_DRV_ID(0x10U))

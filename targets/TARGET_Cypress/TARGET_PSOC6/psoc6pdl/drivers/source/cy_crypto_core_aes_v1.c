@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_aes_v1.c
-* \version 2.30.4
+* \version 2.40
 *
 * \brief
 *  This file provides the source code fro the API for the AES method
@@ -37,7 +37,6 @@ extern "C" {
 #include "cy_crypto_core_hw_v1.h"
 #include "cy_crypto_core_mem_v1.h"
 #include "cy_syslib.h"
-#include <string.h>
 
 static void Cy_Crypto_Core_V1_Aes_InvKey(CRYPTO_Type *base, cy_stc_crypto_aes_state_t const *aesState);
 
@@ -545,6 +544,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V1_Aes_Ctr(CRYPTO_Type *base,
 
     Cy_Crypto_Core_V1_MemCpy(base, blockCounter, ivPtr, CY_CRYPTO_AES_BLOCK_SIZE);
 
+    CY_MISRA_DEVIATE_LINE('MISRA C-2012 Rule 11.3','Intentional pointer type conversion');
     counter = CY_SWAP_ENDIAN64(*(uint64_t*)(blockCounter + CY_CRYPTO_AES_CTR_CNT_POS));
 
     cnt = (uint32_t)(srcSize / CY_CRYPTO_AES_BLOCK_SIZE);
@@ -559,6 +559,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V1_Aes_Ctr(CRYPTO_Type *base,
 
         /* Increment the block counter, at least 64Bits (from 128) is the counter part */
         counter++;
+        CY_MISRA_DEVIATE_LINE('MISRA C-2012 Rule 11.3','Intentional pointer type conversion');
         *(uint64_t*)(blockCounter + CY_CRYPTO_AES_CTR_CNT_POS) = CY_SWAP_ENDIAN64(counter);
 
         Cy_Crypto_Core_V1_Aes_Xor(base, aesState, dstBuff, srcBuff, streamBuff);

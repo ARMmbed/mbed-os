@@ -77,18 +77,41 @@ enum cyhal_rslt_module_chip
     CYHAL_RSLT_MODULE_PDMPCM        = (0x0F << 8),  //!< An error occurred in PDM/PCM module
     CYHAL_RSLT_MODULE_PWM           = (0x10 << 8),  //!< An error occurred in PWM module
     CYHAL_RSLT_MODULE_QSPI          = (0x11 << 8),  //!< An error occurred in QSPI module
-    CYHAL_RSLT_MODULE_RTC           = (0x12 << 8),  //!< An error occurred in RTC module
-    CYHAL_RSLT_MODULE_SDHC          = (0x13 << 8),  //!< An error occurred in SDHC module
-    CYHAL_RSLT_MODULE_SDIO          = (0x14 << 8),  //!< An error occurred in SDIO module
-    CYHAL_RSLT_MODULE_SPI           = (0x15 << 8),  //!< An error occurred in SPI module
-    CYHAL_RSLT_MODULE_SYSPM         = (0x16 << 8),  //!< An error occurred in SysPM module
-    CYHAL_RSLT_MODULE_SYSTEM        = (0x17 << 8),  //!< An error occurred in System module
-    CYHAL_RSLT_MODULE_TIMER         = (0x18 << 8),  //!< An error occurred in Timer module
-    CYHAL_RSLT_MODULE_TRNG          = (0x19 << 8),  //!< An error occurred in RNG module
-    CYHAL_RSLT_MODULE_UART          = (0x1A << 8),  //!< An error occurred in UART module
-    CYHAL_RSLT_MODULE_USB           = (0x1B << 8),  //!< An error occurred in USB module
-    CYHAL_RSLT_MODULE_WDT           = (0x1C << 8),  //!< An error occurred in WDT module
+    CYHAL_RSLT_MODULE_QUADDEC       = (0x12 << 8),  //!< An error occurred in Quadrature Decoder module
+    CYHAL_RSLT_MODULE_RTC           = (0x13 << 8),  //!< An error occurred in RTC module
+    CYHAL_RSLT_MODULE_SDHC          = (0x14 << 8),  //!< An error occurred in SDHC module
+    CYHAL_RSLT_MODULE_SDIO          = (0x15 << 8),  //!< An error occurred in SDIO module
+    CYHAL_RSLT_MODULE_SPI           = (0x16 << 8),  //!< An error occurred in SPI module
+    CYHAL_RSLT_MODULE_SYSPM         = (0x17 << 8),  //!< An error occurred in SysPM module
+    CYHAL_RSLT_MODULE_SYSTEM        = (0x18 << 8),  //!< An error occurred in System module
+    CYHAL_RSLT_MODULE_TIMER         = (0x19 << 8),  //!< An error occurred in Timer module
+    CYHAL_RSLT_MODULE_TRNG          = (0x1A << 8),  //!< An error occurred in RNG module
+    CYHAL_RSLT_MODULE_UART          = (0x1B << 8),  //!< An error occurred in UART module
+    CYHAL_RSLT_MODULE_USB           = (0x1C << 8),  //!< An error occurred in USB module
+    CYHAL_RSLT_MODULE_WDT           = (0x1D << 8),  //!< An error occurred in WDT module
 };
+
+/**
+ * Enum to specify all of the digital output signals supported by different hardware peripherals. These can be used
+ * as inputs to other peripherals if the selected device has internal routing resources.
+ */
+typedef enum
+{
+    CYHAL_SIGNAL_DMA_COMPLETE,      //!< DMA complete signal
+
+    CYHAL_SIGNAL_PWM_OUT,           //!< PWM output signal
+    CYHAL_SIGNAL_PWM_OUT_INV,       //!< PWM output signal inverted
+    CYHAL_SIGNAL_PWM_OVERFLOW,      //!< PWM overflow signal
+    CYHAL_SIGNAL_PWM_UNDERFLOW,     //!< PWM underflow signal
+    CYHAL_SIGNAL_PWM_COMPARE,       //!< PWM period match signal
+
+    CYHAL_SIGNAL_TIMER_OVERFLOW,    //!< Timer overflow signal
+    CYHAL_SIGNAL_TIMER_UNDERFLOW,   //!< Timer underflow signal
+    CYHAL_SIGNAL_TIMER_CAPTURE,     //!< Timer capture match signal
+
+    CYHAL_SIGNAL_QUADDEC_TC,        //!< Quadrature Decoder terminal count signal. High on index event,
+                                    //!< or when counter reaches min/max value.
+} cyhal_signal_digital_out_t;
 
 /**
  * \} group_hal_results
@@ -101,6 +124,35 @@ typedef enum {
     /** Always perform a software transfer */
     CYHAL_ASYNC_SW,
 } cyhal_async_mode_t;
+
+/** @brief Selectable power levels.
+  *
+  * Power levels are defined relative to others. Higher power levels
+  * offer better performance but consume more power.
+  *
+  * Not all hardware supports four discrete power levels. If fewer
+  * power levels are supported, the values will be mapped as follows:
+  * | 4 Levels       | 3 Levels       | 2 Levels                      |
+  * | ---------------| -------------- | ----------------------------- |
+  * | Off            | Off            | Off                           |
+  * | Low            | Low = Medium   | Low = Medium = High = Default |
+  * | Medium         | High = Default |                               |
+  * | High = Default |                |                               |
+  * See the implementation specific documentation for details.
+  */
+typedef enum
+{
+    /** Power-off the comparator, while retaining configuration */
+    CYHAL_POWER_LEVEL_OFF,
+    /** Low comparator power and speed */
+    CYHAL_POWER_LEVEL_LOW,
+    /** Medium comparator power and speed */
+    CYHAL_POWER_LEVEL_MEDIUM,
+    /** High comparator power and speed */
+    CYHAL_POWER_LEVEL_HIGH,
+    /** Default comparator power and speed */
+    CYHAL_POWER_LEVEL_DEFAULT
+} cyhal_power_level_t;
 
 /**
  * \addtogroup group_hal_syspm System Power Management
@@ -182,7 +234,7 @@ typedef struct cyhal_syspm_callback_data
 } cyhal_syspm_callback_data_t;
 
 /**
- * \} group_hal_syspm_apis
+ * \} group_hal_syspm
  */
 
 /**

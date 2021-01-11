@@ -62,9 +62,10 @@
 extern "C" {
 #endif
 
-/** \addtogroup group_hal_results
+/** \addtogroup group_hal_results_crc CRC HAL Results
+ *  CRC specific return codes
+ *  \ingroup group_hal_results
  *  \{ *//**
- *  \{ @name CRC Results
  */
 
 /** Invalid argument */
@@ -72,7 +73,7 @@ extern "C" {
     (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_CRC, 0))
 
 /**
- * \} \}
+ * \}
  */
 
 /** @brief CRC algorithm parameters */

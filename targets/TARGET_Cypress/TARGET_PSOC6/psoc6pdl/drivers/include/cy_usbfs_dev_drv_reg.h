@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_usbfs_dev_drv_reg.h
-* \version 2.20.1
+* \version 2.20.2
 *
 * Provides register access API implementation of the USBFS driver.
 *

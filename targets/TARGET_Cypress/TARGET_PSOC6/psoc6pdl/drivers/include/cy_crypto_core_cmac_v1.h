@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_cmac_v1.h
-* \version 2.30.4
+* \version 2.40
 *
 * \brief
 *  This file provides constants and function prototypes
@@ -60,8 +60,6 @@ typedef struct
 } cy_stc_crypto_cmac_buffers_t;
 
 /* The function prototypes */
-uint32_t Cy_Crypto_Core_V1_Cmac_LeftShift(CRYPTO_Type *base, uint8_t *srcDst);
-
 void Cy_Crypto_Core_V1_Cmac_Init(cy_stc_crypto_v1_cmac_state_t *cmacState,
                               uint32_t *temp,
                               uint32_t *block,

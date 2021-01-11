@@ -1,33 +1,33 @@
-/***************************************************************************//**
-* \file cy_network_buffer.h
-*
-* \brief
-* Basic set of APIs for dealing with network packet buffers. This is used by WHD
-* for relaying data between the network stack and the connectivity chip.
-*
-********************************************************************************
-* \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
-* SPDX-License-Identifier: Apache-2.0
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*******************************************************************************/
+/***********************************************************************************************//**
+ * \file cy_network_buffer.h
+ *
+ * \brief
+ * Basic set of APIs for dealing with network packet buffers. This is used by WHD
+ * for relaying data between the network stack and the connectivity chip.
+ *
+ ***************************************************************************************************
+ * \copyright
+ * Copyright 2018-2020 Cypress Semiconductor Corporation
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ **************************************************************************************************/
 
 /**
-* \addtogroup group_bsp_network_buffer Buffer management
-* \{
-* Basic set of APIs for dealing with network packet buffers
-*/
+ * \addtogroup group_bsp_network_buffer Buffer management
+ * \{
+ * Basic set of APIs for dealing with network packet buffers
+ */
 
 #pragma once
 
@@ -59,7 +59,8 @@ extern "C" {
  *
  *  @return          : CY_RSLT_SUCCESS or WHD_BUFFER_ALLOC_FAIL if the buffer could not be allocated
  */
-whd_result_t cy_host_buffer_get(whd_buffer_t *buffer, whd_buffer_dir_t direction, unsigned short size, unsigned long timeout_ms);
+whd_result_t cy_host_buffer_get(whd_buffer_t* buffer, whd_buffer_dir_t direction,
+                                unsigned short size, unsigned long timeout_ms);
 
 /** Releases a packet buffer
  *
@@ -85,7 +86,7 @@ void cy_buffer_release(whd_buffer_t buffer, whd_buffer_dir_t direction);
  *
  *  @return       : The packet buffer's current pointer.
  */
-uint8_t *cy_buffer_get_current_piece_data_pointer(whd_buffer_t buffer);
+uint8_t* cy_buffer_get_current_piece_data_pointer(whd_buffer_t buffer);
 
 /** Retrieves the size of a packet buffer
  *
@@ -121,16 +122,16 @@ whd_result_t cy_buffer_set_size(whd_buffer_t buffer, unsigned short size);
  *  @param buffer            : A pointer to the handle of the current packet buffer for which the
  *                             current pointer will be moved. On return this may contain a pointer
  *                             to a newly allocated packet buffer which has been daisy chained to
- *                             the front of the given one. This would be the case if the given packet
- *                             buffer  didn't have enough space at the front.
+ *                             the front of the given one. This would be the case if the given
+ *                             packet buffer  didn't have enough space at the front.
  *  @param add_remove_amount : This is the number of bytes to move the current pointer of the packet
- *                             buffer - a negative value increases the space for headers at the front
- *                             of the packet, a positive value decreases the space.
+ *                             buffer - a negative value increases the space for headers at the
+ *                             front of the packet, a positive value decreases the space.
  *
- *  @return                  : CY_RSLT_SUCCESS or WHD_PMK_WRONG_LENGTH if the added amount is outside
- *                             the size of the buffer
+ *  @return                  : CY_RSLT_SUCCESS or WHD_PMK_WRONG_LENGTH if the added amount is
+ *                             outside the size of the buffer
  */
-whd_result_t cy_buffer_add_remove_at_front(whd_buffer_t *buffer, int32_t add_remove_amount);
+whd_result_t cy_buffer_add_remove_at_front(whd_buffer_t* buffer, int32_t add_remove_amount);
 
 
 /** Called by WHD to pass received data to the network stack
@@ -164,6 +165,6 @@ void cy_network_process_ethernet_data(whd_interface_t interface, whd_buffer_t bu
 
 #ifdef __cplusplus
 }
-#endif /* __cplusplus */
+#endif // __cplusplus
 
 /** \} group_bsp_network_buffer */

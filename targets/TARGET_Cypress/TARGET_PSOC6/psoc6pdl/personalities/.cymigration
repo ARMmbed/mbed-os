@@ -69,6 +69,37 @@
   <Source id="mxs40usbfsdevice-1.0">
     <Destination id="mxs40usbfsdevice-1.1" valid="true" message="Migration is successful" defaultMapping="true"/>
   </Source>
+    <Source id="mxs40i2c-1.0">
+    <Destination id="mxs40i2c-2.0" valid="true" message="Migration is successful" defaultMapping="true"/>
+  </Source>
+  <Source id="mxs40sar-1.0">
+    <Destination id="mxs40sar-2.0" valid="true" message="Migration is successful" defaultMapping="true"/>
+  </Source>
+  <Source id="mxs40sar-1.0">
+    <Destination id="mxs40sar-3.0" valid="true" message="Migration is successful" defaultMapping="true">
+      <Parameter param="vneg_select" value="`${((value(&quot;vneg_select&quot;) eq &quot;CY_SAR_NEG_SEL_P1&quot;) ||
+                                                (value(&quot;vneg_select&quot;) eq &quot;CY_SAR_NEG_SEL_P3&quot;) ||
+                                                (value(&quot;vneg_select&quot;) eq &quot;CY_SAR_NEG_SEL_P5&quot;) ||
+                                                (value(&quot;vneg_select&quot;) eq &quot;CY_SAR_NEG_SEL_P7&quot;)) ? &quot;CY_SAR_NEG_SEL&quot; : value(&quot;vneg_select&quot;)}`" />
+    </Destination>
+  </Source>
+  <Source id="mxs40sar-2.0">
+    <Destination id="mxs40sar-3.0" valid="true" message="Migration is successful" defaultMapping="true">
+      <Parameter param="vneg_select" value="`${((value(&quot;vneg_select&quot;) eq &quot;CY_SAR_NEG_SEL_P1&quot;) ||
+                                                (value(&quot;vneg_select&quot;) eq &quot;CY_SAR_NEG_SEL_P3&quot;) ||
+                                                (value(&quot;vneg_select&quot;) eq &quot;CY_SAR_NEG_SEL_P5&quot;) ||
+                                                (value(&quot;vneg_select&quot;) eq &quot;CY_SAR_NEG_SEL_P7&quot;)) ? &quot;CY_SAR_NEG_SEL&quot; : value(&quot;vneg_select&quot;)}`" />
+    </Destination>
+  </Source>
+  <Source id="mxs40fll-1.0">
+    <Destination id="mxs40fll-2.0" valid="true" message="Migration is successful" defaultMapping="true"/>
+  </Source>
+  <Source id="mxs40pll-1.0">
+    <Destination id="mxs40pll-2.0" valid="true" message="Migration is successful" defaultMapping="true"/>
+  </Source>
+  <Source id="mxs40smif-1.1">
+    <Destination id="mxs40smif-1.2" valid="true" message="Migration is successful" defaultMapping="true"/>
+  </Source>
   <Source id="mxs40eco-1.2">
     <Destination id="mxs40eco-2.0" valid="true" message="Migration is successful" defaultMapping="true"/>
   </Source>

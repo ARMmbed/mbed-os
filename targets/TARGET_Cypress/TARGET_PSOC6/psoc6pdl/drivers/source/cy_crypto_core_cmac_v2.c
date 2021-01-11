@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_cmac_v2.c
-* \version 2.30.4
+* \version 2.40
 *
 * \brief
 *  This file provides the source code to the API for the CMAC method
@@ -39,9 +39,7 @@ extern "C" {
 
 #include "cy_crypto_core_aes_v2.h"
 #include "cy_crypto_core_hw_v2.h"
-#include "cy_crypto_core_mem_v2.h"
 #include "cy_syslib.h"
-#include <string.h>
 
 /* The bit string used to generate sub-keys */
 #define CY_CRYPTO_CMAC_RB  (0x87u)
@@ -93,6 +91,9 @@ static void Cy_Crypto_Core_V2_Cmac_CalcSubKey(uint8_t *srcDstPtr)
 *
 * The function for initialization of CMAC operation.
 *
+* \param cmacState
+* The pointer to the structure which stores the CMAC context.
+*
 * \param k
 * The pointer to the sub-key.
 
@@ -112,7 +113,7 @@ void Cy_Crypto_Core_V2_Cmac_Init(cy_stc_crypto_v2_cmac_state_t* cmacState, uint8
 * The pointer to the CRYPTO instance.
 *
 * \param cmacState
-* the pointer to the structure which stores the CMAC context.
+* The pointer to the structure which stores the CMAC context.
 *
 *******************************************************************************/
 void Cy_Crypto_Core_V2_Cmac_Start(CRYPTO_Type *base,
@@ -269,6 +270,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Cmac(CRYPTO_Type *base,
     cy_stc_crypto_v2_cmac_buffers_t *cmacBuffers  = &cmacBuffersData;
     cy_stc_crypto_v2_cmac_state_t   *cmacStateLoc = &cmacBuffers->cmacState;
 
+    CY_MISRA_DEVIATE_LINE('MISRA C-2012 Rule 18.6','No valid data expected after funtion return');
     (void)Cy_Crypto_Core_V2_Aes_Init(base, key, keyLength, aesState, &aesBuffersData);
     Cy_Crypto_Core_V2_Aes_LoadEncKey(base, aesState);
 

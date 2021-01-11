@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_pra_cfg.h
-* \version 2.0
+* \version 2.10
 *
 * \brief The header file of the PRA driver. The API is not intended to
 * be used directly by the user application.

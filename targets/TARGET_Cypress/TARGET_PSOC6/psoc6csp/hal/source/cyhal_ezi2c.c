@@ -24,42 +24,49 @@
 *******************************************************************************/
 
 #include <stdlib.h>
+#include <string.h>
 #include "cyhal_ezi2c.h"
 #include "cyhal_scb_common.h"
 #include "cyhal_gpio.h"
 #include "cyhal_system_impl.h"
 #include "cyhal_hwmgr.h"
 #include "cyhal_utils.h"
+#include "cyhal_clock.h"
 
-#ifdef CY_IP_MXSCB
+#if defined(CY_IP_MXSCB) || defined(CY_IP_M0S8SCB)
 
 #if defined(__cplusplus)
 extern "C"
 {
 #endif
 
-/* Defines for mapping hal status to pdl */
-#define EZI2C_COUNT               (6U)
-#define EZI2C_IDX_HAL             (0U)
-#define EZI2C_IDX_PDL             (1U)
-
-static cyhal_ezi2c_status_t cyhal_convert_activity_status(uint32_t pdl_status);
-
-/* Structure to map EZI2C (PDL) status on HAL EZI2C status */
-static const uint32_t ezi2c_status_map[EZI2C_COUNT][CYHAL_MAP_COLUMNS] =
+static inline cyhal_ezi2c_status_t _cyhal_ezi2c_convert_activity_status(uint32_t pdl_status)
 {
-    { (uint32_t)CYHAL_EZI2C_STATUS_READ1,  (uint32_t)CY_SCB_EZI2C_STATUS_READ1 },
-    { (uint32_t)CYHAL_EZI2C_STATUS_WRITE1, (uint32_t)CY_SCB_EZI2C_STATUS_WRITE1 },
-    { (uint32_t)CYHAL_EZI2C_STATUS_READ2,  (uint32_t)CY_SCB_EZI2C_STATUS_READ2 },
-    { (uint32_t)CYHAL_EZI2C_STATUS_WRITE2, (uint32_t)CY_SCB_EZI2C_STATUS_WRITE2 },
-    { (uint32_t)CYHAL_EZI2C_STATUS_BUSY,   (uint32_t)CY_SCB_EZI2C_STATUS_BUSY },
-    { (uint32_t)CYHAL_EZI2C_STATUS_ERR,    (uint32_t)CY_SCB_EZI2C_STATUS_ERR },
-};
+    /* Structure to map EZI2C (PDL) status on HAL EZI2C status */
+    static const uint32_t status_map[] =
+    {
+        0U,                                  // Default value
+        (uint32_t)CYHAL_EZI2C_STATUS_READ1,  // CY_SCB_EZI2C_STATUS_READ1
+        (uint32_t)CYHAL_EZI2C_STATUS_WRITE1, // CY_SCB_EZI2C_STATUS_WRITE1
+        (uint32_t)CYHAL_EZI2C_STATUS_READ2,  // CY_SCB_EZI2C_STATUS_READ2
+        (uint32_t)CYHAL_EZI2C_STATUS_WRITE2, // CY_SCB_EZI2C_STATUS_WRITE2
+        (uint32_t)CYHAL_EZI2C_STATUS_BUSY,   // CY_SCB_EZI2C_STATUS_BUSY
+        (uint32_t)CYHAL_EZI2C_STATUS_ERR,    // CY_SCB_EZI2C_STATUS_ERR
+    };
+
+    cyhal_ezi2c_status_t hal_status = (cyhal_ezi2c_status_t)_cyhal_utils_convert_flags(
+        status_map, sizeof(status_map) / sizeof(uint32_t), pdl_status);
+    if ((hal_status & (CYHAL_EZI2C_STATUS_BUSY | CYHAL_EZI2C_STATUS_ERR)) == 0)
+    {
+        hal_status |= CYHAL_EZI2C_STATUS_OK;
+    }
+    return hal_status;
+}
 
 /* Implement ISR for EZI2C */
-static void cyhal_ezi2c_irq_handler(void)
+static void _cyhal_ezi2c_irq_handler(void)
 {
-    cyhal_ezi2c_t *obj = (cyhal_ezi2c_t*) cyhal_scb_get_irq_obj();
+    cyhal_ezi2c_t *obj = (cyhal_ezi2c_t*) _cyhal_scb_get_irq_obj();
     Cy_SCB_EZI2C_Interrupt(obj->base, &(obj->context));
 
     /* Check if callback is registered */
@@ -75,7 +82,7 @@ static void cyhal_ezi2c_irq_handler(void)
     }
 }
 
-static bool cyhal_ezi2c_pm_callback_instance(void *obj_ptr, cyhal_syspm_callback_state_t state, cy_en_syspm_callback_mode_t pdl_mode)
+static bool _cyhal_ezi2c_pm_callback_instance(void *obj_ptr, cyhal_syspm_callback_state_t state, cy_en_syspm_callback_mode_t pdl_mode)
 {
     cyhal_ezi2c_t *obj = (cyhal_ezi2c_t*)(obj_ptr);
 
@@ -129,9 +136,9 @@ cy_rslt_t cyhal_ezi2c_init(cyhal_ezi2c_t *obj, cyhal_gpio_t sda, cyhal_gpio_t sc
     cy_rslt_t result;
 
     /* Reserve the I2C */
-    const cyhal_resource_pin_mapping_t *sda_map = CYHAL_FIND_SCB_MAP(sda, cyhal_pin_map_scb_i2c_sda);
-    const cyhal_resource_pin_mapping_t *scl_map = CYHAL_FIND_SCB_MAP(scl, cyhal_pin_map_scb_i2c_scl);
-    if ((NULL == sda_map) || (NULL == scl_map) || !cyhal_utils_resources_equal(sda_map->inst, scl_map->inst))
+    const cyhal_resource_pin_mapping_t *sda_map = _CYHAL_SCB_FIND_MAP(sda, cyhal_pin_map_scb_i2c_sda);
+    const cyhal_resource_pin_mapping_t *scl_map = _CYHAL_SCB_FIND_MAP(scl, cyhal_pin_map_scb_i2c_scl);
+    if ((NULL == sda_map) || (NULL == scl_map) || !_cyhal_utils_resources_equal(sda_map->inst, scl_map->inst))
     {
         return CYHAL_EZI2C_RSLT_ERR_INVALID_PIN;
     }
@@ -141,7 +148,7 @@ cy_rslt_t cyhal_ezi2c_init(cyhal_ezi2c_t *obj, cyhal_gpio_t sda, cyhal_gpio_t sc
     /* Reserve the SDA pin */
     if (result == CY_RSLT_SUCCESS)
     {
-        result = cyhal_utils_reserve_and_connect(sda, sda_map);
+        result = _cyhal_utils_reserve_and_connect(sda, sda_map);
         if (result == CY_RSLT_SUCCESS)
             obj->pin_sda = sda;
     }
@@ -149,7 +156,7 @@ cy_rslt_t cyhal_ezi2c_init(cyhal_ezi2c_t *obj, cyhal_gpio_t sda, cyhal_gpio_t sc
     /* Reserve the SCL pin */
     if (result == CY_RSLT_SUCCESS)
     {
-        result = cyhal_utils_reserve_and_connect(scl, scl_map);
+        result = _cyhal_utils_reserve_and_connect(scl, scl_map);
         if (result == CY_RSLT_SUCCESS)
             obj->pin_scl = scl;
     }
@@ -159,16 +166,17 @@ cy_rslt_t cyhal_ezi2c_init(cyhal_ezi2c_t *obj, cyhal_gpio_t sda, cyhal_gpio_t sc
         obj->is_shared_clock = (clk != NULL);
         if (clk == NULL)
         {
-            result = cyhal_hwmgr_allocate_clock(&(obj->clock), CY_SYSCLK_DIV_16_BIT, false);
+            result = cyhal_clock_allocate(&(obj->clock), CYHAL_CLOCK_BLOCK_PERIPHERAL_16BIT);
         }
         else
         {
             obj->clock = *clk;
+            _cyhal_utils_update_clock_format(&(obj->clock));
         }
     }
 
     obj->resource = *(scl_map->inst);
-    obj->base = CYHAL_SCB_BASE_ADDRESSES[obj->resource.block_num];
+    obj->base = _CYHAL_SCB_BASE_ADDRESSES[obj->resource.block_num];
 
     if (result == CY_RSLT_SUCCESS)
     {
@@ -177,7 +185,7 @@ cy_rslt_t cyhal_ezi2c_init(cyhal_ezi2c_t *obj, cyhal_gpio_t sda, cyhal_gpio_t sc
     }
 
     /* Set data rate */
-    uint32_t dataRate = cyhal_i2c_set_peri_divider(obj->base, obj->resource.block_num, &(obj->clock), (uint32_t)cfg->data_rate, true);
+    uint32_t dataRate = _cyhal_i2c_set_peri_divider(obj->base, obj->resource.block_num, &(obj->clock), (uint32_t)cfg->data_rate, true);
     if (dataRate == 0)
     {
         /* Can not reach desired data rate */
@@ -197,14 +205,14 @@ cy_rslt_t cyhal_ezi2c_init(cyhal_ezi2c_t *obj, cyhal_gpio_t sda, cyhal_gpio_t sc
 
     if (result == CY_RSLT_SUCCESS)
     {
-        cyhal_scb_update_instance_data(obj->resource.block_num, (void*)obj, &cyhal_ezi2c_pm_callback_instance);
+        _cyhal_scb_update_instance_data(obj->resource.block_num, (void*)obj, &_cyhal_ezi2c_pm_callback_instance);
         obj->callback_data.callback = NULL;
         obj->callback_data.callback_arg = NULL;
         obj->irq_cause = 0;
 
-        cy_stc_sysint_t irqCfg = { CYHAL_SCB_IRQ_N[obj->resource.block_num], CYHAL_ISR_PRIORITY_DEFAULT };
-        Cy_SysInt_Init(&irqCfg, cyhal_ezi2c_irq_handler);
-        NVIC_EnableIRQ(CYHAL_SCB_IRQ_N[obj->resource.block_num]);
+        cy_stc_sysint_t irqCfg = { _CYHAL_SCB_IRQ_N[obj->resource.block_num], CYHAL_ISR_PRIORITY_DEFAULT };
+        Cy_SysInt_Init(&irqCfg, _cyhal_ezi2c_irq_handler);
+        NVIC_EnableIRQ(_CYHAL_SCB_IRQ_N[obj->resource.block_num]);
 
         /* Enable EZI2C to operate */
         (void)Cy_SCB_EZI2C_Enable(obj->base);
@@ -223,27 +231,27 @@ void cyhal_ezi2c_free(cyhal_ezi2c_t *obj)
 
     if (CYHAL_RSC_INVALID != obj->resource.type)
     {
-        IRQn_Type irqn = CYHAL_SCB_IRQ_N[obj->resource.block_num];
+        IRQn_Type irqn = _CYHAL_SCB_IRQ_N[obj->resource.block_num];
         NVIC_DisableIRQ(irqn);
 
         cyhal_hwmgr_free(&(obj->resource));
         obj->base = NULL;
         obj->resource.type = CYHAL_RSC_INVALID;
-        cyhal_scb_update_instance_data(obj->resource.block_num, NULL, NULL);
+        _cyhal_scb_update_instance_data(obj->resource.block_num, NULL, NULL);
     }
 
-    cyhal_utils_release_if_used(&(obj->pin_sda));
-    cyhal_utils_release_if_used(&(obj->pin_scl));
+    _cyhal_utils_release_if_used(&(obj->pin_sda));
+    _cyhal_utils_release_if_used(&(obj->pin_scl));
 
     if (!obj->is_shared_clock)
     {
-        cyhal_hwmgr_free_clock(&(obj->clock));
+        cyhal_clock_free(&(obj->clock));
     }
 }
 
 cyhal_ezi2c_status_t cyhal_ezi2c_get_activity_status(cyhal_ezi2c_t *obj)
 {
-    return cyhal_convert_activity_status(Cy_SCB_EZI2C_GetActivity(obj->base, &(obj->context)));
+    return _cyhal_ezi2c_convert_activity_status(Cy_SCB_EZI2C_GetActivity(obj->base, &(obj->context)));
 }
 
 void cyhal_ezi2c_register_callback(cyhal_ezi2c_t *obj, cyhal_ezi2c_event_callback_t callback, void *callback_arg)
@@ -265,18 +273,8 @@ void cyhal_ezi2c_enable_event(cyhal_ezi2c_t *obj, cyhal_ezi2c_status_t event, ui
         obj->irq_cause &= ~event;
     }
 
-    IRQn_Type irqn = CYHAL_SCB_IRQ_N[obj->resource.block_num];
+    IRQn_Type irqn = _CYHAL_SCB_IRQ_N[obj->resource.block_num];
     NVIC_SetPriority(irqn, intr_priority);
-}
-
-static cyhal_ezi2c_status_t cyhal_convert_activity_status(uint32_t pdl_status)
-{
-    cyhal_ezi2c_status_t hal_status = (cyhal_ezi2c_status_t)cyhal_utils_convert_flags(ezi2c_status_map, EZI2C_IDX_PDL, EZI2C_IDX_HAL, EZI2C_COUNT, pdl_status);
-    if ((hal_status & (CYHAL_EZI2C_STATUS_BUSY | CYHAL_EZI2C_STATUS_ERR)) == 0)
-    {
-        hal_status |= CYHAL_EZI2C_STATUS_OK;
-    }
-    return hal_status;
 }
 
 #if defined(__cplusplus)

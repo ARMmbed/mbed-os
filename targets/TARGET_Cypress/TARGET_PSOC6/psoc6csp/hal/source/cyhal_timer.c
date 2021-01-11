@@ -24,19 +24,21 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-
+#include <string.h>
+#include "cy_device_headers.h"
 #include "cyhal_timer_impl.h"
 #include "cyhal_hwmgr.h"
 #include "cyhal_gpio.h"
 #include "cyhal_syspm.h"
+#include "cyhal_clock.h"
 
-#if defined(CY_IP_MXTCPWM_INSTANCES)
+#if defined(CY_IP_MXTCPWM_INSTANCES) || defined(CY_IP_M0S8TCPWM_INSTANCES)
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-static const cy_stc_tcpwm_counter_config_t default_config =
+static const cy_stc_tcpwm_counter_config_t _cyhal_timer_default_config =
 {
     .period = 32768,
     .clockPrescaler = CY_TCPWM_COUNTER_PRESCALER_DIVBY_1,
@@ -64,7 +66,7 @@ static const cy_stc_tcpwm_counter_config_t default_config =
   * @param[in] direction The direction, as a HAL enum value
   * @return The direction, as a PDL constant
   */
-static inline uint32_t convert_direction(cyhal_timer_direction_t direction)
+static inline uint32_t _cyhal_timer_convert_direction(cyhal_timer_direction_t direction)
 {
     switch (direction)
     {
@@ -91,31 +93,30 @@ cy_rslt_t cyhal_timer_init(cyhal_timer_t *obj, cyhal_gpio_t pin, const cyhal_clo
         return CYHAL_TIMER_RSLT_ERR_BAD_ARGUMENT;
 
     memset(obj, 0, sizeof(cyhal_timer_t));
-    cy_rslt_t result = cyhal_hwmgr_allocate(CYHAL_RSC_TCPWM, &obj->resource);
+    cy_rslt_t result = cyhal_hwmgr_allocate(CYHAL_RSC_TCPWM, &obj->tcpwm.resource);
     if (CY_RSLT_SUCCESS == result)
     {
-        cyhal_resource_inst_t *timer = &obj->resource;
-
-        obj->base = CYHAL_TCPWM_DATA[timer->block_num].base;
-
-        en_clk_dst_t pclk = (en_clk_dst_t)(CYHAL_TCPWM_DATA[timer->block_num].clock_dst + timer->channel_num);
+        cyhal_resource_inst_t *timer = &obj->tcpwm.resource;
+        obj->tcpwm.base = _CYHAL_TCPWM_DATA[timer->block_num].base;
+        en_clk_dst_t pclk = (en_clk_dst_t)(_CYHAL_TCPWM_DATA[timer->block_num].clock_dst + timer->channel_num);
 
         if (NULL != clk)
         {
-            obj->clock = *clk;
-            obj->clock_hz = Cy_SysClk_ClkPeriGetFrequency() / (1 + Cy_SysClk_PeriphGetDivider(obj->clock.div_type, obj->clock.div_num));
-            if (CY_SYSCLK_SUCCESS != Cy_SysClk_PeriphAssignDivider(pclk, clk->div_type, clk->div_num))
+            obj->tcpwm.clock = *clk;
+            _cyhal_utils_update_clock_format(&obj->tcpwm.clock);
+            obj->tcpwm.clock_hz = cyhal_clock_get_frequency(&obj->tcpwm.clock);
+            if (CY_SYSCLK_SUCCESS != Cy_SysClk_PeriphAssignDivider(pclk, (cy_en_divider_types_t)obj->tcpwm.clock.block, obj->tcpwm.clock.channel))
             {
                 result = CYHAL_TIMER_RSLT_ERR_CLOCK_INIT;
             }
         }
-        else if (CY_RSLT_SUCCESS == (result = cyhal_hwmgr_allocate_clock(&(obj->clock), CY_SYSCLK_DIV_16_BIT, false)))
+        else if (CY_RSLT_SUCCESS == (result = cyhal_clock_allocate(&(obj->tcpwm.clock), CYHAL_CLOCK_BLOCK_PERIPHERAL_16BIT)))
         {
-            obj->dedicated_clock = true;
+            obj->tcpwm.dedicated_clock = true;
             result = cyhal_timer_set_frequency(obj, CYHAL_TIMER_DEFAULT_FREQ);
-            if(CY_RSLT_SUCCESS == result)
+            if (CY_RSLT_SUCCESS == result)
             {
-                if(CY_RSLT_SUCCESS != Cy_SysClk_PeriphAssignDivider(pclk, obj->clock.div_type, obj->clock.div_num))
+                if (CY_SYSCLK_SUCCESS != Cy_SysClk_PeriphAssignDivider(pclk, (cy_en_divider_types_t)obj->tcpwm.clock.block, obj->tcpwm.clock.channel))
                 {
                     result = CYHAL_TIMER_RSLT_ERR_CLOCK_INIT;
                 }
@@ -124,14 +125,14 @@ cy_rslt_t cyhal_timer_init(cyhal_timer_t *obj, cyhal_gpio_t pin, const cyhal_clo
 
         if (CY_RSLT_SUCCESS == result)
         {
-            result = Cy_TCPWM_Counter_Init(obj->base, obj->resource.channel_num, &default_config);
+            result = Cy_TCPWM_Counter_Init(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource), &_cyhal_timer_default_config);
         }
 
         if (result == CY_RSLT_SUCCESS)
         {
-            cyhal_tcpwm_init_data(obj);
-            Cy_TCPWM_SetInterruptMask(obj->base, obj->resource.channel_num, CY_TCPWM_INT_NONE);
-            Cy_TCPWM_Counter_Enable(obj->base, obj->resource.channel_num);
+            _cyhal_tcpwm_init_data(&obj->tcpwm);
+            Cy_TCPWM_SetInterruptMask(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource), CY_TCPWM_INT_NONE);
+            Cy_TCPWM_Counter_Enable(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
         }
         else
         {
@@ -146,17 +147,18 @@ cy_rslt_t cyhal_timer_configure(cyhal_timer_t *obj, const cyhal_timer_cfg_t *cfg
 {
     cy_rslt_t rslt;
     obj->default_value = cfg->value;
-    cy_stc_tcpwm_counter_config_t config = default_config;
+    cy_stc_tcpwm_counter_config_t config = _cyhal_timer_default_config;
     config.period = cfg->period;
     config.compare0 = cfg->compare_value;
     config.runMode = cfg->is_continuous ? CY_TCPWM_COUNTER_CONTINUOUS : CY_TCPWM_COUNTER_ONESHOT;
     config.compareOrCapture = cfg->is_compare ? CY_TCPWM_COUNTER_MODE_COMPARE : CY_TCPWM_COUNTER_MODE_CAPTURE;
-    config.countDirection = convert_direction(cfg->direction);
+    config.countDirection = _cyhal_timer_convert_direction(cfg->direction);
     // DeInit will clear the interrupt mask; save it now and restore after we re-nit
-    uint32_t old_mask = Cy_TCPWM_GetInterruptMask(obj->base, obj->resource.channel_num);
-    Cy_TCPWM_Counter_DeInit(obj->base, obj->resource.channel_num, &config);
-    rslt = (cy_rslt_t)Cy_TCPWM_Counter_Init(obj->base, obj->resource.channel_num, &config);
-    Cy_TCPWM_SetInterruptMask(obj->base, obj->resource.channel_num, old_mask);
+    uint32_t old_mask = Cy_TCPWM_GetInterruptMask(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
+    Cy_TCPWM_Counter_DeInit(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource), &config);
+    rslt = (cy_rslt_t)Cy_TCPWM_Counter_Init(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource), &config);
+    Cy_TCPWM_Counter_Enable(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
+    Cy_TCPWM_SetInterruptMask(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource), old_mask);
 
     // This must be called after Cy_TCPWM_Counter_Init
     cyhal_timer_reset(obj);
@@ -167,24 +169,26 @@ cy_rslt_t cyhal_timer_configure(cyhal_timer_t *obj, const cyhal_timer_cfg_t *cfg
 cy_rslt_t cyhal_timer_set_frequency(cyhal_timer_t *obj, uint32_t hz)
 {
     cy_rslt_t result = CY_RSLT_SUCCESS;
-    if(false == obj->dedicated_clock)
+    if(!obj->tcpwm.dedicated_clock)
     {
         result = CYHAL_TIMER_RSLT_ERR_SHARED_CLOCK;
     }
 
+    const cyhal_clock_tolerance_t tolerance = {
+        .type = CYHAL_TOLERANCE_PERCENT,
+        .value = 2,
+    };
     if(CY_RSLT_SUCCESS == result)
     {
-        uint32_t div = Cy_SysClk_ClkPeriGetFrequency() / hz;
-        if (0 == div ||
-            CY_SYSCLK_SUCCESS != Cy_SysClk_PeriphDisableDivider(obj->clock.div_type, obj->clock.div_num) ||
-            CY_SYSCLK_SUCCESS != Cy_SysClk_PeriphSetDivider(obj->clock.div_type, obj->clock.div_num, div - 1) ||
-            CY_SYSCLK_SUCCESS != Cy_SysClk_PeriphEnableDivider(obj->clock.div_type, obj->clock.div_num))
+        if((CY_RSLT_SUCCESS == cyhal_clock_set_enabled(&obj->tcpwm.clock, false, false)) &&
+           (CY_RSLT_SUCCESS == cyhal_clock_set_frequency(&obj->tcpwm.clock, hz, &tolerance)) &&
+           (CY_RSLT_SUCCESS == cyhal_clock_set_enabled(&obj->tcpwm.clock, true, false)))
         {
-            result = CYHAL_TIMER_RSLT_ERR_CLOCK_INIT;
+            obj->tcpwm.clock_hz = cyhal_clock_get_frequency(&obj->tcpwm.clock);
         }
         else
         {
-            obj->clock_hz = Cy_SysClk_ClkPeriGetFrequency() / div;
+            result = CYHAL_TIMER_RSLT_ERR_CLOCK_INIT;
         }
     }
 
@@ -194,37 +198,54 @@ cy_rslt_t cyhal_timer_set_frequency(cyhal_timer_t *obj, uint32_t hz)
 cy_rslt_t cyhal_timer_start(cyhal_timer_t *obj)
 {
     CY_ASSERT(NULL != obj);
-    if (cyhal_tcpwm_pm_transition_pending())
+    if (_cyhal_tcpwm_pm_transition_pending())
     {
         return CYHAL_SYSPM_RSLT_ERR_PM_PENDING;
     }
-    Cy_TCPWM_TriggerStart(obj->base, 1u << obj->resource.channel_num);
+    #if defined(CY_IP_MXTCPWM) && (CY_IP_MXTCPWM_VERSION >= 2)
+    Cy_TCPWM_TriggerStart_Single(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
+    #else
+    Cy_TCPWM_TriggerStart(obj->tcpwm.base, 1 << _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
+    #endif
     return CY_RSLT_SUCCESS;
 }
 
 cy_rslt_t cyhal_timer_stop(cyhal_timer_t *obj)
 {
     CY_ASSERT(NULL != obj);
-    Cy_TCPWM_TriggerStopOrKill(obj->base, 1u << obj->resource.channel_num);
+    #if defined(CY_IP_MXTCPWM) && (CY_IP_MXTCPWM_VERSION >= 2)
+    Cy_TCPWM_TriggerStopOrKill_Single(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
+    #else
+    Cy_TCPWM_TriggerStopOrKill(obj->tcpwm.base, 1 << _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
+    #endif
     return CY_RSLT_SUCCESS;
 }
 
 cy_rslt_t cyhal_timer_reset(cyhal_timer_t *obj)
 {
     CY_ASSERT(NULL != obj);
-    bool is_running = CY_TCPWM_PWM_STATUS_COUNTER_RUNNING & Cy_TCPWM_PWM_GetStatus(obj->base, obj->resource.channel_num);
+    bool is_running = CY_TCPWM_PWM_STATUS_COUNTER_RUNNING & Cy_TCPWM_PWM_GetStatus(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
+    #if defined(CY_IP_MXTCPWM) && (CY_IP_MXTCPWM_VERSION >= 2)
     if (is_running)
-        Cy_TCPWM_TriggerStopOrKill(obj->base, 1u << obj->resource.channel_num);
-    Cy_TCPWM_Counter_SetCounter(obj->base, obj->resource.channel_num, obj->default_value);
+        Cy_TCPWM_TriggerStopOrKill_Single(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
+    Cy_TCPWM_Counter_SetCounter(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource), obj->default_value);
     if (is_running)
-        Cy_TCPWM_TriggerStart(obj->base, 1u << obj->resource.channel_num);
+        Cy_TCPWM_TriggerStart_Single(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
+    #else
+     if (is_running)
+        Cy_TCPWM_TriggerStopOrKill(obj->tcpwm.base, 1 << _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
+    Cy_TCPWM_Counter_SetCounter(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource), obj->default_value);
+    if (is_running)
+        Cy_TCPWM_TriggerStart(obj->tcpwm.base, 1 << _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
+    #endif
+
     return CY_RSLT_SUCCESS;
 }
 
 uint32_t cyhal_timer_read(const cyhal_timer_t *obj)
 {
     CY_ASSERT(NULL != obj);
-    return Cy_TCPWM_Counter_GetCounter(obj->base, obj->resource.channel_num);
+    return Cy_TCPWM_Counter_GetCounter(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
 }
 
 #if defined(__cplusplus)

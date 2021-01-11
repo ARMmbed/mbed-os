@@ -32,6 +32,9 @@
 #if !defined(CY_UTILS_H)
 #define CY_UTILS_H
 
+#include <stdbool.h>
+#include <stdint.h>
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
@@ -53,14 +56,14 @@ static inline void CY_HALT(void)
 /** Utility macro when neither NDEBUG or CY_NO_ASSERT is not declared to check a condition and, if false, trigger a breakpoint */
 #if defined(NDEBUG) || defined(CY_NO_ASSERT)
     #define CY_ASSERT(x)    do {                \
-                            } while(0)
+                            } while(false)
 #else
     #define CY_ASSERT(x)    do {                \
                                 if(!(x))        \
                                 {               \
                                     CY_HALT();  \
                                 }               \
-                            } while(0)
+                            } while(false)
 #endif  /* defined(NDEBUG) */
 
 
@@ -385,6 +388,41 @@ static inline void CY_HALT(void)
 *******************************************************************************/
 #define CY_SYSLIB_DIV_ROUNDUP(a, b) ((((a) - 1U) / (b)) + 1U)
 
+/*******************************************************************************
+*  Provides the macros for MISRA violation documentation in Coverity tool.
+*******************************************************************************/
+
+/** \cond INTERNAL */
+
+#ifdef CY_COVERITY_2012_CHECK /* Check MISRA-C:2012 with Coverity tool */
+#define CY_COVERITY_PRAGMA_STR(a) #a
+
+#define CY_MISRA_DEVIATE_LINE(MISRA,MESSAGE) \
+_Pragma(CY_COVERITY_PRAGMA_STR(coverity compliance deviate MISRA MESSAGE))
+
+#define CY_MISRA_FP_LINE(MISRA,MESSAGE) \
+_Pragma(CY_COVERITY_PRAGMA_STR(coverity compliance fp MISRA MESSAGE))
+
+#define CY_MISRA_DEVIATE_BLOCK_START(MISRA,COUNT,MESSAGE) \
+_Pragma(CY_COVERITY_PRAGMA_STR(coverity compliance block (deviate:COUNT MISRA MESSAGE)))
+
+#define CY_MISRA_FP_BLOCK_START(MISRA,COUNT,MESSAGE) \
+_Pragma(CY_COVERITY_PRAGMA_STR(coverity compliance block (fp:COUNT MISRA MESSAGE)))
+
+#define CY_MISRA_BLOCK_END(MISRA) \
+_Pragma(CY_COVERITY_PRAGMA_STR(coverity compliance end_block MISRA))
+
+#else /* General usage */
+
+#define CY_MISRA_DEVIATE_LINE(MISRA,MESSAGE) do{}while(false)
+#define CY_MISRA_FP_LINE(MISRA,MESSAGE) do{}while(false)
+#define CY_MISRA_DEVIATE_BLOCK_START(MISRA,COUNT,MESSAGE)
+#define CY_MISRA_FP_BLOCK_START(MISRA,COUNT,MESSAGE)
+#define CY_MISRA_BLOCK_END(MISRA)
+
+#endif /* CY_COVERITY_2012_CHECK */
+
+/** \endcond */
 
 #ifdef __cplusplus
 }

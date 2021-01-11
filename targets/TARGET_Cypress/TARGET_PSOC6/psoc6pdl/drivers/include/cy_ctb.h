@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ctb.h
-* \version 1.20
+* \version 2.0
 *
 * Header file for the CTB driver
 *
@@ -59,7 +59,9 @@
 * \section group_ctb_init Initialization and Enable
 *
 * Before enabling the CTB, set up any external components (such as resistors)
-* that are needed for the design. To configure the entire hardware block, call \ref Cy_CTB_Init.
+* that are needed for the design and initialize \ref group_sysanalog by calling
+* \ref Cy_SysAnalog_Init and \ref Cy_SysAnalog_Enable functions.
+* To configure the entire hardware CTB block, call \ref Cy_CTB_Init.
 * The base address of the CTB hardware can be found in the device specific header file.
 * Alternatively, to configure only one opamp without any routing, call \ref Cy_CTB_OpampInit.
 * The driver also provides a \ref Cy_CTB_FastInit function for fast and easy initialization of the CTB
@@ -174,7 +176,7 @@
 * Each opamp of the CTB has a charge pump that when enabled increases the
 * input range to the supply rails. When disabled, the opamp input range is 0 - VDDA - 1.5 V.
 * When enabled, the pump requires a clock.
-* Call the \ref Cy_CTB_SetClkPumpSource function in the \ref group_sysanalog driver to
+* Call the \ref Cy_CTB_SetPumpClkSource function in the \ref group_sysanalog driver to
 * set the clock source for all CTBs. This clock can come from one of two sources:
 *
 *   -# A dedicated clock divider from one of the CLK_PATH in the SRSS
@@ -279,13 +281,18 @@
 *
 * Refer to technical reference manual (TRM) and the device datasheet.
 *
-* \section group_ctb_MISRA MISRA-C Compliance]
-*
-* This driver does not have any specific deviations.
-*
 * \section group_ctb_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td rowspan="2">2.0</td>
+*     <td>Added new function \ref Cy_CTB_SetPumpClkSource with new pump clock source \ref CY_CTB_CLK_PUMP_DEEPSLEEP for PASS_ver2.</td>
+*     <td>New silicon family support.</td>
+*   </tr>
+*   <tr>
+*     <td>The analog routing switches now open on power down.</td>
+*     <td>A firmware workaround for possible side-effects of the weak pull-ups at OpAmps terminals in PASS_ver2.</td>
+*   </tr>
 *   <tr>
 *     <td>1.20</td>
 *     <td>Fixed the \ref Cy_CTB_OpampInit function to do not affect another OpAmp instance.</td>
@@ -361,16 +368,18 @@
 #if defined(__cplusplus)
 extern "C" {
 #endif
+CY_MISRA_DEVIATE_BLOCK_START('MISRA C-2012 Rule 11.3', 24, \
+'CTBM_Type will typecast to either CTBM_V1_Type or CTBM_V2_Type but not both on PDL initialization based on the target device at compile time.');
 
 /** \addtogroup group_ctb_macros
 * \{
 */
 
 /** Driver major version */
-#define CY_CTB_DRV_VERSION_MAJOR            1
+#define CY_CTB_DRV_VERSION_MAJOR            2
 
 /** Driver minor version */
-#define CY_CTB_DRV_VERSION_MINOR            10
+#define CY_CTB_DRV_VERSION_MINOR            0
 
 /** CTB driver identifier*/
 #define CY_CTB_ID                           CY_PDL_DRV_ID(0x0Bu)
@@ -378,7 +387,7 @@ extern "C" {
 /** \cond INTERNAL */
 
 /**< De-init value for most CTB registers */
-#define CY_CTB_DEINIT                       (0uL)
+#define CY_CTB_DEINIT                       (0UL)
 
 /**< De-init value for the opamp0 switch control register */
 #define CY_CTB_DEINIT_OA0_SW                (CTBM_OA0_SW_CLEAR_OA0P_A00_Msk \
@@ -412,7 +421,7 @@ extern "C" {
                                             | CTBM_CTD_SW_CLEAR_CTDH_CIS_Msk \
                                             | CTBM_CTD_SW_CLEAR_CTDH_ILR_Msk)
 
-#define CY_CTB_TRIM_VALUE_MAX               (63uL)
+#define CY_CTB_TRIM_VALUE_MAX               (63UL)
 
 /**< Macros for conditions used by CY_ASSERT calls */
 
@@ -423,7 +432,9 @@ extern "C" {
                                             || ((num) == CY_CTB_OPAMP_1) \
                                             || ((num) == CY_CTB_OPAMP_BOTH))
 #define CY_CTB_IPTAT(iptat)                 (((iptat) == CY_CTB_IPTAT_NORMAL) || ((iptat) == CY_CTB_IPTAT_LOW))
-#define CY_CTB_CLKPUMP(clkPump)             (((clkPump) == CY_CTB_CLK_PUMP_SRSS) || ((clkPump) == CY_CTB_CLK_PUMP_PERI))
+#define CY_CTB_CLKPUMP(clkPump)             (((clkPump) == CY_CTB_CLK_PUMP_SRSS) || \
+                                             ((clkPump) == CY_CTB_CLK_PUMP_PERI) || \
+                                             ((clkPump) == CY_CTB_CLK_PUMP_DEEPSLEEP))
 #define CY_CTB_DEEPSLEEP(deepSleep)         (((deepSleep) == CY_CTB_DEEPSLEEP_DISABLE) || ((deepSleep) == CY_CTB_DEEPSLEEP_ENABLE))
 #define CY_CTB_OAPOWER(power)               ((power) <= CY_CTB_POWER_HIGH)
 #define CY_CTB_OAMODE(mode)                 (((mode) == CY_CTB_MODE_OPAMP1X) \
@@ -446,12 +457,12 @@ extern "C" {
                                             || ((select) == CY_CTB_SWITCH_OA1_SW) \
                                             || ((select) == CY_CTB_SWITCH_CTD_SW))
 #define CY_CTB_SWITCHSTATE(state)           (((state) == CY_CTB_SWITCH_OPEN) || ((state) == CY_CTB_SWITCH_CLOSE))
-#define CY_CTB_OA0SWITCH(mask)              (((mask) & (~CY_CTB_DEINIT_OA0_SW)) == 0uL)
-#define CY_CTB_OA1SWITCH(mask)              (((mask) & (~CY_CTB_DEINIT_OA1_SW)) == 0uL)
-#define CY_CTB_CTDSWITCH(mask)              (((mask) & (~CY_CTB_DEINIT_CTD_SW)) == 0uL)
-#define CY_CTB_SWITCHMASK(select,mask)      (((select) == CY_CTB_SWITCH_OA0_SW) ? (((mask) & (~CY_CTB_DEINIT_OA0_SW)) == 0uL) : \
-                                            (((select) == CY_CTB_SWITCH_OA1_SW) ? (((mask) & (~CY_CTB_DEINIT_OA1_SW)) == 0uL) : \
-                                            (((mask) & (~CY_CTB_DEINIT_CTD_SW)) == 0uL)))
+#define CY_CTB_OA0SWITCH(mask)              (((mask) & (~CY_CTB_DEINIT_OA0_SW)) == 0UL)
+#define CY_CTB_OA1SWITCH(mask)              (((mask) & (~CY_CTB_DEINIT_OA1_SW)) == 0UL)
+#define CY_CTB_CTDSWITCH(mask)              (((mask) & (~CY_CTB_DEINIT_CTD_SW)) == 0UL)
+#define CY_CTB_SWITCHMASK(select,mask)      (((select) == CY_CTB_SWITCH_OA0_SW) ? (((mask) & (~CY_CTB_DEINIT_OA0_SW)) == 0UL) : \
+                                            (((select) == CY_CTB_SWITCH_OA1_SW) ? (((mask) & (~CY_CTB_DEINIT_OA1_SW)) == 0UL) : \
+                                            (((mask) & (~CY_CTB_DEINIT_CTD_SW)) == 0UL)))
 #define CY_CTB_SARSEQCTRL(mask)             (((mask) == CY_CTB_SW_SEQ_CTRL_D51_MASK) \
                                             || ((mask) == CY_CTB_SW_SEQ_CTRL_D52_D62_MASK) \
                                             || ((mask) == CY_CTB_SW_SEQ_CTRL_D51_D52_D62_MASK))
@@ -475,7 +486,7 @@ extern "C" {
 * and interrupts will be disabled.
 */
 typedef enum{
-    CY_CTB_OPAMP_NONE    = 0uL,                                          /**< For disabling interrupts for both opamps. Used with \ref Cy_CTB_SetInterruptMask */
+    CY_CTB_OPAMP_NONE    = 0UL,                                          /**< For disabling interrupts for both opamps. Used with \ref Cy_CTB_SetInterruptMask */
     CY_CTB_OPAMP_0       = CTBM_INTR_COMP0_Msk,                        /**< For configuring Opamp0 */
     CY_CTB_OPAMP_1       = CTBM_INTR_COMP1_Msk,                        /**< For configuring Opamp1 */
     CY_CTB_OPAMP_BOTH    = CTBM_INTR_COMP0_Msk | CTBM_INTR_COMP1_Msk,  /**< For configuring both Opamp0 and Opamp1 */
@@ -484,7 +495,7 @@ typedef enum{
 /** Enable or disable CTB while in Deep Sleep mode.
 */
 typedef enum {
-    CY_CTB_DEEPSLEEP_DISABLE   = 0uL,                               /**< CTB is disabled during Deep Sleep power mode */
+    CY_CTB_DEEPSLEEP_DISABLE   = 0UL,                              /**< CTB is disabled during Deep Sleep power mode */
     CY_CTB_DEEPSLEEP_ENABLE    = CTBM_CTB_CTRL_DEEPSLEEP_ON_Msk,   /**< CTB remains enabled during Deep Sleep power mode */
 }cy_en_ctb_deep_sleep_t;
 
@@ -519,10 +530,10 @@ typedef enum {
 *
 */
 typedef enum {
-    CY_CTB_POWER_OFF       = 0uL,     /**< Opamp is off */
-    CY_CTB_POWER_LOW       = 1uL,     /**< Low power: IDD = 350 uA, GBW = 1 MHz for both 1x and 10x */
-    CY_CTB_POWER_MEDIUM    = 2uL,     /**< Medium power: IDD = 600 uA, GBW = 3 MHz for 1x and 2.5 MHz for 10x */
-    CY_CTB_POWER_HIGH      = 3uL,     /**< High power: IDD = 1500 uA, GBW = 8 MHz for 1x and 6 MHz for 10x */
+    CY_CTB_POWER_OFF       = 0UL,     /**< Opamp is off */
+    CY_CTB_POWER_LOW       = 1UL,     /**< Low power: IDD = 350 uA, GBW = 1 MHz for both 1x and 10x */
+    CY_CTB_POWER_MEDIUM    = 2UL,     /**< Medium power: IDD = 600 uA, GBW = 3 MHz for 1x and 2.5 MHz for 10x */
+    CY_CTB_POWER_HIGH      = 3UL,     /**< High power: IDD = 1500 uA, GBW = 8 MHz for 1x and 6 MHz for 10x */
 }cy_en_ctb_power_t;
 
 /**
@@ -530,9 +541,9 @@ typedef enum {
 * for high-drive strength (10X) to drive external circuits, or as a comparator.
 */
 typedef enum {
-    CY_CTB_MODE_OPAMP1X    = 0uL,                                               /**< Configure opamp for low drive strength for internal connections (1x) */
-    CY_CTB_MODE_OPAMP10X   = 1uL << CTBM_OA_RES0_CTRL_OA0_DRIVE_STR_SEL_Pos,    /**< Configure opamp high drive strength for driving a device pin (10x) */
-    CY_CTB_MODE_COMP       = 1uL << CTBM_OA_RES0_CTRL_OA0_COMP_EN_Pos,          /**< Configure opamp as a comparator */
+    CY_CTB_MODE_OPAMP1X    = 0UL,                                               /**< Configure opamp for low drive strength for internal connections (1x) */
+    CY_CTB_MODE_OPAMP10X   = 1UL << CTBM_OA_RES0_CTRL_OA0_DRIVE_STR_SEL_Pos,    /**< Configure opamp high drive strength for driving a device pin (10x) */
+    CY_CTB_MODE_COMP       = 1UL << CTBM_OA_RES0_CTRL_OA0_COMP_EN_Pos,          /**< Configure opamp as a comparator */
 }cy_en_ctb_mode_t;
 
 /**
@@ -556,7 +567,7 @@ typedef enum {
 * range is reduced.
 */
 typedef enum{
-    CY_CTB_PUMP_DISABLE   = 0uL,                                           /**< Charge pump is disabled for an input range of 0 to VDDA - 1.5 V */
+    CY_CTB_PUMP_DISABLE   = 0UL,                                           /**< Charge pump is disabled for an input range of 0 to VDDA - 1.5 V */
     CY_CTB_PUMP_ENABLE    = CTBM_OA_RES0_CTRL_OA0_PUMP_EN_Msk,            /**< Charge pump is enabled for an input range of 0 to VDDA */
 }cy_en_ctb_pump_t;
 
@@ -566,38 +577,38 @@ typedef enum{
 */
 typedef enum
 {
-    CY_CTB_COMP_EDGE_DISABLE       = 0uL,                                       /**< Disabled, no interrupts generated */
-    CY_CTB_COMP_EDGE_RISING        = 1uL << CTBM_OA_RES0_CTRL_OA0_COMPINT_Pos,  /**< Rising edge generates an interrupt */
-    CY_CTB_COMP_EDGE_FALLING       = 2uL << CTBM_OA_RES0_CTRL_OA0_COMPINT_Pos,  /**< Falling edge generates an interrupt */
-    CY_CTB_COMP_EDGE_BOTH          = 3uL << CTBM_OA_RES0_CTRL_OA0_COMPINT_Pos,  /**< Both edges generate an interrupt */
+    CY_CTB_COMP_EDGE_DISABLE       = 0UL,                                       /**< Disabled, no interrupts generated */
+    CY_CTB_COMP_EDGE_RISING        = 1UL << CTBM_OA_RES0_CTRL_OA0_COMPINT_Pos,  /**< Rising edge generates an interrupt */
+    CY_CTB_COMP_EDGE_FALLING       = 2UL << CTBM_OA_RES0_CTRL_OA0_COMPINT_Pos,  /**< Falling edge generates an interrupt */
+    CY_CTB_COMP_EDGE_BOTH          = 3UL << CTBM_OA_RES0_CTRL_OA0_COMPINT_Pos,  /**< Both edges generate an interrupt */
 }cy_en_ctb_comp_edge_t;
 
 /** Configure the comparator DSI trigger output level when output is synchronized. */
 typedef enum
 {
-    CY_CTB_COMP_DSI_TRIGGER_OUT_PULSE    = 0uL,                                        /**< Send pulse on DSI for each edge of comparator output */
+    CY_CTB_COMP_DSI_TRIGGER_OUT_PULSE    = 0UL,                                       /**< Send pulse on DSI for each edge of comparator output */
     CY_CTB_COMP_DSI_TRIGGER_OUT_LEVEL    = CTBM_OA_RES0_CTRL_OA0_DSI_LEVEL_Msk,       /**< DSI output is synchronized version of comparator output */
 }cy_en_ctb_comp_level_t;
 
 /** Bypass the comparator output synchronization for DSI trigger. */
 typedef enum
 {
-    CY_CTB_COMP_BYPASS_SYNC          = 0uL,                                          /**< Comparator output is synchronized for DSI trigger */
+    CY_CTB_COMP_BYPASS_SYNC          = 0UL,                                         /**< Comparator output is synchronized for DSI trigger */
     CY_CTB_COMP_BYPASS_NO_SYNC       = CTBM_OA_RES0_CTRL_OA0_BYPASS_DSI_SYNC_Msk,   /**< Comparator output is not synchronized for DSI trigger */
 }cy_en_ctb_comp_bypass_t;
 
 /** Disable or enable the 10 mV hysteresis for the comparator. */
 typedef enum
 {
-    CY_CTB_COMP_HYST_DISABLE      = 0uL,                                    /**< Disable hysteresis */
+    CY_CTB_COMP_HYST_DISABLE      = 0UL,                                   /**< Disable hysteresis */
     CY_CTB_COMP_HYST_10MV         = CTBM_OA_RES0_CTRL_OA0_HYST_EN_Msk,     /**< Enable the 10 mV hysteresis */
 }cy_en_ctb_comp_hyst_t;
 
 /** Switch state, either open or closed, to be used in \ref Cy_CTB_SetAnalogSwitch. */
 typedef enum
 {
-    CY_CTB_SWITCH_OPEN      = 0uL,    /**< Open the switch */
-    CY_CTB_SWITCH_CLOSE     = 1uL     /**< Close the switch */
+    CY_CTB_SWITCH_OPEN      = 0UL,    /**< Open the switch */
+    CY_CTB_SWITCH_CLOSE     = 1UL     /**< Close the switch */
 }cy_en_ctb_switch_state_t;
 
 /**
@@ -606,9 +617,9 @@ typedef enum
 * */
 typedef enum
 {
-    CY_CTB_SWITCH_OA0_SW     = 0uL,     /**< Switch register for Opamp0 */
-    CY_CTB_SWITCH_OA1_SW     = 1uL,     /**< Switch register for Opamp1 */
-    CY_CTB_SWITCH_CTD_SW     = 2uL,     /**< Switch register for CTDAC routing */
+    CY_CTB_SWITCH_OA0_SW     = 0UL,     /**< Switch register for Opamp0 */
+    CY_CTB_SWITCH_OA1_SW     = 1UL,     /**< Switch register for Opamp1 */
+    CY_CTB_SWITCH_CTD_SW     = 2UL,     /**< Switch register for CTDAC routing */
 }cy_en_ctb_switch_register_sel_t;
 
 /**
@@ -684,10 +695,10 @@ typedef enum
 */
 typedef enum
 {
-    CY_CTB_OPAMP_COMPENSATION_CAP_OFF      = 0uL,       /**< No compensation */
-    CY_CTB_OPAMP_COMPENSATION_CAP_MIN      = 1uL,       /**< Minimum compensation - for 1x drive*/
-    CY_CTB_OPAMP_COMPENSATION_CAP_MED      = 2uL,       /**< Medium compensation */
-    CY_CTB_OPAMP_COMPENSATION_CAP_MAX      = 3uL,       /**< Maximum compensation - for 10x drive */
+    CY_CTB_OPAMP_COMPENSATION_CAP_OFF      = 0UL,       /**< No compensation */
+    CY_CTB_OPAMP_COMPENSATION_CAP_MIN      = 1UL,       /**< Minimum compensation - for 1x drive*/
+    CY_CTB_OPAMP_COMPENSATION_CAP_MED      = 2UL,       /**< Medium compensation */
+    CY_CTB_OPAMP_COMPENSATION_CAP_MAX      = 3UL,       /**< Maximum compensation - for 10x drive */
 }cy_en_ctb_compensation_cap_t;
 
 /** Enable or disable the gain booster.
@@ -695,7 +706,7 @@ typedef enum
 */
 typedef enum
 {
-    CY_CTB_OPAMP_BOOST_DISABLE = 0uL,                                   /**< Disable gain booster - for 10x drive */
+    CY_CTB_OPAMP_BOOST_DISABLE = 0UL,                                   /**< Disable gain booster - for 10x drive */
     CY_CTB_OPAMP_BOOST_ENABLE  = CTBM_OA_RES0_CTRL_OA0_BOOST_EN_Msk,   /**< Enable gain booster - for 1x drive */
 }cy_en_ctb_boost_en_t;
 
@@ -710,11 +721,11 @@ typedef enum
 */
 typedef enum
 {
-    CY_CTB_SH_DISABLE           = 0uL,   /**< The hold capacitor is not connected - this disables sample and hold */
-    CY_CTB_SH_PREPARE_SAMPLE    = 1uL,   /**< Prepares the required switches for a following sample */
-    CY_CTB_SH_SAMPLE            = 2uL,   /**< Performs a sample of the voltage */
-    CY_CTB_SH_PREPARE_HOLD      = 3uL,   /**< Prepares the required switches for a following hold */
-    CY_CTB_SH_HOLD              = 4uL,   /**< Performs a hold of the previously sampled voltage */
+    CY_CTB_SH_DISABLE           = 0UL,   /**< The hold capacitor is not connected - this disables sample and hold */
+    CY_CTB_SH_PREPARE_SAMPLE    = 1UL,   /**< Prepares the required switches for a following sample */
+    CY_CTB_SH_SAMPLE            = 2UL,   /**< Performs a sample of the voltage */
+    CY_CTB_SH_PREPARE_HOLD      = 3UL,   /**< Prepares the required switches for a following hold */
+    CY_CTB_SH_HOLD              = 4UL,   /**< Performs a hold of the previously sampled voltage */
 }cy_en_ctb_sample_hold_mode_t;
 
 /** AREF IPTAT bias current output for the CTB
@@ -723,8 +734,8 @@ typedef enum
 */
 typedef enum
 {
-    CY_CTB_IPTAT_NORMAL       = 0uL,                                               /**< 1 uA bias current to the CTB */
-    CY_CTB_IPTAT_LOW          = 1uL << PASS_AREF_AREF_CTRL_CTB_IPTAT_SCALE_Pos,    /**< 100 nA bias current to the CTB */
+    CY_CTB_IPTAT_NORMAL       = 0UL,                                               /**< 1 uA bias current to the CTB */
+    CY_CTB_IPTAT_LOW          = 1UL << PASS_AREF_AREF_CTRL_CTB_IPTAT_SCALE_Pos,    /**< 100 nA bias current to the CTB */
 }cy_en_ctb_iptat_t;
 
 /** CTB charge pump clock sources
@@ -735,22 +746,23 @@ typedef enum
 */
 typedef enum
 {
-    CY_CTB_CLK_PUMP_SRSS       = 0uL,                                                   /**< Use the dedicated pump clock from SRSSp */
-    CY_CTB_CLK_PUMP_PERI       = 1uL << PASS_AREF_AREF_CTRL_CLOCK_PUMP_PERI_SEL_Pos,    /**< Use one of the CLK_PERI dividers */
+    CY_CTB_CLK_PUMP_SRSS       = 0UL,                                                   /**< Use the dedicated pump clock from SRSSp */
+    CY_CTB_CLK_PUMP_PERI       = 1UL << PASS_AREF_AREF_CTRL_CLOCK_PUMP_PERI_SEL_Pos,    /**< Use one of the CLK_PERI dividers */
+    CY_CTB_CLK_PUMP_DEEPSLEEP  = 1UL                                                    /**< Use the Deep Sleep Clock (\ref group_sysanalog_dpslp) - applicable for PASS_v2 only */
 }cy_en_ctb_clk_pump_source_t;
 
 /** High level opamp current modes */
 typedef enum
 {
-    CY_CTB_CURRENT_HIGH_ACTIVE             = 0uL,    /**< Uses 1 uA reference current with charge pump enabled. Available in Active and Low Power */
-    CY_CTB_CURRENT_HIGH_ACTIVE_DEEPSLEEP   = 1uL,    /**< Uses 1 uA reference current with charge pump disabled. Available in all power modes */
-    CY_CTB_CURRENT_LOW_ACTIVE_DEEPSLEEP    = 2uL,    /**< Uses 100 nA reference current with charge pump disabled. Available in all power modes */
+    CY_CTB_CURRENT_HIGH_ACTIVE             = 0UL,    /**< Uses 1 uA reference current with charge pump enabled. Available in Active and Low Power */
+    CY_CTB_CURRENT_HIGH_ACTIVE_DEEPSLEEP   = 1UL,    /**< Uses 1 uA reference current with charge pump disabled. Available in all power modes */
+    CY_CTB_CURRENT_LOW_ACTIVE_DEEPSLEEP    = 2UL,    /**< Uses 100 nA reference current with charge pump disabled. Available in all power modes */
 }cy_en_ctb_current_mode_t;
 
 /** Return states for \ref Cy_CTB_Init, \ref Cy_CTB_OpampInit, \ref Cy_CTB_DeInit, and \ref Cy_CTB_FastInit */
 typedef enum {
-    CY_CTB_SUCCESS    = 0x00uL,                                      /**< Initialization completed successfully */
-    CY_CTB_BAD_PARAM  = CY_CTB_ID | CY_PDL_STATUS_ERROR | 0x01uL,    /**< Input pointers were NULL and initialization could not be completed */
+    CY_CTB_SUCCESS    = 0x00UL,                                      /**< Initialization completed successfully */
+    CY_CTB_BAD_PARAM  = CY_CTB_ID | CY_PDL_STATUS_ERROR | 0x01UL,    /**< Input pointers were NULL and initialization could not be completed */
 }cy_en_ctb_status_t;
 
 /** \} group_ctb_enums */
@@ -858,7 +870,7 @@ typedef struct
 * \{
 */
 /***************************************
-*        Global Variables
+*      Predefined Configurations
 ***************************************/
 
 /** Configure Opamp0 as unused - powered down. See \ref Cy_CTB_FastInit. */
@@ -1023,8 +1035,8 @@ cy_en_ctb_status_t Cy_CTB_Init(CTBM_Type *base, const cy_stc_ctb_config_t *confi
 cy_en_ctb_status_t Cy_CTB_OpampInit(CTBM_Type *base, cy_en_ctb_opamp_sel_t opampNum, const cy_stc_ctb_opamp_config_t *config);
 cy_en_ctb_status_t Cy_CTB_DeInit(CTBM_Type *base, bool deInitRouting);
 cy_en_ctb_status_t Cy_CTB_FastInit(CTBM_Type *base, const cy_stc_ctb_fast_config_oa0_t *config0, const cy_stc_ctb_fast_config_oa1_t *config1);
-__STATIC_INLINE void Cy_CTB_Enable(CTBM_Type *base);
-__STATIC_INLINE void Cy_CTB_Disable(CTBM_Type *base);
+              void Cy_CTB_Enable(CTBM_Type *base);
+              void Cy_CTB_Disable(CTBM_Type *base);
 /** \} */
 
 /**
@@ -1104,50 +1116,9 @@ __STATIC_INLINE uint32_t Cy_CTB_GetInterruptStatusMasked(const CTBM_Type *base, 
 */
 void Cy_CTB_SetCurrentMode(CTBM_Type *base, cy_en_ctb_current_mode_t currentMode);
 __STATIC_INLINE void Cy_CTB_SetIptatLevel(cy_en_ctb_iptat_t iptat);
-__STATIC_INLINE void Cy_CTB_SetClkPumpSource(cy_en_ctb_clk_pump_source_t clkPump);
+__STATIC_INLINE void Cy_CTB_SetPumpClkSource(PASS_Type * base, cy_en_ctb_clk_pump_source_t pumpClk);
 __STATIC_INLINE void Cy_CTB_EnableRedirect(void);
 __STATIC_INLINE void Cy_CTB_DisableRedirect(void);
-/** \} */
-
-/**
-* \addtogroup group_ctb_functions_init
-* \{
-*/
-
-/*******************************************************************************
-* Function Name: Cy_CTB_Enable
-****************************************************************************//**
-*
-* Power up the CTB hardware block.
-*
-* \param base
-* Pointer to structure describing registers
-*
-* \return None
-*
-*******************************************************************************/
-__STATIC_INLINE void Cy_CTB_Enable(CTBM_Type *base)
-{
-    CTBM_CTB_CTRL(base) |= CTBM_CTB_CTRL_ENABLED_Msk;
-}
-
-/*******************************************************************************
-* Function Name: Cy_CTB_Disable
-****************************************************************************//**
-*
-* Power down the CTB hardware block.
-*
-* \param base
-* Pointer to structure describing registers
-*
-* \return None
-*
-*******************************************************************************/
-__STATIC_INLINE void Cy_CTB_Disable(CTBM_Type *base)
-{
-    CTBM_CTB_CTRL(base) &= (~CTBM_CTB_CTRL_ENABLED_Msk);
-}
-
 /** \} */
 
 /**
@@ -1453,47 +1424,82 @@ __STATIC_INLINE void Cy_CTB_SetIptatLevel(cy_en_ctb_iptat_t iptat)
 }
 
 /*******************************************************************************
-* Function Name: Cy_CTB_SetClkPumpSource
+* Function Name: Cy_CTB_SetPumpClkSource
 ****************************************************************************//**
 *
 * Set the clock source for both charge pumps in the CTB. Recall that each opamp
 * has its own charge pump. The clock can come from:
 *
-*   - A dedicated divider off of one of the CLK_PATH in the SRSS.
+*   - \ref CY_CTB_CLK_PUMP_SRSS - a dedicated clock pump divider \ref group_sysclk_clk_pump.
 *     Call the following functions to configure the pump clock from the SRSS:
 *       - \ref Cy_SysClk_ClkPumpSetSource
 *       - \ref Cy_SysClk_ClkPumpDisable
 *       - \ref Cy_SysClk_ClkPumpSetDivider
 *       - \ref Cy_SysClk_ClkPumpEnable
-*   - One of the Peri Clock dividers.
+*   - \ref CY_CTB_CLK_PUMP_PERI - one of the peripheral clock dividers \ref group_sysclk_clk_peripheral.
 *     Call the following functions to configure a Peri Clock divider as the
 *     pump clock:
 *       - \ref Cy_SysClk_PeriphDisableDivider
 *       - \ref Cy_SysClk_PeriphAssignDivider with the IP block set to PCLK_PASS_CLOCK_PUMP_PERI
 *       - \ref Cy_SysClk_PeriphSetDivider
 *       - \ref Cy_SysClk_PeriphEnableDivider
+*   - \ref CY_CTB_CLK_PUMP_DEEPSLEEP - a PASS_v2 deep sleep clock source \ref group_sysanalog_dpslp.
+*     Call the following functions to configure the Deep Sleep Clock Source:
+*       - \ref Cy_SysAnalog_Init with proper Deep Sleep Clock source and divider settings
+*       and either:
+*       - \ref Cy_SysAnalog_LpOscEnable
+*       or:
+*       - \ref Cy_SysClk_MfoEnable
+*       - \ref Cy_SysClk_ClkMfSetDivider (if needed)
+*       - \ref Cy_SysClk_ClkMfEnable
 *
-* \param clkPump
-* Clock source selection (SRSS or PeriClk) for the pump. Select a value from
-* \ref cy_en_ctb_clk_pump_source_t
+* \param base Pointer to the PASS register structure.
+*
+* \param pumpClk
+* Clock source selection (PumpClk, PeriClk or Deep Sleep Clock) for the pump.
+* Select a value from \ref cy_en_ctb_clk_pump_source_t
 *
 * \return None
 *
 * \funcusage
-*
 * \snippet ctb/snippet/main.c CTB_SNIPPET_SET_CLK_PUMP_SOURCE_SRSS
-*
-* \funcusage
-*
 * \snippet ctb/snippet/main.c CTB_SNIPPET_SET_CLK_PUMP_SOURCE_PERI
+* \snippet ctb/snippet/main.c CTB_SNIPPET_SET_CLK_PUMP_SOURCE_DSCLK
 *
+*******************************************************************************/
+__STATIC_INLINE void Cy_CTB_SetPumpClkSource(PASS_Type * base, cy_en_ctb_clk_pump_source_t pumpClk)
+{
+    CY_ASSERT_L3(CY_CTB_CLKPUMP(pumpClk));
+
+    if (CY_CTB_CLK_PUMP_DEEPSLEEP == pumpClk)
+    {
+        if (!CY_PASS_V1)
+        {
+            CY_REG32_CLR_SET(PASS_CTBM_CLOCK_SEL(base), PASS_V2_CTBM_CLOCK_SEL_PUMP_CLOCK_SEL, pumpClk);
+        }
+        else
+        {
+            CY_ASSERT_L1(false); /* The CY_CTB_CLK_PUMP_DEEPSLEEP value is not applicable for PASS6Av1 */
+        }
+    }
+    else
+    {
+        CY_REG32_CLR_SET(PASS_AREF_AREF_CTRL, PASS_AREF_AREF_CTRL_CLOCK_PUMP_PERI_SEL, (CY_CTB_CLK_PUMP_PERI == pumpClk) ? 1UL : 0UL);
+    }
+}
+
+/** \cond **********************************************************************
+* Deprecated legacy function - do not use for new designs.
+* Use Cy_CTB_SetPumpClkSource instead.
 *******************************************************************************/
 __STATIC_INLINE void Cy_CTB_SetClkPumpSource(cy_en_ctb_clk_pump_source_t clkPump)
 {
-    CY_ASSERT_L3(CY_CTB_CLKPUMP(clkPump));
-
-    PASS_AREF_AREF_CTRL = (PASS_AREF_AREF_CTRL & ~PASS_AREF_AREF_CTRL_CLOCK_PUMP_PERI_SEL_Msk) | (uint32_t) clkPump;
-}
+    if (CY_PASS_V1)
+    {
+        CY_ASSERT_L1(CY_CTB_CLK_PUMP_DEEPSLEEP != clkPump);
+        CY_REG32_CLR_SET(PASS_AREF_AREF_CTRL, PASS_AREF_AREF_CTRL_CLOCK_PUMP_PERI_SEL, (CY_CTB_CLK_PUMP_PERI == clkPump) ? 1UL : 0UL);
+    }
+} /** \endcond */
 
 /*******************************************************************************
 * Function Name: Cy_CTB_EnableRedirect
@@ -1548,6 +1554,7 @@ __STATIC_INLINE void Cy_CTB_DisableRedirect(void)
 /** \} */
 
 /** \} group_ctb_functions */
+CY_MISRA_BLOCK_END('MISRA C-2012 Rule 11.3');
 
 #if defined(__cplusplus)
 }

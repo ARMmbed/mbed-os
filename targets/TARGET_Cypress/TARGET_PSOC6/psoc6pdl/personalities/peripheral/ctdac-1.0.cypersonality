@@ -28,7 +28,7 @@
 
 <Personality id="mxs40pass_ctdac" name="CTDAC" version="1.0" path="Analog/DAC" xmlns="http://cypress.com/xsd/cyhwpersonality_v1">
   <Dependencies>
-    <IpBlock name="mxs40pass" />
+    <IpBlock name="mxs40pass,mxs40pass_ver2" />
     <Resource name="pass\.ctdac" used="true" />
   </Dependencies>
   <ExposedMembers />
@@ -147,7 +147,7 @@
 
   <ConfigFirmware>
       <ConfigInclude value="cy_ctdac.h" include="true" />
-      <ConfigInclude value="cy_sysclk.h" include="`${pclkOk}`" />
+      <ConfigInclude value="cy_sysclk.h" include="true" />
       <ConfigInclude value="cyhal_hwmgr.h" include="true" guard="defined (CY_USING_HAL)" />
 
       <ConfigDefine name="`${INST_NAME}`_HW" value="CTDAC`${ctdac_instance}`" public="true" include="true" />
@@ -165,11 +165,11 @@
         <Member name="nextValue" value="`${initial_code}`"/>
         <Member name="enableInterrupt" value="true"/>
         <Member name="configClock" value="false"/>
-        <Member name="dividerType" value="0"/>
+        <Member name="dividerType" value="CY_SYSCLK_DIV_8_BIT"/>
         <Member name="dividerNum" value="0"/>
         <Member name="dividerIntValue" value="0"/>
         <Member name="dividerFracValue" value="0"/>
-      </ConfigStruct> 
+      </ConfigStruct>
 
       <ConfigStruct name="`${INST_NAME}`_obj" type="cyhal_resource_inst_t" const="true" public="true" include="true" guard="defined (CY_USING_HAL)">
         <Member name="type" value="CYHAL_RSC_DAC" />

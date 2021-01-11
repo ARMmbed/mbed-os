@@ -6619,6 +6619,10 @@
             "BLE"
         ],
         "components_add": [
+            "CAT1A",
+            "CAT1",
+            "PSOC6HAL",
+            "PSOC6",
             "WHD",
             "4343W",
             "CYW43XXX"
@@ -6660,6 +6664,10 @@
             "BLE"
         ],
         "components_add": [
+            "CAT1A",
+            "CAT1",
+            "PSOC6HAL",
+            "PSOC6",
             "WHD",
             "43012",
             "CYW43XXX"
@@ -6697,6 +6705,10 @@
             "BLE"
         ],
         "components_add": [
+            "CAT1A",
+            "CAT1",
+            "PSOC6HAL",
+            "PSOC6",
             "WHD",
             "4343W",
             "CYW43XXX"
@@ -6737,6 +6749,10 @@
             "BLE"
         ],
         "components_add": [
+            "CAT1A",
+            "CAT1",
+            "PSOC6HAL",
+            "PSOC6",
             "WHD",
             "4343W",
             "CYW43XXX",
@@ -6790,6 +6806,12 @@
         "macros_add": [
             "CY8C6347BZI_BLD53"
         ],
+        "components_add": [
+            "CAT1A",
+            "CAT1",
+            "PSOC6HAL",
+            "PSOC6"
+        ],
         "device_name": "CY8C6347BZI-BLD53",
         "mbed_ram_start": "0x08002000",
         "mbed_ram_size": "0x00045800",
@@ -6815,6 +6837,10 @@
             "ARDUINO"
         ],
         "components_add": [
+            "CAT1A",
+            "CAT1",
+            "PSOC6HAL",
+            "PSOC6",
             "WHD",
             "43438",
             "CYW43XXX",
@@ -6859,6 +6885,10 @@
             "ARDUINO"
         ],
         "components_add": [
+            "CAT1A",
+            "CAT1",
+            "PSOC6HAL",
+            "PSOC6",
             "WHD",
             "43012",
             "CYW43XXX",
@@ -6902,6 +6932,10 @@
             "BLE"
         ],
         "components_add": [
+            "CAT1A",
+            "CAT1",
+            "PSOC6HAL",
+            "PSOC6",
             "WHD",
             "4343W",
             "CYW43XXX",
@@ -6918,7 +6952,8 @@
         "extra_labels_add": [
             "PSOC6_02",
             "MXCRYPTO_02",
-            "CORDIO"
+            "CORDIO",
+            "CY8CKIT_064B0S2_4343W"
         ],
         "macros_add": [
             "CYB0644ABZI_S2D44",
@@ -6955,6 +6990,10 @@
             "PSA"
         ],
         "components_add": [
+            "CAT1A",
+            "CAT1",
+            "PSOC6HAL",
+            "PSOC6",
             "WHD",
             "4343W",
             "CYW43XXX",
@@ -7014,6 +7053,10 @@
             "MCU_PSOC6_M4"
         ],
         "components_add": [
+            "CAT1A",
+            "CAT1",
+            "PSOC6HAL",
+            "PSOC6",
             "SCL",
             "43012",
             "CYW43XXX"

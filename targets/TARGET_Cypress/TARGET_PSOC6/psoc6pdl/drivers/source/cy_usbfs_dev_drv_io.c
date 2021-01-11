@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_usbfs_dev_drv_io.c
-* \version 2.20.1
+* \version 2.20.2
 *
 * Provides data transfer API implementation of the USBFS driver.
 *
@@ -256,12 +256,6 @@ cy_en_usbfs_dev_drv_status_t GetEndpointBuffer(uint32_t size, uint32_t *idx, cy_
 *
 * \param endpointData
 * The pointer to the endpoint data structure.
-*
-* \param context
-* The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device
-* operation for internal configuration and data retention. The user must not
-* modify anything in this structure.
 *
 *******************************************************************************/
 void RestoreEndpointHwBuffer(USBFS_Type *base,
@@ -594,6 +588,7 @@ cy_en_usbfs_dev_drv_status_t LoadInEndpointCpu(USBFS_Type   *base,
         if (context->useReg16)
         {
             /* Get pointer to the buffer */
+            CY_MISRA_DEVIATE_LINE('MISRA C-2012 Rule 11.3', 'Cast buffer parameter is safe. User must use special macro to allocate buffer, which handles alignment issues.');
             uint16_t const *ptr = (uint16_t const *) buffer;
 
             /* Get number of writes into the 16-bit register */
@@ -693,6 +688,7 @@ cy_en_usbfs_dev_drv_status_t ReadOutEndpointCpu(USBFS_Type *base,
     if (context->useReg16)
     {
         /* Get pointer to the buffer */
+        CY_MISRA_DEVIATE_LINE('MISRA C-2012 Rule 11.3', 'Cast buffer parameter is safe. User must use special macro to xallocate buffer, which handles alignment issues.');
         uint16_t *ptr = (uint16_t *) buffer;
 
         /* Get number of reads from 16-bit register */
@@ -880,6 +876,7 @@ cy_en_usbfs_dev_drv_status_t Cy_USBFS_Dev_Drv_Abort(USBFS_Type *base,
             break;
 
             default:
+                /* Unknown mode */
                 break;
         }
     }

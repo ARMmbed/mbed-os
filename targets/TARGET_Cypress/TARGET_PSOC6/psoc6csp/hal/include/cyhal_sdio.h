@@ -113,9 +113,10 @@ extern "C" {
 
 /* HAL return value defines */
 
-/** \addtogroup group_hal_results
+/** \addtogroup group_hal_results_sdio SDIO HAL Results
+ *  SDIO specific return codes
+ *  \ingroup group_hal_results
  *  \{ *//**
- *  \{ @name SDIO Results
  */
 
 /** Incorrect parameter value define */
@@ -138,7 +139,7 @@ extern "C" {
     (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SDIO, CYHAL_SDIO_PM_PENDING_ERROR))
 
 /**
- * \} \}
+ * \}
  */
 
 

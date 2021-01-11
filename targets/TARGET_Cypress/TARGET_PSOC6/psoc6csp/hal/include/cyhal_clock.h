@@ -111,9 +111,7 @@
 * \snippet clock.c snippet_cyhal_clock_change_source
 *
 * \subsection subsection_clock_snippet_5 Snippet 5: System initialization
-* The following snippet shows the clock driver can be used to initialize all clocks in the system.
-* \note This example is device specific.
-* \snippet clock.c snippet_cyhal_clock_system_init
+* \note This example is device specific. See \ref subsection_clock_snippet_5_impl for specific implementation.
 *
 */
 
@@ -129,9 +127,10 @@ extern "C"
 {
 #endif
 
-/** \addtogroup group_hal_results
+/** \addtogroup group_hal_results_clock Clock HAL Results
+ *  Clock specific return codes
+ *  \ingroup group_hal_results
  *  \{ *//**
- *  \{ @name Clock Results
  */
 
 
@@ -147,6 +146,25 @@ extern "C"
 /** The specified resource is not valid. */
 #define CYHAL_CLOCK_RSLT_ERR_RESOURCE           \
     (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_CLOCK, 3))
+/** The clock did not lock after being enabled. */
+#define CYHAL_CLOCK_RSLT_ERR_LOCK               \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_CLOCK, 4))
+
+/**
+ * \}
+ */
+
+/** \addtogroup group_hal_tolerance
+ *  \{ *//**
+ *  \{ @name Clock Tolerance
+ */
+
+/** Clock tolerance 0 percent */
+extern const cyhal_clock_tolerance_t CYHAL_CLOCK_TOLERANCE_0_P;
+/** Clock tolerance 1 percent */
+extern const cyhal_clock_tolerance_t CYHAL_CLOCK_TOLERANCE_1_P;
+/** Clock tolerance 5 percent */
+extern const cyhal_clock_tolerance_t CYHAL_CLOCK_TOLERANCE_5_P;
 
 /**
  * \} \}

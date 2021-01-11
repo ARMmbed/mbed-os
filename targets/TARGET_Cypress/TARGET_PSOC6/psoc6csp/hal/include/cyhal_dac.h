@@ -70,9 +70,10 @@
 extern "C" {
 #endif
 
-/** \addtogroup group_hal_results
+/** \addtogroup group_hal_results_dac DAC HAL Results
+ *  DAC specific return codes
+ *  \ingroup group_hal_results
  *  \{ *//**
- *  \{ @name DAC Results
  */
 
 /** Bad argument */
@@ -81,14 +82,27 @@ extern "C" {
 /** Failed to initialize DAC */
 #define CYHAL_DAC_RSLT_FAILED_INIT                      \
     (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_DAC, 1))
+/** Reference voltage is not set */
+#define CYHAL_DAC_RSLT_BAD_REF_VOLTAGE                  \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_DAC, 2))
+/** Bad OPAMP instance is selected */
+#define CYHAL_DAC_RSLT_BAD_OPAMP_INSTANCE               \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_DAC, 1))
 
 /**
- * \} \}
+ * \}
  */
+
+/** Reference choices for the DAC */
+typedef enum
+{
+    CYHAL_DAC_REF_VDDA, //!< Analog supply (default)
+    CYHAL_DAC_REF_VREF //!< Internal reference. See the BSP documentation for the reference value.
+} cyhal_dac_ref_t;
 
 /** Initialize the DAC peripheral
  *
- * Configures the pin used by dac.
+ * By default, the reference will be set to @ref CYHAL_DAC_REF_VDDA.
  *
  * @param[out] obj  Pointer to a DAC object. The caller must allocate the memory
  *  for this object but the init function will initialize its contents.
@@ -106,14 +120,39 @@ cy_rslt_t cyhal_dac_init(cyhal_dac_t *obj, cyhal_gpio_t pin);
  */
 void cyhal_dac_free(cyhal_dac_t *obj);
 
+/** Set the DAC voltage reference. This determines the highest value that the DAC can output.
+  *
+  * @param obj The DAC object
+  * @param ref The selected voltage reference.
+  * @return The status of the reference selection request
+  */
+cy_rslt_t cyhal_dac_set_reference(cyhal_dac_t *obj, cyhal_dac_ref_t ref);
+
 /** Set the output voltage, as a normalized unsigned 16-bit value
  * (where 0 is the lowest value the DAC can output and 0xFFFF
  * is the highest)
+ *
+ * @note While the input value is 16 bits, the actual resolution that can be achieved
+ * is dependent on what the underlying hardware supports. See the device datasheet for details.
  *
  * @param[in] obj        The dac object
  * @param[in] value The 16-bit output value to set
  */
 void cyhal_dac_write(const cyhal_dac_t *obj, uint16_t value);
+
+/** Set the output voltage, as an unsigned number of millivolts.
+ *
+ * @note Depending on the resolution of the underlying hardware, it may not
+ * be possible to achieve the precise voltage requested. See the device datasheet
+ * for more details about the DAC resolution.
+ *
+ * It is an error to specify a value that is outside of the DAC's operating range.
+ *
+ * @param[in] obj        The dac object
+ * @param[in] value The number of millivolts to output set.
+ * @return The status of the write request.
+ */
+cy_rslt_t cyhal_dac_write_mv(const cyhal_dac_t *obj, uint16_t value);
 
 /** Read the current DAC output voltage setting, as a normalized unsigned
  * 16-bit value (where 0 is the lowest value the DAC can output and 0xFFFF
@@ -125,6 +164,18 @@ void cyhal_dac_write(const cyhal_dac_t *obj, uint16_t value);
  * @return The 16-bit output value
  */
 uint16_t cyhal_dac_read(cyhal_dac_t *obj);
+
+/** Changes the current operating power level of the DAC.
+ *
+ * If the power level is set to @ref CYHAL_POWER_LEVEL_OFF, the DAC will be powered-off
+ * but it will retain its configuration, so it is not necessary to reconfigure it when changing
+ * the power level from @ref CYHAL_POWER_LEVEL_OFF to any other value.
+ *
+ * @param[in] obj   dac object
+ * @param[in] power The power level to set
+ * @return The status of the set power request
+ */
+cy_rslt_t cyhal_dac_set_power(cyhal_dac_t *obj, cyhal_power_level_t power);
 
 #if defined(__cplusplus)
 }

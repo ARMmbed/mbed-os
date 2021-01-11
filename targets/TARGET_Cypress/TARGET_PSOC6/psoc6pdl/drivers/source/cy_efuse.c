@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_efuse.c
-* \version 1.10.3
+* \version 1.10.4
 *
 * \brief
 * Provides API implementation of the eFuse driver.
@@ -202,8 +202,6 @@ uint32_t Cy_EFUSE_GetExternalStatus(void)
 * Converts System Call returns to the eFuse driver return defines. If
 * an unknown error was returned, the error code can be accessed via the
 * Cy_EFUSE_GetExternalStatus() function.
-*
-* \param opcode The value returned by a System Call.
 *
 * \return
 * \ref cy_en_efuse_status_t

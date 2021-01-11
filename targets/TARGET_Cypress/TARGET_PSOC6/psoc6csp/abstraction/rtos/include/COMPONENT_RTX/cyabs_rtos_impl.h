@@ -66,7 +66,7 @@ typedef osSemaphoreId_t cy_semaphore_t;                /** CMSIS definition of a
 typedef osEventFlagsId_t cy_event_t;                   /** CMSIS definition of an event */
 typedef osMessageQueueId_t cy_queue_t;                 /** CMSIS definition of a message queue */
 typedef osTimerId_t cy_timer_t;                        /** CMSIS definition of a timer */
-typedef uint32_t cy_timer_callback_arg_t;              /** Argument passed to the timer callback function */
+typedef void * cy_timer_callback_arg_t;                /** Argument passed to the timer callback function */
 typedef uint32_t cy_time_t;                            /** Time in milliseconds */
 typedef osStatus_t cy_rtos_error_t;                    /** CMSIS definition of a error status */
 

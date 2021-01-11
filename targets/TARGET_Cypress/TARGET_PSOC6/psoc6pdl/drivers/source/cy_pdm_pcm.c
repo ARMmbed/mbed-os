@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_pdm_pcm.c
-* \version 2.20.2
+* \version 2.30
 *
 * The source code file for the PDM_PCM driver.
 *
@@ -84,7 +84,7 @@ cy_en_pdm_pcm_status_t Cy_PDM_PCM_Init(PDM_Type * base, cy_stc_pdm_pcm_config_t 
                             _VAL2FLD(PDM_CTL_PGA_L,                         config->gainLeft) |
                             _VAL2FLD(PDM_CTL_STEP_SEL,                      config->softMuteFineGain) |
                             _BOOL2FLD(PDM_CTL_SOFT_MUTE,                    config->softMuteEnable) |
-                            _BOOL2FLD(PDM_CTL_ENABLED,                      true);
+                            PDM_CTL_ENABLED_Msk;
 
         PDM_PCM_MODE_CTL(base) = _VAL2FLD(PDM_MODE_CTL_PCM_CH_SET,          config->chanSelect) |
                                  _BOOL2FLD(PDM_MODE_CTL_SWAP_LR,            config->chanSwapEnable) |
@@ -183,11 +183,11 @@ cy_en_pdm_pcm_gain_t Cy_PDM_PCM_GetGain(PDM_Type const * base, cy_en_pdm_pcm_cha
 
     if (chan == CY_PDM_PCM_CHAN_LEFT)
     {
-        ret = (cy_en_pdm_pcm_gain_t) (_FLD2VAL(PDM_CTL_PGA_L, PDM_PCM_CTL(base)));
+        ret = (cy_en_pdm_pcm_gain_t) ((uint32_t)_FLD2VAL(PDM_CTL_PGA_L, PDM_PCM_CTL(base)));
     }
     else
     {
-        ret = (cy_en_pdm_pcm_gain_t) (_FLD2VAL(PDM_CTL_PGA_R, PDM_PCM_CTL(base)));
+        ret = (cy_en_pdm_pcm_gain_t) ((uint32_t)_FLD2VAL(PDM_CTL_PGA_R, PDM_PCM_CTL(base)));
     }
 
     return (ret);
@@ -212,7 +212,7 @@ cy_en_pdm_pcm_gain_t Cy_PDM_PCM_GetGain(PDM_Type const * base, cy_en_pdm_pcm_cha
 * syspm return status, see \ref cy_en_syspm_status_t
 *
 *******************************************************************************/
-cy_en_syspm_status_t Cy_PDM_PCM_DeepSleepCallback(cy_stc_syspm_callback_params_t * callbackParams, cy_en_syspm_callback_mode_t mode)
+cy_en_syspm_status_t Cy_PDM_PCM_DeepSleepCallback(cy_stc_syspm_callback_params_t const * callbackParams, cy_en_syspm_callback_mode_t mode)
 {
     cy_en_syspm_status_t ret = CY_SYSPM_SUCCESS;
 

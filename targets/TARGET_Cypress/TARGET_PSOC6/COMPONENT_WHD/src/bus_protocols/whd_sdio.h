@@ -28,14 +28,14 @@ extern "C" {
 /* CurrentSdiodProgGuide r23 */
 
 /* Base registers */
-#define SDIO_CORE                    ( (uint32_t)(SDIO_BASE_ADDRESS + 0x00) )
-#define SDIO_INT_STATUS              ( (uint32_t)(SDIO_BASE_ADDRESS + 0x20) )
-#define SDIO_TO_SB_MAILBOX           ( (uint32_t)(SDIO_BASE_ADDRESS + 0x40) )
-#define SDIO_TO_SB_MAILBOX_DATA      ( (uint32_t)(SDIO_BASE_ADDRESS + 0x48) )
-#define SDIO_TO_HOST_MAILBOX_DATA    ( (uint32_t)(SDIO_BASE_ADDRESS + 0x4C) )
-#define SDIO_TO_SB_MAIL_BOX          ( (uint32_t)(SDIO_BASE_ADDRESS + 0x40) )
-#define SDIO_INT_HOST_MASK           ( (uint32_t)(SDIO_BASE_ADDRESS + 0x24) )
-#define SDIO_FUNCTION_INT_MASK       ( (uint32_t)(SDIO_BASE_ADDRESS + 0x34) )
+#define SDIO_CORE(wd)                    ( (uint32_t)(GET_C_VAR(wd, SDIOD_CORE_BASE_ADDRESS) + 0x00) )
+#define SDIO_INT_STATUS(wd)              ( (uint32_t)(GET_C_VAR(wd, SDIOD_CORE_BASE_ADDRESS) + 0x20) )
+#define SDIO_TO_SB_MAILBOX(wd)           ( (uint32_t)(GET_C_VAR(wd, SDIOD_CORE_BASE_ADDRESS) + 0x40) )
+#define SDIO_TO_SB_MAILBOX_DATA(wd)      ( (uint32_t)(GET_C_VAR(wd, SDIOD_CORE_BASE_ADDRESS) + 0x48) )
+#define SDIO_TO_HOST_MAILBOX_DATA(wd)    ( (uint32_t)(GET_C_VAR(wd, SDIOD_CORE_BASE_ADDRESS) + 0x4C) )
+#define SDIO_TO_SB_MAIL_BOX(wd)          ( (uint32_t)(GET_C_VAR(wd, SDIOD_CORE_BASE_ADDRESS) + 0x40) )
+#define SDIO_INT_HOST_MASK(wd)           ( (uint32_t)(GET_C_VAR(wd, SDIOD_CORE_BASE_ADDRESS) + 0x24) )
+#define SDIO_FUNCTION_INT_MASK(wd)       ( (uint32_t)(GET_C_VAR(wd, SDIOD_CORE_BASE_ADDRESS) + 0x34) )
 
 /* SDIO Function 0 (SDIO Bus) register addresses */
 

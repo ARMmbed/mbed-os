@@ -208,7 +208,7 @@ void whd_bus_sdio_detach(whd_driver_t whd_driver)
 
 whd_result_t whd_bus_sdio_ack_interrupt(whd_driver_t whd_driver, uint32_t intstatus)
 {
-    return whd_bus_write_backplane_value(whd_driver, (uint32_t)SDIO_INT_STATUS, (uint8_t)4, intstatus);
+    return whd_bus_write_backplane_value(whd_driver, (uint32_t)SDIO_INT_STATUS(whd_driver), (uint8_t)4, intstatus);
 }
 
 whd_result_t whd_bus_sdio_wait_for_wlan_event(whd_driver_t whd_driver, cy_semaphore_t *transceive_semaphore)
@@ -507,7 +507,7 @@ whd_bool_t whd_bus_sdio_wake_interrupt_present(whd_driver_t whd_driver)
     if (WHD_SUCCESS != whd_ensure_wlan_bus_is_up(whd_driver) )
         return WHD_FALSE;
 
-    if (whd_bus_read_backplane_value(whd_driver, (uint32_t)SDIO_INT_STATUS, (uint8_t)4,
+    if (whd_bus_read_backplane_value(whd_driver, (uint32_t)SDIO_INT_STATUS(whd_driver), (uint8_t)4,
                                      (uint8_t *)&int_status) != WHD_SUCCESS)
     {
         WPRINT_WHD_ERROR( ("%s: Error reading interrupt status\n", __FUNCTION__) );
@@ -516,13 +516,13 @@ whd_bool_t whd_bus_sdio_wake_interrupt_present(whd_driver_t whd_driver)
     if ( (I_HMB_HOST_INT & int_status) != 0 )
     {
         /* Clear any interrupts */
-        if (whd_bus_write_backplane_value(whd_driver, (uint32_t)SDIO_INT_STATUS, (uint8_t)4,
+        if (whd_bus_write_backplane_value(whd_driver, (uint32_t)SDIO_INT_STATUS(whd_driver), (uint8_t)4,
                                           I_HMB_HOST_INT) != WHD_SUCCESS)
         {
             WPRINT_WHD_ERROR( ("%s: Error clearing interrupts\n", __FUNCTION__) );
             goto exit;
         }
-        if (whd_bus_read_backplane_value(whd_driver, (uint32_t)SDIO_INT_STATUS, (uint8_t)4,
+        if (whd_bus_read_backplane_value(whd_driver, (uint32_t)SDIO_INT_STATUS(whd_driver), (uint8_t)4,
                                          (uint8_t *)&int_status) != WHD_SUCCESS)
         {
             WPRINT_WHD_ERROR( ("%s: Error reading interrupt status\n", __FUNCTION__) );
@@ -544,7 +544,7 @@ uint32_t whd_bus_sdio_packet_available_to_read(whd_driver_t whd_driver)
     CHECK_RETURN(whd_ensure_wlan_bus_is_up(whd_driver) );
 
     /* Read the IntStatus */
-    if (whd_bus_read_backplane_value(whd_driver, (uint32_t)SDIO_INT_STATUS, (uint8_t)4,
+    if (whd_bus_read_backplane_value(whd_driver, (uint32_t)SDIO_INT_STATUS(whd_driver), (uint8_t)4,
                                      (uint8_t *)&int_status) != WHD_SUCCESS)
     {
         WPRINT_WHD_ERROR( ("%s: Error reading interrupt status\n", __FUNCTION__) );
@@ -555,7 +555,7 @@ uint32_t whd_bus_sdio_packet_available_to_read(whd_driver_t whd_driver)
     if ( (HOSTINTMASK & int_status) != 0 )
     {
         /* Clear any interrupts */
-        if (whd_bus_write_backplane_value(whd_driver, (uint32_t)SDIO_INT_STATUS, (uint8_t)4,
+        if (whd_bus_write_backplane_value(whd_driver, (uint32_t)SDIO_INT_STATUS(whd_driver), (uint8_t)4,
                                           int_status & HOSTINTMASK) != WHD_SUCCESS)
         {
             WPRINT_WHD_ERROR( ("%s: Error clearing interrupts\n", __FUNCTION__) );
@@ -903,7 +903,6 @@ static whd_result_t whd_bus_sdio_download_firmware(whd_driver_t whd_driver)
     uint32_t ram_start_address;
 
     ram_start_address = GET_C_VAR(whd_driver, ATCM_RAM_BASE_ADDRESS);
-
     if (ram_start_address != 0)
     {
         CHECK_RETURN(whd_reset_core(whd_driver, WLAN_ARM_CORE, SICF_CPUHALT, SICF_CPUHALT) );
@@ -988,10 +987,10 @@ static whd_result_t whd_bus_sdio_download_firmware(whd_driver_t whd_driver)
     }
 
     /* Set up the interrupt mask and enable interrupts */
-    CHECK_RETURN(whd_bus_write_backplane_value(whd_driver, SDIO_INT_HOST_MASK, (uint8_t)4, HOSTINTMASK) );
+    CHECK_RETURN(whd_bus_write_backplane_value(whd_driver, SDIO_INT_HOST_MASK(whd_driver), (uint8_t)4, HOSTINTMASK) );
 
     /* Enable F2 interrupts. This wasn't required for 4319 but is for the 43362 */
-    CHECK_RETURN(whd_bus_write_backplane_value(whd_driver, SDIO_FUNCTION_INT_MASK, (uint8_t)1,
+    CHECK_RETURN(whd_bus_write_backplane_value(whd_driver, SDIO_FUNCTION_INT_MASK(whd_driver), (uint8_t)1,
                                                SDIO_FUNC_MASK_F1 | SDIO_FUNC_MASK_F2) );
 
     /* Lower F2 Watermark to avoid DMA Hang in F2 when SD Clock is stopped. */
@@ -1036,7 +1035,8 @@ static whd_result_t whd_bus_sdio_abort_read(whd_driver_t whd_driver, whd_bool_t 
     /* If we want to retry message, send NAK */
     if (retry == WHD_TRUE)
     {
-        CHECK_RETURN(whd_bus_write_backplane_value(whd_driver, (uint32_t)SDIO_TO_SB_MAIL_BOX, (uint8_t)1, SMB_NAK) );
+        CHECK_RETURN(whd_bus_write_backplane_value(whd_driver, (uint32_t)SDIO_TO_SB_MAIL_BOX(whd_driver), (uint8_t)1,
+                                                   SMB_NAK) );
     }
 
     return WHD_SUCCESS;
@@ -1052,7 +1052,7 @@ whd_result_t whd_bus_sdio_read_register_value(whd_driver_t whd_driver, whd_bus_f
 whd_result_t whd_bus_sdio_poke_wlan(whd_driver_t whd_driver)
 {
     /*TODO: change 1<<3 to a register hash define */
-    return whd_bus_write_backplane_value(whd_driver, SDIO_TO_SB_MAILBOX, (uint8_t)4, (uint32_t)(1 << 3) );
+    return whd_bus_write_backplane_value(whd_driver, SDIO_TO_SB_MAILBOX(whd_driver), (uint8_t)4, (uint32_t)(1 << 3) );
 }
 
 whd_result_t whd_bus_sdio_wakeup(whd_driver_t whd_driver)

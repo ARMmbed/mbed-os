@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<!--****************************************************************************
+* \file saradc.cypersonality
+* \version 1.0
+*
+* \brief
+* SARADC personality description file.
+*
+********************************************************************************
+* \copyright
+* Copyright 2020 Cypress Semiconductor Corporation
+* SPDX-License-Identifier: Apache-2.0
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*****************************************************************************-->
+
+<Personality id="mxs40saradc" name="SARADC" version="1.0" xmlns="http://cypress.com/xsd/cyhwpersonality_v3">
+  <Dependencies>
+    <IpBlock name="mxs40pass_ver2" />
+    <Resource name="pass\.saradc" />
+  </Dependencies>
+  <ExposedMembers>
+    <ExposedMember key="trTimer" paramId="trTimer" />
+  </ExposedMembers>
+  <Parameters>
+    <!-- Internal Parameters -->
+    <ParamBool id="debug" name="debug" group="Internal" default="false" visible="false" editable="false" desc="" />
+    
+    <ParamString id="sar0rcs" name="sar0rcs" group="Internal" default="pass[0].saradc[0].sar[0]" visible="`${debug}`" editable="false" desc="" />
+    <ParamString id="sar1rcs" name="sar1rcs" group="Internal" default="pass[0].saradc[0].sar[1]" visible="`${debug}`" editable="false" desc="" />
+    <ParamString id="sar2rcs" name="sar2rcs" group="Internal" default="pass[0].saradc[0].sar[2]" visible="`${debug}`" editable="false" desc="" />
+    <ParamString id="sar3rcs" name="sar3rcs" group="Internal" default="pass[0].saradc[0].sar[3]" visible="`${debug}`" editable="false" desc="" />
+    <ParamString id="timerRcs" name="timerRcs" group="Internal" default="pass[0].timer[0]" visible="`${debug}`" editable="false" desc="" />
+    <ParamString id="dpslpRsc" name="dpslpRsc" group="Internal" default="pass[0].dpslp[0]" visible="`${debug}`" editable="false" desc="" />
+    
+    <ParamRange id="SarNum" name="Number of SARs" group="Internal" default="`${hasBlock(sar0rcs) + hasBlock(sar1rcs) + hasBlock(sar2rcs) + hasBlock(sar3rcs)}`" min="0" max="4" resolution="1" visible="`${debug}`"  editable="false" desc="Number of SARs available on the device." />
+    
+    
+    <!-- PDL documentation -->
+    <ParamDoc id="pdlDoc" name="Configuration Help" group="Peripheral Documentation" default="file:///`${cy_libs_path()}`/docs/pdl_api_reference_manual/html/group__group__sar.html" linkText="Open SAR Documentation" visible="true" desc="Opens the Peripheral Driver Library Documentation" />
+    
+    <ParamRange id="powerUpDelay" name="Power Up Delay" group="General" default="0" min="0" max="255" resolution="1" visible="true" editable="true" desc="Power up time for SAR blocks. Fastest power up time is achieved with a setting of 0. Additional time can be added to allow for analog settling. The power up time is in Deep Sleep Clock cycles. This setting is only applicable when at least one active SAR block is clocked by Deep Sleep Clock." />
+    <ParamString id="powerUpDelayUs" name="Power Up Delay Period" desc="Power Up Delay Period" group="General" default="`${((powerUpDelay &gt; 0) &amp;&amp; (isBlockUsed(dpslpRsc))) ? (powerUpDelay * 1000000.0) / getExposedMember(dpslpRsc, &quot;frequency&quot;) : 0}` us" visible="true" editable="false" />
+    
+    <ParamRange id="SarScanCount" name="SAR Scan Count" group="General" default="1" min="1" max="256" resolution="1" visible="true" editable="true" desc="The number of samples SAR will take when triggered." />
+    
+    <ParamBool id="SimultSar0" name="SAR 0" group="Simultaneous Triggering" default="false" visible="`${(1 &lt; SarNum) || debug}`" editable="true" desc="Simultaneous triggering enable for SAR0" />
+    <ParamBool id="SimultSar1" name="SAR 1" group="Simultaneous Triggering" default="false" visible="`${(1 &lt; SarNum) || debug}`" editable="true" desc="Simultaneous triggering enable for SAR1" />
+    <ParamBool id="SimultSar2" name="SAR 2" group="Simultaneous Triggering" default="false" visible="`${(2 &lt; SarNum) || debug}`" editable="true" desc="Simultaneous triggering enable for SAR2" />
+    <ParamBool id="SimultSar3" name="SAR 3" group="Simultaneous Triggering" default="false" visible="`${(3 &lt; SarNum) || debug}`" editable="true" desc="Simultaneous triggering enable for SAR3" />
+    
+    <ParamBool id="SarSimultControlNonZero" name="SarSimultControlZero" desc="SarSimultControlZero" group="Simultaneous Triggering" default="`${(SimultSar0 | SimultSar1 | SimultSar2 | SimultSar3)}`" visible="`${debug}`" editable="false" />
+    <ParamBool id="SarSimultControlOr1" name="SarSimultControlOr1" desc="SarSimultControlOr1" group="Simultaneous Triggering" default="`${((SimultSar0 + SimultSar1) eq 2)&amp;&amp; SimultSar1}`" visible="`${debug}`" editable="false" />
+    <ParamBool id="SarSimultControlOr2" name="SarSimultControlOr2" desc="SarSimultControlOr2" group="Simultaneous Triggering" default="`${((SimultSar0 + SimultSar1) &gt; 0)&amp;&amp; SimultSar2}`" visible="`${debug}`" editable="false" />
+    <ParamBool id="SarSimultControlOr3" name="SarSimultControlOr3" desc="SarSimultControlOr3" group="Simultaneous Triggering" default="`${((SimultSar0 + SimultSar1 + SimultSar2) &gt; 0)&amp;&amp; SimultSar3}`" visible="`${debug}`" editable="false" />
+    <ParamString id="SarSimultControl" name="SarSimultControl" desc="SarSimultControl" group="Simultaneous Triggering" default="`${(SimultSar0)? &quot;CY_SAR_SAR0&quot; : &quot;&quot;}``${(SarSimultControlOr1)? &quot; | &quot; : &quot;&quot;}``${(SimultSar1)? &quot;CY_SAR_SAR1&quot; : &quot;&quot;}``${(SarSimultControlOr2)? &quot; | &quot; : &quot;&quot;}``${(SimultSar2)? &quot;CY_SAR_SAR2&quot; : &quot;&quot;}``${(SarSimultControlOr3)? &quot; | &quot; : &quot;&quot;}``${(SimultSar3)? &quot;CY_SAR_SAR3&quot; : &quot;&quot;}``${(SarSimultControlNonZero)? &quot;&quot; : &quot;0UL&quot;}`" visible="`${debug}`" editable="false" />
+    
+
+    <ParamChoice id="SarSimultTrigSource" name="Trigger Source" group="Simultaneous Triggering Configuration" default="CY_SAR_SAR0" visible="`${SarSimultControlNonZero}`" editable="true" desc="Configures the trigger source for simultaneous conversion." >
+      <Entry name="SAR 0 Trigger Input" value="CY_SAR_SAR0" visible="`${(0 &lt; SarNum) || debug}`" />
+      <Entry name="SAR 1 Trigger Input" value="CY_SAR_SAR1" visible="`${(1 &lt; SarNum) || debug}`" />
+      <Entry name="SAR 2 Trigger Input" value="CY_SAR_SAR2" visible="`${(2 &lt; SarNum) || debug}`" />
+      <Entry name="SAR 3 Trigger Input" value="CY_SAR_SAR3" visible="`${(3 &lt; SarNum) || debug}`" />
+      <Entry name="Timer" value="CY_SAR_TIMER" visible="true" />
+    </ParamChoice>
+
+    <ParamChoice id="SarSimultTrigEvent" name="Simultaneous Trigger Signal Event" group="Simultaneous Triggering Configuration" default="CY_SAR_SIMULT_TRIG_EVENT_EDGE" visible="`${SarSimultControlNonZero}`" editable="true" desc="Configures simultaneous trigger signal event." >
+      <Entry name="Rising Edge" value="CY_SAR_SIMULT_TRIG_EVENT_EDGE" visible="true" />
+      <Entry name="Level" value="CY_SAR_SIMULT_TRIG_EVENT_LEVEL" visible="true" />
+    </ParamChoice>
+
+    <ParamChoice id="SarSimultTrigSync" name="Trigger Synchronization Source" group="Simultaneous Triggering Configuration" default="CY_SAR_SIMULT_TRIG_SYNC_SAR_CLOCK" visible="`${SarSimultControlNonZero}`" editable="true" desc="Configures simultaneous trigger synchronization." >
+      <Entry name="Bypass" value="CY_SAR_SIMULT_TRIG_SYNC_NONE" visible="true" />
+      <Entry name="SAR Clock Domain" value="CY_SAR_SIMULT_TRIG_SYNC_SAR_CLOCK" visible="true" />
+    </ParamChoice>
+    
+    <ParamChoice id="SarSimultSamplesPerTrigger" name="Scans per Trigger" group="Simultaneous Triggering Configuration" default="CY_SAR_SIMULT_TRIG_SAMPLE_SINGLE" visible="`${SarSimultControlNonZero}`" editable="true" desc="Configures number of scans per trigger event." >
+      <Entry name="Single Scan" value="CY_SAR_SIMULT_TRIG_SAMPLE_SINGLE" visible="true" />
+      <Entry name="Scan Count" value="CY_SAR_SIMULT_TRIG_SAMPLE_SCAN_CNT" visible="true" />
+    </ParamChoice>
+    
+    <ParamChoice id="SarSimultEOSIntrSelect" name="EOS Interrupt Condition" group="Simultaneous Triggering Configuration" default="CY_SAR_SIMULT_TRIG_INTR_EOS" visible="`${SarSimultControlNonZero}`" editable="true" desc="Configures End of Scan interrupt condition." >
+      <Entry name="Every Scan Completion" value="CY_SAR_SIMULT_TRIG_INTR_EOS" visible="true" />
+      <Entry name="Sample = Scan Counter" value="CY_SAR_SIMULT_TRIG_INTR_SCAN_CNT" visible="true" />
+    </ParamChoice>
+    
+    <ParamBool id="trSimult" name="trSimult" group="Internal" default="`${(SimultSar0 + SimultSar1 + SimultSar2 + SimultSar3) &gt; 1}`" visible="`${debug}`" editable="false" desc="" />
+    <ParamBool id="trTimer" name="trTimer" group="Internal" default="`${trSimult &amp;&amp; (SarSimultTrigSource eq CY_SAR_TIMER)}`" visible="`${debug}`" editable="false" desc="" />
+    
+
+    <ParamString id="expClk" name="expClk" group="Internal" default="clock" visible="`${debug}`" editable="false" desc="" />
+    <ParamString id="dsClk" name="dsClk" group="Internal" default="CY_SAR_CLK_DEEPSLEEP" visible="`${debug}`" editable="false" desc="" />
+    
+    <ParamBool id="sar0used" name="sar0used" group="Internal" default="`${(0 &lt; SarNum) ? isBlockUsed(sar0rcs) : false}`" visible="`${debug}`" editable="false" desc="" />
+    <ParamBool id="sar1used" name="sar1used" group="Internal" default="`${(1 &lt; SarNum) ? isBlockUsed(sar1rcs) : false}`" visible="`${debug}`" editable="false" desc="" />
+    <ParamBool id="sar2used" name="sar2used" group="Internal" default="`${(2 &lt; SarNum) ? isBlockUsed(sar2rcs) : false}`" visible="`${debug}`" editable="false" desc="" />
+    <ParamBool id="sar3used" name="sar3used" group="Internal" default="`${(3 &lt; SarNum) ? isBlockUsed(sar3rcs) : false}`" visible="`${debug}`" editable="false" desc="" />
+    <ParamBool id="timerUsed" name="timerUsed" group="Internal" default="`${isBlockUsed(timerRcs)}`" visible="`${debug}`" editable="false" desc="" />
+
+    <!--Advanced-->
+    <ParamBool id="inFlash" name="Store Config in Flash" group="Advanced" default="true" visible="true" editable="true" desc="Controls whether the configuration structure is stored in flash (const, true) or SRAM (not const, false)." />
+    
+  </Parameters>
+
+  <DRCs>
+    <DRC type="ERROR" text="At least two SARs should be selected for proper Simultaneous Triggering operation" condition="`${SarSimultControlNonZero &amp;&amp; !trSimult}`" />
+    
+    <DRC type="ERROR" text="To use SAR0 simultaneous triggering the SAR0 itself should be enabled" condition="`${SimultSar0 &amp;&amp; !sar0used}`" >
+      <FixIt action="ENABLE_BLOCK" target="`${sar0rcs}`" value="mxs40sar-3.0" valid="true" />
+    </DRC>
+    
+    <DRC type="ERROR" text="To use SAR1 simultaneous triggering the SAR1 itself should be enabled" condition="`${SimultSar1 &amp;&amp; !sar1used}`" >
+      <FixIt action="ENABLE_BLOCK" target="`${sar1rcs}`" value="mxs40sar-3.0" valid="true" />
+    </DRC>
+    
+    <DRC type="ERROR" text="To use SAR2 simultaneous triggering the SAR2 itself should be enabled" condition="`${SimultSar2 &amp;&amp; !sar2used}`" >
+      <FixIt action="ENABLE_BLOCK" target="`${sar2rcs}`" value="mxs40sar-3.0" valid="true" />
+    </DRC>
+    
+    <DRC type="ERROR" text="To use SAR3 simultaneous triggering the SAR3 itself should be enabled" condition="`${SimultSar3 &amp;&amp; !sar3used}`" >
+      <FixIt action="ENABLE_BLOCK" target="`${sar3rcs}`" value="mxs40sar-3.0" valid="true" />
+    </DRC>
+    
+    <DRC type="ERROR" text="To use TIMER as a trigger source for simultaneous triggering the TIMER itself should be enabled" condition="`${trSimult &amp;&amp; (SarSimultTrigSource eq CY_SAR_TIMER) &amp;&amp; !timerUsed}`" >
+      <FixIt action="ENABLE_BLOCK" target="`${timerRcs}`" value="mxs40timer-1.0" valid="true" />
+    </DRC>
+    
+    <DRC type="ERROR" text="The Power Up Delay setting is only applicable when at least one active SAR block is clocked by Deep Sleep Clock."
+         condition="`${(powerUpDelay ne 0) &amp;&amp; !((sar0used ? (dsClk eq getExposedMember(sar0rcs, expClk)) : false) ||
+                                                        (sar1used ? (dsClk eq getExposedMember(sar1rcs, expClk)) : false) ||
+                                                        (sar2used ? (dsClk eq getExposedMember(sar2rcs, expClk)) : false) ||
+                                                        (sar3used ? (dsClk eq getExposedMember(sar3rcs, expClk)) : false))}`" >
+      <FixIt action="SET_PARAM" target="powerUpDelay" value="0" valid="true" />
+    </DRC>
+  </DRCs>
+  
+  <ConfigFirmware>
+      <ConfigInclude value="cy_sar.h" include="true" />
+      
+      <ConfigStruct name="`${INST_NAME . &quot;_config&quot;}`" type="cy_stc_sar_common_config_t" const="`${inFlash}`" public="true" include="true">
+          <Member name="pwrUpDelay" value="`${powerUpDelay}`UL" />
+          <Member name="scanCount" value="`${SarScanCount}`UL" />
+          <Member name="simultControl" value="`${SarSimultControl}`" />
+          <Member name="simultTrigSource" value="`${SarSimultTrigSource}`" />
+          <Member name="simultTrigEvent" value="`${SarSimultTrigEvent}`" />
+          <Member name="simultTrigSync" value="`${SarSimultTrigSync}`" />
+          <Member name="simultSamplesPerTrigger" value="`${SarSimultSamplesPerTrigger}`" />
+          <Member name="simultEOSIntrSelect" value="`${SarSimultEOSIntrSelect}`" />
+      </ConfigStruct>
+  </ConfigFirmware>
+</Personality>

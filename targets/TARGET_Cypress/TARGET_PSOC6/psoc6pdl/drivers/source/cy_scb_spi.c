@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_scb_spi.c
-* \version 2.50
+* \version 2.60
 *
 * Provides SPI API implementation of the SCB driver.
 *
@@ -430,6 +430,7 @@ cy_en_syspm_status_t Cy_SCB_SPI_DeepSleepCallback(cy_stc_syspm_callback_params_t
         break;
 
         default:
+            /* Unknown state */
             break;
     }
 
@@ -531,6 +532,7 @@ cy_en_syspm_status_t Cy_SCB_SPI_HibernateCallback(cy_stc_syspm_callback_params_t
         break;
 
         default:
+            /* Unknown state */
             break;
     }
 

@@ -33,7 +33,7 @@ extern "C"
 {
 #endif
 
-static CRYPTO_Type* const CYHAL_CRYPTO_BASE_ADDRESSES[CYHAL_CRYPTO_INST_COUNT] =
+static CRYPTO_Type* const _CYHAL_CRYPTO_BASE_ADDRESSES[CYHAL_CRYPTO_INST_COUNT] =
 {
 #ifdef CRYPTO
     CRYPTO,
@@ -41,26 +41,26 @@ static CRYPTO_Type* const CYHAL_CRYPTO_BASE_ADDRESSES[CYHAL_CRYPTO_INST_COUNT] =
 };
 
 // Number of Crypto features
-#define CRYPTO_FEATURES_NUM         ((uint32_t)CYHAL_CRYPTO_COMMON + 1u)
+#define _CYHAL_CRYPTO_FEATURES_NUM         ((uint32_t)CYHAL_CRYPTO_COMMON + 1u)
 
 // Defines for maximum available features in Crypto block
-#define CRYPTO_FEATURE_CRC_MAX_VAL         (1u)
-#define CRYPTO_FEATURE_TRNG_MAX_VAL        (1u)
-#define CRYPTO_FEATURE_VU_MAX_VAL          (256u)
-#define CRYPTO_FEATURE_COMMON_MAX_VAL      (256u)
+#define _CYHAL_CRYPTO_FEATURE_CRC_MAX_VAL         (1u)
+#define cyhal_crypto_feature_tRNG_MAX_VAL        (1u)
+#define _CYHAL_CRYPTO_FEATURE_VU_MAX_VAL          (256u)
+#define _CYHAL_CRYPTO_FEATURE_COMMON_MAX_VAL      (256u)
 
-static uint16_t cyhal_crypto_features[CYHAL_CRYPTO_INST_COUNT][CRYPTO_FEATURES_NUM] = {{0}};
-static uint16_t cyhal_crypto_features_max_val[CRYPTO_FEATURES_NUM] = {CRYPTO_FEATURE_CRC_MAX_VAL,
-                                                                     CRYPTO_FEATURE_TRNG_MAX_VAL,
-                                                                     CRYPTO_FEATURE_VU_MAX_VAL,
-                                                                     CRYPTO_FEATURE_COMMON_MAX_VAL};
+static uint16_t _cyhal_crypto_features[CYHAL_CRYPTO_INST_COUNT][_CYHAL_CRYPTO_FEATURES_NUM] = {{0}};
+static uint16_t _cyhal_crypto_features_max_val[_CYHAL_CRYPTO_FEATURES_NUM] = {_CYHAL_CRYPTO_FEATURE_CRC_MAX_VAL,
+                                                                     cyhal_crypto_feature_tRNG_MAX_VAL,
+                                                                     _CYHAL_CRYPTO_FEATURE_VU_MAX_VAL,
+                                                                     _CYHAL_CRYPTO_FEATURE_COMMON_MAX_VAL};
 
-static bool cy_crypto_enabled(uint32_t instance_count)
+static bool _cyhal_crypto_enabled(uint32_t instance_count)
 {
-    uint8_t reserved = (cyhal_crypto_features[instance_count][CYHAL_CRYPTO_CRC]  |
-                        cyhal_crypto_features[instance_count][CYHAL_CRYPTO_TRNG] |
-                        cyhal_crypto_features[instance_count][CYHAL_CRYPTO_VU]   |
-                        cyhal_crypto_features[instance_count][CYHAL_CRYPTO_COMMON]);
+    uint8_t reserved = (uint8_t)(_cyhal_crypto_features[instance_count][CYHAL_CRYPTO_CRC]  |
+                                 _cyhal_crypto_features[instance_count][CYHAL_CRYPTO_TRNG] |
+                                 _cyhal_crypto_features[instance_count][CYHAL_CRYPTO_VU]   |
+                                 _cyhal_crypto_features[instance_count][CYHAL_CRYPTO_COMMON]);
 
     return (reserved != 0);
 }
@@ -71,17 +71,17 @@ cy_rslt_t cyhal_crypto_reserve(CRYPTO_Type** base, cyhal_resource_inst_t *resour
 
     for (uint32_t i = 0u; i < CYHAL_CRYPTO_INST_COUNT; i++)
     {
-        if (cyhal_crypto_features[i][feature] < cyhal_crypto_features_max_val[feature])
+        if (_cyhal_crypto_features[i][feature] < _cyhal_crypto_features_max_val[feature])
         {
             resource->type = CYHAL_RSC_CRYPTO;
-            resource->block_num = i;
+            resource->block_num = (uint8_t)i;
             resource->channel_num = 0;
-            *base = CYHAL_CRYPTO_BASE_ADDRESSES[i];
+            *base = _CYHAL_CRYPTO_BASE_ADDRESSES[i];
 
             result = CY_RSLT_SUCCESS;
 
             //Enable block if this as this first feature that is reserved in block
-            if (!cy_crypto_enabled(i))
+            if (!_cyhal_crypto_enabled(i))
             {
                 result = cyhal_hwmgr_reserve(resource);
                 if (result == CY_RSLT_SUCCESS)
@@ -92,7 +92,7 @@ cy_rslt_t cyhal_crypto_reserve(CRYPTO_Type** base, cyhal_resource_inst_t *resour
 
             if(result == CY_RSLT_SUCCESS)
             {
-                ++cyhal_crypto_features[i][feature];
+                ++_cyhal_crypto_features[i][feature];
                 break;
             }
         }
@@ -102,13 +102,13 @@ cy_rslt_t cyhal_crypto_reserve(CRYPTO_Type** base, cyhal_resource_inst_t *resour
 
 void cyhal_crypto_free(CRYPTO_Type* base, cyhal_resource_inst_t *resource, cyhal_crypto_feature_t feature)
 {
-    if (cyhal_crypto_features[resource->block_num][feature] != 0)
+    if (_cyhal_crypto_features[resource->block_num][feature] != 0)
     {
-        --cyhal_crypto_features[resource->block_num][feature];
+        --_cyhal_crypto_features[resource->block_num][feature];
     }
 
     //If this was the last feature then free the underlying crypto block as well.
-    if (!cy_crypto_enabled(resource->block_num))
+    if (!_cyhal_crypto_enabled(resource->block_num))
     {
         if (Cy_Crypto_Core_IsEnabled(base))
         {

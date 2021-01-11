@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_syslib_a_clang.S
-* \version 2.50.1
+* \version 2.70
 *
 * \brief Assembly routines for Apple Clang.
 *

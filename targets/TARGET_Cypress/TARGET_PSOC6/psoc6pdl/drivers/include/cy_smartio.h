@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_smartio.h
-* \version 1.0.1
+* \version 1.0.2
 *
 * \brief
 * Provides an API declaration of the Smart I/O driver
@@ -162,40 +162,14 @@
 *
 * Refer to the technical reference manual (TRM) and the device datasheet.
 *
-* \section group_smartio_MISRA MISRA-C Compliance]
-* <table class="doxtable">
-*   <tr>
-*     <th>MISRA Rule</th>
-*     <th>Rule Class (Required/Advisory)</th>
-*     <th>Rule Description</th>
-*     <th>Description of Deviation(s)</th>
-*   </tr>
-*   <tr>
-*     <td>10.3</td>
-*     <td>R</td>
-*     <td>The value of a complex expression of integer type shall only be cast to a type of the
-*         same signedness that is no wider than the underlying type of the expression.</td>
-*     <td>Use of a Cypress defined macro to access memory-mapped objects.</td>
-*   </tr>
-*   <tr>
-*     <td>11.4</td>
-*     <td>A</td>
-*     <td>Casting to different object pointer type.</td>
-*     <td>Used at the device hardware register structure pointers for mapping to the IP type in the device.</td>
-*   </tr>
-*   <tr>
-*     <td>16.7</td>
-*     <td>A</td>
-*     <td>A pointer parameter in a function prototype should be declared as pointer to const
-*         if the pointer is not used to modify the addressed object.</td>
-*     <td>Base address pointers are always constant in drivers. No need to pick and choose
-*         const declaration based on function construction.</td>
-*   </tr>
-* </table>
-*
 * \section group_smartio_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.0.2</td>
+*     <td>Documented MISRA 2012 violations.</td>
+*     <td>MISRA 2012 compliance.</td>
+*   </tr>
 *   <tr>
 *     <td>1.0.1</td>
 *     <td>Minor documentation updates.</td>
@@ -232,6 +206,9 @@
 #if defined(__cplusplus)
 extern "C" {
 #endif
+
+CY_MISRA_DEVIATE_BLOCK_START('MISRA C-2012 Rule 10.8', 12, \
+'Value extracted from _FLD2VAL macro will not exceed enum range.');
 
 /** \addtogroup group_smartio_macros
 * \{
@@ -875,6 +852,8 @@ __STATIC_INLINE uint8_t Cy_SmartIO_GetDataReg(SMARTIO_PRT_Type* base)
 /** \} group_smartio_functions_du */
 
 /** \} group_smartio_functions */
+
+CY_MISRA_BLOCK_END('MISRA C-2012 Rule 10.8');
 
 #if defined(__cplusplus)
 }

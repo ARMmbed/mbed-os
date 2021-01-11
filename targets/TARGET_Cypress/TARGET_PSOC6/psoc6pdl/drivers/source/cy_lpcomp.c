@@ -1,6 +1,6 @@
 /*******************************************************************************
 * \file cy_lpcomp.c
-* \version 1.20.1
+* \version 1.30
 *
 * \brief
 *  This file provides the driver code to the API for the Low Power Comparator
@@ -56,14 +56,14 @@ cy_en_lpcomp_status_t Cy_LPComp_Init(LPCOMP_Type* base, cy_en_lpcomp_channel_t c
 {
     cy_en_lpcomp_status_t ret = CY_LPCOMP_BAD_PARAM;
 
-    CY_ASSERT_L3(CY_LPCOMP_IS_CHANNEL_VALID(channel));
-    CY_ASSERT_L3(CY_LPCOMP_IS_OUT_MODE_VALID(config->outputMode));
-    CY_ASSERT_L3(CY_LPCOMP_IS_HYSTERESIS_VALID(config->hysteresis));
-    CY_ASSERT_L3(CY_LPCOMP_IS_POWER_VALID(config->power));
-    CY_ASSERT_L3(CY_LPCOMP_IS_INTR_MODE_VALID(config->intType));
-
     if ((base != NULL) && (config != NULL))
     {
+        CY_ASSERT_L3(CY_LPCOMP_IS_CHANNEL_VALID(channel));
+        CY_ASSERT_L3(CY_LPCOMP_IS_OUT_MODE_VALID(config->outputMode));
+        CY_ASSERT_L3(CY_LPCOMP_IS_HYSTERESIS_VALID(config->hysteresis));
+        CY_ASSERT_L3(CY_LPCOMP_IS_POWER_VALID(config->power));
+        CY_ASSERT_L3(CY_LPCOMP_IS_INTR_MODE_VALID(config->intType));
+
         Cy_LPComp_GlobalEnable(base);
 
         if (CY_LPCOMP_CHANNEL_0 == channel)
@@ -546,6 +546,7 @@ cy_en_syspm_status_t Cy_LPComp_DeepSleepCallback(cy_stc_syspm_callback_params_t 
         break;
 
         default:
+            /* Unknown state */
             break;
     }
 
@@ -634,6 +635,7 @@ cy_en_syspm_status_t Cy_LPComp_HibernateCallback(cy_stc_syspm_callback_params_t 
         break;
 
         default:
+            /* Unknown state */
             break;
     }
 

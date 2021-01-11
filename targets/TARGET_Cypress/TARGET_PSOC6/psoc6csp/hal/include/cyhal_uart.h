@@ -59,6 +59,13 @@
 * * Configurable UART baud rate - \ref cyhal_uart_set_baud
 * * Configurable data frame size, STOP bits and parity - \ref cyhal_uart_cfg_t
 * * Configurable interrupts and callback on UART events - \ref cyhal_uart_event_t
+* \section subsection_uart_interrupts Interrupts and callbacks
+* Interrupts are handled by callbacks based on events \ref cyhal_uart_event_t
+* If an event is disabled, the underlying interrupt is still enabled. Enabling or disabling
+* an event only enables or disables the callback.
+* \note Care must be exercised whenusing the \ref CYHAL_UART_IRQ_RX_NOT_EMPTY event.
+* The callback must read all available received data or the interrupt will not be cleared
+* leading to the callback being immediately retriggered.
 * \section subsection_uart_quickstart Quick Start
 * \ref cyhal_uart_init is used for UART initialization
 *
@@ -95,9 +102,10 @@ extern "C" {
 *      Defines
 *****************************************************************/
 
-/** \addtogroup group_hal_results
+/** \addtogroup group_hal_results_uart UART HAL Results
+ *  UART specific return codes
+ *  \ingroup group_hal_results
  *  \{ *//**
- *  \{ @name UART Results
  */
 /** The requested resource type is invalid */
 #define CYHAL_UART_RSLT_ERR_INVALID_PIN                 \
@@ -113,7 +121,7 @@ extern "C" {
     (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_WARNING, CYHAL_RSLT_MODULE_UART, 3))
 
 /**
- * \} \}
+ * \}
  */
 
 /** The baud rate to set to if no clock is specified in the init function */
@@ -174,6 +182,9 @@ typedef void (*cyhal_uart_event_callback_t)(void *callback_arg, cyhal_uart_event
 
 /** Initialize the UART peripheral.
  *
+ * \note This will set the baud rate to a default of \ref CYHAL_UART_DEFAULT_BAUD. This can
+ * be changed by calling \ref cyhal_uart_set_baud.
+ *
  * @param[out] obj  Pointer to a UART object. The caller must allocate the memory
  *  for this object but the init function will initialize its contents.
  * @param[in]  tx  The TX pin name, if no TX pin use NC
@@ -193,6 +204,9 @@ cy_rslt_t cyhal_uart_init(cyhal_uart_t *obj, cyhal_gpio_t tx, cyhal_gpio_t rx, c
 void cyhal_uart_free(cyhal_uart_t *obj);
 
 /** Configure the baud rate
+ *
+ * @note This function should only be called if a shared clock divider is not used i.e. the clock
+ *       parameter is set to NULL when calling \ref cyhal_uart_init.
  *
  * @param[in,out] obj      The UART object
  * @param[in]     baudrate The baud rate to be configured

@@ -25,8 +25,8 @@
 #include "cyhal_dma.h"
 
 /**
- * \addtogroup group_hal_psoc6_dma_dw DW (Datawire)
- * \ingroup group_hal_psoc6_dma
+ * \addtogroup group_hal_impl_dma_dw DW (Datawire)
+ * \ingroup group_hal_impl_dma
  * \{
  * Implementation specific interface for using the Datawire DMA peripheral
  */
@@ -39,19 +39,19 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/** Initialize the Datawire peripheral. 
+/** Initialize the Datawire peripheral.
  *
  * @param[out] obj          The DMA object to initialize
  * @param[in]  priority     The priority of this DMA operation relative to others. Values must be between 0-3 with 0 being the highest priority.
  * @return The status of the init request
  */
-cy_rslt_t cyhal_dma_init_dw(cyhal_dma_t *obj, uint8_t priority);
+cy_rslt_t _cyhal_dma_dw_init(cyhal_dma_t *obj, uint8_t priority);
 
-/** Frees the Datawire specific DMA object 
+/** Frees the Datawire specific DMA object
  *
  * @param[in,out] obj The DMA object
  */
-void cyhal_dma_free_dw(cyhal_dma_t *obj);
+void _cyhal_dma_dw_free(cyhal_dma_t *obj);
 
 /** Setup a Datawire descriptor for the dma resource
  *
@@ -59,15 +59,15 @@ void cyhal_dma_free_dw(cyhal_dma_t *obj);
  * @param[in] cfg    Configuration prameters for the transfer
  * @return The status of the configure request
  */
-cy_rslt_t cyhal_dma_configure_dw(cyhal_dma_t *obj, const cyhal_dma_cfg_t *cfg);
+cy_rslt_t _cyhal_dma_dw_configure(cyhal_dma_t *obj, const cyhal_dma_cfg_t *cfg);
 
-/** Start a Datawire transfer 
+/** Start a Datawire transfer
  *
  * Initiates DMA channel transfer for specified DMA object
  * @param[in] obj    The DMA object
  * @return The status of the start_transfer request
  */
-cy_rslt_t cyhal_dma_start_transfer_dw(cyhal_dma_t *obj);
+cy_rslt_t _cyhal_dma_dw_start_transfer(cyhal_dma_t *obj);
 
 /** Configure Datawire event enablement.
  *
@@ -76,14 +76,14 @@ cy_rslt_t cyhal_dma_start_transfer_dw(cyhal_dma_t *obj);
  * @param[in] intr_priority  The priority for NVIC interrupt events. The priority from the most recent call will take precedence, i.e all events will have the same priority.
  * @param[in] enable         True to turn on interrupts, False to turn off
  */
-void cyhal_dma_enable_event_dw(cyhal_dma_t *obj, cyhal_dma_event_t event, uint8_t intr_priority, bool enable);
+void _cyhal_dma_dw_enable_event(cyhal_dma_t *obj, cyhal_dma_event_t event, uint8_t intr_priority, bool enable);
 
 /** Checks whether a transfer is pending or running on the DMA channel
  *
  * @param[in] obj    The DMA object
  * @return True if DMA channel is busy
  */
-bool cyhal_dma_is_busy_dw(cyhal_dma_t *obj);
+bool _cyhal_dma_dw_is_busy(cyhal_dma_t *obj);
 
 #if defined(__cplusplus)
 }
@@ -91,4 +91,4 @@ bool cyhal_dma_is_busy_dw(cyhal_dma_t *obj);
 
 #endif /* CY_IP_M4CPUSS_DMA */
 
-/** \} group_hal_psoc6_dma_dw */
+/** \} group_hal_impl_dma_dw */

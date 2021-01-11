@@ -24,8 +24,8 @@
 
 /** \cond INTERNAL */
 /**
- * \addtogroup group_hal_psoc6_scb_common SCB Common Functionality
- * \ingroup group_hal_psoc6
+ * \addtogroup group_hal_impl_scb_common SCB Common Functionality
+ * \ingroup group_hal_impl
  * \{
  * Code shared between the SCB resources (UART, I2C, and SPI).
  */
@@ -40,10 +40,21 @@
 extern "C" {
 #endif
 
+#if defined(CY_IP_MXSCB_INSTANCES)
+#if defined(CY_DEVICE_PSOC6A256K)
+//Special case for 256k device which has 6 SCBs numbered 0, 1, 2, 4, 5, 6
+#define _SCB_ARRAY_SIZE                 (CY_IP_MXSCB_INSTANCES + 1)
+#else
+#define _SCB_ARRAY_SIZE                 (CY_IP_MXSCB_INSTANCES)
+#endif /* CY_DEVICE_PSOC6A256K */
+#elif defined(CY_IP_M0S8SCB_INSTANCES)
+#define _SCB_ARRAY_SIZE                 (CY_IP_M0S8SCB_INSTANCES)
+#endif /* CY_IP_MXSCB_INSTANCES */
+
 /** The start address of the SCB blocks */
-extern CySCB_Type* const CYHAL_SCB_BASE_ADDRESSES[CY_IP_MXSCB_INSTANCES];
+extern CySCB_Type* const _CYHAL_SCB_BASE_ADDRESSES[_SCB_ARRAY_SIZE];
 /** The interrupt number of the SCB blocks. */
-extern const IRQn_Type CYHAL_SCB_IRQ_N[CY_IP_MXSCB_INSTANCES];
+extern const IRQn_Type _CYHAL_SCB_IRQ_N[_SCB_ARRAY_SIZE];
 
 
 /** Get the SCB block corresponding to an IRQn.
@@ -57,7 +68,7 @@ uint8_t cyhal_scb_get_block_from_irqn(IRQn_Type irqn);
  *
  * @return A pointer to the SCB object corresponding to the currently running ISR.
  */
-void *cyhal_scb_get_irq_obj(void);
+void *_cyhal_scb_get_irq_obj(void);
 
 /** Sets the desired clocks & data rate to achieve the specified frequency
  * @param[in] base      The I2C object to configure the peri divider for
@@ -67,7 +78,7 @@ void *cyhal_scb_get_irq_obj(void);
  * @param[in] is_slave  Is this an I2C slave (true) or master (false)
  * @return The achieved data rate in Hz, or 0 if there was an error.
  */
-uint32_t cyhal_i2c_set_peri_divider(CySCB_Type *base, uint32_t block_num, cyhal_clock_t *clock, uint32_t freq, bool is_slave);
+uint32_t _cyhal_i2c_set_peri_divider(CySCB_Type *base, uint32_t block_num, cyhal_clock_t *clock, uint32_t freq, bool is_slave);
 
 /** Find an available SCB instance that matches 'pin'.
  * @param pin Pin
@@ -75,9 +86,13 @@ uint32_t cyhal_i2c_set_peri_divider(CySCB_Type *base, uint32_t block_num, cyhal_
  * @param count Number of entries in pin_map
  * @return Pin map pointer or NULL if none found
  */
-const cyhal_resource_pin_mapping_t* cyhal_find_scb_map(cyhal_gpio_t pin, const cyhal_resource_pin_mapping_t *pin_map, size_t count);
+const cyhal_resource_pin_mapping_t* _cyhal_scb_find_map(cyhal_gpio_t pin, const cyhal_resource_pin_mapping_t *pin_map, 
+                    size_t count, const cyhal_resource_inst_t *block_res);
 
-#define CYHAL_FIND_SCB_MAP(pin, pin_map) cyhal_find_scb_map(pin, pin_map, sizeof(pin_map)/sizeof(cyhal_resource_pin_mapping_t))
+#define _CYHAL_SCB_FIND_MAP(pin, pin_map) \
+                    _cyhal_scb_find_map(pin, pin_map, sizeof(pin_map)/sizeof(cyhal_resource_pin_mapping_t), NULL)
+#define _CYHAL_SCB_FIND_MAP_BLOCK(pin, pin_map, block) \
+                    _cyhal_scb_find_map(pin, pin_map, sizeof(pin_map)/sizeof(cyhal_resource_pin_mapping_t), block)
 
 /**
  * Function pointer to determine a specific scb instance can is ready for low power transition.
@@ -88,14 +103,34 @@ typedef bool (*cyhal_scb_instance_pm_callback)(void *obj_ptr, cyhal_syspm_callba
  * @param[in] block_num Index of SCB block which data to be updated
  * @param[in] obj       SCB-based driver object (cyhal_uart_t, cyhal_spi_t, cyhal_i2c_t or cyhal_ezi2c_t)
  */
-void cyhal_scb_update_instance_data(uint8_t block_num, void *obj, cyhal_scb_instance_pm_callback pm_callback);
+void _cyhal_scb_update_instance_data(uint8_t block_num, void *obj, cyhal_scb_instance_pm_callback pm_callback);
 
 /** Whether power management transition is pending and communication should be suspended. */
-bool cyhal_scb_pm_transition_pending(void);
+bool _cyhal_scb_pm_transition_pending(void);
+
+/** Finds the en_clk_dst_t clock connection index for provided SCB block number
+ *
+ * @param[in] block_num Index of SCB block
+ * @return en_clk_dst_t clock connection index
+ */
+static inline en_clk_dst_t _cyhal_scb_get_clock_index(uint32_t block_num)
+{
+    en_clk_dst_t clk;
+    // PSOC6A256K does not have SCB 3
+    #if defined(CY_DEVICE_PSOC6A256K)
+    if (block_num < 3)
+        clk = (en_clk_dst_t)((uint32_t)PCLK_SCB0_CLOCK + block_num);
+    else
+        clk = (en_clk_dst_t)((uint32_t)PCLK_SCB0_CLOCK + block_num -1);
+    #else
+        clk = (en_clk_dst_t)((uint32_t)PCLK_SCB0_CLOCK + block_num);
+    #endif
+    return clk;
+}
 
 #if defined(__cplusplus)
 }
 #endif
 
-/** \} group_hal_psoc6_scb_common */
+/** \} group_hal_impl_scb_common */
 /** \endcond */

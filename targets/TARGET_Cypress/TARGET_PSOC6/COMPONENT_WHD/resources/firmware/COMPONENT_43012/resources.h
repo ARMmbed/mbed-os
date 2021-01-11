@@ -20,12 +20,12 @@
 #include "wiced_resource.h"
 
 extern const resource_hnd_t wifi_firmware_image;
-extern const unsigned char wifi_firmware_image_data[414712];
+extern const unsigned char wifi_firmware_image_data[444199];
 extern const resource_hnd_t wifi_firmware_clm_blob;
-extern const unsigned char wifi_firmware_clm_blob_image_data[7697];
+extern const unsigned char wifi_firmware_clm_blob_data[7697];
 extern const resource_hnd_t wifi_mfg_firmware_image;
-extern const unsigned char wifi_mfg_firmware_image_data[495320];
+extern const unsigned char wifi_mfg_firmware_image_data[487520];
 extern const resource_hnd_t wifi_mfg_firmware_clm_blob;
-extern const unsigned char wifi_mfg_firmware_clm_blob_image_data[7697];
+extern const unsigned char wifi_mfg_firmware_clm_blob_data[7697];
 
 #endif /* ifndef INCLUDED_RESOURCES_H_ */

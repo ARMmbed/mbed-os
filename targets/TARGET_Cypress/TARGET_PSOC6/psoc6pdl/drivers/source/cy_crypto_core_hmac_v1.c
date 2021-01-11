@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_hmac_v1.c
-* \version 2.30.4
+* \version 2.40
 *
 * \brief
 *  This file provides the source code to the API for the HMAC method
@@ -38,7 +38,6 @@ extern "C" {
 #include "cy_crypto_core_hw_v1.h"
 #include "cy_crypto_core_mem_v1.h"
 #include "cy_syslib.h"
-#include <string.h>
 
 #define CY_CRYPTO_HMAC_IPAD               (0x36u)
 #define CY_CRYPTO_HMAC_0PAD               (0x5Cu)

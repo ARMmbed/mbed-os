@@ -79,6 +79,8 @@
 #define RSPEC_TO_KBPS(rate) (RSPEC_500KBPS( (rate) ) * (unsigned int)500)
 #define UNSIGNED_CHAR_TO_CHAR(uch) ( (uch) & 0x7f )
 
+#define KEY_MAX_LEN                   (64)  /* Maximum key length */
+#define KEY_MIN_LEN                   (8)   /* Minimum key length */
 /******************************************************
 *             Local Structures
 ******************************************************/
@@ -543,7 +545,7 @@ uint32_t whd_wifi_set_passphrase(whd_interface_t ifp, const uint8_t *security_ke
     whd_driver_t whd_driver;
     wsec_pmk_t *psk;
 
-    if (!ifp || !security_key)
+    if (!ifp || !security_key || (key_length < KEY_MIN_LEN) || (key_length > KEY_MAX_LEN) )
     {
         WPRINT_WHD_ERROR( ("Invalid param in func %s at line %d \n",
                            __func__, __LINE__) );
@@ -575,7 +577,7 @@ uint32_t whd_wifi_sae_password(whd_interface_t ifp, const uint8_t *security_key,
     whd_driver_t whd_driver;
     wsec_sae_password_t *sae_password;
 
-    if (!ifp || !security_key)
+    if (!ifp || !security_key || (key_length < KEY_MIN_LEN) || (key_length > KEY_MAX_LEN) )
     {
         WPRINT_WHD_ERROR( ("Invalid param in func %s at line %d \n",
                            __func__, __LINE__) );
@@ -1547,7 +1549,7 @@ uint32_t whd_wifi_join_specific(whd_interface_t ifp, const whd_scan_result_t *ap
 
             result = whd_wifi_join_wait_for_complete(ifp, &join_semaphore);
 
-            if (chip_id == 43455)
+            if (chip_id == 0x4373)
             {
                 /* For 11 AC MAX throughput set the frame burst and MPDU per AMPDU */
                 CHECK_RETURN(whd_wifi_set_iovar_value(ifp, IOVAR_STR_MPDU_PER_AMPDU, 64) );

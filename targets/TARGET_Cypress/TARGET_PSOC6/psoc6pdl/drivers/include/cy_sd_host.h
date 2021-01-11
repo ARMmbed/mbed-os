@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_sd_host.h
-* \version 1.50.1
+* \version 1.60
 *
 *  This file provides constants and parameter values for
 *  the SD Host Controller driver.
@@ -244,36 +244,14 @@
 * Refer to the appropriate device technical reference manual (TRM) for
 * a detailed description of the registers.
 *
-* \section group_sd_host_MISRA MISRA-C Compliance
-* <table class="doxtable">
-*   <tr>
-*     <th>MISRA Rule</th>
-*     <th>Rule Class (Required/Advisory)</th>
-*     <th>Rule Description</th>
-*     <th>Description of Deviation(s)</th>
-*   </tr>
-*   <tr>
-*     <td>11.4</td>
-*     <td>A</td>
-*     <td>A cast should not be performed between a pointer to object type and
-*         a different pointer to object type.</td>
-*     <td>
-*         The function \ref Cy_SD_Host_DeepSleepCallback is the callback of
-*         the \ref cy_en_syspm_status_t type. The cast operation safety in these
-*         functions becomes the user's responsibility because pointers are
-*         initialized when the callback is registered in the SysPm driver.</td>
-*   </tr>
-*   <tr>
-*     <td>20.3</td>
-*     <td>R</td>
-*     <td>The validity of values passed to library functions shall be checked.</td>
-*     <td>This violation is not caused by code changes, i.e. is not a regression.</td>
-*   </tr>
-* </table>
-*
 * \section group_sd_host_Changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.60</td>
+*     <td>Fixed/Documented MISRA 2012 violations.</td>
+*     <td>MISRA 2012 compliance.</td>
+*   </tr>
 *   <tr>
 *     <td>1.50.1</td>
 *     <td>Minor documentation updates.</td>
@@ -419,7 +397,7 @@ extern "C"
 #define CY_SD_HOST_DRV_VERSION_MAJOR       1
 
 /** Driver minor version */
-#define CY_SD_HOST_DRV_VERSION_MINOR       30
+#define CY_SD_HOST_DRV_VERSION_MINOR       60
 
 /******************************************************************************
 * API Constants

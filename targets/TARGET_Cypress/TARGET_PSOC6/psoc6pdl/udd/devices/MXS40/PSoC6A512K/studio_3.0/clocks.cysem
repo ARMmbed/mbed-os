@@ -1,0 +1,2291 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" release="PSoC Creator  4.3" xmlns="http://cypress.com/xsd/cysem">
+  <Instances count="38">
+    <Instance guid="0127f6d8-2a80-4e81-a168-694a40eb679e" name="CLK_TIMER_1" component="clock_side">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>TimerClk</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].timerclk[0]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>2</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>CLK_TIMER_1</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>CLK_TIMER</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>Timer Clock: This clock is intended as a source for high-frequency timers, such as the Energy Profiler and CPU SysTick clock. This clock is stopped in the hibernate power mode.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="03487aa6-d5f8-4527-aad1-4f0608b555db" name="arc_bridge_5" component="arc_bridge">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>arc_bridge_5</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="05803fd5-2fa5-4dc9-9fa0-79201b6f4dba" name="arc_bridge_2" component="arc_bridge">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>arc_bridge_2</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="08a8c0aa-bd6f-4994-a825-b7869042cb6d" name="arc_bridge_6" component="arc_bridge">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>arc_bridge_6</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="0b867b8e-05b8-475a-a84f-09fa1829c3b2" name="PATH_MUX3_1" component="mux_2">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>PathMux</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].pathmux[3]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>3</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>PATH_MUX3_1</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>PATH_MUX3</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>Path mux selection: A clock source for high frequency clocks.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="0ce34fbb-92fc-4767-be57-bdbaa19a4e98" name="FLL_1" component="clock_side">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>FLL</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].fll[0]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>FLL_1</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>FLL</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>Frequency-Locked Loop: This is a high-frequency clock suitable for most on-chip purposes.  It is similar to a PLL, but starts up much faster and consumes less current. This clock is stopped in the deep sleep and hibernate power modes.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="10cc05b0-876d-462f-835d-9c6a1eed2e42" name="CLK_FAST_1" component="clock_side">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>FastClk</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].fastclk[0]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>CLK_FAST_1</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>CLK_FAST</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>Fast Clock: This clock is used for the CM4 and associated AHB-Lite bus infrastructure.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="223402ba-e913-40ed-b383-b7764ec49905" name="ECO_1" component="clock_side">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>ECO</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].eco[0]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>ECO_1</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>ECO</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>External Crystal Oscillator: This is an off-chip clock source that is used when specific frequencies and/or very high accuracy is required. This clock is stopped in the deep sleep and hibernate power modes.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="33026e6b-8a52-49de-84e4-f0ae6bcd3365" name="ILO_1" component="clock_side">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>ILO</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].ilo[0]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>ILO_1</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>ILO</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>Internal Low Speed Oscillator: This is a low accuracy fixed-frequency clock in the kilohertz range that is available in sleep, deep sleep and hibernate power modes.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="352a0f61-7eb9-48c3-af15-253e15db2791" name="CLK_ALT_SYS_TICK" component="clock_side_tall">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>AltSysTickClk</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].altsystickclk[0]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>4</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>CLK_ALT_SYS_TICK</Value>
+      </Parameter>
+      <Parameter name="name1">
+        <Value>CLK_ALT_</Value>
+      </Parameter>
+      <Parameter name="name2">
+        <Value>SYS_TICK</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>AltSysTickClk: Provides an optional external source for the CM4/CM0+ SysTick timers.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="361ca358-26b5-4471-9011-52d5c3b43a73" name="EXTCLK_1" component="clock_side">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>ExtClk</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].ext[0]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>EXTCLK_1</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>EXTCLK</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>External Clock: This is an off-chip clock (not an oscillator). This clock is stopped in the deep sleep and hibernate power modes.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="378c8247-697e-41f2-8a07-da707e052adf" name="IMO_1" component="clock_side">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>IMO</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].imo[0]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>IMO_1</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>IMO</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>Internal Main Oscillator: This is a fixed-frequency clock that is commonly used as a general purpose source for clocks that do not require specific frequencies or very high accuracy. This clock is stopped in the deep sleep and hibernate power modes.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="47489eef-6d37-478c-bfa0-23fc33095aa8" name="CLK_BAK_2" component="clock_side">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>BakClk</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].bakclk[0]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>2</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>CLK_BAK_2</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>CLK_BAK</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>Backup Clock: This clock is available to the backup domain. Typically useful if an external WCO is not available.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="514594d2-4a7f-4694-8d47-3fd194a3d926" name="arc_bridge_1" component="arc_bridge">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>arc_bridge_1</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="59799bd8-8227-4ea9-8504-4c783806ed57" name="arc_bridge_8" component="arc_bridge">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>arc_bridge_8</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="5b096a3e-cdaf-44de-978b-05d85ad23228" name="WCO_2" component="clock_side">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>WCO</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].wco[0]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>WCO_2</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>WCO</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>2</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>Watch Crystal Oscillator: This source is driven from an off-chip watch crystal that provides an extremely accurate source. This clock runs in hibernate power mode.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="5e549607-2a6d-4fa1-affe-dffbbcaaa851" name="arc_bridge_3" component="arc_bridge">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>arc_bridge_3</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="5f783fdc-d661-4cf0-85cb-b6b5aa4a59b6" name="PATH_MUX4_1" component="mux_2">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>PathMux</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].pathmux[4]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>4</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>PATH_MUX4_1</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>PATH_MUX4</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>Path mux selection: A clock source for high frequency clocks.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="61075cf8-4336-45ca-b29d-715a750c40b2" name="CLK_LF_2" component="clock_side">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>LfClk</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].lfclk[0]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>CLK_LF_2</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>CLK_LF</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>2</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>Low Frequency Clock: This clock is the source for the multi-counter watchdog timers (MCWDT), and can also be a source for the RTC.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="701e2e1d-9a76-4a7d-8715-2a076bebde4a" name="LF_CLK_MUX" component="mux_3">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value />
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value />
+      </Parameter>
+      <Parameter name="Index">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>LF_CLK_MUX</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value />
+      </Parameter>
+    </Instance>
+    <Instance guid="97fc5a38-145c-4364-aa3a-7f583860264c" name="arc_bridge_4" component="arc_bridge">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>arc_bridge_4</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="b12b1f2c-eabc-46f3-93a0-bcefaea1bdb8" name="CLK_HF3_1" component="clock_side">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>HfClk</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].hfclk[3]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>3</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>CLK_HF3_1</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>CLK_HF3</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>High Frequency Clock 3: A high-frequency clock output driving specific peripherals.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="b26a9442-15a4-4710-8793-64e4a970f952" name="CLK_SLOW_1" component="clock_side">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>SlowClk</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].slowclk[0]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>CLK_SLOW_1</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>CLK_SLOW</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>Slow Clock: This clock is used for the CM0+ CPU, Datawire and CRYPTO components and the associated CPUSS slow infrastructure.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="b42d4f67-7161-4cf5-9377-0ff7fa779d12" name="CLK_HF1_1" component="clock_side">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>HfClk</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].hfclk[1]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>CLK_HF1_1</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>CLK_HF1</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>High Frequency Clock 1: A high-frequency clock output driving specific peripherals.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="b7adb990-8c6b-438d-8cce-0816d976064c" name="FLL_BYPASS" component="mux_3">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value />
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value />
+      </Parameter>
+      <Parameter name="Index">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>2</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>FLL_BYPASS</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value />
+      </Parameter>
+    </Instance>
+    <Instance guid="c8a50efe-48a1-41a2-94bf-df2e5a9f00da" name="FLL_3" component="clock_side">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>mfclk</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].mfclk[0]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>FLL_3</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>CLK_MF</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>Medium Frequency Clock: This clock is a medium frequency, between CLK_LF and CLK_HF.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="d6102e6b-52af-4a9c-b52b-b089ec4c1a05" name="PATH_MUX1_1" component="mux_2">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>PathMux</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].pathmux[1]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>PATH_MUX1_1</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>PATH_MUX1</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>Path mux selection: A clock source for high frequency clocks.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="d91a7b68-410a-4f60-9f57-55711391999f" name="arc_bridge_7" component="arc_bridge">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>arc_bridge_7</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="ddd11201-2b3c-4778-a8c0-cd041ad42d63" name="CLK_HF2_1" component="clock_side">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>HfClk</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].hfclk[2]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>2</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>CLK_HF2_1</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>CLK_HF2</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>High Frequency Clock 2: A high-frequency clock output driving specific peripherals.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="e2fcdec8-b9a5-40c3-a513-be05abe97861" name="PLL_BYPASS_0" component="mux_3">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value />
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value />
+      </Parameter>
+      <Parameter name="Index">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>2</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>PLL_BYPASS_0</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value />
+      </Parameter>
+    </Instance>
+    <Instance guid="e7bb5278-6591-498b-be2e-c8ab5bd0471d" name="PATH_MUX0_1" component="mux_2">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>PathMux</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].pathmux[0]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>PATH_MUX0_1</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>PATH_MUX0</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>Path mux selection: A clock source for high frequency clocks.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="ec958813-ad7a-4961-adfe-00bef345c8f6" name="CLK_PERI_1" component="clock_side">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>PeriClk</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].periclk[0]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>CLK_PERI_1</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>CLK_PERI</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>Peripheral Clock: This is the source clock for any divided clock in the design.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="ed430eaa-9543-4b06-83b3-be75bac9b7e1" name="CLK_HF0_1" component="clock_side">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>HfClk</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].hfclk[0]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>CLK_HF0_1</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>CLK_HF0</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>High Frequency Clock 0: A high-frequency clock output driving specific peripherals.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="ef27af24-361d-4dd5-9f2f-990dac78181c" name="CLK_PUMP_1" component="clock_side">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>PumpClk</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].pumpclk[0]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>CLK_PUMP_1</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>CLK_PUMP</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>Analog Pump Clock: This clock ensures precision analog performance in low voltage applications.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="f080809e-c066-4cf8-acb8-89e29405beea" name="FLL_2" component="clock_side">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>mfo</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].mfo[0]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>FLL_2</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>MFO</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>Medium Frequency Oscillator, used to generate clk_mf. Produced by dividing the IMO by 4. The MFO works down to DeepSleep, and the IMO does not turn off if this clock requires it.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="f17a2b05-df70-4d09-a5e1-83caa22aabfa" name="PLL" component="clock_side">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>PLL</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].pll[0]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>0</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>PLL</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>PLL</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>Phase-Locked Loop: A high-frequency clock able to generate a wide range of clock frequencies making it suitable for most on-chip purposes. This clock is stopped in the deep sleep and hibernate power modes.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="fb1ba970-edbb-472d-be78-6105dfdfae87" name="PATH_MUX2_1" component="mux_2">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>PathMux</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].pathmux[2]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>2</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>PATH_MUX2_1</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>PATH_MUX2</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>Path mux selection: A clock source for high frequency clocks.</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="fb5d6d5c-3b11-4b9c-bab5-094c2b0e658a" name="CLK_HF4_1" component="clock_side">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="FFBType">
+        <Value>HfClk</Value>
+      </Parameter>
+      <Parameter name="HwBlock">
+        <Value>srss[0].clock[0].hfclk[4]</Value>
+      </Parameter>
+      <Parameter name="Index">
+        <Value>4</Value>
+      </Parameter>
+      <Parameter name="inputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>CLK_HF4_1</Value>
+      </Parameter>
+      <Parameter name="name">
+        <Value>CLK_HF4</Value>
+      </Parameter>
+      <Parameter name="outputs">
+        <Value>1</Value>
+      </Parameter>
+      <Parameter name="ToolTip">
+        <Value>High Frequency Clock 4: A high-frequency clock output driving specific peripherals.</Value>
+      </Parameter>
+    </Instance>
+  </Instances>
+  <Signals count="317">
+    <Signal name="Net_237" type="Digital" terminalCount="2">
+      <Terminal name="PLL.a_14" type="Instance Digital Output" />
+      <Terminal name="PLL_BYPASS_0.b_4" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_326" type="Digital" terminalCount="2">
+      <Terminal name="PATH_MUX4_1.a_8" type="Instance Digital Output" />
+      <Terminal name="arc_bridge_7.i" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_2013" type="Digital" terminalCount="4">
+      <Terminal name="CLK_HF0_1.a_14" type="Instance Digital Output" />
+      <Terminal name="CLK_FAST_1.b_17" type="Instance Digital Input" />
+      <Terminal name="CLK_PERI_1.b_17" type="Instance Digital Input" />
+      <Terminal name="CLK_TIMER_1.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_2023" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF1_1.a_14" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_2033" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF2_1.a_14" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_2043" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF3_1.a_14" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_2053" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF4_1.a_14" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_2102" type="Digital" terminalCount="2">
+      <Terminal name="FLL_1.a_14" type="Instance Digital Output" />
+      <Terminal name="FLL_BYPASS.b_4" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_2154" type="Digital" terminalCount="2">
+      <Terminal name="CLK_TIMER_1.a_14" type="Instance Digital Output" />
+      <Terminal name="CLK_ALT_SYS_TICK.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_2743[3:0]" type="Digital" terminalCount="12">
+      <Terminal name="LF_CLK_MUX.a_0" type="Instance Digital Output" />
+      <Terminal name="IMO_1.a_14" type="Instance Digital Output" />
+      <Terminal name="EXTCLK_1.a_14" type="Instance Digital Output" />
+      <Terminal name="ECO_1.a_14" type="Instance Digital Output" />
+      <Terminal name="FLL_2.b_17" type="Instance Digital Input" />
+      <Terminal name="PATH_MUX0_1.b_22" type="Instance Digital Input" />
+      <Terminal name="PATH_MUX3_1.b_22" type="Instance Digital Input" />
+      <Terminal name="PATH_MUX2_1.b_22" type="Instance Digital Input" />
+      <Terminal name="PATH_MUX4_1.b_22" type="Instance Digital Input" />
+      <Terminal name="PATH_MUX1_1.b_22" type="Instance Digital Input" />
+      <Terminal name="arc_bridge_6.i" type="Instance Digital Input" />
+      <Terminal name="arc_bridge_5.i" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_2745" type="Digital" terminalCount="2">
+      <Terminal name="CLK_ALT_SYS_TICK.b_17" type="Instance Digital Input" />
+      <Terminal name="arc_bridge_1.o" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_2746" type="Digital" terminalCount="3">
+      <Terminal name="CLK_TIMER_1.b_16" type="Instance Digital Input" />
+      <Terminal name="CLK_ALT_SYS_TICK.b_19" type="Instance Digital Input" />
+      <Terminal name="arc_bridge_4.o" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_2749" type="Digital" terminalCount="2">
+      <Terminal name="PATH_MUX2_1.a_8" type="Instance Digital Output" />
+      <Terminal name="arc_bridge_2.i" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_2750" type="Digital" terminalCount="2">
+      <Terminal name="PLL_BYPASS_0.a_0" type="Instance Digital Output" />
+      <Terminal name="arc_bridge_8.i" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_2781" type="Digital" terminalCount="2">
+      <Terminal name="PATH_MUX3_1.a_8" type="Instance Digital Output" />
+      <Terminal name="arc_bridge_3.i" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_3071" type="Digital" terminalCount="2">
+      <Terminal name="arc_bridge_4.i" type="Instance Digital Input" />
+      <Terminal name="arc_bridge_5.o" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_3234" type="Digital" terminalCount="2">
+      <Terminal name="arc_bridge_1.i" type="Instance Digital Input" />
+      <Terminal name="arc_bridge_6.o" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_3886[3:0]" type="Digital" terminalCount="4">
+      <Terminal name="WCO_2.a_3" type="Instance Digital Output" />
+      <Terminal name="ILO_1.a_14" type="Instance Digital Output" />
+      <Terminal name="LF_CLK_MUX.b_0" type="Instance Digital Input" />
+      <Terminal name="CLK_LF_2.b_17" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_3929" type="Digital" terminalCount="2">
+      <Terminal name="CLK_LF_2.a_2" type="Instance Digital Output" />
+      <Terminal name="CLK_BAK_2.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_3957" type="Digital" terminalCount="2">
+      <Terminal name="WCO_2.a_2" type="Instance Digital Output" />
+      <Terminal name="CLK_BAK_2.b_16" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4132" type="Digital" terminalCount="2">
+      <Terminal name="FLL_2.a_14" type="Instance Digital Output" />
+      <Terminal name="FLL_3.b_17" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4396" type="Digital" terminalCount="3">
+      <Terminal name="PATH_MUX0_1.a_8" type="Instance Digital Output" />
+      <Terminal name="FLL_BYPASS.b_3" type="Instance Digital Input" />
+      <Terminal name="FLL_1.b_17" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4397" type="Digital" terminalCount="3">
+      <Terminal name="PATH_MUX1_1.a_8" type="Instance Digital Output" />
+      <Terminal name="PLL_BYPASS_0.b_3" type="Instance Digital Input" />
+      <Terminal name="PLL.b_17" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4398[4:0]" type="Digital" terminalCount="11">
+      <Terminal name="FLL_BYPASS.a_0" type="Instance Digital Output" />
+      <Terminal name="CLK_HF3_1.b_17" type="Instance Digital Input" />
+      <Terminal name="CLK_HF2_1.b_17" type="Instance Digital Input" />
+      <Terminal name="CLK_HF1_1.b_17" type="Instance Digital Input" />
+      <Terminal name="CLK_HF0_1.b_17" type="Instance Digital Input" />
+      <Terminal name="CLK_PUMP_1.b_17" type="Instance Digital Input" />
+      <Terminal name="CLK_HF4_1.b_17" type="Instance Digital Input" />
+      <Terminal name="arc_bridge_3.o" type="Instance Digital Output" />
+      <Terminal name="arc_bridge_7.o" type="Instance Digital Output" />
+      <Terminal name="arc_bridge_2.o" type="Instance Digital Output" />
+      <Terminal name="arc_bridge_8.o" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4405" type="Digital" terminalCount="2">
+      <Terminal name="CLK_LF_2.a_3" type="Instance Digital Output" />
+      <Terminal name="CLK_ALT_SYS_TICK.b_16" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4537" type="Digital" terminalCount="2">
+      <Terminal name="CLK_PERI_1.a_14" type="Instance Digital Output" />
+      <Terminal name="CLK_SLOW_1.b_17" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4576" type="" terminalCount="0" />
+    <Signal name="Net_4587" type="" terminalCount="0" />
+    <Signal name="Net_4598" type="" terminalCount="0" />
+    <Signal name="Net_4609" type="Digital" terminalCount="1">
+      <Terminal name="IMO_1.b_15" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4610" type="Digital" terminalCount="1">
+      <Terminal name="IMO_1.b_16" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4611" type="Digital" terminalCount="1">
+      <Terminal name="IMO_1.b_17" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4612" type="Digital" terminalCount="1">
+      <Terminal name="IMO_1.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4613" type="Digital" terminalCount="1">
+      <Terminal name="IMO_1.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4614" type="Digital" terminalCount="1">
+      <Terminal name="IMO_1.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4615" type="Digital" terminalCount="1">
+      <Terminal name="IMO_1.a_13" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4616" type="Digital" terminalCount="1">
+      <Terminal name="IMO_1.a_15" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4617" type="Digital" terminalCount="1">
+      <Terminal name="IMO_1.a_2" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4618" type="Digital" terminalCount="1">
+      <Terminal name="IMO_1.a_3" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4619" type="Digital" terminalCount="1">
+      <Terminal name="ECO_1.b_15" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4620" type="Digital" terminalCount="1">
+      <Terminal name="ECO_1.b_16" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4621" type="Digital" terminalCount="1">
+      <Terminal name="ECO_1.b_17" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4622" type="Digital" terminalCount="1">
+      <Terminal name="ECO_1.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4623" type="Digital" terminalCount="1">
+      <Terminal name="ECO_1.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4624" type="Digital" terminalCount="1">
+      <Terminal name="ECO_1.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4625" type="Digital" terminalCount="1">
+      <Terminal name="ECO_1.a_13" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4626" type="Digital" terminalCount="1">
+      <Terminal name="ECO_1.a_15" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4627" type="Digital" terminalCount="1">
+      <Terminal name="ECO_1.a_2" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4628" type="Digital" terminalCount="1">
+      <Terminal name="ECO_1.a_3" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4629" type="Digital" terminalCount="1">
+      <Terminal name="EXTCLK_1.b_15" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4630" type="Digital" terminalCount="1">
+      <Terminal name="EXTCLK_1.b_16" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4631" type="Digital" terminalCount="1">
+      <Terminal name="EXTCLK_1.b_17" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4632" type="Digital" terminalCount="1">
+      <Terminal name="EXTCLK_1.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4633" type="Digital" terminalCount="1">
+      <Terminal name="EXTCLK_1.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4634" type="Digital" terminalCount="1">
+      <Terminal name="EXTCLK_1.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4635" type="Digital" terminalCount="1">
+      <Terminal name="EXTCLK_1.a_13" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4636" type="Digital" terminalCount="1">
+      <Terminal name="EXTCLK_1.a_15" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4637" type="Digital" terminalCount="1">
+      <Terminal name="EXTCLK_1.a_2" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4638" type="Digital" terminalCount="1">
+      <Terminal name="EXTCLK_1.a_3" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4639" type="Digital" terminalCount="1">
+      <Terminal name="ILO_1.b_15" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4640" type="Digital" terminalCount="1">
+      <Terminal name="ILO_1.b_16" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4641" type="Digital" terminalCount="1">
+      <Terminal name="ILO_1.b_17" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4642" type="Digital" terminalCount="1">
+      <Terminal name="ILO_1.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4643" type="Digital" terminalCount="1">
+      <Terminal name="ILO_1.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4644" type="Digital" terminalCount="1">
+      <Terminal name="ILO_1.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4645" type="Digital" terminalCount="1">
+      <Terminal name="ILO_1.a_13" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4646" type="Digital" terminalCount="1">
+      <Terminal name="ILO_1.a_15" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4647" type="Digital" terminalCount="1">
+      <Terminal name="ILO_1.a_2" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4648" type="Digital" terminalCount="1">
+      <Terminal name="ILO_1.a_3" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4649" type="Digital" terminalCount="1">
+      <Terminal name="WCO_2.b_15" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4650" type="Digital" terminalCount="1">
+      <Terminal name="WCO_2.b_16" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4651" type="Digital" terminalCount="1">
+      <Terminal name="WCO_2.b_17" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4652" type="Digital" terminalCount="1">
+      <Terminal name="WCO_2.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4653" type="Digital" terminalCount="1">
+      <Terminal name="WCO_2.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4654" type="Digital" terminalCount="1">
+      <Terminal name="WCO_2.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4655" type="Digital" terminalCount="1">
+      <Terminal name="WCO_2.a_13" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4656" type="Digital" terminalCount="1">
+      <Terminal name="WCO_2.a_14" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4657" type="Digital" terminalCount="1">
+      <Terminal name="WCO_2.a_15" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4658" type="Digital" terminalCount="1">
+      <Terminal name="LF_CLK_MUX.a_1" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4659" type="Digital" terminalCount="1">
+      <Terminal name="LF_CLK_MUX.a_2" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4660" type="Digital" terminalCount="1">
+      <Terminal name="LF_CLK_MUX.b_3" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4661" type="Digital" terminalCount="1">
+      <Terminal name="LF_CLK_MUX.b_1" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4662" type="Digital" terminalCount="1">
+      <Terminal name="LF_CLK_MUX.b_2" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4663" type="Digital" terminalCount="1">
+      <Terminal name="LF_CLK_MUX.b_4" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4664" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX4_1.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4665" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX4_1.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4666" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX4_1.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4667" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX4_1.b_21" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4668" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX4_1.b_23" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4669" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX4_1.b_24" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4670" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX4_1.b_25" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4671" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX4_1.b_26" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4672" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX4_1.a_7" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4673" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX4_1.a_9" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4674" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX4_1.a_17" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4675" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX4_1.a_18" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4676" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX4_1.a_19" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4677" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX4_1.a_20" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4678" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX3_1.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4679" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX3_1.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4680" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX3_1.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4681" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX3_1.b_21" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4682" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX3_1.b_23" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4683" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX3_1.b_24" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4684" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX3_1.b_25" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4685" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX3_1.b_26" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4686" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX3_1.a_7" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4687" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX3_1.a_9" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4688" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX3_1.a_17" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4689" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX3_1.a_18" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4690" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX3_1.a_19" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4691" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX3_1.a_20" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4692" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX2_1.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4693" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX2_1.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4694" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX2_1.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4695" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX2_1.b_21" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4696" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX2_1.b_23" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4697" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX2_1.b_24" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4698" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX2_1.b_25" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4699" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX2_1.b_26" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4700" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX2_1.a_7" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4701" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX2_1.a_9" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4702" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX2_1.a_17" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4703" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX2_1.a_18" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4704" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX2_1.a_19" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4705" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX2_1.a_20" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4706" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX1_1.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4707" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX1_1.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4708" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX1_1.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4709" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX1_1.b_21" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4710" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX1_1.b_23" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4711" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX1_1.b_24" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4712" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX1_1.b_25" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4713" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX1_1.b_26" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4714" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX1_1.a_7" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4715" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX1_1.a_9" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4716" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX1_1.a_17" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4717" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX1_1.a_18" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4718" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX1_1.a_19" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4719" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX1_1.a_20" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4720" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX0_1.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4721" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX0_1.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4722" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX0_1.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4723" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX0_1.b_21" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4724" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX0_1.b_23" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4725" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX0_1.b_24" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4726" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX0_1.b_25" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4727" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX0_1.b_26" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4728" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX0_1.a_7" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4729" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX0_1.a_9" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4730" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX0_1.a_17" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4731" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX0_1.a_18" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4732" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX0_1.a_19" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4733" type="Digital" terminalCount="1">
+      <Terminal name="PATH_MUX0_1.a_20" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4734" type="Digital" terminalCount="1">
+      <Terminal name="FLL_1.b_15" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4735" type="Digital" terminalCount="1">
+      <Terminal name="FLL_1.b_16" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4736" type="Digital" terminalCount="1">
+      <Terminal name="FLL_1.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4737" type="Digital" terminalCount="1">
+      <Terminal name="FLL_1.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4738" type="Digital" terminalCount="1">
+      <Terminal name="FLL_1.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4739" type="Digital" terminalCount="1">
+      <Terminal name="FLL_1.a_13" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4740" type="Digital" terminalCount="1">
+      <Terminal name="FLL_1.a_15" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4741" type="Digital" terminalCount="1">
+      <Terminal name="FLL_1.a_2" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4742" type="Digital" terminalCount="1">
+      <Terminal name="FLL_1.a_3" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4743" type="Digital" terminalCount="1">
+      <Terminal name="PLL.b_15" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4744" type="Digital" terminalCount="1">
+      <Terminal name="PLL.b_16" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4745" type="Digital" terminalCount="1">
+      <Terminal name="PLL.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4746" type="Digital" terminalCount="1">
+      <Terminal name="PLL.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4747" type="Digital" terminalCount="1">
+      <Terminal name="PLL.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4748" type="Digital" terminalCount="1">
+      <Terminal name="PLL.a_13" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4749" type="Digital" terminalCount="1">
+      <Terminal name="PLL.a_15" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4750" type="Digital" terminalCount="1">
+      <Terminal name="PLL.a_2" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4751" type="Digital" terminalCount="1">
+      <Terminal name="PLL.a_3" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4752" type="Digital" terminalCount="1">
+      <Terminal name="PLL_BYPASS_0.a_1" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4753" type="Digital" terminalCount="1">
+      <Terminal name="PLL_BYPASS_0.a_2" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4754" type="Digital" terminalCount="1">
+      <Terminal name="PLL_BYPASS_0.b_1" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4755" type="Digital" terminalCount="1">
+      <Terminal name="PLL_BYPASS_0.b_0" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4756" type="Digital" terminalCount="1">
+      <Terminal name="PLL_BYPASS_0.b_2" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4757" type="Digital" terminalCount="1">
+      <Terminal name="FLL_BYPASS.a_1" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4758" type="Digital" terminalCount="1">
+      <Terminal name="FLL_BYPASS.a_2" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4759" type="Digital" terminalCount="1">
+      <Terminal name="FLL_BYPASS.b_1" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4760" type="Digital" terminalCount="1">
+      <Terminal name="FLL_BYPASS.b_0" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4761" type="Digital" terminalCount="1">
+      <Terminal name="FLL_BYPASS.b_2" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4762" type="Digital" terminalCount="1">
+      <Terminal name="FLL_2.b_15" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4763" type="Digital" terminalCount="1">
+      <Terminal name="FLL_2.b_16" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4764" type="Digital" terminalCount="1">
+      <Terminal name="FLL_2.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4765" type="Digital" terminalCount="1">
+      <Terminal name="FLL_2.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4766" type="Digital" terminalCount="1">
+      <Terminal name="FLL_2.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4767" type="Digital" terminalCount="1">
+      <Terminal name="FLL_2.a_13" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4768" type="Digital" terminalCount="1">
+      <Terminal name="FLL_2.a_15" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4769" type="Digital" terminalCount="1">
+      <Terminal name="FLL_2.a_2" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4770" type="Digital" terminalCount="1">
+      <Terminal name="FLL_2.a_3" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4771" type="Digital" terminalCount="1">
+      <Terminal name="CLK_LF_2.b_15" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4772" type="Digital" terminalCount="1">
+      <Terminal name="CLK_LF_2.b_16" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4773" type="Digital" terminalCount="1">
+      <Terminal name="CLK_LF_2.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4774" type="Digital" terminalCount="1">
+      <Terminal name="CLK_LF_2.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4775" type="Digital" terminalCount="1">
+      <Terminal name="CLK_LF_2.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4776" type="Digital" terminalCount="1">
+      <Terminal name="CLK_LF_2.a_13" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4777" type="Digital" terminalCount="1">
+      <Terminal name="CLK_LF_2.a_14" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4778" type="Digital" terminalCount="1">
+      <Terminal name="CLK_LF_2.a_15" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4779" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF0_1.b_15" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4780" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF0_1.b_16" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4781" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF0_1.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4782" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF0_1.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4783" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF0_1.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4784" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF0_1.a_13" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4785" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF0_1.a_15" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4786" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF0_1.a_2" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4787" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF0_1.a_3" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4788" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF1_1.b_15" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4789" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF1_1.b_16" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4790" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF1_1.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4791" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF1_1.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4792" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF1_1.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4793" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF1_1.a_13" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4794" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF1_1.a_15" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4795" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF1_1.a_2" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4796" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF1_1.a_3" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4797" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF2_1.b_15" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4798" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF2_1.b_16" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4799" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF2_1.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4800" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF2_1.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4801" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF2_1.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4802" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF2_1.a_13" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4803" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF2_1.a_15" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4804" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF2_1.a_2" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4805" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF2_1.a_3" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4806" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF3_1.b_15" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4807" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF3_1.b_16" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4808" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF3_1.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4809" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF3_1.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4810" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF3_1.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4811" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF3_1.a_13" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4812" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF3_1.a_15" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4813" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF3_1.a_2" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4814" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF3_1.a_3" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4815" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF4_1.b_15" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4816" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF4_1.b_16" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4817" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF4_1.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4818" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF4_1.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4819" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF4_1.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4820" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF4_1.a_13" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4821" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF4_1.a_15" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4822" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF4_1.a_2" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4823" type="Digital" terminalCount="1">
+      <Terminal name="CLK_HF4_1.a_3" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4824" type="Digital" terminalCount="1">
+      <Terminal name="CLK_BAK_2.b_15" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4825" type="Digital" terminalCount="1">
+      <Terminal name="CLK_BAK_2.b_17" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4826" type="Digital" terminalCount="1">
+      <Terminal name="CLK_BAK_2.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4827" type="Digital" terminalCount="1">
+      <Terminal name="CLK_BAK_2.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4828" type="Digital" terminalCount="1">
+      <Terminal name="CLK_BAK_2.a_13" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4829" type="Digital" terminalCount="1">
+      <Terminal name="CLK_BAK_2.a_14" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4830" type="Digital" terminalCount="1">
+      <Terminal name="CLK_BAK_2.a_15" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4831" type="Digital" terminalCount="1">
+      <Terminal name="CLK_BAK_2.a_2" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4832" type="Digital" terminalCount="1">
+      <Terminal name="CLK_BAK_2.a_3" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4833" type="Digital" terminalCount="1">
+      <Terminal name="CLK_TIMER_1.b_15" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4834" type="Digital" terminalCount="1">
+      <Terminal name="CLK_TIMER_1.b_17" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4835" type="Digital" terminalCount="1">
+      <Terminal name="CLK_TIMER_1.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4836" type="Digital" terminalCount="1">
+      <Terminal name="CLK_TIMER_1.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4837" type="Digital" terminalCount="1">
+      <Terminal name="CLK_TIMER_1.a_13" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4838" type="Digital" terminalCount="1">
+      <Terminal name="CLK_TIMER_1.a_15" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4839" type="Digital" terminalCount="1">
+      <Terminal name="CLK_TIMER_1.a_2" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4840" type="Digital" terminalCount="1">
+      <Terminal name="CLK_TIMER_1.a_3" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4841" type="Digital" terminalCount="1">
+      <Terminal name="CLK_PERI_1.b_15" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4842" type="Digital" terminalCount="1">
+      <Terminal name="CLK_PERI_1.b_16" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4843" type="Digital" terminalCount="1">
+      <Terminal name="CLK_PERI_1.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4844" type="Digital" terminalCount="1">
+      <Terminal name="CLK_PERI_1.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4845" type="Digital" terminalCount="1">
+      <Terminal name="CLK_PERI_1.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4846" type="Digital" terminalCount="1">
+      <Terminal name="CLK_PERI_1.a_13" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4847" type="Digital" terminalCount="1">
+      <Terminal name="CLK_PERI_1.a_15" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4848" type="Digital" terminalCount="1">
+      <Terminal name="CLK_PERI_1.a_2" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4849" type="Digital" terminalCount="1">
+      <Terminal name="CLK_PERI_1.a_3" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4857" type="Digital" terminalCount="1">
+      <Terminal name="CLK_PUMP_1.b_15" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4858" type="Digital" terminalCount="1">
+      <Terminal name="CLK_PUMP_1.b_16" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4859" type="Digital" terminalCount="1">
+      <Terminal name="CLK_PUMP_1.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4860" type="Digital" terminalCount="1">
+      <Terminal name="CLK_PUMP_1.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4861" type="Digital" terminalCount="1">
+      <Terminal name="CLK_PUMP_1.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4862" type="Digital" terminalCount="1">
+      <Terminal name="CLK_PUMP_1.a_13" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4863" type="Digital" terminalCount="1">
+      <Terminal name="CLK_PUMP_1.a_14" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4864" type="Digital" terminalCount="1">
+      <Terminal name="CLK_PUMP_1.a_15" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4865" type="Digital" terminalCount="1">
+      <Terminal name="CLK_PUMP_1.a_2" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4866" type="Digital" terminalCount="1">
+      <Terminal name="CLK_PUMP_1.a_3" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4867" type="Digital" terminalCount="1">
+      <Terminal name="FLL_3.b_15" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4868" type="Digital" terminalCount="1">
+      <Terminal name="FLL_3.b_16" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4869" type="Digital" terminalCount="1">
+      <Terminal name="FLL_3.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4870" type="Digital" terminalCount="1">
+      <Terminal name="FLL_3.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4871" type="Digital" terminalCount="1">
+      <Terminal name="FLL_3.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4872" type="Digital" terminalCount="1">
+      <Terminal name="FLL_3.a_13" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4873" type="Digital" terminalCount="1">
+      <Terminal name="FLL_3.a_14" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4874" type="Digital" terminalCount="1">
+      <Terminal name="FLL_3.a_15" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4875" type="Digital" terminalCount="1">
+      <Terminal name="FLL_3.a_2" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4876" type="Digital" terminalCount="1">
+      <Terminal name="FLL_3.a_3" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4877" type="Digital" terminalCount="1">
+      <Terminal name="CLK_FAST_1.b_15" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4878" type="Digital" terminalCount="1">
+      <Terminal name="CLK_FAST_1.b_16" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4879" type="Digital" terminalCount="1">
+      <Terminal name="CLK_FAST_1.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4880" type="Digital" terminalCount="1">
+      <Terminal name="CLK_FAST_1.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4881" type="Digital" terminalCount="1">
+      <Terminal name="CLK_FAST_1.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4882" type="Digital" terminalCount="1">
+      <Terminal name="CLK_FAST_1.a_13" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4883" type="Digital" terminalCount="1">
+      <Terminal name="CLK_FAST_1.a_14" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4884" type="Digital" terminalCount="1">
+      <Terminal name="CLK_FAST_1.a_15" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4885" type="Digital" terminalCount="1">
+      <Terminal name="CLK_FAST_1.a_2" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4886" type="Digital" terminalCount="1">
+      <Terminal name="CLK_FAST_1.a_3" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4887" type="Digital" terminalCount="1">
+      <Terminal name="CLK_SLOW_1.b_15" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4888" type="Digital" terminalCount="1">
+      <Terminal name="CLK_SLOW_1.b_16" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4889" type="Digital" terminalCount="1">
+      <Terminal name="CLK_SLOW_1.b_18" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4890" type="Digital" terminalCount="1">
+      <Terminal name="CLK_SLOW_1.b_19" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4891" type="Digital" terminalCount="1">
+      <Terminal name="CLK_SLOW_1.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4892" type="Digital" terminalCount="1">
+      <Terminal name="CLK_SLOW_1.a_13" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4893" type="Digital" terminalCount="1">
+      <Terminal name="CLK_SLOW_1.a_14" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4894" type="Digital" terminalCount="1">
+      <Terminal name="CLK_SLOW_1.a_15" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4895" type="Digital" terminalCount="1">
+      <Terminal name="CLK_SLOW_1.a_2" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4896" type="Digital" terminalCount="1">
+      <Terminal name="CLK_SLOW_1.a_3" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4897" type="Digital" terminalCount="1">
+      <Terminal name="CLK_ALT_SYS_TICK.b_15" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4898" type="Digital" terminalCount="1">
+      <Terminal name="CLK_ALT_SYS_TICK.b_20" type="Instance Digital Input" />
+    </Signal>
+    <Signal name="Net_4899" type="Digital" terminalCount="1">
+      <Terminal name="CLK_ALT_SYS_TICK.a_13" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4900" type="Digital" terminalCount="1">
+      <Terminal name="CLK_ALT_SYS_TICK.a_14" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4901" type="Digital" terminalCount="1">
+      <Terminal name="CLK_ALT_SYS_TICK.a_15" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4902" type="Digital" terminalCount="1">
+      <Terminal name="CLK_ALT_SYS_TICK.a_2" type="Instance Digital Output" />
+    </Signal>
+    <Signal name="Net_4903" type="Digital" terminalCount="1">
+      <Terminal name="CLK_ALT_SYS_TICK.a_3" type="Instance Digital Output" />
+    </Signal>
+  </Signals>
+  <Properties>
+    <Property name="CanvasBackColor">255, 255, 255</Property>
+    <Property name="Doc.CompanyAddr1" />
+    <Property name="Doc.CompanyAddr2" />
+    <Property name="Doc.CompanyAddr3" />
+    <Property name="Doc.CompanyName">Cypress Semiconductor</Property>
+    <Property name="Doc.SchematicTitle" />
+    <Property name="MajorGridColor">169, 169, 169</Property>
+    <Property name="MinorGridColor">100, 169, 169, 169</Property>
+    <Property name="OnlyShowSolderDotsOnWires">False</Property>
+    <Property name="OwnerLineColor">128, 128, 128</Property>
+    <Property name="ShowGrid">True</Property>
+    <Property name="ShowGridAsLines">False</Property>
+    <Property name="TerminalConnectColor">128, 128, 128</Property>
+    <Property name="TerminalFont">Microsoft Sans Serif, 10pt</Property>
+    <Property name="WireBusSize">2</Property>
+    <Property name="WireDotSize">5</Property>
+    <Property name="WireFont">Microsoft Sans Serif, 10pt</Property>
+    <Property name="WireFontColor">0, 0, 0</Property>
+    <Property name="WireSize">0.25</Property>
+  </Properties>
+</Document>

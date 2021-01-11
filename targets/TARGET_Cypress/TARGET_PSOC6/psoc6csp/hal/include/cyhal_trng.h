@@ -62,9 +62,10 @@
 extern "C" {
 #endif
 
-/** \addtogroup group_hal_results
+/** \addtogroup group_hal_results_trng TRNG HAL Results
+ *  TRNG specific return codes
+ *  \ingroup group_hal_results
  *  \{ *//**
- *  \{ @name TRNG Results
  */
 
 /** An invalid argument was passed to a function. */
@@ -77,7 +78,7 @@ extern "C" {
     (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_TRNG, 1))
 
 /**
- * \} \}
+ * \}
  */
 
 /** Initialize the random number generator.

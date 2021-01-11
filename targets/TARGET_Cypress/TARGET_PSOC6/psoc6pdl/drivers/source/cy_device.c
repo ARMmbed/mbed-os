@@ -48,6 +48,7 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_01 =
     /* passBase                  */ 0x411F0000UL,
     /* ipcBase                   */ 0x40230000UL,
     /* cryptoBase                */ 0x40110000UL,
+    /* sar0Base                  */ 0x411D0000UL,
 
     /* IP block versions [7:4] major, [3:0] minor */
     /* cpussVersion              */ 0x10U,
@@ -56,6 +57,7 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_01 =
     /* ipcVersion                */ 0x10U,
     /* periVersion               */ 0x10U,
     /* srssVersion               */ 0x10U,
+    /* passVersion               */ 0x10U,
 
     /* Parameters  */
     /* cpussIpcNr                */ 16U,
@@ -88,6 +90,9 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_01 =
     /* flashCtlMainWs2Freq       */ 87U,
     /* flashCtlMainWs3Freq       */ 120U,
     /* flashCtlMainWs4Freq       */ 150U,
+    /* tcpwmCC1Present           */ 0U,
+    /* tcpwmAMCPresent           */ 0U,
+    /* tcpwmSMCPrecent           */ 0U,
 
     /* Peripheral register offsets */
 
@@ -157,6 +162,7 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_02 =
     /* passBase                  */ 0x409F0000UL,
     /* ipcBase                   */ 0x40220000UL,
     /* cryptoBase                */ 0x40100000UL,
+    /* sar0Base                  */ 0x409D0000UL,
 
     /* IP block versions [7:4] major, [3:0] minor */
     /* cpussVersion              */ 0x20U,
@@ -165,6 +171,7 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_02 =
     /* ipcVersion                */ 0x20U,
     /* periVersion               */ 0x20U,
     /* srssVersion               */ 0x10U,
+    /* passVersion               */ 0x10U,
 
     /* Parameters */
     /* cpussIpcNr                */ 16U,
@@ -197,6 +204,9 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_02 =
     /* flashCtlMainWs2Freq       */ 75U,
     /* flashCtlMainWs3Freq       */ 100U,
     /* flashCtlMainWs4Freq       */ 125U,
+    /* tcpwmCC1Present           */ 0U,
+    /* tcpwmAMCPresent           */ 0U,
+    /* tcpwmSMCPrecent           */ 0U,
 
     /* Peripheral register offsets */
 
@@ -265,6 +275,7 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_03 =
     /* passBase                  */ 0x409F0000UL,
     /* ipcBase                   */ 0x40220000UL,
     /* cryptoBase                */ 0x40100000UL,
+    /* sar0Base                  */ 0x409D0000UL,
 
     /* IP block versions [7:4] major, [3:0] minor */
     /* cpussVersion              */ 0x20U,
@@ -273,6 +284,7 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_03 =
     /* ipcVersion                */ 0x20U,
     /* periVersion               */ 0x20U,
     /* srssVersion               */ 0x13U,
+    /* passVersion               */ 0x10U,
 
     /* Parameters */
     /* cpussIpcNr                */ 16U,
@@ -292,7 +304,7 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_03 =
     /* passSarChannels           */ 16U,
     /* epMonitorNr               */ 0u,
     /* udbPresent                */ 0U,
-    /* sysPmSimoPresent          */ 1U,
+    /* sysPmSimoPresent          */ 0U,
     /* protBusMasterMask         */ 0xC03FUL,
     /* cryptoMemSize             */ 1024u,
     /* flashRwwRequired          */ 0U,
@@ -305,6 +317,9 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_03 =
     /* flashCtlMainWs2Freq       */ 75U,
     /* flashCtlMainWs3Freq       */ 100U,
     /* flashCtlMainWs4Freq       */ 125U,
+    /* tcpwmCC1Present           */ 0U,
+    /* tcpwmAMCPresent           */ 0U,
+    /* tcpwmSMCPrecent           */ 0U,
 
     /* Peripheral register offsets */
 
@@ -373,6 +388,7 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_04 =
     /* passBase                  */ 0x409F0000UL,
     /* ipcBase                   */ 0x40220000UL,
     /* cryptoBase                */ 0x40100000UL,
+    /* sar0Base                  */ 0x409B0000UL,
 
     /* IP block versions [7:4] major, [3:0] minor */
     /* cpussVersion              */ 0x20U,
@@ -381,6 +397,7 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_04 =
     /* ipcVersion                */ 0x20U,
     /* periVersion               */ 0x20U,
     /* srssVersion               */ 0x13U,
+    /* passVersion               */ 0x20U,
 
     /* Parameters */
     /* cpussIpcNr                */ 16U,
@@ -400,7 +417,7 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_04 =
     /* passSarChannels           */ 16U,
     /* epMonitorNr               */ 0u,
     /* udbPresent                */ 0U,
-    /* sysPmSimoPresent          */ 1U,
+    /* sysPmSimoPresent          */ 0U,
     /* protBusMasterMask         */ 0xC01FUL,
     /* cryptoMemSize             */ 1024u,
     /* flashRwwRequired          */ 0U,
@@ -413,6 +430,9 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_04 =
     /* flashCtlMainWs2Freq       */ 75U,
     /* flashCtlMainWs3Freq       */ 100U,
     /* flashCtlMainWs4Freq       */ 125U,
+    /* tcpwmCC1Present           */ 0x02U,
+    /* tcpwmAMCPresent           */ 0x02U,
+    /* tcpwmSMCPrecent           */ 0x00U,
 
     /* Peripheral register offsets */
 

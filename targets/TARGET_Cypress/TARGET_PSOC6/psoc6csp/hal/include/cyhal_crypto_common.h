@@ -2,7 +2,7 @@
 * \file cyhal_crypto_common.h
 *
 * Description:
-* This file provides common defines, addresses, and functions required by drivers 
+* This file provides common defines, addresses, and functions required by drivers
 * using the Crypto block.
 *
 ********************************************************************************
@@ -50,6 +50,7 @@ typedef enum
     /** Common features of the Crypto block  */
     CYHAL_CRYPTO_COMMON,
 } cyhal_crypto_feature_t;
+
 
 /** Reserve the Crypto block and enable it.
  *

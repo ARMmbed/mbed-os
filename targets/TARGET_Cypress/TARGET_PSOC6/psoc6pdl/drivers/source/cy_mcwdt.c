@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_mcwdt.c
-* \version 1.30.1
+* \version 1.40
 *
 *  Description:
 *   Provides a system API for the MCWDT driver.

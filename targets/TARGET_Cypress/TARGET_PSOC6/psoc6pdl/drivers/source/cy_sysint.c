@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file  cy_sysint.c
-* \version 1.40
+* \version 1.50
 *
 * \brief
 * Provides an API implementation of the SysInt driver.
@@ -275,9 +275,12 @@ cy_en_intr_t Cy_SysInt_GetInterruptActive(IRQn_Type IRQn)
     uint32_t tempReg = CY_CPUSS_NOT_CONNECTED_IRQN;
     uint32_t locIdx = (uint32_t)IRQn & CY_SYSINT_INT_STATUS_MSK;
 
-    if ((!CY_CPUSS_V1) && (CY_SYSINT_ENABLE == _FLD2VAL(CPUSS_V2_CM0_INT0_STATUS_SYSTEM_INT_VALID, CPUSS_CM0_INT_STATUS[locIdx])))
+    if (!CY_CPUSS_V1)
     {
-        tempReg = _FLD2VAL(CPUSS_V2_CM0_INT0_STATUS_SYSTEM_INT_IDX, CPUSS_CM0_INT_STATUS[locIdx]);
+        if(CY_SYSINT_ENABLE == _FLD2VAL(CPUSS_V2_CM0_INT0_STATUS_SYSTEM_INT_VALID, CPUSS_CM0_INT_STATUS[locIdx]))
+        {
+            tempReg = _FLD2VAL(CPUSS_V2_CM0_INT0_STATUS_SYSTEM_INT_IDX, CPUSS_CM0_INT_STATUS[locIdx]);
+        }
     }
     return ((cy_en_intr_t)tempReg);
 }
@@ -320,12 +323,12 @@ cy_israddress Cy_SysInt_SetVector(IRQn_Type IRQn, cy_israddress userIsr)
     {
         CY_ASSERT_L1(CY_SYSINT_IS_VECTOR_VALID(userIsr));
 
-        prevIsr = __ramVectors[CY_INT_IRQ_BASE + IRQn];
-        __ramVectors[CY_INT_IRQ_BASE + IRQn] = userIsr;
+        prevIsr = __ramVectors[CY_INT_IRQ_BASE + (uint32_t)IRQn];
+        __ramVectors[CY_INT_IRQ_BASE + (uint32_t)IRQn] = userIsr;
     }
     else
     {
-        prevIsr = __Vectors[CY_INT_IRQ_BASE + IRQn];
+        prevIsr = __Vectors[CY_INT_IRQ_BASE + (uint32_t)IRQn];
     }
 
     return (prevIsr);
@@ -362,11 +365,11 @@ cy_israddress Cy_SysInt_GetVector(IRQn_Type IRQn)
     /* Return the SRAM ISR address only if it was moved to __ramVectors */
     if (SCB->VTOR == (uint32_t)&__ramVectors)
     {
-        currIsr = __ramVectors[CY_INT_IRQ_BASE + IRQn];
+        currIsr = __ramVectors[CY_INT_IRQ_BASE + (uint32_t)IRQn];
     }
     else
     {
-        currIsr = __Vectors[CY_INT_IRQ_BASE + IRQn];
+        currIsr = __Vectors[CY_INT_IRQ_BASE + (uint32_t)IRQn];
     }
 
     return (currIsr);

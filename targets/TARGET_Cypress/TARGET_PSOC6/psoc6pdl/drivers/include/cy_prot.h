@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_prot.h
-* \version 1.40
+* \version 1.50
 *
 * \brief
 * Provides an API declaration of the Protection Unit driver
@@ -366,35 +366,26 @@
 *
 * Refer to Technical Reference Manual (TRM) and the device datasheet.
 *
-* \section group_prot_MISRA MISRA-C Compliance
-* The Prot driver has the following specific deviations:
-*
-* <table class="doxtable">
-*   <tr>
-*     <th>MISRA Rule</th>
-*     <th>Rule Class (Required/Advisory)</th>
-*     <th>Rule Description</th>
-*     <th>Description of Deviation(s)</th>
-*   </tr>
-*   <tr>
-*     <td>11.4</td>
-*     <td>A</td>
-*     <td>A cast should not be performed between a pointer to object type and
-*         a different pointer to object type.</td>
-*     <td>This piece of code is written for DW_V2_Type only and it will be never
-*         executed for DW_V1_Type (which is a default build option for DW_Type).</td>
-*   </tr>
-*   <tr>
-*     <td>19.13</td>
-*     <td>A</td>
-*     <td>The # and ## operators should not be used.</td>
-*     <td>The ## preprocessor operator is used in macros to form the field mask.</td>
-*   </tr>
-* </table>
-*
 * \section group_prot_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td rowspan="3">1.50</td>
+*     <td>Updated implementation of the \ref Cy_Prot_ConfigPpuProgMasterAtt(),
+*         \ref Cy_Prot_ConfigPpuProgSlaveAtt(), \ref Cy_Prot_ConfigPpuFixedMasterAtt(),
+*         and \ref Cy_Prot_ConfigPpuFixedSlaveAtt() to start registers update from
+*         the higher-numbered PCs in order to prevent lockup for the case when registers
+*         are configured to read-only.</td>
+*     <td>Defect fix.</td>
+*   </tr>
+*   <tr>
+*     <td>Added macros for memory region size setting in \ref cy_en_prot_size_t initialization.</td>
+*     <td>The macros can be useful for the pre-processor checks.</td>
+*   </tr>
+*   <tr>
+*     <td>Fixed/Documented MISRA 2012 violations.</td>
+*     <td>MISRA 2012 compliance.</td>
+*   </tr>
 *   <tr>
 *     <td>1.40</td>
 *     <td>
@@ -506,7 +497,7 @@ extern "C" {
 #define CY_PROT_DRV_VERSION_MAJOR       1
 
 /** Driver minor version */
-#define CY_PROT_DRV_VERSION_MINOR       40
+#define CY_PROT_DRV_VERSION_MINOR       50
 
 /** Prot driver ID */
 #define CY_PROT_ID                      (CY_PDL_DRV_ID(0x30U))
@@ -546,42 +537,80 @@ typedef enum
 }cy_en_prot_perm_t;
 
 /**
+* Constants for memory region size setting.
+* These may be useful for pre-processor-time tests.
+*/
+#define PROT_SIZE_4B_BIT_SHIFT      1U   /**< 4 bytes */
+#define PROT_SIZE_8B_BIT_SHIFT      2U   /**< 8 bytes */
+#define PROT_SIZE_16B_BIT_SHIFT     3U   /**< 16 bytes */
+#define PROT_SIZE_32B_BIT_SHIFT     4U   /**< 32 bytes */
+#define PROT_SIZE_64B_BIT_SHIFT     5U   /**< 64 bytes */
+#define PROT_SIZE_128B_BIT_SHIFT    6U   /**< 128 bytes */
+#define PROT_SIZE_256B_BIT_SHIFT    7U   /**< 256 bytes */
+#define PROT_SIZE_512B_BIT_SHIFT    8U   /**< 512 bytes */
+
+#define PROT_SIZE_1KB_BIT_SHIFT     9U   /**< 1 Kilobyte */
+#define PROT_SIZE_2KB_BIT_SHIFT     10U  /**< 2 Kilobytes */
+#define PROT_SIZE_4KB_BIT_SHIFT     11U  /**< 4 Kilobytes */
+#define PROT_SIZE_8KB_BIT_SHIFT     12U  /**< 8 Kilobytes */
+#define PROT_SIZE_16KB_BIT_SHIFT    13U  /**< 16 Kilobytes */
+#define PROT_SIZE_32KB_BIT_SHIFT    14U  /**< 32 Kilobytes */
+#define PROT_SIZE_64KB_BIT_SHIFT    15U  /**< 64 Kilobytes */
+#define PROT_SIZE_128KB_BIT_SHIFT   16U  /**< 128 Kilobytes */
+#define PROT_SIZE_256KB_BIT_SHIFT   17U  /**< 256 Kilobytes */
+#define PROT_SIZE_512KB_BIT_SHIFT   18U  /**< 512 Kilobytes */
+
+#define PROT_SIZE_1MB_BIT_SHIFT     19U  /**< 1 Megabyte */
+#define PROT_SIZE_2MB_BIT_SHIFT     20U  /**< 2 Megabytes */
+#define PROT_SIZE_4MB_BIT_SHIFT     21U  /**< 4 Megabytes */
+#define PROT_SIZE_8MB_BIT_SHIFT     22U  /**< 8 Megabytes */
+#define PROT_SIZE_16MB_BIT_SHIFT    23U  /**< 16 Megabytes */
+#define PROT_SIZE_32MB_BIT_SHIFT    24U  /**< 32 Megabytes */
+#define PROT_SIZE_64MB_BIT_SHIFT    25U  /**< 64 Megabytes */
+#define PROT_SIZE_128MB_BIT_SHIFT   26U  /**< 128 Megabytes */
+#define PROT_SIZE_256MB_BIT_SHIFT   27U  /**< 256 Megabytes */
+#define PROT_SIZE_512MB_BIT_SHIFT   28U  /**< 512 Megabytes */
+
+#define PROT_SIZE_1GB_BIT_SHIFT     29U  /**< 1 Gigabyte */
+#define PROT_SIZE_2GB_BIT_SHIFT     30U  /**< 2 Gigabytes */
+#define PROT_SIZE_4GB_BIT_SHIFT     31U  /**< 4 Gigabytes */
+
+/**
 * Memory region size
 */
 typedef enum
 {
-    CY_PROT_SIZE_4B    = 1U,  /**< 4 bytes */
-    CY_PROT_SIZE_8B    = 2U,  /**< 8 bytes */
-    CY_PROT_SIZE_16B   = 3U,  /**< 16 bytes */
-    CY_PROT_SIZE_32B   = 4U,  /**< 32 bytes */
-    CY_PROT_SIZE_64B   = 5U,  /**< 64 bytes */
-    CY_PROT_SIZE_128B  = 6U,  /**< 128 bytes */
-
-    CY_PROT_SIZE_256B  = 7U,  /**< 256 bytes */
-    CY_PROT_SIZE_512B  = 8U,  /**< 512 bytes */
-    CY_PROT_SIZE_1KB   = 9U,  /**< 1 Kilobyte */
-    CY_PROT_SIZE_2KB   = 10U, /**< 2 Kilobytes */
-    CY_PROT_SIZE_4KB   = 11U, /**< 4 Kilobytes */
-    CY_PROT_SIZE_8KB   = 12U, /**< 8 Kilobytes */
-    CY_PROT_SIZE_16KB  = 13U, /**< 16 Kilobytes */
-    CY_PROT_SIZE_32KB  = 14U, /**< 32 Kilobytes */
-    CY_PROT_SIZE_64KB  = 15U, /**< 64 Kilobytes */
-    CY_PROT_SIZE_128KB = 16U, /**< 128 Kilobytes */
-    CY_PROT_SIZE_256KB = 17U, /**< 256 Kilobytes */
-    CY_PROT_SIZE_512KB = 18U, /**< 512 Kilobytes */
-    CY_PROT_SIZE_1MB   = 19U, /**< 1 Megabyte */
-    CY_PROT_SIZE_2MB   = 20U, /**< 2 Megabytes */
-    CY_PROT_SIZE_4MB   = 21U, /**< 4 Megabytes */
-    CY_PROT_SIZE_8MB   = 22U, /**< 8 Megabytes */
-    CY_PROT_SIZE_16MB  = 23U, /**< 16 Megabytes */
-    CY_PROT_SIZE_32MB  = 24U, /**< 32 Megabytes */
-    CY_PROT_SIZE_64MB  = 25U, /**< 64 Megabytes */
-    CY_PROT_SIZE_128MB = 26U, /**< 128 Megabytes */
-    CY_PROT_SIZE_256MB = 27U, /**< 256 Megabytes */
-    CY_PROT_SIZE_512MB = 28U, /**< 512 Megabytes */
-    CY_PROT_SIZE_1GB   = 29U, /**< 1 Gigabyte */
-    CY_PROT_SIZE_2GB   = 30U, /**< 2 Gigabytes */
-    CY_PROT_SIZE_4GB   = 31U  /**< 4 Gigabytes */
+    CY_PROT_SIZE_4B    = PROT_SIZE_4B_BIT_SHIFT,    /**< 4 bytes */
+    CY_PROT_SIZE_8B    = PROT_SIZE_8B_BIT_SHIFT,    /**< 8 bytes */
+    CY_PROT_SIZE_16B   = PROT_SIZE_16B_BIT_SHIFT,   /**< 16 bytes */
+    CY_PROT_SIZE_32B   = PROT_SIZE_32B_BIT_SHIFT,   /**< 32 bytes */
+    CY_PROT_SIZE_64B   = PROT_SIZE_64B_BIT_SHIFT,   /**< 64 bytes */
+    CY_PROT_SIZE_128B  = PROT_SIZE_128B_BIT_SHIFT,  /**< 128 bytes */
+    CY_PROT_SIZE_256B  = PROT_SIZE_256B_BIT_SHIFT,  /**< 256 bytes */
+    CY_PROT_SIZE_512B  = PROT_SIZE_512B_BIT_SHIFT,  /**< 512 bytes */
+    CY_PROT_SIZE_1KB   = PROT_SIZE_1KB_BIT_SHIFT,   /**< 1 Kilobyte */
+    CY_PROT_SIZE_2KB   = PROT_SIZE_2KB_BIT_SHIFT,   /**< 2 Kilobytes */
+    CY_PROT_SIZE_4KB   = PROT_SIZE_4KB_BIT_SHIFT,   /**< 4 Kilobytes */
+    CY_PROT_SIZE_8KB   = PROT_SIZE_8KB_BIT_SHIFT,   /**< 8 Kilobytes */
+    CY_PROT_SIZE_16KB  = PROT_SIZE_16KB_BIT_SHIFT,  /**< 16 Kilobytes */
+    CY_PROT_SIZE_32KB  = PROT_SIZE_32KB_BIT_SHIFT,  /**< 32 Kilobytes */
+    CY_PROT_SIZE_64KB  = PROT_SIZE_64KB_BIT_SHIFT,  /**< 64 Kilobytes */
+    CY_PROT_SIZE_128KB = PROT_SIZE_128KB_BIT_SHIFT, /**< 128 Kilobytes */
+    CY_PROT_SIZE_256KB = PROT_SIZE_256KB_BIT_SHIFT, /**< 256 Kilobytes */
+    CY_PROT_SIZE_512KB = PROT_SIZE_512KB_BIT_SHIFT, /**< 512 Kilobytes */
+    CY_PROT_SIZE_1MB   = PROT_SIZE_1MB_BIT_SHIFT,   /**< 1 Megabyte */
+    CY_PROT_SIZE_2MB   = PROT_SIZE_2MB_BIT_SHIFT,   /**< 2 Megabytes */
+    CY_PROT_SIZE_4MB   = PROT_SIZE_4MB_BIT_SHIFT,   /**< 4 Megabytes */
+    CY_PROT_SIZE_8MB   = PROT_SIZE_8MB_BIT_SHIFT,   /**< 8 Megabytes */
+    CY_PROT_SIZE_16MB  = PROT_SIZE_16MB_BIT_SHIFT,  /**< 16 Megabytes */
+    CY_PROT_SIZE_32MB  = PROT_SIZE_32MB_BIT_SHIFT,  /**< 32 Megabytes */
+    CY_PROT_SIZE_64MB  = PROT_SIZE_64MB_BIT_SHIFT,  /**< 64 Megabytes */
+    CY_PROT_SIZE_128MB = PROT_SIZE_128MB_BIT_SHIFT, /**< 128 Megabytes */
+    CY_PROT_SIZE_256MB = PROT_SIZE_256MB_BIT_SHIFT, /**< 256 Megabytes */
+    CY_PROT_SIZE_512MB = PROT_SIZE_512MB_BIT_SHIFT, /**< 512 Megabytes */
+    CY_PROT_SIZE_1GB   = PROT_SIZE_1GB_BIT_SHIFT,   /**< 1 Gigabyte */
+    CY_PROT_SIZE_2GB   = PROT_SIZE_2GB_BIT_SHIFT,   /**< 2 Gigabytes */
+    CY_PROT_SIZE_4GB   = PROT_SIZE_4GB_BIT_SHIFT    /**< 4 Gigabytes */
 }cy_en_prot_size_t;
 
 /**

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_des_v1.c
-* \version 2.30.4
+* \version 2.40
 *
 * \brief
 *  This file provides the source code fro the API for the DES method
@@ -37,7 +37,6 @@ extern "C" {
 #include "cy_crypto_core_mem_v1.h"
 #include "cy_crypto_core_hw_v1.h"
 #include "cy_syslib.h"
-#include <string.h>
 
 #define CY_CRYPTO_DES_WEAK_KEY_COUNT   (16u)
 #define CY_CRYPTO_DES_KEY_BYTE_LENGTH  (8u)
@@ -96,6 +95,9 @@ static void Cy_Crypto_Core_V1_Des_ProcessBlock(CRYPTO_Type *base,
 *
 * \param base
 * The pointer to the CRYPTO instance.
+*
+* \param desMode
+* DES cipher operation mode.
 *
 * \param dirMode
 * One of CRYPTO_ENCRYPT or CRYPTO_DECRYPT.
@@ -180,11 +182,12 @@ cy_en_crypto_status_t Cy_Crypto_Core_V1_Des(CRYPTO_Type *base,
     cy_stc_crypto_des_buffers_t *desBuffers = (cy_stc_crypto_des_buffers_t *)Cy_Crypto_Core_GetVuMemoryAddress(base);
 
     /* Check weak keys */
-    for (i = 0U; (i < CY_CRYPTO_DES_WEAK_KEY_COUNT) && (CY_CRYPTO_SUCCESS == status); i++)
+    for (i = 0U; i < CY_CRYPTO_DES_WEAK_KEY_COUNT; i++)
     {
         if (Cy_Crypto_Core_V1_MemCmp(base, key, (uint8_t const *)cy_desWeakKeys[i], CY_CRYPTO_DES_KEY_BYTE_LENGTH) == 0U)
         {
             status = CY_CRYPTO_DES_WEAK_KEY;
+        break;
         }
     }
 
@@ -239,14 +242,19 @@ cy_en_crypto_status_t Cy_Crypto_Core_V1_Tdes(CRYPTO_Type *base,
     cy_stc_crypto_des_buffers_t *desBuffers = (cy_stc_crypto_des_buffers_t *)Cy_Crypto_Core_GetVuMemoryAddress(base);
 
     /* Check weak keys */
-    for (i = 0U; (i < CY_CRYPTO_DES_WEAK_KEY_COUNT) && (CY_CRYPTO_SUCCESS == status); i++)
+    for (i = 0U; i < CY_CRYPTO_DES_WEAK_KEY_COUNT; i++)
     {
-        for (uint32_t keynum=0U; (keynum < (CY_CRYPTO_TDES_KEY_SIZE / CY_CRYPTO_DES_KEY_SIZE)) && (CY_CRYPTO_SUCCESS == status); keynum++)
+    for (uint32_t keynum=0U; keynum < (CY_CRYPTO_TDES_KEY_SIZE / CY_CRYPTO_DES_KEY_SIZE); keynum++)
         {
             if (Cy_Crypto_Core_V1_MemCmp(base, &(key[keynum * CY_CRYPTO_DES_KEY_BYTE_LENGTH]), (uint8_t const *)cy_desWeakKeys[i], CY_CRYPTO_DES_KEY_BYTE_LENGTH) == 0U)
             {
                 status = CY_CRYPTO_DES_WEAK_KEY;
+        break;
             }
+        }
+        if (status == CY_CRYPTO_DES_WEAK_KEY)
+        {
+            break;
         }
     }
 

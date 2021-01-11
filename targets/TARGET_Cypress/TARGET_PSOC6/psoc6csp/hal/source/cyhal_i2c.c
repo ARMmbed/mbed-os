@@ -24,6 +24,7 @@
 *******************************************************************************/
 
 #include <stdlib.h>
+#include <string.h>
 #include "cyhal_i2c.h"
 #include "cyhal_scb_common.h"
 #include "cyhal_gpio.h"
@@ -31,22 +32,23 @@
 #include "cyhal_system.h"
 #include "cyhal_syspm.h"
 #include "cyhal_utils.h"
+#include "cyhal_clock.h"
 
-#ifdef CY_IP_MXSCB
+#if defined (CY_IP_MXSCB) || defined(CY_IP_M0S8SCB)
 
 #if defined(__cplusplus)
 extern "C"
 {
 #endif
 
-#define PENDING_NONE                    0
-#define PENDING_RX                      1
-#define PENDING_TX                      2
-#define PENDING_TX_RX                   3
+#define _CYHAL_I2C_PENDING_NONE                    0
+#define _CYHAL_I2C_PENDING_RX                      1
+#define _CYHAL_I2C_PENDING_TX                      2
+#define _CYHAL_I2C_PENDING_TX_RX                   3
 
-#define CYHAL_I2C_MASTER_DEFAULT_FREQ 100000
+#define _CYHAL_I2C_MASTER_DEFAULT_FREQ             100000
 
-static const cy_stc_scb_i2c_config_t default_i2c_config = {
+static const cy_stc_scb_i2c_config_t _cyhal_i2c_default_config = {
         .i2cMode   = CY_SCB_I2C_MASTER,
         .useRxFifo = false,
         .useTxFifo = true,
@@ -60,11 +62,37 @@ static const cy_stc_scb_i2c_config_t default_i2c_config = {
         .highPhaseDutyCycle = 8U,
 };
 
-static cyhal_i2c_event_t cyhal_convert_interrupt_cause(uint32_t pdl_cause);
-
-static void cyhal_i2c_irq_handler(void)
+static cyhal_i2c_event_t _cyhal_i2c_convert_interrupt_cause(uint32_t pdl_cause)
 {
-    cyhal_i2c_t *obj = (cyhal_i2c_t*) cyhal_scb_get_irq_obj();
+    static const uint32_t status_map1[] =
+    {
+        (uint32_t)CYHAL_I2C_EVENT_NONE,                 // Default no event
+        (uint32_t)CYHAL_I2C_SLAVE_READ_EVENT,           // CY_SCB_I2C_SLAVE_READ_EVENT
+        (uint32_t)CYHAL_I2C_SLAVE_WRITE_EVENT,          // CY_SCB_I2C_SLAVE_WRITE_EVENT
+        (uint32_t)CYHAL_I2C_SLAVE_RD_IN_FIFO_EVENT,     // CY_SCB_I2C_SLAVE_RD_IN_FIFO_EVENT
+        (uint32_t)CYHAL_I2C_SLAVE_RD_BUF_EMPTY_EVENT,   // CY_SCB_I2C_SLAVE_RD_BUF_EMPTY_EVENT
+        (uint32_t)CYHAL_I2C_SLAVE_RD_CMPLT_EVENT,       // CY_SCB_I2C_SLAVE_RD_CMPLT_EVENT
+        (uint32_t)CYHAL_I2C_SLAVE_WR_CMPLT_EVENT,       // CY_SCB_I2C_SLAVE_WR_CMPLT_EVENT
+        (uint32_t)CYHAL_I2C_SLAVE_ERR_EVENT,            // CY_SCB_I2C_SLAVE_ERR_EVENT
+    };
+    uint32_t set1 = _cyhal_utils_convert_flags(status_map1, sizeof(status_map1) / sizeof(uint32_t), pdl_cause & 0xFF);
+
+    static const uint32_t status_map2[] =
+    {
+        (uint32_t)CYHAL_I2C_EVENT_NONE,                 // Default no event
+        (uint32_t)CYHAL_I2C_MASTER_WR_IN_FIFO_EVENT,    // CY_SCB_I2C_MASTER_WR_IN_FIFO_EVENT
+        (uint32_t)CYHAL_I2C_MASTER_WR_CMPLT_EVENT,      // CY_SCB_I2C_MASTER_WR_CMPLT_EVENT
+        (uint32_t)CYHAL_I2C_MASTER_RD_CMPLT_EVENT,      // CY_SCB_I2C_MASTER_RD_CMPLT_EVENT
+        (uint32_t)CYHAL_I2C_MASTER_ERR_EVENT,           // CY_SCB_I2C_MASTER_ERR_EVENT
+    };
+    uint32_t set2 = _cyhal_utils_convert_flags(status_map2, sizeof(status_map2) / sizeof(uint32_t), pdl_cause >> 16);
+
+    return (cyhal_i2c_event_t)(set1 | set2);
+}
+
+static void _cyhal_i2c_irq_handler(void)
+{
+    cyhal_i2c_t *obj = (cyhal_i2c_t*) _cyhal_scb_get_irq_obj();
 
     Cy_SCB_I2C_Interrupt(obj->base, &(obj->context));
 
@@ -75,25 +103,25 @@ static void cyhal_i2c_irq_handler(void)
         if (0 == (Cy_SCB_I2C_MasterGetStatus(obj->base,  &obj->context) & CY_SCB_I2C_MASTER_BUSY))
         {
             /* Check if TX is completed and run RX in case when TX and RX are enabled */
-            if (obj->pending == PENDING_TX_RX)
+            if (obj->pending == _CYHAL_I2C_PENDING_TX_RX)
             {
                 /* Start RX transfer */
-                obj->pending = PENDING_RX;
+                obj->pending = _CYHAL_I2C_PENDING_RX;
                 Cy_SCB_I2C_MasterRead(obj->base, &obj->rx_config, &obj->context);
             }
             else
             {
                 /* Finish async TX or RX separate transfer */
-                obj->pending = PENDING_NONE;
+                obj->pending = _CYHAL_I2C_PENDING_NONE;
             }
         }
     }
 }
 
-static void cyhal_i2c_cb_wrapper(uint32_t event)
+static void _cyhal_i2c_cb_wrapper(uint32_t event)
 {
-    cyhal_i2c_t *obj = (cyhal_i2c_t*) cyhal_scb_get_irq_obj();
-    cyhal_i2c_irq_event_t anded_events = (cyhal_i2c_irq_event_t)(obj->irq_cause & (uint32_t)cyhal_convert_interrupt_cause(event));
+    cyhal_i2c_t *obj = (cyhal_i2c_t*) _cyhal_scb_get_irq_obj();
+    cyhal_i2c_irq_event_t anded_events = (cyhal_i2c_irq_event_t)(obj->irq_cause & (uint32_t)_cyhal_i2c_convert_interrupt_cause(event));
     if (anded_events)
     {
         cyhal_i2c_event_callback_t callback = (cyhal_i2c_event_callback_t) obj->callback_data.callback;
@@ -101,7 +129,7 @@ static void cyhal_i2c_cb_wrapper(uint32_t event)
     }
 }
 
-static bool cyhal_i2c_pm_callback_instance(void *obj_ptr, cyhal_syspm_callback_state_t state, cy_en_syspm_callback_mode_t pdl_mode)
+static bool _cyhal_i2c_pm_callback_instance(void *obj_ptr, cyhal_syspm_callback_state_t state, cy_en_syspm_callback_mode_t pdl_mode)
 {
     cyhal_i2c_t *obj = (cyhal_i2c_t*)obj_ptr;
     cy_stc_syspm_callback_params_t i2c_callback_params = {
@@ -131,17 +159,17 @@ cy_rslt_t cyhal_i2c_init(cyhal_i2c_t *obj, cyhal_gpio_t sda, cyhal_gpio_t scl, c
     obj->pin_sda = CYHAL_NC_PIN_VALUE;
     obj->is_shared_clock = true;
     /* Initial value for async operations */
-    obj->pending = PENDING_NONE;
+    obj->pending = _CYHAL_I2C_PENDING_NONE;
 
     /* Reserve the I2C */
-    const cyhal_resource_pin_mapping_t *sda_map = CYHAL_FIND_SCB_MAP(sda, cyhal_pin_map_scb_i2c_sda);
-    const cyhal_resource_pin_mapping_t *scl_map = CYHAL_FIND_SCB_MAP(scl, cyhal_pin_map_scb_i2c_scl);
-    if ((NULL == sda_map) || (NULL == scl_map) || !cyhal_utils_resources_equal(sda_map->inst, scl_map->inst))
+    const cyhal_resource_pin_mapping_t *sda_map = _CYHAL_SCB_FIND_MAP(sda, cyhal_pin_map_scb_i2c_sda);
+    const cyhal_resource_pin_mapping_t *scl_map = _CYHAL_SCB_FIND_MAP(scl, cyhal_pin_map_scb_i2c_scl);
+    if ((NULL == sda_map) || (NULL == scl_map) || !_cyhal_utils_resources_equal(sda_map->inst, scl_map->inst))
     {
         return CYHAL_I2C_RSLT_ERR_INVALID_PIN;
     }
     obj->resource = *(scl_map->inst);
-    obj->base = CYHAL_SCB_BASE_ADDRESSES[obj->resource.block_num];
+    obj->base = _CYHAL_SCB_BASE_ADDRESSES[obj->resource.block_num];
 
     cy_rslt_t result = cyhal_hwmgr_reserve(&(obj->resource));
     if (result != CY_RSLT_SUCCESS)
@@ -152,7 +180,7 @@ cy_rslt_t cyhal_i2c_init(cyhal_i2c_t *obj, cyhal_gpio_t sda, cyhal_gpio_t scl, c
     /* Reserve the SDA pin */
     if (result == CY_RSLT_SUCCESS)
     {
-        result = cyhal_utils_reserve_and_connect(sda, sda_map);
+        result = _cyhal_utils_reserve_and_connect(sda, sda_map);
         if (result == CY_RSLT_SUCCESS)
             obj->pin_sda = sda;
     }
@@ -160,7 +188,7 @@ cy_rslt_t cyhal_i2c_init(cyhal_i2c_t *obj, cyhal_gpio_t sda, cyhal_gpio_t scl, c
     /* Reserve the SCL pin */
     if (result == CY_RSLT_SUCCESS)
     {
-        result = cyhal_utils_reserve_and_connect(scl, scl_map);
+        result = _cyhal_utils_reserve_and_connect(scl, scl_map);
         if (result == CY_RSLT_SUCCESS)
             obj->pin_scl = scl;
     }
@@ -170,17 +198,18 @@ cy_rslt_t cyhal_i2c_init(cyhal_i2c_t *obj, cyhal_gpio_t sda, cyhal_gpio_t scl, c
         obj->is_shared_clock = (clk != NULL);
         if (clk == NULL)
         {
-            result = cyhal_hwmgr_allocate_clock(&(obj->clock), CY_SYSCLK_DIV_16_BIT, false);
+            result = cyhal_clock_allocate(&(obj->clock), CYHAL_CLOCK_BLOCK_PERIPHERAL_16BIT);
         }
         else
         {
             obj->clock = *clk;
+            _cyhal_utils_update_clock_format(&(obj->clock));
         }
     }
 
     if (result == CY_RSLT_SUCCESS)
     {
-        uint32_t dataRate = cyhal_i2c_set_peri_divider(obj->base, obj->resource.block_num, &(obj->clock), CYHAL_I2C_MASTER_DEFAULT_FREQ, false);
+        uint32_t dataRate = _cyhal_i2c_set_peri_divider(obj->base, obj->resource.block_num, &(obj->clock), _CYHAL_I2C_MASTER_DEFAULT_FREQ, false);
         if (dataRate == 0)
         {
             /* Can not reach desired data rate */
@@ -191,22 +220,26 @@ cy_rslt_t cyhal_i2c_init(cyhal_i2c_t *obj, cyhal_gpio_t sda, cyhal_gpio_t scl, c
     if (result == CY_RSLT_SUCCESS)
     {
         /* Configure I2C to operate */
-        result = (cy_rslt_t)Cy_SCB_I2C_Init(obj->base, &default_i2c_config, &(obj->context));
+        result = (cy_rslt_t)Cy_SCB_I2C_Init(obj->base, &_cyhal_i2c_default_config, &(obj->context));
     }
 
     if (result == CY_RSLT_SUCCESS)
     {
-        cyhal_scb_update_instance_data(obj->resource.block_num, (void*)obj, &cyhal_i2c_pm_callback_instance);
+        _cyhal_scb_update_instance_data(obj->resource.block_num, (void*)obj, &_cyhal_i2c_pm_callback_instance);
         /* Enable I2C to operate */
+#if defined(COMPONENT_PSOC6HAL)
         Cy_SCB_I2C_Enable(obj->base);
+#else /* COMPONENT_PSOC4HAL */
+        Cy_SCB_I2C_Enable(obj->base, &(obj->context));
+#endif
 
         obj->callback_data.callback = NULL;
         obj->callback_data.callback_arg = NULL;
         obj->irq_cause = CYHAL_I2C_EVENT_NONE;
 
-        cy_stc_sysint_t irqCfg = { CYHAL_SCB_IRQ_N[obj->resource.block_num], CYHAL_ISR_PRIORITY_DEFAULT };
-        Cy_SysInt_Init(&irqCfg, cyhal_i2c_irq_handler);
-        NVIC_EnableIRQ(CYHAL_SCB_IRQ_N[obj->resource.block_num]);
+        cy_stc_sysint_t irqCfg = { _CYHAL_SCB_IRQ_N[obj->resource.block_num], CYHAL_ISR_PRIORITY_DEFAULT };
+        Cy_SysInt_Init(&irqCfg, _cyhal_i2c_irq_handler);
+        NVIC_EnableIRQ(_CYHAL_SCB_IRQ_N[obj->resource.block_num]);
     }
 
     if (result != CY_RSLT_SUCCESS)
@@ -223,8 +256,8 @@ void cyhal_i2c_free(cyhal_i2c_t *obj)
 
     if (CYHAL_RSC_INVALID != obj->resource.type)
     {
-        cyhal_scb_update_instance_data(obj->resource.block_num, NULL, NULL);
-        IRQn_Type irqn = CYHAL_SCB_IRQ_N[obj->resource.block_num];
+        _cyhal_scb_update_instance_data(obj->resource.block_num, NULL, NULL);
+        IRQn_Type irqn = _CYHAL_SCB_IRQ_N[obj->resource.block_num];
         NVIC_DisableIRQ(irqn);
 
         cyhal_hwmgr_free(&(obj->resource));
@@ -232,12 +265,12 @@ void cyhal_i2c_free(cyhal_i2c_t *obj)
         obj->resource.type = CYHAL_RSC_INVALID;
     }
 
-    cyhal_utils_release_if_used(&(obj->pin_sda));
-    cyhal_utils_release_if_used(&(obj->pin_scl));
+    _cyhal_utils_release_if_used(&(obj->pin_sda));
+    _cyhal_utils_release_if_used(&(obj->pin_scl));
 
     if (!obj->is_shared_clock)
     {
-        cyhal_hwmgr_free_clock(&(obj->clock));
+        cyhal_clock_free(&(obj->clock));
     }
 }
 
@@ -245,12 +278,12 @@ cy_rslt_t cyhal_i2c_configure(cyhal_i2c_t *obj, const cyhal_i2c_cfg_t *cfg)
 {
     (void) Cy_SCB_I2C_Disable(obj->base, &obj->context);
 
-    cy_stc_scb_i2c_config_t config_structure = default_i2c_config;
+    cy_stc_scb_i2c_config_t config_structure = _cyhal_i2c_default_config;
     config_structure.i2cMode = (cfg->is_slave)
         ? CY_SCB_I2C_SLAVE
         : CY_SCB_I2C_MASTER;
 
-    config_structure.slaveAddress  = cfg->address;
+    config_structure.slaveAddress  = (uint8_t)cfg->address;
 
     /* Set slave address mask if I2C is operate in slave mode */
     if (cfg->is_slave)
@@ -259,7 +292,7 @@ cy_rslt_t cyhal_i2c_configure(cyhal_i2c_t *obj, const cyhal_i2c_cfg_t *cfg)
     }
 
     /* Set data rate */
-    uint32_t dataRate = cyhal_i2c_set_peri_divider(obj->base, obj->resource.block_num, &(obj->clock), cfg->frequencyhal_hz, cfg->is_slave);
+    uint32_t dataRate = _cyhal_i2c_set_peri_divider(obj->base, obj->resource.block_num, &(obj->clock), cfg->frequencyhal_hz, cfg->is_slave);
     if (dataRate == 0)
     {
         /* Can not reach desired data rate */
@@ -267,14 +300,18 @@ cy_rslt_t cyhal_i2c_configure(cyhal_i2c_t *obj, const cyhal_i2c_cfg_t *cfg)
     }
 
     cy_rslt_t result = (cy_rslt_t)Cy_SCB_I2C_Init(obj->base, &config_structure, &(obj->context));
+#if defined(COMPONENT_PSOC6HAL)
     (void) Cy_SCB_I2C_Enable(obj->base);
+#else /* COMPONENT_PSOC4HAL */
+    (void) Cy_SCB_I2C_Enable(obj->base, &(obj->context));
+#endif
 
     return result;
 }
 
 cy_rslt_t cyhal_i2c_master_write(cyhal_i2c_t *obj, uint16_t dev_addr, const uint8_t *data, uint16_t size, uint32_t timeout, bool send_stop)
 {
-    if (cyhal_scb_pm_transition_pending())
+    if (_cyhal_scb_pm_transition_pending())
         return CYHAL_SYSPM_RSLT_ERR_PM_PENDING;
 
     cy_en_scb_i2c_status_t status = obj->context.state == CY_SCB_I2C_IDLE
@@ -307,7 +344,7 @@ cy_rslt_t cyhal_i2c_master_write(cyhal_i2c_t *obj, uint16_t dev_addr, const uint
 
 cy_rslt_t cyhal_i2c_master_read(cyhal_i2c_t *obj, uint16_t dev_addr, uint8_t *data, uint16_t size, uint32_t timeout, bool send_stop)
 {
-    if (cyhal_scb_pm_transition_pending())
+    if (_cyhal_scb_pm_transition_pending())
         return CYHAL_SYSPM_RSLT_ERR_PM_PENDING;
 
     cy_en_scb_i2c_command_t ack = CY_SCB_I2C_ACK;
@@ -375,7 +412,7 @@ cy_rslt_t cyhal_i2c_slave_config_read_buffer(cyhal_i2c_t *obj, uint8_t *data, ui
 
 cy_rslt_t cyhal_i2c_master_mem_write(cyhal_i2c_t *obj, uint16_t address, uint16_t mem_addr, uint16_t mem_addr_size, const uint8_t *data, uint16_t size, uint32_t timeout)
 {
-    if (cyhal_scb_pm_transition_pending())
+    if (_cyhal_scb_pm_transition_pending())
         return CYHAL_SYSPM_RSLT_ERR_PM_PENDING;
 
     uint8_t mem_addr_buf[2];
@@ -416,7 +453,7 @@ cy_rslt_t cyhal_i2c_master_mem_write(cyhal_i2c_t *obj, uint16_t address, uint16_
 
 cy_rslt_t cyhal_i2c_master_mem_read(cyhal_i2c_t *obj, uint16_t address, uint16_t mem_addr, uint16_t mem_addr_size, uint8_t *data, uint16_t size, uint32_t timeout)
 {
-    if (cyhal_scb_pm_transition_pending())
+    if (_cyhal_scb_pm_transition_pending())
         return CYHAL_SYSPM_RSLT_ERR_PM_PENDING;
 
     uint8_t mem_addr_buf[2];
@@ -444,11 +481,11 @@ cy_rslt_t cyhal_i2c_master_mem_read(cyhal_i2c_t *obj, uint16_t address, uint16_t
 
 cy_rslt_t cyhal_i2c_master_transfer_async(cyhal_i2c_t *obj, uint16_t address, const void *tx, size_t tx_size, void *rx, size_t rx_size)
 {
-    if (cyhal_scb_pm_transition_pending())
+    if (_cyhal_scb_pm_transition_pending())
         return CYHAL_SYSPM_RSLT_ERR_PM_PENDING;
 
-    obj->rx_config.slaveAddress = address;
-    obj->tx_config.slaveAddress = address;
+    obj->rx_config.slaveAddress = (uint8_t)address;
+    obj->tx_config.slaveAddress = (uint8_t)address;
 
     obj->rx_config.buffer = rx;
     obj->rx_config.bufferSize = rx_size;
@@ -462,14 +499,14 @@ cy_rslt_t cyhal_i2c_master_transfer_async(cyhal_i2c_t *obj, uint16_t address, co
         if (tx_size)
         {
             obj->pending = (rx_size)
-                ? PENDING_TX_RX
-                : PENDING_TX;
+                ? _CYHAL_I2C_PENDING_TX_RX
+                : _CYHAL_I2C_PENDING_TX;
             Cy_SCB_I2C_MasterWrite(obj->base, &obj->tx_config, &obj->context);
-            /* Receive covered by interrupt handler - cyhal_i2c_irq_handler() */
+            /* Receive covered by interrupt handler - _cyhal_i2c_irq_handler() */
         }
         else if (rx_size)
         {
-            obj->pending = PENDING_RX;
+            obj->pending = _CYHAL_I2C_PENDING_RX;
             Cy_SCB_I2C_MasterRead(obj->base, &obj->rx_config, &obj->context);
         }
         else
@@ -486,9 +523,9 @@ cy_rslt_t cyhal_i2c_master_transfer_async(cyhal_i2c_t *obj, uint16_t address, co
 
 cy_rslt_t cyhal_i2c_abort_async(cyhal_i2c_t *obj)
 {
-    if (obj->pending != PENDING_NONE)
+    if (obj->pending != _CYHAL_I2C_PENDING_NONE)
     {
-        if (obj->pending == PENDING_RX)
+        if (obj->pending == _CYHAL_I2C_PENDING_RX)
         {
             Cy_SCB_I2C_MasterAbortRead(obj->base, &obj->context);
         }
@@ -500,58 +537,13 @@ cy_rslt_t cyhal_i2c_abort_async(cyhal_i2c_t *obj)
     return CY_RSLT_SUCCESS;
 }
 
-static cyhal_i2c_event_t cyhal_convert_interrupt_cause(uint32_t pdl_cause)
-{
-    cyhal_i2c_event_t cause;
-    switch(pdl_cause)
-    {
-        case CY_SCB_I2C_SLAVE_READ_EVENT:
-            cause = CYHAL_I2C_SLAVE_READ_EVENT;
-            break;
-        case CY_SCB_I2C_SLAVE_WRITE_EVENT:
-            cause = CYHAL_I2C_SLAVE_WRITE_EVENT;
-            break;
-        case CY_SCB_I2C_SLAVE_RD_IN_FIFO_EVENT:
-            cause = CYHAL_I2C_SLAVE_RD_IN_FIFO_EVENT;
-            break;
-        case CY_SCB_I2C_SLAVE_RD_BUF_EMPTY_EVENT:
-            cause = CYHAL_I2C_SLAVE_RD_BUF_EMPTY_EVENT;
-            break;
-        case CY_SCB_I2C_SLAVE_RD_CMPLT_EVENT:
-            cause = CYHAL_I2C_SLAVE_RD_CMPLT_EVENT;
-            break;
-        case CY_SCB_I2C_SLAVE_WR_CMPLT_EVENT:
-            cause = CYHAL_I2C_SLAVE_WR_CMPLT_EVENT;
-            break;
-        case CY_SCB_I2C_SLAVE_ERR_EVENT:
-            cause = CYHAL_I2C_SLAVE_ERR_EVENT;
-            break;
-        case CY_SCB_I2C_MASTER_WR_IN_FIFO_EVENT:
-            cause = CYHAL_I2C_MASTER_WR_IN_FIFO_EVENT;
-            break;
-        case CY_SCB_I2C_MASTER_WR_CMPLT_EVENT:
-            cause = CYHAL_I2C_MASTER_WR_CMPLT_EVENT;
-            break;
-        case CY_SCB_I2C_MASTER_RD_CMPLT_EVENT:
-            cause = CYHAL_I2C_MASTER_RD_CMPLT_EVENT;
-            break;
-        case CY_SCB_I2C_MASTER_ERR_EVENT:
-            cause = CYHAL_I2C_MASTER_ERR_EVENT;
-            break;
-        default:
-            cause = CYHAL_I2C_EVENT_NONE;
-            break;
-    }
-    return cause;
-}
-
 void cyhal_i2c_register_callback(cyhal_i2c_t *obj, cyhal_i2c_event_callback_t callback, void *callback_arg)
 {
     uint32_t savedIntrStatus = cyhal_system_critical_section_enter();
     obj->callback_data.callback = (cy_israddress) callback;
     obj->callback_data.callback_arg = callback_arg;
     cyhal_system_critical_section_exit(savedIntrStatus);
-    Cy_SCB_I2C_RegisterEventCallback(obj->base, cyhal_i2c_cb_wrapper, &(obj->context));
+    Cy_SCB_I2C_RegisterEventCallback(obj->base, _cyhal_i2c_cb_wrapper, &(obj->context));
 
     obj->irq_cause = CYHAL_I2C_EVENT_NONE;
 }
@@ -567,7 +559,7 @@ void cyhal_i2c_enable_event(cyhal_i2c_t *obj, cyhal_i2c_event_t event, uint8_t i
         obj->irq_cause &= ~event;
     }
 
-    IRQn_Type irqn = CYHAL_SCB_IRQ_N[obj->resource.block_num];
+    IRQn_Type irqn = _CYHAL_SCB_IRQ_N[obj->resource.block_num];
     NVIC_SetPriority(irqn, intr_priority);
 }
 
