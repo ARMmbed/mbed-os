@@ -18,7 +18,6 @@
 #ifndef USBPHYHW_H
 #define USBPHYHW_H
 
-#include "mbed.h"
 #include "USBPhy.h"
 
 

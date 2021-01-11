@@ -18,6 +18,7 @@
 #if defined(DEVICE_USBDEVICE) && (DEVICE_USBDEVICE) && \
     (defined(TARGET_MAX32620) || defined(TARGET_MAX32625) || defined(TARGET_MAX32630))
 
+#include "mbed.h"
 #include "USBPhyHw.h"
 #include "usb_phy_api.h"
 #include "USBEndpoints_Maxim.h"
@@ -57,19 +58,11 @@ static enum {
 } control_state;
 
 // Static storage for endpoint buffer descriptor table. Must be 512 byte aligned for DMA.
-#ifdef __IAR_SYSTEMS_ICC__
-#pragma data_alignment = 512
-#else
-__attribute__ ((aligned (512))) 
-#endif
+MBED_ALIGN(512)
 ep_buffer_descriptor_t ep_buffer_descriptor;
 
 // static storage for temporary data buffers. Must be 32 byte aligned.
-#ifdef __IAR_SYSTEMS_ICC__
-#pragma data_alignment = 4
-#else
-__attribute__ ((aligned (4))) 
-#endif
+MBED_ALIGN(4)
 static uint8_t aligned_buffer[NUMBER_OF_LOGICAL_ENDPOINTS][MXC_USB_MAX_PACKET];
 
 static uint8_t* read_buf_addr[NUMBER_OF_LOGICAL_ENDPOINTS];

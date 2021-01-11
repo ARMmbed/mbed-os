@@ -5094,7 +5094,7 @@
             "STDIO_MESSAGES",
             "USTICKER",
             "MPU",
-            "SLEEP"
+            "SLEEP",
             "USBDEVICE"
         ],
         "release_versions": [
