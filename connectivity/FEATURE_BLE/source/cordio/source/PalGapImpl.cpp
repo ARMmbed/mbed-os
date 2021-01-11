@@ -22,10 +22,16 @@
 #include "dm_main.h"
 #include "dm_conn.h"
 
+#include "mbed-trace/mbed_trace.h"
+#include "common/ble_trace_helpers.h"
+
+#define TRACE_GROUP "BLGP"
+
 namespace ble {
 namespace impl {
 
 namespace {
+
 bool dummy_gap_event_handler(const wsfMsgHdr_t *msg)
 {
     return false;
@@ -99,6 +105,10 @@ address_t PalGap::get_random_address()
 
 ble_error_t PalGap::set_random_address(const address_t &address)
 {
+    tr_info("[PAL] Set random address - "
+            "address=%s",
+            to_string(address));
+
     device_random_address = address;
     DmDevSetRandAddr(const_cast<uint8_t *>(address.data()));
     return BLE_ERROR_NONE;
@@ -116,6 +126,24 @@ ble_error_t PalGap::set_advertising_parameters(
     advertising_filter_policy_t advertising_filter_policy
 )
 {
+    tr_info("[PAL] Set advertising parameters - "
+            "advertising_interval_min=%d, "
+            "advertising_interval_max=%d, "
+            "advertising_type=%s, "
+            "own_address_type=%s, "
+            "peer_address_type=%s, "
+            "peer_address=%s, "
+            "advertising_channel_map=%s, "
+            "advertising_filter_policy_t=%s",
+            advertising_interval_min,
+            advertising_interval_max,
+            to_string(advertising_type),
+            to_string(own_address_type),
+            to_string(peer_address_type),
+            to_string(peer_address),
+            to_string(advertising_channel_map),
+            to_string(advertising_filter_policy));
+
     DmAdvSetInterval(
         DM_ADV_HANDLE_DEFAULT,
         advertising_interval_min,
@@ -157,6 +185,12 @@ ble_error_t PalGap::set_advertising_data(
     const advertising_data_t &advertising_data
 )
 {
+    tr_info("[PAL] Set advertising data - "
+            "advertising_data_length=%d, "
+            "advertising_data=%s",
+            advertising_data_length,
+            mbed_trace_array(advertising_data.data(), advertising_data_length));
+
     DmAdvSetData(
         DM_ADV_HANDLE_DEFAULT,
         HCI_ADV_DATA_OP_COMP_FRAG,
@@ -173,6 +207,12 @@ ble_error_t PalGap::set_scan_response_data(
     const advertising_data_t &scan_response_data
 )
 {
+    tr_info("[PAL] Set scan response data - "
+            "scan_response_data_length=%d, "
+            "scan_response_data=%s",
+            scan_response_data_length,
+            mbed_trace_array(scan_response_data.data(), scan_response_data_length));
+
     DmAdvSetData(
         DM_ADV_HANDLE_DEFAULT,
         HCI_ADV_DATA_OP_COMP_FRAG,
@@ -186,6 +226,10 @@ ble_error_t PalGap::set_scan_response_data(
 
 ble_error_t PalGap::advertising_enable(bool enable)
 {
+    tr_info("[PAL] Advertising enable - "
+            "enable=%s",
+            to_string(enable));
+
     if (enable) {
         // The Cordio stack requires to start direct advertising with
         // the function DmConnAccept instead of the function DmAdvStart.
@@ -203,6 +247,7 @@ ble_error_t PalGap::advertising_enable(bool enable)
                 direct_adv_cb->peer_address.data()
             );
             if (direct_adv_cb->connection_handle == DM_CONN_ID_NONE) {
+                tr_error("[PAL] Failed: unknown ID for pending callback");
                 return BLE_ERROR_INTERNAL_STACK_FAILURE;
             } else {
                 direct_adv_cb->state = direct_adv_cb_t::running;
@@ -244,6 +289,18 @@ ble_error_t PalGap::set_scan_parameters(
     scanning_filter_policy_t filter_policy
 )
 {
+    tr_info("[PAL] Set scan parameters -"
+            "active_scanning=%s, "
+            "scan_interval=%d, "
+            "scan_window=%d, "
+            "own_address_type=%s, "
+            "filter_policy=%s",
+            to_string(active_scanning),
+            scan_interval,
+            scan_window,
+            to_string(own_address_type),
+            to_string(filter_policy));
+
     use_active_scanning = active_scanning;
     DmScanSetInterval(HCI_INIT_PHY_LE_1M_BIT, &scan_interval, &scan_window);
     DmScanSetAddrType(own_address_type.value());
@@ -262,6 +319,12 @@ ble_error_t PalGap::scan_enable(
     bool filter_duplicates
 )
 {
+    tr_info("[PAL] Scan enable - "
+            "enable=%s, "
+            "filter_duplicates=%s",
+            to_string(enable),
+            to_string(filter_duplicates));
+
     if (enable) {
         uint8_t scanType = use_active_scanning ? DM_SCAN_TYPE_ACTIVE : DM_SCAN_TYPE_PASSIVE;
         DmScanStart(
@@ -295,6 +358,32 @@ ble_error_t PalGap::create_connection(
     uint16_t maximum_connection_event_length
 )
 {
+    tr_info("[PAL] Create Connection - "
+            "scan_interval=%d, "
+            "scan_window=%d, "
+            "initiator_policy=%s, "
+            "peer_address_type=%s, "
+            "peer_address=%s, "
+            "own_address_type=%s, "
+            "connection_interval_min=%d, "
+            "connection_interval_max=%d, "
+            "connection_latency=%d, "
+            "supervision_timout=%d, "
+            "minimum_connection_event_length=%d, "
+            "maximum_connection_event_length=%d",
+            scan_interval,
+            scan_window,
+            to_string(initiator_policy),
+            to_string(peer_address_type),
+            to_string(peer_address),
+            to_string(own_address_type),
+            connection_interval_min,
+            connection_interval_max,
+            connection_latency,
+            supervision_timeout,
+            minimum_connection_event_length,
+            maximum_connection_event_length);
+    
     DmConnSetScanInterval(scan_interval, scan_window);
 #if BLE_FEATURE_WHITELIST
     DmDevSetFilterPolicy(DM_FILT_POLICY_MODE_INIT, initiator_policy.value());
@@ -319,6 +408,7 @@ ble_error_t PalGap::create_connection(
     );
 
     if (connection_id == DM_CONN_ID_NONE) {
+        tr_error("[PAL] Failed: unknown ID for open connection");
         return BLE_ERROR_INTERNAL_STACK_FAILURE;
     }
 
@@ -365,6 +455,12 @@ ble_error_t PalGap::add_device_to_whitelist(
     address_t address
 )
 {
+    tr_info("[PAL] Add device to whitelist - "
+            "address_type=%s,"
+            "address=%s",
+            to_string(address_type),
+            to_string(address));
+
     DmDevWhiteListAdd(
         address_type.value(),
         const_cast<uint8_t *>(address.data())
@@ -378,6 +474,12 @@ ble_error_t PalGap::remove_device_from_whitelist(
     address_t address
 )
 {
+    tr_info("[PAL] Remove device from whitelist - "
+            "address_type=%s, "
+            "address=%s",
+            to_string(address_type),
+            to_string(address));
+
     DmDevWhiteListRemove(
         address_type.value(),
         const_cast<uint8_t *>(address.data())
@@ -397,7 +499,23 @@ ble_error_t PalGap::connection_parameters_update(
     uint16_t maximum_connection_event_length
 )
 {
+    tr_info("[PAL] Connection %d: connection parameters update - "
+            "connection_interval_min=%d, "
+            "connection_interval_max=%d, "
+            "connection_latency=%d, "
+            "supervision_timeout=%d, "
+            "minimum_connection_event_length=%d, "
+            "maximum_connection_event_length=%d",
+            connection,
+            connection_interval_min,
+            connection_interval_max,
+            connection_latency,
+            supervision_timeout,
+            minimum_connection_event_length,
+            maximum_connection_event_length);
+
     if (DmConnCheckIdle(connection) != 0) {
+        tr_error("[PAL] Failed: connection busy");
         return BLE_ERROR_INVALID_STATE;
     }
 
@@ -428,6 +546,21 @@ ble_error_t PalGap::accept_connection_parameter_request(
     uint16_t maximum_connection_event_length
 )
 {
+    tr_info("[PAL] Connection %d: accept connection parameter request - "
+            "interval_min=%d, "
+            "interval_max=%d, "
+            "latency=%d, "
+            "supervision_timeout=%d, "
+            "minimum_connection_event_length=%d, "
+            "maximum_connection_event_length=%d",
+            connection_handle,
+            interval_min,
+            interval_max,
+            latency,
+            supervision_timeout,
+            minimum_connection_event_length,
+            maximum_connection_event_length);
+
     hciConnSpec_t connection_spec = {
         interval_min,
         interval_max,
@@ -446,6 +579,14 @@ ble_error_t PalGap::reject_connection_parameter_request(
     hci_error_code_t rejection_reason
 )
 {
+    /* Add string serialisation function for hci_error_code_t to ble_trace_helpers.h
+     * Then, uncomment code. Now, it errs.
+    tr_info("[PAL] Connection %d: reject_connection_parameter_request - "
+            "rejection_reason=%s",
+            connection_handle,
+            to_string(rejection_reason));
+    */
+
     DmRemoteConnParamReqNegReply(
         connection_handle,
         rejection_reason.value()

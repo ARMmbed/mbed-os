@@ -380,6 +380,50 @@ static inline const char* to_string(ble::local_disconnection_reason_t reason) {
     }
 }
 
+static inline const char* to_string(ble::advertising_channel_map_t map) {
+    switch (map.value()) {
+        case ble::advertising_channel_map_t::ADVERTISING_CHANNEL_37:
+            return "ADVERTISING_CHANNEL_37";
+        case ble::advertising_channel_map_t::ADVERTISING_CHANNEL_38:
+            return "ADVERTISING_CHANNEL_38";
+        case ble::advertising_channel_map_t::ADVERTISING_CHANNEL_37_AND_38:
+            return "ADVERTISING_CHANNEL_37_AND_38";
+        case ble::advertising_channel_map_t::ADVERTISING_CHANNEL_39:
+            return "ADVERTISING_CHANNEL_39";
+        case ble::advertising_channel_map_t::ADVERTISING_CHANNEL_37_AND_39:
+            return "ADVERTISING_CHANNEL_37_AND_39";
+        case ble::advertising_channel_map_t::ADVERTISING_CHANNEL_38_AND_39:
+            return "ADVERTISING_CHANNEL_38_AND_39";
+        case ble::advertising_channel_map_t::ALL_ADVERTISING_CHANNELS:
+            return "ALL_ADVERTISING_CHANNELS";
+        default:
+            return "unknown";
+    }
+}
+
+static inline const char* to_string(ble::connection_peer_address_type_t connection_peer_address_type) {
+    switch (connection_peer_address_type.value()) {
+        case ble::connection_peer_address_type_t::PUBLIC_ADDRESS:
+            return "PUBLIC_ADDRESS";
+        case ble::connection_peer_address_type_t::RANDOM_ADDRESS:
+            return "RANDOM_ADDRESS";
+        case ble::connection_peer_address_type_t::PUBLIC_IDENTITY_ADDRESS:
+            return "PUBLIC_IDENTITY_ADDRESS";
+        case ble::connection_peer_address_type_t::RANDOM_IDENTITY_ADDRESS:
+            return "RANDOM_IDENTITY_ADDRESS";
+        default:
+            return "unknown";
+    }
+}
+
+static inline const char* to_string(ble::whitelist_address_type_t whitelist_address_type) {
+    if (whitelist_address_type.value() == ble::whitelist_address_type_t::PUBLIC_DEVICE_ADDRESS) {
+        return "PUBLIC_DEVICE_ADDRESS";
+    } else {
+        return "RANDOM_DEVICE_ADDRESS";
+    }
+}
+
 } // namespace ble
 
 #endif //BLE_CLIAPP_BLE_TRACE_HELPERS_H
