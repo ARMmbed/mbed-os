@@ -550,14 +550,14 @@ ble_error_t Gap::connect(
     // Trace connection params for each enabled PHY
     for (size_t i = 0; i < connectionParams.getPhySet().count(); ++i) {
         tr_info("PHY %d - "
-                "_scanInterval=%lums, "
-                "_scanWindow=%lums, "
-                "_minConnectionInterval=%lums, "
-                "_maxConnectionInterval=%lums, "
+                "_scanInterval=%" PRIu32 "ms, "
+                "_scanWindow=%" PRIu32 "ms, "
+                "_minConnectionInterval=%" PRIu32 "ms, "
+                "_maxConnectionInterval=%" PRIu32 "ms, "
                 "_slaveLatency=%u, "
-                "_connectionSupervisionTimeout=%lums, "
-                "_minEventLength=%lums, "
-                "_maxEventLength=%lums",
+                "_connectionSupervisionTimeout=%" PRIu32 "ms, "
+                "_minEventLength=%" PRIu32 "ms, "
+                "_maxEventLength=%" PRIu32 "ms",
                 i,
                 scan_interval_t(connectionParams.getScanIntervalArray()[i]).valueInMs(),
                 scan_window_t(connectionParams.getScanWindowArray()[i]).valueInMs(),
@@ -751,16 +751,17 @@ ble_error_t Gap::updateConnectionParameters(
 )
 {
     tr_info("Connection %d: update connection paramters - "
-            "minConnectionInterval=%lums, "
-            "maxConnectionInterval=%lums, "
+            "minConnectionInterval=%" PRIu32 "ms, "
+            "maxConnectionInterval=%" PRIu32 "ms, "
             "slaveLatency=%u,"
-            "supervisionTimeout=%lums, "
-            "minConnectionEventLength=%lums, "
-            "maxConnectionEventLength=%lums",
+            "supervisionTimeout=%" PRIu32 "ms, "
+            "minConnectionEventLength=%" PRIu32 "ms, "
+            "maxConnectionEventLength=%" PRIu32 "ms",
             connectionHandle,
             minConnectionInterval.valueInMs(),
             maxConnectionInterval.valueInMs(),
             slaveLatency.value(),
+            supervisionTimeout.valueInMs(),
             minConnectionInterval.valueInMs(),
             minConnectionInterval.valueInMs());
 
@@ -792,12 +793,12 @@ ble_error_t Gap::acceptConnectionParametersUpdate(
 )
 {
     tr_info("Connection %d: accept connection paramater update - "
-            "minConnectionInterval=%lums, "
-            "maxConnectionInterval=%lums, "
+            "minConnectionInterval=%" PRIu32 "ms, "
+            "maxConnectionInterval=%" PRIu32 "ms, "
             "slaveLatency=%u,"
-            "supervisionTimeout=%lums, "
-            "minConnectionEventLength=%lums, "
-            "minConnectionEventLength=%lums",
+            "supervisionTimeout=%" PRIu32 "ms, "
+            "minConnectionEventLength=%" PRIu32 "ms, "
+            "minConnectionEventLength=%" PRIu32 "ms",
             connectionHandle,
             minConnectionInterval.valueInMs(),
             maxConnectionInterval.valueInMs(),
@@ -1880,8 +1881,8 @@ ble_error_t Gap::setAdvertisingParameters(
 {
     tr_info("Advertising set %d: set advertising parameters - "
             "_advType=%s, "
-            "_minInterval=%lums, "
-            "_maxInterval=%lums, "
+            "_minInterval=%" PRIu32 "ms, "
+            "_maxInterval=%" PRIu32 "ms, "
             "_peerAddressType=%s, "
             "_ownAddressType=%s, "
             "_policy=%s, "
@@ -1990,8 +1991,8 @@ ble_error_t Gap::setExtendedAdvertisingParameters(
 {
     tr_info("Advertising set %d: set extended advertising parameters - "
             "_advType=%s, "
-            "_minInterval=%lums, "
-            "_maxInterval=%lums, "
+            "_minInterval=%" PRIu32 "ms, "
+            "_maxInterval=%" PRIu32 "ms, "
             "_peerAddressType=%s, "
             "_ownAddressType=%s, "
             "_policy=%s, "
@@ -2253,7 +2254,7 @@ ble_error_t Gap::startAdvertising(
 )
 {
     tr_info("Advertising set %d: start advertising - "
-            "maxDuration=%lums, "
+            "maxDuration=%" PRIu32 "ms, "
             "maxEvents=%u",
             handle,
             maxDuration.valueInMs(),
@@ -2441,8 +2442,8 @@ ble_error_t Gap::setPeriodicAdvertisingParameters(
 )
 {
     tr_info("Advertising et %d: set periodic advertising parameters- "
-            "periodicAdvertisingIntervalMin=%lums, "
-            "periodicAdvertisingIntervalMax=%lums, "
+            "periodicAdvertisingIntervalMin=%" PRIu32 "ms, "
+            "periodicAdvertisingIntervalMax=%" PRIu32 "ms, "
             "advertiseTxPower=%s",
             handle,
             periodicAdvertisingIntervalMin.valueInMs(),
@@ -3354,7 +3355,7 @@ ble_error_t Gap::startScan(
 )
 {
     tr_info("Start scan - "
-            "duration=%lums, "
+            "duration=%" PRIu32 "ms, "
             "filtering=%s, "
             "period=%lums",
             duration.valueInMs(),
