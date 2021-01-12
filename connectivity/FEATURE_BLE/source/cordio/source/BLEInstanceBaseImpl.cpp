@@ -351,7 +351,7 @@ void BLEInstanceBase::processEvents()
 void BLEInstanceBase::stack_handler(wsfEventMask_t event, wsfMsgHdr_t *msg)
 {
     if (msg == nullptr) {
-        tr_warning("stack_handler receiver NULL message");
+        tr_warning("stack_handler received NULL message");
         return;
     }
 
