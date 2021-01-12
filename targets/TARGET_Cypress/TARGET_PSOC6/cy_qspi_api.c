@@ -38,8 +38,7 @@ qspi_status_t qspi_free(qspi_t *obj)
 
 qspi_status_t qspi_frequency(qspi_t *obj, int hz)
 {
-    /* Return OK since this API is not implemented in cy_hal */
-    return QSPI_STATUS_OK;
+    return CY_RSLT_SUCCESS == cyhal_qspi_set_frequency(&(obj->hal_qspi), hz) ? QSPI_STATUS_OK : QSPI_STATUS_ERROR;
 }
 
 static inline cyhal_qspi_bus_width_t cyhal_qspi_convert_width(qspi_bus_width_t width)
