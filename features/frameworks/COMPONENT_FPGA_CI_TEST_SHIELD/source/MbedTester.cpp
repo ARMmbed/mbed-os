@@ -29,12 +29,11 @@
 namespace {
     const auto physical_pins = 128;
     const auto logical_pins = 8;
-    const auto firmware_size_const = 2192012;
     const auto firmware_region_size = 0x220000;
     const auto firmware_header_size = 0x10000;
     const auto flash_sector_size = 0x1000;
     const auto length_size = 0x4;
-    const auto crc_size_const = 0x4;
+    const auto fixed_crc_size = 0x4;
     const auto flash_spi_freq_hz = 2000000;
     const auto analog_count = 4;
     
@@ -694,10 +693,10 @@ bool MbedTester::firmware_dump(mbed::FileHandle *dest, mbed::Callback<void(uint8
                          (buf[1] << (1 * 8)) |
                          (buf[2] << (2 * 8)) |
                          (buf[3] << (3 * 8));
-    if (data_size > firmware_region_size - length_size - crc_size_const) {
-        data_size = firmware_region_size - length_size - crc_size_const;
+    if (data_size > firmware_region_size - length_size - fixed_crc_size) {
+        data_size = firmware_region_size - length_size - fixed_crc_size;
     }
-    const uint32_t firmware_size = data_size + length_size + crc_size_const;
+    const uint32_t firmware_size = data_size + length_size + fixed_crc_size;
 
     // Dump firmware
     while (offset < firmware_size) {
@@ -809,7 +808,7 @@ bool MbedTester::firmware_update(mbed::FileHandle *src, mbed::Callback<void(uint
         sys_pin_mode_disabled();
         return false;
     }
-    if (file_size < length_size + crc_size_const) {
+    if (file_size < length_size + fixed_crc_size) {
         // Firmware image too small
         sys_pin_mode_disabled();
         return false;
@@ -865,7 +864,7 @@ bool MbedTester::firmware_update(mbed::FileHandle *src, mbed::Callback<void(uint
                                      (buf[1] << (1 * 8)) |
                                      (buf[2] << (2 * 8)) |
                                      (buf[3] << (3 * 8));
-            if (data_size != file_size - length_size - crc_size_const) {
+            if (data_size != file_size - length_size - fixed_crc_size) {
                 // Invalid data length
                 sys_pin_mode_disabled();
                 return false;
@@ -876,10 +875,10 @@ bool MbedTester::firmware_update(mbed::FileHandle *src, mbed::Callback<void(uint
             crc_offset += length_size;
             crc_size -= length_size;
         }
-        if (offset + program_size > file_size - crc_size_const) {
+        if (offset + program_size > file_size - fixed_crc_size) {
             // Overlap with the CRC field
-            for (uint32_t i = 0; i < crc_size_const; i++) {
-                uint32_t byte_offset = file_size - crc_size_const + i;
+            for (uint32_t i = 0; i < fixed_crc_size; i++) {
+                uint32_t byte_offset = file_size - fixed_crc_size + i;
                 if ((byte_offset >= offset) && (byte_offset < offset + program_size)) {
                     uint32_t buf_pos = byte_offset - offset;
                     stored_crc |= buf[buf_pos] << (i * 8);
