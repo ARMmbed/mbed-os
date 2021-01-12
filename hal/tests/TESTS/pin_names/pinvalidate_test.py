@@ -18,15 +18,15 @@ import pytest
 from pinvalidate import *
 
 @pytest.fixture
-def pinName_content():
-    pinName_file = open("PinNames_test.h")
-    return pinName_file.read()
+def pin_name_content():
+    pin_name_file = open("PinNames_test.h")
+    return pin_name_file.read()
 
 @pytest.fixture
-def pinName_dict(pinName_content):
-    return pinName_to_dict(pinName_content)
+def pin_name_dict(pin_name_content):
+    return pin_name_to_dict(pin_name_content)
 
-def test_pinName_to_dict(pinName_dict):
+def test_pin_name_to_dict(pin_name_dict):
     expect = {
         "PA_0": "0x00",
         "PA_1": "0x01",
@@ -129,52 +129,52 @@ def test_pinName_to_dict(pinName_dict):
         "BUTTON5": "NC",
         "BUTTON6": "BUTTON6",
     }
-    assert pinName_dict == expect
+    assert pin_name_dict == expect
 
-def test_identity_assignment_check(pinName_dict):
+def test_identity_assignment_check(pin_name_dict):
     expected_errors = [
         {'key': 'LED6', 'val': 'LED6', 'message': 'cannot assign value to itself'},
         {'key': 'BUTTON6', 'val': 'BUTTON6', 'message': 'cannot assign value to itself'},
     ]
-    assert identity_assignment_check(pinName_dict) == expected_errors
+    assert identity_assignment_check(pin_name_dict) == expected_errors
 
-def test_nc_assignment_check(pinName_dict):
+def test_nc_assignment_check(pin_name_dict):
     expected_errors = [
         {'key': 'LED7','message': 'cannot be NC','val': 'NC'},
         {'key': 'BUTTON5','message': 'cannot be NC','val': 'NC'},
     ]
-    assert nc_assignment_check(pinName_dict) == expected_errors
+    assert nc_assignment_check(pin_name_dict) == expected_errors
 
-def test_duplicate_assignment_check(pinName_dict):
+def test_duplicate_assignment_check(pin_name_dict):
     expected_errors = [
         {'key': 'LED4', 'val': 'LED3', 'message': 'already assigned to LED3 = PC_9'},
         {'key': 'LED5', 'val': 'PC_9', 'message': 'already assigned to LED3 = PC_9'},
         {'key': 'BUTTON3', 'val': 'PC_13', 'message': 'already assigned to BUTTON2 = PC_13'},
         {'key': 'BUTTON4', 'val': 'BUTTON1', 'message': 'already assigned to BUTTON1 = PC_2'},
     ]
-    assert duplicate_assignment_check(pinName_dict) == expected_errors
+    assert duplicate_assignment_check(pin_name_dict) == expected_errors
 
-def test_legacy_assignment_check(pinName_content):
+def test_legacy_assignment_check(pin_name_content):
     expected_errors = [
         {'key': 'LED1', 'val': 'PA_5', 'message': 'legacy assignment; LEDs and BUTTONs must be #define\'d'},
         {'key': 'BUTTON1', 'val': 'PC_2', 'message': 'legacy assignment; LEDs and BUTTONs must be #define\'d'},
     ]
-    assert legacy_assignment_check(pinName_content) == expected_errors
+    assert legacy_assignment_check(pin_name_content) == expected_errors
 
-def test_arduino_duplicate_assignment_check(pinName_dict):
+def test_arduino_duplicate_assignment_check(pin_name_dict):
     expected_errors = [
         {'key': 'ARDUINO_UNO_D8', 'val': 'PB_1', 'message': 'already assigned to ARDUINO_UNO_D6 = PB_1'},
     ]
-    assert arduino_duplicate_assignment_check(pinName_dict) == expected_errors
+    assert arduino_duplicate_assignment_check(pin_name_dict) == expected_errors
 
-def test_arduino_existence_check(pinName_dict):
+def test_arduino_existence_check(pin_name_dict):
     expected_errors = [
         {'key': 'ARDUINO_UNO_D7', 'val': '', 'message': 'ARDUINO_UNO_D7 not defined'},
     ]
-    assert arduino_existence_check(pinName_dict) == expected_errors
+    assert arduino_existence_check(pin_name_dict) == expected_errors
 
-def test_arduino_nc_assignment_check(pinName_dict):
+def test_arduino_nc_assignment_check(pin_name_dict):
     expected_errors = [
         {'key': 'ARDUINO_UNO_D11', 'val': 'NC', 'message': 'cannot be NC'},
     ]
-    assert arduino_nc_assignment_check(pinName_dict) == expected_errors
+    assert arduino_nc_assignment_check(pin_name_dict) == expected_errors
