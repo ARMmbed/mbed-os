@@ -521,78 +521,78 @@ void event_period_tests()
     // Test a non periodic event ie dispatched only once
     
     Event<void()> event1(&period_tests_queue, handler);
-    
+
     event1.delay(10ms);
     event1.period(events::non_periodic);
     event1.post();
 
-    period_tests_queue.dispatch(80); 
-    
+    period_tests_queue.dispatch(80);
+
     // Wait 100ms and check the event execution status
-    wait_us(100 * 1000);    
-    
-    // Event should only have been dispatched once and thus counter 
+    wait_us(100 * 1000);
+
+    // Event should only have been dispatched once and thus counter
     // should be 1
     TEST_ASSERT_EQUAL(1, update_counter);
 
     // Test an event with an invalid negative period value.
-    
+
     update_counter = 0;
-    
+
     Event<void()> event2(&period_tests_queue, handler);
-    
+
     event2.delay(10ms);
     event2.period(-10ms);
     event2.post();
 
-    period_tests_queue.dispatch(80); 
-    
+    period_tests_queue.dispatch(80);
+
     // Wait 100ms and check the event execution status
-    wait_us(100 * 1000);    
-    
-    // Event should default to non_periodic and thus only have been 
+    wait_us(100 * 1000);
+
+    // Event should default to non_periodic and thus only have been
     // dispatched once. Counter should be 1.
     TEST_ASSERT_EQUAL(1, update_counter);
 
     // Test an event with a zero period.
-    
+
     update_counter = 0;
-    
+
     Event<void()> event3(&period_tests_queue, handler);
-    
+
     event3.delay(10ms);
     event3.period(0ms);
     event3.post();
 
-    period_tests_queue.dispatch(80); 
-    
+    period_tests_queue.dispatch(80);
+
     // Wait 100ms and check the event execution status
-    wait_us(100 * 1000);    
-    
-    // Event should default to non_periodic and thus only have been 
+    wait_us(100 * 1000);
+
+    // Event should default to non_periodic and thus only have been
     // dispatched once. Counter should be 1.
     TEST_ASSERT_EQUAL(1, update_counter);
 
     // Test a periodic event ie dispatched a number of times
     update_counter = 0;
-    
+
     Event<void()> event4(&period_tests_queue, handler);
-    
+
     event4.delay(10ms);
-    event4.period(20ms); 
+    event4.period(20ms);
     event4.post();
 
-    period_tests_queue.dispatch(80); 
-    
+    period_tests_queue.dispatch(80);
+
     // Wait 100ms and check the event execution status
-    wait_us(100 * 1000);    
-     
+    wait_us(100 * 1000);
+
     // The event should be first dispatched after 10ms and then
     // every subsequent 20ms until the dispatcher has completed.
     // Thus the counter should be incremented after :
     // 10ms, 30ms, 50ms and 70ms
     TEST_ASSERT_EQUAL(4, update_counter);
-    
+
 }
 
 // Test setup
