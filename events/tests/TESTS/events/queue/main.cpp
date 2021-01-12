@@ -519,7 +519,7 @@ void handler()
 void event_period_tests()
 {
     // Test a non periodic event ie dispatched only once
-    
+
     Event<void()> event1(&period_tests_queue, handler);
 
     event1.delay(10ms);
