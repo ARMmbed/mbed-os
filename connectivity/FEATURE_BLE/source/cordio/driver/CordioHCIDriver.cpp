@@ -113,7 +113,6 @@ void CordioHCIDriver::set_random_static_address(const ble::address_t& address)
 void CordioHCIDriver::start_reset_sequence()
 {
     /* send an HCI Reset command to start the sequence */
-    tr_info("HCI reset sequence started");
     HciResetCmd();
 }
 
