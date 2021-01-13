@@ -21,6 +21,7 @@
 namespace ble {
 #if MBED_CONF_MBED_TRACE_ENABLE
 const char* dm_callback_event_to_string(uint8_t event) {
+#if MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     const char* ret = "INVALID";
     switch(event)
     {
@@ -118,11 +119,16 @@ const char* dm_callback_event_to_string(uint8_t event) {
         case DM_UNHANDLED_CMD_CMPL_EVT_IND: ret = "DM_UNHANDLED_CMD_CMPL_EVT_IND"; break;
 #endif
     }
+#else // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
+    static char ret[3] = "00";
+    sprintf(ret, "%02x", (int)event);
+#endif // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     return ret;
 }
 
 void trace_le_supported_features(uint64_t feat)
 {
+#if MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     if (feat & HCI_LE_SUP_FEAT_ENCRYPTION) tr_info("ENCRYPTION");
     if (feat & HCI_LE_SUP_FEAT_CONN_PARAM_REQ_PROC) tr_info("CONN_PARAM_REQ_PROC");
     if (feat & HCI_LE_SUP_FEAT_EXT_REJECT_IND) tr_info("EXT_REJECT_IND");
@@ -159,10 +165,14 @@ void trace_le_supported_features(uint64_t feat)
     if (feat & HCI_LE_SUP_FEAT_POWER_CONTROL_REQUEST) tr_info("POWER_CONTROL_REQUEST");
     if (feat & HCI_LE_SUP_FEAT_POWER_CHANGE_IND) tr_info("POWER_CHANGE_IND");
     if (feat & HCI_LE_SUP_FEAT_PATH_LOSS_MONITOR) tr_info("PATH_LOSS_MONITOR");
+#else // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
+    tr_info("%s", tr_array((uint8_t*)&feat, 4));
+#endif // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
 }
 
 const char* hci_opcode_to_string(uint16_t opcode)
 {
+#if MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     const char* ret = "UNKNOWN OPCODE";
     switch (opcode) {
         case HCI_OPCODE_NOP: ret = "HCI_OPCODE_NOP"; break;
@@ -316,6 +326,10 @@ const char* hci_opcode_to_string(uint16_t opcode)
         case HCI_OPCODE_LE_SET_PATH_LOSS_REPORTING_ENABLE: ret = "HCI_OPCODE_LE_SET_PATH_LOSS_REPORTING_ENABLE"; break;
         case HCI_OPCODE_LE_SET_TX_POWER_REPORT_ENABLE: ret = "HCI_OPCODE_LE_SET_TX_POWER_REPORT_ENABLE"; break;
     }
+#else // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
+    static char ret[3] = "00";
+    sprintf(ret, "%02x", (int)opcode);
+#endif // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     return ret;
 }
 #endif //MBED_CONF_MBED_TRACE_ENABLE

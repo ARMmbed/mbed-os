@@ -98,12 +98,9 @@ extern "C" void hci_mbed_os_handle_reset_sequence(uint8_t *msg)
 {
 #if MBED_CONF_MBED_TRACE_ENABLE
     if (*msg == HCI_CMD_CMPL_EVT) {
-        /* parse parameters */
-        msg += HCI_EVT_HDR_LEN;
-        msg++;                   /* skip num packets */
-        uint16_t       opcode;
-        BSTREAM_TO_UINT16(opcode, msg);
-
+        uint16_t opcode;
+        uint8_t *peek_msg = msg + (HCI_EVT_HDR_LEN + 1 /* skip num packets */);
+        BSTREAM_TO_UINT16(opcode, peek_msg);
         tr_debug("Reset sequence command complete: %s", ble::hci_opcode_to_string(opcode));
     }
 #endif // MBED_CONF_MBED_TRACE_ENABLE
