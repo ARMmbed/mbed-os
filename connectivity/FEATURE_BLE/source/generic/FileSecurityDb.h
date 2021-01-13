@@ -24,6 +24,9 @@
 #include <stdio.h>
 
 #include "SecurityDb.h"
+#include "mbed-trace/mbed_trace.h"
+
+#define TRACE_GROUP "BLDB"
 
 namespace ble {
 
@@ -38,7 +41,11 @@ private:
     };
 
     static entry_t* as_entry(entry_handle_t db_handle) {
-        return reinterpret_cast<entry_t*>(db_handle);
+        entry_t* entry = reinterpret_cast<entry_t*>(db_handle);
+        if (!entry) {
+            tr_error("Invalid security DB handle used");
+        }
+        return entry;
     }
 
     template<class T>
@@ -160,6 +167,11 @@ private:
      * @return filehandle when successful, otherwise NULL
      */
     static FILE* erase_db_file(FILE* db_file);
+
+    uint8_t get_index(const entry_handle_t db_handle) const
+    {
+        return reinterpret_cast<entry_t*>(db_handle) - _entries;
+    }
 
 private:
     entry_t _entries[BLE_SECURITY_DATABASE_MAX_ENTRIES];

@@ -25,6 +25,11 @@
 #include "ble/common/BLETypes.h"
 #include "ble/Gap.h"
 
+#include "mbed-trace/mbed_trace.h"
+#include "common/ble_trace_helpers.h"
+
+#define TRACE_GROUP "BLDB"
+
 namespace ble {
 
 /**
@@ -180,9 +185,11 @@ public:
             // Maybe this isn't the correct entry, try to find one that matches
             entry_handle_t correct_handle = find_entry_by_peer_ediv_rand(ediv, rand);
             if (!correct_handle) {
+                tr_warn("Failed to find ltk matching given ediv&rand");
                 cb(*db_handle, NULL);
                 return;
             }
+            tr_warn("Found ltk matching given ediv&rand but it belonged to a different identity, update entry with new identity");
             // Note: keys should never be null as a matching entry has been retrieved
             SecurityEntryKeys_t* keys = read_in_entry_local_keys(correct_handle);
             MBED_ASSERT(keys);
@@ -505,6 +512,7 @@ public:
     ) {
         entry_handle_t db_handle = find_entry_by_peer_address(peer_address_type, peer_address);
         if (db_handle) {
+            tr_debug("Found old DB entry (connected to peer previously)");
             ((SecurityDistributionFlags_t*)db_handle)->connected = true;
             return db_handle;
         }
@@ -637,6 +645,7 @@ public:
         peer_address_type_t peer_address_type,
         const address_t &peer_address
     ) {
+        tr_info("Clearing entry for address %s", to_string(peer_address));
         entry_handle_t db_handle = find_entry_by_peer_address(peer_address_type, peer_address);
         if (db_handle) {
             reset_entry(db_handle);
@@ -647,6 +656,7 @@ public:
      * Remove all entries from the security DB.
      */
     virtual void clear_entries() {
+        tr_info("Clearing all entries");
         for (size_t i = 0; i < get_entry_count(); i++) {
             entry_handle_t db_handle = get_entry_handle_by_index(i);
             reset_entry(db_handle);
@@ -777,6 +787,7 @@ private:
      */
     virtual SecurityDistributionFlags_t* get_free_entry_flags() {
         /* get a free one if available */
+        tr_debug("Retrieve a disconnected entry to use as a new entry in DB.");
         SecurityDistributionFlags_t* match = nullptr;
         for (size_t i = 0; i < get_entry_count(); i++) {
             entry_handle_t db_handle = get_entry_handle_by_index(i);
@@ -790,6 +801,7 @@ private:
                     && !flags->ltk_sent
                     && !flags->irk_stored) {
                     /* empty one found, stop looking*/
+                    tr_debug("Using a previously unused entry as a new entry in DB.");
                     break;
                 }
             }
@@ -803,7 +815,7 @@ private:
     }
 
     /**
-     * How many entries can be stored in the databes.
+     * How many entries can be stored in the database.
      * @return max number of entries
      */
     virtual uint8_t get_entry_count() = 0;
