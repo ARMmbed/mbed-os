@@ -90,11 +90,24 @@ extern "C" uint16_t hci_mbed_os_drv_write(uint8_t type, uint16_t len, uint8_t *p
 
 extern "C" void hci_mbed_os_start_reset_sequence(void)
 {
+    tr_debug("Cordio HCI reset started");
     ble_cordio_get_hci_driver().start_reset_sequence();
 }
 
 extern "C" void hci_mbed_os_handle_reset_sequence(uint8_t *msg)
 {
+#if MBED_CONF_MBED_TRACE_ENABLE
+    if (*msg == HCI_CMD_CMPL_EVT) {
+        /* parse parameters */
+        msg += HCI_EVT_HDR_LEN;
+        msg++;                   /* skip num packets */
+        uint16_t       opcode;
+        BSTREAM_TO_UINT16(opcode, msg);
+
+        tr_debug("Reset sequence command complete: %s", ble::hci_opcode_to_string(opcode));
+    }
+#endif // MBED_CONF_MBED_TRACE_ENABLE
+
     ble_cordio_get_hci_driver().handle_reset_sequence(msg);
 }
 

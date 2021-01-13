@@ -283,6 +283,7 @@ bool CordioHCIDriver::get_random_static_address(ble::address_t& address)
 
 void CordioHCIDriver::signal_reset_sequence_done()
 {
+    tr_debug("Signal cordio HCI reset sequence done");
     hci_mbed_os_signal_reset_sequence_done();
 }
 
