@@ -30,8 +30,8 @@
     #define MBED_BOOT_STACK_SIZE 0x400
 #endif
 
-/* Round up VECTORS_SIZE to 8 bytes */
-#define VECTORS_SIZE (((VECTORS * 4) + 7) & 0xFFFFFFF8)
+; 8_byte_aligned(16+97 vect * 4 bytes) = (((0x1C4 * 4) + 7) & 0xFFFFFFF8) = 0x1C8
+#define VECTORS_SIZE      0x1C8
 
 MEMORY
 {

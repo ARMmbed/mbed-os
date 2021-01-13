@@ -23,17 +23,17 @@
 #endif
 
 #if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
-#  if defined(MBED_BOOT_STACK_SIZE)
-#    define MBED_CONF_TARGET_BOOT_STACK_SIZE MBED_BOOT_STACK_SIZE
-#  else
-#    define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
-#  endif
+  #if defined(MBED_BOOT_STACK_SIZE)
+    #define MBED_CONF_TARGET_BOOT_STACK_SIZE (MBED_BOOT_STACK_SIZE)
+  #else
+    #define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
+  #endif
 #endif
 
-; 8_byte_aligned(16+97 vect * 4 bytes) = 0x1C4
-#define VECTORS_SIZE  (((VECTORS * 4) + 7) AND ~7)
+; 8_byte_aligned(16+97 vect * 4 bytes) = (((0x1C4 * 4) + 7) & 0xFFFFFFF8) = 0x1C8
+#define VECTORS_SIZE      0x1C8
 
-#define RAM_FIXED_SIZE              (MBED_CONF_TARGET_BOOT_STACK_SIZE+VECTOR_SIZE)
+#define RAM_FIXED_SIZE              (MBED_CONF_TARGET_BOOT_STACK_SIZE+VECTORS_SIZE)
 
 LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {    ; load region size_region
 
@@ -43,7 +43,7 @@ LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {    ; load region size_region
    .ANY (+RO)
   }
   
-  RW_IRAM1  (MBED_RAM_START+VECTOR_SIZE)  (MBED_RAM_SIZE-VECTOR_SIZE)  {  ; RW data
+  RW_IRAM1  (MBED_RAM_START+VECTORS_SIZE)  (MBED_RAM_SIZE-VECTORS_SIZE)  {  ; RW data
    .ANY (+RW +ZI)
   }
 
