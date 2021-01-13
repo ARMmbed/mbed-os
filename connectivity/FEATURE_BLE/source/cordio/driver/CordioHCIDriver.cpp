@@ -289,7 +289,14 @@ void CordioHCIDriver::signal_reset_sequence_done()
 uint16_t CordioHCIDriver::write(uint8_t type, uint16_t len, uint8_t *pData)
 {
 #if MBED_CONF_CORDIO_TRACE_HCI_PACKETS
-    tr_debug("HOST->LL: %02hhx %s", type, trace_array(pData, len));
+    const char *type_prefix;
+    switch(type) {
+        case 0x01: type_prefix = "CMD"; break;
+        case 0x02: type_prefix = "ACL"; break;
+        /* illegal packet */
+        default: type_prefix = "ERR"; break;
+    }
+    tr_debug("HOST->LL %s %s", type_prefix, trace_array(pData, len));
 #endif
     return _transport_driver.write(type, len, pData);
 }

@@ -37,9 +37,6 @@ void CordioHCITransportDriver::on_data_received(uint8_t* data, uint16_t len)
 {
     while (len) {
         uint8_t chunk_length = std::min(len, (uint16_t) std::numeric_limits<uint8_t>::max());
-#if MBED_CONF_CORDIO_TRACE_HCI_PACKETS
-        tr_debug("LL->HOST: %s", trace_array(data, chunk_length));
-#endif
         data_received_handler(data, chunk_length);
         len = len - chunk_length;
         data = data + chunk_length;

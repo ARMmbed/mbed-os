@@ -46,4 +46,12 @@ void wsf_mbed_trace_init()
     WsfTraceRegisterHandler(&wsf_mbed_trace_printf_cb);
 }
 
+#if MBED_CONF_CORDIO_TRACE_HCI_PACKETS
+#define TRACE_GROUP "BLHC"
+void wsf_mbed_trace_hci(const uint8_t *pBuf, uint32_t len, const uint8_t *prefix)
+{
+    tr_debug("LL->HOST %s %s", prefix, trace_array(pBuf, len));
+}
+#endif // MBED_CONF_CORDIO_TRACE_HCI_PACKETS
+
 #endif // MBED_CONF_MBED_TRACE_ENABLE
