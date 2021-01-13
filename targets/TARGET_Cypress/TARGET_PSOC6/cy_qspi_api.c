@@ -25,14 +25,35 @@
 extern "C" {
 #endif
 
+#if CY_IP_MXSMIF_INSTANCES == 1
+    static cyhal_qspi_t* qspi_ptr = NULL;
+#else
+#error Unhandled number of SMIF instances
+#endif
+
 qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, PinName ssel, uint32_t hz, uint8_t mode)
 {
-    return CY_RSLT_SUCCESS == cyhal_qspi_init(&(obj->hal_qspi), io0, io1, io2, io3, NC, NC, NC, NC, sclk, ssel, hz, mode) ? QSPI_STATUS_OK : QSPI_STATUS_ERROR;
+    // If qspi has already been initialized, free and reinit.
+    if(qspi_ptr != NULL)
+    {
+        cyhal_qspi_free(qspi_ptr);
+        qspi_ptr = NULL;
+    }
+
+    cy_rslt_t result = cyhal_qspi_init(&(obj->hal_qspi), io0, io1, io2, io3, NC, NC, NC, NC, sclk, ssel, hz, mode);
+    if(CY_RSLT_SUCCESS != result)
+    {
+        return QSPI_STATUS_ERROR;
+    }
+
+    qspi_ptr = &(obj->hal_qspi);
+    return QSPI_STATUS_OK;
 }
 
 qspi_status_t qspi_free(qspi_t *obj)
 {
     cyhal_qspi_free(&(obj->hal_qspi));
+    qspi_ptr = NULL;
     return QSPI_STATUS_OK;
 }
 
