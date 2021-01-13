@@ -16,9 +16,10 @@
  */
 
 #include "ble_trace_helpers.h"
+#define TRACE_GROUP "BLE "
 
 namespace ble {
-
+#if MBED_CONF_MBED_TRACE_ENABLE
 const char* dm_callback_event_to_string(uint8_t event) {
     const char* ret = "INVALID";
     switch(event)
@@ -119,5 +120,45 @@ const char* dm_callback_event_to_string(uint8_t event) {
     }
     return ret;
 }
+
+void trace_le_supported_features(uint64_t feat) {
+    if (feat & HCI_LE_SUP_FEAT_ENCRYPTION) tr_info("ENCRYPTION");
+    if (feat & HCI_LE_SUP_FEAT_CONN_PARAM_REQ_PROC) tr_info("CONN_PARAM_REQ_PROC");
+    if (feat & HCI_LE_SUP_FEAT_EXT_REJECT_IND) tr_info("EXT_REJECT_IND");
+    if (feat & HCI_LE_SUP_FEAT_SLV_INIT_FEAT_EXCH) tr_info("SLV_INIT_FEAT_EXCH");
+    if (feat & HCI_LE_SUP_FEAT_LE_PING) tr_info("LE_PING");
+    if (feat & HCI_LE_SUP_FEAT_DATA_LEN_EXT) tr_info("DATA_LEN_EXT");
+    if (feat & HCI_LE_SUP_FEAT_PRIVACY) tr_info("PRIVACY");
+    if (feat & HCI_LE_SUP_FEAT_EXT_SCAN_FILT_POLICY) tr_info("EXT_SCAN_FILT_POLICY");
+    if (feat & HCI_LE_SUP_FEAT_LE_2M_PHY) tr_info("LE_2M_PHY");
+    if (feat & HCI_LE_SUP_FEAT_STABLE_MOD_IDX_TRANSMITTER) tr_info("STABLE_MOD_IDX_TRANSMITTER");
+    if (feat & HCI_LE_SUP_FEAT_STABLE_MOD_IDX_RECEIVER) tr_info("STABLE_MOD_IDX_RECEIVER");
+    if (feat & HCI_LE_SUP_FEAT_LE_CODED_PHY) tr_info("LE_CODED_PHY");
+    if (feat & HCI_LE_SUP_FEAT_LE_EXT_ADV) tr_info("LE_EXT_ADV");
+    if (feat & HCI_LE_SUP_FEAT_LE_PER_ADV) tr_info("LE_PER_ADV");
+    if (feat & HCI_LE_SUP_FEAT_CH_SEL_2) tr_info("CH_SEL_2");
+    if (feat & HCI_LE_SUP_FEAT_LE_POWER_CLASS_1) tr_info("LE_POWER_CLASS_1");
+    if (feat & HCI_LE_SUP_FEAT_MIN_NUN_USED_CHAN) tr_info("MIN_NUN_USED_CHAN");
+    if (feat & HCI_LE_SUP_FEAT_CONN_CTE_REQ) tr_info("CONN_CTE_REQ");
+    if (feat & HCI_LE_SUP_FEAT_CONN_CTE_RSP) tr_info("CONN_CTE_RSP");
+    if (feat & HCI_LE_SUP_FEAT_CONNLESS_CTE_TRANS) tr_info("CONNLESS_CTE_TRANS");
+    if (feat & HCI_LE_SUP_FEAT_CONNLESS_CTE_RECV) tr_info("CONNLESS_CTE_RECV");
+    if (feat & HCI_LE_SUP_FEAT_ANTENNA_SWITCH_AOD) tr_info("ANTENNA_SWITCH_AOD");
+    if (feat & HCI_LE_SUP_FEAT_ANTENNA_SWITCH_AOA) tr_info("ANTENNA_SWITCH_AOA");
+    if (feat & HCI_LE_SUP_FEAT_RECV_CTE) tr_info("RECV_CTE");
+    if (feat & HCI_LE_SUP_FEAT_PAST_SENDER) tr_info("PAST_SENDER");
+    if (feat & HCI_LE_SUP_FEAT_PAST_RECIPIENT) tr_info("PAST_RECIPIENT");
+    if (feat & HCI_LE_SUP_FEAT_SCA_UPDATE) tr_info("SCA_UPDATE");
+    if (feat & HCI_LE_SUP_FEAT_REMOTE_PUB_KEY_VALIDATION) tr_info("REMOTE_PUB_KEY_VALIDATION");
+    if (feat & HCI_LE_SUP_FEAT_CIS_MASTER) tr_info("CIS_MASTER");
+    if (feat & HCI_LE_SUP_FEAT_CIS_SLAVE) tr_info("CIS_SLAVE");
+    if (feat & HCI_LE_SUP_FEAT_ISO_BROADCASTER) tr_info("ISO_BROADCASTER");
+    if (feat & HCI_LE_SUP_FEAT_ISO_SYNC_RECEIVER) tr_info("ISO_SYNC_RECEIVER");
+    if (feat & HCI_LE_SUP_FEAT_ISO_HOST_SUPPORT) tr_info("ISO_HOST_SUPPORT");
+    if (feat & HCI_LE_SUP_FEAT_POWER_CONTROL_REQUEST) tr_info("POWER_CONTROL_REQUEST");
+    if (feat & HCI_LE_SUP_FEAT_POWER_CHANGE_IND) tr_info("POWER_CHANGE_IND");
+    if (feat & HCI_LE_SUP_FEAT_PATH_LOSS_MONITOR) tr_info("PATH_LOSS_MONITOR");
+}
+#endif //MBED_CONF_MBED_TRACE_ENABLE
 
 } // namespace ble

@@ -375,22 +375,26 @@ void BLEInstanceBase::stack_handler(wsfEventMask_t event, wsfMsgHdr_t *msg)
             };
 #if BLE_FEATURE_EXTENDED_ADVERTISING
             // initialize extended module if supported
-            tr_info("Reset sequence complete - initialising extended features");
+            tr_info("Reset sequence complete. Controller supported features:");
+#if MBED_CONF_MBED_TRACE_ENABLE
+            trace_le_supported_features(HciGetLeSupFeat());
+#endif // MBED_CONF_MBED_TRACE_ENABLE
+            tr_info("Initialising extended features");
             if (HciGetLeSupFeat() & HCI_LE_SUP_FEAT_LE_EXT_ADV) {
 #if BLE_ROLE_BROADCASTER
-                tr_debug("DmExtAdvInit");
+                tr_info("DmExtAdvInit");
                 DmExtAdvInit();
 #endif // BLE_ROLE_BROADCASTER
 #if BLE_ROLE_OBSERVER
-                tr_debug("DmExtScanInit");
+                tr_info("DmExtScanInit");
                 DmExtScanInit();
 #endif // BLE_ROLE_OBSERVER
 #if BLE_ROLE_CENTRAL
-                tr_debug("DmExtConnMasterInit");
+                tr_info("DmExtConnMasterInit");
                 DmExtConnMasterInit();
 #endif // BLE_ROLE_CENTRAL
 #if BLE_ROLE_PERIPHERAL
-                tr_debug("DmExtConnSlaveInit");
+                tr_info("DmExtConnSlaveInit");
                 DmExtConnSlaveInit();
 #endif // BLE_ROLE_PERIPHERAL
             }

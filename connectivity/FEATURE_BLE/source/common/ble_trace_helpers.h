@@ -25,7 +25,10 @@
 
 namespace ble {
 
+#if MBED_CONF_MBED_TRACE_ENABLE
 const char* dm_callback_event_to_string(uint8_t event);
+void trace_le_supported_features(uint64_t feat);
+#endif //MBED_CONF_MBED_TRACE_ENABLE
 
 static inline constexpr const char* to_string(bool v)
 {
