@@ -15,7 +15,7 @@
  * This header file only defines preprocessor macros.
  */
 /*
- *  Copyright (C) 2018, ARM Limited, All Rights Reserved
+ *  Copyright The Mbed TLS Contributors
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -29,8 +29,6 @@
  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 
 #ifndef PSA_CRYPTO_VALUES_H
@@ -426,15 +424,15 @@
 #define PSA_KEY_TYPE_ECC_CURVE_MASK                 ((psa_key_type_t)0x00ff)
 /** Elliptic curve key pair.
  *
- * \param curve     A value of type ::psa_ecc_curve_t that identifies the
- *                  ECC curve to be used.
+ * \param curve     A value of type ::psa_ecc_family_t that
+ *                  identifies the ECC curve to be used.
  */
 #define PSA_KEY_TYPE_ECC_KEY_PAIR(curve)         \
     (PSA_KEY_TYPE_ECC_KEY_PAIR_BASE | (curve))
 /** Elliptic curve public key.
  *
- * \param curve     A value of type ::psa_ecc_curve_t that identifies the
- *                  ECC curve to be used.
+ * \param curve     A value of type ::psa_ecc_family_t that
+ *                  identifies the ECC curve to be used.
  */
 #define PSA_KEY_TYPE_ECC_PUBLIC_KEY(curve)              \
     (PSA_KEY_TYPE_ECC_PUBLIC_KEY_BASE | (curve))
@@ -453,8 +451,8 @@
      PSA_KEY_TYPE_ECC_PUBLIC_KEY_BASE)
 
 /** Extract the curve from an elliptic curve key type. */
-#define PSA_KEY_TYPE_GET_CURVE(type)                             \
-    ((psa_ecc_curve_t) (PSA_KEY_TYPE_IS_ECC(type) ?              \
+#define PSA_KEY_TYPE_ECC_GET_FAMILY(type)                        \
+    ((psa_ecc_family_t) (PSA_KEY_TYPE_IS_ECC(type) ?             \
                         ((type) & PSA_KEY_TYPE_ECC_CURVE_MASK) : \
                         0))
 
@@ -466,7 +464,7 @@
  * _SEC 2: Recommended Elliptic Curve Domain Parameters_.
  * https://www.secg.org/sec2-v2.pdf
  */
-#define PSA_ECC_CURVE_SECP_K1           ((psa_ecc_curve_t) 0x17)
+#define PSA_ECC_FAMILY_SECP_K1           ((psa_ecc_family_t) 0x17)
 
 /** SEC random curves over prime fields.
  *
@@ -476,9 +474,9 @@
  * _SEC 2: Recommended Elliptic Curve Domain Parameters_.
  * https://www.secg.org/sec2-v2.pdf
  */
-#define PSA_ECC_CURVE_SECP_R1           ((psa_ecc_curve_t) 0x12)
+#define PSA_ECC_FAMILY_SECP_R1           ((psa_ecc_family_t) 0x12)
 /* SECP160R2 (SEC2 v1, obsolete) */
-#define PSA_ECC_CURVE_SECP_R2           ((psa_ecc_curve_t) 0x1b)
+#define PSA_ECC_FAMILY_SECP_R2           ((psa_ecc_family_t) 0x1b)
 
 /** SEC Koblitz curves over binary fields.
  *
@@ -488,7 +486,7 @@
  * _SEC 2: Recommended Elliptic Curve Domain Parameters_.
  * https://www.secg.org/sec2-v2.pdf
  */
-#define PSA_ECC_CURVE_SECT_K1           ((psa_ecc_curve_t) 0x27)
+#define PSA_ECC_FAMILY_SECT_K1           ((psa_ecc_family_t) 0x27)
 
 /** SEC random curves over binary fields.
  *
@@ -498,7 +496,7 @@
  * _SEC 2: Recommended Elliptic Curve Domain Parameters_.
  * https://www.secg.org/sec2-v2.pdf
  */
-#define PSA_ECC_CURVE_SECT_R1           ((psa_ecc_curve_t) 0x22)
+#define PSA_ECC_FAMILY_SECT_R1           ((psa_ecc_family_t) 0x22)
 
 /** SEC additional random curves over binary fields.
  *
@@ -508,7 +506,7 @@
  * _SEC 2: Recommended Elliptic Curve Domain Parameters_.
  * https://www.secg.org/sec2-v2.pdf
  */
-#define PSA_ECC_CURVE_SECT_R2           ((psa_ecc_curve_t) 0x2b)
+#define PSA_ECC_FAMILY_SECT_R2           ((psa_ecc_family_t) 0x2b)
 
 /** Brainpool P random curves.
  *
@@ -517,7 +515,7 @@
  * brainpoolP320r1, brainpoolP384r1, brainpoolP512r1.
  * It is defined in RFC 5639.
  */
-#define PSA_ECC_CURVE_BRAINPOOL_P_R1    ((psa_ecc_curve_t) 0x30)
+#define PSA_ECC_FAMILY_BRAINPOOL_P_R1    ((psa_ecc_family_t) 0x30)
 
 /** Curve25519 and Curve448.
  *
@@ -529,21 +527,21 @@
  *   _Ed448-Goldilocks, a new elliptic curve_, NIST ECC Workshop, 2015.
  *   The algorithm #PSA_ALG_ECDH performs X448 when used with this curve.
  */
-#define PSA_ECC_CURVE_MONTGOMERY        ((psa_ecc_curve_t) 0x41)
+#define PSA_ECC_FAMILY_MONTGOMERY        ((psa_ecc_family_t) 0x41)
 
 #define PSA_KEY_TYPE_DH_PUBLIC_KEY_BASE             ((psa_key_type_t)0x4200)
 #define PSA_KEY_TYPE_DH_KEY_PAIR_BASE               ((psa_key_type_t)0x7200)
 #define PSA_KEY_TYPE_DH_GROUP_MASK                  ((psa_key_type_t)0x00ff)
 /** Diffie-Hellman key pair.
  *
- * \param group     A value of type ::psa_dh_group_t that identifies the
+ * \param group     A value of type ::psa_dh_family_t that identifies the
  *                  Diffie-Hellman group to be used.
  */
 #define PSA_KEY_TYPE_DH_KEY_PAIR(group)          \
     (PSA_KEY_TYPE_DH_KEY_PAIR_BASE | (group))
 /** Diffie-Hellman public key.
  *
- * \param group     A value of type ::psa_dh_group_t that identifies the
+ * \param group     A value of type ::psa_dh_family_t that identifies the
  *                  Diffie-Hellman group to be used.
  */
 #define PSA_KEY_TYPE_DH_PUBLIC_KEY(group)               \
@@ -563,8 +561,8 @@
      PSA_KEY_TYPE_DH_PUBLIC_KEY_BASE)
 
 /** Extract the group from a Diffie-Hellman key type. */
-#define PSA_KEY_TYPE_GET_GROUP(type)                            \
-    ((psa_dh_group_t) (PSA_KEY_TYPE_IS_DH(type) ?               \
+#define PSA_KEY_TYPE_DH_GET_FAMILY(type)                        \
+    ((psa_dh_family_t) (PSA_KEY_TYPE_IS_DH(type) ?              \
                        ((type) & PSA_KEY_TYPE_DH_GROUP_MASK) :  \
                        0))
 
@@ -574,7 +572,7 @@
  * 2048, 3072, 4096, 6144, 8192. A given implementation may support
  * all of these sizes or only a subset.
  */
-#define PSA_DH_GROUP_RFC7919            ((psa_dh_group_t) 0x03)
+#define PSA_DH_FAMILY_RFC7919            ((psa_dh_family_t) 0x03)
 
 #define PSA_GET_KEY_TYPE_BLOCK_SIZE_EXPONENT(type)      \
     (((type) >> 8) & 7)
@@ -672,22 +670,24 @@
 #define PSA_ALG_IS_AEAD(alg)                                            \
     (((alg) & PSA_ALG_CATEGORY_MASK) == PSA_ALG_CATEGORY_AEAD)
 
-/** Whether the specified algorithm is a public-key signature algorithm.
+/** Whether the specified algorithm is an asymmetric signature algorithm,
+ * also known as public-key signature algorithm.
  *
  * \param alg An algorithm identifier (value of type #psa_algorithm_t).
  *
- * \return 1 if \p alg is a public-key signature algorithm, 0 otherwise.
+ * \return 1 if \p alg is an asymmetric signature algorithm, 0 otherwise.
  *         This macro may return either 0 or 1 if \p alg is not a supported
  *         algorithm identifier.
  */
 #define PSA_ALG_IS_SIGN(alg)                                            \
     (((alg) & PSA_ALG_CATEGORY_MASK) == PSA_ALG_CATEGORY_SIGN)
 
-/** Whether the specified algorithm is a public-key encryption algorithm.
+/** Whether the specified algorithm is an asymmetric encryption algorithm,
+ * also known as public-key encryption algorithm.
  *
  * \param alg An algorithm identifier (value of type #psa_algorithm_t).
  *
- * \return 1 if \p alg is a public-key encryption algorithm, 0 otherwise.
+ * \return 1 if \p alg is an asymmetric encryption algorithm, 0 otherwise.
  *         This macro may return either 0 or 1 if \p alg is not a supported
  *         algorithm identifier.
  */
@@ -1205,9 +1205,9 @@
 
 /** Whether the specified algorithm is a hash-and-sign algorithm.
  *
- * Hash-and-sign algorithms are public-key signature algorithms structured
- * in two parts: first the calculation of a hash in a way that does not
- * depend on the key, then the calculation of a signature from the
+ * Hash-and-sign algorithms are asymmetric (public-key) signature algorithms
+ * structured in two parts: first the calculation of a hash in a way that
+ * does not depend on the key, then the calculation of a signature from the
  * hash value and the key.
  *
  * \param alg An algorithm identifier (value of type #psa_algorithm_t).
@@ -1259,7 +1259,7 @@
  *                      #PSA_ALG_IS_HASH(\p hash_alg) is true) to use
  *                      for MGF1.
  *
- * \return              The corresponding RSA OAEP signature algorithm.
+ * \return              The corresponding RSA OAEP encryption algorithm.
  * \return              Unspecified if \p hash_alg is not a supported
  *                      hash algorithm.
  */
@@ -1481,17 +1481,17 @@
  * is padded with zero bits. The byte order is either little-endian
  * or big-endian depending on the curve type.
  *
- * - For Montgomery curves (curve types `PSA_ECC_CURVE_CURVEXXX`),
+ * - For Montgomery curves (curve types `PSA_ECC_FAMILY_CURVEXXX`),
  *   the shared secret is the x-coordinate of `d_A Q_B = d_B Q_A`
  *   in little-endian byte order.
  *   The bit size is 448 for Curve448 and 255 for Curve25519.
  * - For Weierstrass curves over prime fields (curve types
- *   `PSA_ECC_CURVE_SECPXXX` and `PSA_ECC_CURVE_BRAINPOOL_PXXX`),
+ *   `PSA_ECC_FAMILY_SECPXXX` and `PSA_ECC_FAMILY_BRAINPOOL_PXXX`),
  *   the shared secret is the x-coordinate of `d_A Q_B = d_B Q_A`
  *   in big-endian byte order.
  *   The bit size is `m = ceiling(log_2(p))` for the field `F_p`.
  * - For Weierstrass curves over binary fields (curve types
- *   `PSA_ECC_CURVE_SECTXXX`),
+ *   `PSA_ECC_FAMILY_SECTXXX`),
  *   the shared secret is the x-coordinate of `d_A Q_B = d_B Q_A`
  *   in big-endian byte order.
  *   The bit size is `m` for the field `F_{2^m}`.
@@ -1539,12 +1539,20 @@
  * @{
  */
 
-/** A volatile key only exists as long as the handle to it is not closed.
+/** The default lifetime for volatile keys.
+ *
+ * A volatile key only exists as long as the handle to it is not closed.
  * The key material is guaranteed to be erased on a power reset.
+ *
+ * A key with this lifetime is typically stored in the RAM area of the
+ * PSA Crypto subsystem. However this is an implementation choice.
+ * If an implementation stores data about the key in a non-volatile memory,
+ * it must release all the resources associated with the key and erase the
+ * key material if the calling application terminates.
  */
 #define PSA_KEY_LIFETIME_VOLATILE               ((psa_key_lifetime_t)0x00000000)
 
-/** The default storage area for persistent keys.
+/** The default lifetime for persistent keys.
  *
  * A persistent key remains in storage until it is explicitly destroyed or
  * until the corresponding storage area is wiped. This specification does
@@ -1555,8 +1563,76 @@
  * This lifetime value is the default storage area for the calling
  * application. Implementations may offer other storage areas designated
  * by other lifetime values as implementation-specific extensions.
+ * See ::psa_key_lifetime_t for more information.
  */
 #define PSA_KEY_LIFETIME_PERSISTENT             ((psa_key_lifetime_t)0x00000001)
+
+/** The persistence level of volatile keys.
+ *
+ * See ::psa_key_persistence_t for more information.
+ */
+#define PSA_KEY_PERSISTENCE_VOLATILE            ((psa_key_persistence_t)0x00)
+
+/** The default persistence level for persistent keys.
+ *
+ * See ::psa_key_persistence_t for more information.
+ */
+#define PSA_KEY_PERSISTENCE_DEFAULT             ((psa_key_persistence_t)0x01)
+
+/** A persistence level indicating that a key is never destroyed.
+ *
+ * See ::psa_key_persistence_t for more information.
+ */
+#define PSA_KEY_PERSISTENCE_READ_ONLY           ((psa_key_persistence_t)0xff)
+
+#define PSA_KEY_LIFETIME_GET_PERSISTENCE(lifetime)      \
+    ((psa_key_persistence_t)((lifetime) & 0x000000ff))
+
+#define PSA_KEY_LIFETIME_GET_LOCATION(lifetime)      \
+    ((psa_key_location_t)((lifetime) >> 8))
+
+/** Whether a key lifetime indicates that the key is volatile.
+ *
+ * A volatile key is automatically destroyed by the implementation when
+ * the application instance terminates. In particular, a volatile key
+ * is automatically destroyed on a power reset of the device.
+ *
+ * A key that is not volatile is persistent. Persistent keys are
+ * preserved until the application explicitly destroys them or until an
+ * implementation-specific device management event occurs (for example,
+ * a factory reset).
+ *
+ * \param lifetime      The lifetime value to query (value of type
+ *                      ::psa_key_lifetime_t).
+ *
+ * \return \c 1 if the key is volatile, otherwise \c 0.
+ */
+#define PSA_KEY_LIFETIME_IS_VOLATILE(lifetime)  \
+    (PSA_KEY_LIFETIME_GET_PERSISTENCE(lifetime) == \
+     PSA_KEY_PERSISTENCE_VOLATILE)
+
+/** Construct a lifetime from a persistence level and a location.
+ *
+ * \param persistence   The persistence level
+ *                      (value of type ::psa_key_persistence_t).
+ * \param location      The location indicator
+ *                      (value of type ::psa_key_location_t).
+ *
+ * \return The constructed lifetime value.
+ */
+#define PSA_KEY_LIFETIME_FROM_PERSISTENCE_AND_LOCATION(persistence, location) \
+    ((location) << 8 | (persistence))
+
+/** The local storage area for persistent keys.
+ *
+ * This storage area is available on all systems that can store persistent
+ * keys without delegating the storage to a third-party cryptoprocessor.
+ *
+ * See ::psa_key_location_t for more information.
+ */
+#define PSA_KEY_LOCATION_LOCAL_STORAGE          ((psa_key_location_t)0x000000)
+
+#define PSA_KEY_LOCATION_VENDOR_FLAG            ((psa_key_location_t)0x800000)
 
 /** The minimum value for a key identifier chosen by the application.
  */

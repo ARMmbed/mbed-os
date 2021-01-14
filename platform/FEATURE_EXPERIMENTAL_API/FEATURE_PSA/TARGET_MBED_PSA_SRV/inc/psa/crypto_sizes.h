@@ -21,7 +21,7 @@
  * implementation are in crypto.h.
  */
 /*
- *  Copyright (C) 2018, ARM Limited, All Rights Reserved
+ *  Copyright The Mbed TLS Contributors
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -35,8 +35,6 @@
  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 
 #ifndef PSA_CRYPTO_SIZES_H
@@ -431,7 +429,7 @@
  * \param key_type  An asymmetric key type (this may indifferently be a
  *                  key pair type or a public key type).
  * \param key_bits  The size of the key in bits.
- * \param alg       The signature algorithm.
+ * \param alg       The asymmetric encryption algorithm.
  *
  * \return If the parameters are valid and supported, return
  *         a buffer size in bytes that guarantees that
@@ -450,9 +448,9 @@
 
 /** Sufficient output buffer size for psa_asymmetric_decrypt().
  *
- * This macro returns a sufficient buffer size for a ciphertext produced using
+ * This macro returns a sufficient buffer size for a plaintext produced using
  * a key of the specified type and size, with the specified algorithm.
- * Note that the actual size of the ciphertext may be smaller, depending
+ * Note that the actual size of the plaintext may be smaller, depending
  * on the algorithm.
  *
  * \warning This function may call its arguments multiple times or
@@ -462,7 +460,7 @@
  * \param key_type  An asymmetric key type (this may indifferently be a
  *                  key pair type or a public key type).
  * \param key_bits  The size of the key in bits.
- * \param alg       The signature algorithm.
+ * \param alg       The asymmetric encryption algorithm.
  *
  * \return If the parameters are valid and supported, return
  *         a buffer size in bytes that guarantees that
