@@ -28,7 +28,7 @@
 #include "mbed-trace/mbed_trace.h"
 #define TRACE_GROUP "BLGS"
 
-#define TRACE_WRITE_VALUES false
+#define TRACE_WRITE_VALUES 0
 
 namespace ble {
 namespace impl {
