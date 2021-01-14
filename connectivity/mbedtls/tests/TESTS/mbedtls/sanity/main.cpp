@@ -15,7 +15,26 @@
  * limitations under the License.
  */
 
-#if ((!defined(FEATURE_PSA)) || (!defined(MBEDTLS_PSA_CRYPTO_C)))
+#if ((!defined(FEATURE_EXPERIMENTAL_API)) || (!defined(FEATURE_PSA)) || (!defined(TARGET_MBED_PSA_SRV)))
+/*
+* Currenlty in Mbed OS, PSA is marked as experimental and only few targets
+* enable experimental feature by default (ARM_MUSCA_B1, ARM_MUSCA_S1 and
+* CYTFM_064B0S2_4343W). Therefore, if this error is reported for a PSA target,
+*  then it may be possible that experimental feature is not enabled that
+* target. In that case use the option
+* "--app-config TESTS/configs/experimental.json" while invoking "mbed test".
+*/
+
+/*
+* These PSA tests are only supported for PSA targets (Arm-v7M) in emulation
+* mode. For Arm-v8M PSA targets, crypto regression tests provided by TF-M are
+* used. Refer to https://github.com/ARMmbed/mbed-os-tf-m-regression-tests
+* for more information.
+*/
+#error [NOT_SUPPORTED] Only PSA targets (Arm-v7M) in emulation mode are supported.
+#else
+#include "mbedtls/config.h"
+#if (!defined(MBEDTLS_PSA_CRYPTO_C))
 #error [NOT_SUPPORTED] Mbed Crypto is OFF - skipping.
 #else
 
@@ -469,4 +488,5 @@ int main(void)
 {
     return !Harness::run(specification);
 }
-#endif // ((!defined(TARGET_PSA)) || (!defined(MBEDTLS_PSA_CRYPTO_C)))
+#endif // (!defined(MBEDTLS_PSA_CRYPTO_C))
+#endif // ((!defined(FEATURE_EXPERIMENTAL_API)) || (!defined(FEATURE_PSA)))
