@@ -20,6 +20,7 @@ import pathlib
 import re
 import sys
 from tabulate import tabulate
+from itertools import chain
 from enum import Enum
 
 
@@ -233,18 +234,14 @@ def arduino_duplicate_assignment_check(pin_name_dict):
 
 
 def arduino_existence_check(pin_name_dict):
-    required_pins = ["ARDUINO_UNO_A{}".format(i) for i in range(6)] + [
-        "ARDUINO_UNO_D{}".format(i) for i in range(16)
+    analog_pins = (f"ARDUINO_UNO_A{i}" for i in range(6))
+    digital_pins = (f"ARDUINO_UNO_D{i}" for i in range(16))
+
+    return [
+        {"key": pin, "val": "", "message": pin + " not defined"}
+        for pin in chain(analog_pins, digital_pins)
+        if pin not in pin_name_dict
     ]
-
-    invalid_items = []
-
-    for pin in required_pins:
-        if pin not in pin_name_dict:
-            message = pin + " not defined"
-            invalid_items.append({"key": pin, "val": "", "message": message})
-
-    return invalid_items
 
 
 def arduino_nc_assignment_check(pin_name_dict):
@@ -348,14 +345,14 @@ def print_report(report, print_error_detail, tablefmt="grid"):
 
         if print_error_detail:
             table.append(
-                [
+                (
                     case["platform_name"],
                     case["suite_name"],
                     case["case_name"],
                     case["result"],
                     len(case["errors"]),
                     errors_str.lstrip(),
-                ]
+                )
             )
         else:
             table.append(
