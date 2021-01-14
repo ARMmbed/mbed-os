@@ -34,7 +34,7 @@ const char* hci_opcode_to_string(uint16_t opcode);
 template<typename T>
 static inline const char* tr_as_array(T item)
 {
-    return tr_array((const uint8_t*)&item, sizeof(item));
+    return (mbed_trace_array)((const uint8_t*)&item, sizeof(item));
 }
 
 static inline constexpr const char* to_string(bool v)
