@@ -2,11 +2,19 @@
 # SPDX-License-Identifier: Apache-2.0
 
 if("DISCO_F413ZH" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_DISCO_F413ZH)
+    target_include_directories(mbed-core INTERFACE TARGET_DISCO_F413ZH)
+    set(PERIPHERALPINS_FILE TARGET_DISCO_F413ZH/PeripheralPins.c)
+    set(SYSTEM_CLOCK_FILE TARGET_DISCO_F413ZH/system_clock.c)
 elseif("MTS_DRAGONFLY_F413RH" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_MTS_DRAGONFLY_F413RH)
+    target_include_directories(mbed-core INTERFACE TARGET_MTS_DRAGONFLY_F413RH)
+    set(PERIPHERALPINS_FILE TARGET_MTS_DRAGONFLY_F413RH/PeripheralPins.c)
+    set(SYSTEM_CLOCK_FILE TARGET_MTS_DRAGONFLY_F413RH/system_clock.c)
+
+    target_sources(mbed-core INTERFACE TARGET_MTS_DRAGONFLY_F413RH/ONBOARD_TELIT_HE910.cpp)
 elseif("NUCLEO_F413ZH" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_NUCLEO_F413ZH)
+    target_include_directories(mbed-core INTERFACE TARGET_NUCLEO_F413ZH)
+    set(PERIPHERALPINS_FILE TARGET_NUCLEO_F413ZH/PeripheralPins.c)
+    set(SYSTEM_CLOCK_FILE TARGET_NUCLEO_F413ZH/system_clock.c)
 endif()
 
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
@@ -21,8 +29,9 @@ set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}
 
 target_sources(mbed-core
     INTERFACE
-        system_clock.c
+        ${PERIPHERALPINS_FILE}
         ${STARTUP_FILE}
+        ${SYSTEM_CLOCK_FILE}
 )
 
 target_include_directories(mbed-core
