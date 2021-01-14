@@ -47,8 +47,8 @@ class ArgumentParserWithDefaultHelp(argparse.ArgumentParser):
 
 def find_target(target_name=""):
     """Find a target."""
-    mbed_os_root = pathlib.Path.cwd().parent[4]
-
+    mbed_os_root = pathlib.Path(__file__).absolute().parents[4]
+    
     targets = dict()
 
     with (
@@ -91,7 +91,7 @@ def find_target(target_name=""):
 
 def target_has_arduino_form_factor(target_name):
     """Check if the target has the Arduino form factor."""
-    mbed_os_root = pathlib.Path.cwd().parent[4]
+    mbed_os_root = pathlib.Path(__file__).absolute().parents[4]
 
     with (
         mbed_os_root.joinpath("targets", "targets.json")
@@ -275,23 +275,21 @@ def legacy_assignment_check(pin_name_content):
 
 
 def print_summary(report):
-    targets = [case["platform_name"] for case in report]
-
-    target_names = set(targets)
+    targets = set([case["platform_name"] for case in report])
 
     table = []
-    for target_name in target_names:
+    for target in targets:
         error_count = 0
 
         for case in report:
             if (
-                case["platform_name"] == target_name
+                case["platform_name"] == target
                 and case["result"] == "FAILED"
             ):
                 error_count += 1
 
         table.append(
-            [target_name, "FAILED" if error_count else "PASSED", error_count]
+            [target, "FAILED" if error_count else "PASSED", error_count]
         )
 
     return tabulate(
@@ -302,15 +300,15 @@ def print_summary(report):
 
 
 def print_suite_summary(report):
-    targets = {case["platform_name"] for case in report}
+    targets = set([case["platform_name"] for case in report])
 
     table = []
     for target in targets:
-        suites = {
+        suites = set([
             case["suite_name"]
             for case in report
-            if case["suite_name"] == target
-        }
+            if case["platform_name"] == target
+        ])
 
         for suite in suites:
             result = "PASSED"
@@ -551,7 +549,7 @@ def validate_pin_names(args):
     generate_output(report, args.output_format, args.verbose, args.output_file)
 
     if not has_passed_all_test_cases(report):
-        raise TestCaseError("One or more test case failed")
+        raise TestCaseError("One or more test cases failed")
 
 
 def generate_output(report, output_format, verbosity, output_file):
