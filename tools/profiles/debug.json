@@ -25,7 +25,7 @@
         "asm": [],
         "c": ["-D__ASSERT_MSG", "-std=gnu11"],
         "cxx": ["-fno-rtti", "-fno-c++-static-destructors", "-std=gnu++14"],
-        "ld": ["--verbose", "--remove", "--show_full_path", "--legacyalign",
+        "ld": ["--verbose", "--remove", "--show_full_path",
                "--any_contingency", "--keep=os_cb_sections"]
     },
     "ARM": {
