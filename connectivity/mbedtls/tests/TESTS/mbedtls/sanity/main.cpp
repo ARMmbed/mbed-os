@@ -94,7 +94,7 @@ void test_crypto_asymmetric_encrypt_decrypt(void)
     unsigned char encrypted[64];
     unsigned char decrypted[sizeof(input)];
 
-    psa_set_key_usage_flags(&attributes, PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_ENCRYPT);
+    psa_set_key_usage_flags(&attributes, PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT);
     psa_set_key_algorithm(&attributes, alg);
     psa_set_key_type(&attributes, key_type);
     psa_set_key_bits(&attributes, key_bits);
