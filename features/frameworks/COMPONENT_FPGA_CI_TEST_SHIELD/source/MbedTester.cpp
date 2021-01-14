@@ -38,7 +38,7 @@ namespace MbedTesterConst {
     const uint8_t analog_count = 4;
     
     const size_t key_len = 8;
-    const uint8_t key[8] = {
+    const uint8_t key[key_len] = {
         0x92, 0x9d, 0x9a, 0x9b,
         0x29, 0x35, 0xa2, 0x65
     };
