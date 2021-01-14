@@ -26,22 +26,41 @@
 
 #define mbed_tester_printf(...)
 
-namespace {
-    const auto physical_pins = 128;
-    const auto logical_pins = 8;
-    const auto firmware_region_size = 0x220000;
-    const auto firmware_header_size = 0x10000;
-    const auto flash_sector_size = 0x1000;
-    const auto length_size = 0x4;
-    const auto fixed_crc_size = 0x4;
-    const auto flash_spi_freq_hz = 2000000;
-    const auto analog_count = 4;
+namespace MbedTesterConst {
+    const uint8_t physical_pins = 128;
+    const uint8_t logical_pins = 8;
+    const uint32_t firmware_region_size = 0x220000;
+    const uint32_t firmware_header_size = 0x10000;
+    const uint16_t flash_sector_size = 0x1000;
+    const uint8_t length_size = 0x4;
+    const uint8_t crc_size = 0x4;
+    const uint32_t flash_spi_freq_hz = 2000000;
+    const uint8_t analog_count = 4;
     
-    const auto physical_nc = (MbedTester::PhysicalIndex)0xFF;
-    
+    const size_t key_len = 8;
     const uint8_t key[8] = {
         0x92, 0x9d, 0x9a, 0x9b,
         0x29, 0x35, 0xa2, 0x65
+    };
+
+
+    // Header taken from app note XAPP1081. Information on the commands
+    // can be found in the 7 Series FPGA configuration user guide - UG470
+    const size_t bank_b_select_size = 32;
+    const uint8_t bank_b_select[32] = {
+        0x20, 0x00, 0x00, 0x00,     // 0x20000000   NOP
+        0x30, 0x02, 0x00, 0x01,     // 0x30020001   WRITE to WBSTAR (Warm boot start address register)
+        0x00, 0x23, 0x00, 0x00,     // 0x00230000       0x230000 = Second bank start address
+        0x30, 0x00, 0x80, 0x01,     // 0x30008001   WRITE to CMD register
+        0x00, 0x00, 0x00, 0x0F,     // 0x0000000F       0x0F = IPROG command (starts warm boot)
+        0x20, 0x00, 0x00, 0x00,     // 0x20000000   NOP
+        0x20, 0x00, 0x00, 0x00,     // 0x20000000   NOP
+        0x20, 0x00, 0x00, 0x00      // 0x20000000   NOP
+    };
+
+    const uint8_t sync_word_size = 4;
+    const uint8_t sync_word[4] = {
+        0xAA, 0x99, 0x55, 0x66      // 0xAA995566   Sync word
     };
 }
 
@@ -103,8 +122,8 @@ static uint8_t spi_transfer(mbed::DigitalInOut *clk, mbed::DigitalInOut *mosi, m
 static void mbed_tester_command(mbed::DigitalInOut *clk, mbed::DigitalInOut *mosi, mbed::DigitalInOut *miso, uint8_t miso_index, uint32_t addr, bool write_n_read, uint8_t *data, uint8_t size)
 {
     // 8 - Start Key
-    for (uint32_t i = 0; i < sizeof(key); i++) {
-        spi_transfer(clk, mosi, miso, key[i]);
+    for (uint32_t i = 0; i < MbedTesterConst::key_len; i++) {
+        spi_transfer(clk, mosi, miso, MbedTesterConst::key[i]);
     }
 
     // 1 - Physical pin index for MISO
@@ -228,7 +247,7 @@ public:
             return BD_ERROR_DEVICE_ERROR;
         }
 
-        if ((addr == 0) && (size == flash_sector_size)) {
+        if ((addr == 0) && (size == MbedTesterConst::flash_sector_size)) {
             // Allow 4K erase only on the first sector. The flash on the basys3 does
             // not allow sector erases at the higher addresses.
             _write_enable();
@@ -456,23 +475,6 @@ static void dummy_progress(uint8_t)
     // Stub progress handler for firmware update/dump
 }
 
-// Header taken from app note XAPP1081. Information on the commands
-// can be found in the 7 Series FPGA configuration user guide - UG470
-static const uint8_t BANK_B_SELECT[] = {
-    0x20, 0x00, 0x00, 0x00,     // 0x20000000   NOP
-    0x30, 0x02, 0x00, 0x01,     // 0x30020001   WRITE to WBSTAR (Warm boot start address register)
-    0x00, 0x23, 0x00, 0x00,     // 0x00230000       0x230000 = Second bank start address
-    0x30, 0x00, 0x80, 0x01,     // 0x30008001   WRITE to CMD register
-    0x00, 0x00, 0x00, 0x0F,     // 0x0000000F       0x0F = IPROG command (starts warm boot)
-    0x20, 0x00, 0x00, 0x00,     // 0x20000000   NOP
-    0x20, 0x00, 0x00, 0x00,     // 0x20000000   NOP
-    0x20, 0x00, 0x00, 0x00      // 0x20000000   NOP
-};
-
-static const uint8_t SYNC_WORD[] = {
-    0xAA, 0x99, 0x55, 0x66      // 0xAA995566   Sync word
-};
-
 static bool _firmware_header_valid(BlockDevice &flash, bool &valid)
 {
     uint8_t buf[64];
@@ -483,8 +485,8 @@ static bool _firmware_header_valid(BlockDevice &flash, bool &valid)
     valid = false;
 
     // Check that first portion is erased
-    while (pos < flash_sector_size - sizeof(SYNC_WORD)) {
-        read_size = flash_sector_size - pos;
+    while (pos < MbedTesterConst::flash_sector_size - MbedTesterConst::sync_word_size) {
+        read_size = MbedTesterConst::flash_sector_size - pos;
         if (read_size > sizeof(buf)) {
             read_size = sizeof(buf);
         }
@@ -501,22 +503,22 @@ static bool _firmware_header_valid(BlockDevice &flash, bool &valid)
     }
 
     // Skip the sync word
-    pos += sizeof(SYNC_WORD);
+    pos += MbedTesterConst::sync_word_size;
 
     // Check that BANK_B_SELECT is valid
-    read_size = sizeof(BANK_B_SELECT);
+    read_size = MbedTesterConst::bank_b_select_size;
     if (flash.read(buf, pos, read_size) != BD_ERROR_OK) {
         return false;
     }
     pos += read_size;
-    if (memcmp(buf, BANK_B_SELECT, sizeof(BANK_B_SELECT)) != 0) {
+    if (memcmp(buf, MbedTesterConst::bank_b_select, MbedTesterConst::bank_b_select_size) != 0) {
         valid = false;
         return true;
     }
 
     // Check if the rest is 0xFF
-    while (pos < firmware_header_size) {
-        read_size = firmware_header_size - pos;
+    while (pos < MbedTesterConst::firmware_header_size) {
+        read_size = MbedTesterConst::firmware_header_size - pos;
         if (read_size > sizeof(buf)) {
             read_size = sizeof(buf);
         }
@@ -538,13 +540,13 @@ static bool _firmware_header_valid(BlockDevice &flash, bool &valid)
 
 static bool _firmware_get_active_bank(BlockDevice &flash, bool &second_bank_active)
 {
-    uint8_t buf[sizeof(SYNC_WORD)];
+    uint8_t buf[MbedTesterConst::sync_word_size];
 
-    if (flash.read(buf, flash_sector_size - sizeof(SYNC_WORD), sizeof(SYNC_WORD)) != BD_ERROR_OK) {
+    if (flash.read(buf, MbedTesterConst::flash_sector_size - MbedTesterConst::sync_word_size, MbedTesterConst::sync_word_size) != BD_ERROR_OK) {
         return false;
     }
 
-    second_bank_active = memcmp(buf, SYNC_WORD, sizeof(SYNC_WORD)) == 0 ? true : false;
+    second_bank_active = memcmp(buf, MbedTesterConst::sync_word, MbedTesterConst::sync_word_size) == 0 ? true : false;
     return true;
 }
 
@@ -555,14 +557,14 @@ static bool _firmware_set_active_bank(BlockDevice &flash, bool second_bank)
         return false;
     }
     if (!valid) {
-        if (flash.erase(0, firmware_header_size) != BD_ERROR_OK) {
+        if (flash.erase(0, MbedTesterConst::firmware_header_size) != BD_ERROR_OK) {
             return false;
         }
-        if (flash.program(BANK_B_SELECT, flash_sector_size, sizeof(BANK_B_SELECT)) != BD_ERROR_OK) {
+        if (flash.program(MbedTesterConst::bank_b_select, MbedTesterConst::flash_sector_size, MbedTesterConst::bank_b_select_size) != BD_ERROR_OK) {
             return false;
         }
     }
-    if (!flash.erase(0, flash_sector_size)) {
+    if (!flash.erase(0, MbedTesterConst::flash_sector_size)) {
         return false;
     }
 
@@ -570,7 +572,7 @@ static bool _firmware_set_active_bank(BlockDevice &flash, bool second_bank)
     if (second_bank) {
         // Write the sync word. Before the sync word is written the FPGA will boot from the first bank.
         // After the sync word is written the FPGA will boot from the second bank.
-        if (flash.program(SYNC_WORD, flash_sector_size - sizeof(SYNC_WORD), sizeof(SYNC_WORD)) != BD_ERROR_OK) {
+        if (flash.program(MbedTesterConst::sync_word, MbedTesterConst::flash_sector_size - MbedTesterConst::sync_word_size, MbedTesterConst::sync_word_size) != BD_ERROR_OK) {
             return false;
         }
     }
@@ -580,7 +582,7 @@ static bool _firmware_set_active_bank(BlockDevice &flash, bool second_bank)
 
 MbedTester::MbedTester(const PinList *form_factor, const PinList *exclude_pins)
     : _form_factor(form_factor), _exclude_pins(exclude_pins), _control_auto(true), _control_valid(false),
-      _clk_index(physical_nc), _mosi_index(physical_nc), _miso_index(physical_nc), _aux_index(physical_nc),
+      _clk_index(MbedTester::physical_nc), _mosi_index(MbedTester::physical_nc), _miso_index(MbedTester::physical_nc), _aux_index(MbedTester::physical_nc),
       _clk(NULL), _mosi(NULL), _miso(NULL), _aux(NULL)
 {
     _reset();
@@ -657,7 +659,7 @@ bool MbedTester::firmware_dump(mbed::FileHandle *dest, mbed::Callback<void(uint8
 
     // Mapping intentionally different from control channel to prevent
     // unintentional activation (clk and mosi flipped)
-    MbedTesterBlockDevice flash(*_clk, *_miso, *_mosi, *_aux, flash_spi_freq_hz);
+    MbedTesterBlockDevice flash(*_clk, *_miso, *_mosi, *_aux, MbedTesterConst::flash_spi_freq_hz);
     sys_pin_mode_spi_serial_flash(_clk_index, _miso_index, _mosi_index, _aux_index);
 
     progress(0);
@@ -674,29 +676,29 @@ bool MbedTester::firmware_dump(mbed::FileHandle *dest, mbed::Callback<void(uint8
         sys_pin_mode_disabled();
         return false;
     }
-    const uint32_t start = firmware_header_size + (second_bank_active ? firmware_region_size : 0);
+    const uint32_t start = MbedTesterConst::firmware_header_size + (second_bank_active ? MbedTesterConst::firmware_region_size : 0);
 
     // Get the firmware size
     uint32_t offset = 0;
     uint8_t buf[256];
     uint32_t prev_percent_done = 0;
-    if (flash.read(buf, start + offset, length_size) != BD_ERROR_OK) {
+    if (flash.read(buf, start + offset, MbedTesterConst::length_size) != BD_ERROR_OK) {
         sys_pin_mode_disabled();
         return false;
     }
-    if (dest->write(buf, length_size) != length_size) {
+    if (dest->write(buf, MbedTesterConst::length_size) != MbedTesterConst::length_size) {
         sys_pin_mode_disabled();
         return false;
     }
-    offset += length_size;
+    offset += MbedTesterConst::length_size;
     uint32_t data_size = (buf[0] << (0 * 8)) |
                          (buf[1] << (1 * 8)) |
                          (buf[2] << (2 * 8)) |
                          (buf[3] << (3 * 8));
-    if (data_size > firmware_region_size - length_size - fixed_crc_size) {
-        data_size = firmware_region_size - length_size - fixed_crc_size;
+    if (data_size > MbedTesterConst::firmware_region_size - MbedTesterConst::length_size - MbedTesterConst::crc_size) {
+        data_size = MbedTesterConst::firmware_region_size - MbedTesterConst::length_size - MbedTesterConst::crc_size;
     }
-    const uint32_t firmware_size = data_size + length_size + fixed_crc_size;
+    const uint32_t firmware_size = data_size + MbedTesterConst::length_size + MbedTesterConst::crc_size;
 
     // Dump firmware
     while (offset < firmware_size) {
@@ -738,7 +740,7 @@ bool MbedTester::firmware_dump_all(mbed::FileHandle *dest, mbed::Callback<void(u
 
     // Mapping intentionally different from control channel to prevent
     // unintentional activation (clk and mosi flipped)
-    MbedTesterBlockDevice flash(*_clk, *_miso, *_mosi, *_aux, flash_spi_freq_hz);
+    MbedTesterBlockDevice flash(*_clk, *_miso, *_mosi, *_aux, MbedTesterConst::flash_spi_freq_hz);
     sys_pin_mode_spi_serial_flash(_clk_index, _miso_index, _mosi_index, _aux_index);
 
     progress(0);
@@ -791,7 +793,7 @@ bool MbedTester::firmware_update(mbed::FileHandle *src, mbed::Callback<void(uint
 
     // Mapping intentionally different from control channel to prevent
     // unintentional activation (clk and mosi flipped)
-    MbedTesterBlockDevice flash(*_clk, *_miso, *_mosi, *_aux, flash_spi_freq_hz);
+    MbedTesterBlockDevice flash(*_clk, *_miso, *_mosi, *_aux, MbedTesterConst::flash_spi_freq_hz);
     sys_pin_mode_spi_serial_flash(_clk_index, _miso_index, _mosi_index, _aux_index);
 
     progress(0);
@@ -803,12 +805,12 @@ bool MbedTester::firmware_update(mbed::FileHandle *src, mbed::Callback<void(uint
 
     // Validate file size
     const uint32_t file_size = src->size();
-    if (file_size > firmware_region_size) {
+    if (file_size > MbedTesterConst::firmware_region_size) {
         // Firmware image too big
         sys_pin_mode_disabled();
         return false;
     }
-    if (file_size < length_size + fixed_crc_size) {
+    if (file_size < MbedTesterConst::length_size + MbedTesterConst::crc_size) {
         // Firmware image too small
         sys_pin_mode_disabled();
         return false;
@@ -821,7 +823,7 @@ bool MbedTester::firmware_update(mbed::FileHandle *src, mbed::Callback<void(uint
         sys_pin_mode_disabled();
         return false;
     }
-    const uint32_t start = firmware_header_size + (second_bank_active ? 0 : firmware_region_size);
+    const uint32_t start = MbedTesterConst::firmware_header_size + (second_bank_active ? 0 : MbedTesterConst::firmware_region_size);
 
     // Setup CRC calculation
     uint32_t crc;
@@ -864,7 +866,7 @@ bool MbedTester::firmware_update(mbed::FileHandle *src, mbed::Callback<void(uint
                                      (buf[1] << (1 * 8)) |
                                      (buf[2] << (2 * 8)) |
                                      (buf[3] << (3 * 8));
-            if (data_size != file_size - length_size - fixed_crc_size) {
+            if (data_size != file_size - MbedTesterConst::length_size - MbedTesterConst::crc_size) {
                 // Invalid data length
                 sys_pin_mode_disabled();
                 return false;
@@ -872,13 +874,13 @@ bool MbedTester::firmware_update(mbed::FileHandle *src, mbed::Callback<void(uint
             size_valid = true;
 
             // Don't include the length in the checksum
-            crc_offset += length_size;
-            crc_size -= length_size;
+            crc_offset += MbedTesterConst::length_size;
+            crc_size -= MbedTesterConst::length_size;
         }
-        if (offset + program_size > file_size - fixed_crc_size) {
+        if (offset + program_size > file_size - MbedTesterConst::crc_size) {
             // Overlap with the CRC field
-            for (uint32_t i = 0; i < fixed_crc_size; i++) {
-                uint32_t byte_offset = file_size - fixed_crc_size + i;
+            for (uint32_t i = 0; i < MbedTesterConst::crc_size; i++) {
+                uint32_t byte_offset = file_size - MbedTesterConst::crc_size + i;
                 if ((byte_offset >= offset) && (byte_offset < offset + program_size)) {
                     uint32_t buf_pos = byte_offset - offset;
                     stored_crc |= buf[buf_pos] << (i * 8);
@@ -957,10 +959,10 @@ void MbedTester::pin_map_set(PinName physical, LogicalPin logical)
 void MbedTester::pin_map_reset()
 {
     for (uint32_t i = 0; i < sizeof(_mapping) / sizeof(_mapping[0]); i++) {
-        _mapping[i] = physical_nc;
+        _mapping[i] = MbedTester::physical_nc;
     }
 
-    uint8_t pin_buf[physical_pins + logical_pins];
+    uint8_t pin_buf[MbedTesterConst::physical_pins + MbedTesterConst::logical_pins];
     memset(pin_buf, 0xFF, sizeof(pin_buf));
     write(TESTER_REMAP, pin_buf, sizeof(pin_buf));
 }
@@ -1166,7 +1168,7 @@ int MbedTester::io_expander_i2c_read(uint8_t i2c_index, uint8_t dev_addr, uint8_
     _update_control_pins();
     //sda_in = _miso_index
     //sda_val = _aux_index
-    //scl_in = _mosi_index (physical_nc)
+    //scl_in = _mosi_index (MbedTester::physical_nc)
     //scl_val = _clk_index
     mbed::DigitalInOut *sda_in = _miso;
     mbed::DigitalInOut *sda_val = _aux;
@@ -1175,7 +1177,7 @@ int MbedTester::io_expander_i2c_read(uint8_t i2c_index, uint8_t dev_addr, uint8_
     sda_val->output();
     *sda_val = 1;
     scl_val->output();
-    sys_pin_mode_i2c_io_expander(i2c_index, _miso_index, _aux_index, physical_nc, _clk_index);
+    sys_pin_mode_i2c_io_expander(i2c_index, _miso_index, _aux_index, MbedTester::physical_nc, _clk_index);
 
     //start condition
     *scl_val = 1;
@@ -1305,7 +1307,7 @@ int MbedTester::io_expander_i2c_write(uint8_t i2c_index, uint8_t dev_addr, uint8
     _update_control_pins();
     //sda_in = _miso_index
     //sda_val = _aux_index
-    //scl_in = _mosi_index (physical_nc)
+    //scl_in = _mosi_index (MbedTester::physical_nc)
     //scl_val = _clk_index
     mbed::DigitalInOut *sda_in = _miso;
     mbed::DigitalInOut *sda_val = _aux;
@@ -1314,7 +1316,7 @@ int MbedTester::io_expander_i2c_write(uint8_t i2c_index, uint8_t dev_addr, uint8
     sda_val->output();
     *sda_val = 1;
     scl_val->output();
-    sys_pin_mode_i2c_io_expander(i2c_index, _miso_index, _aux_index, physical_nc, _clk_index);
+    sys_pin_mode_i2c_io_expander(i2c_index, _miso_index, _aux_index, MbedTester::physical_nc, _clk_index);
 
     //start condition
     *scl_val = 1;
@@ -1746,7 +1748,7 @@ uint16_t MbedTester::get_analogmuxin_measurement()
 uint16_t MbedTester::get_anin_measurement(int index)
 {
     //check index is in bounds
-    if ((index < 0) || (index >= analog_count)) {
+    if ((index < 0) || (index >= MbedTesterConst::analog_count)) {
         error("AnalogIn index is out of bounds");
     }
     //take snapshot of conversion value to make safe for reading
@@ -1759,7 +1761,7 @@ uint16_t MbedTester::get_anin_measurement(int index)
 void MbedTester::get_anin_sum_samples_cycles(int index, uint64_t *sum, uint32_t *samples, uint64_t *cycles)
 {
     //check index is in bounds
-    if ((index < 0) || (index >= analog_count)) {
+    if ((index < 0) || (index >= MbedTesterConst::analog_count)) {
         error("AnalogIn index is out of bounds");
     }
     //take snapshot of the sum/samples/cycles so that all 3 values are correct in relation to each other
@@ -1945,10 +1947,10 @@ void MbedTester::sys_pin_mode_disabled()
 {
     const uint32_t base = LogicalPinTotal;
 
-    pin_map_index(physical_nc, (LogicalPin)(base + 0));
-    pin_map_index(physical_nc, (LogicalPin)(base + 1));
-    pin_map_index(physical_nc, (LogicalPin)(base + 2));
-    pin_map_index(physical_nc, (LogicalPin)(base + 3));
+    pin_map_index(MbedTester::physical_nc, (LogicalPin)(base + 0));
+    pin_map_index(MbedTester::physical_nc, (LogicalPin)(base + 1));
+    pin_map_index(MbedTester::physical_nc, (LogicalPin)(base + 2));
+    pin_map_index(MbedTester::physical_nc, (LogicalPin)(base + 3));
 
     uint8_t mode = TESTER_SYS_IO_MODE_DISABLED;
     write(TESTER_SYS_IO_MODE, &mode, sizeof(mode));
@@ -1993,7 +1995,7 @@ void MbedTester::sys_pin_mode_i2c_io_expander(int index, PhysicalIndex sda_in, P
 void MbedTester::pin_map_index(PhysicalIndex physical_index, LogicalPin logical)
 {
     uint8_t remap;
-    if ((physical_index >= physical_pins) && (physical_index != physical_nc)) {
+    if ((physical_index >= MbedTesterConst::physical_pins) && (physical_index != MbedTester::physical_nc)) {
         error("Invalid physical pin index %i", physical_index);
         return;
     }
@@ -2003,20 +2005,20 @@ void MbedTester::pin_map_index(PhysicalIndex physical_index, LogicalPin logical)
     }
 
     // Unmap the previous pin if it had been mapped
-    if (_mapping[logical] < physical_pins) {
-        remap = physical_nc;
+    if (_mapping[logical] < MbedTesterConst::physical_pins) {
+        remap = MbedTester::physical_nc;
         write(TESTER_REMAP + _mapping[logical], &remap, sizeof(remap));
     }
     _mapping[logical] = physical_index;
 
     // Remap physical pin if it is not physical_nc
-    if (physical_index < physical_pins) {
+    if (physical_index < MbedTesterConst::physical_pins) {
         remap = logical;
         write(TESTER_REMAP + physical_index, &remap, sizeof(remap));
     }
     // Remap logical pin
     remap = physical_index;
-    write(TESTER_REMAP + physical_pins + logical, &remap, sizeof(remap));
+    write(TESTER_REMAP + MbedTesterConst::physical_pins + logical, &remap, sizeof(remap));
 }
 
 void MbedTester::write(uint32_t addr, const uint8_t *data, uint32_t size)
@@ -2185,7 +2187,7 @@ bool MbedTester::self_test_control_current()
 
 bool MbedTester::_find_control_indexes(PhysicalIndex &clk_out, PhysicalIndex &mosi_out, PhysicalIndex &miso_out, PhysicalIndex &aux_out)
 {
-    MbedTesterBitMap<physical_pins> allowed;
+    MbedTesterBitMap<MbedTesterConst::physical_pins> allowed;
     const size_t max_pins = _form_factor.count();
     const size_t max_controls = max_pins / 2;
 
@@ -2201,7 +2203,7 @@ bool MbedTester::_find_control_indexes(PhysicalIndex &clk_out, PhysicalIndex &mo
     }
     for (size_t i = 0; i < LogicalPinTotal; i++) {
         PhysicalIndex index = _mapping[i];
-        if (index < physical_pins) {
+        if (index < MbedTesterConst::physical_pins) {
             allowed.clear(index);
         }
     }
@@ -2283,25 +2285,25 @@ void MbedTester::_free_control_pins()
         delete _clk;
     }
     _clk = NULL;
-    _clk_index = physical_nc;
+    _clk_index = MbedTester::physical_nc;
     if (_mosi) {
         _mosi->input();
         delete _mosi;
     }
     _mosi = NULL;
-    _mosi_index = physical_nc;
+    _mosi_index = MbedTester::physical_nc;
     if (_miso) {
         _miso->input();
         delete _miso;
     }
     _miso = NULL;
-    _miso_index = physical_nc;
+    _miso_index = MbedTester::physical_nc;
     if (_aux) {
         _aux->input();
         delete _aux;
     }
     _aux = NULL;
-    _aux_index = physical_nc;
+    _aux_index = MbedTester::physical_nc;
     _control_valid = false;
 }
 
@@ -2345,7 +2347,7 @@ bool MbedTester::_update_needed()
 void MbedTester::_reset()
 {
     for (uint32_t i = 0; i < sizeof(_mapping) / sizeof(_mapping[0]); i++) {
-        _mapping[i] = physical_nc;
+        _mapping[i] = MbedTester::physical_nc;
     }
     _free_control_pins();
     _control_auto = true;
