@@ -68,7 +68,6 @@ function(mbed_set_profile_options target mbed_toolchain)
 
         list(APPEND profile_link_options
             "--show_full_path"
-            "--legacyalign"
             "--inline"
             "--any_contingency"
             "--keep=os_cb_sections"

@@ -70,7 +70,6 @@ function(mbed_set_profile_options target mbed_toolchain)
             "--verbose"
             "--remove"
             "--show_full_path"
-            "--legacyalign"
             "--any_contingency"
             "--keep=os_cb_sections"
         )
