@@ -330,17 +330,19 @@ def print_suite_summary(report):
 def print_report(report, print_error_detail, tablefmt="grid"):
     table = []
     for case in report:
-        errors_str = ""
+        errors_str = []
         for error in case["errors"]:
-            errors_str += "\n"
+            errors_str.append("\n")
             if error["key"]:
-                errors_str += error["key"]
+                errors_str.append(error["key"])
             if error["val"]:
-                errors_str += " = " + error["val"]
+                errors_str.append(" = ")
+                errors_str.append(error["val"])
             if error["message"]:
-                errors_str += " <-- " + error["message"]
+                errors_str.append(" <-- ")
+                errors_str.append(error["message"])
 
-        if errors_str == "":
+        if not errors_str:
             errors_str = "None"
 
         if print_error_detail:
@@ -351,7 +353,7 @@ def print_report(report, print_error_detail, tablefmt="grid"):
                     case["case_name"],
                     case["result"],
                     len(case["errors"]),
-                    errors_str.lstrip(),
+                    "None" if not errors_str else "".join(errors_str).lstrip(),
                 )
             )
         else:
@@ -380,31 +382,44 @@ def print_report(report, print_error_detail, tablefmt="grid"):
 
 
 def print_pretty_html_report(report):
-    output = "<html><head><style>table, td, tr { border: 2px solid black; border-collapse: collapse; padding: 5px; font-family: Helvetica, serif; }</style></head>"
-    output += '<body><p><button onclick=\'e=document.getElementsByTagName("details");for(var i=0;i<e.length;i++){e[i].setAttribute("open","true")};\'>Expand all errors</button></p><table>'
-    output += "<tr><th>Platform name</th><th>Test suite</th><th>Test case</th><th>Result</th><th>Error count</th><th>Errors</th></tr>"
+    output = []
+    output.append("<html><head><style>table, td, tr { border: 2px solid black; border-collapse: collapse; padding: 5px; font-family: Helvetica, serif; }</style></head>")
+    output.append('<body><p><button onclick=\'e=document.getElementsByTagName("details");for(var i=0;i<e.length;i++){e[i].setAttribute("open","true")};\'>Expand all errors</button></p><table>')
+    output.append("<tr><th>Platform name</th><th>Test suite</th><th>Test case</th><th>Result</th><th>Error count</th><th>Errors</th></tr>")
 
     for case in report:
-        output += "<tr>"
+        output.append("<tr>")
 
         if case["errors"]:
-            error_details = "<details><summary>View errors</summary><table>"
+            error_details = ["<details><summary>View errors</summary><table>"]
             for error in case["errors"]:
-                error_details += "<tr>"
+                error_details.append("<tr>")
                 if error["key"]:
-                    error_details += "<td>" + error["key"] + "</td>"
+                    error_details.append("<td>")
+                    error_details.append(error["key"])
+                    error_details.append("</td>")
                 if error["val"]:
-                    error_details += "<td>" + error["val"] + "</td>"
+                    error_details.append("<td>")
+                    error_details.append(error["val"])
+                    error_details.append("</td>")
                 if error["message"]:
-                    error_details += "<td>" + error["message"] + "</td>"
-                error_details += "</tr>"
-            error_details += "</table></details>"
+                    error_details.append("<td>")
+                    error_details.append(error["message"])
+                    error_details.append("</td>")
+                error_details.append("</tr>")
+            error_details.append("</table></details>")
         else:
-            error_details = ""
+            error_details = []
 
-        output += "<td>" + case["platform_name"] + "</td>"
-        output += "<td>" + case["suite_name"] + "</td>"
-        output += "<td>" + case["case_name"] + "</td>"
+        output.append("<td>")
+        output.append(case["platform_name"])
+        output.append("</td>")
+        output.append("<td>")
+        output.append(case["suite_name"])
+        output.append("</td>")
+        output.append("<td>")
+        output.append(case["case_name"])
+        output.append("</td>")
 
         if case["result"] == "PASSED":
             color = "green"
@@ -413,21 +428,27 @@ def print_pretty_html_report(report):
             color = "red"
             count_color = "red"
 
-        output += "<td style='color:" + color + "'>" + case["result"] + "</td>"
-        output += (
-            "<td style='color:"
-            + count_color
-            + "'>"
-            + str(len(case["errors"]))
-            + "</td>"
-        )
-        output += "<td>" + error_details + "</td>"
+        output.append("<td style='color:")
+        output.append(color)
+        output.append("'>")
+        output.append(case["result"])
+        output.append("</td>")
+        
+        output.append("<td style='color:")
+        output.append(count_color)
+        output.append("'>")
+        output.append(str(len(case["errors"])))
+        output.append("</td>")
+        
+        output.append("<td>")
+        output.extend(error_details)
+        output.append("</td>")
 
-        output += "</tr>"
+        output.append("</tr>")
 
-    output += "</table></body></table>"
+    output.append("</table></body></table>")
 
-    return output
+    return "".join(output)
 
 
 def has_passed_all_test_cases(report):
