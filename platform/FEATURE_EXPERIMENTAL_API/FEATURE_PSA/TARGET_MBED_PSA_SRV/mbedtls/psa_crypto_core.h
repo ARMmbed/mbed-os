@@ -1,7 +1,8 @@
 /*
  *  PSA crypto core internal interfaces
  */
-/*  Copyright (C) 2018, ARM Limited, All Rights Reserved
+/*
+ *  Copyright The Mbed TLS Contributors
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,8 +16,6 @@
  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 
 #ifndef PSA_CRYPTO_CORE_H
@@ -31,9 +30,6 @@
 #include "psa/crypto.h"
 #include "psa/crypto_se_driver.h"
 
-#include "mbedtls/ecp.h"
-#include "mbedtls/rsa.h"
-
 /** The data structure representing a key slot, containing key material
  * and metadata for one key.
  */
@@ -42,20 +38,13 @@ typedef struct
     psa_core_key_attributes_t attr;
     union
     {
-        /* Raw-data key (key_type_is_raw_bytes() in psa_crypto.c) */
-        struct raw_data
+        /* Dynamically allocated key data buffer.
+         * Format as specified in psa_export_key(). */
+        struct key_data
         {
             uint8_t *data;
             size_t bytes;
-        } raw;
-#if defined(MBEDTLS_RSA_C)
-        /* RSA public key or key pair */
-        mbedtls_rsa_context *rsa;
-#endif /* MBEDTLS_RSA_C */
-#if defined(MBEDTLS_ECP_C)
-        /* EC public key or key pair */
-        mbedtls_ecp_keypair *ecp;
-#endif /* MBEDTLS_ECP_C */
+        } key;
 #if defined(MBEDTLS_PSA_CRYPTO_SE_C)
         /* Any key type in a secure element */
         struct se

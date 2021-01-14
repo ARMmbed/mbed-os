@@ -1,7 +1,8 @@
 /*
  *  PSA persistent key storage
  */
-/*  Copyright (C) 2018, ARM Limited, All Rights Reserved
+/*
+ *  Copyright The Mbed TLS Contributors
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,8 +16,6 @@
  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 
 #if defined(MBEDTLS_CONFIG_FILE)
@@ -175,7 +174,13 @@ static psa_status_t psa_crypto_storage_store( const psa_key_file_id_t key,
 
 exit:
     if( status != PSA_SUCCESS )
-        psa_its_remove( data_identifier );
+    {
+        /* Remove the file in case we managed to create it but something
+         * went wrong. It's ok if the file doesn't exist. If the file exists
+         * but the removal fails, we're already reporting an error so there's
+         * nothing else we can do. */
+        (void) psa_its_remove( data_identifier );
+    }
     return( status );
 }
 
