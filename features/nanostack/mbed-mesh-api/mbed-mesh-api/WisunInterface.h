@@ -167,6 +167,22 @@ public:
     mesh_error_t validate_network_regulatory_domain(uint8_t regulatory_domain, uint8_t operating_class, uint8_t operating_mode);
 
     /**
+     * \brief Set Wi-SUN network PHY mode and channel plan IDs.
+     *
+     * Function stores new parameters to mbed-mesh-api and uses them when connect() is called next time.
+     * If device is already connected to the Wi-SUN network then device will restart network discovery after
+     * changing the phy_mode_id or channel_plan_id.
+     *
+     * Function overwrites parameters defined by Mbed OS configuration.
+     *
+     * \param phy_mode_id Values defined in Wi-SUN PHY-specification. Use 0xff to leave parameter unchanged.
+     * \param channel_plan_id Values defined in Wi-SUN PHY-specification.  Use 0xff to leave parameter unchanged.
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_UNKNOWN in case of failure.
+     * */
+    mesh_error_t set_network_phy_mode_and_channel_plan_id(uint8_t phy_mode_id, uint8_t channel_plan_id);
+
+    /**
      * \brief Set Wi-SUN network size.
      *
      * Function stores new parameters to mbed-mesh-api and uses them when connect() is called next time.

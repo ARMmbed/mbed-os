@@ -136,6 +136,14 @@
             "help": "Operating mode. Use 255 to use Nanostack default",
             "value": "255"
         },
+        "wisun-phy-mode-id": {
+            "help": "PHY mode ID as specified in the Wi-SUN PHY Specification. With default value 255, parameter is not used.",
+            "value": "255"
+        },
+        "wisun-channel-plan-id": {
+            "help": "Channel plan ID as specified in the Wi-SUN PHY Specification. With default value 255, parameter is not used.",
+            "value": "255"
+        },
         "wisun-uc-channel-function": {
             "help": "Unicast channel function.",
             "value": "255"
