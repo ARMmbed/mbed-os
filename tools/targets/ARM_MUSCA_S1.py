@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017-2020 Arm Limited
+# Copyright (c) 2017-2021 Arm Limited
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -19,15 +19,11 @@ import os
 from os.path import abspath, basename, dirname, splitext, isdir
 from os.path import join as path_join
 import re
-from argparse import Namespace
-from tools.psa.tfm.bin_utils.assemble import Assembly
-from tools.psa.tfm.bin_utils.imgtool import do_sign
-from tools.psa.tfm.bin_utils.imgtool_lib import version
+import subprocess
 
 SCRIPT_DIR = dirname(abspath(__file__))
 MBED_OS_ROOT = abspath(path_join(SCRIPT_DIR, os.pardir, os.pardir))
 MUSCA_S1_BASE = path_join(MBED_OS_ROOT, 'targets', 'TARGET_ARM_SSG', 'TARGET_MUSCA_S1')
-
 
 def musca_tfm_bin(t_self, non_secure_bin, secure_bin):
 
@@ -39,58 +35,93 @@ def musca_tfm_bin(t_self, non_secure_bin, secure_bin):
     if not isdir(tempdir):
         os.makedirs(tempdir)
     flash_layout = path_join(MUSCA_S1_BASE, 'partition', 'flash_layout.h')
-    mcuboot_bin = path_join(MUSCA_S1_BASE, 'mcuboot.bin')
-    image_macros_s = path_join(MUSCA_S1_BASE, 'partition', 'image_macros_preprocessed_s.c')
-    image_macros_ns = path_join(MUSCA_S1_BASE, 'partition', 'image_macros_preprocessed_ns.c')
+    mcuboot_bin = path_join(MUSCA_S1_BASE, 'bl2.bin')
+    image_macros_s = path_join(MUSCA_S1_BASE, 'partition', 'signing_layout_s.c')
+    image_macros_ns = path_join(MUSCA_S1_BASE, 'partition', 'signing_layout_ns.c')
     s_bin_name, s_bin_ext = splitext(basename(secure_bin))
-    s_signed_bin = path_join(tempdir, s_bin_name + '_signed' + s_bin_ext)
+    s_signed_bin = abspath(path_join(tempdir, s_bin_name + '_signed' + s_bin_ext))
     ns_bin_name, ns_bin_ext = splitext(basename(non_secure_bin))
-    ns_signed_bin = path_join(tempdir, 'tfm_' + ns_bin_name + '_signed' + ns_bin_ext)
-    concatenated_bin = path_join(tempdir, s_bin_name + '_' + ns_bin_name + '_concat' + ns_bin_ext)
+    ns_signed_bin = abspath(path_join(tempdir, 'tfm_' + ns_bin_name + '_signed' + ns_bin_ext))
+    concatenated_bin = abspath(path_join(tempdir, s_bin_name + '_' + ns_bin_name + '_concat' + ns_bin_ext))
 
     assert os.path.isfile(image_macros_s)
     assert os.path.isfile(image_macros_ns)
 
-    #1. Run imgtool to sign the secure binary
-    sign_args = Namespace(
-        layout=image_macros_s,
-        key=path_join(SCRIPT_DIR, 'musca_s1-root-rsa-3072.pem'),
-        public_key_format=None,
-        align=1,
-        dependencies=None,
-        version=version.decode_version('1.0'),
-        header_size=0x400,
-        security_counter=None,
-        rsa_pkcs1_15=False,
-        included_header=False,
-        infile=secure_bin,
-        outfile=s_signed_bin
-        )
-    do_sign(sign_args)
+    #1. Run wrapper to sign the TF-M secure binary
+    cmd = [
+        "python3",
+        path_join(MBED_OS_ROOT, "tools", "psa","tfm", "bin_utils","wrapper.py"),
+        "-v",
+        '1.2.0',
+        "-k",
+        path_join(SCRIPT_DIR, 'musca_s1-root-rsa-3072.pem'),
+        "--layout",
+        image_macros_s,
+        "--public-key-format",
+        'full',
+        "--align",
+        '1',
+        "--pad",
+        "--pad-header",
+        "-H",
+        '0x400',
+        "--overwrite-only",
+        "-s",
+        'auto',
+        "-d",
+        '(0,0.0.0+0)',
+        abspath(secure_bin),
+        s_signed_bin,
+    ]
 
-    #2. Run imgtool to sign the non-secure mbed binary
-    sign_args = Namespace(
-        layout=image_macros_ns,
-        key=path_join(SCRIPT_DIR, 'musca_s1-root-rsa-3072_1.pem'),
-        public_key_format=None,
-        align=1,
-        dependencies=None,
-        version=version.decode_version('1.0'),
-        header_size=0x400,
-        security_counter=None,
-        rsa_pkcs1_15=False,
-        included_header=False,
-        infile=non_secure_bin,
-        outfile=ns_signed_bin
-        )
-    do_sign(sign_args)
+    run_cmd(cmd, MBED_OS_ROOT)
 
-    #1. Concatenate signed secure TFM and non-secure mbed binaries
-    output = Assembly(image_macros_s, concatenated_bin)
-    output.add_image(s_signed_bin, "SECURE")
-    output.add_image(ns_signed_bin, "NON_SECURE")
+    #2. Run wrapper to sign the non-secure mbed binary
+    cmd = [
+        "python3",
+        path_join(MBED_OS_ROOT, "tools", "psa","tfm", "bin_utils","wrapper.py"),
+        "-v",
+        '1.2.0',
+        "-k",
+        path_join(SCRIPT_DIR, 'musca_s1-root-rsa-3072_1.pem'),
+        "--layout",
+        image_macros_ns,
+        "--public-key-format",
+        'full',
+        "--align",
+        '1',
+        "--pad",
+        "--pad-header",
+        "-H",
+        '0x400',
+        "--overwrite-only",
+        "-s",
+        'auto',
+        "-d",
+        '(1,0.0.0+0)',
+        abspath(non_secure_bin),
+        ns_signed_bin,
+    ]
 
-    #3. Concatenate mcuboot and signed binary and overwrite mbed built binary file
+    run_cmd(cmd, MBED_OS_ROOT)
+
+    #3. Concatenate signed secure TFM and non-secure mbed binaries
+    cmd = [
+        "python3",
+        path_join(MBED_OS_ROOT, "tools", "psa","tfm", "bin_utils","assemble.py"),
+        "--layout",
+        image_macros_s,
+        "-s",
+        s_signed_bin,
+        "-n",
+        ns_signed_bin,
+        "-o",
+        concatenated_bin,
+    ]
+
+    run_cmd(cmd, MBED_OS_ROOT)
+
+    #4. Concatenate mcuboot and signed binary and overwrite mbed built binary file
     mcuboot_image_size = find_bl2_size(flash_layout)
     with open(mcuboot_bin, "rb") as mcuboot_fh, open(concatenated_bin, "rb") as concat_fh:
         with open(non_secure_bin, "w+b") as out_fh:
@@ -109,3 +140,12 @@ def find_bl2_size(configFile):
                 bl2_size = int(m.group(1), 0)
                 break
     return bl2_size
+
+def run_cmd(cmd, directory):
+
+    POPEN_INSTANCE = subprocess.Popen(
+        cmd,
+        cwd=directory,
+    )
+
+    POPEN_INSTANCE.communicate()
