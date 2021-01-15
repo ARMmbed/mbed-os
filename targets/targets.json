@@ -1157,6 +1157,10 @@
             "lpticker_lptim_clock": {
                 "help": "Default value for LPTIM clock (lpticker_lptim == 1). Value is the dividing factor. Choose 1, 2 or 4",
                 "value": 1
+            },
+            "gpio_reset_at_init": {
+                "help": "if value set, all GPIO are reset during init",
+                "value": false
             }
         },
         "overrides": {
@@ -3284,6 +3288,9 @@
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
             }
+        },
+        "overrides": {
+            "gpio_reset_at_init": true
         },
         "device_has_add": [
             "ANALOGOUT",
