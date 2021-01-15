@@ -42,6 +42,11 @@
 #include "rtos/Semaphore.h"
 #include "rtos/Mutex.h"
 
+#include "mbed-trace/mbed_trace.h"
+#include "common/ble_trace_helpers.h"
+
+#define TRACE_GROUP "BLHC"
+
 #define HCI_RESET_RAND_CNT              4
 
 #define VENDOR_SPECIFIC_EVENT           0xFF

@@ -21,6 +21,15 @@
 
 #include "SecurityDb.h"
 
+#include "mbed-trace/mbed_trace.h"
+#include "common/ble_trace_helpers.h"
+
+#define TRACE_GROUP "BLDB"
+
+#define _STR(x) #x
+#define STR(x) _STR(x)
+
+
 namespace ble {
 
 /** Naive memory implementation for verification. */
@@ -37,11 +46,19 @@ private:
 
     static entry_t* as_entry(entry_handle_t db_handle)
     {
-        return reinterpret_cast<entry_t*>(db_handle);
+        entry_t* entry = reinterpret_cast<entry_t*>(db_handle);
+        if (!entry) {
+            tr_error("Invalid security DB handle used");
+        }
+        return entry;
     }
 
 public:
-    MemorySecurityDb() : SecurityDb() { }
+    MemorySecurityDb() : SecurityDb()
+    {
+        tr_info("Using memory security DB (capacity " STR(BLE_SECURITY_DATABASE_MAX_ENTRIES) " entries) - no persistence across reset");
+    }
+
     ~MemorySecurityDb() override = default;
 
     SecurityDistributionFlags_t* get_distribution_flags(
@@ -59,6 +76,7 @@ public:
     ) override {
         entry_t *entry = as_entry(db_handle);
         if (entry) {
+            tr_info("Write DB entry %d: local ltk %s", get_index(db_handle), tr_as_array(ltk));
             entry->flags.ltk_sent = true;
             entry->local_keys.ltk = ltk;
         }
@@ -71,6 +89,7 @@ public:
     ) override {
         entry_t *entry = as_entry(db_handle);
         if (entry) {
+            tr_info("Write DB entry %d: local ediv %s rand %s", get_index(db_handle), tr_as_array(ediv), tr_as_array(rand));
             entry->local_keys.ediv = ediv;
             entry->local_keys.rand = rand;
         }
@@ -86,6 +105,7 @@ public:
     ) override {
         entry_t *entry = as_entry(db_handle);
         if (entry) {
+            tr_info("Write DB entry %d: peer ltk %s", get_index(db_handle), tr_as_array(ltk));
             entry->peer_keys.ltk = ltk;
             entry->flags.ltk_stored = true;
         }
@@ -98,6 +118,7 @@ public:
     ) override {
         entry_t *entry = as_entry(db_handle);
         if (entry) {
+            tr_info("Write DB entry %d: peer ediv %s rand %s", get_index(db_handle), tr_as_array(ediv), tr_as_array(rand));
             entry->peer_keys.ediv = ediv;
             entry->peer_keys.rand = rand;
         }
@@ -109,6 +130,7 @@ public:
     ) override {
         entry_t *entry = as_entry(db_handle);
         if (entry) {
+            tr_info("Write DB entry %d: peer irk %s", get_index(db_handle), tr_as_array(irk));
             entry->peer_identity.irk = irk;
             entry->flags.irk_stored = true;
         }
@@ -121,6 +143,7 @@ public:
     ) override {
         entry_t *entry = as_entry(db_handle);
         if (entry) {
+            tr_info("Write DB entry %d: %s peer address %s", get_index(db_handle), address_is_public? "public" : "private", tr_as_array(peer_address));
             entry->peer_identity.identity_address = peer_address;
             entry->peer_identity.identity_address_is_public = address_is_public;
         }
@@ -132,6 +155,7 @@ public:
     ) override {
         entry_t *entry = as_entry(db_handle);
         if (entry) {
+            tr_info("Write DB entry %d: peer csrk %s", get_index(db_handle), tr_as_array(csrk));
             entry->flags.csrk_stored = true;
             entry->peer_signing.csrk = csrk;
         }
@@ -143,6 +167,7 @@ public:
     ) override {
         entry_t *entry = as_entry(db_handle);
         if (entry) {
+            tr_info("Write DB entry %d: sign counter %lu", get_index(db_handle), sign_counter);
             entry->peer_signing.counter = sign_counter;
         }
     }
@@ -184,6 +209,11 @@ private:
         auto *entry = reinterpret_cast<entry_t*>(db_entry);
         return &entry->peer_signing;
     };
+
+    uint8_t get_index(const entry_handle_t db_handle) const
+    {
+        return reinterpret_cast<entry_t*>(db_handle) - _entries;
+    }
 
 private:
     entry_t _entries[BLE_SECURITY_DATABASE_MAX_ENTRIES];

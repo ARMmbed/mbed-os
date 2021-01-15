@@ -52,6 +52,11 @@
 #include "hci_drv.h"
 #include "bstream.h"
 
+#include "stack_adaptation/mbed_wsf_trace.c"
+#include "mbed-trace/mbed_trace.h"
+#include "common/ble_trace_helpers.h"
+
+#define TRACE_GROUP "BLE "
 
 using namespace std::chrono;
 
@@ -85,11 +90,21 @@ extern "C" uint16_t hci_mbed_os_drv_write(uint8_t type, uint16_t len, uint8_t *p
 
 extern "C" void hci_mbed_os_start_reset_sequence(void)
 {
+    tr_debug("Cordio HCI reset started");
     ble_cordio_get_hci_driver().start_reset_sequence();
 }
 
 extern "C" void hci_mbed_os_handle_reset_sequence(uint8_t *msg)
 {
+#if MBED_CONF_MBED_TRACE_ENABLE
+    if (*msg == HCI_CMD_CMPL_EVT) {
+        uint16_t opcode;
+        uint8_t *peek_msg = msg + (HCI_EVT_HDR_LEN + 1 /* skip num packets */);
+        BSTREAM_TO_UINT16(opcode, peek_msg);
+        tr_debug("Reset sequence command complete: %s", ble::hci_opcode_to_string(opcode));
+    }
+#endif // MBED_CONF_MBED_TRACE_ENABLE
+
     ble_cordio_get_hci_driver().handle_reset_sequence(msg);
 }
 
@@ -142,6 +157,7 @@ ble_error_t BLEInstanceBase::init(
 {
     switch (initialization_status) {
         case NOT_INITIALIZED:
+            tr_info("Initialising BLE instance");
             _timer.reset();
             _timer.start();
             _event_queue.initialize(this);
@@ -150,6 +166,7 @@ ble_error_t BLEInstanceBase::init(
             return BLE_ERROR_NONE;
 
         case INITIALIZING:
+            tr_warning("Already initialising BLE instance");
             return BLE_ERROR_INITIALIZATION_INCOMPLETE;
 
         case INITIALIZED:
@@ -167,6 +184,7 @@ bool BLEInstanceBase::hasInitialized() const
 
 ble_error_t BLEInstanceBase::shutdown()
 {
+    tr_info("shutting down BLE");
     if (initialization_status != INITIALIZED) {
         return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     }
@@ -343,6 +361,7 @@ void BLEInstanceBase::processEvents()
 void BLEInstanceBase::stack_handler(wsfEventMask_t event, wsfMsgHdr_t *msg)
 {
     if (msg == nullptr) {
+        tr_warning("stack_handler received NULL message");
         return;
     }
 
@@ -366,17 +385,26 @@ void BLEInstanceBase::stack_handler(wsfEventMask_t event, wsfMsgHdr_t *msg)
             };
 #if BLE_FEATURE_EXTENDED_ADVERTISING
             // initialize extended module if supported
+            tr_info("Reset sequence complete. Controller supported features:");
+#if MBED_CONF_MBED_TRACE_ENABLE
+            trace_le_supported_features(HciGetLeSupFeat());
+#endif // MBED_CONF_MBED_TRACE_ENABLE
+            tr_info("Initialising extended features");
             if (HciGetLeSupFeat() & HCI_LE_SUP_FEAT_LE_EXT_ADV) {
 #if BLE_ROLE_BROADCASTER
+                tr_info("DmExtAdvInit");
                 DmExtAdvInit();
 #endif // BLE_ROLE_BROADCASTER
 #if BLE_ROLE_OBSERVER
+                tr_info("DmExtScanInit");
                 DmExtScanInit();
 #endif // BLE_ROLE_OBSERVER
 #if BLE_ROLE_CENTRAL
+                tr_info("DmExtConnMasterInit");
                 DmExtConnMasterInit();
 #endif // BLE_ROLE_CENTRAL
 #if BLE_ROLE_PERIPHERAL
+                tr_info("DmExtConnSlaveInit");
                 DmExtConnSlaveInit();
 #endif // BLE_ROLE_PERIPHERAL
             }
@@ -394,6 +422,7 @@ void BLEInstanceBase::stack_handler(wsfEventMask_t event, wsfMsgHdr_t *msg)
             // upcast to unhandled command complete event to access the payload
             hciUnhandledCmdCmplEvt_t *unhandled = (hciUnhandledCmdCmplEvt_t *) msg;
             if (unhandled->hdr.status == HCI_SUCCESS && unhandled->hdr.param == HCI_OPCODE_LE_TEST_END) {
+                tr_info("Host received HCI_OPCODE_LE_TEST_END from controller - end test mode");
                 // unhandled events are not parsed so we need to parse the payload ourselves
                 uint8_t status;
                 uint16_t packet_number;
@@ -414,6 +443,8 @@ void BLEInstanceBase::stack_handler(wsfEventMask_t event, wsfMsgHdr_t *msg)
 
 void BLEInstanceBase::device_manager_cb(dmEvt_t *dm_event)
 {
+    tr_debug("stack_handler received %s", dm_callback_event_to_string(dm_event->hdr.event));
+
 #if BLE_FEATURE_CONNECTABLE
     if (dm_event->hdr.status == HCI_SUCCESS && dm_event->hdr.event == DM_CONN_DATA_LEN_CHANGE_IND) {
         // this event can only happen after a connection has been established therefore gap is present
@@ -444,11 +475,13 @@ void BLEInstanceBase::connection_handler(dmEvt_t *dm_event)
 
     switch (dm_event->hdr.event) {
         case DM_CONN_OPEN_IND:
+            tr_debug("Connection %d - Initialise CCC table", connId);
             /* set up CCC table with uninitialized (all zero) values */
             AttsCccInitTable(connId, nullptr);
             break;
         case DM_CONN_CLOSE_IND:
             /* clear CCC table on connection close */
+            tr_debug("Connection %d - Clear CCC table", connId);
             AttsCccClearTable(connId);
             break;
         default:
@@ -465,9 +498,15 @@ void BLEInstanceBase::stack_setup()
 {
     MBED_ASSERT(_hci_driver != nullptr);
 
+#if MBED_CONF_MBED_TRACE_ENABLE
+    wsf_mbed_trace_init();
+#endif // MBED_CONF_MBED_TRACE_ENABLE
+
     wsfHandlerId_t handlerId;
 
     buf_pool_desc_t buf_pool_desc = _hci_driver->get_buffer_pool_description();
+
+    tr_info("Allocated %d bytes for Cordio", buf_pool_desc.buffer_size);
 
     // use the buffer for the WSF heap
     SystemHeapStart = buf_pool_desc.buffer_memory;
@@ -489,6 +528,54 @@ void BLEInstanceBase::stack_setup()
             buf_pool_desc.buffer_size - bytes_used);
     }
 
+    tr_info("BLE features enabled:"
+#if BLE_FEATURE_EXTENDED_ADVERTISING
+            " EXTENDED_ADVERTISING"
+#endif
+#if BLE_FEATURE_GATT_CLIENT
+            " GATT_CLIENT"
+#endif
+#if BLE_FEATURE_GATT_SERVER
+            " GATT_SERVER"
+#endif
+#if BLE_FEATURE_PERIODIC_ADVERTISING
+            " PERIODIC_ADVERTISING"
+#endif
+#if BLE_FEATURE_PHY_MANAGEMENT
+            " PHY_MANAGEMENT"
+#endif
+#if BLE_FEATURE_PRIVACY
+            " PRIVACY"
+#endif
+#if BLE_FEATURE_SECURE_CONNECTIONS
+            " SECURE_CONNECTIONS"
+#endif
+#if BLE_FEATURE_SECURITY
+            " SECURITY"
+#endif
+#if BLE_FEATURE_SIGNING
+            " SIGNING"
+#endif
+#if BLE_FEATURE_WHITELIST
+            " WHITELIST"
+#endif
+    );
+
+    tr_info("BLE roles enabled:"
+#if BLE_ROLE_PERIPHERAL
+            " PERIPHERAL"
+#elif BLE_ROLE_BROADCASTER
+            " BROADCASTER"
+#endif
+#if BLE_ROLE_CENTRAL
+            " CENTRAL"
+#elif BLE_ROLE_OBSERVER
+            " OBSERVER"
+#endif
+    );
+
+    tr_info("Initialising Cordio host stack");
+
     WsfTimerInit();
 
     // Note: SecInit required for RandInit.
@@ -502,9 +589,11 @@ void BLEInstanceBase::stack_setup()
 #endif
 
     handlerId = WsfOsSetNextHandler(HciHandler);
+    tr_debug("HCI handler id: %x", handlerId);
     HciHandlerInit(handlerId);
 
     handlerId = WsfOsSetNextHandler(DmHandler);
+    tr_debug("DM handler id: %x", handlerId);
 
 #if BLE_ROLE_BROADCASTER
     DmAdvInit();
@@ -546,6 +635,7 @@ void BLEInstanceBase::stack_setup()
 
 #if BLE_ROLE_PERIPHERAL
     handlerId = WsfOsSetNextHandler(L2cSlaveHandler);
+    tr_debug("L2C slave handler id: %x", handlerId);
     L2cSlaveHandlerInit(handlerId);
 #endif
 
@@ -563,6 +653,7 @@ void BLEInstanceBase::stack_setup()
 
 #if BLE_FEATURE_ATT
     handlerId = WsfOsSetNextHandler(AttHandler);
+    tr_debug("ATT handler id: %x", handlerId);
     AttHandlerInit(handlerId);
 
 #if BLE_FEATURE_GATT_SERVER
@@ -587,6 +678,7 @@ void BLEInstanceBase::stack_setup()
 
 #if BLE_FEATURE_SECURITY
     handlerId = WsfOsSetNextHandler(SmpHandler);
+    tr_debug("SMP handler id: %x", handlerId);
     SmpHandlerInit(handlerId);
 
 #if BLE_ROLE_PERIPHERAL
@@ -606,6 +698,7 @@ void BLEInstanceBase::stack_setup()
 #endif // BLE_FEATURE_SECURITY
 
     stack_handler_id = WsfOsSetNextHandler(&BLEInstanceBase::stack_handler);
+    tr_debug("stack handler id: %x", stack_handler_id);
 
     HciSetMaxRxAclLen(MBED_CONF_CORDIO_RX_ACL_BUFFER_SIZE);
 

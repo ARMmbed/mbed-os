@@ -25,9 +25,12 @@
 #include "mbed_error.h"
 
 #include "SecurityDb.h"
+#include "mbed-trace/mbed_trace.h"
 
 #define STR_EXPAND(tok) #tok
 #define STR(tok) STR_EXPAND(tok)
+
+#define TRACE_GROUP "BLDB"
 
 namespace ble {
 
@@ -64,7 +67,11 @@ private:
     static constexpr char DB_RESTORE[DB_KEY_SIZE] = { 'r','e','s' };
 
     static entry_t* as_entry(entry_handle_t db_handle) {
-        return reinterpret_cast<entry_t*>(db_handle);
+        entry_t* entry = reinterpret_cast<entry_t*>(db_handle);
+        if (!entry) {
+            tr_error("Invalid security DB handle used");
+        }
+        return entry;
     }
 
     template<class T>

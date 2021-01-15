@@ -203,10 +203,7 @@ PalPrivateAddressController& PalPrivateAddressController::instance()
 
 bool PalPrivateAddressController::cordio_handler(const wsfMsgHdr_t *msg)
 {
-    if (msg == nullptr) {
-        tr_warning("Privacy handler received null message");
-        return false;
-    }
+    MBED_ASSERT(msg);
 
     auto* handler = instance()._event_handler;
 

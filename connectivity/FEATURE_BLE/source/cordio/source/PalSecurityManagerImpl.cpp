@@ -592,10 +592,11 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
     PalSecurityManager &self = get_security_manager();
     PalSecurityManagerEventHandler *handler = self.get_event_handler();
 
-    if ((msg == nullptr) || (handler == nullptr)) {
-        tr_warning("PAL Event handler: invalid message (%p) or handler (%p)", msg, handler);
+    if (handler == nullptr) {
         return false;
     }
+
+    MBED_ASSERT(msg);
 
     switch (msg->event) {
         case DM_SEC_PAIR_CMPL_IND: {
