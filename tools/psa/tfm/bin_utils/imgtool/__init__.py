@@ -1,6 +1,4 @@
-#! /usr/bin/env python3
-#
-# Copyright 2017 Linaro Limited
+# Copyright 2017-2020 Linaro Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from imgtool import main
-
-if __name__ == '__main__':
-    main.imgtool()
+imgtool_version = "1.7.0rc1"
