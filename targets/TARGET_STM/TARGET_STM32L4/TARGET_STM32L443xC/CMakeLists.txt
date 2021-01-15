@@ -18,6 +18,7 @@ set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}
 target_sources(mbed-core
     INTERFACE
         ${STARTUP_FILE}
+        system_clock.c
 )
 
 target_include_directories(mbed-core

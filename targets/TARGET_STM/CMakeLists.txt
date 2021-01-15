@@ -49,6 +49,7 @@ target_sources(mbed-core
         lp_ticker.c
         mbed_crc_api.c
         mbed_overrides.c
+        ospi_api.c
         pinmap.c
         port_api.c
         pwmout_api.c
