@@ -121,7 +121,7 @@ ble_error_t SecurityManager::init(
 
     bool secure_connections;
     _pal.get_secure_connections_support(secure_connections);
-    tr_debug("Secure connection support: %s", to_string(secure_connection));
+    tr_debug("Secure connection support: %s", to_string(secure_connections));
 
     _default_authentication.set_bondable(bondable);
     _default_authentication.set_mitm(mitm);
