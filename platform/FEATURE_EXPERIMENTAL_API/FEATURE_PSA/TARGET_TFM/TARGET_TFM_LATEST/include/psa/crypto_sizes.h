@@ -133,50 +133,8 @@
  * operations, and does not need to accept all key sizes up to the limit. */
 #define PSA_VENDOR_RSA_MAX_KEY_BITS 4096
 
-/* The maximum size of an ECC key on this implementation, in bits.
- * This is a vendor-specific macro. */
+/* The maximum size of an ECC key on this implementation, in bits */
 #define PSA_VENDOR_ECC_MAX_CURVE_BITS 521
-
-/** Bit size associated with an elliptic curve.
- *
- * \param curve     An elliptic curve (value of type #psa_ecc_curve_t).
- *
- * \return          The size associated with \p curve, in bits.
- *                  This may be 0 if the implementation does not support
- *                  the specified curve.
- */
-#define PSA_ECC_CURVE_BITS(curve)               \
-    ((curve) == PSA_ECC_CURVE_SECT163K1        ? 163 : \
-     (curve) == PSA_ECC_CURVE_SECT163R1        ? 163 : \
-     (curve) == PSA_ECC_CURVE_SECT163R2        ? 163 : \
-     (curve) == PSA_ECC_CURVE_SECT193R1        ? 193 : \
-     (curve) == PSA_ECC_CURVE_SECT193R2        ? 193 : \
-     (curve) == PSA_ECC_CURVE_SECT233K1        ? 233 : \
-     (curve) == PSA_ECC_CURVE_SECT233R1        ? 233 : \
-     (curve) == PSA_ECC_CURVE_SECT239K1        ? 239 : \
-     (curve) == PSA_ECC_CURVE_SECT283K1        ? 283 : \
-     (curve) == PSA_ECC_CURVE_SECT283R1        ? 283 : \
-     (curve) == PSA_ECC_CURVE_SECT409K1        ? 409 : \
-     (curve) == PSA_ECC_CURVE_SECT409R1        ? 409 : \
-     (curve) == PSA_ECC_CURVE_SECT571K1        ? 571 : \
-     (curve) == PSA_ECC_CURVE_SECT571R1        ? 571 : \
-     (curve) == PSA_ECC_CURVE_SECP160K1        ? 160 : \
-     (curve) == PSA_ECC_CURVE_SECP160R1        ? 160 : \
-     (curve) == PSA_ECC_CURVE_SECP160R2        ? 160 : \
-     (curve) == PSA_ECC_CURVE_SECP192K1        ? 192 : \
-     (curve) == PSA_ECC_CURVE_SECP192R1        ? 192 : \
-     (curve) == PSA_ECC_CURVE_SECP224K1        ? 224 : \
-     (curve) == PSA_ECC_CURVE_SECP224R1        ? 224 : \
-     (curve) == PSA_ECC_CURVE_SECP256K1        ? 256 : \
-     (curve) == PSA_ECC_CURVE_SECP256R1        ? 256 : \
-     (curve) == PSA_ECC_CURVE_SECP384R1        ? 384 : \
-     (curve) == PSA_ECC_CURVE_SECP521R1        ? 521 : \
-     (curve) == PSA_ECC_CURVE_BRAINPOOL_P256R1 ? 256 : \
-     (curve) == PSA_ECC_CURVE_BRAINPOOL_P384R1 ? 384 : \
-     (curve) == PSA_ECC_CURVE_BRAINPOOL_P512R1 ? 512 : \
-     (curve) == PSA_ECC_CURVE_CURVE25519       ? 255 : \
-     (curve) == PSA_ECC_CURVE_CURVE448         ? 448 : \
-     0)
 
 /** \def PSA_ALG_TLS12_PSK_TO_MS_MAX_PSK_LEN
  *
@@ -419,7 +377,7 @@
  * \param key_type  An asymmetric key type (this may indifferently be a
  *                  key pair type or a public key type).
  * \param key_bits  The size of the key in bits.
- * \param alg       The signature algorithm.
+ * \param alg       The asymmetric encryption algorithm.
  *
  * \return If the parameters are valid and supported, return
  *         a buffer size in bytes that guarantees that
@@ -438,9 +396,9 @@
 
 /** Sufficient output buffer size for psa_asymmetric_decrypt().
  *
- * This macro returns a sufficient buffer size for a ciphertext produced using
+ * This macro returns a sufficient buffer size for a plaintext produced using
  * a key of the specified type and size, with the specified algorithm.
- * Note that the actual size of the ciphertext may be smaller, depending
+ * Note that the actual size of the plaintext may be smaller, depending
  * on the algorithm.
  *
  * \warning This function may call its arguments multiple times or
@@ -450,7 +408,7 @@
  * \param key_type  An asymmetric key type (this may indifferently be a
  *                  key pair type or a public key type).
  * \param key_bits  The size of the key in bits.
- * \param alg       The signature algorithm.
+ * \param alg       The asymmetric encryption algorithm.
  *
  * \return If the parameters are valid and supported, return
  *         a buffer size in bytes that guarantees that

@@ -723,11 +723,12 @@ psa_status_t psa_import_key(const psa_key_attributes_t *attributes,
  *   where `m` is the bit size associated with the curve, i.e. the bit size
  *   of the order of the curve's coordinate field. This byte string is
  *   in little-endian order for Montgomery curves (curve types
- *   `PSA_ECC_CURVE_CURVEXXX`), and in big-endian order for Weierstrass
- *   curves (curve types `PSA_ECC_CURVE_SECTXXX`, `PSA_ECC_CURVE_SECPXXX`
- *   and `PSA_ECC_CURVE_BRAINPOOL_PXXX`).
- *   This is the content of the `privateKey` field of the `ECPrivateKey`
- *   format defined by RFC 5915.
+ *   `PSA_ECC_FAMILY_CURVEXXX`), and in big-endian order for Weierstrass
+ *   curves (curve types `PSA_ECC_FAMILY_SECTXXX`, `PSA_ECC_FAMILY_SECPXXX`
+ *   and `PSA_ECC_FAMILY_BRAINPOOL_PXXX`).
+ *   For Weierstrass curves, this is the content of the `privateKey` field of
+ *   the `ECPrivateKey` format defined by RFC 5915.  For Montgomery curves,
+ *   the format is defined by RFC 7748, and output is masked according to §5.
  * - For Diffie-Hellman key exchange key pairs (key types for which
  *   #PSA_KEY_TYPE_IS_DH_KEY_PAIR is true), the
  *   format is the representation of the private key `x` as a big-endian byte
@@ -920,7 +921,7 @@ psa_status_t psa_hash_compare(psa_algorithm_t alg,
                               const uint8_t *input,
                               size_t input_length,
                               const uint8_t *hash,
-                              const size_t hash_length);
+                              size_t hash_length);
 
 /** The type of the state data structure for multipart hash operations.
  *
@@ -1288,7 +1289,7 @@ psa_status_t psa_mac_verify(psa_key_handle_t handle,
                             const uint8_t *input,
                             size_t input_length,
                             const uint8_t *mac,
-                            const size_t mac_length);
+                            size_t mac_length);
 
 /** The type of the state data structure for multipart MAC operations.
  *
@@ -3490,10 +3491,10 @@ psa_status_t psa_key_derivation_output_bytes(
  *   length is determined by the curve, and sets the mandatory bits
  *   accordingly. That is:
  *
- *     - #PSA_ECC_CURVE_CURVE25519: draw a 32-byte string
- *       and process it as specified in RFC 7748 &sect;5.
- *     - #PSA_ECC_CURVE_CURVE448: draw a 56-byte string
- *       and process it as specified in RFC 7748 &sect;5.
+ *     - Curve25519 (#PSA_ECC_FAMILY_MONTGOMERY, 255 bits): draw a 32-byte
+ *       string and process it as specified in RFC 7748 &sect;5.
+ *     - Curve448 (#PSA_ECC_FAMILY_MONTGOMERY, 448 bits): draw a 56-byte
+ *       string and process it as specified in RFC 7748 &sect;5.
  *
  * - For key types for which the key is represented by a single sequence of
  *   \p bits bits with constraints as to which bit sequences are acceptable,

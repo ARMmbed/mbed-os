@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2020, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -126,7 +126,7 @@ psa_handle_t psa_connect(uint32_t sid, uint32_t version);
  * \brief Call an RoT Service on an established connection.
  *
  * \param[in] handle            A handle to an established connection.
- * \param[in] type              The reuqest type.
+ * \param[in] type              The request type.
  *                              Must be zero( \ref PSA_IPC_CALL) or positive.
  * \param[in] in_vec            Array of input \ref psa_invec structures.
  * \param[in] in_len            Number of input \ref psa_invec structures.
