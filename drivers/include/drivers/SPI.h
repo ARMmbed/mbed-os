@@ -164,7 +164,7 @@ public:
 
     /** Configure the data transmission format.
      *
-     *  @param bits Number of bits per SPI frame (4 - 16).
+     *  @param bits Number of bits per SPI frame (4 - 32, target dependent).
      *  @param mode Clock polarity and phase mode (0 - 3).
      *
      * @code
