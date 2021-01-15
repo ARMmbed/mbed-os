@@ -86,26 +86,26 @@ template <typename R, typename... Args>
 struct unqualify_fn<R(Args...) const volatile> : mstd::type_identity<R(Args...)> { };
 template <typename R, typename... Args>
 struct unqualify_fn<R(Args...) const volatile &> : mstd::type_identity<R(Args...)> { };
-#if __cplusplus >=201703 || __cpp_noexcept_function_type >= 201510
-/* We have to spell out all c/v/ref/noexcept versions here, as specialization needs exact type match */
-/* Compare to callback() and deduction guides, where dropping the noexcept is a permitted conversion */
-template <typename R, typename... Args>
-struct unqualify_fn<R(Args...) noexcept> : mstd::type_identity<R(Args...)> { };
-template <typename R, typename... Args>
-struct unqualify_fn<R(Args...) & noexcept> : mstd::type_identity<R(Args...)> { };
-template <typename R, typename... Args>
-struct unqualify_fn<R(Args...) const noexcept> : mstd::type_identity<R(Args...)> { };
-template <typename R, typename... Args>
-struct unqualify_fn<R(Args...) const & noexcept> : mstd::type_identity<R(Args...)> { };
-template <typename R, typename... Args>
-struct unqualify_fn<R(Args...) volatile noexcept> : mstd::type_identity<R(Args...)> { };
-template <typename R, typename... Args>
-struct unqualify_fn<R(Args...) volatile & noexcept> : mstd::type_identity<R(Args...)> { };
-template <typename R, typename... Args>
-struct unqualify_fn<R(Args...) const volatile noexcept> : mstd::type_identity<R(Args...)> { };
-template <typename R, typename... Args>
-struct unqualify_fn<R(Args...) const volatile & noexcept> : mstd::type_identity<R(Args...)> { };
-#endif
+//#if __cplusplus >=201703 || __cpp_noexcept_function_type >= 201510
+///* We have to spell out all c/v/ref/noexcept versions here, as specialization needs exact type match */
+///* Compare to callback() and deduction guides, where dropping the noexcept is a permitted conversion */
+//template <typename R, typename... Args>
+//struct unqualify_fn<R(Args...) noexcept> : mstd::type_identity<R(Args...)> { };
+//template <typename R, typename... Args>
+//struct unqualify_fn<R(Args...) & noexcept> : mstd::type_identity<R(Args...)> { };
+//template <typename R, typename... Args>
+//struct unqualify_fn<R(Args...) const noexcept> : mstd::type_identity<R(Args...)> { };
+//template <typename R, typename... Args>
+//struct unqualify_fn<R(Args...) const & noexcept> : mstd::type_identity<R(Args...)> { };
+//template <typename R, typename... Args>
+//struct unqualify_fn<R(Args...) volatile noexcept> : mstd::type_identity<R(Args...)> { };
+//template <typename R, typename... Args>
+//struct unqualify_fn<R(Args...) volatile & noexcept> : mstd::type_identity<R(Args...)> { };
+//template <typename R, typename... Args>
+//struct unqualify_fn<R(Args...) const volatile noexcept> : mstd::type_identity<R(Args...)> { };
+//template <typename R, typename... Args>
+//struct unqualify_fn<R(Args...) const volatile & noexcept> : mstd::type_identity<R(Args...)> { };
+//#endif
 
 template <typename T>
 using unqualify_fn_t = typename unqualify_fn<T>::type;

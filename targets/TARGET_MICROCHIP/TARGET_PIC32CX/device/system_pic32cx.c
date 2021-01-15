@@ -27,6 +27,7 @@
 /* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.            */
 /* ---------------------------------------------------------------------------- */
 
+#include "efc.h"
 #include "pic32cx.h"
 #include "board.h"
 #include "compiler.h"
@@ -46,6 +47,8 @@ extern "C" {
 /* Clock Settings (12MHz) using Internal Fast RC */
 uint32_t SystemCoreClock = CHIP_FREQ_MAINCK_RC_12MHZ;
 uint32_t SystemCore1Clock = 0;
+
+extern void efc_write_fmr(Efc *p_efc, uint32_t ul_fmr);
 
 static uint32_t _get_mainck(void)
 {
@@ -132,10 +135,19 @@ static uint32_t _get_pll_clk(uint8_t uc_pll_id, uint8_t uc_div_idx)
  */
 void SystemInit( void )
 {
+	uint32_t ul_fmr;
+
 	/* Set FWS to max value to allow any clock frequency */
-	SEFC0->EEFC_FMR = EEFC_FMR_FWS(0xF) | EEFC_FMR_CLOE;
+	/* Disable CLOE and SCOD by default */
+	ul_fmr = SEFC0->EEFC_FMR;
+	ul_fmr &= ~(EEFC_FMR_FWS_Msk | EEFC_FMR_CLOE);
+	ul_fmr |= (EEFC_FMR_FWS(0xF) | EEFC_FMR_SCOD);
+	efc_write_fmr(SEFC0, ul_fmr);
 #ifdef SEFC1
-	SEFC1->EEFC_FMR = EEFC_FMR_FWS(0xF) | EEFC_FMR_CLOE;
+	ul_fmr = SEFC1->EEFC_FMR;
+	ul_fmr &= ~(EEFC_FMR_FWS_Msk | EEFC_FMR_CLOE);
+	ul_fmr |= (EEFC_FMR_FWS(0xF) | EEFC_FMR_SCOD);
+	efc_write_fmr(SEFC1, ul_fmr);
 #endif
 }
 
@@ -249,6 +261,7 @@ void system_init_flash(uint32_t ul_clk)
 {
 	uint32_t ul_fws;
 	uint32_t ul_clk_mhz;
+	uint32_t ul_fmr;
 
 	ul_clk_mhz = ul_clk / 1000000;
 
@@ -271,10 +284,16 @@ void system_init_flash(uint32_t ul_clk)
 	/* Set FWS for embedded Flash access according to operating frequency */
 	ul_fws = div_ceil((SYSTEM_TACC_FLASH * ul_clk_mhz), 1000);
 
-	/* Enable CLOE(Code Loop Optimization Enable) by default */
-	SEFC0->EEFC_FMR = EEFC_FMR_FWS(ul_fws) | EEFC_FMR_CLOE;
+	/* Disable CLOE and SCOD by default */
+	ul_fmr = SEFC0->EEFC_FMR;
+	ul_fmr &= ~(EEFC_FMR_FWS_Msk | EEFC_FMR_CLOE);
+	ul_fmr |= (EEFC_FMR_FWS(ul_fws) | EEFC_FMR_SCOD);
+	efc_write_fmr(SEFC0, ul_fmr);
 #ifdef SEFC1
-	SEFC1->EEFC_FMR = EEFC_FMR_FWS(ul_fws) | EEFC_FMR_CLOE;
+	ul_fmr = SEFC1->EEFC_FMR;
+	ul_fmr &= ~(EEFC_FMR_FWS_Msk | EEFC_FMR_CLOE);
+	ul_fmr |= (EEFC_FMR_FWS(ul_fws) | EEFC_FMR_SCOD);
+	efc_write_fmr(SEFC1, ul_fmr);
 #endif
 }
 

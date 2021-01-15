@@ -30,9 +30,9 @@ static inline void _gpio_init_out(gpio_t *gpio, PinName pin, PinMode mode, int v
 {
     gpio_init(gpio, pin);
     if (pin != NC) {
-        gpio_write(gpio, value);
-        gpio_dir(gpio, PIN_OUTPUT);
         gpio_mode(gpio, mode);
+        gpio_dir(gpio, PIN_OUTPUT);
+        gpio_write(gpio, value);
     }
 }
 

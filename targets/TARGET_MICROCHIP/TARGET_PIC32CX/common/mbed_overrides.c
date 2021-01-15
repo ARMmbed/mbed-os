@@ -22,6 +22,7 @@
  ******************************************************************************/
 
 #include "pic32cx.h"
+#include "sysclk.h"
 #include "device_peripherals.h"
 #include "device.h"
 
@@ -31,5 +32,17 @@ gpio_t bc_enable;
  * Otherwise, let the application override this if necessary */
 void mbed_sdk_init()
 {
-	/******  TBD  *********************/ 
+	/* Unlock JTAG access */
+	SFR->SFR_WPMR = SFR_WPMR_WPKEY_PASSWD;
+	SFR->SFR_JTAG = 0;
+	SFR->SFR_WPMR = SFR_WPMR_WPKEY_PASSWD | SFR_WPMR_WPEN;
+
+	/* Disable the watchdog */
+	DWDT->WDT0_MR |= WDT0_MR_WDDIS;
+	DWDT->WDT1_MR |= WDT1_MR_WDDIS;
+
+	/* Initialize the SAM system */
+	sysclk_init();
+
+
 }

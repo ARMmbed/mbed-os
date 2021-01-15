@@ -110,7 +110,7 @@ typedef enum {
     USART_3 = (uint32_t)USART3,
     USART_4 = (uint32_t)USART4,
     USART_5 = (uint32_t)USART5,
-	USART_6 = (uint32_t)USART6,
+    USART_6 = (uint32_t)USART6,
     USART_7 = (uint32_t)USART7,
 } UARTName;
 #endif

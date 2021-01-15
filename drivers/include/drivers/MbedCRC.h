@@ -609,7 +609,15 @@ private:
      */
     static constexpr uint32_t get_crc_mask()
     {
-        return (uint32_t)((uint32_t)2U << (width - 1)) - 1U;
+        uint32_t w;
+
+        // Avoid warnings
+        w = width;
+        if(w > 32) {
+            w = 32;
+        }
+
+        return (uint32_t)((uint32_t)2U << (w - 1)) - 1U;
     }
 
     /** CRC values may need to be reflected.
