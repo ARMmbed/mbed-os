@@ -75,3 +75,4 @@ tfm_platform_ioctl(tfm_platform_ioctl_req_t request,
         return (enum tfm_platform_err_t) status;
     }
 }
+

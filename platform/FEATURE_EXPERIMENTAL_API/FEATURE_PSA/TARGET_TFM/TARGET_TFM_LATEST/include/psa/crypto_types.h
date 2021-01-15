@@ -55,85 +55,29 @@ typedef uint16_t psa_key_handle_t;
 
 /** \brief Encoding of a key type.
  */
-typedef uint32_t psa_key_type_t;
+typedef uint16_t psa_key_type_t;
 
-/** The type of PSA elliptic curve identifiers.
+/** The type of PSA elliptic curve family identifiers.
  *
  * The curve identifier is required to create an ECC key using the
  * PSA_KEY_TYPE_ECC_KEY_PAIR() or PSA_KEY_TYPE_ECC_PUBLIC_KEY()
  * macros.
  *
- * The encoding of curve identifiers is taken from the
- * TLS Supported Groups Registry (formerly known as the
- * TLS EC Named Curve Registry)
- * https://www.iana.org/assignments/tls-parameters/tls-parameters.xhtml#tls-parameters-8
- *
- * This specification defines identifiers for some of the curves in the IANA
- * registry. Implementations that support other curves that are in the IANA
- * registry should use the IANA value and a implementation-specific identifier.
- * Implemenations that support non-IANA curves should use one of the following
- * approaches for allocating a key type:
- *
- * 1. Select a ::psa_ecc_curve_t value in the range #PSA_ECC_CURVE_VENDOR_MIN to
- *    #PSA_ECC_CURVE_VENDOR_MAX, which is a subset of the IANA private use
- *    range.
- * 2. Use a ::psa_key_type_t value that is vendor-defined.
- *
- * The first option is recommended.
+ * Values defined by this standard will never be in the range 0x80-0xff.
+ * Vendors who define additional families must use an encoding in this range.
  */
-typedef uint16_t psa_ecc_curve_t;
+typedef uint8_t psa_ecc_family_t;
 
-/** The type of PSA Diffie-Hellman group identifiers.
+/** The type of PSA Diffie-Hellman group family identifiers.
  *
  * The group identifier is required to create an Diffie-Hellman key using the
  * PSA_KEY_TYPE_DH_KEY_PAIR() or PSA_KEY_TYPE_DH_PUBLIC_KEY()
  * macros.
  *
- * The encoding of group identifiers is taken from the
- * TLS Supported Groups Registry (formerly known as the
- * TLS EC Named Curve Registry)
- * https://www.iana.org/assignments/tls-parameters/tls-parameters.xhtml#tls-parameters-8
- *
- * This specification defines identifiers for some of the groups in the IANA
- * registry. Implementations that support other groups that are in the IANA
- * registry should use the IANA value and a implementation-specific identifier.
- * Implemenations that support non-IANA groups should use one of the following
- * approaches for allocating a key type:
- *
- * 1. Select a ::psa_dh_group_t value in the range #PSA_DH_GROUP_VENDOR_MIN to
- *    #PSA_DH_GROUP_VENDOR_MAX, which is a subset of the IANA private use
- *    range.
- * 2. Select a ::psa_dh_group_t value from the named groups allocated for
- *    GREASE in the IETF draft specification. The GREASE specification and
- *    values are listed below.
- * 3. Use a ::psa_key_type_t value that is vendor-defined.
- *
- * Option 1 or 2 are recommended.
- *
- * The current draft of the GREASE specification is
- * https://datatracker.ietf.org/doc/draft-ietf-tls-grease
- *
- * The following GREASE values are allocated for named groups:
- * \code
- * 0x0A0A
- * 0x1A1A
- * 0x2A2A
- * 0x3A3A
- * 0x4A4A
- * 0x5A5A
- * 0x6A6A
- * 0x7A7A
- * 0x8A8A
- * 0x9A9A
- * 0xAAAA
- * 0xBABA
- * 0xCACA
- * 0xDADA
- * 0xEAEA
- * 0xFAFA
- * \endcode
+ * Values defined by this standard will never be in the range 0x80-0xff.
+ * Vendors who define additional families must use an encoding in this range.
  */
-typedef uint16_t psa_dh_group_t;
+typedef uint8_t psa_dh_family_t;
 
 /** \brief Encoding of a cryptographic algorithm.
  *
@@ -156,17 +100,116 @@ typedef uint32_t psa_algorithm_t;
  * The lifetime of a key indicates where it is stored and what system actions
  * may create and destroy it.
  *
- * Keys with the lifetime #PSA_KEY_LIFETIME_VOLATILE are automatically
- * destroyed when the application terminates or on a power reset.
+ * Lifetime values have the following structure:
+ * - Bits 0-7 (#PSA_KEY_LIFETIME_GET_PERSISTENCE(\c lifetime)):
+ *   persistence level. This value indicates what device management
+ *   actions can cause it to be destroyed. In particular, it indicates
+ *   whether the key is _volatile_ or _persistent_.
+ *   See ::psa_key_persistence_t for more information.
+ * - Bits 8-31 (#PSA_KEY_LIFETIME_GET_LOCATION(\c lifetime)):
+ *   location indicator. This value indicates where the key is stored
+ *   and where operations on the key are performed.
+ *   See ::psa_key_location_t for more information.
  *
- * Keys with a lifetime other than #PSA_KEY_LIFETIME_VOLATILE are said
- * to be _persistent_.
- * Persistent keys are preserved if the application or the system restarts.
+ * Volatile keys are automatically destroyed when the application instance
+ * terminates or on a power reset of the device. Persistent keys are
+ * preserved until the application explicitly destroys them or until an
+ * implementation-specific device management event occurs (for example,
+ * a factory reset).
+ *
  * Persistent keys have a key identifier of type #psa_key_id_t.
+ * This identifier remains valid throughout the lifetime of the key,
+ * even if the application instance that created the key terminates.
  * The application can call psa_open_key() to open a persistent key that
  * it created previously.
+ *
+ * This specification defines two basic lifetime values:
+ * - Keys with the lifetime #PSA_KEY_LIFETIME_VOLATILE are volatile.
+ *   All implementations should support this lifetime.
+ * - Keys with the lifetime #PSA_KEY_LIFETIME_PERSISTENT are persistent.
+ *   All implementations that have access to persistent storage with
+ *   appropriate security guarantees should support this lifetime.
  */
 typedef uint32_t psa_key_lifetime_t;
+
+/** Encoding of key persistence levels.
+ *
+ * What distinguishes different persistence levels is what device management
+ * events may cause keys to be destroyed. _Volatile_ keys are destroyed
+ * by a power reset. Persistent keys may be destroyed by events such as
+ * a transfer of ownership or a factory reset. What management events
+ * actually affect persistent keys at different levels is outside the
+ * scope of the PSA Cryptography specification.
+ *
+ * This specification defines the following values of persistence levels:
+ * - \c 0 = #PSA_KEY_PERSISTENCE_VOLATILE: volatile key.
+ *   A volatile key is automatically destroyed by the implementation when
+ *   the application instance terminates. In particular, a volatile key
+ *   is automatically destroyed on a power reset of the device.
+ * - \c 1 = #PSA_KEY_PERSISTENCE_DEFAULT:
+ *   persistent key with a default lifetime.
+ *   Implementations should support this value if they support persistent
+ *   keys at all.
+ *   Applications should use this value if they have no specific needs that
+ *   are only met by implementation-specific features.
+ * - \c 2-127: persistent key with a PSA-specified lifetime.
+ *   The PSA Cryptography specification does not define the meaning of these
+ *   values, but other PSA specifications may do so.
+ * - \c 128-254: persistent key with a vendor-specified lifetime.
+ *   No PSA specification will define the meaning of these values, so
+ *   implementations may choose the meaning freely.
+ *   As a guideline, higher persistence levels should cause a key to survive
+ *   more management events than lower levels.
+ * - \c 255 = #PSA_KEY_PERSISTENCE_READ_ONLY:
+ *   read-only or write-once key.
+ *   A key with this persistence level cannot be destroyed.
+ *   Implementations that support such keys may either allow their creation
+ *   through the PSA Cryptography API, preferably only to applications with
+ *   the appropriate privilege, or only expose keys created through
+ *   implementation-specific means such as a factory ROM engraving process.
+ *   Note that keys that are read-only due to policy restrictions
+ *   rather than due to physical limitations should not have this
+ *   persistence levels.
+ *
+ * \note Key persistence levels are 8-bit values. Key management
+ *       interfaces operate on lifetimes (type ::psa_key_lifetime_t) which
+ *       encode the persistence as the lower 8 bits of a 32-bit value.
+ */
+typedef uint8_t psa_key_persistence_t;
+
+/** Encoding of key location indicators.
+ *
+ * If an implementation of this API can make calls to external
+ * cryptoprocessors such as secure elements, the location of a key
+ * indicates which secure element performs the operations on the key.
+ * If an implementation offers multiple physical locations for persistent
+ * storage, the location indicator reflects at which physical location
+ * the key is stored.
+ *
+ * This specification defines the following values of location indicators:
+ * - \c 0: primary local storage.
+ *   All implementations should support this value.
+ *   The primary local storage is typically the same storage area that
+ *   contains the key metadata.
+ * - \c 1: primary secure element.
+ *   Implementations should support this value if there is a secure element
+ *   attached to the operating environment.
+ *   As a guideline, secure elements may provide higher resistance against
+ *   side channel and physical attacks than the primary local storage, but may
+ *   have restrictions on supported key types, sizes, policies and operations
+ *   and may have different performance characteristics.
+ * - \c 2-0x7fffff: other locations defined by a PSA specification.
+ *   The PSA Cryptography API does not currently assign any meaning to these
+ *   locations, but future versions of this specification or other PSA
+ *   specifications may do so.
+ * - \c 0x800000-0xffffff: vendor-defined locations.
+ *   No PSA specification will assign a meaning to locations in this range.
+ *
+ * \note Key location indicators are 24-bit values. Key management
+ *       interfaces operate on lifetimes (type ::psa_key_lifetime_t) which
+ *       encode the location as the upper 24 bits of a 32-bit value.
+ */
+typedef uint32_t psa_key_location_t;
 
 /** Encoding of identifiers of persistent keys.
  *

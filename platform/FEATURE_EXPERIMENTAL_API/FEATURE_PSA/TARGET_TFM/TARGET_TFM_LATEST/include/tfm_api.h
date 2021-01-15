@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2020, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -112,7 +112,7 @@ psa_handle_t tfm_psa_connect_veneer(uint32_t sid, uint32_t version);
  * \brief Call a secure function referenced by a connection handle.
  *
  * \param[in] handle            Handle to connection.
- * \param[in] ctrl_param        Parameter structure, includes reuqest type,
+ * \param[in] ctrl_param        Parameter structure, includes request type,
  *                              in_num and out_num.
  * \param[in] in_vec            Array of input \ref psa_invec structures.
  * \param[in/out] out_vec       Array of output \ref psa_outvec structures.
