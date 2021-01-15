@@ -19,6 +19,9 @@
 #if BLE_SECURITY_DATABASE_KVSTORE
 
 #include "KVStoreSecurityDb.h"
+#include "common/ble_trace_helpers.h"
+
+#define TRACE_GROUP "BLDB"
 
 namespace ble {
 
@@ -51,6 +54,7 @@ typedef SecurityDb::entry_handle_t entry_handle_t;
 
 KVStoreSecurityDb::KVStoreSecurityDb()
     : SecurityDb() {
+    tr_info("KFStore Security DB initialised to store " STR(BLE_SECURITY_DATABASE_MAX_ENTRIES) " entries");
     memset(_entries, 0, sizeof(_entries));
 }
 
@@ -68,11 +72,13 @@ bool KVStoreSecurityDb::open_db()
 
     /* kvstore problem (check if it's been successfully initialised before this call) */
     if (ret != MBED_ERROR_ITEM_NOT_FOUND && (ret != MBED_SUCCESS || size != sizeof(uint8_t))) {
+        tr_error("Failed to read KV store, check if it's initialised");
         return false;
     }
 
     /* wipe the db if it's the wrong version or it doesn't exist */
     if (version != KVSTORESECURITYDB_VERSION) {
+        tr_warning("Security missing or invalid, reinit");
         return erase_db();
     }
 
@@ -81,6 +87,7 @@ bool KVStoreSecurityDb::open_db()
 
 bool KVStoreSecurityDb::erase_db()
 {
+    tr_info("Erasing security DB in KV store");
     union zero_t {
         int dummy; /* we need a dummy for initialisation */
         uint8_t buffer[sizeof(SecurityEntryKeys_t)];
@@ -111,7 +118,11 @@ bool KVStoreSecurityDb::erase_db()
     version = 0;
     db_read(&version, DB_VERSION);
 
-    return (version == KVSTORESECURITYDB_VERSION);
+    bool success = (version == KVSTORESECURITYDB_VERSION);
+    if (!success) {
+        tr_error("failed to write security DB in KV store");
+    }
+    return success;
 }
 
 SecurityDistributionFlags_t* KVStoreSecurityDb::get_distribution_flags(
@@ -139,6 +150,7 @@ void KVStoreSecurityDb::set_entry_local_ltk(
     SecurityEntryKeys_t* current_entry = read_in_entry_local_keys(db_handle);
     current_entry->ltk = ltk;
 
+    tr_info("Write DB entry %d: local ltk %s", get_index(db_handle), tr_as_array(ltk));
     db_write_entry(current_entry, DB_ENTRY_LOCAL_KEYS, get_index(entry));
 }
 
@@ -157,6 +169,7 @@ void KVStoreSecurityDb::set_entry_local_ediv_rand(
     current_entry->ediv = ediv;
     current_entry->rand = rand;
 
+    tr_info("Write DB entry %d: local ediv %s rand %s", get_index(db_handle), tr_as_array(ediv), tr_as_array(rand));
     db_write_entry(current_entry, DB_ENTRY_LOCAL_KEYS, get_index(entry));
 }
 
@@ -179,6 +192,7 @@ void KVStoreSecurityDb::set_entry_peer_ltk(
     SecurityEntryKeys_t* current_entry = read_in_entry_peer_keys(db_handle);
     current_entry->ltk = ltk;
 
+    tr_info("Write DB entry %d: peer ltk %s", get_index(db_handle), tr_as_array(ltk));
     db_write_entry(current_entry, DB_ENTRY_PEER_KEYS, get_index(entry));
 }
 
@@ -197,6 +211,7 @@ void KVStoreSecurityDb::set_entry_peer_ediv_rand(
     current_entry->ediv = ediv;
     current_entry->rand = rand;
 
+    tr_info("Write DB entry %d: peer ediv %s rand %s", get_index(db_handle), tr_as_array(ediv), tr_as_array(rand));
     db_write_entry(current_entry, DB_ENTRY_PEER_KEYS, get_index(entry));
 }
 
@@ -215,6 +230,7 @@ void KVStoreSecurityDb::set_entry_peer_irk(
     SecurityEntryIdentity_t* current_entry = read_in_entry_peer_identity(db_handle);
     current_entry->irk = irk;
 
+    tr_info("Write DB entry %d: peer irk %s", get_index(db_handle), tr_as_array(irk));
     db_write_entry(current_entry, DB_ENTRY_PEER_IDENTITY, get_index(entry));
 }
 
@@ -233,6 +249,7 @@ void KVStoreSecurityDb::set_entry_peer_bdaddr(
     current_entry->identity_address = peer_address;
     current_entry->identity_address_is_public = address_is_public;
 
+    tr_info("Write DB entry %d: %s peer address %s", get_index(db_handle), address_is_public? "public" : "private", tr_as_array(peer_address));
     db_write_entry(current_entry, DB_ENTRY_PEER_IDENTITY, get_index(entry));
 }
 
@@ -251,6 +268,7 @@ void KVStoreSecurityDb::set_entry_peer_csrk(
     SecurityEntrySigning_t* current_entry = read_in_entry_peer_signing(db_handle);
     current_entry->csrk = csrk;
 
+    tr_info("Write DB entry %d: peer csrk %s", get_index(db_handle), tr_as_array(csrk));
     db_write_entry(current_entry, DB_ENTRY_PEER_SIGNING, get_index(entry));
 }
 
@@ -270,6 +288,7 @@ void KVStoreSecurityDb::set_local_csrk(
 )
 {
     this->SecurityDb::set_local_csrk(csrk);
+    tr_info("Write DB: local csrk %s", tr_as_array(csrk));
     db_write(&_local_csrk, DB_LOCAL_CSRK);
 }
 
@@ -280,6 +299,7 @@ void KVStoreSecurityDb::set_local_identity(
 )
 {
     this->SecurityDb::set_local_identity(irk, identity_address, public_address);
+    tr_info("Write DB: %s peer address %s", public_address? "public" : "private", tr_as_array(identity_address));
     db_write(&_local_identity, DB_LOCAL_IDENTITY);
 }
 
@@ -296,6 +316,7 @@ void KVStoreSecurityDb::restore()
         return;
     }
 
+    tr_info("Valid DB in KV store - restoring security DB");
     db_read(&_entries, DB_ENTRIES);
     db_read(&_local_identity, DB_LOCAL_IDENTITY);
     db_read(&_local_csrk, DB_LOCAL_CSRK);
@@ -309,6 +330,7 @@ void KVStoreSecurityDb::sync(entry_handle_t db_handle)
         return;
     }
 
+    tr_info("Synchronising security DB with KV store");
     /* all entries are stored in a single key so we store them all*/
     db_write(&_entries, DB_ENTRIES);
     db_write(&_local_identity, DB_LOCAL_IDENTITY);
@@ -318,6 +340,7 @@ void KVStoreSecurityDb::sync(entry_handle_t db_handle)
 
 void KVStoreSecurityDb::set_restore(bool reload)
 {
+    tr_info("Security DB set to restore on reset: %s", to_string(reload));
     db_write(&reload, DB_RESTORE);
 }
 
