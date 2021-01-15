@@ -579,13 +579,10 @@ ble_error_t PalGap::reject_connection_parameter_request(
     hci_error_code_t rejection_reason
 )
 {
-    /* Add string serialisation function for hci_error_code_t to ble_trace_helpers.h
-     * Then, uncomment code. Now, it errs.
     tr_info("[PAL] Connection %d: reject_connection_parameter_request - "
             "rejection_reason=%s",
             connection_handle,
             to_string(rejection_reason));
-    */
 
     DmRemoteConnParamReqNegReply(
         connection_handle,
@@ -600,6 +597,11 @@ ble_error_t PalGap::disconnect(
     local_disconnection_reason_t disconnection_reason
 )
 {
+    tr_info("[PAL] Connection %d: disconnect - "
+            "disconnection_reason=%s",
+            connection,
+            to_string(disconnection_reason));
+
     DmConnClose(
         DM_CLIENT_ID_APP,
         connection,
@@ -613,11 +615,13 @@ ble_error_t PalGap::disconnect(
 #if BLE_FEATURE_PHY_MANAGEMENT
 ble_error_t PalGap::read_phy(connection_handle_t connection)
 {
+    tr_info("[PAL] Connection %d: read phy", connection);
     if (is_feature_supported(controller_supported_features_t::LE_2M_PHY)
         || is_feature_supported(controller_supported_features_t::LE_CODED_PHY)) {
         DmReadPhy(connection);
         return BLE_ERROR_NONE;
     }
+    tr_error("[PAL] Failed: LE_2M_PHY feature not supported");
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -626,6 +630,12 @@ ble_error_t PalGap::set_preferred_phys(
     const phy_set_t &rx_phys
 )
 {
+    tr_info("[PAL] Set preferred phys -"
+            "tx_phys=%s, "
+            "rx_phys=%s",
+            to_string(tx_phys),
+            to_string(rx_phys));
+
     DmSetDefaultPhy(
         create_all_phys_value(tx_phys, rx_phys),
         tx_phys.value(),
@@ -643,6 +653,15 @@ ble_error_t PalGap::set_phy(
     coded_symbol_per_bit_t coded_symbol
 )
 {
+    tr_info("[PAL] Connection %d: set phy - "
+            "tx_phys=%s, "
+            "rx_phys=%s, "
+            "coded_symbol=%s",
+            connection,
+            to_string(tx_phys),
+            to_string(rx_phys),
+            to_string(coded_symbol));
+
     /* if phy set is empty set corresponding all_phys bit to 1 */
     uint8_t all_phys = 0;
     if (tx_phys.value() == 0) {
@@ -1006,6 +1025,11 @@ ble_error_t PalGap::set_advertising_set_random_address(
     const address_t &address
 )
 {
+    tr_info("[PAL] Advertising set %d: set random address - "
+            "address=%s",
+            advertising_handle,
+            to_string(address));
+
     DmAdvSetRandAddr(advertising_handle, address.data());
     return BLE_ERROR_NONE;
 }
@@ -1028,15 +1052,62 @@ ble_error_t PalGap::set_extended_advertising_parameters(
     bool scan_request_notification
 )
 {
+    tr_info("[PAL] Advertising set %d: set extended advertising parameters - "
+            "event_properties:["
+            "connectable=%s, "
+            "scannable=%s, "
+            "directed=%s, "
+            "high_duty_cycle=%s, "
+            "use_legacy_pdu=%s, "
+            "omit_advertiser_address=%s, "
+            "include_tx_power=%s], "
+            "primary_advertising_interval_min=%" PRIu32 ", "
+            "primary_advertising_interval_max=%" PRIu32 ", "
+            "primary_advertising_channel_map=%s, "
+            "own_address_type=%s, "
+            "peer_address_type=%s, "
+            "peer_address=%s, "
+            "advertising_filter_policy=%s, "
+            "advertising_power=%d, "
+            "primary_advertising_phy=%s, "
+            "secondary_advertising_max_skip=%d, "
+            "secondary_phy=%s, "
+            "advertising_sid=%d, "
+            "scan_request_notification=%s",
+            advertising_handle,
+            to_string(event_properties.connectable),
+            to_string(event_properties.scannable),
+            to_string(event_properties.directed),
+            to_string(event_properties.high_duty_cycle),
+            to_string(event_properties.use_legacy_pdu),
+            to_string(event_properties.omit_advertiser_address),
+            to_string(event_properties.include_tx_power),
+            primary_advertising_interval_min,
+            primary_advertising_interval_max,
+            to_string(primary_advertising_channel_map),
+            to_string(own_address_type),
+            to_string(peer_address_type),
+            to_string(peer_address),
+            to_string(advertising_filter_policy),
+            advertising_power,
+            to_string(primary_advertising_phy),
+            secondary_advertising_max_skip,
+            to_string(secondary_phy),
+            advertising_sid,
+            to_string(scan_request_notification));
+
     uint8_t adv_type;
 
     if (event_properties.use_legacy_pdu) {
         if (event_properties.directed == false) {
+            tr_info("[PAL] Legacy PDU w/undirected advertising event");
             if (event_properties.high_duty_cycle) {
+                tr_error("[PAL] Failed: cannot use high duty cycle");
                 return BLE_ERROR_INVALID_PARAM;
             }
 
             if (event_properties.connectable && event_properties.scannable == false) {
+                tr_error("[PAL] Failed: must be scannable if connectable");
                 return BLE_ERROR_INVALID_PARAM;
             }
 
@@ -1048,11 +1119,14 @@ ble_error_t PalGap::set_extended_advertising_parameters(
                 adv_type = DM_ADV_NONCONN_UNDIRECT;
             }
         } else {
+            tr_info("[PAL] Legacy PDU w/directed advertising event");
             if (event_properties.scannable) {
+                tr_error("[PAL] Failed: cannot be scannable");
                 return BLE_ERROR_INVALID_PARAM;
             }
 
             if (event_properties.connectable == false) {
+                tr_error("[PAL] Failed: must be connectable");
                 return BLE_ERROR_INVALID_PARAM;
             }
 
@@ -1064,7 +1138,9 @@ ble_error_t PalGap::set_extended_advertising_parameters(
         }
     } else {
         if (event_properties.directed == false) {
+            tr_info("[PAL] Extended PDU w/undirected advertising event");
             if (event_properties.high_duty_cycle) {
+                tr_error("[PAL] Failed: cannot use high duty cycle");
                 return BLE_ERROR_INVALID_PARAM;
             }
 
@@ -1083,6 +1159,7 @@ ble_error_t PalGap::set_extended_advertising_parameters(
             // standpoint
 
             if (event_properties.connectable && event_properties.scannable) {
+                tr_error("[PAL] Failed: cannot be scannable if connectable");
                 return BLE_ERROR_INVALID_PARAM;
             } else if (event_properties.connectable) {
                 if (event_properties.high_duty_cycle) {
@@ -1159,6 +1236,15 @@ ble_error_t PalGap::set_periodic_advertising_parameters(
     bool advertise_power
 )
 {
+    tr_info("[PAL] Advertising set %d: set periodic advertising parameters - "
+            "periodic_advertising_min=%s, "
+            "periodic_advertising_max=%s, "
+            "advertise_power=%s",
+            advertising_handle,
+            to_string(periodic_advertising_min),
+            to_string(periodic_advertising_max),
+            to_string(advertise_power));
+
     DmPerAdvIncTxPwr(advertising_handle, advertise_power);
     DmPerAdvSetInterval(
         advertising_handle,
@@ -1180,6 +1266,17 @@ ble_error_t PalGap::set_extended_advertising_data(
     const uint8_t *advertising_data
 )
 {
+    tr_info("[PAL] Advertising set %d: set extended advertising data - "
+            "operation=%s, "
+            "minimize_fragmentation=%s, "
+            "advertising_data_size=%d, "
+            "advertising_data=%s",
+            advertising_handle,
+            to_string(operation),
+            to_string(minimize_fragmentation),
+            advertising_data_size,
+            mbed_trace_array(advertising_data, advertising_data_size));
+
     uint8_t frag_pref = minimize_fragmentation ?
         HCI_ADV_DATA_FRAG_PREF_NO_FRAG :
         HCI_ADV_DATA_FRAG_PREF_FRAG;
@@ -1205,6 +1302,15 @@ ble_error_t PalGap::set_periodic_advertising_data(
     const uint8_t *advertising_data
 )
 {
+    tr_info("[PAL] Advertising set %d: set periodic advertising data - "
+            "fragment_description=%s, "
+            "advertising_data_size=%d, "
+            "advertising_data=%s",
+            advertising_handle,
+            to_string(fragment_description),
+            advertising_data_size,
+            mbed_trace_array(advertising_data, advertising_data_size));
+
     DmPerAdvSetData(
         advertising_handle,
         fragment_description.value(),
@@ -1224,6 +1330,17 @@ ble_error_t PalGap::set_extended_scan_response_data(
     const uint8_t *scan_response_data
 )
 {
+    tr_info("[PAL] Advertising data %d: set extended scan response data - "
+            "operation=%s, "
+            "minimize_fragmentation=%s, "
+            "scan_response_data_size=%d, "
+            "scan_response_data",
+            advertising_handle,
+            to_string(operation),
+            to_string(minimize_fragmentation),
+            scan_response_data_size,
+            mbed_trace_array(scan_response_data, scan_response_data_size));
+
     uint8_t frag_pref = minimize_fragmentation ?
         HCI_ADV_DATA_FRAG_PREF_NO_FRAG :
         HCI_ADV_DATA_FRAG_PREF_FRAG;
@@ -1249,7 +1366,14 @@ ble_error_t PalGap::extended_advertising_enable(
     const uint8_t *in_max_extended_advertising_events
 )
 {
+    tr_info("[PAL] Extended advertising enable - "
+            "enable=%s, "
+            "number_of_sets=%d",
+            to_string(enable),
+            number_of_sets);
+
     if (number_of_sets > DM_NUM_ADV_SETS) {
+        tr_error("[PAL] Failed: number of sets cannot be greater than %d", DM_NUM_ADV_SETS);
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -1280,6 +1404,7 @@ ble_error_t PalGap::extended_advertising_enable(
                     direct_adv_cb->peer_address.data()
                 );
                 if (direct_adv_cb->connection_handle == DM_CONN_ID_NONE) {
+                    tr_error("[PAL] Failed: unknown connection ID %d", direct_adv_cb->connection_handle);
                     return BLE_ERROR_INTERNAL_STACK_FAILURE;
                 } else {
                     direct_adv_cb->state = direct_adv_cb_t::running;
@@ -1338,6 +1463,11 @@ ble_error_t PalGap::periodic_advertising_enable(
     advertising_handle_t advertising_handle
 )
 {
+    tr_info("[PAL] Advertising set %d: periodic advertsing enable - "
+            "enable=%s",
+            advertising_handle,
+            to_string(enable));
+
     if (enable) {
         DmPerAdvStart(advertising_handle);
     } else {
@@ -1402,6 +1532,14 @@ ble_error_t PalGap::set_extended_scan_parameters(
     const uint16_t *scan_window
 )
 {
+    tr_info("[PAL] Set extended scan parameters - "
+            "own_address_type=%s, "
+            "filter_policy=%s, "
+            "scanning_phys=%s",
+            to_string(own_address_type),
+            to_string(filter_policy),
+            to_string(scanning_phys));
+
     DmScanSetAddrType(own_address_type.value());
 
     for (size_t i = 0, count = scanning_phys.count(); i < count; ++i) {
@@ -1436,6 +1574,16 @@ ble_error_t PalGap::extended_scan_enable(
     uint16_t period
 )
 {
+    tr_info("[PAL] Extended scan enable - "
+            "enable=%s, "
+            "filter_duplicates=%s, "
+            "duration=%d, "
+            "period=%d",
+            to_string(enable),
+            to_string(filter_duplicates),
+            duration,
+            period);
+
     if (enable) {
         uint32_t duration_ms = duration * 10;
 
@@ -1467,6 +1615,20 @@ ble_error_t PalGap::periodic_advertising_create_sync(
     uint16_t sync_timeout
 )
 {
+    tr_info("[PAL] Periodic advertising create sync - "
+            "use_periodic_advertiser_list=%s, "
+            "advertising_sid=%d, "
+            "peer_address_type=%s, "
+            "peer_address=%s, "
+            "allowed_skip=%d, "
+            "sync_timeout=%d",
+            to_string(use_periodic_advertiser_list),
+            advertising_sid,
+            to_string(peer_address_type),
+            to_string(peer_address),
+            allowed_skip,
+            sync_timeout);
+
     DmDevSetExtFilterPolicy(
         DM_ADV_HANDLE_DEFAULT,
         DM_FILT_POLICY_MODE_SYNC,
@@ -1482,6 +1644,7 @@ ble_error_t PalGap::periodic_advertising_create_sync(
     );
 
     if (sync_id == DM_SYNC_ID_NONE) {
+        tr_error("[PAL] Failed: unknown sync ID %d", sync_id);
         return BLE_ERROR_INTERNAL_STACK_FAILURE;
     } else {
         return BLE_ERROR_NONE;
@@ -1510,6 +1673,14 @@ ble_error_t PalGap::add_device_to_periodic_advertiser_list(
     uint8_t advertising_sid
 )
 {
+    tr_info("[PAL] Add device to periodic advertiser list - "
+            "advertiser_address_type=%s, "
+            "advertiser_address=%s, "
+            "advertiser_sid=%d",
+            to_string(advertiser_address_type),
+            to_string(advertiser_address),
+            advertising_sid);
+
     DmAddDeviceToPerAdvList(
         advertiser_address_type.value(),
         const_cast<uint8_t *>(advertiser_address.data()),
@@ -1525,6 +1696,14 @@ ble_error_t PalGap::remove_device_from_periodic_advertiser_list(
     uint8_t advertising_sid
 )
 {
+    tr_info("[PAL] Remove device from periodic advertiser list - "
+            "advertiser_address_type=%s, "
+            "advertiser_address=%s, "
+            "advertiser_sid=%d",
+            to_string(advertiser_address_type),
+            to_string(advertiser_address),
+            advertising_sid);
+
     DmRemoveDeviceFromPerAdvList(
         advertiser_address_type.value(),
         const_cast<uint8_t *>(advertiser_address.data()),
@@ -1565,6 +1744,18 @@ ble_error_t PalGap::extended_create_connection(
     const uint16_t *maximum_connection_event_lengths
 )
 {
+    tr_info("[PAL] Extended create connection - "
+            "initiator_policy=%s, "
+            "own_address_type=%s, "
+            "peer_address_type=%s,"
+            "peer_address=%s, "
+            "initiating_phys=%s",
+            to_string(initiator_policy),
+            to_string(own_address_type),
+            to_string(peer_address_type),
+            to_string(peer_address),
+            to_string(initiating_phys));
+
     DmExtConnSetScanInterval(
         initiating_phys.value(),
         const_cast<uint16_t *>(scan_intervals),
