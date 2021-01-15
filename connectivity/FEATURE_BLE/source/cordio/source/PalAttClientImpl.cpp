@@ -27,6 +27,8 @@
 #include "att_api.h"
 #include "att_defs.h"
 
+#define TRACE_GROUP "BLGC"
+
 namespace ble {
 namespace impl {
 
@@ -396,6 +398,7 @@ void PalAttClient::on_transaction_timeout(
     connection_handle_t connection_handle
 )
 {
+    tr_info("Connection %d - transaction timed out", connection_handle);
     if (_transaction_timeout_cb) {
         _transaction_timeout_cb(connection_handle);
     }
@@ -404,6 +407,7 @@ void PalAttClient::on_transaction_timeout(
 #if BLE_FEATURE_GATT_CLIENT
 void PalAttClient::att_client_handler(const attEvt_t *event)
 {
+    tr_debug("ATT event: %s status: %s", att_client_callback_event_to_string(event->hdr.event), att_error_code_to_string(event->hdr.status));
     if (event->hdr.status == ATT_SUCCESS && event->hdr.event == ATT_MTU_UPDATE_IND) {
         ble::impl::BLEInstanceBase &ble = BLEInstanceBase::deviceInstance();
         PalGattClientEventHandler *handler = ble.getPalGattClient().get_event_handler();

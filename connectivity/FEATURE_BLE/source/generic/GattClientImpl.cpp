@@ -33,6 +33,10 @@
 #include "source/pal/AttServerMessage.h"
 #include "source/BLEInstanceBase.h"
 
+#include "common/ble_trace_helpers.h"
+
+#define TRACE_GROUP "BLGC"
+
 using ble::AttServerMessage;
 using ble::AttReadResponse;
 using ble::AttReadBlobResponse;
@@ -113,7 +117,7 @@ struct GattClient::ProcedureControlBlock {
 /*
  * Procedure control block for the discovery process.
  */
-
+#define TRACE_CLASS "DiscoveryControlBlock"
 struct GattClient::DiscoveryControlBlock final : public ProcedureControlBlock {
     using ProcedureControlBlock::connection_handle;
 
@@ -144,11 +148,13 @@ struct GattClient::DiscoveryControlBlock final : public ProcedureControlBlock {
 
     void handle_timeout_error(GattClient *client)  final
     {
+        tr_warning("%s timed out", TRACE_CLASS);
         terminate(client);
     }
 
     void abort(GattClient *client) final
     {
+        tr_warning("%s aborted", TRACE_CLASS);
         terminate(client);
     }
 
@@ -179,6 +185,7 @@ struct GattClient::DiscoveryControlBlock final : public ProcedureControlBlock {
             case AttributeOpcode::ERROR_RESPONSE: {
                 const auto &error = static_cast<const AttErrorResponse &>(message);
                 if (error.error_code != AttErrorResponse::ATTRIBUTE_NOT_FOUND) {
+                    tr_warning("%s terminating early due to %s", TRACE_CLASS, attribute_error_code_to_string(error.error_code));
                     terminate(client);
                     return;
                 }
@@ -206,6 +213,7 @@ struct GattClient::DiscoveryControlBlock final : public ProcedureControlBlock {
     void handle_service_discovered(GattClient *client, const Response &response)
     {
         if (!response.size()) {
+            tr_error("%s terminating due to malformed message", TRACE_CLASS);
             terminate(client);
             return;
         }
@@ -215,6 +223,8 @@ struct GattClient::DiscoveryControlBlock final : public ProcedureControlBlock {
             uint16_t start_handle = get_start_handle(response[i]);
             end_handle = get_end_handle(response[i]);
             UUID uuid = get_uuid(response[i]);
+
+            tr_debug("Discovered service UUID: %s [0x%x:0x%x])", to_string(uuid), start_handle, end_handle);
 
             if (!characteristic_callback) {
                 DiscoveredService discovered_service;
@@ -250,11 +260,13 @@ struct GattClient::DiscoveryControlBlock final : public ProcedureControlBlock {
     void start_characteristic_discovery(GattClient *client)
     {
         if (!services_discovered) {
+            tr_error("%s terminating due to services list structure null", TRACE_CLASS);
             terminate(client);
             return;
         }
 
         if (!characteristic_callback) {
+            tr_error("%s terminating due missing characteristic callback", TRACE_CLASS);
             terminate(client);
             return;
         }
@@ -293,6 +305,7 @@ struct GattClient::DiscoveryControlBlock final : public ProcedureControlBlock {
             last_characteristic = characteristic_t(
                 client, connection_handle, response[i].handle, response[i].value
             );
+            tr_debug("Discovered char handle: 0x%x value: %s", response[i].handle, tr_array(response[i].value.data(), response[i].value.size()));
         }
 
         // check if all the characteristics of the service has been discovered
@@ -308,6 +321,7 @@ struct GattClient::DiscoveryControlBlock final : public ProcedureControlBlock {
             );
 
             if (err) {
+                tr_error("%s terminating early due to %s", TRACE_CLASS, ble_error_to_string(err));
                 terminate(client);
             }
         }
@@ -328,6 +342,7 @@ struct GattClient::DiscoveryControlBlock final : public ProcedureControlBlock {
         delete old;
 
         if (!services_discovered) {
+            tr_debug("Service discovery complete");
             terminate(client);
         } else {
             start_characteristic_discovery(client);
@@ -473,7 +488,7 @@ struct GattClient::DiscoveryControlBlock final : public ProcedureControlBlock {
     bool done;
 };
 
-
+#define TRACE_CLASS "ReadControlBlock"
 struct GattClient::ReadControlBlock final : public ProcedureControlBlock {
     using ProcedureControlBlock::connection_handle;
 
@@ -494,6 +509,7 @@ struct GattClient::ReadControlBlock final : public ProcedureControlBlock {
 
     void handle_timeout_error(GattClient *client) final
     {
+        tr_warning("%s timed out", TRACE_CLASS);
         GattReadCallbackParams response = {
             connection_handle,
             attribute_handle,
@@ -507,6 +523,7 @@ struct GattClient::ReadControlBlock final : public ProcedureControlBlock {
 
     void abort(GattClient *client) final
     {
+        tr_warning("%s aborted", TRACE_CLASS);
         GattReadCallbackParams response = {
             connection_handle,
             attribute_handle,
@@ -543,6 +560,7 @@ struct GattClient::ReadControlBlock final : public ProcedureControlBlock {
             default: {
                 // should not happen, terminate the procedure and notify client with an error
                 // in such case
+                tr_error("%s terminated unexpectedly due to unhandled opcode 0x%x", TRACE_CLASS, (int)message.opcode);
                 GattReadCallbackParams response = {
                     connection_handle,
                     attribute_handle,
@@ -588,6 +606,7 @@ struct GattClient::ReadControlBlock final : public ProcedureControlBlock {
             // allocation which will contain the response data plus the next one.
             data = (uint8_t *) realloc(data, (current_offset - offset) + ((mtu_size - 1) * 2));
             if (data == nullptr) {
+                tr_error("%s terminated due to OoM error", TRACE_CLASS);
                 GattReadCallbackParams response = {
                     connection_handle,
                     attribute_handle,
@@ -609,6 +628,7 @@ struct GattClient::ReadControlBlock final : public ProcedureControlBlock {
             );
 
             if (err) {
+                tr_error("%s terminated because reading attribute failed", TRACE_CLASS);
                 GattReadCallbackParams response = {
                     connection_handle,
                     attribute_handle,
@@ -656,6 +676,8 @@ struct GattClient::ReadControlBlock final : public ProcedureControlBlock {
                 break;
         }
 
+        tr_error("%s error: %s", TRACE_CLASS, attribute_error_code_to_string(error.error_code));
+
         GattReadCallbackParams response = {
             connection_handle,
             attribute_handle,
@@ -677,7 +699,7 @@ struct GattClient::ReadControlBlock final : public ProcedureControlBlock {
 /*
  * Control block for the write process
  */
-
+#define TRACE_CLASS "WriteControlBlock"
 struct GattClient::WriteControlBlock final : public ProcedureControlBlock {
     using ProcedureControlBlock::connection_handle;
 
@@ -699,6 +721,7 @@ struct GattClient::WriteControlBlock final : public ProcedureControlBlock {
 
     void handle_timeout_error(GattClient *client) final
     {
+        tr_warning("%s timed out", TRACE_CLASS);
         GattWriteCallbackParams response = {
             connection_handle,
             attribute_handle,
@@ -711,6 +734,7 @@ struct GattClient::WriteControlBlock final : public ProcedureControlBlock {
 
     void abort(GattClient *client) final
     {
+        tr_warning("%s aborted", TRACE_CLASS);
         GattWriteCallbackParams response = {
             connection_handle,
             attribute_handle,
@@ -748,6 +772,8 @@ struct GattClient::WriteControlBlock final : public ProcedureControlBlock {
                 break;
 
             default: {
+                tr_error("%s terminated due unhandled opcode 0x%x", TRACE_CLASS, (int)message.opcode);
+                
                 GattWriteCallbackParams response = {
                     connection_handle,
                     attribute_handle,
@@ -763,6 +789,7 @@ struct GattClient::WriteControlBlock final : public ProcedureControlBlock {
 
     void handle_write_response(GattClient* client, const AttWriteResponse& write_response) 
     {
+        tr_debug("write executed successfully");
         GattWriteCallbackParams response = {
             connection_handle,
             attribute_handle,
@@ -798,6 +825,7 @@ struct GattClient::WriteControlBlock final : public ProcedureControlBlock {
         }
 
         if (err) {
+            tr_error("%s failed due to %s - clearing the queue", TRACE_CLASS, ble_error_to_string(err));
             clear_prepare_queue(client, err, AttErrorResponse::UNLIKELY_ERROR);
         }
     }
@@ -805,6 +833,7 @@ struct GattClient::WriteControlBlock final : public ProcedureControlBlock {
     void handle_execute_write_response(GattClient* client, const AttExecuteWriteResponse& execute_response) 
     {
         if (prepare_success) {
+            tr_debug("Prepared write executed successfully");
             status = BLE_ERROR_NONE;
             error_code = 0x00;
         }
@@ -865,6 +894,8 @@ struct GattClient::WriteControlBlock final : public ProcedureControlBlock {
                 break;
         }
 
+        tr_error("%s error: %s", TRACE_CLASS, attribute_error_code_to_string(error.error_code));
+
         if (error.request_opcode == AttributeOpcode(AttributeOpcode::PREPARE_WRITE_REQUEST)) {
             clear_prepare_queue(client, status, error.error_code);
         } else {
@@ -892,7 +923,7 @@ struct GattClient::WriteControlBlock final : public ProcedureControlBlock {
 /*
  * Control block for the descriptor discovery process
  */
-
+#define TRACE_CLASS "DescriptorDiscoveryControlBlock"
 struct GattClient::DescriptorDiscoveryControlBlock final : public ProcedureControlBlock {
     using ProcedureControlBlock::connection_handle;
 
@@ -924,11 +955,13 @@ struct GattClient::DescriptorDiscoveryControlBlock final : public ProcedureContr
 
     void handle_timeout_error(GattClient *client) final
     {
+        tr_warning("%s timed out", TRACE_CLASS);
         terminate(client, BLE_ERROR_UNSPECIFIED);
     }
 
     void abort(GattClient *client) final
     {
+        tr_warning("%s aborted", TRACE_CLASS);
         terminate(client, BLE_ERROR_INVALID_STATE);
     }
 
@@ -955,6 +988,7 @@ struct GattClient::DescriptorDiscoveryControlBlock final : public ProcedureContr
 
     void handle_error(GattClient *client, const AttErrorResponse &error)
     {
+        tr_error("%s error: %s", TRACE_CLASS, attribute_error_code_to_string(error.error_code));
         if (error.error_code == AttErrorResponse::ATTRIBUTE_NOT_FOUND) {
             terminate(client, BLE_ERROR_NONE);
         } else {
@@ -993,6 +1027,10 @@ struct GattClient::DescriptorDiscoveryControlBlock final : public ProcedureContr
 
     void terminate(GattClient *client, ble_error_t status, uint8_t error_code = 0x00)
     {
+        if (status != BLE_ERROR_NONE) {
+            tr_warning("%s terminated due to %s %s", TRACE_CLASS, ble_error_to_string(status), attribute_error_code_to_string(error_code));
+        }
+        
         client->remove_control_block(this);
         CharacteristicDescriptorDiscovery::TerminationCallbackParams_t params = {
             characteristic,
@@ -1039,8 +1077,10 @@ ble_error_t GattClient::launchServiceDiscovery(
     const UUID &matching_characteristic_uuid
 )
 {
+    tr_info("Launching service discovery (service: %s char: %s)", to_string(matching_service_uuid), to_string(matching_characteristic_uuid));
     // verify that there is no other procedures going on this connection
     if (_is_reseting || get_control_block(connection_handle)) {
+        tr_error("cannot launch service discovery");
         return BLE_ERROR_INVALID_STATE;
     }
 
@@ -1059,6 +1099,7 @@ ble_error_t GattClient::launchServiceDiscovery(
     );
 
     if (discovery_pcb == nullptr) {
+        tr_error("Failed to allocate DiscoveryControlBlock");
         return BLE_ERROR_NO_MEM;
     }
 
@@ -1082,6 +1123,7 @@ ble_error_t GattClient::launchServiceDiscovery(
     }
 
     if (err) {
+        tr_error("Discovery failed due to %s", ble_error_to_string(err));
         remove_control_block(discovery_pcb);
         delete discovery_pcb;
     }
@@ -1150,6 +1192,7 @@ ble_error_t GattClient::read(
 {
     // verify that there is no other procedures going on this connection
     if (_is_reseting || get_control_block(connection_handle)) {
+        tr_error("cannot launch attibute read");
         return BLE_ERROR_INVALID_STATE;
     }
 
@@ -1160,12 +1203,15 @@ ble_error_t GattClient::read(
     );
 
     if (read_pcb == nullptr) {
+        tr_error("Attribute read failed due to allocation error");
         return BLE_ERROR_NO_MEM;
     }
 
     insert_control_block(read_pcb);
 
     ble_error_t err = BLE_ERROR_NONE;
+
+    tr_debug("Connection %d read attribute %d offset %d", connection_handle, attribute_handle, offset);
 
     if (offset == 0) {
         err = _pal_client.read_attribute_value(
@@ -1178,6 +1224,7 @@ ble_error_t GattClient::read(
     }
 
     if (err) {
+        tr_error("Attribute read failed due %s", ble_error_to_string(err));
         remove_control_block(read_pcb);
         delete read_pcb;
     }
@@ -1195,8 +1242,11 @@ ble_error_t GattClient::write(
 ) const
 {
     if (_is_reseting || get_control_block(connection_handle)) {
+        tr_error("cannot launch attibute write");
         return BLE_ERROR_INVALID_STATE;
     }
+
+    tr_debug("Connection %d write attribute %d value %s", connection_handle, attribute_handle, tr_array(value, length));
 
     uint16_t mtu = get_mtu(connection_handle);
 
@@ -1218,6 +1268,7 @@ ble_error_t GattClient::write(
 #endif // BLE_FEATURE_SIGNING
     if (cmd == GATT_OP_WRITE_CMD) {
         if (length > (uint16_t) (mtu - WRITE_HEADER_LENGTH)) {
+            tr_error("Writes need to fit in a single message");
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
         return _pal_client.write_without_response(
@@ -1228,6 +1279,7 @@ ble_error_t GattClient::write(
 #if BLE_FEATURE_SIGNING
     } else if (cmd == GATT_OP_SIGNED_WRITE_CMD) {
         if (length > (uint16_t) (mtu - WRITE_HEADER_LENGTH - CMAC_LENGTH - MAC_COUNTER_LENGTH)) {
+            tr_error("Signed writes need to fit in single message");
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
         ble_error_t status = _pal_client.signed_write_without_response(
@@ -1247,6 +1299,7 @@ ble_error_t GattClient::write(
         if (length > (uint16_t) (mtu - WRITE_HEADER_LENGTH)) {
             data = (uint8_t *) malloc(length);
             if (data == nullptr) {
+                tr_err("Write failed due to allocation error");
                 return BLE_ERROR_NO_MEM;
             }
             memcpy(data, value, length);
@@ -1261,6 +1314,7 @@ ble_error_t GattClient::write(
 
         if (write_pcb == nullptr) {
             free(data);
+            tr_err("Write failed due to allocation error");
             return BLE_ERROR_NO_MEM;
         }
 
@@ -1283,6 +1337,7 @@ ble_error_t GattClient::write(
         }
 
         if (err) {
+            tr_error("Write request failed due to %s", ble_error_to_string(err));
             remove_control_block(write_pcb);
             delete write_pcb;
         }
@@ -1397,6 +1452,7 @@ ble_error_t GattClient::negotiateAttMtu(
 
 ble_error_t GattClient::reset()
 {
+    tr_info("GattClient reset");
     /* Notify that the instance is about to shut down. */
     shutdownCallChain.call(&ble::BLE::Instance().gattClient());
     shutdownCallChain.clear();
@@ -1434,6 +1490,7 @@ void GattClient::on_att_mtu_change(
     uint16_t att_mtu_size
 )
 {
+    tr_info("MTU changed to %d", att_mtu_size);
     if (eventHandler) {
         eventHandler->onAttMtuChange(connection_handle, att_mtu_size);
     }
@@ -1471,6 +1528,7 @@ void GattClient::on_server_message_received(
     const AttServerMessage &message
 )
 {
+    tr_debug("Received server message %s", attribute_opcode_to_string(message.opcode));
     switch (message.opcode) {
         case AttributeOpcode::ERROR_RESPONSE:
         case AttributeOpcode::EXCHANGE_MTU_RESPONSE:
@@ -1493,6 +1551,7 @@ void GattClient::on_server_message_received(
         } break;
 
         default:
+            tr_warning("Unhandled message in gatt client received from server");
             // invalid message receive
             return;
     }
@@ -1527,6 +1586,7 @@ void GattClient::on_server_event(connection_handle_t connection, const AttServer
             callbacks_params.type = BLE_HVX_NOTIFICATION;
             callbacks_params.len = notification.attribute_value.size();
             callbacks_params.data = notification.attribute_value.data();
+            tr_debug("Notification for char: %d value: %s", notification.attribute_handle, tr_array(notification.attribute_value.data(), notification.attribute_value.size()));
         } break;
 
         case AttributeOpcode::HANDLE_VALUE_INDICATION: {
@@ -1536,9 +1596,11 @@ void GattClient::on_server_event(connection_handle_t connection, const AttServer
             callbacks_params.type = BLE_HVX_INDICATION;
             callbacks_params.len = indication.attribute_value.size();
             callbacks_params.data = indication.attribute_value.data();
+            tr_debug("Indication for char: %d value: %s", indication.attribute_handle, tr_array(indication.attribute_value.data(), indication.attribute_value.size()));
         } break;
 
         default:
+            tr_warning("Unhandled event in gatt client received from server");
             return;
     }
 
@@ -1633,6 +1695,9 @@ uint16_t GattClient::get_mtu(connection_handle_t connection) const
  */
 void GattClient::setEventHandler(EventHandler *handler)
 {
+    if (!handler) {
+        tr_warning("Setting a null gatt event handler");
+    }
     eventHandler = handler;
 }
 
@@ -1705,6 +1770,11 @@ GattClient::HVXCallbackChain_t &GattClient::onHVX()
  */
 void GattClient::processReadResponse(const GattReadCallbackParams *params)
 {
+    if (params->status == BLE_ERROR_NONE) {
+        tr_debug("Att read complete handle 0x%x (offset %d), value %s", params->handle, params->offset, tr_array(params->data, params->len));
+    } else {
+        tr_info("Connection %d - Att read failed with error %s", params->connHandle, ble_error_to_string(params->status));
+    }
     onDataReadCallbackChain(params);
 }
 
@@ -1713,6 +1783,11 @@ void GattClient::processReadResponse(const GattReadCallbackParams *params)
  */
 void GattClient::processWriteResponse(const GattWriteCallbackParams *params)
 {
+    if (params->status == BLE_ERROR_NONE) {
+        tr_debug("Att write complete handle 0x%x", params->handle);
+    } else {
+        tr_info("Connection %d - Att write failed with error %s", params->connHandle, ble_error_to_string(params->status));
+    }
     onDataWriteCallbackChain(params);
 }
 
