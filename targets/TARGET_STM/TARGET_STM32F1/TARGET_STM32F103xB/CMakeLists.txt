@@ -1,6 +1,11 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+if("NUCLEO_F103RB" IN_LIST MBED_TARGET_LABELS)
+    target_include_directories(mbed-core INTERFACE TARGET_NUCLEO_F103RB)
+    target_sources(mbed-core INTERFACE TARGET_NUCLEO_F103RB/PeripheralPins.c)
+endif()
+
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(STARTUP_FILE TOOLCHAIN_GCC_ARM/startup_stm32f103xb.S)
     set(LINKER_FILE TOOLCHAIN_GCC_ARM/stm32f103xb.ld)
