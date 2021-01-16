@@ -39,7 +39,8 @@ namespace mstd {
 
 constexpr size_t dynamic_extent = -1;
 
-template <typename, size_t = dynamic_extent> class span;
+template <typename, size_t = dynamic_extent>
+class span;
 
 namespace detail {
 
@@ -96,8 +97,8 @@ struct has_data<T, void_t<decltype(mstd::data(std::declval<T>()))>>:
 template<typename T, typename U = mstd::remove_cvref_t<T>>
 struct is_container{
     static constexpr bool value =
-        not is_span<U>::value && not is_std_array<U>::value &&
-            not std::is_array<U>::value && has_size<T>::value &&
+        !is_span<U>::value && !is_std_array<U>::value &&
+            !std::is_array<U>::value && has_size<T>::value &&
                 has_data<T>::value;
 };
 
@@ -112,7 +113,7 @@ struct is_compatible : std::false_type {};
 
 template <typename T, typename E>
 struct is_compatible<T, E,
-    typename mstd::enable_if_t<not mstd::is_same<
+    typename mstd::enable_if_t<!mstd::is_same<
             typename mstd::remove_cv_t<
                 decltype(mstd::data(std::declval<T>()))
             >, void>::value>>:
@@ -282,13 +283,13 @@ public:
 
     constexpr reference front() const
     {
-        MBED_ASSERT(not empty());
+        MBED_ASSERT(!empty());
         return *data();
     }
 
     constexpr reference back() const
     {
-        MBED_ASSERT(not empty());
+        MBED_ASSERT(!empty());
         return *(data() + (size() - 1));
     }
 
