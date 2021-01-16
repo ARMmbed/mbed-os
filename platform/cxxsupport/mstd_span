@@ -324,21 +324,6 @@ private:
 };
 
 template<class ElementType, size_t Extent>
-span<const unsigned char, Extent == dynamic_extent ? dynamic_extent : sizeof(ElementType) * Extent>
-as_bytes(span<ElementType, Extent> s) noexcept
-{
-    return {reinterpret_cast<const unsigned char *>(s.data()), s.size_bytes()};
-}
-
-template<class ElementType, size_t Extent>
-span<unsigned char, Extent == dynamic_extent ? dynamic_extent : sizeof(ElementType) * Extent>
-as_writable_bytes(span<ElementType, Extent> s) noexcept
-{
-    static_assert(not is_const<ElementType>::value);
-    return {reinterpret_cast<unsigned char *>(s.data()), s.size_bytes()};
-}
-
-template<class ElementType, size_t Extent>
 constexpr span<ElementType, Extent> make_span(ElementType (&arr)[Extent])
 {
     return arr;
