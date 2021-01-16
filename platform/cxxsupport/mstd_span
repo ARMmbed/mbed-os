@@ -17,6 +17,14 @@
 #ifndef MSTD_SPAN_
 #define MSTD_SPAN_
 
+/* <mstd_span>
+ *
+ * - Includes toolchain's <span> if available
+ * - Otherwise provides an implementation of a C++20 equivalent std::span
+ *   - deduction guides available from C++17 and on
+ *   - provides nonstandard mstd::make_span functions to allow deduction pre C++17
+ */
+
 #if __cplusplus >= 201703L && __has_include(<span>)
 #include <version>
 #endif
@@ -341,6 +349,11 @@ template<class R>
 span(R&&) -> span<remove_reference_t<detail::range_reference_t<R>>>;
 #endif
 
+/** Create a span class with type and size inferred from the argument
+ *
+ *  @param arr      Reference to a c-style array
+ *  @return         Span with inferred type and size Extent
+ */
 template<class ElementType, size_t Extent>
 constexpr span<ElementType, Extent> make_span(ElementType (&arr)[Extent])
 {
@@ -353,6 +366,11 @@ constexpr span<const ElementType, Extent> make_span(const ElementType (&arr)[Ext
     return arr;
 }
 
+/** Create a span class with type and size inferred from the argument
+ *
+ *  @param arr      Reference to an std::array
+ *  @return         Span with inferred type and size Extent
+ */
 template<class ElementType, size_t Extent>
 constexpr span<ElementType, Extent> make_span(std::array<ElementType, Extent> &arr)
 {
@@ -365,6 +383,11 @@ constexpr span<const ElementType, Extent> make_span(const std::array<ElementType
     return arr;
 }
 
+/** Create a span class with type inferred from the argument
+ *
+ *  @param cont     Reference to a container
+ *  @return         Span with inferred type and dynamic size
+ */
 template<class R>
 constexpr span<typename R::value_type> make_span(R &cont)
 {
