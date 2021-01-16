@@ -323,6 +323,24 @@ private:
     detail::storage<element_type, extent> _storage;
 };
 
+#if __cplusplus >= 201703L || __cpp_deduction_guides >= 201703L
+// Deduction guides
+template<class It, class EndOrSize>
+span(It, EndOrSize) -> span<remove_reference_t<iter_reference_t<It>>>;
+
+template<class T, size_t N>
+span(T (&)[N]) -> span<T, N>;
+
+template<class T, size_t N>
+span(std::array<T, N>&) -> span<T, N>;
+
+template<class T, size_t N>
+span(const std::array<T, N>&) -> span<const T, N>;
+
+template<class R>
+span(R&&) -> span<remove_reference_t<detail::range_reference_t<R>>>;
+#endif
+
 template<class ElementType, size_t Extent>
 constexpr span<ElementType, Extent> make_span(ElementType (&arr)[Extent])
 {
