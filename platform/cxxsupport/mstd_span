@@ -44,8 +44,7 @@ template <typename, size_t = dynamic_extent> class span;
 namespace detail {
 
 template<typename ElementType, size_t Extent>
-class storage {
-public:
+struct storage {
     constexpr storage() noexcept = default;
 
     constexpr storage(ElementType *ptr, size_t) noexcept :
@@ -57,8 +56,7 @@ public:
 };
 
 template<typename ElementType>
-class storage<ElementType, dynamic_extent> {
-public:
+struct storage<ElementType, dynamic_extent> {
     constexpr storage() noexcept = default;
 
     constexpr storage(ElementType *ptr, size_t size) noexcept :
