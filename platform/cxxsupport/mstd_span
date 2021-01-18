@@ -22,7 +22,8 @@
  * - Includes toolchain's <span> if available
  * - Otherwise provides an implementation of a C++20 equivalent std::span
  *   - deduction guides available from C++17 and on
- *   - provides nonstandard mstd::make_span functions to allow deduction pre C++17
+ * - Provides nonstandard mstd::make_span functions to allow deduction pre C++17
+ *   - mstd::make_span functions stay available after C++17 for backwards compatibility
  */
 
 #if __cplusplus >= 201703L && __has_include(<span>)
