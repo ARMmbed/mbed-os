@@ -681,21 +681,6 @@ class PSOC6Code(object):
             psoc6_sign_image(t_self, resources, elf, binf, m0hexf)
 
 
-class ArmMuscaA1Code(object):
-    """Musca-A1 Hooks"""
-    @staticmethod
-    def binary_hook(t_self, resources, elf, binf):
-        from tools.targets.ARM_MUSCA_A1 import musca_tfm_bin
-        configured_secure_image_filename = t_self.target.secure_image_filename
-        secure_bin = find_secure_image(
-            t_self.notify,
-            resources,
-            binf,
-            configured_secure_image_filename,
-            FileType.BIN
-        )
-        musca_tfm_bin(t_self, binf, secure_bin)
-
 class ArmMuscaB1Code(object):
     """Musca-B1 Hooks"""
     @staticmethod
