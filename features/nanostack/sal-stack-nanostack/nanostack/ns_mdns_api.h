@@ -36,7 +36,7 @@ typedef struct ns_mdns *ns_mdns_t;  /**< Instance */
 typedef struct ns_mdns_service *ns_mdns_service_t;  /**< Service instance */
 
 /*!
- * \struct ns_mdns_service_param_t
+ * \struct ns_mdns_service_param
  * \brief Structure for mDNS service parameters
  */
 typedef struct ns_mdns_service_param {

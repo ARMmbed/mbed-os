@@ -176,12 +176,12 @@ static void ws_bbr_rpl_version_timer_start(protocol_interface_info_entry_t *cur,
         //stable version for RPL so slow timer update is ok
         cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME;
     } else {
-        if (cur->ws_info->cfg->gen.network_size <= NETWORK_SIZE_SMALL) {
-            // handles also NETWORK_SIZE_CERTIFICATE
+        if (ws_cfg_network_config_get(cur) <= CONFIG_SMALL) {
+            // Also handles CONFIG_CERTIFICATE
             cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_SMALL;
-        } else if (cur->ws_info->cfg->gen.network_size <= NETWORK_SIZE_MEDIUM) {
+        } else if (ws_cfg_network_config_get(cur) <= CONFIG_MEDIUM) {
             cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_MEDIUM;
-        } else if (cur->ws_info->cfg->gen.network_size <= NETWORK_SIZE_LARGE) {
+        } else if (ws_cfg_network_config_get(cur) <= CONFIG_LARGE) {
             cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_LARGE;
         } else  {
             cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_EXTRA_LARGE;

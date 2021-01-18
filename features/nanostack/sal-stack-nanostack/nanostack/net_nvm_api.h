@@ -89,7 +89,7 @@ typedef enum pana_client_nvm_update_process_t {
 } pana_client_nvm_update_process_t;
 
 /*!
- * \struct wpan_nvm_params_t
+ * \struct wpan_nvm_params
  * \brief Network nvm parameters.
  */
 typedef struct wpan_nvm_params {
