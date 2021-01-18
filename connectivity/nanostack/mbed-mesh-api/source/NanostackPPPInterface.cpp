@@ -17,7 +17,7 @@
 
 #include "NanostackPPPInterface.h"
 #include "NanostackPPPPhy.h"
-#include "PPP.h"
+#include "ppp.h"
 #include "nsdynmemLIB.h"
 #include "arm_hal_phy.h"
 #include "mbed_interface.h"
