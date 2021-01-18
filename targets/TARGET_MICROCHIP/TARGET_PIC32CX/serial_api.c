@@ -172,7 +172,9 @@ static IRQn_Type _serial_get_irq_index(serial_t *obj)
 	case USART_7:
 		return FLEXCOM7_IRQn;
 		break;
-	}
+   }
+
+   return (IRQn_Type)0;
 }
 
 /** Initialize the serial peripheral. It sets the default parameters for serial
@@ -198,7 +200,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     ioport_set_pin_mode(rx, mode);
 
 	/* Set default values */
-    obj->p_usart = (Usart *) uart;
+	obj->p_usart = (Usart *) uart;
 	obj->serial_options.charlength = US_MR_CHRL_8_BIT;
 	obj->serial_options.paritytype = US_MR_PAR_NO;
 	obj->serial_options.stopbits = US_MR_NBSTOP_1_BIT;
@@ -227,27 +229,24 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 		}
 	}
 
-    /* If this is the UART to be used for stdio, copy it to the stdio_uart struct */
-    if (uart == STDIO_UART) {
-        stdio_uart_inited = 1;
-        memcpy(&stdio_uart, obj, sizeof(serial_t));
-		
-		// /* Configure for asynchronous operation */
-		// stdio_serial_init(obj->p_usart, &obj->serial_options);
-    } else {
-		/* Configure serial mode */
-		usart_serial_init((usart_if)obj->p_usart, &obj->serial_options);
-
-		/* Disable all the interrupts */
-		if (obj->is_usart) {
-			usart_disable_interrupt(obj->p_usart, 0xFFFFFFFF);
-		} else {
-			uart_disable_interrupt((Uart *)obj->p_usart, 0xFFFFFFFF);
-		}
-
-		/* Configure and enable interrupt of U(S)ART */
-		NVIC_EnableIRQ(_serial_get_irq_index(obj));
+	/* If this is the UART to be used for stdio, copy it to the stdio_uart struct */
+	if (uart == STDIO_UART) {
+	    stdio_uart_inited = 1;
+	    memcpy(&stdio_uart, obj, sizeof(serial_t));
 	}
+
+	/* Configure serial mode */
+	usart_serial_init((usart_if)obj->p_usart, &obj->serial_options);
+
+	/* Disable all the interrupts */
+	if (obj->is_usart) {
+		usart_disable_interrupt(obj->p_usart, 0xFFFFFFFF);
+	} else {
+		uart_disable_interrupt((Uart *)obj->p_usart, 0xFFFFFFFF);
+	}
+
+	/* Configure and enable interrupt of U(S)ART */
+	NVIC_EnableIRQ(_serial_get_irq_index(obj));
 }
 
 /** Release the serial peripheral, not currently invoked. It requires further
@@ -277,6 +276,7 @@ void serial_baud(serial_t *obj, int baudrate)
 	/* Only in Flexcomm USART */
 	if (obj->is_usart) {
 		usart_set_async_baudrate(obj->p_usart, (uint32_t)baudrate, sysclk_get_peripheral_bus_hz(obj->p_usart));
+		obj->serial_options.baudrate = baudrate;
 	}
 }
 
@@ -318,18 +318,14 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 	}
 
 	/* Configure USART in serial mode */
-    // if ((UARTName)obj->p_usart == STDIO_UART) {
-		// stdio_serial_init(obj->p_usart, &obj->serial_options);
-    // } else {
-		usart_serial_init((usart_if)obj->p_usart, &obj->serial_options);
-	// }
+	usart_serial_init((usart_if)obj->p_usart, &obj->serial_options);
 }
 
 /******************************************************************************
  *                               INTERRUPTS                                   *
  ******************************************************************************/
 
-static inline void _uart_irq_handler(SerialIrq irq_type, uint32_t index)
+static inline void _uart_irq_handler(uint32_t index, SerialIrq irq_type)
 {
     if (serial_irq_ids[index] != 0) {
         irq_handler(serial_irq_ids[index], irq_type);
@@ -551,7 +547,7 @@ int serial_getc(serial_t *obj)
  */
 void serial_putc(serial_t *obj, int c)
 {
-	usart_serial_putchar((usart_if)obj->p_usart, (const uint8_t)c);
+	usart_serial_putchar((usart_if)obj->p_usart, (uint8_t)c);
 }
 
 /** Check if the serial peripheral is readable

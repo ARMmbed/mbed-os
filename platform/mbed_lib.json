@@ -234,6 +234,9 @@
         "ARM_MUSCA_S1": {
             "stdio-convert-newlines": true,
             "stdio-baud-rate": 115200
+        },
+		"PIC32CX": {
+            "stdio-baud-rate": 115200
         }
     }
 }
