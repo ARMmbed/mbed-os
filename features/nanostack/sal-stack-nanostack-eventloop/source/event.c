@@ -198,7 +198,9 @@ void event_core_free_push(arm_event_storage_t *free)
             timer_sys_event_free(free);
             break;
         case ARM_LIB_EVENT_USER:
+            // *INDENT-OFF*
             // No need set state to UNQUEUED - we forget about it.
+            // *INDENT-ON*
         default:
             break;
     }
