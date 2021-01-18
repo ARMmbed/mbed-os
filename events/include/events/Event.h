@@ -142,9 +142,9 @@ public:
 
     /** Configure the period of an event
      *
-     *  @param p   Period (in milliseconds) for repeatedly dispatching an event, expressed as a Chrono duration.
-     *             Period must be either non_periodic or > 0ms. If an invalid period is supplied then a
-     *             default non_periodic value is used.
+     *  @param p   Period (in milliseconds) for repeatedly dispatching an event, expressed as a Chrono
+     *             duration. Period must be either non_periodic or > 0ms. If an invalid period is supplied
+     *             then a default non_periodic value is used.
      *             E.g. period(200ms)
      */
     void period(duration p)

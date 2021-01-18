@@ -519,13 +519,12 @@ void handler()
 void event_period_tests()
 {
     // Test a non periodic event ie dispatched only once
-    
+
     Event<void()> event1(&period_tests_queue, handler);
 
     event1.delay(10ms);
     event1.period(events::non_periodic);
     event1.post();
-
     period_tests_queue.dispatch(80);
 
     // Wait 100ms and check the event execution status
@@ -544,7 +543,6 @@ void event_period_tests()
     event2.delay(10ms);
     event2.period(-10ms);
     event2.post();
-
     period_tests_queue.dispatch(80);
 
     // Wait 100ms and check the event execution status
@@ -563,7 +561,6 @@ void event_period_tests()
     event3.delay(10ms);
     event3.period(0ms);
     event3.post();
-
     period_tests_queue.dispatch(80);
 
     // Wait 100ms and check the event execution status
@@ -581,7 +578,6 @@ void event_period_tests()
     event4.delay(10ms);
     event4.period(20ms);
     event4.post();
-
     period_tests_queue.dispatch(80);
 
     // Wait 100ms and check the event execution status
