@@ -163,29 +163,20 @@ typedef enum {
     UART_CTS        = UART3_CTS,
     UART_RTS        = UART3_RTS,
 
-    LED1            = GPIO2,    // Green
-    LED2            = PWM1_OUT, // Blue
-    LED3            = PWM0_OUT, // Red
-
     ADC_BC95        = PC_5,
     MDMTXD          = LPUART1_TX,
     MDMRXD          = LPUART1_RX,
 
-    USBTX           = UART3_TX,
-    USBRX           = UART3_RX,
-
-    USER_BUTTON     = GPIO5,
-
     // STDIO for console print
 #ifdef MBED_CONF_TARGET_STDIO_UART_TX
-    STDIO_UART_TX   = MBED_CONF_TARGET_STDIO_UART_TX,
+    USBTX   = MBED_CONF_TARGET_STDIO_UART_TX,
 #else
-    STDIO_UART_TX   = UART3_TX,
+    USBTX   = UART3_TX,
 #endif
 #ifdef MBED_CONF_TARGET_STDIO_UART_RX
-    STDIO_UART_RX   = MBED_CONF_TARGET_STDIO_UART_RX,
+    USBRX   = MBED_CONF_TARGET_STDIO_UART_RX,
 #else
-    STDIO_UART_RX   = UART3_RX,
+    USBRX   = UART3_RX,
 #endif
 
     // Module external pins
@@ -268,6 +259,13 @@ typedef enum {
     MDMCTS          = NC,
 
 } PinName;
+
+// Standardized LED and button names
+#define LED1     PB_15  // Green
+#define LED2     PB_1   // Blue
+#define LED3     PB_0   // Red
+#define BUTTON1  PC_13
+
 
 #ifdef __cplusplus
 }

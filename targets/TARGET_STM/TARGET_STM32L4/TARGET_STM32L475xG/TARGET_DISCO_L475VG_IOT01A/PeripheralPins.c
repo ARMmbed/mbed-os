@@ -36,8 +36,8 @@
 const PinList *pinmap_gpio_restricted_pins()
 {
     static const PinName pins[] = {
-        D15,           // fixed pull-up (for I2C)
-        D14,           // fixed pull-up (for I2C)
+        PB_8,          // fixed pull-up (for I2C)
+        PB_9,          // fixed pull-up (for I2C)
         PB_10,         // fixed pull-up (for I2C)
         PB_11,         // fixed pull-up (for I2C)
         RCC_OSC32_IN,  // OSC32_IN

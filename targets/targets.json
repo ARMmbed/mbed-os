@@ -3555,8 +3555,7 @@
             "MCU_STM32L433xC"
         ],
         "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
+            "ARDUINO_UNO"
         ],
         "detect_code": [
             "0779"
@@ -3611,8 +3610,7 @@
             "MCU_STM32L452xE"
         ],
         "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
+            "ARDUINO_UNO"
         ],
         "detect_code": [
             "0829"
@@ -3637,7 +3635,7 @@
             "MCU_STM32L471xG"
         ],
         "supported_form_factors": [
-            "ARDUINO"
+            "ARDUINO_UNO"
         ],
         "detect_code": [
             "0312"
@@ -3676,7 +3674,7 @@
             "MX25R6435F"
         ],
         "supported_form_factors": [
-            "ARDUINO"
+            "ARDUINO_UNO"
         ],
         "detect_code": [
             "0764"
@@ -3714,8 +3712,7 @@
             "MCU_STM32L476xG"
         ],
         "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
+            "ARDUINO_UNO"
         ],
         "detect_code": [
             "0765"
@@ -3781,8 +3778,7 @@
             "MCU_STM32L486xG"
         ],
         "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
+            "ARDUINO_UNO"
         ],
         "detect_code": [
             "0827"
@@ -3828,7 +3824,7 @@
             "MCU_STM32L496xG"
         ],
         "supported_form_factors": [
-            "ARDUINO",
+            "ARDUINO_UNO",
             "STMOD",
             "PMOD"
         ],
@@ -3852,8 +3848,7 @@
             "MCU_STM32L496xG"
         ],
         "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
+            "ARDUINO_UNO"
         ],
         "detect_code": [
             "0823"
@@ -3891,8 +3886,7 @@
             "MCU_STM32L4R5xI"
         ],
         "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
+            "ARDUINO_UNO"
         ],
         "extra_labels_add": [
             "STM32L4R5ZI",
@@ -3935,7 +3929,7 @@
         ],
         "device_name": "STM32L4R9AIIx",
         "supported_form_factors": [
-            "ARDUINO",
+            "ARDUINO_UNO",
             "STMOD",
             "PMOD"
         ],
