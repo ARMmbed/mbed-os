@@ -3951,8 +3951,7 @@
             "MCU_STM32L552xE"
         ],
         "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
+            "ARDUINO_UNO"
         ],
         "detect_code": [
             "0854"
@@ -3984,7 +3983,7 @@
             "MX25LM51245G"
         ],
         "supported_form_factors": [
-            "ARDUINO",
+            "ARDUINO_UNO",
             "STMOD",
             "PMOD"
         ],
