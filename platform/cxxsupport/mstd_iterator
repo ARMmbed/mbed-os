@@ -29,6 +29,7 @@
  *   - mstd::ssize
  *   - mstd::empty
  *   - mstd::data
+ *   - mstd::iter_reference_t
  */
 
 #include <iterator>
