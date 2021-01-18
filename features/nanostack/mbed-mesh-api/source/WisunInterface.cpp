@@ -100,7 +100,7 @@ nsapi_error_t WisunInterface::configure()
 
 #if (MBED_CONF_MBED_MESH_API_WISUN_PHY_MODE_ID != 255) || (MBED_CONF_MBED_MESH_API_WISUN_CHANNEL_PLAN_ID != 255)
     status = set_network_phy_mode_and_channel_plan_id(MBED_CONF_MBED_MESH_API_WISUN_PHY_MODE_ID,
-                                           MBED_CONF_MBED_MESH_API_WISUN_CHANNEL_PLAN_ID);
+                                                      MBED_CONF_MBED_MESH_API_WISUN_CHANNEL_PLAN_ID);
     if (status != MESH_ERROR_NONE) {
         tr_error("Failed to set PHY mode and channel plan ID!");
         return NSAPI_ERROR_PARAMETER;
