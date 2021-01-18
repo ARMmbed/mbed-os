@@ -89,7 +89,7 @@ typedef enum {
     ADC_VREF = 0xF1,
     ADC_VBAT = 0xF2,
 
-    // Arduino connector namings
+    // Arduino Nano connector namings
     A0          = PA_0,
     A1          = PA_1,
     A2          = PA_3,
@@ -115,25 +115,16 @@ typedef enum {
 
     // STDIO for console print
 #ifdef MBED_CONF_TARGET_STDIO_UART_TX
-    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+    USBTX = MBED_CONF_TARGET_STDIO_UART_TX,
 #else
-    STDIO_UART_TX = PA_2,
+    USBTX = PA_2,
 #endif
 #ifdef MBED_CONF_TARGET_STDIO_UART_RX
-    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+    USBRX = MBED_CONF_TARGET_STDIO_UART_RX,
 #else
-    STDIO_UART_RX = PA_15,
+    USBRX = PA_15,
 #endif
 
-    // Generic signals namings
-    LED1        = PB_3,
-    LED2        = PB_3,
-    LED3        = PB_3,
-    LED4        = PB_3,
-    SERIAL_TX   = STDIO_UART_TX,
-    SERIAL_RX   = STDIO_UART_RX,
-    USBTX       = STDIO_UART_TX,
-    USBRX       = STDIO_UART_RX,
     I2C_SCL     = PB_6,
     I2C_SDA     = PB_7,
     SPI_MOSI    = PB_5,
@@ -164,6 +155,10 @@ typedef enum {
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
+
+// Standardized LED and button names
+#define LED1     PB_3
+
 
 #ifdef __cplusplus
 }
