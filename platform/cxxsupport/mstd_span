@@ -204,9 +204,9 @@ public:
     typename mstd::enable_if_t<detail::is_container<R>::value &&
             detail::is_compatible<R&, ElementType>::value, int> = 0>
     constexpr span(R &&r) :
-        _storage( mstd::data( r ), mstd::size( r ))
+        _storage(mstd::data(r), mstd::size(r))
     {
-        MBED_ASSERT(extent == dynamic_extent || extent == mstd::size( r ));
+        MBED_ASSERT(extent == dynamic_extent || extent == mstd::size(r));
     }
 
     constexpr span(const span &other) noexcept = default;
@@ -265,7 +265,7 @@ public:
     constexpr span<element_type, dynamic_extent>
         subspan(index_type offset, index_type count = dynamic_extent) const
     {
-        MBED_ASSERT(offset <= size() && (count == dynamic_extent || count <= size() - offset ));
+        MBED_ASSERT(offset <= size() && (count == dynamic_extent || count <= size() - offset));
         return {data() + offset, count == dynamic_extent ? size() - offset : count };
     }
 
