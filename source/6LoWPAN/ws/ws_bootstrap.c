@@ -116,6 +116,9 @@ static parent_info_t *ws_bootstrap_candidate_parent_get(struct protocol_interfac
 static void ws_bootstrap_candidate_parent_sort(struct protocol_interface_info_entry *cur, parent_info_t *new_entry);
 static void ws_bootstrap_packet_congestion_init(protocol_interface_info_entry_t *cur);
 
+static void ws_bootstrap_asynch_trickle_stop(protocol_interface_info_entry_t *cur);
+static void ws_bootstrap_advertise_start(protocol_interface_info_entry_t *cur);
+
 typedef enum {
     WS_PARENT_SOFT_SYNCH = 0,  /**< let FHSS make decision if synchronization is needed*/
     WS_PARENT_HARD_SYNCH,      /**< Synch FHSS with latest synch information*/
@@ -624,8 +627,9 @@ static uint8_t ws_generate_exluded_channel_list_from_active_channels(ws_excluded
 
 static void ws_fhss_configure_channel_masks(protocol_interface_info_entry_t *cur, fhss_ws_configuration_t *fhss_configuration)
 {
-    ws_generate_channel_list(fhss_configuration->channel_mask, cur->ws_info->hopping_schdule.number_of_channels, cur->ws_info->hopping_schdule.regulatory_domain, cur->ws_info->hopping_schdule.operating_class);
-    ws_generate_channel_list(fhss_configuration->unicast_channel_mask, cur->ws_info->hopping_schdule.number_of_channels, cur->ws_info->hopping_schdule.regulatory_domain, cur->ws_info->hopping_schdule.operating_class);
+    fhss_configuration->channel_mask_size = cur->ws_info->hopping_schdule.number_of_channels;
+    ws_generate_channel_list(fhss_configuration->channel_mask, cur->ws_info->hopping_schdule.number_of_channels, cur->ws_info->hopping_schdule.regulatory_domain, cur->ws_info->hopping_schdule.operating_class, cur->ws_info->hopping_schdule.channel_plan_id);
+    ws_generate_channel_list(fhss_configuration->unicast_channel_mask, cur->ws_info->hopping_schdule.number_of_channels, cur->ws_info->hopping_schdule.regulatory_domain, cur->ws_info->hopping_schdule.operating_class, cur->ws_info->hopping_schdule.channel_plan_id);
     // using bitwise AND operation for user set channel mask to remove channels not allowed in this device
     for (uint8_t n = 0; n < 8; n++) {
         fhss_configuration->unicast_channel_mask[n] &= cur->ws_info->cfg->fhss.fhss_channel_mask[n];
@@ -1550,10 +1554,10 @@ static void ws_bootstrap_pan_advertisement_solicit_analyse(struct protocol_inter
      */
     trickle_consistent_heard(&cur->ws_info->trickle_pan_advertisement_solicit);
     /*
-     *  Optimized PAN discovery to select faster the parent if we hear solicit from someone else
+     *  Optimized PAN discovery to select the parent faster if we hear solicit from someone else
      */
 
-    if (ws_bootstrap_state_discovery(cur)  && cur->ws_info->cfg->gen.network_size <= NETWORK_SIZE_MEDIUM &&
+    if (ws_bootstrap_state_discovery(cur)  && ws_cfg_network_config_get(cur) <= CONFIG_MEDIUM &&
             cur->bootsrap_state_machine_cnt > cur->ws_info->trickle_params_pan_discovery.Imin * 2) {
 
         cur->bootsrap_state_machine_cnt = cur->ws_info->trickle_params_pan_discovery.Imin + randLIB_get_random_in_range(0, cur->ws_info->trickle_params_pan_discovery.Imin);
@@ -2044,7 +2048,7 @@ static void ws_neighbor_entry_remove_notify(mac_neighbor_table_entry_t *entry_pt
 
 static uint32_t ws_probe_init_time_get(protocol_interface_info_entry_t *cur)
 {
-    if (cur->ws_info->cfg->gen.network_size <= NETWORK_SIZE_SMALL) {
+    if (ws_cfg_network_config_get(cur) <= CONFIG_SMALL) {
         return WS_SMALL_PROBE_INIT_BASE_SECONDS;
     }
 
@@ -2397,11 +2401,29 @@ static int ws_bootstrap_set_domain_rf_config(protocol_interface_info_entry_t *cu
 {
     phy_rf_channel_configuration_s rf_configs;
     memset(&rf_configs, 0, sizeof(phy_rf_channel_configuration_s));
+
+    uint8_t phy_mode_id = cur->ws_info->hopping_schdule.phy_mode_id;
+    if (((phy_mode_id >= 34) && (phy_mode_id <= 38)) ||
+            ((phy_mode_id >= 51) && (phy_mode_id <= 54)) ||
+            ((phy_mode_id >= 68) && (phy_mode_id <= 70)) ||
+            ((phy_mode_id >= 84) && (phy_mode_id <= 86))) {
+        rf_configs.modulation = M_OFDM;
+        rf_configs.datarate = ws_get_datarate_using_phy_mode_id(cur->ws_info->hopping_schdule.phy_mode_id);
+        rf_configs.ofdm_option = ws_get_ofdm_option_using_phy_mode_id(cur->ws_info->hopping_schdule.phy_mode_id);
+        rf_configs.ofdm_mcs = ws_get_ofdm_mcs_using_phy_mode_id(cur->ws_info->hopping_schdule.phy_mode_id);
+    } else {
+        if ((phy_mode_id >= 17) && (phy_mode_id <= 24)) {
+            rf_configs.fec = true;
+        } else {
+            rf_configs.fec = false;
+        }
+        rf_configs.modulation = M_2FSK;
+        rf_configs.datarate = ws_get_datarate_using_operating_mode(cur->ws_info->hopping_schdule.operating_mode);
+        rf_configs.modulation_index = ws_get_modulation_index_using_operating_mode(cur->ws_info->hopping_schdule.operating_mode);
+    }
+
     rf_configs.channel_0_center_frequency = (uint32_t)cur->ws_info->hopping_schdule.ch0_freq * 100000;
     rf_configs.channel_spacing = ws_decode_channel_spacing(cur->ws_info->hopping_schdule.channel_spacing);
-    rf_configs.datarate = ws_get_datarate_using_operating_mode(cur->ws_info->hopping_schdule.operating_mode);
-    rf_configs.modulation_index = ws_get_modulation_index_using_operating_mode(cur->ws_info->hopping_schdule.operating_mode);
-    rf_configs.modulation = M_2FSK;
     rf_configs.number_of_channels = cur->ws_info->hopping_schdule.number_of_channels;
     ws_bootstrap_set_rf_config(cur, rf_configs);
     return 0;
@@ -2560,6 +2582,12 @@ static void ws_bootstrap_rpl_callback(rpl_event_t event, void *handle)
             // After successful DAO ACK connection to border router is verified
             cur->ws_info->pan_timeout_timer = cur->ws_info->cfg->timing.pan_timeout;
 
+
+        }
+
+        if (!cur->ws_info->trickle_pa_running || !cur->ws_info->trickle_pc_running) {
+            //Enable wi-sun asynch adverisment
+            ws_bootstrap_advertise_start(cur);
         }
 
         ws_set_fhss_hop(cur);
@@ -2576,6 +2604,8 @@ static void ws_bootstrap_rpl_callback(rpl_event_t event, void *handle)
 
     } else if (event == RPL_EVENT_LOCAL_REPAIR_START) {
         tr_debug("RPL local repair start");
+        //Disable Asynchs
+        ws_bootstrap_asynch_trickle_stop(cur);
         ws_nwk_event_post(cur, ARM_NWK_NWK_CONNECTION_DOWN);
 
     } else if (event == RPL_EVENT_DAO_PARENT_ADD) {
@@ -3066,9 +3096,9 @@ static void ws_bootstrap_rpl_scan_start(protocol_interface_info_entry_t *cur)
     tr_debug("Start RPL learn");
     // routers wait until RPL root is contacted
     ws_bootstrap_state_change(cur, ER_RPL_SCAN);
-    //For Large network and medium shuold do passive scan
-    if (cur->ws_info->cfg->gen.network_size > NETWORK_SIZE_SMALL) {
-        // Set timeout for check to 30 -60 seconds
+    //For Large network and medium should do passive scan
+    if (ws_cfg_network_config_get(cur) > CONFIG_SMALL) {
+        // Set timeout for check to 30 - 60 seconds
         cur->bootsrap_state_machine_cnt = randLIB_get_random_in_range(WS_RPL_DIS_INITIAL_TIMEOUT / 2, WS_RPL_DIS_INITIAL_TIMEOUT);
     }
     /* While in Join State 4, if a non Border Router determines it has been unable to communicate with the PAN Border
@@ -3115,7 +3145,7 @@ static void ws_set_asynch_channel_list(protocol_interface_info_entry_t *cur, asy
         uint16_t channel_number = cur->ws_info->cfg->fhss.fhss_uc_fixed_channel;
         async_req->channel_list.channel_mask[0 + (channel_number / 32)] = (1 << (channel_number % 32));
     } else {
-        ws_generate_channel_list(async_req->channel_list.channel_mask, cur->ws_info->hopping_schdule.number_of_channels, cur->ws_info->hopping_schdule.regulatory_domain, cur->ws_info->hopping_schdule.operating_class);
+        ws_generate_channel_list(async_req->channel_list.channel_mask, cur->ws_info->hopping_schdule.number_of_channels, cur->ws_info->hopping_schdule.regulatory_domain, cur->ws_info->hopping_schdule.operating_class, cur->ws_info->hopping_schdule.channel_plan_id);
     }
 
     async_req->channel_list.channel_page = CHANNEL_PAGE_10;

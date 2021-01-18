@@ -1,6 +1,7 @@
 /**************************************************************************
 *
 * Copyright (c) 2017, Arm Limited and affiliates.
+* SPDX-License-Identifier: Apache-2.0
 * Copyright 2016 by Andrey Butok. FNET Community.
 *
 ***************************************************************************

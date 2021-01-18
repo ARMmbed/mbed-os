@@ -103,7 +103,7 @@ typedef enum arm_library_event_type_e {
 #define SOCKET_BIND_DONE                    SOCKET_CONNECT_DONE      /**< Backward compatibility */
 #define SOCKET_BIND_FAIL                    SOCKET_CONNECT_FAIL      /**< Backward compatibility */
 #define SOCKET_BIND_AUTH_FAIL               SOCKET_CONNECT_AUTH_FAIL /**< Backward compatibility */
-/* @} */
+/** @} */
 
 /** Network security levels. */
 typedef enum net_security_t {
@@ -1228,3 +1228,4 @@ extern const cca_threshold_table_s *arm_nwk_get_cca_threshold_table(int8_t inter
 }
 #endif
 #endif /* NET_INTERFACE_H_ */
+

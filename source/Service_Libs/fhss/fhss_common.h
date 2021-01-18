@@ -41,6 +41,7 @@ struct fhss_structure {
     uint8_t active_fhss_events;
     uint16_t number_of_channels;
     uint16_t number_of_uc_channels;
+    uint16_t number_of_bc_channels;
     uint16_t optimal_packet_length;
     fhss_states fhss_state;
     uint32_t fhss_timeout;
