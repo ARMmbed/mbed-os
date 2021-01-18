@@ -685,7 +685,7 @@ class ArmMuscaB1Code(object):
     """Musca-B1 Hooks"""
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
-        from tools.targets.ARM_MUSCA_B1 import musca_tfm_bin
+        from tools.targets.ARM_MUSCA import musca_tfm_bin
         configured_secure_image_filename = t_self.target.secure_image_filename
         secure_bin = find_secure_image(
             t_self.notify,
@@ -694,13 +694,13 @@ class ArmMuscaB1Code(object):
             configured_secure_image_filename,
             FileType.BIN
         )
-        musca_tfm_bin(t_self, binf, secure_bin)
+        musca_tfm_bin(t_self, binf, secure_bin, 'MUSCA_B1')
 
 class ArmMuscaS1Code(object):
     """Musca-S1 Hooks"""
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
-        from tools.targets.ARM_MUSCA_S1 import musca_tfm_bin
+        from tools.targets.ARM_MUSCA import musca_tfm_bin
         configured_secure_image_filename = t_self.target.secure_image_filename
         secure_bin = find_secure_image(
             t_self.notify,
@@ -709,7 +709,7 @@ class ArmMuscaS1Code(object):
             configured_secure_image_filename,
             FileType.BIN
         )
-        musca_tfm_bin(t_self, binf, secure_bin)
+        musca_tfm_bin(t_self, binf, secure_bin, 'MUSCA_S1')
 
 def find_secure_image(notify, resources, ns_image_path,
                       configured_s_image_filename, image_type):
