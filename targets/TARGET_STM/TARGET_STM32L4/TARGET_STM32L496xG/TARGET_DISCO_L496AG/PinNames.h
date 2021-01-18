@@ -251,59 +251,42 @@ typedef enum {
     ADC_VBAT = 0xF2,
 
     // Arduino connector
-    A0          = PC_4,
-    A1          = PC_1,
-    A2          = PC_3,
-    A3          = PF_10,
-    A4          = PA_1,
-    A5          = PC_0,
-    D0          = PG_8,
-    D1          = PG_7,
-    D2          = PG_13,
-    D3          = PH_15,
-    D4          = PI_11,
-    D5          = PB_9,
-    D6          = PI_6,
-    D7          = PG_6,
-    D8          = PG_15,
-    D9          = PH_13,
-    D10         = PA_15,
-    D11         = PB_5,
-    D12         = PB_4,
-    D13         = PA_5,
-    D14         = PB_7,
-    D15         = PB_8,
+#ifdef TARGET_FF_ARDUINO_UNO
+    ARDUINO_UNO_A0  = PC_4,
+    ARDUINO_UNO_A1  = PC_1,
+    ARDUINO_UNO_A2  = PC_3,
+    ARDUINO_UNO_A3  = PF_10,
+    ARDUINO_UNO_A4  = PA_1,
+    ARDUINO_UNO_A5  = PC_0,
+    ARDUINO_UNO_D0  = PG_8,
+    ARDUINO_UNO_D1  = PG_7,
+    ARDUINO_UNO_D2  = PG_13,
+    ARDUINO_UNO_D3  = PH_15,
+    ARDUINO_UNO_D4  = PI_11,
+    ARDUINO_UNO_D5  = PB_9,
+    ARDUINO_UNO_D6  = PI_6,
+    ARDUINO_UNO_D7  = PG_6,
+    ARDUINO_UNO_D8  = PG_15,
+    ARDUINO_UNO_D9  = PH_13,
+    ARDUINO_UNO_D10 = PA_15,
+    ARDUINO_UNO_D11 = PB_5,
+    ARDUINO_UNO_D12 = PB_4,
+    ARDUINO_UNO_D13 = PA_5,
+    ARDUINO_UNO_D14 = PB_7,
+    ARDUINO_UNO_D15 = PB_8,
+#endif
 
     // STDIO for console print
 #ifdef MBED_CONF_TARGET_STDIO_UART_TX
-    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+    USBTX = MBED_CONF_TARGET_STDIO_UART_TX,
 #else
-    STDIO_UART_TX = PA_2,
+    USBTX = PA_2,
 #endif
 #ifdef MBED_CONF_TARGET_STDIO_UART_RX
-    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+    USBRX = MBED_CONF_TARGET_STDIO_UART_RX,
 #else
-    STDIO_UART_RX = PD_6,
+    USBRX = PD_6,
 #endif
-
-    // Generic signals
-    LED1        = PA_5,  // Green LD3 on board
-    LED2        = PB_13, // Green LD2 on board --> Warning: the state is reverted (1=OFF and 0=ON)
-    LED3        = LED1,
-    LED4        = LED1,
-    USER_BUTTON = PC_13, // Joystick Center
-    BUTTON1 = USER_BUTTON,
-    SERIAL_TX   = STDIO_UART_TX, // Virtual Com Port
-    SERIAL_RX   = STDIO_UART_RX, // Virtual Com Port
-    USBTX       = STDIO_UART_TX, // Virtual Com Port
-    USBRX       = STDIO_UART_RX, // Virtual Com Port
-    I2C_SCL     = D15,
-    I2C_SDA     = D14,
-    SPI_MOSI    = D11,
-    SPI_MISO    = D12,
-    SPI_SCK     = D13,
-    SPI_CS      = D10,
-    PWM_OUT     = D9,
 
     /**** USB FS pins ****/
     USB_OTG_FS_DM = PA_11,
@@ -390,6 +373,12 @@ typedef enum {
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
+
+// Standardized LED and button names
+#define LED1     PA_5   // Green LD3 on board
+#define LED2     PB_13  // Green LD2 on board
+#define BUTTON1  PC_13
+
 
 #ifdef __cplusplus
 }

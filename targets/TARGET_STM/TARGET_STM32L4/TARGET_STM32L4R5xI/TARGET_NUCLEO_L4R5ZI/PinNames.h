@@ -193,64 +193,42 @@ typedef enum {
     ADC_VREF = 0xF1, // Internal pin virtual value
     ADC_VBAT = 0xF2, // Internal pin virtual value
 
-    // Arduino Uno(Rev3) Header pin connection naming
-    A0          = PA_3,
-    A1          = PC_0,
-    A2          = PC_3,
-    A3          = PC_1,
-    A4          = PC_4,
-    A5          = PC_5,
-    D0          = PD_9,
-    D1          = PD_8,
-    D2          = PF_15,
-    D3          = PE_13,
-    D4          = PF_14,
-    D5          = PE_11,
-    D6          = PE_9,
-    D7          = PF_13,
-    D8          = PF_12,
-    D9          = PD_15,
-    D10         = PD_14,
-    D11         = PA_7,
-    D12         = PA_6,
-    D13         = PA_5,
-    D14         = PB_9,
-    D15         = PB_8,
+#ifdef TARGET_FF_ARDUINO_UNO
+    ARDUINO_UNO_A0  = PA_3,
+    ARDUINO_UNO_A1  = PC_0,
+    ARDUINO_UNO_A2  = PC_3,
+    ARDUINO_UNO_A3  = PC_1,
+    ARDUINO_UNO_A4  = PC_4,
+    ARDUINO_UNO_A5  = PC_5,
+    ARDUINO_UNO_D0  = PD_9,
+    ARDUINO_UNO_D1  = PD_8,
+    ARDUINO_UNO_D2  = PF_15,
+    ARDUINO_UNO_D3  = PE_13,
+    ARDUINO_UNO_D4  = PF_14,
+    ARDUINO_UNO_D5  = PE_11,
+    ARDUINO_UNO_D6  = PE_9,
+    ARDUINO_UNO_D7  = PF_13,
+    ARDUINO_UNO_D8  = PF_12,
+    ARDUINO_UNO_D9  = PD_15,
+    ARDUINO_UNO_D10 = PD_14,
+    ARDUINO_UNO_D11 = PA_7,
+    ARDUINO_UNO_D12 = PA_6,
+    ARDUINO_UNO_D13 = PA_5,
+    ARDUINO_UNO_D14 = PB_9,
+    ARDUINO_UNO_D15 = PB_8,
+#endif
 
     // STDIO for console print
 #ifdef MBED_CONF_TARGET_STDIO_UART_TX
-    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+    USBTX = MBED_CONF_TARGET_STDIO_UART_TX,
 #else
-    STDIO_UART_TX = PG_7,
+    USBTX = PG_7,
 #endif
 #ifdef MBED_CONF_TARGET_STDIO_UART_RX
-    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+    USBRX = MBED_CONF_TARGET_STDIO_UART_RX,
 #else
-    STDIO_UART_RX = PG_8,
+    USBRX = PG_8,
 #endif
-
-    USBTX = STDIO_UART_TX, // used for greentea tests
-    USBRX = STDIO_UART_RX, // used for greentea tests
-
-    // I2C signals aliases
-    I2C_SDA = D14,
-    I2C_SCL = D15,
-
-    // SPI signals aliases
-    SPI_CS   = D10,
-    SPI_MOSI = D11,
-    SPI_MISO = D12,
-    SPI_SCK  = D13,
-
-    // Standardized LED and button names
-    LED1    = PC_7,  // LD1 [Green]
-    LED2    = PB_7,  // LD2 [Blue]
-    LED3    = PB_14, // LD3 [Red]
-    BUTTON1 = PC_13,
-
-    // Backward legacy names
-    USER_BUTTON = BUTTON1,
-    PWM_OUT = D9,
 
     /**** USB FS pins ****/
     USB_OTG_FS_DM = PA_11,
@@ -294,6 +272,13 @@ typedef enum {
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
+
+// Standardized LED and button names
+#define LED1     PC_7   // Green
+#define LED2     PB_7   // Blue
+#define LED3     PB_14  // Red
+#define BUTTON1  PC_13
+
 
 #ifdef __cplusplus
 }
