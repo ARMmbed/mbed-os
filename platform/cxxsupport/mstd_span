@@ -34,6 +34,7 @@
 
 namespace mstd {
     using std::span;
+    using std::dynamic_extent;
 }
 
 #else //__cpp_lib_span >= 202002L
@@ -352,7 +353,13 @@ span(const std::array<T, N>&) -> span<const T, N>;
 
 template<class R>
 span(R&&) -> span<remove_reference_t<detail::range_reference_t<R>>>;
-#endif
+#endif //__cplusplus >= 201703L || __cpp_deduction_guides >= 201703L
+
+} // namespace mstd
+
+#endif //__cpp_lib_span >= 202002L
+
+namespace mstd {
 
 /** Create a span class with type and size inferred from the argument
  *
@@ -407,5 +414,4 @@ constexpr span<const typename R::value_type> make_span(const R &cont)
 
 } // namespace mstd
 
-#endif //__cpp_lib_span >= 202002L
 #endif // MSTD_SPAN_
