@@ -63,6 +63,8 @@ struct storage {
     ElementType *_data = nullptr;
     static constexpr size_t _size = Extent;
 };
+template<typename ElementType, size_t Extent>
+constexpr size_t storage<ElementType, Extent>::_size;
 
 template<typename ElementType>
 struct storage<ElementType, dynamic_extent> {
@@ -330,6 +332,9 @@ public:
 private:
     detail::storage<element_type, extent> _storage;
 };
+
+template<typename ElementType, size_t Extent>
+constexpr span<ElementType, Extent>::index_type span<ElementType, Extent>::extent;
 
 #if __cplusplus >= 201703L || __cpp_deduction_guides >= 201703L
 // Deduction guides
