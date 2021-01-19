@@ -1071,14 +1071,7 @@ ble_error_t PalGap::set_extended_advertising_parameters(
 {
 #if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
     tr_info("[PAL] Advertising set %d: set extended advertising parameters - "
-            "event_properties:["
-            "connectable=%s, "
-            "scannable=%s, "
-            "directed=%s, "
-            "high_duty_cycle=%s, "
-            "use_legacy_pdu=%s, "
-            "omit_advertiser_address=%s, "
-            "include_tx_power=%s], "
+            "event_properties:[%s%s%s%s%s%s%s ], "
             "primary_advertising_interval_min=%" PRIu32 ", "
             "primary_advertising_interval_max=%" PRIu32 ", "
             "primary_advertising_channel_map=%s, "
@@ -1093,13 +1086,13 @@ ble_error_t PalGap::set_extended_advertising_parameters(
             "advertising_sid=%d, "
             "scan_request_notification=%s",
             advertising_handle,
-            to_string(event_properties.connectable),
-            to_string(event_properties.scannable),
-            to_string(event_properties.directed),
-            to_string(event_properties.high_duty_cycle),
-            to_string(event_properties.use_legacy_pdu),
-            to_string(event_properties.omit_advertiser_address),
-            to_string(event_properties.include_tx_power),
+            event_properties.connectable ? " connectable" : "",
+            event_properties.scannable ? " scannable" : "",
+            event_properties.directed ? " directed" : "",
+            event_properties.high_duty_cycle ? " high_duty_cycle" : "",
+            event_properties.use_legacy_pdu ? " use_legacy_pdu" : "",
+            event_properties.omit_advertiser_address ? " omit_advertiser_address," : "",
+            event_properties.include_tx_power ? " nclude_tx_power" : "",
             primary_advertising_interval_min,
             primary_advertising_interval_max,
             to_string(primary_advertising_channel_map),
