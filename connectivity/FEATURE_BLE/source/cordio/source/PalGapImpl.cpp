@@ -252,7 +252,7 @@ ble_error_t PalGap::advertising_enable(bool enable)
                 direct_adv_cb->peer_address.data()
             );
             if (direct_adv_cb->connection_handle == DM_CONN_ID_NONE) {
-                tr_error("[PAL] Failed: unknown ID for pending callback");
+                tr_error("[PAL] unknown ID for pending callback");
                 return BLE_ERROR_INTERNAL_STACK_FAILURE;
             } else {
                 direct_adv_cb->state = direct_adv_cb_t::running;
@@ -417,7 +417,7 @@ ble_error_t PalGap::create_connection(
     );
 
     if (connection_id == DM_CONN_ID_NONE) {
-        tr_error("[PAL] Failed: unknown ID for open connection");
+        tr_error("[PAL] unknown ID for open connection");
         return BLE_ERROR_INTERNAL_STACK_FAILURE;
     }
 
@@ -526,7 +526,7 @@ ble_error_t PalGap::connection_parameters_update(
 #endif
 
     if (DmConnCheckIdle(connection) != 0) {
-        tr_error("[PAL] Failed: connection busy");
+        tr_error("[PAL] connection busy");
         return BLE_ERROR_INVALID_STATE;
     }
 
@@ -634,7 +634,7 @@ ble_error_t PalGap::read_phy(connection_handle_t connection)
         DmReadPhy(connection);
         return BLE_ERROR_NONE;
     }
-    tr_error("[PAL] Failed: LE_2M_PHY feature not supported");
+    tr_error("[PAL] LE_2M_PHY feature not supported");
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -1114,12 +1114,12 @@ ble_error_t PalGap::set_extended_advertising_parameters(
         if (event_properties.directed == false) {
             tr_info("[PAL] Legacy PDU w/undirected advertising event");
             if (event_properties.high_duty_cycle) {
-                tr_error("[PAL] Failed: cannot use high duty cycle");
+                tr_error("[PAL] cannot use high duty cycle");
                 return BLE_ERROR_INVALID_PARAM;
             }
 
             if (event_properties.connectable && event_properties.scannable == false) {
-                tr_error("[PAL] Failed: must be scannable if connectable");
+                tr_error("[PAL] must be scannable if connectable");
                 return BLE_ERROR_INVALID_PARAM;
             }
 
@@ -1133,12 +1133,12 @@ ble_error_t PalGap::set_extended_advertising_parameters(
         } else {
             tr_info("[PAL] Legacy PDU w/directed advertising event");
             if (event_properties.scannable) {
-                tr_error("[PAL] Failed: cannot be scannable");
+                tr_error("[PAL] cannot be scannable");
                 return BLE_ERROR_INVALID_PARAM;
             }
 
             if (event_properties.connectable == false) {
-                tr_error("[PAL] Failed: must be connectable");
+                tr_error("[PAL] must be connectable");
                 return BLE_ERROR_INVALID_PARAM;
             }
 
@@ -1152,7 +1152,7 @@ ble_error_t PalGap::set_extended_advertising_parameters(
         if (event_properties.directed == false) {
             tr_info("[PAL] Extended PDU w/undirected advertising event");
             if (event_properties.high_duty_cycle) {
-                tr_error("[PAL] Failed: cannot use high duty cycle");
+                tr_error("[PAL] cannot use high duty cycle");
                 return BLE_ERROR_INVALID_PARAM;
             }
 
@@ -1171,7 +1171,7 @@ ble_error_t PalGap::set_extended_advertising_parameters(
             // standpoint
 
             if (event_properties.connectable && event_properties.scannable) {
-                tr_error("[PAL] Failed: cannot be scannable if connectable");
+                tr_error("[PAL] cannot be scannable if connectable");
                 return BLE_ERROR_INVALID_PARAM;
             } else if (event_properties.connectable) {
                 if (event_properties.high_duty_cycle) {
@@ -1393,7 +1393,7 @@ ble_error_t PalGap::extended_advertising_enable(
             number_of_sets);
 
     if (number_of_sets > DM_NUM_ADV_SETS) {
-        tr_error("[PAL] Failed: number of sets cannot be greater than %d", DM_NUM_ADV_SETS);
+        tr_error("[PAL] number of sets cannot be greater than %d", DM_NUM_ADV_SETS);
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -1424,7 +1424,7 @@ ble_error_t PalGap::extended_advertising_enable(
                     direct_adv_cb->peer_address.data()
                 );
                 if (direct_adv_cb->connection_handle == DM_CONN_ID_NONE) {
-                    tr_error("[PAL] Failed: unknown connection ID %d", direct_adv_cb->connection_handle);
+                    tr_error("[PAL] unknown connection ID %d", direct_adv_cb->connection_handle);
                     return BLE_ERROR_INTERNAL_STACK_FAILURE;
                 } else {
                     direct_adv_cb->state = direct_adv_cb_t::running;
@@ -1666,7 +1666,7 @@ ble_error_t PalGap::periodic_advertising_create_sync(
     );
 
     if (sync_id == DM_SYNC_ID_NONE) {
-        tr_error("[PAL] Failed: unknown sync ID %d", sync_id);
+        tr_error("[PAL] unknown sync ID %d", sync_id);
         return BLE_ERROR_INTERNAL_STACK_FAILURE;
     } else {
         return BLE_ERROR_NONE;
