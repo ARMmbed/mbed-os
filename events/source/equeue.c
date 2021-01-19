@@ -576,7 +576,7 @@ void equeue_dispatch(equeue_t *q, int ms)
 
 
 // event functions
-void equeue_event_delay(void *p, int ms)
+void equeue_event_delay(void *p, unsigned ms)
 {
     struct equeue_event *e = (struct equeue_event *)p - 1;
     e->target = ms;

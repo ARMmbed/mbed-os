@@ -162,7 +162,7 @@ void equeue_dealloc(equeue_t *queue, void *event);
 // equeue_event_delay  - Millisecond delay before dispatching an event
 // equeue_event_period - Millisecond period for repeating dispatching an event
 // equeue_event_dtor   - Destructor to run when the event is deallocated
-void equeue_event_delay(void *event, int ms);
+void equeue_event_delay(void *event, unsigned ms);
 void equeue_event_period(void *event, int ms);
 void equeue_event_dtor(void *event, void (*dtor)(void *));
 
