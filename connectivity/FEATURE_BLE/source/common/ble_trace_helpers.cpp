@@ -118,16 +118,16 @@ const char* att_client_callback_event_to_string(uint8_t code)
     }
 #else // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     static char ret[3] = "00";
-    sprintf(ret, "0x%02x", (int)error_code);
+    sprintf(ret, "0x%02x", (int)code);
 #endif // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     return ret;
 }
 
-const char* att_error_code_to_string(uint8_t code)
+const char* att_error_code_to_string(uint8_t error_code)
 {
 #if MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     const char* ret = "INVALID EVENT";
-    switch(code)
+    switch(error_code)
     {
         case ATT_SUCCESS: ret = "ATT_SUCCESS"; break;
         case ATT_ERR_HANDLE: ret = "ATT_ERR_HANDLE"; break;
