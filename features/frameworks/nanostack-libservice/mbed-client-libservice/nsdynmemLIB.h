@@ -37,6 +37,9 @@ extern "C" {
 typedef size_t ns_mem_block_size_t; //external interface unsigned heap block size type
 typedef size_t ns_mem_heap_size_t; //total heap size type.
 
+// Can be used to enable tracking of dynamic memory allocations
+#include "nsdynmem_tracker.h"
+
 /*!
  * \enum heap_fail_t
  * \brief Dynamically heap system failure call back event types.
@@ -63,7 +66,6 @@ typedef struct mem_stat_t {
     uint32_t heap_alloc_total_bytes;            /**< Total Heap allocated bytes. */
     uint32_t heap_alloc_fail_cnt;               /**< Counter for Heap allocation fail. */
 } mem_stat_t;
-
 
 typedef struct ns_mem_book ns_mem_book_t;
 
@@ -99,7 +101,9 @@ extern int ns_dyn_mem_region_add(void *region_ptr, ns_mem_heap_size_t region_siz
   * \return 0, Free OK
   * \return <0, Free Fail
   */
+#if NSDYNMEM_TRACKER_ENABLED!=1
 extern void ns_dyn_mem_free(void *heap_ptr);
+#endif
 
 /**
   * \brief Allocate temporary data.
@@ -111,7 +115,9 @@ extern void ns_dyn_mem_free(void *heap_ptr);
   * \return 0, Allocate Fail
   * \return >0, Pointer to allocated data sector.
   */
+#if NSDYNMEM_TRACKER_ENABLED!=1
 extern void *ns_dyn_mem_temporary_alloc(ns_mem_block_size_t alloc_size);
+#endif
 
 /**
   * \brief Allocate long period data.
@@ -123,7 +129,9 @@ extern void *ns_dyn_mem_temporary_alloc(ns_mem_block_size_t alloc_size);
   * \return 0, Allocate Fail
   * \return >0, Pointer to allocated data sector.
   */
+#if NSDYNMEM_TRACKER_ENABLED!=1
 extern void *ns_dyn_mem_alloc(ns_mem_block_size_t alloc_size);
+#endif
 
 /**
   * \brief Get pointer to the current mem_stat_t set via ns_dyn_mem_init.
