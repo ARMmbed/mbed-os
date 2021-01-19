@@ -19,9 +19,6 @@
 #include <algorithm>
 #include <cstdint>
 
-// REMOVE ONCE MOVED TO COMMON FILE
-#include <stdlib.h>
-
 #include "ble/Gap.h"
 #include "ble/SecurityManager.h"
 
