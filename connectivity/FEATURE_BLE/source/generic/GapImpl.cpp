@@ -3547,8 +3547,10 @@ ble_error_t Gap::cancelCreateSync()
 #if BLE_FEATURE_PERIODIC_ADVERTISING
 ble_error_t Gap::terminateSync(periodic_sync_handle_t handle)
 {
+    tr_info("Teminate sync %d", handle);
+    
     if (is_extended_advertising_available() == false) {
-        tr_error("Failed to terminate sync: extended advertising not available");
+        tr_error("extended advertising not available");
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
