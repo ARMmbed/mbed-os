@@ -12,12 +12,12 @@ add_subdirectory(STM32Cube_FW)
 target_sources(mbed-core
     INTERFACE
         analogin_device.c
-        analogout_device.c
         flash_api.c
         gpio_irq_device.c
         pwmout_device.c
         serial_device.c
         spi_api.c
+        wb_sleep.c
 )
 
 target_include_directories(mbed-core

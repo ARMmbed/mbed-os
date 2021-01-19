@@ -15,6 +15,7 @@ target_sources(mbed-core
     INTERFACE
         system_clock.c
         ONBOARD_TELIT_HE910.cpp
+        PeripheralPins.c
         ${STARTUP_FILE}
 )
 

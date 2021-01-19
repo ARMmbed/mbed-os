@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
-    set(STARTUP_FILE device/TOOLCHAIN_GCC_ARM/startup_stm32l152xe.S)
-    set(LINKER_FILE device/TOOLCHAIN_GCC_ARM/stm32l152re.ld)
+    set(STARTUP_FILE device/TOOLCHAIN_GCC_ARM/startup_stm32l152xc.S)
+    set(LINKER_FILE device/TOOLCHAIN_GCC_ARM/STM32L152XC.ld)
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
-    set(STARTUP_FILE device/TOOLCHAIN_ARM/startup_stm32l152xe.S)
-    set(LINKER_FILE device/TOOLCHAIN_ARM/stm32l152re.sct)
+    set(STARTUP_FILE device/TOOLCHAIN_ARM/startup_stm32l152xc.S)
+    set(LINKER_FILE device/TOOLCHAIN_ARM/stm32l152rc.sct)
 endif()
 
 set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
