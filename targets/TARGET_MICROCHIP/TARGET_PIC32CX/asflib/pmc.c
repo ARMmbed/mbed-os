@@ -744,7 +744,7 @@ uint32_t pmc_configure_generic(uint32_t ul_id, uint32_t ul_clock_source, uint32_
 	}
 
 	pmc_disable_generic_clk(ul_id);
-	pmc_disable_periph_clk(ul_id);
+//	pmc_disable_periph_clk(ul_id);
 
 	ul_pcr = PMC->PMC_PCR;
 	ul_pcr &= ~(PMC_PCR_GCLKCSS_Msk | PMC_PCR_GCLKDIV_Msk | PMC_PCR_PID_Msk);
