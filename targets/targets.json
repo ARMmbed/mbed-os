@@ -4686,7 +4686,8 @@
             "CMSIS_NVIC_VIRTUAL",
             "LPTICKER_DELAY_TICKS=3",
             "MBED_MPU_CUSTOM",
-            "BL2"
+            "BL2",
+            "MCUBOOT_IMAGE_NUMBER=2"
         ],
         "extra_labels_add": [
             "ARM_SSG",
