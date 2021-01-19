@@ -19,8 +19,10 @@
 
 // TX slot length is optimised to this packet length
 #define OPTIMAL_PACKET_LENGTH   500
-// Default TX/RX slot length in milliseconds. Is used when datarate is not given by PHY.
-#define WS_TXRX_SLOT_LEN_MS             100
+// Max TX/RX slot length in milliseconds. Is used when datarate is not given by PHY or calculated slot length exceeds maximum allowed.
+#define WS_TXRX_SLOT_LEN_MS_MAX         100
+// Min TX/RX slot length in milliseconds. Is used when calculated slot length is under minimum allowed.
+#define WS_TXRX_SLOT_LEN_MS_MIN         10
 // Default minimum broadcast synchronization interval in seconds
 #define DEFAULT_MIN_SYNCH_INTERVAL      60
 // Drift compensation allowed if at least SYNCH_COMPENSATION_MIN_INTERVAL (seconds) since last synchronization

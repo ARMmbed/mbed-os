@@ -45,6 +45,7 @@
 #include "NWK_INTERFACE/Include/protocol_stats.h"
 #include "Common_Protocols/ipv6_constants.h"
 #include "Common_Protocols/icmpv6.h"
+#include "Common_Protocols/ip.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "Service_Libs/etx/etx.h" /* slight ick */
 
@@ -1168,6 +1169,23 @@ malformed:
         goto invalid_parent;
     }
 
+    /* RFC 6550 8.3: A DIO from a sender with lesser DAGRank that causes no
+     * changes to the recipient's parent set, preferred parent, or Rank SHOULD
+     * be considered consistent with respect to the Trickle timer.
+     *
+     * Now, if we don't run parent selection immediately, how do we know if it's
+     * consistent or not? Compromise is to treat all lower ranked DIOs as
+     * consistent, and reset (and hold) the consistent counter to 0 if any of
+     * the above change. This actually seems better than the RFC 6550 rule, as
+     * it guarantees we will transmit if those change. The rule as stated
+     * would mean a large number of parent messages would stop us advertising
+     * a Rank change.
+     */
+    if (version == rpl_instance_current_dodag_version(instance) &&
+            (rpl_rank_compare(dodag, rank, rpl_instance_current_rank(instance)) & RPL_CMP_LESS)) {
+        rpl_instance_consistent_rx(instance);
+    }
+
     /* Now we create the neighbour, if we don't already have a record */
     if (!neighbour) {
 
@@ -1205,23 +1223,6 @@ malformed:
 
     if (become_leaf) {
         rpl_dodag_set_leaf(dodag, true);
-    }
-
-    /* RFC 6550 8.3: A DIO from a sender with lesser DAGRank that causes no
-     * changes to the recipient's parent set, preferred parent, or Rank SHOULD
-     * be considered consistent with respect to the Trickle timer.
-     *
-     * Now, if we don't run parent selection immediately, how do we know if it's
-     * consistent or not? Compromise is to treat all lower ranked DIOs as
-     * consistent, and reset (and hold) the consistent counter to 0 if any of
-     * the above change. This actually seems better than the RFC 6550 rule, as
-     * it guarantees we will transmit if those change. The rule as stated
-     * would mean a large number of parent messages would stop us advertising
-     * a Rank change.
-     */
-    if (version == rpl_instance_current_dodag_version(instance) &&
-            (rpl_rank_compare(dodag, rank, rpl_instance_current_rank(instance)) & RPL_CMP_LESS)) {
-        rpl_instance_consistent_rx(instance);
     }
 
     rpl_instance_neighbours_changed(instance, dodag);
@@ -1292,6 +1293,10 @@ void rpl_control_transmit(rpl_domain_t *domain, protocol_interface_info_entry_t 
     /* Others set "0", which means use interface default */
     buf->options.hop_limit = addr_ipv6_scope(buf->dst_sa.address, cur) <= IPV6_SCOPE_LINK_LOCAL ? 255 : 0;
 
+    if (code == ICMPV6_CODE_RPL_DAO || code == ICMPV6_CODE_RPL_DAO_ACK || buf->dst_sa.address[0] != 0xff) {
+        //DAO and DAO ACK and unicast traffic with Higher priority
+        buf->options.traffic_class = IP_DSCP_CS6 << IP_TCLASS_DSCP_SHIFT;
+    }
 
     if (dst == NULL && cur == NULL) {
         rpl_control_transmit_all_interfaces(domain, buf);

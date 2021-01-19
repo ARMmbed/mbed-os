@@ -17,7 +17,7 @@
 
 #include "nsconfig.h"
 #include "ns_types.h"
-
+#include "eventOS_event.h"
 #include "Core/include/ns_monitor.h"
 #include "mac_api.h"    // for mcps_packet_ingress_rate_limit_by_memory
 #include "MAC/IEEE802_15_4/mac_mcps_sap.h" // for mcps_packet_ingress_rate_limit_by_memory

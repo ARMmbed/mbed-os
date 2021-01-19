@@ -26,6 +26,7 @@
 #include "mac_api.h"
 #include "mac_mcps.h"
 #include "Common_Protocols/ipv6_constants.h"
+#include "Common_Protocols/ip.h"
 #include "socket_api.h"
 #include "6LoWPAN/MAC/mac_helper.h"
 #include "6LoWPAN/MAC/mpx_api.h"
@@ -89,6 +90,8 @@ int8_t ws_eapol_relay_start(protocol_interface_info_entry_t *interface_ptr, uint
         ns_dyn_mem_free(eapol_relay);
         return -1;
     }
+    int16_t tc = IP_DSCP_CS6 << IP_TCLASS_DSCP_SHIFT;
+    socket_setsockopt(eapol_relay->socket_id, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_TCLASS, &tc, sizeof(tc));
 
     if (ws_eapol_pdu_cb_register(interface_ptr, &eapol_pdu_recv_cb_data) < 0) {
         ns_dyn_mem_free(eapol_relay);

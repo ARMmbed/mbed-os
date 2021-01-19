@@ -2372,6 +2372,18 @@ static mac_pre_build_frame_t *mcps_sap_pd_req_queue_read(protocol_interface_rf_m
 
 void mcps_sap_pre_parsed_frame_buffer_free(mac_pre_parsed_frame_t *buf)
 {
+    if (!buf) {
+        return;
+    }
+
+    if (buf->mac_class_ptr && buf->fcf_dsn.frametype == FC_ACK_FRAME) {
+        struct protocol_interface_rf_mac_setup *rf_mac_setup = buf->mac_class_ptr;
+        if (rf_mac_setup->rf_pd_ack_buffer_is_in_use) {
+            rf_mac_setup->rf_pd_ack_buffer_is_in_use = false;
+            return;
+        }
+    }
+
     ns_dyn_mem_free(buf);
 }
 
@@ -2387,6 +2399,37 @@ mac_pre_parsed_frame_t *mcps_sap_pre_parsed_frame_buffer_get(const uint8_t *data
 
     return buffer;
 }
+
+mac_pre_parsed_frame_t *mcps_sap_pre_parsed_ack_buffer_get(protocol_interface_rf_mac_setup_s *rf_ptr, const uint8_t *data_ptr, uint16_t frame_length)
+{
+
+    if (rf_ptr->rf_pd_ack_buffer_is_in_use) {
+#ifdef __linux__
+        tr_debug("mac ACK buffer get fail: already active");
+#endif
+        return NULL;
+    }
+
+    if (frame_length > rf_ptr->allocated_ack_buffer_length) {
+        //Free Current
+        if (rf_ptr->pd_rx_ack_buffer) {
+            ns_dyn_mem_free(rf_ptr->pd_rx_ack_buffer);
+            rf_ptr->allocated_ack_buffer_length = 0;
+        }
+        rf_ptr->pd_rx_ack_buffer = ns_dyn_mem_alloc(sizeof(mac_pre_parsed_frame_t) + frame_length);
+        if (!rf_ptr->pd_rx_ack_buffer) {
+            return NULL;
+        }
+        rf_ptr->allocated_ack_buffer_length = frame_length;
+    }
+    memset(rf_ptr->pd_rx_ack_buffer, 0, sizeof(mac_pre_parsed_frame_t) + rf_ptr->allocated_ack_buffer_length);
+    rf_ptr->pd_rx_ack_buffer->frameLength = frame_length;
+    memcpy(mac_header_message_start_pointer(rf_ptr->pd_rx_ack_buffer), data_ptr, frame_length);
+    //Mark active ACK buffer state
+    rf_ptr->rf_pd_ack_buffer_is_in_use = true;
+    return rf_ptr->pd_rx_ack_buffer;
+}
+
 
 static void mac_set_active_event(protocol_interface_rf_mac_setup_s *rf_mac_setup, uint8_t event_type)
 {
@@ -2458,21 +2501,36 @@ int8_t mcps_sap_pd_confirm_failure(void *mac_ptr)
     return eventOS_event_send(&event);
 }
 
-void mcps_sap_pd_ack(void *ack_ptr)
+int8_t mcps_sap_pd_ack(struct protocol_interface_rf_mac_setup *rf_ptr, mac_pre_parsed_frame_t *buffer)
 {
-    if (mac_tasklet_event_handler < 0  || !ack_ptr) {
-        return;
+    if (mac_tasklet_event_handler < 0  || !buffer) {
+        return -1;
     }
+
+    if (buffer->fcf_dsn.frametype == FC_ACK_FRAME) {
+        arm_event_storage_t *event = &rf_ptr->mac_ack_event;
+        event->data.data_ptr = buffer;
+        event->data.event_data = 0;
+        event->data.event_id = 0;
+        event->data.event_type = MCPS_SAP_DATA_ACK_CNF_EVENT;
+        event->data.priority = ARM_LIB_HIGH_PRIORITY_EVENT;
+        event->data.sender = 0;
+        event->data.receiver = mac_tasklet_event_handler;
+        eventOS_event_send_user_allocated(event);
+
+        return 0;
+    }
+
     arm_event_s event = {
         .receiver = mac_tasklet_event_handler,
         .sender = 0,
         .event_id = 0,
-        .data_ptr = ack_ptr,
+        .data_ptr = buffer,
         .event_type = MCPS_SAP_DATA_ACK_CNF_EVENT,
         .priority = ARM_LIB_HIGH_PRIORITY_EVENT,
     };
 
-    eventOS_event_send(&event);
+    return eventOS_event_send(&event);
 }
 
 void mcps_sap_trig_tx(void *mac_ptr)
@@ -2566,6 +2624,17 @@ void mac_mcps_buffer_queue_free(protocol_interface_rf_mac_setup_s *rf_mac_setup)
             mcps_sap_prebuild_frame_buffer_free(buffer);
         }
     }
+
+    if (rf_mac_setup->pd_rx_ack_buffer) {
+        if (rf_mac_setup->rf_pd_ack_buffer_is_in_use) {
+            eventOS_cancel(&rf_mac_setup->mac_ack_event);
+            rf_mac_setup->rf_pd_ack_buffer_is_in_use = false;
+        }
+        ns_dyn_mem_free(rf_mac_setup->pd_rx_ack_buffer);
+        rf_mac_setup->pd_rx_ack_buffer = NULL;
+        rf_mac_setup->allocated_ack_buffer_length = 0;
+    }
+
 }
 /**
  * Function return list start pointer

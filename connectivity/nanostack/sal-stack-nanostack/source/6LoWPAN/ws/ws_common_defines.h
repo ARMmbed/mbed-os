@@ -100,6 +100,8 @@ typedef struct ws_hopping_schedule_s {
     uint8_t regulatory_domain;          /**< PHY regulatory domain default to "KR" 0x09 */
     uint8_t operating_class;            /**< PHY operating class default to 1 */
     uint8_t operating_mode;             /**< PHY operating mode default to "1b" symbol rate 50, modulation index 1 */
+    uint8_t phy_mode_id;                /**< PHY mode ID, default to 255 */
+    uint8_t channel_plan_id;            /**< Channel plan ID, default to 255 */
     uint8_t channel_plan;               /**< 0: use regulatory domain values 1: application defined plan */
     uint8_t uc_channel_function;        /**< 0: Fixed channel, 1:TR51CF, 2: Direct Hash, 3: Vendor defined */
     uint8_t bc_channel_function;        /**< 0: Fixed channel, 1:TR51CF, 2: Direct Hash, 3: Vendor defined */
