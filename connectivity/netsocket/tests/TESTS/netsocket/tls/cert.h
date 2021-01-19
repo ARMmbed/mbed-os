@@ -20,7 +20,7 @@
 #if defined(MBED_CONF_APP_ECHO_SERVER_USE_CUSTOM_CERT) && MBED_CONF_APP_ECHO_SERVER_USE_CUSTOM_CERT
 #include "custom_cert.h"
 #else
-const char *tls_global::cert = \
+const char *tls_global::cert =
     "-----BEGIN CERTIFICATE-----\n"
     "MIIEZTCCA02gAwIBAgIQQAF1BIMUpMghjISpDBbN3zANBgkqhkiG9w0BAQsFADA/\n"
     "MSQwIgYDVQQKExtEaWdpdGFsIFNpZ25hdHVyZSBUcnVzdCBDby4xFzAVBgNVBAMT\n"
