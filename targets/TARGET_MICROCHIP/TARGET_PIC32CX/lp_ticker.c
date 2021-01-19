@@ -32,12 +32,11 @@
 #define LPTIMER_FREQUENCY    32768
 #define LPTIMER_BITS         32
 
-#define LPTIMER_ID_TC        ID_TC0_CHANNEL0
+#define LPTIMER_ID_TC        ID_TC0_CHANNEL1
 #define LPTIMER_TC           TC0
-#define LPTIMER_TC_CHN       0
-#define LPTIMER_TC_Handler   TC0_CHANNEL0_Handler
-#define LPTIMER_TC_IRQn      TC0_CHANNEL0_IRQn
-#define LPTIMER_TC_Handler   TC0_CHANNEL0_Handler
+#define LPTIMER_TC_CHN       1
+#define LPTIMER_TC_Handler   TC0_CHANNEL1_Handler
+#define LPTIMER_TC_IRQn      TC0_CHANNEL1_IRQn
 
 const ticker_info_t* lp_ticker_get_info()
 {
@@ -68,7 +67,7 @@ void lp_ticker_init(void)
 {
     if (!lp_ticker_inited) {
         /* Configure PMC */
-        pmc_enable_periph_clk(ID_TC0_CHANNEL0);
+        pmc_enable_periph_clk(LPTIMER_ID_TC);
 
         /* Configure Timer */
         tc_init(LPTIMER_TC, LPTIMER_TC_CHN, TC_CMR_TCCLKS_TIMER_CLOCK5 | TC_CMR_CPCTRG, 0);

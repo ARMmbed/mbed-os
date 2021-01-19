@@ -92,11 +92,11 @@ static inline void usart_serial_init(usart_if p_usart,
         /* Enable the receiver and transmitter. */
         uart_enable_tx((Uart *)p_usart);
         uart_enable_rx((Uart *)p_usart);
-        
+
 	} else {
 		uint32_t ul_clk;
 		uint32_t ul_div;
-		
+
 		/* Fexcomm USART */
 		sam_usart_opt_t usart_settings;
 		usart_settings.baudrate = opt->baudrate;
@@ -114,7 +114,7 @@ static inline void usart_serial_init(usart_if p_usart,
 
 		if (USART0 == p_usart) {
 			/* Configure GCLK */
-			pmc_configure_generic(ID_FLEXCOM0, PMC_PCR_GCLKCSS_MCK0, ul_div);
+			pmc_configure_generic(ID_FLEXCOM0, PMC_PCR_GCLKCSS_MCK0, PMC_PCR_GCLKDIV(ul_div));
 			pmc_enable_generic_clk(ID_FLEXCOM0);
 			usart_set_clk_source(USART0, USART_SRC_CLK_GCLK);
 			/* Enable Flexcom */
@@ -127,7 +127,7 @@ static inline void usart_serial_init(usart_if p_usart,
 			usart_enable_rx(p_usart);
 		} else if (USART1 == p_usart) {
 			/* Configure GCLK */
-			pmc_configure_generic(ID_FLEXCOM1, PMC_PCR_GCLKCSS_MCK0, ul_div);
+			pmc_configure_generic(ID_FLEXCOM1, PMC_PCR_GCLKCSS_MCK0, PMC_PCR_GCLKDIV(ul_div));
 			pmc_enable_generic_clk(ID_FLEXCOM1);
 			usart_set_clk_source(USART1, USART_SRC_CLK_GCLK);
 			/* Enable Flexcom */
@@ -141,7 +141,7 @@ static inline void usart_serial_init(usart_if p_usart,
 			usart_enable_rx(p_usart);
 		} else if (USART2 == p_usart) {
 			/* Configure GCLK */
-			pmc_configure_generic(ID_FLEXCOM2, PMC_PCR_GCLKCSS_MCK0, ul_div);
+			pmc_configure_generic(ID_FLEXCOM2, PMC_PCR_GCLKCSS_MCK0, PMC_PCR_GCLKDIV(ul_div));
 			pmc_enable_generic_clk(ID_FLEXCOM2);
 			usart_set_clk_source(USART2, USART_SRC_CLK_GCLK);
 			/* Enable Flexcom */
@@ -155,7 +155,7 @@ static inline void usart_serial_init(usart_if p_usart,
 			usart_enable_rx(p_usart);
 		} else if (USART3 == p_usart) {
 			/* Configure GCLK */
-			pmc_configure_generic(ID_FLEXCOM3, PMC_PCR_GCLKCSS_MCK0, ul_div);
+			pmc_configure_generic(ID_FLEXCOM3, PMC_PCR_GCLKCSS_MCK0, PMC_PCR_GCLKDIV(ul_div));
 			pmc_enable_generic_clk(ID_FLEXCOM3);
 			usart_set_clk_source(USART3, USART_SRC_CLK_GCLK);
 			/* Enable Flexcom */
@@ -169,7 +169,7 @@ static inline void usart_serial_init(usart_if p_usart,
 			usart_enable_rx(p_usart);
 		} else if (USART4 == p_usart) {
 			/* Configure GCLK */
-			pmc_configure_generic(ID_FLEXCOM4, PMC_PCR_GCLKCSS_MCK0, ul_div);
+			pmc_configure_generic(ID_FLEXCOM4, PMC_PCR_GCLKCSS_MCK0, PMC_PCR_GCLKDIV(ul_div));
 			pmc_enable_generic_clk(ID_FLEXCOM4);
 			usart_set_clk_source(USART4, USART_SRC_CLK_GCLK);
 			/* Enable Flexcom */
@@ -183,7 +183,7 @@ static inline void usart_serial_init(usart_if p_usart,
 			usart_enable_rx(p_usart);
 		} else if (USART5 == p_usart) {
 			/* Configure GCLK */
-			pmc_configure_generic(ID_FLEXCOM5, PMC_PCR_GCLKCSS_MCK0, ul_div);
+			pmc_configure_generic(ID_FLEXCOM5, PMC_PCR_GCLKCSS_MCK0, PMC_PCR_GCLKDIV(ul_div));
 			pmc_enable_generic_clk(ID_FLEXCOM5);
 			usart_set_clk_source(USART5, USART_SRC_CLK_GCLK);
 			/* Enable Flexcom */
@@ -197,7 +197,7 @@ static inline void usart_serial_init(usart_if p_usart,
 			usart_enable_rx(p_usart);
 		} else if (USART6 == p_usart) {
 			/* Configure GCLK */
-			pmc_configure_generic(ID_FLEXCOM6, PMC_PCR_GCLKCSS_MCK0, ul_div);
+			pmc_configure_generic(ID_FLEXCOM6, PMC_PCR_GCLKCSS_MCK0, PMC_PCR_GCLKDIV(ul_div));
 			pmc_enable_generic_clk(ID_FLEXCOM6);
 			usart_set_clk_source(USART6, USART_SRC_CLK_GCLK);
 			/* Enable Flexcom */
@@ -211,7 +211,7 @@ static inline void usart_serial_init(usart_if p_usart,
 			usart_enable_rx(p_usart);
 		} else if (USART7 == p_usart) {
 			/* Configure GCLK */
-			pmc_configure_generic(ID_FLEXCOM7, PMC_PCR_GCLKCSS_MCK0, ul_div);
+			pmc_configure_generic(ID_FLEXCOM7, PMC_PCR_GCLKCSS_MCK0, PMC_PCR_GCLKDIV(ul_div));
 			pmc_enable_generic_clk(ID_FLEXCOM7);
 			usart_set_clk_source(USART7, USART_SRC_CLK_GCLK);
 			/* Enable Flexcom */
