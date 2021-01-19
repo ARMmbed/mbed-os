@@ -589,7 +589,7 @@ ble_error_t Gap::connect(
                 slave_latency_t(connectionParams.getSlaveLatencyArray()[i])
             )
             ) {
-            tr_error("supervision timout cannot be less than/equal to %lums", minSupervisionTimeout(
+            tr_error("supervision timout cannot be less than/equal to %" PRIu32 "ms", minSupervisionTimeout(
                              conn_interval_t(connectionParams.getMaxConnectionIntervalArray()[i]),
                              slave_latency_t(connectionParams.getSlaveLatencyArray()[i])).valueInMs());
             return BLE_ERROR_INVALID_PARAM;
@@ -763,7 +763,7 @@ ble_error_t Gap::updateConnectionParameters(
             minConnectionInterval.valueInMs());
 
     if (supervisionTimeout <= minSupervisionTimeout(maxConnectionInterval, slaveLatency)) {
-        tr_error("supervision timeout cannot be less than/equal to %lums",
+        tr_error("supervision timeout cannot be less than/equal to %" PRIu32 "ms",
                  minSupervisionTimeout(maxConnectionInterval, slaveLatency).valueInMs());
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -805,7 +805,7 @@ ble_error_t Gap::acceptConnectionParametersUpdate(
             maxConnectionEventLength.valueInMs());
 
     if (supervisionTimeout <= minSupervisionTimeout(maxConnectionInterval, slaveLatency)) {
-        tr_error("supervision timeout cannot be less than/equal to %lums",
+        tr_error("supervision timeout cannot be less than/equal to %" PRIu32 "ms",
                  minSupervisionTimeout(maxConnectionInterval, slaveLatency).valueInMs());
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -3279,8 +3279,8 @@ ble_error_t Gap::setScanParameters(const ScanParameters &params)
             "own_address_type=%s, "
             "scanning_filter_policy=%s, "
             "phys=%d, "
-            "phy_1m_configuration:[interval=%lums,window=%lums,active_scanning=%s] ,"
-            "phy_coded_configuration:[interval=%lums,window=%lums,active_scanning=%s]",
+            "phy_1m_configuration:[interval=%" PRIu32 "ms,window=%" PRIu32 "ms,active_scanning=%s] ,"
+            "phy_coded_configuration:[interval=%" PRIu32 "ms,window=%" PRIu32 "ms,active_scanning=%s]",
             to_string(params.getOwnAddressType()),
             to_string(params.getFilter()),
             params.getPhys().value(),
@@ -3354,7 +3354,7 @@ ble_error_t Gap::startScan(
     tr_info("Start scan - "
             "duration=%" PRIu32 "ms, "
             "filtering=%s, "
-            "period=%lums",
+            "period=%" PRIu32 "ms",
             duration.valueInMs(),
             to_string(filtering),
             period.valueInMs());
@@ -3460,7 +3460,7 @@ ble_error_t Gap::createSync(
             "peerAddress=%s, "
             "sid=%u, "
             "maxPacketSkip=%hu, "
-            "timeout=%lums",
+            "timeout=%" PRIu32 "ms",
             to_string(peerAddressType),
             to_string(peerAddress),
             sid,
@@ -3506,7 +3506,7 @@ ble_error_t Gap::createSync(
 {
     tr_info("Create sync - "
             "maxPacketSkip=%hu, "
-            "timeout=%lums",
+            "timeout=%" PRIu32 "ms",
             maxPacketSkip.value(),
             timeout.valueInMs());
 
