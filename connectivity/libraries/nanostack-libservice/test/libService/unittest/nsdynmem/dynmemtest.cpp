@@ -400,12 +400,12 @@ TEST(dynmem, ns_dyn_mem_temporary_alloc_with_heap_threshold)
     CHECK(info.heap_sector_alloc_cnt == 0);
     free(heap);
 
-    // Test6, feature is disabled if info is not set
+    // Test6, feature is disabled if info is coming anyway
     heap = (uint8_t *)malloc(size);
     CHECK(NULL != heap);
     ns_dyn_mem_init(heap, size, &heap_fail_callback, NULL);
     ret_val = ns_dyn_mem_set_temporary_alloc_free_heap_threshold(0, 0);
-    CHECK(ret_val == -1);
+    CHECK(ret_val == 0);
     CHECK(!heap_have_failed());
     free(heap);
 }
