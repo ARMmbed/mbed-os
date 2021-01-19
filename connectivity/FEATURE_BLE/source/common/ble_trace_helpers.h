@@ -394,19 +394,19 @@ static inline const char* to_string(ble::advertising_channel_map_t map)
 {
     switch (map.value()) {
         case ble::advertising_channel_map_t::ADVERTISING_CHANNEL_37:
-            return "ADVERTISING_CHANNEL_37";
+            return "[001]";
         case ble::advertising_channel_map_t::ADVERTISING_CHANNEL_38:
-            return "ADVERTISING_CHANNEL_38";
+            return "[010]";
         case ble::advertising_channel_map_t::ADVERTISING_CHANNEL_37_AND_38:
-            return "ADVERTISING_CHANNEL_37_AND_38";
+            return "[011";
         case ble::advertising_channel_map_t::ADVERTISING_CHANNEL_39:
-            return "ADVERTISING_CHANNEL_39";
+            return "[100]";
         case ble::advertising_channel_map_t::ADVERTISING_CHANNEL_37_AND_39:
-            return "ADVERTISING_CHANNEL_37_AND_39";
+            return "[101]";
         case ble::advertising_channel_map_t::ADVERTISING_CHANNEL_38_AND_39:
-            return "ADVERTISING_CHANNEL_38_AND_39";
+            return "[110]";
         case ble::advertising_channel_map_t::ALL_ADVERTISING_CHANNELS:
-            return "ALL_ADVERTISING_CHANNELS";
+            return "[111]";
         default:
             return "unknown";
     }
