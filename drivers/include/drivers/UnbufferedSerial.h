@@ -155,14 +155,16 @@ public:
      */
     short poll(short events) const override;
 
-    using SerialBase::readable;
-    using SerialBase::writeable;
-    using SerialBase::format;
     using SerialBase::attach;
     using SerialBase::baud;
+    using SerialBase::enable_input;
+    using SerialBase::enable_output;
+    using SerialBase::format;
+    using SerialBase::readable;
+    using SerialBase::writeable;
+    using SerialBase::IrqCnt;
     using SerialBase::RxIrq;
     using SerialBase::TxIrq;
-    using SerialBase::IrqCnt;
 
 #if DEVICE_SERIAL_FC
     // For now use the base enum - but in future we may have extra options
