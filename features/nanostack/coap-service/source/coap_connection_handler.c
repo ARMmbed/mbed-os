@@ -66,7 +66,9 @@ static NS_LIST_DEFINE(socket_list, internal_socket_t, link);
 static uint8_t max_handshakes = MAX_ONGOING_HANDSHAKES;
 static uint8_t max_sessions = MAX_SECURE_SESSION_COUNT;
 
+#ifdef COAP_SECURITY_AVAILABLE
 static void timer_cb(void *param);
+#endif
 
 static void recv_sckt_msg(void *cb_res);
 #ifdef COAP_SECURITY_AVAILABLE
@@ -102,10 +104,13 @@ typedef struct secure_session {
 } secure_session_t;
 
 static NS_LIST_DEFINE(secure_session_list, secure_session_t, link);
+
+#ifdef COAP_SECURITY_AVAILABLE
 static int secure_session_sendto(int8_t socket_id, void *handle, const void *buf, size_t len);
 static int secure_session_recvfrom(int8_t socket_id, unsigned char *buf, size_t len);
 static void start_timer(int8_t timer_id, uint32_t int_ms, uint32_t fin_ms);
 static int timer_status(int8_t timer_id);
+#endif //COAP_SECURITY_AVAILABLE
 
 static secure_session_t *secure_session_find_by_timer_id(int8_t timer_id)
 {
@@ -119,6 +124,7 @@ static secure_session_t *secure_session_find_by_timer_id(int8_t timer_id)
     return this;
 }
 
+#ifdef COAP_SECURITY_AVAILABLE
 static bool is_secure_session_valid(secure_session_t *session)
 {
     ns_list_foreach(secure_session_t, cur_ptr, &secure_session_list) {
@@ -128,6 +134,7 @@ static bool is_secure_session_valid(secure_session_t *session)
     }
     return false;
 }
+#endif
 
 static void secure_session_delete(secure_session_t *this)
 {
@@ -161,6 +168,7 @@ static int8_t virtual_socket_id_allocate()
 
 static secure_session_t *secure_session_create(internal_socket_t *parent, const uint8_t *address_ptr, uint16_t port, SecureConnectionMode secure_mode)
 {
+    (void) secure_mode;
     uint8_t handshakes = 0;
     if (!address_ptr) {
         return NULL;
@@ -237,7 +245,9 @@ static void clear_secure_sessions(internal_socket_t *this)
     if (this) {
         ns_list_foreach_safe(secure_session_t, cur_ptr, &secure_session_list) {
             if (cur_ptr->parent == this) {
+#ifdef COAP_SECURITY_AVAILABLE
                 coap_security_send_close_alert(cur_ptr->sec_handler);
+#endif //COAP_SECURITY_AVAILABLE
                 secure_session_delete(cur_ptr);
             }
         }
@@ -430,6 +440,7 @@ static int send_to_real_socket(int8_t socket_id, const ns_address_t *address, co
     return socket_sendmsg(socket_id, &msghdr, 0);
 }
 
+#ifdef COAP_SECURITY_AVAILABLE
 static int secure_session_sendto(int8_t socket_id, void *handle, const void *buf, size_t len)
 {
     secure_session_t *session = handle;
@@ -462,7 +473,9 @@ static int secure_session_sendto(int8_t socket_id, void *handle, const void *buf
     }
     return len;
 }
+#endif //COAP_SECURITY_AVAILABLE
 
+#ifdef COAP_SECURITY_AVAILABLE
 static int secure_session_recvfrom(int8_t socket_id, unsigned char *buf, size_t len)
 {
     (void)len;
@@ -477,6 +490,7 @@ static int secure_session_recvfrom(int8_t socket_id, unsigned char *buf, size_t 
     }
     return MBEDTLS_ERR_SSL_WANT_READ;
 }
+#endif //COAP_SECURITY_AVAILABLE
 
 /**
  * Callback timer. Maybe called in interrupt context
@@ -484,6 +498,7 @@ static int secure_session_recvfrom(int8_t socket_id, unsigned char *buf, size_t 
  * TODO - might be better to use an event timer in conjunction with
  * CoAP tasklet
  */
+#ifdef COAP_SECURITY_AVAILABLE
 static void timer_cb(void *param)
 {
     secure_session_t *sec = param;
@@ -515,7 +530,9 @@ static void timer_cb(void *param)
         }
     }
 }
+#endif
 
+#ifdef COAP_SECURITY_AVAILABLE
 static void start_timer(int8_t timer_id, uint32_t int_ms, uint32_t fin_ms)
 {
     secure_session_t *sec = secure_session_find_by_timer_id(timer_id);
@@ -538,7 +555,9 @@ static void start_timer(int8_t timer_id, uint32_t int_ms, uint32_t fin_ms)
         }
     }
 }
+#endif //COAP_SECURITY_AVAILABLE
 
+#ifdef COAP_SECURITY_AVAILABLE
 static int timer_status(int8_t timer_id)
 {
     secure_session_t *sec = secure_session_find_by_timer_id(timer_id);
@@ -547,6 +566,7 @@ static int timer_status(int8_t timer_id)
     }
     return TIMER_STATE_CANCELLED;
 }
+#endif //COAP_SECURITY_AVAILABLE
 
 static int read_data(socket_callback_t *sckt_data, internal_socket_t *sock, ns_address_t *src_address, uint8_t dst_address[static 16])
 {
@@ -872,7 +892,9 @@ void connection_handler_close_secure_connection(coap_conn_handler_t *handler, ui
         if (handler->socket && handler->socket->is_secure) {
             secure_session_t *session = secure_session_find(handler->socket, destination_addr_ptr, port);
             if (session) {
+#ifdef COAP_SECURITY_AVAILABLE
                 coap_security_send_close_alert(session->sec_handler);
+#endif //COAP_SECURITY_AVAILABLE
                 session->session_state = SECURE_SESSION_CLOSED;
                 session->last_contact_time = coap_service_get_internal_timer_ticks();
             }
