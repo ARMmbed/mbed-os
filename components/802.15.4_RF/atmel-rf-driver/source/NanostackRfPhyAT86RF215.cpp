@@ -30,8 +30,23 @@
 #include <Timer.h>
 #include "Timeout.h"
 #include "SPI.h"
+#include "platform/mbed_version.h"
 
 #define TRACE_GROUP "AtRF"
+
+#if (MBED_VERSION > MBED_ENCODE_VERSION(6, 0, 0))
+/* Mbed OS 6.0 introduces support for chrono time management */
+using namespace std::chrono_literals;
+#define ATMEL_RF_TIME_65MS  65ms
+#define ATMEL_RF_TIME_1US   1us
+#define ATMEL_RF_ATTACH(timer_ref, signal_ref, timeout_ref) timer_ref.attach(signal_ref, timeout_ref)
+#define ATMEL_RF_DRIVER_CHRONO_SUPPORTED
+#else
+#define ATMEL_RF_TIME_65MS  65000
+#define ATMEL_RF_TIME_1US   1
+
+#define ATMEL_RF_ATTACH(timer_ref, signal_ref, timeout_ref) timer_ref.attach_us(signal_ref, timeout_ref)
+#endif
 
 #define RF_MTU_15_4_2011    127
 #define RF_MTU_15_4G_2012   2047
@@ -196,7 +211,11 @@ static Se2435Pins *se2435_pa_pins = NULL;
 
 static uint32_t rf_get_timestamp(void)
 {
+#ifdef ATMEL_RF_DRIVER_CHRONO_SUPPORTED
+    return (uint32_t)rf->tx_timer.elapsed_time().count();
+#else
     return (uint32_t)rf->tx_timer.read_us();
+#endif
 }
 
 static void rf_lock(void)
@@ -485,7 +504,7 @@ static void rf_init_registers(rf_modules_e module)
             // Set low frequency offset bit
             rf_write_bbc_register_field(BBC_OFDMC, module, LFO, 0);
             // Configure using bandwidth option
-            rf_configure_by_ofdm_bandwidth_option(4, 300000, module);
+            rf_configure_by_ofdm_bandwidth_option(phy_current_config.ofdm_option, phy_current_config.datarate, module);
             // Set Gain control settings
             rf_write_rf_register_field(RF_AGCC, module, AVGS, AVGS_8_SAMPLES);
             rf_write_rf_register_field(RF_AGCC, module, AGCI, 0);
@@ -499,8 +518,8 @@ static void rf_init_registers(rf_modules_e module)
         se2435_pa_pins->ANT_SEL = 0;
         // Enable external front end with configuration 3
         rf_write_rf_register_field(RF_PADFE, module, PADFE, RF_FEMODE3);
-        // Output power at 900MHz: 0 dBm with FSK/QPSK, less than -5 dBm with OFDM
-        rf_tx_power = TXPWR_11;
+        // Output power at 900MHz: -4 dBm with FSK/QPSK, less than -10 dBm with OFDM
+        rf_tx_power = TXPWR_7;
     }
     // Set TX output power
     rf_write_rf_register_field(RF_PAC, module, TXPWR, rf_tx_power);
@@ -564,17 +583,21 @@ static int8_t rf_start_csma_ca(uint8_t *data_ptr, uint16_t data_length, uint8_t 
     mac_tx_handle = tx_handle;
 
     if (tx_time) {
+#ifdef ATMEL_RF_DRIVER_CHRONO_SUPPORTED
+        std::chrono::microseconds backoff_time(tx_time - rf_get_timestamp());
+#else
         uint32_t backoff_time = tx_time - rf_get_timestamp();
+#endif
         // Max. time to TX can be 65ms, otherwise time has passed already -> send immediately
-        if (backoff_time <= 65000) {
-            rf->cca_timer.attach_us(rf_csma_ca_timer_signal, backoff_time);
+        if (backoff_time <= ATMEL_RF_TIME_65MS) {
+            ATMEL_RF_ATTACH(rf->cca_timer, rf_csma_ca_timer_signal, backoff_time);
             TEST_CSMA_STARTED
             rf_unlock();
             return 0;
         }
     }
     // Short timeout to start CCA immediately.
-    rf->cca_timer.attach_us(rf_csma_ca_timer_signal, 1);
+    ATMEL_RF_ATTACH(rf->cca_timer, rf_csma_ca_timer_signal, ATMEL_RF_TIME_1US);
     TEST_CSMA_STARTED
     rf_unlock();
     return 0;
@@ -607,12 +630,16 @@ static void rf_handle_cca_ed_done(void)
     if (cca_prepare_status == PHY_RESTART_CSMA) {
         device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_CCA_OK, 0, 0);
         if (tx_time) {
+#ifdef ATMEL_RF_DRIVER_CHRONO_SUPPORTED
+            std::chrono::microseconds backoff_time(tx_time - rf_get_timestamp());
+#else
             uint32_t backoff_time = tx_time - rf_get_timestamp();
+#endif
             // Max. time to TX can be 65ms, otherwise time has passed already -> send immediately
-            if (backoff_time > 65000) {
-                backoff_time = 1;
+            if (backoff_time > ATMEL_RF_TIME_65MS) {
+                backoff_time = ATMEL_RF_TIME_1US;
             }
-            rf->cca_timer.attach_us(rf_csma_ca_timer_signal, backoff_time);
+            ATMEL_RF_ATTACH(rf->cca_timer, rf_csma_ca_timer_signal, backoff_time);
             TEST_CSMA_STARTED
         }
         return;
@@ -994,7 +1021,11 @@ static uint32_t rf_backup_timer_start(uint16_t bytes, uint32_t time_us)
         time_us = (uint32_t)(8000000 / phy_current_config.datarate) * bytes + PACKET_PROCESSING_TIME;
     }
     // Using cal_timer as backup timer
+#ifdef ATMEL_RF_DRIVER_CHRONO_SUPPORTED
+    rf->cal_timer.attach(rf_backup_timer_signal, std::chrono::microseconds(time_us));
+#else
     rf->cal_timer.attach_us(rf_backup_timer_signal, time_us);
+#endif
 
     return (rf_get_timestamp() + time_us);
 }
