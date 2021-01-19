@@ -37,7 +37,7 @@ void trng_init(trng_t *obj)
 {
     uint32_t dummy;
 
-#if defined(RCC_PERIPHCLK_RNG) /* STM32L4 / STM32H7 / STM32WB */
+#if defined(RCC_PERIPHCLK_RNG) /* STM32L4 / STM32H7 / STM32WB / STM32G4 */
 
 #if defined(TARGET_STM32WB)
     /*  No need to configure RngClockSelection as already done in SetSysClock */
@@ -79,6 +79,16 @@ void trng_init(trng_t *obj)
         if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
             error("RNG clock configuration error\n");
         }
+    }
+
+#elif defined(TARGET_STM32G4)
+    /* RNG and USB clocks have the same HSI48 source which has been enabled in SetSysClock */
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
+
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RNG;
+    PeriphClkInitStruct.RngClockSelection = RCC_RNGCLKSOURCE_HSI48;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+        error("RNG clock configuration error\n");
     }
 
 #elif defined(TARGET_STM32L5)

@@ -2635,6 +2635,7 @@
             "ANALOGOUT",
             "FLASH",
             "MPU",
+            "TRNG",
             "CAN"
         ]
     },
