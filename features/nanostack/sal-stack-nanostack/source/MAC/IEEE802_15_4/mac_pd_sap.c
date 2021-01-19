@@ -480,6 +480,8 @@ static int8_t mac_data_interface_tx_done_cb(protocol_interface_rf_mac_setup_s *r
                                                                rf_ptr->dev_driver->phy_driver->phy_tail_length, active_buf->tx_time);
             // When FHSS TX handle returns -1, transmission of the packet is currently not allowed -> restart CCA timer
             if (tx_handle_retval == -1) {
+                // RX channel could have changed during CSMA-CA, must update using TX done callback
+                rf_ptr->fhss_api->data_tx_done(rf_ptr->fhss_api, false, false, rf_ptr->active_pd_data_request->msduHandle);
                 mac_sap_cca_fail_cb(rf_ptr, 0xffff);
                 return PHY_TX_NOT_ALLOWED;
             }
@@ -631,13 +633,18 @@ VALIDATE_TX_TIME:
     return 0;
 }
 
+static int8_t mac_data_interface_waiting_ack(protocol_interface_rf_mac_setup_s *rf_ptr, const mac_fcf_sequence_t *fcf_read)
+{
+    if (!rf_ptr->macRfRadioTxActive || !rf_ptr->active_pd_data_request || rf_ptr->active_pd_data_request->fcf_dsn.DSN != fcf_read->DSN) {
+        return -1;
+    }
+
+    return 0;
+}
+
 
 static int8_t mac_data_interface_tx_done_by_ack_cb(protocol_interface_rf_mac_setup_s *rf_ptr, mac_pre_parsed_frame_t *buf)
 {
-
-    if (!rf_ptr->macRfRadioTxActive || !rf_ptr->active_pd_data_request || rf_ptr->active_pd_data_request->fcf_dsn.DSN != buf->fcf_dsn.DSN) {
-        return -1;
-    }
 
     timer_mac_stop(rf_ptr);
     if (buf->fcf_dsn.framePending) {
@@ -647,7 +654,9 @@ static int8_t mac_data_interface_tx_done_by_ack_cb(protocol_interface_rf_mac_set
     }
     rf_ptr->macRfRadioTxActive = false;
     rf_ptr->macTxProcessActive = false;
-    mcps_sap_pd_ack(buf);
+    if (mcps_sap_pd_ack(rf_ptr, buf) != 0) {
+        mcps_sap_pre_parsed_frame_buffer_free(buf);
+    }
 
     if (rf_ptr->fhss_api) {
         rf_ptr->fhss_api->data_tx_done(rf_ptr->fhss_api, false, true, rf_ptr->active_pd_data_request->msduHandle);
@@ -655,10 +664,14 @@ static int8_t mac_data_interface_tx_done_by_ack_cb(protocol_interface_rf_mac_set
     return 0;
 }
 
-static bool mac_pd_sap_ack_validation(protocol_interface_rf_mac_setup_s *rf_ptr, const mac_fcf_sequence_t *fcf_dsn, const uint8_t *data_ptr)
+bool mac_pd_sap_ack_validation(protocol_interface_rf_mac_setup_s *rf_ptr, const mac_fcf_sequence_t *fcf_dsn, const uint8_t *data_ptr)
 {
-    if (!rf_ptr->active_pd_data_request || !rf_ptr->active_pd_data_request->fcf_dsn.ackRequested) {
+    if (!rf_ptr->active_pd_data_request || (!rf_ptr->active_pd_data_request->fcf_dsn.ackRequested && !rf_ptr->active_pd_data_request->ExtendedFrameExchange)) {
         return false; //No active Data request anymore or no ACK request for current TX
+    }
+
+    if (rf_ptr->active_pd_data_request->ExtendedFrameExchange && fcf_dsn->frametype == FC_DATA_FRAME) {
+        return true;//EFDE final message
     }
 
     if (fcf_dsn->frameVersion != rf_ptr->active_pd_data_request->fcf_dsn.frameVersion) {
@@ -887,22 +900,35 @@ static int8_t mac_pd_sap_generate_edfe_response(protocol_interface_rf_mac_setup_
 static mac_pre_parsed_frame_t *mac_pd_sap_allocate_receive_buffer(protocol_interface_rf_mac_setup_s *rf_ptr, const mac_fcf_sequence_t *fcf_read, arm_pd_sap_generic_ind_t *pd_data_ind)
 {
     // Unless receiving Ack, check that system has enough space to handle the new packet
-    if (fcf_read->frametype != FC_ACK_FRAME) {
-        if (!ns_monitor_packet_allocation_allowed()) {
+    mac_pre_parsed_frame_t *buffer = NULL;
+    if (fcf_read->frametype != FC_ACK_FRAME || rf_ptr->macProminousMode) {
+        if (!rf_ptr->macProminousMode && !ns_monitor_packet_allocation_allowed()) {
             // stack can not handle new packets for routing
 #ifdef __linux__
             tr_debug("Packet ingress drop buffer allocation");
 #endif
             return NULL;
         }
-    }
-    mac_pre_parsed_frame_t *buffer = mcps_sap_pre_parsed_frame_buffer_get(pd_data_ind->data_ptr, pd_data_ind->data_len);
-    if (!buffer) {
+
+        buffer = mcps_sap_pre_parsed_frame_buffer_get(pd_data_ind->data_ptr, pd_data_ind->data_len);
+        if (!buffer) {
 #ifdef __linux__
-        tr_debug("macPD buffer allocate fail %u", pd_data_ind->data_len);
+            tr_debug("macPD buffer allocate fail %u", pd_data_ind->data_len);
 #endif
-        return NULL;
+            return NULL;
+        }
+    } else {
+        //Allocate ACK buffer
+        buffer = mcps_sap_pre_parsed_ack_buffer_get(rf_ptr, pd_data_ind->data_ptr, pd_data_ind->data_len);
+        if (!buffer) {
+#ifdef __linux__
+            tr_debug("macPD ACK buffer allocate fail %u", pd_data_ind->data_len);
+#endif
+            return NULL;
+
+        }
     }
+
     //Copy Pre Parsed values
     buffer->fcf_dsn = *fcf_read;
     buffer->timestamp = mac_pd_sap_get_phy_rx_time(rf_ptr);
@@ -1008,11 +1034,20 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
         mac_fcf_sequence_t fcf_read;
         const uint8_t *ptr = mac_header_parse_fcf_dsn(&fcf_read, pd_data_ind->data_ptr);
 
-        buffer = mac_pd_sap_allocate_receive_buffer(rf_ptr, &fcf_read, pd_data_ind);
-        if (buffer && mac_filter_modify_link_quality(rf_ptr->mac_interface_id, buffer) == 1) {
+        // No need to send Ack - Check if RX channel needs to be updated
+        if (fcf_read.ackRequested == false) {
+            if (rf_ptr->fhss_api) {
+                rf_ptr->fhss_api->data_tx_done(rf_ptr->fhss_api, false, false, 0);
+            }
+        }
+
+        //Modify link quality
+        if (mac_filter_modify_link_quality(rf_ptr->mac_interface_id, &fcf_read, pd_data_ind) == 1) {
             goto ERROR_HANDLER;
         }
+
         if (!rf_ptr->macProminousMode) {
+            //Pre validate things before allocate buffer
             if (mac_pd_sap_validate_fcf(rf_ptr, &fcf_read, pd_data_ind)) {
                 goto ERROR_HANDLER;
             }
@@ -1020,12 +1055,26 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
                 pd_data_ind->data_len = 0; // Do not update RX drop in that case
                 goto ERROR_HANDLER;
             }
+            //Ack can be send even buffer allocate fail
             if (mac_pd_sap_generate_ack(rf_ptr, &fcf_read, pd_data_ind)) {
 #ifdef __linux__
                 tr_debug("Drop a Data by ignored ACK generation");
 #endif
                 goto ERROR_HANDLER;
             }
+            if (fcf_read.frametype == FC_ACK_FRAME && mac_data_interface_waiting_ack(rf_ptr, &fcf_read)) {
+#ifdef __linux__
+                tr_debug("Drop a ACK not a proper DSN");
+#endif
+                goto ERROR_HANDLER;
+            }
+
+        }
+        //Allocate Buffer
+        buffer = mac_pd_sap_allocate_receive_buffer(rf_ptr, &fcf_read, pd_data_ind);
+
+        if (!rf_ptr->macProminousMode) {
+
             if (buffer) {
                 if (mac_pd_sap_parse_length_fields(buffer, pd_data_ind, ptr)) {
                     goto ERROR_HANDLER;
@@ -1094,7 +1143,7 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
                             //Mark session closed
                             rf_ptr->mac_edfe_info->state = MAC_EDFE_FRAME_IDLE;
                             rf_ptr->mac_edfe_tx_active = false;
-                            if (mac_data_interface_tx_done_by_ack_cb(rf_ptr, buffer)) {
+                            if (mac_data_interface_waiting_ack(rf_ptr, &buffer->fcf_dsn) || mac_data_interface_tx_done_by_ack_cb(rf_ptr, buffer)) {
                                 mcps_sap_pre_parsed_frame_buffer_free(buffer);
                             }
                             return 0;

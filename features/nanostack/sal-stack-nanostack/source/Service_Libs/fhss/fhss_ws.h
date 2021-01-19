@@ -19,8 +19,10 @@
 
 // TX slot length is optimised to this packet length
 #define OPTIMAL_PACKET_LENGTH   500
-// Default TX/RX slot length in milliseconds. Is used when datarate is not given by PHY.
-#define WS_TXRX_SLOT_LEN_MS             100
+// Max TX/RX slot length in milliseconds. Is used when datarate is not given by PHY or calculated slot length exceeds maximum allowed.
+#define WS_TXRX_SLOT_LEN_MS_MAX         100
+// Min TX/RX slot length in milliseconds. Is used when calculated slot length is under minimum allowed.
+#define WS_TXRX_SLOT_LEN_MS_MIN         10
 // Default minimum broadcast synchronization interval in seconds
 #define DEFAULT_MIN_SYNCH_INTERVAL      60
 // Drift compensation allowed if at least SYNCH_COMPENSATION_MIN_INTERVAL (seconds) since last synchronization
@@ -40,6 +42,8 @@ struct fhss_ws {
     int32_t drift_per_millisecond_ns;
     int16_t *tr51_channel_table;
     uint8_t *tr51_output_table;
+    uint32_t next_uc_timeout;
+    uint32_t next_bc_timeout;
     bool unicast_timer_running;
     bool broadcast_timer_running;
     bool is_on_bc_channel;

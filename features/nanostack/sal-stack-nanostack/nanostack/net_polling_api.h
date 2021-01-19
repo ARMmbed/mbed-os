@@ -52,7 +52,7 @@ extern "C" {
 #endif
 
 /*!
- * \enum net_host_mode_t
+ * \enum net_host_mode
  * \brief Sleepy host states.
  */
 typedef enum net_host_mode {

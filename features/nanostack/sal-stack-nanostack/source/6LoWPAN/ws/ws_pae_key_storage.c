@@ -21,6 +21,7 @@
 #include "ns_list.h"
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
+#include "randLIB.h"
 #include "fhss_config.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "6LoWPAN/ws/ws_config.h"
@@ -57,6 +58,9 @@
 /* Force key storage reference time update, if reference time differs more 31 days */
 #define KEY_STORAGE_REF_TIME_UPDATE_FORCE_THRESHOLD   GTK_DEFAULT_LIFETIME + 86400
 
+// Base scatter timer value, 3 seconds */
+#define KEY_STORAGE_SCATTER_TIMER_BASE_VALUE          30
+
 typedef enum {
     WRITE_SET = 0,
     TIME_SET,
@@ -84,6 +88,7 @@ typedef struct {
     uint16_t free_entries;                              /**< Free entries in array */
     bool allocated : 1;                                 /**< Allocated */
     bool modified : 1;                                  /**< Array modified */
+    bool pending_storing : 1;                           /**< Entry is pending storing to NVM */
 } key_storage_array_t;
 
 typedef struct {
@@ -95,6 +100,7 @@ typedef struct {
     uint16_t store_timer_timeout;                       /**< Storing timing timeout */
     uint16_t store_timer;                               /**< Storing timer */
     uint32_t restart_cnt;                               /**< Re-start counter */
+    uint32_t scatter_timer;                             /**< NVM storing scatter timer */
 } key_storage_params_t;
 
 static key_storage_params_t key_storage_params;
@@ -107,7 +113,10 @@ static void ws_pae_key_storage_list_all_free(void);
 static sec_prot_keys_storage_t *ws_pae_key_storage_get(const void *instance, const uint8_t *eui64, key_storage_array_t **key_storage_array, bool return_free);
 static sec_prot_keys_storage_t *ws_pae_key_storage_replace(const void *instance, key_storage_array_t **key_storage_array);
 static void ws_pae_key_storage_trace(uint16_t field_set, sec_prot_keys_storage_t *key_storage, key_storage_array_t *key_storage_array);
+static void ws_pae_key_storage_scatter_timer_timeout(void);
+static void ws_pae_key_storage_fast_timer_start(void);
 static void ws_pae_key_storage_timer_expiry_set(void);
+static void ws_pae_key_storage_fast_timer_ticks_set(void);
 static int8_t ws_pae_key_storage_array_time_update_entry(uint64_t time_difference, sec_prot_keys_storage_t *storage_array_entry);
 static int8_t ws_pae_key_storage_array_time_check_and_update_all(key_storage_array_t *key_storage_array, bool modified);
 static int8_t ws_pae_key_storage_array_counters_check_and_update_all(key_storage_array_t *key_storage_array);
@@ -159,6 +168,7 @@ void ws_pae_key_storage_init(void)
     key_storage_params.replace_index = 0;
     key_storage_params.store_bitfield = 0,
     key_storage_params.restart_cnt = 0;
+    key_storage_params.scatter_timer = 0;
 }
 
 void ws_pae_key_storage_delete(void)
@@ -176,6 +186,7 @@ static int8_t ws_pae_key_storage_allocate(const void *instance, uint16_t key_sto
     if (new_storage_array == NULL) {
         key_storage_array->storage_array_handle = ns_dyn_mem_alloc(key_storage_size);
         if (!key_storage_array->storage_array_handle) {
+            ns_dyn_mem_free(key_storage_array);
             return -1;
         }
         key_storage_array->allocated = true;
@@ -189,6 +200,7 @@ static int8_t ws_pae_key_storage_allocate(const void *instance, uint16_t key_sto
     key_storage_array->free_entries = key_storage_array->entries;
     key_storage_array->instance = instance;
     key_storage_array->modified = false;
+    key_storage_array->pending_storing = false;
 
     ws_pae_nvm_store_key_storage_tlv_create((nvm_tlv_t *) key_storage_array->storage_array_handle, key_storage_array->size);
 
@@ -329,10 +341,13 @@ static sec_prot_keys_storage_t *ws_pae_key_storage_replace(const void *instance,
         key_storage_params.replace_index++;
 
         tr_info("KeyS replace array: %p i: %i eui64: %s", (void *) entry->storage_array, replace_index, tr_array(storage_array[replace_index].ptk_eui_64, 8));
+        break;
     }
 
     // If replace index is not found it means that index has gone past the last entry
     if (storage_array == NULL) {
+        tr_info("KeyS replace array first index");
+
         /* Gets first key storage array and sets the array and sets index to zero and sets
            (next) replace index to first */
         key_storage_array_t *key_storage_array_entry = ns_list_get_first(&key_storage_array_list);
@@ -648,6 +663,7 @@ int8_t ws_pae_key_storage_store(void)
 {
     uint8_t entry_offset = 0;
     uint64_t store_bitfield = 0;
+    bool start_scatter_timer = false;
 
     ns_list_foreach(key_storage_array_t, entry, &key_storage_array_list) {
         // Bitfield is set for all entries (also that are non-modified in this write)
@@ -671,15 +687,18 @@ int8_t ws_pae_key_storage_store(void)
             continue;
         }
 
-        char filename[KEY_STORAGE_FILE_LEN];
-        ws_pae_key_storage_filename_set(filename, entry_offset);
-        tr_info("KeyS write array: %p file: %s", (void *) entry->storage_array, filename);
-        nvm_tlv_t *tlv = (nvm_tlv_t *) entry->storage_array_handle;
-        ws_pae_nvm_store_tlv_file_write(filename, tlv);
+        entry->pending_storing = true;
+        start_scatter_timer = true;
 
-        // No longer pending for storing
+        // Item is pending for storing, reset modified flag
         entry->modified = false;
         entry_offset++;
+    }
+
+    tr_info("KeyS storage store, bitf: %"PRIx64, store_bitfield);
+
+    if (start_scatter_timer) {
+        ws_pae_key_storage_fast_timer_start();
     }
 
     if (key_storage_params.store_bitfield != store_bitfield) {
@@ -692,6 +711,38 @@ int8_t ws_pae_key_storage_store(void)
     }
 
     return 0;
+}
+
+static void ws_pae_key_storage_scatter_timer_timeout(void)
+{
+    uint8_t entry_offset = 0;
+    bool pending_entry = false;
+
+    ns_list_foreach(key_storage_array_t, entry, &key_storage_array_list) {
+        if (!entry->pending_storing) {
+            entry_offset++;
+            continue;
+        }
+        pending_entry = true;
+
+        char filename[KEY_STORAGE_FILE_LEN];
+        ws_pae_key_storage_filename_set(filename, entry_offset);
+        tr_info("KeyS write array: %p file: %s", (void *) entry->storage_array, filename);
+        nvm_tlv_t *tlv = (nvm_tlv_t *) entry->storage_array_handle;
+        ws_pae_nvm_store_tlv_file_write(filename, tlv);
+
+        // Item has been stored, reset pending storing and modified flag
+        entry->pending_storing = false;
+        entry->modified = false;
+        break;
+    }
+
+    if (pending_entry) {
+        ws_pae_key_storage_fast_timer_ticks_set();
+        return;
+    }
+
+    tr_info("KeyS all pending entries stored");
 }
 
 void ws_pae_key_storage_read(uint32_t restart_cnt)
@@ -838,8 +889,30 @@ void ws_pae_key_storage_timer(uint16_t seconds)
         key_storage_params.store_timer = key_storage_params.store_timer_timeout;
         ws_pae_key_storage_store();
     }
+}
 
-    ws_pae_current_time_update(seconds);
+void ws_pae_key_storage_fast_timer(uint16_t ticks)
+{
+    if (key_storage_params.scatter_timer == 0) {
+        return;
+    } else if (key_storage_params.scatter_timer > ticks) {
+        key_storage_params.scatter_timer -= ticks;
+    } else {
+        key_storage_params.scatter_timer = 0;
+        ws_pae_key_storage_scatter_timer_timeout();
+    }
+}
+
+static void ws_pae_key_storage_fast_timer_start(void)
+{
+    ws_pae_key_storage_fast_timer_ticks_set();
+}
+
+static void ws_pae_key_storage_fast_timer_ticks_set(void)
+{
+    // (0.625 - 1,375) * 3 seconds
+    key_storage_params.scatter_timer = randLIB_randomise_base(KEY_STORAGE_SCATTER_TIMER_BASE_VALUE, 0x5000, 0xB000);
+    tr_info("KeyS scatter timer %"PRIi32, key_storage_params.scatter_timer);
 }
 
 static void ws_pae_key_storage_timer_expiry_set(void)

@@ -96,7 +96,8 @@ int ws_bbr_start(int8_t interface_id, int8_t backbone_interface_id);
 #define BBR_GUA_ROUTE             0x0002 /**< More specific route is added for GUA prefix */
 #define BBR_BB_WAIT               0x0004 /**< Wait backbone availability before starting Wi-SUN network */
 #define BBR_DEFAULT_ROUTE         0x0008 /**< Add default route parameter to DIO */
-#define BBR_REQUIRE_DAO_REFRESH   0x0010 /**< Do not increment PAN version number when active forces DAO update from nodes*/
+#define BBR_REQUIRE_DAO_REFRESH   0x0000 /**< Deprecated DAO Refresh is now the default functionality*/
+#define BBR_PERIODIC_VERSION_INC  0x0010 /**< Increment PAN version number Periodically*/
 #define BBR_GUA_SLAAC             0x0020 /**< in Global prefix use SLAAC address generation to reduce traffic during bootstrap */
 
 /**
@@ -333,6 +334,19 @@ int ws_bbr_pan_configuration_get(int8_t interface_id, uint16_t *pan_id);
  * \return <0 PAN configuration validation failed.
  */
 int ws_bbr_pan_configuration_validate(int8_t interface_id, uint16_t pan_id);
+
+/**
+ * Sets Wi-SUN BSI
+ *
+ * Sets Wi-SUN PAN BSI.
+ *
+ * \param interface_id Network interface ID.
+ * \param new_bsi Identifier.
+ *
+ * \return 0, PAN BSI set.
+ * \return <0 PAN BSI set failed.
+ */
+int ws_bbr_bsi_set(int8_t interface_id, uint16_t new_bsi);
 
 /**
  * Sets memory used for key storages

@@ -132,6 +132,9 @@ typedef struct fhss_ws_configuration {
     /** Wi-SUN specific unicast channel mask */
     uint32_t unicast_channel_mask[8];
 
+    /** Channel mask size */
+    uint16_t channel_mask_size;
+
     /** Vendor defined channel function. */
     fhss_vendor_defined_cf *vendor_defined_cf;
 
