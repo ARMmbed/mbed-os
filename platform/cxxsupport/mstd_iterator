@@ -29,6 +29,7 @@
  *   - mstd::ssize
  *   - mstd::empty
  *   - mstd::data
+ *   - mstd::iter_reference_t
  */
 
 #include <iterator>
@@ -143,6 +144,9 @@ constexpr ptrdiff_t ssize(const T (&)[N]) noexcept
 {
     return N;
 }
+
+template <typename T>
+using iter_reference_t = decltype(*std::declval<T&>());
 
 }
 
