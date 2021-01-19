@@ -53,33 +53,57 @@ uint8_t DEVICE_MIN_SENS = 174 - 93;
 
 uint16_t test_max_child_count_override = 0xffff;
 
-int8_t ws_generate_channel_list(uint32_t *channel_mask, uint16_t number_of_channels, uint8_t regulatory_domain, uint8_t operating_class)
+static int8_t ws_disable_channels_in_range(uint32_t *channel_mask, uint16_t number_of_channels, uint16_t range_start, uint16_t range_stop)
 {
-    uint32_t excluded_start_channel = 0xFFFFFFFF;
-    uint32_t excluded_end_channel = 0xFFFFFFFF;
-
-    if (regulatory_domain == REG_DOMAIN_BZ) {
-        if (operating_class == 1) {
-            excluded_start_channel = 26;
-            excluded_end_channel = 64;
-        } else if (operating_class == 2) {
-            excluded_start_channel = 12;
-            excluded_end_channel = 32;
-        } else if (operating_class == 3) {
-            excluded_start_channel = 7;
-            excluded_end_channel = 21;
+    for (uint16_t i = 0; i < number_of_channels; i++) {
+        if (i >= range_start && i <= range_stop) {
+            channel_mask[0 + (i / 32)] &= ~(1 << (i % 32));
         }
     }
+    return 0;
+}
 
+int8_t ws_generate_channel_list(uint32_t *channel_mask, uint16_t number_of_channels, uint8_t regulatory_domain, uint8_t operating_class, uint8_t channel_plan_id)
+{
     // Clear channel mask
     for (uint8_t i = 0; i < 8; i++) {
         channel_mask[i] = 0;
     }
-
-    // Set channel maks outside excluded channels
+    // Enable all channels
     for (uint16_t i = 0; i < number_of_channels; i++) {
-        if (i < excluded_start_channel || i > excluded_end_channel) {
-            channel_mask[0 + (i / 32)] |= (1 << (i % 32));
+        channel_mask[0 + (i / 32)] |= (1 << (i % 32));
+    }
+    // Disable unsupported channels per regional frequency bands
+    if (regulatory_domain == REG_DOMAIN_NA) {
+        if (channel_plan_id == 1) {
+            ws_disable_channels_in_range(channel_mask, number_of_channels, 1, 7);
+        } else if (channel_plan_id == 5) {
+            ws_disable_channels_in_range(channel_mask, number_of_channels, 5, 7);
+        }
+    }
+    if (regulatory_domain == REG_DOMAIN_BZ) {
+        if (channel_plan_id == 255) {
+            if (operating_class == 1) {
+                ws_disable_channels_in_range(channel_mask, number_of_channels, 26, 64);
+            } else if (operating_class == 2) {
+                ws_disable_channels_in_range(channel_mask, number_of_channels, 12, 32);
+            } else if (operating_class == 3) {
+                ws_disable_channels_in_range(channel_mask, number_of_channels, 7, 21);
+            }
+        } else {
+            if (channel_plan_id == 1) {
+                ws_disable_channels_in_range(channel_mask, number_of_channels, 1, 7);
+                ws_disable_channels_in_range(channel_mask, number_of_channels, 64, 64);
+                ws_disable_channels_in_range(channel_mask, number_of_channels, 72, 103);
+                ws_disable_channels_in_range(channel_mask, number_of_channels, 106, 111);
+            } else if (channel_plan_id == 2) {
+                ws_disable_channels_in_range(channel_mask, number_of_channels, 24, 24);
+                ws_disable_channels_in_range(channel_mask, number_of_channels, 32, 47);
+                ws_disable_channels_in_range(channel_mask, number_of_channels, 52, 55);
+            } else if (channel_plan_id == 5) {
+                ws_disable_channels_in_range(channel_mask, number_of_channels, 5, 10);
+                ws_disable_channels_in_range(channel_mask, number_of_channels, 19, 23);
+            }
         }
     }
     return 0;
@@ -109,6 +133,10 @@ uint32_t ws_decode_channel_spacing(uint8_t channel_spacing)
         return 400000;
     } else if (CHANNEL_SPACING_600 == channel_spacing) {
         return 600000;
+    } else if (CHANNEL_SPACING_800 == channel_spacing) {
+        return 800000;
+    } else if (CHANNEL_SPACING_1200 == channel_spacing) {
+        return 1200000;
     }
     return 0;
 }
@@ -125,6 +153,60 @@ uint32_t ws_get_datarate_using_operating_mode(uint8_t operating_mode)
         return 200000;
     } else if (OPERATING_MODE_5 == operating_mode) {
         return 300000;
+    }
+    return 0;
+}
+
+uint32_t ws_get_datarate_using_phy_mode_id(uint8_t phy_mode_id)
+{
+    if (84 == phy_mode_id) {
+        return 150000;
+    } else if (85 == phy_mode_id) {
+        return 200000;
+    } else if ((68 == phy_mode_id) || (86 == phy_mode_id)) {
+        return 300000;
+    } else if ((34 == phy_mode_id) || (51 == phy_mode_id) || (69 == phy_mode_id)) {
+        return 400000;
+    } else if ((52 == phy_mode_id) || (70 == phy_mode_id)) {
+        return 600000;
+    } else if ((35 == phy_mode_id) || (53 == phy_mode_id)) {
+        return 800000;
+    } else if ((36 == phy_mode_id) || (54 == phy_mode_id)) {
+        return 1200000;
+    } else if (37 == phy_mode_id) {
+        return 1600000;
+    } else if (38 == phy_mode_id) {
+        return 2400000;
+    }
+    return 0;
+}
+
+uint8_t ws_get_ofdm_option_using_phy_mode_id(uint8_t phy_mode_id)
+{
+    if ((phy_mode_id >= 34) && (phy_mode_id <= 38)) {
+        return OFDM_OPTION_1;
+    } else if ((phy_mode_id >= 51) && (phy_mode_id <= 54)) {
+        return OFDM_OPTION_2;
+    } else if ((phy_mode_id >= 68) && (phy_mode_id <= 70)) {
+        return OFDM_OPTION_3;
+    } else if ((phy_mode_id >= 84) && (phy_mode_id <= 86)) {
+        return OFDM_OPTION_4;
+    }
+    return 0;
+}
+
+uint8_t ws_get_ofdm_mcs_using_phy_mode_id(uint8_t phy_mode_id)
+{
+    if (34 == phy_mode_id) {
+        return OFDM_MCS_2;
+    } else if ((35 == phy_mode_id) || (51 == phy_mode_id)) {
+        return OFDM_MCS_3;
+    } else if ((36 == phy_mode_id) || (52 == phy_mode_id) || (68 == phy_mode_id) || (84 == phy_mode_id)) {
+        return OFDM_MCS_4;
+    } else if ((37 == phy_mode_id) || (53 == phy_mode_id) || (69 == phy_mode_id) || (85 == phy_mode_id)) {
+        return OFDM_MCS_5;
+    } else if ((38 == phy_mode_id) || (54 == phy_mode_id) || (70 == phy_mode_id) || (86 == phy_mode_id)) {
+        return OFDM_MCS_6;
     }
     return 0;
 }
@@ -146,6 +228,38 @@ int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, 
         return -1;
     }
 
+    // Validate PHY mode ID
+    if (hopping_schdule->phy_mode_id != 255) {
+        uint8_t phy_mode_id = hopping_schdule->phy_mode_id;
+        uint8_t phy_type = phy_mode_id >> 4;
+        uint8_t phy_mode = phy_mode_id & 0x0f;
+        // Invalid PHY type
+        if (phy_type > 5) {
+            return -1;
+        }
+        // Invalid OFDM mode
+        if (phy_type >= 2 && phy_mode > 6) {
+            return -1;
+        }
+        // Skip if PHY mode is for FSK modulation
+        if (!phy_mode_id || ((phy_mode_id > 8) && (phy_mode_id < 17)) || phy_mode_id > 24) {
+            // Validate OFDM configurations
+            if (((phy_mode_id >= 34) && (phy_mode_id <= 38)) ||
+                    ((phy_mode_id >= 51) && (phy_mode_id <= 54)) ||
+                    ((phy_mode_id >= 68) && (phy_mode_id <= 70)) ||
+                    ((phy_mode_id >= 84) && (phy_mode_id <= 86))) {
+                if (ws_get_datarate_using_phy_mode_id(phy_mode_id) == 0 ||
+                        ws_get_ofdm_option_using_phy_mode_id(phy_mode_id) == 0 ||
+                        ws_get_ofdm_mcs_using_phy_mode_id(phy_mode_id) == 0) {
+                    //Unsupported PHY mode
+                    return -1;
+                }
+            } else {
+                // Invalid PHY mode ID
+                return -1;
+            }
+        }
+    }
     hopping_schdule->channel_plan = 0;
 
     if (hopping_schdule->regulatory_domain == REG_DOMAIN_KR) {
@@ -185,30 +299,60 @@ int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, 
             return -1;
         }
     } else if (hopping_schdule->regulatory_domain == REG_DOMAIN_NA) {
-        if (hopping_schdule->operating_class == 1) {
-            hopping_schdule->ch0_freq = 9022;
-            hopping_schdule->channel_spacing = CHANNEL_SPACING_200;
-        } else if (hopping_schdule->operating_class == 2) {
-            hopping_schdule->ch0_freq = 9024;
-            hopping_schdule->channel_spacing = CHANNEL_SPACING_400;
-        } else if (hopping_schdule->operating_class == 3) {
-            hopping_schdule->ch0_freq = 9026;
-            hopping_schdule->channel_spacing = CHANNEL_SPACING_600;
+        if (hopping_schdule->channel_plan_id == 255) {
+            if (hopping_schdule->operating_class == 1) {
+                hopping_schdule->ch0_freq = 9022;
+                hopping_schdule->channel_spacing = CHANNEL_SPACING_200;
+            } else if (hopping_schdule->operating_class == 2) {
+                hopping_schdule->ch0_freq = 9024;
+                hopping_schdule->channel_spacing = CHANNEL_SPACING_400;
+            } else if (hopping_schdule->operating_class == 3) {
+                hopping_schdule->ch0_freq = 9026;
+                hopping_schdule->channel_spacing = CHANNEL_SPACING_600;
+            } else {
+                return -1;
+            }
         } else {
-            return -1;
+            if (hopping_schdule->channel_plan_id == 1) {
+                hopping_schdule->ch0_freq = 9022;
+                hopping_schdule->channel_spacing = CHANNEL_SPACING_200;
+            } else if (hopping_schdule->channel_plan_id == 2) {
+                hopping_schdule->ch0_freq = 9024;
+                hopping_schdule->channel_spacing = CHANNEL_SPACING_400;
+            } else if (hopping_schdule->channel_plan_id == 5) {
+                hopping_schdule->ch0_freq = 9032;
+                hopping_schdule->channel_spacing = CHANNEL_SPACING_1200;
+            } else {
+                return -1;
+            }
         }
     } else if (hopping_schdule->regulatory_domain == REG_DOMAIN_BZ) {
-        if (hopping_schdule->operating_class == 1) {
-            hopping_schdule->ch0_freq = 9022;
-            hopping_schdule->channel_spacing = CHANNEL_SPACING_200;
-        } else if (hopping_schdule->operating_class == 2) {
-            hopping_schdule->ch0_freq = 9024;
-            hopping_schdule->channel_spacing = CHANNEL_SPACING_400;
-        } else if (hopping_schdule->operating_class == 3) {
-            hopping_schdule->ch0_freq = 9026;
-            hopping_schdule->channel_spacing = CHANNEL_SPACING_600;
+        if (hopping_schdule->channel_plan_id == 255) {
+            if (hopping_schdule->operating_class == 1) {
+                hopping_schdule->ch0_freq = 9022;
+                hopping_schdule->channel_spacing = CHANNEL_SPACING_200;
+            } else if (hopping_schdule->operating_class == 2) {
+                hopping_schdule->ch0_freq = 9024;
+                hopping_schdule->channel_spacing = CHANNEL_SPACING_400;
+            } else if (hopping_schdule->operating_class == 3) {
+                hopping_schdule->ch0_freq = 9026;
+                hopping_schdule->channel_spacing = CHANNEL_SPACING_600;
+            } else {
+                return -1;
+            }
         } else {
-            return -1;
+            if (hopping_schdule->channel_plan_id == 1) {
+                hopping_schdule->ch0_freq = 9022;
+                hopping_schdule->channel_spacing = CHANNEL_SPACING_200;
+            } else if (hopping_schdule->channel_plan_id == 2) {
+                hopping_schdule->ch0_freq = 9024;
+                hopping_schdule->channel_spacing = CHANNEL_SPACING_400;
+            } else if (hopping_schdule->channel_plan_id == 5) {
+                hopping_schdule->ch0_freq = 9032;
+                hopping_schdule->channel_spacing = CHANNEL_SPACING_1200;
+            } else {
+                return -1;
+            }
         }
     } else if (hopping_schdule->regulatory_domain == REG_DOMAIN_JP) {
         if (hopping_schdule->operating_class == 1) {
@@ -236,7 +380,7 @@ int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, 
     } else {
         return -1;
     }
-    hopping_schdule->number_of_channels = (uint8_t)ws_common_channel_number_calc(hopping_schdule->regulatory_domain, hopping_schdule->operating_class);
+    hopping_schdule->number_of_channels = (uint8_t)ws_common_channel_number_calc(hopping_schdule->regulatory_domain, hopping_schdule->operating_class, hopping_schdule->channel_plan_id);
     if (!hopping_schdule->number_of_channels) {
         return -1;
     }
@@ -244,7 +388,7 @@ int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, 
     return 0;
 }
 
-uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operating_class)
+uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operating_class, uint8_t channel_plan_id)
 {
     if (regulatory_domain == REG_DOMAIN_KR) {
         if (operating_class == 1) {
@@ -269,12 +413,22 @@ uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operat
             return 10;
         }
     } else if (regulatory_domain == REG_DOMAIN_NA) {
-        if (operating_class == 1) {
-            return 129;
-        } else if (operating_class == 2) {
-            return 64;
-        } else if (operating_class == 3) {
-            return 42;
+        if (channel_plan_id == 255) {
+            if (operating_class == 1) {
+                return 129;
+            } else if (operating_class == 2) {
+                return 64;
+            } else if (operating_class == 3) {
+                return 42;
+            }
+        } else {
+            if (channel_plan_id == 1) {
+                return 136;
+            } else if (channel_plan_id == 2) {
+                return 64;
+            } else if (channel_plan_id == 5) {
+                return 24;
+            }
         }
     } else if (regulatory_domain == REG_DOMAIN_JP) {
         if (operating_class == 1) {
@@ -285,12 +439,22 @@ uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operat
             return 12;
         }
     } else if (regulatory_domain == REG_DOMAIN_BZ) {
-        if (operating_class == 1) {
-            return 129;
-        } else if (operating_class == 2) {
-            return 64;
-        } else if (operating_class == 3) {
-            return 42;
+        if (channel_plan_id == 255) {
+            if (operating_class == 1) {
+                return 129;
+            } else if (operating_class == 2) {
+                return 64;
+            } else if (operating_class == 3) {
+                return 42;
+            }
+        } else {
+            if (channel_plan_id == 1) {
+                return 136;
+            } else if (channel_plan_id == 2) {
+                return 64;
+            } else if (channel_plan_id == 5) {
+                return 24;
+            }
         }
     } else if (regulatory_domain == REG_DOMAIN_WW) {
         if (operating_class == 1) {
@@ -366,10 +530,16 @@ void ws_common_neighbor_update(protocol_interface_info_entry_t *cur, const uint8
     }
 }
 
+void ws_common_black_list_neighbour(const uint8_t *ll_address, uint8_t nd_status)
+{
+    if (nd_status == ARO_FULL) {
+        blacklist_update(ll_address, false);
+    }
+}
+
 void ws_common_aro_failure(protocol_interface_info_entry_t *cur, const uint8_t *ll_address)
 {
     tr_warn("ARO registration Failure %s", trace_ipv6(ll_address));
-    blacklist_update(ll_address, false);
     ws_bootstrap_aro_failure(cur, ll_address);
 }
 
@@ -390,28 +560,40 @@ uint8_t ws_common_temporary_entry_size(uint8_t mac_table_size)
     }
 }
 
-static void ws_common_neighbour_address_reg_link_update(protocol_interface_info_entry_t *interface, const uint8_t *eui64)
+static void ws_common_neighbour_address_reg_link_update(protocol_interface_info_entry_t *interface, const uint8_t *eui64, uint32_t link_lifetime)
 {
+    if (link_lifetime > WS_NEIGHBOR_LINK_TIMEOUT) {
+        link_lifetime = WS_NEIGHBOR_LINK_TIMEOUT;
+    }
     /*
      * ARO registration from child can update the link timeout so we don't need to send extra NUD if ARO received
      */
     mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_by_mac64(mac_neighbor_info(interface), eui64, false, false);
 
     if (mac_neighbor) {
-        if (mac_neighbor->link_lifetime != WS_NEIGHBOR_LINK_TIMEOUT) {
+        if (mac_neighbor->link_lifetime < link_lifetime) {
             //Set Stable timeout for temporary entry here
+            if (link_lifetime > WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME && mac_neighbor->link_lifetime  < WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME) {
+                tr_info("Added new neighbor %s : index:%u", trace_array(eui64, 8), mac_neighbor->index);
+            }
             mac_neighbor->link_lifetime = WS_NEIGHBOR_LINK_TIMEOUT;
-            tr_info("Added new neighbor %s : index:%u", trace_array(eui64, 8), mac_neighbor->index);
+
         }
         //Refresh
         mac_neighbor->lifetime = mac_neighbor->link_lifetime;
     }
 }
 
-uint8_t ws_common_allow_child_registration(protocol_interface_info_entry_t *interface, const uint8_t *eui64)
+uint8_t ws_common_allow_child_registration(protocol_interface_info_entry_t *interface, const uint8_t *eui64, uint16_t aro_timeout)
 {
     uint8_t child_count = 0;
     uint8_t max_child_count = mac_neighbor_info(interface)->list_total_size - ws_common_temporary_entry_size(mac_neighbor_info(interface)->list_total_size);
+
+    if (aro_timeout == 0) {
+        //DeRegister Address Reg
+        return ARO_SUCCESS;
+    }
+    uint32_t link_lifetime = (aro_timeout * 60) + 1;
 
     // Test API to limit child count
     if (test_max_child_count_override != 0xffff) {
@@ -420,8 +602,9 @@ uint8_t ws_common_allow_child_registration(protocol_interface_info_entry_t *inte
 
     //Validate Is EUI64 already allocated for any address
     if (ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, eui64)) {
-        ws_common_neighbour_address_reg_link_update(interface, eui64);
+        ws_common_neighbour_address_reg_link_update(interface, eui64, link_lifetime);
         tr_info("Child registration from old child");
+
         return ARO_SUCCESS;
     }
 
@@ -431,20 +614,21 @@ uint8_t ws_common_allow_child_registration(protocol_interface_info_entry_t *inte
         return ARO_TOPOLOGICALLY_INCORRECT;
     }
 
-
     ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &mac_neighbor_info(interface)->neighbour_list) {
 
         if (ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, cur->mac64)) {
             child_count++;
         }
     }
+
     if (child_count >= max_child_count) {
         tr_warn("Child registration not allowed %d/%d, max:%d", child_count, max_child_count, mac_neighbor_info(interface)->list_total_size);
         return ARO_FULL;
     }
 
-    ws_common_neighbour_address_reg_link_update(interface, eui64);
+    ws_common_neighbour_address_reg_link_update(interface, eui64, link_lifetime);
     tr_info("Child registration allowed %d/%d, max:%d", child_count, max_child_count, mac_neighbor_info(interface)->list_total_size);
+
     return ARO_SUCCESS;
 }
 
@@ -464,21 +648,16 @@ bool ws_common_negative_aro_mark(protocol_interface_info_entry_t *interface, con
 uint32_t ws_common_latency_estimate_get(protocol_interface_info_entry_t *cur)
 {
     uint32_t latency = 0;
-    uint8_t network_size = cur->ws_info->cfg->gen.network_size;
 
-    if (network_size == NETWORK_SIZE_AUTOMATIC) {
-        network_size = cur->ws_info->pan_information.pan_size / 100;
-    }
-
-    if (network_size <= NETWORK_SIZE_SMALL) {
-        // handles also NETWORK_SIZE_CERTIFICATE
-        latency = 4000;
-    } else if (network_size <= NETWORK_SIZE_MEDIUM) {
-        latency = 8000;
-    } else if (network_size <= NETWORK_SIZE_LARGE) {
-        latency = 16000;
+    if (ws_cfg_network_config_get(cur) <= CONFIG_SMALL) {
+        // Also has the certificate settings
+        latency = 5000;
+    } else if (ws_cfg_network_config_get(cur) <= CONFIG_MEDIUM) {
+        latency = 10000;
+    } else if (ws_cfg_network_config_get(cur) <= CONFIG_LARGE) {
+        latency = 20000;
     } else  {
-        latency = 24000;
+        latency = 30000;
     }
 
     return latency;

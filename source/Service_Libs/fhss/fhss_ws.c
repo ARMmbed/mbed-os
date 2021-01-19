@@ -195,7 +195,7 @@ void fhss_set_txrx_slot_length(fhss_structure_t *fhss_structure)
     if (fhss_structure->ws->fhss_configuration.fhss_broadcast_interval == 0 || fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval == 0) {
         return;
     }
-    uint32_t txrx_slot_length_ms_tmp = WS_TXRX_SLOT_LEN_MS;
+    uint32_t txrx_slot_length_ms_tmp = WS_TXRX_SLOT_LEN_MS_MAX;
     if (fhss_structure->callbacks.read_datarate) {
         /* Calculate minimum TX slot length which can fit optimal packet length twice.
          * Twice, because 0, 1, 4, 5... hop starts transmission at the beginning of TX slot and 2, 3, 6, 7... hop at the middle of TX slot
@@ -217,9 +217,14 @@ void fhss_set_txrx_slot_length(fhss_structure_t *fhss_structure)
         if (datarate) {
             txrx_slot_length_ms_tmp = ((fhss_structure->optimal_packet_length * 2) * (8000000 / datarate)) / 1000;
             // Do not allow using too high TX slot length.
-            if (txrx_slot_length_ms_tmp > WS_TXRX_SLOT_LEN_MS) {
-                tr_debug("TX slot length setting too high %"PRIu32"ms, using %"PRIu32"ms", txrx_slot_length_ms_tmp, (uint32_t)WS_TXRX_SLOT_LEN_MS);
-                txrx_slot_length_ms_tmp = WS_TXRX_SLOT_LEN_MS;
+            if (txrx_slot_length_ms_tmp > WS_TXRX_SLOT_LEN_MS_MAX) {
+                tr_debug("TX slot length setting too high %"PRIu32"ms, using %"PRIu32"ms", txrx_slot_length_ms_tmp, (uint32_t)WS_TXRX_SLOT_LEN_MS_MAX);
+                txrx_slot_length_ms_tmp = WS_TXRX_SLOT_LEN_MS_MAX;
+            }
+            // Do not allow using too low TX slot length.
+            if (txrx_slot_length_ms_tmp < WS_TXRX_SLOT_LEN_MS_MIN) {
+                tr_debug("TX slot length setting too low %"PRIu32"ms, using %"PRIu32"ms", txrx_slot_length_ms_tmp, (uint32_t)WS_TXRX_SLOT_LEN_MS_MIN);
+                txrx_slot_length_ms_tmp = WS_TXRX_SLOT_LEN_MS_MIN;
             }
         }
     }
@@ -241,14 +246,14 @@ static int32_t fhss_ws_calc_bc_channel(fhss_structure_t *fhss_structure)
     int32_t next_channel = fhss_structure->ws->fhss_configuration.broadcast_fixed_channel;
 
     if (fhss_structure->ws->fhss_configuration.ws_bc_channel_function == WS_TR51CF) {
-        next_channel = tr51_get_bc_channel_index(fhss_structure->ws->tr51_channel_table, fhss_structure->ws->tr51_output_table, fhss_structure->ws->bc_slot, fhss_structure->ws->fhss_configuration.bsi, fhss_structure->number_of_channels, NULL);
+        next_channel = tr51_get_bc_channel_index(fhss_structure->ws->tr51_channel_table, fhss_structure->ws->tr51_output_table, fhss_structure->ws->bc_slot, fhss_structure->ws->fhss_configuration.bsi, fhss_structure->number_of_bc_channels, NULL);
         next_channel = fhss_channel_index_from_mask(fhss_structure->ws->fhss_configuration.channel_mask, next_channel, fhss_structure->number_of_channels);
-        if (++fhss_structure->ws->bc_slot == fhss_structure->number_of_channels) {
+        if (++fhss_structure->ws->bc_slot == fhss_structure->number_of_bc_channels) {
             fhss_structure->ws->bc_slot = 0;
         }
     } else if (fhss_structure->ws->fhss_configuration.ws_bc_channel_function == WS_DH1CF) {
         fhss_structure->ws->bc_slot++;
-        next_channel = dh1cf_get_bc_channel_index(fhss_structure->ws->bc_slot, fhss_structure->ws->fhss_configuration.bsi, fhss_structure->number_of_channels);
+        next_channel = dh1cf_get_bc_channel_index(fhss_structure->ws->bc_slot, fhss_structure->ws->fhss_configuration.bsi, fhss_structure->number_of_bc_channels);
         next_channel = fhss_channel_index_from_mask(fhss_structure->ws->fhss_configuration.channel_mask, next_channel, fhss_structure->number_of_channels);
     } else if (fhss_structure->ws->fhss_configuration.ws_bc_channel_function == WS_VENDOR_DEF_CF) {
         if (fhss_structure->ws->fhss_configuration.vendor_defined_cf) {
@@ -338,7 +343,7 @@ static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay)
     }
 
     if (fhss_structure->ws->fhss_configuration.ws_bc_channel_function == WS_TR51CF) {
-        fhss_structure->ws->bc_slot %= fhss_structure->number_of_channels;
+        fhss_structure->ws->bc_slot %= fhss_structure->number_of_bc_channels;
     }
 
     if (fhss_structure->ws->is_on_bc_channel == false) {
@@ -604,8 +609,13 @@ static int fhss_ws_tx_handle_callback(const fhss_api_t *api, bool is_broadcast_a
     if (!fhss_structure) {
         return -1;
     }
-    if (is_broadcast_addr) {
+    // Allow broadcast destination on broadcast channel
+    if (is_broadcast_addr && (fhss_structure->ws->is_on_bc_channel == true)) {
         return 0;
+    }
+    // Do not allow broadcast destination on unicast channel
+    if (is_broadcast_addr && (fhss_structure->ws->is_on_bc_channel == false)) {
+        return -3;
     }
     // Do not allow unicast destination on broadcast channel
     if (!is_broadcast_addr && (fhss_structure->ws->is_on_bc_channel == true)) {
@@ -919,7 +929,7 @@ static uint32_t fhss_ws_get_retry_period_callback(const fhss_api_t *api, uint8_t
     uint32_t cur_time_us = fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api);
     uint32_t tx_trig_offset_us = (txrx_slot_length_us / 2) * calc_own_tx_trig_slot(fhss_structure->own_hop);
 
-    uint32_t next_tx_trig_slot_start_us = unicast_start_us + (txrx_slot_length_us * !fhss_ws_check_tx_allowed(fhss_structure)) + tx_trig_offset_us;
+    uint32_t next_tx_trig_slot_start_us = unicast_start_us + (txrx_slot_length_us * (fhss_structure->own_hop & 1)) + tx_trig_offset_us;
     uint32_t next_tx_trig_slot_end_us = next_tx_trig_slot_start_us + (txrx_slot_length_us / 2);
     while ((next_tx_trig_slot_start_us < cur_time_us) || ((next_tx_trig_slot_start_us - cur_time_us) > (uint32_t) MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_broadcast_interval))) {
         if (cur_time_us < next_tx_trig_slot_end_us) {
@@ -1076,13 +1086,13 @@ int fhss_ws_remove_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[
 
 int fhss_ws_configuration_set(fhss_structure_t *fhss_structure, const fhss_ws_configuration_t *fhss_configuration)
 {
-    int channel_count = channel_list_count_channels(fhss_configuration->channel_mask);
+    int channel_count_bc = channel_list_count_channels(fhss_configuration->channel_mask);
     int channel_count_uc = channel_list_count_channels(fhss_configuration->unicast_channel_mask);
-    if (channel_count <= 0) {
+    if (channel_count_bc <= 0 || fhss_configuration->channel_mask_size == 0) {
         return -1;
     }
 
-    if (fhss_structure->number_of_channels < channel_count ||
+    if (fhss_structure->number_of_bc_channels < channel_count_bc ||
             (channel_count_uc && fhss_structure->number_of_uc_channels < channel_count_uc)) {
         // Channel amount changed to largeneed to reallocate channel table
         ns_dyn_mem_free(fhss_structure->ws->tr51_channel_table);
@@ -1090,7 +1100,7 @@ int fhss_ws_configuration_set(fhss_structure_t *fhss_structure, const fhss_ws_co
         ns_dyn_mem_free(fhss_structure->ws->tr51_output_table);
         fhss_structure->ws->tr51_output_table = NULL;
 
-        if (fhss_ws_manage_channel_table_allocation(fhss_structure, channel_count_uc > channel_count ? channel_count_uc : channel_count)) {
+        if (fhss_ws_manage_channel_table_allocation(fhss_structure, channel_count_uc > channel_count_bc ? channel_count_uc : channel_count_bc)) {
             return -1;
         }
     }
@@ -1113,10 +1123,11 @@ int fhss_ws_configuration_set(fhss_structure_t *fhss_structure, const fhss_ws_co
         for (uint8_t i = 0; i < 8; i++) {
             fhss_structure->ws->fhss_configuration.unicast_channel_mask[i] = fhss_configuration->channel_mask[i];
         }
-        channel_count_uc = channel_count;
+        channel_count_uc = channel_count_bc;
     }
 
-    fhss_structure->number_of_channels = channel_count;
+    fhss_structure->number_of_channels = fhss_configuration->channel_mask_size;
+    fhss_structure->number_of_bc_channels = channel_count_bc;
     fhss_structure->number_of_uc_channels = channel_count_uc;
     if (fhss_configuration->ws_uc_channel_function == WS_FIXED_CHANNEL) {
         fhss_structure->rx_channel = fhss_configuration->unicast_fixed_channel;
@@ -1127,7 +1138,7 @@ int fhss_ws_configuration_set(fhss_structure_t *fhss_structure, const fhss_ws_co
             fhss_structure->ws->fhss_configuration.broadcast_fixed_channel,
             fhss_structure->ws->fhss_configuration.ws_uc_channel_function,
             fhss_structure->ws->fhss_configuration.ws_bc_channel_function,
-            fhss_structure->number_of_channels,
+            fhss_structure->number_of_bc_channels,
             fhss_structure->number_of_uc_channels,
             fhss_structure->ws->fhss_configuration.fhss_uc_dwell_interval,
             fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval,

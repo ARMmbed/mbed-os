@@ -357,6 +357,7 @@ static void icmpv6_na_wisun_aro_handler(protocol_interface_info_entry_t *cur_int
 
     (void)life_time;
     if (nd_status != ARO_SUCCESS) {
+        ws_common_black_list_neighbour(src_addr, nd_status);
         ws_common_aro_failure(cur_interface, src_addr);
     }
 }
@@ -1110,6 +1111,7 @@ buffer_t *icmpv6_up(buffer_t *buf)
                 || (buf->options.type == ICMPV6_TYPE_INFO_RPL_CONTROL
                     && (buf->options.code != ICMPV6_CODE_RPL_DIO
                         && buf->options.code != ICMPV6_CODE_RPL_DIS))) {
+            tr_warn("Drop: ICMP EP unsecured packet");
             goto drop;
         }
     }
@@ -1446,7 +1448,7 @@ static void icmpv6_aro_cb(buffer_t *buf, uint8_t status)
         ll_address[8] ^= 2;
     }
     if (rpl_control_address_register_done(buf->interface, ll_address, status)) {
-        // When RPL returns true neighbor should be blacklisted
+        // When RPL returns true neighbor should be deleted
         ws_common_aro_failure(buf->interface, ll_address);
     }
 }
@@ -1526,7 +1528,11 @@ buffer_t *icmpv6_build_ns(protocol_interface_info_entry_t *cur, const uint8_t ta
         /* If ARO Success sending is omitted, MAC ACK is used instead */
         /* Setting callback for receiving ACK from adaptation layer */
         if (aro && cur->ipv6_neighbour_cache.omit_na_aro_success) {
-            buf->ack_receive_cb = icmpv6_aro_cb;
+            if (aro->lifetime > 1) {
+                buf->ack_receive_cb = icmpv6_aro_cb;
+            } else {
+                buf->ack_receive_cb = ack_receive_cb;
+            }
         }
     }
     if (unicast && (!aro && cur->ipv6_neighbour_cache.omit_na)) {
@@ -1761,6 +1767,7 @@ buffer_t *icmpv6_build_na(protocol_interface_info_entry_t *cur, bool solicited, 
             tr_debug("Neighbour removed for negative response send");
             return buffer_free(buf);
         }
+        buf->options.traffic_class = IP_DSCP_CS6 << IP_TCLASS_DSCP_SHIFT;
         buf->ack_receive_cb = ack_remove_neighbour_cb;
     }
 

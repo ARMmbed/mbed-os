@@ -38,6 +38,8 @@ typedef struct ws_phy_cfg_s {
     uint8_t regulatory_domain;          /**< PHY regulatory domain; default "KR" 0x09 */
     uint8_t operating_class;            /**< PHY operating class; default 1 */
     uint8_t operating_mode;             /**< PHY operating mode; default "1b" symbol rate 50, modulation index 1 */
+    uint8_t phy_mode_id;                /**< PHY mode ID; default 255 (not used) */
+    uint8_t channel_plan_id;            /**< Channel plan ID; default 255 (not used) */
 } ws_phy_cfg_t;
 
 /**
@@ -146,10 +148,22 @@ typedef struct ws_cfg_s {
 #define CFG_SETTINGS_ERROR_SEC_TIMER_CONF    -17   /**< Security timers configuration error */
 #define CFG_SETTINGS_ERROR_SEC_PROT_CONF     -18   /**< Security protocols configuration error */
 
+/** Network configuration parameters sets for different network sizes*/
+typedef enum {
+    CONFIG_CERTIFICATE = 0,  ///< Configuration used in Wi-SUN Certification
+    CONFIG_SMALL = 1,        ///< Small networks that can utilize fast recovery
+    CONFIG_MEDIUM = 2,       ///< Medium networks that can form quickly but require balance on load
+    CONFIG_LARGE = 3,        ///< Large networks that needs to throttle joining and maintenance
+    CONFIG_XLARGE = 4        ///< Xlarge networks with very slow joining, maintenance and recovery profile
+} cfg_network_size_type_e;
+
+
 int8_t ws_cfg_settings_init(void);
 int8_t ws_cfg_settings_default_set(void);
 int8_t ws_cfg_settings_interface_set(protocol_interface_info_entry_t *cur);
 int8_t ws_cfg_network_size_configure(protocol_interface_info_entry_t *cur, uint16_t network_size);
+
+cfg_network_size_type_e ws_cfg_network_config_get(protocol_interface_info_entry_t *cur);
 
 int8_t ws_cfg_network_size_get(ws_gen_cfg_t *cfg, uint8_t *flags);
 int8_t ws_cfg_network_size_validate(ws_gen_cfg_t *cfg, ws_gen_cfg_t *new_cfg);

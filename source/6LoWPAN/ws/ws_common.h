@@ -122,7 +122,7 @@ typedef struct ws_info_s {
 
 #ifdef HAVE_WS
 
-int8_t ws_generate_channel_list(uint32_t *channel_mask, uint16_t number_of_channels, uint8_t regulatory_domain, uint8_t operating_class);
+int8_t ws_generate_channel_list(uint32_t *channel_mask, uint16_t number_of_channels, uint8_t regulatory_domain, uint8_t operating_class, uint8_t channel_plan_id);
 
 uint16_t ws_active_channel_count(uint32_t *channel_mask, uint16_t number_of_channels);
 
@@ -130,11 +130,17 @@ uint32_t ws_decode_channel_spacing(uint8_t channel_spacing);
 
 uint32_t ws_get_datarate_using_operating_mode(uint8_t operating_mode);
 
+uint32_t ws_get_datarate_using_phy_mode_id(uint8_t phy_mode_id);
+
+uint8_t ws_get_ofdm_option_using_phy_mode_id(uint8_t phy_mode_id);
+
+uint8_t ws_get_ofdm_mcs_using_phy_mode_id(uint8_t phy_mode_id);
+
 phy_modulation_index_e ws_get_modulation_index_using_operating_mode(uint8_t operating_mode);
 
 int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, ws_hopping_schedule_t *hopping_schdule);
 
-uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operating_class);
+uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operating_class, uint8_t channel_plan_id);
 
 int8_t ws_common_allocate_and_init(protocol_interface_info_entry_t *cur);
 
@@ -144,11 +150,13 @@ void ws_common_fast_timer(protocol_interface_info_entry_t *cur, uint16_t ticks);
 
 void ws_common_neighbor_update(protocol_interface_info_entry_t *cur, const uint8_t *ll_address);
 
+void ws_common_black_list_neighbour(const uint8_t *ll_address, uint8_t nd_status);
+
 void ws_common_aro_failure(protocol_interface_info_entry_t *cur, const uint8_t *ll_address);
 
 void ws_common_neighbor_remove(protocol_interface_info_entry_t *cur, const uint8_t *ll_address);
 
-uint8_t ws_common_allow_child_registration(protocol_interface_info_entry_t *cur, const uint8_t *eui64);
+uint8_t ws_common_allow_child_registration(protocol_interface_info_entry_t *cur, const uint8_t *eui64, uint16_t aro_timeout);
 
 bool ws_common_negative_aro_mark(protocol_interface_info_entry_t *interface, const uint8_t *eui64);
 
@@ -170,10 +178,11 @@ uint8_t ws_common_temporary_entry_size(uint8_t mac_table_size);
 #define ws_info(cur) ((ws_info_t *) NULL)
 #define ws_common_seconds_timer(cur, seconds)
 #define ws_common_neighbor_update(cur, ll_address) ((void) 0)
+#define ws_common_black_list_neighbour(ll_address, nd_status) ((void) 0)
 #define ws_common_aro_failure(cur, ll_address)
 #define ws_common_neighbor_remove(cur, ll_address)
 #define ws_common_fast_timer(cur, ticks) ((void) 0)
-#define ws_common_allow_child_registration(cur, eui64) (2)
+#define ws_common_allow_child_registration(cur, eui64, aro_timeout) (2)
 #define ws_common_negative_aro_mark(interface, eui64)(false)
 #define ws_common_latency_estimate_get(cur) 0
 #define ws_common_datarate_get(cur) 0

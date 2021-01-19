@@ -68,6 +68,24 @@ int ws_management_network_name_validate(
     return -1;
 }
 
+int ws_management_phy_mode_id_set(
+    int8_t interface_id,
+    uint8_t phy_mode_id)
+{
+    (void)interface_id;
+    (void)phy_mode_id;
+    return -1;
+}
+
+int ws_management_channel_plan_id_set(
+    int8_t interface_id,
+    uint8_t channel_plan_id)
+{
+    (void)interface_id;
+    (void)channel_plan_id;
+    return -1;
+}
+
 int ws_management_regulatory_domain_set(
     int8_t interface_id,
     uint8_t regulatory_domain,

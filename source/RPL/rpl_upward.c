@@ -1665,8 +1665,9 @@ void rpl_instance_dio_trigger(rpl_instance_t *instance, protocol_interface_info_
 #endif
     }
     rpl_dodag_version_limit_greediness(dodag_version, rank);
-
-    instance->last_advertised_dodag_version = dodag_version;
+    if (rank != RPL_RANK_INFINITE) {
+        instance->advertised_dodag_membership_since_last_repair = true;
+    }
 }
 
 static void rpl_instance_dis_timer(rpl_instance_t *instance, uint16_t seconds)
@@ -1715,6 +1716,7 @@ void rpl_instance_set_local_repair(rpl_instance_t *instance, bool repair)
         instance->repair_dis_count = 0;
     } else {
         instance->repair_dis_timer = 0;
+        instance->advertised_dodag_membership_since_last_repair = false;
     }
 
     /* When repair ends, eliminate all higher-rank neighbours (potential sub-DODAG) from table */
@@ -1839,8 +1841,14 @@ void rpl_upward_dio_timer(rpl_instance_t *instance, uint16_t ticks)
 
     /* Delay sending first DIO if we are still potentially gathering info */
     /* Important to always send DIOs if we ever have sent any, so we can indicate problems to others */
-    if (!rpl_instance_am_root(instance) && !instance->last_advertised_dodag_version && rpl_policy_parent_confirmation_requested()) {
-        // We dont have any valid parent selected
+    if (!rpl_instance_am_root(instance) && !instance->poison_count && !instance->advertised_dodag_membership_since_last_repair && rpl_policy_parent_confirmation_requested()) {
+
+        // We don't have DAO target generated
+        if (ns_list_count(&instance->dao_targets) == 0) {
+            return;
+        }
+
+        // We don't have any valid parent selected
         if (!rpl_instance_parent_selection_ready(instance)) {
             return;
         }
