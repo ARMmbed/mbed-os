@@ -295,7 +295,7 @@ ble_error_t PalGap::set_scan_parameters(
 )
 {
 #if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
-    tr_info("[PAL] Set scan parameters -"
+    tr_info("[PAL] Set scan parameters - "
             "active_scanning=%s, "
             "scan_interval=%d, "
             "scan_window=%d, "
@@ -1781,7 +1781,7 @@ ble_error_t PalGap::extended_create_connection(
     tr_info("[PAL] Extended create connection - "
             "initiator_policy=%s, "
             "own_address_type=%s, "
-            "peer_address_type=%s,"
+            "peer_address_type=%s, "
             "peer_address=%s, "
             "initiating_phys=%s",
             to_string(initiator_policy),
