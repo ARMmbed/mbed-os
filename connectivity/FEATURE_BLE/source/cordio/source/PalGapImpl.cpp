@@ -634,7 +634,7 @@ ble_error_t PalGap::read_phy(connection_handle_t connection)
         DmReadPhy(connection);
         return BLE_ERROR_NONE;
     }
-    tr_error("[PAL] LE_2M_PHY feature not supported");
+    tr_error("[PAL] Only 1M PHY supported");
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
