@@ -6976,7 +6976,8 @@
             "PORTIN",
             "PORTOUT",
             "SERIAL",
-            "MPU"
+            "MPU",
+            "LPTICKER"
         ],
         "c_lib": "small",
 		"release_versions": [
