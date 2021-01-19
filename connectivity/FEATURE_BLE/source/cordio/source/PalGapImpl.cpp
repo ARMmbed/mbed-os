@@ -126,6 +126,7 @@ ble_error_t PalGap::set_advertising_parameters(
     advertising_filter_policy_t advertising_filter_policy
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
     tr_info("[PAL] Set advertising parameters - "
             "advertising_interval_min=%d, "
             "advertising_interval_max=%d, "
@@ -143,6 +144,7 @@ ble_error_t PalGap::set_advertising_parameters(
             to_string(peer_address),
             to_string(advertising_channel_map),
             to_string(advertising_filter_policy));
+#endif
 
     DmAdvSetInterval(
         DM_ADV_HANDLE_DEFAULT,
@@ -185,11 +187,13 @@ ble_error_t PalGap::set_advertising_data(
     const advertising_data_t &advertising_data
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
     tr_info("[PAL] Set advertising data - "
             "advertising_data_length=%d, "
             "advertising_data=%s",
             advertising_data_length,
             mbed_trace_array(advertising_data.data(), advertising_data_length));
+#endif
 
     DmAdvSetData(
         DM_ADV_HANDLE_DEFAULT,
@@ -201,17 +205,18 @@ ble_error_t PalGap::set_advertising_data(
     return BLE_ERROR_NONE;
 }
 
-
 ble_error_t PalGap::set_scan_response_data(
     uint8_t scan_response_data_length,
     const advertising_data_t &scan_response_data
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
     tr_info("[PAL] Set scan response data - "
             "scan_response_data_length=%d, "
             "scan_response_data=%s",
             scan_response_data_length,
             mbed_trace_array(scan_response_data.data(), scan_response_data_length));
+#endif
 
     DmAdvSetData(
         DM_ADV_HANDLE_DEFAULT,
@@ -289,6 +294,7 @@ ble_error_t PalGap::set_scan_parameters(
     scanning_filter_policy_t filter_policy
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
     tr_info("[PAL] Set scan parameters -"
             "active_scanning=%s, "
             "scan_interval=%d, "
@@ -300,6 +306,7 @@ ble_error_t PalGap::set_scan_parameters(
             scan_window,
             to_string(own_address_type),
             to_string(filter_policy));
+#endif
 
     use_active_scanning = active_scanning;
     DmScanSetInterval(HCI_INIT_PHY_LE_1M_BIT, &scan_interval, &scan_window);
@@ -358,6 +365,7 @@ ble_error_t PalGap::create_connection(
     uint16_t maximum_connection_event_length
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
     tr_info("[PAL] Create Connection - "
             "scan_interval=%d, "
             "scan_window=%d, "
@@ -383,6 +391,7 @@ ble_error_t PalGap::create_connection(
             supervision_timeout,
             minimum_connection_event_length,
             maximum_connection_event_length);
+#endif
     
     DmConnSetScanInterval(scan_interval, scan_window);
 #if BLE_FEATURE_WHITELIST
@@ -499,6 +508,7 @@ ble_error_t PalGap::connection_parameters_update(
     uint16_t maximum_connection_event_length
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
     tr_info("[PAL] Connection %d: connection parameters update - "
             "connection_interval_min=%d, "
             "connection_interval_max=%d, "
@@ -513,6 +523,7 @@ ble_error_t PalGap::connection_parameters_update(
             supervision_timeout,
             minimum_connection_event_length,
             maximum_connection_event_length);
+#endif
 
     if (DmConnCheckIdle(connection) != 0) {
         tr_error("[PAL] Failed: connection busy");
@@ -597,10 +608,12 @@ ble_error_t PalGap::disconnect(
     local_disconnection_reason_t disconnection_reason
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
     tr_info("[PAL] Connection %d: disconnect - "
             "disconnection_reason=%s",
             connection,
             to_string(disconnection_reason));
+#endif
 
     DmConnClose(
         DM_CLIENT_ID_APP,
@@ -630,11 +643,13 @@ ble_error_t PalGap::set_preferred_phys(
     const phy_set_t &rx_phys
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
     tr_info("[PAL] Set preferred phys -"
             "tx_phys=%s, "
             "rx_phys=%s",
             to_string(tx_phys),
             to_string(rx_phys));
+#endif
 
     DmSetDefaultPhy(
         create_all_phys_value(tx_phys, rx_phys),
@@ -653,6 +668,7 @@ ble_error_t PalGap::set_phy(
     coded_symbol_per_bit_t coded_symbol
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
     tr_info("[PAL] Connection %d: set phy - "
             "tx_phys=%s, "
             "rx_phys=%s, "
@@ -661,6 +677,7 @@ ble_error_t PalGap::set_phy(
             to_string(tx_phys),
             to_string(rx_phys),
             to_string(coded_symbol));
+#endif
 
     /* if phy set is empty set corresponding all_phys bit to 1 */
     uint8_t all_phys = 0;
@@ -1052,6 +1069,7 @@ ble_error_t PalGap::set_extended_advertising_parameters(
     bool scan_request_notification
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
     tr_info("[PAL] Advertising set %d: set extended advertising parameters - "
             "event_properties:["
             "connectable=%s, "
@@ -1095,6 +1113,7 @@ ble_error_t PalGap::set_extended_advertising_parameters(
             to_string(secondary_phy),
             advertising_sid,
             to_string(scan_request_notification));
+#endif
 
     uint8_t adv_type;
 
@@ -1236,6 +1255,7 @@ ble_error_t PalGap::set_periodic_advertising_parameters(
     bool advertise_power
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
     tr_info("[PAL] Advertising set %d: set periodic advertising parameters - "
             "periodic_advertising_min=%s, "
             "periodic_advertising_max=%s, "
@@ -1244,6 +1264,7 @@ ble_error_t PalGap::set_periodic_advertising_parameters(
             to_string(periodic_advertising_min),
             to_string(periodic_advertising_max),
             to_string(advertise_power));
+#endif
 
     DmPerAdvIncTxPwr(advertising_handle, advertise_power);
     DmPerAdvSetInterval(
@@ -1266,6 +1287,7 @@ ble_error_t PalGap::set_extended_advertising_data(
     const uint8_t *advertising_data
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
     tr_info("[PAL] Advertising set %d: set extended advertising data - "
             "operation=%s, "
             "minimize_fragmentation=%s, "
@@ -1276,6 +1298,7 @@ ble_error_t PalGap::set_extended_advertising_data(
             to_string(minimize_fragmentation),
             advertising_data_size,
             mbed_trace_array(advertising_data, advertising_data_size));
+#endif
 
     uint8_t frag_pref = minimize_fragmentation ?
         HCI_ADV_DATA_FRAG_PREF_NO_FRAG :
@@ -1302,6 +1325,7 @@ ble_error_t PalGap::set_periodic_advertising_data(
     const uint8_t *advertising_data
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
     tr_info("[PAL] Advertising set %d: set periodic advertising data - "
             "fragment_description=%s, "
             "advertising_data_size=%d, "
@@ -1310,6 +1334,7 @@ ble_error_t PalGap::set_periodic_advertising_data(
             to_string(fragment_description),
             advertising_data_size,
             mbed_trace_array(advertising_data, advertising_data_size));
+#endif
 
     DmPerAdvSetData(
         advertising_handle,
@@ -1330,16 +1355,18 @@ ble_error_t PalGap::set_extended_scan_response_data(
     const uint8_t *scan_response_data
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
     tr_info("[PAL] Advertising data %d: set extended scan response data - "
             "operation=%s, "
             "minimize_fragmentation=%s, "
             "scan_response_data_size=%d, "
-            "scan_response_data",
+            "scan_response_data=%s",
             advertising_handle,
             to_string(operation),
             to_string(minimize_fragmentation),
             scan_response_data_size,
             mbed_trace_array(scan_response_data, scan_response_data_size));
+#endif
 
     uint8_t frag_pref = minimize_fragmentation ?
         HCI_ADV_DATA_FRAG_PREF_NO_FRAG :
@@ -1532,6 +1559,7 @@ ble_error_t PalGap::set_extended_scan_parameters(
     const uint16_t *scan_window
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
     tr_info("[PAL] Set extended scan parameters - "
             "own_address_type=%s, "
             "filter_policy=%s, "
@@ -1539,6 +1567,7 @@ ble_error_t PalGap::set_extended_scan_parameters(
             to_string(own_address_type),
             to_string(filter_policy),
             to_string(scanning_phys));
+#endif
 
     DmScanSetAddrType(own_address_type.value());
 
@@ -1673,6 +1702,7 @@ ble_error_t PalGap::add_device_to_periodic_advertiser_list(
     uint8_t advertising_sid
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
     tr_info("[PAL] Add device to periodic advertiser list - "
             "advertiser_address_type=%s, "
             "advertiser_address=%s, "
@@ -1680,6 +1710,7 @@ ble_error_t PalGap::add_device_to_periodic_advertiser_list(
             to_string(advertiser_address_type),
             to_string(advertiser_address),
             advertising_sid);
+#endif
 
     DmAddDeviceToPerAdvList(
         advertiser_address_type.value(),
@@ -1696,6 +1727,7 @@ ble_error_t PalGap::remove_device_from_periodic_advertiser_list(
     uint8_t advertising_sid
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
     tr_info("[PAL] Remove device from periodic advertiser list - "
             "advertiser_address_type=%s, "
             "advertiser_address=%s, "
@@ -1703,6 +1735,7 @@ ble_error_t PalGap::remove_device_from_periodic_advertiser_list(
             to_string(advertiser_address_type),
             to_string(advertiser_address),
             advertising_sid);
+#endif
 
     DmRemoveDeviceFromPerAdvList(
         advertiser_address_type.value(),
@@ -1744,6 +1777,7 @@ ble_error_t PalGap::extended_create_connection(
     const uint16_t *maximum_connection_event_lengths
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
     tr_info("[PAL] Extended create connection - "
             "initiator_policy=%s, "
             "own_address_type=%s, "
@@ -1755,6 +1789,7 @@ ble_error_t PalGap::extended_create_connection(
             to_string(peer_address_type),
             to_string(peer_address),
             to_string(initiating_phys));
+#endif
 
     DmExtConnSetScanInterval(
         initiating_phys.value(),
