@@ -43,7 +43,7 @@ static const PinList ff_arduino_uno_list = {
     ff_arduino_uno_pins
 };
 
-static_assert(sizeof(ff_arduino_pins) / sizeof(ff_arduino_pins[0]) == sizeof(ff_arduino_names) / sizeof(ff_arduino_names[0]),
+static_assert(sizeof(ff_arduino_uno_pins) / sizeof(ff_arduino_uno_pins[0]) == sizeof(ff_arduino_uno_names) / sizeof(ff_arduino_uno_names[0]),
               "Arrays must have the same length");
 
 const PinList *pinmap_ff_arduino_uno_pins()
