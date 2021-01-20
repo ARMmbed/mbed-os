@@ -338,8 +338,8 @@ matrix:
         - git fetch origin "${TRAVIS_BRANCH}"
       script:
         - >-
-          git diff --name-only --diff-filter=d \
-            | ( grep '.*\PinNames.h$' || true ) \
+          git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
+            | ( grep '.*[\\|\/]PinNames.h$' || true ) \
             | while read file; do python ./hal/tests/TESTS/pin_names/pinvalidate.py -vfp "${file}"; done
         - git diff --exit-code --diff-filter=d --color
 
