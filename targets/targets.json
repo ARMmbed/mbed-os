@@ -6977,6 +6977,8 @@
             "PORTOUT",
             "SERIAL",
             "MPU",
+            "LPTICKER",
+            "USTICKER",
 			"RESET_REASON"
         ],
         "c_lib": "small",

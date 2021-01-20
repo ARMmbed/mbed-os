@@ -56,7 +56,6 @@ void SerialBase::baud(int baudrate)
 {
     lock();
     serial_baud(&_serial, baudrate);
-    _baud = baudrate;
     unlock();
 }
 
