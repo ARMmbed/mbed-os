@@ -6976,12 +6976,10 @@
             "PORTIN",
             "PORTOUT",
             "SERIAL",
-            "MPU"
+            "MPU",
+			"RESET_REASON"
         ],
         "c_lib": "small",
-		"release_versions": [
-			"6"
-		],
 		"bootloader_supported": false,
 		"public": false
     },
