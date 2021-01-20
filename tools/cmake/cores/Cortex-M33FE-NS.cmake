@@ -26,6 +26,7 @@ function(mbed_set_cpu_core_definitions target)
         INTERFACE
             __CORTEX_M33
             ARM_MATH_ARMV8MML
+            DOMAIN_NS=1
             __FPU_PRESENT=1U
             __CMSIS_RTOS
             __MBED_CMSIS_RTOS_CM
