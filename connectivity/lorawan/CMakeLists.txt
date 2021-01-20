@@ -26,4 +26,5 @@ target_compile_definitions(mbed-lorawan
 target_link_libraries(mbed-lorawan
     INTERFACE
         mbed-events
+        mbed-mbedtls
 )
