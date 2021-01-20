@@ -39,7 +39,6 @@
 #include "compiler.h"
 #include "pic32cx.h"
 #include "usart.h"
-// #include "stdio_serial.h"
 #include "uart_serial.h"
 
 #define UART_COUNT    1

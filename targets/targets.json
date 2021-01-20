@@ -6978,12 +6978,10 @@
             "SERIAL",
             "MPU",
             "LPTICKER",
-            "USTICKER"
+            "USTICKER",
+			"RESET_REASON"
         ],
         "c_lib": "small",
-		"release_versions": [
-			"6"
-		],
 		"bootloader_supported": false,
 		"public": false
     },
