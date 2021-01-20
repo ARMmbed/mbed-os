@@ -601,6 +601,7 @@ struct GattClient::ReadControlBlock final : public ProcedureControlBlock {
                 response.len = (current_offset + read_response.size()) - offset;
                 response.data = data;
             }
+            tr_info("Read response complete - received %d bytes", read_response.size());
             terminate(client, response);
         } else {
             // allocation which will contain the response data plus the next one.
@@ -620,6 +621,7 @@ struct GattClient::ReadControlBlock final : public ProcedureControlBlock {
             }
 
             memcpy(data + (current_offset - offset), read_response.data(), read_response.size());
+            tr_info("Read response partial - received %d bytes", read_response.size());
             current_offset = current_offset + read_response.size();
             ble_error_t err = client->_pal_client.read_attribute_blob(
                 connection_handle,
@@ -805,6 +807,7 @@ struct GattClient::WriteControlBlock final : public ProcedureControlBlock {
     {
         ble_error_t err = BLE_ERROR_UNSPECIFIED;
         offset += write_response.partial_value.size();
+        tr_info("Prepared write partially complete offset=%d", offset);
         uint16_t data_left = write_length - offset; /* offset is guaranteed to be less of equal to write_length */
         if (data_left) {
             uint16_t chunk_size = client->get_mtu(connection_handle) - PREPARE_WRITE_HEADER_LENGTH;
@@ -944,6 +947,8 @@ struct GattClient::DescriptorDiscoveryControlBlock final : public ProcedureContr
 
     ble_error_t start(GattClient *client)
     {
+        tr_info("Discover descriptor for char handle=%d",
+                characteristic.getDeclHandle());
         return client->_pal_client.discover_characteristics_descriptors(
             connection_handle,
             attribute_handle_range(
@@ -999,6 +1004,8 @@ struct GattClient::DescriptorDiscoveryControlBlock final : public ProcedureContr
     void handle_response(GattClient *client, const AttFindInformationResponse &response)
     {
         for (size_t i = 0; i < response.size(); ++i) {
+            tr_info("Discovered descriptor handle=%d uuid=%s for char handle=%d",
+                    response[i].handle, to_string(response[i].uuid), characteristic.getDeclHandle());
             DiscoveredCharacteristicDescriptor descriptor(
                 &ble::BLE::Instance().gattClient(), connection_handle, response[i].handle, response[i].uuid
             );
@@ -1137,6 +1144,7 @@ ble_error_t GattClient::discoverServices(
     const UUID &matchingServiceUUID
 )
 {
+    tr_info("Discover services with uuid=%s", to_string(matchingServiceUUID));
     /* We take advantage of the property
      * that providing nullptr for the characteristic callback results in
      * characteristic discovery being skipped for each matching
@@ -1154,6 +1162,7 @@ ble_error_t GattClient::discoverServices(
     GattAttribute::Handle_t endHandle
 )
 {
+    tr_warning("discoverServices based on handle range not implemented");
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -1174,6 +1183,7 @@ bool GattClient::isServiceDiscoveryActive() const
 
 void GattClient::terminateServiceDiscovery()
 {
+    tr_info("Terminate service discovery");
     ProcedureControlBlock *pcb = control_blocks;
     while (pcb) {
         if (pcb->type == COMPLETE_DISCOVERY_PROCEDURE) {
@@ -1192,7 +1202,7 @@ ble_error_t GattClient::read(
 {
     // verify that there is no other procedures going on this connection
     if (_is_reseting || get_control_block(connection_handle)) {
-        tr_error("cannot launch attibute read");
+        tr_error("cannot launch attribute read");
         return BLE_ERROR_INVALID_STATE;
     }
 
@@ -1211,7 +1221,7 @@ ble_error_t GattClient::read(
 
     ble_error_t err = BLE_ERROR_NONE;
 
-    tr_debug("Connection %d read attribute %d offset %d", connection_handle, attribute_handle, offset);
+    tr_debug("Connection %d - read attribute %d offset %d", connection_handle, attribute_handle, offset);
 
     if (offset == 0) {
         err = _pal_client.read_attribute_value(
@@ -1246,7 +1256,7 @@ ble_error_t GattClient::write(
         return BLE_ERROR_INVALID_STATE;
     }
 
-    tr_debug("Connection %d write attribute %d value %s", connection_handle, attribute_handle, tr_array(value, length));
+    tr_debug("Connection %d - write attribute %d value %s", connection_handle, attribute_handle, tr_array(value, length));
 
     uint16_t mtu = get_mtu(connection_handle);
 
@@ -1353,6 +1363,7 @@ void GattClient::onServiceDiscoveryTermination(
     ServiceDiscovery::TerminationCallback_t callback
 )
 {
+    tr_info("Service discovery ended");
     _termination_callback = callback;
 }
 
@@ -1363,6 +1374,8 @@ ble_error_t GattClient::discoverCharacteristicDescriptors(
     const CharacteristicDescriptorDiscovery::TerminationCallback_t &terminationCallback
 )
 {
+    tr_info("Discover char descriptors %d", characteristic.getDeclHandle());
+
     // verify that there is no other procedures going on this connection
     if (_is_reseting || get_control_block(characteristic.getConnectionHandle())) {
         return BLE_ERROR_INVALID_STATE;
@@ -1425,6 +1438,7 @@ void GattClient::terminateCharacteristicDescriptorDiscovery(
     const DiscoveredCharacteristic &characteristic
 )
 {
+    tr_info("terminate char descriptor discovery %d", characteristic.getDeclHandle());
     ProcedureControlBlock *pcb = control_blocks;
 
     while (pcb) {
