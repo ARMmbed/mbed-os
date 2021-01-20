@@ -4,6 +4,9 @@
 # List of all optional platform libraries available.
 add_library(mbed-psa INTERFACE)
 
+if("EXPERIMENTAL_API" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(FEATURE_EXPERIMENTAL_API)
+endif()
 
 add_subdirectory(cxxsupport)
 add_subdirectory(mbed-trace)
@@ -16,3 +19,4 @@ target_include_directories(mbed-core
         include/platform
         include/platform/internal
 )
+

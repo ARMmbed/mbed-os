@@ -11,8 +11,8 @@ endif()
 
 target_include_directories(mbed-psa
     INTERFACE
-        ./inc
-        ./inc/psa
+        inc
+        inc/psa
 )
 
 target_sources(mbed-psa
@@ -20,11 +20,7 @@ target_sources(mbed-psa
         src/psa_hrng.c
 )
 
-target_link_libraries(mbed-psa
+target_link_libraries(mbed-core
     INTERFACE
-        mbed-mbedtls
-        mbed-storage-kvstore
-        mbed-storage-tdbstore
-        mbed-storage-kv-global-api
-        mbed-device_key
+        mbed-psa
 )
