@@ -160,6 +160,7 @@ matrix:
         - |-
           tr -d ' ' >> requirements.txt <<< "
           mock==2.0.0
+          attrs==19.1.0
           pytest==3.3.0
           pylint>=1.9,<2
           hypothesis>=3,<4
