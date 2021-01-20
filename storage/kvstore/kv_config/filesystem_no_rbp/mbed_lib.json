@@ -25,5 +25,10 @@
             "help": "Path for the working directory where the FileSystemStore stores the data",
             "value": "kvstore"
         }
+    },
+    "target_overrides": {
+        "CY_EXTERNAL_WIFI_FW": {
+            "blockdevice": "other"
+        }
     }
 }
