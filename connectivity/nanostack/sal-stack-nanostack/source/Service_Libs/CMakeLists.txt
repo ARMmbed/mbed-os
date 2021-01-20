@@ -30,6 +30,7 @@ target_include_directories(mbed-nanostack-sal_stack
         ./nd_proxy
         ./nist_aes_kw
         ./pan_blacklist
+        ./random_early_detection
         ./utils
         ./whiteboard
 )
@@ -93,6 +94,8 @@ target_sources(mbed-nanostack-sal_stack
         nist_aes_kw/nist_aes_kw.c
 
         pan_blacklist/pan_blacklist.c
+        
+        random_early_detection/random_early_detection.c
 
         utils/isqrt.c
         utils/ns_conf.c
