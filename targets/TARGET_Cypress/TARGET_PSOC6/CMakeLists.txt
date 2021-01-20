@@ -10,6 +10,14 @@ if("WHD" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(common/COMPONENT_WHD EXCLUDE_FROM_ALL)
 endif()
 
+if("CAT1A" IN_LIST MBED_TARGET_LABELS)
+    target_include_directories(mbed-core
+        INTERFACE
+            psoc6pdl/devices/COMPONENT_CAT1A/include
+            psoc6pdl/devices/COMPONENT_CAT1A/include/ip
+    )
+endif()
+
 if("CY8CKIT064B0S2_4343W" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_CY8CKIT064B0S2_4343W)
 elseif("CY8CKIT_062S2_43012" IN_LIST MBED_TARGET_LABELS)
