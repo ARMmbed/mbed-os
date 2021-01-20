@@ -1145,6 +1145,12 @@ ble_error_t Gap::setPeripheralPrivacyConfiguration(
     const peripheral_privacy_configuration_t *configuration
 )
 {
+    tr_info("Set peripheral privacy configuration - "
+            "use_non_resolvable_random_address=%s, "
+            "resolution_strategy=%s",
+            to_string(configuration->use_non_resolvable_random_address),
+            to_string(configuration->resolution_strategy));
+
     _peripheral_privacy_configuration = *configuration;
 
 #if !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION

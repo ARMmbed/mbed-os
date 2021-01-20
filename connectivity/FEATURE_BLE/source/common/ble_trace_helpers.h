@@ -579,7 +579,8 @@ static inline const char* to_string(ble::hci_error_code_t error)
     }
 }
 
-static inline const char* to_string(ble::advertising_fragment_description_t fragment_description) {
+static inline const char* to_string(ble::advertising_fragment_description_t fragment_description)
+{
     switch (fragment_description.value()) {
         case ble::advertising_fragment_description_t::INTERMEDIATE_FRAGMENT:
             return "INTERMEDIATE_FRAGMENT";
@@ -594,6 +595,22 @@ static inline const char* to_string(ble::advertising_fragment_description_t frag
         default:
             return "unknown";
     }
+}
+
+static inline const char* to_string(ble::peripheral_privacy_configuration_t::resolution_strategy_t resolution_strategy)
+{
+   switch (resolution_strategy) {
+       case ble::peripheral_privacy_configuration_t::resolution_strategy_t::DO_NOT_RESOLVE:
+           return "DO_NOT_RESOLVE";
+       case ble::peripheral_privacy_configuration_t::resolution_strategy_t::REJECT_NON_RESOLVED_ADDRESS:
+           return "REJECT_NON_RESOLVED_ADDRESS";
+       case ble::peripheral_privacy_configuration_t::resolution_strategy_t::PERFORM_PAIRING_PROCEDURE:
+           return "PERFORM_PAIRING_PROCEDURE";
+       case ble::peripheral_privacy_configuration_t::resolution_strategy_t::PERFORM_AUTHENTICATION_PROCEDURE:
+           return "PERFORM_AUTHENTICATION_PROCEDURE";
+       default:
+           return "unknown";
+   }
 }
 
 } // namespace ble
