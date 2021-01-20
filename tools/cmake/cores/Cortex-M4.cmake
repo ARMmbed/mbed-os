@@ -13,10 +13,10 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
         "-mfpu=none"
     )
     list(APPEND asm_compile_options
-        "-mcpu=Cortex-M4.no_fp"
+        "-mcpu=Cortex-M4"
     )
     list(APPEND link_options
-        "--cpu=Cortex-M4.no_fp"
+        "--cpu=Cortex-M4"
     )
 endif()
 
