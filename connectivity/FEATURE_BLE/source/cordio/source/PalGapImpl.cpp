@@ -25,7 +25,7 @@
 #include "mbed-trace/mbed_trace.h"
 #include "common/ble_trace_helpers.h"
 
-#define TRACE_GROUP "BLGP"
+#define TRACE_GROUP "BLDM"
 
 namespace ble {
 namespace impl {
@@ -392,7 +392,7 @@ ble_error_t PalGap::create_connection(
             minimum_connection_event_length,
             maximum_connection_event_length);
 #endif
-    
+
     DmConnSetScanInterval(scan_interval, scan_window);
 #if BLE_FEATURE_WHITELIST
     DmDevSetFilterPolicy(DM_FILT_POLICY_MODE_INIT, initiator_policy.value());
