@@ -3281,21 +3281,31 @@ void Gap::on_remote_connection_parameter(
 #if BLE_ROLE_OBSERVER
 ble_error_t Gap::setScanParameters(const ScanParameters &params)
 {
-    tr_info("Set scan parameters - "
-            "own_address_type=%s, "
-            "scanning_filter_policy=%s, "
-            "phys=%d, "
-            "phy_1m_configuration:[interval=%" PRIu32 "ms,window=%" PRIu32 "ms,active_scanning=%s] ,"
-            "phy_coded_configuration:[interval=%" PRIu32 "ms,window=%" PRIu32 "ms,active_scanning=%s]",
-            to_string(params.getOwnAddressType()),
-            to_string(params.getFilter()),
-            params.getPhys().value(),
-            params.get1mPhyConfiguration().getInterval().valueInMs(),
-            params.get1mPhyConfiguration().getWindow().valueInMs(),
-            to_string(params.get1mPhyConfiguration().isActiveScanningSet()),
-            params.getCodedPhyConfiguration().getInterval().valueInMs(),
-            params.getCodedPhyConfiguration().getWindow().valueInMs(),
-            to_string(params.getCodedPhyConfiguration().isActiveScanningSet()));
+    if (params.get1mPhyConfiguration().isActiveScanningSet()) {
+        tr_info("Set scan parameters - "
+                "own_address_type=%s, "
+                "scanning_filter_policy=%s, "
+                "phys=%d, "
+                "phy_1m_configuration:[interval=%" PRIu32 "ms,window=%" PRIu32 "ms,active_scanning=%s]",
+                to_string(params.getOwnAddressType()),
+                to_string(params.getFilter()),
+                params.getPhys().value(),
+                params.get1mPhyConfiguration().getInterval().valueInMs(),
+                params.get1mPhyConfiguration().getWindow().valueInMs(),
+                to_string(params.get1mPhyConfiguration().isActiveScanningSet()));
+    } else {
+        tr_info("Set scan parameters - "
+                "own_address_type=%s, "
+                "scanning_filter_policy=%s, "
+                "phys=%d, "
+                "phy_coded_configuration:[interval=%" PRIu32 "ms,window=%" PRIu32 "ms,active_scanning=%s]",
+                to_string(params.getOwnAddressType()),
+                to_string(params.getFilter()),
+                params.getPhys().value(),
+                params.getCodedPhyConfiguration().getInterval().valueInMs(),
+                params.getCodedPhyConfiguration().getWindow().valueInMs(),
+                to_string(params.getCodedPhyConfiguration().isActiveScanningSet()));
+    }
 
     if (_privacy_enabled && params.getOwnAddressType() != own_address_type_t::RANDOM) {
         tr_error("privacy enabled, cannot use random address");
