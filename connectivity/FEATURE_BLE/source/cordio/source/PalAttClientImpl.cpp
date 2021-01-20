@@ -27,7 +27,7 @@
 #include "att_api.h"
 #include "att_defs.h"
 
-#define TRACE_GROUP "BLGC"
+#define TRACE_GROUP "BLAT"
 
 namespace ble {
 namespace impl {
@@ -43,6 +43,7 @@ PalAttClient::~PalAttClient() = default;
 */
 ble_error_t PalAttClient::exchange_mtu_request(connection_handle_t connection)
 {
+    tr_info("Connection %d - AttcMtuReq mtu=%d", connection, pAttCfg->mtu);
     AttcMtuReq(connection, pAttCfg->mtu);
     return BLE_ERROR_NONE;
 }
@@ -67,6 +68,7 @@ ble_error_t PalAttClient::find_information_request(
     attribute_handle_range_t discovery_range
 )
 {
+    tr_info("Connection %d - AttcFindInfoReq handles=[%d:%d]", connection_handle, discovery_range.begin, discovery_range.end);
     AttcFindInfoReq(
         connection_handle,
         discovery_range.begin,
@@ -86,6 +88,8 @@ ble_error_t PalAttClient::find_by_type_value_request(
     const Span<const uint8_t> &value
 )
 {
+    tr_info("Connection %d - AttcFindByTypeValueReq handles=[%d:%d] type=%d value=%s",
+            connection_handle, discovery_range.begin, discovery_range.end, type, tr_array(value.data(), value.size()));
     AttcFindByTypeValueReq(
         connection_handle,
         discovery_range.begin,
@@ -107,6 +111,8 @@ ble_error_t PalAttClient::read_by_type_request(
     const UUID &type
 )
 {
+    tr_info("Connection %d - AttcReadByTypeReq handles=[%d:%d] uuid=%s",
+            connection_handle, read_range.begin, read_range.end, to_string(type));
     AttcReadByTypeReq(
         connection_handle,
         read_range.begin,
@@ -126,6 +132,7 @@ ble_error_t PalAttClient::read_request(
     attribute_handle_t attribute_handle
 )
 {
+    tr_info("Connection %d - AttcReadReq handle=%d", connection_handle, attribute_handle);
     AttcReadReq(connection_handle, attribute_handle);
     return BLE_ERROR_NONE;
 }
@@ -139,6 +146,7 @@ ble_error_t PalAttClient::read_blob_request(
     uint16_t offset
 )
 {
+    tr_info("Connection %d - AttcReadLongReq handle=%d offset=%d", connection_handle, attribute_handle, offset);
     AttcReadLongReq(
         connection_handle,
         attribute_handle,
@@ -156,6 +164,8 @@ ble_error_t PalAttClient::read_multiple_request(
     const Span<const attribute_handle_t> &attribute_handles
 )
 {
+    tr_info("Connection %d - AttcReadMultipleReq handles=%s",
+            connection_handle, tr_array((uint8_t*)attribute_handles.data(), attribute_handles.size()));
     AttcReadMultipleReq(
         connection_handle,
         attribute_handles.size(),
@@ -173,6 +183,8 @@ ble_error_t PalAttClient::read_by_group_type_request(
     const UUID &group_type
 )
 {
+    tr_info("Connection %d - AttcReadByGroupTypeReq handles=[%d:%d] uuid=%s",
+            connection_handle, read_range.begin, read_range.end, to_string(group_type));
     AttcReadByGroupTypeReq(
         connection_handle,
         read_range.begin,
@@ -193,6 +205,8 @@ ble_error_t PalAttClient::write_request(
     const Span<const uint8_t> &value
 )
 {
+    tr_info("Connection %d - AttcWriteReq handle=%d value=%s",
+            connection_handle, attribute_handle, tr_array(value.data(), value.size()));
     AttcWriteReq(
         connection_handle,
         attribute_handle,
@@ -211,6 +225,8 @@ ble_error_t PalAttClient::write_command(
     const Span<const uint8_t> &value
 )
 {
+    tr_info("Connection %d - AttcWriteCmd handle=%d value=%s",
+             connection_handle, attribute_handle, tr_array(value.data(), value.size()));
     AttcWriteCmd(
         connection_handle,
         attribute_handle,
@@ -229,6 +245,8 @@ ble_error_t PalAttClient::signed_write_command(
     const Span<const uint8_t> &value
 )
 {
+    tr_info("Connection %d - AttcSignedWriteCmd handle=%d sign_counter=&d value=%s",
+            connection_handle, attribute_handle, _local_sign_counter, tr_array(value.data(), value.size()));
     AttcSignedWriteCmd(
         connection_handle,
         attribute_handle,
@@ -263,6 +281,8 @@ ble_error_t PalAttClient::prepare_write_request(
     const Span<const uint8_t> &value
 )
 {
+    tr_info("Connection %d - AttcPrepareWriteReq handle=%d offset=%d value=%s",
+            connection_handle, attribute_handle, offset, tr_array(value.data(), value.size()));
     AttcPrepareWriteReq(
         connection_handle,
         attribute_handle,
@@ -283,6 +303,8 @@ ble_error_t PalAttClient::execute_write_request(
     bool execute
 )
 {
+    tr_info("AttcExecuteWriteReq %d - execute=%s",
+            connection_handle, to_string(execute));
     AttcExecuteWriteReq(
         connection_handle,
         execute
