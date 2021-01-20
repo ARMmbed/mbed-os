@@ -16,6 +16,7 @@ target_sources(mbed-nanostack-libservice
         source/libip4string/stoip4.c
         source/libip6string/stoip6.c
         source/nsdynmemLIB/nsdynmemLIB.c
+        source/nsdynmemtracker/nsdynmem_tracker_lib.c
         source/nvmHelper/ns_nvm_helper.c
 )
 
