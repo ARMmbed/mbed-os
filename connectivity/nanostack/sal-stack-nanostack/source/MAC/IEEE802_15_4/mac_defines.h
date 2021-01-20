@@ -26,6 +26,7 @@
 struct cca_structure_s;
 struct buffer;
 struct mac_pre_build_frame;
+struct mac_pre_parsed_frame_s;
 struct mlme_key_descriptor_s;
 struct arm_device_driver_list;
 struct fhss_api;
@@ -204,6 +205,7 @@ typedef struct protocol_interface_rf_mac_setup {
     bool macBroadcastDisabled: 1;
     bool scan_active: 1;
     bool rf_csma_extension_supported: 1;
+    bool rf_pd_ack_buffer_is_in_use: 1;
     uint16_t mac_short_address;
     uint16_t pan_id;
     uint8_t mac64[8];
@@ -233,7 +235,9 @@ typedef struct protocol_interface_rf_mac_setup {
     struct mac_pre_build_frame *pd_data_request_queue_to_go;
     struct mac_pre_build_frame *pd_data_request_bc_queue_to_go;
     struct mac_pre_build_frame *active_pd_data_request;
+    struct mac_pre_parsed_frame_s *pd_rx_ack_buffer;
     /* MAC Beacon info */
+    uint16_t allocated_ack_buffer_length;
     uint16_t max_beacon_payload_length;
     uint8_t *mac_beacon_payload;
     uint8_t mac_beacon_payload_size;
@@ -253,6 +257,7 @@ typedef struct protocol_interface_rf_mac_setup {
     struct mac_pre_build_frame enhanced_ack_buffer;
     uint32_t enhanced_ack_handler_timestamp;
     arm_event_t mac_mcps_timer_event;
+    arm_event_storage_t mac_ack_event;
     uint16_t indirect_pending_bytes;
     arm_nwk_mlme_event_type_e mac_mlme_event;
     mac_event_t timer_mac_event;

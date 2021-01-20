@@ -42,13 +42,14 @@
 #include "MLE/mle.h"
 #include "Service_Libs/mle_service/mle_service_api.h"
 #include "Common_Protocols/icmpv6.h"
+#include "Common_Protocols/ip.h"
 #ifdef HAVE_RPL
 #include "RPL/rpl_data.h"
 #endif
 #include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6LoWPAN/Thread/thread_common.h"
 #include "6LoWPAN/ws/ws_common.h"
-
+#include "Service_Libs/random_early_detection/random_early_detection_api.h"
 #define TRACE_GROUP "6lAd"
 
 typedef void (adaptation_etx_update_cb)(protocol_interface_info_entry_t *cur, buffer_t *buf, const mcps_data_conf_t *confirm);
@@ -59,6 +60,8 @@ typedef void (adaptation_etx_update_cb)(protocol_interface_info_entry_t *cur, bu
 #else
 #define tr_debug_extra(...)
 #endif
+
+#define ADAPTION_DIRECT_TX_QUEUE_SIZE_THRESHOLD_TRACE 20
 
 typedef struct {
     uint16_t tag;   /*!< Fragmentation datagram TAG ID */
@@ -93,6 +96,8 @@ typedef struct {
     fragmenter_tx_list_t activeUnicastList; //Unicast packets waiting data confirmation from MAC
     buffer_list_t directTxQueue; //Waiting free tx process
     uint16_t directTxQueue_size;
+    uint16_t directTxQueue_level;
+    uint16_t activeTxList_size;
     uint16_t indirect_big_packet_threshold;
     uint16_t max_indirect_big_packets_total;
     uint16_t max_indirect_small_packets_per_child;
@@ -102,6 +107,17 @@ typedef struct {
     uint16_t mpx_user_id;
     ns_list_link_t      link; /*!< List link entry */
 } fragmenter_interface_t;
+
+#define LOWPAN_ACTIVE_UNICAST_ONGOING_MAX 10
+
+/* Minimum buffer amount and memory size to ensure operation even in out of memory situation
+ */
+#define LOWPAN_MEM_LIMIT_MIN_QUEUE 10
+#define LOWPAN_MEM_LIMIT_MIN_MEMORY 10000
+#define LOWPAN_MEM_LIMIT_REMOVE_NORMAL 3000 // Remove when approaching memory limit
+#define LOWPAN_MEM_LIMIT_REMOVE_MAX 10000 // Remove when at memory limit
+
+
 
 static NS_LIST_DEFINE(fragmenter_interface_list, fragmenter_interface_t, link);
 
@@ -203,11 +219,22 @@ static struct protocol_interface_info_entry *lowpan_adaptation_network_interface
 }
 
 
+static void lowpan_adaptation_tx_queue_level_update(fragmenter_interface_t *interface_ptr)
+{
+    if (interface_ptr->directTxQueue_size == interface_ptr->directTxQueue_level + ADAPTION_DIRECT_TX_QUEUE_SIZE_THRESHOLD_TRACE ||
+            interface_ptr->directTxQueue_size == interface_ptr->directTxQueue_level - ADAPTION_DIRECT_TX_QUEUE_SIZE_THRESHOLD_TRACE) {
+        interface_ptr->directTxQueue_level = interface_ptr->directTxQueue_size;
+        tr_info("Adaptation layer TX queue size %u Active MAC tx request %u", interface_ptr->directTxQueue_level, interface_ptr->activeTxList_size);
+    }
+}
+
+
 static void lowpan_adaptation_tx_queue_write(fragmenter_interface_t *interface_ptr, buffer_t *buf)
 {
     buffer_t *lower_priority_buf = NULL;
 
     ns_list_foreach(buffer_t, cur, &interface_ptr->directTxQueue) {
+
         if (cur->priority < buf->priority) {
             lower_priority_buf = cur;
             break;
@@ -220,6 +247,7 @@ static void lowpan_adaptation_tx_queue_write(fragmenter_interface_t *interface_p
         ns_list_add_to_end(&interface_ptr->directTxQueue, buf);
     }
     interface_ptr->directTxQueue_size++;
+    lowpan_adaptation_tx_queue_level_update(interface_ptr);
     protocol_stats_update(STATS_AL_TX_QUEUE_SIZE, interface_ptr->directTxQueue_size);
 }
 
@@ -233,6 +261,7 @@ static buffer_t *lowpan_adaptation_tx_queue_read(fragmenter_interface_t *interfa
         if (lowpan_buffer_tx_allowed(interface_ptr, buf)) {
             ns_list_remove(&interface_ptr->directTxQueue, buf);
             interface_ptr->directTxQueue_size--;
+            lowpan_adaptation_tx_queue_level_update(interface_ptr);
             protocol_stats_update(STATS_AL_TX_QUEUE_SIZE, interface_ptr->directTxQueue_size);
             return buf;
         }
@@ -365,6 +394,9 @@ int8_t lowpan_adaptation_interface_init(int8_t interface_id, uint16_t mac_mtu_si
     ns_list_init(&interface_ptr->indirect_tx_queue);
     ns_list_init(&interface_ptr->directTxQueue);
     ns_list_init(&interface_ptr->activeUnicastList);
+    interface_ptr->activeTxList_size = 0;
+    interface_ptr->directTxQueue_size = 0;
+    interface_ptr->directTxQueue_level = 0;
 
     ns_list_add_to_end(&fragmenter_interface_list, interface_ptr);
 
@@ -390,13 +422,15 @@ int8_t lowpan_adaptation_interface_free(int8_t interface_id)
     ns_list_remove(&fragmenter_interface_list, interface_ptr);
     //free active tx process
     lowpan_list_free(&interface_ptr->activeUnicastList, false);
+    interface_ptr->activeTxList_size = 0;
     lowpan_active_buffer_state_reset(&interface_ptr->active_broadcast_tx_buf);
 
     //Free Indirect entry
     lowpan_list_free(&interface_ptr->indirect_tx_queue, true);
 
     buffer_free_list(&interface_ptr->directTxQueue);
-
+    interface_ptr->directTxQueue_size = 0;
+    interface_ptr->directTxQueue_level = 0;
     //Free Dynamic allocated entries
     ns_dyn_mem_free(interface_ptr->fragment_indirect_tx_buffer);
     ns_dyn_mem_free(interface_ptr);
@@ -415,6 +449,7 @@ int8_t lowpan_adaptation_interface_reset(int8_t interface_id)
 
     //free active tx process
     lowpan_list_free(&interface_ptr->activeUnicastList, false);
+    interface_ptr->activeTxList_size  = 0;
     lowpan_active_buffer_state_reset(&interface_ptr->active_broadcast_tx_buf);
     //Clean fragmented message flag
     interface_ptr->fragmenter_active = false;
@@ -423,6 +458,8 @@ int8_t lowpan_adaptation_interface_reset(int8_t interface_id)
     lowpan_list_free(&interface_ptr->indirect_tx_queue, true);
 
     buffer_free_list(&interface_ptr->directTxQueue);
+    interface_ptr->directTxQueue_size = 0;
+    interface_ptr->directTxQueue_level = 0;
 
     return 0;
 }
@@ -465,6 +502,63 @@ int8_t lowpan_adaptation_interface_mpx_register(int8_t interface_id, struct mpx_
     return 0;
 }
 
+void lowpan_adaptation_free_heap(bool full_gc)
+{
+    ns_list_foreach(fragmenter_interface_t, interface_ptr, &fragmenter_interface_list) {
+        // Go through all interfaces and free small amount of memory
+        // This is not very radical, but gives time to recover wthout causing too harsh changes
+        lowpan_adaptation_free_low_priority_packets(interface_ptr->interface_id, full_gc ? LOWPAN_MEM_LIMIT_REMOVE_MAX : LOWPAN_MEM_LIMIT_REMOVE_NORMAL);
+    }
+}
+
+int8_t lowpan_adaptation_free_low_priority_packets(int8_t interface_id, uint32_t requested_amount)
+{
+    fragmenter_interface_t *interface_ptr = lowpan_adaptation_interface_discover(interface_id);
+
+    if (!interface_ptr) {
+        return -1;
+    }
+    uint32_t adaptation_memory = 0;
+    uint16_t adaptation_packets = 0;
+    uint32_t memory_freed = 0;
+    uint16_t packets_freed = 0;
+
+    ns_list_foreach(buffer_t, entry, &interface_ptr->directTxQueue) {
+        adaptation_memory += sizeof(buffer_t) + entry->size;
+        adaptation_packets++;
+    }
+
+    if (interface_ptr->directTxQueue_size < LOWPAN_MEM_LIMIT_MIN_QUEUE) {
+        // Minimum reserved for operations
+        return 0;
+    }
+    if (adaptation_memory < LOWPAN_MEM_LIMIT_MIN_MEMORY) {
+        // Minimum reserved for operations
+        return 0;
+    }
+    if (adaptation_memory - requested_amount < LOWPAN_MEM_LIMIT_MIN_MEMORY) {
+        // only reduse to minimum
+        requested_amount = adaptation_memory - LOWPAN_MEM_LIMIT_MIN_MEMORY;
+    }
+
+    //Only remove last entries from TX queue with low priority
+    ns_list_foreach_reverse_safe(buffer_t, entry, &interface_ptr->directTxQueue) {
+        if (entry->priority == QOS_NORMAL) {
+            memory_freed += sizeof(buffer_t) + entry->size;
+            packets_freed++;
+            ns_list_remove(&interface_ptr->directTxQueue, entry);
+            interface_ptr->directTxQueue_size--;
+            lowpan_adaptation_tx_queue_level_update(interface_ptr);
+            socket_tx_buffer_event_and_free(entry, SOCKET_TX_FAIL);
+        }
+        if (memory_freed > requested_amount) {
+            // Enough memory freed
+            break;
+        }
+    }
+    tr_info("Adaptation Free low priority packets memory: %" PRIi32 " queue: %d deallocated %" PRIi32 " bytes, %d packets, %" PRIi32 " requested", adaptation_memory, adaptation_packets, memory_freed, packets_freed, requested_amount);
+    return 0;
+}
 
 static fragmenter_tx_entry_t *lowpan_indirect_entry_allocate(uint16_t fragment_buffer_size)
 {
@@ -597,6 +691,7 @@ static fragmenter_tx_entry_t *lowpan_adaptation_tx_process_init(fragmenter_inter
                 return NULL;
             }
             ns_list_add_to_end(&interface_ptr->activeUnicastList, tx_entry);
+            interface_ptr->activeTxList_size++;
         } else {
             tx_entry = &interface_ptr->active_broadcast_tx_buf;
         }
@@ -969,6 +1064,13 @@ static bool lowpan_buffer_tx_allowed(fragmenter_interface_t *interface_ptr, buff
     if (!is_unicast && interface_ptr->active_broadcast_tx_buf.buf) {
         return false;
     }
+
+    if (is_unicast && interface_ptr->activeTxList_size >= LOWPAN_ACTIVE_UNICAST_ONGOING_MAX) {
+        //New TX is not possible there is already too manyactive connecting
+        return false;
+    }
+
+
     // Do not accept more than one active unicast TX per destination
     if (is_unicast && lowpan_adaptation_is_destination_tx_active(&interface_ptr->activeUnicastList, buf)) {
         return false;
@@ -992,6 +1094,18 @@ int8_t lowpan_adaptation_interface_tx(protocol_interface_info_entry_t *cur, buff
         goto tx_error_handler;
     }
 
+    uint8_t traffic_class = buf->options.traffic_class >> IP_TCLASS_DSCP_SHIFT;
+
+    if (traffic_class == IP_DSCP_EF) {
+        buffer_priority_set(buf, QOS_EXPEDITE_FORWARD);
+    } else if (traffic_class == IP_DSCP_CS6) {
+        //Network Control
+        buffer_priority_set(buf, QOS_NETWORK_CTRL);
+    } else if (traffic_class) {
+        buffer_priority_set(buf, QOS_HIGH);
+    }
+
+
     //Check packet size
     bool fragmented_needed = lowpan_adaptation_request_longer_than_mtu(cur, buf, interface_ptr);
     if (fragmented_needed) {
@@ -1010,7 +1124,18 @@ int8_t lowpan_adaptation_interface_tx(protocol_interface_info_entry_t *cur, buff
     bool indirect = buf->link_specific.ieee802_15_4.indirectTxProcess;
 
     if (!lowpan_buffer_tx_allowed(interface_ptr, buf)) {
+
+        if (buf->priority == QOS_NORMAL) {
+
+            if (random_early_detection_congestion_check(cur->random_early_detection)) {
+                random_early_detetction_aq_calc(cur->random_early_detection, interface_ptr->directTxQueue_size);
+                protocol_stats_update(STATS_AL_TX_CONGESTION_DROP, 1);
+                goto tx_error_handler;
+            }
+        }
+
         lowpan_adaptation_tx_queue_write(interface_ptr, buf);
+        random_early_detetction_aq_calc(cur->random_early_detection, interface_ptr->directTxQueue_size);
         return 0;
     }
 
@@ -1166,6 +1291,7 @@ static void lowpan_adaptation_data_process_clean(fragmenter_interface_t *interfa
     } else if (buf->link_specific.ieee802_15_4.requestAck) {
         ns_list_remove(&interface_ptr->activeUnicastList, tx_ptr);
         ns_dyn_mem_free(tx_ptr);
+        interface_ptr->activeTxList_size--;
     }
 
     socket_tx_buffer_event_and_free(buf, socket_event);
@@ -1205,7 +1331,6 @@ int8_t lowpan_adaptation_interface_tx_confirm(protocol_interface_info_entry_t *c
         tr_error("No data request for this confirmation %u", confirm->msduHandle);
         return -1;
     }
-
     //Check status for
     buffer_t *buf = tx_ptr->buf;
 
@@ -1229,64 +1354,58 @@ int8_t lowpan_adaptation_interface_tx_confirm(protocol_interface_info_entry_t *c
         buf->link_specific.ieee802_15_4.rf_channel_switch = false;
     }
 
-    switch (confirm->status) {
-
-        case MLME_BUSY_CHAN:
-            lowpan_data_request_to_mac(cur, buf, tx_ptr, interface_ptr);
-            break;
-        case MLME_SUCCESS:
-
-            //Check is there more packets
-            if (lowpan_adaptation_tx_process_ready(tx_ptr)) {
-                bool triggered_from_indirect_cache = false;
-                if (tx_ptr->fragmented_data && active_direct_confirm) {
-                    //Clean
-                    interface_ptr->fragmenter_active = false;
-                }
-
-                if (tx_ptr->buf->link_specific.ieee802_15_4.indirectTxProcess) {
-                    triggered_from_indirect_cache = lowpan_adaptation_indirect_cache_trigger(cur, interface_ptr, tx_ptr);
-                }
-
-                lowpan_adaptation_data_process_clean(interface_ptr, tx_ptr, map_mlme_status_to_socket_event(confirm->status));
-
-                if (triggered_from_indirect_cache) {
-                    return 0;
-                }
-            } else {
-                lowpan_data_request_to_mac(cur, buf, tx_ptr, interface_ptr);
+    if (confirm->status == MLME_SUCCESS) {
+        //Check is there more packets
+        if (lowpan_adaptation_tx_process_ready(tx_ptr)) {
+            bool triggered_from_indirect_cache = false;
+            if (tx_ptr->fragmented_data && active_direct_confirm) {
+                interface_ptr->fragmenter_active = false;
             }
 
-            break;
-        case MLME_TX_NO_ACK:
-        case MLME_SECURITY_FAIL:
-        case MLME_TRANSACTION_EXPIRED:
-        default:
-            tr_error("MCPS Data fail by status %u", confirm->status);
-            if (buf->dst_sa.addr_type == ADDR_802_15_4_SHORT) {
-                tr_info("Dest addr: %x", common_read_16_bit(buf->dst_sa.address + 2));
-            } else if (buf->dst_sa.addr_type == ADDR_802_15_4_LONG) {
-                tr_info("Dest addr: %s", trace_array(buf->dst_sa.address + 2, 8));
-            }
-
-#ifdef HAVE_RPL
-            if (confirm->status == MLME_TX_NO_ACK || confirm->status == MLME_UNAVAILABLE_KEY) {
-                if (buf->route && rpl_data_is_rpl_parent_route(buf->route->route_info.source)) {
-                    protocol_stats_update(STATS_RPL_PARENT_TX_FAIL, 1);
-                }
-            }
-#endif
-            if (tx_ptr->fragmented_data) {
-                tx_ptr->buf->buf_ptr = tx_ptr->buf->buf_end;
-                tx_ptr->buf->buf_ptr -= tx_ptr->orig_size;
-                if (active_direct_confirm) {
-                    interface_ptr->fragmenter_active = false;
-                }
+            if (tx_ptr->buf->link_specific.ieee802_15_4.indirectTxProcess) {
+                triggered_from_indirect_cache = lowpan_adaptation_indirect_cache_trigger(cur, interface_ptr, tx_ptr);
             }
 
             lowpan_adaptation_data_process_clean(interface_ptr, tx_ptr, map_mlme_status_to_socket_event(confirm->status));
-            break;
 
+            if (triggered_from_indirect_cache) {
+                return 0;
+            }
+        } else {
+            lowpan_data_request_to_mac(cur, buf, tx_ptr, interface_ptr);
+        }
+    } else if ((confirm->status == MLME_BUSY_CHAN) && !ws_info(cur)) {
+        lowpan_data_request_to_mac(cur, buf, tx_ptr, interface_ptr);
+    } else {
+
+
+        if (confirm->status == MLME_TRANSACTION_OVERFLOW) {
+            tr_error("MCPS Data fail by MLME_TRANSACTION_OVERFLOW");
+        }
+
+        tr_error("MCPS Data fail by status %u", confirm->status);
+        if (buf->dst_sa.addr_type == ADDR_802_15_4_SHORT) {
+            tr_info("Dest addr: %x", common_read_16_bit(buf->dst_sa.address + 2));
+        } else if (buf->dst_sa.addr_type == ADDR_802_15_4_LONG) {
+            tr_info("Dest addr: %s", trace_array(buf->dst_sa.address + 2, 8));
+        }
+
+#ifdef HAVE_RPL
+        if (confirm->status == MLME_TX_NO_ACK || confirm->status == MLME_UNAVAILABLE_KEY) {
+            if (buf->route && rpl_data_is_rpl_parent_route(buf->route->route_info.source)) {
+                protocol_stats_update(STATS_RPL_PARENT_TX_FAIL, 1);
+            }
+        }
+#endif
+        if (tx_ptr->fragmented_data) {
+            tx_ptr->buf->buf_ptr = tx_ptr->buf->buf_end;
+            tx_ptr->buf->buf_ptr -= tx_ptr->orig_size;
+            if (active_direct_confirm) {
+                interface_ptr->fragmenter_active = false;
+            }
+        }
+
+        lowpan_adaptation_data_process_clean(interface_ptr, tx_ptr, map_mlme_status_to_socket_event(confirm->status));
     }
     // When confirmation is for direct transmission, push all allowed buffers to MAC
     if (active_direct_confirm == true) {
@@ -1295,6 +1414,8 @@ int8_t lowpan_adaptation_interface_tx_confirm(protocol_interface_info_entry_t *c
             lowpan_adaptation_interface_tx(cur, buf_from_queue);
             buf_from_queue = lowpan_adaptation_tx_queue_read(interface_ptr);
         }
+        //Update Average QUEUE
+        random_early_detetction_aq_calc(cur->random_early_detection, interface_ptr->directTxQueue_size);
     }
     return 0;
 }
@@ -1492,9 +1613,20 @@ int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct protocol_in
         }
     }
 
+    //Check next directTxQueue there may be pending packets also
+    ns_list_foreach_safe(buffer_t, entry, &interface_ptr->directTxQueue) {
+        if (lowpan_tx_buffer_address_compare(&entry->dst_sa, address_ptr, adr_type)) {
+            ns_list_remove(&interface_ptr->directTxQueue, entry);
+            interface_ptr->directTxQueue_size--;
+            //Update Average QUEUE
+            random_early_detetction_aq_calc(cur->random_early_detection, interface_ptr->directTxQueue_size);
+            lowpan_adaptation_tx_queue_level_update(interface_ptr);
+            socket_tx_buffer_event_and_free(entry, SOCKET_TX_FAIL);
+        }
+    }
+
     return 0;
 }
-
 
 int8_t lowpan_adaptation_indirect_queue_params_set(struct protocol_interface_info_entry *cur, uint16_t indirect_big_packet_threshold, uint16_t max_indirect_big_packets_total, uint16_t max_indirect_small_packets_per_child)
 {

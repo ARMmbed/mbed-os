@@ -34,6 +34,7 @@
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "6LoWPAN/ws/ws_pae_controller.h"
+#include "6LoWPAN/lowpan_adaptation_interface.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 
 #define TRACE_GROUP "mntr"
@@ -73,7 +74,8 @@ typedef void (ns_maintenance_gc_cb)(bool full_gc);
  */
 static ns_maintenance_gc_cb *ns_maintenance_gc_functions[] = {
     ipv6_destination_cache_forced_gc,
-    ws_pae_controller_forced_gc
+    ws_pae_controller_forced_gc,
+    lowpan_adaptation_free_heap
 };
 
 static void ns_monitor_heap_gc(bool full_gc)

@@ -48,6 +48,7 @@ extern "C" {
 #define ARM_AES_MBEDTLS_CONTEXT_MIN 1 /**</ event loop use only */
 #endif
 
+/** AES context */
 typedef struct arm_aes_context arm_aes_context_t;
 
 /**
