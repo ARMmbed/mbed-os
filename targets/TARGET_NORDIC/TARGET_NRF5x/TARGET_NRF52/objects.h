@@ -50,8 +50,6 @@
 #endif
 #include "nrf_twi.h"
 
-#include "nrf_saadc.h"
-
 #include "nrf_pwm.h"
 
 #ifdef __cplusplus
@@ -150,6 +148,10 @@ struct analogin_s {
     uint8_t channel;
 };
 
+#if DEVICE_ANALOGIN
+
+#include "nrf_saadc.h"
+
 struct analogin_config_s {
     nrf_saadc_resistor_t  resistor_p;
     nrf_saadc_resistor_t  resistor_n;
@@ -161,6 +163,8 @@ struct analogin_config_s {
     nrf_saadc_input_t     pin_p;
     nrf_saadc_input_t     pin_n;
 };
+
+#endif
 
 struct gpio_irq_s {
     uint32_t ch;
