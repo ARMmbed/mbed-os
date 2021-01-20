@@ -66,6 +66,7 @@ void USTIMER_TC_Handler(void)
 void us_ticker_init(void)
 {
     if (!us_ticker_inited) {
+        tc_stop(USTIMER_TC, USTIMER_TC_CHN);
         /* Configure PMC */
         pmc_enable_periph_clk(USTIMER_ID_TC);
         /* Configure GCLK 1MHz */
@@ -73,7 +74,7 @@ void us_ticker_init(void)
         pmc_enable_generic_clk(USTIMER_ID_TC);
 
         /* Configure Timer 1us */
-        tc_init(USTIMER_TC, USTIMER_TC_CHN, TC_CMR_TCCLKS_TIMER_CLOCK1 | TC_CMR_CPCTRG, 0);
+        tc_init(USTIMER_TC, USTIMER_TC_CHN, TC_CMR_TCCLKS_TIMER_CLOCK1, 0);
 
         /* Configure and enable interrupt on RC compare */
         NVIC_ClearPendingIRQ(USTIMER_TC_IRQn);

@@ -66,11 +66,12 @@ void LPTIMER_TC_Handler(void)
 void lp_ticker_init(void)
 {
     if (!lp_ticker_inited) {
+    	tc_stop(LPTIMER_TC, LPTIMER_TC_CHN);
         /* Configure PMC */
         pmc_enable_periph_clk(LPTIMER_ID_TC);
 
         /* Configure Timer */
-        tc_init(LPTIMER_TC, LPTIMER_TC_CHN, TC_CMR_TCCLKS_TIMER_CLOCK5 | TC_CMR_CPCTRG, 0);
+        tc_init(LPTIMER_TC, LPTIMER_TC_CHN, TC_CMR_TCCLKS_TIMER_CLOCK5, 0);
 
         /* Configure and enable interrupt on RC compare */
         NVIC_ClearPendingIRQ(LPTIMER_TC_IRQn);
