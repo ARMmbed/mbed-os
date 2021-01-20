@@ -54,7 +54,7 @@ private:
     bool active = false;
     bool powered_up = false;
     int8_t device_id = -1;
-    phy_device_driver_s phy;
+    phy_device_driver_s phy = {};
 };
 
 nsapi_error_t Nanostack::PPPInterface::initialize()

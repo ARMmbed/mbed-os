@@ -40,7 +40,7 @@ private:
     EMAC &emac;
     uint8_t mac_addr[6];
     int8_t device_id = -1;
-    phy_device_driver_s phy;
+    phy_device_driver_s phy = {};
 };
 
 // GAH! no handles on the callback. Force a single interface
