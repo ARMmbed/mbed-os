@@ -121,6 +121,12 @@
             "SPI_MISO": "PC_2",
             "SPI_CLK":  "PB_10",
             "SPI_CS":   "PE_2"
+        },
+        "WIO_BG96": {
+          "SPI_CS": "SPI_CS",
+          "SPI_MOSI": "SPI_MOSI",
+          "SPI_MISO": "SPI_MISO",
+          "SPI_CLK": "SPI_SCK"
         }
     }
 }
