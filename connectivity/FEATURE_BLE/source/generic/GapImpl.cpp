@@ -1279,17 +1279,21 @@ ble_error_t Gap::reset()
 
 void Gap::onShutdown(const GapShutdownCallback_t &callback)
 {
+    tr_info("GAP instance shutting down...");
     shutdownCallChain.add(callback);
 }
 
 Gap::GapShutdownCallbackChain_t &Gap::onShutdown()
 {
+    tr_info("GAP instance shutting down...");
     return shutdownCallChain;
 }
 
 #if BLE_ROLE_OBSERVER
 void Gap::on_scan_started(bool success)
 {
+    tr_info("Scan %s", success ? "successfully started" : "failed to start");
+
     MBED_ASSERT(_scan_state == ScanState::pending_scan);
 
     if (success) {
@@ -1305,6 +1309,8 @@ void Gap::on_scan_started(bool success)
 
 void Gap::on_scan_stopped(bool success)
 {
+    tr_info("Scan %s", success ? "successfully stopped" : "failed to stop");
+
     if (!success) {
         return;
     }
@@ -1347,6 +1353,8 @@ void Gap::on_scan_stopped(bool success)
 #if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 void Gap::connecting_to_host_resolved_address_failed(bool inform_user)
 {
+    tr_info("Connecting to host resolved address failed%s", inform_user ? ", informing user" : "");
+
     if (inform_user && _event_handler) {
         _event_handler->onConnectionComplete(
             ConnectionCompleteEvent(
@@ -1374,7 +1382,10 @@ void Gap::connecting_to_host_resolved_address_failed(bool inform_user)
 #if BLE_ROLE_OBSERVER
 void Gap::on_scan_timeout()
 {
+    tr_info("Scan timed out");
+
     if (_scan_state == ScanState::idle) {
+        tr_warning("event not passed to handler, scan state idle");
         return;
     }
 
@@ -1390,7 +1401,10 @@ void Gap::on_scan_timeout()
 #if BLE_ROLE_OBSERVER
 void Gap::process_legacy_scan_timeout()
 {
+    tr_info("Process legacy scan timed out");
+
     if (_scan_state == ScanState::idle) {
+        tr_warning("event not passed to handler, scan state idle");
         return;
     }
 
@@ -1405,11 +1419,15 @@ void Gap::process_legacy_scan_timeout()
 #if BLE_ROLE_BROADCASTER
 void Gap::on_advertising_timeout()
 {
+    tr_info("Advertising timed out");
+
     _event_queue.post(mbed::callback(this, &Gap::process_advertising_timeout));
 }
 
 void Gap::process_advertising_timeout()
 {
+    tr_info("Process advertising timed out");
+
     if (!_active_sets.get(LEGACY_ADVERTISING_HANDLE)) {
         return;
     }
@@ -1420,6 +1438,8 @@ void Gap::process_advertising_timeout()
 
 void Gap::on_gap_event_received(const GapEvent &e)
 {
+    tr_debug("GAP event of type %s received", to_string(e.type));
+
     switch (e.type.value()) {
 #if BLE_ROLE_OBSERVER
         case GapEventType::ADVERTISING_REPORT:
@@ -1455,8 +1475,23 @@ void Gap::on_gap_event_received(const GapEvent &e)
 #if BLE_ROLE_OBSERVER
 void Gap::on_advertising_report(const GapAdvertisingReportEvent &e)
 {
+    tr_info("GAP advertising report received");
+
     for (size_t i = 0; i < e.size(); ++i) {
         GapAdvertisingReportEvent::advertising_t advertising = e[i];
+
+        tr_debug("Advertising %d - "
+                "type=%s, "
+                "address_type=%s, "
+                "address=%s, "
+                "data=%s, "
+                "rssi=%d",
+                i, /* Advertising number */
+                to_string(advertising.type),
+                to_string(advertising.address_type),
+                to_string(advertising.address),
+                mbed_trace_array(advertising.data.data(), advertising.data.size()),
+                advertising.rssi);
 
         // note 1-to-1 conversion between connection_peer_address_type_t and
         // peer_address_type_t
@@ -1515,6 +1550,26 @@ void Gap::on_advertising_report(const GapAdvertisingReportEvent &e)
 #if BLE_FEATURE_CONNECTABLE
 void Gap::on_connection_complete(const GapConnectionCompleteEvent &e)
 {
+    tr_info("Connection %d %s - "
+            "role=%s, "
+            "peer_address_type=%s "
+            "peer_address=%s, "
+            "connection_interval=%d, "
+            "connection_latency=%d, "
+            "supervision_timeout=%d, "
+            "local_resolvable_private_address=%s, "
+            "peer_resolvable_private_address=%s",
+            e.connection_handle,
+            e.status == 0 ? "successfully completed" : "failed to complete",
+            e.status == 0 ? to_string(e.role) : "n/a",
+            to_string(e.peer_address_type),
+            to_string(e.peer_address),
+            e.connection_interval,
+            e.connection_latency,
+            e.supervision_timeout,
+            to_string(e.local_resolvable_private_address),
+            to_string(e.peer_resolvable_private_address));
+
     if (e.role == connection_role_t::CENTRAL) {
         _initiating = false;
     }
@@ -1575,6 +1630,15 @@ void Gap::on_connection_complete(const GapConnectionCompleteEvent &e)
 
 void Gap::on_disconnection_complete(const GapDisconnectionCompleteEvent &e)
 {
+    if (e.status == 0) {
+        tr_info("Disconnection %d successfully completed - "
+                "reason=%d",
+                e.connection_handle,
+                e.reason);
+    } else {
+        tr_info("Disconnection %d failed", e.connection_handle);
+    }
+
     if (e.status == hci_error_code_t::SUCCESS) {
         // signal internal stack
         if (_connection_event_handler) {
@@ -1600,6 +1664,17 @@ void Gap::on_disconnection_complete(const GapDisconnectionCompleteEvent &e)
 
 void Gap::on_connection_parameter_request(const GapRemoteConnectionParameterRequestEvent &e)
 {
+    tr_info("Connection %d parameter request - "
+            "min_connection_interval=%d, "
+            "max_connection_interval=%d, "
+            "connection_latency=%d, "
+            "supervision_timeout=%d",
+            e.connection_handle,
+            e.min_connection_interval,
+            e.max_connection_interval,
+            e.connection_latency,
+            e.supervision_timeout);
+
     if (_user_manage_connection_parameter_requests) {
         if (_event_handler) {
             _event_handler->onUpdateConnectionParametersRequest(
@@ -1629,6 +1704,16 @@ void Gap::on_connection_parameter_request(const GapRemoteConnectionParameterRequ
 
 void Gap::on_connection_update(const GapConnectionUpdateEvent &e)
 {
+    tr_info("Connection %d update %s - "
+            "connection_interval=%d, "
+            "connection_latency=%d,"
+            "supervision_timeout=%d, ",
+            e.connection_handle,
+            e.status == 0 ? "successfully completed" : "failed",
+            e.connection_interval,
+            e.connection_latency,
+            e.supervision_timeout);
+
     if (!_event_handler) {
         return;
     }

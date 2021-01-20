@@ -21,6 +21,7 @@
 #include "ble/SecurityManager.h"
 #include "mbed-trace/mbed_trace.h"
 #include "pal/GapTypes.h"
+#include "pal/GapEvents.h"
 #include "ble-host/include/dm_api.h"
 #include "common/UUID.h"
 
@@ -611,6 +612,53 @@ static inline const char* to_string(ble::peripheral_privacy_configuration_t::res
        default:
            return "unknown";
    }
+}
+
+static inline const char* to_string(ble::GapEventType event_type)
+{
+    switch (event_type.value()) {
+        case ble::GapEventType::type::UNEXPECTED_ERROR:
+            return "UNEXPECTED_ERROR";
+        case ble::GapEventType::type::CONNECTION_COMPLETE:
+            return "CONNECTION_COMPLETE";
+        case ble::GapEventType::type::ADVERTISING_REPORT:
+            return "ADVERTISING_REPORT";
+        case ble::GapEventType::type::CONNECTION_UPDATE:
+            return "CONNECTION_UPDATE";
+        case ble::GapEventType::type::REMOTE_CONNECTION_PARAMETER_REQUEST:
+            return "REMOTE_CONNECTION_PARAMETER_REQUEST";
+        case ble::GapEventType::type::DISCONNECTION_COMPLETE:
+            return "DISCONNECTION_COMPLETE";
+        default:
+            return "unknown";
+    }
+}
+
+static inline const char* to_string(ble::received_advertising_type_t type)
+{
+    switch (type.value()) {
+        case ble::received_advertising_type_t::ADV_IND:
+            return "ADV_IND";
+        case ble::received_advertising_type_t::ADV_DIRECT_IND:
+            return "ADV_DIRECT_IND";
+        case ble::received_advertising_type_t::ADV_SCAN_IND:
+            return "ADV_SCAN_IND";
+        case ble::received_advertising_type_t::ADV_NONCONN_IND:
+            return "ADV_NONCONN_IND";
+        case ble::received_advertising_type_t::SCAN_RESPONSE:
+            return "SCAN_RESPONSE";
+        default:
+            return "unknown";
+    }
+}
+
+static inline const char* to_string(ble::connection_role_t role)
+{
+    if (role.value() == ble::connection_role_t::CENTRAL) {
+        return "CENTRAL";
+    } else {
+        return "PERIPHERAL";
+    }
 }
 
 } // namespace ble
