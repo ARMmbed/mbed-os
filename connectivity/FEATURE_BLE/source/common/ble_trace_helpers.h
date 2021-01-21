@@ -22,19 +22,31 @@
 #include "mbed-trace/mbed_trace.h"
 #include "pal/GapTypes.h"
 #include "ble-host/include/dm_api.h"
+#include "common/UUID.h"
 
 namespace ble {
 
 #if MBED_CONF_MBED_TRACE_ENABLE
-const char* dm_callback_event_to_string(uint8_t event);
 void trace_le_supported_features(uint64_t feat);
+
+const char* dm_callback_event_to_string(uint8_t event);
 const char* hci_opcode_to_string(uint16_t opcode);
+const char* attribute_error_code_to_string(uint8_t error);
+const char* attribute_opcode_to_string(uint8_t error);
+const char* ble_error_to_string(ble_error_t error);
+const char* att_client_callback_event_to_string(uint8_t code);
+const char* att_error_code_to_string(uint8_t code);
 #endif //MBED_CONF_MBED_TRACE_ENABLE
 
 template<typename T>
 static inline const char* tr_as_array(T item)
 {
     return (mbed_trace_array)((const uint8_t*)&item, sizeof(item));
+}
+
+static inline const char* to_string(UUID uuid)
+{
+    return (mbed_trace_array)(uuid.getBaseUUID(), uuid.getLen());
 }
 
 static inline constexpr const char* to_string(bool v)

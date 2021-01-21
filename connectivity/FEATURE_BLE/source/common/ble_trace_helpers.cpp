@@ -16,10 +16,192 @@
  */
 
 #include "ble_trace_helpers.h"
+#include "pal/AttServerMessage.h"
+#include "ble-host/include/att_api.h"
 #define TRACE_GROUP "BLE "
 
 namespace ble {
 #if MBED_CONF_MBED_TRACE_ENABLE
+
+const char* ble_error_to_string(ble_error_t error_code)
+{
+#if MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
+    const char* ret = "INVALID ENUM VALUE";
+    switch(error_code)
+    {
+        case BLE_ERROR_NONE: ret = "BLE_ERROR_NONE"; break;
+        case BLE_ERROR_BUFFER_OVERFLOW: ret = "BLE_ERROR_BUFFER_OVERFLOW"; break;
+        case BLE_ERROR_NOT_IMPLEMENTED: ret = "BLE_ERROR_NOT_IMPLEMENTED"; break;
+        case BLE_ERROR_PARAM_OUT_OF_RANGE: ret = "BLE_ERROR_PARAM_OUT_OF_RANGE"; break;
+        case BLE_ERROR_INVALID_PARAM: ret = "BLE_ERROR_INVALID_PARAM"; break;
+        case BLE_STACK_BUSY: ret = "BLE_STACK_BUSY"; break;
+        case BLE_ERROR_INVALID_STATE: ret = "BLE_ERROR_INVALID_STATE"; break;
+        case BLE_ERROR_NO_MEM: ret = "BLE_ERROR_NO_MEM"; break;
+        case BLE_ERROR_OPERATION_NOT_PERMITTED: ret = "BLE_ERROR_OPERATION_NOT_PERMITTED"; break;
+        case BLE_ERROR_INITIALIZATION_INCOMPLETE: ret = "BLE_ERROR_INITIALIZATION_INCOMPLETE"; break;
+        case BLE_ERROR_ALREADY_INITIALIZED: ret = "BLE_ERROR_ALREADY_INITIALIZED"; break;
+        case BLE_ERROR_UNSPECIFIED: ret = "BLE_ERROR_UNSPECIFIED"; break;
+        case BLE_ERROR_INTERNAL_STACK_FAILURE: ret = "BLE_ERROR_INTERNAL_STACK_FAILURE"; break;
+        case BLE_ERROR_NOT_FOUND: ret = "BLE_ERROR_NOT_FOUND"; break;
+    }
+#else // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
+    static char ret[3] = "00";
+    sprintf(ret, "0x%02x", (int)error_code);
+#endif // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
+    return ret;
+}
+
+const char* attribute_error_code_to_string(uint8_t error_code)
+{
+#if MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
+    const char* ret = "INVALID ENUM VALUE";
+    switch(error_code)
+    {
+        case AttErrorResponse::INVALID_HANDLE: ret = "INVALID_HANDLE"; break;
+        case AttErrorResponse::READ_NOT_PERMITTED: ret = "READ_NOT_PERMITTED"; break;
+        case AttErrorResponse::WRITE_NOT_PERMITTED: ret = "WRITE_NOT_PERMITTED"; break;
+        case AttErrorResponse::INVALID_PDU: ret = "INVALID_PDU"; break;
+        case AttErrorResponse::INSUFFICIENT_AUTHENTICATION: ret = "INSUFFICIENT_AUTHENTICATION"; break;
+        case AttErrorResponse::REQUEST_NOT_SUPPORTED: ret = "REQUEST_NOT_SUPPORTED"; break;
+        case AttErrorResponse::INVALID_OFFSET: ret = "INVALID_OFFSET"; break;
+        case AttErrorResponse::INSUFFICIENT_AUTHORIZATION: ret = "INSUFFICIENT_AUTHORIZATION"; break;
+        case AttErrorResponse::PREPARE_QUEUE_FULL: ret = "PREPARE_QUEUE_FULL"; break;
+        case AttErrorResponse::ATTRIBUTE_NOT_FOUND: ret = "ATTRIBUTE_NOT_FOUND"; break;
+        case AttErrorResponse::ATTRIBUTE_NOT_LONG: ret = "ATTRIBUTE_NOT_LONG"; break;
+        case AttErrorResponse::INSUFFICIENT_ENCRYPTION_KEY_SIZE: ret = "INSUFFICIENT_ENCRYPTION_KEY_SIZE"; break;
+        case AttErrorResponse::INVALID_ATTRIBUTE_VALUE_LENGTH: ret = "INVALID_ATTRIBUTE_VALUE_LENGTH"; break;
+        case AttErrorResponse::UNLIKELY_ERROR: ret = "UNLIKELY_ERROR"; break;
+        case AttErrorResponse::INSUFFICIENT_ENCRYPTION: ret = "INSUFFICIENT_ENCRYPTION"; break;
+        case AttErrorResponse::UNSUPPORTED_GROUP_TYPE: ret = "UNSUPPORTED_GROUP_TYPE"; break;
+        case AttErrorResponse::INSUFFICIENT_RESOURCES: ret = "INSUFFICIENT_RESOURCES"; break;
+        case AttErrorResponse::WRITE_REQUEST_REJECTED: ret = "WRITE_REQUEST_REJECTED"; break;
+        case AttErrorResponse::CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR_IMPROPERLY_CONFIGURED:
+            ret = "CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR_IMPROPERLY_CONFIGURED"; break;
+        case AttErrorResponse::PROCEDURE_ALREADY_IN_PROGRESS: ret = "PROCEDURE_ALREADY_IN_PROGRESS"; break;
+        case AttErrorResponse::OUT_OF_RANGE: ret = "OUT_OF_RANGE"; break;
+    }
+#else // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
+    static char ret[3] = "00";
+    sprintf(ret, "0x%02x", (int)error_code);
+#endif // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
+    return ret;
+}
+
+const char* att_client_callback_event_to_string(uint8_t code)
+{
+#if MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
+    const char* ret = "INVALID EVENT";
+    switch(code)
+    {
+        case ATTC_FIND_INFO_RSP: ret = "ATTC_FIND_INFO_RSP"; break;
+        case ATTC_FIND_BY_TYPE_VALUE_RSP: ret = "ATTC_FIND_BY_TYPE_VALUE_RSP"; break;
+        case ATTC_READ_BY_TYPE_RSP: ret = "ATTC_READ_BY_TYPE_RSP"; break;
+        case ATTC_READ_RSP: ret = "ATTC_READ_RSP"; break;
+        case ATTC_READ_LONG_RSP: ret = "ATTC_READ_LONG_RSP"; break;
+        case ATTC_READ_MULTIPLE_RSP: ret = "ATTC_READ_MULTIPLE_RSP"; break;
+        case ATTC_READ_BY_GROUP_TYPE_RSP: ret = "ATTC_READ_BY_GROUP_TYPE_RSP"; break;
+        case ATTC_WRITE_RSP: ret = "ATTC_WRITE_RSP"; break;
+        case ATTC_WRITE_CMD_RSP: ret = "ATTC_WRITE_CMD_RSP"; break;
+        case ATTC_PREPARE_WRITE_RSP: ret = "ATTC_PREPARE_WRITE_RSP"; break;
+        case ATTC_EXECUTE_WRITE_RSP: ret = "ATTC_EXECUTE_WRITE_RSP"; break;
+        case ATTC_HANDLE_VALUE_NTF: ret = "ATTC_HANDLE_VALUE_NTF"; break;
+        case ATTC_HANDLE_VALUE_IND: ret = "ATTC_HANDLE_VALUE_IND"; break;
+        case ATTC_READ_MULT_VAR_RSP: ret = "ATTC_READ_MULT_VAR_RSP"; break;
+        case ATTC_MULT_VALUE_NTF: ret = "ATTC_MULT_VALUE_NTF"; break;
+        case ATTS_HANDLE_VALUE_CNF: ret = "ATTS_HANDLE_VALUE_CNF"; break;
+        case ATTS_MULT_VALUE_CNF: ret = "ATTS_MULT_VALUE_CNF"; break;
+        case ATTS_CCC_STATE_IND: ret = "ATTS_CCC_STATE_IND"; break;
+        case ATTS_DB_HASH_CALC_CMPL_IND: ret = "ATTS_DB_HASH_CALC_CMPL_IND"; break;
+        case ATT_MTU_UPDATE_IND: ret = "ATT_MTU_UPDATE_IND"; break;
+        case ATT_EATT_CONN_CMPL_IND: ret = "ATT_EATT_CONN_CMPL_IND"; break;
+        case ATT_EATT_RECONFIG_CMPL_IND: ret = "ATT_EATT_RECONFIG_CMPL_IND"; break;
+    }
+#else // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
+    static char ret[3] = "00";
+    sprintf(ret, "0x%02x", (int)code);
+#endif // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
+    return ret;
+}
+
+const char* att_error_code_to_string(uint8_t error_code)
+{
+#if MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
+    const char* ret = "INVALID EVENT";
+    switch(error_code)
+    {
+        case ATT_SUCCESS: ret = "ATT_SUCCESS"; break;
+        case ATT_ERR_HANDLE: ret = "ATT_ERR_HANDLE"; break;
+        case ATT_ERR_READ: ret = "ATT_ERR_READ"; break;
+        case ATT_ERR_WRITE: ret = "ATT_ERR_WRITE"; break;
+        case ATT_ERR_INVALID_PDU: ret = "ATT_ERR_INVALID_PDU"; break;
+        case ATT_ERR_AUTH: ret = "ATT_ERR_AUTH"; break;
+        case ATT_ERR_NOT_SUP: ret = "ATT_ERR_NOT_SUP"; break;
+        case ATT_ERR_OFFSET: ret = "ATT_ERR_OFFSET"; break;
+        case ATT_ERR_AUTHOR: ret = "ATT_ERR_AUTHOR"; break;
+        case ATT_ERR_QUEUE_FULL: ret = "ATT_ERR_QUEUE_FULL"; break;
+        case ATT_ERR_NOT_FOUND: ret = "ATT_ERR_NOT_FOUND"; break;
+        case ATT_ERR_NOT_LONG: ret = "ATT_ERR_NOT_LONG"; break;
+        case ATT_ERR_KEY_SIZE: ret = "ATT_ERR_KEY_SIZE"; break;
+        case ATT_ERR_LENGTH: ret = "ATT_ERR_LENGTH"; break;
+        case ATT_ERR_UNLIKELY: ret = "ATT_ERR_UNLIKELY"; break;
+        case ATT_ERR_ENC: ret = "ATT_ERR_ENC"; break;
+        case ATT_ERR_GROUP_TYPE: ret = "ATT_ERR_GROUP_TYPE"; break;
+        case ATT_ERR_RESOURCES: ret = "ATT_ERR_RESOURCES"; break;
+        case ATT_ERR_DATABASE_OUT_OF_SYNC: ret = "ATT_ERR_DATABASE_OUT_OF_SYNC"; break;
+        case ATT_ERR_VALUE_NOT_ALLOWED: ret = "ATT_ERR_VALUE_NOT_ALLOWED"; break;
+        case ATT_ERR_WRITE_REJ: ret = "ATT_ERR_WRITE_REJ"; break;
+        case ATT_ERR_CCCD: ret = "ATT_ERR_CCCD"; break;
+        case ATT_ERR_IN_PROGRESS: ret = "ATT_ERR_IN_PROGRESS"; break;
+        case ATT_ERR_RANGE: ret = "ATT_ERR_RANGE"; break;
+    }
+#else // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
+    static char ret[3] = "00";
+    sprintf(ret, "0x%02x", (int)error_code);
+#endif // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
+    return ret;
+}
+
+const char* attribute_opcode_to_string(uint8_t error_code)
+{
+#if MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
+    const char* ret = "INVALID OPCODE";
+    switch(error_code)
+    {
+        case AttributeOpcode::ERROR_RESPONSE: ret = "ERROR_RESPONSE"; break;
+        case AttributeOpcode::EXCHANGE_MTU_REQUEST: ret = "EXCHANGE_MTU_REQUEST"; break;
+        case AttributeOpcode::EXCHANGE_MTU_RESPONSE: ret = "EXCHANGE_MTU_RESPONSE"; break;
+        case AttributeOpcode::FIND_INFORMATION_REQUEST: ret = "FIND_INFORMATION_REQUEST"; break;
+        case AttributeOpcode::FIND_INFORMATION_RESPONSE: ret = "FIND_INFORMATION_RESPONSE"; break;
+        case AttributeOpcode::FIND_BY_TYPE_VALUE_REQUEST: ret = "FIND_BY_TYPE_VALUE_REQUEST"; break;
+        case AttributeOpcode::FIND_BY_VALUE_TYPE_RESPONSE: ret = "FIND_BY_VALUE_TYPE_RESPONSE"; break;
+        case AttributeOpcode::READ_BY_TYPE_REQUEST: ret = "READ_BY_TYPE_REQUEST"; break;
+        case AttributeOpcode::READ_BY_TYPE_RESPONSE: ret = "READ_BY_TYPE_RESPONSE"; break;
+        case AttributeOpcode::READ_REQUEST: ret = "READ_REQUEST"; break;
+        case AttributeOpcode::READ_RESPONSE: ret = "READ_RESPONSE"; break;
+        case AttributeOpcode::READ_BLOB_REQUEST: ret = "READ_BLOB_REQUEST"; break;
+        case AttributeOpcode::READ_BLOB_RESPONSE: ret = "READ_BLOB_RESPONSE"; break;
+        case AttributeOpcode::READ_MULTIPLE_REQUEST: ret = "READ_MULTIPLE_REQUEST"; break;
+        case AttributeOpcode::READ_MULTIPLE_RESPONSE: ret = "READ_MULTIPLE_RESPONSE"; break;
+        case AttributeOpcode::READ_BY_GROUP_TYPE_REQUEST: ret = "READ_BY_GROUP_TYPE_REQUEST"; break;
+        case AttributeOpcode::READ_BY_GROUP_TYPE_RESPONSE: ret = "READ_BY_GROUP_TYPE_RESPONSE"; break;
+        case AttributeOpcode::WRITE_REQUEST: ret = "WRITE_REQUEST"; break;
+        case AttributeOpcode::WRITE_RESPONSE: ret = "WRITE_RESPONSE"; break;
+        case AttributeOpcode::WRITE_COMMAND: ret = "WRITE_COMMAND"; break;
+        case AttributeOpcode::SIGNED_WRITE_COMMAND: ret = "SIGNED_WRITE_COMMAND"; break;
+        case AttributeOpcode::PREPARE_WRITE_REQUEST: ret = "PREPARE_WRITE_REQUEST"; break;
+        case AttributeOpcode::PREPARE_WRITE_RESPONSE: ret = "PREPARE_WRITE_RESPONSE"; break;
+        case AttributeOpcode::EXECUTE_WRITE_REQUEST: ret = "EXECUTE_WRITE_REQUEST"; break;
+        case AttributeOpcode::EXECUTE_WRITE_RESPONSE: ret = "EXECUTE_WRITE_RESPONSE"; break;
+        case AttributeOpcode::HANDLE_VALUE_NOTIFICATION: ret = "HANDLE_VALUE_NOTIFICATION"; break;
+        case AttributeOpcode::HANDLE_VALUE_INDICATION: ret = "HANDLE_VALUE_INDICATION"; break;
+    }
+#else // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
+    static char ret[3] = "00";
+    sprintf(ret, "0x%02x", (int)error_code);
+#endif // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
+    return ret;
+}
+
 const char* dm_callback_event_to_string(uint8_t event) {
 #if MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     const char* ret = "INVALID";
@@ -121,7 +303,7 @@ const char* dm_callback_event_to_string(uint8_t event) {
     }
 #else // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     static char ret[3] = "00";
-    sprintf(ret, "%02x", (int)event);
+    sprintf(ret, "0x%02x", (int)event);
 #endif // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     return ret;
 }
@@ -328,7 +510,7 @@ const char* hci_opcode_to_string(uint16_t opcode)
     }
 #else // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     static char ret[3] = "00";
-    sprintf(ret, "%02x", (int)opcode);
+    sprintf(ret, "0x%02x", (int)opcode);
 #endif // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     return ret;
 }
