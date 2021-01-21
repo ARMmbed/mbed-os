@@ -1086,6 +1086,32 @@ cleanup:
     return ret_val;
 }
 
+void ws_bootstrap_disconnect(protocol_interface_info_entry_t *cur, ws_bootsrap_event_type_e event_type)
+{
+    if (cur->nwk_bootstrap_state == ER_RPL_NETWORK_LEAVING) {
+        //Already moved to leaving state.
+        return;
+    }
+
+    if (cur->rpl_domain && cur->nwk_bootstrap_state == ER_BOOTSRAP_DONE) {
+        //Stop Asych Timer
+        ws_bootstrap_asynch_trickle_stop(cur);
+        tr_debug("Start Network soft leaving");
+        if (event_type == WS_FAST_DISCONNECT) {
+            rpl_control_instant_poison(cur, cur->rpl_domain);
+            cur->bootsrap_state_machine_cnt = 80; //Give 8 seconds time to send Poison
+        } else {
+            rpl_control_poison(cur->rpl_domain, 1);
+            cur->bootsrap_state_machine_cnt = 6000; //Give 10 minutes time for poison if RPL is not report
+        }
+
+    } else {
+        ws_bootstrap_event_discovery_start(cur);
+    }
+    cur->nwk_bootstrap_state = ER_RPL_NETWORK_LEAVING;
+}
+
+
 static void ws_bootstrap_asynch_trickle_stop(protocol_interface_info_entry_t *cur)
 {
     cur->ws_info->trickle_pas_running = false;
@@ -1638,7 +1664,7 @@ static void ws_bootstrap_pan_config_analyse(struct protocol_interface_info_entry
                 tr_debug("NEW Brodcast Schedule %u...BR rebooted", ws_bs_ie.broadcast_schedule_identifier);
                 cur->ws_info->ws_bsi_block.block_time = cur->ws_info->cfg->timing.pan_timeout;
                 cur->ws_info->ws_bsi_block.old_bsi = cur->ws_info->hopping_schdule.fhss_bsi;
-                ws_bootstrap_event_discovery_start(cur);
+                ws_bootstrap_event_disconnect(cur, WS_NORMAL_DISCONNECT);
             }
             return;
         }
@@ -2364,7 +2390,11 @@ int ws_bootstrap_set_rf_config(protocol_interface_info_entry_t *cur, phy_rf_chan
     set_request.value_size = sizeof(phy_rf_channel_configuration_s);
     cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_request);
     // Set Ack wait duration
-    uint16_t ack_wait_symbols = WS_ACK_WAIT_SYMBOLS + (WS_TACK_MAX_MS * (rf_configs.datarate / 1000));
+    uint8_t bits_per_symbol = 1;
+    if (rf_configs.modulation == M_OFDM) {
+        bits_per_symbol = 4;
+    }
+    uint16_t ack_wait_symbols = WS_ACK_WAIT_SYMBOLS + (WS_TACK_MAX_MS * (rf_configs.datarate / 1000) / bits_per_symbol);
     set_request.attr = macAckWaitDuration;
     set_request.value_pointer = &ack_wait_symbols;
     set_request.value_size = sizeof(ack_wait_symbols);
@@ -2553,6 +2583,15 @@ static void ws_bootstrap_rpl_callback(rpl_event_t event, void *handle)
     if (!cur->rpl_domain || cur->interface_mode != INTERFACE_UP) {
         return;
     }
+
+    if (event == RPL_EVENT_POISON_FINISHED) {
+        //If we are waiting poison we will trig Discovery after couple seconds
+        if (cur->nwk_bootstrap_state == ER_RPL_NETWORK_LEAVING) {
+            cur->bootsrap_state_machine_cnt = 80; //Give 8 seconds time to send Poison
+        }
+        return;
+    }
+
     // if waiting for RPL and
     if (event == RPL_EVENT_DAO_DONE) {
         // Trigger statemachine check
@@ -2832,6 +2871,7 @@ static void ws_bootstrap_rpl_activate(protocol_interface_info_entry_t *cur)
     rpl_control_set_dao_retry_count(WS_MAX_DAO_RETRIES);
     rpl_control_set_initial_dao_ack_wait(WS_MAX_DAO_INITIAL_TIMEOUT);
     rpl_control_set_mrhof_parent_set_size(WS_MAX_PARENT_SET_COUNT);
+    rpl_control_set_force_tunnel(true);
     if (cur->bootsrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         rpl_control_set_memory_limits(WS_NODE_RPL_SOFT_MEM_LIMIT, WS_NODE_RPL_HARD_MEM_LIMIT);
     }
@@ -3132,6 +3172,12 @@ void ws_bootstrap_event_routing_ready(protocol_interface_info_entry_t *cur)
 {
     ws_bootsrap_event_trig(WS_ROUTING_READY, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
 }
+
+void ws_bootstrap_event_disconnect(protocol_interface_info_entry_t *cur, ws_bootsrap_event_type_e event_type)
+{
+    ws_bootsrap_event_trig(event_type, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
+}
+
 void ws_bootstrap_configuration_trickle_reset(protocol_interface_info_entry_t *cur)
 {
     trickle_inconsistent_heard(&cur->ws_info->trickle_pan_config, &cur->ws_info->trickle_params_pan_discovery);
@@ -3315,6 +3361,7 @@ static int8_t ws_bootstrap_backbone_ip_addr_get(protocol_interface_info_entry_t 
     return -1;
 }
 
+
 static void ws_bootstrap_event_handler(arm_event_s *event)
 {
     ws_bootsrap_event_type_e event_type;
@@ -3331,7 +3378,6 @@ static void ws_bootstrap_event_handler(arm_event_s *event)
             break;
         case WS_DISCOVERY_START:
             tr_info("Discovery start");
-
             protocol_mac_reset(cur);
             ws_llc_reset(cur);
             lowpan_adaptation_interface_reset(cur->id);
@@ -3466,6 +3512,12 @@ static void ws_bootstrap_event_handler(arm_event_s *event)
 
             ws_bootstrap_advertise_start(cur);
             ws_bootstrap_state_change(cur, ER_BOOTSRAP_DONE);
+            break;
+        case WS_FAST_DISCONNECT:
+            ws_bootstrap_disconnect(cur, WS_FAST_DISCONNECT);
+            break;
+        case WS_NORMAL_DISCONNECT:
+            ws_bootstrap_disconnect(cur, WS_NORMAL_DISCONNECT);
             break;
 
         default:
@@ -3658,6 +3710,10 @@ void ws_bootstrap_state_machine(protocol_interface_info_entry_t *cur)
             // Bootstrap_done event to application
             nwk_bootsrap_state_update(ARM_NWK_BOOTSTRAP_READY, cur);
             break;
+        case ER_RPL_NETWORK_LEAVING:
+            tr_debug("WS SM:RPL Leaving ready trigger discovery");
+            ws_bootstrap_event_discovery_start(cur);
+            break;
         default:
             tr_warn("WS SM:Invalid state %d", cur->nwk_bootstrap_state);
     }
@@ -3743,9 +3799,10 @@ void ws_bootstrap_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t s
             }
         } else {
             // Border router has timed out
+            //Clear Timeout timer
             cur->ws_info->pan_timeout_timer = 0;
             tr_warn("Border router has timed out");
-            ws_bootstrap_event_discovery_start(cur);
+            ws_bootstrap_event_disconnect(cur, WS_FAST_DISCONNECT);
         }
     }
     if (cur->ws_info->aro_registration_timer) {

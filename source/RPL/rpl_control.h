@@ -36,6 +36,7 @@ typedef enum rpl_event {
     RPL_EVENT_LOCAL_REPAIR_START, /* RPL start scanning new parent by multicast DIS user can disable beacon request responser here*/
     RPL_EVENT_LOCAL_REPAIR_NO_MORE_DIS, /* RPL not sending DIS anymore user can report bootstrap error */
     RPL_EVENT_DAO_PARENT_ADD, /* RPL indicate that DAO downward Parent has been added */
+    RPL_EVENT_POISON_FINISHED, /* RPL have finished Dodag Poison proces */
 } rpl_event_t;
 
 typedef void rpl_domain_callback_t(rpl_event_t event, void *handle);
@@ -176,6 +177,7 @@ bool rpl_control_find_worst_neighbor(struct protocol_interface_info_entry *inter
 
 /* Parent link confirmation API extension */
 void rpl_control_request_parent_link_confirmation(bool requested);
+void rpl_control_set_force_tunnel(bool requested);
 void rpl_control_set_dio_multicast_min_config_advertisment_count(uint8_t min_count);
 void rpl_control_set_address_registration_timeout(uint16_t timeout_in_minutes);
 void rpl_control_set_dao_retry_count(uint8_t count);
@@ -200,6 +202,7 @@ const rpl_dodag_conf_t *rpl_control_get_dodag_config(const struct rpl_instance *
 const uint8_t *rpl_control_preferred_parent_addr(const struct rpl_instance *instance, bool global);
 uint16_t rpl_control_current_rank(const struct rpl_instance *instance);
 uint8_t rpl_policy_mrhof_parent_set_size_get(const rpl_domain_t *domain);
+void rpl_control_instant_poison(struct protocol_interface_info_entry *cur, rpl_domain_t *domain);
 
 #else /* HAVE_RPL */
 
@@ -211,6 +214,7 @@ uint8_t rpl_policy_mrhof_parent_set_size_get(const rpl_domain_t *domain);
 #define rpl_control_address_register_done(interface, ll_addr, status) (false)
 #define rpl_policy_mrhof_parent_set_size_get(domain) (0)
 #define rpl_control_set_mrhof_parent_set_size(parent_set_size)
+#define rpl_control_instant_poison(cur, domain) ((void) 0)
 #endif /* HAVE_RPL */
 
 #endif /* RPL_CONTROL_H_ */

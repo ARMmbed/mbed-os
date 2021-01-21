@@ -204,6 +204,12 @@ void rpl_control_set_mrhof_parent_set_size(uint16_t parent_set_size)
     rpl_policy_set_mrhof_parent_set_size(parent_set_size);
 }
 
+/* True Force RPL to use IPv6 tunneling when it send and forward data to Border router direction, This feature is disabled by default  */
+void rpl_control_set_force_tunnel(bool requested)
+{
+    rpl_policy_force_tunnel_set(requested);
+}
+
 /* Send address registration to either specified address, or to non-registered address */
 void rpl_control_register_address(protocol_interface_info_entry_t *interface, const uint8_t addr[16])
 {
@@ -399,6 +405,7 @@ static void rpl_control_etx_change_callback(int8_t  nwk_id, uint16_t previous_et
     if (!cur || !cur->rpl_domain) {
         return;
     }
+    (void) attribute_index;
     // ETX is "better" if now lower, or previous was "unknown" and new isn't infinite
     bool better = current_etx < previous_etx || (previous_etx == 0 && current_etx != 0xffff);
 

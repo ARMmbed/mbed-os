@@ -97,7 +97,7 @@ uint32_t mac_csma_backoff_get(protocol_interface_rf_mac_setup_s *rf_mac_setup)
     uint32_t backoff_in_us;
     //Multiple aUnitBackoffPeriod symbol time
     if (rf_mac_setup->rf_csma_extension_supported) {
-        backoff_in_us = backoff * rf_mac_setup->aUnitBackoffPeriod * rf_mac_setup->symbol_time_us;
+        backoff_in_us = backoff * rf_mac_setup->aUnitBackoffPeriod * (rf_mac_setup->symbol_time_ns / 1000);
     } else {
         backoff_in_us = backoff * rf_mac_setup->backoff_period_in_10us * 10;
     }
