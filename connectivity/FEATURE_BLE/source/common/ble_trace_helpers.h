@@ -399,7 +399,7 @@ static inline const char* to_string(ble::advertising_channel_map_t map)
         case ble::advertising_channel_map_t::ADVERTISING_CHANNEL_38:
             return "[010]";
         case ble::advertising_channel_map_t::ADVERTISING_CHANNEL_37_AND_38:
-            return "[011";
+            return "[011]";
         case ble::advertising_channel_map_t::ADVERTISING_CHANNEL_39:
             return "[100]";
         case ble::advertising_channel_map_t::ADVERTISING_CHANNEL_37_AND_39:
@@ -658,6 +658,38 @@ static inline const char* to_string(ble::connection_role_t role)
         return "CENTRAL";
     } else {
         return "PERIPHERAL";
+    }
+}
+
+static inline const char* to_string(ble::direct_address_type_t direct_address_type)
+{
+    switch (direct_address_type.value()) {
+        case ble::direct_address_type_t::PUBLIC_ADDRESS:
+            return "PUBLIC_ADDRESS";
+        case ble::direct_address_type_t::RANDOM_ADDRESS:
+            return "RANDOM_ADDRESS";
+        case ble::direct_address_type_t::PUBLIC_IDENTITY_ADDRESS:
+            return "PUBLIC_IDENTITY_ADDRESS";
+        case ble::direct_address_type_t::RANDOM_IDENTITY_ADDRESS:
+            return "RANDOM_IDENTITY_ADDRESS";
+        case ble::direct_address_type_t::RANDOM_DEVICE_ADDRESS:
+            return "RANDOM_DEVICE_ADDRESS";
+        default:
+            return "unknown";
+    }
+}
+
+static inline const char* to_string(ble::advertising_data_status_t data_status)
+{
+    switch (data_status.value()) {
+        case ble::advertising_data_status_t::COMPLETE:
+            return "COMPLETE";
+        case ble::advertising_data_status_t::INCOMPLETE_MORE_DATA:
+            return "INCOMPLETE_MORE_DATA";
+        case ble::advertising_data_status_t::INCOMPLETE_DATA_TRUNCATED:
+            return "INCOMPLETE_DATA_TRUNCATED";
+        default:
+            return "unknown";
     }
 }
 

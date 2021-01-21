@@ -1830,10 +1830,20 @@ ble_error_t PalGap::update_direct_advertising_parameters(
     advertising_peer_address_type_t peer_address_type
 )
 {
+    tr_info("Advertising set %d: update direct advertising parameters - "
+            "advertising_type=%d, "
+            "peer_address=%s, "
+            "peer_address_type=%s",
+            advertising_handle,
+            advertising_type,
+            to_string(peer_address),
+            to_string(peer_address_type));
+
     // The case where a direct advertising is running and parameters are updated
     // is considered to be a programming error. User should stop advertising first.
     direct_adv_cb_t *running = get_running_direct_adv_cb(advertising_handle);
     if (running) {
+        tr_error("trying to update parameters but direct advertising is running");
         return BLE_ERROR_INVALID_STATE;
     }
 
@@ -1860,6 +1870,7 @@ ble_error_t PalGap::update_direct_advertising_parameters(
         advertising_type == DM_ADV_CONN_DIRECT_LO_DUTY) {
         direct_adv_cb_t *adv_cb = get_free_direct_adv_cb();
         if (!adv_cb) {
+            tr_error("failed to acquire a cb");
             return BLE_ERROR_INTERNAL_STACK_FAILURE;
         }
         adv_cb->state = direct_adv_cb_t::pending;

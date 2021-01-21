@@ -973,15 +973,13 @@ uint8_t Gap::getMaxWhitelistSize(void) const
 
 ble_error_t Gap::getWhitelist(whitelist_t &whitelist) const
 {
-    tr_info("Get whitelist");
-
     if (initialize_whitelist() == false) {
-        tr_error("could not initialize whitelist");
+        tr_error("Cannot get whitelist: failed to initialize");
         return BLE_ERROR_INVALID_STATE;
     }
 
     if (whitelist.capacity < _whitelist.capacity) {
-        tr_error("capacity of whitelist less than %d", _whitelist.capacity);
+        tr_error("Cannot get whitelist: capacity less than %d", _whitelist.capacity);
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -1327,6 +1325,7 @@ void Gap::on_scan_stopped(bool success)
 
         if (wait_for_advertising_stop) {
             /* return early if we're waiting for advertising to stop and do not restart scan even if requested */
+            tr_error("advertising must be stopped before address can be refreshed");
             return;
         }
 
@@ -1777,18 +1776,23 @@ own_address_type_t Gap::get_own_address_type(AddressUseType_t address_use_type)
 #if BLE_FEATURE_WHITELIST
 bool Gap::initialize_whitelist() const
 {
+    tr_info("Initialize whitelist");
+
     if (_whitelist.addresses != nullptr) {
+        tr_error("whitelist already initialized");
         return true;
     }
 
     uint8_t whitelist_capacity = _pal_gap.read_white_list_capacity();
 
     if (whitelist_capacity == 0) {
+        tr_error("capacity of whitelist is zero");
         return false;
     }
 
     _whitelist.addresses = new(std::nothrow) whitelist_t::entry_t[whitelist_capacity];
     if (_whitelist.addresses == nullptr) {
+        tr_error("failed to dynamically allocate memory for a whitelist of %d addresses", whitelist_capacity);
         return false;
     }
 
@@ -2756,6 +2760,49 @@ void Gap::on_extended_advertising_report(
     const uint8_t *data
 )
 {
+    tr_debug("Extended advertising report - "
+            "event_type=["
+            "connectable=%s, "
+            "scannable_advertising=%s, "
+            "direct_advertising=%s, "
+            "scan_response=%s, "
+            "legacy_advertising=%s, "
+            "complete=%s, "
+            "more_data_to_come=%s, "
+            "truncated=%s], "
+            "address_type=%s, "
+            "address=%s, "
+            "primary_phy=%s, "
+            "secondary_phy=%s, "
+            "advertising_sid=%d, "
+            "tx_power=%d, "
+            "rssi=%d, "
+            "periodic_advertising_interval=%d, "
+            "direct_address_type=%s, "
+            "direct_address=%s,"
+            "data_length=%d, "
+            "data=%s",
+            to_string(event_type.connectable()),
+            to_string(event_type.scannable_advertising()),
+            to_string(event_type.directed_advertising()),
+            to_string(event_type.scan_response()),
+            to_string(event_type.legacy_advertising()),
+            to_string(event_type.complete()),
+            to_string(event_type.more_data_to_come()),
+            to_string(event_type.truncated()),
+            to_string(*address_type),
+            to_string(address),
+            to_string(primary_phy),
+            to_string(*secondary_phy),
+            advertising_sid,
+            tx_power,
+            rssi,
+            periodic_advertising_interval,
+            to_string(direct_address_type),
+            to_string(direct_address),
+            data_length,
+            mbed_trace_array(data, data_length));
+
     if (!_event_handler) {
         return;
     }
@@ -2887,6 +2934,9 @@ void Gap::signal_connection_complete(
             _event_handler->onConnectionComplete(
                 event
             );
+            tr_info("Connection %d: disconnecting - reason=%s",
+                    event.getConnectionHandle(),
+                    to_string(local_disconnection_reason_t::LOW_RESOURCES));
             _pal_gap.disconnect(
                 event.getConnectionHandle(),
                 local_disconnection_reason_t::LOW_RESOURCES
@@ -2930,6 +2980,9 @@ bool Gap::apply_peripheral_privacy_connection_policy(
             if (_private_address_controller.read_resolving_list_size() == 0) {
                 return true;
             }
+            tr_info("Connection %d: disconnecting - reason=%s",
+                    event.getConnectionHandle(),
+                    to_string(local_disconnection_reason_t::AUTHENTICATION_FAILURE));
             _pal_gap.disconnect(
                 connection_handle,
                 local_disconnection_reason_t::AUTHENTICATION_FAILURE
@@ -3144,6 +3197,23 @@ void Gap::on_periodic_advertising_sync_established(
     clock_accuracy_t clock_accuracy
 )
 {
+    tr_info("Sync %d: periodic advertising sync established - "
+            "error=%s, "
+            "advertising_sid=%d, "
+            "advertiser_address_typ=%s, "
+            "advertiser_address=%s, "
+            "advertiser_phy=%s, "
+            "periodic_advertising_interval=%d, "
+            "clock_accuracy=%d ppm",
+            sync_handle,
+            to_string(error),
+            advertising_sid,
+            to_string(advertiser_address_type),
+            to_string(advertiser_address),
+            to_string(advertiser_phy),
+            periodic_advertising_interval,
+            clock_accuracy.get_ppm());
+
     if (!_event_handler) {
         return;
     }
@@ -3172,6 +3242,19 @@ void Gap::on_periodic_advertising_report(
     const uint8_t *data
 )
 {
+    tr_debug("Sync %d: periodic advertising report - "
+            "tx_power=%d, "
+            "rssi=%d,"
+            "data_status=%s, "
+            "data_length=%d,"
+            "data=%s",
+            sync_handle,
+            tx_power,
+            rssi,
+            to_string(data_status),
+            data_length,
+            mbed_trace_array(data, data_length));
+
     if (!_event_handler) {
         return;
     }
@@ -3190,6 +3273,8 @@ void Gap::on_periodic_advertising_report(
 
 void Gap::on_periodic_advertising_sync_loss(sync_handle_t sync_handle)
 {
+    tr_info("Sync %d: periodic advertising sync loss", sync_handle);
+
     if (!_event_handler) {
         return;
     }
@@ -3204,6 +3289,8 @@ void Gap::on_periodic_advertising_sync_loss(sync_handle_t sync_handle)
 #if BLE_ROLE_BROADCASTER
 void Gap::on_legacy_advertising_started()
 {
+    tr_info("Legacy advertising started");
+
     _active_sets.set(LEGACY_ADVERTISING_HANDLE);
     _pending_sets.clear(LEGACY_ADVERTISING_HANDLE);
 
@@ -3218,6 +3305,8 @@ void Gap::on_legacy_advertising_started()
 
 void Gap::on_legacy_advertising_stopped()
 {
+    tr_info("Legacy advertising stopped");
+
     _active_sets.clear(LEGACY_ADVERTISING_HANDLE);
     _pending_sets.clear(LEGACY_ADVERTISING_HANDLE);
 
@@ -3240,6 +3329,8 @@ void Gap::on_legacy_advertising_stopped()
 #if BLE_FEATURE_EXTENDED_ADVERTISING
 void Gap::on_advertising_set_started(const mbed::Span<const uint8_t>& handles)
 {
+    tr_info("Advertising set started - handles=%s", mbed_trace_array(handles.data(), handles.size()));
+
     for (const auto &handle : handles) {
         _active_sets.set(handle);
         _pending_sets.clear(handle);
@@ -3260,12 +3351,21 @@ void Gap::on_advertising_set_terminated(
     uint8_t number_of_completed_extended_advertising_events
 )
 {
+    tr_info("Advertising set %d on connection %d terminated - "
+            "status=%s, "
+            "number_of_completed_extended_advertising_events=%d ",
+            advertising_handle,
+            connection_handle,
+            to_string(status),
+            number_of_completed_extended_advertising_events);
+
     _active_sets.clear(advertising_handle);
     _pending_sets.clear(advertising_handle);
 
     // If this is part of the address refresh start advertising again.
     if (_address_refresh_sets.get(advertising_handle) && !connection_handle) {
         _address_refresh_sets.clear(advertising_handle);
+        tr_info("Part of the address refresh, restarting advertising");
         startAdvertising(advertising_handle);
         _adv_started_from_refresh.set(advertising_handle);
         return;
@@ -3291,6 +3391,13 @@ void Gap::on_scan_request_received(
     const ble::address_t &address
 )
 {
+    tr_info("Advertising set %d: scan request received - "
+            "scanner_address_type=%s, "
+            "address=%s",
+            advertising_handle,
+            to_string(scanner_address_type),
+            to_string(address));
+
     if (!_event_handler) {
         return;
     }
@@ -3315,6 +3422,17 @@ void Gap::on_connection_update_complete(
     uint16_t supervision_timeout
 )
 {
+    tr_info("Update complete for connection %d - "
+            "status=%s, "
+            "connection_interval=%d, "
+            "connection_latency=%d, "
+            "supervision_timeout=%d",
+            connection_handle,
+            to_string(status),
+            connection_interval,
+            connection_latency,
+            supervision_timeout);
+
     if (!_event_handler) {
         return;
     }
@@ -3338,6 +3456,17 @@ void Gap::on_remote_connection_parameter(
     uint16_t supervision_timeout
 )
 {
+    tr_info("Connection %d: remote connection parameter request - "
+            "connection_interval_min=%d, "
+            "connection_interval_max=%d, "
+            "connection_latency=%d, "
+            "supervision_timeout=%d",
+            connection_handle,
+            connection_interval_min,
+            connection_interval_max,
+            connection_latency,
+            supervision_timeout);
+
     if (_user_manage_connection_parameter_requests) {
         if (_event_handler) {
             _event_handler->onUpdateConnectionParametersRequest(
@@ -3829,7 +3958,10 @@ void Gap::on_non_resolvable_private_addresses_generated(const address_t &address
 
 void Gap::on_private_address_generated(bool connectable)
 {
+    tr_info("Private address generated - connectable=%s", to_string(connectable));
+
     if (!_privacy_enabled) {
+        tr_error("privacy enabled, not passing to event handler");
         return;
     }
 
@@ -3883,6 +4015,16 @@ void Gap::on_address_resolution_completed(
     const address_t &identity_address
 )
 {
+    tr_info("Address resolution completed - "
+            "peer_resolvable_address=%s, "
+            "resolved=%s, "
+            "identity_address_type=%s, "
+            "identity_address=%s",
+            to_string(peer_resolvable_address),
+            to_string(resolved),
+            to_string(identity_address_type),
+            to_string(identity_address));
+
     if (!_event_handler || !_privacy_enabled) {
         return;
     }
