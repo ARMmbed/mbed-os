@@ -101,18 +101,14 @@ short UnbufferedSerial::poll(short events) const
 
 int UnbufferedSerial::enable_input(bool enabled)
 {
-    lock();
     SerialBase::enable_input(enabled);
-    unlock();
 
     return 0;
 }
 
 int UnbufferedSerial::enable_output(bool enabled)
 {
-    lock();
     SerialBase::enable_output(enabled);
-    unlock();
 
     return 0;
 }
