@@ -652,11 +652,11 @@ void mac_extended_mac_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, const
 
 static uint32_t mac_calc_ack_wait_duration(protocol_interface_rf_mac_setup_s *rf_mac_setup, uint16_t symbols)
 {
-    uint32_t AckWaitDuration = 0;
+    uint32_t AckWaitDuration_us = 0;
     if (rf_mac_setup->rf_csma_extension_supported) {
-        AckWaitDuration = symbols * rf_mac_setup->symbol_time_us;
+        AckWaitDuration_us = (symbols * rf_mac_setup->symbol_time_ns) / 1000;
     }
-    return AckWaitDuration;
+    return AckWaitDuration_us;
 }
 
 static int8_t mac_mlme_set_ack_wait_duration(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
@@ -1107,8 +1107,8 @@ static int mac_mlme_set_symbol_rate(protocol_interface_rf_mac_setup_s *rf_mac_se
 {
     if (rf_mac_setup->rf_csma_extension_supported) {
         rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_GET_SYMBOLS_PER_SECOND, (uint8_t *) &rf_mac_setup->symbol_rate);
-        rf_mac_setup->symbol_time_us = 1000000 / rf_mac_setup->symbol_rate;
-        tr_debug("SW-MAC driver support rf extension %"PRIu32" symbol/seconds  %"PRIu32" us symbol time length", rf_mac_setup->symbol_rate, rf_mac_setup->symbol_time_us);
+        rf_mac_setup->symbol_time_ns = 1000000000 / rf_mac_setup->symbol_rate;
+        tr_debug("SW-MAC driver support rf extension %"PRIu32" symbol/seconds  %"PRIu32" ns symbol time length", rf_mac_setup->symbol_rate, rf_mac_setup->symbol_time_ns);
         return 0;
     }
     return -1;

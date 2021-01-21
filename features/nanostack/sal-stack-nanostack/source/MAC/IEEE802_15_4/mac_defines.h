@@ -272,7 +272,7 @@ typedef struct protocol_interface_rf_mac_setup {
     int8_t bc_timer_id;
     uint32_t mlme_tick_count;
     uint32_t symbol_rate;
-    uint32_t symbol_time_us;
+    uint32_t symbol_time_ns;
     uint32_t datarate;
     uint8_t max_ED;
     uint16_t mlme_ED_counter;

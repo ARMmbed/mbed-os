@@ -347,6 +347,14 @@ void rpl_instance_poison(rpl_instance_t *instance, uint8_t count)
     rpl_instance_inconsistency(instance);
 }
 
+void rpl_control_instant_poison(protocol_interface_info_entry_t *cur, rpl_domain_t *domain)
+{
+    ns_list_foreach(rpl_instance_t, instance, &domain->instances) {
+        rpl_instance_poison(instance, 1);
+        rpl_instance_dio_trigger(instance, cur, NULL);
+    }
+}
+
 void rpl_instance_force_leaf(rpl_instance_t *instance)
 {
     instance->current_rank = RPL_RANK_INFINITE;
@@ -363,7 +371,7 @@ void rpl_instance_trigger_parent_selection(rpl_instance_t *instance, uint16_t de
         }
     }
     if (instance->parent_selection_timer == 0 || instance->parent_selection_timer > delay) {
-        instance->parent_selection_timer = randLIB_randomise_base(delay, 0x8000, 0x999A) /* Random between delay * 1.0-1.2 */;
+        instance->parent_selection_timer = randLIB_randomise_base(delay, 0x8000, 0xc000) /* Random between delay * 1.0-1.5 */;
         tr_debug("Timed parent triggered %u", instance->parent_selection_timer);
     }
 }
@@ -1620,6 +1628,10 @@ void rpl_instance_dio_trigger(rpl_instance_t *instance, protocol_interface_info_
         instance->poison_count--;
         rank = RPL_RANK_INFINITE;
         tr_debug("Poison count -> set RPL_RANK_INFINITE");
+        if (instance->poison_count == 0) {
+            //Report RPL user that Poison message is triggered
+            rpl_control_event(instance->domain, RPL_EVENT_POISON_FINISHED);
+        }
     }
 
     // Always send config in unicasts (as required), never in multicasts (optional)
