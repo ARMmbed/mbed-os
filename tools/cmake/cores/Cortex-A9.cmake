@@ -11,14 +11,8 @@ if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
         "-mno-unaligned-access"
     )
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
-    list(APPEND c_cxx_compile_options
+    list(APPEND common_options
         "-mcpu=cortex-a9"
-    )
-    list(APPEND asm_compile_options
-        "-mcpu=Cortex-A9"
-    )
-    list(APPEND link_options
-        "--cpu=Cortex-A9"
     )
 endif()
 

@@ -10,16 +10,10 @@ if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
         "-mcpu=cortex-m7"
     )
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
-    list(APPEND c_cxx_compile_options
+    list(APPEND common_options
         "-mcpu=cortex-m7"
         "-mfpu=fpv5-d16"
         "-mfloat-abi=hard"
-    )
-    list(APPEND asm_compile_options
-        "-mcpu=Cortex-M7"
-    )
-    list(APPEND link_options
-        "--cpu=Cortex-M7"
     )
 endif()
 
