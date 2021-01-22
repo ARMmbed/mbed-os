@@ -12,3 +12,7 @@ endif()
 if("SX1276" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(COMPONENT_SX1276)
 endif()
+
+if("STM32WL" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32WL)
+endif()
