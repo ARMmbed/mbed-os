@@ -18,8 +18,6 @@
 #ifndef BLE_CLIAPP_BLE_TRACE_HELPERS_H
 #define BLE_CLIAPP_BLE_TRACE_HELPERS_H
 
-#include <string>
-
 #include "ble/SecurityManager.h"
 #include "mbed-trace/mbed_trace.h"
 #include "pal/GapTypes.h"
