@@ -18,6 +18,8 @@
 #ifndef BLE_CLIAPP_BLE_TRACE_HELPERS_H
 #define BLE_CLIAPP_BLE_TRACE_HELPERS_H
 
+#include <string>
+
 #include "ble/SecurityManager.h"
 #include "mbed-trace/mbed_trace.h"
 #include "pal/GapTypes.h"
@@ -45,9 +47,36 @@ static inline const char* tr_as_array(T item)
     return (mbed_trace_array)((const uint8_t*)&item, sizeof(item));
 }
 
-static inline const char* to_string(UUID uuid)
-{
+static inline const char* to_string(const UUID &uuid) {
     return (mbed_trace_array)(uuid.getBaseUUID(), uuid.getLen());
+}
+
+static inline char* trace_uuid(const UUID& uuid)
+{
+    /* This is bad for two reasons:
+     * 1. It prints the UUID with colons separating the bytes
+     * 2. The bytes will appear in reverse because the array uses little endian storage
+     */
+    // return (char *)(mbed_trace_array)(uuid.getBaseUUID(), uuid.getLen());
+
+    const uint8_t* buf = uuid.getBaseUUID();
+    const uint8_t  len = uuid.getLen();
+
+    const char *hex = "0123456789ABCDEF";
+
+    char* str = new char[len + 1]();
+
+    char* p1  = (char *)buf + len - 1;
+    char* p2  = str;
+
+    size_t i = 0;
+    for (; i < len; ++i) {
+        *p2++ = hex[(*p1 >> 4) & 0xF];
+        *p2++ = hex[(*p1--)    & 0xF];
+    }
+    *p2 = 0;
+
+    return str;
 }
 
 static inline constexpr const char* to_string(bool v)
