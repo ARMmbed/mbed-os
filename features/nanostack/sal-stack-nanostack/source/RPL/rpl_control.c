@@ -55,6 +55,7 @@
 #include "RPL/rpl_downward.h"
 #include "RPL/rpl_policy.h"
 #include "RPL/rpl_control.h"
+#include "6LoWPAN/ws/ws_common.h"
 
 #define TRACE_GROUP "rplc"
 
@@ -885,6 +886,11 @@ static void rpl_control_process_prefix_options(protocol_interface_info_entry_t *
         uint32_t valid = common_read_32_bit(ptr + 4);
         uint32_t preferred = common_read_32_bit(ptr + 8);
         const uint8_t *prefix = ptr + 16;
+
+        if (ws_info(cur)) {
+            //For Wi-SUN Interoperability force length to 64
+            prefix_len = 64;
+        }
 
         if (rpl_upward_accept_prefix_update(dodag, neighbour, pref_parent)) {
 

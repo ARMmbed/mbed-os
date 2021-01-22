@@ -302,12 +302,13 @@ static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay)
     if (!fhss_structure) {
         return;
     }
-
+    platform_enter_critical();
     if (fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval == 0 || fhss_structure->ws->fhss_configuration.fhss_broadcast_interval == 0) {
         // stop broadcast schedule
         fhss_structure->ws->is_on_bc_channel = false;
         fhss_structure->ws->synchronization_time = 0;
         fhss_structure->ws->broadcast_timer_running = false;
+        platform_exit_critical();
         return;
     }
 
@@ -409,6 +410,7 @@ static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay)
         tr_info("%u BC_done", fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api));
     }
 #endif
+    platform_exit_critical();
 }
 
 static int own_floor(float value)
@@ -955,6 +957,7 @@ static void fhss_unicast_handler(const fhss_api_t *fhss_api, uint16_t delay)
     if (!fhss_structure) {
         return;
     }
+    platform_enter_critical();
     int32_t delay_us = fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api) - fhss_structure->ws->next_uc_timeout;
     if (!fhss_structure->ws->uc_slot && !fhss_structure->ws->next_uc_timeout) {
         delay_us = 0;
@@ -974,6 +977,7 @@ static void fhss_unicast_handler(const fhss_api_t *fhss_api, uint16_t delay)
     if (!timeout) {
         fhss_stop_timer(fhss_structure, fhss_unicast_handler);
         fhss_structure->ws->unicast_timer_running = false;
+        platform_exit_critical();
         return;
     }
     fhss_ws_start_timer(fhss_structure, timeout - (delay_us * fhss_structure->platform_functions.fhss_resolution_divider), fhss_unicast_handler);
@@ -985,6 +989,7 @@ static void fhss_unicast_handler(const fhss_api_t *fhss_api, uint16_t delay)
             fhss_structure->callbacks.tx_poll(fhss_structure->fhss_api);
         }
     }
+    platform_exit_critical();
 }
 
 int fhss_ws_set_callbacks(fhss_structure_t *fhss_structure)
