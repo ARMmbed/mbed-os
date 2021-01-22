@@ -461,7 +461,6 @@ void i2c_frequency(i2c_t *obj, int hz)
 #ifdef I2C_IP_VERSION_V2
     /*  Only predefined timing for below frequencies are supported */
     MBED_ASSERT((hz == 100000) || (hz == 400000) || (hz == 1000000));
-    handle->Init.Timing = get_i2c_timing(hz);
 
     // Enable the Fast Mode Plus capability
     if (hz == 1000000) {
@@ -528,6 +527,12 @@ void i2c_frequency(i2c_t *obj, int hz)
 #ifdef I2C_ANALOGFILTER_ENABLE
     /* Enable the Analog I2C Filter */
     HAL_I2CEx_ConfigAnalogFilter(handle, I2C_ANALOGFILTER_ENABLE);
+#endif
+
+#ifdef TARGET_STM32H7
+    handle->Init.Timing = get_i2c_timing(obj_s->i2c, hz);
+#else
+    handle->Init.Timing = get_i2c_timing(hz);
 #endif
 
     // I2C configuration
