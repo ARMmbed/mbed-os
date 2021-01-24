@@ -1,7 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("NUCLEO_G474RE" IN_LIST MBED_TARGET_LABELS)
+if("NUCLEO_G431KB" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_NUCLEO_G431KB)
 endif()
 
