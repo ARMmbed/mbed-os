@@ -9604,10 +9604,9 @@ typedef struct
 #define SYSCFG_MEMRMP_MEM_MODE_1        (0x2UL << SYSCFG_MEMRMP_MEM_MODE_Pos)  /*!< 0x00000002 */
 #define SYSCFG_MEMRMP_MEM_MODE_2        (0x4UL << SYSCFG_MEMRMP_MEM_MODE_Pos)  /*!< 0x00000004 */
 
-// Commented out because G431KB only has one Flash Bank
-// #define SYSCFG_MEMRMP_FB_MODE_Pos       (8U)
-// #define SYSCFG_MEMRMP_FB_MODE_Msk       (0x1UL << SYSCFG_MEMRMP_FB_MODE_Pos)   /*!< 0x00000100 */
-// #define SYSCFG_MEMRMP_FB_MODE           SYSCFG_MEMRMP_FB_MODE_Msk              /*!< User Flash Bank mode selection */
+#define SYSCFG_MEMRMP_FB_MODE_Pos       (8U)
+#define SYSCFG_MEMRMP_FB_MODE_Msk       (0x1UL << SYSCFG_MEMRMP_FB_MODE_Pos)   /*!< 0x00000100 */
+#define SYSCFG_MEMRMP_FB_MODE           SYSCFG_MEMRMP_FB_MODE_Msk              /*!< User Flash Bank mode selection */
 
 /******************  Bit definition for SYSCFG_CFGR1 register ******************/
 #define SYSCFG_CFGR1_BOOSTEN_Pos        (8U)
