@@ -2660,9 +2660,6 @@
         "clock_source": "USE_PLL_HSI",
         "lse_available":  0
       },
-      "device_has_add": [
-        "USBDEVICE"
-      ],
       "detect_code": [
         "0851"
       ],
