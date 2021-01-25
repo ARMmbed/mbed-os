@@ -19,7 +19,7 @@
 #define SECURITYMANAGERMOCK_H
 
 #include "gmock/gmock.h"
-#include "SecurityManagerImpl.h"
+#include "source/generic/SecurityManagerImpl.h"
 
 class SecurityManagerMock : public ble::impl::SecurityManager {
 public:

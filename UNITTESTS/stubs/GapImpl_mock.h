@@ -19,7 +19,7 @@
 #define BLE_GAPMOCK_H
 
 #include "gmock/gmock.h"
-#include "GapImpl.h"
+#include "source/generic/GapImpl.h"
 
 class GapMock : public ble::impl::Gap {
 public:

@@ -19,7 +19,7 @@
 #define BLE_GATTCLIENTMOCK_H
 
 #include "gmock/gmock.h"
-#include "GattClientImpl.h"
+#include "source/generic/GattClientImpl.h"
 
 class GattClientMock : public ble::impl::GattClient {
 public:

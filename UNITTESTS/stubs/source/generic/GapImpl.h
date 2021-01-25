@@ -18,8 +18,6 @@
 #ifndef BLE_GAPSTUB_H
 #define BLE_GAPSTUB_H
 
-#include "gmock/gmock.h"
-
 namespace ble {
 namespace impl {
 

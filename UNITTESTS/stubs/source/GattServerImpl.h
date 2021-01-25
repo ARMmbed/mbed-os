@@ -18,9 +18,9 @@
 #ifndef BLE_GATTSERVERSTUB_H
 #define BLE_GATTSERVERSTUB_H
 
-#include "gmock/gmock.h"
 #include "ble/GattServer.h"
-#include "source/generic/GattServerEvents.h"
+#include "FEATURE_BLE/source/generic/GattServerEvents.h"
+#include "ble/Gap.h"
 
 namespace ble {
 namespace impl {

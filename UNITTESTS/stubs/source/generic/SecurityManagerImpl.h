@@ -18,8 +18,6 @@
 #ifndef SECURITYMANAGERSTUB_H
 #define SECURITYMANAGERSTUB_H
 
-#include "gmock/gmock.h"
-
 namespace ble {
 namespace impl {
 

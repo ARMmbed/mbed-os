@@ -19,7 +19,7 @@
 #define BLE_GATTSERVERMOCK_H
 
 #include "gmock/gmock.h"
-#include "GattServerImpl.h"
+#include "source/GattServerImpl.h"
 
 class GattServerMock : public ble::impl::GattServer {
 public:
