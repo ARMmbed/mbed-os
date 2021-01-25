@@ -82,6 +82,10 @@
             "value": null,
             "macro_name": "CORDIO_RPA_SWAP_WORKAROUND"
         },
+        "trace-pal-echoes": {
+            "help": "Include 'echo' traces in PAL, i.e. function signature and argument prints",
+            "value": 0
+        },
         "trace-hci-packets": {
             "help": "If tracing is enabled at level DEBUG traces will include HCI packet traces.",
             "value": false
