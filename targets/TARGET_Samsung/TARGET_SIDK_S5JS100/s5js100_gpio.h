@@ -19,6 +19,9 @@
 #ifndef __ARCH_ARM_SRC_S5JS100_CHIP_S5JS100_GPIO_H__
 #define __ARCH_ARM_SRC_S5JS100_CHIP_S5JS100_GPIO_H__
 
+#include <stdbool.h>
+#include <stdint.h>
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -177,82 +180,121 @@
 #define GPIO_ICG_REG            (GPIO_BASE + 0x0800)
 #define GPIO_CPU_SEL_REG        (GPIO_BASE + 0x0900)
 
+enum level_ {
+	LOW = 0,
+	HIGH = 1,
+};
+
+enum dir_ {
+	OUT = 0,
+	IN = 1,
+};
+
 enum gpio_int_type_ {
-    LEVEL_LOW,
-    LEVEL_HIGH,
-    NEG_EDGE,
-    POS_EDGE,
-    BOTH_EDGE,
+	LEVEL_LOW,
+	LEVEL_HIGH,
+	NEG_EDGE,
+	POS_EDGE,
+	BOTH_EDGE,
 };
 
 enum pull_up_down_ {
-    GPIO_PUPD_DIS = 0,
-    GPIO_PULL_DOWN = 2,         // 0b10 (enable + down)
-    GPIO_PULL_UP = 3,           // 0b11 (enable + up)
+	GPIO_PUPD_DIS = 0,
+	GPIO_PULL_DOWN = 2,			// 0b10 (enable + down)
+	GPIO_PULL_UP = 3,			// 0b11 (enable + up)
 };
 
 enum drive_strength_ {
-    DS_2mA = 0,
-    DS_4mA,
-    DS_8mA,
-    DS_12mA,
+	DS_2mA = 0,
+	DS_4mA,
+	DS_8mA,
+	DS_12mA,
+};
+
+enum slew_rate_ {
+	SR_FAST = 0,
+	SR_SLOW,
 };
 
 enum in_enable_ {
-    IN_DIS = 0,
-    IN_EN,
+	IN_DIS = 0,
+	IN_EN,
 };
 
 enum out_enable_ {
-    OUT_DIS = 0,
-    OUT_EN,
+	OUT_DIS = 0,
+	OUT_EN,
 };
 
+// bit postion in top_mux register
 enum bitpos_topmux_ {
-    BITPOS_FUNC = 0,
-    BITPOS_DS = 8,              //drive strengh
-    BITPOS_SR = 10,             //slew rate
-    BITPOS_PUPD = 11,
-    BITPOS_IE = 13,             //input enable/disable
-    BITPOS_OE = 14,             //output enable/disable
+	BITPOS_FUNC = 0,
+	BITPOS_DS = 8,				//drive strengh
+	BITPOS_SR = 10,				//slew rate
+	BITPOS_PUPD = 11,
+	BITPOS_IE = 13,				//input enable/disable
+	BITPOS_OE = 14,				//output enable/disable
 };
 
 enum nmux_func_ {
-    NMUX_SEL_0 = 0,
-    NMUX_SEL_1 = 1,
-    NMUX_SEL_2 = 2,
-    NMUX_SEL_3 = 3,
-    NMUX_SEL_4 = 4,
-    NMUX_SEL_5 = 5,
-    NMUX_SEL_6 = 6,
-    GPIO_GPIO = 7,
+	NMUX_SEL_0 = 0,
+	NMUX_SEL_1 = 1,
+	NMUX_SEL_2 = 2,
+	NMUX_SEL_3 = 3,
+	NMUX_SEL_4 = 4,
+	NMUX_SEL_5 = 5,
+	NMUX_SEL_6 = 6,
+	GPIO_GPIO = 7,
 };
 
 enum gpio_id_ {
-    GPIO0 = 0,
-    GPIO1, GPIO2, GPIO3, GPIO4, GPIO5, GPIO6, GPIO7, GPIO8, GPIO9, GPIO10,
-    GPIO11, GPIO12, GPIO13, GPIO14, GPIO15, GPIO16, GPIO17, GPIO18, GPIO19, GPIO20,
-    GPIO21, GPIO22, GPIO23, GPIO24, GPIO25, GPIO26, GPIO27, GPIO28, GPIO29, GPIO30,
-    GPIO31, GPIO32, GPIO33, GPIO34, GPIO35, GPIO36, GPIO37, GPIO38, GPIO39, GPIO40,
-    GPIO41, GPIO42, GPIO43, GPIO44, GPIO45, GPIO46, GPIO47, GPIO48, GPIO49, GPIO50,
-    GPIO51, GPIO52, GPIO53, GPIO54, GPIO55, GPIO56, GPIO57, GPIO58, GPIO59, GPIO60,
-    GPIO61, GPIO62, GPIO63, GPIO64, GPIO65, GPIO66, GPIO67, GPIO68, GPIO69, GPIO70,
-    GPIO71, GPIO72, GPIO_MAX,
+	GPIO0 = 0,
+	GPIO1, GPIO2, GPIO3, GPIO4, GPIO5, GPIO6, GPIO7, GPIO8, GPIO9, GPIO10,
+	GPIO11, GPIO12, GPIO13, GPIO14, GPIO15, GPIO16, GPIO17, GPIO18, GPIO19, GPIO20,
+	GPIO21, GPIO22, GPIO23, GPIO24, GPIO25, GPIO26, GPIO27, GPIO28, GPIO29, GPIO30,
+	GPIO31, GPIO32, GPIO33, GPIO34, GPIO35, GPIO36, GPIO37, GPIO38, GPIO39, GPIO40,
+	GPIO41, GPIO42, GPIO43, GPIO44, GPIO45, GPIO46, GPIO47, GPIO48, GPIO49, GPIO50,
+	GPIO51, GPIO52, GPIO53, GPIO54, GPIO55, GPIO56, GPIO57, GPIO58, GPIO59, GPIO60,
+	GPIO61, GPIO62, GPIO63, GPIO64, GPIO65, GPIO66, GPIO67, GPIO68, GPIO69, GPIO70,
+	GPIO71, GPIO72, GPIO_MAX,
 };
 
-
-// function to enable the GPIO pin
-struct tmux_range_ {
-    uint16_t addr;
-    uint8_t start_num;
-    uint8_t end_num;
-};
+#define SetBits(uAddr, uBaseBit, uMaskValue, uSetValue) \
+	putreg32((getreg32(uAddr) & ~((uMaskValue)<<(uBaseBit))) | (((uMaskValue)&(uSetValue))<<(uBaseBit)), uAddr)
+#define GetBits(uAddr, uBaseBit, uMaskValue) \
+	((getreg32(uAddr)>>(uBaseBit))&(uMaskValue))
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 int s5js100_configgpio(uint32_t cfgset);
+
+/****************************************************************************
+ * Name: s5js100_gpiowrite
+ *
+ * Description:
+ *   Write one or zero to the selected GPIO pin
+ *
+ ****************************************************************************/
+void s5js100_gpiowrite(uint32_t cfgset, bool value);
+
+/****************************************************************************
+ * Name: s5js100_gpioread
+ *
+ * Description:
+ *   Read one or zero to the selected GPIO pin
+ *
+ ****************************************************************************/
+bool s5js100_gpioread(uint32_t cfgset);
+
 void gpio_set_func(enum gpio_id_ id, enum nmux_func_ func);
+enum pull_up_down_ gpio_get_pupd(enum gpio_id_ id);
+
+void s5js100_pullup(uint32_t cfgset);
+int s5js100_configinput(uint32_t cfgset);
+int s5js100_configoutput(uint32_t cfgset);
+int s5js100_unconfiggpio(uint32_t cfgset);
+
 #ifdef __cplusplus
 }
 #endif
