@@ -206,7 +206,7 @@ static inline const char* to_string(Keypress_t keypress)
     }
 }
 
-static inline const char *to_string(ble::pairing_failure_t reason)
+static inline const char* to_string(ble::pairing_failure_t reason)
 {
     switch (reason.value()) {
         case ble::pairing_failure_t::PASSKEY_ENTRY_FAILED:
@@ -242,7 +242,7 @@ static inline const char *to_string(ble::pairing_failure_t reason)
     }
 }
 
-static inline const char *to_string(target_peer_address_type_t type)
+static inline const char* to_string(target_peer_address_type_t type)
 {
     if (type == target_peer_address_type_t::PUBLIC) {
         return "PUBLIC";
@@ -251,7 +251,7 @@ static inline const char *to_string(target_peer_address_type_t type)
     }
 }
 
-static inline const char *to_string(privacy_mode_t mode)
+static inline const char* to_string(privacy_mode_t mode)
 {
     if (mode == privacy_mode_t::NETWORK) {
         return "NETWORK";
@@ -712,8 +712,7 @@ static inline const char* to_string(ble::direct_address_type_t direct_address_ty
     }
 }
 
-static inline const char* to_string(ble::advertising_data_status_t data_status)
-{
+static inline const char* to_string(ble::advertising_data_status_t data_status) {
     switch (data_status.value()) {
         case ble::advertising_data_status_t::COMPLETE:
             return "COMPLETE";
@@ -721,6 +720,21 @@ static inline const char* to_string(ble::advertising_data_status_t data_status)
             return "INCOMPLETE_MORE_DATA";
         case ble::advertising_data_status_t::INCOMPLETE_DATA_TRUNCATED:
             return "INCOMPLETE_DATA_TRUNCATED";
+        default:
+            return "unknown";
+    }
+}
+static inline const char* to_string(ble::att_security_requirement_t security_requirement)
+{
+    switch (security_requirement.value()) {
+        case ble::att_security_requirement_t::NONE:
+            return "NONE";
+        case ble::att_security_requirement_t::UNAUTHENTICATED:
+            return "UNAUTHENTICATED";
+        case ble::att_security_requirement_t::AUTHENTICATED:
+            return "AUTHENTICATED";
+        case ble::att_security_requirement_t::SC_AUTHENTICATED:
+            return "SC_AUTHENTICATED";
         default:
             return "unknown";
     }
