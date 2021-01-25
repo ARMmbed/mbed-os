@@ -33,3 +33,9 @@ target_sources(mbed-core
         us_ticker.c
         watchdog_api.c
 )
+
+
+target_link_libraries(mbed-core
+    INTERFACE
+        mbed-ble-cordio
+)
