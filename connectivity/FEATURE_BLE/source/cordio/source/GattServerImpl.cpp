@@ -90,7 +90,7 @@ void GattServer::add_default_services()
 ble_error_t GattServer::addService(GattService &service)
 {
     tr_info("Add service with UUID=%s and %d characteristic(s) to the Gatt Server",
-            trace_uuid(service.getUUID()),
+            to_string(service.getUUID()),
             service.getCharacteristicCount());
 
     add_default_services();
@@ -209,7 +209,7 @@ ble_error_t GattServer::insert_characteristic(
 )
 {
     tr_info("Insert characteristic %s",
-            trace_uuid(characteristic->getValueAttribute().getUUID()));
+            to_string(characteristic->getValueAttribute().getUUID()));
 
     bool valid = is_characteristic_valid(characteristic);
     if (!valid) {
@@ -330,7 +330,7 @@ ble_error_t GattServer::insert_characteristic_value_attribute(
 )
 {
     tr_info("Insert value attribute in characteristic %s",
-            trace_uuid(characteristic->getValueAttribute().getUUID()));
+            to_string(characteristic->getValueAttribute().getUUID()));
 
     GattAttribute &value_attribute = characteristic->getValueAttribute();
     uint8_t properties = characteristic->getProperties();
@@ -482,7 +482,7 @@ ble_error_t GattServer::insert_descriptor(
     bool &cccd_created
 )
 {
-    tr_info("Insert descriptor in characteristic %s", trace_uuid(characteristic->getValueAttribute().getUUID()));
+    tr_info("Insert descriptor in characteristic %s", to_string(characteristic->getValueAttribute().getUUID()));
 
     uint8_t properties = characteristic->getProperties();
 
@@ -618,7 +618,7 @@ ble_error_t GattServer::insert_cccd(
 )
 {
     tr_info("Insert CCCD in characteristic %s",
-            trace_uuid(characteristic->getValueAttribute().getUUID()));
+            to_string(characteristic->getValueAttribute().getUUID()));
 
     if (cccd_cnt >= MBED_CONF_BLE_API_IMPLEMENTATION_MAX_CCCD_COUNT) {
         tr_error("cannot insert cccd: table full");
@@ -873,7 +873,7 @@ ble_error_t GattServer::areUpdatesEnabled(
 )
 {
     tr_info("Determine if updates are enabled in characteristic %s",
-            trace_uuid(characteristic.getValueAttribute().getUUID()));
+            to_string(characteristic.getValueAttribute().getUUID()));
 
     for (size_t idx = 0; idx < cccd_cnt; idx++) {
         if (characteristic.getValueHandle() == cccd_handles[idx]) {
@@ -903,7 +903,7 @@ ble_error_t GattServer::areUpdatesEnabled(
 {
     tr_info("Connection %d: Determine if updates are enabled for characteristic %s",
             connectionHandle,
-            trace_uuid(characteristic.getValueAttribute().getUUID()));
+            to_string(characteristic.getValueAttribute().getUUID()));
 
     if (connectionHandle == DM_CONN_ID_NONE) {
         tr_error("Unknown connection ID");

@@ -26,7 +26,6 @@
 #include "common/UUID.h"
 
 namespace ble {
-
 #if MBED_CONF_MBED_TRACE_ENABLE
 void trace_le_supported_features(uint64_t feat);
 
@@ -45,36 +44,47 @@ static inline const char* tr_as_array(T item)
     return (mbed_trace_array)((const uint8_t*)&item, sizeof(item));
 }
 
-static inline const char* to_string(const UUID &uuid) {
-    return (mbed_trace_array)(uuid.getBaseUUID(), uuid.getLen());
-}
-
-static inline char* trace_uuid(const UUID& uuid)
+static inline char* to_string(const UUID& uuid)
 {
-    /* This is bad for two reasons:
-     * 1. It prints the UUID with colons separating the bytes
-     * 2. The bytes will appear in reverse because the array uses little endian storage
-     */
-    // return (char *)(mbed_trace_array)(uuid.getBaseUUID(), uuid.getLen());
-
     const uint8_t* buf = uuid.getBaseUUID();
     const uint8_t  len = uuid.getLen();
+    const  size_t  max_num_row = 4;
 
     const char *hex = "0123456789ABCDEF";
 
-    char* str = new char[len + 1]();
+    static char strbuf[max_num_row][UUID::LENGTH_OF_LONG_UUID + /* Number of hyphen delimiters =*/ 4];
+    static uint8_t idx = 0;
+
+    if (idx == max_num_row) {
+        idx = 0;
+    } else {
+        idx++;
+    }
 
     char* p1  = (char *)buf + len - 1;
-    char* p2  = str;
+    char* p2  = strbuf[idx];
 
-    size_t i = 0;
-    for (; i < len; ++i) {
-        *p2++ = hex[(*p1 >> 4) & 0xF];
-        *p2++ = hex[(*p1--)    & 0xF];
+    if (len == UUID::LENGTH_OF_LONG_UUID) {
+        const uint8_t format[] = {4, 2, 2, 2, 6};
+        for ( uint8_t i: format) {
+            size_t j = 0;
+            for (; j < i; ++j) {
+                *p2++ = hex[(*p1 >> 4) & 0xF];
+                *p2++ = hex[(*p1--)    & 0xF];
+            }
+            *p2++ = '-';
+        }
+        *--p2 = 0;
+    } else {
+        size_t i = 0;
+        for (; i < len; ++i) {
+            *p2++ = hex[(*p1 >> 4) & 0xF];
+            *p2++ = hex[(*p1--)    & 0xF];
+        }
+        *p2 = 0;
     }
-    *p2 = 0;
 
-    return str;
+    return strbuf[idx];
 }
 
 static inline constexpr const char* to_string(bool v)
