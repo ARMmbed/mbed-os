@@ -13,10 +13,6 @@ if("LPC54114" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_LPC54114)
 endif()
 
-if("LPC55S69" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_LPC55S69)
-endif()
-
 if("MCU_LPC546XX" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_MCU_LPC546XX)
 endif()
