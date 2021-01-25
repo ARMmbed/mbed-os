@@ -23,7 +23,6 @@
 
 #if DEVICE_USTICKER
 #include "pic32cx.h"
-#include "tc.h"
 #include "pmc.h"
 #include "sysclk.h"
 #include "us_ticker_api.h"
@@ -53,7 +52,7 @@ static bool us_ticker_inited = false;
 */
 void USTIMER_TC_Handler(void)
 {
-    if (tc_get_status(USTIMER_TC, USTIMER_TC_CHN) & TC_SR_CPCS) {
+    if (USTIMER_TC->TC_CHANNEL[USTIMER_TC_CHN].TC_SR & TC_SR_CPCS) {
         /* Trigger events */
         us_ticker_irq_handler();
     }
@@ -66,24 +65,34 @@ void USTIMER_TC_Handler(void)
 void us_ticker_init(void)
 {
     if (!us_ticker_inited) {
-        tc_stop(USTIMER_TC, USTIMER_TC_CHN);
+        /*  Disable TC clock */
+        USTIMER_TC->TC_CHANNEL[USTIMER_TC_CHN].TC_CCR = TC_CCR_CLKDIS;
+
+        /*  Disable interrupts. */
+        USTIMER_TC->TC_CHANNEL[USTIMER_TC_CHN].TC_IDR = 0xFFFFFFFF;
+
         /* Configure PMC */
         pmc_enable_periph_clk(USTIMER_ID_TC);
-        /* Configure GCLK 1MHz */
+        /* Configure GCLK 1MHz : MCK = 200MHz */
         pmc_configure_generic(USTIMER_ID_TC, PMC_PCR_GCLKCSS_MCK0, PMC_PCR_GCLKDIV(199));
         pmc_enable_generic_clk(USTIMER_ID_TC);
 
-        /* Configure Timer 1us */
-        tc_init(USTIMER_TC, USTIMER_TC_CHN, TC_CMR_TCCLKS_TIMER_CLOCK1, 0);
+        /*  Clear status register. */
+        USTIMER_TC->TC_CHANNEL[USTIMER_TC_CHN].TC_SR;
 
-        /* Configure and enable interrupt on RC compare */
-        NVIC_ClearPendingIRQ(USTIMER_TC_IRQn);
-        NVIC_EnableIRQ(USTIMER_TC_IRQn);
-        tc_enable_interrupt(USTIMER_TC, USTIMER_TC_CHN, TC_IER_CPCS);
+        /*  Set mode. */
+        USTIMER_TC->TC_CHANNEL[USTIMER_TC_CHN].TC_CMR = TC_CMR_TCCLKS_TIMER_CLOCK1;
+
+        /*  Set extended mode. */
+        USTIMER_TC->TC_CHANNEL[USTIMER_TC_CHN].TC_EMR = 0;
+
+        /* Start Timer */
+        USTIMER_TC->TC_CHANNEL[USTIMER_TC_CHN].TC_CCR = TC_CCR_CLKEN | TC_CCR_SWTRG;
 
         us_ticker_inited = true;
     } else {
-        tc_disable_interrupt(USTIMER_TC, USTIMER_TC_CHN, TC_IER_CPCS);
+        /* Disable RC Compare Interrupt */
+        USTIMER_TC->TC_CHANNEL[USTIMER_TC_CHN].TC_IDR = TC_IER_CPCS;
     }
 }
 
@@ -91,8 +100,8 @@ void us_ticker_init(void)
 */
 void us_ticker_free(void)
 {
-    tc_stop(USTIMER_TC, USTIMER_TC_CHN);
-    tc_disable_interrupt(USTIMER_TC, USTIMER_TC_CHN, TC_IER_CPCS);
+    /*  Disable TC clock */
+    USTIMER_TC->TC_CHANNEL[USTIMER_TC_CHN].TC_CCR = TC_CCR_CLKDIS;
     NVIC_DisableIRQ(USTIMER_TC_IRQn);
 }
 
@@ -102,7 +111,7 @@ void us_ticker_free(void)
 */
 uint32_t us_ticker_read(void)
 {
-    return tc_read_cv(USTIMER_TC, USTIMER_TC_CHN);
+    return USTIMER_TC->TC_CHANNEL[USTIMER_TC_CHN].TC_CV;
 }
 
 /** Set interrupt for specified timestamp
@@ -115,12 +124,10 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
         timestamp = 1;
     }
 
-    tc_stop(USTIMER_TC, USTIMER_TC_CHN);
-    tc_write_rc(USTIMER_TC, USTIMER_TC_CHN, timestamp);
-    tc_enable_interrupt(USTIMER_TC, USTIMER_TC_CHN, TC_IER_CPCS);
+    USTIMER_TC->TC_CHANNEL[USTIMER_TC_CHN].TC_RC = timestamp;
+    USTIMER_TC->TC_CHANNEL[USTIMER_TC_CHN].TC_IER = TC_IER_CPCS;
     NVIC_ClearPendingIRQ(USTIMER_TC_IRQn);
     NVIC_EnableIRQ(USTIMER_TC_IRQn);
-    tc_start(USTIMER_TC, USTIMER_TC_CHN);
 }
 
 /** Disable low power ticker interrupt
@@ -128,7 +135,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 */
 void us_ticker_disable_interrupt(void)
 {
-    tc_disable_interrupt(USTIMER_TC, USTIMER_TC_CHN, TC_IER_CPCS);
+    USTIMER_TC->TC_CHANNEL[USTIMER_TC_CHN].TC_IDR = TC_IER_CPCS;
 }
 
 /** Clear the low power ticker interrupt
@@ -136,11 +143,12 @@ void us_ticker_disable_interrupt(void)
 */
 void us_ticker_clear_interrupt(void)
 {
-    tc_get_status(USTIMER_TC, USTIMER_TC_CHN);
+    USTIMER_TC->TC_CHANNEL[USTIMER_TC_CHN].TC_SR;
 }
 
 void us_ticker_fire_interrupt(void)
 {
+    NVIC_EnableIRQ(USTIMER_TC_IRQn);
     NVIC_SetPendingIRQ(USTIMER_TC_IRQn);
 }
 

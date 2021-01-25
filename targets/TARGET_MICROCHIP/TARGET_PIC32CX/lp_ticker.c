@@ -23,7 +23,6 @@
 
 #if DEVICE_LPTICKER
 #include "pic32cx.h"
-#include "tc.h"
 #include "pmc.h"
 #include "sysclk.h"
 #include "lp_ticker_api.h"
@@ -53,7 +52,7 @@ static bool lp_ticker_inited = false;
 */
 void LPTIMER_TC_Handler(void)
 {
-    if (tc_get_status(LPTIMER_TC, LPTIMER_TC_CHN) & TC_SR_CPCS) {
+    if (LPTIMER_TC->TC_CHANNEL[LPTIMER_TC_CHN].TC_SR & TC_SR_CPCS) {
         /* Trigger events */
         lp_ticker_irq_handler();
     }
@@ -66,21 +65,31 @@ void LPTIMER_TC_Handler(void)
 void lp_ticker_init(void)
 {
     if (!lp_ticker_inited) {
-    	tc_stop(LPTIMER_TC, LPTIMER_TC_CHN);
+        /*  Disable TC clock */
+        LPTIMER_TC->TC_CHANNEL[LPTIMER_TC_CHN].TC_CCR = TC_CCR_CLKDIS;
+
+        /*  Disable interrupts. */
+        LPTIMER_TC->TC_CHANNEL[LPTIMER_TC_CHN].TC_IDR = 0xFFFFFFFF;
+
         /* Configure PMC */
         pmc_enable_periph_clk(LPTIMER_ID_TC);
 
-        /* Configure Timer */
-        tc_init(LPTIMER_TC, LPTIMER_TC_CHN, TC_CMR_TCCLKS_TIMER_CLOCK5, 0);
+        /*  Clear status register. */
+        LPTIMER_TC->TC_CHANNEL[LPTIMER_TC_CHN].TC_SR;
 
-        /* Configure and enable interrupt on RC compare */
-        NVIC_ClearPendingIRQ(LPTIMER_TC_IRQn);
-        NVIC_EnableIRQ(LPTIMER_TC_IRQn);
-        tc_enable_interrupt(LPTIMER_TC, LPTIMER_TC_CHN, TC_IER_CPCS);
+        /*  Set mode. */
+        LPTIMER_TC->TC_CHANNEL[LPTIMER_TC_CHN].TC_CMR = TC_CMR_TCCLKS_TIMER_CLOCK5;
+
+        /*  Set extended mode. */
+        LPTIMER_TC->TC_CHANNEL[LPTIMER_TC_CHN].TC_EMR = 0;
+
+        /* Start Timer */
+        LPTIMER_TC->TC_CHANNEL[LPTIMER_TC_CHN].TC_CCR = TC_CCR_CLKEN | TC_CCR_SWTRG;
 
         lp_ticker_inited = true;
     } else {
-        tc_disable_interrupt(LPTIMER_TC, LPTIMER_TC_CHN, TC_IER_CPCS);
+        /* Disable RC Compare Interrupt */
+        LPTIMER_TC->TC_CHANNEL[LPTIMER_TC_CHN].TC_IDR = TC_IER_CPCS;
     }
 }
 
@@ -88,8 +97,8 @@ void lp_ticker_init(void)
 */
 void lp_ticker_free(void)
 {
-    tc_stop(LPTIMER_TC, LPTIMER_TC_CHN);
-    tc_disable_interrupt(LPTIMER_TC, LPTIMER_TC_CHN, TC_IER_CPCS);
+    /*  Disable TC clock */
+    LPTIMER_TC->TC_CHANNEL[LPTIMER_TC_CHN].TC_CCR = TC_CCR_CLKDIS;
     NVIC_DisableIRQ(LPTIMER_TC_IRQn);
 }
 
@@ -99,7 +108,7 @@ void lp_ticker_free(void)
 */
 uint32_t lp_ticker_read(void)
 {
-    return tc_read_cv(LPTIMER_TC, LPTIMER_TC_CHN);
+    return LPTIMER_TC->TC_CHANNEL[LPTIMER_TC_CHN].TC_CV;
 }
 
 /** Set interrupt for specified timestamp
@@ -112,12 +121,10 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
         timestamp = 1;
     }
 
-    tc_stop(LPTIMER_TC, LPTIMER_TC_CHN);
-    tc_write_rc(LPTIMER_TC, LPTIMER_TC_CHN, timestamp);
-    tc_enable_interrupt(LPTIMER_TC, LPTIMER_TC_CHN, TC_IER_CPCS);
+    LPTIMER_TC->TC_CHANNEL[LPTIMER_TC_CHN].TC_RC = timestamp;
+    LPTIMER_TC->TC_CHANNEL[LPTIMER_TC_CHN].TC_IER = TC_IER_CPCS;
     NVIC_ClearPendingIRQ(LPTIMER_TC_IRQn);
     NVIC_EnableIRQ(LPTIMER_TC_IRQn);
-    tc_start(LPTIMER_TC, LPTIMER_TC_CHN);
 }
 
 /** Disable low power ticker interrupt
@@ -125,7 +132,7 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
 */
 void lp_ticker_disable_interrupt(void)
 {
-    tc_disable_interrupt(LPTIMER_TC, LPTIMER_TC_CHN, TC_IER_CPCS);
+    LPTIMER_TC->TC_CHANNEL[LPTIMER_TC_CHN].TC_IDR = TC_IER_CPCS;
 }
 
 /** Clear the low power ticker interrupt
@@ -133,11 +140,12 @@ void lp_ticker_disable_interrupt(void)
 */
 void lp_ticker_clear_interrupt(void)
 {
-    tc_get_status(LPTIMER_TC, LPTIMER_TC_CHN);
+    LPTIMER_TC->TC_CHANNEL[LPTIMER_TC_CHN].TC_SR;
 }
 
 void lp_ticker_fire_interrupt(void)
 {
+    NVIC_EnableIRQ(LPTIMER_TC_IRQn);
     NVIC_SetPendingIRQ(LPTIMER_TC_IRQn);
 }
 
