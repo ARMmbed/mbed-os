@@ -10,16 +10,10 @@ if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
         "-mfloat-abi=softfp"
     )
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
-    list(APPEND c_cxx_compile_options
+    list(APPEND common_options
         "-mcpu=cortex-m4"
         "-mfpu=fpv4-sp-d16"
         "-mfloat-abi=hard"
-    )
-    list(APPEND asm_compile_options
-        "-mcpu=Cortex-M4"
-    )
-    list(APPEND link_options
-        "--cpu=Cortex-M4"
     )
 endif()
 
