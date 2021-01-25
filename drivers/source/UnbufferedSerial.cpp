@@ -99,6 +99,20 @@ short UnbufferedSerial::poll(short events) const
     return revents;
 }
 
+int UnbufferedSerial::enable_input(bool enabled)
+{
+    SerialBase::enable_input(enabled);
+
+    return 0;
+}
+
+int UnbufferedSerial::enable_output(bool enabled)
+{
+    SerialBase::enable_output(enabled);
+
+    return 0;
+}
+
 #if DEVICE_SERIAL_FC
 void UnbufferedSerial::set_flow_control(Flow type, PinName flow1, PinName flow2)
 {
