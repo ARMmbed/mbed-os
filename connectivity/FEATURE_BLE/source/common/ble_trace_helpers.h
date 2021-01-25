@@ -55,11 +55,7 @@ static inline char* to_string(const UUID& uuid)
     static char strbuf[max_num_row][UUID::LENGTH_OF_LONG_UUID + /* Number of hyphen delimiters =*/ 4];
     static uint8_t idx = 0;
 
-    if (idx == max_num_row) {
-        idx = 0;
-    } else {
-        idx++;
-    }
+    idx == max_num_row ? idx = 0 : idx++;
 
     char* p1  = (char *)buf + len - 1;
     char* p2  = strbuf[idx];
