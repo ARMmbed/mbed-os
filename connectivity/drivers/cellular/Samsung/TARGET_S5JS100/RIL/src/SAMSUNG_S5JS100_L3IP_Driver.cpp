@@ -119,22 +119,37 @@ void SAMSUNG_S5JS100_L3IP_Driver::set_link_state_cb(l3ip_link_state_change_cb_t 
     _l3ip_link_state_cb = state_cb;
 }
 
+/* This is pure virtual function in base class and not used
+*  No-op at this stage
+*/
 void SAMSUNG_S5JS100_L3IP_Driver::add_ipv4_multicast_group(const SocketAddress &address)
 {
 }
 
+/* This is pure virtual function in base class and not used
+*  No-op at this stage
+*/
 void SAMSUNG_S5JS100_L3IP_Driver::add_ipv6_multicast_group(const SocketAddress &address)
 {
 }
 
+/* This is pure virtual function in base class and not used
+*  No-op at this stage
+*/
 void SAMSUNG_S5JS100_L3IP_Driver::remove_ipv4_multicast_group(const SocketAddress &address)
 {
 }
 
+/* This is pure virtual function in base class and not used
+*  No-op at this stage
+*/
 void SAMSUNG_S5JS100_L3IP_Driver::remove_ipv6_multicast_group(const SocketAddress &address)
 {
 }
 
+/* This is pure virtual function in base class and not used
+*  No-op at this stage
+*/
 void SAMSUNG_S5JS100_L3IP_Driver::set_all_multicast(bool all)
 {
 }

@@ -42,48 +42,6 @@ void usi_serial_init(void *obj, PinName tx, PinName rx);
 void pl011_serial_init(void *obj, PinName tx, PinName rx);
 void dummy_serial_init(void *obj, PinName tx, PinName rx);
 
-/******************************************************************************
- * INITIALIZATION
- ******************************************************************************/
-
-/*static const PinMap PinMap_UART_TX[] = {
-    {UART_TX0, UART_0, UART_TX0},
-    {UART_TX1, UART_1, UART_TX1},
-    {UART_TX2, UART_2, UART_TX2},
-    {UART_TX3, UART_3, UART_TX3},
-    {UART_TX4, UART_4, UART_TX4},
-    {UART_TX5, UART_5, UART_TX5},
-    {NC, NC, NC}
-};
-static const PinMap PinMap_UART_RX[] = {
-    {UART_RX0, UART_0, UART_RX0},
-    {UART_RX1, UART_1, UART_RX1},
-    {UART_RX2, UART_2, UART_RX2},
-    {UART_RX3, UART_3, UART_RX3},
-    {UART_RX4, UART_4, UART_RX4},
-    {UART_RX5, UART_5, UART_RX5},
-    {NC, NC, NC}
-};
-*/
-/*
-static const PinMap PinMap_UART_CTS[] = {
-    {UART0_CTS, UART_0, UART0_CTS},
-    {UART1_CTS, UART_1, UART1_CTS},
-    {UART2_CTS, UART_2, UART2_CTS},
-    {UART3_CTS, UART_3, UART3_CTS},
-    {NC, NC, NC}
-};
-
-static const PinMap PinMap_UART_RTS[] = {
-    {UART0_RTS, UART_0, UART0_RTS},
-    {UART1_RTS, UART_1, UART1_RTS},
-    {UART2_RTS, UART_2, UART2_RTS},
-    {UART3_RTS, UART_3, UART3_RTS},
-    {NC, NC, NC}
-};
-*/
-
-
 /* Used in platform/mbed_retarget.cpp  */
 /* What shall I do with it??? What is it for? */
 int stdio_uart_inited = 0;

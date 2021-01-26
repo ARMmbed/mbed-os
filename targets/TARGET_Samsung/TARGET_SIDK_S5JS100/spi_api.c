@@ -38,30 +38,6 @@ typedef struct {
 
 int s5js100_configgpio(uint32_t cfgset);
 
-/*static const PinMap PinMap_SPI_SCLK[] = {
-    {SPI0_CLK, SPI_0, 0},
-    {SPI1_CLK, SPI_1, 0},
-    {NC, NC, 0}
-};
-
-static const PinMap PinMap_SPI_MOSI[] = {
-    {SPI0_MOSI, SPI_0, 0},
-    {SPI1_MOSI, SPI_1, 0},
-    {NC, NC, 0}
-};
-
-static const PinMap PinMap_SPI_MISO[] = {
-    {SPI0_MISO, SPI_0, 0},
-    {SPI1_MISO, SPI_1, 0},
-    {NC, NC, 0}
-};
-
-static const PinMap PinMap_SPI_SSEL[] = {
-    {SPI0_CSN, SPI_0, 0},
-    {SPI1_CSN, SPI_1, 0},
-    {NC, NC, 0}
-};*/
-
 /*
  * Retrieve the private data of the instance related to a given IP
  */
