@@ -20,9 +20,11 @@
 #include "nrf_soc.h"
 #include "nrf_timer.h"
 #include "us_ticker.h"
+#if BB_CLK_RATE_HZ == 32768 && FEATURE_BLE == 1
 #include "bb_api.h"
 #include "pal_timer.h"
 #include "pal_rtc.h"
+#endif
 
 #if defined(SOFTDEVICE_PRESENT)
 #include "nrf_sdh.h"
@@ -41,14 +43,14 @@ extern bool us_ticker_initialized;
 
 void hal_sleep(void)
 {
-        /* Clock management for low power mode. */
-#if BB_CLK_RATE_HZ == 32768
+    /* Clock management for low power mode. */
+#if BB_CLK_RATE_HZ == 32768 && FEATURE_BLE == 1
     uint32_t rtcNow = NRF_RTC1->COUNTER;
 
     if ((BbGetCurrentBod() == NULL))
     {
         if ((PalTimerGetState() == PAL_TIMER_STATE_BUSY &&
-            ((NRF_RTC1->CC[3] - rtcNow) & PAL_MAX_RTC_COUNTER_VAL) > PAL_HFCLK_OSC_SETTLE_TICKS) ||
+             ((NRF_RTC1->CC[3] - rtcNow) & PAL_MAX_RTC_COUNTER_VAL) > PAL_HFCLK_OSC_SETTLE_TICKS) ||
             (PalTimerGetState() == PAL_TIMER_STATE_READY))
         {
             /* disable HFCLK */
