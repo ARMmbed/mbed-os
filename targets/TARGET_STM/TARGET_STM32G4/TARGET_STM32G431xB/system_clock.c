@@ -121,6 +121,15 @@ MBED_WEAK uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
         return 0; // FAIL
     }
 
+#if defined(DEVICE_USBDEVICE)
+    // Connect the HSI48 Clock to drive the USB & RNG Clocks @ 48 MHz (CK48 Clock Mux)
+    RCC_PeriphCLKInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
+    RCC_PeriphCLKInitStruct.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
+    if (HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphCLKInitStruct) != HAL_OK) {
+        return 0; // FAIL
+    }
+#endif
+
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
                                   | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
     RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
@@ -174,6 +183,15 @@ uint8_t SetSysClock_PLL_HSI(void)
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         return 0; // FAIL
     }
+
+#if defined(DEVICE_USBDEVICE)
+    // Connect the HSI48 Clock to drive the USB & RNG Clocks @ 48 MHz (CK48 Clock Mux)
+    RCC_PeriphCLKInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
+    RCC_PeriphCLKInitStruct.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
+    if (HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphCLKInitStruct) != HAL_OK) {
+        return 0; // FAIL
+    }
+#endif
 
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
                                   | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
