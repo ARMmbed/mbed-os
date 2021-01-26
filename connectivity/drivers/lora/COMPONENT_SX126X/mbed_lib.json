@@ -1,10 +1,6 @@
 {
     "name": "SX126X-lora-driver",
     "config": {
-        "radio": {
-            "value": "SX126X",
-            "macro_name" : "MBED_CONF_LORA_RADIO"
-        },
         "spi-frequency": {
         	"help": "SPI frequency, Default: 16 MHz",
         	"value": 16000000
