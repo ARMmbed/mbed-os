@@ -320,7 +320,7 @@ void spi_free(spi_t *obj)
     __HAL_SPI_DISABLE(handle);
     HAL_SPI_DeInit(handle);
 
-#if defined(DUAL_CORE)
+#if defined(DUAL_CORE) && (TARGET_STM32H7)
     while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
     }
 #endif /* DUAL_CORE */
@@ -371,7 +371,7 @@ void spi_free(spi_t *obj)
         __HAL_RCC_SPI6_CLK_DISABLE();
     }
 #endif
-#if defined(DUAL_CORE)
+#if defined(DUAL_CORE) && (TARGET_STM32H7)
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
 #endif /* DUAL_CORE */
     // Configure GPIOs
