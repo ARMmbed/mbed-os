@@ -24,14 +24,63 @@
 #include "ble/GattServer.h"
 #include "ble/SecurityManager.h"
 #include "ble/Gap.h"
+#include "ble_mocks.h"
 
 namespace ble {
+
+static GapMock *gap_impl = nullptr;
+static GattServerMock *gatt_server_impl = nullptr;
+static GattClientMock *gatt_client_impl = nullptr;
+static SecurityManagerMock *security_manager_impl = nullptr;
+
+static Gap *gap = nullptr;
+static GattServer *gatt_server = nullptr;
+static GattClient *gatt_client = nullptr;
+static SecurityManager *security_manager = nullptr;
+
+GapMock& gap_mock() {
+    return *ble::gap_impl;
+}
+
+GattServerMock& gatt_server_mock() {
+    return *ble::gatt_server_impl;
+}
+
+GattClientMock& gatt_client_mock() {
+    return *ble::gatt_client_impl;
+}
+
+SecurityManagerMock& security_manager_mock() {
+    return *ble::security_manager_impl;
+}
+
+void reset_mocks() {
+    delete gap;
+    delete gap_impl;
+    delete gatt_server;
+    delete gatt_server_impl;
+    delete gatt_client;
+    delete gatt_client_impl;
+    delete security_manager;
+    delete security_manager_impl;
+    /* mocks */
+    gap_impl = new GapMock();
+    gatt_server_impl = new GattServerMock();
+    gatt_client_impl = new GattClientMock();
+    security_manager_impl = new SecurityManagerMock();
+    /* user APIS */
+    gap = new Gap(gap_impl);
+    gatt_server = new GattServer(gatt_server_impl);
+    gatt_client = new GattClient(gatt_client_impl);
+    security_manager = new SecurityManager(security_manager_impl);
+}
 
 class BLEInstanceBase {
 };
 
 BLE::BLE(ble::BLEInstanceBase &transport) : transport(transport)
 {
+    reset_mocks();
 }
 
 BLE& BLE::Instance()
@@ -43,9 +92,22 @@ BLE& BLE::Instance()
 
 ble::Gap &BLE::gap()
 {
-    static GapMock impl;
-    static ble::Gap gap(&impl);
-    return gap;
+    return *ble::gap;
+}
+
+ble::GattServer &BLE::gattServer()
+{
+    return *ble::gatt_server;
+}
+
+ble::GattClient &BLE::gattClient()
+{
+    return *ble::gatt_client;
+}
+
+ble::SecurityManager &BLE::securityManager()
+{
+    return *ble::security_manager;
 }
 
 const ble::Gap &BLE::gap() const
@@ -54,37 +116,16 @@ const ble::Gap &BLE::gap() const
     return const_cast<const ble::Gap &>(self.gap());
 }
 
-ble::GattServer &BLE::gattServer()
-{
-    static GattServerMock impl;
-    static ble::GattServer server(&impl);
-    return server;
-}
-
 const ble::GattServer &BLE::gattServer() const
 {
     auto &self = const_cast<BLE &>(*this);
     return const_cast<const ble::GattServer &>(self.gattServer());
 }
 
-ble::GattClient &BLE::gattClient()
-{
-    static GattClientMock impl;
-    static ble::GattClient  gatt_client(&impl);
-    return gatt_client;
-}
-
 const ble::GattClient &BLE::gattClient() const
 {
     auto &self = const_cast<BLE &>(*this);
     return const_cast<const ble::GattClient &>(self.gattClient());
-}
-
-ble::SecurityManager &BLE::securityManager()
-{
-    static SecurityManagerMock impl;
-    static ble::SecurityManager sm(&impl);
-    return sm;
 }
 
 const ble::SecurityManager &BLE::securityManager() const

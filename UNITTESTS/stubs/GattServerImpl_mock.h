@@ -28,7 +28,7 @@ public:
     GattServerMock& operator=(const GattServerMock&) = delete;
     virtual ~GattServerMock() {};
 
-    //MOCK_METHOD(ble_error_t, addService, (GattService &service), (override));
+    MOCK_METHOD1(reset, ble_error_t(ble::GattServer*));
 };
 
 #endif //BLE_GATTSERVERMOCK_H

@@ -15,22 +15,28 @@
  * limitations under the License.
  */
 
-#ifndef SECURITYMANAGERMOCK_H
-#define SECURITYMANAGERMOCK_H
+#ifndef BLE_MOCKS_H
+#define BLE_MOCKS_H
 
-#include "gmock/gmock.h"
-#include "source/generic/SecurityManagerImpl.h"
+#include "GattServerImpl_mock.h"
+#include "GattClientImpl_mock.h"
+#include "GapImpl_mock.h"
+#include "SecurityManagerImpl_mock.h"
 
-class SecurityManagerMock : public ble::impl::SecurityManager {
-public:
-    SecurityManagerMock() {};
-    SecurityManagerMock(const GattServerMock&) = delete;
-    SecurityManagerMock& operator=(const GattServerMock&) = delete;
-    virtual ~SecurityManagerMock() {};
+/***
+ * You must use reset_mocks() at the end of the test. To access mocks use:
+ * gap_mock(), gatt_server_mock(), gatt_client_mock(), security_manager_mock().
+ * All functions are in namespace ble.
+ */
+namespace ble {
 
-    MOCK_METHOD0(reset, ble_error_t());
-};
+void reset_mocks();
 
+GapMock& gap_mock();
+GattServerMock& gatt_server_mock();
+GattClientMock& gatt_client_mock();
+SecurityManagerMock& security_manager_mock();
 
+}
 
-#endif //SECURITYMANAGERMOCK_H
+#endif // BLE_MOCKS_H

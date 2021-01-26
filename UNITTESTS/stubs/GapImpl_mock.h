@@ -27,6 +27,8 @@ public:
     GapMock(const GapMock&) = delete;
     GapMock& operator=(const GapMock&) = delete;
     virtual ~GapMock() {};
+
+    MOCK_METHOD0(reset, ble_error_t());
 };
 
 

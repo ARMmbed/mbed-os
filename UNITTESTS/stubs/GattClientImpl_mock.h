@@ -27,6 +27,8 @@ public:
     GattClientMock(const GattClientMock&) = delete;
     GattClientMock& operator=(const GattClientMock&) = delete;
     virtual ~GattClientMock() {};
+
+    MOCK_METHOD0(reset, ble_error_t());
 };
 
 
