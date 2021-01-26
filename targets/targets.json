@@ -6979,7 +6979,8 @@
             "MPU",
             "LPTICKER",
             "USTICKER",
-			"RESET_REASON"
+			"RESET_REASON",
+			"RTC"
         ],
         "c_lib": "small",
 		"bootloader_supported": false,
