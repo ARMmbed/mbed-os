@@ -21,7 +21,7 @@
   *                     | 3- USE_PLL_HSI (internal 16 MHz)
   *-----------------------------------------------------------------
   * SYSCLK(MHz)         | 160 (default configuration) / 170 (CAN disabled)
-  * USB capable         | NO
+  * USB capable         | YES (Add "device_has_add": ["USBDEVICE"], to the NUCLEO_G431KB entry in targets.json to enable USB)
   *-----------------------------------------------------------------
   */
 
@@ -86,6 +86,7 @@ MBED_WEAK uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 {
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
     RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+    RCC_PeriphCLKInitTypeDef RCC_PeriphCLKInitStruct = { 0 };
 
 #if HSE_VALUE != 24000000
 #error Unsupported externall clock value, check HSE_VALUE define
@@ -111,13 +112,23 @@ MBED_WEAK uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
     RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
     RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
-#if defined(DEVICE_TRNG)
+#if defined(DEVICE_TRNG) || defined(DEVICE_USBDEVICE)
+    // Enable the HSI48 Clock (Can be used as a clocksource by CRS, RNG and USB)
     RCC_OscInitStruct.OscillatorType |= RCC_OSCILLATORTYPE_HSI48;
     RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
 #endif
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         return 0; // FAIL
     }
+
+#if defined(DEVICE_TRNG) || defined(DEVICE_USBDEVICE)
+    // Connect the HSI48 Clock to drive the USB & RNG Clocks @ 48 MHz (CK48 Clock Mux)
+    RCC_PeriphCLKInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
+    RCC_PeriphCLKInitStruct.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
+    if (HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphCLKInitStruct) != HAL_OK) {
+        return 0; // FAIL
+    }
+#endif
 
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
                                   | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
@@ -141,6 +152,7 @@ uint8_t SetSysClock_PLL_HSI(void)
 {
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
     RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+    RCC_PeriphCLKInitTypeDef RCC_PeriphCLKInitStruct = { 0 };
 
     /* Configure the main internal regulator output voltage */
     __HAL_RCC_PWR_CLK_ENABLE();
@@ -163,13 +175,23 @@ uint8_t SetSysClock_PLL_HSI(void)
     RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
     RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
     RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
-#if defined(DEVICE_TRNG)
+#if defined(DEVICE_TRNG) || defined(DEVICE_USBDEVICE)
+    // Enable the HSI48 Clock (Can be used as a clocksource by CRS, RNG and USB)
     RCC_OscInitStruct.OscillatorType |= RCC_OSCILLATORTYPE_HSI48;
     RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
 #endif
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         return 0; // FAIL
     }
+
+#if defined(DEVICE_TRNG) || defined(DEVICE_USBDEVICE)
+    // Connect the HSI48 Clock to drive the USB & RNG Clocks @ 48 MHz (CK48 Clock Mux)
+    RCC_PeriphCLKInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
+    RCC_PeriphCLKInitStruct.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
+    if (HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphCLKInitStruct) != HAL_OK) {
+        return 0; // FAIL
+    }
+#endif    
 
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
                                   | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
