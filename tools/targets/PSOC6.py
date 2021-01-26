@@ -51,6 +51,15 @@ SPE_IMAGE_ID = 1
 NSPE_IMAGE_ID = 16
 SMIF_MEM_MAP_START = 0x18000000
 
+# Mapping from mbed target to cysecuretools target
+TARGET_MAPPING = {
+        "CY8CKIT064B0S2_4343W": "cy8ckit-064b0s2-4343w",
+        "CYTFM_064B0S2_4343W"  : "cy8ckit-064b0s2-4343w",
+        "CY8CPROTO_064B0S1_BLE": "cy8cproto-064b0s1-ble",
+        "CY8CPROTO_064S1_SB"   : "cy8cproto-064s1-sb",
+        "CY8CPROTO_064B0S3"    : "cy8cproto-064b0s3"
+}
+
 class AddSignatureError(Exception):
     """ A simple class that represents all the exceptions associated with
     adding signature to Secure Boot image
@@ -129,7 +138,7 @@ def complete_func(message_func, elf0, hexf0, hexf1=None, dest=None):
 
 
 # Find Cortex M0 image.
-def find_cm0_image(toolchain, resources, elf, hexf, hex_filename):
+def find_cm0_image(message_func, resources, hex_filename):
     if hex_filename is None:
         return None
     # Locate user-specified image
@@ -138,67 +147,77 @@ def find_cm0_image(toolchain, resources, elf, hexf, hex_filename):
     m0hexf = next((f for f in hex_files if os.path.basename(f) == hex_filename), None)
 
     if m0hexf:
-        toolchain.notify.info("M0 core image file found: %s." % m0hexf)
+        message_func("M0 core image file found: %s." % m0hexf)
     else:
-        toolchain.notify.info("M0 core hex image file %s not found. Aborting." % hex_filename)
+        message_func("M0 core hex image file %s not found. Aborting." % hex_filename)
         raise ConfigException("Required M0 core hex image not found.")
 
     return m0hexf
 
 
-def sign_image(toolchain, resourses, elf, binf, m0hex):
+def sign_image(
+    build_dir, hex_filename, target_name, policy, notification, boot_scheme,
+    cm0_img_id, cm4_img_id, elf, binf, m0hex
+):
     """
     Adds signature to a binary file being built,
     using cysecuretools python package.
-    :param toolchain: Toolchain object of current build session
+    :param build_dir: The build directory
+    :param hex_filename: A HEX file
+    :param target_name: The name of the Mbed target
+    :param policy: The path to the policy file
+    :param notification: The object to output notification with
+    :param boot_scheme: The boot scheme
+    :param cm0_img_id: The Cortex-M0 image identifier
+    :param cm4_img_id: The Cortex-M4 image identifier
+    :param elf: An ELF file
     :param binf: Binary file created for target
+    :param m0hex: The Cortex-M0 HEX file
     """
 
+    # Keep module import here so it is required only if building PSOC6 targets
+    # that need to be signed
+
     if m0hex != '':
-        m0hex_build = os.path.join(toolchain.build_dir, toolchain.target.hex_filename)
+        m0hex_build = os.path.join(build_dir, hex_filename)
         copy2(m0hex, m0hex_build)
         m0hex = m0hex_build
 
-    # Mapping from mbed target to cysecuretools target
-    TARGET_MAPPING = {
-            "CY8CKIT064B0S2_4343W": "cy8ckit-064b0s2-4343w",
-            "CYTFM_064B0S2_4343W"  : "cy8ckit-064b0s2-4343w",
-            "CY8CPROTO_064B0S1_BLE": "cy8cproto-064b0s1-ble",
-            "CY8CPROTO_064S1_SB"   : "cy8cproto-064s1-sb",
-            "CY8CPROTO_064B0S3"    : "cy8cproto-064b0s3"
-    }
-
     try:
-        secure_target = TARGET_MAPPING[toolchain.target.name]
+        secure_target = TARGET_MAPPING[target_name]
     except KeyError:
-        raise ConfigException("[PSOC6.sign_image] Target " + toolchain.target.name + " is not supported in cysecuretools.")
+        raise ConfigException("[PSOC6.sign_image] Target " + target_name + " is not supported in cysecuretools.")
 
-    policy_file = find_policy(toolchain)
+    policy_file = find_policy(
+        policy,
+        notification.info,
+        target_name
+    )
 
-    toolchain.notify.info("[PSOC6.sign_image] Using policy file: " + str(policy_file))
+    notification.info("[PSOC6.sign_image] Using policy file: " + str(policy_file))
 
     import cysecuretools
-
     tools = cysecuretools.CySecureTools(secure_target, str(policy_file))
 
-    if str(toolchain.target.boot_scheme) == 'single_image':
-        toolchain.notify.info("[PSOC6.sign_image] single image signing")
-        sign_application(toolchain, tools, binf, image_id=toolchain.target.cm0_img_id)
+    if str(boot_scheme) == 'single_image':
+        notification.info("[PSOC6.sign_image] single image signing")
+        sign_application(notification.debug, tools, binf, image_id=cm0_img_id)
 
-    elif str(toolchain.target.boot_scheme) == 'multi_image':
-        sign_application(toolchain, tools, m0hex, image_id=toolchain.target.cm0_img_id)
-        sign_application(toolchain, tools, binf, image_id=toolchain.target.cm4_img_id)
+    elif str(boot_scheme) == 'multi_image':
+        sign_application(notification.debug, tools, m0hex, image_id=cm0_img_id)
+        sign_application(notification.debug, tools, binf, image_id=cm4_img_id)
 
-        complete(toolchain, elf, hexf0=binf, hexf1=m0hex)
+        complete(notification.debug, elf, hexf0=binf, hexf1=m0hex)
 
     else:
-        raise ConfigException("[PSOC6.sign_image] Boot scheme " + str(toolchain.target.boot_scheme) + \
+        raise ConfigException("[PSOC6.sign_image] Boot scheme " + str(boot_scheme) + \
             "is not supported. Supported boot schemes are 'single_image' and 'multi_image' ")
 
 
-def sign_application(toolchain, tools, binary, image_id):
+def sign_application(message_func, tools, binary, image_id):
     """
     Helper function for adding signature to binary
+    :param message_func: Function to print a status information
     :param tools: CySecureTools object
     :param binary: Path to binary file to add signature
     :param image_id: ID of image slot in which binary will be flashed
@@ -209,19 +228,21 @@ def sign_application(toolchain, tools, binary, image_id):
     address, size = tools.flash_map(image_id=image_id, image_type="BOOT")
 
     tools.sign_image(binary, image_id)
-    toolchain.notify.debug("[PSOC6.sign_image] Slot start address and size for image ID " \
+    message_func("[PSOC6.sign_image] Slot start address and size for image ID " \
                                 + str(image_id) + " is " + hex(address) + ", " + hex(size))
 
 
-def find_policy(toolchain):
+def find_policy(policy, message_func, target_name=None):
     """
     Locate path to policy file, by name defined in targets.json
-    :param toolchain: toolchain object from mbed build system
+    :param policy: Path to the policy file
+    :param message_func: Function to print a status information
+    :param target_name: Name of the Mbed target
     """
 
     mbed_os_root = Path(os.getcwd())
     
-    policy_path = Path(toolchain.target.policy_file)
+    policy_path = Path(policy)
 
     # Absolute path provided
     if policy_path.is_absolute():
@@ -236,8 +257,8 @@ def find_policy(toolchain):
 
         else:
             default_path = Path("targets/TARGET_Cypress/TARGET_PSOC6/") / \
-                                Path("TARGET_" + toolchain.target.name) / Path("policy") / \
-                                toolchain.target.policy_file
+                                Path("TARGET_" + target_name) / Path("policy") / \
+                                policy
 
             # Consider default location
             policy_file = mbed_os_root / default_path
@@ -247,17 +268,17 @@ def find_policy(toolchain):
 
 
     if os.path.exists(str(policy_file)):
-        toolchain.notify.info("Policy file found: %s." % policy_file)
+        message_func("Policy file found: %s." % policy_file)
     else:
-        toolchain.notify.info("Policy file %s not found. Aborting." % policy_path)
+        message_func("Policy file %s not found. Aborting." % policy_path)
         raise ConfigException("Required policy file not found.")
 
     return policy_file
 
 
 
-def complete(toolchain, elf0, hexf0, hexf1=None):
+def complete(message_func, elf0, hexf0, hexf1=None):
     """
     Merge CM4 and CM0 images to a single binary
     """
-    complete_func(toolchain.notify.debug, elf0, hexf0, hexf1)
+    complete_func(message_func, elf0, hexf0, hexf1)

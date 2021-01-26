@@ -29,7 +29,7 @@ MBED_OS_ROOT = abspath(path_join(SCRIPT_DIR, os.pardir, os.pardir))
 MUSCA_A1_BASE = path_join(MBED_OS_ROOT, 'targets', 'TARGET_ARM_SSG', 'TARGET_MUSCA_A1')
 
 
-def musca_tfm_bin(t_self, non_secure_bin, secure_bin):
+def musca_tfm_bin(non_secure_bin, secure_bin):
 
     assert os.path.isfile(secure_bin)
     assert os.path.isfile(non_secure_bin)
