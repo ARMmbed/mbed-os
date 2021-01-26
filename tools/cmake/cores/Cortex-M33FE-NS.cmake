@@ -8,6 +8,7 @@ if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
         "-mfpu=fpv5-sp-d16"
         "-mfloat-abi=softfp"
         "-march=armv8-m.main+dsp"
+        "-mcpu=cortex-m33"
     )
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     list(APPEND common_options
