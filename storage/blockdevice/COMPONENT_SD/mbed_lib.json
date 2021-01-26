@@ -56,6 +56,12 @@
              "SPI_CLK":  "PTD5",
              "SPI_CS":   "PTD4"
         },
+        "K64F": {
+            "SPI_CS": "SPI_CS",
+            "SPI_MOSI": "SPI_MOSI",
+            "SPI_MISO": "SPI_MISO",
+            "SPI_CLK": "SPI_SCK"
+        },
         "K66F": {
              "SPI_MOSI": "PTE3",
              "SPI_MISO": "PTE1",
