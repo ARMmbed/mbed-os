@@ -559,6 +559,7 @@ ble_error_t GattServer::insert_descriptor(
         }
 
         cccd_created = true;
+        tr_info("cccd_created=%s", to_string(cccd_created));
         attribute_it->settings |= ATTS_SET_CCC;
 
         cccds[cccd_cnt].handle = currentHandle;
@@ -1134,12 +1135,22 @@ uint8_t GattServer::atts_read_cb(
         auth_cb->read_cb.call(&read_auth_params);
 
         if (read_auth_params.authorizationReply != AUTH_CALLBACK_REPLY_SUCCESS) {
+            tr_error("Request to read attribute %d on connection %d declined with authorization reply %s",
+                     handle,
+                     connId,
+                     to_string(read_auth_params.authorizationReply & 0xFF));
+
             return read_auth_params.authorizationReply & 0xFF;
         }
 
         pAttr->pValue = read_auth_params.data;
         *pAttr->pLen = read_auth_params.len;
     }
+
+    tr_info("Read attribute %d on connection %d - value=%s",
+            handle,
+            connId,
+            mbed_trace_array(pAttr->pValue, *pAttr->pLen));
 
     GattReadCallbackParams read_params = {
         connId,
@@ -1164,6 +1175,11 @@ uint8_t GattServer::atts_write_cb(
     attsAttr_t *pAttr
 )
 {
+    tr_info("Write attribute %d on connection %d - value=%s",
+            handle,
+            connId,
+            mbed_trace_array(pValue, len));
+
     char_auth_callback* auth_cb = getInstance().get_auth_callback(handle);
     if (auth_cb && auth_cb->write_cb) {
         GattWriteAuthCallbackParams write_auth_params = {
@@ -1178,6 +1194,11 @@ uint8_t GattServer::atts_write_cb(
         auth_cb->write_cb.call(&write_auth_params);
 
         if (write_auth_params.authorizationReply != AUTH_CALLBACK_REPLY_SUCCESS) {
+            tr_error("Request to write attribute %d on connection %d declined with authorization reply %s",
+                     handle,
+                     connId,
+                     to_string(write_auth_params.authorizationReply & 0xFF));
+
             return write_auth_params.authorizationReply & 0xFF;
         }
     }
@@ -1249,6 +1270,8 @@ uint8_t GattServer::atts_write_cb(
 
 uint8_t GattServer::atts_auth_cb(dmConnId_t connId, uint8_t permit, uint16_t handle)
 {
+    tr_info("Authenticate R/W request for attribute %d on connection %d", handle, connId);
+
 #if BLE_FEATURE_SECURITY
     // this CB is triggered when read or write of an attribute (either a value
     // handle or a descriptor) requires secure connection security.
@@ -1257,10 +1280,12 @@ uint8_t GattServer::atts_auth_cb(dmConnId_t connId, uint8_t permit, uint16_t han
     link_encryption_t encryption(link_encryption_t::NOT_ENCRYPTED);
     ble_error_t err = security_manager.getLinkEncryption(connId, &encryption);
     if (err) {
+        tr_error("Insufficient authentication");
         return ATT_ERR_AUTH;
     }
 
     if (encryption != link_encryption_t::ENCRYPTED_WITH_SC_AND_MITM) {
+        tr_error("The link must be secure and authenticated with a secure connection key");
         return ATT_ERR_AUTH;
     }
 
@@ -1292,6 +1317,8 @@ void GattServer::add_generic_access_service()
     current_attribute->settings = 0;
     current_attribute->permissions = ATTS_PERMIT_READ;
 
+    tr_info("Add Generic Access Service to the Gatt Server: handle=%d", currentHandle);
+
     // device name declaration
     currentHandle += 2; // note: incremented by two to get a pointer to the value handle
     ++current_attribute;
@@ -1319,6 +1346,8 @@ void GattServer::add_generic_access_service()
     current_attribute->pValue = nullptr;
     current_attribute->settings = ATTS_SET_VARIABLE_LEN;
     current_attribute->permissions = ATTS_PERMIT_READ;
+
+    tr_info("Add Device Name characteristic: handle=%d", currentHandle);
 
     // appearance declaration
     currentHandle += 2; // note: incremented by two to get a pointer to the value handle
@@ -1348,6 +1377,7 @@ void GattServer::add_generic_access_service()
     current_attribute->settings = 0;
     current_attribute->permissions = ATTS_PERMIT_READ;
 
+    tr_info("Add Appearance characteristic: handle=%d", currentHandle);
 
     // peripheral preferred connection parameters declaration
     currentHandle += 2; // note: incremented by two to get a pointer to the value handle
@@ -1383,6 +1413,8 @@ void GattServer::add_generic_access_service()
     current_attribute->settings = 0;
     current_attribute->permissions = ATTS_PERMIT_READ;
 
+    tr_info("Add Peripheral Preferred Connection characteristic: handle=%d", currentHandle);
+
     generic_access_service.service.endHandle = currentHandle;
     AttsAddGroup(&generic_access_service.service);
 }
@@ -1407,6 +1439,8 @@ void GattServer::add_generic_attribute_service()
     current_attribute->pLen = &current_attribute->maxLen;
     current_attribute->settings = 0;
     current_attribute->permissions = ATTS_PERMIT_READ;
+
+    tr_info("Add Generic Attribute Service to the Gatt Server: handle=%d", currentHandle);
 
     // service changed declaration
     currentHandle += 2; // note: incremented by two to get a pointer to the value handle
@@ -1434,6 +1468,8 @@ void GattServer::add_generic_attribute_service()
     current_attribute->pValue = nullptr;
     current_attribute->settings = 0;
     current_attribute->permissions = 0;
+
+    tr_info("Add Service Changed characteristic: handle=%d", currentHandle);
 
     // CCCD
     ++current_attribute;
@@ -1685,7 +1721,7 @@ void GattServer::handleEvent(
 {
     switch (type) {
         case GattServerEvents::GATT_EVENT_UPDATES_ENABLED:
-
+            tr_info("Updates enabled for attribute %d on connection %d", attributeHandle, connHandle);
             if(eventHandler) {
                 GattUpdatesEnabledCallbackParams params({
                     .connHandle = connHandle,
@@ -1700,7 +1736,7 @@ void GattServer::handleEvent(
             }
             break;
         case GattServerEvents::GATT_EVENT_UPDATES_DISABLED:
-
+            tr_info("Updates disabled for attribute %d on connection %d", attributeHandle, connHandle);
             if(eventHandler) {
                 GattUpdatesDisabledCallbackParams params({
                     .connHandle = connHandle,
@@ -1715,7 +1751,7 @@ void GattServer::handleEvent(
             }
             break;
         case GattServerEvents::GATT_EVENT_CONFIRMATION_RECEIVED:
-
+            tr_info("Confirmation received for attribute %d on connection %d", attributeHandle, connHandle);
             if(eventHandler) {
                 GattConfirmationReceivedCallbackParams params({
                     .connHandle = connHandle,
@@ -1731,7 +1767,7 @@ void GattServer::handleEvent(
             break;
 
         case GattServerEvents::GATT_EVENT_DATA_SENT:
-
+            tr_info("Data sent for attribute %d on connection %d", attributeHandle, connHandle);
             if(eventHandler) {
                 GattDataSentCallbackParams params({
                     .connHandle = connHandle,

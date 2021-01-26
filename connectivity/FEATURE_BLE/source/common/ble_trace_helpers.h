@@ -18,6 +18,7 @@
 #ifndef BLE_CLIAPP_BLE_TRACE_HELPERS_H
 #define BLE_CLIAPP_BLE_TRACE_HELPERS_H
 
+#include "ble/BLE.h"
 #include "ble/SecurityManager.h"
 #include "mbed-trace/mbed_trace.h"
 #include "pal/GapTypes.h"
@@ -735,6 +736,58 @@ static inline const char* to_string(ble::att_security_requirement_t security_req
             return "AUTHENTICATED";
         case ble::att_security_requirement_t::SC_AUTHENTICATED:
             return "SC_AUTHENTICATED";
+        default:
+            return "unknown";
+    }
+}
+
+static inline const char* to_string(GattAuthCallbackReply_t authorization_reply)
+{
+    switch (authorization_reply) {
+        case AUTH_CALLBACK_REPLY_SUCCESS:
+            return "SUCCESS";
+        case AUTH_CALLBACK_REPLY_ATTERR_INVALID_HANDLE:
+            return "INVALID_HANDLE";
+        case AUTH_CALLBACK_REPLY_ATTERR_READ_NOT_PERMITTED:
+            return "READ_NOT_PERMITTED";
+        case AUTH_CALLBACK_REPLY_ATTERR_WRITE_NOT_PERMITTED:
+            return "WRITE_NOT_PERMITTED";
+        case AUTH_CALLBACK_REPLY_ATTERR_INVALID_PDU:
+            return "INVALID_PDU";
+        case AUTH_CALLBACK_REPLY_ATTERR_INSUFFICIENT_AUTHENTICATION:
+            return "INSUFFICIENT_AUTHENTICATION";
+        case AUTH_CALLBACK_REPLY_ATTERR_REQUEST_NOT_SUPPORTED:
+            return "REQUEST_NOT_SUPPORTED";
+        case AUTH_CALLBACK_REPLY_ATTERR_INVALID_OFFSET:
+            return "INVALID_OFFSET";
+        case AUTH_CALLBACK_REPLY_ATTERR_INSUFFICIENT_AUTHORIZATION:
+            return "INSUFFICIENT_AUTHORIZATION";
+        case AUTH_CALLBACK_REPLY_ATTERR_PREPARE_QUEUE_FULL:
+            return "PREPARE_QUEUE_FULL";
+        case AUTH_CALLBACK_REPLY_ATTERR_ATTRIBUTE_NOT_FOUND:
+            return "ATTRIBUTE_NOT_FOUND";
+        case AUTH_CALLBACK_REPLY_ATTERR_ATTRIBUTE_NOT_LONG:
+            return "ATTRIBUTE_NOT_LONG";
+        case AUTH_CALLBACK_REPLY_ATTERR_INSUFFICIENT_ENCRYPTION_KEY_SIZE:
+            return "INSUFFICIENT_ENCRYPTION_KEY_SIZE";
+        case AUTH_CALLBACK_REPLY_ATTERR_INVALID_ATTRIBUTE_VALUE_LENGTH:
+            return "INVALID_ATTRIBUTE_VALUE_LENGTH";
+        case AUTH_CALLBACK_REPLY_ATTERR_UNLIKELY_ERROR:
+            return "UNLIKELY_ERROR";
+        case AUTH_CALLBACK_REPLY_ATTERR_INSUFFICIENT_ENCRYPTION:
+            return "INSUFFICIENT_ENCRYPTION";
+        case AUTH_CALLBACK_REPLY_ATTERR_UNSUPPORTED_GROUP_TYPE:
+            return "UNSUPPORTED_GROUP_TYPE";
+        case AUTH_CALLBACK_REPLY_ATTERR_INSUFFICIENT_RESOURCES:
+            return "INSUFFICIENT_RESOURCES";
+        case AUTH_CALLBACK_REPLY_ATTERR_WRITE_REQUEST_REJECTED:
+            return "WRITE_REQUEST_REJECTED";
+        case AUTH_CALLBACK_REPLY_ATTERR_CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR_IMPROPERLY_CONFIGURED:
+            return "CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR_IMPROPERLY_CONFIGURED";
+        case AUTH_CALLBACK_REPLY_ATTERR_PROCEDURE_ALREADY_IN_PROGRESS:
+            return "PROCEDURE_ALREADY_IN_PROGRESS";
+        case AUTH_CALLBACK_REPLY_ATTERR_OUT_OF_RANGE:
+            return "OUT_OF_RANGE";
         default:
             return "unknown";
     }
