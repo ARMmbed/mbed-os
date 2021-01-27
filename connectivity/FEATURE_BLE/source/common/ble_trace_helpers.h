@@ -56,10 +56,10 @@ static inline char* to_string(const UUID& uuid)
     static char string_buffer[Row_Count][UUID::LENGTH_OF_LONG_UUID + /* Number of hyphen delimiters =*/ 4];
     static uint8_t idx = 0;
 
+    ++idx;
+
     if (idx == Row_Count) {
         idx= 0;
-    } else {
-        idx++;
     }
 
     char* p1  = (char *)Buffer + Length - 1;
