@@ -47,42 +47,39 @@ static inline const char* tr_as_array(T item)
 
 static inline char* to_string(const UUID& uuid)
 {
-    const uint8_t* Buffer    = uuid.getBaseUUID();
-    const uint8_t  Length    = uuid.getLen();
-    const  size_t  Row_Count = 4;
+    static constexpr const  size_t  ROW_COUNT = 4;
+    static constexpr const char *HEX = "0123456789ABCDEF";
+    static constexpr const size_t HYPHENS_DELIMITER_COUNT = 4;
 
-    const char *Hex = "0123456789ABCDEF";
-
-    static char string_buffer[Row_Count][UUID::LENGTH_OF_LONG_UUID + /* Number of hyphen delimiters =*/ 4];
+    static char string_buffer[ROW_COUNT][UUID::LENGTH_OF_LONG_UUID + HYPHENS_DELIMITER_COUNT];
     static uint8_t idx = 0;
 
     ++idx;
 
-    if (idx == Row_Count) {
+    if (idx == ROW_COUNT) {
         idx= 0;
     }
 
-    char* p1  = (char *)Buffer + Length - 1;
-    char* p2  = string_buffer[idx];
+    const uint8_t  length = uuid.getLen();
+    const char* reader  = (const char *) uuid.getBaseUUID() + length - 1;
+    char* writer  = string_buffer[idx];
 
-    if (Length == UUID::LENGTH_OF_LONG_UUID) {
-        const uint8_t format[] = {4, 2, 2, 2, 6};
-        for ( uint8_t i: format) {
-            size_t j = 0;
-            for (; j < i; ++j) {
-                *p2++ = Hex[(*p1 >> 4) & 0xF];
-                *p2++ = Hex[(*p1--)    & 0xF];
+    if (length == UUID::LENGTH_OF_LONG_UUID) {
+        constexpr uint8_t format[] = {4, 2, 2, 2, 6};
+        for ( uint8_t char_count: format) {
+            for (size_t i = 0; i < char_count; ++i) {
+                *writer++ = HEX[(*reader >> 4) & 0xF];
+                *writer++ = HEX[(*reader--)    & 0xF];
             }
-            *p2++ = '-';
+            *writer++ = '-';
         }
-        *--p2 = 0;
+        *--writer = 0;
     } else {
-        size_t i = 0;
-        for (; i < Length; ++i) {
-            *p2++ = Hex[(*p1 >> 4) & 0xF];
-            *p2++ = Hex[(*p1--)    & 0xF];
+        for (size_t i = 0; i < length; ++i) {
+            *writer++ = HEX[(*reader >> 4) & 0xF];
+            *writer++ = HEX[(*reader--)    & 0xF];
         }
-        *p2 = 0;
+        *writer = 0;
     }
 
     return string_buffer[idx];
