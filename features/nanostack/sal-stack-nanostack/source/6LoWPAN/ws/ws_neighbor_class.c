@@ -254,7 +254,7 @@ void ws_neighbor_class_neighbor_unicast_schedule_set(ws_neighbor_class_entry_t *
     } else {
 
         if (ws_us->channel_plan == 0) {
-            ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = ws_common_channel_number_calc(ws_us->plan.zero.regulator_domain, ws_us->plan.zero.operation_class);
+            ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = ws_common_channel_number_calc(ws_us->plan.zero.regulator_domain, ws_us->plan.zero.operation_class, own_shedule->channel_plan_id);
         } else if (ws_us->channel_plan == 1) {
             ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = ws_us->plan.one.number_of_channel;
 
@@ -262,16 +262,16 @@ void ws_neighbor_class_neighbor_unicast_schedule_set(ws_neighbor_class_entry_t *
 
         //Handle excluded channel and generate activate channel list
         if (ws_us->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE) {
-            ws_generate_channel_list(ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels, own_shedule->regulatory_domain, own_shedule->operating_class);
+            ws_generate_channel_list(ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels, own_shedule->regulatory_domain, own_shedule->operating_class, own_shedule->channel_plan_id);
             ws_neighbor->fhss_data.uc_channel_list.channel_count = ws_active_channel_count(ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
             ws_neighbour_excluded_mask_by_range(&ws_neighbor->fhss_data.uc_channel_list, &ws_us->excluded_channels.range, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
         } else if (ws_us->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK) {
-            ws_generate_channel_list(ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels, own_shedule->regulatory_domain, own_shedule->operating_class);
+            ws_generate_channel_list(ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels, own_shedule->regulatory_domain, own_shedule->operating_class, own_shedule->channel_plan_id);
             ws_neighbor->fhss_data.uc_channel_list.channel_count = ws_active_channel_count(ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
             ws_neighbour_excluded_mask_by_mask(&ws_neighbor->fhss_data.uc_channel_list, &ws_us->excluded_channels.mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
         } else if (ws_us->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_NONE) {
             if (ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels != ws_neighbor->fhss_data.uc_channel_list.channel_count) {
-                ws_generate_channel_list(ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels, own_shedule->regulatory_domain, own_shedule->operating_class);
+                ws_generate_channel_list(ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels, own_shedule->regulatory_domain, own_shedule->operating_class, own_shedule->channel_plan_id);
                 ws_neighbor->fhss_data.uc_channel_list.channel_count = ws_active_channel_count(ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
             }
         }

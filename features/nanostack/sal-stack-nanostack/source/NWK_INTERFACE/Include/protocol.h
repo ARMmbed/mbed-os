@@ -124,6 +124,7 @@ typedef enum icmp_state {
     ER_BOOTSTRAP_NEW_FRAGMENT_START,
     ER_WAIT_RESTART,
     ER_RPL_LOCAL_REPAIR,
+    ER_RPL_NETWORK_LEAVING,
 } icmp_state_t;
 
 typedef enum {

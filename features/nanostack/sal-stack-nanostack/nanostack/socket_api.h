@@ -196,7 +196,7 @@ typedef struct socket_callback_t {
 } socket_callback_t;
 
 /*!
- * \struct ns_msghdr_t
+ * \struct ns_msghdr
  * \brief Normal IP socket message structure for socket_recvmsg() and socket_sendmsg().
  */
 
@@ -211,7 +211,7 @@ typedef struct ns_msghdr {
 } ns_msghdr_t;
 
 /*!
- * \struct ns_cmsghdr_t
+ * \struct ns_cmsghdr
  * \brief Control messages.
  */
 typedef struct ns_cmsghdr {
@@ -242,7 +242,7 @@ typedef struct ns_cmsghdr {
 #define NS_MSG_LEGACY0  0x4000
 ///@}
 /*!
- * \struct ns_in6_pktinfo_t
+ * \struct ns_in6_pktinfo
  * \brief IPv6 packet info which is used for socket_recvmsg() socket_sendmsg().
  */
 typedef struct ns_in6_pktinfo {

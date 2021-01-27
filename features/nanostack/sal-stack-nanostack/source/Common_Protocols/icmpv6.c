@@ -357,6 +357,7 @@ static void icmpv6_na_wisun_aro_handler(protocol_interface_info_entry_t *cur_int
 
     (void)life_time;
     if (nd_status != ARO_SUCCESS) {
+        ws_common_black_list_neighbour(src_addr, nd_status);
         ws_common_aro_failure(cur_interface, src_addr);
     }
 }
@@ -1447,7 +1448,7 @@ static void icmpv6_aro_cb(buffer_t *buf, uint8_t status)
         ll_address[8] ^= 2;
     }
     if (rpl_control_address_register_done(buf->interface, ll_address, status)) {
-        // When RPL returns true neighbor should be blacklisted
+        // When RPL returns true neighbor should be deleted
         ws_common_aro_failure(buf->interface, ll_address);
     }
 }

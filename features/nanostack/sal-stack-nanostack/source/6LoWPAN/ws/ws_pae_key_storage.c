@@ -186,6 +186,7 @@ static int8_t ws_pae_key_storage_allocate(const void *instance, uint16_t key_sto
     if (new_storage_array == NULL) {
         key_storage_array->storage_array_handle = ns_dyn_mem_alloc(key_storage_size);
         if (!key_storage_array->storage_array_handle) {
+            ns_dyn_mem_free(key_storage_array);
             return -1;
         }
         key_storage_array->allocated = true;

@@ -69,7 +69,12 @@ extern "C" {
 #define MBED_CONF_MBED_TRACE_ENABLE 0
 #endif
 
-#ifndef MBED_CONF_MBED_TRACE_FEA_IPV6
+#ifndef MBED_CONF_NANOSTACK_LIBSERVICE_PRESENT
+/* if libservice presence is not configured, enable it by default */
+#define MBED_CONF_NANOSTACK_LIBSERVICE_PRESENT 1
+#endif
+
+#if !defined(MBED_CONF_MBED_TRACE_FEA_IPV6) && MBED_CONF_NANOSTACK_LIBSERVICE_PRESENT
 #define MBED_CONF_MBED_TRACE_FEA_IPV6 1
 #endif
 

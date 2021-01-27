@@ -55,6 +55,7 @@
 #include "RPL/rpl_downward.h"
 #include "RPL/rpl_policy.h"
 #include "RPL/rpl_control.h"
+#include "6LoWPAN/ws/ws_common.h"
 
 #define TRACE_GROUP "rplc"
 
@@ -202,6 +203,12 @@ void rpl_control_set_initial_dao_ack_wait(uint16_t timeout_in_ms)
 void rpl_control_set_mrhof_parent_set_size(uint16_t parent_set_size)
 {
     rpl_policy_set_mrhof_parent_set_size(parent_set_size);
+}
+
+/* True Force RPL to use IPv6 tunneling when it send and forward data to Border router direction, This feature is disabled by default  */
+void rpl_control_set_force_tunnel(bool requested)
+{
+    rpl_policy_force_tunnel_set(requested);
 }
 
 /* Send address registration to either specified address, or to non-registered address */
@@ -399,6 +406,7 @@ static void rpl_control_etx_change_callback(int8_t  nwk_id, uint16_t previous_et
     if (!cur || !cur->rpl_domain) {
         return;
     }
+    (void) attribute_index;
     // ETX is "better" if now lower, or previous was "unknown" and new isn't infinite
     bool better = current_etx < previous_etx || (previous_etx == 0 && current_etx != 0xffff);
 
@@ -879,6 +887,11 @@ static void rpl_control_process_prefix_options(protocol_interface_info_entry_t *
         uint32_t preferred = common_read_32_bit(ptr + 8);
         const uint8_t *prefix = ptr + 16;
 
+        if (ws_info(cur)) {
+            //For Wi-SUN Interoperability force length to 64
+            prefix_len = 64;
+        }
+
         if (rpl_upward_accept_prefix_update(dodag, neighbour, pref_parent)) {
 
             /* Store prefixes for possible forwarding */
@@ -1169,6 +1182,23 @@ malformed:
         goto invalid_parent;
     }
 
+    /* RFC 6550 8.3: A DIO from a sender with lesser DAGRank that causes no
+     * changes to the recipient's parent set, preferred parent, or Rank SHOULD
+     * be considered consistent with respect to the Trickle timer.
+     *
+     * Now, if we don't run parent selection immediately, how do we know if it's
+     * consistent or not? Compromise is to treat all lower ranked DIOs as
+     * consistent, and reset (and hold) the consistent counter to 0 if any of
+     * the above change. This actually seems better than the RFC 6550 rule, as
+     * it guarantees we will transmit if those change. The rule as stated
+     * would mean a large number of parent messages would stop us advertising
+     * a Rank change.
+     */
+    if (version == rpl_instance_current_dodag_version(instance) &&
+            (rpl_rank_compare(dodag, rank, rpl_instance_current_rank(instance)) & RPL_CMP_LESS)) {
+        rpl_instance_consistent_rx(instance);
+    }
+
     /* Now we create the neighbour, if we don't already have a record */
     if (!neighbour) {
 
@@ -1206,23 +1236,6 @@ malformed:
 
     if (become_leaf) {
         rpl_dodag_set_leaf(dodag, true);
-    }
-
-    /* RFC 6550 8.3: A DIO from a sender with lesser DAGRank that causes no
-     * changes to the recipient's parent set, preferred parent, or Rank SHOULD
-     * be considered consistent with respect to the Trickle timer.
-     *
-     * Now, if we don't run parent selection immediately, how do we know if it's
-     * consistent or not? Compromise is to treat all lower ranked DIOs as
-     * consistent, and reset (and hold) the consistent counter to 0 if any of
-     * the above change. This actually seems better than the RFC 6550 rule, as
-     * it guarantees we will transmit if those change. The rule as stated
-     * would mean a large number of parent messages would stop us advertising
-     * a Rank change.
-     */
-    if (version == rpl_instance_current_dodag_version(instance) &&
-            (rpl_rank_compare(dodag, rank, rpl_instance_current_rank(instance)) & RPL_CMP_LESS)) {
-        rpl_instance_consistent_rx(instance);
     }
 
     rpl_instance_neighbours_changed(instance, dodag);

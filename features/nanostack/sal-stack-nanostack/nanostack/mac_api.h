@@ -78,7 +78,7 @@ typedef enum {
 } mlme_primitive;
 
 /**
- * \struct mac_description_storage_size_t
+ * \struct mac_description_storage_size_s
  * \brief Container for MAC storage sizes.
  */
 typedef struct mac_description_storage_size_s {
@@ -305,7 +305,7 @@ struct mac_api_s {
 };
 
 /**
- * \struct mac_statistics_t
+ * \struct mac_statistics_s
  * \brief MAC statistics structure.
  */
 typedef struct mac_statistics_s {

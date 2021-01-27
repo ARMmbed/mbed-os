@@ -79,6 +79,32 @@ typedef union {
     ws_sec_prot_cfg_t sec_prot;
 } ws_cfgs_t;
 
+
+typedef struct cfg_devices_in_config {
+    uint8_t max_for_small;
+    uint8_t max_for_medium;
+    uint8_t max_for_large;
+    uint8_t max_for_xlarge;
+} cfg_devices_in_config_t;
+
+/* Table for amount of devices that certain configuration should be used
+ *
+ * larger data rates allow more devices to be used with faster settings.
+ *
+ * For example with network the size of 2000 devices we use
+ * Xlrage configuration with 50kbs data rate.
+ * Large configuration with 300kbs data rate.
+ * and with 600kbs data rate it is possible to use medium network settings.
+ *
+ */
+const cfg_devices_in_config_t devices_by_datarate[] = {
+    { 1,  4, 10,  25}, // Configuration for 50 -100kbs
+    { 1,  8, 15,  25}, // Configuration for 150kbs - 200kbs
+    { 2, 15, 25,  50}, // Configuration for 300kbs
+    { 3, 20, 40, 100}, // Configuration for 600kbs - 2400kbs
+};
+
+
 static int8_t ws_cfg_to_get(ws_cfgs_t **cfg, ws_cfgs_t *new_cfg, ws_cfg_validate valid_cb, ws_cfgs_t *external_cfg, uint8_t *cfg_flags, uint8_t *flags);
 
 static void ws_cfg_network_size_config_set_small(ws_cfg_nw_size_t *cfg);
@@ -258,13 +284,13 @@ int8_t ws_cfg_network_size_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_
 
     ws_cfg_network_size_config_set_size set_function = NULL;
 
-    if (cfg->network_size == NETWORK_SIZE_CERTIFICATE) {
+    if (ws_cfg_network_config_get(cur) == CONFIG_CERTIFICATE) {
         set_function = ws_cfg_network_size_config_set_certificate;
-    } else if (cfg->network_size <= NETWORK_SIZE_SMALL || cfg->network_size == NETWORK_SIZE_AUTOMATIC) {
+    } else if (ws_cfg_network_config_get(cur) == CONFIG_SMALL || cfg->network_size == NETWORK_SIZE_AUTOMATIC) {
         set_function = ws_cfg_network_size_config_set_small;
-    } else if (cfg->network_size <=  NETWORK_SIZE_MEDIUM) {
+    } else if (ws_cfg_network_config_get(cur) == CONFIG_MEDIUM) {
         set_function = ws_cfg_network_size_config_set_medium;
-    } else if (cfg->network_size <=  NETWORK_SIZE_LARGE) {
+    } else if (ws_cfg_network_config_get(cur) == CONFIG_LARGE) {
         set_function = ws_cfg_network_size_config_set_large;
     } else {
         set_function = ws_cfg_network_size_config_set_xlarge;
@@ -358,6 +384,47 @@ int8_t ws_cfg_network_size_configure(protocol_interface_info_entry_t *cur, uint1
     ws_cfg_mpl_set(cur, &ws_cfg.mpl, &new_nw_size_cfg.mpl, &flags);
 
     return CFG_SETTINGS_OK;
+}
+
+cfg_network_size_type_e ws_cfg_network_config_get(protocol_interface_info_entry_t *cur)
+{
+    // Get size of the network Amount of devices in the network
+    // Get the data rate of the network
+    // Adjust the configuration type based on the network size and data rate
+
+    (void)cur;
+
+    ws_gen_cfg_t cfg;
+    if (ws_cfg_gen_get(&cfg, NULL) < 0) {
+        return CONFIG_SMALL;
+    }
+    ws_phy_cfg_t phy_cfg;
+    if (ws_cfg_phy_get(&phy_cfg, NULL) < 0) {
+        return CONFIG_SMALL;
+    }
+
+    uint32_t data_rate = ws_get_datarate_using_operating_mode(phy_cfg.operating_mode);
+    uint8_t index;
+    if (data_rate < 150000) {
+        index = 0;
+    } else if (data_rate < 300000) {
+        index = 1;
+    } else if (data_rate < 600000) {
+        index = 2;
+    } else {
+        index = 3;
+    }
+
+    if (cfg.network_size == NETWORK_SIZE_CERTIFICATE) {
+        return CONFIG_CERTIFICATE;
+    } else if (cfg.network_size <= devices_by_datarate[index].max_for_small) {
+        return CONFIG_SMALL;
+    } else if (cfg.network_size <= devices_by_datarate[index].max_for_medium) {
+        return CONFIG_MEDIUM;
+    } else if (cfg.network_size <= devices_by_datarate[index].max_for_large) {
+        return CONFIG_LARGE;
+    }
+    return CONFIG_XLARGE;
 }
 
 
@@ -651,6 +718,8 @@ int8_t ws_cfg_phy_default_set(ws_phy_cfg_t *cfg)
     cfg->regulatory_domain = REG_DOMAIN_EU;
     cfg->operating_mode = OPERATING_MODE_3;
     cfg->operating_class = 2;
+    cfg->phy_mode_id = 255;
+    cfg->channel_plan_id = 255;
 
     return CFG_SETTINGS_OK;
 }
@@ -671,12 +740,16 @@ int8_t ws_cfg_phy_validate(ws_phy_cfg_t *cfg, ws_phy_cfg_t *new_cfg)
     // Regulator domain, operating mode or class has changed
     if (cfg->regulatory_domain != new_cfg->regulatory_domain ||
             cfg->operating_mode != new_cfg->operating_mode ||
-            cfg->operating_class != new_cfg->operating_class) {
+            cfg->operating_class != new_cfg->operating_class ||
+            cfg->phy_mode_id != new_cfg->phy_mode_id ||
+            cfg->channel_plan_id != new_cfg->channel_plan_id) {
 
         ws_hopping_schedule_t hopping_schdule = {
             .regulatory_domain = new_cfg->regulatory_domain,
             .operating_mode = new_cfg->operating_mode,
-            .operating_class = new_cfg->operating_class
+            .operating_class = new_cfg->operating_class,
+            .phy_mode_id = new_cfg->phy_mode_id,
+            .channel_plan_id = new_cfg->channel_plan_id
         };
 
         // Check that new settings are valid
@@ -698,11 +771,31 @@ int8_t ws_cfg_phy_set(protocol_interface_info_entry_t *cur, ws_phy_cfg_t *cfg, w
     if (ret != CFG_SETTINGS_CHANGED) {
         return ret;
     }
-
     // Check settings and configure interface
     if (cur && !(cfg_flags & CFG_FLAGS_DISABLE_VAL_SET)) {
+        // Set operating mode for FSK if given with PHY mode ID
+        if ((new_cfg->phy_mode_id == 1) || (new_cfg->phy_mode_id == 17)) {
+            cur->ws_info->hopping_schdule.operating_mode = OPERATING_MODE_1a;
+        } else if ((new_cfg->phy_mode_id == 2) || (new_cfg->phy_mode_id == 18)) {
+            cur->ws_info->hopping_schdule.operating_mode = OPERATING_MODE_1b;
+        } else if ((new_cfg->phy_mode_id == 3) || (new_cfg->phy_mode_id == 19)) {
+            cur->ws_info->hopping_schdule.operating_mode = OPERATING_MODE_2a;
+        } else if ((new_cfg->phy_mode_id == 4) || (new_cfg->phy_mode_id == 20)) {
+            cur->ws_info->hopping_schdule.operating_mode = OPERATING_MODE_2b;
+        } else if ((new_cfg->phy_mode_id == 5) || (new_cfg->phy_mode_id == 21)) {
+            cur->ws_info->hopping_schdule.operating_mode = OPERATING_MODE_3;
+        } else if ((new_cfg->phy_mode_id == 6) || (new_cfg->phy_mode_id == 22)) {
+            cur->ws_info->hopping_schdule.operating_mode = OPERATING_MODE_4a;
+        } else if ((new_cfg->phy_mode_id == 7) || (new_cfg->phy_mode_id == 23)) {
+            cur->ws_info->hopping_schdule.operating_mode = OPERATING_MODE_4b;
+        } else if ((new_cfg->phy_mode_id == 8) || (new_cfg->phy_mode_id == 24)) {
+            cur->ws_info->hopping_schdule.operating_mode = OPERATING_MODE_5;
+        } else {
+            cur->ws_info->hopping_schdule.operating_mode = new_cfg->operating_mode;
+        }
+        cur->ws_info->hopping_schdule.phy_mode_id = new_cfg->phy_mode_id;
+        cur->ws_info->hopping_schdule.channel_plan_id = new_cfg->channel_plan_id;
         cur->ws_info->hopping_schdule.regulatory_domain = new_cfg->regulatory_domain;
-        cur->ws_info->hopping_schdule.operating_mode = new_cfg->operating_mode;
         cur->ws_info->hopping_schdule.operating_class = new_cfg->operating_class;
 
         if (ws_common_regulatory_domain_config(cur, &cur->ws_info->hopping_schdule) < 0) {

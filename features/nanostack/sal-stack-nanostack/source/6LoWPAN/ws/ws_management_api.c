@@ -156,6 +156,74 @@ int ws_management_network_name_validate(
     return 0;
 }
 
+int ws_management_phy_mode_id_set(
+    int8_t interface_id,
+    uint8_t phy_mode_id)
+{
+    protocol_interface_info_entry_t *cur;
+
+    cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (interface_id >= 0 && (!cur || !ws_info(cur))) {
+        return -1;
+    }
+
+    ws_phy_cfg_t cfg;
+    ws_phy_cfg_t cfg_default;
+    if (ws_cfg_phy_get(&cfg, NULL) < 0) {
+        return -3;
+    }
+
+    if (ws_cfg_phy_default_set(&cfg_default) < 0) {
+        return -3;
+    }
+
+    if (phy_mode_id != 255) {
+        cfg.phy_mode_id = phy_mode_id;
+    } else {
+        cfg.phy_mode_id = cfg_default.phy_mode_id;
+    }
+
+    if (ws_cfg_phy_set(cur, NULL, &cfg, 0) < 0) {
+        return -4;
+    }
+
+    return 0;
+}
+
+int ws_management_channel_plan_id_set(
+    int8_t interface_id,
+    uint8_t channel_plan_id)
+{
+    protocol_interface_info_entry_t *cur;
+
+    cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (interface_id >= 0 && (!cur || !ws_info(cur))) {
+        return -1;
+    }
+
+    ws_phy_cfg_t cfg;
+    ws_phy_cfg_t cfg_default;
+    if (ws_cfg_phy_get(&cfg, NULL) < 0) {
+        return -3;
+    }
+
+    if (ws_cfg_phy_default_set(&cfg_default) < 0) {
+        return -3;
+    }
+
+    if (channel_plan_id != 255) {
+        cfg.channel_plan_id = channel_plan_id;
+    } else {
+        cfg.channel_plan_id = cfg_default.channel_plan_id;
+    }
+
+    if (ws_cfg_phy_set(cur, NULL, &cfg, 0) < 0) {
+        return -4;
+    }
+
+    return 0;
+}
+
 int ws_management_regulatory_domain_set(
     int8_t interface_id,
     uint8_t regulatory_domain,

@@ -110,6 +110,15 @@ typedef struct {
 
 #define LOWPAN_ACTIVE_UNICAST_ONGOING_MAX 10
 
+/* Minimum buffer amount and memory size to ensure operation even in out of memory situation
+ */
+#define LOWPAN_MEM_LIMIT_MIN_QUEUE 10
+#define LOWPAN_MEM_LIMIT_MIN_MEMORY 10000
+#define LOWPAN_MEM_LIMIT_REMOVE_NORMAL 3000 // Remove when approaching memory limit
+#define LOWPAN_MEM_LIMIT_REMOVE_MAX 10000 // Remove when at memory limit
+
+
+
 static NS_LIST_DEFINE(fragmenter_interface_list, fragmenter_interface_t, link);
 
 /* Adaptation interface local functions */
@@ -493,6 +502,63 @@ int8_t lowpan_adaptation_interface_mpx_register(int8_t interface_id, struct mpx_
     return 0;
 }
 
+void lowpan_adaptation_free_heap(bool full_gc)
+{
+    ns_list_foreach(fragmenter_interface_t, interface_ptr, &fragmenter_interface_list) {
+        // Go through all interfaces and free small amount of memory
+        // This is not very radical, but gives time to recover wthout causing too harsh changes
+        lowpan_adaptation_free_low_priority_packets(interface_ptr->interface_id, full_gc ? LOWPAN_MEM_LIMIT_REMOVE_MAX : LOWPAN_MEM_LIMIT_REMOVE_NORMAL);
+    }
+}
+
+int8_t lowpan_adaptation_free_low_priority_packets(int8_t interface_id, uint32_t requested_amount)
+{
+    fragmenter_interface_t *interface_ptr = lowpan_adaptation_interface_discover(interface_id);
+
+    if (!interface_ptr) {
+        return -1;
+    }
+    uint32_t adaptation_memory = 0;
+    uint16_t adaptation_packets = 0;
+    uint32_t memory_freed = 0;
+    uint16_t packets_freed = 0;
+
+    ns_list_foreach(buffer_t, entry, &interface_ptr->directTxQueue) {
+        adaptation_memory += sizeof(buffer_t) + entry->size;
+        adaptation_packets++;
+    }
+
+    if (interface_ptr->directTxQueue_size < LOWPAN_MEM_LIMIT_MIN_QUEUE) {
+        // Minimum reserved for operations
+        return 0;
+    }
+    if (adaptation_memory < LOWPAN_MEM_LIMIT_MIN_MEMORY) {
+        // Minimum reserved for operations
+        return 0;
+    }
+    if (adaptation_memory - requested_amount < LOWPAN_MEM_LIMIT_MIN_MEMORY) {
+        // only reduse to minimum
+        requested_amount = adaptation_memory - LOWPAN_MEM_LIMIT_MIN_MEMORY;
+    }
+
+    //Only remove last entries from TX queue with low priority
+    ns_list_foreach_reverse_safe(buffer_t, entry, &interface_ptr->directTxQueue) {
+        if (entry->priority == QOS_NORMAL) {
+            memory_freed += sizeof(buffer_t) + entry->size;
+            packets_freed++;
+            ns_list_remove(&interface_ptr->directTxQueue, entry);
+            interface_ptr->directTxQueue_size--;
+            lowpan_adaptation_tx_queue_level_update(interface_ptr);
+            socket_tx_buffer_event_and_free(entry, SOCKET_TX_FAIL);
+        }
+        if (memory_freed > requested_amount) {
+            // Enough memory freed
+            break;
+        }
+    }
+    tr_info("Adaptation Free low priority packets memory: %" PRIi32 " queue: %d deallocated %" PRIi32 " bytes, %d packets, %" PRIi32 " requested", adaptation_memory, adaptation_packets, memory_freed, packets_freed, requested_amount);
+    return 0;
+}
 
 static fragmenter_tx_entry_t *lowpan_indirect_entry_allocate(uint16_t fragment_buffer_size)
 {
@@ -1561,7 +1627,6 @@ int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct protocol_in
 
     return 0;
 }
-
 
 int8_t lowpan_adaptation_indirect_queue_params_set(struct protocol_interface_info_entry *cur, uint16_t indirect_big_packet_threshold, uint16_t max_indirect_big_packets_total, uint16_t max_indirect_small_packets_per_child)
 {

@@ -885,9 +885,24 @@ void rpl_instance_send_dao_update(rpl_instance_t *instance)
     instance->requested_dao_ack = need_ack;
     instance->dao_in_transit = true;
     if (instance->dao_attempt < 16) {
-        uint32_t t = (uint32_t) rpl_policy_initial_dao_ack_wait(instance->domain, mop) << instance->dao_attempt;
-        t = randLIB_randomise_base(t, 0x4000, 0xC000);
-        instance->dao_retry_timer = t <= 0xffff ? t : 0xffff;
+
+        uint32_t delay = rpl_policy_initial_dao_ack_wait(instance->domain, mop);
+        if (delay < dodag->dio_timer_params.Imin) {
+            //Use Imin Based on delay if it is longer than cache retry
+            delay = dodag->dio_timer_params.Imin;
+        }
+        //Multiply Delay by attempt
+        delay = delay << instance->dao_attempt;
+
+        if (delay > 5400) {
+            //MAX base 540 seconds (9min)
+            delay = 5400;
+        }
+
+        // 0.5 - 1.5 *t randomized base delay
+        delay = randLIB_randomise_base(delay, 0x4000, 0xC000);
+
+        instance->dao_retry_timer = delay;
     } else {
         instance->dao_retry_timer = 0xffff;
     }

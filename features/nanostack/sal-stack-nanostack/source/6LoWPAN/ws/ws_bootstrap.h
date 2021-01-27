@@ -24,7 +24,9 @@ typedef enum {
     WS_DISCOVERY_START,      /**< discovery start*/
     WS_CONFIGURATION_START,  /**< configuration learn start*/
     WS_OPERATION_START,      /**< active operation start*/
-    WS_ROUTING_READY        /**< RPL routing connected to BR*/
+    WS_ROUTING_READY,        /**< RPL routing connected to BR*/
+    WS_FAST_DISCONNECT,      /**< Do fast timeout after Border router timeout*/
+    WS_NORMAL_DISCONNECT     /**< Border have been rebooted so Slow poison Process*/
 } ws_bootsrap_event_type_e;
 
 #ifdef HAVE_WS
@@ -59,6 +61,8 @@ void ws_bootstrap_event_authentication_start(protocol_interface_info_entry_t *cu
 void ws_bootstrap_event_operation_start(protocol_interface_info_entry_t *cur);
 
 void ws_bootstrap_event_routing_ready(protocol_interface_info_entry_t *cur);
+
+void ws_bootstrap_event_disconnect(protocol_interface_info_entry_t *cur, ws_bootsrap_event_type_e event_type);
 
 void ws_bootstrap_configuration_trickle_reset(protocol_interface_info_entry_t *cur);
 
