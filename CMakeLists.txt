@@ -23,7 +23,6 @@ target_link_libraries(mbed-baremetal
     INTERFACE
         mbed-core
 )
-
 # Validate selected C library type
 # The C library type selected has to match the library that the target can support
 if(${MBED_C_LIB} STREQUAL "small")
@@ -35,7 +34,7 @@ if(${MBED_C_LIB} STREQUAL "small")
                 " we are using the standard C library instead."
             )
             set(MBED_C_LIB "std" CACHE STRING "")
-        endif() 
+        endif()
     endif()
 elseif(NOT ${MBED_C_LIB} IN_LIST MBED_TARGET_SUPPORTED_C_LIBS)
     message(FATAL_ERROR
@@ -67,7 +66,7 @@ target_compile_definitions(mbed-core
 
 # Add compile definitions for backward compatibility with the toolchain
 # supported. New source files should instead check for __GNUC__ and __clang__
-# for the GCC_ARM and ARM toolchains respectively. 
+# for the GCC_ARM and ARM toolchains respectively.
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     target_compile_definitions(mbed-core
         INTERFACE
