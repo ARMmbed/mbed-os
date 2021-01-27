@@ -2986,7 +2986,7 @@ bool Gap::apply_peripheral_privacy_connection_policy(
             }
             tr_info("Connection %d: disconnecting - reason=%s",
                     event.getConnectionHandle(),
-                    to_string(local_disconnection_reason_t::AUTHENTICATION_FAILURE));
+                    to_string(local_disconnection_reason_t{local_disconnection_reason_t::AUTHENTICATION_FAILURE}));
             _pal_gap.disconnect(
                 connection_handle,
                 local_disconnection_reason_t::AUTHENTICATION_FAILURE
