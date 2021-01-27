@@ -90,6 +90,14 @@ FileSecurityDb::~FileSecurityDb()
     fclose(_db_file);
 }
 
+FileSecurityDb::entry_t* FileSecurityDb::as_entry(entry_handle_t db_handle) {
+    entry_t* entry = reinterpret_cast<entry_t*>(db_handle);
+    if (!entry) {
+        tr_error("Invalid security DB handle used");
+    }
+    return entry;
+}
+
 FILE* FileSecurityDb::open_db_file(const char *db_path)
 {
     if (!db_path) {
