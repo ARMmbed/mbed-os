@@ -24,9 +24,6 @@
 #include <stdio.h>
 
 #include "SecurityDb.h"
-#include "mbed-trace/mbed_trace.h"
-
-#define TRACE_GROUP "BLDB"
 
 namespace ble {
 
@@ -40,13 +37,7 @@ private:
         size_t file_offset;
     };
 
-    static entry_t* as_entry(entry_handle_t db_handle) {
-        entry_t* entry = reinterpret_cast<entry_t*>(db_handle);
-        if (!entry) {
-            tr_error("Invalid security DB handle used");
-        }
-        return entry;
-    }
+    static entry_t* as_entry(entry_handle_t db_handle);
 
     template<class T>
     void db_read(T *value, long int offset) {

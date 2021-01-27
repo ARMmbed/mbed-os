@@ -27,6 +27,8 @@
 #include "att_api.h"
 #include "att_defs.h"
 
+#include "mbed-trace/mbed_trace.h"
+
 #define TRACE_GROUP "BLAT"
 
 namespace ble {
