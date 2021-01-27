@@ -236,32 +236,36 @@ typedef enum {
     ADC_VREF = 0xF1,
     ADC_VBAT = 0xF2,
 
-    // Arduino connector namings
-    A0          = PA_3,
-    A1          = PC_0,
-    A2          = PC_3,
-    A3          = PF_3,
-    A4          = PF_5,
-    A5          = PF_10,
+#ifdef TARGET_FF_ARDUINO_UNO
+    // Arduino Uno(Rev3) Header pin connection naming
+    ARDUINO_UNO_A0  = PA_3,
+    ARDUINO_UNO_A1  = PC_0,
+    ARDUINO_UNO_A2  = PC_3,
+    ARDUINO_UNO_A3  = PF_3,
+    ARDUINO_UNO_A4  = PF_5,
+    ARDUINO_UNO_A5  = PF_10,
+    ARDUINO_UNO_D0  = PG_9,
+    ARDUINO_UNO_D1  = PG_14,
+    ARDUINO_UNO_D2  = PF_15,
+    ARDUINO_UNO_D3  = PE_13,
+    ARDUINO_UNO_D4  = PF_14,
+    ARDUINO_UNO_D5  = PE_11,
+    ARDUINO_UNO_D6  = PE_9,
+    ARDUINO_UNO_D7  = PF_13,
+    ARDUINO_UNO_D8  = PF_12,
+    ARDUINO_UNO_D9  = PD_15,
+    ARDUINO_UNO_D10 = PD_14,
+    ARDUINO_UNO_D11 = STM32_D11_SPI_ETHERNET_PIN, /* config in targets.json file */
+    ARDUINO_UNO_D12 = PA_6,
+    ARDUINO_UNO_D13 = PA_5,
+    ARDUINO_UNO_D14 = PB_9,
+    ARDUINO_UNO_D15 = PB_8,
+#endif
+
+    // ST ZIO connector extending Arduino Uno
     A6          = PF_4,
     A7          = PF_5,
     A8          = PF_6,
-    D0          = PG_9,
-    D1          = PG_14,
-    D2          = PF_15,
-    D3          = PE_13,
-    D4          = PF_14,
-    D5          = PE_11,
-    D6          = PE_9,
-    D7          = PF_13,
-    D8          = PF_12,
-    D9          = PD_15,
-    D10         = PD_14,
-    D11         = STM32_D11_SPI_ETHERNET_PIN, /* config in targets.json file */
-    D12         = PA_6,
-    D13         = PA_5,
-    D14         = PB_9,
-    D15         = PB_8,
     D16         = PC_6,
     D17         = PB_15,
     D18         = PB_13,
@@ -322,37 +326,15 @@ typedef enum {
 
     // STDIO for console print
 #ifdef MBED_CONF_TARGET_STDIO_UART_TX
-    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+    USBTX = MBED_CONF_TARGET_STDIO_UART_TX,
 #else
-    STDIO_UART_TX = PD_8,
+    USBTX = PD_8,
 #endif
 #ifdef MBED_CONF_TARGET_STDIO_UART_RX
-    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+    USBRX = MBED_CONF_TARGET_STDIO_UART_RX,
 #else
-    STDIO_UART_RX = PD_9,
+    USBRX = PD_9,
 #endif
-
-    // Generic signals namings
-    LED1        = PB_0,  // LD1 = GREEN
-    LED2        = PB_7,  // Blue
-    LED3        = PB_14, // Red
-    LED4        = PB_0, // LD4 is not user, mapped to LD1
-
-    // Standardized button names
-    USER_BUTTON = PC_13,
-    BUTTON1 = USER_BUTTON,
-
-    SERIAL_TX   = STDIO_UART_TX, // Virtual Com Port
-    SERIAL_RX   = STDIO_UART_RX, // Virtual Com Port
-    USBTX       = STDIO_UART_TX, // Virtual Com Port
-    USBRX       = STDIO_UART_RX, // Virtual Com Port
-    I2C_SCL     = D15,
-    I2C_SDA     = D14,
-    SPI_MOSI    = D11,
-    SPI_MISO    = D12,
-    SPI_SCK     = D13,
-    SPI_CS      = D10,
-    PWM_OUT     = D9,
 
     /**** USB FS pins ****/
     USB_OTG_FS_DM = PA_11,
@@ -441,6 +423,13 @@ typedef enum {
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
+
+// Standardized LED and button names
+#define LED1     PB_0   // LD1
+#define LED2     PB_7   // Blue
+#define LED3     PB_14  // Red
+#define BUTTON1  PC_13
+
 
 #ifdef __cplusplus
 }
