@@ -150,7 +150,7 @@ void KVStoreSecurityDb::set_entry_local_ltk(
     SecurityEntryKeys_t* current_entry = read_in_entry_local_keys(db_handle);
     current_entry->ltk = ltk;
 
-    tr_info("Write DB entry %d: local ltk %s", get_index(db_handle), tr_as_array(ltk));
+    tr_info("Write DB entry %d: local ltk %s", get_index(db_handle), to_string(ltk));
     db_write_entry(current_entry, DB_ENTRY_LOCAL_KEYS, get_index(entry));
 }
 
@@ -169,7 +169,7 @@ void KVStoreSecurityDb::set_entry_local_ediv_rand(
     current_entry->ediv = ediv;
     current_entry->rand = rand;
 
-    tr_info("Write DB entry %d: local ediv %s rand %s", get_index(db_handle), tr_as_array(ediv), tr_as_array(rand));
+    tr_info("Write DB entry %d: local ediv %s rand %s", get_index(db_handle), to_string(ediv), to_string(rand));
     db_write_entry(current_entry, DB_ENTRY_LOCAL_KEYS, get_index(entry));
 }
 
@@ -192,7 +192,7 @@ void KVStoreSecurityDb::set_entry_peer_ltk(
     SecurityEntryKeys_t* current_entry = read_in_entry_peer_keys(db_handle);
     current_entry->ltk = ltk;
 
-    tr_info("Write DB entry %d: peer ltk %s", get_index(db_handle), tr_as_array(ltk));
+    tr_info("Write DB entry %d: peer ltk %s", get_index(db_handle), to_string(ltk));
     db_write_entry(current_entry, DB_ENTRY_PEER_KEYS, get_index(entry));
 }
 
@@ -211,7 +211,7 @@ void KVStoreSecurityDb::set_entry_peer_ediv_rand(
     current_entry->ediv = ediv;
     current_entry->rand = rand;
 
-    tr_info("Write DB entry %d: peer ediv %s rand %s", get_index(db_handle), tr_as_array(ediv), tr_as_array(rand));
+    tr_info("Write DB entry %d: peer ediv %s rand %s", get_index(db_handle), to_string(ediv), to_string(rand));
     db_write_entry(current_entry, DB_ENTRY_PEER_KEYS, get_index(entry));
 }
 
@@ -230,7 +230,7 @@ void KVStoreSecurityDb::set_entry_peer_irk(
     SecurityEntryIdentity_t* current_entry = read_in_entry_peer_identity(db_handle);
     current_entry->irk = irk;
 
-    tr_info("Write DB entry %d: peer irk %s", get_index(db_handle), tr_as_array(irk));
+    tr_info("Write DB entry %d: peer irk %s", get_index(db_handle), to_string(irk));
     db_write_entry(current_entry, DB_ENTRY_PEER_IDENTITY, get_index(entry));
 }
 
@@ -249,7 +249,7 @@ void KVStoreSecurityDb::set_entry_peer_bdaddr(
     current_entry->identity_address = peer_address;
     current_entry->identity_address_is_public = address_is_public;
 
-    tr_info("Write DB entry %d: %s peer address %s", get_index(db_handle), address_is_public? "public" : "private", tr_as_array(peer_address));
+    tr_info("Write DB entry %d: %s peer address %s", get_index(db_handle), address_is_public? "public" : "private", to_string(peer_address));
     db_write_entry(current_entry, DB_ENTRY_PEER_IDENTITY, get_index(entry));
 }
 
@@ -268,7 +268,7 @@ void KVStoreSecurityDb::set_entry_peer_csrk(
     SecurityEntrySigning_t* current_entry = read_in_entry_peer_signing(db_handle);
     current_entry->csrk = csrk;
 
-    tr_info("Write DB entry %d: peer csrk %s", get_index(db_handle), tr_as_array(csrk));
+    tr_info("Write DB entry %d: peer csrk %s", get_index(db_handle), to_string(csrk));
     db_write_entry(current_entry, DB_ENTRY_PEER_SIGNING, get_index(entry));
 }
 
@@ -288,7 +288,7 @@ void KVStoreSecurityDb::set_local_csrk(
 )
 {
     this->SecurityDb::set_local_csrk(csrk);
-    tr_info("Write DB: local csrk %s", tr_as_array(csrk));
+    tr_info("Write DB: local csrk %s", to_string(csrk));
     db_write(&_local_csrk, DB_LOCAL_CSRK);
 }
 
@@ -299,7 +299,7 @@ void KVStoreSecurityDb::set_local_identity(
 )
 {
     this->SecurityDb::set_local_identity(irk, identity_address, public_address);
-    tr_info("Write DB: %s peer address %s", public_address? "public" : "private", tr_as_array(identity_address));
+    tr_info("Write DB: %s peer address %s", public_address? "public" : "private", to_string(identity_address));
     db_write(&_local_identity, DB_LOCAL_IDENTITY);
 }
 

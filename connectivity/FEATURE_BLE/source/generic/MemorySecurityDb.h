@@ -76,7 +76,7 @@ public:
     ) override {
         entry_t *entry = as_entry(db_handle);
         if (entry) {
-            tr_info("Write DB entry %d: local ltk %s", get_index(db_handle), tr_as_array(ltk));
+            tr_info("Write DB entry %d: local ltk %s", get_index(db_handle), to_string(ltk));
             entry->flags.ltk_sent = true;
             entry->local_keys.ltk = ltk;
         }
@@ -89,7 +89,7 @@ public:
     ) override {
         entry_t *entry = as_entry(db_handle);
         if (entry) {
-            tr_info("Write DB entry %d: local ediv %s rand %s", get_index(db_handle), tr_as_array(ediv), tr_as_array(rand));
+            tr_info("Write DB entry %d: local ediv %s rand %s", get_index(db_handle), to_string(ediv), to_string(rand));
             entry->local_keys.ediv = ediv;
             entry->local_keys.rand = rand;
         }
@@ -105,7 +105,7 @@ public:
     ) override {
         entry_t *entry = as_entry(db_handle);
         if (entry) {
-            tr_info("Write DB entry %d: peer ltk %s", get_index(db_handle), tr_as_array(ltk));
+            tr_info("Write DB entry %d: peer ltk %s", get_index(db_handle), to_string(ltk));
             entry->peer_keys.ltk = ltk;
             entry->flags.ltk_stored = true;
         }
@@ -118,7 +118,7 @@ public:
     ) override {
         entry_t *entry = as_entry(db_handle);
         if (entry) {
-            tr_info("Write DB entry %d: peer ediv %s rand %s", get_index(db_handle), tr_as_array(ediv), tr_as_array(rand));
+            tr_info("Write DB entry %d: peer ediv %s rand %s", get_index(db_handle), to_string(ediv), to_string(rand));
             entry->peer_keys.ediv = ediv;
             entry->peer_keys.rand = rand;
         }
@@ -130,7 +130,7 @@ public:
     ) override {
         entry_t *entry = as_entry(db_handle);
         if (entry) {
-            tr_info("Write DB entry %d: peer irk %s", get_index(db_handle), tr_as_array(irk));
+            tr_info("Write DB entry %d: peer irk %s", get_index(db_handle), to_string(irk));
             entry->peer_identity.irk = irk;
             entry->flags.irk_stored = true;
         }
@@ -143,7 +143,7 @@ public:
     ) override {
         entry_t *entry = as_entry(db_handle);
         if (entry) {
-            tr_info("Write DB entry %d: %s peer address %s", get_index(db_handle), address_is_public? "public" : "private", tr_as_array(peer_address));
+            tr_info("Write DB entry %d: %s peer address %s", get_index(db_handle), address_is_public? "public" : "private", to_string(peer_address));
             entry->peer_identity.identity_address = peer_address;
             entry->peer_identity.identity_address_is_public = address_is_public;
         }
@@ -155,7 +155,7 @@ public:
     ) override {
         entry_t *entry = as_entry(db_handle);
         if (entry) {
-            tr_info("Write DB entry %d: peer csrk %s", get_index(db_handle), tr_as_array(csrk));
+            tr_info("Write DB entry %d: peer csrk %s", get_index(db_handle), to_string(csrk));
             entry->flags.csrk_stored = true;
             entry->peer_signing.csrk = csrk;
         }
