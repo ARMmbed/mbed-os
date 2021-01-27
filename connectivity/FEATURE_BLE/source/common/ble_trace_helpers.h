@@ -18,6 +18,7 @@
 #ifndef BLE_CLIAPP_BLE_TRACE_HELPERS_H
 #define BLE_CLIAPP_BLE_TRACE_HELPERS_H
 
+#include "ble/BLE.h"
 #include "ble/SecurityManager.h"
 #include "mbed-trace/mbed_trace.h"
 #include "pal/GapTypes.h"
@@ -26,7 +27,6 @@
 #include "common/UUID.h"
 
 namespace ble {
-
 #if MBED_CONF_MBED_TRACE_ENABLE
 void trace_le_supported_features(uint64_t feat);
 
@@ -45,9 +45,47 @@ static inline const char* tr_as_array(T item)
     return (mbed_trace_array)((const uint8_t*)&item, sizeof(item));
 }
 
-static inline const char* to_string(UUID uuid)
+static inline char* to_string(const UUID& uuid)
 {
-    return (mbed_trace_array)(uuid.getBaseUUID(), uuid.getLen());
+    const uint8_t* Buffer    = uuid.getBaseUUID();
+    const uint8_t  Length    = uuid.getLen();
+    const  size_t  Row_Count = 4;
+
+    const char *Hex = "0123456789ABCDEF";
+
+    static char string_buffer[Row_Count][UUID::LENGTH_OF_LONG_UUID + /* Number of hyphen delimiters =*/ 4];
+    static uint8_t idx = 0;
+
+    if (idx == Row_Count) {
+        idx= 0;
+    } else {
+        idx++;
+    }
+
+    char* p1  = (char *)Buffer + Length - 1;
+    char* p2  = string_buffer[idx];
+
+    if (Length == UUID::LENGTH_OF_LONG_UUID) {
+        const uint8_t format[] = {4, 2, 2, 2, 6};
+        for ( uint8_t i: format) {
+            size_t j = 0;
+            for (; j < i; ++j) {
+                *p2++ = Hex[(*p1 >> 4) & 0xF];
+                *p2++ = Hex[(*p1--)    & 0xF];
+            }
+            *p2++ = '-';
+        }
+        *--p2 = 0;
+    } else {
+        size_t i = 0;
+        for (; i < Length; ++i) {
+            *p2++ = Hex[(*p1 >> 4) & 0xF];
+            *p2++ = Hex[(*p1--)    & 0xF];
+        }
+        *p2 = 0;
+    }
+
+    return string_buffer[idx];
 }
 
 static inline constexpr const char* to_string(bool v)
@@ -173,7 +211,7 @@ static inline const char* to_string(Keypress_t keypress)
     }
 }
 
-static inline const char *to_string(ble::pairing_failure_t reason)
+static inline const char* to_string(ble::pairing_failure_t reason)
 {
     switch (reason.value()) {
         case ble::pairing_failure_t::PASSKEY_ENTRY_FAILED:
@@ -209,7 +247,7 @@ static inline const char *to_string(ble::pairing_failure_t reason)
     }
 }
 
-static inline const char *to_string(target_peer_address_type_t type)
+static inline const char* to_string(target_peer_address_type_t type)
 {
     if (type == target_peer_address_type_t::PUBLIC) {
         return "PUBLIC";
@@ -218,7 +256,7 @@ static inline const char *to_string(target_peer_address_type_t type)
     }
 }
 
-static inline const char *to_string(privacy_mode_t mode)
+static inline const char* to_string(privacy_mode_t mode)
 {
     if (mode == privacy_mode_t::NETWORK) {
         return "NETWORK";
@@ -679,8 +717,7 @@ static inline const char* to_string(ble::direct_address_type_t direct_address_ty
     }
 }
 
-static inline const char* to_string(ble::advertising_data_status_t data_status)
-{
+static inline const char* to_string(ble::advertising_data_status_t data_status) {
     switch (data_status.value()) {
         case ble::advertising_data_status_t::COMPLETE:
             return "COMPLETE";
@@ -688,6 +725,73 @@ static inline const char* to_string(ble::advertising_data_status_t data_status)
             return "INCOMPLETE_MORE_DATA";
         case ble::advertising_data_status_t::INCOMPLETE_DATA_TRUNCATED:
             return "INCOMPLETE_DATA_TRUNCATED";
+        default:
+            return "unknown";
+    }
+}
+static inline const char* to_string(ble::att_security_requirement_t security_requirement)
+{
+    switch (security_requirement.value()) {
+        case ble::att_security_requirement_t::NONE:
+            return "NONE";
+        case ble::att_security_requirement_t::UNAUTHENTICATED:
+            return "UNAUTHENTICATED";
+        case ble::att_security_requirement_t::AUTHENTICATED:
+            return "AUTHENTICATED";
+        case ble::att_security_requirement_t::SC_AUTHENTICATED:
+            return "SC_AUTHENTICATED";
+        default:
+            return "unknown";
+    }
+}
+
+static inline const char* to_string(GattAuthCallbackReply_t authorization_reply)
+{
+    switch (authorization_reply) {
+        case AUTH_CALLBACK_REPLY_SUCCESS:
+            return "SUCCESS";
+        case AUTH_CALLBACK_REPLY_ATTERR_INVALID_HANDLE:
+            return "INVALID_HANDLE";
+        case AUTH_CALLBACK_REPLY_ATTERR_READ_NOT_PERMITTED:
+            return "READ_NOT_PERMITTED";
+        case AUTH_CALLBACK_REPLY_ATTERR_WRITE_NOT_PERMITTED:
+            return "WRITE_NOT_PERMITTED";
+        case AUTH_CALLBACK_REPLY_ATTERR_INVALID_PDU:
+            return "INVALID_PDU";
+        case AUTH_CALLBACK_REPLY_ATTERR_INSUFFICIENT_AUTHENTICATION:
+            return "INSUFFICIENT_AUTHENTICATION";
+        case AUTH_CALLBACK_REPLY_ATTERR_REQUEST_NOT_SUPPORTED:
+            return "REQUEST_NOT_SUPPORTED";
+        case AUTH_CALLBACK_REPLY_ATTERR_INVALID_OFFSET:
+            return "INVALID_OFFSET";
+        case AUTH_CALLBACK_REPLY_ATTERR_INSUFFICIENT_AUTHORIZATION:
+            return "INSUFFICIENT_AUTHORIZATION";
+        case AUTH_CALLBACK_REPLY_ATTERR_PREPARE_QUEUE_FULL:
+            return "PREPARE_QUEUE_FULL";
+        case AUTH_CALLBACK_REPLY_ATTERR_ATTRIBUTE_NOT_FOUND:
+            return "ATTRIBUTE_NOT_FOUND";
+        case AUTH_CALLBACK_REPLY_ATTERR_ATTRIBUTE_NOT_LONG:
+            return "ATTRIBUTE_NOT_LONG";
+        case AUTH_CALLBACK_REPLY_ATTERR_INSUFFICIENT_ENCRYPTION_KEY_SIZE:
+            return "INSUFFICIENT_ENCRYPTION_KEY_SIZE";
+        case AUTH_CALLBACK_REPLY_ATTERR_INVALID_ATTRIBUTE_VALUE_LENGTH:
+            return "INVALID_ATTRIBUTE_VALUE_LENGTH";
+        case AUTH_CALLBACK_REPLY_ATTERR_UNLIKELY_ERROR:
+            return "UNLIKELY_ERROR";
+        case AUTH_CALLBACK_REPLY_ATTERR_INSUFFICIENT_ENCRYPTION:
+            return "INSUFFICIENT_ENCRYPTION";
+        case AUTH_CALLBACK_REPLY_ATTERR_UNSUPPORTED_GROUP_TYPE:
+            return "UNSUPPORTED_GROUP_TYPE";
+        case AUTH_CALLBACK_REPLY_ATTERR_INSUFFICIENT_RESOURCES:
+            return "INSUFFICIENT_RESOURCES";
+        case AUTH_CALLBACK_REPLY_ATTERR_WRITE_REQUEST_REJECTED:
+            return "WRITE_REQUEST_REJECTED";
+        case AUTH_CALLBACK_REPLY_ATTERR_CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR_IMPROPERLY_CONFIGURED:
+            return "CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR_IMPROPERLY_CONFIGURED";
+        case AUTH_CALLBACK_REPLY_ATTERR_PROCEDURE_ALREADY_IN_PROGRESS:
+            return "PROCEDURE_ALREADY_IN_PROGRESS";
+        case AUTH_CALLBACK_REPLY_ATTERR_OUT_OF_RANGE:
+            return "OUT_OF_RANGE";
         default:
             return "unknown";
     }
