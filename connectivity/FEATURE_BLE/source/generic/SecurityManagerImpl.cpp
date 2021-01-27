@@ -2049,7 +2049,7 @@ void SecurityManager::on_passkey_display(
     if (eventHandler) {
         eventHandler->passkeyDisplay(connection, ascii_passkey.value());
     } else {
-        tr_warning("Connection %d - No app handler to display pass key");
+        tr_warning("Connection %d - No app handler to display pass key", connection);
     }
 
 }
@@ -2061,7 +2061,7 @@ void SecurityManager::on_passkey_request(connection_handle_t connection)
     if (eventHandler) {
         eventHandler->passkeyRequest(connection);
     } else {
-        tr_warning("Connection %d - No app handler to forward pass key request");
+        tr_warning("Connection %d - No app handler to forward pass key request", connection);
     }
 
 }
