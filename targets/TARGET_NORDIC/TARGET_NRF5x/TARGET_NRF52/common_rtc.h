@@ -28,6 +28,7 @@
 // of NRF51) as an alternative tick source for RTOS.
 #define COMMON_RTC_INSTANCE     NRF_RTC0
 #define COMMON_RTC_IRQ_HANDLER  RTC0_IRQHandler
+#define COMMON_RTC_IRQN         RTC0_IRQn
 #define OS_TICK_CC_CHANNEL      0
 #define LP_TICKER_CC_CHANNEL    1
 

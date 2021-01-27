@@ -113,8 +113,6 @@ __STATIC_INLINE void errata_20(void)
 #endif
 }
 
-void RTC1_IRQHandler(void);
-
 void common_rtc_init(void)
 {
     if (m_common_rtc_enabled) {
@@ -129,9 +127,7 @@ void common_rtc_init(void)
 
     nrf_rtc_task_trigger(COMMON_RTC_INSTANCE, NRF_RTC_TASK_STOP);
 
-    if (COMMON_RTC_INSTANCE == NRF_RTC1) {
-        NVIC_SetVector(RTC1_IRQn, (uint32_t)RTC1_IRQHandler);
-    }
+    NVIC_SetVector(COMMON_RTC_IRQN, (uint32_t)COMMON_RTC_IRQ_HANDLER);
 
     /* RTC is driven by the low frequency (32.768 kHz) clock, a proper request
      * must be made to have it running.
@@ -157,12 +153,12 @@ void common_rtc_init(void)
 
     nrf_rtc_event_disable(COMMON_RTC_INSTANCE, NRF_RTC_INT_OVERFLOW_MASK
 #if defined(TARGET_MCU_NRF51822)
-        | OS_TICK_INT_MASK
+                                                   | OS_TICK_INT_MASK
 #endif
 #if DEVICE_LPTICKER
-        | LP_TICKER_INT_MASK
+                                                   | LP_TICKER_INT_MASK
 #endif
-     );
+    );
 
     /* This interrupt is enabled permanently, since overflow indications are needed
      * continuously.
