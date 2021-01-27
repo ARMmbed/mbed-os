@@ -7,7 +7,6 @@ if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
         "-mthumb"
         "-mfpu=fpv5-sp-d16"
         "-mfloat-abi=softfp"
-        "-march=armv8-m.main"
         "-mcpu=cortex-m33+nodsp"
     )
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
