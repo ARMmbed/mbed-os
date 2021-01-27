@@ -11,6 +11,8 @@ if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     )
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     list(APPEND common_options
+        "-mfpu=fpv5-sp-d16"
+        "-mfloat-abi=hard"
         "-mcpu=cortex-m33+dsp"
     )
 endif()

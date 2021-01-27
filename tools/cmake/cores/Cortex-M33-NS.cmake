@@ -6,6 +6,7 @@ if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     list(APPEND common_options
         "-mthumb"
         "-mcpu=cortex-m33+nodsp"
+        "-mfpu=none"
     )
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     list(APPEND common_options
