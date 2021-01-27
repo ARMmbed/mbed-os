@@ -186,7 +186,7 @@ void FileSecurityDb::set_entry_local_ltk(
 
     entry->flags.ltk_sent = true;
 
-    tr_info("Write DB entry %d: local ltk %s", get_index(db_handle), tr_as_array(ltk));
+    tr_info("Write DB entry %d: local ltk %s", get_index(db_handle), to_string(ltk));
     db_write(&ltk, entry->file_offset + DB_STORE_OFFSET_LOCAL_KEYS_LTK);
 }
 
@@ -201,7 +201,7 @@ void FileSecurityDb::set_entry_local_ediv_rand(
         return;
     }
 
-    tr_info("Write DB entry %d: local ediv %s rand %s", get_index(db_handle), tr_as_array(ediv), tr_as_array(rand));
+    tr_info("Write DB entry %d: local ediv %s rand %s", get_index(db_handle), to_string(ediv), to_string(rand));
     db_write(&ediv, entry->file_offset + DB_STORE_OFFSET_LOCAL_KEYS_EDIV);
     db_write(&rand, entry->file_offset + DB_STORE_OFFSET_LOCAL_KEYS_RAND);
 }
@@ -222,7 +222,7 @@ void FileSecurityDb::set_entry_peer_ltk(
 
     entry->flags.ltk_stored = true;
 
-    tr_info("Write DB entry %d: peer ltk %s", get_index(db_handle), tr_as_array(ltk));
+    tr_info("Write DB entry %d: peer ltk %s", get_index(db_handle), to_string(ltk));
     db_write(&ltk, entry->file_offset + DB_STORE_OFFSET_PEER_KEYS_LTK);
 }
 
@@ -237,7 +237,7 @@ void FileSecurityDb::set_entry_peer_ediv_rand(
         return;
     }
 
-    tr_info("Write DB entry %d: peer ediv %s rand %s", get_index(db_handle), tr_as_array(ediv), tr_as_array(rand));
+    tr_info("Write DB entry %d: peer ediv %s rand %s", get_index(db_handle), to_string(ediv), to_string(rand));
     db_write(&ediv, entry->file_offset + DB_STORE_OFFSET_PEER_KEYS_EDIV);
     db_write(&rand, entry->file_offset + DB_STORE_OFFSET_PEER_KEYS_RAND);
 }
@@ -254,7 +254,7 @@ void FileSecurityDb::set_entry_peer_irk(
 
     entry->flags.irk_stored = true;
 
-    tr_info("Write DB entry %d: peer irk %s", get_index(db_handle), tr_as_array(irk));
+    tr_info("Write DB entry %d: peer irk %s", get_index(db_handle), to_string(irk));
     db_write(&irk, entry->file_offset + DB_STORE_OFFSET_PEER_IDENTITY_IRK);
 }
 
@@ -269,7 +269,7 @@ void FileSecurityDb::set_entry_peer_bdaddr(
         return;
     }
 
-    tr_info("Write DB entry %d: %s peer address %s", get_index(db_handle), address_is_public? "public" : "private", tr_as_array(peer_address));
+    tr_info("Write DB entry %d: %s peer address %s", get_index(db_handle), address_is_public? "public" : "private", to_string(peer_address));
     db_write(&peer_address, entry->file_offset + DB_STORE_OFFSET_PEER_IDENTITY_ADDRESS);
     db_write(&address_is_public, entry->file_offset + DB_STORE_OFFSET_PEER_IDENTITY_ADDRESS_IS_PUBLIC);
 }
@@ -286,7 +286,7 @@ void FileSecurityDb::set_entry_peer_csrk(
 
     entry->flags.csrk_stored = true;
 
-    tr_info("Write DB entry %d: peer csrk %s", get_index(db_handle), tr_as_array(csrk));
+    tr_info("Write DB entry %d: peer csrk %s", get_index(db_handle), to_string(csrk));
     db_write(&csrk, entry->file_offset + DB_STORE_OFFSET_PEER_SIGNING);
 }
 
@@ -307,7 +307,7 @@ void FileSecurityDb::set_local_csrk(
 {
     this->SecurityDb::set_local_csrk(csrk);
 
-    tr_info("Write DB: local csrk %s", tr_as_array(csrk));
+    tr_info("Write DB: local csrk %s", to_string(csrk));
     db_write(&_local_csrk, DB_OFFSET_LOCAL_CSRK);
 }
 
@@ -319,7 +319,7 @@ void FileSecurityDb::set_local_identity(
 {
     this->SecurityDb::set_local_identity(irk, identity_address, public_address);
 
-    tr_info("Write DB: %s peer address %s", public_address? "public" : "private", tr_as_array(identity_address));
+    tr_info("Write DB: %s peer address %s", public_address? "public" : "private", to_string(identity_address));
     db_write(&_local_identity, DB_OFFSET_LOCAL_IDENTITY);
 }
 

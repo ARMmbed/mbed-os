@@ -39,12 +39,6 @@ const char* att_client_callback_event_to_string(uint8_t code);
 const char* att_error_code_to_string(uint8_t code);
 #endif //MBED_CONF_MBED_TRACE_ENABLE
 
-template<typename T>
-const char* tr_as_array(T item)
-{
-    return (mbed_trace_array)((const uint8_t*)&item, sizeof(item));
-}
-
 template<size_t size>
 const char* to_string(const ble::byte_array_t<size> &array)
 {
