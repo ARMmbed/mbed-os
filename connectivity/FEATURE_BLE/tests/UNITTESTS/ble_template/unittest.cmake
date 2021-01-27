@@ -23,7 +23,7 @@ set(unittest-sources
 
 # Test files
 set(unittest-test-sources
-    ${CMAKE_CURRENT_LIST_DIR}/ble.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/ble_template.cpp
     stubs/BLE.cpp
 )
 

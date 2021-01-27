@@ -21,6 +21,8 @@
 #include "gmock/gmock.h"
 #include "source/GattServerImpl.h"
 
+namespace ble {
+
 class GattServerMock : public ble::impl::GattServer {
 public:
     GattServerMock() {};
@@ -28,7 +30,35 @@ public:
     GattServerMock& operator=(const GattServerMock&) = delete;
     virtual ~GattServerMock() {};
 
-    MOCK_METHOD1(reset, ble_error_t(ble::GattServer*));
+    MOCK_METHOD(void, setEventHandler, (EventHandler *handler), (override));
+    MOCK_METHOD(ble_error_t, reset, (ble::GattServer* server), (override));
+    MOCK_METHOD(ble_error_t, addService, (GattService &service), (override));
+    MOCK_METHOD(ble_error_t, read, (GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP), (override));
+    MOCK_METHOD(ble_error_t, read, (ble::connection_handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, uint8_t *buffer, uint16_t *lengthP), (override));
+    MOCK_METHOD(ble_error_t, write, (GattAttribute::Handle_t attributeHandle, const uint8_t *value, uint16_t size, bool localOnly), (override));
+    MOCK_METHOD(ble_error_t, write, (ble::connection_handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, const uint8_t *value, uint16_t size, bool localOnly), (override));
+    MOCK_METHOD(ble_error_t, areUpdatesEnabled, (const GattCharacteristic &characteristic, bool *enabledP), (override));
+    MOCK_METHOD(ble_error_t, areUpdatesEnabled, (ble::connection_handle_t connectionHandle, const GattCharacteristic &characteristic, bool *enabledP), (override));
+    MOCK_METHOD(ble::Gap::PreferredConnectionParams_t, getPreferredConnectionParams, (), (override));
+    MOCK_METHOD(void, setPreferredConnectionParams, (const ble::Gap::PreferredConnectionParams_t &params), (override));
+    MOCK_METHOD(bool, isOnDataReadAvailable, (), (const, override));
+    MOCK_METHOD(void, onDataSent, (const DataSentCallback_t &callback), (override));
+    MOCK_METHOD(DataSentCallbackChain_t&, onDataSent, (), (override));
+    MOCK_METHOD(void, onDataWritten, (const DataWrittenCallback_t &callback), (override));
+    MOCK_METHOD(DataWrittenCallbackChain_t&, onDataWritten, (), (override));
+    MOCK_METHOD(ble_error_t, onDataRead, (const DataReadCallback_t &callback), (override));
+    MOCK_METHOD(DataReadCallbackChain_t&, onDataRead, (), (override));
+    MOCK_METHOD(void, onShutdown, (const GattServerShutdownCallback_t &callback), (override));
+    MOCK_METHOD(GattServerShutdownCallbackChain_t&, onShutdown, (), (override));
+    MOCK_METHOD(void, onUpdatesEnabled, (EventCallback_t callback), (override));
+    MOCK_METHOD(void, onUpdatesDisabled, (EventCallback_t callback), (override));
+    MOCK_METHOD(void, onConfirmationReceived, (EventCallback_t callback), (override));
+    MOCK_METHOD(void, handleDataWrittenEvent, (const GattWriteCallbackParams *params), (override));
+    MOCK_METHOD(void, handleDataReadEvent, (const GattReadCallbackParams *params), (override));
+    MOCK_METHOD(void, handleEvent, (GattServerEvents::gattEvent_e type, ble::connection_handle_t connHandle, GattAttribute::Handle_t attributeHandle), (override));
+    MOCK_METHOD(void, handleDataSentEvent, (unsigned count), (override));
 };
+
+}
 
 #endif //BLE_GATTSERVERMOCK_H
