@@ -19,3 +19,7 @@ endif()
 include(${MBED_PATH}/tools/cmake/profile.cmake)
 
 enable_language(C CXX ASM)
+
+# set executable suffix (has to be done after enabling languages)
+# Note: This is nice to have, but is also required because STM32Cube will only work on files with a .elf extension
+set(CMAKE_EXECUTABLE_SUFFIX .elf)
