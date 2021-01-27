@@ -72,6 +72,7 @@ GattServer &GattServer::getInstance()
 
 void GattServer::initialize()
 {
+    tr_info("Initialize GattServer");
 #if BLE_FEATURE_SECURITY
     AttsAuthorRegister(atts_auth_cb);
 #endif
@@ -1043,6 +1044,7 @@ GapAdvertisingData::Appearance GattServer::getAppearance()
 
 ble_error_t GattServer::reset(ble::GattServer* server)
 {
+    tr_info("Reset GattServer");
     /* Notify that the instance is about to shutdown */
     if (eventHandler) {
         eventHandler->onShutdown(*server);
@@ -1105,6 +1107,7 @@ void GattServer::att_cb(const attEvt_t *evt)
 {
     if (evt->hdr.status == ATT_SUCCESS && evt->hdr.event == ATT_MTU_UPDATE_IND) {
         ble::GattServer::EventHandler *handler = getInstance().getEventHandler();
+        tr_info("Connection %d: Att MTU changed, new MTU size is %d bytes", evt->hdr.param, evt->mtu);
         if (handler) {
             handler->onAttMtuChange(evt->hdr.param, evt->mtu);
         }
@@ -1135,7 +1138,7 @@ uint8_t GattServer::atts_read_cb(
         auth_cb->read_cb.call(&read_auth_params);
 
         if (read_auth_params.authorizationReply != AUTH_CALLBACK_REPLY_SUCCESS) {
-            tr_error("Request to read attribute %d on connection %d declined with authorization reply %s",
+            tr_warning("Request to read attribute %d on connection %d declined with authorization reply %s",
                      handle,
                      connId,
                      to_string(read_auth_params.authorizationReply & 0xFF));
@@ -1147,7 +1150,7 @@ uint8_t GattServer::atts_read_cb(
         *pAttr->pLen = read_auth_params.len;
     }
 
-    tr_info("Read attribute %d on connection %d - value=%s",
+    tr_debug("Read attribute %d on connection %d - value=%s",
             handle,
             connId,
             mbed_trace_array(pAttr->pValue, *pAttr->pLen));
@@ -1175,10 +1178,8 @@ uint8_t GattServer::atts_write_cb(
     attsAttr_t *pAttr
 )
 {
-    tr_info("Write attribute %d on connection %d - value=%s",
-            handle,
-            connId,
-            mbed_trace_array(pValue, len));
+    tr_debug("Connection %d: Write attribute %d, operation=%d, offset=%d, value=%s",
+            connId, handle, operation, offset, mbed_trace_array(pValue, len));
 
     char_auth_callback* auth_cb = getInstance().get_auth_callback(handle);
     if (auth_cb && auth_cb->write_cb) {
@@ -1194,7 +1195,7 @@ uint8_t GattServer::atts_write_cb(
         auth_cb->write_cb.call(&write_auth_params);
 
         if (write_auth_params.authorizationReply != AUTH_CALLBACK_REPLY_SUCCESS) {
-            tr_error("Request to write attribute %d on connection %d declined with authorization reply %s",
+            tr_warning("Request to write attribute %d on connection %d declined with authorization reply %s",
                      handle,
                      connId,
                      to_string(write_auth_params.authorizationReply & 0xFF));
@@ -1270,7 +1271,7 @@ uint8_t GattServer::atts_write_cb(
 
 uint8_t GattServer::atts_auth_cb(dmConnId_t connId, uint8_t permit, uint16_t handle)
 {
-    tr_info("Authenticate R/W request for attribute %d on connection %d", handle, connId);
+    tr_debug("Authenticate R/W request for attribute %d on connection %d", handle, connId);
 
 #if BLE_FEATURE_SECURITY
     // this CB is triggered when read or write of an attribute (either a value
@@ -1751,7 +1752,7 @@ void GattServer::handleEvent(
             }
             break;
         case GattServerEvents::GATT_EVENT_CONFIRMATION_RECEIVED:
-            tr_info("Confirmation received for attribute %d on connection %d", attributeHandle, connHandle);
+            tr_debug("Confirmation received for attribute %d on connection %d", attributeHandle, connHandle);
             if(eventHandler) {
                 GattConfirmationReceivedCallbackParams params({
                     .connHandle = connHandle,
@@ -1767,7 +1768,7 @@ void GattServer::handleEvent(
             break;
 
         case GattServerEvents::GATT_EVENT_DATA_SENT:
-            tr_info("Data sent for attribute %d on connection %d", attributeHandle, connHandle);
+            tr_debug("Data sent for attribute %d on connection %d", attributeHandle, connHandle);
             if(eventHandler) {
                 GattDataSentCallbackParams params({
                     .connHandle = connHandle,
