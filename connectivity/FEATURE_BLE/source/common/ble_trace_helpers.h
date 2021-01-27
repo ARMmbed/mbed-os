@@ -47,41 +47,45 @@ static inline const char* tr_as_array(T item)
 
 static inline char* to_string(const UUID& uuid)
 {
-    const uint8_t* buf = uuid.getBaseUUID();
-    const uint8_t  len = uuid.getLen();
-    const  size_t  max_num_row = 4;
+    const uint8_t* Buffer    = uuid.getBaseUUID();
+    const uint8_t  Length    = uuid.getLen();
+    const  size_t  Row_Count = 4;
 
-    const char *hex = "0123456789ABCDEF";
+    const char *Hex = "0123456789ABCDEF";
 
-    static char strbuf[max_num_row][UUID::LENGTH_OF_LONG_UUID + /* Number of hyphen delimiters =*/ 4];
+    static char string_buffer[Row_Count][UUID::LENGTH_OF_LONG_UUID + /* Number of hyphen delimiters =*/ 4];
     static uint8_t idx = 0;
 
-    idx == max_num_row ? idx = 0 : idx++;
+    if (idx == Row_Count) {
+        idx= 0;
+    } else {
+        idx++;
+    }
 
-    char* p1  = (char *)buf + len - 1;
-    char* p2  = strbuf[idx];
+    char* p1  = (char *)Buffer + Length - 1;
+    char* p2  = string_buffer[idx];
 
-    if (len == UUID::LENGTH_OF_LONG_UUID) {
+    if (Length == UUID::LENGTH_OF_LONG_UUID) {
         const uint8_t format[] = {4, 2, 2, 2, 6};
         for ( uint8_t i: format) {
             size_t j = 0;
             for (; j < i; ++j) {
-                *p2++ = hex[(*p1 >> 4) & 0xF];
-                *p2++ = hex[(*p1--)    & 0xF];
+                *p2++ = Hex[(*p1 >> 4) & 0xF];
+                *p2++ = Hex[(*p1--)    & 0xF];
             }
             *p2++ = '-';
         }
         *--p2 = 0;
     } else {
         size_t i = 0;
-        for (; i < len; ++i) {
-            *p2++ = hex[(*p1 >> 4) & 0xF];
-            *p2++ = hex[(*p1--)    & 0xF];
+        for (; i < Length; ++i) {
+            *p2++ = Hex[(*p1 >> 4) & 0xF];
+            *p2++ = Hex[(*p1--)    & 0xF];
         }
         *p2 = 0;
     }
 
-    return strbuf[idx];
+    return string_buffer[idx];
 }
 
 static inline constexpr const char* to_string(bool v)
