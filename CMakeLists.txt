@@ -203,7 +203,7 @@ function(mbed_generate_map_file target)
          TARGET
              ${target}
          POST_BUILD
-         COMMAND ${Python3_EXECUTABLE} ${MBED_PATH}/tools/memap.py -t ${MBED_TOOLCHAIN} ${CMAKE_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map
+         COMMAND ${Python3_EXECUTABLE} ${MBED_PATH}/tools/memap.py -t ${MBED_TOOLCHAIN} ${CMAKE_BINARY_DIR}/${target}.map
          WORKING_DIRECTORY
              ${CMAKE_BINARY_DIR}
          COMMENT
