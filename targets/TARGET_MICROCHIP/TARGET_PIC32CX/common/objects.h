@@ -113,16 +113,9 @@ struct spi_s {
 };
 #endif
 
-#if DEVICE_RTC
-struct lp_timer_s {
-    uint32_t start;
-    uint32_t stop;
-};
-#endif
-
 #if DEVICE_FLASH
 struct flash_s {
-    MSC_TypeDef *msc;
+    Sefc *sfec;
 };
 #endif
 
