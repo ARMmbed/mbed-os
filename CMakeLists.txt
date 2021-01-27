@@ -6,6 +6,7 @@
 cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
 
 include(${MBED_CONFIG_PATH}/mbed_config.cmake)
+include(tools/cmake/set_linker_script.cmake)
 
 add_library(mbed-core INTERFACE)
 
@@ -86,6 +87,15 @@ target_include_directories(mbed-core
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+# We need to generate a "response file" to pass to the C preprocessor because of path length
+# limitations on Windows. We set the response file and bind the path to a global property here.
+# We query this global property when we set the linker script for the MBED_TARGET being built.
+#
+# TODO: Remove this and find a more idiomatic way of passing compile definitions to CPP without
+# using global properties.
+mbed_generate_options_for_linker(${APP_TARGET} LINKER_PREPROCESS_DEFINITIONS)
+set_property(GLOBAL PROPERTY COMPILE_DEFS_RESPONSE_FILE ${LINKER_PREPROCESS_DEFINITIONS})
+
 # These targets are made visible here so their source files which
 # are spread in different directories can be referenced and can be linked against
 # by libraries that depend on them.
@@ -110,6 +120,22 @@ add_subdirectory(features EXCLUDE_FROM_ALL)
 add_subdirectory(cmsis/CMSIS_5/CMSIS/RTOS2 EXCLUDE_FROM_ALL)
 add_subdirectory(cmsis/device/rtos EXCLUDE_FROM_ALL)
 
+# This is a temporary workaround to prevent the build from failing for MBED_TARGETS that
+# haven't been converted to build system targets yet.
+# The refactored MBED_TARGETS set the linker script and forward it to the build system as a
+# usage requirement. The 'old' mechanism was to set the linker script on the top level mbed-core
+# target. This was needed because MBED_TARGETS were not registered as buildsystem targets,
+# preventing CMake from working its usage requirements magic and forcing us to set the linker
+# script globally.
+#
+# TODO: Remove when all MBED_TARGETS have been converted to build system targets.
+if(TARGET ${MBED_TARGET})
+    target_link_libraries(mbed-core INTERFACE ${MBED_TARGET})
+else()
+    get_property(LINKER_SCRIPT GLOBAL PROPERTY MBED_TARGET_LINKER_FILE)
+    mbed_set_linker_script(mbed-core ${LINKER_SCRIPT})
+endif()
+
 #
 # Configures the application
 #
@@ -119,45 +145,6 @@ function(mbed_configure_app_target target)
         PUBLIC
             c_std_11
             cxx_std_14
-    )
-endfunction()
-
-#
-# Specifies linker script used for linking `target`.
-#
-function(mbed_set_mbed_target_linker_script target)
-    get_property(mbed_target_linker_script GLOBAL PROPERTY MBED_TARGET_LINKER_FILE)
-    mbed_generate_options_for_linker(${target} _linker_preprocess_definitions)
-    if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
-        set(CMAKE_PRE_BUILD_COMMAND
-            COMMAND "arm-none-eabi-cpp" ${_linker_preprocess_definitions} -x assembler-with-cpp -E -Wp,-P
-                ${mbed_target_linker_script} -o ${CMAKE_BINARY_DIR}/${target}.link_script.ld
-
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-            BYPRODUCTS "${CMAKE_BINARY_DIR}/${target}.link_script.ld"
-        )
-        target_link_options(mbed-core
-            INTERFACE
-                "-T" "${CMAKE_BINARY_DIR}/${target}.link_script.ld"
-                "-Wl,-Map=${CMAKE_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map"
-        )
-    elseif(MBED_TOOLCHAIN STREQUAL "ARM")
-        set(CMAKE_PRE_BUILD_COMMAND COMMAND "")
-        target_link_options(mbed-core
-            INTERFACE
-                "--scatter=${mbed_target_linker_script}"
-                "--predefine=${_linker_preprocess_definitions}"
-                "--map"
-        )
-    endif()
-    add_custom_command(
-        TARGET
-            ${target}
-        PRE_LINK
-            ${CMAKE_PRE_BUILD_COMMAND}
-        COMMENT
-            "Link line:"
-        VERBATIM
     )
 endfunction()
 
