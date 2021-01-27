@@ -46,7 +46,7 @@ const char *ble_error_to_string(ble_error_t error_code)
     }
 #else // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     static char ret[3] = "00";
-    sprintf(ret, "0x%02x", (int)error_code);
+    sprintf(ret, "%02x", (int)error_code);
 #endif // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     return ret;
 }
@@ -82,7 +82,7 @@ const char *attribute_error_code_to_string(uint8_t error_code)
     }
 #else // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     static char ret[3] = "00";
-    sprintf(ret, "0x%02x", (int)error_code);
+    sprintf(ret, "%02x", (int)error_code);
 #endif // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     return ret;
 }
@@ -118,7 +118,7 @@ const char *att_client_callback_event_to_string(uint8_t code)
     }
 #else // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     static char ret[3] = "00";
-    sprintf(ret, "0x%02x", (int)code);
+    sprintf(ret, "%02x", (int)code);
 #endif // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     return ret;
 }
@@ -156,7 +156,7 @@ const char *att_error_code_to_string(uint8_t error_code)
     }
 #else // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     static char ret[3] = "00";
-    sprintf(ret, "0x%02x", (int)error_code);
+    sprintf(ret, "%02x", (int)error_code);
 #endif // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     return ret;
 }
@@ -197,7 +197,7 @@ const char *attribute_opcode_to_string(uint8_t error_code)
     }
 #else // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     static char ret[3] = "00";
-    sprintf(ret, "0x%02x", (int)error_code);
+    sprintf(ret, "%02x", (int)error_code);
 #endif // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     return ret;
 }
@@ -303,7 +303,7 @@ const char *dm_callback_event_to_string(uint8_t event) {
     }
 #else // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     static char ret[3] = "00";
-    sprintf(ret, "0x%02x", (int)event);
+    sprintf(ret, "%02x", (int)event);
 #endif // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     return ret;
 }
@@ -509,8 +509,8 @@ const char *hci_opcode_to_string(uint16_t opcode)
         case HCI_OPCODE_LE_SET_TX_POWER_REPORT_ENABLE: ret = "HCI_OPCODE_LE_SET_TX_POWER_REPORT_ENABLE"; break;
     }
 #else // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
-    static char ret[3] = "00";
-    sprintf(ret, "0x%02x", (int)opcode);
+    static char ret[5] = "0000";
+    sprintf(ret, "%04x", opcode);
 #endif // MBED_CONF_BLE_TRACE_HUMAN_READABLE_ENUMS
     return ret;
 }
