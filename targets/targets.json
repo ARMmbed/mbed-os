@@ -6980,10 +6980,11 @@
             "LPTICKER",
             "USTICKER",
 			"RESET_REASON",
-			"RTC"
+			"RTC", 
+            "FLASH"
         ],
         "c_lib": "small",
-		"bootloader_supported": false,
+		"bootloader_supported": true,
 		"public": false
     },
     "PIC32CXMTG_EK": {
