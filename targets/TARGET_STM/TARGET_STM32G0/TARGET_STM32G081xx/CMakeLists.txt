@@ -9,14 +9,18 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32g081xx.sct)
 endif()
 
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+add_library(STM32G081xx INTERFACE)
 
-target_sources(mbed-core
+target_sources(STM32G081xx
     INTERFACE
         ${STARTUP_FILE}
 )
 
-target_include_directories(mbed-core
+target_include_directories(STM32G081xx
     INTERFACE
         .
 )
+
+mbed_set_linker_script(STM32G081xx ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+
+target_link_libraries(STM32G081xx INTERFACE STM32G0)

@@ -1,17 +1,15 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("STM32F746xG" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32F746xG)
-elseif("STM32F756xG" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32F756xG)
-elseif("STM32F767xI" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32F767xI)
-elseif("STM32F769xI" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32F769xI)
-endif()
+add_subdirectory(TARGET_STM32F746xG EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32F756xG EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32F767xI EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32F769xI EXCLUDE_FROM_ALL)
+add_subdirectory(STM32Cube_FW EXCLUDE_FROM_ALL)
 
-target_sources(mbed-core
+add_library(STM32F7 INTERFACE)
+
+target_sources(STM32F7
     INTERFACE
         analogin_device.c
         analogout_device.c
@@ -22,9 +20,10 @@ target_sources(mbed-core
         spi_api.c
 )
 
-add_subdirectory(STM32Cube_FW)
 
-target_include_directories(mbed-core
+target_include_directories(STM32F7
     INTERFACE
         .
 )
+
+target_link_libraries(STM32F7 INTERFACE STM STM32F7Cube_FW)

@@ -1,19 +1,17 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("STM32L053x8" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32L053x8)
-elseif("STM32L071xZ" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32L071xZ)
-elseif("STM32L072xZ" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32L072xZ)
-elseif("STM32L073xZ" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32L073xZ)
-elseif("STM32L082xZ" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32L082xZ)
-endif()
+add_subdirectory(TARGET_STM32L053x8 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L071xZ EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L072xZ EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L073xZ EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L082xZ EXCLUDE_FROM_ALL)
 
-target_sources(mbed-core
+add_subdirectory(STM32Cube_FW EXCLUDE_FROM_ALL)
+
+add_library(STM32L0 INTERFACE)
+
+target_sources(STM32L0
     INTERFACE
         analogin_device.c
         analogout_device.c
@@ -24,9 +22,9 @@ target_sources(mbed-core
         spi_api.c
 )
 
-add_subdirectory(STM32Cube_FW)
-
-target_include_directories(mbed-core
+target_include_directories(STM32L0
     INTERFACE
         .
 )
+
+target_link_libraries(STM32L0 INTERFACE STM STM32L0Cube_FW)

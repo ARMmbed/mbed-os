@@ -1,42 +1,29 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("STM32F0" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32F0)
-elseif("STM32F1" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32F1)
-elseif("STM32F2" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32F2)
-elseif("STM32F3" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32F3)
-elseif("STM32F4" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32F4)
-elseif("STM32F7" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32F7)
-elseif("STM32G0" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32G0)
-elseif("STM32G4" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32G4)
-elseif("STM32H7" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32H7)
-elseif("STM32L0" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32L0)
-elseif("STM32L1" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32L1)
-elseif("STM32L4" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32L4)
-elseif("STM32L5" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32L5)
-elseif("STM32WB" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32WB)
-endif()
+add_subdirectory(TARGET_STM32F0 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32F1 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32F2 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32F3 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32F4 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32F7 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32G0 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32G4 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32H7 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L0 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L1 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L4 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L5 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32WB EXCLUDE_FROM_ALL)
 
-target_include_directories(mbed-core
+add_library(STM INTERFACE)
+
+target_include_directories(STM
     INTERFACE
         .
 )
 
-target_sources(mbed-core
+target_sources(STM
     INTERFACE
         USBPhy_STM32.cpp
         analogin_api.c

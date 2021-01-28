@@ -1,26 +1,21 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("STM32F302x8" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32F302x8)
-elseif("STM32F303x8" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32F303x8)
-elseif("STM32F303xC" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32F303xC)
-elseif("STM32F303xE" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32F303xE)
-elseif("STM32F334x8" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32F334x8)
-endif()
+add_subdirectory(TARGET_STM32F302x8 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32F303x8 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32F303xC EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32F303xE EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32F334x8 EXCLUDE_FROM_ALL)
+add_subdirectory(STM32Cube_FW EXCLUDE_FROM_ALL)
 
-add_subdirectory(STM32Cube_FW)
+add_library(STM32F3 INTERFACE)
 
-target_include_directories(mbed-core
+target_include_directories(STM32F3
     INTERFACE
         .
 )
 
-target_sources(mbed-core
+target_sources(STM32F3
     INTERFACE
         analogin_device.c
         analogout_device.c
@@ -30,3 +25,5 @@ target_sources(mbed-core
         serial_device.c
         spi_api.c
 )
+
+target_link_libraries(STM32F3 INTERFACE STM STM32F3Cube_FW)

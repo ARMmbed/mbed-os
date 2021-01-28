@@ -9,9 +9,9 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32f411re.sct)
 endif()
 
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+add_library(MTS_DRAGONFLY_F411RE INTERFACE)
 
-target_sources(mbed-core 
+target_sources(MTS_DRAGONFLY_F411RE
     INTERFACE
         system_clock.c
         ONBOARD_TELIT_HE910.cpp
@@ -19,7 +19,11 @@ target_sources(mbed-core
         ${STARTUP_FILE}
 )
 
-target_include_directories(mbed-core
+target_include_directories(MTS_DRAGONFLY_F411RE
     INTERFACE
         .
 )
+
+mbed_set_linker_script(MTS_DRAGONFLY_F411RE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+
+target_link_libraries(MTS_DRAGONFLY_F411RE INTERFACE STM32F4)

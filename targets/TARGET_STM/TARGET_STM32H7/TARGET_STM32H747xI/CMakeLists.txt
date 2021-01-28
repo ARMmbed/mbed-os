@@ -1,21 +1,16 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("DISCO_H747I" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_DISCO_H747I)
-elseif("PORTENTA_H7" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_PORTENTA_H7)
-elseif("STM32H7A3xIQ" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32H7A3xIQ)
-endif()
+add_subdirectory(TARGET_DISCO_H747I EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_PORTENTA_H7 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32H747xI_CM7 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32H747xI_CM4 EXCLUDE_FROM_ALL)
 
-if("STM32H747xI_CM7" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32H747xI_CM7)
-elseif("STM32H747xI_CM4" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32H747xI_CM4)
-endif()
+add_library(STM32H747xI INTERFACE)
 
-target_sources(mbed-core
+target_sources(STM32H747xI
     INTERFACE
         system_clock.c
 )
+
+target_link_libraries(STM32H747xI INTERFACE STM32H7)

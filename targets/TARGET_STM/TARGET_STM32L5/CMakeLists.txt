@@ -1,17 +1,14 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("STM32L552xC" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32L552xC)
-elseif("STM32L552xE" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32L552xE)
-elseif("STM32L562xE" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32L562xE)
-endif()
+add_subdirectory(TARGET_STM32L552xC EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L552xE EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L562xE EXCLUDE_FROM_ALL)
+add_subdirectory(STM32Cube_FW EXCLUDE_FROM_ALL)
 
-add_subdirectory(STM32Cube_FW)
+add_library(STM32L5 INTERFACE)
 
-target_sources(mbed-core
+target_sources(STM32L5
     INTERFACE
         analogin_device.c
         analogout_device.c
@@ -23,7 +20,9 @@ target_sources(mbed-core
         spi_api.c
 )
 
-target_include_directories(mbed-core
+target_include_directories(STM32L5
     INTERFACE
         .
 )
+
+target_link_libraries(STM32L5 INTERFACE STM STM32L5Cube_FW)

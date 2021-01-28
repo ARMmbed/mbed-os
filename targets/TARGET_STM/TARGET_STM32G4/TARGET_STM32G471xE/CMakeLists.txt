@@ -9,14 +9,18 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32g471xe.sct)
 endif()
 
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+add_library(STM32G471xE INTERFACE)
 
-target_sources(mbed-core
+target_sources(STM32G471xE
     INTERFACE
         ${STARTUP_FILE}
 )
 
-target_include_directories(mbed-core
+target_include_directories(STM32G471xE
     INTERFACE
         .
 )
+
+mbed_set_linker_script(STM32G471xE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+
+target_link_libraries(STM32G471xE INTERFACE STM32G4)
