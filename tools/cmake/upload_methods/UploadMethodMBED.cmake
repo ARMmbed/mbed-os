@@ -1,3 +1,6 @@
+# Copyright (c) 2020 ARM Limited. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 ### Mbed USB Drive Upload Method
 # This method needs no parameters.
 # This method creates the following options:

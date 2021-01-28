@@ -1,3 +1,5 @@
+# Copyright (c) 2020 ARM Limited. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 # CMake script which is invoked at install time to copy a bin file onto the mbed
 

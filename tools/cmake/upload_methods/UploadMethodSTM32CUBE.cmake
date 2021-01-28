@@ -1,3 +1,6 @@
+# Copyright (c) 2020 ARM Limited. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 ### STM32Cube Upload Method
 # This method needs the following parameters:
 # STM32CUBE_CONNECT_COMMAND - "Connect" (-c) command to pass to the programmer

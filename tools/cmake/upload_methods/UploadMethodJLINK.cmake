@@ -1,3 +1,6 @@
+# Copyright (c) 2020 ARM Limited. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 ### J-Link Upload Method
 # This method needs the following parameters:
 # JLINK_UPLOAD_INTERFACE - Interface to use with J-Link.  Should be "JTAG" or "SWD".
