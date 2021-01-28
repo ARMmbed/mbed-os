@@ -1,3 +1,6 @@
+# Copyright (c) 2020 ARM Limited. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 # CMake functions for checking for Python packages
 # Requires PYTHON_EXECUTABLE to be defined.  Call FindPythonInterp first!
 

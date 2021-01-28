@@ -1,3 +1,6 @@
+# Copyright (c) 2020 ARM Limited. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 # ----------------------------------------------
 # CMake finder for STMicro's STM32 upload and debugging tools
 #

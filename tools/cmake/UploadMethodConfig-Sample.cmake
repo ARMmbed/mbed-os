@@ -1,3 +1,6 @@
+# Copyright (c) 2020 ARM Limited. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 # Edit this file to configure the upload methods for your processor.
 
 # See here for documentation about these options: https://github.com/USCRPL/mbed-cmake/wiki/Upload-Methods
