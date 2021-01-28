@@ -6980,11 +6980,12 @@
             "LPTICKER",
             "USTICKER",
 			"RESET_REASON",
-			"RTC",
-			"WATCHDOG"
+			"RTC", 
+            "FLASH",
+            "WATCHDOG"
         ],
         "c_lib": "small",
-		"bootloader_supported": false,
+		"bootloader_supported": true,
 		"public": false
     },
     "PIC32CXMTG_EK": {

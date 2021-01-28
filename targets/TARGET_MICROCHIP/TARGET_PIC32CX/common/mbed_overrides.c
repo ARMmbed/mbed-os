@@ -26,8 +26,6 @@
 #include "device_peripherals.h"
 #include "device.h"
 
-gpio_t bc_enable;
-
 /* Called before main - implement here if board needs it.
  * Otherwise, let the application override this if necessary */
 void mbed_sdk_init()
@@ -43,6 +41,4 @@ void mbed_sdk_init()
 
 	/* Initialize the SAM system */
 	sysclk_init();
-
-
 }
