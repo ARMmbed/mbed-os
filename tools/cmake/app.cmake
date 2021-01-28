@@ -59,6 +59,7 @@ if(Python3_FOUND AND HAVE_PYTHON_INTELHEX AND HAVE_PYTHON_PRETTYTABLE)
 	set(HAVE_MEMAP_DEPS TRUE)
 else()
 	set(HAVE_MEMAP_DEPS FALSE)
+	
 	message(STATUS "Missing Python dependencies (python3, intelhex, prettytable) so the memory map cannot be printed")
 endif()
 
