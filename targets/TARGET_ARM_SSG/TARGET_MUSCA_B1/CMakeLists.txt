@@ -42,9 +42,6 @@ target_sources(mbed-core
         device/drivers/timer_gp_drv.c
         device/drivers/uart_pl011_drv.c
 
-        partition/image_macros_preprocessed_ns.c
-        partition/image_macros_preprocessed_s.c
-
         ${STARTUP_FILE}
 )
 
