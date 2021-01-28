@@ -46,16 +46,6 @@ if(OPENOCD_UPLOAD_ENABLED)
         )
 endif()
 
-# Config options for NXPPROG
-# -------------------------------------------------------------
-
-set(NXPPROG_UPLOAD_ENABLED FALSE)
-
-if(NXPPROG_UPLOAD_ENABLED)
-    set(NXPPROG_OSCFREQ 14748)
-    set(NXPPROG_BAUD 115200)
-endif()
-
 # Config options for STM32Cube
 # -------------------------------------------------------------
 

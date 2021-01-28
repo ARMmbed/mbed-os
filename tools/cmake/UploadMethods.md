@@ -18,7 +18,6 @@ To debug, first run `make gdbserver` in one terminal to start up the debug probe
 |J-Link|`-DUPLOAD_METHOD=JLINK`|✔️|✔️|Fast|Mbed boards with J-Link On-Board.  Custom boards with a J-Link probe.
 |pyOCD|`-DUPLOAD_METHOD=PYOCD`|✔️|✔️|Medium|Almost all Mbed boards.  Custom boards with an ST-Link or DAPLink probe.
 |OpenOCD|`-DUPLOAD_METHOD=OPENOCD`|✔️|✔️|(Varies)|A number of different debug probes, but requires configuration.
-|NXP Bootloader|`-DUPLOAD_METHOD=NXPPROG`|✔️|❌|Slow|LPC1768 and LPC1114 on custom boards.
 |STM32Cube|`-DUPLOAD_METHOD=STM32CUBE`|✔️|✔️|Fast|All STMicroelectronics Mbed boards, custom boards with ST_Link probes.
 
 
@@ -135,42 +134,6 @@ Whether the OpenOCD upload method can be activated.
 **Type:** List of Strings
 
 This config option specifies all OpenOCD commands needed to configure the program for your target processor.  At minimum, this should include loading an interface config file and a target config file.  Since these options may need to access scripts in the OpenOCD install dir, CMake provides the variable `OpenOCD_SCRIPT_DIR` which will resolve to the scripts directory of OpenOCD on the current machine.
-
-## NXP Bootloader
-
-Uploader that uses the bootloader on certain NXP LPC1XXX and LPC2XXX processors to flash code.  USCRPL's fork of nxpprog.py is used to do the upload so programming from Windows 10 using FTDI adapters should work fine.
-
-Using this uploader requires some special considerations in your hardware design: Unless you want to manually reset the CPU each time you upload code, the processor's ISP and reset pins must be connected to the serial port.  Specifically, a low on the processor reset pin should be triggered by a high on DTR, and a low on the processor ISP pin should be triggered by a high on RTS.
-
-To use this uploader, you will need to have the `serial` package installed into the Python installation that CMake is using.
-
-### Parameters: 
-
-> NXPPROG_UPLOAD_ENABLED
-
-**Type:** Bool
-
-Whether the NXP Bootloader upload method can be activated.
-
-> NXPPROG_BAUD
-
-**Type:** Integer
-
-Baudrate to talk to the bootloader over.
-
-> NXPPROG_OSCFREQ
-
-**Type:** Integer
-
-The bootloader needs to be sent the chip's internal oscillator frequency in order to operate.  See your chip's datasheet section on the bootloader for details.
-
-### Options:
-
-> NXPPROG_COM_PORT
-
-**Type:** Integer
-
-Serial port that the NXP processor is accessible on.
 
 ## STM32Cube
 
