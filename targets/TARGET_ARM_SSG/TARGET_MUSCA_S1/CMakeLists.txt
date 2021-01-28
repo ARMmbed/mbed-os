@@ -50,9 +50,6 @@ target_sources(mbed-arm-musca-s1
 
         Libraries/mt25ql_flash_lib.c
 
-        partition/image_macros_preprocessed_ns.c
-        partition/image_macros_preprocessed_s.c
-
         ${STARTUP_FILE}
 )
 
