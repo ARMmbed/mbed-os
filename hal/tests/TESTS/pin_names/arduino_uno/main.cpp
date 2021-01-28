@@ -190,8 +190,6 @@ void I2C_test()
     }
 
     I2C i2c(SDA_pin, SCL_pin);
-    // Basic API call
-    i2c.read(0);
 }
 
 
