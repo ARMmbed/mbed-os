@@ -44,7 +44,7 @@ function(check_python_package PACKAGENAME OUTPUT_VAR)
             set(HAVE_PACKAGE FALSE)
         endif()
 
-            if(HAVE_PACKAGE)
+        if(HAVE_PACKAGE)
             message(STATUS "Checking for Python package ${PACKAGENAME} -- found")
         else()
             message(STATUS "Checking for Python package ${PACKAGENAME} -- not found")
