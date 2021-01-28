@@ -6981,7 +6981,8 @@
             "USTICKER",
 			"RESET_REASON",
 			"RTC", 
-            "FLASH"
+            "FLASH",
+            "WATCHDOG"
         ],
         "c_lib": "small",
 		"bootloader_supported": true,
