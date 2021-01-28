@@ -6980,7 +6980,8 @@
             "LPTICKER",
             "USTICKER",
 			"RESET_REASON",
-			"RTC"
+			"RTC",
+			"WATCHDOG"
         ],
         "c_lib": "small",
 		"bootloader_supported": false,
