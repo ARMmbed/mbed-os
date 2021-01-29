@@ -26,7 +26,7 @@ import json
 from intelhex import IntelHex, hex2bin, bin2hex
 from pathlib import Path
 
-from ..config import ConfigException
+from tools.config import ConfigException
 
 # The size of the program data in Cypress HEX files is limited to 0x80000000
 # Higher addresses contain additional metadata (chip protection, eFuse data, etc..)

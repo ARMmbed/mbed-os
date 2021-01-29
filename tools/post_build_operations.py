@@ -28,12 +28,7 @@ from enum import Enum
 MBED_OS_ROOT = str(pathlib.Path(__file__).absolute().parents[1])
 sys.path.insert(0, MBED_OS_ROOT)
 
-from resources import Resources, FileType, FileRef
-from targets import (
-    ArmMuscaA1Code, ArmMuscaB1Code, ArmMuscaS1Code,
-    LPC4088Code, LPCTargetCode, M2351Code, MCU_NRF51Code, MTSCode,
-    NCS36510TargetCode, PSOC6Code, RTL8195ACode, TEENSY3_1Code
-)
+from binary_manipulation import *
 
 
 LOG = logging.getLogger(__name__)
@@ -73,43 +68,43 @@ def raise_(ex):
 
 def handle_lpctargetcode_lpc_patch(args):
     """Handle LPCTargetCode.lpc_patch operation."""
-    LPCTargetCode.patch_vectortbl(args.binary, LOG)
+    lpc_patch_vectortbl(args.binary, LOG)
 
 
 def handle_lpc4088code_binary_hook(args):
     """Handle LPC4088Code.binary_hook operation."""
-    LPC4088Code.pad_binary(args.binary, LOG)
+    lpc4088_pad_binary(args.binary, LOG)
 
 
 def handle_psoc6code_complete(args):
     """Handle PSOC6Code.complete operation."""
-    PSOC6Code.merge_images(
-        args.binary, args.elf, LOG, args.m0_img, args.hex
+    psoc6code_merge_images(
+        args.binary, args.elf, LOG, args.m0_hex, args.hex
     )
 
 
 def handle_psoc6code_sign_image(args):
     """Handle PSOC6Code.sign_image operation."""
-    PSOC6Code.add_signature_to_image(
+    psoc6code_add_signature_to_image(
         args.build_dir, args.mbed_target, args.policy, args.boot_scheme,
         args.m0_img, args.m4_img, args.binary, args.elf, LOG,
-        args.hex
+        args.hex, args.m0_hex
     )
 
 
 def handle_armmuscas1code_binary_hook(args):
     """Handle ArmMuscaS1Code.binary_hook operation."""
-    ArmMuscaS1Code.merge_images(args.secure_image, args.binary)
+    arm_musca_s1_merge_images(args.secure_image, args.binary)
 
 
 def handle_armmuscab1code_binary_hook(args):
     """Handle ArmMuscaB1Code.binary_hook operation."""
-    ArmMuscaB1Code.merge_images(args.secure_image, args.binary)
+    arm_musca_b1_merge_images(args.secure_image, args.binary)
 
 
 def handle_armmuscaa1code_binary_hook(args):
     """Handle ArmMuscaA1Code.binary_hook operation."""
-    ArmMuscaA1Code.merge_images(args.secure_image, args.binary)
+    arm_musca_a1_merge_images(args.secure_image, args.binary)
 
 
 def handle_teensy3_1code_binary_hook(args):
@@ -128,34 +123,34 @@ def handle_ncs36510targetcode_ncs36510_addfib(args):
 
 def handle_mtscode_combine_bins_mts_dot(args):
     """Handle MTSCode.combine_bins_mts_dot operation."""
-    MTSCode._combine_bins_helper("MTS_MDOT_F411RE", args.binary)
+    mtscode_combine_bins_helper("MTS_MDOT_F411RE", args.binary)
 
 
 def handle_mtscode_combine_bins_mts_dragonfly(args):
     """Handle MTSCode.combine_bins_mts_dragonfly operation."""
-    MTSCode._combine_bins_helper("MTS_DRAGONFLY_F411RE", args.binary)
+    mtscode_combine_bins_helper("MTS_DRAGONFLY_F411RE", args.binary)
 
 
 def handle_mtscode_combine_bins_mtb_mts_dragonfly(args):
     """Handle MTSCode.combine_bins_mtb_mts_dragonfly operation."""
-    MTSCode._combine_bins_helper("MTB_MTS_DRAGONFLY", args.binary)
+    mtscode_combine_bins_helper("MTB_MTS_DRAGONFLY", args.binary)
 
 
 def handle_rtl8195acode_binary_hook(args):
     """Handle RTL8195ACode.binary_hook operation."""
-    RTL8195ACode.convert_elf_to_bin(args.toolchain, args.elf, args.binary)
+    rtl8195a_convert_elf_to_bin(args.toolchain, args.elf, args.binary)
 
 
 def handle_m2351code_merge_secure(args):
     """Handle M2351Code.merge_secure operation."""
-    M2351Code.merge_images(
+    m2351code_merge_images(
         LOG, args.secure_image, args.elf, args.hex
     )
 
 
 def handle_mcu_nrf51code_binary_hook(args):
     """Handle MCU_NRF51Code.binary_hook operation."""
-    MCU_NRF51Code.merge_images(
+    mcu_nrf51code_merge_images(
         LOG, args.binary,
         True if args.soft_device else False,
         args.soft_device, args.soft_device_offset,
@@ -279,13 +274,19 @@ def parse_args():
     parser.add_argument(
         "--m0-img",
         type=str,
-        help="the Cortex-M0 hex/bin file to merge with.",
+        help="the Cortex-M0 image to merge with.",
+    )
+
+    parser.add_argument(
+        "--m0-hex",
+        type=str,
+        help="the Cortex-M0 hex to merge with.",
     )
 
     parser.add_argument(
         "--m4-img",
         type=str,
-        help="the Cortex-M4 hex/bin file to merge with.",
+        help="the Cortex-M4 image file to merge with.",
     )
 
     parser.add_argument(

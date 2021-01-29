@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2011-2020 ARM Limited
+Copyright (c) 2011-2021 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -27,9 +27,6 @@ from collections import namedtuple
 from copy import copy
 from future.utils import raise_from
 from tools.resources import FileType
-from tools.settings import ROOT
-from tools.targets.LPC import patch
-from tools.paths import TOOLS_BOOTLOADERS
 from tools.utils import json_file_to_dict, NotSupportedException
 
 # Add PSA TF-M binary utility scripts in system path
@@ -473,135 +470,39 @@ class LPCTargetCode(object):
     @staticmethod
     def lpc_patch(t_self, resources, elf, binf):
         """Patch an elf file"""
-        LPCTargetCode.patch_vectortbl(binf, t_self.notify)
+        from tools.binary_manipulation import lpc_patch_vectortbl
 
-    @staticmethod
-    def patch_vectortbl(binf, notification):
-        """Patch the vector table in the binary file."""
-        notification.debug("LPC Patch: %s" % os.path.split(binf)[1])
-        patch(binf)
+        lpc_patch_vectortbl(binf, t_self.notify)
 
 
 class MTSCode(object):
     """Generic MTS code"""
-    @staticmethod
-    def _combine_bins_helper(target_name, binf):
-        """combine bins with the bootloader for a particular target"""
-        loader = os.path.join(TOOLS_BOOTLOADERS, target_name, "bootloader.bin")
-        target = binf + ".tmp"
-        if not os.path.exists(loader):
-            print("Can't find bootloader binary: " + loader)
-            return
-        outbin = open(target, 'w+b')
-        part = open(loader, 'rb')
-        data = part.read()
-        outbin.write(data)
-        outbin.write(b'\xFF' * (64*1024 - len(data)))
-        part.close()
-        part = open(binf, 'rb')
-        data = part.read()
-        outbin.write(data)
-        part.close()
-        outbin.seek(0, 0)
-        data = outbin.read()
-        outbin.seek(0, 1)
-        crc = struct.pack('<I', binascii.crc32(data) & 0xFFFFFFFF)
-        outbin.write(crc)
-        outbin.close()
-        os.remove(binf)
-        os.rename(target, binf)
+    from tools.binary_manipulation import mtscode_combine_bins_helper
 
     @staticmethod
     def combine_bins_mts_dot(t_self, resources, elf, binf):
         """A hook for the MTS MDOT"""
-        MTSCode._combine_bins_helper("MTS_MDOT_F411RE", binf)
+        mtscode_combine_bins_helper("MTS_MDOT_F411RE", binf)
 
     @staticmethod
     def combine_bins_mts_dragonfly(t_self, resources, elf, binf):
         """A hoof for the MTS Dragonfly"""
-        MTSCode._combine_bins_helper("MTS_DRAGONFLY_F411RE", binf)
+        mtscode_combine_bins_helper("MTS_DRAGONFLY_F411RE", binf)
 
     @staticmethod
     def combine_bins_mtb_mts_dragonfly(t_self, resources, elf, binf):
         """A hook for the MTB MTS Dragonfly"""
-        MTSCode._combine_bins_helper("MTB_MTS_DRAGONFLY", binf)
+        mtscode_combine_bins_helper("MTB_MTS_DRAGONFLY", binf)
 
 
 class LPC4088Code(object):
     """Code specific to the LPC4088"""
-
-    @staticmethod
-    def add_padding(binf):
-        """Add padding to the binary file."""
-        outbin = open(binf + ".temp", "wb")
-        partf = open(os.path.join(binf, "ER_IROM1"), "rb")
-
-        # Pad the fist part (internal flash) with 0xFF to 512k
-        data = partf.read()
-        outbin.write(data)
-        outbin.write(b'\xFF' * (512*1024 - len(data)))
-        partf.close()
-
-        # Read and append the second part (external flash) in chunks of fixed
-        # size
-        chunksize = 128 * 1024
-        partf = open(os.path.join(binf, "ER_IROM2"), "rb")
-        while True:
-            data = partf.read(chunksize)
-            outbin.write(data)
-            if len(data) < chunksize:
-                break
-
-        partf.close()
-        outbin.close()
-
-    @staticmethod
-    def substitute_binary(binf):
-        """Substitute the binary.
-
-        Remove the directory with the binary parts and rename the temporary
-        file to 'binf'
-        """
-        shutil.rmtree(binf, True)
-        os.rename(binf + '.temp', binf)
-
-
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
         """Hook to be run after an elf file is built"""
-        if not os.path.isdir(binf):
-            # Regular binary file, nothing to do
-            LPCTargetCode.lpc_patch(t_self, resources, elf, binf)
-            return
+        from tools.binary_manipulation import lpc4088_pad_binary
 
-        LPC4088Code.add_padding(binf)
-
-        LPC4088Code.substitute_binary(binf)
-
-        t_self.notify.debug(
-            "Generated custom binary file (internal flash + SPIFI)"
-        )
-
-        LPCTargetCode.lpc_patch(t_self, resources, elf, binf)
-
-
-    @staticmethod
-    def pad_binary(binf, notification):
-        """Hook to be run after an elf file is built"""
-        if not os.path.isdir(binf):
-            # Regular binary file, nothing to do
-            LPCTargetCode.patch_vectortbl(binf)
-            return
-
-        LPC4088Code.add_padding(binf)
-
-        LPC4088Code.substitute_binary(binf)
-
-        notification.debug(
-            "Generated custom binary file (internal flash + SPIFI)"
-        )
-
-        LPCTargetCode.patch_vectortbl(binf, notification)
+        lpc4088_pad_binary(binf, t_self.notify)
 
 
 class TEENSY3_1Code(object):
@@ -619,6 +520,8 @@ class MCU_NRF51Code(object):
     @staticmethod
     def binary_hook(t_self, resources, _, binf):
         """Hook that merges the soft device with the bin file"""
+        from tools.binary_manipulation import mcu_nrf51code_merge_images
+
         # Scan to find the actual paths of soft device
         sdf = None
 
@@ -657,45 +560,12 @@ class MCU_NRF51Code(object):
                     blf = hexf
                     break
 
-        MCU_NRF51Code.merge_images(
+        mcu_nrf51code_merge_images(
             t_self.notify, binf, t_self.target.MERGE_SOFT_DEVICE,
             softdevice_and_offset_entry['name'],
             softdevice_and_offset_entry['offset'],
             t_self.target.MERGE_BOOTLOADER, blf
         )
-
-
-    @staticmethod
-    def merge_images(
-        notification, binary, is_soft_device_merge, soft_device,
-        soft_device_offset, is_bootloader_merge, bootloader
-    ):
-        """Merge the soft device with the user code."""
-        from intelhex import IntelHex
-
-        ih = IntelHex()
-        _, ext = os.path.splitext(binary)
-
-        if ext == ".hex":
-            ih.loadhex(binary)
-        elif ext == ".bin":
-            ih.loadbin(binary, soft_device_offset)
-
-        if is_soft_device_merge:
-            notification.debug("Merge SoftDevice file %s"
-                                % soft_device)
-            sdh = IntelHex(sdf)
-            sdh.start_addr = None
-            ih.merge(sdh)
-
-        if is_bootloader_merge and bootloader:
-            notification.debug("Merge BootLoader file %s" % bootloader)
-            blh = IntelHex(bootloader)
-            blh.start_addr = None
-            ih.merge(blh)
-
-        with open(binary.replace(".bin", ".hex"), "w") as fileout:
-            ih.write_hex_file(fileout, write_start_addr=False)
 
 
 class NCS36510TargetCode(object):
@@ -710,48 +580,31 @@ class RTL8195ACode(object):
     """RTL8195A Hooks"""
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
-        RTL8195ACode.convert_elf_to_bin(t_self.name, elf, binf)
+        from tools.binary_manipulation import rtl8195a_convert_elf_to_bin
 
-    @staticmethod
-    def convert_elf_to_bin(toolchain, elf, binary):
-        """"Convert an ELF file to a binary file"""
-        from tools.targets.REALTEK_RTL8195AM import rtl8195a_elf2bin
-        rtl8195a_elf2bin(toolchain, elf, binary)
+        rtl8195a_convert_elf_to_bin(t_self.name, elf, binf)
 
 
 class PSOC6Code(object):
     @staticmethod
     def complete(t_self, resources, elf, binf):
         """Complete the build process."""
+        from tools.binary_manipulation import psoc6code_merge_images
+
         hex_filename = None
+        cortex_m0_hex_file = None
 
         if hasattr(t_self.target, "hex_filename"):
             hex_filename = t_self.target.hex_filename
 
-        if hex_file:
             from tools.targets.PSOC6 import find_cm0_image
             # Completing main image involves merging M0 image.
             cortex_m0_hex_file = find_cm0_image(
                 notification.info, resources, hex_file
             )
 
-        PSOC6Code.merge_images(
-            binf, elf, t_self.notify, resources, hex_filename
-        )
-
-    @staticmethod
-    def merge_images(
-        bin_file, elf_file, notification, cortex_m0_hex_file=None, hex_file=None
-    ):
-        """Merge the ELF file and the binary file."""
-        # Import here to avoid circular import
-        from tools.targets.PSOC6 import complete as psoc6_complete
-
-        psoc6_complete(
-            notification.debug,
-            elf_file,
-            bin_file,
-            cortex_m0_hex_file
+        psoc6code_merge_images(
+            binf, elf, t_self.notify, cortex_m0_hex_file, hex_filename
         )
 
 
@@ -761,20 +614,22 @@ class PSOC6Code(object):
         Calls sign_image function to add signature to Secure Boot binary file.
         This function is used with Cypress kits, that support cysecuretools signing.
         """
+        from tools.binary_manipulation import psoc6code_add_signature_to_image
 
         hex_filename = None
+        cortex_m0_hex_file = None
 
         if hasattr(t_self.target, "hex_filename"):
-            hex_filename = t_self.target.hex_filename
+            from targets.PSOC6 import find_cm0_image
 
-            from tools.targets.PSOC6 import find_cm0_image
+            hex_filename = t_self.target.hex_filename
 
             # Completing main image involves merging M0 image.
             cortex_m0_hex_file = find_cm0_image(
                 t_self.notify.info, resources, hex_filename
             )
 
-        PSOC6Code.add_signature_to_image(
+        psoc6code_add_signature_to_image(
             t_self.build_dir,
             t_self.target.name,
             t_self.target.policy_file,
@@ -784,40 +639,17 @@ class PSOC6Code(object):
             binf,
             elf,
             t_self.notify,
-            hex_filename
+            hex_filename,
+            cortex_m0_hex_file
         )
-
-    @staticmethod
-    def add_signature_to_image(
-        build_dir, target_name, policy, boot_scheme, cortex_m0_img_id,
-        cortex_m4_img_id, bin_file, elf_file, notification, hex_file=None
-    ):
-        """Add a signature to the image."""
-        cortex_m0_hex_file = None
-
-        if hex_file:
-            # Import here to avoid circular import
-            from tools.targets.PSOC6 import sign_image as psoc6_sign_image
-
-            psoc6_sign_image(
-                build_dir,
-                hex_file,
-                target_name,
-                policy,
-                notification,
-                boot_scheme,
-                cortex_m0_img_id,
-                cortex_m4_img_id,
-                elf_file,
-                bin_file,
-                cortex_m0_hex_file
-            )
 
 
 class ArmMuscaA1Code(object):
     """Musca-A1 Hooks"""
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
+        from tools.binary_manipulation import arm_musca_a1_merge_images
+
         secure_bin = find_secure_image(
             t_self.notify,
             resources,
@@ -826,19 +658,15 @@ class ArmMuscaA1Code(object):
             FileType.BIN
         )
 
-        ArmMuscaA1Code.merge_images(secure_bin, binf)
-
-    @staticmethod
-    def merge_images(secure_bin, binary):
-        """Merge secure and non-secure images."""
-        from tools.targets.ARM_MUSCA_A1 import musca_tfm_bin
-        musca_tfm_bin(binary, secure_bin)
+        arm_musca_a1_merge_images(secure_bin, binf)
 
 
 class ArmMuscaB1Code(object):
     """Musca-B1 Hooks"""
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
+        from tools.binary_manipulation import arm_musca_b1_merge_images
+
         secure_bin = find_secure_image(
             t_self.notify,
             resources,
@@ -847,19 +675,15 @@ class ArmMuscaB1Code(object):
             FileType.BIN
         )
 
-        ArmMuscaB1Code.merge_images(secure_bin, binf)
-
-    @staticmethod
-    def merge_images(secure_bin, binary):
-        """Merge secure and non-secure images."""
-        from tools.targets.ARM_MUSCA_B1 import musca_tfm_bin
-        musca_tfm_bin(binary, secure_bin)
+        arm_musca_b1_merge_images(secure_bin, binf)
 
 
 class ArmMuscaS1Code(object):
     """Musca-S1 Hooks"""
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
+        from tools.binary_manipulation import arm_musca_s1_merge_images
+
         secure_bin = find_secure_image(
             t_self.notify,
             resources,
@@ -868,14 +692,7 @@ class ArmMuscaS1Code(object):
             FileType.BIN
         )
 
-        ArmMuscaS1Code.merge_images(secure_bin, binf)
-
-    @staticmethod
-    def merge_images(secure_bin, binary):
-        """Merge secure and non-secure images."""
-        from tools.targets.ARM_MUSCA_S1 import musca_tfm_bin
-
-        musca_tfm_bin(binary, secure_bin)
+        arm_musca_s1_merge_images(secure_bin, binf)
 
 
 def find_secure_image(notify, resources, ns_image_path,
@@ -915,6 +732,8 @@ class M2351Code(object):
     """M2351 Hooks"""
     @staticmethod
     def merge_secure(t_self, resources, ns_elf, ns_hex):
+        from tools.binary_manipulation import m2351code_merge_images
+
         s_hex = find_secure_image(
             t_self.notify,
             resources,
@@ -923,53 +742,7 @@ class M2351Code(object):
             FileType.HEX
         )
 
-        M2351Code.merge_images(t_self.notify, s_hex, ns_elf, ns_hex)
-
-    @staticmethod
-    def merge_images(notification, secure_image, ns_elf, ns_hex):
-        """Merge secure and non-secure images."""
-        notification.info("Merging non-secure image with secure image")
-        notification.info("Non-secure elf image %s" % ns_elf)
-        notification.info("Non-secure hex image %s" % ns_hex)
-        notification.info("Finding secure image %s" % secure_image)
-
-        notification.info("Found secure image %s" % s_hex)
-
-        _, ext = os.path.splitext(s_hex)
-
-        if ext != ".hex":
-            notification.debug("Secure image %s must be in Intel HEX format" % s_hex)
-            return
-
-        if not os.path.isfile(s_hex):
-            notification.debug("Secure image %s must be regular file" % s_hex)
-            return
-
-        ns_main, ext = os.path.splitext(ns_hex)
-
-        if ext != ".hex":
-            notification.debug("Non-secure image %s must be in Intel HEX format" % s_hex)
-            return
-
-        if not os.path.isfile(ns_hex):
-            notification.debug("Non-secure image %s must be regular file" % s_hex)
-            return
-
-        # Keep original non-secure before merge with secure
-        ns_nosecure_hex = ns_main + "_no-secure-merge" + ext
-        notification.info("Keep no-secure-merge image %s" % ns_nosecure_hex)
-        shutil.copy2(ns_hex, ns_nosecure_hex)
-
-        # Merge secure and non-secure and save to non-secure (override it)
-        from intelhex import IntelHex
-
-        s_ih = IntelHex()
-        s_ih.loadhex(s_hex)
-        ns_ih = IntelHex()
-        ns_ih.loadhex(ns_hex)
-        ns_ih.start_addr = None
-        s_ih.merge(ns_ih)
-        s_ih.tofile(ns_hex, 'hex')
+        m2351code_merge_images(t_self.notify, s_hex, ns_elf, ns_hex)
 
 
 # End Target specific section
