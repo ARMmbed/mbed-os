@@ -21,6 +21,7 @@
 #include "platform/Callback.h"
 #include "platform/mbed_error.h"
 #include <string.h>
+#include <new>
 
 // Default network-interface state
 void NetworkInterface::set_as_default()
@@ -141,15 +142,29 @@ static void call_all_event_listeners(NetworkInterface *iface, nsapi_event_t even
         }
     }
 }
-
+#if MBED_CONF_NSAPI_ADD_EVENT_LISTENER_RETURN_CHANGE
+nsapi_error_t NetworkInterface::add_event_listener(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
+#else
 void NetworkInterface::add_event_listener(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
+#endif
 {
     iface_eventlist_t *event_list = get_interface_event_list_head();
+
+#if MBED_CONF_NSAPI_ADD_EVENT_LISTENER_RETURN_CHANGE
+    iface_eventlist_entry_t *entry = new (std::nothrow) iface_eventlist_entry_t;
+    if (!entry) {
+        return NSAPI_ERROR_NO_MEMORY;
+    }
+#else
     iface_eventlist_entry_t *entry = new iface_eventlist_entry_t;
+#endif
     entry->iface = this;
     entry->status_cb = status_cb;
     ns_list_add_to_end(event_list, entry);
     attach(mbed::callback(&call_all_event_listeners, this));
+#if MBED_CONF_NSAPI_ADD_EVENT_LISTENER_RETURN_CHANGE
+    return NSAPI_ERROR_OK;
+#endif
 }
 
 #if MBED_CONF_PLATFORM_CALLBACK_COMPARABLE
