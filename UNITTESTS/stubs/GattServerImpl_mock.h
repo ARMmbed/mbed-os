@@ -30,8 +30,8 @@ public:
     GattServerMock& operator=(const GattServerMock&) = delete;
     virtual ~GattServerMock() {};
 
-    MOCK_METHOD(void, setEventHandler, (EventHandler *handler), (override));
     MOCK_METHOD(ble_error_t, reset, (ble::GattServer* server), (override));
+    MOCK_METHOD(void, setEventHandler, (EventHandler *handler), (override));
     MOCK_METHOD(ble_error_t, addService, (GattService &service), (override));
     MOCK_METHOD(ble_error_t, read, (GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP), (override));
     MOCK_METHOD(ble_error_t, read, (ble::connection_handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, uint8_t *buffer, uint16_t *lengthP), (override));

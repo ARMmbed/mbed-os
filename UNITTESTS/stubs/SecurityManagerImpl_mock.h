@@ -30,9 +30,9 @@ public:
     SecurityManagerMock& operator=(const GattServerMock&) = delete;
     virtual ~SecurityManagerMock() {};
 
+    MOCK_METHOD(ble_error_t, reset, (), (override));
     MOCK_METHOD(ble_error_t, init, (bool enableBonding, bool requireMITM, SecurityIOCapabilities_t iocaps, const Passkey_t passkey, bool signing, const char *dbFilepath), (override));
     MOCK_METHOD(ble_error_t, setDatabaseFilepath, (const char *dbFilepath), (override));
-    MOCK_METHOD(ble_error_t, reset, (), (override));
     MOCK_METHOD(ble_error_t, preserveBondingStateOnReset, (bool enable), (override));
     MOCK_METHOD(ble_error_t, purgeAllBondingState, (), (override));
     MOCK_METHOD(ble_error_t, generateWhitelistFromBondTable, (::ble::whitelist_t *whitelist), (const, override));

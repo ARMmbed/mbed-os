@@ -30,6 +30,7 @@ public:
     GapMock& operator=(const GapMock&) = delete;
     virtual ~GapMock() {};
 
+    MOCK_METHOD((ble_error_t), reset, (), (override));
     MOCK_METHOD(void, setEventHandler, (EventHandler *handler), (override));
     MOCK_METHOD(bool, isFeatureSupported, (controller_supported_features_t feature), (override));
     MOCK_METHOD(uint8_t, getMaxAdvertisingSetNumber, (), (override));
@@ -79,7 +80,6 @@ public:
     MOCK_METHOD(ble_error_t, getWhitelist, (whitelist_t &whitelist), (const, override));
     MOCK_METHOD(ble_error_t, setWhitelist, (const whitelist_t &whitelist), (override));
     MOCK_METHOD(ble_error_t, getAddress, (own_address_type_t &typeP, address_t &address), (override));
-    MOCK_METHOD(ble_error_t, reset, (), (override));
     MOCK_METHOD(void, onShutdown, (const GapShutdownCallback_t &callback), (override));
     MOCK_METHOD(GapShutdownCallbackChain_t&, onShutdown, (), (override));
     MOCK_METHOD(ble_error_t, setRandomStaticAddress, (const ble::address_t &address), (override));
