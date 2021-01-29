@@ -6,29 +6,33 @@ Default attributes of Mbed targets are defined in `targets/targets.json`, these 
 
 Mbed targets usually inherit their properties from a "base" target which represents a family of targets that share similar properties. For example the `DISCO_L4R9I` Mbed board has the `MCU_STM32L4` as its base target.
 
-The targets.json properties use capital letters with underscore but not the our config. Probably to distinguish these from other regular directories (the initial Mbed SDK had it this way).
-
 ### CMake target naming scheme
 
-All Mbed OS CMake targets are prefixed with `mbed-` to avoid clashes with user's targets (out of the tree targets): `mbed-ble`, `mbed-nanostack`.
+All Mbed OS CMake targets are prefixed with `mbed-` to avoid clashes with the custom targets (basically targets outside of Mbed OS repository).
 
-Mbed targets should follow the same scheme in CMake. For example the `DISCO_L4R9I` Mbed board should have a CMake target named `mbed-target-stm32-disco-l4r9i` with a dependency on a `mbed-target-stm32-mcu-stm32l4` base CMake target.
+Mbed targets should follow the same scheme we establish in CMake, using `mbed-` prefix for all components. To consider how this looks with the package manager - the namespacing packages should be considered.
 
-- `mbed-target-stm32-mcu-stm32l4` - base target
-- `mbed-target-stm32-disco-l4r9i` - final target - a user board or could be custom target, inherits from MCU_  target
+The proposed scheme: `mbed-target-<VENDOR>`, where <VENDOR> is a partner (stm, cypress, etc). What comes after VENDOR is vendor specific.
 
-Consistency in naming is a must to avoid having CMake targets with names different than the rest of the Mbed OS repository tree and in the user space.
+`DISCO_L4R9I` Mbed OS board should have a CMake target named `mbed-target-stm-disco-l4r9i` with a dependency on a `mbed-target-stm-mcu-stm32l4` base CMake target.
 
-To consider how this looks with the package manager - the namespacing packages is a good thing (we had it in yotta). We should add `mbed`, `target` and `vendor` at least to the CMake target.
+- `mbed-target-stm-mcu-stm32l4` - base target
+- `mbed-target-stm-disco-l4r9i` - final target - a user board or could be custom target, inherits from MCU_  target
 
-We will refactor targets directories once the old tools are gone. It will drastically reduce the path lengths in Mbed OS. It will also provide an opportunity to rename directories without following the old naming scheme. For example, `targets/TARGET_STM32/TARGET_STM32L4/TARGET_MCU_STM32L4` could be become `targets/stm32/stm32l4/mcu-stm32l4`. 
-
-
-This allows us to get rid of the name equals directory structure (our tools are not enforcing it anymore). We do not need stm32l4 in the name just because there is a directory in the tree. We can create more logical target structure.
+We are planning to refactor target directories once the old tools are deprecated and removed. It will drastically reduce the path lengths in Mbed OS. It will also provide an opportunity to rename directories without following the old naming scheme. 
+For example, `targets/TARGET_STM32/TARGET_STM32L4/TARGET_MCU_STM32L4` could be become `targets/stm/stm32l4/mcu-stm32l4`. 
 
 #### Targets translation
 
-targets.json keeps its naming scheme. I do not think we are at the stage to refactor it.
- What we can do however is to keep our CMake naming in `targets` folder.
+targets.json stay without a change for now (would we consider to refactor it later? It could be broken into smaller parts - per vendor for instance).
 
- The CMake input files map the Mbed target names used in `targets.json` to the directories in the Mbed OS repository.
+CMakelists for each vendor would have the logic to select the proper target. As a user creates CMake targets when porting, it could do the same as we do:
+
+    ```
+        # STM CMakelists.txt would contain this
+        CMAKE_TARGET = mbed-target-$(mbed_target_get_vendor())-$(mbed_target_get_cmake_name())
+    ```
+
+`mbed_target_get_vendor()` contains our vendors supported to return valid vendor name
+
+`mbed_target_get_cmake_name()` function would just do string replace, to keep things simple.
