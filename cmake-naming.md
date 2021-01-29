@@ -36,3 +36,9 @@ CMakelists for each vendor would have the logic to select the proper target. As 
 `mbed_target_get_vendor()` contains our vendors supported to return valid vendor name
 
 `mbed_target_get_cmake_name()` function would just do string replace, to keep things simple.
+
+
+### Footnotes
+
+This is a simplistic view to targets hiearchy, the subject is much more complicated than what is presented here. Creating a manageable targets hierarchy with so many different vendors is not trivial. This is out of the scope for this naming scheme proposal. The aim so to provide the way to use what we have and just translate it to CMake to keep things consistent. Not to change targets.json file, at least for now.
+ We looked at it once with Mbed 3 as we hit a problem with targets naming - how to properly namespace targets, how to simplify the very complicated MCU family tree like STM has for instance.
