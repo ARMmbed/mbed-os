@@ -79,7 +79,11 @@ static I2C_HandleTypeDef *i2c_handles[I2C_NUM];
    not based on accurate values, they just guarantee that the application will
    not remain stuck if the I2C communication is corrupted.
 */
+#ifdef TARGET_STM32H7
+#define FLAG_TIMEOUT ((int)0x1100)
+#else
 #define FLAG_TIMEOUT ((int)0x1000)
+#endif
 
 /* Declare i2c_init_internal to be used in this file */
 void i2c_init_internal(i2c_t *obj, const i2c_pinmap_t *pinmap);
