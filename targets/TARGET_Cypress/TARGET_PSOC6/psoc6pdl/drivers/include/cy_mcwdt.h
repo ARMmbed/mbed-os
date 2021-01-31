@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_mcwdt.h
-* \version 1.30.1
+* \version 1.40
 *
 * Provides an API declaration of the Cypress PDL 3.0 MCWDT driver
 *
@@ -98,12 +98,14 @@
 * For more information on the MCWDT peripheral, refer to
 * the technical reference manual (TRM).
 *
-* \section group_mcwdt_MISRA MISRA-C Compliance
-* The mcwdt driver does not have any specific deviations.
-*
 * \section group_mcwdt_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.40</td>
+*     <td>Fixed/documented MISRA 2012 violations.</td>
+*     <td>MISRA 2012 compliance.</td>
+*   </tr>
 *   <tr>
 *     <td>1.30.1</td>
 *     <td>Minor documentation updates.</td>
@@ -209,7 +211,7 @@ typedef struct
 #define CY_MCWDT_DRV_VERSION_MAJOR       1
 
 /** Driver minor version */
-#define CY_MCWDT_DRV_VERSION_MINOR       30
+#define CY_MCWDT_DRV_VERSION_MINOR       40
 
 /** \cond INTERNAL_MACROS */
 
@@ -590,7 +592,7 @@ __STATIC_INLINE void Cy_MCWDT_SetMode(MCWDT_STRUCT_Type *base, cy_en_mcwdtctr_t 
     CY_ASSERT_L3(CY_MCWDT_IS_CNT_NUM_VALID(counter));
     CY_ASSERT_L3(CY_MCWDT_IS_MODE_VALID(mode));
 
-    shift = CY_MCWDT_BYTE_SHIFT * counter;
+    shift = CY_MCWDT_BYTE_SHIFT * ((uint32_t)counter);
     mask = (counter == CY_MCWDT_COUNTER2) ? CY_MCWDT_C2_MODE_MASK : CY_MCWDT_C0C1_MODE_MASK;
     mask = mask << shift;
 
@@ -621,7 +623,7 @@ __STATIC_INLINE cy_en_mcwdtmode_t Cy_MCWDT_GetMode(MCWDT_STRUCT_Type const *base
     CY_ASSERT_L3(CY_MCWDT_IS_CNT_NUM_VALID(counter));
 
     mask = (counter == CY_MCWDT_COUNTER2) ? CY_MCWDT_C2_MODE_MASK : CY_MCWDT_C0C1_MODE_MASK;
-    mode = (MCWDT_STRUCT_MCWDT_CONFIG(base) >> (CY_MCWDT_BYTE_SHIFT * counter)) & mask;
+    mode = (MCWDT_STRUCT_MCWDT_CONFIG(base) >> (CY_MCWDT_BYTE_SHIFT * ((uint32_t)counter))) & mask;
 
     return ((cy_en_mcwdtmode_t) mode);
 }
@@ -792,9 +794,9 @@ __STATIC_INLINE cy_en_mcwdtcascade_t Cy_MCWDT_GetCascade(MCWDT_STRUCT_Type const
 __STATIC_INLINE void Cy_MCWDT_SetMatch(MCWDT_STRUCT_Type *base, cy_en_mcwdtctr_t counter, uint32_t match, uint16_t waitUs)
 {
     CY_ASSERT_L3(CY_MCWDT_IS_CNT_NUM_VALID(counter));
-    CY_ASSERT_L2(CY_MCWDT_IS_MATCH_VALID((CY_MCWDT_COUNTER0 == counter) ?
-                                         ((MCWDT_STRUCT_MCWDT_CONFIG(base) & MCWDT_STRUCT_MCWDT_CONFIG_WDT_CLEAR0_Msk) > 0U) :
-                                         ((MCWDT_STRUCT_MCWDT_CONFIG(base) & MCWDT_STRUCT_MCWDT_CONFIG_WDT_CLEAR1_Msk) > 0U),
+    CY_ASSERT_L2(CY_MCWDT_IS_MATCH_VALID((CY_MCWDT_COUNTER0 == counter) ?                                                       \
+                                         ((MCWDT_STRUCT_MCWDT_CONFIG(base) & MCWDT_STRUCT_MCWDT_CONFIG_WDT_CLEAR0_Msk) > 0U) :  \
+                                         ((MCWDT_STRUCT_MCWDT_CONFIG(base) & MCWDT_STRUCT_MCWDT_CONFIG_WDT_CLEAR1_Msk) > 0U),   \
                                           match));
 
     MCWDT_STRUCT_MCWDT_MATCH(base) = (counter == CY_MCWDT_COUNTER0) ?

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_lvd.h
-* \version 1.20
+* \version 1.30
 *
 * The header file of the LVD driver.
 *
@@ -61,43 +61,14 @@
 * \section group_lvd_more_information More Information
 * See the LVD chapter of the device technical reference manual (TRM).
 *
-* \section group_lvd_MISRA MISRA-C Compliance
-* The LVD driver has the following specific deviations:
-* <table class="doxtable">
-*   <tr>
-*     <th>MISRA Rule</th>
-*     <th>Rule Class (Required/Advisory)</th>
-*     <th>Rule Description</th>
-*     <th>Description of Deviation(s)</th>
-*   </tr>
-*   <tr>
-*     <td>10.3</td>
-*     <td>R</td>
-*     <td>A composite expression of 'essentially unsigned' type (%1s) is being
-*         cast to a different type category, '%2s'.</td>
-*     <td>The value got from the bitfield physically can't exceed the enumeration
-*         that describes this bitfield. So the code is safety by design.</td>
-*   </tr>
-*   <tr>
-*     <td>16.7</td>
-*     <td>A</td>
-*     <td>The object addressed by the pointer parameter '%s' is not modified and
-*         so the pointer could be of type 'pointer to const'.</td>
-*     <td>The pointer parameter is not used or modified, as there is no need
-*         to do any actions with it. However, such parameter is
-*         required to be presented in the function, because the
-*         \ref Cy_LVD_DeepSleepCallback is a callback
-*         of \ref cy_en_syspm_status_t type.
-*         The SysPM driver callback function type requires implementing the
-*         function with the next parameters and return value: <br>
-*         cy_en_syspm_status_t (*Cy_SysPmCallback)
-*         (cy_stc_syspm_callback_params_t *callbackParams);</td>
-*   </tr>
-* </table>
-*
 * \section group_lvd_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason of Change</th></tr>
+*   <tr>
+*     <td>1.30</td>
+*     <td>Fixed/documented MISRA 2012 violations.</td>
+*     <td>MISRA 2012 compliance.</td>
+*   </tr>
 *   <tr>
 *     <td>1.20</td>
 *     <td>
@@ -143,7 +114,7 @@
 */
 
 
-#if !defined CY_LVD_H
+#if !defined(CY_LVD_H)
 #define CY_LVD_H
 
 #include "cy_pra.h"
@@ -162,7 +133,7 @@ extern "C" {
 #define CY_LVD_DRV_VERSION_MAJOR       1
 
 /** The driver minor version */
-#define CY_LVD_DRV_VERSION_MINOR       20
+#define CY_LVD_DRV_VERSION_MINOR       30
 
 /** The LVD driver identifier */
 #define CY_LVD_ID                      (CY_PDL_DRV_ID(0x39U))
@@ -348,6 +319,7 @@ __STATIC_INLINE void Cy_LVD_SetThreshold(cy_en_lvd_tripsel_t threshold)
 *******************************************************************************/
 __STATIC_INLINE cy_en_lvd_status_t Cy_LVD_GetStatus(void)
 {
+    CY_MISRA_DEVIATE_LINE('MISRA C-2012 Rule 10.8','SRSS_PWR_LVD_STATUS_HVLVD1_OK_Msk extracts only 1 bit value');
     return ((cy_en_lvd_status_t) _FLD2VAL(SRSS_PWR_LVD_STATUS_HVLVD1_OK, SRSS_PWR_LVD_STATUS));
 }
 

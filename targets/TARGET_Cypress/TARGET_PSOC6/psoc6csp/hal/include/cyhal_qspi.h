@@ -78,9 +78,10 @@
 extern "C" {
 #endif
 
-/** \addtogroup group_hal_results
+/** \addtogroup group_hal_results_qspi QSPI HAL Results
+ *  QSPI specific return codes
+ *  \ingroup group_hal_results
  *  \{ *//**
- *  \{ @name QSPI Results
  */
 
 /** Bus width Error. */
@@ -98,9 +99,18 @@ extern "C" {
 /** Clock frequency error. */
 #define CYHAL_QSPI_RSLT_ERR_FREQUENCY                   \
     (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_QSPI, 4))
+/** Waiting for certain event error. */
+#define CYHAL_QSPI_RSLT_ERR_TIMEOUT                     \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_QSPI, 5))
+/** Cannot configure SSEL signal */
+#define CYHAL_QSPI_RSLT_ERR_CANNOT_CONFIG_SSEL          \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_QSPI, 6))
+/** Cannot switch to specified SSEL signal */
+#define CYHAL_QSPI_RSLT_ERR_CANNOT_SWITCH_SSEL          \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_QSPI, 7))
 
 /**
- * \} \}
+ * \}
  */
 
 /** QSPI Bus width. Some parts of commands provide variable bus width. */
@@ -173,6 +183,8 @@ typedef void (*cyhal_qspi_event_callback_t)(void *callback_arg, cyhal_qspi_event
  * @param[in]  io7  Data pin 7
  * @param[in]  sclk The clock pin
  * @param[in]  ssel The chip select pin
+ * @note Provided slave select pin will be set as active. This can be changed (as well as additional ssel pins can
+ * be added) by \ref cyhal_qspi_slave_select_config and \ref cyhal_qspi_select_active_ssel functions.
  * @param[in]  hz   The bus frequency
  * @param[in]  mode Clock polarity and phase mode (0 - 3)
  * @return The status of the init request
@@ -193,13 +205,43 @@ void cyhal_qspi_free(cyhal_qspi_t *obj);
 
 /** Set the QSPI baud rate
  *
- * Actual frequency may differ from the desired frequency due to available dividers and the bus clock
- * Configures the QSPI peripheral's baud rate
+ * Actual frequency may differ from the desired frequency due to available dividers and the bus clock. Function will
+ * apply achieved frequency only if it is in +0% /-10% deviation bounds from desired.
+ * Use @ref cyhal_qspi_get_frequency function to get actual frequency value that was achieved and set.
+ *
  * @param[in] obj The QSPI object to configure
  * @param[in] hz  The baud rate in Hz
  * @return The status of the set_frequency request
  */
 cy_rslt_t cyhal_qspi_set_frequency(cyhal_qspi_t *obj, uint32_t hz);
+
+/** Get the actual frequency that QSPI is configured for
+ *
+ * @param[in] obj The QSPI object to configure
+ * @return Frequency in Hz
+ */
+uint32_t cyhal_qspi_get_frequency(cyhal_qspi_t *obj);
+
+/** Configures provided pin to work as QSPI slave select (SSEL)
+ *
+ * Multiple pins can be configured as QSPI slave select pins. Please refer to device datasheet for details.
+ * Switching between configured slave select pins is done by \ref cyhal_qspi_select_active_ssel function.
+ * Unless modified with this function, the SSEL pin provided as part of \ref cyhal_qspi_init is the default.
+ * @param[in] obj   The QSPI object to configure
+ * @param[in] ssel  Pin to be configured as QSPI SSEL
+ * @return The status of ssel pin configuration
+ */
+cy_rslt_t cyhal_qspi_slave_select_config(cyhal_qspi_t *obj, cyhal_gpio_t ssel);
+
+/** Selects an active slave select (SSEL) line from one of available
+ *
+ * SSEL pin should be configured by \ref cyhal_qspi_slave_select_config or \ref cyhal_qspi_init functions prior to
+ * selecting it as active.
+ * @param[in] obj   The QSPI object to configure
+ * @param[in] ssel  SSEL pin to be set as active
+ * @return CY_RSLT_SUCCESS if slave select was switched successfully, otherwise - CYHAL_QSPI_RSLT_ERR_CANNOT_SWITCH_SSEL
+ */
+cy_rslt_t cyhal_qspi_select_active_ssel(cyhal_qspi_t *obj, cyhal_gpio_t ssel);
 
 /** Receive a command and block of data, synchronously.
  *

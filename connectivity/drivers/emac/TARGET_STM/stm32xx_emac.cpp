@@ -654,8 +654,10 @@ int STM32_EMAC::low_level_input(emac_mem_buf_t **buf)
         /* Build Rx descriptor to be ready for next data reception */
         HAL_ETH_BuildRxDescriptors(&EthHandle);
 
+#if !(defined(DUAL_CORE) && defined(CORE_CM4))
         /* Invalidate data cache for ETH Rx Buffers */
         SCB_InvalidateDCache_by_Addr((uint32_t *)RxBuff.buffer, frameLength);
+#endif
 
         *buf = pbuf_alloc(PBUF_RAW, frameLength, PBUF_POOL);
         if (*buf) {

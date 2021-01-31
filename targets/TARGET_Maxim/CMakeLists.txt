@@ -13,3 +13,8 @@ target_include_directories(mbed-core
     INTERFACE
         .
 )
+
+target_sources(mbed-core
+    INTERFACE
+        USBPhy_Maxim.cpp
+)

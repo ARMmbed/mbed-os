@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_pdm_pcm.h
-* \version 2.20.2
+* \version 2.30
 *
 * The header file of the PDM_PCM driver.
 *
@@ -82,38 +82,15 @@
 *      the PDM_PCM_PDL Component datasheet;
 *      CE219431 - PSOC 6 MCU PDM-TO-PCM EXAMPLE.
 *
-* \section group_pdm_pcm_MISRA MISRA-C Compliance
-* The PDM-PCM driver has the following specific deviations:
-* <table class="doxtable">
-*   <tr>
-*     <th>MISRA Rule</th>
-*     <th>Rule Class (Required/Advisory)</th>
-*     <th>Rule Description</th>
-*     <th>Description of Deviation(s)</th>
-*   </tr>
-*   <tr>
-*     <td>10.3</td>
-*     <td>R</td>
-*     <td>A composite expression of the "essentially unsigned" type is
-*         cast to a different type category.</td>
-*     <td>The value got from the bitfield physically can't exceed the enumeration
-*         that describes this bitfield. So the code is safe by design.</td>
-*   </tr>
-*   <tr>
-*     <td>11.4</td>
-*     <td>A</td>
-*     <td>A cast should not be performed between a pointer to the object type and
-*         a different pointer to the object type.</td>
-*     <td>The function \ref Cy_PDM_PCM_DeepSleepCallback is a callback of
-*         \ref cy_en_syspm_status_t type. The cast operation safety in this
-*         function becomes the user responsibility because the pointer is
-*         initialized when a callback is registered in SysPm driver.</td>
-*   </tr>
-* </table>
-*
 * \section group_pdm_pcm_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>2.30</td>
+*     <td>Fixed MISRA 2012 violations.</td>
+*     <td>MISRA 2012 compliance.</td>
+*   </tr>
 *   <tr>
 *     <td>2.20.2</td>
 *     <td>Minor documentation updates.</td>
@@ -227,7 +204,7 @@ extern "C"
 #define CY_PDM_PCM_DRV_VERSION_MAJOR       2
 
 /** The driver minor version */
-#define CY_PDM_PCM_DRV_VERSION_MINOR       20
+#define CY_PDM_PCM_DRV_VERSION_MINOR       30
 
 /** The PDM-PCM driver identifier */
 #define CY_PDM_PCM_ID                       CY_PDL_DRV_ID(0x26u)
@@ -493,7 +470,7 @@ cy_en_pdm_pcm_gain_t     Cy_PDM_PCM_GetGain(PDM_Type const * base, cy_en_pdm_pcm
 * The driver supports SysPm callback for Deep Sleep transition.
 * \{
 */
-cy_en_syspm_status_t     Cy_PDM_PCM_DeepSleepCallback(cy_stc_syspm_callback_params_t * callbackParams, cy_en_syspm_callback_mode_t mode);
+cy_en_syspm_status_t     Cy_PDM_PCM_DeepSleepCallback(cy_stc_syspm_callback_params_t const * callbackParams, cy_en_syspm_callback_mode_t mode);
 /** \} */
 
 __STATIC_INLINE void     Cy_PDM_PCM_Enable(PDM_Type * base);

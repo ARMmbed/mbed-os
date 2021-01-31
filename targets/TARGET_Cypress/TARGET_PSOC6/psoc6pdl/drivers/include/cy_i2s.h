@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_i2s.h
-* \version 2.10.1
+* \version 2.20
 *
 * The header file of the I2S driver.
 *
@@ -103,30 +103,14 @@
 *      I2S_PDL Component datasheet;
 *      CE218636 - PSOC 6 MCU INTER-IC SOUND (I2S) EXAMPLE.
 *
-* \section group_i2s_MISRA MISRA-C Compliance
-* The I2S driver has the following specific deviations:
-* <table class="doxtable">
-*   <tr>
-*     <th>MISRA Rule</th>
-*     <th>Rule Class (Required/Advisory)</th>
-*     <th>Rule Description</th>
-*     <th>Description of Deviation(s)</th>
-*   </tr>
-*   <tr>
-*     <td>11.4</td>
-*     <td>A</td>
-*     <td>A cast should not be performed between a pointer to the object type and
-*         a different pointer to the object type.</td>
-*     <td>The function \ref Cy_I2S_DeepSleepCallback is a callback of
-*         \ref cy_en_syspm_status_t type. The cast operation safety in this
-*         function becomes the user responsibility because the pointer is
-*         initialized when a callback is registered in the SysPm driver.</td>
-*   </tr>
-* </table>
-*
 * \section group_i2s_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>2.20</td>
+*     <td>Fixed/documented MISRA 2012 violations.</td>
+*     <td>MISRA 2012 compliance.</td>
+*   </tr>
 *   <tr>
 *     <td>2.10.1</td>
 *     <td>Minor documentation updates.</td>
@@ -172,7 +156,7 @@
 */
 
 
-#if !defined CY_I2S_H
+#if !defined(CY_I2S_H)
 #define CY_I2S_H
 
 #include <stddef.h>
@@ -195,7 +179,7 @@ extern "C" {
 #define CY_I2S_DRV_VERSION_MAJOR       2
 
 /** The driver minor version */
-#define CY_I2S_DRV_VERSION_MINOR       10
+#define CY_I2S_DRV_VERSION_MINOR       20
 
 /** The I2S driver identifier */
 #define CY_I2S_ID                      (CY_PDL_DRV_ID(0x20U))
@@ -513,7 +497,7 @@ typedef struct
 * The driver supports SysPm callback for Deep Sleep transition.
 * \{
 */
-cy_en_syspm_status_t     Cy_I2S_DeepSleepCallback(cy_stc_syspm_callback_params_t * callbackParams, cy_en_syspm_callback_mode_t mode);
+cy_en_syspm_status_t     Cy_I2S_DeepSleepCallback(cy_stc_syspm_callback_params_t const * callbackParams, cy_en_syspm_callback_mode_t mode);
 /** \} */
 
 __STATIC_INLINE void     Cy_I2S_EnableTx(I2S_Type * base);

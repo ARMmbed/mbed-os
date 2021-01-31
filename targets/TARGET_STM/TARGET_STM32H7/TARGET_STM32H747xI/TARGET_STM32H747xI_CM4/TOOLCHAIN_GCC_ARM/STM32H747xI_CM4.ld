@@ -39,6 +39,7 @@ MEMORY
 {
     FLASH (rx)   : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
     RAM (rwx)    : ORIGIN = MBED_RAM_START + VECTORS_SIZE, LENGTH = MBED_RAM_SIZE - VECTORS_SIZE
+    RAM_D3 (xrw) : ORIGIN = 0x38000000, LENGTH = 64K
 }
 
 /* Linker script to place sections and symbol values. Should be used together

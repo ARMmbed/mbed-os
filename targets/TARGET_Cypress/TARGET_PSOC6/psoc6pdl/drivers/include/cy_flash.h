@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_flash.h
-* \version 3.40
+* \version 3.50
 *
 * Provides the API declarations of the Flash driver.
 *
@@ -231,30 +231,19 @@
 * See the technical reference manual (TRM) for more information about the Flash
 * architecture.
 *
-* \section group_flash_MISRA MISRA-C Compliance
-*
-* <table class="doxtable">
-*   <tr>
-*     <th>MISRA Rule</th>
-*     <th>Rule Class (Required/Advisory)</th>
-*     <th>Rule Description</th>
-*     <th style="width: 50%;">Description of Deviation(s)</th>
-*   </tr>
-*   <tr>
-*     <td>11.4</td>
-*     <td>A</td>
-*     <td>Casting to different object pointer type.</td>
-*     <td>The cast of the uint32_t pointer to pipe message structure pointer
-*         is used to get transmitted data via the \ref group_ipc channel.
-*         We cast only one pointer, so there is no way to avoid this cast.</td>
-*   </tr>
-*
-* </table>
-*
 * \section group_flash_changelog Changelog
 *
 * <table class="doxtable">
 *   <tr><th>Version</th><th style="width: 52%;">Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td rowspan="2">3.50</td>
+*     <td>Updated attribute usage for the linker section placement.</td>
+*     <td>Enhancement based on usability feedback.</td>
+*   </tr>
+*   <tr>
+*     <td>Fixed/documented MISRA 2012 violations.</td>
+*     <td>MISRA 2012 compliance.</td>
+*   </tr>
 *   <tr>
 *     <td rowspan="1">3.40</td>
 *     <td>Updated Cy_Flash_OperationStatus() to access protected registers.</td>
@@ -400,7 +389,7 @@ extern "C" {
 #define CY_FLASH_DRV_VERSION_MAJOR       3
 
 /** Driver minor version */
-#define CY_FLASH_DRV_VERSION_MINOR       40
+#define CY_FLASH_DRV_VERSION_MINOR       50
 
 #define CY_FLASH_ID               (CY_PDL_DRV_ID(0x14UL))                          /**< FLASH PDL ID */
 

@@ -23,8 +23,8 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_hal_psoc6_hw_types
-* \ingroup group_hal_psoc6
+* \addtogroup group_hal_impl_hw_types
+* \ingroup group_hal_impl
 * \{
 */
 
@@ -140,4 +140,4 @@ typedef struct
 }
 #endif /* __cplusplus */
 
-/** \} group_hal_psoc6_hw_types */
+/** \} group_hal_impl_hw_types */

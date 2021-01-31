@@ -49,11 +49,11 @@ cy_rslt_t cyhal_dma_init(cyhal_dma_t *obj, uint8_t priority, cyhal_dma_direction
 #if !defined(CY_IP_M4CPUSS_DMAC) && defined(CY_IP_M4CPUSS_DMA)
     /* Only DW available. Ignore direction for purpose of choosing DMA type. */
     CY_UNUSED_PARAMETER(direction);
-    return cyhal_dma_init_dw(obj, priority);
+    return _cyhal_dma_dw_init(obj, priority);
 #elif defined(CY_IP_M4CPUSS_DMAC) && !defined(CY_IP_M4CPUSS_DMA)
     /* Only DMAC available. Ignore direction for purpose of choosing DMA type. */
     CY_UNUSED_PARAMETER(direction);
-    return cyhal_dma_init_dmac(obj, priority);
+    return _cyhal_dma_dmac_init(obj, priority);
 #else
     /* DMAC is designed with high memory bandwidth for memory to memory
      * transfers so prefer it when direction is MEM2MEM. Otherwise prefer
@@ -63,17 +63,17 @@ cy_rslt_t cyhal_dma_init(cyhal_dma_t *obj, uint8_t priority, cyhal_dma_direction
     cy_rslt_t rslt;
     if(direction == CYHAL_DMA_DIRECTION_MEM2MEM)
     {
-        rslt = cyhal_dma_init_dmac(obj, priority);
+        rslt = _cyhal_dma_dmac_init(obj, priority);
         /* If no DMAC channels are available fall back on DW. */
         if(CYHAL_HWMGR_RSLT_ERR_NONE_FREE == rslt)
-            rslt = cyhal_dma_init_dw(obj, priority);
+            rslt = _cyhal_dma_dw_init(obj, priority);
     }
     else
     {
-        rslt = cyhal_dma_init_dw(obj, priority);
+        rslt = _cyhal_dma_dw_init(obj, priority);
         /* If no DW channels are available fall back on DMAC. */
         if(CYHAL_HWMGR_RSLT_ERR_NONE_FREE == rslt)
-            rslt = cyhal_dma_init_dmac(obj, priority);
+            rslt = _cyhal_dma_dmac_init(obj, priority);
     }
     return rslt;
 #endif
@@ -88,13 +88,13 @@ void cyhal_dma_free(cyhal_dma_t *obj)
 #ifdef CY_IP_M4CPUSS_DMAC
     if(obj->resource.type == CYHAL_RSC_DMA)
     {
-        cyhal_dma_free_dmac(obj);
+        _cyhal_dma_dmac_free(obj);
     }
 #endif
 #ifdef CY_IP_M4CPUSS_DMA
     if(obj->resource.type == CYHAL_RSC_DW)
     {
-        cyhal_dma_free_dw(obj);
+        _cyhal_dma_dw_free(obj);
     }
 #endif
 }
@@ -106,13 +106,13 @@ cy_rslt_t cyhal_dma_configure(cyhal_dma_t *obj, const cyhal_dma_cfg_t *cfg)
 #ifdef CY_IP_M4CPUSS_DMAC
     if(obj->resource.type == CYHAL_RSC_DMA)
     {
-        return cyhal_dma_configure_dmac(obj, cfg);
+        return _cyhal_dma_dmac_configure(obj, cfg);
     }
 #endif
 #ifdef CY_IP_M4CPUSS_DMA
     if(obj->resource.type == CYHAL_RSC_DW)
     {
-        return cyhal_dma_configure_dw(obj, cfg);
+        return _cyhal_dma_dw_configure(obj, cfg);
     }
 #endif
 
@@ -129,13 +129,13 @@ cy_rslt_t cyhal_dma_start_transfer(cyhal_dma_t *obj)
 #ifdef CY_IP_M4CPUSS_DMAC
     if(obj->resource.type == CYHAL_RSC_DMA)
     {
-        return cyhal_dma_start_transfer_dmac(obj);
+        return _cyhal_dma_dmac_start_transfer(obj);
     }
 #endif
 #ifdef CY_IP_M4CPUSS_DMA
     if(obj->resource.type == CYHAL_RSC_DW)
     {
-        return cyhal_dma_start_transfer_dw(obj);
+        return _cyhal_dma_dw_start_transfer(obj);
     }
 #endif
 
@@ -152,13 +152,13 @@ bool cyhal_dma_is_busy(cyhal_dma_t *obj)
 #ifdef CY_IP_M4CPUSS_DMAC
     if(obj->resource.type == CYHAL_RSC_DMA)
     {
-        return cyhal_dma_is_busy_dmac(obj);
+        return _cyhal_dma_dmac_is_busy(obj);
     }
 #endif
 #ifdef CY_IP_M4CPUSS_DMA
     if(obj->resource.type == CYHAL_RSC_DW)
     {
-        return cyhal_dma_is_busy_dw(obj);
+        return _cyhal_dma_dw_is_busy(obj);
     }
 #endif
 
@@ -185,13 +185,13 @@ void cyhal_dma_enable_event(cyhal_dma_t *obj, cyhal_dma_event_t event, uint8_t i
 #ifdef CY_IP_M4CPUSS_DMAC
     if(obj->resource.type == CYHAL_RSC_DMA)
     {
-        cyhal_dma_enable_event_dmac(obj, event, intr_priority, enable);
+        _cyhal_dma_dmac_enable_event(obj, event, intr_priority, enable);
     }
 #endif
 #ifdef CY_IP_M4CPUSS_DMA
     if(obj->resource.type == CYHAL_RSC_DW)
     {
-        cyhal_dma_enable_event_dw(obj, event, intr_priority, enable);
+        _cyhal_dma_dw_enable_event(obj, event, intr_priority, enable);
     }
 #endif
 }

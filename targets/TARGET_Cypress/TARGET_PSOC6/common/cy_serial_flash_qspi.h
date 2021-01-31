@@ -8,7 +8,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -48,11 +48,11 @@ extern "C" {
 /**
  * \brief Initializes the serial flash memory. This function accepts up to 8
  * I/Os. Number of I/Os depend on the type of memory interface. Pass NC when an
- * I/O is unused. 
+ * I/O is unused.
  * Single SPI - (io0, io1) or (io2, io3) or (io4, io5) or (io6, io7)
- * Dual SPI   - (io0, io1) or (io2, io3) or (io4, io5) or (io6, io7) 
- * Quad SPI   - (io0, io1, io2, io3) or (io4, io5, io6, io7) 
- * Octal SPI  - All 8 I/Os are used. 
+ * Dual SPI   - (io0, io1) or (io2, io3) or (io4, io5) or (io6, io7)
+ * Quad SPI   - (io0, io1, io2, io3) or (io4, io5, io6, io7)
+ * Octal SPI  - All 8 I/Os are used.
  * \param mem_config Memory configuration to be used for initializing
  * \param io0 Data/IO pin 0 connected to the memory, Pass NC when unused.
  * \param io1 Data/IO pin 1 connected to the memory, Pass NC when unused.
@@ -64,24 +64,22 @@ extern "C" {
  * \param io7 Data/IO pin 7 connected to the memory, Pass NC when unused.
  * \param sclk Clock pin connected to the memory
  * \param ssel Slave select pin connected to the memory
- * \param hz Clock frequency to be used with the memory. This parameter is
- *           ignored currently. Change the CLK_HF frequency using either the
-             Device Configurator tool or the clock driver. 
+ * \param hz Clock frequency to be used with the memory.
  * \returns CY_RSLT_SUCCESS if the initialization was successful, an error code
  *          otherwise.
  */
-cy_rslt_t cy_serial_flash_qspi_init(    
+cy_rslt_t cy_serial_flash_qspi_init(
     const cy_stc_smif_mem_config_t* mem_config,
-    cyhal_gpio_t io0, 
-    cyhal_gpio_t io1, 
-    cyhal_gpio_t io2, 
+    cyhal_gpio_t io0,
+    cyhal_gpio_t io1,
+    cyhal_gpio_t io2,
     cyhal_gpio_t io3,
-    cyhal_gpio_t io4, 
-    cyhal_gpio_t io5, 
-    cyhal_gpio_t io6, 
-    cyhal_gpio_t io7, 
+    cyhal_gpio_t io4,
+    cyhal_gpio_t io5,
+    cyhal_gpio_t io6,
+    cyhal_gpio_t io7,
     cyhal_gpio_t sclk,
-    cyhal_gpio_t ssel, 
+    cyhal_gpio_t ssel,
     uint32_t hz);
 
 /**
@@ -102,6 +100,14 @@ size_t cy_serial_flash_qspi_get_size(void);
  * \returns Erase sector size in bytes.
  */
 size_t cy_serial_flash_qspi_get_erase_size(uint32_t addr);
+
+/**
+ * \brief Returns the page size for programming of the sector to which the given
+ * address belongs. Address is used only for a memory with hybrid sector size.
+ * \param addr Address that belongs to the sector for which size is returned.
+ * \returns Page size in bytes.
+ */
+size_t cy_serial_flash_qspi_get_prog_size(uint32_t addr);
 
 /**
  * \brief Utility function to calculate the starting address of an erase sector
@@ -164,6 +170,12 @@ cy_rslt_t cy_serial_flash_qspi_erase(uint32_t addr, size_t length);
  *          support XIP.
  */
 cy_rslt_t cy_serial_flash_qspi_enable_xip(bool enable);
+
+/**
+ * \brief Changes QSPI interrupt priority
+ * \param priority interrupt priority to be set
+ */
+void cy_serial_flash_qspi_set_interrupt_priority(uint8_t priority);
 
 #if defined(__cplusplus)
 }

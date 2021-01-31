@@ -180,7 +180,9 @@ typedef enum {
 typedef enum {
     QOS_NORMAL = 0,
     QOS_HIGH = 1,
-    QOS_MAC_BEACON = 2
+    QOS_NETWORK_CTRL = 2,
+    QOS_EXPEDITE_FORWARD = 3,
+    QOS_MAC_BEACON = 4
 } buffer_priority_t;
 
 #define B_TO_MAC_MLME_MASK (B_DIR_MASK + B_FROM_MASK + B_TO_MASK )

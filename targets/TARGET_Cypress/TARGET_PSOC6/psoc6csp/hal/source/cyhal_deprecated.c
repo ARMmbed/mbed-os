@@ -23,13 +23,14 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "cyhal_deprecated.h"
+#include "cyhal_adc.h"
 #include "cyhal_hwmgr.h"
 #include "cyhal_clock.h"
+#include "cyhal_deprecated.h"
 
 #define HZ_PER_MHZ 1000000
 
-uint32_t get_src_freq(cy_en_clkpath_in_sources_t source)
+uint32_t _cyhal_deprecated_get_src_freq(cy_en_clkpath_in_sources_t source)
 {
     /* get the frequency of the source, i.e., the path mux input */
     switch(source)
@@ -45,7 +46,7 @@ uint32_t get_src_freq(cy_en_clkpath_in_sources_t source)
     }
 }
 
-static uint32_t get_clkpath_freq(cy_en_clkhf_in_sources_t path, uint32_t freq, uint8_t *fll_pll_used)
+static uint32_t _cyhal_deprecated_get_clkpath_freq(cy_en_clkhf_in_sources_t path, uint32_t freq, uint8_t *fll_pll_used)
 {
     *fll_pll_used = 0xff;
     if (path == CY_SYSCLK_CLKHF_IN_CLKPATH0)
@@ -75,7 +76,7 @@ static uint32_t get_clkpath_freq(cy_en_clkhf_in_sources_t path, uint32_t freq, u
     return freq;
 }
 
-static cy_rslt_t try_set_hf_divider(uint8_t hf_clock, uint32_t input_freq, uint32_t target_freq)
+static cy_rslt_t _cyhal_deprecated_try_set_hf_divider(uint8_t hf_clock, uint32_t input_freq, uint32_t target_freq)
 {
     bool divider_found = false;
     cy_en_clkhf_dividers_t divider;
@@ -112,7 +113,7 @@ static cy_rslt_t try_set_hf_divider(uint8_t hf_clock, uint32_t input_freq, uint3
     }
 }
 
-static cy_rslt_t try_set_fll(uint8_t hf_clock, uint32_t target_freq)
+static cy_rslt_t _cyhal_deprecated_try_set_fll(uint8_t hf_clock, uint32_t target_freq)
 {
     Cy_SysClk_FllDisable();
     Cy_SysClk_ClkHfSetSource(hf_clock, CY_SYSCLK_CLKHF_IN_CLKPATH0);
@@ -131,7 +132,7 @@ static cy_rslt_t try_set_fll(uint8_t hf_clock, uint32_t target_freq)
     return rslt;
 }
 
-static cy_rslt_t try_set_pll(uint8_t hf_clock, uint8_t pll, uint32_t target_freq)
+static cy_rslt_t _cyhal_deprecated_try_set_pll(uint8_t hf_clock, uint8_t pll, uint32_t target_freq)
 {
     Cy_SysClk_PllDisable(pll);
     Cy_SysClk_ClkHfSetSource(hf_clock, (cy_en_clkhf_in_sources_t)(pll));
@@ -168,15 +169,15 @@ cy_rslt_t cyhal_system_clock_set_frequency(uint8_t hf_clock, uint32_t frequency_
     cy_en_clkhf_in_sources_t path = Cy_SysClk_ClkHfGetSource((uint32_t)hf_clock);
     cy_en_clkpath_in_sources_t source = Cy_SysClk_ClkPathGetSource((uint32_t)path);
 
-    uint32_t src_freq = get_src_freq(source);
+    uint32_t src_freq = _cyhal_deprecated_get_src_freq(source);
     if (src_freq == 0)
     {
         return CYHAL_SYSTEM_RSLT_SRC_CLK_DISABLED;
     }
     uint8_t fll_pll_used;
-    uint32_t clkpath_freq = get_clkpath_freq(path, src_freq, &fll_pll_used);
+    uint32_t clkpath_freq = _cyhal_deprecated_get_clkpath_freq(path, src_freq, &fll_pll_used);
 
-    cy_rslt_t rslt = try_set_hf_divider(hf_clock, clkpath_freq, frequency_hz);
+    cy_rslt_t rslt = _cyhal_deprecated_try_set_hf_divider(hf_clock, clkpath_freq, frequency_hz);
     if (rslt == CY_RSLT_SUCCESS)
     {
         SystemCoreClockUpdate();
@@ -186,11 +187,11 @@ cy_rslt_t cyhal_system_clock_set_frequency(uint8_t hf_clock, uint32_t frequency_
     bool enabled = Cy_SysClk_ClkHfIsEnabled(hf_clock);
     if (enabled && fll_pll_used == 0)
     {
-        return try_set_fll(hf_clock, frequency_hz);
+        return _cyhal_deprecated_try_set_fll(hf_clock, frequency_hz);
     }
     else if (enabled && fll_pll_used <= SRSS_NUM_PLL)
     {
-        return try_set_pll(hf_clock, fll_pll_used, frequency_hz);
+        return _cyhal_deprecated_try_set_pll(hf_clock, fll_pll_used, frequency_hz);
     }
     else
     {
@@ -199,13 +200,13 @@ cy_rslt_t cyhal_system_clock_set_frequency(uint8_t hf_clock, uint32_t frequency_
         rslt = cyhal_clock_allocate(&inst, CYHAL_CLOCK_BLOCK_PATHMUX);
         if (rslt == CY_RSLT_SUCCESS)
         {
-            if (inst.channel < SRSS_NUM_PLL)
+            if (inst.channel < 1)
             {
-                rslt = try_set_fll(hf_clock, frequency_hz);
+                rslt = _cyhal_deprecated_try_set_fll(hf_clock, frequency_hz);
             }
             else if (inst.channel <= SRSS_NUM_PLL)
             {
-                rslt = try_set_pll(hf_clock, inst.channel, frequency_hz);
+                rslt = _cyhal_deprecated_try_set_pll(hf_clock, inst.channel, frequency_hz);
             }
             else
             {
@@ -237,17 +238,17 @@ cy_rslt_t cyhal_system_clock_set_divider(cyhal_system_clock_t clock, cyhal_syste
     {
         case CYHAL_SYSTEM_CLOCK_CM4:
         {
-            Cy_SysClk_ClkFastSetDivider(divider - 1);
+            Cy_SysClk_ClkFastSetDivider((uint8_t)(divider - 1));
             break;
         }
         case CYHAL_SYSTEM_CLOCK_CM0:
         {
-            Cy_SysClk_ClkSlowSetDivider(divider - 1);
+            Cy_SysClk_ClkSlowSetDivider((uint8_t)(divider - 1));
             break;
         }
         case CYHAL_SYSTEM_CLOCK_PERI:
         {
-            Cy_SysClk_ClkPeriSetDivider(divider - 1);
+            Cy_SysClk_ClkPeriSetDivider((uint8_t)(divider - 1));
             break;
         }
         default:
@@ -257,6 +258,20 @@ cy_rslt_t cyhal_system_clock_set_divider(cyhal_system_clock_t clock, cyhal_syste
     }
     SystemCoreClockUpdate();
     return CY_RSLT_SUCCESS;
+}
+
+cy_rslt_t cyhal_system_register_callback(cyhal_system_callback_t *handler)
+{
+    return Cy_SysPm_RegisterCallback(handler)
+        ? CY_RSLT_SUCCESS
+        : CYHAL_SYSTEM_RSLT_ERROR;
+}
+
+cy_rslt_t cyhal_system_unregister_callback(cyhal_system_callback_t const *handler)
+{
+    return Cy_SysPm_UnregisterCallback(handler)
+        ? CY_RSLT_SUCCESS
+        : CYHAL_SYSTEM_RSLT_ERROR;
 }
 
 cy_rslt_t cyhal_hwmgr_allocate_clock(cyhal_clock_divider_t* obj, cyhal_clock_divider_types_t div, bool accept_larger)
@@ -270,7 +285,7 @@ cy_rslt_t cyhal_hwmgr_allocate_clock(cyhal_clock_divider_t* obj, cyhal_clock_div
         uint8_t block = (uint8_t)current_div;
         uint8_t count = counts[block];
 
-        for (int i = 0; rslt != CY_RSLT_SUCCESS && i < count; i++)
+        for (uint8_t i = 0; rslt != CY_RSLT_SUCCESS && i < count; i++)
         {
             cyhal_resource_inst_t res = { CYHAL_RSC_CLOCK, block, i };
             bool reserved = (CY_RSLT_SUCCESS == cyhal_hwmgr_reserve(&res));
@@ -291,3 +306,11 @@ void cyhal_hwmgr_free_clock(cyhal_clock_divider_t* obj)
     cyhal_resource_inst_t res = { CYHAL_RSC_CLOCK, obj->div_type, obj->div_num };
     cyhal_hwmgr_free(&res);
 }
+
+cy_rslt_t cyhal_adc_channel_init(cyhal_adc_channel_t *obj, cyhal_adc_t* adc, cyhal_gpio_t pin)
+{
+    const cyhal_adc_channel_config_t DEFAULT_CHAN_CONFIG = { .enable_averaging = false, .min_acquisition_ns = 10u, .enabled = true};
+
+    return cyhal_adc_channel_init_diff(obj, adc, pin, NC, &DEFAULT_CHAN_CONFIG);
+}
+

@@ -48,7 +48,7 @@ static uint32_t GetPage(uint32_t Addr)
 static uint32_t GetBank(uint32_t Addr)
 {
     uint32_t bank = 0;
-#if defined(SYSCFG_MEMRMP_FB_MODE) && defined(FLASH_OPTR_DBANK)
+#if defined (FLASH_OPTR_DBANK)
     if (READ_BIT(SYSCFG->MEMRMP, SYSCFG_MEMRMP_FB_MODE) == 0) {
         /* No Bank swap */
         if (Addr < (FLASH_BASE + FLASH_BANK_SIZE)) {
@@ -106,7 +106,6 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
     int32_t status = 0;
 
     if ((address >= (FLASH_BASE + FLASH_SIZE)) || (address < FLASH_BASE)) {
-
         return -1;
     }
 

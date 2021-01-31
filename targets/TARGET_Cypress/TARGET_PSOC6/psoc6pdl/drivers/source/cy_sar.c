@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_sar.c
-* \version 1.20.3
+* \version 2.0
 *
 * Provides the public functions for the API for the SAR driver.
 *
@@ -29,15 +29,144 @@
 extern "C" {
 #endif
 
-static cy_stc_sar_state_backup_t enabledBeforeSleep =
+CY_MISRA_DEVIATE_BLOCK_START('MISRA C-2012 Rule 11.3', 81, \
+'SAR_Type will typecast to either SAR_V1_Type or SAR_V2_Type but not both on PDL initialization based on the target device at compile time.');
+
+#define CHAN_NUM(chan)           ((chan) < CY_SAR_NUM_CHANNELS)
+#define IS_RIGHT_ALIGN           (!_FLD2BOOL(SAR_SAMPLE_CTRL_LEFT_ALIGN, SAR_SAMPLE_CTRL(base)))
+
+#define CY_SAR_MASK                 (CY_SAR_SAR0 | \
+                                     CY_SAR_SAR1 | \
+                                     CY_SAR_SAR2 | \
+                                     CY_SAR_SAR3)
+
+#define IS_SAR_MASK_VALID(sarMask)  (0UL == ((sarMask) & ((uint32_t) ~CY_SAR_MASK)))
+#define SCAN_CNT_MIN (1UL)
+#define SCAN_CNT_MAX (256UL)
+#define IS_SCAN_CNT_VALID(scanCnt) ((SCAN_CNT_MIN <= (scanCnt)) && ((scanCnt) <= SCAN_CNT_MAX))
+
+#define CY_SAR_TR_IN_0          (0UL)
+#define CY_SAR_TR_IN_1          (1UL)
+#define CY_SAR_TR_IN_2          (2UL)
+#define CY_SAR_TR_IN_3          (3UL)
+
+static cy_stc_sar_state_backup_t enabledBeforeSleep[CY_SAR_INSTANCES] =
 {
-    0uL,
-    0uL
+    {0UL,0UL},{0UL,0UL}
 };
 
-volatile int16_t Cy_SAR_offset[CY_SAR_MAX_NUM_CHANNELS];
-volatile int32_t Cy_SAR_countsPer10Volt[CY_SAR_MAX_NUM_CHANNELS];
+/* This array is used to calibrate the offset for each channel.
+* At initialization, channels that are single-ended, signed, and with Vneg = Vref
+* have an offset of -(2^12)/2 = -2048. All other channels have an offset of 0.
+* The offset can be overridden using Cy_SAR_SetChannelOffset.
+* The channel offsets are used by the Cy_SAR_CountsTo_Volts, Cy_SAR_CountsTo_mVolts, and
+* Cy_SAR_CountsTo_uVolts functions to convert counts to voltage.
+*/
+volatile int16_t Cy_SAR_offset[CY_SAR_NUM_CHANNELS][CY_SAR_INSTANCES];
 
+/* This array is used to calibrate the gain for each channel.
+* It is set at initialization and the value depends on the SARADC resolution
+* and voltage reference, 10*(2^12)/(2*Vref).
+* The gain can be overridden using Cy_SAR_SetChannelGain.
+* The channel gains are used by the Cy_SAR_CountsTo_Volts, Cy_SAR_CountsTo_mVolts and
+* Cy_SAR_CountsTo_uVolts functions to convert counts to voltage.
+*/
+volatile int32_t Cy_SAR_countsPer10Volt[CY_SAR_NUM_CHANNELS][CY_SAR_INSTANCES];
+
+/* Global variable to save internal states
+ * bit 0 - fifo enable for SAR0 instance
+ * bit 1 - fifo enable for SAR1 instance
+ * */
+static uint32_t Cy_SAR_flags = 0UL;
+
+
+/*******************************************************************************
+* Function Name: Cy_SAR_CommonInit
+****************************************************************************//**
+*
+* Initialize common SAR configuration registers.
+*
+* \param base
+* Pointer to structure describing PASS registers.
+*
+* \param trigConfig
+* Pointer to structure containing configuration data.
+* See \ref cy_stc_sar_common_config_t.
+*
+* \return
+* - \ref CY_SAR_SUCCESS : initialization complete
+* - \ref CY_SAR_BAD_PARAM : input pointers are null, initialization incomplete
+*
+* \funcusage
+*
+* \snippet sar/snippet/main.c SNIPPET_SAR_COMMON_INIT
+*
+*******************************************************************************/
+cy_en_sar_status_t Cy_SAR_CommonInit(PASS_Type * base, const cy_stc_sar_common_config_t  * trigConfig)
+{
+    cy_en_sar_status_t result = CY_SAR_SUCCESS;
+
+    if((!CY_PASS_V1) && (NULL != base) && (NULL != trigConfig))
+    {
+        uint32_t simultTrigSourceVal = CY_SAR_TR_IN_0;
+        bool simultTrigTimer = false;
+        uint32_t interruptState;
+
+        CY_ASSERT_L3(IS_SAR_MASK_VALID(trigConfig->simultControl));
+        CY_ASSERT_L3(IS_SCAN_CNT_VALID(trigConfig->scanCount));
+
+        /* Convert and check simultTrigSource value */
+        switch(trigConfig->simultTrigSource)
+        {
+        case CY_SAR_SAR0:
+            simultTrigSourceVal = CY_SAR_TR_IN_0;
+            break;
+
+        case CY_SAR_SAR1:
+            simultTrigSourceVal = CY_SAR_TR_IN_1;
+            break;
+
+        case CY_SAR_SAR2:
+            simultTrigSourceVal = CY_SAR_TR_IN_2;
+            break;
+
+        case CY_SAR_SAR3:
+            simultTrigSourceVal = CY_SAR_TR_IN_3;
+            break;
+
+        case CY_SAR_TIMER:
+            simultTrigTimer = true;
+            break;
+
+        default:
+            /* Incorrect trigger source */
+            result = CY_SAR_BAD_PARAM;
+            break;
+        }
+
+        if(CY_SAR_SUCCESS == result)
+        {
+            PASS_SAR_SIMULT_CTRL(base) = _VAL2FLD(PASS_V2_SAR_SIMULT_CTRL_SIMULT_HW_TR_EN, trigConfig->simultControl)                              |
+                                         _VAL2FLD(PASS_V2_SAR_SIMULT_CTRL_SIMULT_HW_TR_SRC, simultTrigSourceVal)                                   |
+                                        _BOOL2FLD(PASS_V2_SAR_SIMULT_CTRL_SIMULT_HW_TR_TIMER_SEL, simultTrigTimer)                                 |
+                                         _VAL2FLD(PASS_V2_SAR_SIMULT_CTRL_SIMULT_HW_TR_LEVEL, (uint32_t)(trigConfig->simultTrigEvent))             |
+                                         _VAL2FLD(PASS_V2_SAR_SIMULT_CTRL_SIMULT_HW_SYNC_TR, (uint32_t)(trigConfig->simultTrigSync))               |
+                                         _VAL2FLD(PASS_V2_SAR_SIMULT_CTRL_SIMULT_TR_SCAN_CNT_SEL, (uint32_t)(trigConfig->simultSamplesPerTrigger)) |
+                                         _VAL2FLD(PASS_V2_SAR_SIMULT_CTRL_SIMULT_EOS_INTR_SCAN_CNT_SEL, (uint32_t)(trigConfig->simultEOSIntrSelect));
+            PASS_SAR_TR_SCAN_CNT(base) = _VAL2FLD(PASS_V2_SAR_TR_SCAN_CNT_SCAN_CNT, trigConfig->scanCount - 1UL);
+
+            interruptState = Cy_SysLib_EnterCriticalSection();
+            CY_REG32_CLR_SET(PASS_ANA_PWR_CFG(base), PASS_V2_ANA_PWR_CFG_PWR_UP_DELAY, trigConfig->pwrUpDelay);
+            Cy_SysLib_ExitCriticalSection(interruptState);
+        }
+    }
+    else
+    {
+        result = CY_SAR_BAD_PARAM;
+    }
+
+    return result;
+}
 
 /*******************************************************************************
 * Function Name: Cy_SAR_Init
@@ -47,116 +176,186 @@ volatile int32_t Cy_SAR_countsPer10Volt[CY_SAR_MAX_NUM_CHANNELS];
 * If routing is to be configured, all switches will be cleared before
 * being initialized.
 *
+* \note If interleaved averaging mode is used, the Differential Result Format
+*       should be the same as the Single-Ended Result Format. Otherwise, this
+*       function will return CY_SAR_BAD_PARAM.
+*
 * \param base
-* Pointer to structure describing registers
+* Pointer to structure describing SAR instance registers
 *
 * \param config
 * Pointer to structure containing configuration data. See \ref cy_stc_sar_config_t
 * and guidance in the \ref group_sar_initialization section.
 *
 * \return
-* - \ref CY_SAR_SUCCESS : initialization complete
-* - \ref CY_SAR_BAD_PARAM : input pointers are null, initialization incomplete
+* - \ref CY_SAR_SUCCESS : initialization complete successfylly
+* - \ref CY_SAR_BAD_PARAM : input pointers are null or some configuration
+                            setting is invalid, initialization incomplete.
 *
-* \funcusage
-*
-* \snippet sar/snippet/main.c SNIPPET_SAR_INIT_CUSTOM
+* \funcusage \snippet sar/snippet/main.c SNIPPET_SAR_INIT_CUSTOM
 *
 *******************************************************************************/
-cy_en_sar_status_t Cy_SAR_Init(SAR_Type *base, const cy_stc_sar_config_t *config)
+cy_en_sar_status_t Cy_SAR_Init(SAR_Type * base, const cy_stc_sar_config_t * config)
 {
+    cy_en_sar_status_t result = CY_SAR_BAD_PARAM;
+
     CY_ASSERT_L1(NULL != base);
     CY_ASSERT_L1(NULL != config);
 
-    cy_en_sar_status_t result;
-    uint8_t chan;
-    int32_t counts;
-    bool vrefNegSelect;
-    bool singleEndedSigned;
-    bool chanSingleEnded;
-
-    if ((NULL == base) || (NULL == config))
+    if ((NULL != base) && (NULL != config))
     {
-        result = CY_SAR_BAD_PARAM;
-    }
-    else
-    {
-        CY_ASSERT_L2(CY_SAR_CTRL(config->ctrl));
-        CY_ASSERT_L2(CY_SAR_SAMPLE_CTRL(config->sampleCtrl));
-        CY_ASSERT_L2(CY_SAR_SAMPLE_TIME(config->sampleTime01));
-        CY_ASSERT_L2(CY_SAR_SAMPLE_TIME(config->sampleTime23));
-        CY_ASSERT_L3(CY_SAR_RANGECOND(config->rangeCond));
-        CY_ASSERT_L2(CY_SAR_CHANMASK(config->chanEn));
-        CY_ASSERT_L2(CY_SAR_INTRMASK(config->intrMask));
-        CY_ASSERT_L2(CY_SAR_CHANMASK(config->satIntrMask));
-        CY_ASSERT_L2(CY_SAR_CHANMASK(config->rangeIntrMask));
-
-        /* Set the EOS_DSI_OUT_EN bit so the EOS signal can be routed */
-        SAR_SAMPLE_CTRL(base) = config->sampleCtrl | SAR_SAMPLE_CTRL_EOS_DSI_OUT_EN_Msk;
-        SAR_SAMPLE_TIME01(base) = config->sampleTime01;
-        SAR_SAMPLE_TIME23(base) = config->sampleTime23;
-        SAR_RANGE_THRES(base) = config->rangeThres;
-        SAR_RANGE_COND(base) = (uint32_t)config->rangeCond << SAR_RANGE_COND_RANGE_COND_Pos;
-        SAR_CHAN_EN(base) = config->chanEn;
-
-        /* Check whether NEG_SEL is set for VREF */
-        vrefNegSelect = ((uint32_t)CY_SAR_NEG_SEL_VREF == (config->ctrl & SAR_CTRL_NEG_SEL_Msk))? true : false;
-        /* Check whether single ended channels are set to signed */
-        singleEndedSigned = (SAR_SAMPLE_CTRL_SINGLE_ENDED_SIGNED_Msk == (config->sampleCtrl & SAR_SAMPLE_CTRL_SINGLE_ENDED_SIGNED_Msk)) ? true : false;
-
-        for (chan = 0u; chan < CY_SAR_MAX_NUM_CHANNELS; chan++)
+        /* If interleaved averaging mode is used, the Differential Result Format should be the same as the Single-Ended Result Format. */
+        if (((0UL != (config->sampleCtrl & SAR_V2_SAMPLE_CTRL_AVG_MODE_Msk)) ?
+           !((0UL != (config->sampleCtrl & SAR_V2_SAMPLE_CTRL_SINGLE_ENDED_SIGNED_Msk)) !=
+             (0UL != (config->sampleCtrl & SAR_V2_SAMPLE_CTRL_DIFFERENTIAL_SIGNED_Msk))) : true) &&
+        /* The FIFO is supported by PASS_ver2 only */
+            ((NULL != config->fifoCfgPtr) ? !CY_PASS_V1 : true) &&
+        /* The Clock selection CY_SAR_CLK_DEEPSLEEP is allowed for PASS_V2 only */
+            ((CY_SAR_CLK_DEEPSLEEP == config->clock) ? !CY_PASS_V1 : true))
         {
-            CY_ASSERT_L2(CY_SAR_CHAN_CONFIG(config->chanConfig[chan]));
+            uint32_t interruptState;
+            uint8_t chan;
+            bool vrefNegSelect;
+            bool singleEndedSigned;
+            bool chanSingleEnded;
+            int32_t defaultGain;
 
-            SAR_CHAN_CONFIG(base, chan) = config->chanConfig[chan];
+            CY_ASSERT_L2(CY_SAR_CTRL(config->ctrl));
+            CY_ASSERT_L2(CY_SAR_SAMPLE_CTRL(config->sampleCtrl));
+            CY_ASSERT_L2(CY_SAR_SAMPLE_TIME(config->sampleTime01));
+            CY_ASSERT_L2(CY_SAR_SAMPLE_TIME(config->sampleTime23));
+            CY_ASSERT_L3(CY_SAR_RANGECOND(config->rangeCond));
+            CY_ASSERT_L2(CY_SAR_INJMASK(config->chanEn));
+            CY_ASSERT_L2(CY_SAR_INTRMASK(config->intrMask));
+            CY_ASSERT_L2(CY_SAR_CHANMASK(config->satIntrMask));
+            CY_ASSERT_L2(CY_SAR_CHANMASK(config->rangeIntrMask));
 
-            counts = (int32_t) CY_SAR_WRK_MAX_12BIT;
+            /* Set the REFBUF_EN bit as this is required for proper operation. */
+            SAR_CTRL(base) = (config->ctrl | SAR_CTRL_REFBUF_EN_Msk) & ~SAR_CTRL_ENABLED_Msk;
+            SAR_SAMPLE_CTRL(base) = config->sampleCtrl | SAR_SAMPLE_CTRL_EOS_DSI_OUT_EN_Msk; /* Set the EOS_DSI_OUT_EN bit so the EOS signal can be routed */
+            SAR_SAMPLE_TIME01(base) = config->sampleTime01;
+            SAR_SAMPLE_TIME23(base) = config->sampleTime23;
+            SAR_RANGE_THRES(base) = config->rangeThres;
+            SAR_RANGE_COND(base) = (uint32_t)config->rangeCond << SAR_RANGE_COND_RANGE_COND_Pos;
+            SAR_CHAN_EN(base) = _VAL2FLD(SAR_CHAN_EN_CHAN_EN, config->chanEn);
 
-            /* For signed single ended channels with NEG_SEL set to VREF,
-             * set the offset to minus half scale to convert results to unsigned format */
-            chanSingleEnded = (0uL == (config->chanConfig[chan] & (SAR_CHAN_CONFIG_DIFFERENTIAL_EN_Msk | SAR_CHAN_CONFIG_NEG_ADDR_EN_Msk))) ? true : false;
-            if (chanSingleEnded && vrefNegSelect && singleEndedSigned)
+            /* Check whether NEG_SEL is set for VREF */
+            vrefNegSelect = ((uint32_t)CY_SAR_NEG_SEL_VREF == (config->ctrl & SAR_CTRL_NEG_SEL_Msk))? true : false;
+            /* Check whether single ended channels are set to signed */
+            singleEndedSigned = (SAR_SAMPLE_CTRL_SINGLE_ENDED_SIGNED_Msk == (config->sampleCtrl & SAR_SAMPLE_CTRL_SINGLE_ENDED_SIGNED_Msk)) ? true : false;
+            /* Calculate the default gain for all the channels in counts per 10 volts with rounding */
+            defaultGain = (int32_t)(uint16_t)CY_SYSLIB_DIV_ROUND((uint32_t)CY_SAR_WRK_MAX_12BIT * (uint32_t)CY_SAR_10MV_COUNTS, config->vrefMvValue * 2UL);
+
+            for (chan = 0u; chan < CY_SAR_SEQ_NUM_CHANNELS; chan++)
             {
-                Cy_SAR_offset[chan] = (int16_t) (counts / -2);
+                CY_ASSERT_L2(CY_SAR_CHAN_CONFIG(config->chanConfig[chan]));
+
+                SAR_CHAN_CONFIG(base, chan) = config->chanConfig[chan];
+
+                /* For signed single ended channels with NEG_SEL set to VREF,
+                 * set the offset to minus half scale to convert results to unsigned format */
+                chanSingleEnded = (0UL == (config->chanConfig[chan] & (SAR_CHAN_CONFIG_DIFFERENTIAL_EN_Msk | SAR_CHAN_CONFIG_NEG_ADDR_EN_Msk))) ? true : false;
+                if (chanSingleEnded && vrefNegSelect && singleEndedSigned)
+                {
+                    Cy_SAR_offset[chan][CY_SAR_INSTANCE(base)] = (int16_t) (CY_SAR_WRK_MAX_12BIT / -2);
+                }
+                else
+                {
+                    Cy_SAR_offset[chan][CY_SAR_INSTANCE(base)] = 0;
+                }
+
+                Cy_SAR_countsPer10Volt[chan][CY_SAR_INSTANCE(base)] = defaultGain;
+            }
+
+            SAR_INTR_MASK(base) = config->intrMask;
+            SAR_INTR(base) = config->intrMask;
+            SAR_SATURATE_INTR_MASK(base) = config->satIntrMask;
+            SAR_SATURATE_INTR(base) = config->satIntrMask;
+            SAR_RANGE_INTR_MASK(base) = config->rangeIntrMask;
+            SAR_RANGE_INTR(base) = config->rangeIntrMask;
+
+            /* Set routing related registers if enabled */
+            if (true == config->configRouting)
+            {
+                CY_ASSERT_L2(CY_SAR_SWITCHMASK(config->muxSwitch));
+                CY_ASSERT_L2(CY_SAR_SQMASK(config->muxSwitchSqCtrl));
+
+                /* Clear out all the switches so that only the desired switches in the config structure are set. */
+                SAR_MUX_SWITCH_CLEAR0(base) = CY_SAR_CLEAR_ALL_SWITCHES;
+
+                SAR_MUX_SWITCH0(base) = config->muxSwitch;
+                SAR_MUX_SWITCH_SQ_CTRL(base) = config->muxSwitchSqCtrl;
+            }
+
+            /* Set the Cap trim if it was trimmed out of range from sflash */
+            if ((CY_SAR_CAP_TRIM_MAX == SAR_ANA_TRIM0(base)) || (CY_SAR_CAP_TRIM_MIN == SAR_ANA_TRIM0(base)))
+            {
+                SAR_ANA_TRIM0(base) = CY_SAR_CAP_TRIM;
+            }
+
+            if (0UL != (CY_SAR_INJ_CHAN_MASK & config->chanEn))
+            {
+                SAR_INJ_CHAN_CONFIG(base) = config->chanConfig[CY_SAR_INJ_CHANNEL];
+                Cy_SAR_countsPer10Volt[CY_SAR_INJ_CHANNEL][CY_SAR_INSTANCE(base)] = defaultGain;
+            }
+
+            if (NULL != config->fifoCfgPtr)
+            {
+                uint32_t locLevel = config->fifoCfgPtr->level - 1UL; /* Convert the user value into the machine value */
+
+                Cy_SAR_flags |= CY_SAR_INSTANCE_MASK(base);
+
+                PASS_FIFO_CONFIG(base) = _BOOL2FLD(PASS_FIFO_V2_CONFIG_CHAN_ID_EN,        config->fifoCfgPtr->chanId) |
+                                         _BOOL2FLD(PASS_FIFO_V2_CONFIG_CHAIN_TO_NXT,      config->fifoCfgPtr->chainToNext) |
+                                         _BOOL2FLD(PASS_FIFO_V2_CONFIG_TR_INTR_CLR_RD_EN, config->fifoCfgPtr->clrTrIntrOnRead);
+
+                CY_ASSERT_L2(CY_SAR_IS_FIFO_LEVEL_VALID(locLevel));
+                PASS_FIFO_LEVEL(base) = _VAL2FLD(PASS_FIFO_V2_LEVEL_LEVEL, locLevel);
+
+                interruptState = Cy_SysLib_EnterCriticalSection();
+
+                if (config->fifoCfgPtr->trOut)
+                {
+                    PASS_SAR_TR_OUT_CTRL(CY_PASS_V2_ADDR) |= CY_SAR_INSTANCE_MASK(base);
+                }
+                else
+                {
+                    PASS_SAR_TR_OUT_CTRL(CY_PASS_V2_ADDR) &= ~CY_SAR_INSTANCE_MASK(base);
+                }
+
+                Cy_SysLib_ExitCriticalSection(interruptState);
             }
             else
             {
-                Cy_SAR_offset[chan] = 0;
+                Cy_SAR_flags &= ~CY_SAR_INSTANCE_MASK(base);
             }
 
-            /* Calculate gain in counts per 10 volts with rounding */
-            Cy_SAR_countsPer10Volt[chan] = (int16_t)(((counts * CY_SAR_10MV_COUNTS) + (int32_t)config->vrefMvValue) / ((int32_t)config->vrefMvValue * 2));
+            if (!CY_PASS_V1)
+            {
+                uint32_t locReg;
+                uint32_t locAndMask = ~(CY_SAR_INSTANCE_MASK(base) |
+                                       (CY_SAR_INSTANCE_MASK(base) << PASS_V2_SAR_OVR_CTRL_TR_SCAN_CNT_SEL_Pos) |
+                                       (CY_SAR_INSTANCE_MASK(base) << PASS_V2_SAR_OVR_CTRL_EOS_INTR_SCAN_CNT_SEL_Pos));
+                uint32_t locOrMask = (config->trTimer ? CY_SAR_INSTANCE_MASK(base) : 0UL) |
+                                     (config->scanCnt ? (CY_SAR_INSTANCE_MASK(base) << PASS_V2_SAR_OVR_CTRL_TR_SCAN_CNT_SEL_Pos) : 0UL) |
+                                     (config->scanCntIntr ? (CY_SAR_INSTANCE_MASK(base) << PASS_V2_SAR_OVR_CTRL_EOS_INTR_SCAN_CNT_SEL_Pos) : 0UL);
+
+                interruptState = Cy_SysLib_EnterCriticalSection();
+
+                locReg = PASS_SAR_OVR_CTRL(CY_PASS_V2_ADDR);
+                locReg &= locAndMask;
+                locReg |= locOrMask;
+                PASS_SAR_OVR_CTRL(CY_PASS_V2_ADDR) = locReg;
+
+                Cy_SysLib_ExitCriticalSection(interruptState);
+
+                CY_ASSERT_L3(CY_SAR_IS_CLK_VALID(config->clock));
+                PASS_SAR_CLOCK_SEL(base) = _VAL2FLD(PASS_V2_SAR_CLOCK_SEL_CLOCK_SEL, config->clock);
+                PASS_SAR_DPSLP_CTRL(base) = _BOOL2FLD(PASS_V2_SAR_DPSLP_CTRL_ENABLED, (CY_SAR_CLK_DEEPSLEEP == config->clock));
+            }
+
+            result = CY_SAR_SUCCESS;
         }
-        SAR_INTR_MASK(base) = config->intrMask;
-        SAR_INTR(base) = config->intrMask;
-        SAR_SATURATE_INTR_MASK(base) = config->satIntrMask;
-        SAR_SATURATE_INTR(base) = config->satIntrMask;
-        SAR_RANGE_INTR_MASK(base) = config->rangeIntrMask;
-        SAR_RANGE_INTR(base) = config->rangeIntrMask;
-
-        /* Set routing related registers if enabled */
-        if (true == config->configRouting)
-        {
-            CY_ASSERT_L2(CY_SAR_SWITCHMASK(config->muxSwitch));
-            CY_ASSERT_L2(CY_SAR_SQMASK(config->muxSwitchSqCtrl));
-
-            /* Clear out all the switches so that only the desired switches in the config structure are set. */
-            SAR_MUX_SWITCH_CLEAR0(base) = CY_SAR_CLEAR_ALL_SWITCHES;
-
-            SAR_MUX_SWITCH0(base) = config->muxSwitch;
-            SAR_MUX_SWITCH_SQ_CTRL(base) = config->muxSwitchSqCtrl;
-        }
-
-        /* Set the Cap trim if it was trimmed out of range from sflash */
-        if ((CY_SAR_CAP_TRIM_MAX == SAR_ANA_TRIM0(base)) || (CY_SAR_CAP_TRIM_MIN == SAR_ANA_TRIM0(base)))
-        {
-            SAR_ANA_TRIM0(base) = CY_SAR_CAP_TRIM;
-        }
-
-        /* Set the REFBUF_EN bit as this is required for proper operation. */
-        SAR_CTRL(base) = config->ctrl | SAR_CTRL_REFBUF_EN_Msk;
-
-        result = CY_SAR_SUCCESS;
     }
 
     return result;
@@ -168,7 +367,8 @@ cy_en_sar_status_t Cy_SAR_Init(SAR_Type *base, const cy_stc_sar_config_t *config
 ****************************************************************************//**
 *
 * Reset SAR registers back to power on reset defaults.
-* The \ref Cy_SAR_offset and \ref Cy_SAR_countsPer10Volt arrays are NOT reset.
+*
+* \if Cy_SAR_offset and Cy_SAR_countsPer10Volt arrays are NOT reset. \endif
 *
 * \param base
 * Pointer to structure describing registers
@@ -186,19 +386,16 @@ cy_en_sar_status_t Cy_SAR_Init(SAR_Type *base, const cy_stc_sar_config_t *config
 * \snippet sar/snippet/main.c SNIPPET_SAR_DEINIT
 *
 *******************************************************************************/
-cy_en_sar_status_t Cy_SAR_DeInit(SAR_Type *base, bool deInitRouting)
+cy_en_sar_status_t Cy_SAR_DeInit(SAR_Type * base, bool deInitRouting)
 {
+    cy_en_sar_status_t result = CY_SAR_BAD_PARAM;
+
     CY_ASSERT_L1(NULL != base);
 
-    cy_en_sar_status_t result;
-    uint8_t chan;
+    if (NULL != base)
+    {
+        uint8_t chan;
 
-    if (NULL == base)
-    {
-       result = CY_SAR_BAD_PARAM;
-    }
-    else
-    {
         SAR_CTRL(base) = CY_SAR_DEINIT;
         SAR_SAMPLE_CTRL(base) = CY_SAR_DEINIT;
         SAR_SAMPLE_TIME01(base) = CY_SAR_SAMPLE_TIME_DEINIT;
@@ -206,10 +403,11 @@ cy_en_sar_status_t Cy_SAR_DeInit(SAR_Type *base, bool deInitRouting)
         SAR_RANGE_THRES(base) = CY_SAR_DEINIT;
         SAR_RANGE_COND(base) = CY_SAR_DEINIT;
         SAR_CHAN_EN(base) = CY_SAR_DEINIT;
-        for (chan = 0u; chan < CY_SAR_MAX_NUM_CHANNELS; chan++)
+        for (chan = 0u; chan < CY_SAR_SEQ_NUM_CHANNELS; chan++)
         {
             SAR_CHAN_CONFIG(base, chan) = CY_SAR_DEINIT;
         }
+        SAR_INJ_CHAN_CONFIG(base) = CY_SAR_DEINIT;
         SAR_INTR_MASK(base) = CY_SAR_DEINIT;
         SAR_SATURATE_INTR_MASK(base) = CY_SAR_DEINIT;
         SAR_RANGE_INTR_MASK(base) = CY_SAR_DEINIT;
@@ -219,6 +417,32 @@ cy_en_sar_status_t Cy_SAR_DeInit(SAR_Type *base, bool deInitRouting)
             SAR_MUX_SWITCH_DS_CTRL(base) = CY_SAR_DEINIT;
             SAR_MUX_SWITCH_SQ_CTRL(base) = CY_SAR_DEINIT;
         }
+
+        if (!CY_PASS_V1)
+        {
+            uint32_t locAndMask = ~(CY_SAR_INSTANCE_MASK(base) |
+                                    (CY_SAR_INSTANCE_MASK(base) << PASS_V2_SAR_OVR_CTRL_TR_SCAN_CNT_SEL_Pos) |
+                                    (CY_SAR_INSTANCE_MASK(base) << PASS_V2_SAR_OVR_CTRL_EOS_INTR_SCAN_CNT_SEL_Pos));
+
+            uint32_t interruptState = Cy_SysLib_EnterCriticalSection();
+
+            PASS_SAR_OVR_CTRL(CY_PASS_V2_ADDR) &= locAndMask;
+            PASS_SAR_TR_OUT_CTRL(CY_PASS_V2_ADDR) &= ~CY_SAR_INSTANCE_MASK(base);
+
+            Cy_SysLib_ExitCriticalSection(interruptState);
+
+            if (0UL != (Cy_SAR_flags & CY_SAR_INSTANCE_MASK(base)))
+            {
+                PASS_FIFO_CTRL(base) = CY_SAR_DEINIT; /* Disable first */
+                PASS_FIFO_CONFIG(base) = CY_SAR_DEINIT;
+                PASS_FIFO_LEVEL(base) = CY_SAR_DEINIT;
+                Cy_SAR_flags &= ~CY_SAR_INSTANCE_MASK(base);
+            }
+
+            PASS_SAR_DPSLP_CTRL(base) = CY_SAR_DEINIT;
+            PASS_SAR_CLOCK_SEL(base) = CY_SAR_DEINIT;
+        }
+
         result = CY_SAR_SUCCESS;
     }
 
@@ -241,17 +465,48 @@ cy_en_sar_status_t Cy_SAR_DeInit(SAR_Type *base, bool deInitRouting)
 *******************************************************************************/
 void Cy_SAR_Enable(SAR_Type *base)
 {
-    if (0uL == (SAR_CTRL(base) & SAR_CTRL_ENABLED_Msk))
+    if (!_FLD2BOOL(SAR_CTRL_ENABLED, SAR_CTRL(base)))
     {
-        while (0uL != (SAR_STATUS(base) & SAR_STATUS_BUSY_Msk))
-        {
-            /* Wait for SAR to go idle to avoid deadlock */
-        }
-
         SAR_CTRL(base) |= SAR_CTRL_ENABLED_Msk;
 
         /* The block is ready to use 2 us after the enable signal is set high. */
         Cy_SysLib_DelayUs(CY_SAR_2US_DELAY);
+
+        if ((!CY_PASS_V1) && (0UL != (Cy_SAR_flags & CY_SAR_INSTANCE_MASK(base))))
+        {
+            PASS_FIFO_CTRL(base) = PASS_FIFO_V2_CTRL_ENABLED_Msk;
+        }
+    }
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_SAR_Disable
+****************************************************************************//**
+*
+* Turn off the hardware block.
+*
+* \param base
+* Pointer to structure describing registers
+*
+* \return None
+*
+*******************************************************************************/
+void Cy_SAR_Disable(SAR_Type *base)
+{
+    if (_FLD2BOOL(SAR_CTRL_ENABLED, SAR_CTRL(base)))
+    {
+        while (_FLD2BOOL(SAR_STATUS_BUSY, SAR_STATUS(base)))
+        {
+            /* Wait for SAR to go idle */
+        }
+
+        SAR_CTRL(base) &= ~SAR_CTRL_ENABLED_Msk;
+
+        if ((!CY_PASS_V1) && (0UL != (Cy_SAR_flags & CY_SAR_INSTANCE_MASK(base))))
+        {
+            PASS_FIFO_CTRL(base) = 0UL;
+        }
     }
 }
 
@@ -282,20 +537,20 @@ void Cy_SAR_DeepSleep(SAR_Type *base)
 {
     uint32_t ctrlReg = SAR_CTRL(base);
 
-    enabledBeforeSleep.hwEnabled = ctrlReg & SAR_CTRL_ENABLED_Msk;
+    enabledBeforeSleep[CY_SAR_INSTANCE(base)].hwEnabled = ctrlReg & SAR_CTRL_ENABLED_Msk;
 
     /* Turn off the reference buffer */
     ctrlReg &= ~SAR_CTRL_REFBUF_EN_Msk;
 
-    if (SAR_CTRL_ENABLED_Msk == enabledBeforeSleep.hwEnabled)
+    if (SAR_CTRL_ENABLED_Msk == enabledBeforeSleep[CY_SAR_INSTANCE(base)].hwEnabled)
     {
 
         /* Save state of CONTINUOUS bit so that conversions can be re-started upon wake-up */
-        enabledBeforeSleep.continuous = SAR_SAMPLE_CTRL(base) & SAR_SAMPLE_CTRL_CONTINUOUS_Msk;
+        enabledBeforeSleep[CY_SAR_INSTANCE(base)].continuous = SAR_SAMPLE_CTRL(base) & SAR_SAMPLE_CTRL_CONTINUOUS_Msk;
 
         Cy_SAR_StopConvert(base);
 
-        while (0uL != (SAR_STATUS(base) & SAR_STATUS_BUSY_Msk))
+        while (_FLD2BOOL(SAR_STATUS_BUSY, SAR_STATUS(base)))
         {
             /* Wait for SAR to stop conversions before entering low power */
         }
@@ -341,11 +596,11 @@ void Cy_SAR_Wakeup(SAR_Type *base)
     /* Turn on the reference buffer */
     SAR_CTRL(base) |= SAR_CTRL_REFBUF_EN_Msk;
 
-    if (SAR_CTRL_ENABLED_Msk == enabledBeforeSleep.hwEnabled)
+    if (SAR_CTRL_ENABLED_Msk == enabledBeforeSleep[CY_SAR_INSTANCE(base)].hwEnabled)
     {
         Cy_SAR_Enable(base);
 
-        if (SAR_SAMPLE_CTRL_CONTINUOUS_Msk == enabledBeforeSleep.continuous)
+        if (SAR_SAMPLE_CTRL_CONTINUOUS_Msk == enabledBeforeSleep[CY_SAR_INSTANCE(base)].continuous)
         {
             Cy_SAR_StartConvert(base, CY_SAR_START_CONVERT_CONTINUOUS);
         }
@@ -453,7 +708,7 @@ void Cy_SAR_SetConvertMode(SAR_Type *base, cy_en_sar_sample_ctrl_trigger_mode_t 
     /* Clear the TRIGGER_EN and TRIGGER_LEVEL bits */
     uint32_t sampleCtrlReg = SAR_SAMPLE_CTRL(base) & ~(SAR_SAMPLE_CTRL_DSI_TRIGGER_EN_Msk | SAR_SAMPLE_CTRL_DSI_TRIGGER_LEVEL_Msk);
 
-    SAR_SAMPLE_CTRL(base) = sampleCtrlReg | mode;
+    SAR_SAMPLE_CTRL(base) = sampleCtrlReg | (uint32_t)mode;
 }
 
 
@@ -480,6 +735,10 @@ void Cy_SAR_SetConvertMode(SAR_Type *base, cy_en_sar_sample_ctrl_trigger_mode_t 
 * \sideeffect
 * This function reads the end of conversion status and clears it after.
 *
+* \note
+* \ref CY_SAR_WAIT_FOR_RESULT and \ref CY_SAR_WAIT_FOR_RESULT_INJ return modes are not recommended 
+* for use in RTOS environment.
+*
 * \funcusage
 *
 * \snippet sar/snippet/main.c SNIPPET_SAR_IS_END_CONVERSION
@@ -491,32 +750,26 @@ cy_en_sar_status_t Cy_SAR_IsEndConversion(SAR_Type *base, cy_en_sar_return_mode_
 
     cy_en_sar_status_t result;
 
-    uint32_t endOfConversion = SAR_INTR(base) & SAR_INTR_EOS_INTR_Msk;
-    uint32_t wdt = 0x1555555uL; /* Watchdog timer for blocking while loop */
+    uint32_t wdt = 0x1555555UL; /* Watchdog timer for blocking while loop */
+    uint32_t mask = ((CY_SAR_RETURN_STATUS_INJ == retMode) || (CY_SAR_WAIT_FOR_RESULT_INJ == retMode)) ? CY_SAR_INTR_INJ_EOC : CY_SAR_INTR_EOS;
+    uint32_t intr = mask & Cy_SAR_GetInterruptStatus(base);
 
-    switch(retMode)
+    if ((CY_SAR_WAIT_FOR_RESULT == retMode) || (CY_SAR_WAIT_FOR_RESULT_INJ == retMode))
     {
-    case CY_SAR_WAIT_FOR_RESULT:
-        while((0uL == endOfConversion) && (0uL != wdt))
+        while ((0UL == intr) && (0UL != wdt))
         {
-            endOfConversion = SAR_INTR(base) & SAR_INTR_EOS_INTR_Msk;
+            intr = mask & Cy_SAR_GetInterruptStatus(base);
             wdt--;
         }
-        break;
-    case CY_SAR_RETURN_STATUS:
-    default:
-        break;
     }
 
     /* Clear the EOS bit */
-    if (SAR_INTR_EOS_INTR_Msk == endOfConversion)
+    if (mask == intr)
     {
         result = CY_SAR_SUCCESS;
-        SAR_INTR(base) = SAR_INTR_EOS_INTR_Msk;
-        /* Do a dummy read after write for buffered write */
-        (void) SAR_INTR(base);
+        Cy_SAR_ClearInterrupt(base, mask);
     }
-    else if (0uL == wdt)
+    else if (0UL == wdt)
     {
         result = CY_SAR_TIMEOUT;
     }
@@ -541,7 +794,7 @@ cy_en_sar_status_t Cy_SAR_IsEndConversion(SAR_Type *base, cy_en_sar_return_mode_
 * Pointer to structure describing registers
 *
 * \param chan
-* The channel to check, between 0 and \ref CY_SAR_MAX_NUM_CHANNELS - 1
+* The channel to check, between 0 and \ref CY_SAR_INJ_CHANNEL
 *
 * \return
 * If channel number is invalid, false is returned
@@ -553,13 +806,12 @@ cy_en_sar_status_t Cy_SAR_IsEndConversion(SAR_Type *base, cy_en_sar_return_mode_
 *******************************************************************************/
 bool Cy_SAR_IsChannelSigned(const SAR_Type *base, uint32_t chan)
 {
-    CY_ASSERT_L2(CY_SAR_CHANNUM(chan));
+    CY_ASSERT_L2(CHAN_NUM(chan));
 
     bool isSigned = false;
 
-    if (chan < CY_SAR_MAX_NUM_CHANNELS)
+    if (chan < CY_SAR_NUM_CHANNELS)
     {
-
         /* Sign bits are stored separately for differential and single ended channels. */
         if (true == Cy_SAR_IsChannelDifferential(base, chan))
         { /* Differential channel */
@@ -591,7 +843,7 @@ bool Cy_SAR_IsChannelSigned(const SAR_Type *base, uint32_t chan)
 * Pointer to structure describing registers
 *
 * \param chan
-* The channel to check, between 0 and \ref CY_SAR_MAX_NUM_CHANNELS - 1
+* The channel to check, between 0 and \ref CY_SAR_INJ_CHANNEL
 *
 * \return
 * If channel number is invalid, false is returned
@@ -603,15 +855,24 @@ bool Cy_SAR_IsChannelSigned(const SAR_Type *base, uint32_t chan)
 *******************************************************************************/
 bool Cy_SAR_IsChannelSingleEnded(const SAR_Type *base, uint32_t chan)
 {
-    CY_ASSERT_L2(CY_SAR_CHANNUM(chan));
+    CY_ASSERT_L2(CHAN_NUM(chan));
 
     bool isSingleEnded = false;
 
-    if (chan < CY_SAR_MAX_NUM_CHANNELS)
+    if (chan < CY_SAR_SEQ_NUM_CHANNELS)
     {
-        if (0uL == (SAR_CHAN_CONFIG(base, chan) & (SAR_CHAN_CONFIG_DIFFERENTIAL_EN_Msk | SAR_CHAN_CONFIG_NEG_ADDR_EN_Msk))){
+        if (0UL == (SAR_CHAN_CONFIG(base, chan) & (SAR_CHAN_CONFIG_DIFFERENTIAL_EN_Msk | SAR_CHAN_CONFIG_NEG_ADDR_EN_Msk)))
+        {
             isSingleEnded = true;
         }
+    }
+    else if (CY_SAR_INJ_CHANNEL == chan)
+    {
+        isSingleEnded = !_FLD2BOOL(SAR_INJ_CHAN_CONFIG_INJ_DIFFERENTIAL_EN, SAR_INJ_CHAN_CONFIG(base));
+    }
+    else
+    {
+        /* Return false */
     }
 
     return isSingleEnded;
@@ -629,7 +890,7 @@ bool Cy_SAR_IsChannelSingleEnded(const SAR_Type *base, uint32_t chan)
 * Pointer to structure describing registers
 *
 * \param chan
-* The channel to read the result from, between 0 and \ref CY_SAR_MAX_NUM_CHANNELS - 1
+* The channel to read the result from, between 0 and \ref CY_SAR_INJ_CHANNEL
 *
 * \return
 * Data is returned as a signed 16-bit integer.
@@ -642,13 +903,21 @@ bool Cy_SAR_IsChannelSingleEnded(const SAR_Type *base, uint32_t chan)
 *******************************************************************************/
 int16_t Cy_SAR_GetResult16(const SAR_Type *base, uint32_t chan)
 {
-    CY_ASSERT_L2(CY_SAR_CHANNUM(chan));
+    CY_ASSERT_L2(CHAN_NUM(chan));
 
-    uint32_t adcResult = 0uL;
+    uint32_t adcResult = 0UL;
 
-    if (chan < CY_SAR_MAX_NUM_CHANNELS)
+    if (chan < CY_SAR_SEQ_NUM_CHANNELS)
     {
-        adcResult = SAR_CHAN_RESULT(base, chan) & SAR_CHAN_RESULT_RESULT_Msk;
+        adcResult = _FLD2VAL(SAR_CHAN_RESULT_RESULT, SAR_CHAN_RESULT(base, chan));
+    }
+    else if (CY_SAR_INJ_CHANNEL == chan)
+    {
+        adcResult = _FLD2VAL(SAR_INJ_RESULT_INJ_RESULT, SAR_INJ_RESULT(base));
+    }
+    else
+    {
+        /* Return zero */
     }
 
     return (int16_t) adcResult;
@@ -666,7 +935,7 @@ int16_t Cy_SAR_GetResult16(const SAR_Type *base, uint32_t chan)
 * Pointer to structure describing registers
 *
 * \param chan
-* The channel to read the result from, between 0 and \ref CY_SAR_MAX_NUM_CHANNELS - 1
+* The channel to read the result from, between 0 and \ref CY_SAR_INJ_CHANNEL
 *
 * \return
 * Data is returned as a signed 32-bit integer.
@@ -679,28 +948,7 @@ int16_t Cy_SAR_GetResult16(const SAR_Type *base, uint32_t chan)
 *******************************************************************************/
 int32_t Cy_SAR_GetResult32(const SAR_Type *base, uint32_t chan)
 {
-    CY_ASSERT_L2(CY_SAR_CHANNUM(chan));
-
-    uint32_t adcResult = 0uL;
-    int16_t adcResult16;
-    int32_t finalResult;
-
-    if (chan < CY_SAR_MAX_NUM_CHANNELS)
-    {
-        adcResult = SAR_CHAN_RESULT(base, chan) & SAR_CHAN_RESULT_RESULT_Msk;
-    }
-
-    if (true == Cy_SAR_IsChannelSigned(base, chan))
-    {
-        adcResult16 = (int16_t) adcResult;
-        finalResult = (int32_t) adcResult16;
-    }
-    else
-    {
-        finalResult = (int32_t) adcResult;
-    }
-
-    return finalResult;
+    return ((int32_t)Cy_SAR_GetResult16(base, chan));
 }
 
 
@@ -730,12 +978,7 @@ void Cy_SAR_SetLowLimit(SAR_Type *base, uint32_t lowLimit)
 {
     CY_ASSERT_L2(CY_SAR_RANGE_LIMIT(lowLimit));
 
-    uint32_t rangeThresReg;
-
-    /* Preserve the RANGE_HIGH field value when changing the RANGE_LOW field value */
-    rangeThresReg = SAR_RANGE_THRES(base) & ~SAR_RANGE_THRES_RANGE_LOW_Msk;
-    rangeThresReg |= lowLimit  & SAR_RANGE_THRES_RANGE_LOW_Msk;
-    SAR_RANGE_THRES(base) = rangeThresReg;
+    CY_REG32_CLR_SET(SAR_RANGE_THRES(base), SAR_RANGE_THRES_RANGE_LOW, lowLimit);
 }
 
 
@@ -765,30 +1008,28 @@ void Cy_SAR_SetHighLimit(SAR_Type *base, uint32_t highLimit)
 {
     CY_ASSERT_L2(CY_SAR_RANGE_LIMIT(highLimit));
 
-    uint32_t rangeThresReg;
-
-    rangeThresReg = SAR_RANGE_THRES(base) & ~SAR_RANGE_THRES_RANGE_HIGH_Msk;
-    rangeThresReg |= (highLimit << SAR_RANGE_THRES_RANGE_HIGH_Pos) & SAR_RANGE_THRES_RANGE_HIGH_Msk;
-    SAR_RANGE_THRES(base) = rangeThresReg;
+    CY_REG32_CLR_SET(SAR_RANGE_THRES(base), SAR_RANGE_THRES_RANGE_HIGH, highLimit);
 }
 
 
 /*******************************************************************************
-* Function Name: Cy_SAR_SetOffset
+* Function Name: Cy_SAR_SetChannelOffset
 ****************************************************************************//**
 *
-* Override the channel offset stored in the \ref Cy_SAR_offset array
-* for the voltage conversion functions.
+* Store the channel offset for the voltage conversion functions.
 *
 * Offset is applied to counts before unit scaling and gain.
 * See \ref Cy_SAR_CountsTo_Volts for more about this formula.
 *
 * To change channel 0's offset based on a known V_offset_mV, use:
 *
-*     Cy_SAR_SetOffset(0uL, -1 * V_offset_mV * (1uL << Resolution) / (2 * V_ref_mV));
+*     Cy_SAR_SetOffset(0UL, -1 * V_offset_mV * (1UL << Resolution) / (2 * V_ref_mV));
+*
+* \param base
+* Pointer to structure describing registers
 *
 * \param chan
-* The channel number, between 0 and \ref CY_SAR_MAX_NUM_CHANNELS - 1.
+* The channel number, between 0 and \ref CY_SAR_INJ_CHANNEL.
 *
 * \param offset
 * The count value measured when the inputs are shorted or
@@ -796,18 +1037,18 @@ void Cy_SAR_SetHighLimit(SAR_Type *base, uint32_t highLimit)
 *
 * \return
 * - \ref CY_SAR_SUCCESS : offset was set successfully
-* - \ref CY_SAR_BAD_PARAM : channel number is equal to or greater than \ref CY_SAR_MAX_NUM_CHANNELS
+* - \ref CY_SAR_BAD_PARAM : channel number is equal to or greater than \ref CY_SAR_NUM_CHANNELS
 *
 *******************************************************************************/
-cy_en_sar_status_t Cy_SAR_SetOffset(uint32_t chan, int16_t offset)
+cy_en_sar_status_t Cy_SAR_SetChannelOffset(const SAR_Type *base, uint32_t chan, int16_t offset)
 {
-    CY_ASSERT_L2(CY_SAR_CHANNUM(chan));
+    CY_ASSERT_L2(CHAN_NUM(chan));
 
     cy_en_sar_status_t result = CY_SAR_BAD_PARAM;
 
-    if (chan < CY_SAR_MAX_NUM_CHANNELS)
+    if (chan < CY_SAR_NUM_CHANNELS)
     {
-        Cy_SAR_offset[chan] = offset;
+        Cy_SAR_offset[chan][CY_SAR_INSTANCE(base)] = offset;
         result = CY_SAR_SUCCESS;
     }
 
@@ -816,10 +1057,10 @@ cy_en_sar_status_t Cy_SAR_SetOffset(uint32_t chan, int16_t offset)
 
 
 /*******************************************************************************
-* Function Name: Cy_SAR_SetGain
+* Function Name: Cy_SAR_SetChannelGain
 ****************************************************************************//**
 *
-* Override the gain stored in the \ref Cy_SAR_countsPer10Volt array for the voltage conversion functions.
+* Store the gain value for the voltage conversion functions.
 * The gain is configured at initialization in \ref Cy_SAR_Init
 * based on the SARADC resolution and voltage reference.
 *
@@ -828,28 +1069,31 @@ cy_en_sar_status_t Cy_SAR_SetOffset(uint32_t chan, int16_t offset)
 *
 * To change channel 0's gain based on a known V_ref_mV, use:
 *
-*     Cy_SAR_SetGain(0uL, 10000 * (1uL << Resolution) / (2 * V_ref_mV));
+*     Cy_SAR_SetGain(0UL, 10000 * (1UL << Resolution) / (2 * V_ref_mV));
+*
+* \param base
+* Pointer to structure describing registers
 *
 * \param chan
-* The channel number, between 0 and \ref CY_SAR_MAX_NUM_CHANNELS - 1.
+* The channel number, between 0 and \ref CY_SAR_INJ_CHANNEL.
 *
 * \param adcGain
 * The gain in counts per 10 volt.
 *
 * \return
 * - \ref CY_SAR_SUCCESS : gain was set successfully
-* - \ref CY_SAR_BAD_PARAM : channel number is equal to or greater than \ref CY_SAR_MAX_NUM_CHANNELS
+* - \ref CY_SAR_BAD_PARAM : channel number is equal to or greater than \ref CY_SAR_NUM_CHANNELS
 *
 *******************************************************************************/
-cy_en_sar_status_t Cy_SAR_SetGain(uint32_t chan, int32_t adcGain)
+cy_en_sar_status_t Cy_SAR_SetChannelGain(const SAR_Type *base, uint32_t chan, int32_t adcGain)
 {
-    CY_ASSERT_L2(CY_SAR_CHANNUM(chan));
+    CY_ASSERT_L2(CHAN_NUM(chan));
 
     cy_en_sar_status_t result = CY_SAR_BAD_PARAM;
 
-    if (chan < CY_SAR_MAX_NUM_CHANNELS)
+    if (chan < CY_SAR_NUM_CHANNELS)
     {
-        Cy_SAR_countsPer10Volt[chan] = adcGain;
+        Cy_SAR_countsPer10Volt[chan][CY_SAR_INSTANCE(base)] = adcGain;
         result = CY_SAR_SUCCESS;
     }
 
@@ -874,13 +1118,13 @@ cy_en_sar_status_t Cy_SAR_SetGain(uint32_t chan, int32_t adcGain)
 *   - \ref CY_SAR_AVG_MODE_SEQUENTIAL_ACCUM : AvgDivider is the number of samples averaged or 16, whichever is smaller
 *   - \ref CY_SAR_AVG_MODE_SEQUENTIAL_FIXED : AvgDivider is 1
 *   - \ref CY_SAR_AVG_MODE_INTERLEAVED : AvgDivider is the number of samples averaged
-* - Offset: Value from \ref Cy_SAR_offset
+* - Offset: Value stored by the \ref Cy_SAR_SetChannelOffset function.
 *
 * \param base
 * Pointer to structure describing registers
 *
 * \param chan
-* The channel number, between 0 and \ref CY_SAR_MAX_NUM_CHANNELS - 1
+* The channel number, between 0 and \ref CY_SAR_INJ_CHANNEL
 *
 * \param adcCounts
 * Conversion result from \ref Cy_SAR_GetResult16
@@ -898,53 +1142,51 @@ cy_en_sar_status_t Cy_SAR_SetGain(uint32_t chan, int32_t adcGain)
 *******************************************************************************/
 int16_t Cy_SAR_RawCounts2Counts(const SAR_Type *base, uint32_t chan, int16_t adcCounts)
 {
-    CY_ASSERT_L2(CY_SAR_CHANNUM(chan));
+    int16_t retVal = adcCounts;
 
-    uint32_t temp;
-    uint32_t averageAdcSamplesDiv;
+    CY_ASSERT_L2(CHAN_NUM(chan));
 
-    if (chan < CY_SAR_MAX_NUM_CHANNELS)
+    if (chan < CY_SAR_NUM_CHANNELS)
     {
-
         /* Divide the adcCount when accumulate averaging mode selected */
-        if (SAR_SAMPLE_CTRL_AVG_SHIFT_Msk != (SAR_SAMPLE_CTRL(base) & SAR_SAMPLE_CTRL_AVG_SHIFT_Msk))
+        if (!_FLD2BOOL(SAR_SAMPLE_CTRL_AVG_SHIFT, SAR_SAMPLE_CTRL(base)))
         { /* If Average mode != fixed */
-
-            if (SAR_CHAN_CONFIG_AVG_EN_Msk == (SAR_CHAN_CONFIG(base, chan) & SAR_CHAN_CONFIG_AVG_EN_Msk))
+            if (((chan < CY_SAR_SEQ_NUM_CHANNELS) && _FLD2BOOL(SAR_CHAN_CONFIG_AVG_EN,         SAR_CHAN_CONFIG(base, chan))) ||
+                ((chan == CY_SAR_INJ_CHANNEL)     && _FLD2BOOL(SAR_INJ_CHAN_CONFIG_INJ_AVG_EN, SAR_INJ_CHAN_CONFIG(base))))
             { /* If channel uses averaging */
+                uint32_t averageAdcSamplesDiv;
 
                 /* Divide by 2^(AVG_CNT + 1) */
                 averageAdcSamplesDiv = (SAR_SAMPLE_CTRL(base) & SAR_SAMPLE_CTRL_AVG_CNT_Msk) >> SAR_SAMPLE_CTRL_AVG_CNT_Pos;
-                averageAdcSamplesDiv = (1uL << (averageAdcSamplesDiv + 1uL));
+                averageAdcSamplesDiv = (1UL << (averageAdcSamplesDiv + 1UL));
 
                 /* If averaging mode is ACCUNDUMP (channel will be sampled back to back and averaged)
                 * divider limit is 16 */
                 if (SAR_SAMPLE_CTRL_AVG_MODE_Msk != (SAR_SAMPLE_CTRL(base) & SAR_SAMPLE_CTRL_AVG_MODE_Msk))
                 {
-                    if (averageAdcSamplesDiv > 16uL)
+                    if (averageAdcSamplesDiv > 16UL)
                     {
-                        averageAdcSamplesDiv = 16uL;
+                        averageAdcSamplesDiv = 16UL;
                     }
                 }
 
                 /* If unsigned format, prevent sign extension */
                 if (false == Cy_SAR_IsChannelSigned(base, chan))
                 {
-                    temp = ((uint16) adcCounts / averageAdcSamplesDiv);
-                    adcCounts = (int16_t) temp;
+                    retVal = (int16_t)(uint32_t)((uint16_t) retVal / averageAdcSamplesDiv);
                 }
                 else
                 {
-                    adcCounts /= (int16_t) averageAdcSamplesDiv;
+                    retVal /= (int16_t) averageAdcSamplesDiv;
                 }
             }
         }
 
         /* Subtract ADC offset */
-        adcCounts -= Cy_SAR_offset[chan];
+        retVal -= Cy_SAR_offset[chan][CY_SAR_INSTANCE(base)];
     }
 
-    return adcCounts;
+    return (retVal);
 }
 
 
@@ -954,8 +1196,7 @@ int16_t Cy_SAR_RawCounts2Counts(const SAR_Type *base, uint32_t chan, int16_t adc
 *
 * Convert the ADC output to Volts as a float32. For example, if the ADC
 * measured 0.534 volts, the return value would be 0.534.
-* The calculation of voltage depends on the contents of \ref Cy_SAR_offset,
-* \ref Cy_SAR_countsPer10Volt, and other parameters.
+* The calculation of voltage depends on the channel offset, gain and other parameters.
 * The equation used is:
 *
 *     V = (RawCounts/AvgDivider - Offset)*TEN_VOLT/Gain
@@ -967,9 +1208,9 @@ int16_t Cy_SAR_RawCounts2Counts(const SAR_Type *base, uint32_t chan, int16_t adc
 *   - \ref CY_SAR_AVG_MODE_SEQUENTIAL_ACCUM : AvgDivider is the number of samples averaged or 16, whichever is smaller
 *   - \ref CY_SAR_AVG_MODE_SEQUENTIAL_FIXED : AvgDivider is 1
 *   - \ref CY_SAR_AVG_MODE_INTERLEAVED : AvgDivider is the number of samples averaged
-* - Offset: Value from \ref Cy_SAR_offset
+* - Offset: Value stored by the \ref Cy_SAR_SetChannelOffset function.
 * - TEN_VOLT: 10 V constant since the gain is in counts per 10 volts.
-* - Gain: Value from \ref Cy_SAR_countsPer10Volt
+* - Gain: Value stored by the \ref Cy_SAR_SetChannelGain function.
 *
 * \note
 * This funtion is only valid when result alignment is right aligned.
@@ -978,7 +1219,7 @@ int16_t Cy_SAR_RawCounts2Counts(const SAR_Type *base, uint32_t chan, int16_t adc
 * Pointer to structure describing registers
 *
 * \param chan
-* The channel number, between 0 and \ref CY_SAR_MAX_NUM_CHANNELS - 1
+* The channel number, between 0 and \ref CY_SAR_INJ_CHANNEL
 *
 * \param adcCounts
 * Conversion result from \ref Cy_SAR_GetResult16
@@ -995,18 +1236,16 @@ int16_t Cy_SAR_RawCounts2Counts(const SAR_Type *base, uint32_t chan, int16_t adc
 *******************************************************************************/
 float32_t Cy_SAR_CountsTo_Volts(const SAR_Type *base, uint32_t chan, int16_t adcCounts)
 {
-    CY_ASSERT_L2(CY_SAR_CHANNUM(chan));
+    CY_ASSERT_L2(CHAN_NUM(chan));
 
     float32_t result_Volts = 0.0f;
 
-    if (chan < CY_SAR_MAX_NUM_CHANNELS)
+    if (chan < CY_SAR_NUM_CHANNELS)
     {
-        if (SAR_SAMPLE_CTRL_LEFT_ALIGN_Msk != (SAR_SAMPLE_CTRL(base) & SAR_SAMPLE_CTRL_LEFT_ALIGN_Msk))
+        if (IS_RIGHT_ALIGN)
         {
-            adcCounts = Cy_SAR_RawCounts2Counts(base, chan, adcCounts);
-
-            result_Volts = (float32_t)adcCounts * CY_SAR_10V_COUNTS;
-            result_Volts /= (float32_t)Cy_SAR_countsPer10Volt[chan];
+            result_Volts = (float32_t)Cy_SAR_RawCounts2Counts(base, chan, adcCounts) * CY_SAR_10V_COUNTS;
+            result_Volts /= (float32_t)Cy_SAR_countsPer10Volt[chan][CY_SAR_INSTANCE(base)];
         }
     }
 
@@ -1020,8 +1259,7 @@ float32_t Cy_SAR_CountsTo_Volts(const SAR_Type *base, uint32_t chan, int16_t adc
 *
 * Convert the ADC output to millivolts as an int16. For example, if the ADC
 * measured 0.534 volts, the return value would be 534.
-* The calculation of voltage depends on the contents of \ref Cy_SAR_offset,
-* \ref Cy_SAR_countsPer10Volt, and other parameters.
+* The calculation of voltage depends on the channel offset, gain and other parameters.
 * The equation used is:
 *
 *     V = (RawCounts/AvgDivider - Offset)*TEN_VOLT/Gain
@@ -1034,9 +1272,9 @@ float32_t Cy_SAR_CountsTo_Volts(const SAR_Type *base, uint32_t chan, int16_t adc
 *   - \ref CY_SAR_AVG_MODE_SEQUENTIAL_ACCUM : AvgDivider is the number of samples averaged or 16, whichever is smaller
 *   - \ref CY_SAR_AVG_MODE_SEQUENTIAL_FIXED : AvgDivider is 1
 *   - \ref CY_SAR_AVG_MODE_INTERLEAVED : AvgDivider is the number of samples averaged
-* - Offset: Value from \ref Cy_SAR_offset
+* - Offset: Value stored by the \ref Cy_SAR_SetChannelOffset function.
 * - TEN_VOLT: 10 V constant since the gain is in counts per 10 volts.
-* - Gain: Value from \ref Cy_SAR_countsPer10Volt
+* - Gain: Value stored by the \ref Cy_SAR_SetChannelGain function.
 *
 * \note
 * This funtion is only valid when result alignment is right aligned.
@@ -1045,7 +1283,7 @@ float32_t Cy_SAR_CountsTo_Volts(const SAR_Type *base, uint32_t chan, int16_t adc
 * Pointer to structure describing registers
 *
 * \param chan
-* The channel number, between 0 and \ref CY_SAR_MAX_NUM_CHANNELS - 1
+* The channel number, between 0 and \ref CY_SAR_INJ_CHANNEL
 *
 * \param adcCounts
 * Conversion result from \ref Cy_SAR_GetResult16
@@ -1062,26 +1300,26 @@ float32_t Cy_SAR_CountsTo_Volts(const SAR_Type *base, uint32_t chan, int16_t adc
 *******************************************************************************/
 int16_t Cy_SAR_CountsTo_mVolts(const SAR_Type *base, uint32_t chan, int16_t adcCounts)
 {
-    CY_ASSERT_L2(CY_SAR_CHANNUM(chan));
+    CY_ASSERT_L2(CHAN_NUM(chan));
 
     int32_t result_mVolts = 0;
 
-    if (chan < CY_SAR_MAX_NUM_CHANNELS)
+    if (chan < CY_SAR_NUM_CHANNELS)
     {
-        if (SAR_SAMPLE_CTRL_LEFT_ALIGN_Msk != (SAR_SAMPLE_CTRL(base) & SAR_SAMPLE_CTRL_LEFT_ALIGN_Msk))
+        if (IS_RIGHT_ALIGN)
         {
-            adcCounts = Cy_SAR_RawCounts2Counts(base, chan, adcCounts);
+            int16_t locCounts = Cy_SAR_RawCounts2Counts(base, chan, adcCounts);
 
-            result_mVolts = ((int32_t)adcCounts * CY_SAR_10MV_COUNTS);
-            if (adcCounts > 0)
+            result_mVolts = ((int32_t)locCounts * CY_SAR_10MV_COUNTS);
+            if (locCounts > 0)
             {
-                result_mVolts += Cy_SAR_countsPer10Volt[chan] / 2;
+                result_mVolts += Cy_SAR_countsPer10Volt[chan][CY_SAR_INSTANCE(base)] / 2;
             }
             else
             {
-                result_mVolts -= Cy_SAR_countsPer10Volt[chan] / 2;
+                result_mVolts -= Cy_SAR_countsPer10Volt[chan][CY_SAR_INSTANCE(base)] / 2;
             }
-            result_mVolts /= Cy_SAR_countsPer10Volt[chan];
+            result_mVolts /= Cy_SAR_countsPer10Volt[chan][CY_SAR_INSTANCE(base)];
         }
     }
 
@@ -1095,8 +1333,7 @@ int16_t Cy_SAR_CountsTo_mVolts(const SAR_Type *base, uint32_t chan, int16_t adcC
 *
 * Convert the ADC output to microvolts as a int32. For example, if the ADC
 * measured 0.534 volts, the return value would be 534000.
-* The calculation of voltage depends on the contents of \ref Cy_SAR_offset,
-* \ref Cy_SAR_countsPer10Volt, and other parameters.
+* The calculation of voltage depends on the channel offset, gain and other parameters.
 * The equation used is:
 *
 *     V = (RawCounts/AvgDivider - Offset)*TEN_VOLT/Gain
@@ -1109,9 +1346,9 @@ int16_t Cy_SAR_CountsTo_mVolts(const SAR_Type *base, uint32_t chan, int16_t adcC
 *   - \ref CY_SAR_AVG_MODE_SEQUENTIAL_ACCUM : AvgDivider is the number of samples averaged or 16, whichever is smaller
 *   - \ref CY_SAR_AVG_MODE_SEQUENTIAL_FIXED : AvgDivider is 1
 *   - \ref CY_SAR_AVG_MODE_INTERLEAVED : AvgDivider is the number of samples averaged
-* - Offset: Value from \ref Cy_SAR_offset
+* - Offset: Value stored by the \ref Cy_SAR_SetChannelOffset function.
 * - TEN_VOLT: 10 V constant since the gain is in counts per 10 volts.
-* - Gain: Value from \ref Cy_SAR_countsPer10Volt
+* - Gain: Value stored by the \ref Cy_SAR_SetChannelGain function.
 *
 * \note
 * This funtion is only valid when result alignment is right aligned.
@@ -1120,7 +1357,7 @@ int16_t Cy_SAR_CountsTo_mVolts(const SAR_Type *base, uint32_t chan, int16_t adcC
 * Pointer to structure describing registers
 *
 * \param chan
-* The channel number, between 0 and \ref CY_SAR_MAX_NUM_CHANNELS - 1
+* The channel number, between 0 and \ref CY_SAR_INJ_CHANNEL
 *
 * \param adcCounts
 * Conversion result from \ref Cy_SAR_GetResult16
@@ -1137,21 +1374,20 @@ int16_t Cy_SAR_CountsTo_mVolts(const SAR_Type *base, uint32_t chan, int16_t adcC
 *******************************************************************************/
 int32_t Cy_SAR_CountsTo_uVolts(const SAR_Type *base, uint32_t chan, int16_t adcCounts)
 {
-    CY_ASSERT_L2(CY_SAR_CHANNUM(chan));
+    CY_ASSERT_L2(CHAN_NUM(chan));
 
     int64_t result_uVolts = 0;
 
-    if (chan < CY_SAR_MAX_NUM_CHANNELS)
+    if (chan < CY_SAR_NUM_CHANNELS)
     {
-        if (SAR_SAMPLE_CTRL_LEFT_ALIGN_Msk != (SAR_SAMPLE_CTRL(base) & SAR_SAMPLE_CTRL_LEFT_ALIGN_Msk))
+        if (IS_RIGHT_ALIGN)
         {
-            adcCounts = Cy_SAR_RawCounts2Counts(base, chan, adcCounts);
-            result_uVolts = (int64_t)adcCounts * CY_SAR_10UV_COUNTS;
-            result_uVolts /= Cy_SAR_countsPer10Volt[chan];
+            result_uVolts = (int64_t)Cy_SAR_RawCounts2Counts(base, chan, adcCounts) * CY_SAR_10UV_COUNTS;
+            result_uVolts /= Cy_SAR_countsPer10Volt[chan][CY_SAR_INSTANCE(base)];
         }
     }
 
-    return (int32_t)result_uVolts;
+    return ((int32_t)result_uVolts);
 }
 
 
@@ -1306,24 +1542,68 @@ void Cy_SAR_SetSwitchSarSeqCtrl(SAR_Type *base, uint32_t switchMask, cy_en_sar_s
 * \snippet sar/snippet/main.c SNIPPET_SAR_DEEPSLEEP_CALLBACK
 *
 *******************************************************************************/
-cy_en_syspm_status_t Cy_SAR_DeepSleepCallback(cy_stc_syspm_callback_params_t *callbackParams, cy_en_syspm_callback_mode_t mode)
+cy_en_syspm_status_t Cy_SAR_DeepSleepCallback(const cy_stc_syspm_callback_params_t *callbackParams, cy_en_syspm_callback_mode_t mode)
 {
     cy_en_syspm_status_t returnValue = CY_SYSPM_SUCCESS;
 
-    if (CY_SYSPM_BEFORE_TRANSITION == mode)
-    { /* Actions that should be done before entering the Deep Sleep mode */
-        Cy_SAR_DeepSleep((SAR_V1_Type *)callbackParams->base);
-    }
-    else if (CY_SYSPM_AFTER_TRANSITION == mode)
-    { /* Actions that should be done after exiting the Deep Sleep mode */
-        Cy_SAR_Wakeup((SAR_V1_Type *)callbackParams->base);
-    }
-    else
-    { /* Does nothing in other modes */
+    if (CY_PASS_V1)
+    {
+        if (CY_SYSPM_BEFORE_TRANSITION == mode)
+        { /* Actions that should be done before entering the Deep Sleep mode */
+            Cy_SAR_DeepSleep((SAR_Type *)callbackParams->base);
+        }
+        else if (CY_SYSPM_AFTER_TRANSITION == mode)
+        { /* Actions that should be done after exiting the Deep Sleep mode */
+            Cy_SAR_Wakeup((SAR_Type *)callbackParams->base);
+        }
+        else
+        { /* Does nothing in other modes */
+        }
     }
 
     return returnValue;
 }
+
+
+/*******************************************************************************
+* Function Name: Cy_SAR_ScanCountEnable
+****************************************************************************//**
+*
+* Enables the Scanning Counter.
+* Suitable for PASS_V2.
+*
+* \param base
+* Pointer to the structure of SAR instance registers.
+*
+* \return The status:
+* - CY_SAR_BAD_PARAM - either the feature is not supported by this IP version or
+*                      the injection channel is triggered and not tailgating.
+* - CY_SAR_SUCCESS - the SAR Scanning Counter feature is successfully enabled.
+*
+* \funcusage \snippet sar/snippet/main.c SNIPPET_SAR_DS
+*
+*******************************************************************************/
+cy_en_sar_status_t Cy_SAR_ScanCountEnable(const SAR_Type * base)
+{
+    cy_en_sar_status_t retVal = CY_SAR_BAD_PARAM;
+
+    if (!CY_PASS_V1)
+    {
+        uint32_t interruptState = Cy_SysLib_EnterCriticalSection();
+        uint32_t locInjChanCfg = SAR_INJ_CHAN_CONFIG(base);
+        /* If the injection channel is triggered the Scan Counter could be enabled only if the injection channel configured as tailgating  */
+        if ((0UL != (locInjChanCfg & SAR_V2_INJ_CHAN_CONFIG_INJ_START_EN_Msk)) ? (0UL == (locInjChanCfg & SAR_V2_INJ_CHAN_CONFIG_INJ_TAILGATING_Msk)) : true)
+        {
+            PASS_SAR_OVR_CTRL(CY_PASS_V2_ADDR) |= CY_SAR_INSTANCE_MASK(base) << PASS_V2_SAR_OVR_CTRL_TR_SCAN_CNT_SEL_Pos;
+            Cy_SysLib_ExitCriticalSection(interruptState);
+            retVal = CY_SAR_SUCCESS;
+        }
+    }
+
+    return (retVal);
+}
+CY_MISRA_BLOCK_END('MISRA C-2012 Rule 11.3');
+
 
 #if defined(__cplusplus)
 }

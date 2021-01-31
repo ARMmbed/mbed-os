@@ -73,6 +73,7 @@
 #include "cy_tcpwm_counter.h"
 #include "cy_tcpwm_pwm.h"
 #include "cy_tcpwm_quaddec.h"
+#include "cy_tcpwm_shiftreg.h"
 #include "cy_trigmux.h"
 #include "cy_usbfs_dev_drv.h"
 #include "cy_wdt.h"

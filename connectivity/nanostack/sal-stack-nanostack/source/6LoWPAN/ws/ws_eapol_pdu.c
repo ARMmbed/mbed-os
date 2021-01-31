@@ -278,6 +278,9 @@ static void ws_eapol_pdu_mpx_data_confirm(const mpx_api_t *api, const struct mcp
                     status = EAPOL_PDU_TX_OK;
                 } else if (data->status == MLME_TX_NO_ACK) {
                     status = EAPOL_PDU_TX_ERR_TX_NO_ACK;
+                    tr_error("EAPOL TX err no ack");
+                } else {
+                    tr_error("EAPOL TX err");
                 }
                 msdu->tx_status(eapol_pdu_data->interface_ptr, status, msdu->tx_identifier);
             }

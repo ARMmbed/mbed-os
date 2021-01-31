@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--****************************************************************************
+* \file sysanalog_intrinsic-1.0.cypersonality
+* \version 1.0
+*
+* \brief
+* Intrinsic SysAnalog personality description file.
+*
+********************************************************************************
+* \copyright
+* Copyright 2018-2020 Cypress Semiconductor Corporation
+* SPDX-License-Identifier: Apache-2.0
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*****************************************************************************-->
+
+<Personality id="mxs40sysanalog_intrinsic" name="SysAnalog Instrinsic" intrinsic="true" version="1.0" xmlns="http://cypress.com/xsd/cyhwpersonality_v2">
+  <Dependencies>
+    <IpBlock name="mxs40pass_ver2" />
+    <Resource name="pass"/>
+  </Dependencies>
+  <ExposedMembers/>
+  <Parameters>
+    <ParamRange id="inst" name="inst" group="Internal" default="`${getInstNumber(&quot;pass&quot;)}`" min="0" max="3" resolution="1" visible="false" editable="false" desc="" />
+    <ParamBool id="lposcUsed" name="lposcUsed" group="Internal" default="`${isBlockUsed(&quot;pass[0].lposc[0]&quot;)}`" visible="false" editable="false" desc="" />
+    <ParamBool id="dpslpUsed" name="dpslpUsed" group="Internal" default="`${isBlockUsed(&quot;pass[0].dpslp[0]&quot;)}`" visible="false" editable="false" desc="" />
+    <ParamBool id="timerUsed" name="timerUsed" group="Internal" default="`${isBlockUsed(&quot;pass[0].timer[0]&quot;)}`" visible="false" editable="false" desc="" />
+  </Parameters>
+  <DRCs />
+  <ConfigFirmware>
+    <ConfigStruct name="cy_cfg_pass`${inst}`_deep_sleep_config" type="cy_stc_sysanalog_deep_sleep_config_t" const="true" public="true" include="`${lposcUsed || dpslpUsed || timerUsed}`">
+      <Member name="lpOscDsMode" value="`${lposcUsed ? &quot;CY_CFG_SYSANALOG_LPOSC_DEEPSLEEP_MODE&quot; : &quot;CY_SYSANALOG_LPOSC_DUTY_CYCLED&quot;}`" />
+      <Member name="dsClkSource" value="`${dpslpUsed ? &quot;CY_CFG_SYSANALOG_DEEPSLEEP_SRC&quot; : &quot;CY_SYSANALOG_DEEPSLEEP_SRC_LPOSC&quot;}`" />
+      <Member name="dsClkdivider" value="`${dpslpUsed ? &quot;CY_CFG_SYSANALOG_DEEPSLEEP_DIV&quot; : &quot;CY_SYSANALOG_DEEPSLEEP_CLK_NO_DIV&quot;}`" />
+      <Member name="timerClock" value="`${timerUsed ? &quot;CY_CFG_SYSANALOG_TIMER_CLOCK&quot; : &quot;CY_SYSANALOG_TIMER_CLK_PERI&quot;}`" />
+      <Member name="timerPeriod" value="`${timerUsed ? &quot;CY_CFG_SYSANALOG_TIMER_PERIOD&quot; : &quot;1&quot;}`" />        
+    </ConfigStruct>
+  </ConfigFirmware>
+</Personality>

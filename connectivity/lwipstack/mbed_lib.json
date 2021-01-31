@@ -210,6 +210,9 @@
         "MIMXRT1050_EVK": {
             "mem-size": 36560
         },
+        "PORTENTA_H7": {
+            "mem-size": 16000
+        },
         "FVP_MPS2_M3": {
             "mem-size": 36560
         },

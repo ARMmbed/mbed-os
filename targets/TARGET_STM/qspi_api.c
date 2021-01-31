@@ -557,7 +557,11 @@ static qspi_status_t _qspi_init_direct(qspi_t *obj, const qspi_pinmap_t *pinmap,
     // Set default QSPI handle values
     obj->handle.Init.ClockPrescaler = 1;
     obj->handle.Init.FifoThreshold = 1;
+#if defined(QSPI_NO_SAMPLE_SHIFT)
+    obj->handle.Init.SampleShifting = QSPI_SAMPLE_SHIFTING_NONE;
+#else
     obj->handle.Init.SampleShifting = QSPI_SAMPLE_SHIFTING_HALFCYCLE;
+#endif
     obj->handle.Init.FlashSize = POSITION_VAL(QSPI_FLASH_SIZE_DEFAULT) - 1;
     obj->handle.Init.ChipSelectHighTime = QSPI_CS_HIGH_TIME_5_CYCLE;
     obj->handle.Init.ClockMode = QSPI_CLOCK_MODE_0;

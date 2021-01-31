@@ -416,7 +416,7 @@ static void tls_sec_prot_lib_debug(void *ctx, int level, const char *file, int l
 
 int8_t tls_sec_prot_lib_process(tls_security_t *sec)
 {
-    int ret = -1;
+    int32_t ret = -1;
 
     while (ret != MBEDTLS_ERR_SSL_WANT_READ) {
         ret = mbedtls_ssl_handshake_step(&sec->ssl);
@@ -428,6 +428,7 @@ int8_t tls_sec_prot_lib_process(tls_security_t *sec)
 #endif
 
         if (ret && (ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE)) {
+            tr_error("TLS error: %" PRId32, ret);
             return TLS_SEC_PROT_LIB_ERROR;
         }
 

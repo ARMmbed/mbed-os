@@ -102,7 +102,7 @@ LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {    ; load region size_region
    .ANY (+RW +ZI)
   }
 
-  ARM_LIB_HEAP  AlignExpr(+0, 16)  EMPTY  (MBED_RAM_SIZE-RAM_FIXED_SIZE+MBED_RAM_START-AlignExpr(ImageLimit(RW_IRAM1), 16))  {
+  ARM_LIB_HEAP  AlignExpr(+0, 16)  EMPTY  (MBED_RAM_SIZE-RAM_FIXED_SIZE-(AlignExpr(ImageLimit(RW_IRAM1), 16)-MBED_RAM_START))  {
   }
 
   RW_IRAM2  MBED_IRAM2_START  MBED_IRAM2_SIZE  {

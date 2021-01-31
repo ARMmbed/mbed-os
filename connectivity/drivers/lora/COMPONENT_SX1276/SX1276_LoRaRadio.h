@@ -80,24 +80,25 @@ public:
      * setting SX1276 radio module gets connected to an external power amplifier
      * or radio  latch controls are connected.
      */
-    SX1276_LoRaRadio(PinName mosi,
-                     PinName miso,
-                     PinName sclk,
-                     PinName nss,
-                     PinName reset,
-                     PinName dio0,
-                     PinName dio1,
-                     PinName dio2,
-                     PinName dio3,
-                     PinName dio4,
-                     PinName dio5,
-                     PinName rf_switch_ctl1 = NC,
-                     PinName rf_switch_ctl2 = NC,
-                     PinName txctl = NC,
-                     PinName rxctl = NC,
-                     PinName ant_switch = NC,
-                     PinName pwr_amp_ctl = NC,
-                     PinName tcxo = NC);
+    SX1276_LoRaRadio(PinName mosi           = MBED_CONF_SX1276_LORA_DRIVER_SPI_MOSI,
+                     PinName miso           = MBED_CONF_SX1276_LORA_DRIVER_SPI_MISO,
+                     PinName sclk           = MBED_CONF_SX1276_LORA_DRIVER_SPI_SCLK,
+                     PinName nss            = MBED_CONF_SX1276_LORA_DRIVER_SPI_CS,
+                     PinName reset          = MBED_CONF_SX1276_LORA_DRIVER_RESET,
+                     PinName dio0           = MBED_CONF_SX1276_LORA_DRIVER_DIO0,
+                     PinName dio1           = MBED_CONF_SX1276_LORA_DRIVER_DIO1,
+                     PinName dio2           = MBED_CONF_SX1276_LORA_DRIVER_DIO2,
+                     PinName dio3           = MBED_CONF_SX1276_LORA_DRIVER_DIO3,
+                     PinName dio4           = MBED_CONF_SX1276_LORA_DRIVER_DIO4,
+                     PinName dio5           = MBED_CONF_SX1276_LORA_DRIVER_DIO5,
+                     PinName rf_switch_ctl1 = MBED_CONF_SX1276_LORA_DRIVER_RF_SWITCH_CTL1,
+                     PinName rf_switch_ctl2 = MBED_CONF_SX1276_LORA_DRIVER_RF_SWITCH_CTL2,
+                     PinName txctl          = MBED_CONF_SX1276_LORA_DRIVER_TXCTL,
+                     PinName rxctl          = MBED_CONF_SX1276_LORA_DRIVER_RXCTL,
+                     PinName ant_switch     = MBED_CONF_SX1276_LORA_DRIVER_ANT_SWITCH,
+                     PinName pwr_amp_ctl    = MBED_CONF_SX1276_LORA_DRIVER_PWR_AMP_CTL,
+                     PinName tcxo           = MBED_CONF_SX1276_LORA_DRIVER_TCXO
+                    );
 
     /**
      * Destructor

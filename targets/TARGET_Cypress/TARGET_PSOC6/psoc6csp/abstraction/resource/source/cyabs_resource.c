@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -89,6 +89,7 @@ cy_rslt_t cy_resource_read(const cy_resource_handle_t *handle, uint32_t blockno,
     switch (handle->location)
     {
         case CY_RESOURCE_IN_MEMORY:
+            CY_UNUSED_PARAMETER(blockno); /* CY_ASSERT only processes in DEBUG, ignores for others */
             CY_ASSERT(0 == blockno);
             memcpy(*buffer, handle->val.mem_data, *size);
             return CY_RSLT_SUCCESS;

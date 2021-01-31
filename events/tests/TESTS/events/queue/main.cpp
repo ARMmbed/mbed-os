@@ -93,12 +93,12 @@ void simple_posts_test##i() {                               \
     TEST_ASSERT(touched);                                   \
                                                             \
     touched = false;                                        \
-    queue.call_in(1, func##i,##__VA_ARGS__);                \
+    queue.call_in(1ms, func##i,##__VA_ARGS__);                \
     queue.dispatch(2);                                      \
     TEST_ASSERT(touched);                                   \
                                                             \
     touched = false;                                        \
-    queue.call_every(1, func##i,##__VA_ARGS__);             \
+    queue.call_every(1ms, func##i,##__VA_ARGS__);             \
     queue.dispatch(2);                                      \
     TEST_ASSERT(touched);                                   \
 }
@@ -126,7 +126,7 @@ void call_in_test()
 
     for (int i = 0; i < N; i++) {
         tickers[i].start();
-        queue.call_in((i + 1) * 100, time_func, &tickers[i], (i + 1) * 100);
+        queue.call_in((i + 1) * 100ms, time_func, &tickers[i], (i + 1) * 100);
     }
 
     queue.dispatch(N * 100);
@@ -141,7 +141,7 @@ void call_every_test()
 
     for (int i = 0; i < N; i++) {
         tickers[i].start();
-        queue.call_every((i + 1) * 100, time_func, &tickers[i], (i + 1) * 100);
+        queue.call_every((i + 1) * 100ms, time_func, &tickers[i], (i + 1) * 100);
     }
 
     queue.dispatch(N * 100);
@@ -172,7 +172,7 @@ void cancel_test1()
     int ids[N];
 
     for (int i = 0; i < N; i++) {
-        ids[i] = queue.call_in(1000, no);
+        ids[i] = queue.call_in(1000ms, no);
     }
 
     for (int i = N - 1; i >= 0; i--) {
@@ -308,12 +308,12 @@ void time_left_test()
     EventQueue queue(TEST_EQUEUE_SIZE);
 
     // Enque check events
-    TEST_ASSERT(queue.call_in(50, check_time_left, &queue, 0, 100 - 50));
-    TEST_ASSERT(queue.call_in(200, check_time_left, &queue, 1, 200 - 200));
+    TEST_ASSERT(queue.call_in(50ms, check_time_left, &queue, 0, 100 - 50));
+    TEST_ASSERT(queue.call_in(200ms, check_time_left, &queue, 1, 200 - 200));
 
     // Enque events to be checked
-    timeleft_events[0] = queue.call_in(100, time_left, &queue, 0);
-    timeleft_events[1] = queue.call_in(200, time_left, &queue, 1);
+    timeleft_events[0] = queue.call_in(100ms, time_left, &queue, 0);
+    timeleft_events[1] = queue.call_in(200ms, time_left, &queue, 1);
     TEST_ASSERT(timeleft_events[0]);
     TEST_ASSERT(timeleft_events[1]);
 
@@ -373,18 +373,18 @@ void mixed_dynamic_static_events_queue_test()
 
         EventTest e1_test;
         Event<void()> e1 = queue.event(&e1_test, &EventTest::f0);
-        e1.delay(10);
-        e1.period(10);
+        e1.delay(10ms);
+        e1.period(10ms);
         int id1 =  e1.post();
         TEST_ASSERT_NOT_EQUAL(0, id1);
         EventTest e2_test;
         Event<void()> e2 = queue.event(&e2_test, &EventTest::f1, 3);
-        e2.period(10);
+        e2.period(10ms);
         int id2 = e2.post();
         TEST_ASSERT_NOT_EQUAL(0, id2);
         EventTest e3_test;
         Event<void()> e3 = queue.event(&e3_test, &EventTest::f5, 1, 2, 3, 4, 5);
-        e3.period(10);
+        e3.period(10ms);
         int id3 = e3.post();
         TEST_ASSERT_NOT_EQUAL(0, id3);
 
@@ -508,6 +508,89 @@ void static_events_queue_test()
     TEST_ASSERT_EQUAL(15, test4.counter);
 }
 
+static EventQueue period_tests_queue;
+static long update_counter = 0;
+
+void handler()
+{
+    update_counter ++;
+}
+
+void event_period_tests()
+{
+    // Test a non periodic event ie dispatched only once
+
+    Event<void()> event1(&period_tests_queue, handler);
+
+    event1.delay(10ms);
+    event1.period(events::non_periodic);
+    event1.post();
+    period_tests_queue.dispatch(80);
+
+    // Wait 100ms and check the event execution status
+    wait_us(100 * 1000);
+
+    // Event should only have been dispatched once and thus counter
+    // should be 1
+    TEST_ASSERT_EQUAL(1, update_counter);
+
+    // Test an event with an invalid negative period value.
+
+    update_counter = 0;
+
+    Event<void()> event2(&period_tests_queue, handler);
+
+    event2.delay(10ms);
+    event2.period(-10ms);
+    event2.post();
+    period_tests_queue.dispatch(80);
+
+    // Wait 100ms and check the event execution status
+    wait_us(100 * 1000);
+
+    // Event should default to non_periodic and thus only have been
+    // dispatched once. Counter should be 1.
+    TEST_ASSERT_EQUAL(1, update_counter);
+
+    // Test an event with a zero period.
+
+    update_counter = 0;
+
+    Event<void()> event3(&period_tests_queue, handler);
+
+    event3.delay(10ms);
+    event3.period(0ms);
+    event3.post();
+    period_tests_queue.dispatch(80);
+
+    // Wait 100ms and check the event execution status
+    wait_us(100 * 1000);
+
+    // Event should default to non_periodic and thus only have been
+    // dispatched once. Counter should be 1.
+    TEST_ASSERT_EQUAL(1, update_counter);
+
+    // Test a periodic event ie dispatched a number of times
+    update_counter = 0;
+
+    Event<void()> event4(&period_tests_queue, handler);
+
+    event4.delay(10ms);
+    event4.period(20ms);
+    event4.post();
+    period_tests_queue.dispatch(80);
+
+    // Wait 100ms and check the event execution status
+    wait_us(100 * 1000);
+
+    // The event should be first dispatched after 10ms and then
+    // every subsequent 20ms until the dispatcher has completed.
+    // Thus the counter should be incremented after :
+    // 10ms, 30ms, 50ms and 70ms
+    TEST_ASSERT_EQUAL(4, update_counter);
+
+}
+
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
@@ -535,8 +618,8 @@ const Case cases[] = {
 
     Case("Testing time_left", time_left_test),
     Case("Testing mixed dynamic & static events queue", mixed_dynamic_static_events_queue_test),
-    Case("Testing static events queue", static_events_queue_test)
-
+    Case("Testing static events queue", static_events_queue_test),
+    Case("Testing event period values", event_period_tests)
 };
 
 Specification specification(test_setup, cases);

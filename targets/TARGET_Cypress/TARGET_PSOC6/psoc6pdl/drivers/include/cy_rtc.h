@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_rtc.h
-* \version 2.30.1
+* \version 2.40
 *
 * This file provides constants and parameter values for the APIs for the
 * Real-Time Clock (RTC).
@@ -221,12 +221,14 @@
 * For more information on the RTC peripheral, refer to the technical reference
 * manual (TRM).
 *
-* \section group_rtc_MISRA MISRA-C Compliance
-* The RTC driver does not have any specific deviations.
-*
 * \section group_rtc_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>2.40</td>
+*     <td>Fixed/Documented MISRA 2012 violations.</td>
+*     <td>MISRA 2012 compliance.</td>
+*   </tr>
 *   <tr>
 *     <td>2.30.1</td>
 *     <td>Minor documentation updates.</td>
@@ -343,7 +345,7 @@ extern "C" {
 #define CY_RTC_DRV_VERSION_MAJOR                    2
 
 /** Driver minor version */
-#define CY_RTC_DRV_VERSION_MINOR                    30
+#define CY_RTC_DRV_VERSION_MINOR                    40
 /** \} group_rtc_macros */
 
 /*******************************************************************************

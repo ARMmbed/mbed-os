@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_seglcd.c
-* \version 1.0.2
+* \version 1.10
 *
 * \brief
 * Provides an API implementation of the SegLCD driver
@@ -27,6 +27,9 @@
 #include "cy_sysclk.h"
 
 #if defined(CY_IP_MXLCD)
+
+CY_MISRA_DEVIATE_BLOCK_START('MISRA C-2012 Rule 11.3', 28, \
+'LCD_Type will typecast to either LCD_V1_Type or LCD_V2_Type but not both on PDL initialization based on the target device at compile time.');
 
 #define CY_SEGLCD_ENABLE_Msk                (LCD_CONTROL_LS_EN_Msk | LCD_CONTROL_HS_EN_Msk)
 #define CY_SEGLCD_NIBBLE                    (4UL)
@@ -304,20 +307,18 @@ static void InvClrData(LCD_Type * base, bool inv)
 {
     uint32_t i;
 
-    for (i = 0UL; i < LCD_OCTET_NUM; i++)
+    for (i = 0UL; i < LCD_NUMPORTS; i++)
     {
         LCD_DATA0(base)[i] = (inv) ? (~LCD_DATA0(base)[i]) : 0UL;
 
-        if (0UL != LCD_OCTET_NUM_8)
-        {
+        #if (0UL != LCD_NUMPORTS8)
             LCD_DATA1(base)[i] = (inv) ? (~LCD_DATA1(base)[i]) : 0UL;
 
-            if (0UL != LCD_OCTET_NUM_16)
-            {
+            #if (0UL != LCD_NUMPORTS16)
                 LCD_DATA2(base)[i] = (inv) ? (~LCD_DATA2(base)[i]) : 0UL;
                 LCD_DATA3(base)[i] = (inv) ? (~LCD_DATA3(base)[i]) : 0UL;
-            }
-        }
+            #endif /* LCD_NUMPORTS16 */
+        #endif /* LCD_NUMPORTS8 */
     }
 }
 
@@ -336,22 +337,22 @@ static void InvClrData(LCD_Type * base, bool inv)
 *******************************************************************************/
 static char_t NumToChar(uint32_t value)
 {
-    char_t character;
+    uint32_t character;
 
     if (value < 10UL) /* For dec numbers 0...9 */
     {
-        character = (char_t)((uint32_t)'0' + value);
+        character = (uint32_t)'0' + value;
     }
     else if (value < 0x10UL) /* For hex numbers A...F */
     {
-        character = (char_t)(((uint32_t)'A' - 0xAUL) + value);
+        character = ((uint32_t)'A' - 0xAUL) + value;
     }
     else
     {
-        character = ' '; /* The blank/space character */
+        character = (uint32_t)' '; /* The blank/space character */
     }
 
-    return (character);
+    return ((char_t)character);
 }
 
 
@@ -760,20 +761,21 @@ cy_en_seglcd_status_t Cy_SegLCD_WriteChar(LCD_Type * base,
     if (CY_SEGLCD_IS_SYMBOLIC(display, position)) /* If the display is symbolic/numeric */
     {
         uint32_t i;
+        uint32_t locChar = (uint32_t)character;
         retVal = CY_SEGLCD_IS_BASIC(display->type) ? (uint32_t)CY_SEGLCD_SUCCESS : (uint32_t)CY_SEGLCD_CUSTOM;
 
         if ((character < display->font->first) || (character > display->font->last)) /* if out of the font range */
         {
             retVal |= (uint32_t)CY_SEGLCD_BAD_CHAR;
-            character = CY_SEGLCD_SPACE(display); /* The blank (space) character */
+            locChar = (uint32_t)CY_SEGLCD_SPACE(display); /* The blank (space) character */
         }
 
-        character = (char_t)(character - display->font->first); /* Shift to the font char map starting index */
+        locChar = (uint32_t)(locChar - (uint32_t)display->font->first); /* Shift to the font char map starting index */
 
         for (i = 0UL; i < (uint32_t)display->type; i++)
         {
             uint32_t locPix = *(display->pixMap + (position * (uint32_t)display->type) + i); /* Current display pixel */
-            uint32_t locIdx = _FLD2VAL(CY_SEGLCD_SYM_BYTE_IDX, i) + ((uint32_t)character * CY_SYSLIB_DIV_ROUNDUP((uint32_t)display->type, CY_SEGLCD_OCTET)); /* current symbol byte index */
+            uint32_t locIdx = _FLD2VAL(CY_SEGLCD_SYM_BYTE_IDX, i) + (locChar * CY_SYSLIB_DIV_ROUNDUP((uint32_t)display->type, CY_SEGLCD_OCTET)); /* current symbol byte index */
             bool     locVal = 0U != (display->font->fontMap[locIdx] & (uint8_t)(1U << _FLD2VAL(CY_SEGLCD_SYM_BIT_IDX, i))); /* current pixel value */
 
             retVal |= (uint32_t)Cy_SegLCD_WritePixel(base, locPix, display->invert != locVal);
@@ -962,7 +964,7 @@ cy_en_seglcd_status_t Cy_SegLCD_BarGraph(LCD_Type * base,
 
     return((cy_en_seglcd_status_t)retVal);
 }
-
+CY_MISRA_BLOCK_END('MISRA C-2012 Rule 11.3');
 
 #endif /* CY_IP_MXLCD */
 

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ctdac.c
-* \version 2.0.1
+* \version 2.0.2
 *
 * Provides the public functions for the API for the CTDAC driver.
 *
@@ -29,6 +29,8 @@
 #if defined(__cplusplus)
 extern "C" {
 #endif
+CY_MISRA_DEVIATE_BLOCK_START('MISRA C-2012 Rule 11.3', 32, \
+'CTDAC_Type will typecast to either CTDAC_V1_Type or CTDAC_V2_Type but not both on PDL initialization based on the target device at compile time.');
 
 /** Static function to configure the clock */
 static void Cy_CTDAC_ConfigureClock(cy_en_ctdac_update_t updateMode, cy_en_divider_types_t dividerType,
@@ -370,6 +372,18 @@ cy_en_ctdac_status_t Cy_CTDAC_FastInit(CTDAC_Type *base, const cy_stc_ctdac_fast
 *
 * \param updateMode
 * Update mode value. See \ref cy_en_ctdac_update_t for values.
+*
+* \param dividerType
+* Specifies which type of divider to use; see \ref cy_en_divider_types_t for values.
+*
+* \param dividerNum
+* Specifies which divider of the selected type to configure.
+*
+* \param dividerIntValue
+* The integer divider value.
+*
+* \param dividerFracValue
+* The fraction part of the divider.
 *
 * \return None
 *
@@ -727,6 +741,8 @@ cy_en_syspm_status_t Cy_CTDAC_DeepSleepCallback(cy_stc_syspm_callback_params_t *
 
     return returnValue;
 }
+
+CY_MISRA_BLOCK_END('MISRA C-2012 Rule 11.3');
 
 #if defined(__cplusplus)
 }

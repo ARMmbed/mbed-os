@@ -415,7 +415,16 @@ public:
      * \brief Set own certificate and private key reference to the Wi-SUN network.
      *
      * Function can be called several times if intermediate certificates are used. Then each call to the function
-     * adds a certificate reference to own certificate chain. Certificates are in bottom up order i.e. the top certificate is given last.
+     * adds a certificate reference to own certificate chain. Certificates are in bottom up order i.e. own certificate
+     * is given first and the top certificate is given last.
+     *
+     * PEM formatted certificates must use either "\n" or "\r\n" as line separator. PEM formatted certificates
+     * must be NUL terminated and the NUL terminator is counted to certificate length.
+     *
+     * It is possible to add multiple PEM certificates concatenated together in one call set_own_certificate(). In that
+     * case certificates are in bottom up order i.e. own certificate is given first and the top certificate is given
+     * last. NUL terminator is added after the last concatenated certificate and the NUL terminator is counted to
+     * total concatenated certificate length.
      *
      * Function must be called before connecting the device i.e before call to connect() method.
      * Function will not copy certificate or key, therefore addresses must remain valid.
@@ -443,7 +452,14 @@ public:
     /**
      * \brief Set trusted certificate reference to the Wi-SUN network.
      *
-     * Function can be called several times. Certificates are in bottom up order i.e. the top certificate is given last.
+     * Function can be called several times. Each call to the function adds a trusted certificate to Wi-SUN.
+     *
+     * PEM formatted certificates must use either "\n" or "\r\n" as line separator. PEM formatted certificates
+     * must be NUL terminated and the NUL terminator is counted to certificate length.
+     *
+     * It is possible to add multiple PEM certificates concatenated together in one call set_trusted_certificate().
+     * NUL terminator is added after the last concatenated certificate and the NUL terminator is counted to
+     * total concatenated certificate length.
      *
      * Function must be called before connecting the device i.e before call to connect() method.
      * Function will not copy certificate, therefore addresses must remain valid.

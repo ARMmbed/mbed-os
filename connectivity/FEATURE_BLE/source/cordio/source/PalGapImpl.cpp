@@ -1209,7 +1209,11 @@ ble_error_t PalGap::periodic_advertising_enable(
 
 uint16_t PalGap::get_maximum_advertising_data_length()
 {
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     return HciGetMaxAdvDataLen();
+#else
+    return HCI_ADV_DATA_LEN;
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 }
 
 

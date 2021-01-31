@@ -1,0 +1,31 @@
+# Copyright (c) 2020 ARM Limited. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
+
+set(MBED_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../../.. CACHE INTERNAL "")
+set(TEST_TARGET mbed-hal-qspi)
+
+include(${MBED_PATH}/tools/cmake/mbed_greentea.cmake)
+
+project(${TEST_TARGET})
+
+if("EP_AGORA" IN_LIST MBED_TARGET_LABELS)
+    set(FLASH_TARGET_CONFIG_HEADER NORDIC/EP_AGORA)
+elseif("NRF52840_DK" IN_LIST MBED_TARGET_LABELS)
+    set(FLASH_TARGET_CONFIG_HEADER NORDIC/NRF52840_DK)
+elseif("K82F" IN_LIST MBED_TARGET_LABELS)
+    set(FLASH_TARGET_CONFIG_HEADER NXP/K82F)
+elseif("LPC546XX" IN_LIST MBED_TARGET_LABELS)
+    set(FLASH_TARGET_CONFIG_HEADER NXP/LPC546XX)
+elseif("EFM32GG11_STK3701" IN_LIST MBED_TARGET_LABELS)
+    set(FLASH_TARGET_CONFIG_HEADER SiliconLabs/EFM32GG11_STK3701)
+endif()
+
+list(APPEND TEST_HEADER_DIRS flash_configs flash_configs/${FLASH_TARGET_CONFIG_HEADER})
+
+mbed_greentea_cmake_macro(TEST_NAME ${TEST_TARGET}
+    TEST_SOURCES qspi_test_utils.cpp
+    TEST_INCLUDE_DIRS ${TEST_HEADER_DIRS}
+)
+

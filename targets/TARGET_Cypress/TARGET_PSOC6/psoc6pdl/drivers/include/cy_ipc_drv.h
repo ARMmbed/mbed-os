@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ipc_drv.h
-* \version 1.40.2
+* \version 1.50
 *
 * Provides an API declaration of the IPC driver.
 *
@@ -228,40 +228,19 @@
 *
 * See the technical reference manual(TRM) for more information on the IPC.
 *
-* \section group_ipc_MISRA MISRA-C Compliance
-*
-* <table class="doxtable">
-*   <tr>
-*     <th>MISRA Rule</th>
-*     <th>Rule Class (Required/Advisory)</th>
-*     <th>Rule Description</th>
-*     <th style="width: 50%;">Description of Deviation(s)</th>
-*   </tr>
-*   <tr>
-*     <td>10.3</td>
-*     <td>R</td>
-*     <td>The value of a complex expression of integer type shall be cast
-*         only to a type of the same signedness that is no wider than the underlying
-*         type of the expression.</td>
-*     <td>The cast from integer to enumeration value is used to calculate
-*         the interrupt vector source from the integer number of the IPC interrupt
-*         structure, so there is no way to avoid this cast.</td>
-*   </tr>
-*   <tr>
-*     <td>11.4</td>
-*     <td>A</td>
-*     <td>A cast should not be performed between a pointer to the void to a
-*         pointer to the object type.</td>
-*     <td>The cast from the void to pointer and vice versa is used to transmit
-*         data via the \ref group_ipc channel by exchanging the pointer. We
-*         exchange only one pointer, so there is no way to avoid this cast.</td>
-*   </tr>
-* </table>
-*
 * \section group_ipc_changelog Changelog
 *
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td rowspan="2">1.50</td>
+*     <td>Updated attribute usage for the linker section placement.</td>
+*     <td>Enhancement based on usability feedback.</td>
+*   </tr>
+*   <tr>
+*     <td>Fixed MISRA 2012 violations.</td>
+*     <td>MISRA 2012 compliance.</td>
+*   </tr>
 *   <tr>
 *     <td>1.40.2</td>
 *     <td>Updated information about IPC resources reserved for the system usage
@@ -357,7 +336,6 @@
 #include "cy_syslib.h"
 #include <stddef.h>
 
-
 /**
 * \addtogroup group_ipc_macros
 * \{
@@ -367,10 +345,10 @@
 #define CY_IPC_DRV_VERSION_MAJOR       1
 
 /** Driver minor version */
-#define CY_IPC_DRV_VERSION_MINOR       40
+#define CY_IPC_DRV_VERSION_MINOR       50
 
 /** Defines a value to indicate that no notification events are needed */
-#define CY_IPC_NO_NOTIFICATION         (uint32_t)(0x00000000ul)
+#define CY_IPC_NO_NOTIFICATION         (uint32_t)(0x00000000UL)
 
 /* Error Code constants */
 #define CY_IPC_ID CY_PDL_DRV_ID(0x22u)  /**< Software PDL driver ID for IPC */
@@ -412,7 +390,7 @@ typedef enum
     /** Function was not executed due to an error.
         Typical conditions for the error explained
         in the function description */
-    CY_IPC_DRV_ERROR        = ( CY_IPC_ID_ERROR + 1ul),
+    CY_IPC_DRV_ERROR        = ( CY_IPC_ID_ERROR + 1UL),
 } cy_en_ipcdrv_status_t;
 
 /** \} group_ipc_enums */
@@ -546,8 +524,8 @@ __STATIC_INLINE IPC_INTR_STRUCT_Type* Cy_IPC_Drv_GetIntrBaseAddr (uint32_t ipcIn
 __STATIC_INLINE void  Cy_IPC_Drv_SetInterruptMask (IPC_INTR_STRUCT_Type* base,
                                               uint32_t ipcReleaseMask, uint32_t ipcAcquireMask)
 {
-    CY_ASSERT_L1(0ul == (ipcAcquireMask & ~(uint32_t)(IPC_STRUCT_NOTIFY_INTR_NOTIFY_Msk)));
-    CY_ASSERT_L1(0ul == (ipcReleaseMask & ~(uint32_t)(IPC_STRUCT_RELEASE_INTR_RELEASE_Msk)));
+    CY_ASSERT_L1(0UL == (ipcAcquireMask & ~(uint32_t)(IPC_STRUCT_NOTIFY_INTR_NOTIFY_Msk)));
+    CY_ASSERT_L1(0UL == (ipcReleaseMask & ~(uint32_t)(IPC_STRUCT_RELEASE_INTR_RELEASE_Msk)));
     REG_IPC_INTR_STRUCT_INTR_MASK(base) = _VAL2FLD( IPC_INTR_STRUCT_INTR_MASK_NOTIFY,  ipcAcquireMask) |
                       _VAL2FLD( IPC_INTR_STRUCT_INTR_MASK_RELEASE, ipcReleaseMask);
 }
@@ -668,8 +646,8 @@ __STATIC_INLINE uint32_t Cy_IPC_Drv_GetInterruptStatus(IPC_INTR_STRUCT_Type cons
 *******************************************************************************/
 __STATIC_INLINE void  Cy_IPC_Drv_SetInterrupt(IPC_INTR_STRUCT_Type* base, uint32_t ipcReleaseMask, uint32_t ipcAcquireMask)
 {
-    CY_ASSERT_L1(0ul == (ipcAcquireMask  & ~(uint32_t)(IPC_STRUCT_NOTIFY_INTR_NOTIFY_Msk)));
-    CY_ASSERT_L1(0ul == (ipcReleaseMask & ~(uint32_t)(IPC_STRUCT_RELEASE_INTR_RELEASE_Msk)));
+    CY_ASSERT_L1(0UL == (ipcAcquireMask  & ~(uint32_t)(IPC_STRUCT_NOTIFY_INTR_NOTIFY_Msk)));
+    CY_ASSERT_L1(0UL == (ipcReleaseMask & ~(uint32_t)(IPC_STRUCT_RELEASE_INTR_RELEASE_Msk)));
     REG_IPC_INTR_STRUCT_INTR_SET(base) =  _VAL2FLD( IPC_INTR_STRUCT_INTR_NOTIFY,  ipcAcquireMask )  |
                       _VAL2FLD( IPC_INTR_STRUCT_INTR_RELEASE, ipcReleaseMask );
 }
@@ -700,8 +678,8 @@ __STATIC_INLINE void  Cy_IPC_Drv_SetInterrupt(IPC_INTR_STRUCT_Type* base, uint32
 *******************************************************************************/
 __STATIC_INLINE void  Cy_IPC_Drv_ClearInterrupt(IPC_INTR_STRUCT_Type* base, uint32_t ipcReleaseMask, uint32_t ipcAcquireMask)
 {
-    CY_ASSERT_L1(0ul == (ipcAcquireMask  & ~(uint32_t)(IPC_STRUCT_NOTIFY_INTR_NOTIFY_Msk)));
-    CY_ASSERT_L1(0ul == (ipcReleaseMask & ~(uint32_t)(IPC_STRUCT_RELEASE_INTR_RELEASE_Msk)));
+    CY_ASSERT_L1(0UL == (ipcAcquireMask  & ~(uint32_t)(IPC_STRUCT_NOTIFY_INTR_NOTIFY_Msk)));
+    CY_ASSERT_L1(0UL == (ipcReleaseMask & ~(uint32_t)(IPC_STRUCT_RELEASE_INTR_RELEASE_Msk)));
     REG_IPC_INTR_STRUCT_INTR(base) =  _VAL2FLD(IPC_INTR_STRUCT_INTR_NOTIFY,  ipcAcquireMask) |
                   _VAL2FLD(IPC_INTR_STRUCT_INTR_RELEASE, ipcReleaseMask);
     (void)REG_IPC_INTR_STRUCT_INTR(base);  /* Read the register to flush the cache */
@@ -735,7 +713,7 @@ __STATIC_INLINE void  Cy_IPC_Drv_ClearInterrupt(IPC_INTR_STRUCT_Type* base, uint
 *******************************************************************************/
 __STATIC_INLINE void  Cy_IPC_Drv_AcquireNotify (IPC_STRUCT_Type* base, uint32_t notifyEventIntr)
 {
-    CY_ASSERT_L1(0ul == (notifyEventIntr  & ~(uint32_t)(IPC_STRUCT_NOTIFY_INTR_NOTIFY_Msk)));
+    CY_ASSERT_L1(0UL == (notifyEventIntr  & ~(uint32_t)(IPC_STRUCT_NOTIFY_INTR_NOTIFY_Msk)));
     REG_IPC_STRUCT_NOTIFY(base) = _VAL2FLD(IPC_STRUCT_NOTIFY_INTR_NOTIFY, notifyEventIntr);
 }
 
@@ -761,7 +739,7 @@ __STATIC_INLINE void  Cy_IPC_Drv_AcquireNotify (IPC_STRUCT_Type* base, uint32_t 
 *******************************************************************************/
 __STATIC_INLINE void  Cy_IPC_Drv_ReleaseNotify (IPC_STRUCT_Type* base, uint32_t notifyEventIntr)
 {
-    CY_ASSERT_L1(0ul == (notifyEventIntr  & ~(uint32_t)(IPC_INTR_STRUCT_INTR_RELEASE_Msk)));
+    CY_ASSERT_L1(0UL == (notifyEventIntr  & ~(uint32_t)(IPC_INTR_STRUCT_INTR_RELEASE_Msk)));
     REG_IPC_STRUCT_RELEASE(base) = _VAL2FLD(IPC_INTR_STRUCT_INTR_RELEASE, notifyEventIntr);
 }
 
@@ -1014,7 +992,7 @@ __STATIC_INLINE  cy_en_ipcdrv_status_t  Cy_IPC_Drv_ReadMsgPtr (IPC_STRUCT_Type c
 *******************************************************************************/
 __STATIC_INLINE cy_en_ipcdrv_status_t Cy_IPC_Drv_LockAcquire (IPC_STRUCT_Type const * base)
 {
-    return ( 0ul != _FLD2VAL(IPC_STRUCT_ACQUIRE_SUCCESS, REG_IPC_STRUCT_ACQUIRE(base))) ? CY_IPC_DRV_SUCCESS : CY_IPC_DRV_ERROR;
+    return ( 0UL != _FLD2VAL(IPC_STRUCT_ACQUIRE_SUCCESS, REG_IPC_STRUCT_ACQUIRE(base))) ? CY_IPC_DRV_SUCCESS : CY_IPC_DRV_ERROR;
 }
 
 #ifdef __cplusplus

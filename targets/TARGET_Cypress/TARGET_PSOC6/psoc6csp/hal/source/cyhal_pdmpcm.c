@@ -37,8 +37,8 @@
 #include "cy_utils.h"
 
 /**
-* \addtogroup group_hal_psoc6_pdmpcm PDM/PCM (Pulse Density Modulation to Pulse Code Modulation Converter)
-* \ingroup group_hal_psoc6
+* \addtogroup group_hal_impl_pdmpcm PDM/PCM (Pulse Density Modulation to Pulse Code Modulation Converter)
+* \ingroup group_hal_impl
 * \{
 * The PSoC 6 PDM/PCM Supports the following conversion parameters:<ul>
 * <li>Mode: Mono Left, Mono Right, Stereo
@@ -46,7 +46,7 @@
 * <li>Sampling Rate: up to 48kHz</li>
 * <li>Left/Right Gain Amplifier: -12dB to +10.5dB in 1.5dB steps.</li>
 * </ul>
-* \} group_hal_psoc6_pdmpcm
+* \} group_hal_impl_pdmpcm
 */
 
 #ifdef CY_IP_MXAUDIOSS_INSTANCES
@@ -56,16 +56,14 @@ extern "C"
 {
 #endif
 
-#define CYHAL_PDM_PCM_EVENT_NONE ((cyhal_pdm_pcm_event_t) 0x0)
-#define CLK_SOURCE_HFCLK1 (1)
-#define HALF_FIFO (0x80U)
+ // 35-45 PCM samples it takes for PCM to stabilize. Round to even so that same number of left and right samples are removed
+#define _CYHAL_PDM_PCM_STABILIZATION_FS 46
+#define _CYHAL_PDM_PCM_EVENT_NONE ((cyhal_pdm_pcm_event_t) 0x0)
+#define _CYHAL_PDM_PCM_HFCLK (1)
+#define _CYHAL_PDM_PCM_HALF_FIFO (0x80U)
 
-#define MIN_GAIN -24
-#define MAX_GAIN 21
-#define MAX_SAMPLE_RATE 48000 // 48 kHz
-#define STABILIZATION_FS 46 // 35-45 PCM samples it takes for PCM to stabilize. Round to even so that same number of left and right samples are removed
 
-static PDM_Type *const cyhal_pdm_pcm_base[] =
+static PDM_Type *const _cyhal_pdm_pcm_base[] =
 {
 #if (CY_IP_MXAUDIOSS_INSTANCES == 1 && defined(AUDIOSS_PDM) && AUDIOSS_PDM)
     PDM,
@@ -81,9 +79,9 @@ static PDM_Type *const cyhal_pdm_pcm_base[] =
 #endif
 };
 
-static cyhal_pdm_pcm_t* cyhal_pdm_pcm_config_structs[CY_IP_MXAUDIOSS_INSTANCES];
+static cyhal_pdm_pcm_t* _cyhal_pdm_pcm_config_structs[CY_IP_MXAUDIOSS_INSTANCES];
 
-static const IRQn_Type cyhal_pdm_pcm_irq_n[] =
+static const IRQn_Type _cyhal_pdm_pcm_irq_n[] =
 {
 #if (CY_IP_MXAUDIOSS_INSTANCES == 1 && defined(AUDIOSS_PDM) && AUDIOSS_PDM) // Without index suffix
     audioss_interrupt_pdm_IRQn,
@@ -99,7 +97,7 @@ static const IRQn_Type cyhal_pdm_pcm_irq_n[] =
 #endif
 };
 
-static uint8_t cyhal_i2s_get_block_from_irqn(IRQn_Type irqn) {
+static uint8_t _cyhal_pdm_pcm_get_block_from_irqn(IRQn_Type irqn) {
     switch (irqn)
     {
 #if (CY_CPU_CORTEX_M4)
@@ -124,37 +122,38 @@ static uint8_t cyhal_i2s_get_block_from_irqn(IRQn_Type irqn) {
     }
 }
 
-static const cy_stc_pdm_pcm_config_t default_pdm_pcm_config =
+static const cy_stc_pdm_pcm_config_t _cyhal_pdm_pcm_default_config =
 {
-	.clkDiv = CY_PDM_PCM_CLK_DIV_BYPASS, // Configured by cyhal_pdm_pcm_init
-	.mclkDiv = CY_PDM_PCM_CLK_DIV_BYPASS, // Configured by cyhal_pdm_pcm_init
-	.ckoDiv = 3U, // Configured by cyhal_pdm_pcm_init
-	.ckoDelay = 0U,
-	.sincDecRate = 32U, // Configured by cyhal_pdm_pcm_init
-	.chanSelect = CY_PDM_PCM_OUT_STEREO, // Configured by cyhal_pdm_pcm_init
-	.chanSwapEnable = false,
-	.highPassFilterGain = 0U,
-	.highPassDisable = false,
-	.softMuteCycles = CY_PDM_PCM_SOFT_MUTE_CYCLES_96,
-	.softMuteFineGain = 1UL,
-	.softMuteEnable = false,
-	.wordLen = CY_PDM_PCM_WLEN_16_BIT, // Configured by cyhal_pdm_pcm_init
-	.signExtension = true,
-	.gainLeft = CY_PDM_PCM_BYPASS, // Configured by cyhal_pdm_pcm_init and cyhal_pdm_pcm_set_gain
-	.gainRight = CY_PDM_PCM_BYPASS, // Configured by cyhal_pdm_pcm_init and cyhal_pdm_pcm_set_gain
-	.rxFifoTriggerLevel = HALF_FIFO - 1,
-	.dmaTriggerEnable = false,
-	.interruptMask = 0UL,
+    .clkDiv = CY_PDM_PCM_CLK_DIV_BYPASS, // Configured by cyhal_pdm_pcm_init
+    .mclkDiv = CY_PDM_PCM_CLK_DIV_BYPASS, // Configured by cyhal_pdm_pcm_init
+    .ckoDiv = 3U, // Configured by cyhal_pdm_pcm_init
+    .ckoDelay = 0U,
+    .sincDecRate = 32U, // Configured by cyhal_pdm_pcm_init
+    .chanSelect = CY_PDM_PCM_OUT_STEREO, // Configured by cyhal_pdm_pcm_init
+    .chanSwapEnable = false,
+    .highPassFilterGain = 8U,
+    .highPassDisable = false,
+    .softMuteCycles = CY_PDM_PCM_SOFT_MUTE_CYCLES_96,
+    .softMuteFineGain = 1UL,
+    .softMuteEnable = false,
+    .wordLen = CY_PDM_PCM_WLEN_16_BIT, // Configured by cyhal_pdm_pcm_init
+    .signExtension = true,
+    .gainLeft = CY_PDM_PCM_BYPASS, // Configured by cyhal_pdm_pcm_init and cyhal_pdm_pcm_set_gain
+    .gainRight = CY_PDM_PCM_BYPASS, // Configured by cyhal_pdm_pcm_init and cyhal_pdm_pcm_set_gain
+    .rxFifoTriggerLevel = _CYHAL_PDM_PCM_HALF_FIFO - 1,
+    .dmaTriggerEnable = false,
+    .interruptMask = 0UL,
 };
 
-static inline void cyhal_pdm_pcm_set_rx_fifo_level(cyhal_pdm_pcm_t *obj, uint8_t fifo_level)
+static inline void _cyhal_pdm_pcm_set_rx_fifo_level(cyhal_pdm_pcm_t *obj, uint8_t fifo_level)
 {
     PDM_PCM_RX_FIFO_CTL(obj->base) = _VAL2FLD(PDM_RX_FIFO_CTL_TRIGGER_LEVEL, fifo_level - 1);
     Cy_PDM_PCM_ClearInterrupt(obj->base, CY_PDM_PCM_INTR_RX_TRIGGER);
 }
 
-static bool cyhal_pdm_pcm_pm_callback(cyhal_syspm_callback_state_t state, cyhal_syspm_callback_mode_t mode, void* callback_arg)
+static bool _cyhal_pdm_pcm_pm_callback(cyhal_syspm_callback_state_t state, cyhal_syspm_callback_mode_t mode, void* callback_arg)
 {
+    CY_UNUSED_PARAMETER(state);
     cyhal_pdm_pcm_t *obj = (cyhal_pdm_pcm_t *)callback_arg;
 
     switch (mode)
@@ -172,7 +171,7 @@ static bool cyhal_pdm_pcm_pm_callback(cyhal_syspm_callback_state_t state, cyhal_
     return obj->pm_transition_ready;
 }
 
-static inline void cyhal_pdm_pcm_increment_async_buffer(cyhal_pdm_pcm_t *obj, size_t increment)
+static inline void _cyhal_pdm_pcm_increment_async_buffer(cyhal_pdm_pcm_t *obj, size_t increment)
 {
     CY_ASSERT(obj->async_read_remaining >= increment);
     uint32_t saved_intr = cyhal_system_critical_section_enter();
@@ -183,18 +182,18 @@ static inline void cyhal_pdm_pcm_increment_async_buffer(cyhal_pdm_pcm_t *obj, si
     cyhal_system_critical_section_exit(saved_intr);
 }
 
-static inline void cyhal_pdm_pcm_try_read_async(cyhal_pdm_pcm_t *obj)
+static inline void _cyhal_pdm_pcm_try_read_async(cyhal_pdm_pcm_t *obj)
 {
     size_t read_remaining = obj->async_read_remaining;
     cyhal_pdm_pcm_read(obj, obj->async_buffer, &read_remaining);
-    cyhal_pdm_pcm_increment_async_buffer(obj, read_remaining);
+    _cyhal_pdm_pcm_increment_async_buffer(obj, read_remaining);
 }
 
-static inline cy_rslt_t cyhal_pdm_pcm_dma_start(cyhal_pdm_pcm_t *obj)
+static inline cy_rslt_t _cyhal_pdm_pcm_dma_start(cyhal_pdm_pcm_t *obj)
 {
     cy_rslt_t rslt;
-    size_t transfer_size = HALF_FIFO;
-    if (obj->async_read_remaining <= HALF_FIFO)
+    size_t transfer_size = _CYHAL_PDM_PCM_HALF_FIFO;
+    if (obj->async_read_remaining <= _CYHAL_PDM_PCM_HALF_FIFO)
     {
         transfer_size = obj->async_read_remaining;
         // Only want the user callback to be call on the last dma transfer.
@@ -215,23 +214,23 @@ static inline cy_rslt_t cyhal_pdm_pcm_dma_start(cyhal_pdm_pcm_t *obj)
     rslt = cyhal_dma_configure(&(obj->dma), &dma_cfg);
     if (CY_RSLT_SUCCESS == rslt)
     {
-        cyhal_pdm_pcm_increment_async_buffer(obj, transfer_size);
+        _cyhal_pdm_pcm_increment_async_buffer(obj, transfer_size);
         rslt = cyhal_dma_start_transfer(&(obj->dma));
     }
     return rslt;
 }
 
-static void cyhal_pdm_pcm_hw_irq_handler(void)
+static void _cyhal_pdm_pcm_hw_irq_handler(void)
 {
-    IRQn_Type irqn = CYHAL_GET_CURRENT_IRQN();
-    cyhal_pdm_pcm_t *obj = cyhal_pdm_pcm_config_structs[cyhal_i2s_get_block_from_irqn(irqn)];
+    IRQn_Type irqn = _CYHAL_UTILS_GET_CURRENT_IRQN();
+    cyhal_pdm_pcm_t *obj = _cyhal_pdm_pcm_config_structs[_cyhal_pdm_pcm_get_block_from_irqn(irqn)];
 
     if (obj != NULL)
     {
         uint32_t irq_status = Cy_PDM_PCM_GetInterruptStatus(obj->base);
         Cy_PDM_PCM_ClearInterrupt(obj->base,  irq_status);
 
-        cyhal_pdm_pcm_event_t event = CYHAL_PDM_PCM_EVENT_NONE;
+        cyhal_pdm_pcm_event_t event = _CYHAL_PDM_PCM_EVENT_NONE;
         if((CY_PDM_PCM_INTR_RX_TRIGGER & irq_status) || (CY_PDM_PCM_INTR_RX_OVERFLOW & irq_status))
         {
             if (obj->stabilized)
@@ -242,7 +241,7 @@ static void cyhal_pdm_pcm_hw_irq_handler(void)
                     {
                         if (obj->async_read_remaining > 0)
                         {
-                            cyhal_pdm_pcm_try_read_async(obj);
+                            _cyhal_pdm_pcm_try_read_async(obj);
                         }
                         if (obj->async_read_remaining == 0)
                         {
@@ -253,7 +252,7 @@ static void cyhal_pdm_pcm_hw_irq_handler(void)
                     {
                         if (obj->async_read_remaining > 0 && !cyhal_dma_is_busy(&(obj->dma)))
                         {
-                            cy_rslt_t rslt = cyhal_pdm_pcm_dma_start(obj);
+                            cy_rslt_t rslt = _cyhal_pdm_pcm_dma_start(obj);
                             CY_UNUSED_PARAMETER(rslt);
                             CY_ASSERT(CY_RSLT_SUCCESS == rslt);
                         }
@@ -278,11 +277,11 @@ static void cyhal_pdm_pcm_hw_irq_handler(void)
             {
                 // The PDM/PCM block alternates between left and right in stereo.
                 // To preserve oddness and eveness of left and right, removes an even number of elements.
-                for (int i = 0; i < STABILIZATION_FS; i++)
+                for (int i = 0; i < _CYHAL_PDM_PCM_STABILIZATION_FS; i++)
                 {
                     PDM_PCM_RX_FIFO_RD(obj->base);
                 }
-                cyhal_pdm_pcm_set_rx_fifo_level(obj, HALF_FIFO);
+                _cyhal_pdm_pcm_set_rx_fifo_level(obj, _CYHAL_PDM_PCM_HALF_FIFO);
                 if (!cyhal_pdm_pcm_is_pending(obj) && !(CYHAL_PDM_PCM_RX_HALF_FULL & obj->irq_cause))
                 {
                     Cy_PDM_PCM_SetInterruptMask(obj->base, Cy_PDM_PCM_GetInterruptMask(obj->base) & ~CY_PDM_PCM_INTR_RX_TRIGGER);
@@ -306,7 +305,7 @@ static void cyhal_pdm_pcm_hw_irq_handler(void)
 
         event &= obj->irq_cause;
 
-        if (event != CYHAL_PDM_PCM_EVENT_NONE)
+        if (event != _CYHAL_PDM_PCM_EVENT_NONE)
         {
             cyhal_pdm_pcm_event_callback_t callback = (cyhal_pdm_pcm_event_callback_t) obj->callback_data.callback;
             if (callback != NULL)
@@ -317,12 +316,12 @@ static void cyhal_pdm_pcm_hw_irq_handler(void)
     }
 }
 
-static inline bool cyhal_pdm_pcm_invalid_gain_range(int8_t gain_value)
+static inline bool _cyhal_pdm_pcm_invalid_gain_range(int8_t gain_value)
 {
-    return gain_value < MIN_GAIN || gain_value > MAX_GAIN;
+    return gain_value < CYHAL_PDM_PCM_MIN_GAIN || gain_value > CYHAL_PDM_PCM_MAX_GAIN;
 }
 
-static inline cy_en_pdm_pcm_gain_t scale_gain_value(int8_t gain_value)
+static inline cy_en_pdm_pcm_gain_t _cyhal_pdm_pcm_scale_gain_value(int8_t gain_value)
 {
     // The hardware use gain rate of 1.5 dB per register increment,
     // ranging from -12dB (register value 0x0) to 10.5dB (register value 0xF).
@@ -330,15 +329,15 @@ static inline cy_en_pdm_pcm_gain_t scale_gain_value(int8_t gain_value)
     return (cy_en_pdm_pcm_gain_t) ((gain_value + 25) / 3);
 }
 
-static inline cy_rslt_t cyhal_pdm_pcm_set_pdl_config_struct(const cyhal_pdm_pcm_cfg_t *cfg, cy_stc_pdm_pcm_config_t *pdl_config)
+static inline cy_rslt_t _cyhal_pdm_pcm_set_pdl_config_struct(const cyhal_pdm_pcm_cfg_t *cfg, cy_stc_pdm_pcm_config_t *pdl_config)
 {
     // PDM_CKO = sample_rate * decimation_rate
-    if (cfg->sample_rate > MAX_SAMPLE_RATE)
+    if (cfg->sample_rate > CYHAL_PDM_PCM_MAX_SAMPLE_RATE)
     {
         return CYHAL_PDM_PCM_RSLT_ERR_INVALID_CONFIG_PARAM;
     }
     uint32_t pdm_cko = cfg->sample_rate * cfg->decimation_rate;
-    uint32_t hf1_freq = Cy_SysClk_ClkHfGetFrequency(CLK_SOURCE_HFCLK1);
+    uint32_t hf1_freq = Cy_SysClk_ClkHfGetFrequency(_CYHAL_PDM_PCM_HFCLK);
     // need to use 3 clock dividers to divied hf1_freq to pdm_cko
     // divider 0 and 1 have values 1 to 4, divider 2 has values 2 to 16
     uint8_t best_div0 = 1, best_div1 = 1, best_div2 = 2;
@@ -405,18 +404,47 @@ static inline cy_rslt_t cyhal_pdm_pcm_set_pdl_config_struct(const cyhal_pdm_pcm_
             return CYHAL_PDM_PCM_RSLT_ERR_INVALID_CONFIG_PARAM;
     }
 
-    if (cyhal_pdm_pcm_invalid_gain_range(cfg->left_gain) || cyhal_pdm_pcm_invalid_gain_range(cfg->right_gain))
+    if (_cyhal_pdm_pcm_invalid_gain_range(cfg->left_gain) || _cyhal_pdm_pcm_invalid_gain_range(cfg->right_gain))
     {
         return CYHAL_PDM_PCM_RSLT_ERR_INVALID_CONFIG_PARAM;
     }
-    pdl_config->gainLeft = scale_gain_value(cfg->left_gain);
-    pdl_config->gainRight = scale_gain_value(cfg->right_gain);
+    pdl_config->gainLeft = _cyhal_pdm_pcm_scale_gain_value(cfg->left_gain);
+    pdl_config->gainRight = _cyhal_pdm_pcm_scale_gain_value(cfg->right_gain);
 
     return CY_RSLT_SUCCESS;
 }
 
+static inline uint32_t _cyhal_pdm_pcm_get_pdl_event_mask(cyhal_pdm_pcm_event_t event)
+{
+    static const uint32_t status_map[] =
+    {
+        0u,                                     // Default, no value
+        (uint32_t)CY_PDM_PCM_INTR_RX_TRIGGER,   // CYHAL_PDM_PCM_RX_HALF_FULL
+        (uint32_t)CY_PDM_PCM_INTR_RX_NOT_EMPTY, // CYHAL_PDM_PCM_RX_NOT_EMPTY
+        (uint32_t)CY_PDM_PCM_INTR_RX_OVERFLOW,  // CYHAL_PDM_PCM_RX_OVERFLOW
+        (uint32_t)CY_PDM_PCM_INTR_RX_UNDERFLOW, // CYHAL_PDM_PCM_RX_UNDERFLOW
+    };
+    return _cyhal_utils_convert_flags(status_map, sizeof(status_map) / sizeof(uint32_t), (uint32_t)event);
+}
+
+static void _cyhal_pdm_pcm_dma_callback(void *callback_arg, cyhal_dma_event_t event)
+{
+    CY_UNUSED_PARAMETER(event);
+    cyhal_pdm_pcm_t *obj = (cyhal_pdm_pcm_t *)callback_arg;
+    if (obj != NULL)
+    {
+        // DMA finished trigger callback
+        cyhal_pdm_pcm_event_callback_t callback = (cyhal_pdm_pcm_event_callback_t) obj->callback_data.callback;
+        if (callback != NULL)
+        {
+            callback(obj->callback_data.callback_arg, CYHAL_PDM_PCM_ASYNC_COMPLETE);
+        }
+    }
+}
+
+
 cy_rslt_t cyhal_pdm_pcm_init(cyhal_pdm_pcm_t *obj, cyhal_gpio_t pin_data, cyhal_gpio_t pin_clk,
-                const cyhal_clock_divider_t *clk_source, const cyhal_pdm_pcm_cfg_t *cfg)
+                const cyhal_clock_t *clk_source, const cyhal_pdm_pcm_cfg_t *cfg)
 {
     CY_ASSERT(NULL != obj);
     memset(obj, 0, sizeof(cyhal_pdm_pcm_t));
@@ -430,18 +458,17 @@ cy_rslt_t cyhal_pdm_pcm_init(cyhal_pdm_pcm_t *obj, cyhal_gpio_t pin_data, cyhal_
     obj->dma.resource.type = CYHAL_RSC_INVALID;
 
     /* Reserve the PDM-PCM */
-    const cyhal_resource_pin_mapping_t *data_map = CY_UTILS_GET_RESOURCE(pin_data, cyhal_pin_map_audioss_pdm_data);
-    const cyhal_resource_pin_mapping_t *clk_map = CY_UTILS_GET_RESOURCE(pin_clk, cyhal_pin_map_audioss_pdm_clk);
+    const cyhal_resource_pin_mapping_t *data_map = _CYHAL_UTILS_GET_RESOURCE(pin_data, cyhal_pin_map_audioss_pdm_data);
+    const cyhal_resource_pin_mapping_t *clk_map = _CYHAL_UTILS_GET_RESOURCE(pin_clk, cyhal_pin_map_audioss_pdm_clk);
 
-    if ((NULL == data_map) || (NULL == clk_map) || !cyhal_utils_resources_equal(data_map->inst, clk_map->inst))
+    if ((NULL == data_map) || (NULL == clk_map) || !_cyhal_utils_resources_equal(data_map->inst, clk_map->inst))
     {
         return CYHAL_PDM_PCM_RSLT_ERR_INVALID_PIN;
     }
 
     obj->resource = *(data_map->inst);
     // There is only one PDM-PCM instance on PSoC6.
-    CY_ASSERT(obj->resource.type == CYHAL_RSC_PDM && obj->resource.block_num == 0 && obj->resource.channel_num == 0);
-    obj->base = cyhal_pdm_pcm_base[obj->resource.channel_num];
+    obj->base = _cyhal_pdm_pcm_base[obj->resource.channel_num];
 
     cy_rslt_t result = cyhal_hwmgr_reserve(&(obj->resource));
     if (result != CY_RSLT_SUCCESS)
@@ -452,7 +479,7 @@ cy_rslt_t cyhal_pdm_pcm_init(cyhal_pdm_pcm_t *obj, cyhal_gpio_t pin_data, cyhal_
     /* Reserve the pdm in pin */
     if (result == CY_RSLT_SUCCESS)
     {
-        result = cyhal_utils_reserve_and_connect(pin_data, data_map);
+        result = _cyhal_utils_reserve_and_connect(pin_data, data_map);
         if (result == CY_RSLT_SUCCESS)
             obj->pin_data = pin_data;
     }
@@ -460,15 +487,15 @@ cy_rslt_t cyhal_pdm_pcm_init(cyhal_pdm_pcm_t *obj, cyhal_gpio_t pin_data, cyhal_
     /* Reserve the clk pin */
     if (result == CY_RSLT_SUCCESS)
     {
-        result = cyhal_utils_reserve_and_connect(pin_clk, clk_map);
+        result = _cyhal_utils_reserve_and_connect(pin_clk, clk_map);
         if (result == CY_RSLT_SUCCESS)
             obj->pin_clk = pin_clk;
     }
 
     if (result == CY_RSLT_SUCCESS)
     {
-        cy_stc_pdm_pcm_config_t pdl_struct = default_pdm_pcm_config;
-        result = cyhal_pdm_pcm_set_pdl_config_struct(cfg, &pdl_struct);
+        cy_stc_pdm_pcm_config_t pdl_struct = _cyhal_pdm_pcm_default_config;
+        result = _cyhal_pdm_pcm_set_pdl_config_struct(cfg, &pdl_struct);
         if (result == CY_RSLT_SUCCESS)
         {
             result = (cy_rslt_t)Cy_PDM_PCM_Init(obj->base, &pdl_struct);
@@ -477,25 +504,25 @@ cy_rslt_t cyhal_pdm_pcm_init(cyhal_pdm_pcm_t *obj, cyhal_gpio_t pin_data, cyhal_
 
     if (result == CY_RSLT_SUCCESS)
     {
-        cyhal_pdm_pcm_config_structs[obj->resource.channel_num] = obj;
+        _cyhal_pdm_pcm_config_structs[obj->resource.channel_num] = obj;
         obj->word_size = cfg->word_length <= 16 ? 2 : 4;
         obj->callback_data.callback = NULL;
         obj->callback_data.callback_arg = NULL;
-        obj->irq_cause = CYHAL_PDM_PCM_EVENT_NONE;
+        obj->irq_cause = _CYHAL_PDM_PCM_EVENT_NONE;
         obj->stabilized = false;
         obj->pm_transition_ready = false;
 
-        obj->pm_callback.callback = &cyhal_pdm_pcm_pm_callback,
+        obj->pm_callback.callback = &_cyhal_pdm_pcm_pm_callback,
         obj->pm_callback.states = (cyhal_syspm_callback_state_t)(CYHAL_SYSPM_CB_CPU_DEEPSLEEP | CYHAL_SYSPM_CB_SYSTEM_HIBERNATE);
         obj->pm_callback.next = NULL;
         obj->pm_callback.args = (void*)obj;
         obj->pm_callback.ignore_modes = CYHAL_SYSPM_BEFORE_TRANSITION;
 
-        cyhal_syspm_register_peripheral_callback(&(obj->pm_callback));
+        _cyhal_syspm_register_peripheral_callback(&(obj->pm_callback));
 
-        cy_stc_sysint_t irqCfg = { cyhal_pdm_pcm_irq_n[obj->resource.channel_num], CYHAL_ISR_PRIORITY_DEFAULT };
-        Cy_SysInt_Init(&irqCfg, &cyhal_pdm_pcm_hw_irq_handler);
-        NVIC_EnableIRQ(cyhal_pdm_pcm_irq_n[obj->resource.channel_num]);
+        cy_stc_sysint_t irqCfg = { _cyhal_pdm_pcm_irq_n[obj->resource.channel_num], CYHAL_ISR_PRIORITY_DEFAULT };
+        Cy_SysInt_Init(&irqCfg, &_cyhal_pdm_pcm_hw_irq_handler);
+        NVIC_EnableIRQ(_cyhal_pdm_pcm_irq_n[obj->resource.channel_num]);
         cyhal_pdm_pcm_clear(obj);
     }
 
@@ -512,17 +539,17 @@ void cyhal_pdm_pcm_free(cyhal_pdm_pcm_t *obj)
 
     if (CYHAL_RSC_INVALID != obj->resource.type)
     {
-        cyhal_syspm_unregister_peripheral_callback(&(obj->pm_callback));
+        _cyhal_syspm_unregister_peripheral_callback(&(obj->pm_callback));
         Cy_PDM_PCM_DeInit(obj->base);
-        NVIC_DisableIRQ(cyhal_pdm_pcm_irq_n[obj->resource.channel_num]);
+        NVIC_DisableIRQ(_cyhal_pdm_pcm_irq_n[obj->resource.channel_num]);
 
         cyhal_hwmgr_free(&(obj->resource));
         obj->base = NULL;
         obj->resource.type = CYHAL_RSC_INVALID;
     }
 
-    cyhal_utils_release_if_used(&(obj->pin_data));
-    cyhal_utils_release_if_used(&(obj->pin_clk));
+    _cyhal_utils_release_if_used(&(obj->pin_data));
+    _cyhal_utils_release_if_used(&(obj->pin_clk));
 
     if (CYHAL_RSC_INVALID != obj->dma.resource.type)
     {
@@ -542,7 +569,7 @@ cy_rslt_t cyhal_pdm_pcm_start(cyhal_pdm_pcm_t *obj)
     Cy_PDM_PCM_ClearFifo(obj->base);
     Cy_PDM_PCM_Enable(obj->base);
     // After Enable is asserted, there is a transition period of about 35-45 sample cycles.
-    cyhal_pdm_pcm_set_rx_fifo_level(obj, STABILIZATION_FS);
+    _cyhal_pdm_pcm_set_rx_fifo_level(obj, _CYHAL_PDM_PCM_STABILIZATION_FS);
     Cy_PDM_PCM_SetInterruptMask(obj->base, Cy_PDM_PCM_GetInterruptMask(obj->base) | CY_PDM_PCM_INTR_RX_TRIGGER);
     return CY_RSLT_SUCCESS;
 }
@@ -554,15 +581,21 @@ cy_rslt_t cyhal_pdm_pcm_stop(cyhal_pdm_pcm_t *obj)
     return CY_RSLT_SUCCESS;
 }
 
+bool cyhal_pdm_pcm_is_enabled(cyhal_pdm_pcm_t *obj)
+{
+    CY_ASSERT(NULL != obj);
+    return (0 != Cy_PDM_PCM_GetCurrentState(obj->base));
+}
+
 cy_rslt_t cyhal_pdm_pcm_set_gain(cyhal_pdm_pcm_t *obj, int8_t gain_left, int8_t gain_right)
 {
     CY_ASSERT(NULL != obj);
-    if (cyhal_pdm_pcm_invalid_gain_range(gain_left) || cyhal_pdm_pcm_invalid_gain_range(gain_right))
+    if (_cyhal_pdm_pcm_invalid_gain_range(gain_left) || _cyhal_pdm_pcm_invalid_gain_range(gain_right))
     {
         return CYHAL_PDM_PCM_RSLT_ERR_INVALID_CONFIG_PARAM;
     }
-    Cy_PDM_PCM_SetGain(obj->base, CY_PDM_PCM_CHAN_LEFT, scale_gain_value(gain_left));
-    Cy_PDM_PCM_SetGain(obj->base, CY_PDM_PCM_CHAN_RIGHT, scale_gain_value(gain_right));
+    Cy_PDM_PCM_SetGain(obj->base, CY_PDM_PCM_CHAN_LEFT, _cyhal_pdm_pcm_scale_gain_value(gain_left));
+    Cy_PDM_PCM_SetGain(obj->base, CY_PDM_PCM_CHAN_RIGHT, _cyhal_pdm_pcm_scale_gain_value(gain_right));
 
     return CY_RSLT_SUCCESS;
 }
@@ -620,7 +653,7 @@ cy_rslt_t cyhal_pdm_pcm_read_async(cyhal_pdm_pcm_t *obj, void *data, size_t leng
     }
 
     // Disable PDM interrupts temporarily.
-    NVIC_DisableIRQ(cyhal_pdm_pcm_irq_n[obj->resource.channel_num]);
+    NVIC_DisableIRQ(_cyhal_pdm_pcm_irq_n[obj->resource.channel_num]);
 
     obj->async_buffer = data;
     obj->async_read_remaining = length;
@@ -631,7 +664,7 @@ cy_rslt_t cyhal_pdm_pcm_read_async(cyhal_pdm_pcm_t *obj, void *data, size_t leng
         if (obj->dma.resource.type == CYHAL_RSC_INVALID)
         {
             // read as much as we can, if there are left overs, then set interrupt flags
-            cyhal_pdm_pcm_try_read_async(obj);
+            _cyhal_pdm_pcm_try_read_async(obj);
 
             if (0 == obj->async_read_remaining)
             {
@@ -646,7 +679,7 @@ cy_rslt_t cyhal_pdm_pcm_read_async(cyhal_pdm_pcm_t *obj, void *data, size_t leng
         }
         else
         {
-            rslt = cyhal_pdm_pcm_dma_start(obj);
+            rslt = _cyhal_pdm_pcm_dma_start(obj);
         }
     }
     else
@@ -659,7 +692,7 @@ cy_rslt_t cyhal_pdm_pcm_read_async(cyhal_pdm_pcm_t *obj, void *data, size_t leng
     {
         Cy_PDM_PCM_SetInterruptMask(obj->base, Cy_PDM_PCM_GetInterruptMask(obj->base) | CY_PDM_PCM_INTR_RX_TRIGGER);
     }
-    NVIC_EnableIRQ(cyhal_pdm_pcm_irq_n[obj->resource.channel_num]);
+    NVIC_EnableIRQ(_cyhal_pdm_pcm_irq_n[obj->resource.channel_num]);
     return rslt;
 }
 
@@ -692,31 +725,9 @@ void cyhal_pdm_pcm_register_callback(cyhal_pdm_pcm_t *obj, cyhal_pdm_pcm_event_c
     cyhal_system_critical_section_exit(savedIntrStatus);
 }
 
-static inline uint32_t cyhal_pdm_pcm_get_pdl_event_mask(cyhal_pdm_pcm_event_t event)
-{
-    uint32_t mask = 0;
-    if (event & CYHAL_PDM_PCM_RX_HALF_FULL)
-    {
-        mask |= CY_PDM_PCM_INTR_RX_TRIGGER;
-    }
-    if (event & CYHAL_PDM_PCM_RX_NOT_EMPTY)
-    {
-        mask |= CY_PDM_PCM_INTR_RX_NOT_EMPTY;
-    }
-    if (event & CYHAL_PDM_PCM_RX_OVERFLOW)
-    {
-        mask |= CY_PDM_PCM_INTR_RX_OVERFLOW;
-    }
-    if (event & CYHAL_PDM_PCM_RX_UNDERFLOW)
-    {
-        mask |= CY_PDM_PCM_INTR_RX_UNDERFLOW;
-    }
-    return mask;
-}
-
 void cyhal_pdm_pcm_enable_event(cyhal_pdm_pcm_t *obj, cyhal_pdm_pcm_event_t event, uint8_t intr_priority, bool enable)
 {
-    uint32_t mask = cyhal_pdm_pcm_get_pdl_event_mask(event);
+    uint32_t mask = _cyhal_pdm_pcm_get_pdl_event_mask(event);
     if (enable)
     {
         obj->irq_cause |= event;
@@ -740,21 +751,7 @@ void cyhal_pdm_pcm_enable_event(cyhal_pdm_pcm_t *obj, cyhal_pdm_pcm_event_t even
         cyhal_system_critical_section_exit(intr_status);
     }
 
-    NVIC_SetPriority(cyhal_pdm_pcm_irq_n[obj->resource.channel_num], intr_priority);
-}
-
-static void cyhal_pdm_pcm_dma_callback(void *callback_arg, cyhal_dma_event_t event)
-{
-    cyhal_pdm_pcm_t *obj = (cyhal_pdm_pcm_t *)callback_arg;
-    if (obj != NULL)
-    {
-        // DMA finished trigger callback
-        cyhal_pdm_pcm_event_callback_t callback = (cyhal_pdm_pcm_event_callback_t) obj->callback_data.callback;
-        if (callback != NULL)
-        {
-            callback(obj->callback_data.callback_arg, CYHAL_PDM_PCM_ASYNC_COMPLETE);
-        }
-    }
+    NVIC_SetPriority(_cyhal_pdm_pcm_irq_n[obj->resource.channel_num], intr_priority);
 }
 
 cy_rslt_t cyhal_pdm_pcm_set_async_mode(cyhal_pdm_pcm_t *obj, cyhal_async_mode_t mode, uint8_t dma_priority)
@@ -780,7 +777,7 @@ cy_rslt_t cyhal_pdm_pcm_set_async_mode(cyhal_pdm_pcm_t *obj, cyhal_async_mode_t 
         {
             return rslt;
         }
-        cyhal_dma_register_callback(&(obj->dma), &cyhal_pdm_pcm_dma_callback, obj);
+        cyhal_dma_register_callback(&(obj->dma), &_cyhal_pdm_pcm_dma_callback, obj);
     }
     return CY_RSLT_SUCCESS;
 }

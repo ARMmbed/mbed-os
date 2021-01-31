@@ -229,6 +229,7 @@ matrix:
         - |-
           tr -d ' ' >> requirements.txt <<< "
           mock==2.0.0
+          attrs==19.1.0
           pytest==3.3.0
           pylint>=1.9,<2
           hypothesis>=3,<4
@@ -264,37 +265,10 @@ matrix:
     ### Extended Tests ###
     - &extended-vm
       stage: "Extended"
-      name: "events"
-      env: NAME=events EVENTS=events
-      language: python
-      python: 3.7
-      install:
-        # Install gcc
-        - source_pkg gcc
-        - arm-none-eabi-gcc --version
-        # Install python modules
-        - python -m pip install --upgrade pip==18.1
-        - python -m pip install --upgrade setuptools==40.4.3
-        - pip install -r requirements.txt
-        - pip list --verbose
-      script:
-        # Check that example compiles
-        - sed -n '/``` cpp/,/```/{/```$/Q;/```/d;p;}' ${EVENTS}/README.md > main.cpp
-        - python tools/make.py -t GCC_ARM -m K64F --source=. --build=BUILD/K64F/GCC_ARM -j0
-        # Check that example compiles without rtos
-        - sed -n '/``` cpp/,/```/{/```$/Q;/```/d;p;}' ${EVENTS}/README.md > main.cpp
-        - |
-          rm -r cmsis/CMSIS_5/CMSIS/RTOS2 cmsis/device/rtos drivers/usb connectivity/cellular connectivity/drivers/cellular \
-            connectivity/libraries/ppp connectivity/netsocket connectivity/nanostack connectivity/lwipstack features/frameworks/greentea-client \
-            features/frameworks/utest features/frameworks/unity BUILD
-        - python tools/make.py -t GCC_ARM -m NUCLEO_F103RB --source=. --build=BUILD/NUCLEO_F103RB/GCC_ARM -j0
-        # Run profiling tests
-        - make -C ${EVENTS}/tests/unit prof | tee prof
-        - ccache -s
-
-    - <<: *extended-vm
       name: "littlefs"
       env: NAME=littlefs LITTLEFS=storage/filesystem/littlefs
+      language: python
+      python: 3.7
       install:
         # Install gcc
         - source_pkg gcc
@@ -322,10 +296,6 @@ matrix:
         - losetup /dev/loop0 DISK
         - CFLAGS="-Werror -Wno-format"
       script:
-        # Check that example compiles
-        - export CFLAGS="-Werror -Wno-format"
-        - sed -n '/``` c++/,/```/{/```/d;p;}' ${LITTLEFS}/README.md > main.cpp
-        - python tools/make.py -t GCC_ARM -m K82F --source=. --build=BUILD/K82F/GCC_ARM -j0
         # Run local littlefs tests
         - make -C${LITTLEFS}/littlefs test QUIET=1
         # Run local littlefs tests with set of variations

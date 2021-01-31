@@ -1157,6 +1157,10 @@
             "lpticker_lptim_clock": {
                 "help": "Default value for LPTIM clock (lpticker_lptim == 1). Value is the dividing factor. Choose 1, 2 or 4",
                 "value": 1
+            },
+            "gpio_reset_at_init": {
+                "help": "if value set, all GPIO are reset during init",
+                "value": false
             }
         },
         "overrides": {
@@ -1420,16 +1424,25 @@
             "LPTICKER"
         ]
     },
-    "NUCLEO_F207ZG": {
+    "MCU_STM32F207xZ": {
         "inherits": [
             "MCU_STM32F2"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32F207xG"
+        ],
+        "macros_add": [
+            "STM32F207xx"
+        ]
+    },
+    "NUCLEO_F207ZG": {
+        "inherits": [
+            "MCU_STM32F207xZ"
         ],
         "supported_form_factors": [
             "ARDUINO",
             "MORPHO"
-        ],
-        "extra_labels_add": [
-            "STM32F207ZG"
         ],
         "config": {
             "d11_configuration": {
@@ -2194,7 +2207,8 @@
             "STM32F469xx"
         ],
         "device_has_add": [
-            "ANALOGOUT"
+            "ANALOGOUT",
+            "QSPI"
         ],
         "device_has_remove": [
             "LPTICKER"
@@ -2622,6 +2636,7 @@
             "ANALOGOUT",
             "FLASH",
             "MPU",
+            "TRNG",
             "CAN"
         ]
     },
@@ -2834,7 +2849,8 @@
             }
         },
         "device_has_add": [
-            "EMAC"
+            "EMAC",
+            "USBDEVICE"
         ],
         "overrides": {
             "network-default-interface-type": "ETHERNET"
@@ -2996,6 +3012,78 @@
         ],
         "device_name": "STM32H747XIHx"
     },
+    "PORTENTA_H7": {
+        "public": false,
+        "inherits": ["MCU_STM32H747xI"],
+        "config": {
+            "hse_value": {
+                "help": "HSE default value is 25MHz in HAL",
+                "value": "25000000",
+                "macro_name": "HSE_VALUE"
+            },
+            "lse_bypass": {
+                "help": "1 to use an oscillator (not a crystal) on 32k LSE",
+                "value": "1"
+            },
+            "usb_speed": {
+                "help": "USE_USB_OTG_FS or USE_USB_OTG_HS or USE_USB_HS_IN_FS",
+                "value": "USE_USB_OTG_HS"
+            }
+        },
+        "macros_add": [
+            "CM4_BOOT_BY_APPLICATION",
+            "QSPI_NO_SAMPLE_SHIFT"
+        ],
+        "detect_code": ["0813"],
+        "components_add": [
+            "QSPIF"
+        ],
+        "device_has_add": [
+            "USBDEVICE",
+            "EMAC",
+            "QSPI"
+        ],
+        "overrides": {
+            "system_power_supply": "PWR_SMPS_1V8_SUPPLIES_LDO",
+            "clock_source": "USE_PLL_HSE_EXTC",
+            "lse_available": 1,
+            "lpticker_delay_ticks": 0,
+            "network-default-interface-type": "ETHERNET"
+        },
+        "device_name": "STM32H747XIHx"
+    },
+    "PORTENTA_H7_M7": {
+        "inherits": ["PORTENTA_H7"],
+        "core": "Cortex-M7FD",
+        "mbed_rom_start": "0x08000000",
+        "mbed_rom_size" : "0x100000",
+        "mbed_ram_start": "0x24000000",
+        "mbed_ram_size" : "0x80000",
+        "extra_labels_add": [
+            "STM32H747xI_CM7"
+        ],
+        "macros_add": [
+            "CORE_CM7"
+        ]
+    },
+    "PORTENTA_H7_M4": {
+        "inherits": ["PORTENTA_H7"],
+        "core": "Cortex-M4F",
+        "mbed_rom_start": "0x08100000",
+        "mbed_rom_size" : "0x100000",
+        "mbed_ram_start": "0x10000000",
+        "mbed_ram_size" : "0x48000",
+        "extra_labels_add": [
+            "STM32H747xI_CM4"
+        ],
+        "macros_add": [
+            "CORE_CM4",
+            "MBED_MPU_CUSTOM"
+        ],
+        "device_has_remove": [
+            "MPU"
+        ]
+    },
     "MCU_STM32H7A3xIQ": {
         "inherits": [
             "MCU_STM32H7"
@@ -3134,6 +3222,9 @@
             "ARDUINO",
             "MORPHO"
         ],
+        "components_add": [
+            "SX1276"
+        ],
         "detect_code": [
             "0833"
         ],
@@ -3199,6 +3290,9 @@
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
             }
+        },
+        "overrides": {
+            "gpio_reset_at_init": true
         },
         "device_has_add": [
             "ANALOGOUT",
@@ -4841,12 +4935,23 @@
             "STDIO_MESSAGES",
             "USTICKER"
         ],
-        "release_versions": [
-            "5"
-        ],
         "detect_code": [
             "0418"
-        ]
+        ],
+        "supported_application_profiles" : ["full", "bare-metal"],
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ],
+            "iar": [
+                "std"
+            ]
+        }
     },
     "SDT32620B": {
         "inherits": [
@@ -4929,10 +5034,21 @@
             "USTICKER"
         ],
         "device_name": "MAX32625",
-        "release_versions": [
-            "5"
-        ],
-        "public": false
+        "public": false,
+        "supported_application_profiles" : ["full", "bare-metal"],
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ],
+            "iar": [
+                "std"
+            ]
+        }
     },
     "MAX32625MBED": {
         "inherits": [
@@ -5011,14 +5127,27 @@
             "SPI",
             "STDIO_MESSAGES",
             "USTICKER",
-            "MPU"
-        ],
-        "release_versions": [
-            "5"
+            "MPU",
+            "SLEEP",
+            "USBDEVICE"
         ],
         "detect_code": [
             "0409"
-        ]
+        ],
+        "supported_application_profiles" : ["full", "bare-metal"],
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ],
+            "iar": [
+                "std"
+            ]
+        }
     },
     "EFM32": {
         "inherits": [
@@ -6528,6 +6657,15 @@
             "full", "bare-metal"
         ]
     },
+    "CY_EXTERNAL_WIFI_FW": {
+        "public": false,
+        "macros_add": [
+            "CY_ENABLE_XIP_PROGRAM",
+            "CY_STORAGE_WIFI_DATA=\".cy_xip\"",
+            "CY_STORAGE_WIFI_DATA_OUTPUT=cy_xip",
+            "CY_EXT_WIFI_FW_STORAGE=QSPIF"
+        ]
+    },
     "CY8CPROTO_062_4343W": {
         "inherits": [
             "MCU_PSOC6_M4"
@@ -6536,6 +6674,10 @@
             "BLE"
         ],
         "components_add": [
+            "CAT1A",
+            "CAT1",
+            "PSOC6HAL",
+            "PSOC6",
             "WHD",
             "4343W",
             "CYW43XXX"
@@ -6577,6 +6719,10 @@
             "BLE"
         ],
         "components_add": [
+            "CAT1A",
+            "CAT1",
+            "PSOC6HAL",
+            "PSOC6",
             "WHD",
             "43012",
             "CYW43XXX"
@@ -6608,18 +6754,20 @@
     },
     "CY8CPROTO_062S3_4343W": {
         "inherits": [
-            "MCU_PSOC6_M4"
+            "MCU_PSOC6_M4",
+            "CY_EXTERNAL_WIFI_FW"
         ],
         "features": [
             "BLE"
         ],
         "components_add": [
+            "CAT1A",
+            "CAT1",
+            "PSOC6HAL",
+            "PSOC6",
             "WHD",
             "4343W",
             "CYW43XXX"
-        ],
-        "components_remove": [
-            "QSPIF"
         ],
         "device_has_remove": [
             "ANALOGOUT"
@@ -6631,9 +6779,7 @@
         ],
         "macros_add": [
             "CY8C6245LQI_S3D72",
-            "CYBSP_WIFI_CAPABLE",
-            "CY_ENABLE_XIP_PROGRAM",
-            "CY_STORAGE_WIFI_DATA=\".cy_xip\""
+            "CYBSP_WIFI_CAPABLE"
         ],
         "device_name": "CY8C6245LQI-S3D72",
         "mbed_ram_start": "0x08002000",
@@ -6642,8 +6788,7 @@
             "190E"
         ],
         "overrides": {
-            "network-default-interface-type": "WIFI",
-            "xip-enable": true
+            "network-default-interface-type": "WIFI"
         }
     },
     "CY8CKIT_062_WIFI_BT": {
@@ -6654,6 +6799,10 @@
             "BLE"
         ],
         "components_add": [
+            "CAT1A",
+            "CAT1",
+            "PSOC6HAL",
+            "PSOC6",
             "WHD",
             "4343W",
             "CYW43XXX",
@@ -6707,6 +6856,12 @@
         "macros_add": [
             "CY8C6347BZI_BLD53"
         ],
+        "components_add": [
+            "CAT1A",
+            "CAT1",
+            "PSOC6HAL",
+            "PSOC6"
+        ],
         "device_name": "CY8C6347BZI-BLD53",
         "mbed_ram_start": "0x08002000",
         "mbed_ram_size": "0x00045800",
@@ -6732,6 +6887,10 @@
             "ARDUINO"
         ],
         "components_add": [
+            "CAT1A",
+            "CAT1",
+            "PSOC6HAL",
+            "PSOC6",
             "WHD",
             "43438",
             "CYW43XXX",
@@ -6776,6 +6935,10 @@
             "ARDUINO"
         ],
         "components_add": [
+            "CAT1A",
+            "CAT1",
+            "PSOC6HAL",
+            "PSOC6",
             "WHD",
             "43012",
             "CYW43XXX",
@@ -6819,6 +6982,10 @@
             "BLE"
         ],
         "components_add": [
+            "CAT1A",
+            "CAT1",
+            "PSOC6HAL",
+            "PSOC6",
             "WHD",
             "4343W",
             "CYW43XXX",
@@ -6835,7 +7002,8 @@
         "extra_labels_add": [
             "PSOC6_02",
             "MXCRYPTO_02",
-            "CORDIO"
+            "CORDIO",
+            "CY8CKIT_064B0S2_4343W"
         ],
         "macros_add": [
             "CYB0644ABZI_S2D44",
@@ -6872,6 +7040,10 @@
             "PSA"
         ],
         "components_add": [
+            "CAT1A",
+            "CAT1",
+            "PSOC6HAL",
+            "PSOC6",
             "WHD",
             "4343W",
             "CYW43XXX",
@@ -6931,6 +7103,10 @@
             "MCU_PSOC6_M4"
         ],
         "components_add": [
+            "CAT1A",
+            "CAT1",
+            "PSOC6HAL",
+            "PSOC6",
             "SCL",
             "43012",
             "CYW43XXX"

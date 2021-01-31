@@ -10,14 +10,8 @@ if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
         "-march=armv8-m.main+dsp"
     )
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
-    list(APPEND c_cxx_compile_options
+    list(APPEND common_options
         "-mcpu=cortex-m33"
-    )
-    list(APPEND asm_compile_options
-        "-mcpu=Cortex-M33"
-    )
-    list(APPEND link_options
-        "--cpu=Cortex-M33"
     )
 endif()
 
@@ -26,7 +20,6 @@ function(mbed_set_cpu_core_definitions target)
         INTERFACE
             __CORTEX_M33
             ARM_MATH_ARMV8MML
-            DOMAIN_NS=1
             __FPU_PRESENT=1U
             __CMSIS_RTOS
             __MBED_CMSIS_RTOS_CM

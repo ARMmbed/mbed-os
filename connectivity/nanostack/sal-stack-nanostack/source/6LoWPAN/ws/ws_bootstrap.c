@@ -20,6 +20,7 @@
 #ifdef HAVE_WS
 #include "ns_types.h"
 #include "ns_trace.h"
+#include "nsdynmemLIB.h"
 #include "net_interface.h"
 #include "eventOS_event.h"
 #include "randLIB.h"
@@ -43,6 +44,7 @@
 #include "Common_Protocols/icmpv6.h"
 #include "Common_Protocols/icmpv6_radv.h"
 #include "Common_Protocols/ipv6_constants.h"
+#include "Common_Protocols/ip.h"
 #include "Service_Libs/Trickle/trickle.h"
 #include "Service_Libs/fhss/channel_list.h"
 #include "6LoWPAN/ws/ws_common_defines.h"
@@ -75,6 +77,7 @@
 #include "6LoWPAN/ws/ws_eapol_auth_relay.h"
 #include "6LoWPAN/ws/ws_eapol_relay.h"
 #include "libNET/src/net_dns_internal.h"
+#include "Service_Libs/random_early_detection/random_early_detection_api.h"
 
 #define TRACE_GROUP "wsbs"
 
@@ -111,6 +114,10 @@ static int8_t ws_bootstrap_neighbor_set(protocol_interface_info_entry_t *cur, pa
 static void ws_bootstrap_candidate_table_reset(protocol_interface_info_entry_t *cur);
 static parent_info_t *ws_bootstrap_candidate_parent_get(struct protocol_interface_info_entry *cur, const uint8_t *addr, bool create);
 static void ws_bootstrap_candidate_parent_sort(struct protocol_interface_info_entry *cur, parent_info_t *new_entry);
+static void ws_bootstrap_packet_congestion_init(protocol_interface_info_entry_t *cur);
+
+static void ws_bootstrap_asynch_trickle_stop(protocol_interface_info_entry_t *cur);
+static void ws_bootstrap_advertise_start(protocol_interface_info_entry_t *cur);
 
 typedef enum {
     WS_PARENT_SOFT_SYNCH = 0,  /**< let FHSS make decision if synchronization is needed*/
@@ -163,7 +170,7 @@ void ws_bootstrap_mac_neighbor_short_time_set(struct protocol_interface_info_ent
 {
     mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(interface), src64, MAC_ADDR_MODE_64_BIT);
 
-    if (neighbor && neighbor->link_lifetime != WS_NEIGHBOR_LINK_TIMEOUT) {
+    if (neighbor && neighbor->link_lifetime <= valid_time) {
         //mlme_device_descriptor_t device_desc;
         neighbor->lifetime = valid_time;
         neighbor->link_lifetime = valid_time;
@@ -426,19 +433,47 @@ static void ws_nud_entry_remove(protocol_interface_info_entry_t *cur, mac_neighb
         ws_nud_state_clean(cur, nud_entry);
     }
 }
+if_address_entry_t *ws_probe_aro_address(protocol_interface_info_entry_t *interface)
+{
+    if (interface->global_address_available) {
+        ns_list_foreach(if_address_entry_t, address, &interface->ip_addresses) {
+            if (addr_ipv6_scope(address->address, interface) > IPV6_SCOPE_LINK_LOCAL) {
+                return address;
+            }
+        }
+    }
+    return NULL;
+}
+
 
 static bool ws_nud_message_build(protocol_interface_info_entry_t *cur, mac_neighbor_table_entry_t *neighbor, bool nud_process)
 {
     //Send NS
     uint8_t ll_target[16];
+    aro_t aro_temp;
+    //SET ARO and src address pointer to NULL by default
+    aro_t *aro_ptr = NULL;
+    uint8_t *src_address_ptr = NULL;
+
     ws_bootsrap_create_ll_address(ll_target, neighbor->mac64);
     if (nud_process) {
         tr_info("NUD generate NS %u", neighbor->index);
     } else {
         tr_info("Probe generate NS %u", neighbor->index);
+        if_address_entry_t *gp_address = ws_probe_aro_address(cur);
+        if (gp_address) {
+            src_address_ptr = gp_address->address;
+            aro_temp.status = ARO_SUCCESS;
+            aro_temp.present = true;
+            memcpy(aro_temp.eui64, cur->mac, 8);
+            //Just Short Test
+            aro_temp.lifetime = 1;
+            aro_ptr = &aro_temp;
+        }
     }
-    buffer_t *buffer = icmpv6_build_ns(cur, ll_target, NULL, true, false, NULL);
+    buffer_t *buffer = icmpv6_build_ns(cur, ll_target, src_address_ptr, true, false, aro_ptr);
     if (buffer) {
+        buffer->options.traffic_class = IP_DSCP_CS6 << IP_TCLASS_DSCP_SHIFT;
         protocol_push(buffer);
         return true;
     }
@@ -592,8 +627,9 @@ static uint8_t ws_generate_exluded_channel_list_from_active_channels(ws_excluded
 
 static void ws_fhss_configure_channel_masks(protocol_interface_info_entry_t *cur, fhss_ws_configuration_t *fhss_configuration)
 {
-    ws_generate_channel_list(fhss_configuration->channel_mask, cur->ws_info->hopping_schdule.number_of_channels, cur->ws_info->hopping_schdule.regulatory_domain, cur->ws_info->hopping_schdule.operating_class);
-    ws_generate_channel_list(fhss_configuration->unicast_channel_mask, cur->ws_info->hopping_schdule.number_of_channels, cur->ws_info->hopping_schdule.regulatory_domain, cur->ws_info->hopping_schdule.operating_class);
+    fhss_configuration->channel_mask_size = cur->ws_info->hopping_schdule.number_of_channels;
+    ws_generate_channel_list(fhss_configuration->channel_mask, cur->ws_info->hopping_schdule.number_of_channels, cur->ws_info->hopping_schdule.regulatory_domain, cur->ws_info->hopping_schdule.operating_class, cur->ws_info->hopping_schdule.channel_plan_id);
+    ws_generate_channel_list(fhss_configuration->unicast_channel_mask, cur->ws_info->hopping_schdule.number_of_channels, cur->ws_info->hopping_schdule.regulatory_domain, cur->ws_info->hopping_schdule.operating_class, cur->ws_info->hopping_schdule.channel_plan_id);
     // using bitwise AND operation for user set channel mask to remove channels not allowed in this device
     for (uint8_t n = 0; n < 8; n++) {
         fhss_configuration->unicast_channel_mask[n] &= cur->ws_info->cfg->fhss.fhss_channel_mask[n];
@@ -1518,10 +1554,10 @@ static void ws_bootstrap_pan_advertisement_solicit_analyse(struct protocol_inter
      */
     trickle_consistent_heard(&cur->ws_info->trickle_pan_advertisement_solicit);
     /*
-     *  Optimized PAN discovery to select faster the parent if we hear solicit from someone else
+     *  Optimized PAN discovery to select the parent faster if we hear solicit from someone else
      */
 
-    if (ws_bootstrap_state_discovery(cur)  && cur->ws_info->cfg->gen.network_size <= NETWORK_SIZE_MEDIUM &&
+    if (ws_bootstrap_state_discovery(cur)  && ws_cfg_network_config_get(cur) <= CONFIG_MEDIUM &&
             cur->bootsrap_state_machine_cnt > cur->ws_info->trickle_params_pan_discovery.Imin * 2) {
 
         cur->bootsrap_state_machine_cnt = cur->ws_info->trickle_params_pan_discovery.Imin + randLIB_get_random_in_range(0, cur->ws_info->trickle_params_pan_discovery.Imin);
@@ -1595,10 +1631,15 @@ static void ws_bootstrap_pan_config_analyse(struct protocol_interface_info_entry
 
         //When Config is learned and USE Parent BS is enabled compare is this new BSI
         if (cur->ws_info->configuration_learned && cur->ws_info->pan_information.use_parent_bs && ws_bs_ie.broadcast_schedule_identifier != cur->ws_info->hopping_schdule.fhss_bsi) {
-            tr_debug("NEW Brodcast Schedule %u...BR rebooted", ws_bs_ie.broadcast_schedule_identifier);
-            cur->ws_info->ws_bsi_block.block_time = cur->ws_info->cfg->timing.pan_timeout;
-            cur->ws_info->ws_bsi_block.old_bsi = cur->ws_info->hopping_schdule.fhss_bsi;
-            ws_bootstrap_event_discovery_start(cur);
+            //Accept only next possible BSI number
+            if ((cur->ws_info->hopping_schdule.fhss_bsi + 1) != ws_bs_ie.broadcast_schedule_identifier) {
+                tr_debug("Do not accept a unknown BSI: %u", ws_bs_ie.broadcast_schedule_identifier);
+            } else {
+                tr_debug("NEW Brodcast Schedule %u...BR rebooted", ws_bs_ie.broadcast_schedule_identifier);
+                cur->ws_info->ws_bsi_block.block_time = cur->ws_info->cfg->timing.pan_timeout;
+                cur->ws_info->ws_bsi_block.old_bsi = cur->ws_info->hopping_schdule.fhss_bsi;
+                ws_bootstrap_event_discovery_start(cur);
+            }
             return;
         }
     }
@@ -2007,7 +2048,7 @@ static void ws_neighbor_entry_remove_notify(mac_neighbor_table_entry_t *entry_pt
 
 static uint32_t ws_probe_init_time_get(protocol_interface_info_entry_t *cur)
 {
-    if (cur->ws_info->cfg->gen.network_size <= NETWORK_SIZE_SMALL) {
+    if (ws_cfg_network_config_get(cur) <= CONFIG_SMALL) {
         return WS_SMALL_PROBE_INIT_BASE_SECONDS;
     }
 
@@ -2359,11 +2400,30 @@ int ws_bootstrap_aro_failure(protocol_interface_info_entry_t *cur, const uint8_t
 static int ws_bootstrap_set_domain_rf_config(protocol_interface_info_entry_t *cur)
 {
     phy_rf_channel_configuration_s rf_configs;
+    memset(&rf_configs, 0, sizeof(phy_rf_channel_configuration_s));
+
+    uint8_t phy_mode_id = cur->ws_info->hopping_schdule.phy_mode_id;
+    if (((phy_mode_id >= 34) && (phy_mode_id <= 38)) ||
+            ((phy_mode_id >= 51) && (phy_mode_id <= 54)) ||
+            ((phy_mode_id >= 68) && (phy_mode_id <= 70)) ||
+            ((phy_mode_id >= 84) && (phy_mode_id <= 86))) {
+        rf_configs.modulation = M_OFDM;
+        rf_configs.datarate = ws_get_datarate_using_phy_mode_id(cur->ws_info->hopping_schdule.phy_mode_id);
+        rf_configs.ofdm_option = ws_get_ofdm_option_using_phy_mode_id(cur->ws_info->hopping_schdule.phy_mode_id);
+        rf_configs.ofdm_mcs = ws_get_ofdm_mcs_using_phy_mode_id(cur->ws_info->hopping_schdule.phy_mode_id);
+    } else {
+        if ((phy_mode_id >= 17) && (phy_mode_id <= 24)) {
+            rf_configs.fec = true;
+        } else {
+            rf_configs.fec = false;
+        }
+        rf_configs.modulation = M_2FSK;
+        rf_configs.datarate = ws_get_datarate_using_operating_mode(cur->ws_info->hopping_schdule.operating_mode);
+        rf_configs.modulation_index = ws_get_modulation_index_using_operating_mode(cur->ws_info->hopping_schdule.operating_mode);
+    }
+
     rf_configs.channel_0_center_frequency = (uint32_t)cur->ws_info->hopping_schdule.ch0_freq * 100000;
     rf_configs.channel_spacing = ws_decode_channel_spacing(cur->ws_info->hopping_schdule.channel_spacing);
-    rf_configs.datarate = ws_get_datarate_using_operating_mode(cur->ws_info->hopping_schdule.operating_mode);
-    rf_configs.modulation_index = ws_get_modulation_index_using_operating_mode(cur->ws_info->hopping_schdule.operating_mode);
-    rf_configs.modulation = M_2FSK;
     rf_configs.number_of_channels = cur->ws_info->hopping_schdule.number_of_channels;
     ws_bootstrap_set_rf_config(cur, rf_configs);
     return 0;
@@ -2522,6 +2582,12 @@ static void ws_bootstrap_rpl_callback(rpl_event_t event, void *handle)
             // After successful DAO ACK connection to border router is verified
             cur->ws_info->pan_timeout_timer = cur->ws_info->cfg->timing.pan_timeout;
 
+
+        }
+
+        if (!cur->ws_info->trickle_pa_running || !cur->ws_info->trickle_pc_running) {
+            //Enable wi-sun asynch adverisment
+            ws_bootstrap_advertise_start(cur);
         }
 
         ws_set_fhss_hop(cur);
@@ -2535,6 +2601,12 @@ static void ws_bootstrap_rpl_callback(rpl_event_t event, void *handle)
          * We could send solicit for configuration and then select new parent when those arrive
          *
          */
+
+    } else if (event == RPL_EVENT_LOCAL_REPAIR_START) {
+        tr_debug("RPL local repair start");
+        //Disable Asynchs
+        ws_bootstrap_asynch_trickle_stop(cur);
+        ws_nwk_event_post(cur, ARM_NWK_NWK_CONNECTION_DOWN);
 
     } else if (event == RPL_EVENT_DAO_PARENT_ADD) {
         ws_address_parent_update(cur);
@@ -3024,9 +3096,9 @@ static void ws_bootstrap_rpl_scan_start(protocol_interface_info_entry_t *cur)
     tr_debug("Start RPL learn");
     // routers wait until RPL root is contacted
     ws_bootstrap_state_change(cur, ER_RPL_SCAN);
-    //For Large network and medium shuold do passive scan
-    if (cur->ws_info->cfg->gen.network_size > NETWORK_SIZE_SMALL) {
-        // Set timeout for check to 30 -60 seconds
+    //For Large network and medium should do passive scan
+    if (ws_cfg_network_config_get(cur) > CONFIG_SMALL) {
+        // Set timeout for check to 30 - 60 seconds
         cur->bootsrap_state_machine_cnt = randLIB_get_random_in_range(WS_RPL_DIS_INITIAL_TIMEOUT / 2, WS_RPL_DIS_INITIAL_TIMEOUT);
     }
     /* While in Join State 4, if a non Border Router determines it has been unable to communicate with the PAN Border
@@ -3073,7 +3145,7 @@ static void ws_set_asynch_channel_list(protocol_interface_info_entry_t *cur, asy
         uint16_t channel_number = cur->ws_info->cfg->fhss.fhss_uc_fixed_channel;
         async_req->channel_list.channel_mask[0 + (channel_number / 32)] = (1 << (channel_number % 32));
     } else {
-        ws_generate_channel_list(async_req->channel_list.channel_mask, cur->ws_info->hopping_schdule.number_of_channels, cur->ws_info->hopping_schdule.regulatory_domain, cur->ws_info->hopping_schdule.operating_class);
+        ws_generate_channel_list(async_req->channel_list.channel_mask, cur->ws_info->hopping_schdule.number_of_channels, cur->ws_info->hopping_schdule.regulatory_domain, cur->ws_info->hopping_schdule.operating_class, cur->ws_info->hopping_schdule.channel_plan_id);
     }
 
     async_req->channel_list.channel_page = CHANNEL_PAGE_10;
@@ -3272,6 +3344,8 @@ static void ws_bootstrap_event_handler(arm_event_s *event)
 
             // All trickle timers stopped to allow entry from any state
             ws_bootstrap_asynch_trickle_stop(cur);
+            //Init Packet congestion
+            ws_bootstrap_packet_congestion_init(cur);
 
             if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
                 tr_info("Border router start network");
@@ -3759,6 +3833,80 @@ int ws_bootstrap_get_info(protocol_interface_info_entry_t *cur, struct ws_stack_
     info_ptr->pan_id = cur->ws_info->network_pan_id;
 
     return 0;
+}
+
+//Calculate max_packet queue size
+static uint16_t ws_bootstrap_define_congestin_max_threshold(uint32_t heap_total_size, uint16_t packet_size, uint16_t packet_per_seconds, uint32_t max_delay, uint16_t min_packet_queue_size, uint16_t max_packet_queue_size)
+{
+    uint32_t max_packet_count = 0;
+    if (heap_total_size) {
+        //Claculate how many packet can be max queue to half of heap
+        max_packet_count = (heap_total_size / 2) / packet_size;
+    }
+
+    //Calculate how many packet is possible to queue for guarantee given max delay
+    uint32_t max_delayded_queue_size = max_delay * packet_per_seconds;
+
+    if (max_packet_count > max_delayded_queue_size) {
+        //Limit queue size by MAX delay
+        max_packet_count = max_delayded_queue_size;
+    }
+
+    if (max_packet_count > max_packet_queue_size) {
+        //Limit queue size by Max
+        max_packet_count = max_packet_queue_size;
+    } else if (max_packet_count < min_packet_queue_size) {
+        //Limit queue size by Min
+        max_packet_count = min_packet_queue_size;
+    }
+    return (uint16_t)max_packet_count;
+}
+
+static uint16_t ws_bootstrap_packet_per_seconds(protocol_interface_info_entry_t *cur, uint16_t packet_size)
+{
+    uint32_t data_rate = ws_common_datarate_get(cur);
+
+    //calculate how many packet is possible send in paper
+    data_rate /= 8 * packet_size;
+
+    //Divide optimal  by / 5 because we split TX / RX slots and BC schedule
+    //With Packet size 500 it should return
+    //Return 15 for 300kBits
+    //Return 7 for 150kBits
+    //Return 2 for 50kBits
+    return data_rate / 5;
+}
+
+
+
+static void ws_bootstrap_packet_congestion_init(protocol_interface_info_entry_t *cur)
+{
+    random_early_detection_free(cur->random_early_detection);
+    cur->random_early_detection = NULL;
+
+    //TODO implement API for HEAP info request
+    uint32_t heap_size;
+    const mem_stat_t *mem_stats = ns_dyn_mem_get_mem_stat();
+    if (mem_stats) {
+        heap_size = mem_stats->heap_sector_size;
+    } else {
+        heap_size = 0;
+    }
+
+    uint16_t packet_per_seconds = ws_bootstrap_packet_per_seconds(cur, WS_CONGESTION_PACKET_SIZE);
+
+    uint16_t min_th, max_th;
+
+    if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+        max_th = ws_bootstrap_define_congestin_max_threshold(heap_size, WS_CONGESTION_PACKET_SIZE, packet_per_seconds, WS_CONGESTION_QUEUE_DELAY, WS_CONGESTION_BR_MIN_QUEUE_SIZE, WS_CONGESTION_BR_MAX_QUEUE_SIZE);
+    } else {
+        max_th = ws_bootstrap_define_congestin_max_threshold(heap_size, WS_CONGESTION_PACKET_SIZE, packet_per_seconds, WS_CONGESTION_QUEUE_DELAY, WS_CONGESTION_NODE_MIN_QUEUE_SIZE, WS_CONGESTION_NODE_MAX_QUEUE_SIZE);
+    }
+
+    min_th = max_th / 2;
+    tr_info("Wi-SUN packet congestion minTh %u, maxTh %u, drop probability %u weight %u, Packet/Seconds %u", min_th, max_th, WS_CONGESTION_RED_DROP_PROBABILITY, RED_AVERAGE_WEIGHT_EIGHTH, packet_per_seconds);
+    cur->random_early_detection = random_early_detection_create(min_th, max_th, WS_CONGESTION_RED_DROP_PROBABILITY, RED_AVERAGE_WEIGHT_EIGHTH);
+
 }
 
 #endif //HAVE_WS

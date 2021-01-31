@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_hw.c
-* \version 2.30.4
+* \version 2.40
 *
 * \brief
 *  This file provides the source code to the API for the utils
@@ -36,6 +36,9 @@ extern "C" {
 #include "cy_crypto_core_hw_vu.h"
 #include "cy_syslib.h"
 #include <stdbool.h>
+
+CY_MISRA_DEVIATE_BLOCK_START('MISRA C-2012 Rule 11.3', 4, \
+'CRYPTO_Type will typecast to either CRYPTO_V1_Type or CRYPTO_V2_Type but not both on PDL initialization based on the target device at compile time.');
 
 #if !defined(CY_CRYPTO_SERVICE_LIBRARY_LEVEL)
     #define CY_CRYPTO_SERVICE_LIBRARY_LEVEL CY_CRYPTO_FULL_LIBRARY
@@ -118,6 +121,9 @@ const cy_stc_cryptoIP_t cy_cryptoIpBlockCfgPSoC6_02 =
 *
 * \param base
 * The pointer to the CRYPTO instance.
+
+* \param blockingMode
+* Sets the blocking or non-blocking operation mode.
 *
 * \param instr
 * The Opcode of the called instruction.
@@ -286,6 +292,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_SetVuMemoryAddress(CRYPTO_Type *base,
                     memFrameMask = 0x7Fu;
                     break;
                 default:
+            /* Unknown mask */
                     break;
             }
 
@@ -385,6 +392,7 @@ uint32_t Cy_Crypto_Core_GetVuMemorySize(CRYPTO_Type *base)
                     memSize = 256uL;
                     break;
                 default:
+            /* Unknown mask */
                     break;
             }
         }
@@ -555,6 +563,7 @@ void Cy_Crypto_Core_InvertEndianness(void *inArrPtr, uint32_t byteSize)
 }
 
 /** \} group_crypto_lld_hw_functions */
+CY_MISRA_BLOCK_END('MISRA C-2012 Rule 11.3');
 
 #if defined(__cplusplus)
 }

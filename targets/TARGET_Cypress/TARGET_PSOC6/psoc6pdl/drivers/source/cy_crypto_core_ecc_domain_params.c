@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_ecc_domain_params.c
-* \version 2.30.4
+* \version 2.40
 *
 * \brief
 *  This file provides constant and parameters for the API for the ECC
@@ -38,7 +38,7 @@ extern "C" {
 *
 * Get curve domain parameters if this curve is supported.
 *
-* \param curveID
+* \param curveId
 * See \ref cy_en_crypto_ecc_curve_id_t.
 *
 * \return

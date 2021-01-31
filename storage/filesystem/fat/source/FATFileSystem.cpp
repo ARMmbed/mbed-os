@@ -330,6 +330,11 @@ int FATFileSystem::unmount()
     }
 
     FRESULT res = f_mount(NULL, _fsid, 0);
+    int err = _ffs[_id]->deinit();
+    if (err) {
+        unlock();
+        return err;
+    }
     _ffs[_id] = NULL;
     _id = -1;
     unlock();

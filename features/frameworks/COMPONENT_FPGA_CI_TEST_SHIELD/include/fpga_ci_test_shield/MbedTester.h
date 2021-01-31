@@ -74,6 +74,7 @@ public:
      * map a PinName to a physical pin index.
      */
     typedef uint8_t PhysicalIndex;
+    const PhysicalIndex physical_nc = 0xFF;
 
     /*
      * There are 8 logical pins connected to the peripherals inside the FPGA.

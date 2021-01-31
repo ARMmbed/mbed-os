@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_prot.c
-* \version 1.40
+* \version 1.50
 *
 * \brief
 * Provides an API implementation of the Protection Unit driver
@@ -177,6 +177,8 @@ cy_en_prot_status_t Cy_Prot_SetActivePC(en_prot_master_t busMaster, uint32_t pc)
 
     #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE) && defined(CY_DEVICE_PSOC6ABLE2)
         status = CY_PROT_UNAVAILABLE;
+        CY_UNUSED_PARAMETER(busMaster);
+        CY_UNUSED_PARAMETER(pc);
     #else
         PROT_MPU_MS_CTL(busMaster) = _VAL2FLD(PROT_MPU_MS_CTL_PC, pc) | _VAL2FLD(PROT_MPU_MS_CTL_PC_SAVED, pc);
         status = (_FLD2VAL(PROT_MPU_MS_CTL_PC, PROT_MPU_MS_CTL(busMaster)) != pc) ? CY_PROT_FAILURE : CY_PROT_SUCCESS;
@@ -753,6 +755,7 @@ cy_en_prot_status_t Cy_Prot_GetSmpuStruct(PROT_SMPU_SMPU_STRUCT_Type** base,
             break;
 
         default:
+            /* Unknown request mode */
             break;
     }
 
@@ -825,31 +828,30 @@ static cy_en_prot_status_t Prot_ConfigPpuAtt(volatile uint32_t * reg, uint16_t p
     if (!CY_PERI_V1)
     {
         uint32_t tmpMask = (uint32_t)pcMask << CY_PROT_PCMASK_CHECK;
+        uint32_t tmpMask2;
         uint32_t attReg;
-        uint32_t regIdx;
+        int32_t regIdx;
         uint32_t fldIdx;
 
         status = CY_PROT_SUCCESS;
 
         /* Populate the ATT values */
-        for(regIdx = 0U; regIdx < CY_PROT_ATT_REGS_MAX; regIdx++)
+        /* Note that we have to start with the higher PCs to avoid locking ourselves out */
+        for(regIdx = ((int32_t)CY_PROT_ATT_REGS_MAX - (int32_t)1U); regIdx >= 0; regIdx--)
         {
-            if (0UL == tmpMask)
-            {
-                break;
-            }
+            tmpMask2 = (tmpMask >> (CY_PROT_ATT_PC_MAX * (uint32_t)regIdx)) & 0xFUL;
 
             /* Get the attributes register value */
             attReg = reg[regIdx];
 
             for(fldIdx = 0UL; fldIdx < CY_PROT_ATT_PC_MAX; fldIdx++)
             {
-                if((tmpMask & CY_PROT_PCMASK_CHECK) == CY_PROT_STRUCT_ENABLE)
+                if((tmpMask2 & CY_PROT_PCMASK_CHECK) == CY_PROT_STRUCT_ENABLE)
                 {
                     /* Reset the bitfield for the PCx attributes */
                     attReg &= ~((_VAL2FLD(CY_PROT_ATT_PERI_USER_PERM, CY_PROT_PERM_RW) |
                                  _VAL2FLD(CY_PROT_ATT_PERI_PRIV_PERM, CY_PROT_PERM_RW) |
-                                 _BOOL2FLD(PERI_MS_PPU_PR_V2_MS_ATT0_PC0_NS, true)) <<
+                                 PERI_MS_PPU_PR_V2_MS_ATT0_PC0_NS_Msk) <<
                                 (PERI_MS_PPU_PR_V2_MS_ATT0_PC1_UR_Pos * fldIdx));
 
                     /* Set the bitfield for the PCx attributes */
@@ -858,17 +860,19 @@ static cy_en_prot_status_t Prot_ConfigPpuAtt(volatile uint32_t * reg, uint16_t p
                               _BOOL2FLD(PERI_MS_PPU_PR_V2_MS_ATT0_PC0_NS, !secure)) <<
                                (PERI_MS_PPU_PR_V2_MS_ATT0_PC1_UR_Pos * fldIdx);
                 }
-                tmpMask = tmpMask >> CY_PROT_PCMASK_CHECK;
+                tmpMask2 = tmpMask2 >> CY_PROT_PCMASK_CHECK;
             }
 
             /* Update the attributes register */
             reg[regIdx] = attReg;
 
             /* Check the result */
-            if ((0UL == regIdx) &&
-                ((reg[regIdx] & PROT_PERI_PPU_PROG_PC1_PC3_MASK) != (attReg & PROT_PERI_PPU_PROG_PC1_PC3_MASK)))
+            if (0UL == (uint32_t)regIdx)
             {
-                status = CY_PROT_FAILURE;
+                if ((reg[regIdx] & PROT_PERI_PPU_PROG_PC1_PC3_MASK) != (attReg & PROT_PERI_PPU_PROG_PC1_PC3_MASK))
+                {
+                    status = CY_PROT_FAILURE;
+                }
             }
             else if (reg[regIdx] != attReg)
             {
@@ -948,6 +952,7 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuProgMasterAtt(PERI_MS_PPU_PR_Type* base, ui
     CY_ASSERT_L3(CY_PROT_IS_PROG_MS_PERM_VALID(userPermission));
     CY_ASSERT_L3(CY_PROT_IS_PROG_MS_PERM_VALID(privPermission));
 
+    CY_MISRA_DEVIATE_LINE('MISRA C-2012 Rule 18.1','Checked manually, base pointer will not exceed register range.');
     return (Prot_ConfigPpuAtt(PERI_MS_PPU_PR_MS_ATT(base), pcMask, userPermission, privPermission, secure));
 }
 
@@ -1069,6 +1074,7 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuProgSlaveAtt(PERI_MS_PPU_PR_Type* base, uin
     CY_ASSERT_L3(CY_PROT_IS_PROG_SL_PERM_VALID(userPermission));
     CY_ASSERT_L3(CY_PROT_IS_PROG_SL_PERM_VALID(privPermission));
 
+    CY_MISRA_DEVIATE_LINE('MISRA C-2012 Rule 18.1','Checked manually, base pointer will not exceed register range.');
     return (Prot_ConfigPpuAtt(PERI_MS_PPU_PR_SL_ATT(base), pcMask, userPermission, privPermission, secure));
 }
 
@@ -1229,6 +1235,7 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedMasterAtt(PERI_MS_PPU_FX_Type* base, u
     CY_ASSERT_L3(CY_PROT_IS_FIXED_MS_MS_PERM_VALID(userPermission));
     CY_ASSERT_L3(CY_PROT_IS_FIXED_MS_MS_PERM_VALID(privPermission));
 
+    CY_MISRA_DEVIATE_LINE('MISRA C-2012 Rule 18.1','Checked manually, base pointer will not exceed register range.');
     return (Prot_ConfigPpuAtt(PERI_MS_PPU_FX_MS_ATT(base), pcMask, userPermission, privPermission, secure));
 }
 
@@ -1290,6 +1297,7 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedSlaveAtt(PERI_MS_PPU_FX_Type* base, ui
     CY_ASSERT_L3(CY_PROT_IS_FIXED_MS_PERM_VALID(userPermission));
     CY_ASSERT_L3(CY_PROT_IS_FIXED_MS_PERM_VALID(privPermission));
 
+    CY_MISRA_DEVIATE_LINE('MISRA C-2012 Rule 18.1','Checked manually, base pointer will not exceed register range.');
     return (Prot_ConfigPpuAtt(PERI_MS_PPU_FX_SL_ATT(base), pcMask, userPermission, privPermission, secure));
 }
 
@@ -1744,6 +1752,7 @@ cy_en_prot_status_t Cy_Prot_GetPpuProgStruct(PERI_PPU_PR_Type** base, cy_en_prot
                 break;
 
             default:
+                /* Unknown request mode */
                 break;
         }
 

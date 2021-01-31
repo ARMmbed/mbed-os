@@ -71,6 +71,14 @@
 extern HAL_StatusTypeDef HAL_SPIEx_FlushRxFifo(SPI_HandleTypeDef *hspi);
 #endif
 
+#if defined(SPI_DATASIZE_17BIT) || defined(SPI_DATASIZE_18BIT) || defined(SPI_DATASIZE_19BIT) || defined(SPI_DATASIZE_20BIT) || \
+    defined(SPI_DATASIZE_21BIT) || defined(SPI_DATASIZE_22BIT) || defined(SPI_DATASIZE_23BIT) || defined(SPI_DATASIZE_24BIT) || \
+    defined(SPI_DATASIZE_25BIT) || defined(SPI_DATASIZE_26BIT) || defined(SPI_DATASIZE_27BIT) || defined(SPI_DATASIZE_28BIT) || \
+    defined(SPI_DATASIZE_29BIT) || defined(SPI_DATASIZE_30BIT) || defined(SPI_DATASIZE_31BIT) || defined(SPI_DATASIZE_32BIT)
+
+#define HAS_32BIT_SPI_TRANSFERS 1
+#endif // SPI_DATASIZE_X
+
 void spi_get_capabilities(PinName ssel, bool slave, spi_capabilities_t *cap)
 {
     if (slave) {
@@ -90,7 +98,7 @@ void spi_get_capabilities(PinName ssel, bool slave, spi_capabilities_t *cap)
     } else {
         cap->minimum_frequency = 200000;          // 200 kHz
         cap->maximum_frequency = 2000000;         // 2 MHz
-        cap->word_length = 0x00008080;            // 8 and 16 bit symbols
+        cap->word_length = STM32_SPI_CAPABILITY_WORD_LENGTH;            // Defined in spi_device.h
         cap->support_slave_mode = false;          // to be determined later based on ssel
         cap->hw_cs_handle = false;                // to be determined later based on ssel
         cap->slave_delay_between_symbols_ns = 0;  // irrelevant in master mode
@@ -384,7 +392,153 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     DEBUG_PRINTF("spi_format, bits:%d, mode:%d, slave?:%d\r\n", bits, mode, slave);
 
     // Save new values
-    handle->Init.DataSize          = (bits == 16) ? SPI_DATASIZE_16BIT : SPI_DATASIZE_8BIT;
+    uint32_t DataSize;
+    switch (bits) {
+#if defined(SPI_DATASIZE_4BIT)
+        case 4:
+            DataSize = SPI_DATASIZE_4BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_5BIT)        
+        case 5:
+            DataSize = SPI_DATASIZE_5BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_6BIT)        
+        case 6:
+            DataSize = SPI_DATASIZE_6BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_7BIT)        
+        case 7:
+            DataSize = SPI_DATASIZE_7BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_9BIT)        
+        case 9:
+            DataSize = SPI_DATASIZE_9BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_10BIT)        
+        case 10:
+            DataSize = SPI_DATASIZE_10BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_11BIT)        
+        case 11:
+            DataSize = SPI_DATASIZE_11BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_12BIT)        
+        case 12:
+            DataSize = SPI_DATASIZE_12BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_13BIT)        
+        case 13:
+            DataSize = SPI_DATASIZE_13BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_14BIT)        
+        case 14:
+            DataSize = SPI_DATASIZE_14BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_15BIT)        
+        case 15:
+            DataSize = SPI_DATASIZE_15BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_17BIT)        
+        case 17:
+            DataSize = SPI_DATASIZE_17BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_18BIT)        
+        case 18:
+            DataSize = SPI_DATASIZE_18BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_19BIT)        
+        case 19:
+            DataSize = SPI_DATASIZE_19BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_20BIT)        
+        case 20:
+            DataSize = SPI_DATASIZE_20BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_21BIT)        
+        case 21:
+            DataSize = SPI_DATASIZE_21BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_22BIT)        
+        case 22:
+            DataSize = SPI_DATASIZE_22BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_23BIT)        
+        case 23:
+            DataSize = SPI_DATASIZE_23BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_24BIT)        
+        case 24:
+            DataSize = SPI_DATASIZE_24BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_25BIT)        
+        case 25:
+            DataSize = SPI_DATASIZE_25BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_26BIT)        
+        case 26:
+            DataSize = SPI_DATASIZE_26BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_27BIT)        
+        case 27:
+            DataSize = SPI_DATASIZE_27BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_28BIT)        
+        case 28:
+            DataSize = SPI_DATASIZE_28BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_29BIT)        
+        case 29:
+            DataSize = SPI_DATASIZE_29BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_30BIT)        
+        case 30:
+            DataSize = SPI_DATASIZE_30BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_31BIT)        
+        case 31:
+            DataSize = SPI_DATASIZE_31BIT;
+            break;
+#endif
+#if defined(SPI_DATASIZE_32BIT)        
+        case 32:
+            DataSize = SPI_DATASIZE_32BIT;
+            break;
+#endif
+        case 16:
+            DataSize = SPI_DATASIZE_16BIT;
+            break;
+        // 8 bits is the default for anything not found before
+        default:
+            DataSize = SPI_DATASIZE_8BIT;
+            break;
+    }
+
+    handle->Init.DataSize = DataSize;
 
     switch (mode) {
         case 0:
@@ -512,6 +666,115 @@ static inline int ssp_busy(spi_t *obj)
     return status;
 }
 
+static inline int datasize_to_transfer_bitshift(uint32_t DataSize) {
+    switch (DataSize) {
+#if defined(SPI_DATASIZE_4BIT)
+        case SPI_DATASIZE_4BIT:
+#endif
+#if defined(SPI_DATASIZE_5BIT)        
+        case SPI_DATASIZE_5BIT:
+#endif
+#if defined(SPI_DATASIZE_6BIT)        
+        case SPI_DATASIZE_6BIT:
+#endif
+#if defined(SPI_DATASIZE_7BIT)        
+        case SPI_DATASIZE_7BIT:
+#endif
+        case SPI_DATASIZE_8BIT:
+            return 0;
+#if defined(SPI_DATASIZE_9BIT)        
+        case SPI_DATASIZE_9BIT:
+#endif
+#if defined(SPI_DATASIZE_10BIT)        
+        case SPI_DATASIZE_10BIT:
+#endif
+#if defined(SPI_DATASIZE_11BIT)        
+        case SPI_DATASIZE_11BIT:
+#endif
+#if defined(SPI_DATASIZE_12BIT)        
+        case SPI_DATASIZE_12BIT:
+#endif
+#if defined(SPI_DATASIZE_13BIT)        
+        case SPI_DATASIZE_13BIT:
+#endif
+#if defined(SPI_DATASIZE_14BIT)        
+        case SPI_DATASIZE_14BIT:
+#endif
+#if defined(SPI_DATASIZE_15BIT)        
+        case SPI_DATASIZE_15BIT:
+#endif
+        case SPI_DATASIZE_16BIT:
+            return 1;
+#if defined(SPI_DATASIZE_17BIT)        
+        case SPI_DATASIZE_17BIT:
+            return 2;
+#endif
+#if defined(SPI_DATASIZE_18BIT)        
+        case SPI_DATASIZE_18BIT:
+            return 2;
+#endif
+#if defined(SPI_DATASIZE_19BIT)        
+        case SPI_DATASIZE_19BIT:
+            return 2;
+#endif
+#if defined(SPI_DATASIZE_20BIT)        
+        case SPI_DATASIZE_20BIT:
+            return 2;
+#endif
+#if defined(SPI_DATASIZE_21BIT)        
+        case SPI_DATASIZE_21BIT:
+            return 2;
+#endif
+#if defined(SPI_DATASIZE_22BIT)        
+        case SPI_DATASIZE_22BIT:
+            return 2;
+#endif
+#if defined(SPI_DATASIZE_23BIT)        
+        case SPI_DATASIZE_23BIT:
+            return 2;
+#endif
+#if defined(SPI_DATASIZE_24BIT)        
+        case SPI_DATASIZE_24BIT:
+            return 2;
+#endif
+#if defined(SPI_DATASIZE_25BIT)        
+        case SPI_DATASIZE_25BIT:
+            return 2;
+#endif
+#if defined(SPI_DATASIZE_26BIT)        
+        case SPI_DATASIZE_26BIT:
+            return 2;
+#endif
+#if defined(SPI_DATASIZE_27BIT)        
+        case SPI_DATASIZE_27BIT:
+            return 2;
+#endif
+#if defined(SPI_DATASIZE_28BIT)        
+        case SPI_DATASIZE_28BIT:
+            return 2;
+#endif
+#if defined(SPI_DATASIZE_29BIT)        
+        case SPI_DATASIZE_29BIT:
+            return 2;
+#endif
+#if defined(SPI_DATASIZE_30BIT)        
+        case SPI_DATASIZE_30BIT:
+            return 2;
+#endif
+#if defined(SPI_DATASIZE_31BIT)        
+        case SPI_DATASIZE_31BIT:
+            return 2;
+#endif
+#if defined(SPI_DATASIZE_32BIT)        
+        case SPI_DATASIZE_32BIT:
+            return 2;
+#endif
+        // This point should never be reached, so return a negative value for assertion checking
+        default:
+            return -1;
+    }
+}
+
 int spi_master_write(spi_t *obj, int value)
 {
     struct spi_s *spiobj = SPI_S(obj);
@@ -520,13 +783,15 @@ int spi_master_write(spi_t *obj, int value)
     if (handle->Init.Direction == SPI_DIRECTION_1LINE) {
         return HAL_SPI_Transmit(handle, (uint8_t *)&value, 1, TIMEOUT_1_BYTE);
     }
+    const int bitshift = datasize_to_transfer_bitshift(handle->Init.DataSize);
+    MBED_ASSERT(bitshift >= 0);
 
 #if defined(LL_SPI_RX_FIFO_TH_HALF)
     /*  Configure the default data size */
-    if (handle->Init.DataSize == SPI_DATASIZE_16BIT) {
-        LL_SPI_SetRxFIFOThreshold(SPI_INST(obj), LL_SPI_RX_FIFO_TH_HALF);
-    } else {
+    if (bitshift == 0) {
         LL_SPI_SetRxFIFOThreshold(SPI_INST(obj), LL_SPI_RX_FIFO_TH_QUARTER);
+    } else {
+        LL_SPI_SetRxFIFOThreshold(SPI_INST(obj), LL_SPI_RX_FIFO_TH_HALF);
     }
 #endif
 
@@ -549,8 +814,12 @@ int spi_master_write(spi_t *obj, int value)
 #endif /* TARGET_STM32H7 */
 
     /* Transmit data */
-    if (handle->Init.DataSize == SPI_DATASIZE_16BIT) {
+    if (bitshift == 1) {
         LL_SPI_TransmitData16(SPI_INST(obj), (uint16_t)value);
+#ifdef HAS_32BIT_SPI_TRANSFERS
+    } else if (bitshift == 2) {
+        LL_SPI_TransmitData32(SPI_INST(obj), (uint32_t)value);
+#endif
     } else {
         LL_SPI_TransmitData8(SPI_INST(obj), (uint8_t)value);
     }
@@ -564,8 +833,12 @@ int spi_master_write(spi_t *obj, int value)
 #endif /* TARGET_STM32H7 */
 
     /* Read received data */
-    if (handle->Init.DataSize == SPI_DATASIZE_16BIT) {
+    if (bitshift == 1) {
         return LL_SPI_ReceiveData16(SPI_INST(obj));
+#ifdef HAS_32BIT_SPI_TRANSFERS
+    } else if (bitshift == 2) {
+        return LL_SPI_ReceiveData32(SPI_INST(obj));
+#endif
     } else {
         return LL_SPI_ReceiveData8(SPI_INST(obj));
     }
@@ -614,8 +887,15 @@ int spi_slave_read(spi_t *obj)
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
     while (!ssp_readable(obj));
-    if (handle->Init.DataSize == SPI_DATASIZE_16BIT) {
+    const int bitshift = datasize_to_transfer_bitshift(handle->Init.DataSize);
+    MBED_ASSERT(bitshift >= 0);
+
+    if (bitshift == 1) {
         return LL_SPI_ReceiveData16(SPI_INST(obj));
+#ifdef HAS_32BIT_SPI_TRANSFERS
+    } else if (bitshift == 2) {
+        return LL_SPI_ReceiveData32(SPI_INST(obj));
+#endif
     } else {
         return LL_SPI_ReceiveData8(SPI_INST(obj));
     }
@@ -627,21 +907,17 @@ void spi_slave_write(spi_t *obj, int value)
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
     while (!ssp_writeable(obj));
-    if (handle->Init.DataSize == SPI_DATASIZE_8BIT) {
-        // Force 8-bit access to the data register
-        uint8_t *p_spi_dr = 0;
-#if TARGET_STM32H7
-        p_spi_dr = (uint8_t *) & (spi->TXDR);
-#else /* TARGET_STM32H7 */
-        p_spi_dr = (uint8_t *) & (spi->DR);
-#endif /* TARGET_STM32H7 */
-        *p_spi_dr = (uint8_t)value;
-    } else { // SPI_DATASIZE_16BIT
-#if TARGET_STM32H7
-        spi->TXDR = (uint16_t)value;
-#else /* TARGET_STM32H7 */
-        spi->DR = (uint16_t)value;
-#endif /* TARGET_STM32H7 */
+    const int bitshift = datasize_to_transfer_bitshift(handle->Init.DataSize);
+    MBED_ASSERT(bitshift >= 0);
+
+    if (bitshift == 1) {
+        LL_SPI_TransmitData16(spi, (uint16_t)value);
+#ifdef HAS_32BIT_SPI_TRANSFERS
+    } else if (bitshift == 2) {
+        LL_SPI_TransmitData32(spi, (uint32_t)value);
+#endif
+    } else {
+        LL_SPI_TransmitData8(spi, (uint8_t)value);
     }
 }
 
@@ -704,20 +980,18 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
 {
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
-    bool is16bit = (handle->Init.DataSize == SPI_DATASIZE_16BIT);
+    // bool is16bit = (handle->Init.DataSize == SPI_DATASIZE_16BIT);
+    const int bitshift = datasize_to_transfer_bitshift(handle->Init.DataSize);
+    MBED_ASSERT(bitshift >= 0);
     // the HAL expects number of transfers instead of number of bytes
-    // so for 16 bit transfer width the count needs to be halved
+    // so the number of transfers depends on the container size
     size_t words;
 
     DEBUG_PRINTF("SPI inst=0x%8X Start: %u, %u\r\n", (int)handle->Instance, transfer_type, length);
 
     obj->spi.transfer_type = transfer_type;
 
-    if (is16bit) {
-        words = length / 2;
-    } else {
-        words = length;
-    }
+    words = length >> bitshift;
 
     // enable the interrupt
     IRQn_Type irq_n = spiobj->spiIRQ;
@@ -770,7 +1044,8 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     // check which use-case we have
     bool use_tx = (tx != NULL && tx_length > 0);
     bool use_rx = (rx != NULL && rx_length > 0);
-    bool is16bit = (handle->Init.DataSize == SPI_DATASIZE_16BIT);
+    const int bitshift = datasize_to_transfer_bitshift(handle->Init.DataSize);
+    MBED_ASSERT(bitshift >= 0);
 
     // don't do anything, if the buffers aren't valid
     if (!use_tx && !use_rx) {
@@ -781,7 +1056,7 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     obj->tx_buff.buffer = (void *) tx;
     obj->tx_buff.length = tx_length;
     obj->tx_buff.pos = 0;
-    obj->tx_buff.width = is16bit ? 16 : 8;
+    obj->tx_buff.width = 8 << bitshift;
 
     obj->rx_buff.buffer = rx;
     obj->rx_buff.length = rx_length;

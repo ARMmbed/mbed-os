@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_ecc.h
-* \version 2.30.4
+* \version 2.40
 *
 * \brief
 *  This file provides Elliptic Curve (EC) Scalar Multiplication using (X,Y)-only,
@@ -662,6 +662,7 @@ static void Cy_Crypto_Core_EC_CS_MulRed(CRYPTO_Type *base, uint32_t z, uint32_t 
             Cy_Crypto_Core_EC_CS_MUL_Red_P521(base, z, x);
             break;
         default:
+        /* Unsupported Eliptic Curve ID */
             break;
     }
 }
@@ -1096,6 +1097,7 @@ static void Cy_Crypto_Core_EC_SM_MulRed(CRYPTO_Type *base, uint32_t z, uint32_t 
             Cy_Crypto_Core_EC_SM_MUL_Red_P521(base, z, x);
             break;
         default:
+        /* Unsupported Eliptic Curve ID */
             break;
     }
 }
@@ -1197,8 +1199,6 @@ void Cy_Crypto_Core_EC_Bar_MulRed(CRYPTO_Type *base,
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_EC_MulRed
 ****************************************************************************//**
-*
-* .
 *
 * \param base
 * The pointer to a Crypto instance.
@@ -1456,7 +1456,7 @@ void Cy_Crypto_Core_EC_DivMod( CRYPTO_Type *base,
 
     CY_CRYPTO_VU_SET_TO_ZERO (base, my_v);
 
-    while (1)
+    while (true)
     {
         CY_CRYPTO_VU_CMP_SUB (base, my_a, my_b);
         status0 = Cy_Crypto_Core_Vu_StatusRead(base);
@@ -1922,7 +1922,7 @@ void Cy_Crypto_Core_EC_NistP_SetMode(uint32_t bitsize)
 *
 * \param alg
 * one of {CURVE_SPECIFIC_RED_ALG, SHIFT_MUL_RED_ALG, BARRETT_RED_ALG}.
-* See \ref cy_en_crypto_ecc_red_mul_algs_t.
+* See cy_en_crypto_ecc_red_mul_algs_t.
 *
 *******************************************************************************/
 void Cy_Crypto_Core_EC_NistP_SetRedAlg(cy_en_crypto_ecc_red_mul_algs_t alg)

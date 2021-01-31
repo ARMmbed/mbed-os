@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_syslib.h
-* \version 2.60.1
+* \version 2.70
 *
 * Provides an API declaration of the SysLib driver.
 *
@@ -58,6 +58,12 @@
 * The macro behavior is as follows: if the expression passed
 *  to the macro is false, the CPU is halted. \n
 *
+* Starting from the driver version 2.50, the CY_ASSERT macro was moved
+* to the Cypress Core Library (core-lib). Also, the CY_ASSERT implementation
+* was changed not to call Cy_SysLib_AssertFailed() function, so user application
+* that relied on that should take this change into account. \n
+*
+*
 * The PDL source code uses this assert mechanism extensively. It is recommended
 * that you enable asserts when debugging firmware. \n
 * <b> Assertion Classes and Levels </b> <br />
@@ -108,46 +114,32 @@
 * \section group_syslib_more_information More Information
 * Refer to the technical reference manual (TRM).
 *
-* \section group_syslib_MISRA MISRA-C Compliance
-* <table class="doxtable">
-*   <tr>
-*     <th>MISRA Rule</th>
-*     <th>Rule Class (Required/Advisory)</th>
-*     <th>Rule Description</th>
-*     <th>Description of Deviation(s)</th>
-*   </tr>
-*   <tr>
-*     <td>2.1</td>
-*     <td>R</td>
-*     <td>This function contains a mixture of in-line assembler statements and C statements.</td>
-*     <td>This si required by design of the Cy_SysLib_Halt function.</td>
-*   </tr>
-*   <tr>
-*     <td>18.4</td>
-*     <td>R</td>
-*     <td>Unions shall not be used.</td>
-*     <td>The unions are used for CFSR, HFSR and SHCSR Fault Status Registers
-*         content access as a word in code and as a structure during debug.</td>
-*   </tr>
-* </table>
-*
-* \section group_syslib_errata Known Issues
-*
-* <table class="doxtable">
-*   <tr><th>Issue</th><th>Workaround</th></tr>
-*   <tr>
-*     <td>The function malloc() does not return an error when the allocation
-*         size is bigger than the heap size.
-*     </td>
-*     <td>PDL does not implement the _sbrk function. The user needs to add
-*         custom _sbrk function.
-*     </td>
-*   </tr>
-* </table>
-*
 * \section group_syslib_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td rowspan="4">2.70</td>
+*     <td>Added new macros CY_SECTION_RAMFUNC_BEGIN, CY_SECTION_RAMFUNC_END,
+*         CY_SECTION_SHAREDMEM to enable overriding of the linker section placement.</td>
+*     <td>Enhancement based on usability feedback.</td>
+*   </tr>
+*   <tr>
+*     <td>Noted that implementation of CY_ASSERT() was changed back in version 2.50,
+*         so that Cy_SysLib_AssertFailed() function is not called and user application
+*         may need to be updated.</td>
+*     <td>Documentation update.</td>
+*   </tr>
+*   <tr>
+*     <td>Removed the issue related to the malloc() failure to report error for the case when
+*         requested allocation size is bigger than the heap size.
+*         Refer to the \ref group_system_config_heap_stack_config_gcc section for the more details.
+*         Removed empty Known Issues section.
+*     <td>Documentation update and clarification.</td>
+*   </tr>
+*   <tr>
+*     <td>Fixed/Documented MISRA 2012 violations.</td>
+*     <td>MISRA 2012 compliance.</td>
+*   </tr>
 *   <tr>
 *     <td>2.60.1</td>
 *     <td>Updated the Configuration Considerations section with the information that
@@ -301,6 +293,9 @@ extern "C" {
     /* This is common for driver's code and the usage is not order-dependent. */
     #pragma diag_suppress=Pa082
 #endif  /* defined( __ICCARM__ ) */
+
+CY_MISRA_DEVIATE_BLOCK_START('MISRA C-2012 Rule 8.6', 3, \
+'Coverity does not check the .S assembly files, the definition is a part of syslib assembly source file.');
 
 /**
 * \addtogroup group_syslib_macros
@@ -496,7 +491,30 @@ typedef enum
 #define CY_SYSLIB_DRV_VERSION_MAJOR    2
 
 /** The driver minor version */
-#define CY_SYSLIB_DRV_VERSION_MINOR    60
+#define CY_SYSLIB_DRV_VERSION_MINOR    70
+
+/** Define start of the function placed to the SRAM area by the linker */
+#ifndef CY_SECTION_RAMFUNC_BEGIN
+#if defined (__ICCARM__)
+#define CY_SECTION_RAMFUNC_BEGIN CY_PRAGMA(diag_suppress = Ta023) __ramfunc
+#else
+#define CY_SECTION_RAMFUNC_BEGIN CY_SECTION(".cy_ramfunc")
+#endif
+#endif
+
+/** Define end of the function placed to the SRAM area by the linker */
+#ifndef CY_SECTION_RAMFUNC_END
+#if defined (__ICCARM__)
+#define CY_SECTION_RAMFUNC_END CY_PRAGMA(diag_default = Ta023)
+#else
+#define CY_SECTION_RAMFUNC_END
+#endif
+#endif
+
+/** Define variable to be placed to the shared SRAM area by the linker */
+#ifndef CY_SECTION_SHAREDMEM
+#define CY_SECTION_SHAREDMEM CY_SECTION(".cy_sharedmem")
+#endif
 
 typedef void (* cy_israddress)(void);   /**< Type of ISR callbacks */
 #if defined (__ICCARM__)
@@ -577,17 +595,17 @@ typedef double   float64_t; /**< Specific-length typedef for the basic numerical
 #endif /* CY_ASSERT_LEVEL */
 
 #if (CY_ASSERT_LEVEL == CY_ASSERT_CLASS_1)
-    #define CY_ASSERT_L1(x)         CY_ASSERT(x)     /**< Assert Level 1 */
-    #define CY_ASSERT_L2(x)         do{} while(0)    /**< Assert Level 2 */
-    #define CY_ASSERT_L3(x)         do{} while(0)    /**< Assert Level 3 */
+    #define CY_ASSERT_L1(x)         CY_ASSERT(x)        /**< Assert Level 1 */
+    #define CY_ASSERT_L2(x)         do{}while(false)    /**< Assert Level 2 */
+    #define CY_ASSERT_L3(x)         do{}while(false)    /**< Assert Level 3 */
 #elif (CY_ASSERT_LEVEL == CY_ASSERT_CLASS_2)
-    #define CY_ASSERT_L1(x)         CY_ASSERT(x)     /**< Assert Level 1 */
-    #define CY_ASSERT_L2(x)         CY_ASSERT(x)     /**< Assert Level 2 */
-    #define CY_ASSERT_L3(x)         do{} while(0)    /**< Assert Level 3 */
+    #define CY_ASSERT_L1(x)         CY_ASSERT(x)        /**< Assert Level 1 */
+    #define CY_ASSERT_L2(x)         CY_ASSERT(x)        /**< Assert Level 2 */
+    #define CY_ASSERT_L3(x)         do{}while(false)    /**< Assert Level 3 */
 #else /* Default is Level 3 */
-    #define CY_ASSERT_L1(x)         CY_ASSERT(x)     /**< Assert Level 1 */
-    #define CY_ASSERT_L2(x)         CY_ASSERT(x)     /**< Assert Level 2 */
-    #define CY_ASSERT_L3(x)         CY_ASSERT(x)     /**< Assert Level 3 */
+    #define CY_ASSERT_L1(x)         CY_ASSERT(x)        /**< Assert Level 1 */
+    #define CY_ASSERT_L2(x)         CY_ASSERT(x)        /**< Assert Level 2 */
+    #define CY_ASSERT_L3(x)         CY_ASSERT(x)        /**< Assert Level 3 */
 #endif /* CY_ASSERT_LEVEL == CY_ASSERT_CLASS_1 */
 
 /** \} group_syslib_macros_assert */
@@ -833,6 +851,7 @@ typedef void (* cyisraddress)(void);
 /** \endcond */
 
 /** \} group_syslib_functions */
+CY_MISRA_BLOCK_END('MISRA C-2012 Rule 8.6');
 
 #if defined(__cplusplus)
 }

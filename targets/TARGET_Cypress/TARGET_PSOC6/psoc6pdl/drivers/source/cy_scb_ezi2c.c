@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_scb_ezi2c.c
-* \version 2.50
+* \version 2.60
 *
 * Provides EZI2C API implementation of the SCB driver.
 *
@@ -387,6 +387,7 @@ cy_en_syspm_status_t Cy_SCB_EZI2C_DeepSleepCallback(cy_stc_syspm_callback_params
         break;
 
         default:
+            /* Unknown state */
             break;
     }
 
@@ -477,6 +478,7 @@ cy_en_syspm_status_t Cy_SCB_EZI2C_HibernateCallback(cy_stc_syspm_callback_params
         break;
 
         default:
+        /* Unknown state */
         break;
     }
 
@@ -1169,6 +1171,7 @@ static void HandleDataReceive(CySCB_Type *base, cy_stc_scb_ezi2c_context_t *cont
         break;
 
         default:
+        /* Unknown state */
         break;
     }
 }

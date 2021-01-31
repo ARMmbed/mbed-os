@@ -42,22 +42,22 @@
   
     <ParamRange id="clockInst" name="clockInst" group="Internal" default="`${getInstNumber(&quot;hfclk&quot;)}`" min="0" max="`${NUM_HFROOT-1}`" resolution="1" visible="false" editable="false" desc="" /> 
     <ParamChoice id="sourceClockNumber" name="Source Clock" group="General" default="0" visible="true" editable="true" desc="The clock source for CLK_HF`${clockInst}`">
-      <Entry name="CLK_PATH0"  value="0"  visible="`${NUM_HFROOT >= 1}`"/>
-      <Entry name="CLK_PATH1"  value="1"  visible="`${NUM_HFROOT >= 2}`"/>
-      <Entry name="CLK_PATH2"  value="2"  visible="`${NUM_HFROOT >= 3}`"/>
-      <Entry name="CLK_PATH3"  value="3"  visible="`${NUM_HFROOT >= 4}`"/>
-      <Entry name="CLK_PATH4"  value="4"  visible="`${NUM_HFROOT >= 5}`"/>
-      <Entry name="CLK_PATH5"  value="5"  visible="`${NUM_HFROOT >= 6}`"/>
-      <Entry name="CLK_PATH6"  value="6"  visible="`${NUM_HFROOT >= 7}`"/>
-      <Entry name="CLK_PATH7"  value="7"  visible="`${NUM_HFROOT >= 8}`"/>
-      <Entry name="CLK_PATH8"  value="8"  visible="`${NUM_HFROOT >= 9}`"/>
-      <Entry name="CLK_PATH9"  value="9"  visible="`${NUM_HFROOT >= 10}`"/>
-      <Entry name="CLK_PATH10" value="10" visible="`${NUM_HFROOT >= 11}`"/>
-      <Entry name="CLK_PATH11" value="11" visible="`${NUM_HFROOT >= 12}`"/>
-      <Entry name="CLK_PATH12" value="12" visible="`${NUM_HFROOT >= 13}`"/>
-      <Entry name="CLK_PATH13" value="13" visible="`${NUM_HFROOT >= 14}`"/>
-      <Entry name="CLK_PATH14" value="14" visible="`${NUM_HFROOT >= 15}`"/>
-      <Entry name="CLK_PATH15" value="15" visible="`${NUM_HFROOT >= 16}`"/>
+      <Entry name="CLK_PATH0"  value="0"  visible="`${NUM_CLKPATH >= 1}`"/>
+      <Entry name="CLK_PATH1"  value="1"  visible="`${NUM_CLKPATH >= 2}`"/>
+      <Entry name="CLK_PATH2"  value="2"  visible="`${NUM_CLKPATH >= 3}`"/>
+      <Entry name="CLK_PATH3"  value="3"  visible="`${NUM_CLKPATH >= 4}`"/>
+      <Entry name="CLK_PATH4"  value="4"  visible="`${NUM_CLKPATH >= 5}`"/>
+      <Entry name="CLK_PATH5"  value="5"  visible="`${NUM_CLKPATH >= 6}`"/>
+      <Entry name="CLK_PATH6"  value="6"  visible="`${NUM_CLKPATH >= 7}`"/>
+      <Entry name="CLK_PATH7"  value="7"  visible="`${NUM_CLKPATH >= 8}`"/>
+      <Entry name="CLK_PATH8"  value="8"  visible="`${NUM_CLKPATH >= 9}`"/>
+      <Entry name="CLK_PATH9"  value="9"  visible="`${NUM_CLKPATH >= 10}`"/>
+      <Entry name="CLK_PATH10" value="10" visible="`${NUM_CLKPATH >= 11}`"/>
+      <Entry name="CLK_PATH11" value="11" visible="`${NUM_CLKPATH >= 12}`"/>
+      <Entry name="CLK_PATH12" value="12" visible="`${NUM_CLKPATH >= 13}`"/>
+      <Entry name="CLK_PATH13" value="13" visible="`${NUM_CLKPATH >= 14}`"/>
+      <Entry name="CLK_PATH14" value="14" visible="`${NUM_CLKPATH >= 15}`"/>
+      <Entry name="CLK_PATH15" value="15" visible="`${NUM_CLKPATH >= 16}`"/>
     </ParamChoice>
     
     <!-- If the FLL/PLL are enabled, their output drive the corresponding clock path -->
@@ -89,7 +89,6 @@
     <!-- If the frequency is less than one MHz, display its value in kHz -->
     <ParamString id="frequencyInfo" name="Frequency" group="General" default="`${formatFrequency(frequency,accuracy)}`" visible="true" editable="false" desc="The resulting CLK_HF`${clockInst}` output clock frequency" />    
     <ParamSignal port="root_clk[0]" name="Clock Output" group="General" visible="true" desc="A high-frequency clock output driving specific periperals" canBeEmpty="true" >
-      <Constraint type="DENY" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="`${isBlockUsed(&quot;srss[0].clock[0].ext[0]&quot;)}`" />
       <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
         <Parameter id="DriveModes" severity="DEFAULT" reason="">
           <Fixed value="CY_GPIO_DM_STRONG_IN_OFF" />

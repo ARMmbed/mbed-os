@@ -5,7 +5,7 @@
 * PSoC6_02 family HAL triggers header
 *
 * \note
-* Generator version: 1.5.7254.19579
+* Generator version: 1.6.0.229
 *
 ********************************************************************************
 * \copyright
@@ -29,8 +29,8 @@
 #define _CYHAL_TRIGGERS_PSOC6_02_H_
 
 /**
- * \addtogroup group_hal_psoc6_triggers_psoc6_02 PSOC6_02
- * \ingroup group_hal_psoc6_triggers
+ * \addtogroup group_hal_impl_triggers_psoc6_02 PSOC6_02
+ * \ingroup group_hal_impl_triggers
  * \{
  * Trigger connections for psoc6_02
  */
@@ -168,7 +168,7 @@ extern const uint8_t cyhal_mux_dest_index[107];
 #if defined(__cplusplus)
 }
 #endif /* __cplusplus */
-/** \} group_hal_psoc6_triggers_psoc6_02 */
+/** \} group_hal_impl_triggers_psoc6_02 */
 #endif /* _CYHAL_TRIGGERS_PSOC6_02_H_ */
 
 

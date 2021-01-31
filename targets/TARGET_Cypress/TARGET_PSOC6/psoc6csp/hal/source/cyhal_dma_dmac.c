@@ -36,10 +36,10 @@ extern "C" {
 
 #ifdef CY_IP_M4CPUSS_DMAC
 
-static cyhal_dma_t* cyhal_dmac_config_structs[CPUSS_DMAC_CH_NR];
+static cyhal_dma_t* _cyhal_dma_dmac_config_structs[CPUSS_DMAC_CH_NR];
 
 /** Default dmac descriptor config */
-static const cy_stc_dmac_descriptor_config_t default_descriptor_config_dmac =
+static const cy_stc_dmac_descriptor_config_t _cyhal_dma_dmac_default_descriptor_config =
 {
     .retrigger = CY_DMAC_RETRIG_IM,
     .interruptType = CY_DMAC_DESCR,
@@ -63,7 +63,7 @@ static const cy_stc_dmac_descriptor_config_t default_descriptor_config_dmac =
 };
 
 /** Default dmac channel config */
-static const cy_stc_dmac_channel_config_t default_channel_config_dmac =
+static const cy_stc_dmac_channel_config_t _cyhal_dma_dmac_default_channel_config =
 {
     .descriptor = 0,
     .priority = 1,
@@ -71,26 +71,28 @@ static const cy_stc_dmac_channel_config_t default_channel_config_dmac =
     .bufferable = false,
 };
 
-static bool cyhal_dma_dmac_pm_callback(cyhal_syspm_callback_state_t state, cyhal_syspm_callback_mode_t mode, void* callback_arg);
+static bool _cyhal_dma_dmac_pm_callback(cyhal_syspm_callback_state_t state, cyhal_syspm_callback_mode_t mode, void* callback_arg);
 
-static cyhal_syspm_callback_data_t cyhal_dma_dmac_pm_callback_args = {
-    .callback = &cyhal_dma_dmac_pm_callback,
+static cyhal_syspm_callback_data_t _cyhal_dma_dmac_pm_callback_args = {
+    .callback = &_cyhal_dma_dmac_pm_callback,
     .states = (cyhal_syspm_callback_state_t)(CYHAL_SYSPM_CB_CPU_DEEPSLEEP | CYHAL_SYSPM_CB_SYSTEM_HIBERNATE),
     .next = NULL,
     .args = NULL,
     .ignore_modes = CYHAL_SYSPM_BEFORE_TRANSITION,
 };
-static bool cyhal_dma_dmac_pm_transition_pending = false;
-static bool cyhal_dma_dmac_has_enabled(void)
+static bool _cyhal_dma_dmac_pm_transition_pending = false;
+static bool _cyhal_dma_dmac_has_enabled(void)
 {
     for (uint8_t i = 0; i <  CPUSS_DMAC_CH_NR; i++)
-        if (cyhal_dmac_config_structs[i])
+        if (_cyhal_dma_dmac_config_structs[i])
             return true;
     return false;
 }
 
-static bool cyhal_dma_dmac_pm_callback(cyhal_syspm_callback_state_t state, cyhal_syspm_callback_mode_t mode, void* callback_arg)
+static bool _cyhal_dma_dmac_pm_callback(cyhal_syspm_callback_state_t state, cyhal_syspm_callback_mode_t mode, void* callback_arg)
 {
+    CY_UNUSED_PARAMETER(state);
+    CY_UNUSED_PARAMETER(callback_arg);
     bool block_transition = false;
     switch(mode)
     {
@@ -98,43 +100,44 @@ static bool cyhal_dma_dmac_pm_callback(cyhal_syspm_callback_state_t state, cyhal
 
             for (uint8_t i = 0; i <  CPUSS_DMAC_CH_NR && !block_transition; i++)
             {
-                block_transition |= (cyhal_dmac_config_structs[i] != NULL) && cyhal_dma_is_busy_dmac(cyhal_dmac_config_structs[i]);
+                block_transition |= (_cyhal_dma_dmac_config_structs[i] != NULL) && _cyhal_dma_dmac_is_busy(_cyhal_dma_dmac_config_structs[i]);
             }
-            cyhal_dma_dmac_pm_transition_pending = !block_transition;
+            _cyhal_dma_dmac_pm_transition_pending = !block_transition;
             break;
 
         case CYHAL_SYSPM_CHECK_FAIL:
         case CYHAL_SYSPM_AFTER_TRANSITION:
-            cyhal_dma_dmac_pm_transition_pending = false;
+            _cyhal_dma_dmac_pm_transition_pending = false;
             break;
         default:
             break;
     }
-    return cyhal_dma_dmac_pm_transition_pending;
+    return _cyhal_dma_dmac_pm_transition_pending;
 }
 
 /** Sets the dmac configuration struct */
-static inline void cyhal_dma_set_dmac_obj(cyhal_dma_t *obj)
+static inline void _cyhal_dma_dmac_set_obj(cyhal_dma_t *obj)
 {
-    cyhal_dmac_config_structs[obj->resource.block_num * CPUSS_DMAC_CH_NR + obj->resource.channel_num] = obj;
+    _cyhal_dma_dmac_config_structs[obj->resource.block_num * CPUSS_DMAC_CH_NR + obj->resource.channel_num] = obj;
 }
 
 /** Zeros the dmac configuration struct */
-static inline void cyhal_dma_free_dmac_obj(cyhal_dma_t *obj)
+static inline void _cyhal_dma_dmac_free_obj(cyhal_dma_t *obj)
 {
-    cyhal_dmac_config_structs[obj->resource.block_num * CPUSS_DMAC_CH_NR + obj->resource.channel_num] = NULL;
+    _cyhal_dma_dmac_config_structs[obj->resource.block_num * CPUSS_DMAC_CH_NR + obj->resource.channel_num] = NULL;
 }
 
 /** Gets the dmac configuration struct from block and channel */
-static inline cyhal_dma_t* cyhal_dma_get_dmac_obj(uint8_t block, uint8_t channel)
+static inline cyhal_dma_t* _cyhal_dma_dmac_get_obj(uint8_t block, uint8_t channel)
 {
-    return cyhal_dmac_config_structs[block * CPUSS_DMAC_CH_NR + channel];
+    return _cyhal_dma_dmac_config_structs[block * CPUSS_DMAC_CH_NR + channel];
 }
 
 /** Gets the dmac block number from irq number */
 /** This should never be called from a non-dma IRQn */
-static inline uint8_t cyhal_dma_get_dmac_block_from_irqn(IRQn_Type irqn)
+static inline uint8_t _cyhal_dma_dmac_get_block_from_irqn(IRQn_Type irqn)
 {
+    CY_UNUSED_PARAMETER(irqn);
     /* Since there is only one dmac block this function always returns 0. diff
      * is calculated here only to verify that this was called from a valid
      * IRQn. */
@@ -144,7 +147,7 @@ static inline uint8_t cyhal_dma_get_dmac_block_from_irqn(IRQn_Type irqn)
 
 /** Gets the dmac channel number from irq number */
 /** This should never be called from a non-dma IRQn */
-static inline uint8_t cyhal_dma_get_dmac_channel_from_irqn(IRQn_Type irqn)
+static inline uint8_t _cyhal_dma_dmac_get_channel_from_irqn(IRQn_Type irqn)
 {
     uint8_t diff = irqn - cpuss_interrupts_dmac_0_IRQn;
 
@@ -154,13 +157,13 @@ static inline uint8_t cyhal_dma_get_dmac_channel_from_irqn(IRQn_Type irqn)
 }
 
 /** Gets the irqn corresponding to a particular cyhal_dma_t config struct */
-static inline IRQn_Type cyhal_dma_get_dmac_irqn(cyhal_dma_t *obj)
+static inline IRQn_Type _cyhal_dma_dmac_get_irqn(cyhal_dma_t *obj)
 {
     return (IRQn_Type)((uint8_t)cpuss_interrupts_dmac_0_IRQn + (obj->resource.block_num * CPUSS_DMAC_CH_NR + obj->resource.channel_num));
 }
 
 /** Gets the dmac base pointer from block number */
-static inline DMAC_Type* cyhal_dma_get_dmac_base(uint8_t block_num)
+static inline DMAC_Type* _cyhal_dma_dmac_get_base(uint8_t block_num)
 {
     CY_UNUSED_PARAMETER(block_num);
     return DMAC;
@@ -169,7 +172,7 @@ static inline DMAC_Type* cyhal_dma_get_dmac_base(uint8_t block_num)
 /** Uses tables provided as part of the hal interconnect driver to determine mux
  * trigger group and mux trigger index and then construct the trigger line
  * input parameter to Cy_TrigMux_SwTrigger. */
-static inline uint32_t cyhal_dma_get_dmac_trigger_line(uint8_t block_num, uint8_t channel_num)
+static inline uint32_t _cyhal_dma_dmac_get_trigger_line(uint8_t block_num, uint8_t channel_num)
 {
     /* cyhal_dest_t triggers are guaranteed to be sorted by trigger type, block
      * num, then channel num, therefore, we can just directly find the proper
@@ -182,8 +185,8 @@ static inline uint32_t cyhal_dma_get_dmac_trigger_line(uint8_t block_num, uint8_
     uint8_t trig_group = cyhal_dest_to_mux[trigger];
     /* If hal one to one triggers bit is set: mask it out and set pdl one to
      * one bit */
-    if(trig_group & HAL_TRIGGERS_1TO1_MASK)
-        trig_group = (trig_group & ~HAL_TRIGGERS_1TO1_MASK) | PDL_TRIGGERS_1TO1_MASK;
+    if(trig_group & _CYHAL_DMA_TRIGGERS_1TO1_MASK)
+        trig_group = (trig_group & ~_CYHAL_DMA_TRIGGERS_1TO1_MASK) | _CYHAL_DMA_PDL_TRIGGERS_1TO1_MASK;
 
     /* Construct trigger line which consists of three fields packed into a
      * uint32_t:
@@ -194,7 +197,7 @@ static inline uint32_t cyhal_dma_get_dmac_trigger_line(uint8_t block_num, uint8_
 }
 
 /** Convert PDL interrupt cause to hal dma event */
-static inline cyhal_dma_event_t cyhal_dma_convert_dmac_interrupt_cause(uint32_t cause)
+static inline cyhal_dma_event_t _cyhal_dma_dmac_convert_interrupt_cause(uint32_t cause)
 {
     switch(cause)
     {
@@ -220,32 +223,32 @@ static inline cyhal_dma_event_t cyhal_dma_convert_dmac_interrupt_cause(uint32_t 
 }
 
 /** DMAC irq handler */
-static void cyhal_dma_irq_handler_dmac(void)
+static void _cyhal_dma_dmac_irq_handler(void)
 {
     /* Use irqn to get appropriate config structure */
-    uint8_t block = cyhal_dma_get_dmac_block_from_irqn(CYHAL_GET_CURRENT_IRQN());
-    uint8_t channel = cyhal_dma_get_dmac_channel_from_irqn(CYHAL_GET_CURRENT_IRQN());
-    cyhal_dma_t *obj = cyhal_dma_get_dmac_obj(block, channel);
+    uint8_t block = _cyhal_dma_dmac_get_block_from_irqn(_CYHAL_UTILS_GET_CURRENT_IRQN());
+    uint8_t channel = _cyhal_dma_dmac_get_channel_from_irqn(_CYHAL_UTILS_GET_CURRENT_IRQN());
+    cyhal_dma_t *obj = _cyhal_dma_dmac_get_obj(block, channel);
 
     /* Get interrupt type and call users event callback if they have enabled that event */
-    uint32_t cause = Cy_DMAC_Channel_GetInterruptStatusMasked(cyhal_dma_get_dmac_base(block), channel);
-    cyhal_dma_event_t event_type = cyhal_dma_convert_dmac_interrupt_cause(cause);
-    uint32_t events_to_callback = event_type && obj->irq_cause;
+    uint32_t cause = Cy_DMAC_Channel_GetInterruptStatusMasked(_cyhal_dma_dmac_get_base(block), channel);
+    cyhal_dma_event_t event_type = _cyhal_dma_dmac_convert_interrupt_cause(cause);
+    uint32_t events_to_callback = event_type & obj->irq_cause;
     if(obj->callback_data.callback != NULL && events_to_callback)
     {
         ((cyhal_dma_event_callback_t)obj->callback_data.callback)(obj->callback_data.callback_arg, (cyhal_dma_event_t)events_to_callback);
     }
 
     /* Clear all interrupts */
-    Cy_DMAC_Channel_ClearInterrupt(cyhal_dma_get_dmac_base(block), channel, CY_DMAC_INTR_MASK);
+    Cy_DMAC_Channel_ClearInterrupt(_cyhal_dma_dmac_get_base(block), channel, CY_DMAC_INTR_MASK);
 }
 
-cy_rslt_t cyhal_dma_init_dmac(cyhal_dma_t *obj, uint8_t priority)
+cy_rslt_t _cyhal_dma_dmac_init(cyhal_dma_t *obj, uint8_t priority)
 {
     if(!CY_DMAC_IS_PRIORITY_VALID(priority))
         return CYHAL_DMA_RSLT_ERR_INVALID_PRIORITY;
 
-    if (cyhal_dma_dmac_pm_transition_pending)
+    if (_cyhal_dma_dmac_pm_transition_pending)
     {
         return CYHAL_SYSPM_RSLT_ERR_PM_PENDING;
     }
@@ -255,8 +258,8 @@ cy_rslt_t cyhal_dma_init_dmac(cyhal_dma_t *obj, uint8_t priority)
         return rslt;
 
     /* Setup descriptor and channel configs */
-    obj->descriptor_config.dmac = default_descriptor_config_dmac;
-    obj->channel_config.dmac = default_channel_config_dmac;
+    obj->descriptor_config.dmac = _cyhal_dma_dmac_default_descriptor_config;
+    obj->channel_config.dmac = _cyhal_dma_dmac_default_channel_config;
     obj->channel_config.dmac.descriptor = &obj->descriptor.dmac;
     obj->channel_config.dmac.priority = priority;
 
@@ -264,29 +267,29 @@ cy_rslt_t cyhal_dma_init_dmac(cyhal_dma_t *obj, uint8_t priority)
     obj->callback_data.callback_arg = NULL;
     obj->irq_cause = 0;
 
-    if (!cyhal_dma_dmac_has_enabled())
+    if (!_cyhal_dma_dmac_has_enabled())
     {
-        cyhal_syspm_register_peripheral_callback(&cyhal_dma_dmac_pm_callback_args);
+        _cyhal_syspm_register_peripheral_callback(&_cyhal_dma_dmac_pm_callback_args);
     }
 
-    cyhal_dma_set_dmac_obj(obj);
+    _cyhal_dma_dmac_set_obj(obj);
 
     return CY_RSLT_SUCCESS;
 }
 
-void cyhal_dma_free_dmac(cyhal_dma_t *obj)
+void _cyhal_dma_dmac_free(cyhal_dma_t *obj)
 {
     Cy_DMAC_Descriptor_DeInit(&obj->descriptor.dmac);
-    Cy_DMAC_Channel_DeInit(cyhal_dma_get_dmac_base(obj->resource.block_num), obj->resource.channel_num);
+    Cy_DMAC_Channel_DeInit(_cyhal_dma_dmac_get_base(obj->resource.block_num), obj->resource.channel_num);
 
-    NVIC_DisableIRQ(cyhal_dma_get_dmac_irqn(obj));
+    NVIC_DisableIRQ(_cyhal_dma_dmac_get_irqn(obj));
 
-    cyhal_dma_free_dmac_obj(obj);
+    _cyhal_dma_dmac_free_obj(obj);
 
-    if (!cyhal_dma_dmac_has_enabled())
+    if (!_cyhal_dma_dmac_has_enabled())
     {
-        cyhal_syspm_unregister_peripheral_callback(&cyhal_dma_dmac_pm_callback_args);
-        cyhal_dma_dmac_pm_transition_pending = false;
+        _cyhal_syspm_unregister_peripheral_callback(&_cyhal_dma_dmac_pm_callback_args);
+        _cyhal_dma_dmac_pm_transition_pending = false;
     }
 
     cyhal_hwmgr_free(&obj->resource);
@@ -294,10 +297,10 @@ void cyhal_dma_free_dmac(cyhal_dma_t *obj)
 
 /* Initalize descriptor, initialize channel, enable channel, enable channel
  * interrupt, and enable DMAC controller */
-cy_rslt_t cyhal_dma_configure_dmac(cyhal_dma_t *obj, const cyhal_dma_cfg_t *cfg)
+cy_rslt_t _cyhal_dma_dmac_configure(cyhal_dma_t *obj, const cyhal_dma_cfg_t *cfg)
 {
     /* Do not reconfigure if transfer is pending/active already */
-    if(cyhal_dma_is_busy_dmac(obj))
+    if(_cyhal_dma_dmac_is_busy(obj))
         return CYHAL_DMA_RSLT_ERR_CHANNEL_BUSY;
 
     obj->descriptor_config.dmac.srcAddress = (void*)cfg->src_addr;
@@ -351,7 +354,7 @@ cy_rslt_t cyhal_dma_configure_dmac(cyhal_dma_t *obj, const cyhal_dma_cfg_t *cfg)
         return CYHAL_DMA_RSLT_ERR_INVALID_PARAMETER;
 
     /* Setup channel and enable */
-    DMAC_Type* base = cyhal_dma_get_dmac_base(obj->resource.block_num);
+    DMAC_Type* base = _cyhal_dma_dmac_get_base(obj->resource.block_num);
     if(CY_DMAC_SUCCESS != Cy_DMAC_Channel_Init(base, obj->resource.channel_num, &obj->channel_config.dmac))
         return CYHAL_DMA_RSLT_ERR_INVALID_PARAMETER;
     Cy_DMAC_Channel_SetDescriptor(base, obj->resource.channel_num, &obj->descriptor.dmac);
@@ -373,24 +376,24 @@ cy_rslt_t cyhal_dma_configure_dmac(cyhal_dma_t *obj, const cyhal_dma_cfg_t *cfg)
     }
 
     /* Enable interrupt for this channel */
-    cy_stc_sysint_t irqCfg = { cyhal_dma_get_dmac_irqn(obj), CYHAL_ISR_PRIORITY_DEFAULT };
-    if(CY_SYSINT_SUCCESS != Cy_SysInt_Init(&irqCfg, cyhal_dma_irq_handler_dmac))
+    cy_stc_sysint_t irqCfg = { _cyhal_dma_dmac_get_irqn(obj), CYHAL_ISR_PRIORITY_DEFAULT };
+    if(CY_SYSINT_SUCCESS != Cy_SysInt_Init(&irqCfg, _cyhal_dma_dmac_irq_handler))
         return CYHAL_DMA_RSLT_ERR_INVALID_PARAMETER;
     NVIC_EnableIRQ(irqCfg.intrSrc);
 
     return CY_RSLT_SUCCESS;
 }
 
-cy_rslt_t cyhal_dma_start_transfer_dmac(cyhal_dma_t *obj)
+cy_rslt_t _cyhal_dma_dmac_start_transfer(cyhal_dma_t *obj)
 {
     /* Return warning if channel is busy */
-    if(cyhal_dma_is_busy_dmac(obj))
+    if(_cyhal_dma_dmac_is_busy(obj))
         return CYHAL_DMA_RSLT_WARN_TRANSFER_ALREADY_STARTED;
 
-    if (cyhal_dma_dmac_pm_transition_pending)
+    if (_cyhal_dma_dmac_pm_transition_pending)
         return CYHAL_SYSPM_RSLT_ERR_PM_PENDING;
 
-    uint32_t trigline = cyhal_dma_get_dmac_trigger_line(obj->resource.block_num, obj->resource.channel_num);
+    uint32_t trigline = _cyhal_dma_dmac_get_trigger_line(obj->resource.block_num, obj->resource.channel_num);
     cy_en_trigmux_status_t trig_status = Cy_TrigMux_SwTrigger(trigline, CY_TRIGGER_TWO_CYCLES);
 
     /* Also return warning if SW trigger is already initated but DMA hardware
@@ -401,20 +404,20 @@ cy_rslt_t cyhal_dma_start_transfer_dmac(cyhal_dma_t *obj)
         return CY_RSLT_SUCCESS;
 }
 
-void cyhal_dma_enable_event_dmac(cyhal_dma_t *obj, cyhal_dma_event_t event, uint8_t intr_priority, bool enable)
+void _cyhal_dma_dmac_enable_event(cyhal_dma_t *obj, cyhal_dma_event_t event, uint8_t intr_priority, bool enable)
 {
     if(enable)
         obj->irq_cause |= event;
     else
         obj->irq_cause &= ~event;
 
-    NVIC_SetPriority(cyhal_dma_get_dmac_irqn(obj), intr_priority);
+    NVIC_SetPriority(_cyhal_dma_dmac_get_irqn(obj), intr_priority);
 }
 
-bool cyhal_dma_is_busy_dmac(cyhal_dma_t *obj)
+bool _cyhal_dma_dmac_is_busy(cyhal_dma_t *obj)
 {
     /* The ACTIVE register is a bit field of all pending or active channels */
-    return cyhal_dma_get_dmac_base(obj->resource.block_num)->ACTIVE & (1 << obj->resource.channel_num);
+    return _cyhal_dma_dmac_get_base(obj->resource.block_num)->ACTIVE & (1 << obj->resource.channel_num);
 }
 
 #endif /* CY_IP_M4CPUSS_DMAC */

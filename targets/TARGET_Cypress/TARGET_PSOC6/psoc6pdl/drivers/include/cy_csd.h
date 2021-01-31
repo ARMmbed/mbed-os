@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_csd.h
-* \version 1.10.1
+* \version 1.10.2
 *
 * The header file of the CSD driver.
 *
@@ -280,37 +280,15 @@
 * * <a href="http://www.cypress.com/an210781"><b>AN210781 Getting Started with PSoC 6 MCU with Bluetooth Low Energy (BLE) Connectivity</b></a>
 *
 ********************************************************************************
-* \section group_csd_MISRA MISRA-C Compliance
-********************************************************************************
-* <table class="doxtable">
-*   <tr>
-*     <th>MISRA Rule</th>
-*     <th>Rule Class (Required/Advisory)</th>
-*     <th>Rule Description</th>
-*     <th>Description of Deviation(s)</th>
-*   </tr>
-*   <tr>
-*     <td>14.2</td>
-*     <td>R</td>
-*     <td>All non-null statements shall either: a) have at least one side-effect
-*         however executed, or b) cause control flow to change.</td>
-*     <td>The unused function parameters are cast to void. This statement
-*         has no side effect and is used to suppress a compiler warning.</td>
-*   </tr>
-*   <tr>
-*     <td>20.6</td>
-*     <td>R</td>
-*     <td>The macro offsetof, in library <stddef.h>, shall not be used.</td>
-*     <td>The only CSD HW block register offsets are defined using this macro 
-*         to implement functions Read/WriteReg.</td>
-*   </tr>
-* </table>
-*
-********************************************************************************
 * \section group_csd_changelog Changelog
 ********************************************************************************
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.10.2</td>
+*     <td>Documentation updates</td>
+*     <td>Documented MISRA 2012 violations</td>
+*   </tr>
 *   <tr>
 *     <td>1.10.1</td>
 *     <td>Documentation updates</td>

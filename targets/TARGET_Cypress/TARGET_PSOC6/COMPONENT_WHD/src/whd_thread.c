@@ -43,6 +43,7 @@
 #include "whd_poll.h"
 #include "whd_sdpcm.h"
 #include "whd_buffer_api.h"
+#include "whd_chip_constants.h"
 
 /******************************************************
 *             Static Function Prototypes
@@ -304,6 +305,9 @@ static void whd_thread_func(whd_thread_arg_t thread_input)
             /* Check if the interrupt indicated there is a packet to read */
             if (whd_bus_packet_available_to_read(whd_driver) != 0)
             {
+                /* workaround solution for CMD53 error on PSOC6 1M + 4343w */
+                if (whd_chip_get_chip_id(whd_driver) == 43430)
+                    (void )cy_rtos_delay_milliseconds( (uint32_t)1 );
                 /* Receive all available packets */
                 do
                 {

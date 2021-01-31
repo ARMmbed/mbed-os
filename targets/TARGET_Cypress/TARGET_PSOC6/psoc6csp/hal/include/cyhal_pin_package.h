@@ -23,8 +23,8 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_hal_psoc6_pin_package Pins
-* \ingroup group_hal_psoc6
+* \addtogroup group_hal_impl_pin_package Pins
+* \ingroup group_hal_impl
 * \{
 * Definitions for the pinout for each supported device
 */
@@ -118,6 +118,12 @@ typedef uint16_t cyhal_gpio_mapping_cfg_t; // 8bit hsiom, 8bit mode
 #include "pin_packages/cyhal_psoc6_03_49_wlcsp.h"
 #elif defined(_GPIO_PSOC6_03_68_QFN_H_)
 #include "pin_packages/cyhal_psoc6_03_68_qfn.h"
+#elif defined (_GPIO_PSOC6_04_64_TQFP_H_)
+#include "pin_packages/cyhal_psoc6_04_64_tqfp.h"
+#elif defined (_GPIO_PSOC6_04_68_QFN_H_)
+#include "pin_packages/cyhal_psoc6_04_68_qfn.h"
+#elif defined (_GPIO_PSOC6_04_80_TQFP_H_)
+#include "pin_packages/cyhal_psoc6_04_80_tqfp.h"
 #elif defined(_GPIO_PLAYER_128_TQFP_H_)
 #include "pin_packages/cyhal_mxs28playermcuss_128_tqfp.h"
 #else
@@ -128,4 +134,4 @@ typedef uint16_t cyhal_gpio_mapping_cfg_t; // 8bit hsiom, 8bit mode
 }
 #endif /* __cplusplus */
 
-/** \} group_hal_psoc6 */
+/** \} group_hal_impl */

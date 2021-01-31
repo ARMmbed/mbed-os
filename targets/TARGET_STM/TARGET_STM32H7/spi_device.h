@@ -19,4 +19,7 @@
 #include "stm32h7xx_ll_rcc.h"
 #include "stm32h7xx_ll_spi.h"
 
+// Defines the word legnth capability of the device where Nth bit allows for N window size
+#define STM32_SPI_CAPABILITY_WORD_LENGTH (0xFFFFFFF8)
+
 #endif

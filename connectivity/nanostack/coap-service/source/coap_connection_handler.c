@@ -66,7 +66,9 @@ static NS_LIST_DEFINE(socket_list, internal_socket_t, link);
 static uint8_t max_handshakes = MAX_ONGOING_HANDSHAKES;
 static uint8_t max_sessions = MAX_SECURE_SESSION_COUNT;
 
+#ifdef COAP_SECURITY_AVAILABLE
 static void timer_cb(void *param);
+#endif
 
 static void recv_sckt_msg(void *cb_res);
 #ifdef COAP_SECURITY_AVAILABLE
@@ -122,6 +124,7 @@ static secure_session_t *secure_session_find_by_timer_id(int8_t timer_id)
     return this;
 }
 
+#ifdef COAP_SECURITY_AVAILABLE
 static bool is_secure_session_valid(secure_session_t *session)
 {
     ns_list_foreach(secure_session_t, cur_ptr, &secure_session_list) {
@@ -131,6 +134,7 @@ static bool is_secure_session_valid(secure_session_t *session)
     }
     return false;
 }
+#endif
 
 static void secure_session_delete(secure_session_t *this)
 {
@@ -164,6 +168,7 @@ static int8_t virtual_socket_id_allocate()
 
 static secure_session_t *secure_session_create(internal_socket_t *parent, const uint8_t *address_ptr, uint16_t port, SecureConnectionMode secure_mode)
 {
+    (void) secure_mode;
     uint8_t handshakes = 0;
     if (!address_ptr) {
         return NULL;
@@ -493,6 +498,7 @@ static int secure_session_recvfrom(int8_t socket_id, unsigned char *buf, size_t 
  * TODO - might be better to use an event timer in conjunction with
  * CoAP tasklet
  */
+#ifdef COAP_SECURITY_AVAILABLE
 static void timer_cb(void *param)
 {
     secure_session_t *sec = param;
@@ -524,6 +530,7 @@ static void timer_cb(void *param)
         }
     }
 }
+#endif
 
 #ifdef COAP_SECURITY_AVAILABLE
 static void start_timer(int8_t timer_id, uint32_t int_ms, uint32_t fin_ms)

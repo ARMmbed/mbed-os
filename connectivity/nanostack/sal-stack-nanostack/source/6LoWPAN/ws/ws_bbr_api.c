@@ -176,12 +176,12 @@ static void ws_bbr_rpl_version_timer_start(protocol_interface_info_entry_t *cur,
         //stable version for RPL so slow timer update is ok
         cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME;
     } else {
-        if (cur->ws_info->cfg->gen.network_size <= NETWORK_SIZE_SMALL) {
-            // handles also NETWORK_SIZE_CERTIFICATE
+        if (ws_cfg_network_config_get(cur) <= CONFIG_SMALL) {
+            // Also handles CONFIG_CERTIFICATE
             cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_SMALL;
-        } else if (cur->ws_info->cfg->gen.network_size <= NETWORK_SIZE_MEDIUM) {
+        } else if (ws_cfg_network_config_get(cur) <= CONFIG_MEDIUM) {
             cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_MEDIUM;
-        } else if (cur->ws_info->cfg->gen.network_size <= NETWORK_SIZE_LARGE) {
+        } else if (ws_cfg_network_config_get(cur) <= CONFIG_LARGE) {
             cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_LARGE;
         } else  {
             cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_EXTRA_LARGE;
@@ -712,11 +712,13 @@ void ws_bbr_pan_version_increase(protocol_interface_info_entry_t *cur)
         return;
     }
     tr_debug("Border router version number update");
-    if (configuration & BBR_REQUIRE_DAO_REFRESH) {
+    if (configuration & BBR_PERIODIC_VERSION_INC) {
+        // Periodically increase the version number.
+        // This removes need for DAO, but causes slowness in recovery
+        pan_version_timer = cur->ws_info->cfg->timing.pan_timeout / PAN_VERSION_CHANGE_INTERVAL;
+    } else {
         // Version number is not periodically increased forcing nodes to check Border router availability using DAO
         pan_version_timer = 0;
-    } else {
-        pan_version_timer = cur->ws_info->cfg->timing.pan_timeout / PAN_VERSION_CHANGE_INTERVAL;
     }
     cur->ws_info->pan_information.pan_version++;
     // Inconsistent for border router to make information distribute faster
@@ -923,12 +925,16 @@ int ws_bbr_configure(int8_t interface_id, uint16_t options)
 
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
-    if (protocol_6lowpan_rpl_root_dodag &&
-            options != configuration) {
-        //Configuration changed delete previous setup
-        ws_bbr_routing_stop(cur);
+    if (options == configuration) {
+        return 0;
     }
+    //Configuration changed
     configuration = options;
+    if (protocol_6lowpan_rpl_root_dodag) {
+        // Already active needs to restart
+        ws_bbr_routing_stop(cur);
+        ws_bbr_pan_version_increase(cur);
+    }
     return 0;
 #else
     (void)interface_id;

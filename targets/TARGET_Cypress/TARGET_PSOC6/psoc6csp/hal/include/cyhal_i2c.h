@@ -99,9 +99,10 @@ PSoC 6 MCU: I2C Slave Using Callbacks</b></a>
 extern "C" {
 #endif
 
-/** \addtogroup group_hal_results
+/** \addtogroup group_hal_results_i2c I2C HAL Results
+ *  I2C specific return codes
+ *  \ingroup group_hal_results
  *  \{ *//**
- *  \{ @name I2C Results
  */
 
 /** The requested resource type is invalid */
@@ -123,9 +124,13 @@ extern "C" {
 #define CYHAL_I2C_RSLT_ERR_PM_CALLBACK  				\
 	(CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_I2C, 5))
 /**
- * \} \}
+ * \}
  */
 
+/** Named define for Slave mode for use when initializing the \ref cyhal_i2c_cfg_t structure. */
+#define CYHAL_I2C_MODE_SLAVE (true)
+/** Named define for Master mode for use when initializing the \ref cyhal_i2c_cfg_t structure. */
+#define CYHAL_I2C_MODE_MASTER (false)
 
 /** Enum to enable/disable/report interrupt cause flags. */
 typedef enum

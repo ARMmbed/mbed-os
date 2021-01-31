@@ -70,9 +70,10 @@
 extern "C" {
 #endif
 
-/** \addtogroup group_hal_results
+/** \addtogroup group_hal_results_rtc RTC HAL Results
+ *  RTC specific return codes
+ *  \ingroup group_hal_results
  *  \{ *//**
- *  \{ @name RTC Results
  */
 
 /** RTC not initialized */
@@ -83,12 +84,12 @@ extern "C" {
     (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_RTC, 1))
 
 /**
- * \} \}
+ * \}
  */
 
 /** RTC interrupt triggers */
 typedef enum {
-    CYHAL_RTC_ALARM,
+    CYHAL_RTC_ALARM, /**< Alarm triggered event */
 } cyhal_rtc_event_t;
 
 /** @brief Defines which fields should be active for the alarm. */
@@ -126,12 +127,13 @@ typedef struct
         {
             uint32_t dayOfWeek;      /**< Day of the week, starting on Sunday, range[0-6] */
             uint32_t weekOfMonth;    /**< Week of month, range[0-5]. Where 5 => Last week of month */
-        };
-    };
+        };                           /**< Anonymous struct specifying the week number plus day of week */
+    };                               /**< Anonymous union for the day as either a specific day (dayOfMonth)
+                                          or as a week number (weekOfMonth) plus day of week (dayOfWeek) */
     uint32_t month;                  /**< Month value, range[1-12]. */
 } cyhal_rtc_dst_t;
 
-/** Handler for RTC events */
+/** Handler for RTC events (eg: alarm) */
 typedef void (*cyhal_rtc_event_callback_t)(void *callback_arg, cyhal_rtc_event_t event);
 
 /** Initialize the RTC peripheral
@@ -142,6 +144,8 @@ typedef void (*cyhal_rtc_event_callback_t)(void *callback_arg, cyhal_rtc_event_t
  * NOTE: Before calling this, make sure all necessary System Clocks are setup
  * correctly. Generally this means making sure the RTC has access to a crystal
  * oscillator for optimal accuracy and operation in low power.
+ * NOTE: Previously set time configurations are retained. This will only reset
+ * the time if no prior configuration can be determined.
  *
  * @param[out] obj  Pointer to an RTC object. The caller must allocate the memory
  *  for this object but the init function will initialize its contents.
@@ -200,7 +204,10 @@ cy_rslt_t cyhal_rtc_set_dst(cyhal_rtc_t *obj, const cyhal_rtc_dst_t *start, cons
  */
 bool cyhal_rtc_is_dst(cyhal_rtc_t *obj);
 
-/** Set an alarm for the specified time and date using the RTC peripheral
+/** Set an alarm (interrupt) for the specified time and date using the RTC peripheral
+ *
+ * This requires that a callback handler is registered by \ref cyhal_rtc_register_callback and that
+ * the \ref CYHAL_RTC_ALARM event is enabled by \ref cyhal_rtc_enable_event.
  *
  * @param[in] obj    RTC object
  * @param[in] time   The alarm time to be set (see: https://en.cppreference.com/w/cpp/chrono/c/tm)
@@ -209,7 +216,10 @@ bool cyhal_rtc_is_dst(cyhal_rtc_t *obj);
  */
 cy_rslt_t cyhal_rtc_set_alarm(cyhal_rtc_t *obj, const struct tm *time, cyhal_alarm_active_t active);
 
-/** Set an alarm at a specified number of seconds in the future
+/** Set an alarm (interrupt) at a specified number of seconds in the future
+ *
+ * This requires that a callback handler is registered by \ref cyhal_rtc_register_callback and that
+ * the \ref CYHAL_RTC_ALARM event is enabled by \ref cyhal_rtc_enable_event.
  *
  * @param[in] obj     RTC object
  * @param[in] seconds The number of seconds in the future for the alarm to be
@@ -229,7 +239,7 @@ cy_rslt_t cyhal_rtc_set_alarm_by_seconds(cyhal_rtc_t *obj, const uint32_t second
  */
 void cyhal_rtc_register_callback(cyhal_rtc_t *obj, cyhal_rtc_event_callback_t callback, void *callback_arg);
 
-/** Configure RTC event enablement.
+/** Configure RTC event (eg: alarm) enablement.
  *
  * When an enabled event occurs, the function specified by \ref cyhal_rtc_register_callback will be called.
  *

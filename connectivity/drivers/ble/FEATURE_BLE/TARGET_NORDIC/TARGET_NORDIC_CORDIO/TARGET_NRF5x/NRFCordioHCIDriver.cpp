@@ -326,8 +326,10 @@ void NRFCordioHCIDriver::do_terminate()
 
 void NRFCordioHCIDriver::start_reset_sequence()
 {
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     // Make sure extended adv is init
     DmExtAdvInit();
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
     CordioHCIDriver::start_reset_sequence();
 }

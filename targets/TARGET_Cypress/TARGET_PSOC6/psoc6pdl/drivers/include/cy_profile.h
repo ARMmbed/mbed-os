@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_profile.h
-* \version 1.20.1
+* \version 1.30
 *
 * Provides an API declaration of the energy profiler driver.
 *
@@ -148,31 +148,14 @@
 *
 * See the profiler chapter of the device technical reference manual (TRM).
 *
-* \section group_profile_MISRA MISRA-C Compliance
-* <table class="doxtable">
-*   <tr>
-*     <th>MISRA Rule</th>
-*     <th>Rule Class (Required/Advisory)</th>
-*     <th>Rule Description</th>
-*     <th>Description of Deviation(s)</th>
-*   </tr>
-*   <tr>
-*     <td>12.4</td>
-*     <td>R</td>
-*     <td>Right hand operand of '&&' or '||' is an expression with possible side effects.</td>
-*     <td>Function-like macros are used to achieve more efficient code.</td>
-*   </tr>
-*   <tr>
-*     <td>16.7</td>
-*     <td>A</td>
-*     <td>A pointer parameter can be of type 'pointer to const'.</td>
-*     <td>The pointer is cast for comparison purposes and thus can't be a const.</td>
-*   </tr>
-* </table>
-*
 * \section group_profile_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.30</td>
+*     <td>Fixed MISRA 2012 violations.</td>
+*     <td>MISRA 2012 compliance.</td>
+*   </tr>
 *   <tr>
 *     <td>1.20.1</td>
 *     <td>Minor documentation updates.</td>
@@ -239,7 +222,7 @@ extern "C" {
 #define CY_PROFILE_DRV_VERSION_MAJOR  1
 
 /** Driver minor version */
-#define CY_PROFILE_DRV_VERSION_MINOR  20
+#define CY_PROFILE_DRV_VERSION_MINOR  30
 
 /** Profile driver identifier */
 #define CY_PROFILE_ID   CY_PDL_DRV_ID(0x1EU)

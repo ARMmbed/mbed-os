@@ -32,4 +32,7 @@
 
 #include "stm32l1xx_ll_spi.h"
 
+// Defines the word legnth capability of the device where Nth bit allows for N window size
+#define STM32_SPI_CAPABILITY_WORD_LENGTH (0x00008080)
+
 #endif

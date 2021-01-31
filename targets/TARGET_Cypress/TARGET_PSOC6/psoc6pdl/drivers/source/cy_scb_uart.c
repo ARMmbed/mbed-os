@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_scb_uart.c
-* \version 2.50
+* \version 2.60
 *
 * Provides UART API implementation of the SCB driver.
 *
@@ -81,8 +81,8 @@ cy_en_scb_uart_status_t Cy_SCB_UART_Init(CySCB_Type *base, cy_stc_scb_uart_confi
     CY_ASSERT_L2(CY_SCB_UART_IS_DATA_WIDTH_VALID  (config->dataWidth));
     CY_ASSERT_L2(CY_SCB_UART_IS_ADDRESS_VALID     (config->receiverAddress));
     CY_ASSERT_L2(CY_SCB_UART_IS_ADDRESS_MASK_VALID(config->receiverAddressMask));
-    CY_ASSERT_L2(CY_SCB_UART_IS_MUTLI_PROC_VALID  (config->enableMutliProcessorMode, config->uartMode, config->dataWidth,
-                                                   config->parity));
+
+    CY_ASSERT_L2(CY_SCB_UART_IS_MUTLI_PROC_VALID  (config->enableMutliProcessorMode, config->uartMode, config->dataWidth, config->parity));
 
     CY_ASSERT_L2(CY_SCB_IS_INTR_VALID(config->rxFifoIntEnableMask, CY_SCB_UART_RX_INTR_MASK));
     CY_ASSERT_L2(CY_SCB_IS_INTR_VALID(config->txFifoIntEnableMask, CY_SCB_UART_TX_INTR_MASK));
@@ -367,6 +367,7 @@ cy_en_syspm_status_t Cy_SCB_UART_DeepSleepCallback(cy_stc_syspm_callback_params_
         break;
 
         default:
+            /* Unknown state */
             break;
     }
 
@@ -558,7 +559,7 @@ uint32_t Cy_SCB_UART_GetNumInRingBuffer(CySCB_Type const *base, cy_stc_scb_uart_
     }
     else
     {
-        size = (locHead + (context->rxBufSize - context->rxRingBufTail));
+        size = (locHead + (context->rxRingBufSize - context->rxRingBufTail));
     }
 
     return (size);

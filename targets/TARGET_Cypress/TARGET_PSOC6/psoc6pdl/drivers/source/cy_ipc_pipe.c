@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ipc_pipe.c
-* \version 1.40.2
+* \version 1.50
 *
 *  Description:
 *   IPC Pipe Driver - This source file includes code for the Pipe layer on top
@@ -107,6 +107,7 @@ void Cy_IPC_Pipe_Init(cy_stc_ipc_pipe_config_t const *config)
 
     /* Configure CM0 interrupts */
     ipc_intr_cypipeConfig.intrSrc          = (IRQn_Type)epConfigDataA.ipcNotifierMuxNumber;
+    CY_MISRA_DEVIATE_LINE('MISRA C-2012 Rule 10.8','Intentional typecast to IRQn_Type enum');
     ipc_intr_cypipeConfig.cm0pSrc          = (cy_en_intr_t)((int32_t)cy_device->cpussIpc0Irq + (int32_t)epConfigDataA.ipcNotifierNumber);
     ipc_intr_cypipeConfig.intrPriority     = epConfigDataA.ipcNotifierPriority;
 
@@ -117,6 +118,7 @@ void Cy_IPC_Pipe_Init(cy_stc_ipc_pipe_config_t const *config)
     epConfigDataB = config->ep0ConfigData;
 
     /* Configure interrupts */
+    CY_MISRA_DEVIATE_LINE('MISRA C-2012 Rule 10.8','Intentional typecast to IRQn_Type enum');
     ipc_intr_cypipeConfig.intrSrc          = (IRQn_Type)((int32_t)cy_device->cpussIpc0Irq + (int32_t)epConfigDataA.ipcNotifierNumber);
     ipc_intr_cypipeConfig.intrPriority     = epConfigDataA.ipcNotifierPriority;
 
@@ -130,7 +132,7 @@ void Cy_IPC_Pipe_Init(cy_stc_ipc_pipe_config_t const *config)
                              &ipc_intr_cypipeConfig);
 
     /* Create the endpoints for the CM4 just for reference */
-    Cy_IPC_Pipe_EndpointInit(epConfigDataB.epAddress, NULL, 0ul, epConfigDataB.epConfig, NULL);
+    Cy_IPC_Pipe_EndpointInit(epConfigDataB.epAddress, NULL, 0UL, epConfigDataB.epConfig, NULL);
 
     (void)Cy_SysInt_Init(&ipc_intr_cypipeConfig, config->userPipeIsrHandler);
 
@@ -267,13 +269,13 @@ cy_en_ipc_pipe_status_t Cy_IPC_Pipe_SendMessage(uint32_t toAddr, uint32_t fromAd
     fromEp = &cy_ipc_pipe_epArray[fromAddr];
 
     /* Create the release mask for the "fromAddr" channel's interrupt channel */
-    releaseMask =  (uint32_t)(1ul << (fromEp->intrChan));
+    releaseMask =  (uint32_t)(1UL << (fromEp->intrChan));
 
     /* Shift into position */
     releaseMask = _VAL2FLD(CY_IPC_PIPE_MSG_RELEASE, releaseMask);
 
     /* Create the notify mask for the "toAddr" channel's interrupt channel */
-    notifyMask  =  (uint32_t)(1ul << (toEp->intrChan));
+    notifyMask  =  (uint32_t)(1UL << (toEp->intrChan));
 
     /* Check if IPC channel valid */
     if( toEp->ipcPtr != NULL)
@@ -481,7 +483,7 @@ void Cy_IPC_Pipe_ExecCallback(cy_stc_ipc_pipe_ep_t * endpoint)
     shadowIntr = Cy_IPC_Drv_GetInterruptStatusMasked(endpoint->ipcIntrPtr);
 
     /* Check to make sure the interrupt was a notify interrupt */
-    if (0ul != Cy_IPC_Drv_ExtractAcquireMask(shadowIntr))
+    if (0UL != Cy_IPC_Drv_ExtractAcquireMask(shadowIntr))
     {
         /* Clear the notify interrupt.  */
         Cy_IPC_Drv_ClearInterrupt(endpoint->ipcIntrPtr, CY_IPC_NO_NOTIFICATION, Cy_IPC_Drv_ExtractAcquireMask(shadowIntr));
@@ -513,7 +515,7 @@ void Cy_IPC_Pipe_ExecCallback(cy_stc_ipc_pipe_ep_t * endpoint)
     }
 
     /* Check to make sure the interrupt was a release interrupt */
-    if (0ul != Cy_IPC_Drv_ExtractReleaseMask(shadowIntr))  /* Check for a Release interrupt */
+    if (0UL != Cy_IPC_Drv_ExtractReleaseMask(shadowIntr))  /* Check for a Release interrupt */
     {
         /* Clear the release interrupt  */
         Cy_IPC_Drv_ClearInterrupt(endpoint->ipcIntrPtr, Cy_IPC_Drv_ExtractReleaseMask(shadowIntr), CY_IPC_NO_NOTIFICATION);

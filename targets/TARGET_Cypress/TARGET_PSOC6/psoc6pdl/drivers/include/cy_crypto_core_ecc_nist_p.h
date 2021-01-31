@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_ecc_nist_p.h
-* \version 2.30.4
+* \version 2.40
 *
 * \brief
 *  This file provides constant and parameters for the API for the ECC
@@ -8,6 +8,7 @@
 *
 ********************************************************************************
 * Copyright 2016-2020 Cypress Semiconductor Corporation
+* SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.

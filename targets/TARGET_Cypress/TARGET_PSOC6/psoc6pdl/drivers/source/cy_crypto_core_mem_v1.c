@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_mem_v1.c
-* \version 2.30.4
+* \version 2.40
 *
 * \brief
 *  This file provides the source code to the API for the PRNG
@@ -172,6 +172,7 @@ uint32_t Cy_Crypto_Core_V1_MemCmp(CRYPTO_Type *base, void const *src0, void cons
         {
         }
 
+        CY_MISRA_DEVIATE_LINE('MISRA C-2012 Rule 11.3','This piece of code is written for CRYPTO_V1_Type and will not execute for CRYPTO_V2_Type');
         memResult = (uint32_t)(REG_CRYPTO_STR_RESULT(base));
     }
 
@@ -189,14 +190,14 @@ uint32_t Cy_Crypto_Core_V1_MemCmp(CRYPTO_Type *base, void const *src0, void cons
 * \param base
 * The pointer to the CRYPTO instance.
 *
+* \param dst
+* The pointer to the destination of MemXor.
+*
 * \param src0
 * The pointer to the first source of MemXor.
 
 * \param src1
 * The pointer to the second source of MemXor.
-
-* \param dest
-* The pointer to the destination of MemXor.
 *
 * \param size
 * The size in bytes of the compare operation.

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_usbfs_dev_drv_io_dma.c
-* \version 2.20.1
+* \version 2.20.2
 *
 * Provides data transfer API implementation of the USBFS driver.
 *
@@ -297,6 +297,9 @@ void DmaDisable(cy_stc_usbfs_dev_drv_context_t *context)
 * \param descr
 * The pointer to the DMA descriptor.
 *
+* \param inDirection
+* Endpoint direction associated with DMA descriptor.
+*
 * \param dataSize
 * The DMA transfer data size \ref cy_en_dma_data_size_t.
 *
@@ -379,6 +382,13 @@ static void DmaEndpointInit2D(cy_stc_dma_descriptor_t *descr, bool inDirection,
 *
 * Completes DMA initialization for the OUT data endpoint.
 * Applicable only when mode is \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA_AUTO.
+*
+* \param inDirection
+* Endpoint direction associated with DMA descriptor.
+*
+* \param size
+* The number of bytes to load into endpoint.
+* This value must be less than or equal to the endpoint maximum packet size.
 *
 * \param endpoint
 * The pointer to the structure that stores endpoint information.
@@ -495,14 +505,13 @@ void DmaOutEndpointRestore(cy_stc_usbfs_dev_drv_endpoint_data_t *endpoint)
 * \param base
 * The pointer to the USBFS instance.
 *
-* \param endpointAddr
-* The data endpoint address (7 bit - direction, 3-0 bits - endpoint number).
+* \param mode
 *
-* \param context
-* The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device
-* operation for internal configuration and data retention. The user must not
-* modify anything in this structure.
+* \param useReg16
+* Defines which endpoint registers to use: 8-bits or 16-bits.
+*
+* \param endpointData
+* The pointer to the endpoint data structure.
 *
 * \return
 * Status code of the function execution \ref cy_en_usbfs_dev_drv_status_t.
@@ -746,12 +755,6 @@ cy_en_usbfs_dev_drv_status_t AddEndpointRamBuffer(USBFS_Type *base,
 *
 * \param endpointData
 * The pointer to the endpoint data structure.
-*
-* \param context
-* The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device
-* operation for internal configuration and data retention. The user must not
-* modify anything in this structure.
 *
 *******************************************************************************/
 void RestoreEndpointRamBuffer(USBFS_Type *base,
@@ -1071,7 +1074,7 @@ cy_en_usbfs_dev_drv_status_t LoadInEndpointDmaAuto(USBFS_Type    *base,
         /* Copy data from user buffer to internal endpoint buffer */
         if (NULL != endpointData->copyData)
         {
-            endpointData->copyData(endpointData->buffer, buffer, size);
+            (void) endpointData->copyData(endpointData->buffer, buffer, size);
         }
         else
         {

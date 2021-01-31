@@ -19,6 +19,7 @@ target_sources(mbed-core
         gpio_irq_device.c
         pwmout_device.c
         serial_device.c
+        system_clock.c
         spi_api.c
 )
 

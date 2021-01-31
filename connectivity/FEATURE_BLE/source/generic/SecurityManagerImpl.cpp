@@ -1054,7 +1054,7 @@ ble_error_t SecurityManager::init_signing()
     sign_count_t local_sign_counter = _db->get_local_sign_counter();
 
     csrk_t csrk;
-    if (!pcsrk) {
+    if (!pcsrk || *pcsrk == csrk_t{}) {
         ble_error_t ret = get_random_data(csrk.data(), csrk.size());
         if (ret != BLE_ERROR_NONE) {
             return ret;
@@ -1125,7 +1125,7 @@ ble_error_t SecurityManager::get_random_data(uint8_t *buffer, size_t size)
     while (size) {
         /* fill out the buffer by reading the random data in chunks
          * and copying it until reaching the set size */
-        size_t copy_size = std::max(size, random_data.size());
+        size_t copy_size = std::min(size, random_data.size());
         ble_error_t ret = _pal.get_random_data(random_data);
         if (ret != BLE_ERROR_NONE) {
             return ret;

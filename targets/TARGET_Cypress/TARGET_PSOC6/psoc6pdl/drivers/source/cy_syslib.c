@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_syslib.c
-* \version 2.60.1
+* \version 2.70
 *
 *  Description:
 *   Provides system API implementation for the SysLib driver.
@@ -74,7 +74,7 @@
 * \param milliseconds  The number of milliseconds to delay.
 *
 * \note The function calls \ref Cy_SysLib_DelayCycles() API to generate a delay.
-*       If the function parameter (milliseconds) is bigger than 
+*       If the function parameter (milliseconds) is bigger than
 *       CY_DELAY_MS_OVERFLOW constant, then an additional loop runs to prevent
 *       an overflow in parameter passed to \ref Cy_SysLib_DelayCycles() API.
 *
@@ -115,7 +115,6 @@ void Cy_SysLib_DelayUs(uint16_t microseconds)
     Cy_SysLib_DelayCycles((uint32_t) microseconds * cy_delayFreqMhz);
 }
 
-
 /*******************************************************************************
 * Function Name: Cy_SysLib_Halt
 ****************************************************************************//**
@@ -151,14 +150,14 @@ __NO_RETURN void Cy_SysLib_Halt(uint32_t reason)
     #if defined (__ARMCC_VERSION)
         __breakpoint(0x0);
     #elif defined(__GNUC__)
-        __asm("    bkpt    1");
+        CY_HALT();
     #elif defined (__ICCARM__)
-        __asm("    bkpt    1");
+        CY_HALT();
     #else
         #error "An unsupported toolchain"
     #endif  /* (__ARMCC_VERSION) */
 
-    while(1) {}
+    while(true) {}
 }
 
 
@@ -248,8 +247,8 @@ cy_en_syslib_status_t Cy_SysLib_ResetBackupDomain(void)
 * The function returns the cause for the latest reset(s) that occurred in
 * the system. The reset causes include an HFCLK error, system faults, and
 * device reset on a wakeup from Hibernate mode.
-* The return results are consolidated reset causes from reading RES_CAUSE,
-* RES_CAUSE2 and PWR_HIBERNATE token registers.
+* The return results are consolidated reset causes from reading RES_CAUSE
+* and PWR_HIBERNATE token registers.
 *
 * \return The cause of a system reset.
 *
@@ -264,12 +263,9 @@ cy_en_syslib_status_t Cy_SysLib_ResetBackupDomain(void)
 * | CY_SYSLIB_RESET_SWWDT1        | 0x00040 (bit6)
 * | CY_SYSLIB_RESET_SWWDT2        | 0x00080 (bit7)
 * | CY_SYSLIB_RESET_SWWDT3        | 0x00100 (bit8)
-* | CY_SYSLIB_RESET_HFCLK_LOSS    | 0x10000 (bit16)
-* | CY_SYSLIB_RESET_HFCLK_ERR     | 0x20000 (bit17)
 * | CY_SYSLIB_RESET_HIB_WAKEUP    | 0x40000 (bit18)
 *
-* \note CY_SYSLIB_RESET_CSV_WCO_LOSS, CY_SYSLIB_RESET_HFCLK_LOSS and
-*       CY_SYSLIB_RESET_HFCLK_ERR causes of a system reset available only if
+* \note CY_SYSLIB_RESET_CSV_WCO_LOSS cause of a system reset available only if
 *       WCO CSV present in the device.
 *
 *******************************************************************************/
@@ -301,7 +297,7 @@ void Cy_SysLib_ClearResetReason(void)
      */
     SRSS_RES_CAUSE  = 0xFFFFFFFFU;
     SRSS_RES_CAUSE2 = 0xFFFFFFFFU;
-    
+
     if(0U != _FLD2VAL(SRSS_PWR_HIBERNATE_TOKEN, SRSS_PWR_HIBERNATE))
     {
         /* Clears PWR_HIBERNATE token */
@@ -309,7 +305,7 @@ void Cy_SysLib_ClearResetReason(void)
             CY_PRA_REG32_CLR_SET(CY_PRA_INDX_SRSS_PWR_HIBERNATE, SRSS_PWR_HIBERNATE_TOKEN, 0UL);
         #else
             SRSS_PWR_HIBERNATE &= ~SRSS_PWR_HIBERNATE_TOKEN_Msk;
-        #endif /* CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE) */       
+        #endif /* CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE) */
     }
 }
 
@@ -496,7 +492,7 @@ __WEAK void Cy_SysLib_ProcessingFault(void)
          */
         Cy_SysLib_AsmInfiniteLoop();
     #else
-        while(1) {}
+        while(true) {}
     #endif  /* (__ARMCC_VERSION) */
 }
 #endif /* (CY_ARM_FAULT_DEBUG == CY_ARM_FAULT_DEBUG_ENABLED) || defined(CY_DOXYGEN) */
@@ -567,7 +563,7 @@ void Cy_SysLib_SetWaitStates(bool ulpMode, uint32_t clkHfMHz)
         waitStates =  (clkHfMHz <= cy_device->flashCtlMainWs0Freq) ? 0UL :
                      ((clkHfMHz <= cy_device->flashCtlMainWs1Freq) ? 1UL :
                      ((clkHfMHz <= cy_device->flashCtlMainWs2Freq) ? 2UL :
-                     ((clkHfMHz <= cy_device->flashCtlMainWs3Freq) ? 3UL : 
+                     ((clkHfMHz <= cy_device->flashCtlMainWs3Freq) ? 3UL :
                      ((clkHfMHz <= cy_device->flashCtlMainWs4Freq) ? 4UL : 5UL))));
     }
 

@@ -30,8 +30,8 @@
 extern "C" {
 #endif
 
-/** \addtogroup group_hal_psoc6_dma DMA (Direct Memory Access)
- * \ingroup group_hal_psoc6
+/** \addtogroup group_hal_impl_dma DMA (Direct Memory Access)
+ * \ingroup group_hal_impl
  * \{
  * DW (DataWire) is one of two DMA hardware implementations for PSOC6. DW is
  * designed for low latency memory to peripheral or peripheral to memory
@@ -60,11 +60,11 @@ extern "C" {
 /** \cond INTERNAL */
 /** Hal-Triggers uses bit 8 to denote a one to one trigger, whereas, the PDL
  * SwTrigger function uses bit 5 to denote a one to one trigger. */
-#define HAL_TRIGGERS_1TO1_MASK (0x80)
-#define PDL_TRIGGERS_1TO1_MASK (0x10)
+#define _CYHAL_DMA_TRIGGERS_1TO1_MASK (0x80)
+#define _CYHAL_DMA_PDL_TRIGGERS_1TO1_MASK (0x10)
 /** \endcond */
 
-/** \} group_hal_psoc6_dma */
+/** \} group_hal_impl_dma */
 
 #if defined(__cplusplus)
 }

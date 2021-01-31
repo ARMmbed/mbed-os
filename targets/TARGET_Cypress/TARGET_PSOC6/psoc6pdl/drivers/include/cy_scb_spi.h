@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_scb_spi.h
-* \version 2.50
+* \version 2.60
 *
 * Provides SPI API declarations of the SCB driver.
 *
@@ -949,7 +949,7 @@ __STATIC_INLINE void Cy_SCB_SPI_SetActiveSlaveSelectPolarity(CySCB_Type *base,
                                 cy_en_scb_spi_slave_select_t slaveSelect,
                                 cy_en_scb_spi_polarity_t polarity)
 {
-    uint32_t mask = _VAL2FLD(CY_SCB_SPI_CTRL_SSEL_POLARITY, (0x01UL << slaveSelect));
+    uint32_t mask = _VAL2FLD(CY_SCB_SPI_CTRL_SSEL_POLARITY, (0x01UL << ((uint32_t)slaveSelect)));
 
     CY_ASSERT_L3(CY_SCB_SPI_IS_SLAVE_SEL_VALID(slaveSelect));
     CY_ASSERT_L3(CY_SCB_SPI_IS_POLARITY_VALID (polarity));
@@ -1471,21 +1471,24 @@ __STATIC_INLINE void Cy_SCB_SPI_RegisterCallback(CySCB_Type const *base,
 *******************************************************************************/
 __STATIC_INLINE uint32_t CY_SCB_SPI_GetSclkMode(cy_en_scb_spi_sub_mode_t subMode , cy_en_scb_spi_sclk_mode_t sclkMode)
 {
+    uint32_t retVal;
     switch (subMode)
     {
         case CY_SCB_SPI_TI_PRECEDES:
         case CY_SCB_SPI_TI_COINCIDES:
-            return (uint32_t) CY_SCB_SPI_CPHA1_CPOL0;
-
+            retVal = (uint32_t) CY_SCB_SPI_CPHA1_CPOL0;
+            break;
         case CY_SCB_SPI_NATIONAL:
-            return (uint32_t) CY_SCB_SPI_CPHA0_CPOL0;
-
+            retVal = (uint32_t) CY_SCB_SPI_CPHA0_CPOL0;
+            break;
         case CY_SCB_SPI_MOTOROLA:
-            return (uint32_t) sclkMode;
-
+            retVal = (uint32_t) sclkMode;
+            break;
         default:
-            return (uint32_t) sclkMode;
+            retVal = (uint32_t) sclkMode;
+            break;
     }
+    return retVal;
 }
 /** \endcond */
 

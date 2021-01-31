@@ -39,7 +39,7 @@
 *
 * \section subsection_system_quickstart Quick Start
 * * \ref cyhal_system_critical_section_enter and \ref
-* cyhal_system_critical_section_exit are used to control the interrupts
+* cyhal_system_critical_section_exit are used to enable/disable global interrupts
 * * \ref cyhal_system_delay_ms and \ref cyhal_system_delay_us are delay functions
 * used to halt the CPU exectution for a specified period of time
 * * \ref cyhal_system_get_reset_reason gets the cause of latest system reset and
@@ -75,19 +75,6 @@
 extern "C" {
 #endif
 
-/** \addtogroup group_hal_results
- *  \{ *//**
- *  \{ @name System Results
- */
-
-/** An error occurred in System module */
-#define CYHAL_SYSTEM_RSLT_ERROR                         \
-    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SYSTEM , 0))
-
-/**
- * \} \}
- */
-
 /** Flags enum of possible system reset causes */
 typedef enum
 {
@@ -99,6 +86,7 @@ typedef enum
     CYHAL_SYSTEM_RESET_HIB_WAKEUP      = 1 << 4, /**< A reset has occurred due to a a wakeup from hibernate power mode. */
     CYHAL_SYSTEM_RESET_WCO_ERR         = 1 << 5, /**< A reset has occurred due to a watch-crystal clock error */
     CYHAL_SYSTEM_RESET_SYS_CLK_ERR     = 1 << 6, /**< A reset has occurred due to a system clock error */
+    CYHAL_SYSTEM_RESET_PROTECTION      = 1 << 7, /**< A reset has occurred due to a protection violation */
 } cyhal_reset_reason_t;
 
 /** Enter a critical section
@@ -127,10 +115,10 @@ void cyhal_system_critical_section_exit(uint32_t old_state);
 
 /**
  * Requests that the current operation delays for at least the specified length of time.
- * If this is running in an RTOS aware environment (-DCY_RTOS_AWARE) it will attempt to
- * have the RTOS suspend the current task so others can continue to run. If this is not
- * run under an RTOS it will then defer to the standard system delay which is likely to
- * be a busy loop.
+ * If this is running in an RTOS aware environment (COMPONENTS+=RTOS_AWARE) or
+ * (DEFINES+=CY_RTOS_AWARE) it will attempt to have the RTOS suspend the current task
+ * so others can continue to run. If this is not run under an RTOS it will then defer to
+ * the standard system delay which is likely to be a busy loop.
  * If this is part of an application that is build with RTOS awareness, but the delay
  * should not depend on the RTOS for whatever reason, use cyhal_system_delay_us() with
  * the appropriate 1000x multiplier to the delay time.

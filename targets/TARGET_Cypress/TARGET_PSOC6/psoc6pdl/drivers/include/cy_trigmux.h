@@ -1,6 +1,6 @@
 /*******************************************************************************
 * \file cy_trigmux.h
-* \version 1.20.2
+* \version 1.20.3
 *
 *  This file provides constants and parameter values for the Trigger multiplexer driver.
 *
@@ -164,12 +164,14 @@
 * \section group_trigmux_more_information More Information
 * For more information on the TrigMux peripheral, refer to the technical reference manual (TRM).
 *
-* \section group_trigmux_MISRA MISRA-C Compliance
-* The TrigMux driver does not have any specific deviations.
-*
 * \section group_trigmux_Changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.20.3</td>
+*     <td>Minor documentation updates.</td>
+*     <td>Removed MISRA 2004 compliance details and verified MISRA 2012 complaince.</td>
+*   </tr>
 *   <tr>
 *     <td>1.20.2</td>
 *     <td>Minor documentation updates.</td>

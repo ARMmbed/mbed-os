@@ -1,29 +1,28 @@
-/***************************************************************************//**
-* \file SDIO_HOST_cfg.h
-*
-* \brief
-*  This file provides the configuration of the UDB based SDIO driver.
-*
-********************************************************************************
-* \copyright
-* Copyright 2016-2020 Cypress Semiconductor Corporation
-* SPDX-License-Identifier: Apache-2.0
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*******************************************************************************/
+/***********************************************************************************************//**
+ * \file COMPONENT_UDB_SDIO_P2/SDIO_HOST_cfg.h
+ *
+ * \brief
+ *  This file provides the configuration of the UDB based SDIO driver.
+ *
+ ***************************************************************************************************
+ * \copyright
+ * Copyright 2016-2020 Cypress Semiconductor Corporation
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ **************************************************************************************************/
 
-#if !defined(CY_SDIO_CFG_H)
-#define CY_SDIO_CFG_H
+#pragma once
 
 #include <string.h>
 
@@ -95,10 +94,10 @@ extern "C" {
 
 #define CYREG_UDB_UDBIF_INT_CLK_CTL 0x40347904u
 
-/*************Defines for UDBs from Creator*****************************/
-/***********These come for cyfitter.h**********************************/
+// *************Defines for UDBs from Creator*****************************
+// ***********These come for cyfitter.h**********************************
 
-/* TFT_DMA */
+// TFT_DMA
 #define TFT_DMA_DW__BLOCK_HW DW0
 #define TFT_DMA_DW__BLOCK_NUMBER 0u
 #define TFT_DMA_DW__CHANNEL_HW DW0_CH_STRUCT2
@@ -106,7 +105,7 @@ extern "C" {
 #define TFT_DMA_DW__TR_IN TRIG0_OUT_CPUSS_DW0_TR_IN2
 #define TFT_DMA_DW__TR_OUT TRIG10_IN_CPUSS_DW0_TR_OUT2
 
-/* TFT_CTRL */
+// TFT_CTRL
 #define TFT_CTRL_Sync_ctrl_reg__0__MASK 0x01u
 #define TFT_CTRL_Sync_ctrl_reg__0__POS 0
 #define TFT_CTRL_Sync_ctrl_reg__1__MASK 0x02u
@@ -137,7 +136,7 @@ extern "C" {
 #define TFT_CTRL_Sync_ctrl_reg__SC_CFG0 0x40342AD4u
 #define TFT_CTRL_Sync_ctrl_reg__SC_CFG1 0x40342AD8u
 
-/* SDIO_HOST */
+// SDIO_HOST
 #define SDIO_HOST_bSDIO_blockCounter_u0__16BIT_A0_REG 0x4034101Cu
 #define SDIO_HOST_bSDIO_blockCounter_u0__16BIT_A1_REG 0x4034111Cu
 #define SDIO_HOST_bSDIO_blockCounter_u0__16BIT_D0_REG 0x4034121Cu
@@ -830,75 +829,75 @@ extern "C" {
 #define SDIO_HOST_Write_DMA_DW__TR_IN TRIG1_OUT_CPUSS_DW1_TR_IN1
 
 
-/***************************CMD DMA***************************************/
+// ***************************CMD DMA***************************************
 #define SDIO_HOST_CMD_DMA_DW_BLOCK       (0u)
 #define SDIO_HOST_CMD_DMA_DW_CHANNEL     (1u)
 #define SDIO_HOST_CMD_DMA_HW             (DW0)
 #define SDIO_HOST_CMD_DMA_INTR_MASK      (CY_DMA_INTR_MASK)
 
-/* Channel settings */
+// Channel settings
 #define SDIO_HOST_CMD_DMA_PRIORITY       (1u)
 #define SDIO_HOST_CMD_DMA_DESCRIPTOR_NUM (1u)
 #define SDIO_HOST_CMD_DMA_PREEMPTABLE    (true)
 
 extern cy_stc_dma_descriptor_config_t SDIO_HOST_CMD_DMA_CMD_DMA_Desc_config;
-extern cy_stc_dma_descriptor_t SDIO_HOST_CMD_DMA_CMD_DMA_Desc;
+extern cy_stc_dma_descriptor_t        SDIO_HOST_CMD_DMA_CMD_DMA_Desc;
 
-/***************************Read DMA***************************************/
+// ***************************Read DMA***************************************
 #define SDIO_HOST_Read_DMA_DW_BLOCK       (1u)
 #define SDIO_HOST_Read_DMA_DW_CHANNEL     (3u)
 #define SDIO_HOST_Read_DMA_HW             (DW1)
 #define SDIO_HOST_Read_DMA_INTR_MASK      (CY_DMA_INTR_MASK)
 
-/* Channel settings */
+// Channel settings
 #define SDIO_HOST_Read_DMA_PRIORITY       (0u)
 #define SDIO_HOST_Read_DMA_DESCRIPTOR_NUM (1u)
 #define SDIO_HOST_Read_DMA_PREEMPTABLE    (false)
 
 extern cy_stc_dma_descriptor_config_t SDIO_HOST_Read_DMA_Read_DMA_Desc_config;
-extern cy_stc_dma_descriptor_t SDIO_HOST_Read_DMA_Read_DMA_Desc;
+extern cy_stc_dma_descriptor_t        SDIO_HOST_Read_DMA_Read_DMA_Desc;
 
-/***************************Resp DMA***************************************/
+// ***************************Resp DMA***************************************
 #define SDIO_HOST_Resp_DMA_DW_BLOCK       (0u)
 #define SDIO_HOST_Resp_DMA_DW_CHANNEL     (0u)
 #define SDIO_HOST_Resp_DMA_HW             (DW0)
 #define SDIO_HOST_Resp_DMA_INTR_MASK      (CY_DMA_INTR_MASK)
 
-/* Channel settings */
+// Channel settings
 #define SDIO_HOST_Resp_DMA_PRIORITY       (1u)
 #define SDIO_HOST_Resp_DMA_DESCRIPTOR_NUM (1u)
 #define SDIO_HOST_Resp_DMA_PREEMPTABLE    (true)
 
 extern cy_stc_dma_descriptor_config_t SDIO_HOST_Resp_DMA_Resp_DMA_Desc_config;
-extern cy_stc_dma_descriptor_t SDIO_HOST_Resp_DMA_Resp_DMA_Desc;
+extern cy_stc_dma_descriptor_t        SDIO_HOST_Resp_DMA_Resp_DMA_Desc;
 
-/***************************Write DMA***************************************/
+// ***************************Write DMA***************************************
 #define SDIO_HOST_Write_DMA_DW_BLOCK       (1u)
 #define SDIO_HOST_Write_DMA_DW_CHANNEL     (1u)
 #define SDIO_HOST_Write_DMA_HW             (DW1)
 #define SDIO_HOST_Write_DMA_INTR_MASK      (CY_DMA_INTR_MASK)
 
-/* Channel settings */
+// Channel settings
 #define SDIO_HOST_Write_DMA_PRIORITY       (0u)
 #define SDIO_HOST_Write_DMA_DESCRIPTOR_NUM (1u)
 #define SDIO_HOST_Write_DMA_PREEMPTABLE    (false)
 
 extern cy_stc_dma_descriptor_config_t SDIO_HOST_Write_DMA_Write_DMA_Desc_config;
-extern cy_stc_dma_descriptor_t SDIO_HOST_Write_DMA_Write_DMA_Desc;
+extern cy_stc_dma_descriptor_t        SDIO_HOST_Write_DMA_Write_DMA_Desc;
 
-/***************************SDIO Clock**************************************/
-/* The peripheral clock divider number */
+// ***************************SDIO Clock**************************************
+// The peripheral clock divider number
 #define SDIO_HOST_Internal_Clock_DIV_NUM ((uint32_t)0)
-/* The peripheral clock divider type */
+// The peripheral clock divider type
 #define SDIO_HOST_Internal_Clock_DIV_TYPE ((cy_en_divider_types_t)CY_SYSCLK_DIV_8_BIT)
 
-/*Function for configuring TriggerMuxes*/
+// Function for configuring TriggerMuxes
 void SDIO_Host_Config_TriggerMuxes(void);
 
-/*Function for configuring UDBs*/
+// Function for configuring UDBs
 void SDIO_Host_Config_UDBs(void);
 
-/* SDIO_HOST_Read_Int */
+// SDIO_HOST_Read_Int
 #define SDIO_HOST_Read_Int__INTC_CORTEXM4_ASSIGNED 1
 #define SDIO_HOST_Read_Int__INTC_CORTEXM4_PRIORITY 7u
 #define SDIO_HOST_Read_Int__INTC_NUMBER 69u
@@ -906,7 +905,7 @@ void SDIO_Host_Config_UDBs(void);
 #define SDIO_HOST_Read_Int_INTC_CORTEXM4_PRIORITY 7u
 #define SDIO_HOST_Read_Int_INTC_NUMBER 69u
 
-/* SDIO_HOST_sdio_int */
+// SDIO_HOST_sdio_int
 #define SDIO_HOST_sdio_int__INTC_CORTEXM4_ASSIGNED 1
 #define SDIO_HOST_sdio_int__INTC_CORTEXM4_PRIORITY 7u
 #define SDIO_HOST_sdio_int__INTC_NUMBER 122u
@@ -914,7 +913,7 @@ void SDIO_Host_Config_UDBs(void);
 #define SDIO_HOST_sdio_int_INTC_CORTEXM4_PRIORITY 7u
 #define SDIO_HOST_sdio_int_INTC_NUMBER 122u
 
-/* SDIO_HOST_Write_Int */
+// SDIO_HOST_Write_Int
 #define SDIO_HOST_Write_Int__INTC_CORTEXM4_ASSIGNED 1
 #define SDIO_HOST_Write_Int__INTC_CORTEXM4_PRIORITY 7u
 #define SDIO_HOST_Write_Int__INTC_NUMBER 67u
@@ -925,7 +924,3 @@ void SDIO_Host_Config_UDBs(void);
 #if defined(__cplusplus)
 }
 #endif
-
-#endif /* !defined(CY_SDIO_CFG_H) */
-
-/* [] END OF FILE */
