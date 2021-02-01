@@ -24,13 +24,9 @@
 Requirements specified in docs/design-documents/hal/0005-pin-names-Arduino-Uno-standard.md
 */
 
-#if !(defined (TARGET_FF_ARDUINO) || (TARGET_FF_ARDUINO_UNO))
+#if !(defined (TARGET_FF_ARDUINO_UNO))
 #error [NOT_SUPPORTED] Test needs Arduino Uno form factor
 #else
-
-#if defined (TARGET_FF_ARDUINO)
-#warning ARDUINO form factor should not be used any more => use ARDUINO_UNO
-#endif
 
 using namespace utest::v1;
 
