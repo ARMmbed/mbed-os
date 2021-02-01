@@ -34,7 +34,7 @@
 
 /* Max amount of flash size is 4Gbytes */
 /* hence 2^(31+1), then FLASH_SIZE_DEFAULT = 1<<31 */
-#define OSPI_FLASH_SIZE_DEFAULT 0x80000000
+#define OSPI_FLASH_SIZE_DEFAULT 0x4000000 //512Mbits
 
 static uint32_t get_alt_bytes_size(const uint32_t num_bytes)
 {
@@ -252,7 +252,7 @@ static ospi_status_t _ospi_init_direct(ospi_t *obj, const ospi_pinmap_t *pinmap,
     obj->handle.Init.ClockPrescaler = 4; // default value, will be overwritten in ospi_frequency
     obj->handle.Init.FifoThreshold = 4;
     obj->handle.Init.SampleShifting = HAL_OSPI_SAMPLE_SHIFTING_NONE;
-    obj->handle.Init.DeviceSize = POSITION_VAL(OSPI_FLASH_SIZE_DEFAULT) - 1;
+    obj->handle.Init.DeviceSize = 32;
     obj->handle.Init.ChipSelectHighTime = 3;
     obj->handle.Init.FreeRunningClock = HAL_OSPI_FREERUNCLK_DISABLE;
 #if defined(HAL_OSPI_WRAP_NOT_SUPPORTED) // removed in STM32L4

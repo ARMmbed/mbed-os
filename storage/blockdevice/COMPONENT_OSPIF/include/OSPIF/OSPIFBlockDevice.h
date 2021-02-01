@@ -62,6 +62,8 @@
 #define MBED_CONF_OSPIF_OSPI_FREQ 40000000
 #endif
 
+#define MX_FLASH_SUPPORT_RWW
+
 /** Enum ospif standard error codes
  *
  *  @enum ospif_bd_error
@@ -381,6 +383,10 @@ private:
     // Detect 4-byte addressing mode and enable it if supported
     int _sfdp_detect_and_enable_4byte_addressing(uint8_t *basic_param_table_ptr, int basic_param_table_size);
 
+#ifdef MX_FLASH_SUPPORT_RWW
+    bool _is_mem_ready_rww(bd_addr_t addr, uint8_t rw);
+#endif
+
 private:
     enum ospif_clear_protection_method_t {
         OSPIF_BP_ULBPR,    // Issue global protection unlock instruction
@@ -449,6 +455,16 @@ private:
 
     uint32_t _init_ref_count;
     bool _is_initialized;
+#ifdef MX_FLASH_SUPPORT_RWW
+    enum wait_flag {
+        NOT_STARTED,         // no wait is started
+        WRITE_WAIT_STARTED,  // write wait is started
+        ERASE_WAIT_STARTED,  // erase wait is started
+    };
+    uint32_t _busy_bank;    // Current busy bank
+    wait_flag _wait_flag;  // wait flag
+    PlatformMutex _busy_mutex;
+#endif
 };
 
 #endif
