@@ -28,6 +28,7 @@
 #include "att_defs.h"
 
 #include "mbed-trace/mbed_trace.h"
+#include "common/ble_trace_helpers.h"
 
 #define TRACE_GROUP "BLAT"
 
