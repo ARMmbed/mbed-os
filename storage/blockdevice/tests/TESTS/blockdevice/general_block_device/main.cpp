@@ -487,7 +487,7 @@ void test_rww_rwe()
     err = block_device->program((const void *)data_buf, start_address_B0, data_buf_size);
     TEST_ASSERT_EQUAL(0, err);
 
-    // Read written memory region in bank1 to verify it contains information   
+    // Read written memory region in bank1 to verify it contains information
 //    utest_printf("reading written memory region in bank1 when write bank0\n");
     err = block_device->read((void *)out_data_buf, start_address_B1, data_buf_size);
     TEST_ASSERT_EQUAL(0, err);

@@ -374,9 +374,6 @@ int OSPIFBlockDevice::deinit()
 
     if (false == _is_mem_ready()) {
         tr_error("Device not ready after write, failed");
-           /* program_failed = true;
-            status = OSPIF_BD_ERROR_READY_FAILED;
-            goto exit_point;*/
     }
 
 #ifdef MX_FLASH_SUPPORT_RWW
@@ -421,7 +418,7 @@ int OSPIFBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
             return OSPIF_BD_ERROR_OK;
         }
 
-    } else { 
+    } else {
         if (_wait_flag == WRITE_WAIT_STARTED) {
             tr_debug("\r\n RWW1 CNT");
         } else if (_wait_flag == ERASE_WAIT_STARTED) {
@@ -448,7 +445,7 @@ int OSPIFBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 #ifdef MX_FLASH_SUPPORT_RWW
     if (need_wait) {
         _busy_mutex.unlock();
-    } 
+    }
 #endif
 
     return status;
@@ -515,8 +512,7 @@ int OSPIFBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size
             goto exit_point;
         }
         _mutex.unlock();
-#endif
-        
+#endif        
         buffer = static_cast<const uint8_t *>(buffer) + chunk;
         addr += chunk;
         size -= chunk;
@@ -1801,7 +1797,7 @@ ospi_status_t OSPIFBlockDevice::_ospi_send_general_command(ospi_inst_t instructi
         if ((instruction == OSPIF_INST_RSR1) || (instruction == OSPIF_INST_RDID) ||
                 (instruction == OSPIF_INST_RDCR2) || (instruction == OSPIF_INST_RDCR)) {
             _ospi.configure_format(_inst_width, _inst_size, _address_width, _address_size, OSPI_CFG_BUS_SINGLE,
-                                   0, _data_width, 4);
+                                   0, _data_width, _dummy_cycles);
             if (instruction != OSPIF_INST_RDCR2) {
                 addr = 0;
             }
