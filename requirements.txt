@@ -4,7 +4,7 @@ prettytable==0.7.2
 junit-xml==1.8
 pyyaml==4.2b1
 jsonschema==2.6.0
-future==0.16.0
+future>=0.18.0,<1.0
 six==1.12.0
 mbed-cloud-sdk>=2.0.6,<2.1
 requests>=2.20,<2.21
