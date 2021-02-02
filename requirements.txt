@@ -11,7 +11,7 @@ requests>=2.20,<2.21
 idna>=2,<2.8
 pyserial>=3,<=3.4
 Jinja2>=2.10.1,<2.11
-intelhex>=1.3,<=2.2.1
+intelhex>=2.3.0,<3.0.0
 mbed-ls>=1.5.1,<2.0
 mbed-host-tests>=1.4.4,<2.0
 mbed-greentea>=0.2.24,<2.0
