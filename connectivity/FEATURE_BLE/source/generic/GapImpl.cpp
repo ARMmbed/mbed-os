@@ -518,7 +518,7 @@ ble_error_t Gap::stopScan()
         if (err) {
             return err;
         }
-        _scan_state = ScanState::pending_stop_scan;
+        set_scan_state(ScanState::pending_stop_scan);
     }
 
     _scan_timeout.detach();
@@ -1209,7 +1209,7 @@ ble_error_t Gap::reset()
 
     _event_handler = nullptr;
     _initiating = false;
-    _scan_state = ScanState::idle;
+    set_scan_state(ScanState::idle);
     _scan_requested = false;
 #if BLE_FEATURE_PRIVACY
     _privacy_initialization_pending = false;
@@ -1295,13 +1295,28 @@ void Gap::on_scan_started(bool success)
     MBED_ASSERT(_scan_state == ScanState::pending_scan);
 
     if (success) {
-        _scan_state = ScanState::scan;
+        set_scan_state(ScanState::scan);
         /* if no longer want the scan */
         if (!_scan_requested) {
             stopScan();
         }
     } else {
-        _scan_state = ScanState::idle;
+        set_scan_state(ScanState::idle);
+    }
+}
+
+void Gap::set_scan_state(ScanState state)
+{
+    _scan_state = state;
+
+    if (state == ScanState::idle) {
+        tr_info("Scan state: idle");
+    } else if (state == ScanState::pending_scan) {
+        tr_info("Scan state: pending_scan");
+    } else if (state == ScanState::pending_stop_scan) {
+        tr_info("Scan state: pending_stop_scan");
+    } else if (state == ScanState::scan) {
+        tr_info("Scan state: scan");
     }
 }
 
@@ -1313,7 +1328,7 @@ void Gap::on_scan_stopped(bool success)
         return;
     }
 
-    _scan_state = ScanState::idle;
+    set_scan_state(ScanState::idle);
 
 #if BLE_ROLE_BROADCASTER
     /* with legacy advertising we might need to wait for scanning and advertising to both stop */
@@ -1388,7 +1403,7 @@ void Gap::on_scan_timeout()
         return;
     }
 
-    _scan_state = ScanState::idle;
+    set_scan_state(ScanState::idle);
     _scan_requested = false;
 
     if (_event_handler) {
@@ -3608,6 +3623,8 @@ ble_error_t Gap::startScan(
         if (ret != BLE_ERROR_NONE) {
             return ret;
         }
+    } else {
+        tr_warning("Cannot start scan immediately as not idle");
     }
 
     _scan_requested = true;
@@ -3673,7 +3690,7 @@ ble_error_t Gap::initiate_scan()
         }
     }
 
-    _scan_state = ScanState::pending_scan;
+    set_scan_state(ScanState::pending_scan);
 
     return BLE_ERROR_NONE;
 }
