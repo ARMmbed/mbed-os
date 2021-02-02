@@ -2,22 +2,47 @@
 # SPDX-License-Identifier: Apache-2.0
 
 add_library(mbed-os-stubs-headers INTERFACE)
+add_library(mbed-os-headers INTERFACE)
+add_library(mbed-os-headers-base INTERFACE)
+add_library(mbed-os-headers-platform INTERFACE)
+add_library(mbed-os-headers-connectivity INTERFACE)
+add_library(mbed-os-headers-storage INTERFACE)
+add_library(mbed-os-headers-drivers INTERFACE)
+add_library(mbed-os-headers-hal INTERFACE)
+add_library(mbed-os-headers-events INTERFACE)
+add_library(mbed-os-headers-rtos INTERFACE)
 add_library(mbed-os-stubs)
 
-target_include_directories(mbed-os-stubs-headers
+target_link_libraries(mbed-os-headers
+    INTERFACE
+        mbed-os-headers-base
+        mbed-os-headers-platform
+        mbed-os-headers-connectivity
+        mbed-os-headers-storage
+        mbed-os-headers-drivers
+        mbed-os-headers-hal
+        mbed-os-headers-events
+        mbed-os-headers-rtos
+)
+
+target_include_directories(mbed-os-headers-platform
+    INTERFACE
+        ${MBED_PATH}/platform/include
+        ${MBED_PATH}/platform/include/platform
+        ${MBED_PATH}/platform/mbed-trace/include
+)
+
+target_include_directories(mbed-os-headers-base
     INTERFACE
         ${MBED_PATH}/UNITTESTS/target_h
-        ${MBED_PATH}/events/tests/UNITTESTS/target_h
-        ${MBED_PATH}/events/tests/UNITTESTS/target_h/equeue
         ${MBED_PATH}/UNITTESTS/target_h/platform
         ${MBED_PATH}/UNITTESTS/target_h/platform/cxxsupport
         ${MBED_PATH}/UNITTESTS/target_h/drivers
         ${MBED_PATH}/UNITTESTS/target_h/rtos/include
-        ${MBED_PATH}/UNITTESTS/stubs
-        ${MBED_PATH}/features
-        ${MBED_PATH}/platform/include
-        ${MBED_PATH}/platform/include/platform
-        ${MBED_PATH}/platform/mbed-trace/include
+)
+
+target_include_directories(mbed-os-headers-storage
+    INTERFACE
         ${MBED_PATH}/storage/filesystem/littlefs/include
         ${MBED_PATH}/storage/filesystem/fat/include
         ${MBED_PATH}/storage/blockdevice/include
@@ -28,26 +53,20 @@ target_include_directories(mbed-os-stubs-headers
         ${MBED_PATH}/storage/kvstore/tdbstore/include
         ${MBED_PATH}/storage/kvstore/filesystemstore/include
         ${MBED_PATH}/storage/kvstore/kvstore_global_api/include
-        ${MBED_PATH}/drivers
-        ${MBED_PATH}/drivers/include
-        ${MBED_PATH}/drivers/include/drivers
-        ${MBED_PATH}/drivers/include/drivers/internal
-        ${MBED_PATH}/hal
-        ${MBED_PATH}/hal/include
-        ${MBED_PATH}/events/include
-        ${MBED_PATH}/events/include/events/internal
-        ${MBED_PATH}/events/source
-        ${MBED_PATH}/rtos/include
-        ${MBED_PATH}/features/frameworks
-        ${MBED_PATH}/connectivity/libraries/nanostack-libservice
-        ${MBED_PATH}/connectivity/libraries/nanostack-libservice/mbed-client-libservice
-        ${MBED_PATH}/connectivity/netsocket/include
         ${MBED_PATH}/features/filesystem/fat
         ${MBED_PATH}/features/filesystem/fat/ChaN
         ${MBED_PATH}/features/filesystem/bd
         ${MBED_PATH}/features/filesystem/
         ${MBED_PATH}/features/filesystem/littlefs
         ${MBED_PATH}/features/filesystem/littlefs/littlefs
+
+)
+
+target_include_directories(mbed-os-headers-platform
+    INTERFACE
+        ${MBED_PATH}/connectivity/libraries/nanostack-libservice
+        ${MBED_PATH}/connectivity/libraries/nanostack-libservice/mbed-client-libservice
+        ${MBED_PATH}/connectivity/netsocket/include
         ${MBED_PATH}/connectivity/cellular/include/cellular/framework/API
         ${MBED_PATH}/connectivity/cellular/include/cellular/framework/AT
         ${MBED_PATH}/connectivity/cellular/include/cellular/framework/device
@@ -63,8 +82,45 @@ target_include_directories(mbed-os-stubs-headers
         ${MBED_PATH}/connectivity/mbedtls/include
         ${MBED_PATH}/connectivity/FEATURE_BLE/include
         ${MBED_PATH}/connectivity/FEATURE_BLE/include/ble
-        ${gtest_SOURCE_DIR}/include
-        ${gmock_SOURCE_DIR}/include
+)
+
+target_include_directories(mbed-os-headers-drivers
+    INTERFACE
+        ${MBED_PATH}/drivers
+        ${MBED_PATH}/drivers/include
+        ${MBED_PATH}/drivers/include/drivers
+        ${MBED_PATH}/drivers/include/drivers/internal
+)
+
+target_include_directories(mbed-os-headers-events
+    INTERFACE
+        ${MBED_PATH}/events/tests/UNITTESTS/target_h
+        ${MBED_PATH}/events/tests/UNITTESTS/target_h/equeue
+        ${MBED_PATH}/events/include
+        ${MBED_PATH}/events/include/events/internal
+        ${MBED_PATH}/events/source
+)
+
+target_include_directories(mbed-os-headers-hal
+        INTERFACE
+        ${MBED_PATH}/hal
+        ${MBED_PATH}/hal/include
+)
+
+target_include_directories(mbed-os-headers-rtos
+    INTERFACE
+        ${MBED_PATH}/rtos/include
+)
+
+target_include_directories(mbed-os-headers
+    INTERFACE
+        ${MBED_PATH}/features
+        ${MBED_PATH}/features/frameworks
+)
+
+target_include_directories(mbed-os-stubs-headers
+    INTERFACE
+        ${MBED_PATH}/UNITTESTS/stubs
 )
 
 target_sources(mbed-os-stubs
@@ -147,4 +203,5 @@ target_sources(mbed-os-stubs
 target_link_libraries(mbed-os-stubs
     PRIVATE
         mbed-os-stubs-headers
+        mbed-os-headers
 )
