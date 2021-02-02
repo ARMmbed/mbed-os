@@ -56,6 +56,12 @@
              "SPI_CLK":  "PTD5",
              "SPI_CS":   "PTD4"
         },
+        "K64F": {
+            "SPI_CS": "SPI_CS",
+            "SPI_MOSI": "SPI_MOSI",
+            "SPI_MISO": "SPI_MISO",
+            "SPI_CLK": "SPI_SCK"
+        },
         "K66F": {
              "SPI_MOSI": "PTE3",
              "SPI_MISO": "PTE1",
@@ -121,6 +127,12 @@
             "SPI_MISO": "PC_2",
             "SPI_CLK":  "PB_10",
             "SPI_CS":   "PE_2"
+        },
+        "WIO_BG96": {
+          "SPI_CS": "SPI_CS",
+          "SPI_MOSI": "SPI_MOSI",
+          "SPI_MISO": "SPI_MISO",
+          "SPI_CLK": "SPI_SCK"
         }
     }
 }
