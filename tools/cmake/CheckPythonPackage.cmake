@@ -6,7 +6,6 @@
 
 # set OUTPUT_VAR to whether PACKAGENAME was found
 function(check_python_package PACKAGENAME OUTPUT_VAR)
-
     # can't have Python packages without Python!
     if(NOT Python3_FOUND)
         set(${OUTPUT_VAR} FALSE PARENT_SCOPE)
@@ -17,12 +16,10 @@ function(check_python_package PACKAGENAME OUTPUT_VAR)
 
     if(DEFINED ${OUTPUT_VAR})
         if(${OUTPUT_VAR})
-
             # if the python interpreter changed, we need to recheck
             if("${PY_INTERP_FOR_${OUTPUT_VAR}}" STREQUAL "${Python3_EXECUTABLE}")
                 set(NEED_TO_RUN_CHECK FALSE)
             endif()
-
         endif()
     endif()
 
@@ -47,7 +44,6 @@ function(check_python_package PACKAGENAME OUTPUT_VAR)
 
         set(${OUTPUT_VAR} ${HAVE_PACKAGE} CACHE BOOL "Whether the Python package ${PACKAGENAME} was found" FORCE)
         mark_as_advanced(${OUTPUT_VAR})
-
     endif()
 endfunction(check_python_package)
 
