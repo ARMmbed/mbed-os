@@ -49,6 +49,24 @@
 // key storage index bitfield (8)
 #define PAE_NVM_KEY_STORAGE_INDEX_LEN    8
 
+typedef struct nw_info_nvm_tlv {
+    uint16_t tag;                             /**< Unique tag */
+    uint16_t len;                             /**< Number of the bytes after the length field */
+    uint8_t data[PAE_NVM_NW_INFO_LEN];        /**< Data */
+} nw_info_nvm_tlv_t;
+
+typedef struct keys_nvm_tlv {
+    uint16_t tag;                             /**< Unique tag */
+    uint16_t len;                             /**< Number of the bytes after the length field */
+    uint8_t data[PAE_NVM_KEYS_LEN];           /**< Data */
+} keys_nvm_tlv_t;
+
+typedef struct frame_cnt_nvm_tlv {
+    uint16_t tag;                             /**< Unique tag */
+    uint16_t len;                             /**< Number of the bytes after the length field */
+    uint8_t data[PAE_NVM_FRAME_COUNTER_LEN];  /**< Data */
+} frame_cnt_nvm_tlv_t;
+
 /**
  * ws_pae_nvm_store_generic_tlv_create create NVM generic storage TLV
  *
@@ -77,7 +95,7 @@ void ws_pae_nvm_store_generic_tlv_free(nvm_tlv_t *tlv_entry);
  * \return TLV entry or NULL
  *
  */
-void ws_pae_nvm_store_nw_info_tlv_create(nvm_tlv_t *tlv_entry, uint16_t pan_id, char *nw_name, sec_prot_gtk_keys_t *gtks);
+void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry, uint16_t pan_id, char *nw_name, sec_prot_gtk_keys_t *gtks);
 
 /**
  * ws_pae_nvm_store_nw_info_tlv_read read from NVM network info TLV
@@ -91,7 +109,7 @@ void ws_pae_nvm_store_nw_info_tlv_create(nvm_tlv_t *tlv_entry, uint16_t pan_id, 
  * \return >= 0 success
  *
  */
-int8_t ws_pae_nvm_store_nw_info_tlv_read(nvm_tlv_t *tlv_entry, uint16_t *pan_id, char *nw_name, sec_prot_gtk_keys_t *gtks);
+int8_t ws_pae_nvm_store_nw_info_tlv_read(nw_info_nvm_tlv_t *tlv_entry, uint16_t *pan_id, char *nw_name, sec_prot_gtk_keys_t *gtks);
 
 /**
  * ws_pae_nvm_store_keys_tlv_create create NVM keys TLV
@@ -100,7 +118,7 @@ int8_t ws_pae_nvm_store_nw_info_tlv_read(nvm_tlv_t *tlv_entry, uint16_t *pan_id,
  * \param sec_keys security keys
  *
  */
-void ws_pae_nvm_store_keys_tlv_create(nvm_tlv_t *tlv_entry, sec_prot_keys_t *sec_keys);
+void ws_pae_nvm_store_keys_tlv_create(keys_nvm_tlv_t *tlv_entry, sec_prot_keys_t *sec_keys);
 
 /**
  * ws_pae_nvm_store_nw_info_tlv_read read from NVM keys TLV
@@ -112,7 +130,7 @@ void ws_pae_nvm_store_keys_tlv_create(nvm_tlv_t *tlv_entry, sec_prot_keys_t *sec
  * \return >= 0 success
  *
  */
-int8_t ws_pae_nvm_store_keys_tlv_read(nvm_tlv_t *tlv_entry, sec_prot_keys_t *sec_keys);
+int8_t ws_pae_nvm_store_keys_tlv_read(keys_nvm_tlv_t *tlv_entry, sec_prot_keys_t *sec_keys);
 
 /**
  * ws_pae_nvm_store_frame_counter_tlv_create create NVM frame counter TLV
@@ -123,7 +141,7 @@ int8_t ws_pae_nvm_store_keys_tlv_read(nvm_tlv_t *tlv_entry, sec_prot_keys_t *sec
  * \param counters frame counters
  *
  */
-void ws_pae_nvm_store_frame_counter_tlv_create(nvm_tlv_t *tlv_entry, uint32_t restart_cnt, uint16_t pan_version, frame_counters_t *counters);
+void ws_pae_nvm_store_frame_counter_tlv_create(frame_cnt_nvm_tlv_t *tlv_entry, uint32_t restart_cnt, uint16_t pan_version, frame_counters_t *counters);
 
 /**
  * ws_pae_nvm_store_frame_counter_tlv_read read from NVM frame counter TLV
@@ -138,7 +156,7 @@ void ws_pae_nvm_store_frame_counter_tlv_create(nvm_tlv_t *tlv_entry, uint32_t re
  * \return >= 0 success
  *
  */
-int8_t ws_pae_nvm_store_frame_counter_tlv_read(nvm_tlv_t *tlv_entry, uint32_t *restart_cnt, uint64_t *stored_time, uint16_t *pan_version, frame_counters_t *counters);
+int8_t ws_pae_nvm_store_frame_counter_tlv_read(frame_cnt_nvm_tlv_t *tlv_entry, uint32_t *restart_cnt, uint64_t *stored_time, uint16_t *pan_version, frame_counters_t *counters);
 
 /**
  * ws_pae_nvm_store_key_storage_index_tlv_create create NVM key storage index TLV

@@ -57,6 +57,7 @@ struct arm_device_driver_list;
 struct mlme_security_s;
 struct load_balance_api;
 struct nwk_wpan_nvm_api;
+struct red_info_s;
 
 #define SLEEP_MODE_REQ      0x80
 #define SLEEP_PERIOD_ACTIVE 0x40
@@ -445,6 +446,7 @@ struct protocol_interface_info_entry {
     struct auth_info *pana_sec_info_temp;
     br_info_t *border_router_setup;
     struct load_balance_api *lb_api;
+    struct red_info_s *random_early_detection;
     neigh_cache_s neigh_cache;
     pan_blaclist_cache_s pan_blaclist_cache;
     pan_coordinator_blaclist_cache_s pan_cordinator_black_list;

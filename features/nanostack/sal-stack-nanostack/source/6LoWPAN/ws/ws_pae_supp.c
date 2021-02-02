@@ -269,30 +269,14 @@ int8_t ws_pae_supp_border_router_addr_read(protocol_interface_info_entry_t *inte
 
 int8_t ws_pae_supp_nw_key_valid(protocol_interface_info_entry_t *interface_ptr, uint8_t *br_iid)
 {
+    (void) br_iid;
+
     pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
     if (!pae_supp) {
         return -1;
     }
 
     tr_info("NW key valid indication");
-
-    // Store border router EUI-64 received on bootstrap complete
-    memcpy(pae_supp->comp_br_eui_64, br_iid, 8);
-    pae_supp->comp_br_eui_64[0] ^= 0x02;
-    pae_supp->comp_br_eui_64_set = true;
-
-    // Get the EUI-64 used on 4WH handshake PTK generation
-    uint8_t *ptk_eui_64 = sec_prot_keys_ptk_eui_64_get(&pae_supp->entry.sec_keys);
-
-    /* If border router EUI-64 received on bootstrap complete does not match to
-       EUI-64 stored with keys, delete keys */
-    if (!ptk_eui_64 || memcmp(ptk_eui_64, pae_supp->comp_br_eui_64, 8) != 0) {
-        tr_warn("Delete keys: PTK EUI-64 %s does not match to BR EUI-64 %s",
-                ptk_eui_64 ? tr_array(ptk_eui_64, 8) : "", tr_array(pae_supp->comp_br_eui_64, 8));
-        sec_prot_keys_pmk_delete(&pae_supp->entry.sec_keys);
-        sec_prot_keys_ptk_delete(&pae_supp->entry.sec_keys);
-        sec_prot_keys_ptk_eui_64_delete(&pae_supp->entry.sec_keys);
-    }
 
     // Stored keys are valid
     pae_supp->nw_keys_used_cnt = 0;
@@ -415,25 +399,25 @@ static void ws_pae_supp_nvm_update(pae_supp_t *pae_supp)
 
 static int8_t ws_pae_supp_nvm_keys_write(pae_supp_t *pae_supp)
 {
-    nvm_tlv_t *tlv = ws_pae_controller_nvm_tlv_get(pae_supp->interface_ptr);
+    keys_nvm_tlv_t *tlv = (keys_nvm_tlv_t *) ws_pae_controller_nvm_tlv_get(pae_supp->interface_ptr);
     if (!tlv) {
         return -1;
     }
 
     ws_pae_nvm_store_keys_tlv_create(tlv, &pae_supp->entry.sec_keys);
-    ws_pae_nvm_store_tlv_file_write(KEYS_FILE, tlv);
+    ws_pae_nvm_store_tlv_file_write(KEYS_FILE, (nvm_tlv_t *) tlv);
 
     return 0;
 }
 
 static int8_t ws_pae_supp_nvm_keys_read(pae_supp_t *pae_supp)
 {
-    nvm_tlv_t *tlv = ws_pae_controller_nvm_tlv_get(pae_supp->interface_ptr);
+    keys_nvm_tlv_t *tlv = (keys_nvm_tlv_t *) ws_pae_controller_nvm_tlv_get(pae_supp->interface_ptr);
     if (!tlv) {
         return -1;
     }
-    ws_pae_nvm_store_generic_tlv_create(tlv, PAE_NVM_KEYS_TAG, PAE_NVM_KEYS_LEN);
-    if (ws_pae_nvm_store_tlv_file_read(KEYS_FILE_NAME, tlv) < 0) {
+    ws_pae_nvm_store_generic_tlv_create((nvm_tlv_t *) tlv, PAE_NVM_KEYS_TAG, PAE_NVM_KEYS_LEN);
+    if (ws_pae_nvm_store_tlv_file_read(KEYS_FILE_NAME, (nvm_tlv_t *) tlv) < 0) {
         return -1;
     }
     ws_pae_nvm_store_keys_tlv_read(tlv, &pae_supp->entry.sec_keys);

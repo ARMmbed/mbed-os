@@ -109,6 +109,7 @@ int8_t eventOS_event_handler_create(void (*handler_func_ptr)(arm_event_s *), uin
     event_tmp->data.receiver = new->id;
     event_tmp->data.sender = 0;
     event_tmp->data.event_type = init_event_type;
+    event_tmp->data.event_id = 0;
     event_tmp->data.event_data = 0;
     event_core_write(event_tmp);
 
@@ -197,7 +198,9 @@ void event_core_free_push(arm_event_storage_t *free)
             timer_sys_event_free(free);
             break;
         case ARM_LIB_EVENT_USER:
+            // *INDENT-OFF*
             // No need set state to UNQUEUED - we forget about it.
+            // *INDENT-ON*
         default:
             break;
     }

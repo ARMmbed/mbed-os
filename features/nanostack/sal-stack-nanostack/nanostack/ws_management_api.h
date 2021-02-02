@@ -16,7 +16,7 @@
  */
 
 /**
- * \file ws_management_if.h
+ * \file ws_management_api.h
  * \brief Wi-SUN management interface.
  *
  * This interface is used for configuring Wi-SUN devices.
@@ -37,61 +37,63 @@ extern "C" {
 #endif
 
 /* Regulatory domain values*/
-#define REG_DOMAIN_WW   0x00 // World wide
-#define REG_DOMAIN_NA   0x01 // North America
-#define REG_DOMAIN_JP   0x02 // Japan
-#define REG_DOMAIN_EU   0x03 // European Union
-#define REG_DOMAIN_CH   0x04 // China
-#define REG_DOMAIN_IN   0x05 // India
-#define REG_DOMAIN_MX   0x06 //
-#define REG_DOMAIN_BZ   0x07 // Brazil
-#define REG_DOMAIN_AZ   0x08 // Australia
-#define REG_DOMAIN_NZ   0x08 // New zealand
-#define REG_DOMAIN_KR   0x09 // Korea
-#define REG_DOMAIN_PH   0x0A //
-#define REG_DOMAIN_MY   0x0B //
-#define REG_DOMAIN_HK   0x0C //
-#define REG_DOMAIN_SG   0x0D // band 866-869
-#define REG_DOMAIN_TH   0x0E //
-#define REG_DOMAIN_VN   0x0F //
-#define REG_DOMAIN_SG_H 0x10 // band 920-925
+#define REG_DOMAIN_WW   0x00 /**< World wide */
+#define REG_DOMAIN_NA   0x01 /**< North America */
+#define REG_DOMAIN_JP   0x02 /**< Japan */
+#define REG_DOMAIN_EU   0x03 /**< European Union */
+#define REG_DOMAIN_CH   0x04 /**< China */
+#define REG_DOMAIN_IN   0x05 /**< India */
+#define REG_DOMAIN_MX   0x06 /**< Mexico */
+#define REG_DOMAIN_BZ   0x07 /**< Brazil */
+#define REG_DOMAIN_AZ   0x08 /**< Australia */
+#define REG_DOMAIN_NZ   0x08 /**< New zealand */
+#define REG_DOMAIN_KR   0x09 /**< Korea */
+#define REG_DOMAIN_PH   0x0A /**< Philippines */
+#define REG_DOMAIN_MY   0x0B /**< Malaysia */
+#define REG_DOMAIN_HK   0x0C /**< Hong Kong */
+#define REG_DOMAIN_SG   0x0D /**< Singapore band 866-869 */
+#define REG_DOMAIN_TH   0x0E /**< Thailand */
+#define REG_DOMAIN_VN   0x0F /**< Vietnam */
+#define REG_DOMAIN_SG_H 0x10 /**< Singapore band 920-925 */
 
-#define OPERATING_MODE_1a 0x1a
-#define OPERATING_MODE_1b 0x1b
-#define OPERATING_MODE_2a 0x2a
-#define OPERATING_MODE_2b 0x2b
-#define OPERATING_MODE_3  0x03
-#define OPERATING_MODE_4a 0x4a
-#define OPERATING_MODE_4b 0x4b
-#define OPERATING_MODE_5  0x05
+#define OPERATING_MODE_1a 0x1a  /**< 50, 0,5 */
+#define OPERATING_MODE_1b 0x1b  /**< 50, 1.0 */
+#define OPERATING_MODE_2a 0x2a  /**< 100, 0,5 */
+#define OPERATING_MODE_2b 0x2b  /**< 100, 1.0 */
+#define OPERATING_MODE_3  0x03  /**< 150, 0.5 */
+#define OPERATING_MODE_4a 0x4a  /**< 200, 0.5 */
+#define OPERATING_MODE_4b 0x4b  /**< 200, 1.0 */
+#define OPERATING_MODE_5  0x05  /**< 300, 0.5 */
 
-#define CHANNEL_FUNCTION_FIXED            0x00 // Fixed channel
-#define CHANNEL_FUNCTION_TR51CF           0x01 // TR51CF
-#define CHANNEL_FUNCTION_DH1CF            0x02 // Direct Hash
-#define CHANNEL_FUNCTION_VENDOR_DEFINED   0x03 // vendor given channel hop schedule
+#define CHANNEL_FUNCTION_FIXED            0x00  /**< Fixed channel */
+#define CHANNEL_FUNCTION_TR51CF           0x01  /**< TR51CF */
+#define CHANNEL_FUNCTION_DH1CF            0x02  /**< Direct Hash */
+#define CHANNEL_FUNCTION_VENDOR_DEFINED   0x03  /**< vendor given channel hop schedule */
 
-#define CHANNEL_SPACING_200 0x00 // 200 khz
-#define CHANNEL_SPACING_400 0x01 // 400 khz
-#define CHANNEL_SPACING_600 0x02 // 600 khz
-#define CHANNEL_SPACING_100 0x03 // 100 khz
-#define CHANNEL_SPACING_250 0x04 // 250 khz
+#define CHANNEL_SPACING_200     0x00    /**< 200 khz */
+#define CHANNEL_SPACING_400     0x01    /**< 400 khz */
+#define CHANNEL_SPACING_600     0x02    /**< 600 khz */
+#define CHANNEL_SPACING_100     0x03    /**< 100 khz */
+#define CHANNEL_SPACING_250     0x04    /**< 250 khz */
+#define CHANNEL_SPACING_800     0x05    /**< 800 khz */
+#define CHANNEL_SPACING_1200    0x06    /**< 1200 khz */
 
 /*
  *  Network Size definitions are device amount in hundreds of devices.
  *  These definitions are meant to give some estimates of sizes. Any value can be given as parameter
  */
 
-#define NETWORK_SIZE_CERTIFICATE    0x00  // Network configuration used in Wi-SUN certification
-#define NETWORK_SIZE_SMALL          0x01  // Small networks
-#define NETWORK_SIZE_MEDIUM         0x08  // 100 - 800 device networks are medium sized
-#define NETWORK_SIZE_LARGE          0x0F  // 800 - 1500 device networks are large
-#define NETWORK_SIZE_XLARGE         0x19  // 2500+ devices
-#define NETWORK_SIZE_AUTOMATIC      0xFF
+#define NETWORK_SIZE_CERTIFICATE    0x00    /**< Network configuration used in Wi-SUN certification */
+#define NETWORK_SIZE_SMALL          0x01    /**< Small networks */
+#define NETWORK_SIZE_MEDIUM         0x08    /**< 100 - 800 device networks are medium sized */
+#define NETWORK_SIZE_LARGE          0x0F    /**< 800 - 1500 device networks are large */
+#define NETWORK_SIZE_XLARGE         0x19    /**< 2500+ devices */
+#define NETWORK_SIZE_AUTOMATIC      0xFF    /**< Automatic network size */
 
 /** Temporary API change flag. this will be removed when new version of API is implemented on applications
  *
  */
-#define WS_MANAGEMENT_API_VER_2
+#define WS_MANAGEMENT_API_VER_2 /**< Management API version */
 
 /**
  * \brief Struct ws_statistics defines the Wi-SUN statistics storage structure.
@@ -183,6 +185,83 @@ int ws_management_network_name_get(
 int ws_management_network_name_validate(
     int8_t interface_id,
     char *network_name_ptr);
+
+/**
+ * Configure PHY mode ID of Wi-SUN stack as defined by Wi-SUN FAN 1.1.
+ *
+ * Change the default configuration for Wi-SUN PHY operation.
+ *
+ * Supported values:
+ * FSK without FEC:
+ * PHY mode ID | Symbol Rate (kbps) | Modulation Index
+ *           1                   50                0.5
+ *           2                   50                1.0
+ *           3                  100                0.5
+ *           4                  100                1.0
+ *           5                  150                0.5
+ *           6                  200                0.5
+ *           7                  200                1.0
+ *           8                  300                0.5
+ *
+ * FSK with FEC:
+ * PHY mode ID | Symbol Rate (kbps) | Modulation Index
+ *          17                   50                0.5
+ *          18                   50                1.0
+ *          19                  100                0.5
+ *          20                  100                1.0
+ *          21                  150                0.5
+ *          22                  200                0.5
+ *          23                  200                1.0
+ *          24                  300                0.5
+ *
+ * OFDM:
+ * PHY mode ID | Option | MCS | Data rate (kbps)
+ *          34        1     2                400
+ *          35        1     3                800
+ *          36        1     4               1200
+ *          37        1     5               1600
+ *          38        1     6               2400
+ *          51        2     3                400
+ *          52        2     4                600
+ *          53        2     5                800
+ *          54        2     6               1200
+ *          68        3     4                300
+ *          69        3     5                400
+ *          70        3     6                600
+ *          84        4     4                150
+ *          85        4     5                200
+ *          86        4     6                300
+ *
+ * if value of 255 is given then previous value is used.
+ *
+ * \param interface_id Network interface ID.
+ * \param phy_mode_id PHY mode ID. Default 255 (not used).
+ *
+ * \return 0, Init OK.
+ * \return <0 Init fail.
+ */
+int ws_management_phy_mode_id_set(
+    int8_t interface_id,
+    uint8_t phy_mode_id);
+
+/**
+ * Configure Channel plan ID of Wi-SUN stack as defined by Wi-SUN FAN 1.1.
+ *
+ * Change the default channel configuration for Wi-SUN.
+ *
+ * Supported values: TBD
+ *
+ * if value of 255 is given then previous value is used.
+ *
+ * \param interface_id Network interface ID.
+ * \param channel_plan_id Channel plan ID. Default 255 (not used).
+ *
+ * \return 0, Init OK.
+ * \return <0 Init fail.
+ */
+int ws_management_channel_plan_id_set(
+    int8_t interface_id,
+    uint8_t channel_plan_id);
 
 /**
  * Configure regulatory domain of Wi-SUN stack.
@@ -382,6 +461,8 @@ int ws_management_channel_plan_set(
  *
  * Change the default configuration for Wi-SUN FHSS operation.
  *
+ * Calling with fhss_uc_dwell_interval = 0, fhss_broadcast_interval = 0xffffffff,
+ * fhss_bc_dwell_interval = 0 restores stack defaults
  *
  * \param interface_id Network interface ID.
  * \param fhss_uc_dwell_interval default to 250 ms.
@@ -403,6 +484,7 @@ int ws_management_fhss_timing_configure(
  * Change the default configuration for Wi-SUN FHSS operation.
  * if application defined is used the behaviour is undefined
  *
+ * Calling with dwell_interval = 0, channel_function = 0xff, fixed_channel = 0xffff restores stack defaults
  *
  * \param interface_id Network interface ID.
  * \param channel_function Unicast channel function.
@@ -458,6 +540,8 @@ int ws_management_fhss_unicast_channel_function_validate(
  * Change the default configuration for Wi-SUN FHSS operation.
  * if application defined is used the behaviour is undefined
  *
+ * Calling with dwell_interval = 0, channel_function = 0xff,
+ * broadcast_interval = 0xffffffff, fixed_channel = 0xffff restores stack defaults
  *
  * \param interface_id Network interface ID.
  * \param channel_function Broadcast channel function.

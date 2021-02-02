@@ -48,7 +48,7 @@
 #define MPL_SEED_64_BIT     2
 #define MPL_SEED_128_BIT    3
 
-#define MAX_BUFFERED_MESSAGES_SIZE 2048
+#define MAX_BUFFERED_MESSAGES_SIZE 8192
 #define MAX_BUFFERED_MESSAGE_LIFETIME 600 // 1/10 s ticks
 
 static bool mpl_timer_running;
@@ -406,6 +406,7 @@ static mpl_buffered_message_t *mpl_buffer_create(buffer_t *buf, mpl_domain_t *do
     uint16_t ip_len = buffer_data_length(buf);
 
     while (mpl_total_buffered + ip_len > MAX_BUFFERED_MESSAGES_SIZE) {
+        tr_debug("MPL MAX buffered message size limit...free space");
         mpl_free_space();
     }
 
@@ -427,6 +428,7 @@ static mpl_buffered_message_t *mpl_buffer_create(buffer_t *buf, mpl_domain_t *do
 
     mpl_buffered_message_t *message = ns_dyn_mem_alloc(sizeof(mpl_buffered_message_t) + ip_len);
     if (!message) {
+        tr_debug("No heap for new MPL message");
         return NULL;
     }
     memcpy(message->message, buffer_data_pointer(buf), ip_len);
@@ -475,6 +477,7 @@ static void mpl_buffer_transmit(mpl_domain_t *domain, mpl_buffered_message_t *me
     uint16_t ip_len = mpl_buffer_size(message);
     buffer_t *buf = buffer_get(ip_len);
     if (!buf) {
+        tr_debug("No heap for MPL transmit");
         return;
     }
 
@@ -939,6 +942,9 @@ bool mpl_forwarder_process_message(buffer_t *buf, mpl_domain_t *domain, bool see
     }
 
     message = mpl_buffer_create(buf, domain, seed, sequence, hop_limit);
+    if (!message) {
+        tr_debug("MPL Buffer Craete fail");
+    }
 
     return true;
 }

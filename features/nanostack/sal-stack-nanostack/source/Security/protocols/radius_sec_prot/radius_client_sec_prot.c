@@ -652,6 +652,14 @@ static void radius_client_sec_prot_allocate_and_create_radius_message(sec_prot_t
     radius_msg_length += AVP_TYPE_NAS_IPV6_ADDRESS_LEN;
 
     uint8_t *radius_msg_ptr = ns_dyn_mem_temporary_alloc(radius_msg_length);
+    if (radius_msg_ptr == NULL) {
+        if (data->send_radius_msg != NULL) {
+            ns_dyn_mem_free(data->send_radius_msg);
+        }
+        data->send_radius_msg = NULL;
+        data->send_radius_msg_len = 0;
+        return;
+    }
     uint8_t *radius_msg_start_ptr = radius_msg_ptr;
 
     *radius_msg_ptr++ = RADIUS_ACCESS_REQUEST;                                // code

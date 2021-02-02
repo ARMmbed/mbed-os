@@ -828,6 +828,9 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const m
             tr_info("Number of channels: %u", config_params->number_of_channels);
             tr_info("Modulation: %u", config_params->modulation);
             tr_info("Modulation index: %u", config_params->modulation_index);
+            tr_info("FEC: %u", config_params->fec);
+            tr_info("OFDM MCS: %u", config_params->ofdm_mcs);
+            tr_info("OFDM option: %u", config_params->ofdm_option);
             return 0;
         default:
             return mac_mlme_handle_set_values(rf_mac_setup, set_req);

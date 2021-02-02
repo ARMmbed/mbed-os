@@ -180,6 +180,7 @@ struct rpl_instance {
     bool requested_dao_ack: 1;                      /* If we requested an ACK (so we retry if no ACK, rather than assuming success) */
     bool pending_neighbour_confirmation: 1;         /* if we have not finished address registration state to parent */
     bool parent_was_selected: 1;
+    bool advertised_dodag_membership_since_last_repair: 1; /* advertised dodag membership since last repair */
     uint8_t poison_count;
     uint8_t repair_dis_count;
     uint16_t repair_dis_timer;
@@ -192,7 +193,7 @@ struct rpl_instance {
     rpl_dodag_version_t *current_dodag_version;     /* Pointer to DODAG version we are a member of (if any) */
     uint16_t current_rank;                          /* Current rank in current DODAG Version */
     uint16_t parent_selection_timer;
-    rpl_dodag_version_t *last_advertised_dodag_version; /* Pointer to last DODAG version we advertised */
+
     trickle_t dio_timer;                            /* Trickle timer for DIO transmission */
     rpl_dao_root_transit_children_list_t root_children;
     rpl_dao_target_list_t dao_targets;              /* List of DAO targets */
