@@ -140,7 +140,7 @@ function(mbed_set_mbed_target_linker_script target)
         target_link_options(mbed-core
             INTERFACE
                 "-T" "${CMAKE_BINARY_DIR}/${target}.link_script.ld"
-                "-Wl,-Map=${CMAKE_BINARY_DIR}/${target}.map"
+                "-Wl,-Map=${CMAKE_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map"
         )
     elseif(MBED_TOOLCHAIN STREQUAL "ARM")
         set(CMAKE_PRE_BUILD_COMMAND COMMAND "")
@@ -203,7 +203,7 @@ function(mbed_generate_map_file target)
          TARGET
              ${target}
          POST_BUILD
-         COMMAND ${Python3_EXECUTABLE} ${MBED_PATH}/tools/memap.py -t ${MBED_TOOLCHAIN} ${CMAKE_BINARY_DIR}/${target}.map
+         COMMAND ${Python3_EXECUTABLE} ${MBED_PATH}/tools/memap.py -t ${MBED_TOOLCHAIN} ${CMAKE_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map
          WORKING_DIRECTORY
              ${CMAKE_BINARY_DIR}
          COMMENT
