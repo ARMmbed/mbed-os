@@ -13,7 +13,7 @@ project(${TEST_TARGET})
 list(APPEND TEST_SOURCE_LIST base64b/base64b.cpp pithy/pithy.c)
 list(APPEND TEST_INC_DIRS base64b pithy)
 
-mbed_greentea_cmake_macro(TEST_NAME ${TEST_TARGET}
+mbed_greentea_add_test(TEST_NAME ${TEST_TARGET}
     TEST_SOURCES ${TEST_SOURCE_LIST}
     TEST_INCLUDE_DIRS ${TEST_INC_DIRS}
 )
