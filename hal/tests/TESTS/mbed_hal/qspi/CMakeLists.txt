@@ -24,7 +24,7 @@ endif()
 
 list(APPEND TEST_HEADER_DIRS flash_configs flash_configs/${FLASH_TARGET_CONFIG_HEADER})
 
-mbed_greentea_cmake_macro(TEST_NAME ${TEST_TARGET}
+mbed_greentea_add_test(TEST_NAME ${TEST_TARGET}
     TEST_SOURCES qspi_test_utils.cpp
     TEST_INCLUDE_DIRS ${TEST_HEADER_DIRS}
 )
