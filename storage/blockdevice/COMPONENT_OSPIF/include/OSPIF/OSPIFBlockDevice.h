@@ -22,6 +22,14 @@
 #include "blockdevice/BlockDevice.h"
 #include "platform/Callback.h"
 
+#if defined(TARGET_MX25LM51245G)
+#include "MX25LM51245G_config.h"
+#endif
+
+#if defined(TARGET_MX25LW51245G)
+#include "MX25LW51245G_config.h"
+#endif
+
 #ifndef MBED_CONF_OSPIF_OSPI_IO0
 #define MBED_CONF_OSPIF_OSPI_IO0 NC
 #endif
@@ -61,8 +69,6 @@
 #ifndef MBED_CONF_OSPIF_OSPI_FREQ
 #define MBED_CONF_OSPIF_OSPI_FREQ 40000000
 #endif
-
-#define MX_FLASH_SUPPORT_RWW
 
 /** Enum ospif standard error codes
  *

@@ -20,9 +20,6 @@
 #include "OSPIFBlockDevice.h"
 #include <string.h>
 #include "rtos/ThisThread.h"
-#if defined(TARGET_MX25LM51245G)
-#include "MX25LM51245G_config.h"
-#endif
 
 #ifndef MBED_CONF_MBED_TRACE_ENABLE
 #define MBED_CONF_MBED_TRACE_ENABLE        0
@@ -50,18 +47,6 @@ using namespace mbed;
 #define OSPIF_STATUS_BIT_WIP        0x1 // Write In Progress
 #define OSPIF_STATUS_BIT_WEL        0x2 // Write Enable Latch
 #define OSPIF_NO_QUAD_ENABLE        (-1)
-
-// Configuration Register2 address
-#define OSPIF_CR2_OPI_EN_ADDR         0x00000000
-#define OSPIF_CR2_BANK_STATUS_ADDR    0xc0000000
-#define OSPIF_CR2_RWWDI               ((uint8_t)0x00)        /*!< No active program or erase operation */
-#define OSPIF_CR2_RWWDS               ((uint8_t)0x01)        /*!< Program/erase in other bank */
-#define OSPIF_CR2_RWWBS               ((uint8_t)0x03)        /*!< program/erase operation in addressed bank */
-
-#ifdef MX_FLASH_SUPPORT_RWW
-#define MX25LM51245G_BANK_SIZE                    0x01000000                    /* 16 MBytes */
-#define MX25LM51245G_BANK_SIZE_MASK               ~(MX25LM51245G_BANK_SIZE - 1) /* 0xFF000000 */
-#endif
 
 /* SFDP Header Parsing */
 /***********************/
@@ -177,6 +162,21 @@ using namespace mbed;
 // Length of data returned from RDID instruction
 #define OSPI_RDID_DATA_LENGTH 3
 
+#ifdef NEED_DEFINE_SFDP_PARA
+uint8_t _sfdp_head_table[32] = {0x53, 0x46, 0x44, 0x50, 0x06, 0x01, 0x02, 0xFF, 0x00, 0x06, 0x01,
+                                0x10, 0x30, 0x00, 0x00, 0xFF, 0xC2, 0x00, 0x01, 0x04, 0x10, 0x01,
+                                0x00, 0xFF, 0x84, 0x00, 0x01, 0x02, 0xC0, 0x00, 0x00, 0xFF
+                               };
+uint8_t _sfdp_basic_param_table[64] = {0x30, 0xFF, 0xFB, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xFF, 0xFF,
+                                       0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x14, 0xEC,
+                                       0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x0C, 0x20,
+                                       0x10, 0xDC, 0x00, 0xFF, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                       0x81, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                       0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                       0xFF, 0x50, 0xF9, 0x80
+                                      };
+uint8_t _sfdp_4_byte_inst_table[8] = {0x7F, 0xEF, 0xFF, 0xFF, 0x21, 0x5C, 0xDC, 0x14};
+#endif
 
 /* Init function to initialize Different Devices CS static list */
 static PinName *generate_initialized_active_ospif_csel_arr();
@@ -407,7 +407,7 @@ int OSPIFBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 
 #ifdef MX_FLASH_SUPPORT_RWW
     bool need_wait;
-    need_wait = (_wait_flag != NOT_STARTED) && ((addr & MX25LM51245G_BANK_SIZE_MASK) == _busy_bank);
+    need_wait = (_wait_flag != NOT_STARTED) && ((addr & MX25LW51245G_BANK_SIZE_MASK) == _busy_bank);
 
     // Wait for ready
     if (need_wait) {
@@ -499,7 +499,7 @@ int OSPIFBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size
 
 #ifdef MX_FLASH_SUPPORT_RWW
         _wait_flag = WRITE_WAIT_STARTED;
-        _busy_bank = addr & MX25LM51245G_BANK_SIZE_MASK;
+        _busy_bank = addr & MX25LW51245G_BANK_SIZE_MASK;
 
         _mutex.unlock();
 
@@ -512,7 +512,7 @@ int OSPIFBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size
             goto exit_point;
         }
         _mutex.unlock();
-#endif        
+#endif
         buffer = static_cast<const uint8_t *>(buffer) + chunk;
         addr += chunk;
         size -= chunk;
@@ -606,7 +606,7 @@ int OSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 
 #ifdef MX_FLASH_SUPPORT_RWW
         _wait_flag = ERASE_WAIT_STARTED;
-        _busy_bank = addr & MX25LM51245G_BANK_SIZE_MASK;
+        _busy_bank = addr & MX25LW51245G_BANK_SIZE_MASK;
 
         _mutex.unlock();
 
@@ -1631,7 +1631,7 @@ bool OSPIFBlockDevice::_is_mem_ready_rww(bd_addr_t addr, uint8_t rw)
     static uint32_t rww_cnt = 0;   // For testing
     static uint32_t rwe_cnt = 0;   // For testing
 
-    bd_addr_t bank_addr = addr & MX25LM51245G_BANK_SIZE_MASK;
+    bd_addr_t bank_addr = addr & MX25LW51245G_BANK_SIZE_MASK;
 
     if ((_wait_flag == NOT_STARTED) || (!rw && bank_addr != _busy_bank)) {
         return mem_ready;

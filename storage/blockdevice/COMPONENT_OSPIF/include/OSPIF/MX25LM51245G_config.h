@@ -17,7 +17,6 @@
 #ifndef MBED_OSPI_FLASH_MX25LM51245G_H
 #define MBED_OSPI_FLASH_MX25LM51245G_H
 
-
 #define OSPI_FLASH_CHIP_STRING "macronix MX25LM51245G"
 
 // This is a workaround,
@@ -26,33 +25,10 @@
 // The code below can be removed when users test with the new flash.
 #define NEED_DEFINE_SFDP_PARA
 
-#ifdef NEED_DEFINE_SFDP_PARA
-uint8_t _sfdp_head_table[32] = {0x53, 0x46, 0x44, 0x50, 0x06, 0x01, 0x02, 0xFF, 0x00, 0x06, 0x01,
-                                0x10, 0x30, 0x00, 0x00, 0xFF, 0xC2, 0x00, 0x01, 0x04, 0x10, 0x01,
-                                0x00, 0xFF, 0x84, 0x00, 0x01, 0x02, 0xC0, 0x00, 0x00, 0xFF
-                               };
-uint8_t _sfdp_basic_param_table[64] = {0x30, 0xFF, 0xFB, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xFF, 0xFF,
-                                       0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x14, 0xEC,
-                                       0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x0C, 0x20,
-                                       0x10, 0xDC, 0x00, 0xFF, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                       0x81, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                       0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                       0xFF, 0x50, 0xF9, 0x80
-                                      };
-uint8_t _sfdp_4_byte_inst_table[8] = {0x7F, 0xEF, 0xFF, 0xFF, 0x21, 0x5C, 0xDC, 0x14};
-#endif
-
-//#define MX_FLASH_SUPPORT_RWW 1
-
 #define MX25LM51245G_FLASH_SIZE                   0x4000000 /* 512 MBits => 64 MBytes */
 #define MX25LM51245G_BLOCK_SIZE                   0x10000   /* 1024 blocks of 64 KBytes */
 #define MX25LM51245G_SECTOR_SIZE                  0x1000    /* 16384 sectors of 4 kBytes */
 #define MX25LM51245G_PAGE_SIZE                    0x100     /* 262144 pages of 256 bytes */
 #define MX25LM51245G_CHUNK_SIZE                   0x10      /* fred: 16 bytes */
-
-#ifdef MX_FLASH_SUPPORT_RWW
-#define MX25LM51245G_BANK_SIZE                    0x01000000                    /* fred: 16 MBytes */
-#define MX25LM51245G_BANK_SIZE_MASK               ~(MX25LM51245G_BANK_SIZE - 1) /* fred: 0xFF000000 */
-#endif
 
 #endif // MBED_OSPI_FLASH_MX25LM51245G_H
