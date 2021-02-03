@@ -2652,6 +2652,19 @@
             "STM32G431xx"
         ]
     },
+    "NUCLEO_G431KB": {
+        "inherits": [
+            "MCU_STM32G431xB"
+        ],
+      "overrides": {
+        "clock_source": "USE_PLL_HSI",
+        "lse_available":  0
+      },
+      "detect_code": [
+        "0851"
+      ],
+      "device_name": "STM32G431KBTx"
+    },
     "MCU_STM32G441xB": {
         "inherits": [
             "MCU_STM32G4"
