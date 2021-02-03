@@ -533,10 +533,12 @@ void i2c_frequency(i2c_t *obj, int hz)
     HAL_I2CEx_ConfigAnalogFilter(handle, I2C_ANALOGFILTER_ENABLE);
 #endif
 
+#ifdef I2C_IP_VERSION_V2
 #ifdef TARGET_STM32H7
     handle->Init.Timing = get_i2c_timing(obj_s->i2c, hz);
 #else
     handle->Init.Timing = get_i2c_timing(hz);
+#endif
 #endif
 
     // I2C configuration
