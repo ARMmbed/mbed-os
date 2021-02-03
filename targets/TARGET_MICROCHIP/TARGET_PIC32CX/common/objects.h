@@ -121,7 +121,7 @@ struct flash_s {
 
 #if DEVICE_TRNG
 struct trng_s {
-    TRNG_TypeDef *instance;
+    uint8_t dummy;
 };
 #endif
 
@@ -141,11 +141,6 @@ struct qspi_s {
     PinName sclk;
     PinName ssel;
 };
-#endif
-
-#if DEVICE_CRC
-//GPCRC supports any 16-bit poly, but only the CCITT 32-bit poly
-#define HAL_CRC_IS_SUPPORTED(polynomial, width) ((width) == 16 || ((width) == 32 && (polynomial) == POLY_32BIT_ANSI))
 #endif
 
 #ifdef __cplusplus

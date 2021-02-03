@@ -6982,7 +6982,8 @@
 			"RESET_REASON",
 			"RTC", 
             "FLASH",
-            "WATCHDOG"
+            "WATCHDOG",
+			"TRNG"
         ],
         "c_lib": "small",
 		"bootloader_supported": true,
