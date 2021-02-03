@@ -2197,6 +2197,10 @@
                 "help": "Clock frequency in Mhz",
                 "value": "8",
                 "macro_name": "CLOCK_FREQUENCY_MHZ"
+            },
+            "usb_speed":  {
+                "help": "USE_USB_OTG_FS or USE_USB_OTG_HS or USE_USB_HS_IN_FS",
+                "value": "USE_USB_OTG_HS"
             }
         },
         "overrides": {
@@ -2208,7 +2212,8 @@
         ],
         "device_has_add": [
             "ANALOGOUT",
-            "QSPI"
+            "QSPI",
+            "USBDEVICE"
         ],
         "device_has_remove": [
             "LPTICKER"
