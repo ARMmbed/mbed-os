@@ -19,6 +19,7 @@
         "storage_tdb_external",
         "fat_chan",
         "lora",
+        "sx1276-lora-driver",
         "nfc",
         "network-emac",
         "flashiap-block-device",
