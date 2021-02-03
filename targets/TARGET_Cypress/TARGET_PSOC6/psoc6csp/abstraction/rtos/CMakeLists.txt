@@ -1,25 +1,25 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-cy_psoc6csp_rtos INTERFACE)
+if("CY_RTOS_AWARE" IN_LIST MBED_CONFIG_DEFINITIONS)
+    if("RTX" IN_LIST MBED_TARGET_LABELS)
+        target_include_directories(mbed-core
+            INTERFACE
+                include/COMPONENT_RTX
+        )
+        target_sources(mbed-core
+            INTERFACE
+                source/COMPONENT_RTX/cyabs_rtos_rtxv5.c
+        )
+    endif()
 
-if("RTX" IN_LIST MBED_TARGET_LABELS)
-    target_include_directories(mbed-cy_psoc6csp_rtos
+    target_include_directories(mbed-core
         INTERFACE
-            include/COMPONENT_RTX
+            include
     )
-    target_sources(mbed-cy_psoc6csp_rtos
+
+    target_sources(mbed-core
         INTERFACE
-            source/COMPONENT_RTX/cyabs_rtos_rtxv5.c
+            source/cy_worker_thread.c
     )
 endif()
-
-target_include_directories(mbed-cy_psoc6csp_rtos
-    INTERFACE
-        include
-)
-
-target_sources(mbed-cy_psoc6csp_rtos
-    INTERFACE
-        source/cy_worker_thread.c
-)
