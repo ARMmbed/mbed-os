@@ -24,8 +24,6 @@ enable_language(C CXX ASM)
 # Note: This is nice to have, but is also required because STM32Cube will only work on files with a .elf extension
 set(CMAKE_EXECUTABLE_SUFFIX .elf)
 
-# Find Python and needed packages
-find_package(Python3)
 # Find Python
 find_package(Python3 COMPONENTS Interpreter)
 include(${CMAKE_CURRENT_LIST_DIR}/CheckPythonPackage.cmake)
