@@ -41,6 +41,7 @@
 #include "PeripheralPins.h"
 #include "i2c_device.h" // family specific defines
 #include "mbed_error.h"
+#include "platform/mbed_power_mgmt.h"
 
 #ifndef DEBUG_STDIO
 #   define DEBUG_STDIO 0
@@ -294,6 +295,11 @@ void i2c_init_internal(i2c_t *obj, const i2c_pinmap_t *pinmap)
         // Configure I2C pins
         obj_s->event_i2cIRQ = I2C1_EV_IRQn;
         obj_s->error_i2cIRQ = I2C1_ER_IRQn;
+
+#if defined(TARGET_STM32WL)
+        /* In Stop2 mode, I2C1 and I2C2 instances are powered down (only I2C3 register content is kept) */
+        sleep_manager_lock_deep_sleep();
+#endif
     }
 #endif
 #if defined I2C2_BASE
@@ -303,6 +309,11 @@ void i2c_init_internal(i2c_t *obj, const i2c_pinmap_t *pinmap)
         __HAL_RCC_I2C2_CLK_ENABLE();
         obj_s->event_i2cIRQ = I2C2_EV_IRQn;
         obj_s->error_i2cIRQ = I2C2_ER_IRQn;
+
+#if defined(TARGET_STM32WL)
+        /* In Stop2 mode, I2C1 and I2C2 instances are powered down (only I2C3 register content is kept) */
+        sleep_manager_lock_deep_sleep();
+#endif
     }
 #endif
 #if defined I2C3_BASE
@@ -380,11 +391,17 @@ void i2c_deinit_internal(i2c_t *obj)
 #if defined I2C1_BASE
     if (obj_s->i2c == I2C_1) {
         __HAL_RCC_I2C1_CLK_DISABLE();
+#if defined(TARGET_STM32WL)
+        sleep_manager_unlock_deep_sleep();
+#endif
     }
 #endif
 #if defined I2C2_BASE
     if (obj_s->i2c == I2C_2) {
         __HAL_RCC_I2C2_CLK_DISABLE();
+#if defined(TARGET_STM32WL)
+        sleep_manager_unlock_deep_sleep();
+#endif
     }
 #endif
 #if defined I2C3_BASE
@@ -758,7 +775,7 @@ int i2c_byte_read(i2c_t *obj, int last)
     if ((tmpreg & I2C_CR2_RELOAD) != 0) {
         while (!__HAL_I2C_GET_FLAG(handle, I2C_FLAG_TCR)) {
             if ((timeout--) == 0) {
-                DEBUG_PRINTF("timeout in byte_read\r\n");
+                DEBUG_PRINTF("timeout in i2c_byte_read\r\n");
                 return -1;
             }
         }
@@ -827,7 +844,7 @@ int i2c_byte_write(i2c_t *obj, int data)
         if ((tmpreg & I2C_CR2_RELOAD) != 0) {
             while (!__HAL_I2C_GET_FLAG(handle, I2C_FLAG_TCR)) {
                 if ((timeout--) == 0) {
-                    DEBUG_PRINTF("timeout in byte_write\r\n");
+                    DEBUG_PRINTF("timeout in i2c_byte_write\r\n");
                     return 2;
                 }
             }
@@ -912,7 +929,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
         i2c_ev_err_disable(obj);
 
         if ((timeout == 0) || (obj_s->event != I2C_EVENT_TRANSFER_COMPLETE)) {
-            DEBUG_PRINTF(" TIMEOUT or error in i2c_read\r\n");
+            DEBUG_PRINTF("TIMEOUT or error in i2c_read\r\n");
             /* re-init IP to try and get back in a working state */
             i2c_init_internal(obj, NULL);
         } else {
@@ -986,7 +1003,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
             count = length;
         }
     } else {
-        DEBUG_PRINTF("ERROR in i2c_read\r\n");
+        DEBUG_PRINTF("ERROR in i2c_write\r\n");
     }
 
     return count;
