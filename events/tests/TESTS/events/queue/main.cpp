@@ -89,17 +89,17 @@ void simple_posts_test##i() {                               \
                                                             \
     touched = false;                                        \
     queue.call(func##i,##__VA_ARGS__);                      \
-    queue.dispatch(0);                                      \
+    queue.dispatch_once();                                  \
     TEST_ASSERT(touched);                                   \
                                                             \
     touched = false;                                        \
-    queue.call_in(1ms, func##i,##__VA_ARGS__);                \
-    queue.dispatch(2);                                      \
+    queue.call_in(1ms, func##i,##__VA_ARGS__);              \
+    queue.dispatch_for(2ms);                                \
     TEST_ASSERT(touched);                                   \
                                                             \
     touched = false;                                        \
-    queue.call_every(1ms, func##i,##__VA_ARGS__);             \
-    queue.dispatch(2);                                      \
+    queue.call_every(1ms, func##i,##__VA_ARGS__);           \
+    queue.dispatch_for(2ms);                                \
     TEST_ASSERT(touched);                                   \
 }
 
@@ -129,7 +129,7 @@ void call_in_test()
         queue.call_in((i + 1) * 100ms, time_func, &tickers[i], (i + 1) * 100);
     }
 
-    queue.dispatch(N * 100);
+    queue.dispatch_for(N * 100ms);
 }
 
 template <int N>
@@ -144,7 +144,7 @@ void call_every_test()
         queue.call_every((i + 1) * 100ms, time_func, &tickers[i], (i + 1) * 100);
     }
 
-    queue.dispatch(N * 100);
+    queue.dispatch_for(N * 100ms);
 }
 
 void allocate_failure_test()
@@ -179,7 +179,7 @@ void cancel_test1()
         queue.cancel(ids[i]);
     }
 
-    queue.dispatch(0);
+    queue.dispatch_once();
 }
 
 
@@ -235,7 +235,7 @@ void event_class_test()
     e1.post(1);
     e0.post();
 
-    queue.dispatch(0);
+    queue.dispatch_once();
 
     TEST_ASSERT_EQUAL(counter, 30);
 }
@@ -259,7 +259,7 @@ void event_class_helper_test()
     e1.post();
     e0.post();
 
-    queue.dispatch(0);
+    queue.dispatch_once();
 
     TEST_ASSERT_EQUAL(counter, 15);
 }
@@ -283,7 +283,7 @@ void event_inference_test()
     queue.event(callback(count5), 1).post(1, 1, 1, 1);
     queue.event(callback(count5)).post(1, 1, 1, 1, 1);
 
-    queue.dispatch(0);
+    queue.dispatch_once();
 
     TEST_ASSERT_EQUAL(counter, 60);
 }
@@ -317,7 +317,7 @@ void time_left_test()
     TEST_ASSERT(timeleft_events[0]);
     TEST_ASSERT(timeleft_events[1]);
 
-    queue.dispatch(300);
+    queue.dispatch_for(300ms);
 
     // Ensure check was called
     TEST_ASSERT(touched);
@@ -326,7 +326,7 @@ void time_left_test()
     int id = queue.call(func0);
     TEST_ASSERT(id);
     TEST_ASSERT_EQUAL(0, queue.time_left(id));
-    queue.dispatch(10);
+    queue.dispatch_for(10ms);
 
     // Test invalid event id
     TEST_ASSERT_EQUAL(-1, queue.time_left(0));
@@ -418,7 +418,7 @@ void mixed_dynamic_static_events_queue_test()
         ue4.cancel();
         e2.cancel();
 
-        queue.dispatch(101);
+        queue.dispatch_for(101ms);
 
         TEST_ASSERT_EQUAL(true, touched);
         TEST_ASSERT_EQUAL(1, ue1_test.counter);
@@ -491,7 +491,7 @@ void static_events_queue_test()
     g_queue.cancel(&ue4);
     g_queue.cancel(&ue4);
 
-    g_queue.dispatch(400);
+    g_queue.dispatch_for(400ms);
 
     TEST_ASSERT_EQUAL(2, test1.counter);
     TEST_ASSERT_EQUAL(6, test2.counter);
@@ -500,7 +500,7 @@ void static_events_queue_test()
 
     ue4.delay(1);
     TEST_ASSERT_EQUAL(true, ue4.try_call());
-    g_queue.dispatch(1);
+    g_queue.dispatch_for(1ms);
 
     TEST_ASSERT_EQUAL(2, test1.counter);
     TEST_ASSERT_EQUAL(6, test2.counter);
@@ -525,7 +525,7 @@ void event_period_tests()
     event1.delay(10ms);
     event1.period(events::non_periodic);
     event1.post();
-    period_tests_queue.dispatch(80);
+    period_tests_queue.dispatch_for(80ms);
 
     // Wait 100ms and check the event execution status
     wait_us(100 * 1000);
@@ -543,7 +543,7 @@ void event_period_tests()
     event2.delay(10ms);
     event2.period(-10ms);
     event2.post();
-    period_tests_queue.dispatch(80);
+    period_tests_queue.dispatch_for(80ms);
 
     // Wait 100ms and check the event execution status
     wait_us(100 * 1000);
@@ -561,7 +561,7 @@ void event_period_tests()
     event3.delay(10ms);
     event3.period(0ms);
     event3.post();
-    period_tests_queue.dispatch(80);
+    period_tests_queue.dispatch_for(80ms);
 
     // Wait 100ms and check the event execution status
     wait_us(100 * 1000);
@@ -578,7 +578,7 @@ void event_period_tests()
     event4.delay(10ms);
     event4.period(20ms);
     event4.post();
-    period_tests_queue.dispatch(80);
+    period_tests_queue.dispatch_for(80ms);
 
     // Wait 100ms and check the event execution status
     wait_us(100 * 1000);

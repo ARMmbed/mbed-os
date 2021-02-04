@@ -41,9 +41,24 @@ EventQueue::~EventQueue()
     equeue_destroy(&_equeue);
 }
 
+void EventQueue::dispatch_for(duration ms)
+{
+    return equeue_dispatch(&_equeue, ms.count());
+}
+
 void EventQueue::dispatch(int ms)
 {
     return equeue_dispatch(&_equeue, ms);
+}
+
+void EventQueue::dispatch_forever()
+{
+    return equeue_dispatch(&_equeue, -1);
+}
+
+void EventQueue::dispatch_once()
+{
+    return equeue_dispatch(&_equeue, 0);
 }
 
 void EventQueue::break_dispatch()
