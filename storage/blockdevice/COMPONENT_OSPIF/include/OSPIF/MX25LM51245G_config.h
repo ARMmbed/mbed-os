@@ -25,10 +25,13 @@
 // The code below can be removed when users test with the new flash.
 #define NEED_DEFINE_SFDP_PARA
 
-#define MX25LM51245G_FLASH_SIZE                   0x4000000 /* 512 MBits => 64 MBytes */
-#define MX25LM51245G_BLOCK_SIZE                   0x10000   /* 1024 blocks of 64 KBytes */
-#define MX25LM51245G_SECTOR_SIZE                  0x1000    /* 16384 sectors of 4 kBytes */
-#define MX25LM51245G_PAGE_SIZE                    0x100     /* 262144 pages of 256 bytes */
-#define MX25LM51245G_CHUNK_SIZE                   0x10      /* fred: 16 bytes */
+#define OSPIF_CR2_OPI_EN_ADDR      0x00000000
+
+#define MX_FLASH_BLOCK_SIZE        0x10000    /* 1024 blocks of 64 KBytes */
+#define MX_FLASH_SECTOR_SIZE       0x1000     /* 16384 sectors of 4 kBytes */
+#define MX_FLASH_PAGE_SIZE         0x100      /* 262144 pages of 256 bytes */
+#define MX_FLASH_CHUNK_SIZE        0x10       /* 16 bytes */
+#define MX_FLASH_BANK_SIZE         0x01000000 /* 16 MBytes */
+#define MX_FLASH_BANK_SIZE_MASK    ~(MX_FLASH_BANK_SIZE - 1) /* 0xFF000000 */
 
 #endif // MBED_OSPI_FLASH_MX25LM51245G_H

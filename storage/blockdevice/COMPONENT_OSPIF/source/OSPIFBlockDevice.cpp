@@ -407,7 +407,7 @@ int OSPIFBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 
 #ifdef MX_FLASH_SUPPORT_RWW
     bool need_wait;
-    need_wait = (_wait_flag != NOT_STARTED) && ((addr & MX25LW51245G_BANK_SIZE_MASK) == _busy_bank);
+    need_wait = (_wait_flag != NOT_STARTED) && ((addr & MX_FLASH_BANK_SIZE_MASK) == _busy_bank);
 
     // Wait for ready
     if (need_wait) {
@@ -499,7 +499,7 @@ int OSPIFBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size
 
 #ifdef MX_FLASH_SUPPORT_RWW
         _wait_flag = WRITE_WAIT_STARTED;
-        _busy_bank = addr & MX25LW51245G_BANK_SIZE_MASK;
+        _busy_bank = addr & MX_FLASH_BANK_SIZE_MASK;
 
         _mutex.unlock();
 
@@ -606,7 +606,7 @@ int OSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 
 #ifdef MX_FLASH_SUPPORT_RWW
         _wait_flag = ERASE_WAIT_STARTED;
-        _busy_bank = addr & MX25LW51245G_BANK_SIZE_MASK;
+        _busy_bank = addr & MX_FLASH_BANK_SIZE_MASK;
 
         _mutex.unlock();
 
@@ -1631,7 +1631,7 @@ bool OSPIFBlockDevice::_is_mem_ready_rww(bd_addr_t addr, uint8_t rw)
     static uint32_t rww_cnt = 0;   // For testing
     static uint32_t rwe_cnt = 0;   // For testing
 
-    bd_addr_t bank_addr = addr & MX25LW51245G_BANK_SIZE_MASK;
+    bd_addr_t bank_addr = addr & MX_FLASH_BANK_SIZE_MASK;
 
     if ((_wait_flag == NOT_STARTED) || (!rw && bank_addr != _busy_bank)) {
         return mem_ready;
