@@ -1,15 +1,13 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("STM32WB50xx" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32WB50xx)
-elseif("STM32WB55xx" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32WB55xx)
-endif()
+add_subdirectory(TARGET_STM32WB50xx EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32WB55xx EXCLUDE_FROM_ALL)
+add_subdirectory(STM32Cube_FW EXCLUDE_FROM_ALL)
 
-add_subdirectory(STM32Cube_FW)
+add_library(STM32WB INTERFACE)
 
-target_sources(mbed-core
+target_sources(STM32WB
     INTERFACE
         analogin_device.c
         flash_api.c
@@ -20,7 +18,9 @@ target_sources(mbed-core
         wb_sleep.c
 )
 
-target_include_directories(mbed-core
+target_include_directories(STM32WB
     INTERFACE
         .
 )
+
+target_link_libraries(STM32WB INTERFACE STM STM32WBCube_FW)

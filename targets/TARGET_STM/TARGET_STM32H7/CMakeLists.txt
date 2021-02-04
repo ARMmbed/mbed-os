@@ -1,17 +1,15 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("STM32H743xI" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32H743xI)
-elseif("STM32H745xI" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32H745xI)
-elseif("STM32H747xI" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32H747xI)
-elseif("STM32H7A3xIQ" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32H7A3xIQ)
-endif()
+add_subdirectory(TARGET_STM32H743xI EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32H745xI EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32H747xI EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32H7A3xIQ EXCLUDE_FROM_ALL)
+add_subdirectory(STM32Cube_FW EXCLUDE_FROM_ALL)
 
-target_sources(mbed-core
+add_library(STM32H7 INTERFACE)
+
+target_sources(STM32H7
     INTERFACE
         analogin_device.c
         analogout_device.c
@@ -22,9 +20,9 @@ target_sources(mbed-core
         spi_api.c
 )
 
-add_subdirectory(STM32Cube_FW)
-
-target_include_directories(mbed-core
+target_include_directories(STM32H7
     INTERFACE
         .
 )
+
+target_link_libraries(STM32H7 INTERFACE STM STM32H7Cube_FW)

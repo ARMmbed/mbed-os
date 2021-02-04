@@ -9,15 +9,19 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32f103x8.sct)
 endif()
 
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+add_library(STM32F103x8 INTERFACE)
 
-target_sources(mbed-core
+target_sources(STM32F103x8
     INTERFACE
         system_clock.c
         ${STARTUP_FILE}
 )
 
-target_include_directories(mbed-core
+target_include_directories(STM32F103x8
     INTERFACE
         .
 )
+
+mbed_set_linker_script(STM32F103x8 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+
+target_link_libraries(STM32F103x8 INTERFACE STM32F1)

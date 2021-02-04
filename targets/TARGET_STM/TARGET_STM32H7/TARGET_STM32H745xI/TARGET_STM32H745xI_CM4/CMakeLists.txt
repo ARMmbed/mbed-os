@@ -9,14 +9,18 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32h745xI_CM4.sct)
 endif()
 
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+add_library(STM32H745xI_CM4 INTERFACE)
 
-target_sources(mbed-core
+target_sources(STM32H745xI_CM4
     INTERFACE
         ${STARTUP_FILE}
 )
 
-target_include_directories(mbed-core
+target_include_directories(STM32H745xI_CM4
     INTERFACE
         .
 )
+
+mbed_set_linker_script(STM32H745xI_CM4 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+
+target_link_libraries(STM32H745xI_CM4 INTERFACE STM32H745xI)

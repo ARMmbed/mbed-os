@@ -43,8 +43,6 @@ macro(mbed_greentea_add_test)
 
     mbed_configure_app_target(${TEST_NAME})
 
-    mbed_set_mbed_target_linker_script(${TEST_NAME})
-
     target_include_directories(${TEST_NAME}
         PRIVATE
             .

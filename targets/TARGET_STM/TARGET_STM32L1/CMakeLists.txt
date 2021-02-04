@@ -1,15 +1,13 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("MOTE_L152RC" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_MOTE_L152RC)
-elseif("NUCLEO_L152RE" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_NUCLEO_L152RE)
-elseif("XDOT_L151CC" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_XDOT_L151CC)
-endif()
+add_subdirectory(TARGET_MOTE_L152RC EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_NUCLEO_L152RE EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_XDOT_L151CC EXCLUDE_FROM_ALL)
 
-target_sources(mbed-core
+add_library(STM32L1 INTERFACE)
+
+target_sources(STM32L1
     INTERFACE
         analogin_device.c
         analogout_device.c
@@ -81,8 +79,10 @@ target_sources(mbed-core
         device/system_stm32l1xx.c
 )
 
-target_include_directories(mbed-core
+target_include_directories(STM32L1
     INTERFACE
         .
         device
 )
+
+target_link_libraries(STM32L1 INTERFACE STM)

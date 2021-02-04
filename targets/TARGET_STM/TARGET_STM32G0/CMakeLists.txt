@@ -1,21 +1,17 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("STM32G030xx" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32G030xx)
-elseif("STM32G031xx" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32G031xx)
-elseif("STM32G041xx" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32G041xx)
-elseif("STM32G070xx" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32G070xx)
-elseif("STM32G071xx" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32G071xx)
-elseif("STM32G081xx" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32G081xx)
-endif()
+add_subdirectory(TARGET_STM32G030xx EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32G031xx EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32G041xx EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32G070xx EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32G071xx EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32G081xx EXCLUDE_FROM_ALL)
+add_subdirectory(STM32Cube_FW EXCLUDE_FROM_ALL)
 
-target_sources(mbed-core
+add_library(STM32G0 INTERFACE)
+
+target_sources(STM32G0
     INTERFACE
         analogin_device.c
         analogout_device.c
@@ -26,9 +22,9 @@ target_sources(mbed-core
         spi_api.c
 )
 
-add_subdirectory(STM32Cube_FW)
-
-target_include_directories(mbed-core
+target_include_directories(STM32G0
     INTERFACE
         .
 )
+
+target_link_libraries(STM32G0 INTERFACE STM STM32G0Cube_FW)

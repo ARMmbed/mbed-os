@@ -1,12 +1,16 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_sources(mbed-core
+add_library(NUCLEO_H743ZI INTERFACE)
+
+target_sources(NUCLEO_H743ZI
     INTERFACE
         PeripheralPins.c
 )
 
-target_include_directories(mbed-core
+target_include_directories(NUCLEO_H743ZI
     INTERFACE
         .
 )
+
+target_link_libraries(NUCLEO_H743ZI INTERFACE STM32H743xI)

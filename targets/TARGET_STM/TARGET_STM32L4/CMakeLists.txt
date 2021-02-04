@@ -1,35 +1,22 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("STM32L432xC" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32L432xC)
-elseif("STM32L433xC" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32L433xC)
-elseif("STM32L443xC" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32L443xC)
-elseif("STM32L452xE" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32L452xE)
-elseif("STM32L471xG" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32L471xG)
-elseif("STM32L475xG" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32L475xG)
-elseif("STM32L476xG" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32L476xG)
-elseif("STM32L486xG" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32L486xG)
-elseif("STM32L496xG" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32L496xG)
-elseif("STM32L4R5xI" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32L4R5xI)
-elseif("STM32L4R9xI" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32L4R9xI)
-elseif("STM32L4S5xI" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32L4S5xI)
-endif()
+add_subdirectory(TARGET_STM32L432xC EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L433xC EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L443xC EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L452xE EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L471xG EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L475xG EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L476xG EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L486xG EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L496xG EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L4R5xI EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L4R9xI EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L4S5xI EXCLUDE_FROM_ALL)
 
-add_subdirectory(STM32Cube_FW)
+add_library(STM32L4 INTERFACE)
 
-target_sources(mbed-core
+target_sources(STM32L4
     INTERFACE
         analogin_device.c
         analogout_device.c
@@ -40,7 +27,10 @@ target_sources(mbed-core
         spi_api.c
 )
 
-target_include_directories(mbed-core
+target_include_directories(STM32L4
     INTERFACE
         .
 )
+
+add_subdirectory(STM32Cube_FW EXCLUDE_FROM_ALL)
+target_link_libraries(STM32L4 INTERFACE STM STM32L4Cube_FW)
