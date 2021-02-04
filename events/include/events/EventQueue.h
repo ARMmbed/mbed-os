@@ -107,7 +107,7 @@ public:
      *  to terminate. When called with a timeout of 0, the dispatch function
      *  does not wait and is IRQ safe.
      *
-     *  NOTE: Since the majority of the event library was updated to use 
+     *  NOTE: Since the majority of the event library was updated to use
      *  Chrono types (as part of the Mbed 6 release), this function will not
      *  function as expected. Please update to use the new dispatch functions
      *  to ensure correct functionality.
