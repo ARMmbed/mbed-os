@@ -76,7 +76,7 @@ public:
     * @param product_id Your product_id
     * @param product_release Your preoduct_release
     */
-    USBMSD(BlockDevice *bd, bool connect_blocking = true, uint16_t vendor_id = 0x0703, uint16_t product_id = 0x0104, uint16_t product_release = 0x0001);
+    USBMSD(mbed::BlockDevice *bd, bool connect_blocking = true, uint16_t vendor_id = 0x0703, uint16_t product_id = 0x0104, uint16_t product_release = 0x0001);
 
     /**
     * Fully featured constructor
@@ -95,7 +95,7 @@ public:
     * @param product_id Your product_id
     * @param product_release Your preoduct_release
     */
-    USBMSD(USBPhy *phy, BlockDevice *bd, uint16_t vendor_id, uint16_t product_id, uint16_t product_release);
+    USBMSD(USBPhy *phy, mbed::BlockDevice *bd, uint16_t vendor_id, uint16_t product_id, uint16_t product_release);
 
     /**
      * Destroy this object
@@ -263,7 +263,7 @@ private:
     events::Task<void(const setup_packet_t *)> _control_task;
     events::Task<void()> _configure_task;
 
-    BlockDevice *_bd;
+    mbed::BlockDevice *_bd;
     rtos::Mutex _mutex_init;
     rtos::Mutex _mutex;
 

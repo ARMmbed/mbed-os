@@ -21,17 +21,17 @@
 #include "platform/Callback.h"
 
 
-PolledQueue::PolledQueue(mbed::Callback<void()> cb): _cb(cb)
+events::PolledQueue::PolledQueue(mbed::Callback<void()> cb): _cb(cb)
 {
 
 }
 
-PolledQueue::~PolledQueue()
+events::PolledQueue::~PolledQueue()
 {
 
 }
 
-void PolledQueue::dispatch()
+void events::PolledQueue::dispatch()
 {
     core_util_critical_section_enter();
     uint64_t buf[MBED_MAX_TASK_SIZE / sizeof(uint64_t)];
@@ -60,7 +60,7 @@ void PolledQueue::dispatch()
     core_util_critical_section_exit();
 }
 
-void PolledQueue::attach(mbed::Callback<void()> cb)
+void events::PolledQueue::attach(mbed::Callback<void()> cb)
 {
     core_util_critical_section_enter();
 
@@ -69,7 +69,7 @@ void PolledQueue::attach(mbed::Callback<void()> cb)
     core_util_critical_section_exit();
 }
 
-void PolledQueue::post(TaskBase *task)
+void events::PolledQueue::post(TaskBase *task)
 {
     core_util_critical_section_enter();
 
@@ -83,7 +83,7 @@ void PolledQueue::post(TaskBase *task)
     core_util_critical_section_exit();
 }
 
-void PolledQueue::cancel(TaskBase *task)
+void events::PolledQueue::cancel(TaskBase *task)
 {
     core_util_critical_section_enter();
 

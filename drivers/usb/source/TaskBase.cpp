@@ -21,6 +21,8 @@
 #include "rtos/Semaphore.h"
 #include "platform/mbed_critical.h"
 
+namespace events {
+
 TaskBase::TaskBase(TaskQueue *q)
     : _queue(q), _posted(false), _start_count(0), _flush_sem(NULL)
 {
@@ -149,4 +151,5 @@ void TaskBase::_wake_check()
         _flush_sem->release();
         _flush_sem = NULL;
     }
+}
 }

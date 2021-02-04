@@ -280,7 +280,7 @@ private:
     mbed::sfdp_hdr_info _sfdp_info;
 
     unsigned int _page_size_bytes; // Page size - 256 Bytes default
-    bd_size_t _device_size_bytes;
+    mbed::bd_size_t _device_size_bytes;
 
     // Bus configuration
     unsigned int _address_size; // number of bytes for address
