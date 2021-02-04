@@ -283,22 +283,6 @@
         "auto-update" : true
     },
     {
-        "name": "mbed-os-example-psa",
-        "github":"https://github.com/ARMmbed/mbed-os-example-psa",
-        "sub-repo-example": false,
-        "subs": [],
-        "features" : [],
-        "targets" : ["ARM_MUSCA_B1", "K64F"],
-        "toolchains" : ["GCC_ARM", "ARM"],
-        "exporters": [],
-        "compile" : true,
-        "export": true,
-        "test" : true,
-        "baud_rate": 9600,
-        "compare_log": ["mbed-os-example-psa/tests/psa.log"],
-        "auto-update" : true
-    },
-    {
         "name": "mbed-os-example-nfc",
         "github": "https://github.com/ARMmbed/mbed-os-example-nfc",
         "sub-repo-example": true,
