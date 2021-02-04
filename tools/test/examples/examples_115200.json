@@ -54,7 +54,7 @@
         "sub-repo-example": false,
         "subs": [],
         "features" : [],
-        "targets" : ["ARM_MUSCA_S1", "K64F"],
+        "targets" : ["ARM_MUSCA_S1", "ARM_MUSCA_B1", "K64F"],
         "toolchains" : ["GCC_ARM", "ARM"],
         "exporters": [],
         "compile" : true,
