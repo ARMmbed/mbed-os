@@ -153,6 +153,10 @@ typedef enum {
     MIKROBUS2_SERIAL_TX = B4,
     MIKROBUS2_SERIAL_RX = B3,
 
+    /* Xplain Pro TWI */
+    XPLAINPRO_TWI_SDA = A0,
+    XPLAINPRO_TWI_SCL = A1,
+
     /* Not connected */
     NC = (int)0xFFFFFFFF
 } PinName;

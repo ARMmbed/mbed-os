@@ -47,19 +47,18 @@ extern "C" {
 // } DACName;
 // #endif
 
-// #if DEVICE_I2C
-// typedef enum {
-// #ifdef I2C0_BASE
-    // I2C_0 = I2C0_BASE,
-// #endif
-// #ifdef I2C1_BASE
-    // I2C_1 = I2C1_BASE,
-// #endif
-// #ifdef I2C2_BASE
-    // I2C_2 = I2C2_BASE,
-// #endif
-// } I2CName;
-// #endif
+#if DEVICE_I2C
+typedef enum {
+    I2C_0 = (uint32_t)TWI0,
+    I2C_1 = (uint32_t)TWI1,
+    I2C_2 = (uint32_t)TWI2,
+    I2C_3 = (uint32_t)TWI3,
+    I2C_4 = (uint32_t)TWI4,
+    I2C_5 = (uint32_t)TWI5,
+    I2C_6 = (uint32_t)TWI6,
+    I2C_7 = (uint32_t)TWI7,
+} I2CName;
+#endif
 
 // #if DEVICE_PWMOUT
 // typedef enum {

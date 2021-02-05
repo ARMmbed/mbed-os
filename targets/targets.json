@@ -6983,7 +6983,9 @@
 			"RTC", 
             "FLASH",
             "WATCHDOG",
-			"TRNG"
+			"TRNG",
+            "I2C",
+            "I2CSLAVE"
         ],
         "c_lib": "small",
 		"bootloader_supported": true,
