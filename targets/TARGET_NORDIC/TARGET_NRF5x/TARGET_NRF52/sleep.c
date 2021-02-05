@@ -45,6 +45,21 @@ void hal_sleep(void)
 {
     /* Clock management for low power mode. */
 #if BB_CLK_RATE_HZ == 32768 && FEATURE_BLE == 1
+    // ensure debug is disconnected if semihost is enabled....
+
+    // Trigger an event when an interrupt is pending. This allows to wake up
+    // the processor from disabled interrupts.
+    SCB->SCR |= SCB_SCR_SEVONPEND_Msk;
+
+#if defined(NRF52) || defined(NRF52840_XXAA)
+    /* Clear exceptions and PendingIRQ from the FPU unit */
+    __set_FPSCR(__get_FPSCR() & ~(FPU_EXCEPTION_MASK));
+    (void)__get_FPSCR();
+    NVIC_ClearPendingIRQ(FPU_IRQn);
+#endif
+
+    /* Clock management for low power mode. */
+#if BB_CLK_RATE_HZ == 32768 && FEATURE_BLE == 1
     uint32_t rtcNow = NRF_RTC1->COUNTER;
 
     if ((BbGetCurrentBod() == NULL))
@@ -62,7 +77,33 @@ void hal_sleep(void)
 #endif
 
     NRF_POWER->TASKS_LOWPWR = 1;
-    __WFI();
+
+    // Note: it is not sufficient to just use WFE here, since the internal
+    // event register may be already set from an event that occurred in the
+    // past (like an SVC call to the SoftDevice) and in such case WFE will
+    // just clear the register and continue execution.
+    // Therefore, the strategy here is to first clear the event register
+    // by using SEV/WFE pair, and then execute WFE again, unless there is
+    // a pending interrupt.
+
+    // Set an event and wake up whatsoever, this will clear the event
+    // register from all previous events set (SVC call included)
+    __SEV();
+    __WFE();
+
+    // Test if there is an interrupt pending (mask reserved regions)
+    if (SCB->ICSR & (SCB_ICSR_RESERVED_BITS_MASK))
+    {
+        // Ok, there is an interrut pending, no need to go to sleep
+        return;
+    }
+    else
+    {
+        // next event will wakeup the CPU
+        // If an interrupt occured between the test of SCB->ICSR and this
+        // instruction, WFE will just not put the CPU to sleep
+        __WFE();
+    }
 }
 
 void hal_deepsleep(void)
