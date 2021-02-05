@@ -527,6 +527,7 @@ void PalBbBleLowPower(void)
 #if (USE_RTC_BB_CLK)
   NRF_TIMER0->TASKS_STOP = 1;
   NRF_TIMER0->TASKS_CLEAR = 1;
+  NRF_TIMER0->TASKS_SHUTDOWN = 1;
 #endif
 }
 
