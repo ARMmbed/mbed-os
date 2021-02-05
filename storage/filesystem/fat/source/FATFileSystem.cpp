@@ -414,7 +414,7 @@ int FATFileSystem::format(BlockDevice *bd, bd_size_t cluster_size)
         1,               /* Number of FATs */
         0,               /* Data area alignment (sector) */
         512,             /* Number of root directory entries */
-        cluster_size     /* Cluster size (byte) */
+        static_cast<DWORD>(cluster_size)     /* Cluster size (byte) */
     };
 
     FRESULT res = f_mkfs(fs._fsid, &opt, NULL, 0);
