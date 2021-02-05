@@ -184,7 +184,6 @@ endfunction()
 # Parse toolchain generated map file of `target` and display a readable table format.
 #
 function(mbed_generate_map_file target)
-     find_package (Python3)
      add_custom_command(
          TARGET
              ${target}
@@ -220,7 +219,10 @@ endfunction()
 function(mbed_set_post_build target)
     mbed_validate_application_profile(${target})
     mbed_generate_bin_hex(${target})
-    mbed_generate_map_file(${target})
+
+    if(HAVE_MEMAP_DEPS)
+        mbed_generate_map_file(${target})
+    endif()
 endfunction()
 
 # Ninja requires to be forced for response files
