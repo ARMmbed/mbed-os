@@ -7428,9 +7428,6 @@
             "IAR",
             "ARMC6"
         ],
-        "components": [
-            "FPGA_CI_TEST_SHIELD"
-        ],
         "overrides": {
             "default-form-factor": "samsung"
         },
