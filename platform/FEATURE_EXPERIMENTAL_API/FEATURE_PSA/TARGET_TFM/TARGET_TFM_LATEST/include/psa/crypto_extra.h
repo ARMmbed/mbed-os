@@ -20,6 +20,8 @@
 
 #include "psa/crypto_compat.h"
 
+#include "platform/mbed_toolchain.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -145,6 +147,7 @@ static inline psa_ecc_family_t mbedtls_ecc_group_to_psa( mbedtls_ecp_group_id gr
  *              verified that the usage of the key with multiple algorithms
  *              is safe.
  */
+MBED_DEPRECATED("Setting enrollment algorithm is for backward compatibility and not recommended.")
 static inline void psa_set_key_enrollment_algorithm(
     psa_key_attributes_t *attributes,
     psa_algorithm_t alg2)
@@ -161,6 +164,7 @@ static inline void psa_set_key_enrollment_algorithm(
  * \deprecated  This is for backward compatibility only.
  *              Deprecated along with psa_set_key_enrollment_algorithm().
  */
+MBED_DEPRECATED("Getting enrollment algorithm is for backward compatibility and not recommended.")
 static inline psa_algorithm_t psa_get_key_enrollment_algorithm(
     const psa_key_attributes_t *attributes)
 {
