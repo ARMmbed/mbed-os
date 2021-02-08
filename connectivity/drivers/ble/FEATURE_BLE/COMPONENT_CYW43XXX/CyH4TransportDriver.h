@@ -102,9 +102,9 @@ private:
     mbed::UnbufferedSerial uart;
 #else
     cyhal_uart_t uart;
-#endif
     PinName tx;
     PinName rx;
+#endif
     PinName cts;
     PinName rts;
     PinName bt_host_wake_name;
