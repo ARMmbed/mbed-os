@@ -1,17 +1,17 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("Apollo3" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_Apollo3)
-endif()
+add_subdirectory(TARGET_Apollo3 EXCLUDE_FROM_ALL)
 
-target_include_directories(mbed-core
+add_library(Ambiq_Micro INTERFACE)
+
+target_include_directories(Ambiq_Micro
     INTERFACE
         sdk/devices
         sdk/utils
 )
 
-target_sources(mbed-core
+target_sources(Ambiq_Micro
     INTERFACE
         sdk/devices/am_devices_button.c
         sdk/devices/am_devices_led.c

@@ -1,0 +1,18 @@
+# Copyright (c) 2020 ARM Limited. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+add_library(SFE_ARTEMIS INTERFACE)
+
+target_include_directories(SFE_ARTEMIS
+    INTERFACE
+        .
+        bsp
+)
+
+target_sources(SFE_ARTEMIS
+    INTERFACE
+        bsp/am_bsp.c
+        bsp/am_bsp_pins.c
+)
+
+target_link_libraries(SFE_ARTEMIS INTERFACE Apollo3)
