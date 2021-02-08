@@ -55,14 +55,13 @@ public:
         }
     };
 
-    tick_t tick() { return _now; };
+    tick_t tick() {
+        return _now;
+    };
 
-    bool cancel(handle_t id) { return cancel_handler(id); };
-
-    handle_t call(function_t f)
-    {
-        return call_handler(f);
-    }
+    bool cancel(handle_t id) {
+        return cancel_handler(id);
+    };
 
     template<typename F, typename ... ArgTs>
     handle_t call(F f, ArgTs... args) {
@@ -116,13 +115,13 @@ private:
 private:
     struct internal_event {
         std::unique_ptr<function_t> handler;
-        unsigned tick;
+        tick_t tick;
         handle_t handle;
     };
 
     std::vector<internal_event> _handlers;
     tick_t _now = 0;
-    int _handler_id = 0;
+    handle_t _handler_id = 0;
 };
 
 }
