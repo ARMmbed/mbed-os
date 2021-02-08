@@ -4094,6 +4094,66 @@
         ],
         "device_name": "STM32WB55RGVx"
     },
+    "MCU_STM32WL": {
+        "inherits": [
+            "MCU_STM32"
+        ],
+        "public": false,
+        "core": "Cortex-M4",
+        "extra_labels_add": [
+            "STM32WL"
+        ],
+        "config": {
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
+                "value": 1
+            },
+            "lse_drive_load_level": {
+                "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
+                "value": "RCC_LSEDRIVE_LOW"
+            }
+        },
+        "macros_add": [
+            "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED"
+        ],
+        "overrides": {
+            "lpticker_delay_ticks": 0
+        },
+        "device_has_add": [
+            "MPU",
+            "CRC",
+            "FLASH",
+            "SERIAL_ASYNCH",
+            "ANALOGOUT",
+            "ANALOGIN",
+            "TRNG"
+        ]
+    },
+    "MCU_STM32WL55xC": {
+        "inherits": [
+            "MCU_STM32WL"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32WL55xC"
+        ],
+        "macros_add": [
+            "STM32WL55xx"
+        ]
+    },
+    "NUCLEO_WL55JC": {
+        "inherits": [
+            "MCU_STM32WL55xC"
+        ],
+        "supported_form_factors": [
+            "ARDUINO"
+        ],
+        "detect_code": [
+            "0866"
+        ],
+        "device_name": "STM32WL55JCIx"
+    },
     "MIMXRT1050_EVK": {
         "supported_form_factors": [
             "ARDUINO"

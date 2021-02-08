@@ -214,7 +214,7 @@ void i2c_hw_reset(i2c_t *obj)
     // wait before reset
     timeout = BYTE_TIMEOUT;
     while ((__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BUSY)) && (--timeout != 0));
-#if defined(DUAL_CORE)
+#if defined(DUAL_CORE) && (TARGET_STM32H7)
     while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
     }
 #endif /* DUAL_CORE */
@@ -248,7 +248,7 @@ void i2c_hw_reset(i2c_t *obj)
         __HAL_RCC_FMPI2C1_RELEASE_RESET();
     }
 #endif
-#if defined(DUAL_CORE)
+#if defined(DUAL_CORE) && (TARGET_STM32H7)
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
 #endif /* DUAL_CORE */
 }
@@ -497,7 +497,7 @@ void i2c_frequency(i2c_t *obj, int hz)
 #endif //I2C_IP_VERSION_V2
 
     /*##-1- Configure the I2C clock source. The clock is derived from the SYSCLK #*/
-#if defined(DUAL_CORE)
+#if defined(DUAL_CORE) && (TARGET_STM32H7)
     while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
     }
 #endif /* DUAL_CORE */
@@ -521,7 +521,7 @@ void i2c_frequency(i2c_t *obj, int hz)
         __HAL_RCC_I2C4_CONFIG(I2CAPI_I2C4_CLKSRC);
     }
 #endif
-#if defined(DUAL_CORE)
+#if defined(DUAL_CORE) && (TARGET_STM32H7)
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
 #endif /* DUAL_CORE */
 

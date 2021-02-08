@@ -55,7 +55,7 @@
 #define LP_TIMER_SAFE_GUARD 5
 
 
-#if defined(DUAL_CORE)
+#if defined(DUAL_CORE) && (TARGET_STM32H7)
 #if defined(CORE_CM7)
 #define LPTIM_MST_BASE            LPTIM4_BASE
 #define LPTIM_MST                 ((LPTIM_TypeDef *)LPTIM_MST_BASE)
@@ -212,7 +212,7 @@ void lp_ticker_init(void)
 #endif /* TARGET_STM32L0 */
 
 #endif /* MBED_CONF_TARGET_LSE_AVAILABLE */
-#if defined(DUAL_CORE)
+#if defined(DUAL_CORE) && (TARGET_STM32H7)
     while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
     }
 #endif /* DUAL_CORE */
@@ -229,7 +229,7 @@ void lp_ticker_init(void)
     LPTIM_MST_RCC();
     LPTIM_MST_RESET_ON();
     LPTIM_MST_RESET_OFF();
-#if defined(DUAL_CORE)
+#if defined(DUAL_CORE) && (TARGET_STM32H7)
     /* Configure EXTI wakeup and configure autonomous mode */
     LPTIM_MST_RCC_CLKAM();
     LPTIM_MST_EXTI_LPTIM_WAKEUP_CONFIG();
@@ -283,6 +283,11 @@ void lp_ticker_init(void)
 
     NVIC_SetVector(LPTIM_MST_IRQ, (uint32_t)LPTIM_IRQHandler);
 
+#if (LPTIM_MST_BASE == LPTIM1_BASE)
+#if defined (__HAL_LPTIM_LPTIM1_EXTI_ENABLE_IT)
+__HAL_LPTIM_LPTIM1_EXTI_ENABLE_IT();
+#endif
+#endif
 #if defined (__HAL_LPTIM_WAKEUPTIMER_EXTI_ENABLE_IT)
     /* EXTI lines are not configured by default */
     __HAL_LPTIM_WAKEUPTIMER_EXTI_ENABLE_IT();

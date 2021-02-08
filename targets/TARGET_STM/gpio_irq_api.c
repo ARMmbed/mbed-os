@@ -149,7 +149,7 @@ static void handle_interrupt_in(uint32_t irq_index, uint32_t max_num_pin_line)
 #else /* TARGET_STM32L5 */
 
             // Clear interrupt flag
-#if defined(DUAL_CORE) && defined(CORE_CM4)
+#if defined(DUAL_CORE) && defined(CORE_CM4) && defined(TARGET_STM32H7)
             if (__HAL_GPIO_EXTID2_GET_FLAG(pin) != RESET) {
                 __HAL_GPIO_EXTID2_CLEAR_FLAG(pin);
 #else
@@ -323,7 +323,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     core_util_critical_section_enter();
 
     /* Enable SYSCFG Clock */
-#if !defined(TARGET_STM32WB)
+#if (!defined(TARGET_STM32WB) && !defined(TARGET_STM32WL))
     __HAL_RCC_SYSCFG_CLK_ENABLE();
 #endif
 
@@ -503,7 +503,7 @@ void gpio_irq_enable(gpio_irq_t *obj)
     SYSCFG->EXTICR[pin_index >> 2] = temp;
 #endif
 
-#if defined(DUAL_CORE) && defined(CORE_CM4)
+#if defined(DUAL_CORE) && defined(CORE_CM4) && defined(TARGET_STM32H7)
     LL_C2_EXTI_EnableIT_0_31(1 << pin_index);
 #else
     LL_EXTI_EnableIT_0_31(1 << pin_index);
@@ -532,7 +532,7 @@ void gpio_irq_disable(gpio_irq_t *obj)
     LL_EXTI_DisableRisingTrig_0_31(1 << pin_index);
     LL_EXTI_DisableFallingTrig_0_31(1 << pin_index);
 
-#if defined(DUAL_CORE) && defined(CORE_CM4)
+#if defined(DUAL_CORE) && defined(CORE_CM4) && defined(TARGET_STM32H7)
     LL_C2_EXTI_DisableIT_0_31(1 << pin_index);
 #else
     LL_EXTI_DisableIT_0_31(1 << pin_index);
