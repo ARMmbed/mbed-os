@@ -45,18 +45,23 @@ bool EventQueue::cancel_handler(handle_t handle)
         return false;
     }
 
-    _handlers.erase(
-        std::remove_if(
-            _handlers.begin(),
-            _handlers.end(),
-            [handle](internal_event& element) -> bool {
-                return (handle == element.handle);
-            }
-        ),
-        _handlers.end()
+    auto found = std::remove_if(
+        _handlers.begin(),
+        _handlers.end(),
+        [handle](internal_event& element) -> bool {
+            return (handle == element.handle);
+        }
     );
 
-    return true;
+    if (found != _handlers.end()) {
+        _handlers.erase(
+            found,
+            _handlers.end()
+        );
+        return true;
+    }
+
+    return false;
 }
 
 void EventQueue::process_events(tick_t duration_ms)
