@@ -55,10 +55,17 @@ macro(mbed_greentea_add_test)
             ${MBED_GREENTEA_TEST_SOURCES}
     )
 
-    if(MBED_BAREMETAL_GREENTEA_TEST)
-        list(APPEND MBED_GREENTEA_TEST_REQUIRED_LIBS mbed-baremetal mbed-greentea)
-    else()
-        list(APPEND MBED_GREENTEA_TEST_REQUIRED_LIBS mbed-os mbed-greentea)
+    # The CMake MBED_TEST_LINK_LIBRARIES command-line argument is to get greentea test all dependent libraries.
+    # For example:
+    #  - To select mbed-os library, use cmake with -DMBED_TEST_LINK_LIBRARIES=mbed-os
+    #  - To select baremetal library, use cmake with -DMBED_TEST_LINK_LIBRARIES=mbed-baremetal
+    #  - To select baremetal with extra external error logging library to the test, use cmake with 
+    #    -D "MBED_TEST_LINK_LIBRARIES=mbed-baremetal ext-errorlogging"
+    if (DEFINED MBED_TEST_LINK_LIBRARIES)
+        separate_arguments(MBED_TEST_LINK_LIBRARIES)
+        list(APPEND MBED_GREENTEA_TEST_REQUIRED_LIBS ${MBED_TEST_LINK_LIBRARIES} mbed-greentea)
+    else()        
+        list(APPEND MBED_GREENTEA_TEST_REQUIRED_LIBS mbed-greentea)
     endif()
 
     target_link_libraries(${TEST_NAME}
