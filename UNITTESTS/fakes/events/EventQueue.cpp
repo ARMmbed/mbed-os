@@ -26,9 +26,17 @@ handle_t EventQueue::call_handler(function_t handler)
 
 handle_t EventQueue::call_handler_in(tick_t ms, function_t handler)
 {
-    auto real_handler = new function_t(handler);
-    handlers.emplace(now + ms, real_handler );
-    return reinterpret_cast<handle_t >(real_handler);
+    _handler_id++;
+
+    _handlers.push_back(
+        internal_event{
+            std::unique_ptr<function_t>(new function_t(handler)),
+            _now + ms,
+            _handler_id
+        }
+    );
+
+    return _handler_id;
 }
 
 bool EventQueue::cancel_handler(handle_t handle)
@@ -37,15 +45,17 @@ bool EventQueue::cancel_handler(handle_t handle)
         return false;
     }
 
-    auto finder = [handle](decltype(handlers)::const_reference e) {
-        if (e.second.get() == reinterpret_cast<function_t*>(handle)) {
-            return true;
-        }
-        return false;
-    };
+    _handlers.erase(
+        std::remove_if(
+            _handlers.begin(),
+            _handlers.end(),
+            [handle](internal_event& element) -> bool {
+                return (handle == element.handle);
+            }
+        ),
+        _handlers.end()
+    );
 
-    auto to_cancel = std::find_if(handlers.begin(), handlers.end(), finder);
-    handlers.erase(to_cancel);
     return true;
 }
 
@@ -54,7 +64,7 @@ void EventQueue::process_events(tick_t duration_ms)
     // execute all events during the duration
     for (uint64_t i = 0; i < duration_ms; ++i) {
         process_events();
-        ++now;
+        _now++;
     }
 
     // last round to execute immediate events
@@ -63,16 +73,41 @@ void EventQueue::process_events(tick_t duration_ms)
 
 void EventQueue::process_events() {
     while (true) {
-        if (handlers.begin() == handlers.end()) {
+        if (_handlers.empty()) {
             return;
         }
 
-        if (handlers.begin()->first > now) {
+        /* to guarantee order we only dispatch one tick at a time*/
+        auto smallest = std::min_element(
+            _handlers.begin(),
+            _handlers.end(),
+            [](internal_event& element, internal_event& smallest){
+                return (element.tick < smallest.tick);
+            }
+        );
+        tick_t earliest_tick = smallest->tick;
+
+        /* stop if all elements happen later */
+        if (earliest_tick > _now) {
             return;
         }
 
-        (*handlers.begin()->second)();
-        handlers.erase(handlers.begin());
+        /* dispatch all handlers that happen at this time */
+        _handlers.erase(
+            std::remove_if(
+                _handlers.begin(),
+                _handlers.end(),
+                [earliest_tick](internal_event& element) -> bool {
+                    if (earliest_tick >= element.tick) {
+                        (*(element.handler))();
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            ),
+            _handlers.end()
+        );
     }
 }
 

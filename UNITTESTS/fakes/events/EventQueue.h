@@ -22,14 +22,16 @@
 #include <memory>
 #include <functional>
 #include <algorithm>
+#include <vector>
 #include "events/EventQueue.h"
 #include <chrono>
+#include <mstd_tuple>
 
 namespace events {
 
-typedef intptr_t handle_t;
+typedef int handle_t;
 typedef std::function<void()> function_t;
-typedef unsigned long tick_t;
+typedef unsigned tick_t;
 
 class EventQueue {
     using duration = std::chrono::duration<int, std::milli>;
@@ -39,23 +41,30 @@ public:
 
     ~EventQueue() { };
 
-    void dispatch(int ms = -1) {
-        if (ms > 0) {
-            process_events(ms);
+    /** This will advence time by given amount of milliseonds and then dispatch all events that were set to happen in that time.
+     *
+     * @param ms number of miliseconds to advance time
+     */
+    void dispatch(int milliseconds = -1) {
+        if (milliseconds > 0) {
+            process_events(milliseconds);
         } else {
             dispatch_forever();
         }
     };
 
+    /**
+     * Unlike the real one this function returns after dispatching all existing events.
+     */
     void dispatch_forever() {
-        now = (tick_t)-1;
+        _now = (tick_t)-1;
         process_events();
-        now = 0;
+        _now = 0;
     };
 
     void break_dispatch() { };
 
-    tick_t tick() { return now; };
+    tick_t tick() { return _now; };
 
     bool cancel(handle_t id) { return cancel_handler(id); };
 
@@ -81,8 +90,15 @@ private:
     void process_events();
 
 private:
-    std::multimap<uint64_t, std::unique_ptr<function_t> > handlers;
-    tick_t now = 0;
+    struct internal_event {
+        std::unique_ptr<function_t> handler;
+        unsigned tick;
+        handle_t handle;
+    };
+
+    std::vector<internal_event> _handlers;
+    tick_t _now = 0;
+    int _handler_id = 0;
 };
 
 }
