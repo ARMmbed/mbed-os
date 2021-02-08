@@ -67,153 +67,57 @@
     // {NC ,  NC   , NC}
 // };
 
-// /************I2C SCL***********/
-// MBED_WEAK const PinMap PinMap_I2C_SCL[] = {
-// #ifdef I2C0_BASE
-    // /* I2C0 */
-    // {PA1,  I2C_0,  0},
-    // {PA2,  I2C_0,  1},
-    // {PA3,  I2C_0,  2},
-    // {PA4,  I2C_0,  3},
-    // {PA5,  I2C_0,  4},
-    // {PB11, I2C_0,  5},
-    // {PB12, I2C_0,  6},
-    // {PB13, I2C_0,  7},
-    // {PB14, I2C_0,  8},
-    // {PB15, I2C_0,  9},
-    // {PC6,  I2C_0, 10},
-    // {PC7,  I2C_0, 11},
-    // {PC8,  I2C_0, 12},
-    // {PC9,  I2C_0, 13},
-    // {PC10, I2C_0, 14},
-    // {PC11, I2C_0, 15},
-    // {PD9,  I2C_0, 16},
-    // {PD10, I2C_0, 17},
-    // {PD11, I2C_0, 18},
-    // {PD12, I2C_0, 19},
-    // {PD13, I2C_0, 20},
-    // {PD14, I2C_0, 21},
-    // {PD15, I2C_0, 22},
-    // {PF0,  I2C_0, 23},
-    // {PF1,  I2C_0, 24},
-    // {PF2,  I2C_0, 25},
-    // {PF3,  I2C_0, 26},
-    // {PF4,  I2C_0, 27},
-    // {PF5,  I2C_0, 28},
-    // {PF6,  I2C_0, 29},
-    // {PF7,  I2C_0, 30},
-    // {PA0,  I2C_0, 31},
-// #endif
-// #ifdef I2C1_BASE
-    // /* I2C1 */
-    // {PA7, I2C_1, 0},
-    // {PA8, I2C_1, 1},
-    // {PA9, I2C_1, 2},
-    // {PI2, I2C_1, 3},
-    // {PI3, I2C_1, 4},
-    // {PB6, I2C_1, 5},
-    // {PB7, I2C_1, 6},
-    // {PB8, I2C_1, 7},
-    // {PB9, I2C_1, 8},
-    // {PB10, I2C_1, 9},
-    // {PJ14, I2C_1, 10},
-    // {PJ15, I2C_1, 11},
-    // {PC0, I2C_1, 12},
-    // {PC1, I2C_1, 13},
-    // {PC2, I2C_1, 14},
-    // {PC3, I2C_1, 15},
-    // {PC4, I2C_1, 16},
-    // {PC5, I2C_1, 17},
-    // {PF8, I2C_1, 20},
-    // {PF9, I2C_1, 21},
-    // {PF10, I2C_1, 22},
-    // {PF11, I2C_1, 23},
-    // {PF12, I2C_1, 24},
-    // {PF13, I2C_1, 25},
-    // {PF14, I2C_1, 26},
-    // {PF15, I2C_1, 27},
-    // {PK0, I2C_1, 28},
-    // {PK1, I2C_1, 29},
-    // {PK2, I2C_1, 30},
-    // {PA6, I2C_1, 31},
-// #endif
-    // {NC  , NC   , NC}
-// };
+/************I2C SCL***********/
+MBED_WEAK const PinMap PinMap_I2C_SCL[] = {
+    /* I2C0 */
+    {A5, I2C_0, IOPORT_MODE_MUX_A | IOPORT_MODE_PULLUP},
+    /* I2C1 */
+    {A9, I2C_1, IOPORT_MODE_MUX_A | IOPORT_MODE_PULLUP},
+    {C3, I2C_1, IOPORT_MODE_MUX_B | IOPORT_MODE_PULLUP},
+    /* I2C2 */
+    {A13, I2C_2, IOPORT_MODE_MUX_A | IOPORT_MODE_PULLUP},
+    /* I2C3 */
+    {B10, I2C_3, IOPORT_MODE_MUX_B | IOPORT_MODE_PULLUP},
+    /* I2C4 */
+    {B6, I2C_4, IOPORT_MODE_MUX_B | IOPORT_MODE_PULLUP},
+    {B25, I2C_4, IOPORT_MODE_MUX_B | IOPORT_MODE_PULLUP},
+    /* I2C5 */
+    {A23, I2C_5, IOPORT_MODE_MUX_B | IOPORT_MODE_PULLUP},
+    {B21, I2C_5, IOPORT_MODE_MUX_B | IOPORT_MODE_PULLUP},
+    /* I2C6 */
+    {A1, I2C_6, IOPORT_MODE_MUX_A | IOPORT_MODE_PULLUP},
+    {A26, I2C_6, IOPORT_MODE_MUX_B | IOPORT_MODE_PULLUP},
+    {C7, I2C_6, IOPORT_MODE_MUX_B | IOPORT_MODE_PULLUP},
+    /* I2C7 */
+    {B3, I2C_7, IOPORT_MODE_MUX_B | IOPORT_MODE_PULLUP},
+    {NC, NC, 0}
+};
 
-// /************I2C SDA***********/
-// MBED_WEAK const PinMap PinMap_I2C_SDA[] = {
-// #ifdef I2C0_BASE
-    // /* I2C0 */
-    // {PA0,  I2C_0,  0},
-    // {PA1,  I2C_0,  1},
-    // {PA2,  I2C_0,  2},
-    // {PA3,  I2C_0,  3},
-    // {PA4,  I2C_0,  4},
-    // {PA5,  I2C_0,  5},
-    // {PB11, I2C_0,  6},
-    // {PB12, I2C_0,  7},
-    // {PB13, I2C_0,  8},
-    // {PB14, I2C_0,  9},
-    // {PB15, I2C_0, 10},
-    // {PC6,  I2C_0, 11},
-    // {PC7,  I2C_0, 12},
-    // {PC8,  I2C_0, 13},
-    // {PC9,  I2C_0, 14},
-    // {PC10, I2C_0, 15},
-    // {PC11, I2C_0, 16},
-    // {PD9,  I2C_0, 17},
-    // {PD10, I2C_0, 18},
-    // {PD11, I2C_0, 19},
-    // {PD12, I2C_0, 20},
-    // {PD13, I2C_0, 21},
-    // {PD14, I2C_0, 22},
-    // {PD15, I2C_0, 23},
-    // {PF0,  I2C_0, 24},
-    // {PF1,  I2C_0, 25},
-    // {PF2,  I2C_0, 26},
-    // {PF3,  I2C_0, 27},
-    // {PF4,  I2C_0, 28},
-    // {PF5,  I2C_0, 29},
-    // {PF6,  I2C_0, 30},
-    // {PF7,  I2C_0, 31},
-// #endif
-// #ifdef I2C1_BASE
-    // /* I2C1 */
-    // {PA6, I2C_1, 0},
-    // {PA7, I2C_1, 1},
-    // {PA8, I2C_1, 2},
-    // {PA9, I2C_1, 3},
-    // {PI2, I2C_1, 4},
-    // {PI3, I2C_1, 5},
-    // {PB6, I2C_1, 6},
-    // {PB7, I2C_1, 7},
-    // {PB8, I2C_1, 8},
-    // {PB9, I2C_1, 9},
-    // {PB10, I2C_1, 10},
-    // {PJ14, I2C_1, 11},
-    // {PJ15, I2C_1, 12},
-    // {PC0, I2C_1, 13},
-    // {PC1, I2C_1, 14},
-    // {PC2, I2C_1, 15},
-    // {PC3, I2C_1, 16},
-    // {PC4, I2C_1, 17},
-    // {PC5, I2C_1, 18},
-    // {PF8, I2C_1, 21},
-    // {PF9, I2C_1, 22},
-    // {PF10, I2C_1, 23},
-    // {PF11, I2C_1, 24},
-    // {PF12, I2C_1, 25},
-    // {PF13, I2C_1, 26},
-    // {PF14, I2C_1, 27},
-    // {PF15, I2C_1, 28},
-    // {PK0, I2C_1, 29},
-    // {PK1, I2C_1, 30},
-    // {PK2, I2C_1, 31},
-// #endif
-    // /* Not connected */
-
-    // {NC  , NC   , NC}
-// };
+/************I2C SDA***********/
+MBED_WEAK const PinMap PinMap_I2C_SDA[] = {
+	/* I2C0 */
+    {A4, I2C_0, IOPORT_MODE_MUX_A | IOPORT_MODE_PULLUP},
+    /* I2C1 */
+    {A8, I2C_1, IOPORT_MODE_MUX_A | IOPORT_MODE_PULLUP},
+    {C2, I2C_1, IOPORT_MODE_MUX_B | IOPORT_MODE_PULLUP},
+    /* I2C2 */
+    {A12, I2C_2, IOPORT_MODE_MUX_A | IOPORT_MODE_PULLUP},
+    /* I2C3 */
+    {B9, I2C_3, IOPORT_MODE_MUX_B | IOPORT_MODE_PULLUP},
+    /* I2C4 */
+    {B5, I2C_4, IOPORT_MODE_MUX_B | IOPORT_MODE_PULLUP},
+    {B24, I2C_4, IOPORT_MODE_MUX_B | IOPORT_MODE_PULLUP},
+    /* I2C5 */
+    {A24, I2C_5, IOPORT_MODE_MUX_B | IOPORT_MODE_PULLUP},
+    {B20, I2C_5, IOPORT_MODE_MUX_B | IOPORT_MODE_PULLUP},
+    /* I2C6 */
+    {A0, I2C_6, IOPORT_MODE_MUX_A | IOPORT_MODE_PULLUP},
+    {A25, I2C_6, IOPORT_MODE_MUX_B | IOPORT_MODE_PULLUP},
+    {C6, I2C_6, IOPORT_MODE_MUX_B | IOPORT_MODE_PULLUP},
+    /* I2C7 */
+    {B4, I2C_7, IOPORT_MODE_MUX_B | IOPORT_MODE_PULLUP},
+    {NC, NC, 0}
+};
 
 // /************PWM***************/
 // MBED_WEAK const PinMap PinMap_PWM[] = {
