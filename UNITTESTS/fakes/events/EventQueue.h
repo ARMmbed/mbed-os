@@ -49,20 +49,11 @@ public:
         if (milliseconds > 0) {
             process_events(milliseconds);
         } else {
-            dispatch_forever();
+            _now = (tick_t)-1;
+            process_events();
+            _now = 0;
         }
     };
-
-    /**
-     * Unlike the real one this function returns after dispatching all existing events.
-     */
-    void dispatch_forever() {
-        _now = (tick_t)-1;
-        process_events();
-        _now = 0;
-    };
-
-    void break_dispatch() { };
 
     tick_t tick() { return _now; };
 
