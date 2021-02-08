@@ -73,9 +73,42 @@ public:
         return call_handler(f);
     }
 
-    handle_t call_in(duration ms, function_t f)
-    {
-        return call_handler_in(ms.count(), f);
+    template<typename F, typename ... ArgTs>
+    handle_t call(F f, ArgTs... args) {
+        return call_handler(
+            [f, args = mstd::make_tuple(args...)]() {
+                mstd::apply(f, args);
+            }
+        );
+    }
+
+    template<typename F, typename ... ArgTs>
+    handle_t call_in(duration ms, F f, ArgTs... args) {
+        return call_handler_in(
+            ms.count(),
+            [f, args = mstd::make_tuple(args...)]() {
+                mstd::apply(f, args);
+            }
+        );
+    }
+
+    template <typename T, typename R, typename... ArgTs>
+    int call(T *obj, R(T::*method)(ArgTs...), ArgTs... args) {
+        return call_handler(
+            [obj, method, args = mstd::make_tuple(args...)]() {
+                mstd::apply(method, obj, args);
+            }
+        );
+    }
+
+    template <typename T, typename R, typename... ArgTs>
+    int call_in(duration ms, T *obj, R(T::*method)(ArgTs...), ArgTs... args) {
+        return call_handler_in(
+            ms.count(),
+            [obj, method, args = mstd::make_tuple(args...)]() {
+                mstd::apply(method, obj, args);
+            }
+        );
     }
 
 private:
