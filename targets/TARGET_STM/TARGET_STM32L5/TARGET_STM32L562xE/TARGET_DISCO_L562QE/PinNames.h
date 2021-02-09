@@ -15,6 +15,8 @@
  * Automatically generated from STM32CubeMX/db/mcu/STM32L562QEIxQ.xml
  */
 
+/* MBED TARGET LIST: DISCO_L562QE */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

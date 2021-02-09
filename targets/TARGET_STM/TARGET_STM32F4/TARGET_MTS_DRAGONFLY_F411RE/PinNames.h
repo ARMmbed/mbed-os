@@ -27,6 +27,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+
+/* MBED TARGET LIST: MTS_DRAGONFLY_F411RE */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

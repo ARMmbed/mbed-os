@@ -28,6 +28,8 @@
  *******************************************************************************
  */
 
+/* MBED TARGET LIST: NUCLEO_F207ZG */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

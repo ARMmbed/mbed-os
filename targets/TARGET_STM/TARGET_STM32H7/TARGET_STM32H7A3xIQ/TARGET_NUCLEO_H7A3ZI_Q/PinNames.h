@@ -15,6 +15,8 @@
  * Automatically generated from STM32CubeMX/db/mcu/STM32H7A3Z(G-I)TxQ.xml
  */
 
+/* MBED TARGET LIST: NUCLEO_H7A3ZI_Q */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

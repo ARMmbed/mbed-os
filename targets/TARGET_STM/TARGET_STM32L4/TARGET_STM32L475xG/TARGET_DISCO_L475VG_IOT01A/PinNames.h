@@ -28,6 +28,8 @@
  *******************************************************************************
  */
 
+/* MBED TARGET LIST: DISCO_L475VG_IOT01A */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
