@@ -2,25 +2,25 @@
 # SPDX-License-Identifier: Apache-2.0
 
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
-    set(STARTUP_FILE TOOLCHAIN_GCC_ARM/startup_stm32f030x8.S)
-    set(LINKER_FILE TOOLCHAIN_GCC_ARM/stm32f030x8.ld)
+    set(STARTUP_FILE TOOLCHAIN_GCC_ARM/startup_mbed-stm32f030x8.S)
+    set(LINKER_FILE TOOLCHAIN_GCC_ARM/mbed-stm32f030x8.ld)
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
-    set(STARTUP_FILE TOOLCHAIN_ARM/startup_stm32f030x8.S)
-    set(LINKER_FILE TOOLCHAIN_ARM/stm32f030x8.sct)
+    set(STARTUP_FILE TOOLCHAIN_ARM/startup_mbed-stm32f030x8.S)
+    set(LINKER_FILE TOOLCHAIN_ARM/mbed-stm32f030x8.sct)
 endif()
 
-add_library(STM32F030x8 INTERFACE)
+add_library(mbed-stm32f030x8 INTERFACE)
 
-target_sources(STM32F030x8
+target_sources(mbed-stm32f030x8
     INTERFACE
         ${STARTUP_FILE}
 )
 
-target_include_directories(STM32F030x8
+target_include_directories(mbed-stm32f030x8
     INTERFACE
         .
 )
 
-mbed_set_linker_script(STM32F030x8 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-stm32f030x8 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(STM32F030x8 INTERFACE STM32F0)
+target_link_libraries(mbed-stm32f030x8 INTERFACE mbed-stm32f0)

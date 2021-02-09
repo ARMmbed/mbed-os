@@ -9,18 +9,18 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32h747xI_CM7.sct)
 endif()
 
-add_library(STM32H747xI_CM7 INTERFACE)
+add_library(mbed-stm32h747xi-cm7 INTERFACE)
 
-target_sources(STM32H747xI_CM7
+target_sources(mbed-stm32h747xi-cm7
     INTERFACE
         ${STARTUP_FILE}
 )
 
-target_include_directories(STM32H747xI_CM7
+target_include_directories(mbed-stm32h747xi-cm7
     INTERFACE
         .
 )
 
-mbed_set_linker_script(STM32H747xI_CM7 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-stm32h747xi-cm7 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(STM32H747xI_CM7 INTERFACE STM32H747xI)
+target_link_libraries(mbed-stm32h747xi-cm7 INTERFACE mbed-stm32h747xi)

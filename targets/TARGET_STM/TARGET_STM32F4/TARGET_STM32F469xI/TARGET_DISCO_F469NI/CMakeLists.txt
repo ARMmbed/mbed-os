@@ -1,17 +1,17 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(DISCO_F469NI INTERFACE)
+add_library(mbed-disco-f469ni INTERFACE)
 
-target_sources(DISCO_F469NI
+target_sources(mbed-disco-f469ni
     INTERFACE
         PeripheralPins.c
         system_clock.c
 )
 
-target_include_directories(DISCO_F469NI
+target_include_directories(mbed-disco-f469ni
     INTERFACE
         .
 )
 
-target_link_libraries(DISCO_F469NI INTERFACE STM32F469xI)
+target_link_libraries(mbed-disco-f469ni INTERFACE mbed-stm32f469xi)

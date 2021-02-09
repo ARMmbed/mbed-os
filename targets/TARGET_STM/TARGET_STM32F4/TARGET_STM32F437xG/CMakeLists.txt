@@ -9,18 +9,18 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32f437xx.sct)
 endif()
 
-add_library(STM32F437xG INTERFACE)
+add_library(mbed-stm32f437xg INTERFACE)
 
-target_sources(STM32F437xG
+target_sources(mbed-stm32f437xg
     INTERFACE
         ${STARTUP_FILE}
 )
 
-target_include_directories(STM32F437xG
+target_include_directories(mbed-stm32f437xg
     INTERFACE
         .
 )
 
-mbed_set_linker_script(STM32F437xG ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-stm32f437xg ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(STM32F437xG INTERFACE STM32F4)
+target_link_libraries(mbed-stm32f437xg INTERFACE mbed-stm32f4)

@@ -11,18 +11,18 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32f769xi.sct)
 endif()
 
-add_library(STM32F769xI INTERFACE)
+add_library(mbed-stm32f769xi INTERFACE)
 
-target_sources(STM32F769xI
+target_sources(mbed-stm32f769xi
     INTERFACE
         ${STARTUP_FILE}
 )
 
-target_include_directories(STM32F769xI
+target_include_directories(mbed-stm32f769xi
     INTERFACE
         .
 )
 
-mbed_set_linker_script(STM32F769xI ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-stm32f769xi ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(STM32F769xI INTERFACE STM32F7)
+target_link_libraries(mbed-stm32f769xi INTERFACE mbed-stm32f7)

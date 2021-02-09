@@ -4,9 +4,9 @@
 add_subdirectory(TARGET_STM32WL55xC EXCLUDE_FROM_ALL)
 add_subdirectory(STM32Cube_FW EXCLUDE_FROM_ALL)
 
-add_library(STM32WL INTERFACE)
+add_library(mbed-stm32wl INTERFACE)
 
-target_sources(STM32WL
+target_sources(mbed-stm32wl
     INTERFACE
         analogin_device.c
         analogout_device.c
@@ -17,9 +17,9 @@ target_sources(STM32WL
         spi_api.c
 )
 
-target_include_directories(STM32WL
+target_include_directories(mbed-stm32wl
     INTERFACE
         .
 )
 
-target_link_libraries(STM32WL INTERFACE STM STM32WLCube_FW)
+target_link_libraries(mbed-stm32wl INTERFACE STM mbed-stm32wlcube-fw)

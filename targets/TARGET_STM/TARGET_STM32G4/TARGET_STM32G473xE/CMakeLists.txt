@@ -9,18 +9,18 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32g473xe.sct)
 endif()
 
-add_library(STM32G473xE INTERFACE)
+add_library(mbed-stm32g473xe INTERFACE)
 
-target_sources(STM32G473xE
+target_sources(mbed-stm32g473xe
     INTERFACE
         ${STARTUP_FILE}
 )
 
-target_include_directories(STM32G473xE
+target_include_directories(mbed-stm32g473xe
     INTERFACE
         .
 )
 
-mbed_set_linker_script(STM32G473xE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-stm32g473xe ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(STM32G473xE INTERFACE STM32G4)
+target_link_libraries(mbed-stm32g473xe INTERFACE mbed-stm32g4)

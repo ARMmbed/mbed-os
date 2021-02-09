@@ -14,9 +14,9 @@ add_subdirectory(TARGET_STM32L4R5xI EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32L4R9xI EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32L4S5xI EXCLUDE_FROM_ALL)
 
-add_library(STM32L4 INTERFACE)
+add_library(mbed-stm32l4 INTERFACE)
 
-target_sources(STM32L4
+target_sources(mbed-stm32l4
     INTERFACE
         analogin_device.c
         analogout_device.c
@@ -27,10 +27,10 @@ target_sources(STM32L4
         spi_api.c
 )
 
-target_include_directories(STM32L4
+target_include_directories(mbed-stm32l4
     INTERFACE
         .
 )
 
 add_subdirectory(STM32Cube_FW EXCLUDE_FROM_ALL)
-target_link_libraries(STM32L4 INTERFACE STM STM32L4Cube_FW)
+target_link_libraries(mbed-stm32l4 INTERFACE STM mbed-stm32l4cube-fw)

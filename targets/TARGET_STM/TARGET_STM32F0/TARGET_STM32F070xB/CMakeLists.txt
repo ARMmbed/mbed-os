@@ -4,26 +4,26 @@
 add_subdirectory(TARGET_NUCLEO_F070RB EXCLUDE_FROM_ALL)
 
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
-    set(STARTUP_FILE TOOLCHAIN_GCC_ARM/startup_stm32f070xb.S)
-    set(LINKER_FILE TOOLCHAIN_GCC_ARM/stm32f070xb.ld)
+    set(STARTUP_FILE TOOLCHAIN_GCC_ARM/startup_mbed-stm32f070xb.S)
+    set(LINKER_FILE TOOLCHAIN_GCC_ARM/mbed-stm32f070xb.ld)
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
-    set(STARTUP_FILE TOOLCHAIN_ARM/startup_stm32f070xb.S)
-    set(LINKER_FILE TOOLCHAIN_ARM/stm32f070xb.sct)
+    set(STARTUP_FILE TOOLCHAIN_ARM/startup_mbed-stm32f070xb.S)
+    set(LINKER_FILE TOOLCHAIN_ARM/mbed-stm32f070xb.sct)
 endif()
 
-add_library(STM32F070xB INTERFACE)
+add_library(mbed-stm32f070xB INTERFACE)
 
-target_sources(STM32F070xB
+target_sources(mbed-stm32f070xB
     INTERFACE
         system_clock.c
         ${STARTUP_FILE}
 )
 
-target_include_directories(STM32F070xB
+target_include_directories(mbed-stm32f070xB
     INTERFACE
         .
 )
 
-mbed_set_linker_script(STM32F070xB ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-stm32f070xB ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(STM32F070xB INTERFACE STM32F0)
+target_link_libraries(mbed-stm32f070xB INTERFACE mbed-stm32f0)

@@ -9,18 +9,18 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32l082xz.sct)
 endif()
 
-add_library(STM32L082xZ INTERFACE)
+add_library(mbed-stm32l082xz INTERFACE)
 
-target_sources(STM32L082xZ
+target_sources(mbed-stm32l082xz
     INTERFACE
         ${STARTUP_FILE}
 )
 
-target_include_directories(STM32L082xZ
+target_include_directories(mbed-stm32l082xz
     INTERFACE
         .
 )
 
-mbed_set_linker_script(STM32L082xZ ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-stm32l082xz ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(STM32L082xZ INTERFACE STM32L0)
+target_link_libraries(mbed-stm32l082xz INTERFACE mbed-stm32l0)

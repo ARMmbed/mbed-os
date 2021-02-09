@@ -5,9 +5,9 @@ add_subdirectory(TARGET_STM32WB50xx EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32WB55xx EXCLUDE_FROM_ALL)
 add_subdirectory(STM32Cube_FW EXCLUDE_FROM_ALL)
 
-add_library(STM32WB INTERFACE)
+add_library(mbed-stm32wb INTERFACE)
 
-target_sources(STM32WB
+target_sources(mbed-stm32wb
     INTERFACE
         analogin_device.c
         flash_api.c
@@ -18,9 +18,9 @@ target_sources(STM32WB
         wb_sleep.c
 )
 
-target_include_directories(STM32WB
+target_include_directories(mbed-stm32wb
     INTERFACE
         .
 )
 
-target_link_libraries(STM32WB INTERFACE STM STM32WBCube_FW)
+target_link_libraries(mbed-stm32wb INTERFACE STM mbed-stm32wbcube-fw)

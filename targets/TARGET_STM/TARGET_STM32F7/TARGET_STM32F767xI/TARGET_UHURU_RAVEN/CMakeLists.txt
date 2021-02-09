@@ -1,18 +1,18 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(UHURU_RAVEN INTERFACE)
+add_library(mbed-uhuru-raven INTERFACE)
 
-target_sources(UHURU_RAVEN
+target_sources(mbed-uhuru-raven
     INTERFACE
         PeripheralPins.c
         system_clock.c
         uhuru_raven_init.c
 )
 
-target_include_directories(UHURU_RAVEN
+target_include_directories(mbed-uhuru-raven
     INTERFACE
         .
 )
 
-target_link_libraries(UHURU_RAVEN INTERFACE STM32F767xI)
+target_link_libraries(mbed-uhuru-raven INTERFACE mbed-stm32f767xi)

@@ -10,9 +10,9 @@ add_subdirectory(TARGET_STM32G483xE EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32G484xE EXCLUDE_FROM_ALL)
 add_subdirectory(STM32Cube_FW EXCLUDE_FROM_ALL)
 
-add_library(STM32G4 INTERFACE)
+add_library(mbed-stm32g4 INTERFACE)
 
-target_sources(STM32G4
+target_sources(mbed-stm32g4
     INTERFACE
         analogin_device.c
         analogout_device.c
@@ -23,9 +23,9 @@ target_sources(STM32G4
         spi_api.c
 )
 
-target_include_directories(STM32G4
+target_include_directories(mbed-stm32g4
     INTERFACE
         .
 )
 
-target_link_libraries(STM32G4 INTERFACE STM STM32G4Cube_FW)
+target_link_libraries(mbed-stm32g4 INTERFACE STM mbed-stm32g4cube-fw)

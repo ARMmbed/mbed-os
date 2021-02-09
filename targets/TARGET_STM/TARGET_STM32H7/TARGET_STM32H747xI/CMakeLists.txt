@@ -6,11 +6,11 @@ add_subdirectory(TARGET_PORTENTA_H7 EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32H747xI_CM7 EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32H747xI_CM4 EXCLUDE_FROM_ALL)
 
-add_library(STM32H747xI INTERFACE)
+add_library(mbed-stm32h747xi INTERFACE)
 
-target_sources(STM32H747xI
+target_sources(mbed-stm32h747xi
     INTERFACE
         system_clock.c
 )
 
-target_link_libraries(STM32H747xI INTERFACE STM32H7)
+target_link_libraries(mbed-stm32h747xi INTERFACE mbed-stm32h7)

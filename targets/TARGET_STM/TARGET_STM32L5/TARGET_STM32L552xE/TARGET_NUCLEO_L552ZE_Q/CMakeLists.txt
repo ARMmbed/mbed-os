@@ -1,16 +1,16 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(NUCLEO_L552ZE_Q INTERFACE)
+add_library(mbed-nucleo-l552ze-q INTERFACE)
 
-target_sources(NUCLEO_L552ZE_Q
+target_sources(mbed-nucleo-l552ze-q
     INTERFACE
         PeripheralPins.c
 )
 
-target_include_directories(NUCLEO_L552ZE_Q
+target_include_directories(mbed-nucleo-l552ze-q
     INTERFACE
         .
 )
 
-target_link_libraries(NUCLEO_L552ZE_Q INTERFACE STM32L552xE)
+target_link_libraries(mbed-nucleo-l552ze-q INTERFACE mbed-stm32l552xe)

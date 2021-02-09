@@ -1,16 +1,16 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(DISCO_L562QE INTERFACE)
+add_library(mbed-discol562qe INTERFACE)
 
-target_sources(DISCO_L562QE
+target_sources(mbed-discol562qe
     INTERFACE
         PeripheralPins.c
 )
 
-target_include_directories(DISCO_L562QE
+target_include_directories(mbed-discol562qe
     INTERFACE
         .
 )
 
-target_link_libraries(DISCO_L562QE INTERFACE STM32L562xE)
+target_link_libraries(mbed-discol562qe INTERFACE mbed-stm32l562xe)

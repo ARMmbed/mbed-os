@@ -14,20 +14,20 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
     set(LINKER_FILE TOOLCHAIN_IAR/stm32l475xg.icf)
 endif()
 
-add_library(STM32L475xG INTERFACE)
+add_library(mbed-stm32l475xg INTERFACE)
 
-target_include_directories(STM32L475xG
+target_include_directories(mbed-stm32l475xg
     INTERFACE
         .
 )
 
-target_sources(STM32L475xG
+target_sources(mbed-stm32l475xg
     INTERFACE
         ${STARTUP_FILE}
         system_clock.c
 )
 
 
-mbed_set_linker_script(STM32L475xG ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-stm32l475xg ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(STM32L475xG INTERFACE STM32L4)
+target_link_libraries(mbed-stm32l475xg INTERFACE mbed-stm32l4)

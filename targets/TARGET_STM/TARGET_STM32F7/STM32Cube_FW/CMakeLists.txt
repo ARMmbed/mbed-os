@@ -1,9 +1,9 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(STM32F7Cube_FW INTERFACE)
+add_library(mbed-stm32f7cube-fw INTERFACE)
 
-target_sources(STM32F7Cube_FW
+target_sources(mbed-stm32f7cube-fw
     INTERFACE
         system_stm32f7xx.c
 
@@ -99,7 +99,7 @@ target_sources(STM32F7Cube_FW
 
 )
 
-target_include_directories(STM32F7Cube_FW
+target_include_directories(mbed-stm32f7cube-fw
     INTERFACE
         .
         CMSIS

@@ -1,16 +1,16 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(NUCLEO_L433RC_P INTERFACE)
+add_library(mbed-nucleo-l433rc-p INTERFACE)
 
-target_sources(NUCLEO_L433RC_P
+target_sources(mbed-nucleo-l433rc-p
     INTERFACE
         PeripheralPins.c
 )
 
-target_include_directories(NUCLEO_L433RC_P
+target_include_directories(mbed-nucleo-l433rc-p
     INTERFACE
         .
 )
 
-target_link_libraries(NUCLEO_L433RC_P INTERFACE STM32L433xC)
+target_link_libraries(mbed-nucleo-l433rc-p INTERFACE mbed-stm32l433xc)

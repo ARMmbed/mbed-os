@@ -11,19 +11,19 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32g474xe.sct)
 endif()
 
-add_library(STM32G474xE INTERFACE)
+add_library(mbed-stm32g474xe INTERFACE)
 
-target_sources(STM32G474xE
+target_sources(mbed-stm32g474xe
     INTERFACE
         system_clock.c
         ${STARTUP_FILE}
 )
 
-target_include_directories(STM32G474xE
+target_include_directories(mbed-stm32g474xe
     INTERFACE
         .
 )
 
-mbed_set_linker_script(STM32G474xE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-stm32g474xe ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(STM32G474xE INTERFACE STM32G4)
+target_link_libraries(mbed-stm32g474xe INTERFACE mbed-stm32g4)

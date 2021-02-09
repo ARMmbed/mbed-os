@@ -4,9 +4,9 @@
 add_subdirectory(TARGET_STM32F207xG EXCLUDE_FROM_ALL)
 add_subdirectory(STM32Cube_FW EXCLUDE_FROM_ALL)
 
-add_library(STM32F2 INTERFACE)
+add_library(mbed-stm32f2 INTERFACE)
 
-target_sources(STM32F2
+target_sources(mbed-stm32f2
     INTERFACE
         analogin_device.c
         analogout_device.c
@@ -17,7 +17,7 @@ target_sources(STM32F2
         spi_api.c
 )
 
-target_include_directories(STM32F2
+target_include_directories(mbed-stm32f2
     INTERFACE
         .
         ./STM32Cube_FW
@@ -26,4 +26,4 @@ target_include_directories(STM32F2
         ./STM32Cube_FW/STM32F2xx_HAL_Driver/Legacy
 )
 
-target_link_libraries(STM32F2 INTERFACE STM STM32F2Cube_FW)
+target_link_libraries(mbed-stm32f2 INTERFACE STM mbed-stm32f2cube-fw)

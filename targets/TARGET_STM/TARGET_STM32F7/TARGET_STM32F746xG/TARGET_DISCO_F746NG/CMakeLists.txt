@@ -1,17 +1,17 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(DISCO_F746NG INTERFACE)
+add_library(mbed-disco-f746ng INTERFACE)
 
-target_sources(DISCO_F746NG
+target_sources(mbed-disco-f746ng
     INTERFACE
         PeripheralPins.c
         system_clock.c
 )
 
-target_include_directories(DISCO_F746NG
+target_include_directories(mbed-disco-f746ng
     INTERFACE
         .
 )
 
-target_link_libraries(DISCO_F746NG INTERFACE STM32F746xG)
+target_link_libraries(mbed-disco-f746ng INTERFACE mbed-stm32f746xg)

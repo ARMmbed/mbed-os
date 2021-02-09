@@ -1,17 +1,17 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(ARCH_MAX INTERFACE)
+add_library(mbed-arch-max INTERFACE)
 
-target_sources(ARCH_MAX
+target_sources(mbed-arch-max
     INTERFACE
         PeripheralPins.c
         system_clock.c
 )
 
-target_include_directories(ARCH_MAX
+target_include_directories(mbed-arch-max
     INTERFACE
         .
 )
 
-target_link_libraries(ARCH_MAX INTERFACE STM32F407xE)
+target_link_libraries(mbed-arch-max INTERFACE mbed-stm32f407xe)

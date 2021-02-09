@@ -11,17 +11,17 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32l432xc.sct)
 endif()
 
-add_library(STM32L432xC INTERFACE)
+add_library(mbed-stm32l432xc INTERFACE)
 
-target_sources(STM32L432xC
+target_sources(mbed-stm32l432xc
     INTERFACE
         ${STARTUP_FILE}
         system_clock.c
 )
 
-target_include_directories(STM32L432xC
+target_include_directories(mbed-stm32l432xc
     INTERFACE
         .
 )
-mbed_set_linker_script(STM32L432xC ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
-target_link_libraries(STM32L432xC INTERFACE STM32L4)
+mbed_set_linker_script(mbed-stm32l432xc ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+target_link_libraries(mbed-stm32l432xc INTERFACE mbed-stm32l4)

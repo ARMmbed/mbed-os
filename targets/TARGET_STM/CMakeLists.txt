@@ -17,14 +17,14 @@ add_subdirectory(TARGET_STM32L5 EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32WB EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32WL EXCLUDE_FROM_ALL)
 
-add_library(STM INTERFACE)
+add_library(mbed-stm INTERFACE)
 
-target_include_directories(STM
+target_include_directories(mbed-stm
     INTERFACE
         .
 )
 
-target_sources(STM
+target_sources(mbed-stm
     INTERFACE
         USBPhy_STM32.cpp
         analogin_api.c

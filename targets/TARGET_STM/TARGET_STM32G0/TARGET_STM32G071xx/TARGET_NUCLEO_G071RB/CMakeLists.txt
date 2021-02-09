@@ -1,17 +1,17 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(NUCLEO_G071RB INTERFACE)
+add_library(mbed-nucleo-g071rb INTERFACE)
 
-target_sources(NUCLEO_G071RB
+target_sources(mbed-nucleo-g071rb
     INTERFACE
         PeripheralPins.c
         system_clock.c
 )
 
-target_include_directories(NUCLEO_G071RB
+target_include_directories(mbed-nucleo-g071rb
     INTERFACE
         .
 )
 
-target_link_libraries(NUCLEO_G071RB INTERFACE STM32G071xx)
+target_link_libraries(mbed-nucleo-g071rb INTERFACE mbed-stm32g071xx)

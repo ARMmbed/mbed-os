@@ -1,16 +1,16 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(NUCLEO_L476RG INTERFACE)
+add_library(mbed-nucleo-l476rg INTERFACE)
 
-target_sources(NUCLEO_L476RG
+target_sources(mbed-nucleo-l476rg
     INTERFACE
         PeripheralPins.c
 )
 
-target_include_directories(NUCLEO_L476RG
+target_include_directories(mbed-nucleo-l476rg
     INTERFACE
         .
 )
 
-target_link_libraries(NUCLEO_L476RG INTERFACE STM32L476xG)
+target_link_libraries(mbed-nucleo-l476rg INTERFACE mbed-stm32l476xg)

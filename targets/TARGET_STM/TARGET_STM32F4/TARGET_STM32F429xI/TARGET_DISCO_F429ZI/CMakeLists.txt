@@ -1,17 +1,17 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(DISCO_F429ZI INTERFACE)
+add_library(mbed-disco-f429zi INTERFACE)
 
-target_sources(DISCO_F429ZI
+target_sources(mbed-disco-f429zi
     INTERFACE
         PeripheralPins.c
         system_clock.c
 )
 
-target_include_directories(DISCO_F429ZI
+target_include_directories(mbed-disco-f429zi
     INTERFACE
         .
 )
 
-target_link_libraries(DISCO_F429ZI INTERFACE STM32F429xI)
+target_link_libraries(mbed-disco-f429zi INTERFACE mbed-stm32f429xi)

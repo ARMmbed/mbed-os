@@ -1,16 +1,16 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(DISCO_L475VG_IOT01A INTERFACE)
+add_library(mbed-disco-l475vg_iot01a INTERFACE)
 
-target_sources(DISCO_L475VG_IOT01A
+target_sources(mbed-disco-l475vg_iot01a
     INTERFACE
         PeripheralPins.c
 )
 
-target_include_directories(DISCO_L475VG_IOT01A
+target_include_directories(mbed-disco-l475vg_iot01a
     INTERFACE
         .
 )
 
-target_link_libraries(DISCO_L475VG_IOT01A INTERFACE STM32L475xG)
+target_link_libraries(mbed-disco-l475vg_iot01a INTERFACE mbed-stm32l475xg)

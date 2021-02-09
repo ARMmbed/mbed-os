@@ -12,19 +12,19 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32f303xe.sct)
 endif()
 
-add_library(STM32F303xE INTERFACE)
+add_library(mbed-stm32f303xe INTERFACE)
 
-target_sources(STM32F303xE
+target_sources(mbed-stm32f303xe
     INTERFACE
         system_clock.c
         ${STARTUP_FILE}
 )
 
-target_include_directories(STM32F303xE
+target_include_directories(mbed-stm32f303xe
     INTERFACE
         .
 )
 
-mbed_set_linker_script(STM32F303xE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-stm32f303xe ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(STM32F303xE INTERFACE STM32F3)
+target_link_libraries(mbed-stm32f303xe INTERFACE mbed-stm32f3)

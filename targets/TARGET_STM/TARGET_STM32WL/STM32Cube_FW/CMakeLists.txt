@@ -1,9 +1,9 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(STM32WLCube_FW INTERFACE)
+add_library(mbed-stm32wlcube-fw INTERFACE)
 
-target_sources(STM32WLCube_FW
+target_sources(mbed-stm32wlcube-fw
     INTERFACE
         system_stm32wlxx.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal.c
@@ -69,7 +69,7 @@ target_sources(STM32WLCube_FW
         STM32WLxx_HAL_Driver/stm32wlxx_ll_utils.c
 )
 
-target_include_directories(STM32WLCube_FW
+target_include_directories(mbed-stm32wlcube-fw
     INTERFACE
         .
         CMSIS

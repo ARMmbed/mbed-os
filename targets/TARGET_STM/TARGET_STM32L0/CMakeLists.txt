@@ -9,9 +9,9 @@ add_subdirectory(TARGET_STM32L082xZ EXCLUDE_FROM_ALL)
 
 add_subdirectory(STM32Cube_FW EXCLUDE_FROM_ALL)
 
-add_library(STM32L0 INTERFACE)
+add_library(mbed-stm32l0 INTERFACE)
 
-target_sources(STM32L0
+target_sources(mbed-stm32l0
     INTERFACE
         analogin_device.c
         analogout_device.c
@@ -22,9 +22,9 @@ target_sources(STM32L0
         spi_api.c
 )
 
-target_include_directories(STM32L0
+target_include_directories(mbed-stm32l0
     INTERFACE
         .
 )
 
-target_link_libraries(STM32L0 INTERFACE STM STM32L0Cube_FW)
+target_link_libraries(mbed-stm32l0 INTERFACE STM mbed-stm32l0cube-fw)

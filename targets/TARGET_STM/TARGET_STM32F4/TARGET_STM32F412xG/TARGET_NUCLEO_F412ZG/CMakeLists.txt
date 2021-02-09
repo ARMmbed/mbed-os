@@ -1,16 +1,16 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(NUCLEO_F412ZG INTERFACE)
+add_library(nucleo-f412zg INTERFACE)
 
-target_sources(NUCLEO_F412ZG
+target_sources(nucleo-f412zg
     INTERFACE
         PeripheralPins.c
 )
 
-target_include_directories(NUCLEO_F412ZG
+target_include_directories(nucleo-f412zg
     INTERFACE
         .
 )
 
-target_link_libraries(NUCLEO_F412ZG INTERFACE STM32F412xG)
+target_link_libraries(nucleo-f412zg INTERFACE mbed-stm32f412xg)

@@ -1,16 +1,16 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(NUCLEO_F303RE INTERFACE)
+add_library(nucleo-f303re INTERFACE)
 
-target_sources(NUCLEO_F303RE
+target_sources(nucleo-f303re
     INTERFACE
         PeripheralPins.c
 )
 
-target_include_directories(NUCLEO_F303RE
+target_include_directories(nucleo-f303re
     INTERFACE
         .
 )
 
-target_link_libraries(NUCLEO_F303RE INTERFACE STM32F303xE)
+target_link_libraries(nucleo-f303re INTERFACE mbed-stm32f303xe)

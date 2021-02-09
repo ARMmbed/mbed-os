@@ -1,16 +1,16 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(RHOMBIO_L476DMW1K INTERFACE)
+add_library(mbed-rhombio-l476dmw1k INTERFACE)
 
-target_sources(RHOMBIO_L476DMW1K
+target_sources(mbed-rhombio-l476dmw1k
     INTERFACE
         PeripheralPins.c
 )
 
-target_include_directories(RHOMBIO_L476DMW1K
+target_include_directories(mbed-rhombio-l476dmw1k
     INTERFACE
         .
 )
 
-target_link_libraries(RHOMBIO_L476DMW1K INTERFACE STM32L476xG)
+target_link_libraries(mbed-rhombio-l476dmw1k INTERFACE mbed-stm32l476xg)

@@ -3,9 +3,9 @@
 
 add_subdirectory(Legacy EXCLUDE_FROM_ALL)
 
-add_library(STM32F4xx_HAL_Driver INTERFACE)
+add_library(mbed-stm32f4xx-hal-driver INTERFACE)
 
-target_sources(STM32F4xx_HAL_Driver
+target_sources(mbed-stm32f4xx-hal-driver
     INTERFACE
         stm32f4xx_hal.c
         stm32f4xx_hal_adc.c
@@ -98,9 +98,9 @@ target_sources(STM32F4xx_HAL_Driver
         stm32f4xx_ll_utils.c
 )
 
-target_include_directories(STM32F4xx_HAL_Driver
+target_include_directories(mbed-stm32f4xx-hal-driver
     INTERFACE
         .
 )
 
-target_link_libraries(STM32F4xx_HAL_Driver INTERFACE STM32F4xxLegacyHAL)
+target_link_libraries(mbed-stm32f4xx-hal-driver INTERFACE mbed-stm32f4xx-legacy-hal)

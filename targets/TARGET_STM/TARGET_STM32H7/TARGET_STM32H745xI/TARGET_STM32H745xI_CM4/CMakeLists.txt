@@ -9,18 +9,18 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32h745xI_CM4.sct)
 endif()
 
-add_library(STM32H745xI_CM4 INTERFACE)
+add_library(mbed-stm32h745xi-cm4 INTERFACE)
 
-target_sources(STM32H745xI_CM4
+target_sources(mbed-stm32h745xi-cm4
     INTERFACE
         ${STARTUP_FILE}
 )
 
-target_include_directories(STM32H745xI_CM4
+target_include_directories(mbed-stm32h745xi-cm4
     INTERFACE
         .
 )
 
-mbed_set_linker_script(STM32H745xI_CM4 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-stm32h745xi-cm4 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(STM32H745xI_CM4 INTERFACE STM32H745xI)
+target_link_libraries(mbed-stm32h745xi-cm4 INTERFACE mbed-stm32h745xi)

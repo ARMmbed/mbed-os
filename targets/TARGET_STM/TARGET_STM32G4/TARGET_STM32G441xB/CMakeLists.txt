@@ -9,18 +9,18 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32g441xb.sct)
 endif()
 
-add_library(STM32G441xB INTERFACE)
+add_library(mbed-stm32g441xb INTERFACE)
 
-target_sources(STM32G441xB
+target_sources(mbed-stm32g441xb
     INTERFACE
         ${STARTUP_FILE}
 )
 
-target_include_directories(STM32G441xB
+target_include_directories(mbed-stm32g441xb
     INTERFACE
         .
 )
 
-mbed_set_linker_script(STM32G441xB ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-stm32g441xb ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(STM32G441xB INTERFACE STM32G4)
+target_link_libraries(mbed-stm32g441xb INTERFACE mbed-stm32g4)

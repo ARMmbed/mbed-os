@@ -1,17 +1,17 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(NUCLEO_F767ZI INTERFACE)
+add_library(nucleo-f767zi INTERFACE)
 
-target_sources(NUCLEO_F767ZI
+target_sources(nucleo-f767zi
     INTERFACE
         PeripheralPins.c
         system_clock.c
 )
 
-target_include_directories(NUCLEO_F767ZI
+target_include_directories(nucleo-f767zi
     INTERFACE
         .
 )
 
-target_link_libraries(NUCLEO_F767ZI INTERFACE STM32F767xI)
+target_link_libraries(nucleo-f767zi INTERFACE mbed-stm32f767xi)

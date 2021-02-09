@@ -9,18 +9,18 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32g484xe.sct)
 endif()
 
-add_library(STM32G484xE INTERFACE)
+add_library(mbed-stm32g484xe INTERFACE)
 
-target_sources(STM32G484xE
+target_sources(mbed-stm32g484xe
     INTERFACE
         ${STARTUP_FILE}
 )
 
-target_include_directories(STM32G484xE
+target_include_directories(mbed-stm32g484xe
     INTERFACE
         .
 )
 
-mbed_set_linker_script(STM32G484xE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-stm32g484xe ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(STM32G484xE INTERFACE STM32G4)
+target_link_libraries(mbed-stm32g484xe INTERFACE mbed-stm32g4)

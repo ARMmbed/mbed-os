@@ -11,18 +11,18 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32g071xx.sct)
 endif()
 
-add_library(STM32G071xx INTERFACE)
+add_library(mbed-stm32g071xx INTERFACE)
 
-target_sources(STM32G071xx
+target_sources(mbed-stm32g071xx
     INTERFACE
         ${STARTUP_FILE}
 )
 
-target_include_directories(STM32G071xx
+target_include_directories(mbed-stm32g071xx
     INTERFACE
         .
 )
 
-mbed_set_linker_script(STM32G071xx ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-stm32g071xx ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(STM32G071xx INTERFACE STM32G0)
+target_link_libraries(mbed-stm32g071xx INTERFACE mbed-stm32g0)

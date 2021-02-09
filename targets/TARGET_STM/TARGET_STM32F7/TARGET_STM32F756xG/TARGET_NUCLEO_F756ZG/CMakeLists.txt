@@ -1,17 +1,17 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(NUCLEO_F756ZG INTERFACE)
+add_library(nucleo-f756zg INTERFACE)
 
-target_sources(NUCLEO_F756ZG
+target_sources(nucleo-f756zg
     INTERFACE
         PeripheralPins.c
         system_clock.c
 )
 
-target_include_directories(NUCLEO_F756ZG
+target_include_directories(nucleo-f756zg
     INTERFACE
         .
 )
 
-target_link_libraries(NUCLEO_F756ZG INTERFACE STM32F756xG)
+target_link_libraries(nucleo-f756zg INTERFACE mbed-stm32f756xg)
