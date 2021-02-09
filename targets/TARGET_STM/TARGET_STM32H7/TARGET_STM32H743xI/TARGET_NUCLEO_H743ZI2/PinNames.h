@@ -27,6 +27,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+
+/* MBED TARGET LIST: NUCLEO_H743ZI2 */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

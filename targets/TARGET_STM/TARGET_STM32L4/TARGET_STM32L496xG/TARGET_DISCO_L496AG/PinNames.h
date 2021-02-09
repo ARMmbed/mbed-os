@@ -28,6 +28,8 @@
  *******************************************************************************
  */
 
+/* MBED TARGET LIST: DISCO_L496AG */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

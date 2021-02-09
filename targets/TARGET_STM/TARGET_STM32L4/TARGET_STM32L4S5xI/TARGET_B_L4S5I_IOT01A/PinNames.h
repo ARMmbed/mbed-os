@@ -15,6 +15,8 @@
  * Automatically generated from STM32CubeMX/db/mcu/STM32L4S5VITx.xml
  */
 
+/* MBED TARGET LIST: B_L4S5I_IOT01A */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

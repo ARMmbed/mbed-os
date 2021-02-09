@@ -17,6 +17,8 @@
  *
  ****************************************************************************/
 
+/* MBED TARGET LIST: S5JS100 */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

@@ -30,6 +30,8 @@
  *******************************************************************************
  */
 
+/* MBED TARGET LIST: WIO_BG96 */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

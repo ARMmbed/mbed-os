@@ -15,6 +15,8 @@
  * Automatically generated from STM32CubeMX/db/mcu/STM32H747XIHx.xml
  */
 
+/* MBED TARGET LIST: DISCO_H747I, DISCO_H747I_CM4, DISCO_H747I_CM7 */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

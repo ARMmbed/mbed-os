@@ -15,6 +15,8 @@
  * Automatically generated from STM32CubeMX/db/mcu/STM32L552Z(C-E)TxQ.xml
  */
 
+/* MBED TARGET LIST: NUCLEO_L552ZE_Q */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
