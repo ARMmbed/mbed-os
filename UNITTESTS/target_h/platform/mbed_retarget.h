@@ -374,9 +374,17 @@ struct stat {
 
     off_t     st_size;    ///< Size of file in bytes
 
+    // st_atime, st_mtime and st_ctime are defined as macros
+    // on platform like iOS.
+#ifndef st_atime
     time_t    st_atime;   ///< Time of last access
+#endif
+#ifndef st_mtime
     time_t    st_mtime;   ///< Time of last data modification
+#endif
+#ifndef st_ctime
     time_t    st_ctime;   ///< Time of last status change
+#endif
 };
 #endif
 
