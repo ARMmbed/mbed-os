@@ -38,7 +38,9 @@
 extern "C" {
 #endif
 
-#if MBED_CONF_TARGET_LSE_AVAILABLE
+#if RTC_FROM_HSE
+#define RTC_CLOCK 1000000U
+#elif MBED_CONF_TARGET_LSE_AVAILABLE
 #define RTC_CLOCK LSE_VALUE
 #else
 #define RTC_CLOCK LSI_VALUE
@@ -47,7 +49,11 @@ extern "C" {
 #if DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM
 /* PREDIV_A : 7-bit asynchronous prescaler */
 /* PREDIV_A is set to set LPTICKER frequency to RTC_CLOCK/4 */
+#if RTC_FROM_HSE
+#define PREDIV_A_VALUE 124
+#else
 #define PREDIV_A_VALUE 3
+#endif
 
 /** Read RTC counter with sub second precision
  *

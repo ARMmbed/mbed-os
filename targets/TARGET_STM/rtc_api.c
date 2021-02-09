@@ -62,7 +62,18 @@ void rtc_init(void)
     while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
     }
 #endif /* DUAL_CORE */
-#if MBED_CONF_TARGET_LSE_AVAILABLE
+#if RTC_FROM_HSE
+#define RTC_HSE_DIV (HSE_VALUE / RTC_CLOCK)
+#if RTC_HSE_DIV > 31
+#error "HSE value too high for RTC"
+#endif
+    (void)RCC_OscInitStruct;
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+    PeriphClkInitStruct.RTCClockSelection = (RCC_RTCCLKSOURCE_HSE_DIVX | RTC_HSE_DIV << 16);
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+        error("PeriphClkInitStruct RTC failed with HSE\n");
+    }
+#elif MBED_CONF_TARGET_LSE_AVAILABLE
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
 #if MBED_CONF_TARGET_LSE_BYPASS
