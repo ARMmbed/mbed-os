@@ -1,16 +1,28 @@
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_subdirectory(device)
+add_subdirectory(TARGET_FRDM EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_HEXIWEAR EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_SDT64B EXCLUDE_FROM_ALL)
 
-if("FRDM" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_FRDM)
-elseif("HEXIWEAR" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_HEXIWEAR)
-elseif("SDT64B" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_SDT64B)
+if(${MBED_TOOLCHAIN} STREQUAL "ARM")
+    set(LINKER_FILE device/TOOLCHAIN_ARM_STD/MK64FN1M0xxx12.sct)
+    set(STARTUP_FILE device/TOOLCHAIN_ARM_STD/startup_MK64F12.S)
+elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
+    set(LINKER_FILE device/TOOLCHAIN_GCC_ARM/MK64FN1M0xxx12.ld)
+    set(STARTUP_FILE device/TOOLCHAIN_GCC_ARM/startup_MK64F12.S)
 endif()
 
-target_sources(mbed-core
+add_library(mbed-mcu-k64f INTERFACE)
+
+target_include_directories(mbed-mcu-k64f
+    INTERFACE
+        .
+        device
+        drivers
+)
+
+target_sources(mbed-mcu-k64f
     INTERFACE
         mbed_crc_api.c
         pwmout_api.c
@@ -58,10 +70,15 @@ target_sources(mbed-core
         drivers/fsl_uart_edma.c
         drivers/fsl_vref.c
         drivers/fsl_wdog.c
+
+        device/system_MK64F12.c
+        ${STARTUP_FILE}
 )
 
-target_include_directories(mbed-core
-    INTERFACE
-        .
-        drivers
-)
+target_link_libraries(mbed-mcu-k64f INTERFACE mbed-mcuxpresso-mcus)
+
+mbed_set_linker_script(mbed-mcu-k64f ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+
+add_library(mbed-k64f INTERFACE)
+
+target_link_libraries(mbed-k64f INTERFACE mbed-mcu-k64f mbed-frdm-k64f)
