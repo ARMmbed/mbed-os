@@ -4,14 +4,14 @@
 cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
 
 set(MBED_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../.. CACHE INTERNAL "")
-set(TEST_TARGET mbed-storage-kvstore-general_tests_phase_2)
+set(APP_TARGET mbed-storage-kvstore-general_tests_phase_2)
 
 include(${MBED_PATH}/tools/cmake/mbed_greentea.cmake)
 
-project(${TEST_TARGET})
+project(${APP_TARGET})
 
 mbed_greentea_add_test(
-    TEST_NAME ${TEST_TARGET}
+    TEST_NAME ${APP_TARGET}
     TEST_REQUIRED_LIBS
         mbed-storage
         mbed-storage-filesystemstore

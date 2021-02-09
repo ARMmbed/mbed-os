@@ -4,11 +4,11 @@
 cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
 
 set(MBED_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../../.. CACHE INTERNAL "")
-set(TEST_TARGET mbed-hal-qspi)
+set(APP_TARGET mbed-hal-qspi)
 
 include(${MBED_PATH}/tools/cmake/mbed_greentea.cmake)
 
-project(${TEST_TARGET})
+project(${APP_TARGET})
 
 if("EP_AGORA" IN_LIST MBED_TARGET_LABELS)
     set(FLASH_TARGET_CONFIG_HEADER NORDIC/EP_AGORA)
@@ -24,7 +24,7 @@ endif()
 
 list(APPEND TEST_HEADER_DIRS flash_configs flash_configs/${FLASH_TARGET_CONFIG_HEADER})
 
-mbed_greentea_add_test(TEST_NAME ${TEST_TARGET}
+mbed_greentea_add_test(TEST_NAME ${APP_TARGET}
     TEST_SOURCES qspi_test_utils.cpp
     TEST_INCLUDE_DIRS ${TEST_HEADER_DIRS}
 )
