@@ -75,6 +75,7 @@ This table summarizes the STM32Cube versions currently used in Mbed OS master br
 | L4          |    1.16.0    | https://github.com/STMicroelectronics/STM32CubeL4 |
 | L5          |    1.3.0     | https://github.com/STMicroelectronics/STM32CubeL5 |
 | WB          |    1.8.0     | https://github.com/STMicroelectronics/STM32CubeWB |
+| WL          |    1.0.0     | https://github.com/STMicroelectronics/STM32CubeWL |
 
 In Mbed OS repository, we try to minimize the difference between "official" and copied files.
 
@@ -102,6 +103,10 @@ Tool is not used in Mbed OS, but it can be useful for you.
 ### STM32WB
 
 [STM32WB README](TARGET_STM32WB/README.md)
+
+### STM32WL
+
+[STM32WL README](TARGET_STM32WL/README.md)
 
 ### STM32H7
 
