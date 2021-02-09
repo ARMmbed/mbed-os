@@ -128,9 +128,14 @@ add_subdirectory(cmsis/device/rtos EXCLUDE_FROM_ALL)
 # preventing CMake from working its usage requirements magic and forcing us to set the linker
 # script globally.
 #
+# keep cmake naming convention in targets, using lowercase with dashes
+string(TOLOWER ${MBED_TARGET} MBED_TARGET_CONVERTED)
+string(REPLACE "_" "-" MBED_TARGET_CONVERTED ${MBED_TARGET_CONVERTED})
+string(PREPEND MBED_TARGET_CONVERTED "mbed-")
+
 # TODO: Remove when all MBED_TARGETS have been converted to build system targets.
-if(TARGET ${MBED_TARGET})
-    target_link_libraries(mbed-core INTERFACE ${MBED_TARGET})
+if(TARGET ${MBED_TARGET_CONVERTED})
+    target_link_libraries(mbed-core INTERFACE ${MBED_TARGET_CONVERTED})
 else()
     get_property(LINKER_SCRIPT GLOBAL PROPERTY MBED_TARGET_LINKER_FILE)
     mbed_set_linker_script(mbed-core ${LINKER_SCRIPT})
