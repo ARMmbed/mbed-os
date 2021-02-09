@@ -63,6 +63,14 @@ public:
         return cancel_handler(id);
     };
 
+    /** Get number of events in queue.
+     *
+     * @return Number of events waiting in the queue.
+     */
+    size_t size() const {
+        return _handlers.size();
+    }
+
     template<typename F, typename ... ArgTs>
     handle_t call(F f, ArgTs... args) {
         return call_handler(
