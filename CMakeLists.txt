@@ -128,7 +128,8 @@ add_subdirectory(cmsis/device/rtos EXCLUDE_FROM_ALL)
 # preventing CMake from working its usage requirements magic and forcing us to set the linker
 # script globally.
 #
-# keep cmake naming convention in targets, using lowercase with dashes
+# Keep our CMake naming in targets as well: using lowercase with dashes + prefixed with mbed-
+# Tools can keep targets.json naming, we translate here for linking
 string(TOLOWER ${MBED_TARGET} MBED_TARGET_CONVERTED)
 string(REPLACE "_" "-" MBED_TARGET_CONVERTED ${MBED_TARGET_CONVERTED})
 string(PREPEND MBED_TARGET_CONVERTED "mbed-")
