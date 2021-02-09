@@ -25,10 +25,10 @@ namespace ble {
 
 class GattServerMock : public ble::impl::GattServer {
 public:
-    GattServerMock() {};
+    GattServerMock();
     GattServerMock(const GattServerMock&) = delete;
     GattServerMock& operator=(const GattServerMock&) = delete;
-    virtual ~GattServerMock() {};
+    virtual ~GattServerMock();
 
     MOCK_METHOD(ble_error_t, reset, (ble::GattServer* server), (override));
     MOCK_METHOD(void, setEventHandler, (EventHandler *handler), (override));
@@ -57,6 +57,47 @@ public:
     MOCK_METHOD(void, handleDataReadEvent, (const GattReadCallbackParams *params), (override));
     MOCK_METHOD(void, handleEvent, (GattServerEvents::gattEvent_e type, ble::connection_handle_t connHandle, GattAttribute::Handle_t attributeHandle), (override));
     MOCK_METHOD(void, handleDataSentEvent, (unsigned count), (override));
+
+    // Fake part
+    // Descriptor representation of a descriptor registered with ble::test::register_services
+    struct descriptor_t {
+        UUID uuid;
+        ble::attribute_handle_t handle;
+        ble::att_security_requirement_t read_security = ble::att_security_requirement_t::NONE;
+        ble::att_security_requirement_t write_security = ble::att_security_requirement_t::NONE;
+        bool is_readable;
+        bool is_writable;
+        std::vector<uint8_t> value;   // Use capacity to determine the max size.
+    };
+
+    // Characteristic representation of a characteristic registered with ble::test::register_services
+    struct characteristic_t {
+        UUID uuid;
+        ble::attribute_handle_t value_handle;
+        uint8_t properties;
+        ble::att_security_requirement_t read_security = ble::att_security_requirement_t::NONE;
+        ble::att_security_requirement_t write_security = ble::att_security_requirement_t::NONE;
+        ble::att_security_requirement_t update_security = ble::att_security_requirement_t::NONE;
+        FunctionPointerWithContext<GattReadAuthCallbackParams *>
+            read_cb;
+        FunctionPointerWithContext<GattWriteAuthCallbackParams *>
+            write_cb;
+        bool has_variable_len;
+        std::vector<uint8_t> value;   // Use capacity to determine the max size.
+        std::vector<descriptor_t> descriptors;
+    };
+
+    // Service representation of a service registered with ble::test::register_services
+    struct service_t {
+        UUID uuid;
+        ble::attribute_handle_t handle;
+        std::vector<characteristic_t> characteristics;
+    };
+
+    void fake_register_services(GattService& gattService);
+
+    std::vector<service_t> services;
+    ble::attribute_handle_t current_handle = 1;
 };
 
 }
