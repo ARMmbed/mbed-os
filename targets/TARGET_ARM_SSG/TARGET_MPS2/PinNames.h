@@ -14,6 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* MBED TARGET LIST: ARM_MPS2_M0, ARM_MPS2_M0P, ARM_MPS2_M3, ARM_MPS2_M4, 
+ * ARM_MPS2_M7
+ */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

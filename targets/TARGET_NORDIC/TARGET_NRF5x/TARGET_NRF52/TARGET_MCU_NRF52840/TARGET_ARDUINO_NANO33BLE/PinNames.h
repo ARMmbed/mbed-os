@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+/* MBED TARGET LIST: ARDUINO_NANO33BLE */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

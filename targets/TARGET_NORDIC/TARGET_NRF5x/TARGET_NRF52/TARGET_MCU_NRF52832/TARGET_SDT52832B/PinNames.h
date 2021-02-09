@@ -36,6 +36,8 @@
  * 
  */
 
+/* MBED TARGET LIST: SDT52832B */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

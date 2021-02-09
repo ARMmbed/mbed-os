@@ -14,6 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* MBED TARGET LIST: MIMXRT1050_EVK */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

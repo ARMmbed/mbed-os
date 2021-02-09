@@ -27,6 +27,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+
+/* MBED TARGET LIST: XDOT_L151CC, FF1705_L151CC */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
