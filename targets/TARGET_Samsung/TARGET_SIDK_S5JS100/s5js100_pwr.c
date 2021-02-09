@@ -748,30 +748,29 @@ void conver_nbsleep_to_aspsleep_counter(unsigned int nbsleep_cnt)
 
 void enable_counter(void)
 {
-	unsigned int retry = 1000;
+    unsigned int retry = 1000;
     if (getreg32(PMU_ALIVE_APSLPCNT_CFG0) & (0x1 << 1)) {
         //lldbg("APSLP cnt already enabled\n");
     } else {
         putreg32(0, PMU_ALIVE_APSLPCNT_CFG1);
         putreg32(1, PMU_ALIVE_APSLPCNT_CFG2);
         putreg32((15u << 6) + (1u << 3) + (0u << 2) + (1u << 1) + (1u << 0), PMU_ALIVE_APSLPCNT_CFG0);
-		while( !(getreg32(PMU_ALIVE_APSLPCNT_CFG3) & (0x1 << 31) >> 31) ) {
-			retry--;
-			if(!retry) {
-			//	printf("ASP timer not working..\n");
-				break;
-			}
-		}
-		while ( getreg32(PMU_ALIVE_APSLPCNT_CFG3) == 0x123 );
-		while ( getreg32(PMU_ALIVE_APSLPCNT_CFG4) == 0x45678 );
-	}
+        while (!(getreg32(PMU_ALIVE_APSLPCNT_CFG3) & (0x1 << 31) >> 31)) {
+            retry--;
+            if (!retry) {
+                break;
+            }
+        }
+        while (getreg32(PMU_ALIVE_APSLPCNT_CFG3) == 0x123);
+        while (getreg32(PMU_ALIVE_APSLPCNT_CFG4) == 0x45678);
+    }
 }
 
 void disable_counter(void)
 {
-	putreg32(0x0, PMU_ALIVE_APSLPCNT_CFG0);
-	while ( getreg32(PMU_ALIVE_APSLPCNT_CFG3) != 0x123 );
-	while ( getreg32(PMU_ALIVE_APSLPCNT_CFG4) != 0x45678 );
+    putreg32(0x0, PMU_ALIVE_APSLPCNT_CFG0);
+    while (getreg32(PMU_ALIVE_APSLPCNT_CFG3) != 0x123);
+    while (getreg32(PMU_ALIVE_APSLPCNT_CFG4) != 0x45678);
 }
 
 long long get_counter(void)

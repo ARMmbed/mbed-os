@@ -32,8 +32,8 @@ extern "C" {
 #endif
 
 struct gpio_irq_s {
-	PinName pin;
-	uint32_t pincfg;
+    PinName pin;
+    uint32_t pincfg;
 };
 
 struct port_s {
@@ -89,81 +89,81 @@ struct serial_s {
 };
 
 enum slave_status {
-	SLAVE_IDLE,
-	SLAVE_GET_REG,
-	SLAVE_GET_DATA,
-	SLAVE_SET_DATA,
+    SLAVE_IDLE,
+    SLAVE_GET_REG,
+    SLAVE_GET_DATA,
+    SLAVE_SET_DATA,
 };
 
 struct i2c_msg_s {
-	unsigned short addr;				/**< Slave address */
-	unsigned short flags;				/**< I2C flags; See I2C_M_* definitions */
+    unsigned short addr;                /**< Slave address */
+    unsigned short flags;               /**< I2C flags; See I2C_M_* definitions */
 #ifdef CONFIG_I2C_USERIO
-	unsigned short length;			/**< The length of buffer */
-	unsigned char *buffer;			/**< The Buffer for transferring message */
+    unsigned short length;          /**< The length of buffer */
+    unsigned char *buffer;          /**< The Buffer for transferring message */
 #else
-	unsigned char *buffer;			/**< The Buffer for transferring message */
-	int length;					/**< The length of buffer */
+    unsigned char *buffer;          /**< The Buffer for transferring message */
+    int length;                 /**< The length of buffer */
 #endif
 };
 
 struct slave_data {
-	enum slave_status status;
-	unsigned int current_reg;
-	unsigned char data[20];
+    enum slave_status status;
+    unsigned int current_reg;
+    unsigned char data[20];
 };
 
 struct master_data {
-	struct i2c_msg_s *msg;
-	int num;
-	int cur_msg;
-	int buf_count;
-	/*  struct completion done; */
+    struct i2c_msg_s *msg;
+    int num;
+    int cur_msg;
+    int buf_count;
+    /*  struct completion done; */
 };
 
 struct i2c_ops_s {
-	unsigned int (*setfrequency)(struct i2c_s *obj, unsigned int frequency);	/**< The operation for setting I2C frequency */
-	int (*setaddress)(struct i2c_s *obj, int addr, int nbits);			/**< The operation for setting I2C address */
-	int (*write)(struct i2c_s *obj, const unsigned char *buffer, int buflen, int stop);	/**< The operation for reading data */
-	int (*read)(struct i2c_s *obj, unsigned char *buffer, int buflen, int stop);		/**< The operation for wrting data */
-	int (*bytewrite)(struct i2c_s *obj, unsigned char buffer);	/**< The operation for reading data */
-	int (*byteread)(struct i2c_s *obj, int stop);		/**< The operation for wrting data */
+    unsigned int (*setfrequency)(struct i2c_s *obj, unsigned int frequency);    /**< The operation for setting I2C frequency */
+    int (*setaddress)(struct i2c_s *obj, int addr, int nbits);          /**< The operation for setting I2C address */
+    int (*write)(struct i2c_s *obj, const unsigned char *buffer, int buflen, int stop); /**< The operation for reading data */
+    int (*read)(struct i2c_s *obj, unsigned char *buffer, int buflen, int stop);        /**< The operation for wrting data */
+    int (*bytewrite)(struct i2c_s *obj, unsigned char buffer);  /**< The operation for reading data */
+    int (*byteread)(struct i2c_s *obj, int stop);       /**< The operation for wrting data */
 #ifdef DEVICE_I2CSLAVE
-	int (*setownaddress)(struct i2c_s *obj, int addr, int nbits);		/**< The operation for setting own I2C address */
-	int (*registercallback)(struct i2c_s *obj, int (*callback)(void));	/**< The operation for registering callback function */
+    int (*setownaddress)(struct i2c_s *obj, int addr, int nbits);       /**< The operation for setting own I2C address */
+    int (*registercallback)(struct i2c_s *obj, int (*callback)(void));  /**< The operation for registering callback function */
 #endif
-	int (*start)(struct i2c_s *obj);
-	int (*stop)(struct i2c_s *obj);
-	int (*free)(struct i2c_s *obj);
+    int (*start)(struct i2c_s *obj);
+    int (*stop)(struct i2c_s *obj);
+    int (*free)(struct i2c_s *obj);
 };
 
 /* I2C Device hardware configuration */
 struct i2c_config_s {
-	unsigned long int base;						/* I2C base address */
-	unsigned int scl_pin;				/* GPIO configuration for SCL as SCL */
-	unsigned int sda_pin;				/* GPIO configuration for SDA as SDA */
-	void (*isr)(void);	/* Interrupt handler */
-	unsigned int irq;					/* IRQ number */
-	unsigned char devno;						/* I2Cn where n = devno */
+    unsigned long int base;                     /* I2C base address */
+    unsigned int scl_pin;               /* GPIO configuration for SCL as SCL */
+    unsigned int sda_pin;               /* GPIO configuration for SDA as SDA */
+    void (*isr)(void);  /* Interrupt handler */
+    unsigned int irq;                   /* IRQ number */
+    unsigned char devno;                        /* I2Cn where n = devno */
 };
 
 /* I2C Device Private Data */
 struct i2c_s {
-	const struct i2c_ops_s *ops;	/* Standard I2C operations */
-	const struct i2c_config_s *config;	/* Port configuration */
-	int state;
-	int clock;
-	unsigned int xfer_speed;
-	unsigned int master;
-	unsigned int mode;
-	unsigned int slave_addr;
-	unsigned int addrlen;
-	unsigned int timeout;
-	unsigned int initialized;
-	unsigned int retries;
-	/* interrupt */
-	struct slave_data *slave_test_data;
-	struct master_data *master_test_data;
+    const struct i2c_ops_s *ops;    /* Standard I2C operations */
+    const struct i2c_config_s *config;  /* Port configuration */
+    int state;
+    int clock;
+    unsigned int xfer_speed;
+    unsigned int master;
+    unsigned int mode;
+    unsigned int slave_addr;
+    unsigned int addrlen;
+    unsigned int timeout;
+    unsigned int initialized;
+    unsigned int retries;
+    /* interrupt */
+    struct slave_data *slave_test_data;
+    struct master_data *master_test_data;
 };
 
 struct spi_s {
@@ -176,12 +176,11 @@ struct spi_s {
     unsigned int actual;
 };
 
-struct analogin_s
-{
-	void *adc;
-	unsigned char cchannels;
-	unsigned char current;
-	unsigned char chanlist[4];
+struct analogin_s {
+    void *adc;
+    unsigned char cchannels;
+    unsigned char current;
+    unsigned char chanlist[4];
 
 };
 

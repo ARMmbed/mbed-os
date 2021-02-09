@@ -34,7 +34,7 @@
 #define HSI2C_MASTER_BUFFER_BASE    0x44000000
 #define HSI2C_SLAVE_BUFFER_BASE     0x44800000
 
-#define HSI2C_MASTER_ID             0x9	/*  Master ID 00001xxx */
+#define HSI2C_MASTER_ID             0x9 /*  Master ID 00001xxx */
 #define HSI2C_SLAVE_ADDRESS         0x50
 
 /* Register Map *************************************************************/
@@ -118,20 +118,20 @@
 
 /* Bit definitions for the flags field in struct i2c_msg_s */
 
-#define I2C_M_READ           0x0001	/**< Read data, from slave to master */
-#define I2C_M_TEN            0x0002	/**< Ten bit address */
-#define I2C_M_NORESTART      0x0080	/**< Message should not begin with
-									 * (re-)start of transfer */
-#define I2C_SLAVE            0x0703	/**< Use this slave address */
-#define I2C_SLAVE_FORCE      0x0706	/**< Use this slave address, even if it
-									 * is already in use by a driver! */
-#define I2C_TENBIT           0x0704	/**< 0 for 7 bit addrs, != 0 for 10 bit */
-#define I2C_RDWR             0x0707	/**< Combined R/W transfer (one STOP only) */
+#define I2C_M_READ           0x0001 /**< Read data, from slave to master */
+#define I2C_M_TEN            0x0002 /**< Ten bit address */
+#define I2C_M_NORESTART      0x0080 /**< Message should not begin with
+                                     * (re-)start of transfer */
+#define I2C_SLAVE            0x0703 /**< Use this slave address */
+#define I2C_SLAVE_FORCE      0x0706 /**< Use this slave address, even if it
+                                     * is already in use by a driver! */
+#define I2C_TENBIT           0x0704 /**< 0 for 7 bit addrs, != 0 for 10 bit */
+#define I2C_RDWR             0x0707 /**< Combined R/W transfer (one STOP only) */
 
 #define I2C_FREQUENCY    0X801
 
-#define I2C_M_IGNORE_NAK  0x1000	/**< if I2C_FUNC_PROTOCOL_MANGLING */
-#define I2C_M_NOSTART   0x4000	/**< if I2C_FUNC_NOSTART */
+#define I2C_M_IGNORE_NAK  0x1000    /**< if I2C_FUNC_PROTOCOL_MANGLING */
+#define I2C_M_NOSTART   0x4000  /**< if I2C_FUNC_NOSTART */
 
 
 static int hsi2c_start(struct i2c_s *obj);

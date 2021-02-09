@@ -150,8 +150,7 @@ static uint32_t ssp_setfrequency(spi_t *priv, uint32_t frequency)
         error("priv null");
     }
 
-    if (frequency > SPI_MAX_FREQUENCY)
-    {
+    if (frequency > SPI_MAX_FREQUENCY) {
         actual_frequency = SPI_MAX_FREQUENCY;
     } else {
         actual_frequency = frequency;
@@ -328,8 +327,9 @@ void ssp_select(spi_t *priv, int selected)
 }
 void spi_free(spi_t *obj)
 {
-    if (!obj)
+    if (!obj) {
         return;
+    }
 
     /* Disable the SSP and all interrupts (we'll poll for all data) */
     ssp_putreg(obj, S5JS100_SSP_CR1_OFFSET, 0);
@@ -436,8 +436,9 @@ void spi_get_capabilities(PinName ssel, bool slave, spi_capabilities_t *cap)
     uint32_t ssp_cr0 = ssp_getreg((spi_t *)peripheral, S5JS100_SSP_CR0_OFFSET);
     uint32_t ssp_cr1 = ssp_getreg((spi_t *)peripheral, S5JS100_SSP_CR1_OFFSET);
 
-    if (!cap)
+    if (!cap) {
         return;
+    }
 
     cap->minimum_frequency = SSP_MIN_FREQUENCE;
     cap->maximum_frequency = SSP_MAX_FREQUENCE;
@@ -454,8 +455,9 @@ void spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
 {
     uint32_t regval = 0;
 
-    if (!obj || !pinmap)
+    if (!obj || !pinmap) {
         return;
+    }
 
     obj->spi = (SPI_TypeDef *)pinmap->peripheral;
     obj->base = SPI0_BASE;
@@ -501,8 +503,9 @@ void spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
 void spi_init(spi_t *obj, PinName mosi,
               PinName miso, PinName sclk, PinName ssel)
 {
-    if (!obj)
+    if (!obj) {
         return;
+    }
 
     uint32_t mosi_function = pinmap_function(mosi, PinMap_SPI_MOSI);
     uint32_t miso_function = pinmap_function(miso, PinMap_SPI_MISO);
@@ -519,10 +522,11 @@ void spi_init(spi_t *obj, PinName mosi,
     uint32_t spi_peripheral = pinmap_merge(spi_data, spi_cntl);
 
     const spi_pinmap_t pinmap = {spi_peripheral,
-                                    mosi, mosi_function,
-                                    miso, miso_function,
-                                    sclk, sclk_function,
-                                    ssel, ssel_function};
+                                 mosi, mosi_function,
+                                 miso, miso_function,
+                                 sclk, sclk_function,
+                                 ssel, ssel_function
+                                };
     spi_init_direct(obj, &pinmap);
 }
 
@@ -568,8 +572,8 @@ const PinMap *spi_slave_cs_pinmap()
 
 #if DEVICE_SPI_ASYNCH
 void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length,
-                            void *rx, size_t rx_length, uint8_t bit_width,
-                            uint32_t handler, uint32_t event, DMAUsage hint)
+                         void *rx, size_t rx_length, uint8_t bit_width,
+                         uint32_t handler, uint32_t event, DMAUsage hint)
 {
     return;
 }

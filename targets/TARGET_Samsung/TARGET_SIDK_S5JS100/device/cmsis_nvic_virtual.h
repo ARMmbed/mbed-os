@@ -58,9 +58,9 @@ void up_systemreset(void);
 void pmu_test_auto(int sleep_time_msec);
 __NO_RETURN __STATIC_INLINE void __NVIC_TFMSystemReset(void)
 {
-	up_systemreset();
-//	disable_counter();
-//	pmu_test_auto(3000);
+    up_systemreset();
+//  disable_counter();
+//  pmu_test_auto(3000);
 }
 
 #ifdef __cplusplus

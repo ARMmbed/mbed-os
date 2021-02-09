@@ -33,15 +33,15 @@
  **/
 uint32_t gpio_set(PinName pin)
 {
-	int bit;
+    int bit;
 
-	MBED_ASSERT(pin != (PinName )NC);
-	GPIOName g_name = (GPIOName) pinmap_peripheral(pin, PinMap_GPIO);
-	if ((PinName) g_name == NC) {
-		return 0;
-	}
-	bit = (int) g_name;
-	return (1UL << bit);
+    MBED_ASSERT(pin != (PinName)NC);
+    GPIOName g_name = (GPIOName) pinmap_peripheral(pin, PinMap_GPIO);
+    if ((PinName) g_name == NC) {
+        return 0;
+    }
+    bit = (int) g_name;
+    return (1UL << bit);
 }
 
 /** Checks if gpio object is connected (pin was not initialized with NC)
@@ -51,11 +51,11 @@ uint32_t gpio_set(PinName pin)
  **/
 int gpio_is_connected(const gpio_t *obj)
 {
-	if (obj->pin != (PinName) NC) {
-		return 1;
-	} else {
-		return 0;
-	}
+    if (obj->pin != (PinName) NC) {
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 /** Initialize the GPIO pin
@@ -65,17 +65,17 @@ int gpio_is_connected(const gpio_t *obj)
  */
 void gpio_init(gpio_t *obj, PinName pin)
 {
-	GPIOName g_name = (GPIOName) pinmap_peripheral(pin, PinMap_GPIO);
-	int pincfg = pinmap_function(pin, PinMap_GPIO);
-	if ((PinName) g_name == NC || !pincfg) {
-		obj->pin = NC;
-		obj->pincfg = NC;
-		return;
-	}
+    GPIOName g_name = (GPIOName) pinmap_peripheral(pin, PinMap_GPIO);
+    int pincfg = pinmap_function(pin, PinMap_GPIO);
+    if ((PinName) g_name == NC || !pincfg) {
+        obj->pin = NC;
+        obj->pincfg = NC;
+        return;
+    }
 
-	obj->pin = pin;
-	obj->pincfg = pincfg;
-	s5js100_configgpio(pincfg);
+    obj->pin = pin;
+    obj->pincfg = pincfg;
+    s5js100_configgpio(pincfg);
 }
 
 /** Releases the GPIO pin
@@ -84,11 +84,11 @@ void gpio_init(gpio_t *obj, PinName pin)
  */
 void gpio_free(gpio_t *obj)
 {
-	if (obj->pin == NC) {
-		return;
-	}
-	s5js100_unconfiggpio(obj->pincfg);
-	memset(obj, NC, sizeof(gpio_t));
+    if (obj->pin == NC) {
+        return;
+    }
+    s5js100_unconfiggpio(obj->pincfg);
+    memset(obj, NC, sizeof(gpio_t));
 }
 
 /** Set the input pin mode
@@ -98,18 +98,18 @@ void gpio_free(gpio_t *obj)
  */
 void gpio_mode(gpio_t *obj, PinMode mode)
 {
-	obj->pincfg &= ~GPIO_PUPD_MASK;
+    obj->pincfg &= ~GPIO_PUPD_MASK;
 
-	if (mode == PullNone) {
-		obj->pincfg |= GPIO_FLOAT;
-	} else if (mode == PullUp) {
-		obj->pincfg |= GPIO_PULLUP;
-	} else if (mode == PullDown) {
-		obj->pincfg |= GPIO_PULLDOWN;
-	} else {
-		//return -EINVAL;
-	}
-	s5js100_pullup(obj->pincfg);
+    if (mode == PullNone) {
+        obj->pincfg |= GPIO_FLOAT;
+    } else if (mode == PullUp) {
+        obj->pincfg |= GPIO_PULLUP;
+    } else if (mode == PullDown) {
+        obj->pincfg |= GPIO_PULLDOWN;
+    } else {
+        //return -EINVAL;
+    }
+    s5js100_pullup(obj->pincfg);
 }
 
 /** Set the pin direction
@@ -119,16 +119,16 @@ void gpio_mode(gpio_t *obj, PinMode mode)
  */
 void gpio_dir(gpio_t *obj, PinDirection direction)
 {
-	obj->pincfg &= ~GPIO_INPUT_MASK;
-	obj->pincfg &= ~GPIO_OUTPUT_MASK;
+    obj->pincfg &= ~GPIO_INPUT_MASK;
+    obj->pincfg &= ~GPIO_OUTPUT_MASK;
 
-	if (direction == PIN_OUTPUT) {
-		obj->pincfg |= GPIO_OUTPUT;
-		s5js100_configoutput(obj->pincfg);
-	} else if (direction == PIN_INPUT) {
-		obj->pincfg |= GPIO_INPUT;
-		s5js100_configinput(obj->pincfg);
-	}
+    if (direction == PIN_OUTPUT) {
+        obj->pincfg |= GPIO_OUTPUT;
+        s5js100_configoutput(obj->pincfg);
+    } else if (direction == PIN_INPUT) {
+        obj->pincfg |= GPIO_INPUT;
+        s5js100_configinput(obj->pincfg);
+    }
 }
 
 /** Get the pins that support all GPIO tests
@@ -143,6 +143,6 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
  */
 const PinMap *gpio_pinmap(void)
 {
-	return PinMap_GPIO;
+    return PinMap_GPIO;
 }
 #endif

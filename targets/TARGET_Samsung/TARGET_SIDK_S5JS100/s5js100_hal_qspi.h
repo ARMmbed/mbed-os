@@ -16,7 +16,7 @@
  * language governing permissions and limitations under the License.
  *
  ****************************************************************************/
-// Flash type used 
+// Flash type used
 #define FLASH_OTHERS 0
 #define FLASH_MXIC 1
 #define FLASH_MXIC_4IO 2

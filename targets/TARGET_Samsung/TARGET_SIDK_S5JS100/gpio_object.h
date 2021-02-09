@@ -32,22 +32,21 @@ extern "C"
 {
 #endif
 
-typedef struct
-{
-	PinName pin;
-	uint32_t pincfg;
+typedef struct {
+    PinName pin;
+    uint32_t pincfg;
 } gpio_t;
 
 static inline void gpio_write(gpio_t *obj, int value)
 {
-	MBED_ASSERT(obj->pin != (PinName) NC);
-	s5js100_gpiowrite(obj->pincfg, (unsigned int) value);
+    MBED_ASSERT(obj->pin != (PinName) NC);
+    s5js100_gpiowrite(obj->pincfg, (unsigned int) value);
 }
 
 static inline int gpio_read(gpio_t *obj)
 {
-	MBED_ASSERT(obj->pin != (PinName) NC);
-	return s5js100_gpioread(obj->pincfg);
+    MBED_ASSERT(obj->pin != (PinName) NC);
+    return s5js100_gpioread(obj->pincfg);
 }
 
 #ifdef __cplusplus

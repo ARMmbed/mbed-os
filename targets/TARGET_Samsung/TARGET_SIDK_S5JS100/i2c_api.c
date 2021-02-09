@@ -40,17 +40,16 @@ void i2c_init_direct(i2c_t *obj, const i2c_pinmap_t *pinmap)
 static void _i2c_init_direct(i2c_t *obj, const i2c_pinmap_t *pinmap)
 #endif
 {
-	/* Determine the I2C to use */
-	I2CName i2c_name = pinmap->peripheral;
+    /* Determine the I2C to use */
+    I2CName i2c_name = pinmap->peripheral;
 
-	switch (i2c_name)
-	{
-		case I2C_0:
-			up_i2cinitialize(obj);
-			break;
-		default:
-			break;
-	}
+    switch (i2c_name) {
+        case I2C_0:
+            up_i2cinitialize(obj);
+            break;
+        default:
+            break;
+    }
 }
 
 /** Initialize the I2C peripheral. It sets the default parameters for I2C
@@ -62,18 +61,19 @@ static void _i2c_init_direct(i2c_t *obj, const i2c_pinmap_t *pinmap)
  */
 void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 {
-	uint32_t i2c_sda = pinmap_peripheral(sda, PinMap_I2C_SDA);
-	uint32_t i2c_scl = pinmap_peripheral(scl, PinMap_I2C_SCL);
+    uint32_t i2c_sda = pinmap_peripheral(sda, PinMap_I2C_SDA);
+    uint32_t i2c_scl = pinmap_peripheral(scl, PinMap_I2C_SCL);
 
-	int peripheral = (int) pinmap_merge(i2c_sda, i2c_scl);
+    int peripheral = (int) pinmap_merge(i2c_sda, i2c_scl);
 
-	int sda_function = (int) pinmap_function(sda, PinMap_I2C_SDA);
-	int scl_function = (int) pinmap_function(scl, PinMap_I2C_SCL);
+    int sda_function = (int) pinmap_function(sda, PinMap_I2C_SDA);
+    int scl_function = (int) pinmap_function(scl, PinMap_I2C_SCL);
 
-	const i2c_pinmap_t explicit_i2c_pinmap = { peripheral, sda, sda_function,
-			scl, scl_function };
+    const i2c_pinmap_t explicit_i2c_pinmap = { peripheral, sda, sda_function,
+                                               scl, scl_function
+                                             };
 
-	I2C_INIT_DIRECT(obj, &explicit_i2c_pinmap);
+    I2C_INIT_DIRECT(obj, &explicit_i2c_pinmap);
 }
 
 /** Release a I2C object
@@ -83,7 +83,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
  */
 void i2c_free(i2c_t *obj)
 {
-	obj->ops->free(obj);
+    obj->ops->free(obj);
 }
 
 /** Configure the I2C frequency
@@ -93,7 +93,7 @@ void i2c_free(i2c_t *obj)
  */
 void i2c_frequency(i2c_t *obj, int hz)
 {
-	obj->ops->setfrequency(obj, hz);
+    obj->ops->setfrequency(obj, hz);
 }
 
 /** Send START command
@@ -102,7 +102,7 @@ void i2c_frequency(i2c_t *obj, int hz)
  */
 int i2c_start(i2c_t *obj)
 {
-	return obj->ops->start(obj);
+    return obj->ops->start(obj);
 }
 
 /** Send STOP command
@@ -111,7 +111,7 @@ int i2c_start(i2c_t *obj)
  */
 int i2c_stop(i2c_t *obj)
 {
-	return obj->ops->stop(obj);
+    return obj->ops->stop(obj);
 }
 
 /** Blocking reading data
@@ -125,9 +125,9 @@ int i2c_stop(i2c_t *obj)
  */
 int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
 {
-//	obj->slave_addr = address;
-	obj->ops->setaddress(obj, address, 0);
-	return obj->ops->read(obj, data, length, stop);
+//  obj->slave_addr = address;
+    obj->ops->setaddress(obj, address, 0);
+    return obj->ops->read(obj, data, length, stop);
 }
 
 /** Blocking sending data
@@ -143,9 +143,9 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
  */
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
 {
-//	obj->slave_addr = address;
-	obj->ops->setaddress(obj, address, 0);
-	return obj->ops->write(obj, data, length, stop);
+//  obj->slave_addr = address;
+    obj->ops->setaddress(obj, address, 0);
+    return obj->ops->write(obj, data, length, stop);
 }
 
 /** Reset I2C peripheral. TODO: The action here. Most of the implementation sends stop()
@@ -154,7 +154,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
  */
 void i2c_reset(i2c_t *obj)
 {
-	i2c_stop(obj);
+    i2c_stop(obj);
 }
 
 /** Read one byte
@@ -165,7 +165,7 @@ void i2c_reset(i2c_t *obj)
  */
 int i2c_byte_read(i2c_t *obj, int last)
 {
-	return obj->ops->byteread(obj, last);
+    return obj->ops->byteread(obj, last);
 }
 
 /** Write one byte
@@ -176,7 +176,7 @@ int i2c_byte_read(i2c_t *obj, int last)
  */
 int i2c_byte_write(i2c_t *obj, int data)
 {
-	return obj->ops->bytewrite(obj, data);
+    return obj->ops->bytewrite(obj, data);
 }
 
 /** Get the pins that support I2C SDA
@@ -188,7 +188,7 @@ int i2c_byte_write(i2c_t *obj, int data)
  */
 const PinMap *i2c_master_sda_pinmap(void)
 {
-	return PinMap_I2C_SDA;
+    return PinMap_I2C_SDA;
 }
 
 /** Get the pins that support I2C SCL
@@ -200,7 +200,7 @@ const PinMap *i2c_master_sda_pinmap(void)
  */
 const PinMap *i2c_master_scl_pinmap(void)
 {
-	return PinMap_I2C_SCL;
+    return PinMap_I2C_SCL;
 }
 
 /** Get the pins that support I2C SDA
@@ -212,7 +212,7 @@ const PinMap *i2c_master_scl_pinmap(void)
  */
 const PinMap *i2c_slave_sda_pinmap(void)
 {
-	return PinMap_I2C_SDA;
+    return PinMap_I2C_SDA;
 }
 
 /** Get the pins that support I2C SCL
@@ -224,7 +224,7 @@ const PinMap *i2c_slave_sda_pinmap(void)
  */
 const PinMap *i2c_slave_scl_pinmap(void)
 {
-	return PinMap_I2C_SCL;
+    return PinMap_I2C_SCL;
 }
 
 /**@}*/
@@ -251,7 +251,7 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave)
  */
 int i2c_slave_receive(i2c_t *obj)
 {
-	return 0;
+    return 0;
 }
 
 /** Configure I2C as slave or master.
@@ -262,7 +262,7 @@ int i2c_slave_receive(i2c_t *obj)
  */
 int i2c_slave_read(i2c_t *obj, char *data, int length)
 {
-	return 0;
+    return 0;
 }
 
 /** Configure I2C as slave or master.
@@ -273,7 +273,7 @@ int i2c_slave_read(i2c_t *obj, char *data, int length)
  */
 int i2c_slave_write(i2c_t *obj, const char *data, int length)
 {
-	return 0;
+    return 0;
 }
 
 /** Configure I2C address.

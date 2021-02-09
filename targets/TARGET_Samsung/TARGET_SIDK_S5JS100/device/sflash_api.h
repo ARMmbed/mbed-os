@@ -34,7 +34,7 @@ extern "C" {
 
 #define S5JS100_FLASH_FS_PADDR          0x40EF5000
 #define S5JS100_FLASH_FS_SIZE          256*1024
-#define S5JS100_FLASH_QSPI_TEST_PADDR	0x406AE000 //used for hal_qspi
+#define S5JS100_FLASH_QSPI_TEST_PADDR   0x406AE000 //used for hal_qspi
 
 #define S5JS100_FLASH_SIZE              (16 * 1024 * 1024)
 #define S5JS100_OS_ENV_OFFSET_16MB      (0x2E000)

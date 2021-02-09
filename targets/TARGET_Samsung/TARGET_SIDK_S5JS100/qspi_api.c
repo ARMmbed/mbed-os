@@ -26,7 +26,7 @@
 #include "pinmap.h"
 
 #define QSPI_FLASH_SIZE_DEFAULT 0x80000000
-#define HAL_QSPI_TIMEOUT_DEFAULT_VALUE       ((uint32_t)5000U)                                             
+#define HAL_QSPI_TIMEOUT_DEFAULT_VALUE       ((uint32_t)5000U)
 
 static uint32_t get_alt_bytes_size(const uint32_t num_bytes)
 {
@@ -35,12 +35,12 @@ static uint32_t get_alt_bytes_size(const uint32_t num_bytes)
 
 qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, PinName ssel, uint32_t hz, uint8_t mode)
 {
-    return QSPI_STATUS_OK; 
+    return QSPI_STATUS_OK;
 }
 
 qspi_status_t qspi_free(qspi_t *obj)
 {
-    return QSPI_STATUS_OK; 
+    return QSPI_STATUS_OK;
 }
 
 qspi_status_t qspi_frequency(qspi_t *obj, int hz)
@@ -51,11 +51,9 @@ qspi_status_t qspi_frequency(qspi_t *obj, int hz)
 
 qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void *data, size_t *length)
 {
-    qspi_status_t status = QSPI_STATUS_OK;
-    //printf("%s command 0x%x, data 0x%x, len %d\n", __func__, command->instruction.value, *(uint32_t*)data, *length);
     if (HAL_QSPI_CommandReceive(command, data, length, HAL_QSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
         status = QSPI_STATUS_ERROR;
-    } 
+    }
 
     return status;
 }
@@ -63,22 +61,20 @@ qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void 
 qspi_status_t qspi_read(qspi_t *obj, const qspi_command_t *command, void *data, size_t *length)
 {
     qspi_status_t status = QSPI_STATUS_OK;
-    //printf("%s command 0x%x, data 0x%x, len %d\n", __func__, command->instruction.value, *(uint32_t*)data, *length);
-	
+
     if (HAL_QSPI_CommandReceive(command, data, length, HAL_QSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
         status = QSPI_STATUS_ERROR;
-    } 
+    }
     return status;
 }
 
 qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, const void *tx_data, size_t tx_size, void *rx_data, size_t rx_size)
 {
-    //printf("\r\nqspi_command_transfer tx_size %u rx_size %u command %x", tx_size, rx_size, command->instruction.value);
-    //printf("\r\ntx_data %s \r\n", tx_data);
+
     qspi_status_t status = QSPI_STATUS_OK;
 
     if ((tx_data == NULL || tx_size == 0) && (rx_data == NULL || rx_size == 0)) {
-    	if (HAL_QSPI_CommandReceive(command, 0, 0, HAL_QSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+        if (HAL_QSPI_CommandReceive(command, 0, 0, HAL_QSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
             status = QSPI_STATUS_ERROR;
             return status;
         }
@@ -93,7 +89,7 @@ qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, 
             size_t rx_length = rx_size;
             status = qspi_read(obj, command, rx_data, &rx_length);
         }
-	}
+    }
     return status;
 }
 

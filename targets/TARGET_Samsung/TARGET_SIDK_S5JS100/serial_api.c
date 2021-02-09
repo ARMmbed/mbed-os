@@ -52,15 +52,17 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
     struct serial_s *priv = (struct serial_s *)obj;
 
-    if (!obj)
+    if (!obj) {
         return;
+    }
     // determine the UART to use ???
     // Shall we check if it is already allocated ???
     UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
     UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
     UARTName uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
-    if ((PinName)uart == NC)
+    if ((PinName)uart == NC) {
         error("Serial pinout mapping failed");
+    }
 
     int peripheral = uart;
     int tx_function = pinmap_function(tx, PinMap_UART_TX);
@@ -71,7 +73,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
                                     tx_function,
                                     rx,
                                     rx_function,
-                                    0};
+                                    0
+                                   };
 
     serial_init_direct(obj, &pinmap);
 }
@@ -83,23 +86,27 @@ void serial_init_direct(serial_t *obj, const serial_pinmap_t *pinmap)
     PinName rx_pin = pinmap->rx_pin;
     UARTName uart = (UARTName)pinmap->peripheral;
 
-    if (!obj || !pinmap)
+    if (!obj || !pinmap) {
         return;
+    }
 
-    if (pinmap->tx_function != NC)
+    if (pinmap->tx_function != NC) {
         s5js100_configgpio(pinmap->tx_function);
-    else
+    } else {
         error("Serial tx pin function error");
+    }
 
-    if (pinmap->rx_function != NC)
+    if (pinmap->rx_function != NC) {
         s5js100_configgpio(pinmap->rx_function);
-    else
+    } else {
         error("Serial rx pin function error");
+    }
 
     /* BAD Pointer assignment!!! Better to redesign*/
     priv->uart = (void *)uart;
-    if (uart == NC)
+    if (uart == NC) {
         error("Serial peripheral error");
+    }
 
     switch (uart) {
         case UART_0:
@@ -134,8 +141,9 @@ void serial_free(serial_t *obj)
     struct serial_s *priv = (struct serial_s *)obj;
     IRQn_Type irq_n = (IRQn_Type)0;
 
-    if (!obj)
+    if (!obj) {
         return;
+    }
 
     switch ((int)priv->uart) {
         case UART_0:
@@ -203,17 +211,20 @@ void serial_set_flow_control(serial_t *obj, FlowControl type,
 {
     struct serial_s *priv = (struct serial_s *)obj;
 
-    if (!obj)
+    if (!obj) {
         return;
+    }
 
     UARTName uart_rts = (UARTName)pinmap_peripheral(rxflow, PinMap_UART_RTS);
     UARTName uart_cts = (UARTName)pinmap_peripheral(txflow, PinMap_UART_CTS);
     UARTName uart = (UARTName)pinmap_merge(uart_rts, uart_cts);
-    if ((PinName)uart == NC)
+    if ((PinName)uart == NC) {
         error("Serial pinout mapping failed");
+    }
 
-    if ((int)uart != (int)priv->uart)
+    if ((int)uart != (int)priv->uart) {
         error("Serial pinout mapping failed");
+    }
 
     int peripheral = uart;
     int tx_function = pinmap_function(txflow, PinMap_UART_TX);
@@ -224,7 +235,8 @@ void serial_set_flow_control(serial_t *obj, FlowControl type,
                                     tx_function,
                                     rxflow,
                                     rx_function,
-                                    0};
+                                    0
+                                   };
 
     serial_set_flow_control_direct(obj, type, &pinmap);
 }
@@ -236,8 +248,9 @@ void serial_set_flow_control_direct(serial_t *obj, FlowControl type,
     PinName rxflow = pinmap->rx_pin;
     PinName txflow = pinmap->tx_pin;
 
-    if (!obj || !pinmap)
+    if (!obj || !pinmap) {
         return;
+    }
 
     rxflow = pinmap->rx_pin;
     txflow = pinmap->tx_pin;
