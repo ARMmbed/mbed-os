@@ -99,10 +99,11 @@ nsapi_error_t WisunInterface::configure()
 #endif
 
 #if (MBED_CONF_MBED_MESH_API_WISUN_PHY_MODE_ID != 255) || (MBED_CONF_MBED_MESH_API_WISUN_CHANNEL_PLAN_ID != 255)
-    status = set_network_phy_mode_and_channel_plan_id(MBED_CONF_MBED_MESH_API_WISUN_PHY_MODE_ID,
-                                                      MBED_CONF_MBED_MESH_API_WISUN_CHANNEL_PLAN_ID);
+    status = set_network_domain_configuration(MBED_CONF_MBED_MESH_API_WISUN_REGULATORY_DOMAIN,
+                                              MBED_CONF_MBED_MESH_API_WISUN_PHY_MODE_ID,
+                                              MBED_CONF_MBED_MESH_API_WISUN_CHANNEL_PLAN_ID);
     if (status != MESH_ERROR_NONE) {
-        tr_error("Failed to set PHY mode and channel plan ID!");
+        tr_error("Failed to set domain configuration!");
         return NSAPI_ERROR_PARAMETER;
     }
 #endif
@@ -315,13 +316,29 @@ mesh_error_t WisunInterface::validate_network_regulatory_domain(uint8_t regulato
     return MESH_ERROR_NONE;
 }
 
-mesh_error_t WisunInterface::set_network_phy_mode_and_channel_plan_id(uint8_t phy_mode_id, uint8_t channel_plan_id)
+mesh_error_t WisunInterface::set_network_domain_configuration(uint8_t regulatory_domain, uint8_t phy_mode_id, uint8_t channel_plan_id)
 {
-    int status = ws_management_phy_mode_id_set(get_interface_id(), phy_mode_id);
+    int status = ws_management_domain_configuration_set(get_interface_id(), regulatory_domain, phy_mode_id, channel_plan_id);
     if (status != 0) {
         return MESH_ERROR_UNKNOWN;
     }
-    status = ws_management_channel_plan_id_set(get_interface_id(), channel_plan_id);
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::get_network_domain_configuration(uint8_t *regulatory_domain, uint8_t *phy_mode_id, uint8_t *channel_plan_id)
+{
+    int status = ws_management_domain_configuration_get(get_interface_id(), regulatory_domain, phy_mode_id, channel_plan_id);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::validate_network_domain_configuration(uint8_t regulatory_domain, uint8_t phy_mode_id, uint8_t channel_plan_id)
+{
+    int status = ws_management_domain_configuration_validate(get_interface_id(), regulatory_domain, phy_mode_id, channel_plan_id);
     if (status != 0) {
         return MESH_ERROR_UNKNOWN;
     }
