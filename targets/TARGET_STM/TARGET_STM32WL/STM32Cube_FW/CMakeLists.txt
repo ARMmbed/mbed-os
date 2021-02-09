@@ -5,7 +5,6 @@ add_library(STM32WLCube_FW INTERFACE)
 
 target_sources(STM32WLCube_FW
     INTERFACE
-        system_stm32wlxx.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_adc.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_adc_ex.c
@@ -16,15 +15,18 @@ target_sources(STM32WLCube_FW
         STM32WLxx_HAL_Driver/stm32wlxx_hal_cryp.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_cryp_ex.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_dac.c
+        STM32WLxx_HAL_Driver/stm32wlxx_hal_dac_ex.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_dma.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_dma_ex.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_exti.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_flash.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_flash_ex.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_gpio.c
+        STM32WLxx_HAL_Driver/stm32wlxx_hal_gtzc.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_hsem.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_i2c.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_i2c_ex.c
+        STM32WLxx_HAL_Driver/stm32wlxx_hal_i2s.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_ipcc.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_irda.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_iwdg.c
@@ -35,6 +37,7 @@ target_sources(STM32WLCube_FW
         STM32WLxx_HAL_Driver/stm32wlxx_hal_rcc.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_rcc_ex.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_rng.c
+        STM32WLxx_HAL_Driver/stm32wlxx_hal_rng_ex.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_rtc.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_rtc_ex.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_smartcard.c
@@ -42,6 +45,7 @@ target_sources(STM32WLCube_FW
         STM32WLxx_HAL_Driver/stm32wlxx_hal_smbus.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_spi.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_spi_ex.c
+        STM32WLxx_HAL_Driver/stm32wlxx_hal_subghz.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_tim.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_tim_ex.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_uart.c
@@ -52,6 +56,7 @@ target_sources(STM32WLCube_FW
         STM32WLxx_HAL_Driver/stm32wlxx_ll_adc.c
         STM32WLxx_HAL_Driver/stm32wlxx_ll_comp.c
         STM32WLxx_HAL_Driver/stm32wlxx_ll_crc.c
+        STM32WLxx_HAL_Driver/stm32wlxx_ll_dac.c
         STM32WLxx_HAL_Driver/stm32wlxx_ll_dma.c
         STM32WLxx_HAL_Driver/stm32wlxx_ll_exti.c
         STM32WLxx_HAL_Driver/stm32wlxx_ll_gpio.c
@@ -67,6 +72,7 @@ target_sources(STM32WLCube_FW
         STM32WLxx_HAL_Driver/stm32wlxx_ll_tim.c
         STM32WLxx_HAL_Driver/stm32wlxx_ll_usart.c
         STM32WLxx_HAL_Driver/stm32wlxx_ll_utils.c
+        system_stm32wlxx.c
 )
 
 target_include_directories(STM32WLCube_FW
