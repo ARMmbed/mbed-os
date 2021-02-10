@@ -132,7 +132,7 @@ def target_has_arduino_form_factor(target_name):
     if target_name in target_data:
         if "supported_form_factors" in target_data[target_name]:
             form_factors = target_data[target_name]["supported_form_factors"]
-            if "ARDUINO" in form_factors or "ARDUINO_UNO" in form_factors:
+            if "ARDUINO_UNO" in form_factors:
                 return True
 
     return False
