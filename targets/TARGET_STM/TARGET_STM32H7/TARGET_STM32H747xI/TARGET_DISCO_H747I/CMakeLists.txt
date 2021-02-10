@@ -13,4 +13,10 @@ target_include_directories(mbed-disco-h747i
         .
 )
 
-target_link_libraries(mbed-disco-h747i INTERFACE mbed-stm32h747xi)
+target_link_libraries(mbed-disco-h747i INTERFACE mbed-stm32h747xi mbed-stm32h747xi-cm7)
+
+add_library(mbed-disco-h747i-cm7 INTERFACE)
+target_link_libraries(mbed-disco-h747i-cm7 INTERFACE mbed-stm32h747xi mbed-stm32h747xi-cm7)
+
+add_library(mbed-disco-h747i-cm4 INTERFACE)
+target_link_libraries(mbed-disco-h747i-cm4 INTERFACE mbed-stm32h747xi mbed-stm32h747xi-cm4)
