@@ -25,4 +25,4 @@ target_include_directories(mbed-stm32l5
         .
 )
 
-target_link_libraries(mbed-stm32l5 INTERFACE STM mbed-stm32l5cube-fw)
+target_link_libraries(mbed-stm32l5 INTERFACE mbed-stm mbed-stm32l5cube-fw)

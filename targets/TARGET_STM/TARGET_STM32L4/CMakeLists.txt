@@ -33,4 +33,4 @@ target_include_directories(mbed-stm32l4
 )
 
 add_subdirectory(STM32Cube_FW EXCLUDE_FROM_ALL)
-target_link_libraries(mbed-stm32l4 INTERFACE STM mbed-stm32l4cube-fw)
+target_link_libraries(mbed-stm32l4 INTERFACE mbed-stm mbed-stm32l4cube-fw)

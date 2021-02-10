@@ -22,4 +22,4 @@ target_include_directories(mbed-stm32f1
         .
 )
 
-target_link_libraries(mbed-stm32f1 INTERFACE STM mbed-stm32f1cube-fw)
+target_link_libraries(mbed-stm32f1 INTERFACE mbed-stm mbed-stm32f1cube-fw)

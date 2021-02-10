@@ -26,4 +26,4 @@ target_sources(mbed-stm32f0
         spi_api.c
 )
 
-target_link_libraries(mbed-stm32f0 INTERFACE STM mbed-stm32f0cube-fw)
+target_link_libraries(mbed-stm32f0 INTERFACE mbed-stm mbed-stm32f0cube-fw)

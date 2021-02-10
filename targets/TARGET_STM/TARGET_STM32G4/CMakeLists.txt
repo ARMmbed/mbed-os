@@ -28,4 +28,4 @@ target_include_directories(mbed-stm32g4
         .
 )
 
-target_link_libraries(mbed-stm32g4 INTERFACE STM mbed-stm32g4cube-fw)
+target_link_libraries(mbed-stm32g4 INTERFACE mbed-stm mbed-stm32g4cube-fw)

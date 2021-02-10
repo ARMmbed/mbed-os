@@ -26,4 +26,4 @@ target_include_directories(mbed-stm32f2
         ./STM32Cube_FW/STM32F2xx_HAL_Driver/Legacy
 )
 
-target_link_libraries(mbed-stm32f2 INTERFACE STM mbed-stm32f2cube-fw)
+target_link_libraries(mbed-stm32f2 INTERFACE mbed-stm mbed-stm32f2cube-fw)

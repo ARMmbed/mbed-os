@@ -22,4 +22,4 @@ target_include_directories(mbed-stm32wl
         .
 )
 
-target_link_libraries(mbed-stm32wl INTERFACE STM mbed-stm32wlcube-fw)
+target_link_libraries(mbed-stm32wl INTERFACE mbed-stm mbed-stm32wlcube-fw)
