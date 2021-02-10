@@ -136,6 +136,7 @@ endif()
 
 #
 # Configures the application
+# Note, this function will be removed in the next revisions
 #
 function(mbed_configure_app_target target)
     # We need to generate a "response file" to pass to the C preprocessor because of path length
@@ -146,6 +147,16 @@ function(mbed_configure_app_target target)
     # using global properties.
     mbed_generate_options_for_linker(${target} LINKER_PREPROCESS_DEFINITIONS)
     set_property(GLOBAL PROPERTY COMPILE_DEFS_RESPONSE_FILE ${LINKER_PREPROCESS_DEFINITIONS})
+
+    # Gcc Arm requires memap to be set with app name, equally to ARMClang
+    # TODO: move this to toolchain and set properly
+    if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
+        message(${target})
+        target_link_options(mbed-core
+            INTERFACE
+                "-Wl,-Map=${CMAKE_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map"
+        )
+    endif()
 endfunction()
 
 #
