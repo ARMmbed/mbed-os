@@ -54,15 +54,12 @@ SecurityManagerMock& security_manager_mock() {
     return *ble::security_manager_impl;
 }
 
-void reset_mocks() {
-    delete gap;
-    delete gap_impl;
-    delete gatt_server;
-    delete gatt_server_impl;
-    delete gatt_client;
-    delete gatt_client_impl;
-    delete security_manager;
-    delete security_manager_impl;
+void init_mocks() {
+    if (gap_impl) {
+        /* we are already initialised */
+        return;
+    }
+
     /* mocks */
     gap_impl = new GapMock();
     gatt_server_impl = new GattServerMock();
@@ -75,38 +72,53 @@ void reset_mocks() {
     security_manager = new SecurityManager(security_manager_impl);
 }
 
+void delete_mocks() {
+    delete gap;
+    delete gap_impl;
+    delete gatt_server;
+    delete gatt_server_impl;
+    delete gatt_client;
+    delete gatt_client_impl;
+    delete security_manager;
+    delete security_manager_impl;
+}
+
 class BLEInstanceBase {
 };
 
 BLE::BLE(ble::BLEInstanceBase &transport) : transport(transport)
 {
-    reset_mocks();
 }
 
 BLE& BLE::Instance()
 {
     static ble::BLEInstanceBase transport;
     static BLE instance(transport);
+    init_mocks();
     return instance;
 }
 
 ble::Gap &BLE::gap()
 {
+    init_mocks();
     return *ble::gap;
 }
 
 ble::GattServer &BLE::gattServer()
 {
+    init_mocks();
     return *ble::gatt_server;
 }
 
 ble::GattClient &BLE::gattClient()
 {
+    init_mocks();
     return *ble::gatt_client;
 }
 
 ble::SecurityManager &BLE::securityManager()
 {
+    init_mocks();
     return *ble::security_manager;
 }
 
