@@ -35,10 +35,11 @@ function(mbed_set_linker_script input_target raw_linker_script_path)
         set(LinkerScriptTarget ${input_target}LinkerScript)
         add_custom_target(${LinkerScriptTarget} DEPENDS ${LINKER_SCRIPT_PATH} VERBATIM)
         add_dependencies(${input_target} ${LinkerScriptTarget})
+        # We hardcore mmemory file to "application"
         target_link_options(${input_target}
             INTERFACE
             "-T" "${LINKER_SCRIPT_PATH}"
-            "-Wl,-Map=${CMAKE_BINARY_DIR}/${APP_TARGET}${CMAKE_EXECUTABLE_SUFFIX}.map"
+            "-Wl,-Map=${CMAKE_BINARY_DIR}/application${CMAKE_EXECUTABLE_SUFFIX}.map"
         )
     elseif(MBED_TOOLCHAIN STREQUAL "ARM")
         target_link_options(${input_target}
