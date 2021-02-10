@@ -114,4 +114,4 @@ target_sources(mbed-stm32l4xx-hal-driver
         stm32l4xx_ll_utils.c
 )
 add_subdirectory(Legacy EXCLUDE_FROM_ALL)
-target_link_libraries(mbed-stm32l4xx-hal-driver INTERFACE mbed-stm32l4xxlegacy-hal-driver)
+target_link_libraries(mbed-stm32l4xx-hal-driver INTERFACE mbed-stm32l4xx-legacy-hal-driver)

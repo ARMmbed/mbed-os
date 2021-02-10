@@ -11,19 +11,19 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32h7a3xxq.sct)
 endif()
 
-add_library(mbed-stm32h7A3xiq INTERFACE)
+add_library(mbed-stm32h7a3xiq INTERFACE)
 
-target_sources(mbed-stm32h7A3xiq
+target_sources(mbed-stm32h7a3xiq
     INTERFACE
         system_clock.c
         ${STARTUP_FILE}
 )
 
-target_include_directories(mbed-stm32h7A3xiq
+target_include_directories(mbed-stm32h7a3xiq
     INTERFACE
         .
 )
 
-mbed_set_linker_script(mbed-stm32h7A3xiq ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-stm32h7a3xiq ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(mbed-stm32h7A3xiq INTERFACE mbed-stm32h7)
+target_link_libraries(mbed-stm32h7a3xiq INTERFACE mbed-stm32h7)

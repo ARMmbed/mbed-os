@@ -9,9 +9,9 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE device/TOOLCHAIN_ARM/stm32l151rc.sct)
 endif()
 
-add_library(xdot-l151cc INTERFACE)
+add_library(mbed-xdot-l151cc INTERFACE)
 
-target_sources(xdot-l151cc
+target_sources(mbed-xdot-l151cc
     INTERFACE
         PeripheralPins.c
         device/system_clock.c
@@ -20,12 +20,12 @@ target_sources(xdot-l151cc
         ${STARTUP_FILE}
 )
 
-target_include_directories(xdot-l151cc
+target_include_directories(mbed-xdot-l151cc
     INTERFACE
         .
         device
 )
 
-mbed_set_linker_script(xdot-l151cc ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-xdot-l151cc ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(xdot-l151cc INTERFACE mbed-stm32l1)
+target_link_libraries(mbed-xdot-l151cc INTERFACE mbed-stm32l1)
