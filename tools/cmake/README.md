@@ -100,3 +100,11 @@ $ mbedtools configure -t <TOOLCHAIN> -m <MBED_TARGET>
 Notes:
 * These steps will change when `mbedtools` implements a sub-command to invoke Greentea tests
 * Some Greentea tests require specific application configuration files in order to build and run successfully. For example, the `connectivity/mbedtls/tests/TESTS/mbedtls/sanity` test requires the configuration file found at `TESTs/configs/experimental.json`.
+
+## Naming convention
+
+- `mbed` namespace: Mbed CMake targets must have `mbed` prefix
+- all characters are lower case
+- words separated by hyphens
+
+For example: `mbed-ble-cordio`
