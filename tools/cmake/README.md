@@ -103,7 +103,7 @@ Notes:
 
 ## Naming convention
 
-- `mbed` namespace: Mbed CMake targets must have `mbed` prefix
+- `mbed` namespace: Mbed CMake targets must have `mbed-` prefix
 - all characters are lower case
 - words separated by hyphens
 
