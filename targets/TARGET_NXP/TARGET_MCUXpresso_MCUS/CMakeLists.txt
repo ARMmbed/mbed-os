@@ -1,39 +1,26 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("IMX" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_IMX)
-endif()
+add_subdirectory(TARGET_IMX EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_LPC EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_LPC54114 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_MCU_LPC546XX EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_MIMXRT1050 EXCLUDE_FROM_ALL)
+add_subdirectory(middleware/TARGET_USB EXCLUDE_FROM_ALL)
 
-if("LPC" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_LPC)
-endif()
+add_library(mbed-mcuxpresso-mcus INTERFACE)
 
-if("LPC54114" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_LPC54114)
-endif()
-
-if("MCU_LPC546XX" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_MCU_LPC546XX)
-endif()
-
-if("MIMXRT1050" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_MIMXRT1050)
-endif()
-
-if("USB" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(middleware/TARGET_USB)
-endif()
-
-target_include_directories(mbed-core
+target_include_directories(mbed-mcuxpresso-mcus
     INTERFACE
         .
         middleware/osa
 )
 
-target_sources(mbed-core
+target_sources(mbed-mcuxpresso-mcus
     INTERFACE
         USBPhy_MCUXpresso.cpp
 
         middleware/osa/fsl_os_abstraction_mbed.c
 )
+
+target_link_libraries(mbed-mcuxpresso-mcus INTERFACE mbed-nxp)
