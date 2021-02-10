@@ -4,11 +4,11 @@
 add_subdirectory(TARGET_NUCLEO_F070RB EXCLUDE_FROM_ALL)
 
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
-    set(STARTUP_FILE TOOLCHAIN_GCC_ARM/startup_mbed-stm32f070xb.S)
-    set(LINKER_FILE TOOLCHAIN_GCC_ARM/mbed-stm32f070xb.ld)
+    set(STARTUP_FILE TOOLCHAIN_GCC_ARM/startup_stm32f070xb.S)
+    set(LINKER_FILE TOOLCHAIN_GCC_ARM/stm32f070xb.ld)
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
-    set(STARTUP_FILE TOOLCHAIN_ARM/startup_mbed-stm32f070xb.S)
-    set(LINKER_FILE TOOLCHAIN_ARM/mbed-stm32f070xb.sct)
+    set(STARTUP_FILE TOOLCHAIN_ARM/startup_stm32f070xb.S)
+    set(LINKER_FILE TOOLCHAIN_ARM/stm32f070xb.sct)
 endif()
 
 add_library(mbed-stm32f070xB INTERFACE)

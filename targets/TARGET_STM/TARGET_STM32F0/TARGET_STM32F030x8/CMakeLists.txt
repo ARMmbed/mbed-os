@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
-    set(STARTUP_FILE TOOLCHAIN_GCC_ARM/startup_mbed-stm32f030x8.S)
-    set(LINKER_FILE TOOLCHAIN_GCC_ARM/mbed-stm32f030x8.ld)
+    set(STARTUP_FILE TOOLCHAIN_GCC_ARM/startup_stm32f030x8.S)
+    set(LINKER_FILE TOOLCHAIN_GCC_ARM/stm32f030x8.ld)
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
-    set(STARTUP_FILE TOOLCHAIN_ARM/startup_mbed-stm32f030x8.S)
-    set(LINKER_FILE TOOLCHAIN_ARM/mbed-stm32f030x8.sct)
+    set(STARTUP_FILE TOOLCHAIN_ARM/startup_stm32f030x8.S)
+    set(LINKER_FILE TOOLCHAIN_ARM/stm32f030x8.sct)
 endif()
 
 add_library(mbed-stm32f030x8 INTERFACE)
