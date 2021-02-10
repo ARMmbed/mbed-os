@@ -1,8 +1,8 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 
-target_include_directories(mbed-core
+target_include_directories(mbed-sdk-15-0
     INTERFACE
         libraries
         libraries/atomic
@@ -22,7 +22,7 @@ target_include_directories(mbed-core
         libraries/util
 )
 
-target_sources(mbed-core
+target_sources(mbed-sdk-15-0
     INTERFACE
         libraries/atomic/nrf_atomic.c
 

@@ -1,20 +1,17 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("NRF52" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_NRF52)
-endif()
+add_subdirectory(TARGET_NRF52 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_SDK_15_0 EXCLUDE_FROM_ALL)
 
-if("SDK_15_0" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_SDK_15_0)
-endif()
+add_library(mbed-nrf5x INTERFACE)
 
-target_include_directories(mbed-core
+target_include_directories(mbed-nrf5x
     INTERFACE
         .
 )
 
-target_sources(mbed-core
+target_sources(mbed-nrf5x
     INTERFACE
         lp_ticker.c
         pinmap.c
@@ -22,3 +19,5 @@ target_sources(mbed-core
         qspi_api.c
         rtc_api.c
 )
+
+target_link_libraries(mbed-nrf5x INTERFACE mbed-nordic)
