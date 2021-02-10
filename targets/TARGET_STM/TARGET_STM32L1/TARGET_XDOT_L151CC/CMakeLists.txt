@@ -29,3 +29,10 @@ target_include_directories(mbed-xdot-l151cc
 mbed_set_linker_script(mbed-xdot-l151cc ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
 target_link_libraries(mbed-xdot-l151cc INTERFACE mbed-stm32l1)
+
+
+# Same target as XDOT_L151CC
+add_library(mbed-ff-1705-l151cc INTERFACE)
+
+target_link_libraries(mbed-xdot-l151cc INTERFACE mbed-xdot-l151cc)
+

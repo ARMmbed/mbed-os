@@ -13,4 +13,4 @@ target_include_directories(mbed-nucleo-f070rb
         .
 )
 
-target_link_libraries(mbed-nucleo-f070rb INTERFACE mbed-stm32f070xB)
+target_link_libraries(mbed-nucleo-f070rb INTERFACE mbed-stm32f070xb)

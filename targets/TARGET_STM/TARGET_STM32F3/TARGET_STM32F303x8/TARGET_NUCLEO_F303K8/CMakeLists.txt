@@ -13,4 +13,4 @@ target_sources(mbed-nucleo-f303k8
         PeripheralPins.c
 )
 
-target_link_libraries(mbed-nucleo-f303k8 INTERFACE STM32F303x8)
+target_link_libraries(mbed-nucleo-f303k8 INTERFACE mbed-stm32f303x8)

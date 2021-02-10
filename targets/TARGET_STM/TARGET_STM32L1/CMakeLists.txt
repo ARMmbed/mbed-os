@@ -85,4 +85,4 @@ target_include_directories(mbed-stm32l1
         device
 )
 
-target_link_libraries(mbed-stm32l1 INTERFACE STM)
+target_link_libraries(mbed-stm32l1 INTERFACE mbed-stm)

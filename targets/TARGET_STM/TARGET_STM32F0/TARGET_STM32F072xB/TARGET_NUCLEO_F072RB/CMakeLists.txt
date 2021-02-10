@@ -13,4 +13,4 @@ target_include_directories(mbed-nucleo-f072rb
         .
 )
 
-target_link_libraries(mbed-nucleo-f072rb INTERFACE mbed-stm32f072xB)
+target_link_libraries(mbed-nucleo-f072rb INTERFACE mbed-stm32f072xb)

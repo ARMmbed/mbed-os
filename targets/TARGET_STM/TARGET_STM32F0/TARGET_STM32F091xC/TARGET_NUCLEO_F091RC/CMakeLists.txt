@@ -13,4 +13,4 @@ target_include_directories(mbed-nucleo-f091rc
         .
 )
 
-target_link_libraries(mbed-nucleo-f091rc INTERFACE mbed-stm32f091xC)
+target_link_libraries(mbed-nucleo-f091rc INTERFACE mbed-stm32f091xc)
