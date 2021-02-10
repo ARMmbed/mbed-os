@@ -98,21 +98,22 @@ void EventQueue::process_events() {
         }
 
         /* dispatch all handlers that happen at this time */
-        _handlers.erase(
-            std::remove_if(
-                _handlers.begin(),
-                _handlers.end(),
-                [earliest_tick](internal_event& element) -> bool {
-                    if (earliest_tick >= element.tick) {
-                        (*(element.handler))();
-                        return true;
-                    } else {
-                        return false;
-                    }
+        auto found = std::remove_if(
+            _handlers.begin(),
+            _handlers.end(),
+            [earliest_tick](internal_event& element) -> bool {
+                if (earliest_tick >= element.tick) {
+                    (*(element.handler))();
+                    return true;
+                } else {
+                    return false;
                 }
-            ),
-            _handlers.end()
+            }
         );
+
+        if (found != _handlers.end()) {
+            _handlers.erase(found, _handlers.end());
+        }
     }
 }
 

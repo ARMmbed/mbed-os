@@ -1580,6 +1580,17 @@ public:
     }
 
     /**
+     * Return the callback registered to handle client's write.
+     *
+     * @return the callback that handles client's write requests.
+     */
+    const FunctionPointerWithContext<GattWriteAuthCallbackParams *>&
+    getWriteAuthorizationCallback() const
+    {
+        return writeAuthorizationCallback;
+    }
+
+    /**
      * Register the read requests event handler.
      *
      * The callback registered is invoked when the client attempts to read the
@@ -1614,6 +1625,17 @@ public:
         void (T::*member)(GattReadAuthCallbackParams *)
     ) {
         readAuthorizationCallback.attach(object, member);
+    }
+
+    /**
+     * Return the callback registered to handle client's read.
+     *
+     * @return the callback that handles client's read requests.
+     */
+    const FunctionPointerWithContext<GattReadAuthCallbackParams *>&
+    getReadAuthorizationCallback() const
+    {
+        return readAuthorizationCallback;
     }
 
     /**

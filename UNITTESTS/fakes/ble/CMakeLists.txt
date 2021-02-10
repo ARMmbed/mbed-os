@@ -24,6 +24,12 @@ target_sources(mbed-os-fakes-ble
         ${MBED_PATH}/connectivity/FEATURE_BLE/source/GattServer.cpp
         ${MBED_PATH}/connectivity/FEATURE_BLE/source/SecurityManager.cpp
         ${MBED_PATH}/UNITTESTS/fakes/ble/BLE.cpp
+        ${MBED_PATH}/UNITTESTS/fakes/ble/source/GattServerImpl_mock.cpp
+        ${MBED_PATH}/UNITTESTS/fakes/ble/ble_mocks.h
+        ${MBED_PATH}/UNITTESTS/fakes/ble/GapImpl_mock.h
+        ${MBED_PATH}/UNITTESTS/fakes/ble/GattClientImpl_mock.h
+        ${MBED_PATH}/UNITTESTS/fakes/ble/GattServerImpl_mock.h
+        ${MBED_PATH}/UNITTESTS/fakes/ble/SecurityManagerImpl_mock.h
 )
 
 target_link_libraries(mbed-os-fakes-ble
