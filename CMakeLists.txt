@@ -94,15 +94,6 @@ target_include_directories(mbed-core
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-# We need to generate a "response file" to pass to the C preprocessor because of path length
-# limitations on Windows. We set the response file and bind the path to a global property here.
-# We query this global property when we set the linker script for the MBED_TARGET being built.
-#
-# TODO: Remove this and find a more idiomatic way of passing compile definitions to CPP without
-# using global properties.
-mbed_generate_options_for_linker(${APP_TARGET} LINKER_PREPROCESS_DEFINITIONS)
-set_property(GLOBAL PROPERTY COMPILE_DEFS_RESPONSE_FILE ${LINKER_PREPROCESS_DEFINITIONS})
-
 # These targets are made visible here so their source files which
 # are spread in different directories can be referenced and can be linked against
 # by libraries that depend on them.
@@ -142,6 +133,20 @@ else()
     get_property(LINKER_SCRIPT GLOBAL PROPERTY MBED_TARGET_LINKER_FILE)
     mbed_set_linker_script(mbed-core ${LINKER_SCRIPT})
 endif()
+
+#
+# Configures the application
+#
+function(mbed_configure_app_target target)
+    # We need to generate a "response file" to pass to the C preprocessor because of path length
+    # limitations on Windows. We set the response file and bind the path to a global property here.
+    # We query this global property when we set the linker script for the MBED_TARGET being built.
+    #
+    # TODO: Remove this and find a more idiomatic way of passing compile definitions to CPP without
+    # using global properties.
+    mbed_generate_options_for_linker(${target} LINKER_PREPROCESS_DEFINITIONS)
+    set_property(GLOBAL PROPERTY COMPILE_DEFS_RESPONSE_FILE ${LINKER_PREPROCESS_DEFINITIONS})
+endfunction()
 
 #
 # Converts output file of `target` to binary file and to Intel HEX file.
