@@ -81,6 +81,15 @@ void delete_mocks() {
     delete gatt_client_impl;
     delete security_manager;
     delete security_manager_impl;
+
+    gap = nullptr;
+    gap_impl = nullptr;
+    gatt_server = nullptr;
+    gatt_server_impl = nullptr;
+    gatt_client = nullptr;
+    gatt_client_impl = nullptr;
+    security_manager = nullptr;
+    security_manager_impl = nullptr;
 }
 
 class BLEInstanceBase {
