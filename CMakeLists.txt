@@ -57,6 +57,13 @@ if(${MBED_TOOLCHAIN_FILE_USED})
     mbed_set_profile_options(mbed-core ${MBED_TOOLCHAIN})
     mbed_set_c_lib(mbed-core ${MBED_C_LIB})
     mbed_set_printf_lib(mbed-core ${MBED_PRINTF_LIB})
+
+    target_compile_features(mbed-core
+        INTERFACE
+            c_std_11
+            cxx_std_14
+    )
+
 endif()
 
 target_compile_definitions(mbed-core
@@ -135,18 +142,6 @@ else()
     get_property(LINKER_SCRIPT GLOBAL PROPERTY MBED_TARGET_LINKER_FILE)
     mbed_set_linker_script(mbed-core ${LINKER_SCRIPT})
 endif()
-
-#
-# Configures the application
-#
-function(mbed_configure_app_target target)
-    # Set the language standard to use per target
-    target_compile_features(${target}
-        PUBLIC
-            c_std_11
-            cxx_std_14
-    )
-endfunction()
 
 #
 # Converts output file of `target` to binary file and to Intel HEX file.
