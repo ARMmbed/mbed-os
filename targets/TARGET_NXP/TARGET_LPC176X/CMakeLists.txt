@@ -1,17 +1,10 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("ARCH_PRO" IN_LIST MBED_TARGET_LABELS)
-    target_include_directories(mbed-core
-        INTERFACE
-            TARGET_ARCH_PRO
-    )
-elseif("MBED_LPC1768" IN_LIST MBED_TARGET_LABELS)
-    target_include_directories(mbed-core
-        INTERFACE
-            TARGET_MBED_LPC1768
-    )
-endif()
+add_subdirectory(TARGET_ARCH_PRO EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_MBED_LPC1768 EXCLUDE_FROM_ALL)
+
+add_library(mbed-lpc176x INTERFACE)
 
 if(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(STARTUP_FILE device/TOOLCHAIN_ARM_STD/startup_LPC17xx.S)
@@ -21,15 +14,13 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(LINKER_FILE device/TOOLCHAIN_GCC_ARM/LPC1768.ld)
 endif()
 
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
-
-target_include_directories(mbed-core
+target_include_directories(mbed-lpc176x
     INTERFACE
         .
         device
 )
 
-target_sources(mbed-core
+target_sources(mbed-lpc176x
     INTERFACE
         analogin_api.c
         analogout_api.c
@@ -53,3 +44,8 @@ target_sources(mbed-core
         device/system_LPC17xx.c
         ${STARTUP_FILE}
 )
+
+target_link_libraries(mbed-lpc176x INTERFACE mbed-nxp)
+
+mbed_set_linker_script(mbed-arch-pro ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-lpc1768 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})

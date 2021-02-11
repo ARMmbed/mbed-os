@@ -1,12 +1,14 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-core
+add_library(mbed-lpc INTERFACE)
+
+target_include_directories(mbed-lpc
     INTERFACE
         .
 )
 
-target_sources(mbed-core
+target_sources(mbed-lpc
     INTERFACE
         analogin_api.c
         gpio_api.c
