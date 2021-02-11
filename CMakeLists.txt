@@ -57,6 +57,13 @@ if(${MBED_TOOLCHAIN_FILE_USED})
     mbed_set_profile_options(mbed-core ${MBED_TOOLCHAIN})
     mbed_set_c_lib(mbed-core ${MBED_C_LIB})
     mbed_set_printf_lib(mbed-core ${MBED_PRINTF_LIB})
+
+    target_compile_features(mbed-core
+        INTERFACE
+            c_std_11
+            cxx_std_14
+    )
+
 endif()
 
 target_compile_definitions(mbed-core
@@ -86,15 +93,6 @@ target_include_directories(mbed-core
     INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
-
-# We need to generate a "response file" to pass to the C preprocessor because of path length
-# limitations on Windows. We set the response file and bind the path to a global property here.
-# We query this global property when we set the linker script for the MBED_TARGET being built.
-#
-# TODO: Remove this and find a more idiomatic way of passing compile definitions to CPP without
-# using global properties.
-mbed_generate_options_for_linker(${APP_TARGET} LINKER_PREPROCESS_DEFINITIONS)
-set_property(GLOBAL PROPERTY COMPILE_DEFS_RESPONSE_FILE ${LINKER_PREPROCESS_DEFINITIONS})
 
 # These targets are made visible here so their source files which
 # are spread in different directories can be referenced and can be linked against
@@ -143,14 +141,27 @@ endif()
 
 #
 # Configures the application
+# Note, this function will be removed in the next revisions
 #
 function(mbed_configure_app_target target)
-    # Set the language standard to use per target
-    target_compile_features(${target}
-        PUBLIC
-            c_std_11
-            cxx_std_14
-    )
+    # We need to generate a "response file" to pass to the C preprocessor because of path length
+    # limitations on Windows. We set the response file and bind the path to a global property here.
+    # We query this global property when we set the linker script for the MBED_TARGET being built.
+    #
+    # TODO: Remove this and find a more idiomatic way of passing compile definitions to CPP without
+    # using global properties.
+    mbed_generate_options_for_linker(${target} LINKER_PREPROCESS_DEFINITIONS)
+    set_property(GLOBAL PROPERTY COMPILE_DEFS_RESPONSE_FILE ${LINKER_PREPROCESS_DEFINITIONS})
+
+    # Gcc Arm requires memap to be set with app name, equally to ARMClang
+    # TODO: move this to toolchain and set properly
+    if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
+        message(${target})
+        target_link_options(mbed-core
+            INTERFACE
+                "-Wl,-Map=${CMAKE_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map"
+        )
+    endif()
 endfunction()
 
 #

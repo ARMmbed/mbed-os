@@ -37,8 +37,7 @@ function(mbed_set_linker_script input_target raw_linker_script_path)
         add_dependencies(${input_target} ${LinkerScriptTarget})
         target_link_options(${input_target}
             INTERFACE
-            "-T" "${LINKER_SCRIPT_PATH}"
-            "-Wl,-Map=${CMAKE_BINARY_DIR}/${APP_TARGET}${CMAKE_EXECUTABLE_SUFFIX}.map"
+                "-T" "${LINKER_SCRIPT_PATH}"
         )
     elseif(MBED_TOOLCHAIN STREQUAL "ARM")
         target_link_options(${input_target}
