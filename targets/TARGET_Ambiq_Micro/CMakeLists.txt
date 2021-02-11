@@ -3,15 +3,15 @@
 
 add_subdirectory(TARGET_Apollo3 EXCLUDE_FROM_ALL)
 
-add_library(Ambiq_Micro INTERFACE)
+add_library(mbed-ambiq-micro INTERFACE)
 
-target_include_directories(Ambiq_Micro
+target_include_directories(mbed-ambiq-micro
     INTERFACE
         sdk/devices
         sdk/utils
 )
 
-target_sources(Ambiq_Micro
+target_sources(mbed-ambiq-micro
     INTERFACE
         sdk/devices/am_devices_button.c
         sdk/devices/am_devices_led.c

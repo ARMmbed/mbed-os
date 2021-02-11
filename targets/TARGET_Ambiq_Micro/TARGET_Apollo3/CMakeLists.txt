@@ -13,7 +13,7 @@ add_subdirectory(TARGET_SFE_ARTEMIS_THING_PLUS EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_SFE_EDGE EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_SFE_EDGE2 EXCLUDE_FROM_ALL)
 
-add_library(Apollo3 INTERFACE)
+add_library(mbed-apollo3 INTERFACE)
 
 if(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM_STD/AMA3B1KK.sct)
@@ -23,9 +23,9 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(STARTUP_FILE TOOLCHAIN_GCC_ARM/startup_gcc.c)
 endif()
 
-mbed_set_linker_script(Apollo3 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-apollo3 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_include_directories(Apollo3
+target_include_directories(mbed-apollo3
     INTERFACE
         device
         sdk/CMSIS/AmbiqMicro/Include
@@ -35,7 +35,7 @@ target_include_directories(Apollo3
         sdk/mcu/apollo3/regs
 )
 
-target_sources(Apollo3
+target_sources(mbed-apollo3
     INTERFACE
         device/PeripheralPinConfigs.c
         device/PeripheralPins.c
@@ -91,8 +91,8 @@ target_sources(Apollo3
         ${STARTUP_FILE}
 )
 
-target_link_libraries(Apollo3
+target_link_libraries(mbed-apollo3
     INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/sdk/CMSIS/ARM/Lib/ARM/libarm_cortexM4lf_math.a
-        Ambiq_Micro
+        mbed-ambiq-micro
 )
