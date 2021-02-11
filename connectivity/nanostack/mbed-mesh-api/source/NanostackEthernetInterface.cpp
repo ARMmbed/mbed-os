@@ -133,7 +133,7 @@ char *Nanostack::EthernetInterface::get_interface_name(char *buf)
     return buf;
 };
 
-void Nanostack::EthernetInterface::get_mac_address(uint8_t *buf)
+void Nanostack::EthernetInterface::get_mac_address(uint8_t *buf) const
 {
     if (!buf) {
         return;
