@@ -63,5 +63,5 @@ mbed_set_linker_script(mbed-mcu-nrf52840 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FI
 target_link_libraries(mbed-mcu-nrf52840 INTERFACE mbed-nrf52 mbed-sdk-15-0)
 target_link_libraries(mbed-arduino-nano33ble INTERFACE mbed-mcu-nrf52840)
 target_link_libraries(mbed-ep-agora INTERFACE mbed-mcu-nrf52840)
-target_link_libraries(mbed-ep-atlas INTERFACE mbed-mcu-nrf52840) # TODO ask HK about this
+target_link_libraries(mbed-ep-atlas INTERFACE mbed-mcu-nrf52840)
 target_link_libraries(mbed-nrf52840-dk INTERFACE mbed-mcu-nrf52840)
