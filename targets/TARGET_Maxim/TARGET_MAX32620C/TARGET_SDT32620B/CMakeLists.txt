@@ -3,7 +3,7 @@
 
 add_library(mbed-sdt32620b INTERFACE)
 
-target_include_directories(mbed-max32625
+target_include_directories(mbed-sdt32620b
     INTERFACE
         .
 )

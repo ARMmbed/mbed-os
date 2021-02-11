@@ -5,12 +5,12 @@ add_library(mbed-max32630fthr INTERFACE)
 
 target_include_directories(mbed-max32630fthr 
     INTERFACE
-        TARGET_MAX32630FTHR
+        .
 )
 
 target_sources(mbed-core
     INTERFACE
-        TARGET_MAX32630FTHR/low_level_init.c
+        low_level_init.c
 )
 
 target_link_libraries(mbed-max32630fthr INTERFACE mbed-max32630)

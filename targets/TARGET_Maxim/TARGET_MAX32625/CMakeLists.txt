@@ -12,6 +12,8 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(STARTUP_FILE device/TOOLCHAIN_GCC_ARM/startup_max32625.S)
 endif()
 
+add_library(mbed-max32625 INTERFACE)
+
 target_include_directories(mbed-max32625
     INTERFACE
         .
