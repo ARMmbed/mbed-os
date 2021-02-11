@@ -30,6 +30,9 @@
 #include "pic32cx.h"
 #include "dwdt.h"
 
+/* Hold initially-configured timeout in hal_watchdog_init */
+static uint32_t wdt_timeout_reload_ms = 0;
+
 /** Initialize and start a watchdog timer with the given configuration.
 *
 * If the watchdog timer is configured and starts successfully, this
@@ -67,6 +70,7 @@ watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
         return WATCHDOG_STATUS_INVALID_ARGUMENT;
     }
 
+    wdt_timeout_reload_ms = config->timeout_ms;
     return WATCHDOG_STATUS_OK;
 }
 
@@ -106,8 +110,7 @@ watchdog_status_t hal_watchdog_stop(void)
 */
 uint32_t hal_watchdog_get_reload_value(void)
 {
-    uint32_t period_us = dwdt_get_us_timeout_period(DWDT, WDT0_ID, CHIP_FREQ_SLCK_RC);
-    return(period_us / 1000);
+    return wdt_timeout_reload_ms;
 }
 
 /** Get information on the current platforms supported watchdog functionality.

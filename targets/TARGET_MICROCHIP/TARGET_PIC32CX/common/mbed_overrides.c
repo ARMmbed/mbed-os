@@ -36,8 +36,8 @@ void mbed_sdk_init()
 	SFR->SFR_WPMR = SFR_WPMR_WPKEY_PASSWD | SFR_WPMR_WPEN;
 
 	/* Disable the watchdog */
-	DWDT->WDT0_MR |= WDT0_MR_WDDIS;
-	DWDT->WDT1_MR |= WDT1_MR_WDDIS;
+	//DWDT->WDT0_MR |= WDT0_MR_WDDIS;
+	//DWDT->WDT1_MR |= WDT1_MR_WDDIS;
 
 	/* Initialize the SAM system */
 	sysclk_init();
