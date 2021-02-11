@@ -71,14 +71,14 @@ public:
      *
      * @param[in] event_handler Pointer to event handler to remove
      */
-    void removeEventHandler(T* target) {
+    void removeEventHandler(T* event_handler) {
         node_t* to_remove = head;
-        if(head->eh == target) {
+        if(head->eh == event_handler) {
             head = head->next;
         } else {
             auto* it = head;
             while(it->next) {
-                if(it->next->eh == target) {
+                if(it->next->eh == event_handler) {
                     to_remove = it->next;
                     break;
                 }
@@ -92,6 +92,22 @@ public:
         }
 
         delete to_remove;
+    }
+
+    /**
+     * Test if an event handler is present in the chain or not.
+     *
+     * @param[in] event_handler Pointer to event handler to check
+     */
+    bool isEventHandlerPresent(T* event_handler) {
+        auto* it = head;
+        while (it) {
+            if (it == event_handler) {
+                return true;
+            }
+            it = it->next;
+        }
+        return false;
     }
 
 protected:
