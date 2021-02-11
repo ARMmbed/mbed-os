@@ -13,18 +13,18 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32f413xh.sct)
 endif()
 
-add_library(STM32F413xH INTERFACE)
+add_library(mbed-stm32f413xh INTERFACE)
 
-target_sources(STM32F413xH
+target_sources(mbed-stm32f413xh
     INTERFACE
         ${STARTUP_FILE}
 )
 
-target_include_directories(STM32F413xH
+target_include_directories(mbed-stm32f413xh
     INTERFACE
         .
 )
 
-mbed_set_linker_script(STM32F413xH ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-stm32f413xh ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(STM32F413xH INTERFACE STM32F4)
+target_link_libraries(mbed-stm32f413xh INTERFACE mbed-stm32f4)

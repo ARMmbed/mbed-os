@@ -1,17 +1,17 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(NUCLEO_F411RE INTERFACE)
+add_library(mbed-nucleo-f411re INTERFACE)
 
-target_sources(NUCLEO_F411RE
+target_sources(mbed-nucleo-f411re
     INTERFACE
         PeripheralPins.c
         system_clock.c
 )
 
-target_include_directories(NUCLEO_F411RE
+target_include_directories(mbed-nucleo-f411re
     INTERFACE
         .
 )
 
-target_link_libraries(NUCLEO_F411RE INTERFACE STM32F411xE)
+target_link_libraries(mbed-nucleo-f411re INTERFACE mbed-stm32f411xe)

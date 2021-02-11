@@ -11,18 +11,18 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32f756xg.sct)
 endif()
 
-add_library(STM32F756xG INTERFACE)
+add_library(mbed-stm32f756xg INTERFACE)
 
-target_sources(STM32F756xG
+target_sources(mbed-stm32f756xg
     INTERFACE
         ${STARTUP_FILE}
 )
 
-target_include_directories(STM32F756xG
+target_include_directories(mbed-stm32f756xg
     INTERFACE
         .
 )
 
-mbed_set_linker_script(STM32F756xG ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-stm32f756xg ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(STM32F756xG INTERFACE STM32F7)
+target_link_libraries(mbed-stm32f756xg INTERFACE mbed-stm32f7)

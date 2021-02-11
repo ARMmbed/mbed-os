@@ -11,18 +11,18 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32l562xe.sct)
 endif()
 
-add_library(STM32L562xE INTERFACE)
+add_library(mbed-stm32l562xe INTERFACE)
 
-target_sources(STM32L562xE
+target_sources(mbed-stm32l562xe
     INTERFACE
         ${STARTUP_FILE}
 )
 
-target_include_directories(STM32L562xE
+target_include_directories(mbed-stm32l562xe
     INTERFACE
         .
 )
 
-mbed_set_linker_script(STM32L562xE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-stm32l562xe ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(STM32L562xE INTERFACE STM32L5)
+target_link_libraries(mbed-stm32l562xe INTERFACE mbed-stm32l5)

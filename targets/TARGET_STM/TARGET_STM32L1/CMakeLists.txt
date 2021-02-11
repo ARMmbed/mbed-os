@@ -5,9 +5,9 @@ add_subdirectory(TARGET_MOTE_L152RC EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_NUCLEO_L152RE EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_XDOT_L151CC EXCLUDE_FROM_ALL)
 
-add_library(STM32L1 INTERFACE)
+add_library(mbed-stm32l1 INTERFACE)
 
-target_sources(STM32L1
+target_sources(mbed-stm32l1
     INTERFACE
         analogin_device.c
         analogout_device.c
@@ -79,10 +79,10 @@ target_sources(STM32L1
         device/system_stm32l1xx.c
 )
 
-target_include_directories(STM32L1
+target_include_directories(mbed-stm32l1
     INTERFACE
         .
         device
 )
 
-target_link_libraries(STM32L1 INTERFACE STM)
+target_link_libraries(mbed-stm32l1 INTERFACE mbed-stm)

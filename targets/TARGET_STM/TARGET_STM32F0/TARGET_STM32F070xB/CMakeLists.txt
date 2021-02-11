@@ -11,19 +11,19 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32f070xb.sct)
 endif()
 
-add_library(STM32F070xB INTERFACE)
+add_library(mbed-stm32f070xb INTERFACE)
 
-target_sources(STM32F070xB
+target_sources(mbed-stm32f070xb
     INTERFACE
         system_clock.c
         ${STARTUP_FILE}
 )
 
-target_include_directories(STM32F070xB
+target_include_directories(mbed-stm32f070xb
     INTERFACE
         .
 )
 
-mbed_set_linker_script(STM32F070xB ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-stm32f070xb ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(STM32F070xB INTERFACE STM32F0)
+target_link_libraries(mbed-stm32f070xb INTERFACE mbed-stm32f0)

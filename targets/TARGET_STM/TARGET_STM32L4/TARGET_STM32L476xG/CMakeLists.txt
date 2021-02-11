@@ -14,19 +14,19 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
 endif()
 
 
-add_library(STM32L476xG INTERFACE)
+add_library(mbed-stm32l476xg INTERFACE)
 
-target_sources(STM32L476xG
+target_sources(mbed-stm32l476xg
     INTERFACE
         system_clock.c
         ${STARTUP_FILE}
 )
 
-target_include_directories(STM32L476xG
+target_include_directories(mbed-stm32l476xg
     INTERFACE
         .
 )
 
-mbed_set_linker_script(STM32L476xG ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-stm32l476xg ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(STM32L476xG INTERFACE STM32L4)
+target_link_libraries(mbed-stm32l476xg INTERFACE mbed-stm32l4)

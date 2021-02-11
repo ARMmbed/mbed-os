@@ -7,9 +7,9 @@ add_subdirectory(TARGET_STM32H747xI EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32H7A3xIQ EXCLUDE_FROM_ALL)
 add_subdirectory(STM32Cube_FW EXCLUDE_FROM_ALL)
 
-add_library(STM32H7 INTERFACE)
+add_library(mbed-stm32h7 INTERFACE)
 
-target_sources(STM32H7
+target_sources(mbed-stm32h7
     INTERFACE
         analogin_device.c
         analogout_device.c
@@ -20,9 +20,9 @@ target_sources(STM32H7
         spi_api.c
 )
 
-target_include_directories(STM32H7
+target_include_directories(mbed-stm32h7
     INTERFACE
         .
 )
 
-target_link_libraries(STM32H7 INTERFACE STM STM32H7Cube_FW)
+target_link_libraries(mbed-stm32h7 INTERFACE mbed-stm mbed-stm32h7cube-fw)

@@ -8,14 +8,14 @@ add_subdirectory(TARGET_STM32F303xE EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32F334x8 EXCLUDE_FROM_ALL)
 add_subdirectory(STM32Cube_FW EXCLUDE_FROM_ALL)
 
-add_library(STM32F3 INTERFACE)
+add_library(mbed-stm32f3 INTERFACE)
 
-target_include_directories(STM32F3
+target_include_directories(mbed-stm32f3
     INTERFACE
         .
 )
 
-target_sources(STM32F3
+target_sources(mbed-stm32f3
     INTERFACE
         analogin_device.c
         analogout_device.c
@@ -26,4 +26,4 @@ target_sources(STM32F3
         spi_api.c
 )
 
-target_link_libraries(STM32F3 INTERFACE STM STM32F3Cube_FW)
+target_link_libraries(mbed-stm32f3 INTERFACE mbed-stm mbed-stm32f3cube-fw)

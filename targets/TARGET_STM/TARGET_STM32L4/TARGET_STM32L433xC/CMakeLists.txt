@@ -12,19 +12,19 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
 endif()
 
 
-add_library(STM32L433xC INTERFACE)
+add_library(mbed-stm32l433xc INTERFACE)
 
-target_sources(STM32L433xC
+target_sources(mbed-stm32l433xc
     INTERFACE
         ${STARTUP_FILE}
         system_clock.c
 )
 
-target_include_directories(STM32L433xC
+target_include_directories(mbed-stm32l433xc
     INTERFACE
         .
 )
 
-mbed_set_linker_script(STM32L433xC ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-stm32l433xc ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(STM32L433xC INTERFACE STM32L4)
+target_link_libraries(mbed-stm32l433xc INTERFACE mbed-stm32l4)

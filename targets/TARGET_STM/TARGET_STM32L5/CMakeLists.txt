@@ -6,9 +6,9 @@ add_subdirectory(TARGET_STM32L552xE EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32L562xE EXCLUDE_FROM_ALL)
 add_subdirectory(STM32Cube_FW EXCLUDE_FROM_ALL)
 
-add_library(STM32L5 INTERFACE)
+add_library(mbed-stm32l5 INTERFACE)
 
-target_sources(STM32L5
+target_sources(mbed-stm32l5
     INTERFACE
         analogin_device.c
         analogout_device.c
@@ -20,9 +20,9 @@ target_sources(STM32L5
         spi_api.c
 )
 
-target_include_directories(STM32L5
+target_include_directories(mbed-stm32l5
     INTERFACE
         .
 )
 
-target_link_libraries(STM32L5 INTERFACE STM STM32L5Cube_FW)
+target_link_libraries(mbed-stm32l5 INTERFACE mbed-stm mbed-stm32l5cube-fw)

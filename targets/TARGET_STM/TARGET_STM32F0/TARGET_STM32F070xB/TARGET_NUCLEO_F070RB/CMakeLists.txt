@@ -1,16 +1,16 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(NUCLEO_F070RB INTERFACE)
+add_library(mbed-nucleo-f070rb INTERFACE)
 
-target_sources(NUCLEO_F070RB
+target_sources(mbed-nucleo-f070rb
     INTERFACE
         PeripheralPins.c
 )
 
-target_include_directories(NUCLEO_F070RB
+target_include_directories(mbed-nucleo-f070rb
     INTERFACE
         .
 )
 
-target_link_libraries(NUCLEO_F070RB INTERFACE STM32F070xB)
+target_link_libraries(mbed-nucleo-f070rb INTERFACE mbed-stm32f070xb)

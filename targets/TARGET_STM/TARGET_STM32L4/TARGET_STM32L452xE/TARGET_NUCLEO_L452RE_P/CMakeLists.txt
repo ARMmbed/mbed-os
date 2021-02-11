@@ -1,16 +1,16 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(NUCLEO_L452RE_P INTERFACE)
+add_library(mbed-nucleo-l452re-p INTERFACE)
 
-target_sources(NUCLEO_L452RE_P
+target_sources(mbed-nucleo-l452re-p
     INTERFACE
         PeripheralPins.c
 )
 
-target_include_directories(NUCLEO_L452RE_P
+target_include_directories(mbed-nucleo-l452re-p
     INTERFACE
         .
 )
 
-target_link_libraries(NUCLEO_L452RE_P INTERFACE STM32L452xE)
+target_link_libraries(mbed-nucleo-l452re-p INTERFACE mbed-stm32l452xe)

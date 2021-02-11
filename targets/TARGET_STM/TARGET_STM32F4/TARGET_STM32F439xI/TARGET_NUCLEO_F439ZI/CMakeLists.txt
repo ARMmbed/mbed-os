@@ -1,17 +1,17 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(NUCLEO_F439ZI INTERFACE)
+add_library(mbed-nucleo-f439zi INTERFACE)
 
-target_sources(NUCLEO_F439ZI
+target_sources(mbed-nucleo-f439zi
     INTERFACE
         PeripheralPins.c
         system_clock.c
 )
 
-target_include_directories(NUCLEO_F439ZI
+target_include_directories(mbed-nucleo-f439zi
     INTERFACE
         .
 )
 
-target_link_libraries(NUCLEO_F439ZI INTERFACE STM32F439xI)
+target_link_libraries(mbed-nucleo-f439zi INTERFACE mbed-stm32f439xi)

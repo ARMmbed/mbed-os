@@ -1,16 +1,16 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(B_L4S5I_IOT01A INTERFACE)
+add_library(mbed-b-l4s5i-iot01a INTERFACE)
 
-target_sources(B_L4S5I_IOT01A
+target_sources(mbed-b-l4s5i-iot01a
     INTERFACE
         PeripheralPins.c
 )
 
-target_include_directories(B_L4S5I_IOT01A
+target_include_directories(mbed-b-l4s5i-iot01a
     INTERFACE
         .
 )
 
-target_link_libraries(B_L4S5I_IOT01A INTERFACE STM32L4S5xI)
+target_link_libraries(mbed-b-l4s5i-iot01a INTERFACE mbed-stm32l4s5xi)

@@ -1,16 +1,16 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(NUCLEO_L4R5ZI INTERFACE)
+add_library(mbed-nucleo-l4r5zi INTERFACE)
 
-target_sources(NUCLEO_L4R5ZI
+target_sources(mbed-nucleo-l4r5zi
     INTERFACE
         PeripheralPins.c
 )
 
-target_include_directories(NUCLEO_L4R5ZI
+target_include_directories(mbed-nucleo-l4r5zi
     INTERFACE
         .
 )
 
-target_link_libraries(NUCLEO_L4R5ZI INTERFACE STM32L4R5xI)
+target_link_libraries(mbed-nucleo-l4r5zi INTERFACE mbed-stm32l4r5xi)

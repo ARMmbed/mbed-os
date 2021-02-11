@@ -1,16 +1,16 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(NUCLEO_L432KC INTERFACE)
+add_library(mbed-nucleo-l432kc INTERFACE)
 
-target_sources(NUCLEO_L432KC
+target_sources(mbed-nucleo-l432kc
     INTERFACE
         PeripheralPins.c
 )
 
-target_include_directories(NUCLEO_L432KC
+target_include_directories(mbed-nucleo-l432kc
     INTERFACE
         .
 )
 
-target_link_libraries(NUCLEO_L432KC INTERFACE STM32L432xC)
+target_link_libraries(mbed-nucleo-l432kc INTERFACE mbed-stm32l432xc)

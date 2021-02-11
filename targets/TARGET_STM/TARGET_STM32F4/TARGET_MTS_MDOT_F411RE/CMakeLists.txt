@@ -9,20 +9,20 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32f411re.sct)
 endif()
 
-add_library(MTS_MDOT_F411RE INTERFACE)
+add_library(mbed-mts-mdot-f411re INTERFACE)
 
-target_sources(MTS_MDOT_F411RE
+target_sources(mbed-mts-mdot-f411re
     INTERFACE
         system_clock.c
         PeripheralPins.c
         ${STARTUP_FILE}
 )
 
-target_include_directories(MTS_MDOT_F411RE
+target_include_directories(mbed-mts-mdot-f411re
     INTERFACE
         .
 )
 
-mbed_set_linker_script(MTS_MDOT_F411RE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-mts-mdot-f411re ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(MTS_MDOT_F411RE INTERFACE STM32F4)
+target_link_libraries(mbed-mts-mdot-f411re INTERFACE mbed-stm32f4)

@@ -1,9 +1,9 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(STM32F1Cube_FW INTERFACE)
+add_library(mbed-stm32f1cube-fw INTERFACE)
 
-target_sources(STM32F1Cube_FW
+target_sources(mbed-stm32f1cube-fw
     INTERFACE
         STM32F1xx_HAL_Driver/Legacy/stm32f1xx_hal_can_legacy.c
         STM32F1xx_HAL_Driver/stm32f1xx_hal.c
@@ -67,7 +67,7 @@ target_sources(STM32F1Cube_FW
         system_stm32f1xx.c
 )
 
-target_include_directories(STM32F1Cube_FW
+target_include_directories(mbed-stm32f1cube-fw
     INTERFACE
         .
         CMSIS

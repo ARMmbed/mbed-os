@@ -7,9 +7,9 @@ add_subdirectory(TARGET_STM32F767xI EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32F769xI EXCLUDE_FROM_ALL)
 add_subdirectory(STM32Cube_FW EXCLUDE_FROM_ALL)
 
-add_library(STM32F7 INTERFACE)
+add_library(mbed-stm32f7 INTERFACE)
 
-target_sources(STM32F7
+target_sources(mbed-stm32f7
     INTERFACE
         analogin_device.c
         analogout_device.c
@@ -21,9 +21,9 @@ target_sources(STM32F7
 )
 
 
-target_include_directories(STM32F7
+target_include_directories(mbed-stm32f7
     INTERFACE
         .
 )
 
-target_link_libraries(STM32F7 INTERFACE STM STM32F7Cube_FW)
+target_link_libraries(mbed-stm32f7 INTERFACE mbed-stm mbed-stm32f7cube-fw)

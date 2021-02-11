@@ -11,19 +11,19 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32l073xz.sct)
 endif()
 
-add_library(STM32L073xZ INTERFACE)
+add_library(mbed-stm32l073xz INTERFACE)
 
-target_sources(STM32L073xZ
+target_sources(mbed-stm32l073xz
     INTERFACE
         ${STARTUP_FILE}
         system_clock.c
 )
 
-target_include_directories(STM32L073xZ
+target_include_directories(mbed-stm32l073xz
     INTERFACE
         .
 )
 
-mbed_set_linker_script(STM32L073xZ ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-stm32l073xz ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(STM32L073xZ INTERFACE STM32L0)
+target_link_libraries(mbed-stm32l073xz INTERFACE mbed-stm32l0)

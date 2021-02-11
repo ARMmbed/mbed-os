@@ -3,17 +3,17 @@
 
 add_subdirectory(STM32F4xx_HAL_Driver EXCLUDE_FROM_ALL)
 
-add_library(STM32F4Cube_FW INTERFACE)
+add_library(mbed-stm32f4cube-fw INTERFACE)
 
-target_sources(STM32F4Cube_FW
+target_sources(mbed-stm32f4cube-fw
     INTERFACE
         system_stm32f4xx.c
 )
 
-target_include_directories(STM32F4Cube_FW
+target_include_directories(mbed-stm32f4cube-fw
     INTERFACE
         .
         ./CMSIS
 )
 
-target_link_libraries(STM32F4Cube_FW INTERFACE STM32F4xx_HAL_Driver)
+target_link_libraries(mbed-stm32f4cube-fw INTERFACE mbed-stm32f4xx-hal-driver)

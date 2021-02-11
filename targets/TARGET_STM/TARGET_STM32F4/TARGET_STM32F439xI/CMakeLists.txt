@@ -13,18 +13,18 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32f439xx.sct)
 endif()
 
-add_library(STM32F439xI INTERFACE)
+add_library(mbed-stm32f439xi INTERFACE)
 
-target_sources(STM32F439xI
+target_sources(mbed-stm32f439xi
     INTERFACE
         ${STARTUP_FILE}
 )
 
-target_include_directories(STM32F439xI
+target_include_directories(mbed-stm32f439xi
     INTERFACE
         .
 )
 
-mbed_set_linker_script(STM32F439xI ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-stm32f439xi ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(STM32F439xI INTERFACE STM32F4)
+target_link_libraries(mbed-stm32f439xi INTERFACE mbed-stm32f4)

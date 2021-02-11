@@ -1,17 +1,17 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(NUCLEO_F446RE INTERFACE)
+add_library(mbed-nucleo-f446re INTERFACE)
 
-target_sources(NUCLEO_F446RE
+target_sources(mbed-nucleo-f446re
     INTERFACE
         PeripheralPins.c
         system_clock.c
 )
 
-target_include_directories(NUCLEO_F446RE
+target_include_directories(mbed-nucleo-f446re
     INTERFACE
         .
 )
 
-target_link_libraries(NUCLEO_F446RE INTERFACE STM32F446xE)
+target_link_libraries(mbed-nucleo-f446re INTERFACE mbed-stm32f446xe)

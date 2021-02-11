@@ -9,21 +9,21 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE device/TOOLCHAIN_ARM/stm32l152re.sct)
 endif()
 
-add_library(NUCLEO_L152RE INTERFACE)
+add_library(mbed-nucleo-l152re INTERFACE)
 
-target_sources(NUCLEO_L152RE
+target_sources(mbed-nucleo-l152re
     INTERFACE
         PeripheralPins.c
         device/system_clock.c
         ${STARTUP_FILE}
 )
 
-target_include_directories(NUCLEO_L152RE
+target_include_directories(mbed-nucleo-l152re
     INTERFACE
         .
         device
 )
 
-mbed_set_linker_script(NUCLEO_L152RE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-nucleo-l152re ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(NUCLEO_L152RE INTERFACE STM32L1)
+target_link_libraries(mbed-nucleo-l152re INTERFACE mbed-stm32l1)
