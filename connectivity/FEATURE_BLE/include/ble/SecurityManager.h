@@ -324,6 +324,9 @@ public:
          * @param[in] connectionHandle connection connectionHandle
          * @param[in] passkey 6 digit passkey to be displayed
          */
+#if BLE_PASSKEY_DISPLAY_REVERSED_DIGITS_DEPRECATION
+        MBED_DEPRECATED_SINCE("mbed-os-6.8.0", "This returns the passkey in reverse order. Please set the config option ble.ble-passkey-display-reversed-digits-deprecation in your mbed_app.json override section to false. This will then return the passkey in the correct order.")
+#endif // BLE_PASSKEY_DISPLAY_REVERSED_DIGITS_DEPRECATION
         virtual void passkeyDisplay(ble::connection_handle_t connectionHandle, const Passkey_t passkey) {
             (void)connectionHandle;
             (void)passkey;

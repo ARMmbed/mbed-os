@@ -107,6 +107,11 @@
             "help": "Used for host privacy. How many last resolved addresses to store to speed up resolution. This is especially valuable for resolving advertising which creates repeated queries for the same address.",
             "value": 16,
             "macro_name": "BLE_GAP_HOST_PRIVACY_RESOLVED_CACHE_SIZE"
+        },
+        "ble-passkey-display-reversed-digits-deprecation": {
+          "help": "This option is part of the deprecation process. Set this to false to remove the deprecation notice. When set to true, the digits in the SecurityManager passkeyDiplay event are reversed. When set to false the digits are in the correct order.",
+          "value": true,
+          "macro_name": "BLE_PASSKEY_DISPLAY_REVERSED_DIGITS_DEPRECATION"
         }
     },
     "target_overrides": {
