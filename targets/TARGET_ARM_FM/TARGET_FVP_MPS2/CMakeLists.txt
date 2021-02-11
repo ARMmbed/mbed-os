@@ -7,16 +7,16 @@ add_subdirectory(TARGET_FVP_MPS2_M3 EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_FVP_MPS2_M4 EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_FVP_MPS2_M7 EXCLUDE_FROM_ALL)
 
-add_library(FVP_MPS2 INTERFACE)
+add_library(mbed-fvp-mps2 INTERFACE)
 
-target_include_directories(FVP_MPS2
+target_include_directories(mbed-fvp-mps2
     INTERFACE
         .
         drivers
         SDK
 )
 
-target_sources(FVP_MPS2
+target_sources(mbed-fvp-mps2
     INTERFACE
         analogin_api.c
         flash_api.c
