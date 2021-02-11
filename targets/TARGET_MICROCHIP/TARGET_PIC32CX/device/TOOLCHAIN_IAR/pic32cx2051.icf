@@ -47,7 +47,7 @@ if (!isdefinedsymbol(MBED_APP_SIZE)) {
 }
 
 if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
-    /* This value is normally defined by the tools 
+    /* This value is normally defined by the tools
         to 0x1000 for bare metal and 0x400 for RTOS */
     define symbol MBED_BOOT_STACK_SIZE = 0x400;
 }
@@ -67,8 +67,11 @@ define block HEAP      with alignment = 8, size = HEAP_SIZE     { };
 initialize by copy { readwrite };
 do not initialize  { section .noinit };
 
-place at address mem: MBED_APP_START { readonly section .intvec };
+place at address mem: MBED_APP_START  { readonly section .intvec };
 
-place in ROM_region   { readonly };
-place in RAM_region   { readwrite,
-                        block CSTACK, block HEAP };
+place in ROM_region     { readonly };
+place in RAM_region     { readwrite, block CSTACK, block HEAP };
+
+define symbol FU_REGION_SIZE = 0x40000;
+define symbol FU_REGION_START = MBED_ROM_START + MBED_ROM_SIZE - FU_REGION_SIZE;
+place at address mem: FU_REGION_START      { readonly section P_fu_bin };

@@ -29,6 +29,7 @@
 void pin_function(PinName pin, int function)
 {
     MBED_ASSERT(pin != (PinName)NC);
+    ioport_set_pin_mode(pin, function);
 }
 
 void pin_mode(PinName pin, PinMode mode)
