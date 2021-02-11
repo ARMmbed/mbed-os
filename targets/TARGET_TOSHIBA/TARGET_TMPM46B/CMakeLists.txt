@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 if(${MBED_TOOLCHAIN} STREQUAL "ARM")
@@ -9,16 +9,16 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(STARTUP_FILE device/TOOLCHAIN_GCC_ARM/startup_TMPM46b.S)
 endif()
 
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+add_library(mbed-tmpm46b INTERFACE)
 
-target_include_directories(mbed-core
+target_include_directories(mbed-tmpm46b
     INTERFACE
         .
         device
         Periph_Driver/inc
 )
 
-target_sources(mbed-core
+target_sources(mbed-tmpm46b
     INTERFACE
         analogin_api.c
         flash_api.c
@@ -52,3 +52,7 @@ target_sources(mbed-core
 
         ${STARTUP_FILE}
 )
+
+mbed_set_linker_script(mbed-tmpm46b ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+
+target_link_libraries(mbed-tmpm46b INTERFACE mbed-toshiba)
