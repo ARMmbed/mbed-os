@@ -1,14 +1,16 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-core
+add_library(mbed-framework-5-3-3 INTERFACE)
+
+target_include_directories(mbed-framework-5-3-3
     INTERFACE
         Common
         OSAbstraction/Interface
         XCVR/MKW41Z4
 )
 
-target_sources(mbed-core
+target_sources(mbed-framework-5-3-3
     INTERFACE
         OSAbstraction/Source/fsl_os_abstraction_mbed.c
 

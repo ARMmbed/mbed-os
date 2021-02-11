@@ -1,19 +1,7 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("FRDM" IN_LIST MBED_TARGET_LABELS)
-    target_include_directories(mbed-core
-        INTERFACE
-            TARGET_FRDM
-    )
-
-    target_sources(mbed-core
-        INTERFACE
-            TARGET_FRDM/PeripheralPins.c
-            TARGET_FRDM/fsl_clock_config.c
-            TARGET_FRDM/mbed_overrides.c
-    )
-endif()
+add_subdirectory(TARGET_FRDM EXCLUDE_FROM_ALL)
 
 if(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE device/TOOLCHAIN_ARM_STD/MKL43Z256xxx4.sct)
@@ -23,20 +11,16 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(STARTUP_FILE device/TOOLCHAIN_GCC_ARM/startup_MKL43Z4.S)
 endif()
 
-set_property(
-    GLOBAL PROPERTY
-    MBED_TARGET_LINKER_FILE
-        ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE}
-)
+add_library(mbed-kl43z INTERFACE)
 
-target_include_directories(mbed-core
+target_include_directories(mbed-kl43z
     INTERFACE
         .
         device
         drivers
 )
 
-target_sources(mbed-core
+target_sources(mbed-kl43z
     INTERFACE
         pwmout_api.c
         serial_api.c
@@ -85,3 +69,9 @@ target_sources(mbed-core
         device/system_MKL43Z4.c
         ${STARTUP_FILE}
 )
+
+target_link_libraries(mbed-kl43z INTERFACE mbed-mcuxpresso-mcus)
+
+mbed_set_linker_script(mbed-kl43z ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+
+target_link_libraries(mbed-kl43z INTERFACE mbed-frdm-kl43z)
