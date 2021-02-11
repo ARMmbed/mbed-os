@@ -3,7 +3,7 @@
 
 add_subdirectory(TARGET_EV_COG_AD4050LZ EXCLUDE_FROM_ALL)
 
-add_library(ADUCM4050 INTERFACE)
+add_library(mbed-aducm4050 INTERFACE)
 
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(LINKER_FILE TOOLCHAIN_GCC_ARM/ADuCM4050.ld)
@@ -11,9 +11,9 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM_STD/ADuCM4050.sct)
 endif()
 
-mbed_set_linker_script(ADUCM4050 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-aducm4050 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_include_directories(ADUCM4050
+target_include_directories(mbed-aducm4050
     INTERFACE
         api
         bsp
@@ -54,7 +54,7 @@ target_include_directories(ADUCM4050
         bsp/xint
 )
 
-target_sources(ADUCM4050
+target_sources(mbed-aducm4050
     INTERFACE
         api/analogin_api.c
         api/flash_api.c

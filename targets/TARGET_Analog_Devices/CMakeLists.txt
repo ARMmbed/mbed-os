@@ -4,9 +4,9 @@
 add_subdirectory(TARGET_ADUCM302X EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_ADUCM4X50 EXCLUDE_FROM_ALL)
 
-add_library(Analog_Devices INTERFACE)
+add_library(mbed-analog-devices INTERFACE)
 
-target_include_directories(Analog_Devices
+target_include_directories(mbed-analog-devices
     INTERFACE
         .
 )

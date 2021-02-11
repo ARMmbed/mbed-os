@@ -3,7 +3,7 @@
 
 add_subdirectory(TARGET_EV_COG_AD3029LZ EXCLUDE_FROM_ALL)
 
-add_library(ADUCM3029 INTERFACE)
+add_library(mbed-aducm3029 INTERFACE)
 
 if(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM_STD/ADuCM3029.sct)
@@ -11,9 +11,9 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(LINKER_FILE TOOLCHAIN_GCC_ARM/ADuCM3029.ld)
 endif()
 
-mbed_set_linker_script(ADUCM3029 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-aducm3029 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_include_directories(ADUCM3029
+target_include_directories(mbed-aducm3029
     INTERFACE
         api
         bsp
@@ -54,7 +54,7 @@ target_include_directories(ADUCM3029
         bsp/xint
 )
 
-target_sources(ADUCM3029
+target_sources(mbed-aducm3029
     INTERFACE
         api/analogin_api.c
         api/flash_api.c
