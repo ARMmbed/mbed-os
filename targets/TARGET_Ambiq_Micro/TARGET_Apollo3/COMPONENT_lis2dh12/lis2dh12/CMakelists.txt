@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 add_library(mbed-lis2dh12 INTERFACE)
@@ -10,8 +10,8 @@ target_include_directories(mbed-lis2dh12
 
 target_sources(mbed-lis2dh12
     INTERFACE
-        COMPONENT_lis2dh12/lis2dh12/lis2dh12_platform_apollo3.c
-        COMPONENT_lis2dh12/lis2dh12/lis2dh12_reg.c
+        lis2dh12_platform_apollo3.c
+        lis2dh12_reg.c
 )
 
 target_link_libraries(mbed-lis2dh12 INTERFACE mbed-apollo3)
