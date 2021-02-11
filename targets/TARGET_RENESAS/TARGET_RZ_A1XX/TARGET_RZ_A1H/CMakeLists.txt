@@ -11,10 +11,9 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(WEAK_HANDLER_FILE device/TOOLCHAIN_GCC_ARM/weak_handler.S)
 endif()
 
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+add_library(mbed-rz-a1h INTERFACE)
 
-
-target_include_directories(mbed-core
+target_include_directories(mbed-rz-a1h
     INTERFACE
         .
         device
@@ -23,7 +22,7 @@ target_include_directories(mbed-core
         device/inc/iodefines
 )
 
-target_sources(mbed-core
+target_sources(mbed-rz-a1h
     INTERFACE
         PeripheralPins.c
 
@@ -38,3 +37,7 @@ target_sources(mbed-core
         ${STARTUP_FILE}
         ${WEAK_HANDLER_FILE}
 )
+
+mbed_set_linker_script(mbed-rz-a1h ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+
+target_link_libraries(mbed-rz-a1h INTERFACE mbed-rz-a1xx)

@@ -11,10 +11,10 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(WEAK_HANDLER_FILE device/TOOLCHAIN_GCC_ARM/weak_handler.S)
 endif()
 
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+add_library(mbed-gr-lychee INTERFACE)
 
 
-target_include_directories(mbed-core
+target_include_directories(mbed-gr-lychee
     INTERFACE
         .
         device
@@ -23,7 +23,7 @@ target_include_directories(mbed-core
         device/inc/iodefines
 )
 
-target_sources(mbed-core
+target_sources(mbed-gr-lychee
     INTERFACE
     trng_api_esp32.cpp
     PeripheralPins.c
@@ -40,3 +40,6 @@ target_sources(mbed-core
     ${WEAK_HANDLER_FILE}
 )
 
+mbed_set_linker_script(mbed-gr-lychee ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+
+target_link_libraries(mbed-gr-lychee INTERFACE mbed-rz-a1xx)

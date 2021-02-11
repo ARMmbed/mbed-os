@@ -1,19 +1,18 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if ("GR_LYCHEE" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_GR_LYCHEE)
-elseif("RZ_A1H" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_RZ_A1H)
-endif()
+add_subdirectory(TARGET_GR_LYCHEE EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_RZ_A1H EXCLUDE_FROM_ALL)
 
-target_include_directories(mbed-core
+add_library(mbed-rz-a1xx INTERFACE)
+
+target_include_directories(mbed-rz-a1xx
     INTERFACE
         .
         common
 )
 
-target_sources(mbed-core
+target_sources(mbed-rz-a1xx
     INTERFACE
         analogin_api.c
         can_api.c
@@ -35,3 +34,5 @@ target_sources(mbed-core
 
         common/rza_io_regrw.c
 )
+
+target_link_libraries(mbed-rz-a1xx INTERFACE mbed-renesas)

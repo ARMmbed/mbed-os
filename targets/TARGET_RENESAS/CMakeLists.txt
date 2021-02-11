@@ -1,13 +1,12 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if ("RZ_A1XX" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_RZ_A1XX)
-elseif("RZ_A2XX" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_RZ_A2XX)
-endif()
+add_subdirectory(TARGET_RZ_A1XX EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_RZ_A2XX EXCLUDE_FROM_ALL)
 
-target_include_directories(mbed-core
+add_library(mbed-renesas INTERFACE)
+
+target_include_directories(mbed-renesas
     INTERFACE
         .
 )
