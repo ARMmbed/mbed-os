@@ -17,16 +17,16 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(LIB_EXACT_LE TOOLCHAIN_GCC_ARM/libexactLE.a)
 endif()
 
-add_library(mbed-maxim-max32630 INTERFACE)
+add_library(mbed-max32630 INTERFACE)
 
-target_include_directories(mbed-maxim-max32630
+target_include_directories(mbed-max32630
     INTERFACE
         .
         device
         mxc
 )
 
-target_sources(mbed-maxim-max32630
+target_sources(mbed-max32630
     INTERFACE
         PeripheralPins.c
         analogin_api.c
@@ -75,7 +75,7 @@ target_sources(mbed-maxim-max32630
         ${STARTUP_FILE}
 )
 
-target_link_libraries(mbed-maxim-max32630 
+target_link_libraries(mbed-max32630 
     INTERFACE 
         ${CMAKE_CURRENT_SOURCE_DIR}/${LIB_EXACT_LE} 
         mbed-maxim
