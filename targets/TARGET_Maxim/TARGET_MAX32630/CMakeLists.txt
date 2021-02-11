@@ -19,6 +19,8 @@ endif()
 
 add_library(mbed-max32630 INTERFACE)
 
+mbed_set_linker_script(mbed-max32630 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+
 target_include_directories(mbed-max32630
     INTERFACE
         .
