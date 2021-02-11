@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Generate a file containing compile definitions
-function(mbed_generate_options_for_linker target definitions_file)
+function(mbed_generate_options_for_linker target output_response_file_path)
     set(_compile_definitions
-        "$<TARGET_PROPERTY:${target},COMPILE_DEFINITIONS>"
+        "$<TARGET_PROPERTY:${target},INTERFACE_COMPILE_DEFINITIONS>"
     )
 
     # Remove macro definitions that contain spaces as the lack of escape sequences and quotation marks
@@ -20,7 +20,7 @@ function(mbed_generate_options_for_linker target definitions_file)
         "$<$<BOOL:${_compile_definitions}>:-D$<JOIN:${_compile_definitions}, -D>>"
     )
     file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/compile_time_defs.txt" CONTENT "${_compile_definitions}\n")
-    set(${definitions_file} @${CMAKE_CURRENT_BINARY_DIR}/compile_time_defs.txt PARENT_SCOPE)
+    set(${output_response_file_path} @${CMAKE_CURRENT_BINARY_DIR}/compile_time_defs.txt PARENT_SCOPE)
 endfunction()
 # Set the system processor depending on the CPU core type
 if (MBED_CPU_CORE STREQUAL Cortex-A9)
