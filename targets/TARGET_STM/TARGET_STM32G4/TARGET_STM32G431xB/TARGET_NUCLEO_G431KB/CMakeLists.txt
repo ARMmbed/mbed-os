@@ -12,3 +12,5 @@ target_include_directories(mbed-nucleo-g431kb
     INTERFACE
         .
 )
+
+target_link_libraries(mbed-nucleo-g431kb INTERFACE mbed-stm32g431xb)
