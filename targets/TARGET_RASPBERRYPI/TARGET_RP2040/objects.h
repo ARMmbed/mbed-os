@@ -40,6 +40,7 @@ extern "C" {
 #include "hardware/spi.h"
 #include "hardware/i2c.h"
 #include "hardware/gpio.h"
+#include "hardware/irq.h"
 #include "hardware/regs/addressmap.h"
 #ifdef __cplusplus
 }
@@ -56,8 +57,6 @@ extern "C" {
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef struct gpio_s gpio_t;
 
 struct gpio_s {
     PinName  pin;
@@ -87,22 +86,29 @@ struct analogin_s {
 };
 
 struct serial_s {
-    uart_inst_t * const uart;
-    int index;
+    uart_inst_t * dev;
+    PinName pin_rx;
+    PinName pin_tx;
+    PinName pin_rts;
+    PinName pin_cts;
+    uint32_t baud;
 };
 
 struct i2c_s {
-    i2c_inst_t * const *i2c;
+    i2c_inst_t * dev;
 };
 
 struct spi_s {
-    spi_inst_t * const *spi;
+    spi_inst_t * dev;
 };
 
 struct flash_s {
 	/*  nothing to be stored for now */
 	uint32_t dummy;
 };
+
+typedef struct gpio_s gpio_t;
+typedef struct serial_s serial_t;
 
 #ifdef __cplusplus
 }

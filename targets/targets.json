@@ -8004,7 +8004,8 @@
         "device_has": [
             "ANALOGIN",
             "PORT_IN",
-            "PORT_OUT"
+            "PORT_OUT",
+            "SERIAL"
         ]
     },
     "NANO_RP2040_CONNECT": {
@@ -8013,7 +8014,8 @@
             "PICO_NO_BINARY_INFO=1",
             "MBED_MPU_CUSTOM",
             "PICO_TIME_DEFAULT_ALARM_POOL_DISABLED",
-            "PICO_ON_DEVICE=1"
+            "PICO_ON_DEVICE=1",
+            "PICO_UART_ENABLE_CRLF_SUPPORT=0"
         ]
     },
     "__build_tools_metadata__": {

@@ -1,5 +1,5 @@
 #include "mbed_assert.h"
-#include "gpio_api.h"
+#include "hal/gpio_api.h"
 #include "pinmap.h"
 #include "mbed_error.h"
 

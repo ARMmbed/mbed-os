@@ -35,6 +35,10 @@ typedef enum {
     p23 = 23,
     p24 = 24,
     p25 = 25,
+    p26 = 26,
+    p27 = 27,
+    p28 = 28,
+    p29 = 29,
 
     // ADC internal channels
     ADC_TEMP = 0xF0,
