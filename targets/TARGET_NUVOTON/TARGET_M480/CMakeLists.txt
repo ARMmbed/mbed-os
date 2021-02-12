@@ -1,11 +1,5 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-
-if("NUMAKER_IOT_M487" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_NUMAKER_IOT_M487)
-elseif("NUMAKER_PFM_M487" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_NUMAKER_PFM_M487) 
-endif()
 
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(LINKER_FILE device/TOOLCHAIN_GCC_ARM/M487.ld)
@@ -13,9 +7,9 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE device/TOOLCHAIN_ARM_STD/M487.sct)
 endif()
 
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+add_library(mbed-m480 INTERFACE)
 
-target_sources(mbed-core
+target_sources(mbed-m480
     INTERFACE
         analogin_api.c
         analogout_api.c
@@ -83,7 +77,7 @@ target_sources(mbed-core
         watchdog_api.c
 )
 
-target_include_directories(mbed-core
+target_include_directories(mbed-m480
     INTERFACE
         .
         crypto
@@ -91,3 +85,25 @@ target_include_directories(mbed-core
         device/Reg
         device/StdDriver/inc
 )
+
+target_link_libraries(mbed-m480 INTERFACE mbed-nuvoton)
+
+mbed_set_linker_script(mbed-m480 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+
+add_library(mbed-numaker-iot-m487 INTERFACE)
+
+target_include_directories(mbed-numaker-iot-m487
+    INTERFACE
+        TARGET_NUMAKER_IOT_M487
+)
+
+target_link_libraries(mbed-numaker-iot-m487 INTERFACE mbed-m480)
+
+add_library(mbed-numaker-pfm-m487 INTERFACE)
+
+target_include_directories(mbed-numaker-pfm-m487
+    INTERFACE
+        TARGET_NUMAKER_PFM_M487
+)
+
+target_link_libraries(mbed-numaker-pfm-m487 INTERFACE mbed-m480)

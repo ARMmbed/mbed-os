@@ -1,9 +1,5 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-
-if("NUMAKER_IOT_M263A" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_NUMAKER_IOT_M263A)
-endif()
 
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(LINKER_FILE device/TOOLCHAIN_GCC_ARM/M261.ld)
@@ -11,9 +7,9 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE device/TOOLCHAIN_ARM_STD/M261.sct)
 endif()
 
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+add_library(mbed-m261 INTERFACE)
 
-target_sources(mbed-core
+target_sources(mbed-m261
     INTERFACE
         analogin_api.c
         analogout_api.c
@@ -76,7 +72,7 @@ target_sources(mbed-core
         crypto/crypto-misc.cpp
 )
 
-target_include_directories(mbed-core
+target_include_directories(mbed-m261
     INTERFACE
         .
         crypto
@@ -84,3 +80,16 @@ target_include_directories(mbed-core
         device/Reg
         device/StdDriver/inc
 )
+
+target_link_libraries(mbed-m261 INTERFACE mbed-nuvoton)
+
+mbed_set_linker_script(mbed-m261 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+
+add_library(mbed-numaker-iot-m263a INTERFACE)
+
+target_include_directories(mbed-numaker-iot-m263a
+    INTERFACE
+        TARGET_NUMAKER_IOT_M263A
+)
+
+target_link_libraries(mbed-numaker-iot-m263a INTERFACE mbed-m261)
