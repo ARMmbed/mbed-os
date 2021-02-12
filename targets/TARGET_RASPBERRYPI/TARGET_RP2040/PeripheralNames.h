@@ -43,12 +43,14 @@ typedef enum {
 } I2CName;
 
 typedef enum {
-    PWM_1 = 0,
+    PWM_0 = 0,
+    PWM_1,
     PWM_2,
     PWM_3,
     PWM_4,
     PWM_5,
-    PWM_6
+    PWM_6,
+    PWM_7
 } PWMName;
 
 /*  Defines to be used by application */

@@ -43,10 +43,10 @@ extern const PinMap PinMap_UART_CTS[];
 
 //*** SPI ***
 #if DEVICE_SPI
-extern const PinMap PinMap_SPI_MOSI[];
 extern const PinMap PinMap_SPI_MISO[];
-extern const PinMap PinMap_SPI_SCLK[];
 extern const PinMap PinMap_SPI_SSEL[];
+extern const PinMap PinMap_SPI_SCLK[];
+extern const PinMap PinMap_SPI_MOSI[];
 #endif
 
 //*** ADC ***
