@@ -1,38 +1,38 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("GD32F307VG" IN_LIST MBED_TARGET_LABELS)
-    target_include_directories(mbed-core
-        INTERFACE
-            TARGET_GD32F307VG
-            TARGET_GD32F307VG/device
-    )
+add_library(mbed-gd32-f307vg INTERFACE)
 
-    target_sources(mbed-core
-        INTERFACE
-            TARGET_GD32F307VG/PeripheralPins.c
+target_include_directories(mbed-gd32-f307vg
+    INTERFACE
+        TARGET_GD32F307VG
+        TARGET_GD32F307VG/device
+)
 
-            TARGET_GD32F307VG/device/system_gd32f30x.c
-    )
+target_sources(mbed-gd32-f307vg
+    INTERFACE
+        TARGET_GD32F307VG/PeripheralPins.c
 
-    if(${MBED_TOOLCHAIN} STREQUAL "ARM")
-        set(LINKER_FILE TARGET_GD32F307VG/device/TOOLCHAIN_ARM_STD/gd32f307vg.sct)
-        set(STARTUP_FILE TARGET_GD32F307VG/device/TOOLCHAIN_ARM_STD/startup_gd32f30x_cl.S)
-    elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
-        set(LINKER_FILE TARGET_GD32F307VG/device/TOOLCHAIN_GCC_ARM/GD32F307xG.ld)
-        set(STARTUP_FILE TARGET_GD32F307VG/device/TOOLCHAIN_GCC_ARM/startup_gd32f30x_cl.S)
-    endif()
+        TARGET_GD32F307VG/device/system_gd32f30x.c
+)
+
+if(${MBED_TOOLCHAIN} STREQUAL "ARM")
+    set(LINKER_FILE TARGET_GD32F307VG/device/TOOLCHAIN_ARM_STD/gd32f307vg.sct)
+    set(STARTUP_FILE TARGET_GD32F307VG/device/TOOLCHAIN_ARM_STD/startup_gd32f30x_cl.S)
+elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
+    set(LINKER_FILE TARGET_GD32F307VG/device/TOOLCHAIN_GCC_ARM/GD32F307xG.ld)
+    set(STARTUP_FILE TARGET_GD32F307VG/device/TOOLCHAIN_GCC_ARM/startup_gd32f30x_cl.S)
 endif()
 
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+add_library(mbed-gd32f30x INTERFACE)
 
-target_include_directories(mbed-core
+target_include_directories(mbed-gd32f30x
     INTERFACE
         .
         GD32F30x_standard_peripheral/Include
 )
 
-target_sources(mbed-core
+target_sources(mbed-gd32f30x
     INTERFACE
         analogin_api.c
         analogout_api.c
@@ -77,3 +77,8 @@ target_sources(mbed-core
 
         ${STARTUP_FILE}
 )
+
+mbed_set_linker_script(mbed-gd32f30x ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+
+target_link_libraries(mbed-gd32f30x INTERFACE mbed-gigadevice)
+target_link_libraries(mbed-gd32-f307vg INTERFACE mbed-gd32f30x)
