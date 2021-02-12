@@ -35,7 +35,3 @@ elseif("STM" IN_LIST MBED_TARGET_LABELS)
 elseif("TOSHIBA" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_TOSHIBA)
 endif()
-
-if("WICED" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_WICED)
-endif()

@@ -34,7 +34,6 @@ The following targets are supported:
 - Silicon Labs targets
 - STM targets
 - Toshiba targets
-- WICED targets
 
 ### Supported toolchains
 
