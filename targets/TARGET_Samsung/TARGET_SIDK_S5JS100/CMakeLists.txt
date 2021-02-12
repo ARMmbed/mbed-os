@@ -9,9 +9,9 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(STARTUP_FILE device/TOOLCHAIN_GCC_ARM/startup_sidk_s5js100.S)
 endif()
 
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+add_library(mbed-s5js100 INTERFACE)
 
-target_include_directories(mbed-core
+target_include_directories(mbed-s5js100
     INTERFACE
         .
         device
@@ -20,7 +20,7 @@ target_include_directories(mbed-core
         security_subsystem/drivers
 )
 
-target_sources(mbed-core
+target_sources(mbed-s5js100
     INTERFACE
         gpio_api.c
         gpio_irq_api.c
@@ -61,3 +61,7 @@ target_sources(mbed-core
 
         ${STARTUP_FILE}
 )
+
+mbed_set_linker_script(mbed-s5js100 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+
+target_link_libraries(mbed-s5js100)

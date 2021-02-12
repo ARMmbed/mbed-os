@@ -9,15 +9,15 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(STARTUP_FILE device/TOOLCHAIN_GCC_ARM/startup_s1sbp6a.S)
 endif()
 
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+add_library(mbed-s1sbp6a INTERFACE)
 
-target_include_directories(mbed-core
+target_include_directories(mbed-s1sbp6a
     INTERFACE
         .
         device
 )
 
-target_sources(mbed-core
+target_sources(mbed-s1sbp6a
     INTERFACE
         PeripheralPins.c
         flash_api.c
@@ -42,3 +42,5 @@ target_sources(mbed-core
 
         ${STARTUP_FILE}
 )
+
+mbed_set_linker_script(mbed-s1sbp6a ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
