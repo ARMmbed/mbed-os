@@ -157,6 +157,12 @@ typedef enum {
     XPLAINPRO_TWI_SDA = A0,
     XPLAINPRO_TWI_SCL = A1,
 
+    /* Xplain Pro SPI */
+    XPLAINPRO_SPI_MOSI = A24,
+	XPLAINPRO_SPI_MISO = A23,
+	XPLAINPRO_SPI_SCLK = A22,
+	XPLAINPRO_SPI_CSEL = A21,
+
     /* Not connected */
     NC = (int)0xFFFFFFFF
 } PinName;

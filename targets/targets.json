@@ -6985,7 +6985,12 @@
             "WATCHDOG",
 			"TRNG",
             "I2C",
-            "I2CSLAVE"
+            "I2CSLAVE",
+            "SPI",
+            "SPISLAVE"
+        ],
+        "components_add": [
+            "FLASHIAP"
         ],
         "c_lib": "small",
 		"bootloader_supported": true,
