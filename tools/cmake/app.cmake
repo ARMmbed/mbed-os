@@ -61,3 +61,6 @@ else()
     message(STATUS "Missing Python dependencies (python3, intelhex, prettytable) so the memory map cannot be printed")
 endif()
 
+# load mbed_create_distro
+include(${CMAKE_CURRENT_LIST_DIR}/create_distro.cmake)
+

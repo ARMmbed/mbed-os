@@ -3,6 +3,7 @@
 
 #
 # Preprocesses and sets the linker script for an Mbed target.
+# Called once for each MCU target in the build system.
 #
 function(mbed_set_linker_script input_target raw_linker_script_path)
     set(LINKER_SCRIPT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${input_target}.link_script.ld)
