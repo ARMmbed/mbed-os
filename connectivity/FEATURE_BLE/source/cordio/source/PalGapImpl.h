@@ -566,6 +566,10 @@ private:
     }
 
 private:
+#if BLE_FEATURE_PERIODIC_ADVERTISING && BLE_ROLE_OBSERVER
+    /* must be static because is needed in a static handler, there can only be one sync in progress */
+    static sync_handle_t _pending_periodic_sync_handle;
+#endif
     PalGapEventHandler *_pal_event_handler;
     address_t device_random_address;
     bool use_active_scanning;
