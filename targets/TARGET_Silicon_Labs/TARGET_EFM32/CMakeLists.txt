@@ -1,15 +1,13 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("EFM32GG" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_EFM32GG)
-elseif("EFM32GG11" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_EFM32GG11)
-elseif("EFR32MG12" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_EFR32MG12)
-endif()
+add_subdirectory(TARGET_EFM32GG EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_EFM32GG11 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_EFR32MG12 EXCLUDE_FROM_ALL)
 
-target_include_directories(mbed-core
+add_library(mbed-efm32 INTERFACE)
+
+target_include_directories(mbed-efm32
     INTERFACE
         .
         common
@@ -17,7 +15,7 @@ target_include_directories(mbed-core
         trng
 )
 
-target_sources(mbed-core
+target_sources(mbed-efm32
     INTERFACE
         analogin_api.c
         analogout_api.c
@@ -95,3 +93,5 @@ target_sources(mbed-core
         trng/sl_trng.c
         trng/trng_api.c
 )
+
+target_link_libraries(mbed-efm32 INTERFACE mbed-silicon-labs)
