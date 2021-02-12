@@ -1,3 +1,6 @@
+# Copyright (c) 2021 ARM Limited. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 # This script provides mbed_create_distro(), a function that lets you compile multiple
 # apps that use Mbed OS without waiting for Mbed OS to build multiple times.
 
@@ -12,7 +15,7 @@
 # target_link_libraries(myapp2 PRIVATE mbed_for_my_app)
 # mbed_set_post_build(myapp2)
 #
-# Both myapp1 and myapp2 will act like they were linked to mbed-os mbed-storage-kvstore,
+# Both myapp1 and myapp2 will act like they were linked to mbed-os, mbed-storage-kvstore,
 # and mbed-storage-filesystem.  If you actually did that, it would compile a new version
 # of the source files for each target.  However, using mbed_create_distro(),
 # mbed_for_my_app will only be compiled once.
