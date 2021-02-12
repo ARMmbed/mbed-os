@@ -152,16 +152,6 @@ function(mbed_configure_app_target target)
     # using global properties.
     mbed_generate_options_for_linker(${target} LINKER_PREPROCESS_DEFINITIONS)
     set_property(GLOBAL PROPERTY COMPILE_DEFS_RESPONSE_FILE ${LINKER_PREPROCESS_DEFINITIONS})
-
-    # Gcc Arm requires memap to be set with app name, equally to ARMClang
-    # TODO: move this to toolchain and set properly
-    if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
-        message(${target})
-        target_link_options(mbed-core
-            INTERFACE
-                "-Wl,-Map=${CMAKE_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map"
-        )
-    endif()
 endfunction()
 
 #
@@ -200,7 +190,16 @@ endfunction()
 # Parse toolchain generated map file of `target` and display a readable table format.
 #
 function(mbed_generate_map_file target)
-     add_custom_command(
+
+    if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
+        # Tell GCC to generate the map file needed by memap
+        target_link_options(${target}
+            PRIVATE
+            "-Wl,-Map=${CMAKE_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map"
+            )
+    endif()
+
+    add_custom_command(
          TARGET
              ${target}
          POST_BUILD
