@@ -100,16 +100,9 @@ struct serial_s {
 
 #if DEVICE_SPI
 struct spi_s {
-    USART_TypeDef *spi;
-    uint32_t location;
-    uint32_t route;
-    uint8_t bits;
-    uint8_t master;
-#if DEVICE_SPI_ASYNCH
-    uint32_t event;
-    DMA_OPTIONS_t dmaOptionsTX;
-    DMA_OPTIONS_t dmaOptionsRX;
-#endif
+    Spi *spi;
+    uint8_t cs;
+    bool is_slave;
 };
 #endif
 

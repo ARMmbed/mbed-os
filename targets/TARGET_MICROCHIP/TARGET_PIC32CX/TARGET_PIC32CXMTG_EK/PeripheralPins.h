@@ -54,6 +54,8 @@ extern const PinMap PinMap_SPI_MOSI[];
 extern const PinMap PinMap_SPI_MISO[];
 extern const PinMap PinMap_SPI_CLK[];
 extern const PinMap PinMap_SPI_CS[];
+extern const PinMap PinMap_SPI_CS0[];
+extern const PinMap PinMap_SPI_CS1[];
 #endif
 
 #if DEVICE_SERIAL

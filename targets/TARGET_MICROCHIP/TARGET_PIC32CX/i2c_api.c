@@ -35,7 +35,7 @@
 void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     twi_options_t i2c_opt;
 
-    // determine the SPI to use
+    // determine the I2C to use
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
     obj->i2c = (Twi *)pinmap_merge(i2c_sda, i2c_scl);
@@ -44,9 +44,9 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     pinmap_pinout(sda, PinMap_I2C_SDA);
     pinmap_pinout(scl, PinMap_I2C_SCL);
 
+    /* Enable the peripheral and set TWI mode. */
     if (obj->i2c == TWI0) {
 		sysclk_enable_peripheral_clock(ID_FLEXCOM0);
-        /* Enable the peripheral and set TWI mode. */
         flexcom_enable(FLEXCOM0);
         flexcom_set_opmode(FLEXCOM0, FLEXCOM_TWI);
 	} else if (obj->i2c == TWI1) {

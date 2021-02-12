@@ -77,28 +77,18 @@ typedef enum {
 // } PWMName;
 // #endif
 
-// #if DEVICE_SPI
-// typedef enum {
-// #ifdef USART0_BASE
-    // SPI_0 = USART0_BASE,
-// #endif
-// #ifdef USART1_BASE
-    // SPI_1 = USART1_BASE,
-// #endif
-// #ifdef USART2_BASE
-    // SPI_2 = USART2_BASE,
-// #endif
-// #ifdef USART3_BASE
-    // SPI_3 = USART3_BASE,
-// #endif
-// #ifdef USART4_BASE
-    // SPI_4 = USART4_BASE,
-// #endif
-// #ifdef USART5_BASE
-    // SPI_5 = USART5_BASE,
-// #endif
-// } SPIName;
-// #endif
+#if DEVICE_SPI
+#define SPI_COUNT 7
+typedef enum {
+    SPI_0 = (uint8_t)((uint32_t)SPI0 >> 12),
+    SPI_2 = (uint8_t)((uint32_t)SPI2 >> 12),
+    SPI_3 = (uint8_t)((uint32_t)SPI3 >> 12),
+    SPI_4 = (uint8_t)((uint32_t)SPI4 >> 12),
+    SPI_5 = (uint8_t)((uint32_t)SPI5 >> 12),
+    SPI_6 = (uint8_t)((uint32_t)SPI6 >> 12),
+    SPI_7 = (uint8_t)((uint32_t)SPI7 >> 12),
+} SPIName;
+#endif
 
 #if DEVICE_SERIAL
 typedef enum {
