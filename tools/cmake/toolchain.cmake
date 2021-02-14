@@ -19,8 +19,8 @@ function(mbed_generate_options_for_linker target definitions_file)
     set(_compile_definitions
         "$<$<BOOL:${_compile_definitions}>:-D$<JOIN:${_compile_definitions}, -D>>"
     )
-    file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/compile_time_defs.txt" CONTENT "${_compile_definitions}\n")
-    set(${definitions_file} @${CMAKE_BINARY_DIR}/compile_time_defs.txt PARENT_SCOPE)
+    file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/compile_time_defs.txt" CONTENT "${_compile_definitions}\n")
+    set(${definitions_file} @${CMAKE_CURRENT_BINARY_DIR}/compile_time_defs.txt PARENT_SCOPE)
 endfunction()
 # Set the system processor depending on the CPU core type
 if (MBED_CPU_CORE STREQUAL Cortex-A9)

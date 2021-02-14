@@ -5,7 +5,7 @@
 # Preprocesses and sets the linker script for an Mbed target.
 #
 function(mbed_set_linker_script input_target raw_linker_script_path)
-    set(LINKER_SCRIPT_PATH ${CMAKE_BINARY_DIR}/${input_target}.link_script.ld)
+    set(LINKER_SCRIPT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${input_target}.link_script.ld)
     # To avoid path limits on Windows, we create a "response file" and set the path to it as a
     # global property. We need this solely to pass the compile definitions to GCC's preprocessor,
     # so it can expand any macro definitions in the linker script.
