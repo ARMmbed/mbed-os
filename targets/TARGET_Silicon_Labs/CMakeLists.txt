@@ -1,15 +1,12 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("EFM32" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_EFM32)
-endif()
+add_subdirectory(TARGET_EFM32 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_SL_RAIL EXCLUDE_FROM_ALL)
 
-if("SL_RAIL" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_SL_RAIL)
-endif()
+add_library(mbed-silicon-labs INTERFACE)
 
-target_include_directories(mbed-core
+target_include_directories(mbed-silicon-labs
     INTERFACE
         .
 )
