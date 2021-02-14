@@ -111,3 +111,5 @@ target_sources(mbed-aducm4050
 
         bsp/xint/adi_xint.c
 )
+
+target_link_libraries(mbed-aducm4050 INTERFACE mbed-analog-devices)

@@ -111,3 +111,5 @@ target_sources(mbed-aducm3029
 
         bsp/xint/adi_xint.c
 )
+
+target_link_libraries(mbed-aducm3029 INTERFACE mbed-analog-devices)
