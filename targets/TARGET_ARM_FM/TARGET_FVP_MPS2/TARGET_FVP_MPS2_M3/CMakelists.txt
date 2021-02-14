@@ -24,4 +24,4 @@ target_sources(mbed-fvp-mps2-m3
         ${STARTUP_FILE}
 )
 
-target_link_libraries(mbed-fvp-mps2-m3 INTERFACE mbed-fvp-mps2 mbed-arm-fm)
+target_link_libraries(mbed-fvp-mps2-m3 INTERFACE mbed-fvp-mps2)

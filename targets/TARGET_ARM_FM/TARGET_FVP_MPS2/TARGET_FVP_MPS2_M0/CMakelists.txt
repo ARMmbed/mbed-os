@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 add_library(mbed-fvp-mps2-m0 INTERFACE)
@@ -24,4 +24,4 @@ target_sources(mbed-fvp-mps2-m0
         ${STARTUP_FILE}
 )
 
-target_link_libraries(mbed-fvp-mps2-m0 INTERFACE mbed-fvp-mps2 mbed-arm-fm)
+target_link_libraries(mbed-fvp-mps2-m0 INTERFACE mbed-fvp-mps2)
