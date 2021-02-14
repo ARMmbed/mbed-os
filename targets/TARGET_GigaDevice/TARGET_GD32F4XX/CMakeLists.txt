@@ -85,7 +85,7 @@ target_sources(mbed-gd32f4xx
         ${STARTUP_FILE}
 )
 
-mbed_set_linker_script(mbed-gd32-f450zi ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-gd32f4xx ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
 target_link_libraries(mbed-gd32f4xx INTERFACE mbed-gigadevice)
 target_link_libraries(mbed-gd32-f450zi INTERFACE mbed-gd32f4xx)
