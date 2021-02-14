@@ -1,6 +1,8 @@
 # Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include(${MBED_PATH}/targets/TARGET_NXP/scripts/mbed_set_post_build_nxp.cmake)
+
 add_subdirectory(TARGET_FF_LPC546XX EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_LPCXpresso EXCLUDE_FROM_ALL)
 
@@ -91,3 +93,5 @@ target_link_libraries(mbed-lpc546xx
         mbed-mcu-lpc546xx
         mbed-lpc546xx-xpresso
 )
+
+mbed_post_build_lpc_patch_vtable()

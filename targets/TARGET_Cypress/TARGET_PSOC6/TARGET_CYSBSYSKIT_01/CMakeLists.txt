@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include(${MBED_PATH}/targets/TARGET_Cypress/scripts/mbed_set_post_build_cypress.cmake)
+
 if("BSP_DESIGN_MODUS" IN_LIST MBED_TARGET_LABELS)
     target_include_directories(mbed-core
         INTERFACE
@@ -47,3 +49,5 @@ target_sources(mbed-core
         ${SYSTEM_SOURCE}
         ${STARTUP_FILE}
 )
+
+mbed_post_build_psoc6_merge_hex()

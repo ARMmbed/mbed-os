@@ -36,6 +36,14 @@ The following targets are supported:
 - Toshiba targets
 - WICED targets
 
+The post build operations is only supported for the following Mbed boards:
+LPC1114, LPC1768, ARCH_PRO, LPC54114,
+LPC546XX, FF_LPC546XX, CY8CKIT064B0S2_4343W, CYTFM_064B0S2_4343W, CYSBSYSKIT_01.
+
+The following Mbed boards do not have post build operations support as TFM
+is not yet supported:
+ARM_MUSCA_B1, ARM_MUSCA_B1_NS, ARM_MUSCA_S1, ARM_MUSCA_S1_NS.
+
 ### Supported toolchains
 
 Arm Compiler 6 and GNU Arm Embedded toolchains are supported.
