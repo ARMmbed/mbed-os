@@ -36,3 +36,5 @@ target_sources(mbed-fvp-mps2
 
         SDK/fpga.c
 )
+
+target_link_libraries(mbed-fvp-mps2 INTERFACE mbed-arm-fm)
