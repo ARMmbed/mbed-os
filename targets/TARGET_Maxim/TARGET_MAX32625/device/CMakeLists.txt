@@ -9,7 +9,7 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE_BOOT TOOLCHAIN_ARM_STD/TARGET_MAX32625_BOOT/MAX32625.sct)
 endif()
 
-mbed_set_linker_script(mbed-max32625-boot ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-max32625-boot ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE_BOOT})
 
 add_library(mbed-max32625-no-boot INTERFACE)
 
@@ -19,5 +19,4 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE_NO_BOOT device/TOOLCHAIN_ARM_STD/TARGET_MAX32625_NO_BOOT/MAX32625.sct)
 endif()
 
-mbed_set_linker_script(mbed-max32625-no-boot ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
-
+mbed_set_linker_script(mbed-max32625-no-boot ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE_NO_BOOT})
