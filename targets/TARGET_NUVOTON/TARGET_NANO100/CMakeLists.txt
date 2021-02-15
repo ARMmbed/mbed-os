@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
@@ -7,9 +7,9 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE device/TOOLCHAIN_ARM/NANO130.sct)
 endif()
 
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+add_library(mbed-nano100 INTERFACE)
 
-target_sources(mbed-core
+target_sources(mbed-nano100
     INTERFACE
         device/cmsis_nvic.c
         device/startup_Nano100Series.c
@@ -60,9 +60,17 @@ target_sources(mbed-core
         watchdog_api.c
 )
 
-target_include_directories(mbed-core
+target_include_directories(mbed-nano100
     INTERFACE
         .
         device
         device/StdDriver
 )
+
+target_link_libraries(mbed-nano100 INTERFACE mbed-nuvoton)
+
+mbed_set_linker_script(mbed-nano100 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+
+add_library(mbed-numaker-pfm-nano130 INTERFACE)
+
+target_link_libraries(mbed-numaker-pfm-nano130 INTERFACE mbed-nano100)

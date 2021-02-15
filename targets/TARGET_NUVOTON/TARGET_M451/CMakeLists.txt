@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
@@ -7,9 +7,9 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE device/TOOLCHAIN_ARM/M453.sct)
 endif()
 
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+add_library(mbed-m451 INTERFACE)
 
-target_sources(mbed-core
+target_sources(mbed-m451
     INTERFACE
         analogin_api.c
         analogout_api.c
@@ -61,9 +61,18 @@ target_sources(mbed-core
         watchdog_api.c
 )
 
-target_include_directories(mbed-core
+target_include_directories(mbed-m451
     INTERFACE
         .
         device
         device/StdDriver
 )
+
+target_link_libraries(mbed-m451 INTERFACE mbed-nuvoton)
+
+mbed_set_linker_script(mbed-m451 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+
+
+add_library(mbed-numaker-pfm-m453 INTERFACE)
+
+target_link_libraries(mbed-numaker-pfm-m453 INTERFACE mbed-m451)
