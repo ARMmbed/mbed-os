@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_library(mbed-arm-cm3ds-mps2 INTERFACE)
+
 if(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE device/TOOLCHAIN_ARM_STD/MPS2.sct)
     set(STARTUP_FILE device/TOOLCHAIN_ARM_STD/startup_MPS2.S)
@@ -9,9 +11,9 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(STARTUP_FILE device/TOOLCHAIN_GCC_ARM/startup_MPS2.S)
 endif()
 
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-arm-cm3ds-mps2 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_include_directories(mbed-core
+target_include_directories(mbed-arm-cm3ds-mps2
     INTERFACE
         .
         device
@@ -21,7 +23,7 @@ target_include_directories(mbed-core
         device/drivers/timer_cmsdk
 )
 
-target_sources(mbed-core
+target_sources(mbed-arm-cm3ds-mps2
     INTERFACE
         analogin_api.c
         cmsdk_ticker.c
@@ -60,4 +62,9 @@ target_sources(mbed-core
 
         device/drivers/timer_cmsdk/timer_cmsdk_drv.c
         ${STARTUP_FILE}
+)
+
+target_link_libraries(mbed-arm-cm3ds-mps2
+    INTERFACE
+        mbed-arm-ssg
 )

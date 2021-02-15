@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_library(mbed-arm-musca-s1 INTERFACE)
+
 if(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE device/TOOLCHAIN_ARMC6/musca_ns.sct)
     set(STARTUP_FILE device/TOOLCHAIN_ARMC6/startup_cmsdk_musca_ns.S)
@@ -9,9 +11,9 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(STARTUP_FILE device/TOOLCHAIN_GCC_ARM/startup_cmsdk_musca_ns.S)
 endif()
 
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-arm-musca-s1 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_include_directories(mbed-core
+target_include_directories(mbed-arm-musca-s1
     INTERFACE
         .
         device
@@ -20,7 +22,7 @@ target_include_directories(mbed-core
         partition
 )
 
-target_sources(mbed-core
+target_sources(mbed-arm-musca-s1
     INTERFACE
         flash_api_qspi.c
         gpio_api_ns.c
@@ -54,7 +56,8 @@ target_sources(mbed-core
         ${STARTUP_FILE}
 )
 
-target_link_libraries(mbed-core
+target_link_libraries(mbed-arm-musca-s1
     INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/s_veneers.o
+        mbed-arm-ssg
 )
