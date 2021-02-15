@@ -38,6 +38,10 @@
 extern "C" {
 #endif
 
+#if RTC_FROM_HSE && !(TARGET_STM32F2 || TARGET_STM32F3 || TARGET_STM32F4)
+#error "RTC from HSE not supported for this target"
+#endif
+
 #if RTC_FROM_HSE
 #define RTC_CLOCK 1000000U
 #elif MBED_CONF_TARGET_LSE_AVAILABLE
