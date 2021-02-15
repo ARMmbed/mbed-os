@@ -195,11 +195,11 @@ function(mbed_generate_bin_hex target)
         VERBATIM
     )
 
-    if(TARGET mbed-post-build-bin)
+    if(TARGET mbed-post-build-bin-${MBED_TARGET})
         add_custom_target(mbed-post-build
             ALL
             DEPENDS
-                mbed-post-build-bin
+                mbed-post-build-bin-${MBED_TARGET}
         )
     endif()
 endfunction()

@@ -33,4 +33,4 @@ target_sources(mbed-lpc54114-m4
 
 mbed_set_linker_script(mbed-lpc54114-m4 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-mbed_post_build_lpc_patch_vtable()
+mbed_post_build_lpc_patch_vtable("LPC54114")

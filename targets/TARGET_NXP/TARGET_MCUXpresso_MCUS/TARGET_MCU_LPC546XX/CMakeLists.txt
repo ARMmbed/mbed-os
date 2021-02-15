@@ -94,4 +94,5 @@ target_link_libraries(mbed-lpc546xx
         mbed-lpc546xx-xpresso
 )
 
-mbed_post_build_lpc_patch_vtable()
+mbed_post_build_lpc_patch_vtable("LPC546XX")
+mbed_post_build_lpc_patch_vtable("FF_LPC546XX")
