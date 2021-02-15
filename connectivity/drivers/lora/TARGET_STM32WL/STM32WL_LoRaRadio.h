@@ -35,11 +35,12 @@ SPDX-License-Identifier: BSD-3-Clause
 #ifndef MBED_LORA_RADIO_DRV_STM32WL_LORARADIO_H_
 #define MBED_LORA_RADIO_DRV_STM32WL_LORARADIO_H_
 
-#include "mbed_critical.h"
-#include "DigitalOut.h"
+#include "platform/mbed_critical.h"
+#include "drivers/DigitalOut.h"
 #include "platform/PlatformMutex.h"
-#include "STM32WL_radio_driver.h"
 #include "lorawan/LoRaRadio.h"
+
+#include "STM32WL_radio_driver.h"
 
 // Data buffer used for both TX and RX
 // Size of this buffer is configurable via Mbed config system
