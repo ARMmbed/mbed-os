@@ -26,10 +26,7 @@ typedef enum {
 } UARTName;
 
 typedef enum {
-    ADC0_0 = 26,
-    ADC0_1,
-    ADC0_2,
-    ADC0_3
+    ADC0 = 0,
 } ADCName;
 
 typedef enum {

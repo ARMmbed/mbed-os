@@ -204,3 +204,17 @@ const PinMap PinMap_I2C_SCL[] = {
     {p29, I2C_0, (uint32_t) i2c0},
     {NC, NC, 0}
 };
+
+/************ADC***************/
+/* ADC inputs 0-3 are GPIOs 26-29, ADC input 4
+ * is the onboard temperature sensor.
+ */
+const PinMap PinMap_ADC[] = {
+    { A0,       ADC0, 0},
+    { A1,       ADC0, 1},
+    { A2,       ADC0, 2},
+    { A3,       ADC0, 3},
+    { ADC_TEMP, ADC0, 4},
+    { NC,       NC,   0}
+};
+

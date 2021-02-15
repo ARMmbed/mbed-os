@@ -80,8 +80,6 @@ struct port_s {
 
 /* common objects */
 struct analogin_s {
-    ADCName adc;
-    PinName pin;
     uint8_t channel;
 };
 
