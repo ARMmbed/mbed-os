@@ -1,13 +1,12 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("GD32F30X" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_GD32F30X)
-elseif("GD32F4XX" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_GD32F4XX)
-endif()
+add_subdirectory(TARGET_GD32F30X EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_GD32F4XX EXCLUDE_FROM_ALL)
 
-target_include_directories(mbed-core
+add_library(mbed-gigadevice INTERFACE)
+
+target_include_directories(mbed-gigadevice
     INTERFACE
         .
 )
