@@ -41,7 +41,7 @@ LPC546XX, FF_LPC546XX, CY8CKIT064B0S2_4343W, CYTFM_064B0S2_4343W, CYSBSYSKIT_01.
 
 The following Mbed boards do not have post build operations support as TFM
 is not yet supported:
-ARM_MUSCA_B1, ARM_MUSCA_B1_NS, ARM_MUSCA_S1, ARM_MUSCA_S1_NS.
+ARM_MUSCA_B1, ARM_MUSCA_S1.
 
 ### Supported toolchains
 
