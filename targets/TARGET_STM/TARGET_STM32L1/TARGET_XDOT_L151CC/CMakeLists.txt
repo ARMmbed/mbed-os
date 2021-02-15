@@ -32,7 +32,7 @@ target_link_libraries(mbed-xdot-l151cc INTERFACE mbed-stm32l1)
 
 
 # Same target as XDOT_L151CC
-add_library(mbed-ff-1705-l151cc INTERFACE)
+add_library(mbed-ff1705-l151cc INTERFACE)
 
-target_link_libraries(mbed-xdot-l151cc INTERFACE mbed-xdot-l151cc)
+target_link_libraries(mbed-ff1705-l151cc INTERFACE mbed-xdot-l151cc)
 

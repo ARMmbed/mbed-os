@@ -72,6 +72,20 @@ target_compile_definitions(mbed-core
         ${MBED_CONFIG_DEFINITIONS}
 )
 
+# We need to generate a "response file" to pass to the C preprocessor when we preprocess the linker
+# script, because of path length limitations on Windows. We set the response file and bind the path
+# to a global property here. The MBED_TARGET being built queries this global property when it sets
+# the linker script.
+#
+# We must set this global property before the targets subdirectory is added to the project. This is
+# required because the MBED_TARGET depends on the response file. If the path to the response file
+# is not defined when the target requests it the config definitions will not be passed to CPP.
+#
+# TODO: Remove this and find a more idiomatic way of passing compile definitions to CPP without
+# using response files or global properties.
+mbed_generate_options_for_linker(mbed-core RESPONSE_FILE_PATH)
+set_property(GLOBAL PROPERTY COMPILE_DEFS_RESPONSE_FILE ${RESPONSE_FILE_PATH})
+
 # Add compile definitions for backward compatibility with the toolchain
 # supported. New source files should instead check for __GNUC__ and __clang__
 # for the GCC_ARM and ARM toolchains respectively.
@@ -144,15 +158,6 @@ endif()
 # Note, this function will be removed in the next revisions
 #
 function(mbed_configure_app_target target)
-    # We need to generate a "response file" to pass to the C preprocessor because of path length
-    # limitations on Windows. We set the response file and bind the path to a global property here.
-    # We query this global property when we set the linker script for the MBED_TARGET being built.
-    #
-    # TODO: Remove this and find a more idiomatic way of passing compile definitions to CPP without
-    # using global properties.
-    mbed_generate_options_for_linker(${target} LINKER_PREPROCESS_DEFINITIONS)
-    set_property(GLOBAL PROPERTY COMPILE_DEFS_RESPONSE_FILE ${LINKER_PREPROCESS_DEFINITIONS})
-
     # Gcc Arm requires memap to be set with app name, equally to ARMClang
     # TODO: move this to toolchain and set properly
     if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")

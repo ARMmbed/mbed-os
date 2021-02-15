@@ -14,3 +14,7 @@ target_include_directories(mbed-nucleo-l496zg
 )
 
 target_link_libraries(mbed-nucleo-l496zg INTERFACE mbed-stm32l496xg)
+
+
+add_library(mbed-nucleo-l496zg-p INTERFACE)
+target_link_libraries(mbed-nucleo-l496zg-p INTERFACE mbed-nucleo-l496zg)
