@@ -34,7 +34,6 @@ The following targets are supported:
 - Silicon Labs targets
 - STM targets
 - Toshiba targets
-- WICED targets
 
 The post build operations is only supported for the following Mbed boards:
 LPC1114, LPC1768, ARCH_PRO, LPC54114,

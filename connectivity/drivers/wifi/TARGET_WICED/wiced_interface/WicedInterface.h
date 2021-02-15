@@ -29,13 +29,12 @@
 /** WicedInterface class
  *  Implementation of the NetworkStack for the Wiced
  */
-class WicedInterface : public WiFiInterface, public EMACInterface
-{
+class WicedInterface : public WiFiInterface, public EMACInterface {
 public:
 
     WicedInterface(
-            EMAC &emac = WICED_EMAC::get_instance(),
-            OnboardNetworkStack &stack = OnboardNetworkStack::get_default_instance());
+        EMAC &emac = WICED_EMAC::get_instance(),
+        OnboardNetworkStack &stack = OnboardNetworkStack::get_default_instance());
 
     /** Start the interface
      *
@@ -80,7 +79,8 @@ public:
      *  @param channel   Channel on which the connection is to be made, or 0 for any (Default: 0)
      *  @return          Not supported, returns NSAPI_ERROR_UNSUPPORTED
      */
-    nsapi_error_t set_channel(uint8_t channel) {
+    nsapi_error_t set_channel(uint8_t channel)
+    {
         if (channel != 0) {
             return NSAPI_ERROR_UNSUPPORTED;
         }

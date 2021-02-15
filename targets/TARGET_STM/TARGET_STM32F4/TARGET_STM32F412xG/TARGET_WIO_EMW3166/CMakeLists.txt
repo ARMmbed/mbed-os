@@ -1,16 +1,16 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(WIO_EMW3166 INTERFACE)
+add_library(mbed-wio-emw3166 INTERFACE)
 
-target_sources(WIO_EMW3166
+target_sources(mbed-wio-emw3166
     INTERFACE
         PeripheralPins.c
 )
 
-target_include_directories(WIO_EMW3166
+target_include_directories(mbed-wio-emw3166
     INTERFACE
         .
 )
 
-target_link_libraries(WIO_EMW3166 INTERFACE STM32F412xG)
+target_link_libraries(mbed-wio-emw3166 INTERFACE mbed-wiced mbed-stm32f412xg)

@@ -154,7 +154,6 @@ public:
     emac_link_input_cb_t emac_link_input_cb; /**< Callback for incoming data */
     emac_link_state_change_cb_t emac_link_state_cb;
     EMACMemoryManager *memory_manager;
-    
 };
 
 #endif /* WICED_EMAC_H_ */
