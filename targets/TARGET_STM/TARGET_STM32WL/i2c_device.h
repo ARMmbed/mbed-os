@@ -37,36 +37,20 @@ extern "C" {
 static inline uint32_t get_i2c_timing(int hz)
 {
     uint32_t tim = 0;
-    if (SystemCoreClock == 64000000) {
-        // Common settings: I2C clock = 64 MHz, Analog filter = ON, Digital filter coefficient = 0
-        switch (hz) {
-            case 100000:
-                tim = 0x10707DBC; // Standard mode with Rise Time = 400ns and Fall Time = 100ns
-                break;
-            case 400000:
-                tim = 0x00602173; // Fast mode with Rise Time = 250ns and Fall Time = 100ns
-                break;
-            case 1000000:
-                tim = 0x00300B29; // Fast mode Plus with Rise Time = 60ns and Fall Time = 100ns
-                break;
-            default:
-                break;
-        }
-    } else if (SystemCoreClock == 32000000) {
-        // Common settings: I2C clock = 32 MHz, Analog filter = ON, Digital filter coefficient = 0
-        switch (hz) {
-            case 100000:
-                tim = 0x00707CBB; // Standard mode with Rise Time = 400ns and Fall Time = 100ns
-                break;
-            case 400000:
-                tim = 0x00300F38; // Fast mode with Rise Time = 250ns and Fall Time = 100ns
-                break;
-            case 1000000:
-                tim = 0x00100413; // Fast mode Plus with Rise Time = 60ns and Fall Time = 100ns
-                break;
-            default:
-                break;
-        }
+
+    // Common settings: I2C clock = 48 MHz, Analog filter = ON, Digital filter coefficient = 0
+    switch (hz) {
+        case 100000:
+            tim = 0x20E03F53; // Standard mode with Rise Time = 640ns and Fall Time = 20ns
+            break;
+        case 400000:
+            tim = 0x20500817; // Fast mode with Rise Time = 250ns and Fall Time = 100ns
+            break;
+        case 1000000:
+            tim = 0x00500A18; // Fast mode Plus with Rise Time = 60ns and Fall Time = 100ns
+            break;
+        default:
+            break;
     }
     return tim;
 }
