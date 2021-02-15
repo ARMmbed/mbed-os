@@ -1,115 +1,94 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("SCL" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(COMPONENT_SCL EXCLUDE_FROM_ALL)
-endif()
+add_subdirectory(COMPONENT_SCL EXCLUDE_FROM_ALL)
+add_subdirectory(COMPONENT_WHD EXCLUDE_FROM_ALL)
+add_subdirectory(common/COMPONENT_WHD EXCLUDE_FROM_ALL)
 
-if("WHD" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(COMPONENT_WHD EXCLUDE_FROM_ALL)
-    add_subdirectory(common/COMPONENT_WHD EXCLUDE_FROM_ALL)
-endif()
+add_library(mbed-cat1a INTERFACE)
 
-if("CAT1A" IN_LIST MBED_TARGET_LABELS)
-    target_include_directories(mbed-core
-        INTERFACE
-            psoc6pdl/devices/COMPONENT_CAT1A/include
-            psoc6pdl/devices/COMPONENT_CAT1A/include/ip
-    )
-endif()
+target_include_directories(mbed-cat1a
+    INTERFACE
+        psoc6pdl/devices/COMPONENT_CAT1A/include
+        psoc6pdl/devices/COMPONENT_CAT1A/include/ip
+)
 
-if("CY8CKIT064B0S2_4343W" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_CY8CKIT064B0S2_4343W)
-elseif("CY8CKIT_062S2_43012" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_CY8CKIT_062S2_43012)
-elseif("CY8CKIT_062_BLE" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_CY8CKIT_062_BLE)
-elseif("CY8CKIT_062_WIFI_BT" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_CY8CKIT_062_WIFI_BT)
-elseif("CY8CPROTO_062S3_4343W" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_CY8CPROTO_062S3_4343W)
-elseif("CY8CPROTO_062_4343W" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_CY8CPROTO_062_4343W)
-elseif("CYSBSYSKIT_01" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_CYSBSYSKIT_01)
-elseif("CYTFM_064B0S2_4343W" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_CYTFM_064B0S2_4343W)
-elseif("CYW9P62S1_43012EVB_01" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_CYW9P62S1_43012EVB_01)
-elseif("CYW9P62S1_43438EVB_01" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_CYW9P62S1_43438EVB_01)
-endif()
+add_subdirectory(TARGET_CY8CKIT064B0S2_4343W EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_CY8CKIT_062S2_43012 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_CY8CKIT_062_BLE EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_CY8CKIT_062_WIFI_BT EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_CY8CPROTO_062S3_4343W EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_CY8CPROTO_062_4343W EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_CYSBSYSKIT_01 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_CYTFM_064B0S2_4343W EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_CYW9P62S1_43012EVB_01 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_CYW9P62S1_43438EVB_01 EXCLUDE_FROM_ALL)
 
 add_subdirectory(psoc6csp/abstraction/rtos EXCLUDE_FROM_ALL)
 
-if("CM0P_BLESS" IN_LIST MBED_TARGET_LABELS)
-    target_sources(mbed-core
-        INTERFACE
-            psoc6cm0p/COMPONENT_CM0P_BLESS/psoc6_cm0p_bless.c
-    )
-endif()
+add_library(mbed-cm0p-bless INTERFACE)
+target_sources(mbed-cm0p-bless
+    INTERFACE
+        psoc6cm0p/COMPONENT_CM0P_BLESS/psoc6_cm0p_bless.c
+)
 
-if("CM0P_CRYPTO" IN_LIST MBED_TARGET_LABELS)
-    target_sources(mbed-core
-        INTERFACE
-            psoc6cm0p/COMPONENT_CM0P_CRYPTO/psoc6_01_cm0p_crypto.c
-            psoc6cm0p/COMPONENT_CM0P_CRYPTO/psoc6_02_cm0p_crypto.c
-            psoc6cm0p/COMPONENT_CM0P_CRYPTO/psoc6_03_cm0p_crypto.c
-            psoc6cm0p/COMPONENT_CM0P_CRYPTO/psoc6_04_cm0p_crypto.c
-    )
-endif()
+add_library(mbed-cm0p-crypto INTERFACE)
+target_sources(mbed-cm0p-crypto
+    INTERFACE
+        psoc6cm0p/COMPONENT_CM0P_CRYPTO/psoc6_01_cm0p_crypto.c
+        psoc6cm0p/COMPONENT_CM0P_CRYPTO/psoc6_02_cm0p_crypto.c
+        psoc6cm0p/COMPONENT_CM0P_CRYPTO/psoc6_03_cm0p_crypto.c
+        psoc6cm0p/COMPONENT_CM0P_CRYPTO/psoc6_04_cm0p_crypto.c
+)
 
-if("CM0P_SECURE" IN_LIST MBED_TARGET_LABELS)
-    target_sources(mbed-core
-        INTERFACE
-            psoc6cm0p/COMPONENT_CM0P_SECURE/psoc6_02_cm0p_secure.c
-            psoc6cm0p/COMPONENT_CM0P_SECURE/psoc6_03_cm0p_secure.c
-    )
-endif()
+add_library(mbed-cm0p-secure INTERFACE)
+target_sources(mbed-cm0p-secure
+    INTERFACE
+        psoc6cm0p/COMPONENT_CM0P_SECURE/psoc6_02_cm0p_secure.c
+        psoc6cm0p/COMPONENT_CM0P_SECURE/psoc6_03_cm0p_secure.c
+)
 
-if("CM0P_SLEEP" IN_LIST MBED_TARGET_LABELS)
-    target_sources(mbed-core
-        INTERFACE
-            psoc6cm0p/COMPONENT_CM0P_SLEEP/psoc6_01_cm0p_sleep.c
-            psoc6cm0p/COMPONENT_CM0P_SLEEP/psoc6_02_cm0p_sleep.c
-            psoc6cm0p/COMPONENT_CM0P_SLEEP/psoc6_03_cm0p_sleep.c
-            psoc6cm0p/COMPONENT_CM0P_SLEEP/psoc6_04_cm0p_sleep.c
-    )
-endif()
+add_library(mbed-cm0p-sleep INTERFACE)
+target_sources(mbed-cm0p-sleep
+    INTERFACE
+        psoc6cm0p/COMPONENT_CM0P_SLEEP/psoc6_01_cm0p_sleep.c
+        psoc6cm0p/COMPONENT_CM0P_SLEEP/psoc6_02_cm0p_sleep.c
+        psoc6cm0p/COMPONENT_CM0P_SLEEP/psoc6_03_cm0p_sleep.c
+        psoc6cm0p/COMPONENT_CM0P_SLEEP/psoc6_04_cm0p_sleep.c
+)
 
-if("UDB_SDIO_P12" IN_LIST MBED_TARGET_LABELS)
-    target_include_directories(mbed-core
-        INTERFACE
-            common/udb-sdio-whd/COMPONENT_UDB_SDIO_P12
-    )
+add_library(mbed-udb-sdio-p12 INTERFACE)
+target_include_directories(mbed-udb-sdio-p12
+    INTERFACE
+        common/udb-sdio-whd/COMPONENT_UDB_SDIO_P12
+)
+target_sources(mbed-udb-sdio-p12
+    INTERFACE
+        common/udb-sdio-whd/COMPONENT_UDB_SDIO_P12/SDIO_HOST_cfg.c
+)
 
-    target_sources(mbed-core
-        INTERFACE
-            common/udb-sdio-whd/COMPONENT_UDB_SDIO_P12/SDIO_HOST_cfg.c
-    )
-elseif("UDB_SDIO_P2" IN_LIST MBED_TARGET_LABELS)
-    target_include_directories(mbed-core
-        INTERFACE
-            common/udb-sdio-whd/COMPONENT_UDB_SDIO_P2
-    )
+add_library(mbed-udb-sdio-p2 INTERFACE)
+target_include_directories(mbed-udb-sdio-p2
+    INTERFACE
+        common/udb-sdio-whd/COMPONENT_UDB_SDIO_P2
+)
+target_sources(mbed-udb-sdio-p2
+    INTERFACE
+        common/udb-sdio-whd/COMPONENT_UDB_SDIO_P2/SDIO_HOST_cfg.c
+)
 
-    target_sources(mbed-core
-        INTERFACE
-            common/udb-sdio-whd/COMPONENT_UDB_SDIO_P2/SDIO_HOST_cfg.c
-    )
-elseif("UDB_SDIO_P9" IN_LIST MBED_TARGET_LABELS)
-    target_include_directories(mbed-core
-        INTERFACE
-            common/udb-sdio-whd/COMPONENT_UDB_SDIO_P9
-    )
+add_library(mbed-udb-sdio-p9 INTERFACE)
+target_include_directories(mbed-udb-sdio-p9
+    INTERFACE
+        common/udb-sdio-whd/COMPONENT_UDB_SDIO_P9
+)
+target_sources(mbed-udb-sdio-p9
+    INTERFACE
+        common/udb-sdio-whd/COMPONENT_UDB_SDIO_P9/SDIO_HOST_cfg.c
+)
 
-    target_sources(mbed-core
-        INTERFACE
-            common/udb-sdio-whd/COMPONENT_UDB_SDIO_P9/SDIO_HOST_cfg.c
-    )
-endif()
-
-target_include_directories(mbed-core
+add_library(mbed-psoc6 INTERFACE)
+target_include_directories(mbed-psoc6
     INTERFACE
         .
         common
@@ -130,7 +109,7 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(ASSEMBLY_ROUTINES psoc6pdl/drivers/source/TOOLCHAIN_GCC_ARM/cy_syslib_gcc.S)
 endif()
 
-target_sources(mbed-core
+target_sources(mbed-psoc6
     INTERFACE
         cy_analogin_api.c
         cy_analogout_api.c
@@ -300,3 +279,8 @@ target_sources(mbed-core
 
         ${ASSEMBLY_ROUTINES}
 )
+
+# TODO: Include only if mbed-baremetal is not used
+if("CY_RTOS_AWARE" IN_LIST MBED_CONFIG_DEFINITIONS)
+    target_link_libraries(mbed-psoc6 INTERFACE mbed-cy-rtos mbed-cy-rtx)
+endif()

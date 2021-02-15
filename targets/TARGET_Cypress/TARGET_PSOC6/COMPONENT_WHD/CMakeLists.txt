@@ -1,67 +1,103 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-cy_psoc6_whd INTERFACE)
+add_library(mbed-cy-psoc6-whd-43012 INTERFACE)
+target_include_directories(mbed-cy-psoc6-whd-43012
+    INTERFACE
+        resources/firmware/COMPONENT_43012
+)
+target_sources(mbed-cy-psoc6-whd-43012 
+    INTERFACE
+        resources/firmware/COMPONENT_43012/43012C0-mfgtest_bin.c
+        resources/firmware/COMPONENT_43012/43012C0-mfgtest_clm_blob.c
+        resources/firmware/COMPONENT_43012/43012C0_bin.c
+        resources/firmware/COMPONENT_43012/43012C0_clm_blob.c
+)
 
-if("43012" IN_LIST MBED_TARGET_LABELS)
-    set(MFGTEST_BIN_C resources/firmware/COMPONENT_43012/43012C0-mfgtest_bin.c)
-    set(MFGTEST_CLM_BLOB_C resources/firmware/COMPONENT_43012/43012C0-mfgtest_clm_blob.c)
-    set(BIN_C resources/firmware/COMPONENT_43012/43012C0_bin.c)
-    set(CLM_BLOB_C resources/firmware/COMPONENT_43012/43012C0_clm_blob.c)
-    set(RESOURCE_INC_DIR resources/firmware/COMPONENT_43012)
-elseif("43438" IN_LIST MBED_TARGET_LABELS)
-    set(MFGTEST_BIN_C resources/firmware/COMPONENT_43438/43438A1-mfgtest_bin.c)
-    set(MFGTEST_CLM_BLOB_C resources/firmware/COMPONENT_43438/43438A1-mfgtest_clm_blob.c)
-    set(BIN_C resources/firmware/COMPONENT_43438/43438A1_bin.c)
-    set(CLM_BLOB_C resources/firmware/COMPONENT_43438/43438A1_clm_blob.c)
-    set(RESOURCE_INC_DIR resources/firmware/COMPONENT_43438)
-elseif("4343W" IN_LIST MBED_TARGET_LABELS)
-    set(MFGTEST_BIN_C resources/firmware/COMPONENT_4343W/4343WA1-mfgtest_bin.c)
-    set(MFGTEST_CLM_BLOB_C resources/firmware/COMPONENT_4343W/4343WA1-mfgtest_clm_blob.c)
-    set(BIN_C resources/firmware/COMPONENT_4343W/4343WA1_bin.c)
-    set(CLM_BLOB_C resources/firmware/COMPONENT_4343W/4343WA1_clm_blob.c)
-    set(RESOURCE_INC_DIR resources/firmware/COMPONENT_4343W)
-endif()
+add_library(mbed-cy-psoc6-whd-43438 INTERFACE)
+target_include_directories(mbed-cy-psoc6-whd-43438
+    INTERFACE
+        resources/firmware/COMPONENT_43438
+)
+target_sources(mbed-cy-psoc6-whd-43438 
+    INTERFACE
+        resources/firmware/COMPONENT_43438/43438A1-mfgtest_bin.c
+        resources/firmware/COMPONENT_43438/43438A1-mfgtest_clm_blob.c
+        resources/firmware/COMPONENT_43438/43438A1_bin.c
+        resources/firmware/COMPONENT_43438/43438A1_clm_blob.c
+)
 
-if("CY8CKIT064B0S2_4343W" IN_LIST MBED_TARGET_LABELS)
-    set(WIFI_NVRAM_IMAGE_INC_DIR resources/nvram/TARGET_CY8CKIT064B0S2_4343W)
-elseif("CY8CKIT_062S2_43012" IN_LIST MBED_TARGET_LABELS)
-    set(WIFI_NVRAM_IMAGE_INC_DIR resources/nvram/TARGET_CY8CKIT_062S2_43012)
-elseif("CY8CKIT_062S2_4343W" IN_LIST MBED_TARGET_LABELS)
-    set(WIFI_NVRAM_IMAGE_INC_DIR resources/nvram/TARGET_CY8CKIT_062S2_4343W)
-elseif("CY8CKIT_062_4343W" IN_LIST MBED_TARGET_LABELS)
-    set(WIFI_NVRAM_IMAGE_INC_DIR resources/nvram/TARGET_CY8CKIT_062_4343W)
-elseif("CY8CKIT_062_WIFI_BT" IN_LIST MBED_TARGET_LABELS)
-    set(WIFI_NVRAM_IMAGE_INC_DIR resources/nvram/TARGET_CY8CKIT_062_WIFI_BT)
-elseif("CY8CKIT_064S1_4343W" IN_LIST MBED_TARGET_LABELS)
-    set(WIFI_NVRAM_IMAGE_INC_DIR resources/nvram/TARGET_CY8CKIT_064S1_4343W)
-elseif("CY8CKIT_064S2_4343W" IN_LIST MBED_TARGET_LABELS)
-    set(WIFI_NVRAM_IMAGE_INC_DIR resources/nvram/TARGET_CY8CKIT_064S2_4343W)
-elseif("CY8CMOD_062S2_43012" IN_LIST MBED_TARGET_LABELS)
-    set(WIFI_NVRAM_IMAGE_INC_DIR resources/nvram/TARGET_CY8CMOD_062S2_43012)
-elseif("CY8CMOD_062S3_4343W" IN_LIST MBED_TARGET_LABELS)
-    set(WIFI_NVRAM_IMAGE_INC_DIR resources/nvram/TARGET_CY8CMOD_062S3_4343W)
-elseif("CY8CMOD_062_4343W" IN_LIST MBED_TARGET_LABELS)
-    set(WIFI_NVRAM_IMAGE_INC_DIR resources/nvram/TARGET_CY8CMOD_062_4343W)
-elseif("CY8CPROTO_062S3_4343W" IN_LIST MBED_TARGET_LABELS)
-    set(WIFI_NVRAM_IMAGE_INC_DIR resources/nvram/TARGET_CY8CPROTO_062S3_4343W)
-elseif("CY8CPROTO_062_4343W" IN_LIST MBED_TARGET_LABELS)
-    set(WIFI_NVRAM_IMAGE_INC_DIR resources/nvram/TARGET_CY8CPROTO_062_4343W)
-elseif("CYTFM_064B0S2_4343W" IN_LIST MBED_TARGET_LABELS)
-    set(WIFI_NVRAM_IMAGE_INC_DIR resources/nvram/TARGET_CYTFM_064B0S2_4343W)
-elseif("CYW943012P6EVB_01" IN_LIST MBED_TARGET_LABELS)
-    set(WIFI_NVRAM_IMAGE_INC_DIR resources/nvram/TARGET_CYW943012P6EVB_01)
-elseif("CYW943012WCD2" IN_LIST MBED_TARGET_LABELS)
-    set(WIFI_NVRAM_IMAGE_INC_DIR resources/nvram/TARGET_CYW943012WCD2)
-elseif("CYW9P62S1_43012CAR_01" IN_LIST MBED_TARGET_LABELS)
-    set(WIFI_NVRAM_IMAGE_INC_DIR resources/nvram/TARGET_CYW9P62S1_43012CAR_01)
-elseif("CYW9P62S1_43012EVB_01" IN_LIST MBED_TARGET_LABELS)
-    set(WIFI_NVRAM_IMAGE_INC_DIR resources/nvram/TARGET_CYW9P62S1_43012EVB_01)
-elseif("CYW9P62S1_43438EVB_01" IN_LIST MBED_TARGET_LABELS)
-    set(WIFI_NVRAM_IMAGE_INC_DIR resources/nvram/TARGET_CYW9P62S1_43438EVB_01)
-endif()
+add_library(mbed-cy-psoc6-whd-4343w INTERFACE)
+target_include_directories(mbed-cy-psoc6-whd-4343w
+    INTERFACE
+        resources/firmware/COMPONENT_4343W
+)
+target_sources(mbed-cy-psoc6-whd-4343w 
+    INTERFACE
+        resources/firmware/COMPONENT_4343W/4343WA1-mfgtest_bin.c
+        resources/firmware/COMPONENT_4343W/4343WA1-mfgtest_clm_blob.c
+        resources/firmware/COMPONENT_4343W/4343WA1_bin.c
+        resources/firmware/COMPONENT_4343W/4343WA1_clm_blob.c
+)
 
-target_include_directories(mbed-cy_psoc6_whd
+add_library(mbed-cy8ckit-062s2-43012-whd INTERFACE)
+target_include_directories(mbed-cy8ckit-062s2-43012-whd INTERFACE resources/nvram/TARGET_CY8CKIT_062S2_43012)
+
+add_library(mbed-cy8ckit-062s2-4343w-whd INTERFACE)
+target_include_directories(mbed-cy8ckit-062s2-4343w-whd INTERFACE resources/nvram/TARGET_CY8CKIT_062S2_4343W)
+
+add_library(mbed-cy8ckit-062-4343w-whd INTERFACE)
+target_include_directories(mbed-cy8ckit-062-4343w-whd INTERFACE resources/nvram/TARGET_CY8CKIT_062_4343W)
+
+add_library(mbed-cy8ckit-062-wifi-bt-whd INTERFACE)
+target_include_directories(mbed-cy8ckit-062-wifi-bt-whd INTERFACE resources/nvram/TARGET_CY8CKIT_062_WIFI_BT)
+
+add_library(mbed-cy8ckit-064s1-4343w-whd INTERFACE)
+target_include_directories(mbed-cy8ckit-064s1-4343w-whd INTERFACE resources/nvram/TARGET_CY8CKIT_064S1_4343W)
+
+add_library(mbed-cy8ckit-064s2-4343w-whd INTERFACE)
+target_include_directories(mbed-cy8ckit-064s2-4343w-whd INTERFACE resources/nvram/TARGET_CY8CKIT_064S2_4343W)
+
+add_library(mbed-cy8cmod-062s2-43012-whd INTERFACE)
+target_include_directories(mbed-cy8cmod-062s2-43012-whd INTERFACE resources/nvram/TARGET_CY8CMOD_062S2_43012)
+
+add_library(mbed-cy8cmod-062s3-4343w-whd INTERFACE)
+target_include_directories(mbed-cy8cmod-062s3-4343w-whd INTERFACE resources/nvram/TARGET_CY8CMOD_062S3_4343W)
+
+add_library(mbed-cy8cmod-062-4343w-whd INTERFACE)
+target_include_directories(mbed-cy8cmod-062-4343w-whd INTERFACE resources/nvram/TARGET_CY8CMOD_062_4343W)
+
+add_library(mbed-cy8cproto-062s3-4343w-whd INTERFACE)
+target_include_directories(mbed-cy8cproto-062s3-4343w-whd INTERFACE resources/nvram/TARGET_CY8CPROTO_062S3_4343W)
+
+add_library(mbed-cy8cproto-062-4343w-whd INTERFACE)
+target_include_directories(mbed-cy8cproto-062-4343w-whd INTERFACE resources/nvram/TARGET_CY8CPROTO_062_4343W)
+
+add_library(mbed-cytfm-064b0s2-4343w-whd INTERFACE)
+target_include_directories(mbed-cytfm-064b0s2-4343w-whd INTERFACE resources/nvram/TARGET_CYTFM_064B0S2_4343W)
+
+add_library(mbed-cyw943012p6evb-01-whd INTERFACE)
+target_include_directories(mbed-cyw943012p6evb-01-whd INTERFACE resources/nvram/TARGET_CYW943012P6EVB_01)
+
+add_library(mbed-cyw943012wcd2-whd INTERFACE)
+target_include_directories(mbed-cyw943012wcd2-whd INTERFACE resources/nvram/TARGET_CYW943012WCD2)
+
+add_library(mbed-cyw9p62s1-43012car-01-whd INTERFACE)
+target_include_directories(mbed-cyw9p62s1-43012car-01-whd INTERFACE resources/nvram/TARGET_CYW9P62S1_43012CAR_01)
+
+add_library(mbed-cyw9p62s1-43012evb-01-whd INTERFACE)
+target_include_directories(mbed-cyw9p62s1-43012evb-01-whd INTERFACE resources/nvram/TARGET_CYW9P62S1_43012EVB_01)
+
+add_library(mbed-cyw9p62s1-43438evb-01-whd INTERFACE)
+target_include_directories(mbed-cyw9p62s1-43438evb-01-whd INTERFACE resources/nvram/TARGET_CYW9P62S1_43438EVB_01)
+
+add_library(mbed-cy8ckit-064b0s2-4343w-whd INTERFACE)
+target_include_directories(mbed-cy8ckit-064b0s2-4343w-whd INTERFACE resources/nvram/TARGET_CY8CKIT_064B0S2_4343W)
+
+
+add_library(mbed-cy-psoc6-whd INTERFACE)
+
+target_include_directories(mbed-cy-psoc6-whd
     INTERFACE
         .
         inc
@@ -69,11 +105,9 @@ target_include_directories(mbed-cy_psoc6_whd
         src
         src/include
         src/bus_protocols
-        ${RESOURCE_INC_DIR}
-        ${WIFI_NVRAM_IMAGE_INC_DIR}
 )
 
-target_sources(mbed-cy_psoc6_whd
+target_sources(mbed-cy-psoc6-whd
     INTERFACE
         resources/resource_imp/whd_resources.c
 
@@ -100,14 +134,9 @@ target_sources(mbed-cy_psoc6_whd
         src/bus_protocols/whd_bus_common.c
         src/bus_protocols/whd_bus_sdio_protocol.c
         src/bus_protocols/whd_bus_spi_protocol.c
-
-        ${MFGTEST_BIN_C}
-        ${MFGTEST_CLM_BLOB_C}
-        ${BIN_C}
-        ${CLM_BLOB_C}
 )
 
-target_compile_definitions(mbed-cy_psoc6_whd
+target_compile_definitions(mbed-cy-psoc6-whd
     INTERFACE
         MBED_CONF_CY_PSOC6_WHD_PRESENT=1
 )
