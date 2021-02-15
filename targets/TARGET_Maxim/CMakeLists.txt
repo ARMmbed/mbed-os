@@ -1,20 +1,19 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("MAX32620C" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_MAX32620C)
-elseif("MAX32625" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_MAX32625)
-elseif("MAX32630" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_MAX32630)
-endif()
 
-target_include_directories(mbed-core
+add_subdirectory(TARGET_MAX32620C EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_MAX32625 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_MAX32630 EXCLUDE_FROM_ALL)
+
+add_library(mbed-maxim INTERFACE)
+
+target_include_directories(mbed-maxim
     INTERFACE
         .
 )
 
-target_sources(mbed-core
+target_sources(mbed-maxim
     INTERFACE
         USBPhy_Maxim.cpp
 )

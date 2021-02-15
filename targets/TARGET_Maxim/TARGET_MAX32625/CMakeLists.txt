@@ -1,56 +1,27 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("MAX32625MBED" IN_LIST MBED_TARGET_LABELS)
-    target_include_directories(mbed-core
-        INTERFACE
-            TARGET_MAX32625MBED
-    )
-elseif("MAX32625PICO" IN_LIST MBED_TARGET_LABELS)
-    target_include_directories(mbed-core
-        INTERFACE
-            TARGET_MAX32625PICO
-    )
-
-    target_sources(mbed-core
-        INTERFACE
-            TARGET_MAX32625PICO/low_level_init.c
-    )
-elseif("SDT32625B" IN_LIST MBED_TARGET_LABELS)
-    target_include_directories(mbed-core
-        INTERFACE
-            TARGET_SDT32625B
-    )
-endif()
+add_subdirectory(TARGET_MAX32625MBED EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_MAX32625PICO EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_SDT32625B EXCLUDE_FROM_ALL)
+add_subdirectory(device EXCLUDE_FROM_ALL)
 
 if(${MBED_TOOLCHAIN} STREQUAL "ARM")
-    if("MAX32625_BOOT" IN_LIST MBED_TARGET_LABELS)
-        set(LINKER_FILE device/TOOLCHAIN_ARM_STD/TARGET_MAX32625_BOOT/MAX32625.sct)
-    elseif("MAX32625_NO_BOOT" IN_LIST MBED_TARGET_LABELS)
-        set(LINKER_FILE device/TOOLCHAIN_ARM_STD/TARGET_MAX32625_NO_BOOT/MAX32625.sct)
-    endif()
-
     set(STARTUP_FILE device/TOOLCHAIN_ARM_STD/startup_MAX32625.S)
 elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
-    if("MAX32625_BOOT" IN_LIST MBED_TARGET_LABELS)
-        set(LINKER_FILE device/TOOLCHAIN_GCC_ARM/TARGET_MAX32625_BOOT/max32625.ld)
-    elseif("MAX32625_NO_BOOT" IN_LIST MBED_TARGET_LABELS)
-        set(LINKER_FILE device/TOOLCHAIN_GCC_ARM/TARGET_MAX32625_NO_BOOT/max32625.ld)
-    endif()
-
     set(STARTUP_FILE device/TOOLCHAIN_GCC_ARM/startup_max32625.S)
 endif()
 
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+add_library(mbed-max32625 INTERFACE)
 
-target_include_directories(mbed-core
+target_include_directories(mbed-max32625
     INTERFACE
         .
         device
         mxc
 )
 
-target_sources(mbed-core
+target_sources(mbed-max32625
     INTERFACE
         PeripheralPins.c
         analogin_api.c
