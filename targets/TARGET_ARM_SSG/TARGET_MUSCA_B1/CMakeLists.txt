@@ -52,10 +52,3 @@ target_link_libraries(mbed-arm-musca-b1
         ${CMAKE_CURRENT_SOURCE_DIR}/s_veneers.o
         mbed-arm-ssg
 )
-
-add_library(mbed-arm-musca-b1-ns INTERFACE)
-
-target_link_libraries(mbed-arm-musca-b1-ns
-    INTERFACE
-        mbed-arm-musca-b1
-)

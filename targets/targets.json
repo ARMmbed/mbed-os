@@ -4726,8 +4726,7 @@
         ],
         "extra_labels_add": [
             "ARM_SSG",
-            "MUSCA_B1",
-            "MUSCA_B1_NS"
+            "MUSCA_B1"
         ],
         "post_binary_hook": {
             "function": "ArmMuscaB1Code.binary_hook"
@@ -4741,11 +4740,6 @@
             "GNUARM"
         ],
         "tfm_delivery_dir": "TARGET_ARM_SSG/TARGET_MUSCA_B1"
-    },
-    "ARM_MUSCA_B1_NS": {
-        "inherits": [
-            "ARM_MUSCA_B1"
-        ]
     },
     "ARM_MUSCA_S1": {
         "inherits": [
@@ -4784,8 +4778,7 @@
         ],
         "extra_labels_add": [
             "ARM_SSG",
-            "MUSCA_S1",
-            "MUSCA_S1_NS"
+            "MUSCA_S1"
         ],
         "post_binary_hook": {
             "function": "ArmMuscaS1Code.binary_hook"
@@ -4801,11 +4794,6 @@
         "tfm_delivery_dir": "TARGET_ARM_SSG/TARGET_MUSCA_S1",
         "detect_code": [
             "5009"
-        ]
-    },
-    "ARM_MUSCA_S1_NS": {
-        "inherits": [
-            "ARM_MUSCA_S1"
         ]
     },
     "RZ_A1XX": {
