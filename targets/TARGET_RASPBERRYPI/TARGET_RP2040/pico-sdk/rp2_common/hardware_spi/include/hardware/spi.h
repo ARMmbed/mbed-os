@@ -86,7 +86,7 @@ typedef enum {
  * and this function does not return any indication of this. You can use the \ref spi_set_baudrate function
  * which will return the actual baudrate selected if this is important.
  */
-void spi_init(spi_inst_t *spi, uint baudrate);
+void _spi_init(spi_inst_t *spi, uint baudrate);
 
 /*! \brief Deinitialise SPI instances
  *  \ingroup hardware_spi

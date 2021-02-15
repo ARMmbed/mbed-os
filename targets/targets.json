@@ -8005,7 +8005,8 @@
             "ANALOGIN",
             "PORT_IN",
             "PORT_OUT",
-            "SERIAL"
+            "SERIAL",
+            "SPI"
         ]
     },
     "NANO_RP2040_CONNECT": {

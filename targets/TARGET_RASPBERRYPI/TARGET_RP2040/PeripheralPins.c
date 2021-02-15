@@ -123,24 +123,24 @@ const PinMap PinMap_PWM_OUT[] = {
 const PinMap PinMap_SPI_MISO[] = {
     {p0,  SPI_0, (uint32_t) spi0},
     {p4,  SPI_0, (uint32_t) spi0},
-    {p8,  SPI_1, (uint32_t) spi0},
-    {p12, SPI_1, (uint32_t) spi0},
+    {p8,  SPI_1, (uint32_t) spi1},
+    {p12, SPI_1, (uint32_t) spi1},
     {p16, SPI_0, (uint32_t) spi0},
     {p20, SPI_0, (uint32_t) spi0},
-    {p24, SPI_1, (uint32_t) spi0},
-    {p28, SPI_1, (uint32_t) spi0},
+    {p24, SPI_1, (uint32_t) spi1},
+    {p28, SPI_1, (uint32_t) spi1},
     {NC, NC, 0}
 };
 
 const PinMap PinMap_SPI_SSEL[] = {
     {p1,  SPI_0, (uint32_t) spi0},
     {p5,  SPI_0, (uint32_t) spi0},
-    {p9,  SPI_1, (uint32_t) spi0},
-    {p13, SPI_1, (uint32_t) spi0},
+    {p9,  SPI_1, (uint32_t) spi1},
+    {p13, SPI_1, (uint32_t) spi1},
     {p17, SPI_0, (uint32_t) spi0},
     {p21, SPI_0, (uint32_t) spi0},
-    {p25, SPI_1, (uint32_t) spi0},
-    {p29, SPI_1, (uint32_t) spi0},
+    {p25, SPI_1, (uint32_t) spi1},
+    {p29, SPI_1, (uint32_t) spi1},
     {NC, NC, 0}
 };
 
