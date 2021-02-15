@@ -8,7 +8,7 @@ target_include_directories(mbed-max32630fthr
         .
 )
 
-target_sources(mbed-core
+target_sources(mbed-max32630fthr
     INTERFACE
         low_level_init.c
 )
