@@ -1,31 +1,31 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-os-stubs-headers INTERFACE)
-add_library(mbed-os-headers INTERFACE)
-add_library(mbed-os-headers-base INTERFACE)
-add_library(mbed-os-headers-platform INTERFACE)
-add_library(mbed-os-headers-connectivity INTERFACE)
-add_library(mbed-os-headers-storage INTERFACE)
-add_library(mbed-os-headers-drivers INTERFACE)
-add_library(mbed-os-headers-hal INTERFACE)
-add_library(mbed-os-headers-events INTERFACE)
-add_library(mbed-os-headers-rtos INTERFACE)
-add_library(mbed-os-stubs)
+add_library(mbed-stubs-headers INTERFACE)
+add_library(mbed-headers INTERFACE)
+add_library(mbed-headers-base INTERFACE)
+add_library(mbed-headers-platform INTERFACE)
+add_library(mbed-headers-connectivity INTERFACE)
+add_library(mbed-headers-storage INTERFACE)
+add_library(mbed-headers-drivers INTERFACE)
+add_library(mbed-headers-hal INTERFACE)
+add_library(mbed-headers-events INTERFACE)
+add_library(mbed-headers-rtos INTERFACE)
 
-target_link_libraries(mbed-os-headers
+
+target_link_libraries(mbed-headers
     INTERFACE
-        mbed-os-headers-base
-        mbed-os-headers-platform
-        mbed-os-headers-connectivity
-        mbed-os-headers-storage
-        mbed-os-headers-drivers
-        mbed-os-headers-hal
-        mbed-os-headers-events
-        mbed-os-headers-rtos
+        mbed-headers-base
+        mbed-headers-platform
+        mbed-headers-connectivity
+        mbed-headers-storage
+        mbed-headers-drivers
+        mbed-headers-hal
+        mbed-headers-events
+        mbed-headers-rtos
 )
 
-target_include_directories(mbed-os-headers-platform
+target_include_directories(mbed-headers-platform
     INTERFACE
         ${MBED_PATH}/platform/include
         ${MBED_PATH}/platform/include/platform
@@ -33,7 +33,7 @@ target_include_directories(mbed-os-headers-platform
         ${MBED_PATH}/platform/mbed-trace/include
 )
 
-target_include_directories(mbed-os-headers-base
+target_include_directories(mbed-headers-base
     INTERFACE
         ${MBED_PATH}/UNITTESTS/target_h
         ${MBED_PATH}/UNITTESTS/target_h/platform
@@ -42,7 +42,7 @@ target_include_directories(mbed-os-headers-base
         ${MBED_PATH}/UNITTESTS/target_h/rtos/include
 )
 
-target_include_directories(mbed-os-headers-storage
+target_include_directories(mbed-headers-storage
     INTERFACE        
         ${MBED_PATH}/storage/filesystem/fat/include
         ${MBED_PATH}/storage/filesystem/fat/ChaN
@@ -60,7 +60,7 @@ target_include_directories(mbed-os-headers-storage
         ${MBED_PATH}/storage/kvstore/kvstore_global_api/include
 )
 
-target_include_directories(mbed-os-headers-connectivity
+target_include_directories(mbed-headers-connectivity
     INTERFACE
         ${MBED_PATH}/connectivity/libraries/nanostack-libservice
         ${MBED_PATH}/connectivity/libraries/nanostack-libservice/mbed-client-libservice
@@ -82,14 +82,14 @@ target_include_directories(mbed-os-headers-connectivity
         ${MBED_PATH}/connectivity/FEATURE_BLE/include/ble
 )
 
-target_include_directories(mbed-os-headers-drivers
+target_include_directories(mbed-headers-drivers
     INTERFACE
         ${MBED_PATH}/drivers
         ${MBED_PATH}/drivers/include
         ${MBED_PATH}/drivers/include/drivers        
 )
 
-target_include_directories(mbed-os-headers-events
+target_include_directories(mbed-headers-events
     INTERFACE
         ${MBED_PATH}/events/tests/UNITTESTS/target_h
         ${MBED_PATH}/events/tests/UNITTESTS/target_h/equeue
@@ -97,107 +97,25 @@ target_include_directories(mbed-os-headers-events
         ${MBED_PATH}/events/include/events/internal        
 )
 
-target_include_directories(mbed-os-headers-hal
+target_include_directories(mbed-headers-hal
     INTERFACE
         ${MBED_PATH}/hal
         ${MBED_PATH}/hal/include
 )
 
-target_include_directories(mbed-os-headers-rtos
+target_include_directories(mbed-headers-rtos
     INTERFACE
         ${MBED_PATH}/rtos/include
 )
 
-target_include_directories(mbed-os-headers
+target_include_directories(mbed-headers
     INTERFACE
         ${MBED_PATH}/features
         ${MBED_PATH}/features/frameworks
 )
 
-target_include_directories(mbed-os-stubs-headers
+target_include_directories(mbed-stubs-headers
     INTERFACE
         ${MBED_PATH}/UNITTESTS/stubs
 )
 
-target_sources(mbed-os-stubs
-    PUBLIC
-        #${MBED_PATH}/UNITTESTS/stubs/aes_stub.c
-        #${MBED_PATH}/UNITTESTS/stubs/AT_CellularContext_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/AT_CellularDevice_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/AT_CellularInformation_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/AT_CellularNetwork_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/AT_CellularSMS_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/AT_CellularStack_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/AT_ControlPlane_netif_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/ATHandler_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/BufferedBlockDevice_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/BufferedSerial_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/CellularContext_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/CellularDevice_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/CellularInterface_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/CellularStateMachine_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/CellularUtil_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/ChainingBlockDevice_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/cipher_stub.c
-        #${MBED_PATH}/UNITTESTS/stubs/cmac_stub.c
-        #${MBED_PATH}/UNITTESTS/stubs/ConditionVariable_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/EmulatedSD.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/equeue_stub.c
-        #${MBED_PATH}/UNITTESTS/stubs/EventFlags_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/EventQueue_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/ExhaustibleBlockDevice_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/FileHandle_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/FlashSimBlockDevice_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/HeapBlockDevice_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/ip4tos_stub.c
-        #${MBED_PATH}/UNITTESTS/stubs/Kernel_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/kv_config_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/LoRaMacChannelPlan_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/LoRaMacCommand_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/LoRaMacCrypto_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/LoRaMac_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/LoRaPHYEU868_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/LoRaPHY_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/LoRaWANStack_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/LoRaWANTimer_stub.cpp
-        ${MBED_PATH}/UNITTESTS/stubs/mbed_assert_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/mbed_atomic_stub.c
-        ${MBED_PATH}/UNITTESTS/stubs/mbed_critical_stub.c
-        #${MBED_PATH}/UNITTESTS/stubs/mbed_error.c
-        #${MBED_PATH}/UNITTESTS/stubs/mbed_poll_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/mbed_retarget_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/mbed_rtos_rtx_stub.c
-        #${MBED_PATH}/UNITTESTS/stubs/mbed_shared_queues_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/mbed_wait_api_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/MBRBlockDevice_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/MeshInterface_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/Mutex_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/NetworkInterfaceDefaults_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/NetworkInterface_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/NetworkStack_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/nsapi_dns_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/nvic_wrapper_stub.c
-        #${MBED_PATH}/UNITTESTS/stubs/ObservingBlockDevice_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/ProfilingBlockDevice_stub.cpp
-        ${MBED_PATH}/UNITTESTS/stubs/pwmout_api_stub.c
-        #${MBED_PATH}/UNITTESTS/stubs/randLIB_stub.c
-        #${MBED_PATH}/UNITTESTS/stubs/randLIB_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/ReadOnlyBlockDevice_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/rtx_mutex_stub.c
-        #${MBED_PATH}/UNITTESTS/stubs/Semaphore_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/SerialBase_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/SlicingBlockDevice_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/SocketAddress_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/SocketStats_Stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/stoip4_stub.c
-        #${MBED_PATH}/UNITTESTS/stubs/ThisThread_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/Thread_stub.cpp
-        #${MBED_PATH}/UNITTESTS/stubs/us_ticker_stub.cpp
-        ${MBED_PATH}/UNITTESTS/stubs/watchdog_api_stub.c
-)
-
-target_link_libraries(mbed-os-stubs
-    PRIVATE
-        mbed-os-stubs-headers
-        mbed-os-headers
-)
