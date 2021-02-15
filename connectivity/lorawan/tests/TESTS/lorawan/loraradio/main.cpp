@@ -32,6 +32,8 @@
 #include "SX1276_LoRaRadio.h"
 #elif COMPONENT_SX126X
 #include "SX126X_LoRaRadio.h"
+#elif (TARGET_STM32WL)
+#include "STM32WL_LoRaRadio.h"
 #else
 #error [NOT_SUPPORTED] Lora radio is not configured
 #endif
@@ -197,6 +199,8 @@ utest::v1::status_t case_setup_handler(const Case *const source, const size_t in
     radio = new SX1276_LoRaRadio();
 #elif COMPONENT_SX126X
     radio = new SX126X_LoRaRadio();
+#elif (TARGET_STM32WL)
+    radio = new STM32WL_LoRaRadio();
 #endif
 
     TEST_ASSERT(radio);
@@ -218,6 +222,10 @@ utest::v1::status_t case_teardown_handler(const Case *const source, const size_t
 
 #elif COMPONENT_SX126X
     delete static_cast<SX126X_LoRaRadio *>(radio);
+
+#elif TARGET_STM32WL
+    delete static_cast<STM32WL_LoRaRadio *>(radio);
+
 #endif
     radio = NULL;
 
