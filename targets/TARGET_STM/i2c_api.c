@@ -80,7 +80,11 @@ static I2C_HandleTypeDef *i2c_handles[I2C_NUM];
    not based on accurate values, they just guarantee that the application will
    not remain stuck if the I2C communication is corrupted.
 */
+#ifdef TARGET_STM32H7
+#define FLAG_TIMEOUT ((int)0x1100)
+#else
 #define FLAG_TIMEOUT ((int)0x1000)
+#endif
 
 /* Declare i2c_init_internal to be used in this file */
 void i2c_init_internal(i2c_t *obj, const i2c_pinmap_t *pinmap);
@@ -478,7 +482,6 @@ void i2c_frequency(i2c_t *obj, int hz)
 #ifdef I2C_IP_VERSION_V2
     /*  Only predefined timing for below frequencies are supported */
     MBED_ASSERT((hz == 100000) || (hz == 400000) || (hz == 1000000));
-    handle->Init.Timing = get_i2c_timing(hz);
 
     // Enable the Fast Mode Plus capability
     if (hz == 1000000) {
@@ -545,6 +548,14 @@ void i2c_frequency(i2c_t *obj, int hz)
 #ifdef I2C_ANALOGFILTER_ENABLE
     /* Enable the Analog I2C Filter */
     HAL_I2CEx_ConfigAnalogFilter(handle, I2C_ANALOGFILTER_ENABLE);
+#endif
+
+#ifdef I2C_IP_VERSION_V2
+#ifdef TARGET_STM32H7
+    handle->Init.Timing = get_i2c_timing(obj_s->i2c, hz);
+#else
+    handle->Init.Timing = get_i2c_timing(hz);
+#endif
 #endif
 
     // I2C configuration
