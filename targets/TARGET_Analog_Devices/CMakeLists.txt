@@ -1,13 +1,12 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("ADUCM302X" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_ADUCM302X)
-elseif("ADUCM4X50" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_ADUCM4X50)
-endif()
+add_subdirectory(TARGET_ADUCM302X EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_ADUCM4X50 EXCLUDE_FROM_ALL)
 
-target_include_directories(mbed-core
+add_library(mbed-analog-devices INTERFACE)
+
+target_include_directories(mbed-analog-devices
     INTERFACE
         .
 )
