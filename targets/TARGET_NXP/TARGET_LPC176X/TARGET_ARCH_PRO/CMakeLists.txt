@@ -12,4 +12,4 @@ target_include_directories(mbed-arch-pro
 
 target_link_libraries(mbed-arch-pro INTERFACE mbed-lpc176x)
 
-mbed_post_build_lpc_patch_vtable()
+mbed_post_build_lpc_patch_vtable("ARCH_PRO")

@@ -6,7 +6,7 @@ include(${MBED_PATH}/tools/cmake/mbed_set_post_build.cmake)
 #
 # Patch an LPC target vector table in the binary file.
 #
-function(mbed_post_build_lpc_patch_vtable)
+function(mbed_post_build_lpc_patch_vtable mbed_target_name)
     find_package(Python3)
 
     set(post_build_command

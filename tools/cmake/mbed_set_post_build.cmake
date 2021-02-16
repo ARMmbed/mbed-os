@@ -5,16 +5,17 @@
 # Sets the post build operation for Mbed targets.
 #
 macro(mbed_set_post_build_operation)
-    add_custom_target(mbed-post-build-bin
-        DEPENDS ${CMAKE_BINARY_DIR}/${APP_TARGET}.bin
+
+    add_custom_target(mbed-post-build-bin-${mbed_target_name}
+        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${APP_TARGET}.bin
     )
 
     # Ensures the application artefacts are created before manipulating them.
-    add_dependencies(mbed-post-build-bin ${APP_TARGET})
+    add_dependencies(mbed-post-build-bin-${mbed_target_name} ${APP_TARGET})
 
     add_custom_command(
         OUTPUT
-        ${CMAKE_BINARY_DIR}/${APP_TARGET}.bin
+        ${CMAKE_CURRENT_BINARY_DIR}/${APP_TARGET}.bin
         POST_BUILD
         COMMAND
             ${post_build_command}

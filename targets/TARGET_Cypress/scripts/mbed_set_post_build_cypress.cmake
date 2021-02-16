@@ -6,14 +6,18 @@ include(${MBED_PATH}/tools/cmake/mbed_set_post_build.cmake)
 #
 # Merge Cortex-M4 HEX and a Cortex-M0 HEX.
 #
-function(mbed_post_build_psoc6_merge_hex)
+function(mbed_post_build_psoc6_merge_hex mbed_target_name)
     find_package(Python3)
 
+    # Copy ${ARGN} to a variable first as it cannot be used directly with
+    # the list() command
     set (extra_macro_args ${ARGN})
 
-    list(LENGTH cortex_m0_hex num_extra_args)
+    # Get the number of arguments past the last expected argument
+    list(LENGTH extra_macro_args num_extra_args)
 
     if(${num_extra_args} GREATER 0)
+        # Get extra argument as `cortex_m0_hex`
         list(GET extra_macro_args 0 cortex_m0_hex)
         set(post_build_command
             COMMAND ${Python3_EXECUTABLE} ${MBED_PATH}/targets/TARGET_Cypress/scripts/PSOC6.py

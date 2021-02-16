@@ -16,4 +16,4 @@ add_library(mbed-lpc1768 INTERFACE)
 
 target_link_libraries(mbed-lpc1768 INTERFACE mbed-mbed-lpc1768)
 
-mbed_post_build_lpc_patch_vtable()
+mbed_post_build_lpc_patch_vtable("LPC1768")
