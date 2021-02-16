@@ -31,7 +31,7 @@ static inline bool i2c_reserved_addr(uint8_t addr) {
     return (addr & 0x78) == 0 || (addr & 0x78) == 0x78;
 }
 
-uint i2c_init(i2c_inst_t *i2c, uint baudrate) {
+uint _i2c_init(i2c_inst_t *i2c, uint baudrate) {
     i2c_reset(i2c);
     i2c_unreset(i2c);
     i2c->restart_on_next = false;

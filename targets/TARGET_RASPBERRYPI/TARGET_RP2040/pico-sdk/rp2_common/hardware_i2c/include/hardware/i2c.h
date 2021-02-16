@@ -80,7 +80,7 @@ extern i2c_inst_t i2c1_inst;
  * \param baudrate Baudrate in Hz (e.g. 100kHz is 100000)
  * \return Actual set baudrate
  */
-uint i2c_init(i2c_inst_t *i2c, uint baudrate);
+uint _i2c_init(i2c_inst_t *i2c, uint baudrate);
 
 /*! \brief   Disable the I2C HW block
  *  \ingroup hardware_i2c
