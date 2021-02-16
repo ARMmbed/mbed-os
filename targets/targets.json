@@ -468,9 +468,6 @@
             "gcc_arm": [
                 "std",
                 "small"
-            ],
-            "iar": [
-                "std"
             ]
         },
         "supported_application_profiles": [
@@ -531,9 +528,6 @@
             "gcc_arm": [
                 "std",
                 "small"
-            ],
-            "iar": [
-                "std"
             ]
         },
         "supported_application_profiles": [
@@ -604,9 +598,6 @@
             "gcc_arm": [
                 "std",
                 "small"
-            ],
-            "iar": [
-                "std"
             ]
         },
         "supported_application_profiles": [
@@ -694,9 +685,6 @@
             "gcc_arm": [
                 "std",
                 "small"
-            ],
-            "iar": [
-                "std"
             ]
         },
         "supported_application_profiles": [
@@ -1172,9 +1160,6 @@
             "gcc_arm": [
                 "std",
                 "small"
-            ],
-            "iar": [
-                "std"
             ]
         },
         "supported_application_profiles": [
