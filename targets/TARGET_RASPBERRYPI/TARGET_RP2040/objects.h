@@ -94,6 +94,7 @@ struct serial_s {
 
 struct i2c_s {
     i2c_inst_t * dev;
+    unsigned int baudrate;
 };
 
 struct spi_s {
