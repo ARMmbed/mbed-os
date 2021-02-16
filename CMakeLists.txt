@@ -132,26 +132,12 @@ add_subdirectory(features EXCLUDE_FROM_ALL)
 add_subdirectory(cmsis/CMSIS_5/CMSIS/RTOS2 EXCLUDE_FROM_ALL)
 add_subdirectory(cmsis/device/rtos EXCLUDE_FROM_ALL)
 
-# This is a temporary workaround to prevent the build from failing for MBED_TARGETS that
-# haven't been converted to build system targets yet.
-# The refactored MBED_TARGETS set the linker script and forward it to the build system as a
-# usage requirement. The 'old' mechanism was to set the linker script on the top level mbed-core
-# target. This was needed because MBED_TARGETS were not registered as buildsystem targets,
-# preventing CMake from working its usage requirements magic and forcing us to set the linker
-# script globally.
-#
 # Ensure the words that make up the Mbed target name are separated with a hyphen, lowercase, and with the `mbed-` prefix.
 string(TOLOWER ${MBED_TARGET} MBED_TARGET_CONVERTED)
 string(REPLACE "_" "-" MBED_TARGET_CONVERTED ${MBED_TARGET_CONVERTED})
 string(PREPEND MBED_TARGET_CONVERTED "mbed-")
 
-# TODO: Remove when all MBED_TARGETS have been converted to build system targets.
-if(TARGET ${MBED_TARGET_CONVERTED})
-    target_link_libraries(mbed-core INTERFACE ${MBED_TARGET_CONVERTED})
-else()
-    get_property(LINKER_SCRIPT GLOBAL PROPERTY MBED_TARGET_LINKER_FILE)
-    mbed_set_linker_script(mbed-core ${LINKER_SCRIPT})
-endif()
+target_link_libraries(mbed-core INTERFACE ${MBED_TARGET_CONVERTED})
 
 #
 # Configures the application
