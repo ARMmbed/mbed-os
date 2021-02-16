@@ -459,7 +459,23 @@
         "release_versions": [
             "5"
         ],
-        "device_name": "MKL25Z128xxx4"
+        "device_name": "MKL25Z128xxx4",
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ],
+            "iar": [
+                "std"
+            ]
+        },
+        "supported_application_profiles": [
+            "full", "bare-metal"
+        ]
     },
     "KL46Z": {
         "supported_form_factors": [
@@ -506,7 +522,23 @@
             "5"
         ],
         "device_name": "MKL46Z256xxx4",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ],
+            "iar": [
+                "std"
+            ]
+        },
+        "supported_application_profiles": [
+            "full", "bare-metal"
+        ]
     },
     "MCU_K22F512": {
         "core": "Cortex-M4F",
@@ -563,7 +595,23 @@
             "USBDEVICE",
             "FLASH"
         ],
-        "device_name": "MK22DN512xxx5"
+        "device_name": "MK22DN512xxx5",
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ],
+            "iar": [
+                "std"
+            ]
+        },
+        "supported_application_profiles": [
+            "full", "bare-metal"
+        ]
     },
     "K22F": {
         "supported_form_factors": [
@@ -637,7 +685,23 @@
         "release_versions": [
             "5"
         ],
-        "device_name": "MKL43Z256xxx4"
+        "device_name": "MKL43Z256xxx4",
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ],
+            "iar": [
+                "std"
+            ]
+        },
+        "supported_application_profiles": [
+            "full", "bare-metal"
+        ]
     },
     "KW41Z": {
         "supported_form_factors": [
@@ -1036,7 +1100,10 @@
             "iar": [
                 "std"
             ]
-        }
+        },
+        "supported_application_profiles": [
+            "full", "bare-metal"
+        ]
     },
     "K82F": {
         "supported_form_factors": [
@@ -1096,7 +1163,23 @@
         "release_versions": [
             "5"
         ],
-        "device_name": "MK82FN256xxx15"
+        "device_name": "MK82FN256xxx15",
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ],
+            "iar": [
+                "std"
+            ]
+        },
+        "supported_application_profiles": [
+            "full", "bare-metal"
+        ]
     },
     "MCU_STM32": {
         "inherits": [
