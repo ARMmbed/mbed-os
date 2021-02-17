@@ -1,5 +1,5 @@
 /***************************************************************************//**
- * @file i2co_api.c
+ * @file i2c_api.c
  *******************************************************************************
  * @section License
  * <b>Copyright (c) 2021 Microchip Technology Inc. and its subsidiaries.</b>

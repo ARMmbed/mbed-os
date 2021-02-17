@@ -67,7 +67,7 @@ typedef enum IRQn
   PendSV_IRQn           = -2,  /**< 14 Cortex-M4 Pend SV Interrupt           */
   SysTick_IRQn          = -1,  /**< 15 Cortex-M4 System Tick Interrupt       */
 /******  PIC32CX2051MTG100 specific Interrupt Numbers *********************************/
-  
+
   SUPC_IRQn            =  0, /**<  0 Supply Controller (SUPC) */
   RSTC_IRQn            =  1, /**<  1 Reset Controller (RSTC) */
   RTC_IRQn             =  2, /**<  2 Real Time Clock (RTC) */
@@ -169,7 +169,7 @@ typedef struct _DeviceVectors
 {
   /* Stack pointer */
   void* pvStack;
-  
+
   /* Cortex-M handlers */
   void* pfnReset_Handler;
   void* pfnNMI_Handler;
@@ -395,7 +395,7 @@ void TRNG_TRNGSEC_Handler ( void );
 void UART_Handler         ( void );
 
 /**
- * \brief Configuration of the Cortex-M4 Processor and Core Peripherals 
+ * \brief Configuration of the Cortex-M4 Processor and Core Peripherals
  */
 
 #define __CM4_REV              0x0001 /**< PIC32CX2051MTG100 core revision number ([15:8] revision number, [7:0] patch number) */
@@ -716,7 +716,7 @@ void UART_Handler         ( void );
 #define PDC_SPI7     (0x4001C500U) /**< \brief (PDC_SPI7    ) Base Address */
 #define TWI7         (0x4001C600U) /**< \brief (TWI7        ) Base Address */
 #define PDC_TWI7     (0x4001C700U) /**< \brief (PDC_TWI7    ) Base Address */
-#define QSPI         (0x40020000U) /**< \brief (QSPI        ) Base Address */
+#define QSPI0        (0x40020000U) /**< \brief (QSPI0       ) Base Address */
 #define PDC_QSPI     (0x40020100U) /**< \brief (PDC_QSPI    ) Base Address */
 #define ADC          (0x40024000U) /**< \brief (ADC         ) Base Address */
 #define PDC_ADC      (0x40024100U) /**< \brief (PDC_ADC     ) Base Address */
@@ -838,7 +838,7 @@ void UART_Handler         ( void );
 #define PDC_SPI7     ((Pdc        *)0x4001C500U) /**< \brief (PDC_SPI7    ) Base Address */
 #define TWI7         ((Twi        *)0x4001C600U) /**< \brief (TWI7        ) Base Address */
 #define PDC_TWI7     ((Pdc        *)0x4001C700U) /**< \brief (PDC_TWI7    ) Base Address */
-#define QSPI         ((Qspi       *)0x40020000U) /**< \brief (QSPI        ) Base Address */
+#define QSPI0        ((Qspi0      *)0x40020000U) /**< \brief (QSPI        ) Base Address */
 #define PDC_QSPI     ((Pdc        *)0x40020100U) /**< \brief (PDC_QSPI    ) Base Address */
 #define ADC          ((Adc        *)0x40024000U) /**< \brief (ADC         ) Base Address */
 #define PDC_ADC      ((Pdc        *)0x40024100U) /**< \brief (PDC_ADC     ) Base Address */
