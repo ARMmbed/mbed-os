@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
@@ -7,9 +7,6 @@ if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LIBCC_310_EXT TOOLCHAIN_ARM/libcc_310_ext.ar)
     set(LIBCC_310_TRNG TOOLCHAIN_ARM/libcc_310_trng.ar)
-elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
-    set(LIBCC_310_EXT TOOLCHAIN_IAR/lib_cc310_ext.a)
-    set(LIBCC_310_TRNG TOOLCHAIN_IAR/lib_cc310_trng.a)
 endif()
 
 target_include_directories(mbed-mbedtls-cryptocell310
