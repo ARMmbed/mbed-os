@@ -25,6 +25,7 @@
 #include "sysclk.h"
 #include "device_peripherals.h"
 #include "device.h"
+#include "mpu_api.h"
 
 /* Called before main - implement here if board needs it.
 * Otherwise, let the application override this if necessary */
@@ -36,11 +37,13 @@ void mbed_sdk_init()
     SFR->SFR_WPMR = SFR_WPMR_WPKEY_PASSWD | SFR_WPMR_WPEN;
 
     /* Disable the watchdog */
-    //DWDT->WDT0_MR |= WDT0_MR_WDDIS;
-    //DWDT->WDT1_MR |= WDT1_MR_WDDIS;
+    DWDT->WDT0_MR |= WDT0_MR_WDDIS;
+    DWDT->WDT1_MR |= WDT1_MR_WDDIS;
 
     /* Disable "Execute never (XN)" for RAM region */
     mbed_mpu_enable_ram_xn(false);
+    /* Enable writing in ROM */
+    mbed_mpu_enable_rom_wn(false);
 
     /* Initialize the SAM system */
     sysclk_init();

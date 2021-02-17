@@ -375,3 +375,33 @@ MBED_WEAK const PinMap PinMap_UART_RX[] = {
     {D1, UART_0, IOPORT_MODE_MUX_A},
     {NC, NC, 0}
 };
+
+MBED_WEAK const PinMap PinMap_QSPI_IO0[] = {
+    {C13, QSPI_0, IOPORT_MODE_MUX_A},
+    {NC, NC, 0}
+};
+
+MBED_WEAK const PinMap PinMap_QSPI_IO1[] = {
+    {C12, QSPI_0, IOPORT_MODE_MUX_A},
+    {NC, NC, 0}
+};
+
+MBED_WEAK const PinMap PinMap_QSPI_IO2[] = {
+    {C11, QSPI_0, IOPORT_MODE_MUX_A},
+    {NC, NC, 0}
+};
+
+MBED_WEAK const PinMap PinMap_QSPI_IO3[] = {
+    {C10, QSPI_0, IOPORT_MODE_MUX_A | IOPORT_MODE_PULLUP},
+    {NC, NC, 0}
+};
+
+MBED_WEAK const PinMap PinMap_QSPI_SCLK[] = {
+    {C15, QSPI_0, IOPORT_MODE_MUX_A},
+    {NC, NC, 0}
+};
+
+MBED_WEAK const PinMap PinMap_QSPI_CS0[] = {
+    {C14, QSPI_0, IOPORT_MODE_MUX_A},
+    {NC, NC, 0}
+};

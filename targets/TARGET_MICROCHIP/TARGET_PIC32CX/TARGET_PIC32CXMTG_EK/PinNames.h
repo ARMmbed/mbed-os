@@ -141,6 +141,14 @@ typedef enum {
     STDIO_UART_TX = SERIAL_TX,
     STDIO_UART_RX = SERIAL_RX,
 
+    /* QSPI */
+    QSPI_FLASH1_IO0 = C13,
+    QSPI_FLASH1_IO1 = C12,
+    QSPI_FLASH1_IO2 = C11,
+    QSPI_FLASH1_IO3 = C10,
+    QSPI_FLASH1_SCK = C15,
+    QSPI_FLASH1_CSN = C14,
+
     /* Xplain Pro Serial */
     XPLAINPRO_SERIAL_TX = A0,
     XPLAINPRO_SERIAL_RX = A1,

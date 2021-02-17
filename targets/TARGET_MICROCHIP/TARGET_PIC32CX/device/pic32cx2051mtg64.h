@@ -716,7 +716,7 @@ void UART_Handler         ( void );
 #define PDC_SPI7     (0x4001C500U) /**< \brief (PDC_SPI7    ) Base Address */
 #define TWI7         (0x4001C600U) /**< \brief (TWI7        ) Base Address */
 #define PDC_TWI7     (0x4001C700U) /**< \brief (PDC_TWI7    ) Base Address */
-#define QSPI         (0x40020000U) /**< \brief (QSPI        ) Base Address */
+#define QSPI0        (0x40020000U) /**< \brief (QSPI0       ) Base Address */
 #define PDC_QSPI     (0x40020100U) /**< \brief (PDC_QSPI    ) Base Address */
 #define ADC          (0x40024000U) /**< \brief (ADC         ) Base Address */
 #define PDC_ADC      (0x40024100U) /**< \brief (PDC_ADC     ) Base Address */
@@ -838,7 +838,7 @@ void UART_Handler         ( void );
 #define PDC_SPI7     ((Pdc        *)0x4001C500U) /**< \brief (PDC_SPI7    ) Base Address */
 #define TWI7         ((Twi        *)0x4001C600U) /**< \brief (TWI7        ) Base Address */
 #define PDC_TWI7     ((Pdc        *)0x4001C700U) /**< \brief (PDC_TWI7    ) Base Address */
-#define QSPI         ((Qspi       *)0x40020000U) /**< \brief (QSPI        ) Base Address */
+#define QSPI0        ((Qspi       *)0x40020000U) /**< \brief (QSPI0       ) Base Address */
 #define PDC_QSPI     ((Pdc        *)0x40020100U) /**< \brief (PDC_QSPI    ) Base Address */
 #define ADC          ((Adc        *)0x40024000U) /**< \brief (ADC         ) Base Address */
 #define PDC_ADC      ((Pdc        *)0x40024100U) /**< \brief (PDC_ADC     ) Base Address */

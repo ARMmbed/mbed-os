@@ -6987,7 +6987,8 @@
             "I2C",
             "I2CSLAVE",
             "SPI",
-            "SPISLAVE"
+            "SPISLAVE",
+            "QSPI"
         ],
         "components_add": [
             "FLASHIAP"

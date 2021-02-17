@@ -2,7 +2,7 @@
  * @file spi_api.c
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright (c) 2021 Microchip Technology Inc. and its subsidiaries.</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -229,7 +229,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
             break;
         case 2:
             spi_set_clock_polarity(obj->spi, obj->cs, 1);
-            spi_set_clock_phase(obj->spi, obj->cs, 0);
+            spi_set_clock_phase(obj->spi, obj->cs, 1);
             break;
         case 3:
             spi_set_clock_polarity(obj->spi, obj->cs, 1);

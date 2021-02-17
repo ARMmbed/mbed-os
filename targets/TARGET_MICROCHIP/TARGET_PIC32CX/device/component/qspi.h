@@ -75,7 +75,7 @@ typedef struct {
   __O  uint32_t QSPI_PTCR;     /**< \brief (Qspi Offset: 0x120) Transfer Control Register */
   __I  uint32_t QSPI_PTSR;     /**< \brief (Qspi Offset: 0x124) Transfer Status Register */
   __IO uint32_t QSPI_PWPMR;    /**< \brief (Qspi Offset: 0x128) Write Protection Mode Register */
-} Qspi;
+} Qspi0;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- QSPI_CR : (QSPI Offset: 0x0) Control Register -------- */
 #define QSPI_CR_QSPIEN (0x1u << 0) /**< \brief (QSPI_CR) QSPI Enable */

@@ -59,10 +59,6 @@ struct dac_s {
 struct i2c_s {
     Twi *i2c;
     uint32_t location;
-#if DEVICE_I2C_ASYNCH
-    uint32_t events;
-    I2C_TransferSeq_TypeDef xfer;
-#endif
 };
 #endif
 
@@ -118,15 +114,9 @@ struct trng_s {
 };
 #endif
 
-#if DEVICE_CAN
-struct can_s {
-    CAN_TypeDef *instance;
-};
-#endif
-
 #if DEVICE_QSPI
 struct qspi_s {
-    QSPI_TypeDef *instance;
+    Qspi0 *qspi;
     PinName io0;
     PinName io1;
     PinName io2;
