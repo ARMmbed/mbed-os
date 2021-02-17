@@ -4403,7 +4403,18 @@
             "SPI",
             "SPISLAVE",
             "TSC"
-        ]
+        ],
+        "supported_application_profiles" : ["full", "bare-metal"],
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
+        }
     },
     "ARM_MPS2_M0": {
         "inherits": [
