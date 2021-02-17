@@ -6,29 +6,13 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
@@ -105,6 +89,7 @@
        || ((__INPUT_PLUS__) == LL_COMP_INPUT_PLUS_IO31)                        \
        || ((__INPUT_PLUS__) == LL_COMP_INPUT_PLUS_IO32)                        \
        || ((__INPUT_PLUS__) == LL_COMP_INPUT_PLUS_IO33)                        \
+       || ((__INPUT_PLUS__) == LL_COMP_INPUT_PLUS_NONE)                        \
       )                                                                        \
       :                                                                        \
       (                                                                        \
@@ -112,6 +97,7 @@
        || ((__INPUT_PLUS__) == LL_COMP_INPUT_PLUS_IO2)                         \
        || ((__INPUT_PLUS__) == LL_COMP_INPUT_PLUS_IO3)                         \
        || ((__INPUT_PLUS__) == LL_COMP_INPUT_PLUS_IO4)                         \
+       || ((__INPUT_PLUS__) == LL_COMP_INPUT_PLUS_NONE)                        \
       )                                                                        \
   )
 #else
@@ -279,31 +265,41 @@ ErrorStatus LL_COMP_Init(COMP_TypeDef *COMPx, LL_COMP_InitTypeDef *COMP_InitStru
   }
   assert_param(IS_LL_COMP_INPUT_PLUS(COMPx, COMP_InitStruct->InputPlus));
   
-    /* Configuration of comparator instance :                                 */
-    /*  - PowerMode                                                           */
-    /*  - InputPlus                                                           */
-    /*  - InputMinus                                                          */
-    /*  - OutputSelection                                                     */
-    /* Note: On this STM32 serie, only COMP instance COMP2 has                */
-    /*       features settables: power mode, input minus selection            */
-    /*       and output selection.                                            */
-    /* Note: On this STM32 serie, setting COMP instance COMP2 input minus     */
-    /*       is enabling the comparator.                                      */
-    if(COMPx == COMP2)
-    {
-      MODIFY_REG(COMP->CSR,
-                   COMP_CSR_SPEED
-                 | COMP_CSR_INSEL
-                 | COMP_CSR_OUTSEL
-                ,
-                   COMP_InitStruct->PowerMode
-                 | COMP_InitStruct->InputMinus
-                 | COMP_InitStruct->OutputSelection
-                );
-    }
+  /* Configuration of comparator instance :                                 */
+  /*  - PowerMode                                                           */
+  /*  - InputPlus                                                           */
+  /*  - InputMinus                                                          */
+  /*  - OutputSelection                                                     */
+  /* Note: On this STM32 serie, only COMP instance COMP2 has                */
+  /*       features settables: power mode, input minus selection            */
+  /*       and output selection.                                            */
+  /* Note: On this STM32 serie, setting COMP instance COMP2 input minus     */
+  /*       is enabling the comparator.                                      */
+  if(COMPx == COMP2)
+  {
+    MODIFY_REG(COMP->CSR,
+                 COMP_CSR_SPEED
+               | COMP_CSR_INSEL
+               | COMP_CSR_OUTSEL
+              ,
+                 COMP_InitStruct->PowerMode
+               | COMP_InitStruct->InputMinus
+               | COMP_InitStruct->OutputSelection
+              );
     
     /* Set comparator input plus */
     LL_COMP_SetInputPlus(COMPx, COMP_InitStruct->InputPlus);
+  }
+  else /* COMPx == COMP1 */
+  {
+    /* If window mode is enabled, COMP1 input plus is not used and therefore
+       not modified */
+    if(READ_BIT(COMP12_COMMON->CSR, COMP_CSR_WNDWE) == COMP_CSR_WNDWE)
+    {
+      /* Set comparator input plus */
+      LL_COMP_SetInputPlus(COMPx, COMP_InitStruct->InputPlus);
+    }
+  }
     
   return status;
 }

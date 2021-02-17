@@ -1,13 +1,11 @@
 ;********************* (C) COPYRIGHT 2017 STMicroelectronics ********************
 ;* File Name          : startup_stm32l152xc.s
 ;* Author             : MCD Application Team
-;* Version            : 21-April-2017
-;* Date               : V2.2.1
 ;* Description        : STM32L152XC Devices vector for MDK-ARM toolchain.
 ;*                      This module performs:
 ;*                      - Set the initial SP
 ;*                      - Set the initial PC == Reset_Handler
-;*                      - Set the vector table entries with the exceptions ISR
+;*                      - Set the vector table entries with the exceptions ISR 
 ;*                        address.
 ;*                      - Configure the system clock
 ;*                      - Branches to __main in the C library (which eventually
@@ -16,32 +14,16 @@
 ;*                      priority is Privileged, and the Stack is set to Main.
 ;********************************************************************************
 ;*
-;* COPYRIGHT(c) 2017 STMicroelectronics
+;* Copyright (c) 2017 STMicroelectronics. All rights reserved.
 ;*
-;* Redistribution and use in source and binary forms, with or without modification,
-;* are permitted provided that the following conditions are met:
-;*   1. Redistributions of source code must retain the above copyright notice,
-;*      this list of conditions and the following disclaimer.
-;*   2. Redistributions in binary form must reproduce the above copyright notice,
-;*      this list of conditions and the following disclaimer in the documentation
-;*      and/or other materials provided with the distribution.
-;*   3. Neither the name of STMicroelectronics nor the names of its contributors
-;*      may be used to endorse or promote products derived from this software
-;*      without specific prior written permission.
+;* This software component is licensed by ST under BSD 3-Clause license,
+;* the "License"; You may not use this file except in compliance with the
+;* License. You may obtain a copy of the License at:
+;*                        opensource.org/licenses/BSD-3-Clause
 ;*
-;* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-;* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-;* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-;* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-;* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-;* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-;* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-;* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-;* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-;* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-;
 ;*******************************************************************************
-
+;* <<< Use Configuration Wizard in Context Menu >>>
+;
                 PRESERVE8
                 THUMB
 
@@ -51,9 +33,9 @@
                 EXPORT  __Vectors
                 EXPORT  __Vectors_End
                 EXPORT  __Vectors_Size
-                IMPORT  |Image$$ARM_LIB_STACK$$ZI$$Limit|
 
-__Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit| ; Top of Stack
+                IMPORT  |Image$$ARM_LIB_STACK$$ZI$$Limit|
+__Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit|              ; Top of Stack
                 DCD     Reset_Handler             ; Reset Handler
                 DCD     NMI_Handler               ; NMI Handler
                 DCD     HardFault_Handler         ; Hard Fault Handler
@@ -128,7 +110,7 @@ __Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit| ; Top of Stack
                 DCD     DMA2_Channel5_IRQHandler  ; DMA2 Channel 5
                 DCD     0                         ; Reserved
                 DCD     COMP_ACQ_IRQHandler       ; Comparator Channel Acquisition
-
+                
 __Vectors_End
 
 __Vectors_Size  EQU  __Vectors_End - __Vectors
@@ -138,10 +120,10 @@ __Vectors_Size  EQU  __Vectors_End - __Vectors
 ; Reset handler routine
 Reset_Handler    PROC
                  EXPORT  Reset_Handler             [WEAK]
-     IMPORT  __main
-     IMPORT  SystemInit
+        IMPORT  __main
+        IMPORT  SystemInit  
                  LDR     R0, =SystemInit
-                 BLX     R0
+                 BLX     R0              
                  LDR     R0, =__main
                  BX      R0
                  ENDP
@@ -304,6 +286,11 @@ COMP_ACQ_IRQHandler
                 ENDP
 
                 ALIGN
-                END
+
+;*******************************************************************************
+; User Stack and Heap initialization
+;*******************************************************************************
+
+                 END
 
 ;************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE*****

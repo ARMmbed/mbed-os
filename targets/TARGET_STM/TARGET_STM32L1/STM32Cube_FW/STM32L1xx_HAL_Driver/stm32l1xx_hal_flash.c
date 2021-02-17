@@ -138,31 +138,15 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *
-  ******************************************************************************  
+  ******************************************************************************
   */
 
 /* Includes ------------------------------------------------------------------*/
@@ -426,7 +410,7 @@ void HAL_FLASH_IRQHandler(void)
 
 /**
   * @brief  FLASH end of operation interrupt callback
-  * @param  ReturnValue: The value saved in this parameter depends on the ongoing procedure
+  * @param  ReturnValue The value saved in this parameter depends on the ongoing procedure
   *                 - Pages Erase: Address of the page which has been erased 
   *                    (if 0xFFFFFFFF, it means that all the selected pages have been erased)
   *                 - Program: Address which was selected for data program
@@ -444,7 +428,7 @@ __weak void HAL_FLASH_EndOfOperationCallback(uint32_t ReturnValue)
 
 /**
   * @brief  FLASH operation error interrupt callback
-  * @param  ReturnValue: The value saved in this parameter depends on the ongoing procedure
+  * @param  ReturnValue The value saved in this parameter depends on the ongoing procedure
   *                 - Pages Erase: Address of the page which returned an error
   *                 - Program: Address which was selected for data program
   * @retval none
@@ -491,17 +475,25 @@ HAL_StatusTypeDef HAL_FLASH_Unlock(void)
     {  
       WRITE_REG(FLASH->PEKEYR, FLASH_PEKEY1);
       WRITE_REG(FLASH->PEKEYR, FLASH_PEKEY2);
+      
+      /* Verify that PELOCK is unlocked */
+      if(HAL_IS_BIT_SET(FLASH->PECR, FLASH_PECR_PELOCK))
+      {
+        return HAL_ERROR;
+      }
     }
     
     /* Unlocking the program memory access */
     WRITE_REG(FLASH->PRGKEYR, FLASH_PRGKEY1);
     WRITE_REG(FLASH->PRGKEYR, FLASH_PRGKEY2);  
+    
+    /* Verify that PRGLOCK is unlocked */
+    if (HAL_IS_BIT_SET(FLASH->PECR, FLASH_PECR_PRGLOCK))
+    {
+      return HAL_ERROR;
+    }
   }
-  else
-  {
-    return HAL_ERROR;
-  }
-
+  
   return HAL_OK; 
 }
 
@@ -531,16 +523,24 @@ HAL_StatusTypeDef HAL_FLASH_OB_Unlock(void)
       /* Unlocking FLASH_PECR register access*/
       WRITE_REG(FLASH->PEKEYR, FLASH_PEKEY1);
       WRITE_REG(FLASH->PEKEYR, FLASH_PEKEY2);
+
+      /* Verify that PELOCK is unlocked */
+      if(HAL_IS_BIT_SET(FLASH->PECR, FLASH_PECR_PELOCK))
+      {
+        return HAL_ERROR;
+      }
     }
 
     /* Unlocking the option bytes block access */
     WRITE_REG(FLASH->OPTKEYR, FLASH_OPTKEY1);
     WRITE_REG(FLASH->OPTKEYR, FLASH_OPTKEY2);
+
+    /* Verify that OPTLOCK is unlocked */
+    if (HAL_IS_BIT_SET(FLASH->PECR, FLASH_PECR_OPTLOCK))
+    {
+      return HAL_ERROR;
+    }
   }
-  else
-  {
-    return HAL_ERROR;
-  }  
   
   return HAL_OK;  
 }

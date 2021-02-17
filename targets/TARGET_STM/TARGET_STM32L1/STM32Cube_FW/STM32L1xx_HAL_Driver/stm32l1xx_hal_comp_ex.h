@@ -6,29 +6,13 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************  
   */
@@ -76,7 +60,7 @@
 #define COMP_NONINVERTINGINPUT_PA3      RI_IOSWITCH_CH3         /*!< I/O pin PA3 connection to COMP1 non-inverting input */
 #define COMP_NONINVERTINGINPUT_PA4      RI_IOSWITCH_CH4         /*!< I/O pin PA4 connection to COMP1 non-inverting input */
 #define COMP_NONINVERTINGINPUT_PA5      RI_IOSWITCH_CH5         /*!< I/O pin PA5 connection to COMP1 non-inverting input */
-#define COMP_NONINVERTINGINPUT_PA6      RI_IOSWITCH_CH5         /*!< I/O pin PA5 connection to COMP1 non-inverting input */
+#define COMP_NONINVERTINGINPUT_PA6      RI_IOSWITCH_CH6         /*!< I/O pin PA6 connection to COMP1 non-inverting input */
 #define COMP_NONINVERTINGINPUT_PA7      RI_IOSWITCH_CH7         /*!< I/O pin PA7 connection to COMP1 non-inverting input */
 #define COMP_NONINVERTINGINPUT_PB0      RI_IOSWITCH_CH8         /*!< I/O pin PB0 connection to COMP1 non-inverting input */
 #define COMP_NONINVERTINGINPUT_PB1      RI_IOSWITCH_CH9         /*!< I/O pin PB1 connection to COMP1 non-inverting input */
@@ -296,7 +280,7 @@
 /**
   * @brief Specifies whether Routing Interface (RI) needs to be configured for 
   * switches of comparator non-inverting input.
-  * @param  __HANDLE__: COMP handle.
+  * @param  __HANDLE__ COMP handle.
   * @retval None.
   */
 #if defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)

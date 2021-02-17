@@ -61,29 +61,13 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
@@ -142,7 +126,7 @@
  
 /**
   * @brief  DeInitializes the LCD peripheral. 
-  * @param  hlcd: LCD handle
+  * @param  hlcd LCD handle
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_LCD_DeInit(LCD_HandleTypeDef *hlcd)
@@ -187,7 +171,7 @@ HAL_StatusTypeDef HAL_LCD_DeInit(LCD_HandleTypeDef *hlcd)
   *         in the LCD_InitStruct.
   * @note   This function can be used only when the LCD is disabled.  
   *         The LCD HighDrive can be enabled/disabled using related macros up to user.
-  * @param  hlcd: LCD handle
+  * @param  hlcd LCD handle
   * @retval None
   */
 HAL_StatusTypeDef HAL_LCD_Init(LCD_HandleTypeDef *hlcd)
@@ -306,7 +290,7 @@ HAL_StatusTypeDef HAL_LCD_Init(LCD_HandleTypeDef *hlcd)
 
 /**
   * @brief  LCD MSP DeInit.
-  * @param  hlcd: LCD handle
+  * @param  hlcd LCD handle
   * @retval None
   */
  __weak void HAL_LCD_MspDeInit(LCD_HandleTypeDef *hlcd)
@@ -321,7 +305,7 @@ HAL_StatusTypeDef HAL_LCD_Init(LCD_HandleTypeDef *hlcd)
 
 /**
   * @brief  LCD MSP Init.
-  * @param  hlcd: LCD handle
+  * @param  hlcd LCD handle
   * @retval None
   */
  __weak void HAL_LCD_MspInit(LCD_HandleTypeDef *hlcd)
@@ -369,8 +353,8 @@ HAL_StatusTypeDef HAL_LCD_Init(LCD_HandleTypeDef *hlcd)
 
 /**
   * @brief  Writes a word in the specific LCD RAM.
-  * @param  hlcd: LCD handle
-  * @param  RAMRegisterIndex: specifies the LCD RAM Register.
+  * @param  hlcd LCD handle
+  * @param  RAMRegisterIndex specifies the LCD RAM Register.
   *   This parameter can be one of the following values:
   *     @arg LCD_RAM_REGISTER0: LCD RAM Register 0
   *     @arg LCD_RAM_REGISTER1: LCD RAM Register 1
@@ -388,8 +372,8 @@ HAL_StatusTypeDef HAL_LCD_Init(LCD_HandleTypeDef *hlcd)
   *     @arg LCD_RAM_REGISTER13: LCD RAM Register 13 
   *     @arg LCD_RAM_REGISTER14: LCD RAM Register 14 
   *     @arg LCD_RAM_REGISTER15: LCD RAM Register 15
-  * @param  RAMRegisterMask: specifies the LCD RAM Register Data Mask.
-  * @param  Data: specifies LCD Data Value to be written.
+  * @param  RAMRegisterMask specifies the LCD RAM Register Data Mask.
+  * @param  Data specifies LCD Data Value to be written.
   * @retval None
   */
 HAL_StatusTypeDef HAL_LCD_Write(LCD_HandleTypeDef *hlcd, uint32_t RAMRegisterIndex, uint32_t RAMRegisterMask, uint32_t Data)
@@ -488,7 +472,7 @@ HAL_StatusTypeDef HAL_LCD_Clear(LCD_HandleTypeDef *hlcd)
 
 /**
   * @brief  Enables the Update Display Request.
-  * @param  hlcd: LCD handle
+  * @param  hlcd LCD handle
   * @note   Each time software modifies the LCD_RAM it must set the UDR bit to 
   *         transfer the updated data to the second level buffer. 
   *         The UDR bit stays set until the end of the update and during this 

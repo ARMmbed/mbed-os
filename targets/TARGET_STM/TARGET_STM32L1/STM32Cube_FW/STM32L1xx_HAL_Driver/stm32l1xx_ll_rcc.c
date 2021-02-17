@@ -6,29 +6,13 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright(c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
@@ -91,7 +75,7 @@ uint32_t RCC_PLL_GetFreqDomain_SYS(void);
   */
 ErrorStatus LL_RCC_DeInit(void)
 {
-  uint32_t vl_mask = 0U;
+  __IO uint32_t vl_mask;
 
   /* Set MSION bit */
   LL_RCC_MSI_Enable();
@@ -115,28 +99,37 @@ ErrorStatus LL_RCC_DeInit(void)
   CLEAR_BIT(vl_mask, (RCC_CFGR_SW | RCC_CFGR_HPRE | RCC_CFGR_PPRE1 | RCC_CFGR_PPRE2 | RCC_CFGR_MCOSEL));
   LL_RCC_WriteReg(CFGR, vl_mask);
 
+  /* Read CR register */
+  vl_mask = LL_RCC_ReadReg(CR);
+
   /* Reset HSION, HSEON, CSSON, PLLON bits */
-  vl_mask = 0xFFFFFFFFU;
   CLEAR_BIT(vl_mask, (RCC_CR_PLLON | RCC_CR_CSSON | RCC_CR_HSEON | RCC_CR_HSION));
   LL_RCC_WriteReg(CR, vl_mask);
 
   /* Reset HSEBYP bit */
   LL_RCC_HSE_DisableBypass();
 
+  /* Insure PLL is disabled before to reset PLLSRC/PLLMUL/PLLDIV in CFGR register */
+  while(LL_RCC_PLL_IsReady() != 0U) {};
+
   /* Reset CFGR register */
   LL_RCC_WriteReg(CFGR, 0x00000000U);
 
+  /* Disable all interrupts */
+  LL_RCC_WriteReg(CIR, 0x00000000U);
 
   /* Clear pending flags */
 #if defined(RCC_LSECSS_SUPPORT)
-  vl_mask = (LL_RCC_CIR_LSIRDYC | LL_RCC_CIR_LSERDYC | LL_RCC_CIR_HSIRDYC | LL_RCC_CIR_HSERDYC | LL_RCC_CIR_PLLRDYC | LL_RCC_CIR_MSIRDYC | LL_RCC_CIR_LSECSSC | LL_RCC_CIR_CSSC);
+  vl_mask = (LL_RCC_CIR_LSIRDYC | LL_RCC_CIR_LSERDYC | LL_RCC_CIR_HSIRDYC | LL_RCC_CIR_HSERDYC | \
+             LL_RCC_CIR_PLLRDYC | LL_RCC_CIR_MSIRDYC | LL_RCC_CIR_LSECSSC | LL_RCC_CIR_CSSC);
 #else
-  vl_mask = (LL_RCC_CIR_LSIRDYC | LL_RCC_CIR_LSERDYC | LL_RCC_CIR_HSIRDYC | LL_RCC_CIR_HSERDYC | LL_RCC_CIR_PLLRDYC | LL_RCC_CIR_MSIRDYC | LL_RCC_CIR_CSSC);
+  vl_mask = (LL_RCC_CIR_LSIRDYC | LL_RCC_CIR_LSERDYC | LL_RCC_CIR_HSIRDYC | LL_RCC_CIR_HSERDYC | \
+             LL_RCC_CIR_PLLRDYC | LL_RCC_CIR_MSIRDYC | LL_RCC_CIR_CSSC);
 #endif /* RCC_LSECSS_SUPPORT */
-  SET_BIT(RCC->CIR, vl_mask);
+  LL_RCC_WriteReg(CIR, vl_mask);
 
-  /* Disable all interrupts */
-  LL_RCC_WriteReg(CIR, 0x00000000U);
+  /* Clear reset flags */
+  LL_RCC_ClearResetFlags();
 
   return SUCCESS;
 }
@@ -151,11 +144,11 @@ ErrorStatus LL_RCC_DeInit(void)
   * @note   If SYSCLK source is MSI, function returns values based on MSI clock(*)
   * @note   If SYSCLK source is HSI, function returns values based on HSI_VALUE(**)
   * @note   If SYSCLK source is HSE, function returns values based on HSE_VALUE(***)
-  * @note   If SYSCLK source is PLL, function returns values based on 
+  * @note   If SYSCLK source is PLL, function returns values based on
   *         HSI_VALUE(**) or HSE_VALUE(***) multiplied/divided by the PLL factors.
   * @note   (*) MSI clock depends on the selected MSI range but the real value
-  *             may vary depending on the variations in voltage and temperature. 
-  * @note   (**) HSI_VALUE is a defined constant but the real value may vary 
+  *             may vary depending on the variations in voltage and temperature.
+  * @note   (**) HSI_VALUE is a defined constant but the real value may vary
   *              depending on the variations in voltage and temperature.
   * @note   (***) HSE_VALUE is a defined constant, user has to ensure that
   *               HSE_VALUE is same as the real frequency of the crystal used.
@@ -208,7 +201,7 @@ void LL_RCC_GetSystemClocksFreq(LL_RCC_ClocksTypeDef *RCC_Clocks)
   */
 uint32_t RCC_GetSystemClockFreq(void)
 {
-  uint32_t frequency = 0U;
+  uint32_t frequency;
 
   /* Get SYSCLK source -------------------------------------------------------*/
   switch (LL_RCC_GetSysClkSource())
@@ -276,7 +269,7 @@ uint32_t RCC_GetPCLK2ClockFreq(uint32_t HCLK_Frequency)
   */
 uint32_t RCC_PLL_GetFreqDomain_SYS(void)
 {
-  uint32_t pllinputfreq = 0U, pllsource = 0U;
+  uint32_t pllsource, pllinputfreq;
 
   /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLL divider) * PLL Multiplicator */
 

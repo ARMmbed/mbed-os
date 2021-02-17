@@ -16,6 +16,7 @@ target_sources(mbed-stm32l1cube-fw
         STM32L1xx_HAL_Driver/stm32l1xx_hal_dac.c
         STM32L1xx_HAL_Driver/stm32l1xx_hal_dac_ex.c
         STM32L1xx_HAL_Driver/stm32l1xx_hal_dma.c
+        STM32L1xx_HAL_Driver/stm32l1xx_hal_exti.c
         STM32L1xx_HAL_Driver/stm32l1xx_hal_flash.c
         STM32L1xx_HAL_Driver/stm32l1xx_hal_flash_ex.c
         STM32L1xx_HAL_Driver/stm32l1xx_hal_flash_ramfunc.c
@@ -39,7 +40,6 @@ target_sources(mbed-stm32l1cube-fw
         STM32L1xx_HAL_Driver/stm32l1xx_hal_sd.c
         STM32L1xx_HAL_Driver/stm32l1xx_hal_smartcard.c
         STM32L1xx_HAL_Driver/stm32l1xx_hal_spi.c
-        STM32L1xx_HAL_Driver/stm32l1xx_hal_spi_ex.c
         STM32L1xx_HAL_Driver/stm32l1xx_hal_sram.c
         STM32L1xx_HAL_Driver/stm32l1xx_hal_tim.c
         STM32L1xx_HAL_Driver/stm32l1xx_hal_tim_ex.c
@@ -63,6 +63,7 @@ target_sources(mbed-stm32l1cube-fw
         STM32L1xx_HAL_Driver/stm32l1xx_ll_spi.c
         STM32L1xx_HAL_Driver/stm32l1xx_ll_tim.c
         STM32L1xx_HAL_Driver/stm32l1xx_ll_usart.c
+        STM32L1xx_HAL_Driver/stm32l1xx_ll_usb.c
         STM32L1xx_HAL_Driver/stm32l1xx_ll_utils.c
         system_stm32l1xx.c
 )

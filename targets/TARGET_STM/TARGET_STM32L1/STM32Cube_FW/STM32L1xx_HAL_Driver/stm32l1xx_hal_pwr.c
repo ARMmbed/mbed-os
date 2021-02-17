@@ -7,34 +7,18 @@
   *          This file provides firmware functions to manage the following
   *          functionalities of the Power Controller (PWR) peripheral:
   *           + Initialization/de-initialization functions
-  *           + Peripheral Control functions 
+  *           + Peripheral Control functions
   *
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
@@ -69,7 +53,7 @@
   * @{
   */
 
-/** @defgroup PWR_Exported_Functions_Group1 Initialization and de-initialization functions 
+/** @defgroup PWR_Exported_Functions_Group1 Initialization and de-initialization functions
   *  @brief   Initialization and de-initialization functions
   *
 @verbatim
@@ -91,11 +75,11 @@
 
 /**
   * @brief  Deinitializes the PWR peripheral registers to their default reset values.
-  * @note   Before calling this function, the VOS[1:0] bits should be configured 
-  *         to "10" and the system frequency has to be configured accordingly. 
+  * @note   Before calling this function, the VOS[1:0] bits should be configured
+  *         to "10" and the system frequency has to be configured accordingly.
   *         To configure the VOS[1:0] bits, use the PWR_VoltageScalingConfig()
-  *         function.      
-  * @note   ULP and FWU bits are not reset by this function.    
+  *         function.
+  * @note   ULP and FWU bits are not reset by this function.
   * @retval None
   */
 void HAL_PWR_DeInit(void)
@@ -134,7 +118,7 @@ void HAL_PWR_DisableBkUpAccess(void)
   * @}
   */
 
-/** @defgroup PWR_Exported_Functions_Group2 Peripheral Control functions 
+/** @defgroup PWR_Exported_Functions_Group2 Peripheral Control functions
   * @brief    Low Power modes configuration functions
   *
 @verbatim
@@ -142,14 +126,14 @@ void HAL_PWR_DisableBkUpAccess(void)
  ===============================================================================
                  ##### Peripheral Control functions #####
  ===============================================================================
-     
+
     *** PVD configuration ***
     =========================
     [..]
       (+) The PVD is used to monitor the VDD power supply by comparing it to a
           threshold selected by the PVD Level (PLS[2:0] bits in the PWR_CR).
-      (+) The PVD can use an external input analog voltage (PVD_IN) which is compared 
-      internally to VREFINT. The PVD_IN (PB7) has to be configured in Analog mode 
+      (+) The PVD can use an external input analog voltage (PVD_IN) which is compared
+      internally to VREFINT. The PVD_IN (PB7) has to be configured in Analog mode
       when PWR_PVDLevel_7 is selected (PLS[2:0] = 111).
 
       (+) A PVDO flag is available to indicate if VDD/VDDA is higher or lower
@@ -166,7 +150,7 @@ void HAL_PWR_DisableBkUpAccess(void)
       (+) There are two or three WakeUp pins:
           WakeUp Pin 1 on PA.00.
           WakeUp Pin 2 on PC.13.
-          WakeUp Pin 3 on PE.06. : Only on product with GPIOE available 
+          WakeUp Pin 3 on PE.06. : Only on product with GPIOE available
 
     [..]
     *** Main and Backup Regulators configuration ***
@@ -182,21 +166,21 @@ void HAL_PWR_DisableBkUpAccess(void)
              the System frequency can go up to 16 MHz.
         (++) When this bit is reset (Regulator voltage output Scale 3 mode selected)
              the System frequency can go up to 4.2 MHz.
-              
+
         Refer to the datasheets for more details.
 
     *** Low Power modes configuration ***
     =====================================
      [..]
       The device features 5 low-power modes:
-      (+) Low power run mode: regulator in low power mode, limited clock frequency, 
+      (+) Low power run mode: regulator in low power mode, limited clock frequency,
         limited number of peripherals running.
       (+) Sleep mode: Cortex-M3 core stopped, peripherals kept running.
-      (+) Low power sleep mode: Cortex-M3 core stopped, limited clock frequency, 
+      (+) Low power sleep mode: Cortex-M3 core stopped, limited clock frequency,
          limited number of peripherals running, regulator in low power mode.
       (+) Stop mode: All clocks are stopped, regulator running, regulator in low power mode.
       (+) Standby mode: VCORE domain powered off
-  
+
    *** Low power run mode ***
    =========================
     [..]
@@ -204,7 +188,7 @@ void HAL_PWR_DisableBkUpAccess(void)
         configured in low power mode. In this mode, the system frequency should not exceed
         MSI frequency range1.
         In Low power run mode, all I/O pins keep the same state as in Run mode.
-  
+
       (+) Entry:
         (++) VCORE in range2
         (++) Decrease the system frequency tonot exceed the frequency of MSI frequency range1.
@@ -214,7 +198,7 @@ void HAL_PWR_DisableBkUpAccess(void)
         (++) The regulator is forced in Main regulator mode using the HAL_PWREx_DisableLowPowerRunMode()
               function.
         (++) Increase the system frequency if needed.
-  
+
    *** Sleep mode ***
    ==================
     [..]
@@ -223,7 +207,7 @@ void HAL_PWR_DisableBkUpAccess(void)
               functions with
           (++) PWR_SLEEPENTRY_WFI: enter SLEEP mode with WFI instruction
           (++) PWR_SLEEPENTRY_WFE: enter SLEEP mode with WFE instruction
-     
+
       (+) Exit:
         (++) Any peripheral interrupt acknowledged by the nested vectored interrupt
               controller (NVIC) can wake up the device from Sleep mode.
@@ -236,15 +220,15 @@ void HAL_PWR_DisableBkUpAccess(void)
               functions with
           (++) PWR_SLEEPENTRY_WFI: enter SLEEP mode with WFI instruction
           (++) PWR_SLEEPENTRY_WFE: enter SLEEP mode with WFE instruction
-       (+) The Flash memory can be switched off by using the control bits (SLEEP_PD in the FLASH_ACR register. 
+       (+) The Flash memory can be switched off by using the control bits (SLEEP_PD in the FLASH_ACR register.
              This reduces power consumption but increases the wake-up time.
-         
+
       (+) Exit:
         (++) If the WFI instruction was used to enter Low power sleep mode, any peripheral interrupt
               acknowledged by the nested vectored interrupt controller (NVIC) can wake up the device
               from Low power sleep mode. If the WFE instruction was used to enter Low power sleep mode,
-              the MCU exits Sleep mode as soon as an event occurs. 
-                
+              the MCU exits Sleep mode as soon as an event occurs.
+
    *** Stop mode ***
    =================
     [..]
@@ -278,12 +262,12 @@ void HAL_PWR_DisableBkUpAccess(void)
       consequently powered off. The PLL, the MSI, the HSI oscillator and the HSE oscillator are
       also switched off. SRAM and register contents are lost except for the RTC registers, RTC
       backup registers and Standby circuitry.
-      
+
       To minimize the consumption In Standby mode, VREFINT, the BOR, PVD, and temperature
-       sensor can be switched off before entering the Standby mode. They can be switched 
+       sensor can be switched off before entering the Standby mode. They can be switched
        on again by software after exiting the Standby mode.
        function.
-      
+
       (+) Entry:
         (++) The Standby mode is entered using the HAL_PWR_EnterSTANDBYMode() function.
       (+) Exit:
@@ -293,59 +277,59 @@ void HAL_PWR_DisableBkUpAccess(void)
    *** Auto-wakeup (AWU) from low-power mode ***
    =============================================
     [..]
-      The MCU can be woken up from low-power mode by an RTC Alarm event, an RTC 
-      Wakeup event, a tamper event, a time-stamp event, or a comparator event, 
+      The MCU can be woken up from low-power mode by an RTC Alarm event, an RTC
+      Wakeup event, a tamper event, a time-stamp event, or a comparator event,
       without depending on an external interrupt (Auto-wakeup mode).
 
     (+) RTC auto-wakeup (AWU) from the Stop mode
         (++) To wake up from the Stop mode with an RTC alarm event, it is necessary to:
-             (+++) Configure the EXTI Line 17 to be sensitive to rising edges (Interrupt 
+             (+++) Configure the EXTI Line 17 to be sensitive to rising edges (Interrupt
                    or Event modes) and Enable the RTC Alarm Interrupt using the HAL_RTC_SetAlarm_IT()
                    function
-             (+++) Configure the RTC to generate the RTC alarm using the HAL_RTC_Init() 
+             (+++) Configure the RTC to generate the RTC alarm using the HAL_RTC_Init()
                    and HAL_RTC_SetTime() functions.
-        (++) To wake up from the Stop mode with an RTC Tamper or time stamp event, it 
+        (++) To wake up from the Stop mode with an RTC Tamper or time stamp event, it
              is necessary to:
              (+++) Configure the EXTI Line 19 to be sensitive to rising edges (Interrupt or Event modes) and
-                   Enable the RTC Tamper or time stamp Interrupt using the HAL_RTCEx_SetTamper_IT() 
+                   Enable the RTC Tamper or time stamp Interrupt using the HAL_RTCEx_SetTamper_IT()
                    or HAL_RTCEx_SetTimeStamp_IT() functions.
         (++) To wake up from the Stop mode with an RTC WakeUp event, it is necessary to:
              (+++) Configure the EXTI Line 20 to be sensitive to rising edges (Interrupt or Event modes) and
                    Enable the RTC WakeUp Interrupt using the HAL_RTCEx_SetWakeUpTimer_IT() function.
-             (+++) Configure the RTC to generate the RTC WakeUp event using the HAL_RTCEx_SetWakeUpTimer() 
+             (+++) Configure the RTC to generate the RTC WakeUp event using the HAL_RTCEx_SetWakeUpTimer()
                    function.
 
     (+) RTC auto-wakeup (AWU) from the Standby mode
         (++) To wake up from the Standby mode with an RTC alarm event, it is necessary to:
              (+++) Enable the RTC Alarm Interrupt using the HAL_RTC_SetAlarm_IT() function.
-             (+++) Configure the RTC to generate the RTC alarm using the HAL_RTC_Init() 
+             (+++) Configure the RTC to generate the RTC alarm using the HAL_RTC_Init()
                    and HAL_RTC_SetTime() functions.
-        (++) To wake up from the Standby mode with an RTC Tamper or time stamp event, it 
+        (++) To wake up from the Standby mode with an RTC Tamper or time stamp event, it
              is necessary to:
-             (+++) Enable the RTC Tamper or time stamp Interrupt and Configure the RTC to 
+             (+++) Enable the RTC Tamper or time stamp Interrupt and Configure the RTC to
                    detect the tamper or time stamp event using the HAL_RTCEx_SetTimeStamp_IT()
                    or HAL_RTCEx_SetTamper_IT()functions.
         (++) To wake up from the Standby mode with an RTC WakeUp event, it is necessary to:
-             (+++) Enable the RTC WakeUp Interrupt and Configure the RTC to generate the RTC WakeUp event 
+             (+++) Enable the RTC WakeUp Interrupt and Configure the RTC to generate the RTC WakeUp event
                    using the HAL_RTCEx_SetWakeUpTimer_IT() and HAL_RTCEx_SetWakeUpTimer() functions.
 
     (+) Comparator auto-wakeup (AWU) from the Stop mode
         (++) To wake up from the Stop mode with an comparator 1 or comparator 2 wakeup
              event, it is necessary to:
-             (+++) Configure the EXTI Line 21 or EXTI Line 22 for comparator to be sensitive to to the 
-                   selected edges (falling, rising or falling and rising) (Interrupt or Event modes) using 
+             (+++) Configure the EXTI Line 21 or EXTI Line 22 for comparator to be sensitive to to the
+                   selected edges (falling, rising or falling and rising) (Interrupt or Event modes) using
                    the COMP functions.
-             (+++) Configure the comparator to generate the event.      
-        
-            
-        
+             (+++) Configure the comparator to generate the event.
+
+
+
 @endverbatim
   * @{
   */
 
 /**
   * @brief  Configures the voltage threshold detected by the Power Voltage Detector(PVD).
-  * @param  sConfigPVD: pointer to an PWR_PVDTypeDef structure that contains the configuration
+  * @param  sConfigPVD pointer to an PWR_PVDTypeDef structure that contains the configuration
   *         information for the PVD.
   * @note   Refer to the electrical characteristics of your device datasheet for
   *         more details about the voltage threshold corresponding to each
@@ -360,7 +344,7 @@ void HAL_PWR_ConfigPVD(PWR_PVDTypeDef *sConfigPVD)
 
   /* Set PLS[7:5] bits according to PVDLevel value */
   MODIFY_REG(PWR->CR, PWR_CR_PLS, sConfigPVD->PVDLevel);
-  
+
   /* Clear any previous config. Keep it clear if no event or IT mode is selected */
   __HAL_PWR_PVD_EXTI_DISABLE_EVENT();
   __HAL_PWR_PVD_EXTI_DISABLE_IT();
@@ -371,19 +355,19 @@ void HAL_PWR_ConfigPVD(PWR_PVDTypeDef *sConfigPVD)
   {
     __HAL_PWR_PVD_EXTI_ENABLE_IT();
   }
-  
+
   /* Configure event mode */
   if((sConfigPVD->Mode & PVD_MODE_EVT) == PVD_MODE_EVT)
   {
     __HAL_PWR_PVD_EXTI_ENABLE_EVENT();
   }
-  
+
   /* Configure the edge */
   if((sConfigPVD->Mode & PVD_RISING_EDGE) == PVD_RISING_EDGE)
   {
     __HAL_PWR_PVD_EXTI_ENABLE_RISING_EDGE();
   }
-  
+
   if((sConfigPVD->Mode & PVD_FALLING_EDGE) == PVD_FALLING_EDGE)
   {
     __HAL_PWR_PVD_EXTI_ENABLE_FALLING_EDGE();
@@ -416,7 +400,7 @@ void HAL_PWR_DisablePVD(void)
   *        This parameter can be one of the following values:
   *           @arg PWR_WAKEUP_PIN1
   *           @arg PWR_WAKEUP_PIN2
-  *           @arg PWR_WAKEUP_PIN3: Only on product with GPIOE available 
+  *           @arg PWR_WAKEUP_PIN3: Only on product with GPIOE available
   * @retval None
   */
 void HAL_PWR_EnableWakeUpPin(uint32_t WakeUpPinx)
@@ -432,8 +416,8 @@ void HAL_PWR_EnableWakeUpPin(uint32_t WakeUpPinx)
   * @param WakeUpPinx: Specifies the Power Wake-Up pin to disable.
   *        This parameter can be one of the following values:
   *           @arg PWR_WAKEUP_PIN1
-  *           @arg PWR_WAKEUP_PIN2  
-  *           @arg PWR_WAKEUP_PIN3: Only on product with GPIOE available 
+  *           @arg PWR_WAKEUP_PIN2
+  *           @arg PWR_WAKEUP_PIN3: Only on product with GPIOE available
   * @retval None
   */
 void HAL_PWR_DisableWakeUpPin(uint32_t WakeUpPinx)
@@ -452,7 +436,7 @@ void HAL_PWR_DisableWakeUpPin(uint32_t WakeUpPinx)
   *            @arg PWR_MAINREGULATOR_ON: SLEEP mode with regulator ON
   *            @arg PWR_LOWPOWERREGULATOR_ON: SLEEP mode with low power regulator ON
   * @param SLEEPEntry: Specifies if SLEEP mode is entered with WFI or WFE instruction.
-  *           When WFI entry is used, tick interrupt have to be disabled if not desired as 
+  *           When WFI entry is used, tick interrupt have to be disabled if not desired as
   *           the interrupt wake up source.
   *           This parameter can be one of the following values:
   *            @arg PWR_SLEEPENTRY_WFI: enter SLEEP mode with WFI instruction
@@ -487,14 +471,14 @@ void HAL_PWR_EnterSLEEPMode(uint32_t Regulator, uint8_t SLEEPEntry)
 }
 
 /**
-  * @brief Enters Stop mode. 
+  * @brief Enters Stop mode.
   * @note  In Stop mode, all I/O pins keep the same state as in Run mode.
   * @note  When exiting Stop mode by using an interrupt or a wakeup event,
   *        MSI RC oscillator is selected as system clock.
   * @note  When the voltage regulator operates in low power mode, an additional
-  *         startup delay is incurred when waking up from Stop mode. 
+  *         startup delay is incurred when waking up from Stop mode.
   *         By keeping the internal regulator ON during Stop mode, the consumption
-  *         is higher although the startup time is reduced.    
+  *         is higher although the startup time is reduced.
   * @param Regulator: Specifies the regulator state in Stop mode.
   *          This parameter can be one of the following values:
   *            @arg PWR_MAINREGULATOR_ON: Stop mode with regulator ON
@@ -502,7 +486,7 @@ void HAL_PWR_EnterSLEEPMode(uint32_t Regulator, uint8_t SLEEPEntry)
   * @param STOPEntry: Specifies if Stop mode in entered with WFI or WFE instruction.
   *          This parameter can be one of the following values:
   *            @arg PWR_STOPENTRY_WFI: Enter Stop mode with WFI instruction
-  *            @arg PWR_STOPENTRY_WFE: Enter Stop mode with WFE instruction   
+  *            @arg PWR_STOPENTRY_WFE: Enter Stop mode with WFE instruction
   * @retval None
   */
 void HAL_PWR_EnterSTOPMode(uint32_t Regulator, uint8_t STOPEntry)
@@ -537,7 +521,7 @@ void HAL_PWR_EnterSTOPMode(uint32_t Regulator, uint8_t STOPEntry)
 /**
   * @brief Enters Standby mode.
   * @note  In Standby mode, all I/O pins are high impedance except for:
-  *          - Reset pad (still available) 
+  *          - Reset pad (still available)
   *          - RTC_AF1 pin (PC13) if configured for tamper, time-stamp, RTC
   *            Alarm out, or RTC clock calibration out.
   *          - WKUP pin 1 (PA0) if enabled.
@@ -563,11 +547,11 @@ void HAL_PWR_EnterSTANDBYMode(void)
 
 
 /**
-  * @brief Indicates Sleep-On-Exit when returning from Handler mode to Thread mode. 
-  * @note Set SLEEPONEXIT bit of SCR register. When this bit is set, the processor 
+  * @brief Indicates Sleep-On-Exit when returning from Handler mode to Thread mode.
+  * @note Set SLEEPONEXIT bit of SCR register. When this bit is set, the processor
   *       re-enters SLEEP mode when an interruption handling is over.
   *       Setting this bit is useful when the processor is expected to run only on
-  *       interruptions handling.         
+  *       interruptions handling.
   * @retval None
   */
 void HAL_PWR_EnableSleepOnExit(void)
@@ -578,9 +562,9 @@ void HAL_PWR_EnableSleepOnExit(void)
 
 
 /**
-  * @brief Disables Sleep-On-Exit feature when returning from Handler mode to Thread mode. 
-  * @note Clears SLEEPONEXIT bit of SCR register. When this bit is set, the processor 
-  *       re-enters SLEEP mode when an interruption handling is over.          
+  * @brief Disables Sleep-On-Exit feature when returning from Handler mode to Thread mode.
+  * @note Clears SLEEPONEXIT bit of SCR register. When this bit is set, the processor
+  *       re-enters SLEEP mode when an interruption handling is over.
   * @retval None
   */
 void HAL_PWR_DisableSleepOnExit(void)
@@ -591,8 +575,8 @@ void HAL_PWR_DisableSleepOnExit(void)
 
 
 /**
-  * @brief Enables CORTEX M3 SEVONPEND bit. 
-  * @note Sets SEVONPEND bit of SCR register. When this bit is set, this causes 
+  * @brief Enables CORTEX M3 SEVONPEND bit.
+  * @note Sets SEVONPEND bit of SCR register. When this bit is set, this causes
   *       WFE to wake up when an interrupt moves from inactive to pended.
   * @retval None
   */
@@ -604,9 +588,9 @@ void HAL_PWR_EnableSEVOnPend(void)
 
 
 /**
-  * @brief Disables CORTEX M3 SEVONPEND bit. 
-  * @note Clears SEVONPEND bit of SCR register. When this bit is set, this causes 
-  *       WFE to wake up when an interrupt moves from inactive to pended.         
+  * @brief Disables CORTEX M3 SEVONPEND bit.
+  * @note Clears SEVONPEND bit of SCR register. When this bit is set, this causes
+  *       WFE to wake up when an interrupt moves from inactive to pended.
   * @retval None
   */
 void HAL_PWR_DisableSEVOnPend(void)
@@ -643,7 +627,7 @@ __weak void HAL_PWR_PVDCallback(void)
 {
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_PWR_PVDCallback could be implemented in the user file
-   */ 
+   */
 }
 
 /**

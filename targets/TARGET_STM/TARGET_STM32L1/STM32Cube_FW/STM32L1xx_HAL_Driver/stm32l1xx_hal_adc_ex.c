@@ -8,7 +8,6 @@
   *           + Operation functions
   *             ++ Start, stop, get result of conversions of injected
   *                group, using 2 possible modes: polling, interruption.
-  *             ++ Calibration (ADC automatic self-calibration)
   *           + Control functions
   *             ++ Channels configuration on injected group
   *          Other functions (generic functions) are available in file 
@@ -23,29 +22,13 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
@@ -122,7 +105,7 @@
 /**
   * @brief  Enables ADC, starts conversion of injected group.
   *         Interruptions enabled in this function: None.
-  * @param  hadc: ADC handle
+  * @param  hadc ADC handle
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_ADCEx_InjectedStart(ADC_HandleTypeDef* hadc)
@@ -194,7 +177,7 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedStart(ADC_HandleTypeDef* hadc)
   * @note   If injected group mode auto-injection is enabled,
   *         function HAL_ADC_Stop must be used.
   * @note   In case of auto-injection mode, HAL_ADC_Stop must be used.
-  * @param  hadc: ADC handle
+  * @param  hadc ADC handle
   * @retval None
   */
 HAL_StatusTypeDef HAL_ADCEx_InjectedStop(ADC_HandleTypeDef* hadc)
@@ -246,8 +229,8 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedStop(ADC_HandleTypeDef* hadc)
 
 /**
   * @brief  Wait for injected group conversion to be completed.
-  * @param  hadc: ADC handle
-  * @param  Timeout: Timeout value in millisecond.
+  * @param  hadc ADC handle
+  * @param  Timeout Timeout value in millisecond.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_ADCEx_InjectedPollForConversion(ADC_HandleTypeDef* hadc, uint32_t Timeout)
@@ -382,7 +365,7 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedPollForConversion(ADC_HandleTypeDef* hadc, u
   * @brief  Enables ADC, starts conversion of injected group with interruption.
   *          - JEOC (end of conversion of injected group)
   *         Each of these interruptions has its dedicated callback function.
-  * @param  hadc: ADC handle
+  * @param  hadc ADC handle
   * @retval HAL status.
   */
 HAL_StatusTypeDef HAL_ADCEx_InjectedStart_IT(ADC_HandleTypeDef* hadc)
@@ -457,7 +440,7 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedStart_IT(ADC_HandleTypeDef* hadc)
   *         injected and regular groups, and disable the ADC.
   * @note   If injected group mode auto-injection is enabled,
   *         function HAL_ADC_Stop must be used.
-  * @param  hadc: ADC handle
+  * @param  hadc ADC handle
   * @retval None
   */
 HAL_StatusTypeDef HAL_ADCEx_InjectedStop_IT(ADC_HandleTypeDef* hadc)
@@ -529,8 +512,8 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedStop_IT(ADC_HandleTypeDef* hadc)
   *         in programming model IT: @ref HAL_ADC_IRQHandler(), in programming
   *         model polling: @ref HAL_ADCEx_InjectedPollForConversion() 
   *         or @ref __HAL_ADC_CLEAR_FLAG(&hadc, ADC_FLAG_JEOS).
-  * @param  hadc: ADC handle
-  * @param  InjectedRank: the converted ADC injected rank.
+  * @param  hadc ADC handle
+  * @param  InjectedRank the converted ADC injected rank.
   *          This parameter can be one of the following values:
   *            @arg ADC_INJECTED_RANK_1: Injected Channel1 selected
   *            @arg ADC_INJECTED_RANK_2: Injected Channel2 selected
@@ -570,7 +553,7 @@ uint32_t HAL_ADCEx_InjectedGetValue(ADC_HandleTypeDef* hadc, uint32_t InjectedRa
 
 /**
   * @brief  Injected conversion complete callback in non blocking mode 
-  * @param  hadc: ADC handle
+  * @param  hadc ADC handle
   * @retval None
   */
 __weak void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* hadc)
@@ -610,8 +593,8 @@ __weak void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* hadc)
   *         "ADC_InjectionConfTypeDef" on the fly, without reseting the ADC.
   *         The setting of these parameters is conditioned to ADC state: 
   *         this function must be called when ADC is not under conversion.
-  * @param  hadc: ADC handle
-  * @param  sConfigInjected: Structure of ADC injected group and ADC channel for
+  * @param  hadc ADC handle
+  * @param  sConfigInjected Structure of ADC injected group and ADC channel for
   *         injected group.
   * @retval None
   */

@@ -6,29 +6,13 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright(c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
@@ -57,25 +41,6 @@ extern "C" {
 /* Private types -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private constants ---------------------------------------------------------*/
-/** @defgroup RCC_LL_Private_Constants RCC Private Constants
-  * @{
-  */
-/* Defines used for the bit position in the register and perform offsets*/
-#define RCC_POSITION_MSICAL     (uint32_t)POSITION_VAL(RCC_ICSCR_MSICAL)  /*!< field position in register RCC_ICSCR */
-#define RCC_POSITION_MSITRIM    (uint32_t)POSITION_VAL(RCC_ICSCR_MSITRIM) /*!< field position in register RCC_ICSCR */
-#define RCC_POSITION_MSIRANGE   (uint32_t)POSITION_VAL(RCC_ICSCR_MSIRANGE) /*!< field position in register RCC_ICSCR */
-#define RCC_POSITION_HPRE       (uint32_t)POSITION_VAL(RCC_CFGR_HPRE)     /*!< field position in register RCC_CFGR */
-#define RCC_POSITION_PPRE1      (uint32_t)POSITION_VAL(RCC_CFGR_PPRE1)    /*!< field position in register RCC_CFGR */
-#define RCC_POSITION_PPRE2      (uint32_t)POSITION_VAL(RCC_CFGR_PPRE2)    /*!< field position in register RCC_CFGR */
-#define RCC_POSITION_HSICAL     (uint32_t)POSITION_VAL(RCC_ICSCR_HSICAL)     /*!< field position in register RCC_ICSCR */
-#define RCC_POSITION_HSITRIM    (uint32_t)POSITION_VAL(RCC_ICSCR_HSITRIM)    /*!< field position in register RCC_ICSCR */
-#define RCC_POSITION_PLLMUL     (uint32_t)POSITION_VAL(RCC_CFGR_PLLMUL)   /*!< field position in register RCC_CFGR */
-#define RCC_POSITION_PLLDIV     (uint32_t)POSITION_VAL(RCC_CFGR_PLLDIV)   /*!< field position in register RCC_CFGR */
-
-/**
-  * @}
-  */
-
 /* Private macros ------------------------------------------------------------*/
 /* Exported types ------------------------------------------------------------*/
 #if defined(USE_FULL_LL_DRIVER)
@@ -329,7 +294,7 @@ typedef struct
 #define LL_RCC_RTC_CLKSOURCE_NONE          0x00000000U                   /*!< No clock used as RTC clock */
 #define LL_RCC_RTC_CLKSOURCE_LSE           RCC_CSR_RTCSEL_LSE            /*!< LSE oscillator clock used as RTC clock */
 #define LL_RCC_RTC_CLKSOURCE_LSI           RCC_CSR_RTCSEL_LSI            /*!< LSI oscillator clock used as RTC clock */
-#define LL_RCC_RTC_CLKSOURCE_HSE           RCC_CSR_RTCSEL_HSE            /*!< HSE oscillator clock divided by a programmable prescaler 
+#define LL_RCC_RTC_CLKSOURCE_HSE           RCC_CSR_RTCSEL_HSE            /*!< HSE oscillator clock divided by a programmable prescaler
                                                                              (selection through @ref LL_RCC_SetRTC_HSEPrescaler function ) */
 /**
   * @}
@@ -427,14 +392,14 @@ typedef struct
   *         @arg @ref LL_RCC_PLL_DIV_4
   * @retval PLL clock frequency (in Hz)
   */
-#define __LL_RCC_CALC_PLLCLK_FREQ(__INPUTFREQ__, __PLLMUL__,  __PLLDIV__) ((__INPUTFREQ__) * (PLLMulTable[(__PLLMUL__) >> RCC_POSITION_PLLMUL]) / (((__PLLDIV__) >> RCC_POSITION_PLLDIV)+1U))
+#define __LL_RCC_CALC_PLLCLK_FREQ(__INPUTFREQ__, __PLLMUL__,  __PLLDIV__) ((__INPUTFREQ__) * (PLLMulTable[(__PLLMUL__) >> RCC_CFGR_PLLMUL_Pos]) / (((__PLLDIV__) >> RCC_CFGR_PLLDIV_Pos)+1U))
 
 /**
   * @brief  Helper macro to calculate the HCLK frequency
   * @note: __AHBPRESCALER__ be retrieved by @ref LL_RCC_GetAHBPrescaler
   *        ex: __LL_RCC_CALC_HCLK_FREQ(LL_RCC_GetAHBPrescaler())
   * @param  __SYSCLKFREQ__ SYSCLK frequency (based on MSI/HSE/HSI/PLLCLK)
-  * @param  __AHBPRESCALER__: This parameter can be one of the following values:
+  * @param  __AHBPRESCALER__ This parameter can be one of the following values:
   *         @arg @ref LL_RCC_SYSCLK_DIV_1
   *         @arg @ref LL_RCC_SYSCLK_DIV_2
   *         @arg @ref LL_RCC_SYSCLK_DIV_4
@@ -453,7 +418,7 @@ typedef struct
   * @note: __APB1PRESCALER__ be retrieved by @ref LL_RCC_GetAPB1Prescaler
   *        ex: __LL_RCC_CALC_PCLK1_FREQ(LL_RCC_GetAPB1Prescaler())
   * @param  __HCLKFREQ__ HCLK frequency
-  * @param  __APB1PRESCALER__: This parameter can be one of the following values:
+  * @param  __APB1PRESCALER__ This parameter can be one of the following values:
   *         @arg @ref LL_RCC_APB1_DIV_1
   *         @arg @ref LL_RCC_APB1_DIV_2
   *         @arg @ref LL_RCC_APB1_DIV_4
@@ -468,7 +433,7 @@ typedef struct
   * @note: __APB2PRESCALER__ be retrieved by @ref LL_RCC_GetAPB2Prescaler
   *        ex: __LL_RCC_CALC_PCLK2_FREQ(LL_RCC_GetAPB2Prescaler())
   * @param  __HCLKFREQ__ HCLK frequency
-  * @param  __APB2PRESCALER__: This parameter can be one of the following values:
+  * @param  __APB2PRESCALER__ This parameter can be one of the following values:
   *         @arg @ref LL_RCC_APB2_DIV_1
   *         @arg @ref LL_RCC_APB2_DIV_2
   *         @arg @ref LL_RCC_APB2_DIV_4
@@ -482,7 +447,7 @@ typedef struct
   * @brief  Helper macro to calculate the MSI frequency (in Hz)
   * @note: __MSIRANGE__can be retrieved by @ref LL_RCC_MSI_GetRange
   *        ex: __LL_RCC_CALC_MSI_FREQ(LL_RCC_MSI_GetRange())
-  * @param  __MSIRANGE__: This parameter can be one of the following values:
+  * @param  __MSIRANGE__ This parameter can be one of the following values:
   *         @arg @ref LL_RCC_MSIRANGE_0
   *         @arg @ref LL_RCC_MSIRANGE_1
   *         @arg @ref LL_RCC_MSIRANGE_2
@@ -492,7 +457,7 @@ typedef struct
   *         @arg @ref LL_RCC_MSIRANGE_6
   * @retval MSI clock frequency (in Hz)
   */
-#define __LL_RCC_CALC_MSI_FREQ(__MSIRANGE__) ((32768U * ( 1U << (((__MSIRANGE__) >> RCC_POSITION_MSIRANGE) + 1U))))
+#define __LL_RCC_CALC_MSI_FREQ(__MSIRANGE__) ((32768U * ( 1UL << (((__MSIRANGE__) >> RCC_ICSCR_MSIRANGE_Pos) + 1U))))
 
 /**
   * @}
@@ -579,7 +544,7 @@ __STATIC_INLINE void LL_RCC_HSE_Disable(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_HSE_IsReady(void)
 {
-  return (READ_BIT(RCC->CR, RCC_CR_HSERDY) == (RCC_CR_HSERDY));
+  return ((READ_BIT(RCC->CR, RCC_CR_HSERDY) == RCC_CR_HSERDY) ? 1UL : 0UL);
 }
 
 /**
@@ -646,7 +611,7 @@ __STATIC_INLINE void LL_RCC_HSI_Disable(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_HSI_IsReady(void)
 {
-  return (READ_BIT(RCC->CR, RCC_CR_HSIRDY) == (RCC_CR_HSIRDY));
+  return ((READ_BIT(RCC->CR, RCC_CR_HSIRDY) == RCC_CR_HSIRDY) ? 1UL : 0UL);
 }
 
 /**
@@ -764,7 +729,7 @@ __STATIC_INLINE void LL_RCC_LSE_DisableCSS(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_LSE_IsReady(void)
 {
-  return (READ_BIT(RCC->CSR, RCC_CSR_LSERDY) == (RCC_CSR_LSERDY));
+  return ((READ_BIT(RCC->CSR, RCC_CSR_LSERDY) == RCC_CSR_LSERDY) ? 1UL : 0UL);
 }
 
 #if defined(RCC_LSECSS_SUPPORT)
@@ -775,7 +740,7 @@ __STATIC_INLINE uint32_t LL_RCC_LSE_IsReady(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_LSE_IsCSSDetected(void)
 {
-  return (READ_BIT(RCC->CSR, RCC_CSR_LSECSSD) == (RCC_CSR_LSECSSD));
+  return ((READ_BIT(RCC->CSR, RCC_CSR_LSECSSD) == RCC_CSR_LSECSSD) ? 1UL : 0UL);
 }
 
 #endif /* RCC_LSECSS_SUPPORT */
@@ -814,7 +779,7 @@ __STATIC_INLINE void LL_RCC_LSI_Disable(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_LSI_IsReady(void)
 {
-  return (READ_BIT(RCC->CSR, RCC_CSR_LSIRDY) == (RCC_CSR_LSIRDY));
+  return ((READ_BIT(RCC->CSR, RCC_CSR_LSIRDY) == RCC_CSR_LSIRDY) ? 1UL : 0UL);
 }
 
 /**
@@ -852,7 +817,7 @@ __STATIC_INLINE void LL_RCC_MSI_Disable(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_MSI_IsReady(void)
 {
-  return (READ_BIT(RCC->CR, RCC_CR_MSIRDY) == (RCC_CR_MSIRDY));
+  return ((READ_BIT(RCC->CR, RCC_CR_MSIRDY) == RCC_CR_MSIRDY) ? 1UL : 0UL);
 }
 
 /**
@@ -899,7 +864,7 @@ __STATIC_INLINE uint32_t LL_RCC_MSI_GetRange(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_MSI_GetCalibration(void)
 {
-  return (uint32_t)(READ_BIT(RCC->ICSCR, RCC_ICSCR_MSICAL) >> RCC_POSITION_MSICAL);
+  return (uint32_t)(READ_BIT(RCC->ICSCR, RCC_ICSCR_MSICAL) >> RCC_ICSCR_MSICAL_Pos);
 }
 
 /**
@@ -911,7 +876,7 @@ __STATIC_INLINE uint32_t LL_RCC_MSI_GetCalibration(void)
   */
 __STATIC_INLINE void LL_RCC_MSI_SetCalibTrimming(uint32_t Value)
 {
-  MODIFY_REG(RCC->ICSCR, RCC_ICSCR_MSITRIM, Value << RCC_POSITION_MSITRIM);
+  MODIFY_REG(RCC->ICSCR, RCC_ICSCR_MSITRIM, Value << RCC_ICSCR_MSITRIM_Pos);
 }
 
 /**
@@ -921,7 +886,7 @@ __STATIC_INLINE void LL_RCC_MSI_SetCalibTrimming(uint32_t Value)
   */
 __STATIC_INLINE uint32_t LL_RCC_MSI_GetCalibTrimming(void)
 {
-  return (uint32_t)(READ_BIT(RCC->ICSCR, RCC_ICSCR_MSITRIM) >> RCC_POSITION_MSITRIM);
+  return (uint32_t)(READ_BIT(RCC->ICSCR, RCC_ICSCR_MSITRIM) >> RCC_ICSCR_MSITRIM_Pos);
 }
 
 /**
@@ -1165,7 +1130,7 @@ __STATIC_INLINE void LL_RCC_DisableRTC(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsEnabledRTC(void)
 {
-  return (READ_BIT(RCC->CSR, RCC_CSR_RTCEN) == (RCC_CSR_RTCEN));
+  return ((READ_BIT(RCC->CSR, RCC_CSR_RTCEN) == RCC_CSR_RTCEN) ? 1UL : 0UL);
 }
 
 /**
@@ -1224,7 +1189,7 @@ __STATIC_INLINE void LL_RCC_PLL_Disable(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_PLL_IsReady(void)
 {
-  return (READ_BIT(RCC->CR, RCC_CR_PLLRDY) == (RCC_CR_PLLRDY));
+  return ((READ_BIT(RCC->CR, RCC_CR_PLLRDY) == RCC_CR_PLLRDY) ? 1UL : 0UL);
 }
 
 /**
@@ -1254,6 +1219,19 @@ __STATIC_INLINE uint32_t LL_RCC_PLL_IsReady(void)
 __STATIC_INLINE void LL_RCC_PLL_ConfigDomain_SYS(uint32_t Source, uint32_t PLLMul, uint32_t PLLDiv)
 {
   MODIFY_REG(RCC->CFGR, RCC_CFGR_PLLSRC | RCC_CFGR_PLLMUL | RCC_CFGR_PLLDIV, Source | PLLMul | PLLDiv);
+}
+
+/**
+  * @brief  Configure PLL clock source
+  * @rmtoll CFGR         PLLSRC        LL_RCC_PLL_SetMainSource
+  * @param  PLLSource This parameter can be one of the following values:
+  *         @arg @ref LL_RCC_PLLSOURCE_HSI
+  *         @arg @ref LL_RCC_PLLSOURCE_HSE
+  * @retval None
+  */
+__STATIC_INLINE void LL_RCC_PLL_SetMainSource(uint32_t PLLSource)
+{
+  MODIFY_REG(RCC->CFGR, RCC_CFGR_PLLSRC, PLLSource);
 }
 
 /**
@@ -1397,7 +1375,7 @@ __STATIC_INLINE void LL_RCC_ClearFlag_LSECSS(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_LSIRDY(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_LSIRDYF) == (RCC_CIR_LSIRDYF));
+  return ((READ_BIT(RCC->CIR, RCC_CIR_LSIRDYF) == RCC_CIR_LSIRDYF) ? 1UL : 0UL);
 }
 
 /**
@@ -1407,7 +1385,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_LSIRDY(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_LSERDY(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_LSERDYF) == (RCC_CIR_LSERDYF));
+  return ((READ_BIT(RCC->CIR, RCC_CIR_LSERDYF) == RCC_CIR_LSERDYF) ? 1UL : 0UL);
 }
 
 /**
@@ -1417,7 +1395,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_LSERDY(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_MSIRDY(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_MSIRDYF) == (RCC_CIR_MSIRDYF));
+  return ((READ_BIT(RCC->CIR, RCC_CIR_MSIRDYF) == RCC_CIR_MSIRDYF) ? 1UL : 0UL);
 }
 
 /**
@@ -1427,7 +1405,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_MSIRDY(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_HSIRDY(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_HSIRDYF) == (RCC_CIR_HSIRDYF));
+  return ((READ_BIT(RCC->CIR, RCC_CIR_HSIRDYF) == RCC_CIR_HSIRDYF) ? 1UL : 0UL);
 }
 
 /**
@@ -1437,7 +1415,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_HSIRDY(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_HSERDY(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_HSERDYF) == (RCC_CIR_HSERDYF));
+  return ((READ_BIT(RCC->CIR, RCC_CIR_HSERDYF) == RCC_CIR_HSERDYF) ? 1UL : 0UL);
 }
 
 /**
@@ -1447,7 +1425,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_HSERDY(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_PLLRDY(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_PLLRDYF) == (RCC_CIR_PLLRDYF));
+  return ((READ_BIT(RCC->CIR, RCC_CIR_PLLRDYF) == RCC_CIR_PLLRDYF) ? 1UL : 0UL);
 }
 
 /**
@@ -1457,7 +1435,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_PLLRDY(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_HSECSS(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_CSSF) == (RCC_CIR_CSSF));
+  return ((READ_BIT(RCC->CIR, RCC_CIR_CSSF) == RCC_CIR_CSSF) ? 1UL : 0UL);
 }
 
 #if defined(RCC_LSECSS_SUPPORT)
@@ -1468,10 +1446,10 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_HSECSS(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_LSECSS(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_LSECSSF) == (RCC_CIR_LSECSSF));
+  return ((READ_BIT(RCC->CIR, RCC_CIR_LSECSSF) == RCC_CIR_LSECSSF) ? 1UL : 0UL);
 }
-
 #endif /* RCC_LSECSS_SUPPORT */
+
 /**
   * @brief  Check if RCC flag Independent Watchdog reset is set or not.
   * @rmtoll CSR          IWDGRSTF      LL_RCC_IsActiveFlag_IWDGRST
@@ -1479,7 +1457,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_LSECSS(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_IWDGRST(void)
 {
-  return (READ_BIT(RCC->CSR, RCC_CSR_IWDGRSTF) == (RCC_CSR_IWDGRSTF));
+  return ((READ_BIT(RCC->CSR, RCC_CSR_IWDGRSTF) == RCC_CSR_IWDGRSTF) ? 1UL : 0UL);
 }
 
 /**
@@ -1489,7 +1467,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_IWDGRST(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_LPWRRST(void)
 {
-  return (READ_BIT(RCC->CSR, RCC_CSR_LPWRRSTF) == (RCC_CSR_LPWRRSTF));
+  return ((READ_BIT(RCC->CSR, RCC_CSR_LPWRRSTF) == RCC_CSR_LPWRRSTF) ? 1UL : 0UL);
 }
 
 /**
@@ -1499,7 +1477,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_LPWRRST(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_OBLRST(void)
 {
-  return (READ_BIT(RCC->CSR, RCC_CSR_OBLRSTF) == (RCC_CSR_OBLRSTF));
+  return ((READ_BIT(RCC->CSR, RCC_CSR_OBLRSTF) == RCC_CSR_OBLRSTF) ? 1UL : 0UL);
 }
 
 /**
@@ -1509,7 +1487,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_OBLRST(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_PINRST(void)
 {
-  return (READ_BIT(RCC->CSR, RCC_CSR_PINRSTF) == (RCC_CSR_PINRSTF));
+  return ((READ_BIT(RCC->CSR, RCC_CSR_PINRSTF) == RCC_CSR_PINRSTF) ? 1UL : 0UL);
 }
 
 /**
@@ -1519,7 +1497,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_PINRST(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_PORRST(void)
 {
-  return (READ_BIT(RCC->CSR, RCC_CSR_PORRSTF) == (RCC_CSR_PORRSTF));
+  return ((READ_BIT(RCC->CSR, RCC_CSR_PORRSTF) == RCC_CSR_PORRSTF) ? 1UL : 0UL);
 }
 
 /**
@@ -1529,7 +1507,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_PORRST(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_SFTRST(void)
 {
-  return (READ_BIT(RCC->CSR, RCC_CSR_SFTRSTF) == (RCC_CSR_SFTRSTF));
+  return ((READ_BIT(RCC->CSR, RCC_CSR_SFTRSTF) == RCC_CSR_SFTRSTF) ? 1UL : 0UL);
 }
 
 /**
@@ -1539,7 +1517,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_SFTRST(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_WWDGRST(void)
 {
-  return (READ_BIT(RCC->CSR, RCC_CSR_WWDGRSTF) == (RCC_CSR_WWDGRSTF));
+  return ((READ_BIT(RCC->CSR, RCC_CSR_WWDGRSTF) == RCC_CSR_WWDGRSTF) ? 1UL : 0UL);
 }
 
 /**
@@ -1630,8 +1608,8 @@ __STATIC_INLINE void LL_RCC_EnableIT_LSECSS(void)
 {
   SET_BIT(RCC->CIR, RCC_CIR_LSECSSIE);
 }
-
 #endif /* RCC_LSECSS_SUPPORT */
+
 /**
   * @brief  Disable LSI ready interrupt
   * @rmtoll CIR         LSIRDYIE      LL_RCC_DisableIT_LSIRDY
@@ -1702,8 +1680,8 @@ __STATIC_INLINE void LL_RCC_DisableIT_LSECSS(void)
 {
   CLEAR_BIT(RCC->CIR, RCC_CIR_LSECSSIE);
 }
-
 #endif /* RCC_LSECSS_SUPPORT */
+
 /**
   * @brief  Checks if LSI ready interrupt source is enabled or disabled.
   * @rmtoll CIR         LSIRDYIE      LL_RCC_IsEnabledIT_LSIRDY
@@ -1711,7 +1689,7 @@ __STATIC_INLINE void LL_RCC_DisableIT_LSECSS(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsEnabledIT_LSIRDY(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_LSIRDYIE) == (RCC_CIR_LSIRDYIE));
+  return ((READ_BIT(RCC->CIR, RCC_CIR_LSIRDYIE) == RCC_CIR_LSIRDYIE) ? 1UL : 0UL);
 }
 
 /**
@@ -1721,7 +1699,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsEnabledIT_LSIRDY(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsEnabledIT_LSERDY(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_LSERDYIE) == (RCC_CIR_LSERDYIE));
+  return ((READ_BIT(RCC->CIR, RCC_CIR_LSERDYIE) == RCC_CIR_LSERDYIE) ? 1UL : 0UL);
 }
 
 /**
@@ -1731,7 +1709,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsEnabledIT_LSERDY(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsEnabledIT_MSIRDY(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_MSIRDYIE) == (RCC_CIR_MSIRDYIE));
+  return ((READ_BIT(RCC->CIR, RCC_CIR_MSIRDYIE) == RCC_CIR_MSIRDYIE) ? 1UL : 0UL);
 }
 
 /**
@@ -1741,7 +1719,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsEnabledIT_MSIRDY(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsEnabledIT_HSIRDY(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_HSIRDYIE) == (RCC_CIR_HSIRDYIE));
+  return ((READ_BIT(RCC->CIR, RCC_CIR_HSIRDYIE) == RCC_CIR_HSIRDYIE) ? 1UL : 0UL);
 }
 
 /**
@@ -1751,7 +1729,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsEnabledIT_HSIRDY(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsEnabledIT_HSERDY(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_HSERDYIE) == (RCC_CIR_HSERDYIE));
+  return ((READ_BIT(RCC->CIR, RCC_CIR_HSERDYIE) == RCC_CIR_HSERDYIE) ? 1UL : 0UL);
 }
 
 /**
@@ -1761,7 +1739,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsEnabledIT_HSERDY(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsEnabledIT_PLLRDY(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_PLLRDYIE) == (RCC_CIR_PLLRDYIE));
+  return ((READ_BIT(RCC->CIR, RCC_CIR_PLLRDYIE) == RCC_CIR_PLLRDYIE) ? 1UL : 0UL);
 }
 
 #if defined(RCC_LSECSS_SUPPORT)
@@ -1772,10 +1750,10 @@ __STATIC_INLINE uint32_t LL_RCC_IsEnabledIT_PLLRDY(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsEnabledIT_LSECSS(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_LSECSSIE) == (RCC_CIR_LSECSSIE));
+  return ((READ_BIT(RCC->CIR, RCC_CIR_LSECSSIE) == RCC_CIR_LSECSSIE) ? 1UL : 0UL);
 }
-
 #endif /* RCC_LSECSS_SUPPORT */
+
 /**
   * @}
   */

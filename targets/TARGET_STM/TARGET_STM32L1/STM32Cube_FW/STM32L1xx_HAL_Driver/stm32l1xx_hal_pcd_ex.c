@@ -2,40 +2,24 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_pcd_ex.c
   * @author  MCD Application Team
-  * @brief   Extended PCD HAL module driver.
-  *          This file provides firmware functions to manage the following 
+  * @brief   PCD Extended HAL module driver.
+  *          This file provides firmware functions to manage the following
   *          functionalities of the USB Peripheral Controller:
-  *           + Configururation of the PMA for EP
-  *         
+  *           + Extended features functions
+  *
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l1xx_hal.h"
@@ -45,43 +29,43 @@
   */
 
 /** @defgroup PCDEx PCDEx
-  * @brief PCDEx HAL module driver
+  * @brief PCD Extended HAL module driver
   * @{
   */
 
 #ifdef HAL_PCD_MODULE_ENABLED
 
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
+#if defined (USB)
+/* Private types -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
+/* Private constants ---------------------------------------------------------*/
+/* Private macros ------------------------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-
+/* Exported functions --------------------------------------------------------*/
 
 /** @defgroup PCDEx_Exported_Functions PCDEx Exported Functions
   * @{
   */
 
-/** @defgroup PCDEx_Exported_Functions_Group2 Extended Peripheral Control functions
-  * @brief    Extended Peripheral Control functions
+/** @defgroup PCDEx_Exported_Functions_Group1 Peripheral Control functions
+  * @brief    PCDEx control functions
   *
-@verbatim   
+@verbatim
  ===============================================================================
-             ##### Peripheral Control functions #####
- ===============================================================================  
+                 ##### Extended features functions #####
+ ===============================================================================
     [..]  This section provides functions allowing to:
-      (+) Configure PMA for the EndPoint
-      
+      (+) Update FIFO configuration
+
 @endverbatim
   * @{
   */
-  
+
 /**
-  * @brief Configure PMA for EP
-  * @param  hpcd : Device instance
-  * @param  ep_addr: endpoint address
-  * @param  ep_kind: endpoint Kind
+  * @brief  Configure PMA for EP
+  * @param  hpcd  Device instance
+  * @param  ep_addr endpoint address
+  * @param  ep_kind endpoint Kind
   *                  USB_SNG_BUF: Single Buffer used
   *                  USB_DBL_BUF: Double Buffer used
   * @param  pmaadress: EP address in The PMA: In case of single buffer endpoint
@@ -91,45 +75,97 @@
   *                   is a 32-bit value providing the endpoint buffer 0 address
   *                   in the LSB part of 32-bit value and endpoint buffer 1 address
   *                   in the MSB part of 32-bit value.
-  * @retval : status
+  * @retval HAL status
   */
 
-HAL_StatusTypeDef  HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd, 
-                        uint16_t ep_addr,
-                        uint16_t ep_kind,
-                        uint32_t pmaadress)
-
+HAL_StatusTypeDef  HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd,
+                                       uint16_t ep_addr,
+                                       uint16_t ep_kind,
+                                       uint32_t pmaadress)
 {
   PCD_EPTypeDef *ep;
-  
+
   /* initialize ep structure*/
-  if ((0x80 & ep_addr) == 0x80)
+  if ((0x80U & ep_addr) == 0x80U)
   {
-    ep = &hpcd->IN_ep[ep_addr & 0x7F];
+    ep = &hpcd->IN_ep[ep_addr & EP_ADDR_MSK];
   }
   else
   {
     ep = &hpcd->OUT_ep[ep_addr];
   }
-  
+
   /* Here we check if the endpoint is single or double Buffer*/
   if (ep_kind == PCD_SNG_BUF)
   {
-    /*Single Buffer*/
-    ep->doublebuffer = 0;
-    /*Configure te PMA*/
+    /* Single Buffer */
+    ep->doublebuffer = 0U;
+    /* Configure the PMA */
     ep->pmaadress = (uint16_t)pmaadress;
   }
-  else /*USB_DBL_BUF*/
+  else /* USB_DBL_BUF */
   {
-    /*Double Buffer Endpoint*/
-    ep->doublebuffer = 1;
-    /*Configure the PMA*/
-    ep->pmaaddr0 =  pmaadress & 0xFFFF;
-    ep->pmaaddr1 =  (pmaadress & 0xFFFF0000U) >> 16;
+    /* Double Buffer Endpoint */
+    ep->doublebuffer = 1U;
+    /* Configure the PMA */
+    ep->pmaaddr0 = (uint16_t)(pmaadress & 0xFFFFU);
+    ep->pmaaddr1 = (uint16_t)((pmaadress & 0xFFFF0000U) >> 16);
   }
-  
-  return HAL_OK; 
+
+  return HAL_OK;
+}
+
+/**
+  * @brief  Software Device Connection,
+  *         this function is not required by USB OTG FS peripheral, it is used
+  *         only by USB Device FS peripheral.
+  * @param  hpcd: PCD handle
+  * @param  state: connection state (0 : disconnected / 1: connected)
+  * @retval None
+  */
+__weak void HAL_PCDEx_SetConnectionState(PCD_HandleTypeDef *hpcd, uint8_t state)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hpcd);
+  UNUSED(state);
+  /* NOTE : This function Should not be modified, when the callback is needed,
+            the HAL_PCDEx_SetConnectionState could be implemented in the user file
+   */
+}
+
+
+/**
+  * @brief  Send LPM message to user layer callback.
+  * @param  hpcd PCD handle
+  * @param  msg LPM message
+  * @retval HAL status
+  */
+__weak void HAL_PCDEx_LPM_Callback(PCD_HandleTypeDef *hpcd, PCD_LPM_MsgTypeDef msg)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hpcd);
+  UNUSED(msg);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_PCDEx_LPM_Callback could be implemented in the user file
+   */
+}
+
+/**
+  * @brief  Send BatteryCharging message to user layer callback.
+  * @param  hpcd PCD handle
+  * @param  msg LPM message
+  * @retval HAL status
+  */
+__weak void HAL_PCDEx_BCD_Callback(PCD_HandleTypeDef *hpcd, PCD_BCD_MsgTypeDef msg)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hpcd);
+  UNUSED(msg);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_PCDEx_BCD_Callback could be implemented in the user file
+   */
 }
 
 /**
@@ -139,8 +175,9 @@ HAL_StatusTypeDef  HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd,
 /**
   * @}
   */
-
+#endif /* defined (USB) */
 #endif /* HAL_PCD_MODULE_ENABLED */
+
 /**
   * @}
   */

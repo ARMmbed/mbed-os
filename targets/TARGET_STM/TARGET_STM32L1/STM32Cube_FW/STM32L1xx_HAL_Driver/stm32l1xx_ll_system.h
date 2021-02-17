@@ -19,29 +19,13 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
@@ -79,7 +63,7 @@ extern "C" {
  * @brief Power-down in Run mode Flash key
  */
 #define FLASH_PDKEY1                  (0x04152637U) /*!< Flash power down key1 */
-#define FLASH_PDKEY2                  (0xFAFBFCFDU) /*!< Flash power down key2: used with FLASH_PDKEY1 
+#define FLASH_PDKEY2                  (0xFAFBFCFDU) /*!< Flash power down key2: used with FLASH_PDKEY1
                                                        to unlock the RUN_PD bit in FLASH_ACR */
 
 /**
@@ -248,7 +232,7 @@ extern "C" {
 /** @defgroup SYSTEM_LL_EC_INPUTCAPTUREROUTING RI Input Capture Routing
   * @{
   */
-                                                         /* TIMx_IC1 TIMx_IC2  TIMx_IC3  TIMx_IC4   */  
+                                                         /* TIMx_IC1 TIMx_IC2  TIMx_IC3  TIMx_IC4   */
 #define LL_RI_INPUTCAPTUREROUTING_0        (0x00000000U) /*!< PA0       PA1      PA2       PA3      */
 #define LL_RI_INPUTCAPTUREROUTING_1        (0x00000001U) /*!< PA4       PA5      PA6       PA7      */
 #define LL_RI_INPUTCAPTUREROUTING_2        (0x00000002U) /*!< PA8       PA9      PA10      PA11     */
@@ -298,7 +282,7 @@ extern "C" {
 #define LL_RI_IOSWITCH_CH23                RI_ASCR1_CH_23   /*!< Analog I/O switch control of channels CH23  */
 #define LL_RI_IOSWITCH_CH24                RI_ASCR1_CH_24   /*!< Analog I/O switch control of channels CH24  */
 #define LL_RI_IOSWITCH_CH25                RI_ASCR1_CH_25   /*!< Analog I/O switch control of channels CH25  */
-#define LL_RI_IOSWITCH_VCOMP               RI_ASCR1_VCOMP   /*!< VCOMP (ADC channel 26) is an internal switch 
+#define LL_RI_IOSWITCH_VCOMP               RI_ASCR1_VCOMP   /*!< VCOMP (ADC channel 26) is an internal switch
                                                                  used to connect selected channel to COMP1 non inverting input */
 #if defined(RI_ASCR1_CH_27)
 #define LL_RI_IOSWITCH_CH27                RI_ASCR1_CH_27   /*!< CH[30:27]/GR11[4:1]: I/O Analog switch control */
@@ -636,7 +620,7 @@ __STATIC_INLINE void LL_SYSCFG_DisableLCDCapacitanceConnection(uint32_t Pin)
   */
 __STATIC_INLINE void LL_SYSCFG_SetEXTISource(uint32_t Port, uint32_t Line)
 {
-  MODIFY_REG(SYSCFG->EXTICR[Line & 0xFF], (Line >> 16), Port << POSITION_VAL((Line >> 16)));
+  MODIFY_REG(SYSCFG->EXTICR[Line & 0x3U], (Line >> 16), Port << POSITION_VAL((Line >> 16)));
 }
 
 /**
@@ -736,7 +720,7 @@ __STATIC_INLINE void LL_SYSCFG_SetEXTISource(uint32_t Port, uint32_t Line)
   */
 __STATIC_INLINE uint32_t LL_SYSCFG_GetEXTISource(uint32_t Line)
 {
-  return (uint32_t)(READ_BIT(SYSCFG->EXTICR[Line & 0xFF], (Line >> 16)) >> POSITION_VAL(Line >> 16));
+  return (uint32_t)(READ_BIT(SYSCFG->EXTICR[Line & 0x3U], (Line >> 16)) >> POSITION_VAL(Line >> 16));
 }
 
 /**
@@ -755,7 +739,7 @@ __STATIC_INLINE uint32_t LL_SYSCFG_GetEXTISource(uint32_t Line)
   *       0x436: Cat.4 device or Cat.3 device(1)\n
   *       0x437: Cat.5 device\n
   *
-  *       (1) Cat.3 devices: STM32L15xxC or STM3216xxC devices with 
+  *       (1) Cat.3 devices: STM32L15xxC or STM3216xxC devices with
   *       RPN ending with letter 'A', in WLCSP64 packages or with more then 100 pin.
   * @rmtoll DBGMCU_IDCODE DEV_ID        LL_DBGMCU_GetDeviceID
   * @retval Values between Min_Data=0x00 and Max_Data=0xFFF
@@ -972,6 +956,58 @@ __STATIC_INLINE void LL_DBGMCU_APB2_GRP1_UnFreezePeriph(uint32_t Periphs)
   * @}
   */
 
+#if defined(COMP_CSR_VREFOUTEN)
+/** @defgroup SYSTEM_LL_EF_VREFOUT VREFOUT
+  * @{
+  */
+
+/**
+  * @brief  Enable the output of internal reference voltage (VrefInt) on I/O pin.
+  * @note   The VrefInt output can be routed to any I/O in group 3:
+  *          - For Cat.1 and Cat.2 devices: CH8 (PB0) or CH9 (PB1).
+  *          - For Cat.3 devices: CH8 (PB0), CH9 (PB1) or CH0b (PB2).
+  *          - For Cat.4 and Cat.5 devices: CH8 (PB0), CH9 (PB1), CH0b (PB2),
+  *            CH1b (PF11) or CH2b (PF12).
+  *         Note: Comparator peripheral clock must be preliminarily enabled.
+  *               Refer to function "LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_COMP)".
+  *         Note: In addition with this macro, VrefInt output buffer must be
+  *               connected to the selected I/O pin. Refer to functions
+  *               "LL_RI_EnableSwitchControlMode()" and "LL_RI_CloseIOSwitchLinkedToADC()".
+  * @note  VrefInt output enable: Internal reference voltage connected to I/O group 3
+  *        VrefInt output disable: Internal reference voltage disconnected from I/O group 3
+  * @rmtoll COMP_CSR     VREFOUTEN     LL_VREFOUT_Enable
+  * @retval None
+  */
+__STATIC_INLINE void LL_VREFOUT_Enable(void)
+{
+  SET_BIT(COMP->CSR, COMP_CSR_VREFOUTEN);
+}
+
+/**
+  * @brief  Disable the output of internal reference voltage (VrefInt) on I/O pin.
+  * @rmtoll COMP_CSR     VREFOUTEN     LL_VREFOUT_Disable
+  * @retval None
+  */
+__STATIC_INLINE void LL_VREFOUT_Disable(void)
+{
+  CLEAR_BIT(COMP->CSR, COMP_CSR_VREFOUTEN);
+}
+
+/**
+  * @brief  Check if output of internal reference voltage (VrefInt) is connected to I/O pin.
+  * @rmtoll COMP_CSR     VREFOUTEN     LL_VREFOUT_IsEnabled
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_VREFOUT_IsEnabled(void)
+{
+  return ((READ_BIT(COMP->CSR, COMP_CSR_VREFOUTEN) == COMP_CSR_VREFOUTEN) ? 1UL : 0UL);
+}
+
+/**
+  * @}
+  */
+#endif /* COMP_CSR_VREFOUTEN */
+
 /** @defgroup SYSTEM_LL_EF_RI RI
   * @{
   */
@@ -1020,8 +1056,8 @@ __STATIC_INLINE void LL_DBGMCU_APB2_GRP1_UnFreezePeriph(uint32_t Periphs)
   */
 __STATIC_INLINE void LL_RI_SetRemapInputCapture_TIM(uint32_t TIM_Select, uint32_t InputCaptureChannel, uint32_t Input)
 {
-  MODIFY_REG(RI->ICR, 
-             RI_ICR_TIM | (InputCaptureChannel & (RI_ICR_IC4 | RI_ICR_IC3 | RI_ICR_IC2 | RI_ICR_IC1)) | (InputCaptureChannel & (RI_ICR_IC4OS | RI_ICR_IC3OS | RI_ICR_IC2OS | RI_ICR_IC1OS)), 
+  MODIFY_REG(RI->ICR,
+             RI_ICR_TIM | (InputCaptureChannel & (RI_ICR_IC4 | RI_ICR_IC3 | RI_ICR_IC2 | RI_ICR_IC1)) | (InputCaptureChannel & (RI_ICR_IC4OS | RI_ICR_IC3OS | RI_ICR_IC2OS | RI_ICR_IC1OS)),
              TIM_Select | (InputCaptureChannel & (RI_ICR_IC4 | RI_ICR_IC3 | RI_ICR_IC2 | RI_ICR_IC1)) | (Input << POSITION_VAL(InputCaptureChannel)));
 }
 
@@ -1339,8 +1375,8 @@ __STATIC_INLINE void LL_RI_OpenIOSwitchNotLinkedToADC(uint32_t IOSwitch)
   */
 __STATIC_INLINE void LL_RI_EnableHysteresis(uint32_t Port, uint32_t Pin)
 {
-  __IO uint32_t *reg = (__IO uint32_t *)(uint32_t)((uint32_t)(&RI->HYSCR1) + (Port >> 1)); 
-  CLEAR_BIT(*reg, Pin << (16 * (Port & 1)));
+  __IO uint32_t *reg = (__IO uint32_t *)(uint32_t)((uint32_t)(&RI->HYSCR1) + (Port >> 1U));
+  CLEAR_BIT(*reg, Pin << (16U * (Port & 1U)));
 }
 
 /**
@@ -1405,8 +1441,8 @@ __STATIC_INLINE void LL_RI_EnableHysteresis(uint32_t Port, uint32_t Pin)
   */
 __STATIC_INLINE void LL_RI_DisableHysteresis(uint32_t Port, uint32_t Pin)
 {
-  __IO uint32_t *reg = (__IO uint32_t *)(uint32_t)((uint32_t)(&RI->HYSCR1) + ((Port >> 1) << 2)); 
-  SET_BIT(*reg, Pin << (16 * (Port & 1)));
+  __IO uint32_t *reg = (__IO uint32_t *)(uint32_t)((uint32_t)(&RI->HYSCR1) + ((Port >> 1U) << 2U));
+  SET_BIT(*reg, Pin << (16U * (Port & 1U)));
 }
 
 #if defined(RI_ASMR1_PA)
@@ -1467,7 +1503,7 @@ __STATIC_INLINE void LL_RI_DisableHysteresis(uint32_t Port, uint32_t Pin)
   */
 __STATIC_INLINE void LL_RI_ControlSwitchByADC(uint32_t Port, uint32_t Pin)
 {
-  __IO uint32_t *reg = (__IO uint32_t *)(uint32_t)((uint32_t)(&RI->ASMR1) + ((Port * 3U) << 2)); 
+  __IO uint32_t *reg = (__IO uint32_t *)(uint32_t)((uint32_t)(&RI->ASMR1) + ((Port * 3U) << 2));
   CLEAR_BIT(*reg, Pin);
 }
 #endif /* RI_ASMR1_PA */
@@ -1530,7 +1566,7 @@ __STATIC_INLINE void LL_RI_ControlSwitchByADC(uint32_t Port, uint32_t Pin)
   */
 __STATIC_INLINE void LL_RI_ControlSwitchByTIM(uint32_t Port, uint32_t Pin)
 {
-  __IO uint32_t *reg = (__IO uint32_t *)(uint32_t)((uint32_t)(&RI->ASMR1) + ((Port * 3U) << 2)); 
+  __IO uint32_t *reg = (__IO uint32_t *)(uint32_t)((uint32_t)(&RI->ASMR1) + ((Port * 3U) << 2));
   SET_BIT(*reg, Pin);
 }
 #endif /* RI_ASMR1_PA */
@@ -1593,7 +1629,7 @@ __STATIC_INLINE void LL_RI_ControlSwitchByTIM(uint32_t Port, uint32_t Pin)
   */
 __STATIC_INLINE void LL_RI_MaskChannelDuringAcquisition(uint32_t Port, uint32_t Pin)
 {
-  __IO uint32_t *reg = (__IO uint32_t *)(uint32_t)((uint32_t)(&RI->CMR1) + ((Port * 3U) << 2)); 
+  __IO uint32_t *reg = (__IO uint32_t *)(uint32_t)((uint32_t)(&RI->CMR1) + ((Port * 3U) << 2));
   CLEAR_BIT(*reg, Pin);
 }
 #endif /* RI_CMR1_PA */
@@ -1656,7 +1692,7 @@ __STATIC_INLINE void LL_RI_MaskChannelDuringAcquisition(uint32_t Port, uint32_t 
   */
 __STATIC_INLINE void LL_RI_UnmaskChannelDuringAcquisition(uint32_t Port, uint32_t Pin)
 {
-  __IO uint32_t *reg = (__IO uint32_t *)(uint32_t)((uint32_t)(&RI->CMR1) + ((Port * 3U) << 2)); 
+  __IO uint32_t *reg = (__IO uint32_t *)(uint32_t)((uint32_t)(&RI->CMR1) + ((Port * 3U) << 2));
   SET_BIT(*reg, Pin);
 }
 #endif /* RI_CMR1_PA */
@@ -1719,7 +1755,7 @@ __STATIC_INLINE void LL_RI_UnmaskChannelDuringAcquisition(uint32_t Port, uint32_
   */
 __STATIC_INLINE void LL_RI_IdentifyChannelIO(uint32_t Port, uint32_t Pin)
 {
-  __IO uint32_t *reg = (__IO uint32_t *)(uint32_t)((uint32_t)(&RI->CICR1) + ((Port * 3U) << 2)); 
+  __IO uint32_t *reg = (__IO uint32_t *)(uint32_t)((uint32_t)(&RI->CICR1) + ((Port * 3U) << 2));
   CLEAR_BIT(*reg, Pin);
 }
 #endif /* RI_CICR1_PA */
@@ -1782,7 +1818,7 @@ __STATIC_INLINE void LL_RI_IdentifyChannelIO(uint32_t Port, uint32_t Pin)
   */
 __STATIC_INLINE void LL_RI_IdentifySamplingCapacitorIO(uint32_t Port, uint32_t Pin)
 {
-  __IO uint32_t *reg = (__IO uint32_t *)(uint32_t)((uint32_t)(&RI->CICR1) + ((Port * 3U) << 2)); 
+  __IO uint32_t *reg = (__IO uint32_t *)(uint32_t)((uint32_t)(&RI->CICR1) + ((Port * 3U) << 2));
   SET_BIT(*reg, Pin);
 }
 #endif /* RI_CICR1_PA */
@@ -1850,7 +1886,7 @@ __STATIC_INLINE void LL_FLASH_DisablePrefetch(void)
   */
 __STATIC_INLINE uint32_t LL_FLASH_IsPrefetchEnabled(void)
 {
-  return (READ_BIT(FLASH->ACR, FLASH_ACR_PRFTEN) == (FLASH_ACR_PRFTEN));
+  return ((READ_BIT(FLASH->ACR, FLASH_ACR_PRFTEN) == FLASH_ACR_PRFTEN) ? 1UL : 0UL);
 }
 
 /**
@@ -1880,7 +1916,7 @@ __STATIC_INLINE void LL_FLASH_Disable64bitAccess(void)
   */
 __STATIC_INLINE uint32_t LL_FLASH_Is64bitAccessEnabled(void)
 {
-  return (READ_BIT(FLASH->ACR, FLASH_ACR_ACC64) == (FLASH_ACR_ACC64));
+  return ((READ_BIT(FLASH->ACR, FLASH_ACR_ACC64) == FLASH_ACR_ACC64) ? 1UL : 0UL);
 }
 
 

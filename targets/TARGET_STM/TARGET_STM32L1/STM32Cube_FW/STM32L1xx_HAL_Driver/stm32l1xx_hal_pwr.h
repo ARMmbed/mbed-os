@@ -6,29 +6,13 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
@@ -56,7 +40,7 @@
 
 /** @defgroup PWR_Exported_Types PWR Exported Types
   * @{
-  */ 
+  */
 
 /**
   * @brief  PWR PVD configuration structure definition
@@ -78,7 +62,7 @@ typedef struct
 
 /** @addtogroup PWR_Private_Constants
   * @{
-  */ 
+  */
 #define PWR_EXTI_LINE_PVD  (0x00010000U)  /*!< External interrupt line 16 Connected to the PVD EXTI Line */
 
 /**
@@ -86,12 +70,12 @@ typedef struct
   */
 
 
-  
+
 /* Exported constants --------------------------------------------------------*/
 
 /** @defgroup PWR_Exported_Constants PWR Exported Constants
   * @{
-  */ 
+  */
 
 /** @defgroup PWR_register_alias_address PWR Register alias address
   * @{
@@ -105,10 +89,10 @@ typedef struct
 /**
   * @}
   */
-  
+
 /** @defgroup PWR_CR_register_alias PWR CR Register alias address
   * @{
-  */  
+  */
 /* --- CR Register ---*/
 /* Alias word address of LPSDSR bit */
 #define LPSDSR_BIT_NUMBER        POSITION_VAL(PWR_CR_LPSDSR)
@@ -147,7 +131,7 @@ typedef struct
 /**
   * @}
   */
-  
+
 /** @defgroup PWR_PVD_detection_level PWR PVD detection level
   * @{
   */
@@ -158,7 +142,7 @@ typedef struct
 #define PWR_PVDLEVEL_4                  PWR_CR_PLS_LEV4
 #define PWR_PVDLEVEL_5                  PWR_CR_PLS_LEV5
 #define PWR_PVDLEVEL_6                  PWR_CR_PLS_LEV6
-#define PWR_PVDLEVEL_7                  PWR_CR_PLS_LEV7  /* External input analog voltage 
+#define PWR_PVDLEVEL_7                  PWR_CR_PLS_LEV7  /* External input analog voltage
                                                             (Compare internally to VREFINT) */
 
 /**
@@ -247,7 +231,7 @@ typedef struct
   */
 
 /** @brief  macros configure the main internal regulator output voltage.
-  * @param  __REGULATOR__: specifies the regulator output voltage to achieve
+  * @param  __REGULATOR__ specifies the regulator output voltage to achieve
   *         a tradeoff between performance and power consumption when the device does
   *         not operate at the maximum frequency (refer to the datasheets for more details).
   *          This parameter can be one of the following values:
@@ -262,7 +246,7 @@ typedef struct
 #define __HAL_PWR_VOLTAGESCALING_CONFIG(__REGULATOR__) (MODIFY_REG(PWR->CR, PWR_CR_VOS, (__REGULATOR__)))
 
 /** @brief  Check PWR flag is set or not.
-  * @param  __FLAG__: specifies the flag to check.
+  * @param  __FLAG__ specifies the flag to check.
   *           This parameter can be one of the following values:
   *            @arg PWR_FLAG_WU: Wake Up flag. This flag indicates that a wakeup event
   *                  was received from the WKUP pin or from the RTC alarm (Alarm B),
@@ -271,7 +255,7 @@ typedef struct
   *                  (by setting the EWUP bit) when the WKUP pin level is already high.
   *            @arg PWR_FLAG_SB: StandBy flag. This flag indicates that the system was
   *                  resumed from StandBy mode.
-  *            @arg PWR_FLAG_PVDO: PVD Output. This flag is valid only if PVD is enabled 
+  *            @arg PWR_FLAG_PVDO: PVD Output. This flag is valid only if PVD is enabled
   *                  by the HAL_PWR_EnablePVD() function. The PVD is stopped by Standby mode
   *                  For this reason, this bit is equal to 0 after Standby or reset
   *                  until the PVDE bit is set.
@@ -290,7 +274,7 @@ typedef struct
 #define __HAL_PWR_GET_FLAG(__FLAG__) ((PWR->CSR & (__FLAG__)) == (__FLAG__))
 
 /** @brief  Clear the PWR's pending flags.
-  * @param  __FLAG__: specifies the flag to clear.
+  * @param  __FLAG__ specifies the flag to clear.
   *          This parameter can be one of the following values:
   *            @arg PWR_FLAG_WU: Wake Up flag
   *            @arg PWR_FLAG_SB: StandBy flag
@@ -356,8 +340,8 @@ typedef struct
   do {                                                   \
     __HAL_PWR_PVD_EXTI_ENABLE_RISING_EDGE();             \
     __HAL_PWR_PVD_EXTI_ENABLE_FALLING_EDGE();            \
-  } while(0)  
-  
+  } while(0)
+
 /**
   * @brief Disable the PVD Extended Interrupt Rising & Falling Trigger.
   * @retval None.
@@ -366,7 +350,7 @@ typedef struct
   do {                                                    \
     __HAL_PWR_PVD_EXTI_DISABLE_RISING_EDGE();             \
     __HAL_PWR_PVD_EXTI_DISABLE_FALLING_EDGE();            \
-  } while(0)  
+  } while(0)
 
 
 
@@ -435,8 +419,8 @@ typedef struct
 /** @addtogroup PWR_Exported_Functions PWR Exported Functions
   * @{
   */
-  
-/** @addtogroup PWR_Exported_Functions_Group1 Initialization and de-initialization functions 
+
+/** @addtogroup PWR_Exported_Functions_Group1 Initialization and de-initialization functions
   * @{
   */
 
@@ -449,7 +433,7 @@ void HAL_PWR_DisableBkUpAccess(void);
   * @}
   */
 
-/** @addtogroup PWR_Exported_Functions_Group2 Peripheral Control functions 
+/** @addtogroup PWR_Exported_Functions_Group2 Peripheral Control functions
   * @{
   */
 
@@ -487,7 +471,7 @@ void HAL_PWR_PVDCallback(void);
 /**
   * @}
   */
-  
+
 /**
   * @}
   */

@@ -6,39 +6,23 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32L1xx_HAL_GPIO_H
 #define __STM32L1xx_HAL_GPIO_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -51,15 +35,15 @@
 /** @defgroup GPIO GPIO
   * @brief GPIO HAL module driver
   * @{
-  */ 
+  */
 
-/* Exported types ------------------------------------------------------------*/ 
+/* Exported types ------------------------------------------------------------*/
 
 /** @defgroup GPIO_Exported_Types GPIO Exported Types
   * @{
   */
-/** 
-  * @brief   GPIO Init structure definition  
+/**
+  * @brief   GPIO Init structure definition
   */
 typedef struct
 {
@@ -75,22 +59,22 @@ typedef struct
   uint32_t Speed;     /*!< Specifies the speed for the selected pins.
                            This parameter can be a value of @ref GPIO_speed */
 
-  uint32_t Alternate;  /*!< Peripheral to be connected to the selected pins 
+  uint32_t Alternate;  /*!< Peripheral to be connected to the selected pins
                             This parameter can be a value of @ref GPIOEx_Alternate_function_selection */
-}GPIO_InitTypeDef;
+} GPIO_InitTypeDef;
 
-/** 
-  * @brief  GPIO Bit SET and Bit RESET enumeration 
+/**
+  * @brief  GPIO Bit SET and Bit RESET enumeration
   */
 typedef enum
 {
   GPIO_PIN_RESET = 0,
   GPIO_PIN_SET
-}GPIO_PinState;
+} GPIO_PinState;
 /**
   * @}
   */
-  
+
 /* Exported constants --------------------------------------------------------*/
 
 /** @defgroup GPIO_Exported_Constants GPIO Exported Constants
@@ -125,15 +109,15 @@ typedef enum
   */
 
 /** @defgroup GPIO_mode GPIO mode
-  * @brief GPIO Configuration Mode 
+  * @brief GPIO Configuration Mode
   *        Elements values convention: 0xX0yz00YZ
   *           - X  : GPIO mode or EXTI Mode
-  *           - y  : External IT or Event trigger detection 
+  *           - y  : External IT or Event trigger detection
   *           - z  : IO configuration on External IT or Event
   *           - Y  : Output type (Push Pull or Open Drain)
   *           - Z  : IO Direction mode (Input, Output, Alternate or Analog)
   * @{
-  */ 
+  */
 #define  GPIO_MODE_INPUT                        (0x00000000U)   /*!< Input Floating Mode                   */
 #define  GPIO_MODE_OUTPUT_PP                    (0x00000001U)   /*!< Output Push Pull Mode                 */
 #define  GPIO_MODE_OUTPUT_OD                    (0x00000011U)   /*!< Output Open Drain Mode                */
@@ -141,7 +125,7 @@ typedef enum
 #define  GPIO_MODE_AF_OD                        (0x00000012U)   /*!< Alternate Function Open Drain Mode    */
 
 #define  GPIO_MODE_ANALOG                       (0x00000003U)   /*!< Analog Mode  */
-    
+
 #define  GPIO_MODE_IT_RISING                    (0x10110000U)   /*!< External Interrupt Mode with Rising edge trigger detection          */
 #define  GPIO_MODE_IT_FALLING                   (0x10210000U)   /*!< External Interrupt Mode with Falling edge trigger detection         */
 #define  GPIO_MODE_IT_RISING_FALLING            (0x10310000U)   /*!< External Interrupt Mode with Rising/Falling edge trigger detection  */
@@ -153,11 +137,11 @@ typedef enum
 /**
   * @}
   */
-                                                         
+
 /** @defgroup GPIO_speed GPIO speed
   * @brief GPIO Output Maximum frequency
   * @{
-  */  
+  */
 #define  GPIO_SPEED_FREQ_LOW       (0x00000000U) /*!< max: 400 KHz, please refer to the product datasheet */
 #define  GPIO_SPEED_FREQ_MEDIUM    (0x00000001U) /*!< max: 1 MHz to 2 MHz, please refer to the product datasheet */
 #define  GPIO_SPEED_FREQ_HIGH      (0x00000002U) /*!< max: 2 MHz to 10 MHz, please refer to the product datasheet */
@@ -167,10 +151,10 @@ typedef enum
   * @}
   */
 
- /** @defgroup GPIO_pull GPIO pull
-   * @brief GPIO Pull-Up or Pull-Down Activation
-   * @{
-   */  
+/** @defgroup GPIO_pull GPIO pull
+  * @brief GPIO Pull-Up or Pull-Down Activation
+  * @{
+  */
 #define  GPIO_NOPULL        (0x00000000U)   /*!< No Pull-up or Pull-down activation  */
 #define  GPIO_PULLUP        (0x00000001U)   /*!< Pull-up activation                  */
 #define  GPIO_PULLDOWN      (0x00000002U)   /*!< Pull-down activation                */
@@ -190,7 +174,7 @@ typedef enum
 
 /**
   * @}
-  */ 
+  */
 
 /* Private macros --------------------------------------------------------*/
 /** @defgroup GPIO_Private_Macros GPIO Private Macros
@@ -199,12 +183,12 @@ typedef enum
 
 #define IS_GPIO_PIN_ACTION(ACTION) (((ACTION) == GPIO_PIN_RESET) || ((ACTION) == GPIO_PIN_SET))
 
-#define IS_GPIO_PIN(__PIN__)        ((((__PIN__) & GPIO_PIN_MASK) != 0x00U) &&\
-                                     (((__PIN__) & ~GPIO_PIN_MASK) == 0x00U))
+#define IS_GPIO_PIN(__PIN__)        ((((uint32_t)(__PIN__) & GPIO_PIN_MASK) != 0x00U) &&\
+                                     (((uint32_t)(__PIN__) & ~GPIO_PIN_MASK) == 0x00U))
 
 #define IS_GPIO_PULL(PULL) (((PULL) == GPIO_NOPULL) || ((PULL) == GPIO_PULLUP) || \
                             ((PULL) == GPIO_PULLDOWN))
-                            
+
 #define IS_GPIO_SPEED(SPEED) (((SPEED) == GPIO_SPEED_FREQ_LOW)  || ((SPEED) == GPIO_SPEED_FREQ_MEDIUM) || \
                                 ((SPEED) == GPIO_SPEED_FREQ_HIGH) || ((SPEED) == GPIO_SPEED_FREQ_VERY_HIGH))
 
@@ -230,10 +214,10 @@ typedef enum
 /** @defgroup GPIO_Exported_Macros GPIO Exported Macros
   * @{
   */
-  
+
 /**
   * @brief  Checks whether the specified EXTI line flag is set or not.
-  * @param  __EXTI_LINE__: specifies the EXTI line flag to check.
+  * @param  __EXTI_LINE__ specifies the EXTI line flag to check.
   *         This parameter can be GPIO_PIN_x where x can be(0..15)
   * @retval The new state of __EXTI_LINE__ (SET or RESET).
   */
@@ -241,7 +225,7 @@ typedef enum
 
 /**
   * @brief  Clears the EXTI's line pending flags.
-  * @param  __EXTI_LINE__: specifies the EXTI lines flags to clear.
+  * @param  __EXTI_LINE__ specifies the EXTI lines flags to clear.
   *         This parameter can be any combination of GPIO_PIN_x where x can be (0..15)
   * @retval None
   */
@@ -249,7 +233,7 @@ typedef enum
 
 /**
   * @brief  Checks whether the specified EXTI line is asserted or not.
-  * @param  __EXTI_LINE__: specifies the EXTI line to check.
+  * @param  __EXTI_LINE__ specifies the EXTI line to check.
   *          This parameter can be GPIO_PIN_x where x can be(0..15)
   * @retval The new state of __EXTI_LINE__ (SET or RESET).
   */
@@ -257,7 +241,7 @@ typedef enum
 
 /**
   * @brief  Clears the EXTI's line pending bits.
-  * @param  __EXTI_LINE__: specifies the EXTI lines to clear.
+  * @param  __EXTI_LINE__ specifies the EXTI lines to clear.
   *          This parameter can be any combination of GPIO_PIN_x where x can be (0..15)
   * @retval None
   */
@@ -265,7 +249,7 @@ typedef enum
 
 /**
   * @brief  Generates a Software interrupt on selected EXTI line.
-  * @param  __EXTI_LINE__: specifies the EXTI line to check.
+  * @param  __EXTI_LINE__ specifies the EXTI line to check.
   *          This parameter can be GPIO_PIN_x where x can be(0..15)
   * @retval None
   */
@@ -278,9 +262,9 @@ typedef enum
 /* Include GPIO HAL Extension module */
 #include "stm32l1xx_hal_gpio_ex.h"
 
-/* Exported functions --------------------------------------------------------*/ 
+/* Exported functions --------------------------------------------------------*/
 /** @defgroup GPIO_Exported_Functions GPIO Exported Functions
- *  @brief    GPIO Exported Functions
+  *  @brief    GPIO Exported Functions
   * @{
   */
 
@@ -288,7 +272,7 @@ typedef enum
  *  @brief    Initialization and Configuration functions
  * @{
  */
-     
+
 /* Initialization and de-initialization functions *****************************/
 void              HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init);
 void              HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin);
@@ -297,35 +281,35 @@ void              HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin);
   * @}
   */
 
-/** @defgroup GPIO_Exported_Functions_Group2 IO operation functions 
- *  @brief    IO operation functions
- * @{
- */
-   
+/** @defgroup GPIO_Exported_Functions_Group2 IO operation functions
+  *  @brief    IO operation functions
+  * @{
+  */
+
 /* IO operation functions *****************************************************/
-GPIO_PinState     HAL_GPIO_ReadPin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
-void              HAL_GPIO_WritePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState);
-void              HAL_GPIO_TogglePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
-HAL_StatusTypeDef HAL_GPIO_LockPin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
+GPIO_PinState     HAL_GPIO_ReadPin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin);
+void              HAL_GPIO_WritePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState);
+void              HAL_GPIO_TogglePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin);
+HAL_StatusTypeDef HAL_GPIO_LockPin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin);
 void              HAL_GPIO_EXTI_IRQHandler(uint16_t GPIO_Pin);
 void              HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */  
-  
+  */
+
 #ifdef __cplusplus
 }
 #endif
