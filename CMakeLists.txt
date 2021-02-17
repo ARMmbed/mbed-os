@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 # This is the boilerplate for Mbed OS
@@ -140,21 +140,6 @@ string(PREPEND MBED_TARGET_CONVERTED "mbed-")
 target_link_libraries(mbed-core INTERFACE ${MBED_TARGET_CONVERTED})
 
 #
-# Configures the application
-# Note, this function will be removed in the next revisions
-#
-function(mbed_configure_app_target target)
-    # Gcc Arm requires memap to be set with app name, equally to ARMClang
-    # TODO: move this to toolchain and set properly
-    if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
-        target_link_options(mbed-core
-            INTERFACE
-                "-Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map"
-        )
-    endif()
-endfunction()
-
-#
 # Converts output file of `target` to binary file and to Intel HEX file.
 #
 function(mbed_generate_bin_hex target)
@@ -231,6 +216,10 @@ endfunction()
 # Set post build operations
 #
 function(mbed_set_post_build target)
+    # The mapfile name includes the top-level target name and the 
+    # executable suffix for all toolchains as CMake hardcodes the name of the
+    # diagnostic output file for some toolchains.
+    mbed_configure_memory_map(mbed-core "${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map")
     mbed_validate_application_profile(${target})
     mbed_generate_bin_hex(${target})
 
@@ -247,3 +236,7 @@ if ("${CMAKE_GENERATOR}" MATCHES "Ninja")
         set(CMAKE_NINJA_FORCE_RESPONSE_FILE 1 CACHE INTERNAL "")
     endif()
 endif()
+
+# TODO: Remove once all example applications have removed it
+function(mbed_configure_app_target target)
+endfunction()
