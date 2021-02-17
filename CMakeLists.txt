@@ -147,7 +147,6 @@ function(mbed_configure_app_target target)
     # Gcc Arm requires memap to be set with app name, equally to ARMClang
     # TODO: move this to toolchain and set properly
     if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
-        message(${target})
         target_link_options(mbed-core
             INTERFACE
                 "-Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map"
