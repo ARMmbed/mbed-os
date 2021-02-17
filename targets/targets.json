@@ -3405,9 +3405,18 @@
             "MPU"
         ]
     },
-    "XDOT_L151CC": {
+    "MCU_STM32L151xC": {
         "inherits": [
             "MCU_STM32L1"
+        ],
+        "public": false,
+        "macros_add": [
+            "STM32L151xC"
+        ]
+    },
+    "XDOT_L151CC": {
+        "inherits": [
+            "MCU_STM32L151xC"
         ],
         "extra_labels_add": [
             "STM32L151CC"
@@ -3434,9 +3443,18 @@
             "8080"
         ]
     },
-    "MOTE_L152RC": {
+    "MCU_STM32L152xC": {
         "inherits": [
             "MCU_STM32L1"
+        ],
+        "public": false,
+        "macros_add": [
+            "STM32L152xC"
+        ]
+    },
+    "MOTE_L152RC": {
+        "inherits": [
+            "MCU_STM32L152xC"
         ],
         "supported_form_factors": [
             "ARDUINO"
@@ -3452,16 +3470,22 @@
         ],
         "device_name": "STM32L152RC"
     },
-    "NUCLEO_L152RE": {
+    "MCU_STM32L152xE": {
         "inherits": [
             "MCU_STM32L1"
+        ],
+        "public": false,
+        "macros_add": [
+            "STM32L152xE"
+        ]
+    },
+    "NUCLEO_L152RE": {
+        "inherits": [
+            "MCU_STM32L152xE"
         ],
         "supported_form_factors": [
             "ARDUINO",
             "MORPHO"
-        ],
-        "extra_labels_add": [
-            "STM32L152RE"
         ],
         "detect_code": [
             "0710"

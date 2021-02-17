@@ -61,6 +61,7 @@
   */
 
 #include "stm32l1xx.h"
+#include "mbed_toolchain.h"
 
 /**
   * @}
@@ -146,10 +147,6 @@ const uint8_t APBPrescTable[8]  = {0U, 0U, 0U, 0U, 1U, 2U, 3U, 4U};
   * @{
   */
 
-/*+ MBED */
-#if 0
-/*- MBED */
-
 /**
   * @brief  Setup the microcontroller system.
   *         Initialize the Embedded Flash Interface, the PLL and update the 
@@ -157,7 +154,7 @@ const uint8_t APBPrescTable[8]  = {0U, 0U, 0U, 0U, 1U, 2U, 3U, 4U};
   * @param  None
   * @retval None
   */
-void SystemInit (void)
+MBED_WEAK void SystemInit (void)
 {
   /*!< Set MSION bit */
   RCC->CR |= (uint32_t)0x00000100;
@@ -184,13 +181,10 @@ void SystemInit (void)
 #ifdef VECT_TAB_SRAM
   SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM. */
 #else
-  SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH. */
+#include "nvic_addr.h"                   // MBED
+  SCB->VTOR = NVIC_FLASH_VECTOR_ADDRESS; // MBED
 #endif
 }
-
-/*+ MBED */
-#endif
-/*- MBED */
 
 /**
   * @brief  Update SystemCoreClock according to Clock Register Values

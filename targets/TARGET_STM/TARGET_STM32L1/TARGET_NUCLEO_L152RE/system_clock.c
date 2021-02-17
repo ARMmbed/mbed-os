@@ -32,12 +32,6 @@
 #include "stm32l1xx.h"
 #include "mbed_error.h"
 
-/*!< Uncomment the following line if you need to relocate your vector Table in
-     Internal SRAM. */
-/* #define VECT_TAB_SRAM */
-#define VECT_TAB_OFFSET  0x0 /*!< Vector Table base offset field.
-                                  This value must be a multiple of 0x200. */
-
 #define USE_PLL_HSE_EXTC     0x8  // Use external clock (ST Link MCO)
 #define USE_PLL_HSE_XTAL     0x4  // Use external xtal (X3 on board - not provided by default)
 #define USE_PLL_HSI          0x2  // Use HSI internal clock
@@ -50,45 +44,6 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass);
 uint8_t SetSysClock_PLL_HSI(void);
 #endif /* ((CLOCK_SOURCE) & USE_PLL_HSI) */
 
-
-/**
-  * @brief  Setup the microcontroller system.
-  *         Initialize the Embedded Flash Interface, the PLL and update the
-  *         SystemCoreClock variable.
-  * @param  None
-  * @retval None
-  */
-void SystemInit (void)
-{
-    /*!< Set MSION bit */
-    RCC->CR |= (uint32_t)0x00000100;
-
-    /*!< Reset SW[1:0], HPRE[3:0], PPRE1[2:0], PPRE2[2:0], MCOSEL[2:0] and MCOPRE[2:0] bits */
-    RCC->CFGR &= (uint32_t)0x88FFC00C;
-
-    /*!< Reset HSION, HSEON, CSSON and PLLON bits */
-    RCC->CR &= (uint32_t)0xEEFEFFFE;
-
-    /*!< Reset HSEBYP bit */
-    RCC->CR &= (uint32_t)0xFFFBFFFF;
-
-    /*!< Reset PLLSRC, PLLMUL[3:0] and PLLDIV[1:0] bits */
-    RCC->CFGR &= (uint32_t)0xFF02FFFF;
-
-    /*!< Disable all interrupts */
-    RCC->CIR = 0x00000000;
-
-#ifdef DATA_IN_ExtSRAM
-    SystemInit_ExtMemCtl();
-#endif /* DATA_IN_ExtSRAM */
-
-#ifdef VECT_TAB_SRAM
-    SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM. */
-#else
-    SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH. */
-#endif
-
-}
 
 /**
   * @brief  Configures the System clock source, PLL Multiplier and Divider factors,

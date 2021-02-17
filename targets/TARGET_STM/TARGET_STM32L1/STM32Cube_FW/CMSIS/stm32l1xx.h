@@ -69,6 +69,7 @@
 #define STM32L1
 #endif /* STM32L1 */
 
+
 /* Uncomment the line below according to the target STM32L device used in your 
    application 
   */
@@ -82,7 +83,7 @@
   /* #define STM32L100xC  */   /*!< STM32L100RC Devices */
   /* #define STM32L151xB  */   /*!< STM32L151C6, STM32L151R6, STM32L151C8, STM32L151R8, STM32L151V8, STM32L151CB, STM32L151RB and STM32L151VB */
   /* #define STM32L151xBA */   /*!< STM32L151C6-A, STM32L151R6-A, STM32L151C8-A, STM32L151R8-A, STM32L151V8-A, STM32L151CB-A, STM32L151RB-A and STM32L151VB-A */ 
-  #define STM32L151xC          /*!< STM32L151CC, STM32L151UC, STM32L151RC and STM32L151VC */
+  /* #define STM32L151xC  */   /*!< STM32L151CC, STM32L151UC, STM32L151RC and STM32L151VC */
   /* #define STM32L151xCA */   /*!< STM32L151RC-A, STM32L151VC-A, STM32L151QC and STM32L151ZC */
   /* #define STM32L151xD  */   /*!< STM32L151QD, STM32L151RD, STM32L151VD & STM32L151ZD */
   /* #define STM32L151xDX  */  /*!< STM32L151VD-X Devices */
@@ -91,7 +92,7 @@
   /* #define STM32L152xBA */   /*!< STM32L152C6-A, STM32L152R6-A, STM32L152C8-A, STM32L152R8-A, STM32L152V8-A, STM32L152CB-A, STM32L152RB-A and STM32L152VB-A */
   /* #define STM32L152xC  */   /*!< STM32L152CC, STM32L152UC, STM32L152RC and STM32L152VC */
   /* #define STM32L152xCA */   /*!< STM32L152RC-A, STM32L152VC-A, STM32L152QC and STM32L152ZC */
-  /* #define STM32L152xD  */   /*!< STM32L152QD, STM32L152RD, STM32L152VD and STM32L152ZD */  
+  /* #define STM32L152xD  */   /*!< STM32L152QD, STM32L152RD, STM32L152VD and STM32L152ZD */
   /* #define STM32L152xDX  */  /*!< STM32L152VD-X Devices */
   /* #define STM32L152xE  */   /*!< STM32L152QE, STM32L152RE, STM32L152VE and STM32L152ZE */
   /* #define STM32L162xC  */   /*!< STM32L162RC and STM32L162VC */
@@ -111,7 +112,7 @@
    In this case, these drivers will not be included and the application code will 
    be based on direct access to peripherals registers 
    */
-#define USE_HAL_DRIVER
+  /*#define USE_HAL_DRIVER */
 #endif /* USE_HAL_DRIVER */
 
 /**

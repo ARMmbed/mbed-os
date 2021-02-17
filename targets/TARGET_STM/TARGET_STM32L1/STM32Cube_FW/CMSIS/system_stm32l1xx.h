@@ -104,8 +104,6 @@ extern const uint8_t PLLMulTable[9];      /*!< PLL multipiers table values */
   
 extern void SystemInit(void);
 extern void SystemCoreClockUpdate(void);
-extern void SetSysClock(void);
-
 /**
   * @}
   */
