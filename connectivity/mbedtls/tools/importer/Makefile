@@ -55,7 +55,7 @@ rsync:
 	#
 	# Copying mbed TLS into mbed library...
 	rm -rf $(TARGET_SRC)
-	rsync -a --exclude='*.txt' $(MBED_TLS_DIR)/library/ $(TARGET_SRC)
+	rsync -a --include='*.[hc]' --exclude='*' $(MBED_TLS_DIR)/library/ $(TARGET_SRC)
 	#
 	# Copying mbed TLS headers to mbed includes...
 	rm -rf $(TARGET_INC)
