@@ -57,7 +57,7 @@ uint8_t SetSysClock_PLL_HSI(void);
   * @retval None
   */
 
-void SetSysClock(void)
+MBED_WEAK void SetSysClock(void)
 {
 #if ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC)
     /* 1- Try to start with HSE and external clock */

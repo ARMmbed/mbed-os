@@ -228,6 +228,9 @@ typedef enum {
     NC = (int)0xFFFFFFFF
 } PinName;
 
+#define STDIO_UART_TX  PA_9
+#define STDIO_UART_RX  PA_10
+
 #ifdef __cplusplus
 }
 #endif

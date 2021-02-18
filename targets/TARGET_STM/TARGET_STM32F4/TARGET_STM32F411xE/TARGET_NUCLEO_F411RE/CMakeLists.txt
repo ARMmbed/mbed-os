@@ -6,7 +6,6 @@ add_library(mbed-nucleo-f411re INTERFACE)
 target_sources(mbed-nucleo-f411re
     INTERFACE
         PeripheralPins.c
-        system_clock.c
 )
 
 target_include_directories(mbed-nucleo-f411re

@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2016, STMicroelectronics
+ * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,13 +27,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#ifndef MBED_COMMON_OBJECTS_H
-#define MBED_COMMON_OBJECTS_H
+#ifndef MBED_OBJECTS_H
+#define MBED_OBJECTS_H
 
 #include "cmsis.h"
 #include "PortNames.h"
 #include "PeripheralNames.h"
 #include "PinNames.h"
+
 #include "stm32f4xx_ll_usart.h"
 #include "stm32f4xx_ll_tim.h"
 #include "stm32f4xx_ll_pwr.h"
@@ -44,6 +45,21 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+struct gpio_irq_s {
+    IRQn_Type irq_n;
+    uint32_t irq_index;
+    uint32_t event;
+    PinName pin;
+};
+
+struct port_s {
+    PortName port;
+    uint32_t mask;
+    PinDirection direction;
+    __IO uint32_t *reg_in;
+    __IO uint32_t *reg_out;
+};
 
 struct pwmout_s {
     PWMName pwm;
@@ -138,6 +154,12 @@ struct dac_s {
     DACName dac;
     uint32_t channel;
     DAC_HandleTypeDef handle;
+};
+#endif
+
+#if DEVICE_TRNG
+struct trng_s {
+    RNG_HandleTypeDef handle;
 };
 #endif
 

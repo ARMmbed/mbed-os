@@ -6,7 +6,6 @@ add_library(mbed-nucleo-f413zh INTERFACE)
 target_sources(mbed-nucleo-f413zh
     INTERFACE
         PeripheralPins.c
-        system_clock.c
 )
 
 target_include_directories(mbed-nucleo-f413zh

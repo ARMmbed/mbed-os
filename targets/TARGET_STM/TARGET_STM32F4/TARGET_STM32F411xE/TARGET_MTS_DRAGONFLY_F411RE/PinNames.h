@@ -197,6 +197,8 @@ typedef enum {
 
 #define MDM_PIN_POLARITY        ACTIVE_HIGH_POLARITY
 
+#define STDIO_UART_TX  PB_6
+#define STDIO_UART_RX  PB_7
 
 #ifdef __cplusplus
 }

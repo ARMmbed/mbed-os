@@ -13,7 +13,6 @@ add_library(mbed-mts-dragonfly-f411re INTERFACE)
 
 target_sources(mbed-mts-dragonfly-f411re
     INTERFACE
-        system_clock.c
         ONBOARD_TELIT_HE910.cpp
         PeripheralPins.c
         ${STARTUP_FILE}

@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
-* Copyright (c) 2006-2017 ARM Limited
+* Copyright (c) 2006-2019 ARM Limited
+*
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,29 +24,25 @@
   *                                    | 2- PLL_HSE_XTAL        |
   *                                    | (external 8 MHz xtal)  |
   *-----------------------------------------------------------------------------
-  * SYSCLK(MHz)                        | 96                     | 96
+  * SYSCLK(MHz)                        | 168                    | 168
   *-----------------------------------------------------------------------------
-  * AHBCLK (MHz)                       | 96                     | 96
+  * AHBCLK (MHz)                       | 168                    | 168
   *-----------------------------------------------------------------------------
-  * APB1CLK (MHz)                      | 48                     | 48
+  * APB1CLK (MHz)                      | 42                     | 42
   *-----------------------------------------------------------------------------
-  * APB2CLK (MHz)                      | 96                     | 96
+  * APB2CLK (MHz)                      | 84                     | 84
   *-----------------------------------------------------------------------------
   * USB capable (48 MHz precise clock) | YES                    | NO
   *-----------------------------------------------------------------------------
 **/
 
 #include "stm32f4xx.h"
-#include "mbed_debug.h"
-
+#include "mbed_error.h"
 
 /* Select the clock sources (other than HSI) to start with (0=OFF, 1=ON) */
-#if !defined  (USE_PLL_HSE_EXTC)
 #define USE_PLL_HSE_EXTC (1) /* Use external clock */
-#endif
-#if !defined  (USE_PLL_HSE_XTAL)
 #define USE_PLL_HSE_XTAL (1) /* Use external xtal */
-#endif
+
 
 #if (USE_PLL_HSE_XTAL != 0) || (USE_PLL_HSE_EXTC != 0)
 uint8_t SetSysClock_PLL_HSE(uint8_t bypass);
@@ -62,7 +59,7 @@ uint8_t SetSysClock_PLL_HSI(void);
   * @param  None
   * @retval None
   */
-void SetSysClock(void)
+MBED_WEAK void SetSysClock(void)
 {
     /* 1- Try to start with HSE and external clock */
 #if USE_PLL_HSE_EXTC != 0
@@ -84,14 +81,14 @@ void SetSysClock(void)
     }
 
     /* Output clock on MCO2 pin(PC9) for debugging purpose */
-    //HAL_RCC_MCOConfig(RCC_MCO2, RCC_MCO2SOURCE_SYSCLK, RCC_MCODIV_4); // 100 MHz / 4 = 25 MHz
+    //HAL_RCC_MCOConfig(RCC_MCO2, RCC_MCO2SOURCE_SYSCLK, RCC_MCODIV_1); // 84 MHz
 }
 
 #if (USE_PLL_HSE_XTAL != 0) || (USE_PLL_HSE_EXTC != 0)
 /******************************************************************************/
 /*            PLL (clocked by HSE) used as System clock source                */
 /******************************************************************************/
-uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
+MBED_WEAK uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 {
     RCC_ClkInitTypeDef RCC_ClkInitStruct;
     RCC_OscInitTypeDef RCC_OscInitStruct;
@@ -109,32 +106,34 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     } else {
         RCC_OscInitStruct.HSEState          = RCC_HSE_BYPASS; /* External 8 MHz clock on OSC_IN */
     }
+    RCC_OscInitStruct.HSIState            = RCC_HSI_OFF;
     RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLM            = HSE_VALUE / 1000000; // VCO input clock = 1 MHz
-    RCC_OscInitStruct.PLL.PLLN            = 192;           // VCO output clock = 192 MHz (1 MHz * 192)
-    RCC_OscInitStruct.PLL.PLLP            = RCC_PLLP_DIV2; // PLLCLK = 96 MHz (192 MHz / 2)
-    RCC_OscInitStruct.PLL.PLLQ            = 4;             // USB clock = 48 MHz (192 MHz / 4)
+    RCC_OscInitStruct.PLL.PLLM            = 8;             // VCO input clock = 1 MHz (8 MHz / 8)
+    RCC_OscInitStruct.PLL.PLLN            = 336;           // VCO output clock = 336 MHz (1 MHz * 336)
+    RCC_OscInitStruct.PLL.PLLP            = RCC_PLLP_DIV2; // PLLCLK = 168 MHz (336 MHz / 2)
+    RCC_OscInitStruct.PLL.PLLQ            = 7;             // USB clock = 48 MHz (336 MHz / 7) --> OK for USB
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         return 0; // FAIL
     }
 
     /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers */
     RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK; // 96 MHz
-    RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;         // 96 MHz
-    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;           //  48 MHz
-    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;           // 96 MHz
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK) {
+    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK; // 168 MHz
+    RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1; // 168 MHz
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;   // 42 MHz
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;   // 84 MHz (SPI1 clock...)
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK) {
         return 0; // FAIL
     }
 
     /* Output clock on MCO1 pin(PA8) for debugging purpose */
-
-    //if (bypass == 0)
-    //  HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_2); // 4 MHz with xtal
-    //else
-    //  HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_1); // 8 MHz with external clock
+    /*
+    if (bypass == 0)
+      HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_2); // 4 MHz
+    else
+      HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_1); // 8 MHz
+    */
 
     return 1; // OK
 }
@@ -162,20 +161,20 @@ uint8_t SetSysClock_PLL_HSI(void)
     RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSI;
     RCC_OscInitStruct.PLL.PLLM            = 16;            // VCO input clock = 1 MHz (16 MHz / 16)
-    RCC_OscInitStruct.PLL.PLLN            = 192;           // VCO output clock = 192 MHz (1 MHz * 192)
-    RCC_OscInitStruct.PLL.PLLP            = RCC_PLLP_DIV2; // PLLCLK = 96 MHz (192 MHz / 2)
-    RCC_OscInitStruct.PLL.PLLQ            = 4;             // USB clock = 48 MHz (192 MHz / 4) --> Not stable for USB
+    RCC_OscInitStruct.PLL.PLLN            = 336;           // VCO output clock = 336 MHz (1 MHz * 336)
+    RCC_OscInitStruct.PLL.PLLP            = RCC_PLLP_DIV2; // PLLCLK = 168 MHz (336 MHz / 2)
+    RCC_OscInitStruct.PLL.PLLQ            = 7;             // USB clock = 48 MHz (336 MHz / 7) --> freq is ok but not precise enough
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         return 0; // FAIL
     }
 
     /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers */
     RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK; // 96 MHz
-    RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;         // 96 MHz
-    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;           // 48 MHz
-    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;           // 96 MHz
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK) {
+    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK; // 168 MHz
+    RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;         // 168 MHz
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;           // 42 MHz
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;           // 84 MHz
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK) {
         return 0; // FAIL
     }
 
@@ -184,4 +183,3 @@ uint8_t SetSysClock_PLL_HSI(void)
 
     return 1; // OK
 }
-

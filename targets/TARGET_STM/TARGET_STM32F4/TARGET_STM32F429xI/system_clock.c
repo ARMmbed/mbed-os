@@ -1,6 +1,5 @@
 /* mbed Microcontroller Library
-* Copyright (c) 2006-2018 Arm Limited
-*
+* Copyright (c) 2006-2017 ARM Limited
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,20 +18,15 @@
 /**
   * This file configures the system clock as follows:
   *-----------------------------------------------------------------------------------
-  * System clock source   | 1- USE_PLL_HSE_EXTC (CLOCK_SOURCE_USB=1) | 3- USE_PLL_HSI (CLOCK_SOURCE_USB=1)
-  *                       |     (external 8 MHz clock)        |     (internal 16 MHz clock)
-  *                       | 2- USE_PLL_HSE_XTAL               |
-  *                       |     (external 8 MHz xtal)         |
+  * System clock source   | 1- USE_PLL_HSE_EXTC (external 8 MHz clock) |
+  *                       | 2- USE_PLL_HSE_XTAL (external 8 MHz xtal)  | DEVICE_USBDEVICE=1
+  *                       | 3- USE_PLL_HSI (internal 16 MHz clock)     |
   *-----------------------------------------------------------------------------------
-  * SYSCLK(MHz)           |                               180 (168)
-  *-----------------------------------------------------------------------------------
-  * AHBCLK (MHz)          |                               180 (168)
-  *-----------------------------------------------------------------------------------
-  * APB1CLK (MHz)         |                                45 (42)
-  *-----------------------------------------------------------------------------------
-  * APB2CLK (MHz)         |                                90 (84)
-  *-----------------------------------------------------------------------------------
-  * USB capable (48 MHz)  |                               YES (HSI calibration needed)
+  * SYSCLK(MHz)           |                               180          | 168
+  * AHBCLK (MHz)          |                               180          | 168
+  * APB1CLK (MHz)         |                                45          |  42
+  * APB2CLK (MHz)         |                                90          |  84
+  * USB capable (48 MHz)  |                                NO          | YES (HSI calibration needed)
   *-----------------------------------------------------------------------------------
 **/
 
@@ -41,7 +35,7 @@
 
 // clock source is selected with CLOCK_SOURCE in json config
 #define USE_PLL_HSE_EXTC     0x8  // Use external clock (ST Link MCO)
-#define USE_PLL_HSE_XTAL     0x4 // Use external xtal (X3 on board - not provided by default)
+#define USE_PLL_HSE_XTAL     0x4  // Use external xtal (X3 on board - not provided by default)
 #define USE_PLL_HSI          0x2  // Use HSI internal clock
 
 #if ( ((CLOCK_SOURCE) & USE_PLL_HSE_XTAL) || ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC) )
@@ -62,7 +56,7 @@ uint8_t SetSysClock_PLL_HSI(void);
   * @retval None
   */
 
-void SetSysClock(void)
+MBED_WEAK void SetSysClock(void)
 {
 #if ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC)
     /* 1- Try to start with HSE and external clock */
@@ -91,7 +85,7 @@ void SetSysClock(void)
 /******************************************************************************/
 /*            PLL (clocked by HSE) used as System clock source                */
 /******************************************************************************/
-uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
+MBED_WEAK uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 {
     RCC_OscInitTypeDef RCC_OscInitStruct;
     RCC_ClkInitTypeDef RCC_ClkInitStruct;
@@ -102,26 +96,33 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     __HAL_RCC_PWR_CLK_ENABLE();
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
-    // Enable HSE oscillator and activate PLL with HSE as source
-    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSE;
-    if (bypass == 0) {
-        RCC_OscInitStruct.HSEState          = RCC_HSE_ON; // External 8 MHz xtal on OSC_IN/OSC_OUT
-    } else {
-        RCC_OscInitStruct.HSEState          = RCC_HSE_BYPASS; // External 8 MHz clock on OSC_IN
-    }
+    /* Get the Clocks configuration according to the internal RCC registers */
+    HAL_RCC_GetOscConfig(&RCC_OscInitStruct);
 
-    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-    RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLM = 8;
-#if (CLOCK_SOURCE_USB)
-    RCC_OscInitStruct.PLL.PLLN = 336;
+    /* PLL could be already configured by bootlader */
+    if (RCC_OscInitStruct.PLL.PLLState != RCC_PLL_ON) {
+
+        // Enable HSE oscillator and activate PLL with HSE as source
+        RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSE;
+        if (bypass == 0) {
+            RCC_OscInitStruct.HSEState          = RCC_HSE_ON; // External 8 MHz xtal on OSC_IN/OSC_OUT
+        } else {
+            RCC_OscInitStruct.HSEState          = RCC_HSE_BYPASS; // External 8 MHz clock on OSC_IN
+        }
+
+        RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+        RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+        RCC_OscInitStruct.PLL.PLLM = 8;
+#if (DEVICE_USBDEVICE)
+        RCC_OscInitStruct.PLL.PLLN = 336;
 #else
-    RCC_OscInitStruct.PLL.PLLN = 360;
+        RCC_OscInitStruct.PLL.PLLN = 360;
 #endif
-    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2; // 180 MHz or 168 MHz if CLOCK_SOURCE_USB defined
-    RCC_OscInitStruct.PLL.PLLQ = 7;             //  48 MHz if CLOCK_SOURCE_USB defined
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
-        return 0; // FAIL
+        RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2; // 180 MHz or 168 MHz if DEVICE_USBDEVICE defined
+        RCC_OscInitStruct.PLL.PLLQ = 7;             //  48 MHz if DEVICE_USBDEVICE defined
+        if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+            return 0; // FAIL
+        }
     }
 
     // Activate the OverDrive to reach the 180 MHz Frequency
@@ -168,13 +169,13 @@ uint8_t SetSysClock_PLL_HSI(void)
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
     RCC_OscInitStruct.PLL.PLLM = 8;
-#if (CLOCK_SOURCE_USB)
+#if (DEVICE_USBDEVICE)
     RCC_OscInitStruct.PLL.PLLN = 168;
 #else
     RCC_OscInitStruct.PLL.PLLN = 180;
 #endif
-    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2; // 180 MHz or 168 MHz if CLOCK_SOURCE_USB defined
-    RCC_OscInitStruct.PLL.PLLQ = 7;             //  48 MHz if CLOCK_SOURCE_USB defined
+    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2; // 180 MHz or 168 MHz if DEVICE_USBDEVICE defined
+    RCC_OscInitStruct.PLL.PLLQ = 7;             //  48 MHz if DEVICE_USBDEVICE defined
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         return 0; // FAIL
     }

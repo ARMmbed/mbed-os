@@ -17,6 +17,7 @@ add_library(mbed-stm32f446xe INTERFACE)
 target_sources(mbed-stm32f446xe
     INTERFACE
         ${STARTUP_FILE}
+        system_clock.c
 )
 
 target_include_directories(mbed-stm32f446xe

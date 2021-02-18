@@ -16,7 +16,7 @@ add_library(mbed-stm32f429xi INTERFACE)
 
 target_sources(mbed-stm32f429xi
     INTERFACE
-        system_init_pre.c
+        system_clock.c
         ${STARTUP_FILE}
 )
 
