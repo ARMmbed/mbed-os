@@ -1719,28 +1719,50 @@
             "MPU"
         ]
     },
-    "NUCLEO_F401RE": {
+    "MCU_STM32F401xE": {
         "inherits": [
             "MCU_STM32F4"
         ],
-        "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
-        ],
+        "public": false,
         "extra_labels_add": [
             "STM32F401xE"
         ],
         "macros_add": [
             "STM32F401xE"
+        ]
+    },
+    "NUCLEO_F401RE": {
+        "inherits": [
+            "MCU_STM32F401xE"
+        ],
+        "supported_form_factors": [
+            "ARDUINO",
+            "MORPHO"
         ],
         "detect_code": [
             "0720"
         ],
         "device_name": "STM32F401RE"
     },
-    "ARCH_MAX": {
+    "MCU_STM32F407xE": {
         "inherits": [
             "MCU_STM32F4"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32F407xE"
+        ],
+        "macros_add": [
+            "STM32F407xx"
+        ],
+        "device_has_add": [
+            "ANALOGOUT",
+            "TRNG"
+        ]
+    },
+    "ARCH_MAX": {
+        "inherits": [
+            "MCU_STM32F407xE"
         ],
         "supported_form_factors": [
             "ARDUINO"
@@ -1749,20 +1771,12 @@
         "components_add": [
             "SD"
         ],
-        "extra_labels_add": [
-            "STM32F407xE"
-        ],
         "device_has_add": [
-            "ANALOGOUT",
-            "TRNG",
             "EMAC"
         ],
         "device_has_remove": [
             "LPTICKER",
             "SERIAL_FC"
-        ],
-        "macros_add": [
-            "STM32F407xx"
         ],
         "device_name": "STM32F407VETx",
         "overrides": {
@@ -1774,19 +1788,25 @@
             "9011"
         ]
     },
-    "NUCLEO_F411RE": {
+    "MCU_STM32F411xE": {
         "inherits": [
             "MCU_STM32F4"
         ],
-        "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
-        ],
+        "public": false,
         "macros_add": [
             "STM32F411xE"
         ],
         "extra_labels_add": [
             "STM32F411xE"
+        ]
+    },
+    "NUCLEO_F411RE": {
+        "inherits": [
+            "MCU_STM32F411xE"
+        ],
+        "supported_form_factors": [
+            "ARDUINO",
+            "MORPHO"
         ],
         "detect_code": [
             "0740"
@@ -1795,19 +1815,13 @@
     },
     "MTS_DRAGONFLY_F411RE": {
         "inherits": [
-            "MCU_STM32F4"
+            "MCU_STM32F411xE"
         ],
-        "core": "Cortex-M4F",
         "overrides": {
             "lse_available": 0
         },
         "macros_add": [
-            "STM32F411xE",
             "HSE_VALUE=26000000"
-        ],
-        "device_has_add": [
-            "MPU",
-            "FLASH"
         ],
         "device_has_remove": [
             "SERIAL_FC",
@@ -1820,13 +1834,14 @@
     },
     "MTS_MDOT_F411RE": {
         "inherits": [
-            "MCU_STM32F4"
+            "MCU_STM32F411xE"
         ],
         "macros_add": [
-            "STM32F411xE",
-            "HSE_VALUE=26000000",
-            "USE_PLL_HSE_EXTC=0"
+            "HSE_VALUE=26000000"
         ],
+        "overrides": {
+            "clock_source": "USE_PLL_HSI"
+        },
         "components_remove": [
             "FLASHIAP"
         ],
@@ -1839,38 +1854,13 @@
             "0320"
         ]
     },
-    "NUCLEO_F412ZG": {
+    "MCU_STM32F412xG": {
         "inherits": [
             "MCU_STM32F4"
         ],
-        "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
-        ],
+        "public": false,
         "extra_labels_add": [
             "STM32F412xG"
-        ],
-        "macros_add": [
-            "STM32F412Zx"
-        ],
-        "detect_code": [
-            "0826"
-        ],
-        "device_has_add": [
-            "CAN",
-            "TRNG",
-            "USBDEVICE"
-        ],
-        "device_name": "STM32F412ZG"
-    },
-    "WIO_EMW3166": {
-        "inherits": [
-            "MCU_STM32F4"
-        ],
-        "extra_labels_add": [
-            "STM32F412xG",
-            "WICED",
-            "CYW43362"
         ],
         "macros_add": [
             "STM32F412Zx"
@@ -1878,6 +1868,31 @@
         "device_has_add": [
             "CAN",
             "TRNG"
+        ]
+    },
+    "NUCLEO_F412ZG": {
+        "inherits": [
+            "MCU_STM32F412xG"
+        ],
+        "supported_form_factors": [
+            "ARDUINO",
+            "MORPHO"
+        ],
+        "detect_code": [
+            "0826"
+        ],
+        "device_has_add": [
+            "USBDEVICE"
+        ],
+        "device_name": "STM32F412ZG"
+    },
+    "WIO_EMW3166": {
+        "inherits": [
+            "MCU_STM32F412xG"
+        ],
+        "extra_labels_add": [
+            "WICED",
+            "CYW43362"
         ],
         "device_name": "STM32F412ZG",
         "overrides": {
@@ -1888,10 +1903,11 @@
             "0451"
         ]
     },
-    "MTS_DRAGONFLY_F413RH": {
+    "MCU_STM32F413xH": {
         "inherits": [
             "MCU_STM32F4"
         ],
+        "public": false,
         "extra_labels_add": [
             "STM32F413xH"
         ],
@@ -1899,21 +1915,11 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
-            },
-            "hse_value": {
-                "help": "HSE via 26MHz xtal",
-                "value": "26000000",
-                "macro_name": "HSE_VALUE"
             }
         },
         "overrides": {
-            "lpticker_delay_ticks": 4,
-            "tickless-from-us-ticker": true,
-            "lse_available": 0
+            "lpticker_delay_ticks": 4
         },
-        "detect_code": [
-            "0316"
-        ],
         "macros_add": [
             "STM32F413xx",
             "MBED_TICKLESS"
@@ -1922,6 +1928,25 @@
             "ANALOGOUT",
             "CAN",
             "TRNG"
+        ]
+    },
+    "MTS_DRAGONFLY_F413RH": {
+        "inherits": [
+            "MCU_STM32F413xH"
+        ],
+        "config": {
+            "hse_value": {
+                "help": "HSE via 26MHz xtal",
+                "value": "26000000",
+                "macro_name": "HSE_VALUE"
+            }
+        },
+        "overrides": {
+            "tickless-from-us-ticker": true,
+            "lse_available": 0
+        },
+        "detect_code": [
+            "0316"
         ],
         "device_has_remove": [
             "SERIAL_FC"
@@ -1933,7 +1958,7 @@
     },
     "DISCO_F413ZH": {
         "inherits": [
-            "MCU_STM32F4"
+            "MCU_STM32F413xH"
         ],
         "components_add": [
             "QSPIF"
@@ -1942,28 +1967,12 @@
             "ARDUINO"
         ],
         "extra_labels_add": [
-            "N25Q128A",
-            "STM32F413xH"
+            "N25Q128A"
         ],
-        "config": {
-            "lpticker_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
-                "value": 1
-            }
-        },
-        "overrides": {
-            "lpticker_delay_ticks": 4
-        },
         "detect_code": [
             "0743"
         ],
-        "macros_add": [
-            "STM32F413xx"
-        ],
         "device_has_add": [
-            "ANALOGOUT",
-            "CAN",
-            "TRNG",
             "QSPI",
             "USBDEVICE"
         ],
@@ -1971,40 +1980,39 @@
     },
     "NUCLEO_F413ZH": {
         "inherits": [
-            "MCU_STM32F4"
+            "MCU_STM32F413xH"
         ],
         "supported_form_factors": [
             "ARDUINO"
         ],
-        "extra_labels_add": [
-            "STM32F413xH"
-        ],
-        "config": {
-            "lpticker_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
-                "value": 1
-            }
-        },
-        "overrides": {
-            "lpticker_delay_ticks": 4
-        },
         "detect_code": [
             "0743"
         ],
-        "macros_add": [
-            "STM32F413xx"
-        ],
         "device_has_add": [
-            "ANALOGOUT",
-            "CAN",
-            "TRNG",
             "USBDEVICE"
         ],
         "device_name": "STM32F413ZH"
     },
-    "NUCLEO_F429ZI": {
+    "MCU_STM32F429xI": {
         "inherits": [
             "MCU_STM32F4"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32F429xI"
+        ],
+        "macros_add": [
+            "STM32F429xx"
+        ],
+        "device_has_add": [
+            "ANALOGOUT",
+            "CAN",
+            "TRNG"
+        ]
+    },
+    "NUCLEO_F429ZI": {
+        "inherits": [
+            "MCU_STM32F429xI"
         ],
         "supported_form_factors": [
             "ARDUINO"
@@ -2024,17 +2032,10 @@
             "PSA"
         ],
         "extra_labels_add": [
-            "STM32F429xI",
             "MBED_PSA_SRV"
         ],
-        "macros_add": [
-            "STM32F429xx"
-        ],
         "device_has_add": [
-            "ANALOGOUT",
-            "CAN",
             "EMAC",
-            "TRNG",
             "USBDEVICE"
         ],
         "detect_code": [
@@ -2047,13 +2048,7 @@
     },
     "DISCO_F429ZI": {
         "inherits": [
-            "MCU_STM32F4"
-        ],
-        "extra_labels_add": [
-            "STM32F429xI"
-        ],
-        "macros_add": [
-            "STM32F429xx"
+            "MCU_STM32F429xI"
         ],
         "config": {
             "usb_speed": {
@@ -2064,11 +2059,6 @@
         "overrides": {
             "lse_available": 0
         },
-        "device_has_add": [
-            "ANALOGOUT",
-            "CAN",
-            "TRNG"
-        ],
         "device_has_remove": [
             "LPTICKER"
         ],
@@ -2077,9 +2067,27 @@
             "0795"
         ]
     },
-    "WIO_3G": {
+    "MCU_STM32F439xI": {
         "inherits": [
             "MCU_STM32F4"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32F439xI"
+        ],
+        "macros_add": [
+            "STM32F439xx",
+            "MBEDTLS_CONFIG_HW_SUPPORT"
+        ],
+        "device_has_add": [
+            "ANALOGOUT",
+            "CAN",
+            "TRNG"
+        ]
+    },
+    "WIO_3G": {
+        "inherits": [
+            "MCU_STM32F439xI"
         ],
         "config": {
             "clock_source_usb": {
@@ -2092,18 +2100,6 @@
             "clock_source": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
             "network-default-interface-type": "CELLULAR"
         },
-        "extra_labels_add": [
-            "STM32F439xI"
-        ],
-        "macros_add": [
-            "STM32F439xx",
-            "MBEDTLS_CONFIG_HW_SUPPORT"
-        ],
-        "device_has_add": [
-            "ANALOGOUT",
-            "CAN",
-            "TRNG"
-        ],
         "detect_code": [
             "9014"
         ],
@@ -2111,7 +2107,7 @@
     },
     "WIO_BG96": {
         "inherits": [
-            "MCU_STM32F4"
+            "MCU_STM32F439xI"
         ],
         "config": {
             "clock_source_usb": {
@@ -2124,16 +2120,8 @@
             "clock_source": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
             "network-default-interface-type": "CELLULAR"
         },
-        "extra_labels_add": [
-            "STM32F439xI"
-        ],
-        "macros_add": [
-            "STM32F439xx",
-            "MBEDTLS_CONFIG_HW_SUPPORT"
-        ],
-        "device_has_add": [
-            "ANALOGOUT",
-            "TRNG"
+        "device_has_remove": [
+            "CAN"
         ],
         "detect_code": [
             "9015"
@@ -2145,7 +2133,7 @@
     },
     "NUCLEO_F439ZI": {
         "inherits": [
-            "MCU_STM32F4"
+            "MCU_STM32F439xI"
         ],
         "supported_form_factors": [
             "ARDUINO"
@@ -2161,18 +2149,8 @@
                 "value": "USE_USB_OTG_FS"
             }
         },
-        "extra_labels_add": [
-            "STM32F439xI"
-        ],
-        "macros_add": [
-            "STM32F439xx",
-            "MBEDTLS_CONFIG_HW_SUPPORT"
-        ],
         "device_has_add": [
-            "ANALOGOUT",
-            "CAN",
             "EMAC",
-            "TRNG",
             "USBDEVICE"
         ],
         "detect_code": [
@@ -2183,42 +2161,42 @@
             "network-default-interface-type": "ETHERNET"
         }
     },
-    "NUCLEO_F446RE": {
+    "MCU_STM32F446xE": {
         "inherits": [
             "MCU_STM32F4"
         ],
-        "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
-        ],
+        "public": false,
         "extra_labels_add": [
             "STM32F446xE"
         ],
         "macros_add": [
             "STM32F446xx"
         ],
-        "detect_code": [
-            "0777"
-        ],
         "device_has_add": [
             "ANALOGOUT",
             "CAN"
+        ]
+    },
+    "NUCLEO_F446RE": {
+        "inherits": [
+            "MCU_STM32F446xE"
+        ],
+        "supported_form_factors": [
+            "ARDUINO",
+            "MORPHO"
+        ],
+        "detect_code": [
+            "0777"
         ],
         "device_name": "STM32F446RE"
     },
     "NUCLEO_F446ZE": {
         "inherits": [
-            "MCU_STM32F4"
+            "MCU_STM32F446xE"
         ],
         "supported_form_factors": [
             "ARDUINO",
             "MORPHO"
-        ],
-        "extra_labels_add": [
-            "STM32F446xE"
-        ],
-        "macros_add": [
-            "STM32F446xx"
         ],
         "config": {
             "usb_speed": {
@@ -2230,15 +2208,30 @@
             "0778"
         ],
         "device_has_add": [
-            "ANALOGOUT",
-            "CAN",
             "USBDEVICE"
         ],
         "device_name": "STM32F446ZE"
     },
-    "DISCO_F469NI": {
+    "MCU_STM32F469xI": {
         "inherits": [
             "MCU_STM32F4"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32F469xI"
+        ],
+        "macros_add": [
+            "STM32F469xx"
+        ],
+        "device_has_add": [
+            "ANALOGOUT",
+            "CAN",
+            "TRNG"
+        ]
+    },
+    "DISCO_F469NI": {
+        "inherits": [
+            "MCU_STM32F469xI"
         ],
         "components_add": [
             "QSPIF"
@@ -2247,11 +2240,7 @@
             "ARDUINO"
         ],
         "extra_labels_add": [
-            "N25Q128A",
-            "STM32F469xI"
-        ],
-        "macros_add": [
-            "STM32F469xx"
+            "N25Q128A"
         ],
         "overrides": {
             "clock_source": "USE_PLL_HSE_XTAL|USE_PLL_HSI"
@@ -2260,9 +2249,6 @@
             "0788"
         ],
         "device_has_add": [
-            "ANALOGOUT",
-            "CAN",
-            "TRNG",
             "QSPI",
             "USBDEVICE"
         ],
@@ -2270,13 +2256,10 @@
     },
     "SDP_K1": {
         "inherits": [
-            "MCU_STM32F4"
+            "MCU_STM32F469xI"
         ],
         "supported_form_factors": [
             "ARDUINO"
-        ],
-        "extra_labels_add": [
-            "STM32F469xI"
         ],
         "config": {
             "clock_freq": {
@@ -2293,11 +2276,7 @@
             "clock_source": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
             "lse_available": 0
         },
-        "macros_add": [
-            "STM32F469xx"
-        ],
         "device_has_add": [
-            "ANALOGOUT",
             "QSPI",
             "USBDEVICE"
         ],
