@@ -69,9 +69,9 @@
 
 LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
     ER_IROM1 MBED_APP_START MBED_APP_SIZE  {  ; load address = execution address
-    *.o (RESET, +First)
-    *(InRoot$$Sections)
-    *(+RO)
+        *.o (RESET, +First)
+        *(InRoot$$Sections)
+        *(+RO)
     }
 
     RW_IRAM1 MBED_RAM1_START MBED_RAM1_SIZE  {  ; RW data
