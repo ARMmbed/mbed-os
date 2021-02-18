@@ -168,7 +168,7 @@ typedef enum {
     OPS_ERASE_END   = 0x6565,
     OPS_NONE        = 0x4E4E,
 } rwwee_ops;
-    
+
 /* System Entry */
 struct system_entry {
     uint16_t id;
@@ -258,7 +258,7 @@ struct eeprom_info {
 class VEEBlockDevice : public BlockDevice {
 public:
     /** Constructor to create an VEEBlockDevice
-     *  
+     *
      *  @param bd           Block device to back the FlashSimBlockDevice
      *  @param size         The size of the device in bytes
      */
@@ -314,7 +314,7 @@ public:
     virtual int sync_program(const void *buffer, bd_addr_t addr, bd_size_t size);
 
     /** EEPROM user cache and meta data flush API.
-     *  
+     *
      *  NOTE: Call this API just before power down.
      * @return         0 on success, negative error code on failure
      */
@@ -375,26 +375,26 @@ public:
 
 private:
     // Read NOR flash.
-    int _ee_device_read(bd_addr_t addr, bd_size_t size, void *buffer); 
+    int _ee_device_read(bd_addr_t addr, bd_size_t size, void *buffer);
 
     // Write NOR flash.
     int _ee_device_write(bd_addr_t addr, bd_size_t size, void *buffer);
 
     // Erase NOR flash.
     int _ee_device_erase(bd_addr_t addr, bd_size_t size);
-    
+
     // Read system entry of current block of current bank.
     int _ee_read_sys(struct bank_info *bi, uint32_t entry, struct system_entry *sys);
-    
+
     // Update system entry of current block of current bank.
     int _ee_update_sys(struct bank_info *bi, uint32_t block, rwwee_ops ops, uint32_t arg);
-    
+
     // Read the specified entry of current block of current bank.
     int _ee_read(struct bank_info *bi, uint32_t entry, void *buf, bool header);
-    
+
     // Write the specified entry of current block of current bank.
     int _ee_write(struct bank_info *bi, uint32_t entry, void *buf);
-    
+
     // Erase the obsoleted sector of current bank.
     int _ee_erase(struct bank_info *bi);
 
@@ -409,22 +409,22 @@ private:
 
     // Read specified logical page of current block of current bank.
     int _ee_read_page(struct bank_info *bi, uint32_t LPA);
-    
+
     // Write specified logical page of current block of current bank.
     int _ee_write_page(struct bank_info *bi, uint32_t LPA);
-    
+
     // Handle buffer and cache.
     int _ee_rw_buffer(struct bank_info *bi, bd_addr_t addr, bd_size_t size,
-                           uint8_t *buf, bool rw);
-    
+                      uint8_t *buf, bool rw);
+
     // Distribute continuous logical address into different banks.
     int _ee_rw(bd_addr_t addr, bd_size_t size, uint8_t *buf, bool rw);
-    
+
     // Write dirty cache back (For internal use only).
     int _eeprom_wb(struct bank_info *bi);
-    
+
     // Handle wear leveling.
-    int _eeprom_wear_leveling(void);    
+    int _eeprom_wear_leveling(void);
 
     // Handle insufficient sector erase.
     int _ee_check_erase(struct bank_info *bi, uint32_t sector);

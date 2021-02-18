@@ -100,7 +100,7 @@ void test_read_write()
 
             if (size >= (1ULL << 10 * i)) {
                 utest_printf("%s: %llu%sbytes (%llubytes)\n",
-                       ATTRS[a].name, size >> 10 * i, prefixes[i], size);
+                             ATTRS[a].name, size >> 10 * i, prefixes[i], size);
                 break;
             }
         }
@@ -172,8 +172,7 @@ void test_read_write()
             if ((0xff & val_rand) != read_block[i_ind]) {
                 utest_printf("\n Assert Failed Buf Read - block:size: %llx:%llu \n", block, block_size);
                 utest_printf("\n pos: %llu, exp: %02x, act: %02x, wrt: %02x \n", i_ind, (0xff & val_rand),
-                         read_block[i_ind],
-                         write_block[i_ind]);
+                             read_block[i_ind], write_block[i_ind]);
             }
             TEST_ASSERT_EQUAL(0xff & val_rand, read_block[i_ind]);
         }
@@ -275,8 +274,7 @@ void test_background_thread()
             if ((0xff & val_rand) != read_block[i_ind]) {
                 utest_printf("\n Assert Failed Buf Read - block:size: %llx:%llu \n", block, block_size);
                 utest_printf("\n pos: %llu, exp: %02x, act: %02x, wrt: %02x \n", i_ind, (0xff & val_rand),
-                         read_block[i_ind],
-                         write_block[i_ind]);
+                             read_block[i_ind], write_block[i_ind]);
             }
             TEST_ASSERT_EQUAL(0xff & val_rand, read_block[i_ind]);
         }

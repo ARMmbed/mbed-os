@@ -55,11 +55,11 @@ int VEEBlockDevice::init()
     }
 
     for (bank = 0; bank < MX_EEPROMS; bank++) {
-    /* Check address validity */
+        /* Check address validity */
 #ifdef MX_FLASH_SUPPORT_RWW
         ofs = bank_offset[bank];
         if ((ofs / MX_FLASH_BANK_SIZE != bank) ||
-           ((ofs + MX_EEPROM_BANK_SIZE - 1) / MX_FLASH_BANK_SIZE != bank)) {
+               ((ofs + MX_EEPROM_BANK_SIZE - 1) / MX_FLASH_BANK_SIZE != bank)) {
             tr_error("init : invalid bank%lu offset\r\n", bank);
             err = VEEF_BD_ERROR_EINVAL;
             goto fail;
@@ -142,7 +142,7 @@ int VEEBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 
 int VEEBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
 {
-   if (!_is_initialized) {
+    if (!_is_initialized) {
         return BD_ERROR_DEVICE_ERROR;
     }
     if (!is_valid_program(addr, size)) {
@@ -193,7 +193,7 @@ int VEEBlockDevice::_ee_device_read(bd_addr_t addr, bd_size_t size, void *buffer
     /* Do the real read here */
     status = _bd->read(buffer, addr, size);
 
-    MBED_ASSERT(!status);  
+    MBED_ASSERT(!status);
 
     return (!status ? VEEF_BD_ERROR_OK : VEEF_BD_ERROR_EIO);
 }
@@ -229,15 +229,15 @@ int VEEBlockDevice::_ee_device_erase(bd_addr_t addr, bd_size_t size)
 #ifdef MX_EEPROM_PC_PROTECTION
 
 int VEEBlockDevice::_ee_read_sys(struct bank_info *bi, uint32_t entry,
-                          struct system_entry *sys)
+                                 struct system_entry *sys)
 {
     int status;
     bd_addr_t addr;
 
     /* Check address validity */
     if ((bi->bank >= MX_EEPROMS) ||
-        (bi->block >= MX_EEPROM_BLOCKS) ||
-        (entry >= MX_EEPROM_SYSTEM_ENTRIES)) {
+            (bi->block >= MX_EEPROM_BLOCKS) ||
+            (entry >= MX_EEPROM_SYSTEM_ENTRIES)) {
         return VEEF_BD_ERROR_EINVAL;
     }
 
@@ -248,15 +248,15 @@ int VEEBlockDevice::_ee_read_sys(struct bank_info *bi, uint32_t entry,
     status = _ee_device_read(addr, sizeof(*sys), sys);
     if (status) {
         tr_error("_ee_read_sys: fail to read, bank %lu, block %lu, entry %lu\r\n",
-                bi->bank, bi->block, entry);
+                 bi->bank, bi->block, entry);
         return status;
     }
 
     /* Check system entry */
     if ((sys->id != MFTL_ID && sys->id != DATA_NONE16) ||
-        (sys->cksum != (sys->id ^ sys->ops ^ sys->arg))) {
+            (sys->cksum != (sys->id ^ sys->ops ^ sys->arg))) {
         tr_error("_ee_read_sys: corrupted entry, bank %lu, block %lu, entry %lu\r\n",
-                bi->bank, bi->block, entry);
+                 bi->bank, bi->block, entry);
         return VEEF_BD_ERROR_EIO;
     }
 
@@ -264,7 +264,7 @@ int VEEBlockDevice::_ee_read_sys(struct bank_info *bi, uint32_t entry,
 }
 
 int VEEBlockDevice::_ee_update_sys(struct bank_info *bi, uint32_t block,
-                            rwwee_ops ops, uint32_t arg)
+                                   rwwee_ops ops, uint32_t arg)
 {
     int status;
     bd_addr_t addr;
@@ -272,8 +272,8 @@ int VEEBlockDevice::_ee_update_sys(struct bank_info *bi, uint32_t block,
 
     /* Check address validity */
     if ((bi->bank >= MX_EEPROMS) ||
-        (block >= MX_EEPROM_BLOCKS) ||
-        (bi->sys_entry[block] >= MX_EEPROM_SYSTEM_ENTRIES)) {
+            (block >= MX_EEPROM_BLOCKS) ||
+            (bi->sys_entry[block] >= MX_EEPROM_SYSTEM_ENTRIES)) {
         return VEEF_BD_ERROR_EINVAL;
     }
 
@@ -286,7 +286,7 @@ int VEEBlockDevice::_ee_update_sys(struct bank_info *bi, uint32_t block,
         status = _ee_device_erase(addr, MX_FLASH_SECTOR_SIZE);
         if (status) {
             tr_error("_ee_update_sys: fail to erase, bank %lu, block %lu, sector %d\r\n",
-                  bi->bank, block, MX_EEPROM_SYSTEM_SECTOR);
+                     bi->bank, block, MX_EEPROM_SYSTEM_SECTOR);
 
             bi->sys_entry[block] = DATA_NONE32;
             return status;
@@ -317,7 +317,7 @@ int VEEBlockDevice::_ee_update_sys(struct bank_info *bi, uint32_t block,
 #endif
 
 int VEEBlockDevice::_ee_read(struct bank_info *bi, uint32_t entry, void *buffer,
-                      bool header)
+                             bool header)
 {
     int status;
     bd_addr_t addr, size, cksum;
@@ -325,8 +325,8 @@ int VEEBlockDevice::_ee_read(struct bank_info *bi, uint32_t entry, void *buffer,
 
     /* Check address validity */
     if ((bi->bank >= MX_EEPROMS) ||
-        (bi->block >= MX_EEPROM_BLOCKS) ||
-        (entry >= MX_EEPROM_ENTRIES_PER_CLUSTER)) {
+            (bi->block >= MX_EEPROM_BLOCKS) ||
+            (entry >= MX_EEPROM_ENTRIES_PER_CLUSTER)) {
         return VEEF_BD_ERROR_EINVAL;
     }
 
@@ -337,7 +337,7 @@ int VEEBlockDevice::_ee_read(struct bank_info *bi, uint32_t entry, void *buffer,
     status = _ee_device_read(addr, size, buffer);
     if (status) {
         tr_error("ee_rddat: fail to read %s, bank %lu, block %lu, entry %lu\r\n",
-                header ? "header" : "entry", bi->bank, bi->block, entry);
+                 header ? "header" : "entry", bi->bank, bi->block, entry);
         return status;
     }
 
@@ -345,9 +345,9 @@ int VEEBlockDevice::_ee_read(struct bank_info *bi, uint32_t entry, void *buffer,
     cksum = cache->header.LPA + cache->header.LPA_inv;
     if ((cksum != DATA_NONE8) && (cksum != DATA_NONE8 + DATA_NONE8)) {
         tr_error("ee_rddat: corrupted entry LPA 0x%02x, inv 0x%02x, "
-               "bank %lu, block %lu, entry %lu\r\n",
-                cache->header.LPA, cache->header.LPA_inv,
-                bi->bank, bi->block, entry);
+                 "bank %lu, block %lu, entry %lu\r\n",
+                 cache->header.LPA, cache->header.LPA_inv,
+                 bi->bank, bi->block, entry);
         return VEEF_BD_ERROR_EIO;
     }
 
@@ -363,8 +363,8 @@ int VEEBlockDevice::_ee_write(struct bank_info *bi, uint32_t entry, void *buffer
 
     /* Check address validity */
     if ((bi->bank >= MX_EEPROMS) ||
-        (bi->block >= MX_EEPROM_BLOCKS) ||
-        (entry >= MX_EEPROM_ENTRIES_PER_CLUSTER)) {
+            (bi->block >= MX_EEPROM_BLOCKS) ||
+            (entry >= MX_EEPROM_ENTRIES_PER_CLUSTER)) {
         return VEEF_BD_ERROR_EINVAL;
     }
 
@@ -379,7 +379,7 @@ int VEEBlockDevice::_ee_write(struct bank_info *bi, uint32_t entry, void *buffer
     status = _ee_device_write(addr, MX_EEPROM_ENTRY_SIZE, cache);
     if (status) {
         tr_error("ee_wrdat: fail to write, bank %lu, block %lu, entry %lu\r\n",
-                bi->bank, bi->block, entry);
+                 bi->bank, bi->block, entry);
     }
 
     return status;
@@ -395,7 +395,7 @@ int VEEBlockDevice::_ee_erase(struct bank_info *bi)
         return VEEF_BD_ERROR_EINVAL;
     }
     if ((bi->dirty_block >= MX_EEPROM_BLOCKS) ||
-        (bi->dirty_sector >= MX_EEPROM_DATA_SECTORS)) {
+            (bi->dirty_sector >= MX_EEPROM_DATA_SECTORS)) {
         return VEEF_BD_ERROR_OK;
     }
 
@@ -416,12 +416,12 @@ int VEEBlockDevice::_ee_erase(struct bank_info *bi)
     /* Erase obsoleted sector */
     status = _ee_device_erase(addr, MX_FLASH_SECTOR_SIZE);
     if (status) {
-         tr_error("_ee_erase: fail to erase, bank %lu, block %lu, sector %lu\r\n",
-                bi->bank, bi->dirty_block, bi->dirty_sector);
+        tr_error("_ee_erase: fail to erase, bank %lu, block %lu, sector %lu\r\n",
+                 bi->bank, bi->dirty_block, bi->dirty_sector);
     }
 
 #ifdef MX_EEPROM_PC_PROTECTION
-   /* Erase end, XXX: will block RWE */
+    /* Erase end, XXX: will block RWE */
 //    _ee_update_sys(bi, bi->dirty_block, OPS_ERASE_END, bi->dirty_sector);
 #endif
 
@@ -440,8 +440,7 @@ int VEEBlockDevice::_ee_erase(struct bank_info *bi)
     return status;
 }
 
-uint32_t VEEBlockDevice::_ee_find_latest(struct bank_info *bi, uint32_t LPA,
-                                  bool free)
+uint32_t VEEBlockDevice::_ee_find_latest(struct bank_info *bi, uint32_t LPA, bool free)
 {
     int status;
     struct eeprom_header header;
@@ -449,8 +448,8 @@ uint32_t VEEBlockDevice::_ee_find_latest(struct bank_info *bi, uint32_t LPA,
 
     /* Check address validity */
     if ((bi->bank >= MX_EEPROMS) ||
-        (bi->block >= MX_EEPROM_BLOCKS) ||
-        (LPA >= MX_EEPROM_LPAS_PER_CLUSTER)) {
+            (bi->block >= MX_EEPROM_BLOCKS) ||
+            (LPA >= MX_EEPROM_LPAS_PER_CLUSTER)) {
         return DATA_NONE32;
     }
 
@@ -494,7 +493,7 @@ uint32_t VEEBlockDevice::_ee_find_latest(struct bank_info *bi, uint32_t LPA,
             break;
         } else {
             tr_error("ee_latst: corrupted entry, bank %lu, block %lu, entry %lu\r\n",
-              bi->bank, bi->block, entry);
+                     bi->bank, bi->block, entry);
         }
     }
 
@@ -632,8 +631,8 @@ int VEEBlockDevice::_ee_read_page(struct bank_info *bi, uint32_t LPA)
 
     /* Check address validity */
     if ((bi->bank >= MX_EEPROMS) ||
-        (bi->block >= MX_EEPROM_BLOCKS) ||
-        (LPA >= MX_EEPROM_LPAS_PER_CLUSTER)) {
+            (bi->block >= MX_EEPROM_BLOCKS) ||
+            (LPA >= MX_EEPROM_LPAS_PER_CLUSTER)) {
         status = VEEF_BD_ERROR_EINVAL;
         goto fail;
     }
@@ -681,8 +680,8 @@ int VEEBlockDevice::_ee_write_page(struct bank_info *bi, uint32_t LPA)
 
     /* Check address validity */
     if ((bi->bank >= MX_EEPROMS) ||
-        (bi->block >= MX_EEPROM_BLOCKS) ||
-        (LPA >= MX_EEPROM_LPAS_PER_CLUSTER)) {
+            (bi->block >= MX_EEPROM_BLOCKS) ||
+            (LPA >= MX_EEPROM_LPAS_PER_CLUSTER)) {
         return VEEF_BD_ERROR_EINVAL;
     }
 
@@ -691,7 +690,7 @@ retry:
     entry = _ee_search_free(bi, LPA);
     if (entry >= MX_EEPROM_ENTRIES_PER_CLUSTER) {
         tr_error("_ee_wpage: no free entry left, bank %lu, block %lu\r\n",
-            bi->bank, bi->block);
+                 bi->bank, bi->block);
         return VEEF_BD_ERROR_ENOSPC;
     }
 
@@ -733,7 +732,7 @@ retry:
 }
 
 int VEEBlockDevice::_ee_rw_buffer(struct bank_info *bi, bd_addr_t addr, bd_size_t size,
-                           uint8_t *buffer, bool rw)
+                                  uint8_t *buffer, bool rw)
 {
     int status;
     uint32_t block, page, ofs;
@@ -759,7 +758,7 @@ int VEEBlockDevice::_ee_rw_buffer(struct bank_info *bi, bd_addr_t addr, bd_size_
             status = _ee_build_mapping(bi, block);
             if (status) {
                 tr_error("_ee_rwbuf: fail to build mapping table, bank %lu, block %lu\r\n",
-                    bi->bank, bi->block);
+                         bi->bank, bi->block);
                 return status;
             }
         }
@@ -827,7 +826,7 @@ int VEEBlockDevice::_ee_rw(bd_addr_t addr, bd_size_t size, uint8_t *buffer, bool
 
         if (status) {
             tr_error("_ee_toprw: fail to %s laddr 0x%08lx, size %lu\r\n",
-              rw ? "write" : "read", addr, rwlen);
+                     rw ? "write" : "read", addr, rwlen);
             return status;
         }
 
@@ -849,7 +848,7 @@ int VEEBlockDevice::_ee_rw(bd_addr_t addr, bd_size_t size, uint8_t *buffer, bool
         rwlen = min_t(uint32_t, MX_EEPROM_PAGE_SIZE, size);
     }
 
-  return VEEF_BD_ERROR_OK;
+    return VEEF_BD_ERROR_OK;
 }
 
 #elif (MX_EEPROM_HASH_AlGORITHM == MX_EEPROM_HASH_HYBRID)
@@ -882,7 +881,7 @@ int VEEBlockDevice::_ee_rw(bd_addr_t addr, bd_size_t size, uint8_t *buffer, bool
             status = _ee_rw_buffer(bi, rwpos, rwlen, buffer, rw);
             if (status) {
                 tr_error("_ee_toprw: fail to %s laddr 0x%08lx, size %lu\r\n",
-                    rw ? "write" : "read", addr, rwlen);
+                         rw ? "write" : "read", addr, rwlen);
                 osMutexRelease(bi->lock);
                 return status;
             }
@@ -902,11 +901,11 @@ int VEEBlockDevice::_ee_rw(bd_addr_t addr, bd_size_t size, uint8_t *buffer, bool
             base += MX_EEPROM_BLOCK_SIZE;
         }
 
-      rwpos = base;
-      size = MX_EEPROM_BLOCK_SIZE;
+        rwpos = base;
+        size = MX_EEPROM_BLOCK_SIZE;
     }
 
-  return VEEF_BD_ERROR_OK;
+    return VEEF_BD_ERROR_OK;
 }
 
 #elif (MX_EEPROM_HASH_AlGORITHM == MX_EEPROM_HASH_SEQUENTIAL)
@@ -939,7 +938,7 @@ int VEEBlockDevice::_ee_rw(bd_addr_t addr, bd_size_t size, uint8_t *buffer, bool
             status = _ee_rw_buffer(bi, rwpos, rwlen, buffer, rw);
             if (status) {
                 tr_error("_ee_toprw: fail to %s laddr 0x%08lx, size %lu\r\n",
-                    rw ? "write" : "read", addr, rwlen);
+                         rw ? "write" : "read", addr, rwlen);
                 osMutexRelease(bi->lock);
                 return status;
             }
@@ -997,7 +996,7 @@ int VEEBlockDevice::program_back(void)
 
         /* Check dirty cache */
         if (!bi->cache_dirty) {
-          continue;
+            continue;
         }
 
         _bank_mutex[bank].lock();
@@ -1147,8 +1146,8 @@ int VEEBlockDevice::_ee_check_erase(struct bank_info *bi, uint32_t sector)
 
     /* Check address validity */
     if ((bi->bank >= MX_EEPROMS) ||
-        (bi->block >= MX_EEPROM_BLOCKS) ||
-        (sector >= MX_EEPROM_DATA_SECTORS)) {
+            (bi->block >= MX_EEPROM_BLOCKS) ||
+            (sector >= MX_EEPROM_DATA_SECTORS)) {
         return VEEF_BD_ERROR_EINVAL;
     }
 
@@ -1157,7 +1156,7 @@ int VEEBlockDevice::_ee_check_erase(struct bank_info *bi, uint32_t sector)
     /* Check the first entry header */
     entry = sector * MX_EEPROM_ENTRIES_PER_SECTOR;
     if (_ee_read(bi, entry, &header, true) ||
-       (header.LPA != DATA_NONE8 && header.LPA >= MX_EEPROM_LPAS_PER_CLUSTER)) {
+           (header.LPA != DATA_NONE8 && header.LPA >= MX_EEPROM_LPAS_PER_CLUSTER)) {
         tr_error("_ee_ckers: fail to read entry 0\r\n");
         goto erase;
     }
@@ -1166,16 +1165,15 @@ int VEEBlockDevice::_ee_check_erase(struct bank_info *bi, uint32_t sector)
     entry += MX_EEPROM_ENTRIES_PER_SECTOR - 1;
     if (_ee_read(bi, MX_EEPROM_ENTRIES_PER_SECTOR - 1, &header, true) ||
        (header.LPA != DATA_NONE8)) {
-        tr_error("_ee_ckers: fail to read entry %d\r\n",
-              MX_EEPROM_ENTRIES_PER_SECTOR - 1);
+        tr_error("_ee_ckers: fail to read entry %d\r\n", MX_EEPROM_ENTRIES_PER_SECTOR - 1);
         goto erase;
     }
 
-  return VEEF_BD_ERROR_OK;
+    return VEEF_BD_ERROR_OK;
 
 erase:
     tr_info("_ee_ckers: detected insufficient erase, block %lu, sector %lu\r\n",
-             bi->block, sector);
+            bi->block, sector);
     bi->dirty_block = bi->block;
     bi->dirty_sector = sector;
     return _ee_erase(bi);
