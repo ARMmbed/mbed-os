@@ -76,7 +76,12 @@ macro( mbed_add_all_subdirectories subdirectories_list )
         endif()
     endforeach()
 endmacro()
+<<<<<<< HEAD
 
 add_subdirectory(stubs)
 add_subdirectory(fakes)
+=======
+>>>>>>> unit tests built at the top level
 
+add_subdirectory(stubs)
+add_subdirectory(fakes)
