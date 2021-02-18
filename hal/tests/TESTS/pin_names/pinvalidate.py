@@ -99,7 +99,7 @@ def find_target_by_name(target_name=""):
     
     targets = dict()
 
-    for f in mbed_os_root.rglob("PinNames.h"):
+    for f in mbed_os_root.joinpath('targets').rglob("PinNames.h"):
         with open(f) as pin_names_file:
             pin_names_file_content = pin_names_file.read()
         
@@ -143,12 +143,9 @@ def check_markers(test_mode=False):
     if test_mode:
         search_dir = pathlib.Path(__file__).parent.joinpath('test_files').absolute()
     else:
-        search_dir = mbed_os_root
+        search_dir = mbed_os_root.joinpath('targets')
 
     for f in search_dir.rglob("PinNames.h"):
-        if not test_mode and 'test_files' in str(f):
-            continue
-
         with open(f) as pin_names_file:
             pin_names_file_content = pin_names_file.read()
         
@@ -197,12 +194,9 @@ def check_duplicate_pinnames_files(test_mode=False):
     if test_mode:
         search_dir = pathlib.Path(__file__).parent.joinpath('test_files').absolute()
     else:
-        search_dir = mbed_os_root
+        search_dir = mbed_os_root.joinpath('targets')
 
     for f in search_dir.rglob("PinNames.h"):
-        if not test_mode and 'test_files' in str(f):
-            continue
-
         with open(f) as pin_names_file:
             pin_names_file_content = pin_names_file.read()
         file_hash_dict[str(f)] = hashlib.md5(pin_names_file_content.encode('utf-8')).hexdigest()
@@ -233,12 +227,9 @@ def check_duplicate_markers(test_mode=False):
     if test_mode:
         search_dir = pathlib.Path(__file__).parent.joinpath('test_files').absolute()
     else:
-        search_dir = mbed_os_root
+        search_dir = mbed_os_root.joinpath('targets')
 
     for f in search_dir.rglob("PinNames.h"):
-        if not test_mode and 'test_files' in str(f):
-            continue
-        
         with open(f) as pin_names_file:
             pin_names_file_content = pin_names_file.read()
         
