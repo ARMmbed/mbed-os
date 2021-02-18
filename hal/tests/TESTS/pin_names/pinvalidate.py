@@ -129,16 +129,26 @@ def find_target_by_name(target_name=""):
     return targets
 
 
-def check_markers():
+def check_markers(test_mode=False):
     """Validate markers in PinNames.h files"""
     mbed_os_root = pathlib.Path(__file__).absolute().parents[4]
+
+    errors = []
 
     with (
         mbed_os_root.joinpath("targets", "targets.json")
     ).open() as targets_json_file:
         targets_json = json.load(targets_json_file)
 
-    for f in mbed_os_root.rglob("PinNames.h"):
+    if test_mode:
+        search_dir = pathlib.Path(__file__).parent.joinpath('test_files').absolute()
+    else:
+        search_dir = mbed_os_root
+
+    for f in search_dir.rglob("PinNames.h"):
+        if not test_mode and 'test_files' in str(f):
+            continue
+
         with open(f) as pin_names_file:
             pin_names_file_content = pin_names_file.read()
         
@@ -159,6 +169,7 @@ def check_markers():
         
         if not marker_target_list:
             print("WARNING: MBED TARGET LIST marker invalid or not found in file " + str(f))
+            errors.append({ "file": str(f), "error": "marker invalid or not found"})
             continue
 
         for target in marker_target_list:
@@ -170,14 +181,28 @@ def check_markers():
                         target_is_valid = False
             if not target_is_valid:
                 print("WARNING: MBED TARGET LIST in file " + str(f) + " includes target '" + target + "' which doesn't exist in targets.json or is not public")
+                errors.append({ "file": str(f), "error": "target not found"})
+    
+    return errors
 
 
-def check_duplicate_pinnames_files():
+def check_duplicate_pinnames_files(test_mode=False):
     """Check for duplicate PinNames.h files"""
     mbed_os_root = pathlib.Path(__file__).absolute().parents[4]
+
+    errors = []
     
     file_hash_dict = dict()
-    for f in mbed_os_root.rglob("PinNames.h"):
+
+    if test_mode:
+        search_dir = pathlib.Path(__file__).parent.joinpath('test_files').absolute()
+    else:
+        search_dir = mbed_os_root
+
+    for f in search_dir.rglob("PinNames.h"):
+        if not test_mode and 'test_files' in str(f):
+            continue
+
         with open(f) as pin_names_file:
             pin_names_file_content = pin_names_file.read()
         file_hash_dict[str(f)] = hashlib.md5(pin_names_file_content.encode('utf-8')).hexdigest()
@@ -192,14 +217,28 @@ def check_duplicate_pinnames_files():
         print("WARNING: Duplicate files")
         for file_path, file_hash in file_hash_dict.items():
             if file_hash == duplicate:
+                errors.append({ "file": file_path, "error": "duplicate file"})
                 print("\t" + file_path)
+    
+    return errors
 
-def check_duplicate_markers():
+def check_duplicate_markers(test_mode=False):
     """Check target markers in PinNames.h files for duplicates."""
     mbed_os_root = pathlib.Path(__file__).absolute().parents[4]
 
+    errors = []
+
     markers = dict()
-    for f in mbed_os_root.rglob("PinNames.h"):
+    
+    if test_mode:
+        search_dir = pathlib.Path(__file__).parent.joinpath('test_files').absolute()
+    else:
+        search_dir = mbed_os_root
+
+    for f in search_dir.rglob("PinNames.h"):
+        if not test_mode and 'test_files' in str(f):
+            continue
+        
         with open(f) as pin_names_file:
             pin_names_file_content = pin_names_file.read()
         
@@ -221,8 +260,11 @@ def check_duplicate_markers():
         for target in marker_target_list:
             if target in markers:
                 print("WARNING: target duplicate in " + str(f) + ", " + target + " first listed in " + markers[target])
+                errors.append({ "file": str(f), "error": "duplicate marker"})
             else:
                 markers[target] = str(f)
+
+    return errors
 
 
 def target_has_arduino_form_factor(target_name):
