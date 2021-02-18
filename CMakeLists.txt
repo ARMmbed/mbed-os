@@ -5,6 +5,17 @@
 
 cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
 
+option(UNITTESTS "Run unit tests only." OFF)
+
+if(UNITTESTS)
+
+enable_testing()
+
+add_subdirectory(UNITTESTS)
+add_subdirectory(drivers/tests/UNITTESTS)
+
+else()
+
 include(${MBED_CONFIG_PATH}/mbed_config.cmake)
 include(tools/cmake/set_linker_script.cmake)
 
@@ -254,3 +265,4 @@ endif()
 # TODO: Remove once all example applications have removed it
 function(mbed_configure_app_target target)
 endfunction()
+endif()
