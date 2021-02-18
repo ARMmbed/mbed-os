@@ -119,3 +119,5 @@ target_include_directories(mbed-stubs-headers
         ${MBED_PATH}/UNITTESTS/stubs
 )
 
+add_subdirectory(hal)
+add_subdirectory(platform)

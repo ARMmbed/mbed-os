@@ -5,6 +5,17 @@
 
 cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
 
+option(UNITTESTS "Run unit tests only." OFF)
+
+if(UNITTESTS)
+
+enable_testing()
+
+add_subdirectory(UNITTESTS)
+add_subdirectory(drivers/tests/UNITTESTS)
+
+else()
+
 include(${MBED_CONFIG_PATH}/mbed_config.cmake)
 include(tools/cmake/set_linker_script.cmake)
 
@@ -256,4 +267,6 @@ if ("${CMAKE_GENERATOR}" MATCHES "Ninja")
     if(NOT (CMAKE_HOST_SYSTEM_NAME MATCHES "Windows" AND CMAKE_CXX_COMPILER_ID MATCHES "ARMClang"))
         set(CMAKE_NINJA_FORCE_RESPONSE_FILE 1 CACHE INTERNAL "")
     endif()
+endif()
+
 endif()
