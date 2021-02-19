@@ -5646,7 +5646,18 @@
             "1101"
         ],
         "program_cycle_s": 6,
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "supported_application_profiles" : ["full", "bare-metal"],
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
+        }
     },
     "NRF52_DK": {
         "supported_form_factors": [
@@ -5804,7 +5815,18 @@
             "1101"
         ],
         "program_cycle_s": 6,
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "supported_application_profiles" : ["full", "bare-metal"],
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
+        }
     },
     "NRF52840_DK": {
         "supported_form_factors": [
