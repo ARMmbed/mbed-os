@@ -166,7 +166,7 @@ static void eattsL2cCocDataInd(l2cCocEvt_t *pEvt)
     }
 
     /* check client's status to see if server is allowed to process this PDU. */
-    err = attsCsfActClientState(connId - 1, opcode, pEvt->dataInd.pData - L2C_PAYLOAD_START);
+    err = attsCsfActClientState(connId, opcode, pEvt->dataInd.pData - L2C_PAYLOAD_START);
     if (err)
     {
       BYTES_TO_UINT16(attHandle, pEvt->dataInd.pData + ATT_HDR_LEN);
