@@ -9,3 +9,5 @@ target_include_directories(mbed-nordic
     INTERFACE
         .
 )
+
+target_link_libraries(mbed-nordic INTERFACE mbed-cmsis-cortex-m)

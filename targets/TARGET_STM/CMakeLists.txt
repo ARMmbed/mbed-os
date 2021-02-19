@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 add_subdirectory(TARGET_STM32F0 EXCLUDE_FROM_ALL)
@@ -51,3 +51,5 @@ target_sources(mbed-stm
         us_ticker.c
         watchdog_api.c
 )
+
+target_link_libraries(mbed-stm INTERFACE mbed-cmsis-cortex-m)
