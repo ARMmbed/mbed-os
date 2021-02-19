@@ -105,11 +105,14 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     /* Enable HSE oscillator and activate PLL with HSE as source */
     RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSE;
     if (bypass == 0) {
-        RCC_OscInitStruct.HSEState          = RCC_HSE_ON; /* External 8 MHz xtal on OSC_IN/OSC_OUT */
+        RCC_OscInitStruct.HSEState          = RCC_HSE_ON; /* External xtal on OSC_IN/OSC_OUT */
     } else {
         RCC_OscInitStruct.HSEState          = RCC_HSE_BYPASS; /* External 8 MHz clock on OSC_IN */
     }
-    RCC_OscInitStruct.HSEPredivValue      = RCC_HSE_PREDIV_DIV1;
+    RCC_OscInitStruct.HSEPredivValue      = RCC_HSE_PREDIV_DIV1; // 8 MHz external xtal (8 MHz = 8 MHz / 1)
+#if (HSE_VALUE == 16000000)
+    RCC_OscInitStruct.HSEPredivValue      = RCC_HSE_PREDIV_DIV2; // 16 MHz external xtal (8 MHz = 16 MHz / 2)
+#endif
     RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLMUL          = RCC_PLL_MUL9; // 72 MHz (8 MHz * 9)
