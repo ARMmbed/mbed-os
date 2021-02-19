@@ -23,7 +23,7 @@
 #include "AT_CellularNetwork_stub.h"
 #include "myCellularDevice.h"
 #include "Thread_stub.h"
-#include "cmsis_os2.h"
+#include "mbed_rtos_types.h"
 #include "equeue_stub.h"
 
 using namespace mbed;
