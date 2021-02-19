@@ -7615,7 +7615,18 @@
             "CORDIO_ZERO_COPY_HCI",
             "USE_AMBIQ_DRIVER",
             "MBED_TICKLESS"
-        ]
+        ],
+        "supported_application_profiles" : ["full", "bare-metal"],
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
+        }
     },
     "AMA3B1KK": {
         "public": false,
