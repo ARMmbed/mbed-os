@@ -18,7 +18,7 @@
 #ifndef CMSIS_OS_H_
 #define CMSIS_OS_H_
 
-#include "cmsis_os2.h"
+#include "mbed_rtos_types.h"
 
 #define osPriority osPriority_t
 
