@@ -4,7 +4,7 @@
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(LINKER_FILE device/TOOLCHAIN_GCC_ARM/M251.ld)
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
-    set(LINKER_FILE device/TOOLCHAIN_ARM_STD/M251.sct)
+    set(LINKER_FILE device/TOOLCHAIN_ARMC6/M251.sct)
 endif()
 
 add_library(mbed-m251 INTERFACE)

@@ -4,7 +4,7 @@
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(LINKER_FILE device/TOOLCHAIN_GCC_ARM/M261.ld)
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
-    set(LINKER_FILE device/TOOLCHAIN_ARM_STD/M261.sct)
+    set(LINKER_FILE device/TOOLCHAIN_ARMC6/M261.sct)
 endif()
 
 add_library(mbed-m261 INTERFACE)
@@ -14,7 +14,7 @@ target_sources(mbed-m261
         analogin_api.c
         analogout_api.c
         device/startup_M261.c
-        device/system_M251.c
+        device/system_M261.c
 
         device/StdDriver/m261_acmp.c
         device/StdDriver/m261_bpwm.c
@@ -78,6 +78,7 @@ target_include_directories(mbed-m261
         crypto
         device
         device/Reg
+        device/StdDriver
         device/StdDriver/inc
 )
 
