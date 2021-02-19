@@ -12,7 +12,6 @@ add_library(mbed-headers-hal INTERFACE)
 add_library(mbed-headers-events INTERFACE)
 add_library(mbed-headers-rtos INTERFACE)
 
-
 target_link_libraries(mbed-headers
     INTERFACE
         mbed-headers-base
@@ -29,7 +28,8 @@ target_include_directories(mbed-headers-platform
     INTERFACE
         ${MBED_PATH}/platform/include
         ${MBED_PATH}/platform/include/platform
-        ${MBED_PATH}/platform/include/platform/internal
+        ${MBED_PATH}/platform/randlib/include/mbed-client-randlib/
+        ${MBED_PATH}/platform/randlib/include/
         ${MBED_PATH}/platform/mbed-trace/include
 )
 
@@ -40,6 +40,8 @@ target_include_directories(mbed-headers-base
         ${MBED_PATH}/UNITTESTS/target_h/platform/cxxsupport
         ${MBED_PATH}/UNITTESTS/target_h/drivers
         ${MBED_PATH}/UNITTESTS/target_h/rtos/include
+        ${MBED_PATH}/UNITTESTS/target_h/rtos
+        ${MBED_PATH}/UNITTESTS/target_h/sys
 )
 
 target_include_directories(mbed-headers-storage
@@ -58,6 +60,7 @@ target_include_directories(mbed-headers-storage
         ${MBED_PATH}/storage/kvstore/tdbstore/include
         ${MBED_PATH}/storage/kvstore/filesystemstore/include
         ${MBED_PATH}/storage/kvstore/kvstore_global_api/include
+        ${MBED_PATH}/storage/blockdevice/include/blockdevice
 )
 
 target_include_directories(mbed-headers-connectivity
@@ -106,6 +109,7 @@ target_include_directories(mbed-headers-hal
 target_include_directories(mbed-headers-rtos
     INTERFACE
         ${MBED_PATH}/rtos/include
+        ${MBED_PATH}/rtos/include/rtos
 )
 
 target_include_directories(mbed-headers
@@ -116,8 +120,26 @@ target_include_directories(mbed-headers
 
 target_include_directories(mbed-stubs-headers
     INTERFACE
-        ${MBED_PATH}/UNITTESTS/stubs
+        .
 )
 
+add_subdirectory(connectivity)
+add_subdirectory(drivers)
+add_subdirectory(events)
 add_subdirectory(hal)
 add_subdirectory(platform)
+add_subdirectory(rtos)
+add_subdirectory(storage)
+
+add_library(mbed-stubs INTERFACE)
+
+target_link_libraries(mbed-stubs
+    INTERFACE
+        mbed-stubs-connectivity
+        mbed-stubs-drivers
+        mbed-stubs-events
+        mbed-stubs-hal
+        mbed-stubs-platform
+        mbed-stubs-rtos
+        mbed-stubs-storage
+)

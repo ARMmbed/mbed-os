@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "cmsis_os2.h"
+#include "mbed_rtos_types.h"
 
 osStatus_t osMutexAcquire(osMutexId_t mutex_id, uint32_t timeout)
 {
