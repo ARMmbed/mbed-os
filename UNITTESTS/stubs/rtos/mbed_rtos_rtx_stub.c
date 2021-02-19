@@ -15,6 +15,6 @@
  * limitations under the License.
  */
 
-#include "cmsis_os2.h"
+#include "mbed_rtos_types.h"
 
 osMutexId_t               singleton_mutex_id;

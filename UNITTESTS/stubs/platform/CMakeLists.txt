@@ -3,11 +3,6 @@
 
 add_library(mbed-stubs-platform)
 
-target_include_directories(mbed-stubs-platform
-    PRIVATE
-        .
-)
-
 target_sources(mbed-stubs-platform
     PRIVATE
         mbed_critical_stub.c
@@ -17,9 +12,13 @@ target_sources(mbed-stubs-platform
         mbed_assert_stub.cpp
         mbed_wait_api_stub.cpp
         mbed_retarget_stub.cpp
+        nvic_wrapper_stub.c
+        randLIB_stub.c
+        randLIB_stub.cpp
 )
 
 target_link_libraries(mbed-stubs-platform
     PRIVATE
         mbed-headers
+        mbed-stubs-headers
 )
