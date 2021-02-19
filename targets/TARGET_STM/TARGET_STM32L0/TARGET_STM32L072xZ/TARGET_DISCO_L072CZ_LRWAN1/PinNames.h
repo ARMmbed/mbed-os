@@ -28,6 +28,8 @@
  *******************************************************************************
  */
 
+/* MBED TARGET LIST: DISCO_L072CZ_LRWAN1 */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

@@ -30,6 +30,8 @@
  *******************************************************************************
  */
 
+/* MBED TARGET LIST: RHOMBIO_L476DMW1K */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

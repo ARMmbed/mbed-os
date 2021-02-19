@@ -17,6 +17,7 @@ limitations under the License.
 import argparse
 import json
 import pathlib
+import hashlib
 import re
 import sys
 from tabulate import tabulate
@@ -45,49 +46,216 @@ class ArgumentParserWithDefaultHelp(argparse.ArgumentParser):
         self.print_help()
         raise SystemExit(ReturnCode.INVALID_OPTIONS.value)
 
-
-def find_target(target_name=""):
-    """Find a target."""
+def find_target_by_path(target_path):
+    """Find a target by path."""
     mbed_os_root = pathlib.Path(__file__).absolute().parents[4]
-    
+
     targets = dict()
+
+    with open(target_path) as pin_names_file:
+        pin_names_file_content = pin_names_file.read()
+    
+    target_list_match = re.search(
+        "\/* MBED TARGET LIST: ([0-9A-Z_,* \n]+)*\/",
+        pin_names_file_content
+    )
+
+    target_list = []
+    if target_list_match:
+        target_list = list(
+            re.findall(
+                r"([0-9A-Z_]{3,})",
+                target_list_match.group(1),
+                re.MULTILINE,
+            )
+        )
+    
+    if not target_list:
+        print("WARNING: MBED TARGET LIST marker invalid or not found in file " + target_path)
+        print("Target could not be determined. Only the generic test suite will run. You can manually specify additional suites.")
 
     with (
         mbed_os_root.joinpath("targets", "targets.json")
     ).open() as targets_json_file:
         target_data = json.load(targets_json_file)
 
-    for f in mbed_os_root.rglob("PinNames.h"):
-        fallback_name_components = re.findall(
-            r"TARGET_([a-zA-Z0-9_]*)[\/\\]", f.absolute().as_posix()
-        )
-        fallback_name = "_".join(fallback_name_components)
-
-        if not fallback_name:
-            continue
-
-        if target_name:
-            if target_name not in fallback_name:
-                continue
-
-        # try to find corresponding target in targets.json
-        matches = []
+        # find target in targets.json
         for target in target_data:
             if "public" in target_data[target]:
                 if not target_data[target]["public"]:
                     continue
 
-            if target in fallback_name:
-                matches.append(target)
+            if target in target_list:
+                targets[target] = target_path
 
-        if not matches:
-            targets[fallback_name] = f
-        elif len(matches) == 1:
-            targets[matches[0]] = f
-        elif len(matches) > 1:
-            targets[fallback_name] = f
+    if len(targets) == 0:
+        targets[target_path] = target_path
 
     return targets
+
+def find_target_by_name(target_name=""):
+    """Find a target by name."""
+    mbed_os_root = pathlib.Path(__file__).absolute().parents[4]
+    
+    targets = dict()
+
+    for f in mbed_os_root.joinpath('targets').rglob("PinNames.h"):
+        with open(f) as pin_names_file:
+            pin_names_file_content = pin_names_file.read()
+        
+        target_list_match = re.search(
+            "\/* MBED TARGET LIST: ([0-9A-Z_,* \n]+)*\/",
+            pin_names_file_content
+        )
+        
+        target_list = []
+        if target_list_match:
+            target_list = list(
+                re.findall(
+                    r"([0-9A-Z_]{3,})",
+                    target_list_match.group(1),
+                    re.MULTILINE,
+                )
+            )
+
+        if target_name:
+            if target_name in target_list:
+                targets[target_name] = f
+                break
+        else:
+            for target in target_list:
+                targets[target] = f
+    
+    return targets
+
+
+def check_markers(test_mode=False):
+    """Validate markers in PinNames.h files"""
+    mbed_os_root = pathlib.Path(__file__).absolute().parents[4]
+
+    errors = []
+
+    with (
+        mbed_os_root.joinpath("targets", "targets.json")
+    ).open() as targets_json_file:
+        targets_json = json.load(targets_json_file)
+
+    if test_mode:
+        search_dir = pathlib.Path(__file__).parent.joinpath('test_files').absolute()
+    else:
+        search_dir = mbed_os_root.joinpath('targets')
+
+    for f in search_dir.rglob("PinNames.h"):
+        with open(f) as pin_names_file:
+            pin_names_file_content = pin_names_file.read()
+        
+        target_list_match = re.search(
+            "\/* MBED TARGET LIST: ([0-9A-Z_,* \n]+)*\/",
+            pin_names_file_content
+        )
+        
+        marker_target_list = []
+        if target_list_match:
+            marker_target_list = list(
+                re.findall(
+                    r"([0-9A-Z_]{3,})",
+                    target_list_match.group(1),
+                    re.MULTILINE,
+                )
+            )
+        
+        if not marker_target_list:
+            print("WARNING: MBED TARGET LIST marker invalid or not found in file " + str(f))
+            errors.append({ "file": str(f), "error": "marker invalid or not found"})
+            continue
+
+        for target in marker_target_list:
+            target_is_valid = False
+            if target in targets_json:
+                target_is_valid = True
+                if "public" in targets_json[target]:
+                    if targets_json[target]["public"] == False:
+                        target_is_valid = False
+            if not target_is_valid:
+                print("WARNING: MBED TARGET LIST in file " + str(f) + " includes target '" + target + "' which doesn't exist in targets.json or is not public")
+                errors.append({ "file": str(f), "error": "target not found"})
+    
+    return errors
+
+
+def check_duplicate_pinnames_files(test_mode=False):
+    """Check for duplicate PinNames.h files"""
+    mbed_os_root = pathlib.Path(__file__).absolute().parents[4]
+
+    errors = []
+    
+    file_hash_dict = dict()
+
+    if test_mode:
+        search_dir = pathlib.Path(__file__).parent.joinpath('test_files').absolute()
+    else:
+        search_dir = mbed_os_root.joinpath('targets')
+
+    for f in search_dir.rglob("PinNames.h"):
+        with open(f) as pin_names_file:
+            pin_names_file_content = pin_names_file.read()
+        file_hash_dict[str(f)] = hashlib.md5(pin_names_file_content.encode('utf-8')).hexdigest()
+    
+    rev_dict = {} 
+    for key, value in file_hash_dict.items(): 
+        rev_dict.setdefault(value, set()).add(key) 
+    duplicates = [key for key, values in rev_dict.items() 
+                                if len(values) > 1] 
+    
+    for duplicate in duplicates:
+        print("WARNING: Duplicate files")
+        for file_path, file_hash in file_hash_dict.items():
+            if file_hash == duplicate:
+                errors.append({ "file": file_path, "error": "duplicate file"})
+                print("\t" + file_path)
+    
+    return errors
+
+def check_duplicate_markers(test_mode=False):
+    """Check target markers in PinNames.h files for duplicates."""
+    mbed_os_root = pathlib.Path(__file__).absolute().parents[4]
+
+    errors = []
+
+    markers = dict()
+    
+    if test_mode:
+        search_dir = pathlib.Path(__file__).parent.joinpath('test_files').absolute()
+    else:
+        search_dir = mbed_os_root.joinpath('targets')
+
+    for f in search_dir.rglob("PinNames.h"):
+        with open(f) as pin_names_file:
+            pin_names_file_content = pin_names_file.read()
+        
+        target_list_match = re.search(
+            "\/* MBED TARGET LIST: ([0-9A-Z_,* \n]+)*\/",
+            pin_names_file_content
+        )
+        
+        marker_target_list = []
+        if target_list_match:
+            marker_target_list = list(
+                re.findall(
+                    r"([0-9A-Z_]{3,})",
+                    target_list_match.group(1),
+                    re.MULTILINE,
+                )
+            )
+        
+        for target in marker_target_list:
+            if target in markers:
+                print("WARNING: target duplicate in " + str(f) + ", " + target + " first listed in " + markers[target])
+                errors.append({ "file": str(f), "error": "duplicate marker"})
+            else:
+                markers[target] = str(f)
+
+    return errors
 
 
 def target_has_arduino_form_factor(target_name):
@@ -102,7 +270,7 @@ def target_has_arduino_form_factor(target_name):
     if target_name in target_data:
         if "supported_form_factors" in target_data[target_name]:
             form_factors = target_data[target_name]["supported_form_factors"]
-            if "ARDUINO" in form_factors or "ARDUINO_UNO" in form_factors:
+            if "ARDUINO_UNO" in form_factors:
                 return True
 
     return False
@@ -516,13 +684,18 @@ def validate_pin_names(args):
     if args.paths:
         paths = args.paths.split(",")
         for path in paths:
-            targets[path] = path
+            targets = {**targets, **find_target_by_path(path)}
     elif args.targets:
         target_names = args.targets.split(",")
         for target_name in target_names:
-            targets = {**targets, **find_target(target_name)}
+            targets = {**targets, **find_target_by_name(target_name)}
     elif args.all:
-        targets = find_target()
+        targets = find_target_by_name()
+    elif args.check_markers:
+        check_markers()
+        check_duplicate_pinnames_files()
+        check_duplicate_markers()
+        return
 
     report = []
     for target, path in targets.items():
@@ -659,6 +832,13 @@ def parse_args():
 
     group.add_argument(
         "-a", "--all", action="store_true", help="Run tests on all targets."
+    )
+
+    group.add_argument(
+        "-m",
+        "--check-markers",
+        action="store_true",
+        help="Check all PinNames.h for the MBED TARGET LIST marker."
     )
 
     parser.set_defaults(func=validate_pin_names)
