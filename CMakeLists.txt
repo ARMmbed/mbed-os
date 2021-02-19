@@ -187,11 +187,13 @@ function(mbed_generate_bin_hex target)
     )
 
     if(TARGET mbed-post-build-bin-${MBED_TARGET})
-        add_custom_target(mbed-post-build
-            ALL
-            DEPENDS
-                mbed-post-build-bin-${MBED_TARGET}
-        )
+        # The artefacts must be created before they can be further manipulated
+        add_dependencies(mbed-post-build-bin-${MBED_TARGET} ${target})
+
+        # Add a post-build hook to the top-level CMake target in the form of a
+        # CMake custom target. The hook depends on Mbed target specific
+        # post-build CMake target which has a custom command attached to it.
+        add_custom_target(mbed-post-build ALL DEPENDS mbed-post-build-bin-${MBED_TARGET})
     endif()
 endfunction()
 
