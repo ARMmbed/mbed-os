@@ -141,7 +141,7 @@ uint8_t attsCsfIsClientChangeAware(dmConnId_t connId, uint16_t handle)
  *  \return \ref ATT_SUCCESS if client is change-aware, else \ref ATT_ERR_DATABASE_OUT_OF_SYNC.
  */
 /*************************************************************************************************/
-uint8_t attsCsfActClientState(uint16_t connId, uint8_t opcode, uint8_t *pPacket)
+uint8_t attsCsfActClientState(dmConnId_t connId, uint8_t opcode, uint8_t *pPacket)
 {
   uint8_t err = ATT_SUCCESS;
   attsCsfRec_t *pRec;
