@@ -6415,6 +6415,17 @@
         ],
         "overrides": {
             "network-default-interface-type": "ETHERNET"
+        },
+        "supported_application_profiles" : ["full", "bare-metal"],
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
         }
     },
     "FVP_MPS2_M0": {
