@@ -15,4 +15,4 @@ target_sources(mbed-ev-cog-ad4050lz
         device/startup_ADuCM4050.c
 )
 
-target_link_libraries(mbed-ev-cog-ad4050lz INTERFACE mbed-aducm4050)
+target_link_libraries(mbed-ev-cog-ad4050lz INTERFACE mbed-aducm4050 mbed-flash-cmsis-algo)
