@@ -1,7 +1,7 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-set(TEST_NAME at_cellularcontext-unittest)
+set(TEST_NAME at_cellularinformation-unittest)
 
 add_executable(${TEST_NAME})
 
@@ -9,15 +9,13 @@ target_compile_definitions(${TEST_NAME}
     PRIVATE
         DEVICE_SERIAL=1
         DEVICE_INTERRUPTIN=1
-        MBED_CONF_CELLULAR_USE_SMS=1
-        MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN=NULL
         MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE=115200
 )
 
 target_sources(${TEST_NAME}
     PRIVATE
-        ${MBED_PATH}/connectivity/cellular/source/framework/AT/AT_CellularContext.cpp
-        at_cellularcontexttest.cpp
+        ${MBED_PATH}/connectivity/cellular/source/framework/AT/AT_CellularInformation.cpp
+        at_cellularinformationtest.cpp
 )
 
 target_link_libraries(${TEST_NAME}
