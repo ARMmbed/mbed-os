@@ -13,6 +13,7 @@ enable_testing()
 
 add_subdirectory(UNITTESTS)
 add_subdirectory(drivers/tests/UNITTESTS)
+add_subdirectory(connectivity/cellular/tests/UNITTESTS)
 
 else()
 
