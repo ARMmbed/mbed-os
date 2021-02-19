@@ -152,6 +152,17 @@ struct flash_s {
 };
 #endif
 
+#if DEVICE_ANALOGOUT
+struct dac_s {
+    DACName dac;
+    PinName pin;
+    uint32_t channel;
+    DAC_HandleTypeDef handle;
+};
+#endif
+
+#define HAL_CRC_IS_SUPPORTED(polynomial, width) ((width) == 7 || (width) == 8 || (width) == 16 || (width) == 32)
+
 #ifdef __cplusplus
 }
 #endif
