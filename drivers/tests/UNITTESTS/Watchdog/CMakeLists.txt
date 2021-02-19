@@ -13,13 +13,13 @@ target_compile_definitions(${TEST_NAME}
 
 target_sources(${TEST_NAME}
     PRIVATE
+        ${MBED_PATH}/drivers/source/Watchdog.cpp
         test_watchdog.cpp
 )
 
 target_link_libraries(${TEST_NAME}
     PRIVATE
         mbed-headers
-        mbed-fakes-drivers-watchdog
         mbed-stubs-platform
         mbed-stubs-hal  
         gmock_main

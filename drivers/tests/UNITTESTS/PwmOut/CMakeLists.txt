@@ -12,13 +12,13 @@ target_compile_definitions(${TEST_NAME}
 
 target_sources(${TEST_NAME}
     PRIVATE
+        ${MBED_PATH}/drivers/source/PwmOut.cpp
         test_pwmout.cpp
 )
 
 target_link_libraries(${TEST_NAME}
     PRIVATE
         mbed-headers
-        mbed-fakes-drivers-pwmout
         mbed-stubs-hal
         mbed-stubs-platform      
         gmock_main
