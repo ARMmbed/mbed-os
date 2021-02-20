@@ -1376,6 +1376,19 @@
             "STM32F103xB"
         ]
     },
+    "NUCLEO_F103RB": {
+        "inherits": [
+            "MCU_STM32F103xB"
+        ],
+        "supported_form_factors": [
+            "ARDUINO",
+            "MORPHO"
+        ],
+        "detect_code": [
+            "0700"
+        ],
+        "device_name": "STM32F103RB"
+    },
     "MCU_STM32F103xE": {
         "inherits": [
             "MCU_STM32F1"
@@ -1400,19 +1413,6 @@
             "SD",
             "PWM"
         ]
-    },
-    "NUCLEO_F103RB": {
-        "inherits": [
-            "MCU_STM32F103xB"
-        ],
-        "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
-        ],
-        "detect_code": [
-            "0700"
-        ],
-        "device_name": "STM32F103RB"
     },
     "MCU_STM32F2": {
         "inherits": [
