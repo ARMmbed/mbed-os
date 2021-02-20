@@ -1,8 +1,6 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_subdirectory(TARGET_IVM22_F103RE EXCLUDE_FROM_ALL)
-
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(STARTUP_FILE TOOLCHAIN_GCC_ARM/startup_stm32f103xe.S)
     set(LINKER_FILE TOOLCHAIN_GCC_ARM/stm32f103xe.ld)
