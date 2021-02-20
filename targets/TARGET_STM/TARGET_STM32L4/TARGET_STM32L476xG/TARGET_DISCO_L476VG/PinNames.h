@@ -186,46 +186,23 @@ typedef enum {
 
     // STDIO for console print
 #ifdef MBED_CONF_TARGET_STDIO_UART_TX
-    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+    USBTX = MBED_CONF_TARGET_STDIO_UART_TX,
 #else
-    STDIO_UART_TX = PD_5,
+    USBTX = PD_5,
 #endif
 #ifdef MBED_CONF_TARGET_STDIO_UART_RX
-    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+    USBRX = MBED_CONF_TARGET_STDIO_UART_RX,
 #else
-    STDIO_UART_RX = PD_6,
+    USBRX = PD_6,
 #endif
 
-    // Generic signals namings
-    LED1 = PE_8, // LD5 Green
-    LED2 = PB_2, // LD4 Red
-    LED3 = LED1,
-    LED4 = LED2,
     JOYSTICK_CENTER = PA_0,
     JOYSTICK_LEFT = PA_1,
     JOYSTICK_RIGHT = PA_2,
     JOYSTICK_UP = PA_3,
     JOYSTICK_DOWN = PA_5,
-    USER_BUTTON = JOYSTICK_CENTER,
-    // Standardized button names
-    BUTTON1 = USER_BUTTON,
-    BUTTON2 = JOYSTICK_LEFT,
-    BUTTON3 = JOYSTICK_RIGHT,
-    BUTTON4 = JOYSTICK_UP,
-    BUTTON5 = JOYSTICK_DOWN,
 
-    SERIAL_TX = STDIO_UART_TX,
-    SERIAL_RX = STDIO_UART_RX,
-    USBTX = STDIO_UART_TX,
-    USBRX = STDIO_UART_RX,
 
-    I2C_SCL     = PB_8,
-    I2C_SDA     = PB_9,
-    SPI_MOSI    = PA_7,
-    SPI_MISO    = PA_6,
-    SPI_SCK     = PA_5,
-    SPI_CS      = PA_4,
-    PWM_OUT     = PB_3,
 
     /**** USB FS pins ****/
     USB_OTG_FS_DM = PA_11,
@@ -271,6 +248,16 @@ typedef enum {
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
+
+// Standardized LED and button names
+#define LED1     PE_8   // LD5 Green
+#define LED2     PB_2   // LD4 Red
+#define BUTTON1  JOYSTICK_CENTER
+#define BUTTON2  JOYSTICK_LEFT
+#define BUTTON3  JOYSTICK_RIGHT
+#define BUTTON4  JOYSTICK_UP
+#define BUTTON5  JOYSTICK_DOWN
+
 
 #ifdef __cplusplus
 }

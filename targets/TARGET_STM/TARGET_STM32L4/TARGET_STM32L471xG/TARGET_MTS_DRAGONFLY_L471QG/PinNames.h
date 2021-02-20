@@ -169,59 +169,58 @@ typedef enum {
     ADC_VREF = 0xF1,
     ADC_VBAT = 0xF2,
 
-    // Arduino connector namings
-    A0  = PC_2,
-    A1  = PC_13,     //rev b PC_0; rev c PC_13
-    A2  = PC_4,
-    A3  = PE_6,     //reb b PB_1; rev c PE_6
-    A4  = PA_6,
-    A5  = PG_8,
-    D0  = PA_3,
-    D1  = PA_2,
-    D2  = PB_15,
-    D3  = PA_0,
-    D4  = PA_7,
-    D5  = PA_9,
-    D6  = PA_1,
-    D7  = PG_7,
-    D8  = PB_0,
-    D9  = PB_10,
-    D10 = PC_8,
-    D11 = PB_5,
-    D12 = PG_3,
-    D13 = PG_2,
-    D14 = PB_9,
-    D15 = PB_8,
+#ifdef TARGET_FF_ARDUINO_UNO
+    ARDUINO_UNO_A0  = PC_2,
+    ARDUINO_UNO_A1  = PC_13,  // rev b PC_0; rev c PC_13
+    ARDUINO_UNO_A2  = PC_4,
+    ARDUINO_UNO_A3  = PE_6,  // reb b PB_1; rev c PE_6
+    ARDUINO_UNO_A4  = PA_6,
+    ARDUINO_UNO_A5  = PG_8,
+    ARDUINO_UNO_D0  = PA_3,
+    ARDUINO_UNO_D1  = PA_2,
+    ARDUINO_UNO_D2  = PB_15,
+    ARDUINO_UNO_D3  = PA_0,
+    ARDUINO_UNO_D4  = PA_7,
+    ARDUINO_UNO_D5  = PA_9,
+    ARDUINO_UNO_D6  = PA_1,
+    ARDUINO_UNO_D7  = PG_7,
+    ARDUINO_UNO_D8  = PB_0,
+    ARDUINO_UNO_D9  = PB_10,
+    ARDUINO_UNO_D10 = PC_8,
+    ARDUINO_UNO_D11 = PB_5,
+    ARDUINO_UNO_D12 = PG_3,
+    ARDUINO_UNO_D13 = PG_2,
+    ARDUINO_UNO_D14 = PB_9,
+    ARDUINO_UNO_D15 = PB_8,
+#endif
 
     // 40 pin
-    IO_00 = D1,
-    IO_01 = D4,
-    IO_02 = D8,
-    IO_03 = D6,
-    IO_04 = D11,
-    IO_05 = D13,
-    IO_06 = D15,
-    IO_07 = D2,
-    IO_08 = A0,
-    IO_09 = A3,
-    IO_10 = A1,
-    IO_11 = A4,
-    IO_12 = A2,
-    IO_13 = D9,
-    IO_14 = A5,
-    IO_15 = D14,
-    IO_16 = D12,
-    IO_17 = D10,
-    IO_18 = D3,
-    IO_19 = D5,
-    IO_20 = D7,
-    IO_21 = D0,
+    IO_00 = ARDUINO_UNO_D1,
+    IO_01 = ARDUINO_UNO_D4,
+    IO_02 = ARDUINO_UNO_D8,
+    IO_03 = ARDUINO_UNO_D6,
+    IO_04 = ARDUINO_UNO_D11,
+    IO_05 = ARDUINO_UNO_D13,
+    IO_06 = ARDUINO_UNO_D15,
+    IO_07 = ARDUINO_UNO_D2,
+    IO_08 = ARDUINO_UNO_A0,
+    IO_09 = ARDUINO_UNO_A3,
+    IO_10 = ARDUINO_UNO_A1,
+    IO_11 = ARDUINO_UNO_A4,
+    IO_12 = ARDUINO_UNO_A2,
+    IO_13 = ARDUINO_UNO_D9,
+    IO_14 = ARDUINO_UNO_A5,
+    IO_15 = ARDUINO_UNO_D14,
+    IO_16 = ARDUINO_UNO_D12,
+    IO_17 = ARDUINO_UNO_D10,
+    IO_18 = ARDUINO_UNO_D3,
+    IO_19 = ARDUINO_UNO_D5,
+    IO_20 = ARDUINO_UNO_D7,
+    IO_21 = ARDUINO_UNO_D0,
 
     // 40 pin USB debug port
     USBTX = PB_6,
     USBRX = PB_7,
-    STDIO_UART_TX = PB_6,
-    STDIO_UART_RX = PB_7,
 
     //UARTS
     UART3_TX = PD_2,
@@ -250,29 +249,24 @@ typedef enum {
     J_TDO = PB_3,	// a.k.a. SWO
     J_TMS = PA_13,	// a.k.a. SWDIO
 
-    // Generic signals namings
-    LED1 = D3,
-    LED2 = D3,
-    LED3 = D3,
-    LED4 = D3,
 
     // SERIAL PORT
-    SERIAL_TX  = D1,
-    SERIAL_RX  = D0,
-    SERIAL_RTS = D6,
-    SERIAL_CTS = D3,
-    SERIAL_DCD = D4,
-    SERIAL_DSR = D5,
-    SERIAL_DTR = D7,
-    SERIAL_RI  = D8,
+    SERIAL_TX  = ARDUINO_UNO_D1,
+    SERIAL_RX  = ARDUINO_UNO_D0,
+    SERIAL_RTS = ARDUINO_UNO_D6,
+    SERIAL_CTS = ARDUINO_UNO_D3,
+    SERIAL_DCD = ARDUINO_UNO_D4,
+    SERIAL_DSR = ARDUINO_UNO_D5,
+    SERIAL_DTR = ARDUINO_UNO_D7,
+    SERIAL_RI  = ARDUINO_UNO_D8,
 
     // SPI1 and SPI2 are available on Arduino pins
-    SPI1_MOSI = D11,
-    SPI1_MISO = D12,
-    SPI1_SCK  = D13,
-    SPI2_MOSI = D2,
-    SPI2_MISO = A0,
-    SPI2_SCK  = D9,
+    SPI1_MOSI = ARDUINO_UNO_D11,
+    SPI1_MISO = ARDUINO_UNO_D12,
+    SPI1_SCK  = ARDUINO_UNO_D13,
+    SPI2_MOSI = ARDUINO_UNO_D2,
+    SPI2_MISO = ARDUINO_UNO_A0,
+    SPI2_SCK  = ARDUINO_UNO_D9,
 
     // SPI3 connects to flash part
     SPI3_MOSI = PC_12,
@@ -281,10 +275,10 @@ typedef enum {
     SPI3_SSEL = PG_12,
 
     // I2C1 and I2C3 are available on Arduino pins
-    I2C1_SCL = D15,
-    I2C1_SDA = D14,
-    I2C3_SCL = D7,
-    I2C3_SDA = A5,
+    I2C1_SCL = ARDUINO_UNO_D15,
+    I2C1_SDA = ARDUINO_UNO_D14,
+    I2C3_SCL = ARDUINO_UNO_D7,
+    I2C3_SDA = ARDUINO_UNO_A5,
 
     // Modem
     RADIO_PWR   = PC_3,
@@ -335,7 +329,7 @@ typedef enum {
     GNSSRXD = (int) 0xFFFFFFFF,
     PWR3V3 = (int) 0xFFFFFFFF,
 
-    WAKEUP   = D3,
+    WAKEUP   = ARDUINO_UNO_D3,
 
     // TIMERS
     TIM2_1 = PA_15,
@@ -394,6 +388,9 @@ typedef enum {
     // Not connected
     NC = (int) 0xFFFFFFFF
 } PinName;
+
+// Standardized LED and button names
+#define LED1  PA_0
 
 
 #ifdef __cplusplus

@@ -187,64 +187,42 @@ typedef enum {
     ADC_VREF = 0xF1,
     ADC_VBAT = 0xF2,
 
-    // Arduino connector namings
-    A0          = PC_5,
-    A1          = PC_4,
-    A2          = PC_3,
-    A3          = PC_2,
-    A4          = PC_1,
-    A5          = PC_0,
-    D0          = PA_1,
-    D1          = PA_0,
-    D2          = PD_14,
-    D3          = PB_0,
-    D4          = PA_3,
-    D5          = PB_4,
-    D6          = PB_1,
-    D7          = PA_4,
-    D8          = PB_2,
-    D9          = PA_15,
-    D10         = PA_2,
-    D11         = PA_7,
-    D12         = PA_6,
-    D13         = PA_5,
-    D14         = PB_9,
-    D15         = PB_8,
+#ifdef TARGET_FF_ARDUINO_UNO
+    ARDUINO_UNO_A0  = PC_5,
+    ARDUINO_UNO_A1  = PC_4,
+    ARDUINO_UNO_A2  = PC_3,
+    ARDUINO_UNO_A3  = PC_2,
+    ARDUINO_UNO_A4  = PC_1,
+    ARDUINO_UNO_A5  = PC_0,
+    ARDUINO_UNO_D0  = PA_1,
+    ARDUINO_UNO_D1  = PA_0,
+    ARDUINO_UNO_D2  = PD_14,
+    ARDUINO_UNO_D3  = PB_0,
+    ARDUINO_UNO_D4  = PA_3,
+    ARDUINO_UNO_D5  = PB_4,
+    ARDUINO_UNO_D6  = PB_1,
+    ARDUINO_UNO_D7  = PA_4,
+    ARDUINO_UNO_D8  = PB_2,
+    ARDUINO_UNO_D9  = PA_15,
+    ARDUINO_UNO_D10 = PA_2,
+    ARDUINO_UNO_D11 = PA_7,
+    ARDUINO_UNO_D12 = PA_6,
+    ARDUINO_UNO_D13 = PA_5,
+    ARDUINO_UNO_D14 = PB_9,
+    ARDUINO_UNO_D15 = PB_8,
+#endif
 
     // STDIO for console print
 #ifdef MBED_CONF_TARGET_STDIO_UART_TX
-    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+    USBTX = MBED_CONF_TARGET_STDIO_UART_TX,
 #else
-    STDIO_UART_TX = PB_6,
+    USBTX = PB_6,
 #endif
 #ifdef MBED_CONF_TARGET_STDIO_UART_RX
-    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+    USBRX = MBED_CONF_TARGET_STDIO_UART_RX,
 #else
-    STDIO_UART_RX = PB_7,
+    USBRX = PB_7,
 #endif
-
-    // Generic signals namings
-    LED1        = D13, // Green LED (LD1)
-    LED2        = PB_14, // Green LED (LD2)
-    LED3        = PC_9, // Yellow LED (LD3 WIFI) / Blue LED (LD4 BLE)
-    LED4        = LED3,
-    USER_BUTTON = PC_13,
-    BUTTON1     = USER_BUTTON,
-    BUTTON2     = USER_BUTTON,
-    BUTTON3     = USER_BUTTON,
-    BUTTON4     = USER_BUTTON,
-    BUTTON5     = USER_BUTTON,
-    SERIAL_TX   = STDIO_UART_TX,
-    SERIAL_RX   = STDIO_UART_RX,
-    USBTX       = STDIO_UART_TX,
-    USBRX       = STDIO_UART_RX,
-    I2C_SCL     = D15,
-    I2C_SDA     = D14,
-    SPI_MOSI    = D11,
-    SPI_MISO    = D12,
-    SPI_SCK     = D13,
-    SPI_CS      = D10,
-    PWM_OUT     = D9,
 
     /**** USB FS pins ****/
     USB_OTG_FS_DM = PA_11,
@@ -290,6 +268,13 @@ typedef enum {
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
+
+// Standardized LED and button names
+#define LED1     PA_5   // Green LED
+#define LED2     PB_14  // Green LED
+#define LED3     PC_9   // Yellow LED
+#define BUTTON1  PC_13
+
 
 #ifdef __cplusplus
 }
