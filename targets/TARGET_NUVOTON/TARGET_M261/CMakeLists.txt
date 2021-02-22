@@ -79,7 +79,6 @@ target_include_directories(mbed-m261
         device
         device/Reg
         device/StdDriver
-        device/StdDriver/inc
 )
 
 target_link_libraries(mbed-m261 INTERFACE mbed-nuvoton)
