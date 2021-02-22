@@ -32,4 +32,9 @@ foreach(options COMPILE_DEFINITIONS COMPILE_FEATURES COMPILE_OPTIONS INCLUDE_DIR
     set_target_properties(mbed-events-obj PROPERTIES ${options} $<TARGET_PROPERTY:mbed-events,INTERFACE_${options}>)
 endforeach()
 
-target_link_libraries(mbed-events-obj PRIVATE mbed-core)
+# Ensure the words that make up the Mbed target name are separated with a hyphen, lowercase, and with the `mbed-` prefix.
+string(TOLOWER ${MBED_TARGET} MBED_TARGET_CONVERTED)
+string(REPLACE "_" "-" MBED_TARGET_CONVERTED ${MBED_TARGET_CONVERTED})
+string(PREPEND MBED_TARGET_CONVERTED "mbed-")
+
+target_link_libraries(mbed-events-obj PRIVATE mbed-core ${MBED_TARGET_CONVERTED})
