@@ -12,6 +12,7 @@ target_sources(mbed-stubs-platform
         mbed_assert_stub.cpp
         mbed_wait_api_stub.cpp
         mbed_retarget_stub.cpp
+        FileHandle_stub.cpp
         nvic_wrapper_stub.c
         randLIB_stub.c
         randLIB_stub.cpp
