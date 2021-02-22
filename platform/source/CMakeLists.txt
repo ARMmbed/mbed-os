@@ -12,8 +12,8 @@ target_include_directories(mbed-core
         .
 )
 
-target_sources(mbed-core
-    INTERFACE
+target_sources(mbed-core-obj
+    PRIVATE
         ATCmdParser.cpp
         CThunkBase.cpp
         CriticalSectionLock.cpp

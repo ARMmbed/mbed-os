@@ -9,6 +9,13 @@ include(${MBED_CONFIG_PATH}/mbed_config.cmake)
 include(tools/cmake/set_linker_script.cmake)
 
 add_library(mbed-core INTERFACE)
+add_library(mbed-core-obj OBJECT)
+
+set_property(TARGET mbed-core PROPERTY INTERFACE_SOURCES $<TARGET_OBJECTS:mbed-core-obj>)
+
+foreach(options COMPILE_DEFINITIONS COMPILE_FEATURES COMPILE_OPTIONS INCLUDE_DIRECTORIES LINK_LIBRARIES)
+    set_target_properties(mbed-core-obj PROPERTIES ${options} $<TARGET_PROPERTY:mbed-core,INTERFACE_${options}>)
+endforeach()
 
 add_library(mbed-os INTERFACE)
 
@@ -114,6 +121,14 @@ target_include_directories(mbed-core
 # TODO CMake: Should the source files be moved?
 add_library(mbed-device_key INTERFACE)
 add_library(mbed-rtos INTERFACE)
+add_library(mbed-rtos-obj OBJECT)
+
+
+set_property(TARGET mbed-rtos PROPERTY INTERFACE_SOURCES $<TARGET_OBJECTS:mbed-rtos-obj>)
+
+foreach(options COMPILE_DEFINITIONS COMPILE_FEATURES COMPILE_OPTIONS INCLUDE_DIRECTORIES LINK_LIBRARIES)
+    set_target_properties(mbed-rtos-obj PROPERTIES ${options} $<TARGET_PROPERTY:mbed-rtos,INTERFACE_${options}>)
+endforeach()
 
 add_subdirectory(cmsis)
 add_subdirectory(drivers)

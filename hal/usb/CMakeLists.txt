@@ -7,7 +7,7 @@ target_include_directories(mbed-core
         include/usb
 )
 
-target_sources(mbed-core
-    INTERFACE
+target_sources(mbed-core-obj
+    PRIVATE
         source/mbed_usb_phy.cpp
 )
