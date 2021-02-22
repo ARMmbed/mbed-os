@@ -152,7 +152,7 @@ string(TOLOWER ${MBED_TARGET} MBED_TARGET_CONVERTED)
 string(REPLACE "_" "-" MBED_TARGET_CONVERTED ${MBED_TARGET_CONVERTED})
 string(PREPEND MBED_TARGET_CONVERTED "mbed-")
 
-target_link_libraries(mbed-core INTERFACE ${MBED_TARGET_CONVERTED})
+target_link_libraries(mbed-core-obj PRIVATE ${MBED_TARGET_CONVERTED})
 
 #
 # Converts output file of `target` to binary file and to Intel HEX file.
