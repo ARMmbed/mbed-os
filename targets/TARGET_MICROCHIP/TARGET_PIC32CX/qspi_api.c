@@ -100,7 +100,8 @@ static qspi_status_t qspi_set_frame_width(struct qspi_inst_frame_t *inst, const 
             inst->inst_frame.bm.b_opt_len = 0;
         } else {
             inst->inst_frame.bm.b_opt_en = true;
-            inst->inst_frame.bm.b_opt_len = cmd->alt.size;
+            /* It's not able to set more than 8 bits as option value */
+            inst->inst_frame.bm.b_opt_len = QSPI_IFR_OPTION_8_BIT;
         }
     }
 
@@ -115,7 +116,7 @@ static qspi_status_t qspi_smm_write(qspi_t *obj, const qspi_command_t *command, 
     qspid.qspi_frame = qspi_instance;
 
     qspid.qspi_command.instruction = command->instruction.value;
-    qspid.qspi_command.option = 0;
+    qspid.qspi_command.option = command->alt.value;
 
     qspid.qspi_buffer.data_tx = (uint8_t *)data;
     qspid.qspi_buffer.tx_data_size = *(uint32_t *)length;
@@ -155,7 +156,7 @@ static qspi_status_t qspi_smm_read(qspi_t *obj, const qspi_command_t *command, c
     qspid.qspi_frame = qspi_instance;
 
     qspid.qspi_command.instruction = command->instruction.value;
-    qspid.qspi_command.option = 0;
+    qspid.qspi_command.option = command->alt.value;
 
     qspid.qspi_buffer.data_tx = 0;
     qspid.qspi_buffer.tx_data_size = 0;
@@ -294,7 +295,6 @@ qspi_status_t qspi_frequency(qspi_t *obj, int hz)
     }
 
     qspi_disable(obj->qspi);
-	qspi_reset(obj->qspi);
 
     /* Disable Generick Clock */
 	pmc_disable_generic_clk(ID_QSPI);
@@ -348,7 +348,7 @@ qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, 
     qspid.qspi_hw = obj->qspi;
 
     qspid.qspi_command.instruction = command->instruction.value;
-    qspid.qspi_command.option = 0;
+    qspid.qspi_command.option = command->alt.value;
 
     qspid.qspi_frame = qspi_instance;
 
