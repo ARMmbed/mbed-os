@@ -31,4 +31,4 @@ target_compile_definitions(mbed-rtos
         MBED_CONF_RTOS_PRESENT=1
 )
 
-target_link_libraries(mbed-rtos INTERFACE mbed-core)
+target_link_libraries(mbed-rtos-obj PRIVATE mbed-core)
