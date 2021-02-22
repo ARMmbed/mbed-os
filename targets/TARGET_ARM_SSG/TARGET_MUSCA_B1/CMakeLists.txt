@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 add_library(mbed-arm-musca-b1 INTERFACE)
@@ -54,4 +54,11 @@ target_link_libraries(mbed-arm-musca-b1
     INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/s_veneers.o
         mbed-arm-ssg
+)
+
+add_library(mbed-arm-musca-b1-ns INTERFACE)
+
+target_link_libraries(mbed-arm-musca-b1-ns
+    INTERFACE
+        mbed-arm-musca-b1
 )
