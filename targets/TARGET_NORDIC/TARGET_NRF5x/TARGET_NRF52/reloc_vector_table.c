@@ -57,6 +57,9 @@
     uint32_t nrf_dispatch_vector[NVIC_NUM_VECTORS] @ ".nvictable";
 #endif
 
+#include "platform/mbed_toolchain.h"
+#include "subtarget_init.h"
+
 extern uint32_t __Vectors[];
 
 #define VECTORS_FLASH_START __Vectors
@@ -113,7 +116,6 @@ void nrf_reloc_vector_table(void)
 #endif
 }
 
-
 void mbed_sdk_init(void)
 {
 	if (STDIO_UART_RTS != NC) {
@@ -122,4 +124,6 @@ void mbed_sdk_init(void)
 		/* Set STDIO_UART_RTS as gpio driven low */
 		gpio_write(&rts, 0);
 	}
+
+        subtarget_sdk_init();
 }
