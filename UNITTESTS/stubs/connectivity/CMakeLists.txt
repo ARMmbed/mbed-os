@@ -58,4 +58,5 @@ target_link_libraries(mbed-stubs-connectivity
     PRIVATE
         mbed-headers
         mbed-stubs-headers
+        gtest
 )
