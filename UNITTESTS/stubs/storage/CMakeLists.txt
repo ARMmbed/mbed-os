@@ -9,7 +9,6 @@ target_sources(mbed-stubs-storage
         ChainingBlockDevice_stub.cpp
         EmulatedSD.cpp
         ExhaustibleBlockDevice_stub.cpp
-        FileHandle_stub.cpp
         FlashSimBlockDevice_stub.cpp
         HeapBlockDevice_stub.cpp
         #MBRBlockDevice_stub.cpp
