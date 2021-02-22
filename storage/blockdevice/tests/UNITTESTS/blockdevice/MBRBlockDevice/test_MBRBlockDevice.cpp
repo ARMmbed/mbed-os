@@ -16,7 +16,7 @@
 
 #include "gtest/gtest.h"
 #include "blockdevice/MBRBlockDevice.h"
-#include "stubs/BlockDevice_mock.h"
+#include "BlockDevice_mock.h"
 
 #define BLOCK_SIZE (512)
 #define PART_DESC_SIZE (16)

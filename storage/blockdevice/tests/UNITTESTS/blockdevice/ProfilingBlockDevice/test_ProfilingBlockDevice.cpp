@@ -15,7 +15,7 @@
  */
 
 #include "gtest/gtest.h"
-#include "stubs/BlockDevice_mock.h"
+#include "BlockDevice_mock.h"
 #include "blockdevice/ProfilingBlockDevice.h"
 
 #define BLOCK_SIZE (512)
