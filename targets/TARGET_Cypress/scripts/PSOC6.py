@@ -249,6 +249,11 @@ def sign_application(message_func, tools, binary, image_id):
     # UPGRADE image will be generated automatically by cysecuretools
     address, size = tools.flash_map(image_id=image_id, image_type="BOOT")
 
+    if not address or not size:
+        raise AddSignatureError(
+            f"Cannot find image with id {image_id} and type BOOT in the policy file"
+        )
+
     tools.sign_image(binary, image_id)
     message_func("[PSOC6.sign_image] Slot start address and size for image ID " \
                                 + str(image_id) + " is " + hex(address) + ", " + hex(size))
