@@ -59,7 +59,7 @@ int VEEBlockDevice::init()
 #ifdef MX_FLASH_SUPPORT_RWW
         ofs = bank_offset[bank];
         if ((ofs / MX_FLASH_BANK_SIZE != bank) ||
-               ((ofs + MX_EEPROM_BANK_SIZE - 1) / MX_FLASH_BANK_SIZE != bank)) {
+                ((ofs + MX_EEPROM_BANK_SIZE - 1) / MX_FLASH_BANK_SIZE != bank)) {
             tr_error("init : invalid bank%lu offset\r\n", bank);
             err = VEEF_BD_ERROR_EINVAL;
             goto fail;
@@ -308,7 +308,7 @@ int VEEBlockDevice::_ee_update_sys(struct bank_info *bi, uint32_t block,
     status = _ee_device_write(addr, sizeof(sys), &sys);
     if (status) {
         tr_error("_ee_update_sys: fail to update, bank %lu, block %lu, entry %lu\r\n",
-                bi->bank, block, bi->sys_entry[block]);
+                 bi->bank, block, bi->sys_entry[block]);
         return status;
     }
 
@@ -1156,15 +1156,14 @@ int VEEBlockDevice::_ee_check_erase(struct bank_info *bi, uint32_t sector)
     /* Check the first entry header */
     entry = sector * MX_EEPROM_ENTRIES_PER_SECTOR;
     if (_ee_read(bi, entry, &header, true) ||
-           (header.LPA != DATA_NONE8 && header.LPA >= MX_EEPROM_LPAS_PER_CLUSTER)) {
+            (header.LPA != DATA_NONE8 && header.LPA >= MX_EEPROM_LPAS_PER_CLUSTER)) {
         tr_error("_ee_ckers: fail to read entry 0\r\n");
         goto erase;
     }
 
     /* Check the last entry header */
     entry += MX_EEPROM_ENTRIES_PER_SECTOR - 1;
-    if (_ee_read(bi, MX_EEPROM_ENTRIES_PER_SECTOR - 1, &header, true) ||
-       (header.LPA != DATA_NONE8)) {
+    if (_ee_read(bi, MX_EEPROM_ENTRIES_PER_SECTOR - 1, &header, true) || (header.LPA != DATA_NONE8)) {
         tr_error("_ee_ckers: fail to read entry %d\r\n", MX_EEPROM_ENTRIES_PER_SECTOR - 1);
         goto erase;
     }
