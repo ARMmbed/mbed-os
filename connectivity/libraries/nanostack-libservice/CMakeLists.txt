@@ -31,8 +31,8 @@ target_include_directories(mbed-core
         .
         ./mbed-client-libservice
 )
-target_sources(mbed-core
-    INTERFACE
+target_sources(mbed-core-obj
+    PRIVATE
         source/libBits/common_functions.c
         source/libip6string/ip6tos.c
 )

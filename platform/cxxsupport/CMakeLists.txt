@@ -6,7 +6,7 @@ target_include_directories(mbed-core
         .
 )
 
-target_sources(mbed-core
-    INTERFACE
+target_sources(mbed-core-obj
+    PRIVATE
         mstd_mutex.cpp
 )

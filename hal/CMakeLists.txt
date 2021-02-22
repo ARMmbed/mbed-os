@@ -11,8 +11,8 @@ target_include_directories(mbed-core
         include/hal
 )
 
-target_sources(mbed-core
-    INTERFACE
+target_sources(mbed-core-obj
+    PRIVATE
         source/LowPowerTickerWrapper.cpp
         source/mbed_compat.c
         source/mbed_critical_section_api.c

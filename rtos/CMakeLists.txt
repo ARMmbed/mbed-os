@@ -10,8 +10,8 @@ target_include_directories(mbed-core
         ./source
 )
 
-target_sources(mbed-core
-    INTERFACE
+target_sources(mbed-core-obj
+    PRIVATE
         source/EventFlags.cpp
         source/Kernel.cpp
         source/Mutex.cpp

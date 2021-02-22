@@ -6,8 +6,8 @@ target_include_directories(mbed-core
         .
 )
 
-target_sources(mbed-core
-    INTERFACE
+target_sources(mbed-core-obj
+    PRIVATE
         mbed_printf_armlink_overrides.c
         mbed_printf_implementation.c
         mbed_printf_wrapper.c
