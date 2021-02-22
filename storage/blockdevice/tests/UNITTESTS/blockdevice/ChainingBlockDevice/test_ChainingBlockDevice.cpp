@@ -15,8 +15,8 @@
  */
 
 #include "gtest/gtest.h"
-#include "ChainingBlockDevice.cpp"
-#include "stubs/BlockDevice_mock.h"
+#include "blockdevice/ChainingBlockDevice.h"
+#include "BlockDevice_mock.h"
 
 using ::testing::_;
 using ::testing::Return;
