@@ -5,18 +5,15 @@
 
 cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
 
-option(UNITTESTS "Run unit tests only." OFF)
+option(MBED_BUILD_UNITTESTS "Run unit tests only." OFF)
 
-if(UNITTESTS)
-
-project(unittests)
-
-enable_testing()
-
-add_subdirectory(UNITTESTS)
-add_subdirectory(drivers/tests/UNITTESTS)
-add_subdirectory(connectivity/cellular/tests/UNITTESTS)
-
+if(MBED_BUILD_UNITTESTS)
+    project(mbed-unittests)
+    enable_testing()
+    
+    add_subdirectory(UNITTESTS)
+    add_subdirectory(${MBED_PATH}/drivers/tests/UNITTESTS)
+    add_subdirectory(${MBED_PATH}/connectivity/cellular/tests/UNITTESTS) 
 else()
 
 include(${MBED_CONFIG_PATH}/mbed_config.cmake)
