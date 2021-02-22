@@ -9,6 +9,8 @@ option(UNITTESTS "Run unit tests only." OFF)
 
 if(UNITTESTS)
 
+project(unittests)
+
 enable_testing()
 
 add_subdirectory(UNITTESTS)
