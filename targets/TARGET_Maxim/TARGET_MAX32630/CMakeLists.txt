@@ -18,6 +18,7 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
 endif()
 
 add_library(mbed-max32630 INTERFACE)
+add_library(mbed-max32630-obj OBJECT)
 
 mbed_set_linker_script(mbed-max32630 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
@@ -28,8 +29,8 @@ target_include_directories(mbed-max32630
         mxc
 )
 
-target_sources(mbed-max32630
-    INTERFACE
+target_sources(mbed-max32630-obj
+    PRIVATE
         PeripheralPins.c
         analogin_api.c
         gpio_api.c
@@ -76,6 +77,12 @@ target_sources(mbed-max32630
 
         ${STARTUP_FILE}
 )
+
+set_property(TARGET mbed-max32630 PROPERTY INTERFACE_SOURCES $<TARGET_OBJECTS:mbed-max32630-obj>)
+
+foreach(options COMPILE_DEFINITIONS COMPILE_FEATURES COMPILE_OPTIONS INCLUDE_DIRECTORIES LINK_LIBRARIES)
+    set_target_properties(mbed-max32630-obj PROPERTIES ${options} $<TARGET_PROPERTY:mbed-max32630,INTERFACE_${options}>)
+endforeach()
 
 target_link_libraries(mbed-max32630 
     INTERFACE 
