@@ -13,7 +13,9 @@ if(MBED_BUILD_UNITTESTS)
     
     add_subdirectory(UNITTESTS)
     add_subdirectory(${MBED_PATH}/drivers/tests/UNITTESTS)
+
     add_subdirectory(${MBED_PATH}/connectivity/cellular/tests/UNITTESTS)
+    add_subdirectory(${MBED_PATH}/storage/blockdevice/tests/UNITTESTS)
     add_subdirectory(${MBED_PATH}/storage/kvstore/tdbstore/tests/UNITTESTS)
 else()
 
