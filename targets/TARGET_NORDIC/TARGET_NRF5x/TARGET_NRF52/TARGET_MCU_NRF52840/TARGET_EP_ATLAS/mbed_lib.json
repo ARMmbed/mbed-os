@@ -18,8 +18,9 @@
     },
     "target_overrides": {
         "EP_ATLAS": {
-            "target.network-default-interface-type": "CELLULAR"
-
+            "target.network-default-interface-type": "CELLULAR",
+            "target.mbed_app_start": "0x1000",
+            "target.mbed_app_size": "0xDF000"
         }
 
     }
