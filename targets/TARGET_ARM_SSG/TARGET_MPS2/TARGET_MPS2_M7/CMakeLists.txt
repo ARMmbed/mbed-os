@@ -10,7 +10,7 @@ target_include_directories(mbed-arm-mps2-m7
 
 if(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE device/TOOLCHAIN_ARM_STD/MPS2.sct)
-    set(STARTUP_FILE device/TOOLCHAIN_ARM_STD/startup_MPS2.S)
+    set(STARTUP_FILE device/TOOLCHAIN_ARM_STD/startup_CMSDK_CM7.S)
 elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(LINKER_FILE device/TOOLCHAIN_GCC_ARM/MPS2.ld)
     set(STARTUP_FILE device/TOOLCHAIN_GCC_ARM/startup_MPS2.S)
