@@ -1,8 +1,6 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-project(unittests)
-
 set(MBED_PATH ${CMAKE_CURRENT_SOURCE_DIR}/.. CACHE INTERNAL "")
 
 # Setup c++ standard
