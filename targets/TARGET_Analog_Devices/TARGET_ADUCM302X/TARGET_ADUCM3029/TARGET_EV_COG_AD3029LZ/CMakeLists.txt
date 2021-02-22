@@ -15,4 +15,4 @@ target_sources(mbed-ev-cog-ad3029lz
         device/startup_ADuCM3029.c
 )
 
-target_link_libraries(mbed-ev-cog-ad3029lz INTERFACE mbed-aducm3029)
+target_link_libraries(mbed-ev-cog-ad3029lz INTERFACE mbed-aducm3029 mbed-flash-cmsis-algo)

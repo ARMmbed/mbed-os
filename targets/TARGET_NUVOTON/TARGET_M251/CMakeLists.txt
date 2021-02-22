@@ -70,7 +70,7 @@ target_include_directories(mbed-m251
         device/StdDriver/inc
 )
 
-target_link_libraries(mbed-m251 INTERFACE mbed-nuvoton)
+target_link_libraries(mbed-m251 INTERFACE mbed-nuvoton mbed-flash-cmsis-algo)
 
 mbed_set_linker_script(mbed-m251 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 

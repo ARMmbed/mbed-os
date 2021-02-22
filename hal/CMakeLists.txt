@@ -1,9 +1,7 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("FLASH_CMSIS_ALGO" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_FLASH_CMSIS_ALGO)
-endif()
+add_subdirectory(TARGET_FLASH_CMSIS_ALGO EXCLUDE_FROM_ALL)
 
 add_subdirectory(usb)
 
