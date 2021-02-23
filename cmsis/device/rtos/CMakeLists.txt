@@ -31,7 +31,10 @@ target_compile_definitions(mbed-rtos
         MBED_CONF_RTOS_PRESENT=1
 )
 
-target_link_libraries(mbed-rtos-obj PRIVATE mbed-core ${MBED_TARGET_CONVERTED})
+target_include_directories(mbed-rtos INTERFACE $<TARGET_PROPERTY:${MBED_TARGET_CONVERTED},INTERFACE_INCLUDE_DIRECTORIES>)
+
+
+target_link_libraries(mbed-rtos-obj PRIVATE mbed-core)
 
 # Link related core files (=mbed-os-obj) that require rtos to get their flags
-target_link_libraries(mbed-os-obj PRIVATE mbed-core ${MBED_TARGET_CONVERTED} mbed-rtos)
+target_link_libraries(mbed-os-obj PRIVATE mbed-core mbed-rtos)
