@@ -45,6 +45,8 @@ typedef void rpl_prefix_callback_t(struct prefix_entry_t *prefix, void *handle, 
 
 typedef bool rpl_new_parent_callback_t(uint8_t *ll_parent_address, void *handle, struct rpl_instance *instance, uint16_t candidate_rank);
 
+typedef void rpl_parent_dis_callback_t(const uint8_t *ll_parent_address, void *handle, struct rpl_instance *instance);
+
 typedef struct rpl_route_info {
     uint8_t node[8];                  /* IID of parent in parent child relation table */
     uint8_t parent[8];                /* IID of child in parent child relation table */
@@ -65,6 +67,7 @@ typedef struct rpl_domain {
     rpl_domain_callback_t *callback;
     rpl_prefix_callback_t *prefix_cb;
     rpl_new_parent_callback_t *new_parent_add;
+    rpl_parent_dis_callback_t *parent_dis;
     void *cb_handle;
 } rpl_domain_t;
 
@@ -159,7 +162,7 @@ void rpl_control_delete_domain(rpl_domain_t *domain);
 void rpl_control_set_domain_on_interface(struct protocol_interface_info_entry *cur, rpl_domain_t *domain, bool downstream);
 void rpl_control_remove_domain_from_interface(struct protocol_interface_info_entry *cur);
 void rpl_control_free_domain_instances_from_interface(struct protocol_interface_info_entry *cur);
-void rpl_control_set_callback(rpl_domain_t *domain, rpl_domain_callback_t callback, rpl_prefix_callback_t prefix_learn_cb, rpl_new_parent_callback_t new_parent_add, void *cb_handle);
+void rpl_control_set_callback(rpl_domain_t *domain, rpl_domain_callback_t callback, rpl_prefix_callback_t prefix_learn_cb, rpl_new_parent_callback_t new_parent_add, rpl_parent_dis_callback_t parent_dis, void *cb_handle);
 
 /* Target publishing */
 void rpl_control_publish_host_address(rpl_domain_t *domain, const uint8_t addr[16], uint32_t lifetime);

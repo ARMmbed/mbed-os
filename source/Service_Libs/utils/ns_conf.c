@@ -24,10 +24,10 @@
 
 int ns_conf_gc_threshold_set(uint8_t percentage_high, uint8_t percentage_critical)
 {
-    return ns_monitor_heap_gc_threshold_set(percentage_high, percentage_critical);
+    return ns_monitor_heap_gc_threshold_set(0, 0, percentage_high, 0, 0, percentage_critical);
 }
 
 int ns_conf_packet_ingress_rate_limit_by_mem(uint8_t free_heap_percentage)
 {
-    return ns_monitor_packet_ingress_rate_limit_by_memory(free_heap_percentage);
+    return ns_monitor_packet_ingress_rate_limit_by_memory(0, 0, free_heap_percentage);
 }

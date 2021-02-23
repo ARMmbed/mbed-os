@@ -1507,11 +1507,16 @@ static void mcps_data_confirm_handle(protocol_interface_rf_mac_setup_s *rf_ptr, 
     mcps_data_conf_t confirm;
     if (rf_ptr->fhss_api && !buffer->asynch_request) {
         // FHSS checks if this failed buffer needs to be pushed back to TX queue and retransmitted
-        if (!mcps_buffer_edfe_data_failure(rf_ptr, buffer) && ((rf_ptr->mac_tx_result == MAC_TX_FAIL) || (rf_ptr->mac_tx_result == MAC_CCA_FAIL))) {
-            if (rf_ptr->fhss_api->data_tx_fail(rf_ptr->fhss_api, buffer->msduHandle, mac_convert_frame_type_to_fhss(buffer->fcf_dsn.frametype), rf_ptr->mac_tx_start_channel) == true) {
-
+        if (!mcps_buffer_edfe_data_failure(rf_ptr, buffer) && ((rf_ptr->mac_tx_result == MAC_TX_FAIL) || (rf_ptr->mac_tx_result == MAC_CCA_FAIL) || (rf_ptr->mac_tx_result == MAC_RETURN_TO_QUEUE))) {
+            if ((rf_ptr->mac_tx_result == MAC_RETURN_TO_QUEUE) || rf_ptr->fhss_api->data_tx_fail(rf_ptr->fhss_api, buffer->msduHandle, mac_convert_frame_type_to_fhss(buffer->fcf_dsn.frametype), rf_ptr->mac_tx_start_channel) == true) {
                 if (rf_ptr->mac_tx_result == MAC_TX_FAIL) {
                     buffer->fhss_retry_count += 1 + rf_ptr->mac_tx_status.retry;
+                } else if (rf_ptr->mac_tx_result == MAC_RETURN_TO_QUEUE) {
+                    buffer->stored_retry_cnt = rf_ptr->mac_tx_retry;
+                    buffer->stored_cca_cnt = rf_ptr->mac_cca_retry;
+                    buffer->stored_priority = buffer->priority;
+                    // Use priority to transmit it first when proper channel is available
+                    buffer->priority = MAC_PD_DATA_TX_IMMEDIATELY;
                 } else {
                     buffer->fhss_retry_count += rf_ptr->mac_tx_status.retry;
                 }
@@ -2135,8 +2140,16 @@ static int8_t mcps_pd_data_request(protocol_interface_rf_mac_setup_s *rf_ptr, ma
     rf_ptr->macTxRequestAck = false;
 
     memset(&(rf_ptr->mac_tx_status), 0, sizeof(mac_tx_status_t));
-    rf_ptr->mac_cca_retry = 0;
-    rf_ptr->mac_tx_retry = 0;
+    if (buffer->priority == MAC_PD_DATA_TX_IMMEDIATELY) {
+        // Return original priority and retry/CCA counts
+        buffer->priority = buffer->stored_priority;
+        rf_ptr->mac_tx_retry = rf_ptr->mac_tx_status.retry = buffer->stored_retry_cnt;
+        rf_ptr->mac_cca_retry = rf_ptr->mac_tx_status.cca_cnt = buffer->stored_cca_cnt;
+        buffer->stored_retry_cnt = buffer->stored_cca_cnt = 0;
+    } else {
+        rf_ptr->mac_tx_retry = 0;
+        rf_ptr->mac_cca_retry = 0;
+    }
     rf_ptr->mac_tx_start_channel = rf_ptr->mac_channel;
     mac_csma_param_init(rf_ptr);
     if (mcps_generic_packet_build(rf_ptr, buffer) != 0) {

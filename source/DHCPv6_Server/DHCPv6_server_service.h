@@ -62,13 +62,19 @@ void DHCPv6_server_service_timeout_cb(uint32_t timeUpdateInSeconds);
 
 /* Control GUA address for client by DUI.Default value is true
  *
+ * Anonymous and disable address list can optimize either
+ * Using 16 bit suffix to optimize data amount in network
+ * and having list of assigned addresses meaning larger RAM usage at border router
+ *
+ * or Using SLAAC type address generation and not have a list of addresses at Border router
+ * -> Less RAM usage, but more bandwidth used
  *
  *  /param interface interface id of this thread instance.
  *  /param guaPrefix Prefix which will be removed
- *  /param mode true trig autonous mode, false define address by default suffics + client id
- *  /param autonomous_skip_list true skip address list allocation when autonous mode is selected
+ *  /param mode true assign addresses anonymously. false define address by Prefix + client id
+ *  /param disable_address_list Dont keep track of assigned Addresses (Can't be used if anonymous)
  */
-int DHCPv6_server_service_set_address_autonous_flag(int8_t interface, uint8_t guaPrefix[static 16], bool mode, bool autonomous_skip_list);
+int DHCPv6_server_service_set_address_generation_anonymous(int8_t interface, uint8_t guaPrefix[static 16], bool mode, bool autonomous_skip_list);
 
 
 /* SET max accepted clients to server, Default is 200

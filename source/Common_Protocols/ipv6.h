@@ -57,7 +57,7 @@ typedef enum ipv6_exthdr_stage {
  * If it needs to insert headers that are not present, it can force insertion
  * into a tunnel, by:
  *    setting dst_sa and src_sa appropriate for the tunnel endpoints
- *      XXX does this work out okay with dest cache and PMTU?
+ *    src_sa.addr_type can be set to ADDR_NONE to auto-select tunnel source address
  *    updating route info like next hop if necessary (probably not)
  *    returning IPV6_EXTHDR_MODIFY_TUNNEL
  * During new header formation for the tunnel, IPV6_EXTHDR_INSERT will be
