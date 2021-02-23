@@ -173,6 +173,8 @@ void ws_common_primary_parent_update(protocol_interface_info_entry_t *interface,
 void ws_common_secondary_parent_update(protocol_interface_info_entry_t *interface);
 
 uint8_t ws_common_temporary_entry_size(uint8_t mac_table_size);
+void ws_common_border_router_alive_update(protocol_interface_info_entry_t *interface);
+
 #define ws_info(cur) ((cur)->ws_info)
 #else
 #define ws_info(cur) ((ws_info_t *) NULL)
@@ -189,6 +191,7 @@ uint8_t ws_common_temporary_entry_size(uint8_t mac_table_size);
 #define ws_common_network_size_estimate_get(cur) 0
 #define ws_common_primary_parent_update(interface, neighbor)
 #define ws_common_secondary_parent_update(interface)
+#define ws_common_border_router_alive_update(interface) ((void) 0)
 
 
 #endif //HAVE_WS

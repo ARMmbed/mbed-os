@@ -239,6 +239,13 @@ typedef struct ws_bs_ie {
 #define MPX_KEY_MANAGEMENT_ENC_USER_ID 0x0001   /**< MPX Key management user ID */
 #define MPX_LOWPAN_ENC_USER_ID 0xA0ED           /**< MPX Lowpan User Id */
 
+/*
+ * Wi-SUN MPX MTU size
+ *
+ */
+
+#define WS_MPX_MAX_MTU 1576
+
 #define WS_FAN_VERSION_1_0 1
 
 #define WS_NEIGHBOR_LINK_TIMEOUT 2200
@@ -372,5 +379,6 @@ typedef struct ws_bs_ie {
 #define EAPOL_RELAY_SOCKET_PORT               10253
 #define BR_EAPOL_RELAY_SOCKET_PORT            10255
 #define PAE_AUTH_SOCKET_PORT                  10254
+
 
 #endif /* WS_COMMON_DEFINES_H_ */

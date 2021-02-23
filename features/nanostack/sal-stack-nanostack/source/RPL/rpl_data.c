@@ -46,6 +46,7 @@
 #include "RPL/rpl_structures.h"
 #include "RPL/rpl_policy.h"
 #include "RPL/rpl_data.h"
+#include "6LoWPAN/ws/ws_common.h"
 
 #define TRACE_GROUP "RPLa"
 
@@ -373,6 +374,7 @@ static buffer_t *rpl_data_exthdr_provider_hbh_2(buffer_t *buf, rpl_instance_t *i
         case IPV6_EXTHDR_INSERT: {
             if (!destination_in_instance) {
                 /* We don't add a header - we'll do it on the tunnel */
+                buf->options.ipv6_use_min_mtu = 1;
                 *result = 0;
                 return buf;
             }
@@ -964,6 +966,7 @@ static buffer_t *rpl_data_exthdr_provider_srh(buffer_t *buf, ipv6_exthdr_stage_t
         if (!buf->options.tunnelled) {
             if (stage == IPV6_EXTHDR_SIZE || stage == IPV6_EXTHDR_INSERT) {
                 *result = 0;
+                buf->options.ipv6_use_min_mtu = 1;
                 return buf;
             }
         }
@@ -1053,6 +1056,11 @@ drop:
     }
 
     buf->options.ip_extflags |= IPEXT_SRH_RPL;
+
+    if (ws_info(cur)) {
+        //Call SRC route header handler hook to Wi-SUN refresh border router alive
+        ws_common_border_router_alive_update(cur);
+    }
 
     uint16_t hlen = (ptr[1] + 1) * 8;
     uint8_t segs_left = ptr[3];

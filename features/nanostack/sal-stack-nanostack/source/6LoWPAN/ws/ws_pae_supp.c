@@ -841,7 +841,7 @@ void ws_pae_supp_slow_timer(uint16_t seconds)
                         }
                         auth_result_e result = AUTH_RESULT_ERR_UNSPEC;
                         if (pae_supp->tx_failure_on_initial_key) {
-                            result = AUTH_RESULT_ERR_TX_NO_ACK;
+                            result = AUTH_RESULT_ERR_TX_ERR;
                             pae_supp->tx_failure_on_initial_key = false;
                         }
                         ws_pae_supp_authenticate_response(pae_supp, result);
@@ -1254,7 +1254,7 @@ static void ws_pae_supp_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e
 
     /* If initial EAPOL-key message sending fails to tx no acknowledge, indicates failure so
        that bootstrap can decide if EAPOL target should be changed */
-    else if (type > IEEE_802_1X_INITIAL_KEY && result == KMP_RESULT_ERR_TX_NO_ACK) {
+    else if (type > IEEE_802_1X_INITIAL_KEY && (result == KMP_RESULT_ERR_TX_NO_ACK || result == KMP_RESULT_ERR_TX_UNSPEC)) {
         tr_info("Initial EAPOL-Key TX failure, target: %s", trace_array(kmp_address_eui_64_get(&pae_supp->entry.addr), 8));
         /* Fails authentication only if other authentication protocols are not yet
            started by authenticator */

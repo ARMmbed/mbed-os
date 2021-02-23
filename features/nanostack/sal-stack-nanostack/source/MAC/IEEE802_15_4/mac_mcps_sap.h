@@ -49,6 +49,7 @@ typedef enum {
 #define MAC_PD_DATA_NORMAL_PRIORITY 0    //Normal MCPS DATA REQ
 #define MAC_PD_DATA_MEDIUM_PRIORITY 1    //Indirect Data which is polled
 #define MAC_PD_DATA_HIGH_PRIOTITY   2    //Beacon request Beacon response
+#define MAC_PD_DATA_TX_IMMEDIATELY  3    //Only for packets whose transmission was interrupted by wrong channel type. E.g. unicast on broadcast channel.
 
 #define MCPS_SAP_DATA_IND_EVENT         1
 #define MCPS_SAP_DATA_CNF_EVENT         2

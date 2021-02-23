@@ -301,6 +301,8 @@ int8_t ws_cfg_network_size_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_
         set_function(&nw_size_cfg);
     }
 
+    uint8_t cfg_network_size = cfg->network_size;
+
     /* If no longer in an automatic network size mode, frees automatic configuration,
        so that new configuration is set */
     if (nw_size_external_cfg && old_network_size == NETWORK_SIZE_AUTOMATIC) {
@@ -309,7 +311,7 @@ int8_t ws_cfg_network_size_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_
     }
 
     uint8_t set_flags = 0;
-    if (cfg->network_size == NETWORK_SIZE_AUTOMATIC) {
+    if (cfg_network_size == NETWORK_SIZE_AUTOMATIC) {
         set_flags = CFG_FLAGS_DISABLE_VAL_SET;
     }
     /* Sets values if changed or network size has been previously automatic (to make sure
@@ -336,7 +338,7 @@ int8_t ws_cfg_network_size_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_
     }
 
     // If is in an automatic network size mode, updates automatic configuration
-    if (cfg->network_size == NETWORK_SIZE_AUTOMATIC && cur) {
+    if (cfg_network_size == NETWORK_SIZE_AUTOMATIC && cur) {
         ws_cfg_network_size_configure(cur, cur->ws_info->pan_information.pan_size);
     }
     return CFG_SETTINGS_OK;
@@ -448,6 +450,7 @@ static void ws_cfg_network_size_config_set_small(ws_cfg_nw_size_t *cfg)
     cfg->bbr.dio_redundancy_constant = WS_RPL_DIO_REDUNDANCY_SMALL;  // Disabled
     cfg->bbr.dag_max_rank_increase = WS_RPL_MAX_HOP_RANK_INCREASE;
     cfg->bbr.min_hop_rank_increase = WS_RPL_MIN_HOP_RANK_INCREASE;
+    cfg->bbr.rpl_default_lifetime = WS_RPL_DEFAULT_LIFETIME;
     cfg->bbr.dhcp_address_lifetime = WS_DHCP_ADDRESS_LIFETIME_SMALL;
 
     // EAPOL configuration
@@ -455,8 +458,6 @@ static void ws_cfg_network_size_config_set_small(ws_cfg_nw_size_t *cfg)
     cfg->sec_prot.sec_prot_trickle_imax = SEC_PROT_SMALL_IMAX;
     cfg->sec_prot.sec_prot_trickle_timer_exp = SEC_PROT_TIMER_EXPIRATIONS;
     cfg->sec_prot.sec_prot_retry_timeout = SEC_PROT_RETRY_TIMEOUT_SMALL;
-
-    cfg->sec_prot.sec_max_ongoing_authentication = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_SMALL;
 
     cfg->sec_prot.initial_key_retry_delay = DEFAULT_INITIAL_KEY_RETRY_TIMER;
     cfg->sec_prot.initial_key_imin = SMALL_NW_INITIAL_KEY_TRICKLE_IMIN_SECS;
@@ -492,6 +493,7 @@ static void ws_cfg_network_size_config_set_medium(ws_cfg_nw_size_t *cfg)
     cfg->bbr.dio_redundancy_constant = WS_RPL_DIO_REDUNDANCY_MEDIUM; // 10
     cfg->bbr.dag_max_rank_increase = WS_RPL_MAX_HOP_RANK_INCREASE;
     cfg->bbr.min_hop_rank_increase = WS_RPL_MIN_HOP_RANK_INCREASE;
+    cfg->bbr.rpl_default_lifetime = WS_RPL_DEFAULT_LIFETIME_MEDIUM;
     cfg->bbr.dhcp_address_lifetime = WS_DHCP_ADDRESS_LIFETIME_MEDIUM;
 
     // EAPOL configuration
@@ -499,8 +501,6 @@ static void ws_cfg_network_size_config_set_medium(ws_cfg_nw_size_t *cfg)
     cfg->sec_prot.sec_prot_trickle_imax = SEC_PROT_SMALL_IMAX;
     cfg->sec_prot.sec_prot_trickle_timer_exp = SEC_PROT_TIMER_EXPIRATIONS;
     cfg->sec_prot.sec_prot_retry_timeout = SEC_PROT_RETRY_TIMEOUT_SMALL;
-
-    cfg->sec_prot.sec_max_ongoing_authentication = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_MEDIUM;
 
     cfg->sec_prot.initial_key_retry_delay = DEFAULT_INITIAL_KEY_RETRY_TIMER;
     cfg->sec_prot.initial_key_imin = MEDIUM_NW_INITIAL_KEY_TRICKLE_IMIN_SECS;
@@ -535,6 +535,7 @@ static void ws_cfg_network_size_config_set_large(ws_cfg_nw_size_t *cfg)
     cfg->bbr.dio_redundancy_constant = WS_RPL_DIO_REDUNDANCY_LARGE;  // 10
     cfg->bbr.dag_max_rank_increase = WS_RPL_MAX_HOP_RANK_INCREASE;
     cfg->bbr.min_hop_rank_increase = WS_RPL_MIN_HOP_RANK_INCREASE;
+    cfg->bbr.rpl_default_lifetime = WS_RPL_DEFAULT_LIFETIME_LARGE;
     cfg->bbr.dhcp_address_lifetime = WS_DHCP_ADDRESS_LIFETIME_LARGE;
 
     // EAPOL configuration
@@ -542,8 +543,6 @@ static void ws_cfg_network_size_config_set_large(ws_cfg_nw_size_t *cfg)
     cfg->sec_prot.sec_prot_trickle_imax = SEC_PROT_LARGE_IMAX;
     cfg->sec_prot.sec_prot_trickle_timer_exp = SEC_PROT_TIMER_EXPIRATIONS;
     cfg->sec_prot.sec_prot_retry_timeout = SEC_PROT_RETRY_TIMEOUT_LARGE;
-
-    cfg->sec_prot.sec_max_ongoing_authentication = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_LARGE;
 
     cfg->sec_prot.initial_key_retry_delay = NONE_INITIAL_KEY_RETRY_TIMER;
     cfg->sec_prot.initial_key_imin = LARGE_NW_INITIAL_KEY_TRICKLE_IMIN_SECS;
@@ -579,6 +578,7 @@ static void ws_cfg_network_size_config_set_xlarge(ws_cfg_nw_size_t *cfg)
     cfg->bbr.dio_redundancy_constant = WS_RPL_DIO_REDUNDANCY_XLARGE;  // 10
     cfg->bbr.dag_max_rank_increase = WS_RPL_MAX_HOP_RANK_INCREASE;
     cfg->bbr.min_hop_rank_increase = WS_RPL_MIN_HOP_RANK_INCREASE;
+    cfg->bbr.rpl_default_lifetime = WS_RPL_DEFAULT_LIFETIME_XLARGE;
     cfg->bbr.dhcp_address_lifetime = WS_DHCP_ADDRESS_LIFETIME_LARGE;
 
     // EAPOL configuration
@@ -586,8 +586,6 @@ static void ws_cfg_network_size_config_set_xlarge(ws_cfg_nw_size_t *cfg)
     cfg->sec_prot.sec_prot_trickle_imax = SEC_PROT_LARGE_IMAX;
     cfg->sec_prot.sec_prot_trickle_timer_exp = SEC_PROT_TIMER_EXPIRATIONS;
     cfg->sec_prot.sec_prot_retry_timeout = SEC_PROT_RETRY_TIMEOUT_LARGE;
-
-    cfg->sec_prot.sec_max_ongoing_authentication = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_LARGE;
 
     cfg->sec_prot.initial_key_retry_delay = NONE_INITIAL_KEY_RETRY_TIMER;
     cfg->sec_prot.initial_key_imin = EXTRA_LARGE_NW_INITIAL_KEY_TRICKLE_IMIN_SECS;
@@ -622,6 +620,7 @@ static void ws_cfg_network_size_config_set_certificate(ws_cfg_nw_size_t *cfg)
     cfg->bbr.dio_redundancy_constant = WS_RPL_DIO_REDUNDANCY_SMALL;  // Disabled
     cfg->bbr.dag_max_rank_increase = WS_CERTIFICATE_RPL_MAX_HOP_RANK_INCREASE;
     cfg->bbr.min_hop_rank_increase = WS_CERTIFICATE_RPL_MIN_HOP_RANK_INCREASE;
+    cfg->bbr.rpl_default_lifetime = WS_RPL_DEFAULT_LIFETIME;
     cfg->bbr.dhcp_address_lifetime = WS_DHCP_ADDRESS_LIFETIME_SMALL;
 
     // EAPOL configuration
@@ -629,8 +628,6 @@ static void ws_cfg_network_size_config_set_certificate(ws_cfg_nw_size_t *cfg)
     cfg->sec_prot.sec_prot_trickle_imax = SEC_PROT_SMALL_IMAX;
     cfg->sec_prot.sec_prot_trickle_timer_exp = SEC_PROT_TIMER_EXPIRATIONS;
     cfg->sec_prot.sec_prot_retry_timeout = SEC_PROT_RETRY_TIMEOUT_SMALL;
-
-    cfg->sec_prot.sec_max_ongoing_authentication = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_SMALL;
 
     cfg->sec_prot.initial_key_retry_delay = DEFAULT_INITIAL_KEY_RETRY_TIMER;
     cfg->sec_prot.initial_key_imin = SMALL_NW_INITIAL_KEY_TRICKLE_IMIN_SECS;
@@ -698,6 +695,7 @@ int8_t ws_cfg_gen_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_t *cfg, w
     }
     ws_cfg_trace((ws_cfgs_t *) cfg, (ws_cfgs_t *) new_cfg, sizeof(ws_gen_cfg_t), "gen");
 
+    cfg->network_size = new_cfg->network_size;
     if (&cfg->network_name != &new_cfg->network_name) {
         strncpy(cfg->network_name, new_cfg->network_name, 32);
     }
@@ -883,6 +881,7 @@ int8_t ws_cfg_timing_set(protocol_interface_info_entry_t *cur, ws_timing_cfg_t *
         cur->ws_info->trickle_params_pan_discovery.Imax = new_cfg->disc_trickle_imax * 10;
         cur->ws_info->trickle_params_pan_discovery.k = new_cfg->disc_trickle_k;
         cur->ws_info->trickle_params_pan_discovery.TimerExpirations = TRICKLE_EXPIRATIONS_INFINITE;
+        ws_pae_controller_configure(cur, NULL, NULL, new_cfg);
     }
 
     if (cfg == new_cfg) {
@@ -909,6 +908,7 @@ static int8_t ws_cfg_bbr_default_set(ws_bbr_cfg_t *cfg)
     cfg->dio_redundancy_constant = 10;
     cfg->dag_max_rank_increase = WS_RPL_MAX_HOP_RANK_INCREASE;
     cfg->min_hop_rank_increase = WS_RPL_MIN_HOP_RANK_INCREASE;
+    cfg->rpl_default_lifetime = WS_RPL_DEFAULT_LIFETIME_MEDIUM;
     cfg->dhcp_address_lifetime = WS_DHCP_ADDRESS_LIFETIME_MEDIUM;
 
     return CFG_SETTINGS_OK;
@@ -932,7 +932,8 @@ int8_t ws_cfg_bbr_validate(ws_bbr_cfg_t *cfg, ws_bbr_cfg_t *new_cfg)
             cfg->dio_redundancy_constant != new_cfg->dio_redundancy_constant ||
             cfg->dag_max_rank_increase != new_cfg->dag_max_rank_increase ||
             cfg->min_hop_rank_increase != new_cfg->min_hop_rank_increase ||
-            cfg->dhcp_address_lifetime != new_cfg->dhcp_address_lifetime) {
+            cfg->dhcp_address_lifetime != new_cfg->dhcp_address_lifetime ||
+            cfg->rpl_default_lifetime != new_cfg->rpl_default_lifetime) {
         return CFG_SETTINGS_CHANGED;
     }
 
@@ -954,7 +955,7 @@ int8_t ws_cfg_bbr_set(protocol_interface_info_entry_t *cur, ws_bbr_cfg_t *cfg, w
         // cur is optional, default values are for Wi-SUN small network parameters,
         ws_bbr_rpl_config(cur, new_cfg->dio_interval_min, new_cfg->dio_interval_doublings,
                           new_cfg->dio_redundancy_constant, new_cfg->dag_max_rank_increase,
-                          new_cfg->min_hop_rank_increase);
+                          new_cfg->min_hop_rank_increase, new_cfg->rpl_default_lifetime);
         ws_bbr_dhcp_address_lifetime_set(cur, new_cfg->dhcp_address_lifetime);
     }
 
@@ -1210,7 +1211,7 @@ int8_t ws_cfg_sec_timer_set(protocol_interface_info_entry_t *cur, ws_sec_timer_c
     }
 
     if (cur && !(cfg_flags & CFG_FLAGS_DISABLE_VAL_SET)) {
-        ws_pae_controller_configure(cur, new_cfg, NULL);
+        ws_pae_controller_configure(cur, new_cfg, NULL, NULL);
     }
 
     if (cfg == new_cfg) {
@@ -1230,7 +1231,8 @@ static int8_t ws_cfg_sec_prot_default_set(ws_sec_prot_cfg_t *cfg)
     cfg->sec_prot_trickle_imax = SEC_PROT_SMALL_IMAX;
     cfg->sec_prot_trickle_timer_exp = 2;
     cfg->sec_prot_retry_timeout = SEC_PROT_RETRY_TIMEOUT_SMALL;
-    cfg->sec_max_ongoing_authentication = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_MEDIUM;
+    cfg->max_simult_sec_neg_tx_queue_min = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_TX_QUEUE_MIN;
+    cfg->max_simult_sec_neg_tx_queue_max = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_TX_QUEUE_MAX;
     cfg->initial_key_retry_delay = DEFAULT_INITIAL_KEY_RETRY_TIMER;
     cfg->initial_key_imin = MEDIUM_NW_INITIAL_KEY_TRICKLE_IMIN_SECS;
     cfg->initial_key_imax = MEDIUM_NW_INITIAL_KEY_TRICKLE_IMAX_SECS;
@@ -1256,7 +1258,8 @@ int8_t ws_cfg_sec_prot_validate(ws_sec_prot_cfg_t *cfg, ws_sec_prot_cfg_t *new_c
             cfg->sec_prot_trickle_imax != new_cfg->sec_prot_trickle_imax ||
             cfg->sec_prot_trickle_timer_exp != new_cfg->sec_prot_trickle_timer_exp ||
             cfg->sec_prot_retry_timeout != new_cfg->sec_prot_retry_timeout ||
-            cfg->sec_max_ongoing_authentication != new_cfg->sec_max_ongoing_authentication ||
+            cfg->max_simult_sec_neg_tx_queue_min != new_cfg->max_simult_sec_neg_tx_queue_min ||
+            cfg->max_simult_sec_neg_tx_queue_max != new_cfg->max_simult_sec_neg_tx_queue_max ||
             cfg->initial_key_retry_delay != new_cfg->initial_key_retry_delay ||
             cfg->initial_key_imin != new_cfg->initial_key_retry_delay ||
             cfg->initial_key_imax != new_cfg->initial_key_retry_delay ||
@@ -1277,7 +1280,7 @@ int8_t ws_cfg_sec_prot_set(protocol_interface_info_entry_t *cur, ws_sec_prot_cfg
     }
 
     if (cur && !(cfg_flags & CFG_FLAGS_DISABLE_VAL_SET)) {
-        ws_pae_controller_configure(cur, NULL, new_cfg);
+        ws_pae_controller_configure(cur, NULL, new_cfg, NULL);
     }
 
     if (cfg == new_cfg) {

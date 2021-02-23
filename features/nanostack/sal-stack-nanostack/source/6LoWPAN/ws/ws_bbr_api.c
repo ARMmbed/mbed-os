@@ -197,7 +197,7 @@ static void ws_bbr_rpl_version_increase(protocol_interface_info_entry_t *cur)
     ws_bbr_rpl_version_timer_start(cur, rpl_control_increment_dodag_version(protocol_6lowpan_rpl_root_dodag));
 }
 
-void ws_bbr_rpl_config(protocol_interface_info_entry_t *cur, uint8_t imin, uint8_t doubling, uint8_t redundancy, uint16_t dag_max_rank_increase, uint16_t min_hop_rank_increase)
+void ws_bbr_rpl_config(protocol_interface_info_entry_t *cur, uint8_t imin, uint8_t doubling, uint8_t redundancy, uint16_t dag_max_rank_increase, uint16_t min_hop_rank_increase, uint32_t lifetime)
 {
     if (imin == 0 || doubling == 0) {
         // use default values
@@ -205,12 +205,33 @@ void ws_bbr_rpl_config(protocol_interface_info_entry_t *cur, uint8_t imin, uint8
         doubling = WS_RPL_DIO_DOUBLING_SMALL;
         redundancy = WS_RPL_DIO_REDUNDANCY_SMALL;
     }
+    uint8_t lifetime_unit = 60;
+    uint8_t default_lifetime;
+
+    if (lifetime == 0) {
+        // 2 hours default lifetime
+        lifetime = 120 * 60;
+    } else if (lifetime <= 250 * 60) {
+        // Lifetime unit of 60 is ok up to 4 hours
+    } else if (lifetime <= 250 * 120) {
+        //more than 4 hours needs larger lifetime unit
+        lifetime_unit = 120;
+    } else if (lifetime <= 250 * 240) {
+        lifetime_unit = 240;
+    } else {
+        // Maximum lifetime is 16 hours 40 minutes
+        lifetime = 250 * 240;
+        lifetime_unit = 240;
+    }
+    default_lifetime = lifetime / lifetime_unit;
 
     if (rpl_conf.dio_interval_min == imin &&
             rpl_conf.dio_interval_doublings == doubling &&
             rpl_conf.dio_redundancy_constant == redundancy &&
             rpl_conf.dag_max_rank_increase == dag_max_rank_increase &&
-            rpl_conf.min_hop_rank_increase == min_hop_rank_increase) {
+            rpl_conf.min_hop_rank_increase == min_hop_rank_increase &&
+            rpl_conf.default_lifetime == default_lifetime &&
+            rpl_conf.lifetime_unit == lifetime_unit) {
         // Same values no update needed
         return;
     }
@@ -220,6 +241,8 @@ void ws_bbr_rpl_config(protocol_interface_info_entry_t *cur, uint8_t imin, uint8
     rpl_conf.dio_redundancy_constant = redundancy;
     rpl_conf.dag_max_rank_increase = dag_max_rank_increase;
     rpl_conf.min_hop_rank_increase = min_hop_rank_increase;
+    rpl_conf.default_lifetime = default_lifetime;
+    rpl_conf.lifetime_unit = lifetime_unit;
 
     if (protocol_6lowpan_rpl_root_dodag) {
         rpl_control_update_dodag_config(protocol_6lowpan_rpl_root_dodag, &rpl_conf);
@@ -343,6 +366,34 @@ static void ws_bbr_slaac_remove(protocol_interface_info_entry_t *cur, uint8_t *u
     addr_policy_table_delete_entry(ula_prefix, 64);
 }
 
+/*
+ * 0 static non rooted self generated own address
+ * 1 static address with backbone connectivity
+ */
+static uint8_t *ws_bbr_bb_static_prefix_get(uint8_t *dodag_id_ptr)
+{
+
+    /* Get static ULA prefix if we have configuration in backbone and there is address we use that.
+     *
+     * If there is no address we can use our own generated ULA as a backup ULA
+     */
+
+    protocol_interface_info_entry_t *bb_interface = protocol_stack_interface_info_get_by_id(backbone_interface_id);
+
+    if (bb_interface && bb_interface->ipv6_configure->ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
+        ns_list_foreach(if_address_entry_t, addr, &bb_interface->ip_addresses) {
+            if (bitsequal(addr->address, bb_interface->ipv6_configure->static_prefix64, 64)) {
+                // static address available in interface copy the prefix and return the address
+                if (dodag_id_ptr) {
+                    memcpy(dodag_id_ptr, bb_interface->ipv6_configure->static_prefix64, 8);
+                }
+                return addr->address;
+            }
+        }
+    }
+    return NULL;
+}
+
 
 static int ws_bbr_static_dodagid_create(protocol_interface_info_entry_t *cur)
 {
@@ -350,6 +401,14 @@ static int ws_bbr_static_dodagid_create(protocol_interface_info_entry_t *cur)
         // address generated
         return 0;
     }
+
+    uint8_t *static_address_ptr = ws_bbr_bb_static_prefix_get(NULL);
+    if (static_address_ptr) {
+        memcpy(current_dodag_id, static_address_ptr, 16);
+        tr_info("BBR Static DODAGID %s", trace_ipv6(current_dodag_id));
+        return 0;
+    }
+
     // This address is only used if no other address available.
     if_address_entry_t *add_entry = ws_bbr_slaac_generate(cur, static_dodag_id_prefix);
     if (!add_entry) {
@@ -361,29 +420,6 @@ static int ws_bbr_static_dodagid_create(protocol_interface_info_entry_t *cur)
 
     return 0;
 }
-
-/*
- * 0 static non rooted self generated own address
- * 1 static address with backbone connectivity
- */
-static void ws_bbr_bb_static_prefix_get(uint8_t *dodag_id_ptr)
-{
-
-    /* Get static ULA prefix if we have configuration in backbone and there is address we use that.
-     *
-     * If there is no address we can use our own generated ULA as a backup ULA
-     */
-
-    protocol_interface_info_entry_t *bb_interface = protocol_stack_interface_info_get_by_id(backbone_interface_id);
-
-    if (bb_interface && bb_interface->ipv6_configure->ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
-        if (protocol_address_prefix_cmp(bb_interface, bb_interface->ipv6_configure->static_prefix64, 64)) {
-            memcpy(dodag_id_ptr, bb_interface->ipv6_configure->static_prefix64, 8);
-        }
-    }
-    return;
-}
-
 
 static void ws_bbr_dodag_get(uint8_t *local_prefix_ptr, uint8_t *global_prefix_ptr)
 {
@@ -500,8 +536,10 @@ static void ws_bbr_dhcp_server_start(protocol_interface_info_entry_t *cur, uint8
         return;
     }
     DHCPv6_server_service_callback_set(cur->id, global_id, NULL, wisun_dhcp_address_add_cb);
-    //Enable SLAAC mode to border router
-    DHCPv6_server_service_set_address_autonous_flag(cur->id, global_id, true, false);
+    //Check for anonymous mode
+    bool anonymous = (configuration & BBR_DHCP_ANONYMOUS) ? true : false;
+
+    DHCPv6_server_service_set_address_generation_anonymous(cur->id, global_id, anonymous, false);
     DHCPv6_server_service_set_address_validlifetime(cur->id, global_id, dhcp_address_lifetime);
     //SEt max value for not limiting address allocation
     DHCPv6_server_service_set_max_clients_accepts_count(cur->id, global_id, MAX_SUPPORTED_ADDRESS_LIST_SIZE);
@@ -510,6 +548,7 @@ static void ws_bbr_dhcp_server_start(protocol_interface_info_entry_t *cur, uint8
 
     ws_dhcp_client_address_request(cur, global_id, ll);
 }
+
 static void ws_bbr_dhcp_server_stop(protocol_interface_info_entry_t *cur, uint8_t *global_id)
 {
     if (!cur) {
@@ -626,9 +665,16 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
      */
     if ((configuration & BBR_ULA_C) == 0 && memcmp(global_prefix, ADDR_UNSPECIFIED, 8) == 0) {
         //Global prefix not available count if backup ULA should be created
+        uint32_t prefix_wait_time = BBR_BACKUP_ULA_DELAY;
         global_prefix_unavailable_timer += BBR_CHECK_INTERVAL;
-        tr_debug("Check for backup prefix %"PRIu32"", global_prefix_unavailable_timer);
-        if (global_prefix_unavailable_timer >= BBR_BACKUP_ULA_DELAY) {
+
+        if (NULL != ws_bbr_bb_static_prefix_get(NULL)) {
+            // If we have a static configuration we activate it faster.
+            prefix_wait_time = 40;
+        }
+
+        tr_debug("Check for backup prefix %"PRIu32" / %"PRIu32"", prefix_wait_time, global_prefix_unavailable_timer);
+        if (global_prefix_unavailable_timer >= prefix_wait_time) {
             if (memcmp(current_global_prefix, ADDR_UNSPECIFIED, 8) == 0) {
                 tr_info("start using backup prefix %s", trace_ipv6_prefix(local_prefix, 64));
             }

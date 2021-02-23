@@ -66,10 +66,8 @@
 #define WAIT_FOR_AUTHENTICATION_TICKS          2 * 60 * 10  // 2 minutes
 // Wait after authentication has completed before supplicant entry goes inactive
 #define WAIT_AFTER_AUTHENTICATION_TICKS        15 * 10      // 15 seconds
-
-/* If EAP-TLS is delayed due to simultaneous negotiations limit, defines how
-   long to wait for previous negotiation to complete */
-#define EAP_TLS_NEGOTIATION_TRIGGER_TIMEOUT    60 * 10 // 60 seconds
+// Waiting for authentication supplicant list maximum size
+#define WAITING_SUPPLICANT_LIST_MAX_SIZE       50
 
 // Default for maximum number of supplicants
 #define SUPPLICANT_MAX_NUMBER                  5000
@@ -93,7 +91,9 @@ typedef struct {
     ws_pae_auth_nw_key_index_set *nw_key_index_set;          /**< Key index set callback */
     ws_pae_auth_nw_info_updated *nw_info_updated;            /**< Security keys network info updated callback */
     ws_pae_auth_ip_addr_get *ip_addr_get;                    /**< IP address get callback */
+    ws_pae_auth_congestion_get *congestion_get;              /**< Congestion get callback */
     supp_list_t active_supp_list;                            /**< List of active supplicants */
+    supp_list_t waiting_supp_list;                           /**< List of waiting supplicants */
     shared_comp_list_t shared_comp_list;                     /**< Shared component list */
     arm_event_storage_t *timer;                              /**< Timer */
     sec_prot_gtk_keys_t *next_gtks;                          /**< Next GTKs */
@@ -101,6 +101,7 @@ typedef struct {
     sec_prot_keys_nw_info_t *sec_keys_nw_info;               /**< Security keys network information */
     sec_cfg_t *sec_cfg;                                      /**< Security configuration */
     uint16_t supp_max_number;                                /**< Max number of stored supplicants */
+    uint16_t waiting_supp_list_size;                         /**< Waiting supplicants list size */
     uint8_t relay_socked_msg_if_instance_id;                 /**< Relay socket message interface instance identifier */
     uint8_t radius_socked_msg_if_instance_id;                /**< Radius socket message interface instance identifier */
     bool timer_running : 1;                                  /**< Timer is running */
@@ -128,6 +129,7 @@ static bool ws_pae_auth_timer_running(pae_auth_t *pae_auth);
 static void ws_pae_auth_kmp_service_addr_get(kmp_service_t *service, kmp_api_t *kmp, kmp_addr_t *local_addr, kmp_addr_t *remote_addr);
 static void ws_pae_auth_kmp_service_ip_addr_get(kmp_service_t *service, kmp_api_t *kmp, uint8_t *address);
 static kmp_api_t *ws_pae_auth_kmp_service_api_get(kmp_service_t *service, kmp_api_t *kmp, kmp_type_e type);
+static bool ws_pae_auth_active_limit_reached(uint16_t active_supp, pae_auth_t *pae_auth);
 static kmp_api_t *ws_pae_auth_kmp_incoming_ind(kmp_service_t *service, uint8_t msg_if_instance_id, kmp_type_e type, const kmp_addr_t *addr, const void *pdu, uint16_t size);
 static void ws_pae_auth_kmp_api_create_confirm(kmp_api_t *kmp, kmp_result_e result);
 static void ws_pae_auth_kmp_api_create_indication(kmp_api_t *kmp, kmp_type_e type, kmp_addr_t *addr);
@@ -136,6 +138,8 @@ static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *sup
 static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry_t *supp_entry);
 static kmp_api_t *ws_pae_auth_kmp_create_and_start(kmp_service_t *service, kmp_type_e type, uint8_t socked_msg_if_instance_id, supp_entry_t *supp_entry, sec_cfg_t *sec_cfg);
 static void ws_pae_auth_kmp_api_finished(kmp_api_t *kmp);
+static void ws_pae_auth_active_supp_deleted(void *pae_auth);
+static void ws_pae_auth_waiting_supp_deleted(void *pae_auth);
 
 static int8_t tasklet_id = -1;
 static NS_LIST_DEFINE(pae_auth_list, pae_auth_t, link);
@@ -159,6 +163,7 @@ int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot
     pae_auth->pan_id = 0xffff;
     pae_auth->interface_ptr = interface_ptr;
     ws_pae_lib_supp_list_init(&pae_auth->active_supp_list);
+    ws_pae_lib_supp_list_init(&pae_auth->waiting_supp_list);
     ws_pae_lib_shared_comp_list_init(&pae_auth->shared_comp_list);
     pae_auth->timer = NULL;
 
@@ -166,12 +171,16 @@ int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot
     pae_auth->nw_key_insert = NULL;
     pae_auth->nw_keys_remove = NULL;
     pae_auth->nw_key_index_set = NULL;
+    pae_auth->nw_info_updated = NULL;
+    pae_auth->ip_addr_get = NULL;
+    pae_auth->congestion_get = NULL;
 
     pae_auth->next_gtks = next_gtks;
     pae_auth->certs = certs;
     pae_auth->sec_keys_nw_info = sec_keys_nw_info;
     pae_auth->sec_cfg = sec_cfg;
     pae_auth->supp_max_number = SUPPLICANT_MAX_NUMBER;
+    pae_auth->waiting_supp_list_size = 0;
 
     pae_auth->gtk_new_inst_req_exp = false;
     pae_auth->gtk_new_act_time_exp = false;
@@ -302,7 +311,7 @@ int8_t ws_pae_auth_delete(protocol_interface_info_entry_t *interface_ptr)
     return 0;
 }
 
-void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_auth_gtk_hash_set *hash_set, ws_pae_auth_nw_key_insert *nw_key_insert, ws_pae_auth_nw_key_index_set *nw_key_index_set, ws_pae_auth_nw_info_updated *nw_info_updated, ws_pae_auth_ip_addr_get *ip_addr_get)
+void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_auth_gtk_hash_set *hash_set, ws_pae_auth_nw_key_insert *nw_key_insert, ws_pae_auth_nw_key_index_set *nw_key_index_set, ws_pae_auth_nw_info_updated *nw_info_updated, ws_pae_auth_ip_addr_get *ip_addr_get, ws_pae_auth_congestion_get *congestion_get)
 {
     if (!interface_ptr) {
         return;
@@ -318,6 +327,7 @@ void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_
     pae_auth->nw_key_index_set = nw_key_index_set;
     pae_auth->nw_info_updated = nw_info_updated;
     pae_auth->ip_addr_get = ip_addr_get;
+    pae_auth->congestion_get = congestion_get;
 }
 
 void ws_pae_auth_start(protocol_interface_info_entry_t *interface_ptr)
@@ -394,8 +404,11 @@ int8_t ws_pae_auth_node_keys_remove(protocol_interface_info_entry_t *interface_p
         return ret_value;
     }
 
-    // Checks if supplicant is active
+    // Checks if supplicant is active or waiting
     supp_entry_t *supp = ws_pae_lib_supp_list_entry_eui_64_get(&pae_auth->active_supp_list, eui_64);
+    if (!supp) {
+        supp = ws_pae_lib_supp_list_entry_eui_64_get(&pae_auth->waiting_supp_list, eui_64);
+    }
 
     if (supp) {
         // Deletes keys and marks as revoked
@@ -507,7 +520,8 @@ void ws_pae_auth_forced_gc(protocol_interface_info_entry_t *interface_ptr)
 
     /* Purge in maximum five entries from supplicant list (starting from oldest one)
        per call to the function (called by nanostack monitor) */
-    ws_pae_lib_supp_list_purge(&pae_auth->active_supp_list, 0, SUPPLICANT_NUMBER_TO_PURGE);
+    ws_pae_lib_supp_list_purge(pae_auth, &pae_auth->active_supp_list, 0, SUPPLICANT_NUMBER_TO_PURGE, NULL);
+    ws_pae_lib_supp_list_purge(pae_auth, &pae_auth->waiting_supp_list, 0, SUPPLICANT_NUMBER_TO_PURGE, ws_pae_auth_waiting_supp_deleted);
 }
 
 int8_t ws_pae_auth_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name, bool updated)
@@ -608,6 +622,7 @@ static void ws_pae_auth_free(pae_auth_t *pae_auth)
     ws_pae_lib_shared_comp_list_free(&pae_auth->shared_comp_list);
 
     ws_pae_lib_supp_list_delete(&pae_auth->active_supp_list);
+    ws_pae_lib_supp_list_delete(&pae_auth->waiting_supp_list);
 
     kmp_socket_if_unregister(pae_auth->kmp_service);
 
@@ -690,8 +705,9 @@ void ws_pae_auth_fast_timer(uint16_t ticks)
         }
 
         // Updates KMP timers
-        bool running = ws_pae_lib_supp_list_timer_update(pae_auth, &pae_auth->active_supp_list, ticks, kmp_service_timer_if_timeout);
-        if (!running) {
+        bool active_running = ws_pae_lib_supp_list_timer_update(pae_auth, &pae_auth->active_supp_list, ticks, kmp_service_timer_if_timeout, ws_pae_auth_active_supp_deleted);
+        bool wait_running = ws_pae_lib_supp_list_timer_update(pae_auth, &pae_auth->waiting_supp_list, ticks, kmp_service_timer_if_timeout, ws_pae_auth_waiting_supp_deleted);
+        if (!active_running && !wait_running) {
             ws_pae_auth_timer_stop(pae_auth);
         }
     }
@@ -936,6 +952,40 @@ static kmp_api_t *ws_pae_auth_kmp_service_api_get(kmp_service_t *service, kmp_ap
     return ws_pae_lib_kmp_list_type_get(&supp_entry->kmp_list, type);
 }
 
+static bool ws_pae_auth_active_limit_reached(uint16_t active_supp, pae_auth_t *pae_auth)
+{
+    return pae_auth->congestion_get(pae_auth->interface_ptr, active_supp);
+}
+
+static supp_entry_t *ws_pae_auth_waiting_supp_list_add(pae_auth_t *pae_auth, supp_entry_t *supp_entry, const kmp_addr_t *addr)
+{
+    // Entry is already allocated
+    if (supp_entry) {
+        ns_list_add_to_start(&pae_auth->waiting_supp_list, supp_entry);
+        pae_auth->waiting_supp_list_size++;
+    } else {
+        // Create a new supplicant entry if not at limit
+        if (pae_auth->waiting_supp_list_size > WAITING_SUPPLICANT_LIST_MAX_SIZE) {
+            tr_info("PAE: waiting list full, eui-64: %s", trace_array(addr->eui_64, 8));
+            return NULL;
+        }
+        supp_entry = ws_pae_lib_supp_list_add(&pae_auth->waiting_supp_list, addr);
+        if (!supp_entry) {
+            tr_info("PAE: waiting list no memory, eui-64: %s", trace_array(addr->eui_64, 8));
+            return NULL;
+        }
+        pae_auth->waiting_supp_list_size++;
+        sec_prot_keys_init(&supp_entry->sec_keys, pae_auth->sec_keys_nw_info->gtks, pae_auth->certs);
+    }
+
+    // 90 percent of the EAPOL temporary entry lifetime (10 ticks per second)
+    supp_entry->waiting_ticks = pae_auth->sec_cfg->timing_cfg.temp_eapol_min_timeout * 900 / 100;
+
+    tr_debug("PAE: to waiting, list size %i, retry %i, eui-64: %s", pae_auth->waiting_supp_list_size, supp_entry->waiting_ticks, trace_array(supp_entry->addr.eui_64, 8));
+
+    return supp_entry;
+}
+
 static kmp_api_t *ws_pae_auth_kmp_incoming_ind(kmp_service_t *service, uint8_t msg_if_instance_id, kmp_type_e type, const kmp_addr_t *addr, const void *pdu, uint16_t size)
 {
     pae_auth_t *pae_auth = ws_pae_auth_by_kmp_service_get(service);
@@ -954,21 +1004,43 @@ static kmp_api_t *ws_pae_auth_kmp_incoming_ind(kmp_service_t *service, uint8_t m
     supp_entry_t *supp_entry = ws_pae_lib_supp_list_entry_eui_64_get(&pae_auth->active_supp_list, kmp_address_eui_64_get(addr));
 
     if (!supp_entry) {
-        // Checks if active supplicant list has space for new supplicants
-        if (ws_pae_lib_supp_list_active_limit_reached(&pae_auth->active_supp_list, pae_auth->sec_cfg->prot_cfg.sec_max_ongoing_authentication)) {
-            tr_debug("PAE: active limit reached, eui-64: %s", trace_array(kmp_address_eui_64_get(addr), 8));
-            return NULL;
-        }
-        // Find supplicant from key storage
-        supp_entry = ws_pae_key_storage_supp_read(pae_auth, kmp_address_eui_64_get(addr), pae_auth->sec_keys_nw_info->gtks, pae_auth->certs);
+        uint16_t active_supp = ns_list_count(&pae_auth->active_supp_list);
+
+        // Check if supplicant is already on the the waiting supplicant list
+        supp_entry = ws_pae_lib_supp_list_entry_eui_64_get(&pae_auth->waiting_supp_list, kmp_address_eui_64_get(addr));
         if (supp_entry) {
-            // Move supplicant to active list
-            tr_debug("PAE: to active, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
-            ns_list_add_to_start(&pae_auth->active_supp_list, supp_entry);
+            /* Remove from waiting list (supplicant is later added to active list, or if no room back to the start of the
+             * waiting list with updated timer)
+             */
+            ns_list_remove(&pae_auth->waiting_supp_list, supp_entry);
+            pae_auth->waiting_supp_list_size--;
+            supp_entry->waiting_ticks = 0;
+        } else {
+            // Find supplicant from key storage
+            supp_entry = ws_pae_key_storage_supp_read(pae_auth, kmp_address_eui_64_get(addr), pae_auth->sec_keys_nw_info->gtks, pae_auth->certs);
+        }
+
+        // Checks if active supplicant list has space for new supplicants
+        if (ws_pae_auth_active_limit_reached(active_supp, pae_auth)) {
+            tr_debug("PAE: active limit reached, eui-64: %s", trace_array(kmp_address_eui_64_get(addr), 8));
+            // If there is no space, add supplicant entry to the start of the waiting supplicant list
+            supp_entry = ws_pae_auth_waiting_supp_list_add(pae_auth, supp_entry, addr);
+            if (!supp_entry) {
+                return 0;
+            }
+        } else {
+            if (supp_entry) {
+                /*
+                 * If there is space and there is already an allocated supplicant, add it to active list and
+                 * start/continue authentication
+                 */
+                tr_debug("PAE: to active, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
+                ns_list_add_to_start(&pae_auth->active_supp_list, supp_entry);
+            }
         }
     }
 
-    // If does not exists add it to list
+    // If supplicant does not exists create a new supplicant entry to the active list
     if (!supp_entry) {
         supp_entry = ws_pae_lib_supp_list_add(&pae_auth->active_supp_list, addr);
         if (!supp_entry) {
@@ -1065,14 +1137,16 @@ static void ws_pae_auth_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e
         return;
     }
 
+    // Ensures that supplicant is in active supplicant list before initiating next KMP
+    if (!ws_pae_lib_supp_list_entry_is_in_list(&pae_auth->active_supp_list, supp_entry)) {
+        return;
+    }
+
     ws_pae_auth_next_kmp_trigger(pae_auth, supp_entry);
 }
 
 static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *supp_entry)
 {
-    // Disables KMP retry timer
-    supp_entry->retry_ticks = 0;
-
     // Get next protocol based on what keys supplicant has
     kmp_type_e next_type = ws_pae_auth_next_protocol_get(pae_auth, supp_entry);
 
@@ -1095,21 +1169,6 @@ static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *sup
 
     // Increases waiting time for supplicant authentication
     ws_pae_lib_supp_timer_ticks_set(supp_entry, WAIT_FOR_AUTHENTICATION_TICKS);
-
-    if (next_type == IEEE_802_1X_MKA || next_type == RADIUS_IEEE_802_1X_MKA) {
-        /* For EAP-TLS, limits the number of ongoing negotiations. If limit
-           is reached, authenticator does not initiate EAP-TLS right away.
-           If previous EAP-TLS negotiation completes before negotiation
-           trigger timeout, authenticator initiates EAP-TLS towards
-           supplicant. Otherwise supplicant must re-send initial EAPOL-Key
-           to try again using its trickle schedule */
-        uint16_t ongoing_eap_tls_cnt = ws_pae_lib_supp_list_kmp_count(&pae_auth->active_supp_list, next_type);
-        if (ongoing_eap_tls_cnt >= pae_auth->sec_cfg->prot_cfg.sec_max_ongoing_authentication) {
-            supp_entry->retry_ticks = EAP_TLS_NEGOTIATION_TRIGGER_TIMEOUT;
-            tr_info("EAP-TLS max ongoing reached, count %i, delayed: eui-64: %s", ongoing_eap_tls_cnt, trace_array(supp_entry->addr.eui_64, 8));
-            return;
-        }
-    }
 
     // Create new instance
     kmp_api_t *new_kmp = ws_pae_auth_kmp_create_and_start(pae_auth->kmp_service, next_type, pae_auth->relay_socked_msg_if_instance_id, supp_entry, pae_auth->sec_cfg);
@@ -1161,11 +1220,11 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
         } else {
             next_type = IEEE_802_1X_MKA;
         }
-        tr_info("PAE start EAP-TLS, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
+        tr_info("PAE: start EAP-TLS, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
     } else if (sec_keys->ptk_mismatch) {
         // start 4WH towards supplicant
         next_type = IEEE_802_11_4WH;
-        tr_info("PAE start 4WH, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
+        tr_info("PAE: start 4WH, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
     }
 
     int8_t gtk_index = -1;
@@ -1191,19 +1250,19 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
                 // start 4WH towards supplicant
                 next_type = IEEE_802_11_4WH;
                 sec_keys->ptk_mismatch = true;
-                tr_info("PAE start 4WH due to GTK index re-use, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
+                tr_info("PAE: start 4WH due to GTK index re-use, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
             } else {
                 // Update just GTK
                 next_type = IEEE_802_11_GKH;
-                tr_info("PAE start GKH, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
+                tr_info("PAE: start GKH, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
             }
         }
 
-        tr_info("PAE update GTK index: %i, eui-64: %s", gtk_index, trace_array(supp_entry->addr.eui_64, 8));
+        tr_info("PAE: update GTK index: %i, eui-64: %s", gtk_index, trace_array(supp_entry->addr.eui_64, 8));
     }
 
     if (next_type == KMP_TYPE_NONE) {
-        tr_info("PAE authenticated, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
+        tr_info("PAE: authenticated, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
     }
 
     return next_type;
@@ -1254,24 +1313,36 @@ static void ws_pae_auth_kmp_api_finished(kmp_api_t *kmp)
         return;
     }
 
-    pae_auth_t *pae_auth = NULL;
-    supp_entry_t *retry_supp = NULL;
-    // When EAP-TLS completes check if there are other supplicants that have requested it lately
-    if (kmp_api_type_get(kmp) == IEEE_802_1X_MKA || kmp_api_type_get(kmp) == RADIUS_IEEE_802_1X_MKA) {
-        kmp_service_t *service = kmp_api_service_get(kmp);
-        pae_auth = ws_pae_auth_by_kmp_service_get(service);
-        if (pae_auth) {
-            retry_supp = ws_pae_lib_supp_list_entry_retry_timer_get(&pae_auth->active_supp_list);
-        }
-    }
-
     // Delete KMP
     ws_pae_lib_kmp_list_delete(&supp_entry->kmp_list, kmp);
+}
 
-    if (retry_supp) {
-        tr_info("PAE next KMP trigger, eui-64: %s", trace_array(retry_supp->addr.eui_64, 8));
+static void ws_pae_auth_active_supp_deleted(void *pae_auth_ptr)
+{
+    pae_auth_t *pae_auth = pae_auth_ptr;
+
+    tr_info("Supplicant deleted");
+
+    uint16_t active_supp = ns_list_count(&pae_auth->active_supp_list);
+    if (ws_pae_auth_active_limit_reached(active_supp, pae_auth)) {
+        return;
+    }
+
+    supp_entry_t *retry_supp = ns_list_get_first(&pae_auth->waiting_supp_list);
+    if (retry_supp != NULL) {
+        ns_list_remove(&pae_auth->waiting_supp_list, retry_supp);
+        pae_auth->waiting_supp_list_size--;
+        ns_list_add_to_start(&pae_auth->active_supp_list, retry_supp);
+        tr_info("PAE: waiting supplicant to active, eui-64: %s", trace_array(retry_supp->addr.eui_64, 8));
+        retry_supp->waiting_ticks = 0;
         ws_pae_auth_next_kmp_trigger(pae_auth, retry_supp);
     }
+}
+
+static void ws_pae_auth_waiting_supp_deleted(void *pae_auth_ptr)
+{
+    pae_auth_t *pae_auth = pae_auth_ptr;
+    pae_auth->waiting_supp_list_size--;
 }
 
 #endif /* HAVE_PAE_AUTH */

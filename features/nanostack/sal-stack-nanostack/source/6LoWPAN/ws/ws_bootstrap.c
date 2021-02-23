@@ -28,6 +28,7 @@
 #include "mac_common_defines.h"
 #include "sw_mac.h"
 #include "ccmLIB.h"
+#include "Core/include/ns_monitor.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "6LoWPAN/Bootstraps/protocol_6lowpan.h"
 #include "6LoWPAN/Bootstraps/protocol_6lowpan_interface.h"
@@ -103,6 +104,7 @@ static void ws_bootstrap_nw_frame_counter_read(protocol_interface_info_entry_t *
 static void ws_bootstrap_nw_info_updated(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, uint16_t pan_version, char *network_name);
 static void ws_bootstrap_authentication_completed(protocol_interface_info_entry_t *cur, auth_result_e result, uint8_t *target_eui_64);
 static const uint8_t *ws_bootstrap_authentication_next_target(protocol_interface_info_entry_t *cur, const uint8_t *previous_eui_64, uint16_t *pan_id);
+static bool ws_bootstrap_congestion_get(protocol_interface_info_entry_t *interface_ptr, uint16_t active_supp);
 static void ws_bootstrap_pan_version_increment(protocol_interface_info_entry_t *cur);
 static ws_nud_table_entry_t *ws_nud_entry_discover(protocol_interface_info_entry_t *cur, void *neighbor);
 static void ws_nud_entry_remove(protocol_interface_info_entry_t *cur, mac_neighbor_table_entry_t *entry_ptr);
@@ -110,6 +112,7 @@ static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, 
 
 static void ws_address_registration_update(protocol_interface_info_entry_t *interface, const uint8_t addr[16]);
 static int8_t ws_bootstrap_neighbor_set(protocol_interface_info_entry_t *cur, parent_info_t *parent_ptr, bool clear_list);
+static void ws_bootstrap_parent_confirm(protocol_interface_info_entry_t *cur, struct rpl_instance *instance);
 
 static void ws_bootstrap_candidate_table_reset(protocol_interface_info_entry_t *cur);
 static parent_info_t *ws_bootstrap_candidate_parent_get(struct protocol_interface_info_entry *cur, const uint8_t *addr, bool create);
@@ -118,6 +121,7 @@ static void ws_bootstrap_packet_congestion_init(protocol_interface_info_entry_t 
 
 static void ws_bootstrap_asynch_trickle_stop(protocol_interface_info_entry_t *cur);
 static void ws_bootstrap_advertise_start(protocol_interface_info_entry_t *cur);
+static void ws_bootstrap_rpl_scan_start(protocol_interface_info_entry_t *cur);
 
 typedef enum {
     WS_PARENT_SOFT_SYNCH = 0,  /**< let FHSS make decision if synchronization is needed*/
@@ -1010,6 +1014,30 @@ static void ws_bootstrap_dhcp_info_notify_cb(int8_t interface, dhcp_option_notif
 
 }
 
+static void ws_bootstrap_memory_configuration()
+{
+    /* Configure memory limits for garbage collection based on total memory size
+     * Starting from these values
+     *      5% for High mark
+     *      2% for critical mark
+     *      1% for Routing limit
+     * Memory     High               Critical            Drop routing
+     * 32K RAM    3200 bytes         1280 Bytes          1024 bytes
+     * 64K RAM    3200 bytes         1280 Bytes          1024 bytes
+     * 128K RAM   6400 bytes         2560 Bytes          1280 bytes
+     * 320K RAM   16000 byte         6400 Bytes          3200 bytes
+     * 640K RAM   32000 byte         12800 Bytes         6400 bytes
+     * 1000K RAM  50000 bytes        20000 Bytes         10000 bytes
+     * 4000K RAM  120000 bytes       40000 Bytes         10000 bytes
+     * */
+    // In small memory devices there needs to lower limit so that there some change to be usable
+    // and there is no use for having very large values on high memory devices
+    ns_monitor_packet_ingress_rate_limit_by_memory(1024, 10000, 1);
+
+    ns_monitor_heap_gc_threshold_set(3200, 120000, 95, 1280, 40000, 98);
+    return;
+}
+
 
 static int8_t ws_bootstrap_up(protocol_interface_info_entry_t *cur)
 {
@@ -1066,7 +1094,8 @@ static int8_t ws_bootstrap_up(protocol_interface_info_entry_t *cur)
     dhcp_client_solicit_timeout_set(cur->id, WS_DHCP_SOLICIT_TIMEOUT, WS_DHCP_SOLICIT_MAX_RT, WS_DHCP_SOLICIT_MAX_RC);
     dhcp_client_option_notification_cb_set(cur->id, ws_bootstrap_dhcp_info_notify_cb);
 
-
+    // Configure memory limits and garbage collection values;
+    ws_bootstrap_memory_configuration();
     ws_nud_table_reset(cur);
 
     ws_bootstrap_candidate_table_reset(cur);
@@ -1590,6 +1619,13 @@ static void ws_bootstrap_pan_advertisement_solicit_analyse(struct protocol_inter
 
         tr_info("Making parent selection in %u s", (cur->bootsrap_state_machine_cnt / 10));
     }
+
+    if (ws_bootstrap_state_active(cur) && cur->bootsrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+        mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(cur), data->SrcAddr, ADDR_802_15_4_LONG);
+        if (neighbor && neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR) {
+            ws_bootstrap_parent_confirm(cur, NULL);
+        }
+    }
 }
 
 
@@ -1732,7 +1768,7 @@ static void ws_bootstrap_pan_config_analyse(struct protocol_interface_info_entry
     // restart PAN version timer
     //Check Here Do we have a selected Primary parent
     if (!cur->ws_info->configuration_learned || cur->ws_info->rpl_state == RPL_EVENT_DAO_DONE) {
-        cur->ws_info->pan_timeout_timer = cur->ws_info->cfg->timing.pan_timeout;
+        ws_common_border_router_alive_update(cur);
     }
 
     cur->ws_info->pan_information.pan_version = pan_version;
@@ -1776,7 +1812,12 @@ static void ws_bootstrap_pan_config_solicit_analyse(struct protocol_interface_in
         ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, ws_us, &cur->ws_info->hopping_schdule);
     }
 
-
+    if (ws_bootstrap_state_active(cur) && cur->bootsrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+        mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(cur), data->SrcAddr, ADDR_802_15_4_LONG);
+        if (neighbor && neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR) {
+            ws_bootstrap_parent_confirm(cur, NULL);
+        }
+    }
 
     /*
      * A consistent transmission is defined as a PAN Configuration Solicit with
@@ -2290,11 +2331,11 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
         ret_val =  -4;
         goto init_fail;
     }
-    if (ws_pae_controller_cb_register(cur, &ws_bootstrap_authentication_completed, &ws_bootstrap_authentication_next_target, &ws_bootstrap_nw_key_set, &ws_bootstrap_nw_key_clear, &ws_bootstrap_nw_key_index_set, &ws_bootstrap_nw_frame_counter_set, &ws_bootstrap_nw_frame_counter_read, &ws_bootstrap_pan_version_increment, &ws_bootstrap_nw_info_updated) < 0) {
+    if (ws_pae_controller_cb_register(cur, &ws_bootstrap_authentication_completed, &ws_bootstrap_authentication_next_target, &ws_bootstrap_nw_key_set, &ws_bootstrap_nw_key_clear, &ws_bootstrap_nw_key_index_set, &ws_bootstrap_nw_frame_counter_set, &ws_bootstrap_nw_frame_counter_read, &ws_bootstrap_pan_version_increment, &ws_bootstrap_nw_info_updated, &ws_bootstrap_congestion_get) < 0) {
         ret_val =  -4;
         goto init_fail;
     }
-    if (ws_pae_controller_configure(cur, &cur->ws_info->cfg->sec_timer, &cur->ws_info->cfg->sec_prot) < 0) {
+    if (ws_pae_controller_configure(cur, &cur->ws_info->cfg->sec_timer, &cur->ws_info->cfg->sec_prot, &cur->ws_info->cfg->timing) < 0) {
         ret_val =  -4;
         goto init_fail;
     }
@@ -2309,6 +2350,8 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
         // add deallocs
         goto init_fail;
     }
+
+    cur->ipv6_neighbour_cache.link_mtu = cur->max_link_mtu = WS_MPX_MAX_MTU;
 
     cur->if_up = ws_bootstrap_up;
     cur->if_down = ws_bootstrap_down;
@@ -2576,6 +2619,63 @@ static void ws_address_parent_update(protocol_interface_info_entry_t *interface)
     ws_address_registration_update(interface, NULL);
 }
 
+static void ws_bootstrap_parent_confirm(protocol_interface_info_entry_t *cur, struct rpl_instance *instance)
+{
+    /* Possible problem with the parent connection
+     * Give some time for parent to rejoin and confirm the connection with ARO and DAO
+     */
+    const rpl_dodag_conf_t *config = NULL;
+    uint32_t Imin_secs = 0;
+
+    if (!ws_bootstrap_state_active(cur)) {
+        // If we are not in Active state no need to confirm parent
+        return;
+    }
+
+    tr_info("RPL parent confirm");
+
+    if (!instance) {
+        // If we dont have instance we take any available to get reference
+        instance = rpl_control_enumerate_instances(cur->rpl_domain, NULL);
+    }
+
+    if (instance) {
+        config = rpl_control_get_dodag_config(instance);
+    }
+
+    if (config) {
+        //dio imin Period caluclate in seconds
+        uint32_t Imin_ms = config->dio_interval_min < 32 ? (1ul << config->dio_interval_min) : 0xfffffffful;
+        //Covert to seconds and multiple by 2 so we give time to recovery so divide by 500 do that operation
+        Imin_secs = (Imin_ms + 499) / 500;
+
+        if (Imin_secs > 0xffff) {
+            Imin_secs = 0xffff;
+        }
+    }
+    if (Imin_secs == 0) {
+        // If we dont have RPL configuration we assume conservative value
+        Imin_secs = 60;
+    }
+
+    /*Speed up the ARO registration*/
+    if (cur->ws_info->aro_registration_timer > Imin_secs) {
+        cur->ws_info->aro_registration_timer = Imin_secs;
+    }
+}
+
+static void ws_rpl_parent_dis_callback(const uint8_t *ll_parent_address, void *handle, struct rpl_instance *instance)
+{
+    (void) ll_parent_address;
+    protocol_interface_info_entry_t *cur = handle;
+    if (!cur->rpl_domain || cur->interface_mode != INTERFACE_UP) {
+        return;
+    }
+    //Multicast DIS from parent indicate that Parent is not valid in short time window possible
+    ws_bootstrap_parent_confirm(cur, instance);
+}
+
+
 static void ws_bootstrap_rpl_callback(rpl_event_t event, void *handle)
 {
 
@@ -2619,9 +2719,7 @@ static void ws_bootstrap_rpl_callback(rpl_event_t event, void *handle)
             }
 
             // After successful DAO ACK connection to border router is verified
-            cur->ws_info->pan_timeout_timer = cur->ws_info->cfg->timing.pan_timeout;
-
-
+            ws_common_border_router_alive_update(cur);
         }
 
         if (!cur->ws_info->trickle_pa_running || !cur->ws_info->trickle_pc_running) {
@@ -2643,10 +2741,14 @@ static void ws_bootstrap_rpl_callback(rpl_event_t event, void *handle)
 
     } else if (event == RPL_EVENT_LOCAL_REPAIR_START) {
         tr_debug("RPL local repair start");
-        //Disable Asynchs
-        ws_bootstrap_asynch_trickle_stop(cur);
-        ws_nwk_event_post(cur, ARM_NWK_NWK_CONNECTION_DOWN);
-
+        //Disable Async and go to state 4 to confirm parent connection
+        ws_bootstrap_parent_confirm(cur, NULL);
+        // Move to state 4 if we see issues with primary parent
+        if (ws_bootstrap_state_active(cur)) {
+            tr_info("Move state 4 to wait parent connection confirmation");
+            ws_bootstrap_rpl_scan_start(cur);
+            ws_nwk_event_post(cur, ARM_NWK_NWK_CONNECTION_DOWN);
+        }
     } else if (event == RPL_EVENT_DAO_PARENT_ADD) {
         ws_address_parent_update(cur);
     }
@@ -2861,7 +2963,7 @@ static void ws_bootstrap_rpl_activate(protocol_interface_info_entry_t *cur)
 
     addr_add_router_groups(cur);
     rpl_control_set_domain_on_interface(cur, protocol_6lowpan_rpl_domain, downstream);
-    rpl_control_set_callback(protocol_6lowpan_rpl_domain, ws_bootstrap_rpl_callback, ws_rpl_prefix_callback, ws_rpl_new_parent_callback, cur);
+    rpl_control_set_callback(protocol_6lowpan_rpl_domain, ws_bootstrap_rpl_callback, ws_rpl_prefix_callback, ws_rpl_new_parent_callback, ws_rpl_parent_dis_callback, cur);
     // If i am router I Do this
     rpl_control_force_leaf(protocol_6lowpan_rpl_domain, leaf);
     rpl_control_process_routes(protocol_6lowpan_rpl_domain, false); // Wi-SUN assumes that no default route needed
@@ -3070,7 +3172,7 @@ static void ws_bootstrap_authentication_completed(protocol_interface_info_entry_
     if (result == AUTH_RESULT_OK) {
         tr_debug("authentication success");
         ws_bootstrap_event_configuration_start(cur);
-    } else if (result == AUTH_RESULT_ERR_TX_NO_ACK) {
+    } else if (result == AUTH_RESULT_ERR_TX_ERR) {
         // eapol parent selected is not working
         tr_debug("authentication TX failed");
 
@@ -3112,6 +3214,70 @@ static const uint8_t *ws_bootstrap_authentication_next_target(protocol_interface
     return previous_eui_64;
 }
 
+static bool ws_bootstrap_congestion_get(protocol_interface_info_entry_t *interface_ptr, uint16_t active_supp)
+{
+    if (interface_ptr == NULL || interface_ptr->random_early_detection == NULL) {
+        return false;
+    }
+
+    bool return_value = false;
+    static struct red_info_s *red_info = NULL;
+    uint16_t average = 0;
+    uint8_t active_max = 0;
+
+    //TODO implement API for HEAP info request
+    uint32_t heap_size;
+    const mem_stat_t *mem_stats = ns_dyn_mem_get_mem_stat();
+    if (mem_stats) {
+        heap_size = mem_stats->heap_sector_size;
+    } else {
+        heap_size = 0;
+    }
+
+    /*
+      * For different memory sizes the max simultaneous authentications will be
+      * 32k:    (32k / 50k) * 2 + 1 = 1
+      * 65k:    (65k / 50k) * 2 + 1 = 3
+      * 250k:   (250k / 50k) * 2 + 1 = 11
+      * 1000k:  (1000k / 50k) * 2 + 1 = 41
+      * 2000k:  (2000k / 50k) * 2 + 1 = 50 (upper limit)
+      */
+    active_max = (heap_size / 50000) * 2 + 1;
+    if (active_max > 50) {
+        active_max = 50;
+    }
+
+    // Maximum for active supplicants based on memory reached, fail
+    if (active_supp >= active_max) {
+        return_value = true;
+        goto congestion_get_end;
+    }
+
+    // Always allow at least five negotiations (if memory does not limit)
+    if (active_supp < 5) {
+        goto congestion_get_end;
+    }
+
+    if (red_info == NULL) {
+        red_info = random_early_detection_create(
+                       interface_ptr->ws_info->cfg->sec_prot.max_simult_sec_neg_tx_queue_min,
+                       interface_ptr->ws_info->cfg->sec_prot.max_simult_sec_neg_tx_queue_max,
+                       100, RED_AVERAGE_WEIGHT_DISABLED);
+    }
+    if (red_info == NULL) {
+        goto congestion_get_end;
+    }
+
+    average = random_early_detetction_aq_read(interface_ptr->random_early_detection);
+    average = random_early_detetction_aq_calc(red_info, average);
+    return_value = random_early_detection_congestion_check(red_info);
+
+congestion_get_end:
+    tr_info("Active supplicant limit, active: %i max: %i averageQ: %i drop: %s", active_supp, active_max, average, return_value ? "T" : "F");
+
+    return return_value;
+}
+
 // Start configuration learning
 static void ws_bootstrap_start_configuration_learn(protocol_interface_info_entry_t *cur)
 {
@@ -3134,18 +3300,18 @@ static void ws_bootstrap_start_configuration_learn(protocol_interface_info_entry
 static void ws_bootstrap_rpl_scan_start(protocol_interface_info_entry_t *cur)
 {
     tr_debug("Start RPL learn");
+    // Stop Trickle timers
+    ws_bootstrap_asynch_trickle_stop(cur);
+
     // routers wait until RPL root is contacted
     ws_bootstrap_state_change(cur, ER_RPL_SCAN);
+    // Change state as the state is checked in state machine
+    cur->ws_info->rpl_state = RPL_EVENT_LOCAL_REPAIR_START;
     //For Large network and medium should do passive scan
     if (ws_cfg_network_config_get(cur) > CONFIG_SMALL) {
         // Set timeout for check to 30 - 60 seconds
         cur->bootsrap_state_machine_cnt = randLIB_get_random_in_range(WS_RPL_DIS_INITIAL_TIMEOUT / 2, WS_RPL_DIS_INITIAL_TIMEOUT);
     }
-    /* While in Join State 4, if a non Border Router determines it has been unable to communicate with the PAN Border
-     * Router for an interval of PAN_TIMEOUT, a node MUST assume failure of the PAN Border Router and MUST
-     * Transition to Join State 1
-     */
-    cur->ws_info->pan_timeout_timer = cur->ws_info->cfg->timing.pan_timeout;
 }
 
 /*
@@ -3500,6 +3666,11 @@ static void ws_bootstrap_event_handler(arm_event_s *event)
                 ws_bootstrap_event_routing_ready(cur);
             } else {
                 ws_bootstrap_rpl_scan_start(cur);
+                /* While in Join State 4, if a non Border Router determines it has been unable to communicate with the PAN Border
+                 * Router for an interval of PAN_TIMEOUT, a node MUST assume failure of the PAN Border Router and MUST
+                 * Transition to Join State 1
+                 */
+                ws_common_border_router_alive_update(cur);
             }
             break;
         case WS_ROUTING_READY:
