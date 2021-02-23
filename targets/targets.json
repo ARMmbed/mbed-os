@@ -8007,12 +8007,14 @@
             "PORT_IN",
             "PORT_OUT",
             "SERIAL",
-            "SPI"
+            "SPI",
+            "USBDEVICE"
         ]
     },
     "NANO_RP2040_CONNECT": {
         "inherits": ["RP2040"],
         "macros_add": [
+            "PICO_HEAP_SIZE=0x30000",
             "PICO_NO_BINARY_INFO=1",
             "MBED_MPU_CUSTOM",
             "PICO_TIME_DEFAULT_ALARM_POOL_DISABLED",
