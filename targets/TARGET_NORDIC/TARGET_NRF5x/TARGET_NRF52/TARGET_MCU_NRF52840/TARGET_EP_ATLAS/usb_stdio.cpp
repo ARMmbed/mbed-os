@@ -26,7 +26,8 @@
 #if MBED_CONF_EP_ATLAS_ENABLE_USB_STDIO_CONSOLE
 
 /* Retarget stdio to USBSerial */
-mbed::FileHandle *mbed::mbed_target_override_console(int fd) {
+mbed::FileHandle *mbed::mbed_target_override_console(int fd)
+{
     static USBSerial usb_serial;
     return &usb_serial;
 }

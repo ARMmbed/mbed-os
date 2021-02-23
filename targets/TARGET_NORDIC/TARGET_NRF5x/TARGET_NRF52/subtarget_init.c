@@ -19,6 +19,7 @@
 #include "subtarget_init.h"
 #include "platform/mbed_toolchain.h"
 
-MBED_WEAK void subtarget_sdk_init(void) {
+MBED_WEAK void subtarget_sdk_init(void)
+{
     /* Do nothing by default */
 }

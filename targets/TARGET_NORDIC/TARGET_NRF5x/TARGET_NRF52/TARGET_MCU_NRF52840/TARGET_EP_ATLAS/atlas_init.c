@@ -26,19 +26,19 @@
  * Override the subtarget sdk init startup hook (specific to nRF2)
  * This will configure the internal regulator to operate at 3.3V
  */
-void subtarget_sdk_init(void) {
+void subtarget_sdk_init(void)
+{
 
-    if (NRF_UICR->REGOUT0 != UICR_REGOUT0_VOUT_3V3)
-    {
-         NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Wen << NVMC_CONFIG_WEN_Pos;
-         while (NRF_NVMC->READY == NVMC_READY_READY_Busy){}
-         NRF_UICR->REGOUT0 = UICR_REGOUT0_VOUT_3V3;
-         NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Ren << NVMC_CONFIG_WEN_Pos;
-         while (NRF_NVMC->READY == NVMC_READY_READY_Busy){}
+    if (NRF_UICR->REGOUT0 != UICR_REGOUT0_VOUT_3V3) {
+        NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Wen << NVMC_CONFIG_WEN_Pos;
+        while (NRF_NVMC->READY == NVMC_READY_READY_Busy) {}
+        NRF_UICR->REGOUT0 = UICR_REGOUT0_VOUT_3V3;
+        NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Ren << NVMC_CONFIG_WEN_Pos;
+        while (NRF_NVMC->READY == NVMC_READY_READY_Busy) {}
 
-         // Trigger a soft reset so that the settings take effect
-         NVIC_SystemReset();
-     }
+        // Trigger a soft reset so that the settings take effect
+        NVIC_SystemReset();
+    }
 }
 
 

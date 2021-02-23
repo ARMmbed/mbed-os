@@ -27,7 +27,7 @@ extern "C" {
  * Since Mbed's `mbed_sdk_init` hook is used by the NRF52 family code, this
  * initialization hook is provided so subtargets may implement their own startup
  * initialization code, if necessary.
- * 
+ *
  * By default, it is a blank function that is declared a "weak" symbol
  */
 void subtarget_sdk_init(void);
