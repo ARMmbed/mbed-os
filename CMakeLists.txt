@@ -16,9 +16,8 @@ string(REPLACE "_" "-" MBED_TARGET_CONVERTED ${MBED_TARGET_CONVERTED})
 string(PREPEND MBED_TARGET_CONVERTED "mbed-")
 
 add_library(mbed-core INTERFACE)
-add_library(mbed-core-obj OBJECT)
-
-mbed_attach_object_lib_with_interface_lib(mbed-core)
+add_library(mbed-core-obj OBJECT EXCLUDE_FROM_ALL)
+target_link_libraries(mbed-core-obj mbed-core)
 
 add_library(mbed-os INTERFACE)
 add_library(mbed-os-obj OBJECT EXCLUDE_FROM_ALL)
@@ -35,6 +34,8 @@ target_link_libraries(mbed-os
 target_include_directories(mbed-os INTERFACE $<TARGET_PROPERTY:${MBED_TARGET_CONVERTED},INTERFACE_INCLUDE_DIRECTORIES>)
 
 add_library(mbed-baremetal INTERFACE)
+
+target_sources(mbed-baremetal INTERFACE $<TARGET_OBJECTS:mbed-core-obj>)
 
 target_link_libraries(mbed-baremetal
     INTERFACE
@@ -161,6 +162,8 @@ target_include_directories(mbed-core-obj PRIVATE $<TARGET_PROPERTY:${MBED_TARGET
 # Add target sources - these depend on mbed-core thus they are copied and compiled as part of mbed-core object library
 target_sources(mbed-core-obj PRIVATE $<TARGET_PROPERTY:${MBED_TARGET_CONVERTED},INTERFACE_SOURCES>)
 
+get_property(MBED_CORE_SOURCES TARGET mbed-core-obj PROPERTY SOURCES)
+target_sources(mbed-os-obj PRIVATE ${MBED_CORE_SOURCES})
 
 #
 # Converts output file of `target` to binary file and to Intel HEX file.
