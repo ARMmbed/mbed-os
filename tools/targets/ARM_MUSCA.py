@@ -20,6 +20,11 @@ from os.path import abspath, basename, dirname, splitext, isdir
 from os.path import join as path_join
 import re
 import subprocess
+import sys
+
+# Add PSA TF-M binary utility scripts in system path
+TFM_SCRIPTS = abspath(path_join(dirname(__file__), '..', 'psa', 'tfm', 'bin_utils'))
+sys.path.insert(0, TFM_SCRIPTS)
 
 SCRIPT_DIR = dirname(abspath(__file__))
 MBED_OS_ROOT = abspath(path_join(SCRIPT_DIR, os.pardir, os.pardir))
