@@ -8008,6 +8008,7 @@
             "PORT_OUT",
             "PWMOUT",
             "SERIAL",
+            "SERIAL_FC",
             "SPI",
             "USBDEVICE"
         ]
