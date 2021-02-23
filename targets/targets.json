@@ -8004,12 +8004,14 @@
         "device_has": [
             "ANALOGIN",
             "I2C",
+            "INTERRUPTIN",
             "PORT_IN",
             "PORT_OUT",
             "PWMOUT",
             "SERIAL",
             "SERIAL_FC",
             "SPI",
+            "USTICKER",
             "USBDEVICE"
         ]
     },
