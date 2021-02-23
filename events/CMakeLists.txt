@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include(${MBED_PATH}/tools/cmake/util.cmake)
+
 add_library(mbed-events INTERFACE)
 add_library(mbed-events-obj OBJECT)
 
@@ -26,10 +28,6 @@ target_compile_definitions(mbed-events
         MBED_CONF_EVENTS_PRESENT=1
 )
 
-set_property(TARGET mbed-events PROPERTY INTERFACE_SOURCES $<TARGET_OBJECTS:mbed-events-obj>)
-
-foreach(options COMPILE_DEFINITIONS COMPILE_FEATURES COMPILE_OPTIONS INCLUDE_DIRECTORIES LINK_LIBRARIES)
-    set_target_properties(mbed-events-obj PROPERTIES ${options} $<TARGET_PROPERTY:mbed-events,INTERFACE_${options}>)
-endforeach()
+mbed_attach_object_lib_with_interface_lib(mbed-events)
 
 target_link_libraries(mbed-events-obj PRIVATE mbed-core ${MBED_TARGET_CONVERTED})
