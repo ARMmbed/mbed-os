@@ -29,3 +29,4 @@ psutil==5.6.6
 cryptography>=2.5,<3
 Click>=7.0,<7.1
 cbor>=1.0.0
+cysecuretools>=2.0.0,<=2.1.0
