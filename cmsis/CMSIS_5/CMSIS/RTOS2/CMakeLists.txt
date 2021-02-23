@@ -8,7 +8,7 @@ target_include_directories(mbed-rtos
         Include
 )
 
-target_sources(mbed-rtos-obj
+target_sources(mbed-os-obj
     PRIVATE
         Source/os_systick.c
         Source/os_tick_ptim.c

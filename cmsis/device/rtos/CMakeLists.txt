@@ -18,7 +18,7 @@ target_include_directories(mbed-rtos
         include
 )
 
-target_sources(mbed-rtos-obj
+target_sources(mbed-os-obj
     PRIVATE
         source/mbed_boot.c
         source/mbed_rtos_rtx.c
@@ -32,3 +32,6 @@ target_compile_definitions(mbed-rtos
 )
 
 target_link_libraries(mbed-rtos-obj PRIVATE mbed-core ${MBED_TARGET_CONVERTED})
+
+# Link related core files (=mbed-os-obj) that require rtos to get their flags
+target_link_libraries(mbed-os-obj PRIVATE mbed-core ${MBED_TARGET_CONVERTED} mbed-rtos)

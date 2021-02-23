@@ -26,4 +26,4 @@ foreach(options COMPILE_DEFINITIONS COMPILE_FEATURES COMPILE_OPTIONS INCLUDE_DIR
     set_target_properties(mbed-maxim-obj PROPERTIES ${options} $<TARGET_PROPERTY:mbed-maxim,INTERFACE_${options}>)
 endforeach()
 
-target_link_libraries(mbed-maxim INTERFACE mbed-cmsis-cortex-m)
+target_link_libraries(mbed-maxim-obj PRIVATE mbed-cmsis-cortex-m mbed-core)
