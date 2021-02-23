@@ -24,3 +24,5 @@ target_sources(mbed-ambiq-micro
         sdk/utils/am_util_string.c
         sdk/utils/am_util_time.c
 )
+
+target_link_libraries(mbed-ambiq-micro INTERFACE mbed-cmsis-cortex-m)

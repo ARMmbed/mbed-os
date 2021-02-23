@@ -10,3 +10,5 @@ target_include_directories(mbed-silicon-labs
     INTERFACE
         .
 )
+
+target_link_libraries(mbed-silicon-labs INTERFACE mbed-cmsis-cortex-m)
