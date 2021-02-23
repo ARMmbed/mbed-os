@@ -182,7 +182,7 @@ static void attsDataCback(uint16_t handle, uint16_t len, uint8_t *pPacket)
   }
 
   /* check client's status to see if server is allowed to process this PDU. */
-  err = attsCsfActClientState(handle, opcode, pPacket);
+  err = attsCsfActClientState(pCcb->connId, opcode, pPacket);
   if (err)
   {
     BYTES_TO_UINT16(attHandle, pPacket + L2C_PAYLOAD_START + ATT_HDR_LEN);

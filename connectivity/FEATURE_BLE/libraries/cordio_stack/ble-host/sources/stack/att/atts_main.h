@@ -164,7 +164,7 @@ void attsProcExecWriteReq(attsCcb_t *pCcb, uint16_t len, uint8_t *pPacket);
 void attsProcValueCnf(attsCcb_t *pCcb, uint16_t len, uint8_t *pPacket);
 void attsProcReadMultiVarReq(attsCcb_t *pCcb, uint16_t len, uint8_t *pPacket);
 
-uint8_t attsCsfActClientState(uint16_t handle, uint8_t opcode, uint8_t *pPacket);
+uint8_t attsCsfActClientState(dmConnId_t connId, uint8_t opcode, uint8_t *pPacket);
 uint8_t attsCsfIsClientChangeAware(dmConnId_t connId, uint16_t handle);
 void attsCsfSetHashUpdateStatus(bool_t isUpdating);
 uint8_t attsCsfGetHashUpdateStatus(void);
