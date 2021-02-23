@@ -14,8 +14,4 @@ target_sources(mbed-cmsis-cortex-a-obj
         Source/irq_ctrl_gic.c
 )
 
-set_property(TARGET mbed-cmsis-cortex-a PROPERTY INTERFACE_SOURCES $<TARGET_OBJECTS:mbed-cmsis-cortex-a-obj>)
-
-foreach(options COMPILE_DEFINITIONS COMPILE_FEATURES COMPILE_OPTIONS INCLUDE_DIRECTORIES LINK_LIBRARIES)
-    set_target_properties(mbed-cmsis-cortex-a-obj PROPERTIES ${options} $<TARGET_PROPERTY:mbed-cmsis-cortex-a,INTERFACE_${options}>)
-endforeach()
+mbed_attach_object_lib_with_interface_lib(mbed-cmsis-cortex-a)
