@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include(${MBED_PATH}/tools/cmake/util.cmake)
+
 add_subdirectory(TARGET_MAX32620FTHR EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_SDT32620B EXCLUDE_FROM_ALL)
 
@@ -81,9 +83,5 @@ target_link_libraries(mbed-maxim-max32620c
         mbed-maxim
 )
 
-set_property(TARGET mbed-maxim-max32620c PROPERTY INTERFACE_SOURCES $<TARGET_OBJECTS:mbed-maxim-max32620c-obj>)
-
-foreach(options COMPILE_DEFINITIONS COMPILE_FEATURES COMPILE_OPTIONS INCLUDE_DIRECTORIES LINK_LIBRARIES)
-    set_target_properties(mbed-maxim-max32620c-obj PROPERTIES ${options} $<TARGET_PROPERTY:mbed-maxim-max32620c,INTERFACE_${options}>)
-endforeach()
+mbed_attach_object_lib_with_interface_lib(mbed-maxim-max32620c)
 

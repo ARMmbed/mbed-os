@@ -1,6 +1,7 @@
 # Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include(${MBED_PATH}/tools/cmake/util.cmake)
 
 add_subdirectory(TARGET_MAX32620C EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_MAX32625 EXCLUDE_FROM_ALL)
@@ -19,11 +20,6 @@ target_sources(mbed-maxim-obj
         USBPhy_Maxim.cpp
 )
 
-
-set_property(TARGET mbed-maxim PROPERTY INTERFACE_SOURCES $<TARGET_OBJECTS:mbed-maxim-obj>)
-
-foreach(options COMPILE_DEFINITIONS COMPILE_FEATURES COMPILE_OPTIONS INCLUDE_DIRECTORIES LINK_LIBRARIES)
-    set_target_properties(mbed-maxim-obj PROPERTIES ${options} $<TARGET_PROPERTY:mbed-maxim,INTERFACE_${options}>)
-endforeach()
+mbed_attach_object_lib_with_interface_lib(mbed-maxim)
 
 target_link_libraries(mbed-maxim-obj PRIVATE mbed-cmsis-cortex-m mbed-core)
