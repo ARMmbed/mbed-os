@@ -15,7 +15,6 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
 endif()
 
 add_library(mbed-maxim-max32620c INTERFACE)
-add_library(mbed-maxim-max32620c-obj INTERFACE)
 
 target_include_directories(mbed-maxim-max32620c
     INTERFACE
@@ -24,19 +23,9 @@ target_include_directories(mbed-maxim-max32620c
         mxc
 )
 
-target_include_directories(${MBED_TARGET_CONVERTED}-core
-    INTERFACE
-        .
-        device
-        mxc
-)
-
-target_link_libraries(${MBED_TARGET_CONVERTED}-core INTERFACE mbed-cmsis-cortex-m)
-
-
 mbed_set_linker_script(mbed-maxim-max32620c ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_sources(mbed-maxim-max32620c-obj
+target_sources(mbed-maxim-max32620c
     INTERFACE
         PeripheralPins.c
         analogin_api.c
@@ -88,10 +77,4 @@ target_sources(mbed-maxim-max32620c-obj
         ${STARTUP_FILE}
 )
 
-target_link_libraries(mbed-maxim-max32620c 
-    INTERFACE 
-        mbed-maxim
-        mbed-cmsis-cortex-m
-        mbed-core
-)
-
+target_link_libraries(mbed-maxim-max32620c INTERFACE mbed-maxim)
