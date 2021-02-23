@@ -13,6 +13,7 @@ pico-sdk/rp2_common/pico_double/double_aeabi.S
 pico-sdk/rp2_common/pico_double/double_none.S
 pico-sdk/rp2_common/pico_float/float_aeabi.S
 pico-sdk/rp2_common/pico_float/float_none.S
+pico-sdk/rp2_common/pico_float/include/pico/*
 pico-sdk/rp2_common/pico_standard_link/new_delete.cpp
 pico-sdk/rp2_common/pico_standard_link/*.ld
 pico-sdk/rp2_common/pico_unique_id/*
