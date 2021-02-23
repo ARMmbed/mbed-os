@@ -140,6 +140,10 @@ add_subdirectory(drivers)
 add_subdirectory(hal)
 add_subdirectory(platform)
 add_subdirectory(rtos)
+
+# Target provides includes for core to find device.h/cmsis.h or nvic related files
+add_library(${MBED_TARGET_CONVERTED}-core INTERFACE)
+
 add_subdirectory(targets)
 
 # The directories below contain optional target libraries
@@ -152,7 +156,8 @@ add_subdirectory(features EXCLUDE_FROM_ALL)
 add_subdirectory(cmsis/CMSIS_5/CMSIS/RTOS2 EXCLUDE_FROM_ALL)
 add_subdirectory(cmsis/device/rtos EXCLUDE_FROM_ALL)
 
-target_link_libraries(mbed-core-obj PRIVATE ${MBED_TARGET_CONVERTED})
+# TODO: remove this now
+target_link_libraries(mbed-core-obj PRIVATE ${MBED_TARGET_CONVERTED}-core)
 
 #
 # Converts output file of `target` to binary file and to Intel HEX file.
