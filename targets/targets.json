@@ -8006,6 +8006,7 @@
             "I2C",
             "PORT_IN",
             "PORT_OUT",
+            "PWMOUT",
             "SERIAL",
             "SPI",
             "USBDEVICE"

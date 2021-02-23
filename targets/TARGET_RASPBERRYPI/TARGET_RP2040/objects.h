@@ -101,6 +101,15 @@ struct spi_s {
     spi_inst_t * dev;
 };
 
+struct pwmout_s {
+    PinName pin;
+    uint8_t slice;
+    uint8_t channel;
+    uint16_t period;
+    float percent;
+    pwm_config cfg;
+};
+
 struct flash_s {
 	/*  nothing to be stored for now */
 	uint32_t dummy;
