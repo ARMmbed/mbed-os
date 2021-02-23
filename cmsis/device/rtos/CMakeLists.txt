@@ -31,9 +31,4 @@ target_compile_definitions(mbed-rtos
         MBED_CONF_RTOS_PRESENT=1
 )
 
-# Ensure the words that make up the Mbed target name are separated with a hyphen, lowercase, and with the `mbed-` prefix.
-string(TOLOWER ${MBED_TARGET} MBED_TARGET_CONVERTED)
-string(REPLACE "_" "-" MBED_TARGET_CONVERTED ${MBED_TARGET_CONVERTED})
-string(PREPEND MBED_TARGET_CONVERTED "mbed-")
-
 target_link_libraries(mbed-rtos-obj PRIVATE mbed-core ${MBED_TARGET_CONVERTED})
