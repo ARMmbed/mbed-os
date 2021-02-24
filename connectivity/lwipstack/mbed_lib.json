@@ -156,7 +156,7 @@
         },
         "nd6-rdnss-max-dns-servers" : {
             "help": "number of RDNS from RA (router advertisements) to be used, RFC5006",
-            "value": 2
+            "value": 0
         },
         "nd6_queueing": {
             "help": "queue outgoing IPv6 packets while MAC address is being resolved",
