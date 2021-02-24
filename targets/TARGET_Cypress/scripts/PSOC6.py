@@ -369,10 +369,10 @@ def parse_args():
         "--boot-scheme", help="the boot scheme."
     )
     sign_subcommand.add_argument(
-        "--cm0-img-id", help="the Cortex-M0 image ID."
+        "--cm0-img-id", type=int, help="the Cortex-M0 image ID."
     )
     sign_subcommand.add_argument(
-        "--cm4-img-id", help="the Cortex-M4 image ID."
+        "--cm4-img-id", type=int, help="the Cortex-M4 image ID."
     )
     sign_subcommand.add_argument(
         "--elf", required=True, help="the application ELF file."
