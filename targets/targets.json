@@ -3951,7 +3951,8 @@
             "FLASH",
             "MPU",
             "SERIAL_ASYNCH",
-            "TRNG"
+            "TRNG",
+            "USBDEVICE"
         ]
     },
     "MCU_STM32L552xE": {
