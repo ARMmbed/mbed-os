@@ -30,4 +30,4 @@ target_compile_definitions(mbed-events
 
 mbed_attach_object_lib_with_interface_lib(mbed-events)
 
-target_link_libraries(mbed-events-obj PRIVATE mbed-core ${MBED_TARGET_CONVERTED})
+target_link_libraries(mbed-events-obj PRIVATE mbed-core)
