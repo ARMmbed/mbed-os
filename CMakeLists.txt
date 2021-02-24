@@ -30,17 +30,20 @@ target_link_libraries(mbed-os
         mbed-core
 )
 
+
 # Expose target headers to an app, but hide objects as they are part of mbed-core
 target_include_directories(mbed-os INTERFACE $<TARGET_PROPERTY:${MBED_TARGET_CONVERTED},INTERFACE_INCLUDE_DIRECTORIES>)
 
 add_library(mbed-baremetal INTERFACE)
+
+# Expose target headers to an app, but hide objects as they are part of mbed-core
+target_include_directories(mbed-baremetal INTERFACE $<TARGET_PROPERTY:${MBED_TARGET_CONVERTED},INTERFACE_INCLUDE_DIRECTORIES>)
 
 target_sources(mbed-baremetal INTERFACE $<TARGET_OBJECTS:mbed-core-obj>)
 
 target_link_libraries(mbed-baremetal
     INTERFACE
         mbed-core
-        ${MBED_TARGET_CONVERTED}
 )
 
 # Validate selected C library type
