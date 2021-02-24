@@ -160,7 +160,7 @@ add_subdirectory(cmsis/CMSIS_5/CMSIS/RTOS2 EXCLUDE_FROM_ALL)
 add_subdirectory(cmsis/device/rtos EXCLUDE_FROM_ALL)
 
 # Add target includes to core (cmsis.h/device.h/object.h are required by core files)
-target_include_directories(mbed-core-obj PRIVATE $<TARGET_PROPERTY:${MBED_TARGET_CONVERTED},INTERFACE_INCLUDE_DIRECTORIES>)
+target_include_directories(mbed-core INTERFACE $<TARGET_PROPERTY:${MBED_TARGET_CONVERTED},INTERFACE_INCLUDE_DIRECTORIES>)
 
 # Add target sources - these depend on mbed-core thus they are copied and compiled as part of mbed-core object library
 target_sources(mbed-core-obj PRIVATE $<TARGET_PROPERTY:${MBED_TARGET_CONVERTED},INTERFACE_SOURCES>)
