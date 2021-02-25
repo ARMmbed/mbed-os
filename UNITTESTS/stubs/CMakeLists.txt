@@ -97,6 +97,7 @@ target_include_directories(mbed-headers-events
         ${MBED_PATH}/events/tests/UNITTESTS/target_h
         ${MBED_PATH}/events/tests/UNITTESTS/target_h/equeue
         ${MBED_PATH}/events/include
+        ${MBED_PATH}/events/include/events
         ${MBED_PATH}/events/include/events/internal        
 )
 
