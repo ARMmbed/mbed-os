@@ -49,7 +49,8 @@ struct DigitalInOut {
         return *this;
     }
 
-    virtual DigitalInOut &operator= (DigitalInOut &rhs) {
+    virtual DigitalInOut &operator= (DigitalInOut &rhs)
+    {
         // Underlying implementation is responsible for thread-safety
         write(rhs.read());
         return *this;
