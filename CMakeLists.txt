@@ -153,7 +153,7 @@ add_subdirectory(cmsis/CMSIS_5/CMSIS/RTOS2 EXCLUDE_FROM_ALL)
 add_subdirectory(cmsis/device/rtos EXCLUDE_FROM_ALL)
 
 # Upstream target options to core
-# Todo: I could not make this working with which would be cleaner
+# Todo: I could not make this working with this snippet thus copying separately each option
 #     foreach(options COMPILE_DEFINITIONS COMPILE_FEATURES COMPILE_OPTIONS INCLUDE_DIRECTORIES LINK_LIBRARIES)
 #        set_target_properties(mbed-core PROPERTIES ${options} # $<TARGET_PROPERTY:${MBED_TARGET_CONVERTED},INTERFACE_${options}>)
 #    endforeach()
