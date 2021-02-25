@@ -5638,8 +5638,7 @@
         "is_disk_virtual": true,
         "supported_toolchains": [
             "GCC_ARM",
-            "ARM",
-            "IAR"
+            "ARM"
         ],
         "public": false,
         "detect_code": [
@@ -5807,8 +5806,7 @@
         "is_disk_virtual": true,
         "supported_toolchains": [
             "GCC_ARM",
-            "ARM",
-            "IAR"
+            "ARM"
         ],
         "public": false,
         "detect_code": [
