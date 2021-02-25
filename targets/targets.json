@@ -6382,8 +6382,7 @@
         "public": false,
         "supported_toolchains": [
             "GCC_ARM",
-            "ARM",
-            "IAR"
+            "ARM"
         ],
         "OUTPUT_EXT": "elf",
         "device_has": [
