@@ -10,6 +10,7 @@
 #include "pico.h"
 #include "pico/time.h"
 #include "hardware/structs/i2c.h"
+#include "stdio.h"
 
 // PICO_CONFIG: PARAM_ASSERTIONS_ENABLED_I2C, Enable/disable assertions in the I2C module, type=bool, default=0, group=hardware_i2c
 #ifndef PARAM_ASSERTIONS_ENABLED_I2C
@@ -289,12 +290,35 @@ static inline void i2c_write_raw_blocking(i2c_inst_t *i2c, const uint8_t *src, s
  * Reads directly from the I2C RX FIFO which us mainly useful for
  * slave-mode operation.
  */
-static inline void i2c_read_raw_blocking(i2c_inst_t *i2c, uint8_t *dst, size_t len) {
+static inline size_t i2c_read_raw_blocking(i2c_inst_t *i2c, uint8_t *dst, size_t len) {
+
+    size_t bytes_read = 0;
+
     for (size_t i = 0; i < len; ++i) {
-        while (!i2c_get_read_available(i2c))
+
+        while (!i2c_get_read_available(i2c)) {
             tight_loop_contents();
-        *dst++ = i2c_get_hw(i2c)->data_cmd;
+        }
+
+        *dst = i2c_get_hw(i2c)->data_cmd;
+        bytes_read++;
+
+        //printf("dst %d ,", *dst);
+
+        //Check stop condition
+        int stop = (i2c->hw->raw_intr_stat & 0x00000200) >> 9;
+        if (stop && !i2c_get_read_available(i2c)) {
+            //Clear stop
+            int clear_stop = i2c_get_hw(i2c)->clr_stop_det;
+            printf("clear_stop reg: %d\n", clear_stop);
+            break;
+        } else {
+            *dst++;
+        }
+
     }
+
+   return bytes_read;
 }
 
 #ifdef __cplusplus
