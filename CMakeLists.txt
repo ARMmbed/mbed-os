@@ -18,6 +18,7 @@ if(MBED_BUILD_UNITTESTS)
     add_subdirectory(${MBED_PATH}/storage/kvstore/tdbstore/tests/UNITTESTS)
     add_subdirectory(${MBED_PATH}/storage/kvstore/filesystemstore/tests/UNITTESTS)
     add_subdirectory(${MBED_PATH}/platform/tests/UNITTESTS)   
+    add_subdirectory(${MBED_PATH}/events/tests/UNITTESTS)
 else()
 
 include(${MBED_CONFIG_PATH}/mbed_config.cmake)
