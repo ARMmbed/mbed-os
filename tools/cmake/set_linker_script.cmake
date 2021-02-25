@@ -34,7 +34,8 @@ function(mbed_set_linker_script input_target raw_linker_script_path)
         # to build input_target.
         set(LinkerScriptTarget ${input_target}LinkerScript)
         add_custom_target(${LinkerScriptTarget} DEPENDS ${LINKER_SCRIPT_PATH} VERBATIM)
-        add_dependencies(${input_target} ${LinkerScriptTarget})
+        # Attach to mbed-core as it is the one linked to an application
+        add_dependencies(mbed-core ${LinkerScriptTarget})
         target_link_options(${input_target}
             INTERFACE
                 "-T" "${LINKER_SCRIPT_PATH}"
