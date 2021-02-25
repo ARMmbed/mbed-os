@@ -4808,8 +4808,7 @@
         "core": "Cortex-A9",
         "supported_toolchains": [
             "ARM",
-            "GCC_ARM",
-            "IAR"
+            "GCC_ARM"
         ],
         "extra_labels": [
             "RENESAS",
@@ -4941,7 +4940,7 @@
         "inherits": ["Target"],
         "public": false,
         "core": "Cortex-A9",
-        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "supported_toolchains": ["ARM", "GCC_ARM"],
         "extra_labels": ["RENESAS", "RZ_A2XX"],
         "device_has": [
             "SLEEP",
