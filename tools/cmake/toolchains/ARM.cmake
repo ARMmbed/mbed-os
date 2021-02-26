@@ -70,7 +70,7 @@ endfunction()
 # See https://gitlab.kitware.com/cmake/cmake/-/issues/21538
 function(mbed_configure_memory_map target mapfile)
     target_link_options(${target}
-        INTERFACE
+        PRIVATE
             "--map"
             "--list=${mapfile}"
     )

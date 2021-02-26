@@ -88,7 +88,7 @@ endfunction()
 # Add linker flags to generate a mapfile with a given name
 function(mbed_configure_memory_map target mapfile)
     target_link_options(${target}
-        INTERFACE
+        PRIVATE
             "-Wl,-Map=${mapfile}"
     )
 endfunction()
