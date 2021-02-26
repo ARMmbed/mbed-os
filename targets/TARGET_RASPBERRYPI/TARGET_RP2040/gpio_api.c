@@ -35,3 +35,6 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
     }
 }
 
+int gpio_is_connected(const gpio_t *obj) {
+    return (obj->pin == NC ? 0 : 1);
+}
