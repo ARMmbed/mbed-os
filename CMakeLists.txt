@@ -164,6 +164,8 @@ target_compile_definitions(mbed-core INTERFACE $<TARGET_PROPERTY:${MBED_TARGET_C
 # Add target sources - these depend on mbed-core thus they are copied and compiled as part of mbed-core object library
 target_sources(mbed-core-obj PRIVATE $<TARGET_PROPERTY:${MBED_TARGET_CONVERTED},INTERFACE_SOURCES>)
 
+# Copy all core objects to Mbed OS as they share flags (build as one)
+# This is a workaround in the tree dependencies between core/rtos. We can fix this one we have old tools removed
 get_property(MBED_CORE_SOURCES TARGET mbed-core-obj PROPERTY SOURCES)
 target_sources(mbed-os-obj PRIVATE ${MBED_CORE_SOURCES})
 
