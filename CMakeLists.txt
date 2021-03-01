@@ -17,12 +17,11 @@ string(PREPEND MBED_TARGET_CONVERTED "mbed-")
 
 add_library(mbed-core INTERFACE)
 add_library(mbed-core-obj OBJECT EXCLUDE_FROM_ALL)
-target_link_libraries(mbed-core-obj mbed-core)
 
 add_library(mbed-os INTERFACE)
 add_library(mbed-os-obj OBJECT EXCLUDE_FROM_ALL)
 
-mbed_attach_object_lib_with_interface_lib(mbed-os)
+target_sources(mbed-os INTERFACE $<TARGET_OBJECTS:mbed-os-obj>)
 
 target_link_libraries(mbed-os
     INTERFACE
@@ -152,22 +151,18 @@ add_subdirectory(features EXCLUDE_FROM_ALL)
 add_subdirectory(cmsis/CMSIS_5/CMSIS/RTOS2 EXCLUDE_FROM_ALL)
 add_subdirectory(cmsis/device/rtos EXCLUDE_FROM_ALL)
 
-# Upstream target options to core
-# Todo: I could not make this working with this snippet thus copying separately each option
-#     foreach(options COMPILE_DEFINITIONS COMPILE_FEATURES COMPILE_OPTIONS INCLUDE_DIRECTORIES LINK_LIBRARIES)
-#        set_target_properties(mbed-core PROPERTIES ${options} # $<TARGET_PROPERTY:${MBED_TARGET_CONVERTED},INTERFACE_${options}>)
-#    endforeach()
-target_include_directories(mbed-core INTERFACE $<TARGET_PROPERTY:${MBED_TARGET_CONVERTED},INTERFACE_INCLUDE_DIRECTORIES>)
+# Expose linker option to an application. As we do not directly link to MBED_TARGET_CONVERTED due to built
+# object core library
 target_link_options(mbed-core INTERFACE $<TARGET_PROPERTY:${MBED_TARGET_CONVERTED},INTERFACE_LINK_OPTIONS>)
-target_compile_definitions(mbed-core INTERFACE $<TARGET_PROPERTY:${MBED_TARGET_CONVERTED},COMPILE_DEFINITIONS>)
 
-# Add target sources - these depend on mbed-core thus they are copied and compiled as part of mbed-core object library
-target_sources(mbed-core-obj PRIVATE $<TARGET_PROPERTY:${MBED_TARGET_CONVERTED},INTERFACE_SOURCES>)
-
-# Copy all core objects to Mbed OS as they share flags (build as one)
-# This is a workaround in the tree dependencies between core/rtos. We can fix this one we have old tools removed
+# Some of core files require MBED_CONF_RTOS_PRESENT symbol. For baremetal, it's sufficient to link with mbed-core (symbol undefined = RTOS not present). For Mbed OS, this symbol must be defined and set, therefore we copy sources and build them together with this flag
 get_property(MBED_CORE_SOURCES TARGET mbed-core-obj PROPERTY SOURCES)
 target_sources(mbed-os-obj PRIVATE ${MBED_CORE_SOURCES})
+
+target_link_libraries(mbed-os-obj mbed-core mbed-rtos ${MBED_TARGET_CONVERTED})
+# Expose to an app all core + rtos flags
+target_link_libraries(mbed-os INTERFACE mbed-core mbed-rtos)
+
 
 #
 # Converts output file of `target` to binary file and to Intel HEX file.
