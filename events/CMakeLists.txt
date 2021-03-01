@@ -1,8 +1,6 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(${MBED_PATH}/tools/cmake/util.cmake)
-
 add_library(mbed-events OBJECT)
 
 target_include_directories(mbed-events
