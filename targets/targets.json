@@ -7503,7 +7503,6 @@
         "core": "Cortex-M7",
         "supported_toolchains": [
             "GCC_ARM",
-            "IAR",
             "ARMC6"
         ],
         "default_toolchain": "GCC_ARM",
@@ -7559,7 +7558,7 @@
         "core": "Cortex-M4F",
         "supported_toolchains": [
             "GCC_ARM",
-            "ARMC6"
+            "ARM"
         ],
         "default_toolchain": "GCC_ARM",
         "extra_labels": [
@@ -7579,7 +7578,20 @@
             "WATCHDOG"
         ],
         "release_versions": ["5"],
-        "detect_code": ["3703"]
+        "detect_code": ["3703"],
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
+        },
+        "supported_application_profiles": [
+            "full", "bare-metal"
+        ]
     },
     "FAMILY_Apollo3": {
         "inherits": ["Target"],
