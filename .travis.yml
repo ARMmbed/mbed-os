@@ -39,6 +39,13 @@ addons:
     - ninja-build
 
 matrix:
+  # One failing stage should not prevent other stages from running
+  allow_failures:
+    - stage: "Basic"
+    - stage: "Docs"
+    - stage: "Pytest"
+    - stage: "Extended"
+
   include:
 
     ### Basic Tests ###
