@@ -24,9 +24,15 @@ causes the checksum of the first 8 table entries to be 0. The boot loader code c
 the first 8 locations in sector 0 of the flash. If the result is 0, then execution control is
 transferred to the user code.
 """
+import pathlib
 import os
 import sys
 from struct import unpack, pack
+
+
+class ArtefactsError(Exception):
+    """An exception to indicate that the artefact(s) needed for processing 
+    ave not been found."""
 
 
 def patch(bin_path):
@@ -47,6 +53,14 @@ def is_patched(bin_path):
 
 
 if __name__ == "__main__":
-    binary = sys.argv[1]
+    artefacts_location = sys.argv[1]
+
+    try:
+        binary = list(pathlib.Path(artefacts_location).glob("*.bin"))[0]
+    except IndexError:
+        raise ArtefactsError(
+            f"Could not find binary file in {artefacts_location}"
+        )
+
     print("LPC Patch: %s" % os.path.split(binary)[1])
     patch(binary)
