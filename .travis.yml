@@ -200,7 +200,6 @@ matrix:
                       -e "^tools/notifier*" \
                       -e "^tools/paths*" \
                       -e "^tools/resources*" \
-                      -e "^tools/targets*" \
                       -e "^tools/toolchains*" \
                       -e "^tools/utils*" \
                       -e "^$"`
