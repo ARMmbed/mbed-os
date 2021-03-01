@@ -35,6 +35,3 @@ target_include_directories(mbed-rtos INTERFACE $<TARGET_PROPERTY:${MBED_TARGET_C
 
 
 target_link_libraries(mbed-rtos-obj PRIVATE mbed-core)
-
-# Link related core files (=mbed-os-obj) that require rtos to get their flags
-target_link_libraries(mbed-os-obj PRIVATE mbed-core mbed-rtos)
