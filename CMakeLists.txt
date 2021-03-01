@@ -153,6 +153,8 @@ add_subdirectory(cmsis/device/rtos EXCLUDE_FROM_ALL)
 # Expose linker option to an application. As we do not directly link to MBED_TARGET_CONVERTED due to built
 # object core library
 target_link_options(mbed-core INTERFACE $<TARGET_PROPERTY:${MBED_TARGET_CONVERTED},INTERFACE_LINK_OPTIONS>)
+# Expose include directories. cmsis.h/device.h and other headers are required by libraries or applications
+target_include_directories(mbed-core INTERFACE $<TARGET_PROPERTY:${MBED_TARGET_CONVERTED},INTERFACE_INCLUDE_DIRECTORIES>)
 
 # Some of core files require MBED_CONF_RTOS_PRESENT symbol. For baremetal, it's sufficient to link with mbed-core (symbol undefined = RTOS not present). For Mbed OS, this symbol must be defined and set, therefore we copy sources and build them together with this flag
 get_property(MBED_CORE_SOURCES TARGET mbed-core-obj PROPERTY SOURCES)
