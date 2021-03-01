@@ -16,6 +16,7 @@ string(PREPEND MBED_TARGET_CONVERTED "mbed-")
 
 add_library(mbed-core INTERFACE)
 add_library(mbed-core-obj OBJECT EXCLUDE_FROM_ALL)
+target_link_libraries(mbed-core-obj mbed-core ${MBED_TARGET_CONVERTED})
 
 add_library(mbed-os INTERFACE)
 add_library(mbed-os-obj OBJECT EXCLUDE_FROM_ALL)
