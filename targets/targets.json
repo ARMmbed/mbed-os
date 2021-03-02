@@ -2754,7 +2754,6 @@
             "0850"
         ],
         "overrides": {
-            "clock_source" : "USE_PLL_HSE_EXTC|USE_PLL_HSE_XTAL",
             "hse_value": 24000000
         },
         "device_name": "STM32G431RBTx"
