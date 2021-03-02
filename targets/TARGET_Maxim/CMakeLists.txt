@@ -1,8 +1,6 @@
 # Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(${MBED_PATH}/tools/cmake/util.cmake)
-
 add_subdirectory(TARGET_MAX32620C EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_MAX32625 EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_MAX32630 EXCLUDE_FROM_ALL)
