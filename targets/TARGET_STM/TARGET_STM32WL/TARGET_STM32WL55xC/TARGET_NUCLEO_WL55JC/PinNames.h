@@ -15,6 +15,8 @@
  * Automatically generated from STM32CubeMX/db/mcu/STM32WL55JCIx.xml
  */
 
+/* MBED TARGET LIST: NUCLEO_WL55JC */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

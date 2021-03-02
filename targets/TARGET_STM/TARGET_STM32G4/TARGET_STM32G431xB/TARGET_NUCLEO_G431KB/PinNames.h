@@ -15,6 +15,8 @@
  * Automatically generated from STM32CubeMX/db/mcu/STM32G431K(6-8-B)Tx.xml
  */
 
+/* MBED TARGET LIST: NUCLEO_G431KB */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
