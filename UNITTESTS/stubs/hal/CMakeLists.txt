@@ -21,4 +21,5 @@ target_link_libraries(mbed-stubs-hal
     PRIVATE
         mbed-headers
         mbed-stubs-headers
+        gcov
 )
