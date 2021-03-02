@@ -1,19 +1,20 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("PSOC6" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_PSOC6)
-endif()
+add_library(mbed-ble-cyw43xxx INTERFACE)
 
+add_subdirectory(TARGET_PSOC6)
 add_subdirectory(firmware)
 
-target_include_directories(mbed-ble
+target_include_directories(mbed-ble-cyw43xxx
     INTERFACE
         .
 )
 
-target_sources(mbed-ble
+target_sources(mbed-ble-cyw43xxx
     INTERFACE
         CyH4TransportDriver.cpp
         HCIDriver.cpp
 )
+
+target_link_libraries(mbed-ble-cyw43xxx INTERFACE mbed-ble mbed-core)
