@@ -30,5 +30,3 @@ target_compile_definitions(mbed-rtos
     INTERFACE
         MBED_CONF_RTOS_PRESENT=1
 )
-
-target_include_directories(mbed-rtos INTERFACE $<TARGET_PROPERTY:${MBED_TARGET_CONVERTED},INTERFACE_INCLUDE_DIRECTORIES>)
