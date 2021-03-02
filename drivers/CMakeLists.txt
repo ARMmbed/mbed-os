@@ -9,7 +9,7 @@ target_include_directories(mbed-core
         ./include/drivers/internal
 )
 
-target_sources(mbed-core-obj
+target_sources(mbed-core-objects
     PRIVATE
         source/AnalogIn.cpp
         source/AnalogOut.cpp

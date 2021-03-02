@@ -15,17 +15,17 @@ string(REPLACE "_" "-" MBED_TARGET_CONVERTED ${MBED_TARGET_CONVERTED})
 string(PREPEND MBED_TARGET_CONVERTED "mbed-")
 
 # mbed-core - flags for hal/driver/platform and MBED_TARGET
-# mbed-core-obj - only source files
+# mbed-core-objects - only source files
 add_library(mbed-core INTERFACE)
-add_library(mbed-core-obj OBJECT EXCLUDE_FROM_ALL)
-target_link_libraries(mbed-core-obj mbed-core ${MBED_TARGET_CONVERTED})
+add_library(mbed-core-objects OBJECT EXCLUDE_FROM_ALL)
+target_link_libraries(mbed-core-objects mbed-core ${MBED_TARGET_CONVERTED})
 
 # mbed-os - application library
-# mbed-os-obj - core + rtos objects to build all together
+# mbed-os-objects - core + rtos objects to build all together
 add_library(mbed-os INTERFACE)
-add_library(mbed-os-obj OBJECT EXCLUDE_FROM_ALL)
+add_library(mbed-os-objects OBJECT EXCLUDE_FROM_ALL)
 
-target_sources(mbed-os INTERFACE $<TARGET_OBJECTS:mbed-os-obj> $<TARGET_OBJECTS:mbed-rtos-obj>)
+target_sources(mbed-os INTERFACE $<TARGET_OBJECTS:mbed-os-objects> $<TARGET_OBJECTS:mbed-rtos-objects>)
 
 target_link_libraries(mbed-os
     INTERFACE
@@ -35,7 +35,7 @@ target_link_libraries(mbed-os
 
 add_library(mbed-baremetal INTERFACE)
 
-target_sources(mbed-baremetal INTERFACE $<TARGET_OBJECTS:mbed-core-obj>)
+target_sources(mbed-baremetal INTERFACE $<TARGET_OBJECTS:mbed-core-objects>)
 
 target_link_libraries(mbed-baremetal
     INTERFACE
@@ -133,9 +133,9 @@ target_include_directories(mbed-core
 add_library(mbed-device_key INTERFACE)
 
 add_library(mbed-rtos INTERFACE)
-add_library(mbed-rtos-obj OBJECT)
+add_library(mbed-rtos-objects OBJECT)
 
-target_link_libraries(mbed-rtos-obj mbed-rtos mbed-core)
+target_link_libraries(mbed-rtos-objects mbed-rtos mbed-core)
 
 add_subdirectory(cmsis)
 add_subdirectory(drivers)
@@ -155,6 +155,10 @@ add_subdirectory(features EXCLUDE_FROM_ALL)
 add_subdirectory(cmsis/CMSIS_5/CMSIS/RTOS2 EXCLUDE_FROM_ALL)
 add_subdirectory(cmsis/device/rtos EXCLUDE_FROM_ALL)
 
+# Ideally we would have a target library as OBJECT but due to dependencies between core and target we keep
+# target as INTERFACE, know issue with circular deps in object libraries:
+#  https://gitlab.kitware.com/cmake/cmake/-/issues/17905 for details
+#
 # Expose linker option to an application. As we do not directly link to MBED_TARGET_CONVERTED due to built
 # object core library
 target_link_options(mbed-core INTERFACE $<TARGET_PROPERTY:${MBED_TARGET_CONVERTED},INTERFACE_LINK_OPTIONS>)
@@ -162,11 +166,11 @@ target_link_options(mbed-core INTERFACE $<TARGET_PROPERTY:${MBED_TARGET_CONVERTE
 target_include_directories(mbed-core INTERFACE $<TARGET_PROPERTY:${MBED_TARGET_CONVERTED},INTERFACE_INCLUDE_DIRECTORIES>)
 target_compile_definitions(mbed-core INTERFACE $<TARGET_PROPERTY:${MBED_TARGET_CONVERTED},COMPILE_DEFINITIONS>)
 
-# Some of core files require MBED_CONF_RTOS_PRESENT symbol. For baremetal, it's sufficient to link with mbed-core (symbol undefined = RTOS not present). For Mbed OS, this symbol must be defined and set, therefore we copy sources and build them together in mbed-os-obj
-get_property(MBED_CORE_SOURCES TARGET mbed-core-obj PROPERTY SOURCES)
-target_sources(mbed-os-obj PRIVATE ${MBED_CORE_SOURCES})
+# Some of core files require MBED_CONF_RTOS_PRESENT symbol (defined in rtos). For baremetal, it's sufficient to link with mbed-core (symbol undefined = RTOS not present). For Mbed OS, this symbol must be defined and set, therefore we copy sources and build them together in mbed-os-objects
+get_property(MBED_CORE_SOURCES TARGET mbed-core-objects PROPERTY SOURCES)
+target_sources(mbed-os-objects PRIVATE ${MBED_CORE_SOURCES})
 
-target_link_libraries(mbed-os-obj mbed-core mbed-rtos ${MBED_TARGET_CONVERTED})
+target_link_libraries(mbed-os-objects mbed-core mbed-rtos ${MBED_TARGET_CONVERTED})
 
 #
 # Converts output file of `target` to binary file and to Intel HEX file.

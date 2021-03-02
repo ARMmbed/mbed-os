@@ -11,7 +11,7 @@ target_include_directories(mbed-core
         include/hal
 )
 
-target_sources(mbed-core-obj
+target_sources(mbed-core-objects
     PRIVATE
         source/LowPowerTickerWrapper.cpp
         source/mbed_compat.c
