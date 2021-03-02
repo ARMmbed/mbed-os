@@ -25,6 +25,13 @@ target_include_directories(mbed-ep-atlas
         TARGET_EP_ATLAS
 )
 
+target_sources(mbed-ep-atlas
+    INTERFACE
+        TARGET_EP_ATLAS/ONBOARD_TELIT_ME310.cpp
+        TARGET_EP_ATLAS/usb_stdio.cpp
+        TARGET_EP_ATLAS/atlas_init.c
+)
+
 target_include_directories(mbed-nrf52840-dk
     INTERFACE
         TARGET_NRF52840_DK

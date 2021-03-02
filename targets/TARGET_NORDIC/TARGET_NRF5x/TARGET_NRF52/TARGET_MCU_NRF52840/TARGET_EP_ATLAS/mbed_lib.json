@@ -10,12 +10,17 @@
             "help"                 : "Telit ME310C1 AT#PORTCFG Variant value",
             "macro_name"           : "EP_ATLAS_PORT_CONFIGURATION_VARIANT",
             "value"                : 0
+        },
+        "enable-usb-stdio-console": {
+            "help"                 : "Enables using USB Serial for the stdio console. If you use USB in your application, you must disable this feature and implement a composite USB device if you require USB serial output. This feature is disabled by default.",
+            "value"                : false
         }
     },
     "target_overrides": {
         "EP_ATLAS": {
-            "target.network-default-interface-type": "CELLULAR"
-
+            "target.network-default-interface-type": "CELLULAR",
+            "target.mbed_app_start": "0x1000",
+            "target.mbed_app_size": "0xDF000"
         }
 
     }
