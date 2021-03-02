@@ -14,10 +14,14 @@ string(TOLOWER ${MBED_TARGET} MBED_TARGET_CONVERTED)
 string(REPLACE "_" "-" MBED_TARGET_CONVERTED ${MBED_TARGET_CONVERTED})
 string(PREPEND MBED_TARGET_CONVERTED "mbed-")
 
+# mbed-core - flags for hal/driver/platform and MBED_TARGET
+# mbed-core-obj - only source files
 add_library(mbed-core INTERFACE)
 add_library(mbed-core-obj OBJECT EXCLUDE_FROM_ALL)
 target_link_libraries(mbed-core-obj mbed-core ${MBED_TARGET_CONVERTED})
 
+# mbed-os - application library
+# mbed-os-obj - core + rtos objects to build all together
 add_library(mbed-os INTERFACE)
 add_library(mbed-os-obj OBJECT EXCLUDE_FROM_ALL)
 
@@ -158,14 +162,11 @@ target_link_options(mbed-core INTERFACE $<TARGET_PROPERTY:${MBED_TARGET_CONVERTE
 target_include_directories(mbed-core INTERFACE $<TARGET_PROPERTY:${MBED_TARGET_CONVERTED},INTERFACE_INCLUDE_DIRECTORIES>)
 target_compile_definitions(mbed-core INTERFACE $<TARGET_PROPERTY:${MBED_TARGET_CONVERTED},COMPILE_DEFINITIONS>)
 
-# Some of core files require MBED_CONF_RTOS_PRESENT symbol. For baremetal, it's sufficient to link with mbed-core (symbol undefined = RTOS not present). For Mbed OS, this symbol must be defined and set, therefore we copy sources and build them together with this flag
+# Some of core files require MBED_CONF_RTOS_PRESENT symbol. For baremetal, it's sufficient to link with mbed-core (symbol undefined = RTOS not present). For Mbed OS, this symbol must be defined and set, therefore we copy sources and build them together in mbed-os-obj
 get_property(MBED_CORE_SOURCES TARGET mbed-core-obj PROPERTY SOURCES)
 target_sources(mbed-os-obj PRIVATE ${MBED_CORE_SOURCES})
 
 target_link_libraries(mbed-os-obj mbed-core mbed-rtos ${MBED_TARGET_CONVERTED})
-# Expose to an app all core + rtos flags
-target_link_libraries(mbed-os INTERFACE mbed-core mbed-rtos)
-
 
 #
 # Converts output file of `target` to binary file and to Intel HEX file.
