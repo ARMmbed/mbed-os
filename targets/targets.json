@@ -1457,6 +1457,31 @@
         ],
         "device_name": "STM32F103RB"
     },
+    "MCU_STM32F103xE": {
+        "inherits": [
+            "MCU_STM32F1"
+        ],
+        "public": false,
+        "components_add": [
+            "FLASHIAP"
+        ],
+        "extra_labels_add": [
+            "STM32F103xE"
+        ],
+        "macros_add": [
+            "STM32F103xE"
+        ],
+        "device_has_add": [
+            "CAN",
+            "SERIAL_ASYNCH",
+            "FLASH",
+            "CRC",
+            "USBDEVICE",
+            "ANALOGOUT",
+            "SD",
+            "PWM"
+        ]
+    },
     "MCU_STM32F2": {
         "inherits": [
             "MCU_STM32"
