@@ -14,6 +14,16 @@ string(TOLOWER ${MBED_TARGET} MBED_TARGET_CONVERTED)
 string(REPLACE "_" "-" MBED_TARGET_CONVERTED ${MBED_TARGET_CONVERTED})
 string(PREPEND MBED_TARGET_CONVERTED "mbed-")
 
+# The main issue not using OBJECT for core/rtos and target libraries is their circular dependencies. 
+# They were always consider to be part of the Mbed OS as whole. To illustrate, rtos requires some 
+# core (tickers, critical section, etc) and target (MCU capabilities) functionalities. Core declares functionality that
+# target implements (hal <-> target).
+#  Known CMake issue: https://gitlab.kitware.com/cmake/cmake/-/issues/17905 for details
+#
+# We provide the main two libraries for an application: `mbed-os` and `mbed-baremetal`
+# The other libraries below like `mbed-core`, `mbed-rtos` and their `-objects` parts are internal libraries to address the above
+# limitation.
+#
 # mbed-core - flags for hal/driver/platform and MBED_TARGET
 # mbed-core-objects - only source files
 add_library(mbed-core INTERFACE)
@@ -155,10 +165,6 @@ add_subdirectory(features EXCLUDE_FROM_ALL)
 add_subdirectory(cmsis/CMSIS_5/CMSIS/RTOS2 EXCLUDE_FROM_ALL)
 add_subdirectory(cmsis/device/rtos EXCLUDE_FROM_ALL)
 
-# Ideally we would have a target library as OBJECT but due to dependencies between core and target we keep
-# target as INTERFACE, know issue with circular deps in object libraries:
-#  https://gitlab.kitware.com/cmake/cmake/-/issues/17905 for details
-#
 # Expose linker option to an application. As we do not directly link to MBED_TARGET_CONVERTED due to built
 # object core library
 target_link_options(mbed-core INTERFACE $<TARGET_PROPERTY:${MBED_TARGET_CONVERTED},INTERFACE_LINK_OPTIONS>)
