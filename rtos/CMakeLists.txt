@@ -10,7 +10,7 @@ target_include_directories(mbed-core
         ./source
 )
 
-target_sources(mbed-core-obj
+target_sources(mbed-core-objects
     PRIVATE
         source/EventFlags.cpp
         source/Kernel.cpp

@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
-    target_sources(mbed-rtos-obj
+    target_sources(mbed-rtos-objects
         PRIVATE
             TOOLCHAIN_GCC_ARM/mbed_boot_gcc_arm.c
     )
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
-    target_sources(mbed-rtos-obj
+    target_sources(mbed-rtos-objects
         PRIVATE
             TOOLCHAIN_ARM_STD/mbed_boot_arm_std.c
     )
@@ -18,7 +18,7 @@ target_include_directories(mbed-rtos
         include
 )
 
-target_sources(mbed-os-obj
+target_sources(mbed-os-objects
     PRIVATE
         source/mbed_boot.c
         source/mbed_rtos_rtx.c
