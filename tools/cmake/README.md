@@ -133,18 +133,25 @@ This section provides description for all CMake targets within Mbed OS repositor
 
 ### mbed-os and mbed-baremetal libraries
 
-| Target  | Function | User library |
-| ------------- | ------------- | ------------------|
-| mbed-cmsis-cortex-m | CMSIS library for Cortex-M | No |
-| mbed-cmsis-cortex-a | CMSIS library for Cortex-A | No |
-| mbed-core  | Contains flags from Mbed baremetal.  All Mbed OS libraries link to this.  | No |
-| mbed-core-objects  | Builds objects for Mbed baremetal  | No |
-| mbed-rtos | Contains flags that turn Mbed baremetal into Mbed OS | No |
-| mbed-rtos-objects | Builds objects for RTOS | No |
-| mbed-baremetal | Interface library that attaches Mbed baremetal to a target (objects from mbed-core) | Yes |
-| mbed-os | Interface library that attaches Mbed OS to a target (objects from mbed-core and mbed-rtos) | Yes |
-| mbed-os-objects | Build objects for Mbed OS (objects from mbed-core and mbed-rtos) | No |
-| ${MBED_TARGET_CONVERTED} | Contains interface flags and sources that adapt Mbed OS for a target | No |
+An application links to either mbed-os or mbed-baremetal.
+
+| Target  | Function |
+| ------------- | ------------- |
+| mbed-os | Interface library that attaches Mbed OS to a target (objects from mbed-core and mbed-rtos) |
+| mbed-baremetal | Interface library that attaches Mbed baremetal to a target (objects from mbed-core) |
+
+These are internal targets. They are subject to change. An application should not link to any of these.
+
+| Target  | Function |
+| ------------- | ------------- |
+| mbed-cmsis-cortex-m | CMSIS library for Cortex-M |
+| mbed-cmsis-cortex-a | CMSIS library for Cortex-A |
+| mbed-core  | Contains flags from Mbed baremetal.  All Mbed OS libraries link to this.  |
+| mbed-core-objects  | Builds objects for Mbed baremetal  |
+| mbed-rtos | Contains flags that turn Mbed baremetal into Mbed OS |
+| mbed-rtos-objects | Builds objects for RTOS |
+| mbed-os-objects | Build objects for Mbed OS (objects from mbed-core and mbed-rtos) |
+| ${MBED_TARGET_CONVERTED} | Contains interface flags and sources that adapt Mbed OS for a target |
 
 ### Additional Mbed OS libraries
 
