@@ -12,5 +12,3 @@ target_sources(mbed-cmsis-cortex-a
     PRIVATE
         Source/irq_ctrl_gic.c
 )
-
-target_link_libraries(mbed-cmsis-cortex-a)
