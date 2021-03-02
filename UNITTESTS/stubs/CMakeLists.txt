@@ -79,6 +79,7 @@ target_include_directories(mbed-headers-connectivity
         ${MBED_PATH}/connectivity/lorawan/lorastack/mac
         ${MBED_PATH}/connectivity/lorawan/lorastack/phy
         ${MBED_PATH}/connectivity/lorawan
+        ${MBED_PATH}/connectivity/lorawan/system
         ${MBED_PATH}/connectivity/mbedtls
         ${MBED_PATH}/connectivity/mbedtls/include
         ${MBED_PATH}/connectivity/FEATURE_BLE/include
