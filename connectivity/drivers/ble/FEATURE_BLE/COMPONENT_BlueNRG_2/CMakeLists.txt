@@ -1,12 +1,14 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_sources(mbed-ble-bluenrg2
+add_library(mbed-ble-bluenrg_2 INTERFACE)
+
+target_sources(mbed-ble-bluenrg_2
     INTERFACE
         BlueNrg2HCIDriver.cpp
 )
 
-target_link_libraries(mbed-ble-bluenrg2
+target_link_libraries(mbed-ble-bluenrg_2
     INTERFACE
-        mbed-ble
+        mbed-ble mbed-core
 )
