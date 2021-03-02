@@ -137,17 +137,18 @@ This section provides description for all CMake targets within Mbed OS repositor
 | ------------- | ------------- | ------------------|
 | mbed-cmsis-cortex-m | CMSIS library for Cortex-M | No |
 | mbed-cmsis-cortex-a | CMSIS library for Cortex-A | No |
-| mbed-core  | Contains flags from Mbed baremetal.  All Mbed OS modules link to this.  | No |
+| mbed-core  | Contains flags from Mbed baremetal.  All Mbed OS libraries link to this.  | No |
 | mbed-core-obj  | Builds objects for Mbed baremetal  | No |
 | mbed-rtos | Contains flags that turn Mbed baremetal into Mbed OS | No |
 | mbed-rtos-obj | Builds objects for RTOS | No |
 | mbed-baremetal | Interface library that attaches Mbed baremetal to a target (objects from mbed-core) | Yes |
-| mbed-os | Interface library that attaches Mbed OS to a target (objects from mbed-rtos) | Yes |
+| mbed-os | Interface library that attaches Mbed OS to a target (objects from mbed-core and mbed-rtos) | Yes |
+| mbed-os-obj | Build objects for Mbed OS (objects from mbed-core and mbed-rtos) | No |
 | ${MBED_TARGET_CONVERTED} | Contains interface flags and sources that adapt Mbed OS for a target | No |
 
 ### Additional Mbed OS libraries
 
-All these are user libraries.
+An application must explicitely link them using `target_link_libraries()`.
 
 | Target  | Function |
 | ------------- | ------------- |
@@ -160,4 +161,3 @@ All these are user libraries.
 | mbed-netsocket | Netsocket library
 | mbed-lorawan | Lorawan library
 | mbed-wifi | Wifi library
-
