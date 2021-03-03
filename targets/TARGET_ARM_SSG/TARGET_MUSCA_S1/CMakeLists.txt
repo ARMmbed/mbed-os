@@ -50,9 +50,6 @@ target_sources(mbed-arm-musca-s1
 
         Libraries/mt25ql_flash_lib.c
 
-        partition/image_macros_preprocessed_ns.c
-        partition/image_macros_preprocessed_s.c
-
         ${STARTUP_FILE}
 )
 
@@ -60,11 +57,4 @@ target_link_libraries(mbed-arm-musca-s1
     INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/s_veneers.o
         mbed-arm-ssg
-)
-
-add_library(mbed-arm-musca-s1-ns INTERFACE)
-
-target_link_libraries(mbed-arm-musca-s1-ns
-    INTERFACE
-        mbed-arm-musca-s1
 )

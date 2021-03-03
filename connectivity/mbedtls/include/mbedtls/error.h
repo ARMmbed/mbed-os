@@ -4,7 +4,7 @@
  * \brief Error to string translation
  */
 /*
- *  Copyright (C) 2006-2018, ARM Limited, All Rights Reserved
+ *  Copyright The Mbed TLS Contributors
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -18,8 +18,6 @@
  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 #ifndef MBEDTLS_ERROR_H
 #define MBEDTLS_ERROR_H
@@ -101,7 +99,7 @@
  * ECP       4   10 (Started from top)
  * MD        5   5
  * HKDF      5   1 (Started from top)
- * SSL       5   1 (Started from 0x5F00)
+ * SSL       5   2 (Started from 0x5F00)
  * CIPHER    6   8 (Started from 0x6080)
  * SSL       6   24 (Started from top, plus 0x6000)
  * SSL       7   32
@@ -126,6 +124,36 @@ extern "C" {
  * \param buflen    length of the buffer
  */
 void mbedtls_strerror( int errnum, char *buffer, size_t buflen );
+
+/**
+ * \brief Translate the high-level part of an Mbed TLS error code into a string
+ *        representation.
+ *
+ * This function returns a const pointer to an un-modifiable string. The caller
+ * must not try to modify the string. It is intended to be used mostly for
+ * logging purposes.
+ *
+ * \param error_code    error code
+ *
+ * \return The string representation of the error code, or \c NULL if the error
+ *         code is unknown.
+ */
+const char * mbedtls_high_level_strerr( int error_code );
+
+/**
+ * \brief Translate the low-level part of an Mbed TLS error code into a string
+ *        representation.
+ *
+ * This function returns a const pointer to an un-modifiable string. The caller
+ * must not try to modify the string. It is intended to be used mostly for
+ * logging purposes.
+ *
+ * \param error_code    error code
+ *
+ * \return The string representation of the error code, or \c NULL if the error
+ *         code is unknown.
+ */
+const char * mbedtls_low_level_strerr( int error_code );
 
 #ifdef __cplusplus
 }

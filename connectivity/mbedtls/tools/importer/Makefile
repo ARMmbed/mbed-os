@@ -27,17 +27,17 @@
 #
 
 # Set the mbed TLS release to import (this can/should be edited before import)
-MBED_TLS_RELEASE ?= mbedtls-2.22.0
+MBED_TLS_RELEASE ?= mbedtls-2.24.0
 MBED_TLS_REPO_URL ?= git@github.com:ARMmbed/mbedtls.git
 
 # Translate between mbed TLS namespace and mbed namespace
-TARGET_PREFIX:=../
-TARGET_EXPERIMENTAL:=../../FEATURE_EXPERIMENTAL_API/
-TARGET_SRC:=$(TARGET_PREFIX)src
-TARGET_INC:=$(TARGET_PREFIX)inc
+TARGET_PREFIX:=../../
+TARGET_EXPERIMENTAL:=../../../../platform/FEATURE_EXPERIMENTAL_API/
+TARGET_SRC:=$(TARGET_PREFIX)source
+TARGET_INC:=$(TARGET_PREFIX)include
 TARGET_PSA:=$(TARGET_EXPERIMENTAL)FEATURE_PSA/TARGET_MBED_PSA_SRV/mbedtls
-TARGET_PSA_INC:=$(TARGET_PSA)/inc
-TARGET_TESTS:=$(TARGET_PREFIX)TESTS
+TARGET_PSA_INC:=$(TARGET_EXPERIMENTAL)FEATURE_PSA/TARGET_MBED_PSA_SRV/inc
+TARGET_TESTS:=$(TARGET_PREFIX)tests/TESTS
 
 # mbed TLS source directory - hidden from mbed via TARGET_IGNORE
 MBED_TLS_DIR:=TARGET_IGNORE/mbedtls
@@ -55,23 +55,24 @@ rsync:
 	#
 	# Copying mbed TLS into mbed library...
 	rm -rf $(TARGET_SRC)
-	rsync -a --exclude='*.txt' $(MBED_TLS_DIR)/library/ $(TARGET_SRC)
+	rsync -a --include='*.[hc]' --exclude='*' $(MBED_TLS_DIR)/library/ $(TARGET_SRC)
 	#
 	# Copying mbed TLS headers to mbed includes...
 	rm -rf $(TARGET_INC)
 	mkdir -p $(TARGET_INC)
-	mkdir -p $(TARGET_PSA_INC)
 	rsync -a --delete $(MBED_TLS_API) $(TARGET_INC)
-	rsync -a --delete --exclude='crypto_struct.h' $(CRYPTO_API) $(TARGET_PSA_INC)/
+	#
+	# Export common.h into the include path, so PSA Crypto can find it
+	mv $(TARGET_SRC)/common.h $(TARGET_INC)/mbedtls/
 	#
 	# Copying licenses
 	cp $(MBED_TLS_DIR)/LICENSE $(TARGET_PREFIX)
 	#
-	# Copying Mbed Crypto into Mbed OS...
+	# Copying PSA for single-core targets...
+	rm $(TARGET_PSA_INC)/psa/crypto_*.h
+	rsync -a --exclude='crypto_struct.h' $(CRYPTO_API) $(TARGET_PSA_INC)/
 	rm -rf $(TARGET_PSA)
-
 	mkdir -p $(TARGET_PSA)
-
 	rsync -a --delete $(CRYPTO_API)/crypto_struct.h $(TARGET_PSA)/
 	rsync -a --delete $(MBED_TLS_DIR)/library/psa_*.c $(TARGET_PSA)/
 	rsync -a --delete $(MBED_TLS_DIR)/library/psa_*.h $(TARGET_PSA)/

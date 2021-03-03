@@ -1,7 +1,7 @@
 /*
  *  Public Key abstraction layer
  *
- *  Copyright (C) 2006-2020, ARM Limited, All Rights Reserved
+ *  Copyright The Mbed TLS Contributors
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,15 +15,9 @@
  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "mbedtls/config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "common.h"
 
 #if defined(MBEDTLS_PK_C)
 #include "mbedtls/pk.h"
@@ -602,7 +596,7 @@ int mbedtls_pk_wrap_as_opaque( mbedtls_pk_context *pk,
     const mbedtls_ecp_keypair *ec;
     unsigned char d[MBEDTLS_ECP_MAX_BYTES];
     size_t d_len;
-    psa_ecc_curve_t curve_id;
+    psa_ecc_family_t curve_id;
     psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
     psa_key_type_t key_type;
     size_t bits;
@@ -617,16 +611,12 @@ int mbedtls_pk_wrap_as_opaque( mbedtls_pk_context *pk,
     if( ( ret = mbedtls_mpi_write_binary( &ec->d, d, d_len ) ) != 0 )
         return( ret );
 
-    /* prepare the key attributes */
-#if TARGET_TFM
-    curve_id = mbedtls_ecp_curve_info_from_grp_id( ec->grp.id )->tls_id;
-    key_type = mbedtls_psa_parse_tls_ecc_group ( curve_id, &bits );
-#else
     curve_id = mbedtls_ecc_group_to_psa( ec->grp.id, &bits );
     key_type = PSA_KEY_TYPE_ECC_KEY_PAIR( curve_id );
-#endif
-    psa_set_key_bits( &attributes, bits );
+
+    /* prepare the key attributes */
     psa_set_key_type( &attributes, key_type );
+    psa_set_key_bits( &attributes, bits );
     psa_set_key_usage_flags( &attributes, PSA_KEY_USAGE_SIGN_HASH );
     psa_set_key_algorithm( &attributes, PSA_ALG_ECDSA(hash_alg) );
 

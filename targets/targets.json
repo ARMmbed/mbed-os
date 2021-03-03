@@ -144,7 +144,7 @@
         ],
         "extra_labels": [
             "TFM",
-            "TFM_V1_1",
+            "TFM_LATEST",
             "TFM_V8M"
         ],
         "device_has": [
@@ -4815,18 +4815,18 @@
             "CMSIS_NVIC_VIRTUAL",
             "LPTICKER_DELAY_TICKS=3",
             "MBED_MPU_CUSTOM",
-            "BL2"
+            "BL2",
+            "MCUBOOT_IMAGE_NUMBER=2"
         ],
         "extra_labels_add": [
             "ARM_SSG",
-            "MUSCA_B1",
-            "MUSCA_B1_NS"
+            "MUSCA_B1"
         ],
         "post_binary_hook": {
             "function": "ArmMuscaB1Code.binary_hook"
         },
         "secure_image_filename": "tfm_s.bin",
-        "tfm_target_name": "MUSCA_B1",
+        "tfm_target_name": "musca_b1",
         "tfm_bootloader_supported": true,
         "tfm_default_toolchain": "ARMCLANG",
         "tfm_supported_toolchains": [
@@ -4834,11 +4834,6 @@
             "GNUARM"
         ],
         "tfm_delivery_dir": "TARGET_ARM_SSG/TARGET_MUSCA_B1"
-    },
-    "ARM_MUSCA_B1_NS": {
-        "inherits": [
-            "ARM_MUSCA_B1"
-        ]
     },
     "ARM_MUSCA_S1": {
         "inherits": [
@@ -4872,18 +4867,18 @@
             "CMSIS_NVIC_VIRTUAL",
             "LPTICKER_DELAY_TICKS=3",
             "MBED_MPU_CUSTOM",
-            "BL2"
+            "BL2",
+            "MCUBOOT_IMAGE_NUMBER=2"
         ],
         "extra_labels_add": [
             "ARM_SSG",
-            "MUSCA_S1",
-            "MUSCA_S1_NS"
+            "MUSCA_S1"
         ],
         "post_binary_hook": {
             "function": "ArmMuscaS1Code.binary_hook"
         },
         "secure_image_filename": "tfm_s.bin",
-        "tfm_target_name": "MUSCA_S1",
+        "tfm_target_name": "musca_s1",
         "tfm_bootloader_supported": true,
         "tfm_default_toolchain": "ARMCLANG",
         "tfm_supported_toolchains": [
@@ -4893,11 +4888,6 @@
         "tfm_delivery_dir": "TARGET_ARM_SSG/TARGET_MUSCA_S1",
         "detect_code": [
             "5009"
-        ]
-    },
-    "ARM_MUSCA_S1_NS": {
-        "inherits": [
-            "ARM_MUSCA_S1"
         ]
     },
     "RZ_A1XX": {
