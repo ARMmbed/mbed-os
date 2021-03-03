@@ -177,6 +177,12 @@ function(mbed_generate_bin_hex target)
         # through the post-build process once.
         file(REMOVE ${CMAKE_CURRENT_BINARY_DIR}/${target}.elf)
 
+        # Pass the application's name to the Mbed target's post build operation
+        set_target_properties(mbed-post-build-bin-${MBED_TARGET}
+            PROPERTIES
+                application ${target}
+        )
+
         # The artefacts must be created before they can be further manipulated
         add_dependencies(mbed-post-build-bin-${MBED_TARGET} ${target})
 
