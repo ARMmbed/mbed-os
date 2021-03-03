@@ -94,13 +94,9 @@ Install prerequisites suggested in the previous section and follow the below ste
 
   For example:  
   kvstore greentea test is dependent on `mbed-storage` and `mbed-storage-filesystemstore` library however you don't need to pass it via  `MBED_TEST_LINK_LIBRARIES`  as it is already target linked in greentea test CMakeLists.txt, at the same time some libraries and test cases are private to the application and if you want to use it with kvstore test then pass it with `MBED_TEST_LINK_LIBRARIES` command-line argument.
-* Run the following command for the test suite to be recognised as a valid Mbed application
-  ```
-  touch mbed-os.lib && ln -s /path/to/mbed-os mbed-os
-  ```
 * Run the following command for the configuration CMake module to be generated
   ```
-  mbedtools configure -t <TOOLCHAIN> -m <MBED_TARGET>
+  mbedtools configure -t <TOOLCHAIN> -m <MBED_TARGET> --mbed-os-path /path/to/mbed-os
   ```
 * Build the test binary with the full profile
   ```
