@@ -81,3 +81,5 @@ mbed_post_build_psoc6_sign_image(
     "16"
     ${MBED_PATH}/targets/TARGET_Cypress/TARGET_PSOC6/TARGET_CYTFM_064B0S2_4343W/COMPONENT_TFM_S_FW/tfm_s.hex
 )
+
+mbed_add_component_libraries(mbed-ble mbed-ble-cyw43xxx-4343w mbed-ble-cyw43xxx mbed-ble-cyw43xxx-psoc6)

@@ -76,3 +76,6 @@ target_compile_definitions(mbed-cy8cproto-062s3-4343w
         "CY8C6245LQI_S3D72"
         "CYBSP_WIFI_CAPABLE"
 )
+
+mbed_add_component_libraries(mbed-ble mbed-ble-cyw43xxx-4343w mbed-ble-cyw43xxx mbed-ble-cyw43xxx-psoc6)
+
