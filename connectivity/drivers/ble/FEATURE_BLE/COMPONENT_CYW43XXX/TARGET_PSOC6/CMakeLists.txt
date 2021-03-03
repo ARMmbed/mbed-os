@@ -4,6 +4,6 @@
 add_library(mbed-ble-cyw43xxx-psoc6 INTERFACE)
 
 target_sources(mbed-ble-cyw43xxx-psoc6
-    PRIVATE
+    INTERFACE
         cy_bt_cordio_cfg.cpp
 )
