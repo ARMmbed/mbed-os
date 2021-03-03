@@ -4777,7 +4777,7 @@
         "copy_method": "mps2",
         "reset_method": "reboot.txt",
         "overrides": {
-            "target.network-default-interface-type": "ETHERNET"
+            "network-default-interface-type": "ETHERNET"
         },
         "detect_code": [
             "5004"
