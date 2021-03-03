@@ -6545,8 +6545,7 @@
         "public": false,
         "supported_toolchains": [
             "GCC_ARM",
-            "ARM",
-            "IAR"
+            "ARM"
         ],
         "OUTPUT_EXT": "elf",
         "device_has": [
@@ -6578,6 +6577,17 @@
         ],
         "overrides": {
             "network-default-interface-type": "ETHERNET"
+        },
+        "supported_application_profiles" : ["full", "bare-metal"],
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
         }
     },
     "FVP_MPS2_M0": {
