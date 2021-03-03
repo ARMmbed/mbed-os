@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include(${MBED_PATH}/tools/cmake/components.cmake)
+
 add_library(mbed-b-l4s5i-iot01a INTERFACE)
 
 target_sources(mbed-b-l4s5i-iot01a
