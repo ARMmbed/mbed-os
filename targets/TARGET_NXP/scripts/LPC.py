@@ -24,7 +24,6 @@ causes the checksum of the first 8 table entries to be 0. The boot loader code c
 the first 8 locations in sector 0 of the flash. If the result is 0, then execution control is
 transferred to the user code.
 """
-import pathlib
 import os
 import sys
 from struct import unpack, pack
@@ -53,13 +52,10 @@ def is_patched(bin_path):
 
 
 if __name__ == "__main__":
-    artefacts_location = sys.argv[1]
-
-    try:
-        binary = list(pathlib.Path(artefacts_location).glob("*.bin"))[0]
-    except IndexError:
+    binary = sys.argv[1]
+    if not os.path.isfile(binary):
         raise ArtefactsError(
-            f"Could not find binary file in {artefacts_location}"
+            f"Could not find binary file {binary}"
         )
 
     print("LPC Patch: %s" % os.path.split(binary)[1])
