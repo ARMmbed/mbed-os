@@ -116,6 +116,11 @@ nsapi_error_t NetworkInterface::add_dns_server(const SocketAddress &address, con
     return get_stack()->add_dns_server(address, interface_name);
 }
 
+nsapi_error_t NetworkInterface::get_dns_server_by_index(int index, nsapi_addr_t *address, const char *interface_name)
+{
+    return get_stack()->get_dns_server_by_index(index, address, interface_name);
+}
+
 void NetworkInterface::attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
     // Dummy, that needs to be overwritten when inherited, but cannot be removed
@@ -188,4 +193,3 @@ nsapi_error_t NetworkInterface::set_blocking(bool blocking)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
-

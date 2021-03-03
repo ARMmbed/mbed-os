@@ -61,6 +61,15 @@ nsapi_size_or_error_t nsapi_dns_query_multiple(nsapi_stack_t *stack, const char 
  */
 nsapi_error_t nsapi_dns_add_server(nsapi_addr_t addr, const char *interface_name);
 
+/** Get domain name server address by index from the list of servers to query.
+ *
+ *  @param index  Index of the DNS server, starts from zero.
+ *  @param address  DNS server host address.
+ *  @param interface_name  Network interface name
+ *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
+ */
+nsapi_error_t nsapi_dns_get_server(int index, nsapi_addr_t *addr, const char *interface_name);
+
 
 #else
 
@@ -242,6 +251,15 @@ void nsapi_dns_reset();
  *  @return         0 on success, negative error code on failure
  */
 extern "C" nsapi_error_t nsapi_dns_add_server(nsapi_addr_t addr, const char *interface_name);
+
+/** Get domain name server address by index from the list of servers to query.
+ *
+ *  @param index  Index of the DNS server, starts from zero.
+ *  @param address  DNS server host address.
+ *  @param interface_name  Network interface name
+ *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
+ */
+extern "C" nsapi_error_t nsapi_dns_get_server(int index, nsapi_addr_t *addr, const char *interface_name);
 
 /** Add a domain name server to list of servers to query
  *

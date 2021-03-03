@@ -147,6 +147,15 @@ extern "C" nsapi_error_t nsapi_dns_add_server(nsapi_addr_t addr, const char *int
     return NSAPI_ERROR_OK;
 }
 
+extern "C" nsapi_error_t nsapi_dns_get_server(int index, nsapi_addr_t *addr, const char *interface_name)
+{
+    if (index >= DNS_SERVERS_SIZE) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+    memcpy(addr, &dns_servers[index], sizeof(nsapi_addr_t));
+    return NSAPI_ERROR_OK;
+}
+
 
 // DNS packet parsing
 static void dns_append_byte(uint8_t **p, uint8_t byte)

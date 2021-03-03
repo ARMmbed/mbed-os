@@ -99,6 +99,15 @@ public:
      *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t add_dns_server(const SocketAddress &address, const char *interface_name = NULL) = 0;
+
+    /** Get domain name server address by index from the list of servers to query.
+     *
+     *  @param index  Index of the DNS server, starts from zero.
+     *  @param address  DNS server host address.
+     *  @param interface_name  Network interface name
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
+     */
+    virtual nsapi_error_t get_dns_server_by_index(int index, nsapi_addr_t *address, const char *interface_name);
 };
 
 #endif
