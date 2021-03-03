@@ -1,6 +1,8 @@
 # Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include(${MBED_PATH}/tools/cmake/components.cmake)
+
 add_library(mbed-cy8ckit-062s2-43012-bsp-design-modus INTERFACE)
 target_include_directories(mbed-cy8ckit-062s2-43012-bsp-design-modus
     INTERFACE

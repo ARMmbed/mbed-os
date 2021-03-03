@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 include(${MBED_PATH}/targets/TARGET_Cypress/scripts/mbed_set_post_build_cypress.cmake)
+include(${MBED_PATH}/tools/cmake/components.cmake)
 
 add_library(mbed-cysbsyskit-01-bsp-design-modus INTERFACE)
 target_include_directories(mbed-cysbsyskit-01-bsp-design-modus

@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include(${MBED_PATH}/tools/cmake/components.cmake)
+
 add_library(mbed-disco-l562qe INTERFACE)
 
 target_sources(mbed-disco-l562qe
