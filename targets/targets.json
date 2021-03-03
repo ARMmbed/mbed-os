@@ -5358,16 +5358,27 @@
         ],
         "supported_toolchains": [
             "GCC_ARM",
-            "ARM",
-            "uARM",
-            "IAR"
+            "ARM"
         ],
         "release_versions": [
             "5"
         ],
         "device_name": "EFM32GG990F1024",
         "public": false,
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
+        },
+        "supported_application_profiles": [
+            "full", "bare-metal"
+        ]
     },
     "EFM32GG_STK3700": {
         "inherits": [
@@ -5463,16 +5474,27 @@
         ],
         "supported_toolchains": [
             "GCC_ARM",
-            "ARM",
-            "uARM",
-            "IAR"
+            "ARM"
         ],
         "release_versions": [
             "5"
         ],
         "device_name": "EFR32MG12P332F1024GL125",
         "public": false,
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
+        },
+        "supported_application_profiles": [
+            "full", "bare-metal"
+        ]
     },
     "TB_SENSE_12": {
         "inherits": [
@@ -5563,16 +5585,27 @@
         ],
         "supported_toolchains": [
             "GCC_ARM",
-            "ARM",
-            "uARM",
-            "IAR"
+            "ARM"
         ],
         "release_versions": [
             "5"
         ],
         "device_name": "EFM32GG11B820F2048GL192",
         "public": false,
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
+        },
+        "supported_application_profiles": [
+            "full", "bare-metal"
+        ]
     },
     "EFM32GG11_STK3701": {
         "inherits": [

@@ -11,6 +11,14 @@
   #define MBED_APP_SIZE 0x00100000
 #endif
 
+#if !defined(MBED_RAM_START)
+  #define MBED_RAM_START 0x20000000
+#endif
+
+#if !defined(MBED_RAM_SIZE)
+#define MBED_RAM_SIZE 0x20000
+#endif
+
 #if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
 #  if defined(MBED_BOOT_STACK_SIZE)
 #    define MBED_CONF_TARGET_BOOT_STACK_SIZE MBED_BOOT_STACK_SIZE
@@ -19,7 +27,12 @@
 #  endif
 #endif
 
+#define Vector_Size 0xE0
 #define Stack_Size MBED_CONF_TARGET_BOOT_STACK_SIZE
+
+#define MBED_IRAM1_SIZE   (MBED_RAM_SIZE - Vector_Size - Stack_Size)
+#define MBED_IRAM1_START  (MBED_RAM_START + Vector_Size)
+#define RAM_FIXED_SIZE    (Vector_Size + Stack_Size)
 
 LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
   ER_IROM1 MBED_APP_START MBED_APP_SIZE  {  ; load address = execution address
@@ -27,11 +40,12 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
    *(InRoot$$Sections)
    .ANY (+RO)
   }
-  RW_IRAM1 0x200000E0 0x0001FF20-Stack_Size  {  ; RW data
+  RW_IRAM1 MBED_IRAM1_START MBED_IRAM1_SIZE {  ; RW data
    .ANY (+RW +ZI)
   }
-  
-  ARM_LIB_STACK (0x200000E0+0x0001FF20) EMPTY -Stack_Size { ; stack
+  ARM_LIB_HEAP AlignExpr(+0, 16)  EMPTY (MBED_RAM_SIZE - RAM_FIXED_SIZE - (AlignExpr(ImageLimit(RW_IRAM1), 16) - MBED_IRAM1_START)) { ; heap growing up
+  }
+  ARM_LIB_STACK (MBED_RAM_START + MBED_RAM_SIZE) EMPTY -Stack_Size { ; stack
   }
 }
 
