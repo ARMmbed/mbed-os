@@ -326,6 +326,56 @@ Sometimes, pin is explicitly removed by default to avoid issues (but you can unc
 //  {PB_4,       UART_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)}, // Connected to same instance as STDIO 
 ```
 
+### Clock selection
+
+#### System clock
+
+System Core Clock is based on an high-speed clock.
+
+- the HSI is the high-speed internal (MCU) clock with low accuracy
+- the HSE is the high-speed external clock with higher accuray
+
+For each target, a default choice has been made in the "clock_source" config settings in the targets.json file.
+
+For main targets, it is something like:
+
+```
+    "clock_source": {
+        "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
+```
+
+Meaning that:
+- PLL with the external HSE clock is first configured
+- if it fails, PLL with HSI is then configured
+
+
+#### Low power clock
+
+Low power ticker and RTC are based on an low-speed clock.
+
+- the LSI is the low-speed internal clock with low accuracy
+- the LSE is the low-speed external clock connected to 32.768 kHz quartz crystal
+
+In targets.json file, it is supposed that a LSE is provided in the board
+
+```
+"config": {
+    "lse_available": {
+        "value": "1"
+```
+
+You can change this in you local mbed_app.json:
+```
+{
+    "target_overrides":
+    {
+        "XXXX": {
+            "target.lse_available": "0"
+        }
+    }
+}
+```
+
 
 ### WiFi configuration
 
