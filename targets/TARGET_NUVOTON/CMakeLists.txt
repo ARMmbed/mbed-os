@@ -25,3 +25,4 @@ target_sources(mbed-nuvoton
 )
 
 target_link_libraries(mbed-nuvoton INTERFACE mbed-cmsis-cortex-m)
+
