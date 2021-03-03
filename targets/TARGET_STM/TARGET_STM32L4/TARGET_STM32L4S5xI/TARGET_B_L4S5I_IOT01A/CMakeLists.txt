@@ -14,3 +14,5 @@ target_include_directories(mbed-b-l4s5i-iot01a
 )
 
 target_link_libraries(mbed-b-l4s5i-iot01a INTERFACE mbed-stm32l4s5xi)
+
+mbed_add_component_libraries(mbed-ble mbed-ble-bluenrg_ms)

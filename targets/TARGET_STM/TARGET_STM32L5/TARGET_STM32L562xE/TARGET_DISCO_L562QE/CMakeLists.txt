@@ -14,3 +14,5 @@ target_include_directories(mbed-disco-l562qe
 )
 
 target_link_libraries(mbed-disco-l562qe INTERFACE mbed-stm32l562xe)
+
+mbed_add_component_libraries(mbed-ble mbed-ble-bluenrg_ms)
