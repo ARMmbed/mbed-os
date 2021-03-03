@@ -1,16 +1,16 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-ble-cy8c63xx INTEFACE)
+add_library(mbed-ble-cy8c63xx INTERFACE)
 
 target_include_directories(mbed-ble-cy8c63xx
-    INTEFACE
+    INTERFACE
         .
         drivers
 )
 
 target_sources(mbed-ble-cy8c63xx
-    INTEFACE
+    INTERFACE
         Psoc6BLE.cpp
         drivers/IPCPipeTransportDriver.cpp
 )
