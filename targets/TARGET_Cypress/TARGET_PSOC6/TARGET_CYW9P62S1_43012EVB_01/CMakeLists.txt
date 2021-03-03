@@ -79,3 +79,5 @@ target_compile_definitions(mbed-cyw9p62s1-43012evb-01
         "CYHAL_UDB_SDIO"
         "CYBSP_WIFI_CAPABLE"
 )
+
+mbed_add_component_libraries(mbed-ble mbed-ble-cyw43xxx-43438 mbed-ble-cyw43xxx mbed-ble-cyw43xxx-psoc6)

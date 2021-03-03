@@ -88,3 +88,6 @@ mbed_post_build_psoc6_sign_image(
     "16"
     "${MBED_PATH}/targets/TARGET_Cypress/TARGET_PSOC6/TARGET_CY8CKIT064B0S2_4343W/device/COMPONENT_CM4/hex/psoc6_02_cm0p_secure.hex"
 )
+
+mbed_add_component_libraries(mbed-ble mbed-ble-cyw43xxx-4343w mbed-ble-cyw43xxx mbed-ble-cyw43xxx-psoc6)
+

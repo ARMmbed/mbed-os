@@ -60,3 +60,4 @@ target_compile_definitions(mbed-cysbsyskit-01
 )
 
 mbed_post_build_psoc6_merge_hex("CYSBSYSKIT_01")
+mbed_add_component_libraries(mbed-ble mbed-ble-cyw43xxx-43012 mbed-ble-cyw43xxx mbed-ble-cyw43xxx-psoc6)
