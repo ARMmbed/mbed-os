@@ -171,6 +171,12 @@ function(mbed_generate_bin_hex target)
     )
 
     if(TARGET mbed-post-build-bin-${MBED_TARGET})
+        # Remove the .elf file to force regenerate the application binaries
+        # (including .bin and .hex). This ensures that the post-build script runs
+        # on a raw application instead of a previous build that already went
+        # through the post-build process once.
+        file(REMOVE ${CMAKE_CURRENT_BINARY_DIR}/${target}.elf)
+
         # The artefacts must be created before they can be further manipulated
         add_dependencies(mbed-post-build-bin-${MBED_TARGET} ${target})
 
