@@ -1,12 +1,14 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-cellular
+add_library(mbed-cellular-generic-at3gpp INTERFACE)
+
+target_include_directories(mbed-cellular-generic-at3gpp
     INTERFACE
         .
 )
 
-target_sources(mbed-cellular
+target_sources(mbed-cellular-generic-at3gpp
     INTERFACE
         GENERIC_AT3GPP.cpp
 )
