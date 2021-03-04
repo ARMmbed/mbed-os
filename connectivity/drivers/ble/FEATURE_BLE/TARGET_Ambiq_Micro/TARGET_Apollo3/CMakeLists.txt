@@ -13,3 +13,5 @@ target_sources(mbed-ble-apollo3
         AP3CordioHCIDriver.cpp
         AP3CordioHCITransportDriver.cpp
 )
+
+target_link_libraries(mbed-ble PRIVATE mbed-ble-apollo3)

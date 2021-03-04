@@ -14,3 +14,5 @@ target_sources(mbed-ble-cy8c63xx
         Psoc6BLE.cpp
         drivers/IPCPipeTransportDriver.cpp
 )
+
+target_link_libraries(mbed-ble PRIVATE mbed-ble-cy8c63xx)
