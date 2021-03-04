@@ -22,4 +22,4 @@ target_compile_definitions(mbed-cellular
         MBED_CONF_CELLULAR_PRESENT=1
 )
 
-target_link_libraries(mbed-cellular mbed-netsocket mbed-core)
+target_link_libraries(mbed-cellular mbed-netsocket mbed-core mbed-rtos)
