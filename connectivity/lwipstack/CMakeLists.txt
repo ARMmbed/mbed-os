@@ -1,6 +1,11 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# Interface library due to containing multiple source files that are related to netsockets
+# The refactor must be done to split the dependencies between netsocket and this library
+# Only netsockets link to it
+add_library(mbed-lwipstack INTERFACE)
+
 target_include_directories(mbed-lwipstack
     INTERFACE
         .

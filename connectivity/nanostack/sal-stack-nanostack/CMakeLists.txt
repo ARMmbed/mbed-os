@@ -27,7 +27,7 @@ target_include_directories(mbed-nanostack-sal_stack
         ./source
 )
 
-target_link_libraries(mbed-nanostack
+target_link_libraries(mbed-nanostack-sal_stack
     INTERFACE
         mbed-nanostack-coap_service
 )
