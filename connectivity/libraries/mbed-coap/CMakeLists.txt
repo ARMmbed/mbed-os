@@ -1,7 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-coap OBJECT)
+add_library(mbed-coap STATIC)
 
 target_include_directories(mbed-coap
     PUBLIC
@@ -22,3 +22,5 @@ target_compile_definitions(mbed-coap
     PUBLIC
         MBED_CONF_COAP_PRESENT=1
 )
+
+target_link_libraries(mbed-coap mbed-core mbed-nanostack-libservice)
