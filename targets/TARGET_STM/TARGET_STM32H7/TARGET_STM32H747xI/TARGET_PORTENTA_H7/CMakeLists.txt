@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 add_library(mbed-portenta-h7-m4 INTERFACE)
@@ -33,3 +33,9 @@ target_include_directories(mbed-portenta-h7-m7
 )
 
 target_link_libraries(mbed-portenta-h7-m7 INTERFACE mbed-stm32h747xi-cm7)
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    ${MBED_STORAGE_BLOCKDEVICE_LIBRARIES}
+    mbed-storage-qspif
+    CACHE INTERNAL ""
+)

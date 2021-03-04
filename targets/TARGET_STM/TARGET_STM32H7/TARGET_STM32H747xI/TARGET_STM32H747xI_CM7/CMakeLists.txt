@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
@@ -24,3 +24,9 @@ target_include_directories(mbed-stm32h747xi-cm7
 mbed_set_linker_script(mbed-stm32h747xi-cm7 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
 target_link_libraries(mbed-stm32h747xi-cm7 INTERFACE mbed-stm32h747xi)
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    ${MBED_STORAGE_BLOCKDEVICE_LIBRARIES}
+    mbed-storage-qspif
+    CACHE INTERNAL ""
+)

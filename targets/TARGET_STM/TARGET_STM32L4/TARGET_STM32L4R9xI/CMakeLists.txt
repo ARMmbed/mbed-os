@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 add_subdirectory(TARGET_DISCO_L4R9I EXCLUDE_FROM_ALL)
@@ -27,3 +27,8 @@ target_include_directories(mbed-stm32l4r9xi
 mbed_set_linker_script(mbed-stm32l4r9xi ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
 target_link_libraries(mbed-stm32l4r9xi INTERFACE mbed-stm32l4)
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    mbed-storage-flashiap
+    CACHE INTERNAL ""
+)

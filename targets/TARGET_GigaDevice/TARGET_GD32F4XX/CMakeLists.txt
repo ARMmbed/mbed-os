@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 add_library(mbed-gd32-f450zi INTERFACE)
@@ -89,3 +89,8 @@ mbed_set_linker_script(mbed-gd32f4xx ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
 target_link_libraries(mbed-gd32f4xx INTERFACE mbed-gigadevice)
 target_link_libraries(mbed-gd32-f450zi INTERFACE mbed-gd32f4xx)
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    mbed-storage-flashiap
+    CACHE INTERNAL ""
+)

@@ -93,3 +93,8 @@ target_include_directories(mbed-numaker-iot-m263a
 )
 
 target_link_libraries(mbed-numaker-iot-m263a INTERFACE mbed-m261)
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    mbed-storage-flashiap
+    CACHE INTERNAL ""
+)

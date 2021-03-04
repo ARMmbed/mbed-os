@@ -96,3 +96,8 @@ target_link_libraries(mbed-apollo3
         ${CMAKE_CURRENT_SOURCE_DIR}/sdk/CMSIS/ARM/Lib/ARM/libarm_cortexM4lf_math.a
         mbed-ambiq-micro
 )
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    mbed-storage-flashiap
+    CACHE INTERNAL ""
+)

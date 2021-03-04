@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 add_library(mbed-uhuru-raven INTERFACE)
@@ -16,3 +16,9 @@ target_include_directories(mbed-uhuru-raven
 )
 
 target_link_libraries(mbed-uhuru-raven INTERFACE mbed-stm32f767xi)
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    ${MBED_STORAGE_BLOCKDEVICE_LIBRARIES}
+    mbed-storage-spif
+    CACHE INTERNAL ""
+)

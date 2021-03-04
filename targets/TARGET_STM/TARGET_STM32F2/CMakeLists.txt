@@ -27,3 +27,8 @@ target_include_directories(mbed-stm32f2
 )
 
 target_link_libraries(mbed-stm32f2 INTERFACE mbed-stm mbed-stm32f2cube-fw)
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    mbed-storage-flashiap
+    CACHE INTERNAL ""
+)

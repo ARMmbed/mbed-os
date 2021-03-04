@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 if(${MBED_TOOLCHAIN} STREQUAL "ARM")
@@ -41,3 +41,9 @@ target_sources(mbed-rz-a1h
 mbed_set_linker_script(mbed-rz-a1h ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
 target_link_libraries(mbed-rz-a1h INTERFACE mbed-rz-a1xx)
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    mbed-storage-flashiap
+    mbed-storage-sd
+    CACHE INTERNAL ""
+)

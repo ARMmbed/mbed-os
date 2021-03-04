@@ -79,3 +79,9 @@ target_compile_definitions(mbed-cyw9p62s1-43012evb-01
         "CYHAL_UDB_SDIO"
         "CYBSP_WIFI_CAPABLE"
 )
+
+# Overwrite MBED_STORAGE_BLOCKDEVICE_LIBRARIES to remove mbed-storage-qspif
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    mbed-storage-flashiap
+    CACHE INTERNAL ""
+)

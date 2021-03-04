@@ -28,3 +28,8 @@ target_sources(mbed-stm32l475xg
 mbed_set_linker_script(mbed-stm32l475xg ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
 target_link_libraries(mbed-stm32l475xg INTERFACE mbed-stm32l4)
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    mbed-storage-flashiap
+    CACHE INTERNAL ""
+)

@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 add_library(mbed-disco-l562qe INTERFACE)
@@ -14,3 +14,8 @@ target_include_directories(mbed-disco-l562qe
 )
 
 target_link_libraries(mbed-disco-l562qe INTERFACE mbed-stm32l562xe)
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    mbed-storage-ospif
+    CACHE INTERNAL ""
+)

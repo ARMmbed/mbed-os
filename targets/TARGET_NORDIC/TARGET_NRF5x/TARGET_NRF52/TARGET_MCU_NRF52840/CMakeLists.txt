@@ -1,15 +1,13 @@
 # Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-arduino-nano33ble INTERFACE)
+
 add_library(mbed-ep-agora INTERFACE)
-add_library(mbed-ep-atlas INTERFACE)
 add_library(mbed-nrf52840-dk INTERFACE)
 
-target_include_directories(mbed-arduino-nano33ble
-    INTERFACE
-        TARGET_ARDUINO_NANO33BLE
-)
+add_subdirectory(TARGET_ARDUINO_NANO33BLE EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_EP_ATLAS EXCLUDE_FROM_ALL)
+
 
 target_include_directories(mbed-ep-agora
     INTERFACE
@@ -18,18 +16,6 @@ target_include_directories(mbed-ep-agora
 target_sources(mbed-ep-agora
     INTERFACE
         TARGET_EP_AGORA/ONBOARD_TELIT_ME910.cpp
-)
-
-target_include_directories(mbed-ep-atlas
-    INTERFACE
-        TARGET_EP_ATLAS
-)
-
-target_sources(mbed-ep-atlas
-    INTERFACE
-        TARGET_EP_ATLAS/ONBOARD_TELIT_ME310.cpp
-        TARGET_EP_ATLAS/usb_stdio.cpp
-        TARGET_EP_ATLAS/atlas_init.c
 )
 
 target_include_directories(mbed-nrf52840-dk
@@ -68,7 +54,11 @@ target_sources(mbed-mcu-nrf52840
 mbed_set_linker_script(mbed-mcu-nrf52840 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
 target_link_libraries(mbed-mcu-nrf52840 INTERFACE mbed-nrf52 mbed-sdk-15-0)
-target_link_libraries(mbed-arduino-nano33ble INTERFACE mbed-mcu-nrf52840)
 target_link_libraries(mbed-ep-agora INTERFACE mbed-mcu-nrf52840)
-target_link_libraries(mbed-ep-atlas INTERFACE mbed-mcu-nrf52840)
 target_link_libraries(mbed-nrf52840-dk INTERFACE mbed-mcu-nrf52840)
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    mbed-storage-flashiap
+    mbed-storage-qspif
+    CACHE INTERNAL ""
+)

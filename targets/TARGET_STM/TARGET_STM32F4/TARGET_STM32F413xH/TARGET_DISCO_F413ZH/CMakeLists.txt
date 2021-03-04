@@ -15,3 +15,9 @@ target_include_directories(mbed-disco-f413zh
 )
 
 target_link_libraries(mbed-disco-f413zh INTERFACE mbed-stm32f413xh)
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    ${MBED_STORAGE_BLOCKDEVICE_LIBRARIES}
+    mbed-storage-qspif
+    CACHE INTERNAL ""
+)

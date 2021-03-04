@@ -28,3 +28,8 @@ target_include_directories(mbed-stm32f303xe
 mbed_set_linker_script(mbed-stm32f303xe ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
 target_link_libraries(mbed-stm32f303xe INTERFACE mbed-stm32f3)
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    mbed-storage-flashiap
+    CACHE INTERNAL ""
+)

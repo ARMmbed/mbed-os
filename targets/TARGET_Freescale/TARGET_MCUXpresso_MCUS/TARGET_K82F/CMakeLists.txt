@@ -93,3 +93,9 @@ target_sources(mbed-k82f
 mbed_set_linker_script(mbed-k82f ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
 target_link_libraries(mbed-k82f INTERFACE mbed-mcuxpresso-mcus mbed-frdm-k82f)
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    mbed-storage-flashiap
+    mbed-storage-spif
+    CACHE INTERNAL ""
+)

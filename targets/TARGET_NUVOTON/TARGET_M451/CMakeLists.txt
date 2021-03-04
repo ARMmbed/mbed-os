@@ -76,3 +76,8 @@ mbed_set_linker_script(mbed-m451 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 add_library(mbed-numaker-pfm-m453 INTERFACE)
 
 target_link_libraries(mbed-numaker-pfm-m453 INTERFACE mbed-m451 mbed-flash-cmsis-algo)
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    mbed-storage-flashiap
+    CACHE INTERNAL ""
+)

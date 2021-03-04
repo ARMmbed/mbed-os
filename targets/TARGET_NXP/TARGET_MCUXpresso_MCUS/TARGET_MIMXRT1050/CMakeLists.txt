@@ -106,3 +106,8 @@ target_link_libraries(mbed-mimxrt1050-evk
 )
 
 mbed_set_linker_script(mbed-mimxrt1050-evk ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    mbed-storage-flashiap
+    CACHE INTERNAL ""
+)

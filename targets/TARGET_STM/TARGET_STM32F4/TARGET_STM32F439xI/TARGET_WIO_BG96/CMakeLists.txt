@@ -16,3 +16,9 @@ target_include_directories(mbed-wio-bg96
 )
 
 target_link_libraries(mbed-wio-bg96 INTERFACE mbed-stm32f439xi)
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    ${MBED_STORAGE_BLOCKDEVICE_LIBRARIES}
+    mbed-storage-sd
+    CACHE INTERNAL ""
+)

@@ -88,3 +88,9 @@ mbed_post_build_psoc6_sign_image(
     "16"
     "${MBED_PATH}/targets/TARGET_Cypress/TARGET_PSOC6/TARGET_CY8CKIT064B0S2_4343W/device/COMPONENT_CM4/hex/psoc6_02_cm0p_secure.hex"
 )
+
+# Overwrite MBED_STORAGE_BLOCKDEVICE_LIBRARIES to remove mbed-storage-qspif
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    mbed-storage-flashiap
+    CACHE INTERNAL ""
+)

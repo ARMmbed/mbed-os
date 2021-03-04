@@ -95,4 +95,10 @@ target_link_libraries(mbed-lpc546xx
 )
 
 mbed_post_build_lpc_patch_vtable("LPC546XX")
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    mbed-storage-qspif
+    CACHE INTERNAL ""
+)
+
 mbed_post_build_lpc_patch_vtable("FF_LPC546XX")

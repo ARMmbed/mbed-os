@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 add_library(mbed-max32630fthr INTERFACE)
@@ -14,3 +14,8 @@ target_sources(mbed-max32630fthr
 )
 
 target_link_libraries(mbed-max32630fthr INTERFACE mbed-max32630)
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    mbed-storage-sd
+    CACHE INTERNAL ""
+)

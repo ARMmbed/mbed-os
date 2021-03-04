@@ -31,3 +31,8 @@ add_library(mbed-k22f INTERFACE)
 mbed_set_linker_script(mbed-k22f ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
 target_link_libraries(mbed-k22f INTERFACE mbed-mcu-k22f512)
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    mbed-storage-flashiap
+    CACHE INTERNAL ""
+)

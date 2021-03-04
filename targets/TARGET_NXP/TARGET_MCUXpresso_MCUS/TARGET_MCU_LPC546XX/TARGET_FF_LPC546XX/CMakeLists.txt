@@ -16,3 +16,8 @@ target_sources(mbed-ff-lpc546xx
 )
 
 target_link_libraries(mbed-ff-lpc546xx INTERFACE mbed-mcu-lpc546xx)
+
+# Overwrite MBED_STORAGE_BLOCKDEVICE_LIBRARIES to remove mbed-storage-qspif
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    CACHE INTERNAL ""
+)

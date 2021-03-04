@@ -107,3 +107,8 @@ target_include_directories(mbed-numaker-pfm-m487
 )
 
 target_link_libraries(mbed-numaker-pfm-m487 INTERFACE mbed-m480)
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    mbed-storage-flashiap
+    CACHE INTERNAL ""
+)

@@ -18,3 +18,9 @@ target_sources(mbed-sdt64b
 )
 
 target_link_libraries(mbed-sdt64b INTERFACE mbed-mcu-k64f)
+
+# Overwrite MBED_STORAGE_BLOCKDEVICE_LIBRARIES to remove mbed-storage-sd
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    mbed-storage-flashiap
+    CACHE INTERNAL ""
+)

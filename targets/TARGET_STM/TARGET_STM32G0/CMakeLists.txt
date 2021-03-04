@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 add_subdirectory(TARGET_STM32G030xx EXCLUDE_FROM_ALL)
@@ -28,3 +28,8 @@ target_include_directories(mbed-stm32g0
 )
 
 target_link_libraries(mbed-stm32g0 INTERFACE mbed-stm mbed-stm32g0cube-fw)
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    mbed-storage-flashiap
+    CACHE INTERNAL ""
+)

@@ -75,3 +75,8 @@ target_link_libraries(mbed-kl43z INTERFACE mbed-mcuxpresso-mcus)
 mbed_set_linker_script(mbed-kl43z ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
 target_link_libraries(mbed-kl43z INTERFACE mbed-frdm-kl43z)
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    mbed-storage-flashiap
+    CACHE INTERNAL ""
+)

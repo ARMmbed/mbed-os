@@ -1,41 +1,22 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("DATAFLASH" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(COMPONENT_DATAFLASH)
-endif()
+add_subdirectory(COMPONENT_DATAFLASH EXCLUDE_FROM_ALL)
+add_subdirectory(COMPONENT_FLASHIAP EXCLUDE_FROM_ALL)
+add_subdirectory(COMPONENT_I2CEE EXCLUDE_FROM_ALL)
+add_subdirectory(COMPONENT_QSPIF EXCLUDE_FROM_ALL)
+add_subdirectory(COMPONENT_OSPIF EXCLUDE_FROM_ALL)
+add_subdirectory(COMPONENT_SD EXCLUDE_FROM_ALL)
+add_subdirectory(COMPONENT_SPIF EXCLUDE_FROM_ALL)
 
-if("FLASHIAP" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(COMPONENT_FLASHIAP)
-endif()
-
-if("I2CEE" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(COMPONENT_I2CEE)
-endif()
-
-if("QSPIF" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(COMPONENT_QSPIF)
-endif()
-
-if("OSPIF" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(COMPONENT_OSPIF)
-endif()
-
-if("SD" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(COMPONENT_SD)
-endif()
-
-if("SPIF" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(COMPONENT_SPIF)
-endif()
-
+add_library(mbed-storage-blockdevice INTERFACE)
 
 target_include_directories(mbed-storage-blockdevice
     INTERFACE
         .
-        ./include
-        ./include/blockdevice
-        ./include/blockdevice/internal
+        include
+        include/blockdevice
+        include/blockdevice/internal
 )
 
 target_sources(mbed-storage-blockdevice

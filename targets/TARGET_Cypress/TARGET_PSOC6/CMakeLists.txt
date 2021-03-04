@@ -286,3 +286,9 @@ target_link_libraries(mbed-psoc6 INTERFACE mbed-cmsis-cortex-m)
 if("CY_RTOS_AWARE" IN_LIST MBED_CONFIG_DEFINITIONS)
     target_link_libraries(mbed-psoc6 INTERFACE mbed-cy-rtos mbed-cy-rtx)
 endif()
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    mbed-storage-flashiap
+    mbed-storage-qspif
+    CACHE INTERNAL ""
+)

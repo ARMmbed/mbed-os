@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 add_subdirectory(TARGET_FVP_MPS2_M0 EXCLUDE_FROM_ALL)
@@ -38,3 +38,8 @@ target_sources(mbed-fvp-mps2
 )
 
 target_link_libraries(mbed-fvp-mps2 INTERFACE mbed-arm-fm)
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    mbed-storage-flashiap
+    CACHE INTERNAL ""
+)

@@ -16,3 +16,9 @@ target_include_directories(mbed-mts-dragonfly-f413rh
 )
 
 target_link_libraries(mbed-mts-dragonfly-f413rh INTERFACE mbed-stm32f413xh)
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    ${MBED_STORAGE_BLOCKDEVICE_LIBRARIES}
+    mbed-storage-spif
+    CACHE INTERNAL ""
+)

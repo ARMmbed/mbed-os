@@ -82,3 +82,9 @@ mbed_set_linker_script(mbed-mcu-k64f ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 add_library(mbed-k64f INTERFACE)
 
 target_link_libraries(mbed-k64f INTERFACE mbed-mcu-k64f mbed-frdm-k64f)
+
+set(MBED_STORAGE_BLOCKDEVICE_LIBRARIES
+    mbed-storage-sd
+    mbed-storage-flashiap
+    CACHE INTERNAL ""
+)
