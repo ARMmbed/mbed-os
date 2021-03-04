@@ -11,3 +11,8 @@ add_subdirectory(QUECTEL)
 add_subdirectory(RiotMicro)
 add_subdirectory(TELIT)
 add_subdirectory(UBLOX)
+
+target_include_directories(mbed-cellular
+    INTERFACE
+        .
+)
