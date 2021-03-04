@@ -9,3 +9,5 @@ target_sources(mbed-ble-cyw43xxx-43012
 )
 
 target_link_libraries(mbed-ble-cyw43xxx-43012 INTERFACE mbed-ble-cyw43xxx)
+
+target_link_libraries(mbed-ble PRIVATE mbed-ble-cyw43xxx-43012)

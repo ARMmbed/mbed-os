@@ -27,3 +27,5 @@ target_link_libraries(mbed-ble-nrf5x-cordio
         mbed-ble-cordio_ll
         mbed-mbedtls-cryptocell310
 )
+
+target_link_libraries(mbed-ble PRIVATE mbed-ble-nrf5x-cordio)
