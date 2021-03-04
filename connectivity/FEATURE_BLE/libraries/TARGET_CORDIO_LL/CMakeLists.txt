@@ -321,7 +321,4 @@ target_sources(mbed-ble-cordio_ll
         stack_adaptation/custom_chci_tr.cpp
 )
 
-target_link_libraries(mbed-ble-cordio_ll
-    INTERFACE
-        mbed-ble-cordio
-)
+target_link_libraries(mbed-ble PRIVATE mbed-ble-cordio_ll)

@@ -1,9 +1,11 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-ble-ambiq-micro INTERFACE)
+if("Apollo3" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_Apollo3)
+endif()
 
-add_subdirectory(TARGET_Apollo3 EXCLUDE_FROM_ALL)
+add_library(mbed-ble-ambiq-micro INTERFACE)
 
 target_include_directories(mbed-ble-ambiq-micro
     INTERFACE
