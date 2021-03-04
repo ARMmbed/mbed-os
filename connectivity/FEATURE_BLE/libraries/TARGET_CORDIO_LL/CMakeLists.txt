@@ -1,7 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-ble-cordio_ll
+target_include_directories(mbed-ble-cordio-ll
     INTERFACE
         .
         ./stack
@@ -22,7 +22,7 @@ target_include_directories(mbed-ble-cordio_ll
         ./stack_adaptation
 )
 
-target_sources(mbed-ble-cordio_ll
+target_sources(mbed-ble-cordio-ll
     INTERFACE
         stack/controller/sources/ble/bb/bb_ble_adv_master.c
         stack/controller/sources/ble/bb/bb_ble_adv_master_ae.c
@@ -45,13 +45,13 @@ target_sources(mbed-ble-cordio_ll
         stack/controller/sources/ble/bb/bb_ble_whitelist.c
 )
 
-target_sources(mbed-ble-cordio_ll
+target_sources(mbed-ble-cordio-ll
     INTERFACE
         stack/controller/sources/ble/init/init.c
         stack/controller/sources/ble/init/init_ctr.c
 )
 
-target_sources(mbed-ble-cordio_ll
+target_sources(mbed-ble-cordio-ll
     INTERFACE
         stack/controller/sources/ble/lctr/lctr_act_adv_master.c
         stack/controller/sources/ble/lctr/lctr_act_adv_master_ae.c
@@ -145,7 +145,7 @@ target_sources(mbed-ble-cordio_ll
         stack/controller/sources/ble/lctr/lctr_sm_llcp_slave_phy.c
 )
 
-target_sources(mbed-ble-cordio_ll
+target_sources(mbed-ble-cordio-ll
     INTERFACE
         stack/controller/sources/ble/lhci/lhci_cmd.c
         stack/controller/sources/ble/lhci/lhci_cmd_adv_master.c
@@ -224,7 +224,7 @@ target_sources(mbed-ble-cordio_ll
         stack/controller/sources/ble/lhci/lhci_main_iso.c
 )
 
-target_sources(mbed-ble-cordio_ll
+target_sources(mbed-ble-cordio-ll
     INTERFACE
         stack/controller/sources/ble/ll/ll_init.c
         stack/controller/sources/ble/ll/ll_init_adv_master.c
@@ -275,7 +275,7 @@ target_sources(mbed-ble-cordio_ll
         stack/controller/sources/ble/ll/ll_math.c
 )
 
-target_sources(mbed-ble-cordio_ll
+target_sources(mbed-ble-cordio-ll
     INTERFACE
         stack/controller/sources/ble/lmgr/lmgr_events.c
         stack/controller/sources/ble/lmgr/lmgr_main.c
@@ -290,14 +290,14 @@ target_sources(mbed-ble-cordio_ll
         stack/controller/sources/ble/lmgr/lmgr_main_slave.c
 )
 
-target_sources(mbed-ble-cordio_ll
+target_sources(mbed-ble-cordio-ll
     INTERFACE
         stack/controller/sources/ble/sch/sch_ble.c
         stack/controller/sources/ble/sch/sch_rm.c
         stack/controller/sources/ble/sch/sch_tm.c
 )
 
-target_sources(mbed-ble-cordio_ll
+target_sources(mbed-ble-cordio-ll
     INTERFACE
         stack/controller/sources/common/bb/bb_main.c
 
@@ -307,7 +307,7 @@ target_sources(mbed-ble-cordio_ll
         stack/controller/sources/common/sch/sch_main.c
 )
 
-target_sources(mbed-ble-cordio_ll
+target_sources(mbed-ble-cordio-ll
     INTERFACE
         stack/thirdparty/nordic-bsp/components/boards/boards.c
 
@@ -316,9 +316,9 @@ target_sources(mbed-ble-cordio_ll
         stack/thirdparty/uecc/uECC_ll.c
 )
 
-target_sources(mbed-ble-cordio_ll
+target_sources(mbed-ble-cordio-ll
     INTERFACE
         stack_adaptation/custom_chci_tr.cpp
 )
 
-target_link_libraries(mbed-ble PRIVATE mbed-ble-cordio_ll)
+target_link_libraries(mbed-ble PRIVATE mbed-ble-cordio-ll)
