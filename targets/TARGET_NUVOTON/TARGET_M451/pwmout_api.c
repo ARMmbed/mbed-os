@@ -195,7 +195,7 @@ static void pwmout_config(pwmout_t *obj)
     uint32_t chn = NU_MODSUBINDEX(obj->pwm);
     // NOTE: Support period < 1s
     //PWM_ConfigOutputChannel(pwm_base, chn, 1000 * 1000 / obj->period_us, obj->pulsewidth_us * 100 / obj->period_us);
-    PWM_ConfigOutputChannel2(pwm_base, chn, 1000 * 1000, obj->pulsewidth_us * 100 / obj->period_us, obj->period_us);
+    PWM_ConfigOutputChannel2(pwm_base, chn, 1000 * 1000, obj->pulsewidth_us * 10000 / obj->period_us, obj->period_us);
 }
 
 const PinMap *pwmout_pinmap()

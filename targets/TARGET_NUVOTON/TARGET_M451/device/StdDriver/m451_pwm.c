@@ -97,7 +97,7 @@ uint32_t PWM_ConfigCaptureChannel(PWM_T *pwm, uint32_t u32ChannelNum, uint32_t u
  *                - PWM1 : PWM Group 1
  * @param[in] u32ChannelNum PWM channel number. Valid values are between 0~5
  * @param[in] u32Frequency Target generator frequency
- * @param[in] u32DutyCycle Target generator duty cycle percentage. Valid range are between 0 ~ 100. 10 means 10%, 20 means 20%...
+ * @param[in] u32DutyCycle Target generator duty cycle percentage. Valid range are between 0 ~ 10000. 1000 means 10%, 2000 means 20%...
  * @return Nearest frequency clock in nano second
  * @note Since every two channels, (0 & 1), (2 & 3), shares a prescaler. Call this API to configure PWM frequency may affect
  *       existing frequency of other channel.
@@ -115,7 +115,7 @@ uint32_t PWM_ConfigOutputChannel (PWM_T *pwm,
  * @param[in] pwm The base address of PWM module
  * @param[in] u32ChannelNum PWM channel number. Valid values are between 0~5
  * @param[in] u32Frequency Target generator frequency = u32Frequency / u32Frequency2
- * @param[in] u32DutyCycle Target generator duty cycle percentage. Valid range are between 0 ~ 100. 10 means 10%, 20 means 20%...
+ * @param[in] u32DutyCycle Target generator duty cycle percentage. Valid range are between 0 ~ 10000. 1000 means 10%, 2000 means 20%...
  * @param[in] u32Frequency2 Target generator frequency = u32Frequency / u32Frequency2
  * @return Nearest frequency clock in nano second
  * @note Since every two channels, (0 & 1), (2 & 3), (4 & 5), shares a prescaler. Call this API to configure PWM frequency may affect
@@ -178,7 +178,7 @@ uint32_t PWM_ConfigOutputChannel2(PWM_T *pwm,
     PWM_SET_CNR(pwm, u32ChannelNum, --u16CNR);
     if(u32DutyCycle)
     {
-        PWM_SET_CMR(pwm, u32ChannelNum, u32DutyCycle * (u16CNR + 1) / 100 - 1);
+        PWM_SET_CMR(pwm, u32ChannelNum, u32DutyCycle * (u16CNR + 1) / 10000 - 1);
         (pwm)->WGCTL0 &= ~((PWM_WGCTL0_PRDPCTL0_Msk | PWM_WGCTL0_ZPCTL0_Msk) << (u32ChannelNum * 2));
         (pwm)->WGCTL0 |= (PWM_OUTPUT_LOW << (u32ChannelNum * 2 + PWM_WGCTL0_PRDPCTL0_Pos));
         (pwm)->WGCTL1 &= ~((PWM_WGCTL1_CMPDCTL0_Msk | PWM_WGCTL1_CMPUCTL0_Msk) << (u32ChannelNum * 2));

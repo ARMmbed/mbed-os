@@ -195,10 +195,10 @@ static void pwmout_config(pwmout_t *obj, int start)
 
     // NOTE: Support period < 1s
     // NOTE: ARM mbed CI test fails due to first PWM pulse error. Workaround by:
-    //       1. Inverse duty cycle (100 - duty)
+    //       1. Inverse duty cycle (10000 - duty)
     //       2. Inverse PWM output polarity
     //       This trick is here to pass ARM mbed CI test. First PWM pulse error still remains.
-    PWM_ConfigOutputChannel2(pwm_base, chn, 1000 * 1000, 100 - obj->pulsewidth_us * 100 / obj->period_us, obj->period_us);
+    PWM_ConfigOutputChannel2(pwm_base, chn, 1000 * 1000, 10000 - obj->pulsewidth_us * 10000 / obj->period_us, obj->period_us);
     pwm_base->POLCTL |= 1 << (PWM_POLCTL_PINV0_Pos + chn);
 
     if (start) {
