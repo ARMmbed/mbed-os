@@ -14,7 +14,7 @@ add_subdirectory(UBLOX)
 
 # All drivers here are part of mbed-cellular library by default
 # Backward compatiblity with mbed-cli 1
-target_link_libraries(mbed-cellular 
+target_link_libraries(mbed-cellular PRIVATE
     mbed-cellular-alt1250-ppp
     mbed-cellular-gemalt-cinterion
     mbed-cellular-generic-at3gpp
