@@ -1,18 +1,17 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("M480" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_M480)
-elseif("NUC472" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_NUC472)
-endif()
+add_library(mbed-emac-nuvoton INTERFACE)
 
-target_include_directories(mbed-emac
+add_subdirectory(TARGET_M480 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_NUC472 EXCLUDE_FROM_ALL)
+
+target_include_directories(mbed-emac-nuvoton
     INTERFACE
         .
 )
 
-target_sources(mbed-emac
+target_sources(mbed-emac-nuvoton
     INTERFACE
         numaker_emac.cpp
 )

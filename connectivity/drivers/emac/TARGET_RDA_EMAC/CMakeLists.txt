@@ -1,14 +1,16 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_library(mbed-emac-rda INTERFACE)
+
 add_subdirectory(lwip-wifi)
 
-target_include_directories(mbed-emac
+target_include_directories(mbed-emac-rda
     INTERFACE
         .
 )
 
-target_sources(mbed-emac
+target_sources(mbed-emac-rda
     INTERFACE
         RdaWiFiInterface.cpp
         rda5981x_emac.cpp

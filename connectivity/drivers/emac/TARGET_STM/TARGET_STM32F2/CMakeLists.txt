@@ -1,16 +1,18 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("NUCLEO_F207ZG" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_NUCLEO_F207ZG)
-endif()
+add_library(mbed-emac-stm32f2 INTERFACE)
 
-target_include_directories(mbed-emac
+add_subdirectory(TARGET_NUCLEO_F207ZG EXCLUDE_FROM_ALL)
+
+target_include_directories(mbed-emac-stm32f2
     INTERFACE
         .
 )
 
-target_sources(mbed-emac
+target_sources(mbed-emac-stm32f2
     INTERFACE
         stm32f2_eth_conf.c
 )
+
+target_link_libraries(mbed-emac-stm32f2 INTERFACE mbed-emac-stm)
