@@ -1,18 +1,17 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("K64F" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_K64F)
-elseif("K66F" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_K66F)
-endif()
+add_library(mbed-emac-freescale INTERFACE)
 
-target_include_directories(mbed-emac
+add_subdirectory(TARGET_K64F EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_K66F EXCLUDE_FROM_ALL)
+
+target_include_directories(mbed-emac-freescale
     INTERFACE
         .
 )
 
-target_sources(mbed-emac
+target_sources(mbed-emac-freescale
     INTERFACE
         kinetis_emac.cpp
 )
