@@ -2,21 +2,19 @@
 # SPDX-License-Identifier: Apache-2.0
 
 add_library(mbed-802.15.4-rf INTERFACE)
-
 add_library(mbed-lorawan INTERFACE)
 add_library(mbed-nfc INTERFACE)
 add_library(mbed-ppp INTERFACE)
 add_library(mbed-wifi INTERFACE)
-
-add_subdirectory(FEATURE_BLE)
-add_subdirectory(cellular)
-add_subdirectory(libraries)
-add_subdirectory(lorawan)
-add_subdirectory(lwipstack)
-add_subdirectory(mbedtls)
-add_subdirectory(nanostack)
-add_subdirectory(netsocket)
-add_subdirectory(nfc)
+add_subdirectory(FEATURE_BLE EXCLUDE_FROM_ALL)
+add_subdirectory(cellular EXCLUDE_FROM_ALL)
+add_subdirectory(libraries EXCLUDE_FROM_ALL)
+add_subdirectory(lorawan EXCLUDE_FROM_ALL)
+add_subdirectory(lwipstack  EXCLUDE_FROM_ALL)
+add_subdirectory(mbedtls EXCLUDE_FROM_ALL)
+add_subdirectory(nanostack EXCLUDE_FROM_ALL)
+add_subdirectory(netsocket EXCLUDE_FROM_ALL)
+add_subdirectory(nfc EXCLUDE_FROM_ALL)
 
 # Drivers to be the last due to dependencies between stacks and drivers
 add_subdirectory(drivers)
