@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 include(${MBED_PATH}/targets/TARGET_Cypress/scripts/mbed_set_post_build_cypress.cmake)
-include(${MBED_PATH}/tools/cmake/components.cmake)
 
 add_library(mbed-cysbsyskit-01-bsp-design-modus INTERFACE)
 target_include_directories(mbed-cysbsyskit-01-bsp-design-modus
@@ -61,4 +60,4 @@ target_compile_definitions(mbed-cysbsyskit-01
 )
 
 mbed_post_build_psoc6_merge_hex("CYSBSYSKIT_01")
-mbed_add_component_libraries(mbed-ble mbed-ble-cyw43xxx-43012 mbed-ble-cyw43xxx mbed-ble-cyw43xxx-psoc6)
+set(MBED_BLE_EXTRA_LIBRARIES ${MBED_BLE_EXTRA_LIBRARIES} mbed-ble-cyw43xxx-43012 mbed-ble-cyw43xxx-psoc6 CACHE INTERNAL "")
