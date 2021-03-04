@@ -4,7 +4,7 @@
 add_library(mbed-802.15.4-rf INTERFACE)
 add_library(mbed-lorawan INTERFACE)
 add_library(mbed-nfc INTERFACE)
-add_library(mbed-ppp INTERFACE)
+
 add_library(mbed-wifi INTERFACE)
 add_subdirectory(FEATURE_BLE EXCLUDE_FROM_ALL)
 add_subdirectory(cellular EXCLUDE_FROM_ALL)
