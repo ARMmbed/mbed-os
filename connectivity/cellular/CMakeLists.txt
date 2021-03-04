@@ -24,27 +24,33 @@ target_compile_definitions(mbed-cellular
 
 # All drivers here are part of mbed-cellular library by default
 # Backward compatiblity with mbed-cli 1
-target_link_libraries(mbed-cellular PRIVATE
-    mbed-netsocket
-    mbed-core
-    mbed-rtos
-    mbed-events
+target_link_libraries(mbed-cellular
+    PRIVATE
+        mbed-events
 
-    mbed-cellular-alt1250-ppp
-    mbed-cellular-gemalt-cinterion
-    mbed-cellular-generic-at3gpp
-    mbed-cellular-multitech-dragonfly_nano
-    mbed-cellular-quectel-bc95
-    mbed-cellular-quectel-bg96
-    mbed-cellular-quectel-ec2x
-    mbed-cellular-quectel-m26
-    mbed-cellular-quectel-ug96
-    mbed-cellular-riotmicro-at
-    mbed-cellular-telit-he910
-    mbed-cellular-telit-me310
-    mbed-cellular-telit-me910
-    mbed-cellular-ublox-ppp
-    mbed-cellular-ublox-n2xx
-    mbed-cellular-ublox-at
+        mbed-core
+        mbed-rtos
+        mbed-randlib
 
+        mbed-cellular-alt1250-ppp
+        mbed-cellular-gemalt-cinterion
+        mbed-cellular-generic-at3gpp
+        mbed-cellular-multitech-dragonfly_nano
+        mbed-cellular-quectel-bc95
+        mbed-cellular-quectel-bg96
+        mbed-cellular-quectel-ec2x
+        mbed-cellular-quectel-m26
+        mbed-cellular-quectel-ug96
+        mbed-cellular-riotmicro-at
+        mbed-cellular-telit-he910
+        mbed-cellular-telit-me310
+        mbed-cellular-telit-me910
+        mbed-cellular-ublox-ppp
+        mbed-cellular-ublox-n2xx
+        mbed-cellular-ublox-at
 )
+
+# Get common headers from netsockets, cellular requires only declarations
+# TODO: if we link to netsocket, we get entire tree of dependencies that are very hard to
+# get rid of. The huge refactor is required for nanostack and netsockets
+target_include_directories(mbed-cellular PUBLIC $<TARGET_PROPERTY:mbed-netsocket,INCLUDE_DIRECTORIES>)
