@@ -1,6 +1,8 @@
 # Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include(${MBED_PATH}/tools/cmake/components.cmake)
+
 add_library(mbed-arduino-nano33ble INTERFACE)
 add_library(mbed-ep-agora INTERFACE)
 add_library(mbed-ep-atlas INTERFACE)
@@ -72,3 +74,6 @@ target_link_libraries(mbed-arduino-nano33ble INTERFACE mbed-mcu-nrf52840)
 target_link_libraries(mbed-ep-agora INTERFACE mbed-mcu-nrf52840)
 target_link_libraries(mbed-ep-atlas INTERFACE mbed-mcu-nrf52840)
 target_link_libraries(mbed-nrf52840-dk INTERFACE mbed-mcu-nrf52840)
+
+mbed_add_component_libraries(mbed-ble mbed-ble-nrf5x-cordio mbed-ble-cordio_ll)
+
