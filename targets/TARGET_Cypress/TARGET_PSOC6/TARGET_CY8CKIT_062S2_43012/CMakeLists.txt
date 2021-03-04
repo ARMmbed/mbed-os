@@ -75,5 +75,3 @@ target_compile_definitions(mbed-cy8ckit-062s2-43012
         "CY8C624ABZI_D44"
         "CYBSP_WIFI_CAPABLE"
 )
-
-set(MBED_BLE_EXTRA_LIBRARIES ${MBED_BLE_EXTRA_LIBRARIES} mbed-ble-cyw43xxx-43012 mbed-ble-cyw43xxx-psoc6 CACHE INTERNAL "")

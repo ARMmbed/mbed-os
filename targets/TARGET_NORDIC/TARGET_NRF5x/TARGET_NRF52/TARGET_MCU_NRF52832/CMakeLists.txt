@@ -46,5 +46,3 @@ mbed_set_linker_script(mbed-mcu-nrf52832 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FI
 target_link_libraries(mbed-mcu-nrf52832 INTERFACE mbed-nrf52 mbed-sdk-15-0)
 target_link_libraries(mbed-nrf52-dk INTERFACE mbed-mcu-nrf52832)
 target_link_libraries(mbed-sdt52832b INTERFACE mbed-mcu-nrf52832)
-
-set(MBED_BLE_EXTRA_LIBRARIES ${MBED_BLE_EXTRA_LIBRARIES} mbed-ble-nrf5x-cordio mbed-ble-cordio_ll CACHE INTERNAL "")

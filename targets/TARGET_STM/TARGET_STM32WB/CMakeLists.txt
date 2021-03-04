@@ -24,5 +24,3 @@ target_include_directories(mbed-stm32wb
 )
 
 target_link_libraries(mbed-stm32wb INTERFACE mbed-stm mbed-stm32wbcube-fw)
-
-set(MBED_BLE_EXTRA_LIBRARIES ${MBED_BLE_EXTRA_LIBRARIES} mbed-ble-stm32wb CACHE INTERNAL "")

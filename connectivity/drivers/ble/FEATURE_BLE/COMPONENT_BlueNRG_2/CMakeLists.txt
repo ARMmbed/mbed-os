@@ -7,3 +7,5 @@ target_sources(mbed-ble-bluenrg-2
     INTERFACE
         BlueNrg2HCIDriver.cpp
 )
+
+target_link_libraries(mbed-ble PRIVATE mbed-ble-bluenrg-2)
