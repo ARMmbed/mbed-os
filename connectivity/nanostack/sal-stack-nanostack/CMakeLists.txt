@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_library(mbed-nanostack-sal-stack INTERFACE)
+
 add_subdirectory(source/6LoWPAN)
 add_subdirectory(source/BorderRouter)
 add_subdirectory(source/Common_Protocols)
@@ -19,7 +21,7 @@ add_subdirectory(source/ipv6_stack)
 add_subdirectory(source/libDHCPv6)
 add_subdirectory(source/libNET)
 
-target_include_directories(mbed-nanostack-sal_stack
+target_include_directories(mbed-nanostack-sal-stack
     INTERFACE
         .
         ./nanostack
@@ -27,7 +29,7 @@ target_include_directories(mbed-nanostack-sal_stack
         ./source
 )
 
-target_link_libraries(mbed-nanostack-sal_stack
+target_link_libraries(mbed-nanostack-sal-stack
     INTERFACE
         mbed-nanostack-coap_service
         mbed-mbedtls

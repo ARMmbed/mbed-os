@@ -2,11 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 add_library(mbed-nanostack OBJECT)
-add_library(mbed-nanostack-coap_service INTERFACE)
-add_library(mbed-nanostack-mbed_mesh_api INTERFACE)
-add_library(mbed-nanostack-hal_mbed_cmsis_rtos INTERFACE)
-add_library(mbed-nanostack-sal_stack INTERFACE)
-add_library(mbed-nanostack-sal_stack-event_loop INTERFACE)
 
 add_subdirectory(coap-service)
 add_subdirectory(mbed-mesh-api)
@@ -36,9 +31,9 @@ target_link_libraries(mbed-nanostack
         mbed-rtos
         mbed-core
         mbed-randlib
-        mbed-nanostack-mbed_mesh_api
-        mbed-nanostack-sal_stack-event_loop
-        mbed-nanostack-sal_stack
-        mbed-nanostack-hal_mbed_cmsis_rtos
+        mbed-nanostack-mbed-mesh-api
+        mbed-nanostack-sal-stack-event-loop
+        mbed-nanostack-sal-stack
+        mbed-nanostack-hal-mbed-cmsis-rtos
         mbed-nanostack-libservice
 )
