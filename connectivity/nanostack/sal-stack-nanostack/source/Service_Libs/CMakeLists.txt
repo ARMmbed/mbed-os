@@ -1,7 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-nanostack-sal_stack
+target_include_directories(mbed-nanostack-sal-stack
     INTERFACE
         .
         ./Neighbor_cache
@@ -35,7 +35,7 @@ target_include_directories(mbed-nanostack-sal_stack
         ./whiteboard
 )
 
-target_sources(mbed-nanostack-sal_stack
+target_sources(mbed-nanostack-sal-stack
     INTERFACE
         CCM_lib/ccm_security.c
 

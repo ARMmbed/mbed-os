@@ -1,7 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-nanostack-sal_stack
+target_include_directories(mbed-nanostack-sal-stack
     INTERFACE
         .
         ./Common
@@ -18,7 +18,7 @@ target_include_directories(mbed-nanostack-sal_stack
         ./protocols/tls_sec_prot
 )
 
-target_sources(mbed-nanostack-sal_stack
+target_sources(mbed-nanostack-sal-stack
     INTERFACE
         Common/security_lib.c
 
