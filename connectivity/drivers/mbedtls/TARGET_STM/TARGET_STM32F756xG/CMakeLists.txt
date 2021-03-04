@@ -1,7 +1,11 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-mbedtls
+add_library(mbed-mbedtls-stm32f756xg INTERFACE)
+
+target_include_directories(mbed-mbedtls-stm32f756xg
     INTERFACE
         .
 )
+
+target_link_libraries(mbed-mbedtls-stm32f756xg INTERFACE mbed-tls-stm)

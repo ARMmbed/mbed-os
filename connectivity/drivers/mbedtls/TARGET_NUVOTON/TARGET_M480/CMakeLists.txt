@@ -1,7 +1,9 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-mbedtls
+add_library(mbed-mbedtls-m480 INTERFACE)
+
+target_include_directories(mbed-mbedtls-m480
     INTERFACE
         .
         ./aes
@@ -9,7 +11,7 @@ target_include_directories(mbed-mbedtls
         ./sha
 )
 
-target_sources(mbed-mbedtls
+target_sources(mbed-mbedtls-m480
     INTERFACE
         aes/aes_alt.c
 
