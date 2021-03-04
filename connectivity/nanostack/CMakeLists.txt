@@ -33,8 +33,12 @@ target_compile_definitions(mbed-nanostack
 
 target_link_libraries(mbed-nanostack
     PRIVATE
+        mbed-rtos
+        mbed-core
+        mbed-randlib
         mbed-nanostack-mbed_mesh_api
         mbed-nanostack-sal_stack-event_loop
         mbed-nanostack-sal_stack
         mbed-nanostack-hal_mbed_cmsis_rtos
+        mbed-nanostack-libservice
 )
