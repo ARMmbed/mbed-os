@@ -38,3 +38,5 @@ target_sources(mbed-core-objects
         source/libBits/common_functions.c
         source/libip6string/ip6tos.c
 )
+
+target_link_libraries(mbed-nanostack-libservice PRIVATE mbed-core)
