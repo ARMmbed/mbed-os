@@ -3,7 +3,7 @@
 
 add_library(mbed-ble-ambiq-micro INTERFACE)
 
-add_subdirectory(TARGET_Apollo3)
+add_subdirectory(TARGET_Apollo3 EXCLUDE_FROM_ALL)
 
 target_include_directories(mbed-ble-ambiq-micro
     INTERFACE
