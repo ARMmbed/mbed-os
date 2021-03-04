@@ -1,8 +1,6 @@
 # Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(${MBED_PATH}/tools/cmake/components.cmake)
-
 add_library(mbed-cyw9p62s1-43012evb-01-bsp-design-modus INTERFACE)
 target_include_directories(mbed-cyw9p62s1-43012evb-01-bsp-design-modus
     INTERFACE
@@ -82,4 +80,4 @@ target_compile_definitions(mbed-cyw9p62s1-43012evb-01
         "CYBSP_WIFI_CAPABLE"
 )
 
-mbed_add_component_libraries(mbed-ble mbed-ble-cyw43xxx-43438 mbed-ble-cyw43xxx mbed-ble-cyw43xxx-psoc6)
+set(MBED_BLE_EXTRA_LIBRARIES ${MBED_BLE_EXTRA_LIBRARIES} mbed-ble-cyw43xxx-43438 mbed-ble-cyw43xxx-psoc6 CACHE INTERNAL "")

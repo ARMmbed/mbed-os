@@ -1,8 +1,6 @@
 # Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(${MBED_PATH}/tools/cmake/components.cmake)
-
 add_library(mbed-nrf52-dk INTERFACE)
 add_library(mbed-sdt52832b INTERFACE)
 
@@ -49,4 +47,4 @@ target_link_libraries(mbed-mcu-nrf52832 INTERFACE mbed-nrf52 mbed-sdk-15-0)
 target_link_libraries(mbed-nrf52-dk INTERFACE mbed-mcu-nrf52832)
 target_link_libraries(mbed-sdt52832b INTERFACE mbed-mcu-nrf52832)
 
-mbed_add_component_libraries(mbed-ble mbed-ble-nrf5x-cordio mbed-ble-cordio_ll)
+set(MBED_BLE_EXTRA_LIBRARIES ${MBED_BLE_EXTRA_LIBRARIES} mbed-ble-nrf5x-cordio mbed-ble-cordio_ll CACHE INTERNAL "")

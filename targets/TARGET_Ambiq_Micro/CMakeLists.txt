@@ -1,8 +1,6 @@
 # Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(${MBED_PATH}/tools/cmake/components.cmake)
-
 add_subdirectory(TARGET_Apollo3 EXCLUDE_FROM_ALL)
 
 add_library(mbed-ambiq-micro INTERFACE)
@@ -28,4 +26,5 @@ target_sources(mbed-ambiq-micro
 )
 
 target_link_libraries(mbed-ambiq-micro INTERFACE mbed-cmsis-cortex-m)
-mbed_add_component_libraries(mbed-ble mbed-ble-ambiq-micro mbed-ble-apollo3)
+
+set(MBED_BLE_EXTRA_LIBRARIES ${MBED_BLE_EXTRA_LIBRARIES} mbed-ble-ambiq-micro mbed-ble-apollo3 CACHE INTERNAL "")

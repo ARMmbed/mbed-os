@@ -7,3 +7,5 @@ target_sources(mbed-ble-cyw43xxx-4348
     INTERFACE
         w_bt_firmware_controller.c
 )
+
+target_link_libraries(mbed-ble-cyw43xxx-4348 INTERFACE mbed-ble-cyw43xxx)
