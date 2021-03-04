@@ -15,4 +15,4 @@ target_include_directories(mbed-disco-l475vg-iot01a
 
 target_link_libraries(mbed-disco-l475vg-iot01a INTERFACE mbed-stm32l475xg)
 
-set(MBED_BLE_EXTRA_LIBRARIES ${MBED_BLE_EXTRA_LIBRARIES} mbed-ble-bluenrg_ms CACHE INTERNAL "")
+set(MBED_BLE_EXTRA_LIBRARIES ${MBED_BLE_EXTRA_LIBRARIES} mbed-ble-bluenrg-ms CACHE INTERNAL "")

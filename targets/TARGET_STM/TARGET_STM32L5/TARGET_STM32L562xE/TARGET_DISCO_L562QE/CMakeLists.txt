@@ -15,4 +15,4 @@ target_include_directories(mbed-disco-l562qe
 
 target_link_libraries(mbed-disco-l562qe INTERFACE mbed-stm32l562xe)
 
-set(MBED_BLE_EXTRA_LIBRARIES ${MBED_BLE_EXTRA_LIBRARIES}  mbed-ble-bluenrg_ms CACHE INTERNAL "")
+set(MBED_BLE_EXTRA_LIBRARIES ${MBED_BLE_EXTRA_LIBRARIES}  mbed-ble-bluenrg-ms CACHE INTERNAL "")
