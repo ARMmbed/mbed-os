@@ -8,10 +8,6 @@ add_library(mbed-ble OBJECT)
 add_library(mbed-ble-cordio INTERFACE)
 add_library(mbed-ble-cordio_ll INTERFACE)
 
-# Add drivers for BLE
-# Once we remove the old tools and their path requirements, we should move 
-# drivers to BLE stack to be in the same place
-add_subdirectory(../drivers/ble ${CMAKE_CURRENT_BINARY_DIR}/drivers/ble)
 add_subdirectory(libraries)
 add_subdirectory(source)
 
