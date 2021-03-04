@@ -1,8 +1,10 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_library(mbed-mbedtls OBJECT)
+
 target_include_directories(mbed-mbedtls
-    INTERFACE
+    PUBLIC
         .
         ./include
         ./include/mbedtls
@@ -11,7 +13,7 @@ target_include_directories(mbed-mbedtls
 )
 
 target_sources(mbed-mbedtls
-    INTERFACE
+    PRIVATE
         platform/src/hash_wrappers.c
         platform/src/mbed_trng.cpp
         platform/src/platform_alt.cpp

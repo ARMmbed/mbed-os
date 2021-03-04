@@ -2,20 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 add_library(mbed-802.15.4-rf INTERFACE)
-add_library(mbed-coap INTERFACE)
-add_library(mbed-emac INTERFACE)
+
 add_library(mbed-lorawan INTERFACE)
-add_library(mbed-lwipstack INTERFACE)
-add_library(mbed-mbedtls INTERFACE)
-add_library(mbed-mbedtls-cryptocell310 INTERFACE)
-add_library(mbed-nanostack INTERFACE)
-add_library(mbed-nanostack-coap_service INTERFACE)
-add_library(mbed-nanostack-mbed_mesh_api INTERFACE)
-add_library(mbed-nanostack-hal_mbed_cmsis_rtos INTERFACE)
-add_library(mbed-nanostack-sal_stack INTERFACE)
-add_library(mbed-nanostack-sal_stack-event_loop INTERFACE)
-add_library(mbed-nanostack-libservice INTERFACE)
-add_library(mbed-netsocket INTERFACE)
 add_library(mbed-nfc INTERFACE)
 add_library(mbed-ppp INTERFACE)
 add_library(mbed-wifi INTERFACE)

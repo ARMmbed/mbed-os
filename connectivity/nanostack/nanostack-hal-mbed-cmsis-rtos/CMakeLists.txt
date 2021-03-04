@@ -20,3 +20,9 @@ target_sources(mbed-nanostack-hal_mbed_cmsis_rtos
 
         nvm/nvm_ram.c
 )
+
+target_link_libraries(mbed-nanostack-hal_mbed_cmsis_rtos 
+    INTERFACE
+        mbed-nanostack-sal_stack-event_loop
+        mbed-nanostack-sal_stack
+)

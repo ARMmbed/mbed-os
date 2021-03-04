@@ -13,6 +13,6 @@ add_subdirectory(TELIT)
 add_subdirectory(UBLOX)
 
 target_include_directories(mbed-cellular
-    INTERFACE
+    PUBLIC
         .
 )

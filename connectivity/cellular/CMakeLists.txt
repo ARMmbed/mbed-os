@@ -25,6 +25,11 @@ target_compile_definitions(mbed-cellular
 # All drivers here are part of mbed-cellular library by default
 # Backward compatiblity with mbed-cli 1
 target_link_libraries(mbed-cellular PRIVATE
+    mbed-netsocket
+    mbed-core
+    mbed-rtos
+    mbed-events
+
     mbed-cellular-alt1250-ppp
     mbed-cellular-gemalt-cinterion
     mbed-cellular-generic-at3gpp
@@ -42,7 +47,4 @@ target_link_libraries(mbed-cellular PRIVATE
     mbed-cellular-ublox-n2xx
     mbed-cellular-ublox-at
 
-    mbed-netsocket 
-    mbed-core
-    mbed-rtos
 )
