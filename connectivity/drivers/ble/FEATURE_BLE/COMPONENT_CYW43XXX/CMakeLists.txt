@@ -3,7 +3,7 @@
 
 add_library(mbed-ble-cyw43xxx INTERFACE)
 
-add_subdirectory(TARGET_PSOC6)
+add_subdirectory(TARGET_PSOC6 EXCLUDE_FROM_ALL)
 add_subdirectory(firmware)
 
 target_include_directories(mbed-ble-cyw43xxx
