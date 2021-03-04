@@ -81,5 +81,3 @@ mbed_post_build_psoc6_sign_image(
     "16"
     ${MBED_PATH}/targets/TARGET_Cypress/TARGET_PSOC6/TARGET_CYTFM_064B0S2_4343W/COMPONENT_TFM_S_FW/tfm_s.hex
 )
-
-set(MBED_BLE_EXTRA_LIBRARIES ${MBED_BLE_EXTRA_LIBRARIES}  mbed-ble-cyw43xxx-4343w mbed-ble-cyw43xxx-psoc6 CACHE INTERNAL "")

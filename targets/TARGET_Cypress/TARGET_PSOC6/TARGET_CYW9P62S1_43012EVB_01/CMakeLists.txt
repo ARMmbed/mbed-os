@@ -79,5 +79,3 @@ target_compile_definitions(mbed-cyw9p62s1-43012evb-01
         "CYHAL_UDB_SDIO"
         "CYBSP_WIFI_CAPABLE"
 )
-
-set(MBED_BLE_EXTRA_LIBRARIES ${MBED_BLE_EXTRA_LIBRARIES} mbed-ble-cyw9p62s1-43012evb-01 mbed-ble-cyw43xxx-43438 mbed-ble-cyw43xxx-psoc6 CACHE INTERNAL "")

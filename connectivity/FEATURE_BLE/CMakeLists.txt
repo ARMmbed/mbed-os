@@ -33,4 +33,4 @@ target_compile_definitions(mbed-ble
         MBED_CONF_BLE_PRESENT=1
 )
 
-target_link_libraries(mbed-ble PRIVATE mbed-ble-cordio mbed-core ${MBED_BLE_EXTRA_LIBRARIES})
+target_link_libraries(mbed-ble PRIVATE mbed-ble-cordio mbed-core)

@@ -26,5 +26,3 @@ target_sources(mbed-ambiq-micro
 )
 
 target_link_libraries(mbed-ambiq-micro INTERFACE mbed-cmsis-cortex-m)
-
-set(MBED_BLE_EXTRA_LIBRARIES ${MBED_BLE_EXTRA_LIBRARIES} mbed-ble-ambiq-micro mbed-ble-apollo3 CACHE INTERNAL "")
