@@ -1,18 +1,17 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("MXCRYPTO_01" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_MXCRYPTO_01)
-elseif("MXCRYPTO_02" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_MXCRYPTO_02)
-endif()
+add_library(mbed-mbedtls-mxcrypto INTERFACE)
 
-target_include_directories(mbed-mbedtls
+add_subdirectory(TARGET_MXCRYPTO_01 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_MXCRYPTO_02 EXCLUDE_FROM_ALL)
+
+target_include_directories(mbed-mbedtls-mxcrypto
     INTERFACE
         .
 )
 
-target_sources(mbed-mbedtls
+target_sources(mbed-mbedtls-mxcrypto
     INTERFACE
         aes_alt.c
         crypto_common.c
