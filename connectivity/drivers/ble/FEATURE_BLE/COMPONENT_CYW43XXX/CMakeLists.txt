@@ -16,5 +16,3 @@ target_sources(mbed-ble-cyw43xxx
         CyH4TransportDriver.cpp
         HCIDriver.cpp
 )
-
-target_link_libraries(mbed-ble-cyw43xxx INTERFACE mbed-ble mbed-core)

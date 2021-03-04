@@ -7,8 +7,3 @@ target_sources(mbed-ble-bluenrg_2
     INTERFACE
         BlueNrg2HCIDriver.cpp
 )
-
-target_link_libraries(mbed-ble-bluenrg_2
-    INTERFACE
-        mbed-ble mbed-core
-)
