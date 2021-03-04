@@ -19,5 +19,3 @@ target_sources(mbed-ble-stm32wb
         STM32Cube_FW/stm_list.c
         STM32Cube_FW/tl_mbox.c
 )
-
-target_link_libraries(mbed-ble-stm32wb INTERFACE mbed-ble mbed-core)
