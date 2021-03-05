@@ -9,6 +9,8 @@ elseif("NUCLEO_F439ZI" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_NUCLEO_F439ZI)
 endif()
 
+add_library(mbed-emac-stm32f4 INTERFACE)
+
 target_include_directories(mbed-emac-stm32f4
     INTERFACE
         .
