@@ -21,6 +21,12 @@
     __stack (== StackTop)
 */
 
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+    /* This value is normally defined by the tools
+       to 0x1000 for bare metal and 0x400 for RTOS */
+    #define MBED_CONF_TARGET_BOOT_STACK_SIZE  0x400
+#endif
+
 MEMORY
 {
     FLASH(rx) : ORIGIN = 0x10000000, LENGTH = 2048k
@@ -208,8 +214,9 @@ SECTIONS
     .heap (COPY):
     {
         __end__ = .;
-        end = __end__;
+        PROVIDE(end = .);
         *(.heap*)
+        . = ORIGIN(RAM) + LENGTH(RAM) - MBED_CONF_TARGET_BOOT_STACK_SIZE;
         __HeapLimit = .;
     } > RAM
 
@@ -226,19 +233,20 @@ SECTIONS
     {
         *(.stack1*)
     } > SCRATCH_X
+
     .stack_dummy (COPY):
     {
         *(.stack*)
-    } > SCRATCH_Y
+    } > RAM
 
     .flash_end : {
         __flash_binary_end = .;
     } > FLASH
 
     /* stack limit is poorly named, but historically is maximum heap ptr */
-    __StackLimit = ORIGIN(RAM) + LENGTH(RAM);
+    __StackTop = ORIGIN(RAM) + LENGTH(RAM);
+    __StackLimit = __StackTop - MBED_CONF_TARGET_BOOT_STACK_SIZE;
     __StackOneTop = ORIGIN(SCRATCH_X) + LENGTH(SCRATCH_X);
-    __StackTop = ORIGIN(SCRATCH_Y) + LENGTH(SCRATCH_Y);
     __StackOneBottom = __StackOneTop - SIZEOF(.stack1_dummy);
     __StackBottom = __StackTop - SIZEOF(.stack_dummy);
     PROVIDE(__stack = __StackTop);

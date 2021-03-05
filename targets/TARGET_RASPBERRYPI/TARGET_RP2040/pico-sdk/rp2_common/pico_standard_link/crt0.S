@@ -313,17 +313,3 @@ __get_current_exception:
     mrs  r0, ipsr
     uxtb r0, r0
     bx   lr
-
-// ----------------------------------------------------------------------------
-// Stack/heap dummies to set size
-
-.section .stack
-// align to allow for memory protection (although this alignment is pretty much ignored by linker script)
-.align 5
-    .equ StackSize, PICO_STACK_SIZE
-.space StackSize
-
-.section .heap
-.align 2
-    .equ HeapSize, PICO_HEAP_SIZE
-.space HeapSize
