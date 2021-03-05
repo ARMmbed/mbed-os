@@ -318,29 +318,13 @@ def complete(message_func, elf0, hexf0, hexf1=None):
 
 def merge_action(args):
     """Entry point for the "merge" CLI command."""
-    try:
-        elf_file = list(pathlib.Path(args.artefacts_location).glob("*.elf"))[0]
-        m4hex_file = list(pathlib.Path(args.artefacts_location).glob("*.hex"))[0]
-    except IndexError:
-        raise ArtefactsError(
-            f"Could not find elf and/or hex file in {args.artefacts_location}"
-        )
-
     complete_func(
-        print, elf_file, m4hex_file, args.m0hex
+        print, args.elf, args.m4hex, args.m0hex
     )
 
 
 def sign_action(args):
     """Entry point for the "sign" CLI command."""
-    try:
-        elf_file = list(pathlib.Path(args.artefacts_location).glob("*.elf"))[0]
-        m4hex_file = list(pathlib.Path(args.artefacts_location).glob("*.hex"))[0]
-    except IndexError:
-        raise ArtefactsError(
-            f"Could not find elf and/or hex file in {args.artefacts_location}"
-        )
-
     sign_hex(
         args.build_dir,
         args.m0hex_filename,
@@ -350,8 +334,8 @@ def sign_action(args):
         args.boot_scheme,
         args.cm0_img_id,
         args.cm4_img_id,
-        elf_file,
-        m4hex_file,
+        args.elf,
+        args.m4hex,
         args.m0hex
     )
 
@@ -368,7 +352,10 @@ def parse_args():
         "merge", help="Merge Cortex-M4 and Cortex-M0 HEX files."
     )
     merge_subcommand.add_argument(
-        "--artefacts-location", required=True, help="the path to the application artefacts."
+        "--elf", required=True, help="the application ELF file."
+    )
+    merge_subcommand.add_argument(
+        "--m4hex", required=True, help="the path to the Cortex-M4 HEX to merge."
     )
     merge_subcommand.add_argument(
         "--m0hex", help="the path to the Cortex-M0 HEX to merge."
@@ -400,7 +387,10 @@ def parse_args():
         "--cm4-img-id", type=int, help="the Cortex-M4 image ID."
     )
     sign_subcommand.add_argument(
-        "--artefacts-location", required=True, help="the path to the application artefacts."
+        "--elf", required=True, help="the application ELF file."
+    )
+    sign_subcommand.add_argument(
+        "--m4hex", required=True, help="the path to the Cortex-M4 HEX to merge."
     )
     sign_subcommand.add_argument(
         "--m0hex", help="the path to the Cortex-M0 HEX to merge."

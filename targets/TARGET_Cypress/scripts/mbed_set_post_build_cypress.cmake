@@ -22,14 +22,16 @@ function(mbed_post_build_psoc6_merge_hex mbed_target_name)
         set(post_build_command
             COMMAND ${Python3_EXECUTABLE} ${MBED_PATH}/targets/TARGET_Cypress/scripts/PSOC6.py
                 merge
-                --artefacts-location ${CMAKE_BINARY_DIR}
+                --elf ${CMAKE_BINARY_DIR}/$<TARGET_PROPERTY:mbed-post-build-bin-${mbed_target_name},application>.elf
+                --m4hex ${CMAKE_BINARY_DIR}/$<TARGET_PROPERTY:mbed-post-build-bin-${mbed_target_name},application>.hex
                 --m0hex ${cortex_m0_hex}
         )
     else()
         set(post_build_command
             COMMAND ${Python3_EXECUTABLE} ${MBED_PATH}/targets/TARGET_Cypress/scripts/PSOC6.py
                 merge
-                --artefacts-location ${CMAKE_BINARY_DIR}
+                --elf ${CMAKE_BINARY_DIR}/$<TARGET_PROPERTY:mbed-post-build-bin-${mbed_target_name},application>.elf
+                --m4hex ${CMAKE_BINARY_DIR}/$<TARGET_PROPERTY:mbed-post-build-bin-${mbed_target_name},application>.hex
         )
     endif()
 
@@ -61,7 +63,8 @@ function(mbed_post_build_psoc6_sign_image
             --boot-scheme ${boot_scheme}
             --cm0-img-id ${cm0_img_id}
             --cm4-img-id ${cm4_img_id}
-            --artefacts-location ${CMAKE_BINARY_DIR}
+            --elf ${CMAKE_BINARY_DIR}/$<TARGET_PROPERTY:mbed-post-build-bin-${mbed_target_name},application>.elf
+            --m4hex ${CMAKE_BINARY_DIR}/$<TARGET_PROPERTY:mbed-post-build-bin-${mbed_target_name},application>.hex
             --m0hex ${cortex_m0_hex}
     )
 
