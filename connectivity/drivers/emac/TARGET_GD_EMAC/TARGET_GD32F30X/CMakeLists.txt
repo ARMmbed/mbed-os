@@ -9,3 +9,5 @@ target_sources(mbed-emac-gd32f30x
 )
 
 target_link_libraries(mbed-emac-gd32f30x INTERFACE mbed-emac-gd)
+
+target_link_libraries(mbed-netsocket PRIVATE mbed-emac-gd32f30x)

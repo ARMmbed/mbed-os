@@ -12,3 +12,5 @@ target_sources(mbed-emac-lan91c111
     INTERFACE
         fvp_emac.cpp
 )
+
+target_link_libraries(mbed-netsocket PRIVATE mbed-emac-lan91c111)

@@ -9,3 +9,5 @@ target_sources(mbed-emac-k64f
 )
 
 target_link_libraries(mbed-emac-k64f INTERFACE mbed-emac-freescale)
+
+target_link_libraries(mbed-netsocket PRIVATE mbed-emac-k64f)

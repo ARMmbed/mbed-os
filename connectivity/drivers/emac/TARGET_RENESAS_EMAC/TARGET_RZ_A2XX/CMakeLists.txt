@@ -19,3 +19,5 @@ target_sources(mbed-emac-rx-a2xx
         r_ether_rza2/src/phy/phy.c
         r_ether_rza2/src/targets/TARGET_GR_MANGO/r_ether_setting_rza2m.c
 )
+
+target_link_libraries(mbed-netsocket PRIVATE mbed-emac-rx-a2xx)

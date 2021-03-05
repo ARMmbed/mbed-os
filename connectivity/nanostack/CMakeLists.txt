@@ -31,6 +31,7 @@ target_link_libraries(mbed-nanostack
         mbed-rtos
         mbed-core
         mbed-randlib
+        mbed-netsockets
         mbed-nanostack-mbed-mesh-api
         mbed-nanostack-sal-stack-event-loop
         mbed-nanostack-sal-stack

@@ -9,3 +9,5 @@ target_sources(mbed-emac-nucleo-f746zg
 )
 
 target_link_libraries(mbed-emac-nucleo-f746zg INTERFACE mbed-emac-stm32f7)
+
+target_link_libraries(mbed-netsocket PRIVATE mbed-emac-nucleo-f746zg)

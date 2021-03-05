@@ -9,3 +9,5 @@ target_sources(mbed-emac-lpcxpresso
 )
 
 target_link_libraries(mbed-emac-lpcxpresso INTERFACE mbed-emac-lpc546xx)
+
+target_link_libraries(mbed-netsocket PRIVATE mbed-emac-lpcxpresso)

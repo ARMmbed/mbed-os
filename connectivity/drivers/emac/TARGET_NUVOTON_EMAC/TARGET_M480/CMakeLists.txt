@@ -14,3 +14,5 @@ target_sources(mbed-emac-m480
 )
 
 target_link_libraries(mbed-emac-m480 INTERFACE mbed-emac-nuvoton)
+
+target_link_libraries(mbed-netsocket PRIVATE mbed-emac-m480)

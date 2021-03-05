@@ -15,3 +15,5 @@ target_sources(mbed-emac-rda
         RdaWiFiInterface.cpp
         rda5981x_emac.cpp
 )
+
+target_link_libraries(mbed-netsocket PRIVATE mbed-emac-rda)

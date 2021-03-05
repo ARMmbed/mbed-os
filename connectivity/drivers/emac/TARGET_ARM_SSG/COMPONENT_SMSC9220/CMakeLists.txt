@@ -12,3 +12,5 @@ target_sources(mbed-emac-smsc9220
     INTERFACE
         smsc9220_emac.cpp
 )
+
+target_link_libraries(mbed-netsocket PRIVATE mbed-emac-smsc9220)

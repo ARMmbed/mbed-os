@@ -14,3 +14,5 @@ target_sources(mbed-emac-arch-max
 )
 
 target_link_libraries(mbed-emac-arch-max INTERFACE mbed-emac-stm32f4)
+
+target_link_libraries(mbed-netsocket PRIVATE mbed-emac-arch-max)

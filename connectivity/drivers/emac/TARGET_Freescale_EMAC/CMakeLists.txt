@@ -7,6 +7,8 @@ elseif("K66F" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_K66F)
 endif()
 
+add_library(mbed-emac-freescale INTERFACE)
+
 target_include_directories(mbed-emac-freescale
     INTERFACE
         .

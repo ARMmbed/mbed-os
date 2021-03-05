@@ -9,3 +9,5 @@ target_sources(mbed-emac-portenta-h7
 )
 
 target_link_libraries(mbed-emac-portenta-h7 INTERFACE mbed-emac-stm32h7)
+
+target_link_libraries(mbed-netsocket PRIVATE mbed-emac-portenta-h7)

@@ -14,3 +14,5 @@ target_sources(mbed-emac-nucleo-f439zi
 )
 
 target_link_libraries(mbed-emac-nucleo-f439zi INTERFACE mbed-emac-stm32f4)
+
+target_link_libraries(mbed-netsocket PRIVATE mbed-emac-nucleo-f439zi)
