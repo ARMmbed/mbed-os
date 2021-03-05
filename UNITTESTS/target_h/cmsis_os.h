@@ -27,4 +27,5 @@
 typedef struct {
 } osEvent;
 
+typedef int32_t osStatus;
 #endif
