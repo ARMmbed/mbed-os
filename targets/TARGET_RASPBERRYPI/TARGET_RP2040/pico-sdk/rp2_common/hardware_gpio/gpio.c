@@ -80,7 +80,7 @@ void gpio_set_oeover(uint gpio, uint value) {
     );
 }
 
-static void gpio_irq_handler(void) {
+static void _gpio_irq_handler(void) {
     io_irq_ctrl_hw_t *irq_ctrl_base = get_core_num() ?
                                            &iobank0_hw->proc1_irq_ctrl : &iobank0_hw->proc0_irq_ctrl;
     for (uint gpio = 0; gpio < NUM_BANK0_GPIOS; gpio++) {
@@ -124,7 +124,7 @@ void gpio_set_irq_enabled_with_callback(uint gpio, uint32_t events, bool enabled
     // TODO: Do we want to support a callback per GPIO pin?
     // Install IRQ handler
     _callbacks[get_core_num()] = callback;
-    irq_set_exclusive_handler(IO_IRQ_BANK0, gpio_irq_handler);
+    irq_set_exclusive_handler(IO_IRQ_BANK0, _gpio_irq_handler);
     irq_set_enabled(IO_IRQ_BANK0, true);
 }
 
