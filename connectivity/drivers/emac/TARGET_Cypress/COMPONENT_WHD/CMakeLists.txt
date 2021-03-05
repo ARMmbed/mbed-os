@@ -23,3 +23,5 @@ target_sources(mbed-emac-whd
         utils/cydhcp_server_debug.cpp
         utils/cynetwork_utils.c
 )
+
+target_link_libraries(mbed-netsocket PRIVATE mbed-emac-whd)

@@ -13,3 +13,5 @@ target_sources(mbed-emac-lpctarget
         lpc17_emac.cpp
         lpc_phy_dp83848.cpp
 )
+
+target_link_libraries(mbed-netsocket PRIVATE mbed-emac-lpctarget)

@@ -13,3 +13,5 @@ target_sources(mbed-emac-rx-a1xx
         rza1_emac.cpp
         rza1_eth.cpp
 )
+
+target_link_libraries(mbed-netsocket PRIVATE mbed-emac-rx-a1xx)

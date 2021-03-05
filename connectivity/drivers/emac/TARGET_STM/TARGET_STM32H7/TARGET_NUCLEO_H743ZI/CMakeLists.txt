@@ -9,3 +9,5 @@ target_sources(mbed-emac-nucle-h743zi
 )
 
 target_link_libraries(mbed-emac-nucle-h743zi INTERFACE mbed-emac-stm32h7)
+
+target_link_libraries(mbed-netsocket PRIVATE mbed-emac-nucle-h743zi)

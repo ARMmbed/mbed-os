@@ -13,3 +13,5 @@ target_sources(mbed-emac-silicon-labs
         sl_emac.cpp
         sl_eth_hw.c
 )
+
+target_link_libraries(mbed-netsocket PRIVATE mbed-emac-silicon-labs)

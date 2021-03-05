@@ -16,3 +16,5 @@ target_sources(mbed-emac-scl
         interface/SclAccessPoint.cpp
         interface/SclSTAInterface.cpp
 )
+
+target_link_libraries(mbed-netsocket PRIVATE mbed-emac-scl)

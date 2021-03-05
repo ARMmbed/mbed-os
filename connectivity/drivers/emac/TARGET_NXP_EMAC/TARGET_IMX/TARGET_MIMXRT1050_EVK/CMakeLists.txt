@@ -9,3 +9,5 @@ target_sources(mbed-emac-mimxrt1050
 )
 
 target_link_libraries(mbed-emac-mimxrt1050 INTERFACE mbed-emac-imx)
+
+target_link_libraries(mbed-netsocket PRIVATE mbed-emac-mimxrt1050)

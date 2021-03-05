@@ -9,3 +9,5 @@ target_sources(mbed-emac-ff-lpc546xx
 )
 
 target_link_libraries(mbed-emac-ff-lpc546xx INTERFACE mbed-emac-lpc546xx)
+
+target_link_libraries(mbed-netsocket PRIVATE mbed-emac-ff-lpc546xx)
