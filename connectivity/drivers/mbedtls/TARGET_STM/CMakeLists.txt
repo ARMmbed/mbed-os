@@ -1,17 +1,27 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-tls-stm INTERFACE)
+if("TARGET_STM32F437xG" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32F437xG)
+elseif("STM32F439xI" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32F439xI)
+elseif("STM32F756xG" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32F756xG)
+elseif("STM32L443xC" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32L443xC)
+elseif("STM32L486xG" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32L486xG)
+elseif("STM32L4S5xI" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32L4S5xI)
+elseif("STM32L562xx" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32L562xx)
+elseif("STM32WB55xx" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32WB55xx)
+endif()
 
-add_subdirectory(TARGET_STM32F437xG EXCLUDE_FROM_ALL)
-add_subdirectory(TARGET_STM32F439xI EXCLUDE_FROM_ALL)
-add_subdirectory(TARGET_STM32F756xG EXCLUDE_FROM_ALL)
-add_subdirectory(TARGET_STM32L443xC EXCLUDE_FROM_ALL)
-add_subdirectory(TARGET_STM32L486xG EXCLUDE_FROM_ALL)
-add_subdirectory(TARGET_STM32L4S5xI EXCLUDE_FROM_ALL)
-add_subdirectory(TARGET_STM32WB55xx EXCLUDE_FROM_ALL)
+add_library(mbed-mbedtls-stm INTERFACE)
 
-target_sources(mbed-tls-stm
+target_sources(mbed-mbedtls-stm
     INTERFACE
         aes_alt.cpp
         aes_alt_stm32l4.c
@@ -24,7 +34,7 @@ target_sources(mbed-tls-stm
         sha256_alt.cpp
 )
 
-target_include_directories(mbed-tls-stm
+target_include_directories(mbed-mbedtls-stm
     INTERFACE
         .
 )

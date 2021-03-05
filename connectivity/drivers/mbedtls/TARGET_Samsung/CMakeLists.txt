@@ -14,3 +14,5 @@ target_sources(mbed-mbedtls-samsung
         sha/sha256_alt.c
         sha/sha512_alt.c
 )
+
+target_link_libraries(mbed-mbedtls PUBLIC mbed-mbedtls-samsung)

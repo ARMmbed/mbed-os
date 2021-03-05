@@ -1,7 +1,7 @@
 # Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-mbedtls-cryptocell310-nrf52840)
+add_library(mbed-mbedtls-cryptocell310-nrf52840 INTERFACE)
 
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(LIBCC_310_EXT TOOLCHAIN_GCC_ARM/libcc_310_ext.a)
@@ -25,4 +25,8 @@ target_link_libraries(mbed-mbedtls-cryptocell310-nrf52840
     INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/${LIBCC_310_EXT}
         ${CMAKE_CURRENT_SOURCE_DIR}/${LIBCC_310_TRNG}
+        mbed-mbedtls-cryptocell310
 )
+
+
+target_link_libraries(mbed-mbedtls PUBLIC mbed-mbedtls-cryptocell310-nrf52840)
