@@ -57,5 +57,4 @@ target_link_libraries(mbed-netsocket
         mbed-core
         mbed-rtos
         mbed-nanostack-libservice
-        ${MBED_NETSOCKET_EXTRA_LIBRARIES}
 )
