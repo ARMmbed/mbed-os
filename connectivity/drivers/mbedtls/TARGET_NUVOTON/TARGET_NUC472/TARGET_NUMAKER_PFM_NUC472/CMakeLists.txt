@@ -9,3 +9,5 @@ target_include_directories(mbed-mbedtls-numaker_pfm_nuc472
 )
 
 target_link_libraries(mbed-mbedtls-numaker_pfm_nuc472 INTERFACE mbed-mbedtls-nuc472)
+
+target_link_libraries(mbed-mbedtls PUBLIC mbed-mbedtls-numaker_pfm_nuc472)

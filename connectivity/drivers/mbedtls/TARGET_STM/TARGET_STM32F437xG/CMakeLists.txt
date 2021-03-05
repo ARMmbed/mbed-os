@@ -8,4 +8,6 @@ target_include_directories(mbed-mbedtls-stm32f437xg
         .
 )
 
-target_link_libraries(mbed-mbedtls-stm32f437xg INTERFACE mbed-tls-stm)
+target_link_libraries(mbed-mbedtls-stm32f437xg INTERFACE mbed-mbedtls-stm)
+
+target_link_libraries(mbed-mbedtls PUBLIC mbed-mbedtls-stm32f437xg)

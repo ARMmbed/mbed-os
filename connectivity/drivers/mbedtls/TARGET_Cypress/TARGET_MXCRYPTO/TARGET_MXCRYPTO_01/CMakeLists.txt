@@ -9,3 +9,5 @@ target_include_directories(mbed-mbedtls-mxcrypto-01
 )
 
 target_link_libraries(mbed-mbedtls-mxcrypto-01 INTERFACE mbed-mbedtls-mxcrypto)
+
+target_link_libraries(mbed-mbedtls PUBLIC mbed-mbedtls-mxcrypto-01)

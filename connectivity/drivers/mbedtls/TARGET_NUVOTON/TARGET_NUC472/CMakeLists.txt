@@ -1,6 +1,10 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+if("NUMAKER_PFM_NUC472" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_NUMAKER_PFM_NUC472)
+endif()
+
 add_library(mbed-mbedtls-nuc472 INTERFACE)
 
 add_subdirectory(TARGET_NUMAKER_PFM_NUC472 EXCLUDE_FROM_ALL)

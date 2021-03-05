@@ -27,3 +27,5 @@ target_sources(mbed-mbedtls-m480
         sha/sha512_alt_sw.c
         sha/sha_alt_hw.c
 )
+
+target_link_libraries(mbed-mbedtls PUBLIC mbed-mbedtls-m480)

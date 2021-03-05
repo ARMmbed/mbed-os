@@ -16,3 +16,5 @@ target_sources(mbed-mbedtls-silicon-labs
         crypto_management.c
         crypto_sha.c
 )
+
+target_link_libraries(mbed-mbedtls PUBLIC mbed-mbedtls-silicon-labs)
