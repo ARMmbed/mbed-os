@@ -17,3 +17,5 @@ target_sources(mbed-cellular-quectel-bg96
         QUECTEL_BG96_CellularStack.cpp
         QUECTEL_BG96_ControlPlane_netif.cpp
 )
+
+target_link_libraries(mbed-cellular PRIVATE mbed-cellular-quectel-bg96)

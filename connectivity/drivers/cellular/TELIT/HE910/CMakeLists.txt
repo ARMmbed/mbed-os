@@ -12,3 +12,5 @@ target_sources(mbed-cellular-telit-he910
     INTERFACE
         TELIT_HE910.cpp
 )
+
+target_link_libraries(mbed-cellular PRIVATE mbed-cellular-telit-he910)

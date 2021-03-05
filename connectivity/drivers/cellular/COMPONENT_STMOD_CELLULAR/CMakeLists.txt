@@ -12,3 +12,5 @@ target_sources(mbed-cellular-stmod
     INTERFACE
         STModCellular.cpp
 )
+
+target_link_libraries(mbed-cellular PRIVATE mbed-cellular-stmod)

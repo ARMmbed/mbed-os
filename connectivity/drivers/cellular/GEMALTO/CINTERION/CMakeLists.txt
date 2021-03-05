@@ -15,3 +15,5 @@ target_sources(mbed-cellular-gemalt-cinterion
         GEMALTO_CINTERION_CellularInformation.cpp
         GEMALTO_CINTERION_CellularStack.cpp
 )
+
+target_link_libraries(mbed-cellular PRIVATE mbed-cellular-gemalt-cinterion)

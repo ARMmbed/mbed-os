@@ -15,3 +15,5 @@ target_sources(mbed-cellular-quectel-m26
         QUECTEL_M26_CellularInformation.cpp
         QUECTEL_M26_CellularStack.cpp
 )
+
+target_link_libraries(mbed-cellular PRIVATE mbed-cellular-quectel-m26)

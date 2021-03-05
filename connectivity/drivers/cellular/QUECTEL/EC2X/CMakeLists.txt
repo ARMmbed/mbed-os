@@ -12,3 +12,5 @@ target_sources(mbed-cellular-quectel-ec2x
     INTERFACE
         QUECTEL_EC2X.cpp
 )
+
+target_link_libraries(mbed-cellular PRIVATE mbed-cellular-quectel-ec2x)

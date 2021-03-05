@@ -14,3 +14,5 @@ target_sources(mbed-cellular-alt1250-ppp
         ALT1250_PPP_CellularContext.cpp
         ALT1250_PPP_CellularNetwork.cpp
 )
+
+target_link_libraries(mbed-cellular PRIVATE mbed-cellular-alt1250-ppp)

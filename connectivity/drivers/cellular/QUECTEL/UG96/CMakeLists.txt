@@ -13,3 +13,5 @@ target_sources(mbed-cellular-quectel-ug96
         QUECTEL_UG96.cpp
         QUECTEL_UG96_CellularContext.cpp
 )
+
+target_link_libraries(mbed-cellular PRIVATE mbed-cellular-quectel-ug96)
