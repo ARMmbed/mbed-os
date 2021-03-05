@@ -1,10 +1,11 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-emac-nuvoton INTERFACE)
-
-add_subdirectory(TARGET_M480 EXCLUDE_FROM_ALL)
-add_subdirectory(TARGET_NUC472 EXCLUDE_FROM_ALL)
+if("M480" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_M480)
+elseif("NUC472" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_NUC472)
+endif()
 
 target_include_directories(mbed-emac-nuvoton
     INTERFACE
