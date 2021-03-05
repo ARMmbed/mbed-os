@@ -20,7 +20,7 @@ from pinvalidate import *
 
 @pytest.fixture
 def pin_name_content():
-    pin_name_file = open("./test_files/PinNames_test.test")
+    pin_name_file = open("./test_files/PinNames_test.h")
     return pin_name_file.read()
 
 @pytest.fixture
@@ -28,57 +28,29 @@ def pin_name_dict(pin_name_content):
     return pin_name_to_dict(pin_name_content)
 
 def test_marker_check():
-    os.rename('./test_files/nonexistent_target/PinNames.test', './test_files/nonexistent_target/PinNames.h')
-    os.rename('./test_files/misformatted_marker/PinNames.test', './test_files/misformatted_marker/PinNames.h')
-    os.rename('./test_files/missing_marker/PinNames.test', './test_files/missing_marker/PinNames.h')
-
     expect = [
         {'file': os.path.abspath('./test_files/nonexistent_target/PinNames.h'), 'error': 'target not found'},
         {'file': os.path.abspath('./test_files/misformatted_marker/PinNames.h'), 'error': 'marker invalid or not found'},
         {'file': os.path.abspath('./test_files/missing_marker/PinNames.h'), 'error': 'marker invalid or not found'}
     ]
-
-    result = check_markers(test_mode=True)
-
-    os.rename('./test_files/nonexistent_target/PinNames.h', './test_files/nonexistent_target/PinNames.test')
-    os.rename('./test_files/misformatted_marker/PinNames.h', './test_files/misformatted_marker/PinNames.test')
-    os.rename('./test_files/missing_marker/PinNames.h', './test_files/missing_marker/PinNames.test')
     
-    assert result == expect
+    assert check_markers(test_mode=True) == expect
 
 def test_duplicate_pinnames_files_check():
-    os.rename('./test_files/PinNames.test', './test_files/PinNames.h')
-    os.rename('./test_files/duplicate_marker/PinNames.test', './test_files/duplicate_marker/PinNames.h')
-
     expect = [
         {'file': os.path.abspath('./test_files/PinNames.h'), 'error': 'duplicate file'},
         {'file': os.path.abspath('./test_files/duplicate_marker/PinNames.h'), 'error': 'duplicate file'}
     ]
-
-    result = check_duplicate_pinnames_files(test_mode=True)
-
-    os.rename('./test_files/PinNames.h', './test_files/PinNames.test')
-    os.rename('./test_files/duplicate_marker/PinNames.h', './test_files/duplicate_marker/PinNames.test')
     
-    assert result == expect
+    assert check_duplicate_pinnames_files(test_mode=True) == expect
 
 def test_duplicate_markers_check():
-    os.rename('./test_files/PinNames.test', './test_files/PinNames.h')
-    os.rename('./test_files/duplicate_file/PinNames.test', './test_files/duplicate_file/PinNames.h')
-    os.rename('./test_files/duplicate_marker/PinNames.test', './test_files/duplicate_marker/PinNames.h')
-    
     expect = [
         {'file': os.path.abspath('./test_files/duplicate_file/PinNames.h'), 'error': 'duplicate marker'},
         {'file': os.path.abspath('./test_files/duplicate_marker/PinNames.h'), 'error': 'duplicate marker'}
     ]
 
-    result = check_duplicate_markers(test_mode=True)
-
-    os.rename('./test_files/PinNames.h', './test_files/PinNames.test')
-    os.rename('./test_files/duplicate_file/PinNames.h', './test_files/duplicate_file/PinNames.test')
-    os.rename('./test_files/duplicate_marker/PinNames.h', './test_files/duplicate_marker/PinNames.test')
-    
-    assert result == expect
+    assert check_duplicate_markers(test_mode=True) == expect
 
 def test_pin_name_to_dict(pin_name_dict):
     expect = {

@@ -48,7 +48,7 @@ class ArgumentParserWithDefaultHelp(argparse.ArgumentParser):
 
 def find_target_by_path(target_path):
     """Find a target by path."""
-    mbed_os_root = pathlib.Path(__file__).absolute().parents[4]
+    mbed_os_root = pathlib.Path(__file__).absolute().parents[3]
 
     targets = dict()
 
@@ -95,7 +95,7 @@ def find_target_by_path(target_path):
 
 def find_target_by_name(target_name=""):
     """Find a target by name."""
-    mbed_os_root = pathlib.Path(__file__).absolute().parents[4]
+    mbed_os_root = pathlib.Path(__file__).absolute().parents[3]
     
     targets = dict()
 
@@ -131,7 +131,7 @@ def find_target_by_name(target_name=""):
 
 def check_markers(test_mode=False):
     """Validate markers in PinNames.h files"""
-    mbed_os_root = pathlib.Path(__file__).absolute().parents[4]
+    mbed_os_root = pathlib.Path(__file__).absolute().parents[3]
 
     errors = []
 
@@ -185,7 +185,7 @@ def check_markers(test_mode=False):
 
 def check_duplicate_pinnames_files(test_mode=False):
     """Check for duplicate PinNames.h files"""
-    mbed_os_root = pathlib.Path(__file__).absolute().parents[4]
+    mbed_os_root = pathlib.Path(__file__).absolute().parents[3]
 
     errors = []
     
@@ -218,7 +218,7 @@ def check_duplicate_pinnames_files(test_mode=False):
 
 def check_duplicate_markers(test_mode=False):
     """Check target markers in PinNames.h files for duplicates."""
-    mbed_os_root = pathlib.Path(__file__).absolute().parents[4]
+    mbed_os_root = pathlib.Path(__file__).absolute().parents[3]
 
     errors = []
 
@@ -260,7 +260,7 @@ def check_duplicate_markers(test_mode=False):
 
 def target_has_arduino_form_factor(target_name):
     """Check if the target has the Arduino form factor."""
-    mbed_os_root = pathlib.Path(__file__).absolute().parents[4]
+    mbed_os_root = pathlib.Path(__file__).absolute().parents[3]
 
     with (
         mbed_os_root.joinpath("targets", "targets.json")
