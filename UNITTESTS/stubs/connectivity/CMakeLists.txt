@@ -52,6 +52,7 @@ target_sources(mbed-stubs-connectivity
         SocketAddress_stub.cpp
         SocketStats_Stub.cpp
         stoip4_stub.c
+        ${MBED_PATH}/connectivity/nanostack/coap-service/test/coap-service/unittest/stub/mbedtls_stub.c
 )
 
 target_link_libraries(mbed-stubs-connectivity
