@@ -12,3 +12,5 @@ target_sources(mbed-cellular-generic-at3gpp
     INTERFACE
         GENERIC_AT3GPP.cpp
 )
+
+target_link_libraries(mbed-cellular PRIVATE mbed-cellular-generic-at3gpp)

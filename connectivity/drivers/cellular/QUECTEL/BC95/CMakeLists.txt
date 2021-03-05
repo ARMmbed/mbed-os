@@ -16,3 +16,5 @@ target_sources(mbed-cellular-quectel-bc95
         QUECTEL_BC95_CellularNetwork.cpp
         QUECTEL_BC95_CellularStack.cpp
 )
+
+target_link_libraries(mbed-cellular PRIVATE mbed-cellular-quectel-bc95)

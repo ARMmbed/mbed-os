@@ -15,3 +15,5 @@ target_sources(mbed-cellular-ublox-at
         UBLOX_AT_CellularNetwork.cpp
         UBLOX_AT_CellularStack.cpp
 )
+
+target_link_libraries(mbed-cellular PRIVATE mbed-cellular-ublox-at)

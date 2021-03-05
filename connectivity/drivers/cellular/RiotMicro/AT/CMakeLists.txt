@@ -15,3 +15,5 @@ target_sources(mbed-cellular-riotmicro-at
         RM1000_AT_CellularNetwork.cpp
         RM1000_AT_CellularStack.cpp
 )
+
+target_link_libraries(mbed-cellular PRIVATE mbed-cellular-riotmicro-at)

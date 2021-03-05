@@ -15,3 +15,5 @@ target_sources(mbed-cellular-telit-me310
         TELIT_ME310_CellularNetwork.cpp
         TELIT_ME310_CellularStack.cpp
 )
+
+target_link_libraries(mbed-cellular PRIVATE mbed-cellular-telit-me310)

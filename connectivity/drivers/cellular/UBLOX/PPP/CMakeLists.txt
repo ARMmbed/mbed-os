@@ -12,3 +12,5 @@ target_sources(mbed-cellular-ublox-ppp
     INTERFACE
         UBLOX_PPP.cpp
 )
+
+target_link_libraries(mbed-cellular PRIVATE mbed-cellular-ublox-ppp)

@@ -16,3 +16,5 @@ target_sources(mbed-cellular-ublox-n2xx
         UBLOX_N2XX_CellularSMS.cpp
         UBLOX_N2XX_CellularStack.cpp
 )
+
+target_link_libraries(mbed-cellular PRIVATE mbed-cellular-ublox-n2xx)
