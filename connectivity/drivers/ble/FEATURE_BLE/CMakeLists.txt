@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# These components are INTERFACE libraries as they provide functionality for `mbed-ble`
+
 if("BlueNRG_2" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(COMPONENT_BlueNRG_2)
 endif()
