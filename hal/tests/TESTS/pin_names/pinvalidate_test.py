@@ -29,9 +29,9 @@ def pin_name_dict(pin_name_content):
 def test_marker_check():
     return # test temporarily disabled
     expect = [
-        {'file': '/Users/geopsi01/Development/mbed-os/hal/tests/TESTS/pin_names/test_files/nonexistent_target/PinNames.h', 'error': 'target not found'},
-        {'file': '/Users/geopsi01/Development/mbed-os/hal/tests/TESTS/pin_names/test_files/misformatted_marker/PinNames.h', 'error': 'marker invalid or not found'},
-        {'file': '/Users/geopsi01/Development/mbed-os/hal/tests/TESTS/pin_names/test_files/missing_marker/PinNames.h', 'error': 'marker invalid or not found'}
+        {'file': './test_files/nonexistent_target/PinNames.h', 'error': 'target not found'},
+        {'file': './test_files/misformatted_marker/PinNames.h', 'error': 'marker invalid or not found'},
+        {'file': './test_files/missing_marker/PinNames.h', 'error': 'marker invalid or not found'}
     ]
     
     assert check_markers(test_mode=True) == expect
@@ -39,8 +39,8 @@ def test_marker_check():
 def test_duplicate_pinnames_files_check():
     return # test temporarily disabled
     expect = [
-        {'file': '/Users/geopsi01/Development/mbed-os/hal/tests/TESTS/pin_names/test_files/PinNames.h', 'error': 'duplicate file'},
-        {'file': '/Users/geopsi01/Development/mbed-os/hal/tests/TESTS/pin_names/test_files/duplicate_marker/PinNames.h', 'error': 'duplicate file'}
+        {'file': './test_files/PinNames.h', 'error': 'duplicate file'},
+        {'file': './test_files/duplicate_marker/PinNames.h', 'error': 'duplicate file'}
     ]
     
     assert check_duplicate_pinnames_files(test_mode=True) == expect
@@ -48,8 +48,8 @@ def test_duplicate_pinnames_files_check():
 def test_duplicate_markers_check():
     return # test temporarily disabled
     expect = [
-        {'file': '/Users/geopsi01/Development/mbed-os/hal/tests/TESTS/pin_names/test_files/duplicate_file/PinNames.h', 'error': 'duplicate marker'},
-        {'file': '/Users/geopsi01/Development/mbed-os/hal/tests/TESTS/pin_names/test_files/duplicate_marker/PinNames.h', 'error': 'duplicate marker'}
+        {'file': './test_files/duplicate_file/PinNames.h', 'error': 'duplicate marker'},
+        {'file': './test_files/duplicate_marker/PinNames.h', 'error': 'duplicate marker'}
     ]
     
     assert check_duplicate_markers(test_mode=True) == expect
