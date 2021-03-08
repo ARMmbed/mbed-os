@@ -5999,9 +5999,7 @@
         "is_disk_virtual": true,
         "supported_toolchains": [
             "ARM",
-            "uARM",
-            "GCC_ARM",
-            "IAR"
+            "GCC_ARM"
         ],
         "config": {
             "gpio-irq-debounce-enable": {
@@ -6074,6 +6072,19 @@
         },
         "detect_code": [
             "1302"
+        ],
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
+        },
+        "supported_application_profiles": [
+            "full", "bare-metal"
         ]
     },
     "NUMAKER_PFM_M453": {
@@ -6301,9 +6312,7 @@
         "is_disk_virtual": true,
         "supported_toolchains": [
             "ARM",
-            "uARM",
-            "GCC_ARM",
-            "IAR"
+            "GCC_ARM"
         ],
         "config": {
             "spim-ccm-enable": {
@@ -6407,7 +6416,20 @@
         "overrides": {
             "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
-        }
+        },
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
+        },
+        "supported_application_profiles": [
+            "full", "bare-metal"
+        ]
     },
     "NUMAKER_PFM_M487": {
         "inherits": [
@@ -6642,9 +6664,8 @@
             "LPTICKER_DELAY_TICKS=4"
         ],
         "supported_toolchains": [
-            "ARMC6",
-            "GCC_ARM",
-            "IAR"
+            "ARM",
+            "GCC_ARM"
         ],
         "config": {
             "usb-uart": {
@@ -6735,7 +6756,20 @@
                 512
             ]
         ],
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
+        },
+        "supported_application_profiles": [
+            "full", "bare-metal"
+        ]
     },
     "NUMAKER_IOT_M252": {
         "inherits": [
@@ -7553,9 +7587,8 @@
         ],
         "is_disk_virtual": true,
         "supported_toolchains": [
-            "ARMC6",
-            "GCC_ARM",
-            "IAR"
+            "ARM",
+            "GCC_ARM"
         ],
         "config": {
             "usb-uart": {
@@ -7646,7 +7679,20 @@
             "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
         },
-        "forced_reset_timeout": 3
+        "forced_reset_timeout": 3,
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
+        },
+        "supported_application_profiles": [
+            "full", "bare-metal"
+        ]
     },
     "NUMAKER_IOT_M263A": {
         "inherits": [
