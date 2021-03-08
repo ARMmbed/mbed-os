@@ -8,4 +8,4 @@ target_sources(mbed-ble-bluenrg-ms
         BlueNrgMsHCIDriver.cpp
 )
 
-target_link_libraries(mbed-ble PRIVATE mbed-ble-bluenrg-ms)
+target_link_libraries(mbed-ble PRIVATE mbed-ble-bluenrg-ms mbed-rtos)
