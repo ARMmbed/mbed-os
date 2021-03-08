@@ -1,6 +1,9 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# INTERFACE library due to deps between ble <-> cordio-ll
+add_library(mbed-ble-cordio-ll INTERFACE)
+
 target_include_directories(mbed-ble-cordio-ll
     INTERFACE
         .
