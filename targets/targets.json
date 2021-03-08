@@ -4249,7 +4249,7 @@
             "MCUXpresso_MCUS",
             "EVK",
             "MIMXRT1170",
-	    "IMX70"
+	    "IMX"
         ],
         "is_disk_virtual": true,
         "macros": [

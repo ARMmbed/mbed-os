@@ -25,6 +25,11 @@ if("MIMXRT1050" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_MIMXRT1050)
 endif()
 
+
+if("MIMXRT1170" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_MIMXRT1170)
+endif()
+
 if("USB" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(middleware/TARGET_USB)
 endif()

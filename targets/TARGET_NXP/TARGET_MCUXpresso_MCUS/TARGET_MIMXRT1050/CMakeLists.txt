@@ -16,6 +16,9 @@ if("EVK" IN_LIST MBED_TARGET_LABELS)
             TARGET_EVK/lpm.c
             TARGET_EVK/mbed_overrides.c
             TARGET_EVK/specific.c
+	    TARGET_EVK/trng_api.c
+	    TARGET_EVK/pinmap.c
+	    TARGET_EVK/us_ticker.c
 
             TARGET_EVK/xip/evkbimxrt1050_flexspi_nor_config.c
             TARGET_EVK/xip/evkbimxrt1050_sdram_ini_dcd.c
