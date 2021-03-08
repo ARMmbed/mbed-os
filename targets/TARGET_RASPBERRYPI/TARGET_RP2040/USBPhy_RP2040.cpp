@@ -295,23 +295,17 @@ bool USBPhyHw::endpoint_add(usb_ep_t endpoint, uint32_t max_packet, usb_ep_type_
 
 void USBPhyHw::endpoint_remove(usb_ep_t endpoint)
 {
-    // Halt here, unhandled
-    volatile int going = true;
-    while(going);
+
 }
 
 void USBPhyHw::endpoint_stall(usb_ep_t endpoint)
 {
-    // Halt here, unhandled
-    volatile int going = true;
-    while(going);
+
 }
 
 void USBPhyHw::endpoint_unstall(usb_ep_t endpoint)
 {
-    // Halt here, unhandled
-    volatile int going = true;
-    while(going);
+
 }
 
 bool USBPhyHw::endpoint_read(usb_ep_t endpoint, uint8_t *data, uint32_t size)
@@ -385,9 +379,7 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
 
 void USBPhyHw::endpoint_abort(usb_ep_t endpoint)
 {
-    // Unhandled, halt here
-    volatile int going = true;
-    while(going);
+
 }
 
 void USBPhyHw::process()
