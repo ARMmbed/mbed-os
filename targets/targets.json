@@ -2197,6 +2197,10 @@
                 "help": "Clock frequency in Mhz",
                 "value": "8",
                 "macro_name": "CLOCK_FREQUENCY_MHZ"
+            },
+            "usb_speed":  {
+                "help": "USE_USB_OTG_FS or USE_USB_OTG_HS or USE_USB_HS_IN_FS",
+                "value": "USE_USB_OTG_HS"
             }
         },
         "overrides": {
@@ -2208,7 +2212,8 @@
         ],
         "device_has_add": [
             "ANALOGOUT",
-            "QSPI"
+            "QSPI",
+            "USBDEVICE"
         ],
         "device_has_remove": [
             "LPTICKER"
@@ -2651,6 +2656,19 @@
         "macros_add": [
             "STM32G431xx"
         ]
+    },
+    "NUCLEO_G431KB": {
+        "inherits": [
+            "MCU_STM32G431xB"
+        ],
+      "overrides": {
+        "clock_source": "USE_PLL_HSI",
+        "lse_available":  0
+      },
+      "detect_code": [
+        "0851"
+      ],
+      "device_name": "STM32G431KBTx"
     },
     "MCU_STM32G441xB": {
         "inherits": [
@@ -4076,6 +4094,66 @@
         ],
         "device_name": "STM32WB55RGVx"
     },
+    "MCU_STM32WL": {
+        "inherits": [
+            "MCU_STM32"
+        ],
+        "public": false,
+        "core": "Cortex-M4",
+        "extra_labels_add": [
+            "STM32WL"
+        ],
+        "config": {
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
+                "value": 1
+            },
+            "lse_drive_load_level": {
+                "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
+                "value": "RCC_LSEDRIVE_LOW"
+            }
+        },
+        "macros_add": [
+            "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED"
+        ],
+        "overrides": {
+            "lpticker_delay_ticks": 0
+        },
+        "device_has_add": [
+            "MPU",
+            "CRC",
+            "FLASH",
+            "SERIAL_ASYNCH",
+            "ANALOGOUT",
+            "ANALOGIN",
+            "TRNG"
+        ]
+    },
+    "MCU_STM32WL55xC": {
+        "inherits": [
+            "MCU_STM32WL"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32WL55xC"
+        ],
+        "macros_add": [
+            "STM32WL55xx"
+        ]
+    },
+    "NUCLEO_WL55JC": {
+        "inherits": [
+            "MCU_STM32WL55xC"
+        ],
+        "supported_form_factors": [
+            "ARDUINO"
+        ],
+        "detect_code": [
+            "0866"
+        ],
+        "device_name": "STM32WL55JCIx"
+    },
     "MIMXRT1050_EVK": {
         "supported_form_factors": [
             "ARDUINO"
@@ -4157,6 +4235,42 @@
             "deep-sleep-latency": 10,
             "network-default-interface-type": "ETHERNET"
         }
+    },
+ "MIMXRT1170_EVK": {
+    "supported_form_factors": [
+            "ARDUINO"
+        ],
+        "core": "Cortex-M7FD",
+        "supported_toolchains": [
+            "GCC_ARM"
+        ],
+        "extra_labels": [
+            "NXP",
+            "MCUXpresso_MCUS",
+            "EVK",
+            "MIMXRT1170",
+	    "IMX70"
+        ],
+        "is_disk_virtual": true,
+        "macros": [
+            "CPU_MIMXRT1176DVMAA_cm7",
+            "XIP_BOOT_HEADER_ENABLE=1",
+            "XIP_EXTERNAL_FLASH=1",
+            "XIP_BOOT_HEADER_DCD_ENABLE=1",
+            "SKIP_SYSCLK_INIT",
+            "MBED_MPU_CUSTOM"
+        ],
+        "inherits": [
+            "Target"
+        ],
+        "detect_code": [
+            "0228"
+        ],
+        "device_has": [
+            "SERIAL",
+	    "LPTICKER"
+        ],
+        "device_name": "MIMXRT1170"
     },
     "LPC54114": {
         "supported_form_factors": [
