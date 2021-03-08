@@ -31,10 +31,16 @@ target_link_libraries(mbed-nanostack
         mbed-rtos
         mbed-core
         mbed-randlib
-        mbed-netsockets
+        mbed-mbedtls
+        mbed-coap
+        mbed-nanostack-coap-service
         mbed-nanostack-mbed-mesh-api
         mbed-nanostack-sal-stack-event-loop
         mbed-nanostack-sal-stack
         mbed-nanostack-hal-mbed-cmsis-rtos
         mbed-nanostack-libservice
 )
+
+# Get common headers from netsockets, nanostack requires only declarations
+# We get circular dependencies netsockets <-> nanostack
+target_include_directories(mbed-nanostack PUBLIC $<TARGET_PROPERTY:mbed-netsocket,INCLUDE_DIRECTORIES>)

@@ -23,4 +23,4 @@ target_compile_definitions(mbed-coap
         MBED_CONF_COAP_PRESENT=1
 )
 
-target_link_libraries(mbed-coap mbed-core mbed-nanostack-libservice)
+target_link_libraries(mbed-coap PRIVATE mbed-core mbed-nanostack-libservice mbed-randlib)

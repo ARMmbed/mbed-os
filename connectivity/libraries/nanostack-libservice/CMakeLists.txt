@@ -20,23 +20,13 @@ target_sources(mbed-nanostack-libservice
         source/nsdynmemLIB/nsdynmemLIB.c
         source/nsdynmemtracker/nsdynmem_tracker_lib.c
         source/nvmHelper/ns_nvm_helper.c
-)
-
-# The definition, source files and include directories below
-# are needed by mbed-trace which is part of the mbed-core CMake target
-target_compile_definitions(mbed-core
-    INTERFACE
-        MBED_CONF_NANOSTACK_LIBSERVICE_PRESENT=1
-)
-target_include_directories(mbed-core
-    INTERFACE
-        .
-        ./mbed-client-libservice
-)
-target_sources(mbed-core-objects
-    PRIVATE
         source/libBits/common_functions.c
         source/libip6string/ip6tos.c
+)
+
+target_compile_definitions(mbed-nanostack-libservice
+    PUBLIC
+        MBED_CONF_NANOSTACK_LIBSERVICE_PRESENT=1
 )
 
 target_link_libraries(mbed-nanostack-libservice PRIVATE mbed-core)
