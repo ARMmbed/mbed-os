@@ -104,6 +104,7 @@
 #include "platform/ScopedRomWriteLock.h"
 #include "platform/ScopedRamExecutionLock.h"
 #include "platform/mbed_stats.h"
+#include "platform/Stream.h"
 
 // mbed Non-hardware components
 #include "platform/Callback.h"

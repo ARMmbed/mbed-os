@@ -134,7 +134,7 @@ public:
     *  @param size     Size to erase in bytes
     *  @return         True if erase is valid for underlying block device
     */
-    virtual bool is_valid_erase(bd_addr_t addr, bd_size_t size) const;
+    virtual bool is_valid_erase(mbed::bd_addr_t addr, mbed::bd_size_t size) const;
 
 
 private:

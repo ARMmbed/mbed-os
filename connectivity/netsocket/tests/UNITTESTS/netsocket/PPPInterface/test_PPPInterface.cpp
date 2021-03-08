@@ -38,6 +38,7 @@ using ::testing::SaveArgPointee;
 using ::testing::SetArrayArgument;
 using ::testing::SetArgPointee;
 using ::testing::SetArgReferee;
+using ::testing::DoAll;
 
 class MockPPP : public PPP {
 public:

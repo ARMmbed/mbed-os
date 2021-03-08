@@ -179,7 +179,7 @@ void mbed_sdk_init()
     }
 #endif /* __ICACHE_PRESENT */
 
-#if defined(DUAL_CORE)
+#if defined(DUAL_CORE) && (TARGET_STM32H7)
     /* HW semaphore Clock enable*/
     __HAL_RCC_HSEM_CLK_ENABLE();
 

@@ -6,16 +6,20 @@ if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(LINKER_FILE TOOLCHAIN_GCC_ARM/STM32F401XC.ld)
 endif()
 
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+add_library(mbed-stm32f401xc INTERFACE)
 
-target_sources(mbed-core 
+target_sources(mbed-stm32f401xc
     INTERFACE
         system_clock.c
         PeripheralPins.c
         ${STARTUP_FILE}
 )
 
-target_include_directories(mbed-core
+target_include_directories(mbed-stm32f401xc
     INTERFACE
         .
 )
+
+mbed_set_linker_script(mbed-stm32f401xc ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+
+target_link_libraries(mbed-stm32f401xc INTERFACE mbed-stm32f4)

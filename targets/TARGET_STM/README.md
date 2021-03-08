@@ -75,6 +75,7 @@ This table summarizes the STM32Cube versions currently used in Mbed OS master br
 | L4          |    1.16.0    | https://github.com/STMicroelectronics/STM32CubeL4 |
 | L5          |    1.3.0     | https://github.com/STMicroelectronics/STM32CubeL5 |
 | WB          |    1.8.0     | https://github.com/STMicroelectronics/STM32CubeWB |
+| WL          |    1.0.0     | https://github.com/STMicroelectronics/STM32CubeWL |
 
 In Mbed OS repository, we try to minimize the difference between "official" and copied files.
 
@@ -102,6 +103,10 @@ Tool is not used in Mbed OS, but it can be useful for you.
 ### STM32WB
 
 [STM32WB README](TARGET_STM32WB/README.md)
+
+### STM32WL
+
+[STM32WL README](TARGET_STM32WL/README.md)
 
 ### STM32H7
 
@@ -319,6 +324,56 @@ Ex:
 Sometimes, pin is explicitly removed by default to avoid issues (but you can uncomment the line for your custom board)
 ```
 //  {PB_4,       UART_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)}, // Connected to same instance as STDIO 
+```
+
+### Clock selection
+
+#### System clock
+
+System Core Clock is based on an high-speed clock.
+
+- the HSI is the high-speed internal (MCU) clock with low accuracy
+- the HSE is the high-speed external clock with higher accuray
+
+For each target, a default choice has been made in the "clock_source" config settings in the targets.json file.
+
+For main targets, it is something like:
+
+```
+    "clock_source": {
+        "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
+```
+
+Meaning that:
+- PLL with the external HSE clock is first configured
+- if it fails, PLL with HSI is then configured
+
+
+#### Low power clock
+
+Low power ticker and RTC are based on an low-speed clock.
+
+- the LSI is the low-speed internal clock with low accuracy
+- the LSE is the low-speed external clock connected to 32.768 kHz quartz crystal
+
+In targets.json file, it is supposed that a LSE is provided in the board
+
+```
+"config": {
+    "lse_available": {
+        "value": "1"
+```
+
+You can change this in you local mbed_app.json:
+```
+{
+    "target_overrides":
+    {
+        "XXXX": {
+            "target.lse_available": "0"
+        }
+    }
+}
 ```
 
 

@@ -293,7 +293,7 @@ status_t flexspi_nor_flash_page_program_ram(uint32_t address, const uint32_t *sr
         flashXfer.cmdType       = kFLEXSPI_Write;
         flashXfer.SeqNumber     = 2;
         flashXfer.seqIndex      = HYPERFLASH_CMD_LUT_SEQ_IDX_PAGEPROGRAM;
-        flashXfer.data          = (uint32_t *)(src + offset);
+        flashXfer.data          = (uint32_t *)((uint32_t)src + offset);
         flashXfer.dataSize      = BOARD_FLASH_PAGE_SIZE;
 
         status = FLEXSPI_TransferBlocking(FLEXSPI, &flashXfer);
@@ -509,7 +509,7 @@ status_t flexspi_nor_flash_page_program_ram(uint32_t address, const uint32_t *sr
         flashXfer.cmdType       = kFLEXSPI_Write;
         flashXfer.SeqNumber     = 1;
         flashXfer.seqIndex      = NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_QUAD;
-        flashXfer.data          = (uint32_t *)(src + offset);
+        flashXfer.data          = (uint32_t *)((uint32_t)src + offset);
         flashXfer.dataSize      = BOARD_FLASH_PAGE_SIZE;
 
         status = FLEXSPI_TransferBlocking(FLEXSPI, &flashXfer);

@@ -147,7 +147,7 @@ int _storage_config_filesystem_common();
  *
  * @returns pointer to other block device.
  */
-BlockDevice *get_other_blockdevice();
+mbed::BlockDevice *get_other_blockdevice();
 
 static const char *filesystemstore_folder_path = NULL;
 
@@ -559,10 +559,10 @@ BlockDevice *_get_blockdevice_default(bd_addr_t start_address, bd_size_t size)
  * get_other_blockdevice() */
 BlockDevice *_get_blockdevice_other(bd_addr_t start_address, bd_size_t size)
 {
-    bd_addr_t aligned_end_address;
-    bd_addr_t aligned_start_address;
+    mbed::bd_addr_t aligned_end_address;
+    mbed::bd_addr_t aligned_start_address;
 
-    BlockDevice *bd = get_other_blockdevice();
+    mbed::BlockDevice *bd = get_other_blockdevice();
     if (bd == NULL) {
         tr_error("KV Config: \"other\" block device init fail");
         return NULL;

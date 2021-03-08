@@ -1,54 +1,37 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("FF_LPC546XX" IN_LIST MBED_TARGET_LABELS)
-    target_include_directories(mbed-core
-        INTERFACE
-            TARGET_FF_LPC546XX
-    )
+include(${MBED_PATH}/targets/TARGET_NXP/scripts/mbed_set_post_build_nxp.cmake)
 
-    target_sources(mbed-core
-        INTERFACE
-            TARGET_FF_LPC546XX/PeripheralPins.c
-            TARGET_FF_LPC546XX/clock_config.c
-            TARGET_FF_LPC546XX/mbed_overrides.c
-    )
-elseif("LPCXpresso" IN_LIST MBED_TARGET_LABELS)
-    target_include_directories(mbed-core
-        INTERFACE
-            TARGET_LPCXpresso
-    )
-
-    target_sources(mbed-core
-        INTERFACE
-            TARGET_LPCXpresso/PeripheralPins.c
-            TARGET_LPCXpresso/clock_config.c
-            TARGET_LPCXpresso/crc.c
-            TARGET_LPCXpresso/mbed_overrides.c
-    )
-endif()
+add_subdirectory(TARGET_FF_LPC546XX EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_LPCXpresso EXCLUDE_FROM_ALL)
 
 if(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(STARTUP_FILE device/TOOLCHAIN_ARM_STD/startup_LPC54628.S)
     set(LINKER_FILE device/TOOLCHAIN_ARM_STD/LPC54628J512.sct)
-    set(LIB_POWER device/TOOLCHAIN_ARMC6/lib_power.ar)
+    set(LIB_POWER device/TOOLCHAIN_ARM_STD/lib_power.ar)
 elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(STARTUP_FILE device/TOOLCHAIN_GCC_ARM/startup_LPC54628.S)
     set(LINKER_FILE device/TOOLCHAIN_GCC_ARM/LPC54628J512.ld)
     set(LIB_POWER device/TOOLCHAIN_GCC_ARM/libpower.a)
 endif()
 
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+add_library(mbed-mcu-lpc546xx INTERFACE)
 
-target_link_libraries(mbed-core INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/${LIB_POWER})
+target_link_libraries(mbed-mcu-lpc546xx
+    INTERFACE
+        ${CMAKE_CURRENT_SOURCE_DIR}/${LIB_POWER}
+        mbed-mcuxpresso-mcus
+        mbed-lpc
+)
 
-target_include_directories(mbed-core
+target_include_directories(mbed-mcu-lpc546xx
     INTERFACE
         device
         drivers
 )
 
-target_sources(mbed-core
+target_sources(mbed-mcu-lpc546xx
     INTERFACE
         flash_api.c
         trng_api.c
@@ -100,3 +83,16 @@ target_sources(mbed-core
 
         ${STARTUP_FILE}
 )
+
+mbed_set_linker_script(mbed-mcu-lpc546xx ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+
+add_library(mbed-lpc546xx INTERFACE)
+
+target_link_libraries(mbed-lpc546xx
+    INTERFACE
+        mbed-mcu-lpc546xx
+        mbed-lpc546xx-xpresso
+)
+
+mbed_post_build_lpc_patch_vtable("LPC546XX")
+mbed_post_build_lpc_patch_vtable("FF_LPC546XX")

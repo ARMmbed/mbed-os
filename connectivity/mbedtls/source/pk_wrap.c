@@ -1,7 +1,7 @@
 /*
  *  Public Key abstraction layer: wrapper functions
  *
- *  Copyright (C) 2006-2020, ARM Limited, All Rights Reserved
+ *  Copyright The Mbed TLS Contributors
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,15 +15,9 @@
  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "mbedtls/config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "common.h"
 
 #if defined(MBEDTLS_PK_C)
 #include "mbedtls/pk_internal.h"
@@ -559,12 +553,8 @@ static int ecdsa_verify_wrap( void *ctx_arg, mbedtls_md_type_t md_alg,
     mbedtls_pk_info_t pk_info = mbedtls_eckey_info;
     psa_algorithm_t psa_sig_md, psa_md;
     size_t curve_bits;
-    psa_ecc_curve_t curve;
-#if TARGET_TFM
-    curve = mbedtls_ecp_curve_info_from_grp_id( ctx->grp.id )->tls_id;
-#else
-    curve = mbedtls_ecc_group_to_psa( ctx->grp.id, &curve_bits );
-#endif
+    psa_ecc_family_t curve =
+        mbedtls_ecc_group_to_psa( ctx->grp.id, &curve_bits );
     const size_t signature_part_size = ( ctx->grp.nbits + 7 ) / 8;
 
     if( curve == 0 )

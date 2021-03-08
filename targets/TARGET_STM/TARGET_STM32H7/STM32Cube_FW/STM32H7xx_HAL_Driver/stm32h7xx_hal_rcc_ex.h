@@ -2403,7 +2403,11 @@ typedef struct
   *            @arg RCC_I2C4CLKSOURCE_HSI: HSI selected as I2C4 clock
   *            @arg RCC_I2C4CLKSOURCE_CSI: CSI selected as I2C4 clock
   */
+#if defined(RCC_D3CCIPR_I2C4SEL)
 #define __HAL_RCC_GET_I2C4_SOURCE() ((uint32_t)(READ_BIT(RCC->D3CCIPR, RCC_D3CCIPR_I2C4SEL)))
+#else
+#define __HAL_RCC_GET_I2C4_SOURCE() ((uint32_t)(READ_BIT(RCC->SRDCCIPR, RCC_SRDCCIPR_I2C4SEL)))
+#endif /* RCC_D3CCIPR_I2C4SEL */
 
 #if defined(I2C5)
 /** @brief macro to configure the I2C5 clock (I2C5CLK).

@@ -38,7 +38,7 @@ if("SPIF" IN_LIST MBED_TARGET_LABELS)
     list(APPEND mbed_blockdevice_libs mbed-storage-spif)
 endif()
 
-mbed_greentea_cmake_macro(
+mbed_greentea_add_test(
     TEST_NAME ${TEST_TARGET}
     TEST_REQUIRED_LIBS
         mbed-storage-blockdevice

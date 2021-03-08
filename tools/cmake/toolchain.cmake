@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Generate a file containing compile definitions
-function(mbed_generate_options_for_linker target definitions_file)
+function(mbed_generate_options_for_linker target output_response_file_path)
     set(_compile_definitions
-        "$<TARGET_PROPERTY:${target},COMPILE_DEFINITIONS>"
+        "$<TARGET_PROPERTY:${target},INTERFACE_COMPILE_DEFINITIONS>"
     )
 
     # Remove macro definitions that contain spaces as the lack of escape sequences and quotation marks
@@ -19,8 +19,8 @@ function(mbed_generate_options_for_linker target definitions_file)
     set(_compile_definitions
         "$<$<BOOL:${_compile_definitions}>:-D$<JOIN:${_compile_definitions}, -D>>"
     )
-    file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/compile_time_defs.txt" CONTENT "${_compile_definitions}\n")
-    set(${definitions_file} @${CMAKE_BINARY_DIR}/compile_time_defs.txt PARENT_SCOPE)
+    file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/compile_time_defs.txt" CONTENT "${_compile_definitions}\n")
+    set(${output_response_file_path} @${CMAKE_CURRENT_BINARY_DIR}/compile_time_defs.txt PARENT_SCOPE)
 endfunction()
 # Set the system processor depending on the CPU core type
 if (MBED_CPU_CORE STREQUAL Cortex-A9)
@@ -53,6 +53,8 @@ elseif (MBED_CPU_CORE STREQUAL Cortex-M4)
     set(CMAKE_SYSTEM_PROCESSOR cortex-m4)
 elseif (MBED_CPU_CORE STREQUAL Cortex-M4F)
     set(CMAKE_SYSTEM_PROCESSOR cortex-m4)
+elseif (MBED_CPU_CORE STREQUAL Cortex-M55)
+    set(CMAKE_SYSTEM_PROCESSOR cortex-m55)
 elseif (MBED_CPU_CORE STREQUAL Cortex-M7)
     set(CMAKE_SYSTEM_PROCESSOR cortex-m7)
 elseif (MBED_CPU_CORE STREQUAL Cortex-M7F)

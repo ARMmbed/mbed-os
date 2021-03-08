@@ -1,14 +1,16 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-core
+add_library(mbed-nxp-usb INTERFACE)
+
+target_include_directories(mbed-nxp-usb
     INTERFACE
         device
         include
         phy
 )
 
-target_sources(mbed-core
+target_sources(mbed-nxp-usb
     INTERFACE
         device/usb_device_dci.c
         device/usb_device_ehci.c

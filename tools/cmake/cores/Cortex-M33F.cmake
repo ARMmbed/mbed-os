@@ -7,19 +7,13 @@ if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
         "-mthumb"
         "-mfpu=fpv5-sp-d16"
         "-mfloat-abi=softfp"
-        "-march=armv8-m.main"
+        "-mcpu=cortex-m33+nodsp"
     )
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
-    list(APPEND c_cxx_compile_options
-        "-mcpu=cortex-m33+nodsp"
+    list(APPEND common_options
         "-mfpu=fpv5-sp-d16"
         "-mfloat-abi=hard"
-    )
-    list(APPEND asm_compile_options
-        "-mcpu=Cortex-M33.no_dsp"
-    )
-    list(APPEND link_options
-        "--cpu=Cortex-M33.no_dsp"
+        "-mcpu=cortex-m33+nodsp"
     )
 endif()
 
@@ -28,7 +22,6 @@ function(mbed_set_cpu_core_definitions target)
         INTERFACE
             __CORTEX_M33
             ARM_MATH_ARMV8MML
-            DOMAIN_NS=1
             __FPU_PRESENT=1U
             __CMSIS_RTOS
             __MBED_CMSIS_RTOS_CM

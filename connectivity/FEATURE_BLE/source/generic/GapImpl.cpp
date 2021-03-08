@@ -2120,8 +2120,12 @@ ble_error_t Gap::stopAdvertising(advertising_handle_t handle)
     }
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
-    if (!_active_sets.get(handle) || _pending_sets.get(handle)) {
+    if (_pending_sets.get(handle)) {
         return BLE_STACK_BUSY;
+    }
+
+    if (!_active_sets.get(handle)) {
+        return BLE_ERROR_NONE;
     }
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING

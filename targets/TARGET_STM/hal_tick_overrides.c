@@ -19,6 +19,7 @@
 
 #include "hal/us_ticker_api.h"
 #include "us_ticker_defines.h"
+#include "mbed_critical.h"
 
 // This variable is set to 1 at the of mbed_sdk_init function.
 // The ticker_read_us function must not be called until the mbed_sdk_init is terminated.
@@ -50,6 +51,9 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 
 uint32_t HAL_GetTick()
 {
+    // Prevent a task switch causing errors since this function isn't re-entrant
+    core_util_critical_section_enter();
+
     uint32_t new_time = us_ticker_read();
     uint32_t elapsed_time = (((new_time - prev_time) & US_TICKER_MASK) + prev_tick_remainder);
     prev_time = new_time;
@@ -67,6 +71,8 @@ uint32_t HAL_GetTick()
         prev_tick_remainder = elapsed_time % 1000;
     }
     total_ticks += elapsed_ticks;
+    
+    core_util_critical_section_exit();
     return total_ticks;
 }
 

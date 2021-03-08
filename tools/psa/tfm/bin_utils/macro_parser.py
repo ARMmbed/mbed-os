@@ -47,7 +47,7 @@ def parse_and_sum(text):
 # Opens a file that contains the macro of interest, then finds the macro with
 # a regular expression, parses the expression that is defined for the given
 # macro. Lastly it evaluates the expression with the parse_and_sum function
-def evaluate_macro(file, regexp, matchGroupKey, matchGroupData):
+def evaluate_macro(file, regexp, matchGroupKey, matchGroupData, bracketless=False):
     regexp_compiled = re.compile(regexp)
 
     if os.path.isabs(file):
@@ -59,6 +59,9 @@ def evaluate_macro(file, regexp, matchGroupKey, matchGroupData):
     macroValue = {}
     with open(configFile, 'r') as macros_preprocessed_file:
         for line in macros_preprocessed_file:
+            if bracketless:
+                line=line.replace("(","")
+                line=line.replace(")","")
             m = regexp_compiled.match(line)
             if m is not None:
                 macroValue[m.group(matchGroupKey)] = \

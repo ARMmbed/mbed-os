@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 function(_mbed_get_cortex_m_exception_handlers toolchain_dir)
@@ -14,6 +14,8 @@ function(_mbed_get_cortex_m_exception_handlers toolchain_dir)
         elseif(${key} STREQUAL M3)
             set(STARTUP_RTX_FILE TARGET_M3/irq_cm3.S)
         elseif(${key} STREQUAL M33)
+            set(STARTUP_RTX_FILE TARGET_M33/irq_armv8mml.S)
+        elseif(${key} STREQUAL M55)
             set(STARTUP_RTX_FILE TARGET_M33/irq_armv8mml.S)
         elseif(${key} STREQUAL RTOS_M4_M7)
             set(STARTUP_RTX_FILE TARGET_RTOS_M4_M7/irq_cm4f.S)
@@ -40,8 +42,6 @@ if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     _mbed_get_cortex_m_exception_handlers(TOOLCHAIN_GCC)
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     _mbed_get_cortex_m_exception_handlers(TOOLCHAIN_ARM)
-elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
-    _mbed_get_cortex_m_exception_handlers(TOOLCHAIN_IAR)
 endif()
 
 target_include_directories(mbed-rtos

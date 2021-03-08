@@ -12,4 +12,4 @@ project(${TEST_TARGET})
 
 list(APPEND TEST_REQ_LIBS_LIST mbed-fpga-ci-test-shield mbed-storage-blockdevice)
 
-mbed_greentea_cmake_macro(TEST_NAME ${TEST_TARGET} TEST_REQUIRED_LIBS ${TEST_REQ_LIBS_LIST})
+mbed_greentea_add_test(TEST_NAME ${TEST_TARGET} TEST_REQUIRED_LIBS ${TEST_REQ_LIBS_LIST})

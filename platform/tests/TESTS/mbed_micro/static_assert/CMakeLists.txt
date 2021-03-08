@@ -12,4 +12,4 @@ project(${TEST_TARGET})
 
 list(APPEND TEST_SOURCE_LIST test_c.c test_cpp.cpp)
 
-mbed_greentea_cmake_macro(TEST_NAME ${TEST_TARGET} TEST_SOURCES ${TEST_SOURCE_LIST})
+mbed_greentea_add_test(TEST_NAME ${TEST_TARGET} TEST_SOURCES ${TEST_SOURCE_LIST})

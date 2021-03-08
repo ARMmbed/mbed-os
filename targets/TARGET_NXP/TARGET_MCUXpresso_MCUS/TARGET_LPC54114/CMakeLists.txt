@@ -1,53 +1,18 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("LPCXpresso" IN_LIST MBED_TARGET_LABELS)
-    target_include_directories(mbed-core
-        INTERFACE
-            TARGET_LPCXpresso
-    )
+add_subdirectory(device/TARGET_LPC54114_M4 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_LPCXpresso EXCLUDE_FROM_ALL)
 
-    target_sources(mbed-core
-        INTERFACE
-            TARGET_LPCXpresso/PeripheralPins.c
-            TARGET_LPCXpresso/clock_config.c
-            TARGET_LPCXpresso/mbed_overrides.c
-    )
-endif()
+add_library(mbed-lpc54114 INTERFACE)
 
-if("LPC54114_M4" IN_LIST MBED_TARGET_LABELS)
-    if(${MBED_TOOLCHAIN} STREQUAL "ARM")
-        set(STARTUP_FILE device/TARGET_LPC54114_M4/TOOLCHAIN_ARM_STD/startup_LPC54114_cm4.S)
-        set(LINKER_FILE device/TARGET_LPC54114_M4/TOOLCHAIN_ARM_STD/LPC54114J256_cm4.sct)
-        set(LIB_POWER device/TARGET_LPC54114_M4/TOOLCHAIN_ARM_STD/libpower.ar)
-    elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
-        set(STARTUP_FILE device/TARGET_LPC54114_M4/TOOLCHAIN_GCC_ARM/startup_LPC54114_cm4.S)
-        set(LINKER_FILE device/TARGET_LPC54114_M4/TOOLCHAIN_GCC_ARM/LPC54114J256_cm4_flash.ld)
-        set(LIB_POWER device/TARGET_LPC54114_M4/TOOLCHAIN_GCC_ARM/libpower.a)
-    endif()
-
-    target_link_libraries(mbed-core INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/${LIB_POWER})
-
-    target_include_directories(mbed-core
-        INTERFACE
-            device/TARGET_LPC54114_M4
-    )
-
-    target_sources(mbed-core
-        INTERFACE
-            device/TARGET_LPC54114_M4/system_LPC54114_cm4.c
-    )
-endif()
-
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
-
-target_include_directories(mbed-core
+target_include_directories(mbed-lpc54114
     INTERFACE
         device
         drivers
 )
 
-target_sources(mbed-core
+target_sources(mbed-lpc54114
     INTERFACE
         flash_api.c
 
@@ -81,6 +46,12 @@ target_sources(mbed-core
         drivers/fsl_usart_dma.c
         drivers/fsl_utick.c
         drivers/fsl_wwdt.c
+)
 
-        ${STARTUP_FILE}
+target_link_libraries(mbed-lpc54114
+    INTERFACE
+        mbed-mcuxpresso-mcus
+        mbed-lpc5114-xpresso
+        mbed-lpc
+        mbed-lpc54114-m4
 )

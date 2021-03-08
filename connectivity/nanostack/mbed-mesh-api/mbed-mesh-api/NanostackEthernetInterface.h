@@ -28,7 +28,7 @@ public:
                           nsapi_ip_stack_t stack = DEFAULT_STACK,
                           bool blocking = true) override;
     nsapi_error_t bringdown() override;
-    void get_mac_address(uint8_t *buf);
+    void get_mac_address(uint8_t *buf) const override;
     char *get_mac_address(char *buf, nsapi_size_t buflen) override;
 
     char *get_interface_name(char *buf) override;

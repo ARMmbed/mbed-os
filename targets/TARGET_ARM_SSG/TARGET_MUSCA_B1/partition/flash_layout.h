@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2018-2020 Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2021 Arm Limited. All rights reserved.
+ * Copyright (c) 2020 Cypress Semiconductor Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -19,7 +20,19 @@
 #ifndef __FLASH_LAYOUT_H__
 #define __FLASH_LAYOUT_H__
 
-/* Flash layout on Musca-B1 with BL2(single image boot, boot from eFlash 0):
+/* Flash layout on Musca-B1 with BL2 (multiple image boot, boot from eFlash 0):
+ *
+ * 0x0A00_0000 BL2 - MCUBoot (128 KB)
+ * 0x0A02_0000 Secure image     primary slot (384 KB)
+ * 0x0A08_0000 Non-secure image primary slot (512 KB)
+ * 0x0A10_0000 Secure image     secondary slot (384 KB)
+ * 0x0A16_0000 Non-secure image secondary slot (512 KB)
+ * 0x0A1E_0000 Scratch area (64 KB)
+ * 0x0A1F_0000 Internal Trusted Storage Area (32 KB)
+ * 0x0A1F_8000 NV counters area (16 KB)
+ * 0x0A1F_C000 Unused (32 KB)
+ *
+ * Flash layout on Musca-B1 with BL2 (single image boot):
  *
  * 0x0A00_0000 BL2 - MCUBoot (128 KB)
  * 0x0A02_0000 Primary image area (896 KB):
@@ -28,18 +41,20 @@
  * 0x0A10_0000 Secondary image area (896 KB):
  *    0x0A10_0000 Secure     image secondary (384 KB)
  *    0x0A16_0000 Non-secure image secondary (512 KB)
- * 0x0A1E_0000 Internal Trusted Storage Area (32 KB)
- * 0x0A1E_8000 NV counters area (16 KB)
+ * 0x0A1E_0000 Scratch area (64 KB)
+ * 0x0A1F_0000 Internal Trusted Storage Area (32 KB)
+ * 0x0A1F_8000 NV counters area (16 KB)
+ * 0x0A1F_C000 Unused (32 KB)
  *
  * Note: As eFlash is written at runtime, the eFlash driver code is placed
- * in code sram to avoid any interference.
+ * in code SRAM to avoid any interference.
  *
  * Flash layout on Musca-B1 without BL2:
  * 0x0A00_0000 Secure     image
- * 0x0A07_0000 Non-secure image
+ * 0x0A08_0000 Non-secure image
  *
  * QSPI Flash layout
- * 0x0000_0000 Secure Storage Area (20 KB)
+ * 0x0000_0000 Protected Storage Area (20 KB)
  */
 
 /* This header file is included from linker scatter file as well, where only a
@@ -88,12 +103,14 @@
 #define FLASH_AREA_2_OFFSET        (FLASH_AREA_0_OFFSET + FLASH_AREA_0_SIZE)
 #define FLASH_AREA_2_SIZE          (FLASH_S_PARTITION_SIZE + \
                                     FLASH_NS_PARTITION_SIZE)
-/* Not used, only the Non-swapping firmware upgrade operation
- * is supported on Musca-B1.
- */
+/* Scratch area */
 #define FLASH_AREA_SCRATCH_ID      (FLASH_AREA_2_ID + 1)
 #define FLASH_AREA_SCRATCH_OFFSET  (FLASH_AREA_2_OFFSET + FLASH_AREA_2_SIZE)
-#define FLASH_AREA_SCRATCH_SIZE    (0)
+#define FLASH_AREA_SCRATCH_SIZE    (4 * FLASH_AREA_IMAGE_SECTOR_SIZE)
+/* The maximum number of status entries supported by the bootloader. */
+#define MCUBOOT_STATUS_MAX_ENTRIES ((FLASH_S_PARTITION_SIZE + \
+                                     FLASH_NS_PARTITION_SIZE) / \
+                                    FLASH_AREA_SCRATCH_SIZE)
 /* Maximum number of image sectors supported by the bootloader. */
 #define MCUBOOT_MAX_IMG_SECTORS    ((FLASH_S_PARTITION_SIZE + \
                                      FLASH_NS_PARTITION_SIZE) / \
@@ -115,24 +132,19 @@
 #define FLASH_AREA_3_ID            (FLASH_AREA_2_ID + 1)
 #define FLASH_AREA_3_OFFSET        (FLASH_AREA_2_OFFSET + FLASH_AREA_2_SIZE)
 #define FLASH_AREA_3_SIZE          (FLASH_NS_PARTITION_SIZE)
-/* Not used, only the Non-swapping firmware upgrade operation
- * is supported on Musca-B1.
- */
+/* Scratch area */
 #define FLASH_AREA_SCRATCH_ID      (FLASH_AREA_3_ID + 1)
 #define FLASH_AREA_SCRATCH_OFFSET  (FLASH_AREA_3_OFFSET + FLASH_AREA_3_SIZE)
-#define FLASH_AREA_SCRATCH_SIZE    (0)
+#define FLASH_AREA_SCRATCH_SIZE    (4 * FLASH_AREA_IMAGE_SECTOR_SIZE)
+/* The maximum number of status entries supported by the bootloader. */
+#define MCUBOOT_STATUS_MAX_ENTRIES (FLASH_MAX_PARTITION_SIZE / \
+                                    FLASH_AREA_SCRATCH_SIZE)
 /* Maximum number of image sectors supported by the bootloader. */
 #define MCUBOOT_MAX_IMG_SECTORS    (FLASH_MAX_PARTITION_SIZE / \
                                     FLASH_AREA_IMAGE_SECTOR_SIZE)
 #else /* MCUBOOT_IMAGE_NUMBER > 2 */
 #error "Only MCUBOOT_IMAGE_NUMBER 1 and 2 are supported!"
 #endif /* MCUBOOT_IMAGE_NUMBER */
-
-/* Not used, only the Non-swapping firmware upgrade operation
- * is supported on Musca-B1. The maximum number of status entries
- * supported by the bootloader.
- */
-#define MCUBOOT_STATUS_MAX_ENTRIES      (0)
 
 /* Internal Trusted Storage (ITS) Service definitions (32 KB) */
 #define FLASH_ITS_AREA_OFFSET           (FLASH_AREA_SCRATCH_OFFSET + \
@@ -152,38 +164,35 @@
                                          SECURE_IMAGE_MAX_SIZE)
 #define NON_SECURE_IMAGE_MAX_SIZE       FLASH_NS_PARTITION_SIZE
 
-/* Secure Storage (SST) Service definitions size is 20 KB. */
+/* Protected Storage (PS) Service definitions size is 20 KB. */
 /* Same as MUSCA_B1_QSPI_FLASH_S_BASE */
 #define QSPI_FLASH_BASE_ADDRESS         (0x10000000)
-#define FLASH_SST_AREA_OFFSET           (0x0)
-#define FLASH_SST_AREA_SIZE             (5 * QSPI_FLASH_AREA_IMAGE_SECTOR_SIZE)
+#define FLASH_PS_AREA_OFFSET            (0x0)
+#define FLASH_PS_AREA_SIZE              (5 * QSPI_FLASH_AREA_IMAGE_SECTOR_SIZE)
 
 /* Flash device name used by BL2
  * Name is defined in flash driver file: Driver_Flash.c
  */
 #define FLASH_DEV_NAME Driver_EFLASH0
 
-/* Secure Storage (SST) Service definitions
+/* Protected Storage (PS) Service definitions
  * Note: Further documentation of these definitions can be found in the
- * TF-M SST Integration Guide.
+ * TF-M PS Integration Guide.
  */
-#define SST_FLASH_DEV_NAME Driver_QSPI_FLASH0
+#define PS_FLASH_DEV_NAME Driver_QSPI_FLASH0
 
 /* In this target the CMSIS driver requires only the offset from the base
  * address instead of the full memory address.
  */
-#define SST_FLASH_AREA_ADDR     FLASH_SST_AREA_OFFSET
-/* Dedicated flash area for SST */
-#define SST_FLASH_AREA_SIZE     FLASH_SST_AREA_SIZE
-#define SST_SECTOR_SIZE         QSPI_FLASH_AREA_IMAGE_SECTOR_SIZE
-/* Number of SST_SECTOR_SIZE per block */
-#define SST_SECTORS_PER_BLOCK   (0x1)
+#define PS_FLASH_AREA_ADDR     FLASH_PS_AREA_OFFSET
+/* Dedicated flash area for PS */
+#define PS_FLASH_AREA_SIZE     FLASH_PS_AREA_SIZE
+#define PS_RAM_FS_SIZE         PS_FLASH_AREA_SIZE
+#define PS_SECTOR_SIZE         QSPI_FLASH_AREA_IMAGE_SECTOR_SIZE
+/* Number of PS_SECTOR_SIZE per block */
+#define PS_SECTORS_PER_BLOCK   (0x1)
 /* Specifies the smallest flash programmable unit in bytes */
-#define SST_FLASH_PROGRAM_UNIT  (0x4)
-/* The maximum asset size to be stored in the SST area */
-#define SST_MAX_ASSET_SIZE      (2048)
-/* The maximum number of assets to be stored in the SST area */
-#define SST_NUM_ASSETS          (10)
+#define PS_FLASH_PROGRAM_UNIT  (0x1)
 
 /* Internal Trusted Storage (ITS) Service definitions
  * Note: Further documentation of these definitions can be found in the
@@ -199,15 +208,12 @@
 #define ITS_FLASH_AREA_ADDR     FLASH_ITS_AREA_OFFSET
 /* Dedicated flash area for ITS */
 #define ITS_FLASH_AREA_SIZE     FLASH_ITS_AREA_SIZE
+#define ITS_RAM_FS_SIZE         ITS_FLASH_AREA_SIZE
 #define ITS_SECTOR_SIZE         FLASH_AREA_IMAGE_SECTOR_SIZE
 /* Number of ITS_SECTOR_SIZE per block */
 #define ITS_SECTORS_PER_BLOCK   (0x1)
 /* Specifies the smallest flash programmable unit in bytes */
 #define ITS_FLASH_PROGRAM_UNIT  (0x4)
-/* The maximum asset size to be stored in the ITS area */
-#define ITS_MAX_ASSET_SIZE      (512)
-/* The maximum number of assets to be stored in the ITS area */
-#define ITS_NUM_ASSETS          (10)
 
 /* NV Counters definitions */
 #define TFM_NV_COUNTERS_AREA_ADDR    FLASH_NV_COUNTERS_AREA_OFFSET

@@ -1,15 +1,13 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("M23_NS" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_M23_NS)
-elseif("M23_S" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_M23_S)
-elseif("NU_PFM_M2351" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_NU_PFM_M2351)
-endif()
+add_subdirectory(TARGET_M23_NS EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_M23_S EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_NU_PFM_M2351 EXCLUDE_FROM_ALL)
 
-target_sources(mbed-core
+add_library(mbed-m2351 INTERFACE)
+
+target_sources(mbed-m2351
     INTERFACE
         dma_api.c
         flash_api.c
@@ -80,7 +78,7 @@ target_sources(mbed-core
         device/startup_M2351.c
 )
 
-target_include_directories(mbed-core
+target_include_directories(mbed-m2351
     INTERFACE
         .
         device
@@ -88,3 +86,5 @@ target_include_directories(mbed-core
         device/StdDriver/inc
         crypto
 )
+
+target_link_libraries(mbed-m2351 INTERFACE mbed-nuvoton)

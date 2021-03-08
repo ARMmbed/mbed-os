@@ -1,17 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("MAX32630FTHR" IN_LIST MBED_TARGET_LABELS)
-    target_include_directories(mbed-core
-        INTERFACE
-            TARGET_MAX32630FTHR
-    )
-
-    target_sources(mbed-core
-        INTERFACE
-            TARGET_MAX32630FTHR/low_level_init.c
-    )
-endif()
+add_subdirectory(TARGET_MAX32630FTHR EXCLUDE_FROM_ALL)
 
 if(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE device/TOOLCHAIN_ARM_STD/MAX3263x.sct)
@@ -27,18 +17,18 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(LIB_EXACT_LE TOOLCHAIN_GCC_ARM/libexactLE.a)
 endif()
 
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+add_library(mbed-max32630 INTERFACE)
 
-target_link_libraries(mbed-core INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/${LIB_EXACT_LE})
+mbed_set_linker_script(mbed-max32630 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_include_directories(mbed-core
+target_include_directories(mbed-max32630
     INTERFACE
         .
         device
         mxc
 )
 
-target_sources(mbed-core
+target_sources(mbed-max32630
     INTERFACE
         PeripheralPins.c
         analogin_api.c
@@ -85,4 +75,10 @@ target_sources(mbed-core
         mxc/wdt2.c
 
         ${STARTUP_FILE}
+)
+
+target_link_libraries(mbed-max32630 
+    INTERFACE 
+        ${CMAKE_CURRENT_SOURCE_DIR}/${LIB_EXACT_LE} 
+        mbed-maxim
 )

@@ -34,7 +34,14 @@ The following targets are supported:
 - Silicon Labs targets
 - STM targets
 - Toshiba targets
-- WICED targets
+
+The post build operations is only supported for the following Mbed boards:
+LPC1114, LPC1768, ARCH_PRO, LPC54114,
+LPC546XX, FF_LPC546XX, CY8CKIT064B0S2_4343W, CYTFM_064B0S2_4343W, CYSBSYSKIT_01.
+
+The following Mbed boards do not have post build operations support as TFM
+is not yet supported:
+ARM_MUSCA_B1, ARM_MUSCA_S1.
 
 ### Supported toolchains
 
@@ -81,20 +88,37 @@ cmake -S <source-dir> -B <build-dir> -DCMAKE_BUILD_TYPE=debug
 ## How to build a greentea test
 
 Install prerequisites suggested in the previous section and follow the below steps to build:
-* Generate the `.mbedbuild/` configuration directory for the Mbed target you want to run the test on using [mbed-os-example-blinky](https://github.com/ARMmbed/mbed-os-example-blinky)
-```
-$ mbedtools configure -t <TOOLCHAIN> -m <MBED_TARGET> 
-```
-* Copy `.mbedbuild/` into the test suite directory.
 * Set your current directory to the test suite directory
-* Run the following command to build the test binary with the full profile
 
+* CMake `MBED_TEST_LINK_LIBRARIES` command-line argument config must be passed either `mbed-os` or `mbed-baremetal` when you are building a greentea test. In addition to that, you must pass any extra library along if that library source is not maintained as part of mbed os source tree.
+
+  For example:  
+  kvstore greentea test is dependent on `mbed-storage` and `mbed-storage-filesystemstore` library however you don't need to pass it via  `MBED_TEST_LINK_LIBRARIES`  as it is already target linked in greentea test CMakeLists.txt, at the same time some libraries and test cases are private to the application and if you want to use it with kvstore test then pass it with `MBED_TEST_LINK_LIBRARIES` command-line argument.
+* Run the following command for the configuration CMake module to be generated
   ```
-  touch mbed-os.lib && mkdir cmake_build && cd cmake_build && cmake .. -G Ninja && cmake --build .
+  mbedtools configure -t <TOOLCHAIN> -m <MBED_TARGET> --mbed-os-path /path/to/mbed-os
   ```
-* Run the following command to build the test binary with the baremetal profile
+* Build the test binary with the full profile
   ```
-  touch mbed-os.lib && mkdir cmake_build && cd cmake_build && cmake .. -G Ninja -DMBED_BAREMETAL_GREENTEA_TEST=ON && cmake --build .
+  cd cmake_build/<MBED_TARGET>/<PROFILE>/<TOOLCHAIN>/ && cmake ../../../.. -G Ninja -DMBED_TEST_LINK_LIBRARIES=mbed-os && cmake --build .
+  ```
+  To build the test binary with the baremetal profile
+  ```
+  cd cmake_build/<MBED_TARGET>/<PROFILE>/<TOOLCHAIN>/ && cmake ../../../.. -G Ninja -DMBED_TEST_LINK_LIBRARIES=mbed-baremetal && cmake --build .
+  ```
+  To build the test binary with the full profile and a "XYZ" library
+  ```
+  cd cmake_build/<MBED_TARGET>/<PROFILE>/<TOOLCHAIN>/ && cmake ../../../.. -G Ninja -D"MBED_TEST_LINK_LIBRARIES=mbed-os XYZ" && cmake --build .
   ```
 
-Note: These steps will change when `mbedtools` implements a sub-command to invoke Greentea tests
+Notes:
+* These steps will change when `mbedtools` implements a sub-command to invoke Greentea tests
+* Some Greentea tests require specific application configuration files in order to build and run successfully. For example, the `connectivity/mbedtls/tests/TESTS/mbedtls/sanity` test requires the configuration file found at `TESTs/configs/experimental.json`.
+
+## Naming convention
+
+- `mbed` namespace: Mbed CMake targets must have `mbed-` prefix
+- all characters are lower case
+- words separated by hyphens
+
+For example: `mbed-ble-cordio`

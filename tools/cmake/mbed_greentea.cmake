@@ -1,7 +1,7 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-set(MBED_CONFIG_PATH ${CMAKE_CURRENT_SOURCE_DIR}/.mbedbuild CACHE INTERNAL "")
+set(MBED_CONFIG_PATH ${CMAKE_CURRENT_BINARY_DIR} CACHE INTERNAL "")
 
 include(${MBED_PATH}/tools/cmake/app.cmake)
 
@@ -13,14 +13,14 @@ include(${MBED_PATH}/tools/cmake/app.cmake)
 # TEST_REQUIRED_LIBS - Test suite required libraries
 # 
 # calling the macro:
-# mbed_greentea_cmake_macro(
+# mbed_greentea_add_test(
 #    TEST_NAME mbed-platform-system-reset
 #    TEST_INCLUDE_DIRS mbed_store
 #    TEST_SOURCES foo.cpp bar.cpp
 #    TEST_REQUIRED_LIBS mbed-kvstore mbed-xyz
 # )
 
-macro(mbed_greentea_cmake_macro)
+macro(mbed_greentea_add_test)
     set(options)
     set(singleValueArgs TEST_NAME)
     set(multipleValueArgs
@@ -43,8 +43,6 @@ macro(mbed_greentea_cmake_macro)
 
     mbed_configure_app_target(${TEST_NAME})
 
-    mbed_set_mbed_target_linker_script(${TEST_NAME})
-
     target_include_directories(${TEST_NAME}
         PRIVATE
             .
@@ -57,10 +55,17 @@ macro(mbed_greentea_cmake_macro)
             ${MBED_GREENTEA_TEST_SOURCES}
     )
 
-    if(MBED_BAREMETAL_GREENTEA_TEST)
-        list(APPEND MBED_GREENTEA_TEST_REQUIRED_LIBS mbed-baremetal mbed-greentea)
-    else()
-        list(APPEND MBED_GREENTEA_TEST_REQUIRED_LIBS mbed-os mbed-greentea)
+    # The CMake MBED_TEST_LINK_LIBRARIES command-line argument is to get greentea test all dependent libraries.
+    # For example:
+    #  - To select mbed-os library, use cmake with -DMBED_TEST_LINK_LIBRARIES=mbed-os
+    #  - To select baremetal library, use cmake with -DMBED_TEST_LINK_LIBRARIES=mbed-baremetal
+    #  - To select baremetal with extra external error logging library to the test, use cmake with 
+    #    -D "MBED_TEST_LINK_LIBRARIES=mbed-baremetal ext-errorlogging"
+    if (DEFINED MBED_TEST_LINK_LIBRARIES)
+        separate_arguments(MBED_TEST_LINK_LIBRARIES)
+        list(APPEND MBED_GREENTEA_TEST_REQUIRED_LIBS ${MBED_TEST_LINK_LIBRARIES} mbed-greentea)
+    else()        
+        list(APPEND MBED_GREENTEA_TEST_REQUIRED_LIBS mbed-greentea)
     endif()
 
     target_link_libraries(${TEST_NAME}

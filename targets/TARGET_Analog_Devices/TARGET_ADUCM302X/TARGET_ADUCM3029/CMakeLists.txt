@@ -1,30 +1,19 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_subdirectory(TARGET_EV_COG_AD3029LZ EXCLUDE_FROM_ALL)
+
+add_library(mbed-aducm3029 INTERFACE)
+
 if(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM_STD/ADuCM3029.sct)
 elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(LINKER_FILE TOOLCHAIN_GCC_ARM/ADuCM3029.ld)
 endif()
 
-if ("EV_COG_AD3029LZ" IN_LIST MBED_TARGET_LABELS)
-    target_include_directories(mbed-core
-        INTERFACE
-            TARGET_EV_COG_AD3029LZ
-            TARGET_EV_COG_AD3029LZ/device
-    )
+mbed_set_linker_script(mbed-aducm3029 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-    target_sources(mbed-core
-        INTERFACE
-            TARGET_EV_COG_AD3029LZ/device/system_ADuCM3029.c
-    )
-
-    set(STARTUP_FILE TARGET_EV_COG_AD3029LZ/device/startup_ADuCM3029.c)
-endif()
-
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
-
-target_include_directories(mbed-core
+target_include_directories(mbed-aducm3029
     INTERFACE
         api
         bsp
@@ -65,7 +54,7 @@ target_include_directories(mbed-core
         bsp/xint
 )
 
-target_sources(mbed-core
+target_sources(mbed-aducm3029
     INTERFACE
         api/analogin_api.c
         api/flash_api.c
@@ -121,6 +110,6 @@ target_sources(mbed-core
         bsp/wdt/adi_wdt.c
 
         bsp/xint/adi_xint.c
-
-        ${STARTUP_FILE}
 )
+
+target_link_libraries(mbed-aducm3029 INTERFACE mbed-analog-devices)

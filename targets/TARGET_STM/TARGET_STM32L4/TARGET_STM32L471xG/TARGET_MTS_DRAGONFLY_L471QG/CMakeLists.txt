@@ -1,7 +1,9 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_sources(mbed-core
+add_library(mbed-mts-dragonfly-l471qg INTERFACE)
+
+target_sources(mbed-mts-dragonfly-l471qg
     INTERFACE
         mtqn_low_power.c
         ONBOARD_SARA4_PPP.cpp
@@ -9,7 +11,9 @@ target_sources(mbed-core
         PeripheralPins.c
 )
 
-target_include_directories(mbed-core
+target_include_directories(mbed-mts-dragonfly-l471qg
     INTERFACE
         .
 )
+
+target_link_libraries(mbed-mts-dragonfly-l471qg INTERFACE mbed-stm32l471xg)

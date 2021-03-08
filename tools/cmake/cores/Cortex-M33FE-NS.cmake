@@ -7,17 +7,13 @@ if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
         "-mthumb"
         "-mfpu=fpv5-sp-d16"
         "-mfloat-abi=softfp"
-        "-march=armv8-m.main+dsp"
-    )
-elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
-    list(APPEND c_cxx_compile_options
         "-mcpu=cortex-m33"
     )
-    list(APPEND asm_compile_options
-        "-mcpu=Cortex-M33"
-    )
-    list(APPEND link_options
-        "--cpu=Cortex-M33"
+elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
+    list(APPEND common_options
+        "-mfpu=fpv5-sp-d16"
+        "-mfloat-abi=hard"
+        "-mcpu=cortex-m33+dsp"
     )
 endif()
 

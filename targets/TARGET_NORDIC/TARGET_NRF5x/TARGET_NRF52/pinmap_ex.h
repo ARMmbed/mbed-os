@@ -121,6 +121,15 @@ int pin_instance_spi(PinName mosi, PinName miso, PinName clk);
 int pin_instance_pwm(PinName pwm);
 
 /**
+ * Brief       Find hardware instance for the provided PWM pin and free it
+ *
+ * Parameter   pwm   pwm pin.
+ *
+ * Return      Nothing
+ */
+void pin_instance_pwm_free(PinName pwm);
+
+/**
  * @brief      Find hardware instance for the provided UART pins.
  *
  *             The function will search the PeripheralPin map for a pre-allocated

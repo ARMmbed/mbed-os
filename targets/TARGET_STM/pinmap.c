@@ -82,7 +82,7 @@ void pin_function(PinName pin, int data)
 #if defined (TARGET_STM32F1)
     if (mode == STM_PIN_OUTPUT) {
 #endif
-#if defined(DUAL_CORE)
+#if defined(DUAL_CORE) && (TARGET_STM32H7)
         while (LL_HSEM_1StepLock(HSEM, CFG_HW_GPIO_SEMID)) {
         }
 #endif /* DUAL_CORE */
@@ -99,7 +99,7 @@ void pin_function(PinName pin, int data)
                 LL_GPIO_SetPinSpeed(gpio, ll_pin, speed);
                 break;
         }
-#if defined(DUAL_CORE)
+#if defined(DUAL_CORE) && (TARGET_STM32H7)
         LL_HSEM_ReleaseLock(HSEM, CFG_HW_GPIO_SEMID, HSEM_CR_COREID_CURRENT);
 #endif /* DUAL_CORE */
 #if defined (TARGET_STM32F1)
@@ -126,7 +126,7 @@ void pin_function(PinName pin, int data)
             break;
     }
 
-#if defined(DUAL_CORE)
+#if defined(DUAL_CORE) && (TARGET_STM32H7)
     while (LL_HSEM_1StepLock(HSEM, CFG_HW_GPIO_SEMID)) {
     }
 #endif /* DUAL_CORE */
@@ -155,7 +155,7 @@ void pin_function(PinName pin, int data)
 
     stm_pin_DisconnectDebug(pin);
 
-#if defined(DUAL_CORE)
+#if defined(DUAL_CORE) && (TARGET_STM32H7)
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_GPIO_SEMID, HSEM_CR_COREID_CURRENT);
 #endif /* DUAL_CORE */
 }
@@ -174,7 +174,7 @@ void pin_mode(PinName pin, PinMode mode)
     // Enable GPIO clock
     GPIO_TypeDef *gpio = Set_GPIO_Clock(port_index);
 
-#if defined(DUAL_CORE)
+#if defined(DUAL_CORE) && (TARGET_STM32H7)
     while (LL_HSEM_1StepLock(HSEM, CFG_HW_GPIO_SEMID)) {
     }
 #endif /* DUAL_CORE */
@@ -197,7 +197,7 @@ void pin_mode(PinName pin, PinMode mode)
         stm_pin_PullConfig(gpio, ll_pin, GPIO_NOPULL);
     }
 
-#if defined(DUAL_CORE)
+#if defined(DUAL_CORE) && (TARGET_STM32H7)
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_GPIO_SEMID, HSEM_CR_COREID_CURRENT);
 #endif /* DUAL_CORE */
 }

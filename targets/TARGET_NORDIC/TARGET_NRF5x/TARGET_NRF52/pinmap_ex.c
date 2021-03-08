@@ -369,6 +369,27 @@ int pin_instance_pwm(PinName pwm)
     return instance;
 }
 
+/**
+ * Brief       Find hardware instance for the provided PWM pin and free it
+ *
+ * Parameter   pwm   pwm pin.
+ *
+ * Return      Nothing
+ */
+void pin_instance_pwm_free(PinName pwm)
+{
+    /* Search dynamic map for entry. */
+    for (size_t index = 0; index < NORDIC_PWM_COUNT; index++) {
+
+        /* Pins match previous dynamic allocation, return instance. */
+        if (nordic_internal_pwm[index] == pwm) {
+
+            nordic_internal_pwm[index] = NC;
+            break;
+        }
+    }
+}
+
 
 /***
  *      _    _         _____ _______

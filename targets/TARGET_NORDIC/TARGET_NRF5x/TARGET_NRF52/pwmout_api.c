@@ -173,6 +173,9 @@ void pwmout_free(pwmout_t *obj)
 
     MBED_ASSERT(obj);
 
+    /* Also deinit the undelying PinMap_PWM entry */
+    pin_instance_pwm_free(obj->pin);
+
     /* Uninitialize PWM instance. */
     nrfx_pwm_uninit(&nordic_nrf5_pwm_instance[obj->instance]);
 }

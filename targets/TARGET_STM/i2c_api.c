@@ -41,6 +41,7 @@
 #include "PeripheralPins.h"
 #include "i2c_device.h" // family specific defines
 #include "mbed_error.h"
+#include "platform/mbed_power_mgmt.h"
 
 #ifndef DEBUG_STDIO
 #   define DEBUG_STDIO 0
@@ -79,7 +80,11 @@ static I2C_HandleTypeDef *i2c_handles[I2C_NUM];
    not based on accurate values, they just guarantee that the application will
    not remain stuck if the I2C communication is corrupted.
 */
+#ifdef TARGET_STM32H7
+#define FLAG_TIMEOUT ((int)0x1100)
+#else
 #define FLAG_TIMEOUT ((int)0x1000)
+#endif
 
 /* Declare i2c_init_internal to be used in this file */
 void i2c_init_internal(i2c_t *obj, const i2c_pinmap_t *pinmap);
@@ -214,7 +219,7 @@ void i2c_hw_reset(i2c_t *obj)
     // wait before reset
     timeout = BYTE_TIMEOUT;
     while ((__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BUSY)) && (--timeout != 0));
-#if defined(DUAL_CORE)
+#if defined(DUAL_CORE) && (TARGET_STM32H7)
     while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
     }
 #endif /* DUAL_CORE */
@@ -248,7 +253,7 @@ void i2c_hw_reset(i2c_t *obj)
         __HAL_RCC_FMPI2C1_RELEASE_RESET();
     }
 #endif
-#if defined(DUAL_CORE)
+#if defined(DUAL_CORE) && (TARGET_STM32H7)
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
 #endif /* DUAL_CORE */
 }
@@ -294,6 +299,11 @@ void i2c_init_internal(i2c_t *obj, const i2c_pinmap_t *pinmap)
         // Configure I2C pins
         obj_s->event_i2cIRQ = I2C1_EV_IRQn;
         obj_s->error_i2cIRQ = I2C1_ER_IRQn;
+
+#if defined(TARGET_STM32WL)
+        /* In Stop2 mode, I2C1 and I2C2 instances are powered down (only I2C3 register content is kept) */
+        sleep_manager_lock_deep_sleep();
+#endif
     }
 #endif
 #if defined I2C2_BASE
@@ -303,6 +313,11 @@ void i2c_init_internal(i2c_t *obj, const i2c_pinmap_t *pinmap)
         __HAL_RCC_I2C2_CLK_ENABLE();
         obj_s->event_i2cIRQ = I2C2_EV_IRQn;
         obj_s->error_i2cIRQ = I2C2_ER_IRQn;
+
+#if defined(TARGET_STM32WL)
+        /* In Stop2 mode, I2C1 and I2C2 instances are powered down (only I2C3 register content is kept) */
+        sleep_manager_lock_deep_sleep();
+#endif
     }
 #endif
 #if defined I2C3_BASE
@@ -380,11 +395,17 @@ void i2c_deinit_internal(i2c_t *obj)
 #if defined I2C1_BASE
     if (obj_s->i2c == I2C_1) {
         __HAL_RCC_I2C1_CLK_DISABLE();
+#if defined(TARGET_STM32WL)
+        sleep_manager_unlock_deep_sleep();
+#endif
     }
 #endif
 #if defined I2C2_BASE
     if (obj_s->i2c == I2C_2) {
         __HAL_RCC_I2C2_CLK_DISABLE();
+#if defined(TARGET_STM32WL)
+        sleep_manager_unlock_deep_sleep();
+#endif
     }
 #endif
 #if defined I2C3_BASE
@@ -461,7 +482,6 @@ void i2c_frequency(i2c_t *obj, int hz)
 #ifdef I2C_IP_VERSION_V2
     /*  Only predefined timing for below frequencies are supported */
     MBED_ASSERT((hz == 100000) || (hz == 400000) || (hz == 1000000));
-    handle->Init.Timing = get_i2c_timing(hz);
 
     // Enable the Fast Mode Plus capability
     if (hz == 1000000) {
@@ -497,7 +517,7 @@ void i2c_frequency(i2c_t *obj, int hz)
 #endif //I2C_IP_VERSION_V2
 
     /*##-1- Configure the I2C clock source. The clock is derived from the SYSCLK #*/
-#if defined(DUAL_CORE)
+#if defined(DUAL_CORE) && (TARGET_STM32H7)
     while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
     }
 #endif /* DUAL_CORE */
@@ -521,13 +541,21 @@ void i2c_frequency(i2c_t *obj, int hz)
         __HAL_RCC_I2C4_CONFIG(I2CAPI_I2C4_CLKSRC);
     }
 #endif
-#if defined(DUAL_CORE)
+#if defined(DUAL_CORE) && (TARGET_STM32H7)
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
 #endif /* DUAL_CORE */
 
 #ifdef I2C_ANALOGFILTER_ENABLE
     /* Enable the Analog I2C Filter */
     HAL_I2CEx_ConfigAnalogFilter(handle, I2C_ANALOGFILTER_ENABLE);
+#endif
+
+#ifdef I2C_IP_VERSION_V2
+#ifdef TARGET_STM32H7
+    handle->Init.Timing = get_i2c_timing(obj_s->i2c, hz);
+#else
+    handle->Init.Timing = get_i2c_timing(hz);
+#endif
 #endif
 
     // I2C configuration
@@ -758,7 +786,7 @@ int i2c_byte_read(i2c_t *obj, int last)
     if ((tmpreg & I2C_CR2_RELOAD) != 0) {
         while (!__HAL_I2C_GET_FLAG(handle, I2C_FLAG_TCR)) {
             if ((timeout--) == 0) {
-                DEBUG_PRINTF("timeout in byte_read\r\n");
+                DEBUG_PRINTF("timeout in i2c_byte_read\r\n");
                 return -1;
             }
         }
@@ -827,7 +855,7 @@ int i2c_byte_write(i2c_t *obj, int data)
         if ((tmpreg & I2C_CR2_RELOAD) != 0) {
             while (!__HAL_I2C_GET_FLAG(handle, I2C_FLAG_TCR)) {
                 if ((timeout--) == 0) {
-                    DEBUG_PRINTF("timeout in byte_write\r\n");
+                    DEBUG_PRINTF("timeout in i2c_byte_write\r\n");
                     return 2;
                 }
             }
@@ -912,7 +940,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
         i2c_ev_err_disable(obj);
 
         if ((timeout == 0) || (obj_s->event != I2C_EVENT_TRANSFER_COMPLETE)) {
-            DEBUG_PRINTF(" TIMEOUT or error in i2c_read\r\n");
+            DEBUG_PRINTF("TIMEOUT or error in i2c_read\r\n");
             /* re-init IP to try and get back in a working state */
             i2c_init_internal(obj, NULL);
         } else {
@@ -986,7 +1014,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
             count = length;
         }
     } else {
-        DEBUG_PRINTF("ERROR in i2c_read\r\n");
+        DEBUG_PRINTF("ERROR in i2c_write\r\n");
     }
 
     return count;

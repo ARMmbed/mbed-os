@@ -143,6 +143,35 @@ public:
         return 0;
     }
 
+    /** Enable or disable input
+     *
+     * Control enabling of device for input. This is primarily intended
+     * for temporary power-saving; the overall ability of the device to operate
+     * for input and/or output may be fixed at creation time, but this call can
+     * allow input to be temporarily disabled to permit power saving without
+     * losing device state.
+     *
+     *  @param enabled      true to enable input, false to disable.
+     *
+     *  @return             0 on success
+     *  @return             Negative error code on failure
+     */
+    int enable_input(bool enabled) override;
+
+    /** Enable or disable output
+     *
+     * Control enabling of device for output. This is primarily intended
+     * for temporary power-saving; the overall ability of the device to operate
+     * for input and/or output may be fixed at creation time, but this call can
+     * allow output to be temporarily disabled to permit power saving without
+     * losing device state.
+     *
+     *  @param enabled      true to enable output, false to disable.
+     *
+     *  @return             0 on success
+     *  @return             Negative error code on failure
+     */
+    int enable_output(bool enabled) override;
 
     /** Check for poll event flags
      * Check the events listed in events to see if data can be read or written
@@ -155,14 +184,14 @@ public:
      */
     short poll(short events) const override;
 
-    using SerialBase::readable;
-    using SerialBase::writeable;
-    using SerialBase::format;
     using SerialBase::attach;
     using SerialBase::baud;
+    using SerialBase::format;
+    using SerialBase::readable;
+    using SerialBase::writeable;
+    using SerialBase::IrqCnt;
     using SerialBase::RxIrq;
     using SerialBase::TxIrq;
-    using SerialBase::IrqCnt;
 
 #if DEVICE_SERIAL_FC
     // For now use the base enum - but in future we may have extra options

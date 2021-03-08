@@ -1,7 +1,7 @@
 /*
  *  Elliptic curves over GF(p): curve-specific data and functions
  *
- *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
+ *  Copyright The Mbed TLS Contributors
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,15 +15,9 @@
  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "mbedtls/config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "common.h"
 
 #if defined(MBEDTLS_ECP_C)
 
@@ -557,6 +551,22 @@ static const mbedtls_mpi_uint brainpoolP512r1_n[] = {
 };
 #endif /* MBEDTLS_ECP_DP_BP512R1_ENABLED */
 
+#if defined(MBEDTLS_ECP_DP_SECP192R1_ENABLED) ||   \
+    defined(MBEDTLS_ECP_DP_SECP224R1_ENABLED) ||   \
+    defined(MBEDTLS_ECP_DP_SECP256R1_ENABLED) ||   \
+    defined(MBEDTLS_ECP_DP_SECP384R1_ENABLED) ||   \
+    defined(MBEDTLS_ECP_DP_SECP521R1_ENABLED) ||   \
+    defined(MBEDTLS_ECP_DP_BP256R1_ENABLED)   ||   \
+    defined(MBEDTLS_ECP_DP_BP384R1_ENABLED)   ||   \
+    defined(MBEDTLS_ECP_DP_BP512R1_ENABLED)   ||   \
+    defined(MBEDTLS_ECP_DP_SECP192K1_ENABLED) ||   \
+    defined(MBEDTLS_ECP_DP_SECP224K1_ENABLED) ||   \
+    defined(MBEDTLS_ECP_DP_SECP256K1_ENABLED)
+/* For these curves, we build the group parameters dynamically. */
+#define ECP_LOAD_GROUP
+#endif
+
+#if defined(ECP_LOAD_GROUP)
 /*
  * Create an MPI from embedded constants
  * (assumes len is an exact multiple of sizeof mbedtls_mpi_uint)
@@ -607,6 +617,7 @@ static int ecp_group_load( mbedtls_ecp_group *grp,
 
     return( 0 );
 }
+#endif /* ECP_LOAD_GROUP */
 
 #if defined(MBEDTLS_ECP_NIST_OPTIM)
 /* Forward declarations */
@@ -648,6 +659,7 @@ static int ecp_mod_p224k1( mbedtls_mpi * );
 static int ecp_mod_p256k1( mbedtls_mpi * );
 #endif
 
+#if defined(ECP_LOAD_GROUP)
 #define LOAD_GROUP_A( G )   ecp_group_load( grp,            \
                             G ## _p,  sizeof( G ## _p  ),   \
                             G ## _a,  sizeof( G ## _a  ),   \
@@ -663,6 +675,7 @@ static int ecp_mod_p256k1( mbedtls_mpi * );
                             G ## _gx, sizeof( G ## _gx ),   \
                             G ## _gy, sizeof( G ## _gy ),   \
                             G ## _n,  sizeof( G ## _n  ) )
+#endif /* ECP_LOAD_GROUP */
 
 #if defined(MBEDTLS_ECP_DP_CURVE25519_ENABLED)
 /*

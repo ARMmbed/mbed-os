@@ -68,7 +68,7 @@
  */
 enum ospif_bd_error {
     OSPIF_BD_ERROR_OK                    = 0,     /*!< no error */
-    OSPIF_BD_ERROR_DEVICE_ERROR          = BD_ERROR_DEVICE_ERROR, /*!< device specific error -4001 */
+    OSPIF_BD_ERROR_DEVICE_ERROR          = mbed::BD_ERROR_DEVICE_ERROR, /*!< device specific error -4001 */
     OSPIF_BD_ERROR_PARSING_FAILED        = -4002, /* SFDP Parsing failed */
     OSPIF_BD_ERROR_READY_FAILED          = -4003, /* Wait for Mem Ready failed */
     OSPIF_BD_ERROR_WREN_FAILED           = -4004, /* Write Enable Failed */
@@ -331,7 +331,7 @@ private:
     ospi_status_t _ospi_set_frequency(int freq);
 
     // Update the 4-byte addressing extension register with the MSB of the address if it is in use
-    ospi_status_t _ospi_update_4byte_ext_addr_reg(bd_addr_t addr);
+    ospi_status_t _ospi_update_4byte_ext_addr_reg(mbed::bd_addr_t addr);
 
     /*********************************/
     /* Flash Configuration Functions */

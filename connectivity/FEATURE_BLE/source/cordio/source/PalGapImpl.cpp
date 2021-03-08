@@ -32,6 +32,9 @@ bool dummy_gap_event_handler(const wsfMsgHdr_t *msg)
 }
 }
 
+#if BLE_FEATURE_PERIODIC_ADVERTISING && BLE_ROLE_OBSERVER
+sync_handle_t PalGap::_pending_periodic_sync_handle = 0;
+#endif
 
 bool PalGap::is_feature_supported(
     ble::controller_supported_features_t feature
@@ -592,7 +595,8 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
 
             handler->on_periodic_advertising_sync_established(
                 hci_error_code_t(evt->status),
-                evt->syncHandle,
+                /* the Cordio host stack uses a different ID to identify the control block */
+                _pending_periodic_sync_handle,
                 evt->advSid,
                 connection_peer_address_type_t(evt->advAddrType),
                 evt->advAddr,
@@ -1343,6 +1347,8 @@ ble_error_t PalGap::periodic_advertising_create_sync(
     if (sync_id == DM_SYNC_ID_NONE) {
         return BLE_ERROR_INTERNAL_STACK_FAILURE;
     } else {
+        /* this is not the real handle, this is CORDIO internal handle but the user doesn't need to know that */
+        _pending_periodic_sync_handle = sync_id;
         return BLE_ERROR_NONE;
     }
 }

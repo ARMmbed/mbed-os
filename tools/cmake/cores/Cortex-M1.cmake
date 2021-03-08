@@ -5,16 +5,11 @@
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     list(APPEND common_options
         "-mthumb"
-    )
-elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
-    list(APPEND c_cxx_compile_options
         "-mcpu=cortex-m1"
     )
-    list(APPEND asm_compile_options
-        "-mcpu=Cortex-M1"
-    )
-    list(APPEND link_options
-        "--cpu=Cortex-M1"
+elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
+    list(APPEND common_options
+        "-mcpu=cortex-m1"
     )
 endif()
 

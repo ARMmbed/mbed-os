@@ -30,7 +30,7 @@ list(
             tlssocket_connect_invalid.cpp       
 )
 
-mbed_greentea_cmake_macro(
+mbed_greentea_add_test(
     TEST_NAME ${TEST_TARGET}
     TEST_SOURCES ${TEST_SOURCE_LIST}
     TEST_REQUIRED_LIBS mbed-netsocket

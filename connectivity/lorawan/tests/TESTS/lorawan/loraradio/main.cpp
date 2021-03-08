@@ -14,35 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] LORADIO test cases require a RTOS to run.
-#else
 
 #include "utest.h"
 #include "unity.h"
 #include "greentea-client/test_env.h"
 
 #include "Semaphore.h"
-#include "ThisThread.h"
 
 #include "mbed_trace.h"
 #define TRACE_GROUP "RTST"
 
 #include "LoRaRadio.h"
 
-#define SX1272   0xFF
-#define SX1276   0xEE
-
-#ifndef MBED_CONF_LORA_RADIO
-#error [NOT_SUPPORTED] Lora radio is not set
-#else
-
-#if (MBED_CONF_LORA_RADIO == SX1272)
+#if COMPONENT_SX1272
 #include "SX1272_LoRaRadio.h"
-#elif (MBED_CONF_LORA_RADIO == SX1276)
+#elif COMPONENT_SX1276
 #include "SX1276_LoRaRadio.h"
+#elif COMPONENT_SX126X
+#include "SX126X_LoRaRadio.h"
+#elif (TARGET_STM32WL)
+#include "STM32WL_LoRaRadio.h"
 #else
-#error Lora radio is not configured
+#error [NOT_SUPPORTED] Lora radio is not configured
 #endif
 
 using namespace utest::v1;
@@ -64,7 +57,6 @@ static volatile event_t received_event;
 
 static void tx_done()
 {
-    rtos::ThisThread::sleep_for(2);
     TEST_ASSERT_EQUAL(EV_NONE, received_event);
     received_event = EV_TX_DONE;
     TEST_ASSERT_EQUAL(osOK, event_sem.release());
@@ -72,7 +64,6 @@ static void tx_done()
 
 static void tx_timeout()
 {
-    rtos::ThisThread::sleep_for(2);
     TEST_ASSERT_EQUAL(EV_NONE, received_event);
     received_event = EV_TX_TIMEOUT;
     TEST_ASSERT_EQUAL(osOK, event_sem.release());
@@ -80,7 +71,6 @@ static void tx_timeout()
 
 static void rx_done(const uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr)
 {
-    rtos::ThisThread::sleep_for(2);
     TEST_ASSERT_EQUAL(EV_NONE, received_event);
     received_event = EV_RX_DONE;
     TEST_ASSERT_EQUAL(osOK, event_sem.release());
@@ -88,7 +78,6 @@ static void rx_done(const uint8_t *payload, uint16_t size, int16_t rssi, int8_t 
 
 static void rx_timeout()
 {
-    rtos::ThisThread::sleep_for(2);
     TEST_ASSERT_EQUAL(EV_NONE, received_event);
     received_event = EV_RX_TIMEOUT;
     TEST_ASSERT_EQUAL(osOK, event_sem.release());
@@ -96,7 +85,6 @@ static void rx_timeout()
 
 static void rx_error()
 {
-    rtos::ThisThread::sleep_for(2);
     TEST_ASSERT_EQUAL(EV_NONE, received_event);
     received_event = EV_RX_ERROR;
     TEST_ASSERT_EQUAL(osOK, event_sem.release());
@@ -124,11 +112,11 @@ void test_set_tx_config()
 
     TEST_ASSERT_EQUAL(RF_IDLE, radio->get_status());
 
-    radio->set_tx_config(MODEM_LORA, 13, 0,
-                         0, 7,
-                         1, 8,
-                         false, true, false,
-                         0, false, 100);
+    radio->set_tx_config(MODEM_LORA, 13, 0,  // modem, power, fdev,
+                         0, 7,               // bandwidth, datarate,
+                         1, 8,               // coderate, preamble_len,
+                         false, true, false, // fix_len, crc_on, freq_hop_on,
+                         0, false, 1000);    // hop_period, iq_inverted, timeout
     radio->send(buffer, sizeof(buffer));
 
     TEST_ASSERT_EQUAL(RF_TX_RUNNING, radio->get_status());
@@ -205,12 +193,14 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 
 utest::v1::status_t case_setup_handler(const Case *const source, const size_t index_of_case)
 {
-#if (MBED_CONF_LORA_RADIO == SX1272)
+#if COMPONENT_SX1272
     radio = new SX1272_LoRaRadio();
-
-#elif (MBED_CONF_LORA_RADIO == SX1276)
+#elif COMPONENT_SX1276
     radio = new SX1276_LoRaRadio();
-
+#elif COMPONENT_SX126X
+    radio = new SX126X_LoRaRadio();
+#elif (TARGET_STM32WL)
+    radio = new STM32WL_LoRaRadio();
 #endif
 
     TEST_ASSERT(radio);
@@ -224,11 +214,17 @@ utest::v1::status_t case_teardown_handler(const Case *const source, const size_t
 {
     radio->sleep();
 
-#if (MBED_CONF_LORA_RADIO == SX1272)
+#if COMPONENT_SX1272
     delete static_cast<SX1272_LoRaRadio *>(radio);
 
-#elif (MBED_CONF_LORA_RADIO == SX1276)
+#elif COMPONENT_SX1276
     delete static_cast<SX1276_LoRaRadio *>(radio);
+
+#elif COMPONENT_SX126X
+    delete static_cast<SX126X_LoRaRadio *>(radio);
+
+#elif TARGET_STM32WL
+    delete static_cast<STM32WL_LoRaRadio *>(radio);
 
 #endif
     radio = NULL;
@@ -251,6 +247,3 @@ int main()
 {
     return !Harness::run(specification);
 }
-
-#endif // (MBED_CONF_LORA_RADIO)
-#endif // !defined(MBED_CONF_RTOS_PRESENT)

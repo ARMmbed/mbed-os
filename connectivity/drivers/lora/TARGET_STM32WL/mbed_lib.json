@@ -1,0 +1,59 @@
+{
+    "name": "stm32wl-lora-driver",
+    "config": {
+        "buffer-size": {
+            "help": "Max. buffer size the radio can handle, Default: 255 B",
+            "value": 255
+        },
+        "boost-rx": {
+            "help": "Increases sensitivity at the cost of power ~2mA for around ~3dB in sensitivity 0 = disabled, 1 = enabled",
+            "value": 0
+        },
+        "regulator-mode": {
+            "help": "Default: DCDC (low power, high BOM). Alternatively, LDO = 0. USE_LDO = 0, USE_DCDC = 1",
+            "value": "USE_DCDC"
+        },
+        "sleep-mode": {
+            "help": "Default: Warm start = 0, Cold start = 1",
+            "value": 0
+        },
+        "standby-mode": {
+            "help": "Default: STDBY_RC = 0, STDBY_XOSC = 1",
+            "value": "STDBY_RC"
+        },
+        "crystal_select": {
+            "help": "Default: Internal XO = 0, IS_TCXO_SUPPORTED = 1",
+            "value": "IS_TCXO_SUPPORTED"
+        },
+        "rf_switch_config": {
+            "help": "Default: CONF_RFO_LP_HP = 0, CONF_RFO_LP = 1, CONF_RFO_HP = 2",
+            "value": "RBI_CONF_RFO_LP_HP"
+        },
+        "rf_wakeup_time": {
+            "help": "Radio maximum wakeup time (in ms)",
+            "value": 10
+        },
+        "rf-switch-ctl1": {
+            "value": "NC"
+        },
+        "rf-switch-ctl2": {
+            "value": "NC"
+        },
+        "rf-switch-ctl3": {
+            "value": "NC"
+        },
+        "debug_rx": {
+            "help": "GPIO pin for RX debug"
+        },
+        "debug_tx": {
+            "help": "GPIO pin for TX debug"
+        }
+    },
+    "target_overrides": {
+        "NUCLEO_WL55JC": {
+            "rf-switch-ctl1": "PC_4",
+            "rf-switch-ctl2": "PC_5",
+            "rf-switch-ctl3": "PC_3"
+        }
+    }
+}

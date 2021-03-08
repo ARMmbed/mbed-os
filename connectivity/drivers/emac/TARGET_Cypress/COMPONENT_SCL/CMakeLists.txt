@@ -9,7 +9,8 @@ target_include_directories(mbed-emac
 
 target_sources(mbed-emac
     INTERFACE
-        interface/SclSTAInterface.cpp
         interface/default_wifi_interface.cpp
         interface/scl_emac.cpp
+        interface/SclAccessPoint.cpp
+        interface/SclSTAInterface.cpp
 )

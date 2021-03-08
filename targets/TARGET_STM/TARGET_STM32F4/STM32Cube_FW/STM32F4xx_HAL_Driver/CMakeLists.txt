@@ -1,9 +1,11 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_subdirectory(Legacy)
+add_subdirectory(Legacy EXCLUDE_FROM_ALL)
 
-target_sources(mbed-core
+add_library(mbed-stm32f4xx-hal-driver INTERFACE)
+
+target_sources(mbed-stm32f4xx-hal-driver
     INTERFACE
         stm32f4xx_hal.c
         stm32f4xx_hal_adc.c
@@ -96,7 +98,9 @@ target_sources(mbed-core
         stm32f4xx_ll_utils.c
 )
 
-target_include_directories(mbed-core
+target_include_directories(mbed-stm32f4xx-hal-driver
     INTERFACE
         .
 )
+
+target_link_libraries(mbed-stm32f4xx-hal-driver INTERFACE mbed-stm32f4xx-legacy-hal)
