@@ -2,11 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 add_library(mbed-ble OBJECT)
-# cordio libraries are part of ble stack (_ll is optional)
-# We use INTERFACE libraries to form the main object library otherwise we would 
-# get circular deps error between ble <-> cordio
-add_library(mbed-ble-cordio INTERFACE)
-add_library(mbed-ble-cordio-ll INTERFACE)
 
 add_subdirectory(libraries)
 add_subdirectory(source)
