@@ -1,10 +1,12 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+
+add_library(mbed-nfc OBJECT)
 
 add_subdirectory(libraries)
 
 target_include_directories(mbed-nfc
-    INTERFACE
+    PUBLIC
         .
         ./include
         ./include/nfc
@@ -13,7 +15,7 @@ target_include_directories(mbed-nfc
 )
 
 target_sources(mbed-nfc
-    INTERFACE
+    PRIVATE
         source/NFCController.cpp
         source/NFCControllerDriver.cpp
         source/NFCEEPROM.cpp
@@ -36,11 +38,12 @@ target_sources(mbed-nfc
 )
 
 target_compile_definitions(mbed-nfc
-    INTERFACE
+    PUBLIC
         MBED_CONF_NFC_PRESENT=1
 )
 
 target_link_libraries(mbed-nfc
-    INTERFACE
+    PRIVATE
         mbed-events
+        mbed-core
 )

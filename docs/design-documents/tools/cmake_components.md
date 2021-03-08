@@ -45,9 +45,30 @@ targets:
 
 Breaking the dependencies would be a huge effort and it possibly would result in rewriting these components as they were for years considered as monolitic - having everything available.
 
-## Components as object libraries
+## Components libraries
 
-CMake provides OBJECT libraries but it does not support circular dependencies that we have in our tree. Therefore we build Mbed OS as whole (all object files combined).
+Mbed OS uses various type of CMake libraries:
+
+`STATIC` libraries should be the default library type used to build Mbed OS CMake
+libraries. However, due to its inability to resolve weakly linked
+symbols with strong ones, we have to use other types when a library
+contains weak symbols.
+
+`OBJECT` libraries are used in Mbed OS to generates objects file but not archiving
+them. It has the advantage of not always rebuilding files if there aren't any
+changes and can resolve weakly linked symbols with strong ones. Its main
+disadvantages are that it does not allow circular dependency between libraries and object files are
+only linked when the object library is *directly* referenced by a target (only usage requirements are transitive, not the object files). See the following CMake issues for more information: https://gitlab.kitware.com/cmake/cmake/-/issues/18090
+and https://gitlab.kitware.com/cmake/cmake/-/issues/17905.
+
+`INTERFACE` libraries are used to model usage requirements for a target that is
+outside our project. It is possible to use it with libraries that have circular
+depencies, however, interface libraries produce no output in in the build system.
+
+Note:
+If a library contains public headers (i.e a driver configuration that extends stack configuration, this configurationshould be exposed to an application), they should be shared using the `PUBLIC` attribute in `target_include_directories()`.Due to `OBJECT` libraries sharing objects when linked publicly, we link privately in some cases to not share object files.We expose the privately linked libraries header files using the `PUBLIC` attribute and the generator expression `$<TARGET_PROPERTY:mbed-interface-library>,INTERFACE_INCLUDE_DIRECTORIES>`
+
+E.g `target_include_directories(mbed-lorawan PUBLIC $<TARGET_PROPERTY:mbed-lorawan-stm32wl,INTERFACE_INCLUDE_DIRECTORIES>)`
 
 ## One object library "mbed-core"
 

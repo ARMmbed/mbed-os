@@ -1,15 +1,15 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-nfc
-    INTERFACE
+    PUBLIC
         ./iso7816
         ./isodep
         ./type4
 )
 
 target_sources(mbed-nfc
-    INTERFACE
+    PRIVATE
         iso7816/iso7816.c
         iso7816/iso7816_app.c
 
