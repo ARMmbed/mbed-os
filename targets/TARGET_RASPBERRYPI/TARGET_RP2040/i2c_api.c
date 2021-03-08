@@ -48,7 +48,7 @@ void i2c_frequency(i2c_t *obj, int hz)
 int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
 {
     int const bytes_read = i2c_read_blocking(obj->dev,
-                                             (uint8_t)address,
+                                             (uint8_t)(address >> 1),
                                              (uint8_t *)data,
                                              (size_t)length,
                                              /* nostop = */(stop == 0));
@@ -60,8 +60,17 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
 
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
 {
+    if (length == 0) {
+        // From pico-sdk:
+        // static int i2c_write_blocking_internal(i2c_inst_t *i2c, uint8_t addr, const uint8_t *src, size_t len, bool nostop,
+        // Synopsys hw accepts start/stop flags alongside data items in the same
+        // FIFO word, so no 0 byte transfers.
+        // invalid_params_if(I2C, len == 0);
+        length = 1;
+    }
+
     int const bytes_written = i2c_write_blocking(obj->dev,
-                                                 address,
+                                                 address >> 1,
                                                  (const uint8_t *)data,
                                                  (size_t)length,
                                                  /* nostop = */(stop == 0));
