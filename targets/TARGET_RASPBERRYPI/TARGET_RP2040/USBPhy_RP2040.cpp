@@ -16,6 +16,11 @@
  */
 
 #include "USBPhyHw.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // USB register definitions from pico-sdk
 #include "hardware/regs/usb.h"
 // USB hardware struct definitions from pico-sdk
@@ -27,6 +32,10 @@
 
 #ifdef PICO_RP2040_USB_DEVICE_ENUMERATION_FIX
 #include "rp2040_usb_device_enumeration.h"
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 // These accessor functions are used to implement bit clear / bit sets through

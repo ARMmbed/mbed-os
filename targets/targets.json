@@ -8020,6 +8020,7 @@
     "NANO_RP2040_CONNECT": {
         "inherits": ["RP2040"],
         "macros_add": [
+            "PICO_RP2040_USB_DEVICE_ENUMERATION_FIX=1",
             "PICO_NO_BINARY_INFO=1",
             "MBED_MPU_CUSTOM",
             "PICO_TIME_DEFAULT_ALARM_POOL_DISABLED",
