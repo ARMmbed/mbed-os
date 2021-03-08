@@ -47,12 +47,12 @@ target_compile_definitions(mbed-netsocket
 
 target_link_libraries(mbed-netsocket
     PRIVATE
+        mbed-nanostack
         mbed-randlib
-        mbed-mbedtls
-        mbed-lwipstack
-        mbed-ppp
         mbed-events
         mbed-core
         mbed-rtos
+        mbed-mbedtls
+        mbed-lwipstack
         mbed-nanostack-libservice
 )

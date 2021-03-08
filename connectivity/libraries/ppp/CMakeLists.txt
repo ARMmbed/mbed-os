@@ -52,3 +52,5 @@ target_compile_definitions(mbed-ppp
     INTERFACE
         MBED_CONF_PPP_PRESENT=1
 )
+
+target_link_libraries(mbed-ppp INTERFACE mbed-events mbed-core mbed-nanostack-libservice)

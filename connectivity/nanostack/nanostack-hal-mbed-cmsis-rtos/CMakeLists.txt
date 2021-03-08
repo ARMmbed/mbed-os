@@ -28,4 +28,5 @@ target_link_libraries(mbed-nanostack-hal-mbed-cmsis-rtos
         mbed-nanostack-sal-stack-event-loop
         mbed-nanostack-sal-stack
         mbed-events
+        mbed-mbedtls
 )

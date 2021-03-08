@@ -28,9 +28,3 @@ target_include_directories(mbed-nanostack-sal-stack
         ./nanostack/platform
         ./source
 )
-
-target_link_libraries(mbed-nanostack-sal-stack
-    INTERFACE
-        mbed-nanostack-coap_service
-        mbed-mbedtls
-)

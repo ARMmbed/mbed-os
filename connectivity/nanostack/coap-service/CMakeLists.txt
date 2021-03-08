@@ -17,8 +17,3 @@ target_sources(mbed-nanostack-coap-service
         source/coap_security_handler.c
         source/coap_service_api.c
 )
-
-target_link_libraries(mbed-nanostack
-    INTERFACE
-        mbed-coap
-)

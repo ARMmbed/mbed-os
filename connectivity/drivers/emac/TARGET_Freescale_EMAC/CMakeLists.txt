@@ -18,3 +18,5 @@ target_sources(mbed-emac-freescale
     INTERFACE
         kinetis_emac.cpp
 )
+
+target_link_libraries(mbed-emac-freescale INTERFACE mbed-rtos mbed-events)
