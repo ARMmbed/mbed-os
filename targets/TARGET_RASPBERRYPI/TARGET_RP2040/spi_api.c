@@ -28,8 +28,9 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
     MBED_ASSERT(spi_mosi == spi_miso);
     MBED_ASSERT(spi_miso == spi_sclk);
-    MBED_ASSERT(spi_sclk == spi_ssel);
-    MBED_ASSERT(spi_ssel != (SPIName)NC);
+    if (spi_ssel != (SPIName)NC) {
+        MBED_ASSERT(spi_sclk == spi_ssel);
+    }
 
     /* Obtain pointer to the SPI module. */
     obj->dev = (spi_inst_t *)pinmap_function(mosi, PinMap_SPI_MOSI);
