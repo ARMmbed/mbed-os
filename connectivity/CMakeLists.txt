@@ -1,7 +1,6 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# List of all connectivity libraries available.
 add_library(mbed-802.15.4-rf INTERFACE)
 add_library(mbed-cellular INTERFACE)
 add_library(mbed-coap INTERFACE)
@@ -21,7 +20,6 @@ add_library(mbed-netsocket INTERFACE)
 add_library(mbed-nfc INTERFACE)
 add_library(mbed-ppp INTERFACE)
 add_library(mbed-wifi INTERFACE)
-
 
 add_subdirectory(FEATURE_BLE)
 add_subdirectory(cellular)
