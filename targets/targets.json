@@ -3832,7 +3832,7 @@
             "MX25LM51245G"
         ],
         "components_add": [
-            "OSPIF"
+            "SPINAND"
         ],
         "macros_add": [
             "HSE_VALUE=16000000"
