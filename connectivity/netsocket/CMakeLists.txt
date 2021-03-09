@@ -51,11 +51,12 @@ target_link_libraries(mbed-netsocket
     PRIVATE
         mbed-nanostack
         mbed-randlib
-        mbed-events
         mbed-core
         mbed-rtos
         mbed-lwipstack
         mbed-nanostack-libservice
         mbed-ppp
+    PUBLIC
+        mbed-events
         mbed-mbedtls
 )
