@@ -1,11 +1,13 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_library(mbed-ble OBJECT)
+
 add_subdirectory(libraries)
 add_subdirectory(source)
 
 target_include_directories(mbed-ble
-    INTERFACE
+    PUBLIC
         .
         include
         include/ble
@@ -22,6 +24,8 @@ target_include_directories(mbed-ble
 )
 
 target_compile_definitions(mbed-ble
-    INTERFACE
+    PUBLIC
         MBED_CONF_BLE_PRESENT=1
 )
+
+target_link_libraries(mbed-ble PRIVATE mbed-ble-cordio mbed-core)

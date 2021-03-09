@@ -7,12 +7,12 @@ endif()
 
 add_subdirectory(firmware)
 
-target_include_directories(mbed-ble
+target_include_directories(mbed-ble-cyw43xxx
     INTERFACE
         .
 )
 
-target_sources(mbed-ble
+target_sources(mbed-ble-cyw43xxx
     INTERFACE
         CyH4TransportDriver.cpp
         HCIDriver.cpp

@@ -1,13 +1,15 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-ble
+add_library(mbed-ble-stm32wb INTERFACE)
+
+target_include_directories(mbed-ble-stm32wb
     INTERFACE
         .
         ./STM32Cube_FW
 )
 
-target_sources(mbed-ble
+target_sources(mbed-ble-stm32wb
     INTERFACE
         HCIDriver.cpp
         hw_ipcc.c
@@ -17,3 +19,5 @@ target_sources(mbed-ble
         STM32Cube_FW/stm_list.c
         STM32Cube_FW/tl_mbox.c
 )
+
+target_link_libraries(mbed-ble PRIVATE mbed-ble-stm32wb)

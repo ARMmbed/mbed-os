@@ -1,18 +1,17 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-ble
+add_library(mbed-ble-apollo3 INTERFACE)
+
+target_include_directories(mbed-ble-apollo3
     INTERFACE
         .
 )
 
-target_sources(mbed-ble
+target_sources(mbed-ble-apollo3
     INTERFACE
         AP3CordioHCIDriver.cpp
         AP3CordioHCITransportDriver.cpp
 )
 
-target_link_libraries(mbed-ble
-    INTERFACE
-        mbed-core
-)
+target_link_libraries(mbed-ble PRIVATE mbed-ble-apollo3)

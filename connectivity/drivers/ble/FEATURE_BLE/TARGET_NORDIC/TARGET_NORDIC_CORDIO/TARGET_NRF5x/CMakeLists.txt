@@ -1,13 +1,15 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-ble-cordio
+add_library(mbed-ble-nrf5x-cordio INTERFACE)
+
+target_include_directories(mbed-ble-nrf5x-cordio
     INTERFACE
         .
         ./stack/include
 )
 
-target_sources(mbed-ble-cordio
+target_sources(mbed-ble-nrf5x-cordio
     INTERFACE
         NRFCordioHCIDriver.cpp
         NRFCordioHCITransportDriver.cpp
@@ -20,8 +22,10 @@ target_sources(mbed-ble-cordio
         stack/sources/pal_timer.c
 )
 
-target_link_libraries(mbed-ble-cordio
+target_link_libraries(mbed-ble-nrf5x-cordio
     INTERFACE
         mbed-ble-cordio_ll
         mbed-mbedtls-cryptocell310
 )
+
+target_link_libraries(mbed-ble PRIVATE mbed-ble-nrf5x-cordio)
