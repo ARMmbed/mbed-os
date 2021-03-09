@@ -101,6 +101,6 @@ target_sources(mbed-mbedtls
 )
 
 target_compile_definitions(mbed-mbedtls
-    INTERFACE
+    PUBLIC
         MBED_CONF_MBEDTLS_PRESENT=1
 )
