@@ -94,6 +94,7 @@ MBED_WEAK void TargetBSP_Init(void) {
     /** Do nothing */
 }
 
+#ifndef MBED_DEBUG
 #if MBED_CONF_TARGET_GPIO_RESET_AT_INIT
 void GPIO_Full_Init(void) {
     GPIO_InitTypeDef GPIO_InitStruct;
@@ -161,6 +162,7 @@ void GPIO_Full_Init(void) {
     __HAL_RCC_GPIOK_CLK_DISABLE();
 #endif
 }
+#endif
 #endif
 
 // This function is called after RAM initialization and before main.
@@ -313,9 +315,11 @@ void mbed_sdk_init()
 #endif /* ! MBED_CONF_TARGET_LSE_AVAILABLE */
 #endif /* DEVICE_RTC */
 
+#ifndef MBED_DEBUG
 #if MBED_CONF_TARGET_GPIO_RESET_AT_INIT
     /* Reset all GPIO */
     GPIO_Full_Init();
+#endif
 #endif
 
     /* BSP initialization hook (external RAM, etc) */
