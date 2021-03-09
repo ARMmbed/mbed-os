@@ -17,7 +17,7 @@
 #include "gtest/gtest.h"
 #include "blockdevice/ObservingBlockDevice.h"
 #include "blockdevice/ReadOnlyBlockDevice.h"
-#include "stubs/BlockDevice_mock.h"
+#include "BlockDevice_mock.h"
 
 using ::testing::_;
 using ::testing::Return;
