@@ -29,7 +29,7 @@ target_sources(mbed-mimxrt1170-evk
         drivers/fsl_dcdc.c
         drivers/fsl_flexspi_nor_boot.c
         drivers/fsl_gpio.c
-	drivers/fsl_lpuart.c
+	    drivers/fsl_lpuart.c
         drivers/fsl_pmu.c
 
         ${STARTUP_FILE}
@@ -39,7 +39,7 @@ target_link_libraries(mbed-mimxrt1170-evk
     INTERFACE
         mbed-mcuxpresso-mcus
         mbed-evk
-	mbed-imx
+	    mbed-imx
 )
 
 mbed_set_linker_script(mbed-mimxrt1170-evk ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
