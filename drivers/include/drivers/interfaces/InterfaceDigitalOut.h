@@ -39,21 +39,21 @@ struct DigitalOut {
     virtual int read() = 0;
     virtual int is_connected() = 0;
 
-    virtual DigitalOut &operator= (int value)
+    DigitalOut &operator= (int value)
     {
         // Underlying implementation is responsible for thread-safety
         write(value);
         return *this;
     }
 
-    virtual DigitalOut &operator= (DigitalOut &rhs)
+    DigitalOut &operator= (DigitalOut &rhs)
     {
         // Underlying implementation is responsible for thread-safety
         write(rhs.read());
         return *this;
     }
 
-    virtual operator int()
+    operator int()
     {
         // Underlying implementation is responsible for thread-safety
         return read();

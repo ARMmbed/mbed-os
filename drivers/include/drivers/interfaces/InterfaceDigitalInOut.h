@@ -42,21 +42,21 @@ struct DigitalInOut {
     virtual void mode(PinMode pull) = 0;
     virtual int is_connected() = 0;
 
-    virtual DigitalInOut &operator= (int value)
+    DigitalInOut &operator= (int value)
     {
         // Underlying implementation is responsible for thread-safety
         write(value);
         return *this;
     }
 
-    virtual DigitalInOut &operator= (DigitalInOut &rhs)
+    DigitalInOut &operator= (DigitalInOut &rhs)
     {
         // Underlying implementation is responsible for thread-safety
         write(rhs.read());
         return *this;
     }
 
-    virtual operator int()
+    operator int()
     {
         // Underlying implementation is responsible for thread-safety
         return read();

@@ -38,7 +38,7 @@ struct DigitalIn {
     virtual void mode(PinMode pull) = 0;
     virtual int is_connected() = 0;
 
-    virtual operator int()
+    operator int()
     {
         // Underlying implementation is responsible for thread-safety
         return read();
