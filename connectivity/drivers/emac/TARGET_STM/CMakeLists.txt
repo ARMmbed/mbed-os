@@ -22,3 +22,5 @@ target_sources(mbed-emac-stm
     INTERFACE
         stm32xx_emac.cpp
 )
+
+target_link_libraries(mbed-emac-stm INTERFACE mbed-events)
