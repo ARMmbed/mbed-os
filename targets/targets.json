@@ -4323,8 +4323,8 @@
             "network-default-interface-type": "ETHERNET"
         }
     },
- "MIMXRT1170_EVK": {
-    "supported_form_factors": [
+    "MIMXRT1170_EVK": {
+        "supported_form_factors": [
             "ARDUINO"
         ],
         "core": "Cortex-M7FD",
@@ -4355,7 +4355,7 @@
         ],
         "device_has": [
             "SERIAL",
-	    "LPTICKER"
+	        "LPTICKER"
         ],
         "device_name": "MIMXRT1170"
     },
