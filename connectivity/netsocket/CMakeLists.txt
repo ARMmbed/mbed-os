@@ -54,8 +54,9 @@ target_link_libraries(mbed-netsocket
         mbed-events
         mbed-core
         mbed-rtos
-        mbed-mbedtls
         mbed-lwipstack
         mbed-nanostack-libservice
         mbed-ppp
+    PUBLIC
+        mbed-mbedtls
 )
