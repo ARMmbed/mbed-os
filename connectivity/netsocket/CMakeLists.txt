@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_library(mbed-netsocket OBJECT)
+
 # TODO CMake: Perhaps move this/these file(s) into connectivity/drivers/cellular
 target_sources(mbed-cellular
     PRIVATE
