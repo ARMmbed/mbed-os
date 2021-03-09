@@ -19,7 +19,7 @@
 ^hal/storage_abstraction
 ^hal/tests/TESTS/mbed_hal/trng/pithy
 ^hal/tests/TESTS/mbed_hal/trng/pithy
-^hal/tests/TESTS/pin_names/test_files
+^hal/tests/pinvalidate
 ^platform/cxxsupport
 ^platform/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_MBED_PSA_SRV
 ^platform/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_TFM

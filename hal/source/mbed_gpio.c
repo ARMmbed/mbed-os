@@ -78,8 +78,6 @@ MBED_WEAK void gpio_get_capabilities(gpio_t *gpio, gpio_capabilities_t *cap)
     cap->pull_up = 1;
 }
 
-#if defined (TARGET_FF_ARDUINO) || (TARGET_FF_ARDUINO_UNO)
-
 typedef enum {
     DEFAULT_GPIO = 0,
 } DefaultGPIOPeripheralName;
@@ -88,6 +86,7 @@ MBED_WEAK const PinMap *gpio_pinmap()
 {
     // Targets should override this weak implementation to provide correct data.
     static const PinMap empty_gpio_pinmap[] = {
+#if defined (TARGET_FF_ARDUINO) || (TARGET_FF_ARDUINO_UNO)
         {ARDUINO_UNO_D0, DEFAULT_GPIO, 0},
         {ARDUINO_UNO_D1, DEFAULT_GPIO, 0},
         {ARDUINO_UNO_D2, DEFAULT_GPIO, 0},
@@ -110,20 +109,8 @@ MBED_WEAK const PinMap *gpio_pinmap()
         {ARDUINO_UNO_A3, DEFAULT_GPIO, 0},
         {ARDUINO_UNO_A4, DEFAULT_GPIO, 0},
         {ARDUINO_UNO_A5, DEFAULT_GPIO, 0},
-
-        {NC, NC, 0},
-    };
-    return empty_gpio_pinmap;
-}
-
-#else
-
-MBED_WEAK const PinMap *gpio_pinmap()
-{
-    static const PinMap empty_gpio_pinmap[] = {
-        {NC, NC, 0},
-    };
-    return empty_gpio_pinmap;
-}
-
 #endif
+        {NC, NC, 0},
+    };
+    return empty_gpio_pinmap;
+}
