@@ -10,4 +10,11 @@ target_include_directories(mbed-mbedtls-stm32wb55xx
 
 target_link_libraries(mbed-mbedtls-stm32wb55xx INTERFACE mbed-mbedtls-stm)
 
-target_link_libraries(mbed-mbedtls PUBLIC mbed-mbedtls-stm32wb55xx)
+target_link_libraries(mbed-mbedtls PRIVATE mbed-mbedtls-stm32wb55xx)
+
+# Expose include paths for an application and components
+# mbedtls_device.h should be publicly available
+target_include_directories(mbed-mbedtls
+    PUBLIC
+        $<TARGET_PROPERTY:mbed-mbedtls-stm32wb55xx,INTERFACE_INCLUDE_DIRECTORIES>
+)

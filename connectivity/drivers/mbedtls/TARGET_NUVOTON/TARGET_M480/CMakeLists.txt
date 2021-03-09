@@ -28,4 +28,11 @@ target_sources(mbed-mbedtls-m480
         sha/sha_alt_hw.c
 )
 
-target_link_libraries(mbed-mbedtls PUBLIC mbed-mbedtls-m480)
+target_link_libraries(mbed-mbedtls PRIVATE mbed-mbedtls-m480)
+
+# Expose include paths for an application and components
+# mbedtls_device.h should be publicly available
+target_include_directories(mbed-mbedtls
+    PUBLIC
+        $<TARGET_PROPERTY:mbed-mbedtls-m480,INTERFACE_INCLUDE_DIRECTORIES>
+)

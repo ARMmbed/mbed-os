@@ -29,4 +29,11 @@ target_link_libraries(mbed-mbedtls-cryptocell310-nrf52840
 )
 
 
-target_link_libraries(mbed-mbedtls PUBLIC mbed-mbedtls-cryptocell310-nrf52840)
+target_link_libraries(mbed-mbedtls PRIVATE mbed-mbedtls-cryptocell310-nrf52840)
+
+# Expose include paths for an application and components
+# mbedtls_device.h should be publicly available
+target_include_directories(mbed-mbedtls
+    PUBLIC
+        $<TARGET_PROPERTY:mbed-mbedtls-cryptocell310-nrf52840,INTERFACE_INCLUDE_DIRECTORIES>
+)
