@@ -12,7 +12,6 @@ target_sources(mbed-nanostack-hal-mbed-cmsis-rtos
     INTERFACE
         arm_hal_fhss_timer.cpp
         arm_hal_interrupt.c
-        arm_hal_random.c
         arm_hal_timer.cpp
         ns_event_loop.c
         ns_event_loop_mbed.cpp
@@ -21,6 +20,12 @@ target_sources(mbed-nanostack-hal-mbed-cmsis-rtos
         ns_hal_init.c
 
         nvm/nvm_ram.c
+)
+
+# This is a workaround to get randlib working with netsockets and OBJECT libraries
+target_sources(mbed-randlib 
+    PRIVATE
+        arm_hal_random.c
 )
 
 target_link_libraries(mbed-nanostack-hal-mbed-cmsis-rtos 
