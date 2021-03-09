@@ -4891,8 +4891,7 @@
         "core": "Cortex-A9",
         "supported_toolchains": [
             "ARM",
-            "GCC_ARM",
-            "IAR"
+            "GCC_ARM"
         ],
         "extra_labels": [
             "RENESAS",
@@ -4924,6 +4923,17 @@
         "program_cycle_s": 2,
         "overrides": {
             "network-default-interface-type": "ETHERNET"
+        },
+        "supported_application_profiles" : ["full", "bare-metal"],
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
         }
     },
     "RZ_A1H": {
@@ -5013,7 +5023,7 @@
         "inherits": ["Target"],
         "public": false,
         "core": "Cortex-A9",
-        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "supported_toolchains": ["ARM", "GCC_ARM"],
         "extra_labels": ["RENESAS", "RZ_A2XX"],
         "device_has": [
             "SLEEP",
@@ -5039,7 +5049,18 @@
             "STDIO_MESSAGES",
             "USBDEVICE"
         ],
-        "program_cycle_s": 2
+        "program_cycle_s": 2,
+        "supported_application_profiles" : ["full", "bare-metal"],
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
+        }
     },
     "GR_MANGO": {
         "inherits": ["RZ_A2XX"],
