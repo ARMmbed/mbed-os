@@ -101,7 +101,7 @@ typedef struct
   *             11 : Error
   *          b5     IP initilisation status
   *             0  : Reset (IP not initialized)
-  *             1  : Init done (IP not initialized. HAL SMARTCARD Init function already called)
+  *             1  : Init done (IP initialized. HAL SMARTCARD Init function already called)
   *          b4-b3  (not used)
   *             xx : Should be set to 00
   *          b2     Intrinsic process state
@@ -118,7 +118,7 @@ typedef struct
   *             xx : Should be set to 00
   *          b5     IP initilisation status
   *             0  : Reset (IP not initialized)
-  *             1  : Init done (IP not initialized)
+  *             1  : Init done (IP initialized)
   *          b4-b2  (not used)
   *            xxx : Should be set to 000
   *          b1     Rx state

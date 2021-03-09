@@ -32,6 +32,7 @@ target_sources(mbed-stm32f4cube-fw
         STM32F4xx_HAL_Driver/stm32f4xx_hal_fmpi2c.c
         STM32F4xx_HAL_Driver/stm32f4xx_hal_fmpi2c_ex.c
         STM32F4xx_HAL_Driver/stm32f4xx_hal_fmpsmbus.c
+        STM32F4xx_HAL_Driver/stm32f4xx_hal_fmpsmbus_ex.c
         STM32F4xx_HAL_Driver/stm32f4xx_hal_gpio.c
         STM32F4xx_HAL_Driver/stm32f4xx_hal_hash.c
         STM32F4xx_HAL_Driver/stm32f4xx_hal_hash_ex.c

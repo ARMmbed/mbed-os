@@ -7045,26 +7045,27 @@ typedef struct
 /*                                                                            */
 /******************************************************************************/
 /*******************  Bits definition for FLASH_ACR register  *****************/
-#define FLASH_ACR_LATENCY_Pos          (0U)                                    
+#define FLASH_ACR_LATENCY_Pos          (0U)
 #define FLASH_ACR_LATENCY_Msk          (0xFUL << FLASH_ACR_LATENCY_Pos)         /*!< 0x0000000F */
-#define FLASH_ACR_LATENCY              FLASH_ACR_LATENCY_Msk                   
-#define FLASH_ACR_LATENCY_0WS          0x00000000U                             
-#define FLASH_ACR_LATENCY_1WS          0x00000001U                             
-#define FLASH_ACR_LATENCY_2WS          0x00000002U                             
-#define FLASH_ACR_LATENCY_3WS          0x00000003U                             
-#define FLASH_ACR_LATENCY_4WS          0x00000004U                             
-#define FLASH_ACR_LATENCY_5WS          0x00000005U                             
-#define FLASH_ACR_LATENCY_6WS          0x00000006U                             
-#define FLASH_ACR_LATENCY_7WS          0x00000007U                             
+#define FLASH_ACR_LATENCY              FLASH_ACR_LATENCY_Msk
+#define FLASH_ACR_LATENCY_0WS          0x00000000U
+#define FLASH_ACR_LATENCY_1WS          0x00000001U
+#define FLASH_ACR_LATENCY_2WS          0x00000002U
+#define FLASH_ACR_LATENCY_3WS          0x00000003U
+#define FLASH_ACR_LATENCY_4WS          0x00000004U
+#define FLASH_ACR_LATENCY_5WS          0x00000005U
+#define FLASH_ACR_LATENCY_6WS          0x00000006U
+#define FLASH_ACR_LATENCY_7WS          0x00000007U
 
-#define FLASH_ACR_LATENCY_8WS          0x00000008U                             
-#define FLASH_ACR_LATENCY_9WS          0x00000009U                             
-#define FLASH_ACR_LATENCY_10WS         0x0000000AU                             
-#define FLASH_ACR_LATENCY_11WS         0x0000000BU                             
-#define FLASH_ACR_LATENCY_12WS         0x0000000CU                             
-#define FLASH_ACR_LATENCY_13WS         0x0000000DU                             
-#define FLASH_ACR_LATENCY_14WS         0x0000000EU                             
-#define FLASH_ACR_LATENCY_15WS         0x0000000FU                             
+#define FLASH_ACR_LATENCY_8WS          0x00000008U
+#define FLASH_ACR_LATENCY_9WS          0x00000009U
+#define FLASH_ACR_LATENCY_10WS         0x0000000AU
+#define FLASH_ACR_LATENCY_11WS         0x0000000BU
+#define FLASH_ACR_LATENCY_12WS         0x0000000CU
+#define FLASH_ACR_LATENCY_13WS         0x0000000DU
+#define FLASH_ACR_LATENCY_14WS         0x0000000EU
+#define FLASH_ACR_LATENCY_15WS         0x0000000FU
+
 #define FLASH_ACR_PRFTEN_Pos           (8U)                                    
 #define FLASH_ACR_PRFTEN_Msk           (0x1UL << FLASH_ACR_PRFTEN_Pos)          /*!< 0x00000100 */
 #define FLASH_ACR_PRFTEN               FLASH_ACR_PRFTEN_Msk                    
@@ -8788,7 +8789,7 @@ typedef struct
 #define GPIO_MODER_MODE1                 GPIO_MODER_MODER1                  
 #define GPIO_MODER_MODE1_0               GPIO_MODER_MODER1_0
 #define GPIO_MODER_MODE1_1               GPIO_MODER_MODER1_1
-#define GPIO_MODER_MODE2_Pos             GPIO_MODER_MODER2_PoS
+#define GPIO_MODER_MODE2_Pos             GPIO_MODER_MODER2_Pos
 #define GPIO_MODER_MODE2_Msk             GPIO_MODER_MODER2_Msk
 #define GPIO_MODER_MODE2                 GPIO_MODER_MODER2                 
 #define GPIO_MODER_MODE2_0               GPIO_MODER_MODER2_0
@@ -8819,7 +8820,7 @@ typedef struct
 #define GPIO_MODER_MODE7_0               GPIO_MODER_MODER7_0
 #define GPIO_MODER_MODE7_1               GPIO_MODER_MODER7_1
 #define GPIO_MODER_MODE8_Pos             GPIO_MODER_MODER8_Pos
-#define GPIO_MODER_MODE8_Msk             GPIO_MODER_MODER2_Msk
+#define GPIO_MODER_MODE8_Msk             GPIO_MODER_MODER8_Msk
 #define GPIO_MODER_MODE8                 GPIO_MODER_MODER8
 #define GPIO_MODER_MODE8_0               GPIO_MODER_MODER8_0
 #define GPIO_MODER_MODE8_1               GPIO_MODER_MODER8_1
