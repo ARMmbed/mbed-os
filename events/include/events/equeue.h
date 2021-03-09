@@ -61,8 +61,9 @@ struct equeue_event {
 typedef struct equeue {
     struct equeue_event *queue;
     unsigned tick;
+
+    uint16_t generation;
     bool break_requested;
-    uint8_t generation;
 
     unsigned char *buffer;
     unsigned npw2;
