@@ -23,3 +23,5 @@ target_sources(mbed-mcuxpresso-mcus
 
         middleware/osa/fsl_os_abstraction_mbed.c
 )
+
+target_link_libraries(mbed-mcuxpresso-mcus INTERFACE mbed-nxp)
