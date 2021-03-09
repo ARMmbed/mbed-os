@@ -10,4 +10,11 @@ target_include_directories(mbed-mbedtls-mxcrypto-01
 
 target_link_libraries(mbed-mbedtls-mxcrypto-01 INTERFACE mbed-mbedtls-mxcrypto)
 
-target_link_libraries(mbed-mbedtls PUBLIC mbed-mbedtls-mxcrypto-01)
+target_link_libraries(mbed-mbedtls PRIVATE mbed-mbedtls-mxcrypto-01)
+
+# Expose include paths for an application and components
+# mbedtls_device.h should be publicly available
+target_include_directories(mbed-mbedtls
+    PUBLIC
+        $<TARGET_PROPERTY:mbed-mbedtls-mxcrypto-01,INTERFACE_INCLUDE_DIRECTORIES>
+)
