@@ -1,11 +1,13 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+
+add_library(mbed-lorawan OBJECT)
 
 add_subdirectory(lorastack)
 add_subdirectory(system)
 
 target_include_directories(mbed-lorawan
-    INTERFACE
+    PUBLIC
         ..
         .
         ./include
@@ -13,18 +15,20 @@ target_include_directories(mbed-lorawan
 )
 
 target_sources(mbed-lorawan
-    INTERFACE
+    PRIVATE
         source/LoRaWANInterface.cpp
         source/LoRaWANStack.cpp
 )
 
 target_compile_definitions(mbed-lorawan
-    INTERFACE
+    PUBLIC
         MBED_CONF_LORAWAN_PRESENT=1
 )
 
 target_link_libraries(mbed-lorawan
-    INTERFACE
+    PRIVATE
+        mbed-core
         mbed-events
+    PUBLIC
         mbed-mbedtls
 )
