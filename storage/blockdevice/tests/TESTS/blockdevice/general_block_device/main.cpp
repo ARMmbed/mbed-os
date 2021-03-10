@@ -898,7 +898,7 @@ int get_bd_count()
     return count;
 }
 
-static const char *prefix[] = {"SPIF ", "QSPIF ", "DATAFLASH ", "SD ", "FLASHIAP ", "OSPIF ","SPINAND ", "DEFAULT "};
+static const char *prefix[] = {"SPIF ", "QSPIF ", "DATAFLASH ", "SD ", "FLASHIAP ", "OSPIF ", "SPINAND ", "DEFAULT "};
 
 int main()
 {

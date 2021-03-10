@@ -49,9 +49,9 @@ using namespace mbed;
 #define SPINAND_STATUS_BIT_ERASE_FAIL      0x4  // Erase failed 
 #define SPINAND_STATUS_BIT_PROGRAM_FAIL    0x8  // Program failed
 #define SPINAND_STATUS_BIT_ECC_STATUS_MASK 0x30 // ECC status
-    #define SPINAND_STATUS_ECC_STATUS_NO_ERR     0x00
-    #define SPINAND_STATUS_ECC_STATUS_ERR_COR    0x00
-    #define SPINAND_STATUS_ECC_STATUS_ERR_NO_COR 0x00
+#define SPINAND_STATUS_ECC_STATUS_NO_ERR     0x00
+#define SPINAND_STATUS_ECC_STATUS_ERR_COR    0x00
+#define SPINAND_STATUS_ECC_STATUS_ERR_NO_COR 0x00
 
 // Secure OTP Register Bits
 #define SPINAND_SECURE_BIT_QE          0x01  // Quad enable
@@ -61,12 +61,12 @@ using namespace mbed;
  
 // Block Protection Register Bits
 #define  SPINAND_BLOCK_PROT_BIT_SP      0x01
-#define  SPINAND_BLOCK_PROT_BIT_COMPLE	0x02
+#define  SPINAND_BLOCK_PROT_BIT_COMPLE  0x02
 #define  SPINAND_BLOCK_PROT_BIT_INVERT  0x04
-#define  SPINAND_BLOCK_PROT_BIT_BP0  		0x08
-#define  SPINAND_BLOCK_PROT_BIT_BP1  		0x10
-#define  SPINAND_BLOCK_PROT_BIT_BP2  		0x20
-#define  SPINAND_BLOCK_PROT_BIT_BPRWD  	0x80
+#define  SPINAND_BLOCK_PROT_BIT_BP0  	  0x08
+#define  SPINAND_BLOCK_PROT_BIT_BP1  	  0x10
+#define  SPINAND_BLOCK_PROT_BIT_BP2  	  0x20
+#define  SPINAND_BLOCK_PROT_BIT_BPRWD   0x80
 #define  SPINAND_BLOCK_PROT_BIT_BP_MASK 0x38
 
 #define  SPINAND_BLOCK_PROT_BP_OFFSET  	  3
@@ -209,7 +209,7 @@ int SPINANDBlockDevice::init()
     }
 
     if (_read_instruction == SPINAND_INST_READ_CACHE4) {
-        if (QSPI_STATUS_OK !=_set_quad_enable()) {
+        if (QSPI_STATUS_OK != _set_quad_enable()) {
             tr_error("SPI NAND Set Quad enable Failed");
             status = SPINAND_BD_ERROR_DEVICE_ERROR;
             goto exit_point;
@@ -269,7 +269,7 @@ int SPINANDBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
     bd_size_t read_bytes = 0;
 
     tr_debug("Read Inst: 0x%xh", _read_instruction);
-    
+
     while (size > 0) {
         // Read on _page_size_bytes boundaries (Default 2048 bytes a page)
         offset = addr % MBED_CONF_SPINAND_SPINAND_PAGE_SIZE;
@@ -385,7 +385,7 @@ int SPINANDBlockDevice::erase(bd_addr_t addr, bd_size_t size)
         }
 
         addr += SPINAND_BLOCK_OFFSET;
-        if(size > MBED_CONF_SPINAND_SPINAND_BLOCK_SIZE) {
+        if (size > MBED_CONF_SPINAND_SPINAND_BLOCK_SIZE) {
             size -= MBED_CONF_SPINAND_SPINAND_BLOCK_SIZE;
         } else {
             size = 0;
@@ -519,19 +519,19 @@ int SPINANDBlockDevice::_set_quad_enable()
 
     if (QSPI_STATUS_OK != _qspi_send_general_command(SPINAND_INST_GET_FEATURE, FEATURES_ADDR_SECURE_OTP,
                                                      NULL, 0, (char *) &secur_reg, 1)) { 
-            tr_error("Reading Security Register failed");
-        }
+        tr_error("Reading Security Register failed");
+    }
     
     secur_reg |= SPINAND_SECURE_BIT_QE;
 
     if (QSPI_STATUS_OK != _qspi_send_general_command(SPINAND_INST_SET_FEATURE, FEATURES_ADDR_SECURE_OTP,
                                                      (char *) &secur_reg, 1, NULL, 0)) { 
-            tr_error("Writing Security Register failed");
-        }
+        tr_error("Writing Security Register failed");
+    }
     if (QSPI_STATUS_OK != _qspi_send_general_command(SPINAND_INST_GET_FEATURE, FEATURES_ADDR_SECURE_OTP,
                                                      NULL, 0, (char *) &secur_reg, 1)) { 
-            tr_error("Reading Security Register failed");
-        }
+        tr_error("Reading Security Register failed");
+    }
     if (false == _is_mem_ready()) {
         tr_error("Device not ready, set quad enable failed");
         return -1;
@@ -551,19 +551,19 @@ int SPINANDBlockDevice::_clear_block_protection()
 
     if (QSPI_STATUS_OK != _qspi_send_general_command(SPINAND_INST_GET_FEATURE, FEATURES_ADDR_BLOCK_PROTECTION,
                                                      NULL, 0, (char *) &block_protection_reg, 1)) { 
-            tr_error("Reading Block Protection Register failed");
-        }
+        tr_error("Reading Block Protection Register failed");
+    }
     
     block_protection_reg &= ~SPINAND_BLOCK_PROT_BIT_BP_MASK;
 
     if (QSPI_STATUS_OK != _qspi_send_general_command(SPINAND_INST_SET_FEATURE, FEATURES_ADDR_BLOCK_PROTECTION,
                                                      (char *) &block_protection_reg, 1, NULL, 0)) { 
-            tr_error("Writing Block Protection Register failed");
-        }
+        tr_error("Writing Block Protection Register failed");
+    }
     if (QSPI_STATUS_OK != _qspi_send_general_command(SPINAND_INST_GET_FEATURE, FEATURES_ADDR_BLOCK_PROTECTION,
                                                      NULL, 0, (char *) &block_protection_reg, 1)) { 
-            tr_error("Reading Block Protection Register failed");
-        }
+        tr_error("Reading Block Protection Register failed");
+    }
     if (false == _is_mem_ready()) {
         tr_error("Device not ready, clearing block protection failed");
         return -1;
@@ -588,7 +588,7 @@ int SPINANDBlockDevice::_set_write_enable()
             tr_error("Device not ready, write failed");
             break;
         }
-        
+
         if (QSPI_STATUS_OK != _qspi_send_general_command(SPINAND_INST_GET_FEATURE, FEATURES_ADDR_STATUS,
                                                          NULL, 0,
                                                          (char *) &status_value, 1)) { // store received value in status_value
@@ -612,7 +612,7 @@ bool SPINANDBlockDevice::_is_mem_ready()
     uint8_t status_value = 0;
     int retries = 0;
     bool mem_ready = true;
-    
+
     do {
         rtos::ThisThread::sleep_for(1ms);
         retries++;
@@ -649,7 +649,7 @@ qspi_status_t SPINANDBlockDevice::_qspi_send_read_command(qspi_inst_t read_inst,
     // Send read command to device driver
     // Read commands use the best bus mode supported by the part
     qspi_status_t status = _qspi.configure_format(_inst_width, _address_width, SPI_NAND_COLUMN_ADDR_SIZE, // Alt width should be the same as address width
-                                                  _address_width,_alt_size, _data_width, 0);
+                                                  _address_width, _alt_size, _data_width, 0);
     if (QSPI_STATUS_OK != status) {
         tr_error("_qspi_configure_format failed");
         return status;
@@ -668,7 +668,7 @@ qspi_status_t SPINANDBlockDevice::_qspi_send_read_command(qspi_inst_t read_inst,
 
     if (false == _is_mem_ready()) {
         tr_error("Device not ready, clearing block protection failed");
-       // return -1;
+        return -1;
     }
 
     status = _qspi.configure_format(_inst_width, _address_width, SPI_NAND_ROW_ADDR_SIZE, _address_width, // Alt width should be the same as address width
@@ -701,7 +701,7 @@ qspi_status_t SPINANDBlockDevice::_qspi_send_program_command(qspi_inst_t prog_in
                                                              bd_addr_t addr, bd_size_t *size)
 {
     tr_debug("Inst: 0x%xh, addr: %llu, size: %llu", prog_inst, addr, *size);
-    
+
     // Program load commands need 16 bit row address
     qspi_status_t status = _qspi.configure_format(_inst_width, _address_width, SPI_NAND_ROW_ADDR_SIZE, // Alt width should be the same as address width
                                                   _address_width, _alt_size, QSPI_CFG_BUS_QUAD, 0);
@@ -725,7 +725,7 @@ qspi_status_t SPINANDBlockDevice::_qspi_send_program_command(qspi_inst_t prog_in
         return format_status;
     }
 
-    // Program execute command 
+    // Program execute command
     if (QSPI_STATUS_OK != _qspi_send_general_command(SPINAND_INST_PROGRAM_EXEC, addr >> 12, NULL, 0, NULL, 0)) {
         tr_error("Read page from array failed");
     }
@@ -737,18 +737,18 @@ qspi_status_t SPINANDBlockDevice::_qspi_send_program_command(qspi_inst_t prog_in
         return status;
     }
     uint8_t status_value = 0;
-        if (QSPI_STATUS_OK != _qspi_send_general_command(SPINAND_INST_GET_FEATURE, FEATURES_ADDR_STATUS,
-                                                         NULL, 0,
-                                                         (char *) &status_value, 1)) { // store received value in status_value
-            tr_error("Reading Status Register failed");
-        }
+    if (QSPI_STATUS_OK != _qspi_send_general_command(SPINAND_INST_GET_FEATURE, FEATURES_ADDR_STATUS,
+                                                     NULL, 0,
+                                                     (char *) &status_value, 1)) { // store received value in status_value
+        tr_error("Reading Status Register failed");
+    }
     return QSPI_STATUS_OK;
 }
 
 qspi_status_t SPINANDBlockDevice::_qspi_send_erase_command(qspi_inst_t erase_inst, bd_addr_t addr, bd_size_t size)
 {
     tr_debug("Inst: 0x%xh, addr: %llu, size: %llu", erase_inst, addr, size);
-    
+
     qspi_status_t status = _qspi.configure_format(_inst_width, _address_width, SPI_NAND_COLUMN_ADDR_SIZE,// Alt width should be the same as address width
                                                   _address_width,  _alt_size, _data_width, 0);
     if (QSPI_STATUS_OK != status) {
@@ -757,7 +757,7 @@ qspi_status_t SPINANDBlockDevice::_qspi_send_erase_command(qspi_inst_t erase_ins
     }
 
     // Send erase command to driver
-    status = _qspi.command_transfer(erase_inst, (int) (addr >> 12), NULL, 0, NULL, 0);
+    status = _qspi.command_transfer(erase_inst, (int)(addr >> 12), NULL, 0, NULL, 0);
 
     if (QSPI_STATUS_OK != status) {
         tr_error("QSPI Erase failed");
@@ -771,11 +771,11 @@ qspi_status_t SPINANDBlockDevice::_qspi_send_erase_command(qspi_inst_t erase_ins
         return status;
     }
     uint8_t status_value = 0;
-        if (QSPI_STATUS_OK != _qspi_send_general_command(SPINAND_INST_GET_FEATURE, FEATURES_ADDR_STATUS,
-                                                         NULL, 0,
-                                                         (char *) &status_value, 1)) { // store received value in status_value
-            tr_error("Reading Status Register failed");
-        }
+    if (QSPI_STATUS_OK != _qspi_send_general_command(SPINAND_INST_GET_FEATURE, FEATURES_ADDR_STATUS,
+                                                     NULL, 0,
+                                                     (char *) &status_value, 1)) { // store received value in status_value
+        tr_error("Reading Status Register failed");
+    }
     return QSPI_STATUS_OK;
 }
 
