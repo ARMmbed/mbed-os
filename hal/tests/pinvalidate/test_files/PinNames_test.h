@@ -119,8 +119,8 @@ typedef enum {
     ARDUINO_UNO_D15  = PB_8,  // I2C SCL / GPIO
 
     // valid STDIO definitions for console print
-    USBTX   = PB_6,
-    USBRX   = PB_7,
+    CONSOLE_TX   = PB_6,
+    CONSOLE_RX   = PB_7,
 
     // invalid legacy LED/BUTTON definitions
     // these should be a #define, not in an enum

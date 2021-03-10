@@ -80,8 +80,8 @@ typedef enum {
     LED3 = P1_21,
     LED4 = P1_23,
 #endif
-    USBTX = P0_2,
-    USBRX = P0_3,
+    CONSOLE_TX = P0_2,
+    CONSOLE_RX = P0_3,
 
     // Arch Pro Pin Names
     D0 = P4_29,

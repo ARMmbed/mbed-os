@@ -35,8 +35,8 @@ void GPIO_test()
 {
     utest_printf("GPIO Pin 0x%x\n", TestedPin);
 
-    TEST_SKIP_UNLESS_MESSAGE(TestedPin != USBTX, "ARDUINO_UNO pin shared with USBTX");
-    TEST_SKIP_UNLESS_MESSAGE(TestedPin != USBRX, "ARDUINO_UNO pin shared with USBRX");
+    TEST_SKIP_UNLESS_MESSAGE(TestedPin != CONSOLE_TX, "ARDUINO_UNO pin shared with CONSOLE_TX");
+    TEST_SKIP_UNLESS_MESSAGE(TestedPin != CONSOLE_RX, "ARDUINO_UNO pin shared with CONSOLE_RX");
 
     const PinMap *maps = gpio_pinmap(); // hal/source/mbed_gpio.c
     while (maps->pin != (PinName)NC) { // check each pin from PinMap table till NC pin
@@ -124,8 +124,8 @@ void UART_test()
 {
     utest_printf("UART TX Pin 0x%x RX Pin 0x%x\n", TX_pin, RX_pin);
 
-    TEST_SKIP_UNLESS_MESSAGE(TX_pin != USBTX, "ARDUINO_UNO_UART pin shared with USBTX");
-    TEST_SKIP_UNLESS_MESSAGE(RX_pin != USBRX, "ARDUINO_UNO_UART pin shared with USBRX");
+    TEST_SKIP_UNLESS_MESSAGE(TX_pin != CONSOLE_TX, "ARDUINO_UNO_UART pin shared with CONSOLE_TX");
+    TEST_SKIP_UNLESS_MESSAGE(RX_pin != CONSOLE_RX, "ARDUINO_UNO_UART pin shared with CONSOLE_RX");
 
     {
         const PinMap *maps = serial_tx_pinmap();

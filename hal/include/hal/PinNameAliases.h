@@ -17,8 +17,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_ARDUINO_UNO_H
-#define MBED_ARDUINO_UNO_H
+#ifndef MBED_PIN_NAME_ALIASES_H
+#define MBED_PIN_NAME_ALIASES_H
+
+/* Aliases for legacy reasons. To be removed in the next Mbed OS version */
+#if defined (CONSOLE_TX) && (CONSOLE_RX)
+#define USBTX CONSOLE_TX
+#define USBRX CONSOLE_RX
+#else
+#define CONSOLE_TX USBTX
+#define CONSOLE_RX USBRX
+#endif
 
 #if defined (TARGET_FF_ARDUINO) || (TARGET_FF_ARDUINO_UNO)
 
@@ -94,6 +103,6 @@
 
 #endif // (TARGET_FF_ARDUINO) || (TARGET_FF_ARDUINO_UNO)
 
-#endif // MBED_ARDUINO_UNO_H
+#endif // MBED_PIN_NAME_ALIASES_H
 
 /** @}*/

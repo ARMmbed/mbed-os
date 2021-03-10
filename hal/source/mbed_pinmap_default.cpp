@@ -21,7 +21,7 @@
 #include "platform/mbed_assert.h"
 #include "device.h"
 #include "hal/serial_api.h"
-#include "hal/ArduinoUnoAliases.h"
+#include "hal/PinNameAliases.h"
 
 //*** Common form factors ***
 #if defined (TARGET_FF_ARDUINO) || (TARGET_FF_ARDUINO_UNO)
@@ -70,7 +70,7 @@ const char *pinmap_ff_arduino_uno_pin_to_string(PinName pin)
 MBED_WEAK const PinList *pinmap_restricted_pins()
 {
     static const PinName pins[] = {
-        USBTX, USBRX
+        CONSOLE_TX, CONSOLE_RX
     };
     static const PinList pin_list = {
         sizeof(pins) / sizeof(pins[0]),
@@ -94,7 +94,7 @@ MBED_WEAK const PinList *pinmap_gpio_restricted_pins()
 #if DEVICE_SERIAL
 MBED_WEAK const PeripheralList *pinmap_uart_restricted_peripherals()
 {
-    static const int stdio_uart = pinmap_peripheral(USBTX, serial_tx_pinmap());
+    static const int stdio_uart = pinmap_peripheral(CONSOLE_TX, serial_tx_pinmap());
 
     static const int peripherals[] = {
         stdio_uart

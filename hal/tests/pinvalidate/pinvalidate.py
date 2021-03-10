@@ -314,7 +314,7 @@ def identity_assignment_check(pin_name_dict):
 def nc_assignment_check(pin_name_dict):
     invalid_items = []
     for key, val in pin_name_dict.items():
-        if re.match(r"^((LED|BUTTON)\d*|USBTX|USBRX)$", key):
+        if re.match(r"^((LED|BUTTON)\d*|CONSOLE_TX|CONSOLE_RX|USBTX|USBRX)$", key):
             if val == "NC":
                 message = "cannot be NC"
                 invalid_items.append(
@@ -329,7 +329,7 @@ def duplicate_assignment_check(pin_name_dict):
     invalid_items = []
 
     for key, val in pin_name_dict.items():
-        if re.match(r"^((LED|BUTTON)\d*|USBTX|USBRX)$", key):
+        if re.match(r"^((LED|BUTTON)\d*|CONSOLE_TX|CONSOLE_RX|USBTX|USBRX)$", key):
             if val == "NC":
                 continue
             # resolve to literal
@@ -436,6 +436,13 @@ def legacy_assignment_check(pin_name_content):
     for key, val in legacy_assignments.items():
         message = "legacy assignment; LEDs and BUTTONs must be #define'd"
         invalid_items.append({"key": key, "val": val, "message": message})
+    return invalid_items
+
+def legacy_uart_check(pin_name_dict):
+    invalid_items = []
+    if "CONSOLE_TX" not in pin_name_dict or "CONSOLE_RX" not in pin_name_dict:
+        message = "CONSOLE_TX or CONSOLE_RX are not defined; USBTX and USBRX are deprecated"
+        invalid_items.append({"key": "", "val": "", "message": message})
     return invalid_items
 
 
@@ -651,6 +658,12 @@ test_cases = [
         "suite_name": "generic",
         "case_name": "legacy",
         "case_function": legacy_assignment_check,
+        "case_input": "content",
+    },
+    {
+        "suite_name": "generic",
+        "case_name": "uart",
+        "case_function": legacy_uart_check,
         "case_input": "content",
     },
     {

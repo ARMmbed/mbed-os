@@ -16,7 +16,7 @@
  */
 #include "hal/gpio_api.h"
 #include "platform/mbed_toolchain.h"
-#include "hal/ArduinoUnoAliases.h"
+#include "hal/PinNameAliases.h"
 
 static inline void _gpio_init_in(gpio_t *gpio, PinName pin, PinMode mode)
 {

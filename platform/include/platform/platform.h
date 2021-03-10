@@ -28,7 +28,7 @@
 #include "device.h"
 #include "PinNames.h"
 #include "PeripheralNames.h"
-#include "hal/ArduinoUnoAliases.h"
+#include "hal/PinNameAliases.h"
 
 /** \defgroup platform-public-api Platform
  * \ingroup mbed-os-public
