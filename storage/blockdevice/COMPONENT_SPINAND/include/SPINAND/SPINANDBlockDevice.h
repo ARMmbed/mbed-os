@@ -271,7 +271,7 @@ private:
     /*********************************/
     /* Flash Configuration Functions */
     /*********************************/
-    
+
     // Quad Enable in Sercurity Register
     int _set_quad_enable();
 
