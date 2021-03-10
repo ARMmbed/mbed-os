@@ -42,8 +42,8 @@ extern "C" {
 // Internal event structure
 struct equeue_event {
     unsigned size;
+    uint16_t generation;
     uint8_t id;
-    uint8_t generation;
 
     struct equeue_event *next;
     struct equeue_event *sibling;
