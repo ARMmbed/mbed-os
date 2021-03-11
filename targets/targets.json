@@ -4354,6 +4354,7 @@
             "0228"
         ],
         "device_has": [
+            "INTERRUPTIN",
             "SERIAL",
 	        "LPTICKER"
         ]

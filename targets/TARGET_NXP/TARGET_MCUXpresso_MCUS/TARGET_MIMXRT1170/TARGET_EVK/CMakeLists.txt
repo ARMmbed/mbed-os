@@ -11,11 +11,13 @@ target_include_directories(mbed-evk
 
 target_sources(mbed-evk
     INTERFACE
-        PeripheralPins.c
         fsl_clock_config.c
-	    pinmap.c
 	    mbed_overrides.c
+        PeripheralPins.c
+        pinmap.c
+        serial_api.c
 	    us_ticker.c
+        
 
         xip/evkmimxrt1170_flexspi_nor_config.c
         xip/dcd.c
