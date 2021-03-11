@@ -1419,7 +1419,13 @@ void LoRaMac::set_device_class(const device_class_t &device_class,
     _device_class = device_class;
     _rx2_would_be_closure_for_class_c = rx2_would_be_closure_handler;
 
-    _lora_time.init(_rx2_closure_timer_for_class_c, _rx2_would_be_closure_for_class_c);
+    _lora_time.init(_rx2_closure_timer_for_class_c, [this] {
+        {
+            Lock lock(*this);
+            _lora_time.clear(_rx2_closure_timer_for_class_c);
+        }
+        _rx2_would_be_closure_for_class_c();
+    });
 
     if (CLASS_A == _device_class) {
         tr_debug("Changing device class to -> CLASS_A");
@@ -1805,14 +1811,34 @@ lorawan_status_t LoRaMac::initialize(EventQueue *queue,
     _lora_phy->setup_public_network_mode(_params.is_nwk_public);
     _lora_phy->put_radio_to_sleep();
 
-    _lora_time.init(_params.timers.backoff_timer,
-                    mbed::callback(this, &LoRaMac::on_backoff_timer_expiry));
-    _lora_time.init(_params.timers.rx_window1_timer,
-                    mbed::callback(this, &LoRaMac::open_rx1_window));
-    _lora_time.init(_params.timers.rx_window2_timer,
-                    mbed::callback(this, &LoRaMac::open_rx2_window));
-    _lora_time.init(_params.timers.ack_timeout_timer,
-                    mbed::callback(this, &LoRaMac::on_ack_timeout_timer_event));
+    _lora_time.init(_params.timers.backoff_timer, [this] {
+        {
+            Lock lock(*this);
+            _lora_time.clear(_params.timers.backoff_timer);
+        }
+        on_backoff_timer_expiry();
+    });
+    _lora_time.init(_params.timers.rx_window1_timer, [this] {
+        {
+            Lock lock(*this);
+            _lora_time.clear(_params.timers.rx_window1_timer);
+        }
+        open_rx1_window();
+    });
+    _lora_time.init(_params.timers.rx_window2_timer, [this] {
+        {
+            Lock lock(*this);
+            _lora_time.clear(_params.timers.rx_window2_timer);
+        }
+        open_rx2_window();
+    });
+    _lora_time.init(_params.timers.ack_timeout_timer, [this] {
+        {
+            Lock lock(*this);
+            _lora_time.clear(_params.timers.ack_timeout_timer);
+        }
+        on_ack_timeout_timer_event();
+    });
 
     _params.timers.mac_init_time = _lora_time.get_current_time();
 
