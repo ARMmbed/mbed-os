@@ -37,7 +37,7 @@ This controls the port that GDB servers will be run on when debugging.  A value 
 
 ## MBed USB Upload Method
 
-This upload method interfaces with standard MBed boards which present themselves as USB drives.  Given the folder where the USB drive is mounted, it first removes any other .bin files from the folder, then automatically copies the compiled program on. 
+This upload method interfaces with standard MBed boards which present themselves as USB drives.  The Mbed python tools are used to automatically locate and flash boards connected to the system.
 
 ### Parameters
 
@@ -47,13 +47,21 @@ This upload method interfaces with standard MBed boards which present themselves
 
 Whether the MBed upload method can be activated.
 
+> MBED_RESET_BAUDRATE
+
+**Type:** Integer
+
+**Default:** 9600
+
+On some boards, Mbed Tools has to connect to the board's serial port in order to reset them.  This configuration requires Mbed Tools to know the board rate the board is operating at (though you can also likely get away with setting a slower baud rate here than what's in use).
+
 ### Options
 
-> MBED_DRIVE_PATH
+> MBED_TARGET_UID
 
-**Type:** Folder Path
+**Type:** String
 
-Path that the MBed device is mounted to on your machine.  On Windows, this is usually a drive letter, such as `D:/`.
+UID of the Mbed board to be programmed.  This is only needed if multiple of the same target are connected to your machine -- if it is not set, any one target will be flashed.  You can get a the list of UIDs from `python -m pyocd list`.
 
 ## J-Link Upload Method
 
