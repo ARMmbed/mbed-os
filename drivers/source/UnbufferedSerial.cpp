@@ -122,6 +122,19 @@ void UnbufferedSerial::set_flow_control(Flow type, PinName flow1, PinName flow2)
 }
 #endif // DEVICE_SERIAL_FC
 
+#if DEVICE_SERIAL_ASYNCH
+int UnbufferedSerial::is_tx_active(void)
+{
+    int retval;
+
+    lock();
+    retval = SerialBase::is_tx_active();
+    unlock();
+
+    return retval;
+}
+#endif // DEVICE_SERIAL_ASYNCH
+
 } // namespace mbed
 
 #endif // #if DEVICE_SERIAL

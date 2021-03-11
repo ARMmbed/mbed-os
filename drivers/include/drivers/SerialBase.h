@@ -273,6 +273,12 @@ public:
      */
     int set_dma_usage_rx(DMAUsage usage);
 
+    /** Attempts to determine if the serial peripheral is already in use for TX
+     *
+     * @return Non-zero if the TX transaction is ongoing, 0 otherwise
+     */
+    int is_tx_active();
+
 #if !defined(DOXYGEN_ONLY)
 protected:
     void start_read(void *buffer, int buffer_size, char buffer_width, const event_callback_t &callback, int event, unsigned char char_match);

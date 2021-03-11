@@ -211,6 +211,14 @@ public:
      */
     void set_flow_control(Flow type, PinName flow1 = NC, PinName flow2 = NC);
 #endif // DEVICE_SERIAL_FC
+
+#if DEVICE_SERIAL_ASYNCH
+    /** Attempts to determine if the serial peripheral is already in use for TX
+    *
+    * @return Non-zero if the TX transaction is ongoing, 0 otherwise
+    */
+    int is_tx_active();
+#endif // DEVICE_SERIAL_ASYNCH
 };
 
 } // namespace mbed
