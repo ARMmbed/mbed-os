@@ -20,7 +20,7 @@
 #include "ble/common/blecommon.h"
 #include "ble/driver/CordioHCIDriver.h"
 #include "ble/driver/CordioHCITransportDriver.h"
-#include "mbed.h"
+#include "rtos/Semaphore.h"
 #include "hci_api.h"
 #include "hci_cmd.h"
 #include "hci_core.h"
