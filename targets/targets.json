@@ -2438,6 +2438,45 @@
             "network-default-interface-type": "ETHERNET"
         }
     },
+    "TAPIT_MODULE_1": {
+        "inherits": [
+            "MCU_STM32F7"
+        ],
+        "extra_labels_add": [
+            "STM32F767xI",
+            "STM32F767ZI"
+        ],
+        "config": {
+            "flash_dual_bank": {
+                "help": "Default board configuration is Single Bank Flash. If you enable Dual Bank with ST Link Utility, set value to 1",
+                "value": "0"
+            },
+            "usb_speed": {
+                "help": "USE_USB_OTG_FS or USE_USB_OTG_HS or USE_USB_HS_IN_FS",
+                "value": "USE_USB_OTG_FS"
+            }
+        },
+        "macros_add": [
+            "STM32F767xx"
+        ],
+        "detect_code": [
+            "003E"
+        ],
+        "components_add": [
+            "QSPIF"
+        ],
+        "device_has_add": [
+            "EMAC",
+            "USBDEVICE",
+            "CAN",
+            "QSPI"
+        ],
+        "device_name": "TAPIT_MODULE_1",
+        "overrides": {
+            "network-default-interface-type": "ETHERNET",
+            "clock_source": "USE_PLL_HSE_XTAL"
+        }
+    },
     "DISCO_F769NI": {
         "inherits": [
             "MCU_STM32F7"
