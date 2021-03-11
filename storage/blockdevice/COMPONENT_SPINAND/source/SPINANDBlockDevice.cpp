@@ -58,7 +58,7 @@ using namespace mbed;
 #define SPINAND_SECURE_BIT_ECC_EN      0x10  // On-die ECC enable
 #define SPINAND_SECURE_BIT_OTP_EN      0x40  // 
 #define SPINAND_SECURE_BIT_OTP_PROT    0x80  // 
- 
+
 // Block Protection Register Bits
 #define  SPINAND_BLOCK_PROT_BIT_SP      0x01
 #define  SPINAND_BLOCK_PROT_BIT_COMPLE  0x02
@@ -521,7 +521,7 @@ int SPINANDBlockDevice::_set_quad_enable()
                                                      NULL, 0, (char *) &secur_reg, 1)) {
         tr_error("Reading Security Register failed");
     }
-    
+
     secur_reg |= SPINAND_SECURE_BIT_QE;
 
     if (QSPI_STATUS_OK != _qspi_send_general_command(SPINAND_INST_SET_FEATURE, FEATURES_ADDR_SECURE_OTP,
@@ -553,7 +553,7 @@ int SPINANDBlockDevice::_clear_block_protection()
                                                      NULL, 0, (char *) &block_protection_reg, 1)) {
         tr_error("Reading Block Protection Register failed");
     }
-    
+
     block_protection_reg &= ~SPINAND_BLOCK_PROT_BIT_BP_MASK;
 
     if (QSPI_STATUS_OK != _qspi_send_general_command(SPINAND_INST_SET_FEATURE, FEATURES_ADDR_BLOCK_PROTECTION,
