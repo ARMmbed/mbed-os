@@ -147,12 +147,32 @@ extern "C" nsapi_error_t nsapi_dns_add_server(nsapi_addr_t addr, const char *int
     return NSAPI_ERROR_OK;
 }
 
-extern "C" nsapi_error_t nsapi_dns_get_server(int index, nsapi_addr_t *addr, const char *interface_name)
+extern "C" nsapi_error_t nsapi_dns_get_server(NetworkStack *stack, int index, nsapi_addr_t *addr, const char *interface_name)
 {
-    if (index >= DNS_SERVERS_SIZE) {
-        return NSAPI_ERROR_PARAMETER;
+    SocketAddress dns_addr;
+    nsapi_addr_t nsapi_addr;
+    bool dns_addr_set = false;
+
+    if (index >= DNS_SERVERS_SIZE + DNS_STACK_SERVERS_NUM) {
+        return NSAPI_ERROR_NO_ADDRESS;
     }
-    memcpy(addr, &dns_servers[index], sizeof(nsapi_addr_t));
+
+    if (index < DNS_STACK_SERVERS_NUM) {
+        nsapi_error_t ret = stack->get_dns_server(index, &dns_addr, interface_name);
+        if (ret < 0) {
+            index = DNS_STACK_SERVERS_NUM;
+        } else {
+            dns_addr_set = true;
+        }
+    }
+
+    if (!dns_addr_set) {
+        dns_addr.set_addr(dns_servers[index - DNS_STACK_SERVERS_NUM]);
+    }
+
+    dns_addr.set_port(53);
+    nsapi_addr = dns_addr.get_addr();
+    memcpy(addr, &nsapi_addr, sizeof(nsapi_addr_t));
     return NSAPI_ERROR_OK;
 }
 
