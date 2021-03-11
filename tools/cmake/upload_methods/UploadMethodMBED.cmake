@@ -1,28 +1,35 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
-# SPDX-License-Identifier: Apache-2.0
-
 ### Mbed USB Drive Upload Method
-# This method needs no parameters.
+# This method needs the following parameters:
+# MBED_RESET_BAUDRATE - Serial baudrate to connect to the target at when resetting it.
 # This method creates the following options:
-# MBED_DRIVE_PATH - Path to mbed virtual USB drive to upload to
+# MBED_TARGET_UID - Probe UID to pass to pyOCD commands. You can get the UIDs from `python -m pyocd list`.
 
-set(UPLOAD_MBED_FOUND TRUE) # this has no dependencies
 set(UPLOAD_SUPPORTS_DEBUG FALSE)
 
-set(MBED_DRIVE_PATH "" CACHE PATH "Path to mbed virtual USB drive to upload to")
+### Check if upload method can be enabled on this machine
+check_python_package(mbed_os_tools HAVE_MBED_OS_TOOLS)
+set(UPLOAD_MBED_FOUND ${HAVE_MBED_OS_TOOLS})
+
+if(NOT DEFINED MBED_RESET_BAUDRATE)
+	message(STATUS "No MBED_RESET_BAUDRATE defined in upload method config file.  Using default of 9600")
+	set(MBED_RESET_BAUDRATE 9600)
+endif()
+
+set(MBED_TARGET_UID "" CACHE STRING "UID of mbed target to upload to if there are multiple connected.  You can get the UIDs from `python -m pyocd list`")
 
 ### Function to generate upload target
 
 # Can only access CMAKE_CURRENT_LIST_DIR outside function
-set(UPLOAD_SCRIPT_PATH ${CMAKE_CURRENT_LIST_DIR}/install_bin_file.cmake)
+set(UPLOAD_SCRIPT_PATH ${CMAKE_CURRENT_LIST_DIR}/install_bin_file.py)
 
 function(gen_upload_target TARGET_NAME BIN_FILE)
 
 	add_custom_target(flash-${TARGET_NAME}
-		COMMAND ${CMAKE_COMMAND}
-		-DBIN_FILE=${BIN_FILE}
-		-DMBED_PATH=${MBED_DRIVE_PATH}
-		-P ${UPLOAD_SCRIPT_PATH})
+		COMMAND ${Python3_EXECUTABLE} ${UPLOAD_SCRIPT_PATH}
+		${BIN_FILE}
+		${MBED_TARGET}
+		${MBED_RESET_BAUDRATE}
+		${MBED_TARGET_UID})
 
 	add_dependencies(flash-${TARGET_NAME} ${TARGET_NAME})
 
