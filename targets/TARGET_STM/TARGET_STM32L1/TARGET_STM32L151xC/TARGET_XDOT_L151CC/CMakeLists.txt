@@ -17,3 +17,6 @@ target_include_directories(mbed-xdot-l151cc
 )
 
 target_link_libraries(mbed-xdot-l151cc INTERFACE mbed-stm32l151xc)
+
+add_library(mbed-ff1705-l151cc INTERFACE)
+target_link_libraries(mbed-ff1705-l151cc INTERFACE mbed-xdot-l151cc)
