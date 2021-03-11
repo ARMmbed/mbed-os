@@ -1195,17 +1195,6 @@ static const bool ipv6_route_probing[ROUTE_MAX] = {
     [ROUTE_RPL_INSTANCE] = true,
 };
 
-/* Which route types get minimum link MTU by default */
-/* Makes life easier for tunnel-based systems like RPL */
-static const bool ipv6_route_min_mtu[ROUTE_MAX] = {
-    [ROUTE_RPL_DAO] = true,
-    [ROUTE_RPL_DAO_SR] = true,
-    [ROUTE_RPL_DIO] = true,
-    [ROUTE_RPL_ROOT] = true,
-    [ROUTE_RPL_INSTANCE] = true,
-    [ROUTE_MPL] = true,
-};
-
 // Remember when a route source has deleted an entry - allows buffers still in
 // event queue to have their route info invalidated.
 static bool ipv6_route_source_invalidated[ROUTE_MAX];
@@ -1647,7 +1636,7 @@ ipv6_route_t *ipv6_route_add_metric(const uint8_t *prefix, uint8_t prefix_len, i
         route->info.info = info;
         route->info.source_id = source_id;
         route->info.interface_id = interface_id;
-        route->info.pmtu = ipv6_route_min_mtu[source] ? IPV6_MIN_LINK_MTU : 0xFFFF;
+        route->info.pmtu = 0xFFFF;
         if (next_hop) {
             route->on_link = false;
             memcpy(route->info.next_hop_addr, next_hop, 16);

@@ -49,8 +49,8 @@ typedef enum {
 typedef enum {
     KMP_RESULT_OK = 0,                    // Successful
     KMP_RESULT_ERR_NO_MEM = -1,           // No memory
-    KMP_RESULT_ERR_TX_NO_ACK = -2,        // No acknowledge was received
-    KMP_RESULT_ERR_UNSPEC = -3            // Other reason
+    KMP_RESULT_ERR_TX_NO_ACK = -2,        // No TX acknowledge was received
+    KMP_RESULT_ERR_TX_UNSPEC = -3         // Other TX reason
 } kmp_result_e;
 
 typedef enum {

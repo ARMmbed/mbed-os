@@ -452,6 +452,9 @@ rpl_domain_t *rpl_control_create_domain(void)
     ns_list_init(&domain->instances);
     domain->non_storing_downstream_interface = -1;
     domain->callback = NULL;
+    domain->new_parent_add = NULL;
+    domain->parent_dis = NULL;
+    domain->prefix_cb = NULL;
     domain->cb_handle = NULL;
     domain->force_leaf = false;
     domain->process_routes = true;
@@ -528,12 +531,13 @@ void rpl_control_free_domain_instances_from_interface(protocol_interface_info_en
     }
 }
 
-void rpl_control_set_callback(rpl_domain_t *domain, rpl_domain_callback_t callback, rpl_prefix_callback_t prefix_learn_cb, rpl_new_parent_callback_t new_parent_add, void *cb_handle)
+void rpl_control_set_callback(rpl_domain_t *domain, rpl_domain_callback_t callback, rpl_prefix_callback_t prefix_learn_cb, rpl_new_parent_callback_t new_parent_add, rpl_parent_dis_callback_t parent_dis, void *cb_handle)
 {
     domain->callback = callback;
     domain->prefix_cb = prefix_learn_cb;
     domain->cb_handle = cb_handle;
     domain->new_parent_add = new_parent_add;
+    domain->parent_dis = parent_dis;
 }
 
 /* To do - this should live somewhere nicer. Basically a bootstrap
@@ -562,6 +566,11 @@ bool rpl_control_have_dodag(rpl_domain_t *domain)
 
 typedef void rpl_control_predicate_loop_fn_t(rpl_instance_t *instance, rpl_dodag_version_t *version, void *arg);
 
+typedef struct rpl_loopfn_trigger_unicast_dio_arg {
+    struct protocol_interface_info_entry *interface;
+    const uint8_t *dst;
+} rpl_loopfn_trigger_unicast_dio_arg_t;
+
 /* Callbacks for rpl_control_predicate_loop */
 
 static void rpl_loopfn_reset_dio_timer(rpl_instance_t *instance, rpl_dodag_version_t *dodag_version, void *handle)
@@ -570,12 +579,19 @@ static void rpl_loopfn_reset_dio_timer(rpl_instance_t *instance, rpl_dodag_versi
     (void)handle;
 
     rpl_instance_inconsistency(instance);
-}
+    //Check was Multicast DIS from parent
+    rpl_loopfn_trigger_unicast_dio_arg_t *arg = handle;
+    rpl_domain_t *domain = arg->interface->rpl_domain;
+    if (domain && domain->parent_dis) {
 
-typedef struct rpl_loopfn_trigger_unicast_dio_arg {
-    struct protocol_interface_info_entry *interface;
-    const uint8_t *dst;
-} rpl_loopfn_trigger_unicast_dio_arg_t;
+        if (rpl_instance_address_is_parent(instance, arg->dst)) {
+            // Call Multicast DIS parent Callback
+            domain->parent_dis(arg->dst, arg->interface, instance);
+        }
+    }
+
+
+}
 
 static void rpl_loopfn_trigger_unicast_dio(rpl_instance_t *instance, rpl_dodag_version_t *dodag_version, void *handle)
 {

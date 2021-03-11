@@ -690,4 +690,14 @@ void ws_common_secondary_parent_update(protocol_interface_info_entry_t *interfac
     ws_bootstrap_secondary_parent_update(interface);
 }
 
+void ws_common_border_router_alive_update(protocol_interface_info_entry_t *interface)
+{
+    if (interface->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+        return;
+    }
+
+    // After successful DAO ACK connection to border router is verified
+    interface->ws_info->pan_timeout_timer = interface->ws_info->cfg->timing.pan_timeout;
+}
+
 #endif // HAVE_WS

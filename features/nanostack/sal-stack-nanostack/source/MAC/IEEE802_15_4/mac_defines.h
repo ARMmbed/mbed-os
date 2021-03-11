@@ -42,7 +42,8 @@ typedef enum mac_event_t {
     MAC_TX_TIMEOUT,
     MAC_ACK_SECURITY_FAIL,
     MAC_UNKNOWN_DESTINATION,
-    MAC_TX_PRECOND_FAIL
+    MAC_TX_PRECOND_FAIL,
+    MAC_RETURN_TO_QUEUE
 } mac_event_t;
 
 typedef enum mac_tx_status_type_t {

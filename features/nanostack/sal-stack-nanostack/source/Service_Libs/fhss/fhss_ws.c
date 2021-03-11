@@ -348,7 +348,7 @@ static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay)
     }
 
     if (fhss_structure->ws->is_on_bc_channel == false) {
-        fhss_ws_start_timer(fhss_structure, MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval) - (delay_us * fhss_structure->platform_functions.fhss_resolution_divider), fhss_broadcast_handler);
+        fhss_ws_start_timer(fhss_structure, MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval) - ((int64_t) delay_us * fhss_structure->platform_functions.fhss_resolution_divider), fhss_broadcast_handler);
         fhss_structure->ws->is_on_bc_channel = true;
         next_channel = fhss_structure->ws->bc_channel = fhss_ws_calc_bc_channel(fhss_structure);
 
@@ -621,7 +621,7 @@ static int fhss_ws_tx_handle_callback(const fhss_api_t *api, bool is_broadcast_a
     }
     // Do not allow unicast destination on broadcast channel
     if (!is_broadcast_addr && (fhss_structure->ws->is_on_bc_channel == true)) {
-        return -1;
+        return -3;
     }
     // Check TX/RX slot
     if (!fhss_ws_check_tx_allowed(fhss_structure)) {

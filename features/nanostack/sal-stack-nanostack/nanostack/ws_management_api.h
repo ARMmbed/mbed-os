@@ -96,6 +96,30 @@ extern "C" {
 #define WS_MANAGEMENT_API_VER_2 /**< Management API version */
 
 /**
+ * Deprecated!
+ * Configure PHY mode ID of Wi-SUN stack as defined by Wi-SUN FAN 1.1.
+ *
+ * \param interface_id Network interface ID.
+ * \param phy_mode_id PHY mode ID. Default 255 (not used).
+ *
+ * \return 0, Init OK.
+ * \return <0 Init fail.
+ */
+#define ws_management_phy_mode_id_set(interface_id, phy_mode_id) ws_management_domain_configuration_set(interface_id, 0, phy_mode_id, 0)
+
+/**
+ * Deprecated!
+ * Configure Channel plan ID of Wi-SUN stack as defined by Wi-SUN FAN 1.1.
+ *
+ * \param interface_id Network interface ID.
+ * \param channel_plan_id Channel plan ID. Default 255 (not used).
+ *
+ * \return 0, Init OK.
+ * \return <0 Init fail.
+ */
+#define ws_management_channel_plan_id_set(interface_id, channel_plan_id) ws_management_domain_configuration_set(interface_id, 0, 0, channel_plan_id)
+
+/**
  * \brief Struct ws_statistics defines the Wi-SUN statistics storage structure.
  */
 typedef struct ws_statistics {
@@ -187,80 +211,107 @@ int ws_management_network_name_validate(
     char *network_name_ptr);
 
 /**
- * Configure PHY mode ID of Wi-SUN stack as defined by Wi-SUN FAN 1.1.
+ * Set domain configuration of Wi-SUN stack.
  *
  * Change the default configuration for Wi-SUN PHY operation.
  *
  * Supported values:
- * FSK without FEC:
- * PHY mode ID | Symbol Rate (kbps) | Modulation Index
- *           1                   50                0.5
- *           2                   50                1.0
- *           3                  100                0.5
- *           4                  100                1.0
- *           5                  150                0.5
- *           6                  200                0.5
- *           7                  200                1.0
- *           8                  300                0.5
+ *     Regulatory domain: "NA"(0x01), "KR"(0x09), "EU"(0x03), "IN"(0x05), "BZ"(0x07), "JP"(0x09), "WW"(0x00)
  *
- * FSK with FEC:
- * PHY mode ID | Symbol Rate (kbps) | Modulation Index
- *          17                   50                0.5
- *          18                   50                1.0
- *          19                  100                0.5
- *          20                  100                1.0
- *          21                  150                0.5
- *          22                  200                0.5
- *          23                  200                1.0
- *          24                  300                0.5
+ *     PHY mode ID:
+ *         FSK without FEC:
+ *         PHY mode ID | Symbol Rate (kbps) | Modulation Index
+ *                   1                   50                0.5
+ *                   2                   50                1.0
+ *                   3                  100                0.5
+ *                   4                  100                1.0
+ *                   5                  150                0.5
+ *                   6                  200                0.5
+ *                   7                  200                1.0
+ *                   8                  300                0.5
  *
- * OFDM:
- * PHY mode ID | Option | MCS | Data rate (kbps)
- *          34        1     2                400
- *          35        1     3                800
- *          36        1     4               1200
- *          37        1     5               1600
- *          38        1     6               2400
- *          51        2     3                400
- *          52        2     4                600
- *          53        2     5                800
- *          54        2     6               1200
- *          68        3     4                300
- *          69        3     5                400
- *          70        3     6                600
- *          84        4     4                150
- *          85        4     5                200
- *          86        4     6                300
+ *         FSK with FEC:
+ *         PHY mode ID | Symbol Rate (kbps) | Modulation Index
+ *                  17                   50                0.5
+ *                  18                   50                1.0
+ *                  19                  100                0.5
+ *                  20                  100                1.0
+ *                  21                  150                0.5
+ *                  22                  200                0.5
+ *                  23                  200                1.0
+ *                  24                  300                0.5
  *
- * if value of 255 is given then previous value is used.
+ *         OFDM:
+ *         PHY mode ID | Option | MCS | Data rate (kbps)
+ *                  34        1     2                400
+ *                  35        1     3                800
+ *                  36        1     4               1200
+ *                  37        1     5               1600
+ *                  38        1     6               2400
+ *                  51        2     3                400
+ *                  52        2     4                600
+ *                  53        2     5                800
+ *                  54        2     6               1200
+ *                  68        3     4                300
+ *                  69        3     5                400
+ *                  70        3     6                600
+ *                  84        4     4                150
+ *                  85        4     5                200
+ *                  86        4     6                300
+ *
+ *     Channel plan ID:
+ *         North America (NA):  (1), (2), (5)
+ *         Brazil (BZ):         (1), (2), (5)
+ *
+ * If value of 0 is given then previous value is used.
+ * If value of 255 is given then default value is used.
  *
  * \param interface_id Network interface ID.
- * \param phy_mode_id PHY mode ID. Default 255 (not used).
+ * \param regulatory_domain Regulatory domain.
+ * \param phy_mode_id PHY mode ID.
+ * \param channel_plan_id Channel plan ID.
  *
- * \return 0, Init OK.
- * \return <0 Init fail.
+ * \return 0, OK.
+ * \return <0 Fail.
  */
-int ws_management_phy_mode_id_set(
+int ws_management_domain_configuration_set(
     int8_t interface_id,
-    uint8_t phy_mode_id);
+    uint8_t regulatory_domain,
+    uint8_t phy_mode_id,
+    uint8_t channel_plan_id);
 
 /**
- * Configure Channel plan ID of Wi-SUN stack as defined by Wi-SUN FAN 1.1.
- *
- * Change the default channel configuration for Wi-SUN.
- *
- * Supported values: TBD
- *
- * if value of 255 is given then previous value is used.
+ * Get domain configuration of Wi-SUN stack.
  *
  * \param interface_id Network interface ID.
- * \param channel_plan_id Channel plan ID. Default 255 (not used).
+ * \param regulatory_domain Regulatory domain.
+ * \param phy_mode_id PHY mode ID.
+ * \param channel_plan_id Channel plan ID.
  *
- * \return 0, Init OK.
- * \return <0 Init fail.
+ * \return 0, OK.
+ * \return <0 Fail.
  */
-int ws_management_channel_plan_id_set(
+int ws_management_domain_configuration_get(
     int8_t interface_id,
+    uint8_t *regulatory_domain,
+    uint8_t *phy_mode_id,
+    uint8_t *channel_plan_id);
+
+/**
+ * Validate domain configuration of Wi-SUN stack.
+ *
+ * \param interface_id Network interface ID.
+ * \param regulatory_domain Regulatory domain.
+ * \param phy_mode_id PHY mode ID.
+ * \param channel_plan_id Channel plan ID.
+ *
+ * \return 0, OK.
+ * \return <0 Fail.
+ */
+int ws_management_domain_configuration_validate(
+    int8_t interface_id,
+    uint8_t regulatory_domain,
+    uint8_t phy_mode_id,
     uint8_t channel_plan_id);
 
 /**
