@@ -5,6 +5,9 @@ if("MCU_NRF52840" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_MCU_NRF52840)
 endif()
 
+
+add_library(mbed-mbedtls-cryptocell310 INTERFACE)
+
 add_subdirectory(binaries)
 
 target_include_directories(mbed-mbedtls-cryptocell310
@@ -34,7 +37,4 @@ target_compile_definitions(mbed-mbedtls-cryptocell310
         MBED_CONF_CRYPTOCELL310_PRESENT=1
 )
 
-target_link_libraries(mbed-mbedtls-cryptocell310
-    INTERFACE
-        mbed-mbedtls
-)
+target_link_libraries(mbed-mbedtls PUBLIC mbed-mbedtls-cryptocell310)

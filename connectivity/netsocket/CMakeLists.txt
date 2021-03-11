@@ -1,21 +1,23 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_library(mbed-netsocket OBJECT)
+
 # TODO CMake: Perhaps move this/these file(s) into connectivity/drivers/cellular
 target_sources(mbed-cellular
-    INTERFACE
+    PRIVATE
         source/CellularNonIPSocket.cpp
 )
 
 target_include_directories(mbed-netsocket
-    INTERFACE
+    PUBLIC
         .
         ./include
         ./include/netsocket
 )
 
 target_sources(mbed-netsocket
-    INTERFACE
+    PRIVATE
         source/DTLSSocket.cpp
         source/DTLSSocketWrapper.cpp
         source/EMACInterface.cpp
@@ -41,26 +43,20 @@ target_sources(mbed-netsocket
 )
 
 target_compile_definitions(mbed-netsocket
-    INTERFACE
+    PUBLIC
         MBED_CONF_NSAPI_PRESENT=1
 )
 
 target_link_libraries(mbed-netsocket
-    INTERFACE
-        mbed-mbedtls
+    PRIVATE
+        mbed-nanostack
+        mbed-randlib
+        mbed-core
+        mbed-rtos
         mbed-lwipstack
-        mbed-events
-)
-
-if("DEVICE_EMAC=1" IN_LIST MBED_TARGET_DEFINITIONS)
-    target_link_libraries(mbed-netsocket
-        INTERFACE
-            mbed-emac
-    )
-endif()
-
-target_link_libraries(mbed-netsocket
-    INTERFACE
-        mbed-cellular
         mbed-nanostack-libservice
+        mbed-ppp
+    PUBLIC
+        mbed-events
+        mbed-mbedtls
 )

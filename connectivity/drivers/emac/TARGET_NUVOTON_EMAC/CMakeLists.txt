@@ -7,12 +7,12 @@ elseif("NUC472" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_NUC472)
 endif()
 
-target_include_directories(mbed-emac
+target_include_directories(mbed-emac-nuvoton
     INTERFACE
         .
 )
 
-target_sources(mbed-emac
+target_sources(mbed-emac-nuvoton
     INTERFACE
         numaker_emac.cpp
 )

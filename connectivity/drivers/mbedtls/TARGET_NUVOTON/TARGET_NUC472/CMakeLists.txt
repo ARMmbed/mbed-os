@@ -5,7 +5,11 @@ if("NUMAKER_PFM_NUC472" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_NUMAKER_PFM_NUC472)
 endif()
 
-target_include_directories(mbed-mbedtls
+add_library(mbed-mbedtls-nuc472 INTERFACE)
+
+add_subdirectory(TARGET_NUMAKER_PFM_NUC472 EXCLUDE_FROM_ALL)
+
+target_include_directories(mbed-mbedtls-nuc472
     INTERFACE
         .
         ./aes
@@ -13,7 +17,7 @@ target_include_directories(mbed-mbedtls
         ./sha
 )
 
-target_sources(mbed-mbedtls
+target_sources(mbed-mbedtls-nuc472
     INTERFACE
         aes/aes_alt.c
 

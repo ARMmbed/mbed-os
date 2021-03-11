@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_library(mbed-lwipstack INTERFACE)
+
 target_include_directories(mbed-lwipstack
     INTERFACE
         .
@@ -92,9 +94,4 @@ target_compile_definitions(mbed-lwipstack
         MBED_CONF_LWIPSTACK_PRESENT=1
 )
 
-target_link_libraries(mbed-lwipstack
-    INTERFACE
-        mbed-netsocket
-        mbed-ppp
-        mbed-randlib
-)
+target_link_libraries(mbed-lwipstack INTERFACE mbed-ppp)

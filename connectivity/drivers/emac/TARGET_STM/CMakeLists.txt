@@ -11,12 +11,16 @@ elseif("STM32H7" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_STM32H7)
 endif()
 
-target_include_directories(mbed-emac
+add_library(mbed-emac-stm INTERFACE)
+
+target_include_directories(mbed-emac-stm
     INTERFACE
         .
 )
 
-target_sources(mbed-emac
+target_sources(mbed-emac-stm
     INTERFACE
         stm32xx_emac.cpp
 )
+
+target_link_libraries(mbed-emac-stm INTERFACE mbed-events)

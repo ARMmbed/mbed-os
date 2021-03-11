@@ -1,12 +1,16 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-cellular
+add_library(mbed-cellular-stmod INTERFACE)
+
+target_include_directories(mbed-cellular-stmod
     INTERFACE
         .
 )
 
-target_sources(mbed-cellular
+target_sources(mbed-cellular-stmod
     INTERFACE
         STModCellular.cpp
 )
+
+target_link_libraries(mbed-cellular PRIVATE mbed-cellular-stmod)

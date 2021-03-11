@@ -5,12 +5,14 @@ if("NUCLEO_F207ZG" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_NUCLEO_F207ZG)
 endif()
 
-target_include_directories(mbed-emac
+target_include_directories(mbed-emac-stm32f2
     INTERFACE
         .
 )
 
-target_sources(mbed-emac
+target_sources(mbed-emac-stm32f2
     INTERFACE
         stm32f2_eth_conf.c
 )
+
+target_link_libraries(mbed-emac-stm32f2 INTERFACE mbed-emac-stm)

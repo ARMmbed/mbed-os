@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_library(mbed-ppp INTERFACE)
+
 target_include_directories(mbed-ppp
     INTERFACE
         .
@@ -50,3 +52,5 @@ target_compile_definitions(mbed-ppp
     INTERFACE
         MBED_CONF_PPP_PRESENT=1
 )
+
+target_link_libraries(mbed-ppp INTERFACE mbed-events mbed-core mbed-nanostack-libservice)

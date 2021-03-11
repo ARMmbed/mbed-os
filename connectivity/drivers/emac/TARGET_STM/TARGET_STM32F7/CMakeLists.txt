@@ -13,12 +13,14 @@ elseif("NUCLEO_F767ZI" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_NUCLEO_F767ZI)
 endif()
 
-target_include_directories(mbed-emac
+target_include_directories(mbed-emac-stm32f7
     INTERFACE
         .
 )
 
-target_sources(mbed-emac
+target_sources(mbed-emac-stm32f7
     INTERFACE
         stm32f7_eth_conf.c
 )
+
+target_link_libraries(mbed-emac-stm32f7 INTERFACE mbed-emac-stm)

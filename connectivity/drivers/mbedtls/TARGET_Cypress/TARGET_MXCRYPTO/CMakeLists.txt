@@ -7,12 +7,14 @@ elseif("MXCRYPTO_02" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_MXCRYPTO_02)
 endif()
 
-target_include_directories(mbed-mbedtls
+add_library(mbed-mbedtls-mxcrypto INTERFACE)
+
+target_include_directories(mbed-mbedtls-mxcrypto
     INTERFACE
         .
 )
 
-target_sources(mbed-mbedtls
+target_sources(mbed-mbedtls-mxcrypto
     INTERFACE
         aes_alt.c
         crypto_common.c

@@ -11,13 +11,15 @@ elseif("NUCLEO_H743ZI2" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_NUCLEO_H743ZI2)
 endif()
 
-target_include_directories(mbed-emac
+target_include_directories(mbed-emac-stm32h7
     INTERFACE
         .
         ./lan8742
 )
 
-target_sources(mbed-emac
+target_sources(mbed-emac-stm32h7
     INTERFACE
         lan8742/lan8742.c
 )
+
+target_link_libraries(mbed-emac-stm32h7 INTERFACE mbed-emac-stm)

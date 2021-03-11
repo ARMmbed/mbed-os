@@ -19,7 +19,9 @@ elseif("STM32WB55xx" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_STM32WB55xx)
 endif()
 
-target_sources(mbed-mbedtls
+add_library(mbed-mbedtls-stm INTERFACE)
+
+target_sources(mbed-mbedtls-stm
     INTERFACE
         aes_alt.cpp
         aes_alt_stm32l4.c
@@ -32,7 +34,7 @@ target_sources(mbed-mbedtls
         sha256_alt.cpp
 )
 
-target_include_directories(mbed-mbedtls
+target_include_directories(mbed-mbedtls-stm
     INTERFACE
         .
 )
