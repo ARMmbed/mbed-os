@@ -2,7 +2,7 @@
 # This method needs the following parameters:
 # MBED_RESET_BAUDRATE - Serial baudrate to connect to the target at when resetting it.
 # This method creates the following options:
-# MBED_TARGET_UID - Probe UID to pass to pyOCD commands. You can get the UIDs from `python -m pyocd list`.
+# MBED_TARGET_UID - Probe UID to pass to commands. You can get the UIDs from `python -m pyocd list`.
 
 set(UPLOAD_SUPPORTS_DEBUG FALSE)
 
@@ -11,7 +11,6 @@ check_python_package(mbed_os_tools HAVE_MBED_OS_TOOLS)
 set(UPLOAD_MBED_FOUND ${HAVE_MBED_OS_TOOLS})
 
 if(NOT DEFINED MBED_RESET_BAUDRATE)
-	message(STATUS "No MBED_RESET_BAUDRATE defined in upload method config file.  Using default of 9600")
 	set(MBED_RESET_BAUDRATE 9600)
 endif()
 
