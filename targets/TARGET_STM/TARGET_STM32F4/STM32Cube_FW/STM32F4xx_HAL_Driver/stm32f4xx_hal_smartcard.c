@@ -740,7 +740,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_UnRegisterCallback(SMARTCARD_HandleTypeDef *hsc,
            and HAL_SMARTCARD_ErrorCallback() user callback is executed. Transfer is kept ongoing on SMARTCARD side.
            If user wants to abort it, Abort services should be called by user.
        (+) Error is considered as Blocking : Transfer could not be completed properly and is aborted.
-           This concerns Frame Error in Interrupt mode tranmission, Overrun Error in Interrupt mode reception and all errors in DMA mode.
+           This concerns Frame Error in Interrupt mode transmission, Overrun Error in Interrupt mode reception and all errors in DMA mode.
            Error code is set to allow user to identify error type, and HAL_SMARTCARD_ErrorCallback() user callback is executed.
 
 @endverbatim
@@ -758,7 +758,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_UnRegisterCallback(SMARTCARD_HandleTypeDef *hsc,
   */
 HAL_StatusTypeDef HAL_SMARTCARD_Transmit(SMARTCARD_HandleTypeDef *hsc, uint8_t *pData, uint16_t Size, uint32_t Timeout)
 {
-  uint16_t* tmp;
+  uint8_t *tmp = pData;
   uint32_t tickstart = 0U;
 
   if(hsc->gState == HAL_SMARTCARD_STATE_READY)
@@ -774,7 +774,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Transmit(SMARTCARD_HandleTypeDef *hsc, uint8_t *
     hsc->ErrorCode = HAL_SMARTCARD_ERROR_NONE;
     hsc->gState = HAL_SMARTCARD_STATE_BUSY_TX;
 
-    /* Init tickstart for timeout managment */
+    /* Init tickstart for timeout management */
     tickstart = HAL_GetTick();
 
     hsc->TxXferSize = Size;
@@ -786,9 +786,8 @@ HAL_StatusTypeDef HAL_SMARTCARD_Transmit(SMARTCARD_HandleTypeDef *hsc, uint8_t *
       {
         return HAL_TIMEOUT;
       }
-      tmp = (uint16_t*) pData;
-      hsc->Instance->DR = (*tmp & (uint16_t)0x01FF);
-      pData +=1U;
+      hsc->Instance->DR = (uint8_t)(*tmp & 0xFFU);
+      tmp++;
     }
 
     if(SMARTCARD_WaitOnFlagUntilTimeout(hsc, SMARTCARD_FLAG_TC, RESET, tickstart, Timeout) != HAL_OK)
@@ -821,6 +820,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Transmit(SMARTCARD_HandleTypeDef *hsc, uint8_t *
   */
 HAL_StatusTypeDef HAL_SMARTCARD_Receive(SMARTCARD_HandleTypeDef *hsc, uint8_t *pData, uint16_t Size, uint32_t Timeout)
 {
+  uint8_t  *tmp = pData;
   uint32_t tickstart = 0U;
 
   if(hsc->RxState == HAL_SMARTCARD_STATE_READY)
@@ -836,7 +836,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Receive(SMARTCARD_HandleTypeDef *hsc, uint8_t *p
     hsc->ErrorCode = HAL_SMARTCARD_ERROR_NONE;
     hsc->RxState = HAL_SMARTCARD_STATE_BUSY_RX;
 
-    /* Init tickstart for timeout managment */
+    /* Init tickstart for timeout management */
     tickstart = HAL_GetTick();
 
     hsc->RxXferSize = Size;
@@ -850,10 +850,8 @@ HAL_StatusTypeDef HAL_SMARTCARD_Receive(SMARTCARD_HandleTypeDef *hsc, uint8_t *p
       {
         return HAL_TIMEOUT;
       }
-/* MBED */
-      *pData = (uint8_t)(hsc->Instance->DR & (uint8_t)0xFF);
-/* MBED */
-      pData +=1U;
+      *tmp = (uint8_t)(hsc->Instance->DR & (uint8_t)0xFFU);
+      tmp++;
     }
 
     /* At end of Rx process, restore hsc->RxState to Ready */
@@ -1999,14 +1997,12 @@ static void SMARTCARD_EndRxTransfer(SMARTCARD_HandleTypeDef *hsc)
   */
 static HAL_StatusTypeDef SMARTCARD_Transmit_IT(SMARTCARD_HandleTypeDef *hsc)
 {
-  uint16_t* tmp;
 
   /* Check that a Tx process is ongoing */
   if(hsc->gState == HAL_SMARTCARD_STATE_BUSY_TX)
   {
-    tmp = (uint16_t*) hsc->pTxBuffPtr;
-    hsc->Instance->DR = (uint16_t)(*tmp & (uint16_t)0x01FF);
-    hsc->pTxBuffPtr += 1U;
+    hsc->Instance->DR = (uint8_t)(*hsc->pTxBuffPtr & 0xFFU);
+    hsc->pTxBuffPtr++;
 
     if(--hsc->TxXferCount == 0U)
     {
@@ -2061,14 +2057,12 @@ static HAL_StatusTypeDef SMARTCARD_EndTransmit_IT(SMARTCARD_HandleTypeDef *hsc)
   */
 static HAL_StatusTypeDef SMARTCARD_Receive_IT(SMARTCARD_HandleTypeDef *hsc)
 {
-  uint16_t* tmp;
 
   /* Check that a Rx process is ongoing */
   if(hsc->RxState == HAL_SMARTCARD_STATE_BUSY_RX)
   {
-    tmp = (uint16_t*) hsc->pRxBuffPtr;
-    *tmp = (uint8_t)(hsc->Instance->DR & (uint8_t)0x00FF);
-    hsc->pRxBuffPtr += 1U;
+    *hsc->pRxBuffPtr = (uint8_t)(hsc->Instance->DR & (uint8_t)0xFFU);
+    hsc->pRxBuffPtr++;
 
     if(--hsc->RxXferCount == 0U)
     {

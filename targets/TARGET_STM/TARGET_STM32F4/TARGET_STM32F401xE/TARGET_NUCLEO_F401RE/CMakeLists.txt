@@ -11,7 +11,6 @@ target_include_directories(mbed-nucleo-f401re
 target_sources(mbed-nucleo-f401re
     INTERFACE
         PeripheralPins.c
-        system_clock.c
 )
 
 target_link_libraries(mbed-nucleo-f401re INTERFACE mbed-stm32f401xe)

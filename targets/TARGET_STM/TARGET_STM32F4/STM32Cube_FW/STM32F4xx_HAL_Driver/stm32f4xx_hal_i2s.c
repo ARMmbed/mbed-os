@@ -90,7 +90,7 @@
      (+) Stop the DMA Transfer using HAL_I2S_DMAStop()
          In Slave mode, if HAL_I2S_DMAStop is used to stop the communication, an error
          HAL_I2S_ERROR_BUSY_LINE_RX is raised as the master continue to transmit data.
-         In this case __HAL_I2S_FLUSH_RX_DR macro must be used to flush the remaining data 
+         In this case __HAL_I2S_FLUSH_RX_DR macro must be used to flush the remaining data
          inside DR register and avoid using DeInit/Init process for the next transfer.
 
    *** I2S HAL driver macros list ***
@@ -103,8 +103,8 @@
       (+) __HAL_I2S_ENABLE_IT : Enable the specified I2S interrupts
       (+) __HAL_I2S_DISABLE_IT : Disable the specified I2S interrupts
       (+) __HAL_I2S_GET_FLAG: Check whether the specified I2S flag is set or not
-
       (+) __HAL_I2S_FLUSH_RX_DR: Read DR Register to Flush RX Data
+
     [..]
       (@) You can refer to the I2S HAL driver header file for more useful macros
 
@@ -352,7 +352,7 @@ HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
     /* I2S standard */
     if (hi2s->Init.Standard <= I2S_STANDARD_LSB)
     {
-      /* In I2S standard packet lenght is multiplied by 2 */
+      /* In I2S standard packet length is multiplied by 2 */
       packetlength = packetlength * 2U;
     }
 
@@ -469,9 +469,11 @@ HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
     }
 
     /* Configure the I2S Slave with the I2S Master parameter values */
-    tmpreg |= (uint16_t)((uint16_t)SPI_I2SCFGR_I2SMOD | (uint16_t)(tmp | \
-                         (uint16_t)(hi2s->Init.Standard | (uint16_t)(hi2s->Init.DataFormat | \
-                                    (uint16_t)hi2s->Init.CPOL))));
+    tmpreg |= (uint16_t)((uint16_t)SPI_I2SCFGR_I2SMOD    | \
+                         (uint16_t)tmp                   | \
+                         (uint16_t)hi2s->Init.Standard   | \
+                         (uint16_t)hi2s->Init.DataFormat | \
+                         (uint16_t)hi2s->Init.CPOL);
 
     /* Write to SPIx I2SCFGR */
     WRITE_REG(I2SxEXT(hi2s->Instance)->I2SCFGR, tmpreg);
@@ -831,7 +833,7 @@ HAL_StatusTypeDef HAL_I2S_UnRegisterCallback(I2S_HandleTypeDef *hi2s, HAL_I2S_Ca
   * @note   When a 16-bit data frame or a 16-bit data frame extended is selected during the I2S
   *         configuration phase, the Size parameter means the number of 16-bit data length
   *         in the transaction and when a 24-bit data frame or a 32-bit data frame is selected
-  *         the Size parameter means the number of 16-bit data length.
+  *         the Size parameter means the number of 24-bit or 32-bit data length.
   * @param  Timeout Timeout duration
   * @note   The I2S is kept enabled at the end of transaction to avoid the clock de-synchronization
   *         between Master and Slave(example: audio streaming).
@@ -948,7 +950,7 @@ HAL_StatusTypeDef HAL_I2S_Transmit(I2S_HandleTypeDef *hi2s, uint16_t *pData, uin
   * @note   When a 16-bit data frame or a 16-bit data frame extended is selected during the I2S
   *         configuration phase, the Size parameter means the number of 16-bit data length
   *         in the transaction and when a 24-bit data frame or a 32-bit data frame is selected
-  *         the Size parameter means the number of 16-bit data length.
+  *         the Size parameter means the number of 24-bit or 32-bit data length.
   * @param  Timeout Timeout duration
   * @note   The I2S is kept enabled at the end of transaction to avoid the clock de-synchronization
   *         between Master and Slave(example: audio streaming).
@@ -1049,7 +1051,7 @@ HAL_StatusTypeDef HAL_I2S_Receive(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint
   * @note   When a 16-bit data frame or a 16-bit data frame extended is selected during the I2S
   *         configuration phase, the Size parameter means the number of 16-bit data length
   *         in the transaction and when a 24-bit data frame or a 32-bit data frame is selected
-  *         the Size parameter means the number of 16-bit data length.
+  *         the Size parameter means the number of 24-bit or 32-bit data length.
   * @note   The I2S is kept enabled at the end of transaction to avoid the clock de-synchronization
   *         between Master and Slave(example: audio streaming).
   * @retval HAL status
@@ -1113,7 +1115,7 @@ HAL_StatusTypeDef HAL_I2S_Transmit_IT(I2S_HandleTypeDef *hi2s, uint16_t *pData, 
   * @note   When a 16-bit data frame or a 16-bit data frame extended is selected during the I2S
   *         configuration phase, the Size parameter means the number of 16-bit data length
   *         in the transaction and when a 24-bit data frame or a 32-bit data frame is selected
-  *         the Size parameter means the number of 16-bit data length.
+  *         the Size parameter means the number of 24-bit or 32-bit data length.
   * @note   The I2S is kept enabled at the end of transaction to avoid the clock de-synchronization
   *         between Master and Slave(example: audio streaming).
   * @note   It is recommended to use DMA for the I2S receiver to avoid de-synchronization
@@ -1179,7 +1181,7 @@ HAL_StatusTypeDef HAL_I2S_Receive_IT(I2S_HandleTypeDef *hi2s, uint16_t *pData, u
   * @note   When a 16-bit data frame or a 16-bit data frame extended is selected during the I2S
   *         configuration phase, the Size parameter means the number of 16-bit data length
   *         in the transaction and when a 24-bit data frame or a 32-bit data frame is selected
-  *         the Size parameter means the number of 16-bit data length.
+  *         the Size parameter means the number of 24-bit or 32-bit data length.
   * @note   The I2S is kept enabled at the end of transaction to avoid the clock de-synchronization
   *         between Master and Slave(example: audio streaming).
   * @retval HAL status
@@ -1270,7 +1272,7 @@ HAL_StatusTypeDef HAL_I2S_Transmit_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData,
   * @note   When a 16-bit data frame or a 16-bit data frame extended is selected during the I2S
   *         configuration phase, the Size parameter means the number of 16-bit data length
   *         in the transaction and when a 24-bit data frame or a 32-bit data frame is selected
-  *         the Size parameter means the number of 16-bit data length.
+  *         the Size parameter means the number of 24-bit or 32-bit data length.
   * @note   The I2S is kept enabled at the end of transaction to avoid the clock de-synchronization
   *         between Master and Slave(example: audio streaming).
   * @retval HAL status
