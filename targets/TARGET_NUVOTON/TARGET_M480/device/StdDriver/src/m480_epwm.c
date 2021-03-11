@@ -135,7 +135,7 @@ uint32_t EPWM_ConfigCaptureChannel(EPWM_T *epwm, uint32_t u32ChannelNum, uint32_
  */
 uint32_t EPWM_ConfigOutputChannel(EPWM_T *epwm, uint32_t u32ChannelNum, uint32_t u32Frequency, uint32_t u32DutyCycle)
 {
-    return EPWM_ConfigOutputChannel2(epwm, u32ChannelNum, u32Frequency, u32DutyCycle, 1);
+    return EPWM_ConfigOutputChannel2(epwm, u32ChannelNum, u32Frequency, u32DutyCycle*100, 1);
 }
 
 /**
@@ -145,7 +145,7 @@ uint32_t EPWM_ConfigOutputChannel(EPWM_T *epwm, uint32_t u32ChannelNum, uint32_t
  *                - EPWM1 : EPWM Group 1
  * @param[in] u32ChannelNum EPWM channel number. Valid values are between 0~5
  * @param[in] u32Frequency Target generator frequency / u32Frequency2
- * @param[in] u32DutyCycle Target generator duty cycle percentage. Valid range are between 0 ~ 100. 10 means 10%, 20 means 20%...
+ * @param[in] u32HighDutyCycle Target generator duty cycle percentage. Valid range are between 0 ~ 10000. 1000 means 10%, 2000 means 20%...
  * @param[in] u32Frequency2 Target generator frequency = u32Frequency / u32Frequency2
  * @return Nearest frequency clock in nano second
  * @note Since every two channels, (0 & 1), (2 & 3), shares a prescaler. Call this API to configure EPWM frequency may affect
@@ -153,7 +153,7 @@ uint32_t EPWM_ConfigOutputChannel(EPWM_T *epwm, uint32_t u32ChannelNum, uint32_t
  * @note This function is used for initial stage.
  *       To change duty cycle later, it should get the configured period value and calculate the new comparator value.
  */
-uint32_t EPWM_ConfigOutputChannel2(EPWM_T *epwm, uint32_t u32ChannelNum, uint32_t u32Frequency, uint32_t u32DutyCycle, uint32_t u32Frequency2)
+uint32_t EPWM_ConfigOutputChannel2(EPWM_T *epwm, uint32_t u32ChannelNum, uint32_t u32Frequency, uint32_t u32HighDutyCycle, uint32_t u32Frequency2)
 {
     uint32_t u32Src;
     uint32_t u32EPWMClockSrc;
@@ -211,7 +211,7 @@ uint32_t EPWM_ConfigOutputChannel2(EPWM_T *epwm, uint32_t u32ChannelNum, uint32_
 
     u32CNR -= 1U;
     EPWM_SET_CNR(epwm, u32ChannelNum, u32CNR);
-    EPWM_SET_CMR(epwm, u32ChannelNum, u32DutyCycle * (u32CNR + 1U) / 100U);
+    EPWM_SET_CMR(epwm, u32ChannelNum, u32HighDutyCycle * (u32CNR + 1U) / 10000U);
 
     (epwm)->WGCTL0 = ((epwm)->WGCTL0 & ~(((1UL << EPWM_WGCTL0_PRDPCTL0_Pos) | (1UL << EPWM_WGCTL0_ZPCTL0_Pos)) << (u32ChannelNum << 1U))) | \
                      ((uint32_t)EPWM_OUTPUT_HIGH << ((u32ChannelNum << 1U) + (uint32_t)EPWM_WGCTL0_ZPCTL0_Pos));
