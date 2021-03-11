@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 
-#include "USBSerial.h"
-#include "platform/mbed_retarget.h"
-
 #ifndef MBED_CONF_EP_ATLAS_ENABLE_USB_STDIO_CONSOLE
 #define MBED_CONF_EP_ATLAS_ENABLE_USB_STDIO_CONSOLE 0
 #endif
 
 #if MBED_CONF_EP_ATLAS_ENABLE_USB_STDIO_CONSOLE
+
+#include "USBSerial.h"
+#include "platform/mbed_retarget.h"
 
 /* Retarget stdio to USBSerial */
 mbed::FileHandle *mbed::mbed_target_override_console(int fd)
