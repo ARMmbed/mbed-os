@@ -4336,7 +4336,7 @@
             "MCUXpresso_MCUS",
             "EVK",
             "MIMXRT1170",
-	    "IMX"
+	        "IMX"
         ],
         "is_disk_virtual": true,
         "macros": [
@@ -4347,6 +4347,9 @@
             "SKIP_SYSCLK_INIT",
             "MBED_MPU_CUSTOM"
         ],
+        "components_add": [
+            "FLASHIAP"
+        ],
         "inherits": [
             "Target"
         ],
@@ -4354,10 +4357,18 @@
             "0228"
         ],
         "device_has": [
+            "FLASH",
             "INTERRUPTIN",
             "SERIAL",
 	        "LPTICKER"
-        ]
+        ],
+        "supported_application_profiles" : ["full", "bare-metal"],
+        "supported_c_libs": {
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
+        }
     },
     "LPC54114": {
         "supported_form_factors": [

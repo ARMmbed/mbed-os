@@ -26,6 +26,10 @@
         "MIMXRT1050_EVK": {
             "base-address": "0x60400000",
             "size": "0x3C00000"
+        },
+        "MIMXRT1170_EVK": {
+            "base-address": "0x60000000",
+            "size": "0x7F00000"
         }
     }
 }
