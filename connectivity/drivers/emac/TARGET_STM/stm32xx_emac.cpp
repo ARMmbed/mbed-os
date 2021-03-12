@@ -21,11 +21,12 @@
 
 #include "cmsis_os.h"
 
-#include "mbed.h"
 #include "mbed_interface.h"
 #include "mbed_assert.h"
 #include "events/mbed_shared_queues.h"
 #include "netsocket/nsapi_types.h"
+#include "platform/mbed_power_mgmt.h"
+#include "platform/mbed_error.h"
 
 #include "stm32xx_emac_config.h"
 #include "stm32xx_emac.h"
