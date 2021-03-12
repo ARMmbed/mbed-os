@@ -2746,6 +2746,19 @@
             "STM32G431xx"
         ]
     },
+    "NUCLEO_G431RB": {
+        "inherits": [
+            "MCU_STM32G431xB"
+        ],
+        "detect_code": [
+            "0850"
+        ],
+        "overrides": {
+            "clock_source" : "USE_PLL_HSE_EXTC|USE_PLL_HSE_XTAL",
+            "hse_value": 24000000
+        },
+        "device_name": "STM32G431RBTx"
+    },
     "NUCLEO_G431KB": {
         "inherits": [
             "MCU_STM32G431xB"
