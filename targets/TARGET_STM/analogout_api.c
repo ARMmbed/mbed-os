@@ -41,7 +41,6 @@
 static inline void dac_write(dac_t *obj, int value)
 {
     HAL_DAC_SetValue(&obj->handle, obj->channel, DAC_ALIGN_12B_R, (value & DAC_RANGE));
-    HAL_DAC_Start(&obj->handle, obj->channel);
 }
 
 static inline int dac_read(dac_t *obj)

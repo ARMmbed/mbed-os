@@ -97,6 +97,7 @@ static void _analogout_init_direct(dac_t *obj, const PinMap *pinmap)
     }
 
     analogout_write_u16(obj, 0);
+    HAL_DAC_Start(&obj->handle, obj->channel);
 
     /* DAC cannot be used in deepsleep/STOP mode */
     sleep_manager_lock_deep_sleep();
