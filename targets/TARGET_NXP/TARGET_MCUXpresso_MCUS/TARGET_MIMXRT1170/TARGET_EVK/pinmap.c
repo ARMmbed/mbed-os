@@ -20,10 +20,10 @@
 #include "fsl_clock.h"
 
 /* Array of IOMUX base address. */
-static uint32_t iomux_base_addrs[FSL_FEATURE_SOC_IGPIO_COUNT] = { 0x401F80BC, 0x401F813C, 0u, 0x401F8014, 0x400A8000 };
+static uint32_t iomux_base_addrs[FSL_FEATURE_SOC_IGPIO_COUNT] = { 0x400E8010, 0x400E8090, 0x400E8110, 0x400E8190, 0x400E8210, 0X40C08000 };
 
 /* Get the IOMUX register address from the GPIO3 pin number */
-static uint32_t get_iomux_reg_base(PinName pin)
+/* static uint32_t get_iomux_reg_base(PinName pin)
 {
     int32_t gpio_pin = pin & 0xFF;
     uint32_t retval = 0;
@@ -37,7 +37,7 @@ static uint32_t get_iomux_reg_base(PinName pin)
     }
 
     return retval;
-}
+} */
 
 void pin_function(PinName pin, int function)
 {
@@ -49,7 +49,7 @@ void pin_function(PinName pin, int function)
 
     /* Get mux register address */
     if (muxregister == 0) {
-        muxregister = get_iomux_reg_base(pin);
+      //  muxregister = get_iomux_reg_base(pin);
     } else {
         muxregister = muxregister + ((pin & 0xFF) * 4);
     }
@@ -75,7 +75,7 @@ void pin_mode(PinName pin, PinMode mode)
     uint32_t configregister;
 
     if (muxregister == 0) {
-        muxregister = get_iomux_reg_base(pin);
+      //  muxregister = get_iomux_reg_base(pin);
     } else {
         muxregister = muxregister + ((pin & 0xFF) * 4);
     }
@@ -138,7 +138,7 @@ void pin_mode_opendrain(PinName pin, bool enable)
     uint32_t configregister;
 
     if (muxregister == 0) {
-        muxregister = get_iomux_reg_base(pin);
+      //  muxregister = get_iomux_reg_base(pin);
     } else {
         muxregister = muxregister + ((pin & 0xFF) * 4);
     }
