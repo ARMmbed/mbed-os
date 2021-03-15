@@ -9,5 +9,5 @@ target_include_directories(mbed-storage-spinand
 
 target_sources(mbed-storage-spinand
     INTERFACE
-    source/SPINANDBlockDevice.cpp
+        source/SPINANDBlockDevice.cpp
 )
