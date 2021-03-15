@@ -22,6 +22,7 @@ import re
 import subprocess
 import shutil
 import argparse
+from intelhex import IntelHex
 
 SCRIPT_DIR = dirname(abspath(__file__))
 MBED_OS_ROOT = abspath(path_join(SCRIPT_DIR, os.pardir, os.pardir, os.pardir))
@@ -45,9 +46,10 @@ def tfm_sign_image_tgt(tfm_import_path, signing_key, non_secure_bin):
 
     bl2_bin = path_join(SECURE_ROOT, 'bl2.bin')
     image_macros_s_ns = path_join(SECURE_ROOT, 'partition', 'signing_layout_preprocessed.h')
-    ns_bin_name, ns_bin_ext = splitext(basename(non_secure_bin))
-    concatenated_bin = abspath(path_join(tempdir, 'tfm_' + ns_bin_name + ns_bin_ext))
-    signed_bin = abspath(path_join(tempdir, 'tfm_' + ns_bin_name + '_signed' + ns_bin_ext))
+    ns_bin_basename = splitext(basename(non_secure_bin))[0]
+    concatenated_bin = abspath(path_join(tempdir, 'tfm_' + ns_bin_basename + ".bin"))
+    signed_bin = abspath(path_join(tempdir, 'tfm_' + ns_bin_basename + '_signed' + ".bin"))
+    signed_nopad_bin = abspath(path_join(tempdir, 'tfm_' + ns_bin_basename + '_signed_nopad' + ".bin"))
 
     assert os.path.isfile(image_macros_s_ns)
 
@@ -60,7 +62,7 @@ def tfm_sign_image_tgt(tfm_import_path, signing_key, non_secure_bin):
     #1. Concatenate secure TFM and non-secure mbed binaries
     cmd = [
         python3_cmd,
-        path_join(MBED_OS_ROOT, "tools", "psa","tfm", "bin_utils","assemble.py"),
+        path_join(MBED_OS_ROOT, "tools", "psa", "tfm", "bin_utils", "assemble.py"),
         "--layout",
         image_macros_s_ns,
         "-s",
@@ -77,10 +79,10 @@ def tfm_sign_image_tgt(tfm_import_path, signing_key, non_secure_bin):
                             " binaries, Error code: " + str(retcode))
         return
 
-    #2. Run wrapper to sign the concatenated binary
+    #2.1 Run wrapper to sign the concatenated binary with padding ("--pad"), so upgradeable by mcuboot
     cmd = [
         python3_cmd,
-        path_join(MBED_OS_ROOT, "tools", "psa","tfm", "bin_utils","wrapper.py"),
+        path_join(MBED_OS_ROOT, "tools", "psa","tfm", "bin_utils", "wrapper.py"),
         "-v",
         '1.2.0',
         "-k",
@@ -110,13 +112,24 @@ def tfm_sign_image_tgt(tfm_import_path, signing_key, non_secure_bin):
                             " binary, Error code: " + str(retcode))
         return
 
-    #3. Concatenate mcuboot and signed binary and overwrite mbed built binary file
+    #2.2. Re-run above but without padding ("--pad"), so non-upgradeable by mcuboot
+    cmd.remove("--pad")
+    cmd.pop()
+    cmd.append(signed_nopad_bin)
+
+    retcode = run_cmd(cmd, MBED_OS_ROOT)
+    if retcode:
+        raise Exception("Unable to sign " + "concatenated" +
+                            " binary, Error code: " + str(retcode))
+        return
+
+    #3. Concatenate mcuboot and signed binary and overwrite mbed built bin/hex file
     flash_area_0_offset = find_flash_area_0_offset(flash_layout)
-    with open(bl2_bin, "rb") as mcuboot_fh, open(signed_bin, "rb") as signed_fh:
-        with open(non_secure_bin, "w+b") as out_fh:
-            out_fh.write(mcuboot_fh.read())
-            out_fh.seek(flash_area_0_offset)
-            out_fh.write(signed_fh.read())
+    out_ih = IntelHex()
+    out_ih.loadbin(bl2_bin)
+    out_ih.loadbin(signed_nopad_bin, flash_area_0_offset)
+    out_ih.tofile(splitext(non_secure_bin)[0] + ".hex", 'hex')
+    out_ih.tobinfile(non_secure_bin)
 
 def find_flash_area_0_offset(configFile):
     # Compiled regular expressions 
