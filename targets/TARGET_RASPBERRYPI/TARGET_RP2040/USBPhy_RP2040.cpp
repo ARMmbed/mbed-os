@@ -32,6 +32,7 @@ extern "C" {
 
 #ifdef PICO_RP2040_USB_DEVICE_ENUMERATION_FIX
 #include "rp2040_usb_device_enumeration.h"
+#include "hardware/structs/iobank0.h"
 #endif
 
 #ifdef __cplusplus
@@ -396,7 +397,13 @@ void USBPhyHw::process()
 
         // This is required, but having trouble working out how to link in
 #ifdef PICO_RP2040_USB_DEVICE_ENUMERATION_FIX
+        const uint dp = 15;
+        auto function = gpio_get_function(dp);
+        auto override = iobank0_hw->io[dp].ctrl;
         rp2040_usb_device_enumeration_fix();
+        gpio_set_function(dp, function);
+        gpio_set_inover(dp, GPIO_OVERRIDE_HIGH);
+        hw_set_bits(&iobank0_hw->io[dp].ctrl, override);
 #endif
 
         // reset bus for USBDevice layer
