@@ -25,8 +25,8 @@
 #define MX_FLASH_CHUNK_SIZE           0x10       /* 16 bytes */
 #define MX_FLASH_BANK_SIZE            0x01000000 /* 16 MBytes */
 #define MX_FLASH_BANK_SIZE_MASK       ~(MX_FLASH_BANK_SIZE - 1) /* 0xFF000000 */
-#define MX_FLASH_BLOCK_OFFSET         0x1000
-#define MX_FLASH_SECTOR_OFFSET        0x1000
-#define MX_FLASH_PAGE_OFFSET          0x40000
+#define MX_FLASH_BLOCK_OFFSET         0x40000
+#define MX_FLASH_SECTOR_OFFSET        0x40000
+#define MX_FLASH_PAGE_OFFSET          0x1000
 
 #endif // MBED_OSPI_FLASH_MX31LF4GE4BC_H

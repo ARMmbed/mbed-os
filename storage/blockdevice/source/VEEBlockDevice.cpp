@@ -107,6 +107,7 @@ int VEEBlockDevice::init()
     if (err) {
         err = format();
         if (err) {
+            printf("format : format failed\r\n");
             tr_error("format : format failed\r\n");
             goto fail;
         }
@@ -1454,7 +1455,8 @@ int VEEBlockDevice::_ee_check_sys(void)
                                 goto erase;
                             }
                         }
-                    } else {
+                    } else {printf("2220000111ee_formt: fail to read addr 0x%08lx\r\n", sector);
+
                         if (formatted != true) { //this is the first sector
                             if (!_ee_read_sys(bi, sector + 1, SYS_ENTRY_ADDR_E_E, &sys)) {// read the next sector system entry
                                 if (sys.ops == OPS_ERASE_END) { // the first sector is power off when erasing
@@ -1658,9 +1660,11 @@ int VEEBlockDevice::format(void)
     for (i = 0; i < MX_EEPROMS; i++) {
         addr = bank_offset[i];
 
+            printf("123format 00000format : format failed\r\n");
         for (j = 0; j < MX_EEPROM_BLOCKS; j++) {
-            for (k = 0; k < MX_EEPROM_SECTORS_PER_CLUSTER; k++, sector++) {
+            for (k = 0; k < MX_EEPROM_SECTORS_PER_CLUSTER; k++, sector++) { printf(" erase sector %lx %lx\r\n", addr, MX_FLASH_SECTOR_SIZE);
                 if (_bd->erase(addr, MX_FLASH_SECTOR_SIZE)) {
+                    printf("ee_formt: fail to erase sector %lu\r\n", sector);
                     tr_error("ee_formt: fail to erase sector %lu\r\n", sector);
                     return VEEF_BD_ERROR_EIO;
                 }
@@ -1710,6 +1714,7 @@ int VEEBlockDevice::format(void)
                     tr_error("ee_formt: fail to write addr 0x%08lx\r\n", addr);
                     return VEEF_BD_ERROR_EIO;
                 }
+            printf("format222222 111111100000format : format failed %d \r\n",sector);
                 addr += MX_EEPROM_SECTOR_OFFSET;
             }
             addr += MX_EEPROM_CLUSTER_SIZE;

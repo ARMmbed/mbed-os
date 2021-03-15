@@ -357,18 +357,22 @@ int SPINANDBlockDevice::erase(bd_addr_t addr, bd_size_t size)
     bool erase_failed = false;
     int status = SPINAND_BD_ERROR_OK;
 
-    tr_debug("Erase - addr: %llu, size: %llu", addr, size);
+    tr_debug("Erase - addr: %lx, size: %lx\r\n", addr, size);
 
-    if ((addr + size) > MBED_CONF_SPINAND_SPINAND_FLASH_SIZE) {
+    printf("Erase - addr: %lx, size: %lx", addr, size);
+    /*if ((addr + size) > MBED_CONF_SPINAND_SPINAND_FLASH_SIZE) {
         tr_error("Erase exceeds flash device size");
+        printf("Erase exceeds flash device size");
         return SPINAND_BD_ERROR_INVALID_ERASE_PARAMS;
-    }
+    }*/
 
     if (((addr % SPINAND_BLOCK_OFFSET) != 0) || ((size % get_erase_size()) != 0)) {
         tr_error("Invalid erase - unaligned address and size");
+        printf("Invalid erase - unaligned address and size");
         return SPINAND_BD_ERROR_INVALID_ERASE_PARAMS;
     }
 
+    printf("123333Erase - addr: %llu, size: %llu\r\n", addr, size);
     while (size > 0) {
 
         _mutex.lock();
