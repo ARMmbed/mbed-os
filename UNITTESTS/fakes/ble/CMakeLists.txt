@@ -36,4 +36,5 @@ target_link_libraries(mbed-fakes-ble
     PRIVATE
         mbed-headers
         mbed-stubs-headers
+        gcov
 )
