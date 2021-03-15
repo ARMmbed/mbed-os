@@ -8016,7 +8016,8 @@
             "SPI",
             "USTICKER",
             "WATCHDOG",
-            "USBDEVICE"
+            "USBDEVICE",
+            "RESET_REASON"
         ]
     },
     "NANO_RP2040_CONNECT": {
