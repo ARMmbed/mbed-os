@@ -43,6 +43,7 @@
 #include "pinmap.h"
 #include "hardware/pwm.h"
 #include "hardware/clocks.h"
+#include "mbed_assert.h"
 
 const uint count_top = 1000;
 
@@ -53,7 +54,7 @@ const uint count_top = 1000;
  */
 void pwmout_init(pwmout_t *obj, PinName pin)
 {
-    MBED_ASSERT(obj);
+    MBED_ASSERT(obj != NULL);
 
     /* Populate PWM object with default values. */
     obj->slice = pwm_gpio_to_slice_num(pin);
@@ -75,7 +76,7 @@ void pwmout_init(pwmout_t *obj, PinName pin)
  */
 void pwmout_free(pwmout_t *obj)
 {
-    MBED_ASSERT(obj);
+    MBED_ASSERT(obj != NULL);
     pwm_set_enabled(obj->slice, false);
 }
 
