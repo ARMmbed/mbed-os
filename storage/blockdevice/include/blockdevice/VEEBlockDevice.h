@@ -37,6 +37,9 @@
 #include "OSPIFBlockDevice.h"
 #endif
 
+#if COMPONENT_SPINAND
+#include "SPINANDBlockDevice.h"
+#endif
 /** Enum veef standard error codes
  *
  *  @enum veef_bd_error
@@ -58,11 +61,19 @@ enum veef_bd_error {
 };
 
 /* EEPROM physical layout */
-#define MX_EEPROM_SECTORS_PER_CLUSTER   (16)
 #define MX_EEPROM_CLUSTERS_PER_BANK     (1)
 #define MX_EEPROM_BANKS                 (4)
 #define MX_EEPROM_CLUSTER_SIZE          (MX_FLASH_SECTOR_SIZE * MX_EEPROM_SECTORS_PER_CLUSTER)
 #define MX_EEPROM_BANK_SIZE             (MX_EEPROM_CLUSTER_SIZE * MX_EEPROM_CLUSTERS_PER_BANK)
+
+#if COMPONENT_OSPIF
+#define MX_EEPROM_SECTORS_PER_CLUSTER   (16)
+#elif COMPONENT_SPINAND
+#define MX_EEPROM_SECTOR_SIZE           MX_FLASH_BLOCK_SIZE
+#define MX_EEPROM_SECTOR_OFFSET         MX_FLASH_BLOCK_OFFSET
+#define MX_EEPROM_SECTORS_PER_CLUSTER   (6)
+#define MX_EEPROM_CLUSTER_OFFSET        (MX_FLASH_SECTOR_OFFSET * MX_EEPROM_SECTORS_PER_CLUSTER)
+#endif
 
 #if defined(MX_FLASH_BANKS) && (MX_EEPROM_BANKS > MX_FLASH_BANKS)
 #error "too many banks!"
@@ -76,7 +87,6 @@ enum veef_bd_error {
 #define MX_EEPROM_HEADER_SIZE           (4)
 #define MX_EEPROM_ENTRY_SIZE            (MX_FLASH_PAGE_SIZE)
 #define MX_EEPROM_PAGE_SIZE             (MX_EEPROM_ENTRY_SIZE - MX_EEPROM_HEADER_SIZE)
-#define MX_EEPROM_ENTRIES_PER_SECTOR    (MX_FLASH_SECTOR_SIZE / MX_EEPROM_ENTRY_SIZE)
 #define MX_EEPROM_SYSTEM_SECTOR         (MX_EEPROM_SECTORS_PER_CLUSTER - 1)
 #define MX_EEPROM_SYSTEM_SECTOR_OFFSET  (MX_EEPROM_SYSTEM_SECTOR * MX_FLASH_SECTOR_SIZE)
 #define MX_EEPROM_SYSTEM_ENTRY_SIZE     (16)
@@ -84,12 +94,21 @@ enum veef_bd_error {
 #define MX_EEPROM_DATA_SECTORS          (MX_EEPROM_SYSTEM_SECTOR)
 #define MX_EEPROM_FREE_SECTORS          (1)
 #define MX_EEPROM_ENTRIES_PER_CLUSTER   (MX_EEPROM_ENTRIES_PER_SECTOR * MX_EEPROM_DATA_SECTORS)
-#define MX_EEPROM_LPAS_PER_CLUSTER      (MX_EEPROM_DATA_SECTORS - MX_EEPROM_FREE_SECTORS)
 #define MX_EEPROM_BLOCK_SIZE            (MX_EEPROM_PAGE_SIZE * MX_EEPROM_LPAS_PER_CLUSTER)
 #define MX_EEPROM_BLOCKS                (MX_EEPROM_CLUSTERS_PER_BANK)
 #define MX_EEPROM_SIZE                  (MX_EEPROM_BLOCK_SIZE * MX_EEPROM_BLOCKS)
 #define MX_EEPROMS                      (MX_EEPROM_BANKS)
 #define MX_EEPROM_TOTAL_SIZE            (MX_EEPROM_SIZE * MX_EEPROMS)
+
+#if COMPONENT_OSPIF
+#define MX_EEPROM_ENTRIES_PER_SECTOR    (MX_FLASH_SECTOR_SIZE / MX_EEPROM_ENTRY_SIZE)
+#define MX_EEPROM_LPAS_PER_CLUSTER      (MX_EEPROM_DATA_SECTORS - MX_EEPROM_FREE_SECTORS)
+#elif COMPONENT_SPINAND
+#define MX_EEPROM_ENTRIES_PER_SECTOR    (MX_FLASH_SECTOR_SIZE / MX_EEPROM_ENTRY_SIZE) - 6
+#define MX_EEPROM_SYSTEM_ENTRY_OFFSET   (0x800)
+#define MX_EEPROM_LPAS_PER_SECTOR       (8)
+#define MX_EEPROM_LPAS_PER_CLUSTER      (MX_EEPROM_DATA_SECTORS - MX_EEPROM_FREE_SECTORS)
+#endif
 
 #if (MX_EEPROM_ENTRY_SIZE < MX_FLASH_CHUNK_SIZE)
 #error "too small data entry size!"
@@ -108,7 +127,11 @@ enum veef_bd_error {
 #define MX_EEPROM_HASH_SEQUENTIAL       2    /* Bank hash */
 
 /* Address hash algorithm */
+#if COMPONENT_OSPIF
 #define MX_EEPROM_HASH_AlGORITHM        MX_EEPROM_HASH_CROSSBANK
+#elif COMPONENT_SPINAND
+#define MX_EEPROM_HASH_AlGORITHM        MX_EEPROM_HASH_SEQUENTIAL
+#endif
 
 /* Wear leveling interval */
 #define MX_EEPROM_WL_INTERVAL           10000
@@ -166,8 +189,12 @@ typedef enum {
     OPS_WRITE       = 0x7772,
     OPS_ERASE_BEGIN = 0x4553,
     OPS_ERASE_END   = 0x6565,
+#if COMPONENT_SPINAND
+    OPS_GC_CP_BEGIN = 0xAAAA,
+    OPS_GC_CP_END   = 0x5555,
+#endif
     OPS_NONE        = 0x4E4E,
-} rwwee_ops;
+} ee_ops;
 
 /* System Entry */
 struct system_entry {
@@ -185,6 +212,20 @@ struct eeprom_header {
     uint16_t crc;
     uint8_t pad[MX_EEPROM_HEADER_SIZE - 4];
 };
+
+#if COMPONENT_SPINAND
+/* System Entry Addr*/
+// OPS_ERASE_END 
+#define SYS_ENTRY_ADDR_E_E      0
+// OPS_GC_CP_BEGIN + source sector addr (write in Gc destination sector)
+#define SYS_ENTRY_ADDR_G_B_D    0 + MX_EEPROM_SYSTEM_ENTRY_SIZE
+// OPS_GC_CP_BEGIN + des sector addr (write in Gc source sector)
+#define SYS_ENTRY_ADDR_G_B_S    63 * MX_FLASH_PAGE_OFFSET + 2048
+// OPS_GC_CP_END (write in Gc source sector)
+#define SYS_ENTRY_ADDR_G_E      63 * MX_FLASH_PAGE_OFFSET + 2048 + MX_EEPROM_SYSTEM_ENTRY_SIZE
+// OPS_ERASE_END
+#define SYS_ENTRY_ADDR_E_B      63 * MX_FLASH_PAGE_OFFSET + 2048 + MX_EEPROM_SYSTEM_ENTRY_SIZE * 2
+#endif
 
 /* Data Entry */
 struct eeprom_entry {
@@ -206,6 +247,10 @@ struct bank_info {
     uint8_t l2ps[MX_EEPROM_LPAS_PER_CLUSTER];
     uint8_t l2pe[MX_EEPROM_LPAS_PER_CLUSTER];
     uint8_t p2l[MX_EEPROM_DATA_SECTORS];    /* TODO: bitmap */
+#if COMPONENT_SPINAND
+    uint8_t latest_used_entry_per_sector[MX_EEPROM_DATA_SECTORS];
+    uint8_t l2ps_group[MX_EEPROM_DATA_SECTORS];
+#endif
 
     uint32_t dirty_block;       /* obsoleted sector to be erased */
     uint32_t dirty_sector;      /* obsoleted sector to be erased */
@@ -383,12 +428,21 @@ private:
     // Erase NOR flash.
     int _ee_device_erase(bd_addr_t addr, bd_size_t size);
 
+#if COMPONENT_OSPIF
     // Read system entry of current block of current bank.
     int _ee_read_sys(struct bank_info *bi, uint32_t entry, struct system_entry *sys);
 
     // Update system entry of current block of current bank.
-    int _ee_update_sys(struct bank_info *bi, uint32_t block, rwwee_ops ops, uint32_t arg);
+    int _ee_update_sys(struct bank_info *bi, uint32_t block, ee_ops ops, uint32_t arg);
+#elif COMPONENT_SPINAND
+    // Read system entry of current block of current bank.
+    int _ee_read_sys(struct bank_info *bi, uint32_t sector, uint32_t system_entry_addr,
+                          struct system_entry *sys);
 
+    // Update system entry of current block of current bank.
+    int _ee_update_sys(struct bank_info *bi, uint32_t sector, uint32_t system_entry_addr,
+                            ee_ops ops, uint32_t arg);
+#endif
     // Read the specified entry of current block of current bank.
     int _ee_read(struct bank_info *bi, uint32_t entry, void *buf, bool header);
 
@@ -431,6 +485,15 @@ private:
 
     // Check system info and handle power cycling.
     int _ee_check_sys(void);
+
+    // 
+    uint32_t _ee_gc_cp(struct bank_info *bi, uint8_t src_sector, uint8_t des_sector);
+
+    //
+    uint32_t _ee_gc(struct bank_info *bi, uint8_t src_sector, uint8_t des_sector);
+
+    // check if power is failed during gc 
+    int _ee_check_gc_power_fail(void);
 
     BlockDevice *_bd;
     bool _is_initialized;

@@ -28,7 +28,11 @@ using namespace mbed;
 
 /* EEPROM physical address offset in each bank */
 static uint32_t bank_offset[MX_EEPROMS] =
+#ifdef COMPONENT_OSPIF
 {0x00200000, 0x01200000, 0x02200000, 0x03200000};
+#elif COMPONENT_SPINAND
+{0x00080000, 0x04080000, 0x08080000, 0x0c080000};
+#endif
 
 VEEBlockDevice::VEEBlockDevice(
     BlockDevice *bd)
@@ -46,6 +50,7 @@ int VEEBlockDevice::init()
 {
     int err;
     uint32_t bank, ofs;
+            printf("00000format : format failed\r\n");
     err = _bd->init();
     if (err) {
         goto fail;
@@ -54,6 +59,7 @@ int VEEBlockDevice::init()
         return BD_ERROR_OK;
     }
 
+            printf("1111format : format failed\r\n");
     for (bank = 0; bank < MX_EEPROMS; bank++) {
         /* Check address validity */
 #ifdef MX_FLASH_SUPPORT_RWW
@@ -74,6 +80,7 @@ int VEEBlockDevice::init()
         }
 #endif
 
+            printf("222221111format : format failed\r\n");
         /* Init bank info */
         _eeprom.bi[bank].bank = bank;
         _eeprom.bi[bank].bank_offset = bank_offset[bank];
@@ -94,6 +101,7 @@ int VEEBlockDevice::init()
         _eeprom.rwCnt = 0;
     }
 
+            printf("3333331111format : format failed\r\n");
     /* Check RWWEE format */
     err = _ee_check_sys();
     if (err) {
@@ -102,6 +110,7 @@ int VEEBlockDevice::init()
             tr_error("format : format failed\r\n");
             goto fail;
         }
+            printf("aaaaa1111format : format failed\r\n");
         /* Check RWWEE format again after formatting*/
         err = _ee_check_sys();
         if (err) {
@@ -109,6 +118,16 @@ int VEEBlockDevice::init()
             goto fail;
         }
     }
+
+            printf("44444441111format : format failed\r\n");
+#if COMPONENT_SPINAND
+    /* Check if power fail during gc */
+    err = _ee_check_gc_power_fail();
+    if (err) {
+        tr_error("init : check power fail failed\r\n");
+        goto fail;
+    }  
+#endif
 
     /* Init done */
     _is_initialized = true;
@@ -228,6 +247,7 @@ int VEEBlockDevice::_ee_device_erase(bd_addr_t addr, bd_size_t size)
 
 #ifdef MX_EEPROM_PC_PROTECTION
 
+#if COMPONENT_OSPIF
 int VEEBlockDevice::_ee_read_sys(struct bank_info *bi, uint32_t entry,
                                  struct system_entry *sys)
 {
@@ -264,7 +284,7 @@ int VEEBlockDevice::_ee_read_sys(struct bank_info *bi, uint32_t entry,
 }
 
 int VEEBlockDevice::_ee_update_sys(struct bank_info *bi, uint32_t block,
-                                   rwwee_ops ops, uint32_t arg)
+                                   ee_ops ops, uint32_t arg)
 {
     int status;
     bd_addr_t addr;
@@ -314,6 +334,73 @@ int VEEBlockDevice::_ee_update_sys(struct bank_info *bi, uint32_t block,
 
     return VEEF_BD_ERROR_OK;
 }
+#elif COMPONENT_SPINAND
+int VEEBlockDevice::_ee_read_sys(struct bank_info *bi, uint32_t sector, uint32_t system_entry_addr,
+                 struct system_entry *sys)
+{
+    int status;
+    uint32_t addr;
+
+    /* Check address validity */
+    if ((bi->bank >= MX_EEPROMS) ||
+        (bi->block >= MX_EEPROM_BLOCKS) ||
+        (sector >= MX_EEPROM_SECTORS_PER_CLUSTER))
+        return VEEF_BD_ERROR_EINVAL;
+
+    addr = bi->block_offset + sector * MX_EEPROM_SECTOR_OFFSET + system_entry_addr;
+
+    /* Read system entry */
+    status = _ee_device_read(addr, sizeof(*sys), sys);
+    if (status) {
+        tr_error("ee_rdsys: fail to read, bank %lu, block %lu, sector %lu\r\n",
+            bi->bank, bi->block, sector);
+        return status;
+    }
+
+    /* Check system entry */
+    if ((sys->id != MFTL_ID && sys->id != DATA_NONE16) ||
+      (sys->cksum != (sys->id ^ sys->ops ^ sys->arg))) {
+        tr_error("ee_rdsys: corrupted entry, bank %lu, block %lu, sector %lu\r\n",
+            bi->bank, bi->block, sector);
+        return VEEF_BD_ERROR_EIO;
+    }
+
+    return VEEF_BD_ERROR_OK;
+}
+
+int VEEBlockDevice::_ee_update_sys(struct bank_info *bi, uint32_t sector, uint32_t system_entry_addr,
+                   ee_ops ops, uint32_t arg)
+{
+    int status;
+    uint32_t addr;
+    struct system_entry sys;
+
+    /* Check address validity */
+    if ((bi->bank >= MX_EEPROMS) ||
+        (bi->block >= MX_EEPROM_BLOCKS) ||
+        (sector >= MX_EEPROM_SECTORS_PER_CLUSTER))
+        return VEEF_BD_ERROR_EINVAL;
+
+    addr = bi->block_offset + sector * MX_EEPROM_SECTOR_OFFSET + system_entry_addr;
+
+    /* Fill system entry */
+    sys.id = MFTL_ID;
+    sys.ops = ops;
+    sys.arg = arg;
+    sys.cksum = sys.id ^ sys.ops ^ sys.arg;
+
+    /* Update system info */
+    status = _ee_device_write(addr, sizeof(sys), &sys);
+    if (status) {
+        tr_error("ee_wrsys: fail to update, bank %lu, sector %lu, entry %lu\r\n",
+            bi->bank, sector, bi->sys_entry[sector]);
+        return status;
+    }
+
+    return VEEF_BD_ERROR_OK;
+}
+#endif
+
 #endif
 
 int VEEBlockDevice::_ee_read(struct bank_info *bi, uint32_t entry, void *buffer,
@@ -330,7 +417,13 @@ int VEEBlockDevice::_ee_read(struct bank_info *bi, uint32_t entry, void *buffer,
         return VEEF_BD_ERROR_EINVAL;
     }
 
+#if COMPONENT_OSPIF
     addr = entry * MX_EEPROM_ENTRY_SIZE + bi->block_offset;
+#elif COMPONENT_SPINAND
+    addr = bi->block_offset + MX_EEPROM_SECTOR_OFFSET * (entry / MX_EEPROM_ENTRIES_PER_SECTOR) +
+           ((entry % MX_EEPROM_ENTRIES_PER_SECTOR + 2) % 4) * MX_EEPROM_ENTRY_SIZE +   // +2 : the first and second entry is for system entry
+           ((entry % MX_EEPROM_ENTRIES_PER_SECTOR + 2) / 4) * MX_FLASH_PAGE_OFFSET;
+#endif
     size = header ? MX_EEPROM_HEADER_SIZE : MX_EEPROM_ENTRY_SIZE;
 
     /* Do the real read */
@@ -368,7 +461,13 @@ int VEEBlockDevice::_ee_write(struct bank_info *bi, uint32_t entry, void *buffer
         return VEEF_BD_ERROR_EINVAL;
     }
 
+#if COMPONENT_OSPIF
     addr = entry * MX_EEPROM_ENTRY_SIZE + bi->block_offset;
+#elif COMPONENT_SPINAND
+    addr = bi->block_offset + MX_EEPROM_SECTOR_OFFSET * (entry / MX_EEPROM_ENTRIES_PER_SECTOR) +
+           ((entry % MX_EEPROM_ENTRIES_PER_SECTOR + 2) % 4) * MX_EEPROM_ENTRY_SIZE +
+           ((entry % MX_EEPROM_ENTRIES_PER_SECTOR + 2) / 4) * MX_FLASH_PAGE_OFFSET;
+#endif
 
     /* Calculate redundant LPA */
     cache->header.LPA_inv = ~cache->header.LPA;
@@ -399,9 +498,15 @@ int VEEBlockDevice::_ee_erase(struct bank_info *bi)
         return VEEF_BD_ERROR_OK;
     }
 
+#if COMPONENT_OSPIF
     addr = bi->dirty_sector * MX_FLASH_SECTOR_SIZE +
            bi->dirty_block * MX_EEPROM_CLUSTER_SIZE +
            bi->bank_offset;
+#elif COMPONENT_SPINAND
+    addr = bi->dirty_sector * MX_EEPROM_SECTOR_OFFSET +
+           bi->dirty_block * MX_EEPROM_CLUSTER_OFFSET +
+           bi->bank_offset;
+#endif
 
 #ifdef MX_DEBUG
     /* Erase count statistics */
@@ -410,7 +515,11 @@ int VEEBlockDevice::_ee_erase(struct bank_info *bi)
 
 #ifdef MX_EEPROM_PC_PROTECTION
     /* Erase begin */
+#if COMPONENT_OSPIF
     _ee_update_sys(bi, bi->dirty_block, OPS_ERASE_BEGIN, bi->dirty_sector);
+#elif COMPONENT_SPINAND
+    _ee_update_sys(bi, bi->dirty_sector, SYS_ENTRY_ADDR_E_B, OPS_ERASE_BEGIN, DATA_NONE16);
+#endif
 #endif
 
     /* Erase obsoleted sector */
@@ -422,13 +531,20 @@ int VEEBlockDevice::_ee_erase(struct bank_info *bi)
 
 #ifdef MX_EEPROM_PC_PROTECTION
     /* Erase end, XXX: will block RWE */
+#if COMPONENT_OSPIF
 //    _ee_update_sys(bi, bi->dirty_block, OPS_ERASE_END, bi->dirty_sector);
+#elif COMPONENT_SPINAND
+    _ee_update_sys(bi, bi->dirty_sector, SYS_ENTRY_ADDR_E_E, OPS_ERASE_END, DATA_NONE16);
+#endif
 #endif
 
     if (bi->dirty_block == bi->block) {
         /* Mark as free or bad sector */
         if (!status) {
             bi->p2l[bi->dirty_sector] = DATA_NONE8;
+#if COMPONENT_SPINAND
+            bi->latest_used_entry_per_sector[bi->dirty_sector] = DATA_NONE8;
+#endif
         } else {
             bi->p2l[bi->dirty_sector] = MX_EEPROM_LPAS_PER_CLUSTER;
         }
@@ -675,7 +791,7 @@ fail:
 
 int VEEBlockDevice::_ee_write_page(struct bank_info *bi, uint32_t LPA)
 {
-    uint32_t entry, ofs;
+    uint32_t entry, ofs, sector;
     int status, retries = 0;
 
     /* Check address validity */
@@ -707,6 +823,8 @@ retry:
     }
 
     ofs = entry % MX_EEPROM_ENTRIES_PER_SECTOR;
+
+#if COMPONENT_OSPIF
     if (ofs) {
         /* Update L2E mapping */
         bi->l2pe[LPA] = ofs;
@@ -724,7 +842,16 @@ retry:
         bi->l2pe[LPA] = 0;
         bi->p2l[ofs] = LPA;
     }
-
+#elif COMPONENT_SPINAND
+    sector = entry / MX_EEPROM_ENTRIES_PER_SECTOR;
+      /* Update L2E mapping */
+      bi->l2pe[LPA] = ofs;
+      bi->l2ps[LPA] = sector;
+      bi->p2l[sector] = LPA;
+      if (bi->l2ps_group[LPA / MX_EEPROM_LPAS_PER_SECTOR] == DATA_NONE8)
+          bi->l2ps_group[LPA / MX_EEPROM_LPAS_PER_SECTOR] = sector;
+      bi->latest_used_entry_per_sector[sector] = ofs;
+#endif
     /* Clean page cache */
     bi->cache_dirty = false;
 
@@ -882,7 +1009,6 @@ int VEEBlockDevice::_ee_rw(bd_addr_t addr, bd_size_t size, uint8_t *buffer, bool
             if (status) {
                 tr_error("_ee_toprw: fail to %s laddr 0x%08lx, size %lu\r\n",
                          rw ? "write" : "read", addr, rwlen);
-                osMutexRelease(bi->lock);
                 return status;
             }
 
@@ -939,7 +1065,6 @@ int VEEBlockDevice::_ee_rw(bd_addr_t addr, bd_size_t size, uint8_t *buffer, bool
             if (status) {
                 tr_error("_ee_toprw: fail to %s laddr 0x%08lx, size %lu\r\n",
                          rw ? "write" : "read", addr, rwlen);
-                osMutexRelease(bi->lock);
                 return status;
             }
 
@@ -1042,11 +1167,15 @@ int VEEBlockDevice::flush(void)
         for (block = 0; block < MX_EEPROM_BLOCKS; block++) {
             _bank_mutex[bank].lock();
 
+#if COMPONENT_OSPIF
             if (_ee_update_sys(bi, block, OPS_NONE, DATA_NONE32)) {
                 tr_error("flush: fail to update system entry\r\n");
                 status = VEEF_BD_ERROR_EIO;
             }
 
+#elif COMPONENT_SPINAND
+
+#endif
             _bank_mutex[bank].unlock();
         }
     }
@@ -1179,6 +1308,7 @@ erase:
 }
 #endif
 
+#if COMPONENT_OSPIF
 int VEEBlockDevice::_ee_check_sys(void)
 {
     uint32_t bank, block;
@@ -1272,6 +1402,7 @@ fail:
         for (block = 0; block < MX_EEPROM_BLOCKS; block++) {
             if (_bd->read((uint8_t *)&sys, addr, sizeof(sys))) {
                 tr_error("ee_formt: fail to read addr 0x%08lx\r\n", addr);
+                printf("ee_formt: fail to read addr 0x%08lx\r\n", addr);
                 continue;
             }
 
@@ -1291,6 +1422,228 @@ fail:
 #endif
     return formatted ? VEEF_BD_ERROR_OK : VEEF_BD_ERROR_ENOFS;
 }
+#elif COMPONENT_SPINAND
+int VEEBlockDevice::_ee_check_sys(void)
+{
+    uint32_t bank, block, sector;
+    bool formatted = false;
+    struct system_entry sys;
+    uint32_t addr;
+
+#ifdef MX_EEPROM_PC_PROTECTION
+    struct bank_info *bi;
+
+    /* Loop to check each bank */
+    for (bank = 0; bank < MX_EEPROMS; bank++) {
+        bi = &_eeprom.bi[bank];
+        bi->block = 0;
+        bi->block_offset = bi->bank_offset;
+
+                printf("111ee_formt: fail to read addr 0x%08lx\r\n", 0);
+        /* Loop to check each block */
+        for (block = 0; block < MX_EEPROM_BLOCKS; block++) {
+            for (sector = 0; sector < MX_EEPROM_SECTORS_PER_CLUSTER; sector++) {
+                if (!_ee_read_sys(bi, sector, SYS_ENTRY_ADDR_E_E, &sys)) {
+                    if (sys.ops == OPS_ERASE_END) {
+                        if (!_ee_read_sys(bi, sector, SYS_ENTRY_ADDR_E_B, &sys)) {
+                            if (sys.ops == DATA_NONE16) {
+                                formatted = true;
+                            } else {    /* have OPS_ERASE_BEGIN */
+
+                printf("0000111ee_formt: fail to read addr 0x%08lx\r\n", sector);
+                                goto erase;
+                            }
+                        }
+                    } else {
+                        if (formatted != true) { //this is the first sector
+                            if (!_ee_read_sys(bi, sector + 1, SYS_ENTRY_ADDR_E_E, &sys)) {// read the next sector system entry
+                                if (sys.ops == OPS_ERASE_END) { // the first sector is power off when erasing
+                                    formatted = true;
+                                    goto erase;
+                                } else { // two sector system entry are 0xFF means this block is not formatted
+                                    break;
+                                }
+                            }
+                        }
+    erase:
+                        bi->dirty_block = bi->block;
+                        bi->dirty_sector = sector;
+                        _ee_erase(bi);
+                        break;
+                    }
+                }
+            }
+            /* Next block */
+            bi->block++;
+            bi->block_offset += MX_EEPROM_CLUSTER_OFFSET;
+        }
+
+        /* Clean up */
+        bi->block = DATA_NONE32;
+        bi->block_offset = DATA_NONE32;
+        bi->dirty_block = DATA_NONE32;
+        bi->dirty_sector = DATA_NONE32;
+    }
+#else
+
+    /* Loop to check each bank */
+    for (bank = 0; bank < MX_EEPROMS; bank++) {
+        addr = bank_offset[bank] ;
+
+        /* Loop to check each block */
+        for (block = 0; block < MX_EEPROM_BLOCKS; block++) {
+            for (sector = 0; sector < MX_EEPROM_SECTORS_PER_CLUSTER; sector++) {
+                if (_ee_read_sys(bi, sector, SYS_ENTRY_ADDR_E_E, &sys)) {
+                    tr_error("mxee_formt: fail to read addr 0x%08lx\r\n", addr);
+                    continue;
+                }
+
+                /* Check entry format */
+                if ((sys.id == MFTL_ID) && (sys.cksum == (sys.id ^ sys.ops ^ sys.arg))) {
+                    formatted = true;
+                    break;
+                }
+                addr += MX_EEPROM_SECTOR_OFFSET;
+              }
+            addr += MX_EEPROM_CLUSTER_OFFSET;
+          }
+
+          if (formatted) {
+              break;
+          }
+    }
+#endif
+
+    return formatted ? VEEF_BD_ERROR_OK : VEEF_BD_ERROR_ENOFS;
+}
+
+uint32_t VEEBlockDevice::_ee_gc_cp(struct bank_info *bi, uint8_t src_sector, uint8_t des_sector)
+{
+    int status;
+    uint32_t LPA, LPA_start, src_entry, des_entry;
+    struct eeprom_header header;
+    struct eeprom_entry cache_tmp;
+
+    src_entry = src_sector * MX_EEPROM_ENTRIES_PER_SECTOR;
+    des_entry = des_sector * MX_EEPROM_ENTRIES_PER_SECTOR;
+
+    status = _ee_read(bi, src_entry, &header, true);
+    if (status) {
+        tr_error("_ee_gc_cp: fail to read src_entry %lu\r\n", src_entry);
+    }
+    LPA = header.LPA;
+    if (bi->l2ps[LPA] != src_sector) { /* for power fail recovery*/
+        bi->l2ps[LPA] = src_sector;
+    }
+
+    LPA_start = LPA - (LPA % MX_EEPROM_LPAS_PER_SECTOR);
+    for (int i = 0; i < MX_EEPROM_LPAS_PER_SECTOR; i++) {
+        src_entry = _ee_find_latest(bi, LPA_start + i, false);
+        if (src_entry < MX_EEPROM_ENTRIES_PER_CLUSTER) {
+            status = _ee_read(bi, src_entry, &cache_tmp, false);
+            if (status) {
+                tr_error("_ee_gc_cp: fail to read src_entry %lu\r\n", src_entry);
+                return status;
+            }
+            status = _ee_write(bi, des_entry, &cache_tmp);
+            if (status) {
+                tr_error("_ee_gc_cp: fail to write des_entry %lu\r\n", des_entry);
+                return status;
+            }
+
+            /* Update L2E mapping */
+            bi->l2pe[LPA_start + i] = des_entry % MX_EEPROM_ENTRIES_PER_SECTOR;
+            bi->l2ps[LPA_start + i] = des_sector;
+            bi->l2ps_group[(LPA_start + i) / MX_EEPROM_LPAS_PER_SECTOR] = des_sector;
+            bi->latest_used_entry_per_sector[des_sector] = des_entry % MX_EEPROM_ENTRIES_PER_SECTOR;
+            bi->p2l[des_sector] = LPA;
+            des_entry ++;
+        }
+    }
+    return des_entry;
+}
+
+uint32_t VEEBlockDevice::_ee_gc(struct bank_info *bi, uint8_t src_sector, uint8_t des_sector)
+{
+    uint32_t des_entry;
+
+    /* Obsolete sector */
+    bi->dirty_block = bi->block;
+    bi->dirty_sector = src_sector;
+
+    //mark OPS_GC_CP_BEGIN and des_addr(sector number) in the oob of source sector before cp data
+    _ee_update_sys(bi, src_sector, SYS_ENTRY_ADDR_G_B_S, OPS_GC_CP_BEGIN, des_sector);
+
+    //mark OPS_GC_CP_BEGIN and src_addr(sector number) in the oob of destination sector before cp data
+    _ee_update_sys(bi, des_sector, SYS_ENTRY_ADDR_G_B_D, OPS_GC_CP_BEGIN, src_sector);
+
+    //copy data from source sector to destination sector
+    des_entry = _ee_gc_cp(bi, src_sector, des_sector);
+
+    //mark OPS_GC_CP_END in the oob of source sector after cp data
+    _ee_update_sys(bi, src_sector, SYS_ENTRY_ADDR_G_E, OPS_GC_CP_END, DATA_NONE16);
+
+    if (_ee_erase(bi))
+        tr_error("ee_rwbuf: fail to erase\r\n");
+
+    return des_entry;
+}
+
+int VEEBlockDevice::_ee_check_gc_power_fail(void)
+{
+    uint8_t bank, block, sector, des_sector;
+    struct system_entry sys;
+
+#ifdef MX_EEPROM_PC_PROTECTION
+    struct bank_info *bi;
+
+    /* Loop to check each bank */
+    for (bank = 0; bank < MX_EEPROMS; bank++) {
+        bi = &_eeprom.bi[bank];
+        bi->block = 0;
+        bi->block_offset = bi->bank_offset;
+
+        /* Loop to check each block */
+        for (block = 0; block < MX_EEPROM_BLOCKS; block++) {
+            for (sector = 0; sector < MX_EEPROM_SECTORS_PER_CLUSTER; sector++) {
+                if (!_ee_read_sys(bi, sector, SYS_ENTRY_ADDR_G_B_S, &sys)) {
+                    if (sys.ops == OPS_GC_CP_BEGIN) {
+                        des_sector = sys.arg;
+                        if (!_ee_read_sys(bi, sector, SYS_ENTRY_ADDR_G_E, &sys)) {
+                            if (sys.ops == OPS_GC_CP_END) { /* power fail before marking OPS_ERASE_BEGIN */
+                                bi->dirty_block = bi->block;
+                                bi->dirty_sector = sector;
+                                _ee_erase(bi);
+                            } else {    /* power fail before marking OPS_ERASE_BEGIN */
+                                bi->dirty_block = bi->block;
+                                bi->dirty_sector = des_sector;
+                                _ee_erase(bi); /* erase destination sector */
+                                _ee_gc_cp(bi, sector, des_sector); /* copy data */
+                                bi->dirty_block = bi->block;
+                                bi->dirty_sector = sector;
+                                _ee_erase(bi);    /* erase source sector */
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+
+            /* Next block */
+            bi->block++;
+            bi->block_offset += MX_EEPROM_CLUSTER_OFFSET;
+        }
+
+        /* Clean up */
+        bi->block = DATA_NONE32;
+        bi->block_offset = DATA_NONE32;
+        bi->dirty_block = DATA_NONE32;
+        bi->dirty_sector = DATA_NONE32;
+    }
+#endif
+    return VEEF_BD_ERROR_OK;
+}
+#endif
 
 int VEEBlockDevice::format(void)
 {
@@ -1311,30 +1664,57 @@ int VEEBlockDevice::format(void)
                     tr_error("ee_formt: fail to erase sector %lu\r\n", sector);
                     return VEEF_BD_ERROR_EIO;
                 }
+#if COMPONENT_OSPIF
                 addr += MX_FLASH_SECTOR_SIZE;
+#elif COMPONENT_SPINAND
+                addr += MX_FLASH_SECTOR_OFFSET;
+#endif
             }
+#if COMPONENT_OSPIF
             addr += MX_EEPROM_CLUSTER_SIZE;
+#elif COMPONENT_SPINAND
+            addr += MX_EEPROM_CLUSTER_OFFSET;
+#endif
         }
     }
 
+            printf("format 00000format : format failed\r\n");
     /* Fill system entry */
     sys.id = MFTL_ID;
+#if COMPONENT_OSPIF
     sys.ops = OPS_NONE;
+#elif COMPONENT_SPINAND
+    sys.ops = OPS_ERASE_END;
+#endif
     sys.arg = DATA_NONE16;
     sys.cksum = sys.id ^ sys.ops ^ sys.arg;
 
     /* Write RWWEE ID (Actually no need to write every block) */
     for (i = 0; i < MX_EEPROMS; i++) {
-        addr = bank_offset[i] + MX_EEPROM_SYSTEM_SECTOR_OFFSET;
 
+#if COMPONENT_OSPIF
+        addr = bank_offset[i] + MX_EEPROM_SYSTEM_SECTOR_OFFSET;
         for (j = 0; j < MX_EEPROM_BLOCKS; j++) {
             if (_bd->program((uint8_t *)&sys, addr, sizeof(sys))) {
                 tr_error("ee_formt: fail to write addr 0x%08lx\r\n", addr);
                 return VEEF_BD_ERROR_EIO;
             }
-
             addr += MX_EEPROM_CLUSTER_SIZE;
         }
+#elif COMPONENT_SPINAND
+        addr = bank_offset[i];
+        for (j = 0; j < MX_EEPROM_BLOCKS; j++) {
+            for (sector = 0; sector < MX_EEPROM_SECTORS_PER_CLUSTER; sector++) {
+                if (_bd->program((uint8_t *)&sys, addr, sizeof(sys))) {
+            printf("format 111111100000format : format failed %d \r\n",sector);
+                    tr_error("ee_formt: fail to write addr 0x%08lx\r\n", addr);
+                    return VEEF_BD_ERROR_EIO;
+                }
+                addr += MX_EEPROM_SECTOR_OFFSET;
+            }
+            addr += MX_EEPROM_CLUSTER_SIZE;
+        }
+#endif
     }
     return VEEF_BD_ERROR_OK;
 }

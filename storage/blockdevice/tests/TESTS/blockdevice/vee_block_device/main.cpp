@@ -33,6 +33,10 @@
 #include "OSPIFBlockDevice.h"
 #endif
 
+#if COMPONENT_OSPIF
+#include "OSPIFBlockDevice.h"
+#endif
+
 #include <stdlib.h>
 
 using namespace utest::v1;
@@ -70,7 +74,8 @@ void background_call(VEEBlockDevice *vee_bd)
 
 void test_read_write()
 {
-    OSPIFBlockDevice ospi_bd(
+ #if COMPONENT_OSPIF
+    OSPIFBlockDevice default_bd(
         MBED_CONF_OSPIF_OSPI_IO0,
         MBED_CONF_OSPIF_OSPI_IO1,
         MBED_CONF_OSPIF_OSPI_IO2,
@@ -85,9 +90,20 @@ void test_read_write()
         MBED_CONF_OSPIF_OSPI_POLARITY_MODE,
         MBED_CONF_OSPIF_OSPI_FREQ
     );
-
-    VEEBlockDevice bd(&ospi_bd);
-
+#elif COMPONENT_SPINAND
+    SPINANDBlockDevice default_bd(
+        MBED_CONF_SPINAND_SPINAND_IO0,
+        MBED_CONF_SPINAND_SPINAND_IO1,
+        MBED_CONF_SPINAND_SPINAND_IO2,
+        MBED_CONF_SPINAND_SPINAND_IO3,
+        MBED_CONF_SPINAND_SPINAND_SCK,
+        MBED_CONF_SPINAND_SPINAND_CSN,
+        MBED_CONF_SPINAND_SPINAND_POLARITY_MODE,
+        MBED_CONF_SPINAND_SPINAND_FREQ
+    );
+#endif
+    VEEBlockDevice bd(&default_bd);
+    
     int err = bd.init();
 
     TEST_ASSERT_EQUAL(0, err);
@@ -184,7 +200,8 @@ void test_read_write()
 
 void test_background_thread()
 {
-    OSPIFBlockDevice ospi_bd(
+ #if COMPONENT_OSPIF
+    OSPIFBlockDevice default_bd(
         MBED_CONF_OSPIF_OSPI_IO0,
         MBED_CONF_OSPIF_OSPI_IO1,
         MBED_CONF_OSPIF_OSPI_IO2,
@@ -199,8 +216,19 @@ void test_background_thread()
         MBED_CONF_OSPIF_OSPI_POLARITY_MODE,
         MBED_CONF_OSPIF_OSPI_FREQ
     );
-
-    VEEBlockDevice bd(&ospi_bd);
+#elif COMPONENT_SPINAND
+    SPINANDBlockDevice default_bd(
+        MBED_CONF_SPINAND_SPINAND_IO0,
+        MBED_CONF_SPINAND_SPINAND_IO1,
+        MBED_CONF_SPINAND_SPINAND_IO2,
+        MBED_CONF_SPINAND_SPINAND_IO3,
+        MBED_CONF_SPINAND_SPINAND_SCK,
+        MBED_CONF_SPINAND_SPINAND_CSN,
+        MBED_CONF_SPINAND_SPINAND_POLARITY_MODE,
+        MBED_CONF_SPINAND_SPINAND_FREQ
+    );
+#endif
+    VEEBlockDevice bd(&default_bd);
 
     int err = bd.init();
 
