@@ -78,3 +78,4 @@ macro( mbed_add_all_subdirectories subdirectories_list )
 endmacro()
 
 add_subdirectory(stubs)
+add_subdirectory(fakes)
