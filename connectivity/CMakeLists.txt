@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 add_library(mbed-802.15.4-rf INTERFACE)
-add_library(mbed-lorawan INTERFACE)
 add_library(mbed-wifi INTERFACE)
 add_subdirectory(FEATURE_BLE EXCLUDE_FROM_ALL)
 add_subdirectory(cellular EXCLUDE_FROM_ALL)

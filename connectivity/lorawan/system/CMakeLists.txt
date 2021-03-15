@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_sources(mbed-lorawan
-    INTERFACE
+    PRIVATE
         LoRaWANTimer.cpp
 )
 
 target_include_directories(mbed-lorawan
-    INTERFACE
+    PUBLIC
         .
 )

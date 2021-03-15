@@ -1,15 +1,15 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-lorawan
-    INTERFACE
+    PUBLIC
         .
         ./mac
         ./phy
 )
 
 target_sources(mbed-lorawan
-    INTERFACE
+    PRIVATE
         mac/LoRaMac.cpp
         mac/LoRaMacChannelPlan.cpp
         mac/LoRaMacCommand.cpp
