@@ -18,7 +18,7 @@
 #include "us_ticker_api.h"
 #include "us_ticker_defines.h"
 #include "fsl_pit.h"
-#include "fsl_clock_config.h"
+#include "clock_config.h"
 
 
 const ticker_info_t* us_ticker_get_info()

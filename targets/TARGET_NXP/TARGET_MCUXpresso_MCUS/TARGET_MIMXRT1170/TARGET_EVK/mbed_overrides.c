@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 #include "pinmap.h"
-#include "fsl_clock_config.h"
+#include "clock_config.h"
 #include "fsl_clock.h"
 #include "fsl_iomuxc.h"
 #include "fsl_gpio.h"
+
 
 
 void BOARD_ConfigMPU(void)
@@ -142,11 +143,9 @@ return CLOCK_GetRootClockFreq(kCLOCK_Root_Gpt1 );
 
 void serial_setup_clock(void)
 {
-  clock_root_config_t rootCfg = {0};
-   /* Configure Lpuart1 using SysPll2*/
-    rootCfg.mux = kCLOCK_LPUART1_ClockRoot_MuxSysPll2Out;
-    rootCfg.div = 22;
-    CLOCK_SetRootClock(kCLOCK_Root_Lpuart1, &rootCfg);
+      BOARD_ConfigMPU();
+      BOARD_BootClockRUN();
+
 }
 
 uint32_t serial_get_clock(void)

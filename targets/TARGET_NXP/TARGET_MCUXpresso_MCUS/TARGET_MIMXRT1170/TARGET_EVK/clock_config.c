@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "fsl_clock_config.h"
+#include "clock_config.h"
 #include "fsl_iomuxc.h"
 #include "fsl_dcdc.h"
 #include "fsl_pmu.h"

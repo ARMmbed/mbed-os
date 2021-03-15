@@ -28,7 +28,7 @@
 #include "pinmap.h"
 #include "fsl_lpuart.h"
 #include "PeripheralPins.h"
-#include "fsl_clock_config.h"
+#include "clock_config.h"
 
 /* LPUART starts from index 1 */
 static uint32_t serial_irq_ids[FSL_FEATURE_SOC_LPUART_COUNT + 1] = {0};

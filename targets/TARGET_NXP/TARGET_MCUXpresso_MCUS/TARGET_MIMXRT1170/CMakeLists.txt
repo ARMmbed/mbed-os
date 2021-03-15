@@ -33,7 +33,7 @@ target_sources(mbed-mimxrt1170-evk
         drivers/fsl_gpio.c
 	    drivers/fsl_lpuart.c
         drivers/fsl_pmu.c
-
+        
         ${STARTUP_FILE}
 )
 

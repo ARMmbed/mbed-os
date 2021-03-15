@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef _FSL_CLOCK_CONFIG_H_
-#define _FSL_CLOCK_CONFIG_H_
+#ifndef _CLOCK_CONFIG_H_
+#define _CLOCK_CONFIG_H_
 
 #include "fsl_common.h"
 
