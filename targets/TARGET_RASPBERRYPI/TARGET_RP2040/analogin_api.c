@@ -6,7 +6,7 @@
 
 static float    const ADC_VREF_VOLTAGE     = 3.3f; /* 3.3V */
 static uint16_t const ADC_RESOLUTION_BITS   = 12;
-static float    const ADC_CONVERSION_FACTOR = ADC_VREF_VOLTAGE / (1 << ADC_RESOLUTION_BITS);
+static float    const ADC_CONVERSION_FACTOR = ADC_VREF_VOLTAGE / (1 << 16);
 
 void analogin_init(analogin_t *obj, PinName pin)
 {
@@ -38,7 +38,7 @@ void analogin_init(analogin_t *obj, PinName pin)
 float analogin_read(analogin_t *obj)
 {
     /* Read the raw 12-Bit value from the ADC. */
-    uint16_t const analog_in_raw = analogin_read_u16(obj);
+    float analog_in_raw = (float)analogin_read_u16(obj);
     /* Convert it to a voltage value. */
     return (analog_in_raw * ADC_CONVERSION_FACTOR);
 }
@@ -48,7 +48,7 @@ uint16_t analogin_read_u16(analogin_t *obj)
     /* Select the desired ADC input channel. */
     adc_select_input(obj->channel);
     /* Read the 16-Bit ADC value. */
-    return adc_read();
+    return adc_read() << (16 - ADC_RESOLUTION_BITS);
 }
 
 const PinMap *analogin_pinmap()
