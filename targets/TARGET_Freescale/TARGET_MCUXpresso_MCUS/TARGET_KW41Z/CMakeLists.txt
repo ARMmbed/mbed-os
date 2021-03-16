@@ -66,4 +66,4 @@ target_sources(mbed-kw41z
 
 mbed_set_linker_script(mbed-kw41z ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(mbed-kw41z INTERFACE mbed-mcuxpresso-mcus mbed-framework-5-3-3 mbed-frdm-kw41z)
+target_link_libraries(mbed-kw41z INTERFACE mbed-freescale-mcuxpresso-mcus mbed-framework-5-3-3 mbed-frdm-kw41z)

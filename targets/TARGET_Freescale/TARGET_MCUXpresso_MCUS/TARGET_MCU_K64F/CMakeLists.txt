@@ -75,7 +75,7 @@ target_sources(mbed-mcu-k64f
         ${STARTUP_FILE}
 )
 
-target_link_libraries(mbed-mcu-k64f INTERFACE mbed-mcuxpresso-mcus)
+target_link_libraries(mbed-mcu-k64f INTERFACE mbed-freescale-mcuxpresso-mcus)
 
 mbed_set_linker_script(mbed-mcu-k64f ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
