@@ -90,6 +90,7 @@ void pwmout_write(pwmout_t *obj, float percent)
 {
     obj->percent = percent;
     pwm_set_gpio_level(obj->pin, percent * (count_top + 1));
+    pwm_set_enabled(obj->slice, true);
 }
 
 /** Read the current float-point output duty-cycle
