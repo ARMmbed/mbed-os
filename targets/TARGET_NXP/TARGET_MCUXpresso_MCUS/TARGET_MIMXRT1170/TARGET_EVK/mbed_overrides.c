@@ -129,16 +129,12 @@ uint32_t spi_get_clock(void)
 
 void us_ticker_setup_clock()
 {
-clock_root_config_t rootCfg = {0};
-   /* Configure gpt timer using Osc48MDiv2 */
-    rootCfg.mux = kCLOCK_GPT1_ClockRoot_MuxOscRc48MDiv2;
-    rootCfg.div = 1;
-    CLOCK_SetRootClock(kCLOCK_Root_Gpt1, &rootCfg);
+ //  CLOCK_EnableClock(s_pitClocks[PIT_GetInstance(base)]);
 }
 
 uint32_t us_ticker_get_clock()
 {
-return CLOCK_GetRootClockFreq(kCLOCK_Root_Gpt1 );
+return CLOCK_GetRootClockFreq(kCLOCK_Root_Bus);
 }
 
 void serial_setup_clock(void)

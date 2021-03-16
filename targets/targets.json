@@ -4347,9 +4347,6 @@
             "SKIP_SYSCLK_INIT",
             "MBED_MPU_CUSTOM"
         ],
-        "components_add": [
-            "FLASHIAP"
-        ],
         "inherits": [
             "Target"
         ],
@@ -4357,10 +4354,10 @@
             "0228"
         ],
         "device_has": [
-            "FLASH",
             "INTERRUPTIN",
             "SERIAL",
-	        "LPTICKER"
+            "LPTICKER",
+            "USTICKER"
         ],
         "supported_application_profiles" : ["full", "bare-metal"],
         "supported_c_libs": {

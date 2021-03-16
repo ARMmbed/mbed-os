@@ -25,7 +25,7 @@
 #define US_TICKER_MASK          0xFFFFFFFF
 
 #define PIT PIT1
-#define PIT_IRQn PIT2_IRQn
+#define PIT_IRQn PIT1_IRQn
 
 /* Macro-optimised form of us_ticker_read */
 #define us_ticker_read() (~(PIT_GetCurrentTimerCount(PIT, kPIT_Chnl_1)))
