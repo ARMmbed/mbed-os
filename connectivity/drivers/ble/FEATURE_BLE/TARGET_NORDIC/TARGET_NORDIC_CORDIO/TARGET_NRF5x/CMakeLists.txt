@@ -23,5 +23,5 @@ target_sources(mbed-ble-cordio
 target_link_libraries(mbed-ble-cordio
     INTERFACE
         mbed-ble-cordio_ll
-        mbed-mbedtls-cryptocell310
+        mbed-mbedtls
 )

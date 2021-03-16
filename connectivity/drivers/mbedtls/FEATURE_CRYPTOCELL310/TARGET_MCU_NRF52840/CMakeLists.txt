@@ -9,17 +9,17 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LIBCC_310_TRNG TOOLCHAIN_ARM/libcc_310_trng.ar)
 endif()
 
-target_include_directories(mbed-mbedtls-cryptocell310
+target_include_directories(mbed-mbedtls
     INTERFACE
         .
 )
 
-target_sources(mbed-mbedtls-cryptocell310
+target_sources(mbed-mbedtls
     INTERFACE
         crypto_device_platform.c
 )
 
-target_link_libraries(mbed-mbedtls-cryptocell310
+target_link_libraries(mbed-mbedtls
     INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/${LIBCC_310_EXT}
         ${CMAKE_CURRENT_SOURCE_DIR}/${LIBCC_310_TRNG}
