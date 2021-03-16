@@ -18,4 +18,7 @@ pico-sdk/rp2_common/pico_standard_link/new_delete.cpp
 pico-sdk/rp2_common/pico_standard_link/*.ld
 pico-sdk/rp2_common/pico_unique_id/*
 pico-sdk/rp2_common/hardware_divider/*
+pico-sdk/rp2_common/hardware_spi/include/hardware/*
+pico-sdk/rp2040/hardware_structs/include/hardware/structs/*
+pico-sdk/rp2040/hardware_regs/include/hardware/regs/*
 pico-sdk/host/*
