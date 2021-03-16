@@ -31,6 +31,7 @@ target_sources(mbed-mimxrt1170-evk
         drivers/fsl_flexspi.c
         drivers/fsl_flexspi_nor_boot.c
         drivers/fsl_gpio.c
+        drivers/fsl_lpspi.c
 	    drivers/fsl_lpuart.c
         drivers/fsl_pmu.c
         

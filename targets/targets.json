@@ -4356,6 +4356,8 @@
         "device_has": [
             "INTERRUPTIN",
             "SERIAL",
+            "SPI",
+            "SPISLAVE",
             "LPTICKER",
             "USTICKER"
         ],
