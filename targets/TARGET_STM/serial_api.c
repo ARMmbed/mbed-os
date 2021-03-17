@@ -350,17 +350,15 @@ void serial_free(serial_t *obj)
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
 #endif /* DUAL_CORE */
 
-    // Configure GPIOs
-    pin_function(obj_s->pin_tx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-
-    pin_function(obj_s->pin_rx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-
+    // Configure GPIOs back to reset value
+    pin_function(obj_s->pin_tx, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0));
+    pin_function(obj_s->pin_rx, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0));
 #if DEVICE_SERIAL_FC
     if ( (obj_s->hw_flow_ctl == UART_HWCONTROL_RTS) || (obj_s->hw_flow_ctl == UART_HWCONTROL_RTS_CTS) ) {
-        pin_function(obj_s->pin_rts, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+        pin_function(obj_s->pin_rts, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0));
     }
     if ( (obj_s->hw_flow_ctl == UART_HWCONTROL_CTS) || (obj_s->hw_flow_ctl == UART_HWCONTROL_RTS_CTS) ) {
-        pin_function(obj_s->pin_cts, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+        pin_function(obj_s->pin_cts, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0));
     }
 #endif
 
