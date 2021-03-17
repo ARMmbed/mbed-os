@@ -223,8 +223,6 @@ protected:
 
     qspi_t _qspi;
 
-    bool acquire(void);
-    static QSPI *_owner;
     static SingletonPtr<PlatformMutex> _mutex;
     qspi_bus_width_t _inst_width; //Bus width for Instruction phase
     qspi_bus_width_t _address_width; //Bus width for Address phase
@@ -242,10 +240,6 @@ protected:
     bool (QSPI::* _init_func)(void);
 
 private:
-    /* Private acquire function without locking/unlocking
-     * Implemented in order to avoid duplicate locking and boost performance
-     */
-    bool _acquire(void);
     bool _initialize();
     bool _initialize_direct();
 
