@@ -192,7 +192,7 @@ out of interrupt contexts.
 ## Documentation ##
 
 The in-depth documentation on specific functions can be found in
-[equeue.h](source/equeue.h).
+[equeue.h](include/events/equeue.h).
 
 The core of the equeue library is the `equeue_t` type which represents a
 single event queue, and the `equeue_dispatch` function which runs the equeue,
