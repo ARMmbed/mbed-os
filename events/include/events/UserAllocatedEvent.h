@@ -230,7 +230,7 @@ public:
 
     /** Cancels posted event
      *
-     *  Attempts to cancel posted event. It is safe to call
+     *  Attempts to cancel posted event. It is not safe to call
      *  cancel after an event has already been dispatched.
      *
      *  The cancel function is IRQ safe.
