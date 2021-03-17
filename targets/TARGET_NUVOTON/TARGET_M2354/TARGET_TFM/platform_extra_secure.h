@@ -77,9 +77,6 @@ typedef enum {
     NU_PLAT_XTRA_SEC_REQ(nu_rtc_read_spare_register_s),
     NU_PLAT_XTRA_SEC_REQ(nu_rtc_write_spare_register_s),
     NU_PLAT_XTRA_SEC_REQ(nu_rtc_isenabled_s),
-    NU_PLAT_XTRA_SEC_REQ(nu_trng_init_s),
-    NU_PLAT_XTRA_SEC_REQ(nu_trng_free_s),
-    NU_PLAT_XTRA_SEC_REQ(nu_trng_get_bytes_s),
 
     /* Max request code, plays as number of valid request code */
     NU_PLAT_XTRA_SEC_REQ(MAX),
@@ -344,39 +341,6 @@ NU_PLAT_XTRA_SEC_HDLR(nu_rtc_write_spare_register_s);
 int32_t nu_rtc_isenabled_s(void);
 #else
 NU_PLAT_XTRA_SEC_HDLR(nu_rtc_isenabled_s);
-#endif
-
-/* Secure trng_init
- *
- * Its synopsis is the same as normal version except change of return/argument type for
- * binary-compatible across compilers.
- */
-#ifdef __MBED__
-void nu_trng_init_s(void);
-#else
-NU_PLAT_XTRA_SEC_HDLR(nu_trng_init_s);
-#endif
-
-/* Secure trng_free
- *
- * Its synopsis is the same as normal version except change of return/argument type for
- * binary-compatible across compilers.
- */
-#ifdef __MBED__
-void nu_trng_free_s(void);
-#else
-NU_PLAT_XTRA_SEC_HDLR(nu_trng_free_s);
-#endif
-
-/* Secure trng_get_bytes
- *
- * Its synopsis is the same as normal version except change of return/argument type for
- * binary-compatible across compilers.
- */
-#ifdef __MBED__
-int32_t nu_trng_get_bytes_s(uint8_t *output, uint32_t length, uint32_t *output_length);
-#else
-NU_PLAT_XTRA_SEC_HDLR(nu_trng_get_bytes_s);
 #endif
 
 #ifdef __cplusplus

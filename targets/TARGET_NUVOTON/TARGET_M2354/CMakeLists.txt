@@ -72,7 +72,6 @@ target_sources(mbed-m2354
         serial_api.c
         sleep.c
         spi_api.c
-        trng_api.cpp
         us_ticker.c
 )
 
