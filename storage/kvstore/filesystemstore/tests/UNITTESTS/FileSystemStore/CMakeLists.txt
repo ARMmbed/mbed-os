@@ -45,4 +45,4 @@ target_link_libraries(${TEST_NAME}
 
 add_test(NAME "${TEST_NAME}" COMMAND ${TEST_NAME})
 
-set_tests_properties(${TEST_NAME} PROPERTIES LABELS "storage-filesystemstore")
+set_tests_properties(${TEST_NAME} PROPERTIES LABELS "storage")
