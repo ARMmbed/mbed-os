@@ -728,6 +728,16 @@ int ws_statistics_start(
     ws_statistics_t *stats_ptr);
 
 /**
+ * Reset Wi-SUN statistics.
+ *
+ * \param interface_id Network interface ID.
+ *
+ * \return 0 Success.
+ * \return <0 Failure.
+ */
+int ws_statistics_reset(int8_t interface_id);
+
+/**
  * Stop collecting Wi-SUN statistics.
  *
  * \param interface_id Network interface ID.

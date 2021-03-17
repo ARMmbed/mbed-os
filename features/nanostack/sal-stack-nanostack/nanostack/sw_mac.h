@@ -90,6 +90,13 @@ extern struct fhss_api *ns_sw_mac_get_fhss_api(struct mac_api_s *mac_api);
 extern int ns_sw_mac_statistics_start(struct mac_api_s *mac_api, struct mac_statistics_s *mac_statistics);
 
 /**
+ * @brief Reset all statistics from software MAC.
+ * @param mac_api MAC instance.
+ * @return 0 on success, -1 on fail.
+ */
+extern int ns_sw_mac_statistics_reset(struct mac_api_s *mac_api);
+
+/**
  * @brief Start collecting statistics from PHY driver.
  * @param mac_api MAC instance.
  * @param phy_statistics Statistics storage.

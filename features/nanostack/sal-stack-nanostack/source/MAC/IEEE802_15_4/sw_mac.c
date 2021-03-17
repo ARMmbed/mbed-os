@@ -255,6 +255,23 @@ int ns_sw_mac_statistics_start(struct mac_api_s *mac_api, struct mac_statistics_
     return 0;
 }
 
+int ns_sw_mac_statistics_reset(struct mac_api_s *mac_api)
+{
+    if (!mac_api) {
+        return -1;
+    }
+    protocol_interface_rf_mac_setup_s *mac_setup = get_sw_mac_ptr_by_mac_api(mac_api);
+    if (!mac_setup) {
+        return -1;
+    }
+    if (mac_setup->mac_statistics == NULL) {
+        /* MAC statics is not started */
+        return 0;
+    }
+    memset(mac_setup->mac_statistics, 0, sizeof(struct mac_statistics_s));
+    return 0;
+}
+
 static int8_t ns_sw_mac_initialize(mac_api_t *api, mcps_data_confirm *mcps_data_conf_cb,
                                    mcps_data_indication *mcps_data_ind_cb, mcps_purge_confirm *mcps_purge_conf_cb,
                                    mlme_confirm *mlme_conf_callback, mlme_indication *mlme_ind_callback, int8_t parent_id)

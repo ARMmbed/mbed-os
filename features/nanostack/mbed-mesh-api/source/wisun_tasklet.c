@@ -624,6 +624,22 @@ int wisun_tasklet_statistics_start(void)
     return 0;
 }
 
+int wisun_tasklet_statistics_reset(void)
+{
+    if (!wisun_tasklet_data_ptr || wisun_tasklet_data_ptr->network_interface_id < 0 || !mac_api) {
+        return -1;
+    }
+
+    if (ns_sw_mac_statistics_reset(mac_api) < 0) {
+        return -1;
+    }
+    if (ws_statistics_reset(wisun_tasklet_data_ptr->network_interface_id) < 0) {
+        return -1;
+    }
+
+    return 0;
+}
+
 static void wisun_tasklet_statistics_do_start(void)
 {
     if (!wisun_tasklet_data_ptr || wisun_tasklet_data_ptr->network_interface_id < 0 || !mac_api) {
