@@ -656,13 +656,13 @@ qspi_status_t qspi_free(qspi_t *obj)
     }
 #endif
 
-    // Configure GPIOs
-    pin_function(obj->io0, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-    pin_function(obj->io1, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-    pin_function(obj->io2, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-    pin_function(obj->io3, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-    pin_function(obj->sclk, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-    pin_function(obj->ssel, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    // Configure GPIOs back to reset value
+    pin_function(obj->io0, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0));
+    pin_function(obj->io1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0));
+    pin_function(obj->io2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0));
+    pin_function(obj->io3, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0));
+    pin_function(obj->sclk, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0));
+    pin_function(obj->ssel, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0));
 
     (void)(obj);
     return QSPI_STATUS_OK;
@@ -691,12 +691,12 @@ qspi_status_t qspi_free(qspi_t *obj)
     __HAL_RCC_QSPI_CLK_DISABLE();
 
     // Configure GPIOs
-    pin_function(obj->io0, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-    pin_function(obj->io1, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-    pin_function(obj->io2, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-    pin_function(obj->io3, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-    pin_function(obj->sclk, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-    pin_function(obj->ssel, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    pin_function(obj->io0, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0));
+    pin_function(obj->io1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0));
+    pin_function(obj->io2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0));
+    pin_function(obj->io3, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0));
+    pin_function(obj->sclk, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0));
+    pin_function(obj->ssel, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0));
 
     (void)(obj);
     return QSPI_STATUS_OK;
