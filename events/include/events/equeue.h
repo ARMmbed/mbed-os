@@ -217,7 +217,7 @@ bool equeue_cancel(equeue_t *queue, int id);
 //
 // If called while the event queue's dispatch loop is active,
 // equeue_cancel_user_allocated does not guarantee that the event
-// will not not execute after it returns as the event may have
+// will not execute after it returns as the event may have
 // already begun executing.
 bool equeue_cancel_user_allocated(equeue_t *queue, void *event);
 
