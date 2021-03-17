@@ -20,7 +20,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 include(CTest)
 
 set_property(DIRECTORY APPEND PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
-        "${CMAKE_BINARY_DIR}/Testing"
+    "${CMAKE_BINARY_DIR}/Testing"
 )
 
 # set Mbed OS path
@@ -57,6 +57,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DUNITTEST")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNITTEST")
 
 add_subdirectory(stubs)
+add_subdirectory(fakes)
 
 macro( mbed_add_all_subdirectories subdirectories_list )
     foreach(dir ${subdirectories_list})
