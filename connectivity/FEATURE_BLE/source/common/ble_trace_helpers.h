@@ -23,7 +23,7 @@
 #include "mbed-trace/mbed_trace.h"
 #include "pal/GapTypes.h"
 #include "pal/GapEvents.h"
-#include "ble-host/include/dm_api.h"
+#include "dm_api.h"
 #include "common/UUID.h"
 
 namespace ble {
