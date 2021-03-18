@@ -49,21 +49,6 @@ int ws_statistics_stop(int8_t interface_id)
     return 0;
 }
 
-int ws_statistics_reset(int8_t interface_id)
-{
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || !ws_info(cur)) {
-        return -1;
-    }
-    if (cur->ws_info->stored_stats_ptr == NULL) {
-        /* Wi-SUN statistics is not started */
-        return 0;
-    }
-    cur->ws_info->stored_stats_ptr->asynch_rx_count = 0;
-    cur->ws_info->stored_stats_ptr->asynch_tx_count = 0;
-    return 0;
-}
-
 void ws_stats_update(protocol_interface_info_entry_t *cur, ws_stats_type_t type, uint32_t update_val)
 {
     if (!cur || !ws_info(cur)) {

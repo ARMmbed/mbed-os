@@ -434,12 +434,6 @@ int ws_statistics_start(int8_t interface_id, ws_statistics_t *stats_ptr)
     return -1;
 }
 
-int ws_statistics_reset(int8_t interface_id)
-{
-    (void) interface_id;
-    return -1;
-}
-
 int ws_statistics_stop(int8_t interface_id)
 {
     (void) interface_id;
