@@ -646,6 +646,15 @@ qspi_status_t SPINANDBlockDevice::_qspi_send_read_command(qspi_inst_t read_inst,
 
     size_t buf_len = size;
 
+    qspi_bus_width_t data_width;
+    if (read_inst == SPINAND_INST_READ_CACHE) {
+      data_width = QSPI_CFG_BUS_SINGLE;
+    } else if (read_inst == SPINAND_INST_READ_CACHE2) {
+      data_width = QSPI_CFG_BUS_DUAL;
+    } else if (read_inst == SPINAND_INST_READ_CACHE4) {
+      data_width = QSPI_CFG_BUS_QUAD;
+    }
+
     // Send read command to device driver
     // Read commands use the best bus mode supported by the part
     qspi_status_t status = _qspi.configure_format(_inst_width, _address_width, SPI_NAND_COLUMN_ADDR_SIZE, // Alt width should be the same as address width
@@ -668,11 +677,11 @@ qspi_status_t SPINANDBlockDevice::_qspi_send_read_command(qspi_inst_t read_inst,
 
     if (false == _is_mem_ready()) {
         tr_error("Device not ready, clearing block protection failed");
-        return -1;
+        return QSPI_STATUS_ERROR;
     }
 
     status = _qspi.configure_format(_inst_width, _address_width, SPI_NAND_ROW_ADDR_SIZE, _address_width, // Alt width should be the same as address width
-                                    _alt_size, QSPI_CFG_BUS_QUAD, _dummy_cycles);
+                                    _alt_size, data_width, _dummy_cycles);
     if (QSPI_STATUS_OK != status) {
         tr_error("_qspi_configure_format failed");
         return status;
@@ -702,9 +711,17 @@ qspi_status_t SPINANDBlockDevice::_qspi_send_program_command(qspi_inst_t prog_in
 {
     tr_debug("Inst: 0x%xh, addr: %llu, size: %llu", prog_inst, addr, *size);
 
+    qspi_bus_width_t data_width;
+
+    if (prog_inst == SPINAND_INST_PP_LOAD) {
+      data_width = QSPI_CFG_BUS_SINGLE;
+    } else if (prog_inst == SPINAND_INST_4PP_LOAD) {
+      data_width = QSPI_CFG_BUS_QUAD;
+    }
+
     // Program load commands need 16 bit row address
     qspi_status_t status = _qspi.configure_format(_inst_width, _address_width, SPI_NAND_ROW_ADDR_SIZE, // Alt width should be the same as address width
-                                                  _address_width, _alt_size, QSPI_CFG_BUS_QUAD, 0);
+                                                  _address_width, _alt_size, data_width, 0);
     if (QSPI_STATUS_OK != status) {
         tr_error("_qspi_configure_format failed");
         return status;
@@ -794,4 +811,5 @@ qspi_status_t SPINANDBlockDevice::_qspi_send_general_command(qspi_inst_t instruc
 
     return QSPI_STATUS_OK;
 }
+
 
