@@ -17,7 +17,7 @@
 
 #include "ble_trace_helpers.h"
 #include "pal/AttServerMessage.h"
-#include "ble-host/include/att_api.h"
+#include "att_api.h"
 #define TRACE_GROUP "BLE "
 
 namespace ble {
