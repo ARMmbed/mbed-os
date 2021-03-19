@@ -23,6 +23,9 @@
 #include "cmsis.h"
 #include "PinNamesTypes.h"
 
+/* If this macro is defined, then PinMap_GPIO is present in PeripheralPins.c */
+#define GPIO_PINMAP_READY 1
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -32,6 +35,7 @@ typedef enum {
 } ALTx;
 
 typedef enum {
+
     PA_0       = 0x00,
     PA_1       = 0x01,
     PA_2       = 0x02,
