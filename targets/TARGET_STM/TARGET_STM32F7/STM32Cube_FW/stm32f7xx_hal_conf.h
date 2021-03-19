@@ -206,8 +206,8 @@
 #define ETH_TXBUFNB                    MBED_CONF_STM32_EMAC_ETH_TXBUFNB  /* Tx buffers of size ETH_TX_BUF_SIZE  */
 #else
 /* ex: bare metal profile */
-#define ETH_RXBUFNB                    0  /* Rx buffers of size ETH_RX_BUF_SIZE  */
-#define ETH_TXBUFNB                    0  /* Tx buffers of size ETH_TX_BUF_SIZE  */
+#define ETH_RXBUFNB                    ((uint32_t)4U)       /* 4 Rx buffers of size ETH_RX_BUF_SIZE  */
+#define ETH_TXBUFNB                    ((uint32_t)4U)       /* 4 Tx buffers of size ETH_TX_BUF_SIZE  */
 #endif
 
 /* Section 2: PHY configuration section */
@@ -216,7 +216,7 @@
 #ifdef MBED_CONF_STM32_EMAC_ETH_PHY_RESET_DELAY
 #define PHY_RESET_DELAY                 MBED_CONF_STM32_EMAC_ETH_PHY_RESET_DELAY
 #else
-#define PHY_RESET_DELAY                 0
+#define PHY_RESET_DELAY                 ((uint32_t)0x000000FFU)
 #endif
 #define PHY_CONFIG_DELAY                0x00000FFFU
 #define PHY_READ_TO                     0x0000FFFFU
@@ -238,9 +238,10 @@
 #define PHY_SPEED_STATUS                MBED_CONF_STM32_EMAC_ETH_PHY_SPEED_STATUS     /*!< PHY Speed mask                                  */
 #define PHY_DUPLEX_STATUS               MBED_CONF_STM32_EMAC_ETH_PHY_DUPLEX_STATUS    /*!< PHY Duplex mask                                 */
 #else
-#define PHY_SR                          0
-#define PHY_SPEED_STATUS                0
-#define PHY_DUPLEX_STATUS               0
+#define PHY_SR                          ((uint16_t)0x10U)    /*!< PHY status register Offset                      */
+
+#define PHY_SPEED_STATUS                ((uint16_t)0x0002U)  /*!< PHY Speed mask                                  */
+#define PHY_DUPLEX_STATUS               ((uint16_t)0x0004U)  /*!< PHY Duplex mask                                 */
 #endif
 
 /* ################## SPI peripheral configuration ########################## */
@@ -250,7 +251,7 @@
 * Deactivated: CRC code cleaned from driver
 */
 
-#define USE_SPI_CRC                     1U
+#define USE_SPI_CRC                     0U
 
 /* Includes ------------------------------------------------------------------*/
 /**
