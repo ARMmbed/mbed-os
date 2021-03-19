@@ -415,8 +415,8 @@ Case cases[] = {
     Case("SPI - hardware ss handling", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ, BUFFERS_COMMON, true, false> >),
     Case("SPI - hardware ss handling(block)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_BLOCK_WRITE_SYNC, FREQ_1_MHZ, BUFFERS_COMMON, true, false> >),
 #if DEVICE_SPI_ASYNCH
-    Case("SPI - async mode (sw ss)", one_peripheral<SPINoCSPort, DefaultFormFactor, fpga_spi_test_common_no_ss<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_TRANSFER_ASYNC, FREQ_1_MHZ, BUFFERS_COMMON, false, false> >),
-    Case("SPI - async mode (hw ss)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_TRANSFER_ASYNC, FREQ_1_MHZ, BUFFERS_COMMON, true, false> >)
+    Case("SPI - async mode (sw ss)", one_peripheral<SPINoCSPort, DefaultFormFactor, fpga_spi_test_common_no_ss<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_TRANSFER_ASYNC, FREQ_500_KHZ, BUFFERS_COMMON, false, false> >),
+    Case("SPI - async mode (hw ss)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_TRANSFER_ASYNC, FREQ_500_KHZ, BUFFERS_COMMON, true, false> >)
 #endif
 };
 
