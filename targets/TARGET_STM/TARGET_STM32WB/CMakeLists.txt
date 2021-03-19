@@ -3,6 +3,8 @@
 
 add_subdirectory(TARGET_STM32WB50xx EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32WB55xx EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32WB5Mxx EXCLUDE_FROM_ALL)
+
 add_subdirectory(STM32Cube_FW EXCLUDE_FROM_ALL)
 
 add_library(mbed-stm32wb INTERFACE)
