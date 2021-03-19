@@ -32,6 +32,7 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 #include "pin_device.h"
+#include "PeripheralPins.h"
 
 extern const uint32_t ll_pin_defines[16];
 
@@ -186,3 +187,35 @@ inline void gpio_dir(gpio_t *obj, PinDirection direction)
 #endif /* DUAL_CORE */
 }
 
+#if GPIO_PINMAP_READY
+/* If this macro is defined, then PinMap_GPIO is present in PeripheralPins.c */
+const PinMap *gpio_pinmap()
+{
+    return PinMap_GPIO;
+}
+
+
+void gpio_get_capabilities(gpio_t *obj, gpio_capabilities_t *cap)
+{
+    switch (pinmap_find_function(obj->pin, PinMap_GPIO)) {
+        case GPIO_NOPULL:
+            cap->pull_none = 1;
+            cap->pull_down = 1;
+            cap->pull_up = 1;
+            break;
+        case GPIO_PULLUP:
+            cap->pull_none = 1;
+            cap->pull_down = 0;
+            cap->pull_up = 1;
+            break;
+        case GPIO_PULLDOWN:
+            cap->pull_none = 1;
+            cap->pull_down = 1;
+            cap->pull_up = 0;
+            break;
+        default:
+            break;
+    }
+}
+
+#endif
