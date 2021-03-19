@@ -206,8 +206,8 @@
 #define ETH_TXBUFNB                    MBED_CONF_STM32_EMAC_ETH_TXBUFNB  /* Tx buffers of size ETH_TX_BUF_SIZE  */
 #else
 /* ex: bare metal profile */
-#define ETH_RXBUFNB                    ((uint32_t)4U)       /* 4 Rx buffers of size ETH_RX_BUF_SIZE  */
-#define ETH_TXBUFNB                    ((uint32_t)4U)       /* 4 Tx buffers of size ETH_TX_BUF_SIZE  */
+#define ETH_RXBUFNB                    ((uint32_t)16U)       /* 4 Rx buffers of size ETH_RX_BUF_SIZE  */
+#define ETH_TXBUFNB                    ((uint32_t)16U)       /* 4 Tx buffers of size ETH_TX_BUF_SIZE  */
 #endif
 
 /* Section 2: PHY configuration section */
@@ -219,8 +219,8 @@
 #define PHY_RESET_DELAY                 ((uint32_t)0x000000FFU)
 #endif
 #define PHY_CONFIG_DELAY                0x00000FFFU
-#define PHY_READ_TO                     0x0000FFFFU
-#define PHY_WRITE_TO                    0x0000FFFFU
+#define PHY_READ_TO                     0x00000001U
+#define PHY_WRITE_TO                    0x00000001U
 
 /* Section 3: Common PHY Registers */
 
@@ -243,6 +243,9 @@
 #define PHY_SPEED_STATUS                ((uint16_t)0x0002U)  /*!< PHY Speed mask                                  */
 #define PHY_DUPLEX_STATUS               ((uint16_t)0x0004U)  /*!< PHY Duplex mask                                 */
 #endif
+
+#define PHY_ISFR                        ((uint16_t)0x001DU)    /*!< PHY Interrupt Source Flag register Offset   */
+#define PHY_ISFR_INT4                   ((uint16_t)0x000BU)  /*!< PHY Link down inturrupt       */
 
 /* ################## SPI peripheral configuration ########################## */
 
