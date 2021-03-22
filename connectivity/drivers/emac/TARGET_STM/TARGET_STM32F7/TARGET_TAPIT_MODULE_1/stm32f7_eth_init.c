@@ -58,7 +58,7 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef *heth)
           RMII_MII_TXD1 ---------------------> PB13
          */
         /* Configure PA1, PA2 and PA7 */
-        GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
+        GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
         GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
         GPIO_InitStructure.Pull = GPIO_NOPULL;
         GPIO_InitStructure.Alternate = GPIO_AF11_ETH;

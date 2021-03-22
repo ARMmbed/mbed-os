@@ -219,8 +219,8 @@
 #define PHY_RESET_DELAY                 ((uint32_t)0x000000FFU)
 #endif
 #define PHY_CONFIG_DELAY                0x00000FFFU
-#define PHY_READ_TO                     0x00000001U
-#define PHY_WRITE_TO                    0x00000001U
+#define PHY_READ_TO                     0x00000FFFU
+#define PHY_WRITE_TO                    0x00000FFFU
 
 /* Section 3: Common PHY Registers */
 
