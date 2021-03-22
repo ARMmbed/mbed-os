@@ -52,7 +52,7 @@ private:
     bool active;
     bool powered_up;
     int8_t device_id;
-    phy_device_driver_s phy;
+    phy_device_driver_s phy = {};
 };
 
 nsapi_error_t Nanostack::PPPInterface::initialize()
