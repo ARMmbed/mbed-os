@@ -17,7 +17,7 @@ target_sources(mbed-evk
         PeripheralPins.c
         pinmap.c
         serial_api.c
-	    us_ticker.c
+	   us_ticker.c
         
 
         xip/evkmimxrt1170_flexspi_nor_config.c
