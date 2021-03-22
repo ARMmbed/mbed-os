@@ -20,6 +20,9 @@
  * limitations under the License.
  *
  ******************************************************************************/
+
+/* MBED TARGET LIST: EFM32GG11_STK3701 */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

@@ -14,6 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* MBED TARGET LIST: EP_AGORA */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

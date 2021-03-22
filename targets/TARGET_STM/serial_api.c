@@ -205,10 +205,10 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     uint8_t stdio_config = false;
 
-    if ((tx == STDIO_UART_TX) || (rx == STDIO_UART_RX)) {
+    if ((tx == USBTX) || (rx == USBRX)) {
         stdio_config = true;
     } else {
-        if (uart_tx == pinmap_peripheral(STDIO_UART_TX, PinMap_UART_TX)) {
+        if (uart_tx == pinmap_peripheral(USBTX, PinMap_UART_TX)) {
             error("Error: new serial object is using same UART as STDIO");
         }
     }

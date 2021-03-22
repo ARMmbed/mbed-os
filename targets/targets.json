@@ -34,7 +34,7 @@
         ],
         "config": {
             "console-uart": {
-                "help": "Target has UART console on pins STDIO_UART_TX, STDIO_UART_RX. Value is only significant if target has SERIAL device.",
+                "help": "Target has UART console on pins CONSOLE_TX, CONSOLE_RX. Value is only significant if target has SERIAL device.",
                 "value": true
             },
             "console-uart-flow-control": {
@@ -2959,7 +2959,7 @@
             "network-default-interface-type": "ETHERNET"
         },
         "supported_form_factors": [
-            "ARDUINO"
+            "ARDUINO_UNO"
         ],
         "detect_code": [
             "0836"
@@ -3052,7 +3052,7 @@
             "MCU_STM32H747xI_CM7"
         ],
         "supported_form_factors": [
-            "ARDUINO",
+            "ARDUINO_UNO",
             "STMOD",
             "PMOD"
         ],
@@ -3109,7 +3109,7 @@
             "QSPIF"
         ],
         "supported_form_factors": [
-            "ARDUINO",
+            "ARDUINO_UNO",
             "STMOD",
             "PMOD"
         ],
@@ -3218,7 +3218,7 @@
             }
         },
         "supported_form_factors": [
-            "ARDUINO"
+            "ARDUINO_UNO"
         ],
         "detect_code": [
             "0860"
@@ -3580,8 +3580,7 @@
             "MCU_STM32L433xC"
         ],
         "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
+            "ARDUINO_UNO"
         ],
         "detect_code": [
             "0779"
@@ -3636,8 +3635,7 @@
             "MCU_STM32L452xE"
         ],
         "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
+            "ARDUINO_UNO"
         ],
         "detect_code": [
             "0829"
@@ -3662,7 +3660,7 @@
             "MCU_STM32L471xG"
         ],
         "supported_form_factors": [
-            "ARDUINO"
+            "ARDUINO_UNO"
         ],
         "detect_code": [
             "0312"
@@ -3701,7 +3699,7 @@
             "MX25R6435F"
         ],
         "supported_form_factors": [
-            "ARDUINO"
+            "ARDUINO_UNO"
         ],
         "detect_code": [
             "0764"
@@ -3739,8 +3737,7 @@
             "MCU_STM32L476xG"
         ],
         "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
+            "ARDUINO_UNO"
         ],
         "detect_code": [
             "0765"
@@ -3806,8 +3803,7 @@
             "MCU_STM32L486xG"
         ],
         "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
+            "ARDUINO_UNO"
         ],
         "detect_code": [
             "0827"
@@ -3853,7 +3849,7 @@
             "MCU_STM32L496xG"
         ],
         "supported_form_factors": [
-            "ARDUINO",
+            "ARDUINO_UNO",
             "STMOD",
             "PMOD"
         ],
@@ -3877,8 +3873,7 @@
             "MCU_STM32L496xG"
         ],
         "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
+            "ARDUINO_UNO"
         ],
         "detect_code": [
             "0823"
@@ -3916,8 +3911,7 @@
             "MCU_STM32L4R5xI"
         ],
         "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
+            "ARDUINO_UNO"
         ],
         "extra_labels_add": [
             "STM32L4R5ZI",
@@ -3960,7 +3954,7 @@
         ],
         "device_name": "STM32L4R9AIIx",
         "supported_form_factors": [
-            "ARDUINO",
+            "ARDUINO_UNO",
             "STMOD",
             "PMOD"
         ],
@@ -4007,7 +4001,7 @@
             "QSPIF"
         ],
         "supported_form_factors": [
-            "ARDUINO",
+            "ARDUINO_UNO",
             "PMOD"
         ],
         "extra_labels_add": [
@@ -4094,8 +4088,7 @@
             "MCU_STM32L552xE"
         ],
         "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
+            "ARDUINO_UNO"
         ],
         "detect_code": [
             "0854"
@@ -4127,7 +4120,7 @@
             "MX25LM51245G"
         ],
         "supported_form_factors": [
-            "ARDUINO",
+            "ARDUINO_UNO",
             "STMOD",
             "PMOD"
         ],
@@ -6377,11 +6370,11 @@
                 "value": null
             },
             "usb-uart-tx": {
-                "help": "Configure USBTX. USB_UART and USBTX/USBRX must be consistent.",
+                "help": "Configure CONSOLE_TX. USB_UART and CONSOLE_TX/CONSOLE_RX must be consistent.",
                 "value": null
             },
             "usb-uart-rx": {
-                "help": "Configure USBRX. USB_UART and USBTX/USBRX must be consistent.",
+                "help": "Configure CONSOLE_RX. USB_UART and CONSOLE_TX/CONSOLE_RX must be consistent.",
                 "value": null
             },
             "stdio-uart": {
@@ -6389,11 +6382,11 @@
                 "value": null
             },
             "stdio-uart-tx": {
-                "help": "Configure STDIO_UART_TX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_TX defaults to USBTX.",
+                "help": "Configure STDIO_UART_TX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_TX defaults to CONSOLE_TX.",
                 "value": null
             },
             "stdio-uart-rx": {
-                "help": "Configure STDIO_UART_RX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_RX defaults to USBRX.",
+                "help": "Configure STDIO_UART_RX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_RX defaults to CONSOLE_RX.",
                 "value": null
             },
             "gpio-irq-debounce-enable": {
@@ -6726,11 +6719,11 @@
                 "value": null
             },
             "usb-uart-tx": {
-                "help": "Configure USBTX. USB_UART and USBTX/USBRX must be consistent.",
+                "help": "Configure CONSOLE_TX. USB_UART and CONSOLE_TX/CONSOLE_RX must be consistent.",
                 "value": null
             },
             "usb-uart-rx": {
-                "help": "Configure USBRX. USB_UART and USBTX/USBRX must be consistent.",
+                "help": "Configure CONSOLE_RX. USB_UART and CONSOLE_TX/CONSOLE_RX must be consistent.",
                 "value": null
             },
             "stdio-uart": {
@@ -6738,11 +6731,11 @@
                 "value": null
             },
             "stdio-uart-tx": {
-                "help": "Configure STDIO_UART_TX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_TX defaults to USBTX.",
+                "help": "Configure STDIO_UART_TX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_TX defaults to CONSOLE_TX.",
                 "value": null
             },
             "stdio-uart-rx": {
-                "help": "Configure STDIO_UART_RX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_RX defaults to USBRX.",
+                "help": "Configure STDIO_UART_RX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_RX defaults to CONSOLE_RX.",
                 "value": null
             },
             "gpio-irq-debounce-enable": {
@@ -7649,11 +7642,11 @@
                 "value": null
             },
             "usb-uart-tx": {
-                "help": "Configure USBTX. USB_UART and USBTX/USBRX must be consistent.",
+                "help": "Configure CONSOLE_TX. USB_UART and CONSOLE_TX/CONSOLE_RX must be consistent.",
                 "value": null
             },
             "usb-uart-rx": {
-                "help": "Configure USBRX. USB_UART and USBTX/USBRX must be consistent.",
+                "help": "Configure CONSOLE_RX. USB_UART and CONSOLE_TX/CONSOLE_RX must be consistent.",
                 "value": null
             },
             "stdio-uart": {
@@ -7661,7 +7654,7 @@
                 "value": null
             },
             "stdio-uart-tx": {
-                "help": "Configure STDIO_UART_TX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_TX defaults to USBTX.",
+                "help": "Configure STDIO_UART_TX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_TX defaults to CONSOLE_TX.",
                 "value": null
             },
             "stdio-uart-rx": {

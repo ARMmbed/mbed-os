@@ -1,12 +1,12 @@
 {
     "name": "bluenrg_ms",
     "config": {
-        "SPI_MOSI":  "D11",
-        "SPI_MISO":  "D12",
-        "SPI_nCS":   "A1",
-        "SPI_RESET": "D7",
-        "SPI_IRQ":   "A0",
-        "SPI_SCK":   "D3",
+        "SPI_MOSI":  "ARDUINO_UNO_SPI_MOSI",
+        "SPI_MISO":  "ARDUINO_UNO_SPI_MISO",
+        "SPI_nCS":   "ARDUINO_UNO_A1",
+        "SPI_RESET": "ARDUINO_UNO_D7",
+        "SPI_IRQ":   "ARDUINO_UNO_A0",
+        "SPI_SCK":   "ARDUINO_UNO_D3",
         "valid-public-bd-address": {
             "help": "Read the BD public address at startup",
             "value": false
@@ -14,7 +14,7 @@
     },
     "target_overrides": {
         "K64F": {
-            "SPI_SCK":   "D13"
+            "SPI_SCK":   "ARDUINO_UNO_SPI_SCK"
         },
         "DISCO_L475VG_IOT01A": {
             "SPI_MOSI":  "PC_12",

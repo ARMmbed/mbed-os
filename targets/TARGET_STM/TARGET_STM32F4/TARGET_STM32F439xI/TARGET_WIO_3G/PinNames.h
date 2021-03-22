@@ -30,6 +30,8 @@
  *******************************************************************************
  */
 
+/* MBED TARGET LIST: WIO_3G */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
