@@ -19,6 +19,7 @@
 
 #include "platform/platform.h"
 
+#include "interfaces/InterfaceDigitalInOut.h"
 #include "hal/gpio_api.h"
 
 namespace mbed {
@@ -32,7 +33,11 @@ namespace mbed {
  *
  * @note Synchronization level: Interrupt safe
  */
-class DigitalInOut {
+class DigitalInOut
+#ifdef FEATURE_EXPERIMENTAL_API
+    final : public interface::DigitalInOut
+#endif
+{
 
 public:
     /** Create a DigitalInOut connected to the specified pin
