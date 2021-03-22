@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2019 ARM Limited
+ * Copyright (c) 2006-2020 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,9 +19,11 @@
 
 #include "platform/platform.h"
 
+#include "interfaces/InterfaceDigitalIn.h"
 #include "hal/gpio_api.h"
 
 namespace mbed {
+
 /**
  * \defgroup drivers_DigitalIn DigitalIn class
  * \ingroup drivers-public-api-gpio
@@ -51,7 +53,11 @@ namespace mbed {
  * }
  * @endcode
  */
-class DigitalIn {
+class DigitalIn
+#ifdef FEATURE_EXPERIMENTAL_API
+    final : public interface::DigitalIn
+#endif
+{
 
 public:
     /** Create a DigitalIn connected to the specified pin
@@ -75,6 +81,13 @@ public:
         gpio_init_in_ex(&gpio, pin, mode);
     }
 
+    /** Class destructor, deinitialize the pin
+     */
+    ~DigitalIn()
+    {
+        gpio_free(&gpio);
+    }
+
     /** Read the input, represented as 0 or 1 (int)
      *
      *  @returns
@@ -92,7 +105,6 @@ public:
      *  @param pull PullUp, PullDown, PullNone, OpenDrain
      */
     void mode(PinMode pull);
-
     /** Return the output setting, represented as 0 or 1 (int)
      *
      *  @returns

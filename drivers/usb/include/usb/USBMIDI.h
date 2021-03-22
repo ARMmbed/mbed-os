@@ -25,7 +25,7 @@
 #include "USBDevice.h"
 #include "MIDIMessage.h"
 #include "EventFlags.h"
-#include "Mutex.h"
+#include "rtos/Mutex.h"
 #include "Callback.h"
 
 #define DEFAULT_CONFIGURATION (1)

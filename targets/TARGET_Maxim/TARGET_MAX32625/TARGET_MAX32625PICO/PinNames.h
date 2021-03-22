@@ -31,6 +31,9 @@
  *******************************************************************************
  */
 
+/* MBED TARGET LIST: MAX32625PICO */
+
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

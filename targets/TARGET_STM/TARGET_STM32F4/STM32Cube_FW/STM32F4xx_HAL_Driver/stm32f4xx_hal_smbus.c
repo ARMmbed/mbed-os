@@ -1925,14 +1925,12 @@ static HAL_StatusTypeDef SMBUS_MasterTransmit_TXE(SMBUS_HandleTypeDef *hsmbus)
 {
   /* Declaration of temporary variables to prevent undefined behavior of volatile usage */
   uint32_t CurrentState       = hsmbus->State;
-  uint32_t CurrentMode        = hsmbus->Mode;
   uint32_t CurrentXferOptions = hsmbus->XferOptions;
 
   if ((hsmbus->XferSize == 0U) && (CurrentState == HAL_SMBUS_STATE_BUSY_TX))
   {
     /* Call TxCpltCallback() directly if no stop mode is set */
-    if (((CurrentXferOptions != SMBUS_FIRST_AND_LAST_FRAME_NO_PEC) || (CurrentXferOptions != SMBUS_FIRST_AND_LAST_FRAME_WITH_PEC)) && \
-        ((CurrentXferOptions != SMBUS_LAST_FRAME_NO_PEC) || (CurrentXferOptions != SMBUS_LAST_FRAME_WITH_PEC)) && (CurrentXferOptions != SMBUS_NO_OPTION_FRAME))
+    if (((CurrentXferOptions == SMBUS_FIRST_FRAME) || (CurrentXferOptions == SMBUS_NEXT_FRAME)) && (CurrentXferOptions != SMBUS_NO_OPTION_FRAME))
     {
       __HAL_SMBUS_DISABLE_IT(hsmbus, SMBUS_IT_EVT | SMBUS_IT_BUF | SMBUS_IT_ERR);
 
@@ -1965,7 +1963,7 @@ static HAL_StatusTypeDef SMBUS_MasterTransmit_TXE(SMBUS_HandleTypeDef *hsmbus)
 #endif /* USE_HAL_SMBUS_REGISTER_CALLBACKS */
     }
   }
-  else if ((CurrentState == HAL_SMBUS_STATE_BUSY_TX))
+  else if (CurrentState == HAL_SMBUS_STATE_BUSY_TX)
   {
 
     if ((hsmbus->XferCount == 2U) && (SMBUS_GET_PEC_MODE(hsmbus) == SMBUS_PEC_ENABLE) && ((hsmbus->XferOptions == SMBUS_FIRST_AND_LAST_FRAME_WITH_PEC) || (hsmbus->XferOptions == SMBUS_LAST_FRAME_WITH_PEC)))
@@ -2017,7 +2015,7 @@ static HAL_StatusTypeDef SMBUS_MasterTransmit_BTF(SMBUS_HandleTypeDef *hsmbus)
     else
     {
       /* Call TxCpltCallback() directly if no stop mode is set */
-      if (((CurrentXferOptions != SMBUS_FIRST_AND_LAST_FRAME_NO_PEC) || (CurrentXferOptions != SMBUS_FIRST_AND_LAST_FRAME_WITH_PEC)) && ((CurrentXferOptions != SMBUS_LAST_FRAME_NO_PEC) || (CurrentXferOptions != SMBUS_LAST_FRAME_WITH_PEC)) && (CurrentXferOptions != SMBUS_NO_OPTION_FRAME))
+      if (((CurrentXferOptions == SMBUS_FIRST_FRAME) || (CurrentXferOptions == SMBUS_NEXT_FRAME)) && (CurrentXferOptions != SMBUS_NO_OPTION_FRAME))
       {
         __HAL_SMBUS_DISABLE_IT(hsmbus, SMBUS_IT_EVT | SMBUS_IT_BUF | SMBUS_IT_ERR);
 
@@ -2166,7 +2164,7 @@ static HAL_StatusTypeDef SMBUS_MasterReceive_BTF(SMBUS_HandleTypeDef *hsmbus)
   else if (hsmbus->XferCount == 2U)
   {
     /* Prepare next transfer or stop current transfer */
-    if ((CurrentXferOptions == SMBUS_NEXT_FRAME) || (CurrentXferOptions == SMBUS_FIRST_FRAME) || (CurrentXferOptions == SMBUS_LAST_FRAME_NO_PEC))
+    if ((CurrentXferOptions == SMBUS_NEXT_FRAME) || (CurrentXferOptions == SMBUS_FIRST_FRAME))
     {
       /* Disable Acknowledge */
       CLEAR_BIT(hsmbus->Instance->CR1, I2C_CR1_ACK);
@@ -2268,8 +2266,6 @@ static HAL_StatusTypeDef SMBUS_Master_ADD10(SMBUS_HandleTypeDef *hsmbus)
 static HAL_StatusTypeDef SMBUS_Master_ADDR(SMBUS_HandleTypeDef *hsmbus)
 {
   /* Declaration of temporary variable to prevent undefined behavior of volatile usage */
-  uint32_t CurrentMode        = hsmbus->Mode;
-  uint32_t CurrentXferOptions = hsmbus->XferOptions;
   uint32_t Prev_State         = hsmbus->PreviousState;
 
   if (hsmbus->State == HAL_SMBUS_STATE_BUSY_RX)
@@ -2711,7 +2707,6 @@ static void SMBUS_ITError(SMBUS_HandleTypeDef *hsmbus)
     }
 
     /* Call user error callback */
-    HAL_SMBUS_ErrorCallback(hsmbus);
 #if (USE_HAL_SMBUS_REGISTER_CALLBACKS == 1)
     hsmbus->ErrorCallback(hsmbus);
 #else

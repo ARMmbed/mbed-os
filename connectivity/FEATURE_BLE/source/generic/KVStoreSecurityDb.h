@@ -63,10 +63,6 @@ private:
     static constexpr char DB_VERSION[DB_KEY_SIZE] = { 'v','e','r' };
     static constexpr char DB_RESTORE[DB_KEY_SIZE] = { 'r','e','s' };
 
-    static entry_t* as_entry(entry_handle_t db_handle) {
-        return reinterpret_cast<entry_t*>(db_handle);
-    }
-
     template<class T>
     static void db_read(T *value, const char* key) {
         char db_key[DB_FULL_KEY_SIZE];

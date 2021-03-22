@@ -6,7 +6,6 @@ add_library(mbed-wio-3g INTERFACE)
 target_sources(mbed-wio-3g
     INTERFACE
         PeripheralPins.c
-        system_clock.c
         ONBOARD_QUECTEL_UG96.cpp
 )
 

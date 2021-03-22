@@ -37,9 +37,7 @@ private:
         size_t file_offset;
     };
 
-    static entry_t* as_entry(entry_handle_t db_handle) {
-        return reinterpret_cast<entry_t*>(db_handle);
-    }
+    static entry_t* as_entry(entry_handle_t db_handle);
 
     template<class T>
     void db_read(T *value, long int offset) {
@@ -160,6 +158,11 @@ private:
      * @return filehandle when successful, otherwise NULL
      */
     static FILE* erase_db_file(FILE* db_file);
+
+    uint8_t get_index(const entry_handle_t db_handle) const
+    {
+        return reinterpret_cast<entry_t*>(db_handle) - _entries;
+    }
 
 private:
     entry_t _entries[BLE_SECURITY_DATABASE_MAX_ENTRIES];

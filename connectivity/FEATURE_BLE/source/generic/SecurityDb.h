@@ -126,7 +126,7 @@ public:
     typedef mbed::Callback<void(::ble::whitelist_t*)>
         WhitelistDbCb_t;
 
-    SecurityDb() : _local_sign_counter(0) { };
+    SecurityDb();
     virtual ~SecurityDb() = default;
 
     /**
@@ -149,12 +149,7 @@ public:
     virtual void set_distribution_flags(
         entry_handle_t db_handle,
         const SecurityDistributionFlags_t& new_flags
-    ) {
-        SecurityDistributionFlags_t* flags = get_distribution_flags(db_handle);
-        if (flags) {
-            *flags = new_flags;
-        }
-    }
+    );
 
     /* local keys */
 
@@ -171,36 +166,7 @@ public:
         entry_handle_t* db_handle,
         const ediv_t &ediv,
         const rand_t &rand
-    ) {
-        SecurityEntryKeys_t* keys = read_in_entry_local_keys(*db_handle);
-        /* validate we have the correct key */
-        if (keys && ediv == keys->ediv && rand == keys->rand) {
-            cb(*db_handle, keys);
-        } else {
-            // Maybe this isn't the correct entry, try to find one that matches
-            entry_handle_t correct_handle = find_entry_by_peer_ediv_rand(ediv, rand);
-            if (!correct_handle) {
-                cb(*db_handle, NULL);
-                return;
-            }
-            // Note: keys should never be null as a matching entry has been retrieved
-            SecurityEntryKeys_t* keys = read_in_entry_local_keys(correct_handle);
-            MBED_ASSERT(keys);
-
-            /* set flags connected */
-            SecurityDistributionFlags_t* flags = get_distribution_flags(correct_handle);
-            flags->connected = true;
-
-            /* update peer address */
-            SecurityDistributionFlags_t* old_flags = get_distribution_flags(*db_handle);
-            flags->peer_address = old_flags->peer_address;
-            flags->peer_address_is_public = old_flags->peer_address_is_public;
-
-            close_entry(*db_handle, false);
-            *db_handle = correct_handle;
-            cb(*db_handle, keys);
-        }
-    }
+    );
 
     /**
      * Retrieve stored LTK generated during secure connections pairing.
@@ -211,16 +177,7 @@ public:
     virtual void get_entry_local_keys(
         SecurityEntryKeysDbCb_t cb,
         entry_handle_t db_handle
-    ) {
-        SecurityEntryKeys_t* keys = read_in_entry_local_keys(db_handle);
-        SecurityDistributionFlags_t* flags = get_distribution_flags(db_handle);
-        /* validate we have the correct key */
-        if (flags && keys && flags->secure_connections_paired) {
-            cb(db_handle, keys);
-        } else {
-            cb(db_handle, NULL);
-        }
-    }
+    );
 
     /**
      * Save new local LTK for a connection.
@@ -259,10 +216,7 @@ public:
     virtual void get_entry_peer_csrk(
         SecurityEntrySigningDbCb_t cb,
         entry_handle_t db_handle
-    ) {
-        SecurityEntrySigning_t* signing = read_in_entry_peer_signing(db_handle);
-        cb(db_handle, signing);
-    }
+    );
 
     /**
      * Return asynchronously the peer encryption key through a callback
@@ -274,10 +228,7 @@ public:
     virtual void get_entry_peer_keys(
         SecurityEntryKeysDbCb_t cb,
         entry_handle_t db_handle
-    ) {
-        SecurityEntryKeys_t* keys = read_in_entry_peer_keys(db_handle);
-        cb(db_handle, keys);
-    }
+    );
 
     /**
      * Save new LTK received from the peer.
@@ -337,18 +288,7 @@ public:
     virtual void get_entry_identity(
         SecurityEntryIdentityDbCb_t cb,
         entry_handle_t db_handle
-    ) {
-        SecurityDistributionFlags_t* flags = get_distribution_flags(db_handle);
-        if (flags && flags->irk_stored) {
-            SecurityEntryIdentity_t* peer_identity = read_in_entry_peer_identity(db_handle);
-            if (peer_identity) {
-                cb(db_handle, peer_identity);
-                return;
-            }
-        }
-        /* avoid duplicate else */
-        cb(db_handle, NULL);
-    }
+    );
 
     /**
      * Asynchronously return the identity list stored in NVM through a callback.
@@ -362,25 +302,7 @@ public:
     virtual void get_identity_list(
         IdentitylistDbCb_t cb,
         Span<SecurityEntryIdentity_t>& identity_list
-    ) {
-        size_t count = 0;
-        for (size_t i = 0; i < get_entry_count() && count < (size_t) identity_list.size(); ++i) {
-
-            entry_handle_t db_handle = get_entry_handle_by_index(i);
-            SecurityDistributionFlags_t* flags = get_distribution_flags(db_handle);
-
-
-            if (flags && flags->irk_stored) {
-                SecurityEntryIdentity_t* peer_identity = read_in_entry_peer_identity(db_handle);
-                if (peer_identity) {
-                    identity_list[count] = *peer_identity;
-                    count++;
-                }
-            }
-        }
-
-        cb(identity_list, count);
-    }
+    );
 
     /**
      * Update peer signing key.
@@ -411,18 +333,14 @@ public:
      *
      * @return pointer to local CSRK
      */
-    virtual const csrk_t* get_local_csrk() {
-        return &_local_csrk;
-    }
+    virtual const csrk_t* get_local_csrk();
 
     /**
      * Return local signing counter.
      *
      * @return signing counter
      */
-    virtual sign_count_t get_local_sign_counter() {
-        return _local_sign_counter;
-    }
+    virtual sign_count_t get_local_sign_counter();
 
     /**
      * Update local signing key.
@@ -431,9 +349,7 @@ public:
      */
     virtual void set_local_csrk(
         const csrk_t &csrk
-    )  {
-        _local_csrk = csrk;
-    }
+    );
 
     /**
      * Update local signing counter.
@@ -442,9 +358,7 @@ public:
      */
     virtual void set_local_sign_counter(
         sign_count_t sign_counter
-    ) {
-        _local_sign_counter = sign_counter;
-    }
+    );
 
     /* local identity */
     /**
@@ -456,34 +370,24 @@ public:
             const irk_t &irk,
             const address_t &identity_address,
             bool public_address
-    )  {
-        _local_identity.irk = irk;
-        _local_identity.identity_address = identity_address;
-        _local_identity.identity_address_is_public = public_address;
-    }
+    );
 
     /**
      * Return local irk.
      *
      * @return irk
      */
-    virtual irk_t get_local_irk() {
-        return _local_identity.irk;
-    }
+    virtual irk_t get_local_irk();
 
     /**
      * Return local identity address.
      */
-    virtual const address_t& get_local_identity_address() {
-        return _local_identity.identity_address;
-    }
+    virtual const address_t& get_local_identity_address();
 
     /**
      * Return if the local identity address is public or not
      */
-    virtual bool is_local_identity_address_public() {
-        return _local_identity.identity_address_is_public;
-    }
+    virtual bool is_local_identity_address_public();
 
     /* list management */
 
@@ -502,29 +406,7 @@ public:
     virtual entry_handle_t open_entry(
         peer_address_type_t peer_address_type,
         const address_t &peer_address
-    ) {
-        entry_handle_t db_handle = find_entry_by_peer_address(peer_address_type, peer_address);
-        if (db_handle) {
-            ((SecurityDistributionFlags_t*)db_handle)->connected = true;
-            return db_handle;
-        }
-
-        SecurityDistributionFlags_t* flags = get_free_entry_flags();
-        if (flags) {
-            const bool peer_address_public =
-                (peer_address_type == peer_address_type_t::PUBLIC) ||
-                (peer_address_type == peer_address_type_t::PUBLIC_IDENTITY);
-            /* we need some address to store, so we store even random ones
-             * this address will be used as an id, possibly replaced later
-             * by identity address */
-            flags->peer_address = peer_address;
-            flags->peer_address_is_public = peer_address_public;
-            flags->connected = true;
-            return flags;
-        }
-
-        return nullptr;
-    }
+    );
 
     /**
      * Find a database entry based on peer address.
@@ -537,43 +419,7 @@ public:
     virtual entry_handle_t find_entry_by_peer_address(
         peer_address_type_t peer_address_type,
         const address_t &peer_address
-    ) {
-        const bool peer_address_public =
-            (peer_address_type == peer_address_type_t::PUBLIC) ||
-            (peer_address_type == peer_address_type_t::PUBLIC_IDENTITY);
-
-        for (size_t i = 0; i < get_entry_count(); i++) {
-            entry_handle_t db_handle = get_entry_handle_by_index(i);
-            SecurityDistributionFlags_t* flags = get_distribution_flags(db_handle);
-
-            /* only look among disconnected entries */
-            if (flags && !flags->connected) {
-                if (peer_address_type == peer_address_type_t::PUBLIC_IDENTITY &&
-                    flags->irk_stored == false) {
-                    continue;
-                }
-
-                /* lookup for connection address used during bonding */
-                if (flags->peer_address == peer_address &&
-                    flags->peer_address_is_public == peer_address_public) {
-                    return flags;
-                }
-
-                /* look for the identity address if stored */
-                if (flags->irk_stored) {
-                    SecurityEntryIdentity_t* identity = read_in_entry_peer_identity(db_handle);
-
-                    if (identity &&
-                        identity->identity_address == peer_address &&
-                        identity->identity_address_is_public == peer_address_public) {
-                        return flags;
-                    }
-                }
-            }
-        }
-
-        return nullptr;
-    }
+    );
 
     /**
      * Find a database entry based on ediv and rand.
@@ -586,27 +432,7 @@ public:
     virtual entry_handle_t find_entry_by_peer_ediv_rand(
         const ediv_t &ediv,
         const rand_t &rand
-    ) {
-        for (size_t i = 0; i < get_entry_count(); i++) {
-            entry_handle_t db_handle = get_entry_handle_by_index(i);
-            SecurityDistributionFlags_t* flags = get_distribution_flags(db_handle);
-
-            if (!flags || flags->connected) {
-                continue;
-            }
-
-            SecurityEntryKeys_t* keys = read_in_entry_local_keys(db_handle);
-            if (!keys) {
-                continue;
-            }
-
-            if (keys->ediv == ediv && keys->rand == rand) {
-                return db_handle;
-            }
-        }
-
-        return nullptr;
-    }
+    );
 
 
     /**
@@ -614,15 +440,7 @@ public:
      *
      * @param[in] db_handle this handle will be freed up from the security db.
      */
-    virtual void close_entry(entry_handle_t db_handle, bool require_sync = true) {
-        SecurityDistributionFlags_t* flags = get_distribution_flags(db_handle);
-        if (flags) {
-            flags->connected = false;
-        }
-        if (require_sync) {
-            sync(db_handle);
-        }
-    }
+    virtual void close_entry(entry_handle_t db_handle, bool require_sync = true);
 
     /**
      * Remove entry for this peer from NVM.
@@ -636,24 +454,12 @@ public:
     virtual void remove_entry(
         peer_address_type_t peer_address_type,
         const address_t &peer_address
-    ) {
-        entry_handle_t db_handle = find_entry_by_peer_address(peer_address_type, peer_address);
-        if (db_handle) {
-            reset_entry(db_handle);
-        }
-    }
+    );
 
     /**
      * Remove all entries from the security DB.
      */
-    virtual void clear_entries() {
-        for (size_t i = 0; i < get_entry_count(); i++) {
-            entry_handle_t db_handle = get_entry_handle_by_index(i);
-            reset_entry(db_handle);
-        }
-        _local_identity = SecurityEntryIdentity_t();
-        _local_csrk = csrk_t();
-    }
+    virtual void clear_entries();
 
     /**
      * Asynchronously return the whitelist stored in NVM through a callback.
@@ -666,10 +472,7 @@ public:
     virtual void get_whitelist(
         WhitelistDbCb_t cb,
         ::ble::whitelist_t *whitelist
-    ) {
-        /*TODO: fill whitelist*/
-        cb(whitelist);
-    }
+    );
 
     /**
      * Asynchronously return a whitelist through a callback, generated from the
@@ -681,93 +484,52 @@ public:
     virtual void generate_whitelist_from_bond_table(
         WhitelistDbCb_t cb,
         ::ble::whitelist_t *whitelist
-    ) {
-        for (size_t i = 0; i < get_entry_count() && whitelist->size < whitelist->capacity; i++) {
-            entry_handle_t db_handle = get_entry_handle_by_index(i);
-            SecurityDistributionFlags_t* flags = get_distribution_flags(db_handle);
-
-            if (!flags || !flags->irk_stored) {
-                continue;
-            }
-
-            // Add the connection address
-            whitelist->addresses[whitelist->size].address = flags->peer_address.data();
-
-            if (flags->peer_address_is_public) {
-                whitelist->addresses[whitelist->size].type = peer_address_type_t::PUBLIC;
-            } else {
-                whitelist->addresses[whitelist->size].type = peer_address_type_t::RANDOM;
-            }
-
-            whitelist->size++;
-            if (whitelist->size == whitelist->capacity) {
-                break;
-            }
-
-            // Add the identity address
-            SecurityEntryIdentity_t* identity = read_in_entry_peer_identity(db_handle);
-            if (!identity) {
-                continue;
-            }
-
-            whitelist->addresses[whitelist->size].address = identity->identity_address;
-
-            if (identity->identity_address_is_public) {
-                whitelist->addresses[whitelist->size].type = peer_address_type_t::PUBLIC_IDENTITY;
-            } else {
-                whitelist->addresses[whitelist->size].type = peer_address_type_t::RANDOM_STATIC_IDENTITY;
-            }
-
-            whitelist->size++;
-        }
-
-        cb(whitelist);
-    }
+    );
 
     /**
      * Update the whitelist stored in NVM by replacing it with new one.
      *
      * @param[in] whitelist
      */
-    virtual void set_whitelist(const ::ble::whitelist_t &whitelist) { };
+    virtual void set_whitelist(const ::ble::whitelist_t &whitelist);
 
     /**
      * Add a new entry to the whitelist in the NVM.
      *
      * @param[in] address new whitelist entry
      */
-    virtual void add_whitelist_entry(const address_t &address) { };
+    virtual void add_whitelist_entry(const address_t &address);
 
     /**
      * Remove whitelist entry from NVM.
      *
      * @param[in] address entry to be removed
      */
-    virtual void remove_whitelist_entry(const address_t &address) { };
+    virtual void remove_whitelist_entry(const address_t &address);
 
     /**
      *Remove all whitelist entries stored in the NVM.
      */
-    virtual void clear_whitelist() { };
+    virtual void clear_whitelist();
 
     /* saving and loading from nvm */
 
     /**
      * Read values from storage.
      */
-    virtual void restore() { };
+    virtual void restore();
 
     /**
      * Flush all values which might be stored in memory into NVM.
      */
-    virtual void sync(entry_handle_t db_handle) { };
+    virtual void sync(entry_handle_t db_handle);
 
     /**
      * Toggle whether values should be preserved across resets.
      *
      * @param[in] reload if true values will be preserved across resets.
      */
-    virtual void set_restore(bool reload) { };
+    virtual void set_restore(bool reload);
 
 private:
     /**
@@ -775,35 +537,10 @@ private:
      * or use a disconnected entry by reseting all the stored information.
      * @return empty entry for the new connection
      */
-    virtual SecurityDistributionFlags_t* get_free_entry_flags() {
-        /* get a free one if available */
-        SecurityDistributionFlags_t* match = nullptr;
-        for (size_t i = 0; i < get_entry_count(); i++) {
-            entry_handle_t db_handle = get_entry_handle_by_index(i);
-            SecurityDistributionFlags_t* flags = get_distribution_flags(db_handle);
-
-            if (flags && !flags->connected) {
-                /* we settle for any disconnected if we don't find an empty one */
-                match = flags;
-                if (!flags->csrk_stored
-                    && !flags->ltk_stored
-                    && !flags->ltk_sent
-                    && !flags->irk_stored) {
-                    /* empty one found, stop looking*/
-                    break;
-                }
-            }
-        }
-
-        if (match) {
-            reset_entry(match);
-        }
-
-        return match;
-    }
+    virtual SecurityDistributionFlags_t* get_free_entry_flags();
 
     /**
-     * How many entries can be stored in the databes.
+     * How many entries can be stored in the database.
      * @return max number of entries
      */
     virtual uint8_t get_entry_count() = 0;

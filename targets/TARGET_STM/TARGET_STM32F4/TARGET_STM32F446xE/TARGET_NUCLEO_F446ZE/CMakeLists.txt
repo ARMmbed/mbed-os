@@ -6,7 +6,6 @@ add_library(mbed-nucleo-f446ze INTERFACE)
 target_sources(mbed-nucleo-f446ze
     INTERFACE
         PeripheralPins.c
-        system_clock.c
 )
 
 target_include_directories(mbed-nucleo-f446ze

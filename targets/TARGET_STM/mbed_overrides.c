@@ -1,33 +1,22 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017, STMicroelectronics
+ * SPDX-License-Identifier: BSD-3-Clause
+ ******************************************************************************
+ *
+ * Copyright (c) 2015-2021 STMicroelectronics.
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- * 3. Neither the name of STMicroelectronics nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ******************************************************************************
  */
+
 #include "cmsis.h"
 #include "objects.h"
 #include "platform/mbed_error.h"
+#include "rtc_api_hal.h"
 
 int mbed_sdk_inited = 0;
 extern void SetSysClock(void);
@@ -94,6 +83,7 @@ MBED_WEAK void TargetBSP_Init(void) {
     /** Do nothing */
 }
 
+#ifndef MBED_DEBUG
 #if MBED_CONF_TARGET_GPIO_RESET_AT_INIT
 void GPIO_Full_Init(void) {
     GPIO_InitTypeDef GPIO_InitStruct;
@@ -161,6 +151,7 @@ void GPIO_Full_Init(void) {
     __HAL_RCC_GPIOK_CLK_DISABLE();
 #endif
 }
+#endif
 #endif
 
 // This function is called after RAM initialization and before main.
@@ -295,7 +286,15 @@ void mbed_sdk_init()
 
     /* Start LSI clock for RTC */
 #if DEVICE_RTC
-#if !MBED_CONF_TARGET_LSE_AVAILABLE
+#if (MBED_CONF_TARGET_RTC_CLOCK_SOURCE == USE_RTC_CLK_HSE)
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+    PeriphClkInitStruct.RTCClockSelection = (RCC_RTCCLKSOURCE_HSE_DIVX | RTC_HSE_DIV << 16);
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+    {
+        error("PeriphClkInitStruct RTC failed with HSE\n");
+    }
+#elif ((MBED_CONF_TARGET_RTC_CLOCK_SOURCE == USE_RTC_CLK_LSE_OR_LSI) && !MBED_CONF_TARGET_LSE_AVAILABLE) || (MBED_CONF_TARGET_RTC_CLOCK_SOURCE == USE_RTC_CLK_LSI)
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
 
     if (__HAL_RCC_GET_RTC_SOURCE() != RCC_RTCCLKSOURCE_NO_CLK) {
@@ -313,9 +312,11 @@ void mbed_sdk_init()
 #endif /* ! MBED_CONF_TARGET_LSE_AVAILABLE */
 #endif /* DEVICE_RTC */
 
+#ifndef MBED_DEBUG
 #if MBED_CONF_TARGET_GPIO_RESET_AT_INIT
     /* Reset all GPIO */
     GPIO_Full_Init();
+#endif
 #endif
 
     /* BSP initialization hook (external RAM, etc) */

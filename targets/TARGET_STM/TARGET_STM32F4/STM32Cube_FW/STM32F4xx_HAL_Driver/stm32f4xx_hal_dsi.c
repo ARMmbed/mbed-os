@@ -2289,7 +2289,7 @@ HAL_StatusTypeDef HAL_DSI_SetSDD(DSI_HandleTypeDef *hdsi, FunctionalState State)
   * @brief  Custom lane pins configuration
   * @param  hdsi  pointer to a DSI_HandleTypeDef structure that contains
   *               the configuration information for the DSI.
-  * @param  CustomLane  Function to be applyed on selected lane.
+  * @param  CustomLane  Function to be applied on selected lane.
   *                     This parameter can be any value of @arg DSI_CustomLane
   * @param  Lane  select between clock or data lane 0 or data lane 1.
   *               This parameter can be any value of @arg DSI_Lane_Select

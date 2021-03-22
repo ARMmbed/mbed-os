@@ -38,6 +38,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
 
+/* MBED TARGET LIST: EV_COG_AD4050LZ */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

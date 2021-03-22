@@ -38,7 +38,7 @@ uint32_t PWM_ConfigOutputChannel (PWM_T *pwm,
                                   uint32_t u32Frequency,
                                   uint32_t u32DutyCycle)
 {
-    return PWM_ConfigOutputChannel2(pwm, u32ChannelNum, u32Frequency, u32DutyCycle, 1);
+    return PWM_ConfigOutputChannel2(pwm, u32ChannelNum, u32Frequency, u32DutyCycle*100, 1);
 }
 
 /**
@@ -46,7 +46,7 @@ uint32_t PWM_ConfigOutputChannel (PWM_T *pwm,
  * @param[in] pwm The base address of PWM module
  * @param[in] u32ChannelNum PWM channel number. Valid values are between 0~5
  * @param[in] u32Frequency Target generator frequency
- * @param[in] u32DutyCycle Target generator duty cycle percentage. Valid range are between 0 ~ 100. 10 means 10%, 20 means 20%...
+ * @param[in] u32HighDutyCycle Target generator duty cycle percentage. Valid range are between 0 ~ 10000. 1000 means 10%, 2000 means 20%...
  * @return Nearest frequency clock in nano second
  * @note Since every two channels, (0 & 1), (2 & 3), (4 & 5), shares a prescaler. Call this API to configure PWM frequency may affect
  *       existing frequency of other channel.
@@ -54,7 +54,7 @@ uint32_t PWM_ConfigOutputChannel (PWM_T *pwm,
 uint32_t PWM_ConfigOutputChannel2 (PWM_T *pwm,
                                   uint32_t u32ChannelNum,
                                   uint32_t u32Frequency,
-                                  uint32_t u32DutyCycle,
+                                  uint32_t u32HighDutyCycle,
                                   uint32_t u32Frequency2)
 {
     uint32_t i;
@@ -132,11 +132,11 @@ uint32_t PWM_ConfigOutputChannel2 (PWM_T *pwm,
     pwm->CLKSEL = (pwm->CLKSEL & ~(PWM_CLKSEL_CLKSEL0_Msk << (4 * u32ChannelNum))) | (u8Divider << (4 * u32ChannelNum));
     pwm->CTL |= (PWM_CTL_CH0MOD_Msk << (u32ChannelNum * 8));
     while((pwm->INTSTS & (PWM_INTSTS_DUTY0SYNC_Msk << u32ChannelNum)) == (PWM_INTSTS_DUTY0SYNC_Msk << u32ChannelNum));
-    if(u32DutyCycle == 0)
+    if(u32HighDutyCycle == 0)
         *(__IO uint32_t *) (&pwm->DUTY0 + 3 * u32ChannelNum) &= ~PWM_DUTY_CM_Msk;
     else {
         *(__IO uint32_t *) (&pwm->DUTY0 + 3 * u32ChannelNum) &= ~PWM_DUTY_CM_Msk;
-        *(__IO uint32_t *) (&pwm->DUTY0 + 3 * u32ChannelNum) |= ((u32DutyCycle * (u16CNR + 1) / 100 - 1) << PWM_DUTY_CM_Pos);
+        *(__IO uint32_t *) (&pwm->DUTY0 + 3 * u32ChannelNum) |= ((u32HighDutyCycle * (u16CNR + 1) / 10000 - 1) << PWM_DUTY_CM_Pos);
     }
     *(__IO uint32_t *) (&pwm->DUTY0 + 3 * u32ChannelNum) &= ~PWM_DUTY_CN_Msk;
     *(__IO uint32_t *) (&pwm->DUTY0 + 3 * u32ChannelNum) |= u16CNR;

@@ -36,6 +36,8 @@
  * 
  */
 
+/* MBED TARGET LIST: NRF52_DK */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

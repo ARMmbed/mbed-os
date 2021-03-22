@@ -20,6 +20,11 @@
 
 #include "FileSecurityDb.h"
 
+#include "mbed-trace/mbed_trace.h"
+#include "common/ble_trace_helpers.h"
+
+#define TRACE_GROUP "BLDB"
+
 namespace ble {
 
 const uint16_t DB_VERSION = 1;
@@ -73,6 +78,7 @@ typedef SecurityDb::entry_handle_t entry_handle_t;
 FileSecurityDb::FileSecurityDb(FILE *db_file)
     : SecurityDb(),
       _db_file(db_file) {
+    tr_info("File Security DB initialised to store %d entries", get_entry_count());
     /* init the offset in entries so they point to file positions */
     for (size_t i = 0; i < get_entry_count(); i++) {
         _entries[i].file_offset = DB_OFFSET_STORES + i * DB_SIZE_STORE;
@@ -84,9 +90,18 @@ FileSecurityDb::~FileSecurityDb()
     fclose(_db_file);
 }
 
+FileSecurityDb::entry_t* FileSecurityDb::as_entry(entry_handle_t db_handle) {
+    entry_t* entry = reinterpret_cast<entry_t*>(db_handle);
+    if (!entry) {
+        tr_error("Invalid security DB handle used");
+    }
+    return entry;
+}
+
 FILE* FileSecurityDb::open_db_file(const char *db_path)
 {
     if (!db_path) {
+        tr_error("Invalid security DB path");
         return nullptr;
     }
 
@@ -96,9 +111,11 @@ FILE* FileSecurityDb::open_db_file(const char *db_path)
     if (!db_file) {
         /* file doesn't exist, create it */
         db_file = fopen(db_path, "wb+");
+        tr_warning("Security DB didn't exist, creating new one");
     }
 
     if (!db_file) {
+        tr_error("Failed to create security DB");
         /* failed to create a file, abort */
         return nullptr;
     }
@@ -115,9 +132,11 @@ FILE* FileSecurityDb::open_db_file(const char *db_path)
         /* if file size differs from database size init the file */
         fseek(db_file, 0, SEEK_END);
         if (ftell(db_file) != DB_SIZE) {
+            tr_warning("Invalid security DB, reinit");
             init = true;
         }
     } else {
+        tr_info("Empty security DB, reinit");
         init = true;
     }
 
@@ -130,6 +149,7 @@ FILE* FileSecurityDb::open_db_file(const char *db_path)
 
 FILE* FileSecurityDb::erase_db_file(FILE* db_file)
 {
+    tr_info("Erasing security DB");
     fseek(db_file, 0, SEEK_SET);
 
     /* zero the file */
@@ -137,6 +157,7 @@ FILE* FileSecurityDb::erase_db_file(FILE* db_file)
     size_t count = DB_SIZE / 4;
     while (count--) {
         if (fwrite(&zero, sizeof(zero), 1, db_file) != 1) {
+            tr_error("Failed to write Security DB to file");
             fclose(db_file);
             return nullptr;
         }
@@ -144,6 +165,7 @@ FILE* FileSecurityDb::erase_db_file(FILE* db_file)
 
     if (fflush(db_file)) {
         fclose(db_file);
+        tr_error("Failed to write Security DB to file");
         return nullptr;
     }
 
@@ -172,6 +194,7 @@ void FileSecurityDb::set_entry_local_ltk(
 
     entry->flags.ltk_sent = true;
 
+    tr_info("Write DB entry %d: local ltk %s", get_index(db_handle), to_string(ltk));
     db_write(&ltk, entry->file_offset + DB_STORE_OFFSET_LOCAL_KEYS_LTK);
 }
 
@@ -186,6 +209,7 @@ void FileSecurityDb::set_entry_local_ediv_rand(
         return;
     }
 
+    tr_info("Write DB entry %d: local ediv %s rand %s", get_index(db_handle), to_string(ediv), to_string(rand));
     db_write(&ediv, entry->file_offset + DB_STORE_OFFSET_LOCAL_KEYS_EDIV);
     db_write(&rand, entry->file_offset + DB_STORE_OFFSET_LOCAL_KEYS_RAND);
 }
@@ -206,6 +230,7 @@ void FileSecurityDb::set_entry_peer_ltk(
 
     entry->flags.ltk_stored = true;
 
+    tr_info("Write DB entry %d: peer ltk %s", get_index(db_handle), to_string(ltk));
     db_write(&ltk, entry->file_offset + DB_STORE_OFFSET_PEER_KEYS_LTK);
 }
 
@@ -220,6 +245,7 @@ void FileSecurityDb::set_entry_peer_ediv_rand(
         return;
     }
 
+    tr_info("Write DB entry %d: peer ediv %s rand %s", get_index(db_handle), to_string(ediv), to_string(rand));
     db_write(&ediv, entry->file_offset + DB_STORE_OFFSET_PEER_KEYS_EDIV);
     db_write(&rand, entry->file_offset + DB_STORE_OFFSET_PEER_KEYS_RAND);
 }
@@ -236,6 +262,7 @@ void FileSecurityDb::set_entry_peer_irk(
 
     entry->flags.irk_stored = true;
 
+    tr_info("Write DB entry %d: peer irk %s", get_index(db_handle), to_string(irk));
     db_write(&irk, entry->file_offset + DB_STORE_OFFSET_PEER_IDENTITY_IRK);
 }
 
@@ -250,6 +277,7 @@ void FileSecurityDb::set_entry_peer_bdaddr(
         return;
     }
 
+    tr_info("Write DB entry %d: %s peer address %s", get_index(db_handle), address_is_public? "public" : "private", to_string(peer_address));
     db_write(&peer_address, entry->file_offset + DB_STORE_OFFSET_PEER_IDENTITY_ADDRESS);
     db_write(&address_is_public, entry->file_offset + DB_STORE_OFFSET_PEER_IDENTITY_ADDRESS_IS_PUBLIC);
 }
@@ -266,6 +294,7 @@ void FileSecurityDb::set_entry_peer_csrk(
 
     entry->flags.csrk_stored = true;
 
+    tr_info("Write DB entry %d: peer csrk %s", get_index(db_handle), to_string(csrk));
     db_write(&csrk, entry->file_offset + DB_STORE_OFFSET_PEER_SIGNING);
 }
 
@@ -285,6 +314,8 @@ void FileSecurityDb::set_local_csrk(
 )
 {
     this->SecurityDb::set_local_csrk(csrk);
+
+    tr_info("Write DB: local csrk %s", to_string(csrk));
     db_write(&_local_csrk, DB_OFFSET_LOCAL_CSRK);
 }
 
@@ -295,6 +326,8 @@ void FileSecurityDb::set_local_identity(
 )
 {
     this->SecurityDb::set_local_identity(irk, identity_address, public_address);
+
+    tr_info("Write DB: %s peer address %s", public_address? "public" : "private", to_string(identity_address));
     db_write(&_local_identity, DB_OFFSET_LOCAL_IDENTITY);
 }
 
@@ -313,6 +346,7 @@ void FileSecurityDb::restore()
         return;
     }
 
+    tr_info("Valid DB file - restoring security DB from file");
     db_read(&_local_identity, DB_OFFSET_LOCAL_IDENTITY);
     db_read(&_local_csrk, DB_OFFSET_LOCAL_CSRK);
     db_read(&_local_sign_counter, DB_OFFSET_LOCAL_SIGN_COUNT);
@@ -332,6 +366,7 @@ void FileSecurityDb::sync(entry_handle_t db_handle)
         return;
     }
 
+    tr_info("Synchronising security DB entry %d with file", get_index(db_handle));
     db_write(&entry->peer_sign_counter, entry->file_offset + DB_STORE_OFFSET_PEER_SIGNING_COUNT);
     db_write(&entry->flags, entry->file_offset + DB_STORE_OFFSET_FLAGS);
     db_write(&_local_sign_counter, DB_OFFSET_LOCAL_SIGN_COUNT);
@@ -339,6 +374,7 @@ void FileSecurityDb::sync(entry_handle_t db_handle)
 
 void FileSecurityDb::set_restore(bool reload)
 {
+    tr_info("Security DB set to restore on reset: %s", to_string(reload));
     db_write(&reload, DB_OFFSET_RESTORE);
 }
 
@@ -364,6 +400,8 @@ void FileSecurityDb::reset_entry(entry_handle_t db_entry)
     if (!entry) {
         return;
     }
+
+    tr_info("Reseting security DB entry %d", get_index(db_entry));
 
     fseek(_db_file, entry->file_offset, SEEK_SET);
     const uint32_t zero = 0;

@@ -9,14 +9,16 @@ add_subdirectory(TARGET_MCU_K22F EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_MCU_K64F EXCLUDE_FROM_ALL)
 add_subdirectory(middleware/wireless/TARGET_FRAMEWORK_5_3_3 EXCLUDE_FROM_ALL)
 
-add_library(mbed-mcuxpresso-mcus INTERFACE)
+# We append freescale to the name as this should be unique but NXP/Freescale are in the tree covering
+# same vendor
+add_library(mbed-freescale-mcuxpresso-mcus INTERFACE)
 
-target_include_directories(mbed-mcuxpresso-mcus
+target_include_directories(mbed-freescale-mcuxpresso-mcus
     INTERFACE
         api
 )
 
-target_sources(mbed-mcuxpresso-mcus
+target_sources(mbed-freescale-mcuxpresso-mcus
     INTERFACE
         fsl_common.c
 
@@ -35,4 +37,4 @@ target_sources(mbed-mcuxpresso-mcus
         api/sleep.c
 )
 
-target_link_libraries(mbed-mcuxpresso-mcus INTERFACE mbed-freescale)
+target_link_libraries(mbed-freescale-mcuxpresso-mcus INTERFACE mbed-freescale)

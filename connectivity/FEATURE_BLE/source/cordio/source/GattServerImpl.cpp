@@ -25,6 +25,11 @@
 
 #include <new>
 
+#include "mbed-trace/mbed_trace.h"
+#include "common/ble_trace_helpers.h"
+
+#define TRACE_GROUP "BLGS"
+
 namespace ble {
 namespace impl {
 
@@ -67,6 +72,7 @@ GattServer &GattServer::getInstance()
 
 void GattServer::initialize()
 {
+    tr_info("Initialize GattServer");
 #if BLE_FEATURE_SECURITY
     AttsAuthorRegister(atts_auth_cb);
 #endif
@@ -84,6 +90,10 @@ void GattServer::add_default_services()
 
 ble_error_t GattServer::addService(GattService &service)
 {
+    tr_info("Add service with UUID=%s and %d characteristic(s) to the Gatt Server",
+            to_string(service.getUUID()),
+            service.getCharacteristicCount());
+
     add_default_services();
     // create and fill the service structure
     internal_service_t *att_service = new internal_service_t;
@@ -98,6 +108,7 @@ ble_error_t GattServer::addService(GattService &service)
     att_service->attGroup.pAttr =
         (attsAttr_t *) alloc_block(attributes_count * sizeof(attsAttr_t));
     if (att_service->attGroup.pAttr == nullptr) {
+        tr_error("Failed to create Cordio attribute list");
         delete att_service;
         return BLE_ERROR_BUFFER_OVERFLOW;
     }
@@ -121,6 +132,7 @@ ble_error_t GattServer::addService(GattService &service)
             //   - att_service->attGroup.pAttr
             //   - blocks allocated for characteristics value
             // NOTE: those are rightfully released when reset() is called.
+            tr_error("Failed to insert characteristic");
             delete att_service;
             return err;
         }
@@ -197,8 +209,43 @@ ble_error_t GattServer::insert_characteristic(
     attsAttr_t *&attribute_it
 )
 {
+    tr_info("Insert characteristic %s - "
+            "valuePtr=%p, "
+            "lenMax=%d, "
+            "len=%d, "
+            "hasVariableLength=%s, "
+            "read_security=%s, "
+            "write_security=%s, "
+            "properties=[ %s%s%s%s%s%s%s%s], "
+            "descriptor_count=%d",
+            to_string(characteristic->getValueAttribute().getUUID()),
+            characteristic->getValueAttribute().getValuePtr(),
+            characteristic->getValueAttribute().getMaxLength(),
+            characteristic->getValueAttribute().getLength(),
+            to_string(characteristic->getValueAttribute().hasVariableLength()),
+            to_string(characteristic->getValueAttribute().getReadSecurityRequirement()),
+            to_string(characteristic->getValueAttribute().getWriteSecurityRequirement()),
+            characteristic->getProperties() & GattCharacteristic::Properties_t::BLE_GATT_CHAR_PROPERTIES_BROADCAST
+            ? "BROADCAST " : "",
+            characteristic->getProperties() & GattCharacteristic::Properties_t::BLE_GATT_CHAR_PROPERTIES_READ
+            ? "READ " : "",
+            characteristic->getProperties() & GattCharacteristic::Properties_t::BLE_GATT_CHAR_PROPERTIES_WRITE_WITHOUT_RESPONSE
+            ? "WRITE_WITHOUT_RESPONSE " : "",
+            characteristic->getProperties() & GattCharacteristic::Properties_t::BLE_GATT_CHAR_PROPERTIES_WRITE
+            ? "WRITE " : "",
+            characteristic->getProperties() & GattCharacteristic::Properties_t::BLE_GATT_CHAR_PROPERTIES_NOTIFY
+            ? "NOTIFY " : "",
+            characteristic->getProperties() & GattCharacteristic::Properties_t::BLE_GATT_CHAR_PROPERTIES_INDICATE
+            ? "INDICATE " : "",
+            characteristic->getProperties() & GattCharacteristic::Properties_t::BLE_GATT_CHAR_PROPERTIES_AUTHENTICATED_SIGNED_WRITES
+            ? "AUTHENTICATED_SIGNED_WRITES " : "",
+            characteristic->getProperties() & GattCharacteristic::Properties_t::BLE_GATT_CHAR_PROPERTIES_EXTENDED_PROPERTIES
+            ? "EXTENDED_PROPERTIES " : "",
+            characteristic->getDescriptorCount());
+
     bool valid = is_characteristic_valid(characteristic);
     if (!valid) {
+        tr_error("Characteristic is not valid");
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -208,6 +255,7 @@ ble_error_t GattServer::insert_characteristic(
     insert_characteristic_declaration_attribute(characteristic, attribute_it);
     ble_error_t err = insert_characteristic_value_attribute(characteristic, attribute_it);
     if (err) {
+        tr_error("Failed to insert value attribute");
         return err;
     }
 
@@ -223,6 +271,7 @@ ble_error_t GattServer::insert_characteristic(
         );
         if (err) {
             return err;
+            tr_error("Failed to insert descriptor");
         }
     }
 
@@ -230,10 +279,14 @@ ble_error_t GattServer::insert_characteristic(
     if ((properties & UPDATE_PROPERTIES) && (cccd_created == false)) {
         err = insert_cccd(characteristic, attribute_it);
         if (err) {
+            tr_error("Failed to insert implicit CCCD");
             return err;
         }
     }
 
+    tr_info("Successfully inserted characteristic %s: handle=%d",
+            to_string(characteristic->getValueAttribute().getUUID()),
+            characteristic->getValueHandle());
     return BLE_ERROR_NONE;
 }
 
@@ -282,6 +335,9 @@ void GattServer::insert_characteristic_declaration_attribute(
     attsAttr_t *&attribute_it
 )
 {
+    tr_info("Insert declaration attribute in characteristic %s",
+            to_string(characteristic->getValueAttribute().getUUID()));
+
     const UUID &value_uuid = characteristic->getValueAttribute().getUUID();
 
     // move the current handle to point to the value handle
@@ -311,6 +367,9 @@ ble_error_t GattServer::insert_characteristic_value_attribute(
     attsAttr_t *&attribute_it
 )
 {
+    tr_info("Insert value attribute in characteristic %s",
+            to_string(characteristic->getValueAttribute().getUUID()));
+
     GattAttribute &value_attribute = characteristic->getValueAttribute();
     uint8_t properties = characteristic->getProperties();
 
@@ -417,12 +476,15 @@ ble_error_t GattServer::insert_characteristic_value_attribute(
         characteristic->isWriteAuthorizationEnabled()
         ) {
         if (_auth_callbacks_count >= MBED_CONF_BLE_API_IMPLEMENTATION_MAX_CHARACTERISTIC_AUTHORISATION_COUNT) {
+            tr_error("Authorisation characteristic count cannot be greater than %d",
+                     MBED_CONF_BLE_API_IMPLEMENTATION_MAX_CHARACTERISTIC_AUTHORISATION_COUNT);
             return BLE_ERROR_NO_MEM;
         }
 
         char_auth_callback *new_cb = (char_auth_callback *) alloc_block(sizeof(char_auth_callback));
 
         if (!new_cb) {
+            tr_error("Failed to allocate space on the heap for new R/W authorisation callbacks");
             return BLE_ERROR_NO_MEM;
         }
 
@@ -458,6 +520,9 @@ ble_error_t GattServer::insert_descriptor(
     bool &cccd_created
 )
 {
+    tr_info("Insert descriptor in characteristic %s",
+            to_string(characteristic->getValueAttribute().getUUID()));
+
     uint8_t properties = characteristic->getProperties();
 
     currentHandle++;
@@ -481,16 +546,21 @@ ble_error_t GattServer::insert_descriptor(
     // handle the special case of a CCCD
     if (descriptor->getUUID() == UUID(BLE_UUID_DESCRIPTOR_CLIENT_CHAR_CONFIG)) {
         if (cccd_cnt >= MBED_CONF_BLE_API_IMPLEMENTATION_MAX_CCCD_COUNT) {
+            tr_error("CCCD count cannot be greater than/equal to %d",
+                     MBED_CONF_BLE_API_IMPLEMENTATION_MAX_CCCD_COUNT);
+
             return BLE_ERROR_NO_MEM;
         }
 
         if (descriptor->isReadAllowed() == false ||
             descriptor->getReadSecurityRequirement() != att_security_requirement_t::NONE
             ) {
+            tr_error("The attribute must be readable and secure");
             return BLE_ERROR_INVALID_PARAM;
         }
 
         cccd_created = true;
+        tr_info("cccd_created=%s", to_string(cccd_created));
         attribute_it->settings |= ATTS_SET_CCC;
 
         cccds[cccd_cnt].handle = currentHandle;
@@ -587,7 +657,11 @@ ble_error_t GattServer::insert_cccd(
     attsAttr_t *&attribute_it
 )
 {
+    tr_info("Insert CCCD in characteristic %s",
+            to_string(characteristic->getValueAttribute().getUUID()));
+
     if (cccd_cnt >= MBED_CONF_BLE_API_IMPLEMENTATION_MAX_CCCD_COUNT) {
+        tr_error("failed insert cccd: table full");
         return BLE_ERROR_NO_MEM;
     }
 
@@ -626,6 +700,7 @@ ble_error_t GattServer::insert_cccd(
                                        false);
 
     if(implicit_cccd == nullptr) {
+        tr_error("failed to create implicit CCCD");
         currentHandle--;
         return BLE_ERROR_NO_MEM;
     }
@@ -651,6 +726,7 @@ ble_error_t GattServer::read(
     uint8_t *att_value = nullptr;
 
     if (AttsGetAttr(att_handle, &att_length, &att_value) != ATT_SUCCESS) {
+        tr_error("Failed to read attribute %d: attribute not found", att_handle);
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
@@ -660,6 +736,9 @@ ble_error_t GattServer::read(
 
     *buffer_length = att_length;
 
+    tr_debug("Read attribute %d - value=%s",
+            att_handle,
+            mbed_trace_array(buffer, *buffer_length));
     return BLE_ERROR_NONE;
 }
 
@@ -674,6 +753,9 @@ ble_error_t GattServer::read(
     uint8_t cccd_index;
     if (get_cccd_index_by_cccd_handle(att_handle, cccd_index)) {
         if (connection == DM_CONN_ID_NONE) {
+            tr_error("Failed to read attribute %d on connection %d: unknown connection ID",
+                     att_handle,
+                     connection);
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
         uint16_t cccd_value = AttsCccGet(connection, cccd_index);
@@ -684,6 +766,11 @@ ble_error_t GattServer::read(
         }
 
         *buffer_length = cccd_length;
+
+        tr_debug("Connection %d: read attribute %d - value=%s",
+                connection,
+                att_handle,
+                mbed_trace_array(buffer, *buffer_length));
         return BLE_ERROR_NONE;
     }
 
@@ -698,11 +785,19 @@ ble_error_t GattServer::write(
     bool local_only
 )
 {
+    tr_info("Write attribute %d - "
+            "value=%s, "
+            "local_only=%s",
+            att_handle,
+            mbed_trace_array(buffer, len),
+            to_string(local_only));
+
     // Check to see if this is a CCCD, if it is the case update the value for all
     // connections
     uint8_t cccd_index;
     if (get_cccd_index_by_cccd_handle(att_handle, cccd_index)) {
         if (len != sizeof(uint16_t)) {
+            tr_error("CCCDs must be 16 bits");
             return BLE_ERROR_INVALID_PARAM;
         }
 
@@ -720,6 +815,7 @@ ble_error_t GattServer::write(
 
     // write the value to the attribute handle
     if (AttsSetAttr(att_handle, len, (uint8_t *) buffer) != ATT_SUCCESS) {
+        tr_error("Invalid attribute length");
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
@@ -762,10 +858,19 @@ ble_error_t GattServer::write(
     bool local_only
 )
 {
+    tr_info("Connection %d: write attribute %d - "
+            "value=%s, "
+            "local_only=%s",
+            connection,
+            att_handle,
+            mbed_trace_array(buffer, len),
+            to_string(local_only));
+
     // Check to see if this is a CCCD
     uint8_t cccd_index;
     if (get_cccd_index_by_cccd_handle(att_handle, cccd_index)) {
         if ((connection == DM_CONN_ID_NONE) || (len != 2)) { // CCCDs are always 16 bits
+            tr_error("Unknown connection ID/length not 16 bits");
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
 
@@ -777,6 +882,7 @@ ble_error_t GattServer::write(
 
     // write the value to the attribute handle
     if (AttsSetAttr(att_handle, len, (uint8_t *) buffer) != ATT_SUCCESS) {
+        tr_error("Invalid attribute length");
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
@@ -817,16 +923,21 @@ ble_error_t GattServer::areUpdatesEnabled(
                     uint16_t cccd_value = AttsCccGet(conn_id, idx);
                     if (cccd_value & (ATT_CLIENT_CFG_NOTIFY | ATT_CLIENT_CFG_INDICATE)) {
                         *enabled = true;
+                        tr_debug("Updates are enabled in characteristic %s",
+                                to_string(characteristic.getValueAttribute().getUUID()));
                         return BLE_ERROR_NONE;
                     }
-
                 }
             }
             *enabled = false;
+            tr_debug("Updates are not enabled in characteristic %s",
+                    to_string(characteristic.getValueAttribute().getUUID()));
             return BLE_ERROR_NONE;
         }
     }
 
+    tr_error("Failed to determine if updates are enabled: characteristic %s not in CCCD table",
+             to_string(characteristic.getValueAttribute().getUUID()));
     return BLE_ERROR_PARAM_OUT_OF_RANGE;
 }
 
@@ -837,6 +948,7 @@ ble_error_t GattServer::areUpdatesEnabled(
 )
 {
     if (connectionHandle == DM_CONN_ID_NONE) {
+        tr_error("Connection %d: failed to determine if updates are enabled - unknown connection ID", connectionHandle);
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -848,9 +960,17 @@ ble_error_t GattServer::areUpdatesEnabled(
             } else {
                 *enabled = false;
             }
+            tr_debug("Connection %d: updates are%s enabled in characteristic %s",
+                    connectionHandle,
+                    *enabled ? "" : " not",
+                    to_string(characteristic.getValueAttribute().getUUID()));
             return BLE_ERROR_NONE;
         }
     }
+
+    tr_error("Connection %d: failed to determine if updates are enabled - characteristic %s not in CCCD table",
+             connectionHandle,
+             to_string(characteristic.getValueAttribute().getUUID()));
     return BLE_ERROR_PARAM_OUT_OF_RANGE;
 }
 
@@ -924,8 +1044,9 @@ GapAdvertisingData::Appearance GattServer::getAppearance()
 
 ble_error_t GattServer::reset(ble::GattServer* server)
 {
+    tr_info("Reset GattServer");
     /* Notify that the instance is about to shutdown */
-    if(eventHandler) {
+    if (eventHandler) {
         eventHandler->onShutdown(*server);
     }
 
@@ -986,6 +1107,7 @@ void GattServer::att_cb(const attEvt_t *evt)
 {
     if (evt->hdr.status == ATT_SUCCESS && evt->hdr.event == ATT_MTU_UPDATE_IND) {
         ble::GattServer::EventHandler *handler = getInstance().getEventHandler();
+        tr_info("Connection %d: Att MTU changed, new MTU size is %d bytes", evt->hdr.param, evt->mtu);
         if (handler) {
             handler->onAttMtuChange(evt->hdr.param, evt->mtu);
         }
@@ -1016,12 +1138,22 @@ uint8_t GattServer::atts_read_cb(
         auth_cb->read_cb.call(&read_auth_params);
 
         if (read_auth_params.authorizationReply != AUTH_CALLBACK_REPLY_SUCCESS) {
+            tr_warning("Request to read attribute %d on connection %d declined with authorization reply %s",
+                     handle,
+                     connId,
+                     to_string(read_auth_params.authorizationReply & 0xFF));
+
             return read_auth_params.authorizationReply & 0xFF;
         }
 
         pAttr->pValue = read_auth_params.data;
         *pAttr->pLen = read_auth_params.len;
     }
+
+    tr_debug("Read attribute %d on connection %d - value=%s",
+            handle,
+            connId,
+            mbed_trace_array(pAttr->pValue, *pAttr->pLen));
 
     GattReadCallbackParams read_params = {
         connId,
@@ -1046,6 +1178,9 @@ uint8_t GattServer::atts_write_cb(
     attsAttr_t *pAttr
 )
 {
+    tr_debug("Connection %d: Write attribute %d, operation=%d, offset=%d, value=%s",
+            connId, handle, operation, offset, mbed_trace_array(pValue, len));
+
     char_auth_callback* auth_cb = getInstance().get_auth_callback(handle);
     if (auth_cb && auth_cb->write_cb) {
         GattWriteAuthCallbackParams write_auth_params = {
@@ -1060,6 +1195,11 @@ uint8_t GattServer::atts_write_cb(
         auth_cb->write_cb.call(&write_auth_params);
 
         if (write_auth_params.authorizationReply != AUTH_CALLBACK_REPLY_SUCCESS) {
+            tr_warning("Request to write attribute %d on connection %d declined with authorization reply %s",
+                     handle,
+                     connId,
+                     to_string(write_auth_params.authorizationReply & 0xFF));
+
             return write_auth_params.authorizationReply & 0xFF;
         }
     }
@@ -1131,6 +1271,8 @@ uint8_t GattServer::atts_write_cb(
 
 uint8_t GattServer::atts_auth_cb(dmConnId_t connId, uint8_t permit, uint16_t handle)
 {
+    tr_debug("Authenticate R/W request for attribute %d on connection %d", handle, connId);
+
 #if BLE_FEATURE_SECURITY
     // this CB is triggered when read or write of an attribute (either a value
     // handle or a descriptor) requires secure connection security.
@@ -1139,10 +1281,12 @@ uint8_t GattServer::atts_auth_cb(dmConnId_t connId, uint8_t permit, uint16_t han
     link_encryption_t encryption(link_encryption_t::NOT_ENCRYPTED);
     ble_error_t err = security_manager.getLinkEncryption(connId, &encryption);
     if (err) {
+        tr_error("Insufficient authentication");
         return ATT_ERR_AUTH;
     }
 
     if (encryption != link_encryption_t::ENCRYPTED_WITH_SC_AND_MITM) {
+        tr_error("The link must be secure and authenticated with a secure connection key");
         return ATT_ERR_AUTH;
     }
 
@@ -1174,6 +1318,8 @@ void GattServer::add_generic_access_service()
     current_attribute->settings = 0;
     current_attribute->permissions = ATTS_PERMIT_READ;
 
+    tr_info("Add Generic Access Service to the Gatt Server: handle=%d", currentHandle);
+
     // device name declaration
     currentHandle += 2; // note: incremented by two to get a pointer to the value handle
     ++current_attribute;
@@ -1201,6 +1347,8 @@ void GattServer::add_generic_access_service()
     current_attribute->pValue = nullptr;
     current_attribute->settings = ATTS_SET_VARIABLE_LEN;
     current_attribute->permissions = ATTS_PERMIT_READ;
+
+    tr_info("Add Device Name characteristic: handle=%d", currentHandle);
 
     // appearance declaration
     currentHandle += 2; // note: incremented by two to get a pointer to the value handle
@@ -1230,6 +1378,7 @@ void GattServer::add_generic_access_service()
     current_attribute->settings = 0;
     current_attribute->permissions = ATTS_PERMIT_READ;
 
+    tr_info("Add Appearance characteristic: handle=%d", currentHandle);
 
     // peripheral preferred connection parameters declaration
     currentHandle += 2; // note: incremented by two to get a pointer to the value handle
@@ -1265,6 +1414,8 @@ void GattServer::add_generic_access_service()
     current_attribute->settings = 0;
     current_attribute->permissions = ATTS_PERMIT_READ;
 
+    tr_info("Add Peripheral Preferred Connection characteristic: handle=%d", currentHandle);
+
     generic_access_service.service.endHandle = currentHandle;
     AttsAddGroup(&generic_access_service.service);
 }
@@ -1289,6 +1440,8 @@ void GattServer::add_generic_attribute_service()
     current_attribute->pLen = &current_attribute->maxLen;
     current_attribute->settings = 0;
     current_attribute->permissions = ATTS_PERMIT_READ;
+
+    tr_info("Add Generic Attribute Service to the Gatt Server: handle=%d", currentHandle);
 
     // service changed declaration
     currentHandle += 2; // note: incremented by two to get a pointer to the value handle
@@ -1316,6 +1469,8 @@ void GattServer::add_generic_attribute_service()
     current_attribute->pValue = nullptr;
     current_attribute->settings = 0;
     current_attribute->permissions = 0;
+
+    tr_info("Add Service Changed characteristic: handle=%d", currentHandle);
 
     // CCCD
     ++current_attribute;
@@ -1528,6 +1683,9 @@ void GattServer::onConfirmationReceived(EventCallback_t callback)
 
 void GattServer::setEventHandler(EventHandler *handler)
 {
+    if (handler == nullptr) {
+        tr_warning("Setting Gatt Server event handler to a null pointer");
+    }
     eventHandler = handler;
 }
 
@@ -1564,7 +1722,7 @@ void GattServer::handleEvent(
 {
     switch (type) {
         case GattServerEvents::GATT_EVENT_UPDATES_ENABLED:
-
+            tr_info("Updates enabled for attribute %d on connection %d", attributeHandle, connHandle);
             if(eventHandler) {
                 GattUpdatesEnabledCallbackParams params({
                     .connHandle = connHandle,
@@ -1579,7 +1737,7 @@ void GattServer::handleEvent(
             }
             break;
         case GattServerEvents::GATT_EVENT_UPDATES_DISABLED:
-
+            tr_info("Updates disabled for attribute %d on connection %d", attributeHandle, connHandle);
             if(eventHandler) {
                 GattUpdatesDisabledCallbackParams params({
                     .connHandle = connHandle,
@@ -1594,7 +1752,7 @@ void GattServer::handleEvent(
             }
             break;
         case GattServerEvents::GATT_EVENT_CONFIRMATION_RECEIVED:
-
+            tr_debug("Confirmation received for attribute %d on connection %d", attributeHandle, connHandle);
             if(eventHandler) {
                 GattConfirmationReceivedCallbackParams params({
                     .connHandle = connHandle,
@@ -1610,7 +1768,7 @@ void GattServer::handleEvent(
             break;
 
         case GattServerEvents::GATT_EVENT_DATA_SENT:
-
+            tr_debug("Data sent for attribute %d on connection %d", attributeHandle, connHandle);
             if(eventHandler) {
                 GattDataSentCallbackParams params({
                     .connHandle = connHandle,

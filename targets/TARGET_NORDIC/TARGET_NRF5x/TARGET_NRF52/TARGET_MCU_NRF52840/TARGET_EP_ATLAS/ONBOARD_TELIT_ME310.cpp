@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#if MBED_CONF_CELLULAR_PRESENT
+
 #include "gpio_api.h"
 #include "platform/mbed_thread.h"
 #include "PinNames.h"
@@ -167,3 +169,5 @@ CellularDevice *CellularDevice::get_target_default_instance()
     static ONBOARD_TELIT_ME310 device(&serial);
     return &device;
 }
+
+#endif // MBED_CONF_CELLULAR_PRESENT

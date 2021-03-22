@@ -18,6 +18,8 @@
 #define MBED_DIGITALOUT_H
 
 #include "platform/platform.h"
+
+#include "interfaces/InterfaceDigitalOut.h"
 #include "hal/gpio_api.h"
 
 namespace mbed {
@@ -46,7 +48,11 @@ namespace mbed {
  * }
  * @endcode
  */
-class DigitalOut {
+class DigitalOut
+#ifdef FEATURE_EXPERIMENTAL_API
+    final : public interface::DigitalOut
+#endif
+{
 
 public:
     /** Create a DigitalOut connected to the specified pin

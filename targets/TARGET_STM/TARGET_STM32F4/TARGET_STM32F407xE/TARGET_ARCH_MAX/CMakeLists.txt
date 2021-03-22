@@ -6,7 +6,6 @@ add_library(mbed-arch-max INTERFACE)
 target_sources(mbed-arch-max
     INTERFACE
         PeripheralPins.c
-        system_clock.c
 )
 
 target_include_directories(mbed-arch-max

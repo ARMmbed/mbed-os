@@ -70,7 +70,7 @@ target_sources(mbed-kl43z
         ${STARTUP_FILE}
 )
 
-target_link_libraries(mbed-kl43z INTERFACE mbed-mcuxpresso-mcus)
+target_link_libraries(mbed-kl43z INTERFACE mbed-freescale-mcuxpresso-mcus)
 
 mbed_set_linker_script(mbed-kl43z ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 

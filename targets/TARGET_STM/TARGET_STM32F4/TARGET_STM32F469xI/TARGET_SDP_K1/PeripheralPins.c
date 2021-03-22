@@ -424,15 +424,15 @@ MBED_WEAK const PinMap PinMap_QSPI_SSEL[] = {
 
 //*** USBDEVICE ***
 
-MBED_WEAK const PinMap PinMap_USB_FS[] = {
-    /* Not Supported by SDP-K1*/
+/* Not Supported by SDP-K1*/
+// MBED_WEAK const PinMap PinMap_USB_FS[] = {
 //  {PA_8,      USB_FS, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF10_OTG_FS)}, // USB_OTG_FS_SOF
 //  { PA_9, USB_FS, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF_NONE) }, // USB_OTG_FS_VBUS // Connected to VBUS_FS1
 //  {PA_10, USB_FS, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_PULLUP, GPIO_AF10_OTG_FS) }, // USB_OTG_FS_ID // Connected to USB_FS1_ID
 //  {PA_11, USB_FS, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF10_OTG_FS) }, // USB_OTG_FS_DM // Connected to USB_FS1_N
 //  { PA_12, USB_FS, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF10_OTG_FS) }, // USB_OTG_FS_DP // Connected to USB_FS1_P
 //  { NC, NC, 0 }
-};
+// };
 
 MBED_WEAK const PinMap PinMap_USB_HS[] = {
 #if (MBED_CONF_TARGET_USB_SPEED == USE_USB_HS_IN_FS)

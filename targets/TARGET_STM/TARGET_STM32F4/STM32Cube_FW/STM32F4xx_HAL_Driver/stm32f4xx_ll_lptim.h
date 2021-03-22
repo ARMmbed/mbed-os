@@ -155,7 +155,7 @@ typedef struct
 /** @defgroup LPTIM_LL_EC_OUTPUT_WAVEFORM Output Waveform Type
   * @{
   */
-#define LL_LPTIM_OUTPUT_WAVEFORM_PWM          0x00000000U     /*!<LPTIM  generates either a PWM waveform or a One pulse waveform depending on chosen operating mode CONTINOUS or SINGLE*/
+#define LL_LPTIM_OUTPUT_WAVEFORM_PWM          0x00000000U     /*!<LPTIM  generates either a PWM waveform or a One pulse waveform depending on chosen operating mode CONTINUOUS or SINGLE*/
 #define LL_LPTIM_OUTPUT_WAVEFORM_SETONCE      LPTIM_CFGR_WAVE /*!<LPTIM  generates a Set Once waveform*/
 /**
   * @}
@@ -258,7 +258,6 @@ typedef struct
 /**
   * @}
   */
-#if defined(LPTIM_OR_OR)
 
 /** @defgroup LPTIM_EC_INPUT1_SRC Input1 Source
   * @{
@@ -270,7 +269,6 @@ typedef struct
 /**
   * @}
   */
-#endif /* LPTIM_OR_OR */
 
 /**
   * @}
@@ -620,7 +618,6 @@ __STATIC_INLINE uint32_t LL_LPTIM_GetPrescaler(LPTIM_TypeDef *LPTIMx)
 {
   return (uint32_t)(READ_BIT(LPTIMx->CFGR, LPTIM_CFGR_PRESC));
 }
-#if  defined(LPTIM_OR_OR)
 
 /**
   * @brief  Set LPTIM input 1 source (default GPIO).
@@ -637,7 +634,6 @@ __STATIC_INLINE void LL_LPTIM_SetInput1Src(LPTIM_TypeDef *LPTIMx, uint32_t Src)
 {
   MODIFY_REG(LPTIMx->OR, LPTIM_OR_OR, Src);
 }
-#endif /* LPTIM_OR_OR */
 
 /**
   * @}

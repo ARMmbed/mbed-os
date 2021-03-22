@@ -3,22 +3,22 @@
 
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(STARTUP_FILE TOOLCHAIN_GCC_ARM/startup_stm32f407xx.S)
-    set(LINKER_FILE TOOLCHAIN_GCC_ARM/STM32F407XG.ld)
+    set(LINKER_FILE TOOLCHAIN_GCC_ARM/stm32f407xg.ld)
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
-    set(STARTUP_FILE TOOLCHAIN_ARM/startup_STM32F407xx.S)
-    set(LINKER_FILE TOOLCHAIN_ARM/STM32F407xx.sct)
+    set(STARTUP_FILE TOOLCHAIN_ARM/startup_stm32f407xx.S)
+    set(LINKER_FILE TOOLCHAIN_ARM/stm32f407xg.sct)
 endif()
 
 add_library(mbed-stm32f407xg INTERFACE)
 
-target_sources(mbed-stm32f407xg
-    INTERFACE
-        ${STARTUP_FILE}
-)
-
 target_include_directories(mbed-stm32f407xg
     INTERFACE
         .
+)
+
+target_sources(mbed-stm32f407xg
+    INTERFACE
+        ${STARTUP_FILE}
 )
 
 mbed_set_linker_script(mbed-stm32f407xg ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})

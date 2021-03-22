@@ -32,6 +32,10 @@
 #include "source/pal/PalEventQueue.h"
 #include "source/pal/PalSecurityManager.h"
 
+#include "mbed-trace/mbed_trace.h"
+#include "common/ble_trace_helpers.h"
+
+#define TRACE_GROUP "BLGP"
 
 // Cordio defines the random address used by connection to be the global one
 #define CORDIO_GLOBAL_RANDOM_ADDRESS_FOR_CONNECTION 1
@@ -448,6 +452,12 @@ ble_error_t Gap::getAddress(
     address_t &address
 )
 {
+    tr_info("Get address - "
+            "type=%s, "
+            "address=%s",
+            to_string(type),
+            to_string(address));
+
     type = _address_type;
 
     if (_address_type == own_address_type_t::PUBLIC) {
@@ -485,9 +495,11 @@ ble_error_t Gap::getRandomAddressType(
 #if BLE_ROLE_OBSERVER
 ble_error_t Gap::stopScan()
 {
+    tr_info("Stop scan");
     ble_error_t err;
 
     if (_initiating) {
+        tr_error("stack busy");
         return BLE_STACK_BUSY;
     }
 
@@ -506,7 +518,7 @@ ble_error_t Gap::stopScan()
         if (err) {
             return err;
         }
-        _scan_state = ScanState::pending_stop_scan;
+        set_scan_state(ScanState::pending_stop_scan);
     }
 
     _scan_timeout.detach();
@@ -522,6 +534,38 @@ ble_error_t Gap::connect(
     const ConnectionParameters &connectionParams
 )
 {
+    tr_info("Connect - "
+            "peerAddressType=%s, "
+            "peerAddress=%s, "
+            "_filterPolicy=%s, "
+            "_ownAddressType=%s, ",
+            to_string(peerAddressType),
+            to_string(peerAddress),
+            to_string(connectionParams.getFilter()),
+            to_string(connectionParams.getOwnAddressType()));
+
+    // Trace connection params for each enabled PHY
+    for (size_t i = 0; i < connectionParams.getPhySet().count(); ++i) {
+        tr_info("PHY %d - "
+                "_scanInterval=%" PRIu32 "ms, "
+                "_scanWindow=%" PRIu32 "ms, "
+                "_minConnectionInterval=%" PRIu32 "ms, "
+                "_maxConnectionInterval=%" PRIu32 "ms, "
+                "_slaveLatency=%u, "
+                "_connectionSupervisionTimeout=%" PRIu32 "ms, "
+                "_minEventLength=%" PRIu32 "ms, "
+                "_maxEventLength=%" PRIu32 "ms",
+                i,
+                scan_interval_t(connectionParams.getScanIntervalArray()[i]).valueInMs(),
+                scan_window_t(connectionParams.getScanWindowArray()[i]).valueInMs(),
+                conn_interval_t(connectionParams.getMinConnectionIntervalArray()[i]).valueInMs(),
+                conn_interval_t(connectionParams.getMaxConnectionIntervalArray()[i]).valueInMs(),
+                slave_latency_t(connectionParams.getSlaveLatencyArray()[i]).value(),
+                supervision_timeout_t(connectionParams.getConnectionSupervisionTimeoutArray()[i]).valueInMs(),
+                conn_event_length_t(connectionParams.getMinEventLengthArray()[i]).valueInMs(),
+                conn_event_length_t(connectionParams.getMaxEventLengthArray()[i]).valueInMs());
+    }
+
 #if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
     if (_connect_to_host_resolved_address_state == ConnectionToHostResolvedAddressState::scan) {
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
@@ -529,10 +573,12 @@ ble_error_t Gap::connect(
 #endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
     if (!connectionParams.getNumberOfEnabledPhys()) {
+        tr_error("no enabled PHY");
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (peerAddressType == peer_address_type_t::ANONYMOUS) {
+        tr_error("peer address type cannot be anonymous");
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -543,6 +589,9 @@ ble_error_t Gap::connect(
                 slave_latency_t(connectionParams.getSlaveLatencyArray()[i])
             )
             ) {
+            tr_error("supervision timout cannot be less than/equal to %" PRIu32 "ms", minSupervisionTimeout(
+                             conn_interval_t(connectionParams.getMaxConnectionIntervalArray()[i]),
+                             slave_latency_t(connectionParams.getSlaveLatencyArray()[i])).valueInMs());
             return BLE_ERROR_INVALID_PARAM;
         }
     }
@@ -550,6 +599,7 @@ ble_error_t Gap::connect(
     // get the random address to set, if not valid, report the error
     const address_t *address = get_random_address(controller_operation_t::initiating);
     if (!address) {
+        tr_error("could not get random address");
         return BLE_ERROR_INVALID_STATE;
     }
 
@@ -583,6 +633,7 @@ ble_error_t Gap::connect(
     if (is_extended_advertising_available() == false) {
         phy_set_t set(connectionParams.getPhySet());
         if (set.count() != 1 || set.get_1m() == false) {
+            tr_error("use 1 PHY w/legacy advertising");
             return BLE_ERROR_INVALID_PARAM;
         }
 
@@ -668,6 +719,8 @@ ble_error_t Gap::connect(
 
     if (ret == BLE_ERROR_NONE) {
         _initiating = true;
+    } else {
+        tr_error("PAL could not create connection");
     }
     return ret;
 }
@@ -694,7 +747,24 @@ ble_error_t Gap::updateConnectionParameters(
     conn_event_length_t maxConnectionEventLength
 )
 {
+    tr_info("Connection %d: update connection paramters - "
+            "minConnectionInterval=%" PRIu32 "ms, "
+            "maxConnectionInterval=%" PRIu32 "ms, "
+            "slaveLatency=%u,"
+            "supervisionTimeout=%" PRIu32 "ms, "
+            "minConnectionEventLength=%" PRIu32 "ms, "
+            "maxConnectionEventLength=%" PRIu32 "ms",
+            connectionHandle,
+            minConnectionInterval.valueInMs(),
+            maxConnectionInterval.valueInMs(),
+            slaveLatency.value(),
+            supervisionTimeout.valueInMs(),
+            minConnectionInterval.valueInMs(),
+            minConnectionInterval.valueInMs());
+
     if (supervisionTimeout <= minSupervisionTimeout(maxConnectionInterval, slaveLatency)) {
+        tr_error("supervision timeout cannot be less than/equal to %" PRIu32 "ms",
+                 minSupervisionTimeout(maxConnectionInterval, slaveLatency).valueInMs());
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -719,7 +789,24 @@ ble_error_t Gap::acceptConnectionParametersUpdate(
     conn_event_length_t maxConnectionEventLength
 )
 {
+    tr_info("Connection %d: accept connection paramater update - "
+            "minConnectionInterval=%" PRIu32 "ms, "
+            "maxConnectionInterval=%" PRIu32 "ms, "
+            "slaveLatency=%u,"
+            "supervisionTimeout=%" PRIu32 "ms, "
+            "minConnectionEventLength=%" PRIu32 "ms, "
+            "minConnectionEventLength=%" PRIu32 "ms",
+            connectionHandle,
+            minConnectionInterval.valueInMs(),
+            maxConnectionInterval.valueInMs(),
+            slaveLatency.value(),
+            supervisionTimeout.valueInMs(),
+            minConnectionEventLength.valueInMs(),
+            maxConnectionEventLength.valueInMs());
+
     if (supervisionTimeout <= minSupervisionTimeout(maxConnectionInterval, slaveLatency)) {
+        tr_error("supervision timeout cannot be less than/equal to %" PRIu32 "ms",
+                 minSupervisionTimeout(maxConnectionInterval, slaveLatency).valueInMs());
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -748,6 +835,7 @@ ble_error_t Gap::rejectConnectionParametersUpdate(
 #if BLE_ROLE_CENTRAL
 ble_error_t Gap::cancelConnect()
 {
+    tr_info("Cancel connect");
 #if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
     if (_connect_to_host_resolved_address_state == ConnectionToHostResolvedAddressState::scan) {
         connecting_to_host_resolved_address_failed(false);
@@ -757,6 +845,7 @@ ble_error_t Gap::cancelConnect()
 #endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
     if (!_initiating) {
+        tr_error("Failed to cancel connect: stack busy");
         return BLE_ERROR_NONE;
     }
 
@@ -779,6 +868,12 @@ ble_error_t Gap::setPreferredPhys(
     const phy_set_t *rxPhys
 )
 {
+    tr_info("Set preferred PHYs - "
+            "txPhys=%s, "
+            "rxPhys=%s, ",
+            to_string(*txPhys),
+            to_string(*rxPhys));
+
     phy_set_t tx_phys(txPhys ? txPhys->value() : 0);
     phy_set_t rx_phys(rxPhys ? rxPhys->value() : 0);
     return _pal_gap.set_preferred_phys(tx_phys, rx_phys);
@@ -791,6 +886,15 @@ ble_error_t Gap::setPhy(
     ble::coded_symbol_per_bit_t codedSymbol
 )
 {
+    tr_info("Set PHY for connection %d - "
+            "txPhys=%s, "
+            "rxPhys=%s, "
+            "codedSymbol=%s",
+            connection,
+            to_string(*txPhys),
+            to_string(*rxPhys),
+            to_string(codedSymbol));
+
     phy_set_t tx_phys(txPhys ? txPhys->value() : 0);
     phy_set_t rx_phys(rxPhys ? rxPhys->value() : 0);
     return _pal_gap.set_phy(connection, tx_phys, rx_phys, codedSymbol);
@@ -852,6 +956,11 @@ ble_error_t Gap::disconnect(
     local_disconnection_reason_t reason
 )
 {
+    tr_info("Connection %d: disconnect - "
+            "reason=%s",
+            connectionHandle,
+            to_string(reason));
+
     return _pal_gap.disconnect(connectionHandle, reason);
 }
 #endif // BLE_FEATURE_CONNECTABLE
@@ -865,10 +974,12 @@ uint8_t Gap::getMaxWhitelistSize(void) const
 ble_error_t Gap::getWhitelist(whitelist_t &whitelist) const
 {
     if (initialize_whitelist() == false) {
+        tr_error("Cannot get whitelist: failed to initialize");
         return BLE_ERROR_INVALID_STATE;
     }
 
     if (whitelist.capacity < _whitelist.capacity) {
+        tr_error("Cannot get whitelist: capacity less than %d", _whitelist.capacity);
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -882,15 +993,19 @@ ble_error_t Gap::getWhitelist(whitelist_t &whitelist) const
 
 ble_error_t Gap::setWhitelist(const whitelist_t &whitelist)
 {
+    tr_info("Set whitelist");
     if (is_whitelist_valid(whitelist) == false) {
+        tr_error("not a valid whitelist");
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (initialize_whitelist() == false) {
+        tr_error("could not initialize whitelist");
         return BLE_ERROR_INVALID_STATE;
     }
 
     if (whitelist.capacity > _whitelist.capacity) {
+        tr_error("capacity of whitelist greater than %d", _whitelist.capacity);
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -976,12 +1091,18 @@ ble_error_t Gap::setWhitelist(const whitelist_t &whitelist)
 #if BLE_FEATURE_PRIVACY
 ble_error_t Gap::enablePrivacy(bool enable)
 {
+    tr_info("Enable privacy -"
+            "enable=%s",
+            to_string(enable));
+
     if (enable == _privacy_enabled) {
+        tr_error("privacy already enabled");
         // No change
         return BLE_ERROR_NONE;
     }
 
     if (is_radio_active()) {
+        tr_error("radio active");
         return BLE_ERROR_INVALID_STATE;
     }
 
@@ -1022,6 +1143,12 @@ ble_error_t Gap::setPeripheralPrivacyConfiguration(
     const peripheral_privacy_configuration_t *configuration
 )
 {
+    tr_info("Set peripheral privacy configuration - "
+            "use_non_resolvable_random_address=%s, "
+            "resolution_strategy=%s",
+            to_string(configuration->use_non_resolvable_random_address),
+            to_string(configuration->resolution_strategy));
+
     _peripheral_privacy_configuration = *configuration;
 
 #if !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
@@ -1055,6 +1182,8 @@ ble_error_t Gap::setCentralPrivacyConfiguration(
 #if !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
     if (_private_address_controller.is_controller_privacy_supported()) {
         update_ll_address_resolution_setting();
+    } else {
+        tr_error("Failed to set central privacy configuration: controller privacy not supported");
     }
 #endif // !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
@@ -1080,7 +1209,7 @@ ble_error_t Gap::reset()
 
     _event_handler = nullptr;
     _initiating = false;
-    _scan_state = ScanState::idle;
+    set_scan_state(ScanState::idle);
     _scan_requested = false;
 #if BLE_FEATURE_PRIVACY
     _privacy_initialization_pending = false;
@@ -1148,37 +1277,58 @@ ble_error_t Gap::reset()
 
 void Gap::onShutdown(const GapShutdownCallback_t &callback)
 {
+    tr_info("GAP instance shutting down...");
     shutdownCallChain.add(callback);
 }
 
 Gap::GapShutdownCallbackChain_t &Gap::onShutdown()
 {
+    tr_info("GAP instance shutting down...");
     return shutdownCallChain;
 }
 
 #if BLE_ROLE_OBSERVER
 void Gap::on_scan_started(bool success)
 {
+    tr_info("Scan %s", success ? "successfully started" : "failed to start");
+
     MBED_ASSERT(_scan_state == ScanState::pending_scan);
 
     if (success) {
-        _scan_state = ScanState::scan;
+        set_scan_state(ScanState::scan);
         /* if no longer want the scan */
         if (!_scan_requested) {
             stopScan();
         }
     } else {
-        _scan_state = ScanState::idle;
+        set_scan_state(ScanState::idle);
+    }
+}
+
+void Gap::set_scan_state(ScanState state)
+{
+    _scan_state = state;
+
+    if (state == ScanState::idle) {
+        tr_info("Scan state: idle");
+    } else if (state == ScanState::pending_scan) {
+        tr_info("Scan state: pending_scan");
+    } else if (state == ScanState::pending_stop_scan) {
+        tr_info("Scan state: pending_stop_scan");
+    } else if (state == ScanState::scan) {
+        tr_info("Scan state: scan");
     }
 }
 
 void Gap::on_scan_stopped(bool success)
 {
+    tr_info("Scan %s", success ? "successfully stopped" : "failed to stop");
+
     if (!success) {
         return;
     }
 
-    _scan_state = ScanState::idle;
+    set_scan_state(ScanState::idle);
 
 #if BLE_ROLE_BROADCASTER
     /* with legacy advertising we might need to wait for scanning and advertising to both stop */
@@ -1190,6 +1340,7 @@ void Gap::on_scan_stopped(bool success)
 
         if (wait_for_advertising_stop) {
             /* return early if we're waiting for advertising to stop and do not restart scan even if requested */
+            tr_error("advertising must be stopped before address can be refreshed");
             return;
         }
 
@@ -1216,6 +1367,8 @@ void Gap::on_scan_stopped(bool success)
 #if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 void Gap::connecting_to_host_resolved_address_failed(bool inform_user)
 {
+    tr_info("Connecting to host resolved address failed%s", inform_user ? ", informing user" : "");
+
     if (inform_user && _event_handler) {
         _event_handler->onConnectionComplete(
             ConnectionCompleteEvent(
@@ -1243,11 +1396,14 @@ void Gap::connecting_to_host_resolved_address_failed(bool inform_user)
 #if BLE_ROLE_OBSERVER
 void Gap::on_scan_timeout()
 {
+    tr_info("Scan timed out");
+
     if (_scan_state == ScanState::idle) {
+        tr_warning("event not passed to handler, scan state idle");
         return;
     }
 
-    _scan_state = ScanState::idle;
+    set_scan_state(ScanState::idle);
     _scan_requested = false;
 
     if (_event_handler) {
@@ -1259,7 +1415,10 @@ void Gap::on_scan_timeout()
 #if BLE_ROLE_OBSERVER
 void Gap::process_legacy_scan_timeout()
 {
+    tr_info("Process legacy scan timed out");
+
     if (_scan_state == ScanState::idle) {
+        tr_warning("event not passed to handler, scan state idle");
         return;
     }
 
@@ -1274,11 +1433,15 @@ void Gap::process_legacy_scan_timeout()
 #if BLE_ROLE_BROADCASTER
 void Gap::on_advertising_timeout()
 {
+    tr_info("Advertising timed out");
+
     _event_queue.post(mbed::callback(this, &Gap::process_advertising_timeout));
 }
 
 void Gap::process_advertising_timeout()
 {
+    tr_info("Process advertising timed out");
+
     if (!_active_sets.get(LEGACY_ADVERTISING_HANDLE)) {
         return;
     }
@@ -1289,6 +1452,8 @@ void Gap::process_advertising_timeout()
 
 void Gap::on_gap_event_received(const GapEvent &e)
 {
+    tr_debug("GAP event of type %s received", to_string(e.type));
+
     switch (e.type.value()) {
 #if BLE_ROLE_OBSERVER
         case GapEventType::ADVERTISING_REPORT:
@@ -1324,8 +1489,23 @@ void Gap::on_gap_event_received(const GapEvent &e)
 #if BLE_ROLE_OBSERVER
 void Gap::on_advertising_report(const GapAdvertisingReportEvent &e)
 {
+    tr_info("GAP advertising report received");
+
     for (size_t i = 0; i < e.size(); ++i) {
         GapAdvertisingReportEvent::advertising_t advertising = e[i];
+
+        tr_debug("Advertising %d - "
+                "type=%s, "
+                "address_type=%s, "
+                "address=%s, "
+                "data=%s, "
+                "rssi=%d",
+                i, /* Advertising number */
+                to_string(advertising.type),
+                to_string(advertising.address_type),
+                to_string(advertising.address),
+                mbed_trace_array(advertising.data.data(), advertising.data.size()),
+                advertising.rssi);
 
         // note 1-to-1 conversion between connection_peer_address_type_t and
         // peer_address_type_t
@@ -1384,6 +1564,26 @@ void Gap::on_advertising_report(const GapAdvertisingReportEvent &e)
 #if BLE_FEATURE_CONNECTABLE
 void Gap::on_connection_complete(const GapConnectionCompleteEvent &e)
 {
+    tr_info("Connection %d %s - "
+            "role=%s, "
+            "peer_address_type=%s "
+            "peer_address=%s, "
+            "connection_interval=%d, "
+            "connection_latency=%d, "
+            "supervision_timeout=%d, "
+            "local_resolvable_private_address=%s, "
+            "peer_resolvable_private_address=%s",
+            e.connection_handle,
+            e.status == 0 ? "successfully completed" : "failed to complete",
+            e.status == 0 ? to_string(e.role) : "n/a",
+            to_string(e.peer_address_type),
+            to_string(e.peer_address),
+            e.connection_interval,
+            e.connection_latency,
+            e.supervision_timeout,
+            to_string(e.local_resolvable_private_address),
+            to_string(e.peer_resolvable_private_address));
+
     if (e.role == connection_role_t::CENTRAL) {
         _initiating = false;
     }
@@ -1444,6 +1644,15 @@ void Gap::on_connection_complete(const GapConnectionCompleteEvent &e)
 
 void Gap::on_disconnection_complete(const GapDisconnectionCompleteEvent &e)
 {
+    if (e.status == 0) {
+        tr_info("Disconnection %d successfully completed - "
+                "reason=%d",
+                e.connection_handle,
+                e.reason);
+    } else {
+        tr_info("Disconnection %d failed", e.connection_handle);
+    }
+
     if (e.status == hci_error_code_t::SUCCESS) {
         // signal internal stack
         if (_connection_event_handler) {
@@ -1469,6 +1678,17 @@ void Gap::on_disconnection_complete(const GapDisconnectionCompleteEvent &e)
 
 void Gap::on_connection_parameter_request(const GapRemoteConnectionParameterRequestEvent &e)
 {
+    tr_info("Connection %d parameter request - "
+            "min_connection_interval=%d, "
+            "max_connection_interval=%d, "
+            "connection_latency=%d, "
+            "supervision_timeout=%d",
+            e.connection_handle,
+            e.min_connection_interval,
+            e.max_connection_interval,
+            e.connection_latency,
+            e.supervision_timeout);
+
     if (_user_manage_connection_parameter_requests) {
         if (_event_handler) {
             _event_handler->onUpdateConnectionParametersRequest(
@@ -1498,6 +1718,16 @@ void Gap::on_connection_parameter_request(const GapRemoteConnectionParameterRequ
 
 void Gap::on_connection_update(const GapConnectionUpdateEvent &e)
 {
+    tr_info("Connection %d update %s - "
+            "connection_interval=%d, "
+            "connection_latency=%d,"
+            "supervision_timeout=%d, ",
+            e.connection_handle,
+            e.status == 0 ? "successfully completed" : "failed",
+            e.connection_interval,
+            e.connection_latency,
+            e.supervision_timeout);
+
     if (!_event_handler) {
         return;
     }
@@ -1561,18 +1791,23 @@ own_address_type_t Gap::get_own_address_type(AddressUseType_t address_use_type)
 #if BLE_FEATURE_WHITELIST
 bool Gap::initialize_whitelist() const
 {
+    tr_info("Initialize whitelist");
+
     if (_whitelist.addresses != nullptr) {
+        tr_error("whitelist already initialized");
         return true;
     }
 
     uint8_t whitelist_capacity = _pal_gap.read_white_list_capacity();
 
     if (whitelist_capacity == 0) {
+        tr_error("capacity of whitelist is zero");
         return false;
     }
 
     _whitelist.addresses = new(std::nothrow) whitelist_t::entry_t[whitelist_capacity];
     if (_whitelist.addresses == nullptr) {
+        tr_error("failed to dynamically allocate memory for a whitelist of %d addresses", whitelist_capacity);
         return false;
     }
 
@@ -1654,7 +1889,9 @@ ble_error_t Gap::createAdvertisingSet(
     const AdvertisingParameters &parameters
 )
 {
+    tr_info("Create advertising set");
     if (is_extended_advertising_available() == false) {
+        tr_error("extended advertising not available");
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 
@@ -1676,6 +1913,7 @@ ble_error_t Gap::createAdvertisingSet(
             );
 
             if (err) {
+                tr_error("could not set advertising parameters");
                 _existing_sets.clear(new_handle);
             } else {
                 *handle = new_handle;
@@ -1684,6 +1922,7 @@ ble_error_t Gap::createAdvertisingSet(
         }
     }
 
+    tr_info("Success: created advertising set %d", *handle);
     return BLE_ERROR_NO_MEM;
 }
 #endif
@@ -1694,33 +1933,41 @@ ble_error_t Gap::createAdvertisingSet(
 #if BLE_FEATURE_EXTENDED_ADVERTISING
 ble_error_t Gap::destroyAdvertisingSet(advertising_handle_t handle)
 {
+    tr_info("Destroy advertising set %d", handle);
     if (is_extended_advertising_available() == false) {
+        tr_error("extended advertising not available");
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 
     if (handle == LEGACY_ADVERTISING_HANDLE) {
+        tr_error("handle cannot be equal to %d", LEGACY_ADVERTISING_HANDLE);
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (handle >= getMaxAdvertisingSetNumber()) {
+        tr_error("handle cannot be greater than/equal to %d", getMaxAdvertisingSetNumber());
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (!_existing_sets.get(handle)) {
+        tr_error("non-existent advertising set");
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (_pending_sets.get(handle) || _active_sets.get(handle)) {
+        tr_error("active advertising set");
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 #if BLE_FEATURE_PERIODIC_ADVERTISING
     if (_active_periodic_sets.get(handle)) {
+        tr_error("active periodic advertising set");
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 #endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
     ble_error_t err = _pal_gap.remove_advertising_set(handle);
     if (err) {
+        tr_error("PAL could not remove advertising set");
         return err;
     }
 
@@ -1739,18 +1986,60 @@ ble_error_t Gap::setAdvertisingParameters(
     const AdvertisingParameters &params
 )
 {
+    tr_info("Advertising set %d: set advertising parameters - "
+            "_advType=%s, "
+            "_minInterval=%" PRIu32 "ms, "
+            "_maxInterval=%" PRIu32 "ms, "
+            "_peerAddressType=%s, "
+            "_ownAddressType=%s, "
+            "_policy=%s, "
+            "_primaryPhy=%s, "
+            "_secondaryPhy=%s, "
+            "_peerAddress=%s, "
+            "_txPower=%d, "
+            "_maxSkip=%u, "
+            "_channel37=%s, "
+            "_channel38=%s, "
+            "_channel39=%s, "
+            "_anonymous=%s, "
+            "_notifyOnScan=%s, "
+            "_legacyPDU=%s, "
+            "_includeHeaderTxPower=%s",
+            handle,
+            to_string(params.getType()),
+            params.getMinPrimaryInterval().valueInMs(),
+            params.getMaxPrimaryInterval().valueInMs(),
+            to_string(params.getPeerAddressType()),
+            to_string(params.getOwnAddressType()),
+            to_string(params.getFilter()),
+            to_string(params.getPrimaryPhy()),
+            to_string(params.getSecondaryPhy()),
+            to_string(params.getPeerAddress()),
+            params.getTxPower(),
+            params.getSecondaryMaxSkip(),
+            to_string(params.getChannel37()),
+            to_string(params.getChannel38()),
+            to_string(params.getChannel39()),
+            to_string(params.getAnonymousAdvertising()),
+            to_string(params.getScanRequestNotification()),
+            to_string(params.getUseLegacyPDU()),
+            to_string(params.getTxPowerInHeader()));
+
     if (handle >= getMaxAdvertisingSetNumber()) {
+        tr_error("handle cannot be greater than/equal to %d", getMaxAdvertisingSetNumber());
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    // It is not permited to reconfigure an advertising set while advertising
+    // It is not permitted to reconfigure an advertising set while advertising
     if (_pending_sets.get(handle) || _active_sets.get(handle)) {
+        tr_error("active advertising set");
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 
 #if BLE_FEATURE_PRIVACY
     // If privacy is enabled, alter the own address type used during advertising
     if (_privacy_enabled && params.getOwnAddressType() != own_address_type_t::RANDOM) {
+        tr_error("privacy enabled, cannot use random address");
         return BLE_ERROR_INVALID_PARAM;
     }
 #endif
@@ -1760,6 +2049,7 @@ ble_error_t Gap::setAdvertisingParameters(
         if (handle == LEGACY_ADVERTISING_HANDLE) {
             return prepare_legacy_advertising_set(params);
         } else {
+            tr_error("legacy advertising, handle must be equal to %d", LEGACY_ADVERTISING_HANDLE);
             return BLE_ERROR_INVALID_PARAM;
         }
     } else if (is_extended_advertising_available()) {
@@ -1768,6 +2058,7 @@ ble_error_t Gap::setAdvertisingParameters(
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
     {
         if (handle != LEGACY_ADVERTISING_HANDLE) {
+            tr_error("legacy advertising, handle must be equal to %d", LEGACY_ADVERTISING_HANDLE);
             return BLE_ERROR_INVALID_PARAM;
         }
 
@@ -1790,6 +2081,8 @@ ble_error_t Gap::setAdvertisingParameters(
 
         if (!err) {
             update_advertising_set_connectable_attribute(handle, params);
+        } else {
+            tr_error("PAL could not set advertising parameters");
         }
         return err;
     }
@@ -1803,12 +2096,52 @@ ble_error_t Gap::setExtendedAdvertisingParameters(
     const AdvertisingParameters &params
 )
 {
+    tr_info("Advertising set %d: set extended advertising parameters - "
+            "_advType=%s, "
+            "_minInterval=%" PRIu32 "ms, "
+            "_maxInterval=%" PRIu32 "ms, "
+            "_peerAddressType=%s, "
+            "_ownAddressType=%s, "
+            "_policy=%s, "
+            "_primaryPhy=%s, "
+            "_secondaryPhy=%s, "
+            "_peerAddress=%s, "
+            "_txPower=%d, "
+            "_maxSkip=%u, "
+            "_channel37=%s, "
+            "_channel38=%s, "
+            "_channel39=%s, "
+            "_anonymous=%s, "
+            "_notifyOnScan=%s, "
+            "_legacyPDU=%s, "
+            "_includeHeaderTxPower=%s",
+            handle,
+            to_string(params.getType()),
+            params.getMinPrimaryInterval().valueInMs(),
+            params.getMaxPrimaryInterval().valueInMs(),
+            to_string(params.getPeerAddressType()),
+            to_string(params.getOwnAddressType()),
+            to_string(params.getFilter()),
+            to_string(params.getPrimaryPhy()),
+            to_string(params.getSecondaryPhy()),
+            to_string(params.getPeerAddress()),
+            params.getTxPower(),
+            params.getSecondaryMaxSkip(),
+            to_string(params.getChannel37()),
+            to_string(params.getChannel38()),
+            to_string(params.getChannel39()),
+            to_string(params.getAnonymousAdvertising()),
+            to_string(params.getScanRequestNotification()),
+            to_string(params.getUseLegacyPDU()),
+            to_string(params.getTxPowerInHeader()));
+
     /* check for illegal parameter combination */
     if ((params.getType() == advertising_type_t::CONNECTABLE_UNDIRECTED ||
          params.getType() == advertising_type_t::CONNECTABLE_DIRECTED) &&
         params.getUseLegacyPDU() == false
     ) {
         /* these types can only be used with legacy PDUs */
+        tr_error("directed and undirected connections can only be used with legacy PDUs");
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -1843,6 +2176,8 @@ ble_error_t Gap::setExtendedAdvertisingParameters(
 
     if (!err) {
         update_advertising_set_connectable_attribute(handle, params);
+    } else {
+        tr_error("PAL could not set extended advertising parameters");
     }
 
     return err;
@@ -1889,6 +2224,15 @@ ble_error_t Gap::setAdvertisingData(
     bool scan_response
 )
 {
+    tr_info("Advertising set %d: set advertising data - "
+            "payload=%s, "
+            "minimiseFragmentation=%s, "
+            "scan_response=%s",
+            handle,
+            mbed_trace_array(payload.data(), payload.size()),
+            to_string(minimiseFragmentation),
+            to_string(scan_response));
+
     // type declarations
     typedef advertising_fragment_description_t op_t;
     typedef ble_error_t (PalGap::*legacy_set_data_fn_t)(
@@ -1905,6 +2249,7 @@ ble_error_t Gap::setAdvertisingData(
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING
     if (handle >= getMaxAdvertisingSetNumber()) {
+        tr_error("non-existent advertising set");
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -1912,6 +2257,7 @@ ble_error_t Gap::setAdvertisingData(
         if (handle == LEGACY_ADVERTISING_HANDLE) {
             prepare_legacy_advertising_set(AdvertisingParameters{});
         } else {
+            tr_error("non-existent advertising set");
             return BLE_ERROR_INVALID_PARAM;
         }
     }
@@ -1920,10 +2266,12 @@ ble_error_t Gap::setAdvertisingData(
     if (is_extended_advertising_available() == false) {
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
         if (handle != LEGACY_ADVERTISING_HANDLE) {
+            tr_error("handle must be equal to %d for legacy advertising", LEGACY_ADVERTISING_HANDLE);
             return BLE_ERROR_INVALID_PARAM;
         }
 
         if (payload.size() > LEGACY_ADVERTISING_MAX_SIZE) {
+            tr_error("legacy advertising payload size cannot be greater than %d", LEGACY_ADVERTISING_MAX_SIZE);
             return BLE_ERROR_INVALID_PARAM;
         }
 
@@ -1941,21 +2289,19 @@ ble_error_t Gap::setAdvertisingData(
     }
 
     if (payload.size() > getMaxAdvertisingDataLength()) {
-        MBED_WARNING(MBED_ERROR_INVALID_SIZE, "Payload size exceeds getMaxAdvertisingDataLength().");
+        tr_error("payload size cannot be greater than %u", getMaxAdvertisingDataLength());
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if ((_pending_sets.get(handle) || _active_sets.get(handle)) && payload.size() > this->getMaxActiveSetAdvertisingDataLength()) {
-        MBED_WARNING(MBED_ERROR_INVALID_SIZE, "Payload size for active sets needs to fit in a single operation"
-                                              " - not greater than getMaxActiveSetAdvertisingDataLength().");
+        tr_error ("payload size for active sets cannot be greater than %u", getMaxActiveSetAdvertisingDataLength());
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (!scan_response) {
         if (payload.size() > this->getMaxConnectableAdvertisingDataLength()) {
             if ((_pending_sets.get(handle) || _active_sets.get(handle)) && _set_is_connectable.get(handle)) {
-                MBED_WARNING(MBED_ERROR_INVALID_SIZE, "Payload size for connectable advertising"
-                                                      " exceeds getMaxAdvertisingDataLength().");
+                tr_error("payload size for connectable advertising cannot be greater %u", getMaxAdvertisingDataLength());
                 return BLE_ERROR_INVALID_PARAM;
             } else {
                 _connectable_payload_size_exceeded.set(handle);
@@ -2014,31 +2360,42 @@ ble_error_t Gap::startAdvertising(
     uint8_t maxEvents
 )
 {
+    tr_info("Advertising set %d: start advertising - "
+            "maxDuration=%" PRIu32 "ms, "
+            "maxEvents=%u",
+            handle,
+            maxDuration.valueInMs(),
+            maxEvents);
+
     ble_error_t error = BLE_ERROR_NONE;
 
     // the stack is busy because it is starting, stopping or refreshing internally
     // the address.
     if (_pending_sets.get(handle) || _address_refresh_sets.get(handle)) {
+        tr_error("stack busy");
         return BLE_STACK_BUSY;
     }
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING
     if (handle >= getMaxAdvertisingSetNumber()) {
+        tr_error("handle cannot be greater than/equal to %d", getMaxAdvertisingSetNumber());
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (!_existing_sets.get(handle)) {
+        tr_error("non-existent advertising set");
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (_connectable_payload_size_exceeded.get(handle) && _set_is_connectable.get(handle)) {
-        MBED_WARNING(MBED_ERROR_INVALID_SIZE, "Payload size exceeds size allowed for connectable advertising.");
+        tr_error("payload size exceeds size allowed for connectable advertising");
         return BLE_ERROR_INVALID_STATE;
     }
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
     const address_t* random_address = get_random_address(controller_operation_t::advertising, handle);
     if (!random_address) {
+        tr_error("could not get random address");
         return BLE_ERROR_INVALID_STATE;
     }
 
@@ -2074,16 +2431,20 @@ ble_error_t Gap::startAdvertising(
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
     {
         if (handle != LEGACY_ADVERTISING_HANDLE) {
+            tr_error("legacy advertising, handle must be equal to %d", LEGACY_ADVERTISING_HANDLE);
             return BLE_ERROR_INVALID_PARAM;
         }
 
         // Address can be updated if the device is not scanning or advertising
         if ((_scan_state == ScanState::idle) && !_active_sets.get(LEGACY_ADVERTISING_HANDLE)) {
             _pal_gap.set_random_address(*random_address);
+        } else {
+            tr_error("could not update address, device scanning/advertising");
         }
 
         error = _pal_gap.advertising_enable(true);
         if (error) {
+            tr_error("PAL could not enable advertising");
             return error;
         }
 
@@ -2108,19 +2469,23 @@ ble_error_t Gap::startAdvertising(
 #if BLE_ROLE_BROADCASTER
 ble_error_t Gap::stopAdvertising(advertising_handle_t handle)
 {
+    tr_info("Advertising set %d: stop advertising", handle);
     ble_error_t status;
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING
     if (handle >= getMaxAdvertisingSetNumber()) {
+        tr_error("handle cannot be greater than/equal to %d", getMaxAdvertisingSetNumber());
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (!_existing_sets.get(handle)) {
+        tr_error("non-existent advertising set");
         return BLE_ERROR_INVALID_PARAM;
     }
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
     if (_pending_sets.get(handle)) {
+        tr_error("set pending");
         return BLE_STACK_BUSY;
     }
 
@@ -2145,6 +2510,7 @@ ble_error_t Gap::stopAdvertising(advertising_handle_t handle)
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
     {
         if (handle != LEGACY_ADVERTISING_HANDLE) {
+            tr_error("legacy advertising, handle must be equal to %d", LEGACY_ADVERTISING_HANDLE);
             return BLE_ERROR_INVALID_PARAM;
         }
 
@@ -2168,6 +2534,7 @@ ble_error_t Gap::stopAdvertising(advertising_handle_t handle)
 bool Gap::isAdvertisingActive(advertising_handle_t handle)
 {
     if (handle >= getMaxAdvertisingSetNumber()) {
+        tr_error("Cannot determine if periodic advertising is active: handle greater than/equal to %d", getMaxAdvertisingSetNumber());
         return false;
     }
 
@@ -2185,19 +2552,32 @@ ble_error_t Gap::setPeriodicAdvertisingParameters(
     bool advertiseTxPower
 )
 {
+    tr_info("Advertising et %d: set periodic advertising parameters- "
+            "periodicAdvertisingIntervalMin=%" PRIu32 "ms, "
+            "periodicAdvertisingIntervalMax=%" PRIu32 "ms, "
+            "advertiseTxPower=%s",
+            handle,
+            periodicAdvertisingIntervalMin.valueInMs(),
+            periodicAdvertisingIntervalMax.valueInMs(),
+            to_string(advertiseTxPower));
+
     if (periodicAdvertisingIntervalMin.value() > periodicAdvertisingIntervalMax.value()) {
+        tr_error("min. adv. interval cannot be greater than max. adv. interval");
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (handle == LEGACY_ADVERTISING_HANDLE) {
+        tr_error("handle cannot be equal to %d", LEGACY_ADVERTISING_HANDLE);
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (handle >= getMaxAdvertisingSetNumber()) {
+        tr_error("handle cannot be greater than/equal to %d", getMaxAdvertisingSetNumber());
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (!_existing_sets.get(handle)) {
+        tr_error("non-existent advertising set");
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -2219,19 +2599,27 @@ ble_error_t Gap::setPeriodicAdvertisingPayload(
     Span<const uint8_t> payload
 )
 {
+    tr_info("Advertising set %d: set periodic advertising payload", handle);
+#if TRACE_WRITE_VALUES
+    tr_debug("payload=%s", mbed_trace_array(payload, payload.size()));
+#endif
     if (handle == LEGACY_ADVERTISING_HANDLE) {
+        tr_error("handle cannot be equal to %d", LEGACY_ADVERTISING_HANDLE);
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (handle >= getMaxAdvertisingSetNumber()) {
+        tr_error("handle cannot be greater than/equal %d", getMaxAdvertisingSetNumber());
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (!_existing_sets.get(handle)) {
+        tr_error("non-existent advertising set");
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (payload.size() > getMaxAdvertisingDataLength()) {
+        tr_error("payload size cannot be greater than %d", getMaxAdvertisingSetNumber());
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -2284,23 +2672,29 @@ ble_error_t Gap::setPeriodicAdvertisingPayload(
 #if BLE_FEATURE_PERIODIC_ADVERTISING
 ble_error_t Gap::startPeriodicAdvertising(advertising_handle_t handle)
 {
+    tr_info("Advertising set %d: start periodic advertising", handle);
     if (handle == LEGACY_ADVERTISING_HANDLE) {
+        tr_error("handle cannot be equal to %d", LEGACY_ADVERTISING_HANDLE);
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (handle >= getMaxAdvertisingSetNumber()) {
+        tr_error("handle cannot be greater than/equal to %d", getMaxAdvertisingSetNumber());
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (!_existing_sets.get(handle)) {
+        tr_error("non-existent advertising set");
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (_active_sets.get(handle) == false) {
+        tr_error("inactive advertising set");
         return BLE_ERROR_INVALID_STATE;
     }
 
     if (_active_periodic_sets.get(handle) == true) {
+        tr_error("active periodic advertising set");
         return BLE_ERROR_INVALID_STATE;
     }
 
@@ -2320,19 +2714,24 @@ ble_error_t Gap::startPeriodicAdvertising(advertising_handle_t handle)
 #if BLE_FEATURE_PERIODIC_ADVERTISING
 ble_error_t Gap::stopPeriodicAdvertising(advertising_handle_t handle)
 {
+    tr_info("Advertising set %d: stop periodic advertising", handle);
     if (handle == LEGACY_ADVERTISING_HANDLE) {
+        tr_error("handle cannot be equal to %d", handle);
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (handle >= getMaxAdvertisingSetNumber()) {
+        tr_error("handle cannot be greater than/equal to %d", getMaxAdvertisingSetNumber());
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (!_existing_sets.get(handle)) {
+        tr_error("non-existent advertising set");
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (_active_periodic_sets.get(handle) == false) {
+        tr_error("inactive advertising set");
         return BLE_ERROR_INVALID_STATE;
     }
 
@@ -2353,6 +2752,7 @@ ble_error_t Gap::stopPeriodicAdvertising(advertising_handle_t handle)
 bool Gap::isPeriodicAdvertisingActive(advertising_handle_t handle)
 {
     if (handle >= getMaxAdvertisingSetNumber()) {
+        tr_error("Can't determine if periodic advertising is active: handle greater than/equal to %d", getMaxAdvertisingSetNumber());
         return false;
     }
 
@@ -2379,6 +2779,49 @@ void Gap::on_extended_advertising_report(
     const uint8_t *data
 )
 {
+    tr_debug("Extended advertising report - "
+            "event_type=["
+            "connectable=%s, "
+            "scannable_advertising=%s, "
+            "direct_advertising=%s, "
+            "scan_response=%s, "
+            "legacy_advertising=%s, "
+            "complete=%s, "
+            "more_data_to_come=%s, "
+            "truncated=%s], "
+            "address_type=%s, "
+            "address=%s, "
+            "primary_phy=%s, "
+            "secondary_phy=%s, "
+            "advertising_sid=%d, "
+            "tx_power=%d, "
+            "rssi=%d, "
+            "periodic_advertising_interval=%d, "
+            "direct_address_type=%s, "
+            "direct_address=%s,"
+            "data_length=%d, "
+            "data=%s",
+            to_string(event_type.connectable()),
+            to_string(event_type.scannable_advertising()),
+            to_string(event_type.directed_advertising()),
+            to_string(event_type.scan_response()),
+            to_string(event_type.legacy_advertising()),
+            to_string(event_type.complete()),
+            to_string(event_type.more_data_to_come()),
+            to_string(event_type.truncated()),
+            to_string(*address_type),
+            to_string(address),
+            to_string(primary_phy),
+            to_string(*secondary_phy),
+            advertising_sid,
+            tx_power,
+            rssi,
+            periodic_advertising_interval,
+            to_string(direct_address_type),
+            to_string(direct_address),
+            data_length,
+            mbed_trace_array(data, data_length));
+
     if (!_event_handler) {
         return;
     }
@@ -2510,6 +2953,9 @@ void Gap::signal_connection_complete(
             _event_handler->onConnectionComplete(
                 event
             );
+            tr_info("Connection %d: disconnecting - reason=%s",
+                    event.getConnectionHandle(),
+                    to_string(local_disconnection_reason_t::LOW_RESOURCES));
             _pal_gap.disconnect(
                 event.getConnectionHandle(),
                 local_disconnection_reason_t::LOW_RESOURCES
@@ -2553,6 +2999,9 @@ bool Gap::apply_peripheral_privacy_connection_policy(
             if (_private_address_controller.read_resolving_list_size() == 0) {
                 return true;
             }
+            tr_info("Connection %d: disconnecting - reason=%s",
+                    event.getConnectionHandle(),
+                    to_string(local_disconnection_reason_t{local_disconnection_reason_t::AUTHENTICATION_FAILURE}));
             _pal_gap.disconnect(
                 connection_handle,
                 local_disconnection_reason_t::AUTHENTICATION_FAILURE
@@ -2767,6 +3216,23 @@ void Gap::on_periodic_advertising_sync_established(
     clock_accuracy_t clock_accuracy
 )
 {
+    tr_info("Sync %d: periodic advertising sync established - "
+            "error=%s, "
+            "advertising_sid=%d, "
+            "advertiser_address_typ=%s, "
+            "advertiser_address=%s, "
+            "advertiser_phy=%s, "
+            "periodic_advertising_interval=%d, "
+            "clock_accuracy=%d ppm",
+            sync_handle,
+            to_string(error),
+            advertising_sid,
+            to_string(advertiser_address_type),
+            to_string(advertiser_address),
+            to_string(advertiser_phy),
+            periodic_advertising_interval,
+            clock_accuracy.get_ppm());
+
     if (!_event_handler) {
         return;
     }
@@ -2795,6 +3261,19 @@ void Gap::on_periodic_advertising_report(
     const uint8_t *data
 )
 {
+    tr_debug("Sync %d: periodic advertising report - "
+            "tx_power=%d, "
+            "rssi=%d,"
+            "data_status=%s, "
+            "data_length=%d,"
+            "data=%s",
+            sync_handle,
+            tx_power,
+            rssi,
+            to_string(data_status),
+            data_length,
+            mbed_trace_array(data, data_length));
+
     if (!_event_handler) {
         return;
     }
@@ -2813,6 +3292,8 @@ void Gap::on_periodic_advertising_report(
 
 void Gap::on_periodic_advertising_sync_loss(sync_handle_t sync_handle)
 {
+    tr_info("Sync %d: periodic advertising sync loss", sync_handle);
+
     if (!_event_handler) {
         return;
     }
@@ -2827,6 +3308,8 @@ void Gap::on_periodic_advertising_sync_loss(sync_handle_t sync_handle)
 #if BLE_ROLE_BROADCASTER
 void Gap::on_legacy_advertising_started()
 {
+    tr_info("Legacy advertising started");
+
     _active_sets.set(LEGACY_ADVERTISING_HANDLE);
     _pending_sets.clear(LEGACY_ADVERTISING_HANDLE);
 
@@ -2841,6 +3324,8 @@ void Gap::on_legacy_advertising_started()
 
 void Gap::on_legacy_advertising_stopped()
 {
+    tr_info("Legacy advertising stopped");
+
     _active_sets.clear(LEGACY_ADVERTISING_HANDLE);
     _pending_sets.clear(LEGACY_ADVERTISING_HANDLE);
 
@@ -2863,6 +3348,8 @@ void Gap::on_legacy_advertising_stopped()
 #if BLE_FEATURE_EXTENDED_ADVERTISING
 void Gap::on_advertising_set_started(const mbed::Span<const uint8_t>& handles)
 {
+    tr_info("Advertising set started - handles=%s", mbed_trace_array(handles.data(), handles.size()));
+
     for (const auto &handle : handles) {
         _active_sets.set(handle);
         _pending_sets.clear(handle);
@@ -2883,12 +3370,21 @@ void Gap::on_advertising_set_terminated(
     uint8_t number_of_completed_extended_advertising_events
 )
 {
+    tr_info("Advertising set %d on connection %d terminated - "
+            "status=%s, "
+            "number_of_completed_extended_advertising_events=%d ",
+            advertising_handle,
+            connection_handle,
+            to_string(status),
+            number_of_completed_extended_advertising_events);
+
     _active_sets.clear(advertising_handle);
     _pending_sets.clear(advertising_handle);
 
     // If this is part of the address refresh start advertising again.
     if (_address_refresh_sets.get(advertising_handle) && !connection_handle) {
         _address_refresh_sets.clear(advertising_handle);
+        tr_info("Part of the address refresh, restarting advertising");
         startAdvertising(advertising_handle);
         _adv_started_from_refresh.set(advertising_handle);
         return;
@@ -2914,6 +3410,13 @@ void Gap::on_scan_request_received(
     const ble::address_t &address
 )
 {
+    tr_info("Advertising set %d: scan request received - "
+            "scanner_address_type=%s, "
+            "address=%s",
+            advertising_handle,
+            to_string(scanner_address_type),
+            to_string(address));
+
     if (!_event_handler) {
         return;
     }
@@ -2938,6 +3441,17 @@ void Gap::on_connection_update_complete(
     uint16_t supervision_timeout
 )
 {
+    tr_info("Update complete for connection %d - "
+            "status=%s, "
+            "connection_interval=%d, "
+            "connection_latency=%d, "
+            "supervision_timeout=%d",
+            connection_handle,
+            to_string(status),
+            connection_interval,
+            connection_latency,
+            supervision_timeout);
+
     if (!_event_handler) {
         return;
     }
@@ -2961,6 +3475,17 @@ void Gap::on_remote_connection_parameter(
     uint16_t supervision_timeout
 )
 {
+    tr_info("Connection %d: remote connection parameter request - "
+            "connection_interval_min=%d, "
+            "connection_interval_max=%d, "
+            "connection_latency=%d, "
+            "supervision_timeout=%d",
+            connection_handle,
+            connection_interval_min,
+            connection_interval_max,
+            connection_latency,
+            supervision_timeout);
+
     if (_user_manage_connection_parameter_requests) {
         if (_event_handler) {
             _event_handler->onUpdateConnectionParametersRequest(
@@ -2989,7 +3514,34 @@ void Gap::on_remote_connection_parameter(
 #if BLE_ROLE_OBSERVER
 ble_error_t Gap::setScanParameters(const ScanParameters &params)
 {
+    if (params.get1mPhyConfiguration().isActiveScanningSet()) {
+        tr_info("Set scan parameters - "
+                "own_address_type=%s, "
+                "scanning_filter_policy=%s, "
+                "phys=%d, "
+                "phy_1m_configuration:[interval=%" PRIu32 "ms,window=%" PRIu32 "ms,active_scanning=%s]",
+                to_string(params.getOwnAddressType()),
+                to_string(params.getFilter()),
+                params.getPhys().value(),
+                params.get1mPhyConfiguration().getInterval().valueInMs(),
+                params.get1mPhyConfiguration().getWindow().valueInMs(),
+                to_string(params.get1mPhyConfiguration().isActiveScanningSet()));
+    } else {
+        tr_info("Set scan parameters - "
+                "own_address_type=%s, "
+                "scanning_filter_policy=%s, "
+                "phys=%d, "
+                "phy_coded_configuration:[interval=%" PRIu32 "ms,window=%" PRIu32 "ms,active_scanning=%s]",
+                to_string(params.getOwnAddressType()),
+                to_string(params.getFilter()),
+                params.getPhys().value(),
+                params.getCodedPhyConfiguration().getInterval().valueInMs(),
+                params.getCodedPhyConfiguration().getWindow().valueInMs(),
+                to_string(params.getCodedPhyConfiguration().isActiveScanningSet()));
+    }
+
     if (_privacy_enabled && params.getOwnAddressType() != own_address_type_t::RANDOM) {
+        tr_error("privacy enabled, cannot use random address");
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -3022,6 +3574,7 @@ ble_error_t Gap::setScanParameters(const ScanParameters &params)
 #endif
     {
         if (params.getPhys().get_coded()) {
+            tr_error("cannot use coded PHY with legacy configuration");
             return BLE_ERROR_INVALID_PARAM;
         }
 
@@ -3047,7 +3600,16 @@ ble_error_t Gap::startScan(
     scan_period_t period
 )
 {
+    tr_info("Start scan - "
+            "duration=%" PRIu32 "ms, "
+            "filtering=%s, "
+            "period=%" PRIu32 "ms",
+            duration.valueInMs(),
+            to_string(filtering),
+            period.valueInMs());
+
     if (_initiating) {
+        tr_error("busy trying to connect");
         return BLE_STACK_BUSY;
     }
 
@@ -3061,6 +3623,8 @@ ble_error_t Gap::startScan(
         if (ret != BLE_ERROR_NONE) {
             return ret;
         }
+    } else {
+        tr_warning("Cannot start scan immediately as not idle");
     }
 
     _scan_requested = true;
@@ -3070,8 +3634,10 @@ ble_error_t Gap::startScan(
 
 ble_error_t Gap::initiate_scan()
 {
+    tr_info("Initiate scan");
     const address_t *address = get_random_address(controller_operation_t::scanning);
     if (!address) {
+        tr_error("could not get random address");
         return BLE_ERROR_INVALID_STATE;
     }
 
@@ -3096,6 +3662,7 @@ ble_error_t Gap::initiate_scan()
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
     {
         if (_scan_requested_period.value() != 0) {
+            tr_error("scan request period cannot be equal to 0");
             return BLE_ERROR_INVALID_PARAM;
         }
 
@@ -3123,7 +3690,7 @@ ble_error_t Gap::initiate_scan()
         }
     }
 
-    _scan_state = ScanState::pending_scan;
+    set_scan_state(ScanState::pending_scan);
 
     return BLE_ERROR_NONE;
 }
@@ -3139,17 +3706,32 @@ ble_error_t Gap::createSync(
     sync_timeout_t timeout
 )
 {
+    tr_info("Create sync - "
+            "peerAddressType=%s, "
+            "peerAddress=%s, "
+            "sid=%u, "
+            "maxPacketSkip=%hu, "
+            "timeout=%" PRIu32 "ms",
+            to_string(peerAddressType),
+            to_string(peerAddress),
+            sid,
+            maxPacketSkip.value(),
+            timeout.valueInMs());
+
     if (is_extended_advertising_available() == false) {
+        tr_error("extended advertising not available");
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     if (peerAddressType != peer_address_type_t::PUBLIC &&
         peerAddressType != peer_address_type_t::RANDOM
         ) {
+        tr_error("peer address type must be public/random");
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (sid > 0x0F) {
+        tr_error("sid cannot be greater than 0x0F");
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -3173,7 +3755,14 @@ ble_error_t Gap::createSync(
     sync_timeout_t timeout
 )
 {
+    tr_info("Create sync - "
+            "maxPacketSkip=%hu, "
+            "timeout=%" PRIu32 "ms",
+            maxPacketSkip.value(),
+            timeout.valueInMs());
+
     if (is_extended_advertising_available() == false) {
+        tr_error("extended advertising not available");
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
@@ -3195,6 +3784,7 @@ ble_error_t Gap::createSync(
 ble_error_t Gap::cancelCreateSync()
 {
     if (is_extended_advertising_available() == false) {
+        tr_error("Failed to cancel create sync: extended advertising not available");
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
@@ -3208,7 +3798,10 @@ ble_error_t Gap::cancelCreateSync()
 #if BLE_FEATURE_PERIODIC_ADVERTISING
 ble_error_t Gap::terminateSync(periodic_sync_handle_t handle)
 {
+    tr_info("Teminate sync %d", handle);
+    
     if (is_extended_advertising_available() == false) {
+        tr_error("extended advertising not available");
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
@@ -3226,16 +3819,27 @@ ble_error_t Gap::addDeviceToPeriodicAdvertiserList(
     advertising_sid_t sid
 )
 {
+    tr_info("Add device to periodic advertising list - "
+            "peerAddressType=%s, "
+            "peerAddress=%s, "
+            "sid=%u",
+            to_string(peerAddressType),
+            to_string(peerAddress),
+            sid);
+
     if (is_extended_advertising_available() == false) {
+        tr_error("extended advertising not available");
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     if ((peerAddressType != peer_address_type_t::PUBLIC) &&
         (peerAddressType != peer_address_type_t::RANDOM)) {
+        tr_error("peer address type must be public/random");
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (sid > 0x0F) {
+        tr_error("sid cannot be greater than 0x0F");
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -3257,16 +3861,27 @@ ble_error_t Gap::removeDeviceFromPeriodicAdvertiserList(
     advertising_sid_t sid
 )
 {
+    tr_info("Remove device from periodic advertising list - "
+            "peerAddressType=%s, "
+            "peerAddress=%s, "
+            "sid=%u",
+            to_string(peerAddressType),
+            to_string(peerAddress),
+            sid);
+
     if (is_extended_advertising_available() == false) {
+        tr_error("extended advertising not available");
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     if ((peerAddressType != peer_address_type_t::PUBLIC) &&
         (peerAddressType != peer_address_type_t::RANDOM)) {
+        tr_error("peer address must be public/random");
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (sid > 0x0F) {
+        tr_error("set ID cannot be greater than 0x0F");
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -3285,6 +3900,7 @@ ble_error_t Gap::removeDeviceFromPeriodicAdvertiserList(
 ble_error_t Gap::clearPeriodicAdvertiserList()
 {
     if (is_extended_advertising_available() == false) {
+        tr_error("Failed to clear periodic advertiser list: extended advertising not available");
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
@@ -3299,6 +3915,7 @@ ble_error_t Gap::clearPeriodicAdvertiserList()
 uint8_t Gap::getMaxPeriodicAdvertiserListSize()
 {
     if (is_extended_advertising_available() == false) {
+        tr_error("Failed to get max. periodic advertiser list size: extended advertising not available");
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
@@ -3343,6 +3960,9 @@ ble_error_t Gap::prepare_legacy_advertising_set(const AdvertisingParameters& par
 
 void Gap::setEventHandler(Gap::EventHandler *handler)
 {
+    if (handler == nullptr) {
+        tr_warning("Setting GAP event handler to a null pointer");
+    }
     _event_handler = handler;
 }
 
@@ -3359,7 +3979,10 @@ void Gap::on_non_resolvable_private_addresses_generated(const address_t &address
 
 void Gap::on_private_address_generated(bool connectable)
 {
+    tr_info("Private address generated - connectable=%s", to_string(connectable));
+
     if (!_privacy_enabled) {
+        tr_error("privacy enabled, not passing to event handler");
         return;
     }
 
@@ -3413,6 +4036,16 @@ void Gap::on_address_resolution_completed(
     const address_t &identity_address
 )
 {
+    tr_info("Address resolution completed - "
+            "peer_resolvable_address=%s, "
+            "resolved=%s, "
+            "identity_address_type=%s, "
+            "identity_address=%s",
+            to_string(peer_resolvable_address),
+            to_string(resolved),
+            to_string(identity_address_type),
+            to_string(identity_address));
+
     if (!_event_handler || !_privacy_enabled) {
         return;
     }

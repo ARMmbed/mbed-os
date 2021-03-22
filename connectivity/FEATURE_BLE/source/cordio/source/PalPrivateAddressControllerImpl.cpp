@@ -19,24 +19,32 @@
 
 #include "PalPrivateAddressControllerImpl.h"
 #include "dm_api.h"
+#include "mbed-trace/mbed_trace.h"
+#include "common/ble_trace_helpers.h"
+
+#define TRACE_GROUP "BLPR"
 
 namespace ble {
 namespace impl {
 
 ble_error_t PalPrivateAddressController::initialize()
 {
+    tr_info("Initialize privacy PAL");
     DmPrivInit();
     return BLE_ERROR_NONE;
 }
 
 ble_error_t PalPrivateAddressController::terminate()
 {
+    tr_info("Terminate privacy PAL");
     return BLE_ERROR_NONE;
 }
 
 ble_error_t PalPrivateAddressController::generate_resolvable_private_address(const irk_t& local_irk)
 {
+    tr_info("PAL start generation of RPA from local irk: %s", to_string(local_irk));
     if (_generating_rpa) {
+        tr_error("PAL can't generate RPA, it is busy handling a previous request");
         return BLE_ERROR_INVALID_STATE;
     }
 
@@ -50,6 +58,7 @@ address_t PalPrivateAddressController::generate_non_resolvable_private_address()
     address_t address;
     SecRand(address.data(), address.size());
     DM_RAND_ADDR_SET(address, DM_RAND_ADDR_NONRESOLV);
+    tr_info("Non resolvable private address generated: %s", to_string(address));
     return address;
 }
 
@@ -59,9 +68,11 @@ ble_error_t PalPrivateAddressController::resolve_private_address(
 )
 {
     if (_resolving_rpa) {
+        tr_error("Failed to start resolution of RPA: Handling a previous request");
         return BLE_ERROR_INVALID_STATE;
     }
 
+    tr_debug("Start resolution of private address: address=%s, irk=%s", to_string(address), to_string(irk));
     DmPrivResolveAddr(
         const_cast<uint8_t*>(address.data()),
         const_cast<uint8_t*>(irk.data()),
@@ -77,6 +88,7 @@ bool PalPrivateAddressController::is_ll_privacy_supported()
 
 ble_error_t PalPrivateAddressController::set_ll_address_resolution(bool enable)
 {
+    tr_info("Enable LL private address resolution");
     DmPrivSetAddrResEnable(enable);
     return BLE_ERROR_NONE;
 }
@@ -86,9 +98,11 @@ ble_error_t PalPrivateAddressController::set_ll_resolvable_private_address_timeo
 )
 {
     if (HciLlPrivacySupported() == false) {
+        tr_error("Operation not supported by LL: RPA generation");
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
+    tr_info("Set LL resolvable private address generation timeout: %d s", timeout.value());
     DmPrivSetResolvablePrivateAddrTimeout(timeout.value());
     return BLE_ERROR_NONE;
 }
@@ -106,8 +120,12 @@ ble_error_t PalPrivateAddressController::add_device_to_resolving_list(
 )
 {
     if (is_ll_privacy_supported() == false) {
+        tr_error("Operation not supported by LL: RPA resolution");
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
+
+    tr_info("Add RPA to LL resolving list: peer address=%s, type=%s, peer irk=%s, local irk=%s",
+        to_string(peer_identity_address), to_string(peer_address_type), to_string(peer_irk), to_string(local_irk));
     DmPrivAddDevToResList(
         peer_address_type.value(),
         peer_identity_address.data(),
@@ -130,9 +148,12 @@ ble_error_t PalPrivateAddressController::remove_device_from_resolving_list(
 )
 {
     if (is_ll_privacy_supported() == false) {
+        tr_error("Operation not supported by LL: RPA resolution");
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
+    tr_info("Remove RPA from LL resolving list: peer address=%s, type=%s",
+        to_string(peer_identity_address), to_string(peer_address_type));
     DmPrivRemDevFromResList(peer_address_type.value(), peer_identity_address.data(), 0);
     return BLE_ERROR_NONE;
 }
@@ -144,8 +165,11 @@ ble_error_t PalPrivateAddressController::set_peer_privacy_mode(
 )
 {
     if (is_ll_privacy_supported() == false) {
+        tr_error("Operation not supported by LL: privacy");
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
+    tr_info("Set privacy mode: peer address=%s, type=%s, mode=%s",
+        to_string(peer_address), to_string(peer_address_type), to_string(privacy_mode));
     DmPrivSetPrivacyMode(
         peer_address_type.value(),
         peer_address.data(),
@@ -157,9 +181,11 @@ ble_error_t PalPrivateAddressController::set_peer_privacy_mode(
 ble_error_t PalPrivateAddressController::clear_resolving_list()
 {
     if (is_ll_privacy_supported() == false) {
+        tr_error("Operation not supported by LL: privacy resolving list");
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
+    tr_info("Clear LL resolving list");
     DmPrivClearResList();
     return BLE_ERROR_NONE;
 }
@@ -177,17 +203,17 @@ PalPrivateAddressController& PalPrivateAddressController::instance()
 
 bool PalPrivateAddressController::cordio_handler(const wsfMsgHdr_t *msg)
 {
-    if (msg == nullptr) {
-        return false;
-    }
+    MBED_ASSERT(msg);
 
     auto* handler = instance()._event_handler;
 
     switch (msg->event) {
         case DM_PRIV_GENERATE_ADDR_IND: {
+            tr_info("Privacy handling: DM_PRIV_GENERATE_ADDR_IND");
             instance()._generating_rpa = false;
 
             if (!handler) {
+                tr_warning("No user handler registered for PAL privacy");
                 return true;
             }
 
@@ -217,7 +243,15 @@ bool PalPrivateAddressController::cordio_handler(const wsfMsgHdr_t *msg)
         case DM_PRIV_REM_DEV_FROM_RES_LIST_IND: // Device removed from resolving list
         case DM_PRIV_CLEAR_RES_LIST_IND: // Resolving list cleared
         {
+            tr_info("Privacy handling: %s",
+                msg->event == DM_PRIV_ADD_DEV_TO_RES_LIST_IND ?
+                    "DM_PRIV_ADD_DEV_TO_RES_LIST_IND" :
+                    msg->event == DM_PRIV_ADD_DEV_TO_RES_LIST_IND ?
+                        "DM_PRIV_REM_DEV_FROM_RES_LIST_IND" :
+                        "DM_PRIV_CLEAR_RES_LIST_IND"
+            );
             if (!handler) {
+                tr_warning("No user handler registered for PAL privacy");
                 return true;
             }
 

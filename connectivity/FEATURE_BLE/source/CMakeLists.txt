@@ -7,6 +7,11 @@ add_subdirectory(gatt)
 add_subdirectory(generic)
 add_subdirectory(pal)
 
+target_include_directories(mbed-ble
+    INTERFACE
+        .
+)
+
 target_sources(mbed-ble
     INTERFACE
         BLE.cpp
@@ -14,6 +19,7 @@ target_sources(mbed-ble
         GattClient.cpp
         GattServer.cpp
         SecurityManager.cpp
+        common/ble_trace_helpers.cpp
 )
 
 target_link_libraries(mbed-ble

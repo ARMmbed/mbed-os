@@ -26,6 +26,10 @@
 
 #include <stdarg.h>
 
+#if MBED_CONF_CORDIO_TRACE_HCI_PACKETS
+#include "mbed_wsf_trace.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -289,6 +293,7 @@ bool_t WsfTokenService(void);
 /*! \brief 3 argument HCI error trace. */
 #define HCI_TRACE_ERR3(msg, var1, var2, var3)       WSF_TRACE3("HCI", "ERR",  msg, var1, var2, var3)
 
+#if !MBED_CONF_CORDIO_TRACE_HCI_PACKETS
 /*! \brief HCI PDUMP on command. */
 #define HCI_PDUMP_CMD(len, pBuf)
 /*! \brief HCI PDUMP on event. */
@@ -301,6 +306,7 @@ bool_t WsfTokenService(void);
 #define HCI_PDUMP_TX_ISO(len, pBuf)
 /*! \brief HCI PDUMP on Received ISO message. */
 #define HCI_PDUMP_RX_ISO(len, pBuf)
+#endif // !MBED_CONF_CORDIO_TRACE_HCI_PACKETS
 
 /*! \brief 0 argument DM info trace. */
 #define DM_TRACE_INFO0(msg)                         WSF_TRACE0("DM", "INFO", msg)

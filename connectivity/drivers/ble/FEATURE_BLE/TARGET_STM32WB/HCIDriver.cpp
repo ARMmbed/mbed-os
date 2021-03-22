@@ -20,7 +20,7 @@
 #include "ble/common/blecommon.h"
 #include "ble/driver/CordioHCIDriver.h"
 #include "ble/driver/CordioHCITransportDriver.h"
-#include "mbed.h"
+#include "rtos/Semaphore.h"
 #include "hci_api.h"
 #include "hci_cmd.h"
 #include "hci_core.h"
@@ -69,9 +69,6 @@
 /* mbed_trace: debug traces (tr_debug) can be disabled here with no change in mbed_app.json */
 // #undef TRACE_LEVEL_DEBUG
 // #define TRACE_LEVEL_DEBUG 0
-
-/* tr_debug : add data content in console print */
-#define PRINT_HCI_DATA 0
 
 /******************************************************************************
  * BLE config parameters
@@ -177,11 +174,6 @@ public:
         /* if event is a command complete event */
         if (*pMsg == HCI_CMD_CMPL_EVT) {
             tr_debug("Command Complete Event Command");
-#if (PRINT_HCI_DATA)
-            for (uint8_t i = 0; i < 20; i++) {
-                tr_debug("  %02X", *((uint8_t *)pMsg + i));
-            }
-#endif
             /* parse parameters */
             tr_debug("  HCI_EVT_HDR_LEN=%d", HCI_EVT_HDR_LEN);
             pMsg += HCI_EVT_HDR_LEN;
@@ -579,11 +571,6 @@ private:
                 tr_debug("  Type %#x", bleCmdBuf->cmdserial.type);
                 tr_debug("   Cmd %#x", bleCmdBuf->cmdserial.cmd.cmdcode);
                 tr_debug("   Len %#x", bleCmdBuf->cmdserial.cmd.plen);
-#if (PRINT_HCI_DATA)
-                for (uint8_t i = 0; i < bleCmdBuf->cmdserial.cmd.plen; i++) {
-                    tr_debug("  %02X", *(((uint8_t *)&bleCmdBuf->cmdserial.cmd.payload) + i));
-                }
-#endif
                 TL_BLE_SendCmd(NULL, 0); // unused parameters for now
                 break;
             case 2://ACL DATA
@@ -597,11 +584,6 @@ private:
                 memcpy(aclDataBuffer + + sizeof(TL_PacketHeader_t) + sizeof(type), pData, len);
                 TL_BLE_SendAclData(NULL, 0); // unused parameters for now
                 tr_info("TX>> BLE ACL");
-#if (PRINT_HCI_DATA)
-                for (uint8_t i = 0; i < len + 1 + 8; i++) {
-                    tr_debug("  %02x", *(((uint8_t *) aclDataBuffer) + i));
-                }
-#endif
                 break;
         }
         return len;

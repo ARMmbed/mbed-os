@@ -24,6 +24,14 @@
 
 #include <time.h>
 
+#if defined __has_include
+#  if __has_include (<sys/stat.h>)
+#    include <sys/stat.h>
+#    define HAVE_SYS_STAT_H
+#  endif
+#endif
+
+
 namespace mbed {
 
 #define NAME_MAX 255
@@ -362,7 +370,7 @@ namespace mbed {
 #define STDOUT_FILENO 1
 #define STDERR_FILENO 2
 
-#ifndef _STAT_VER
+#ifndef HAVE_SYS_STAT_H
 struct stat {
     dev_t     st_dev;     ///< Device ID containing file
     ino_t     st_ino;     ///< File serial number
