@@ -22,10 +22,16 @@
 #include "dm_main.h"
 #include "dm_conn.h"
 
+#include "mbed-trace/mbed_trace.h"
+#include "common/ble_trace_helpers.h"
+
+#define TRACE_GROUP "BLDM"
+
 namespace ble {
 namespace impl {
 
 namespace {
+
 bool dummy_gap_event_handler(const wsfMsgHdr_t *msg)
 {
     return false;
@@ -102,6 +108,10 @@ address_t PalGap::get_random_address()
 
 ble_error_t PalGap::set_random_address(const address_t &address)
 {
+    tr_info("Set random address - "
+            "address=%s",
+            to_string(address));
+
     device_random_address = address;
     DmDevSetRandAddr(const_cast<uint8_t *>(address.data()));
     return BLE_ERROR_NONE;
@@ -119,6 +129,26 @@ ble_error_t PalGap::set_advertising_parameters(
     advertising_filter_policy_t advertising_filter_policy
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
+    tr_info("Set advertising parameters - "
+            "advertising_interval_min=%d, "
+            "advertising_interval_max=%d, "
+            "advertising_type=%s, "
+            "own_address_type=%s, "
+            "peer_address_type=%s, "
+            "peer_address=%s, "
+            "advertising_channel_map=%s, "
+            "advertising_filter_policy_t=%s",
+            advertising_interval_min,
+            advertising_interval_max,
+            to_string(advertising_type),
+            to_string(own_address_type),
+            to_string(peer_address_type),
+            to_string(peer_address),
+            to_string(advertising_channel_map),
+            to_string(advertising_filter_policy));
+#endif
+
     DmAdvSetInterval(
         DM_ADV_HANDLE_DEFAULT,
         advertising_interval_min,
@@ -160,6 +190,14 @@ ble_error_t PalGap::set_advertising_data(
     const advertising_data_t &advertising_data
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
+    tr_info("Set advertising data - "
+            "advertising_data_length=%d, "
+            "advertising_data=%s",
+            advertising_data_length,
+            mbed_trace_array(advertising_data.data(), advertising_data_length));
+#endif
+
     DmAdvSetData(
         DM_ADV_HANDLE_DEFAULT,
         HCI_ADV_DATA_OP_COMP_FRAG,
@@ -170,12 +208,19 @@ ble_error_t PalGap::set_advertising_data(
     return BLE_ERROR_NONE;
 }
 
-
 ble_error_t PalGap::set_scan_response_data(
     uint8_t scan_response_data_length,
     const advertising_data_t &scan_response_data
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
+    tr_info("Set scan response data - "
+            "scan_response_data_length=%d, "
+            "scan_response_data=%s",
+            scan_response_data_length,
+            mbed_trace_array(scan_response_data.data(), scan_response_data_length));
+#endif
+
     DmAdvSetData(
         DM_ADV_HANDLE_DEFAULT,
         HCI_ADV_DATA_OP_COMP_FRAG,
@@ -189,6 +234,10 @@ ble_error_t PalGap::set_scan_response_data(
 
 ble_error_t PalGap::advertising_enable(bool enable)
 {
+    tr_info("Advertising enable - "
+            "enable=%s",
+            to_string(enable));
+
     if (enable) {
         // The Cordio stack requires to start direct advertising with
         // the function DmConnAccept instead of the function DmAdvStart.
@@ -206,6 +255,7 @@ ble_error_t PalGap::advertising_enable(bool enable)
                 direct_adv_cb->peer_address.data()
             );
             if (direct_adv_cb->connection_handle == DM_CONN_ID_NONE) {
+                tr_error("unknown ID for pending callback");
                 return BLE_ERROR_INTERNAL_STACK_FAILURE;
             } else {
                 direct_adv_cb->state = direct_adv_cb_t::running;
@@ -247,6 +297,20 @@ ble_error_t PalGap::set_scan_parameters(
     scanning_filter_policy_t filter_policy
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
+    tr_info("Set scan parameters - "
+            "active_scanning=%s, "
+            "scan_interval=%d, "
+            "scan_window=%d, "
+            "own_address_type=%s, "
+            "filter_policy=%s",
+            to_string(active_scanning),
+            scan_interval,
+            scan_window,
+            to_string(own_address_type),
+            to_string(filter_policy));
+#endif
+
     use_active_scanning = active_scanning;
     DmScanSetInterval(HCI_INIT_PHY_LE_1M_BIT, &scan_interval, &scan_window);
     DmScanSetAddrType(own_address_type.value());
@@ -265,6 +329,12 @@ ble_error_t PalGap::scan_enable(
     bool filter_duplicates
 )
 {
+    tr_info("Scan enable - "
+            "enable=%s, "
+            "filter_duplicates=%s",
+            to_string(enable),
+            to_string(filter_duplicates));
+
     if (enable) {
         uint8_t scanType = use_active_scanning ? DM_SCAN_TYPE_ACTIVE : DM_SCAN_TYPE_PASSIVE;
         DmScanStart(
@@ -298,6 +368,34 @@ ble_error_t PalGap::create_connection(
     uint16_t maximum_connection_event_length
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
+    tr_info("Create Connection - "
+            "scan_interval=%d, "
+            "scan_window=%d, "
+            "initiator_policy=%s, "
+            "peer_address_type=%s, "
+            "peer_address=%s, "
+            "own_address_type=%s, "
+            "connection_interval_min=%d, "
+            "connection_interval_max=%d, "
+            "connection_latency=%d, "
+            "supervision_timout=%d, "
+            "minimum_connection_event_length=%d, "
+            "maximum_connection_event_length=%d",
+            scan_interval,
+            scan_window,
+            to_string(initiator_policy),
+            to_string(peer_address_type),
+            to_string(peer_address),
+            to_string(own_address_type),
+            connection_interval_min,
+            connection_interval_max,
+            connection_latency,
+            supervision_timeout,
+            minimum_connection_event_length,
+            maximum_connection_event_length);
+#endif
+
     DmConnSetScanInterval(scan_interval, scan_window);
 #if BLE_FEATURE_WHITELIST
     DmDevSetFilterPolicy(DM_FILT_POLICY_MODE_INIT, initiator_policy.value());
@@ -322,6 +420,7 @@ ble_error_t PalGap::create_connection(
     );
 
     if (connection_id == DM_CONN_ID_NONE) {
+        tr_error("unknown ID for open connection");
         return BLE_ERROR_INTERNAL_STACK_FAILURE;
     }
 
@@ -368,6 +467,12 @@ ble_error_t PalGap::add_device_to_whitelist(
     address_t address
 )
 {
+    tr_info("Add device to whitelist - "
+            "address_type=%s,"
+            "address=%s",
+            to_string(address_type),
+            to_string(address));
+
     DmDevWhiteListAdd(
         address_type.value(),
         const_cast<uint8_t *>(address.data())
@@ -381,6 +486,12 @@ ble_error_t PalGap::remove_device_from_whitelist(
     address_t address
 )
 {
+    tr_info("Remove device from whitelist - "
+            "address_type=%s, "
+            "address=%s",
+            to_string(address_type),
+            to_string(address));
+
     DmDevWhiteListRemove(
         address_type.value(),
         const_cast<uint8_t *>(address.data())
@@ -400,7 +511,25 @@ ble_error_t PalGap::connection_parameters_update(
     uint16_t maximum_connection_event_length
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
+    tr_info("Connection %d: connection parameters update - "
+            "connection_interval_min=%d, "
+            "connection_interval_max=%d, "
+            "connection_latency=%d, "
+            "supervision_timeout=%d, "
+            "minimum_connection_event_length=%d, "
+            "maximum_connection_event_length=%d",
+            connection,
+            connection_interval_min,
+            connection_interval_max,
+            connection_latency,
+            supervision_timeout,
+            minimum_connection_event_length,
+            maximum_connection_event_length);
+#endif
+
     if (DmConnCheckIdle(connection) != 0) {
+        tr_error("connection busy");
         return BLE_ERROR_INVALID_STATE;
     }
 
@@ -431,6 +560,21 @@ ble_error_t PalGap::accept_connection_parameter_request(
     uint16_t maximum_connection_event_length
 )
 {
+    tr_info("Connection %d: accept connection parameter request - "
+            "interval_min=%d, "
+            "interval_max=%d, "
+            "latency=%d, "
+            "supervision_timeout=%d, "
+            "minimum_connection_event_length=%d, "
+            "maximum_connection_event_length=%d",
+            connection_handle,
+            interval_min,
+            interval_max,
+            latency,
+            supervision_timeout,
+            minimum_connection_event_length,
+            maximum_connection_event_length);
+
     hciConnSpec_t connection_spec = {
         interval_min,
         interval_max,
@@ -449,6 +593,11 @@ ble_error_t PalGap::reject_connection_parameter_request(
     hci_error_code_t rejection_reason
 )
 {
+    tr_info("Connection %d: reject_connection_parameter_request - "
+            "rejection_reason=%s",
+            connection_handle,
+            to_string(rejection_reason));
+
     DmRemoteConnParamReqNegReply(
         connection_handle,
         rejection_reason.value()
@@ -462,6 +611,13 @@ ble_error_t PalGap::disconnect(
     local_disconnection_reason_t disconnection_reason
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
+    tr_info("Connection %d: disconnect - "
+            "disconnection_reason=%s",
+            connection,
+            to_string(disconnection_reason));
+#endif
+
     DmConnClose(
         DM_CLIENT_ID_APP,
         connection,
@@ -475,11 +631,13 @@ ble_error_t PalGap::disconnect(
 #if BLE_FEATURE_PHY_MANAGEMENT
 ble_error_t PalGap::read_phy(connection_handle_t connection)
 {
+    tr_info("Connection %d: read phy", connection);
     if (is_feature_supported(controller_supported_features_t::LE_2M_PHY)
         || is_feature_supported(controller_supported_features_t::LE_CODED_PHY)) {
         DmReadPhy(connection);
         return BLE_ERROR_NONE;
     }
+    tr_error("Only 1M PHY supported");
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -488,6 +646,14 @@ ble_error_t PalGap::set_preferred_phys(
     const phy_set_t &rx_phys
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
+    tr_info("Set preferred phys -"
+            "tx_phys=%s, "
+            "rx_phys=%s",
+            to_string(tx_phys),
+            to_string(rx_phys));
+#endif
+
     DmSetDefaultPhy(
         create_all_phys_value(tx_phys, rx_phys),
         tx_phys.value(),
@@ -505,6 +671,17 @@ ble_error_t PalGap::set_phy(
     coded_symbol_per_bit_t coded_symbol
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
+    tr_info("Connection %d: set phy - "
+            "tx_phys=%s, "
+            "rx_phys=%s, "
+            "coded_symbol=%s",
+            connection,
+            to_string(tx_phys),
+            to_string(rx_phys),
+            to_string(coded_symbol));
+#endif
+
     /* if phy set is empty set corresponding all_phys bit to 1 */
     uint8_t all_phys = 0;
     if (tx_phys.value() == 0) {
@@ -869,6 +1046,11 @@ ble_error_t PalGap::set_advertising_set_random_address(
     const address_t &address
 )
 {
+    tr_info("Advertising set %d: set random address - "
+            "address=%s",
+            advertising_handle,
+            to_string(address));
+
     DmAdvSetRandAddr(advertising_handle, address.data());
     return BLE_ERROR_NONE;
 }
@@ -891,15 +1073,57 @@ ble_error_t PalGap::set_extended_advertising_parameters(
     bool scan_request_notification
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
+    tr_info("Advertising set %d: set extended advertising parameters - "
+            "event_properties:[%s%s%s%s%s%s%s ], "
+            "primary_advertising_interval_min=%" PRIu32 ", "
+            "primary_advertising_interval_max=%" PRIu32 ", "
+            "primary_advertising_channel_map=%s, "
+            "own_address_type=%s, "
+            "peer_address_type=%s, "
+            "peer_address=%s, "
+            "advertising_filter_policy=%s, "
+            "advertising_power=%d, "
+            "primary_advertising_phy=%s, "
+            "secondary_advertising_max_skip=%d, "
+            "secondary_phy=%s, "
+            "advertising_sid=%d, "
+            "scan_request_notification=%s",
+            advertising_handle,
+            event_properties.connectable ? " connectable" : "",
+            event_properties.scannable ? " scannable" : "",
+            event_properties.directed ? " directed" : "",
+            event_properties.high_duty_cycle ? " high_duty_cycle" : "",
+            event_properties.use_legacy_pdu ? " use_legacy_pdu" : "",
+            event_properties.omit_advertiser_address ? " omit_advertiser_address," : "",
+            event_properties.include_tx_power ? " nclude_tx_power" : "",
+            primary_advertising_interval_min,
+            primary_advertising_interval_max,
+            to_string(primary_advertising_channel_map),
+            to_string(own_address_type),
+            to_string(peer_address_type),
+            to_string(peer_address),
+            to_string(advertising_filter_policy),
+            advertising_power,
+            to_string(primary_advertising_phy),
+            secondary_advertising_max_skip,
+            to_string(secondary_phy),
+            advertising_sid,
+            to_string(scan_request_notification));
+#endif
+
     uint8_t adv_type;
 
     if (event_properties.use_legacy_pdu) {
         if (event_properties.directed == false) {
+            tr_info("Legacy PDU w/undirected advertising event");
             if (event_properties.high_duty_cycle) {
+                tr_error("cannot use high duty cycle");
                 return BLE_ERROR_INVALID_PARAM;
             }
 
             if (event_properties.connectable && event_properties.scannable == false) {
+                tr_error("must be scannable if connectable");
                 return BLE_ERROR_INVALID_PARAM;
             }
 
@@ -911,11 +1135,14 @@ ble_error_t PalGap::set_extended_advertising_parameters(
                 adv_type = DM_ADV_NONCONN_UNDIRECT;
             }
         } else {
+            tr_info("Legacy PDU w/directed advertising event");
             if (event_properties.scannable) {
+                tr_error("cannot be scannable");
                 return BLE_ERROR_INVALID_PARAM;
             }
 
             if (event_properties.connectable == false) {
+                tr_error("must be connectable");
                 return BLE_ERROR_INVALID_PARAM;
             }
 
@@ -927,7 +1154,9 @@ ble_error_t PalGap::set_extended_advertising_parameters(
         }
     } else {
         if (event_properties.directed == false) {
+            tr_info("Extended PDU w/undirected advertising event");
             if (event_properties.high_duty_cycle) {
+                tr_error("cannot use high duty cycle");
                 return BLE_ERROR_INVALID_PARAM;
             }
 
@@ -946,6 +1175,7 @@ ble_error_t PalGap::set_extended_advertising_parameters(
             // standpoint
 
             if (event_properties.connectable && event_properties.scannable) {
+                tr_error("cannot be scannable if connectable");
                 return BLE_ERROR_INVALID_PARAM;
             } else if (event_properties.connectable) {
                 if (event_properties.high_duty_cycle) {
@@ -1022,6 +1252,17 @@ ble_error_t PalGap::set_periodic_advertising_parameters(
     bool advertise_power
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
+    tr_info("Advertising set %d: set periodic advertising parameters - "
+            "periodic_advertising_min=%s, "
+            "periodic_advertising_max=%s, "
+            "advertise_power=%s",
+            advertising_handle,
+            to_string(periodic_advertising_min),
+            to_string(periodic_advertising_max),
+            to_string(advertise_power));
+#endif
+
     DmPerAdvIncTxPwr(advertising_handle, advertise_power);
     DmPerAdvSetInterval(
         advertising_handle,
@@ -1043,6 +1284,19 @@ ble_error_t PalGap::set_extended_advertising_data(
     const uint8_t *advertising_data
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
+    tr_info("Advertising set %d: set extended advertising data - "
+            "operation=%s, "
+            "minimize_fragmentation=%s, "
+            "advertising_data_size=%d, "
+            "advertising_data=%s",
+            advertising_handle,
+            to_string(operation),
+            to_string(minimize_fragmentation),
+            advertising_data_size,
+            mbed_trace_array(advertising_data, advertising_data_size));
+#endif
+
     uint8_t frag_pref = minimize_fragmentation ?
         HCI_ADV_DATA_FRAG_PREF_NO_FRAG :
         HCI_ADV_DATA_FRAG_PREF_FRAG;
@@ -1068,6 +1322,17 @@ ble_error_t PalGap::set_periodic_advertising_data(
     const uint8_t *advertising_data
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
+    tr_info("Advertising set %d: set periodic advertising data - "
+            "fragment_description=%s, "
+            "advertising_data_size=%d, "
+            "advertising_data=%s",
+            advertising_handle,
+            to_string(fragment_description),
+            advertising_data_size,
+            mbed_trace_array(advertising_data, advertising_data_size));
+#endif
+
     DmPerAdvSetData(
         advertising_handle,
         fragment_description.value(),
@@ -1087,6 +1352,19 @@ ble_error_t PalGap::set_extended_scan_response_data(
     const uint8_t *scan_response_data
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
+    tr_info("Advertising data %d: set extended scan response data - "
+            "operation=%s, "
+            "minimize_fragmentation=%s, "
+            "scan_response_data_size=%d, "
+            "scan_response_data=%s",
+            advertising_handle,
+            to_string(operation),
+            to_string(minimize_fragmentation),
+            scan_response_data_size,
+            mbed_trace_array(scan_response_data, scan_response_data_size));
+#endif
+
     uint8_t frag_pref = minimize_fragmentation ?
         HCI_ADV_DATA_FRAG_PREF_NO_FRAG :
         HCI_ADV_DATA_FRAG_PREF_FRAG;
@@ -1112,7 +1390,14 @@ ble_error_t PalGap::extended_advertising_enable(
     const uint8_t *in_max_extended_advertising_events
 )
 {
+    tr_info("Extended advertising enable - "
+            "enable=%s, "
+            "number_of_sets=%d",
+            to_string(enable),
+            number_of_sets);
+
     if (number_of_sets > DM_NUM_ADV_SETS) {
+        tr_error("number of sets cannot be greater than %d", DM_NUM_ADV_SETS);
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -1143,6 +1428,7 @@ ble_error_t PalGap::extended_advertising_enable(
                     direct_adv_cb->peer_address.data()
                 );
                 if (direct_adv_cb->connection_handle == DM_CONN_ID_NONE) {
+                    tr_error("unknown connection ID %d", direct_adv_cb->connection_handle);
                     return BLE_ERROR_INTERNAL_STACK_FAILURE;
                 } else {
                     direct_adv_cb->state = direct_adv_cb_t::running;
@@ -1201,6 +1487,11 @@ ble_error_t PalGap::periodic_advertising_enable(
     advertising_handle_t advertising_handle
 )
 {
+    tr_info("Advertising set %d: periodic advertsing enable - "
+            "enable=%s",
+            advertising_handle,
+            to_string(enable));
+
     if (enable) {
         DmPerAdvStart(advertising_handle);
     } else {
@@ -1265,6 +1556,16 @@ ble_error_t PalGap::set_extended_scan_parameters(
     const uint16_t *scan_window
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
+    tr_info("Set extended scan parameters - "
+            "own_address_type=%s, "
+            "filter_policy=%s, "
+            "scanning_phys=%s",
+            to_string(own_address_type),
+            to_string(filter_policy),
+            to_string(scanning_phys));
+#endif
+
     DmScanSetAddrType(own_address_type.value());
 
     for (size_t i = 0, count = scanning_phys.count(); i < count; ++i) {
@@ -1299,6 +1600,16 @@ ble_error_t PalGap::extended_scan_enable(
     uint16_t period
 )
 {
+    tr_info("Extended scan enable - "
+            "enable=%s, "
+            "filter_duplicates=%s, "
+            "duration=%d, "
+            "period=%d",
+            to_string(enable),
+            to_string(filter_duplicates),
+            duration,
+            period);
+
     if (enable) {
         uint32_t duration_ms = duration * 10;
 
@@ -1330,6 +1641,20 @@ ble_error_t PalGap::periodic_advertising_create_sync(
     uint16_t sync_timeout
 )
 {
+    tr_info("Periodic advertising create sync - "
+            "use_periodic_advertiser_list=%s, "
+            "advertising_sid=%d, "
+            "peer_address_type=%s, "
+            "peer_address=%s, "
+            "allowed_skip=%d, "
+            "sync_timeout=%d",
+            to_string(use_periodic_advertiser_list),
+            advertising_sid,
+            to_string(peer_address_type),
+            to_string(peer_address),
+            allowed_skip,
+            sync_timeout);
+
     DmDevSetExtFilterPolicy(
         DM_ADV_HANDLE_DEFAULT,
         DM_FILT_POLICY_MODE_SYNC,
@@ -1345,6 +1670,7 @@ ble_error_t PalGap::periodic_advertising_create_sync(
     );
 
     if (sync_id == DM_SYNC_ID_NONE) {
+        tr_error("unknown sync ID %d", sync_id);
         return BLE_ERROR_INTERNAL_STACK_FAILURE;
     } else {
         /* this is not the real handle, this is CORDIO internal handle but the user doesn't need to know that */
@@ -1375,6 +1701,16 @@ ble_error_t PalGap::add_device_to_periodic_advertiser_list(
     uint8_t advertising_sid
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
+    tr_info("Add device to periodic advertiser list - "
+            "advertiser_address_type=%s, "
+            "advertiser_address=%s, "
+            "advertiser_sid=%d",
+            to_string(advertiser_address_type),
+            to_string(advertiser_address),
+            advertising_sid);
+#endif
+
     DmAddDeviceToPerAdvList(
         advertiser_address_type.value(),
         const_cast<uint8_t *>(advertiser_address.data()),
@@ -1390,6 +1726,16 @@ ble_error_t PalGap::remove_device_from_periodic_advertiser_list(
     uint8_t advertising_sid
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
+    tr_info("Remove device from periodic advertiser list - "
+            "advertiser_address_type=%s, "
+            "advertiser_address=%s, "
+            "advertiser_sid=%d",
+            to_string(advertiser_address_type),
+            to_string(advertiser_address),
+            advertising_sid);
+#endif
+
     DmRemoveDeviceFromPerAdvList(
         advertiser_address_type.value(),
         const_cast<uint8_t *>(advertiser_address.data()),
@@ -1430,6 +1776,20 @@ ble_error_t PalGap::extended_create_connection(
     const uint16_t *maximum_connection_event_lengths
 )
 {
+#if MBED_CONF_CORDIO_TRACE_PAL_ECHOES
+    tr_info("Extended create connection - "
+            "initiator_policy=%s, "
+            "own_address_type=%s, "
+            "peer_address_type=%s, "
+            "peer_address=%s, "
+            "initiating_phys=%s",
+            to_string(initiator_policy),
+            to_string(own_address_type),
+            to_string(peer_address_type),
+            to_string(peer_address),
+            to_string(initiating_phys));
+#endif
+
     DmExtConnSetScanInterval(
         initiating_phys.value(),
         const_cast<uint16_t *>(scan_intervals),
@@ -1476,10 +1836,20 @@ ble_error_t PalGap::update_direct_advertising_parameters(
     advertising_peer_address_type_t peer_address_type
 )
 {
+    tr_info("Advertising set %d: update direct advertising parameters - "
+            "advertising_type=%d, "
+            "peer_address=%s, "
+            "peer_address_type=%s",
+            advertising_handle,
+            advertising_type,
+            to_string(peer_address),
+            to_string(peer_address_type));
+
     // The case where a direct advertising is running and parameters are updated
     // is considered to be a programming error. User should stop advertising first.
     direct_adv_cb_t *running = get_running_direct_adv_cb(advertising_handle);
     if (running) {
+        tr_error("trying to update parameters but direct advertising is running");
         return BLE_ERROR_INVALID_STATE;
     }
 
@@ -1506,6 +1876,7 @@ ble_error_t PalGap::update_direct_advertising_parameters(
         advertising_type == DM_ADV_CONN_DIRECT_LO_DUTY) {
         direct_adv_cb_t *adv_cb = get_free_direct_adv_cb();
         if (!adv_cb) {
+            tr_error("failed to acquire a cb");
             return BLE_ERROR_INTERNAL_STACK_FAILURE;
         }
         adv_cb->state = direct_adv_cb_t::pending;

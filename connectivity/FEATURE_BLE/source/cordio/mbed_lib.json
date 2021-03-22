@@ -81,6 +81,19 @@
             "help": "Check connection complete event if it needs the addresses swapped due to bug in controller",
             "value": null,
             "macro_name": "CORDIO_RPA_SWAP_WORKAROUND"
+        },
+        "trace-pal-echoes": {
+            "help": "Include 'echo' traces in PAL, i.e. function signature and argument prints",
+            "value": 0
+        },
+        "trace-hci-packets": {
+            "help": "If tracing is enabled at level DEBUG traces will include HCI packet traces.",
+            "value": false
+        },
+        "trace-cordio-wsf-traces": {
+            "help": "If tracing is enabled at level DEBUG traces will include WSF traces from Cordio packet traces.",
+            "value": false,
+            "macro_name": "WSF_TRACE_ENABLED"
         }
     },
     "target_overrides": {
