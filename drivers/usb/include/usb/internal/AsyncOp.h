@@ -18,8 +18,8 @@
 #ifndef MBED_ASYNC_OP_H
 #define MBED_ASYNC_OP_H
 
-#include "Mutex.h"
-#include "Semaphore.h"
+#include "rtos/Mutex.h"
+#include "rtos/Semaphore.h"
 #include "Callback.h"
 
 #include "LinkEntry.h"

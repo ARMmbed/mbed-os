@@ -32,6 +32,7 @@ target_include_directories(mbed-psa
 
 target_sources(mbed-psa
     INTERFACE
+        src/os_wrapper_cmsis_rtos_v2.c
         src/tfm_crypto_ipc_api.c
         src/tfm_initial_attestation_ipc_api.c
         src/tfm_its_ipc_api.c

@@ -25,7 +25,7 @@
 #include "usb/internal/PolledQueue.h"
 #include "usb/internal/Task.h"
 #include "BlockDevice.h"
-#include "Mutex.h"
+#include "rtos/Mutex.h"
 
 #include "USBDevice.h"
 
