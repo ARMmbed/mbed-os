@@ -1220,6 +1220,10 @@
                 "help": "Define if a Low Speed External xtal (LSE) is available on the board (0 = No, 1 = Yes). If Yes, the LSE will be used to clock the RTC, LPUART, ... otherwise the Low Speed Internal clock (LSI) will be used",
                 "value": "1"
             },
+            "rtc_clock_source": {
+                "help": "Define the RTC clock source. USE_RTC_CLK_LSE_OR_LSI, USE_RTC_CLK_LSI, USE_RTC_CLK_HSE. LPTICKER is not available for HSE and should be removed from the target configuration.",
+                "value": "USE_RTC_CLK_LSE_OR_LSI"
+            },
             "lpuart_clock_source": {
                 "help": "Define the LPUART clock source. Mask values: USE_LPUART_CLK_LSE, USE_LPUART_CLK_PCLK1, USE_LPUART_CLK_HSI",
                 "value": "USE_LPUART_CLK_LSE|USE_LPUART_CLK_PCLK1"
