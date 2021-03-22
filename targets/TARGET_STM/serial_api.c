@@ -633,11 +633,12 @@ HAL_StatusTypeDef init_uart(serial_t *obj)
 #if defined(UART_FIFOMODE_DISABLE) // G0/H7/L4/L5/WB
     huart->FifoMode = UART_FIFOMODE_DISABLE;
 #endif
-
+    /*
     if (huart->Instance == USART3){ // BALDER WAS HERE
         huart->AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_SWAP_INIT;
         huart->AdvancedInit.Swap = UART_ADVFEATURE_SWAP_ENABLE;
     }
+    */
 
     if (obj_s->pin_rx == NC) {
         huart->Init.Mode = UART_MODE_TX;
@@ -881,8 +882,7 @@ int serial_is_tx_ongoing(void)
 
 #else
 
-int serial_is_tx_ongoing(void)
-{
+int serial_is_tx_ongoing(void) {
     return 0;
 }
 
