@@ -11,6 +11,8 @@ elseif("NUCLEO_F756ZG" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_NUCLEO_F756ZG)
 elseif("NUCLEO_F767ZI" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_NUCLEO_F767ZI)
+elseif("TAPIT_MODULE_1" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_TAPIT_MODULE_1)
 endif()
 
 target_include_directories(mbed-emac

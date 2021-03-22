@@ -316,24 +316,6 @@ typedef enum {
     ETH_TXD1 = PB_13,
     ETH_TX_EN = PG_11,
 
-    // UNUSED
-    ETH_COL = PA_3,
-    ETH_CRS = PA_0,
-    ETH_PPS_OUT = PG_8,
-    ETH_PPS_OUT_ALT0 = PB_5,
-    ETH_RXD2 = PB_0,
-    ETH_RXD3 = PB_1,
-    ETH_RX_CLK = PA_1,
-    ETH_RX_DV = PA_7,
-    ETH_RX_ER = PB_10,
-    ETH_TXD0_ALT0 = PG_13,
-    ETH_TXD1_ALT0 = PG_14,
-    ETH_TXD2 = PC_2,
-    ETH_TXD3 = PE_2,
-    ETH_TXD3_ALT0 = PB_8,
-    ETH_TX_CLK = PC_3,
-    ETH_TX_EN_ALT0 = PG_11,
-
     /**** OSCILLATOR pins ****/
     RCC_OSC32_IN = PC_14,
     RCC_OSC32_OUT = PC_15,
