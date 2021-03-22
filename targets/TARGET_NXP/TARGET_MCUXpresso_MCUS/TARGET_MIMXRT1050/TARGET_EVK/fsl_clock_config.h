@@ -1,35 +1,10 @@
 /*
- * The Clear BSD License
- * Copyright 2017 NXP
+ * Copyright 2017-2019 NXP
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided
- *  that the following conditions are met:
- *
- * o Redistributions of source code must retain the above copyright notice, this list
- *   of conditions and the following disclaimer.
- *
- * o Redistributions in binary form must reproduce the above copyright notice, this
- *   list of conditions and the following disclaimer in the documentation and/or
- *   other materials provided with the distribution.
- *
- * o Neither the name of the copyright holder nor the names of its
- *   contributors may be used to endorse or promote products derived from this
- *   software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * SPDX-License-Identifier: BSD-3-Clause
  */
+
 #ifndef _CLOCK_CONFIG_H_
 #define _CLOCK_CONFIG_H_
 
@@ -38,9 +13,9 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-#define BOARD_XTAL0_CLK_HZ                         24000000U  /*!< Board xtal0 frequency in Hz */
+#define BOARD_XTAL0_CLK_HZ 24000000U /*!< Board xtal0 frequency in Hz */
 
-#define BOARD_XTAL32K_CLK_HZ                          32768U  /*!< Board xtal32k frequency in Hz */
+#define BOARD_XTAL32K_CLK_HZ 32768U /*!< Board xtal32k frequency in Hz */
 /*******************************************************************************
  ************************ BOARD_InitBootClocks function ************************
  ******************************************************************************/
@@ -65,17 +40,64 @@ void BOARD_InitBootClocks(void);
 /*******************************************************************************
  * Definitions for BOARD_BootClockRUN configuration
  ******************************************************************************/
-#define BOARD_BOOTCLOCKRUN_CORE_CLOCK             600000000U  /*!< Core clock frequency: 600000000Hz */
+#define BOARD_BOOTCLOCKRUN_CORE_CLOCK 600000000U /*!< Core clock frequency: 600000000Hz */
+
+/* Clock outputs (values are in Hz): */
+#define BOARD_BOOTCLOCKRUN_AHB_CLK_ROOT 600000000UL
+#define BOARD_BOOTCLOCKRUN_CAN_CLK_ROOT 40000000UL
+#define BOARD_BOOTCLOCKRUN_CKIL_SYNC_CLK_ROOT 32768UL
+#define BOARD_BOOTCLOCKRUN_CLKO1_CLK 0UL
+#define BOARD_BOOTCLOCKRUN_CLKO2_CLK 0UL
+#define BOARD_BOOTCLOCKRUN_CLK_1M 1000000UL
+#define BOARD_BOOTCLOCKRUN_CLK_24M 24000000UL
+#define BOARD_BOOTCLOCKRUN_CSI_CLK_ROOT 12000000UL
+#define BOARD_BOOTCLOCKRUN_ENET1_TX_CLK 2400000UL
+#define BOARD_BOOTCLOCKRUN_ENET_125M_CLK 2400000UL
+#define BOARD_BOOTCLOCKRUN_ENET_25M_REF_CLK 1200000UL
+#define BOARD_BOOTCLOCKRUN_FLEXIO1_CLK_ROOT 30000000UL
+#define BOARD_BOOTCLOCKRUN_FLEXIO2_CLK_ROOT 30000000UL
+#define BOARD_BOOTCLOCKRUN_FLEXSPI_CLK_ROOT 160000000UL
+#define BOARD_BOOTCLOCKRUN_GPT1_IPG_CLK_HIGHFREQ 75000000UL
+#define BOARD_BOOTCLOCKRUN_GPT2_IPG_CLK_HIGHFREQ 75000000UL
+#define BOARD_BOOTCLOCKRUN_IPG_CLK_ROOT 150000000UL
+#define BOARD_BOOTCLOCKRUN_LCDIF_CLK_ROOT 9642857UL
+#define BOARD_BOOTCLOCKRUN_LPI2C_CLK_ROOT 60000000UL
+#define BOARD_BOOTCLOCKRUN_LPSPI_CLK_ROOT 105600000UL
+#define BOARD_BOOTCLOCKRUN_LVDS1_CLK 1200000000UL
+#define BOARD_BOOTCLOCKRUN_MQS_MCLK 63529411UL
+#define BOARD_BOOTCLOCKRUN_PERCLK_CLK_ROOT 75000000UL
+#define BOARD_BOOTCLOCKRUN_PLL7_MAIN_CLK 24000000UL
+#define BOARD_BOOTCLOCKRUN_SAI1_CLK_ROOT 63529411UL
+#define BOARD_BOOTCLOCKRUN_SAI1_MCLK1 63529411UL
+#define BOARD_BOOTCLOCKRUN_SAI1_MCLK2 63529411UL
+#define BOARD_BOOTCLOCKRUN_SAI1_MCLK3 30000000UL
+#define BOARD_BOOTCLOCKRUN_SAI2_CLK_ROOT 63529411UL
+#define BOARD_BOOTCLOCKRUN_SAI2_MCLK1 63529411UL
+#define BOARD_BOOTCLOCKRUN_SAI2_MCLK2 0UL
+#define BOARD_BOOTCLOCKRUN_SAI2_MCLK3 30000000UL
+#define BOARD_BOOTCLOCKRUN_SAI3_CLK_ROOT 63529411UL
+#define BOARD_BOOTCLOCKRUN_SAI3_MCLK1 63529411UL
+#define BOARD_BOOTCLOCKRUN_SAI3_MCLK2 0UL
+#define BOARD_BOOTCLOCKRUN_SAI3_MCLK3 30000000UL
+#define BOARD_BOOTCLOCKRUN_SEMC_CLK_ROOT 75000000UL
+#define BOARD_BOOTCLOCKRUN_SPDIF0_CLK_ROOT 30000000UL
+#define BOARD_BOOTCLOCKRUN_SPDIF0_EXTCLK_OUT 0UL
+#define BOARD_BOOTCLOCKRUN_TRACE_CLK_ROOT 117333333UL
+#define BOARD_BOOTCLOCKRUN_UART_CLK_ROOT 80000000UL
+#define BOARD_BOOTCLOCKRUN_USBPHY1_CLK 0UL
+#define BOARD_BOOTCLOCKRUN_USBPHY2_CLK 0UL
+#define BOARD_BOOTCLOCKRUN_USDHC1_CLK_ROOT 198000000UL
+#define BOARD_BOOTCLOCKRUN_USDHC2_CLK_ROOT 198000000UL
 
 /*! @brief Arm PLL set for BOARD_BootClockRUN configuration.
  */
-extern const clock_arm_pll_config_t g_armPllConfig_BOARD_BootClockRUN;
+extern const clock_arm_pll_config_t armPllConfig_BOARD_BootClockRUN;
 /*! @brief Usb1 PLL set for BOARD_BootClockRUN configuration.
  */
-extern const clock_usb_pll_config_t g_usb1PllConfig_BOARD_BootClockRUN;
+extern const clock_usb_pll_config_t usb1PllConfig_BOARD_BootClockRUN;
 /*! @brief Sys PLL for BOARD_BootClockRUN configuration.
  */
-extern const clock_sys_pll_config_t g_sysPllConfig_BOARD_BootClockRUN;
+extern const clock_sys_pll_config_t sysPllConfig_BOARD_BootClockRUN;
 
 /*******************************************************************************
  * API for BOARD_BootClockRUN configuration
@@ -95,4 +117,3 @@ void BOARD_BootClockRUN(void);
 #endif /* __cplusplus*/
 
 #endif /* _CLOCK_CONFIG_H_ */
-

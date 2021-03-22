@@ -215,7 +215,7 @@ void kinetis_init_eth_hardware(void)
     /* pull up the ENET_INT before RESET. */
     GPIO_WritePinOutput(GPIO1, 10, 1);
     GPIO_WritePinOutput(GPIO1, 9, 0);
-    wait_ms(1);
+    wait_us(1 * 1000);
     GPIO_WritePinOutput(GPIO1, 9, 1);
 }
 

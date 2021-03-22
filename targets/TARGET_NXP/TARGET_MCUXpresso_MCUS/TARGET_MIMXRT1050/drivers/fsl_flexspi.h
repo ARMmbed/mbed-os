@@ -1,35 +1,9 @@
 /*
- * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
- * Copyright 2016-2017 NXP
+ * Copyright 2016-2019 NXP
  * All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided
- *  that the following conditions are met:
  *
- * o Redistributions of source code must retain the above copyright notice, this list
- *   of conditions and the following disclaimer.
- *
- * o Redistributions in binary form must reproduce the above copyright notice, this
- *   list of conditions and the following disclaimer in the documentation and/or
- *   other materials provided with the distribution.
- *
- * o Neither the name of the copyright holder nor the names of its
- *   contributors may be used to endorse or promote products derived from this
- *   software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifndef __FSL_FLEXSPI_H_
@@ -50,21 +24,21 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief FLEXSPI driver version 2.0.2. */
-#define FSL_FLEXSPI_DRIVER_VERSION (MAKE_VERSION(2, 0, 2))
+/*! @brief FLEXSPI driver version 2.1.3. */
+#define FSL_FLEXSPI_DRIVER_VERSION (MAKE_VERSION(2, 1, 3))
 /*@}*/
 
 #define FSL_FEATURE_FLEXSPI_AHB_BUFFER_COUNT FSL_FEATURE_FLEXSPI_AHB_BUFFER_COUNTn(0)
 
-/*! @breif Formula to form FLEXSPI instructions in LUT table. */
+/*! @brief Formula to form FLEXSPI instructions in LUT table. */
 #define FLEXSPI_LUT_SEQ(cmd0, pad0, op0, cmd1, pad1, op1)                                                              \
     (FLEXSPI_LUT_OPERAND0(op0) | FLEXSPI_LUT_NUM_PADS0(pad0) | FLEXSPI_LUT_OPCODE0(cmd0) | FLEXSPI_LUT_OPERAND1(op1) | \
      FLEXSPI_LUT_NUM_PADS1(pad1) | FLEXSPI_LUT_OPCODE1(cmd1))
 
 /*! @brief Status structure of FLEXSPI.*/
-enum _flexspi_status
+enum
 {
-    kStatus_FLEXSPI_Busy = MAKE_STATUS(kStatusGroup_FLEXSPI, 0),                     /*!< FLEXSPI is busy */
+    kStatus_FLEXSPI_Busy                     = MAKE_STATUS(kStatusGroup_FLEXSPI, 0), /*!< FLEXSPI is busy */
     kStatus_FLEXSPI_SequenceExecutionTimeout = MAKE_STATUS(kStatusGroup_FLEXSPI, 1), /*!< Sequence execution timeout
                                                                             error occurred during FLEXSPI transfer. */
     kStatus_FLEXSPI_IpCommandSequenceError = MAKE_STATUS(kStatusGroup_FLEXSPI, 2),   /*!< IP command Sequence execution
@@ -76,33 +50,33 @@ enum _flexspi_status
 /*! @brief CMD definition of FLEXSPI, use to form LUT instruction. */
 enum _flexspi_command
 {
-    kFLEXSPI_Command_STOP = 0x00U,           /*!< Stop execution, deassert CS. */
-    kFLEXSPI_Command_SDR = 0x01U,            /*!< Transmit Command code to Flash, using SDR mode. */
-    kFLEXSPI_Command_RADDR_SDR = 0x02U,      /*!< Transmit Row Address to Flash, using SDR mode. */
-    kFLEXSPI_Command_CADDR_SDR = 0x03U,      /*!< Transmit Column Address to Flash, using SDR mode. */
-    kFLEXSPI_Command_MODE1_SDR = 0x04U,      /*!< Transmit 1-bit Mode bits to Flash, using SDR mode. */
-    kFLEXSPI_Command_MODE2_SDR = 0x05U,      /*!< Transmit 2-bit Mode bits to Flash, using SDR mode. */
-    kFLEXSPI_Command_MODE4_SDR = 0x06U,      /*!< Transmit 4-bit Mode bits to Flash, using SDR mode. */
-    kFLEXSPI_Command_MODE8_SDR = 0x07U,      /*!< Transmit 8-bit Mode bits to Flash, using SDR mode. */
-    kFLEXSPI_Command_WRITE_SDR = 0x08U,      /*!< Transmit Programming Data to Flash, using SDR mode. */
-    kFLEXSPI_Command_READ_SDR = 0x09U,       /*!< Receive Read Data from Flash, using SDR mode. */
-    kFLEXSPI_Command_LEARN_SDR = 0x0AU,      /*!< Receive Read Data or Preamble bit from Flash, SDR mode. */
-    kFLEXSPI_Command_DATSZ_SDR = 0x0BU,      /*!< Transmit Read/Program Data size (byte) to Flash, SDR mode. */
-    kFLEXSPI_Command_DUMMY_SDR = 0x0CU,      /*!< Leave data lines undriven by FlexSPI controller.*/
+    kFLEXSPI_Command_STOP           = 0x00U, /*!< Stop execution, deassert CS. */
+    kFLEXSPI_Command_SDR            = 0x01U, /*!< Transmit Command code to Flash, using SDR mode. */
+    kFLEXSPI_Command_RADDR_SDR      = 0x02U, /*!< Transmit Row Address to Flash, using SDR mode. */
+    kFLEXSPI_Command_CADDR_SDR      = 0x03U, /*!< Transmit Column Address to Flash, using SDR mode. */
+    kFLEXSPI_Command_MODE1_SDR      = 0x04U, /*!< Transmit 1-bit Mode bits to Flash, using SDR mode. */
+    kFLEXSPI_Command_MODE2_SDR      = 0x05U, /*!< Transmit 2-bit Mode bits to Flash, using SDR mode. */
+    kFLEXSPI_Command_MODE4_SDR      = 0x06U, /*!< Transmit 4-bit Mode bits to Flash, using SDR mode. */
+    kFLEXSPI_Command_MODE8_SDR      = 0x07U, /*!< Transmit 8-bit Mode bits to Flash, using SDR mode. */
+    kFLEXSPI_Command_WRITE_SDR      = 0x08U, /*!< Transmit Programming Data to Flash, using SDR mode. */
+    kFLEXSPI_Command_READ_SDR       = 0x09U, /*!< Receive Read Data from Flash, using SDR mode. */
+    kFLEXSPI_Command_LEARN_SDR      = 0x0AU, /*!< Receive Read Data or Preamble bit from Flash, SDR mode. */
+    kFLEXSPI_Command_DATSZ_SDR      = 0x0BU, /*!< Transmit Read/Program Data size (byte) to Flash, SDR mode. */
+    kFLEXSPI_Command_DUMMY_SDR      = 0x0CU, /*!< Leave data lines undriven by FlexSPI controller.*/
     kFLEXSPI_Command_DUMMY_RWDS_SDR = 0x0DU, /*!< Leave data lines undriven by FlexSPI controller,
                                                   dummy cycles decided by RWDS. */
-    kFLEXSPI_Command_DDR = 0x21U,            /*!< Transmit Command code to Flash, using DDR mode. */
-    kFLEXSPI_Command_RADDR_DDR = 0x22U,      /*!< Transmit Row Address to Flash, using DDR mode. */
-    kFLEXSPI_Command_CADDR_DDR = 0x23U,      /*!< Transmit Column Address to Flash, using DDR mode. */
-    kFLEXSPI_Command_MODE1_DDR = 0x24U,      /*!< Transmit 1-bit Mode bits to Flash, using DDR mode. */
-    kFLEXSPI_Command_MODE2_DDR = 0x25U,      /*!< Transmit 2-bit Mode bits to Flash, using DDR mode. */
-    kFLEXSPI_Command_MODE4_DDR = 0x26U,      /*!< Transmit 4-bit Mode bits to Flash, using DDR mode. */
-    kFLEXSPI_Command_MODE8_DDR = 0x27U,      /*!< Transmit 8-bit Mode bits to Flash, using DDR mode. */
-    kFLEXSPI_Command_WRITE_DDR = 0x28U,      /*!< Transmit Programming Data to Flash, using DDR mode. */
-    kFLEXSPI_Command_READ_DDR = 0x29U,       /*!< Receive Read Data from Flash, using DDR mode. */
-    kFLEXSPI_Command_LEARN_DDR = 0x2AU,      /*!< Receive Read Data or Preamble bit from Flash, DDR mode. */
-    kFLEXSPI_Command_DATSZ_DDR = 0x2BU,      /*!< Transmit Read/Program Data size (byte) to Flash, DDR mode. */
-    kFLEXSPI_Command_DUMMY_DDR = 0x2CU,      /*!< Leave data lines undriven by FlexSPI controller.*/
+    kFLEXSPI_Command_DDR            = 0x21U, /*!< Transmit Command code to Flash, using DDR mode. */
+    kFLEXSPI_Command_RADDR_DDR      = 0x22U, /*!< Transmit Row Address to Flash, using DDR mode. */
+    kFLEXSPI_Command_CADDR_DDR      = 0x23U, /*!< Transmit Column Address to Flash, using DDR mode. */
+    kFLEXSPI_Command_MODE1_DDR      = 0x24U, /*!< Transmit 1-bit Mode bits to Flash, using DDR mode. */
+    kFLEXSPI_Command_MODE2_DDR      = 0x25U, /*!< Transmit 2-bit Mode bits to Flash, using DDR mode. */
+    kFLEXSPI_Command_MODE4_DDR      = 0x26U, /*!< Transmit 4-bit Mode bits to Flash, using DDR mode. */
+    kFLEXSPI_Command_MODE8_DDR      = 0x27U, /*!< Transmit 8-bit Mode bits to Flash, using DDR mode. */
+    kFLEXSPI_Command_WRITE_DDR      = 0x28U, /*!< Transmit Programming Data to Flash, using DDR mode. */
+    kFLEXSPI_Command_READ_DDR       = 0x29U, /*!< Receive Read Data from Flash, using DDR mode. */
+    kFLEXSPI_Command_LEARN_DDR      = 0x2AU, /*!< Receive Read Data or Preamble bit from Flash, DDR mode. */
+    kFLEXSPI_Command_DATSZ_DDR      = 0x2BU, /*!< Transmit Read/Program Data size (byte) to Flash, DDR mode. */
+    kFLEXSPI_Command_DUMMY_DDR      = 0x2CU, /*!< Leave data lines undriven by FlexSPI controller.*/
     kFLEXSPI_Command_DUMMY_RWDS_DDR = 0x2DU, /*!< Leave data lines undriven by FlexSPI controller,
                                                dummy cycles decided by RWDS. */
     kFLEXSPI_Command_JUMP_ON_CS = 0x1FU,     /*!< Stop execution, deassert CS and save operand[7:0] as the
@@ -110,19 +84,23 @@ enum _flexspi_command
 };
 
 /*! @brief pad definition of FLEXSPI, use to form LUT instruction. */
-enum _flexspi_pad
+typedef enum _flexspi_pad
 {
     kFLEXSPI_1PAD = 0x00U, /*!< Transmit command/address and transmit/receive data only through DATA0/DATA1. */
     kFLEXSPI_2PAD = 0x01U, /*!< Transmit command/address and transmit/receive data only through DATA[1:0]. */
     kFLEXSPI_4PAD = 0x02U, /*!< Transmit command/address and transmit/receive data only through DATA[3:0]. */
     kFLEXSPI_8PAD = 0x03U, /*!< Transmit command/address and transmit/receive data only through DATA[7:0]. */
-};
+} flexspi_pad_t;
 
 /*! @brief FLEXSPI interrupt status flags.*/
 typedef enum _flexspi_flags
 {
     kFLEXSPI_SequenceExecutionTimeoutFlag = FLEXSPI_INTEN_SEQTIMEOUTEN_MASK, /*!< Sequence execution timeout. */
-    kFLEXSPI_AhbBusTimeoutFlag = FLEXSPI_INTEN_AHBBUSTIMEOUTEN_MASK,         /*!< AHB Bus timeout. */
+#if defined(FSL_FEATURE_FLEXSPI_HAS_INTEN_AHBBUSERROREN) && FSL_FEATURE_FLEXSPI_HAS_INTEN_AHBBUSERROREN
+    kFLEXSPI_AhbBusErrorFlag = FLEXSPI_INTEN_AHBBUSERROREN_MASK, /*!< AHB Bus error flag. */
+#else
+    kFLEXSPI_AhbBusTimeoutFlag = FLEXSPI_INTEN_AHBBUSTIMEOUTEN_MASK, /*!< AHB Bus timeout. */
+#endif
     kFLEXSPI_SckStoppedBecauseTxEmptyFlag =
         FLEXSPI_INTEN_SCKSTOPBYWREN_MASK, /*!< SCK is stopped during command
                                                sequence because Async TX FIFO empty. */
@@ -132,7 +110,7 @@ typedef enum _flexspi_flags
 #if !((defined(FSL_FEATURE_FLEXSPI_HAS_NO_DATA_LEARN)) && (FSL_FEATURE_FLEXSPI_HAS_NO_DATA_LEARN))
     kFLEXSPI_DataLearningFailedFlag = FLEXSPI_INTEN_DATALEARNFAILEN_MASK, /*!< Data learning failed. */
 #endif
-    kFLEXSPI_IpTxFifoWatermarkEmpltyFlag = FLEXSPI_INTEN_IPTXWEEN_MASK,    /*!< IP TX FIFO WaterMark empty. */
+    kFLEXSPI_IpTxFifoWatermarkEmptyFlag     = FLEXSPI_INTEN_IPTXWEEN_MASK, /*!< IP TX FIFO WaterMark empty. */
     kFLEXSPI_IpRxFifoWatermarkAvailableFlag = FLEXSPI_INTEN_IPRXWAEN_MASK, /*!< IP RX FIFO WaterMark available. */
     kFLEXSPI_AhbCommandSequenceErrorFlag =
         FLEXSPI_INTEN_AHBCMDERREN_MASK,                                  /*!< AHB triggered Command Sequences Error. */
@@ -141,7 +119,7 @@ typedef enum _flexspi_flags
         FLEXSPI_INTEN_AHBCMDGEEN_MASK, /*!< AHB triggered Command Sequences Grant Timeout. */
     kFLEXSPI_IpCommandGrantTimeoutFlag =
         FLEXSPI_INTEN_IPCMDGEEN_MASK, /*!< IP triggered Command Sequences Grant Timeout. */
-    kFLEXSPI_IpCommandExcutionDoneFlag =
+    kFLEXSPI_IpCommandExecutionDoneFlag =
         FLEXSPI_INTEN_IPCMDDONEEN_MASK,  /*!< IP triggered Command Sequences Execution finished. */
     kFLEXSPI_AllInterruptFlags = 0xFFFU, /*!< All flags. */
 } flexspi_flags_t;
@@ -153,36 +131,36 @@ typedef enum _flexspi_read_sample_clock
                                                                and loopback internally. */
     kFLEXSPI_ReadSampleClkLoopbackFromDqsPad = 0x1U,      /*!< Dummy Read strobe generated by FlexSPI Controller
                                                                and loopback from DQS pad. */
-    kFLEXSPI_ReadSampleClkLoopbackFromSckPad = 0x2U,      /*!< SCK output clock and loopback from SCK pad. */
+    kFLEXSPI_ReadSampleClkLoopbackFromSckPad      = 0x2U, /*!< SCK output clock and loopback from SCK pad. */
     kFLEXSPI_ReadSampleClkExternalInputFromDqsPad = 0x3U, /*!< Flash provided Read strobe and input from DQS pad. */
 } flexspi_read_sample_clock_t;
 
 /*! @brief FLEXSPI interval unit for flash device select.*/
 typedef enum _flexspi_cs_interval_cycle_unit
 {
-    kFLEXSPI_CsIntervalUnit1SckCycle = 0x0U,   /*!< Chip selection interval: CSINTERVAL * 1 serial clock cycle. */
+    kFLEXSPI_CsIntervalUnit1SckCycle   = 0x0U, /*!< Chip selection interval: CSINTERVAL * 1 serial clock cycle. */
     kFLEXSPI_CsIntervalUnit256SckCycle = 0x1U, /*!< Chip selection interval: CSINTERVAL * 256 serial clock cycle. */
 } flexspi_cs_interval_cycle_unit_t;
 
-/*! @brief FLEXSPI AHB wait interval unit for writting.*/
+/*! @brief FLEXSPI AHB wait interval unit for writing.*/
 typedef enum _flexspi_ahb_write_wait_unit
 {
-    kFLEXSPI_AhbWriteWaitUnit2AhbCycle = 0x0U,     /*!< AWRWAIT unit is 2 ahb clock cycle. */
-    kFLEXSPI_AhbWriteWaitUnit8AhbCycle = 0x1U,     /*!< AWRWAIT unit is 8 ahb clock cycle. */
-    kFLEXSPI_AhbWriteWaitUnit32AhbCycle = 0x2U,    /*!< AWRWAIT unit is 32 ahb clock cycle. */
-    kFLEXSPI_AhbWriteWaitUnit128AhbCycle = 0x3U,   /*!< AWRWAIT unit is 128 ahb clock cycle. */
-    kFLEXSPI_AhbWriteWaitUnit512AhbCycle = 0x4U,   /*!< AWRWAIT unit is 512 ahb clock cycle. */
-    kFLEXSPI_AhbWriteWaitUnit2048AhbCycle = 0x5U,  /*!< AWRWAIT unit is 2048 ahb clock cycle. */
-    kFLEXSPI_AhbWriteWaitUnit8192AhbCycle = 0x6U,  /*!< AWRWAIT unit is 8192 ahb clock cycle. */
+    kFLEXSPI_AhbWriteWaitUnit2AhbCycle     = 0x0U, /*!< AWRWAIT unit is 2 ahb clock cycle. */
+    kFLEXSPI_AhbWriteWaitUnit8AhbCycle     = 0x1U, /*!< AWRWAIT unit is 8 ahb clock cycle. */
+    kFLEXSPI_AhbWriteWaitUnit32AhbCycle    = 0x2U, /*!< AWRWAIT unit is 32 ahb clock cycle. */
+    kFLEXSPI_AhbWriteWaitUnit128AhbCycle   = 0x3U, /*!< AWRWAIT unit is 128 ahb clock cycle. */
+    kFLEXSPI_AhbWriteWaitUnit512AhbCycle   = 0x4U, /*!< AWRWAIT unit is 512 ahb clock cycle. */
+    kFLEXSPI_AhbWriteWaitUnit2048AhbCycle  = 0x5U, /*!< AWRWAIT unit is 2048 ahb clock cycle. */
+    kFLEXSPI_AhbWriteWaitUnit8192AhbCycle  = 0x6U, /*!< AWRWAIT unit is 8192 ahb clock cycle. */
     kFLEXSPI_AhbWriteWaitUnit32768AhbCycle = 0x7U, /*!< AWRWAIT unit is 32768 ahb clock cycle. */
 } flexspi_ahb_write_wait_unit_t;
 
 /*! @brief Error Code when IP command Error detected.*/
 typedef enum _flexspi_ip_error_code
 {
-    kFLEXSPI_IpCmdErrorNoError = 0x0U,                  /*!< No error. */
-    kFLEXSPI_IpCmdErrorJumpOnCsInIpCmd = 0x2U,          /*!< IP command with JMP_ON_CS instruction used. */
-    kFLEXSPI_IpCmdErrorUnknownOpCode = 0x3U,            /*!< Unknown instruction opcode in the sequence. */
+    kFLEXSPI_IpCmdErrorNoError               = 0x0U,    /*!< No error. */
+    kFLEXSPI_IpCmdErrorJumpOnCsInIpCmd       = 0x2U,    /*!< IP command with JMP_ON_CS instruction used. */
+    kFLEXSPI_IpCmdErrorUnknownOpCode         = 0x3U,    /*!< Unknown instruction opcode in the sequence. */
     kFLEXSPI_IpCmdErrorSdrDummyInDdrSequence = 0x4U,    /*!< Instruction DUMMY_SDR/DUMMY_RWDS_SDR
                                                              used in DDR sequence. */
     kFLEXSPI_IpCmdErrorDdrDummyInSdrSequence = 0x5U,    /*!< Instruction DUMMY_DDR/DUMMY_RWDS_DDR
@@ -190,16 +168,16 @@ typedef enum _flexspi_ip_error_code
     kFLEXSPI_IpCmdErrorInvalidAddress = 0x6U,           /*!< Flash access start address exceed the whole
                                                             flash address range (A1/A2/B1/B2). */
     kFLEXSPI_IpCmdErrorSequenceExecutionTimeout = 0xEU, /*!< Sequence execution timeout. */
-    kFLEXSPI_IpCmdErrorFlashBoundaryAcrosss = 0xFU,     /*!< Flash boundary crossed. */
+    kFLEXSPI_IpCmdErrorFlashBoundaryAcrosss     = 0xFU, /*!< Flash boundary crossed. */
 } flexspi_ip_error_code_t;
 
 /*! @brief Error Code when AHB command Error detected.*/
 typedef enum _flexspi_ahb_error_code
 {
-    kFLEXSPI_AhbCmdErrorNoError = 0x0U,               /*!< No error. */
+    kFLEXSPI_AhbCmdErrorNoError            = 0x0U,    /*!< No error. */
     kFLEXSPI_AhbCmdErrorJumpOnCsInWriteCmd = 0x2U,    /*!< AHB Write command with JMP_ON_CS instruction
                                                            used in the sequence. */
-    kFLEXSPI_AhbCmdErrorUnknownOpCode = 0x3U,         /*!< Unknown instruction opcode in the sequence. */
+    kFLEXSPI_AhbCmdErrorUnknownOpCode         = 0x3U, /*!< Unknown instruction opcode in the sequence. */
     kFLEXSPI_AhbCmdErrorSdrDummyInDdrSequence = 0x4U, /*!< Instruction DUMMY_SDR/DUMMY_RWDS_SDR used
                                                            in DDR sequence. */
     kFLEXSPI_AhbCmdErrorDdrDummyInSdrSequence = 0x5U, /*!< Instruction DUMMY_DDR/DUMMY_RWDS_DDR
@@ -211,17 +189,18 @@ typedef enum _flexspi_ahb_error_code
 typedef enum _flexspi_port
 {
     kFLEXSPI_PortA1 = 0x0U, /*!< Access flash on A1 port. */
-    kFLEXSPI_PortA2 = 0x1U, /*!< Access flash on A2 port. */
-    kFLEXSPI_PortB1 = 0x2U, /*!< Access flash on B1 port. */
-    kFLEXSPI_PortB2 = 0x3U, /*!< Access flash on B2 port. */
+    kFLEXSPI_PortA2,        /*!< Access flash on A2 port. */
+    kFLEXSPI_PortB1,        /*!< Access flash on B1 port. */
+    kFLEXSPI_PortB2,        /*!< Access flash on B2 port. */
+    kFLEXSPI_PortCount
 } flexspi_port_t;
 
 /*! @brief Trigger source of current command sequence granted by arbitrator.*/
 typedef enum _flexspi_arb_command_source
 {
-    kFLEXSPI_AhbReadCommand = 0x0U,
-    kFLEXSPI_AhbWriteCommand = 0x1U,
-    kFLEXSPI_IpCommand = 0x2U,
+    kFLEXSPI_AhbReadCommand   = 0x0U,
+    kFLEXSPI_AhbWriteCommand  = 0x1U,
+    kFLEXSPI_IpCommand        = 0x2U,
     kFLEXSPI_SuspendedCommand = 0x3U,
 } flexspi_arb_command_source_t;
 
@@ -239,7 +218,7 @@ typedef struct _flexspi_ahbBuffer_config
     uint8_t masterIndex; /*!< AHB Master ID the AHB RX Buffer is assigned. */
     uint16_t bufferSize; /*!< AHB buffer size in byte. */
     bool enablePrefetch; /*!< AHB Read Prefetch Enable for current AHB RX Buffer corresponding Master, allows
-                          prefetch disable/enable seperately for each master. */
+                          prefetch disable/enable separately for each master. */
 } flexspi_ahbBuffer_config_t;
 
 /*! @brief FLEXSPI configuration structure. */
@@ -264,8 +243,12 @@ typedef struct _flexspi_config
     uint8_t rxWatermark;                       /*!< FLEXSPI receive watermark value. */
     struct
     {
-        bool enableAHBWriteIpTxFifo;  /*!< Enable AHB bus write access to IP TX FIFO. */
-        bool enableAHBWriteIpRxFifo;  /*!< Enable AHB bus write access to IP RX FIFO. */
+#if !(defined(FSL_FEATURE_FLEXSPI_HAS_NO_MCR0_ATDFEN) && FSL_FEATURE_FLEXSPI_HAS_NO_MCR0_ATDFEN)
+        bool enableAHBWriteIpTxFifo; /*!< Enable AHB bus write access to IP TX FIFO. */
+#endif
+#if !(defined(FSL_FEATURE_FLEXSPI_HAS_NO_MCR0_ARDFEN) && FSL_FEATURE_FLEXSPI_HAS_NO_MCR0_ARDFEN)
+        bool enableAHBWriteIpRxFifo; /*!< Enable AHB bus write access to IP RX FIFO. */
+#endif
         uint8_t ahbGrantTimeoutCycle; /*!< Timeout wait cycle for AHB command grant,
                                        timeout after ahbGrantTimeoutCyle*1024 AHB clock cycles. */
         uint16_t ahbBusTimeoutCycle;  /*!< Timeout wait cycle for AHB read/write access,
@@ -276,11 +259,11 @@ typedef struct _flexspi_config
         bool enableClearAHBBufferOpt; /*!< Enable/disable automatically clean AHB RX Buffer and TX Buffer
                                        when FLEXSPI returns STOP mode ACK. */
         bool enableReadAddressOpt;    /*!< Enable/disable remove AHB read burst start address alignment limitation.
-                                       when eanble, there is no AHB read burst start address alignment limitation. */
+                                       when enable, there is no AHB read burst start address alignment limitation. */
         bool enableAHBPrefetch;       /*!< Enable/disable AHB read prefetch feature, when enabled, FLEXSPI
                                        will fetch more data than current AHB burst. */
         bool enableAHBBufferable;     /*!< Enable/disable AHB bufferable write access support, when enabled,
-                                       FLEXSPI return before waiting for command excution finished. */
+                                       FLEXSPI return before waiting for command execution finished. */
         bool enableAHBCachable;       /*!< Enable AHB bus cachable read access support. */
     } ahbConfig;
 } flexspi_config_t;
@@ -292,7 +275,7 @@ typedef struct _flexspi_device_config
     bool isSck2Enabled;                              /*!< FLEXSPI use SCK2. */
     uint32_t flashSize;                              /*!< Flash size in KByte. */
     flexspi_cs_interval_cycle_unit_t CSIntervalUnit; /*!< CS interval unit, 1 or 256 cycle. */
-    uint16_t CSInterval;                             /*!< CS line assert interval, mutiply CS interval unit to
+    uint16_t CSInterval;                             /*!< CS line assert interval, multiply CS interval unit to
                                                       get the CS line assert interval cycles. */
     uint8_t CSHoldTime;                              /*!< CS line hold time. */
     uint8_t CSSetupTime;                             /*!< CS line setup time. */
@@ -304,7 +287,7 @@ typedef struct _flexspi_device_config
     uint8_t ARDSeqIndex;                             /*!< Sequence ID for AHB read command. */
     uint8_t ARDSeqNumber;                            /*!< Sequence number for AHB read command. */
     flexspi_ahb_write_wait_unit_t AHBWriteWaitUnit;  /*!< AHB write wait unit. */
-    uint16_t AHBWriteWaitInterval;                   /*!< AHB write wait interval, mutiply AHB write interval
+    uint16_t AHBWriteWaitInterval;                   /*!< AHB write wait interval, multiply AHB write interval
                                                       unit to get the AHB write wait cycles. */
     bool enableWriteMask;                            /*!< Enable/Disable FLEXSPI drive DQS pin as write mask
                                                       when writing to external device. */
@@ -350,6 +333,14 @@ struct _flexspi_handle
 extern "C" {
 #endif /*_cplusplus. */
 
+/**
+ * @brief Set bytes in memory. If put this code in SRAM, Make sure this code
+ * does not call functions in Flash.
+ *
+ * @return pointer to start of buffer
+ */
+extern void *flexspi_memset(void *buf, int c, size_t n);
+
 /*!
  * @name Initialization and deinitialization
  * @{
@@ -363,14 +354,14 @@ extern "C" {
  * @param base FLEXSPI peripheral base address.
  * @param config FLEXSPI configure structure.
  */
-void FLEXSPI_Init(FLEXSPI_Type *base, const flexspi_config_t *config);
+AT_QUICKACCESS_SECTION_CODE(void FLEXSPI_Init(FLEXSPI_Type *base, const flexspi_config_t *config));
 
 /*!
  * @brief Gets default settings for FLEXSPI.
  *
  * @param config FLEXSPI configuration structure.
  */
-void FLEXSPI_GetDefaultConfig(flexspi_config_t *config);
+AT_QUICKACCESS_SECTION_CODE(void FLEXSPI_GetDefaultConfig(flexspi_config_t *config));
 
 /*!
  * @brief Deinitializes the FLEXSPI module.
@@ -391,7 +382,9 @@ void FLEXSPI_Deinit(FLEXSPI_Type *base);
  * @param config Flash configuration parameters.
  * @param port FLEXSPI Operation port.
  */
-void FLEXSPI_SetFlashConfig(FLEXSPI_Type *base, flexspi_device_config_t *config, flexspi_port_t port);
+AT_QUICKACCESS_SECTION_CODE(void FLEXSPI_SetFlashConfig(FLEXSPI_Type *base,
+                                                        flexspi_device_config_t *config,
+                                                        flexspi_port_t port));
 
 /*!
  * @brief Software reset for the FLEXSPI logic.
@@ -401,10 +394,10 @@ void FLEXSPI_SetFlashConfig(FLEXSPI_Type *base, flexspi_device_config_t *config,
  *
  * @param base FLEXSPI peripheral base address.
  */
-static inline void FLEXSPI_SoftwareReset(FLEXSPI_Type *base)
+AT_QUICKACCESS_SECTION_CODE(static inline void FLEXSPI_SoftwareReset(FLEXSPI_Type *base))
 {
     base->MCR0 |= FLEXSPI_MCR0_SWRESET_MASK;
-    while (base->MCR0 & FLEXSPI_MCR0_SWRESET_MASK)
+    while (0U != (base->MCR0 & FLEXSPI_MCR0_SWRESET_MASK))
     {
     }
 }
@@ -415,7 +408,7 @@ static inline void FLEXSPI_SoftwareReset(FLEXSPI_Type *base)
  * @param base FLEXSPI peripheral base address.
  * @param enable True means enable FLEXSPI, false means disable.
  */
-static inline void FLEXSPI_Enable(FLEXSPI_Type *base, bool enable)
+AT_QUICKACCESS_SECTION_CODE(static inline void FLEXSPI_Enable(FLEXSPI_Type *base, bool enable))
 {
     if (enable)
     {
@@ -552,11 +545,11 @@ static inline void FLEXSPI_ResetFifos(FLEXSPI_Type *base, bool txFifo, bool rxFi
  */
 static inline void FLEXSPI_GetFifoCounts(FLEXSPI_Type *base, size_t *txCount, size_t *rxCount)
 {
-    if (txCount)
+    if (NULL != txCount)
     {
         *txCount = (((base->IPTXFSTS) & FLEXSPI_IPTXFSTS_FILL_MASK) >> FLEXSPI_IPTXFSTS_FILL_SHIFT) * 8U;
     }
-    if (rxCount)
+    if (NULL != rxCount)
     {
         *rxCount = (((base->IPRXFSTS) & FLEXSPI_IPRXFSTS_FILL_MASK) >> FLEXSPI_IPRXFSTS_FILL_SHIFT) * 8U;
     }
@@ -585,7 +578,7 @@ static inline uint32_t FLEXSPI_GetInterruptStatusFlags(FLEXSPI_Type *base)
  * @param base FLEXSPI peripheral base address.
  * @param interrupt status flag.
  */
-static inline void FLEXSPI_ClearInterruptStatusFlags(FLEXSPI_Type *base, uint32_t mask)
+AT_QUICKACCESS_SECTION_CODE(static inline void FLEXSPI_ClearInterruptStatusFlags(FLEXSPI_Type *base, uint32_t mask))
 {
     base->INTR |= mask;
 }
@@ -618,7 +611,8 @@ static inline void FLEXSPI_GetDataLearningPhase(FLEXSPI_Type *base, uint8_t *por
  */
 static inline flexspi_arb_command_source_t FLEXSPI_GetArbitratorCommandSource(FLEXSPI_Type *base)
 {
-    return (flexspi_arb_command_source_t)((base->STS0 & FLEXSPI_STS0_ARBCMDSRC_MASK) >> FLEXSPI_STS0_ARBCMDSRC_SHIFT);
+    return (flexspi_arb_command_source_t)(
+        (uint32_t)((base->STS0 & FLEXSPI_STS0_ARBCMDSRC_MASK) >> FLEXSPI_STS0_ARBCMDSRC_SHIFT));
 }
 
 /*! @brief Gets the error code when IP command error detected.
@@ -629,8 +623,9 @@ static inline flexspi_arb_command_source_t FLEXSPI_GetArbitratorCommandSource(FL
  */
 static inline flexspi_ip_error_code_t FLEXSPI_GetIPCommandErrorCode(FLEXSPI_Type *base, uint8_t *index)
 {
-    *index = (base->STS1 & FLEXSPI_STS1_IPCMDERRID_MASK) >> FLEXSPI_STS1_IPCMDERRID_SHIFT;
-    return (flexspi_ip_error_code_t)((base->STS1 & FLEXSPI_STS1_IPCMDERRCODE_MASK) >> FLEXSPI_STS1_IPCMDERRCODE_SHIFT);
+    *index = (uint8_t)((base->STS1 & FLEXSPI_STS1_IPCMDERRID_MASK) >> FLEXSPI_STS1_IPCMDERRID_SHIFT);
+    return (flexspi_ip_error_code_t)(
+        (uint32_t)((base->STS1 & FLEXSPI_STS1_IPCMDERRCODE_MASK) >> FLEXSPI_STS1_IPCMDERRCODE_SHIFT));
 }
 
 /*! @brief Gets the error code when AHB command error detected.
@@ -641,9 +636,9 @@ static inline flexspi_ip_error_code_t FLEXSPI_GetIPCommandErrorCode(FLEXSPI_Type
  */
 static inline flexspi_ahb_error_code_t FLEXSPI_GetAHBCommandErrorCode(FLEXSPI_Type *base, uint8_t *index)
 {
-    *index = (base->STS1 & FLEXSPI_STS1_AHBCMDERRID_MASK) >> FLEXSPI_STS1_AHBCMDERRID_SHIFT;
-    return (flexspi_ahb_error_code_t)((base->STS1 & FLEXSPI_STS1_AHBCMDERRCODE_MASK) >>
-                                      FLEXSPI_STS1_AHBCMDERRCODE_SHIFT);
+    *index = (uint8_t)(base->STS1 & FLEXSPI_STS1_AHBCMDERRID_MASK) >> FLEXSPI_STS1_AHBCMDERRID_SHIFT;
+    return (flexspi_ahb_error_code_t)(
+        (uint32_t)((base->STS1 & FLEXSPI_STS1_AHBCMDERRCODE_MASK) >> FLEXSPI_STS1_AHBCMDERRCODE_SHIFT));
 }
 
 /*! @brief Returns whether the bus is idle.
@@ -652,9 +647,9 @@ static inline flexspi_ahb_error_code_t FLEXSPI_GetAHBCommandErrorCode(FLEXSPI_Ty
  * @retval true Bus is idle.
  * @retval false Bus is busy.
  */
-static inline bool FLEXSPI_GetBusIdleStatus(FLEXSPI_Type *base)
+AT_QUICKACCESS_SECTION_CODE(static inline bool FLEXSPI_GetBusIdleStatus(FLEXSPI_Type *base))
 {
-    return (base->STS0 & FLEXSPI_STS0_ARBIDLE_MASK) && (base->STS0 & FLEXSPI_STS0_SEQIDLE_MASK);
+    return (0U != (base->STS0 & FLEXSPI_STS0_ARBIDLE_MASK)) && (0U != (base->STS0 & FLEXSPI_STS0_SEQIDLE_MASK));
 }
 /*@}*/
 
@@ -662,6 +657,13 @@ static inline bool FLEXSPI_GetBusIdleStatus(FLEXSPI_Type *base)
  * @name Bus Operations
  * @{
  */
+
+/*! @brief Update read sample clock source
+ *
+ * @param base FLEXSPI peripheral base address.
+ * @param clockSource clockSource of type #flexspi_read_sample_clock_t
+ */
+void FLEXSPI_UpdateRxSampleClock(FLEXSPI_Type *base, flexspi_read_sample_clock_t clockSource);
 
 /*! @brief Enables/disables the FLEXSPI IP command parallel mode.
  *
@@ -698,15 +700,16 @@ static inline void FLEXSPI_EnableAHBParallelMode(FLEXSPI_Type *base, bool enable
 }
 
 /*! @brief Updates the LUT table.
-*
-* @param base FLEXSPI peripheral base address.
-* @param index From which index start to update. It could be any index of the LUT table, which
-* also allows user to update command content inside a command. Each command consists of up to
-* 8 instructions and occupy 4*32-bit memory.
-* @param cmd Command sequence array.
-* @param count Number of sequences.
-*/
-void FLEXSPI_UpdateLUT(FLEXSPI_Type *base, uint32_t index, const uint32_t *cmd, uint32_t count);
+ *
+ * @param base FLEXSPI peripheral base address.
+ * @param index From which index start to update. It could be any index of the LUT table, which
+ * also allows user to update command content inside a command. Each command consists of up to
+ * 8 instructions and occupy 4*32-bit memory.
+ * @param cmd Command sequence array.
+ * @param count Number of sequences.
+ */
+AT_QUICKACCESS_SECTION_CODE(void FLEXSPI_UpdateLUT(FLEXSPI_Type *base, uint32_t index,
+                                                   const uint32_t *cmd, uint32_t count));
 
 /*!
  * @brief Writes data into FIFO.
@@ -740,10 +743,11 @@ static inline uint32_t FLEXSPI_ReadData(FLEXSPI_Type *base, uint8_t fifoIndex)
  * @param size The number of data bytes to send
  * @retval kStatus_Success write success without error
  * @retval kStatus_FLEXSPI_SequenceExecutionTimeout sequence execution timeout
- * @retval kStatus_FLEXSPI_IpCommandSequenceError IP command sequencen error detected
+ * @retval kStatus_FLEXSPI_IpCommandSequenceError IP command sequence error detected
  * @retval kStatus_FLEXSPI_IpCommandGrantTimeout IP command grant timeout detected
  */
-status_t FLEXSPI_WriteBlocking(FLEXSPI_Type *base, uint32_t *buffer, size_t size);
+AT_QUICKACCESS_SECTION_CODE(status_t FLEXSPI_WriteBlocking(FLEXSPI_Type *base,
+                                                           uint32_t *buffer, size_t size));
 
 /*!
  * @brief Receives a buffer of data bytes using a blocking method.
@@ -756,7 +760,8 @@ status_t FLEXSPI_WriteBlocking(FLEXSPI_Type *base, uint32_t *buffer, size_t size
  * @retval kStatus_FLEXSPI_IpCommandSequenceError IP command sequencen error detected
  * @retval kStatus_FLEXSPI_IpCommandGrantTimeout IP command grant timeout detected
  */
-status_t FLEXSPI_ReadBlocking(FLEXSPI_Type *base, uint32_t *buffer, size_t size);
+AT_QUICKACCESS_SECTION_CODE(status_t FLEXSPI_ReadBlocking(FLEXSPI_Type *base,
+                                                          uint32_t *buffer, size_t size));
 
 /*!
  * @brief Execute command to transfer a buffer data bytes using a blocking method.
@@ -764,10 +769,11 @@ status_t FLEXSPI_ReadBlocking(FLEXSPI_Type *base, uint32_t *buffer, size_t size)
  * @param xfer pointer to the transfer structure.
  * @retval kStatus_Success command transfer success without error
  * @retval kStatus_FLEXSPI_SequenceExecutionTimeout sequence execution timeout
- * @retval kStatus_FLEXSPI_IpCommandSequenceError IP command sequencen error detected
+ * @retval kStatus_FLEXSPI_IpCommandSequenceError IP command sequence error detected
  * @retval kStatus_FLEXSPI_IpCommandGrantTimeout IP command grant timeout detected
-*/
-status_t FLEXSPI_TransferBlocking(FLEXSPI_Type *base, flexspi_transfer_t *xfer);
+ */
+AT_QUICKACCESS_SECTION_CODE(status_t FLEXSPI_TransferBlocking(FLEXSPI_Type *base,
+                                                              flexspi_transfer_t *xfer));
 /*! @} */
 
 /*!
@@ -794,7 +800,7 @@ void FLEXSPI_TransferCreateHandle(FLEXSPI_Type *base,
  * @note Calling the API returns immediately after transfer initiates. The user needs
  * to call FLEXSPI_GetTransferCount to poll the transfer status to check whether
  * the transfer is finished. If the return status is not kStatus_FLEXSPI_Busy, the transfer
- * is finished. For FLEXSPI_Read, the dataSize should be multiple of rx watermark levle, or
+ * is finished. For FLEXSPI_Read, the dataSize should be multiple of rx watermark level, or
  * FLEXSPI could not read data properly.
  *
  * @param base FLEXSPI peripheral base address.

@@ -17,6 +17,8 @@
 #include "fsl_clock_config.h"
 #include "fsl_clock.h"
 #include "fsl_xbara.h"
+#include "fsl_iomuxc.h"
+#include "fsl_gpio.h"
 #include "lpm.h"
 
 #define LPSPI_CLOCK_SOURCE_DIVIDER (7U)
@@ -40,10 +42,10 @@ void BOARD_ConfigMPU(void)
 
     /* MPU configure:
      * Use ARM_MPU_RASR(DisableExec, AccessPermission, TypeExtField, IsShareable, IsCacheable, IsBufferable, SubRegionDisable, Size)
-     * API in core_cm7.h.
+     * API in mpu_armv7.h.
      * param DisableExec       Instruction access (XN) disable bit,0=instruction fetches enabled, 1=instruction fetches disabled.
      * param AccessPermission  Data access permissions, allows you to configure read/write access for User and Privileged mode.
-     *      Use MACROS defined in core_cm7.h: ARM_MPU_AP_NONE/ARM_MPU_AP_PRIV/ARM_MPU_AP_URO/ARM_MPU_AP_FULL/ARM_MPU_AP_PRO/ARM_MPU_AP_RO
+     *      Use MACROS defined in mpu_armv7.h: ARM_MPU_AP_NONE/ARM_MPU_AP_PRIV/ARM_MPU_AP_URO/ARM_MPU_AP_FULL/ARM_MPU_AP_PRO/ARM_MPU_AP_RO
      * Combine TypeExtField/IsShareable/IsCacheable/IsBufferable to configure MPU memory access attributes.
      *  TypeExtField  IsShareable  IsCacheable  IsBufferable   Memory Attribtue    Shareability        Cache
      *     0             x           0           0             Strongly Ordered    shareable
@@ -60,26 +62,22 @@ void BOARD_ConfigMPU(void)
      *  Above are normal use settings, if your want to see more details or want to config different inner/outter cache policy.
      *  please refer to Table 4-55 /4-56 in arm cortex-M7 generic user guide <dui0646b_cortex_m7_dgug.pdf>
      * param SubRegionDisable  Sub-region disable field. 0=sub-region is enabled, 1=sub-region is disabled.
-     * param Size              Region size of the region to be configured. use ARM_MPU_REGION_SIZE_xxx MACRO in core_cm7.h.
+     * param Size              Region size of the region to be configured. use ARM_MPU_REGION_SIZE_xxx MACRO in mpu_armv7.h.
      */
 
     /* Region 0 setting: Memory with Device type, not shareable, non-cacheable. */
-    MPU->RBAR = ARM_MPU_RBAR(0, 0xC0000000U);
+    MPU->RBAR = ARM_MPU_RBAR(0, 0x80000000U);
     MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 2, 0, 0, 0, 0, ARM_MPU_REGION_SIZE_512MB);
 
     /* Region 1 setting: Memory with Device type, not shareable,  non-cacheable. */
-    MPU->RBAR = ARM_MPU_RBAR(1, 0x80000000U);
-    MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 2, 0, 0, 0, 0, ARM_MPU_REGION_SIZE_1GB);
+    MPU->RBAR = ARM_MPU_RBAR(1, 0x60000000U);
+    MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 2, 0, 0, 0, 0, ARM_MPU_REGION_SIZE_512MB);
 
-    /* Region 2 setting */
+/* Region 2 setting */
 #if defined(XIP_EXTERNAL_FLASH) && (XIP_EXTERNAL_FLASH == 1)
     /* Setting Memory with Normal type, not shareable, outer/inner write back. */
     MPU->RBAR = ARM_MPU_RBAR(2, 0x60000000U);
-    MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 0, 0, 1, 1, 0, ARM_MPU_REGION_SIZE_512MB);
-#else
-    /* Setting Memory with Device type, not shareable, non-cacheable. */
-    MPU->RBAR = ARM_MPU_RBAR(2, 0x60000000U);
-    MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 2, 0, 0, 0, 0, ARM_MPU_REGION_SIZE_512MB);
+    MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_RO, 0, 0, 1, 1, 0, ARM_MPU_REGION_SIZE_64MB);
 #endif
 
     /* Region 3 setting: Memory with Device type, not shareable, non-cacheable. */
@@ -98,9 +96,9 @@ void BOARD_ConfigMPU(void)
     MPU->RBAR = ARM_MPU_RBAR(6, 0x20200000U);
     MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 0, 0, 1, 1, 0, ARM_MPU_REGION_SIZE_256KB);
 
-    /* The define sets the cacheable memory to shareable,
-     * this suggestion is referred from chapter 2.2.1 Memory regions,
-     * types and attributes in Cortex-M7 Devices, Generic User Guide */
+/* The define sets the cacheable memory to shareable,
+ * this suggestion is referred from chapter 2.2.1 Memory regions,
+ * types and attributes in Cortex-M7 Devices, Generic User Guide */
 #if defined(SDRAM_IS_SHAREABLE)
     /* Region 7 setting: Memory with Normal type, shareable, outer/inner write back, write/read allocate */
     MPU->RBAR = ARM_MPU_RBAR(7, 0x80000000U);
@@ -125,38 +123,44 @@ void BOARD_ConfigMPU(void)
     SCB_EnableICache();
 }
 
-#if defined(TOOLCHAIN_GCC_ARM)
-extern uint32_t __ram_function_flash_start[];
-#define __RAM_FUNCTION_FLASH_START __ram_function_flash_start
-extern uint32_t __ram_function_ram_start[];
-#define __RAM_FUNCTION_RAM_START __ram_function_ram_start
-extern uint32_t __ram_function_size[];
-#define __RAM_FUNCTION_SIZE __ram_function_size
-void Board_CopyToRam()
-{
-    unsigned char *source;
-    unsigned char *destiny;
-    unsigned int size;
+void BOARD_Init_PMIC_STBY_REQ(void) {
+    CLOCK_EnableClock(kCLOCK_IomuxcSnvs);       /* iomuxc_snvs clock (iomuxc_snvs_clk_enable): 0x03U */
 
-    source = (unsigned char *)(__RAM_FUNCTION_FLASH_START);
-    destiny = (unsigned char *)(__RAM_FUNCTION_RAM_START);
-    size = (unsigned long)(__RAM_FUNCTION_SIZE);
+    /* GPIO configuration of PERI_PWREN on PMIC_STBY_REQ (pin L7) */
+    gpio_pin_config_t PERI_PWREN_config = {
+        .direction = kGPIO_DigitalOutput,
+        .outputLogic = 0U,
+        .interruptMode = kGPIO_NoIntmode
+    };
+    /* Initialize GPIO functionality on PMIC_STBY_REQ (pin L7) */
+    GPIO_PinInit(GPIO5, 2U, &PERI_PWREN_config);
 
-    while (size--)
-    {
-        *destiny++ = *source++;
-    }
+    IOMUXC_SetPinMux(
+        IOMUXC_SNVS_PMIC_STBY_REQ_GPIO5_IO02,   /* PMIC_STBY_REQ is configured as GPIO5_IO02 */
+        0U);                                    /* Software Input On Field: Input Path is determined by functionality */
+    IOMUXC_SetPinConfig(
+        IOMUXC_SNVS_PMIC_STBY_REQ_GPIO5_IO02,   /* PMIC_STBY_REQ PAD functional properties : */
+        0x10B0U);                               /* Slew Rate Field: Slow Slew Rate
+                                                   Drive Strength Field: R0/6
+                                                   Speed Field: medium(100MHz)
+                                                   Open Drain Enable Field: Open Drain Disabled
+                                                   Pull / Keep Enable Field: Pull/Keeper Enabled
+                                                   Pull / Keep Select Field: Keeper
+                                                   Pull Up / Down Config. Field: 100K Ohm Pull Down
+                                                   Hyst. Enable Field: Hysteresis Disabled */
 }
-#endif
 
 // called before main
 void mbed_sdk_init()
 {
     BOARD_ConfigMPU();
     BOARD_BootClockRUN();
-#if defined(TOOLCHAIN_GCC_ARM)
-    Board_CopyToRam();
-#endif
+
+    /* Since SNVS_PMIC_STBY_REQ_GPIO5_IO02 will output a high-level signal under Stop Mode(Suspend Mode) and this pin is
+     * connected to LCD power switch circuit. So it needs to be configured as a low-level output GPIO to reduce the
+     * current. */
+    BOARD_Init_PMIC_STBY_REQ();
+
     LPM_Init();
 }
 
@@ -187,16 +191,15 @@ uint32_t us_ticker_get_clock()
 
 void serial_setup_clock(void)
 {
-    /* We assume default PLL and divider settings */
+    /* Configure UART divider to default */
+    CLOCK_SetMux(kCLOCK_UartMux, 1); /* Set UART source to OSC 24M */
+    CLOCK_SetDiv(kCLOCK_UartDiv, 0); /* Set UART divider to 1 */
 }
 
 uint32_t serial_get_clock(void)
 {
     uint32_t clock_freq;
 
-    /* We assume default PLL and divider settings, and the only variable
-     * from application is use PLL3 source or OSC source
-     */
     if (CLOCK_GetMux(kCLOCK_UartMux) == 0) /* PLL3 div6 80M */ {
         clock_freq = (CLOCK_GetPllFreq(kCLOCK_PllUsb1) / 6U) / (CLOCK_GetDiv(kCLOCK_UartDiv) + 1U);
     } else {
