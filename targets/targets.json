@@ -2525,7 +2525,7 @@
     },
     "TAPIT_MODULE_1": {
         "inherits": [
-            "MCU_STM32F7"
+            "NUCLEO_F767ZI"
         ],
         "extra_labels_add": [
             "STM32F767xI",
