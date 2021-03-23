@@ -32,6 +32,11 @@ nsapi_error_t NetworkStack::add_dns_server(const SocketAddress &address, const c
     return NSAPI_ERROR_OK;
 }
 
+nsapi_error_t NetworkStack::get_dns_server_by_index(uint8_t index, SocketAddress *address, const char *interface_name)
+{
+    return NSAPI_ERROR_OK;
+}
+
 nsapi_error_t NetworkStack::get_dns_server(int index, SocketAddress *address, const char *interface_name)
 {
     return NSAPI_ERROR_UNSUPPORTED;
