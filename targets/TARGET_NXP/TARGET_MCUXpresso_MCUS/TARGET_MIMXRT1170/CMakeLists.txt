@@ -43,7 +43,7 @@ target_link_libraries(mbed-mimxrt1170-evk
     INTERFACE
         mbed-mcuxpresso-mcus
         mbed-evk
-	    mbed-imx
+        mbed-imx
 )
 
 mbed_set_linker_script(mbed-mimxrt1170-evk ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
