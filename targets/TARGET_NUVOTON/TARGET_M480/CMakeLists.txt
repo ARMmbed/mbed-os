@@ -86,7 +86,7 @@ target_include_directories(mbed-m480
         device/StdDriver/inc
 )
 
-target_link_libraries(mbed-m480 INTERFACE mbed-nuvoton)
+target_link_libraries(mbed-m480 INTERFACE mbed-nuvoton mbed-flash-cmsis-algo)
 
 mbed_set_linker_script(mbed-m480 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 

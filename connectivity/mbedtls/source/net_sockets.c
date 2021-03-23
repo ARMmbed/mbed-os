@@ -1,7 +1,7 @@
 /*
  *  TCP/IP or UDP/IP networking functions
  *
- *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
+ *  Copyright The Mbed TLS Contributors
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,26 +15,21 @@
  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 
 /* Enable definition of getaddrinfo() even when compiling with -std=c99. Must
  * be set before config.h, which pulls in glibc's features.h indirectly.
  * Harmless on other platforms. */
 #define _POSIX_C_SOURCE 200112L
+#define _XOPEN_SOURCE 600 /* sockaddr_storage */
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "mbedtls/config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "common.h"
 
 #if defined(MBEDTLS_NET_C)
 
 #if !defined(unix) && !defined(__unix__) && !defined(__unix) && \
     !defined(__APPLE__) && !defined(_WIN32) && !defined(__QNXNTO__) && \
-    !defined(__HAIKU__)
+    !defined(__HAIKU__) && !defined(__midipix__)
 #error "This module only works on Unix and Windows, see MBEDTLS_NET_C in config.h"
 #endif
 
@@ -54,8 +49,7 @@
 
 #define IS_EINTR( ret ) ( ( ret ) == WSAEINTR )
 
-#if !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0501)
-#undef _WIN32_WINNT
+#if !defined(_WIN32_WINNT)
 /* Enables getaddrinfo() & Co */
 #define _WIN32_WINNT 0x0501
 #endif
@@ -64,6 +58,9 @@
 
 #include <winsock2.h>
 #include <windows.h>
+#if (_WIN32_WINNT < 0x0501)
+#include <wspiapi.h>
+#endif
 
 #if defined(_MSC_VER)
 #if defined(_WIN32_WCE)
@@ -320,7 +317,8 @@ int mbedtls_net_accept( mbedtls_net_context *bind_ctx,
     struct sockaddr_storage client_addr;
 
 #if defined(__socklen_t_defined) || defined(_SOCKLEN_T) ||  \
-    defined(_SOCKLEN_T_DECLARED) || defined(__DEFINED_socklen_t)
+    defined(_SOCKLEN_T_DECLARED) || defined(__DEFINED_socklen_t) || \
+    defined(socklen_t)
     socklen_t n = (socklen_t) sizeof( client_addr );
     socklen_t type_len = (socklen_t) sizeof( type );
 #else

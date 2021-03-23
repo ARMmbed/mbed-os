@@ -1,7 +1,7 @@
 /*
  *  X.509 common functions for parsing and verification
  *
- *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
+ *  Copyright The Mbed TLS Contributors
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,8 +15,6 @@
  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 /*
  *  The ITU-T X.509 standard defines a certificate format for PKI.
@@ -29,11 +27,7 @@
  *  http://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf
  */
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "mbedtls/config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "common.h"
 
 #if defined(MBEDTLS_X509_USE_C)
 
@@ -787,7 +781,7 @@ int mbedtls_x509_dn_gets( char *buf, size_t size, const mbedtls_x509_name *dn )
                 break;
 
             c = name->val.p[i];
-            if( c < 32 || c == 127 || ( c > 128 && c < 160 ) )
+            if( c < 32 || c >= 127 )
                  s[i] = '?';
             else s[i] = c;
         }
@@ -870,7 +864,7 @@ int mbedtls_x509_sig_alg_gets( char *buf, size_t size, const mbedtls_x509_buf *s
         ret = mbedtls_snprintf( p, n, " (%s, MGF1-%s, 0x%02X)",
                               md_info ? mbedtls_md_get_name( md_info ) : "???",
                               mgf_md_info ? mbedtls_md_get_name( mgf_md_info ) : "???",
-                              pss_opts->expected_salt_len );
+                              (unsigned int) pss_opts->expected_salt_len );
         MBEDTLS_X509_SAFE_SNPRINTF;
     }
 #else

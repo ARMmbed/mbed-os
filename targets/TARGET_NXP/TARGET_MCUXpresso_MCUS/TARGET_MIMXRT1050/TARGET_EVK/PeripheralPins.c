@@ -52,11 +52,13 @@ const PinMap PinMap_I2C_SCL[] = {
 /************UART***************/
 const PinMap PinMap_UART_TX[] = {
     {GPIO_AD_B0_12, UART_1, 2},
+    {GPIO_AD_B1_06, UART_3, 2},
     {NC  ,  NC    , 0}
 };
 
 const PinMap PinMap_UART_RX[] = {
     {GPIO_AD_B0_13, UART_1, 2},
+    {GPIO_AD_B1_07, UART_3, 2},
     {NC  ,  NC    , 0}
 };
 
@@ -64,24 +66,28 @@ const PinMap PinMap_UART_RX[] = {
 const PinMap PinMap_SPI_SCLK[] = {
     {GPIO_SD_B0_00, SPI_1, ((1U << DAISY_REG_VALUE_SHIFT) | (0x4F0 << DAISY_REG_SHIFT) | 4)},
     {GPIO_AD_B0_00, SPI_3, ((0U << DAISY_REG_VALUE_SHIFT) | (0x510 << DAISY_REG_SHIFT) | 7)},
+    {GPIO_B0_03,    SPI_4, ((0U << DAISY_REG_VALUE_SHIFT) | (0x520 << DAISY_REG_SHIFT) | 3)},
     {NC   , NC   , 0}
 };
 
 const PinMap PinMap_SPI_MOSI[] = {
     {GPIO_SD_B0_02, SPI_1, ((1U << DAISY_REG_VALUE_SHIFT) | (0x4F8 << DAISY_REG_SHIFT) | 4)},
     {GPIO_AD_B0_01, SPI_3, ((0U << DAISY_REG_VALUE_SHIFT) | (0x518 << DAISY_REG_SHIFT) | 7)},
+    {GPIO_B0_02,    SPI_4, ((0U << DAISY_REG_VALUE_SHIFT) | (0x528 << DAISY_REG_SHIFT) | 3)},
     {NC   , NC   , 0}
 };
 
 const PinMap PinMap_SPI_MISO[] = {
     {GPIO_SD_B0_03, SPI_1, ((1U << DAISY_REG_VALUE_SHIFT) | (0x4F4 << DAISY_REG_SHIFT) | 4)},
     {GPIO_AD_B0_02, SPI_3, ((0U << DAISY_REG_VALUE_SHIFT) | (0x514 << DAISY_REG_SHIFT) | 7)},
+    {GPIO_B0_01,    SPI_4, ((0U << DAISY_REG_VALUE_SHIFT) | (0x524 << DAISY_REG_SHIFT) | 3)},
     {NC   , NC   , 0}
 };
 
 const PinMap PinMap_SPI_SSEL[] = {
     {GPIO_SD_B0_01, SPI_1, ((0U << DAISY_REG_VALUE_SHIFT) | (0x4EC << DAISY_REG_SHIFT) | 4)},
     {GPIO_AD_B0_03, SPI_3, ((0U << DAISY_REG_VALUE_SHIFT) | (0x50C << DAISY_REG_SHIFT) | 7)},
+    {GPIO_B0_00,    SPI_4, ((0U << DAISY_REG_VALUE_SHIFT) | (0x51C << DAISY_REG_SHIFT) | 3)},
     {NC   , NC   , 0}
 };
 

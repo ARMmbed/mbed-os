@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
@@ -10,15 +10,15 @@ include(${MBED_PATH}/tools/cmake/mbed_greentea.cmake)
 
 project(${TEST_TARGET})
 
-if("EP_AGORA" IN_LIST MBED_TARGET_LABELS)
+if(TARGET mbed-ep-agora)
     set(FLASH_TARGET_CONFIG_HEADER NORDIC/EP_AGORA)
-elseif("NRF52840_DK" IN_LIST MBED_TARGET_LABELS)
+elseif(TARGET mbed-nrf52840-dk)
     set(FLASH_TARGET_CONFIG_HEADER NORDIC/NRF52840_DK)
-elseif("K82F" IN_LIST MBED_TARGET_LABELS)
+elseif(TARGET mbed-k82f)
     set(FLASH_TARGET_CONFIG_HEADER NXP/K82F)
-elseif("LPC546XX" IN_LIST MBED_TARGET_LABELS)
+elseif(TARGET mbed-lpc546xx)
     set(FLASH_TARGET_CONFIG_HEADER NXP/LPC546XX)
-elseif("EFM32GG11_STK3701" IN_LIST MBED_TARGET_LABELS)
+elseif(TARGET mbed-efm32gg11-stk3701)
     set(FLASH_TARGET_CONFIG_HEADER SiliconLabs/EFM32GG11_STK3701)
 endif()
 

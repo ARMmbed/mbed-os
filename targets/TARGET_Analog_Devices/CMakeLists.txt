@@ -10,3 +10,5 @@ target_include_directories(mbed-analog-devices
     INTERFACE
         .
 )
+
+target_link_libraries(mbed-analog-devices INTERFACE mbed-cmsis-cortex-m)

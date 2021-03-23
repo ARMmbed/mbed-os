@@ -62,3 +62,8 @@ void LoRaWANTimeHandler::stop(timer_event_t &obj)
 {
     obj.timer_id = 0;
 }
+
+void LoRaWANTimeHandler::clear(timer_event_t &obj)
+{
+    obj.timer_id = 0;
+}

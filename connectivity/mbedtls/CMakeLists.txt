@@ -12,6 +12,7 @@ target_include_directories(mbed-mbedtls
 
 target_sources(mbed-mbedtls
     INTERFACE
+        platform/src/hash_wrappers.c
         platform/src/mbed_trng.cpp
         platform/src/platform_alt.cpp
         platform/src/shared_rng.cpp
@@ -46,7 +47,6 @@ target_sources(mbed-mbedtls
         source/entropy_poll.c
         source/error.c
         source/gcm.c
-        source/hash_wrappers.c
         source/havege.c
         source/hkdf.c
         source/hmac_drbg.c

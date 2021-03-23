@@ -38,9 +38,6 @@
         "LPC55S69_S": {
             "storage_type": "TDB_INTERNAL"
         },
-        "ARM_MUSCA_A1_S": {
-            "storage_type": "TDB_INTERNAL"
-        },
         "ARM_MUSCA_B1_S": {
             "storage_type": "TDB_INTERNAL"
         },

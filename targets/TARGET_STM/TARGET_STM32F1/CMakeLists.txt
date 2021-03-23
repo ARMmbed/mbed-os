@@ -3,6 +3,7 @@
 
 add_subdirectory(TARGET_STM32F103x8 EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32F103xB EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32F103xE EXCLUDE_FROM_ALL)
 add_subdirectory(STM32Cube_FW EXCLUDE_FROM_ALL)
 
 add_library(mbed-stm32f1 INTERFACE)
@@ -10,6 +11,7 @@ add_library(mbed-stm32f1 INTERFACE)
 target_sources(mbed-stm32f1
     INTERFACE
         analogin_device.c
+        analogout_device.c
         flash_api.c
         gpio_irq_device.c
         pwmout_device.c

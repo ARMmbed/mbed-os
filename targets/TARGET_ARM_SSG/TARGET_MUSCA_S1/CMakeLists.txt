@@ -1,5 +1,7 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+
+include(${MBED_PATH}/platform/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_TFM/TARGET_TFM_LATEST/scripts/mbed_set_post_build_tfm.cmake)
 
 add_library(mbed-arm-musca-s1 INTERFACE)
 
@@ -50,9 +52,6 @@ target_sources(mbed-arm-musca-s1
 
         Libraries/mt25ql_flash_lib.c
 
-        partition/image_macros_preprocessed_ns.c
-        partition/image_macros_preprocessed_s.c
-
         ${STARTUP_FILE}
 )
 
@@ -60,4 +59,11 @@ target_link_libraries(mbed-arm-musca-s1
     INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/s_veneers.o
         mbed-arm-ssg
+)
+
+mbed_post_build_tfm_sign_image(
+    ARM_MUSCA_S1
+    musca_s1
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/tfm_s.bin
 )

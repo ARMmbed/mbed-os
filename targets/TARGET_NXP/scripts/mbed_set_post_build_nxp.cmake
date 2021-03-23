@@ -11,7 +11,7 @@ function(mbed_post_build_lpc_patch_vtable mbed_target_name)
 
     set(post_build_command
         COMMAND ${Python3_EXECUTABLE} ${MBED_PATH}/targets/TARGET_NXP/scripts/LPC.py
-        ${CMAKE_BINARY_DIR}/${APP_TARGET}.bin
+        ${CMAKE_BINARY_DIR}/$<TARGET_PROPERTY:mbed-post-build-bin-${mbed_target_name},application>.bin
     )
 
     mbed_set_post_build_operation()

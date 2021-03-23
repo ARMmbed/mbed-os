@@ -86,6 +86,7 @@ void analogout_init(dac_t *obj, PinName pin)
     }
 
     analogout_write_u16(obj, 0);
+    HAL_DAC_Start(&obj->handle, obj->channel);
 }
 
 void analogout_free(dac_t *obj)

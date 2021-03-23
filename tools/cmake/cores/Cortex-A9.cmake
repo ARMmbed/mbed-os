@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
@@ -6,7 +6,7 @@ if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
         "-mthumb-interwork"
         "-marm"
         "-mfpu=vfpv3"
-        "-mfloat-abi=hard"
+        "-mfloat-abi=softfp"
         "-mno-unaligned-access"
         "-mcpu=cortex-a9"
     )

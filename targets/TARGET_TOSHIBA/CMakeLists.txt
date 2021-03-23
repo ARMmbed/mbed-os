@@ -10,3 +10,5 @@ target_include_directories(mbed-toshiba
     INTERFACE
         .
 )
+
+target_link_libraries(mbed-toshiba INTERFACE mbed-cmsis-cortex-m)

@@ -17,6 +17,7 @@
 #
 
 import argparse
+import pathlib
 import logging
 import os
 import sys
@@ -58,6 +59,12 @@ class AddSignatureError(Exception):
     """ A simple class that represents all the exceptions associated with
     adding signature to Secure Boot image
     """
+
+
+class ArtefactsError(Exception):
+    """An exception to indicate that the artefact(s) needed for processing 
+    ave not been found."""
+
 
 # Base class for all configuration exceptions
 class ConfigException(Exception):
@@ -249,6 +256,11 @@ def sign_application(message_func, tools, binary, image_id):
     # UPGRADE image will be generated automatically by cysecuretools
     address, size = tools.flash_map(image_id=image_id, image_type="BOOT")
 
+    if not address or not size:
+        raise AddSignatureError(
+            f"Cannot find image with id {image_id} and type BOOT in the policy file"
+        )
+
     tools.sign_image(binary, image_id)
     message_func("[PSOC6.sign_image] Slot start address and size for image ID " \
                                 + str(image_id) + " is " + hex(address) + ", " + hex(size))
@@ -369,10 +381,10 @@ def parse_args():
         "--boot-scheme", help="the boot scheme."
     )
     sign_subcommand.add_argument(
-        "--cm0-img-id", help="the Cortex-M0 image ID."
+        "--cm0-img-id", type=int, help="the Cortex-M0 image ID."
     )
     sign_subcommand.add_argument(
-        "--cm4-img-id", help="the Cortex-M4 image ID."
+        "--cm4-img-id", type=int, help="the Cortex-M4 image ID."
     )
     sign_subcommand.add_argument(
         "--elf", required=True, help="the application ELF file."

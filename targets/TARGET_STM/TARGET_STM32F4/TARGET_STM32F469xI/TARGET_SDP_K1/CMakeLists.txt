@@ -6,7 +6,7 @@ add_library(mbed-sdp-k1 INTERFACE)
 target_sources(mbed-sdp-k1
     INTERFACE
         PeripheralPins.c
-        system_clock.c
+        TargetInit.c
 )
 
 target_include_directories(mbed-sdp-k1

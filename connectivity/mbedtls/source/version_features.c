@@ -1,7 +1,7 @@
 /*
  *  Version feature information
  *
- *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
+ *  Copyright The Mbed TLS Contributors
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,15 +15,9 @@
  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "mbedtls/config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "common.h"
 
 #if defined(MBEDTLS_VERSION_C)
 
@@ -354,6 +348,9 @@ static const char * const features[] = {
 #if defined(MBEDTLS_ECP_NIST_OPTIM)
     "MBEDTLS_ECP_NIST_OPTIM",
 #endif /* MBEDTLS_ECP_NIST_OPTIM */
+#if defined(MBEDTLS_ECP_NO_INTERNAL_RNG)
+    "MBEDTLS_ECP_NO_INTERNAL_RNG",
+#endif /* MBEDTLS_ECP_NO_INTERNAL_RNG */
 #if defined(MBEDTLS_ECP_RESTARTABLE)
     "MBEDTLS_ECP_RESTARTABLE",
 #endif /* MBEDTLS_ECP_RESTARTABLE */
@@ -519,6 +516,9 @@ static const char * const features[] = {
 #if defined(MBEDTLS_SSL_PROTO_TLS1_2)
     "MBEDTLS_SSL_PROTO_TLS1_2",
 #endif /* MBEDTLS_SSL_PROTO_TLS1_2 */
+#if defined(MBEDTLS_SSL_PROTO_TLS1_3_EXPERIMENTAL)
+    "MBEDTLS_SSL_PROTO_TLS1_3_EXPERIMENTAL",
+#endif /* MBEDTLS_SSL_PROTO_TLS1_3_EXPERIMENTAL */
 #if defined(MBEDTLS_SSL_PROTO_DTLS)
     "MBEDTLS_SSL_PROTO_DTLS",
 #endif /* MBEDTLS_SSL_PROTO_DTLS */
@@ -555,6 +555,15 @@ static const char * const features[] = {
 #if defined(MBEDTLS_SSL_VARIABLE_BUFFER_LENGTH)
     "MBEDTLS_SSL_VARIABLE_BUFFER_LENGTH",
 #endif /* MBEDTLS_SSL_VARIABLE_BUFFER_LENGTH */
+#if defined(MBEDTLS_TEST_CONSTANT_FLOW_MEMSAN)
+    "MBEDTLS_TEST_CONSTANT_FLOW_MEMSAN",
+#endif /* MBEDTLS_TEST_CONSTANT_FLOW_MEMSAN */
+#if defined(MBEDTLS_TEST_CONSTANT_FLOW_VALGRIND)
+    "MBEDTLS_TEST_CONSTANT_FLOW_VALGRIND",
+#endif /* MBEDTLS_TEST_CONSTANT_FLOW_VALGRIND */
+#if defined(MBEDTLS_TEST_HOOKS)
+    "MBEDTLS_TEST_HOOKS",
+#endif /* MBEDTLS_TEST_HOOKS */
 #if defined(MBEDTLS_THREADING_ALT)
     "MBEDTLS_THREADING_ALT",
 #endif /* MBEDTLS_THREADING_ALT */

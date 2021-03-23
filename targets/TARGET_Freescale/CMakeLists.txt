@@ -15,3 +15,5 @@ target_sources(mbed-freescale
     INTERFACE
         USBPhy_Kinetis.cpp
 )
+
+target_link_libraries(mbed-freescale INTERFACE mbed-cmsis-cortex-m)

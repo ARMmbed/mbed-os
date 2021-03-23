@@ -26,16 +26,12 @@ import sys
 from collections import namedtuple
 from copy import copy
 from future.utils import raise_from
+from os.path import dirname, abspath, join
 from tools.resources import FileType
 from tools.settings import ROOT
 from tools.targets.LPC import patch
 from tools.paths import TOOLS_BOOTLOADERS
 from tools.utils import json_file_to_dict, NotSupportedException
-
-# Add PSA TF-M binary utility scripts in system path
-from os.path import dirname, abspath, join
-TFM_SCRIPTS = abspath(join(dirname(__file__), '..', 'psa', 'tfm', 'bin_utils'))
-sys.path.insert(0, TFM_SCRIPTS)
 
 
 __all__ = ["target", "TARGETS", "TARGET_MAP", "TARGET_NAMES", "CORE_LABELS",
@@ -681,26 +677,11 @@ class PSOC6Code(object):
             psoc6_sign_image(t_self, resources, elf, binf, m0hexf)
 
 
-class ArmMuscaA1Code(object):
-    """Musca-A1 Hooks"""
-    @staticmethod
-    def binary_hook(t_self, resources, elf, binf):
-        from tools.targets.ARM_MUSCA_A1 import musca_tfm_bin
-        configured_secure_image_filename = t_self.target.secure_image_filename
-        secure_bin = find_secure_image(
-            t_self.notify,
-            resources,
-            binf,
-            configured_secure_image_filename,
-            FileType.BIN
-        )
-        musca_tfm_bin(t_self, binf, secure_bin)
-
 class ArmMuscaB1Code(object):
     """Musca-B1 Hooks"""
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
-        from tools.targets.ARM_MUSCA_B1 import musca_tfm_bin
+        from tools.targets.ARM_MUSCA import musca_tfm_bin
         configured_secure_image_filename = t_self.target.secure_image_filename
         secure_bin = find_secure_image(
             t_self.notify,
@@ -709,13 +690,13 @@ class ArmMuscaB1Code(object):
             configured_secure_image_filename,
             FileType.BIN
         )
-        musca_tfm_bin(t_self, binf, secure_bin)
+        musca_tfm_bin(t_self, binf, secure_bin, 'MUSCA_B1')
 
 class ArmMuscaS1Code(object):
     """Musca-S1 Hooks"""
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
-        from tools.targets.ARM_MUSCA_S1 import musca_tfm_bin
+        from tools.targets.ARM_MUSCA import musca_tfm_bin
         configured_secure_image_filename = t_self.target.secure_image_filename
         secure_bin = find_secure_image(
             t_self.notify,
@@ -724,7 +705,7 @@ class ArmMuscaS1Code(object):
             configured_secure_image_filename,
             FileType.BIN
         )
-        musca_tfm_bin(t_self, binf, secure_bin)
+        musca_tfm_bin(t_self, binf, secure_bin, 'MUSCA_S1')
 
 def find_secure_image(notify, resources, ns_image_path,
                       configured_s_image_filename, image_type):

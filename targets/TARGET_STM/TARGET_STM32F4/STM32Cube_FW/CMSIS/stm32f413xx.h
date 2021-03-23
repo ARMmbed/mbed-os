@@ -6811,17 +6811,18 @@ typedef struct
 /*                                                                            */
 /******************************************************************************/
 /*******************  Bits definition for FLASH_ACR register  *****************/
-#define FLASH_ACR_LATENCY_Pos          (0U)                                    
-#define FLASH_ACR_LATENCY_Msk          (0xFUL << FLASH_ACR_LATENCY_Pos)         /*!< 0x0000000F */
-#define FLASH_ACR_LATENCY              FLASH_ACR_LATENCY_Msk                   
-#define FLASH_ACR_LATENCY_0WS          0x00000000U                             
-#define FLASH_ACR_LATENCY_1WS          0x00000001U                             
-#define FLASH_ACR_LATENCY_2WS          0x00000002U                             
-#define FLASH_ACR_LATENCY_3WS          0x00000003U                             
-#define FLASH_ACR_LATENCY_4WS          0x00000004U                             
-#define FLASH_ACR_LATENCY_5WS          0x00000005U                             
-#define FLASH_ACR_LATENCY_6WS          0x00000006U                             
-#define FLASH_ACR_LATENCY_7WS          0x00000007U                             
+#define FLASH_ACR_LATENCY_Pos          (0U)
+#define FLASH_ACR_LATENCY_Msk          (0x7UL << FLASH_ACR_LATENCY_Pos)         /*!< 0x00000007 */
+#define FLASH_ACR_LATENCY              FLASH_ACR_LATENCY_Msk
+#define FLASH_ACR_LATENCY_0WS          0x00000000U
+#define FLASH_ACR_LATENCY_1WS          0x00000001U
+#define FLASH_ACR_LATENCY_2WS          0x00000002U
+#define FLASH_ACR_LATENCY_3WS          0x00000003U
+#define FLASH_ACR_LATENCY_4WS          0x00000004U
+#define FLASH_ACR_LATENCY_5WS          0x00000005U
+#define FLASH_ACR_LATENCY_6WS          0x00000006U
+#define FLASH_ACR_LATENCY_7WS          0x00000007U
+
 
 #define FLASH_ACR_PRFTEN_Pos           (8U)                                    
 #define FLASH_ACR_PRFTEN_Msk           (0x1UL << FLASH_ACR_PRFTEN_Pos)          /*!< 0x00000100 */

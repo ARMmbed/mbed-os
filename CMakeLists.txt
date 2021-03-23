@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 # This is the boilerplate for Mbed OS
@@ -140,22 +140,6 @@ string(PREPEND MBED_TARGET_CONVERTED "mbed-")
 target_link_libraries(mbed-core INTERFACE ${MBED_TARGET_CONVERTED})
 
 #
-# Configures the application
-# Note, this function will be removed in the next revisions
-#
-function(mbed_configure_app_target target)
-    # Gcc Arm requires memap to be set with app name, equally to ARMClang
-    # TODO: move this to toolchain and set properly
-    if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
-        message(${target})
-        target_link_options(mbed-core
-            INTERFACE
-                "-Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map"
-        )
-    endif()
-endfunction()
-
-#
 # Converts output file of `target` to binary file and to Intel HEX file.
 #
 function(mbed_generate_bin_hex target)
@@ -187,11 +171,25 @@ function(mbed_generate_bin_hex target)
     )
 
     if(TARGET mbed-post-build-bin-${MBED_TARGET})
-        add_custom_target(mbed-post-build
-            ALL
-            DEPENDS
-                mbed-post-build-bin-${MBED_TARGET}
+        # Remove the .elf file to force regenerate the application binaries
+        # (including .bin and .hex). This ensures that the post-build script runs
+        # on a raw application instead of a previous build that already went
+        # through the post-build process once.
+        file(REMOVE ${CMAKE_CURRENT_BINARY_DIR}/${target}.elf)
+
+        # Pass the application's name to the Mbed target's post build operation
+        set_target_properties(mbed-post-build-bin-${MBED_TARGET}
+            PROPERTIES
+                application ${target}
         )
+
+        # The artefacts must be created before they can be further manipulated
+        add_dependencies(mbed-post-build-bin-${MBED_TARGET} ${target})
+
+        # Add a post-build hook to the top-level CMake target in the form of a
+        # CMake custom target. The hook depends on Mbed target specific
+        # post-build CMake target which has a custom command attached to it.
+        add_custom_target(mbed-post-build ALL DEPENDS mbed-post-build-bin-${MBED_TARGET})
     endif()
 endfunction()
 
@@ -232,6 +230,10 @@ endfunction()
 # Set post build operations
 #
 function(mbed_set_post_build target)
+    # The mapfile name includes the top-level target name and the
+    # executable suffix for all toolchains as CMake hardcodes the name of the
+    # diagnostic output file for some toolchains.
+    mbed_configure_memory_map(${target} "${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map")
     mbed_validate_application_profile(${target})
     mbed_generate_bin_hex(${target})
 
@@ -248,3 +250,7 @@ if ("${CMAKE_GENERATOR}" MATCHES "Ninja")
         set(CMAKE_NINJA_FORCE_RESPONSE_FILE 1 CACHE INTERNAL "")
     endif()
 endif()
+
+# TODO: Remove once all example applications have removed it
+function(mbed_configure_app_target target)
+endfunction()

@@ -280,6 +280,8 @@ target_sources(mbed-psoc6
         ${ASSEMBLY_ROUTINES}
 )
 
+target_link_libraries(mbed-psoc6 INTERFACE mbed-cmsis-cortex-m)
+
 # TODO: Include only if mbed-baremetal is not used
 if("CY_RTOS_AWARE" IN_LIST MBED_CONFIG_DEFINITIONS)
     target_link_libraries(mbed-psoc6 INTERFACE mbed-cy-rtos mbed-cy-rtx)

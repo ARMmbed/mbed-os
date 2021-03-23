@@ -141,6 +141,19 @@ struct trng_s {
     RNG_HandleTypeDef handle;
 };
 
+#if DEVICE_QSPI
+struct qspi_s {
+    QSPI_HandleTypeDef handle;
+    QSPIName qspi;
+    PinName io0;
+    PinName io1;
+    PinName io2;
+    PinName io3;
+    PinName sclk;
+    PinName ssel;
+};
+#endif
+
 #ifdef __cplusplus
 }
 #endif

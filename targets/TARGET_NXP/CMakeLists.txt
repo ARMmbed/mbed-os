@@ -16,3 +16,5 @@ target_sources(mbed-nxp
     INTERFACE
         USBHAL_LPC17.cpp
 )
+
+target_link_libraries(mbed-nxp INTERFACE mbed-cmsis-cortex-m)

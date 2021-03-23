@@ -6,7 +6,6 @@ add_library(mbed-wio-bg96 INTERFACE)
 target_sources(mbed-wio-bg96
     INTERFACE
         PeripheralPins.c
-        system_clock.c
         ONBOARD_QUECTEL_BG96.cpp
 )
 

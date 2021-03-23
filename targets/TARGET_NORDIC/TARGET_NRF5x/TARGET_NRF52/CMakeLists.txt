@@ -28,6 +28,7 @@ target_sources(mbed-nrf52
         serial_api.c
         sleep.c
         spi_api.c
+        subtarget_init.c
         trng_api.c
         us_ticker.c
         watchdog_api.c

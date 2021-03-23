@@ -29,6 +29,11 @@ import sys
 from struct import unpack, pack
 
 
+class ArtefactsError(Exception):
+    """An exception to indicate that the artefact(s) needed for processing 
+    ave not been found."""
+
+
 def patch(bin_path):
     with open(bin_path, 'r+b') as bin:
         # Read entries 0 through 6 (Little Endian 32bits words)
@@ -48,5 +53,10 @@ def is_patched(bin_path):
 
 if __name__ == "__main__":
     binary = sys.argv[1]
+    if not os.path.isfile(binary):
+        raise ArtefactsError(
+            f"Could not find binary file {binary}"
+        )
+
     print("LPC Patch: %s" % os.path.split(binary)[1])
     patch(binary)

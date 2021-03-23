@@ -1,11 +1,28 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_subdirectory(TARGET_MOTE_L152RC EXCLUDE_FROM_ALL)
-add_subdirectory(TARGET_NUCLEO_L152RE EXCLUDE_FROM_ALL)
-add_subdirectory(TARGET_XDOT_L151CC EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L100xB EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L100xC EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L151xB EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L151xC EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L151xD EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L151xE EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L152xB EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L152xC EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L152xD EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L152xE EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L162xC EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L162xD EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L162xE EXCLUDE_FROM_ALL)
+
+add_subdirectory(STM32Cube_FW EXCLUDE_FROM_ALL)
 
 add_library(mbed-stm32l1 INTERFACE)
+
+target_include_directories(mbed-stm32l1
+    INTERFACE
+        .
+)
 
 target_sources(mbed-stm32l1
     INTERFACE
@@ -16,73 +33,6 @@ target_sources(mbed-stm32l1
         pwmout_device.c
         serial_device.c
         spi_api.c
-
-        device/stm32l1xx_hal.c
-        device/stm32l1xx_hal_adc.c
-        device/stm32l1xx_hal_adc_ex.c
-        device/stm32l1xx_hal_comp.c
-        device/stm32l1xx_hal_cortex.c
-        device/stm32l1xx_hal_crc.c
-        device/stm32l1xx_hal_cryp.c
-        device/stm32l1xx_hal_cryp_ex.c
-        device/stm32l1xx_hal_dac.c
-        device/stm32l1xx_hal_dac_ex.c
-        device/stm32l1xx_hal_dma.c
-        device/stm32l1xx_hal_flash.c
-        device/stm32l1xx_hal_flash_ex.c
-        device/stm32l1xx_hal_flash_ramfunc.c
-        device/stm32l1xx_hal_gpio.c
-        device/stm32l1xx_hal_i2c.c
-        device/stm32l1xx_hal_i2s.c
-        device/stm32l1xx_hal_irda.c
-        device/stm32l1xx_hal_iwdg.c
-        device/stm32l1xx_hal_lcd.c
-        device/stm32l1xx_hal_nor.c
-        device/stm32l1xx_hal_opamp.c
-        device/stm32l1xx_hal_opamp_ex.c
-        device/stm32l1xx_hal_pcd.c
-        device/stm32l1xx_hal_pcd_ex.c
-        device/stm32l1xx_hal_pwr.c
-        device/stm32l1xx_hal_pwr_ex.c
-        device/stm32l1xx_hal_rcc.c
-        device/stm32l1xx_hal_rcc_ex.c
-        device/stm32l1xx_hal_rtc.c
-        device/stm32l1xx_hal_rtc_ex.c
-        device/stm32l1xx_hal_sd.c
-        device/stm32l1xx_hal_smartcard.c
-        device/stm32l1xx_hal_spi.c
-        device/stm32l1xx_hal_spi_ex.c
-        device/stm32l1xx_hal_sram.c
-        device/stm32l1xx_hal_tim.c
-        device/stm32l1xx_hal_tim_ex.c
-        device/stm32l1xx_hal_uart.c
-        device/stm32l1xx_hal_usart.c
-        device/stm32l1xx_hal_wwdg.c
-        device/stm32l1xx_ll_adc.c
-        device/stm32l1xx_ll_comp.c
-        device/stm32l1xx_ll_crc.c
-        device/stm32l1xx_ll_dac.c
-        device/stm32l1xx_ll_dma.c
-        device/stm32l1xx_ll_exti.c
-        device/stm32l1xx_ll_fsmc.c
-        device/stm32l1xx_ll_gpio.c
-        device/stm32l1xx_ll_i2c.c
-        device/stm32l1xx_ll_opamp.c
-        device/stm32l1xx_ll_pwr.c
-        device/stm32l1xx_ll_rcc.c
-        device/stm32l1xx_ll_rtc.c
-        device/stm32l1xx_ll_sdmmc.c
-        device/stm32l1xx_ll_spi.c
-        device/stm32l1xx_ll_tim.c
-        device/stm32l1xx_ll_usart.c
-        device/stm32l1xx_ll_utils.c
-        device/system_stm32l1xx.c
 )
 
-target_include_directories(mbed-stm32l1
-    INTERFACE
-        .
-        device
-)
-
-target_link_libraries(mbed-stm32l1 INTERFACE mbed-stm)
+target_link_libraries(mbed-stm32l1 INTERFACE mbed-stm mbed-stm32l1cube-fw)

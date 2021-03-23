@@ -52,17 +52,24 @@
     #define STACK_SIZE  MBED_CONF_TARGET_BOOT_STACK_SIZE
 #endif
 
+#define ZBT_SRAM2_RAM_FIXED_SIZE  (MBED_CONF_TARGET_BOOT_STACK_SIZE + NVIC_VECTORS_SIZE)
+
 ; The vector table is loaded at address 0x00000000 in Flash memory region.
 LR_IROM1 ZBT_SRAM1_START ZBT_SRAM1_SIZE  {    ; load region size_region
-  ER_IROM1 ZBT_SRAM1_START ZBT_SRAM1_SIZE  {  ; load address = execution address
-   *.o (RESET, +First)
-   *(InRoot$$Sections)
-   *(+RO)
-  }
-  ; NVIC_VECTORS_SIZE Total: 64 vectors = 256 bytes (0x100) to be reserved in RAM
-  RW_IRAM1 (ZBT_SRAM2_START + NVIC_VECTORS_SIZE) (ZBT_SRAM2_SIZE - NVIC_VECTORS_SIZE - STACK_SIZE)  {  ; RW data
-   *(+RW +ZI)
-  }
-  ARM_LIB_STACK (ZBT_SRAM2_START + ZBT_SRAM2_SIZE) EMPTY - STACK_SIZE { ; Stack region growing down
-  }
+    ER_IROM1 ZBT_SRAM1_START ZBT_SRAM1_SIZE  {  ; load address = execution address
+      *.o (RESET, +First)
+      *(InRoot$$Sections)
+      *(+RO)
+    }
+
+    ; NVIC_VECTORS_SIZE Total: 64 vectors = 256 bytes (0x100) to be reserved in RAM
+    RW_IRAM1 (ZBT_SRAM2_START + NVIC_VECTORS_SIZE) (ZBT_SRAM2_SIZE - NVIC_VECTORS_SIZE - STACK_SIZE)  {  ; RW data
+      *(+RW +ZI)
+    }
+
+    ARM_LIB_HEAP AlignExpr(+0, 16) EMPTY (ZBT_SRAM2_SIZE - ZBT_SRAM2_RAM_FIXED_SIZE - (AlignExpr(ImageLimit(RW_IRAM1), 16) - ZBT_SRAM2_START)) { ; Heap growing upward
+    }
+
+    ARM_LIB_STACK (ZBT_SRAM2_START + ZBT_SRAM2_SIZE) EMPTY - STACK_SIZE { ; Stack region growing down
+    }
 }

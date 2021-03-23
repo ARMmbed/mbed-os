@@ -114,7 +114,10 @@ extern "C" void *malloc_wrapper(struct _reent *r, size_t size, void *caller)
 #endif
 #if MBED_HEAP_STATS_ENABLED
     malloc_stats_mutex->lock();
-    alloc_info_t *alloc_info = (alloc_info_t *)__real__malloc_r(r, size + sizeof(alloc_info_t));
+    alloc_info_t *alloc_info = NULL;
+    if (size <= SIZE_MAX - sizeof(alloc_info_t)) {
+        alloc_info = (alloc_info_t *)__real__malloc_r(r, size + sizeof(alloc_info_t));
+    }
     if (alloc_info != NULL) {
         alloc_info->size = size;
         alloc_info->signature = MBED_HEAP_STATS_SIGNATURE;
@@ -301,7 +304,10 @@ extern "C" void *malloc_wrapper(size_t size, void *caller)
 #endif
 #if MBED_HEAP_STATS_ENABLED
     malloc_stats_mutex->lock();
-    alloc_info_t *alloc_info = (alloc_info_t *)SUPER_MALLOC(size + sizeof(alloc_info_t));
+    alloc_info_t *alloc_info = NULL;
+    if (size <= SIZE_MAX - sizeof(alloc_info_t)) {
+        alloc_info = (alloc_info_t *)SUPER_MALLOC(size + sizeof(alloc_info_t));
+    }
     if (alloc_info != NULL) {
         alloc_info->size = size;
         alloc_info->signature = MBED_HEAP_STATS_SIGNATURE;
