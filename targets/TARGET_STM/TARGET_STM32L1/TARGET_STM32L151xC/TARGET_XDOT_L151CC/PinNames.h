@@ -107,12 +107,6 @@ typedef enum {
     GPIO2           = PB_0,     // analog in capable, pwm capable
     GPIO3           = PB_2,
 
-    // LEDs
-    LED1            = GPIO0,
-    LED2            = GPIO0,
-    LED3            = GPIO0,
-    LED4            = GPIO0,
-
     // Wake Pin
     WAKE            = PA_0,
 
@@ -128,9 +122,6 @@ typedef enum {
 
     UART2_TX        = PA_2,
     UART2_RX        = PA_3,
-
-    CONSOLE_TX           = UART2_TX,
-    CONSOLE_RX           = UART2_RX,
 
     UART_TX         = UART1_TX,
     UART_RX         = UART1_RX,
@@ -193,17 +184,20 @@ typedef enum {
     NC = (int)0xFFFFFFFF
 } PinName;
 
+// Standardized LED and button names
+#define LED1     PA_4
+
+
 #if defined(MBED_CONF_TARGET_STDIO_UART_TX)
-#define STDIO_UART_TX MBED_CONF_TARGET_STDIO_UART_TX
+#define CONSOLE_TX MBED_CONF_TARGET_STDIO_UART_TX
 #else
-#define STDIO_UART_TX PA_2
+#define CONSOLE_TX PA_2
 #endif
 #if defined(MBED_CONF_TARGET_STDIO_UART_RX)
-#define STDIO_UART_RX MBED_CONF_TARGET_STDIO_UART_RX
+#define CONSOLE_RX MBED_CONF_TARGET_STDIO_UART_RX
 #else
-#define STDIO_UART_RX PA_3
+#define CONSOLE_RX PA_3
 #endif
-#define STDIO_UART     UART_2
 
 #ifdef __cplusplus
 }
