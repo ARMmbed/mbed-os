@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  ******************************************************************************
  *
- * Copyright (c) 2016-2020 STMicroelectronics.
+ * Copyright (c) 2016-2021 STMicroelectronics.
  * All rights reserved.
  *
  * This software component is licensed by ST under BSD 3-Clause license,
@@ -33,12 +33,9 @@ typedef enum {
     ALT0  = 0x100,
     ALT1  = 0x200,
     ALT2  = 0x300,
-    ALT3  = 0x400,
-    ALT4  = 0x500
 } ALTx;
 
 typedef enum {
-
     PA_0       = 0x00,
     PA_0C      = PA_0  | ALTC, // dual pad
     PA_1       = 0x01,
@@ -205,13 +202,14 @@ typedef enum {
     ADC_VBAT = 0xF2, // Internal pin virtual value
 
 #ifdef TARGET_FF_ARDUINO_UNO
-    // Arduino Uno(Rev3) Header pin connection naming
+    // Arduino Uno (Rev3) pins
     ARDUINO_UNO_A0  = PA_3,
     ARDUINO_UNO_A1  = PC_0,
     ARDUINO_UNO_A2  = PC_3C,
     ARDUINO_UNO_A3  = PB_1,
     ARDUINO_UNO_A4  = PC_2C,
     ARDUINO_UNO_A5  = PF_11,
+
     ARDUINO_UNO_D0  = PB_7,
     ARDUINO_UNO_D1  = PB_6,
     ARDUINO_UNO_D2  = PG_14,
@@ -231,9 +229,9 @@ typedef enum {
 #endif
 
     // ST ZIO connector extending Arduino Uno
-    A6 = PC_1,
-    A7 = PC_5,
-    A8 = PA_2,
+    A6  = PC_1,
+    A7  = PC_5,
+    A8  = PA_2,
     D16 = PC_6,
     D17 = PB_15,
     D18 = PB_13,
@@ -318,6 +316,8 @@ typedef enum {
     USB_OTG_HS_ULPI_D5 = PB_12,
     USB_OTG_HS_ULPI_D6 = PB_13,
     USB_OTG_HS_ULPI_D7 = PB_5,
+    USB_OTG_HS_ULPI_DIR = PC_2C,
+    USB_OTG_HS_ULPI_NXT = PC_3C,
     USB_OTG_HS_ULPI_STP = PC_0,
     USB_OTG_HS_VBUS = PA_9,
 
@@ -356,11 +356,10 @@ typedef enum {
 } PinName;
 
 // Standardized LED and button names
-#define LED1     PB_0   // LD1
-#define LED2     PB_14  // LD3
-#define LED3     PE_1   // LD2
-#define BUTTON1  PC_13  // B1
-
+#define LED1     PB_0   // LD1 (Green Led)
+#define LED2     PE_1   // LD2 (Yellow Led)
+#define LED3     PB_14  // LD3 (Red Led)
+#define BUTTON1  PC_13  // B1 (Blue PushButton)
 
 #ifdef __cplusplus
 }
