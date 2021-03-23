@@ -2524,6 +2524,9 @@
         }
     },
     "TAPIT_MODULE_1": {
+        "detect_code": [
+            "0BCD"
+        ],
         "components_add": [
             "QSPIF"
         ],
