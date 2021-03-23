@@ -7662,7 +7662,7 @@
                 "value": null
             },
             "stdio-uart-rx": {
-                "help": "Configure STDIO_UART_RX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_RX defaults to USBRX.",
+                "help": "Configure STDIO_UART_RX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_RX defaults to CONSOLE_RX.",
                 "value": null
             },
             "gpio-irq-debounce-enable": {

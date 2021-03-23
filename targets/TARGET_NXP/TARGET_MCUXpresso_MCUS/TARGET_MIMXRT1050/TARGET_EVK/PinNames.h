@@ -179,8 +179,8 @@ typedef enum {
     LED4 = LED_GREEN,
 
     // USB Pins
-    USBTX = GPIO_AD_B0_12,
-    USBRX = GPIO_AD_B0_13,
+    CONSOLE_TX = GPIO_AD_B0_12,
+    CONSOLE_RX = GPIO_AD_B0_13,
 
     // Arduino Headers
     D0 = GPIO_AD_B1_07,

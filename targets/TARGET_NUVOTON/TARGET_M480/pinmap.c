@@ -88,7 +88,7 @@ void pin_mode(PinName pin, PinMode mode)
 const PinList *pinmap_restricted_pins()
 {
     static const PinName pins[] = {
-        USBTX, USBRX,   // Dedicated to USB VCOM
+        CONSOLE_TX, CONSOLE_RX,   // Dedicated to USB VCOM
 #if defined(TARGET_NUMAKER_IOT_M487)
         A2, A3,         // Dedicated to on-board ESP8266 WiFi module RTS/CTS
 #endif

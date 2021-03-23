@@ -129,8 +129,8 @@ typedef enum {
     UART2_TX        = PA_2,
     UART2_RX        = PA_3,
 
-    USBTX           = UART2_TX,
-    USBRX           = UART2_RX,
+    CONSOLE_TX           = UART2_TX,
+    CONSOLE_RX           = UART2_RX,
 
     UART_TX         = UART1_TX,
     UART_RX         = UART1_RX,
@@ -193,8 +193,16 @@ typedef enum {
     NC = (int)0xFFFFFFFF
 } PinName;
 
-#define STDIO_UART_TX  PA_2
-#define STDIO_UART_RX  PA_3
+#if defined(MBED_CONF_TARGET_STDIO_UART_TX)
+#define STDIO_UART_TX MBED_CONF_TARGET_STDIO_UART_TX
+#else
+#define STDIO_UART_TX PA_2
+#endif
+#if defined(MBED_CONF_TARGET_STDIO_UART_RX)
+#define STDIO_UART_RX MBED_CONF_TARGET_STDIO_UART_RX
+#else
+#define STDIO_UART_RX PA_3
+#endif
 #define STDIO_UART     UART_2
 
 #ifdef __cplusplus

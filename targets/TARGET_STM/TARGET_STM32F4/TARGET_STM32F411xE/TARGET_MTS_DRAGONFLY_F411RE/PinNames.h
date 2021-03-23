@@ -141,8 +141,8 @@ typedef enum {
     SERIAL_DSR  = D5,
     SERIAL_DTR  = D7,
     SERIAL_RI   = D8,
-    USBTX       = PB_6,
-    USBRX       = PB_7,
+    CONSOLE_TX       = PB_6,
+    CONSOLE_RX       = PB_7,
     RADIO_TX    = PC_7,
     RADIO_RX    = PC_6,
     RADIO_RTS   = PB_10,
@@ -200,8 +200,17 @@ typedef enum {
 
 #define MDM_PIN_POLARITY        ACTIVE_HIGH_POLARITY
 
-#define STDIO_UART_TX  PB_6
-#define STDIO_UART_RX  PB_7
+#if defined(MBED_CONF_TARGET_STDIO_UART_TX)
+#define STDIO_UART_TX MBED_CONF_TARGET_STDIO_UART_TX
+#else
+#define STDIO_UART_TX PB_6
+#endif
+#if defined(MBED_CONF_TARGET_STDIO_UART_RX)
+#define STDIO_UART_RX MBED_CONF_TARGET_STDIO_UART_RX
+#else
+#define STDIO_UART_RX PB_7
+#endif
+
 
 #ifdef __cplusplus
 }

@@ -219,8 +219,8 @@ typedef enum {
     IO_21 = ARDUINO_UNO_D0,
 
     // 40 pin USB debug port
-    USBTX = PB_6,
-    USBRX = PB_7,
+    CONSOLE_TX = PB_6,
+    CONSOLE_RX = PB_7,
 
     //UARTS
     UART3_TX = PD_2,

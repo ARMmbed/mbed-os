@@ -114,12 +114,20 @@ typedef enum {
         
     // NOTE: other board-specific naming
     // UART naming
-    USBTX = PB_1,
-    USBRX = PB_0,
-    STDIO_UART_TX   = USBTX,
-    STDIO_UART_RX   = USBRX,
-    SERIAL_TX = USBTX,
-    SERIAL_RX = USBRX,    
+    CONSOLE_TX = PB_1,
+    CONSOLE_RX = PB_0,
+#if defined(MBED_CONF_TARGET_STDIO_UART_TX)
+    STDIO_UART_TX   = MBED_CONF_TARGET_STDIO_UART_TX,
+#else
+    STDIO_UART_TX   = CONSOLE_TX,
+#endif
+#if defined(MBED_CONF_TARGET_STDIO_UART_RX)
+    STDIO_UART_RX   = MBED_CONF_TARGET_STDIO_UART_RX,
+#else
+    STDIO_UART_RX   = CONSOLE_RX,
+#endif
+    SERIAL_TX = CONSOLE_TX,
+    SERIAL_RX = CONSOLE_RX,    
     // LED naming
     LED1 = PE_11,
     LED2 = PE_10,

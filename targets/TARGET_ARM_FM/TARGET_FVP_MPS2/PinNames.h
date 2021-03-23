@@ -156,8 +156,8 @@ typedef enum {
     ADC_SSEL = 653,
 
     //MPS2 Uart
-    USBTX  = 400,
-    USBRX  = 401,
+    CONSOLE_TX  = 400,
+    CONSOLE_RX  = 401,
     XB_TX = 402,
     XB_RX = 403,
     UART_TX2 = 404,
