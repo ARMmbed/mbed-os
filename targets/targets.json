@@ -2556,7 +2556,7 @@
             "CAN",
             "QSPI"
         ],
-        "device_name": "TAPIT_MODULE_1",
+        "device_name": "STM32F767ZI",
         "mbed_rom_start": "0x08000000",
         "mbed_rom_size": "0x200000",
         "mbed_ram_start": "0x20000000",
