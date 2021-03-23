@@ -32,6 +32,7 @@ from abc import ABCMeta, abstractmethod
 from distutils.spawn import find_executable
 from multiprocessing import Pool, cpu_count
 from hashlib import md5
+import pathlib
 
 from ..utils import (
     run_cmd,
@@ -335,8 +336,21 @@ class mbedToolchain(with_metaclass(ABCMeta, object)):
             target = join(trg_path, dest)
             if (target != source) and (self.need_update(target, [source])):
                 self.progress("copy", dest)
+
+                ''' new '''
+                target = pathlib.Path(target)
+                mkdir("\\\\?\\" + str(target.absolute().parent))
+                
+                target = str(target.absolute())
+                target = "\\\\?\\" + target
+                
+                source = "\\\\?\\" + str(pathlib.Path(source).absolute())
+                print(f'{source} ---> {target}')
+                copyfile(source, target)
+                ''' original
                 mkdir(dirname(target))
                 copyfile(source, target)
+                '''
 
     # TODO: the online build system places the target between
     # the file name and file extension. Supporting multiple co-resident
