@@ -2561,7 +2561,6 @@
         "mbed_rom_size": "0x200000",
         "mbed_ram_start": "0x20000000",
         "mbed_ram_size": "0x80000",
-        "bootloader_supported": false,
         "overrides": {
             "network-default-interface-type": "ETHERNET",
             "clock_source": "USE_PLL_HSE_XTAL"
