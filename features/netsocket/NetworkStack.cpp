@@ -118,7 +118,7 @@ nsapi_error_t NetworkStack::add_dns_server(const SocketAddress &address, const c
     return nsapi_dns_add_server(address, interface_name);
 }
 
-nsapi_error_t NetworkStack::get_dns_server_by_index(int index, nsapi_addr_t *address, const char *interface_name)
+nsapi_error_t NetworkStack::get_dns_server_by_index(uint8_t index, SocketAddress *address, const char *interface_name)
 {
     return nsapi_dns_get_server(this, index, address, interface_name);
 }

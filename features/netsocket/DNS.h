@@ -107,7 +107,7 @@ public:
      *  @param interface_name  Network interface name
      *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
-    virtual nsapi_error_t get_dns_server_by_index(int index, nsapi_addr_t *address, const char *interface_name);
+    virtual nsapi_error_t get_dns_server_by_index(uint8_t index, SocketAddress *address, const char *interface_name) = 0;
 };
 
 #endif
