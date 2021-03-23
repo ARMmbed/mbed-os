@@ -46,7 +46,6 @@ typedef enum {
     ALT0  = 0x100,
     ALT1  = 0x200,
     ALT2  = 0x300,
-    ALT3  = 0x400
 } ALTx;
 
 typedef enum {

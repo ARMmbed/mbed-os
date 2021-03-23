@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  ******************************************************************************
  *
- * Copyright (c) 2016-2020 STMicroelectronics.
+ * Copyright (c) 2016-2021 STMicroelectronics.
  * All rights reserved.
  *
  * This software component is licensed by ST under BSD 3-Clause license,
@@ -31,12 +31,9 @@ typedef enum {
     ALT0  = 0x100,
     ALT1  = 0x200,
     ALT2  = 0x300,
-    ALT3  = 0x400,
-    ALT4  = 0x500
 } ALTx;
 
 typedef enum {
-
     PA_0       = 0x00,
     PA_1       = 0x01,
     PA_1_ALT0  = PA_1  | ALT0, // same pin used for alternate HW
@@ -194,12 +191,14 @@ typedef enum {
     ADC_VBAT = 0xF2, // Internal pin virtual value
 
 #ifdef TARGET_FF_ARDUINO_UNO
+    // Arduino Uno (Rev3) pins
     ARDUINO_UNO_A0  = PA_3,
     ARDUINO_UNO_A1  = PC_0,
     ARDUINO_UNO_A2  = PC_3,
     ARDUINO_UNO_A3  = PC_1,
     ARDUINO_UNO_A4  = PC_4,
     ARDUINO_UNO_A5  = PC_5,
+
     ARDUINO_UNO_D0  = PD_9,
     ARDUINO_UNO_D1  = PD_8,
     ARDUINO_UNO_D2  = PF_15,
@@ -275,10 +274,9 @@ typedef enum {
 
 // Standardized LED and button names
 #define LED1     PC_7   // Green
-#define LED2     PB_7   // Blue
-#define LED3     PB_14  // Red
+#define LED2     PB_7   // LD2 [Blue]
+#define LED3     PB_14  // LD3 [Red]
 #define BUTTON1  PC_13
-
 
 #ifdef __cplusplus
 }
