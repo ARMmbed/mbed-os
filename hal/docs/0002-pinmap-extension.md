@@ -74,7 +74,7 @@ Some boards have pins which cannot be tested without causing problems elsewhere.
 MBED_WEAK const PinList *pinmap_restricted_pins()
 {
     static const PinName pins[] = {
-        USBTX, USBRX
+        CONSOLE_TX, CONSOLE_RX
     };
     static const PinList pin_list = {
         sizeof(pins) / sizeof(pins[0]),

@@ -47,7 +47,7 @@ using namespace utest::v1;
 
 
 static UnbufferedSerial unbuffered_serial_obj(
-    USBTX, USBRX, MBED_CONF_PLATFORM_STDIO_BAUD_RATE
+    CONSOLE_TX, CONSOLE_RX, MBED_CONF_PLATFORM_STDIO_BAUD_RATE
 );
 
 static ssize_t unbuffered_serial_read(void *buffer, ssize_t length)

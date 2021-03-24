@@ -44,7 +44,7 @@
 #endif
 
 extern mac_api_s *mac_interface;
-UnbufferedSerial pc(USBTX, USBRX);
+UnbufferedSerial pc(CONSOLE_TX, CONSOLE_RX);
 osThreadId_t main_thread;
 static CircularBuffer<uint8_t, RX_BUFFER_SIZE> rx_buffer;
 static uint8_t ns_heap[HEAP_FOR_MAC_TESTER_SIZE];
