@@ -30,6 +30,7 @@ typedef enum {
 
 #define GPIO_PORT_SHIFT      12
 #define GPIO_MUX_PORT        5
+#define LED1 GPIO_AD_04
 
 typedef enum {
    
@@ -204,13 +205,13 @@ typedef enum {
     GPIO_LPSR_15 = ((6 << GPIO_PORT_SHIFT) | 15),
  
     
-    LED_GREEN = GPIO_AD_04,
+    // LED_GREEN = GPIO_AD_04,
 
     // mbed original LED naming
-    LED1 = LED_GREEN,
-    LED2 = LED_GREEN,
-    LED3 = LED_GREEN,
-    LED4 = LED_GREEN,
+    //  LED1 = LED_GREEN,
+    // LED2 = LED_GREEN,
+    // LED3 = LED_GREEN,
+    //  LED4 = LED_GREEN,
 
     // USB Pins
     USBTX = GPIO_AD_24,

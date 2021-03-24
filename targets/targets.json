@@ -4383,7 +4383,6 @@
             "0228"
         ],
         "device_has": [
-            "FLASH",
             "INTERRUPTIN",
             "I2C",
             "I2CSLAVE",
