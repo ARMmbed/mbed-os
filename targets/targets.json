@@ -4354,7 +4354,7 @@
     },
     "MIMXRT1170_EVK": {
         "supported_form_factors": [
-            "ARDUINO"
+            "ARDUINO_UNO"
         ],
         "core": "Cortex-M7FD",
         "supported_toolchains": [
@@ -4383,9 +4383,11 @@
             "0228"
         ],
         "device_has": [
+            "ANALOGIN",
             "INTERRUPTIN",
             "I2C",
             "I2CSLAVE",
+            "PWMOUT",
             "SERIAL",
             "SPI",
             "SPISLAVE",

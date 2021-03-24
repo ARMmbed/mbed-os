@@ -22,6 +22,7 @@ target_sources(mbed-mimxrt1170-evk
      
         device/system_MIMXRT1176_cm7.c
 
+        drivers/fsl_lpadc.c
         drivers/fsl_anatop.c
         drivers/fsl_anatop_ai.c
         drivers/fsl_cache.c
@@ -35,6 +36,8 @@ target_sources(mbed-mimxrt1170-evk
         drivers/fsl_lpspi.c
         drivers/fsl_lpuart.c
         drivers/fsl_pmu.c
+        drivers/fsl_pwm.c
+        drivers/fsl_xbara.c
         
         ${STARTUP_FILE}
 )

@@ -47,6 +47,7 @@ typedef enum {
     I2C_2 = 2,
     I2C_3 = 3,
     I2C_4 = 4,
+    I2C_5 = 5,
 } I2CName;
 
 #define PWM_MODULE_SHIFT   2

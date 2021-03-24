@@ -10,7 +10,6 @@ target_include_directories(mbed-imx
 
 target_sources(mbed-imx
     INTERFACE
-        analogin_api.c
         gpio_api.c
         gpio_irq_api.c
         i2c_api.c
