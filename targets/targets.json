@@ -5184,7 +5184,6 @@
         ],
         "supported_toolchains": [
             "GCC_ARM",
-            "IAR",
             "ARM"
         ],
         "device_has": [
@@ -5206,7 +5205,18 @@
         ],
         "release_versions": [
             "5"
-        ]
+        ],
+        "supported_application_profiles" : ["full", "bare-metal"],
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
+        }
     },
     "MAX32625_BASE": {
         "inherits": [
