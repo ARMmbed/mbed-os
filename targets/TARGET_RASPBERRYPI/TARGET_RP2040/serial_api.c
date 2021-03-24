@@ -76,7 +76,8 @@ void serial_free(serial_t *obj)
 void serial_baud(serial_t *obj, int baudrate)
 {
     obj->baud = (uint32_t)baudrate;
-    uart_set_baudrate(obj->dev, obj->baud);
+    uart_init(obj->dev, obj->baud);
+    uart_set_fifo_enabled(obj->dev, false);
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
