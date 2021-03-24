@@ -213,7 +213,9 @@ typedef enum {
     // LED3 = LED_GREEN,
     //  LED4 = LED_GREEN,
 
-    
+    // USB Pins
+    USBTX = GPIO_AD_24,
+    USBRX = GPIO_AD_25,
 
     // Arduino Headers
     ARDUINO_UNO_D0 = GPIO_DISP_B2_11,
@@ -242,10 +244,7 @@ typedef enum {
 
     //ARDUINO_UNO_I2C_SCL = ARDUINO_UNO_A5,
     // ARDUINO_UNO_I2C_SDA = ARDUINO_UNO_A4,
-    
-    // USB Pins
-    USBTX = ARDUINO_UNO_D1,
-    USBRX = ARDUINO_UNO_D0,
+
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
