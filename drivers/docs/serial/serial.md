@@ -232,7 +232,7 @@ Other alternatives to printing to stdout are by calling `puts` or `write`.
 puts("Hello");
 ```
 ```C
-BufferedSerial pc(USBTX, USBRX);
+BufferedSerial pc(CONSOLE_TX, CONSOLE_RX);
 pc.write("Hello", 6);
 ```
 
