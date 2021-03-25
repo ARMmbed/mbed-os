@@ -19,7 +19,7 @@
 #define BLE_GATTSERVERSTUB_H
 
 #include "ble/GattServer.h"
-#include "FEATURE_BLE/source/generic/GattServerEvents.h"
+#include "generic/GattServerEvents.h"
 #include "ble/Gap.h"
 
 namespace ble {

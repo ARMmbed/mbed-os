@@ -8,6 +8,7 @@ target_include_directories(mbed-fakes-ble
         ${MBED_PATH}/UNITTESTS/fakes/ble/
         ${MBED_PATH}/connectivity/FEATURE_BLE/include
         ${MBED_PATH}/connectivity/FEATURE_BLE/include/ble
+        ${MBED_PATH}/connectivity/FEATURE_BLE/source
     PRIVATE
         ${gtest_SOURCE_DIR}/include
         ${gmock_SOURCE_DIR}/include
