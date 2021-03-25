@@ -80,12 +80,12 @@ typedef enum {
     BUTTON1 = SW1,
 
     // USB bridge connected UART pins
-    CONSOLE_TXLE_TX = P2_1,
+    CONSOLE_TX = P2_1,
     CONSOLE_RX = P2_0,
 #if defined(MBED_CONF_TARGET_STDIO_UART_TX)
     STDIO_UART_TX   = MBED_CONF_TARGET_STDIO_UART_TX,
 #else
-    STDIO_UART_TX   = CONSOLE_TXLE_TX,
+    STDIO_UART_TX   = CONSOLE_TX,
 #endif
 #if defined(MBED_CONF_TARGET_STDIO_UART_RX)
     STDIO_UART_RX   = MBED_CONF_TARGET_STDIO_UART_RX,
