@@ -50,7 +50,6 @@ int VEEBlockDevice::init()
 {
     int err;
     uint32_t bank, ofs;
-            printf("00000format : format failed\r\n");
     err = _bd->init();
     if (err) {
         goto fail;
@@ -59,7 +58,6 @@ int VEEBlockDevice::init()
         return BD_ERROR_OK;
     }
 
-            printf("1111format : format failed\r\n");
     for (bank = 0; bank < MX_EEPROMS; bank++) {
         /* Check address validity */
 #ifdef MX_FLASH_SUPPORT_RWW
@@ -80,7 +78,6 @@ int VEEBlockDevice::init()
         }
 #endif
 
-            printf("222221111format : format failed\r\n");
         /* Init bank info */
         _eeprom.bi[bank].bank = bank;
         _eeprom.bi[bank].bank_offset = bank_offset[bank];
@@ -101,17 +98,14 @@ int VEEBlockDevice::init()
         _eeprom.rwCnt = 0;
     }
 
-            printf("3333331111format : format failed\r\n");
     /* Check RWWEE format */
     err = _ee_check_sys();
     if (err) {
         err = format();
         if (err) {
-            printf("format : format failed\r\n");
             tr_error("format : format failed\r\n");
             goto fail;
         }
-            printf("aaaaa1111format : format failed\r\n");
         /* Check RWWEE format again after formatting*/
         err = _ee_check_sys();
         if (err) {
@@ -120,14 +114,15 @@ int VEEBlockDevice::init()
         }
     }
 
-            printf("44444441111format : format failed\r\n");
 #if COMPONENT_SPINAND
+#ifdef MX_EEPROM_PC_PROTECTION
     /* Check if power fail during gc */
     err = _ee_check_gc_power_fail();
     if (err) {
         tr_error("init : check power fail failed\r\n");
         goto fail;
     }  
+#endif
 #endif
 
     /* Init done */
@@ -245,8 +240,6 @@ int VEEBlockDevice::_ee_device_erase(bd_addr_t addr, bd_size_t size)
 
     return (!status ? VEEF_BD_ERROR_OK : VEEF_BD_ERROR_EIO);
 }
-
-#ifdef MX_EEPROM_PC_PROTECTION
 
 #if COMPONENT_OSPIF
 int VEEBlockDevice::_ee_read_sys(struct bank_info *bi, uint32_t entry,
@@ -400,8 +393,6 @@ int VEEBlockDevice::_ee_update_sys(struct bank_info *bi, uint32_t sector, uint32
 
     return VEEF_BD_ERROR_OK;
 }
-#endif
-
 #endif
 
 int VEEBlockDevice::_ee_read(struct bank_info *bi, uint32_t entry, void *buffer,
@@ -1403,7 +1394,6 @@ fail:
         for (block = 0; block < MX_EEPROM_BLOCKS; block++) {
             if (_bd->read((uint8_t *)&sys, addr, sizeof(sys))) {
                 tr_error("ee_formt: fail to read addr 0x%08lx\r\n", addr);
-                printf("ee_formt: fail to read addr 0x%08lx\r\n", addr);
                 continue;
             }
 
@@ -1430,9 +1420,9 @@ int VEEBlockDevice::_ee_check_sys(void)
     bool formatted = false;
     struct system_entry sys;
     uint32_t addr;
+    struct bank_info *bi;
 
 #ifdef MX_EEPROM_PC_PROTECTION
-    struct bank_info *bi;
 
     /* Loop to check each bank */
     for (bank = 0; bank < MX_EEPROMS; bank++) {
@@ -1440,7 +1430,6 @@ int VEEBlockDevice::_ee_check_sys(void)
         bi->block = 0;
         bi->block_offset = bi->bank_offset;
 
-                printf("111ee_formt: fail to read addr 0x%08lx\r\n", 0);
         /* Loop to check each block */
         for (block = 0; block < MX_EEPROM_BLOCKS; block++) {
             for (sector = 0; sector < MX_EEPROM_SECTORS_PER_CLUSTER; sector++) {
@@ -1451,11 +1440,10 @@ int VEEBlockDevice::_ee_check_sys(void)
                                 formatted = true;
                             } else {    /* have OPS_ERASE_BEGIN */
 
-                printf("0000111ee_formt: fail to read addr 0x%08lx\r\n", sector);
                                 goto erase;
                             }
                         }
-                    } else {printf("2220000111ee_formt: fail to read addr 0x%08lx\r\n", sector);
+                    } else {
 
                         if (formatted != true) { //this is the first sector
                             if (!_ee_read_sys(bi, sector + 1, SYS_ENTRY_ADDR_E_E, &sys)) {// read the next sector system entry
@@ -1490,7 +1478,10 @@ int VEEBlockDevice::_ee_check_sys(void)
 
     /* Loop to check each bank */
     for (bank = 0; bank < MX_EEPROMS; bank++) {
-        addr = bank_offset[bank] ;
+        addr = bank_offset[bank];
+        bi = &_eeprom.bi[bank];
+        bi->block = 0;
+        bi->block_offset = bi->bank_offset;
 
         /* Loop to check each block */
         for (block = 0; block < MX_EEPROM_BLOCKS; block++) {
@@ -1514,6 +1505,7 @@ int VEEBlockDevice::_ee_check_sys(void)
               break;
           }
     }
+    bi->block = DATA_NONE32;
 #endif
 
     return formatted ? VEEF_BD_ERROR_OK : VEEF_BD_ERROR_ENOFS;
@@ -1591,12 +1583,11 @@ uint32_t VEEBlockDevice::_ee_gc(struct bank_info *bi, uint8_t src_sector, uint8_
     return des_entry;
 }
 
+#ifdef MX_EEPROM_PC_PROTECTION
 int VEEBlockDevice::_ee_check_gc_power_fail(void)
 {
     uint8_t bank, block, sector, des_sector;
     struct system_entry sys;
-
-#ifdef MX_EEPROM_PC_PROTECTION
     struct bank_info *bi;
 
     /* Loop to check each bank */
@@ -1642,9 +1633,10 @@ int VEEBlockDevice::_ee_check_gc_power_fail(void)
         bi->dirty_block = DATA_NONE32;
         bi->dirty_sector = DATA_NONE32;
     }
-#endif
     return VEEF_BD_ERROR_OK;
 }
+#endif
+
 #endif
 
 int VEEBlockDevice::format(void)
@@ -1660,11 +1652,9 @@ int VEEBlockDevice::format(void)
     for (i = 0; i < MX_EEPROMS; i++) {
         addr = bank_offset[i];
 
-            printf("123format 00000format : format failed\r\n");
         for (j = 0; j < MX_EEPROM_BLOCKS; j++) {
-            for (k = 0; k < MX_EEPROM_SECTORS_PER_CLUSTER; k++, sector++) { printf(" erase sector %lx %lx\r\n", addr, MX_FLASH_SECTOR_SIZE);
+            for (k = 0; k < MX_EEPROM_SECTORS_PER_CLUSTER; k++, sector++) {
                 if (_bd->erase(addr, MX_FLASH_SECTOR_SIZE)) {
-                    printf("ee_formt: fail to erase sector %lu\r\n", sector);
                     tr_error("ee_formt: fail to erase sector %lu\r\n", sector);
                     return VEEF_BD_ERROR_EIO;
                 }
@@ -1682,7 +1672,6 @@ int VEEBlockDevice::format(void)
         }
     }
 
-            printf("format 00000format : format failed\r\n");
     /* Fill system entry */
     sys.id = MFTL_ID;
 #if COMPONENT_OSPIF
@@ -1710,11 +1699,9 @@ int VEEBlockDevice::format(void)
         for (j = 0; j < MX_EEPROM_BLOCKS; j++) {
             for (sector = 0; sector < MX_EEPROM_SECTORS_PER_CLUSTER; sector++) {
                 if (_bd->program((uint8_t *)&sys, addr, sizeof(sys))) {
-            printf("format 111111100000format : format failed %d \r\n",sector);
                     tr_error("ee_formt: fail to write addr 0x%08lx\r\n", addr);
                     return VEEF_BD_ERROR_EIO;
                 }
-            printf("format222222 111111100000format : format failed %d \r\n",sector);
                 addr += MX_EEPROM_SECTOR_OFFSET;
             }
             addr += MX_EEPROM_CLUSTER_SIZE;

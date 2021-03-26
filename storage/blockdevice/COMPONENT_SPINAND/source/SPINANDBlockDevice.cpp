@@ -167,7 +167,6 @@ int SPINANDBlockDevice::init()
         return SPINAND_BD_ERROR_DEVICE_MAX_EXCEED;
     }
 
-        printf("0000_qspi_configure_format failed\r\n");
     _mutex.lock();
 
     // All commands other than Read and RSFDP use default 1-1-1 bus mode (Program/Erase are constrained by flash memory performance more than bus performance)
@@ -182,7 +181,6 @@ int SPINANDBlockDevice::init()
         _init_ref_count = 0;
     }
 
-        printf("11110000_qspi_configure_format failed\r\n");
     _init_ref_count++;
 
     if (_init_ref_count != 1) {
@@ -204,7 +202,6 @@ int SPINANDBlockDevice::init()
         goto exit_point;
     }
 
-        printf("22220000_qspi_configure_format failed\r\n");
     if (0 != _clear_block_protection()) {
         tr_error("Init - clearing block protection failed");
         status = SPINAND_BD_ERROR_PARSING_FAILED;
@@ -357,22 +354,8 @@ int SPINANDBlockDevice::erase(bd_addr_t addr, bd_size_t size)
     bool erase_failed = false;
     int status = SPINAND_BD_ERROR_OK;
 
-    tr_debug("Erase - addr: %lx, size: %lx\r\n", addr, size);
+    tr_debug("Erase - addr: %llu, size: %llu", addr, size);
 
-    printf("Erase - addr: %lx, size: %lx", addr, size);
-    /*if ((addr + size) > MBED_CONF_SPINAND_SPINAND_FLASH_SIZE) {
-        tr_error("Erase exceeds flash device size");
-        printf("Erase exceeds flash device size");
-        return SPINAND_BD_ERROR_INVALID_ERASE_PARAMS;
-    }*/
-
-    if (((addr % SPINAND_BLOCK_OFFSET) != 0) || ((size % get_erase_size()) != 0)) {
-        tr_error("Invalid erase - unaligned address and size");
-        printf("Invalid erase - unaligned address and size");
-        return SPINAND_BD_ERROR_INVALID_ERASE_PARAMS;
-    }
-
-    printf("123333Erase - addr: %llu, size: %llu\r\n", addr, size);
     while (size > 0) {
 
         _mutex.lock();
@@ -653,6 +636,15 @@ qspi_status_t SPINANDBlockDevice::_qspi_send_read_command(qspi_inst_t read_inst,
 
     size_t buf_len = size;
 
+    qspi_bus_width_t data_width;
+    if (read_inst == SPINAND_INST_READ_CACHE2) {
+      data_width = QSPI_CFG_BUS_DUAL;
+    } else if (read_inst == SPINAND_INST_READ_CACHE4) {
+      data_width = QSPI_CFG_BUS_QUAD;
+    } else {
+      data_width = QSPI_CFG_BUS_SINGLE;
+    } 
+
     // Send read command to device driver
     // Read commands use the best bus mode supported by the part
     qspi_status_t status = _qspi.configure_format(_inst_width, _address_width, SPI_NAND_COLUMN_ADDR_SIZE, // Alt width should be the same as address width
@@ -675,11 +667,11 @@ qspi_status_t SPINANDBlockDevice::_qspi_send_read_command(qspi_inst_t read_inst,
 
     if (false == _is_mem_ready()) {
         tr_error("Device not ready, clearing block protection failed");
-        //return -1;
+        return QSPI_STATUS_ERROR;
     }
 
     status = _qspi.configure_format(_inst_width, _address_width, SPI_NAND_ROW_ADDR_SIZE, _address_width, // Alt width should be the same as address width
-                                    _alt_size, QSPI_CFG_BUS_QUAD, _dummy_cycles);
+                                    _alt_size, data_width, _dummy_cycles);
     if (QSPI_STATUS_OK != status) {
         tr_error("_qspi_configure_format failed");
         return status;
@@ -708,10 +700,18 @@ qspi_status_t SPINANDBlockDevice::_qspi_send_program_command(qspi_inst_t prog_in
                                                              bd_addr_t addr, bd_size_t *size)
 {
     tr_debug("Inst: 0x%xh, addr: %llu, size: %llu", prog_inst, addr, *size);
+    
+    qspi_bus_width_t data_width;
+
+    if (prog_inst == SPINAND_INST_4PP_LOAD) {
+      data_width = QSPI_CFG_BUS_QUAD;
+    } else {
+      data_width = QSPI_CFG_BUS_SINGLE;
+    }
 
     // Program load commands need 16 bit row address
     qspi_status_t status = _qspi.configure_format(_inst_width, _address_width, SPI_NAND_ROW_ADDR_SIZE, // Alt width should be the same as address width
-                                                  _address_width, _alt_size, QSPI_CFG_BUS_QUAD, 0);
+                                                  _address_width, _alt_size, data_width, 0);
     if (QSPI_STATUS_OK != status) {
         tr_error("_qspi_configure_format failed");
         return status;
@@ -801,4 +801,5 @@ qspi_status_t SPINANDBlockDevice::_qspi_send_general_command(qspi_inst_t instruc
 
     return QSPI_STATUS_OK;
 }
+
 
