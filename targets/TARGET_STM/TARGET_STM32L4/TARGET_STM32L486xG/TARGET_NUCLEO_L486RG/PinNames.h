@@ -183,14 +183,14 @@ typedef enum {
 
     // STDIO for console print
 #ifdef MBED_CONF_TARGET_STDIO_UART_TX
-    USBTX = MBED_CONF_TARGET_STDIO_UART_TX,
+    CONSOLE_TX = MBED_CONF_TARGET_STDIO_UART_TX,
 #else
-    USBTX = PA_2,
+    CONSOLE_TX = PA_2,
 #endif
 #ifdef MBED_CONF_TARGET_STDIO_UART_RX
-    USBRX = MBED_CONF_TARGET_STDIO_UART_RX,
+    CONSOLE_RX = MBED_CONF_TARGET_STDIO_UART_RX,
 #else
-    USBRX = PA_3,
+    CONSOLE_RX = PA_3,
 #endif
 
     /**** USB FS pins ****/

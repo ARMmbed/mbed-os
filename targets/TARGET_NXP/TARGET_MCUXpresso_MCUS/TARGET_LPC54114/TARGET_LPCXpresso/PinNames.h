@@ -100,8 +100,8 @@ typedef enum {
     SW3 = P0_4,
 
     // USB Pins
-    USBTX = P0_1,
-    USBRX = P0_0,
+    CONSOLE_TX = P0_1,
+    CONSOLE_RX = P0_0,
 
     // Arduino Headers
     D0 = P0_8,

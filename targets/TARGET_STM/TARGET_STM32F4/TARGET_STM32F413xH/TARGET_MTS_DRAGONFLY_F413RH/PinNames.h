@@ -143,11 +143,19 @@ typedef enum {
     SERIAL_DSR  = D5,
     SERIAL_DTR  = D7,
     SERIAL_RI   = D8,
-    USBTX       = PB_6,
-    USBRX       = PB_7,
+    CONSOLE_TX       = PB_6,
+    CONSOLE_RX       = PB_7,
 // STDIO for console print
-    STDIO_UART_TX = USBTX,
-    STDIO_UART_RX = USBRX,
+#if defined(MBED_CONF_TARGET_STDIO_UART_TX)
+    STDIO_UART_TX   = MBED_CONF_TARGET_STDIO_UART_TX,
+#else
+    STDIO_UART_TX   = CONSOLE_TX,
+#endif
+#if defined(MBED_CONF_TARGET_STDIO_UART_RX)
+    STDIO_UART_RX   = MBED_CONF_TARGET_STDIO_UART_RX,
+#else
+    STDIO_UART_RX   = CONSOLE_RX,
+#endif
     RADIO_TX    = PC_6,
     RADIO_RX    = PC_7,
     RADIO_RTS   = PB_10,

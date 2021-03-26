@@ -213,8 +213,8 @@ typedef enum {
     BUTTON2 = SW3,
 
     // USB Pins
-    USBTX = PTE0,
-    USBRX = PTE1,
+    CONSOLE_TX = PTE0,
+    CONSOLE_RX = PTE1,
 
     // Arduino Headers
     

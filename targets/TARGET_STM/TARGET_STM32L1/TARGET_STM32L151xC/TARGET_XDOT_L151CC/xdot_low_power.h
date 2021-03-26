@@ -56,7 +56,7 @@ void xdot_enable_systick_int();
  * call this before xdot_enter_stop_mode
  * to achieve the lowest possible power consumption possible all GPIO pins must be configured for
  *      analog mode with no pull resistors enabled before entering STOP mode
- * the xdot_enter_stop_mode function does this for USBTX/RX and all internal pins
+ * the xdot_enter_stop_mode function does this for CONSOLE_TX/RX and all internal pins
  * after calling xdot_save_gpio_state, the user application must do the same for WAKE, GPIO*,
  *      UART1_*, I2C_*, and SPI_* pins
  * the user application should make a call to xdot_restore_gpio_state after waking from STOP mode

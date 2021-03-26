@@ -224,8 +224,8 @@ typedef enum {
     BUTTON1 = PC_13,
     SERIAL_TX   = STDIO_UART_TX, // Virtual Com Port
     SERIAL_RX   = STDIO_UART_RX, // Virtual Com Port
-    USBTX       = STDIO_UART_TX, // Virtual Com Port
-    USBRX       = STDIO_UART_RX, // Virtual Com Port
+    CONSOLE_TX       = STDIO_UART_TX, // Virtual Com Port
+    CONSOLE_RX       = STDIO_UART_RX, // Virtual Com Port
     SPI_MOSI    = PC_12,
     SPI_MISO    = PC_11,
     SPI_SCK     = PC_10,

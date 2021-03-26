@@ -134,7 +134,7 @@ void xdot_enter_stop_mode()
         RCC->CSR &= ~RCC_CSR_LSION;
     }
 
-    // configure USBTX & USBRX, LORA SPI, LORA_DIO, LORA_RESET, Secure Element, crystal pins, and SWD pins to analog nopull
+    // configure CONSOLE_TX & CONSOLE_RX, LORA SPI, LORA_DIO, LORA_RESET, Secure Element, crystal pins, and SWD pins to analog nopull
     // the application must do the same with WAKE, GPIO*, UART1_*, I2C_*, and SPI_*
 
     // GPIO Ports Clock Enable
@@ -143,7 +143,7 @@ void xdot_enter_stop_mode()
     __GPIOC_CLK_ENABLE();
     __GPIOH_CLK_ENABLE();
 
-    // USBTX & USBRX to analog nopull
+    // CONSOLE_TX & CONSOLE_RX to analog nopull
     GPIO_InitStruct.Pin = GPIO_PIN_2 | GPIO_PIN_3;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;

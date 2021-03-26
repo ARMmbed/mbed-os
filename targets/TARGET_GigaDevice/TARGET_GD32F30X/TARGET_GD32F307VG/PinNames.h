@@ -188,8 +188,8 @@ typedef enum {
 
     SERIAL_TX   = PORTC_10,
     SERIAL_RX   = PORTC_11,
-    USBTX       = SERIAL_TX,
-    USBRX       = SERIAL_RX,
+    CONSOLE_TX       = SERIAL_TX,
+    CONSOLE_RX       = SERIAL_RX,
 
     I2C_SCL     = D15,
     I2C_SDA     = D14,

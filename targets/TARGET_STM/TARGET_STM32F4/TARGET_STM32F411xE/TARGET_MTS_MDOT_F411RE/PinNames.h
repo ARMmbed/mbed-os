@@ -145,8 +145,8 @@ typedef enum {
     // DB_TX/RX, USB port on UDK board
     DB_TX       = PA_9,
     DB_RX       = PA_10,
-    USBTX       = PA_9,
-    USBRX       = PA_10,
+    CONSOLE_TX       = PA_9,
+    CONSOLE_RX       = PA_10,
 
     // Multiplexed with XBEE pins
     I2C_SCL     = PA_8,
@@ -231,8 +231,17 @@ typedef enum {
     NC = (int)0xFFFFFFFF
 } PinName;
 
-#define STDIO_UART_TX  PA_9
-#define STDIO_UART_RX  PA_10
+#if defined(MBED_CONF_TARGET_STDIO_UART_TX)
+#define STDIO_UART_TX MBED_CONF_TARGET_STDIO_UART_TX
+#else
+#define STDIO_UART_TX PA_9
+#endif
+#if defined(MBED_CONF_TARGET_STDIO_UART_RX)
+#define STDIO_UART_RX MBED_CONF_TARGET_STDIO_UART_RX
+#else
+#define STDIO_UART_RX PA_10
+#endif
+
 
 #ifdef __cplusplus
 }

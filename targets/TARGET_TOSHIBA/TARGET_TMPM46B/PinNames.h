@@ -86,10 +86,10 @@ typedef enum {
     A5 = PJ7,
 
     // DAP_UART
-    USBTX = PE5,
-    USBRX = PE6,
-    MBEDIF_TXD = USBTX,
-    MBEDIF_RXD = USBRX,
+    CONSOLE_TX = PE5,
+    CONSOLE_RX = PE6,
+    MBEDIF_TXD = CONSOLE_TX,
+    MBEDIF_RXD = CONSOLE_RX,
 
     MBED_CONF_APP_UART0_TX = PE2,
     MBED_CONF_APP_UART0_RX = PE1,
