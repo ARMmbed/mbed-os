@@ -154,7 +154,7 @@ public:
     /** Cancel an in-flight event
      *
      *  Attempts to cancel an event referenced by the unique id returned from
-     *  one of the call functions. It is safe to call cancel after an event
+     *  one of the call functions. It is not safe to call cancel after an event
      *  has already been dispatched.
      *
      *  id must be valid i.e. event must have not finished executing.
@@ -175,7 +175,7 @@ public:
     /** Cancel an in-flight user allocated event
      *
      *  Attempts to cancel an UserAllocatedEvent referenced by its address
-     *  It is safe to call cancel after an event has already been dispatched.
+     *  It is not safe to call cancel after an event has already been dispatched.
      *
      *  Event must be valid i.e. event must have not finished executing
      *  and must have been bound to this queue.

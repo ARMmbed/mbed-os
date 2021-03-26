@@ -195,7 +195,7 @@ void equeue_post_user_allocated(equeue_t *queue, void (*cb)(void *), void *event
 // Cancel an in-flight event
 //
 // Attempts to cancel an event referenced by the unique id returned from
-// equeue_call or equeue_post. It is safe to call equeue_cancel after an event
+// equeue_call or equeue_post. It is not safe to call equeue_cancel after an event
 // has already been dispatched.
 //
 // The equeue_cancel function is irq safe.
@@ -210,14 +210,14 @@ bool equeue_cancel(equeue_t *queue, int id);
 // Cancel an in-flight user allocated event
 //
 // Attempts to cancel an event referenced by its address.
-// It is safe to call equeue_cancel_user_allocated after an event
+// It is not safe to call equeue_cancel_user_allocated after an event
 // has already been dispatched.
 //
 // The equeue_cancel_user_allocated function is irq safe.
 //
 // If called while the event queue's dispatch loop is active,
 // equeue_cancel_user_allocated does not guarantee that the event
-// will not not execute after it returns as the event may have
+// will not execute after it returns as the event may have
 // already begun executing.
 bool equeue_cancel_user_allocated(equeue_t *queue, void *event);
 
