@@ -25,9 +25,21 @@
 
 using utest::v1::Case;
 using std::chrono::milliseconds;
-using std::chrono::microseconds;
 
-#define MULTI_TICKER_TIME 100000us
+#define TEST_ASSERT_EQUAL_DURATION(expected, actual) \
+    do { \
+        using ct = std::common_type_t<decltype(expected), decltype(actual)>; \
+        TEST_ASSERT_EQUAL(ct(expected).count(), ct(actual).count()); \
+    } while (0)
+
+#define TEST_ASSERT_DURATION_WITHIN(delta, expected, actual) \
+    do { \
+        using ct = std::common_type_t<decltype(delta), decltype(expected), decltype(actual)>; \
+        TEST_ASSERT_INT_WITHIN(ct(delta).count(), ct(expected).count(), ct(actual).count()); \
+    } while (0)
+
+#define TICKER_TIME  1ms
+#define MULTI_TICKER_TIME 100ms
 
 #define TICKER_COUNT 16
 volatile uint32_t callback_trigger_count = 0;
@@ -36,7 +48,7 @@ static const int total_ticks = 10;
 
 
 /* Tolerance is quite arbitrary due to large number of boards with varying level of accuracy */
-#define TOLERANCE_US 1000
+#define TOLERANCE 1000us
 
 volatile uint32_t ticker_callback_flag;
 volatile uint32_t multi_counter;
@@ -92,15 +104,18 @@ void test_case_1x_ticker()
     callback_trigger_count = 0;
 
     greentea_send_kv("timing_drift_check_start", 0);
+    ticker.attach(&ticker_callback_1, TICKER_TIME);
 
     // wait for 1st signal from host
     do {
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
         expected_key = strcmp(_key, "base_time");
     } while (expected_key);
+    greentea_send_kv(_key, callback_trigger_count * TICKER_TIME.count());
 
     // wait for 2nd signal from host
     greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+    greentea_send_kv(_key, callback_trigger_count * TICKER_TIME.count());
 
     //get the results from host
     greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
@@ -127,17 +142,22 @@ void test_case_2x_ticker()
 
     callback_trigger_count = 0;
 
+    ticker1.attach(ticker_callback_1, 2 * TICKER_TIME);
     // delay second ticker to have a pair of tickers tick every one millisecond
+    wait_us(TICKER_TIME.count());
     greentea_send_kv("timing_drift_check_start", 0);
+    ticker2.attach(ticker_callback_2, 2 * TICKER_TIME);
 
     // wait for 1st signal from host
     do {
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
         expected_key = strcmp(_key, "base_time");
     } while (expected_key);
+    greentea_send_kv(_key, callback_trigger_count * TICKER_TIME.count());
 
     // wait for 2nd signal from host
     greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+    greentea_send_kv(_key, callback_trigger_count * TICKER_TIME.count());
 
     //get the results from host
     greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
@@ -163,7 +183,7 @@ void test_multi_ticker(void)
         ticker[i].attach(callback(increment_multi_counter), MULTI_TICKER_TIME);
     }
 
-    ThisThread::sleep_for(MULTI_TICKER_TIME.count() + extra_wait.count());
+    ThisThread::sleep_for(MULTI_TICKER_TIME + extra_wait);
     TEST_ASSERT_EQUAL(TICKER_COUNT, multi_counter);
 
     for (int i = 0; i < TICKER_COUNT; i++) {
@@ -179,7 +199,7 @@ void test_multi_ticker(void)
         ticker[i].attach(callback(increment_multi_counter), MULTI_TICKER_TIME + milliseconds{i});
     }
 
-    ThisThread::sleep_for(MULTI_TICKER_TIME.count() + milliseconds{TICKER_COUNT}.count() + extra_wait.count());
+    ThisThread::sleep_for(MULTI_TICKER_TIME + milliseconds{TICKER_COUNT} + extra_wait);
     TEST_ASSERT_EQUAL(TICKER_COUNT, multi_counter);
 
     for (int i = 0; i < TICKER_COUNT; i++) {
@@ -200,7 +220,6 @@ void test_multi_ticker(void)
 void test_multi_call_time(void)
 {
     Ticker ticker;
-    int time_diff;
     const int attach_count = 10;
 
     for (int i = 0; i < attach_count; i++) {
@@ -210,9 +229,9 @@ void test_multi_call_time(void)
         gtimer.start();
         ticker.attach(callback(stop_gtimer_set_flag), MULTI_TICKER_TIME);
         while (!ticker_callback_flag);
-        time_diff = gtimer.elapsed_time().count();
+        auto time_diff = gtimer.elapsed_time();
 
-        TEST_ASSERT_UINT32_WITHIN(TOLERANCE_US, MULTI_TICKER_TIME.count(), time_diff);
+        TEST_ASSERT_DURATION_WITHIN(TOLERANCE, MULTI_TICKER_TIME, time_diff);
     }
 }
 
@@ -252,15 +271,16 @@ void test_attach_time(void)
 {
     Ticker ticker;
     ticker_callback_flag = 0;
+    milliseconds delay = milliseconds{DELAY_US};
 
     gtimer.reset();
     gtimer.start();
-    ticker.attach(callback(stop_gtimer_set_flag), microseconds{DELAY_US});
+    ticker.attach(callback(stop_gtimer_set_flag), delay);
     while (!ticker_callback_flag);
     ticker.detach();
-    const int time_diff = gtimer.elapsed_time().count();
+    auto time_diff = gtimer.elapsed_time();
 
-    TEST_ASSERT_UINT64_WITHIN(TOLERANCE_US, DELAY_US, time_diff);
+    TEST_ASSERT_DURATION_WITHIN(TOLERANCE, delay, time_diff);
 }
 
 /** Test single callback time via attach_us
@@ -280,9 +300,9 @@ void test_attach_us_time(void)
     ticker.attach_us(callback(stop_gtimer_set_flag), DELAY_US);
     while (!ticker_callback_flag);
     ticker.detach();
-    const int time_diff = gtimer.elapsed_time().count();
+    auto time_diff = gtimer.elapsed_time();
 
-    TEST_ASSERT_UINT64_WITHIN(TOLERANCE_US, DELAY_US, time_diff);
+    TEST_ASSERT_DURATION_WITHIN(TOLERANCE, milliseconds{DELAY_US}, time_diff);
 }
 
 
