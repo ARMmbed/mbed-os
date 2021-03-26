@@ -1,6 +1,6 @@
 {
-  "examples": [
-    {
+    "examples": [
+      {
         "name": "mbed-os-example-blinky",
         "github": "https://github.com/ARMmbed/mbed-os-example-blinky",
         "sub-repo-example": false,
@@ -14,8 +14,32 @@
         "test" : false,
         "baud_rate": 9600,
         "auto-update" : true
-    },
-    {
+      },
+      {
+        "name": "mbed-os-example-ble",
+        "github":"https://github.com/ARMmbed/mbed-os-example-ble",
+        "sub-repo-example": true,
+        "subs": [
+              "BLE_Advertising",
+              "BLE_GAP",
+              "BLE_GattClient_CharacteristicUpdates",
+              "BLE_GattClient_CharacteristicWrite",
+              "BLE_GattServer_AddService",
+              "BLE_GattServer_CharacteristicUpdates",
+              "BLE_GattServer_CharacteristicWrite",
+              "BLE_PeriodicAdvertising",
+              "BLE_SecurityAndPrivacy"
+        ],
+        "features" : [],
+        "targets" : ["NRF52_DK", "DISCO_L475VG_IOT01A"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "test" : false,
+        "auto-update" : true
+      },
+      {
         "name": "mbed-os-example-sockets",
         "github":"https://github.com/ARMmbed/mbed-os-example-sockets",
         "sub-repo-example": false,
@@ -30,8 +54,8 @@
         "baud_rate": 9600,
         "compare_log": ["mbed-os-example-sockets/tests/sockets.log"],
         "auto-update" : true
-    },
-    {
+      },
+      {
         "name": "mbed-os-example-cellular",
         "github":"https://github.com/ARMmbed/mbed-os-example-cellular",
         "sub-repo-example": false,
@@ -44,107 +68,170 @@
         "export": true,
         "test" : false,
         "auto-update" : true
-    },
-    {
-        "name": "mbed-os-example-lorawan",
-        "github":"https://github.com/ARMmbed/mbed-os-example-lorawan",
-        "sub-repo-example": false,
-        "subs": [],
-        "features" : [],
-        "targets" : ["K64F"],
-        "toolchains" : [],
-        "exporters": [],
-        "compile" : true,
-        "export": false,
-        "test" : false,
-        "auto-update" : true
-    },
-    {
-        "name": "mbed-os-example-devicekey",
-        "github":"https://github.com/ARMmbed/mbed-os-example-devicekey",
-        "sub-repo-example": false,
-        "subs": [],
-        "features" : [],
-        "targets" : ["K66F"],
-        "toolchains" : [],
-        "exporters": [],
-        "compile" : true,
-        "export": true,
-        "test" : true,
-        "baud_rate": 9600,
-        "compare_log": ["mbed-os-example-devicekey/tests/devicekey.log"],
-        "auto-update" : true
-    },
-    {
-        "name": "mbed-os-example-mbed-crypto",
-        "github":"https://github.com/ARMmbed/mbed-os-example-mbed-crypto",
-        "sub-repo-example": true,
-        "subs": ["getting-started"],
-        "features" : [],
-        "targets" : ["K64F"],
-        "toolchains" : [],
-        "exporters": [],
-        "compile" : true,
-        "export": true,
-        "test" : true,
-        "baud_rate": 9600,
-        "compare_log": ["mbed-os-example-mbed-crypto/tests/getting-started.log"],
-        "auto-update" : true
-    },
-    {
-        "name": "mbed-os-example-nfc",
-        "github": "https://github.com/ARMmbed/mbed-os-example-nfc",
-        "sub-repo-example": true,
-        "subs": [
-            "NFC_EEPROM",
-            "NFC_SmartPoster"
-        ],
-        "features" : [],
-        "targets" : ["NUCLEO_F401RE"],
-        "toolchains" : [],
-        "exporters": [],
-        "compile" : true,
-        "export": true,
-        "test" : true,
-        "baud_rate": 9600,
-        "compare_log": [
-            "mbed-os-example-nfc/tests/EEPROM.log",
-            "mbed-os-example-nfc/tests/SmartPoster_noShield.log"
-        ],
-        "auto-update" : true
-    },
-    {
-      "name": "mbed-os-example-ble",
-      "github":"https://github.com/ARMmbed/mbed-os-example-ble",
-      "sub-repo-example": true,
-      "subs": [
-            "BLE_Advertising"
-
-      ],
-      "features" : [],
-      "targets" : ["NRF52840_DK", "DISCO_L475VG_IOT01A"],
-      "toolchains" : [],
-      "exporters": [],
-      "compile" : true,
-      "export": true,
-      "test" : false,
-      "auto-update" : true
-    },
-    {
-        "name": "mbed-os-example-kvstore",
-        "github":"https://github.com/ARMmbed/mbed-os-example-kvstore",
-        "sub-repo-example": false,
-        "subs": [],
-        "features" : [],
-        "targets" : ["K64F", "DISCO_L475VG_IOT01A"],
-        "toolchains" : [],
-        "exporters": [],
-        "compile" : true,
-        "export": true,
-        "test" : true,
-        "baud_rate": 9600,
-        "compare_log": ["mbed-os-example-kvstore/tests/kvstore.log"],
-        "auto-update" : true
-    }
-  ]
+      },
+      {
+          "name": "mbed-os-example-lorawan",
+          "github":"https://github.com/ARMmbed/mbed-os-example-lorawan",
+          "sub-repo-example": false,
+          "subs": [],
+          "features" : [],
+          "targets" : ["K64F"],
+          "toolchains" : [],
+          "exporters": [],
+          "compile" : true,
+          "export": false,
+          "test" : false,
+          "auto-update" : true
+      },
+      {
+          "name": "mbed-os-example-devicekey",
+          "github":"https://github.com/ARMmbed/mbed-os-example-devicekey",
+          "sub-repo-example": false,
+          "subs": [],
+          "features" : [],
+          "targets" : ["K66F"],
+          "toolchains" : [],
+          "exporters": [],
+          "compile" : true,
+          "export": true,
+          "test" : true,
+          "baud_rate": 9600,
+          "compare_log": ["mbed-os-example-devicekey/tests/devicekey.log"],
+          "auto-update" : true
+      },
+      {
+          "name": "mbed-os-example-cpu-stats",
+          "github":"https://github.com/ARMmbed/mbed-os-example-cpu-stats",
+          "sub-repo-example": false,
+          "subs": [],
+          "features" : [],
+          "targets" : ["K64F", "FVP_MPS2_M3"],
+          "toolchains" : [],
+          "exporters": [],
+          "compile" : true,
+          "export": true,
+          "test" : true,
+          "baud_rate": 9600,
+          "compare_log": ["mbed-os-example-cpu-stats/tests/cpu-stats.log"],
+          "auto-update" : true
+      },
+      {
+          "name": "mbed-os-example-mbed-crypto",
+          "github":"https://github.com/ARMmbed/mbed-os-example-mbed-crypto",
+          "sub-repo-example": true,
+          "subs": ["getting-started"],
+          "features" : [],
+          "targets" : ["K64F"],
+          "toolchains" : [],
+          "exporters": [],
+          "compile" : true,
+          "export": true,
+          "test" : true,
+          "baud_rate": 9600,
+          "compare_log": ["mbed-os-example-mbed-crypto/tests/getting-started.log"],
+          "auto-update" : true
+      },
+      {
+          "name": "mbed-os-example-psa",
+          "github":"https://github.com/ARMmbed/mbed-os-example-psa",
+          "sub-repo-example": false,
+          "subs": [],
+          "features" : [],
+          "targets" : ["ARM_MUSCA_S1", "ARM_MUSCA_B1", "K64F"],
+          "toolchains" : ["GCC_ARM", "ARM"],
+          "exporters": [],
+          "compile" : true,
+          "export": true,
+          "test" : true,
+          "baud_rate": 115200,
+          "compare_log": ["mbed-os-example-psa/tests/psa.log"],
+          "auto-update" : true
+      },
+      {
+          "name": "mbed-os-example-nfc",
+          "github": "https://github.com/ARMmbed/mbed-os-example-nfc",
+          "sub-repo-example": true,
+          "subs": [
+              "NFC_EEPROM",
+              "NFC_SmartPoster"
+          ],
+          "features" : [],
+          "targets" : ["NUCLEO_F401RE"],
+          "toolchains" : [],
+          "exporters": [],
+          "compile" : true,
+          "export": true,
+          "test" : true,
+          "baud_rate": 9600,
+          "compare_log": [
+              "mbed-os-example-nfc/tests/EEPROM.log",
+              "mbed-os-example-nfc/tests/SmartPoster_noShield.log"
+          ],
+          "auto-update" : true
+      },
+      {
+          "name": "mbed-os-example-blockdevice",
+          "github":"https://github.com/armmbed/mbed-os-example-blockdevice",
+          "sub-repo-example": false,
+          "subs": [],
+          "features" : [],
+          "targets" : ["K64F"],
+          "toolchains" : [],
+          "exporters": [],
+          "compile" : true,
+          "export": true,
+          "test" : true,
+          "baud_rate": 9600,
+          "compare_log": ["mbed-os-example-blockdevice/tests/blockdevice.log"],
+          "auto-update" : true
+      },
+      {
+          "name": "mbed-os-example-kvstore",
+          "github":"https://github.com/ARMmbed/mbed-os-example-kvstore",
+          "sub-repo-example": false,
+          "subs": [],
+          "features" : [],
+          "targets" : ["K64F", "DISCO_L475VG_IOT01A"],
+          "toolchains" : [],
+          "exporters": [],
+          "compile" : true,
+          "export": true,
+          "test" : true,
+          "baud_rate": 9600,
+          "compare_log": ["mbed-os-example-kvstore/tests/kvstore.log"],
+          "auto-update" : true
+      },
+      {
+          "name": "mbed-os-example-crash-reporting",
+          "github":"https://github.com/ARMmbed/mbed-os-example-crash-reporting",
+          "sub-repo-example": false,
+          "subs": [],
+          "features" : [],
+          "targets" : ["K64F"],
+          "toolchains" : [],
+          "exporters": [],
+          "compile" : true,
+          "export": true,
+          "test" : true,
+          "baud_rate": 9600,
+          "compare_log": ["mbed-os-example-crash-reporting/tests/crash-reporting.log"],
+          "auto-update" : true
+      },
+      {
+          "name": "mbed-os-example-attestation",
+          "github": "https://github.com/ARMmbed/mbed-os-example-attestation",
+          "sub-repo-example": false,
+          "subs": [],
+          "features" : [],
+          "targets" : [ "K66F", "NUCLEO_F429ZI"],
+          "toolchains" : [],
+          "exporters": [],
+          "compile" : true,
+          "export": true,
+          "test" : true,
+          "baud_rate": 9600,
+          "compare_log": ["mbed-os-example-attestation/tests/attestation.log"],
+          "auto-update" : true
+      }
+    ]
 }

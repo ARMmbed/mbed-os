@@ -71,8 +71,16 @@ typedef enum {
      CAN_2 = (int)LPC_CAN2_BASE
 } CANName;
 
-#define STDIO_UART_TX     USBTX
-#define STDIO_UART_RX     USBRX
+#if defined(MBED_CONF_TARGET_STDIO_UART_TX)
+#define STDIO_UART_TX MBED_CONF_TARGET_STDIO_UART_TX
+#else
+#define STDIO_UART_TX CONSOLE_TX
+#endif
+#if defined(MBED_CONF_TARGET_STDIO_UART_RX)
+#define STDIO_UART_RX MBED_CONF_TARGET_STDIO_UART_RX
+#else
+#define STDIO_UART_RX CONSOLE_RX
+#endif
 #define STDIO_UART        UART_0
 
 // Default peripherals
@@ -82,7 +90,7 @@ typedef enum {
 #define MBED_UART0        p9, p10
 #define MBED_UART1        p13, p14
 #define MBED_UART2        p28, p27
-#define MBED_UARTUSB      USBTX, USBRX
+#define MBED_UARTUSB      CONSOLE_TX, CONSOLE_RX
 
 #define MBED_I2C0         p28, p27
 #define MBED_I2C1         p9, p10

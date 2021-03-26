@@ -7549,7 +7549,6 @@
         ],
         "supported_toolchains": [
             "ARM",
-            "IAR",
             "GCC_ARM"
         ],
         "device_has_add": [
@@ -7561,6 +7560,19 @@
             "PORTOUT",
             "PWMOUT",
             "SERIAL"
+        ],
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
+        },
+        "supported_application_profiles": [
+            "full", "bare-metal"
         ]
     },
     "GD32_F307VG": {
@@ -7712,7 +7724,7 @@
                 "value": null
             },
             "stdio-uart-rx": {
-                "help": "Configure STDIO_UART_RX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_RX defaults to USBRX.",
+                "help": "Configure STDIO_UART_RX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_RX defaults to CONSOLE_RX.",
                 "value": null
             },
             "gpio-irq-debounce-enable": {

@@ -143,7 +143,7 @@ bool pinmap_list_has_peripheral(const PeripheralList *list, int peripheral);
  *
  * The restricted pin list is used to indicate to testing
  * that a pin should be skipped due to some caveat about it.
- * For example, using USBRX and USBTX during tests will interfere
+ * For example, using CONSOLE_RX and CONSOLE_TX during tests will interfere
  * with the test runner and should be avoided.
  *
  * Targets should override the weak implementation of this

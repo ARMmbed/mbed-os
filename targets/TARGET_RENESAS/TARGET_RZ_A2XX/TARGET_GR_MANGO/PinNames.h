@@ -70,8 +70,8 @@ typedef enum {
     LED_ORANGE = LED3,
     LED_RED    = LED4,
 
-    USBTX = P9_0,
-    USBRX = P9_1,
+    CONSOLE_TX = P9_0,
+    CONSOLE_RX = P9_1,
 
     A0 = P5_0,
     A1 = P5_1,

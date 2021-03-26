@@ -232,10 +232,18 @@ typedef enum {
     // used by mbed for default serial out on printf statements
     RX_PIN_NUMBER                   = PIN_NAME_DEBUG_RX,
     TX_PIN_NUMBER                   = PIN_NAME_DEBUG_TX,
-    USBRX                           = PIN_NAME_DEBUG_RX,
-    USBTX                           = PIN_NAME_DEBUG_TX,
-    STDIO_UART_RX                   = PIN_NAME_DEBUG_RX,
-    STDIO_UART_TX                   = PIN_NAME_DEBUG_TX,
+    CONSOLE_RX                           = PIN_NAME_DEBUG_RX,
+    CONSOLE_TX                           = PIN_NAME_DEBUG_TX,
+#if defined(MBED_CONF_TARGET_STDIO_UART_TX)
+    STDIO_UART_TX   = MBED_CONF_TARGET_STDIO_UART_TX,
+#else
+    STDIO_UART_TX   = CONSOLE_TX,
+#endif
+#if defined(MBED_CONF_TARGET_STDIO_UART_RX)
+    STDIO_UART_RX   = MBED_CONF_TARGET_STDIO_UART_RX,
+#else
+    STDIO_UART_RX   = CONSOLE_RX,
+#endif
 
     MDMTXD                          = PIN_NAME_CELL_TX,
     MDMRXD                          = PIN_NAME_CELL_RX,

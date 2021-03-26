@@ -49,7 +49,7 @@ using namespace utest::v1;
 
 
 static BufferedSerial buffered_serial_obj(
-    USBTX, USBRX, MBED_CONF_PLATFORM_STDIO_BAUD_RATE
+    CONSOLE_TX, CONSOLE_RX, MBED_CONF_PLATFORM_STDIO_BAUD_RATE
 );
 
 

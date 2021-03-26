@@ -187,8 +187,8 @@ typedef enum {
     ADC_VBAT = 0xF2,
 
     // STDIO for console print
-    USBTX = PC_4,
-    USBRX = PC_5,
+    CONSOLE_TX = PC_4,
+    CONSOLE_RX = PC_5,
 
     I2C_SCL     = PB_8,
     I2C_SDA     = PB_9,

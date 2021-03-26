@@ -57,8 +57,8 @@ typedef enum {
     LED_ORANGE = LED3,
     LED_RED    = LED4,
 
-    USBTX = P3_15,
-    USBRX = P0_2,
+    CONSOLE_TX = P3_15,
+    CONSOLE_RX = P0_2,
 
     // Arduiono Pin Names
     D0 = P5_14,

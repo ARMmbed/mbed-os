@@ -303,10 +303,18 @@ typedef enum {
     LED3        = PK_5, // Green LED
     LED4        = PK_4,	// Status LED
 
-    USBTX       = PC_12,  // Use USBTX and USBRX for serial communications back to PC. Do not
-    USBRX       = PD_2,   // use STDIO_UART_TX and STDIO_UART_RX	
-    STDIO_UART_TX = USBTX,
-    STDIO_UART_RX = USBRX,
+    CONSOLE_TX       = PC_12,  // Use CONSOLE_TX and CONSOLE_RX for serial communications back to PC. Do not
+    CONSOLE_RX       = PD_2,   // use STDIO_UART_TX and STDIO_UART_RX	
+#if defined(MBED_CONF_TARGET_STDIO_UART_TX)
+    STDIO_UART_TX   = MBED_CONF_TARGET_STDIO_UART_TX,
+#else
+    STDIO_UART_TX   = CONSOLE_TX,
+#endif
+#if defined(MBED_CONF_TARGET_STDIO_UART_RX)
+    STDIO_UART_RX   = MBED_CONF_TARGET_STDIO_UART_RX,
+#else
+    STDIO_UART_RX   = CONSOLE_RX,
+#endif
 	
     // Adding these signals for the SDP connector
     SDP_SPI_MOSI = PF_9,  // SDP Connector for SPI lines

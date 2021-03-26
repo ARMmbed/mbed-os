@@ -79,8 +79,16 @@ typedef enum {
     INVALID_GPIO_IRQ = (int)NC
 } GPIO_IRQName;
 
-#define STDIO_UART_TX     PE5
-#define STDIO_UART_RX     PE6
+#if defined(MBED_CONF_TARGET_STDIO_UART_TX)
+#define STDIO_UART_TX MBED_CONF_TARGET_STDIO_UART_TX
+#else
+#define STDIO_UART_TX PE5
+#endif
+#if defined(MBED_CONF_TARGET_STDIO_UART_RX)
+#define STDIO_UART_RX MBED_CONF_TARGET_STDIO_UART_RX
+#else
+#define STDIO_UART_RX PE6
+#endif
 #define STDIO_UART        SERIAL_1
 
 #define MBED_SPI0         PK3, PK2, PK4, PK1
@@ -93,7 +101,7 @@ typedef enum {
 #define MBED_UART3        PB0, PB1
 #define MBED_UART4        PF1, PF2
 #define MBED_UART5        PA6, PA5
-#define MBED_UARTUSB      USBTX, USBRX
+#define MBED_UARTUSB      CONSOLE_TX, CONSOLE_RX
 
 #define MBED_I2C0         PK2, PK3
 #define MBED_I2C1         PF7, PF6

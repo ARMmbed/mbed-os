@@ -1166,8 +1166,8 @@ def print_pin_list(pin_list):
     STDIO_UART_RX = %s,
 #endif
 
-    USBTX = STDIO_UART_TX, // used for greentea tests
-    USBRX = STDIO_UART_RX, // used for greentea tests
+    CONSOLE_TX = STDIO_UART_TX, // used for greentea tests
+    CONSOLE_RX = STDIO_UART_RX, // used for greentea tests
 """ % (re.sub(r'(P.)', r'\1_', STDIO_list[0]), re.sub(r'(P.)', r'\1_', STDIO_list[1])))
     out_h_file.write(s)
 

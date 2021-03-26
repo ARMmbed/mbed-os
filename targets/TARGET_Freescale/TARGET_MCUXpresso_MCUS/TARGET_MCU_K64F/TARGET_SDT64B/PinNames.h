@@ -232,8 +232,8 @@ typedef enum {
     LED_BLUE  = LED2,
 
     // USB bridge and SWD UART connected UART pins
-    USBTX = PTC15,
-    USBRX = PTC14,
+    CONSOLE_TX = PTC15,
+    CONSOLE_RX = PTC14,
 
     // UART pins
     UART0_RX  = PTC16,
@@ -241,8 +241,8 @@ typedef enum {
     UART0_CTS = PTC19,
     UART0_RTS = PTC18,
 
-    UART1_RX  = USBRX,
-    UART1_TX  = USBTX,
+    UART1_RX  = CONSOLE_RX,
+    UART1_TX  = CONSOLE_TX,
     UART1_CTS = PTC13,
     UART1_RTS = PTC12,
 

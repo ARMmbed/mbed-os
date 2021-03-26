@@ -131,8 +131,16 @@ typedef enum {
 } GPIO_IRQName;
 
 // DAP UART
-#define STDIO_UART_TX     USBTX
-#define STDIO_UART_RX     USBRX
+#if defined(MBED_CONF_TARGET_STDIO_UART_TX)
+#define STDIO_UART_TX MBED_CONF_TARGET_STDIO_UART_TX
+#else
+#define STDIO_UART_TX CONSOLE_TX
+#endif
+#if defined(MBED_CONF_TARGET_STDIO_UART_RX)
+#define STDIO_UART_RX MBED_CONF_TARGET_STDIO_UART_RX
+#else
+#define STDIO_UART_RX CONSOLE_RX
+#endif
 
 #define SERIAL_TX         PU0
 #define SERIAL_RX         PU1
@@ -148,7 +156,7 @@ typedef enum {
 #define MBED_UART5        PJ1, PJ0
 #define MBED_UART6        PG4, PG5
 #define MBED_UART7        PJ6, PJ7
-#define MBED_UARTUSB      USBTX, USBRX
+#define MBED_UARTUSB      CONSOLE_TX, CONSOLE_RX
 
 // SDA SCK
 #define MBED_I2C0         PG2, PG3
