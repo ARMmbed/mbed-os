@@ -3401,7 +3401,8 @@
             "ANALOGOUT",
             "SERIAL_ASYNCH",
             "FLASH",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ]
     },
     "MCU_STM32L151xC": {
@@ -3430,7 +3431,8 @@
             }
         },
         "device_has_remove": [
-            "SERIAL_FC"
+            "SERIAL_FC",
+            "USBDEVICE"
         ],
         "device_name": "STM32L151CC",
         "detect_code": [
