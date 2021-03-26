@@ -1,37 +1,31 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2016-2020 STMicroelectronics
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: BSD-3-Clause
+ ******************************************************************************
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Copyright (c) 2015-2021 STMicroelectronics.
+ * All rights reserved.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ ******************************************************************************
  */
 
 /**
-  *   This file configures the system clock as follows:
-  *=============================================================================
-  * System clock source          s      | 1- PLL_HSE_EXTC        | 3- PLL_HSI
-  *                                    | (external 8 MHz clock) | (internal 16 MHz)
-  *                                    | 2- PLL_HSE_XTAL        | or PLL_MSI
-  *                                    | (external 8 MHz xtal)  | (internal 4 MHz)
+  * This file configures the system clock depending on config from targets.json:
   *-----------------------------------------------------------------------------
-  * SYSCLK(MHz)                        | 48                     | 80
+  * System clock source | 1- USE_PLL_HSE_EXTC (external clock)
+  *                     | 2- USE_PLL_HSE_XTAL (external xtal)
+  *                     | 3- USE_PLL_HSI (internal 16 MHz)
+  *                     | 4- USE_PLL_MSI (internal 100kHz to 48 MHz)
   *-----------------------------------------------------------------------------
-  * AHBCLK (MHz)                       | 48                     | 80
-  *-----------------------------------------------------------------------------
-  * APB1CLK (MHz)                      | 48                     | 80
-  *-----------------------------------------------------------------------------
-  * APB2CLK (MHz)                      | 48                     | 80
-  *-----------------------------------------------------------------------------
-  * USB capable (48 MHz precise clock) | YES                    | NO
+  * SYSCLK(MHz)         | 80
+  * AHBCLK (MHz)        | 80
+  * APB1CLK (MHz)       | 80
+  * APB2CLK (MHz)       | 80
+  * USB capable         | YES
   *-----------------------------------------------------------------------------
 **/
 
@@ -39,8 +33,8 @@
 #include "mbed_error.h"
 
 // clock source is selected with CLOCK_SOURCE in json config
-#define USE_PLL_HSE_EXTC 0x8 // Use external clock (ST Link MCO - not enabled by default)
-#define USE_PLL_HSE_XTAL 0x4 // Use external xtal (X3 on board - not provided by default)
+#define USE_PLL_HSE_EXTC 0x8 // Use external clock (OSC_IN)
+#define USE_PLL_HSE_XTAL 0x4 // Use external xtal (OSC_IN/OSC_OUT)
 #define USE_PLL_HSI      0x2 // Use HSI internal clock
 #define USE_PLL_MSI      0x1 // Use MSI internal clock
 
@@ -62,13 +56,13 @@ uint8_t SetSysClock_PLL_MSI(void);
 /**
   * @brief  Configures the System clock source, PLL Multiplier and Divider factors,
   *               AHB/APBx prescalers and Flash settings
-  * @note   This function should be called only once the RCC clock configuration
-  *         is reset to the default reset state (done in SystemInit() function).
+  * @note   This function is called in mbed_sdk_init() function (targets/TARGET_STM/mbed_overrides.c)
+  *         and after each deepsleep period in hal_deepsleep() (targets/TARGET_STM/sleep.c)
   * @param  None
   * @retval None
   */
 
-void SetSysClock(void)
+MBED_WEAK void SetSysClock(void)
 {
 #if ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC)
     /* 1- Try to start with HSE and external clock */
@@ -117,17 +111,21 @@ MBED_WEAK uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     // Enable HSE oscillator and activate PLL with HSE as source
     RCC_OscInitStruct.OscillatorType        = RCC_OSCILLATORTYPE_HSE;
     if (bypass == 0) {
-        RCC_OscInitStruct.HSEState            = RCC_HSE_ON; // External 8 MHz xtal on OSC_IN/OSC_OUT
+        RCC_OscInitStruct.HSEState            = RCC_HSE_ON; // External xtal on OSC_IN/OSC_OUT
     } else {
-        RCC_OscInitStruct.HSEState            = RCC_HSE_BYPASS; // External 8 MHz clock on OSC_IN
+        RCC_OscInitStruct.HSEState            = RCC_HSE_BYPASS; // External clock on OSC_IN
     }
-    RCC_OscInitStruct.PLL.PLLSource         = RCC_PLLSOURCE_HSE; // 8 MHz
+    RCC_OscInitStruct.PLL.PLLSource         = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLState          = RCC_PLL_ON;
+#if HSE_VALUE==8000000
     RCC_OscInitStruct.PLL.PLLM              = 1; // VCO input clock = 8 MHz (8 MHz / 1)
+#else
+#error Unsupported externall clock value, check HSE_VALUE define
+#endif
     RCC_OscInitStruct.PLL.PLLN              = 20; // VCO output clock = 160 MHz (8 MHz * 20)
-    RCC_OscInitStruct.PLL.PLLP              = 7; // PLLSAI3 clock = 22 MHz (160 MHz / 7)
+    RCC_OscInitStruct.PLL.PLLP              = 7;
     RCC_OscInitStruct.PLL.PLLQ              = 2;
-    RCC_OscInitStruct.PLL.PLLR              = 2; // PLL clock = 80 MHz (160 MHz / 2)
+    RCC_OscInitStruct.PLL.PLLR              = 2;  // PLL clock = 80 MHz (160 MHz / 2)
 
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         return 0; // FAIL
@@ -135,10 +133,10 @@ MBED_WEAK uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 
     // Select PLL clock as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers
     RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK; // 80 MHz or 48 MHz
-    RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;         // 80 MHz or 48 MHz
-    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;           // 80 MHz or 48 MHz
-    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;           // 80 MHz or 48 MHz
+    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK; // 80 MHz
+    RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;         // 80 MHz
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;           // 80 MHz
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;           // 80 MHz
     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK) {
         return 0; // FAIL
     }
@@ -187,11 +185,11 @@ uint8_t SetSysClock_PLL_HSI(void)
     RCC_OscInitStruct.HSICalibrationValue  = RCC_HSICALIBRATION_DEFAULT;
     RCC_OscInitStruct.PLL.PLLState         = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource        = RCC_PLLSOURCE_HSI; // 16 MHz
-    RCC_OscInitStruct.PLL.PLLM             = 2; // VCO input clock = 8 MHz (16 MHz / 2)
+    RCC_OscInitStruct.PLL.PLLM             = 2;  // VCO input clock = 8 MHz (16 MHz / 2)
     RCC_OscInitStruct.PLL.PLLN             = 20; // VCO output clock = 160 MHz (8 MHz * 20)
-    RCC_OscInitStruct.PLL.PLLP             = 7; // PLLSAI3 clock = 22 MHz (160 MHz / 7)
+    RCC_OscInitStruct.PLL.PLLP             = 7;
     RCC_OscInitStruct.PLL.PLLQ             = 2;
-    RCC_OscInitStruct.PLL.PLLR             = 2; // PLL clock = 80 MHz (160 MHz / 2)
+    RCC_OscInitStruct.PLL.PLLR             = 2;  // PLL clock = 80 MHz (160 MHz / 2)
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         return 0; // FAIL
     }
@@ -234,7 +232,7 @@ uint8_t SetSysClock_PLL_HSI(void)
 /******************************************************************************/
 /*            PLL (clocked by MSI) used as System clock source                */
 /******************************************************************************/
-uint8_t SetSysClock_PLL_MSI(void)
+MBED_WEAK uint8_t SetSysClock_PLL_MSI(void)
 {
     RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -244,21 +242,15 @@ uint8_t SetSysClock_PLL_MSI(void)
     // Enable LSE Oscillator to automatically calibrate the MSI clock
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // No PLL update
-    RCC_OscInitStruct.LSEState       = RCC_LSE_ON; // External 32.768 kHz clock on OSC_IN/OSC_OUT
+    RCC_OscInitStruct.LSEState       = RCC_LSE_ON;   // External 32.768 kHz clock on OSC32_IN/OSC32_OUT
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         return 0; // FAIL
     }
-
-    /* Enable the CSS interrupt in case LSE signal is corrupted or not present */
-    HAL_RCCEx_DisableLSECSS();
 #endif /* MBED_CONF_TARGET_LSE_AVAILABLE */
 
     /* Enable MSI Oscillator and activate PLL with MSI as source */
-    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_MSI | RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSE;
-    RCC_OscInitStruct.MSIState             = RCC_MSI_ON;
-    RCC_OscInitStruct.HSEState             = RCC_HSE_OFF;
-    RCC_OscInitStruct.HSIState             = RCC_HSI_OFF;
-
+    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_MSI;
+    RCC_OscInitStruct.MSIState            = RCC_MSI_ON;
     RCC_OscInitStruct.MSICalibrationValue = RCC_MSICALIBRATION_DEFAULT;
     RCC_OscInitStruct.MSIClockRange       = RCC_MSIRANGE_11; /* 48 MHz */
     RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
