@@ -25,11 +25,14 @@
 #else
 
 using utest::v1::Case;
+using std::chrono::milliseconds;
+using std::chrono::microseconds;
 
 static const int test_timeout = 10;
 
 #define TICKER_COUNT 16
 #define MULTI_TICKER_TIME_MS 100ms
+#define MULTI_TICKER_TIME_US microseconds{MULTI_TICKER_TIME_MS}
 
 /* Due to poor accuracy of LowPowerTicker on many platforms
    there is no sense to tune tolerance value as it was in Ticker tests.
@@ -73,14 +76,14 @@ void increment_multi_counter(void)
 void test_multi_ticker(void)
 {
     LowPowerTicker ticker[TICKER_COUNT];
-    std::chrono::milliseconds extra_wait = 10ms; // extra 10ms wait time
+    milliseconds extra_wait = 10ms; // extra 10ms wait time
 
     multi_counter = 0;
     for (int i = 0; i < TICKER_COUNT; i++) {
-        ticker[i].attach(callback(increment_multi_counter), MULTI_TICKER_TIME_MS * 1000);
+        ticker[i].attach(callback(increment_multi_counter), MULTI_TICKER_TIME_US);
     }
 
-    ThisThread::sleep_for(MULTI_TICKER_TIME_MS + std::chrono::milliseconds{extra_wait});
+    ThisThread::sleep_for(MULTI_TICKER_TIME_MS + extra_wait);
     TEST_ASSERT_EQUAL(TICKER_COUNT, multi_counter);
 
     for (int i = 0; i < TICKER_COUNT; i++) {
@@ -93,10 +96,10 @@ void test_multi_ticker(void)
 
     multi_counter = 0;
     for (int i = 0; i < TICKER_COUNT; i++) {
-        ticker[i].attach(callback(increment_multi_counter), (MULTI_TICKER_TIME_MS + std::chrono::milliseconds{i}) * 1000);
+        ticker[i].attach(callback(increment_multi_counter), MULTI_TICKER_TIME_US + microseconds{i});
     }
 
-    ThisThread::sleep_for(MULTI_TICKER_TIME_MS + std::chrono::milliseconds{TICKER_COUNT} + extra_wait);
+    ThisThread::sleep_for(MULTI_TICKER_TIME_MS + milliseconds{TICKER_COUNT} + extra_wait);
     TEST_ASSERT_EQUAL(TICKER_COUNT, multi_counter);
 
     for (int i = 0; i < TICKER_COUNT; i++) {
@@ -125,11 +128,11 @@ void test_multi_call_time(void)
         gtimer.reset();
 
         gtimer.start();
-        ticker.attach(callback(stop_gtimer_set_flag), MULTI_TICKER_TIME_MS * 1000);
+        ticker.attach(callback(stop_gtimer_set_flag), MULTI_TICKER_TIME_US);
         while (!ticker_callback_flag);
         time_diff = gtimer.elapsed_time().count();
 
-        TEST_ASSERT_UINT32_WITHIN(TOLERANCE_US(MULTI_TICKER_TIME_MS.count() * 1000), MULTI_TICKER_TIME_MS.count() * 1000, time_diff);
+        TEST_ASSERT_UINT32_WITHIN(TOLERANCE_US(MULTI_TICKER_TIME_US.count()), MULTI_TICKER_TIME_US.count(), time_diff);
     }
 }
 
@@ -143,8 +146,9 @@ void test_detach(void)
 {
     LowPowerTicker ticker;
     bool ret;
-    const std::chrono::milliseconds ticker_time_s = 10ms;
-    const std::chrono::milliseconds wait_time_ms = 500ms;
+    const milliseconds ticker_time_s = 10ms;
+    const milliseconds wait_time_ms = 500ms;
+
     Semaphore sem(0, 1);
 
     ticker.attach(callback(sem_release, &sem), ticker_time_s);
@@ -172,7 +176,7 @@ void test_attach_time(void)
 
     gtimer.reset();
     gtimer.start();
-    ticker.attach(callback(stop_gtimer_set_flag), std::chrono::milliseconds{DELAY_US / 1000000});
+    ticker.attach(callback(stop_gtimer_set_flag), microseconds{DELAY_US});
     while (!ticker_callback_flag);
     ticker.detach();
     const int time_diff = gtimer.elapsed_time().count();

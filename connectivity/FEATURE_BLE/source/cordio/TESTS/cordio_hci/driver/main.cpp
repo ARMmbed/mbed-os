@@ -37,9 +37,9 @@
 
 using namespace utest::v1;
 using mbed::callback;
-using namespace std::chrono;
+using namespace std::chrono_literals;
 
-#define INITIALIZATION_TIMEOUT milliseconds{10 * 1000}
+#define INITIALIZATION_TIMEOUT 10000ms
 
 static EventQueue event_queue(/* event count */ 10 * EVENTS_EVENT_SIZE);
 
