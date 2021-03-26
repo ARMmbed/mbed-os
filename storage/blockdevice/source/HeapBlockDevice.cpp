@@ -40,7 +40,7 @@ HeapBlockDevice::~HeapBlockDevice()
 {
     if (_blocks) {
         for (size_t i = 0; i < _count; i++) {
-            free(_blocks[i]);
+            delete[] _blocks[i];
         }
 
         delete[] _blocks;
@@ -57,7 +57,11 @@ int HeapBlockDevice::init()
     }
 
     if (!_blocks) {
-        _blocks = new uint8_t *[_count];
+        _blocks = new (std::nothrow) uint8_t *[_count];
+        if (!_blocks) {
+            return BD_ERROR_DEVICE_ERROR;
+        }
+
         for (size_t i = 0; i < _count; i++) {
             _blocks[i] = 0;
         }
@@ -156,7 +160,7 @@ int HeapBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
         bd_addr_t lo = addr % _erase_size;
 
         if (!_blocks[hi]) {
-            _blocks[hi] = (uint8_t *)malloc(_erase_size);
+            _blocks[hi] = new (std::nothrow) uint8_t[_erase_size];
             if (!_blocks[hi]) {
                 return BD_ERROR_DEVICE_ERROR;
             }
