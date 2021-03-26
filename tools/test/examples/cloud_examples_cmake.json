@@ -1,0 +1,20 @@
+{
+  "examples": [
+    {
+      "name": "mbed-os-example-for-aws",
+      "github": "https://github.com/ARMmbed/mbed-os-example-for-aws",
+      "sub-repo-example": false,
+      "subs": [],
+      "features" : [],
+      "targets" : ["DISCO_L475VG_IOT01A", "K64F", "NUCLEO_F429ZI"],
+      "toolchains" : [],
+      "exporters": [],
+      "compile" : true,
+      "export": true,
+      "test" : false,
+      "baud_rate": 115200,
+      "compare_log": ["mbed-os-example-for-aws/tests/aws.log"],
+      "auto-update" : true
+    }
+  ]
+}
