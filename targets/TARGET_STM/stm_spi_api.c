@@ -374,12 +374,13 @@ void spi_free(spi_t *obj)
 #if defined(DUAL_CORE) && (TARGET_STM32H7)
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
 #endif /* DUAL_CORE */
-    // Configure GPIOs
-    pin_function(spiobj->pin_miso, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-    pin_function(spiobj->pin_mosi, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-    pin_function(spiobj->pin_sclk, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+
+    // Configure GPIOs back to reset value
+    pin_function(spiobj->pin_miso, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0));
+    pin_function(spiobj->pin_mosi, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0));
+    pin_function(spiobj->pin_sclk, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0));
     if (handle->Init.NSS != SPI_NSS_SOFT) {
-        pin_function(spiobj->pin_ssel, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+        pin_function(spiobj->pin_ssel, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0));
     }
 }
 
