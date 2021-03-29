@@ -1,16 +1,16 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(NUCLEO_G431RB INTERFACE)
+add_library(mbed-nucleo-g431rb INTERFACE)
 
-target_sources(NUCLEO_G431RB
+target_sources(mbed-nucleo-g431rb 
     INTERFACE
         PeripheralPins.c
 )
 
-target_include_directories(NUCLEO_G431RB
+target_include_directories(mbed-nucleo-g431rb 
     INTERFACE
         .
 )
 
-target_link_libraries(NUCLEO_G431RB INTERFACE STM32G431xB)
+target_link_libraries(mbed-nucleo-g431rb INTERFACE mbed-stm32g431xb)
