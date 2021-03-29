@@ -36,12 +36,12 @@ static uint32_t bank_offset[MX_EEPROMS] =
     0x03200000
 };
 #elif COMPONENT_SPINAND
-{
-    0x00080000,
-    0x04080000,
-    0x08080000,
-    0x0c080000
-};
+    {
+        0x00080000,
+        0x04080000,
+        0x08080000,
+        0x0c080000
+    };
 #endif
 
 VEEBlockDevice::VEEBlockDevice(
@@ -392,7 +392,7 @@ int VEEBlockDevice::_ee_update_sys(struct bank_info *bi, uint32_t sector, uint32
     status = _ee_device_write(addr, sizeof(sys), &sys);
     if (status) {
         tr_error("ee_wrsys: fail to update, bank %lu, sector %lu, entry %lu\r\n",
-            bi->bank, sector, bi->sys_entry[sector]);
+                 bi->bank, sector, bi->sys_entry[sector]);
         return status;
     }
 

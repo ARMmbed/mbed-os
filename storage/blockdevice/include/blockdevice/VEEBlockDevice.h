@@ -492,7 +492,7 @@ private:
     // garbage collection
     uint32_t _ee_gc(struct bank_info *bi, uint8_t src_sector, uint8_t des_sector);
 
-    // check if power is failed during gc 
+    // check if power is failed during gc
     int _ee_check_gc_power_fail(void);
 
     BlockDevice *_bd;

@@ -643,7 +643,7 @@ qspi_status_t SPINANDBlockDevice::_qspi_send_read_command(qspi_inst_t read_inst,
         data_width = QSPI_CFG_BUS_QUAD;
     } else {
         data_width = QSPI_CFG_BUS_SINGLE;
-    } 
+    }
 
     // Send read command to device driver
     // Read commands use the best bus mode supported by the part
@@ -700,7 +700,7 @@ qspi_status_t SPINANDBlockDevice::_qspi_send_program_command(qspi_inst_t prog_in
                                                              bd_addr_t addr, bd_size_t *size)
 {
     tr_debug("Inst: 0x%xh, addr: %llu, size: %llu", prog_inst, addr, *size);
-    
+
     qspi_bus_width_t data_width;
 
     if (prog_inst == SPINAND_INST_4PP_LOAD) {

@@ -103,7 +103,7 @@ void test_read_write()
     );
 #endif
     VEEBlockDevice bd(&default_bd);
-  
+
     int err = bd.init();
 
     TEST_ASSERT_EQUAL(0, err);
