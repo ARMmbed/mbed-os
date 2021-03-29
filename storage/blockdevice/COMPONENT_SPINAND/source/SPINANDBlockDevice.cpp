@@ -638,11 +638,11 @@ qspi_status_t SPINANDBlockDevice::_qspi_send_read_command(qspi_inst_t read_inst,
 
     qspi_bus_width_t data_width;
     if (read_inst == SPINAND_INST_READ_CACHE2) {
-      data_width = QSPI_CFG_BUS_DUAL;
+        data_width = QSPI_CFG_BUS_DUAL;
     } else if (read_inst == SPINAND_INST_READ_CACHE4) {
-      data_width = QSPI_CFG_BUS_QUAD;
+        data_width = QSPI_CFG_BUS_QUAD;
     } else {
-      data_width = QSPI_CFG_BUS_SINGLE;
+        data_width = QSPI_CFG_BUS_SINGLE;
     } 
 
     // Send read command to device driver
@@ -704,9 +704,9 @@ qspi_status_t SPINANDBlockDevice::_qspi_send_program_command(qspi_inst_t prog_in
     qspi_bus_width_t data_width;
 
     if (prog_inst == SPINAND_INST_4PP_LOAD) {
-      data_width = QSPI_CFG_BUS_QUAD;
+        data_width = QSPI_CFG_BUS_QUAD;
     } else {
-      data_width = QSPI_CFG_BUS_SINGLE;
+        data_width = QSPI_CFG_BUS_SINGLE;
     }
 
     // Program load commands need 16 bit row address

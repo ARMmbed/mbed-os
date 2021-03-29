@@ -215,7 +215,7 @@ struct eeprom_header {
 
 #if COMPONENT_SPINAND
 /* System Entry Addr*/
-// OPS_ERASE_END 
+// OPS_ERASE_END
 #define SYS_ENTRY_ADDR_E_E      0
 // OPS_GC_CP_BEGIN + source sector addr (write in Gc destination sector)
 #define SYS_ENTRY_ADDR_G_B_D    0 + MX_EEPROM_SYSTEM_ENTRY_SIZE
@@ -437,11 +437,11 @@ private:
 #elif COMPONENT_SPINAND
     // Read system entry of current block of current bank.
     int _ee_read_sys(struct bank_info *bi, uint32_t sector, uint32_t system_entry_addr,
-                          struct system_entry *sys);
+                     struct system_entry *sys);
 
     // Update system entry of current block of current bank.
     int _ee_update_sys(struct bank_info *bi, uint32_t sector, uint32_t system_entry_addr,
-                            ee_ops ops, uint32_t arg);
+                       ee_ops ops, uint32_t arg);
 #endif
     // Read the specified entry of current block of current bank.
     int _ee_read(struct bank_info *bi, uint32_t entry, void *buf, bool header);
@@ -486,10 +486,10 @@ private:
     // Check system info and handle power cycling.
     int _ee_check_sys(void);
 
-    // 
+    // copy data
     uint32_t _ee_gc_cp(struct bank_info *bi, uint8_t src_sector, uint8_t des_sector);
 
-    //
+    // garbage collection
     uint32_t _ee_gc(struct bank_info *bi, uint8_t src_sector, uint8_t des_sector);
 
     // check if power is failed during gc 

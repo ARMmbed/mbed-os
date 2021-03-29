@@ -29,9 +29,19 @@ using namespace mbed;
 /* EEPROM physical address offset in each bank */
 static uint32_t bank_offset[MX_EEPROMS] =
 #ifdef COMPONENT_OSPIF
-{0x00200000, 0x01200000, 0x02200000, 0x03200000};
+{
+    0x00200000,
+    0x01200000,
+    0x02200000,
+    0x03200000
+};
 #elif COMPONENT_SPINAND
-{0x00080000, 0x04080000, 0x08080000, 0x0c080000};
+{
+    0x00080000,
+    0x04080000,
+    0x08080000,
+    0x0c080000
+};
 #endif
 
 VEEBlockDevice::VEEBlockDevice(
@@ -121,7 +131,7 @@ int VEEBlockDevice::init()
     if (err) {
         tr_error("init : check power fail failed\r\n");
         goto fail;
-    }  
+    }
 #endif
 #endif
 
@@ -330,32 +340,28 @@ int VEEBlockDevice::_ee_update_sys(struct bank_info *bi, uint32_t block,
 }
 #elif COMPONENT_SPINAND
 int VEEBlockDevice::_ee_read_sys(struct bank_info *bi, uint32_t sector, uint32_t system_entry_addr,
-                 struct system_entry *sys)
+                                 struct system_entry *sys)
 {
     int status;
     uint32_t addr;
 
     /* Check address validity */
-    if ((bi->bank >= MX_EEPROMS) ||
-        (bi->block >= MX_EEPROM_BLOCKS) ||
-        (sector >= MX_EEPROM_SECTORS_PER_CLUSTER))
+    if ((bi->bank >= MX_EEPROMS) || (bi->block >= MX_EEPROM_BLOCKS) || (sector >= MX_EEPROM_SECTORS_PER_CLUSTER)) {
         return VEEF_BD_ERROR_EINVAL;
+    }
 
     addr = bi->block_offset + sector * MX_EEPROM_SECTOR_OFFSET + system_entry_addr;
 
     /* Read system entry */
     status = _ee_device_read(addr, sizeof(*sys), sys);
     if (status) {
-        tr_error("ee_rdsys: fail to read, bank %lu, block %lu, sector %lu\r\n",
-            bi->bank, bi->block, sector);
+        tr_error("ee_rdsys: fail to read, bank %lu, block %lu, sector %lu\r\n", bi->bank, bi->block, sector);
         return status;
     }
 
     /* Check system entry */
-    if ((sys->id != MFTL_ID && sys->id != DATA_NONE16) ||
-      (sys->cksum != (sys->id ^ sys->ops ^ sys->arg))) {
-        tr_error("ee_rdsys: corrupted entry, bank %lu, block %lu, sector %lu\r\n",
-            bi->bank, bi->block, sector);
+    if ((sys->id != MFTL_ID && sys->id != DATA_NONE16) || (sys->cksum != (sys->id ^ sys->ops ^ sys->arg))) {
+        tr_error("ee_rdsys: corrupted entry, bank %lu, block %lu, sector %lu\r\n", bi->bank, bi->block, sector);
         return VEEF_BD_ERROR_EIO;
     }
 
@@ -363,17 +369,16 @@ int VEEBlockDevice::_ee_read_sys(struct bank_info *bi, uint32_t sector, uint32_t
 }
 
 int VEEBlockDevice::_ee_update_sys(struct bank_info *bi, uint32_t sector, uint32_t system_entry_addr,
-                   ee_ops ops, uint32_t arg)
+                                   ee_ops ops, uint32_t arg)
 {
     int status;
     uint32_t addr;
     struct system_entry sys;
 
     /* Check address validity */
-    if ((bi->bank >= MX_EEPROMS) ||
-        (bi->block >= MX_EEPROM_BLOCKS) ||
-        (sector >= MX_EEPROM_SECTORS_PER_CLUSTER))
+    if ((bi->bank >= MX_EEPROMS) || (bi->block >= MX_EEPROM_BLOCKS) || (sector >= MX_EEPROM_SECTORS_PER_CLUSTER)) {
         return VEEF_BD_ERROR_EINVAL;
+    }
 
     addr = bi->block_offset + sector * MX_EEPROM_SECTOR_OFFSET + system_entry_addr;
 
@@ -836,13 +841,14 @@ retry:
     }
 #elif COMPONENT_SPINAND
     sector = entry / MX_EEPROM_ENTRIES_PER_SECTOR;
-      /* Update L2E mapping */
-      bi->l2pe[LPA] = ofs;
-      bi->l2ps[LPA] = sector;
-      bi->p2l[sector] = LPA;
-      if (bi->l2ps_group[LPA / MX_EEPROM_LPAS_PER_SECTOR] == DATA_NONE8)
-          bi->l2ps_group[LPA / MX_EEPROM_LPAS_PER_SECTOR] = sector;
-      bi->latest_used_entry_per_sector[sector] = ofs;
+    /* Update L2E mapping */
+    bi->l2pe[LPA] = ofs;
+    bi->l2ps[LPA] = sector;
+    bi->p2l[sector] = LPA;
+    if (bi->l2ps_group[LPA / MX_EEPROM_LPAS_PER_SECTOR] == DATA_NONE8) {
+        bi->l2ps_group[LPA / MX_EEPROM_LPAS_PER_SECTOR] = sector;
+    }
+    bi->latest_used_entry_per_sector[sector] = ofs;
 #endif
     /* Clean page cache */
     bi->cache_dirty = false;
@@ -1455,7 +1461,7 @@ int VEEBlockDevice::_ee_check_sys(void)
                                 }
                             }
                         }
-    erase:
+erase:
                         bi->dirty_block = bi->block;
                         bi->dirty_sector = sector;
                         _ee_erase(bi);
@@ -1497,13 +1503,13 @@ int VEEBlockDevice::_ee_check_sys(void)
                     break;
                 }
                 addr += MX_EEPROM_SECTOR_OFFSET;
-              }
+            }
             addr += MX_EEPROM_CLUSTER_OFFSET;
-          }
+        }
 
-          if (formatted) {
-              break;
-          }
+        if (formatted) {
+            break;
+        }
     }
     bi->block = DATA_NONE32;
 #endif
@@ -1577,8 +1583,9 @@ uint32_t VEEBlockDevice::_ee_gc(struct bank_info *bi, uint8_t src_sector, uint8_
     //mark OPS_GC_CP_END in the oob of source sector after cp data
     _ee_update_sys(bi, src_sector, SYS_ENTRY_ADDR_G_E, OPS_GC_CP_END, DATA_NONE16);
 
-    if (_ee_erase(bi))
+    if (_ee_erase(bi)) {
         tr_error("ee_rwbuf: fail to erase\r\n");
+    }
 
     return des_entry;
 }

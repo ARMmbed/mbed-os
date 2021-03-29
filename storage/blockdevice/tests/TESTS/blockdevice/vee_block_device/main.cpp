@@ -74,7 +74,7 @@ void background_call(VEEBlockDevice *vee_bd)
 
 void test_read_write()
 {
- #if COMPONENT_OSPIF
+#if COMPONENT_OSPIF
     OSPIFBlockDevice default_bd(
         MBED_CONF_OSPIF_OSPI_IO0,
         MBED_CONF_OSPIF_OSPI_IO1,
@@ -103,7 +103,7 @@ void test_read_write()
     );
 #endif
     VEEBlockDevice bd(&default_bd);
-    
+  
     int err = bd.init();
 
     TEST_ASSERT_EQUAL(0, err);
@@ -200,7 +200,7 @@ void test_read_write()
 
 void test_background_thread()
 {
- #if COMPONENT_OSPIF
+#if COMPONENT_OSPIF
     OSPIFBlockDevice default_bd(
         MBED_CONF_OSPIF_OSPI_IO0,
         MBED_CONF_OSPIF_OSPI_IO1,
