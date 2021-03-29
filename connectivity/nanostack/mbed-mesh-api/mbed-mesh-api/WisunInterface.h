@@ -160,24 +160,31 @@ public:
     /**
      * \brief Set Wi-SUN network size.
      *
-     * Function stores new parameters to mbed-mesh-api and uses them when connect() is called next time.
-     * If device is already connected to the Wi-SUN network then device will restart network discovery after
-     * changing the network size.
+     * Function stores network size parameter to the mbed-mesh-api and uses it when connect() is called for the next
+     * time. If a device is already connected to the Wi-SUN network, then the device will restart network discovery
+     * after changing the network size.
      *
-     * Default value: medium
-     * Small network size: less than hundred devices
-     * Medium network size: hundreds of devices
-     * Large network size: thousands of devices
-     * Certificate: used on testing
+     * It is recommended to set the correct network size because some Wi-SUN network configuration parameters are
+     * adjusted based on the selected network size. A network configured for a small amount of devices may not work
+     * optimally for large number of devices. This is because the network bandwidth is divided with all the devices in
+     * the network. Enough bandwidth must be reserved for application data usage as well as the Wi-SUN network
+     * operations. In addition, the application should adapt to the network characteristics by using the InternetSocket
+     * methods get_stagger_estimate_to_address() and get_rtt_estimate_to_address().
      *
-     * When network size is changed, it will override all or some of the following configuration values:
-     * - Timing settings set by set_timing_parameters() of the Wi-SUN interface.
-     * - RPL settings set by rpl_parameters_set() of the Border Router interface.
+     * The network size is measured as hundreds of devices that are expected to join to the network. For example,
+     * for a 400-device network set network size to 4.
      *
-     * When network size is changed, and if timing or RPL values should be other than defaults set by stack for the network size,
-     * they need to set again using above function calls.
+     * The Wi-SUN stack will automatically adjust timing and RPL configuration values based on the selected network
+     * size and data rate. If a customized timing or RPL values are needed, the APIs below should be invoked after
+     * changing the network size:
+     * - set_timing_parameters() to set timing settings to the Wi-SUN interface.
+     * - rpl_parameters_set() to set RPL settings to the Border Router interface.
      *
-     * \param network_size Network size in hundreds of devices (e.g. 1200 devices is 12), 0x00 for network size certificate.
+     * By default the Wi-SUN stack is configured to use a few hundreds of devices.
+     *
+     * The network size should be set to 0 when running certification tests.
+     *
+     * \param network_size Network size in hundreds of devices (e.g. 12 for 1200 devices), 0 for certificate testing.
      * \return MESH_ERROR_NONE on success.
      * \return MESH_ERROR_UNKNOWN in case of failure.
      * */

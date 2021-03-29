@@ -121,7 +121,7 @@
             "value": "\"Wi-SUN Network\""
         },
         "wisun-network-size": {
-            "help": "Expected amount of devices in the network as 100s of devices. with possible pre defined constants NETWORK_SIZE_SMALL, NETWORK_SIZE_MEDIUM, NETWORK_SIZE_LARGE, NETWORK_SIZE_XLARGE. if set to 0 Wi-SUN Certification configuration values are used. If don't define this(default null), then NETWORK_SIZE_MEDIUM will be used.",
+            "help": "Expected amount of devices in the network as hundreds of devices. Use any number or one of the predefined values NETWORK_SIZE_SMALL, NETWORK_SIZE_MEDIUM, NETWORK_SIZE_LARGE or NETWORK_SIZE_XLARGE. Set to 0 to use Wi-SUN Certification configuration values. If set to null, then NETWORK_SIZE_MEDIUM (meaning hundreds of devices in the network) will be used.",
             "value": null
         },
         "wisun-regulatory-domain": {
