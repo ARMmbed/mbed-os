@@ -132,12 +132,6 @@
       "S6E1A12B0A"
     ]
   },
-  "CMSIS_RTOS_Tutorial": {
-    "name": "CMSIS_RTOS_Tutorial",
-    "mounted_devices": [
-      "STM32F103RB"
-    ]
-  },
   "Colibri-VF50": {
     "name": "Colibri-VF50",
     "mounted_devices": [
@@ -777,18 +771,6 @@
       "NUC140VE3AN"
     ]
   },
-  "MCBSTM32C": {
-    "name": "MCBSTM32C",
-    "mounted_devices": [
-      "STM32F107VC"
-    ]
-  },
-  "MCBSTM32E": {
-    "name": "MCBSTM32E",
-    "mounted_devices": [
-      "STM32F103ZG"
-    ]
-  },
   "MCBSTM32F200": {
     "name": "MCBSTM32F200",
     "mounted_devices": [
@@ -948,12 +930,6 @@
     "name": "N5 Starter Kit",
     "mounted_devices": [
       "nRF51422_xxAA"
-    ]
-  },
-  "NUCLEO-F103RB": {
-    "name": "NUCLEO-F103RB",
-    "mounted_devices": [
-      "STM32F103RB"
     ]
   },
   "NUCLEO-F401RE": {
