@@ -2750,6 +2750,9 @@
         "inherits": [
             "MCU_STM32G431xB"
         ],
+        "supported_form_factors": [
+            "ARDUINO_UNO"
+        ],
         "detect_code": [
             "0850"
         ],

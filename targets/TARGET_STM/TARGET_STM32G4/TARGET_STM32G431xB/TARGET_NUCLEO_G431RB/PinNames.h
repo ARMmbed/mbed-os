@@ -15,6 +15,8 @@
  * Automatically generated from STM32CubeMX/db/mcu/STM32G431R(6-8-B)Tx.xml
  */
 
+/* MBED TARGET LIST: NUCLEO_G431RB */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -143,25 +145,44 @@ typedef enum {
     ADC_VREF = 0xF1, // Internal pin virtual value
     ADC_VBAT = 0xF2, // Internal pin virtual value
 
+#ifdef TARGET_FF_ARDUINO_UNO
+    // Arduino Uno (Rev3) pins
+    ARDUINO_UNO_A0  = PA_0,
+    ARDUINO_UNO_A1  = PA_1,
+    ARDUINO_UNO_A2  = PA_4,
+    ARDUINO_UNO_A3  = PB_0,
+    ARDUINO_UNO_A4  = PC_1, // PB_9  with SB34 ON and SB35 OFF
+    ARDUINO_UNO_A5  = PC_0, // PA_15 with SB37 ON and SB36 OFF
+
+    ARDUINO_UNO_D0  = PC_5, // PA_3  with SB22 ON and SB19 OFF
+    ARDUINO_UNO_D1  = PC_4, // PA_2  with SB18 ON and SB13 OFF
+    ARDUINO_UNO_D2  = PA_10,
+    ARDUINO_UNO_D3  = PB_3,
+    ARDUINO_UNO_D4  = PB_5,
+    ARDUINO_UNO_D5  = PB_4,
+    ARDUINO_UNO_D6  = PB_10,
+    ARDUINO_UNO_D7  = PA_8,
+    ARDUINO_UNO_D8  = PA_9,
+    ARDUINO_UNO_D9  = PC_7,
+    ARDUINO_UNO_D10 = PB_6,
+    ARDUINO_UNO_D11 = PA_7,
+    ARDUINO_UNO_D12 = PA_6,
+    ARDUINO_UNO_D13 = PA_5,
+    ARDUINO_UNO_D14 = PB_9,
+    ARDUINO_UNO_D15 = PB_8,
+#endif
 
     // STDIO for console print
 #ifdef MBED_CONF_TARGET_STDIO_UART_TX
-    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+    CONSOLE_TX = MBED_CONF_TARGET_STDIO_UART_TX,
 #else
-    STDIO_UART_TX = PA_2,
+    CONSOLE_TX = PA_2,
 #endif
 #ifdef MBED_CONF_TARGET_STDIO_UART_RX
-    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+    CONSOLE_RX = MBED_CONF_TARGET_STDIO_UART_RX,
 #else
-    STDIO_UART_RX = PA_3,
+    CONSOLE_RX = PA_3,
 #endif
-
-    CONSOLE_TX = STDIO_UART_TX, // used for greentea tests
-    CONSOLE_RX = STDIO_UART_RX, // used for greentea tests
-
-    // Standardized LED and button names
-    LED1    = PA_5, // LD2 [green]
-    BUTTON1 = PC_13, // B1 [blue push button]
 
     /**** USB pins ****/
     USB_DM = PA_11,
@@ -188,6 +209,10 @@ typedef enum {
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
+
+// Standardized LED and button names
+#define LED1     PA_5   // LD2 [green]
+#define BUTTON1  PC_13  // B1 [blue push button]
 
 #ifdef __cplusplus
 }
