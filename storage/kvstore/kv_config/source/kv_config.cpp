@@ -88,19 +88,6 @@ int _storage_config_TDB_INTERNAL();
 int _storage_config_TDB_EXTERNAL();
 
 /**
- * @brief This function initialize a external memory secure storage
- *        This includes a SecureStore class with external TDBStore over a blockdevice or,
- *        if no blockdevice was set the default blockdevice will be used.
- *        The following is a list of configuration parameter:
- *        MBED_CONF_STORAGE_TDB_EXTERNAL_NO_RBP_EXTERNAL_SIZE - Size of the external blockdevice in bytes
- *                                                              or NULL for max possible size.
- *        MBED_CONF_STORAGE_TDB_EXTERNAL_NO_RBP_EXTERNAL_BASE_ADDRESS - The block device start address
- *        MBED_CONF_STORAGE_TDB_EXTERNAL_NO_RBP_EXTERNAL_BLOCK_DEVICE - Alowed vlaues are: default, SPIF, DATAFASH, QSPIF, OSPIF or SD
- * @returns 0 on success or negative value on failure.
- */
-int _storage_config_TDB_EXTERNAL_NO_RBP();
-
-/**
  * @brief This function initialize a FILESYSTEM memory secure storage
  *        This includes a SecureStore class with TDBStore over FlashIAPBlockdevice
  *        in the internal memory and an external FileSysteStore. If blockdevice and filesystem not set,
@@ -121,22 +108,6 @@ int _storage_config_TDB_EXTERNAL_NO_RBP();
  * @returns 0 on success or negative value on failure.
  */
 int _storage_config_FILESYSTEM();
-
-/**
- * @brief This function initialize a FILESYSTEM_NO_RBP memory secure storage with no
- *        rollback protection. This includes a SecureStore class an external FileSysteStore over a default
- *        filesystem with default blockdevice unless differently configured.
- *        The following is a list of configuration parameter:
- *        MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_FILESYSTEM - Allowed values are: default, FAT or LITTLE
- *        MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_BLOCKDEVICE - Allowed values are: default, SPIF, DATAFASH, QSPIF, OSPIF or SD
- *        MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_EXTERNAL_SIZE - Blockdevice size in bytes. or NULL for max possible size.
- *        MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_EXTERNAL_BASE_ADDRESS - The block device start address.
- *        MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_MOUNT_POINT - Where to mount the filesystem
- *        MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_FOLDER_PATH - The working folder paths
- *
- * @returns 0 on success or negative value on failure.
- */
-int _storage_config_FILESYSTEM_NO_RBP();
 
 int _storage_config_tdb_external_common();
 int _storage_config_filesystem_common();
@@ -494,8 +465,7 @@ BlockDevice *_get_blockdevice_SD(bd_addr_t start_address, bd_size_t size)
         return NULL;
     }
 
-    if (strcmp(STR(MBED_CONF_STORAGE_STORAGE_TYPE), "TDB_EXTERNAL_NO_RBP") == 0 ||
-            strcmp(STR(MBED_CONF_STORAGE_STORAGE_TYPE), "TDB_EXTERNAL") == 0) {
+    if (strcmp(STR(MBED_CONF_STORAGE_STORAGE_TYPE), "TDB_EXTERNAL") == 0) {
         //In TDBStore profile, we have a constraint of 4GByte
         if (start_address == 0 && size == 0  && bd.size() < (uint32_t)(-1)) {
             return &bd;
@@ -573,8 +543,7 @@ BlockDevice *_get_blockdevice_other(bd_addr_t start_address, bd_size_t size)
         return NULL;
     }
 
-    if (strcmp(STR(MBED_CONF_STORAGE_STORAGE_TYPE), "TDB_EXTERNAL_NO_RBP") == 0 ||
-            strcmp(STR(MBED_CONF_STORAGE_STORAGE_TYPE), "TDB_EXTERNAL") == 0) {
+    if (strcmp(STR(MBED_CONF_STORAGE_STORAGE_TYPE), "TDB_EXTERNAL") == 0) {
         //In TDBStore profile, we have a constraint of 4GByte
         if (start_address == 0 && size == 0  && bd->size() < (uint32_t)(-1)) {
             return bd;
@@ -746,35 +715,6 @@ int _storage_config_TDB_EXTERNAL()
 #endif
 }
 
-int _storage_config_TDB_EXTERNAL_NO_RBP()
-{
-#if !SECURESTORE_ENABLED
-    return MBED_ERROR_UNSUPPORTED;
-#endif
-
-#ifdef MBED_CONF_STORAGE_TDB_EXTERNAL_NO_RBP_EXTERNAL_BASE_ADDRESS
-    bd_size_t size = MBED_CONF_STORAGE_TDB_EXTERNAL_NO_RBP_EXTERNAL_SIZE;
-    bd_addr_t address = MBED_CONF_STORAGE_TDB_EXTERNAL_NO_RBP_EXTERNAL_BASE_ADDRESS;
-
-    //Get external block device
-    BlockDevice *bd = GET_BLOCKDEVICE(MBED_CONF_STORAGE_TDB_EXTERNAL_NO_RBP_BLOCKDEVICE, address, size);
-    if (bd == NULL) {
-        tr_error("KV Config: Fail to get external BlockDevice.");
-        return MBED_ERROR_FAILED_OPERATION ;
-    }
-
-    kvstore_config.external_bd = bd;
-
-    //Masking flag - Actually used to remove any KVStore flag which is not supported
-    //in the chosen KVStore profile.
-    kvstore_config.flags_mask = ~(KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
-
-    return _storage_config_tdb_external_common();
-#else
-    return MBED_ERROR_CONFIG_UNSUPPORTED;
-#endif
-}
-
 int _storage_config_tdb_external_common()
 {
 #if SECURESTORE_ENABLED
@@ -872,52 +812,6 @@ int _storage_config_FILESYSTEM()
     }
 
     kvstore_config.flags_mask = ~(0);
-
-    return _storage_config_filesystem_common();
-#else
-    return MBED_ERROR_CONFIG_UNSUPPORTED;
-#endif
-}
-
-int _storage_config_FILESYSTEM_NO_RBP()
-{
-#if !SECURESTORE_ENABLED
-    return MBED_ERROR_UNSUPPORTED;
-#endif
-
-#ifdef MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_EXTERNAL_BASE_ADDRESS
-    filesystemstore_folder_path = STR(MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_FOLDER_PATH);
-
-    bd_size_t size = MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_EXTERNAL_SIZE;
-    bd_addr_t address = MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_EXTERNAL_BASE_ADDRESS;
-    const char *mount_point = STR(MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_MOUNT_POINT);
-
-    //Get external block device for FileSystem.
-    kvstore_config.external_bd = GET_BLOCKDEVICE(MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_BLOCKDEVICE, address, size);
-    if (kvstore_config.external_bd == NULL) {
-        tr_error("KV Config: Fail to get external BlockDevice ");
-        return MBED_ERROR_FAILED_OPERATION ;
-    }
-
-    int ret = kvstore_config.external_bd->init();
-    if (MBED_SUCCESS != ret) {
-        tr_error("KV Config: Fail to init external BlockDevice ");
-        return MBED_ERROR_FAILED_OPERATION ;
-    }
-
-    //Get FileSystem. Can be FAT, LITTLE or default. in case of default, the type will be decided base on the default
-    //component block device configured in the system. The priority is:
-    //QSPI -> SPI -> DATAFLASH == LITTLE
-    //SD == FAT
-    kvstore_config.external_fs = GET_FILESYSTEM(MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_FILESYSTEM, mount_point);
-    if (kvstore_config.external_fs == NULL) {
-        tr_error("KV Config: Fail to get FileSystem");
-        return MBED_ERROR_FAILED_OPERATION ;
-    }
-
-    //Masking flag - Actually used to remove any KVStore flag which is not supported
-    //in the chosen KVStore profile.
-    kvstore_config.flags_mask = ~(KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
 
     return _storage_config_filesystem_common();
 #else
