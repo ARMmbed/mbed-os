@@ -387,8 +387,10 @@ public:
      * of both leads to undefined behavior.
      *
      *  @param status_cb The callback for status changes.
+     *
+     * @return Status code (@see nsapi_types.h).
      */
-    void add_event_listener(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
+    nsapi_error_t add_event_listener(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
 
 #if MBED_CONF_PLATFORM_CALLBACK_COMPARABLE
     /** Remove event listener from interface.

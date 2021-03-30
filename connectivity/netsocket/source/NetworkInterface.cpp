@@ -142,14 +142,19 @@ static void call_all_event_listeners(NetworkInterface *iface, nsapi_event_t even
     }
 }
 
-void NetworkInterface::add_event_listener(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
+nsapi_error_t NetworkInterface::add_event_listener(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
     iface_eventlist_t *event_list = get_interface_event_list_head();
-    iface_eventlist_entry_t *entry = new iface_eventlist_entry_t;
+    iface_eventlist_entry_t *entry = new (std::nothrow) iface_eventlist_entry_t;
+    if (!entry) {
+        return NSAPI_ERROR_NO_MEMORY;
+    }
+
     entry->iface = this;
     entry->status_cb = status_cb;
     ns_list_add_to_end(event_list, entry);
     attach(mbed::callback(&call_all_event_listeners, this));
+    return NSAPI_ERROR_OK;
 }
 
 #if MBED_CONF_PLATFORM_CALLBACK_COMPARABLE
