@@ -2393,7 +2393,7 @@
             "QSPI",
             "USBDEVICE"
         ],
-        "device_name": "STM32F746NG"
+        "device_name": "STM32F746NGHx"
     },
     "NUCLEO_F746ZG": {
         "inherits": [
@@ -2423,7 +2423,7 @@
             "EMAC",
             "USBDEVICE"
         ],
-        "device_name": "STM32F746ZG",
+        "device_name": "STM32F746ZGTx",
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
@@ -2457,7 +2457,7 @@
             "EMAC",
             "USBDEVICE"
         ],
-        "device_name": "STM32F756ZG",
+        "device_name": "STM32F756ZGTx",
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
@@ -2488,7 +2488,7 @@
         "features": [
             "LWIP"
         ],
-        "device_name": "STM32F767VI"
+        "device_name": "STM32F767VITx"
     },
     "NUCLEO_F767ZI": {
         "inherits": [
@@ -2522,7 +2522,7 @@
             "EMAC",
             "USBDEVICE"
         ],
-        "device_name": "STM32F767ZI",
+        "device_name": "STM32F767ZITx",
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
@@ -2559,7 +2559,7 @@
             "USBDEVICE",
             "QSPI"
         ],
-        "device_name": "STM32F769NI",
+        "device_name": "STM32F769NIHx",
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }

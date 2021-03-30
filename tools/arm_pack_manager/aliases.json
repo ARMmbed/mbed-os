@@ -1180,36 +1180,6 @@
       "SN32F70*B"
     ]
   },
-  "STM32756G-EVAL": {
-    "name": "STM32756G-EVAL",
-    "mounted_devices": [
-      "STM32F756NGHx"
-    ]
-  },
-  "STM32F7-SOM": {
-    "name": "STM32F7-SOM",
-    "mounted_devices": [
-      "STM32F746NGHx"
-    ]
-  },
-  "STM32F746G-Discovery": {
-    "name": "STM32F746G-Discovery",
-    "mounted_devices": [
-      "STM32F746NGHx"
-    ]
-  },
-  "STM32F769I-Discovery": {
-    "name": "STM32F769I-Discovery",
-    "mounted_devices": [
-      "STM32F769NIHx"
-    ]
-  },
-  "STM32F769I-EVAL": {
-    "name": "STM32F769I-EVAL",
-    "mounted_devices": [
-      "STM32F769NIHx"
-    ]
-  },
   "STM32H743I-EVAL": {
     "name": "STM32H743I-EVAL",
     "mounted_devices": [
