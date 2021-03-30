@@ -1216,40 +1216,10 @@
       "SN32F70*B"
     ]
   },
-  "STM32303C-EVAL": {
-    "name": "STM32303C-EVAL",
-    "mounted_devices": [
-      "STM32F303VC"
-    ]
-  },
-  "STM32303E-EVAL": {
-    "name": "STM32303E-EVAL",
-    "mounted_devices": [
-      "STM32F303VE"
-    ]
-  },
-  "STM32373C-EVAL": {
-    "name": "STM32373C-EVAL",
-    "mounted_devices": [
-      "STM32F373VC"
-    ]
-  },
   "STM32756G-EVAL": {
     "name": "STM32756G-EVAL",
     "mounted_devices": [
       "STM32F756NGHx"
-    ]
-  },
-  "STM32F3-Discovery": {
-    "name": "STM32F3-Discovery",
-    "mounted_devices": [
-      "STM32F303VC"
-    ]
-  },
-  "STM32F334-Discovery": {
-    "name": "STM32F334-Discovery",
-    "mounted_devices": [
-      "STM32F334C8"
     ]
   },
   "STM32F429I-Discovery": {

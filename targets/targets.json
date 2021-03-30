@@ -1638,7 +1638,7 @@
         "detect_code": [
             "0775"
         ],
-        "device_name": "STM32F303K8"
+        "device_name": "STM32F303K8Tx"
     },
     "MCU_STM32F303xC": {
         "inherits": [
@@ -1687,7 +1687,7 @@
         "detect_code": [
             "0745"
         ],
-        "device_name": "STM32F303RE"
+        "device_name": "STM32F303RETx"
     },
     "NUCLEO_F303ZE": {
         "inherits": [
@@ -1700,7 +1700,7 @@
         "detect_code": [
             "0747"
         ],
-        "device_name": "STM32F303ZE"
+        "device_name": "STM32F303ZETx"
     },
     "MCU_STM32F334x8": {
         "inherits": [
