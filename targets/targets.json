@@ -1766,7 +1766,7 @@
         "detect_code": [
             "0720"
         ],
-        "device_name": "STM32F401RE"
+        "device_name": "STM32F401RETx"
     },
     "MCU_STM32F407xE": {
         "inherits": [
@@ -1835,7 +1835,7 @@
         "detect_code": [
             "0740"
         ],
-        "device_name": "STM32F411RE"
+        "device_name": "STM32F411RETx"
     },
     "MTS_DRAGONFLY_F411RE": {
         "inherits": [
@@ -1851,7 +1851,7 @@
             "SERIAL_FC",
             "LPTICKER"
         ],
-        "device_name": "STM32F411RE",
+        "device_name": "STM32F411RETx",
         "detect_code": [
             "0454"
         ]
@@ -1873,7 +1873,7 @@
             "FLASH",
             "SERIAL_FC"
         ],
-        "device_name": "STM32F411RE",
+        "device_name": "STM32F411RETx",
         "detect_code": [
             "0320"
         ]
@@ -1908,7 +1908,7 @@
         "device_has_add": [
             "USBDEVICE"
         ],
-        "device_name": "STM32F412ZG"
+        "device_name": "STM32F412ZGTx"
     },
     "WIO_EMW3166": {
         "inherits": [
@@ -1918,7 +1918,7 @@
             "WICED",
             "CYW43362"
         ],
-        "device_name": "STM32F412ZG",
+        "device_name": "STM32F412ZGTx",
         "overrides": {
             "clock_source": "USE_PLL_HSI",
             "network-default-interface-type": "WIFI"
@@ -2000,7 +2000,7 @@
             "QSPI",
             "USBDEVICE"
         ],
-        "device_name": "STM32F413ZH"
+        "device_name": "STM32F413ZHTx"
     },
     "NUCLEO_F413ZH": {
         "inherits": [
@@ -2015,7 +2015,7 @@
         "device_has_add": [
             "USBDEVICE"
         ],
-        "device_name": "STM32F413ZH"
+        "device_name": "STM32F413ZHTx"
     },
     "MCU_STM32F429xI": {
         "inherits": [
@@ -2065,7 +2065,7 @@
         "detect_code": [
             "0796"
         ],
-        "device_name": "STM32F429ZI",
+        "device_name": "STM32F429ZITx",
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
@@ -2086,7 +2086,7 @@
         "device_has_remove": [
             "LPTICKER"
         ],
-        "device_name": "STM32F429ZI",
+        "device_name": "STM32F429ZITx",
         "detect_code": [
             "0795"
         ]
@@ -2127,7 +2127,7 @@
         "detect_code": [
             "9014"
         ],
-        "device_name": "STM32F439VI"
+        "device_name": "STM32F439VITx"
     },
     "WIO_BG96": {
         "inherits": [
@@ -2150,7 +2150,7 @@
         "detect_code": [
             "9015"
         ],
-        "device_name": "STM32F439VI",
+        "device_name": "STM32F439VITx",
         "components_add": [
             "SD"
         ]
@@ -2180,7 +2180,7 @@
         "detect_code": [
             "0797"
         ],
-        "device_name": "STM32F439ZI",
+        "device_name": "STM32F439ZITx",
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
@@ -2212,7 +2212,7 @@
         "detect_code": [
             "0777"
         ],
-        "device_name": "STM32F446RE"
+        "device_name": "STM32F446RETx"
     },
     "NUCLEO_F446ZE": {
         "inherits": [
@@ -2234,7 +2234,7 @@
         "device_has_add": [
             "USBDEVICE"
         ],
-        "device_name": "STM32F446ZE"
+        "device_name": "STM32F446ZETx"
     },
     "MCU_STM32F469xI": {
         "inherits": [
@@ -2276,7 +2276,7 @@
             "QSPI",
             "USBDEVICE"
         ],
-        "device_name": "STM32F469NI"
+        "device_name": "STM32F469NIHx"
     },
     "SDP_K1": {
         "inherits": [
@@ -2307,7 +2307,7 @@
         "device_has_remove": [
             "LPTICKER"
         ],
-        "device_name": "STM32F469NI",
+        "device_name": "STM32F469NIHx",
         "detect_code": [
             "0604"
         ]
