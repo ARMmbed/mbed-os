@@ -1567,7 +1567,7 @@
         "device_has_add": [
             "USBDEVICE"
         ],
-        "device_name": "STM32F207ZG",
+        "device_name": "STM32F207ZGTx",
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }

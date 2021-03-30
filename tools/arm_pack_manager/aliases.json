@@ -771,12 +771,6 @@
       "NUC140VE3AN"
     ]
   },
-  "MCBSTM32F200": {
-    "name": "MCBSTM32F200",
-    "mounted_devices": [
-      "STM32F207IG"
-    ]
-  },
   "MCBSTM32F400": {
     "name": "MCBSTM32F400",
     "mounted_devices": [
