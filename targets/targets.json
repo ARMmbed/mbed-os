@@ -1351,7 +1351,7 @@
         "detect_code": [
             "0755"
         ],
-        "device_name": "STM32F070RB"
+        "device_name": "STM32F070RBTx"
     },
     "MCU_STM32F072xB": {
         "inherits": [
@@ -1380,7 +1380,7 @@
         "detect_code": [
             "0730"
         ],
-        "device_name": "STM32F072RB"
+        "device_name": "STM32F072RBTx"
     },
     "MCU_STM32F091xC": {
         "inherits": [
@@ -1409,7 +1409,7 @@
         "detect_code": [
             "0750"
         ],
-        "device_name": "STM32F091RC"
+        "device_name": "STM32F091RCTx"
     },
     "MCU_STM32F1": {
         "inherits": [

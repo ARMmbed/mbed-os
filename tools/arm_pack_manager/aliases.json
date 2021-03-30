@@ -950,18 +950,6 @@
       "nRF51422_xxAA"
     ]
   },
-  "NUCLEO-F072RB": {
-    "name": "NUCLEO-F072RB",
-    "mounted_devices": [
-      "STM32F072RB"
-    ]
-  },
-  "NUCLEO-F091RC": {
-    "name": "NUCLEO-F091RC",
-    "mounted_devices": [
-      "STM32F091RC"
-    ]
-  },
   "NUCLEO-F103RB": {
     "name": "NUCLEO-F103RB",
     "mounted_devices": [
@@ -1256,18 +1244,6 @@
     "name": "SN32F770 Starter Kit Rev1_0",
     "mounted_devices": [
       "SN32F70*B"
-    ]
-  },
-  "STM32072B-EVAL": {
-    "name": "STM32072B-EVAL",
-    "mounted_devices": [
-      "STM32F072VB"
-    ]
-  },
-  "STM32091C-EVAL": {
-    "name": "STM32091C-EVAL",
-    "mounted_devices": [
-      "STM32F091VC"
     ]
   },
   "STM32303C-EVAL": {
