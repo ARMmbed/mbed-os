@@ -34,7 +34,7 @@
 #define RAM_FIXED_SIZE  (Stack_Size + VECTOR_SIZE)
 
 LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
-    ER_IROM1 MBED_APP_START MBED_APP_START  {  ; load address = execution address 
+    ER_IROM1 MBED_APP_START MBED_APP_SIZE  {  ; load address = execution address 
         *.o (RESET, +First)
         *(InRoot$$Sections)
         .ANY (+RO)
