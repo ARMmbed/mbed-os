@@ -908,12 +908,6 @@
       "nRF51422_xxAA"
     ]
   },
-  "NUCLEO-L152RE": {
-    "name": "NUCLEO-L152RE",
-    "mounted_devices": [
-      "STM32L152RE"
-    ]
-  },
   "NUCLEO-L476RG": {
     "name": "NUCLEO-L476RG",
     "mounted_devices": [
@@ -1178,12 +1172,6 @@
     "name": "SN32F770 Starter Kit Rev1_0",
     "mounted_devices": [
       "SN32F70*B"
-    ]
-  },
-  "STM32L-Discovery": {
-    "name": "STM32L-Discovery",
-    "mounted_devices": [
-      "STM32L152RB"
     ]
   },
   "STM32L476G-EVAL": {
