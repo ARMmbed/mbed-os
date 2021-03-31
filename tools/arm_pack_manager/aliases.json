@@ -1186,12 +1186,6 @@
       "STM32L152RB"
     ]
   },
-  "STM32L073Z-EVAL": {
-    "name": "STM32L073Z-EVAL",
-    "mounted_devices": [
-      "STM32L073VZ"
-    ]
-  },
   "STM32L476G-EVAL": {
     "name": "STM32L476G-EVAL",
     "mounted_devices": [

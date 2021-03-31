@@ -3332,7 +3332,7 @@
         "detect_code": [
             "0833"
         ],
-        "device_name": "STM32L072CZ"
+        "device_name": "STM32L072CZTx"
     },
     "MCU_STM32L073xZ": {
         "inherits": [
@@ -3361,7 +3361,7 @@
         "detect_code": [
             "0760"
         ],
-        "device_name": "STM32L073RZ"
+        "device_name": "STM32L073RZTx"
     },
     "MCU_STM32L082xZ": {
         "inherits": [
