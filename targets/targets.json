@@ -2968,7 +2968,7 @@
         "detect_code": [
             "0836"
         ],
-        "device_name": "STM32H743ZI"
+        "device_name": "STM32H743ZITx"
     },
     "MCU_STM32H745xI": {
         "inherits": [
@@ -3197,10 +3197,6 @@
         ],
         "public": false,
         "core": "Cortex-M7FD",
-        "mbed_rom_start": "0x08000000",
-        "mbed_rom_size": "0x200000",
-        "mbed_ram_start": "0x24000000",
-        "mbed_ram_size": "0x100000",
         "extra_labels_add": [
             "STM32H7A3xIQ"
         ],
@@ -3224,6 +3220,7 @@
         "supported_form_factors": [
             "ARDUINO_UNO"
         ],
+        "device_name": "STM32H7A3ZITxQ",
         "detect_code": [
             "0860"
         ]

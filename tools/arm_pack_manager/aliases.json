@@ -1180,12 +1180,6 @@
       "SN32F70*B"
     ]
   },
-  "STM32H743I-EVAL": {
-    "name": "STM32H743I-EVAL",
-    "mounted_devices": [
-      "STM32H743XI"
-    ]
-  },
   "STM32L-Discovery": {
     "name": "STM32L-Discovery",
     "mounted_devices": [
