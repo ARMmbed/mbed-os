@@ -908,12 +908,6 @@
       "nRF51422_xxAA"
     ]
   },
-  "NUCLEO-L476RG": {
-    "name": "NUCLEO-L476RG",
-    "mounted_devices": [
-      "STM32L476RG"
-    ]
-  },
   "NuTiny-SDK-M051": {
     "name": "NuTiny-SDK-M051",
     "mounted_devices": [
@@ -1172,24 +1166,6 @@
     "name": "SN32F770 Starter Kit Rev1_0",
     "mounted_devices": [
       "SN32F70*B"
-    ]
-  },
-  "STM32L476G-EVAL": {
-    "name": "STM32L476G-EVAL",
-    "mounted_devices": [
-      "STM32L476ZG"
-    ]
-  },
-  "STM32L496G-Discovery": {
-    "name": "STM32L496G-Discovery",
-    "mounted_devices": [
-      "STM32L496AGIx"
-    ]
-  },
-  "STM32L4R9I-EVAL": {
-    "name": "STM32L4R9I-EVAL",
-    "mounted_devices": [
-      "STM32L4R9AIIx"
     ]
   },
   "TLE984x Eval.Board Rev1.4": {
