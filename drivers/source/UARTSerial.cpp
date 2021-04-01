@@ -28,8 +28,6 @@ UARTSerial::UARTSerial(PinName tx, PinName rx, int baud) :
     _blocking(true),
     _tx_irq_enabled(false),
     _rx_irq_enabled(false),
-    _tx_enabled(true),
-    _rx_enabled(true),
     _dcd_irq(NULL)
 {
     /* Attatch IRQ routines to the serial device. */
@@ -41,8 +39,6 @@ UARTSerial::UARTSerial(const serial_pinmap_t &static_pinmap, int baud) :
     _blocking(true),
     _tx_irq_enabled(false),
     _rx_irq_enabled(false),
-    _tx_enabled(true),
-    _rx_enabled(true),
     _dcd_irq(NULL)
 {
     /* Attatch IRQ routines to the serial device. */

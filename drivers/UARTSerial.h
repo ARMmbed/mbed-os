@@ -296,8 +296,6 @@ private:
     bool _blocking;
     bool _tx_irq_enabled;
     bool _rx_irq_enabled;
-    bool _tx_enabled;
-    bool _rx_enabled;
     InterruptIn *_dcd_irq;
 
     /** Device Hanged up
