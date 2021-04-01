@@ -32,7 +32,7 @@ extern "C" {
   * @{
   */
 
-/** @addtogroup IWDG
+/** @defgroup IWDG IWDG
   * @{
   */
 
@@ -62,8 +62,8 @@ typedef struct
   IWDG_TypeDef                 *Instance;  /*!< Register base address    */
 
   IWDG_InitTypeDef             Init;       /*!< IWDG required parameters */
-
 } IWDG_HandleTypeDef;
+
 
 /**
   * @}
@@ -77,21 +77,23 @@ typedef struct
 /** @defgroup IWDG_Prescaler IWDG Prescaler
   * @{
   */
-#define IWDG_PRESCALER_4                0x00000000U                   /*!< IWDG prescaler set to 4   */
-#define IWDG_PRESCALER_8                IWDG_PR_PR_0                  /*!< IWDG prescaler set to 8   */
-#define IWDG_PRESCALER_16               IWDG_PR_PR_1                  /*!< IWDG prescaler set to 16  */
-#define IWDG_PRESCALER_32               (IWDG_PR_PR_1 | IWDG_PR_PR_0) /*!< IWDG prescaler set to 32  */
-#define IWDG_PRESCALER_64               IWDG_PR_PR_2                  /*!< IWDG prescaler set to 64  */
-#define IWDG_PRESCALER_128              (IWDG_PR_PR_2 | IWDG_PR_PR_0) /*!< IWDG prescaler set to 128 */
-#define IWDG_PRESCALER_256              (IWDG_PR_PR_2 | IWDG_PR_PR_1) /*!< IWDG prescaler set to 256 */
-/**
-  * @}
-  */
+#define IWDG_PRESCALER_4                0x00000000U                                     /*!< IWDG prescaler set to 4   */
+#define IWDG_PRESCALER_8                IWDG_PR_PR_0                                    /*!< IWDG prescaler set to 8   */
+#define IWDG_PRESCALER_16               IWDG_PR_PR_1                                    /*!< IWDG prescaler set to 16  */
+#define IWDG_PRESCALER_32               (IWDG_PR_PR_1 | IWDG_PR_PR_0)                   /*!< IWDG prescaler set to 32  */
+#define IWDG_PRESCALER_64               IWDG_PR_PR_2                                    /*!< IWDG prescaler set to 64  */
+#define IWDG_PRESCALER_128              (IWDG_PR_PR_2 | IWDG_PR_PR_0)                   /*!< IWDG prescaler set to 128 */
+#define IWDG_PRESCALER_256              (IWDG_PR_PR_2 | IWDG_PR_PR_1)                   /*!< IWDG prescaler set to 256 */
 
 /**
   * @}
   */
 
+
+
+/**
+  * @}
+  */
 
 /* Exported macros -----------------------------------------------------------*/
 /** @defgroup IWDG_Exported_Macros IWDG Exported Macros
@@ -107,7 +109,7 @@ typedef struct
 
 /**
   * @brief  Reload IWDG counter with value defined in the reload register
-  *         (write access to IWDG_PR & IWDG_RLR registers disabled).
+  *         (write access to IWDG_PR and IWDG_RLR registers disabled).
   * @param  __HANDLE__  IWDG handle
   * @retval None
   */
@@ -199,6 +201,8 @@ HAL_StatusTypeDef HAL_IWDG_Refresh(IWDG_HandleTypeDef *hiwdg);
   * @retval None
   */
 #define IS_IWDG_RELOAD(__RELOAD__)            ((__RELOAD__) <= IWDG_RLR_RL)
+
+
 
 /**
   * @}
