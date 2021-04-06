@@ -1729,13 +1729,18 @@ void GattServer::handleEvent(
     GattAttribute::Handle_t attributeHandle
 )
 {
+    // To be used in cases where the characteristic value handle differs from the attribute handle
+    GattAttribute::Handle_t charHandle;
+
     switch (type) {
         case GattServerEvents::GATT_EVENT_UPDATES_ENABLED:
             tr_info("Updates enabled for attribute %d on connection %d", attributeHandle, connHandle);
+            get_value_handle_by_cccd_handle(attributeHandle, charHandle);
             if(eventHandler) {
                 GattUpdatesEnabledCallbackParams params({
                     .connHandle = connHandle,
-                    .attHandle = attributeHandle
+                    .attHandle = attributeHandle,
+                    .charHandle = charHandle
                 });
                 eventHandler->onUpdatesEnabled(params);
             }
@@ -1747,10 +1752,12 @@ void GattServer::handleEvent(
             break;
         case GattServerEvents::GATT_EVENT_UPDATES_DISABLED:
             tr_info("Updates disabled for attribute %d on connection %d", attributeHandle, connHandle);
+            get_value_handle_by_cccd_handle(attributeHandle, charHandle);
             if(eventHandler) {
                 GattUpdatesDisabledCallbackParams params({
                     .connHandle = connHandle,
-                    .attHandle = attributeHandle
+                    .attHandle = attributeHandle,
+                    .charHandle = charHandle
                 });
                 eventHandler->onUpdatesDisabled(params);
             }
