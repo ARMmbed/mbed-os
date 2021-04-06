@@ -174,9 +174,12 @@ int TDBStore::erase_area(uint8_t area, uint32_t offset, uint32_t size)
 {
     uint32_t bd_offset = _area_params[area].address + offset;
 
-    if (_buff_bd->get_erase_value() != -1) {
-        return _buff_bd->erase(bd_offset, size);
-    } else {
+    int ret = _buff_bd->erase(bd_offset, size);
+    if (ret) {
+        return ret;
+    }
+
+    if (_buff_bd->get_erase_value() == -1) {
         // We need to simulate erase to wipe records, as our block device
         // may not do it. Program in chunks of _work_buf_size if the minimum
         // program size is too small (e.g. one-byte) to avoid performance
@@ -186,7 +189,7 @@ int TDBStore::erase_area(uint8_t area, uint32_t offset, uint32_t size)
         memset(_work_buf, 0xFF, _work_buf_size);
         while (size) {
             uint32_t chunk = std::min<uint32_t>(_work_buf_size, size);
-            int ret = _buff_bd->program(_work_buf, bd_offset, chunk);
+            ret = _buff_bd->program(_work_buf, bd_offset, chunk);
             if (ret) {
                 return ret;
             }
