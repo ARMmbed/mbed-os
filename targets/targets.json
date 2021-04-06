@@ -4346,6 +4346,56 @@
             "network-default-interface-type": "ETHERNET"
         }
     },
+    "MIMXRT1170_EVK": {
+        "supported_form_factors": [
+            "ARDUINO_UNO"
+        ],
+        "core": "Cortex-M7FD",
+        "supported_toolchains": [
+            "GCC_ARM"
+        ],
+        "extra_labels": [
+            "NXP",
+            "MCUXpresso_MCUS",
+            "EVK",
+            "MIMXRT1170",
+	        "IMX"
+        ],
+        "is_disk_virtual": true,
+        "macros": [
+            "CPU_MIMXRT1176DVMAA_cm7",
+            "XIP_BOOT_HEADER_ENABLE=1",
+            "XIP_EXTERNAL_FLASH=1",
+            "XIP_BOOT_HEADER_DCD_ENABLE=1",
+            "SKIP_SYSCLK_INIT",
+            "MBED_MPU_CUSTOM"
+        ],
+        "inherits": [
+            "Target"
+        ],
+        "detect_code": [
+            "0228"
+        ],
+        "device_has": [
+            "ANALOGIN",
+            "INTERRUPTIN",
+            "I2C",
+            "I2CSLAVE",
+            "PWMOUT",
+            "SERIAL",
+            "SPI",
+            "SPISLAVE",
+            "LPTICKER",
+            "USTICKER"
+        ],
+        "supported_application_profiles" : ["full", "bare-metal"],
+        "supported_c_libs": {
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
+        }
+    },
     "LPC54114": {
         "supported_form_factors": [
             "ARDUINO"
