@@ -1,15 +1,15 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-evk INTERFACE)
+add_library(mbed-rt1170-evk INTERFACE)
 
-target_include_directories(mbed-evk
+target_include_directories(mbed-rt1170-evk
     INTERFACE
         .
         xip
 )
 
-target_sources(mbed-evk
+target_sources(mbed-rt1170-evk
     INTERFACE
         analogin_api.c
         flash_api.c

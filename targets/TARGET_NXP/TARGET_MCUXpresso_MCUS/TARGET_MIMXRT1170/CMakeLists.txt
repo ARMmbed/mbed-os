@@ -45,7 +45,7 @@ target_sources(mbed-mimxrt1170-evk
 target_link_libraries(mbed-mimxrt1170-evk
     INTERFACE
         mbed-mcuxpresso-mcus
-        mbed-evk-rt1170
+        mbed-evk
         mbed-imx
 )
 
