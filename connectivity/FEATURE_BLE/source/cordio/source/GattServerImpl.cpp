@@ -1542,6 +1542,15 @@ bool GattServer::get_cccd_index_by_value_handle(GattAttribute::Handle_t char_han
     return false;
 }
 
+bool GattServer::get_value_handle_by_cccd_handle(GattAttribute::Handle_t cccd_handle, GattAttribute::Handle_t &char_handle) const {
+    uint8_t idx;
+    if (!get_cccd_index_by_cccd_handle(cccd_handle, idx)) {
+        return false;
+    }
+    char_handle = cccd_handles[idx];
+    return true;
+}
+
 bool GattServer::is_update_authorized(
     connection_handle_t connection,
     GattAttribute::Handle_t value_handle
