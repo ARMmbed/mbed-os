@@ -72,6 +72,14 @@ target_compile_definitions(mbed-core
         ${MBED_CONFIG_DEFINITIONS}
 )
 
+# Backward compatibility with mbed-cli 1
+if(BUILD_TESTING)
+target_compile_definitions(mbed-core
+    INTERFACE
+        MBED_TEST_MODE
+)
+endif()
+
 # We need to generate a "response file" to pass to the C preprocessor when we preprocess the linker
 # script, because of path length limitations on Windows. We set the response file and bind the path
 # to a global property here. The MBED_TARGET being built queries this global property when it sets
