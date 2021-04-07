@@ -76,6 +76,11 @@ void analogin_init(analogin_t *obj, PinName pin)
     if (HAL_ADC_Init(&obj->handle) != HAL_OK) {
         error("Cannot initialize ADC");
     }
+}
+
+uint16_t adc_read(analogin_t *obj)
+{
+    ADC_ChannelConfTypeDef sConfig = {0};
 
     if (!__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY)) {
         // Enable the HSI (to clock the ADC)
@@ -86,11 +91,6 @@ void analogin_init(analogin_t *obj, PinName pin)
         RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
         HAL_RCC_OscConfig(&RCC_OscInitStruct);
     }
-}
-
-uint16_t adc_read(analogin_t *obj)
-{
-    ADC_ChannelConfTypeDef sConfig = {0};
 
     // Configure ADC channel
     sConfig.Rank         = ADC_REGULAR_RANK_1;
