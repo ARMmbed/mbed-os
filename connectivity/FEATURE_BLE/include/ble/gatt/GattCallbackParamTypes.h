@@ -444,11 +444,11 @@ struct GattDataSentCallbackParams {
 };
 
 /**
- * Gatt Updates Enabled Attribute related events
+ * Gatt Updates Changed Attribute related events
  *
- * Used by `onUpdatesEnabled`
+ * Used by `onUpdatesEnabled` and 'onUpdatesDisabled'
  */
-struct GattUpdatesEnabledCallbackParams {
+struct GattUpdatesChangedCallbackParams {
 
     /**
      * The handle of the connection that triggered the event.
@@ -461,14 +461,15 @@ struct GattUpdatesEnabledCallbackParams {
     GattAttribute::Handle_t attHandle;
 
     /**
-     * The handle of the characteristic containing the CCCD  
+     * The value handle of the characteristic containing the CCCD  
      */
     GattAttribute::Handle_t charHandle;
     
 };
 
-using GattUpdatesDisabledCallbackParams       = GattUpdatesEnabledCallbackParams;
-using GattConfirmationReceivedCallbackParams  = GattDataSentCallbackParams;
+using GattUpdatesEnabledCallbackParams       = GattUpdatesChangedCallbackParams;
+using GattUpdatesDisabledCallbackParams      = GattUpdatesChangedCallbackParams;
+using GattConfirmationReceivedCallbackParams = GattDataSentCallbackParams;
 
 namespace ble {
 
