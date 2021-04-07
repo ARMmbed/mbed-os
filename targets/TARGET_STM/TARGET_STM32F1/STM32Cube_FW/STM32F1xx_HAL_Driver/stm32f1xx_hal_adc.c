@@ -1711,23 +1711,26 @@ HAL_StatusTypeDef HAL_ADC_Stop_DMA(ADC_HandleTypeDef* hadc)
     
     /* Disable the DMA channel (in case of DMA in circular mode or stop while */
     /* DMA transfer is on going)                                              */
-    tmp_hal_status = HAL_DMA_Abort(hadc->DMA_Handle);
-    
-    /* Check if DMA channel effectively disabled */
-    if (tmp_hal_status == HAL_OK)
+    if (hadc->DMA_Handle->State == HAL_DMA_STATE_BUSY)
     {
-      /* Set ADC state */
-      ADC_STATE_CLR_SET(hadc->State,
-                        HAL_ADC_STATE_REG_BUSY | HAL_ADC_STATE_INJ_BUSY,
-                        HAL_ADC_STATE_READY);
-    }
-    else
-    {
-      /* Update ADC state machine to error */
-      SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_DMA);
+      tmp_hal_status = HAL_DMA_Abort(hadc->DMA_Handle);
+      
+      /* Check if DMA channel effectively disabled */
+      if (tmp_hal_status == HAL_OK)
+      {
+        /* Set ADC state */
+        ADC_STATE_CLR_SET(hadc->State,
+                          HAL_ADC_STATE_REG_BUSY | HAL_ADC_STATE_INJ_BUSY,
+                          HAL_ADC_STATE_READY);
+      }
+      else
+      {
+        /* Update ADC state machine to error */
+        SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_DMA);
+      }
     }
   }
-    
+  
   /* Process unlocked */
   __HAL_UNLOCK(hadc);
     
