@@ -1,6 +1,10 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+if(NOT ${CMAKE_CROSSCOMPILING})
+    add_subdirectory(tests/UNITTESTS)
+endif()
+
 # TODO CMake: Perhaps move this/these file(s) into connectivity/drivers/cellular
 target_sources(mbed-cellular
     INTERFACE
