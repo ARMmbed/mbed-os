@@ -47,7 +47,7 @@ extern "C" {
 #error "RTC clock configuration is invalid!"
 #endif
 
-#if (MBED_CONF_TARGET_RTC_CLOCK_SOURCE == USE_RTC_CLK_HSE) && !(TARGET_STM32F2 || TARGET_STM32F3 || TARGET_STM32F4)
+#if (MBED_CONF_TARGET_RTC_CLOCK_SOURCE == USE_RTC_CLK_HSE) && !(TARGET_STM32F2 || TARGET_STM32F4 || TARGET_STM32F7)
 #error "RTC from HSE not supported for this target"
 #endif
 
@@ -64,13 +64,14 @@ extern "C" {
 #endif
 
 #if DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM
+
+#if (MBED_CONF_TARGET_RTC_CLOCK_SOURCE == USE_RTC_CLK_HSE)
+#error "LPTICKER is not available with HSE as RTC clock source and should be removed from the target configuration."
+#endif
+
 /* PREDIV_A : 7-bit asynchronous prescaler */
 /* PREDIV_A is set to set LPTICKER frequency to RTC_CLOCK/4 */
-#if (MBED_CONF_TARGET_RTC_CLOCK_SOURCE == USE_RTC_CLK_HSE)
-#define PREDIV_A_VALUE 124
-#else
 #define PREDIV_A_VALUE 3
-#endif
 
 /** Read RTC counter with sub second precision
  *
