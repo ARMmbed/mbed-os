@@ -1351,7 +1351,7 @@
         "detect_code": [
             "0755"
         ],
-        "device_name": "STM32F070RB"
+        "device_name": "STM32F070RBTx"
     },
     "MCU_STM32F072xB": {
         "inherits": [
@@ -1380,7 +1380,7 @@
         "detect_code": [
             "0730"
         ],
-        "device_name": "STM32F072RB"
+        "device_name": "STM32F072RBTx"
     },
     "MCU_STM32F091xC": {
         "inherits": [
@@ -1409,7 +1409,7 @@
         "detect_code": [
             "0750"
         ],
-        "device_name": "STM32F091RC"
+        "device_name": "STM32F091RCTx"
     },
     "MCU_STM32F1": {
         "inherits": [
@@ -1567,7 +1567,7 @@
         "device_has_add": [
             "USBDEVICE"
         ],
-        "device_name": "STM32F207ZG",
+        "device_name": "STM32F207ZGTx",
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
@@ -1638,7 +1638,7 @@
         "detect_code": [
             "0775"
         ],
-        "device_name": "STM32F303K8"
+        "device_name": "STM32F303K8Tx"
     },
     "MCU_STM32F303xC": {
         "inherits": [
@@ -1687,7 +1687,7 @@
         "detect_code": [
             "0745"
         ],
-        "device_name": "STM32F303RE"
+        "device_name": "STM32F303RETx"
     },
     "NUCLEO_F303ZE": {
         "inherits": [
@@ -1700,7 +1700,7 @@
         "detect_code": [
             "0747"
         ],
-        "device_name": "STM32F303ZE"
+        "device_name": "STM32F303ZETx"
     },
     "MCU_STM32F334x8": {
         "inherits": [
@@ -1766,7 +1766,7 @@
         "detect_code": [
             "0720"
         ],
-        "device_name": "STM32F401RE"
+        "device_name": "STM32F401RETx"
     },
     "MCU_STM32F407xE": {
         "inherits": [
@@ -1835,7 +1835,7 @@
         "detect_code": [
             "0740"
         ],
-        "device_name": "STM32F411RE"
+        "device_name": "STM32F411RETx"
     },
     "MTS_DRAGONFLY_F411RE": {
         "inherits": [
@@ -1851,7 +1851,7 @@
             "SERIAL_FC",
             "LPTICKER"
         ],
-        "device_name": "STM32F411RE",
+        "device_name": "STM32F411RETx",
         "detect_code": [
             "0454"
         ]
@@ -1873,7 +1873,7 @@
             "FLASH",
             "SERIAL_FC"
         ],
-        "device_name": "STM32F411RE",
+        "device_name": "STM32F411RETx",
         "detect_code": [
             "0320"
         ]
@@ -1908,7 +1908,7 @@
         "device_has_add": [
             "USBDEVICE"
         ],
-        "device_name": "STM32F412ZG"
+        "device_name": "STM32F412ZGTx"
     },
     "WIO_EMW3166": {
         "inherits": [
@@ -1918,7 +1918,7 @@
             "WICED",
             "CYW43362"
         ],
-        "device_name": "STM32F412ZG",
+        "device_name": "STM32F412ZGTx",
         "overrides": {
             "clock_source": "USE_PLL_HSI",
             "network-default-interface-type": "WIFI"
@@ -2000,7 +2000,7 @@
             "QSPI",
             "USBDEVICE"
         ],
-        "device_name": "STM32F413ZH"
+        "device_name": "STM32F413ZHTx"
     },
     "NUCLEO_F413ZH": {
         "inherits": [
@@ -2015,7 +2015,7 @@
         "device_has_add": [
             "USBDEVICE"
         ],
-        "device_name": "STM32F413ZH"
+        "device_name": "STM32F413ZHTx"
     },
     "MCU_STM32F429xI": {
         "inherits": [
@@ -2065,7 +2065,7 @@
         "detect_code": [
             "0796"
         ],
-        "device_name": "STM32F429ZI",
+        "device_name": "STM32F429ZITx",
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
@@ -2086,7 +2086,7 @@
         "device_has_remove": [
             "LPTICKER"
         ],
-        "device_name": "STM32F429ZI",
+        "device_name": "STM32F429ZITx",
         "detect_code": [
             "0795"
         ]
@@ -2127,7 +2127,7 @@
         "detect_code": [
             "9014"
         ],
-        "device_name": "STM32F439VI"
+        "device_name": "STM32F439VITx"
     },
     "WIO_BG96": {
         "inherits": [
@@ -2150,7 +2150,7 @@
         "detect_code": [
             "9015"
         ],
-        "device_name": "STM32F439VI",
+        "device_name": "STM32F439VITx",
         "components_add": [
             "SD"
         ]
@@ -2180,7 +2180,7 @@
         "detect_code": [
             "0797"
         ],
-        "device_name": "STM32F439ZI",
+        "device_name": "STM32F439ZITx",
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
@@ -2212,7 +2212,7 @@
         "detect_code": [
             "0777"
         ],
-        "device_name": "STM32F446RE"
+        "device_name": "STM32F446RETx"
     },
     "NUCLEO_F446ZE": {
         "inherits": [
@@ -2234,7 +2234,7 @@
         "device_has_add": [
             "USBDEVICE"
         ],
-        "device_name": "STM32F446ZE"
+        "device_name": "STM32F446ZETx"
     },
     "MCU_STM32F469xI": {
         "inherits": [
@@ -2276,7 +2276,7 @@
             "QSPI",
             "USBDEVICE"
         ],
-        "device_name": "STM32F469NI"
+        "device_name": "STM32F469NIHx"
     },
     "SDP_K1": {
         "inherits": [
@@ -2307,7 +2307,7 @@
         "device_has_remove": [
             "LPTICKER"
         ],
-        "device_name": "STM32F469NI",
+        "device_name": "STM32F469NIHx",
         "detect_code": [
             "0604"
         ]
@@ -2393,7 +2393,7 @@
             "QSPI",
             "USBDEVICE"
         ],
-        "device_name": "STM32F746NG"
+        "device_name": "STM32F746NGHx"
     },
     "NUCLEO_F746ZG": {
         "inherits": [
@@ -2423,7 +2423,7 @@
             "EMAC",
             "USBDEVICE"
         ],
-        "device_name": "STM32F746ZG",
+        "device_name": "STM32F746ZGTx",
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
@@ -2457,7 +2457,7 @@
             "EMAC",
             "USBDEVICE"
         ],
-        "device_name": "STM32F756ZG",
+        "device_name": "STM32F756ZGTx",
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
@@ -2488,7 +2488,7 @@
         "features": [
             "LWIP"
         ],
-        "device_name": "STM32F767VI"
+        "device_name": "STM32F767VITx"
     },
     "NUCLEO_F767ZI": {
         "inherits": [
@@ -2522,7 +2522,7 @@
             "EMAC",
             "USBDEVICE"
         ],
-        "device_name": "STM32F767ZI",
+        "device_name": "STM32F767ZITx",
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
@@ -2559,7 +2559,7 @@
             "USBDEVICE",
             "QSPI"
         ],
-        "device_name": "STM32F769NI",
+        "device_name": "STM32F769NIHx",
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
@@ -2968,7 +2968,7 @@
         "detect_code": [
             "0836"
         ],
-        "device_name": "STM32H743ZI"
+        "device_name": "STM32H743ZITx"
     },
     "MCU_STM32H745xI": {
         "inherits": [
@@ -3197,10 +3197,6 @@
         ],
         "public": false,
         "core": "Cortex-M7FD",
-        "mbed_rom_start": "0x08000000",
-        "mbed_rom_size": "0x200000",
-        "mbed_ram_start": "0x24000000",
-        "mbed_ram_size": "0x100000",
         "extra_labels_add": [
             "STM32H7A3xIQ"
         ],
@@ -3224,6 +3220,7 @@
         "supported_form_factors": [
             "ARDUINO_UNO"
         ],
+        "device_name": "STM32H7A3ZITxQ",
         "detect_code": [
             "0860"
         ]
@@ -3335,7 +3332,7 @@
         "detect_code": [
             "0833"
         ],
-        "device_name": "STM32L072CZ"
+        "device_name": "STM32L072CZTx"
     },
     "MCU_STM32L073xZ": {
         "inherits": [
@@ -3364,7 +3361,7 @@
         "detect_code": [
             "0760"
         ],
-        "device_name": "STM32L073RZ"
+        "device_name": "STM32L073RZTx"
     },
     "MCU_STM32L082xZ": {
         "inherits": [
@@ -3436,7 +3433,7 @@
         "device_has_remove": [
             "SERIAL_FC"
         ],
-        "device_name": "STM32L151CC",
+        "device_name": "STM32L151CCTx",
         "detect_code": [
             "0350"
         ]
@@ -3477,7 +3474,7 @@
         "device_has_remove": [
             "SERIAL_FC"
         ],
-        "device_name": "STM32L152RC"
+        "device_name": "STM32L152RCTx"
     },
     "MCU_STM32L152xE": {
         "inherits": [
@@ -3502,7 +3499,7 @@
         "detect_code": [
             "0710"
         ],
-        "device_name": "STM32L152RE"
+        "device_name": "STM32L152RETx"
     },
     "MCU_STM32L4": {
         "inherits": [
@@ -3565,7 +3562,7 @@
         "detect_code": [
             "0770"
         ],
-        "device_name": "STM32L432KC"
+        "device_name": "STM32L432KCUx"
     },
     "MCU_STM32L433xC": {
         "inherits": [
@@ -3589,7 +3586,7 @@
         "detect_code": [
             "0779"
         ],
-        "device_name": "STM32L433RC"
+        "device_name": "STM32L433RCTx"
     },
     "MCU_STM32L443xC": {
         "inherits": [
@@ -3616,7 +3613,7 @@
         "device_has_remove": [
             "LPTICKER"
         ],
-        "device_name": "STM32L443RC",
+        "device_name": "STM32L443RCTx",
         "detect_code": [
             "0458"
         ]
@@ -3669,7 +3666,7 @@
         "detect_code": [
             "0312"
         ],
-        "device_name": "STM32L471QG"
+        "device_name": "STM32L471QGIx"
     },
     "MCU_STM32L475xG": {
         "inherits": [
@@ -3715,7 +3712,7 @@
         "features": [
             "BLE"
         ],
-        "device_name": "STM32L475VG"
+        "device_name": "STM32L475VGTx"
     },
     "MCU_STM32L476xG": {
         "inherits": [
@@ -3746,7 +3743,7 @@
         "detect_code": [
             "0765"
         ],
-        "device_name": "STM32L476RG"
+        "device_name": "STM32L476RGTx"
     },
     "DISCO_L476VG": {
         "inherits": [
@@ -3765,7 +3762,7 @@
             "QSPI",
             "USBDEVICE"
         ],
-        "device_name": "STM32L476VG"
+        "device_name": "STM32L476VGTx"
     },
     "RHOMBIO_L476DMW1K": {
         "inherits": [
@@ -3780,7 +3777,7 @@
         "device_has_add": [
             "QSPI"
         ],
-        "device_name": "STM32L476VG"
+        "device_name": "STM32L476VGTx"
     },
     "MCU_STM32L486xG": {
         "inherits": [
@@ -3812,7 +3809,7 @@
         "detect_code": [
             "0827"
         ],
-        "device_name": "STM32L486RG"
+        "device_name": "STM32L486RGTx"
     },
     "ADV_WISE_1570": {
         "inherits": [
@@ -3827,7 +3824,7 @@
         "macros_add": [
             "WISE_1570"
         ],
-        "device_name": "STM32L486RG",
+        "device_name": "STM32L486RGTx",
         "OUTPUT_EXT": "hex"
     },
     "MCU_STM32L496xG": {
@@ -3870,7 +3867,7 @@
             "USBDEVICE",
             "QSPI"
         ],
-        "device_name": "STM32L496AG"
+        "device_name": "STM32L496AGIx"
     },
     "NUCLEO_L496ZG": {
         "inherits": [
@@ -3885,7 +3882,7 @@
         "device_has_add": [
             "USBDEVICE"
         ],
-        "device_name": "STM32L496ZG"
+        "device_name": "STM32L496ZGTx"
     },
     "NUCLEO_L496ZG_P": {
         "inherits": [
