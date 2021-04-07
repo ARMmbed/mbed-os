@@ -1735,7 +1735,7 @@ void GattServer::handleEvent(
     switch (type) {
         case GattServerEvents::GATT_EVENT_UPDATES_ENABLED:
             tr_info("Updates enabled for attribute %d on connection %d", attributeHandle, connHandle);
-            get_value_handle_by_cccd_handle(attributeHandle, charHandle);
+            MBED_ASSERT(get_value_handle_by_cccd_handle(attributeHandle, charHandle));
             if(eventHandler) {
                 GattUpdatesEnabledCallbackParams params({
                     .connHandle = connHandle,
@@ -1752,7 +1752,7 @@ void GattServer::handleEvent(
             break;
         case GattServerEvents::GATT_EVENT_UPDATES_DISABLED:
             tr_info("Updates disabled for attribute %d on connection %d", attributeHandle, connHandle);
-            get_value_handle_by_cccd_handle(attributeHandle, charHandle);
+            MBED_ASSERT(get_value_handle_by_cccd_handle(attributeHandle, charHandle));
             if(eventHandler) {
                 GattUpdatesDisabledCallbackParams params({
                     .connHandle = connHandle,
