@@ -66,9 +66,9 @@ public:
     MemoryPool()
     {
         if (!std::is_trivial<T>::value) {
-            _T_offset = sizeof(void*);    // (T*) is behind free block pointer in block memory
+            _T_offset = sizeof(void *);   // (T*) is behind free block pointer in block memory
         } else {
-            _T_offset = 0;                // no correction for trivial type 
+            _T_offset = 0;                // no correction for trivial type
         }
 
         memset(_pool_mem, 0, sizeof(_pool_mem));
@@ -81,11 +81,11 @@ public:
         MBED_ASSERT(_id);
 
         if (!std::is_trivial<T>::value) {
-            _T_offset = sizeof(void*);    // (T*) is behind free block pointer in block memory
+            _T_offset = sizeof(void *);   // (T*) is behind free block pointer in block memory
             // initialize elements
-            volatile uint32_t block_size = osMemoryPoolGetBlockSize (_id);
-            for (uint32_t i=0; i<pool_sz; i++) {
-                void* addr = &_pool_mem[block_size * i + _T_offset];
+            uint32_t block_size = osMemoryPoolGetBlockSize(_id);
+            for (uint32_t i = 0; i < pool_sz; i++) {
+                void *addr = &_pool_mem[block_size * i + _T_offset];
                 // use displacement new to call constructor without memory allocaction
                 new (addr) T();
             }
@@ -99,10 +99,10 @@ public:
     ~MemoryPool()
     {
         if (!std::is_trivial<T>::value) {
-            uint32_t block_size = osMemoryPoolGetBlockSize (_id);
+            uint32_t block_size = osMemoryPoolGetBlockSize(_id);
             // call destructor for each element
-            for (uint32_t i=0; i<pool_sz; i++) {
-                T* pT = (T*)(&_pool_mem[block_size * i + _T_offset]);
+            for (uint32_t i = 0; i < pool_sz; i++) {
+                T *pT = (T *)(&_pool_mem[block_size * i + _T_offset]);
                 pT->~T();
             }
         }
@@ -128,7 +128,7 @@ public:
     */
     T *try_alloc()
     {
-        char* pBlock = (char*)osMemoryPoolAlloc(_id, 0);
+        char *pBlock = (char *)osMemoryPoolAlloc(_id, 0);
         if (pBlock != nullptr) {
             return (T *)(pBlock + _T_offset);
         } else {
@@ -157,7 +157,7 @@ public:
     */
     T *try_alloc_for(Kernel::Clock::duration_u32 rel_time)
     {
-        char* pBlock = (char*)osMemoryPoolAlloc(_id, rel_time.count());
+        char *pBlock = (char *)osMemoryPoolAlloc(_id, rel_time.count());
         if (pBlock != nullptr) {
             return (T *)(pBlock + _T_offset);
         } else {
@@ -309,7 +309,7 @@ public:
     osStatus free(T *block)
     {
         if (block != nullptr) {
-            return osMemoryPoolFree(_id, ((char*)block) - _T_offset);
+            return osMemoryPoolFree(_id, ((char *)block) - _T_offset);
         } else {
             return osMemoryPoolFree(_id, block);
         }
@@ -317,7 +317,7 @@ public:
 
 private:
     osMemoryPoolId_t             _id;
-    char                         _pool_mem[MBED_RTOS_STORAGE_MEM_POOL_MEM_SIZE(pool_sz, sizeof(T) + sizeof(void*))];
+    char                         _pool_mem[MBED_RTOS_STORAGE_MEM_POOL_MEM_SIZE(pool_sz, sizeof(T) + sizeof(void *))];
     mbed_rtos_storage_mem_pool_t _obj_mem;
     uint16_t                     _T_offset;
 };
