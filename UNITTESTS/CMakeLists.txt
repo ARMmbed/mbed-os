@@ -66,6 +66,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DUNITTEST")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNITTEST")
 
 add_subdirectory(stubs)
+add_subdirectory(fakes)
 
 macro(mbed_add_all_subdirectories subdirectories_list)
     foreach(dir ${subdirectories_list})
@@ -74,3 +75,4 @@ macro(mbed_add_all_subdirectories subdirectories_list)
         endif()
     endforeach()
 endmacro()
+
