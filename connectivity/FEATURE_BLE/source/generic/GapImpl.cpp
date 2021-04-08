@@ -1221,6 +1221,7 @@ ble_error_t Gap::reset()
 #endif // BLE_FEATURE_PRIVACY
 
 #if BLE_ROLE_OBSERVER
+    _scan_parameters_set = false;
     _scan_timeout.detach();
 #endif
 
@@ -3562,6 +3563,8 @@ ble_error_t Gap::setScanParameters(const ScanParameters &params)
             params.getCodedPhyConfiguration().getWindow().value()
         };
 
+        _scan_parameters_set = true;
+
         return _pal_gap.set_extended_scan_parameters(
             params.getOwnAddressType(),
             params.getFilter(),
@@ -3580,6 +3583,8 @@ ble_error_t Gap::setScanParameters(const ScanParameters &params)
 
         ScanParameters::phy_configuration_t legacy_configuration =
             params.get1mPhyConfiguration();
+
+        _scan_parameters_set = true;
 
         return _pal_gap.set_scan_parameters(
             legacy_configuration.isActiveScanningSet(),
@@ -3611,6 +3616,11 @@ ble_error_t Gap::startScan(
     if (_initiating) {
         tr_error("busy trying to connect");
         return BLE_STACK_BUSY;
+    }
+
+    if (!_scan_parameters_set) {
+        tr_error("Scan parameters not set.");
+        return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 
     _scan_requested_duration = duration;
