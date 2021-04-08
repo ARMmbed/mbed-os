@@ -138,3 +138,8 @@ void SystemInit (void)
   // IRQ Initialize
   IRQ_Initialize();
 }
+
+void mbed_sdk_init(void) {
+    L1C_CleanDCacheAll();
+    L1C_InvalidateICacheAll();
+}

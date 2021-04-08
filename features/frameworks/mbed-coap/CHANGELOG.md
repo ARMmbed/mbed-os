@@ -1,5 +1,9 @@
 # Change Log
 
+## [v5.1.8](https://github.com/ARMmbed/mbed-coap/releases/tag/v5.1.8)
+
+- Fix to blockwise code. Now uses block size received in packet, not block size defined in code.
+
 ## [v5.1.7](https://github.com/ARMmbed/mbed-coap/releases/tag/v5.1.7)
 
 - Removed comparison of IP addresses when validating message resending. This avoids unnessary network errors due to load balancers causing frequent IP address changes.

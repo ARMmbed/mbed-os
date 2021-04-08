@@ -61,4 +61,17 @@ extern const PinMap PinMap_PWM[];
 extern const PinMap PinMap_CAN_RD[];
 extern const PinMap PinMap_CAN_TD[];
 
+#if DEVICE_SDHI
+/************SDHI***************/
+extern const PinMap PinMap_SDHI_WP[];
+extern const PinMap PinMap_SDHI_CD[];
+extern const PinMap PinMap_SDHI_CLK[];
+extern const PinMap PinMap_SDHI_CMD[];
+extern const PinMap PinMap_SDHI_D0[];
+extern const PinMap PinMap_SDHI_D1[];
+extern const PinMap PinMap_SDHI_D2[];
+extern const PinMap PinMap_SDHI_D3[];
 #endif
+
+#endif
+

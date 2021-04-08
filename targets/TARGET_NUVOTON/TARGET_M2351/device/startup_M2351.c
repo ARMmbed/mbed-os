@@ -1,27 +1,35 @@
-/**************************************************************************//**
- * @file     startup_M2351.c
- * @version  V2.00
- * $Revision: 9 $
- * $Date: 16/08/27 12:33p $ 
- * @brief   Startup Source File
+/*
+ * Copyright (c) 2018-2019, Nuvoton Technology Corporation
  *
- * @note
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
  *
- ******************************************************************************/
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #include "M2351.h"
 
 /* Suppress warning messages */
-#if defined(__CC_ARM)
-// Suppress warning message: extended constant initialiser used
+#if defined(__ARMCC_VERSION)
+// Suppress warning message: extended constant initializer used
 #pragma diag_suppress 1296
 #elif defined(__ICCARM__)
+// Suppress warning message Pe1665
+#pragma diag_suppress=Pe1665
 #elif defined(__GNUC__)
 #endif
 
 /* Macro Definitions */
-#if defined(__CC_ARM)
+#if defined(__ARMCC_VERSION)
 #define WEAK            __attribute__ ((weak))
 #define ALIAS(f)        __attribute__ ((weak, alias(#f)))
 
@@ -46,22 +54,22 @@ void FUN(void) __attribute__ ((weak, alias(#FUN_ALIAS)));
 
 #endif
 
-
 /* Initialize segments */
-#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+#if defined(__ARMCC_VERSION)
 extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Limit;
 extern void __main(void);
 #elif defined(__ICCARM__)
+extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Limit;
+extern uint32_t CSTACK$$Limit;
 void __iar_program_start(void);
 #elif defined(__GNUC__)
+extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Limit;
 extern uint32_t __StackTop;
-extern uint32_t __etext;
-extern uint32_t __data_start__;
-extern uint32_t __data_end__;
-extern uint32_t __bss_start__;
-extern uint32_t __bss_end__;
+extern uint32_t __copy_table_start__;
+extern uint32_t __copy_table_end__;
+extern uint32_t __zero_table_start__;
+extern uint32_t __zero_table_end__;
 
-extern void uvisor_init(void);
 #if defined(TOOLCHAIN_GCC_ARM)
 extern void _start(void);
 #else
@@ -87,7 +95,7 @@ WEAK_ALIAS_FUNC(SysTick_Handler, Default_Handler)
 WEAK_ALIAS_FUNC(BOD_IRQHandler, Default_Handler)        // 0: Brown Out detection
 WEAK_ALIAS_FUNC(IRC_IRQHandler, Default_Handler)        // 1: Internal RC
 WEAK_ALIAS_FUNC(PWRWU_IRQHandler, Default_Handler)      // 2: Power down wake up 
-WEAK_ALIAS_FUNC(SRAM_IRQHandler, Default_Handler)      // 3: SRAM
+WEAK_ALIAS_FUNC(SRAM_IRQHandler, Default_Handler)       // 3: SRAM
 WEAK_ALIAS_FUNC(CLKFAIL_IRQHandler, Default_Handler)    // 4: Clock detection fail
                                                         // 5: Reserved
 WEAK_ALIAS_FUNC(RTC_IRQHandler, Default_Handler)        // 6: Real Time Clock 
@@ -106,16 +114,16 @@ WEAK_ALIAS_FUNC(GPC_IRQHandler, Default_Handler)        // 18: GPIO Port C
 WEAK_ALIAS_FUNC(GPD_IRQHandler, Default_Handler)        // 19: GPIO Port D
 WEAK_ALIAS_FUNC(GPE_IRQHandler, Default_Handler)        // 20: GPIO Port E
 WEAK_ALIAS_FUNC(GPF_IRQHandler, Default_Handler)        // 21: GPIO Port F
-WEAK_ALIAS_FUNC(QSPI0_IRQHandler, Default_Handler)       // 22: SPI0
+WEAK_ALIAS_FUNC(QSPI0_IRQHandler, Default_Handler)      // 22: SPI0
 WEAK_ALIAS_FUNC(SPI0_IRQHandler, Default_Handler)       // 23: SPI1
 WEAK_ALIAS_FUNC(BRAKE0_IRQHandler, Default_Handler)     // 24: 
-WEAK_ALIAS_FUNC(EPWM0_P0_IRQHandler, Default_Handler)     // 25: 
-WEAK_ALIAS_FUNC(EPWM0_P1_IRQHandler, Default_Handler)     // 26: 
-WEAK_ALIAS_FUNC(EPWM0_P2_IRQHandler, Default_Handler)     // 27: 
+WEAK_ALIAS_FUNC(EPWM0_P0_IRQHandler, Default_Handler)   // 25: 
+WEAK_ALIAS_FUNC(EPWM0_P1_IRQHandler, Default_Handler)   // 26: 
+WEAK_ALIAS_FUNC(EPWM0_P2_IRQHandler, Default_Handler)   // 27: 
 WEAK_ALIAS_FUNC(BRAKE1_IRQHandler, Default_Handler)     // 28: 
-WEAK_ALIAS_FUNC(EPWM1_P0_IRQHandler, Default_Handler)     // 29: 
-WEAK_ALIAS_FUNC(EPWM1_P1_IRQHandler, Default_Handler)     // 30: 
-WEAK_ALIAS_FUNC(EPWM1_P2_IRQHandler, Default_Handler)     // 31: 
+WEAK_ALIAS_FUNC(EPWM1_P0_IRQHandler, Default_Handler)   // 29: 
+WEAK_ALIAS_FUNC(EPWM1_P1_IRQHandler, Default_Handler)   // 30: 
+WEAK_ALIAS_FUNC(EPWM1_P2_IRQHandler, Default_Handler)   // 31: 
 WEAK_ALIAS_FUNC(TMR0_IRQHandler, Default_Handler)       // 32: Timer 0
 WEAK_ALIAS_FUNC(TMR1_IRQHandler, Default_Handler)       // 33: Timer 1
 WEAK_ALIAS_FUNC(TMR2_IRQHandler, Default_Handler)       // 34: Timer 2
@@ -124,7 +132,7 @@ WEAK_ALIAS_FUNC(UART0_IRQHandler, Default_Handler)      // 36: UART0
 WEAK_ALIAS_FUNC(UART1_IRQHandler, Default_Handler)      // 37: UART1
 WEAK_ALIAS_FUNC(I2C0_IRQHandler, Default_Handler)       // 38: I2C0
 WEAK_ALIAS_FUNC(I2C1_IRQHandler, Default_Handler)       // 39: I2C1
-WEAK_ALIAS_FUNC(PDMA0_IRQHandler, Default_Handler)       // 40: Peripheral DMA
+WEAK_ALIAS_FUNC(PDMA0_IRQHandler, Default_Handler)      // 40: Peripheral DMA
 WEAK_ALIAS_FUNC(DAC_IRQHandler, Default_Handler)        // 41: DAC
 WEAK_ALIAS_FUNC(EADC0_IRQHandler, Default_Handler)      // 42: ADC0 interrupt source 0
 WEAK_ALIAS_FUNC(EADC1_IRQHandler, Default_Handler)      // 43: ADC0 interrupt source 1
@@ -177,15 +185,14 @@ WEAK_ALIAS_FUNC(DSRC_IRQHandler, Default_Handler)       // 97:
 WEAK_ALIAS_FUNC(PDMA1_IRQHandler, Default_Handler)      // 98:
 WEAK_ALIAS_FUNC(SCU_IRQHandler, Default_Handler)        // 99:                            
                                                         // 100:  Reserved
-WEAK_ALIAS_FUNC(TRNG_IRQHandler, Default_Handler)        // 101: 
+WEAK_ALIAS_FUNC(TRNG_IRQHandler, Default_Handler)       // 101: 
 
 
 /* Vector table */
-#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
-__attribute__ ((section("RESET")))
+#if defined(__ARMCC_VERSION)
+__attribute__ ((section("RESET"), used))
 const uint32_t __vector_handlers[] = {
 #elif defined(__ICCARM__)
-extern uint32_t CSTACK$$Limit;
 const uint32_t __vector_table[] @ ".intvec" = {
 #elif defined(__GNUC__)
 __attribute__ ((section(".vector_table")))
@@ -193,10 +200,9 @@ const uint32_t __vector_handlers[] = {
 #endif
 
     /* Configure Initial Stack Pointer, using linker-generated symbols */
-#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+#if defined(__ARMCC_VERSION)
     (uint32_t) &Image$$ARM_LIB_STACK$$ZI$$Limit,
 #elif defined(__ICCARM__)
-    //(uint32_t) __sfe("CSTACK"),
     (uint32_t) &CSTACK$$Limit,
 #elif defined(__GNUC__)
     (uint32_t) &__StackTop,
@@ -323,12 +329,48 @@ const uint32_t __vector_handlers[] = {
     (uint32_t) TRNG_IRQHandler,         // 101:
 };
 
-/**
- * \brief This is the code that gets called on processor reset.
+/* Some reset handler code cannot implement in pure C. Implement it in inline/embedded assembly.
+ *
+ * Reset_Handler:
+ *   For non-secure PSA/non-secure non-PSA/secure non-PSA, jump directly to Reset_Handler_1
+ *   For secure PSA, switch from MSP to PSP, then jump to Reset_Handler_1
+ * 
+ * Reset_Handler_1:
+ *   Platform initialization
+ *   C/C++ runtime initialization
  */
-void Reset_Handler(void)
+
+/* Forward declaration */
+void Reset_Handler_1(void);
+
+/* Add '__attribute__((naked))' here to make sure compiler does not generate prologue and
+ * epilogue sequences for Reset_Handler. We don't want MSP is updated by compiler-generated
+ * code during stack switch. 
+ *
+ * Don't allow extended assembly in naked functions:
+ * The compiler only supports basic __asm statements in __attribute__((naked))
+ * functions. Using extended assembly, parameter references or mixing C code with
+ * __asm statements might not work reliably. 
+ */
+__attribute__((naked)) void Reset_Handler(void)
 {
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+#if defined(__GNUC__)
+    __asm(".syntax  unified                                         \n");
+#endif
+
+    /* Jump to Reset_Handler_1 */
+#if !defined(__ICCARM__)
+    __asm("movw     r0, #:lower16:Reset_Handler_1                   \n");
+    __asm("movt     r0, #:upper16:Reset_Handler_1                   \n");
+#else
+    __asm("mov32    r0, Reset_Handler_1                             \n");
+#endif
+    __asm("bx       r0                                              \n");
+}
+
+void Reset_Handler_1(void)
+{
+#if defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
     /* Disable register write-protection function */
     SYS_UnlockReg();
     
@@ -339,38 +381,61 @@ void Reset_Handler(void)
     SYS_LockReg();
 #endif
 
-    /**
-     * SystemInit() must be called at the very start.
-     */
+    /* SystemInit() must be called at the very start. */
     SystemInit();
     
-#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+#if defined(__ARMCC_VERSION)
     __main();
     
 #elif defined(__ICCARM__)
     __iar_program_start();
 
 #elif defined(__GNUC__)
-    uint32_t *src_ind = (uint32_t *) &__etext;
-    uint32_t *dst_ind = (uint32_t *) &__data_start__;
-    uint32_t *dst_end = (uint32_t *) &__data_end__;
+    /* Move (multiple) .data section(s) from ROM to RAM */
+    {
+        /* Struct of copy table entry which must match linker script */
+        typedef struct copy_table_entry_ {
+            uint32_t    src;            // Address to copy from
+            uint32_t    dst;            // Address to copy to
+            uint32_t    size;           // Copy size in bytes
+        } copy_table_entry;
 
-    /* Move .data section from ROM to RAM */
-    if (src_ind != dst_ind) {
-        for (; dst_ind < dst_end;) {
-            *dst_ind ++ = *src_ind ++;
+        copy_table_entry *copy_table_ind = (copy_table_entry *) &__copy_table_start__;
+        copy_table_entry *copy_table_end = (copy_table_entry *) &__copy_table_end__;
+
+        for (; copy_table_ind != copy_table_end; copy_table_ind ++) {
+            uint32_t *src_ind = (uint32_t *) copy_table_ind->src;
+            uint32_t *src_end = (uint32_t *) (copy_table_ind->src + copy_table_ind->size);
+            uint32_t *dst_ind = (uint32_t *) copy_table_ind->dst;
+            if (src_ind != dst_ind) {
+                for (; src_ind < src_end;) {
+                    *dst_ind ++ = *src_ind ++;
+                }
+            }
         }
     }
-   
-    /* Initialize .bss section to zero */
-    dst_ind = (uint32_t *) &__bss_start__;
-    dst_end = (uint32_t *) &__bss_end__;
-    if (dst_ind != dst_end) {
-        for (; dst_ind < dst_end;) {
-            *dst_ind ++ = 0;
+
+    /* Initialize (multiple) .bss sections to zero */
+    {
+        /* Struct of zero table entry which must match linker script */
+        typedef struct zero_table_entry_ {
+            uint32_t    start;          // Address to start zero'ing
+            uint32_t    size;           // Zero size in bytes
+        } zero_table_entry;
+
+        zero_table_entry *zero_table_ind = (zero_table_entry *) &__zero_table_start__;
+        zero_table_entry *zero_table_end = (zero_table_entry *) &__zero_table_end__;
+
+        for (; zero_table_ind != zero_table_end; zero_table_ind ++) {
+            uint32_t *dst_ind = (uint32_t *) zero_table_ind->start;
+            uint32_t *dst_end = (uint32_t *) (zero_table_ind->start + zero_table_ind->size);
+
+            for (; dst_ind < dst_end; ) {
+                *dst_ind ++ = 0;
+            }
         }
     }
-    
+
     _start();
 
 #endif
@@ -386,18 +451,3 @@ void Default_Handler(void)
 {
     while (1);
 }
-
-#if 0
-#if defined(__CC_ARM)
-uint32_t GetPC(void)
-{
-    uint32_t val=0;
-__asm  {
-            MOV R0, #0          // dumy
-            //MOV R0, LR        // Except R0~R12, SP/LR/PC cannot be read or directly modified in inline assembly code
-            MOV val, R0
-       }    
-    return val;
-}    
-#endif
-#endif

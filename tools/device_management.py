@@ -114,17 +114,11 @@ def wrap_init(func):
 
         # Get the currently in-use API key (may come from environment or
         # configuration files, which is handled by the cloud SDK)
-        api_key_value = accounts.config.get("api_key")
-        api_key = next(accounts.list_api_keys(
-            filter={
-                "key": api_key_value
-            }
-        ))
+        api_key = accounts.get_api_key("me")
         certificates_owned = list(certs.list_certificates())
         dev_cert_info = None
         for certif in certificates_owned:
-            if certif.type == "developer" and (certif.owner_id == api_key.owner_id or
-                                               certif.owner_id == api_key.id):
+            if certif.type == "developer":
                 dev_cert_info = certs.get_certificate(certif.id)
                 LOG.info("Found developer certificate named %s",
                          dev_cert_info.name)

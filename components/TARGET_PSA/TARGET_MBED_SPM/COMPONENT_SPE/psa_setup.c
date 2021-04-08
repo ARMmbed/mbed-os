@@ -1006,7 +1006,7 @@ void smoke_tests_part1_init(spm_partition_t *partition)
 
 /****************** SPM DB initialization *************************************/
 spm_partition_t g_partitions[] = {
-    /* ATTEST_SRV */
+/* ATTEST_SRV */
     {
         .partition_id = ATTEST_SRV_ID,
         .thread_id = 0,
@@ -1018,7 +1018,7 @@ spm_partition_t g_partitions[] = {
         .irq_mapper = NULL,
     },
 
-    /* CRYPTO_SRV */
+/* CRYPTO_SRV */
     {
         .partition_id = CRYPTO_SRV_ID,
         .thread_id = 0,
@@ -1030,7 +1030,7 @@ spm_partition_t g_partitions[] = {
         .irq_mapper = NULL,
     },
 
-    /* PLATFORM */
+/* PLATFORM */
     {
         .partition_id = PLATFORM_ID,
         .thread_id = 0,
@@ -1042,7 +1042,7 @@ spm_partition_t g_partitions[] = {
         .irq_mapper = NULL,
     },
 
-    /* ITS */
+/* ITS */
     {
         .partition_id = ITS_ID,
         .thread_id = 0,

@@ -310,7 +310,7 @@ typedef enum {
     ADC_VBAT = 0xF2,
 
     // Arduino connector namings
-    A0          = PF_7,
+    A0          = PA_4,
     A1          = PF_10,
     A2          = PA_0,
     A3          = PA_1,
@@ -329,7 +329,7 @@ typedef enum {
     D10         = PK_1,
     D11         = PJ_10,
     D12         = PJ_11,
-    D13         = PK_3,
+    D13         = PK_0,
     D14         = PD_13,
     D15         = PD_12,
 
