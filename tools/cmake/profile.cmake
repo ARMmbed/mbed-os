@@ -29,4 +29,4 @@ else()
     endif()
 endif()
 
-include(${MBED_PATH}/tools/cmake/profiles/${LOWERCASE_CMAKE_BUILD_TYPE}.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/profiles/${LOWERCASE_CMAKE_BUILD_TYPE}.cmake)
