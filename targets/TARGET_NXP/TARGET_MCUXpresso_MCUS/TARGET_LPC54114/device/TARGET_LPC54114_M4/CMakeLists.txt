@@ -1,7 +1,7 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(${MBED_PATH}/targets/TARGET_NXP/scripts/mbed_set_post_build_nxp.cmake)
+include(mbed_set_post_build_nxp)
 
 if(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(STARTUP_FILE TOOLCHAIN_ARM_STD/startup_LPC54114_cm4.S)

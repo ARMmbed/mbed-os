@@ -1,6 +1,8 @@
 # Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/scripts")
+
 add_subdirectory(TARGET_PSOC6 EXCLUDE_FROM_ALL)
 
 add_library(mbed-cy-external-wifi-fw INTERFACE)
@@ -11,3 +13,4 @@ target_compile_definitions(mbed-cy-external-wifi-fw
         "CY_STORAGE_WIFI_DATA_OUTPUT=cy_xip"
         "CY_EXT_WIFI_FW_STORAGE=QSPIF"
 )
+
