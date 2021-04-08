@@ -2746,6 +2746,21 @@
             "STM32G431xx"
         ]
     },
+    "NUCLEO_G431RB": {
+        "inherits": [
+            "MCU_STM32G431xB"
+        ],
+        "supported_form_factors": [
+            "ARDUINO_UNO"
+        ],
+        "detect_code": [
+            "0850"
+        ],
+        "overrides": {
+            "hse_value": 24000000
+        },
+        "device_name": "STM32G431RBTx"
+    },
     "NUCLEO_G431KB": {
         "inherits": [
             "MCU_STM32G431xB"
