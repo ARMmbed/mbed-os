@@ -55,7 +55,7 @@
 #define LL_WITHOUT_HOST_OFFSET          0x2C
 #define ROLE_OFFSET                     0x2D
 
-#define SPI_STACK_SIZE                  1024
+#define SPI_STACK_SIZE                  2048
 
 namespace ble {
 namespace vendor {
