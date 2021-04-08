@@ -366,6 +366,9 @@
             "GCC_ARM",
             "IAR"
         ],
+         "supported_application_profiles": [
+            "full", "bare-metal"
+        ],
         "supported_c_libs": {
             "arm": [
                 "std",
