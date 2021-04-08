@@ -223,7 +223,7 @@ If file system is not set, the default file system and block device are applied 
 
 ### Configuration functions API
 
-Applications must call the function **storage_configuration()** to instantiate the required configuration. This function is defined as weak to allow the replacement of this function with a completely different implementation of the instantiation of components.
+Applications must call the function **kv_init_storage_config()** to instantiate the required configuration. This function is defined as weak to allow the replacement of this function with a completely different implementation of the instantiation of components.
 
 Below is a list of setup functions that `storage_configuration()` calls in each case, and their description:
 
