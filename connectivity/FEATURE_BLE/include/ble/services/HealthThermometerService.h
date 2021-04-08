@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+/* MBED_DEPRECATED */
 #warning "These services are deprecated and will be removed. Please see services.md for details about replacement services."
 
 #ifndef __BLE_HEALTH_THERMOMETER_SERVICE_H__
