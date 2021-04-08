@@ -100,8 +100,9 @@ set(link_options "")
 set(common_options "")
 set(c_cxx_compile_options "") # compile options only for C/CXX
 set(asm_compile_options "") # compile options only for ASM
-include(${CMAKE_CURRENT_LIST_DIR}/toolchains/${MBED_TOOLCHAIN}.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/cores/${MBED_CPU_CORE}.cmake)
+
+include(toolchains/${MBED_TOOLCHAIN})
+include(cores/${MBED_CPU_CORE})
 
 #converts a list into a string with each of its elements seperated by a space
 macro(list_to_space_separated OUTPUT_VAR)# 2nd arg: LIST...

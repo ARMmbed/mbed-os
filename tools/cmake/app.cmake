@@ -1,6 +1,9 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# Add our CMake list files to CMake default module path
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_LIST_DIR}")
+
 find_program(CCACHE "ccache")
 if(CCACHE)
     set(CMAKE_C_COMPILER_LAUNCHER ${CCACHE})
@@ -12,11 +15,11 @@ include(${MBED_CONFIG_PATH}/mbed_config.cmake)
 # Load toolchain file
 if(NOT CMAKE_TOOLCHAIN_FILE OR MBED_TOOLCHAIN_FILE_USED)
     set(MBED_TOOLCHAIN_FILE_USED TRUE CACHE INTERNAL "")
-    include(${mbed-os_SOURCE_DIR}/tools/cmake/toolchain.cmake)
+    include(toolchain)
 endif()
 
 # Specify available build profiles and add options for the selected build profile
-include(${mbed-os_SOURCE_DIR}/tools/cmake/profile.cmake)
+include(profile)
 
 enable_language(C CXX ASM)
 
@@ -26,7 +29,7 @@ set(CMAKE_EXECUTABLE_SUFFIX .elf)
 
 # Find Python
 find_package(Python3 COMPONENTS Interpreter)
-include(${CMAKE_CURRENT_LIST_DIR}/CheckPythonPackage.cmake)
+include(CheckPythonPackage)
 
 # Check python packages from requirements.txt
 file(STRINGS ${CMAKE_CURRENT_LIST_DIR}/requirements.txt PYTHON_REQUIREMENTS)
