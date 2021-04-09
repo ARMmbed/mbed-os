@@ -96,7 +96,7 @@ TEST_F(ChainingBlockModuleTest, init)
     EXPECT_EQ(b.read(buf, 0, BLOCK_SIZE), BD_ERROR_DEVICE_ERROR);
 //    EXPECT_EQ(b.deinit(), BD_ERROR_OK);
     EXPECT_EQ(b.sync(), BD_ERROR_DEVICE_ERROR);
-    EXPECT_EQ(b.get_type(), "CHAINING");
+    EXPECT_STREQ(b.get_type(), "CHAINING");
 
     EXPECT_CALL(bd_mock1, init());
     EXPECT_CALL(bd_mock1, size()).WillOnce(Return((SECTORS_NUM / 2)*BLOCK_SIZE));
