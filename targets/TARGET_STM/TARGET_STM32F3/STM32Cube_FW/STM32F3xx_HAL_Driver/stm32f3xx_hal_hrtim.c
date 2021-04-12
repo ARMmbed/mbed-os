@@ -779,6 +779,9 @@ HAL_StatusTypeDef HAL_HRTIM_DLLCalibrationStart(HRTIM_HandleTypeDef * hhrtim,
     SET_BIT(hhrtim->Instance->sCommonRegs.DLLCR, HRTIM_DLLCR_CAL);
   }
 
+  /* Set HRTIM state */
+  hhrtim->State = HAL_HRTIM_STATE_READY;
+
   return HAL_OK;
 }
 
@@ -828,6 +831,9 @@ HAL_StatusTypeDef HAL_HRTIM_DLLCalibrationStart_IT(HRTIM_HandleTypeDef * hhrtim,
     MODIFY_REG(hhrtim->Instance->sCommonRegs.DLLCR, HRTIM_DLLCR_CALRTE, CalibrationRate);
     SET_BIT(hhrtim->Instance->sCommonRegs.DLLCR, HRTIM_DLLCR_CAL);
   }
+
+  /* Set HRTIM state */
+  hhrtim->State = HAL_HRTIM_STATE_READY;
 
   return HAL_OK;
 }
@@ -3793,8 +3799,8 @@ HAL_StatusTypeDef HAL_HRTIM_EventConfig(HRTIM_HandleTypeDef * hhrtim,
                                         HRTIM_EventCfgTypeDef* pEventCfg)
 {
   /* Check parameters */
-  assert_param(IS_HRTIM_EVENTSRC(pEventCfg->Source));
   assert_param(IS_HRTIM_EVENT(Event));
+  assert_param(IS_HRTIM_EVENTSRC(pEventCfg->Source));
   assert_param(IS_HRTIM_EVENTPOLARITY(pEventCfg->Sensitivity, pEventCfg->Polarity));
   assert_param(IS_HRTIM_EVENTSENSITIVITY(pEventCfg->Sensitivity));
   assert_param(IS_HRTIM_EVENTFASTMODE(Event, pEventCfg->FastMode));
