@@ -787,6 +787,31 @@ int spi_master_write(spi_t *obj, int value)
     const int bitshift = datasize_to_transfer_bitshift(handle->Init.DataSize);
     MBED_ASSERT(bitshift >= 0);
 
+#if TARGET_STM32H7
+	    if (!LL_SPI_IsActiveFlag_RXP(SPI_INST(obj)))///Clears stale data in the receive buffer is there is any. 
+#else /* TARGET_STM32H7 */
+		/* Wait for RXNE flag before reading */
+		if (LL_SPI_IsActiveFlag_RXNE(SPI_INST(obj)))///Clears stale data in the receive buffer is there is any. 
+#endif /* TARGET_STM32H7 */
+		{
+			if (LL_SPI_IsActiveFlag_RXNE(SPI_INST(obj)))
+			{
+				/* Read received data */
+				if (bitshift == 1)
+				{
+					LL_SPI_ReceiveData16(SPI_INST(obj));
+#ifdef HAS_32BIT_SPI_TRANSFERS
+				} else if (bitshift == 2) {
+				 LL_SPI_ReceiveData32(SPI_INST(obj));
+#endif
+					}
+					else{
+						LL_SPI_ReceiveData8(SPI_INST(obj));
+					} 
+				}
+			}
+    
+
 #if defined(LL_SPI_RX_FIFO_TH_HALF)
     /*  Configure the default data size */
     if (bitshift == 0) {
