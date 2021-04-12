@@ -94,6 +94,9 @@ void mbed_sdk_init(void)
      * start of boot process on detecting WDT reset.
      */
     if (SYS_IS_WDT_RST()) {
+        /* Re-unlock to highlight WDT clock setting is protected */
+        SYS_UnlockReg();
+
         /* Enable IP module clock */
         CLK_EnableModuleClock(WDT_MODULE);
 
@@ -108,8 +111,6 @@ void mbed_sdk_init(void)
          */
         NVIC_EnableIRQ(WDT_IRQn);
 
-        SYS_UnlockReg();
-
         /* Configure/Enable WDT */
         WDT->CTL = WDT_TIMEOUT_2POW4 |      // Timeout interval of 2^4 LIRC clocks
                 WDT_CTL_WDTEN_Msk |         // Enable watchdog timer
@@ -122,6 +123,9 @@ void mbed_sdk_init(void)
                 WDT_CTL_RSTCNT_Msk;         // Reset up counter
 
         CLK_PowerDown();
+
+        /* Re-unlock for safe */
+        SYS_UnlockReg();
 
         /* Clear all flags & Disable WDT/INT/WK/RST */
         WDT->CTL = (WDT_CTL_WKF_Msk | WDT_CTL_IF_Msk | WDT_CTL_RSTF_Msk | WDT_CTL_RSTCNT_Msk);
