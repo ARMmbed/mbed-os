@@ -6,7 +6,7 @@
 cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
 
 include(${MBED_CONFIG_PATH}/mbed_config.cmake)
-include(tools/cmake/set_linker_script.cmake)
+include(mbed_set_linker_script)
 
 project(mbed-os)
 

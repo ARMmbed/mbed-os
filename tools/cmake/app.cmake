@@ -15,11 +15,11 @@ include(${MBED_CONFIG_PATH}/mbed_config.cmake)
 # Load toolchain file
 if(NOT CMAKE_TOOLCHAIN_FILE OR MBED_TOOLCHAIN_FILE_USED)
     set(MBED_TOOLCHAIN_FILE_USED TRUE CACHE INTERNAL "")
-    include(toolchain)
+    include(mbed_toolchain)
 endif()
 
 # Specify available build profiles and add options for the selected build profile
-include(profile)
+include(mbed_profile)
 
 enable_language(C CXX ASM)
 

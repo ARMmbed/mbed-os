@@ -1,6 +1,7 @@
 # Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-include(../tools/cmake/set_linker_script.cmake)
+
+include(mbed_set_linker_script)
 
 add_subdirectory(TARGET_Ambiq_Micro EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_Analog_Devices EXCLUDE_FROM_ALL)
