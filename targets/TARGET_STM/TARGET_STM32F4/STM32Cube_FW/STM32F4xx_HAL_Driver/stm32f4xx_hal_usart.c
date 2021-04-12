@@ -2557,7 +2557,7 @@ static HAL_StatusTypeDef USART_Receive_IT(USART_HandleTypeDef *husart)
       pdata8bits = (uint8_t *) husart->pRxBuffPtr;
       pdata16bits  = NULL;
 
-      if ((husart->Init.WordLength == UART_WORDLENGTH_9B) || ((husart->Init.WordLength == UART_WORDLENGTH_8B) && (husart->Init.Parity == UART_PARITY_NONE)))
+      if ((husart->Init.WordLength == USART_WORDLENGTH_9B) || ((husart->Init.WordLength == USART_WORDLENGTH_8B) && (husart->Init.Parity == USART_PARITY_NONE)))
       {
         *pdata8bits = (uint8_t)(husart->Instance->DR & (uint8_t)0x00FF);
       }
@@ -2662,7 +2662,7 @@ static HAL_StatusTypeDef USART_TransmitReceive_IT(USART_HandleTypeDef *husart)
         {
           pdata8bits = (uint8_t *) husart->pRxBuffPtr;
           pdata16bits  = NULL;
-          if ((husart->Init.WordLength == UART_WORDLENGTH_9B) || ((husart->Init.WordLength == UART_WORDLENGTH_8B) && (husart->Init.Parity == UART_PARITY_NONE)))
+          if ((husart->Init.WordLength == USART_WORDLENGTH_9B) || ((husart->Init.WordLength == USART_WORDLENGTH_8B) && (husart->Init.Parity == USART_PARITY_NONE)))
           {
             *pdata8bits = (uint8_t)(husart->Instance->DR & (uint8_t)0x00FF);
           }
