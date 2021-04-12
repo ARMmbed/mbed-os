@@ -307,7 +307,7 @@
             "NFC_SmartPoster"
         ],
         "features" : [],
-        "targets" : ["NUCLEO_F401RE", "DISCO_L475VG_IOT01A"],
+        "targets" : ["NUCLEO_F401RE"],
         "toolchains" : [],
         "exporters": [],
         "compile" : true,
