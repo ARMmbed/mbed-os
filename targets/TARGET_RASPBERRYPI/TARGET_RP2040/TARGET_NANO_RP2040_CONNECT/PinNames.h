@@ -66,8 +66,8 @@ typedef enum {
     A3          = 29,
 #endif
 
-    USBTX = p0,
-    USBRX = p1,
+    CONSOLE_TX = p0,
+    CONSOLE_RX = p1,
 
     LED1 = p6,
     LED2 = p6,
