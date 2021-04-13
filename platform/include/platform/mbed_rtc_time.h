@@ -32,8 +32,13 @@ extern "C" {
  * @{
  */
 
-/* Timeval definition for non GCC_ARM toolchains */
-#if !defined(__GNUC__) || defined(__clang__)
+/* Timeval definition for non GCC_ARM toolchains,
+ * Note: The GNU libc defines _TIMEVAL_DEFINED and the newlib defines __timeval_defined,
+ * thus the double-check and double-define
+ */
+#if !defined(__timeval_defined) && !defined(_TIMEVAL_DEFINED)
+#define __timeval_defined 1
+#define _TIMEVAL_DEFINED
 struct timeval {
     time_t tv_sec;
     int32_t tv_usec;
