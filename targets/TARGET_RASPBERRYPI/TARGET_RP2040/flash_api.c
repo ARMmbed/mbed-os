@@ -71,18 +71,14 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
         return -1;
     }
 
-    uint8_t buf[FLASH_PAGE_SIZE];
-
-    for (int j = 0; j < size/FLASH_PAGE_SIZE; j++) {
-        for (int i = 0; i < FLASH_PAGE_SIZE; i++) {
-            buf[i] = data[j*FLASH_PAGE_SIZE + i];
-        }
-        address = address + j*FLASH_PAGE_SIZE;
-        core_util_critical_section_enter();
-        flash_range_program(address, buf, FLASH_PAGE_SIZE);
-        core_util_critical_section_exit();
+    size_t pages = size/FLASH_PAGE_SIZE;
+    if (size%FLASH_PAGE_SIZE != 0) {
+        pages += 1;
     }
 
+    core_util_critical_section_enter();
+    flash_range_program(address, data, FLASH_PAGE_SIZE * pages);
+    core_util_critical_section_exit();
 
     return 0;
 
