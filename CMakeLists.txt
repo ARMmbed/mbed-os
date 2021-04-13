@@ -79,6 +79,14 @@ target_compile_definitions(mbed-core
         ${MBED_CONFIG_DEFINITIONS}
 )
 
+# Add MBED_TEST_MODE for backward compatibility with Greentea tests written for use with Mbed CLI 1
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+    target_compile_definitions(${PROJECT_NAME}
+        PUBLIC
+            MBED_TEST_MODE
+    )
+endif()
+
 # We need to generate a "response file" to pass to the C preprocessor when we preprocess the linker
 # script, because of path length limitations on Windows. We set the response file and bind the path
 # to a global property here. The MBED_TARGET being built queries this global property when it sets
