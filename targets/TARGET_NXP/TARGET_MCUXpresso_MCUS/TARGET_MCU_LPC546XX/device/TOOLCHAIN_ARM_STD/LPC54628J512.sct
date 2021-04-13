@@ -109,6 +109,8 @@ LR_IROM1 m_interrupts_start m_text_start+m_text_size-m_interrupts_start { ; load
   }
   RW_IRAM1 +0 EMPTY Heap_Size {    ; Heap region growing up
   }
+  ARM_LIB_HEAP AlignExpr(+0, 16) EMPTY Heap_Size{ ; Heap region growing up
+  }
   ARM_LIB_STACK m_data_start+m_data_size EMPTY -Stack_Size { ; Stack region growing down
   }
 }

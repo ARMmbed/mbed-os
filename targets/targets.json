@@ -295,9 +295,7 @@
         ],
         "supported_toolchains": [
             "ARM",
-            "uARM",
-            "GCC_ARM",
-            "IAR"
+            "GCC_ARM"
         ],
         "detect_code": [
             "1010"
@@ -345,7 +343,18 @@
         },
         "overrides": {
             "network-default-interface-type": "ETHERNET"
-        }
+        },
+        "supported_c_libs": {
+            "arm": [
+                "std", "small"
+            ],
+            "gcc_arm": [
+                "std", "small"
+            ]
+        },
+        "supported_application_profiles": [
+            "full", "bare-metal"
+        ]
     },
     "ARCH_PRO": {
         "supported_form_factors": [
@@ -356,6 +365,9 @@
             "ARM",
             "GCC_ARM",
             "IAR"
+        ],
+         "supported_application_profiles": [
+            "full", "bare-metal"
         ],
         "supported_c_libs": {
             "arm": [
@@ -4365,7 +4377,6 @@
         "core": "Cortex-M4F",
         "supported_toolchains": [
             "ARM",
-            "IAR",
             "GCC_ARM"
         ],
         "extra_labels": [
@@ -4415,13 +4426,23 @@
         "post_binary_hook": {
             "function": "LPCTargetCode.lpc_patch"
         },
-        "device_name": "LPC54114J256BD64"
+        "device_name": "LPC54114J256BD64",
+        "supported_c_libs": {
+            "arm": [
+                "std", "small"
+            ],
+            "gcc_arm": [
+                "std", "small"
+            ]
+        },
+        "supported_application_profiles": [
+            "full", "bare-metal"
+        ]
     },
     "MCU_LPC546XX": {
         "core": "Cortex-M4F",
         "supported_toolchains": [
             "ARM",
-            "IAR",
             "GCC_ARM"
         ],
         "extra_labels": [
@@ -4469,7 +4490,18 @@
         "device_name": "LPC54628J512ET180",
         "post_binary_hook": {
             "function": "LPCTargetCode.lpc_patch"
-        }
+        },
+        "supported_c_libs": {
+            "arm": [
+                "std", "small"
+            ],
+            "gcc_arm": [
+                "std", "small"
+            ]
+        },
+        "supported_application_profiles": [
+            "full", "bare-metal"
+        ]
     },
     "LPC546XX": {
         "supported_form_factors": [
