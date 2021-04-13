@@ -43,7 +43,7 @@ namespace udp_global {
 #ifdef MBED_GREENTEA_TEST_UDPSOCKET_TIMEOUT_S
 static const int TESTS_TIMEOUT = MBED_GREENTEA_TEST_UDPSOCKET_TIMEOUT_S;
 #else
-static const int TESTS_TIMEOUT = 480;
+static const int TESTS_TIMEOUT = (20 * 60);
 #endif
 
 static const int MAX_SEND_SIZE_IPV4 = 536;

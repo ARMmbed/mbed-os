@@ -204,7 +204,7 @@ void MMU_CreateTranslationTable(void)
     section_normal(Sect_Normal, region);
     section_normal_cod(Sect_Normal_Cod, region);
     section_normal_ro(Sect_Normal_RO, region);
-    section_normal_rw(Sect_Normal_RW, region);
+    section_normal(Sect_Normal_RW, region);
     //Create descriptors for peripherals
     section_device_ro(Sect_Device_RO, region);
     section_device_rw(Sect_Device_RW, region);

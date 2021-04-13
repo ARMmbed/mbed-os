@@ -23,6 +23,7 @@
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
 #else
+// cppcheck-suppress preprocessorErrorDirective
 #include MBEDTLS_CONFIG_FILE
 #endif
 

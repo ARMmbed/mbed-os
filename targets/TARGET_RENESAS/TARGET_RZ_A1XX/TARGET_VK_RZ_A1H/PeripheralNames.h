@@ -97,6 +97,11 @@ typedef enum {
     CAN_4,
 } CANName;
 
+typedef enum {
+    SDHI_0 = 0,
+    SDHI_1
+} SDHIName;
+
 
 #define STDIO_UART_TX     USBTX
 #define STDIO_UART_RX     USBRX

@@ -151,9 +151,11 @@ private:
     bool low_level_init_successful();
     void tx_isr();
     void rx_isr();
+    void bus_isr();
     void packet_rx();
+    bool bus_reset();
     int low_level_input(emac_mem_buf_t **buf);
-    static void thread_function(void* pvParameters);
+    static void thread_function(void *pvParameters);
     void phy_task();
     static void ethernet_callback(char event, void *param);
 

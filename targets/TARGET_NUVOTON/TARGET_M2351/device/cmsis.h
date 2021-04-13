@@ -23,8 +23,8 @@
 #include "partition_M2351.h"
 
 /* Check relevant macro has been defined */
-#if (! defined(NU_TZ_SECURE_FLASH_SIZE))
-#error("NU_TZ_SECURE_FLASH_SIZE not defined")
+#if (! defined(NU_ROM_SIZE_S))
+#error("NU_ROM_SIZE_S not defined")
 #endif
 
 // Support linker-generated symbol as start of relocated vector table.
@@ -38,7 +38,7 @@ extern uint32_t __start_vector_table__;
 
 /* TZ_START_NS: Start address of non-secure application */
 #ifndef TZ_START_NS
-#define TZ_START_NS (NS_OFFSET + NU_TZ_SECURE_FLASH_SIZE)
+#define TZ_START_NS (NS_OFFSET + NU_ROM_SIZE_S)
 #endif
 
 #endif

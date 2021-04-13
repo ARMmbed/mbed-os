@@ -27,6 +27,7 @@
 #include "nu_miscutil.h"
 #include "nu_bitutil.h"
 #include "mbed_critical.h"
+#include "us_ticker_api.h"
 
 struct nu_i2c_var {
     i2c_t *     obj;
@@ -450,6 +451,8 @@ static int i2c_poll_status_timeout(i2c_t *obj, int (*is_status)(i2c_t *obj), uin
 {
     uint32_t t1, t2, elapsed = 0;
     int status_assert = 0;
+    const uint32_t bits = us_ticker_get_info()->bits;
+    const uint32_t mask = (1 << bits) - 1;
 
     t1 = us_ticker_read();
     while (1) {
@@ -459,7 +462,7 @@ static int i2c_poll_status_timeout(i2c_t *obj, int (*is_status)(i2c_t *obj), uin
         }
 
         t2 = us_ticker_read();
-        elapsed = (t2 > t1) ? (t2 - t1) : ((uint64_t) t2 + 0xFFFFFFFF - t1 + 1);
+        elapsed = (t2 > t1) ? (t2 - t1) : ((uint64_t) t2 + mask - t1 + 1);
         if (elapsed >= timeout) {
             break;
         }
@@ -474,6 +477,8 @@ static int i2c_poll_tran_heatbeat_timeout(i2c_t *obj, uint32_t timeout)
     int tran_started;
     char *tran_pos = NULL;
     char *tran_pos2 = NULL;
+    const uint32_t bits = us_ticker_get_info()->bits;
+    const uint32_t mask = (1 << bits) - 1;
 
     i2c_disable_int(obj);
     tran_pos = obj->i2c.tran_pos;
@@ -497,7 +502,7 @@ static int i2c_poll_tran_heatbeat_timeout(i2c_t *obj, uint32_t timeout)
             continue;
         }
 
-        elapsed = (t2 > t1) ? (t2 - t1) : ((uint64_t) t2 + 0xFFFFFFFF - t1 + 1);
+        elapsed = (t2 > t1) ? (t2 - t1) : ((uint64_t) t2 + mask - t1 + 1);
         if (elapsed >= timeout) {   // Transfer idle
             break;
         }
