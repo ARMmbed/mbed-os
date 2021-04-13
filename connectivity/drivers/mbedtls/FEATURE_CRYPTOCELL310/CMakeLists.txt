@@ -7,7 +7,7 @@ endif()
 
 add_subdirectory(binaries)
 
-target_include_directories(mbed-mbedtls-cryptocell310
+target_include_directories(mbed-mbedtls
     INTERFACE
         .
         ./include
@@ -15,7 +15,7 @@ target_include_directories(mbed-mbedtls-cryptocell310
         ./include/cryptocell310/internal
 )
 
-target_sources(mbed-mbedtls-cryptocell310
+target_sources(mbed-mbedtls
     INTERFACE
         source/aes_alt.c
         source/cc_internal.c
@@ -29,12 +29,7 @@ target_sources(mbed-mbedtls-cryptocell310
         source/trng.c
 )
 
-target_compile_definitions(mbed-mbedtls-cryptocell310
+target_compile_definitions(mbed-mbedtls
     INTERFACE
         MBED_CONF_CRYPTOCELL310_PRESENT=1
-)
-
-target_link_libraries(mbed-mbedtls-cryptocell310
-    INTERFACE
-        mbed-mbedtls
 )
