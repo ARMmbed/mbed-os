@@ -16,9 +16,7 @@
 #if DEVICE_FLASH
 
 #include "flash_api.h"
-#include "mbed_critical.h"
-#include "mbed_assert.h"
-#include "cmsis.h"
+#include "platform/mbed_critical.h"
 
 /**
   * @brief  Gets the page of a given address
@@ -73,22 +71,22 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
         return -1;
     }
 
-        core_util_critical_section_enter();
+    core_util_critical_section_enter();
 
-                /* Clear OPTVERR bit set on virgin samples */
-                __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPTVERR);
+    /* Clear OPTVERR bit set on virgin samples */
+    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPTVERR);
 
-                /* Get the page number associated to the address */
-                PageNumber = GetPage(address);
-                EraseInitStruct.TypeErase = FLASH_TYPEERASE_PAGES;
-                EraseInitStruct.Page      = PageNumber;
-                EraseInitStruct.NbPages   = 1;
+    /* Get the page number associated to the address */
+    PageNumber = GetPage(address);
+    EraseInitStruct.TypeErase = FLASH_TYPEERASE_PAGES;
+    EraseInitStruct.Page      = PageNumber;
+    EraseInitStruct.NbPages   = 1;
 
-                if (HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError) != HAL_OK) {
-                    status = -1;
-                }
+    if (HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError) != HAL_OK) {
+        status = -1;
+    }
 
-        core_util_critical_section_exit();
+    core_util_critical_section_exit();
 
     while (__HAL_FLASH_GET_FLAG(FLASH_FLAG_CFGBSY));
 
@@ -129,37 +127,33 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
         return -1;
     }
 
-        core_util_critical_section_enter();
+    /* Program the user Flash area word by word */
+    StartAddress = address;
 
-                /* Program the user Flash area word by word */
-                StartAddress = address;
-
-                /*  HW needs an aligned address to program flash, which data parameters doesn't ensure */
-                if ((uint32_t) data % 8 != 0) { // Data is not aligned, copy data in a temp buffer before programming it
-                    volatile uint64_t data64;
-                    while ((address < (StartAddress + size)) && (status == 0)) {
-                        for (uint8_t i = 0; i < 8; i++) {
-                            *(((uint8_t *) &data64) + i) = *(data + i);
-                        }
-                        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, address, data64) == HAL_OK) {
-                            address = address + 8;
-                            data = data + 8;
-                        } else {
-                            status = -1;
-                        }
-                    }
-                } else { // Data is aligned, so let's avoid any copy
-                    while ((address < (StartAddress + size)) && (status == 0)) {
-                        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, address, *((uint64_t *) data)) == HAL_OK) {
-                            address = address + 8;
-                            data = data + 8;
-                        } else {
-                            status = -1;
-                        }
-                    }
-                }
-
-        core_util_critical_section_exit();
+    /*  HW needs an aligned address to program flash, which data parameters doesn't ensure */
+    if ((uint32_t) data % 8 != 0) { // Data is not aligned, copy data in a temp buffer before programming it
+        volatile uint64_t data64;
+        while ((address < (StartAddress + size)) && (status == 0)) {
+            for (uint8_t i = 0; i < 8; i++) {
+                *(((uint8_t *) &data64) + i) = *(data + i);
+            }
+            if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, address, data64) == HAL_OK) {
+                address = address + 8;
+                data = data + 8;
+            } else {
+                status = -1;
+            }
+        }
+    } else { // Data is aligned, so let's avoid any copy
+        while ((address < (StartAddress + size)) && (status == 0)) {
+            if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, address, *((uint64_t *) data)) == HAL_OK) {
+                address = address + 8;
+                data = data + 8;
+            } else {
+                status = -1;
+            }
+        }
+    }
 
     while (__HAL_FLASH_GET_FLAG(FLASH_FLAG_CFGBSY));
 

@@ -14,7 +14,7 @@
  */
 
 #include "flash_api.h"
-#include "mbed_critical.h"
+#include "platform/mbed_critical.h"
 
 #if DEVICE_FLASH
 #include "mbed_assert.h"
@@ -177,8 +177,6 @@ int32_t flash_program_page(flash_t *obj, uint32_t address,
         return -1;
     }
 
-    core_util_critical_section_enter();
-
     /* Clear error programming flags */
     __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_ALL_ERRORS);
 
@@ -214,8 +212,6 @@ int32_t flash_program_page(flash_t *obj, uint32_t address,
             }
         }
     }
-
-    core_util_critical_section_exit();
 
     if (HAL_FLASH_Lock() != HAL_OK) {
         return -1;
