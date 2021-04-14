@@ -11,6 +11,7 @@ target_include_directories(mbed-evk
 
 target_sources(mbed-evk
     INTERFACE
+        analogin_api.c
         flash_api.c
         fsl_clock_config.c
         fsl_phy.c
