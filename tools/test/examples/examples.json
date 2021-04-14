@@ -350,7 +350,7 @@
         "compile" : true,
         "export": true,
         "test" : true,
-        "baud_rate": 9600,
+        "baud_rate": 115200,
         "compare_log": ["mbed-os-example-crash-reporting/tests/crash-reporting.log"],
         "auto-update" : true
     },
