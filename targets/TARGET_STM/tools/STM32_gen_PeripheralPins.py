@@ -809,7 +809,7 @@ def print_pwm():
             chan = chan.strip('N')
         else:
             neg = ', 0'
-        s1 += 'STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, '
+        s1 += 'STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_NOPULL, '
         r = result.split(' ')
         prev_s1 = ""
         for af in r:
