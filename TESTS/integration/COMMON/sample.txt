@@ -937,7 +937,8 @@ View the full C++ API:
 
 ## Flash IAP example
 
-For an example that uses the `FlashIAP` driver, please see the [bootloader example](https://github.com/ARMmbed/mbed-os-example-bootloader).
+For an example that uses the `FlashIAP` driver, please see the [Mbed Stress Test](https://github.com/ARMmbed/mbed-stress-test).
+
 # I2C
 
 <span class="images">![](https://os.mbed.com/docs/v5.13/mbed-os-api-doxy/classmbed_1_1_i2_c.png)<span>I2C class hierarchy</span></span>

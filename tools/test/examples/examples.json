@@ -253,20 +253,6 @@
         "auto-update" : true
     },
     {
-        "name": "mbed-os-example-bootloader",
-        "github":"https://github.com/ARMmbed/mbed-os-example-bootloader",
-        "sub-repo-example": false,
-        "subs": [],
-        "features" : [],
-        "targets" : ["K64F", "NUCLEO_F429ZI"],
-        "toolchains" : [],
-        "exporters": [],
-        "compile" : true,
-        "export": true,
-        "test" : false,
-        "auto-update" : true
-    },
-    {
         "name": "mbed-os-example-mbed-crypto",
         "github":"https://github.com/ARMmbed/mbed-os-example-mbed-crypto",
         "sub-repo-example": true,
