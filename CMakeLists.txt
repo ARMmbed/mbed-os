@@ -10,6 +10,11 @@ include(mbed_set_linker_script)
 
 project(mbed-os)
 
+# Add all paths to the list files within Mbed OS
+list(APPEND CMAKE_MODULE_PATH 
+    "${mbed-os_SOURCE_DIR}/platform/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_TFM/TARGET_TFM_LATEST/scripts;${mbed-os_SOURCE_DIR}/targets/TARGET_Cypress/scripts;${mbed-os_SOURCE_DIR}/targets/TARGET_NXP/scripts"
+)
+
 add_library(mbed-core INTERFACE)
 
 add_library(mbed-os INTERFACE)

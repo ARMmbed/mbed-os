@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Add our CMake list files to CMake default module path
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_LIST_DIR}")
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
 find_program(CCACHE "ccache")
 if(CCACHE)

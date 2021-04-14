@@ -40,4 +40,3 @@ target_sources(mbed-psa
         src/tfm_ps_ipc_api.c
 )
 
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/scripts")
