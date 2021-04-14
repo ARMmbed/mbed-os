@@ -96,7 +96,8 @@
     },
     "target_overrides": {
         "STM32WL": {
-            "wakeup-time": 3
+            "wakeup-time": 3,
+            "max-sys-rx-error": 10
         }
     }
 }
