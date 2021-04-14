@@ -4,7 +4,6 @@
 # List of all connectivity libraries available.
 add_library(mbed-802.15.4-rf INTERFACE)
 add_library(mbed-ble INTERFACE)
-add_library(mbed-ble-blue_nrg INTERFACE)
 add_library(mbed-ble-cordio INTERFACE)
 add_library(mbed-ble-cordio_ll INTERFACE)
 add_library(mbed-cellular INTERFACE)
