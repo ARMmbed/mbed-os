@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  ******************************************************************************
  *
- * Copyright (c) 2016-2020 STMicroelectronics.
+ * Copyright (c) 2016-2021 STMicroelectronics.
  * All rights reserved.
  *
  * This software component is licensed by ST under BSD 3-Clause license,
@@ -31,12 +31,9 @@ typedef enum {
     ALT0  = 0x100,
     ALT1  = 0x200,
     ALT2  = 0x300,
-    ALT3  = 0x400,
-    ALT4  = 0x500
 } ALTx;
 
 typedef enum {
-
     PA_0       = 0x00,
     PA_1       = 0x01,
     PA_1_ALT0  = PA_1  | ALT0, // same pin used for alternate HW
@@ -160,13 +157,14 @@ typedef enum {
     ADC_VBAT = 0xF2, // Internal pin virtual value
 
 #ifdef TARGET_FF_ARDUINO_UNO
-    // Arduino Uno (Rev3) pin
+    // Arduino Uno (Rev3) pins
     ARDUINO_UNO_A0   = PC_5,
     ARDUINO_UNO_A1   = PC_4,
     ARDUINO_UNO_A2   = PC_3,
     ARDUINO_UNO_A3   = PC_2,
     ARDUINO_UNO_A4   = PC_1,
     ARDUINO_UNO_A5   = PC_0,
+
     ARDUINO_UNO_D0   = PA_1,
     ARDUINO_UNO_D1   = PA_0,
     ARDUINO_UNO_D2   = PD_14,
@@ -249,10 +247,10 @@ typedef enum {
 } PinName;
 
 // Standardized LED and button names
-#define LED1    PA_5   // Green LED (LD1) // D13
-#define LED2    PB_14  // Green LED (LD2)
-#define LED3    PC_9   // Yellow LED (LD3 WIFI) / Blue LED (LD4 BLE)
-#define BUTTON1 PC_13  // BUTTON_EXTI13 [B2]
+#define LED1     PA_5   // LED1 [GREEN]
+#define LED2     PB_14  // LED2 [GREEN]
+#define LED3     PC_9   // LED3_WIFI LED4_BLE [YELLOW]
+#define BUTTON1  PC_13  // BUTTON_EXTI13 [B2]
 
 #ifdef __cplusplus
 }
