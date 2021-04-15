@@ -133,8 +133,8 @@ static bool ws_pae_auth_active_limit_reached(uint16_t active_supp, pae_auth_t *p
 static kmp_api_t *ws_pae_auth_kmp_incoming_ind(kmp_service_t *service, uint8_t msg_if_instance_id, kmp_type_e type, const kmp_addr_t *addr, const void *pdu, uint16_t size);
 static void ws_pae_auth_kmp_api_create_confirm(kmp_api_t *kmp, kmp_result_e result);
 static void ws_pae_auth_kmp_api_create_indication(kmp_api_t *kmp, kmp_type_e type, kmp_addr_t *addr);
-static void ws_pae_auth_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e result, kmp_sec_keys_t *sec_keys);
-static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *supp_entry);
+static bool ws_pae_auth_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e result, kmp_sec_keys_t *sec_keys);
+static bool ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *supp_entry);
 static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry_t *supp_entry);
 static kmp_api_t *ws_pae_auth_kmp_create_and_start(kmp_service_t *service, kmp_type_e type, uint8_t socked_msg_if_instance_id, supp_entry_t *supp_entry, sec_cfg_t *sec_cfg);
 static void ws_pae_auth_kmp_api_finished(kmp_api_t *kmp);
@@ -1116,36 +1116,36 @@ static void ws_pae_auth_kmp_api_create_indication(kmp_api_t *kmp, kmp_type_e typ
     kmp_api_create_response(kmp, KMP_RESULT_OK);
 }
 
-static void ws_pae_auth_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e result, kmp_sec_keys_t *sec_keys)
+static bool ws_pae_auth_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e result, kmp_sec_keys_t *sec_keys)
 {
     (void) sec_keys;
 
     // For now, just ignore if not ok
     if (result != KMP_RESULT_OK) {
-        return;
+        return false;
     }
 
     supp_entry_t *supp_entry = kmp_api_data_get(kmp);
     if (!supp_entry) {
         // Should not be possible
-        return;
+        return false;
     }
     kmp_service_t *service = kmp_api_service_get(kmp);
     pae_auth_t *pae_auth = ws_pae_auth_by_kmp_service_get(service);
     if (!pae_auth) {
         // Should not be possible
-        return;
+        return false;
     }
 
     // Ensures that supplicant is in active supplicant list before initiating next KMP
     if (!ws_pae_lib_supp_list_entry_is_in_list(&pae_auth->active_supp_list, supp_entry)) {
-        return;
+        return false;
     }
 
-    ws_pae_auth_next_kmp_trigger(pae_auth, supp_entry);
+    return ws_pae_auth_next_kmp_trigger(pae_auth, supp_entry);
 }
 
-static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *supp_entry)
+static bool ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *supp_entry)
 {
     // Get next protocol based on what keys supplicant has
     kmp_type_e next_type = ws_pae_auth_next_protocol_get(pae_auth, supp_entry);
@@ -1154,7 +1154,7 @@ static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *sup
         // Supplicant goes inactive after 15 seconds
         ws_pae_lib_supp_timer_ticks_set(supp_entry, WAIT_AFTER_AUTHENTICATION_TICKS);
         // All done
-        return;
+        return true;
     } else {
         kmp_api_t *api = ws_pae_lib_kmp_list_type_get(&supp_entry->kmp_list, next_type);
         if (api != NULL) {
@@ -1162,7 +1162,7 @@ static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *sup
                for GTK there can be previous terminating and the new one for next key index */
             if (next_type != IEEE_802_11_GKH) {
                 tr_info("KMP already ongoing; ignored, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
-                return;
+                return false;
             }
         }
     }
@@ -1173,7 +1173,7 @@ static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *sup
     // Create new instance
     kmp_api_t *new_kmp = ws_pae_auth_kmp_create_and_start(pae_auth->kmp_service, next_type, pae_auth->relay_socked_msg_if_instance_id, supp_entry, pae_auth->sec_cfg);
     if (!new_kmp) {
-        return;
+        return false;
     }
 
     // For radius EAP-TLS create also radius client in addition to EAP-TLS
@@ -1181,12 +1181,12 @@ static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *sup
         if (ws_pae_lib_kmp_list_type_get(&supp_entry->kmp_list, RADIUS_CLIENT_PROT) != NULL) {
             // Radius client already exists, wait for it to be deleted
             ws_pae_lib_kmp_list_delete(&supp_entry->kmp_list, new_kmp);
-            return;
+            return false;
         }
         // Create radius client instance */
         if (ws_pae_auth_kmp_create_and_start(pae_auth->kmp_service, RADIUS_CLIENT_PROT, pae_auth->radius_socked_msg_if_instance_id, supp_entry, pae_auth->sec_cfg) == NULL) {
             ws_pae_lib_kmp_list_delete(&supp_entry->kmp_list, new_kmp);
-            return;
+            return false;
         }
     }
     // For EAP-TLS create also TLS client in addition to EAP-TLS
@@ -1194,16 +1194,17 @@ static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *sup
         if (ws_pae_lib_kmp_list_type_get(&supp_entry->kmp_list, TLS_PROT) != NULL) {
             // TLS already exists, wait for it to be deleted
             ws_pae_lib_kmp_list_delete(&supp_entry->kmp_list, new_kmp);
-            return;
+            return false;
         }
         // Create TLS instance */
         if (ws_pae_auth_kmp_create_and_start(pae_auth->kmp_service, TLS_PROT, pae_auth->relay_socked_msg_if_instance_id, supp_entry, pae_auth->sec_cfg) == NULL) {
             ws_pae_lib_kmp_list_delete(&supp_entry->kmp_list, new_kmp);
-            return;
+            return false;
         }
     }
 
     kmp_api_create_request(new_kmp, next_type, &supp_entry->addr, &supp_entry->sec_keys);
+    return false;
 }
 
 static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry_t *supp_entry)

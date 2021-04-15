@@ -927,7 +927,20 @@ int ws_stack_info_get(int8_t interface_id, ws_stack_info_t *info_ptr)
     if (!cur || !ws_info(cur) || !info_ptr) {
         return -1;
     }
-    return ws_bootstrap_get_info(cur, info_ptr);
+    return ws_bootstrap_stack_info_get(cur, info_ptr);
+}
+
+int ws_neighbor_info_get(
+    int8_t interface_id,
+    ws_neighbour_info_t *neighbor_ptr,
+    uint16_t count)
+{
+    protocol_interface_info_entry_t *cur;
+    cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur || !ws_info(cur)) {
+        return -1;
+    }
+    return ws_bootstrap_neighbor_info_get(cur, neighbor_ptr, count);
 }
 
 int ws_device_min_sens_set(

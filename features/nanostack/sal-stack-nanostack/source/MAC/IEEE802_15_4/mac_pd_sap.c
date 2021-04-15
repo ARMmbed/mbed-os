@@ -455,7 +455,7 @@ static int8_t mac_data_interface_tx_done_cb(protocol_interface_rf_mac_setup_s *r
     }
 
 #ifdef TIMING_TOOL_TRACES
-    if ((status == PHY_LINK_CCA_FAIL) || (status == PHY_LINK_CCA_PREPARE)) {
+    if ((status == PHY_LINK_CCA_FAIL) || (status == PHY_LINK_CCA_FAIL_RX) || (status == PHY_LINK_CCA_PREPARE)) {
         tr_info("%u CSMA_done", mac_mcps_sap_get_phy_timestamp(rf_ptr));
     }
 #endif
@@ -559,7 +559,8 @@ VALIDATE_TX_TIME:
 
         // Do not update CCA count when Ack is received, it was already updated with PHY_LINK_TX_SUCCESS event
         // Do not update CCA count when CCA_OK is received, PHY_LINK_TX_SUCCESS will update it
-        if ((status != PHY_LINK_TX_DONE) && (status != PHY_LINK_TX_DONE_PENDING) && (status != PHY_LINK_CCA_OK)) {
+        // Do not update CCA count when CCA fail was because of active reception, MAC will restart CCA check in this case
+        if ((status != PHY_LINK_TX_DONE) && (status != PHY_LINK_TX_DONE_PENDING) && (status != PHY_LINK_CCA_OK) && (status != PHY_LINK_CCA_FAIL_RX)) {
             /* For PHY_LINK_TX_SUCCESS and PHY_LINK_CCA_FAIL cca_retry must always be > 0.
              * PHY_LINK_TX_FAIL either happened during transmission or when waiting Ack -> we must use the CCA count given by PHY.
              */
@@ -593,6 +594,9 @@ VALIDATE_TX_TIME:
         } else if (status == PHY_LINK_CCA_FAIL) {
             waiting_ack = false;
             tx_completed = false;
+        } else if (status == PHY_LINK_CCA_FAIL_RX) {
+            waiting_ack = false;
+            tx_completed = false;
         } else if (status == PHY_LINK_CCA_OK) {
             waiting_ack = false;
             tx_completed = false;
@@ -620,6 +624,7 @@ VALIDATE_TX_TIME:
             break;
 
         case PHY_LINK_CCA_FAIL:
+        case PHY_LINK_CCA_FAIL_RX:
             mac_sap_cca_fail_cb(rf_ptr, failed_channel);
             break;
 

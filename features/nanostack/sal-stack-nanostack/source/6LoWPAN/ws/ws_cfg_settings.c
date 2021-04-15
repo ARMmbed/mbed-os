@@ -98,10 +98,10 @@ typedef struct cfg_devices_in_config {
  *
  */
 const cfg_devices_in_config_t devices_by_datarate[] = {
-    { 1,  4, 10,  25}, // Configuration for 50 -100kbs
-    { 1,  8, 15,  25}, // Configuration for 150kbs - 200kbs
-    { 2, 15, 25,  50}, // Configuration for 300kbs
-    { 3, 20, 40, 100}, // Configuration for 600kbs - 2400kbs
+    { 1,  5, 10,  25}, // Configuration for 50 -100kbs
+    { 1, 10, 20,  40}, // Configuration for 150kbs - 200kbs
+    { 1, 15, 30,  60}, // Configuration for 300kbs
+    { 2, 20, 50, 100}, // Configuration for 600kbs - 2400kbs
 };
 
 
@@ -344,6 +344,39 @@ int8_t ws_cfg_network_size_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_
     return CFG_SETTINGS_OK;
 }
 
+static uint8_t ws_cfg_config_get_by_size(protocol_interface_info_entry_t *cur, uint8_t network_size)
+{
+    (void)cur;
+
+    ws_phy_cfg_t phy_cfg;
+    if (ws_cfg_phy_get(&phy_cfg, NULL) < 0) {
+        return CONFIG_SMALL;
+    }
+    uint32_t data_rate = ws_common_datarate_get_from_phy_mode(phy_cfg.phy_mode_id, phy_cfg.operating_mode);
+
+    uint8_t index;
+    if (data_rate < 150000) {
+        index = 0;
+    } else if (data_rate < 300000) {
+        index = 1;
+    } else if (data_rate < 600000) {
+        index = 2;
+    } else {
+        index = 3;
+    }
+
+    if (network_size == NETWORK_SIZE_CERTIFICATE) {
+        return CONFIG_CERTIFICATE;
+    } else if (network_size <= devices_by_datarate[index].max_for_small) {
+        return CONFIG_SMALL;
+    } else if (network_size <= devices_by_datarate[index].max_for_medium) {
+        return CONFIG_MEDIUM;
+    } else if (network_size <= devices_by_datarate[index].max_for_large) {
+        return CONFIG_LARGE;
+    }
+    return CONFIG_XLARGE;
+}
+
 int8_t ws_cfg_network_size_configure(protocol_interface_info_entry_t *cur, uint16_t network_size)
 {
     // Read settings that are affected by network size
@@ -364,18 +397,18 @@ int8_t ws_cfg_network_size_configure(protocol_interface_info_entry_t *cur, uint1
         memcpy(nw_size_external_cfg, &new_nw_size_cfg, sizeof(ws_cfg_nw_size_t));
     }
 
-    // Small
-    if (network_size < 100) {
-        // Automatic
+    network_size = network_size / 100;
+    if (network_size == 0) {
+        network_size = 1;
+    }
+
+    if (ws_cfg_config_get_by_size(cur, network_size) == CONFIG_SMALL) {
         ws_cfg_network_size_config_set_small(&new_nw_size_cfg);
-    } else if (network_size < 800) {
-        // Medium
+    } else if (ws_cfg_config_get_by_size(cur, network_size) == CONFIG_MEDIUM) {
         ws_cfg_network_size_config_set_medium(&new_nw_size_cfg);
-    } else if (network_size < 1500) {
-        // Medium
+    } else if (ws_cfg_config_get_by_size(cur, network_size) == CONFIG_LARGE) {
         ws_cfg_network_size_config_set_large(&new_nw_size_cfg);
     } else {
-        // Large
         ws_cfg_network_size_config_set_xlarge(&new_nw_size_cfg);
     }
 
@@ -400,33 +433,8 @@ cfg_network_size_type_e ws_cfg_network_config_get(protocol_interface_info_entry_
     if (ws_cfg_gen_get(&cfg, NULL) < 0) {
         return CONFIG_SMALL;
     }
-    ws_phy_cfg_t phy_cfg;
-    if (ws_cfg_phy_get(&phy_cfg, NULL) < 0) {
-        return CONFIG_SMALL;
-    }
 
-    uint32_t data_rate = ws_get_datarate_using_operating_mode(phy_cfg.operating_mode);
-    uint8_t index;
-    if (data_rate < 150000) {
-        index = 0;
-    } else if (data_rate < 300000) {
-        index = 1;
-    } else if (data_rate < 600000) {
-        index = 2;
-    } else {
-        index = 3;
-    }
-
-    if (cfg.network_size == NETWORK_SIZE_CERTIFICATE) {
-        return CONFIG_CERTIFICATE;
-    } else if (cfg.network_size <= devices_by_datarate[index].max_for_small) {
-        return CONFIG_SMALL;
-    } else if (cfg.network_size <= devices_by_datarate[index].max_for_medium) {
-        return CONFIG_MEDIUM;
-    } else if (cfg.network_size <= devices_by_datarate[index].max_for_large) {
-        return CONFIG_LARGE;
-    }
-    return CONFIG_XLARGE;
+    return ws_cfg_config_get_by_size(cur, cfg.network_size);
 }
 
 
@@ -522,7 +530,7 @@ static void ws_cfg_network_size_config_set_large(ws_cfg_nw_size_t *cfg)
     cfg->gen.rpl_selected_parent_max = WS_RPL_SELECTED_PARENT_MAX;
 
     // Configure the Wi-SUN timing trickle parameters
-    cfg->timing.disc_trickle_imin = TRICKLE_IMIN_60_SECS << 2;       // 240 seconds
+    cfg->timing.disc_trickle_imin = TRICKLE_IMIN_60_SECS << 1;       // 120 seconds
     cfg->timing.disc_trickle_imax = 1536;      // 1536 seconds; 25 minutes
     cfg->timing.disc_trickle_k = 1;
     cfg->timing.pan_timeout = PAN_VERSION_LARGE_NETWORK_TIMEOUT;
@@ -530,7 +538,7 @@ static void ws_cfg_network_size_config_set_large(ws_cfg_nw_size_t *cfg)
     cfg->timing.temp_eapol_min_timeout = WS_EAPOL_TEMPORARY_ENTRY_LARGE_TIMEOUT;
 
     // RPL configuration
-    cfg->bbr.dio_interval_min = WS_RPL_DIO_IMIN_LARGE;               // 18; 262s, 4.5min
+    cfg->bbr.dio_interval_min = WS_RPL_DIO_IMIN_LARGE;               // 18; 256s, 4.5min
     cfg->bbr.dio_interval_doublings = WS_RPL_DIO_DOUBLING_LARGE;     // 3; 2048s, 34min
     cfg->bbr.dio_redundancy_constant = WS_RPL_DIO_REDUNDANCY_LARGE;  // 10
     cfg->bbr.dag_max_rank_increase = WS_RPL_MAX_HOP_RANK_INCREASE;
@@ -1441,7 +1449,7 @@ uint32_t ws_cfg_neighbour_temporary_lifetime_get(void)
 }
 void ws_cfg_neighbour_temporary_lifetime_set(uint32_t lifetime)
 {
-    if (lifetime >= WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME || lifetime == 0) {
+    if (lifetime > WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME || lifetime == 0) {
         if (lifetime > WS_NEIGHBOR_LINK_TIMEOUT) {
             lifetime = WS_NEIGHBOR_LINK_TIMEOUT;
         }

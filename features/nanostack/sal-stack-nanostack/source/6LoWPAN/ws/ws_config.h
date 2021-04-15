@@ -95,9 +95,9 @@
  *
  */
 
-#define PAN_VERSION_SMALL_NETWORK_TIMEOUT 32*60
+#define PAN_VERSION_SMALL_NETWORK_TIMEOUT 30*60
 
-#define PAN_VERSION_MEDIUM_NETWORK_TIMEOUT 64*60
+#define PAN_VERSION_MEDIUM_NETWORK_TIMEOUT 60*60
 
 #define PAN_VERSION_LARGE_NETWORK_TIMEOUT 90*60
 
@@ -290,7 +290,7 @@ extern uint8_t DEVICE_MIN_SENS;
 // Large network trickle values for sending of initial EAPOL-key
 #define LARGE_NW_INITIAL_KEY_TRICKLE_IMIN_SECS         600   /* 10 to 20 minutes */
 #define LARGE_NW_INITIAL_KEY_TRICKLE_IMAX_SECS         1200
-#define LARGE_NW_INITIAL_KEY_RETRY_COUNT               4
+#define LARGE_NW_INITIAL_KEY_RETRY_COUNT               3
 
 // Very slow network values for sending of initial EAPOL-key
 #define EXTRA_LARGE_NW_INITIAL_KEY_TRICKLE_IMIN_SECS   600   /* 10 to 20 minutes */
