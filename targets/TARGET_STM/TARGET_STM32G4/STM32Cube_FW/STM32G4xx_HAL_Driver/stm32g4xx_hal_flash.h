@@ -273,6 +273,9 @@ typedef struct
 #define OB_USER_BFB2              0x00000080U              /*!< Dual-bank boot */
 #define OB_USER_DBANK             0x00000100U              /*!< Single bank with 128-bits data or two banks with 64-bits data */
 #endif
+#if defined (FLASH_OPTR_PB4_PUPEN)
+#define OB_USER_PB4_PUPEN         0x00000100U              /*!< USB power delivery dead-battery/TDI pull-up */
+#endif
 #define OB_USER_nBOOT1            0x00000200U              /*!< Boot configuration */
 #define OB_USER_SRAM_PE           0x00000400U              /*!< SRAM parity check enable (first 32kB of SRAM1 + CCM SRAM) */
 #define OB_USER_CCMSRAM_RST       0x00000800U              /*!< CCMSRAM Erase when system reset */
@@ -375,6 +378,17 @@ typedef struct
   */
 #define OB_DBANK_128_BITS         0x00000000U              /*!< Single-bank with 128-bits data */
 #define OB_DBANK_64_BITS          FLASH_OPTR_DBANK         /*!< Dual-bank with 64-bits data */
+/**
+  * @}
+  */
+#endif
+
+#if defined (FLASH_OPTR_PB4_PUPEN)
+/** @defgroup FLASH_OB_USER_PB4_PUPEN FLASH Option Bytes User PB4 PUPEN bit
+  * @{
+  */
+#define OB_PB4_PUPEN_DISABLE      0x00000000U              /*!< USB power delivery dead-battery enabled/ TDI pull-up deactivated */
+#define OB_PB4_PUPEN_ENABLE       FLASH_OPTR_PB4_PUPEN     /*!< USB power delivery dead-battery disabled/ TDI pull-up activated */
 /**
   * @}
   */
@@ -950,6 +964,10 @@ HAL_StatusTypeDef  FLASH_WaitForLastOperation(uint32_t Timeout);
 #define IS_OB_USER_BFB2(VALUE)             (((VALUE) == OB_BFB2_DISABLE) || ((VALUE) == OB_BFB2_ENABLE))
 
 #define IS_OB_USER_DBANK(VALUE)            (((VALUE) == OB_DBANK_128_BITS) || ((VALUE) == OB_DBANK_64_BITS))
+#endif
+
+#if defined (FLASH_OPTR_PB4_PUPEN)
+#define IS_OB_USER_PB4_PUPEN(VALUE)        (((VALUE) == OB_PB4_PUPEN_DISABLE) || ((VALUE) == OB_PB4_PUPEN_ENABLE))
 #endif
 
 #define IS_OB_USER_BOOT1(VALUE)            (((VALUE) == OB_BOOT1_SRAM) || ((VALUE) == OB_BOOT1_SYSTEM))
