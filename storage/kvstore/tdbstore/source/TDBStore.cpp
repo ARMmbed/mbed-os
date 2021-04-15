@@ -170,24 +170,31 @@ int TDBStore::write_area(uint8_t area, uint32_t offset, uint32_t size, const voi
     return MBED_SUCCESS;
 }
 
-int TDBStore::erase_erase_unit(uint8_t area, uint32_t offset)
+int TDBStore::erase_area(uint8_t area, uint32_t offset, uint32_t size)
 {
     uint32_t bd_offset = _area_params[area].address + offset;
-    uint32_t eu_size = _buff_bd->get_erase_size(bd_offset);
 
-    if (_buff_bd->get_erase_value() != -1) {
-        return _buff_bd->erase(bd_offset, eu_size);
-    } else {
-        // We need to simulate erase, as our block device
-        // does not do it. We can do this one byte at a time
-        // because we use BufferedBlockDevice that has page buffers
-        uint8_t val = 0xff;
-        int ret;
-        for (; eu_size; --eu_size) {
-            ret = _buff_bd->program(&val, bd_offset++, 1);
+    int ret = _buff_bd->erase(bd_offset, size);
+    if (ret) {
+        return ret;
+    }
+
+    if (_buff_bd->get_erase_value() == -1) {
+        // We need to simulate erase to wipe records, as our block device
+        // may not do it. Program in chunks of _work_buf_size if the minimum
+        // program size is too small (e.g. one-byte) to avoid performance
+        // issues.
+        MBED_ASSERT(_work_buf != nullptr);
+        MBED_ASSERT(_work_buf_size != 0);
+        memset(_work_buf, 0xFF, _work_buf_size);
+        while (size) {
+            uint32_t chunk = std::min<uint32_t>(_work_buf_size, size);
+            ret = _buff_bd->program(_work_buf, bd_offset, chunk);
             if (ret) {
                 return ret;
             }
+            size -= chunk;
+            bd_offset += chunk;
         }
     }
     return MBED_SUCCESS;
@@ -1458,19 +1465,24 @@ void TDBStore::offset_in_erase_unit(uint8_t area, uint32_t offset,
                                     uint32_t &offset_from_start, uint32_t &dist_to_end)
 {
     uint32_t bd_offset = _area_params[area].address + offset;
-    uint32_t agg_offset = 0;
 
-    while (bd_offset >= agg_offset + _buff_bd->get_erase_size(agg_offset)) {
-        agg_offset += _buff_bd->get_erase_size(agg_offset);
-    }
-    offset_from_start = bd_offset - agg_offset;
-    dist_to_end = _buff_bd->get_erase_size(agg_offset) - offset_from_start;
+    // The parameter of `BlockDevice::get_erase_size(bd_addr_t addr)`
+    // does not need to be aligned.
+    uint32_t erase_unit = _buff_bd->get_erase_size(bd_offset);
+
+    // Even on a flash device with multiple regions, the start address of
+    // an erase unit is aligned to the current region's unit size.
+    offset_from_start = bd_offset % erase_unit;
+    dist_to_end = erase_unit - offset_from_start;
 }
 
 int TDBStore::check_erase_before_write(uint8_t area, uint32_t offset, uint32_t size, bool force_check)
 {
     // In order to save init time, we don't check that the entire area is erased.
     // Instead, whenever reaching an erase unit start erase it.
+    bool erase = false;
+    uint32_t start_offset;
+    uint32_t end_offset;
     while (size) {
         uint32_t dist, offset_from_start;
         int ret;
@@ -1478,13 +1490,22 @@ int TDBStore::check_erase_before_write(uint8_t area, uint32_t offset, uint32_t s
         uint32_t chunk = std::min(size, dist);
 
         if (offset_from_start == 0 || force_check) {
-            ret = erase_erase_unit(area, offset - offset_from_start);
-            if (ret != MBED_SUCCESS) {
-                return MBED_ERROR_WRITE_FAILED;
+            if (!erase) {
+                erase = true;
+                start_offset = offset - offset_from_start;
             }
+            end_offset = offset + dist;
         }
         offset += chunk;
         size -= chunk;
     }
+
+    if (erase) {
+        int ret = erase_area(area, start_offset, end_offset - start_offset);
+        if (ret != MBED_SUCCESS) {
+            return MBED_ERROR_WRITE_FAILED;
+        }
+    }
+
     return MBED_SUCCESS;
 }

@@ -67,21 +67,6 @@ TEST_F(FileSystemStoreModuleTest, set_get)
     EXPECT_STREQ("data", buf);
 }
 
-TEST_F(FileSystemStoreModuleTest, erased_set_get)
-{
-    EXPECT_EQ(store->deinit(), MBED_SUCCESS);
-    EXPECT_EQ(heap.init(), MBED_SUCCESS);
-    EXPECT_EQ(heap.erase(0, heap.size()), MBED_SUCCESS);
-    EXPECT_EQ(heap.deinit(), MBED_SUCCESS);
-    EXPECT_EQ(store->init(), MBED_SUCCESS);
-    char buf[100];
-    size_t size;
-    EXPECT_EQ(store->set("key", "data", 5, 0), MBED_SUCCESS);
-    EXPECT_EQ(store->get("key", buf, 100, &size), MBED_SUCCESS);
-    EXPECT_EQ(size, 5);
-    EXPECT_STREQ("data", buf);
-}
-
 TEST_F(FileSystemStoreModuleTest, set_deinit_init_get)
 {
     char buf[100];
