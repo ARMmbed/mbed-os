@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited, All Rights Reserved
+ * Copyright (c) 2016 ARM Limited. All rights reserved.
  */
 
 #include "ns_types.h"
