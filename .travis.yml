@@ -16,7 +16,7 @@
 
 language: sh
 os: linux
-dist: xenial
+dist: focal
 
 
 env:
