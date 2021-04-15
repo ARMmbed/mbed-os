@@ -527,6 +527,16 @@ public:
     mesh_error_t enable_statistics(void);
 
     /**
+     * \brief Reset Wi-SUN statistics
+     *
+     * Resets MAC statistics and Wi-SUN statistics.
+     *
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_UNKNOWN on error
+     * */
+    mesh_error_t reset_statistics(void);
+
+    /**
      * \brief Reads Wi-SUN network statistics
      *
      * Reads network statistics.

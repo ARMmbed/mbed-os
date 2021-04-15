@@ -624,6 +624,18 @@ int wisun_tasklet_statistics_start(void)
     return 0;
 }
 
+int wisun_tasklet_statistics_reset(void)
+{
+    if (!statistics) {
+        return -1;
+    }
+
+    memset(&statistics->mac_statistics, 0, sizeof(mac_statistics_t));
+    memset(&statistics->ws_statistics, 0, sizeof(ws_statistics_t));
+
+    return 0;
+}
+
 static void wisun_tasklet_statistics_do_start(void)
 {
     if (!wisun_tasklet_data_ptr || wisun_tasklet_data_ptr->network_interface_id < 0 || !mac_api) {
