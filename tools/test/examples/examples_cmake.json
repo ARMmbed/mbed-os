@@ -134,7 +134,7 @@
         "exporters": [],
         "compile" : true,
         "export": true,
-        "test" : true,
+        "test" : false,
         "baud_rate": 9600,
         "compare_log": ["mbed-os-example-devicekey/tests/devicekey.log"],
         "auto-update" : true
