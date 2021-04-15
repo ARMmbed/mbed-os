@@ -78,7 +78,6 @@ function(mbed_set_profile_options target mbed_toolchain)
         target_compile_definitions(${target}
             INTERFACE
                 __ASSERT_MSG
-                MULADDC_CANNOT_USE_R7
         )
     endif()
 
