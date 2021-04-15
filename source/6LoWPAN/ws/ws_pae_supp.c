@@ -151,7 +151,7 @@ static int8_t ws_pae_supp_gtk_hash_mismatch_check(pae_supp_t *pae_supp);
 
 static void ws_pae_supp_kmp_api_create_confirm(kmp_api_t *kmp, kmp_result_e result);
 static void ws_pae_supp_kmp_api_create_indication(kmp_api_t *kmp, kmp_type_e type, kmp_addr_t *addr);
-static void ws_pae_supp_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e result, kmp_sec_keys_t *sec_keys);
+static bool ws_pae_supp_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e result, kmp_sec_keys_t *sec_keys);
 static void ws_pae_supp_kmp_api_finished(kmp_api_t *kmp);
 
 
@@ -429,11 +429,7 @@ static void ws_pae_supp_authenticate_response(pae_supp_t *pae_supp, auth_result_
     pae_supp->auth_trickle_running = false;
     if (pae_supp->auth_requested && pae_supp->auth_completed) {
         pae_supp->auth_requested = false;
-        uint8_t *target_eui_64 = NULL;
-        if (result != AUTH_RESULT_OK) {
-            target_eui_64 = pae_supp->target_addr.eui_64;
-        }
-        pae_supp->auth_completed(pae_supp->interface_ptr, result, target_eui_64);
+        pae_supp->auth_completed(pae_supp->interface_ptr, result, pae_supp->target_addr.eui_64);
     }
 }
 
@@ -1226,12 +1222,12 @@ static void ws_pae_supp_kmp_api_create_indication(kmp_api_t *kmp, kmp_type_e typ
     kmp_api_create_response(kmp, KMP_RESULT_OK);
 }
 
-static void ws_pae_supp_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e result, kmp_sec_keys_t *sec_keys)
+static bool ws_pae_supp_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e result, kmp_sec_keys_t *sec_keys)
 {
     kmp_service_t *service = kmp_api_service_get(kmp);
     pae_supp_t *pae_supp = ws_pae_supp_by_kmp_service_get(service);
     if (!pae_supp) {
-        return;
+        return false;
     }
 
     kmp_type_e type = kmp_api_type_get(kmp);
@@ -1263,6 +1259,8 @@ static void ws_pae_supp_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e
             pae_supp->tx_failure_on_initial_key = true;
         }
     }
+
+    return false;
 }
 
 static void ws_pae_supp_kmp_api_finished(kmp_api_t *kmp)

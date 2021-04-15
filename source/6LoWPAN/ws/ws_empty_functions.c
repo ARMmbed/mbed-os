@@ -452,6 +452,17 @@ int ws_stack_info_get(int8_t interface_id, ws_stack_info_t *info_ptr)
     return -1;
 }
 
+int ws_neighbor_info_get(
+    int8_t interface_id,
+    ws_neighbour_info_t *neighbor_ptr,
+    uint16_t count)
+{
+    (void) interface_id;
+    (void) neighbor_ptr;
+    (void) count;
+    return -1;
+}
+
 int ws_device_min_sens_set(
     int8_t interface_id,
     uint8_t device_min_sens)

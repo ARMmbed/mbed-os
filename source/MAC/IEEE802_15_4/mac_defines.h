@@ -124,6 +124,7 @@ typedef struct dev_driver_tx_buffer {
 #define MAC_CCA_MAX 8
 #define MAC_DEF_MIN_BE 3
 #define MAC_DEF_MAX_BE 5
+#define MAC_PRIORITY_EF_BACKOFF_MULTIPLIER  2
 
 typedef struct mac_active_scan {
     uint8_t pan_id[2];
@@ -246,6 +247,10 @@ typedef struct protocol_interface_rf_mac_setup {
     uint8_t mac_sequence;
     uint8_t mac_tx_retry;
     uint8_t mac_cca_retry;
+    uint8_t cca_failure_restart_max;
+    uint8_t tx_failure_restart_max;
+    uint16_t blacklist_min_ms;
+    uint16_t blacklist_max_ms;
     uint16_t mac_ack_wait_duration;
     uint8_t mac_mlme_retry_max;
     uint8_t aUnitBackoffPeriod;

@@ -449,6 +449,8 @@ int8_t mac_mlme_reset(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlm
     rf_mac_setup->macWaitingData = false;
     rf_mac_setup->macDataPollReq = false;
     rf_mac_setup->macRxDataAtPoll = false;
+    rf_mac_setup->macTxProcessActive = false;
+    rf_mac_setup->mac_ack_tx_active = false;
     //Clean MAC
     if (reset->SetDefaultPIB) {
         tr_debug("RESET MAC PIB");
@@ -596,7 +598,7 @@ static int8_t mac_mlme_8bit_set(protocol_interface_rf_mac_setup_s *rf_mac_setup,
             break;
 
         case macMaxBE:
-            if (value > 8 || value < 3) {
+            if (value > 8 || value < 1) {
                 return -1;
             }
             rf_mac_setup->macMaxBE = value;
@@ -747,6 +749,18 @@ static int8_t mac_mlme_set_multi_csma_parameters(protocol_interface_rf_mac_setup
     return 0;
 }
 
+static int8_t mac_mlme_set_data_request_restart_config(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
+{
+    mlme_request_restart_config_t request_restart_config;
+    memcpy(&request_restart_config, set_req->value_pointer, sizeof(mlme_request_restart_config_t));
+    rf_mac_setup->cca_failure_restart_max = request_restart_config.cca_failure_restart_max;
+    rf_mac_setup->tx_failure_restart_max = request_restart_config.tx_failure_restart_max;
+    rf_mac_setup->blacklist_min_ms = request_restart_config.blacklist_min_ms;
+    rf_mac_setup->blacklist_max_ms = request_restart_config.blacklist_max_ms;
+    tr_debug("Request restart config: CCA %u, TX %u, min %u, max %u", rf_mac_setup->cca_failure_restart_max, rf_mac_setup->tx_failure_restart_max, rf_mac_setup->blacklist_min_ms, rf_mac_setup->blacklist_max_ms);
+    return 0;
+}
+
 int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
 {
     if (!set_req || !rf_mac_setup || !rf_mac_setup->dev_driver || !rf_mac_setup->dev_driver->phy_driver) {
@@ -816,6 +830,8 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const m
             return 0;
         case macMultiCSMAParameters:
             return mac_mlme_set_multi_csma_parameters(rf_mac_setup, set_req);
+        case macRequestRestart:
+            return mac_mlme_set_data_request_restart_config(rf_mac_setup, set_req);
         case macRfConfiguration:
             rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_RF_CONFIGURATION, (uint8_t *) set_req->value_pointer);
             mac_mlme_set_symbol_rate(rf_mac_setup);

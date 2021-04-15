@@ -307,6 +307,25 @@ bool rpl_control_probe_parent_candidate(protocol_interface_info_entry_t *interfa
     return false;
 }
 
+uint16_t rpl_control_neighbor_info_get(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16], uint8_t *global_address)
+{
+
+    if (!interface->rpl_domain) {
+        return 0xffff;
+    }
+    ns_list_foreach(struct rpl_instance, instance, &interface->rpl_domain->instances) {
+        rpl_neighbour_t *neighbour = rpl_lookup_neighbour_by_ll_address(instance, ll_addr, interface->id);
+        if (neighbour) {
+            const uint8_t *global_address_ptr = rpl_neighbour_global_address(neighbour);
+            if (global_address && global_address_ptr) {
+                memcpy(global_address, global_address_ptr, 16);
+            }
+            return rpl_instance_candidate_rank(neighbour);
+        }
+    }
+    return 0xffff;
+}
+
 bool rpl_possible_better_candidate(struct protocol_interface_info_entry *interface, rpl_instance_t *rpl_instance, const uint8_t ll_addr[16], uint16_t candidate_rank, uint16_t etx)
 {
     if (!interface->rpl_domain) {

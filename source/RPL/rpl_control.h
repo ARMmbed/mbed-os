@@ -170,6 +170,7 @@ void rpl_control_unpublish_address(rpl_domain_t *domain, const uint8_t addr[16])
 bool rpl_control_is_dodag_parent(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16]);
 bool rpl_control_is_dodag_parent_candidate(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16], uint16_t candidate_cmp_limiter);
 bool rpl_control_probe_parent_candidate(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16]);
+uint16_t rpl_control_neighbor_info_get(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16], uint8_t *global_address);
 bool rpl_possible_better_candidate(struct protocol_interface_info_entry *interface, struct rpl_instance *rpl_instance, const uint8_t ll_addr[16], uint16_t candidate_rank, uint16_t etx);
 uint16_t rpl_control_parent_candidate_list_size(struct protocol_interface_info_entry *interface, bool parent_list);
 uint16_t rpl_control_candidate_list_size(struct protocol_interface_info_entry *interface, struct rpl_instance *rpl_instance);

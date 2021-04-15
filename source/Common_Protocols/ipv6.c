@@ -212,10 +212,12 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
      * reduce an existing entry if route has changed) */
     if (dest_entry->pmtu > outgoing_if->ipv6_neighbour_cache.link_mtu) {
         dest_entry->pmtu = outgoing_if->ipv6_neighbour_cache.link_mtu;
+        dest_entry->pmtu_lifetime = outgoing_if->pmtu_lifetime;
     }
     /* Route can also limit PMTU */
     if (dest_entry->pmtu > route->route_info.pmtu) {
         dest_entry->pmtu = route->route_info.pmtu;
+        dest_entry->pmtu_lifetime = outgoing_if->pmtu_lifetime;
     }
     /* Buffer then gets this PMTU (overwriting what we wrote from the route) */
     route->route_info.pmtu = dest_entry->pmtu;
@@ -1360,6 +1362,9 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
         }
     } else { /* unicast */
         if (!for_us) {
+            if (cur->if_common_forwarding_out_cb) {
+                cur->if_common_forwarding_out_cb(cur, buf);
+            }
             return ipv6_consider_forwarding_unicast_packet(buf, cur, &ll_src);
         }
     }

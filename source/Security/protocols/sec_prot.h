@@ -106,8 +106,10 @@ typedef void sec_prot_create_indication(sec_prot_t *prot);
  * \param result result
  * \param sec_keys security keys
  *
+ * \return TRUE authentication has been completed, FALSE authentication continues
+ *
  */
-typedef void sec_prot_finished_indication(sec_prot_t *prot, sec_prot_result_e result, sec_prot_keys_t *sec_keys);
+typedef bool sec_prot_finished_indication(sec_prot_t *prot, sec_prot_result_e result, sec_prot_keys_t *sec_keys);
 
 /**
  * sec_prot_finished Security protocol has finished and is ready for delete

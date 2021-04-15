@@ -141,8 +141,8 @@ static int8_t ws_pae_controller_frame_counter_read(pae_controller_t *controller)
 static void ws_pae_controller_frame_counter_reset(frame_counters_t *frame_counters);
 static void ws_pae_controller_frame_counter_index_reset(frame_counters_t *frame_counters, uint8_t index);
 static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller, sec_prot_gtk_keys_t *gtks);
-static int8_t ws_pae_controller_nvm_nw_info_write(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name, sec_prot_gtk_keys_t *gtks);
-static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t *interface_ptr, uint16_t *pan_id, char *network_name, sec_prot_gtk_keys_t *gtks);
+static int8_t ws_pae_controller_nvm_nw_info_write(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks);
+static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t *interface_ptr, uint16_t *pan_id, char *network_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks);
 
 
 static const char *FRAME_COUNTER_FILE = FRAME_COUNTER_FILE_NAME;
@@ -371,7 +371,13 @@ static void ws_pae_controller_nw_info_updated_check(protocol_interface_info_entr
     }
 
     if (controller->sec_keys_nw_info.updated || sec_prot_keys_gtks_are_updated(controller->sec_keys_nw_info.gtks)) {
-        ws_pae_controller_nvm_nw_info_write(interface_ptr, controller->sec_keys_nw_info.key_pan_id, controller->sec_keys_nw_info.network_name, controller->sec_keys_nw_info.gtks);
+        // Get own EUI-64
+        uint8_t gtk_eui64[8] = {0};
+        link_layer_address_s mac_params;
+        if (arm_nwk_mac_address_read(interface_ptr->id, &mac_params) >= 0) {
+            memcpy(gtk_eui64, mac_params.mac_long, 8);
+        }
+        ws_pae_controller_nvm_nw_info_write(interface_ptr, controller->sec_keys_nw_info.key_pan_id, controller->sec_keys_nw_info.network_name, gtk_eui64, controller->sec_keys_nw_info.gtks);
         controller->sec_keys_nw_info.updated = false;
         sec_prot_keys_gtks_updated_reset(controller->sec_keys_nw_info.gtks);
     }
@@ -844,9 +850,23 @@ static void ws_pae_controller_frame_counter_index_reset(frame_counters_t *frame_
 
 static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller, sec_prot_gtk_keys_t *gtks)
 {
-    if (ws_pae_controller_nvm_nw_info_read(controller->interface_ptr, &controller->sec_keys_nw_info.key_pan_id, controller->sec_keys_nw_info.network_name, gtks) < 0) {
+    uint8_t nvm_gtk_eui64[8];
+    if (ws_pae_controller_nvm_nw_info_read(controller->interface_ptr, &controller->sec_keys_nw_info.key_pan_id, controller->sec_keys_nw_info.network_name, nvm_gtk_eui64, gtks) < 0) {
         // If no stored GTKs and network info (pan_id and network name) exits
         return -1;
+    }
+
+    /* Get own EUI-64 and compare to the one read from the NVM. In case of mismatch delete GTKs and make
+       full authentication to update keys with new EUI-64 and in case of authenticator to update new
+       authenticator EUI-64 to the network. */
+    uint8_t gtk_eui64[8] = {0};
+    link_layer_address_s mac_params;
+    if (arm_nwk_mac_address_read(controller->interface_ptr->id, &mac_params) >= 0) {
+        memcpy(gtk_eui64, mac_params.mac_long, 8);
+    }
+    if (memcmp(nvm_gtk_eui64, gtk_eui64, 8) != 0) {
+        tr_warn("NVM EUI-64 mismatch, current: %s stored: %s", tr_array(gtk_eui64, 8), tr_array(nvm_gtk_eui64, 8));
+        sec_prot_keys_gtks_clear(gtks);
     }
 
     // Sets also new pan_id used for pan_id set by bootstrap
@@ -855,21 +875,21 @@ static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller, sec_p
     return 0;
 }
 
-static int8_t ws_pae_controller_nvm_nw_info_write(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name, sec_prot_gtk_keys_t *gtks)
+static int8_t ws_pae_controller_nvm_nw_info_write(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks)
 {
     nw_info_nvm_tlv_t *tlv = (nw_info_nvm_tlv_t *) ws_pae_controller_nvm_tlv_get(interface_ptr);
     if (!tlv) {
         return -1;
     }
 
-    ws_pae_nvm_store_nw_info_tlv_create(tlv, pan_id, network_name, gtks);
+    ws_pae_nvm_store_nw_info_tlv_create(tlv, pan_id, network_name, gtk_eui64, gtks);
 
     ws_pae_nvm_store_tlv_file_write(NW_INFO_FILE, (nvm_tlv_t *) tlv);
 
     return 0;
 }
 
-static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t *interface_ptr, uint16_t *pan_id, char *network_name, sec_prot_gtk_keys_t *gtks)
+static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t *interface_ptr, uint16_t *pan_id, char *network_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks)
 {
     nw_info_nvm_tlv_t *tlv_entry = (nw_info_nvm_tlv_t *) ws_pae_controller_nvm_tlv_get(interface_ptr);
     if (!tlv_entry) {
@@ -882,7 +902,7 @@ static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t
         return -1;
     }
 
-    if (ws_pae_nvm_store_nw_info_tlv_read(tlv_entry, pan_id, network_name, gtks) < 0) {
+    if (ws_pae_nvm_store_nw_info_tlv_read(tlv_entry, pan_id, network_name, gtk_eui64, gtks) < 0) {
         return -1;
     }
 
@@ -964,7 +984,8 @@ int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_pt
         }
         if (!read_gtks_to || sec_prot_keys_gtk_count(read_gtks_to) == 0) {
             // Key material invalid or GTKs are expired, delete GTKs from NVM
-            ws_pae_controller_nvm_nw_info_write(controller->interface_ptr, controller->sec_keys_nw_info.key_pan_id, controller->sec_keys_nw_info.network_name, NULL);
+            uint8_t gtk_eui64[8] = {0}; // Set GTK EUI-64 to zero
+            ws_pae_controller_nvm_nw_info_write(controller->interface_ptr, controller->sec_keys_nw_info.key_pan_id, controller->sec_keys_nw_info.network_name, gtk_eui64, NULL);
         }
     }
 
