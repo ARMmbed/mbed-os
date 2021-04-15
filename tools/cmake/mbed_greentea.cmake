@@ -3,7 +3,7 @@
 
 set(MBED_CONFIG_PATH ${CMAKE_CURRENT_BINARY_DIR} CACHE INTERNAL "")
 
-include(${MBED_PATH}/tools/cmake/app.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/app.cmake)
 
 # CMake Macro for generalizing CMake configuration across the greentea test suite with configurable parameters
 # Macro args:
