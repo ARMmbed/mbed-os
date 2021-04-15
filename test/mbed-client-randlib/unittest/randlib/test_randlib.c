@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ARM. All rights reserved.
+ * Copyright (c) 2016 ARM Limited. All rights reserved.
  */
 #include "test_randlib.h"
 #include <string.h>
