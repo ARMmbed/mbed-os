@@ -129,7 +129,6 @@ void init_spi(spi_t *obj)
 {
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
-
     __HAL_SPI_DISABLE(handle);
 
     DEBUG_PRINTF("init_spi: instance=0x%8X\r\n", (int)handle->Instance);
@@ -184,6 +183,8 @@ static void _spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
 #if defined SPI1_BASE
     // Enable SPI clock
     if (spiobj->spi == SPI_1) {
+		    __HAL_RCC_SPI1_FORCE_RESET();
+		    __HAL_RCC_SPI1_RELEASE_RESET();
         __HAL_RCC_SPI1_CLK_ENABLE();
         spiobj->spiIRQ = SPI1_IRQn;
     }
@@ -191,13 +192,17 @@ static void _spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
 
 #if defined SPI2_BASE
     if (spiobj->spi == SPI_2) {
-        __HAL_RCC_SPI2_CLK_ENABLE();
+	    __HAL_RCC_SPI2_FORCE_RESET();
+	    __HAL_RCC_SPI2_RELEASE_RESET();
+	    __HAL_RCC_SPI2_CLK_ENABLE();
         spiobj->spiIRQ = SPI2_IRQn;
     }
 #endif
 
 #if defined SPI3_BASE
     if (spiobj->spi == SPI_3) {
+		    __HAL_RCC_SPI3_FORCE_RESET();
+		    __HAL_RCC_SPI3_RELEASE_RESET();
         __HAL_RCC_SPI3_CLK_ENABLE();
         spiobj->spiIRQ = SPI3_IRQn;
     }
@@ -205,6 +210,8 @@ static void _spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
 
 #if defined SPI4_BASE
     if (spiobj->spi == SPI_4) {
+		    __HAL_RCC_SPI4_FORCE_RESET();
+		    __HAL_RCC_SPI4_RELEASE_RESET();
         __HAL_RCC_SPI4_CLK_ENABLE();
         spiobj->spiIRQ = SPI4_IRQn;
     }
@@ -212,6 +219,8 @@ static void _spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
 
 #if defined SPI5_BASE
     if (spiobj->spi == SPI_5) {
+		    __HAL_RCC_SPI5_FORCE_RESET();
+		    __HAL_RCC_SPI5_RELEASE_RESET();
         __HAL_RCC_SPI5_CLK_ENABLE();
         spiobj->spiIRQ = SPI5_IRQn;
     }
@@ -219,6 +228,8 @@ static void _spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
 
 #if defined SPI6_BASE
     if (spiobj->spi == SPI_6) {
+		    __HAL_RCC_SPI6_FORCE_RESET();
+		    __HAL_RCC_SPI6_RELEASE_RESET();
         __HAL_RCC_SPI6_CLK_ENABLE();
         spiobj->spiIRQ = SPI6_IRQn;
     }
@@ -787,29 +798,29 @@ int spi_master_write(spi_t *obj, int value)
     const int bitshift = datasize_to_transfer_bitshift(handle->Init.DataSize);
     MBED_ASSERT(bitshift >= 0);
 
-#if TARGET_STM32H7
-	    if (!LL_SPI_IsActiveFlag_RXP(SPI_INST(obj)))///Clears stale data in the receive buffer is there is any. 
-#else /* TARGET_STM32H7 */
-		/* Wait for RXNE flag before reading */
-		if (LL_SPI_IsActiveFlag_RXNE(SPI_INST(obj)))///Clears stale data in the receive buffer is there is any. 
-#endif /* TARGET_STM32H7 */
-		{
-			if (LL_SPI_IsActiveFlag_RXNE(SPI_INST(obj)))
-			{
-				/* Read received data */
-				if (bitshift == 1)
-				{
-					LL_SPI_ReceiveData16(SPI_INST(obj));
-#ifdef HAS_32BIT_SPI_TRANSFERS
-				} else if (bitshift == 2) {
-				 LL_SPI_ReceiveData32(SPI_INST(obj));
-#endif
-					}
-					else{
-						LL_SPI_ReceiveData8(SPI_INST(obj));
-					} 
-				}
-			}
+//#if TARGET_STM32H7
+//	    if (!LL_SPI_IsActiveFlag_RXP(SPI_INST(obj)))///Clears stale data in the receive buffer is there is any. 
+//#else /* TARGET_STM32H7 */
+//		/* Wait for RXNE flag before reading */
+//		if (LL_SPI_IsActiveFlag_RXNE(SPI_INST(obj)))///Clears stale data in the receive buffer is there is any. 
+//#endif /* TARGET_STM32H7 */
+//		{
+//			if (LL_SPI_IsActiveFlag_RXNE(SPI_INST(obj)))
+//			{
+//				/* Read received data */
+//				if (bitshift == 1)
+//				{
+//					LL_SPI_ReceiveData16(SPI_INST(obj));
+//#ifdef HAS_32BIT_SPI_TRANSFERS
+//				} else if (bitshift == 2) {
+//				 LL_SPI_ReceiveData32(SPI_INST(obj));
+//#endif
+//					}
+//					else{
+//						LL_SPI_ReceiveData8(SPI_INST(obj));
+//					} 
+//				}
+//			}
     
 
 #if defined(LL_SPI_RX_FIFO_TH_HALF)
