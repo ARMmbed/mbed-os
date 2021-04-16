@@ -35,6 +35,7 @@ target_sources(mbed-mimxrt1170-evk
         drivers/fsl_lpi2c.c
         drivers/fsl_lpspi.c
         drivers/fsl_lpuart.c
+        drivers/fsl_pit.c
         drivers/fsl_pmu.c
         drivers/fsl_pwm.c
         drivers/fsl_xbara.c
@@ -45,7 +46,7 @@ target_sources(mbed-mimxrt1170-evk
 target_link_libraries(mbed-mimxrt1170-evk
     INTERFACE
         mbed-mcuxpresso-mcus
-        mbed-evk
+        mbed-rt1170-evk
         mbed-imx
 )
 
