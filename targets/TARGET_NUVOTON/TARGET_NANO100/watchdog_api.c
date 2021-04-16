@@ -123,6 +123,11 @@ watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
 
 void hal_watchdog_kick(void)
 {
+    /* If a watchdog is not running, this function does nothing */
+    if (!(WDT->CTL & WDT_CTL_WTE_Msk)) {
+        return;
+    }
+
     wdt_timeout_rmn_clk = NU_MS2WDTCLK(wdt_timeout_reload_ms);
     watchdog_setup_cascade_timeout();
 }
