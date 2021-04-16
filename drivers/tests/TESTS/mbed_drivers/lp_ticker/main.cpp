@@ -154,7 +154,7 @@ void test_detach(void)
 {
     LowPowerTicker ticker;
     bool ret;
-    const milliseconds ticker_time_s = 10ms;
+    const milliseconds ticker_time_s = 100ms;
     const milliseconds wait_time_ms = 500ms;
 
     Semaphore sem(0, 1);

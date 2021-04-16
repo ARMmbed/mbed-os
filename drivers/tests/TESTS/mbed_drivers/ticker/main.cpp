@@ -245,7 +245,7 @@ void test_detach(void)
 {
     Ticker ticker;
     bool ret;
-    milliseconds ticker_time = 1000ms;
+    milliseconds ticker_time = 100ms;
     milliseconds wait_time = 500ms;
     Semaphore sem(0, 1);
 
