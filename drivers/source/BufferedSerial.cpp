@@ -115,6 +115,8 @@ int BufferedSerial::sync()
 
     api_unlock();
 
+    SerialBase::sync();
+
     return 0;
 }
 

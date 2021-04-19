@@ -119,6 +119,12 @@ public:
      */
     void send_break();
 
+    /** Flush hardware buffers associated with serial port
+     *
+     *  @return         0 on success, negative error code on failure
+     */
+    int sync(void);
+
     /** Enable serial input
      *
      * If both serial input and serial output are disabled, the
