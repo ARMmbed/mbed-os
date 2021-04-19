@@ -261,10 +261,8 @@ matrix:
       env: NAME=tools-py3.7
       python: 3.7
 
-
-    ### Extended Tests ###
     - &extended-vm
-       stage: "Extended"
+      stage: "Pin validation"
       name: "pinvalidate"
       env: NAME=pinvalidate
       language: python
