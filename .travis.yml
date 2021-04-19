@@ -217,10 +217,10 @@ matrix:
     ### Python Tests ###
     - &pytools-vm
       stage: "Pytest"
-      name: "tools-py27"
-      env: NAME=tools-py2.7
+      name: "tools-py35"
+      env: NAME=tools-py3.5
       language: python
-      python: 2.7
+      python: 3.5
       install:
         # Install gcc
         - source_pkg gcc
@@ -246,11 +246,6 @@ matrix:
         - python tools/test/pylint.py
         - coverage run -a tools/project.py -S | sed -n '/^Total/p'
         - coverage html
-
-    - <<: *pytools-vm
-      name: "tools-py35"
-      env: NAME=tools-py3.5
-      python: 3.5
 
     - <<: *pytools-vm
       name: "tools-py36"
