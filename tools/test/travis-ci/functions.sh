@@ -170,9 +170,7 @@ source_pkg()
   local aspell_deps="aspell
     aspell-en
     dictionaries-common
-    libaspell15
-    libncursesw5
-    libtinfo5"
+    libaspell15"
 
   local libfuse_deps="libfuse-dev
     libpcre3-dev

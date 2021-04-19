@@ -138,6 +138,7 @@ matrix:
       name: "spellcheck"
       env: NAME=doxy-spellcheck
       install:
+        - sudo apt-get -y install libncursesw5
         - source_pkg aspell
       script:
         # TODO: run checks on all directories once all mispellings are fixed
