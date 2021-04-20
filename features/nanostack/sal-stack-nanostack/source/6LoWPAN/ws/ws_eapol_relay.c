@@ -189,6 +189,13 @@ static void ws_eapol_relay_socket_cb(void *cb)
         return;
     }
 
+    // EAPOL PDU data length is zero (message contains only supplicant EUI-64 and KMP ID)
+    if (cb_data->d_len == 9) {
+        ws_eapol_pdu_mpx_eui64_purge(eapol_relay->interface_ptr, socket_pdu);
+        ns_dyn_mem_free(socket_pdu);
+        return;
+    }
+
     //First 8 byte is EUID64 and rsr payload
     if (ws_eapol_pdu_send_to_mpx(eapol_relay->interface_ptr, socket_pdu, socket_pdu + 8, cb_data->d_len - 8, socket_pdu, NULL, 0) < 0) {
         ns_dyn_mem_free(socket_pdu);

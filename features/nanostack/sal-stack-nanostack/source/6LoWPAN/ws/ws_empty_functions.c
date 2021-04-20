@@ -68,20 +68,41 @@ int ws_management_network_name_validate(
     return -1;
 }
 
-int ws_management_phy_mode_id_set(
+int ws_management_domain_configuration_set(
     int8_t interface_id,
-    uint8_t phy_mode_id)
+    uint8_t regulatory_domain,
+    uint8_t phy_mode_id,
+    uint8_t channel_plan_id)
 {
+    (void)regulatory_domain;
     (void)interface_id;
     (void)phy_mode_id;
+    (void)channel_plan_id;
     return -1;
 }
 
-int ws_management_channel_plan_id_set(
+int ws_management_domain_configuration_get(
     int8_t interface_id,
+    uint8_t *regulatory_domain,
+    uint8_t *phy_mode_id,
+    uint8_t *channel_plan_id)
+{
+    (void)regulatory_domain;
+    (void)interface_id;
+    (void)phy_mode_id;
+    (void)channel_plan_id;
+    return -1;
+}
+
+int ws_management_domain_configuration_validate(
+    int8_t interface_id,
+    uint8_t regulatory_domain,
+    uint8_t phy_mode_id,
     uint8_t channel_plan_id)
 {
+    (void)regulatory_domain;
     (void)interface_id;
+    (void)phy_mode_id;
     (void)channel_plan_id;
     return -1;
 }
@@ -428,6 +449,17 @@ int ws_stack_info_get(int8_t interface_id, ws_stack_info_t *info_ptr)
 {
     (void) interface_id;
     (void) info_ptr;
+    return -1;
+}
+
+int ws_neighbor_info_get(
+    int8_t interface_id,
+    ws_neighbour_info_t *neighbor_ptr,
+    uint16_t count)
+{
+    (void) interface_id;
+    (void) neighbor_ptr;
+    (void) count;
     return -1;
 }
 

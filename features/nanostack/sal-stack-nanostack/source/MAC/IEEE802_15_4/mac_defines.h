@@ -42,7 +42,8 @@ typedef enum mac_event_t {
     MAC_TX_TIMEOUT,
     MAC_ACK_SECURITY_FAIL,
     MAC_UNKNOWN_DESTINATION,
-    MAC_TX_PRECOND_FAIL
+    MAC_TX_PRECOND_FAIL,
+    MAC_RETURN_TO_QUEUE
 } mac_event_t;
 
 typedef enum mac_tx_status_type_t {
@@ -123,6 +124,7 @@ typedef struct dev_driver_tx_buffer {
 #define MAC_CCA_MAX 8
 #define MAC_DEF_MIN_BE 3
 #define MAC_DEF_MAX_BE 5
+#define MAC_PRIORITY_EF_BACKOFF_MULTIPLIER  2
 
 typedef struct mac_active_scan {
     uint8_t pan_id[2];
@@ -245,6 +247,10 @@ typedef struct protocol_interface_rf_mac_setup {
     uint8_t mac_sequence;
     uint8_t mac_tx_retry;
     uint8_t mac_cca_retry;
+    uint8_t cca_failure_restart_max;
+    uint8_t tx_failure_restart_max;
+    uint16_t blacklist_min_ms;
+    uint16_t blacklist_max_ms;
     uint16_t mac_ack_wait_duration;
     uint8_t mac_mlme_retry_max;
     uint8_t aUnitBackoffPeriod;
@@ -272,7 +278,7 @@ typedef struct protocol_interface_rf_mac_setup {
     int8_t bc_timer_id;
     uint32_t mlme_tick_count;
     uint32_t symbol_rate;
-    uint32_t symbol_time_us;
+    uint32_t symbol_time_ns;
     uint32_t datarate;
     uint8_t max_ED;
     uint16_t mlme_ED_counter;

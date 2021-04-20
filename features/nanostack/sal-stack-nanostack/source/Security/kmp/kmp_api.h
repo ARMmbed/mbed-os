@@ -49,8 +49,8 @@ typedef enum {
 typedef enum {
     KMP_RESULT_OK = 0,                    // Successful
     KMP_RESULT_ERR_NO_MEM = -1,           // No memory
-    KMP_RESULT_ERR_TX_NO_ACK = -2,        // No acknowledge was received
-    KMP_RESULT_ERR_UNSPEC = -3            // Other reason
+    KMP_RESULT_ERR_TX_NO_ACK = -2,        // No TX acknowledge was received
+    KMP_RESULT_ERR_TX_UNSPEC = -3         // Other TX reason
 } kmp_result_e;
 
 typedef enum {
@@ -115,8 +115,10 @@ void kmp_api_create_response(kmp_api_t *kmp, kmp_result_e result);
  * \param result ok or fail
  * \param sec_keys security keys
  *
+ * \return TRUE authentication has been completed, FALSE authentication continues
+ *
  */
-typedef void kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e result, kmp_sec_keys_t *sec_keys);
+typedef bool kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e result, kmp_sec_keys_t *sec_keys);
 
 /**
  * kmp_api_finished will be called when KMP has finished and is ready for delete
