@@ -49,7 +49,7 @@ function(mbed_set_profile_options target mbed_toolchain)
         )
     elseif(${mbed_toolchain} STREQUAL "ARM")
         list(APPEND profile_c_compile_options
-            "-O1"
+            "-O0"
         )
         target_compile_options(${target}
             INTERFACE
@@ -59,7 +59,7 @@ function(mbed_set_profile_options target mbed_toolchain)
         list(APPEND profile_cxx_compile_options
             "-fno-rtti"
             "-fno-c++-static-destructors"
-            "-O1"
+            "-O0"
         )
         target_compile_options(${target}
             INTERFACE
