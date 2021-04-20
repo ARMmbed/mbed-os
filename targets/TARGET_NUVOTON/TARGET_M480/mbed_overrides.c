@@ -84,9 +84,9 @@ void mbed_sdk_init(void)
         SYS_UnlockReg();
 
         /* Set up DPD power down mode */
-		CLK->PMUSTS |= CLK_PMUSTS_CLRWK_Msk;
-		CLK->PMUSTS |=	CLK_PMUSTS_TMRWK_Msk;
-		CLK_SetPowerDownMode(CLK_PMUCTL_PDMSEL_DPD);
+        CLK->PMUSTS |= CLK_PMUSTS_CLRWK_Msk;
+        CLK->PMUSTS |=	CLK_PMUSTS_TMRWK_Msk;
+        CLK_SetPowerDownMode(CLK_PMUCTL_PDMSEL_DPD);
 
         /* Set up PMU wakeup timer, wakeup interval must be WKTMRIS_256 25.6 ms at least */
         CLK_SET_WKTMR_INTERVAL(CLK_PMUCTL_WKTMRIS_256);
