@@ -8,6 +8,7 @@ set(MBED_CONFIG_PATH ${CMAKE_CURRENT_BINARY_DIR} CACHE STATIC "")
 
 include(${MBED_PATH}/tools/cmake/app.cmake)
 
+add_test(NAME mbed-test-mode-check COMMAND mbed-test-mode-check)
 add_executable(mbed-test-mode-check)
 project(mbed-test-mode-check)
 

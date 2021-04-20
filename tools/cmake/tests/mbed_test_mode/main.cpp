@@ -8,6 +8,6 @@
 #error "MBED_TEST_MODE not defined with BUILD_TESTING on"
 #else
 int main(){
-    return 1;
+    return 0;
 }
 #endif
