@@ -619,7 +619,7 @@ static void rf_handle_cca_ed_done(void)
             backup_time = 0;
         }
         rf_backup_timer_start(0, backup_time + PACKET_PROCESSING_TIME);
-        device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_CCA_FAIL, 0, 0);
+        device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_CCA_FAIL_RX, 0, 0);
         return;
     }
     if ((cca_enabled == true) && (((int8_t) rf_read_rf_register(RF_EDV, rf_module) > cca_threshold))) {
@@ -997,7 +997,7 @@ static void rf_backup_timer_interrupt(void)
     }
     if ((rf_state == RF_CSMA_STARTED) || (rf_state == RF_CSMA_WHILE_RX)) {
         TEST_CSMA_DONE
-        device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_CCA_FAIL, 0, 0);
+        device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_CCA_FAIL_RX, 0, 0);
     }
     TEST_TX_DONE
     TEST_RX_DONE

@@ -600,7 +600,7 @@ void mac_sec_mib_key_device_frame_counter_set(mlme_key_descriptor_t *key_descpri
     if (key_descpription_table->KeyFrameCounterPerKey) {
         uint32_t *counter_ptr = key_descpription_table->KeyDeviceFrameCounterList + attribute_index;
         *counter_ptr = frame_counter;
-    } else {
+    } else if (device_info) {
         device_info->FrameCounter = frame_counter;
     }
 }

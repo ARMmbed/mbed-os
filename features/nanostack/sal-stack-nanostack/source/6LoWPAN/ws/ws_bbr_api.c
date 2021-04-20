@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,16 +38,18 @@
 #include "RPL/rpl_data.h"
 #include "Common_Protocols/icmpv6.h"
 #include "Common_Protocols/icmpv6_radv.h"
+#include "Common_Protocols/ip.h"
 #include "ws_management_api.h"
 #include "net_rpl.h"
 #include "Service_Libs/nd_proxy/nd_proxy.h"
 #include "6LoWPAN/ws/ws_bbr_api_internal.h"
 #include "6LoWPAN/ws/ws_pae_controller.h"
+#include "6LoWPAN/lowpan_adaptation_interface.h"
 #include "DHCPv6_Server/DHCPv6_server_service.h"
 #include "DHCPv6_client/dhcpv6_client_api.h"
 #include "libDHCPv6/libDHCPv6_vendordata.h"
 #include "libNET/src/net_dns_internal.h"
-
+#include "platform/os_whiteboard.h"
 
 #include "ws_bbr_api.h"
 
@@ -450,6 +452,7 @@ static void ws_bbr_dodag_get(uint8_t *local_prefix_ptr, uint8_t *global_prefix_p
     memcpy(global_prefix_ptr, global_address, 8);
     return;
 }
+
 static void wisun_bbr_na_send(int8_t interface_id, const uint8_t target[static 16])
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
@@ -460,6 +463,8 @@ static void wisun_bbr_na_send(int8_t interface_id, const uint8_t target[static 1
     if (!cur->send_na) {
         return;
     }
+
+    whiteboard_os_modify(target, ADD);
 
     buffer_t *buffer = icmpv6_build_na(cur, false, true, true, target, NULL, ADDR_UNSPECIFIED);
     protocol_push(buffer);
@@ -514,12 +519,20 @@ static void ws_bbr_dhcp_server_dns_info_update(protocol_interface_info_entry_t *
         for (int n = 0; n < MAX_DNS_RESOLUTIONS; n++) {
             if (pre_resolved_dns_queries[n].domain_name != NULL) {
                 ptr = net_dns_option_vendor_option_data_dns_query_write(ptr, pre_resolved_dns_queries[n].address, pre_resolved_dns_queries[n].domain_name);
-                tr_info("set DNS query result for %s, addr: %s", pre_resolved_dns_queries[n].domain_name, tr_ipv6(pre_resolved_dns_queries[n].address));
             }
         }
     }
 
     DHCPv6_server_service_set_vendor_data(cur->id, global_id, ARM_ENTERPRISE_NUMBER, dhcp_vendor_data_ptr, dhcp_vendor_data_len);
+}
+
+static void wisun_dhcp_address_remove_cb(int8_t interfaceId, uint8_t *targetAddress, void *prefix_info)
+{
+    (void) interfaceId;
+    (void) prefix_info;
+    if (targetAddress) {
+        whiteboard_os_modify(targetAddress, REMOVE);
+    }
 }
 
 static void ws_bbr_dhcp_server_start(protocol_interface_info_entry_t *cur, uint8_t *global_id, uint32_t dhcp_address_lifetime)
@@ -535,7 +548,7 @@ static void ws_bbr_dhcp_server_start(protocol_interface_info_entry_t *cur, uint8
         tr_error("DHCPv6 Server create fail");
         return;
     }
-    DHCPv6_server_service_callback_set(cur->id, global_id, NULL, wisun_dhcp_address_add_cb);
+    DHCPv6_server_service_callback_set(cur->id, global_id, wisun_dhcp_address_remove_cb, wisun_dhcp_address_add_cb);
     //Check for anonymous mode
     bool anonymous = (configuration & BBR_DHCP_ANONYMOUS) ? true : false;
 
@@ -896,6 +909,18 @@ bool ws_bbr_ready_to_start(protocol_interface_info_entry_t *cur)
     return true;
 }
 
+static void ws_bbr_forwarding_cb(protocol_interface_info_entry_t *interface, buffer_t *buf)
+{
+    uint8_t traffic_class = buf->options.traffic_class >> IP_TCLASS_DSCP_SHIFT;
+
+    if (traffic_class == IP_DSCP_EF) {
+        //indicate EF forwarding to adaptation
+        lowpan_adaptation_expedite_forward_enable(interface);
+    }
+}
+
+
+
 void ws_bbr_init(protocol_interface_info_entry_t *interface)
 {
     (void) interface;
@@ -908,6 +933,7 @@ void ws_bbr_init(protocol_interface_info_entry_t *interface)
         ws_bbr_fhss_bsi = ws_bbr_bsi_read(&bbr_info_nvm_tlv);
         tr_debug("Read BSI %u from NVM", ws_bbr_fhss_bsi);
     }
+    interface->if_common_forwarding_out_cb = &ws_bbr_forwarding_cb;
 }
 
 
@@ -1447,6 +1473,7 @@ int ws_bbr_dns_query_result_set(int8_t interface_id, const uint8_t address[16], 
             if (address) {
                 // Update address
                 memcpy(pre_resolved_dns_queries[n].address, address, 16);
+                tr_info("Update DNS query result for %s, addr: %s", pre_resolved_dns_queries[n].domain_name, tr_ipv6(pre_resolved_dns_queries[n].address));
             } else {
                 // delete entry
                 memset(pre_resolved_dns_queries[n].address, 0, 16);
@@ -1469,6 +1496,7 @@ int ws_bbr_dns_query_result_set(int8_t interface_id, const uint8_t address[16], 
                 }
                 memcpy(pre_resolved_dns_queries[n].address, address, 16);
                 strcpy(pre_resolved_dns_queries[n].domain_name, domain_name_ptr);
+                tr_info("set DNS query result for %s, addr: %s", pre_resolved_dns_queries[n].domain_name, tr_ipv6(pre_resolved_dns_queries[n].address));
                 goto update_information;
             }
         }

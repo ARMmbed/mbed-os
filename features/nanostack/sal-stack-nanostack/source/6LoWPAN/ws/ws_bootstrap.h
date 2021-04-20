@@ -36,6 +36,7 @@ struct ws_us_ie;
 struct ws_bs_ie;
 struct ws_neighbor_class_entry;
 struct ws_stack_info;
+struct ws_neighbour_info;
 
 int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode);
 
@@ -96,7 +97,9 @@ void ws_bootstrap_eapol_tx_temporary_clear(struct protocol_interface_info_entry 
 
 void ws_bootstrap_neighbor_set_stable(struct protocol_interface_info_entry *interface, const uint8_t *src64);
 
-int ws_bootstrap_get_info(protocol_interface_info_entry_t *cur, struct ws_stack_info *info_ptr);
+int ws_bootstrap_stack_info_get(protocol_interface_info_entry_t *cur, struct ws_stack_info *info_ptr);
+
+int ws_bootstrap_neighbor_info_get(protocol_interface_info_entry_t *cur, struct ws_neighbour_info *neighbor_ptr, uint16_t table_max);
 
 void ws_bootstrap_mac_neighbor_short_time_set(struct protocol_interface_info_entry *interface, const uint8_t *src64, uint32_t valid_time);
 
@@ -110,7 +113,8 @@ void ws_bootstrap_mac_neighbor_short_time_set(struct protocol_interface_info_ent
 #define ws_bootstrap_neighbor_set_stable(interface, src64)
 #define ws_bootstrap_primary_parent_update(interface, neighbor)
 #define ws_bootstrap_secondary_parent_update(interface)
-#define ws_bootstrap_get_info(cur, info_ptr)
+#define ws_bootstrap_stack_info_get(cur, info_ptr)
+#define ws_bootstrap_neighbor_info_get(cur, neighbor_ptr, count)
 
 
 #endif //HAVE_WS

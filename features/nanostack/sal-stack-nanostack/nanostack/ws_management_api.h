@@ -90,6 +90,19 @@ extern "C" {
 #define NETWORK_SIZE_XLARGE         0x19    /**< 2500+ devices */
 #define NETWORK_SIZE_AUTOMATIC      0xFF    /**< Automatic network size */
 
+/**
+ * \brief Neighbor type to differentiate the Role of the neighbor.
+ */
+
+typedef enum {
+    WS_OTHER = 0,            /**< temporary or soon to be removed neighbor*/
+    WS_PRIMARY_PARENT,       /**< Primary parent used for upward packets and used from Border router downwards*/
+    WS_SECONDARY_PARENT,     /**< Secondary parent reported to border router and might be used as alternate route*/
+    WS_CANDIDATE_PARENT,     /**< Candidate neighbor that is considered as parent if there is problem with active parents*/
+    WS_CHILD                 /**< Child with registered address*/
+} ws_management_neighbor_type_e;
+
+
 /** Temporary API change flag. this will be removed when new version of API is implemented on applications
  *
  */
@@ -127,6 +140,47 @@ typedef struct ws_statistics {
     uint32_t asynch_tx_count;
     /** Asynch RX counter */
     uint32_t asynch_rx_count;
+
+
+    /** Time spent in individual Wi-SUN join state 1 Discovery*/
+    uint32_t join_state_1;
+    /** Time spent in individual Wi-SUN join state 2 Authentication*/
+    uint32_t join_state_2;
+    /** Time spent in individual Wi-SUN join state 3 Configuration learn*/
+    uint32_t join_state_3;
+    /** Time spent in individual Wi-SUN join state 4 RPL parent discovery*/
+    uint32_t join_state_4;
+    /** Time spent in individual Wi-SUN join state 5 Active state*/
+    uint32_t join_state_5;
+
+
+    /** Amount of Wi-SUN Pan Advertisement Solicit Message sent*/
+    uint32_t sent_PAS;
+    /** Amount of Wi-SUN Pan Advertisement Message sent*/
+    uint32_t sent_PA;
+    /** Amount of Wi-SUN Pan Configuration Solicit Message sent*/
+    uint32_t sent_PCS;
+    /** Amount of Wi-SUN Pan Configuration Message sent*/
+    uint32_t sent_PC;
+
+    /** Amount of Wi-SUN Pan Advertisement Solicit Message sent*/
+    uint32_t recv_PAS;
+    /** Amount of Wi-SUN Pan Advertisement Message sent*/
+    uint32_t recv_PA;
+    /** Amount of Wi-SUN Pan Configuration Solicit Message sent*/
+    uint32_t recv_PCS;
+    /** Amount of Wi-SUN Pan Configuration Message sent*/
+    uint32_t recv_PC;
+
+    /** New Neighbours found */
+    uint32_t Neighbour_add;
+    /** New Neighbours Removed */
+    uint32_t Neighbour_remove;
+    /** New Child added */
+    uint32_t Child_add;
+    /** Child lost */
+    uint32_t child_remove;
+
 } ws_statistics_t;
 
 /**
@@ -148,6 +202,28 @@ typedef struct ws_stack_info {
     /** Wi-SUN join state defined by Wi-SUN specification 1-5*/
     uint8_t join_state;
 } ws_stack_info_t;
+
+/**
+ * \brief Struct ws_neighbour_info_t Gives the neighbour information.
+ */
+typedef struct ws_neighbour_info {
+    /** Link local address*/
+    uint8_t link_local_address[16];
+    /** Global address if it is known set to 0 if not available*/
+    uint8_t global_address[16];
+    /** parent RSSI Out measured RSSI value calculated using EWMA specified by Wi-SUN from range of -174 (0) to +80 (254) dBm.*/
+    uint8_t rsl_out;
+    /** parent RSSI in measured RSSI value calculated using EWMA specified by Wi-SUN from range of -174 (0) to +80 (254) dBm.*/
+    uint8_t rsl_in;
+    /** RPL Rank value for parents 0xffff for neighbors RANK is unknown*/
+    uint16_t rpl_rank;
+    /** Measured ETX value if known set to 0xFFFF if not known or Child*/
+    uint16_t etx;
+    /** Remaining lifetime Link lifetime for parents and ARO lifetime for children*/
+    uint32_t lifetime;
+    /** Neighbour type (Primary Parent, Secondary Parent, Candidate parent, child, other(Temporary neighbours))*/
+    ws_management_neighbor_type_e type;
+} ws_neighbour_info_t;
 
 /**
  * Initialize Wi-SUN stack.
@@ -751,6 +827,25 @@ int ws_statistics_stop(
 int ws_stack_info_get(
     int8_t interface_id,
     ws_stack_info_t *info_ptr);
+
+/**
+ * Get Neighbor table information from stack.
+ *
+ * To allocate correct amount of memory first use the API with NULL to get current amount
+ * of neighbors. Then Allocate the memory and call the function to fill the table.
+ *
+ * \param interface_id Network interface ID.
+ * \param neighbor_ptr Pointer to memory where Neighbor table entries can be written.
+ * \param count amount of neighbor table entries allocated to memory.
+ *
+ * \return >=0 Success with amount of entries written in table.
+ * \return >=0 if neighbor_ptr is NULL returns the amount of neighbors currently.
+ * \return <0 Failure.
+ */
+int ws_neighbor_info_get(
+    int8_t interface_id,
+    ws_neighbour_info_t *neighbor_ptr,
+    uint16_t count);
 
 /**
  * Set minimum RF sensitivity acceptable for the parent selection

@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2016 ARM Limited. All rights reserved.
+ */
 #include <stdbool.h>
 #include <sys/types.h>
 #include <sys/stat.h>

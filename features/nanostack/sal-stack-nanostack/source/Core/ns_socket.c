@@ -1119,7 +1119,7 @@ int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct ns_msghdr 
 
 #ifndef NO_TCP
     if (socket_ptr->type == SOCKET_TYPE_STREAM) {
-        tcp_session_t *tcp_info = tcp_info(inet_pcb);
+        tcp_session_t *tcp_info = inet_pcb->session;
         if (!tcp_info) {
             tr_warn("No TCP session for cur Socket");
             ret_val = -3;
