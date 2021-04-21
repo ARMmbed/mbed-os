@@ -44,30 +44,6 @@ extern "C" {
 #include "lr1110_radio_types.h"
 #include "lr1110_types.h"
 
-/*#include "PinNames.h"
-#include "InterruptIn.h"
-#include "DigitalOut.h"
-#include "DigitalInOut.h"
-#include "SPI.h"
-#include "platform/PlatformMutex.h"
-#ifdef MBED_CONF_RTOS_PRESENT
-#include "rtos/Thread.h"
-#endif
-#include "lorawan/LoRaRadio.h"
-
-#ifdef MBED_CONF_SX1272_LORA_DRIVER_BUFFER_SIZE
-#define MAX_DATA_BUFFER_SIZE_SX172                        MBED_CONF_SX1272_LORA_DRIVER_BUFFER_SIZE
-#else
-#define MAX_DATA_BUFFER_SIZE_SX172                        255
-#endif
-
-#if DEVICE_LPTICKER
-#include "LowPowerTimeout.h"
-#define ALIAS_LORAWAN_TIMER    mbed::LowPowerTimeout
-#else
-#include "Timeout.h"
-#define ALIAS_LORAWAN_TIMER    mbed::Timeout
-#endif*/
 /*
  * -----------------------------------------------------------------------------
  * --- PUBLIC MACROS -----------------------------------------------------------
@@ -97,14 +73,14 @@ public:
      */
     lr1110_LoRaRadio(PinName mosi     		= MBED_CONF_lr1110_LORA_DRIVER_SPI_MOSI,
                      PinName miso           = MBED_CONF_lr1110_LORA_DRIVER_SPI_MISO
-                    /* PinName sclk           = MBED_CONF_lr1110_LORA_DRIVER_SPI_SCLK,
+                     PinName sclk           = MBED_CONF_lr1110_LORA_DRIVER_SPI_SCLK,
                      PinName nss            = MBED_CONF_lr1110_LORA_DRIVER_SPI_CS,
                      PinName nreset         = MBED_CONF_lr1110_LORA_DRIVER_NRESET,
                      PinName dio7           = MBED_CONF_lr1110_LORA_DRIVER_DIO7,
                      PinName dio8           = MBED_CONF_lr1110_LORA_DRIVER_DIO8,
                      PinName dio9           = MBED_CONF_lr1110_LORA_DRIVER_DIO9,
                      PinName busy 			= MBED_CONF_lr1110_LORA_DRIVER_BUSY,
-                     PinName lnactrlon		= MBED_CONF_lr1110_LORA_DRIVER_LNACTRLON*/
+                     PinName lnactrlon		= MBED_CONF_lr1110_LORA_DRIVER_LNACTRLON
                     );
 
     /**
