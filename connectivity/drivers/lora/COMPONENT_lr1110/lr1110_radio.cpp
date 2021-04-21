@@ -134,14 +134,14 @@ enum
  */
 SX1272_LoRaRadio::SX1272_LoRaRadio(PinName spi_mosi,
                                    PinName spi_miso
-                                   /*PinName spi_sclk,
+                                   PinName spi_sclk,
                                    PinName nss,
                                    PinName nreset,
                                    PinName dio7,
                                    PinName dio8,
                                    PinName dio9,
                                    PinName busy,
-                                   PinName lnactrlon*/)
+                                   PinName lnactrlon)
     :   _spi(spi_mosi, spi_miso, spi_sclk),
         _chip_select(nss, 1),
         _reset_ctl(nreset),
