@@ -33,7 +33,6 @@ typedef struct ws_neighbor_class_entry {
     bool broadcast_timing_info_stored: 1;
     bool broadcast_shedule_info_stored: 1;
     bool synch_done : 1;
-    bool negative_aro_send : 1;
     bool unicast_data_rx : 1;
 } ws_neighbor_class_entry_t;
 
