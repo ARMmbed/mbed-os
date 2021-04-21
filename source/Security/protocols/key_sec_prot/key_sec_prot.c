@@ -324,7 +324,7 @@ static int8_t key_sec_prot_tx_status_ind(sec_prot_t *prot, sec_prot_tx_status_e 
         sec_prot_result_set(&data->common, SEC_RESULT_ERR_TX_NO_ACK);
     } else if (tx_status != SEC_PROT_TX_OK) {
         // Indicates other failure
-        sec_prot_result_set(&data->common, SEC_RESULT_ERR_UNSPEC);
+        sec_prot_result_set(&data->common, SEC_RESULT_ERR_TX_UNSPEC);
     }
     prot->state_machine_call(prot);
     return 0;

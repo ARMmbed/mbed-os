@@ -93,7 +93,7 @@ int DHCPv6_server_respond_client(dhcpv6_gua_server_entry_s *serverBase, dhcpv6_r
     //Validate Client DUID
     dhcp_link_options_params_t clientDUID;
     if (libdhcpv6_get_link_address_from_duid(replyPacket->clientDUID.duid, replyPacket->clientDUID.duid_length, replyPacket->clientDUID.type, &clientDUID) == 0) {
-        dhcp_allocated_address = libdhcpv6_address_allocated_list_scan(serverBase, clientDUID.link_id, clientDUID.link_type, dhcp_ia_non_temporal_params->iaId, dhcp_ia_non_temporal_params->T0, dhcp_ia_non_temporal_params->T1, allocateNew);
+        dhcp_allocated_address = libdhcpv6_address_allocate(serverBase, clientDUID.link_id, clientDUID.link_type, dhcp_ia_non_temporal_params->iaId, dhcp_ia_non_temporal_params->T0, dhcp_ia_non_temporal_params->T1, allocateNew);
     }
     if (dhcp_allocated_address) {
         address_allocated = true;
@@ -109,7 +109,7 @@ int DHCPv6_server_respond_client(dhcpv6_gua_server_entry_s *serverBase, dhcpv6_r
 
             if (!serverBase->addCb(serverBase->interfaceId, &update_info, serverBase->guaPrefix)) {
                 address_allocated = false;
-                libdhcpv6_address_rm_from_allocated_list(serverBase, dhcp_allocated_address->nonTemporalAddress);
+                libdhcpv6_address_delete(serverBase, dhcp_allocated_address->nonTemporalAddress);
             }
         }
     }
@@ -299,9 +299,9 @@ void DHCPv6_server_service_delete(int8_t interface, uint8_t guaPrefix[static 8],
         ns_list_foreach_safe(dhcpv6_allocated_address_entry_t, cur, &serverInfo->allocatedAddressList) {
             //Delete Server data base
             if (serverInfo->removeCb) {
-                uint8_t allocated_address[16];
-                libdhcpv6_allocated_address_write(allocated_address, cur, serverInfo);
-                serverInfo->removeCb(interface, allocated_address, NULL);
+                uint8_t ipAddress[16];
+                libdhcpv6_allocated_address_write(ipAddress, cur, serverInfo);
+                serverInfo->removeCb(interface, ipAddress, NULL);
             }
         }
 
@@ -327,12 +327,19 @@ void DHCPv6_server_service_delete(int8_t interface, uint8_t guaPrefix[static 8],
 
 /* Control GUA address for client by DUI.Default value is true
  *
+ * Anonymous and disable address list can optimize either
+ * Using 16 bit suffix to optimize data amount in network
+ * and having list of assigned addresses meaning larger RAM usage at border router
+ *
+ * or Using SLAAC type address generation and not have a list of addresses at Border router
+ * -> Less RAM usage, but more bandwidth used
  *
  *  /param interface interface id of this thread instance.
  *  /param guaPrefix Prefix which will be removed
- *  /param mode true trig autonous mode, false define address by default suffics + client id
+ *  /param mode true assign addresses anonymously. false define address by Prefix + client id
+ *  /param disable_address_list Dont keep track of assigned Addresses (Can't be used if anonymous)
  */
-int DHCPv6_server_service_set_address_autonous_flag(int8_t interface, uint8_t guaPrefix[static 16], bool mode, bool autonomous_skip_list)
+int DHCPv6_server_service_set_address_generation_anonymous(int8_t interface, uint8_t guaPrefix[static 16], bool mode, bool disable_address_list)
 {
     dhcpv6_gua_server_entry_s *serverInfo = libdhcpv6_server_data_get_by_prefix_and_interfaceid(interface, guaPrefix);
     if (!serverInfo) {
@@ -340,12 +347,13 @@ int DHCPv6_server_service_set_address_autonous_flag(int8_t interface, uint8_t gu
 
     }
 
-    serverInfo->enableAddressAutonous = mode;
+    serverInfo->anonymousAddress = mode;
     if (mode) {
-        serverInfo->disableAddressListAllocation = autonomous_skip_list;
+        serverInfo->disableAddressList = disable_address_list;
     } else {
-        serverInfo->disableAddressListAllocation = false;
+        serverInfo->disableAddressList = false;
     }
+    tr_info("DHCPv6 %s, address list %s", mode ? "anonymous address" : "address mode SLAAC", disable_address_list ? "Not Stored" : "Stored");
 
     return 0;
 }
@@ -375,6 +383,7 @@ int DHCPv6_server_service_duid_update(int8_t interface, uint8_t guaPrefix[static
     if (!serverInfo) {
         return -1;
     }
+    tr_info("DHCPv6 duid %s", trace_array(duid_ptr, duid_length));
 
     return libdhcpv6_server_duid_set(serverInfo, duid_ptr, duid_type, duid_length);
 }
@@ -399,6 +408,7 @@ int DHCPv6_server_service_set_max_clients_accepts_count(int8_t interface, uint8_
     }
 
     serverInfo->maxSupportedClients = maxClientCount;
+    tr_info("DHCPv6 maximum clients %"PRIu32, serverInfo->maxSupportedClients);
 
     return 0;
 }
@@ -421,6 +431,7 @@ int DHCPv6_server_service_set_address_validlifetime(int8_t interface, uint8_t gu
         return -1;
     }
     serverInfo->validLifetime = validLifeTimne;
+    tr_info("DHCPv6 Valid lifetime %"PRIu32, serverInfo->validLifetime);
 
     return 0;
 }
@@ -510,7 +521,7 @@ void DHCPv6_server_service_timeout_cb(uint32_t timeUpdateInSeconds)
 {
     (void) timeUpdateInSeconds;
 }
-int DHCPv6_server_service_set_address_autonous_flag(int8_t interface, uint8_t guaPrefix[static 16], bool mode, bool autonomous_skip_list)
+int DHCPv6_server_service_set_address_generation_anonymous(int8_t interface, uint8_t guaPrefix[static 16], bool mode, bool autonomous_skip_list)
 {
     (void) interface;
     (void) guaPrefix;

@@ -139,6 +139,8 @@ void dhcp_client_global_address_delete(int8_t interface, uint8_t *dhcp_addr, uin
 
 void dhcp_relay_agent_enable(int8_t interface, uint8_t border_router_address[static 16]);
 
+void dhcp_relay_agent_interface_id_option_enable(int8_t interface, bool enable);
+
 int dhcp_client_server_address_update(int8_t interface, uint8_t *prefix, uint8_t server_address[static 16]);
 
 

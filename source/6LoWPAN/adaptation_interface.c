@@ -101,6 +101,7 @@ typedef struct {
     uint16_t indirect_big_packet_threshold;
     uint16_t max_indirect_big_packets_total;
     uint16_t max_indirect_small_packets_per_child;
+    uint32_t last_rx_high_priority;
     bool fragmenter_active; /*!< Fragmenter state */
     adaptation_etx_update_cb *etx_update_cb;
     mpx_api_t *mpx_api;
@@ -109,6 +110,7 @@ typedef struct {
 } fragmenter_interface_t;
 
 #define LOWPAN_ACTIVE_UNICAST_ONGOING_MAX 10
+#define LOWPAN_HIGH_PRIORITY_STATE_LENGTH 50 //5 seconds 100us ticks
 
 /* Minimum buffer amount and memory size to ensure operation even in out of memory situation
  */
@@ -116,6 +118,7 @@ typedef struct {
 #define LOWPAN_MEM_LIMIT_MIN_MEMORY 10000
 #define LOWPAN_MEM_LIMIT_REMOVE_NORMAL 3000 // Remove when approaching memory limit
 #define LOWPAN_MEM_LIMIT_REMOVE_MAX 10000 // Remove when at memory limit
+#define LOWPAN_MEM_LIMIT_REMOVE_EF_MODE 20000 // Remove when out of memory and we are in EF mode
 
 
 
@@ -155,6 +158,7 @@ static bool lowpan_adaptation_indirect_queue_free_message(struct protocol_interf
 static fragmenter_tx_entry_t *lowpan_adaptation_indirect_mac_data_request_active(fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr);
 
 static bool lowpan_buffer_tx_allowed(fragmenter_interface_t *interface_ptr, buffer_t *buf);
+static bool lowpan_adaptation_purge_from_mac(struct protocol_interface_info_entry *cur, fragmenter_interface_t *interface_ptr,  uint8_t msduhandle);
 
 static void lowpan_adaptation_etx_update_cb(protocol_interface_info_entry_t *cur, buffer_t *buf, const mcps_data_conf_t *confirm)
 {
@@ -251,6 +255,28 @@ static void lowpan_adaptation_tx_queue_write(fragmenter_interface_t *interface_p
     protocol_stats_update(STATS_AL_TX_QUEUE_SIZE, interface_ptr->directTxQueue_size);
 }
 
+static void lowpan_adaptation_tx_queue_write_to_front(fragmenter_interface_t *interface_ptr, buffer_t *buf)
+{
+    buffer_t *lower_priority_buf = NULL;
+
+    ns_list_foreach(buffer_t, cur, &interface_ptr->directTxQueue) {
+
+        if (cur->priority <= buf->priority) {
+            lower_priority_buf = cur;
+            break;
+        }
+    }
+
+    if (lower_priority_buf) {
+        ns_list_add_before(&interface_ptr->directTxQueue, lower_priority_buf, buf);
+    } else {
+        ns_list_add_to_end(&interface_ptr->directTxQueue, buf);
+    }
+    interface_ptr->directTxQueue_size++;
+    lowpan_adaptation_tx_queue_level_update(interface_ptr);
+    protocol_stats_update(STATS_AL_TX_QUEUE_SIZE, interface_ptr->directTxQueue_size);
+}
+
 static buffer_t *lowpan_adaptation_tx_queue_read(fragmenter_interface_t *interface_ptr)
 {
     // Currently this function is called only when data confirm is received for previously sent packet.
@@ -258,6 +284,12 @@ static buffer_t *lowpan_adaptation_tx_queue_read(fragmenter_interface_t *interfa
         return NULL;
     }
     ns_list_foreach_safe(buffer_t, buf, &interface_ptr->directTxQueue) {
+
+        if (buf->link_specific.ieee802_15_4.requestAck && interface_ptr->last_rx_high_priority &&  buf->priority < QOS_EXPEDITE_FORWARD) {
+            //Stop reading at this point when Priority is not enough big
+            return NULL;
+        }
+
         if (lowpan_buffer_tx_allowed(interface_ptr, buf)) {
             ns_list_remove(&interface_ptr->directTxQueue, buf);
             interface_ptr->directTxQueue_size--;
@@ -460,6 +492,7 @@ int8_t lowpan_adaptation_interface_reset(int8_t interface_id)
     buffer_free_list(&interface_ptr->directTxQueue);
     interface_ptr->directTxQueue_size = 0;
     interface_ptr->directTxQueue_level = 0;
+    interface_ptr->last_rx_high_priority = 0;
 
     return 0;
 }
@@ -506,12 +539,30 @@ void lowpan_adaptation_free_heap(bool full_gc)
 {
     ns_list_foreach(fragmenter_interface_t, interface_ptr, &fragmenter_interface_list) {
         // Go through all interfaces and free small amount of memory
-        // This is not very radical, but gives time to recover wthout causing too harsh changes
-        lowpan_adaptation_free_low_priority_packets(interface_ptr->interface_id, full_gc ? LOWPAN_MEM_LIMIT_REMOVE_MAX : LOWPAN_MEM_LIMIT_REMOVE_NORMAL);
+        // This is not very radical, but gives time to recover without causing too harsh changes
+        buffer_priority_t priority = QOS_NORMAL;
+        uint32_t amount = LOWPAN_MEM_LIMIT_REMOVE_NORMAL;
+
+        if (full_gc && interface_ptr->last_rx_high_priority) {
+            // We have encountered out of memory in EF state We handle this as Critical state
+            // Large amount of memory is freed and packets lower than EF priority can be dropped
+            priority = QOS_NETWORK_CTRL;
+            amount = LOWPAN_MEM_LIMIT_REMOVE_EF_MODE;
+        } else if (interface_ptr->last_rx_high_priority) {
+            // We are running out of memory and we are in EF state. We handle this as severe state
+            // Some amount of memory is freed and also lower than EF priority packets are dropped
+            priority = QOS_NETWORK_CTRL;
+            amount = LOWPAN_MEM_LIMIT_REMOVE_MAX;
+        } else if (full_gc) {
+            // We have encountered out of memory. we need to remove more packets, but we only remove normal priority packets
+            amount = LOWPAN_MEM_LIMIT_REMOVE_MAX;
+        }
+
+        lowpan_adaptation_free_low_priority_packets(interface_ptr->interface_id, priority, amount);
     }
 }
 
-int8_t lowpan_adaptation_free_low_priority_packets(int8_t interface_id, uint32_t requested_amount)
+int8_t lowpan_adaptation_free_low_priority_packets(int8_t interface_id, buffer_priority_t max_priority, uint32_t requested_amount)
 {
     fragmenter_interface_t *interface_ptr = lowpan_adaptation_interface_discover(interface_id);
 
@@ -543,7 +594,7 @@ int8_t lowpan_adaptation_free_low_priority_packets(int8_t interface_id, uint32_t
 
     //Only remove last entries from TX queue with low priority
     ns_list_foreach_reverse_safe(buffer_t, entry, &interface_ptr->directTxQueue) {
-        if (entry->priority == QOS_NORMAL) {
+        if (entry->priority <= max_priority) {
             memory_freed += sizeof(buffer_t) + entry->size;
             packets_freed++;
             ns_list_remove(&interface_ptr->directTxQueue, entry);
@@ -1028,12 +1079,34 @@ static void lowpan_data_request_to_mac(protocol_interface_info_entry_t *cur, buf
             buf->link_specific.ieee802_15_4.rf_channel_switch = false;
         }
     }
+    //Define data priority
+    mac_data_priority_t data_priority;
+
+    switch (buf->priority) {
+        case QOS_HIGH:
+            data_priority = MAC_DATA_MEDIUM_PRIORITY;
+            break;
+        case QOS_NETWORK_CTRL:
+            data_priority = MAC_DATA_HIGH_PRIORITY;
+            break;
+        case QOS_EXPEDITE_FORWARD:
+            data_priority = MAC_DATA_EXPEDITE_FORWARD;
+            break;
+        case QOS_MAC_BEACON:
+            data_priority = MAC_DATA_HIGH_PRIORITY;
+            break;
+        default:
+            data_priority = MAC_DATA_NORMAL_PRIORITY;
+            break;
+    }
 
     if (interface_ptr->mpx_api) {
         dataReq.ExtendedFrameExchange = buf->options.edfe_mode;
-        interface_ptr->mpx_api->mpx_data_request(interface_ptr->mpx_api, &dataReq, interface_ptr->mpx_user_id);
+        interface_ptr->mpx_api->mpx_data_request(interface_ptr->mpx_api, &dataReq, interface_ptr->mpx_user_id, data_priority);
     } else {
-        cur->mac_api->mcps_data_req(cur->mac_api, &dataReq);
+        mcps_data_req_ie_list_t ie_list;
+        memset(&ie_list, 0, sizeof(mcps_data_req_ie_list_t));
+        cur->mac_api->mcps_data_req_ext(cur->mac_api, &dataReq, &ie_list, NULL, data_priority);
     }
 }
 
@@ -1075,7 +1148,117 @@ static bool lowpan_buffer_tx_allowed(fragmenter_interface_t *interface_ptr, buff
     if (is_unicast && lowpan_adaptation_is_destination_tx_active(&interface_ptr->activeUnicastList, buf)) {
         return false;
     }
+
+    if (is_unicast && interface_ptr->last_rx_high_priority &&  buf->priority < QOS_EXPEDITE_FORWARD) {
+        return false;
+    }
     return true;
+}
+
+static uint32_t lowpan_adaptation_time_stamp_diff(uint32_t compare_stamp)
+{
+    if (protocol_core_monotonic_time < compare_stamp) {
+        return compare_stamp - protocol_core_monotonic_time;
+    }
+    return protocol_core_monotonic_time - compare_stamp;
+}
+
+static bool lowpan_adaptation_high_priority_state_exit(fragmenter_interface_t *interface_ptr)
+{
+    if (!interface_ptr->last_rx_high_priority || lowpan_adaptation_time_stamp_diff(interface_ptr->last_rx_high_priority) < LOWPAN_HIGH_PRIORITY_STATE_LENGTH) {
+        return false;
+    }
+
+    //Check First buffer_from tx queue
+    buffer_t *buf = ns_list_get_first(&interface_ptr->directTxQueue);
+    if (buf && buf->priority == QOS_EXPEDITE_FORWARD) {
+        //TX queue must not include any
+        return false;
+    }
+
+    //Check If we have a Any active TX process still active
+    ns_list_foreach(fragmenter_tx_entry_t, entry, &interface_ptr->activeUnicastList) {
+        if (entry->buf->priority == QOS_EXPEDITE_FORWARD) {
+            return false;
+        }
+    }
+
+    //Disable High Priority Mode
+    if (interface_ptr->mpx_api) {
+        interface_ptr->mpx_api->mpx_priority_mode_set(interface_ptr->mpx_api, false);
+    }
+    interface_ptr->last_rx_high_priority = 0;
+    return true;
+}
+
+static void lowpan_adaptation_high_priority_state_enable(protocol_interface_info_entry_t *cur, fragmenter_interface_t *interface_ptr)
+{
+
+    if (!interface_ptr->last_rx_high_priority) {
+        // MPX enaled stack must inform MPX to priority enable
+        if (interface_ptr->mpx_api) {
+            interface_ptr->mpx_api->mpx_priority_mode_set(interface_ptr->mpx_api, true);
+        }
+        //Purge Active tx queue's all possible's
+        if (!interface_ptr->fragmenter_active) {
+            //Purge Only When Fragmenter is not active
+            ns_list_foreach_reverse_safe(fragmenter_tx_entry_t, entry, &interface_ptr->activeUnicastList) {
+
+                if (lowpan_adaptation_purge_from_mac(cur, interface_ptr, entry->buf->seq)) {
+                    buffer_t *buf = entry->buf;
+                    ns_list_remove(&interface_ptr->activeUnicastList, entry);
+                    interface_ptr->activeTxList_size--;
+                    ns_dyn_mem_free(entry);
+                    //Add message to tx queue front based on priority. Now same priority at buf is prioritised at order
+                    lowpan_adaptation_tx_queue_write_to_front(interface_ptr, buf);
+                    random_early_detetction_aq_calc(cur->random_early_detection, interface_ptr->directTxQueue_size);
+                }
+            }
+        }
+    }
+
+    //Store timestamp for indicate last RX High Priority message
+    interface_ptr->last_rx_high_priority = protocol_core_monotonic_time ? protocol_core_monotonic_time : 1;
+
+}
+
+
+static void lowpan_adaptation_priority_status_update(protocol_interface_info_entry_t *cur, fragmenter_interface_t *interface_ptr, buffer_priority_t priority)
+{
+    if (priority == QOS_EXPEDITE_FORWARD) {
+        lowpan_adaptation_high_priority_state_enable(cur, interface_ptr);
+    } else {
+        //Let check can we disable possible High Priority state
+        lowpan_adaptation_high_priority_state_exit(interface_ptr);
+    }
+}
+
+void lowpan_adaptation_expedite_forward_enable(protocol_interface_info_entry_t *cur)
+{
+    fragmenter_interface_t *interface_ptr = lowpan_adaptation_interface_discover(cur->id);
+    if (!interface_ptr) {
+        return;
+    }
+    lowpan_adaptation_high_priority_state_enable(cur, interface_ptr);
+}
+
+void lowpan_adaptation_interface_slow_timer(protocol_interface_info_entry_t *cur)
+{
+    fragmenter_interface_t *interface_ptr = lowpan_adaptation_interface_discover(cur->id);
+    if (!interface_ptr) {
+        return;
+    }
+
+    if (lowpan_adaptation_high_priority_state_exit(interface_ptr)) {
+        //Activate Packets from TX queue
+        buffer_t *buf_from_queue = lowpan_adaptation_tx_queue_read(interface_ptr);
+        while (buf_from_queue) {
+            lowpan_adaptation_interface_tx(cur, buf_from_queue);
+            buf_from_queue = lowpan_adaptation_tx_queue_read(interface_ptr);
+        }
+        //Update Average QUEUE
+        random_early_detetction_aq_calc(cur->random_early_detection, interface_ptr->directTxQueue_size);
+    }
 }
 
 int8_t lowpan_adaptation_interface_tx(protocol_interface_info_entry_t *cur, buffer_t *buf)
@@ -1105,6 +1288,8 @@ int8_t lowpan_adaptation_interface_tx(protocol_interface_info_entry_t *cur, buff
         buffer_priority_set(buf, QOS_HIGH);
     }
 
+    //Update priority status
+    lowpan_adaptation_priority_status_update(cur, interface_ptr, buf->priority);
 
     //Check packet size
     bool fragmented_needed = lowpan_adaptation_request_longer_than_mtu(cur, buf, interface_ptr);
@@ -1409,6 +1594,8 @@ int8_t lowpan_adaptation_interface_tx_confirm(protocol_interface_info_entry_t *c
     }
     // When confirmation is for direct transmission, push all allowed buffers to MAC
     if (active_direct_confirm == true) {
+        //Check Possibility for exit from High Priority state
+        lowpan_adaptation_high_priority_state_exit(interface_ptr);
         buffer_t *buf_from_queue = lowpan_adaptation_tx_queue_read(interface_ptr);
         while (buf_from_queue) {
             lowpan_adaptation_interface_tx(cur, buf_from_queue);
