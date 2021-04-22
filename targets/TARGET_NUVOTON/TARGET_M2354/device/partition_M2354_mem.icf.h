@@ -18,25 +18,28 @@
 
 /* See partition_M2354_mem.h for documentation */
 
+/* Update MBED_ROM_START and friends on redoing TF-M import (for IAR)
+ *
+ * IAR doesn't support CPP, so we cannot resolve MBED_ROM_START and friends by
+ * TF-M exported region_defs.h.
+ *
+ * Without target.mbed_rom_start and friends (replaced with TF-M exported region_defs.h),
+ * MBED_ROM_START and friends passed along are incorrect. Because IAR doesn't allow symbol
+ * redefinition, we change to MBED_ROM_START_ORIDE and friends instead for a temporary
+ * solution.
+ */
+
 /* Resolve non-secure ROM start */
-if (! isdefinedsymbol(MBED_ROM_START)) {
-    error "MBED_ROM_START must be present!!!";
-}
+define symbol MBED_ROM_START_ORIDE      = 0x10070400;
 
 /* Resolve non-secure ROM size */
-if (! isdefinedsymbol(MBED_ROM_SIZE)) {
-    error "MBED_ROM_SIZE must be present!!!";
-}
+define symbol MBED_ROM_SIZE_ORIDE       = 0x8F400;
 
 /* Resolve non-secure RAM start */
-if (! isdefinedsymbol(MBED_RAM_START)) {
-    error "MBED_RAM_START must be present!!!";
-}
+define symbol MBED_RAM_START_ORIDE      = 0x30014000;
 
 /* Resolve non-secure RAM size */
-if (! isdefinedsymbol(MBED_RAM_SIZE)) {
-    error "MBED_RAM_SIZE must be present!!!";
-}
+define symbol MBED_RAM_SIZE_ORIDE       = 0x2C000;
 
 /* Mbed build tool passes just APPLICATION_xxx macros to C/C++ files and just
  * MBED_APP_xxx macros to linker files even though they mean the same thing.
@@ -48,7 +51,7 @@ if (!isdefinedsymbol(APPLICATION_ADDR)) {
     if (isdefinedsymbol(MBED_APP_START)) {
         define symbol APPLICATION_ADDR  = MBED_APP_START;
     } else {
-        define symbol APPLICATION_ADDR  = MBED_ROM_START;
+        define symbol APPLICATION_ADDR  = MBED_ROM_START_ORIDE;
     }
 }
 
@@ -56,7 +59,7 @@ if (!isdefinedsymbol(APPLICATION_SIZE)) {
     if (isdefinedsymbol(MBED_APP_SIZE)) {
         define symbol APPLICATION_SIZE  = MBED_APP_SIZE;
     } else {
-        define symbol APPLICATION_SIZE  = MBED_ROM_SIZE;
+        define symbol APPLICATION_SIZE  = MBED_ROM_SIZE_ORIDE;
     }
 }
 
@@ -64,7 +67,7 @@ if (!isdefinedsymbol(APPLICATION_RAM_ADDR)) {
     if (isdefinedsymbol(MBED_RAM_APP_START)) {
         define symbol APPLICATION_RAM_ADDR  = MBED_RAM_APP_START;
     } else {
-        define symbol APPLICATION_RAM_ADDR  = MBED_RAM_START;
+        define symbol APPLICATION_RAM_ADDR  = MBED_RAM_START_ORIDE;
     }
 }
 
@@ -72,7 +75,7 @@ if (!isdefinedsymbol(APPLICATION_RAM_SIZE)) {
     if (isdefinedsymbol(MBED_RAM_APP_SIZE)) {
         define symbol APPLICATION_RAM_SIZE  = MBED_RAM_APP_SIZE;
     } else {
-        define symbol APPLICATION_RAM_SIZE  = MBED_RAM_SIZE;
+        define symbol APPLICATION_RAM_SIZE  = MBED_RAM_SIZE_ORIDE;
     }
 }
 

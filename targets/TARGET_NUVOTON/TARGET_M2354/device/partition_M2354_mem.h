@@ -33,25 +33,55 @@
  *       (already there or via copy).
  */
 
-/* Resolve non-secure ROM start */
-#ifndef MBED_ROM_START
-#error("MBED_ROM_START must be present!!!")
+/* Update NU_TFM_S_BL2 and friends on redoing TF-M import
+ *
+ * We expect NU_TFM_S_BL2 and friends are passed along from build tool, esp. Mbed CLI2,
+ * If not, NU_TFM_S_BL2 and friends must update manually. */
+
+#ifndef NU_TFM_S_BL2
+#define NU_TFM_S_BL2            1
 #endif
+
+#ifndef NU_TFM_S_MCUBOOT_IMAGE_NUMBER
+#define NU_TFM_S_MCUBOOT_IMAGE_NUMBER   1
+#endif
+
+#ifndef NU_TFM_S_REGION_DEFS_H_PATH
+#define NU_TFM_S_REGION_DEFS_H_PATH     "../TARGET_TFM/TARGET_NU_M2354/COMPONENT_TFM_S_FW/partition/region_defs.h"
+#endif
+
+/* TF-M exported region_defs.h depends on BL2 and MCUBOOT_IMAGE_NUMBER, so the
+ * following order is significant. */
+#if NU_TFM_S_BL2
+#define BL2
+#endif
+#define MCUBOOT_IMAGE_NUMBER    NU_TFM_S_MCUBOOT_IMAGE_NUMBER
+#include NU_TFM_S_REGION_DEFS_H_PATH
+
+/* Avoid polluting name space, esp. BL2 */
+#undef BL2
+#undef MCUBOOT_IMAGE_NUMBER
+
+/* Resolve MBED_ROM_START and friends
+ *
+ * TF-M exported region_defs.h essentially resolves MBED_ROM_START and friends.
+ * target.mbed_rom_start and friends get unnecessary.
+ */
+/* Resolve non-secure ROM start */
+#undef MBED_ROM_START
+#define MBED_ROM_START          NS_CODE_START
 
 /* Resolve non-secure ROM size */
-#ifndef MBED_ROM_SIZE
-#error("MBED_ROM_SIZE must be present!!!")
-#endif
+#undef MBED_ROM_SIZE
+#define MBED_ROM_SIZE           NS_CODE_SIZE
 
 /* Resolve non-secure RAM start */
-#ifndef MBED_RAM_START
-#error("MBED_RAM_START must be present!!!")
-#endif
+#undef MBED_RAM_START
+#define MBED_RAM_START          NS_DATA_START
 
 /* Resolve non-secure RAM size */
-#ifndef MBED_RAM_SIZE
-#error("MBED_RAM_SIZE must be present!!!")
-#endif
+#undef MBED_RAM_SIZE
+#define MBED_RAM_SIZE           NS_DATA_SIZE
 
 /* Mbed build tool passes just APPLICATION_xxx macros to C/C++ files and just
  * MBED_APP_xxx macros to linker files even though they mean the same thing.

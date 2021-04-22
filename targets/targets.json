@@ -6968,11 +6968,7 @@
             "ARMCLANG",
             "GNUARM"
         ],
-        "tfm_delivery_dir": "TARGET_NUVOTON/TARGET_M2354/TARGET_TFM/TARGET_NU_M2354/COMPONENT_TFM_S_FW",
-        "mbed_rom_start": "0x10070400",
-        "mbed_rom_size": "0x8F400",
-        "mbed_ram_start": "0x30014000",
-        "mbed_ram_size": "0x2C000"
+        "tfm_delivery_dir": "TARGET_NUVOTON/TARGET_M2354/TARGET_TFM/TARGET_NU_M2354/COMPONENT_TFM_S_FW"
     },
     "MCU_M251": {
         "core": "Cortex-M23",
