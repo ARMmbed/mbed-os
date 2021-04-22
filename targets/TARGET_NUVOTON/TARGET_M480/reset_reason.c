@@ -39,6 +39,12 @@ reset_reason_t hal_reset_reason_get(void)
     reset_reason_t reset_reason_cast;
     uint32_t reset_reason_count = 0;
 
+    /* Get around h/w limit with WDT reset from PD */
+    if (CLK->PMUSTS & CLK_PMUSTS_TMRWK_Msk) {
+        /* Per test, these reset reason flags will set with WKT reset. Clear them for this resolution. */
+        SYS_CLEAR_RST_SOURCE(SYS_RSTSTS_PINRF_Msk | SYS_RSTSTS_PORF_Msk);
+    }
+
     if (SYS_IS_POR_RST()) {
         reset_reason_cast = RESET_REASON_POWER_ON;
         reset_reason_count ++;
@@ -49,7 +55,8 @@ reset_reason_t hal_reset_reason_get(void)
         reset_reason_count ++;
     }
 
-    if (SYS_IS_WDT_RST()) {
+    /* Get around h/w limit with WDT reset from PD */
+    if (SYS_IS_WDT_RST() || (CLK->PMUSTS & CLK_PMUSTS_TMRWK_Msk)) {
         reset_reason_cast = RESET_REASON_WATCHDOG;
         reset_reason_count ++;
     }
@@ -103,6 +110,15 @@ uint32_t hal_reset_reason_get_raw(void)
 void hal_reset_reason_clear(void)
 {
     SYS_CLEAR_RST_SOURCE(SYS->RSTSTS);
+
+    /* Re-unlock protected clock setting */
+    SYS_UnlockReg();
+
+    /* Get around h/w limit with WDT reset from PD */
+    CLK->PMUSTS |= (CLK_PMUSTS_CLRWK_Msk | CLK_PMUSTS_TMRWK_Msk);
+
+    /* Lock protected registers */
+    SYS_LockReg();
 }
 
 #endif

@@ -72,29 +72,22 @@ void mbed_sdk_init(void)
     /* Lock protected registers */
     SYS_LockReg();
 
-    /* Get around h/w issue with reset from deep power-down mode
-     *
-     * When UART interrupt enabled and WDT reset from power-down mode, in the next
-     * cycle, UART interrupt keeps breaking in and cannot block unless via NVIC. To
-     * get around it, we make up a signal of wake-up from deep power-down mode in the
-     * start of boot process on detecting WDT reset.
-     */
+    /* Get around h/w limit with WDT reset from PD */
     if (SYS_IS_WDT_RST()) {
         /* Re-unlock protected clock setting */
         SYS_UnlockReg();
 
         /* Set up DPD power down mode */
         CLK->PMUSTS |= CLK_PMUSTS_CLRWK_Msk;
-        CLK->PMUSTS |=	CLK_PMUSTS_TMRWK_Msk;
+        CLK->PMUSTS |= CLK_PMUSTS_TMRWK_Msk;
         CLK_SetPowerDownMode(CLK_PMUCTL_PDMSEL_DPD);
 
-        /* Set up PMU wakeup timer, wakeup interval must be WKTMRIS_256 25.6 ms at least */
         CLK_SET_WKTMR_INTERVAL(CLK_PMUCTL_WKTMRIS_256);
         CLK_ENABLE_WKTMR();
 
         CLK_PowerDown();
 
+        /* Lock protected registers */
         SYS_LockReg();
     }
-
 }
