@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -38,9 +38,8 @@ struct tfm_crypto_pack_iovec {
                                   *   request
                                   */
     uint16_t step;               /*!< Key derivation step */
-    psa_key_handle_t key_handle; /*!< Key handle */
+    psa_key_id_t key_id;         /*!< Key id */
     psa_algorithm_t alg;         /*!< Algorithm */
-    psa_algorithm_t alg2;        /*!< Enrollment Algorithm */
     uint32_t op_handle;          /*!< Frontend context handle associated to a
                                   *   multipart operation
                                   */
@@ -65,6 +64,7 @@ enum {
     TFM_CRYPTO_DESTROY_KEY_SID,
     TFM_CRYPTO_EXPORT_KEY_SID,
     TFM_CRYPTO_EXPORT_PUBLIC_KEY_SID,
+    TFM_CRYPTO_PURGE_KEY_SID,
     TFM_CRYPTO_COPY_KEY_SID,
     TFM_CRYPTO_HASH_COMPUTE_SID,
     TFM_CRYPTO_HASH_COMPARE_SID,

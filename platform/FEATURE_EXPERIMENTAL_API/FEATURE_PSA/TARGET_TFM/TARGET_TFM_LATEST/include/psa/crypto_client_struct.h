@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -32,15 +32,14 @@ extern "C" {
 struct psa_client_key_attributes_s
 {
     uint32_t lifetime;
-    uint32_t id;
+    psa_key_id_t id;
     uint32_t alg;
-    uint32_t alg2;
     uint32_t usage;
     size_t bits;
     uint16_t type;
 };
 
-#define PSA_CLIENT_KEY_ATTRIBUTES_INIT {0, 0, 0, 0, 0, 0, 0}
+#define PSA_CLIENT_KEY_ATTRIBUTES_INIT {0, 0, 0, 0, 0, 0}
 
 #ifdef __cplusplus
 }
