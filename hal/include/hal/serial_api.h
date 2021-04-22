@@ -296,6 +296,13 @@ int  serial_readable(serial_t *obj);
  */
 int  serial_writable(serial_t *obj);
 
+/** Check if the serial peripheral tx buffer is empty
+ *
+ * @param obj The serial object
+ * @return Non-zero value if tx is empty, 0 otherwise.
+ */
+int  serial_tx_empty(serial_t *obj);
+
 /** Clear the serial peripheral
  *
  * @param obj The serial object
