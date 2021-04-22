@@ -43,10 +43,6 @@ extern bool us_ticker_initialized;
 
 void hal_sleep(void)
 {
-    /* Clock management for low power mode. */
-#if BB_CLK_RATE_HZ == 32768 && FEATURE_BLE == 1
-    // ensure debug is disconnected if semihost is enabled....
-
     // Trigger an event when an interrupt is pending. This allows to wake up
     // the processor from disabled interrupts.
     SCB->SCR |= SCB_SCR_SEVONPEND_Msk;
