@@ -493,7 +493,16 @@ def symlink_mbedos(config, path, exp_filter):
     for example in config['examples']:
         if example['name'] not in exp_filter:
             continue
-        for name in get_sub_examples_list(example):
+
+        # traverse the path and find directories with "mbed-os.lib"
+        dirs_with_mbed_os_lib = []
+        for root, dirs, files in os.walk(example['name']):
+            for the_file in files:
+                if the_file.endswith("mbed-os.lib"):
+                    dirs_with_mbed_os_lib.append(root)
+
+        # symlink all sub directories with mbed-os.lib
+        for name in dirs_with_mbed_os_lib:
             os.chdir(name)
             logging.info("In folder '%s'" % name)
             if os.path.exists("mbed-os.lib"):
