@@ -1,6 +1,6 @@
 ﻿# NFC tests.
 
-A CI test suite for NFC component. These tests validate card mbed emulation cases. The key use case is an NFC smart poster supporting comissioning workflow.
+A CI test suite for NFC component. These tests validate card mbed emulation cases. The key use case is an NFC smart poster supporting commissioning workflow.
 The SUT (system under test) is the NFC target. Tests exercise the framework and NDEF transactions when a NFC controller driver is used, or when the stack is configured for an NFC EEPROM chip in the system integration.
 
 This project is called CreamScone, which is an ice tea framework based cli-driven python test.
@@ -42,7 +42,7 @@ Not in scope. Test procedures using a mobile phone app for Android and for IOS w
 
 ![Basic Overview](img/simple-overview.png)
 
-Because the comissioning workflow application quality is the end goal, the NFC suite includes learnings to design the CI setup needed for future system testing that bring a mobile phone into the test-rig. The use of a mobile and bluetooth pairing as well as the continous integration system is not included.
+Because the commissioning workflow application quality is the end goal, the NFC suite includes learnings to design the CI setup needed for future system testing that bring a mobile phone into the test-rig. The use of a mobile and bluetooth pairing as well as the continuous integration system is not included.
 
 
 
@@ -288,7 +288,7 @@ NFCProcessController::NFCProcessController(events::EventQueue &queue) :
 }
 ```
 1. You will want to replace this and reference the desired controller driver. Likewise, this code is where pinout changes have to be made if using the supplied Controller driver.
-2. Search for occurences of guard macros `#ifdef TARGET_PN512` , and `#endif`. Add a new guard macro and code for your specific controller driver at the same point. 
+2. Search for occurrences of guard macros `#ifdef TARGET_PN512` , and `#endif`. Add a new guard macro and code for your specific controller driver at the same point. 
 
 
 Note: If the target uses an EEPROM, it need not be powered/running, to be read,  mbedOS is not running at that point.
@@ -333,4 +333,4 @@ You can issue the command "getlastnfcerror help" to see a list of error codes th
 
 1. Test test_nfce2e_discovery_loop fails on NFC controller. The NFC controller driver discovery loop cannot be stopped manually. No major functionality is lost, it only prevents a complete disable of NFC at runtime. A bug ticket #IOTPAN-313 was logged to fix the stop function. The Controller still restarts discovery loop normally under app control after a peer disconnects.
 
-1. The smartposter NDEF record wrapper class `smartposter.h` is also provided as part of the NFC examples. The examples are not needed to compile the test app, but this example class may be usefull to customers. This file may thus move into the NFC component in future.
+1. The smartposter NDEF record wrapper class `smartposter.h` is also provided as part of the NFC examples. The examples are not needed to compile the test app, but this example class may be useful to customers. This file may thus move into the NFC component in future.

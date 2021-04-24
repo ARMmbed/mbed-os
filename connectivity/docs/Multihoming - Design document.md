@@ -301,7 +301,7 @@ From our point of view  important function pointers  are:
 
 From LWIP documentation we can read.
 
-**"output"**   is called by the IP module when it wants to send a packet on the interface.  It firts  resolves the hardware address, then sends the packet. For ethernet physical layer, this is usually **etharp_output()**. 
+**"output"**   is called by the IP module when it wants to send a packet on the interface.  It first  resolves the hardware address, then sends the packet. For ethernet physical layer, this is usually **etharp_output()**. 
 
 
 **"linkoutput"**  is called by **ethernet_output()** when it wants  to send a packet on the interface. This function outputs the pbuf as-is on the link medium. 
@@ -579,7 +579,7 @@ Descriptor for **netconn** is shown below.
 
 LWIP selects the proper netif on IP layer using **ip\_route**.
 
-Currently it uses only ip adress as input parameter so choice is based on ip adress only. To extend choice ctiteria also to interface index **ip\_route** must be modified and  must take desired **interface\_name** as second argument. 
+Currently it uses only ip address as input parameter so choice is based on ip address only. To extend choice ctiteria also to interface index **ip\_route** must be modified and  must take desired **interface\_name** as second argument. 
 Therefore new member with  information about **netif interface\_name**  bound to current socket  should be placed in the common part of all PCB types.
 
 
@@ -598,7 +598,7 @@ New   member **char* interface\_name** should be add for binding socket to netif
  
 ##  DNS changes 
 
-Currently in Nsapi_dns module there is only one array for 5 DNS server adresses.
+Currently in Nsapi_dns module there is only one array for 5 DNS server addresses.
 
 	 static nsapi_addr_t dns_servers[DNS_SERVERS_SIZE] = {
 	    {NSAPI_IPv4, {8, 8, 8, 8}},                             // Google
@@ -617,7 +617,7 @@ It can be done as below.
 
 Add interface name as option to DNS query
 
-To resolve IP adress Netsocket module uses following functions 
+To resolve IP address Netsocket module uses following functions 
 
  	gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version)
 	nsapi_dns_query(NetworkStack *stack, const char *host, SocketAddress *address, nsapi_version_t version)

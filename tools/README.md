@@ -22,7 +22,7 @@ Quick navigation:
 | `importer`            | code importer for use with CMSIS, TFM/PSA etc. |
 | `libraries.py`        | constants for building mbed 2 libraries        |
 | `make.py`             | implementation of `mbed compile`               |
-| `memap.py`            | map file parser and sumary generator           |
+| `memap.py`            | map file parser and summary generator           |
 | `notifier`            | API for seting compile status to a frontend    |
 | `options.py`          | Default option parser and option utilities     |
 | `paths.py`            | constants for many paths used                  |

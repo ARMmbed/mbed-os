@@ -5,7 +5,7 @@
 Following are the requirements of the Storage Test Suite. <br />
 
 1. Unless described in this document, any behaviour that is defined as IMPLEMENTATION_DEFINED in PSA Storage API document is not verified in this document. <br />
-2. Storage Test Cases use UID value starting from 1 onwards. These UID needs to be free for successfull test execution.<br />
+2. Storage Test Cases use UID value starting from 1 onwards. These UID needs to be free for successful test execution.<br />
 3. UID values 1 and 2 are reserved as WRITE_ONCE UID.These UID can't be free from testcase. Make sure these are free.<br />
 
 
