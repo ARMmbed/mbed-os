@@ -83,6 +83,7 @@ DUAL_PAD = False
 MCU_USERNAME= ""
 TIM_MST = ""
 ALTERNATE_DEFINITION = 0
+TARGET_NAME = ""
 
 TIM_DUALCORE_LIST = { # Timer used for us ticker is hardcoded in this script
 "H745":"TIM2",
@@ -461,7 +462,7 @@ def print_header():
 #ifdef __cplusplus
 extern "C" {
 #endif
-""" % (date_year, os.path.basename(input_file_name), TargetName))
+""" % (date_year, os.path.basename(input_file_name), TARGET_NAME))
     out_h_file.write(line_to_write)
 
     if DUAL_PAD:
@@ -1689,21 +1690,20 @@ if args.target:
         sys.exit(0)
 
     parse_board_file(board_file_name)
-    TargetName = ""
     if "Nucleo" in board_file_name:
-        TargetName += "NUCLEO_"
+        TARGET_NAME += "NUCLEO_"
     elif "Discovery" in board_file_name:
-        TargetName += "DISCO_"
+        TARGET_NAME += "DISCO_"
     elif "Evaluation" in board_file_name:
-        TargetName += "EVAL_"
+        TARGET_NAME += "EVAL_"
     m = re.search(r'STM32([MFLGWH][\w]*)_Board', board_file_name)
     if m:
-        TargetName += "%s" % m.group(1)
+        TARGET_NAME += "%s" % m.group(1)
         # specific case
         if "-P" in board_file_name:
-            TargetName += "_P"
+            TARGET_NAME += "_P"
         elif "-Q" in board_file_name:
-            TargetName += "_Q"
+            TARGET_NAME += "_Q"
 
         target_rename = {  # manual renaming for some boards
             "DISCO_L072C": "DISCO_L072CZ_LRWAN1",
@@ -1724,11 +1724,11 @@ if args.target:
             "DISCO_H747XIH": "DISCO_H747I"
         }
 
-        if TargetName in target_rename:
-            TargetName = target_rename[TargetName]
+        if TARGET_NAME in target_rename:
+            TARGET_NAME = target_rename[TARGET_NAME]
 
         if "DISC1" in board_file_name:
-            TargetName += "_DISC1"
+            TARGET_NAME += "_DISC1"
 
     else:
         sys.exit(1)
@@ -1736,7 +1736,6 @@ if args.target:
 # Parse the user's custom board .ioc file
 if args.custom:
     parse_board_file(args.custom)
-    TargetName = ""
 
 for mcu_file in mcu_list:
     TargetNameList = []
@@ -1823,9 +1822,9 @@ for mcu_file in mcu_list:
         else:
             if EachTargetName == MCU_USERNAME:
                 if FLAT_DIRECTORY == 0:
-                    out_path = os.path.join(cur_dir, 'targets_custom', 'TARGET_STM', 'TARGET_%s' % TARGET_FAMILY, 'TARGET_%s' % TARGET_SUBFAMILY, 'TARGET_%s' % TargetName)
+                    out_path = os.path.join(cur_dir, 'targets_custom', 'TARGET_STM', 'TARGET_%s' % TARGET_FAMILY, 'TARGET_%s' % TARGET_SUBFAMILY, 'TARGET_%s' % TARGET_NAME)
                 else:
-                    out_path = os.path.join(cur_dir, 'targets_custom', 'TARGET_STM', 'TARGET_%s' % TargetName)
+                    out_path = os.path.join(cur_dir, 'targets_custom', 'TARGET_STM', 'TARGET_%s' % TARGET_NAME)
             else:
                 continue
 
