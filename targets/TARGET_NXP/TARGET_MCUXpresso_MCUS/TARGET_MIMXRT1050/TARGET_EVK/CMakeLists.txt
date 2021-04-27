@@ -20,6 +20,7 @@ target_sources(mbed-evk
         PeripheralPins.c
         pinmap.c
         serial_api.c
+        sleep.c
         specific.c
         trng_api.c
         us_ticker.c

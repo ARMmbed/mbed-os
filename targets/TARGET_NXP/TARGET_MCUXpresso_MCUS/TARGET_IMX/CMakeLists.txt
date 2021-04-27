@@ -17,7 +17,6 @@ target_sources(mbed-imx
         port_api.c
         pwmout_api.c
         rtc_api.c
-        sleep.c
         spi_api.c
         watchdog_api.c
 )
