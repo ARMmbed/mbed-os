@@ -1372,7 +1372,7 @@ All `recvfrom()` calls return the same sized packet that was sent with same cont
 
 Calculate packet loss rate. The maximum tolerated packet loss rate is 30%.
 
-The number of succesful rounds is higher than 70.
+The number of successful rounds is higher than 70.
 
 ### UDPSOCKET_ECHOTEST_BURST_NONBLOCK
 
@@ -1411,7 +1411,7 @@ All `recvfrom()` calls return the same sized packet that was sent with the same 
 
 Calculate packet loss rate. The maximum tolerated packet loss rate is 30%.
 
-The number of succesful rounds is higher than 70.
+The number of successful rounds is higher than 70.
 
 ### TCPSOCKET_ECHOTEST_BURST
 

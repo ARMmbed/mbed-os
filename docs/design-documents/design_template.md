@@ -86,7 +86,7 @@ Detailed API description, such as the signature of the interface, explanation of
     And the function should return mbed_error_status_t value indicating the result of the call as below:
         MBED_SUCCESS if the call is successful.
         MBED_ERROR_INVALID_ARGUMENT if input values are invalid.`
-        MBED_ERROR_CONFIG_UNSUPPORTED if the device doesnt support the requested configuration.`
+        MBED_ERROR_CONFIG_UNSUPPORTED if the device doesn't support the requested configuration.`
 
 **Configuration sequence diagram**  
 
