@@ -992,7 +992,7 @@ private:
 
     bool _user_manage_connection_parameter_requests : 1;
 #if BLE_ROLE_OBSERVER
-    bool _scan_parameters_set : 1 = false;
+    bool _scan_parameters_set : 1;
 #endif // BLE_ROLE_OBSERVER
 
 };
