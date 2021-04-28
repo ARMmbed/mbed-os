@@ -4882,6 +4882,9 @@
             "GNUARM"
         ],
         "tfm_delivery_dir": "TARGET_ARM_SSG/TARGET_MUSCA_B1",
+        "detect_code": [
+            "5007"
+        ],
         "OUTPUT_EXT": "bin"
     },
     "ARM_MUSCA_S1": {
