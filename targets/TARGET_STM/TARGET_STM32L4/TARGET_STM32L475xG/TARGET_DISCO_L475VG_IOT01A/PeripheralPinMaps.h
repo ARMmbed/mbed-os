@@ -1,31 +1,18 @@
 /* mbed Microcontroller Library
- *******************************************************************************
- * Copyright (c) 2018, STMicroelectronics
+ * SPDX-License-Identifier: BSD-3-Clause
+ ******************************************************************************
+ *
+ * Copyright (c) 2016-2021 STMicroelectronics.
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- * 3. Neither the name of STMicroelectronics nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
+ ******************************************************************************
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *******************************************************************************
+ * Automatically generated from STM32CubeMX/db/mcu/STM32L475V(C-E-G)Tx.xml
  */
 
 //==============================================================================
@@ -51,6 +38,94 @@
 
 #include "PinNamesTypes.h"
 #include <mstd_cstddef>
+
+//*** GPIO ***
+
+MSTD_CONSTEXPR_OBJ_11 PinMap PinMap_GPIO[] = {
+    {PA_0,  0, GPIO_NOPULL}, // Connected to ARD_D1 [UART4_TX]
+    {PA_1,  0, GPIO_NOPULL}, // Connected to ARD_D0 [UART4_RX]
+    {PA_2,  0, GPIO_NOPULL}, // Connected to ARD_D10 [SPI_SSN]
+    {PA_3,  0, GPIO_NOPULL}, // Connected to ARD_D4
+    {PA_4,  0, GPIO_NOPULL}, // Connected to ARD_D7
+    {PA_5,  0, GPIO_NOPULL}, // Connected to ARD_D13 [SPI1_SCK]
+    {PA_6,  0, GPIO_NOPULL}, // Connected to ARD_D12 [SPI1_MISO]
+    {PA_7,  0, GPIO_NOPULL}, // Connected to ARD_D11 [SPI1_MOSI]
+    {PA_8,  0, GPIO_NOPULL}, // Connected to SPBTLE_RF_RST
+    {PA_9,  0, GPIO_NOPULL}, // Connected to USB_OTG_FS_VBUS [STMPS2141STR_OUT]
+    {PA_10, 0, GPIO_NOPULL}, // Connected to USB_OTG_FS_ID
+    {PA_11, 0, GPIO_NOPULL}, // Connected to USB_OTG_FS_DM
+    {PA_12, 0, GPIO_NOPULL}, // Connected to USB_OTG_FS_DP
+    {PA_13, 0, GPIO_NOPULL}, // PA13 (JTMS-SWDIO)
+    {PA_14, 0, GPIO_NOPULL}, // PA14 (JTCK-SWCLK)
+    {PA_15, 0, GPIO_NOPULL},
+    {PB_0,  0, GPIO_NOPULL}, // Connected to ARD_D3 [INT_EXT10]
+    {PB_1,  0, GPIO_NOPULL}, // Connected to ARD_D6 [ADC1_IN6]
+    {PB_2,  0, GPIO_NOPULL}, // Connected to ARD_D8
+    {PB_3,  0, GPIO_NOPULL}, // PB3 (JTDO-TRACESWO)
+    {PB_4,  0, GPIO_NOPULL},
+    {PB_5,  0, GPIO_NOPULL}, // Connected to SPSGRF_915_SPI3_CSN [SPSGRF_SPI_CS]
+//  {PB_6,  0, GPIO_NOPULL}, // Connected to STDIO_UART_TX
+//  {PB_7,  0, GPIO_NOPULL}, // Connected to STDIO_UART_RX
+    {PB_8,  0, GPIO_PULLUP}, // Connected to ARD_D15 [I2C1_SCL] // HW pull-up
+    {PB_9,  0, GPIO_PULLUP}, // Connected to ARD_D14 [I2C1_SDA] // HW pull-up
+    {PB_10, 0, GPIO_PULLUP}, // Connected to INTERNAL_I2C2_SCL [VL53L0X_SCL] // HW pull-up
+    {PB_11, 0, GPIO_PULLUP}, // Connected to INTERNAL_I2C2_SDA [VL53L0X_SDA] // HW pull-up
+    {PB_12, 0, GPIO_NOPULL}, // Connected to ISM43362_BOOT0 [ISM43362_BOOT]
+    {PB_13, 0, GPIO_NOPULL}, // Connected to ISM43362_WAKEUP [ISM43362_WKUP]
+    {PB_14, 0, GPIO_NOPULL}, // Connected to LED2 [LED_GREEN]
+    {PB_15, 0, GPIO_NOPULL}, // Connected to SPSGRF_915_SDN [SPSGRF_SDN]
+    {PC_0,  0, GPIO_NOPULL}, // Connected to ARD_A5 [ADC]
+    {PC_1,  0, GPIO_NOPULL}, // Connected to ARD_A4 [ADC]
+    {PC_2,  0, GPIO_NOPULL}, // Connected to ARD_A3 [ADC]
+    {PC_3,  0, GPIO_NOPULL}, // Connected to ARD_A2 [ADC]
+    {PC_4,  0, GPIO_NOPULL}, // Connected to ARD_A1 [ADC]
+    {PC_5,  0, GPIO_NOPULL}, // Connected to ARD_A0 [ADC]
+    {PC_6,  0, GPIO_NOPULL}, // Connected to VL53L0X_XSHUT [Read_XSHUT]
+    {PC_7,  0, GPIO_NOPULL}, // Connected to VL53L0X_GPIO1_EXTI7 [VL53L0X_GPIO1]
+    {PC_8,  0, GPIO_NOPULL}, // Connected to LSM3MDL_DRDY_EXTI8 [LIS3MDL_DRDY]
+    {PC_9,  0, GPIO_NOPULL}, // Connected to LED3_WIFI_ LED4_BLE
+    {PC_10, 0, GPIO_NOPULL}, // Connected to INTERNAL_SPI3_SCK [BT module_SPI_SCLK] [ISM43362_SCK]
+    {PC_11, 0, GPIO_NOPULL}, // Connected to INTERNAL_SPI3_MISO [BT module_SPI_MISO] [ISM43362_MISO]
+    {PC_12, 0, GPIO_NOPULL}, // Connected to INTERNAL_SPI3_MOSI [BT module_SPI_MOSI] [ISM43362_MOSI]
+    {PC_13, 0, GPIO_NOPULL}, // Connected to BUTTON_EXTI13 [B2]
+//  {PC_14, 0, GPIO_NOPULL}, // PC14-OSC32_IN (PC14)
+//  {PC_15, 0, GPIO_NOPULL}, // PC15-OSC32_OUT (PC15)
+    {PD_0,  0, GPIO_NOPULL}, // Connected to PMOD_RESET
+    {PD_1,  0, GPIO_NOPULL}, // Connected to PMOD_SPI2_SCK
+    {PD_2,  0, GPIO_NOPULL}, // Connected to PMOD_IRQ_EXTI12
+    {PD_3,  0, GPIO_NOPULL}, // Connected to PMOD_UART2_CTS
+    {PD_4,  0, GPIO_NOPULL}, // Connected to PMOD_UART2_RTS
+    {PD_5,  0, GPIO_NOPULL}, // Connected to PMOD_UART2_TX
+    {PD_6,  0, GPIO_NOPULL}, // Connected to PMOD_UART2_RX
+    {PD_7,  0, GPIO_NOPULL}, // Connected to STSAFE_A100_RESET [STSAFE-A100_RESET]
+    {PD_8,  0, GPIO_NOPULL}, // Connected to INTERNAL_UART3_TX [ISM43362_RX]
+    {PD_9,  0, GPIO_NOPULL}, // Connected to INTERNAL_UART3_RX [ISM43362_TX]
+    {PD_10, 0, GPIO_NOPULL}, // Connected to LPS22HB_INT_DRDY_EXTI0 [LPS22HB_INT_DRDY]
+    {PD_11, 0, GPIO_NOPULL}, // Connected to LSM6DSL_INT1_EXTI11 [LSM6DSL_INT1]
+    {PD_12, 0, GPIO_NOPULL}, // Connected to USB_OTG_FS_PWR_EN [STMPS2141STR_EN]
+    {PD_13, 0, GPIO_NOPULL}, // Connected to SPBTLE_RF_SPI3_CSN [BT module_SPI_CS]
+    {PD_14, 0, GPIO_NOPULL}, // Connected to ARD_D2 [INT0_EXTI14]
+    {PD_15, 0, GPIO_NOPULL}, // Connected to HTS221_DRDY_EXTI15 [HTS221_DRDY]
+    {PE_0,  0, GPIO_NOPULL}, // Connected to ISM43362_SPI3_CSN [ISM43362_SSN]
+    {PE_1,  0, GPIO_NOPULL}, // Connected to ISM43362_DRDY_EXTI1 [ISM43362_DATARDY]
+    {PE_2,  0, GPIO_NOPULL}, // Connected to M24SR64_Y_RF_DISABLE [M24SR64_RFDIS]
+    {PE_3,  0, GPIO_NOPULL}, // Connected to USB_OTG_FS_OVRCR_EXTI3 [STMPS2141STR_FAULT]
+    {PE_4,  0, GPIO_NOPULL}, // Connected to M24SR64_Y_GPO [M24SR64_GPO]
+    {PE_5,  0, GPIO_NOPULL}, // Connected to SPSGRF_915_GPIO3_EXTI5 [SPSGRF_GPIO_3]
+    {PE_6,  0, GPIO_NOPULL}, // Connected to SPBTLE_RF_IRQ_EXTI6 [BT module_SPI_IRQ]
+    {PE_7,  0, GPIO_NOPULL}, // Connected to DFSDM1_DATIN2 [MP34DT01_DOUT]
+    {PE_8,  0, GPIO_NOPULL}, // Connected to ISM43362_RST [ISM43362_RSTN]
+    {PE_9,  0, GPIO_NOPULL}, // Connected to DFSDM1_CKOUT [MP34DT01_CLK]
+    {PE_10, 0, GPIO_NOPULL}, // Connected to QUADSPI_CLK [MX25R6435F_SCLK]
+    {PE_11, 0, GPIO_NOPULL}, // Connected to QUADSPI_NCS [MX25R6435F_SCLK]
+    {PE_12, 0, GPIO_NOPULL}, // Connected to OQUADSPI_BK1_IO0 [MX25R6435F_IO0]
+    {PE_13, 0, GPIO_NOPULL}, // Connected to QUADSPI_BK1_IO1 [MX25R6435F_IO1]
+    {PE_14, 0, GPIO_NOPULL}, // Connected to QUAD_SPI_BK1_IO2 [MX25R6435F_IO2]
+    {PE_15, 0, GPIO_NOPULL}, // Connected to QUAD_SPI_BK1_IO3 [MX25R6435F_IO3]
+//  {PH_0,  0, GPIO_NOPULL}, // PH0-OSC_IN (PH0)
+//  {PH_1,  0, GPIO_NOPULL}, // PH1-OSC_OUT (PH1)
+    {NC, NC, 0}
+};
 
 //*** ADC ***
 
@@ -383,7 +458,7 @@ MSTD_CONSTEXPR_OBJ_11 PinMap PinMap_QSPI_SSEL[] = {
 
 //*** USBDEVICE ***
 
-MSTD_CONSTEXPR_OBJ_11 const PinMap PinMap_USB_FS[] = {
+MSTD_CONSTEXPR_OBJ_11 PinMap PinMap_USB_FS[] = {
 //  {PA_8,      USB_FS, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF10_OTG_FS)}, // USB_OTG_FS_SOF // Connected to SPBTLE_RF_RST
     {PA_9,      USB_FS, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF_NONE)}, // USB_OTG_FS_VBUS // Connected to USB_OTG_FS_VBUS [STMPS2141STR_OUT]
     {PA_10,     USB_FS, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_PULLUP, GPIO_AF10_OTG_FS)}, // USB_OTG_FS_ID // Connected to USB_OTG_FS_ID

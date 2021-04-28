@@ -1,34 +1,18 @@
 /* mbed Microcontroller Library
- *******************************************************************************
- * Copyright (c) 2019, STMicroelectronics
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: BSD-3-Clause
+ ******************************************************************************
+ *
+ * Copyright (c) 2016-2021 STMicroelectronics.
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- * 3. Neither the name of STMicroelectronics nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
+ ******************************************************************************
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *******************************************************************************
- *
- * Automatically generated from STM32WB55RGVx.xml
+ * Automatically generated from STM32CubeMX/db/mcu/STM32WB55RGVx.xml
  */
 
 #include "PeripheralPins.h"
@@ -52,6 +36,61 @@
 //
 //==============================================================================
 
+
+//*** GPIO ***
+
+MBED_WEAK const PinMap PinMap_GPIO[] = {
+    {PA_0,  0, GPIO_NOPULL},
+    {PA_1,  0, GPIO_NOPULL},
+    {PA_2,  0, GPIO_NOPULL},
+    {PA_3,  0, GPIO_NOPULL},
+    {PA_4,  0, GPIO_NOPULL},
+    {PA_5,  0, GPIO_NOPULL},
+    {PA_6,  0, GPIO_NOPULL},
+    {PA_7,  0, GPIO_NOPULL},
+    {PA_8,  0, GPIO_NOPULL},
+    {PA_9,  0, GPIO_NOPULL},
+    {PA_10, 0, GPIO_NOPULL},
+    {PA_11, 0, GPIO_NOPULL}, // Connected to USB_DM
+    {PA_12, 0, GPIO_NOPULL}, // Connected to USB_DP
+    {PA_13, 0, GPIO_NOPULL}, // Connected to JTMS
+    {PA_14, 0, GPIO_NOPULL}, // Connected to JTCK
+    {PA_15, 0, GPIO_NOPULL},
+    {PB_0,  0, GPIO_NOPULL}, // Connected to LD2 [Green Led]
+    {PB_1,  0, GPIO_NOPULL}, // Connected to LD3 [Red Led]
+    {PB_2,  0, GPIO_NOPULL},
+    {PB_3,  0, GPIO_NOPULL}, // Connected to JTDO
+    {PB_4,  0, GPIO_NOPULL},
+    {PB_5,  0, GPIO_NOPULL}, // Connected to LD1 [Blue Led]
+//  {PB_6,  0, GPIO_NOPULL}, // Connected to STDIO_UART_TX
+//  {PB_7,  0, GPIO_NOPULL}, // Connected to STDIO_UART_RX
+    {PB_8,  0, GPIO_NOPULL},
+    {PB_9,  0, GPIO_NOPULL},
+    {PB_10, 0, GPIO_NOPULL},
+    {PB_11, 0, GPIO_NOPULL},
+    {PB_12, 0, GPIO_NOPULL},
+    {PB_13, 0, GPIO_NOPULL},
+    {PB_14, 0, GPIO_NOPULL},
+    {PB_15, 0, GPIO_NOPULL},
+    {PC_0,  0, GPIO_NOPULL},
+    {PC_1,  0, GPIO_NOPULL},
+    {PC_2,  0, GPIO_NOPULL},
+    {PC_3,  0, GPIO_NOPULL},
+    {PC_4,  0, GPIO_NOPULL}, // Connected to B1 [Push Button]
+    {PC_5,  0, GPIO_NOPULL},
+    {PC_6,  0, GPIO_NOPULL},
+    {PC_10, 0, GPIO_NOPULL},
+    {PC_11, 0, GPIO_NOPULL},
+    {PC_12, 0, GPIO_NOPULL},
+    {PC_13, 0, GPIO_NOPULL}, // Connected to SYS_WKUP2
+//  {PC_14, 0, GPIO_NOPULL}, // Connected to RCC_OSC32_IN // PC14-OSC32_IN
+//  {PC_15, 0, GPIO_NOPULL}, // Connected to RCC_OSC32_OUT // PC15-OSC32_OUT
+    {PD_0,  0, GPIO_NOPULL}, // Connected to B2 [Push Button]
+    {PD_1,  0, GPIO_NOPULL}, // Connected to B3 [Push Button]
+    {PE_4,  0, GPIO_NOPULL},
+    {PH_3,  0, GPIO_NOPULL}, // PH3-BOOT0
+    {NC, NC, 0}
+};
 
 //*** ADC ***
 
@@ -109,6 +148,7 @@ MBED_WEAK const PinMap PinMap_I2C_SCL[] = {
 //*** PWM ***
 
 // TIM16 cannot be used because already used by the us_ticker
+// (update us_ticker_data.h file if another timer is chosen)
 MBED_WEAK const PinMap PinMap_PWM[] = {
     {PA_0,       PWM_2,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF1_TIM2, 1, 0)}, // TIM2_CH1
     {PA_1,       PWM_2,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF1_TIM2, 2, 0)}, // TIM2_CH2
@@ -142,9 +182,9 @@ MBED_WEAK const PinMap PinMap_PWM[] = {
 
 MBED_WEAK const PinMap PinMap_UART_TX[] = {
     {PA_2,       LPUART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_LPUART1)},
-    {PA_9,       UART_1,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)},
+    {PA_9,       UART_1,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)},
     {PB_5,       LPUART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_LPUART1)}, // Connected to LD1 [Blue Led]
-    {PB_6,       UART_1,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)}, // Connected to STDIO_UART_TX
+    {PB_6,       UART_1,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)}, // Connected to STDIO_UART_TX
     {PB_11,      LPUART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_LPUART1)},
     {PC_1,       LPUART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_LPUART1)},
     {NC, NC, 0}
@@ -152,26 +192,26 @@ MBED_WEAK const PinMap PinMap_UART_TX[] = {
 
 MBED_WEAK const PinMap PinMap_UART_RX[] = {
     {PA_3,       LPUART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_LPUART1)},
-    {PA_10,      UART_1,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)},
+    {PA_10,      UART_1,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)},
     {PA_12,      LPUART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_LPUART1)}, // Connected to USB_DP
-    {PB_7,       UART_1,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)}, // Connected to STDIO_UART_RX
+    {PB_7,       UART_1,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)}, // Connected to STDIO_UART_RX
     {PB_10,      LPUART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_LPUART1)},
     {PC_0,       LPUART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_LPUART1)},
     {NC, NC, 0}
 };
 
 MBED_WEAK const PinMap PinMap_UART_RTS[] = {
-    {PA_12,      UART_1,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)}, // Connected to USB_DP
+    {PA_12,      UART_1,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)}, // Connected to USB_DP
     {PB_1,       LPUART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_LPUART1)}, // Connected to LD3 [Red Led]
-    {PB_3,       UART_1,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)}, // Connected to JTDO
+    {PB_3,       UART_1,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)}, // Connected to JTDO
     {PB_12,      LPUART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_LPUART1)},
     {NC, NC, 0}
 };
 
 MBED_WEAK const PinMap PinMap_UART_CTS[] = {
     {PA_6,       LPUART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_LPUART1)},
-    {PA_11,      UART_1,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)}, // Connected to USB_DM
-    {PB_4,       UART_1,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)},
+    {PA_11,      UART_1,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)}, // Connected to USB_DM
+    {PB_4,       UART_1,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)},
     {PB_13,      LPUART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_LPUART1)},
     {NC, NC, 0}
 };
