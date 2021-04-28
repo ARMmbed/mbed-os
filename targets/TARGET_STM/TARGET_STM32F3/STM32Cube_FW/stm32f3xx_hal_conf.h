@@ -153,105 +153,81 @@
 #define  USE_SPI_CRC                  1U
 
 #if !defined  (USE_HAL_ADC_REGISTER_CALLBACKS)
-  #define  USE_HAL_ADC_REGISTER_CALLBACKS         0U /* ADC register callback disabled       */
+#define  USE_HAL_ADC_REGISTER_CALLBACKS         0U /* ADC register callback disabled       */
 #endif
 
 #if !defined  (USE_HAL_CAN_REGISTER_CALLBACKS)
-  #define  USE_HAL_CAN_REGISTER_CALLBACKS         0U /* CAN register callback disabled       */
+#define  USE_HAL_CAN_REGISTER_CALLBACKS         0U /* CAN register callback disabled       */
 #endif
-
 #if !defined  (USE_HAL_COMP_REGISTER_CALLBACKS)
-  #define  USE_HAL_COMP_REGISTER_CALLBACKS        0U /* COMP register callback disabled      */
+#define  USE_HAL_COMP_REGISTER_CALLBACKS        0U /* COMP register callback disabled      */
 #endif
-
 #if !defined  (USE_HAL_CEC_REGISTER_CALLBACKS)
-  #define  USE_HAL_CEC_REGISTER_CALLBACKS         0U /* CEC register callback disabled       */
+#define  USE_HAL_CEC_REGISTER_CALLBACKS         0U /* CEC register callback disabled       */
 #endif
-
 #if !defined  (USE_HAL_DAC_REGISTER_CALLBACKS)
-  #define  USE_HAL_DAC_REGISTER_CALLBACKS         0U /* DAC register callback disabled       */
+#define  USE_HAL_DAC_REGISTER_CALLBACKS         0U /* DAC register callback disabled       */
 #endif
-
 #if !defined  (USE_HAL_SRAM_REGISTER_CALLBACKS)
-  #define  USE_HAL_SRAM_REGISTER_CALLBACKS        0U /* SRAM register callback disabled      */
+#define  USE_HAL_SRAM_REGISTER_CALLBACKS        0U /* SRAM register callback disabled      */
 #endif
-
 #if !defined  (USE_HAL_SMBUS_REGISTER_CALLBACKS)
-  #define  USE_HAL_SMBUS_REGISTER_CALLBACKS       0U /* SMBUS register callback disabled     */
+#define  USE_HAL_SMBUS_REGISTER_CALLBACKS       0U /* SMBUS register callback disabled     */
 #endif
-
 #if !defined  (USE_HAL_SDADC_REGISTER_CALLBACKS)
-  #define  USE_HAL_SDADC_REGISTER_CALLBACKS       0U /* SDADC register callback disabled     */
+#define  USE_HAL_SDADC_REGISTER_CALLBACKS       0U /* SDADC register callback disabled     */
 #endif
-
 #if !defined  (USE_HAL_NAND_REGISTER_CALLBACKS)
-  #define  USE_HAL_NAND_REGISTER_CALLBACKS        0U /* NAND register callback disabled      */
+#define  USE_HAL_NAND_REGISTER_CALLBACKS        0U /* NAND register callback disabled      */
 #endif
-
 #if !defined  (USE_HAL_NOR_REGISTER_CALLBACKS)
-  #define  USE_HAL_NOR_REGISTER_CALLBACKS         0U /* NOR register callback disabled       */
+#define  USE_HAL_NOR_REGISTER_CALLBACKS         0U /* NOR register callback disabled       */
 #endif
-
 #if !defined  (USE_HAL_PCCARD_REGISTER_CALLBACKS)
-  #define  USE_HAL_PCCARD_REGISTER_CALLBACKS      0U /* PCCARD register callback disabled    */
+#define  USE_HAL_PCCARD_REGISTER_CALLBACKS      0U /* PCCARD register callback disabled    */
 #endif
-
 #if !defined  (USE_HAL_HRTIM_REGISTER_CALLBACKS)
-  #define  USE_HAL_HRTIM_REGISTER_CALLBACKS       0U /* HRTIM register callback disabled     */
+#define  USE_HAL_HRTIM_REGISTER_CALLBACKS       0U /* HRTIM register callback disabled     */
 #endif
-
 #if !defined  (USE_HAL_I2C_REGISTER_CALLBACKS)
-  #define  USE_HAL_I2C_REGISTER_CALLBACKS         0U /* I2C register callback disabled       */
+#define  USE_HAL_I2C_REGISTER_CALLBACKS         0U /* I2C register callback disabled       */
 #endif
-
 #if !defined  (USE_HAL_UART_REGISTER_CALLBACKS)
-  #define  USE_HAL_UART_REGISTER_CALLBACKS        0U /* UART register callback disabled      */
+#define  USE_HAL_UART_REGISTER_CALLBACKS        0U /* UART register callback disabled      */
 #endif
-
 #if !defined  (USE_HAL_USART_REGISTER_CALLBACKS)
-  #define  USE_HAL_USART_REGISTER_CALLBACKS       0U /* USART register callback disabled     */
+#define  USE_HAL_USART_REGISTER_CALLBACKS       0U /* USART register callback disabled     */
 #endif
-
 #if !defined  (USE_HAL_IRDA_REGISTER_CALLBACKS)
-  #define  USE_HAL_IRDA_REGISTER_CALLBACKS        0U /* IRDA register callback disabled      */
+#define  USE_HAL_IRDA_REGISTER_CALLBACKS        0U /* IRDA register callback disabled      */
 #endif
-
 #if !defined  (USE_HAL_SMARTCARD_REGISTER_CALLBACKS)
-  #define  USE_HAL_SMARTCARD_REGISTER_CALLBACKS   0U /* SMARTCARD register callback disabled */
+#define  USE_HAL_SMARTCARD_REGISTER_CALLBACKS   0U /* SMARTCARD register callback disabled */
 #endif
-
 #if !defined  (USE_HAL_WWDG_REGISTER_CALLBACKS)
-  #define  USE_HAL_WWDG_REGISTER_CALLBACKS        0U /* WWDG register callback disabled      */
+#define  USE_HAL_WWDG_REGISTER_CALLBACKS        0U /* WWDG register callback disabled      */
 #endif
-
 #if !defined  (USE_HAL_OPAMP_REGISTER_CALLBACKS)
-  #define  USE_HAL_OPAMP_REGISTER_CALLBACKS       0U /* OPAMP register callback disabled     */
+#define  USE_HAL_OPAMP_REGISTER_CALLBACKS       0U /* OPAMP register callback disabled     */
 #endif
-
 #if !defined  (USE_HAL_RTC_REGISTER_CALLBACKS)
-  #define  USE_HAL_RTC_REGISTER_CALLBACKS         0U /* RTC register callback disabled       */
+#define  USE_HAL_RTC_REGISTER_CALLBACKS         0U /* RTC register callback disabled       */
 #endif
-
 #if !defined  (USE_HAL_SPI_REGISTER_CALLBACKS)
-  #define  USE_HAL_SPI_REGISTER_CALLBACKS         0U /* SPI register callback disabled       */
+#define  USE_HAL_SPI_REGISTER_CALLBACKS         0U /* SPI register callback disabled       */
 #endif
-
 #if !defined  (USE_HAL_I2S_REGISTER_CALLBACKS)
-  #define  USE_HAL_I2S_REGISTER_CALLBACKS         0U /* I2S register callback disabled       */
+#define  USE_HAL_I2S_REGISTER_CALLBACKS         0U /* I2S register callback disabled       */
 #endif
-
 #if !defined  (USE_HAL_TIM_REGISTER_CALLBACKS)
-  #define  USE_HAL_TIM_REGISTER_CALLBACKS         0U /* TIM register callback disabled       */
+#define  USE_HAL_TIM_REGISTER_CALLBACKS         0U /* TIM register callback disabled       */
 #endif
-
 #if !defined  (USE_HAL_TSC_REGISTER_CALLBACKS)
-  #define  USE_HAL_TSC_REGISTER_CALLBACKS         0U /* TSC register callback disabled       */
+#define  USE_HAL_TSC_REGISTER_CALLBACKS         0U /* TSC register callback disabled       */
 #endif
-
 #if !defined  (USE_HAL_PCD_REGISTER_CALLBACKS)
-  #define  USE_HAL_PCD_REGISTER_CALLBACKS         0U /* PCD register callback disabled       */
+#define  USE_HAL_PCD_REGISTER_CALLBACKS         0U /* PCD register callback disabled       */
 #endif
-
 /* ########################## Assert Selection ############################## */
 /**
   * @brief Uncomment the line below to expanse the "assert_param" macro in the 
