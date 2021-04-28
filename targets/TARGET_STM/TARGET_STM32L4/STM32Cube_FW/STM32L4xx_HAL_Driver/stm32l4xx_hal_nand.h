@@ -134,7 +134,7 @@ typedef struct
   void (* MspInitCallback)(struct __NAND_HandleTypeDef *hnand);               /*!< NAND Msp Init callback              */
   void (* MspDeInitCallback)(struct __NAND_HandleTypeDef *hnand);             /*!< NAND Msp DeInit callback            */
   void (* ItCallback)(struct __NAND_HandleTypeDef *hnand);                    /*!< NAND IT callback                    */
-#endif
+#endif /* USE_HAL_NAND_REGISTER_CALLBACKS */
 } NAND_HandleTypeDef;
 
 #if (USE_HAL_NAND_REGISTER_CALLBACKS == 1)
@@ -152,7 +152,7 @@ typedef enum
   * @brief  HAL NAND Callback pointer definition
   */
 typedef void (*pNAND_CallbackTypeDef)(NAND_HandleTypeDef *hnand);
-#endif
+#endif /* USE_HAL_NAND_REGISTER_CALLBACKS */
 
 /**
   * @}
@@ -176,7 +176,7 @@ typedef void (*pNAND_CallbackTypeDef)(NAND_HandleTypeDef *hnand);
                                                              } while(0)
 #else
 #define __HAL_NAND_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_NAND_STATE_RESET)
-#endif
+#endif /* USE_HAL_NAND_REGISTER_CALLBACKS */
 
 /**
   * @}
@@ -243,7 +243,7 @@ uint32_t           HAL_NAND_Address_Inc(NAND_HandleTypeDef *hnand, NAND_AddressT
 HAL_StatusTypeDef  HAL_NAND_RegisterCallback(NAND_HandleTypeDef *hnand, HAL_NAND_CallbackIDTypeDef CallbackId,
                                              pNAND_CallbackTypeDef pCallback);
 HAL_StatusTypeDef  HAL_NAND_UnRegisterCallback(NAND_HandleTypeDef *hnand, HAL_NAND_CallbackIDTypeDef CallbackId);
-#endif
+#endif /* USE_HAL_NAND_REGISTER_CALLBACKS */
 
 /**
   * @}
@@ -288,19 +288,19 @@ uint32_t              HAL_NAND_Read_Status(NAND_HandleTypeDef *hnand);
 #define CMD_AREA                   (1UL<<16U)  /* A16 = CLE high */
 #define ADDR_AREA                  (1UL<<17U)  /* A17 = ALE high */
 
-#define NAND_CMD_AREA_A            0x00U
-#define NAND_CMD_AREA_B            0x01U
-#define NAND_CMD_AREA_C            0x50U
-#define NAND_CMD_AREA_TRUE1        0x30U
+#define NAND_CMD_AREA_A            ((uint8_t)0x00)
+#define NAND_CMD_AREA_B            ((uint8_t)0x01)
+#define NAND_CMD_AREA_C            ((uint8_t)0x50)
+#define NAND_CMD_AREA_TRUE1        ((uint8_t)0x30)
 
-#define NAND_CMD_WRITE0            0x80U
-#define NAND_CMD_WRITE_TRUE1       0x10U
-#define NAND_CMD_ERASE0            0x60U
-#define NAND_CMD_ERASE1            0xD0U
-#define NAND_CMD_READID            0x90U
-#define NAND_CMD_STATUS            0x70U
-#define NAND_CMD_LOCK_STATUS       0x7AU
-#define NAND_CMD_RESET             0xFFU
+#define NAND_CMD_WRITE0            ((uint8_t)0x80)
+#define NAND_CMD_WRITE_TRUE1       ((uint8_t)0x10)
+#define NAND_CMD_ERASE0            ((uint8_t)0x60)
+#define NAND_CMD_ERASE1            ((uint8_t)0xD0)
+#define NAND_CMD_READID            ((uint8_t)0x90)
+#define NAND_CMD_STATUS            ((uint8_t)0x70)
+#define NAND_CMD_LOCK_STATUS       ((uint8_t)0x7A)
+#define NAND_CMD_RESET             ((uint8_t)0xFF)
 
 /* NAND memory status */
 #define NAND_VALID_ADDRESS         0x00000100UL
@@ -325,7 +325,8 @@ uint32_t              HAL_NAND_Read_Status(NAND_HandleTypeDef *hnand);
   * @retval NAND Raw address value
   */
 #define ARRAY_ADDRESS(__ADDRESS__ , __HANDLE__) ((__ADDRESS__)->Page + \
-                                                 (((__ADDRESS__)->Block + (((__ADDRESS__)->Plane) * ((__HANDLE__)->Config.PlaneSize)))* ((__HANDLE__)->Config.BlockSize)))
+                                                 (((__ADDRESS__)->Block + (((__ADDRESS__)->Plane) * \
+                                                 ((__HANDLE__)->Config.PlaneSize)))* ((__HANDLE__)->Config.BlockSize)))
 
 /**
   * @brief  NAND memory Column address computation.
