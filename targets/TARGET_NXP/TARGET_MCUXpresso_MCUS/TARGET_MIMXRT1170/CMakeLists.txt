@@ -25,16 +25,17 @@ target_sources(mbed-mimxrt1170-evk
      
         device/system_MIMXRT1176_cm7.c
 
-        drivers/fsl_lpadc.c
-        drivers/fsl_anatop.c
         drivers/fsl_anatop_ai.c
+        drivers/fsl_anatop.c
         drivers/fsl_cache.c
         drivers/fsl_clock.c
         drivers/fsl_common.c
         drivers/fsl_dcdc.c
-        drivers/fsl_flexspi.c
         drivers/fsl_flexspi_nor_boot.c
+        drivers/fsl_flexspi.c
         drivers/fsl_gpio.c
+        drivers/fsl_gpt.c
+        drivers/fsl_lpadc.c
         drivers/fsl_lpi2c.c
         drivers/fsl_lpspi.c
         drivers/fsl_lpuart.c
