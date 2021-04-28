@@ -565,6 +565,16 @@ mesh_error_t WisunInterface::enable_statistics(void)
     return ret_val;
 }
 
+mesh_error_t WisunInterface::reset_statistics(void)
+{
+    mesh_error_t ret_val = MESH_ERROR_NONE;
+    int status = wisun_tasklet_statistics_reset();
+    if (status < 0) {
+        ret_val = MESH_ERROR_UNKNOWN;
+    }
+    return ret_val;
+}
+
 mesh_error_t WisunInterface::read_nw_statistics(mesh_nw_statistics_t *statistics)
 {
     mesh_error_t ret_val = MESH_ERROR_NONE;
