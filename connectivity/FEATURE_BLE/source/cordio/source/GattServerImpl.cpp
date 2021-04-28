@@ -1767,21 +1767,6 @@ void GattServer::handleEvent(
                 updatesDisabledCallback(attributeHandle);
             }
             break;
-        case GattServerEvents::GATT_EVENT_CONFIRMATION_RECEIVED:
-            tr_debug("Confirmation received for attribute %d on connection %d", attributeHandle, connHandle);
-            if(eventHandler) {
-                GattConfirmationReceivedCallbackParams params({
-                    .connHandle = connHandle,
-                    .attHandle = attributeHandle
-                });
-                eventHandler->onConfirmationReceived(params);
-            }
-
-            // Execute deprecated callback
-            if (confirmationReceivedCallback) {
-                confirmationReceivedCallback(attributeHandle);
-            }
-            break;
 
         case GattServerEvents::GATT_EVENT_DATA_SENT:
             tr_debug("Data sent for attribute %d on connection %d", attributeHandle, connHandle);
