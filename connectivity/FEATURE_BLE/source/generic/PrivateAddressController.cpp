@@ -242,7 +242,7 @@ ble_error_t PrivateAddressController::add_device_to_resolving_list(
             peer_irk
         );
     } else {
-        tr_error("Host based private address resolution enabled but not supported by the controller");
+        tr_error("Privacy used but not supported on the controller nor the host");
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 #endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
@@ -276,7 +276,7 @@ ble_error_t PrivateAddressController::remove_device_from_resolving_list(
     if (is_controller_privacy_supported()) {
         return queue_remove_device_from_resolving_list(peer_address_type, peer_identity_address);
     } else {
-        tr_error("Host based private address resolution enabled but not supported by the controller");
+        tr_error("Privacy used but not supported on the controller nor the host");
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 #endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
@@ -303,7 +303,7 @@ ble_error_t PrivateAddressController::clear_resolving_list()
     if (is_controller_privacy_supported()) {
         return queue_clear_resolving_list();
     } else {
-        tr_error("Host based private address resolution enabled but not supported by the controller");
+        tr_error("Privacy used but not supported on the controller nor the host");
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 #endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
