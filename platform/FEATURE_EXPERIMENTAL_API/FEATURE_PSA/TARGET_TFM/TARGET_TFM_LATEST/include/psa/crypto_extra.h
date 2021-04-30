@@ -57,6 +57,8 @@ extern "C" {
 
 /**@}*/
 
+#include "mbedtls_ecc_group_to_psa.h"
+
 #ifdef __cplusplus
 }
 #endif
