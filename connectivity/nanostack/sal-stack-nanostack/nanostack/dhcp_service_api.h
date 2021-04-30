@@ -143,6 +143,15 @@ uint16_t dhcp_service_init(int8_t interface_id, dhcp_instance_type_e instance_ty
 void dhcp_service_relay_instance_enable(uint16_t instance, uint8_t *server_address);
 
 /**
+* \brief Enable DHCPv6 Relay Agent to add interface ID option to relay frame. Default is disabled.
+*
+*
+* \param instance The instance ID of the registered server.
+* \param enable true add interface option
+*/
+void dhcp_service_relay_interface_id_option_enable(uint16_t instance, bool enable);
+
+/**
 * \brief Get DHCPv6 Relay Agent address pointer.
 *
 * \param instance The instance ID of the registered server.

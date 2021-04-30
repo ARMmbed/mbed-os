@@ -80,5 +80,14 @@ int fhss_ws_set_hop_count(fhss_structure_t *fhss_structure, const uint8_t hop_co
     return -1;
 }
 
+int fhss_ws_set_tx_allowance_level(fhss_structure_t *fhss_structure, const fhss_ws_tx_allow_level global_level, const fhss_ws_tx_allow_level ef_level)
+{
+    (void) fhss_structure;
+    (void) global_level;
+    (void) ef_level;
+
+    return -1;
+}
+
 #endif // HAVE_WS
 
