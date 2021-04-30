@@ -65,8 +65,8 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /** @defgroup RCC_Private_Constants RCC Private Constants
- * @{
- */
+  * @{
+  */
 #define LSI_TIMEOUT_VALUE          7UL     /* 7 ms (maximum 6ms + 1) */
 #define HSI48_TIMEOUT_VALUE        2UL     /* 2 ms (minimum Tick + 1) */
 #define PLL_TIMEOUT_VALUE          2UL     /* 2 ms (minimum Tick + 1) */
@@ -255,7 +255,11 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
   {
     if ((HAL_GetTick() - tickstart) > MSI_TIMEOUT_VALUE)
     {
-      return HAL_TIMEOUT;
+      /* New check to avoid false timeout detection in case of preemption */
+      if (READ_BIT(RCC->CR, RCC_CR_MSIRDY) == 0U)
+      {
+        return HAL_TIMEOUT;
+      }
     }
   }
 
@@ -283,12 +287,17 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
   {
     if ((HAL_GetTick() - tickstart) > CLOCKSWITCH_TIMEOUT_VALUE)
     {
-      return HAL_TIMEOUT;
+      /* New check to avoid false timeout detection in case of preemption */
+      if (READ_BIT(RCC->CFGR, RCC_CFGR_SWS) != RCC_SYSCLKSOURCE_STATUS_MSI)
+      {
+        return HAL_TIMEOUT;
+      }
     }
   }
 
   /* Reset HSION, HSIKERON, HSIASFS, HSEON, HSECSSON, PLLON, PLLSAIxON bits */
-  CLEAR_BIT(RCC->CR, RCC_CR_CSSON | RCC_CR_HSEON | RCC_CR_HSION | RCC_CR_HSIKERON | RCC_CR_HSIASFS | RCC_CR_PLLON | RCC_CR_PLLSAI1ON | RCC_CR_PLLSAI2ON);
+  CLEAR_BIT(RCC->CR, RCC_CR_CSSON | RCC_CR_HSEON | RCC_CR_HSION | RCC_CR_HSIKERON | RCC_CR_HSIASFS | RCC_CR_PLLON |
+            RCC_CR_PLLSAI1ON | RCC_CR_PLLSAI2ON);
 
   /* Insure PLLRDY, PLLSAI1RDY and PLLSAI2RDY (if present) are reset */
   /* Get start tick */
@@ -297,18 +306,32 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
 #if defined(RCC_PLLSAI2_SUPPORT)
 
   while (READ_BIT(RCC->CR, RCC_CR_PLLRDY | RCC_CR_PLLSAI1RDY | RCC_CR_PLLSAI2RDY) != 0U)
+  {
+    if ((HAL_GetTick() - tickstart) > PLL_TIMEOUT_VALUE)
+    {
+      /* New check to avoid false timeout detection in case of preemption */
+      if (READ_BIT(RCC->CR, RCC_CR_PLLRDY | RCC_CR_PLLSAI1RDY | RCC_CR_PLLSAI2RDY) != 0U)
+      {
+        return HAL_TIMEOUT;
+      }
+    }
+  }
 
 #else
 
   while (READ_BIT(RCC->CR, RCC_CR_PLLRDY | RCC_CR_PLLSAI1RDY) != 0U)
-
-#endif
   {
     if ((HAL_GetTick() - tickstart) > PLL_TIMEOUT_VALUE)
     {
-      return HAL_TIMEOUT;
+      /* New check to avoid false timeout detection in case of preemption */
+      if (READ_BIT(RCC->CR, RCC_CR_PLLRDY | RCC_CR_PLLSAI1RDY) != 0U)
+      {
+        return HAL_TIMEOUT;
+      }
     }
   }
+
+#endif /* RCC_PLLSAI2_SUPPORT */
 
   /* Reset PLLCFGR register */
   CLEAR_REG(RCC->PLLCFGR);
@@ -334,7 +357,11 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
   {
     if ((HAL_GetTick() - tickstart) > LSI_TIMEOUT_VALUE)
     {
-      return HAL_TIMEOUT;
+      /* New check to avoid false timeout detection in case of preemption */
+      if (READ_BIT(RCC->CSR, RCC_CSR_LSIRDY) != 0U)
+      {
+        return HAL_TIMEOUT;
+      }
     }
   }
 
@@ -500,7 +527,11 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
         {
           if ((HAL_GetTick() - tickstart) > MSI_TIMEOUT_VALUE)
           {
-            return HAL_TIMEOUT;
+            /* New check to avoid false timeout detection in case of preemption */
+            if (READ_BIT(RCC->CR, RCC_CR_MSIRDY) == 0U)
+            {
+              return HAL_TIMEOUT;
+            }
           }
         }
         /* Selects the Multiple Speed oscillator (MSI) clock range .*/
@@ -522,7 +553,11 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
         {
           if ((HAL_GetTick() - tickstart) > MSI_TIMEOUT_VALUE)
           {
-            return HAL_TIMEOUT;
+            /* New check to avoid false timeout detection in case of preemption */
+            if (READ_BIT(RCC->CR, RCC_CR_MSIRDY) != 0U)
+            {
+              return HAL_TIMEOUT;
+            }
           }
         }
       }
@@ -559,7 +594,11 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
         {
           if ((HAL_GetTick() - tickstart) > HSE_TIMEOUT_VALUE)
           {
-            return HAL_TIMEOUT;
+            /* New check to avoid false timeout detection in case of preemption */
+            if (READ_BIT(RCC->CR, RCC_CR_HSERDY) == 0U)
+            {
+              return HAL_TIMEOUT;
+            }
           }
         }
       }
@@ -573,7 +612,11 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
         {
           if ((HAL_GetTick() - tickstart) > HSE_TIMEOUT_VALUE)
           {
-            return HAL_TIMEOUT;
+            /* New check to avoid false timeout detection in case of preemption */
+            if (READ_BIT(RCC->CR, RCC_CR_HSERDY) != 0U)
+            {
+              return HAL_TIMEOUT;
+            }
           }
         }
       }
@@ -618,7 +661,11 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
         {
           if ((HAL_GetTick() - tickstart) > HSI_TIMEOUT_VALUE)
           {
-            return HAL_TIMEOUT;
+            /* New check to avoid false timeout detection in case of preemption */
+            if (READ_BIT(RCC->CR, RCC_CR_HSIRDY) == 0U)
+            {
+              return HAL_TIMEOUT;
+            }
           }
         }
 
@@ -638,7 +685,11 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
         {
           if ((HAL_GetTick() - tickstart) > HSI_TIMEOUT_VALUE)
           {
-            return HAL_TIMEOUT;
+            /* New check to avoid false timeout detection in case of preemption */
+            if (READ_BIT(RCC->CR, RCC_CR_HSIRDY) != 0U)
+            {
+              return HAL_TIMEOUT;
+            }
           }
         }
       }
@@ -674,7 +725,11 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
       {
         if ((HAL_GetTick() - tickstart) > LSI_TIMEOUT_VALUE)
         {
-          return HAL_TIMEOUT;
+          /* New check to avoid false timeout detection in case of preemption */
+          if (READ_BIT(RCC->CSR, RCC_CSR_LSIRDY) == 0U)
+          {
+            return HAL_TIMEOUT;
+          }
         }
       }
     }
@@ -691,7 +746,11 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
       {
         if ((HAL_GetTick() - tickstart) > LSI_TIMEOUT_VALUE)
         {
-          return HAL_TIMEOUT;
+          /* New check to avoid false timeout detection in case of preemption */
+          if (READ_BIT(RCC->CSR, RCC_CSR_LSIRDY) != 0U)
+          {
+            return HAL_TIMEOUT;
+          }
         }
       }
     }
@@ -724,7 +783,11 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
       {
         if ((HAL_GetTick() - tickstart) > RCC_DBP_TIMEOUT_VALUE)
         {
-          return HAL_TIMEOUT;
+          /* New check to avoid false timeout detection in case of preemption */
+          if (HAL_IS_BIT_CLR(PWR->CR1, PWR_CR1_DBP))
+          {
+            return HAL_TIMEOUT;
+          }
         }
       }
     }
@@ -761,7 +824,11 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
       {
         if ((HAL_GetTick() - tickstart) > RCC_LSE_TIMEOUT_VALUE)
         {
-          return HAL_TIMEOUT;
+          /* New check to avoid false timeout detection in case of preemption */
+          if (READ_BIT(RCC->BDCR, RCC_BDCR_LSERDY) == 0U)
+          {
+            return HAL_TIMEOUT;
+          }
         }
       }
 
@@ -775,7 +842,11 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
         {
           if ((HAL_GetTick() - tickstart) > RCC_LSE_TIMEOUT_VALUE)
           {
-            return HAL_TIMEOUT;
+            /* New check to avoid false timeout detection in case of preemption */
+            if (READ_BIT(RCC->BDCR, RCC_BDCR_LSESYSRDY) == 0U)
+            {
+              return HAL_TIMEOUT;
+            }
           }
         }
       }
@@ -789,7 +860,11 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
         {
           if ((HAL_GetTick() - tickstart) > RCC_LSE_TIMEOUT_VALUE)
           {
-            return HAL_TIMEOUT;
+            /* New check to avoid false timeout detection in case of preemption */
+            if (READ_BIT(RCC->BDCR, RCC_BDCR_LSESYSRDY) != 0U)
+            {
+              return HAL_TIMEOUT;
+            }
           }
         }
       }
@@ -804,7 +879,11 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
       {
         if ((HAL_GetTick() - tickstart) > RCC_LSE_TIMEOUT_VALUE)
         {
-          return HAL_TIMEOUT;
+          /* New check to avoid false timeout detection in case of preemption */
+          if (READ_BIT(RCC->BDCR, RCC_BDCR_LSERDY) != 0U)
+          {
+            return HAL_TIMEOUT;
+          }
         }
       }
 
@@ -818,7 +897,11 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
         {
           if ((HAL_GetTick() - tickstart) > RCC_LSE_TIMEOUT_VALUE)
           {
-            return HAL_TIMEOUT;
+            /* New check to avoid false timeout detection in case of preemption */
+            if (READ_BIT(RCC->BDCR, RCC_BDCR_LSESYSRDY) != 0U)
+            {
+              return HAL_TIMEOUT;
+            }
           }
         }
       }
@@ -850,7 +933,11 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
       {
         if ((HAL_GetTick() - tickstart) > HSI48_TIMEOUT_VALUE)
         {
-          return HAL_TIMEOUT;
+          /* New check to avoid false timeout detection in case of preemption */
+          if (READ_BIT(RCC->CRRCR, RCC_CRRCR_HSI48RDY) == 0U)
+          {
+            return HAL_TIMEOUT;
+          }
         }
       }
     }
@@ -867,7 +954,11 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
       {
         if ((HAL_GetTick() - tickstart) > HSI48_TIMEOUT_VALUE)
         {
-          return HAL_TIMEOUT;
+          /* New check to avoid false timeout detection in case of preemption */
+          if (READ_BIT(RCC->CRRCR, RCC_CRRCR_HSI48RDY) != 0U)
+          {
+            return HAL_TIMEOUT;
+          }
         }
       }
     }
@@ -902,7 +993,11 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
         {
           if ((HAL_GetTick() - tickstart) > PLL_TIMEOUT_VALUE)
           {
-            return HAL_TIMEOUT;
+            /* New check to avoid false timeout detection in case of preemption */
+            if (READ_BIT(RCC->CR, RCC_CR_PLLRDY) != 0U)
+            {
+              return HAL_TIMEOUT;
+            }
           }
         }
 
@@ -928,7 +1023,11 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
         {
           if ((HAL_GetTick() - tickstart) > PLL_TIMEOUT_VALUE)
           {
-            return HAL_TIMEOUT;
+            /* New check to avoid false timeout detection in case of preemption */
+            if (READ_BIT(RCC->CR, RCC_CR_PLLRDY) == 0U)
+            {
+              return HAL_TIMEOUT;
+            }
           }
         }
       }
@@ -953,7 +1052,11 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
         {
           if ((HAL_GetTick() - tickstart) > PLL_TIMEOUT_VALUE)
           {
-            return HAL_TIMEOUT;
+            /* New check to avoid false timeout detection in case of preemption */
+            if (READ_BIT(RCC->CR, RCC_CR_PLLRDY) != 0U)
+            {
+              return HAL_TIMEOUT;
+            }
           }
         }
       }
@@ -1162,7 +1265,11 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
     {
       if ((HAL_GetTick() - tickstart) > CLOCKSWITCH_TIMEOUT_VALUE)
       {
-        return HAL_TIMEOUT;
+        /* New check to avoid false timeout detection in case of preemption */
+        if (__HAL_RCC_GET_SYSCLK_SOURCE() != (RCC_ClkInitStruct->SYSCLKSource << RCC_CFGR_SWS_Pos))
+        {
+          return HAL_TIMEOUT;
+        }
       }
     }
   }
@@ -1222,8 +1329,8 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
   */
 
 /** @defgroup RCC_Exported_Functions_Group2 Peripheral Control functions
- *  @brief   RCC clocks control functions
- *
+  *  @brief   RCC clocks control functions
+  *
 @verbatim
  ===============================================================================
                       ##### Peripheral Control functions #####
@@ -1647,8 +1754,8 @@ __weak void HAL_RCC_CSSCallback(void)
   */
 
 /** @defgroup RCC_Exported_Functions_Group3 Attributes management functions
- *  @brief Attributes management functions.
- *
+  *  @brief Attributes management functions.
+  *
 @verbatim
  ===============================================================================
                        ##### RCC attributes functions #####

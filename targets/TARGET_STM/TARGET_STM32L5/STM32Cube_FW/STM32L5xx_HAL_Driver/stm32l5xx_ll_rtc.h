@@ -5328,6 +5328,79 @@ __STATIC_INLINE uint32_t LL_RTC_GetMonotonicCounter(RTC_TypeDef *RTCx)
 }
 
 /**
+  * @brief  Enable Temperature Monitoring.
+  * @rmtoll TAMP_CFGR           TMONEN          LL_RTC_EnableTemperatureMonitoring
+  * @param  RTCx RTC Instance
+  * @retval None
+  */
+__STATIC_INLINE void LL_RTC_EnableTemperatureMonitoring(RTC_TypeDef *RTCx)
+{
+  UNUSED(RTCx);
+  SET_BIT(TAMP->CFGR, TAMP_CFGR_TMONEN);
+}
+
+/**
+  * @brief  Disable Temperature Monitoring.
+  * @rmtoll TAMP_CFGR           TMONEN          LL_RTC_DisableTemperatureMonitoring
+  * @param  RTCx RTC Instance
+  * @retval None
+  */
+__STATIC_INLINE void LL_RTC_DisableTemperatureMonitoring(RTC_TypeDef *RTCx)
+{
+  UNUSED(RTCx);
+  CLEAR_BIT(TAMP->CFGR, TAMP_CFGR_TMONEN);
+}
+
+/**
+  * @brief  Enable Voltage Monitoring.
+  * @rmtoll TAMP_CFGR           VMONEN          LL_RTC_EnableVoltageMonitoring
+  * @param  RTCx RTC Instance
+  * @retval None
+  */
+__STATIC_INLINE void LL_RTC_EnableVoltageMonitoring(RTC_TypeDef *RTCx)
+{
+  UNUSED(RTCx);
+  SET_BIT(TAMP->CFGR, TAMP_CFGR_VMONEN);
+}
+
+/**
+  * @brief  Disable Voltage Monitoring.
+  * @rmtoll TAMP_CFGR           VMONEN          LL_RTC_DisableVoltageMonitoring
+  * @param  RTCx RTC Instance
+  * @retval None
+  */
+__STATIC_INLINE void LL_RTC_DisableVoltageMonitoring(RTC_TypeDef *RTCx)
+{
+  UNUSED(RTCx);
+  CLEAR_BIT(TAMP->CFGR, TAMP_CFGR_VMONEN);
+}
+
+/**
+  * @brief  Enable WUT Monitoring.
+  * @rmtoll TAMP_CFGR           WUTMONEN          LL_RTC_EnableWUTMonitoring
+  * @param  RTCx RTC Instance
+  * @retval None
+  */
+__STATIC_INLINE void LL_RTC_EnableWUTMonitoring(RTC_TypeDef *RTCx)
+{
+  UNUSED(RTCx);
+  SET_BIT(TAMP->CFGR, TAMP_CFGR_WUTMONEN);
+}
+
+/**
+  * @brief  Disable WUT Monitoring.
+  * @rmtoll TAMP_CFGR           WUTMONEN          LL_RTC_DisableWUTMonitoring
+  * @param  RTCx RTC Instance
+  * @retval None
+  */
+__STATIC_INLINE void LL_RTC_DisableWUTMonitoring(RTC_TypeDef *RTCx)
+{
+  UNUSED(RTCx);
+  CLEAR_BIT(TAMP->CFGR, TAMP_CFGR_WUTMONEN);
+}
+
+
+/**
   * @}
   */
 

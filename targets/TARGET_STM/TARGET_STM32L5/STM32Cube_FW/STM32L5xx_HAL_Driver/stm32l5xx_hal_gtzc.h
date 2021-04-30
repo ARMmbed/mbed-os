@@ -348,8 +348,8 @@ typedef struct
 /* Private macros ------------------------------------------------------------*/
 
 /** @defgroup GTZC_Private_Macros GTZC Private Macros
- * @{
- */
+  * @{
+  */
 
 /* retrieve information to access register for a specific PeriphId */
 #define GTZC_GET_REG_INDEX(periph_id)\
@@ -376,15 +376,15 @@ typedef struct
 /* Exported macros -----------------------------------------------------------*/
 
 /** @defgroup GTZC_Exported_Macros GTZC Exported Macros
- * @{
- */
+  * @{
+  */
 
 /* user-oriented macro to get array index of a specific PeriphId
- * in case of GTZC_PERIPH_ALL usage in the two following functions:
- * HAL_GTZC_TZSC_ConfigPeriphAttributes() and HAL_GTZC_TZSC_GetConfigPeriphAttributes()
- */
+  * in case of GTZC_PERIPH_ALL usage in the two following functions:
+  * HAL_GTZC_TZSC_ConfigPeriphAttributes() and HAL_GTZC_TZSC_GetConfigPeriphAttributes()
+  */
 #define HAL_GTZC_GET_ARRAY_INDEX(periph_id)\
-( (GTZC_GET_REG_INDEX((periph_id)) * 32U) + GTZC_GET_PERIPH_POS((periph_id)) )
+  ( (GTZC_GET_REG_INDEX((periph_id)) * 32U) + GTZC_GET_PERIPH_POS((periph_id)) )
 
 /**
   * @}
@@ -417,12 +417,10 @@ HAL_StatusTypeDef HAL_GTZC_TZSC_GetConfigPeriphAttributes(uint32_t PeriphId,
   * @{
   */
 
-HAL_StatusTypeDef HAL_GTZC_TZSC_MPCWM_ConfigMemAttributes(
-                      uint32_t MemBaseAddress,
-                      MPCWM_ConfigTypeDef *pMPCWM_Desc);
-HAL_StatusTypeDef HAL_GTZC_TZSC_MPCWM_GetConfigMemAttributes(
-                      uint32_t MemBaseAddress,
-                      MPCWM_ConfigTypeDef *pMPCWM_Desc);
+HAL_StatusTypeDef HAL_GTZC_TZSC_MPCWM_ConfigMemAttributes(uint32_t MemBaseAddress,
+                                                          MPCWM_ConfigTypeDef *pMPCWM_Desc);
+HAL_StatusTypeDef HAL_GTZC_TZSC_MPCWM_GetConfigMemAttributes(uint32_t MemBaseAddress,
+                                                             MPCWM_ConfigTypeDef *pMPCWM_Desc);
 /**
   * @}
   */

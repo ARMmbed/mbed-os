@@ -825,6 +825,11 @@ ErrorStatus LL_ADC_REG_Init(ADC_TypeDef *ADCx, LL_ADC_REG_InitTypeDef *ADC_REG_I
   if (ADC_REG_InitStruct->SequencerLength != LL_ADC_REG_SEQ_SCAN_DISABLE)
   {
     assert_param(IS_LL_ADC_REG_SEQ_SCAN_DISCONT_MODE(ADC_REG_InitStruct->SequencerDiscont));
+
+    /* ADC group regular continuous mode and discontinuous mode                 */
+    /* can not be enabled simultenaeously                                       */
+    assert_param((ADC_REG_InitStruct->ContinuousMode == LL_ADC_REG_CONV_SINGLE)
+                 || (ADC_REG_InitStruct->SequencerDiscont == LL_ADC_REG_SEQ_DISCONT_DISABLE));
   }
   assert_param(IS_LL_ADC_REG_CONTINUOUS_MODE(ADC_REG_InitStruct->ContinuousMode));
   assert_param(IS_LL_ADC_REG_DMA_TRANSFER(ADC_REG_InitStruct->DMATransfer));
@@ -941,6 +946,12 @@ void LL_ADC_REG_StructInit(LL_ADC_REG_InitTypeDef *ADC_REG_InitStruct)
   *            Refer to function @ref LL_ADC_INJ_SetSequencerRanks().
   *          - Set ADC channel sampling time
   *            Refer to function LL_ADC_SetChannelSamplingTime();
+  * @note   Caution if feature ADC group injected contexts queue is enabled
+  *         (refer to with function @ref LL_ADC_INJ_SetQueueMode() ):
+  *         using successively several times this function will appear as
+  *         having no effect.
+  *         To set several features of ADC group injected, use
+  *         function @ref LL_ADC_INJ_ConfigQueueContext().
   * @param  ADCx ADC instance
   * @param  ADC_INJ_InitStruct Pointer to a @ref LL_ADC_INJ_InitTypeDef structure
   * @retval An ErrorStatus enumeration value:

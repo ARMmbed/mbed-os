@@ -233,14 +233,11 @@ HAL_StatusTypeDef HAL_RTCEx_SetTimeStamp_IT(RTC_HandleTypeDef *hrtc, uint32_t Ti
 
   hrtc->State = HAL_RTC_STATE_BUSY;
 
-  /* RTC timestamp Interrupt Configuration: EXTI configuration */
-  __HAL_RTC_TIMESTAMP_EXTI_ENABLE_IT();
-
-  /* Get the RTC_CR register and clear the bits to be configured */
-  CLEAR_BIT(RTC->CR, (RTC_CR_TSEDGE | RTC_CR_TSE));
-
   /* Disable the write protection for RTC registers */
   __HAL_RTC_WRITEPROTECTION_DISABLE(hrtc);
+
+  /* Get the RTC_CR register and clear the bits to be configured */
+  CLEAR_BIT(RTC->CR, (RTC_CR_TSEDGE | RTC_CR_TSE | RTC_CR_TSIE));
 
   /* Configure the Time Stamp TSEDGE before Enable bit to avoid unwanted TSF setting. */
   SET_BIT(RTC->CR, (uint32_t)TimeStampEdge);
@@ -250,6 +247,9 @@ HAL_StatusTypeDef HAL_RTCEx_SetTimeStamp_IT(RTC_HandleTypeDef *hrtc, uint32_t Ti
 
   /* Enable the write protection for RTC registers */
   __HAL_RTC_WRITEPROTECTION_ENABLE(hrtc);
+
+  /* RTC timestamp Interrupt Configuration: EXTI configuration */
+  __HAL_RTC_TIMESTAMP_EXTI_ENABLE_IT();
 
   hrtc->State = HAL_RTC_STATE_READY;
 
@@ -1525,32 +1525,29 @@ HAL_StatusTypeDef HAL_RTCEx_SetTamper_IT(RTC_HandleTypeDef *hrtc, RTC_TamperType
   assert_param(IS_RTC_TAMPER_TRIGGER(sTamper->Trigger));
   assert_param(IS_RTC_TAMPER_ERASE_MODE(sTamper->NoErase));
   assert_param(IS_RTC_TAMPER_MASKFLAG_STATE(sTamper->MaskFlag));
+  assert_param(IS_RTC_TAMPER_TIMESTAMPONTAMPER_DETECTION(sTamper->TimeStampOnTamperDetection));
+  /* Mask flag only supported by TAMPER 1, 2 and 3 */
+  assert_param(!((sTamper->MaskFlag != RTC_TAMPERMASK_FLAG_DISABLE) && (sTamper->Tamper > RTC_TAMPER_3)));
   assert_param(IS_RTC_TAMPER_FILTER(sTamper->Filter));
   assert_param(IS_RTC_TAMPER_SAMPLING_FREQ(sTamper->SamplingFrequency));
   assert_param(IS_RTC_TAMPER_PRECHARGE_DURATION(sTamper->PrechargeDuration));
   assert_param(IS_RTC_TAMPER_PULLUP_STATE(sTamper->TamperPullUp));
-  assert_param(IS_RTC_TAMPER_TIMESTAMPONTAMPER_DETECTION(sTamper->TimeStampOnTamperDetection));
+  /* Trigger and Filter have exclusive configurations */
+  assert_param(((sTamper->Filter != RTC_TAMPERFILTER_DISABLE) && ((sTamper->Trigger == RTC_TAMPERTRIGGER_LOWLEVEL) || (sTamper->Trigger == RTC_TAMPERTRIGGER_HIGHLEVEL)))
+               || ((sTamper->Filter == RTC_TAMPERFILTER_DISABLE) && ((sTamper->Trigger == RTC_TAMPERTRIGGER_RISINGEDGE) || (sTamper->Trigger == RTC_TAMPERTRIGGER_FALLINGEDGE))));
 
   /* Configuration register 2 */
   tmpreg = READ_REG(TAMP->CR2);
   tmpreg &= ~((sTamper->Tamper << TAMP_CR2_TAMP1TRG_Pos) | (sTamper->Tamper << TAMP_CR2_TAMP1MSK_Pos) | (sTamper->Tamper << TAMP_CR2_TAMP1NOERASE_Pos));
 
-  if (sTamper->Trigger != RTC_TAMPERTRIGGER_RISINGEDGE)
+  if ((sTamper->Trigger == RTC_TAMPERTRIGGER_HIGHLEVEL) || (sTamper->Trigger == RTC_TAMPERTRIGGER_FALLINGEDGE))
   {
     tmpreg |= (sTamper->Tamper << TAMP_CR2_TAMP1TRG_Pos);
   }
 
   if (sTamper->MaskFlag != RTC_TAMPERMASK_FLAG_DISABLE)
   {
-    /* Feature only supported by TAMPER 1, 2 and 3 */
-    if (sTamper->Tamper < RTC_TAMPER_4)
-    {
-      tmpreg |= (sTamper->Tamper << TAMP_CR2_TAMP1MSK_Pos);
-    }
-    else
-    {
-      return HAL_ERROR;
-    }
+    tmpreg |= (sTamper->Tamper << TAMP_CR2_TAMP1MSK_Pos);
   }
 
   if (sTamper->NoErase != RTC_TAMPER_ERASE_BACKUP_ENABLE)
@@ -1633,7 +1630,7 @@ HAL_StatusTypeDef HAL_RTCEx_SetActiveTampers(RTC_HandleTypeDef *hrtc, RTC_Active
     assert_param(IS_RTC_TAMPER_ERASE_MODE(sAllTamper->TampInput[i].NoErase));
     assert_param(IS_RTC_TAMPER_MASKFLAG_STATE(sAllTamper->TampInput[i].MaskFlag));
     /* Mask flag only supported by TAMPER 1, 2 and 3 */
-    assert_param(!((sAllTamper->TampInput[i].MaskFlag != RTC_TAMPERMASK_FLAG_DISABLE) && (i > RTC_TAMPER_3)));
+    assert_param(!((sAllTamper->TampInput[i].MaskFlag == RTC_TAMPERMASK_FLAG_ENABLE) && (i >= RTC_TAMPER_MASKABLE_NB)));
   }
   assert_param(IS_RTC_TAMPER_TIMESTAMPONTAMPER_DETECTION(sAllTamper->TimeStampOnTamperDetection));
 #endif /* #ifdef  USE_FULL_ASSERT */
@@ -1775,11 +1772,12 @@ HAL_StatusTypeDef HAL_RTCEx_DeactivateActiveTampers(RTC_HandleTypeDef *hrtc)
   UNUSED(hrtc);
   /* Disable all actives tampers but not passives tampers */
   CLEAR_BIT(TAMP->CR1, ATamp_mask);
-  /* Disable no erase and mask */
-  CLEAR_BIT(TAMP->CR2, (ATamp_mask | ((ATamp_mask & (TAMP_ATCR1_TAMP1AM | TAMP_ATCR1_TAMP2AM | TAMP_ATCR1_TAMP3AM)) << TAMP_CR2_TAMP1MSK_Pos)));
 
   /* Clear tamper interrupt and event flags (WO register) of all actives tampers but not passives tampers */
   WRITE_REG(TAMP->SCR, ATamp_mask);
+
+  /* Disable no erase and mask */
+  CLEAR_BIT(TAMP->CR2, (ATamp_mask | ((ATamp_mask & (TAMP_ATCR1_TAMP1AM | TAMP_ATCR1_TAMP2AM | TAMP_ATCR1_TAMP3AM)) << TAMP_CR2_TAMP1MSK_Pos)));
 
   /* Clear all active tampers interrupt mode configuration but not passives tampers */
   CLEAR_BIT(TAMP->IER, ATamp_mask);
@@ -2516,6 +2514,82 @@ __weak void HAL_RTCEx_InternalTamper8EventCallback(RTC_HandleTypeDef *hrtc)
             the HAL_RTCEx_InternalTamper8EventCallback could be implemented in the user file
    */
 }
+
+/**
+  * @brief  Enable Temperature Monitoring.
+  * @param  hrtc RTC handle
+  * @retval None
+  */
+void HAL_RTCEx_EnableTemperatureMonitoring(RTC_HandleTypeDef *hrtc)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
+  SET_BIT(TAMP->CFGR, TAMP_CFGR_TMONEN);
+}
+
+/**
+  * @brief  Disable Temperature Monitoring.
+  * @param  hrtc RTC handle
+  * @retval None
+  */
+void HAL_RTCEx_DisableTemperatureMonitoring(RTC_HandleTypeDef *hrtc)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
+  CLEAR_BIT(TAMP->CFGR, TAMP_CFGR_TMONEN);
+}
+
+/**
+  * @brief  Enable Voltage Monitoring.
+  * @param  hrtc RTC handle
+  * @retval None
+  */
+void HAL_RTCEx_EnableVoltageMonitoring(RTC_HandleTypeDef *hrtc)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
+  SET_BIT(TAMP->CFGR, TAMP_CFGR_VMONEN);
+}
+
+/**
+  * @brief  Disable Voltage Monitoring.
+  * @param  hrtc RTC handle
+  * @retval None
+  */
+void HAL_RTCEx_DisableVoltageMonitoring(RTC_HandleTypeDef *hrtc)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
+  CLEAR_BIT(TAMP->CFGR, TAMP_CFGR_VMONEN);
+}
+
+/**
+  * @brief  Enable WUT Monitoring.
+  * @note   Voltage and temperature monitor periodic enable by RTC WakeUp Timer (WUT).
+  * @param  hrtc RTC handle
+  * @retval None
+  */
+void HAL_RTCEx_EnableWUTMonitoring(RTC_HandleTypeDef *hrtc)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
+  SET_BIT(TAMP->CFGR, TAMP_CFGR_WUTMONEN);
+}
+
+/**
+  * @brief  Disable WUT Monitoring.
+  * @note   Voltage and temperature monitor periodic Disable by RTC WakeUp Timer (WUT).
+  * @param  hrtc RTC handle
+  * @retval None
+  */
+void HAL_RTCEx_DisableWUTMonitoring(RTC_HandleTypeDef *hrtc)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
+  CLEAR_BIT(TAMP->CFGR, TAMP_CFGR_WUTMONEN);
+}
+
+
 /**
   * @}
   */

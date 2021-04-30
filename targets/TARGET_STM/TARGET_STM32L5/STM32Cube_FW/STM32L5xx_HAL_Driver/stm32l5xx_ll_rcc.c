@@ -24,7 +24,8 @@
 #include "stm32_assert.h"
 #else
 #define assert_param(expr) ((void)0U)
-#endif
+#endif /* USE_FULL_ASSERT */
+
 /** @addtogroup STM32L5xx_LL_Driver
   * @{
   */
@@ -43,25 +44,25 @@
   * @{
   */
 #define IS_LL_RCC_USART_CLKSOURCE(__VALUE__)  (((__VALUE__) == LL_RCC_USART1_CLKSOURCE) \
-                                            || ((__VALUE__) == LL_RCC_USART2_CLKSOURCE) \
-                                            || ((__VALUE__) == LL_RCC_USART3_CLKSOURCE))
+                                               || ((__VALUE__) == LL_RCC_USART2_CLKSOURCE) \
+                                               || ((__VALUE__) == LL_RCC_USART3_CLKSOURCE))
 
 #define IS_LL_RCC_UART_CLKSOURCE(__VALUE__)    (((__VALUE__) == LL_RCC_UART4_CLKSOURCE) \
-                                             || ((__VALUE__) == LL_RCC_UART5_CLKSOURCE))
+                                                || ((__VALUE__) == LL_RCC_UART5_CLKSOURCE))
 
 #define IS_LL_RCC_LPUART_CLKSOURCE(__VALUE__) (((__VALUE__) == LL_RCC_LPUART1_CLKSOURCE))
 
 #define IS_LL_RCC_I2C_CLKSOURCE(__VALUE__)    (((__VALUE__) == LL_RCC_I2C1_CLKSOURCE) \
-                                            || ((__VALUE__) == LL_RCC_I2C2_CLKSOURCE) \
-                                            || ((__VALUE__) == LL_RCC_I2C3_CLKSOURCE) \
-                                            || ((__VALUE__) == LL_RCC_I2C4_CLKSOURCE))
+                                               || ((__VALUE__) == LL_RCC_I2C2_CLKSOURCE) \
+                                               || ((__VALUE__) == LL_RCC_I2C3_CLKSOURCE) \
+                                               || ((__VALUE__) == LL_RCC_I2C4_CLKSOURCE))
 
 #define IS_LL_RCC_LPTIM_CLKSOURCE(__VALUE__)  (((__VALUE__) == LL_RCC_LPTIM1_CLKSOURCE) \
-                                            || ((__VALUE__) == LL_RCC_LPTIM2_CLKSOURCE) \
-                                            || ((__VALUE__) == LL_RCC_LPTIM3_CLKSOURCE))
+                                               || ((__VALUE__) == LL_RCC_LPTIM2_CLKSOURCE) \
+                                               || ((__VALUE__) == LL_RCC_LPTIM3_CLKSOURCE))
 
 #define IS_LL_RCC_SAI_CLKSOURCE(__VALUE__)    (((__VALUE__) == LL_RCC_SAI1_CLKSOURCE) \
-                                            || ((__VALUE__) == LL_RCC_SAI2_CLKSOURCE))
+                                               || ((__VALUE__) == LL_RCC_SAI2_CLKSOURCE))
 
 #define IS_LL_RCC_SDMMC_KERNELCLKSOURCE(__VALUE__)  (((__VALUE__) == LL_RCC_SDMMC1_KERNELCLKSOURCE))
 
@@ -89,17 +90,17 @@
 /** @defgroup RCC_LL_Private_Functions RCC Private Functions
   * @{
   */
-uint32_t RCC_GetSystemClockFreq(void);
-uint32_t RCC_GetHCLKClockFreq(uint32_t SYSCLK_Frequency);
-uint32_t RCC_GetPCLK1ClockFreq(uint32_t HCLK_Frequency);
-uint32_t RCC_GetPCLK2ClockFreq(uint32_t HCLK_Frequency);
-uint32_t RCC_PLL_GetFreqDomain_SYS(void);
-uint32_t RCC_PLL_GetFreqDomain_SAI(void);
-uint32_t RCC_PLL_GetFreqDomain_48M(void);
-uint32_t RCC_PLLSAI1_GetFreqDomain_SAI(void);
-uint32_t RCC_PLLSAI1_GetFreqDomain_48M(void);
-uint32_t RCC_PLLSAI1_GetFreqDomain_ADC(void);
-uint32_t RCC_PLLSAI2_GetFreqDomain_SAI(void);
+static uint32_t RCC_GetSystemClockFreq(void);
+static uint32_t RCC_GetHCLKClockFreq(uint32_t SYSCLK_Frequency);
+static uint32_t RCC_GetPCLK1ClockFreq(uint32_t HCLK_Frequency);
+static uint32_t RCC_GetPCLK2ClockFreq(uint32_t HCLK_Frequency);
+static uint32_t RCC_PLL_GetFreqDomain_SYS(void);
+static uint32_t RCC_PLL_GetFreqDomain_SAI(void);
+static uint32_t RCC_PLL_GetFreqDomain_48M(void);
+static uint32_t RCC_PLLSAI1_GetFreqDomain_SAI(void);
+static uint32_t RCC_PLLSAI1_GetFreqDomain_48M(void);
+static uint32_t RCC_PLLSAI1_GetFreqDomain_ADC(void);
+static uint32_t RCC_PLLSAI2_GetFreqDomain_SAI(void);
 /**
   * @}
   */
@@ -1284,7 +1285,7 @@ uint32_t LL_RCC_GetFDCANClockFreq(uint32_t FDCANxSource)
   * @brief  Return SYSTEM clock frequency
   * @retval SYSTEM clock frequency (in Hz)
   */
-uint32_t RCC_GetSystemClockFreq(void)
+static uint32_t RCC_GetSystemClockFreq(void)
 {
   uint32_t frequency;
 
@@ -1326,7 +1327,7 @@ uint32_t RCC_GetSystemClockFreq(void)
   * @param  SYSCLK_Frequency SYSCLK clock frequency
   * @retval HCLK clock frequency (in Hz)
   */
-uint32_t RCC_GetHCLKClockFreq(uint32_t SYSCLK_Frequency)
+static uint32_t RCC_GetHCLKClockFreq(uint32_t SYSCLK_Frequency)
 {
   /* HCLK clock frequency */
   return __LL_RCC_CALC_HCLK_FREQ(SYSCLK_Frequency, LL_RCC_GetAHBPrescaler());
@@ -1337,7 +1338,7 @@ uint32_t RCC_GetHCLKClockFreq(uint32_t SYSCLK_Frequency)
   * @param  HCLK_Frequency HCLK clock frequency
   * @retval PCLK1 clock frequency (in Hz)
   */
-uint32_t RCC_GetPCLK1ClockFreq(uint32_t HCLK_Frequency)
+static uint32_t RCC_GetPCLK1ClockFreq(uint32_t HCLK_Frequency)
 {
   /* PCLK1 clock frequency */
   return __LL_RCC_CALC_PCLK1_FREQ(HCLK_Frequency, LL_RCC_GetAPB1Prescaler());
@@ -1348,7 +1349,7 @@ uint32_t RCC_GetPCLK1ClockFreq(uint32_t HCLK_Frequency)
   * @param  HCLK_Frequency HCLK clock frequency
   * @retval PCLK2 clock frequency (in Hz)
   */
-uint32_t RCC_GetPCLK2ClockFreq(uint32_t HCLK_Frequency)
+static uint32_t RCC_GetPCLK2ClockFreq(uint32_t HCLK_Frequency)
 {
   /* PCLK2 clock frequency */
   return __LL_RCC_CALC_PCLK2_FREQ(HCLK_Frequency, LL_RCC_GetAPB2Prescaler());
@@ -1358,7 +1359,7 @@ uint32_t RCC_GetPCLK2ClockFreq(uint32_t HCLK_Frequency)
   * @brief  Return PLL clock frequency used for system domain
   * @retval PLL clock frequency (in Hz)
   */
-uint32_t RCC_PLL_GetFreqDomain_SYS(void)
+static uint32_t RCC_PLL_GetFreqDomain_SYS(void)
 {
   uint32_t pllinputfreq, pllsource;
 
@@ -1398,7 +1399,7 @@ uint32_t RCC_PLL_GetFreqDomain_SYS(void)
   * @brief  Return PLL clock frequency used for SAI domain
   * @retval PLL clock frequency (in Hz)
   */
-uint32_t RCC_PLL_GetFreqDomain_SAI(void)
+static uint32_t RCC_PLL_GetFreqDomain_SAI(void)
 {
   uint32_t pllinputfreq, plloutputfreq, pllsource;
   uint32_t plln, pllpdiv;
@@ -1451,7 +1452,7 @@ uint32_t RCC_PLL_GetFreqDomain_SAI(void)
   * @brief  Return PLL clock frequency used for 48 MHz domain
   * @retval PLL clock frequency (in Hz)
   */
-uint32_t RCC_PLL_GetFreqDomain_48M(void)
+static uint32_t RCC_PLL_GetFreqDomain_48M(void)
 {
   uint32_t pllinputfreq, pllsource;
 
@@ -1492,7 +1493,7 @@ uint32_t RCC_PLL_GetFreqDomain_48M(void)
   * @brief  Return PLLSAI1 clock frequency used for SAI domain
   * @retval PLLSAI1 clock frequency (in Hz)
   */
-uint32_t RCC_PLLSAI1_GetFreqDomain_SAI(void)
+static uint32_t RCC_PLLSAI1_GetFreqDomain_SAI(void)
 {
   uint32_t pllinputfreq, plloutputfreq, pllsource;
   uint32_t plln, pllpdiv;
@@ -1544,7 +1545,7 @@ uint32_t RCC_PLLSAI1_GetFreqDomain_SAI(void)
   * @brief  Return PLLSAI1 clock frequency used for 48Mhz domain
   * @retval PLLSAI1 clock frequency (in Hz)
   */
-uint32_t RCC_PLLSAI1_GetFreqDomain_48M(void)
+static uint32_t RCC_PLLSAI1_GetFreqDomain_48M(void)
 {
   uint32_t pllinputfreq, pllsource;
 
@@ -1584,7 +1585,7 @@ uint32_t RCC_PLLSAI1_GetFreqDomain_48M(void)
   * @brief  Return PLLSAI1 clock frequency used for ADC domain
   * @retval PLLSAI1 clock frequency (in Hz)
   */
-uint32_t RCC_PLLSAI1_GetFreqDomain_ADC(void)
+static uint32_t RCC_PLLSAI1_GetFreqDomain_ADC(void)
 {
   uint32_t pllinputfreq, pllsource;
 
@@ -1624,7 +1625,7 @@ uint32_t RCC_PLLSAI1_GetFreqDomain_ADC(void)
   * @brief  Return PLLSAI2 clock frequency used for SAI domain
   * @retval PLLSAI2 clock frequency (in Hz)
   */
-uint32_t RCC_PLLSAI2_GetFreqDomain_SAI(void)
+static uint32_t RCC_PLLSAI2_GetFreqDomain_SAI(void)
 {
   uint32_t pllinputfreq, plloutputfreq, pllsource;
   uint32_t plln, pllpdiv;
