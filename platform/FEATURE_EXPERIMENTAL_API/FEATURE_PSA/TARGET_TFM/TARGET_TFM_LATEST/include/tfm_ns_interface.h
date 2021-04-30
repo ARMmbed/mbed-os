@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -31,6 +31,10 @@ typedef int32_t (*veneer_fn) (uint32_t arg0, uint32_t arg1,
  * \param[in] arg3 Argument 3
  *
  * \return Returns the same return value of the requested veneer function
+ *
+ * \note This API must ensure the return value is from the veneer function.
+ *       Other unrecoverable errors must be considered as fatal error and should
+ *       not return.
  */
 int32_t tfm_ns_interface_dispatch(veneer_fn fn,
                                   uint32_t arg0, uint32_t arg1,
