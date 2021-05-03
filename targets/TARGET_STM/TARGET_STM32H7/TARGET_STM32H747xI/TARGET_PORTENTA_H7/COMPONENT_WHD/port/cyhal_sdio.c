@@ -338,7 +338,7 @@ restart:
     do {
         temp_sta = SDIO->STA;
         loop_count--;
-        if (loop_count == 0 || ((response != NULL) && ((temp_sta & SDIO_ERROR_MASK) != 0))) {
+        if (loop_count == 0 /*|| ((response != NULL) && ((temp_sta & SDIO_ERROR_MASK) != 0))*/) {
             WPRINT_WHD_DEBUG(("Restart single access loop count %ld  stat %lx\n", loop_count, temp_sta));
             HAL_Delay(10U);
             goto restart;
