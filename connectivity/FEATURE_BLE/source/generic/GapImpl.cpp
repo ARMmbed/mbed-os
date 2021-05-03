@@ -369,6 +369,9 @@ Gap::Gap(
     _advertising_timeout(),
     _scan_timeout(),
     _user_manage_connection_parameter_requests(false)
+#if BLE_ROLE_OBSERVER
+    , _scan_parameters_set(false)
+#endif // BLE_ROLE_OBSERVER
 {
     _pal_gap.initialize();
 
