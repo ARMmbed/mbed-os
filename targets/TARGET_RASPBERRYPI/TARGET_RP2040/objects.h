@@ -20,6 +20,7 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wtype-limits"
 #pragma GCC diagnostic ignored "-Wignored-qualifiers"
+#pragma GCC diagnostic ignored "-Wunused-value"
 
 #ifdef __cplusplus
 #include <stdint.h>
