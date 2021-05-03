@@ -1,6 +1,6 @@
 #include "mbed_assert.h"
 #include "analogin_api.h"
-#include "adc.h"
+#include "hardware/adc.h"
 #include "pinmap.h"
 #include "PeripheralPins.h"
 

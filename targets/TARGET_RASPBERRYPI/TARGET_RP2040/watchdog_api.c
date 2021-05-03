@@ -1,6 +1,6 @@
 #include "watchdog_api.h"
 #include "hardware/watchdog.h"
-#include "structs/watchdog.h"
+#include "hardware/structs/watchdog.h"
 
 #if DEVICE_WATCHDOG
 

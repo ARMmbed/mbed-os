@@ -3,7 +3,7 @@
 
 #ifdef DEVICE_RESET_REASON
 
-#include "structs/resets.h"
+#include "hardware/structs/resets.h"
 
 reset_reason_t hal_reset_reason_get(void)
 {
