@@ -18,6 +18,8 @@
 #include "platform/mbed_wait_api.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_power_mgmt.h"
+#include "mbed_chrono.h"
+#include "ThisThread.h"
 
 #if DEVICE_SERIAL
 
@@ -167,10 +169,11 @@ void SerialBase::_deinit()
 int SerialBase::sync()
 {
     int count = 0;
+    // See send_break(), ensure at least 1ms sleep time
+    int timeout_ms = (18000 / _baud) + 1;
     lock();
     while ((!serial_tx_empty(&_serial)) && (count < 16)) {
-        // See send_break()
-        wait_us(18000000 / _baud);
+        rtos::ThisThread::sleep_for(chrono::milliseconds_u32(timeout_ms));
         count++;
     }
     unlock();
