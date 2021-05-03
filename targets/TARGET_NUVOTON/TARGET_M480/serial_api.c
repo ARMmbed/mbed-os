@@ -527,7 +527,7 @@ int serial_writable(serial_t *obj)
 
 int serial_tx_empty(serial_t *obj)
 {
-    return UART_GET_TX_EMPTY(((UART_T *) NU_MODBASE(obj->serial.uart)));
+    return UART_IS_TX_EMPTY(((UART_T *) NU_MODBASE(obj->serial.uart)));
 }
 
 void serial_pinout_tx(PinName tx)
