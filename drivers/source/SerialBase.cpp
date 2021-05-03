@@ -174,7 +174,10 @@ int SerialBase::sync()
     lock();
     while ((!serial_tx_empty(&_serial)) && (count < 16)) {
         rtos::ThisThread::sleep_for(chrono::milliseconds_u32(timeout_ms));
-        count++;
+#if DEVICE_SERIAL_FC
+        if ((_flow_type == RTS) || (_flow_type == Disabled))
+#endif
+            count++;
     }
     unlock();
 
