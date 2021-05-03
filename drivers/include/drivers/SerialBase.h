@@ -123,7 +123,7 @@ public:
      *
      *  @return         0 on success, negative error code on failure
      */
-    int sync(void);
+    int sync();
 
     /** Enable serial input
      *

@@ -164,17 +164,22 @@ void SerialBase::_deinit()
     serial_free(&_serial);
 }
 
-int SerialBase:: sync()
+int SerialBase::sync()
 {
+    int count = 0;
     lock();
-
-    while (!serial_tx_empty(&_serial)) {
+    while ((!serial_tx_empty(&_serial)) && (count < 16)) {
         // See send_break()
         wait_us(18000000 / _baud);
+        count++;
     }
-
     unlock();
-    return 0;
+
+    if (count < 16) {
+        return 0;
+    } else {
+        return -ETIME;
+    }
 }
 
 void SerialBase::enable_input(bool enable)
