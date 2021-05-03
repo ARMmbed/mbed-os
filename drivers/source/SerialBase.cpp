@@ -170,10 +170,10 @@ int SerialBase::sync()
 {
     int count = 0;
     // See send_break(), ensure at least 1ms sleep time
-    int timeout_ms = (18000 / _baud) + 1;
+    auto char_time_allowance = chrono::milliseconds_u32((18000 / _baud) + 1);
     lock();
     while ((!serial_tx_empty(&_serial)) && (count < 16)) {
-        rtos::ThisThread::sleep_for(chrono::milliseconds_u32(timeout_ms));
+        rtos::ThisThread::sleep_for(char_time_allowance);
 #if DEVICE_SERIAL_FC
         if ((_flow_type == RTS) || (_flow_type == Disabled))
 #endif
