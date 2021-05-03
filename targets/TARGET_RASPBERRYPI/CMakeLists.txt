@@ -1,11 +1,18 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("RPI2010" IN_LIST MBED_TARGET_LABELS)
-  add_subdirectory(TARGET_RPI2040)
-endif()
+add_subdirectory(TARGET_RP2040 EXCLUDE_FROM_ALL)
 
-target_include_directories(mbed-core
+add_library(mbed-raspberrypi INTERFACE)
+
+target_include_directories(mbed-raspberrypi
     INTERFACE
         .
 )
+
+target_sources(mbed-raspberrypi
+    INTERFACE
+    	.
+)
+
+target_link_libraries(mbed-raspberrypi INTERFACE mbed-cmsis-cortex-m)
