@@ -3,19 +3,19 @@
 
 set(LINKER_FILE ../TOOLCHAIN_GCC_ARM/memmap_default.ld)
 
-add_library(mbed-raspberrypi-pico INTERFACE)
+add_library(mbed-raspberry-pi-pico INTERFACE)
 
-target_sources(mbed-raspberrypi-pico
+target_sources(mbed-raspberry-pi-pico
     INTERFACE
         board.c
         bs2_default_padded_checksummed.S
 )
 
-target_include_directories(mbed-raspberrypi-pico
+target_include_directories(mbed-raspberry-pi-pico
     INTERFACE
         .
 )
 
-mbed_set_linker_script(mbed-raspberrypi-pico ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-raspberry-pi-pico ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(mbed-raspberrypi-pico INTERFACE mbed-rp2040)
+target_link_libraries(mbed-raspberry-pi-pico INTERFACE mbed-rp2040)
