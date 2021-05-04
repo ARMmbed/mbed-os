@@ -192,14 +192,7 @@ ssize_t UARTSerial::write(const void *buffer, size_t length)
             data_written++;
         }
 
-        core_util_critical_section_enter();
-        if (_tx_enabled && !_tx_irq_enabled) {
-            UARTSerial::tx_irq();                // only write to hardware in one place
-            if (!_txbuf.empty()) {
-                enable_tx_irq();
-            }
-        }
-        core_util_critical_section_exit();
+        enable_tx_irq();
     }
 
     api_unlock();
@@ -234,14 +227,7 @@ ssize_t UARTSerial::read(void *buffer, size_t length)
         data_read++;
     }
 
-    core_util_critical_section_enter();
-    if (_rx_enabled && !_rx_irq_enabled) {
-        UARTSerial::rx_irq();               // only read from hardware in one place
-        if (!_rxbuf.full()) {
-            enable_rx_irq();
-        }
-    }
-    core_util_critical_section_exit();
+    enable_rx_irq();
 
     api_unlock();
 
@@ -351,8 +337,15 @@ void UARTSerial::tx_irq(void)
 /* These are all called from critical section */
 void UARTSerial::enable_rx_irq()
 {
-    SerialBase::attach(callback(this, &UARTSerial::rx_irq), RxIrq);
-    _rx_irq_enabled = true;
+    core_util_critical_section_enter();
+    if (_rx_enabled && !_rx_irq_enabled) {
+        UARTSerial::rx_irq();               // only read from hardware in one place
+        if (!_rxbuf.full()) {
+            SerialBase::attach(callback(this, &UARTSerial::rx_irq), RxIrq);
+            _rx_irq_enabled = true;
+        }
+    }
+    core_util_critical_section_exit();
 }
 
 void UARTSerial::disable_rx_irq()
@@ -363,8 +356,15 @@ void UARTSerial::disable_rx_irq()
 
 void UARTSerial::enable_tx_irq()
 {
-    SerialBase::attach(callback(this, &UARTSerial::tx_irq), TxIrq);
-    _tx_irq_enabled = true;
+    core_util_critical_section_enter();
+    if (_tx_enabled && !_tx_irq_enabled) {
+        UARTSerial::tx_irq();                // only write to hardware in one place
+        if (!_txbuf.empty()) {
+            SerialBase::attach(callback(this, &UARTSerial::tx_irq), TxIrq);
+            _tx_irq_enabled = true;
+        }
+    }
+    core_util_critical_section_exit();
 }
 
 void UARTSerial::disable_tx_irq()
@@ -377,6 +377,7 @@ int UARTSerial::enable_input(bool enabled)
 {
     api_lock();
     SerialBase::enable_input(enabled);
+    enable_rx_irq(); // Enable interrupt to handle incoming data
     api_unlock();
 
     return 0;
@@ -386,6 +387,7 @@ int UARTSerial::enable_output(bool enabled)
 {
     api_lock();
     SerialBase::enable_output(enabled);
+    enable_tx_irq(); // Enable interrupt to flush buffered data
     api_unlock();
 
     return 0;
