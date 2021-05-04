@@ -20,7 +20,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+#include "PinNames.h"
 typedef struct {
     PinName pin;
 } gpio_t;
