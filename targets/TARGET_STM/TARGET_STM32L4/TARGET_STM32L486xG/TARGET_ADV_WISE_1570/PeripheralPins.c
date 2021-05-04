@@ -73,8 +73,8 @@ const PinMap PinMap_I2C_SCL[] = {
 
 // Warning: TIM5 cannot be used because already used by the us_ticker.
 const PinMap PinMap_PWM[] = {
-    {PWM0_OUT, PWM_3,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3, 3, 0)},  // TIM3_CH3
-    {PWM1_OUT, PWM_3,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3, 4, 0)},  // TIM3_CH4
+    {PWM0_OUT, PWM_3,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF2_TIM3, 3, 0)},  // TIM3_CH3
+    {PWM1_OUT, PWM_3,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF2_TIM3, 4, 0)},  // TIM3_CH4
     {NC,    NC,     0}
 };
 

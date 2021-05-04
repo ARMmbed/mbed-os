@@ -102,3 +102,20 @@ target_compile_definitions(mbed-mbedtls
     INTERFACE
         MBED_CONF_MBEDTLS_PRESENT=1
 )
+
+# Workaround for https://github.com/ARMmbed/mbedtls/issues/1077
+# which affects cores without __thumb2__ set by the compiler
+# due to the lack of full Thumb-2 support
+set(partial-thumb2-cores
+    Cortex-M0
+    Cortex-M0+
+    Cortex-M1
+    Cortex-M23
+    Cortex-M23-NS
+)
+if(MBED_CPU_CORE IN_LIST partial-thumb2-cores)
+    target_compile_definitions(mbed-mbedtls
+        INTERFACE
+            MULADDC_CANNOT_USE_R7
+    )
+endif()

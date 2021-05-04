@@ -128,10 +128,11 @@ typedef void mcps_data_request(const mac_api_t *api, const mcps_data_req_t *data
  * @param data MCPS-DATA.request specific values
  * @param ie_ext Information element list to MCPS-DATA.request
  * @param asynch_channel_list Optional channel list to asynch data request. Give NULL when normal data request.
+ * @param priority Data request priority level
  *
  * Asynch data request is mac standard extension. asynch_channel_list include channel mask which channel message is requested to send.
  */
-typedef void mcps_data_request_ext(const mac_api_t *api, const mcps_data_req_t *data, const mcps_data_req_ie_list_t *ie_ext, const struct channel_list_s *asynch_channel_list);
+typedef void mcps_data_request_ext(const mac_api_t *api, const mcps_data_req_t *data, const mcps_data_req_ie_list_t *ie_ext, const struct channel_list_s *asynch_channel_list, mac_data_priority_t priority);
 
 /**
  * @brief mcps_purge_request MCPS_PURGE request call

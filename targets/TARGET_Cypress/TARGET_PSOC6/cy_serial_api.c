@@ -98,6 +98,7 @@ void serial_free(serial_t *obj)
 {
     struct serial_s *ser = cy_serial_get_struct(obj);
     cyhal_uart_free(&(ser->hal_obj));
+    stdio_uart_inited = 0;
 }
 
 void serial_baud(serial_t *obj, int baudrate)

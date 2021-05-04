@@ -132,11 +132,14 @@ static void white_box_test()
         } else {
             test_bd = &heap_bd;
             // We need to skip the test if we don't have enough memory for the heap block device.
-            // However, this device allocates the erase units on the fly, so "erase" it via the flash
-            // simulator. A failure here means we haven't got enough memory.
-            heap_bd.init();
-            result = heap_bd.erase(0, heap_bd.size());
-            TEST_SKIP_UNLESS_MESSAGE(!result, "Not enough heap to run test");
+            // However, this device allocates the blocks on the fly when programmed. A failure
+            // here means we haven't got enough memory.
+            result = heap_bd.init();
+            TEST_SKIP_UNLESS_MESSAGE(result == BD_ERROR_OK, "Not enough heap to run test")
+            for (bd_addr_t addr = 0; addr < heap_bd.size(); addr += heap_bd.get_program_size()) {
+                result = heap_bd.program(dummy, addr, heap_bd.get_program_size());
+                TEST_SKIP_UNLESS_MESSAGE(result == BD_ERROR_OK, "Not enough heap to run test")
+            }
             heap_bd.deinit();
         }
 
@@ -345,11 +348,14 @@ static void multi_set_test()
 
 #ifdef USE_HEAP_BD
     // We need to skip the test if we don't have enough memory for the heap block device.
-    // However, this device allocates the erase units on the fly, so "erase" it via the flash
-    // simulator. A failure here means we haven't got enough memory.
-    flash_bd.init();
-    result = flash_bd.erase(0, flash_bd.size());
-    TEST_SKIP_UNLESS_MESSAGE(!result, "Not enough heap to run test");
+    // However, this device allocates the blocks on the fly when programmed. A failure
+    // here means we haven't got enough memory.
+    result = flash_bd.init();
+    TEST_SKIP_UNLESS_MESSAGE(result == BD_ERROR_OK, "Not enough heap to run test")
+    for (bd_addr_t addr = 0; addr < flash_bd.size(); addr += flash_bd.get_program_size()) {
+        result = flash_bd.program(dummy, addr, flash_bd.get_program_size());
+        TEST_SKIP_UNLESS_MESSAGE(result == BD_ERROR_OK, "Not enough heap to run test")
+    }
     flash_bd.deinit();
 #endif
 

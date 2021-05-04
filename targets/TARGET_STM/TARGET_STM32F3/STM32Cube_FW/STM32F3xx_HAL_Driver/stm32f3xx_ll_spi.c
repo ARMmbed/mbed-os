@@ -395,7 +395,9 @@ ErrorStatus LL_I2S_Init(SPI_TypeDef *SPIx, LL_I2S_InitTypeDef *I2S_InitStruct)
   uint32_t i2sodd = 0U;
   uint32_t packetlength = 1U;
   uint32_t tmp;
+#if !defined (SPI_I2S_FULLDUPLEX_SUPPORT)
   LL_RCC_ClocksTypeDef rcc_clocks;
+#endif /* SPI_I2S_FULLDUPLEX_SUPPORT */
   uint32_t sourceclock;
   ErrorStatus status = ERROR;
 
@@ -445,11 +447,24 @@ ErrorStatus LL_I2S_Init(SPI_TypeDef *SPIx, LL_I2S_InitTypeDef *I2S_InitStruct)
         packetlength = 2U;
       }
 
+#if defined (SPI_I2S_FULLDUPLEX_SUPPORT)
+      /* If an external I2S clock has to be used, the specific define should be set
+      in the project configuration or in the stm32f3xx_ll_rcc.h file */
+      /* Get the I2S source clock value */
+      sourceclock = LL_RCC_GetI2SClockFreq(LL_RCC_I2S_CLKSOURCE);
+#else /* Case for STM32F373xC and STM32F378xx series */
       /* I2S Clock source is System clock: Get System Clock frequency */
       LL_RCC_GetSystemClocksFreq(&rcc_clocks);
+      if (SPIx == SPI1)
+      {
+        sourceclock = rcc_clocks.PCLK2_Frequency;
+      }
+      else  /* SPI2 or SPI3 */
+      {
+        sourceclock = rcc_clocks.PCLK1_Frequency;
+      }
 
-      /* Get the source clock value: based on System Clock value */
-      sourceclock = rcc_clocks.SYSCLK_Frequency;
+#endif /* SPI_I2S_FULLDUPLEX_SUPPORT */
 
       /* Compute the Real divider depending on the MCLK output state with a floating point */
       if (I2S_InitStruct->MCLKOutput == LL_I2S_MCLK_OUTPUT_ENABLE)

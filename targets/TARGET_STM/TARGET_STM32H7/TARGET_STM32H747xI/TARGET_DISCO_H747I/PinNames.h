@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  ******************************************************************************
  *
- * Copyright (c) 2016-2020 STMicroelectronics.
+ * Copyright (c) 2016-2021 STMicroelectronics.
  * All rights reserved.
  *
  * This software component is licensed by ST under BSD 3-Clause license,
@@ -38,7 +38,6 @@ typedef enum {
 } ALTx;
 
 typedef enum {
-
     PA_0       = 0x00,
     PA_0C      = PA_0  | ALTC, // dual pad
     PA_0C_ALT0 = PA_0C | ALT0, // same pin used for alternate HW
@@ -47,27 +46,27 @@ typedef enum {
     PA_1       = 0x01,
     PA_1C      = PA_1  | ALTC, // dual pad
     PA_1C_ALT0 = PA_1C | ALT0, // same pin used for alternate HW
-    PA_1_ALT0  = PA_1 | ALT0, // same pin used for alternate HW
+    PA_1_ALT0  = PA_1  | ALT0, // same pin used for alternate HW
     PA_2       = 0x02,
-    PA_2_ALT0  = PA_2 | ALT0, // same pin used for alternate HW
+    PA_2_ALT0  = PA_2  | ALT0, // same pin used for alternate HW
     PA_3       = 0x03,
-    PA_3_ALT0  = PA_3 | ALT0, // same pin used for alternate HW
+    PA_3_ALT0  = PA_3  | ALT0, // same pin used for alternate HW
     PA_4       = 0x04,
-    PA_4_ALT0  = PA_4 | ALT0, // same pin used for alternate HW
-    PA_4_ALT1  = PA_4 | ALT1, // same pin used for alternate HW
+    PA_4_ALT0  = PA_4  | ALT0, // same pin used for alternate HW
+    PA_4_ALT1  = PA_4  | ALT1, // same pin used for alternate HW
     PA_5       = 0x05,
-    PA_5_ALT0  = PA_5 | ALT0, // same pin used for alternate HW
-    PA_5_ALT1  = PA_5 | ALT1, // same pin used for alternate HW
-    PA_5_ALT2  = PA_5 | ALT2, // same pin used for alternate HW
+    PA_5_ALT0  = PA_5  | ALT0, // same pin used for alternate HW
+    PA_5_ALT1  = PA_5  | ALT1, // same pin used for alternate HW
+    PA_5_ALT2  = PA_5  | ALT2, // same pin used for alternate HW
     PA_6       = 0x06,
-    PA_6_ALT0  = PA_6 | ALT0, // same pin used for alternate HW
+    PA_6_ALT0  = PA_6  | ALT0, // same pin used for alternate HW
     PA_7       = 0x07,
-    PA_7_ALT0  = PA_7 | ALT0, // same pin used for alternate HW
-    PA_7_ALT1  = PA_7 | ALT1, // same pin used for alternate HW
-    PA_7_ALT2  = PA_7 | ALT2, // same pin used for alternate HW
+    PA_7_ALT0  = PA_7  | ALT0, // same pin used for alternate HW
+    PA_7_ALT1  = PA_7  | ALT1, // same pin used for alternate HW
+    PA_7_ALT2  = PA_7  | ALT2, // same pin used for alternate HW
     PA_8       = 0x08,
     PA_9       = 0x09,
-    PA_9_ALT0  = PA_9 | ALT0, // same pin used for alternate HW
+    PA_9_ALT0  = PA_9  | ALT0, // same pin used for alternate HW
     PA_10      = 0x0A,
     PA_10_ALT0 = PA_10 | ALT0, // same pin used for alternate HW
     PA_11      = 0x0B,
@@ -80,31 +79,31 @@ typedef enum {
     PA_15_ALT0 = PA_15 | ALT0, // same pin used for alternate HW
     PA_15_ALT1 = PA_15 | ALT1, // same pin used for alternate HW
     PB_0       = 0x10,
-    PB_0_ALT0  = PB_0 | ALT0, // same pin used for alternate HW
-    PB_0_ALT1  = PB_0 | ALT1, // same pin used for alternate HW
-    PB_0_ALT2  = PB_0 | ALT2, // same pin used for alternate HW
+    PB_0_ALT0  = PB_0  | ALT0, // same pin used for alternate HW
+    PB_0_ALT1  = PB_0  | ALT1, // same pin used for alternate HW
+    PB_0_ALT2  = PB_0  | ALT2, // same pin used for alternate HW
     PB_1       = 0x11,
-    PB_1_ALT0  = PB_1 | ALT0, // same pin used for alternate HW
-    PB_1_ALT1  = PB_1 | ALT1, // same pin used for alternate HW
+    PB_1_ALT0  = PB_1  | ALT0, // same pin used for alternate HW
+    PB_1_ALT1  = PB_1  | ALT1, // same pin used for alternate HW
     PB_2       = 0x12,
     PB_3       = 0x13,
-    PB_3_ALT0  = PB_3 | ALT0, // same pin used for alternate HW
-    PB_3_ALT1  = PB_3 | ALT1, // same pin used for alternate HW
+    PB_3_ALT0  = PB_3  | ALT0, // same pin used for alternate HW
+    PB_3_ALT1  = PB_3  | ALT1, // same pin used for alternate HW
     PB_4       = 0x14,
-    PB_4_ALT0  = PB_4 | ALT0, // same pin used for alternate HW
-    PB_4_ALT1  = PB_4 | ALT1, // same pin used for alternate HW
+    PB_4_ALT0  = PB_4  | ALT0, // same pin used for alternate HW
+    PB_4_ALT1  = PB_4  | ALT1, // same pin used for alternate HW
     PB_5       = 0x15,
-    PB_5_ALT0  = PB_5 | ALT0, // same pin used for alternate HW
-    PB_5_ALT1  = PB_5 | ALT1, // same pin used for alternate HW
+    PB_5_ALT0  = PB_5  | ALT0, // same pin used for alternate HW
+    PB_5_ALT1  = PB_5  | ALT1, // same pin used for alternate HW
     PB_6       = 0x16,
-    PB_6_ALT0  = PB_6 | ALT0, // same pin used for alternate HW
-    PB_6_ALT1  = PB_6 | ALT1, // same pin used for alternate HW
+    PB_6_ALT0  = PB_6  | ALT0, // same pin used for alternate HW
+    PB_6_ALT1  = PB_6  | ALT1, // same pin used for alternate HW
     PB_7       = 0x17,
-    PB_7_ALT0  = PB_7 | ALT0, // same pin used for alternate HW
+    PB_7_ALT0  = PB_7  | ALT0, // same pin used for alternate HW
     PB_8       = 0x18,
-    PB_8_ALT0  = PB_8 | ALT0, // same pin used for alternate HW
+    PB_8_ALT0  = PB_8  | ALT0, // same pin used for alternate HW
     PB_9       = 0x19,
-    PB_9_ALT0  = PB_9 | ALT0, // same pin used for alternate HW
+    PB_9_ALT0  = PB_9  | ALT0, // same pin used for alternate HW
     PB_10      = 0x1A,
     PB_11      = 0x1B,
     PB_12      = 0x1C,
@@ -116,41 +115,41 @@ typedef enum {
     PB_15_ALT0 = PB_15 | ALT0, // same pin used for alternate HW
     PB_15_ALT1 = PB_15 | ALT1, // same pin used for alternate HW
     PC_0       = 0x20,
-    PC_0_ALT0  = PC_0 | ALT0, // same pin used for alternate HW
-    PC_0_ALT1  = PC_0 | ALT1, // same pin used for alternate HW
+    PC_0_ALT0  = PC_0  | ALT0, // same pin used for alternate HW
+    PC_0_ALT1  = PC_0  | ALT1, // same pin used for alternate HW
     PC_1       = 0x21,
-    PC_1_ALT0  = PC_1 | ALT0, // same pin used for alternate HW
-    PC_1_ALT1  = PC_1 | ALT1, // same pin used for alternate HW
-    PC_1_ALT2  = PC_1 | ALT2, // same pin used for alternate HW
-    PC_1_ALT3  = PC_1 | ALT3, // same pin used for alternate HW
-    PC_1_ALT4  = PC_1 | ALT4, // same pin used for alternate HW
+    PC_1_ALT0  = PC_1  | ALT0, // same pin used for alternate HW
+    PC_1_ALT1  = PC_1  | ALT1, // same pin used for alternate HW
+    PC_1_ALT2  = PC_1  | ALT2, // same pin used for alternate HW
+    PC_1_ALT3  = PC_1  | ALT3, // same pin used for alternate HW
+    PC_1_ALT4  = PC_1  | ALT4, // same pin used for alternate HW
     PC_2       = 0x22,
     PC_2C      = PC_2  | ALTC, // dual pad
     PC_2C_ALT0 = PC_2C | ALT0, // same pin used for alternate HW
-    PC_2_ALT0  = PC_2 | ALT0, // same pin used for alternate HW
-    PC_2_ALT1  = PC_2 | ALT1, // same pin used for alternate HW
-    PC_2_ALT2  = PC_2 | ALT2, // same pin used for alternate HW
-    PC_2_ALT3  = PC_2 | ALT3, // same pin used for alternate HW
-    PC_2_ALT4  = PC_2 | ALT4, // same pin used for alternate HW
+    PC_2_ALT0  = PC_2  | ALT0, // same pin used for alternate HW
+    PC_2_ALT1  = PC_2  | ALT1, // same pin used for alternate HW
+    PC_2_ALT2  = PC_2  | ALT2, // same pin used for alternate HW
+    PC_2_ALT3  = PC_2  | ALT3, // same pin used for alternate HW
+    PC_2_ALT4  = PC_2  | ALT4, // same pin used for alternate HW
     PC_3       = 0x23,
     PC_3C      = PC_3  | ALTC, // dual pad
-    PC_3_ALT0  = PC_3 | ALT0, // same pin used for alternate HW
-    PC_3_ALT1  = PC_3 | ALT1, // same pin used for alternate HW
-    PC_3_ALT2  = PC_3 | ALT2, // same pin used for alternate HW
+    PC_3_ALT0  = PC_3  | ALT0, // same pin used for alternate HW
+    PC_3_ALT1  = PC_3  | ALT1, // same pin used for alternate HW
+    PC_3_ALT2  = PC_3  | ALT2, // same pin used for alternate HW
     PC_4       = 0x24,
-    PC_4_ALT0  = PC_4 | ALT0, // same pin used for alternate HW
+    PC_4_ALT0  = PC_4  | ALT0, // same pin used for alternate HW
     PC_5       = 0x25,
-    PC_5_ALT0  = PC_5 | ALT0, // same pin used for alternate HW
-    PC_5_ALT1  = PC_5 | ALT1, // same pin used for alternate HW
-    PC_5_ALT2  = PC_5 | ALT2, // same pin used for alternate HW
+    PC_5_ALT0  = PC_5  | ALT0, // same pin used for alternate HW
+    PC_5_ALT1  = PC_5  | ALT1, // same pin used for alternate HW
+    PC_5_ALT2  = PC_5  | ALT2, // same pin used for alternate HW
     PC_6       = 0x26,
-    PC_6_ALT0  = PC_6 | ALT0, // same pin used for alternate HW
+    PC_6_ALT0  = PC_6  | ALT0, // same pin used for alternate HW
     PC_7       = 0x27,
-    PC_7_ALT0  = PC_7 | ALT0, // same pin used for alternate HW
+    PC_7_ALT0  = PC_7  | ALT0, // same pin used for alternate HW
     PC_8       = 0x28,
-    PC_8_ALT0  = PC_8 | ALT0, // same pin used for alternate HW
+    PC_8_ALT0  = PC_8  | ALT0, // same pin used for alternate HW
     PC_9       = 0x29,
-    PC_9_ALT0  = PC_9 | ALT0, // same pin used for alternate HW
+    PC_9_ALT0  = PC_9  | ALT0, // same pin used for alternate HW
     PC_10      = 0x2A,
     PC_10_ALT0 = PC_10 | ALT0, // same pin used for alternate HW
     PC_11      = 0x2B,
@@ -196,15 +195,15 @@ typedef enum {
     PF_2       = 0x52,
     PF_3       = 0x53,
     PF_4       = 0x54,
-    PF_4_ALT0  = PF_4 | ALT0, // same pin used for alternate HW
+    PF_4_ALT0  = PF_4  | ALT0, // same pin used for alternate HW
     PF_5       = 0x55,
     PF_6       = 0x56,
-    PF_6_ALT0  = PF_6 | ALT0, // same pin used for alternate HW
+    PF_6_ALT0  = PF_6  | ALT0, // same pin used for alternate HW
     PF_7       = 0x57,
     PF_8       = 0x58,
-    PF_8_ALT0  = PF_8 | ALT0, // same pin used for alternate HW
+    PF_8_ALT0  = PF_8  | ALT0, // same pin used for alternate HW
     PF_9       = 0x59,
-    PF_9_ALT0  = PF_9 | ALT0, // same pin used for alternate HW
+    PF_9_ALT0  = PF_9  | ALT0, // same pin used for alternate HW
     PF_10      = 0x5A,
     PF_10_ALT0 = PF_10 | ALT0, // same pin used for alternate HW
     PF_11      = 0x5B,
@@ -234,11 +233,11 @@ typedef enum {
     PH_1       = 0x71,
     PH_2       = 0x72,
     PH_3       = 0x73,
-    PH_3_ALT0  = PH_3 | ALT0, // same pin used for alternate HW
+    PH_3_ALT0  = PH_3  | ALT0, // same pin used for alternate HW
     PH_4       = 0x74,
-    PH_4_ALT0  = PH_4 | ALT0, // same pin used for alternate HW
+    PH_4_ALT0  = PH_4  | ALT0, // same pin used for alternate HW
     PH_5       = 0x75,
-    PH_5_ALT0  = PH_5 | ALT0, // same pin used for alternate HW
+    PH_5_ALT0  = PH_5  | ALT0, // same pin used for alternate HW
     PH_6       = 0x76,
     PH_7       = 0x77,
     PH_8       = 0x78,
@@ -274,9 +273,9 @@ typedef enum {
     PJ_6       = 0x96,
     PJ_7       = 0x97,
     PJ_8       = 0x98,
-    PJ_8_ALT0  = PJ_8 | ALT0, // same pin used for alternate HW
+    PJ_8_ALT0  = PJ_8  | ALT0, // same pin used for alternate HW
     PJ_9       = 0x99,
-    PJ_9_ALT0  = PJ_9 | ALT0, // same pin used for alternate HW
+    PJ_9_ALT0  = PJ_9  | ALT0, // same pin used for alternate HW
     PJ_10      = 0x9A,
     PJ_10_ALT0 = PJ_10 | ALT0, // same pin used for alternate HW
     PJ_11      = 0x9B,
@@ -286,9 +285,9 @@ typedef enum {
     PJ_14      = 0x9E,
     PJ_15      = 0x9F,
     PK_0       = 0xA0,
-    PK_0_ALT0  = PK_0 | ALT0, // same pin used for alternate HW
+    PK_0_ALT0  = PK_0  | ALT0, // same pin used for alternate HW
     PK_1       = 0xA1,
-    PK_1_ALT0  = PK_1 | ALT0, // same pin used for alternate HW
+    PK_1_ALT0  = PK_1  | ALT0, // same pin used for alternate HW
     PK_2       = 0xA2,
     PK_3       = 0xA3,
     PK_4       = 0xA4,
@@ -303,12 +302,14 @@ typedef enum {
     ADC_VBAT = 0xF2, // Internal pin virtual value
 
 #ifdef TARGET_FF_ARDUINO_UNO
+    // Arduino Uno (Rev3) pins
     ARDUINO_UNO_A0  = PA_4,
     ARDUINO_UNO_A1  = PF_10,
     ARDUINO_UNO_A2  = PA_0C,
     ARDUINO_UNO_A3  = PA_1C,
     ARDUINO_UNO_A4  = PC_2C,
     ARDUINO_UNO_A5  = PC_3C,
+
     ARDUINO_UNO_D0  = PJ_9,
     ARDUINO_UNO_D1  = PJ_8,
     ARDUINO_UNO_D2  = PJ_3,
@@ -494,8 +495,7 @@ typedef enum {
 #define LED2     PI_13  // LED2
 #define LED3     PI_14  // LED3
 #define LED4     PI_15  // LED4
-#define BUTTON1  PC_13  // B2
-
+#define BUTTON1  PC_13  // B2 [Wakeup Button]
 
 #ifdef __cplusplus
 }

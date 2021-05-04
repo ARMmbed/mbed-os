@@ -52,7 +52,6 @@
 #ifndef __FPU_PRESENT
 #define __FPU_PRESENT             1U       /*!< STM32F358xx devices provide an FPU */
 #endif
-
 /**
   * @}
   */

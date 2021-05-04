@@ -15,7 +15,7 @@ A comparison of the SDKs exposed to manage NFC tags on Android IOs and Python mo
 <!-- /TOC -->
 
 # Overview
-A comparison which analyses NFC use cases on mobile, as background to the test case design/implementation in the comissioning workflow :NFC-Bluetooth-pairing application. 
+A comparison which analyses NFC use cases on mobile, as background to the test case design/implementation in the commissioning workflow :NFC-Bluetooth-pairing application. 
 - Analyse the [Apple API](https://developer.apple.com/documentation/corenfc)
 - Analyse the [Android API](https://developer.android.com/guide/topics/connectivity/nfc/advanced-nfc#java)
 - Python test [pynfc modules](https://nfcpy.readthedocs.io/en/latest/modules/index.html)

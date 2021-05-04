@@ -175,6 +175,16 @@ void dhcp_relay_agent_enable(int8_t interface, uint8_t border_router_address[sta
     dhcp_service_relay_instance_enable(dhcp_client->relay_instance, border_router_address);
 }
 
+void dhcp_relay_agent_interface_id_option_enable(int8_t interface, bool enable)
+{
+    dhcp_client_class_t *dhcp_client = dhcpv6_client_entry_discover(interface);
+    if (!dhcp_client) {
+        return;
+    }
+
+    dhcp_service_relay_interface_id_option_enable(dhcp_client->relay_instance, enable);
+}
+
 void dhcp_client_delete(int8_t interface)
 {
     protocol_interface_info_entry_t *cur = NULL;

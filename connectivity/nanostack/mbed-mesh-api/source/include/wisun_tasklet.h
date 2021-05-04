@@ -127,6 +127,14 @@ int wisun_tasklet_remove_trusted_certificates(void);
 int wisun_tasklet_statistics_start(void);
 
 /*
+ * \brief Reset Wi-SUN statistics
+ *
+ * \return 0 Statistics start successful
+ * \return < 0 in case of errors
+ */
+int wisun_tasklet_statistics_reset(void);
+
+/*
  * \brief Reads Wi-SUN network statistics
  *
  * \return 0 Statistics read successful

@@ -97,6 +97,19 @@ public:
     }
 
     /** Allocate a memory block from a memory pool, without blocking.
+
+      This method works like `std::malloc` or `std::allocator<T>::allocate` in that the
+      returned memory block is not initialized. For types with a non-trivial constructor
+      placement new must be used to construct an object in the returned storage.
+
+      Example:
+      @code
+      MyObject *obj = pool.alloc();
+      if (obj) {
+          new (obj) MyObject(1, 2);
+      }
+      @endcode
+
       @return  address of the allocated memory block or nullptr in case of no memory available.
 
       @note You may call this function from ISR context.
@@ -120,6 +133,7 @@ public:
     }
 
     /** Allocate a memory block from a memory pool, optionally blocking.
+      @see MemoryPool::try_alloc
       @param   rel_time  timeout value (Kernel::wait_for_u32_forever to wait forever)
       @return  address of the allocated memory block or nullptr in case of no memory available.
 
@@ -149,6 +163,7 @@ public:
     }
 
     /** Allocate a memory block from a memory pool, blocking.
+      @see MemoryPool::try_alloc
       @param   abs_time absolute timeout time, referenced to Kernel::Clock.
       @return  address of the allocated memory block or nullptr in case of no memory available.
 
@@ -264,6 +279,17 @@ public:
     }
 
     /** Free a memory block.
+
+      This method works like `std::free` or `std::allocator<T>::deallocate` in that any
+      object in the memory is not destroyed. For types with a non-trivial destructor
+      that destructor must be called manually before freeing the memory.
+
+      Example:
+      @code
+      obj->~MyObject();
+      pool.free(obj);
+      @endcode
+
       @param   block  address of the allocated memory block to be freed.
       @return         osOK on successful deallocation, osErrorParameter if given memory block id
                       is nullptr or invalid, or osErrorResource if given memory block is in an

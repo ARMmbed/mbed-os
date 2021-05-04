@@ -1542,6 +1542,15 @@ bool GattServer::get_cccd_index_by_value_handle(GattAttribute::Handle_t char_han
     return false;
 }
 
+bool GattServer::get_value_handle_by_cccd_handle(GattAttribute::Handle_t cccd_handle, GattAttribute::Handle_t &char_handle) const {
+    uint8_t idx;
+    if (!get_cccd_index_by_cccd_handle(cccd_handle, idx)) {
+        return false;
+    }
+    char_handle = cccd_handles[idx];
+    return true;
+}
+
 bool GattServer::is_update_authorized(
     connection_handle_t connection,
     GattAttribute::Handle_t value_handle
@@ -1720,13 +1729,18 @@ void GattServer::handleEvent(
     GattAttribute::Handle_t attributeHandle
 )
 {
+    // To be used in cases where the characteristic value handle differs from the attribute handle
+    GattAttribute::Handle_t charHandle;
+
     switch (type) {
         case GattServerEvents::GATT_EVENT_UPDATES_ENABLED:
             tr_info("Updates enabled for attribute %d on connection %d", attributeHandle, connHandle);
+            MBED_ASSERT(get_value_handle_by_cccd_handle(attributeHandle, charHandle));
             if(eventHandler) {
                 GattUpdatesEnabledCallbackParams params({
                     .connHandle = connHandle,
-                    .attHandle = attributeHandle
+                    .attHandle = attributeHandle,
+                    .charHandle = charHandle
                 });
                 eventHandler->onUpdatesEnabled(params);
             }
@@ -1738,10 +1752,12 @@ void GattServer::handleEvent(
             break;
         case GattServerEvents::GATT_EVENT_UPDATES_DISABLED:
             tr_info("Updates disabled for attribute %d on connection %d", attributeHandle, connHandle);
+            MBED_ASSERT(get_value_handle_by_cccd_handle(attributeHandle, charHandle));
             if(eventHandler) {
                 GattUpdatesDisabledCallbackParams params({
                     .connHandle = connHandle,
-                    .attHandle = attributeHandle
+                    .attHandle = attributeHandle,
+                    .charHandle = charHandle
                 });
                 eventHandler->onUpdatesDisabled(params);
             }
@@ -1749,21 +1765,6 @@ void GattServer::handleEvent(
             // Execute deprecated callback
             if (updatesDisabledCallback) {
                 updatesDisabledCallback(attributeHandle);
-            }
-            break;
-        case GattServerEvents::GATT_EVENT_CONFIRMATION_RECEIVED:
-            tr_debug("Confirmation received for attribute %d on connection %d", attributeHandle, connHandle);
-            if(eventHandler) {
-                GattConfirmationReceivedCallbackParams params({
-                    .connHandle = connHandle,
-                    .attHandle = attributeHandle
-                });
-                eventHandler->onConfirmationReceived(params);
-            }
-
-            // Execute deprecated callback
-            if (confirmationReceivedCallback) {
-                confirmationReceivedCallback(attributeHandle);
             }
             break;
 

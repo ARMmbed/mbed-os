@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -126,11 +126,19 @@ static inline struct psa_client_key_attributes_s psa_key_attributes_init( void )
 }
 
 static inline void psa_set_key_id(psa_key_attributes_t *attributes,
-                                  psa_key_id_t id)
+                                  psa_key_id_t key)
 {
-    attributes->id = id;
-    if( attributes->lifetime == PSA_KEY_LIFETIME_VOLATILE )
-        attributes->lifetime = PSA_KEY_LIFETIME_PERSISTENT;
+    psa_key_lifetime_t lifetime = attributes->lifetime;
+
+    attributes->id = key;
+
+    if( PSA_KEY_LIFETIME_IS_VOLATILE(lifetime))
+    {
+        attributes->lifetime =
+            PSA_KEY_LIFETIME_FROM_PERSISTENCE_AND_LOCATION(
+                PSA_KEY_LIFETIME_PERSISTENT,
+                PSA_KEY_LIFETIME_GET_LOCATION(lifetime));
+    }
 }
 
 static inline psa_key_id_t psa_get_key_id(
@@ -143,7 +151,7 @@ static inline void psa_set_key_lifetime(psa_key_attributes_t *attributes,
                                         psa_key_lifetime_t lifetime)
 {
     attributes->lifetime = lifetime;
-    if( lifetime == PSA_KEY_LIFETIME_VOLATILE )
+    if(PSA_KEY_LIFETIME_IS_VOLATILE(lifetime))
     {
         attributes->id = 0;
     }

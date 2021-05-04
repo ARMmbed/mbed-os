@@ -110,7 +110,7 @@ static inline uint32_t gcd(uint32_t a, uint32_t b)
 
 static int exact_log2(uint32_t n)
 {
-    for (int i = 31; i > 0; --i) {
+    for (int i = 31; i >= 0; --i) {
         if ((1U << i) == n) {
             return i;
         }

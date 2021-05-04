@@ -990,7 +990,11 @@ private:
     BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _adv_started_from_refresh;
 
 
-    bool _user_manage_connection_parameter_requests : 1;
+    bool _user_manage_connection_parameter_requests;
+#if BLE_ROLE_OBSERVER
+    bool _scan_parameters_set;
+#endif // BLE_ROLE_OBSERVER
+
 };
 
 } // namespace impl

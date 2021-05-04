@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -119,6 +119,8 @@ extern "C" {
 #define IPC_CLIENT_TEST_APP_ACCESS_PSA_MEM_VERSION                 (1U)
 #define IPC_CLIENT_TEST_MEM_CHECK_SID                              (0x0000F064U)
 #define IPC_CLIENT_TEST_MEM_CHECK_VERSION                          (1U)
+#define IPC_CLIENT_TEST_RETRIEVE_APP_MEM_SID                       (0x0000F065U)
+#define IPC_CLIENT_TEST_RETRIEVE_APP_MEM_VERSION                   (1U)
 
 /******** TFM_IRQ_TEST_1 ********/
 #define SPM_CORE_IRQ_TEST_1_PREPARE_TEST_SCENARIO_SID              (0x0000F0A0U)
@@ -133,6 +135,65 @@ extern "C" {
 /******** TFM_SP_SECURE_CLIENT_2 ********/
 #define TFM_SECURE_CLIENT_2_SID                                    (0x0000F0E0U)
 #define TFM_SECURE_CLIENT_2_VERSION                                (1U)
+
+/******** TFM_SP_PSA_PROXY ********/
+#define TFM_CRYPTO_SID                                             (0x00000080U)
+#define TFM_CRYPTO_VERSION                                         (1U)
+#define TFM_ATTEST_GET_TOKEN_SID                                   (0x00000020U)
+#define TFM_ATTEST_GET_TOKEN_VERSION                               (1U)
+#define TFM_ATTEST_GET_TOKEN_SIZE_SID                              (0x00000021U)
+#define TFM_ATTEST_GET_TOKEN_SIZE_VERSION                          (1U)
+#define TFM_ATTEST_GET_PUBLIC_KEY_SID                              (0x00000022U)
+#define TFM_ATTEST_GET_PUBLIC_KEY_VERSION                          (1U)
+#define TFM_ITS_SET_SID                                            (0x00000070U)
+#define TFM_ITS_SET_VERSION                                        (1U)
+#define TFM_ITS_GET_SID                                            (0x00000071U)
+#define TFM_ITS_GET_VERSION                                        (1U)
+#define TFM_ITS_GET_INFO_SID                                       (0x00000072U)
+#define TFM_ITS_GET_INFO_VERSION                                   (1U)
+#define TFM_ITS_REMOVE_SID                                         (0x00000073U)
+#define TFM_ITS_REMOVE_VERSION                                     (1U)
+#define TFM_SP_PLATFORM_SYSTEM_RESET_SID                           (0x00000040U)
+#define TFM_SP_PLATFORM_SYSTEM_RESET_VERSION                       (1U)
+#define TFM_SP_PLATFORM_IOCTL_SID                                  (0x00000041U)
+#define TFM_SP_PLATFORM_IOCTL_VERSION                              (1U)
+#define TFM_SP_PLATFORM_NV_COUNTER_SID                             (0x00000042U)
+#define TFM_SP_PLATFORM_NV_COUNTER_VERSION                         (1U)
+#define TFM_PS_SET_SID                                             (0x00000060U)
+#define TFM_PS_SET_VERSION                                         (1U)
+#define TFM_PS_GET_SID                                             (0x00000061U)
+#define TFM_PS_GET_VERSION                                         (1U)
+#define TFM_PS_GET_INFO_SID                                        (0x00000062U)
+#define TFM_PS_GET_INFO_VERSION                                    (1U)
+#define TFM_PS_REMOVE_SID                                          (0x00000063U)
+#define TFM_PS_REMOVE_VERSION                                      (1U)
+#define TFM_PS_GET_SUPPORT_SID                                     (0x00000064U)
+#define TFM_PS_GET_SUPPORT_VERSION                                 (1U)
+
+/******** TFM_SP_FWU ********/
+#define TFM_FWU_WRITE_SID                                          (0x000000A0U)
+#define TFM_FWU_WRITE_VERSION                                      (1U)
+#define TFM_FWU_INSTALL_SID                                        (0x000000A1U)
+#define TFM_FWU_INSTALL_VERSION                                    (1U)
+#define TFM_FWU_ABORT_SID                                          (0x000000A2U)
+#define TFM_FWU_ABORT_VERSION                                      (1U)
+#define TFM_FWU_QUERY_SID                                          (0x000000A3U)
+#define TFM_FWU_QUERY_VERSION                                      (1U)
+#define TFM_FWU_REQUEST_REBOOT_SID                                 (0x000000A4U)
+#define TFM_FWU_REQUEST_REBOOT_VERSION                             (1U)
+#define TFM_FWU_ACCEPT_SID                                         (0x000000A5U)
+#define TFM_FWU_ACCEPT_VERSION                                     (1U)
+
+/******** TFM_SP_FFM11 ********/
+#define TFM_FFM11_SERVICE1_SID                                     (0x0000F120U)
+#define TFM_FFM11_SERVICE1_VERSION                                 (1U)
+#define TFM_FFM11_SERVICE1_HANDLE                                  (0x40000104U)
+#define TFM_FFM11_SERVICE2_SID                                     (0x0000F121U)
+#define TFM_FFM11_SERVICE2_VERSION                                 (1U)
+#define TFM_FFM11_SERVICE2_HANDLE                                  (0x40000101U)
+#define TFM_FFM11_SERVICE3_SID                                     (0x0000F122U)
+#define TFM_FFM11_SERVICE3_VERSION                                 (1U)
+#define TFM_FFM11_SERVICE3_HANDLE                                  (0x40000103U)
 
 #ifdef __cplusplus
 }

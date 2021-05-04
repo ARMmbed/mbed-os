@@ -11,6 +11,14 @@
     #define MBED_APP_SIZE 0x00070000
 #endif
 
+#if !defined(MBED_RAM_SIZE)
+#define MBED_RAM_SIZE 0x28000
+#endif
+
+#if !defined(MBED_RAM_START)
+#define MBED_RAM_START 0x20000000
+#endif
+
 #if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
 #  if defined(MBED_BOOT_STACK_SIZE)
 #    define MBED_CONF_TARGET_BOOT_STACK_SIZE MBED_BOOT_STACK_SIZE
@@ -19,7 +27,13 @@
 #  endif
 #endif
 
+; [RAM] Vector table dynamic copy: 68 vectors * 4 bytes = 272 (0x110)
+#define VECTOR_SIZE 0x110
 #define Stack_Size MBED_CONF_TARGET_BOOT_STACK_SIZE
+#define RAM_FIXED_SIZE  (Stack_Size + VECTOR_SIZE)
+
+#define MBED_RAM1_START (MBED_RAM_START+VECTOR_SIZE)
+#define MBED_RAM1_SIZE (MBED_RAM_SIZE-RAM_FIXED_SIZE)
 
 LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
     ER_IROM1 MBED_APP_START MBED_APP_SIZE  {  ; load address = execution address
@@ -28,10 +42,12 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
         .ANY (+RO)
     }
 
-    ; [RAM] Vector table dynamic copy: 68 vectors * 4 bytes = 272 (0x110)
-    RW_IRAM1 (0x20000000+0x110) (0x28000-0x110-Stack_Size)  {  ; RW data
+    RW_IRAM1 MBED_RAM1_START MBED_RAM1_SIZE  {  ; RW data
         .ANY (+RW +ZI)
     }
-    ARM_LIB_STACK (0x20000000+0x28000) EMPTY -Stack_Size { ; stack
+
+    ARM_LIB_HEAP AlignExpr(+0, +16) EMPTY (MBED_RAM_SIZE - RAM_FIXED_SIZE - (AlignExpr(ImageLimit(RW_IRAM1), 16) - MBED_RAM1_START)){ ; heap region growing up
+    }
+    ARM_LIB_STACK (MBED_RAM_START+MBED_RAM_SIZE) EMPTY -Stack_Size { ; stack region growing down
     }
 }

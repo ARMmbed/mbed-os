@@ -88,8 +88,9 @@ typedef struct
                                                  New conversion starts only when the previous conversion (for regular group) or previous sequence (for injected group) has been treated by user software.
                                                  This feature automatically adapts the speed of ADC to the speed of the system that reads the data. Moreover, this avoids risk of overrun for low frequency applications. 
                                                  This parameter can be set to ENABLE or DISABLE.
-                                                 Note: Do not use with interruption or DMA (HAL_ADC_Start_IT(), HAL_ADC_Start_DMA()) since they have to clear immediately the EOC flag to free the IRQ vector sequencer.
-                                                       Do use with polling: 1. Start conversion with HAL_ADC_Start(), 2. Later on, when conversion data is needed: use HAL_ADC_PollForConversion() to ensure that conversion is completed
+                                                 Note: It is not recommended to use with interruption or DMA (HAL_ADC_Start_IT(), HAL_ADC_Start_DMA()) since these modes have to clear immediately the EOC flag (by CPU to free the IRQ pending event or by DMA).
+                                                       Auto wait will work but fort a very short time, discarding its intended benefit (except specific case of high load of CPU or DMA transfers which can justify usage of auto wait).
+                                                       Do use with polling: 1. Start conversion with HAL_ADC_Start(), 2. Later on, when ADC conversion data is needed:
                                                        and use HAL_ADC_GetValue() to retrieve conversion result and trig another conversion (in case of usage of injected group, use the equivalent functions HAL_ADCExInjected_Start(), HAL_ADCEx_InjectedGetValue(), ...). */
   FunctionalState  ContinuousConvMode;      /*!< Specifies whether the conversion is performed in single mode (one conversion) or continuous mode for regular group,
                                                  after the selected trigger occurred (software start or external trigger).
@@ -765,6 +766,7 @@ typedef struct
 #define ADC_EXTERNALTRIGCONV_T1_CC1         ADC1_EXTERNALTRIG_T1_CC1
 #define ADC_EXTERNALTRIGCONV_T1_CC2         ADC1_EXTERNALTRIG_T1_CC2
 #define ADC_EXTERNALTRIGCONV_T1_CC3         ADC1_EXTERNALTRIG_T1_CC3
+#define ADC_EXTERNALTRIGCONV_T2_CC2         ADC1_EXTERNALTRIG_T2_CC2
 #define ADC_EXTERNALTRIGCONV_EXT_IT11       ADC1_EXTERNALTRIG_EXT_IT11
 #define ADC_EXTERNALTRIGCONV_T1_TRGO        ADC1_EXTERNALTRIG_T1_TRGO
 #define ADC_EXTERNALTRIGCONV_T1_TRGO2       ADC1_EXTERNALTRIG_T1_TRGO2
@@ -1633,6 +1635,7 @@ typedef struct
 #define ADC1_EXTERNALTRIG_T1_CC1           (0x00000000U)
 #define ADC1_EXTERNALTRIG_T1_CC2           ((uint32_t)ADC_CFGR_EXTSEL_0)
 #define ADC1_EXTERNALTRIG_T1_CC3           ((uint32_t)ADC_CFGR_EXTSEL_1)
+#define ADC1_EXTERNALTRIG_T2_CC2           ((uint32_t)(ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
 #define ADC1_EXTERNALTRIG_EXT_IT11         ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1))
 #define ADC1_EXTERNALTRIG_T1_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_0))
 #define ADC1_EXTERNALTRIG_T1_TRGO2         ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1))
@@ -3203,6 +3206,7 @@ typedef struct
 #define IS_ADC_EXTTRIG(REGTRIG) (((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC1)   || \
                                  ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC2)   || \
                                  ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC3)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_CC2)   || \
                                  ((REGTRIG) == ADC_EXTERNALTRIGCONV_EXT_IT11) || \
                                  ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO)  || \
                                  ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO2) || \

@@ -31,6 +31,7 @@ target_sources(mbed-rz-a1xx
         spi_api.c
         trng_api.c
         us_ticker.c
+        USBPhy_RZ_A1.cpp
 
         common/rza_io_regrw.c
 )
