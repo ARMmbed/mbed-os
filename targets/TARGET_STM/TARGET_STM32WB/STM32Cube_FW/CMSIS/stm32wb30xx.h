@@ -17,10 +17,10 @@
   * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics. 
   * All rights reserved.</center></h2>
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
+  * This software component is licensed by ST under Apache License, Version 2.0,
   * the "License"; You may not use this file except in compliance with the 
   * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  *                        opensource.org/licenses/Apache-2.0
   *
   ******************************************************************************
   */
@@ -51,7 +51,7 @@
 #define __VTOR_PRESENT            1U /*!< Vector Table Register supported               */
 #define __NVIC_PRIO_BITS          4U /*!< STM32WBxx uses 4 Bits for the Priority Levels */
 #define __Vendor_SysTickConfig    0U /*!< Set to 1 if different SysTick Config is used  */
-#define __FPU_PRESENT             1U /*!< FPU present                                   */
+#define __FPU_PRESENT             1  /*!< FPU present                                   */
 /**
   * @}
   */

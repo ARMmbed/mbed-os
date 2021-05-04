@@ -1,7 +1,7 @@
 ;******************************************************************************
-;* File Name          : startup_stm32wb55xx_cm4.s
+;* File Name          : startup_stm32wb5mxx_cm4.s
 ;* Author             : MCD Application Team
-;* Description        : STM32WB55xx devices vector table for MDK-ARM toolchain.
+;* Description        : STM32WB5Mxx devices vector table for MDK-ARM toolchain.
 ;*                      This module performs:
 ;*                      - Set the initial SP
 ;*                      - Set the initial PC == Reset_Handler
@@ -16,10 +16,10 @@
 ;*
 ;* Copyright (c) 2019 STMicroelectronics. All rights reserved.
 ;*
-;* This software component is licensed by ST under BSD 3-Clause license,
+;* This software component is licensed by ST under Apache License, Version 2.0,
 ;* the "License"; You may not use this file except in compliance with the 
 ;* License. You may obtain a copy of the License at:
-;*                        opensource.org/licenses/BSD-3-Clause
+;*                        opensource.org/licenses/Apache-2.0
 ;*
 ;******************************************************************************
 
