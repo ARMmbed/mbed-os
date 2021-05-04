@@ -334,7 +334,6 @@ void UARTSerial::tx_irq(void)
     }
 }
 
-/* These are all called from critical section */
 void UARTSerial::update_rx_irq()
 {
     core_util_critical_section_enter();
@@ -348,6 +347,7 @@ void UARTSerial::update_rx_irq()
     core_util_critical_section_exit();
 }
 
+/* This is called called from critical section or interrupt context */
 void UARTSerial::disable_rx_irq()
 {
     SerialBase::attach(NULL, RxIrq);
@@ -367,6 +367,7 @@ void UARTSerial::update_tx_irq()
     core_util_critical_section_exit();
 }
 
+/* This is called called from critical section or interrupt context */
 void UARTSerial::disable_tx_irq()
 {
     SerialBase::attach(NULL, TxIrq);
