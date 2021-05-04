@@ -4188,13 +4188,13 @@
             "BLE"
         ]
     },
-    "MCU_STM32WB55xx": {
+    "MCU_STM32WB55xG": {
         "inherits": [
             "MCU_STM32WB"
         ],
         "public": false,
         "extra_labels_add": [
-            "STM32WB55xx"
+            "STM32WB55xG"
         ],
         "macros_add": [
             "STM32WB55xx",
@@ -4203,7 +4203,7 @@
     },
     "NUCLEO_WB55RG": {
         "inherits": [
-            "MCU_STM32WB55xx"
+            "MCU_STM32WB55xG"
         ],
         "supported_form_factors": [
             "ARDUINO_UNO"
@@ -4216,13 +4216,13 @@
         ],
         "device_name": "STM32WB55RGVx"
     },
-    "MCU_STM32WB5Mxx": {
+    "MCU_STM32WB5MxG": {
         "inherits": [
             "MCU_STM32WB"
         ],
         "public": false,
         "extra_labels_add": [
-            "STM32WB5Mxx"
+            "STM32WB5MxG"
         ],
         "macros_add": [
             "STM32WB5Mxx",
@@ -4231,7 +4231,7 @@
     },
     "DISCO_WB5MMG": {
         "inherits": [
-            "MCU_STM32WB5Mxx"
+            "MCU_STM32WB5MxG"
         ],
         "supported_form_factors": [
             "ARDUINO_UNO"

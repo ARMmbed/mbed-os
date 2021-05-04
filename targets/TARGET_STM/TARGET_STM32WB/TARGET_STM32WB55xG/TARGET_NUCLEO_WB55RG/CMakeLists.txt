@@ -14,4 +14,4 @@ target_include_directories(mbed-nucleo-wb55rg
         .
 )
 
-target_link_libraries(mbed-nucleo-wb55rg INTERFACE mbed-stm32wb55xx)
+target_link_libraries(mbed-nucleo-wb55rg INTERFACE mbed-stm32wb55xg)

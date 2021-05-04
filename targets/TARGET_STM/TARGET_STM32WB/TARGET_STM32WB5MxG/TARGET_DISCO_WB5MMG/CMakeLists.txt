@@ -13,4 +13,4 @@ target_include_directories(mbed-disco-wb5mmg
         .
 )
 
-target_link_libraries(mbed-disco-wb5mmg INTERFACE mbed-stm32wb5mxx)
+target_link_libraries(mbed-disco-wb5mmg INTERFACE mbed-stm32wb5mxg)
