@@ -5,13 +5,12 @@ This document guides how to rebuild TF-M and integrate with Mbed on M2354.
 ### Downloading TF-M source
 
 The M2354 port in TF-M must patch to enable TF-M integration with Mbed.
-For TF-M 1.2/Mbed integration on M2354, the [mainstream TF-M](https://git.trustedfirmware.org/TF-M/trusted-firmware-m.git) is patched as follows:
+For TF-M 1.3/Mbed integration on M2354, the [mainstream TF-M](https://git.trustedfirmware.org/TF-M/trusted-firmware-m.git) is patched as follows:
 -   Apply Mbed-enabled patch to `nuvoton/m2354` TF-M target.
--   Backport to base on [ARMmbed TF-M mbed-tfm-1.2](https://github.com/ARMmbed/trusted-firmware-m/tree/mbed-tfm-1.2).
 
 Run the following command to fetch and switch to the intended version:
 ```sh
-git clone https://github.com/OpenNuvoton/trusted-firmware-m -b nuvoton_mbed_m2354_tfm-1.2
+git clone https://github.com/OpenNuvoton/trusted-firmware-m -b nuvoton_mbed_m2354_tfm-1.3
 ```
 
 ## Customizing TF-M
