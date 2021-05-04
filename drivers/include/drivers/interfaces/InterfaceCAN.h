@@ -28,8 +28,10 @@
 
 namespace mbed {
 
+#ifndef FEATURE_EXPERIMENTAL_API
 // Forward declare CAN
 class CAN;
+#endif
 
 /** \defgroup drivers-public-api-can CAN
  * \ingroup drivers-public-api
@@ -171,6 +173,11 @@ using CAN = ::mbed::CAN;
 #endif
 
 } // namespace interface
+
+#if defined(FEATURE_EXPERIMENTAL_API) && !DEVICE_CAN
+using CAN = interface::CAN;
+#endif
+
 } // namespace mbed
 
 #endif /* MBED_INTERFACE_CAN_H_ */
