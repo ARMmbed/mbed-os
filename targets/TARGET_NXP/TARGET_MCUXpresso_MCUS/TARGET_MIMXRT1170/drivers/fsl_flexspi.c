@@ -39,8 +39,8 @@ enum
         FLEXSPI_STS2_BREFLOCK_MASK, /* Flash B sample clock reference delay line locked. */
 };
 
-/*! @brief Common sets of flags used by the driver. */
-enum _flexspi_flag_constants
+/*! @brief Common sets of flags used by the driver, _flexspi_flag_constants. */
+enum
 {
     /*! IRQ sources enabled by the non-blocking transactional API. */
     kIrqFlags = kFLEXSPI_IpTxFifoWatermarkEmptyFlag | kFLEXSPI_IpRxFifoWatermarkAvailableFlag |
@@ -52,7 +52,8 @@ enum _flexspi_flag_constants
                   kFLEXSPI_IpCommandGrantTimeoutFlag,
 };
 
-enum _flexspi_transfer_state
+/* FLEXSPI transfer state, _flexspi_transfer_state. */
+enum
 {
     kFLEXSPI_Idle      = 0x0U, /*!< Transfer is done. */
     kFLEXSPI_BusyWrite = 0x1U, /*!< FLEXSPI is busy write transfer. */
@@ -65,12 +66,7 @@ typedef void (*flexspi_isr_t)(FLEXSPI_Type *base, flexspi_handle_t *handle);
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
-/*!
- * @brief Get the instance number for FLEXSPI.
- *
- * @param base FLEXSPI base pointer.
- */
-uint32_t FLEXSPI_GetInstance(FLEXSPI_Type *base);
+static void FLEXSPI_Memset(void *src, uint8_t value, size_t length);
 
 /*!
  * @brief Calculate flash A/B sample clock DLL.
@@ -78,15 +74,7 @@ uint32_t FLEXSPI_GetInstance(FLEXSPI_Type *base);
  * @param base FLEXSPI base pointer.
  * @param config Flash configuration parameters.
  */
-static uint32_t FLEXSPI_CalculateDll(FLEXSPI_Type *base, flexspi_device_config_t *config);
-
-/*!
- * @brief Check and clear IP command execution errors.
- *
- * @param base FLEXSPI base pointer.
- * @param status interrupt status.
- */
-status_t FLEXSPI_CheckAndClearError(FLEXSPI_Type *base, uint32_t status);
+AT_QUICKACCESS_SECTION_CODE(static uint32_t FLEXSPI_CalculateDll(FLEXSPI_Type *base, flexspi_device_config_t *config));
 
 /*******************************************************************************
  * Variables
@@ -119,6 +107,18 @@ static flexspi_isr_t s_flexspiIsr;
 /*******************************************************************************
  * Code
  ******************************************************************************/
+AT_QUICKACCESS_SECTION_CODE(static void FLEXSPI_Memset(void *src, uint8_t value, size_t length))
+{
+    assert(src != NULL);
+    uint8_t *p = src;
+
+    /* Keyword volatile is to avoid compiler opitimizing this API into memset() in library. */
+    for (volatile uint32_t i = 0U; i < length; i++)
+    {
+        *p = value;
+        p++;
+    }
+}
 
 uint32_t FLEXSPI_GetInstance(FLEXSPI_Type *base)
 {
@@ -362,7 +362,7 @@ void FLEXSPI_Init(FLEXSPI_Type *base, const flexspi_config_t *config)
 void FLEXSPI_GetDefaultConfig(flexspi_config_t *config)
 {
     /* Initializes the configure structure to zero. */
-    (void)memset(config, 0, sizeof(*config));
+    (void)flexspi_memset(config, 0, sizeof(*config));
 
     config->rxSampleClock          = kFLEXSPI_ReadSampleClkLoopbackInternally;
     config->enableSckFreeRunning   = false;
@@ -384,7 +384,7 @@ void FLEXSPI_GetDefaultConfig(flexspi_config_t *config)
     config->ahbConfig.ahbGrantTimeoutCycle = 0xFFU;
     config->ahbConfig.ahbBusTimeoutCycle   = 0xFFFFU;
     config->ahbConfig.resumeWaitCycle      = 0x20U;
-    (void)memset(config->ahbConfig.buffer, 0, sizeof(config->ahbConfig.buffer));
+     (void)flexspi_memset(config->ahbConfig.buffer, 0, sizeof(config->ahbConfig.buffer));
     /* Use invalid master ID 0xF and buffer size 0 for the first several buffers. */
     for (uint8_t i = 0; i < ((uint8_t)FSL_FEATURE_FLEXSPI_AHB_BUFFER_COUNT - 2U); i++)
     {
@@ -548,6 +548,11 @@ void FLEXSPI_SetFlashConfig(FLEXSPI_Type *base, flexspi_device_config_t *config,
 
     /* Exit stop mode. */
     base->MCR0 &= ~FLEXSPI_MCR0_MDIS_MASK;
+
+    /* Wait for bus to be idle before use it access to external flash. */
+    while (!FLEXSPI_GetBusIdleStatus(base))
+    {
+    }
 }
 
 /*! brief Updates the LUT table.
@@ -654,7 +659,7 @@ status_t FLEXSPI_WriteBlocking(FLEXSPI_Type *base, uint32_t *buffer, size_t size
         }
         else
         {
-            for (i = 0U; i < (size / 4U + 1U); i++)
+            for (i = 0U; i < ((size + 3U) / 4U); i++)
             {
                 base->TFDR[i] = *buffer++;
             }
@@ -1078,7 +1083,7 @@ void FLEXSPI_TransferHandleIRQ(FLEXSPI_Type *base, flexspi_handle_t *handle)
                     }
                     else
                     {
-                        for (i = 0; i < (handle->dataSize / 4U + 1U); i++)
+                        for (i = 0; i < (handle->dataSize + 3U) / 4U; i++)
                         {
                             base->TFDR[i] = *handle->data++;
                         }
@@ -1103,6 +1108,7 @@ void FLEXSPI_TransferHandleIRQ(FLEXSPI_Type *base, flexspi_handle_t *handle)
 
 #if defined(FSL_DRIVER_TRANSFER_DOUBLE_WEAK_IRQ) && FSL_DRIVER_TRANSFER_DOUBLE_WEAK_IRQ
 #if defined(FLEXSPI)
+void FLEXSPI_DriverIRQHandler(void);
 void FLEXSPI_DriverIRQHandler(void)
 {
     s_flexspiIsr(FLEXSPI, s_flexspiHandle[0]);
@@ -1111,6 +1117,7 @@ void FLEXSPI_DriverIRQHandler(void)
 #endif
 
 #if defined(FLEXSPI0)
+void FLEXSPI0_DriverIRQHandler(void);
 void FLEXSPI0_DriverIRQHandler(void)
 {
     s_flexspiIsr(FLEXSPI0, s_flexspiHandle[0]);
@@ -1118,6 +1125,7 @@ void FLEXSPI0_DriverIRQHandler(void)
 }
 #endif
 #if defined(FLEXSPI1)
+void FLEXSPI1_DriverIRQHandler(void);
 void FLEXSPI1_DriverIRQHandler(void)
 {
     s_flexspiIsr(FLEXSPI1, s_flexspiHandle[1]);
@@ -1126,6 +1134,7 @@ void FLEXSPI1_DriverIRQHandler(void)
 #endif
 
 #if defined(LSIO__FLEXSPI0)
+void LSIO_OCTASPI0_INT_DriverIRQHandler(void);
 void LSIO_OCTASPI0_INT_DriverIRQHandler(void)
 {
     s_flexspiIsr(LSIO__FLEXSPI0, s_flexspiHandle[0]);
@@ -1133,6 +1142,7 @@ void LSIO_OCTASPI0_INT_DriverIRQHandler(void)
 }
 #endif
 #if defined(LSIO__FLEXSPI1)
+void LSIO_OCTASPI1_INT_DriverIRQHandler(void);
 void LSIO_OCTASPI1_INT_DriverIRQHandler(void)
 {
     s_flexspiIsr(LSIO__FLEXSPI1, s_flexspiHandle[1]);
@@ -1142,6 +1152,7 @@ void LSIO_OCTASPI1_INT_DriverIRQHandler(void)
 
 #if defined(FSL_FEATURE_FLEXSPI_HAS_SHARED_IRQ0_IRQ1) && FSL_FEATURE_FLEXSPI_HAS_SHARED_IRQ0_IRQ1
 
+void FLEXSPI0_FLEXSPI1_DriverIRQHandler(void);
 void FLEXSPI0_FLEXSPI1_DriverIRQHandler(void)
 {
     /* If handle is registered, treat the transfer function is enabled. */

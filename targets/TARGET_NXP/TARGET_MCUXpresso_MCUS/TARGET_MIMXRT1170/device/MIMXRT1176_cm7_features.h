@@ -1,7 +1,7 @@
 /*
 ** ###################################################################
-**     Version:             rev. 0.1, 2018-03-05
-**     Build:               b200804
+**     Version:             rev. 1.0, 2020-12-29
+**     Build:               b201229
 **
 **     Abstract:
 **         Chip specific module features.
@@ -18,6 +18,8 @@
 **     Revisions:
 **     - rev. 0.1 (2018-03-05)
 **         Initial version.
+**     - rev. 1.0 (2020-12-29)
+**         Update feature files to align with IMXRT1170RM Rev.0.
 **
 ** ###################################################################
 */
@@ -29,8 +31,6 @@
 
 /* @brief ACMP availability on the SoC. */
 #define FSL_FEATURE_SOC_ACMP_COUNT (4)
-/* @brief AIPSTZ availability on the SoC. */
-#define FSL_FEATURE_SOC_AIPSTZ_COUNT (4)
 /* @brief AOI availability on the SoC. */
 #define FSL_FEATURE_SOC_AOI_COUNT (2)
 /* @brief ASRC availability on the SoC. */
@@ -67,8 +67,6 @@
 #define FSL_FEATURE_SOC_FLEXRAM_COUNT (1)
 /* @brief FLEXSPI availability on the SoC. */
 #define FSL_FEATURE_SOC_FLEXSPI_COUNT (2)
-/* @brief SFA availability on the SoC. */
-#define FSL_FEATURE_SOC_SFA_COUNT (1)
 /* @brief GPT availability on the SoC. */
 #define FSL_FEATURE_SOC_GPT_COUNT (6)
 /* @brief I2S availability on the SoC. */
@@ -115,8 +113,6 @@
 #define FSL_FEATURE_SOC_RDC_COUNT (1)
 /* @brief RDC_SEMAPHORE availability on the SoC. */
 #define FSL_FEATURE_SOC_RDC_SEMAPHORE_COUNT (2)
-/* @brief ROMC availability on the SoC. */
-#define FSL_FEATURE_SOC_ROMC_COUNT (1)
 /* @brief SEMA4 availability on the SoC. */
 #define FSL_FEATURE_SOC_SEMA4_COUNT (1)
 /* @brief SEMC availability on the SoC. */
@@ -137,8 +133,6 @@
 #define FSL_FEATURE_SOC_USBNC_COUNT (2)
 /* @brief USBPHY availability on the SoC. */
 #define FSL_FEATURE_SOC_USBPHY_COUNT (2)
-/* @brief USB_ANALOG availability on the SoC. */
-#define FSL_FEATURE_SOC_USB_ANALOG_COUNT (1)
 /* @brief USDHC availability on the SoC. */
 #define FSL_FEATURE_SOC_USDHC_COUNT (2)
 /* @brief WDOG availability on the SoC. */
@@ -156,6 +150,10 @@
 #define FSL_FEATURE_ADC_ETC_HAS_CTRL_DMA_MODE_SEL (1)
 /* @brief Has TRIGm_CHAIN_a_b IEn_EN. */
 #define FSL_FEATURE_ADC_ETC_HAS_TRIGm_CHAIN_a_b_IEn_EN (1)
+/* @brief Has no TSC0 trigger related bitfields (bit field CTRL[EXT0_TRIG_ENABLE], CTRL[EXT0_TRIG_PRIORITY]). */
+#define FSL_FEATURE_ADC_ETC_HAS_NO_TSC0_TRIG (1)
+/* @brief Has no TSC1 trigger related bitfields (bit field CTRL[EXT1_TRIG_ENABLE], CTRL[EXT1_TRIG_PRIORITY]). */
+#define FSL_FEATURE_ADC_ETC_HAS_NO_TSC1_TRIG (1)
 
 /* AOI module features */
 
@@ -163,6 +161,11 @@
 #define FSL_FEATURE_AOI_MODULE_INPUTS (4)
 /* @brief Number of events related to number of registers AOIx_BFCRT01n/AOIx_BFCRT23n. */
 #define FSL_FEATURE_AOI_EVENT_COUNT (4)
+
+/* ASRC module features */
+
+/* @brief Register name is ASPRM or ASPRMn */
+#define FSL_FEATURE_ASRC_PARAMETER_REGISTER_NAME_ASPRM (1)
 
 /* AUDIO_PLL module features */
 
@@ -206,11 +209,24 @@
 #define FSL_FEATURE_FLEXCAN_HAS_EXTRA_MB_INT (1)
 /* @brief Has memory error control (register MECR). */
 #define FSL_FEATURE_FLEXCAN_HAS_MEMORY_ERROR_CONTROL (1)
+/* @brief Init memory base 1 */
+#define FSL_FEATURE_FLEXCAN_INIT_MEMORY_BASE_1 (0x80)
+/* @brief Init memory size 1 */
+#define FSL_FEATURE_FLEXCAN_INIT_MEMORY_SIZE_1 (0xA60)
+/* @brief Init memory base 2 */
+#define FSL_FEATURE_FLEXCAN_INIT_MEMORY_BASE_2 (0xF28)
+/* @brief Init memory size 2 */
+#define FSL_FEATURE_FLEXCAN_INIT_MEMORY_SIZE_2 (0xD8)
 
 /* CCM module features */
 
 /* @brief Is affected by errata with ID 50235 (Incorrect clock setting for CAN affects by LPUART clock gate). */
 #define FSL_FEATURE_CCM_HAS_ERRATA_50235 (0)
+
+/* CDOG module features */
+
+/* @brief SOC has no reset driver. */
+#define FSL_FEATURE_CDOG_HAS_NO_RESET (1)
 
 /* IGPIO module features */
 
@@ -234,11 +250,21 @@
 /* @brief Has C1 INNSEL Bit */
 #define FSL_FEATURE_ACMP_HAS_C1_INNSEL_BIT (0)
 /* @brief Has C1 DACOE Bit */
-#define FSL_FEATURE_ACMP_HAS_C1_DACOE_BIT (1)
+#define FSL_FEATURE_ACMP_HAS_C1_DACOE_BIT (0)
 /* @brief Has C1 DMODE Bit */
 #define FSL_FEATURE_ACMP_HAS_C1_DMODE_BIT (1)
 /* @brief Has C2 RRE Bit */
 #define FSL_FEATURE_ACMP_HAS_C2_RRE_BIT (0)
+
+/* CSI module features */
+
+/* @brief If CSI registers don't have prefix. */
+#define FSL_FEATURE_CSI_NO_REG_PREFIX (1)
+
+/* DAC12 module features */
+
+/* @brief Has no ITRM register. */
+#define FSL_FEATURE_DAC12_HAS_NO_ITRM_REGISTER (1)
 
 /* DCDC module features */
 
@@ -288,6 +314,8 @@
 #define FSL_FEATURE_DMAMUX_HAS_TRIG (1)
 /* @brief Has DMA Channel Always ON function (register bit CHCFG0[A_ON]). */
 #define FSL_FEATURE_DMAMUX_HAS_A_ON (1)
+/* @brief Register CHCFGn width. */
+#define FSL_FEATURE_DMAMUX_CHCFG_REGISTER_WIDTH (32)
 
 /* ENET module features */
 
@@ -323,6 +351,10 @@
 #define FSL_FEATURE_ENET_INSTANCE_HAS_ADD_1588_TIMER_CHN_INTn(x) (1)
 /* @brief Has threshold for the number of frames in the receive FIFO (register bit field RSEM[STAT_SECTION_EMPTY]). */
 #define FSL_FEATURE_ENET_HAS_RECEIVE_STATUS_THRESHOLD (1)
+/* @brief Has trasfer clock delay (register bit field ECR[TXC_DLY]). */
+#define FSL_FEATURE_ENET_HAS_RGMII_TXC_DELAY (1)
+/* @brief Has receive clock delay (register bit field ECR[RXC_DLY]). */
+#define FSL_FEATURE_ENET_HAS_RGMII_RXC_DELAY (0)
 
 /* ENET_QOS module features */
 
@@ -372,6 +404,8 @@
 #define FSL_FEATURE_FLEXRAM_INTERNAL_RAM_TOTAL_BANK_NUMBERS (16)
 /* @brief Has FLEXRAM_MAGIC_ADDR. */
 #define FSL_FEATURE_FLEXRAM_HAS_MAGIC_ADDR (1)
+/* @brief If FLEXRAM has ECC function. */
+#define FSL_FEATURE_FLEXRAM_HAS_ECC (1)
 
 /* FLEXSPI module features */
 
@@ -384,15 +418,15 @@
 /* @brief There is CLRAHBTX_RXBUF bit in AHBCR register. */
 #define FSL_FEATURE_FLEXSPI_HAS_AHBCR_CLRAHBTX_RXBUF (0)
 
-/* GPC_CPU_MODE_CTRL module features */
+/* GPC_CPU_CTRL module features */
 
 /* No feature definitions */
 
-/* GPC_SET_POINT_CTRL module features */
+/* GPC_SP_CTRL module features */
 
 /* No feature definitions */
 
-/* GPC_STBY_POINT_CTRL module features */
+/* GPC_STBY_CTRL module features */
 
 /* No feature definitions */
 
@@ -424,7 +458,11 @@
 
 /* @brief Clut RAM offset, see datail in RM */
 #define FSL_FEATURE_LCDIFV2_CLUT_RAM_OFFSET (0x2000)
-/* @brief CSC count in Layer */
+/* @brief Init doamin count, register INIT[n]_ENABLE. */
+#define FSL_FEATURE_LCDIFV2_INT_DOMAIN_COUNT (2)
+/* @brief Layer count */
+#define FSL_FEATURE_LCDIFV2_LAYER_COUNT (8)
+/* @brief CSC count in layer, register CSC_COEF[n]. */
 #define FSL_FEATURE_LCDIFV2_LAYER_CSC_COUNT (2)
 
 /* LPADC module features */
@@ -537,6 +575,16 @@
 /* @brief Has LPUART_PINCFG. */
 #define FSL_FEATURE_LPUART_HAS_PINCFG (1)
 
+/* CSI2RX module features */
+
+/* @brief If MIPI_CSI2RX registers don't have prefix. */
+#define FSL_FEATURE_CSI2RX_HAS_NO_REG_PREFIX (1)
+
+/* DSI_HOST module features */
+
+/* @brief Has separate submodules */
+#define FSL_FEATURE_MIPI_DSI_HAS_SEPARATE_SUBMODULE (1)
+
 /* MU module features */
 
 /* @brief MU side for current core */
@@ -546,7 +594,7 @@
 /* @brief MU Has register SR[RS], BSR[ARS] */
 #define FSL_FEATURE_MU_HAS_SR_RS (1)
 /* @brief MU Has register CR[RDIE], CR[RAIE], SR[RDIP], SR[RAIP] */
-#define FSL_FEATURE_MU_HAS_RESET_INT (1)
+#define FSL_FEATURE_MU_HAS_RESET_INT (0)
 /* @brief MU Has register SR[MURIP] */
 #define FSL_FEATURE_MU_HAS_SR_MURIP (0)
 /* @brief MU Has register SR[HRIP] */
@@ -583,8 +631,6 @@
 #define FSL_FEATURE_OCOTP_HAS_TIMING_CTRL (0)
 /* @brief Support lock eFuse word write lock, (CTRL[WORDLOCK]). */
 #define FSL_FEATURE_OCOTP_HAS_WORDLOCK (1)
-/* @brief Has status register. (Register HW_OCOTP_OUT_STATUS0). */
-#define FSL_FEATURE_OCOTP_HAS_STATUS (1)
 
 /* OSC_RC_400M module features */
 
@@ -607,11 +653,11 @@
 
 /* No feature definitions */
 
-/* PGMC_MIF module features */
+/* PGMC_CPC module features */
 
 /* No feature definitions */
 
-/* PGMC_CPC module features */
+/* PGMC_MIF module features */
 
 /* No feature definitions */
 
@@ -646,6 +692,8 @@
 #define FSL_FEATURE_PWM_HAS_CHANNELX (1)
 /* @brief If (e)FlexPWM has fractional feature. */
 #define FSL_FEATURE_PWM_HAS_FRACTIONAL (1)
+/* @brief If (e)FlexPWM has mux trigger source select bit field. */
+#define FSL_FEATURE_PWM_HAS_MUX_TRIGGER_SOURCE_SEL (1)
 /* @brief Number of submodules in each (e)FlexPWM module. */
 #define FSL_FEATURE_PWM_SUBMODULE_COUNT (4U)
 /* @brief Number of fault channel in each (e)FlexPWM module. */
@@ -702,7 +750,7 @@
 /* @brief Has register of MDR */
 #define FSL_FEATURE_SAI_HAS_MDR (0)
 /* @brief Has support the BCLK bypass mode when BCLK = MCLK. */
-#define FSL_FEATURE_SAI_HAS_BCLK_BYPASS (0)
+#define FSL_FEATURE_SAI_HAS_BCLK_BYPASS (1)
 /* @brief Has DIV bit fields of MCR register (register bit fields MCR[DIV]. */
 #define FSL_FEATURE_SAI_HAS_MCR_MCLK_POST_DIV (0)
 /* @brief Support Channel Mode (register bit fields TCR4[CHMOD]). */
@@ -722,11 +770,21 @@
 #define FSL_FEATURE_SEMC_HAS_SRAM_RDH_TIME (1)
 /* @brief Width of SDRAMCR0[PS] bitfields. */
 #define FSL_FEATURE_SEMC_SUPPORT_SDRAM_PS_BITWIDTH (2)
+/* @brief If SEMC has errata 050577. */
+#define FSL_FEATURE_SEMC_ERRATA_050577 (0)
+/* @brief If sdram support column address 8 bit (register bit field SRAMCR0[CLO8]). */
+#define FSL_FEATURE_SEMC_SDRAM_SUPPORT_COLUMN_ADDRESS_8BIT (1)
+/* @brief If SEMC has register DBICR2 (register DBICR2). */
+#define FSL_FEATURE_SEMC_HAS_DBICR2 (1)
 
 /* SNVS module features */
 
 /* @brief Has Secure Real Time Counter Enabled and Valid (bit field LPCR[SRTC_ENV]). */
 #define FSL_FEATURE_SNVS_HAS_SRTC (1)
+/* @brief Has No SV3 (bit field HPSICR[SV3_EN]). */
+#define FSL_FEATURE_SNVS_HAS_NO_SV3 (1)
+/* @brief Number of TAMPER. */
+#define FSL_FEATURE_SNVS_HAS_MULTIPLE_TAMPER (10)
 
 /* SSARC_HP module features */
 
@@ -743,13 +801,6 @@
 /* @brief L1 DCACHE line size in byte. */
 #define FSL_FEATURE_L1DCACHE_LINESIZE_BYTE (32)
 
-/* USBHS module features */
-
-/* @brief EHCI module instance count */
-#define FSL_FEATURE_USBHS_EHCI_COUNT (2)
-/* @brief Number of endpoints supported */
-#define FSL_FEATURE_USBHS_ENDPT_COUNT (8)
-
 /* USBPHY module features */
 
 /* @brief USBPHY contain DCD analog module */
@@ -758,6 +809,13 @@
 #define FSL_FEATURE_USBPHY_HAS_TRIM_OVERRIDE_EN (1)
 /* @brief USBPHY is 28FDSOI */
 #define FSL_FEATURE_USBPHY_28FDSOI (1)
+
+/* USBHS module features */
+
+/* @brief EHCI module instance count */
+#define FSL_FEATURE_USBHS_EHCI_COUNT (2)
+/* @brief Number of endpoints supported */
+#define FSL_FEATURE_USBHS_ENDPT_COUNT (8)
 
 /* USDHC module features */
 
@@ -773,6 +831,16 @@
 #define FSL_FEATURE_USDHC_HAS_RESET (0)
 /* @brief USDHC has no bitfield WTMK_LVL[WR_BRST_LEN] and WTMK_LVL[RD_BRST_LEN] */
 #define FSL_FEATURE_USDHC_HAS_NO_RW_BURST_LEN (1)
+/* @brief If USDHC instance support 8 bit width */
+#define FSL_FEATURE_USDHC_INSTANCE_SUPPORT_8_BIT_WIDTHn(x) \
+    (((x) == USDHC1) ? (0) : \
+    (((x) == USDHC2) ? (1) : (-1)))
+/* @brief If USDHC instance support HS400 mode */
+#define FSL_FEATURE_USDHC_INSTANCE_SUPPORT_HS400_MODEn(x) (1)
+/* @brief If USDHC instance support 1v8 signal */
+#define FSL_FEATURE_USDHC_INSTANCE_SUPPORT_1V8_SIGNALn(x) (1)
+/* @brief Has no retuning time counter (HOST_CTRL_CAP[TIME_COUNT_RETURNING]) */
+#define FSL_FEATURE_USDHC_REGISTER_HOST_CTRL_CAP_HAS_NO_RETUNING_TIME_COUNTER (1)
 
 /* VIDEO_PLL module features */
 

@@ -4365,11 +4365,18 @@
         "is_disk_virtual": true,
         "macros": [
             "CPU_MIMXRT1176DVMAA_cm7",
+            "FSL_RTOS_MBED",
             "XIP_BOOT_HEADER_ENABLE=1",
             "XIP_EXTERNAL_FLASH=1",
             "XIP_BOOT_HEADER_DCD_ENABLE=1",
             "SKIP_SYSCLK_INIT",
-            "MBED_MPU_CUSTOM"
+            "MBED_MPU_CUSTOM",
+            "FSL_SDK_DRIVER_QUICK_ACCESS_ENABLE=1",
+            "SKIP_SYSCLK_INIT",
+            "__STARTUP_INITIALIZE_RAMFUNCTION",
+            "__STARTUP_INITIALIZE_NONCACHEDATA",
+            "MBED_TICKLESS",
+            "DATA_SECTION_IS_CACHEABLE=1"
         ],
         "inherits": [
             "Target"
@@ -4379,6 +4386,7 @@
         ],
         "device_has": [
             "ANALOGIN",
+            "FLASH",
             "INTERRUPTIN",
             "I2C",
             "I2CSLAVE",

@@ -20,7 +20,7 @@
  * Definitions
  ******************************************************************************/
 /*! @brief DCDC driver version. */
-#define FSL_DCDC_DRIVER_VERSION (MAKE_VERSION(2, 0, 0)) /*!< Version 2.0.0. */
+#define FSL_DCDC_DRIVER_VERSION (MAKE_VERSION(2, 1, 0)) /*!< Version 2.1.0. */
 
 /*! @brief The array of VDD1P0 target voltage in standby mode. */
 #define STANDBY_MODE_VDD1P0_TARGET_VOLTAGE                                                                             \
@@ -299,48 +299,19 @@ typedef enum _dcdc_comparator_current_bias
 } dcdc_comparator_current_bias_t;
 
 /*!
- * @brief The threshold of over current detection.
- */
-typedef enum _dcdc_over_current_threshold
-{
-    kDCDC_OverCurrentThresholdAlt0 = 0U, /*!< 1A in the run mode, 0.25A in the power save mode. */
-    kDCDC_OverCurrentThresholdAlt1 = 1U, /*!< 2A in the run mode, 0.25A in the power save mode. */
-    kDCDC_OverCurrentThresholdAlt2 = 2U, /*!< 1A in the run mode, 0.2A in the power save mode. */
-    kDCDC_OverCurrentThresholdAlt3 = 3U, /*!< 2A in the run mode, 0.2A in the power save mode. */
-} dcdc_over_current_threshold_t;
-
-/*!
  * @brief The threshold if peak current detection.
  */
 typedef enum _dcdc_peak_current_threshold
 {
-    kDCDC_PeakCurrentThresholdAlt0 = 0U, /*!< 150mA peak current threshold. */
-    kDCDC_PeakCurrentThresholdAlt1 = 1U, /*!< 250mA peak current threshold. */
-    kDCDC_PeakCurrentThresholdAlt2 = 2U, /*!< 350mA peak current threshold. */
-    kDCDC_PeakCurrentThresholdAlt3 = 3U, /*!< 450mA peak current threshold. */
-    kDCDC_PeakCurrentThresholdAlt4 = 4U, /*!< 550mA peak current threshold. */
-    kDCDC_PeakCurrentThresholdAlt5 = 5U, /*!< 650mA peak current threshold. */
+    kDCDC_PeakCurrentRunMode250mALPMode1P5A = 0U, /*!< Over peak current threshold in low power mode is 250mA,
+                                                      in run mode is 1.5A */
+    kDCDC_PeakCurrentRunMode200mALPMode1P5A,      /*!< Over peak current threshold in low power mode is 200mA,
+                                                           in run mode is 1.5A */
+    kDCDC_PeakCurrentRunMode250mALPMode2A,        /*!< Over peak current threshold in low power mode is 250mA,
+                                                             in run mode is 2A */
+    kDCDC_PeakCurrentRunMode200mALPMode2A,        /*!< Over peak current threshold in low power mode is 200mA,
+                                                             in run mode is 2A */
 } dcdc_peak_current_threshold_t;
-
-/*!
- * @brief The period of counting the charging times in power save mode.
- */
-typedef enum _dcdc_count_charging_time_period
-{
-    kDCDC_CountChargingTimePeriod8Cycle  = 0U, /*!< Eight 32k cycle. */
-    kDCDC_CountChargingTimePeriod16Cycle = 1U, /*!< Sixteen 32k cycle. */
-} dcdc_count_charging_time_period_t;
-
-/*!
- * @brief The threshold of the counting number of charging times
- */
-typedef enum _dcdc_count_charging_time_threshold
-{
-    kDCDC_CountChargingTimeThreshold32 = 0U, /*!< 0x0: 32. */
-    kDCDC_CountChargingTimeThreshold64 = 1U, /*!< 0x1: 64. */
-    kDCDC_CountChargingTimeThreshold16 = 2U, /*!< 0x2: 16. */
-    kDCDC_CountChargingTimeThreshold8  = 3U, /*!< 0x3: 8. */
-} dcdc_count_charging_time_threshold_t;
 
 /*!
  * @brief Oscillator clock option.
@@ -393,7 +364,6 @@ typedef struct _dcdc_detection_config
     bool powerDownPeakCurrentDetection;       /*!< Power down peak-current detection. */
     bool powerDownZeroCrossDetection; /*!< Power down the zero cross detection function for discontinuous conductor
                                          mode. */
-    dcdc_over_current_threshold_t OverCurrentThreshold; /*!< The threshold of over current detection. */
     dcdc_peak_current_threshold_t PeakCurrentThreshold; /*!< The threshold of peak current detection. */
 } dcdc_detection_config_t;
 
@@ -431,10 +401,7 @@ typedef struct _dcdc_loop_control_config
  */
 typedef struct _dcdc_internal_regulator_config
 {
-    bool enableLoadResistor; /*!< control the load resistor of the internal regulator of DCDC, the load resistor is
-                                connected as default "true", and need set to "false" to disconnect the load
-                                resistor. */
-    uint32_t feedbackPoint;  /*!< Available range is 0~3. Select the feedback point of the internal regulator. */
+    uint32_t feedbackPoint; /*!< Available range is 0~3. Select the feedback point of the internal regulator. */
 } dcdc_internal_regulator_config_t;
 
 /*!
@@ -442,15 +409,7 @@ typedef struct _dcdc_internal_regulator_config
  */
 typedef struct _dcdc_low_power_config
 {
-    bool enableOverloadDetection; /*!< Enable the overload detection in power save mode, if current is larger than the
-                                     overloading threshold (typical value is 50 mA), DCDC will switch to the run mode
-                                     automatically. */
     bool enableAdjustHystereticValue; /*!< Adjust hysteretic value in low power from 12.5mV to 25mV. */
-    dcdc_count_charging_time_period_t countChargingTimePeriod;       /*!< The period of counting the charging times
-                                                                          in power save mode. */
-    dcdc_count_charging_time_threshold_t countChargingTimeThreshold; /*!< the threshold of the counting number of
-                                                                        charging times during the period that
-                                                                        lp_overload_freq_sel sets in power save mode. */
 } dcdc_low_power_config_t;
 
 /*!
@@ -624,7 +583,7 @@ static inline void DCDC_SetVDD1P0StandbyModeTargetVoltage(DCDC_Type *base,
 static inline uint16_t DCDC_GetVDD1P0StandbyModeTargetVoltage(DCDC_Type *base)
 {
     const uint16_t vdd1P0TargetVoltage[] = STANDBY_MODE_VDD1P0_TARGET_VOLTAGE;
-    uint8_t voltageValue = (base->CTRL1 & DCDC_CTRL1_VDD1P0CTRL_STBY_TRG_MASK) >> DCDC_CTRL1_VDD1P0CTRL_STBY_TRG_SHIFT;
+    uint32_t voltageValue = (base->CTRL1 & DCDC_CTRL1_VDD1P0CTRL_STBY_TRG_MASK) >> DCDC_CTRL1_VDD1P0CTRL_STBY_TRG_SHIFT;
 
     return vdd1P0TargetVoltage[voltageValue];
 }
@@ -656,7 +615,7 @@ static inline void DCDC_SetVDD1P8StandbyModeTargetVoltage(DCDC_Type *base,
 static inline uint16_t DCDC_GetVDD1P8StandbyModeTargetVoltage(DCDC_Type *base)
 {
     const uint16_t vdd1P8TargetVoltage[] = STANDBY_MODE_VDD1P8_TARGET_VOLTAGE;
-    uint8_t voltageValue = (base->CTRL1 & DCDC_CTRL1_VDD1P8CTRL_STBY_TRG_MASK) >> DCDC_CTRL1_VDD1P8CTRL_STBY_TRG_SHIFT;
+    uint32_t voltageValue = (base->CTRL1 & DCDC_CTRL1_VDD1P8CTRL_STBY_TRG_MASK) >> DCDC_CTRL1_VDD1P8CTRL_STBY_TRG_SHIFT;
 
     return vdd1P8TargetVoltage[voltageValue];
 }
@@ -670,7 +629,7 @@ static inline uint16_t DCDC_GetVDD1P8StandbyModeTargetVoltage(DCDC_Type *base)
 static inline void DCDC_SetVDD1P0BuckModeTargetVoltage(DCDC_Type *base, dcdc_buck_mode_1P0_target_vol_t targetVoltage)
 {
     base->REG3 &= ~DCDC_REG3_VDD1P0CTRL_DISABLE_STEP_MASK;
-    base->CTRL1 |= ((base->CTRL1 & (~DCDC_CTRL1_VDD1P0CTRL_TRG_MASK)) | DCDC_CTRL1_VDD1P0CTRL_TRG(targetVoltage));
+    base->CTRL1 = ((base->CTRL1 & (~DCDC_CTRL1_VDD1P0CTRL_TRG_MASK)) | DCDC_CTRL1_VDD1P0CTRL_TRG(targetVoltage));
     while (DCDC_REG0_STS_DC_OK_MASK != (DCDC_REG0_STS_DC_OK_MASK & base->REG0))
     {
     }
@@ -686,7 +645,7 @@ static inline void DCDC_SetVDD1P0BuckModeTargetVoltage(DCDC_Type *base, dcdc_buc
 static inline uint16_t DCDC_GetVDD1P0BuckModeTargetVoltage(DCDC_Type *base)
 {
     const uint16_t vdd1P0TargetVoltage[] = BUCK_MODE_VDD1P0_TARGET_VOLTAGE;
-    uint8_t voltageValue = (base->CTRL1 & DCDC_CTRL1_VDD1P0CTRL_TRG_MASK) >> DCDC_CTRL1_VDD1P0CTRL_TRG_SHIFT;
+    uint32_t voltageValue = (base->CTRL1 & DCDC_CTRL1_VDD1P0CTRL_TRG_MASK) >> DCDC_CTRL1_VDD1P0CTRL_TRG_SHIFT;
 
     return vdd1P0TargetVoltage[voltageValue];
 }
@@ -700,7 +659,7 @@ static inline uint16_t DCDC_GetVDD1P0BuckModeTargetVoltage(DCDC_Type *base)
 static inline void DCDC_SetVDD1P8BuckModeTargetVoltage(DCDC_Type *base, dcdc_buck_mode_1P8_target_vol_t targetVoltage)
 {
     base->REG3 &= ~DCDC_REG3_VDD1P8CTRL_DISABLE_STEP_MASK;
-    base->CTRL1 |= ((base->CTRL1 & (~DCDC_CTRL1_VDD1P8CTRL_TRG_MASK)) | DCDC_CTRL1_VDD1P8CTRL_TRG(targetVoltage));
+    base->CTRL1 = ((base->CTRL1 & (~DCDC_CTRL1_VDD1P8CTRL_TRG_MASK)) | DCDC_CTRL1_VDD1P8CTRL_TRG(targetVoltage));
     while (DCDC_REG0_STS_DC_OK_MASK != (DCDC_REG0_STS_DC_OK_MASK & base->REG0))
     {
     }
@@ -716,7 +675,7 @@ static inline void DCDC_SetVDD1P8BuckModeTargetVoltage(DCDC_Type *base, dcdc_buc
 static inline uint16_t DCDC_GetVDD1P8BuckModeTargetVoltage(DCDC_Type *base)
 {
     const uint16_t vdd1P8TargetVoltage[] = BUCK_MODE_VDD1P8_TARGET_VOLTAGE;
-    uint8_t voltageValue = (base->CTRL1 & DCDC_CTRL1_VDD1P8CTRL_TRG_MASK) >> DCDC_CTRL1_VDD1P8CTRL_TRG_SHIFT;
+    uint32_t voltageValue = (base->CTRL1 & DCDC_CTRL1_VDD1P8CTRL_TRG_MASK) >> DCDC_CTRL1_VDD1P8CTRL_TRG_SHIFT;
 
     return vdd1P8TargetVoltage[voltageValue];
 }
@@ -842,10 +801,7 @@ void DCDC_SetClockSource(DCDC_Type *base, dcdc_clock_source_t clockSource);
  * The default configuration are set according to responding registers' setting when powered on.
  * They are:
  * @code
- *   config->enableOverloadDetection = true;
  *   config->enableAdjustHystereticValue = false;
- *   config->countChargingTimePeriod = kDCDC_CountChargingTimePeriod8Cycle;
- *   config->countChargingTimeThreshold = kDCDC_CountChargingTimeThreshold32;
  * @endcode
  *
  * @param config Pointer to configuration structure. See to @ref dcdc_low_power_config_t.
@@ -1025,6 +981,7 @@ static inline uint32_t DCDC_GetStatusFlags(DCDC_Type *base)
  *
  * @code
  *  pwd_zcd=0x0;
+ *  DM_CTRL = 1'b1;
  *  pwd_cmp_offset=0x0;
  *  dcdc_loopctrl_en_rcscale=0x3 or 0x5;
  *  DCM_set_ctrl=1'b1;

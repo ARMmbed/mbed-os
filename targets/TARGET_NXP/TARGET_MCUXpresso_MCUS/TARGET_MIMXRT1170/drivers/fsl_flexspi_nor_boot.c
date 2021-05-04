@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 NXP
+ * Copyright 2019-2021 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -27,7 +27,7 @@ const ivt image_vector_table = {
     IVT_RSVD,                      /* Reserved = 0 */
     (uint32_t)DCD_ADDRESS,         /* Address where DCD information is stored */
     (uint32_t)BOOT_DATA_ADDRESS,   /* Address where BOOT Data Structure is stored */
-    (uint32_t)&image_vector_table, /* Pointer to IVT Self (absolute address */
+    (uint32_t)IVT_ADDRESS,         /* Pointer to IVT Self (absolute address) */
     (uint32_t)CSF_ADDRESS,         /* Address where CSF file is stored */
     IVT_RSVD                       /* Reserved = 0 */
 };
@@ -41,9 +41,9 @@ __attribute__((section(".boot_hdr.boot_data"), used))
  *  Boot Data
  *************************************/
 const BOOT_DATA_T boot_data = {
-    FLASH_BASE,  /* boot start location */
-    FLASH_SIZE,  /* size */
+    BOOT_IMAGE_BASE,  /* boot start location */
+    BOOT_IMAGE_SIZE,  /* size */
     PLUGIN_FLAG, /* Plugin flag*/
-    0xFFFFFFFF   /* empty - extra data word */
+    0xFFFFFFFFU  /* empty - extra data word */
 };
 #endif
