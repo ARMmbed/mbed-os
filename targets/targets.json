@@ -4216,6 +4216,31 @@
         ],
         "device_name": "STM32WB55RGVx"
     },
+    "MCU_STM32WB5Mxx": {
+        "inherits": [
+            "MCU_STM32WB"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32WB5Mxx"
+        ],
+        "macros_add": [
+            "STM32WB5Mxx",
+            "MBEDTLS_CONFIG_HW_SUPPORT"
+        ]
+    },
+    "DISCO_WB5MMG": {
+        "inherits": [
+            "MCU_STM32WB5Mxx"
+        ],
+        "supported_form_factors": [
+            "ARDUINO_UNO"
+        ],
+        "detect_code": [
+            "0884"
+        ],
+        "device_name": "STM32WB55VGYx"
+    },
     "MCU_STM32WL": {
         "inherits": [
             "MCU_STM32"

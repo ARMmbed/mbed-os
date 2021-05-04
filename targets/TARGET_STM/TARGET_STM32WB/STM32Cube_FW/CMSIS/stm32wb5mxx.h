@@ -51,7 +51,9 @@
 #define __VTOR_PRESENT            1U /*!< Vector Table Register supported               */
 #define __NVIC_PRIO_BITS          4U /*!< STM32WBxx uses 4 Bits for the Priority Levels */
 #define __Vendor_SysTickConfig    0U /*!< Set to 1 if different SysTick Config is used  */
+#ifndef __FPU_PRESENT
 #define __FPU_PRESENT             1U /*!< FPU present                                   */
+#endif
 /**
   * @}
   */
