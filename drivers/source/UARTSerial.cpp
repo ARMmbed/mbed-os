@@ -31,7 +31,7 @@ UARTSerial::UARTSerial(PinName tx, PinName rx, int baud) :
     _dcd_irq(NULL)
 {
     /* Attatch IRQ routines to the serial device. */
-    enable_rx_irq();
+    update_rx_irq();
 }
 
 UARTSerial::UARTSerial(const serial_pinmap_t &static_pinmap, int baud) :
@@ -42,7 +42,7 @@ UARTSerial::UARTSerial(const serial_pinmap_t &static_pinmap, int baud) :
     _dcd_irq(NULL)
 {
     /* Attatch IRQ routines to the serial device. */
-    enable_rx_irq();
+    update_rx_irq();
 }
 
 UARTSerial::~UARTSerial()
@@ -192,7 +192,7 @@ ssize_t UARTSerial::write(const void *buffer, size_t length)
             data_written++;
         }
 
-        enable_tx_irq();
+        update_tx_irq();
     }
 
     api_unlock();
@@ -227,7 +227,7 @@ ssize_t UARTSerial::read(void *buffer, size_t length)
         data_read++;
     }
 
-    enable_rx_irq();
+    update_rx_irq();
 
     api_unlock();
 
@@ -335,7 +335,7 @@ void UARTSerial::tx_irq(void)
 }
 
 /* These are all called from critical section */
-void UARTSerial::enable_rx_irq()
+void UARTSerial::update_rx_irq()
 {
     core_util_critical_section_enter();
     if (_rx_enabled && !_rx_irq_enabled) {
@@ -354,7 +354,7 @@ void UARTSerial::disable_rx_irq()
     _rx_irq_enabled = false;
 }
 
-void UARTSerial::enable_tx_irq()
+void UARTSerial::update_tx_irq()
 {
     core_util_critical_section_enter();
     if (_tx_enabled && !_tx_irq_enabled) {
@@ -377,7 +377,7 @@ int UARTSerial::enable_input(bool enabled)
 {
     api_lock();
     SerialBase::enable_input(enabled);
-    enable_rx_irq(); // Enable interrupt to handle incoming data
+    update_rx_irq(); // Eventually enable rx-interrupt to handle incoming data
     api_unlock();
 
     return 0;
@@ -387,7 +387,7 @@ int UARTSerial::enable_output(bool enabled)
 {
     api_lock();
     SerialBase::enable_output(enabled);
-    enable_tx_irq(); // Enable interrupt to flush buffered data
+    update_tx_irq(); // Eventually enable tx-interrupt to flush buffered data
     api_unlock();
 
     return 0;
