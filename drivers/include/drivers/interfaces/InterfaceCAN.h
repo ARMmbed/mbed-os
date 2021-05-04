@@ -113,7 +113,8 @@ public:
 
 namespace interface {
 
-namespace can {
+/* Having this as a struct allows interface::CAN and/or mbed::CAN to inherit the enums */
+struct can {
 
 enum Mode {
     Reset = 0,
@@ -138,15 +139,19 @@ enum IrqType {
     IrqCnt
 };
 
-} // namespace can
+// Prevent slicing and user creation of base class.
+protected:
+    can() = default;
+    ~can() = default;
+    can(const can&) = default;
+    can& operator=(const can&) = default;
+
+};
 
 #ifdef FEATURE_EXPERIMENTAL_API
 
 // Pure virtual interface for CAN
-struct CAN {
-
-    using Mode = ::mbed::interface::can::Mode;
-    using IrqType = ::mbed::interface::can::IrqType;
+struct CAN : public interface::can {
 
     virtual ~CAN() = default;
     virtual int frequency(int hz) = 0;

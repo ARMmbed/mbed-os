@@ -41,7 +41,7 @@ class CAN
 #ifdef FEATURE_EXPERIMENTAL_API
     final : public interface::CAN, private NonCopyable<CAN>
 #else
-    : private NonCopyable<CAN>
+    : private NonCopyable<CAN>, public interface::can
 #endif
 {
 
@@ -161,8 +161,6 @@ public:
      */
     void monitor(bool silent);
 
-    using Mode = ::mbed::interface::can::Mode;
-
     /** Change CAN operation to the specified mode
      *
      *  @param mode The new operation mode (CAN::Normal, CAN::Silent, CAN::LocalTest, CAN::GlobalTest, CAN::SilentTest)
@@ -197,8 +195,6 @@ public:
      *  @returns number of write errors
      */
     unsigned char tderror();
-
-    using IrqType = ::mbed::interface::can::IrqType;
 
     /** Attach a function to call whenever a CAN frame received interrupt is
      *  generated.
