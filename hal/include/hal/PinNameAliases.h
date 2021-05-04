@@ -86,11 +86,34 @@
 #define ARDUINO_UNO_I2C_SDA ARDUINO_UNO_D14
 #define ARDUINO_UNO_I2C_SCL ARDUINO_UNO_D15
 
+// Legacy I2C aliases
+#ifndef I2C_SDA
+#define I2C_SDA ARDUINO_UNO_I2C_SDA
+#endif
+#ifndef I2C_SCL
+#define I2C_SCL ARDUINO_UNO_I2C_SCL
+#endif
+
 // Arduino Uno SPI signals aliases
 #define ARDUINO_UNO_SPI_CS   ARDUINO_UNO_D10
 #define ARDUINO_UNO_SPI_MOSI ARDUINO_UNO_D11
 #define ARDUINO_UNO_SPI_MISO ARDUINO_UNO_D12
 #define ARDUINO_UNO_SPI_SCK  ARDUINO_UNO_D13
+
+// Legacy SPI aliases
+#ifndef SPI_CS
+#define SPI_CS ARDUINO_UNO_SPI_CS
+#endif
+#ifndef SPI_MOSI
+#define SPI_MOSI ARDUINO_UNO_SPI_MOSI
+#endif
+#ifndef SPI_MISO
+#define SPI_MISO ARDUINO_UNO_SPI_MISO
+#endif
+#ifndef SPI_SCK
+#define SPI_SCK ARDUINO_UNO_SPI_SCK
+#endif
+
 
 // Arduino Uno UART signals aliases
 #define ARDUINO_UNO_UART_TX ARDUINO_UNO_D1
