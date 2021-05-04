@@ -1067,6 +1067,8 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
     /* Get object ptr based on handler ptr */
     i2c_t *obj = get_i2c_obj(hi2c);
     struct i2c_s *obj_s = I2C_S(obj);
+    uint32_t event_code = 0;
+
 #if DEVICE_I2CSLAVE
     I2C_HandleTypeDef *handle = &(obj_s->handle);
     uint32_t address = 0;
@@ -1076,6 +1078,11 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
     }
 #endif
 
+
+    if ((handle->ErrorCode & HAL_I2C_ERROR_AF) == HAL_I2C_ERROR_AF) {
+        /* Keep Set event flag */
+        event_code = (I2C_EVENT_TRANSFER_EARLY_NACK) | (I2C_EVENT_ERROR_NO_SLAVE);
+    }
     DEBUG_PRINTF("HAL_I2C_ErrorCallback:%d, index=%d\r\n", (int) hi2c->ErrorCode, obj_s->index);
 
     /* re-init IP to try and get back in a working state */
@@ -1090,7 +1097,7 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
 #endif
 
     /* Keep Set event flag */
-    obj_s->event = I2C_EVENT_ERROR;
+    obj_s->event = event_code | I2C_EVENT_ERROR;
 }
 
 const PinMap *i2c_master_sda_pinmap()
