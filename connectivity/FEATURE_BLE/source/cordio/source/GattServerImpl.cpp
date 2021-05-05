@@ -1130,7 +1130,7 @@ uint8_t GattServer::atts_read_cb(
             connId,
             handle,
             offset,
-            /* len */ 0,
+            /* len */ pAttr->maxLen,
             /* data */ nullptr,
             AUTH_CALLBACK_REPLY_SUCCESS
         };
@@ -1146,8 +1146,27 @@ uint8_t GattServer::atts_read_cb(
             return read_auth_params.authorizationReply & 0xFF;
         }
 
-        pAttr->pValue = read_auth_params.data;
-        *pAttr->pLen = read_auth_params.len;
+        /* if new data provided copy into the attribute value buffer */
+        if (read_auth_params.data) {
+            if (read_auth_params.offset + read_auth_params.len > pAttr->maxLen) {
+                tr_error("Read authorisation callback set length larger than maximum attribute length. Cannot copy data");
+
+                GattReadCallbackParams read_params = {
+                    connId,
+                    handle,
+                    offset,
+                    read_auth_params.len,
+                    read_auth_params.data,
+                    BLE_ERROR_INVALID_PARAM,
+                };
+                getInstance().handleDataReadEvent(&read_params);
+
+                return ATT_ERR_UNLIKELY;
+            }
+
+            memcpy(pAttr->pValue + read_auth_params.offset, read_auth_params.data, read_auth_params.len);
+            *pAttr->pLen = read_auth_params.len;
+        }
     }
 
     tr_debug("Read attribute %d on connection %d - value=%s",
