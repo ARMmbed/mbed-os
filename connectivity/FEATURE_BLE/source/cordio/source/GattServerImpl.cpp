@@ -1150,20 +1150,19 @@ uint8_t GattServer::atts_read_cb(
 
         /* if new data provided copy into the attribute value buffer */
         if (read_auth_params.data) {
-
             if (read_auth_params.len > pAttr->maxLen) {
                 tr_error("Read authorisation callback set length larger than maximum attribute length, "
                          "cannot copy data");
                 err = ATT_ERR_UNLIKELY;
-            }
+            } else {
+                memcpy(pAttr->pValue, read_auth_params.data, read_auth_params.len);
+                *pAttr->pLen = read_auth_params.len;
 
-            memcpy(pAttr->pValue, read_auth_params.data, read_auth_params.len);
-            *pAttr->pLen = read_auth_params.len;
-
-            if (read_auth_params.len < offset) {
-                tr_warning("Read authorisation callback shortened data beyond current offset, "
-                           "current read will fail");
-                err = ATT_ERR_OFFSET;
+                if (read_auth_params.len < offset) {
+                    tr_warning("Read authorisation callback shortened data beyond current offset, "
+                               "current read will fail");
+                    err = ATT_ERR_OFFSET;
+                }
             }
         }
     }
