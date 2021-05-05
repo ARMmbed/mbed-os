@@ -1692,6 +1692,10 @@ public:
      * @note The params->len parameter initially contains the maximum length of
      * data that can be returned. Set it to the length of your data but it must
      * not be larger than the original value.
+     *
+     * @note You must also take into account the offset provided in params->offset.
+     * The params->len you provide must be larger then the offset as the read operation
+     * will attempt to read at that offset.
      */
     GattAuthCallbackReply_t authorizeRead(GattReadAuthCallbackParams *params)
     {

@@ -1148,8 +1148,9 @@ uint8_t GattServer::atts_read_cb(
 
         /* if new data provided copy into the attribute value buffer */
         if (read_auth_params.data) {
-            if (read_auth_params.offset + read_auth_params.len > pAttr->maxLen) {
-                tr_error("Read authorisation callback set length larger than maximum attribute length. Cannot copy data");
+            if (read_auth_params.len > pAttr->maxLen || offset >= read_auth_params.len) {
+                tr_error("Read authorisation callback set length larger than maximum attribute length "
+                         "or current offset is beyond new length. Cannot copy data");
 
                 GattReadCallbackParams read_params = {
                     connId,
@@ -1164,7 +1165,7 @@ uint8_t GattServer::atts_read_cb(
                 return ATT_ERR_UNLIKELY;
             }
 
-            memcpy(pAttr->pValue + read_auth_params.offset, read_auth_params.data, read_auth_params.len);
+            memcpy(pAttr->pValue, read_auth_params.data, read_auth_params.len);
             *pAttr->pLen = read_auth_params.len;
         }
     }
