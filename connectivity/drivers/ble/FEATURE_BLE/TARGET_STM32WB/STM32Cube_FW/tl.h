@@ -195,9 +195,9 @@ typedef struct
 
 typedef struct
 {
-  uint8_t *p_LldBleCmdRspBuffer;
-  uint8_t *p_LldBleM0CmdBuffer;
-} TL_LLD_BLE_Config_t;
+  uint8_t *p_BleLldCmdRspBuffer;
+  uint8_t *p_BleLldM0CmdBuffer;
+} TL_BLE_LLD_Config_t;
 
 typedef struct
 {
@@ -282,17 +282,17 @@ void TL_LLDTESTS_ReceiveM0Cmd( TL_CmdPacket_t * Notbuffer );
 void TL_LLDTESTS_SendM0CmdAck( void );
 
 /******************************************************************************
- * LLD BLE
+ * BLE LLD
  ******************************************************************************/
-void TL_LLD_BLE_Init( TL_LLD_BLE_Config_t *p_Config );
-void TL_LLD_BLE_SendCliCmd( void );
-void TL_LLD_BLE_ReceiveCliRsp( TL_CmdPacket_t * Notbuffer );
-void TL_LLD_BLE_SendCliRspAck( void );
-void TL_LLD_BLE_ReceiveM0Cmd( TL_CmdPacket_t * Notbuffer );
-void TL_LLD_BLE_SendM0CmdAck( void );
-void TL_LLD_BLE_SendCmd( void );
-void TL_LLD_BLE_ReceiveRsp( TL_CmdPacket_t * Notbuffer );
-void TL_LLD_BLE_SendRspAck( void );
+void TL_BLE_LLD_Init( TL_BLE_LLD_Config_t *p_Config );
+void TL_BLE_LLD_SendCliCmd( void );
+void TL_BLE_LLD_ReceiveCliRsp( TL_CmdPacket_t * Notbuffer );
+void TL_BLE_LLD_SendCliRspAck( void );
+void TL_BLE_LLD_ReceiveM0Cmd( TL_CmdPacket_t * Notbuffer );
+void TL_BLE_LLD_SendM0CmdAck( void );
+void TL_BLE_LLD_SendCmd( void );
+void TL_BLE_LLD_ReceiveRsp( TL_CmdPacket_t * Notbuffer );
+void TL_BLE_LLD_SendRspAck( void );
 /******************************************************************************
  * MEMORY MANAGER
  ******************************************************************************/
