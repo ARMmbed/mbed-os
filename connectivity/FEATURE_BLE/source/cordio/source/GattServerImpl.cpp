@@ -1124,6 +1124,8 @@ uint8_t GattServer::atts_read_cb(
     attsAttr_t *pAttr
 )
 {
+    uint8_t err = ATT_SUCCESS;
+
     char_auth_callback *auth_cb = getInstance().get_auth_callback(handle);
     if (auth_cb && auth_cb->read_cb) {
         GattReadAuthCallbackParams read_auth_params = {
@@ -1148,25 +1150,21 @@ uint8_t GattServer::atts_read_cb(
 
         /* if new data provided copy into the attribute value buffer */
         if (read_auth_params.data) {
-            if (read_auth_params.len > pAttr->maxLen || offset >= read_auth_params.len) {
-                tr_error("Read authorisation callback set length larger than maximum attribute length "
-                         "or current offset is beyond new length. Cannot copy data");
 
-                GattReadCallbackParams read_params = {
-                    connId,
-                    handle,
-                    offset,
-                    read_auth_params.len,
-                    read_auth_params.data,
-                    BLE_ERROR_INVALID_PARAM,
-                };
-                getInstance().handleDataReadEvent(&read_params);
-
-                return ATT_ERR_UNLIKELY;
+            if (read_auth_params.len > pAttr->maxLen) {
+                tr_error("Read authorisation callback set length larger than maximum attribute length, "
+                         "cannot copy data");
+                err = ATT_ERR_UNLIKELY;
             }
 
             memcpy(pAttr->pValue, read_auth_params.data, read_auth_params.len);
             *pAttr->pLen = read_auth_params.len;
+
+            if (read_auth_params.len < offset) {
+                tr_warning("Read authorisation callback shortened data beyond current offset, "
+                           "current read will fail");
+                err = ATT_ERR_OFFSET;
+            }
         }
     }
 
@@ -1181,11 +1179,11 @@ uint8_t GattServer::atts_read_cb(
         offset,
         *pAttr->pLen,
         pAttr->pValue,
-        /* status */ BLE_ERROR_NONE,
+        /* status */ (err == ATT_SUCCESS) ? BLE_ERROR_NONE : BLE_ERROR_PARAM_OUT_OF_RANGE
     };
     getInstance().handleDataReadEvent(&read_params);
 
-    return ATT_SUCCESS;
+    return err;
 }
 
 uint8_t GattServer::atts_write_cb(
