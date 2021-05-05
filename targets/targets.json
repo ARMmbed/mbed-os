@@ -4303,7 +4303,7 @@
     },
     "MIMXRT1050_EVK": {
         "supported_form_factors": [
-            "ARDUINO"
+            "ARDUINO_UNO"
         ],
         "core": "Cortex-M7FD",
         "supported_toolchains": [
