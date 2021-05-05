@@ -35,14 +35,10 @@ before_install:
 
 addons:
   apt:
-    sources:
-      - sourceline: 'deb https://apt.kitware.com/ubuntu/ xenial main'
-        key_url: 'https://apt.kitware.com/keys/kitware-archive-latest.asc'
     packages:
-    - ninja-build
-    - libncursesw5
     - cmake
     - ninja-build
+    - libncursesw5
 
 matrix:
   include:
