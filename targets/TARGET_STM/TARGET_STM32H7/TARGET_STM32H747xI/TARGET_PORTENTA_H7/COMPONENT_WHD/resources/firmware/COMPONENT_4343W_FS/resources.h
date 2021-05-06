@@ -18,6 +18,9 @@
 #ifndef INCLUDED_RESOURCES_H_
 #define INCLUDED_RESOURCES_H_
 #include "wiced_resource.h"
+#include "wiced_filesystem.h"
+
+extern wiced_filesystem_t resource_fs_handle;
 
 extern const resource_hnd_t wifi_firmware_image;
 extern const unsigned char wifi_firmware_image_data[421098];
