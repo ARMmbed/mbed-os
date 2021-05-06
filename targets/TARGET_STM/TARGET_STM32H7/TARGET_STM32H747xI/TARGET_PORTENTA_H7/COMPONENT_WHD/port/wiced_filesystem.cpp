@@ -40,6 +40,8 @@ QSPIFBlockDevice *qspi_bd = NULL;
 MBRBlockDevice   *mbr_bd = NULL;
 FATFileSystem    *wifi_fs = NULL;
 
+wiced_filesystem_t resource_fs_handle;
+
 MBED_WEAK void wiced_filesystem_mount_error(void)
 {
     WPRINT_WHD_ERROR(("Failed to mount the filesystem containing the WiFi firmware.\n\r"));
