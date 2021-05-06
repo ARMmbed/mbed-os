@@ -1,6 +1,8 @@
 # Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_subdirectory(network EXCLUDE_FROM_ALL)
+
 add_library(mbed-cy-psoc6-whd-43012 INTERFACE)
 target_include_directories(mbed-cy-psoc6-whd-43012
     INTERFACE
