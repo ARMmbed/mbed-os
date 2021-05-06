@@ -170,14 +170,6 @@ typedef enum {
     GPIO_SD_B1_10 = ((3 << GPIO_PORT_SHIFT) | 10),
     GPIO_SD_B1_11 = ((3 << GPIO_PORT_SHIFT) | 11),
 
-    LED_GREEN = GPIO_AD_B0_09,
-
-    // mbed original LED naming
-    LED1 = LED_GREEN,
-    LED2 = LED_GREEN,
-    LED3 = LED_GREEN,
-    LED4 = LED_GREEN,
-
     // USB Pins
     CONSOLE_TX = GPIO_AD_B0_12,
     CONSOLE_RX = GPIO_AD_B0_13,
@@ -207,13 +199,13 @@ typedef enum {
     ARDUINO_UNO_A4 = GPIO_AD_B1_01,
     ARDUINO_UNO_A5 = GPIO_AD_B1_00,
 
-    I2C_SCL = ARDUINO_UNO_A5,
-    I2C_SDA = ARDUINO_UNO_A4,
-
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
 
+// Standardized LED and button names
+#define LED1 		GPIO_AD_B0_09		// USER LED (green)
+#define USER_LED	LED1
 
 typedef enum {
     PullNone = 0,
