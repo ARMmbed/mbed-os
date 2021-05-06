@@ -25489,5 +25489,5 @@ const unsigned char wifi_firmware_image_data[421098] = {
         49, 45, 53, 97, 102, 99, 56, 99, 49, 101, 0, 254, 0, 68, 86, 73, 68,
         32, 48, 49, 45, 101, 100, 48, 100, 55, 97, 53, 54
 };
-resource_hnd_t wifi_firmware_image = { RESOURCE_IN_FILESYSTEM, 421098, {.fs = { 0, "/wlan/4343WA1.BIN" }}};
+resource_hnd_t wifi_firmware_image = { RESOURCE_IN_EXTERNAL_STORAGE, 421098, {.fs = { 0, "/wlan/4343WA1.BIN" }}};
 
