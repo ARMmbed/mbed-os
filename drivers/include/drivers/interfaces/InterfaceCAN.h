@@ -118,35 +118,35 @@ namespace interface {
 /* Having this as a struct allows interface::CAN and/or mbed::CAN to inherit the enums */
 struct can {
 
-enum Mode {
-    Reset = 0,
-    Normal,
-    Silent,
-    LocalTest,
-    GlobalTest,
-    SilentTest
-};
+    enum Mode {
+        Reset = 0,
+        Normal,
+        Silent,
+        LocalTest,
+        GlobalTest,
+        SilentTest
+    };
 
-enum IrqType {
-    RxIrq = 0,
-    TxIrq,
-    EwIrq,
-    DoIrq,
-    WuIrq,
-    EpIrq,
-    AlIrq,
-    BeIrq,
-    IdIrq,
+    enum IrqType {
+        RxIrq = 0,
+        TxIrq,
+        EwIrq,
+        DoIrq,
+        WuIrq,
+        EpIrq,
+        AlIrq,
+        BeIrq,
+        IdIrq,
 
-    IrqCnt
-};
+        IrqCnt
+    };
 
 // Prevent slicing and user creation of base class.
 protected:
     can() = default;
     ~can() = default;
-    can(const can&) = default;
-    can& operator=(const can&) = default;
+    can(const can &) = default;
+    can &operator=(const can &) = default;
 
 };
 
