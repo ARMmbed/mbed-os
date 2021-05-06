@@ -26,6 +26,7 @@
 #include "sockets.h"
 #include "resources.h"
 #include "wiced_filesystem.h"
+#include "wiced_bd.h"
 #include "QSPIFBlockDevice.h"
 #include "MBRBlockDevice.h"
 #include "FATFileSystem.h"
