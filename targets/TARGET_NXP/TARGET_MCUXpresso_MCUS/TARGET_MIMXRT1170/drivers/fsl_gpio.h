@@ -22,8 +22,8 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief GPIO driver version 2.0.3. */
-#define FSL_GPIO_DRIVER_VERSION (MAKE_VERSION(2, 0, 3))
+/*! @brief GPIO driver version. */
+#define FSL_GPIO_DRIVER_VERSION (MAKE_VERSION(2, 0, 5))
 /*@}*/
 
 /*! @brief GPIO direction definition. */
@@ -161,6 +161,8 @@ static inline void GPIO_PortToggle(GPIO_Type *base, uint32_t mask)
 {
 #if (defined(FSL_FEATURE_IGPIO_HAS_DR_TOGGLE) && (FSL_FEATURE_IGPIO_HAS_DR_TOGGLE == 1))
     base->DR_TOGGLE = mask;
+#else
+    base->DR ^= mask;
 #endif /* FSL_FEATURE_IGPIO_HAS_DR_TOGGLE */
 }
 

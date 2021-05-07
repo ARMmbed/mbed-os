@@ -69,11 +69,11 @@ static uint32_t DCDC_ConvertByteArrayToWord(uint8_t *ptrArray)
     assert(ptrArray != NULL);
 
     uint32_t temp32 = 0UL;
-    uint8_t index;
+    uint32_t index;
 
     for (index = 0U; index < 4U; index++)
     {
-        temp32 |= ptrArray[index] << ((index % 4U) * 8U);
+        temp32 |= (uint32_t)ptrArray[index] << ((index % 4UL) * 8UL);
     }
 
     return temp32;
@@ -162,8 +162,7 @@ void DCDC_GetDefaultConfig(dcdc_config_t *config)
  *   config->powerDownOverCurrentDetection = true;
  *   config->powerDownPeakCurrentDetection = true;
  *   config->powerDownZeroCrossDetection   = true;
- *   config->OverCurrentThreshold          = kDCDC_OverCurrentThresholdAlt0;
- *   config->PeakCurrentThreshold          = kDCDC_PeakCurrentThresholdAlt0;
+ *   config->PeakCurrentThreshold          = kDCDC_PeakCurrentRunMode250mALPMode1P5A;
  * endcode
  *
  * param config Pointer to configuration structure. See to "dcdc_detection_config_t"
@@ -182,8 +181,7 @@ void DCDC_GetDefaultDetectionConfig(dcdc_detection_config_t *config)
     config->powerDownOverCurrentDetection       = true;
     config->powerDownPeakCurrentDetection       = true;
     config->powerDownZeroCrossDetection         = true;
-    config->OverCurrentThreshold                = kDCDC_OverCurrentThresholdAlt0;
-    config->PeakCurrentThreshold                = kDCDC_PeakCurrentThresholdAlt0;
+    config->PeakCurrentThreshold                = kDCDC_PeakCurrentRunMode250mALPMode1P5A;
 }
 
 /*!
@@ -201,10 +199,9 @@ void DCDC_SetDetectionConfig(DCDC_Type *base, const dcdc_detection_config_t *con
     tmp32 = base->REG0 &
             ~(DCDC_REG0_XTALOK_DISABLE_MASK | DCDC_REG0_PWD_HIGH_VDD1P8_DET_MASK | DCDC_REG0_PWD_HIGH_VDD1P0_DET_MASK |
               DCDC_REG0_PWD_CMP_DCDC_IN_DET_MASK | DCDC_REG0_PWD_OVERCUR_DET_MASK | DCDC_REG0_PWD_CUR_SNS_CMP_MASK |
-              DCDC_REG0_PWD_ZCD_MASK | DCDC_REG0_CUR_SNS_THRSH_MASK | DCDC_REG0_OVERCUR_TRIG_ADJ_MASK);
+              DCDC_REG0_PWD_ZCD_MASK | DCDC_REG0_CUR_SNS_THRSH_MASK);
 
-    tmp32 |= DCDC_REG0_CUR_SNS_THRSH(config->PeakCurrentThreshold) |
-             DCDC_REG0_OVERCUR_TRIG_ADJ(config->OverCurrentThreshold);
+    tmp32 |= DCDC_REG0_CUR_SNS_THRSH(config->PeakCurrentThreshold);
     if (false == config->enableXtalokDetection)
     {
         tmp32 |= DCDC_REG0_XTALOK_DISABLE_MASK;
@@ -275,10 +272,7 @@ void DCDC_SetClockSource(DCDC_Type *base, dcdc_clock_source_t clockSource)
  * The default configuration are set according to responding registers' setting when powered on.
  * They are:
  * code
- *   config->enableOverloadDetection = true;
  *   config->enableAdjustHystereticValue = false;
- *   config->countChargingTimePeriod = kDCDC_CountChargingTimePeriod8Cycle;
- *   config->countChargingTimeThreshold = kDCDC_CountChargingTimeThreshold32;
  * endcode
  *
  * param config Pointer to configuration structure. See to "dcdc_low_power_config_t"
@@ -290,8 +284,6 @@ void DCDC_GetDefaultLowPowerConfig(dcdc_low_power_config_t *config)
     /* Initializes the configure structure to zero. */
     (void)memset(config, 0, sizeof(*config));
     config->enableAdjustHystereticValue = false;
-    config->countChargingTimePeriod     = kDCDC_CountChargingTimePeriod8Cycle;
-    config->countChargingTimeThreshold  = kDCDC_CountChargingTimeThreshold32;
 }
 
 /*!
@@ -306,10 +298,8 @@ void DCDC_SetLowPowerConfig(DCDC_Type *base, const dcdc_low_power_config_t *conf
 
     uint32_t tmp32;
     /* Configure the DCDC_REG0 register. */
-    tmp32 = base->REG0 &
-            ~(DCDC_REG0_LP_HIGH_HYS_MASK | DCDC_REG0_LP_OVERLOAD_FREQ_SEL_MASK | DCDC_REG0_LP_OVERLOAD_THRSH_MASK);
-    tmp32 |= DCDC_REG0_LP_OVERLOAD_FREQ_SEL(config->countChargingTimePeriod) |
-             DCDC_REG0_LP_OVERLOAD_THRSH(config->countChargingTimeThreshold);
+    tmp32 = base->REG0 & ~(DCDC_REG0_LP_HIGH_HYS_MASK);
+
     if (config->enableAdjustHystereticValue)
     {
         tmp32 |= DCDC_REG0_LP_HIGH_HYS_MASK;
@@ -440,14 +430,6 @@ void DCDC_SetInternalRegulatorConfig(DCDC_Type *base, const dcdc_internal_regula
     tmp32 = base->REG3 & ~DCDC_REG3_REG_FBK_SEL_MASK;
     tmp32 |= DCDC_REG3_REG_FBK_SEL(config->feedbackPoint);
     base->REG3 = tmp32;
-
-    tmp32 = base->REG1 & ~DCDC_REG1_REG_RLOAD_SW_MASK;
-
-    if (config->enableLoadResistor)
-    {
-        tmp32 |= DCDC_REG1_REG_RLOAD_SW_MASK;
-    }
-    base->REG1 = tmp32;
 }
 
 /*!
@@ -503,6 +485,7 @@ void DCDC_SetPointInit(DCDC_Type *base, const dcdc_setpoint_config_t *config)
  * brief Boots DCDC into DCM(discontinous conduction mode).
  *
  *  pwd_zcd=0x0;
+ *  DM_CTRL = 1'b1;
  *  pwd_cmp_offset=0x0;
  *  dcdc_loopctrl_en_rcscale=0x3 or 0x5;
  *  DCM_set_ctrl=1'b1;
@@ -512,8 +495,10 @@ void DCDC_SetPointInit(DCDC_Type *base, const dcdc_setpoint_config_t *config)
 void DCDC_BootIntoDCM(DCDC_Type *base)
 {
     base->REG0 &= ~(DCDC_REG0_PWD_ZCD_MASK | DCDC_REG0_PWD_CMP_OFFSET_MASK);
-    base->REG2 = (~DCDC_REG2_LOOPCTRL_EN_RCSCALE_MASK & base->REG2) | DCDC_REG2_LOOPCTRL_EN_RCSCALE(0x4U);
+    base->REG1 |= DCDC_REG1_DM_CTRL_MASK;
+    base->REG2 = (~DCDC_REG2_LOOPCTRL_EN_RCSCALE_MASK & base->REG2) | DCDC_REG2_LOOPCTRL_EN_RCSCALE(0x5U);
     base->REG3 &= ~(DCDC_REG3_DISABLE_IDLE_SKIP_MASK | DCDC_REG3_DISABLE_PULSE_SKIP_MASK);
+    base->REG3 |= DCDC_REG3_ENABLE_FF_MASK;
 }
 
 /*!

@@ -19,36 +19,6 @@
 #define FSL_COMPONENT_ID "platform.drivers.lpi2c"
 #endif
 
-/*! @brief Common sets of flags used by the driver. */
-enum
-{
-    /*! All flags which are cleared by the driver upon starting a transfer. */
-    kMasterClearFlags = kLPI2C_MasterEndOfPacketFlag | kLPI2C_MasterStopDetectFlag | kLPI2C_MasterNackDetectFlag |
-                        kLPI2C_MasterArbitrationLostFlag | kLPI2C_MasterFifoErrFlag | kLPI2C_MasterPinLowTimeoutFlag |
-                        kLPI2C_MasterDataMatchFlag,
-
-    /*! IRQ sources enabled by the non-blocking transactional API. */
-    kMasterIrqFlags = kLPI2C_MasterArbitrationLostFlag | kLPI2C_MasterTxReadyFlag | kLPI2C_MasterRxReadyFlag |
-                      kLPI2C_MasterStopDetectFlag | kLPI2C_MasterNackDetectFlag | kLPI2C_MasterPinLowTimeoutFlag |
-                      kLPI2C_MasterFifoErrFlag,
-
-    /*! Errors to check for. */
-    kMasterErrorFlags = kLPI2C_MasterNackDetectFlag | kLPI2C_MasterArbitrationLostFlag | kLPI2C_MasterFifoErrFlag |
-                        kLPI2C_MasterPinLowTimeoutFlag,
-
-    /*! All flags which are cleared by the driver upon starting a transfer. */
-    kSlaveClearFlags = kLPI2C_SlaveRepeatedStartDetectFlag | kLPI2C_SlaveStopDetectFlag | kLPI2C_SlaveBitErrFlag |
-                       kLPI2C_SlaveFifoErrFlag,
-
-    /*! IRQ sources enabled by the non-blocking transactional API. */
-    kSlaveIrqFlags = kLPI2C_SlaveTxReadyFlag | kLPI2C_SlaveRxReadyFlag | kLPI2C_SlaveStopDetectFlag |
-                     kLPI2C_SlaveRepeatedStartDetectFlag | kLPI2C_SlaveFifoErrFlag | kLPI2C_SlaveBitErrFlag |
-                     kLPI2C_SlaveTransmitAckFlag | kLPI2C_SlaveAddressValidFlag,
-
-    /*! Errors to check for. */
-    kSlaveErrorFlags = kLPI2C_SlaveFifoErrFlag | kLPI2C_SlaveBitErrFlag,
-};
-
 /* ! @brief LPI2C master fifo commands. */
 enum
 {
@@ -220,7 +190,7 @@ status_t LPI2C_MasterCheckAndClearError(LPI2C_Type *base, uint32_t status)
 
     /* Check for error. These errors cause a stop to automatically be sent. We must */
     /* clear the errors before a new transfer can start. */
-    status &= (uint32_t)kMasterErrorFlags;
+    status &= (uint32_t)kLPI2C_MasterErrorFlags;
     if (0U != status)
     {
         /* Select the correct error code. Ordered by severity, with bus issues first. */
@@ -275,7 +245,7 @@ static status_t LPI2C_MasterWaitForTxReady(LPI2C_Type *base)
     size_t txCount;
     size_t txFifoSize = (size_t)FSL_FEATURE_LPI2C_FIFO_SIZEn(base);
 
-#if I2C_RETRY_TIMES
+#if I2C_RETRY_TIMES != 0U
     uint32_t waitTimes = I2C_RETRY_TIMES;
 #endif
     do
@@ -291,8 +261,9 @@ static status_t LPI2C_MasterWaitForTxReady(LPI2C_Type *base)
         {
             break;
         }
-#if I2C_RETRY_TIMES
-    } while ((0U == txCount) && (0U != --waitTimes));
+#if I2C_RETRY_TIMES != 0U
+        waitTimes--;
+    } while ((0U == txCount) && (0U != waitTimes));
 
     if (0U == waitTimes)
     {
@@ -397,7 +368,7 @@ void LPI2C_MasterInit(LPI2C_Type *base, const lpi2c_master_config_t *masterConfi
     uint32_t instance = LPI2C_GetInstance(base);
 
     /* Ungate the clock. */
-    CLOCK_EnableClock(kLpi2cClocks[instance]);
+    (void)CLOCK_EnableClock(kLpi2cClocks[instance]);
 #if defined(LPI2C_PERIPH_CLOCKS)
     /* Ungate the functional clock in initialize function. */
     CLOCK_EnableClock(kLpi2cPeriphClocks[instance]);
@@ -428,8 +399,6 @@ void LPI2C_MasterInit(LPI2C_Type *base, const lpi2c_master_config_t *masterConfi
 
     LPI2C_MasterSetWatermarks(base, (size_t)kDefaultTxWatermark, (size_t)kDefaultRxWatermark);
 
-    LPI2C_MasterSetBaudRate(base, sourceClock_Hz, masterConfig->baudRate_Hz);
-
     /* Configure glitch filters and bus idle and pin low timeouts. */
     prescaler = (base->MCFGR1 & LPI2C_MCFGR1_PRESCALE_MASK) >> LPI2C_MCFGR1_PRESCALE_SHIFT;
     cfgr2     = base->MCFGR2;
@@ -455,6 +424,10 @@ void LPI2C_MasterInit(LPI2C_Type *base, const lpi2c_master_config_t *masterConfi
         cfgr2 |= LPI2C_MCFGR2_FILTSCL(cycles);
     }
     base->MCFGR2 = cfgr2;
+    /* Configure baudrate after the SDA/SCL glitch filter setting,
+       since the baudrate calculation needs them as parameter. */
+    LPI2C_MasterSetBaudRate(base, sourceClock_Hz, masterConfig->baudRate_Hz);
+
     if (0U != masterConfig->pinLowTimeout_ns)
     {
         cycles       = LPI2C_GetCyclesForWidth(sourceClock_Hz, masterConfig->pinLowTimeout_ns / 256U,
@@ -483,7 +456,7 @@ void LPI2C_MasterDeinit(LPI2C_Type *base)
     uint32_t instance = LPI2C_GetInstance(base);
 
     /* Gate clock. */
-    CLOCK_DisableClock(kLpi2cClocks[instance]);
+    (void)CLOCK_DisableClock(kLpi2cClocks[instance]);
 #if defined(LPI2C_PERIPH_CLOCKS)
     /* Gate the functional clock. */
     CLOCK_DisableClock(kLpi2cPeriphClocks[instance]);
@@ -496,17 +469,17 @@ void LPI2C_MasterDeinit(LPI2C_Type *base)
  * brief Configures LPI2C master data match feature.
  *
  * param base The LPI2C peripheral base address.
- * param config Settings for the data match feature.
+ * param matchConfig Settings for the data match feature.
  */
-void LPI2C_MasterConfigureDataMatch(LPI2C_Type *base, const lpi2c_data_match_config_t *config)
+void LPI2C_MasterConfigureDataMatch(LPI2C_Type *base, const lpi2c_data_match_config_t *matchConfig)
 {
     /* Disable master mode. */
     bool wasEnabled = (0U != ((base->MCR & LPI2C_MCR_MEN_MASK) >> LPI2C_MCR_MEN_SHIFT));
     LPI2C_MasterEnable(base, false);
 
-    base->MCFGR1 = (base->MCFGR1 & ~LPI2C_MCFGR1_MATCFG_MASK) | LPI2C_MCFGR1_MATCFG(config->matchMode);
-    base->MCFGR0 = (base->MCFGR0 & ~LPI2C_MCFGR0_RDMO_MASK) | LPI2C_MCFGR0_RDMO(config->rxDataMatchOnly);
-    base->MDMR   = LPI2C_MDMR_MATCH0(config->match0) | LPI2C_MDMR_MATCH1(config->match1);
+    base->MCFGR1 = (base->MCFGR1 & ~LPI2C_MCFGR1_MATCFG_MASK) | LPI2C_MCFGR1_MATCFG(matchConfig->matchMode);
+    base->MCFGR0 = (base->MCFGR0 & ~LPI2C_MCFGR0_RDMO_MASK) | LPI2C_MCFGR0_RDMO(matchConfig->rxDataMatchOnly);
+    base->MDMR   = LPI2C_MDMR_MATCH0(matchConfig->match0) | LPI2C_MDMR_MATCH1(matchConfig->match1);
 
     /* Restore master mode. */
     if (wasEnabled)
@@ -531,81 +504,119 @@ void LPI2C_MasterConfigureDataMatch(LPI2C_Type *base, const lpi2c_data_match_con
  */
 void LPI2C_MasterSetBaudRate(LPI2C_Type *base, uint32_t sourceClock_Hz, uint32_t baudRate_Hz)
 {
-    uint32_t prescale  = 0U;
-    uint32_t bestPre   = 0U;
-    uint32_t bestClkHi = 0U;
+    bool wasEnabled;
+    uint8_t filtScl = (uint8_t)((base->MCFGR2 & LPI2C_MCFGR2_FILTSCL_MASK) >> LPI2C_MCFGR2_FILTSCL_SHIFT);
+
+    uint8_t divider     = 1U;
+    uint8_t bestDivider = 1U;
+    uint8_t prescale    = 0U;
+    uint8_t bestPre     = 0U;
+
+    uint8_t clkCycle;
+    uint8_t bestclkCycle = 0U;
+
     uint32_t absError  = 0U;
     uint32_t bestError = 0xffffffffu;
-    uint32_t value;
-    uint32_t clkHiCycle;
     uint32_t computedRate;
-    uint32_t i;
-    bool wasEnabled;
+
+    uint32_t tmpReg = 0U;
 
     /* Disable master mode. */
     wasEnabled = (0U != ((base->MCR & LPI2C_MCR_MEN_MASK) >> LPI2C_MCR_MEN_SHIFT));
     LPI2C_MasterEnable(base, false);
 
-    /* Baud rate = (sourceClock_Hz/2^prescale)/(CLKLO+1+CLKHI+1 + ROUNDDOWN((2+FILTSCL)/2^prescale) */
-    /* Assume CLKLO = 2*CLKHI, SETHOLD = CLKHI, DATAVD = CLKHI/2. */
-    for (prescale = 1U; prescale <= 128U; prescale = 2U * prescale)
+    /* Baud rate = (sourceClock_Hz / 2 ^ prescale) / (CLKLO + 1 + CLKHI + 1 + SCL_LATENCY)
+     * SCL_LATENCY = ROUNDDOWN((2 + FILTSCL) / (2 ^ prescale))
+     */
+    for (prescale = 0U; prescale <= 7U; prescale++)
     {
-        if (bestError == 0U)
+        /* Calculate the clkCycle, clkCycle = CLKLO + CLKHI, divider = 2 ^ prescale */
+        clkCycle = (uint8_t)((10U * sourceClock_Hz / divider / baudRate_Hz + 5U) / 10U - (2U + filtScl) / divider - 2U);
+        /* According to register description, The max value for CLKLO and CLKHI is 63.
+           however to meet the I2C specification of tBUF, CLKHI should be less than
+           clkCycle - 0.52 x sourceClock_Hz / baudRate_Hz / divider + 1U. Refer to the comment of the tmpHigh's
+           calculation for details. So we have:
+           CLKHI < clkCycle - 0.52 x sourceClock_Hz / baudRate_Hz / divider + 1U,
+           clkCycle = CLKHI + CLKLO and
+           sourceClock_Hz / baudRate_Hz / divider = clkCycle + 2 + ROUNDDOWN((2 + FILTSCL) / divider),
+           we can come up with: CLKHI < 0.92 x CLKLO - ROUNDDOWN(2 + FILTSCL) / divider
+           so the max boundary of CLKHI should be 0.92 x 63 - ROUNDDOWN(2 + FILTSCL) / divider,
+           and the max boundary of clkCycle is 1.92 x 63 - ROUNDDOWN(2 + FILTSCL) / divider. */
+        if (clkCycle > (120U - (2U + filtScl) / divider))
         {
-            break;
+            divider *= 2U;
+            continue;
         }
-
-        for (clkHiCycle = 1U; clkHiCycle < 32U; clkHiCycle++)
+        /* Calculate the computed baudrate and compare it with the desired baudrate */
+        computedRate = (sourceClock_Hz / (uint32_t)divider) /
+                       ((uint32_t)clkCycle + 2U + (2U + (uint32_t)filtScl) / (uint32_t)divider);
+        absError = baudRate_Hz > computedRate ? baudRate_Hz - computedRate : computedRate - baudRate_Hz;
+        if (absError < bestError)
         {
-            if (clkHiCycle == 1U)
-            {
-                computedRate = (sourceClock_Hz / prescale) / (1U + 3U + 2U + 2U / prescale);
-            }
-            else
-            {
-                computedRate = (sourceClock_Hz / prescale) / (3U * clkHiCycle + 2U + 2U / prescale);
-            }
+            bestPre      = prescale;
+            bestDivider  = divider;
+            bestclkCycle = clkCycle;
+            bestError    = absError;
 
-            absError = baudRate_Hz > computedRate ? baudRate_Hz - computedRate : computedRate - baudRate_Hz;
-
-            if (absError < bestError)
+            /* If the error is 0, then we can stop searching because we won't find a better match. */
+            if (absError == 0U)
             {
-                bestPre   = prescale;
-                bestClkHi = clkHiCycle;
-                bestError = absError;
-
-                /* If the error is 0, then we can stop searching because we won't find a better match. */
-                if (absError == 0U)
-                {
-                    break;
-                }
+                break;
             }
         }
+        divider *= 2U;
     }
 
-    /* Standard, fast, fast mode plus and ultra-fast transfers. */
-    value = LPI2C_MCCR0_CLKHI(bestClkHi);
+    /* SCL low time tLO should be larger than or equal to SCL high time tHI:
+       tLO = ((CLKLO + 1) x (2 ^ PRESCALE)) >= tHI = ((CLKHI + 1 + SCL_LATENCY) x (2 ^ PRESCALE)),
+       which is CLKLO >= CLKHI + (2U + filtScl) / bestDivider.
+       Also since bestclkCycle = CLKLO + CLKHI, bestDivider = 2 ^ PRESCALE
+       which makes CLKHI <= (bestclkCycle - (2U + filtScl) / bestDivider) / 2U.
 
-    if (bestClkHi < 2U)
+       The max tBUF should be at least 0.52 times of the SCL clock cycle:
+       tBUF = ((CLKLO + 1) x (2 ^ PRESCALE) / sourceClock_Hz) > (0.52 / baudRate_Hz),
+       plus bestDivider = 2 ^ PRESCALE, bestclkCycle = CLKLO + CLKHI we can come up with
+       CLKHI <= (bestclkCycle - 0.52 x sourceClock_Hz / baudRate_Hz / bestDivider + 1U).
+       In this case to get a safe CLKHI calculation, we can assume:
+    */
+    uint8_t tmpHigh = (bestclkCycle - (2U + filtScl) / bestDivider) / 2U;
+    while (tmpHigh > (bestclkCycle - 52U * sourceClock_Hz / baudRate_Hz / bestDivider / 100U + 1U))
     {
-        value |= (uint32_t)(LPI2C_MCCR0_CLKLO(3UL) | LPI2C_MCCR0_SETHOLD(2UL) | LPI2C_MCCR0_DATAVD(1UL));
+        tmpHigh = tmpHigh - 1U;
     }
-    else
-    {
-        value |=
-            LPI2C_MCCR0_CLKLO(2UL * bestClkHi) | LPI2C_MCCR0_SETHOLD(bestClkHi) | LPI2C_MCCR0_DATAVD(bestClkHi / 2UL);
-    }
 
-    base->MCCR0 = value;
+    /* Calculate DATAVD and SETHOLD.
+       To meet the timing requirement of I2C spec for standard mode, fast mode and fast mode plus: */
+    /* The min tHD:STA/tSU:STA/tSU:STO should be at least 0.4 times of the SCL clock cycle, use 0.5 to be safe:
+       tHD:STA = ((SETHOLD + 1) x (2 ^ PRESCALE) / sourceClock_Hz) > (0.5 / baudRate_Hz), bestDivider = 2 ^ PRESCALE */
+    uint8_t tmpHold = (uint8_t)(sourceClock_Hz / baudRate_Hz / bestDivider / 2U) - 1U;
 
-    for (i = 0U; i < 8U; i++)
+    /* The max tVD:DAT/tVD:ACK/tHD:DAT should be at most 0.345 times of the SCL clock cycle, use 0.25 to be safe:
+       tVD:DAT = ((DATAVD + 1) x (2 ^ PRESCALE) / sourceClock_Hz) < (0.25 / baudRate_Hz), bestDivider = 2 ^ PRESCALE */
+    uint8_t tmpDataVd = (uint8_t)(sourceClock_Hz / baudRate_Hz / bestDivider / 4U) - 1U;
+
+    /* The min tSU:DAT should be at least 0.05 times of the SCL clock cycle:
+       tSU:DAT = ((2 + FILTSDA + 2 ^ PRESCALE) / sourceClock_Hz) >= (0.05 / baud),
+       plus bestDivider = 2 ^ PRESCALE, we can come up with:
+       FILTSDA >= (0.05 x sourceClock_Hz / baudRate_Hz - bestDivider - 2) */
+    if ((sourceClock_Hz / baudRate_Hz / 20U) > (bestDivider + 2U))
     {
-        if (bestPre == (1UL << i))
+        /* Read out the FILTSDA configuration, if it is smaller than expected, change the setting. */
+        uint8_t filtSda = (uint8_t)((base->MCFGR2 & LPI2C_MCFGR2_FILTSDA_MASK) >> LPI2C_MCFGR2_FILTSDA_SHIFT);
+        if (filtSda < (sourceClock_Hz / baudRate_Hz / 20U - bestDivider - 2U))
         {
-            bestPre = i;
-            break;
+            filtSda = (uint8_t)(sourceClock_Hz / baudRate_Hz / 20U) - bestDivider - 2U;
         }
+        base->MCFGR2 = (base->MCFGR2 & ~LPI2C_MCFGR2_FILTSDA_MASK) | LPI2C_MCFGR2_FILTSDA(filtSda);
     }
+
+    /* Set CLKHI, CLKLO, SETHOLD, DATAVD value. */
+    tmpReg = LPI2C_MCCR0_CLKHI((uint32_t)tmpHigh) |
+             LPI2C_MCCR0_CLKLO((uint32_t)((uint32_t)bestclkCycle - (uint32_t)tmpHigh)) |
+             LPI2C_MCCR0_SETHOLD((uint32_t)tmpHold) | LPI2C_MCCR0_DATAVD((uint32_t)tmpDataVd);
+    base->MCCR0 = tmpReg;
+
+    /* Set PRESCALE value. */
     base->MCFGR1 = (base->MCFGR1 & ~LPI2C_MCFGR1_PRESCALE_MASK) | LPI2C_MCFGR1_PRESCALE(bestPre);
 
     /* Restore master mode. */
@@ -637,7 +648,7 @@ status_t LPI2C_MasterStart(LPI2C_Type *base, uint8_t address, lpi2c_direction_t 
     if (kStatus_Success == result)
     {
         /* Clear all flags. */
-        LPI2C_MasterClearStatusFlags(base, (uint32_t)kMasterClearFlags);
+        LPI2C_MasterClearStatusFlags(base, (uint32_t)kLPI2C_MasterClearFlags);
 
         /* Turn off auto-stop option. */
         base->MCFGR1 &= ~LPI2C_MCFGR1_AUTOSTOP_MASK;
@@ -678,16 +689,18 @@ status_t LPI2C_MasterStop(LPI2C_Type *base)
 
         /* Wait for the stop detected flag to set, indicating the transfer has completed on the bus. */
         /* Also check for errors while waiting. */
-#if I2C_RETRY_TIMES
+#if I2C_RETRY_TIMES != 0U
         uint32_t waitTimes = I2C_RETRY_TIMES;
 #endif
 
-#if I2C_RETRY_TIMES
-        while ((result == kStatus_Success) && (0U != --waitTimes))
+#if I2C_RETRY_TIMES != 0U
+        while ((result == kStatus_Success) && (0U != waitTimes))
+        {
+            waitTimes--;
 #else
         while (result == kStatus_Success)
-#endif
         {
+#endif
             uint32_t status = LPI2C_MasterGetStatusFlags(base);
 
             /* Check for error flags. */
@@ -702,7 +715,7 @@ status_t LPI2C_MasterStop(LPI2C_Type *base)
             }
         }
 
-#if I2C_RETRY_TIMES
+#if I2C_RETRY_TIMES != 0U
         if (0U == waitTimes)
         {
             result = kStatus_LPI2C_Timeout;
@@ -730,7 +743,7 @@ status_t LPI2C_MasterReceive(LPI2C_Type *base, void *rxBuff, size_t rxSize)
 {
     status_t result = kStatus_Success;
     uint8_t *buf;
-#if I2C_RETRY_TIMES
+#if I2C_RETRY_TIMES != 0U
     uint32_t waitTimes;
 #endif
 
@@ -750,7 +763,7 @@ status_t LPI2C_MasterReceive(LPI2C_Type *base, void *rxBuff, size_t rxSize)
             buf = (uint8_t *)rxBuff;
             while (0U != (rxSize--))
             {
-#if I2C_RETRY_TIMES
+#if I2C_RETRY_TIMES != 0U
                 waitTimes = I2C_RETRY_TIMES;
 #endif
                 /* Read LPI2C receive fifo register. The register includes a flag to indicate whether */
@@ -767,8 +780,9 @@ status_t LPI2C_MasterReceive(LPI2C_Type *base, void *rxBuff, size_t rxSize)
                     }
 
                     value = base->MRDR;
-#if I2C_RETRY_TIMES
-                } while ((0U != (value & LPI2C_MRDR_RXEMPTY_MASK)) && (0U != --waitTimes));
+#if I2C_RETRY_TIMES != 0U
+                    waitTimes--;
+                } while ((0U != (value & LPI2C_MRDR_RXEMPTY_MASK)) && (0U != waitTimes));
                 if (0U == waitTimes)
                 {
                     result = kStatus_LPI2C_Timeout;
@@ -859,7 +873,7 @@ status_t LPI2C_MasterTransferBlocking(LPI2C_Type *base, lpi2c_master_transfer_t 
     if (kStatus_Success == result)
     {
         /* Clear all flags. */
-        LPI2C_MasterClearStatusFlags(base, (uint32_t)kMasterClearFlags);
+        LPI2C_MasterClearStatusFlags(base, (uint32_t)kLPI2C_MasterClearFlags);
 
         /* Turn off auto-stop option. */
         base->MCFGR1 &= ~LPI2C_MCFGR1_AUTOSTOP_MASK;
@@ -982,7 +996,7 @@ void LPI2C_MasterTransferCreateHandle(LPI2C_Type *base,
     s_lpi2cMasterIsr = LPI2C_MasterTransferHandleIRQ;
 
     /* Clear internal IRQ enables and enable NVIC IRQ. */
-    LPI2C_MasterDisableInterrupts(base, (uint32_t)kMasterIrqFlags);
+    LPI2C_MasterDisableInterrupts(base, (uint32_t)kLPI2C_MasterIrqFlags);
 
     /* Enable NVIC IRQ, this only enables the IRQ directly connected to the NVIC.
      In some cases the LPI2C IRQ is configured through INTMUX, user needs to enable
@@ -1276,7 +1290,7 @@ status_t LPI2C_MasterTransferNonBlocking(LPI2C_Type *base,
     if ((status_t)kStatus_Success == result)
     {
         /* Disable LPI2C IRQ sources while we configure stuff. */
-        LPI2C_MasterDisableInterrupts(base, (uint32_t)kMasterIrqFlags);
+        LPI2C_MasterDisableInterrupts(base, (uint32_t)kLPI2C_MasterIrqFlags);
 
         /* Reset FIFO in case there are data. */
         base->MCR |= LPI2C_MCR_RRF_MASK | LPI2C_MCR_RTF_MASK;
@@ -1288,13 +1302,13 @@ status_t LPI2C_MasterTransferNonBlocking(LPI2C_Type *base,
         LPI2C_InitTransferStateMachine(handle);
 
         /* Clear all flags. */
-        LPI2C_MasterClearStatusFlags(base, (uint32_t)kMasterClearFlags);
+        LPI2C_MasterClearStatusFlags(base, (uint32_t)kLPI2C_MasterClearFlags);
 
         /* Turn off auto-stop option. */
         base->MCFGR1 &= ~LPI2C_MCFGR1_AUTOSTOP_MASK;
 
         /* Enable LPI2C internal IRQ sources. NVIC IRQ was enabled in CreateHandle() */
-        LPI2C_MasterEnableInterrupts(base, (uint32_t)kMasterIrqFlags);
+        LPI2C_MasterEnableInterrupts(base, (uint32_t)kLPI2C_MasterIrqFlags);
     }
 
     return result;
@@ -1381,7 +1395,7 @@ void LPI2C_MasterTransferAbort(LPI2C_Type *base, lpi2c_master_handle_t *handle)
     if (handle->state != (uint8_t)kIdleState)
     {
         /* Disable internal IRQ enables. */
-        LPI2C_MasterDisableInterrupts(base, (uint32_t)kMasterIrqFlags);
+        LPI2C_MasterDisableInterrupts(base, (uint32_t)kLPI2C_MasterIrqFlags);
 
         /* Reset fifos. */
         base->MCR |= LPI2C_MCR_RRF_MASK | LPI2C_MCR_RTF_MASK;
@@ -1434,7 +1448,7 @@ void LPI2C_MasterTransferHandleIRQ(LPI2C_Type *base, lpi2c_master_handle_t *hand
                     base->MTDR = (uint32_t)kStopCmd;
                 }
                 /* Disable internal IRQ enables. */
-                LPI2C_MasterDisableInterrupts(base, (uint32_t)kMasterIrqFlags);
+                LPI2C_MasterDisableInterrupts(base, (uint32_t)kLPI2C_MasterIrqFlags);
 
                 /* Set handle to idle state. */
                 handle->state = (uint8_t)kIdleState;
@@ -1525,7 +1539,7 @@ void LPI2C_SlaveInit(LPI2C_Type *base, const lpi2c_slave_config_t *slaveConfig, 
     uint32_t instance = LPI2C_GetInstance(base);
 
     /* Ungate the clock. */
-    CLOCK_EnableClock(kLpi2cClocks[instance]);
+    (void)CLOCK_EnableClock(kLpi2cClocks[instance]);
 #if defined(LPI2C_PERIPH_CLOCKS)
     /* Ungate the functional clock in initialize function. */
     CLOCK_EnableClock(kLpi2cPeriphClocks[instance]);
@@ -1581,7 +1595,7 @@ void LPI2C_SlaveDeinit(LPI2C_Type *base)
     uint32_t instance = LPI2C_GetInstance(base);
 
     /* Gate the clock. */
-    CLOCK_DisableClock(kLpi2cClocks[instance]);
+    (void)CLOCK_DisableClock(kLpi2cClocks[instance]);
 
 #if defined(LPI2C_PERIPH_CLOCKS)
     /* Gate the functional clock. */
@@ -1603,7 +1617,7 @@ static status_t LPI2C_SlaveCheckAndClearError(LPI2C_Type *base, uint32_t flags)
 {
     status_t result = kStatus_Success;
 
-    flags &= (uint32_t)kSlaveErrorFlags;
+    flags &= (uint32_t)kLPI2C_SlaveErrorFlags;
     if (0U != flags)
     {
         if (0U != (flags & (uint32_t)kLPI2C_SlaveBitErrFlag))
@@ -1647,7 +1661,7 @@ status_t LPI2C_SlaveSend(LPI2C_Type *base, void *txBuff, size_t txSize, size_t *
 
     assert(NULL != txBuff);
 
-#if I2C_RETRY_TIMES
+#if I2C_RETRY_TIMES != 0U
     uint32_t waitTimes = I2C_RETRY_TIMES;
 #endif
 
@@ -1673,10 +1687,11 @@ status_t LPI2C_SlaveSend(LPI2C_Type *base, void *txBuff, size_t txSize, size_t *
                 }
                 break;
             }
-#if I2C_RETRY_TIMES
+#if I2C_RETRY_TIMES != 0U
+            waitTimes--;
         } while ((0U == (flags & ((uint32_t)kLPI2C_SlaveTxReadyFlag | (uint32_t)kLPI2C_SlaveStopDetectFlag |
                                   (uint32_t)kLPI2C_SlaveRepeatedStartDetectFlag))) &&
-                 (0U != --waitTimes));
+                 (0U != waitTimes));
         if (0U == waitTimes)
         {
             result = kStatus_LPI2C_Timeout;
@@ -1733,7 +1748,7 @@ status_t LPI2C_SlaveReceive(LPI2C_Type *base, void *rxBuff, size_t rxSize, size_
 
     assert(NULL != rxBuff);
 
-#if I2C_RETRY_TIMES
+#if I2C_RETRY_TIMES != 0U
     uint32_t waitTimes = I2C_RETRY_TIMES;
 #endif
 
@@ -1759,10 +1774,11 @@ status_t LPI2C_SlaveReceive(LPI2C_Type *base, void *rxBuff, size_t rxSize, size_
                 }
                 break;
             }
-#if I2C_RETRY_TIMES
+#if I2C_RETRY_TIMES != 0U
+            waitTimes--;
         } while ((0U == (flags & ((uint32_t)kLPI2C_SlaveRxReadyFlag | (uint32_t)kLPI2C_SlaveStopDetectFlag |
                                   (uint32_t)kLPI2C_SlaveRepeatedStartDetectFlag))) &&
-                 (0U != --waitTimes));
+                 (0U != waitTimes));
         if (0U == waitTimes)
         {
             result = kStatus_LPI2C_Timeout;
@@ -1844,7 +1860,7 @@ void LPI2C_SlaveTransferCreateHandle(LPI2C_Type *base,
     s_lpi2cSlaveIsr = LPI2C_SlaveTransferHandleIRQ;
 
     /* Clear internal IRQ enables and enable NVIC IRQ. */
-    LPI2C_SlaveDisableInterrupts(base, (uint32_t)kSlaveIrqFlags);
+    LPI2C_SlaveDisableInterrupts(base, (uint32_t)kLPI2C_SlaveIrqFlags);
     (void)EnableIRQ(kLpi2cIrqs[instance]);
 
     /* Nack by default. */
@@ -1899,7 +1915,7 @@ status_t LPI2C_SlaveTransferNonBlocking(LPI2C_Type *base, lpi2c_slave_handle_t *
     if ((status_t)kStatus_Success == result)
     {
         /* Disable LPI2C IRQ sources while we configure stuff. */
-        LPI2C_SlaveDisableInterrupts(base, (uint32_t)kSlaveIrqFlags);
+        LPI2C_SlaveDisableInterrupts(base, (uint32_t)kLPI2C_SlaveIrqFlags);
 
         /* Clear transfer in handle. */
         (void)memset(&handle->transfer, 0, sizeof(handle->transfer));
@@ -1914,10 +1930,10 @@ status_t LPI2C_SlaveTransferNonBlocking(LPI2C_Type *base, lpi2c_slave_handle_t *
         base->STAR = 0U;
 
         /* Clear all flags. */
-        LPI2C_SlaveClearStatusFlags(base, (uint32_t)kSlaveClearFlags);
+        LPI2C_SlaveClearStatusFlags(base, (uint32_t)kLPI2C_SlaveClearFlags);
 
         /* Enable LPI2C internal IRQ sources. NVIC IRQ was enabled in CreateHandle() */
-        LPI2C_SlaveEnableInterrupts(base, (uint32_t)kSlaveIrqFlags);
+        LPI2C_SlaveEnableInterrupts(base, (uint32_t)kLPI2C_SlaveIrqFlags);
     }
 
     return result;
@@ -1975,7 +1991,7 @@ void LPI2C_SlaveTransferAbort(LPI2C_Type *base, lpi2c_slave_handle_t *handle)
     if (handle->isBusy)
     {
         /* Disable LPI2C IRQ sources. */
-        LPI2C_SlaveDisableInterrupts(base, (uint32_t)kSlaveIrqFlags);
+        LPI2C_SlaveDisableInterrupts(base, (uint32_t)kLPI2C_SlaveIrqFlags);
 
         /* Nack by default. */
         base->STAR = LPI2C_STAR_TXNACK_MASK;
@@ -2171,6 +2187,7 @@ static void LPI2C_CommonIRQHandler(LPI2C_Type *base, uint32_t instance)
 
 #if defined(LPI2C0)
 /* Implementation of LPI2C0 handler named in startup code. */
+void LPI2C0_DriverIRQHandler(void);
 void LPI2C0_DriverIRQHandler(void)
 {
     LPI2C_CommonIRQHandler(LPI2C0, 0U);
@@ -2179,6 +2196,7 @@ void LPI2C0_DriverIRQHandler(void)
 
 #if defined(LPI2C1)
 /* Implementation of LPI2C1 handler named in startup code. */
+void LPI2C1_DriverIRQHandler(void);
 void LPI2C1_DriverIRQHandler(void)
 {
     LPI2C_CommonIRQHandler(LPI2C1, 1U);
@@ -2187,6 +2205,7 @@ void LPI2C1_DriverIRQHandler(void)
 
 #if defined(LPI2C2)
 /* Implementation of LPI2C2 handler named in startup code. */
+void LPI2C2_DriverIRQHandler(void);
 void LPI2C2_DriverIRQHandler(void)
 {
     LPI2C_CommonIRQHandler(LPI2C2, 2U);
@@ -2195,6 +2214,7 @@ void LPI2C2_DriverIRQHandler(void)
 
 #if defined(LPI2C3)
 /* Implementation of LPI2C3 handler named in startup code. */
+void LPI2C3_DriverIRQHandler(void);
 void LPI2C3_DriverIRQHandler(void)
 {
     LPI2C_CommonIRQHandler(LPI2C3, 3U);
@@ -2203,6 +2223,7 @@ void LPI2C3_DriverIRQHandler(void)
 
 #if defined(LPI2C4)
 /* Implementation of LPI2C4 handler named in startup code. */
+void LPI2C4_DriverIRQHandler(void);
 void LPI2C4_DriverIRQHandler(void)
 {
     LPI2C_CommonIRQHandler(LPI2C4, 4U);
@@ -2211,6 +2232,7 @@ void LPI2C4_DriverIRQHandler(void)
 
 #if defined(LPI2C5)
 /* Implementation of LPI2C5 handler named in startup code. */
+void LPI2C5_DriverIRQHandler(void);
 void LPI2C5_DriverIRQHandler(void)
 {
     LPI2C_CommonIRQHandler(LPI2C5, 5U);
@@ -2219,6 +2241,7 @@ void LPI2C5_DriverIRQHandler(void)
 
 #if defined(LPI2C6)
 /* Implementation of LPI2C6 handler named in startup code. */
+void LPI2C6_DriverIRQHandler(void);
 void LPI2C6_DriverIRQHandler(void)
 {
     LPI2C_CommonIRQHandler(LPI2C6, 6U);
@@ -2227,6 +2250,7 @@ void LPI2C6_DriverIRQHandler(void)
 
 #if defined(CM4_0__LPI2C)
 /* Implementation of CM4_0__LPI2C handler named in startup code. */
+void M4_0_LPI2C_DriverIRQHandler(void);
 void M4_0_LPI2C_DriverIRQHandler(void)
 {
     LPI2C_CommonIRQHandler(CM4_0__LPI2C, LPI2C_GetInstance(CM4_0__LPI2C));
@@ -2235,6 +2259,7 @@ void M4_0_LPI2C_DriverIRQHandler(void)
 
 #if defined(CM4__LPI2C)
 /* Implementation of CM4__LPI2C handler named in startup code. */
+void M4_LPI2C_DriverIRQHandler(void);
 void M4_LPI2C_DriverIRQHandler(void)
 {
     LPI2C_CommonIRQHandler(CM4__LPI2C, LPI2C_GetInstance(CM4__LPI2C));
@@ -2243,6 +2268,7 @@ void M4_LPI2C_DriverIRQHandler(void)
 
 #if defined(CM4_1__LPI2C)
 /* Implementation of CM4_1__LPI2C handler named in startup code. */
+void M4_1_LPI2C_DriverIRQHandler(void);
 void M4_1_LPI2C_DriverIRQHandler(void)
 {
     LPI2C_CommonIRQHandler(CM4_1__LPI2C, LPI2C_GetInstance(CM4_1__LPI2C));
@@ -2251,6 +2277,7 @@ void M4_1_LPI2C_DriverIRQHandler(void)
 
 #if defined(DMA__LPI2C0)
 /* Implementation of DMA__LPI2C0 handler named in startup code. */
+void DMA_I2C0_INT_DriverIRQHandler(void);
 void DMA_I2C0_INT_DriverIRQHandler(void)
 {
     LPI2C_CommonIRQHandler(DMA__LPI2C0, LPI2C_GetInstance(DMA__LPI2C0));
@@ -2259,6 +2286,7 @@ void DMA_I2C0_INT_DriverIRQHandler(void)
 
 #if defined(DMA__LPI2C1)
 /* Implementation of DMA__LPI2C1 handler named in startup code. */
+void DMA_I2C1_INT_DriverIRQHandler(void);
 void DMA_I2C1_INT_DriverIRQHandler(void)
 {
     LPI2C_CommonIRQHandler(DMA__LPI2C1, LPI2C_GetInstance(DMA__LPI2C1));
@@ -2267,6 +2295,7 @@ void DMA_I2C1_INT_DriverIRQHandler(void)
 
 #if defined(DMA__LPI2C2)
 /* Implementation of DMA__LPI2C2 handler named in startup code. */
+void DMA_I2C2_INT_DriverIRQHandler(void);
 void DMA_I2C2_INT_DriverIRQHandler(void)
 {
     LPI2C_CommonIRQHandler(DMA__LPI2C2, LPI2C_GetInstance(DMA__LPI2C2));
@@ -2275,6 +2304,7 @@ void DMA_I2C2_INT_DriverIRQHandler(void)
 
 #if defined(DMA__LPI2C3)
 /* Implementation of DMA__LPI2C3 handler named in startup code. */
+void DMA_I2C3_INT_DriverIRQHandler(void);
 void DMA_I2C3_INT_DriverIRQHandler(void)
 {
     LPI2C_CommonIRQHandler(DMA__LPI2C3, LPI2C_GetInstance(DMA__LPI2C3));
@@ -2283,6 +2313,7 @@ void DMA_I2C3_INT_DriverIRQHandler(void)
 
 #if defined(DMA__LPI2C4)
 /* Implementation of DMA__LPI2C3 handler named in startup code. */
+void DMA_I2C4_INT_DriverIRQHandler(void);
 void DMA_I2C4_INT_DriverIRQHandler(void)
 {
     LPI2C_CommonIRQHandler(DMA__LPI2C4, LPI2C_GetInstance(DMA__LPI2C4));
@@ -2291,6 +2322,7 @@ void DMA_I2C4_INT_DriverIRQHandler(void)
 
 #if defined(ADMA__LPI2C0)
 /* Implementation of DMA__LPI2C0 handler named in startup code. */
+void ADMA_I2C0_INT_DriverIRQHandler(void);
 void ADMA_I2C0_INT_DriverIRQHandler(void)
 {
     LPI2C_CommonIRQHandler(ADMA__LPI2C0, LPI2C_GetInstance(ADMA__LPI2C0));
@@ -2299,6 +2331,7 @@ void ADMA_I2C0_INT_DriverIRQHandler(void)
 
 #if defined(ADMA__LPI2C1)
 /* Implementation of DMA__LPI2C1 handler named in startup code. */
+void ADMA_I2C1_INT_DriverIRQHandler(void);
 void ADMA_I2C1_INT_DriverIRQHandler(void)
 {
     LPI2C_CommonIRQHandler(ADMA__LPI2C1, LPI2C_GetInstance(ADMA__LPI2C1));
@@ -2307,6 +2340,7 @@ void ADMA_I2C1_INT_DriverIRQHandler(void)
 
 #if defined(ADMA__LPI2C2)
 /* Implementation of DMA__LPI2C2 handler named in startup code. */
+void ADMA_I2C2_INT_DriverIRQHandler(void);
 void ADMA_I2C2_INT_DriverIRQHandler(void)
 {
     LPI2C_CommonIRQHandler(ADMA__LPI2C2, LPI2C_GetInstance(ADMA__LPI2C2));
@@ -2315,6 +2349,7 @@ void ADMA_I2C2_INT_DriverIRQHandler(void)
 
 #if defined(ADMA__LPI2C3)
 /* Implementation of DMA__LPI2C3 handler named in startup code. */
+void ADMA_I2C3_INT_DriverIRQHandler(void);
 void ADMA_I2C3_INT_DriverIRQHandler(void)
 {
     LPI2C_CommonIRQHandler(ADMA__LPI2C3, LPI2C_GetInstance(ADMA__LPI2C3));
@@ -2323,6 +2358,7 @@ void ADMA_I2C3_INT_DriverIRQHandler(void)
 
 #if defined(ADMA__LPI2C4)
 /* Implementation of DMA__LPI2C3 handler named in startup code. */
+void ADMA_I2C4_INT_DriverIRQHandler(void);
 void ADMA_I2C4_INT_DriverIRQHandler(void)
 {
     LPI2C_CommonIRQHandler(ADMA__LPI2C4, LPI2C_GetInstance(ADMA__LPI2C4));
