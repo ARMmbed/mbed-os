@@ -111,7 +111,11 @@ void USBPhyHw::connect()
     // and when a setup packet is received
     usb_hw->inte = USB_INTS_BUFF_STATUS_BITS   |
                    USB_INTS_BUS_RESET_BITS     |
-                   USB_INTS_SETUP_REQ_BITS;
+                   USB_INTS_SETUP_REQ_BITS     |
+                   USB_INTS_HOST_CONN_DIS_BITS |
+                   USB_INTS_HOST_RESUME_BITS   |
+                   USB_INTS_ERROR_RX_OVERFLOW_BITS |
+                   USB_INTS_STALL_BITS;
 
     // Present full speed device by enabling pull up on DP
     usb_hw_set->sie_ctrl = USB_SIE_CTRL_PULLUP_EN_BITS;
@@ -301,12 +305,14 @@ void USBPhyHw::endpoint_remove(usb_ep_t endpoint)
 
 void USBPhyHw::endpoint_stall(usb_ep_t endpoint)
 {
-
+    int ep_num = endpoint & 0x7f;
+    usb_dpram->ep_buf_ctrl[ep_num].out |= USB_BUF_CTRL_STALL;
 }
 
 void USBPhyHw::endpoint_unstall(usb_ep_t endpoint)
 {
-
+    int ep_num = endpoint & 0x7f;
+    usb_dpram->ep_buf_ctrl[ep_num].out &= ~USB_BUF_CTRL_STALL;
 }
 
 bool USBPhyHw::endpoint_read(usb_ep_t endpoint, uint8_t *data, uint32_t size)
