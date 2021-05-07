@@ -4,6 +4,15 @@
 if("TFM" IN_LIST MBED_TARGET_LABELS)
     include(mbed_set_post_build_tfm)
 
+    # Check deps for image signing
+    if(NOT(Python3_FOUND AND HAVE_PYTHON_INTELHEX AND HAVE_PYTHON_CBOR AND
+            HAVE_PYTHON_CLICK AND HAVE_PYTHON_CRYPTOGRAPHY))
+        message(FATAL_ERROR "Missing Python dependencies (python3, cbor, "
+        "click, intelhex) so the binary cannot be signed. Please install "
+        "requirements with:\n"
+        "\tpython3 -m pip install -r mbed-os/tools/cmake/requirements.txt")
+    endif()
+
     mbed_post_build_tfm_sign_image(
         ARM_MUSCA_B1
         musca_b1
