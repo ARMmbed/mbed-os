@@ -32,8 +32,6 @@
 
 #include "crypto_compat.h"
 
-#include "platform/mbed_toolchain.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -56,17 +54,15 @@ extern "C" {
  *                              for, in addition to the algorithm set with
  *                              psa_set_key_algorithm().
  *
- * \deprecated  This is for backward compatibility only.
- *              Setting an enrollment algorithm is not recommended, because
- *              using the same key with different algorithms can allow some
- *              attacks based on arithmetic relations between different
- *              computations made with the same key, or can escalate harmless
- *              side channels into exploitable ones. Use this function only
- *              if it is necessary to support a protocol for which it has been
- *              verified that the usage of the key with multiple algorithms
- *              is safe.
+ * \warning Setting an enrollment algorithm is not recommended, because
+ *          using the same key with different algorithms can allow some
+ *          attacks based on arithmetic relations between different
+ *          computations made with the same key, or can escalate harmless
+ *          side channels into exploitable ones. Use this function only
+ *          if it is necessary to support a protocol for which it has been
+ *          verified that the usage of the key with multiple algorithms
+ *          is safe.
  */
-MBED_DEPRECATED("Setting enrollment algorithm is for backward compatibility and not recommended.")
 static inline void psa_set_key_enrollment_algorithm(
     psa_key_attributes_t *attributes,
     psa_algorithm_t alg2)
@@ -79,10 +75,7 @@ static inline void psa_set_key_enrollment_algorithm(
  * \param[in] attributes        The key attribute structure to query.
  *
  * \return The enrollment algorithm stored in the attribute structure.
- * \deprecated  This is for backward compatibility only.
- *              Deprecated along with psa_set_key_enrollment_algorithm().
  */
-MBED_DEPRECATED("Getting enrollment algorithm is for backward compatibility and not recommended.")
 static inline psa_algorithm_t psa_get_key_enrollment_algorithm(
     const psa_key_attributes_t *attributes)
 {
@@ -238,10 +231,12 @@ typedef struct mbedtls_psa_stats_s
     size_t cache_slots;
     /** Number of slots that are not used for anything. */
     size_t empty_slots;
+    /** Number of slots that are locked. */
+    size_t locked_slots;
     /** Largest key id value among open keys in internal persistent storage. */
-    psa_app_key_id_t max_open_internal_key_id;
+    psa_key_id_t max_open_internal_key_id;
     /** Largest key id value among open keys in secure elements. */
-    psa_app_key_id_t max_open_external_key_id;
+    psa_key_id_t max_open_external_key_id;
 } mbedtls_psa_stats_t;
 
 /** \brief Get statistics about
@@ -358,7 +353,7 @@ psa_status_t mbedtls_psa_inject_entropy(const uint8_t *seed,
 #define PSA_KEY_TYPE_IS_DSA(type)                                       \
     (PSA_KEY_TYPE_PUBLIC_KEY_OF_KEY_PAIR(type) == PSA_KEY_TYPE_DSA_PUBLIC_KEY)
 
-#define PSA_ALG_DSA_BASE                        ((psa_algorithm_t)0x10040000)
+#define PSA_ALG_DSA_BASE                        ((psa_algorithm_t)0x06000400)
 /** DSA signature with hashing.
  *
  * This is the signature scheme defined by FIPS 186-4,
@@ -375,7 +370,7 @@ psa_status_t mbedtls_psa_inject_entropy(const uint8_t *seed,
  */
 #define PSA_ALG_DSA(hash_alg)                             \
     (PSA_ALG_DSA_BASE | ((hash_alg) & PSA_ALG_HASH_MASK))
-#define PSA_ALG_DETERMINISTIC_DSA_BASE          ((psa_algorithm_t)0x10050000)
+#define PSA_ALG_DETERMINISTIC_DSA_BASE          ((psa_algorithm_t)0x06000500)
 #define PSA_ALG_DSA_DETERMINISTIC_FLAG PSA_ALG_ECDSA_DETERMINISTIC_FLAG
 /** Deterministic DSA signature with hashing.
  *
