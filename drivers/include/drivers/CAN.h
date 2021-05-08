@@ -25,7 +25,6 @@
 #include "hal/can_api.h"
 #include "platform/Callback.h"
 #include "platform/PlatformMutex.h"
-#include "platform/NonCopyable.h"
 
 namespace mbed {
 
@@ -39,9 +38,9 @@ namespace mbed {
  */
 class CAN
 #ifdef FEATURE_EXPERIMENTAL_API
-    final : public interface::CAN, private NonCopyable<CAN>
+    final : public interface::CAN
 #else
-    : private NonCopyable<CAN>, public interface::can
+    : public interface::can
 #endif
 {
 

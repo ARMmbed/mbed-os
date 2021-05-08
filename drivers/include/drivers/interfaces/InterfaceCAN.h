@@ -145,8 +145,12 @@ struct can {
 protected:
     can() = default;
     ~can() = default;
-    can(const can &) = default;
-    can &operator=(const can &) = default;
+
+public:
+
+    /* Copy constructor and copy assignment operators will be deleted in subclasses as well */
+    can(const can &) = delete;
+    can &operator=(const can &) = delete;
 
 };
 
