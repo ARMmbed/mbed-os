@@ -22,11 +22,6 @@ option(BUILD_TESTING "Run unit tests only." OFF)
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
     include(CTest)   
     add_subdirectory(UNITTESTS)
-    # Add MBED_TEST_MODE for backward compatibility with Greentea tests written for use with Mbed CLI 1
-    target_compile_definitions(${PROJECT_NAME}
-        PUBLIC
-            MBED_TEST_MODE
-    )
 endif()
 
 add_library(mbed-core INTERFACE)
@@ -94,6 +89,14 @@ if(${CMAKE_CROSSCOMPILING})
             ${MBED_TARGET_DEFINITIONS}
             ${MBED_CONFIG_DEFINITIONS}
     )
+
+    # Add MBED_TEST_MODE for backward compatibility with Greentea tests written for use with Mbed CLI 1
+    if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+        target_compile_definitions(${PROJECT_NAME}
+            PUBLIC
+                MBED_TEST_MODE
+        )
+    endif()
 
     # We need to generate a "response file" to pass to the C preprocessor when we preprocess the linker
     # script, because of path le    ngth limitations on Windows. We set the response file and bind the path
