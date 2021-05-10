@@ -67,6 +67,8 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
 static bool is_reboot_error_valid = false;
 #endif
 
+extern uint32_t __INITIAL_SP;
+
 //Helper function to halt the system
 static MBED_NORETURN void mbed_halt_system(void)
 {
