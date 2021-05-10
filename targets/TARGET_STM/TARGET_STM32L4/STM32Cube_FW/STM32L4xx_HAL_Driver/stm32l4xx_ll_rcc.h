@@ -2181,10 +2181,10 @@ __STATIC_INLINE uint32_t LL_RCC_HSI_GetCalibration(void)
 /**
   * @brief  Set HSI Calibration trimming
   * @note user-programmable trimming value that is added to the HSICAL
-  * @note Default value is 16 on STM32L47x/STM32L48x or 64 on other devices,
+  * @note Default value is 16 on STM32L43x/STM32L44x/STM32L47x/STM32L48x or 64 on other devices,
   *       which, when added to the HSICAL value, should trim the HSI to 16 MHz +/- 1 %
   * @rmtoll ICSCR        HSITRIM       LL_RCC_HSI_SetCalibTrimming
-  * @param  Value Between Min_Data = 0 and Max_Data = 31 on STM32L47x/STM32L48x or
+  * @param  Value Between Min_Data = 0 and Max_Data = 31 on STM32L43x/STM32L44x/STM32L47x/STM32L48x or
   *               between Min_Data = 0 and Max_Data = 127 on other devices
   * @retval None
   */
@@ -2196,7 +2196,7 @@ __STATIC_INLINE void LL_RCC_HSI_SetCalibTrimming(uint32_t Value)
 /**
   * @brief  Get HSI Calibration trimming
   * @rmtoll ICSCR        HSITRIM       LL_RCC_HSI_GetCalibTrimming
-  * @retval Between Min_Data = 0 and Max_Data = 31 on STM32L47x/STM32L48x or
+  * @retval Between Min_Data = 0 and Max_Data = 31 on STM32L43x/STM32L44x/STM32L47x/STM32L48x or
   *         between Min_Data = 0 and Max_Data = 127 on other devices
   */
 __STATIC_INLINE uint32_t LL_RCC_HSI_GetCalibTrimming(void)
