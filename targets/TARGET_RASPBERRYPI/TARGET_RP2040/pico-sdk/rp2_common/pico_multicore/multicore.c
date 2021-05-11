@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "pico/stdlib.h"
-#include "pico/multicore.h"
+#include "hardware/structs/sio.h"
+#include "pico/time.h"
 #include "hardware/sync.h"
+#include "pico/multicore.h"
 #include "hardware/irq.h"
 #include "hardware/structs/scb.h"
-#include "hardware/structs/sio.h"
 #include "hardware/regs/psm.h"
 #include "hardware/claim.h"
 #if PICO_USE_STACK_GUARDS

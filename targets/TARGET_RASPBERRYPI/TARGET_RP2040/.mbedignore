@@ -5,7 +5,6 @@ pico-sdk/rp2_common/pico_printf*
 pico-sdk/boards/include/boards/*
 pico-sdk/common/pico_base/include/pico/*
 pico-sdk/rp2_common/boot_stage2/*
-pico-sdk/rp2_common/pico_multicore/*
 pico-sdk/rp2_common/pico_malloc/*
 pico-sdk/rp2_common/pico_stdlib/
 pico-sdk/rp2_common/pico_mem_ops/*
