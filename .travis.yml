@@ -35,7 +35,11 @@ before_install:
 
 addons:
   apt:
+    sources:
+      - sourceline: 'deb https://apt.kitware.com/ubuntu/ focal main'
+        key_url: 'https://apt.kitware.com/keys/kitware-archive-latest.asc'
     packages:
+    - cmake
     - ninja-build
     - libncursesw5
 
@@ -279,3 +283,41 @@ matrix:
             | while read file; do python ./hal/tests/pinvalidate/pinvalidate.py -vfp "${file}"; done
         - git diff --exit-code --diff-filter=d --color
 
+    ### CMake Check ###
+    - &cmake-vm
+      stage: "CMake Check"
+      name: "Backward compatiblity check - MBED_TEST_MODE"
+      env: NAME=mbed-test-mode-check ROOT=tools/cmake/tests/mbed_test_mode/ TOOLCHAIN=GCC_ARM TARGET_NAME=K64F PROFILE=develop
+      language: python
+      python: 3.8
+      install:
+        # Hide Travis-preinstalled CMake
+        # The Travis-preinstalled CMake is unfortunately not installed via apt, so we
+        # can't replace it with an apt-supplied version very easily. Additionally, we
+        # can't permit the Travis-preinstalled copy to survive, as the Travis default
+        # path lists the Travis CMake install location ahead of any place where apt
+        # would install CMake to. Instead of apt removing or upgrading to a new CMake
+        # version, we must instead delete the Travis copy of CMake.
+        - sudo rm -rf /usr/local/cmake*
+        # Setup ccache
+        - ccache -o compiler_check=content
+        - ccache -M 1G
+        - pushd /usr/lib/ccache
+        - sudo ln -s ../../bin/ccache arm-none-eabi-gcc
+        - sudo ln -s ../../bin/ccache arm-none-eabi-g++
+        - export PATH="/usr/lib/ccache:$PATH"
+        - popd
+        # Install arm-none-eabi-gcc
+        - pushd /home/travis/build && mkdir arm-gcc && cd arm-gcc
+        - curl -L0 "https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2020q2/gcc-arm-none-eabi-9-2020-q2-update-x86_64-linux.tar.bz2?revision=05382cca-1721-44e1-ae19-1e7c3dc96118&la=en&hash=D7C9D18FCA2DD9F894FD9F3C3DC9228498FA281A" --output gcc-arm-none-eabi-9-2020-q2-update.tar.bz2
+        - tar xf gcc-arm-none-eabi-9-2020-q2-update.tar.bz2
+        - export PATH="$PATH:${PWD}/gcc-arm-none-eabi-9-2020-q2-update/bin"
+        - popd
+        - arm-none-eabi-gcc --version
+        # Install python modules
+        - pip install --upgrade mbed-tools
+        - pip install -r tools/cmake/requirements.txt
+      script:
+        - mbedtools configure -p ${ROOT} -t ${TOOLCHAIN} -m ${TARGET_NAME} --mbed-os-path .
+        - cmake -S ${ROOT} -B ${ROOT}/cmake_build/${TARGET_NAME}/${PROFILE}/${TOOLCHAIN}/ -GNinja -DCMAKE_BUILD_TYPE=${PROFILE}
+        - cmake --build ${ROOT}/cmake_build/${TARGET_NAME}/${PROFILE}/${TOOLCHAIN}/
