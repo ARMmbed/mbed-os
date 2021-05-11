@@ -18,9 +18,13 @@ target_sources(mbed-stubs-platform
         randLIB_stub.cpp
 )
 
+target_link_options(mbed-stubs-platform
+    PRIVATE
+        --coverage
+)
+
 target_link_libraries(mbed-stubs-platform
     PRIVATE
         mbed-headers
         mbed-stubs-headers
-        gcov
 )
