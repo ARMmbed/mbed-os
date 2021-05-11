@@ -22,6 +22,8 @@
 #include "drivers/InterruptIn.h"
 #if !defined(CYW43XXX_UNBUFFERED_UART)
 #include "cybsp_types.h"
+#else
+#include "mbed_wait_api.h"
 #endif
 #include "Callback.h"
 #include "rtos/ThisThread.h"
@@ -255,7 +257,12 @@ uint16_t CyH4TransportDriver::write(uint8_t type, uint16_t len, uint8_t *pData)
         ++i;
     }
 #if defined(CYW43XXX_UNBUFFERED_UART)
-    while (uart.writeable() == 0);
+/* Assuming a 16 byte FIFO as worst case this will ensure all bytes are sent before deasserting bt_dev_wake */
+#ifndef BT_UART_NO_3M_SUPPORT
+    wait_us(50); // 3000000 bps
+#else
+    rtos::ThisThread::sleep_for(2ms); // 115200 bps
+#endif
 #else
     while(cyhal_uart_is_tx_active(&uart));
 #endif
