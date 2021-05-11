@@ -67,15 +67,15 @@ extern "C" {
   void HW_IPCC_LLDTESTS_SendM0CmdAck( void );
 
 
-  void HW_IPCC_LLD_BLE_Init( void );
-  void HW_IPCC_LLD_BLE_SendCliCmd( void );
-  void HW_IPCC_LLD_BLE_ReceiveCliRsp( void );
-  void HW_IPCC_LLD_BLE_SendCliRspAck( void );
-  void HW_IPCC_LLD_BLE_ReceiveM0Cmd( void );
-  void HW_IPCC_LLD_BLE_SendM0CmdAck( void );  
-  void HW_IPCC_LLD_BLE_SendCmd( void );
-  void HW_IPCC_LLD_BLE_ReceiveRsp( void );
-  void HW_IPCC_LLD_BLE_SendRspAck( void );
+  void HW_IPCC_BLE_LLD_Init( void );
+  void HW_IPCC_BLE_LLD_SendCliCmd( void );
+  void HW_IPCC_BLE_LLD_ReceiveCliRsp( void );
+  void HW_IPCC_BLE_LLD_SendCliRspAck( void );
+  void HW_IPCC_BLE_LLD_ReceiveM0Cmd( void );
+  void HW_IPCC_BLE_LLD_SendM0CmdAck( void );
+  void HW_IPCC_BLE_LLD_SendCmd( void );
+  void HW_IPCC_BLE_LLD_ReceiveRsp( void );
+  void HW_IPCC_BLE_LLD_SendRspAck( void );
 
   
   void HW_IPCC_TRACES_Init( void );
