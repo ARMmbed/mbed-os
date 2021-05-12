@@ -391,6 +391,9 @@ void USBPhyHw::endpoint_abort(usb_ep_t endpoint)
 
 void USBPhyHw::process()
 {
+
+again:
+
     // reset interrupt
     if (usb_hw->ints & USB_INTS_BUS_RESET_BITS) {
         // Clear the device address
@@ -509,7 +512,8 @@ void USBPhyHw::process()
     {
         volatile int ints = usb_hw->ints;
         volatile int going = 1;
-        while(ints && going);
+        goto again;
+        //while(ints && going);
     }
 
 
