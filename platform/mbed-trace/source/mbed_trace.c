@@ -49,10 +49,17 @@
 #endif
 #endif /* YOTTA_CFG_MEMLIB */
 
+#if defined(MBED_TRACE_COLOR_THEME) && (MBED_TRACE_COLOR_THEME == 1)
 #define VT100_COLOR_ERROR "\x1b[31m"
 #define VT100_COLOR_WARN  "\x1b[33m"
 #define VT100_COLOR_INFO  "\x1b[39m"
 #define VT100_COLOR_DEBUG "\x1b[90m"
+#else
+#define VT100_COLOR_ERROR "\x1b[31m"
+#define VT100_COLOR_WARN  "\x1b[33m"
+#define VT100_COLOR_INFO  "\x1b[39m"
+#define VT100_COLOR_DEBUG "\x1b[94m"
+#endif
 
 /** default max trace line size in bytes */
 #ifdef MBED_TRACE_LINE_LENGTH
