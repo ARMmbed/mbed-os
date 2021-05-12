@@ -20,7 +20,7 @@
 #ifndef MBED_CAN_HELPER_H
 #define MBED_CAN_HELPER_H
 
-#if DEVICE_CAN
+#if DEVICE_CAN || FEATURE_EXPERIMENTAL_API
 
 #ifdef __cplusplus
 extern "C" {
