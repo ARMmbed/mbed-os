@@ -696,6 +696,19 @@ mesh_error_t WisunInterface::cca_threshold_table_get(ws_cca_threshold_table_t *t
     return MESH_ERROR_NONE;
 }
 
+mesh_error_t WisunInterface::nbr_info_get(ws_nbr_info_t *nbr_ptr, uint16_t *count)
+{
+    uint16_t nbr_count;
+
+    if (count == NULL) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    nbr_count = ws_neighbor_info_get(get_interface_id(), (ws_neighbour_info_t *)nbr_ptr, *count);
+    *count = nbr_count;
+    return MESH_ERROR_NONE;
+}
+
 #define WISUN 0x2345
 #if MBED_CONF_NSAPI_DEFAULT_MESH_TYPE == WISUN && DEVICE_802_15_4_PHY
 MBED_WEAK MeshInterface *MeshInterface::get_target_default_instance()
