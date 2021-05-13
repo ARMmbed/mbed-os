@@ -274,7 +274,7 @@ endfunction()
 if ("${CMAKE_GENERATOR}" MATCHES "Ninja")
     # known issue ARMClang and Ninja with response files for windows
     # https://gitlab.kitware.com/cmake/cmake/-/issues/21093
-    if(NOT (CMAKE_HOST_SYSTEM_NAME MATCHES "Windows" AND CMAKE_CXX_COMPILER_ID MATCHES "ARMClang"))
+    if((CMAKE_HOST_SYSTEM_NAME MATCHES "Windows" AND NOT CMAKE_CXX_COMPILER_ID MATCHES "ARMClang"))
         set(CMAKE_NINJA_FORCE_RESPONSE_FILE 1 CACHE INTERNAL "")
     endif()
 endif()
