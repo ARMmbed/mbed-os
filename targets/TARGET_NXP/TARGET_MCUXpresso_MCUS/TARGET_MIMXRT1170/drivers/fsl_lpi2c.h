@@ -23,8 +23,8 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief LPI2C driver version 2.1.12. */
-#define FSL_LPI2C_DRIVER_VERSION (MAKE_VERSION(2, 1, 12))
+/*! @brief LPI2C driver version. */
+#define FSL_LPI2C_DRIVER_VERSION (MAKE_VERSION(2, 2, 0))
 /*@}*/
 
 /*! @brief Retry times for waiting flag. */
@@ -73,7 +73,7 @@ enum
  *
  * @note These enums are meant to be OR'd together to form a bit mask.
  */
-enum
+enum _lpi2c_master_flags
 {
     kLPI2C_MasterTxReadyFlag         = LPI2C_MSR_TDF_MASK,  /*!< Transmit data flag */
     kLPI2C_MasterRxReadyFlag         = LPI2C_MSR_RDF_MASK,  /*!< Receive data flag */
@@ -85,7 +85,19 @@ enum
     kLPI2C_MasterPinLowTimeoutFlag   = LPI2C_MSR_PLTF_MASK, /*!< Pin low timeout flag */
     kLPI2C_MasterDataMatchFlag       = LPI2C_MSR_DMF_MASK,  /*!< Data match flag */
     kLPI2C_MasterBusyFlag            = LPI2C_MSR_MBF_MASK,  /*!< Master busy flag */
-    kLPI2C_MasterBusBusyFlag         = LPI2C_MSR_BBF_MASK   /*!< Bus busy flag */
+    kLPI2C_MasterBusBusyFlag         = LPI2C_MSR_BBF_MASK,  /*!< Bus busy flag */
+
+    /*! All flags which are cleared by the driver upon starting a transfer. */
+    kLPI2C_MasterClearFlags = kLPI2C_MasterEndOfPacketFlag | kLPI2C_MasterStopDetectFlag | kLPI2C_MasterNackDetectFlag |
+                              kLPI2C_MasterArbitrationLostFlag | kLPI2C_MasterFifoErrFlag |
+                              kLPI2C_MasterPinLowTimeoutFlag | kLPI2C_MasterDataMatchFlag,
+    /*! IRQ sources enabled by the non-blocking transactional API. */
+    kLPI2C_MasterIrqFlags = kLPI2C_MasterArbitrationLostFlag | kLPI2C_MasterTxReadyFlag | kLPI2C_MasterRxReadyFlag |
+                            kLPI2C_MasterStopDetectFlag | kLPI2C_MasterNackDetectFlag | kLPI2C_MasterPinLowTimeoutFlag |
+                            kLPI2C_MasterFifoErrFlag,
+    /*! Errors to check for. */
+    kLPI2C_MasterErrorFlags = kLPI2C_MasterNackDetectFlag | kLPI2C_MasterArbitrationLostFlag |
+                              kLPI2C_MasterFifoErrFlag | kLPI2C_MasterPinLowTimeoutFlag
 };
 
 /*! @brief Direction of master and slave transfers. */
@@ -280,6 +292,15 @@ enum _lpi2c_slave_flags
     kLPI2C_SlaveGeneralCallFlag         = LPI2C_SSR_GCF_MASK,  /*!< General call flag */
     kLPI2C_SlaveBusyFlag                = LPI2C_SSR_SBF_MASK,  /*!< Master busy flag */
     kLPI2C_SlaveBusBusyFlag             = LPI2C_SSR_BBF_MASK,  /*!< Bus busy flag */
+    /*! All flags which are cleared by the driver upon starting a transfer. */
+    kLPI2C_SlaveClearFlags = kLPI2C_SlaveRepeatedStartDetectFlag | kLPI2C_SlaveStopDetectFlag | kLPI2C_SlaveBitErrFlag |
+                             kLPI2C_SlaveFifoErrFlag,
+    /*! IRQ sources enabled by the non-blocking transactional API. */
+    kLPI2C_SlaveIrqFlags = kLPI2C_SlaveTxReadyFlag | kLPI2C_SlaveRxReadyFlag | kLPI2C_SlaveStopDetectFlag |
+                           kLPI2C_SlaveRepeatedStartDetectFlag | kLPI2C_SlaveFifoErrFlag | kLPI2C_SlaveBitErrFlag |
+                           kLPI2C_SlaveTransmitAckFlag | kLPI2C_SlaveAddressValidFlag,
+    /*! Errors to check for. */
+    kLPI2C_SlaveErrorFlags = kLPI2C_SlaveFifoErrFlag | kLPI2C_SlaveBitErrFlag
 };
 
 /*! @brief LPI2C slave address match options. */
@@ -471,9 +492,9 @@ void LPI2C_MasterDeinit(LPI2C_Type *base);
  * @brief Configures LPI2C master data match feature.
  *
  * @param base The LPI2C peripheral base address.
- * @param config Settings for the data match feature.
+ * @param matchConfig Settings for the data match feature.
  */
-void LPI2C_MasterConfigureDataMatch(LPI2C_Type *base, const lpi2c_data_match_config_t *config);
+void LPI2C_MasterConfigureDataMatch(LPI2C_Type *base, const lpi2c_data_match_config_t *matchConfig);
 
 /* Not static so it can be used from fsl_lpi2c_edma.c. */
 status_t LPI2C_MasterCheckAndClearError(LPI2C_Type *base, uint32_t status);

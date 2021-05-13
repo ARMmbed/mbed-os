@@ -10,9 +10,9 @@
 **                          Keil ARM C/C++ Compiler
 **                          MCUXpresso Compiler
 **
-**     Reference manual:    IMXRT1170RM, Rev E, 12/2019
-**     Version:             rev. 0.1, 2018-03-05
-**     Build:               b200219
+**     Reference manual:    IMXRT1170RM, Rev 0, 12/2020
+**     Version:             rev. 1.0, 2020-12-29
+**     Build:               b210203
 **
 **     Abstract:
 **         Provides a system configuration function and a global variable that
@@ -20,7 +20,7 @@
 **         the oscillator (PLL) that is part of the microcontroller device.
 **
 **     Copyright 2016 Freescale Semiconductor, Inc.
-**     Copyright 2016-2020 NXP
+**     Copyright 2016-2021 NXP
 **     All rights reserved.
 **
 **     SPDX-License-Identifier: BSD-3-Clause
@@ -31,14 +31,16 @@
 **     Revisions:
 **     - rev. 0.1 (2018-03-05)
 **         Initial version.
+**     - rev. 1.0 (2020-12-29)
+**         Update header files to align with IMXRT1170RM Rev.0.
 **
 ** ###################################################################
 */
 
 /*!
  * @file MIMXRT1176_cm7
- * @version 0.1
- * @date 2018-03-05
+ * @version 1.0
+ * @date 2021-02-03
  * @brief Device specific configuration file for MIMXRT1176_cm7 (header file)
  *
  * Provides a system configuration function and a global variable that contains

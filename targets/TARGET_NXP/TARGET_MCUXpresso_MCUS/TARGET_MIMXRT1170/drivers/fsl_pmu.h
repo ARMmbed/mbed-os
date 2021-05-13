@@ -24,7 +24,7 @@
  */
 
 /*! @brief PMU driver version */
-#define FSL_PMU_DRIVER_VERSION (MAKE_VERSION(2, 0, 0)) /*!< Version 2.0.0. */
+#define FSL_PMU_DRIVER_VERSION (MAKE_VERSION(2, 1, 0)) /*!< Version 2.1.0. */
 
 /*!
  * @}
@@ -93,17 +93,6 @@ typedef enum _pmu_ldo_operate_mode
 } pmu_ldo_operate_mode_t;
 
 /*!
- * @brief The enumeration of LPSR ANA LDO's driver strength.
- */
-typedef enum _pmu_lpsr_ana_ldo_driver_strength
-{
-    kPMU_LpsrAnaLdoDriverStrength0 = 0U, /*!< Driver strength0 of LPSR ANA LDO. */
-    kPMU_LpsrAnaLdoDriverStrength1 = 1U, /*!< Driver strength1 of LPSR ANA LDO. */
-    kPMU_LpsrAnaLdoDriverStrength2 = 2U, /*!< Driver strength2 of LPSR ANA LDO. */
-    kPMU_LpsrAnaLdoDriverStrength3 = 3U, /*!< Driver strength3 of LPSR ANA LDO. */
-} pmu_lpsr_ana_ldo_driver_strength_t;
-
-/*!
  * @brief The enumeration of LPSR ANA LDO's charge pump current.
  */
 typedef enum _pmu_lpsr_ana_ldo_charge_pump_current
@@ -115,18 +104,6 @@ typedef enum _pmu_lpsr_ana_ldo_charge_pump_current
 } pmu_lpsr_ana_ldo_charge_pump_current_t;
 
 /*!
- * @brief The enumeration of LPSR ANA LDO's brown out config.
- */
-typedef enum _pmu_lpsr_ana_ldo_brown_out_detector_config
-{
-    kPMU_LpsrAnaLdoBrownOutDetectorDisable     = 4U, /*!< Disable brown out. */
-    kPMU_LpsrAnaLdoBrownOutDetectorOffset25mV  = 0U, /*!< Enable brown out and the offset is 25mV. */
-    kPMU_LpsrAnaLdoBrownOutDetectorOffset50mV  = 1U, /*!< Enable brown out and the offset is 50mV. */
-    kPMU_LpsrAnaLdoBrownOutDetectorOffset75mV  = 2U, /*!< Enable brown out and the offset is 75mV. */
-    kPMU_LpsrAnaLdoBrownOutDetectorOffset100mV = 3U, /*!< Enable brown out and the offset is 100mV. */
-} pmu_lpsr_ana_ldo_brown_out_detector_config_t;
-
-/*!
  * @brief The enumeration of LPSR ANA LDO's output range.
  */
 typedef enum _pmu_lpsr_ana_ldo_output_range
@@ -135,16 +112,6 @@ typedef enum _pmu_lpsr_ana_ldo_output_range
     kPMU_LpsrAnaLdoOutputFrom1P72To1P77 = 1U, /*!< The output voltage varies from 1.72V to 1.77V. */
     kPMU_LpsrAnaLdoOutputFrom1P82To1P88 = 2U, /*!< The output voltage varies from 1.82V to 1.88V. */
 } pmu_lpsr_ana_ldo_output_range_t;
-
-/*!
- * @brief The enumeration of LPSR ANA LDO's bypass mode.
- */
-typedef enum _pmu_lpsr_ana_ldo_bypass_mode
-{
-    kPMU_LpsrAnaLdoBypassModeDisable = 0U, /*!< Disable LPSR ANA LDO Bypass Mode. */
-    kPMU_LpsrAnaLdoBypassMode1       = 1U, /*!< Select LPSR ANA LDO Bypass Mode1. */
-    kPMU_LpsrAnaLdoBypassMode2       = 2U, /*!< Select LPSR ANA LDO Bypass Mode2. */
-} pmu_lpsr_ana_ldo_bypass_mode_t;
 
 /*!
  * @brief The enumeration of voltage step time for LPSR DIG LDO.
@@ -158,22 +125,14 @@ typedef enum _pmu_lpsr_dig_voltage_step_time
 } pmu_lpsr_dig_voltage_step_time_t;
 
 /*!
- * @brief The enumeration of LPSR DIG LDO's brown out config.
- */
-typedef enum _pmu_lpsr_dig_brown_out_config
-{
-    kPMU_LpsrDigBrownOutDisable          = 0x4U, /*!< Disable brown out. */
-    kPMU_LpsrDigBrownOutEnableOffset19mV = 0x0U, /*!< Enable brown out and the offset is 19mV. */
-    kPMU_LpsrDigBrownOutEnableOffset39mV = 0x1U, /*!< Enable brown out and the offset is 39mV. */
-    kPMU_LpsrDigBrownOutEnableOffset58mV = 0x2U, /*!< Enable brown out and the offset is 58mV. */
-    kPMU_LpsrDigBrownOutEnableOffset78mV = 0x3U, /*!< Enable brown out and the offset is 78mV. */
-} pmu_lpsr_dig_brown_out_config_t;
-
-/*!
  * @brief The target output voltage of LPSR DIG LDO.
  */
 typedef enum _pmu_lpsr_dig_target_output_voltage
 {
+    kPMU_LpsrDigTargetStableVoltage0P631V = 0x0U,  /*!< The target voltage selected as 0.631V */
+    kPMU_LpsrDigTargetStableVoltage0P65V  = 0x1U,  /*!< The target voltage selected as 0.65V */
+    kPMU_LpsrDigTargetStableVoltage0P67V  = 0x2U,  /*!< The target voltage selected as 0.67V */
+    kPMU_LpsrDigTargetStableVoltage0P689V = 0x3U,  /*!< The target voltage selected as 0.689V */
     kPMU_LpsrDigTargetStableVoltage0P709V = 0x4U,  /*!< The target voltage selected as 0.709V */
     kPMU_LpsrDigTargetStableVoltage0P728V = 0x5U,  /*!< The target voltage selected as 0.728V */
     kPMU_LpsrDigTargetStableVoltage0P748V = 0x6U,  /*!< The target voltage selected as 0.748V */
@@ -197,6 +156,11 @@ typedef enum _pmu_lpsr_dig_target_output_voltage
     kPMU_LpsrDigTargetStableVoltage1P097V = 0x18U, /*!< The target voltage selected as 1.097V */
     kPMU_LpsrDigTargetStableVoltage1P117V = 0x19U, /*!< The target voltage selected as 1.117V */
     kPMU_LpsrDigTargetStableVoltage1P136V = 0x1AU, /*!< The target voltage selected as 1.136V */
+    kPMU_LpsrDigTargetStableVoltage1P155V = 0x1BU, /*!< The target voltage selected as 1.155V */
+    kPMU_LpsrDigTargetStableVoltage1P175V = 0x1CU, /*!< The target voltage selected as 1.175V */
+    kPMU_LpsrDigTargetStableVoltage1P194V = 0x1DU, /*!< The target voltage selected as 1.194V */
+    kPMU_LpsrDigTargetStableVoltage1P214V = 0x1EU, /*!< The target voltage selected as 1.214V */
+    kPMU_LpsrDigTargetStableVoltage1P233V = 0x1FU, /*!< The target voltage selected as 1.233V */
 } pmu_lpsr_dig_target_output_voltage_t;
 
 /*!
@@ -224,11 +188,11 @@ typedef enum _pmu_snvs_dig_discharge_resistor_value
  */
 enum _pmu_static_bandgap_power_down_option
 {
-    kPMU_PowerDownBandgapFully = 1U << 0U, /*!< Fully power down the bandgap module. */
-    kPMU_PowerDownVoltageReferenceOutputOnly = 1U << 1U,
-                                                   /*!< Power down only the reference output section of the bandgap */
-    kPMU_PowerDownBandgapVBGUPDetector = 1U << 2U, /*!< Power down the VBGUP detector of the bandgap without
-                                                        affecting any additional functionality. */
+    kPMU_PowerDownBandgapFully               = 1U << 0U, /*!< Fully power down the bandgap module. */
+    kPMU_PowerDownVoltageReferenceOutputOnly = 1U << 1U, /*!< Power down only the reference output
+                                                                section of the bandgap */
+    kPMU_PowerDownBandgapVBGUPDetector = 1U << 2U,       /*!< Power down the VBGUP detector of the bandgap without
+                                                              affecting any additional functionality. */
 };
 
 /*!
@@ -261,44 +225,103 @@ typedef enum _pmu_bandgap_output_current_value
 } pmu_bandgap_output_current_value_t;
 
 /*!
- * @brief The enumeration of the body_bias_well's voltage level in static mode.
+ * @brief The enumerator of well bias power source.
  */
-typedef enum _pmu_body_bias_well_voltage_level
+typedef enum _pmu_well_bias_power_source
 {
-    kPMU_BodyBiasWellRegulateTo0P5V = 0x0U, /*!< Body Bias Well regulated to 0.5V. */
-    kPMU_BodyBiasWellRegulateTo0P6V = 0x1U, /*!< Body Bias Well regulated to 0.6V. */
-    kPMU_BodyBiasWellRegulateTo0P7V = 0x2U, /*!< Body Bias Well regulated to 0.7V. */
-    kPMU_BodyBiasWellRegulateTo0P8V = 0x3U, /*!< Body Bias Well regulated to 0.8V. */
-    kPMU_BodyBiasWellRegulateTo0P9V = 0x4U, /*!< Body Bias Well regulated to 0.9V. */
-    kPMU_BodyBiasWellRegulateTo1P0V = 0x5U, /*!< Body Bias Well regulated to 1.0V. */
-    kPMU_BodyBiasWellRegulateTo1P1V = 0x6U, /*!< Body Bias Well regulated to 1.1V. */
-    kPMU_BodyBiasWellRegulateTo1P2V = 0x7U, /*!< Body Bias Well regulated to 1.2V. */
-    kPMU_BodyBiasWellRegulateTo1P3V = 0x8U, /*!< Body Bias Well regulated to 1.3V. */
-} pmu_body_bias_well_voltage_level_t;
+    kPMU_WellBiasPowerFromLpsrDigLdo = 0U, /*!< LPSR Dig LDO supplies the power stage and NWELL sampler. */
+    kPMU_WellBiasPowerFromDCDC,            /*!< DCDC supplies the power stage and NWELL sampler. */
+} pmu_well_bias_power_source_t;
+
+/*!
+ * @brief The enumerator of bias area size.
+ */
+typedef enum _pmu_bias_area_size
+{
+    kPMU_180uA_6mm2At125C = 0U, /*!< Imax = 180uA; Areamax-RVT = 6.00mm2 at 125C */
+    kPMU_150uA_5mm2At125C,      /*!< Imax = 150uA; Areamax-RVT = 5.00mm2 at 125C */
+    kPMU_120uA_4mm2At125C,      /*!< Imax = 120uA; Areamax-RVT = 4.00mm2 at 125C */
+    kPMU_90uA_3mm2At125C,       /*!< Imax = 90uA; Areamax-RVT = 3.00mm2 at 125C */
+    kPMU_60uA_2mm2At125C,       /*!< Imax = 60uA; Areamax-RVT = 2.00mm2 at 125C */
+    kPMU_45uA_1P5mm2At125C,     /*!< Imax = 45uA; Areamax-RVT = 1P5mm2 at 125C */
+    kPMU_30uA_1mm2At125C,       /*!< Imax = 30uA; Areamax-RVT = 1.00mm2 at 125C */
+    kPMU_15uA_0P5mm2At125C,     /*!< Imax = 15uA; Areamax-RVT = 0.50mm2 at 125C */
+} pmu_bias_area_size_t;
+
+/*!
+ * @brief The enumerator of well bias typical frequency.
+ */
+typedef enum _pmu_well_bias_typical_freq
+{
+    kPMU_OscFreqDiv128 = 0U, /*!< Typical frequency = osc_freq / 128. */
+    kPMU_OscFreqDiv64  = 1U, /*!< Typical frequency = osc_freq / 64. */
+    kPMU_OscFreqDiv32  = 2U, /*!< Typical frequency = osc_freq / 32. */
+    kPMU_OscFreqDiv16  = 3U, /*!< Typical frequency = osc_freq / 16. */
+    kPMU_OscFreqDiv8   = 4U, /*!< Typical frequency = osc_freq / 8. */
+    kPMU_OscFreqDiv2   = 6U, /*!< Typical frequency = osc_freq / 2. */
+    kPMU_OscFreq       = 7U, /*!< Typical frequency = oscillator frequency. */
+} pmu_well_bias_typical_freq_t;
+
+/*!
+ * @brief The enumerator of well bias adaptive clock source.
+ */
+typedef enum _pmu_adaptive_clock_source
+{
+    kPMU_AdaptiveClkSourceOscClk = 0U,   /*!< The adaptive clock source is oscillator clock. */
+    kPMU_AdaptiveClkSourceChargePumpClk, /*!< The adaptive clock source is charge pump clock. */
+} pmu_adaptive_clock_source_t;
+
+/*!
+ * @brief The enumerator of frequency reduction due to cap increment.
+ */
+typedef enum _pmu_freq_reduction
+{
+    kPMU_FreqReductionNone = 0U, /*!< No frequency reduction. */
+    kPMU_FreqReduction30PCT,     /*!< 30% frequency reduction due to cap increment. */
+    kPMU_FreqReduction40PCT,     /*!< 40% frequency reduction due to cap increment. */
+    kPMU_FreqReduction50PCT,     /*!< 50% frequency reduction due to cap increment. */
+} pmu_freq_reduction_t;
+
+/*!
+ * @brief The enumerator of well bias 1P8 adjustment.
+ */
+typedef enum _pmu_well_bias_1P8_adjustment
+{
+    kPMU_Cref0fFCspl0fFDeltaC0fF = 0U, /*!< Cref = 0fF, Cspl = 0fF, DeltaC = 0fF. */
+    kPMU_Cref0fFCspl30fFDeltaCN30fF,   /*!< Cref = 0fF, Cspl = 30fF, DeltaC = -30fF. */
+    kPMU_Cref0fFCspl43fFDeltaCN43fF,   /*!< Cref = 0fF, Cspl = 43fF, DeltaC = -43fF. */
+    kPMU_Cref0fFCspl62fFDeltaCN62fF,   /*!< Cref = 0fF, Cspl = 62fF, DeltaC = -62fF. */
+    kPMU_Cref0fFCspl105fFDeltaCN105fF, /*!< Cref = 0fF, Cspl = 105fF, DeltaC = -105fF. */
+    kPMU_Cref30fFCspl0fFDeltaC30fF,    /*!< Cref = 30fF, Cspl = 0fF, DeltaC = 30fF. */
+    kPMU_Cref30fFCspl43fFDeltaCN12fF,  /*!< Cref = 30fF, Cspl = 43fF, DeltaC = -12fF. */
+    kPMU_Cref30fFCspl105fFDeltaCN75fF, /*!< Cref = 30fF, Cspl = 105fF, DeltaC = -75fF. */
+    kPMU_Cref43fFCspl0fFDeltaC43fF,    /*!< Cref = 43fF, Cspl = 0fF, DeltaC = 43fF. */
+    kPMU_Cref43fFCspl30fFDeltaC13fF,   /*!< Cref = 43fF, Cspl = 30fF, DeltaC = 13fF. */
+    kPMU_Cref43fFCspl62fFDeltaCN19fF,  /*!< Cref = 43fF, Cspl = 62fF, DeltaC = -19fF. */
+    kPMU_Cref62fFCspl0fFDeltaC62fF,    /*!< Cref = 62fF, Cspl = 0fF, DeltaC = 62fF. */
+    kPMU_Cref62fFCspl43fFDeltaC19fF,   /*!< Cref = 62fF, Cspl = 43fF, DeltaC = 19fF. */
+    kPMU_Cref105fFCspl0fFDeltaC105fF,  /*!< Cref = 105fF, Cspl = 0fF, DeltaC = 105fF. */
+    kPMU_Cref105fFCspl30fFDeltaC75fF,  /*!< Cref = 105fF, Cspl = 30fF, DeltaC = 75fF. */
+} pmu_well_bias_1P8_adjustment_t;
 
 /*!
  * @brief LPSR ANA LDO config.
  */
 typedef struct _pmu_static_lpsr_ana_ldo_config
 {
-    pmu_ldo_operate_mode_t mode;           /*!< The operate mode of LPSR ANA LDO. */
-    bool enable2mALoad;                    /*!< Enable/Disable 2mA load.
-                                                - @b true Enables 2mA loading to prevent overshoot;
-                                                - @b false Disables 2mA loading.*/
-    bool enable4mALoad;                    /*!< Enable/Disable 4mA load.
-                                                - @b true Enables 4mA loading to prevent dramatic voltage drop;
-                                                - @b false Disables 4mA load. */
-    bool enable20uALoad;                   /*!< Enable/Disable 20uA load.
-                                                - @b true Enables 20uA loading to prevent overshoot;
-                                                - @b false Disables 20uA load. */
-    bool enableStandbyMode;                /*!< Enable/Disable Standby Mode.
-                                                - @b true Enables Standby mode;
-                                                - @b false Disables Standby mode. */
-    pmu_lpsr_ana_ldo_driver_strength_t driverStrength;        /*!< The drive strength of LPSR ANA LDO's power switch. */
-    pmu_lpsr_ana_ldo_charge_pump_current_t chargePumpCurrent; /*!< The current of LPSR ANA LDO's charge pump. */
-    pmu_lpsr_ana_ldo_brown_out_detector_config_t
-        brownOutDetectorConfig;                  /*!< The configuration of LPSR ANA LDO's brown out. */
-    pmu_lpsr_ana_ldo_output_range_t outputRange; /*!< The output range of LPSR ANA LDO. */
+    pmu_ldo_operate_mode_t mode; /*!< The operate mode of LPSR ANA LDO. */
+    bool enable2mALoad;          /*!< Enable/Disable 2mA load.
+                                      - \b true Enables 2mA loading to prevent overshoot;
+                                      - \b false Disables 2mA loading.*/
+    bool enable4mALoad;          /*!< Enable/Disable 4mA load.
+                                      - \b true Enables 4mA loading to prevent dramatic voltage drop;
+                                      - \b false Disables 4mA load. */
+    bool enable20uALoad;         /*!< Enable/Disable 20uA load.
+                                      - \b true Enables 20uA loading to prevent overshoot;
+                                      - \b false Disables 20uA load. */
+    bool enableStandbyMode;      /*!< Enable/Disable Standby Mode.
+                                      - \b true Enables Standby mode;
+                                      - \b false Disables Standby mode. */
 } pmu_static_lpsr_ana_ldo_config_t;
 
 /*!
@@ -307,12 +330,10 @@ typedef struct _pmu_static_lpsr_ana_ldo_config
 typedef struct _pmu_static_lpsr_dig_config
 {
     bool enableStableDetect;                            /*!< Enable/Disable Stable Detect.
-                                                                - @b true   Enables Stable Detect.
-                                                                - @b false  Disables Stable Detect. */
+                                                                - \b true   Enables Stable Detect.
+                                                                - \b false  Disables Stable Detect. */
     pmu_lpsr_dig_voltage_step_time_t voltageStepTime;   /*!< Step time. */
-    pmu_lpsr_dig_brown_out_config_t brownOutConfig;     /*!< The configuration of LPSR DIG LDO's brown out. */
     pmu_lpsr_dig_target_output_voltage_t targetVoltage; /*!< The target output voltage. */
-    pmu_ldo_operate_mode_t mode;                        /*!< The operate mode of the LPSR DIG LDO. */
 } pmu_static_lpsr_dig_config_t;
 
 /*!
@@ -322,13 +343,13 @@ typedef struct _pmu_snvs_dig_config
 {
     pmu_ldo_operate_mode_t mode;                          /*!< The operate mode the SNVS DIG LDO. */
     pmu_snvs_dig_charge_pump_current_t chargePumpCurrent; /*!< The current of SNVS DIG LDO's charge pump current. */
-    pmu_snvs_dig_discharge_resistor_value_t
-        dischargeResistorValue; /*!< The value of SNVS DIG LDO's Discharge Resistor. */
-    uint8_t trimValue;          /*!< The trim value. */
-    bool enablePullDown;        /*!< Enable/Disable Pull down.
-                                  - @b true Enables the feature of using 1M ohm resistor to discharge the LDO output.
-                                  - @b false Disables the feature of using 1M ohm resistor to discharge the LDO output. */
-    bool enableLdoStable;       /*!< Enable/Disable SNVS DIG LDO Stable. */
+    pmu_snvs_dig_discharge_resistor_value_t dischargeResistorValue; /*!< The value of SNVS DIG LDO's
+                                                                        Discharge Resistor. */
+    uint8_t trimValue;                                              /*!< The trim value. */
+    bool enablePullDown;                                            /*!< Enable/Disable Pull down.
+                                                                      - \b true Enables the feature of using 1M ohm resistor to discharge the LDO output.
+                                                                      - \b false Disables the feature of using 1M ohm resistor to discharge the LDO output. */
+    bool enableLdoStable;                                           /*!< Enable/Disable SNVS DIG LDO Stable. */
 } pmu_snvs_dig_config_t;
 
 /*!
@@ -339,22 +360,52 @@ typedef struct _pmu_static_bandgap_config
     uint8_t powerDownOption; /*!< The OR'ed value of @ref _pmu_static_bandgap_power_down_option. Please refer to @ref
                                 _pmu_static_bandgap_power_down_option.  */
     bool enableLowPowerMode; /*!< Turn on/off the Low power mode.
-                                  - @b true Turns on the low power operation of the bandgap.
-                                  - @b false Turns off the low power operation of the bandgap. */
+                                  - \b true Turns on the low power operation of the bandgap.
+                                  - \b false Turns off the low power operation of the bandgap. */
     pmu_bandgap_output_VBG_voltage_value_t outputVoltage; /*!< The output VBG voltage of Bandgap. */
-    pmu_bandgap_output_current_value_t
-        outputCurrent; /*!< The output current from the bandgap to the temperature sensors. */
+    pmu_bandgap_output_current_value_t outputCurrent;     /*!< The output current from the bandgap to
+                                                                the temperature sensors. */
 } pmu_static_bandgap_config_t;
 
 /*!
- * @brief The config of body bias in Static/Software Mode.
+ * @brief The union of well bias basic options, such as clock source, power source and so on.
  */
-typedef struct _pmu_static_body_bias_config_t
+typedef union _pmu_well_bias_option
 {
-    pmu_body_bias_well_voltage_level_t voltageLevel; /*!< The voltage level of body bias well. */
-    uint8_t driveStrength;                           /*!< The value of drive Strength */
-    uint8_t oscillatorFreq;                          /*!< The frequency of Oscillator. */
-} pmu_static_body_bias_config_t;
+    uint16_t wellBiasData; /*!< well bias configuration data. */
+    struct
+    {
+        uint16_t enablePWellOnly : 1U;     /*!< Turn on both PWELL and NWELL, or only trun on PWELL.
+                                                - \b 1b0  PWELL and NEWLL are both turned on.
+                                                - \b 1b1  PWELL is turned on only. */
+        uint16_t reserved1 : 1U;           /*!< Reserved. */
+        uint16_t biasAreaSize : 3U;        /*!< Select size of bias area, please refer to @ref pmu_bias_area_size_t */
+        uint16_t disableAdaptiveFreq : 1U; /*!< Enable/Disable adaptive frequency.
+                                                - \b 1b0 Frequency change after each half cycle minimum frequency
+                                                        determined by typical frequency.
+                                                - \b 1b1 Adaptive frequency disabled. Frequency determined by typical
+                                                       frequency. */
+        uint16_t wellBiasFreq : 3U;        /*!< Set well bias typical frequency, please refer to @ref
+                                              pmu_well_bias_typical_freq_t. */
+        uint16_t clkSource : 1U;     /*!< Config the adaptive clock source, please @ref pmu_adaptive_clock_source_t. */
+        uint16_t freqReduction : 2U; /*!< Config the percent of frequency reduction due to cap increment,
+                                         please refer to @ref pmu_freq_reduction_t.  */
+        uint16_t enablePowerDownOption : 1U; /*!< Enable/Disable pull down option.
+                                                 - \b false Pull down option is disabled.
+                                                 - \b true  Pull down option is enabled. */
+        uint16_t reserved2 : 1U;             /*!< Reserved. */
+        uint16_t powerSource : 1U; /*!< Set power source, please refer to @ref pmu_well_bias_power_source_t. */
+        uint16_t reserved3 : 1U;   /*!< Reserved. */
+    } wellBiasStruct;
+} pmu_well_bias_option_t;
+
+typedef struct _pmu_well_bias_config
+{
+    pmu_well_bias_option_t wellBiasOption;     /*!< Well bias basic function, please
+                                                    refer to @ref pmu_well_bias_option_t. */
+    pmu_well_bias_1P8_adjustment_t adjustment; /*!< Well bias adjustment 1P8, please
+                                                    refer to @ref pmu_well_bias_1P8_adjustment_t. */
+} pmu_well_bias_config_t;
 
 /*!
  * @brief The stucture of body bias config in GPC mode.
@@ -375,7 +426,7 @@ extern "C" {
 #endif
 
 /*!
- * @name LDOs control related APIs
+ * @name LDOs Control APIs
  * @{
  */
 
@@ -420,9 +471,24 @@ void PMU_SetLpsrAnaLdoControlMode(ANADIG_LDO_SNVS_Type *base, pmu_control_mode_t
  * @brief Sets the Bypass mode of the LPSR ANA LDO.
  *
  * @param base ANADIG_LDO_SNVS peripheral base address.
- * @param bypassMode The Bypass mode of LPSR ANA LDO. Please refer to @ref pmu_lpsr_ana_ldo_bypass_mode_t.
+ * @param enable Enable/Disable bypass mode.
+ *          - \b true Enable LPSR ANA Bypass mode.
+ *          - \b false Disable LPSR ANA Bypass mode.
  */
-void PMU_StaticSetLpsrAnaLdoBypassMode(ANADIG_LDO_SNVS_Type *base, pmu_lpsr_ana_ldo_bypass_mode_t bypassMode);
+void PMU_StaticEnableLpsrAnaLdoBypassMode(ANADIG_LDO_SNVS_Type *base, bool enable);
+
+/*!
+ * @brief Checks whether the LPSR ANA LDO is in bypass mode.
+ *
+ * @param base ANADIG_LDO_SNVS peripheral base address.
+ * @return The result used to indicates whether the LPSR ANA LDO is in bypass mode.
+ *              - \b true   The LPSR ANA LDO is in bypass mode.
+ *              - \b false  The LPSR ANA LDO not in bypass mode.
+ */
+static inline bool PMU_StaticCheckLpsrAnaLdoBypassMode(ANADIG_LDO_SNVS_Type *base)
+{
+    return ((ANADIG_LDO_SNVS->PMU_LDO_LPSR_ANA & ANADIG_LDO_SNVS_PMU_LDO_LPSR_ANA_BYPASS_MODE_EN_MASK) != 0UL);
+}
 
 /*!
  * @brief Fill the LPSR ANA LDO configuration structure with default settings.
@@ -472,10 +538,23 @@ void PMU_SetLpsrDigLdoControlMode(ANADIG_LDO_SNVS_Type *base, pmu_control_mode_t
  *
  * @param base ANADIG_LDO_SNVS peripheral base address.
  * @param enable
- *               - @b true Turns on Bypass mode of the LPSR DIG LDO.
- *               - @b false Turns off Bypass mode of the LPSR DIG LDO.
+ *               - \b true Turns on Bypass mode of the LPSR DIG LDO.
+ *               - \b false Turns off Bypass mode of the LPSR DIG LDO.
  */
 void PMU_StaticEnableLpsrDigLdoBypassMode(ANADIG_LDO_SNVS_Type *base, bool enable);
+
+/*!
+ * @brief Checks whether the LPSR DIG LDO is in bypass mode.
+ *
+ * @param base PMU peripheral base address.
+ * @return The result used to indicates whether the LPSR DIG LDO is in bypass mode.
+ *              - \b true   The LPSR DIG LDO is in bypass mode.
+ *              - \b false  The LPSR DIG LDO not in bypass mode.
+ */
+static inline bool PMU_StaticCheckLpsrDigLdoBypassMode(ANADIG_LDO_SNVS_Type *base)
+{
+    return ((ANADIG_LDO_SNVS->PMU_LDO_LPSR_DIG & ANADIG_LDO_SNVS_PMU_LDO_LPSR_DIG_BYPASS_MODE_MASK) != 0UL);
+}
 
 /*!
  * @brief Gets the default configuration of LPSR DIG LDO.
@@ -538,9 +617,9 @@ void PMU_GetSnvsDigLdoDefaultConfig(pmu_snvs_dig_config_t *config);
  * @brief Initialize the SNVS DIG LDO.
  *
  * @param base LDO SNVS DIG peripheral base address.
- * @param config Pointer to structure @ref pmu_snvs_dig_config_t.
+ * @param mode Used to control LDO power mode, please refer to @ref pmu_ldo_operate_mode_t.
  */
-void PMU_SnvsDigLdoInit(ANADIG_LDO_SNVS_DIG_Type *base, const pmu_snvs_dig_config_t *config);
+void PMU_SnvsDigLdoInit(ANADIG_LDO_SNVS_DIG_Type *base, pmu_ldo_operate_mode_t mode);
 
 /*!
  * @brief Disable SNVS DIG LDO.
@@ -554,12 +633,12 @@ static inline void PMU_SnvsDigLdoDeinit(ANADIG_LDO_SNVS_DIG_Type *base)
  * @brief  Controls the ON/OFF of the selected LDO in certain setpoints with GPC mode.
  *
  * @param name The name of the selected ldo. Please see enumeration @ref pmu_ldo_name_t for details.
- * @param setpointMap The map of setpoints should be the OR'ed Value of @ref _pmu_setpoint_map.
- * @param enable Turn on/off the LDO.
- *               - @b true Turns on the selected LDO in certain setpoints.
- *               - @b false Turns off the selected LDO in certain setpoints.
+ * @param setpointMap The map of setpoints should be the OR'ed Value of @ref _pmu_setpoint_map, 1b'1
+ * means enable specific ldo in that setpoint.
+ * For example, the code PMU_GPCEnableLdo(kPMU_PllLdo, 0x1U) means to enable PLL LDO in setpoint 0 and disable
+ * PLL LDO in other setpoint.
  */
-void PMU_GPCEnableLdo(pmu_ldo_name_t name, uint32_t setpointMap, bool enable);
+void PMU_GPCEnableLdo(pmu_ldo_name_t name, uint32_t setpointMap);
 
 /*!
  * @brief Sets the operating mode of the selected LDO in certain setpoints with GPC mode.
@@ -575,41 +654,35 @@ void PMU_GPCSetLdoOperateMode(pmu_ldo_name_t name, uint32_t setpointMap, pmu_ldo
  * @brief Controls the ON/OFF of the selected LDOs' Tracking mode in certain setpoints with GPC mode.
  *
  * @param name The name of the selected ldo. Please see enumeration @ref pmu_ldo_name_t for details.
- * @param setpointMap The map of setpoints should be the OR'ed Value of @ref _pmu_setpoint_map.
- * @param enable Turn on/off the LDOs' Tracking mode.
- *               - @b true Turns on the selected LDO's tracking mode in certain setpoints.
- *               - @b false Turns off the selected LDO's tracking mode in certain setpoints.
+ * @param setpointMap The map of setpoints that the LDO tracking mode will be enabled in those setpoints, this value
+ * should be the OR'ed Value of @ref _pmu_setpoint_map.
  */
-void PMU_GPCEnableLdoTrackingMode(pmu_ldo_name_t name, uint32_t setpointMap, bool enable);
+void PMU_GPCEnableLdoTrackingMode(pmu_ldo_name_t name, uint32_t setpointMap);
 
 /*!
  * @brief Controls the ON/OFF of the selected LDOs' Bypass mode in certain setpoints with GPC mode.
  *
  * @param name The name of the selected ldo. Please see enumeration @ref pmu_ldo_name_t for details.
- * @param setpointMap The map of setpoints should be the OR'ed Value of @ref _pmu_setpoint_map.
- * @param enable Turn on/off the LDOs' Bypass mode.
- *               - @b true Turns on the selected LDO's Bypass mode in certain setpoints.
- *               - @b false Turns off the selected LDO's Bypass mode in certain setpoints.
+ * @param setpointMap The map of setpoints that the LDO bypass mode will be enabled in those setpoints, this value
+ * should be the OR'ed Value of @ref _pmu_setpoint_map.
  */
-void PMU_GPCEnableLdoBypassMode(pmu_ldo_name_t name, uint32_t setpointMap, bool enable);
+void PMU_GPCEnableLdoBypassMode(pmu_ldo_name_t name, uint32_t setpointMap);
 
 /*!
  * @brief Controls the ON/OFF of the selected LDOs' Standby mode in certain setpoints with GPC mode.
  *
  * @param name The name of the selected ldo. Please see enumeration @ref pmu_ldo_name_t for details.
- * @param setpointMap The map of setpoints should be the OR'ed Value of @ref _pmu_setpoint_map.
- * @param enable Turn on/off the LDOs' Standby mode.
- *               - @b true Turns on the selected LDO's Standby mode in the certain setpoints.
- *               - @b false Turns off the selected LDO's Standby mode in the certain setpoints.
+ * @param setpointMap The map of setpoints that the LDO Standby mode will be enabled in those setpoints, this value
+ * should be the OR'ed Value of @ref _pmu_setpoint_map.
  */
-void PMU_GPCEnableLdoStandbyMode(pmu_ldo_name_t name, uint32_t setpointMap, bool enable);
+void PMU_GPCEnableLdoStandbyMode(pmu_ldo_name_t name, uint32_t setpointMap);
 
 /*!
  * @}
  */
 
 /*!
- * @name Bandgap control related APIs
+ * @name Bandgap Control APIs
  * @{
  */
 
@@ -655,43 +728,28 @@ void PMU_StaticBandgapInit(const pmu_static_bandgap_config_t *config);
 /*!
  * @brief Controls the ON/OFF of the Bandgap in certain setpoints with GPC mode.
  *
+ * For example, the code PMU_GPCEnableBandgap(PMU, kPMU_SetPoint0 | kPMU_SetPoint1); means enable bandgap in
+ * setpoint0 and setpoint1 and disable bandgap in other setpoints.
+ *
  * @param base PMU peripheral base address.
- * @param setpointMap The map of setpoints should be the OR'ed Value of @ref _pmu_setpoint_map.
- * @param enable Turn on/off the Bandgap.
- *               - @b true Turns on the Bandgap in certain setpoints.
- *               - @b false Turns off the Bandgap in certain setpoints.
+ * @param setpointMap The map of setpoints that the bandgap will be enabled in those setpoints, this parameter
+ * should be the OR'ed Value of @ref _pmu_setpoint_map.
  */
-static inline void PMU_GPCEnableBandgap(ANADIG_PMU_Type *base, uint32_t setpointMap, bool enable)
+static inline void PMU_GPCEnableBandgap(ANADIG_PMU_Type *base, uint32_t setpointMap)
 {
-    if (enable)
-    {
-        base->BANDGAP_ENABLE_SP &= ~setpointMap;
-    }
-    else
-    {
-        base->BANDGAP_ENABLE_SP |= setpointMap;
-    }
+    base->BANDGAP_ENABLE_SP = ~setpointMap;
 }
 
 /*!
  * @brief Controls the ON/OFF of the Bandgap's Standby mode in certain setpoints with GPC mode.
  *
  * @param base PMU peripheral base address.
- * @param setpointMap The map of setpoints should be the OR'ed Value of @ref _pmu_setpoint_map.
- * @param enable Turn on/off the Bandgap's Standby mode.
- *               - @b true Turns on the Bandgap's Standby mode in certain setpoints.
- *               - @b false Turns off the Bandgap's Standby mode in certain setpoints.
+ * @param setpointMap The map of setpoints that the bandgap standby mode will be enabled in those setpoints, this value
+ * should be the OR'ed Value of @ref _pmu_setpoint_map.
  */
-static inline void PMU_GPCEnableBandgapStandbyMode(ANADIG_PMU_Type *base, uint32_t setpointMap, bool enable)
+static inline void PMU_GPCEnableBandgapStandbyMode(ANADIG_PMU_Type *base, uint32_t setpointMap)
 {
-    if (enable)
-    {
-        base->BANDGAP_STBY_EN_SP |= setpointMap;
-    }
-    else
-    {
-        base->BANDGAP_STBY_EN_SP &= ~setpointMap;
-    }
+    base->BANDGAP_STBY_EN_SP = setpointMap;
 }
 
 /*!
@@ -699,9 +757,24 @@ static inline void PMU_GPCEnableBandgapStandbyMode(ANADIG_PMU_Type *base, uint32
  */
 
 /*!
- * @name Body Bias control
+ * @name Body Bias Control APIs
  * @{
  */
+
+/*!
+ * @brief Configures Well bias, such as power source, clock source and so on.
+ *
+ * @param base PMU peripheral base address.
+ * @param config Pointer to the @ref pmu_well_bias_config_t structure.
+ */
+void PMU_WellBiasInit(ANADIG_PMU_Type *base, const pmu_well_bias_config_t *config);
+
+/*!
+ * @brief Gets the default configuration of well bias.
+ *
+ * @param config The pointer to the @ref pmu_well_bias_config_t structure.
+ */
+void PMU_GetWellBiasDefaultConfig(pmu_well_bias_config_t *config);
 
 /*!
  * @brief Selects the control mode of the Body Bias.
@@ -713,71 +786,33 @@ static inline void PMU_GPCEnableBandgapStandbyMode(ANADIG_PMU_Type *base, uint32
 void PMU_SetBodyBiasControlMode(ANADIG_PMU_Type *base, pmu_body_bias_name_t name, pmu_control_mode_t mode);
 
 /*!
- * @brief Gets the default config of CM7 Forward Body Bias in Static/Software mode.
- *
- * @param config Pointer to the structure @ref pmu_static_body_bias_config_t.
- */
-void PMU_StaticGetCm7FBBDefaultConfig(pmu_static_body_bias_config_t *config);
-
-/*!
- * @brief Initialize CM7 Forward Body Bias in Static/Software Mode.
+ * @brief Enables/disables the selected body bias.
  *
  * @param base PMU peripheral base address.
- * @param config Pointer to the structure @ref pmu_static_body_bias_config_t.
+ * @param name The name of the body bias to be turned on/off, please refer to @ref pmu_body_bias_name_t.
+ * @param enable Used to turn on/off the specific body bias.
+ *              - \b true Enable the selected body bias.
+ *              - \b false Disable the selected body bias.
  */
-void PMU_StaticCm7FBBInit(ANADIG_PMU_Type *base, const pmu_static_body_bias_config_t *config);
-
-/*!
- * @brief Gets the default config of LPSR Reverse Body Bias in Static/Software mode.
- *
- * @param config Pointer to the structure @ref pmu_static_body_bias_config_t.
- */
-void PMU_StaticLpsrRBBDefaultConfig(pmu_static_body_bias_config_t *config);
-
-/*!
- * @brief Initialize LPSR Reverse Body Bias in Static/Software Mode.
- *
- * @param base PMU peripheral base address.
- * @param config Pointer to the structure @ref pmu_static_body_bias_config_t.
- */
-void PMU_StaticLpsrRBBInit(ANADIG_PMU_Type *base, const pmu_static_body_bias_config_t *config);
-
-/*!
- * @brief Gets the default config of SOC Reverse Body Bias in Static/Software mode.
- *
- * @param config Pointer to the structure @ref pmu_static_body_bias_config_t.
- */
-void PMU_StaticSocRBBDefaultConfig(pmu_static_body_bias_config_t *config);
-
-/*!
- * @brief Initialize SOC Reverse Body Bias in Static/Software Mode.
- *
- * @param base PMU peripheral base address.
- * @param config Pointer to the structure @ref pmu_static_body_bias_config_t.
- */
-void PMU_StaticSocRBBInit(ANADIG_PMU_Type *base, const pmu_static_body_bias_config_t *config);
+void PMU_EnableBodyBias(ANADIG_PMU_Type *base, pmu_body_bias_name_t name, bool enable);
 
 /*!
  * @brief  Controls the ON/OFF of the selected body bias in certain setpoints with GPC mode.
  *
  * @param name The name of the selected body bias. Please see enumeration @ref pmu_body_bias_name_t for details.
- * @param setpointMap The map of setpoints should be the OR'ed Value of @ref _pmu_setpoint_map.
- * @param enable Turn on/off the body bias.
- *               - @b true Turns on the selected body bias in certain setpoints.
- *               - @b false Turns off the selected body bias in certain setpoints.
+ * @param setpointMap The map of setpoints that the specific body bias will be enabled in those setpoints, this value
+ * should be the OR'ed Value of _pmu_setpoint_map.
  */
-void PMU_GPCEnableBodyBias(pmu_body_bias_name_t name, uint32_t setpointMap, bool enable);
+void PMU_GPCEnableBodyBias(pmu_body_bias_name_t name, uint32_t setpointMap);
 
 /*!
  * @brief Controls the ON/OFF of the selected Body Bias' Standby mode in certain setpoints with GPC mode.
  *
  * @param name The name of the selected body bias. Please see the enumeration @ref pmu_body_bias_name_t for details.
- * @param setpointMap The map of setpoints should be the OR'ed Value of @ref _pmu_setpoint_map.
- * @param enable Turn on/off the body bias' Standby mode.
- *               - @b true Turns on the selected body bias' Standby mode in certain setpoints.
- *               - @b false Turns off the selected body bias' Standby mode in certain setpoints.
+ * @param setpointMap The map of setpoints that the specific body bias will be enabled in those setpoints, this value
+ * should be the OR'ed Value of @ref _pmu_setpoint_map.
  */
-void PMU_GPCEnableBodyBiasStandbyMode(pmu_body_bias_name_t name, uint32_t setpointMap, bool enable);
+void PMU_GPCEnableBodyBiasStandbyMode(pmu_body_bias_name_t name, uint32_t setpointMap);
 
 /*!
  * @brief Gets the default config of body bias in GPC mode.

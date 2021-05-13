@@ -10,9 +10,9 @@
 **                          Keil ARM C/C++ Compiler
 **                          MCUXpresso Compiler
 **
-**     Reference manual:    IMXRT1170RM, Rev E, 12/2019
-**     Version:             rev. 0.1, 2018-03-05
-**     Build:               b200219
+**     Reference manual:    IMXRT1170RM, Rev 0, 12/2020
+**     Version:             rev. 1.0, 2020-12-29
+**     Build:               b210203
 **
 **     Abstract:
 **         Provides a system configuration function and a global variable that
@@ -20,7 +20,7 @@
 **         the oscillator (PLL) that is part of the microcontroller device.
 **
 **     Copyright 2016 Freescale Semiconductor, Inc.
-**     Copyright 2016-2020 NXP
+**     Copyright 2016-2021 NXP
 **     All rights reserved.
 **
 **     SPDX-License-Identifier: BSD-3-Clause
@@ -31,14 +31,16 @@
 **     Revisions:
 **     - rev. 0.1 (2018-03-05)
 **         Initial version.
+**     - rev. 1.0 (2020-12-29)
+**         Update header files to align with IMXRT1170RM Rev.0.
 **
 ** ###################################################################
 */
 
 /*!
  * @file MIMXRT1176_cm7
- * @version 0.1
- * @date 2018-03-05
+ * @version 1.0
+ * @date 2021-02-03
  * @brief Device specific configuration file for MIMXRT1176_cm7 (implementation
  *        file)
  *
@@ -64,10 +66,7 @@ uint32_t SystemCoreClock = DEFAULT_SYSTEM_CLOCK;
 
 void SystemInit (void) {
 #if ((__FPU_PRESENT == 1) && (__FPU_USED == 1))
-  SCB->CPACR |= ((3UL << 10*2) | (3UL << 11*2));    /* set CP10, CP11 Full Access in Secure mode */
-  #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-  SCB_NS->CPACR |= ((3UL << 10*2) | (3UL << 11*2));    /* set CP10, CP11 Full Access in Non-secure mode */
-  #endif /* (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) */
+  SCB->CPACR |= ((3UL << 10*2) | (3UL << 11*2));    /* set CP10, CP11 Full Access */
 #endif /* ((__FPU_PRESENT == 1) && (__FPU_USED == 1)) */
 
 #if defined(__MCUXPRESSO)
@@ -80,11 +79,11 @@ void SystemInit (void) {
 #if (DISABLE_WDOG)
     if ((WDOG1->WCR & WDOG_WCR_WDE_MASK) != 0U)
     {
-        WDOG1->WCR &= ~WDOG_WCR_WDE_MASK;
+        WDOG1->WCR &= ~(uint16_t) WDOG_WCR_WDE_MASK;
     }
     if ((WDOG2->WCR & WDOG_WCR_WDE_MASK) != 0U)
     {
-        WDOG2->WCR &= ~WDOG_WCR_WDE_MASK;
+        WDOG2->WCR &= ~(uint16_t) WDOG_WCR_WDE_MASK;
     }
     if ((RTWDOG3->CS & RTWDOG_CS_CMD32EN_MASK) != 0U)
     {
@@ -131,11 +130,13 @@ void SystemInit (void) {
     /* Clear bit 13 to its reset value since it might be set by ROM. */
     IOMUXC_GPR->GPR28 &= ~IOMUXC_GPR_GPR28_CACHE_USB_MASK;
 
+#if defined(ROM_ECC_ENABLED)
     /* When ECC is enabled, SRC->SRSR need to be cleared since only correct SRSR value can trigger ROM ECC preload procedure.
        Save SRSR to SRC->GPR[10] so that application can still check SRSR value from SRC->GPR[10]. */
     SRC->GPR[10] = SRC->SRSR;
     /* clear SRSR */
-    SRC->SRSR = 0xFFFFFFFF;
+    SRC->SRSR = 0xFFFFFFFFU;
+#endif
 
     /* Enable entry to thread mode when divide by zero */
     SCB->CCR |= SCB_CCR_DIV_0_TRP_Msk;
@@ -162,3 +163,4 @@ void SystemCoreClockUpdate (void) {
 __attribute__ ((weak)) void SystemInitHook (void) {
   /* Void implementation of the weak function. */
 }
+

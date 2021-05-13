@@ -26,7 +26,6 @@ target_sources(mbed-mimxrt1170-evk
         device/system_MIMXRT1176_cm7.c
 
         drivers/fsl_anatop_ai.c
-        drivers/fsl_anatop.c
         drivers/fsl_cache.c
         drivers/fsl_clock.c
         drivers/fsl_common.c

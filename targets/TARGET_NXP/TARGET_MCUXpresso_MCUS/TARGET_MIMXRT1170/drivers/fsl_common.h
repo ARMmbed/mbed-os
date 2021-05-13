@@ -15,7 +15,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#if defined(__ICCARM__)
+#if defined(__ICCARM__) || (defined(__CC_ARM) || defined(__ARMCC_VERSION)) || defined(__GNUC__)
 #include <stddef.h>
 #endif
 
@@ -48,7 +48,7 @@
 /*! @name Driver version */
 /*@{*/
 /*! @brief common driver version. */
-#define FSL_COMMON_DRIVER_VERSION (MAKE_VERSION(2, 2, 8))
+#define FSL_COMMON_DRIVER_VERSION (MAKE_VERSION(2, 2, 9))
 /*@}*/
 
 /* Debug console type definition. */
@@ -389,13 +389,13 @@ _Pragma("diag_suppress=Pm120")
 /* @{ */
 #if defined(FSL_SDK_DRIVER_QUICK_ACCESS_ENABLE) && FSL_SDK_DRIVER_QUICK_ACCESS_ENABLE
 #if (defined(__ICCARM__))
-#define AT_QUICKACCESS_SECTION_CODE(func) func @"CodeQuickAccess"
+#define AT_QUICKACCESS_SECTION_CODE(func) __ramfunc func
 #define AT_QUICKACCESS_SECTION_DATA(func) func @"DataQuickAccess"
 #elif(defined(__CC_ARM) || defined(__ARMCC_VERSION))
-#define AT_QUICKACCESS_SECTION_CODE(func) __attribute__((section("CodeQuickAccess"), __noinline__)) func
+#define AT_QUICKACCESS_SECTION_CODE(func) __attribute__((section("CodeQuickAccess"))) func
 #define AT_QUICKACCESS_SECTION_DATA(func) __attribute__((section("DataQuickAccess"))) func
 #elif(defined(__GNUC__))
-#define AT_QUICKACCESS_SECTION_CODE(func) __attribute__((section("CodeQuickAccess"), __noinline__)) func
+#define AT_QUICKACCESS_SECTION_CODE(func) __attribute__((section("CodeQuickAccess"))) func
 #define AT_QUICKACCESS_SECTION_DATA(func) __attribute__((section("DataQuickAccess"))) func
 #else
 #error Toolchain not supported.
@@ -754,7 +754,7 @@ void DefaultISR(void);
         }
 
 #if defined(FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS) && (FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS > 0)
-        else if (interrupt >= FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS)
+        else if ((int32_t)interrupt >= (int32_t)FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS)
         {
             status = kStatus_Fail;
         }
@@ -798,7 +798,7 @@ void DefaultISR(void);
         }
 
 #if defined(FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS) && (FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS > 0)
-        else if (interrupt >= FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS)
+        else if ((int32_t)interrupt >= (int32_t)FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS)
         {
             status = kStatus_Fail;
         }
@@ -879,6 +879,12 @@ void DefaultISR(void);
 #endif /* ENABLE_RAM_VECTOR_TABLE. */
 
 #if (defined(FSL_FEATURE_SOC_SYSCON_COUNT) && (FSL_FEATURE_SOC_SYSCON_COUNT > 0))
+
+    /*
+     * When FSL_FEATURE_POWERLIB_EXTEND is defined to non-zero value,
+     * powerlib should be used instead of these functions.
+     */
+#if !(defined(FSL_FEATURE_POWERLIB_EXTEND) && (FSL_FEATURE_POWERLIB_EXTEND != 0))
     /*!
      * @brief Enable specific interrupt for wake-up from deep-sleep mode.
      *
@@ -908,6 +914,7 @@ void DefaultISR(void);
      * @param interrupt The IRQ number.
      */
     void DisableDeepSleepIRQ(IRQn_Type interrupt);
+#endif /* FSL_FEATURE_POWERLIB_EXTEND */
 #endif /* FSL_FEATURE_SOC_SYSCON_COUNT */
 
     /*!
@@ -933,10 +940,10 @@ void DefaultISR(void);
     *  Please note that, this API uses while loop for delay, different run-time environments make the time not precise,
     *  if precise delay count was needed, please implement a new delay function with hardware timer.
     *
-    * @param delay_us  Delay time in unit of microsecond.
+    * @param delayTime_us  Delay time in unit of microsecond.
     * @param coreClock_Hz  Core clock frequency with Hz.
     */
-    void SDK_DelayAtLeastUs(uint32_t delay_us, uint32_t coreClock_Hz);
+    void SDK_DelayAtLeastUs(uint32_t delayTime_us, uint32_t coreClock_Hz);
 
 #if defined(__cplusplus)
 }

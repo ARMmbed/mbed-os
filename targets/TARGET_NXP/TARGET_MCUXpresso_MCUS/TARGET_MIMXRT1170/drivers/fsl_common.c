@@ -24,16 +24,15 @@ typedef struct _mem_align_control_block
 #if defined(ENABLE_RAM_VECTOR_TABLE)
 uint32_t InstallIRQHandler(IRQn_Type irq, uint32_t irqHandler)
 {
+#ifdef __VECTOR_TABLE
+#undef __VECTOR_TABLE
+#endif
+
 /* Addresses for VECTOR_TABLE and VECTOR_RAM come from the linker file */
 #if defined(__CC_ARM) || defined(__ARMCC_VERSION)
     extern uint32_t Image$$VECTOR_ROM$$Base[];
     extern uint32_t Image$$VECTOR_RAM$$Base[];
     extern uint32_t Image$$RW_m_data$$Base[];
-
-/* Undef __VECTOR_TABLE to avoid duplicate definition in cmsis_clang.h*/
-#ifdef __VECTOR_TABLE
-#undef __VECTOR_TABLE
-#endif
 
 #define __VECTOR_TABLE          Image$$VECTOR_ROM$$Base
 #define __VECTOR_RAM            Image$$VECTOR_RAM$$Base
@@ -64,9 +63,9 @@ uint32_t InstallIRQHandler(IRQn_Type irq, uint32_t irqHandler)
         SCB->VTOR = (uint32_t)__VECTOR_RAM;
     }
 
-    ret = __VECTOR_RAM[irq + 16];
+    ret = __VECTOR_RAM[(int32_t)irq + 16];
     /* make sure the __VECTOR_RAM is noncachable */
-    __VECTOR_RAM[irq + 16] = irqHandler;
+    __VECTOR_RAM[(int32_t)irq + 16] = irqHandler;
 
     EnableGlobalIRQ(irqMaskValue);
     SDK_ISR_EXIT_BARRIER;
@@ -77,6 +76,17 @@ uint32_t InstallIRQHandler(IRQn_Type irq, uint32_t irqHandler)
 #endif /* __GIC_PRIO_BITS. */
 
 #if (defined(FSL_FEATURE_SOC_SYSCON_COUNT) && (FSL_FEATURE_SOC_SYSCON_COUNT > 0))
+
+/*
+ * When FSL_FEATURE_POWERLIB_EXTEND is defined to non-zero value,
+ * powerlib should be used instead of these functions.
+ */
+#if !(defined(FSL_FEATURE_POWERLIB_EXTEND) && (FSL_FEATURE_POWERLIB_EXTEND != 0))
+
+/*
+ * When the SYSCON STARTER registers are discontinuous, these functions are
+ * implemented in fsl_power.c.
+ */
 #if !(defined(FSL_FEATURE_SYSCON_STARTER_DISCONTINUOUS) && FSL_FEATURE_SYSCON_STARTER_DISCONTINUOUS)
 
 void EnableDeepSleepIRQ(IRQn_Type interrupt)
@@ -91,15 +101,15 @@ void EnableDeepSleepIRQ(IRQn_Type interrupt)
         intNumber -= 32u;
     }
 
-    SYSCON->STARTERSET[index] = 1u << intNumber;
-    EnableIRQ(interrupt); /* also enable interrupt at NVIC */
+    SYSCON->STARTERSET[index] = 1UL << intNumber;
+    (void)EnableIRQ(interrupt); /* also enable interrupt at NVIC */
 }
 
 void DisableDeepSleepIRQ(IRQn_Type interrupt)
 {
     uint32_t intNumber = (uint32_t)interrupt;
 
-    DisableIRQ(interrupt); /* also disable interrupt at NVIC */
+    (void)DisableIRQ(interrupt); /* also disable interrupt at NVIC */
     uint32_t index = 0;
 
     while (intNumber >= 32u)
@@ -108,15 +118,31 @@ void DisableDeepSleepIRQ(IRQn_Type interrupt)
         intNumber -= 32u;
     }
 
-    SYSCON->STARTERCLR[index] = 1u << intNumber;
+    SYSCON->STARTERCLR[index] = 1UL << intNumber;
 }
 #endif /* FSL_FEATURE_SYSCON_STARTER_DISCONTINUOUS */
+#endif /* FSL_FEATURE_POWERLIB_EXTEND */
 #endif /* FSL_FEATURE_SOC_SYSCON_COUNT */
 
 void *SDK_Malloc(size_t size, size_t alignbytes)
 {
     mem_align_cb_t *p_cb = NULL;
-    uint32_t alignedsize = SDK_SIZEALIGN(size, alignbytes) + alignbytes + sizeof(mem_align_cb_t);
+    uint32_t alignedsize;
+
+    /* Check overflow. */
+    alignedsize = SDK_SIZEALIGN(size, alignbytes);
+    if (alignedsize < size)
+    {
+        return NULL;
+    }
+
+    if (alignedsize > SIZE_MAX - alignbytes - sizeof(mem_align_cb_t))
+    {
+        return NULL;
+    }
+
+    alignedsize += alignbytes + sizeof(mem_align_cb_t);
+
     union
     {
         void *pointer_value;
@@ -165,7 +191,7 @@ void SDK_Free(void *ptr)
  * @param count  Counts of loop needed for dalay.
  */
 #if defined(SDK_DELAY_USE_DWT) && defined(DWT)
-void enableCpuCycleCounter(void)
+static void enableCpuCycleCounter(void)
 {
     /* Make sure the DWT trace fucntion is enabled. */
     if (CoreDebug_DEMCR_TRCENA_Msk != (CoreDebug_DEMCR_TRCENA_Msk & CoreDebug->DEMCR))
@@ -183,18 +209,18 @@ void enableCpuCycleCounter(void)
     }
 }
 
-uint32_t getCpuCycleCount(void)
+static uint32_t getCpuCycleCount(void)
 {
     return DWT->CYCCNT;
 }
 #elif defined __XCC__
 extern uint32_t xthal_get_ccount(void);
-void enableCpuCycleCounter(void)
+static void enableCpuCycleCounter(void)
 {
     /* do nothing */
 }
 
-uint32_t getCpuCycleCount(void)
+static uint32_t getCpuCycleCount(void)
 {
     return xthal_get_ccount();
 }
@@ -236,17 +262,17 @@ static void DelayLoop(uint32_t count)
 /*!
  * @brief Delay at least for some time.
  *  Please note that, if not uses DWT, this API will use while loop for delay, different run-time environments have
- *  effect on the delay time. If precise delay is needed, please enable DWT delay. The two parmeters delay_us and
- *  coreClock_Hz have limitation. For example, in the platform with 1GHz coreClock_Hz, the delay_us only supports
+ *  effect on the delay time. If precise delay is needed, please enable DWT delay. The two parmeters delayTime_us and
+ *  coreClock_Hz have limitation. For example, in the platform with 1GHz coreClock_Hz, the delayTime_us only supports
  *  up to 4294967 in current code. If long time delay is needed, please implement a new delay function.
  *
- * @param delay_us  Delay time in unit of microsecond.
+ * @param delayTime_us  Delay time in unit of microsecond.
  * @param coreClock_Hz  Core clock frequency with Hz.
  */
-void SDK_DelayAtLeastUs(uint32_t delay_us, uint32_t coreClock_Hz)
+void SDK_DelayAtLeastUs(uint32_t delayTime_us, uint32_t coreClock_Hz)
 {
-    assert(0U != delay_us);
-    uint64_t count = USEC_TO_COUNT(delay_us, coreClock_Hz);
+    assert(0U != delayTime_us);
+    uint64_t count = USEC_TO_COUNT(delayTime_us, coreClock_Hz);
     assert(count <= UINT32_MAX);
 
 #if defined(SDK_DELAY_USE_DWT) && defined(DWT) || (defined __XCC__) /* Use DWT for better accuracy */

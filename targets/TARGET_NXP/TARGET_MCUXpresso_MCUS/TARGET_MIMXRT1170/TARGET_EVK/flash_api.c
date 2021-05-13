@@ -84,243 +84,6 @@ void *flexspi_memset(void *buf, int c, size_t n)
     return buf;
 }
 
-#ifdef HYPERFLASH_BOOT
-AT_QUICKACCESS_SECTION_CODE(void flexspi_lower_clock_ram(void));
-AT_QUICKACCESS_SECTION_CODE(void flexspi_clock_update_ram(void));
-void flexspi_update_lut_ram(void)
-{
-    flexspi_config_t config;
-
-    flexspi_memset(&config, 0, sizeof(config));
-
-    /*Get FLEXSPI default settings and configure the flexspi. */
-    FLEXSPI_GetDefaultConfig(&config);
-
-    /*Set AHB buffer size for reading data through AHB bus. */
-    config.ahbConfig.enableAHBPrefetch = true;
-    /*Allow AHB read start address do not follow the alignment requirement. */
-    config.ahbConfig.enableReadAddressOpt = true;
-    config.ahbConfig.enableAHBBufferable  = true;
-    config.ahbConfig.enableAHBCachable    = true;
-    /* enable diff clock and DQS */
-    config.enableSckBDiffOpt = true;
-    config.rxSampleClock     = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
-    config.enableCombination = true;
-    FLEXSPI_Init(FLEXSPI, &config);
-
-    /* Configure flash settings according to serial flash feature. */
-    FLEXSPI_SetFlashConfig(FLEXSPI, &deviceconfig, kFLEXSPI_PortA1);
-
-    /* Update LUT table. */
-    FLEXSPI_UpdateLUT(FLEXSPI, 0, customLUT, CUSTOM_LUT_LENGTH);
-
-    FLEXSPI_SoftwareReset(FLEXSPI);
-
-    /* Wait for bus idle. */
-    while (!FLEXSPI_GetBusIdleStatus(FLEXSPI)) {
-    }
-}
-
-status_t flexspi_nor_write_enable_ram(uint32_t baseAddr)
-{
-    flexspi_transfer_t flashXfer;
-    status_t status = kStatus_Success;
-
-    flexspi_memset(&flashXfer, 0, sizeof(flashXfer));
-
-    /* Write enable */
-    flashXfer.deviceAddress = baseAddr;
-    flashXfer.port          = kFLEXSPI_PortA1;
-    flashXfer.cmdType       = kFLEXSPI_Command;
-    flashXfer.SeqNumber     = 2;
-    flashXfer.seqIndex      = HYPERFLASH_CMD_LUT_SEQ_IDX_WRITEENABLE;
-
-    status = FLEXSPI_TransferBlocking(FLEXSPI, &flashXfer);
-
-    return status;
-}
-
-status_t flexspi_nor_wait_bus_busy_ram(void)
-{
-    /* Wait status ready. */
-    bool isBusy = false;
-    uint32_t readValue = 0;
-    status_t status = kStatus_Success;
-    flexspi_transfer_t flashXfer;
-
-    flexspi_memset(&flashXfer, 0, sizeof(flashXfer));
-
-    flashXfer.deviceAddress = 0;
-    flashXfer.port          = kFLEXSPI_PortA1;
-    flashXfer.cmdType       = kFLEXSPI_Read;
-    flashXfer.SeqNumber     = 2;
-    flashXfer.seqIndex      = HYPERFLASH_CMD_LUT_SEQ_IDX_READSTATUS;
-    flashXfer.data          = &readValue;
-    flashXfer.dataSize      = 2;
-
-    do {
-        status = FLEXSPI_TransferBlocking(FLEXSPI, &flashXfer);
-
-        if (status != kStatus_Success) {
-            return status;
-        }
-
-        if (readValue & 0x8000) {
-            isBusy = false;
-        } else {
-            isBusy = true;
-        }
-
-        if (readValue & 0x3200) {
-            status = kStatus_Fail;
-            break;
-        }
-
-    } while (isBusy);
-
-    return status;
-
-}
-
-status_t flexspi_nor_flash_erase_sector_ram(uint32_t address)
-{
-    status_t status = kStatus_Success;
-    flexspi_transfer_t flashXfer;
-
-    flexspi_memset(&flashXfer, 0, sizeof(flashXfer));
-
-    /* Write enable */
-    status = flexspi_nor_write_enable_ram(address);
-    if (status != kStatus_Success) {
-        return status;
-    }
-
-    flashXfer.deviceAddress = address;
-    flashXfer.port          = kFLEXSPI_PortA1;
-    flashXfer.cmdType       = kFLEXSPI_Command;
-    flashXfer.SeqNumber     = 4;
-    flashXfer.seqIndex      = HYPERFLASH_CMD_LUT_SEQ_IDX_ERASESECTOR;
-
-    status = FLEXSPI_TransferBlocking(FLEXSPI, &flashXfer);
-    if (status != kStatus_Success) {
-        return status;
-    }
-
-    status = flexspi_nor_wait_bus_busy_ram();
-
-    /* Do software reset. */
-    FLEXSPI_SoftwareReset(FLEXSPI);
-
-    return status;
-}
-
-void flexspi_lower_clock_ram(void)
-{
-    unsigned int reg = 0;
-
-    /* Wait for bus idle. */
-    while (!FLEXSPI_GetBusIdleStatus(FLEXSPI)) {
-    }
-
-    FLEXSPI_Enable(FLEXSPI, false);
-
-    /* Disable FlexSPI clock */
-    CCM->CCGR6 &= ~CCM_CCGR6_CG5_MASK;
-
-    /* flexspi clock 66M, DDR mode, internal clock 33M. */
-    reg = CCM->CSCMR1;
-    reg &= ~CCM_CSCMR1_FLEXSPI_PODF_MASK;
-    reg |= CCM_CSCMR1_FLEXSPI_PODF(3);
-    CCM->CSCMR1 = reg;
-
-    /* Enable FlexSPI clock */
-    CCM->CCGR6 |= CCM_CCGR6_CG5_MASK;
-
-    FLEXSPI_Enable(FLEXSPI, true);
-
-    /* Do software reset. */
-    FLEXSPI_SoftwareReset(FLEXSPI);
-
-    /* Wait for bus idle. */
-    while (!FLEXSPI_GetBusIdleStatus(FLEXSPI)) {
-    }
-}
-
-void flexspi_clock_update_ram(void)
-{
-    /* Program finished, speed the clock to 133M. */
-    /* Wait for bus idle before change flash configuration. */
-    while (!FLEXSPI_GetBusIdleStatus(FLEXSPI)) {
-    }
-    FLEXSPI_Enable(FLEXSPI, false);
-    /* Disable FlexSPI clock */
-    CCM->CCGR6 &= ~CCM_CCGR6_CG5_MASK;
-
-    /* flexspi clock 260M, DDR mode, internal clock 130M. */
-    CCM->CSCMR1 &= ~CCM_CSCMR1_FLEXSPI_PODF_MASK;
-
-    /* Enable FlexSPI clock */
-    CCM->CCGR6 |= CCM_CCGR6_CG5_MASK;
-
-    FLEXSPI_Enable(FLEXSPI, true);
-
-    /* Do software reset. */
-    FLEXSPI_SoftwareReset(FLEXSPI);
-
-    /* Wait for bus idle. */
-    while (!FLEXSPI_GetBusIdleStatus(FLEXSPI)) {
-    }
-}
-
-status_t flexspi_nor_flash_page_program_ram(uint32_t address, const uint32_t *src, uint32_t size)
-{
-    status_t status = kStatus_Success;
-    flexspi_transfer_t flashXfer;
-    uint32_t offset = 0;
-
-    flexspi_memset(&flashXfer, 0, sizeof(flashXfer));
-
-    flexspi_lower_clock_ram();
-
-    while (size > 0) {
-        /* Write enable */
-        status = flexspi_nor_write_enable_ram(address + offset);
-
-        if (status != kStatus_Success) {
-            return status;
-        }
-
-        /* Prepare page program command */
-        flashXfer.deviceAddress = address + offset;
-        flashXfer.port          = kFLEXSPI_PortA1;
-        flashXfer.cmdType       = kFLEXSPI_Write;
-        flashXfer.SeqNumber     = 2;
-        flashXfer.seqIndex      = HYPERFLASH_CMD_LUT_SEQ_IDX_PAGEPROGRAM;
-        flashXfer.data          = (uint32_t *)((uint32_t)src + offset);
-        flashXfer.dataSize      = BOARD_FLASH_PAGE_SIZE;
-
-        status = FLEXSPI_TransferBlocking(FLEXSPI, &flashXfer);
-
-        if (status != kStatus_Success) {
-            return status;
-        }
-
-        status = flexspi_nor_wait_bus_busy_ram();
-
-        if (status != kStatus_Success) {
-            return status;
-        }
-
-        size -= BOARD_FLASH_PAGE_SIZE;
-        offset += BOARD_FLASH_PAGE_SIZE;
-    }
-
-    flexspi_clock_update_ram();
-
-    return status;
-}
-
-#else
 AT_QUICKACCESS_SECTION_CODE(status_t flexspi_nor_enable_quad_mode_ram(void));
 status_t flexspi_nor_enable_quad_mode_ram(void)
 {
@@ -373,7 +136,6 @@ void flexspi_update_lut_ram(void)
     config.ahbConfig.enableReadAddressOpt = true;
     config.ahbConfig.enableAHBCachable    = true;
     config.rxSampleClock                  = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
-    FLEXSPI_Init(FLEXSPI, &config);
 
     /* Configure flash settings according to serial flash feature. */
     FLEXSPI_SetFlashConfig(FLEXSPI, &deviceconfig, kFLEXSPI_PortA1);
@@ -537,7 +299,6 @@ status_t flexspi_nor_flash_page_program_ram(uint32_t address, const uint32_t *sr
     return status;
 }
 
-#endif
 void flexspi_nor_flash_read_data_ram(uint32_t addr, uint32_t *buffer, uint32_t size)
 {
     memcpy(buffer, (void *)addr, size);
@@ -607,8 +368,8 @@ int32_t flash_free(flash_t *obj)
 uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 {
     uint32_t sectorsize = MBED_FLASH_INVALID_SIZE;
-    uint32_t devicesize = BOARD_FLASH_SIZE;
-    uint32_t startaddr = BOARD_FLASH_START_ADDR;
+    uint32_t devicesize = BOARD_FLASHIAP_SIZE;
+    uint32_t startaddr = BOARD_FLASHIAP_START_ADDR;
 
     if ((address >= startaddr) && (address < (startaddr + devicesize))) {
         sectorsize = BOARD_FLASH_SECTOR_SIZE;
