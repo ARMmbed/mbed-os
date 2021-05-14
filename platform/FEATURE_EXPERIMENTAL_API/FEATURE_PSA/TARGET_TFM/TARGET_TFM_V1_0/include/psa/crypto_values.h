@@ -24,6 +24,8 @@
 #ifndef PSA_CRYPTO_VALUES_H
 #define PSA_CRYPTO_VALUES_H
 
+#include "mbedtls_svc_key_id.h"
+
 /** \defgroup error Error codes
  * @{
  */
