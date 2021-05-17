@@ -6186,6 +6186,16 @@
             "GCC_ARM"
         ],
         "config": {
+            "hxt-present": {
+                "help": "High-speed external crystal oscillator HXT is present",
+                "options": [false, true],
+                "value": false
+            },
+            "lxt-present": {
+                "help": "Low-speed external crystal oscillator LXT is present",
+                "options": [false, true],
+                "value": true
+            },
             "gpio-irq-debounce-enable": {
                 "help": "Enable GPIO IRQ debounce",
                 "value": 0
@@ -6250,6 +6260,8 @@
         "device_name": "NUC472HI8AE",
         "bootloader_supported": true,
         "overrides": {
+            "hxt-present": true,
+            "lxt-present": true,
             "network-default-interface-type": "ETHERNET",
             "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
@@ -6288,6 +6300,16 @@
             "IAR"
         ],
         "config": {
+            "hxt-present": {
+                "help": "High-speed external crystal oscillator HXT is present",
+                "options": [false, true],
+                "value": false
+            },
+            "lxt-present": {
+                "help": "Low-speed external crystal oscillator LXT is present",
+                "options": [false, true],
+                "value": true
+            },
             "gpio-irq-debounce-enable": {
                 "help": "Enable GPIO IRQ debounce",
                 "value": 0
@@ -6375,6 +6397,8 @@
         "device_name": "M453VG6AE",
         "bootloader_supported": true,
         "overrides": {
+            "hxt-present": true,
+            "lxt-present": true,
             "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
         },
@@ -6397,6 +6421,16 @@
             "IAR"
         ],
         "config": {
+            "hxt-present": {
+                "help": "High-speed external crystal oscillator HXT is present",
+                "options": [false, true],
+                "value": false
+            },
+            "lxt-present": {
+                "help": "Low-speed external crystal oscillator LXT is present",
+                "options": [false, true],
+                "value": true
+            },
             "gpio-irq-debounce-enable": {
                 "help": "Enable GPIO IRQ debounce",
                 "value": 0
@@ -6476,6 +6510,8 @@
         ],
         "device_name": "NANO130KE3BN",
         "overrides": {
+            "hxt-present": true,
+            "lxt-present": true,
             "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
         },
@@ -6499,6 +6535,16 @@
             "GCC_ARM"
         ],
         "config": {
+            "hxt-present": {
+                "help": "High-speed external crystal oscillator HXT is present",
+                "options": [false, true],
+                "value": false
+            },
+            "lxt-present": {
+                "help": "Low-speed external crystal oscillator LXT is present",
+                "options": [false, true],
+                "value": true
+            },
             "spim-ccm-enable": {
                 "help": "Enable SPIM CCM mode to spare 32KiB SRAM for normal use",
                 "value": 0
@@ -6627,6 +6673,8 @@
             "1304"
         ],
         "overrides": {
+            "hxt-present": true,
+            "lxt-present": true,
             "usb-uart": "UART_0",
             "usb-uart-tx": "PB_13",
             "usb-uart-rx": "PB_12",
@@ -6646,6 +6694,8 @@
             "1308"
         ],
         "overrides": {
+            "hxt-present": true,
+            "lxt-present": true,
             "usb-uart": "UART_0",
             "usb-uart-tx": "PB_13",
             "usb-uart-rx": "PB_12",
@@ -6992,6 +7042,16 @@
             "GCC_ARM"
         ],
         "config": {
+            "hxt-present": {
+                "help": "High-speed external crystal oscillator HXT is present",
+                "options": [false, true],
+                "value": false
+            },
+            "lxt-present": {
+                "help": "Low-speed external crystal oscillator LXT is present",
+                "options": [false, true],
+                "value": true
+            },
             "usb-uart": {
                 "help": "Configure USB_UART. USB_UART and USB_UART_TX/USB_UART_RX must be consistent.",
                 "value": null
@@ -7039,6 +7099,8 @@
             }
         },
         "overrides": {
+            "hxt-present": false,
+            "lxt-present": true,
             "mpu-rom-end": "0x1fffffff",
             "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
@@ -7927,6 +7989,16 @@
             "GCC_ARM"
         ],
         "config": {
+            "hxt-present": {
+                "help": "High-speed external crystal oscillator HXT is present",
+                "options": [false, true],
+                "value": false
+            },
+            "lxt-present": {
+                "help": "Low-speed external crystal oscillator LXT is present",
+                "options": [false, true],
+                "value": true
+            },
             "usb-uart": {
                 "help": "Configure USB_UART. USB_UART and USB_UART_TX/USB_UART_RX must be consistent.",
                 "value": null
@@ -8012,6 +8084,8 @@
         ],
         "bootloader_supported": true,
         "overrides": {
+            "hxt-present": true,
+            "lxt-present": true,
             "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
         },
