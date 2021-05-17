@@ -5898,6 +5898,9 @@
             "TRNG",
             "USTICKER"
         ],
+        "components": [
+            "FLASHIAP"
+        ],
         "extra_labels": [
             "NORDIC",
             "NRF5x",
