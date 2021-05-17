@@ -342,6 +342,18 @@ public:
         }
 
         /**
+         * Called when an asynchronous advertising command fails.
+         *
+         * @param event Advertising command failed event.
+         *
+         * @see startAdvertising()
+         * @see stopAdvertising()
+         */
+        virtual void onAdvertisingCommandFailed(const AdvertisingCommandFailedEvent &event)
+        {
+        }
+
+        /**
          * Called when a scanner receives an advertising or a scan response packet.
          *
          * @param event Advertising report.
@@ -747,7 +759,9 @@ public:
      * @param handle Advertising set handle.
      * @param maxDuration Max duration for advertising (in units of 10ms) - 0 means no limit.
      * @param maxEvents Max number of events produced during advertising - 0 means no limit.
-     * @return BLE_ERROR_NONE on success.
+     * @return BLE_ERROR_NONE on success. This does not guarantee the set has started if
+     * extended advertising is enabled. Register an event handler and wait for onAdvertisingStart
+     * event. An (unlikely) failed start will emit an onAdvertisingCommandFailed instead.
      *
      * @see EventHandler::onAdvertisingStart when the advertising starts.
      * @see EventHandler::onScanRequestReceived when a scan request is received.
@@ -765,7 +779,9 @@ public:
      *  which will not be affected.
      *
      * @param handle Advertising set handle.
-     * @return BLE_ERROR_NONE on success.
+     * @return BLE_ERROR_NONE on success. For extented advertising this does not guarantee
+     * the set is stopped if. Register an event handler and wait for onAdvertisingEnd event.
+     * An (unlikely) failed stop will emit an onAdvertisingCommandFailed instead.
      */
     ble_error_t stopAdvertising(advertising_handle_t handle);
 

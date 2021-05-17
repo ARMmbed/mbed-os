@@ -605,6 +605,44 @@ private:
 };
 
 /**
+ * Event produced when an async advertising command fails.
+ *
+ * @see ble::Gap::EventHandler::onAdvertisingCommandFailed().
+ */
+struct AdvertisingCommandFailedEvent {
+#if !defined(DOXYGEN_ONLY)
+    /** Create an extended advertising command failed event.
+     *
+     * @param advHandle Advertising set handle.
+     * @param status Error code.
+     */
+    AdvertisingCommandFailedEvent(
+        advertising_handle_t advHandle,
+        ble_error_t status
+    ) :
+        advHandle(advHandle),
+        status(status)
+    {
+    }
+
+#endif
+    /** Get advertising handle. */
+    advertising_handle_t getAdvHandle() const
+    {
+        return advHandle;
+    }
+
+    /** Error code that caused the event. */
+    uint8_t getStatus() const
+    {
+        return status;
+    }
+private:
+    advertising_handle_t advHandle;
+    ble_error_t status;
+};
+
+/**
  * Event produced when advertising ends.
  *
  * @see ble::Gap::EventHandler::onAdvertisingEnd().

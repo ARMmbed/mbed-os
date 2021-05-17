@@ -373,6 +373,11 @@ Gap::Gap(
     , _scan_parameters_set(false)
 #endif // BLE_ROLE_OBSERVER
 {
+#if BLE_FEATURE_EXTENDED_ADVERTISING
+    _advertising_enable_queue.handle = ble::INVALID_ADVERTISING_HANDLE;
+    _advertising_enable_queue.next = nullptr;
+    _advertising_enable_pending = false;
+#endif //BLE_FEATURE_EXTENDED_ADVERTISING
     _pal_gap.initialize();
 
     _pal_gap.when_gap_event_received(
@@ -1214,6 +1219,21 @@ ble_error_t Gap::reset()
     _initiating = false;
     set_scan_state(ScanState::idle);
     _scan_requested = false;
+
+#if BLE_FEATURE_EXTENDED_ADVERTISING
+    /* reset pending advertising sets */
+    AdvertisingEnableStackNode_t* next = _advertising_enable_queue.next;
+    _advertising_enable_queue.next = nullptr;
+    _advertising_enable_queue.handle = ble::INVALID_ADVERTISING_HANDLE;
+    _advertising_enable_pending = false;
+    /* free any allocated nodes */
+    while (next) {
+        AdvertisingEnableStackNode_t* node_to_free = next;
+        AdvertisingEnableStackNode_t* next = next->next;
+        delete node_to_free;
+    }
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+
 #if BLE_FEATURE_PRIVACY
     _privacy_initialization_pending = false;
 #if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
@@ -1268,6 +1288,7 @@ ble_error_t Gap::reset()
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
     _active_sets.clear();
+    _pending_stop_sets.clear();
     _pending_sets.clear();
     _address_refresh_sets.clear();
     _interruptible_sets.clear();
@@ -2413,23 +2434,10 @@ ble_error_t Gap::startAdvertising(
             _pal_gap.set_advertising_set_random_address(handle, *random_address);
         }
 
-        error = _pal_gap.extended_advertising_enable(
-            /* enable */ true,
-            /* number of advertising sets */ 1,
-            &handle,
-            maxDuration.storage(),
-            &maxEvents
-        );
-
-        if (error) {
-            return error;
-        }
-
-        if (maxDuration.value() || maxEvents) {
-            _interruptible_sets.clear(handle);
-        } else {
-            _interruptible_sets.set(handle);
-        }
+        _event_queue.post([this, handle, maxDuration, maxEvents] {
+            start_advertising_enable(handle, maxDuration, maxEvents);
+            evaluate_advertising_enable_queue();
+        });
 
     } else
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
@@ -2469,6 +2477,93 @@ ble_error_t Gap::startAdvertising(
 }
 #endif
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
+void Gap::start_advertising_enable(
+    advertising_handle_t handle,
+    adv_duration_t maxDuration,
+    uint8_t maxEvents
+)
+{
+    /* remember the parameters that will be enabled when the last command completes */
+    if (_advertising_enable_queue.handle == ble::INVALID_ADVERTISING_HANDLE) {
+        /* special case when there is only one pending */
+        _advertising_enable_queue.handle = handle;
+        _advertising_enable_queue.max_duration = maxDuration;
+        _advertising_enable_queue.max_events = maxEvents;
+        _advertising_enable_queue.next = nullptr;
+    } else {
+        AdvertisingEnableStackNode_t** next = &_advertising_enable_queue.next;
+        /* move down the queue until we're over a nullptr */
+        if (*next) {
+            while ((*next)->next) {
+                next = &((*next)->next);
+            }
+            next = &(*next)->next;
+        }
+        *next = new AdvertisingEnableStackNode_t();
+        if (!*next) {
+            tr_error("Out of memory creating pending advertising enable node for handle %d", handle);
+            return;
+        }
+        (*next)->handle = handle;
+        (*next)->max_duration = maxDuration;
+        (*next)->max_events = maxEvents;
+        (*next)->next = nullptr;
+    }
+}
+
+void Gap::evaluate_advertising_enable_queue()
+{
+    tr_info("Evaluating pending advertising sets to be started");
+    if (_advertising_enable_pending) {
+        return;
+    }
+
+    if (_advertising_enable_queue.handle == ble::INVALID_ADVERTISING_HANDLE) {
+        /* no set pending to be enabled*/
+        return;
+    }
+
+    ble_error_t error = _pal_gap.extended_advertising_enable(
+        /* enable */ true,
+        /* number of advertising sets */ 1,
+        &_advertising_enable_queue.handle,
+        _advertising_enable_queue.max_duration.storage(),
+        &_advertising_enable_queue.max_events
+    );
+
+    if (error) {
+        tr_error("Failed to start advertising set with error: %s", to_string(error));
+        if (_event_handler) {
+            _event_handler->onAdvertisingCommandFailed(
+                AdvertisingCommandFailedEvent(
+                    _advertising_enable_queue.handle,
+                    error
+                )
+            );
+        }
+    } else {
+        _advertising_enable_pending = true;
+        if (_advertising_enable_queue.max_duration.value() || _advertising_enable_queue.max_events) {
+            _interruptible_sets.clear(_advertising_enable_queue.handle);
+        } else {
+            _interruptible_sets.set(_advertising_enable_queue.handle);
+        }
+    }
+
+    /* if there's anything else waiting, queue it up, otherwise mark the head node handle as invalid */
+    if (_advertising_enable_queue.next) {
+        AdvertisingEnableStackNode_t* next = _advertising_enable_queue.next;
+        _advertising_enable_queue.handle = next->handle;
+        _advertising_enable_queue.max_duration = next->max_duration;
+        _advertising_enable_queue.max_events = next->max_events;
+        _advertising_enable_queue.next = next->next;
+        delete next;
+    } else {
+        _advertising_enable_queue.handle = ble::INVALID_ADVERTISING_HANDLE;
+    }
+}
+#endif //BLE_FEATURE_EXTENDED_ADVERTISING
 
 #if BLE_ROLE_BROADCASTER
 ble_error_t Gap::stopAdvertising(advertising_handle_t handle)
@@ -2499,17 +2594,23 @@ ble_error_t Gap::stopAdvertising(advertising_handle_t handle)
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING
     if (is_extended_advertising_available()) {
-        status = _pal_gap.extended_advertising_enable(
-            /*enable ? */ false,
-            /* number of advertising sets */ 1,
-            &handle,
-            nullptr,
-            nullptr
-        );
+        _event_queue.post([this, handle] {
+            /* if any already pending to stop delay the command execution */
+            bool delay = false;
+            for (size_t i = 0; i < BLE_GAP_MAX_ADVERTISING_SETS; ++i) {
+                if (_pending_stop_sets.get(i)) {
+                    delay = true;
+                    break;
+                }
+            }
+            _pending_stop_sets.set(handle);
+            if (!delay) {
+                evaluate_advertising_stop();
+            }
+        });
 
-        if (status) {
-            return status;
-        }
+        return BLE_ERROR_NONE;
+
     } else
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
     {
@@ -2531,6 +2632,36 @@ ble_error_t Gap::stopAdvertising(advertising_handle_t handle)
 
     return status;
 }
+
+#if BLE_FEATURE_EXTENDED_ADVERTISING
+void Gap::evaluate_advertising_stop()
+{
+    // refresh for address for all connectable advertising sets
+    for (size_t i = 0; i < BLE_GAP_MAX_ADVERTISING_SETS; ++i) {
+        if (_pending_stop_sets.get(i)) {
+            ble_error_t status = _pal_gap.extended_advertising_enable(
+                /* enable */ false,
+                /* number of advertising sets */ 1,
+                (advertising_handle_t*)&i,
+                nullptr,
+                nullptr
+            );
+            if (status) {
+                _event_handler->onAdvertisingCommandFailed(
+                    AdvertisingCommandFailedEvent(
+                        (advertising_handle_t)i,
+                        status
+                    )
+                );
+                tr_error("Could not stop advertising set %u, error: %s", i, to_string(status));
+            }
+            break;
+        }
+    }
+
+}
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+
 #endif
 
 
@@ -3354,6 +3485,11 @@ void Gap::on_advertising_set_started(const mbed::Span<const uint8_t>& handles)
 {
     tr_info("Advertising set started - handles=%s", mbed_trace_array(handles.data(), handles.size()));
 
+    _event_queue.post([this] {
+        _advertising_enable_pending = false;
+        evaluate_advertising_enable_queue();
+    });
+
     for (const auto &handle : handles) {
         _active_sets.set(handle);
         _pending_sets.clear(handle);
@@ -3393,6 +3529,11 @@ void Gap::on_advertising_set_terminated(
         _adv_started_from_refresh.set(advertising_handle);
         return;
     }
+
+    _event_queue.post([this, advertising_handle] {
+        _pending_stop_sets.clear(advertising_handle);
+        evaluate_advertising_stop();
+    });
 
     if (!_event_handler) {
         return;

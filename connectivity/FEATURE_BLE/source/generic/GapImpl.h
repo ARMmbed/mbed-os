@@ -562,6 +562,17 @@ private:
     ~Gap();
 
 #if BLE_ROLE_BROADCASTER
+#if BLE_FEATURE_EXTENDED_ADVERTISING
+    void start_advertising_enable(
+        advertising_handle_t handle,
+        adv_duration_t maxDuration,
+        uint8_t maxEvents
+    );
+
+    void evaluate_advertising_enable_queue();
+    void evaluate_advertising_stop();
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+
     ble_error_t setAdvertisingData(
         advertising_handle_t handle,
         Span<const uint8_t> payload,
@@ -980,6 +991,9 @@ private:
     };
 
     BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _existing_sets;
+#if BLE_FEATURE_EXTENDED_ADVERTISING
+    BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _pending_stop_sets;
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
     BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _active_sets;
     BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _active_periodic_sets;
     BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _connectable_payload_size_exceeded;
@@ -989,6 +1003,18 @@ private:
     BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _interruptible_sets;
     BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _adv_started_from_refresh;
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
+    struct AdvertisingEnableStackNode_t {
+        adv_duration_t max_duration;
+        advertising_handle_t handle;
+        uint8_t max_events;
+        AdvertisingEnableStackNode_t* next;
+    };
+
+    /* to simplify code and avoid allocation unless multiple requests issued we keep one node as member */
+    AdvertisingEnableStackNode_t _advertising_enable_queue;
+    bool _advertising_enable_pending;
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
     bool _user_manage_connection_parameter_requests;
 #if BLE_ROLE_OBSERVER
