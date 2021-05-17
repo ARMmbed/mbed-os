@@ -1258,12 +1258,10 @@ ble_error_t Gap::reset()
 
         /* clear advertising set data on the controller */
         _pal_gap.clear_advertising_sets();
-    } else
+    }
 #else // BLE_FEATURE_EXTENDED_ADVERTISING
-    {
-        if (_active_sets.get(LEGACY_ADVERTISING_HANDLE)) {
-            _pal_gap.advertising_enable(false);
-        }
+    if (_active_sets.get(LEGACY_ADVERTISING_HANDLE)) {
+        _pal_gap.advertising_enable(false);
     }
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
