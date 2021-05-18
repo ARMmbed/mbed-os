@@ -1218,8 +1218,6 @@ ble_error_t Gap::reset()
 
     _event_handler = nullptr;
     _initiating = false;
-    set_scan_state(ScanState::idle);
-    _scan_requested = false;
 
 #if BLE_FEATURE_PRIVACY
     _privacy_initialization_pending = false;
@@ -1231,6 +1229,8 @@ ble_error_t Gap::reset()
 #endif // BLE_FEATURE_PRIVACY
 
 #if BLE_ROLE_OBSERVER
+    set_scan_state(ScanState::idle);
+    _scan_requested = false;
     _scan_parameters_set = false;
     _scan_timeout.detach();
 #endif
@@ -2415,12 +2415,14 @@ ble_error_t Gap::startAdvertising(
             return BLE_ERROR_INVALID_PARAM;
         }
 
+#if BLE_ROLE_OBSERVER
         // Address can be updated if the device is not scanning or advertising
         if ((_scan_state == ScanState::idle) && !_active_sets.get(LEGACY_ADVERTISING_HANDLE)) {
             _pal_gap.set_random_address(*random_address);
         } else {
             tr_error("could not update address, device scanning/advertising");
         }
+#endif // BLE_ROLE_OBSERVER
 
         error = _pal_gap.advertising_enable(true);
         if (error) {
@@ -3433,7 +3435,11 @@ void Gap::on_legacy_advertising_stopped()
     _pending_sets.clear(LEGACY_ADVERTISING_HANDLE);
 
     // restart advertising if it was stopped to refresh the address
-    if (_address_refresh_sets.get(LEGACY_ADVERTISING_HANDLE) && (_scan_state == ScanState::idle)) {
+    if (_address_refresh_sets.get(LEGACY_ADVERTISING_HANDLE)
+#if BLE_ROLE_OBSERVER
+        && (_scan_state == ScanState::idle)
+#endif //BLE_ROLE_OBSERVER
+    ) {
         _address_refresh_sets.clear(LEGACY_ADVERTISING_HANDLE);
         startAdvertising(LEGACY_ADVERTISING_HANDLE);
         _adv_started_from_refresh.set(LEGACY_ADVERTISING_HANDLE);
@@ -4238,7 +4244,11 @@ bool Gap::is_advertising() const
 }
 
 bool Gap::is_radio_active() const {
-    return _initiating || (_scan_state != ScanState::idle) || is_advertising();
+    return _initiating ||
+#if BLE_ROLE_OBSERVER
+        (_scan_state != ScanState::idle) ||
+#endif // BLE_ROLE_OBSERVER
+        is_advertising();
 }
 
 void Gap::update_advertising_set_connectable_attribute(
@@ -4303,12 +4313,14 @@ const address_t *Gap::get_random_address(controller_operation_t operation, size_
     // it to the address to use to determine if the address is correct or not.
     if (_initiating) {
         address_in_use = &resolvable_address;
+#if BLE_ROLE_OBSERVER
     } else if (_scan_state != ScanState::idle) {
         if (central_non_resolvable) {
             address_in_use = &non_resolvable_address;
         } else {
             address_in_use = &resolvable_address;
         }
+#endif //BLE_ROLE_OBSERVER
     } else if (advertising_use_main_address && (_active_sets.get(set_id) || _pending_sets.get(set_id))) {
         if (!_set_is_connectable.get(set_id) && peripheral_non_resolvable) {
             address_in_use = &non_resolvable_address;

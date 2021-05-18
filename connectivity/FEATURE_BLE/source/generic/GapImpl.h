@@ -909,6 +909,7 @@ private:
 #endif // BLE_FEATURE_PRIVACY
     ble::address_t _random_static_identity_address;
 
+#if BLE_ROLE_OBSERVER
     enum class ScanState : uint8_t {
         idle,
         scan,
@@ -925,6 +926,7 @@ private:
     scan_period_t _scan_requested_period = scan_period_t(0);
 
     bool _scan_requested = false;
+#endif // BLE_ROLE_OBSERVER
 
 #if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
     enum class ConnectionToHostResolvedAddressState : uint8_t {
