@@ -6944,6 +6944,9 @@
         "inherits": [
             "MCU_M2354"
         ],
+        "supported_form_factors": [
+            "ARDUINO_UNO"
+        ],
         "detect_code": [
             "1312"
         ],
