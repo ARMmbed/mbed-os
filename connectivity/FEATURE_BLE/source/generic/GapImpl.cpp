@@ -1220,20 +1220,6 @@ ble_error_t Gap::reset()
     set_scan_state(ScanState::idle);
     _scan_requested = false;
 
-#if BLE_FEATURE_EXTENDED_ADVERTISING
-    /* reset pending advertising sets */
-    AdvertisingEnableStackNode_t* next = _advertising_enable_queue.next;
-    _advertising_enable_queue.next = nullptr;
-    _advertising_enable_queue.handle = ble::INVALID_ADVERTISING_HANDLE;
-    _advertising_enable_pending = false;
-    /* free any allocated nodes */
-    while (next) {
-        AdvertisingEnableStackNode_t* node_to_free = next;
-        AdvertisingEnableStackNode_t* next = next->next;
-        delete node_to_free;
-    }
-#endif // BLE_FEATURE_EXTENDED_ADVERTISING
-
 #if BLE_FEATURE_PRIVACY
     _privacy_initialization_pending = false;
 #if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
@@ -1249,44 +1235,25 @@ ble_error_t Gap::reset()
 #endif
 
 #if BLE_ROLE_BROADCASTER
+    /* clear advertising set data on the controller */
+    _pal_gap.clear_advertising_sets();
 #if BLE_FEATURE_EXTENDED_ADVERTISING
-    if (is_extended_advertising_available()) {
-        /* stop all advertising sets */
-        for (size_t i = 0; i < BLE_GAP_MAX_ADVERTISING_SETS; ++i) {
-            if (_active_sets.get(i)) {
-                _pal_gap.extended_advertising_enable(
-                    /* enable */ false,
-                    /* number of advertising sets */ 1,
-                    (advertising_handle_t *) &i,
-                    nullptr,
-                    nullptr
-                );
-            }
-#if BLE_FEATURE_PERIODIC_ADVERTISING
-            if (_active_periodic_sets.get(i)) {
-                _pal_gap.periodic_advertising_enable(
-                    /* enable */ false,
-                    (advertising_handle_t) i
-                );
-            }
-            _active_periodic_sets.clear();
-#endif // BLE_FEATURE_PERIODIC_ADVERTISING
-        }
-
-        /* clear state of all advertising sets */
-        _existing_sets.clear();
-
-        /* clear advertising set data on the controller */
-        _pal_gap.clear_advertising_sets();
-    } else
-#else // BLE_FEATURE_EXTENDED_ADVERTISING
-    {
-        if (_active_sets.get(LEGACY_ADVERTISING_HANDLE)) {
-            _pal_gap.advertising_enable(false);
-        }
+    /* reset pending advertising sets */
+    AdvertisingEnableStackNode_t* next = _advertising_enable_queue.next;
+    _advertising_enable_queue.next = nullptr;
+    _advertising_enable_queue.handle = ble::INVALID_ADVERTISING_HANDLE;
+    _advertising_enable_pending = false;
+    /* free any allocated nodes */
+    while (next) {
+        AdvertisingEnableStackNode_t* node_to_free = next;
+        AdvertisingEnableStackNode_t* next = next->next;
+        delete node_to_free;
     }
+    _existing_sets.clear();
+#if BLE_FEATURE_PERIODIC_ADVERTISING
+    _active_periodic_sets.clear();
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
-
     _active_sets.clear();
     _pending_stop_sets.clear();
     _pending_sets.clear();
