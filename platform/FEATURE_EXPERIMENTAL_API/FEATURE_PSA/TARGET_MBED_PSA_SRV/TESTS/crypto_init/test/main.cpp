@@ -18,8 +18,8 @@
 
 #include "psa/crypto.h"
 
-#if ((!defined(TARGET_PSA)) || (!defined(MBEDTLS_PSA_CRYPTO_C)))
-#error [NOT_SUPPORTED] Mbed Crypto is OFF - skipping.
+#if !defined(MBEDTLS_PSA_CRYPTO_C)
+#error [NOT_SUPPORTED] Mbed TLS PSA Crypto is OFF - skipping.
 #else
 
 #include "greentea-client/test_env.h"
@@ -87,4 +87,4 @@ int main()
     return !Harness::run(specification);
 }
 
-#endif // ((!defined(TARGET_PSA)) || (!defined(MBEDTLS_PSA_CRYPTO_C)))
+#endif // !defined(MBEDTLS_PSA_CRYPTO_C)

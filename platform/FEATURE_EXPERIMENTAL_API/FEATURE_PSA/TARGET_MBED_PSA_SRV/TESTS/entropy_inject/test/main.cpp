@@ -16,8 +16,8 @@
 * limitations under the License.
 */
 
-#if ((!defined(TARGET_PSA) || (!defined(COMPONENT_PSA_SRV_IPC)) && !defined(MBEDTLS_ENTROPY_NV_SEED)))
-#error [NOT_SUPPORTED] PSA entropy injection tests can run only on PSA-enabled targets.
+#if !defined(MBEDTLS_ENTROPY_NV_SEED)
+#error [NOT_SUPPORTED] PSA entropy injection tests can run only with MBEDTLS_ENTROPY_NV_SEED enabled.
 #else
 
 #include "greentea-client/test_env.h"
@@ -184,4 +184,4 @@ int main()
     return !Harness::run(specification);
 }
 
-#endif // ((!defined(TARGET_PSA) || (!defined(COMPONENT_PSA_SRV_IPC)) && !defined(MBEDTLS_ENTROPY_NV_SEED)))
+#endif // !defined(MBEDTLS_ENTROPY_NV_SEED)
