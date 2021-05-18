@@ -392,10 +392,7 @@ void Reset_Handler_1(void)
 {
     /* Disable register write-protection function */
     SYS_UnlockReg();
-    
-    /* Disable Power-on Reset function */
-    SYS_DISABLE_POR();
-    
+
     /**
      * NOTE 1: Some register accesses require unlock.
      * NOTE 2: Because EBI (external SRAM) init is done in SystemInit(), SystemInit() must be called at the very start.
