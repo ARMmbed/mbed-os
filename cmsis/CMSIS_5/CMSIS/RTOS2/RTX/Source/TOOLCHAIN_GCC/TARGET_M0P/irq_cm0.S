@@ -102,7 +102,7 @@ SVC_ContextRestore:
         SUBS     R0,R0,#32              // Adjust address
         LDMIA    R0!,{R4-R7}            // Restore R4..R7
 
-        MOVS     R0,#~0xFFFFFFFD
+        MOVS     R0,#2                  // Binary complement of 0xFFFFFFFD
         MVNS     R0,R0                  // Set EXC_RETURN value
         BX       R0                     // Exit from handler
 
