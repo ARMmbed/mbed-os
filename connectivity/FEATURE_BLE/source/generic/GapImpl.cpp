@@ -1214,6 +1214,7 @@ ble_error_t Gap::reset()
     /* Notify that the instance is about to shut down */
 //    shutdownCallChain.call(this);
     shutdownCallChain.clear();
+    _event_queue.clear();
 
     _event_handler = nullptr;
     _initiating = false;
