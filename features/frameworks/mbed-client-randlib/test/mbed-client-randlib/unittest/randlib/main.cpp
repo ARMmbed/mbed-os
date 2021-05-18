@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ARM. All rights reserved.
+ * Copyright (c) 2015 ARM Limited. All rights reserved.
  */
 
 #include "CppUTest/CommandLineTestRunner.h"
