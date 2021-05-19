@@ -646,6 +646,8 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
 #include <string.h>
 #include <inttypes.h>
 
+#define DEFAULT_RXFIFO    0 // default rx fifo for can by hardware is FIFO0
+
 static uint32_t can_irq_ids[CAN_NUM] = {0};
 static can_irq_handler irq_handler;
 
@@ -956,8 +958,10 @@ int can_write(can_t *obj, CAN_Message msg, int cc)
 
 int can_read(can_t *obj, CAN_Message *msg, int handle)
 {
+
     //handle is the FIFO number
 
+    int rxfifo_default = DEFAULT_RXFIFO;    //FIFO selection cannot be controlled by software for STM32, default FIFO is 0
     CAN_TypeDef *can = obj->CanHandle.Instance;
 
     // check FPM0 which holds the pending message count in FIFO 0
@@ -967,36 +971,30 @@ int can_read(can_t *obj, CAN_Message *msg, int handle)
     }
 
     /* Get the Id */
-    msg->format = (CANFormat)(((uint8_t)0x04 & can->sFIFOMailBox[handle].RIR) >> 2);
+    msg->format = (CANFormat)(((uint8_t)0x04 & can->sFIFOMailBox[rxfifo_default].RIR) >> 2);
     if (!msg->format) {
-        msg->id = (uint32_t)0x000007FF & (can->sFIFOMailBox[handle].RIR >> 21);
+        msg->id = (uint32_t)0x000007FF & (can->sFIFOMailBox[rxfifo_default].RIR >> 21);
     } else {
-        msg->id = (uint32_t)0x1FFFFFFF & (can->sFIFOMailBox[handle].RIR >> 3);
+        msg->id = (uint32_t)0x1FFFFFFF & (can->sFIFOMailBox[rxfifo_default].RIR >> 3);
     }
 
-    msg->type = (CANType)(((uint8_t)0x02 & can->sFIFOMailBox[handle].RIR) >> 1);
+    msg->type = (CANType)(((uint8_t)0x02 & can->sFIFOMailBox[rxfifo_default].RIR) >> 1);
     /* Get the DLC */
-    msg->len = (uint8_t)0x0F & can->sFIFOMailBox[handle].RDTR;
+    msg->len = (uint8_t)0x0F & can->sFIFOMailBox[rxfifo_default].RDTR;
     /* Get the FMI */
-    // msg->FMI = (uint8_t)0xFF & (can->sFIFOMailBox[handle].RDTR >> 8);
+    // msg->FMI = (uint8_t)0xFF & (can->sFIFOMailBox[rxfifo_default].RDTR >> 8);
     /* Get the data field */
-    msg->data[0] = (uint8_t)0xFF & can->sFIFOMailBox[handle].RDLR;
-    msg->data[1] = (uint8_t)0xFF & (can->sFIFOMailBox[handle].RDLR >> 8);
-    msg->data[2] = (uint8_t)0xFF & (can->sFIFOMailBox[handle].RDLR >> 16);
-    msg->data[3] = (uint8_t)0xFF & (can->sFIFOMailBox[handle].RDLR >> 24);
-    msg->data[4] = (uint8_t)0xFF & can->sFIFOMailBox[handle].RDHR;
-    msg->data[5] = (uint8_t)0xFF & (can->sFIFOMailBox[handle].RDHR >> 8);
-    msg->data[6] = (uint8_t)0xFF & (can->sFIFOMailBox[handle].RDHR >> 16);
-    msg->data[7] = (uint8_t)0xFF & (can->sFIFOMailBox[handle].RDHR >> 24);
+    msg->data[0] = (uint8_t)0xFF & can->sFIFOMailBox[rxfifo_default].RDLR;
+    msg->data[1] = (uint8_t)0xFF & (can->sFIFOMailBox[rxfifo_default].RDLR >> 8);
+    msg->data[2] = (uint8_t)0xFF & (can->sFIFOMailBox[rxfifo_default].RDLR >> 16);
+    msg->data[3] = (uint8_t)0xFF & (can->sFIFOMailBox[rxfifo_default].RDLR >> 24);
+    msg->data[4] = (uint8_t)0xFF & can->sFIFOMailBox[rxfifo_default].RDHR;
+    msg->data[5] = (uint8_t)0xFF & (can->sFIFOMailBox[rxfifo_default].RDHR >> 8);
+    msg->data[6] = (uint8_t)0xFF & (can->sFIFOMailBox[rxfifo_default].RDHR >> 16);
+    msg->data[7] = (uint8_t)0xFF & (can->sFIFOMailBox[rxfifo_default].RDHR >> 24);
 
     /* Release the FIFO */
-    if (handle == CAN_FIFO0) {
-        /* Release FIFO0 */
-        can->RF0R |= CAN_RF0R_RFOM0;
-    } else { /* FIFONumber == CAN_FIFO1 */
-        /* Release FIFO1 */
-        can->RF1R |= CAN_RF1R_RFOM1;
-    }
+    can->RF0R |= CAN_RF0R_RFOM0;
 
     return 1;
 }
