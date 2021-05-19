@@ -302,9 +302,9 @@ private:
     ssize_t write_unbuffered(const char *buf_ptr, size_t length);
 
     /** Enable processing of byte reception IRQs and register a callback to
-     * process them.
+     * process them if the IRQs are not yet enabled and reception is enabled.
      */
-    void enable_rx_irq();
+    void update_rx_irq();
 
     /** Disable processing of byte reception IRQs and de-register callback to
      * process them.
@@ -312,9 +312,9 @@ private:
     void disable_rx_irq();
 
     /** Enable processing of byte transmission IRQs and register a callback to
-     * process them.
+     * process them if the IRQs are not yet enabled and transmission is enabled.
      */
-    void enable_tx_irq();
+    void update_tx_irq();
 
     /** Disable processing of byte transmission IRQs and de-register callback to
      * process them.
@@ -335,8 +335,6 @@ private:
     bool _blocking = true;
     bool _tx_irq_enabled = false;
     bool _rx_irq_enabled = false;
-    bool _tx_enabled = true;
-    bool _rx_enabled = true;
     InterruptIn *_dcd_irq = nullptr;
 
     /** Device Hanged up
