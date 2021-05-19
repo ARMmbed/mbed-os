@@ -18,6 +18,7 @@
         "storage_filesystem",
         "storage_tdb_external",
         "fat_chan",
+        "cordio-stm32wb",
         "lora",
         "sx1276-lora-driver",
         "stm32wl-lora-driver",
