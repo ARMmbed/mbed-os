@@ -3,8 +3,7 @@
 
 if(NOT ${CMAKE_CROSSCOMPILING})
     add_subdirectory(tests/UNITTESTS)
-endif()
-
+else()
 add_library(mbed-events INTERFACE)
 
 target_include_directories(mbed-events
@@ -28,3 +27,4 @@ target_compile_definitions(mbed-events
     INTERFACE
         MBED_CONF_EVENTS_PRESENT=1
 )
+endif()

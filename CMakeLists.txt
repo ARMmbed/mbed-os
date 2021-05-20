@@ -147,18 +147,10 @@ add_subdirectory(drivers)
 add_subdirectory(hal)
 add_subdirectory(platform)
 add_subdirectory(rtos)
-
-if(${CMAKE_CROSSCOMPILING})
-    add_subdirectory(targets)
-    # The directories below contain optional target libraries
-    add_subdirectory(connectivity EXCLUDE_FROM_ALL)
-    add_subdirectory(storage EXCLUDE_FROM_ALL)
-    add_subdirectory(events EXCLUDE_FROM_ALL)
-else()
-    add_subdirectory(connectivity)
-    add_subdirectory(storage)
-    add_subdirectory(events)
-endif()
+add_subdirectory(targets)
+add_subdirectory(storage)
+add_subdirectory(events)
+add_subdirectory(connectivity)
 
 # The directories below contain optional target libraries
 add_subdirectory(drivers/device_key EXCLUDE_FROM_ALL)
