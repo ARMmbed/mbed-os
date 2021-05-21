@@ -4160,6 +4160,7 @@
             "STM32WB",
             "CORDIO"
         ],
+        "mbed_rom_start": "0x08000000",
         "config": {
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
@@ -4196,6 +4197,7 @@
         "extra_labels_add": [
             "STM32WB55xG"
         ],
+        "mbed_rom_size": "0xCA000",
         "macros_add": [
             "STM32WB55xx",
             "MBEDTLS_CONFIG_HW_SUPPORT"
@@ -4224,6 +4226,7 @@
         "extra_labels_add": [
             "STM32WB5MxG"
         ],
+        "mbed_rom_size": "0xCA000",
         "macros_add": [
             "STM32WB5Mxx",
             "MBEDTLS_CONFIG_HW_SUPPORT"
