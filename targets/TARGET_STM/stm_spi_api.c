@@ -1034,6 +1034,7 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
 }
 
 // asynchronous API
+// DMA support for SPI is currently not supported, hence asynchronous SPI does not support high speeds(MHZ range)
 void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     struct spi_s *spiobj = SPI_S(obj);
