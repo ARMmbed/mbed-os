@@ -229,8 +229,6 @@ protected:
 
     ospi_t _ospi;
 
-    bool acquire(void);
-    static OSPI *_owner;
     static SingletonPtr<PlatformMutex> _mutex;
     ospi_bus_width_t _inst_width; //Bus width for Instruction phase
     ospi_inst_size_t _inst_size; //Instruction Size
@@ -249,10 +247,6 @@ protected:
     bool (OSPI::* _init_func)(void);
 
 private:
-    /* Private acquire function without locking/unlocking
-     * Implemented in order to avoid duplicate locking and boost performance
-     */
-    bool _acquire(void);
     bool _initialize();
     bool _initialize_direct();
 

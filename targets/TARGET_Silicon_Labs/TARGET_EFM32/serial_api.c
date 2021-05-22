@@ -77,7 +77,7 @@ static uart_irq_handler irq_handler;
 /* Keep track of incoming DMA IRQ's */
 static bool serial_dma_irq_fired[DMA_CHAN_COUNT] = { false };
 
-/* Serial interface on USBTX/USBRX retargets stdio */
+/* Serial interface on CONSOLE_TX/CONSOLE_RX retargets stdio */
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 

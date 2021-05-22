@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  ******************************************************************************
  *
- * Copyright (c) 2016-2020 STMicroelectronics.
+ * Copyright (c) 2016-2021 STMicroelectronics.
  * All rights reserved.
  *
  * This software component is licensed by ST under BSD 3-Clause license,
@@ -14,6 +14,8 @@
  *
  * Automatically generated from STM32CubeMX/db/mcu/STM32G031K(4-6-8)Tx.xml
  */
+
+/* MBED TARGET LIST: NUCLEO_G031K8 */
 
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
@@ -29,11 +31,9 @@ typedef enum {
     ALT0  = 0x100,
     ALT1  = 0x200,
     ALT2  = 0x300,
-    ALT3  = 0x400
 } ALTx;
 
 typedef enum {
-
     PA_0       = 0x00,
     PA_1       = 0x01,
     PA_2       = 0x02,
@@ -50,9 +50,7 @@ typedef enum {
     PA_7_ALT2  = PA_7  | ALT2, // same pin used for alternate HW
     PA_8       = 0x08,
     PA_9       = 0x09,
-    PA_9_ALT0  = PA_9  | ALT0, // same pin used for alternate HW
     PA_10      = 0x0A,
-    PA_10_ALT0 = PA_10 | ALT0, // same pin used for alternate HW
     PA_11      = 0x0B,
     PA_12      = 0x0C,
     PA_13      = 0x0D,
@@ -75,6 +73,7 @@ typedef enum {
     PC_6       = 0x26,
     PC_14      = 0x2E,
     PC_15      = 0x2F,
+    PF_2       = 0x52,
 
     /**** ADC internal channels ****/
 
@@ -82,56 +81,42 @@ typedef enum {
     ADC_VREF = 0xF1, // Internal pin virtual value
     ADC_VBAT = 0xF2, // Internal pin virtual value
 
-    // Arduino Nano Header pin connection naming
-    A0          = PA_0,
-    A1          = PA_1,
-    A2          = PA_4,
-    A3          = PA_5,
-    A4          = PA_12,
-    A5          = PA_11,
-    A6          = PA_6,
-    A7          = PA_7,
-    D0          = PB_7,
-    D1          = PB_6,
-    D2          = PA_15,
-    D3          = PB_1,
-    D4          = PA_10,
-    D5          = PA_9,
-    D6          = PB_0,
-    D7          = PB_2,
-    D8          = PB_8,
-    D9          = PA_8,
-    D10         = PB_9,
-    D11         = PB_5,
-    D12         = PB_4,
-    D13         = PB_3,
+    // Arduino Nano pins
+    A0  = PA_0,
+    A1  = PA_1,
+    A2  = PA_4,
+    A3  = PA_5,
+    A4  = PA_12,
+    A5  = PA_11,
+    A6  = PA_6,
+    A7  = PA_7,
+
+    D0  = PB_7,
+    D1  = PB_6,
+    D2  = PA_15,
+    D3  = PB_1,
+    D4  = PA_10,
+    D5  = PA_9,
+    D6  = PB_0,
+    D7  = PB_2,
+    D8  = PB_8,
+    D9  = PA_8,
+    D10 = PB_9,
+    D11 = PB_5,
+    D12 = PB_4,
+    D13 = PB_3,
 
     // STDIO for console print
 #ifdef MBED_CONF_TARGET_STDIO_UART_TX
-    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+    CONSOLE_TX = MBED_CONF_TARGET_STDIO_UART_TX,
 #else
-    STDIO_UART_TX = PA_2,
+    CONSOLE_TX = PA_2,
 #endif
 #ifdef MBED_CONF_TARGET_STDIO_UART_RX
-    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+    CONSOLE_RX = MBED_CONF_TARGET_STDIO_UART_RX,
 #else
-    STDIO_UART_RX = PA_3,
+    CONSOLE_RX = PA_3,
 #endif
-
-    // Generic signals namings
-    LED1        = PC_6,  // LD3 [Green]
-
-    SERIAL_TX   = STDIO_UART_TX,
-    SERIAL_RX   = STDIO_UART_RX,
-    USBTX       = STDIO_UART_TX,
-    USBRX       = STDIO_UART_RX,
-    I2C_SCL     = PB_8,
-    I2C_SDA     = PB_9,
-    SPI_MOSI    = PA_7,
-    SPI_MISO    = PA_6,
-    SPI_SCK     = PA_5,
-    SPI_CS      = PB_0,
-    PWM_OUT     = PB_3,
 
     /**** OSCILLATOR pins ****/
     RCC_OSC32_EN = PC_15,
@@ -152,6 +137,10 @@ typedef enum {
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
+
+// Standardized LED and button names
+#define LED1     PC_6   // LD3 [Green]
+
 
 #ifdef __cplusplus
 }

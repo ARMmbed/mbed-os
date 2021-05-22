@@ -88,6 +88,8 @@ typedef enum mbed_memory_order {
 #endif
 #elif (__ARM_ARCH_6M__ == 1U)
 #define MBED_EXCLUSIVE_ACCESS      0U
+#elif defined __aarch64__ // Apple M1 Mac
+#define MBED_EXCLUSIVE_ACCESS      0U
 #else
 #error "Unknown ARM architecture for exclusive access"
 #endif // __ARM_ARCH_xxx

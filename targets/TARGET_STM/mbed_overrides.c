@@ -16,6 +16,7 @@
 #include "cmsis.h"
 #include "objects.h"
 #include "platform/mbed_error.h"
+#include "rtc_api_hal.h"
 
 int mbed_sdk_inited = 0;
 extern void SetSysClock(void);
@@ -285,7 +286,15 @@ void mbed_sdk_init()
 
     /* Start LSI clock for RTC */
 #if DEVICE_RTC
-#if !MBED_CONF_TARGET_LSE_AVAILABLE
+#if (MBED_CONF_TARGET_RTC_CLOCK_SOURCE == USE_RTC_CLK_HSE)
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+    PeriphClkInitStruct.RTCClockSelection = (RCC_RTCCLKSOURCE_HSE_DIVX | RTC_HSE_DIV << 16);
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+    {
+        error("PeriphClkInitStruct RTC failed with HSE\n");
+    }
+#elif ((MBED_CONF_TARGET_RTC_CLOCK_SOURCE == USE_RTC_CLK_LSE_OR_LSI) && !MBED_CONF_TARGET_LSE_AVAILABLE) || (MBED_CONF_TARGET_RTC_CLOCK_SOURCE == USE_RTC_CLK_LSI)
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
 
     if (__HAL_RCC_GET_RTC_SOURCE() != RCC_RTCCLKSOURCE_NO_CLK) {

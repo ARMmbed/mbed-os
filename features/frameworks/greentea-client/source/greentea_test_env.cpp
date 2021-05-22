@@ -284,7 +284,7 @@ static void greentea_write_int(const int val)
  * \brief Encapsulate and send key-value message from DUT to host
  *
  *        This function uses underlying functions to write directly
- *        to the serial port, (USBTX). This allows KVs to be used
+ *        to the serial port, (CONSOLE_TX). This allows KVs to be used
  *        from within interrupt context.
  *
  * \param key Message key (message/event name)
@@ -305,7 +305,7 @@ extern "C" void greentea_send_kv(const char *key, const char *val) {
  * \brief Encapsulate and send key-value message from DUT to host
  *
  *        This function uses underlying functions to write directly
- *        to the serial port, (USBTX). This allows KVs to be used
+ *        to the serial port, (CONSOLE_TX). This allows KVs to be used
  *        from within interrupt context.
  *        Last value is an integer to avoid integer to string conversion
  *        made by the user.
@@ -328,7 +328,7 @@ void greentea_send_kv(const char *key, const int val) {
  * \brief Encapsulate and send key-value-value message from DUT to host
  *
  *        This function uses underlying functions to write directly
- *        to the serial port, (USBTX). This allows KVs to be used
+ *        to the serial port, (CONSOLE_TX). This allows KVs to be used
  *        from within interrupt context.
  *        Last value is an integer to avoid integer to string conversion
  *        made by the user.
@@ -355,7 +355,7 @@ void greentea_send_kv(const char *key, const char *val, const int result) {
  * \brief Encapsulate and send key-value-value-value message from DUT to host
  *
  *        This function uses underlying functions to write directly
- *        to the serial port, (USBTX). This allows KVs to be used
+ *        to the serial port, (CONSOLE_TX). This allows KVs to be used
  *        from within interrupt context.
  *        Last 2 values are integers to avoid integer to string conversion
  *        made by the user.
@@ -389,7 +389,7 @@ void greentea_send_kv(const char *key, const char *val, const int passes, const 
  * \brief Encapsulate and send key-value-value message from DUT to host
  *
  *        This function uses underlying functions to write directly
- *        to the serial port, (USBTX). This allows key-value-value to be used
+ *        to the serial port, (CONSOLE_TX). This allows key-value-value to be used
  *        from within interrupt context.
  *        Both values are integers to avoid integer to string conversion
  *        made by the user.

@@ -55,4 +55,4 @@ target_sources(mbed-mcu-k22f
         drivers/fsl_wdog.c
 )
 
-target_link_libraries(mbed-mcu-k22f INTERFACE mbed-mcuxpresso-mcus)
+target_link_libraries(mbed-mcu-k22f INTERFACE mbed-freescale-mcuxpresso-mcus)

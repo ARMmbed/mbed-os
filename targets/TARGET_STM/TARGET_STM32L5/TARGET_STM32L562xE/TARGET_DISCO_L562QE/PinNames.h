@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  ******************************************************************************
  *
- * Copyright (c) 2016-2020 STMicroelectronics.
+ * Copyright (c) 2016-2021 STMicroelectronics.
  * All rights reserved.
  *
  * This software component is licensed by ST under BSD 3-Clause license,
@@ -14,6 +14,8 @@
  *
  * Automatically generated from STM32CubeMX/db/mcu/STM32L562QEIxQ.xml
  */
+
+/* MBED TARGET LIST: DISCO_L562QE */
 
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
@@ -29,12 +31,9 @@ typedef enum {
     ALT0  = 0x100,
     ALT1  = 0x200,
     ALT2  = 0x300,
-    ALT3  = 0x400,
-    ALT4  = 0x500
 } ALTx;
 
 typedef enum {
-
     PA_0       = 0x00,
     PA_0_ALT0  = PA_0  | ALT0, // same pin used for alternate HW
     PA_1       = 0x01,
@@ -189,63 +188,44 @@ typedef enum {
     ADC_VREF = 0xF1, // Internal pin virtual value
     ADC_VBAT = 0xF2, // Internal pin virtual value
 
-    // Arduino Uno(Rev3) Header pin connection naming
-    A0          = PA_0,
-    A1          = PA_1,
-    A2          = PA_4,
-    A3          = PA_5,
-    A4          = PC_4,
-    A5          = PC_5,
-    D0          = PB_10,
-    D1          = PB_11,
-    D2          = PD_11,
-    D3          = PD_12,
-    D4          = PF_4,
-    D5          = PD_13,
-    D6          = PB_8,
-    D7          = PC_6,
-    D8          = PG_0,
-    D9          = PB_9,
-    D10         = PE_0,
-    D11         = PB_5,
-    D12         = PB_4,
-    D13         = PG_9,
-    D14         = PB_7,
-    D15         = PB_6,
+#ifdef TARGET_FF_ARDUINO_UNO
+    // Arduino Uno (Rev3) pins
+    ARDUINO_UNO_A0  = PA_0,
+    ARDUINO_UNO_A1  = PA_1,
+    ARDUINO_UNO_A2  = PA_4,
+    ARDUINO_UNO_A3  = PA_5,
+    ARDUINO_UNO_A4  = PC_4,
+    ARDUINO_UNO_A5  = PC_5,
+
+    ARDUINO_UNO_D0  = PB_10,
+    ARDUINO_UNO_D1  = PB_11,
+    ARDUINO_UNO_D2  = PD_11,
+    ARDUINO_UNO_D3  = PD_12,
+    ARDUINO_UNO_D4  = PF_4,
+    ARDUINO_UNO_D5  = PD_13,
+    ARDUINO_UNO_D6  = PB_8,
+    ARDUINO_UNO_D7  = PC_6,
+    ARDUINO_UNO_D8  = PG_0,
+    ARDUINO_UNO_D9  = PB_9,
+    ARDUINO_UNO_D10 = PE_0,
+    ARDUINO_UNO_D11 = PB_5,
+    ARDUINO_UNO_D12 = PB_4,
+    ARDUINO_UNO_D13 = PG_9,
+    ARDUINO_UNO_D14 = PB_7,
+    ARDUINO_UNO_D15 = PB_6,
+#endif
 
     // STDIO for console print
 #ifdef MBED_CONF_TARGET_STDIO_UART_TX
-    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+    CONSOLE_TX = MBED_CONF_TARGET_STDIO_UART_TX,
 #else
-    STDIO_UART_TX = PA_9,
+    CONSOLE_TX = PA_9,
 #endif
 #ifdef MBED_CONF_TARGET_STDIO_UART_RX
-    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+    CONSOLE_RX = MBED_CONF_TARGET_STDIO_UART_RX,
 #else
-    STDIO_UART_RX = PA_10,
+    CONSOLE_RX = PA_10,
 #endif
-
-    USBTX = STDIO_UART_TX, // used for greentea tests
-    USBRX = STDIO_UART_RX, // used for greentea tests
-
-    // I2C signals aliases
-    I2C_SDA = D14,
-    I2C_SCL = D15,
-
-    // SPI signals aliases
-    SPI_CS   = D10,
-    SPI_MOSI = D11,
-    SPI_MISO = D12,
-    SPI_SCK  = D13,
-
-    // Standardized LED and button names
-    LED1    = PD_3,  // LD9  LED_RED
-    LED2    = PG_12, // LD10 LED_GREEN
-    BUTTON1 = PC_13, // USER_BUTTON
-
-    // Backward legacy names
-    USER_BUTTON = BUTTON1,
-    PWM_OUT = D9,
 
     /**** USB pins ****/
     USB_DM = PA_11,
@@ -347,6 +327,11 @@ typedef enum {
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
+
+// Standardized LED and button names
+#define LED1     PG_12  // LD7 Green
+#define LED2     PE_1   // LD9 Red
+#define BUTTON1  PC_13  // USER_BUTTON
 
 #ifdef __cplusplus
 }

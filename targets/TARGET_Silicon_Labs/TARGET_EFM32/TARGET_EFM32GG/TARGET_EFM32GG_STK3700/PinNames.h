@@ -20,6 +20,9 @@
  * limitations under the License.
  *
  ******************************************************************************/
+
+/* MBED TARGET LIST: EFM32GG_STK3700 */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -51,12 +54,20 @@ typedef enum {
     /* Serial */
     SERIAL_TX   = PD0,
     SERIAL_RX   = PD1,
-    USBTX       = PE0,
-    USBRX       = PE1,
+    CONSOLE_TX       = PE0,
+    CONSOLE_RX       = PE1,
 
     /* Board Controller */
-    STDIO_UART_TX = USBTX,
-    STDIO_UART_RX = USBRX
+#if defined(MBED_CONF_TARGET_STDIO_UART_TX)
+    STDIO_UART_TX   = MBED_CONF_TARGET_STDIO_UART_TX,
+#else
+    STDIO_UART_TX   = CONSOLE_TX,
+#endif
+#if defined(MBED_CONF_TARGET_STDIO_UART_RX)
+    STDIO_UART_RX   = MBED_CONF_TARGET_STDIO_UART_RX,
+#else
+    STDIO_UART_RX   = CONSOLE_RX
+#endif
 } PinName;
 
 #ifdef __cplusplus

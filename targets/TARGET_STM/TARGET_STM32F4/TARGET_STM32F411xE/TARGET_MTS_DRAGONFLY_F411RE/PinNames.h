@@ -27,6 +27,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+
+/* MBED TARGET LIST: MTS_DRAGONFLY_F411RE */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -102,44 +105,38 @@ typedef enum {
     ADC_VBAT = 0xF2,
 
     // Arduino connector namings
-    A0          = PC_2,
-    A1          = PC_0,
-    A2          = PC_4,
-    A3          = PB_0,
-    A4          = PC_1,
-    A5          = PC_9,
-    D0          = PA_3,
-    D1          = PA_2,
-    D2          = PB_15,
-    D3          = PA_0,
-    D4          = PA_7,
-    D5          = PA_9,
-    D6          = PA_1,
-    D7          = PA_8,
-    D8          = PB_1,
-    D9          = PB_13,
-    D10         = PC_8,
-    D11         = PB_5,
-    D12         = PA_6,
-    D13         = PA_5,
-    D14         = PB_9,
-    D15         = PB_8,
+    ARDUINO_UNO_A0          = PC_2,
+    ARDUINO_UNO_A1          = PC_0,
+    ARDUINO_UNO_A2          = PC_4,
+    ARDUINO_UNO_A3          = PB_0,
+    ARDUINO_UNO_A4          = PC_1,
+    ARDUINO_UNO_A5          = PC_9,
 
-    // Generic signals namings
-    LED1        = D3,
-    LED2        = D3,
-    LED3        = D3,
-    LED4        = D3,
-    SERIAL_TX   = D1,
-    SERIAL_RX   = D0,
-    SERIAL_RTS  = D3,
-    SERIAL_CTS  = D6,
-    SERIAL_DCD  = D4,
-    SERIAL_DSR  = D5,
-    SERIAL_DTR  = D7,
-    SERIAL_RI   = D8,
-    USBTX       = PB_6,
-    USBRX       = PB_7,
+    ARDUINO_UNO_D0          = PA_3,
+    ARDUINO_UNO_D1          = PA_2,
+    ARDUINO_UNO_D2          = PB_15,
+    ARDUINO_UNO_D3          = PA_0,
+    ARDUINO_UNO_D4          = PA_7,
+    ARDUINO_UNO_D5          = PA_9,
+    ARDUINO_UNO_D6          = PA_1,
+    ARDUINO_UNO_D7          = PA_8,
+    ARDUINO_UNO_D8          = PB_1,
+    ARDUINO_UNO_D9          = PB_13,
+    ARDUINO_UNO_D10         = PC_8,
+    ARDUINO_UNO_D11         = PB_5,
+    ARDUINO_UNO_D12         = PA_6,
+    ARDUINO_UNO_D13         = PA_5,
+    ARDUINO_UNO_D14         = PB_9,
+    ARDUINO_UNO_D15         = PB_8,
+
+    SERIAL_TX   = ARDUINO_UNO_D1,
+    SERIAL_RX   = ARDUINO_UNO_D0,
+    SERIAL_RTS  = ARDUINO_UNO_D3,
+    SERIAL_CTS  = ARDUINO_UNO_D6,
+    SERIAL_DCD  = ARDUINO_UNO_D4,
+    SERIAL_DSR  = ARDUINO_UNO_D5,
+    SERIAL_DTR  = ARDUINO_UNO_D7,
+    SERIAL_RI   = ARDUINO_UNO_D8,
     RADIO_TX    = PC_7,
     RADIO_RX    = PC_6,
     RADIO_RTS   = PB_10,
@@ -158,25 +155,23 @@ typedef enum {
     MDMDTR = RADIO_DTR, // Data Terminal Ready
     MDMRI  = RADIO_RI, // Ring Indicator
 
-    WAKEUP      = D3,
+    WAKEUP      = ARDUINO_UNO_D3,
 
     // I2C1 and I2C3 are available on Arduino pins
-    I2C1_SCL    = D15,
-    I2C1_SDA    = D14,
-    I2C3_SCL    = D7,
-    I2C3_SDA    = A5,
+    I2C1_SCL    = ARDUINO_UNO_D15,
+    I2C1_SDA    = ARDUINO_UNO_D14,
+    I2C3_SCL    = ARDUINO_UNO_D7,
+    I2C3_SDA    = ARDUINO_UNO_A5,
 
     // legacy definitions
-    I2C_SCL     = I2C1_SCL,
-    I2C_SDA     = I2C1_SDA,
 
     // SPI1 and SPI2 are available on Arduino pins
-    SPI1_MOSI   = D11,
-    SPI1_MISO   = D12,
-    SPI1_SCK    = D13,
-    SPI2_MOSI   = D2,
-    SPI2_MISO   = A0,
-    SPI2_SCK    = D9,
+    SPI1_MOSI   = ARDUINO_UNO_D11,
+    SPI1_MISO   = ARDUINO_UNO_D12,
+    SPI1_SCK    = ARDUINO_UNO_D13,
+    SPI2_MOSI   = ARDUINO_UNO_D2,
+    SPI2_MISO   = ARDUINO_UNO_A0,
+    SPI2_SCK    = ARDUINO_UNO_D9,
 
     // SPI3 connects to flash part
     SPI3_MOSI   = PC_12,
@@ -184,21 +179,31 @@ typedef enum {
     SPI3_SCK    = PC_10,
 
     // legacy definitions
-    SPI_MOSI    = SPI3_MOSI,
-    SPI_MISO    = SPI3_MISO,
-    SPI_SCK     = SPI3_SCK,
     SPI_CS1     = PA_4,
     SPI_CS2     = PB_14
 
 } PinName;
+
+// Standardized LED and button names
+#define LED1     ARDUINO_UNO_D3
+
 
 #define ACTIVE_HIGH_POLARITY    1
 #define ACTIVE_LOW_POLARITY     0
 
 #define MDM_PIN_POLARITY        ACTIVE_HIGH_POLARITY
 
-#define STDIO_UART_TX  PB_6
-#define STDIO_UART_RX  PB_7
+#if defined(MBED_CONF_TARGET_STDIO_UART_TX)
+#define CONSOLE_TX MBED_CONF_TARGET_STDIO_UART_TX
+#else
+#define CONSOLE_TX PB_6
+#endif
+#if defined(MBED_CONF_TARGET_STDIO_UART_RX)
+#define CONSOLE_RX MBED_CONF_TARGET_STDIO_UART_RX
+#else
+#define CONSOLE_RX PB_7
+#endif
+
 
 #ifdef __cplusplus
 }

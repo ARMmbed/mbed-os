@@ -14,6 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* MBED TARGET LIST: MIMXRT1050_EVK */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -176,8 +179,8 @@ typedef enum {
     LED4 = LED_GREEN,
 
     // USB Pins
-    USBTX = GPIO_AD_B0_12,
-    USBRX = GPIO_AD_B0_13,
+    CONSOLE_TX = GPIO_AD_B0_12,
+    CONSOLE_RX = GPIO_AD_B0_13,
 
     // Arduino Headers
     D0 = GPIO_AD_B1_07,

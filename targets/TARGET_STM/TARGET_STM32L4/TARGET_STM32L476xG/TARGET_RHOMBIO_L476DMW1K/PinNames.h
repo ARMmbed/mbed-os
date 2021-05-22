@@ -30,6 +30,8 @@
  *******************************************************************************
  */
 
+/* MBED TARGET LIST: RHOMBIO_L476DMW1K */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -44,7 +46,6 @@ typedef enum {
     ALT0  = 0x100,
     ALT1  = 0x200,
     ALT2  = 0x300,
-    ALT3  = 0x400
 } ALTx;
 
 typedef enum {
@@ -185,21 +186,8 @@ typedef enum {
     ADC_VBAT = 0xF2,
 
     // STDIO for console print
-    STDIO_UART_TX = PC_4,
-    STDIO_UART_RX = PC_5,
-
-    // Generic signals namings
-    LED1 = PC_7, // LED Green
-    LED2 = PC_7, // LED Green
-
-    USER_BUTTON = PB_1,
-    // Standardized button names
-    BUTTON1 = USER_BUTTON,
-
-    SERIAL_TX = STDIO_UART_TX,
-    SERIAL_RX = STDIO_UART_RX,
-    USBTX = STDIO_UART_TX,
-    USBRX = STDIO_UART_RX,
+    CONSOLE_TX = PC_4,
+    CONSOLE_RX = PC_5,
 
     I2C_SCL     = PB_8,
     I2C_SDA     = PB_9,
@@ -343,6 +331,10 @@ typedef enum {
     NC = (int)0xFFFFFFFF
 
 } PinName;
+
+// Standardized LED and button names
+#define LED1     PC_7   // LED Green
+#define BUTTON1  PB_1
 
 #ifdef __cplusplus
 }

@@ -14,6 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* MBED TARGET LIST: RZ_A1H */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -56,8 +59,8 @@ typedef enum {
     LED_BLUE = LED3,
     LED_USER = LED4,
 
-    USBTX = P6_3,
-    USBRX = P6_2,
+    CONSOLE_TX = P6_3,
+    CONSOLE_RX = P6_2,
 
     // Arduiono Pin Names
     D0 = P2_15,

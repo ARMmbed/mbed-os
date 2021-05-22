@@ -156,7 +156,6 @@ Passed example compilation:
 | mbed-os-example-crash-reporting |  K64F  |  GCC_ARM  | TEST_ON  |    PASSED    |
 | mbed-os-example-filesystem      |  K64F  |  GCC_ARM  | TEST_ON  |    PASSED    |
 | mbed-os-example-blinky          |  K64F  |  GCC_ARM  | TEST_ON  |    PASSED    |
-| mbed-os-example-bootloader      |  K64F  |  GCC_ARM  | TEST_OFF |    PASSED    |
 | mbed-os-example-cpu-stats       |  K64F  |  GCC_ARM  | TEST_ON  |    PASSED    |
 | mbed-os-example-sys-info        |  K64F  |  GCC_ARM  | TEST_ON  |    PASSED    |
 | mbed-os-example-attestation     |  K64F  |  GCC_ARM  | TEST_ON  |    PASSED    |

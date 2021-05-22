@@ -235,6 +235,10 @@
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },
+        "ARM_MUSCA_B1": {
+            "stdio-convert-newlines": true,
+            "stdio-baud-rate": 115200
+        },
         "ARM_MUSCA_S1": {
             "stdio-convert-newlines": true,
             "stdio-baud-rate": 115200

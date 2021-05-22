@@ -20,6 +20,9 @@
  * limitations under the License.
  *
  ******************************************************************************/
+
+/* MBED TARGET LIST: TB_SENSE_12 */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -69,12 +72,20 @@ typedef enum {
     SERIAL_RX   = PA7,
 
     /* Board Controller UART (USB)*/
-    USBTX       = PA0,
-    USBRX       = PA1,
+    CONSOLE_TX       = PA0,
+    CONSOLE_RX       = PA1,
 
     /* Board Controller */
-    STDIO_UART_TX = USBTX,
-    STDIO_UART_RX = USBRX
+#if defined(MBED_CONF_TARGET_STDIO_UART_TX)
+    STDIO_UART_TX   = MBED_CONF_TARGET_STDIO_UART_TX,
+#else
+    STDIO_UART_TX   = CONSOLE_TX,
+#endif
+#if defined(MBED_CONF_TARGET_STDIO_UART_RX)
+    STDIO_UART_RX   = MBED_CONF_TARGET_STDIO_UART_RX,
+#else
+    STDIO_UART_RX   = CONSOLE_RX
+#endif
 } PinName;
 
 #ifdef __cplusplus

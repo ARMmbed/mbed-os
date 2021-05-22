@@ -1,0 +1,52 @@
+{
+  "examples": [
+    {
+      "name": "mbed-os-example-for-aws",
+      "github": "https://github.com/ARMmbed/mbed-os-example-for-aws",
+      "sub-repo-example": false,
+      "subs": [],
+      "features" : [],
+      "targets" : ["DISCO_L475VG_IOT01A", "K64F", "NUCLEO_F429ZI"],
+      "toolchains" : [],
+      "exporters": [],
+      "compile" : true,
+      "export": true,
+      "test" : false,
+      "baud_rate": 115200,
+      "compare_log": ["mbed-os-example-for-aws/tests/aws.log"],
+      "auto-update" : true
+    },
+    {
+      "name": "mbed-os-example-for-azure",
+      "github": "https://github.com/ARMmbed/mbed-os-example-for-azure",
+      "sub-repo-example": false,
+      "subs": [],
+      "features" : [],
+      "targets" : ["DISCO_L475VG_IOT01A", "K64F", "NUCLEO_F429ZI"],
+      "toolchains" : [],
+      "exporters": [],
+      "compile" : true,
+      "export": true,
+      "test" : false,
+      "baud_rate": 115200,
+      "compare_log": ["mbed-os-example-for-azure/tests/azure.log"],
+      "auto-update" : true
+    },
+    {
+      "name": "mbed-os-example-for-google-iot-cloud",
+      "github": "https://github.com/ARMmbed/mbed-os-example-for-google-iot-cloud",
+      "sub-repo-example": false,
+      "subs": [],
+      "features" : [],
+      "targets" : ["DISCO_L475VG_IOT01A", "K64F", "NUCLEO_F429ZI"],
+      "toolchains" : [],
+      "exporters": [],
+      "compile" : true,
+      "export": true,
+      "test" : false,
+      "baud_rate": 115200,
+      "compare_log": ["mbed-os-example-for-google-iot-cloud/tests/google-iot-cloud.log"],
+      "auto-update" : true
+    }
+  ]
+}

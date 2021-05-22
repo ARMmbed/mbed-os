@@ -907,6 +907,8 @@ private:
 
     ScanState _scan_state = ScanState::idle;
 
+    void set_scan_state(ScanState state);
+
     scan_duration_t _scan_requested_duration = scan_duration_t::forever();
     duplicates_filter_t _scan_requested_filtering = duplicates_filter_t::DISABLE;
     scan_period_t _scan_requested_period = scan_period_t(0);
@@ -989,6 +991,10 @@ private:
 
 
     bool _user_manage_connection_parameter_requests : 1;
+#if BLE_ROLE_OBSERVER
+    bool _scan_parameters_set : 1 = false;
+#endif // BLE_ROLE_OBSERVER
+
 };
 
 } // namespace impl

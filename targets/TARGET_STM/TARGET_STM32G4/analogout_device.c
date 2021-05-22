@@ -146,8 +146,8 @@ void analogout_free(dac_t *obj)
     }
 #endif
 
-    // Configure GPIO
-    pin_function(obj->pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    // Configure GPIO back to reset value
+    pin_function(obj->pin, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0));
 }
 
 const PinMap *analogout_pinmap()

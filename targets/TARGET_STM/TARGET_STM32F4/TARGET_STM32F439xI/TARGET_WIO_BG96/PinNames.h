@@ -30,6 +30,8 @@
  *******************************************************************************
  */
 
+/* MBED TARGET LIST: WIO_BG96 */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -168,30 +170,27 @@ typedef enum {
     ADC_VREF = 0xF1,
     ADC_VBAT = 0xF2,
 
-    // Grove connector namings
-    D38         = PC_6,
-    D39         = PC_7,
-    D20         = PB_4,
-    D19         = PB_3,
-    A6          = PA_6,
-    A7          = PA_7,
-    A4          = PA_4,
-    A5          = PA_5,
+    D38 = PC_6,
+    D39 = PC_7,
+    D20 = PB_4,
+    D19 = PB_3,
+    A6  = PA_6,
+    A7  = PA_7,
+    A4  = PA_4,
+    A5  = PA_5,
     RXD         = PB_7,
     TXD         = PB_6,
-    I2C_SCL     = PB_8,
-    I2C_SDA     = PB_9,
 
     // STDIO for console print
 #ifdef MBED_CONF_TARGET_STDIO_UART_TX
-    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+    CONSOLE_TX = MBED_CONF_TARGET_STDIO_UART_TX,
 #else
-    STDIO_UART_TX = PD_8,
+    CONSOLE_TX = PD_8,
 #endif
 #ifdef MBED_CONF_TARGET_STDIO_UART_RX
-    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+    CONSOLE_RX = MBED_CONF_TARGET_STDIO_UART_RX,
 #else
-    STDIO_UART_RX = PD_9,
+    CONSOLE_RX = PD_9,
 #endif
 
     // Quectel UG96 cellular modem
@@ -210,29 +209,20 @@ typedef enum {
     PWRKEY       = PB_5,
     RESET_MODULE = PD_5,
 
-    // Generic signals namings
-    LED1        = PB_11,
-    LED2        = LED1,
-    LED3        = LED1,
-    LED4        = LED1,
-    LED_RED     = LED1,
-    USER_BUTTON = PC_13,
-
-    // Standardized button names
-    BUTTON1 = PC_13,
-    SERIAL_TX   = STDIO_UART_TX, // Virtual Com Port
-    SERIAL_RX   = STDIO_UART_RX, // Virtual Com Port
-    USBTX       = STDIO_UART_TX, // Virtual Com Port
-    USBRX       = STDIO_UART_RX, // Virtual Com Port
     SPI_MOSI    = PC_12,
     SPI_MISO    = PC_11,
     SPI_SCK     = PC_10,
     SPI_CS      = PD_0,
-    PWM_OUT     = D39,
 
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
+
+// Standardized LED and button names
+#define LED1     PB_11
+#define LED_RED  LED1
+#define BUTTON1  PC_13
+
 
 #ifdef __cplusplus
 }

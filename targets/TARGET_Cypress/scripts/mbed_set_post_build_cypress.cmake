@@ -1,7 +1,9 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(${MBED_PATH}/tools/cmake/mbed_set_post_build.cmake)
+include(mbed_set_post_build)
+
+set(MBED_POST_BUILD_CYPRESS_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
 #
 # Merge Cortex-M4 HEX and a Cortex-M0 HEX.
@@ -20,7 +22,7 @@ function(mbed_post_build_psoc6_merge_hex mbed_target_name)
         # Get extra argument as `cortex_m0_hex`
         list(GET extra_macro_args 0 cortex_m0_hex)
         set(post_build_command
-            COMMAND ${Python3_EXECUTABLE} ${MBED_PATH}/targets/TARGET_Cypress/scripts/PSOC6.py
+            COMMAND ${Python3_EXECUTABLE} ${MBED_POST_BUILD_CYPRESS_DIR}/PSOC6.py
                 merge
                 --elf ${CMAKE_BINARY_DIR}/$<TARGET_PROPERTY:mbed-post-build-bin-${mbed_target_name},application>.elf
                 --m4hex ${CMAKE_BINARY_DIR}/$<TARGET_PROPERTY:mbed-post-build-bin-${mbed_target_name},application>.hex
@@ -28,7 +30,7 @@ function(mbed_post_build_psoc6_merge_hex mbed_target_name)
         )
     else()
         set(post_build_command
-            COMMAND ${Python3_EXECUTABLE} ${MBED_PATH}/targets/TARGET_Cypress/scripts/PSOC6.py
+            COMMAND ${Python3_EXECUTABLE} ${MBED_POST_BUILD_CYPRESS_DIR}/PSOC6.py
                 merge
                 --elf ${CMAKE_BINARY_DIR}/$<TARGET_PROPERTY:mbed-post-build-bin-${mbed_target_name},application>.elf
                 --m4hex ${CMAKE_BINARY_DIR}/$<TARGET_PROPERTY:mbed-post-build-bin-${mbed_target_name},application>.hex
@@ -54,7 +56,7 @@ function(mbed_post_build_psoc6_sign_image
     find_package(Python3)
 
     set(post_build_command
-        COMMAND ${Python3_EXECUTABLE} ${MBED_PATH}/targets/TARGET_Cypress/scripts/PSOC6.py
+        COMMAND ${Python3_EXECUTABLE} ${MBED_POST_BUILD_CYPRESS_DIR}/PSOC6.py
             sign
             --build-dir ${CMAKE_BINARY_DIR}
             --m0hex-filename ${m0hex_filename}

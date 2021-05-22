@@ -30,6 +30,11 @@
 #include "wsf_os.h"
 #include "hci_core.h"
 
+#include "mbed-trace/mbed_trace.h"
+#include "common/ble_trace_helpers.h"
+
+#define TRACE_GROUP "BLSM"
+
 namespace ble {
 namespace impl {
 
@@ -51,6 +56,7 @@ PalSecurityManager::~PalSecurityManager()
 
 ble_error_t PalSecurityManager::initialize()
 {
+    tr_info("Initialize PAL SM");
     // reset local state
     _use_default_passkey = false;
     _default_passkey = 0;
@@ -73,6 +79,7 @@ ble_error_t PalSecurityManager::initialize()
 
 ble_error_t PalSecurityManager::terminate()
 {
+    tr_info("Terminate PAL SM");
 #if BLE_FEATURE_SIGNING
     cleanup_peer_csrks();
 #endif // BLE_FEATURE_SIGNING
@@ -82,6 +89,7 @@ ble_error_t PalSecurityManager::terminate()
 
 ble_error_t PalSecurityManager::reset()
 {
+    tr_info("Reset PAL SM");
 #if BLE_FEATURE_SIGNING
     cleanup_peer_csrks();
 #endif // BLE_FEATURE_SIGNING
@@ -134,6 +142,7 @@ ble_error_t PalSecurityManager::set_authentication_timeout(
     connection_handle_t connection, uint16_t timeout_in_10ms
 )
 {
+    tr_info("Connection %d - pass authentication timeout %d to the stack", connection, timeout_in_10ms);
     DmWriteAuthPayloadTimeout(connection, timeout_in_10ms);
     return BLE_ERROR_NONE;
 }
@@ -153,6 +162,7 @@ ble_error_t PalSecurityManager::slave_security_request(
     AuthenticationMask authentication
 )
 {
+    tr_info("Connection %d - Pass slave security to the stack: authentication = %02x", connection, authentication.value());
     DmSecSlaveReq(connection, authentication.value());
     return BLE_ERROR_NONE;
 }
@@ -171,6 +181,8 @@ ble_error_t PalSecurityManager::enable_encryption(
     bool mitm
 )
 {
+    tr_info("Connection %d - Enable encryption: lth = %s, rand = %s, ediv = %s, mitm = %s",
+        connection, to_string(ltk), to_string(rand), to_string(ediv), to_string(mitm));
     dmSecLtk_t sec_ltk;
     memcpy(sec_ltk.key, ltk.data(), ltk.size());
     memcpy(sec_ltk.rand, rand.data(), rand.size());
@@ -192,6 +204,8 @@ ble_error_t PalSecurityManager::enable_encryption(
     bool mitm
 )
 {
+    tr_info("Connection %d - Enable SC encryption: ltk = %s, mitm = %s",
+        connection, to_string(ltk), to_string(mitm));
     dmSecLtk_t sec_ltk = {0};
     memcpy(sec_ltk.key, ltk.data(), ltk.size());
 
@@ -213,6 +227,7 @@ ble_error_t PalSecurityManager::encrypt_data(
     encryption_block_t &data
 )
 {
+    tr_warning("PAL Encrypt data not implemented");
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -229,6 +244,8 @@ ble_error_t PalSecurityManager::set_ltk(
     bool secure_connections
 )
 {
+    tr_info("Connection %d - send ltk response: ltk = %s, mitm = %s, sc = %s ",
+        connection, to_string(ltk), to_string(mitm), to_string(secure_connections));
     uint8_t security_level = DM_SEC_LEVEL_NONE;
     if (secure_connections) {
         security_level = DM_SEC_LEVEL_ENC_LESC;
@@ -252,6 +269,7 @@ ble_error_t PalSecurityManager::set_ltk_not_found(
     connection_handle_t connection
 )
 {
+    tr_info("Connection %d - Reply LTK not found", connection);
     DmSecLtkRsp(
         connection,
         /* key found */ false,
@@ -265,6 +283,7 @@ ble_error_t PalSecurityManager::set_ltk_not_found(
 
 ble_error_t PalSecurityManager::set_irk(const irk_t &irk)
 {
+    tr_info("Set stack local IRK: %s", to_string(irk));
     _irk = irk;
     DmSecSetLocalIrk(_irk.data());
     return BLE_ERROR_NONE;
@@ -275,6 +294,7 @@ ble_error_t PalSecurityManager::set_identity_address(
     bool public_address
 )
 {
+    tr_info("Set stack local identity address: address = %s, public = %s", to_string(address), to_string(public_address));
     DmSecSetLocalIdentityAddr(
         address.data(),
         public_address ? DM_ADDR_PUBLIC : DM_ADDR_RANDOM
@@ -288,6 +308,7 @@ ble_error_t PalSecurityManager::set_csrk(
     sign_count_t sign_counter
 )
 {
+    tr_info("Set stack local CSRK: CSRK = %s, sign counter = %" PRIu32, to_string(csrk), sign_counter);
     _csrk = csrk;
     DmSecSetLocalCsrk(_csrk.data());
 #if BLE_FEATURE_GATT_CLIENT
@@ -307,8 +328,12 @@ ble_error_t PalSecurityManager::set_peer_csrk(
 )
 {
     if (connection == 0 || connection > DM_CONN_MAX) {
+        tr_error("Connection %d - Imposible to set stack peer CSRK, invalid connection ID", connection);
         return BLE_ERROR_INVALID_PARAM;
     }
+
+    tr_info("Connection %d - Set stack peer CSRK: CSRK = %s, authenticated = %s, sign_counter = %" PRIu32,
+        connection, to_string(csrk), to_string(authenticated), sign_counter);
 
     size_t connection_index = connection - 1;
 
@@ -330,8 +355,11 @@ ble_error_t PalSecurityManager::set_peer_csrk(
 ble_error_t PalSecurityManager::remove_peer_csrk(connection_handle_t connection)
 {
     if (connection == 0 || connection > DM_CONN_MAX) {
+        tr_error("Connection %d - Imposible to set stack peer CSRK, invalid connection ID", connection);
         return BLE_ERROR_INVALID_PARAM;
     }
+
+    tr_info("Connection %d - Remove stack peer CSRK", connection);
 
     size_t connection_index = connection - 1;
 
@@ -352,6 +380,9 @@ ble_error_t PalSecurityManager::remove_peer_csrk(connection_handle_t connection)
 
 ble_error_t PalSecurityManager::set_display_passkey(passkey_num_t passkey)
 {
+    PasskeyAscii ascii_passkey(passkey);
+    tr_info("Set stack display passkey: %s", passkey_str(ascii_passkey.value()));
+
     if (passkey) {
         _use_default_passkey = true;
         _default_passkey = passkey;
@@ -364,6 +395,7 @@ ble_error_t PalSecurityManager::set_display_passkey(passkey_num_t passkey)
 
 ble_error_t PalSecurityManager::set_io_capability(io_capability_t io_capability)
 {
+    tr_info("Set stack I/O capabilities: %s", to_string(io_capability));
     pSmpCfg->ioCap = io_capability.value();
     return BLE_ERROR_NONE;
 }
@@ -374,6 +406,7 @@ ble_error_t PalSecurityManager::set_encryption_key_requirements(
     uint8_t max_encryption_key_size
 )
 {
+    tr_info("Set stack encryption key requirements: [%d : %d]", min_encryption_key_size, max_encryption_key_size);
     if ((min_encryption_key_size < 7) || (min_encryption_key_size > 16) ||
         (min_encryption_key_size > max_encryption_key_size)) {
         return BLE_ERROR_INVALID_PARAM;
@@ -398,6 +431,8 @@ ble_error_t PalSecurityManager::send_pairing_request(
     KeyDistribution responder_dist
 )
 {
+    tr_info("Connection %d - send pairing request: oob = %s, auth = %02X, initiator dist = %02x, responder dist = %02X",
+        connection, to_string(oob_data_flag), authentication_requirements.value(), initiator_dist.value(), responder_dist.value());
     DmSecPairReq(
         connection,
         oob_data_flag,
@@ -419,6 +454,8 @@ ble_error_t PalSecurityManager::send_pairing_response(
     KeyDistribution responder_dist
 )
 {
+    tr_info("Connection %d - Send pairing response: oob = %s, auth = %02X, initiator dist = %02x, responder dist = %02X",
+        connection, to_string(oob_data_flag), authentication_requirements.value(), initiator_dist.value(), responder_dist.value());
     DmSecPairRsp(
         connection,
         oob_data_flag,
@@ -436,6 +473,7 @@ ble_error_t PalSecurityManager::cancel_pairing(
     connection_handle_t connection, pairing_failure_t reason
 )
 {
+    tr_info("Connection %d - cancel pairing: reason = %s", connection, to_string(reason));
     DmSecCancelReq(connection, reason.value());
     return BLE_ERROR_NONE;
 }
@@ -444,6 +482,7 @@ ble_error_t PalSecurityManager::cancel_pairing(
 ble_error_t PalSecurityManager::get_random_data(byte_array_t<8> &random_data)
 {
     SecRand(random_data.data(), random_data.size());
+    tr_info("Stack generated random data: %s", to_string(random_data));
     return BLE_ERROR_NONE;
 }
 
@@ -456,6 +495,7 @@ ble_error_t PalSecurityManager::passkey_request_reply(
     connection_handle_t connection, passkey_num_t passkey
 )
 {
+    tr_info("Connection %d - Reply with passkey %s", connection, passkey_str(PasskeyAscii(passkey).value()));
     DmSecAuthRsp(
         connection,
         /* datalength */ 3,
@@ -471,6 +511,7 @@ ble_error_t PalSecurityManager::legacy_pairing_oob_request_reply(
     const oob_tk_t &oob_data
 )
 {
+    tr_info("Connection %d - Reply with legacy OOB data %s", connection, to_string(oob_data));
     DmSecAuthRsp(
         connection,
         /* data length */16,
@@ -485,6 +526,7 @@ ble_error_t PalSecurityManager::confirmation_entered(
     connection_handle_t connection, bool confirmation
 )
 {
+    tr_info("Connection %d - Send confirmation entered: %s", connection, to_string(confirmation));
     DmSecCompareRsp(connection, confirmation);
     return BLE_ERROR_NONE;
 }
@@ -497,6 +539,7 @@ ble_error_t PalSecurityManager::send_keypress_notification(
     connection_handle_t connection, ble::Keypress_t keypress
 )
 {
+    tr_info("Connection %d - Send keypress notification: %s", connection, to_string(keypress));
     DmSecKeypressReq(connection, keypress);
     return BLE_ERROR_NONE;
 }
@@ -504,6 +547,7 @@ ble_error_t PalSecurityManager::send_keypress_notification(
 
 ble_error_t PalSecurityManager::generate_secure_connections_oob()
 {
+    tr_info("Start generation of SC OOB");
     uint8_t oobLocalRandom[SMP_RAND_LEN];
     SecRand(oobLocalRandom, SMP_RAND_LEN);
     DmSecCalcOobReq(oobLocalRandom, _public_key_x);
@@ -518,6 +562,8 @@ ble_error_t PalSecurityManager::secure_connections_oob_request_reply(
     const oob_confirm_t &peer_confirm
 )
 {
+    tr_info("Connection %d - Reply to SC OOB request: local_random = %s, peer_random = %s, peer_confirm = %s",
+        connection, to_string(local_random), to_string(peer_random), to_string(peer_confirm));
     dmSecLescOobCfg_t oob_config = {0};
 
     memcpy(oob_config.localRandom, local_random.data(), local_random.size());
@@ -546,12 +592,15 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
     PalSecurityManager &self = get_security_manager();
     PalSecurityManagerEventHandler *handler = self.get_event_handler();
 
-    if ((msg == nullptr) || (handler == nullptr)) {
+    if (handler == nullptr) {
         return false;
     }
 
+    MBED_ASSERT(msg);
+
     switch (msg->event) {
         case DM_SEC_PAIR_CMPL_IND: {
+            tr_info("Handling event DM_SEC_PAIR_CMPL_IND");
             auto *evt = (dmSecPairCmplIndEvt_t *) msg;
             // Note: authentication and bonding flags present in the auth field
             handler->on_pairing_completed(evt->hdr.param);
@@ -559,6 +608,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
         }
 
         case DM_SEC_PAIR_FAIL_IND: {
+            tr_info("Handling event DM_SEC_PAIR_FAIL_IND");
             connection_handle_t connection = msg->param;
             uint8_t status = msg->status;
 
@@ -587,6 +637,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
         }
 
         case DM_SEC_ENCRYPT_IND: {
+            tr_info("Handling event DM_SEC_ENCRYPT_IND");
             auto *evt = (dmSecEncryptIndEvt_t *) msg;
             // note: the field usingLtk of the message indicates if an LTK was
             // used to encrypt the link
@@ -596,12 +647,14 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
         }
 
         case DM_SEC_ENCRYPT_FAIL_IND: {
+            tr_info("Handling event DM_SEC_ENCRYPT_FAIL_IND");
             // note: msg->status contains the encryption failure status
             handler->on_link_encryption_result(msg->param, link_encryption_t::NOT_ENCRYPTED);
             return true;
         }
 
         case DM_SEC_AUTH_REQ_IND: {
+            tr_info("Handling event DM_SEC_AUTH_REQ_IND");
             auto *evt = (dmSecAuthReqIndEvt_t *) msg;
             connection_handle_t connection = evt->hdr.param;
 
@@ -618,6 +671,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
                         connection,
                         get_security_manager()._default_passkey
                     );
+                    tr_info("Use default passkey");
                     DmSecAuthRsp(
                         connection,
                         /* data length */ SMP_PIN_LEN,
@@ -625,6 +679,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
                     );
                 } else {
                     /* generate random passkey, limit to 6 digit max */
+                    tr_info("Generate random passkey");
                     passkey_num_t passkey;
                     SecRand((uint8_t *) &passkey, sizeof(passkey));
                     passkey %= 1000000;
@@ -640,6 +695,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
         }
 
         case DM_SEC_KEY_IND: {
+            tr_info("Handling event DM_SEC_KEY_IND");
             // NOTE: also report security level and encryption key len
             auto *evt = (dmSecKeyIndEvt_t *) msg;
             connection_handle_t connection = evt->hdr.param;
@@ -697,6 +753,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
         }
 
         case DM_SEC_LTK_REQ_IND: {
+            tr_info("Handling event DM_SEC_LTK_REQ_IND");
             uint8_t null_rand[HCI_RAND_LEN] = {0};
             auto *evt = (hciLeLtkReqEvt_t *) msg;
 
@@ -717,6 +774,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
 
 #if BLE_ROLE_PERIPHERAL
         case DM_SEC_PAIR_IND: {
+            tr_info("Handling event DM_SEC_PAIR_IND");
             auto *evt = (dmSecPairIndEvt_t *) msg;
             handler->on_pairing_request(
                 /* connection */ evt->hdr.param,
@@ -731,6 +789,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
 
 #if BLE_ROLE_CENTRAL
         case DM_SEC_SLAVE_REQ_IND: {
+            tr_info("Handling event DM_SEC_SLAVE_REQ_IND");
             auto *evt = (dmSecPairIndEvt_t *) msg;
             handler->on_slave_security_request(
                 /* connection */ evt->hdr.param,
@@ -742,6 +801,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
 
 #if BLE_FEATURE_SECURE_CONNECTIONS
         case DM_SEC_CALC_OOB_IND: {
+            tr_info("Handling event DM_SEC_CALC_OOB_IND");
             auto *evt = (dmSecOobCalcIndEvt_t *) msg;
             handler->on_secure_connections_oob_generated(
                 evt->random,
@@ -751,7 +811,12 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
         }
 
         case DM_SEC_ECC_KEY_IND: {
+            tr_info("Handling event DM_SEC_ECC_KEY_IND");
             auto *evt = (secEccMsg_t *) msg;
+            tr_info("ECC Keys generated: public key x=%s, public key y=%s, private key=%s",
+                tr_array(evt->data.key.pubKey_x, SEC_ECC_KEY_LEN),
+                tr_array(evt->data.key.pubKey_y, SEC_ECC_KEY_LEN),
+                tr_array(evt->data.key.privKey, SEC_ECC_KEY_LEN));
             DmSecSetEccKey(&evt->data.key);
             memcpy(self._public_key_x, evt->data.key.pubKey_x, sizeof(self._public_key_x));
             self._lesc_keys_generated = true;
@@ -759,6 +824,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
         }
 
         case DM_SEC_COMPARE_IND: {
+            tr_info("Handling event DM_SEC_COMPARE_IND");
             auto *evt = (dmSecCnfIndEvt_t *) msg;
             handler->on_passkey_display(
                 /* connection */ evt->hdr.param,
@@ -769,6 +835,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
         }
 
         case DM_SEC_KEYPRESS_IND: {
+            tr_info("Handling event DM_SEC_KEYPRESS_IND");
             auto *evt = (dmSecKeypressIndEvt_t *) msg;
             handler->on_keypress_notification(
                 /* connection */ evt->hdr.param,

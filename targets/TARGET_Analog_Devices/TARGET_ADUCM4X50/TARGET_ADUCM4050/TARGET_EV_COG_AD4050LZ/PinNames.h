@@ -38,6 +38,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
 
+/* MBED TARGET LIST: EV_COG_AD4050LZ */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -121,10 +123,10 @@ typedef enum {
     P2_11 = (2 << GPIO_PORT_SHIFT | 11),
 
     // USB Pins
-    USBTX = P0_10,
-    USBRX = P0_11,
-    USBTX1 = P1_15,
-    USBRX1 = P2_00,
+    CONSOLE_TX = P0_10,
+    CONSOLE_RX = P0_11,
+    CONSOLE_TX1 = P1_15,
+    CONSOLE_RX1 = P2_00,
 
     // mbed original LED naming
     LED1 = P2_02,

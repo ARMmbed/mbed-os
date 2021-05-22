@@ -14,6 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* MBED TARGET LIST: GR_MANGO */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -67,8 +70,8 @@ typedef enum {
     LED_ORANGE = LED3,
     LED_RED    = LED4,
 
-    USBTX = P9_0,
-    USBRX = P9_1,
+    CONSOLE_TX = P9_0,
+    CONSOLE_RX = P9_1,
 
     A0 = P5_0,
     A1 = P5_1,

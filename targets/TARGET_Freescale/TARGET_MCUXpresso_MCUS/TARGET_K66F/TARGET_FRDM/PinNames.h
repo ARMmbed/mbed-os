@@ -14,6 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* MBED TARGET LIST: K66F */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -210,8 +213,8 @@ typedef enum {
     BUTTON2 = SW3,
 
     // USB Pins
-    USBTX = PTB17,
-    USBRX = PTB16,
+    CONSOLE_TX = PTB17,
+    CONSOLE_RX = PTB16,
 
     // Arduino Headers
     D0 = PTC3,

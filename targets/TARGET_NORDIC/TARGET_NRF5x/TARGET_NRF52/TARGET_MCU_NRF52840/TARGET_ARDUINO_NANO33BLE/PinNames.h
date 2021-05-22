@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+/* MBED TARGET LIST: ARDUINO_NANO33BLE */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -152,10 +154,18 @@ typedef enum {
     LED4 = LED_BLUE,
     
     // mBed interface Pins
-    USBTX = TX_PIN_NUMBER,
-    USBRX = RX_PIN_NUMBER,
-    STDIO_UART_TX = TX_PIN_NUMBER,
-    STDIO_UART_RX = RX_PIN_NUMBER,
+    CONSOLE_TX = TX_PIN_NUMBER,
+    CONSOLE_RX = RX_PIN_NUMBER,
+#if defined(MBED_CONF_TARGET_STDIO_UART_TX)
+    STDIO_UART_TX   = MBED_CONF_TARGET_STDIO_UART_TX,
+#else
+    STDIO_UART_TX   = CONSOLE_TX,
+#endif
+#if defined(MBED_CONF_TARGET_STDIO_UART_RX)
+    STDIO_UART_RX   = MBED_CONF_TARGET_STDIO_UART_RX,
+#else
+    STDIO_UART_RX   = CONSOLE_RX,
+#endif
 
     SPI_PSELMOSI0 = P1_1,
     SPI_PSELMISO0 = P1_8,

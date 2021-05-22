@@ -443,9 +443,33 @@ struct GattDataSentCallbackParams {
 
 };
 
-using GattUpdatesEnabledCallbackParams        = GattDataSentCallbackParams;
-using GattUpdatesDisabledCallbackParams       = GattDataSentCallbackParams;
-using GattConfirmationReceivedCallbackParams  = GattDataSentCallbackParams;
+/**
+ * Gatt Updates Changed Attribute related events
+ *
+ * Used by `onUpdatesEnabled` and 'onUpdatesDisabled'
+ */
+struct GattUpdatesChangedCallbackParams {
+
+    /**
+     * The handle of the connection that triggered the event.
+     */
+    ble::connection_handle_t connHandle;
+
+    /**
+     * The handle of the CCCD producing the event
+     */
+    GattAttribute::Handle_t attHandle;
+
+    /**
+     * The value handle of the characteristic containing the CCCD  
+     */
+    GattAttribute::Handle_t charHandle;
+    
+};
+
+using GattUpdatesEnabledCallbackParams       = GattUpdatesChangedCallbackParams;
+using GattUpdatesDisabledCallbackParams      = GattUpdatesChangedCallbackParams;
+using GattConfirmationReceivedCallbackParams = GattDataSentCallbackParams;
 
 namespace ble {
 

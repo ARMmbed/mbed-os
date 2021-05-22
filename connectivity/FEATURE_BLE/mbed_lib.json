@@ -108,10 +108,15 @@
             "value": 16,
             "macro_name": "BLE_GAP_HOST_PRIVACY_RESOLVED_CACHE_SIZE"
         },
+
         "ble-passkey-display-reversed-digits-deprecation": {
           "help": "This option is part of the deprecation process. Set this to false to remove the deprecation notice. When set to true, the digits in the SecurityManager passkeyDiplay event are reversed. When set to false the digits are in the correct order.",
           "value": true,
           "macro_name": "BLE_PASSKEY_DISPLAY_REVERSED_DIGITS_DEPRECATION"
+        },
+        "trace-human-readable-enums": {
+            "help": "More hexadecimal values in traces will be printed as human readable strings.",
+            "value": false
         }
     },
     "target_overrides": {

@@ -11,3 +11,4 @@ target_compile_definitions(mbed-cy-external-wifi-fw
         "CY_STORAGE_WIFI_DATA_OUTPUT=cy_xip"
         "CY_EXT_WIFI_FW_STORAGE=QSPIF"
 )
+

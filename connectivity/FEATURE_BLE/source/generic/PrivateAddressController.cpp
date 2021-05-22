@@ -18,6 +18,10 @@
 #if BLE_FEATURE_PRIVACY
 
 #include "PrivateAddressController.h"
+#include "mbed-trace/mbed_trace.h"
+#include "common/ble_trace_helpers.h"
+
+#define TRACE_GROUP "BLSM"
 
 namespace ble {
 
@@ -50,12 +54,14 @@ PrivateAddressController::~PrivateAddressController()
 
 void PrivateAddressController::set_local_irk(const irk_t &local_irk)
 {
+    tr_info("Set local irk: %s", to_string(local_irk));
     _local_irk = local_irk;
     generate_resolvable_address();
 }
 
 void PrivateAddressController::set_timeout(ble::resolvable_address_timeout_t rotation_timeout)
 {
+    tr_info("Set resolvable address timeout: %d s", rotation_timeout.value());
     _rotation_timeout = rotation_timeout;
     _pal.set_ll_resolvable_private_address_timeout(rotation_timeout);
     if (_generation_started) {
@@ -85,12 +91,15 @@ void PrivateAddressController::start_private_address_generation()
         return;
     }
 
+    tr_info("Start private address generation");
+
     // non resolvable private address generation has been delayed until now,
     // generate it.
     generate_non_resolvable_address();
 
     _address_rotation_ticker.attach([this] {
         _event_queue.post([this]{
+            tr_info("Private address timeout");
             generate_resolvable_address();
             generate_non_resolvable_address();
         });
@@ -101,6 +110,7 @@ void PrivateAddressController::start_private_address_generation()
 void PrivateAddressController::stop_private_address_generation()
 {
     if (_generation_started) {
+        tr_info("Stop private address generation");
         _address_rotation_ticker.detach();
         _generation_started = false;
     }
@@ -110,14 +120,19 @@ void PrivateAddressController::generate_resolvable_address()
 {
     if (_local_irk != irk_t{}) {
         _pal.generate_resolvable_private_address(_local_irk);
+    } else {
+        tr_warning("Failed to generate resolvable address, no local irk");
     }
 }
 
 void PrivateAddressController::on_resolvable_private_address_generated(const address_t &rpa)
 {
+    tr_info("Resolvable private address generated: %s", to_string(rpa));
     _resolvable_address = rpa;
     if (_event_handler) {
         _event_handler->on_resolvable_private_addresses_generated(_resolvable_address);
+    } else {
+        tr_warning("No app handler to receive RPA generated");
     }
 }
 
@@ -127,6 +142,8 @@ void PrivateAddressController::generate_non_resolvable_address()
     _event_queue.post([this] {
         if (_event_handler) {
             _event_handler->on_non_resolvable_private_addresses_generated(_non_resolvable_address);
+        } else {
+            tr_warning("No app handler to receive NRPA generated");
         }
     });
 }
@@ -168,7 +185,10 @@ ble_error_t PrivateAddressController::add_device_to_resolving_list(
     const irk_t& peer_irk
 )
 {
+    tr_info("Add device to resolving list: peer address=%s, type=%s, peer irk=%s",
+        to_string(peer_identity_address), to_string(peer_address_type), to_string(peer_irk));
     if (_local_irk == irk_t{}) {
+        tr_error("Invalid local IRK: %s", to_string(_local_irk));
         return BLE_ERROR_INVALID_STATE;
     }
 
@@ -198,6 +218,7 @@ ble_error_t PrivateAddressController::add_device_to_resolving_list(
     }
 
     if (!entry_added) {
+        tr_error("Failed to add address into host resolving list, not enough space");
         return BLE_ERROR_NO_MEM;
     }
 
@@ -221,6 +242,7 @@ ble_error_t PrivateAddressController::add_device_to_resolving_list(
             peer_irk
         );
     } else {
+        tr_error("Host based private address resolution enabled but not supported by the controller");
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 #endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
@@ -231,6 +253,8 @@ ble_error_t PrivateAddressController::remove_device_from_resolving_list(
     const address_t &peer_identity_address
 )
 {
+    tr_info("Remove device from resolving list: peer address=%s, type=%s",
+        to_string(peer_identity_address), to_string(peer_address_type));
 #if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
     for (auto &entry : _resolving_list) {
         if (entry.populated &&
@@ -252,6 +276,7 @@ ble_error_t PrivateAddressController::remove_device_from_resolving_list(
     if (is_controller_privacy_supported()) {
         return queue_remove_device_from_resolving_list(peer_address_type, peer_identity_address);
     } else {
+        tr_error("Host based private address resolution enabled but not supported by the controller");
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 #endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
@@ -259,6 +284,7 @@ ble_error_t PrivateAddressController::remove_device_from_resolving_list(
 
 ble_error_t PrivateAddressController::clear_resolving_list()
 {
+    tr_info("Clear resolving list");
 #if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
     // Remove entry from the resolving list
     for (auto &entry : _resolving_list) {
@@ -277,6 +303,7 @@ ble_error_t PrivateAddressController::clear_resolving_list()
     if (is_controller_privacy_supported()) {
         return queue_clear_resolving_list();
     } else {
+        tr_error("Host based private address resolution enabled but not supported by the controller");
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 #endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
@@ -310,12 +337,15 @@ bool PrivateAddressController::resolve_address_in_host_cache(
                 entry->next = _resolved_list;
                 _resolved_list = entry;
             }
+            tr_debug("Resolved address from cache: rpa=%s, resolved address=%s, type=%s",
+                to_string(peer_address), to_string(entry->identity->peer_address), to_string(entry->identity->peer_address_type));
             return true;
         }
         previous = entry;
         entry = entry->next;
     }
 
+    tr_debug("Address not found in cache: %s", to_string(peer_address));
     return false;
 }
 
@@ -340,6 +370,7 @@ ble_error_t PrivateAddressController::resolve_address_on_host(
 
 void PrivateAddressController::on_resolving_list_action_complete()
 {
+    tr_info("Resolving list action completed");
     process_privacy_control_blocks(true);
 }
 
@@ -412,6 +443,7 @@ ble_error_t PrivateAddressController::queue_add_device_to_resolving_list(
         peer_irk
     );
     if (cb == nullptr) {
+        tr_error("Failed to create control block to add device to resolving list");
         // Cannot go further
         return BLE_ERROR_NO_MEM;
     }
@@ -458,6 +490,7 @@ ble_error_t PrivateAddressController::queue_remove_device_from_resolving_list(
         peer_identity_address
     );
     if (cb == nullptr) {
+        tr_error("Failed to create control block to remove device from resolving list");
         // Cannot go further
         return BLE_ERROR_NO_MEM;
     }
@@ -488,6 +521,7 @@ ble_error_t PrivateAddressController::queue_clear_resolving_list()
 
     auto *cb = new(std::nothrow) PrivacyClearResListControlBlock();
     if (cb == nullptr) {
+        tr_error("Failed to create control block to clear resolving list");
         // Cannot go further
         return BLE_ERROR_NO_MEM;
     }
@@ -549,6 +583,7 @@ private:
             }
         } while (!self._resolving_list[resolving_list_index].populated);
 
+        tr_debug("Start resolution with next identity entry: %s", to_string(peer_address));
         start_resolution(self);
         return false;
     }
@@ -567,6 +602,13 @@ private:
         resolving_list_entry_t* identity
     )
     {
+        if (!resolved) {
+            tr_debug("Address resolution complete: rpa=%s, resolved=%s", to_string(peer_resolvable_address), to_string(resolved));
+        } else {
+            tr_debug("Address resolution complete: rpa=%s, resolved=%s, identity address=%s, type=%s",
+                to_string(peer_resolvable_address), to_string(resolved), to_string(identity->peer_address), to_string(identity->peer_address_type));
+        }
+
         // First we had the device to the resolution list
         self.add_resolution_entry_to_cache(peer_resolvable_address, identity);
 
@@ -591,6 +633,7 @@ ble_error_t PrivateAddressController::queue_resolve_address_on_host(const addres
     auto *cb = new(std::nothrow) PrivacyResolveAddressOnHost(peer_address);
     if (cb == nullptr) {
         // Cannot go further
+        tr_error("Not enough memory to queue host address resolution: %s", to_string(peer_address));
         return BLE_ERROR_NO_MEM;
     }
 
@@ -605,6 +648,7 @@ void PrivateAddressController::restart_resolution_process_on_host()
 {
     // if processing is active, restart the one running.
     if (_processing_privacy_control_block && _pending_privacy_control_blocks) {
+        tr_info("Restart host address resolution process");
         static_cast<PrivacyResolveAddressOnHost*>(_pending_privacy_control_blocks)->invalidate();
     }
 }
@@ -614,6 +658,7 @@ void PrivateAddressController::on_private_address_resolved(bool success)
     if (_pending_privacy_control_blocks == nullptr ||
         _processing_privacy_control_block == false
         ) {
+        tr_warning("Received unexpected address resolution event");
         return;
     }
 
@@ -625,6 +670,7 @@ void PrivateAddressController::on_private_address_resolved(bool success)
 
 void PrivateAddressController::clear_privacy_control_blocks()
 {
+    tr_info("Clear privacy control blocks");
     while (_pending_privacy_control_blocks != nullptr) {
         PrivacyControlBlock *next = _pending_privacy_control_blocks->next();
         delete _pending_privacy_control_blocks;
@@ -634,6 +680,7 @@ void PrivateAddressController::clear_privacy_control_blocks()
 
 void PrivateAddressController::queue_privacy_control_block(PrivacyControlBlock *block)
 {
+    tr_info("Queue privacy request");
     if (_pending_privacy_control_blocks == nullptr) {
         _pending_privacy_control_blocks = block;
     } else {
