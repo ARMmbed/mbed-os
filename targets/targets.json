@@ -2566,7 +2566,7 @@
             "CAN",
             "QSPI"
         ],
-        "device_name": "STM32F767ZI",
+        "device_name": "STM32F767ZITx",
         "overrides": {
             "network-default-interface-type": "ETHERNET",
             "clock_source": "USE_PLL_HSE_XTAL"
