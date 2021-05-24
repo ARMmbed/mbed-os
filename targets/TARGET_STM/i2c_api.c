@@ -195,6 +195,10 @@ static I2C_HandleTypeDef *i2c_handles[I2C_NUM];
 #define FLAG_TIMEOUT ((int)0x1000)
 #endif
 
+#ifdef I2C_IP_VERSION_V1
+#define I2C_STATE_NONE            ((uint32_t)(HAL_I2C_MODE_NONE))
+#endif
+
 /* Declare i2c_init_internal to be used in this file */
 void i2c_init_internal(i2c_t *obj, const i2c_pinmap_t *pinmap);
 
@@ -1159,7 +1163,9 @@ void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
     /* Get object ptr based on handler ptr */
     i2c_t *obj = get_i2c_obj(hi2c);
     struct i2c_s *obj_s = I2C_S(obj);
-
+#ifdef I2C_IP_VERSION_V1
+    hi2c->PreviousState = I2C_STATE_NONE;
+#endif
     /* Set event flag */
     obj_s->event = I2C_EVENT_TRANSFER_COMPLETE;
 }
