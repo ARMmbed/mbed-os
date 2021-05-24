@@ -8028,6 +8028,7 @@
             "MBED_MPU_CUSTOM",
             "PICO_TIME_DEFAULT_ALARM_POOL_DISABLED",
             "PICO_ON_DEVICE=1",
+            "PICO_FLASH_SIZE_BYTES=16*1024*1024",
             "PICO_UART_ENABLE_CRLF_SUPPORT=0"
         ]
     },
