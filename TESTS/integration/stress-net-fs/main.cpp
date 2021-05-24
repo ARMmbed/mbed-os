@@ -61,16 +61,16 @@ void led_thread()
 #endif
 
 #define MAX_RETRIES 3
-NetworkInterface *interface = NULL;
+NetworkInterface *netif = NULL;
 
 static control_t setup_network(const size_t call_count)
 {
-    interface = NetworkInterface::get_default_instance();
-    TEST_ASSERT_NOT_NULL_MESSAGE(interface, "failed to initialize network");
+    netif = NetworkInterface::get_default_instance();
+    TEST_ASSERT_NOT_NULL_MESSAGE(netif, "failed to initialize network");
 
     nsapi_error_t err = -1;
     for (int tries = 0; tries < MAX_RETRIES; tries++) {
-        err = interface->connect();
+        err = netif->connect();
         if (err == NSAPI_ERROR_OK) {
             break;
         } else {
@@ -106,7 +106,7 @@ static uint32_t thread_counter = 0;
 void download_fn()
 {
     uint32_t thread_id = core_util_atomic_incr_u32(&thread_counter, 1);
-    download_test(interface, story, sizeof(story), 256, thread_id);
+    download_test(netif, story, sizeof(story), 256, thread_id);
 }
 void file_fn(size_t buffer)
 {
