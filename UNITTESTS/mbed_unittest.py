@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Copyright (c) 2018, Arm Limited
+Copyright (c) 2018-2021, Arm Limited
 SPDX-License-Identifier: Apache-2.0
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -71,9 +71,8 @@ def _mbed_unittest_test(options, cwd, pwd):
                                  clean=options.clean)
 
     if options.compile_only:
-        # Create makefiles
-        src_path = os.path.relpath(pwd, options.build)
-        tool.create_makefiles(path_to_src=src_path,
+        # Create makefiles        
+        tool.create_makefiles(path_to_src=cwd,
                               generator=options.cmake_generator,
                               coverage_output_type=options.coverage,
                               debug=options.debug_build,

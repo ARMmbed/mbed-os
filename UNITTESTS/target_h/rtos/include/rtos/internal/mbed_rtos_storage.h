@@ -22,7 +22,7 @@
 extern "C" {
 #endif
 
-#include "cmsis_os2.h"
+#include "mbed_rtos_types.h"
 #include "rtx_os.h"
 #include "rtx_lib.h"
 #include "mbed_rtx_conf.h"

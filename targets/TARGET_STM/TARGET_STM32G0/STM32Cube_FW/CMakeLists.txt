@@ -5,7 +5,6 @@ add_library(mbed-stm32g0cube-fw INTERFACE)
 
 target_sources(mbed-stm32g0cube-fw
     INTERFACE
-
         STM32G0xx_HAL_Driver/stm32g0xx_hal.c
         STM32G0xx_HAL_Driver/stm32g0xx_hal_adc.c
         STM32G0xx_HAL_Driver/stm32g0xx_hal_adc_ex.c
@@ -21,15 +20,19 @@ target_sources(mbed-stm32g0cube-fw
         STM32G0xx_HAL_Driver/stm32g0xx_hal_dma.c
         STM32G0xx_HAL_Driver/stm32g0xx_hal_dma_ex.c
         STM32G0xx_HAL_Driver/stm32g0xx_hal_exti.c
+        STM32G0xx_HAL_Driver/stm32g0xx_hal_fdcan.c
         STM32G0xx_HAL_Driver/stm32g0xx_hal_flash.c
         STM32G0xx_HAL_Driver/stm32g0xx_hal_flash_ex.c
         STM32G0xx_HAL_Driver/stm32g0xx_hal_gpio.c
+        STM32G0xx_HAL_Driver/stm32g0xx_hal_hcd.c
         STM32G0xx_HAL_Driver/stm32g0xx_hal_i2c.c
         STM32G0xx_HAL_Driver/stm32g0xx_hal_i2c_ex.c
         STM32G0xx_HAL_Driver/stm32g0xx_hal_i2s.c
         STM32G0xx_HAL_Driver/stm32g0xx_hal_irda.c
         STM32G0xx_HAL_Driver/stm32g0xx_hal_iwdg.c
         STM32G0xx_HAL_Driver/stm32g0xx_hal_lptim.c
+        STM32G0xx_HAL_Driver/stm32g0xx_hal_pcd.c
+        STM32G0xx_HAL_Driver/stm32g0xx_hal_pcd_ex.c
         STM32G0xx_HAL_Driver/stm32g0xx_hal_pwr.c
         STM32G0xx_HAL_Driver/stm32g0xx_hal_pwr_ex.c
         STM32G0xx_HAL_Driver/stm32g0xx_hal_rcc.c
@@ -52,6 +55,7 @@ target_sources(mbed-stm32g0cube-fw
         STM32G0xx_HAL_Driver/stm32g0xx_ll_adc.c
         STM32G0xx_HAL_Driver/stm32g0xx_ll_comp.c
         STM32G0xx_HAL_Driver/stm32g0xx_ll_crc.c
+        STM32G0xx_HAL_Driver/stm32g0xx_ll_crs.c
         STM32G0xx_HAL_Driver/stm32g0xx_ll_dac.c
         STM32G0xx_HAL_Driver/stm32g0xx_ll_dma.c
         STM32G0xx_HAL_Driver/stm32g0xx_ll_exti.c
@@ -67,6 +71,7 @@ target_sources(mbed-stm32g0cube-fw
         STM32G0xx_HAL_Driver/stm32g0xx_ll_tim.c
         STM32G0xx_HAL_Driver/stm32g0xx_ll_ucpd.c
         STM32G0xx_HAL_Driver/stm32g0xx_ll_usart.c
+        STM32G0xx_HAL_Driver/stm32g0xx_ll_usb.c
         STM32G0xx_HAL_Driver/stm32g0xx_ll_utils.c
         system_stm32g0xx.c
 )

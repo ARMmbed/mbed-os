@@ -5822,7 +5822,6 @@ typedef struct
 #define CRS_CR_TRIM_3             (0x08UL << CRS_CR_TRIM_Pos)                  /*!< 0x00000800 */
 #define CRS_CR_TRIM_4             (0x10UL << CRS_CR_TRIM_Pos)                  /*!< 0x00001000 */
 #define CRS_CR_TRIM_5             (0x20UL << CRS_CR_TRIM_Pos)                  /*!< 0x00002000 */
-#define CRS_CR_TRIM               CRS_CR_TRIM_Msk                              /*!< HSI48 oscillator smooth trimming */
 
 /*******************  Bit definition for CRS_CFGR register  *********************/
 #define CRS_CFGR_RELOAD_Pos       (0U)
@@ -9584,15 +9583,13 @@ typedef struct
 
 /*!< HSITRIM configuration */
 #define RCC_ICSCR_HSITRIM_Pos                (24U)
-#define RCC_ICSCR_HSITRIM_Msk                (0x7FUL << RCC_ICSCR_HSITRIM_Pos) /*!< 0x7F000000 */
-#define RCC_ICSCR_HSITRIM                    RCC_ICSCR_HSITRIM_Msk             /*!< HSITRIM[6:0] bits */
+#define RCC_ICSCR_HSITRIM_Msk                (0x1FUL << RCC_ICSCR_HSITRIM_Pos) /*!< 0x1F000000 */
+#define RCC_ICSCR_HSITRIM                    RCC_ICSCR_HSITRIM_Msk             /*!< HSITRIM[4:0] bits */
 #define RCC_ICSCR_HSITRIM_0                  (0x01UL << RCC_ICSCR_HSITRIM_Pos) /*!< 0x01000000 */
 #define RCC_ICSCR_HSITRIM_1                  (0x02UL << RCC_ICSCR_HSITRIM_Pos) /*!< 0x02000000 */
 #define RCC_ICSCR_HSITRIM_2                  (0x04UL << RCC_ICSCR_HSITRIM_Pos) /*!< 0x04000000 */
 #define RCC_ICSCR_HSITRIM_3                  (0x08UL << RCC_ICSCR_HSITRIM_Pos) /*!< 0x08000000 */
 #define RCC_ICSCR_HSITRIM_4                  (0x10UL << RCC_ICSCR_HSITRIM_Pos) /*!< 0x10000000 */
-#define RCC_ICSCR_HSITRIM_5                  (0x20UL << RCC_ICSCR_HSITRIM_Pos) /*!< 0x20000000 */
-#define RCC_ICSCR_HSITRIM_6                  (0x40UL << RCC_ICSCR_HSITRIM_Pos) /*!< 0x40000000 */
 
 /********************  Bit definition for RCC_CFGR register  ******************/
 /*!< SW configuration */

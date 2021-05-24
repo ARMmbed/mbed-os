@@ -92,8 +92,10 @@ typedef struct
                                       This parameter can be a value of @ref RCC_HSI_Config                        */
 
   uint32_t HSICalibrationValue;  /*!< The calibration trimming value (default is RCC_HSICALIBRATION_DEFAULT).
-                                      This parameter must be a number between Min_Data = 0 and Max_Data = 31 on STM32L47x/STM32L48x devices.
-                                      This parameter must be a number between Min_Data = 0 and Max_Data = 127 on the other devices */
+                                      This parameter must be a number between Min_Data = 0 and Max_Data = 31 on
+                                      STM32L43x/STM32L44x/STM32L47x/STM32L48x devices.
+                                      This parameter must be a number between Min_Data = 0 and Max_Data = 127 on
+                                      the other devices */
 
   uint32_t LSIState;             /*!< The new state of the LSI.
                                       This parameter can be a value of @ref RCC_LSI_Config                        */
@@ -206,9 +208,9 @@ typedef struct
 #define RCC_HSI_ON                     RCC_CR_HSION  /*!< HSI clock activation */
 
 #if defined(RCC_ICSCR_HSITRIM_6)
-#define RCC_HSICALIBRATION_DEFAULT     0x40U         /*!< Default HSI calibration trimming value 64 on devices other than STM32L47x/STM32L48x */
+#define RCC_HSICALIBRATION_DEFAULT     0x40U         /*!< Default HSI calibration trimming value 64 on devices other than STM32L43x/STM32L44x/STM32L47x/STM32L48x */
 #else
-#define RCC_HSICALIBRATION_DEFAULT     0x10U         /*!< Default HSI calibration trimming value 16 on STM32L47x/STM32L48x devices */
+#define RCC_HSICALIBRATION_DEFAULT     0x10U         /*!< Default HSI calibration trimming value 16 on STM32L43x/STM32L44x/STM32L47x/STM32L48x devices */
 #endif /* RCC_ICSCR_HSITRIM_6 */
 /**
   * @}
@@ -3945,8 +3947,8 @@ typedef struct
   *         and temperature that influence the frequency of the internal HSI RC.
   * @param  __HSICALIBRATIONVALUE__ specifies the calibration trimming value
   *         (default is RCC_HSICALIBRATION_DEFAULT).
-  *         This parameter must be a number between 0 and 31 on STM32L47x/STM32L48x or
-  *         between 0 and 127 on other devices.
+  *         This parameter must be a number between 0 and 31 on STM32L43x/STM32L44x/STM32L47x/STM32L48x
+  *         or between 0 and 127 on other devices.
   * @retval None
   */
 #define __HAL_RCC_HSI_CALIBRATIONVALUE_ADJUST(__HSICALIBRATIONVALUE__) \

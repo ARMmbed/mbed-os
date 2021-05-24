@@ -24,7 +24,7 @@
 #include "filesystem/FileSystem.h"
 #include "blockdevice/BlockDevice.h"
 #include "platform/PlatformMutex.h"
-#include "storage/filesystem/littlefs/littlefs/lfs.h"
+#include "littlefs/lfs.h"
 
 namespace mbed {
 

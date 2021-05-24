@@ -624,7 +624,7 @@ So, as a solution, the littlefs adopted a sort of threaded tree. Each
 directory not only contains pointers to all of its children, but also a
 pointer to the next directory. These pointers create a linked-list that
 is threaded through all of the directories in the filesystem. Because we
-only use this linked list to check for existance, the order doesn't actually
+only use this linked list to check for existence, the order doesn't actually
 matter. As an added plus, we can repurpose the pointer for the individual
 directory linked-lists and avoid using any additional space.
 

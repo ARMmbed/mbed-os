@@ -26,13 +26,13 @@ namespace mbed {
 BufferedSerial::BufferedSerial(PinName tx, PinName rx, int baud):
     SerialBase(tx, rx, baud)
 {
-    enable_rx_irq();
+    update_rx_irq();
 }
 
 BufferedSerial::BufferedSerial(const serial_pinmap_t &static_pinmap, int baud):
     SerialBase(static_pinmap, baud)
 {
-    enable_rx_irq();
+    update_rx_irq();
 }
 
 BufferedSerial::~BufferedSerial()
@@ -184,15 +184,7 @@ ssize_t BufferedSerial::write(const void *buffer, size_t length)
             data_written++;
         }
 
-        core_util_critical_section_enter();
-        if (_tx_enabled && !_tx_irq_enabled) {
-            // only write to hardware in one place
-            BufferedSerial::tx_irq();
-            if (!_txbuf.empty()) {
-                enable_tx_irq();
-            }
-        }
-        core_util_critical_section_exit();
+        update_tx_irq();
     }
 
     api_unlock();
@@ -228,15 +220,7 @@ ssize_t BufferedSerial::read(void *buffer, size_t length)
         data_read++;
     }
 
-    core_util_critical_section_enter();
-    if (_rx_enabled && !_rx_irq_enabled) {
-        // only read from hardware in one place
-        BufferedSerial::rx_irq();
-        if (!_rxbuf.full()) {
-            enable_rx_irq();
-        }
-    }
-    core_util_critical_section_exit();
+    update_rx_irq();
 
     api_unlock();
 
@@ -329,27 +313,44 @@ void BufferedSerial::tx_irq(void)
     }
 }
 
-/* These are all called from critical section
- * Attatch IRQ routines to the serial device.
+/* Attach Rx-IRQ routine to the serial device eventually.
  */
-void BufferedSerial::enable_rx_irq()
+void BufferedSerial::update_rx_irq()
 {
-    SerialBase::attach(callback(this, &BufferedSerial::rx_irq), RxIrq);
-    _rx_irq_enabled = true;
+    core_util_critical_section_enter();
+    if (_rx_enabled && !_rx_irq_enabled) {
+        BufferedSerial::rx_irq();
+        if (!_rxbuf.full()) {
+            SerialBase::attach(callback(this, &BufferedSerial::rx_irq), RxIrq);
+            _rx_irq_enabled = true;
+        }
+    }
+    core_util_critical_section_exit();
 }
 
+/* This is called called from critical section or interrupt context */
 void BufferedSerial::disable_rx_irq()
 {
     SerialBase::attach(NULL, RxIrq);
     _rx_irq_enabled = false;
 }
 
-void BufferedSerial::enable_tx_irq()
+/* Attach Tx-IRQ routine to the serial device eventually.
+ */
+void BufferedSerial::update_tx_irq()
 {
-    SerialBase::attach(callback(this, &BufferedSerial::tx_irq), TxIrq);
-    _tx_irq_enabled = true;
+    core_util_critical_section_enter();
+    if (_tx_enabled && !_tx_irq_enabled) {
+        BufferedSerial::tx_irq();
+        if (!_txbuf.empty()) {
+            SerialBase::attach(callback(this, &BufferedSerial::tx_irq), TxIrq);
+            _tx_irq_enabled = true;
+        }
+    }
+    core_util_critical_section_exit();
 }
 
+/* This is called called from critical section or interrupt context */
 void BufferedSerial::disable_tx_irq()
 {
     SerialBase::attach(NULL, TxIrq);
@@ -360,6 +361,7 @@ int BufferedSerial::enable_input(bool enabled)
 {
     api_lock();
     SerialBase::enable_input(enabled);
+    update_rx_irq(); // Eventually enable rx-interrupt to handle incoming data
     api_unlock();
 
     return 0;
@@ -369,6 +371,7 @@ int BufferedSerial::enable_output(bool enabled)
 {
     api_lock();
     SerialBase::enable_output(enabled);
+    update_tx_irq(); // Eventually enable tx-interrupt to flush buffered data
     api_unlock();
 
     return 0;

@@ -19,7 +19,7 @@
 #include "netsocket/TCPSocket.h"
 #include "netsocket/TLSSocketWrapper.h"
 #include "NetworkStack_stub.h"
-#include "connectivity/nanostack/coap-service/test/coap-service/unittest/stub/mbedtls_stub.h"
+#include "mbedtls_stub.h"
 #include <cstring> //memset
 
 #include "mbed_error.h"

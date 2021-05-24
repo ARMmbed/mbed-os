@@ -2259,7 +2259,6 @@ typedef struct
 #define CRS_CR_TRIM_4             (0x10UL << CRS_CR_TRIM_Pos)                  /*!< 0x00001000 */
 #define CRS_CR_TRIM_5             (0x20UL << CRS_CR_TRIM_Pos)                  /*!< 0x00002000 */
 #define CRS_CR_TRIM_6             (0x40UL << CRS_CR_TRIM_Pos)                  /*!< 0x00004000 */
-#define CRS_CR_TRIM               CRS_CR_TRIM_Msk                              /*!< HSI48 oscillator smooth trimming */
 
 /*******************  Bit definition for CRS_CFGR register  *********************/
 #define CRS_CFGR_RELOAD_Pos       (0U)

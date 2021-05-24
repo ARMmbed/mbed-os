@@ -22,8 +22,9 @@
 #define _STM_LIST_H_
 
 /* Includes ------------------------------------------------------------------*/
+#include "stm32_wpan_common.h"
 
-typedef  struct _tListNode {
+typedef PACKED_STRUCT _tListNode {
     struct _tListNode * next;
     struct _tListNode * prev;
 } tListNode;

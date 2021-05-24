@@ -2666,15 +2666,18 @@ HAL_StatusTypeDef HAL_ADC_Stop_DMA(ADC_HandleTypeDef* hadc)
     
     /* Disable the DMA channel (in case of DMA in circular mode or stop while */
     /* while DMA transfer is on going)                                        */
-    tmp_hal_status = HAL_DMA_Abort(hadc->DMA_Handle);   
-    
-    /* Check if DMA channel effectively disabled */
-    if (tmp_hal_status != HAL_OK)
+    if (hadc->DMA_Handle->State == HAL_DMA_STATE_BUSY)
     {
-      /* Update ADC state machine to error */
-      SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_DMA);     
+      tmp_hal_status = HAL_DMA_Abort(hadc->DMA_Handle);   
+      
+      /* Check if DMA channel effectively disabled */
+      if (tmp_hal_status != HAL_OK)
+      {
+        /* Update ADC state machine to error */
+        SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_DMA);     
+      }
     }
-    
+
     /* Disable ADC overrun interrupt */
     __HAL_ADC_DISABLE_IT(hadc, ADC_IT_OVR);
     
@@ -2971,57 +2974,59 @@ void HAL_ADC_IRQHandler(ADC_HandleTypeDef* hadc)
     /* group having no further conversion upcoming (same conditions as        */
     /* regular group interruption disabling above),                           */
     /* and if injected scan sequence is completed.                            */
-    if(ADC_IS_SOFTWARE_START_INJECTED(hadc)                   ||
-       ((READ_BIT (tmp_cfgr, ADC_CFGR_JAUTO) == RESET)    &&
-        (ADC_IS_SOFTWARE_START_REGULAR(hadc)          &&
-        (READ_BIT (tmp_cfgr, ADC_CFGR_CONT) == RESET)   )   )   )
+    if(ADC_IS_SOFTWARE_START_INJECTED(hadc))
     {
-      /* If End of Sequence is reached, disable interrupts */
-      if( __HAL_ADC_GET_FLAG(hadc, ADC_FLAG_JEOS))
+      if((READ_BIT (tmp_cfgr, ADC_CFGR_JAUTO) == RESET)    ||
+         (ADC_IS_SOFTWARE_START_REGULAR(hadc)          &&
+          (READ_BIT (tmp_cfgr, ADC_CFGR_CONT) == RESET)   )   )
       {
-        
-        /* Get relevant register CFGR in ADC instance of ADC master or slave  */
-        /* in function of multimode state (for devices with multimode         */
-        /* available).                                                        */
-        if (ADC_NONMULTIMODE_INJ_OR_MULTIMODEMASTER(hadc))
+        /* If End of Sequence is reached, disable interrupts */
+        if( __HAL_ADC_GET_FLAG(hadc, ADC_FLAG_JEOS))
         {
-          tmp_cfgr_jqm = READ_REG(hadc->Instance->CFGR); 
-        }
-        else
-        {
-          tmp_cfgr_jqm = READ_REG(ADC_MASTER_INSTANCE(hadc)->CFGR);
-        }
-        
-        /* Particular case if injected contexts queue is enabled:             */
-        /* when the last context has been fully processed, JSQR is reset      */
-        /* by the hardware. Even if no injected conversion is planned to come */
-        /* (queue empty, triggers are ignored), it can start again            */
-        /* immediately after setting a new context (JADSTART is still set).   */
-        /* Therefore, state of HAL ADC injected group is kept to busy.        */
-        if(READ_BIT(tmp_cfgr_jqm, ADC_CFGR_JQM) == RESET)
-        {
-          /* Allowed to modify bits ADC_IT_JEOC/ADC_IT_JEOS only if bit       */
-          /* JADSTART==0 (no conversion on going)                             */
-          if (ADC_IS_CONVERSION_ONGOING_INJECTED(hadc) == RESET)
+          
+          /* Get relevant register CFGR in ADC instance of ADC master or slave  */
+          /* in function of multimode state (for devices with multimode         */
+          /* available).                                                        */
+          if (ADC_NONMULTIMODE_INJ_OR_MULTIMODEMASTER(hadc))
           {
-            /* Disable ADC end of sequence conversion interrupt  */
-            __HAL_ADC_DISABLE_IT(hadc, ADC_IT_JEOC | ADC_IT_JEOS);
-            
-            /* Set ADC state */
-            CLEAR_BIT(hadc->State, HAL_ADC_STATE_INJ_BUSY);
-
-            if (HAL_IS_BIT_CLR(hadc->State, HAL_ADC_STATE_REG_BUSY))
-            { 
-              SET_BIT(hadc->State, HAL_ADC_STATE_READY);
-            }
+            tmp_cfgr_jqm = READ_REG(hadc->Instance->CFGR); 
           }
           else
           {
-            /* Update ADC state machine to error */
-            SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_INTERNAL);
+            tmp_cfgr_jqm = READ_REG(ADC_MASTER_INSTANCE(hadc)->CFGR);
+          }
           
-            /* Set ADC error code to ADC IP internal error */
-            SET_BIT(hadc->ErrorCode, HAL_ADC_ERROR_INTERNAL);
+          /* Particular case if injected contexts queue is enabled:             */
+          /* when the last context has been fully processed, JSQR is reset      */
+          /* by the hardware. Even if no injected conversion is planned to come */
+          /* (queue empty, triggers are ignored), it can start again            */
+          /* immediately after setting a new context (JADSTART is still set).   */
+          /* Therefore, state of HAL ADC injected group is kept to busy.        */
+          if(READ_BIT(tmp_cfgr_jqm, ADC_CFGR_JQM) == RESET)
+          {
+            /* Allowed to modify bits ADC_IT_JEOC/ADC_IT_JEOS only if bit       */
+            /* JADSTART==0 (no conversion on going)                             */
+            if (ADC_IS_CONVERSION_ONGOING_INJECTED(hadc) == RESET)
+            {
+              /* Disable ADC end of sequence conversion interrupt  */
+              __HAL_ADC_DISABLE_IT(hadc, ADC_IT_JEOC | ADC_IT_JEOS);
+              
+              /* Set ADC state */
+              CLEAR_BIT(hadc->State, HAL_ADC_STATE_INJ_BUSY);
+              
+              if (HAL_IS_BIT_CLR(hadc->State, HAL_ADC_STATE_REG_BUSY))
+              { 
+                SET_BIT(hadc->State, HAL_ADC_STATE_READY);
+              }
+            }
+            else
+            {
+              /* Update ADC state machine to error */
+              SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_INTERNAL);
+              
+              /* Set ADC error code to ADC IP internal error */
+              SET_BIT(hadc->ErrorCode, HAL_ADC_ERROR_INTERNAL);
+            }
           }
         }
       }

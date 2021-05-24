@@ -127,15 +127,15 @@
 /* Private define ------------------------------------------------------------*/
 
 
-#define GPIO_MODE             ((uint32_t)0x00000003U)
-#define EXTI_MODE             ((uint32_t)0x10000000U)
-#define GPIO_MODE_IT          ((uint32_t)0x00010000U)
-#define GPIO_MODE_EVT         ((uint32_t)0x00020000U)
-#define RISING_EDGE           ((uint32_t)0x00100000U)
-#define FALLING_EDGE          ((uint32_t)0x00200000U)
-#define GPIO_OUTPUT_TYPE      ((uint32_t)0x00000010U)
+#define GPIO_MODE             (0x00000003U)
+#define EXTI_MODE             (0x10000000U)
+#define GPIO_MODE_IT          (0x00010000U)
+#define GPIO_MODE_EVT         (0x00020000U)
+#define RISING_EDGE           (0x00100000U)
+#define FALLING_EDGE          (0x00200000U)
+#define GPIO_OUTPUT_TYPE      (0x00000010U)
 
-#define GPIO_NUMBER           ((uint32_t)16U)
+#define GPIO_NUMBER           (16U)
 
 /**
   * @}
@@ -218,7 +218,7 @@ void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
 
         /* Configure Alternate function mapped with the current IO */
         temp = GPIOx->AFR[position >> 3U];
-        temp &= ~((uint32_t)0xFU << ((uint32_t)(position & (uint32_t)0x07U) * 4U));
+        temp &= ~(0xFUL << ((uint32_t)(position & 0x07UL) * 4U));
         temp |= ((uint32_t)(GPIO_Init->Alternate) << (((uint32_t)position & (uint32_t)0x07U) * 4U));
         GPIOx->AFR[position >> 3U] = temp;
       }
@@ -237,7 +237,7 @@ void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
         __HAL_RCC_SYSCFG_CLK_ENABLE();
 
         temp = SYSCFG->EXTICR[position >> 2U];
-        CLEAR_BIT(temp, ((uint32_t)0x0FU) << (4U * (position & 0x03U)));
+        CLEAR_BIT(temp, (0x0FUL) << (4U * (position & 0x03U)));
         SET_BIT(temp, (GPIO_GET_INDEX(GPIOx)) << (4 * (position & 0x03U)));
         SYSCFG->EXTICR[position >> 2U] = temp;
 
@@ -310,7 +310,7 @@ void HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin)
       /* Clear the External Interrupt or Event for the current IO */
 
       tmp = SYSCFG->EXTICR[position >> 2U];
-      tmp &= (((uint32_t)0x0FU) << (4U * (position & 0x03U)));
+      tmp &= ((0x0FUL) << (4U * (position & 0x03U)));
       if (tmp == (GPIO_GET_INDEX(GPIOx) << (4U * (position & 0x03U))))
       {
         /* Clear EXTI line configuration */
@@ -321,7 +321,7 @@ void HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin)
         EXTI->RTSR &= ~((uint32_t)iocurrent);
         EXTI->FTSR &= ~((uint32_t)iocurrent);
         
-        tmp = ((uint32_t)0x0FU) << (4U * (position & 0x03U));
+        tmp = (0x0FUL) << (4U * (position & 0x03U));
         SYSCFG->EXTICR[position >> 2U] &= ~tmp;
       }
 
@@ -330,7 +330,7 @@ void HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin)
       GPIOx->MODER |= (GPIO_MODER_MODE0 << (position * 2U));
 
       /* Configure the default Alternate Function in current IO */
-      GPIOx->AFR[position >> 3U] &= ~((uint32_t)0xFU << ((uint32_t)(position & (uint32_t)0x07U) * 4U));
+      GPIOx->AFR[position >> 3U] &= ~(0xFUL << ((uint32_t)(position & 0x07UL) * 4U));
 
       /* Deactivate the Pull-up oand Pull-down resistor for the current IO */
       GPIOx->PUPDR &= ~(GPIO_PUPDR_PUPD0 << (position * 2U));

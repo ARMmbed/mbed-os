@@ -1,7 +1,7 @@
 # Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(${MBED_PATH}/targets/TARGET_Cypress/scripts/mbed_set_post_build_cypress.cmake)
+include(mbed_set_post_build_cypress)
 
 add_library(mbed-cysbsyskit-01-bsp-design-modus INTERFACE)
 target_include_directories(mbed-cysbsyskit-01-bsp-design-modus

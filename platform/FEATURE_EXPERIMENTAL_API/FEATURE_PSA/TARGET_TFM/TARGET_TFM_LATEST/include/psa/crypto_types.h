@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -48,10 +48,6 @@ typedef int32_t psa_status_t;
 /** \defgroup crypto_types Key and algorithm types
  * @{
  */
-
-/* Integral type representing a key handle. */
-typedef uint16_t psa_key_handle_t;
-
 
 /** \brief Encoding of a key type.
  */
@@ -328,7 +324,7 @@ typedef uint32_t psa_key_usage_t;
  * -# Call a key creation function: psa_import_key(), psa_generate_key(),
  *    psa_key_derivation_output_key() or psa_copy_key(). This function reads
  *    the attribute structure, creates a key with these attributes, and
- *    outputs a handle to the newly created key.
+ *    outputs a key identifier to the newly created key.
  * -# The attribute structure is now no longer necessary.
  *    You may call psa_reset_key_attributes(), although this is optional
  *    with the workflow presented here because the attributes currently

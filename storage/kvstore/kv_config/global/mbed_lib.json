@@ -2,7 +2,7 @@
 "name": "storage",
     "config": {
         "storage_type": {
-            "help": "Options are TDB_INTERNAL, TDB_EXTERNAL, TDB_EXTERNAL_NO_RBP, FILESYSTEM, FILESYSTEM_NO_RBP or default. If default, the storage type will be chosen according to the component defined in targets.json",
+            "help": "Options are TDB_INTERNAL, TDB_EXTERNAL, FILESYSTEM or default. If default, the storage type will be chosen according to the component defined in targets.json",
             "value": "default"
         },
         "default_kv": {

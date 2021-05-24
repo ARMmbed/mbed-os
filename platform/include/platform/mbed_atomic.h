@@ -69,7 +69,8 @@ typedef enum mbed_memory_order {
 #if ((__ARM_ARCH_7M__      == 1U) || \
     (__ARM_ARCH_7EM__     == 1U) || \
     (__ARM_ARCH_8M_BASE__ == 1U) || \
-    (__ARM_ARCH_8M_MAIN__ == 1U)) || \
+    (__ARM_ARCH_8M_MAIN__ == 1U) || \
+    (__ARM_ARCH_8_1M_MAIN__ == 1U)) || \
     (__ARM_ARCH_7A__ == 1U)
 #define MBED_EXCLUSIVE_ACCESS      1U
 #define MBED_EXCLUSIVE_ACCESS_THUMB1 (__ARM_ARCH_8M_BASE__ == 1U)

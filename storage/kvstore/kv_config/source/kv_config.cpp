@@ -96,6 +96,9 @@ int _storage_config_TDB_EXTERNAL();
  *                                                              or NULL for max possible size.
  *        MBED_CONF_STORAGE_TDB_EXTERNAL_NO_RBP_EXTERNAL_BASE_ADDRESS - The block device start address
  *        MBED_CONF_STORAGE_TDB_EXTERNAL_NO_RBP_EXTERNAL_BLOCK_DEVICE - Alowed vlaues are: default, SPIF, DATAFASH, QSPIF, OSPIF or SD
+ *
+ * @deprecated This does not work and will be removed in the future.
+ *
  * @returns 0 on success or negative value on failure.
  */
 int _storage_config_TDB_EXTERNAL_NO_RBP();
@@ -133,6 +136,8 @@ int _storage_config_FILESYSTEM();
  *        MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_EXTERNAL_BASE_ADDRESS - The block device start address.
  *        MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_MOUNT_POINT - Where to mount the filesystem
  *        MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_FOLDER_PATH - The working folder paths
+ *
+ * @deprecated This does not work and will be removed in the future.
  *
  * @returns 0 on success or negative value on failure.
  */

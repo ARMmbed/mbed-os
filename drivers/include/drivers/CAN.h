@@ -21,91 +21,12 @@
 
 #if DEVICE_CAN || defined(DOXYGEN_ONLY)
 
+#include "interfaces/InterfaceCAN.h"
 #include "hal/can_api.h"
 #include "platform/Callback.h"
 #include "platform/PlatformMutex.h"
-#include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \defgroup drivers-public-api-can CAN
- * \ingroup drivers-public-api
- */
-
-/**
- * \defgroup drivers_CANMessage CANMessage class
- * \ingroup drivers-public-api-can
- * @{
- */
-
-/** CANMessage class
- *
- * @note Synchronization level: Thread safe
- */
-class CANMessage : public CAN_Message {
-
-public:
-    /** Creates empty CAN message.
-     */
-    CANMessage() : CAN_Message()
-    {
-        len    = 8U;
-        type   = CANData;
-        format = CANStandard;
-        id     = 0U;
-        memset(data, 0, 8);
-    }
-
-    /** Creates CAN message with specific content.
-     *
-     *  @param _id      Message ID
-     *  @param _data    Mesaage Data
-     *  @param _len     Message Data length
-     *  @param _type    Type of Data: Use enum CANType for valid parameter values
-     *  @param _format  Data Format: Use enum CANFormat for valid parameter values
-     */
-    CANMessage(unsigned int _id, const unsigned char *_data, unsigned char _len = 8, CANType _type = CANData, CANFormat _format = CANStandard)
-    {
-        len    = (_len > 8) ? 8 : _len;
-        type   = _type;
-        format = _format;
-        id     = _id;
-        memcpy(data, _data, len);
-    }
-
-
-    /** Creates CAN message with specific content.
-     *
-     *  @param _id      Message ID
-     *  @param _data    Mesaage Data
-     *  @param _len     Message Data length
-     *  @param _type    Type of Data: Use enum CANType for valid parameter values
-     *  @param _format  Data Format: Use enum CANFormat for valid parameter values
-     */
-    CANMessage(unsigned int _id, const char *_data, unsigned char _len = 8, CANType _type = CANData, CANFormat _format = CANStandard)
-    {
-        len    = (_len > 8) ? 8 : _len;
-        type   = _type;
-        format = _format;
-        id     = _id;
-        memcpy(data, _data, len);
-    }
-
-    /** Creates CAN remote message.
-     *
-     *  @param _id      Message ID
-     *  @param _format  Data Format: Use enum CANType for valid parameter values
-     */
-    CANMessage(unsigned int _id, CANFormat _format = CANStandard)
-    {
-        len    = 0;
-        type   = CANRemote;
-        format = _format;
-        id     = _id;
-        memset(data, 0, 8);
-    }
-};
-
-/** @}*/
 
 /**
  * \defgroup drivers_CAN CAN class
@@ -115,7 +36,13 @@ public:
 
 /** A can bus client, used for communicating with can devices
  */
-class CAN : private NonCopyable<CAN> {
+class CAN
+#ifdef FEATURE_EXPERIMENTAL_API
+    final : public interface::CAN
+#else
+    : public interface::can
+#endif
+{
 
 public:
     /** Creates a CAN interface connected to specific pins.
@@ -233,15 +160,6 @@ public:
      */
     void monitor(bool silent);
 
-    enum Mode {
-        Reset = 0,
-        Normal,
-        Silent,
-        LocalTest,
-        GlobalTest,
-        SilentTest
-    };
-
     /** Change CAN operation to the specified mode
      *
      *  @param mode The new operation mode (CAN::Normal, CAN::Silent, CAN::LocalTest, CAN::GlobalTest, CAN::SilentTest)
@@ -277,20 +195,6 @@ public:
      */
     unsigned char tderror();
 
-    enum IrqType {
-        RxIrq = 0,
-        TxIrq,
-        EwIrq,
-        DoIrq,
-        WuIrq,
-        EpIrq,
-        AlIrq,
-        BeIrq,
-        IdIrq,
-
-        IrqCnt
-    };
-
     /** Attach a function to call whenever a CAN frame received interrupt is
      *  generated.
      *
@@ -299,7 +203,7 @@ public:
      *  @param func A pointer to a void function, or 0 to set as none
      *  @param type Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, CAN::TxIrq for transmitted or aborted, CAN::EwIrq for error warning, CAN::DoIrq for data overrun, CAN::WuIrq for wake-up, CAN::EpIrq for error passive, CAN::AlIrq for arbitration lost, CAN::BeIrq for bus error)
      */
-    void attach(Callback<void()> func, IrqType type = RxIrq);
+    void attach(Callback<void()> func, IrqType type = IrqType::RxIrq);
 
     static void _irq_handler(uint32_t id, CanIrqType type);
 
@@ -309,7 +213,7 @@ protected:
     virtual void unlock();
 
     can_t               _can;
-    Callback<void()>    _irq[IrqCnt];
+    Callback<void()>    _irq[IrqType::IrqCnt];
     PlatformMutex       _mutex;
 #endif
 };

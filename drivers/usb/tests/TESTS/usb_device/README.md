@@ -68,7 +68,7 @@ No setup method has been verified for this platform.
 
 ## Running tests
 1.  Plug both USB interfaces (*DAPLink* and *USB device*) to your host machine.
-1. An addtional macro `USB_DEVICE_TESTS` is needed to be defined when runing tests:
+1. An additional macro `USB_DEVICE_TESTS` is needed to be defined when running tests:
     ```
     mbed test -t <toolchain> -m <target> -DUSB_DEVICE_TESTS -n *-tests-usb_device-*
     ```

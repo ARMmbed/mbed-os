@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+#include <string.h> // memset
 #include "mbedtls_stub.h"
 
 mbedtls_stub_def mbedtls_stub;

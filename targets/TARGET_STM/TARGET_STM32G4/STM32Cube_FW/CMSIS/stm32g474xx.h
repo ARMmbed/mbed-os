@@ -1120,7 +1120,6 @@ typedef struct
 typedef struct {
   HRTIM_Master_TypeDef sMasterRegs;
   HRTIM_Timerx_TypeDef sTimerxRegs[6];
-// uint32_t             RESERVED0[32];
   HRTIM_Common_TypeDef sCommonRegs;
 }HRTIM_TypeDef;
 

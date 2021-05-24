@@ -11,7 +11,7 @@
       "exporters": [],
       "compile" : true,
       "export": true,
-      "test" : false,
+      "test" : true,
       "baud_rate": 115200,
       "compare_log": ["mbed-os-example-for-aws/tests/aws.log"],
       "auto-update" : true

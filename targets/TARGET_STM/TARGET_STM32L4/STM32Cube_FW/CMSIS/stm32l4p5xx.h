@@ -1635,7 +1635,6 @@ typedef struct
 #define SAI2_Block_B        ((SAI_Block_TypeDef *)SAI2_Block_B_BASE)
 #define LTDC                ((LTDC_TypeDef *)LTDC_BASE)
 #define LTDC_Layer1         ((LTDC_Layer_TypeDef *)LTDC_Layer1_BASE)
-#define LTDC_Layer2         ((LTDC_Layer_TypeDef *)LTDC_Layer2_BASE)
 #define DFSDM1_Channel0     ((DFSDM_Channel_TypeDef *) DFSDM1_Channel0_BASE)
 #define DFSDM1_Channel1     ((DFSDM_Channel_TypeDef *) DFSDM1_Channel1_BASE)
 #define DFSDM1_Channel2     ((DFSDM_Channel_TypeDef *) DFSDM1_Channel2_BASE)
@@ -6480,7 +6479,6 @@ typedef struct
 #define CRS_CR_TRIM_3             (0x08UL << CRS_CR_TRIM_Pos)                  /*!< 0x00000800 */
 #define CRS_CR_TRIM_4             (0x10UL << CRS_CR_TRIM_Pos)                  /*!< 0x00001000 */
 #define CRS_CR_TRIM_5             (0x20UL << CRS_CR_TRIM_Pos)                  /*!< 0x00002000 */
-#define CRS_CR_TRIM               CRS_CR_TRIM_Msk                              /*!< HSI48 oscillator smooth trimming */
 
 /*******************  Bit definition for CRS_CFGR register  *********************/
 #define CRS_CFGR_RELOAD_Pos       (0U)

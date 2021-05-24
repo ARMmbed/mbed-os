@@ -1,7 +1,9 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(${MBED_PATH}/tools/cmake/mbed_set_post_build.cmake)
+include(mbed_set_post_build)
+
+set(MBED_POST_BUILD_TFM_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
 #
 # Sign TF-M secure and non-secure images and combine them with the bootloader
@@ -17,7 +19,7 @@ function(mbed_post_build_tfm_sign_image
     set(mbed_target_name ${mbed_target})
     set(post_build_command
         COMMAND ${Python3_EXECUTABLE}
-            ${MBED_PATH}/platform/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_TFM/TARGET_TFM_LATEST/scripts/generate_mbed_image.py
+            ${MBED_POST_BUILD_TFM_DIR}/generate_mbed_image.py
             --tfm-target ${tfm_target}
             --target-path ${target_path}
             --secure-bin ${secure_bin}

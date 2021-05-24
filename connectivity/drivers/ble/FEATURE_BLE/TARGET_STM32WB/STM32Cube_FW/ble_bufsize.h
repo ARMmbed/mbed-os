@@ -1,6 +1,6 @@
 /*****************************************************************************
  * @file    ble_bufsize.h
- * @author  MCD Application Team
+ * @author  MCD
  * @brief   Definition of BLE stack buffers size
  *****************************************************************************
   * @attention
@@ -24,11 +24,6 @@
  * BLE_DEFAULT_ATT_MTU: minimum MTU value that GATT must support.
  */
 #define BLE_DEFAULT_ATT_MTU                  23
-
-/*
- * BLE_DEFAULT_MAX_ATT_MTU: maximum supported ATT MTU size.
- */
-#define BLE_DEFAULT_MAX_ATT_MTU             158
 
 /*
  * BLE_DEFAULT_MAX_ATT_SIZE: maximum attribute size.
@@ -82,13 +77,6 @@
                       BLE_MBLOCKS_SECURE_CONNECTIONS))
 
 /*
- * BLE_DEFAULT_MBLOCKS_COUNT: default memory blocks count
- */
-#define BLE_DEFAULT_MBLOCKS_COUNT(n_link) \
-          BLE_MBLOCKS_CALC(BLE_DEFAULT_PREP_WRITE_LIST_SIZE, \
-                           BLE_DEFAULT_MAX_ATT_MTU, n_link)
-
-/*
  * BLE_FIXED_BUFFER_SIZE_BYTES:
  * A part of the RAM, is dinamically allocated by initilizing all the pointers 
  * defined in a global context variable "mem_alloc_ctx_p".
@@ -102,23 +90,31 @@
  * - a part, that may be considered "fixed", i.e. independent from the above
  *   mentioned parameters.
 */
-#if (SLAVE_ONLY == 0) && (LL_ONLY == 0)
-#define BLE_FIXED_BUFFER_SIZE_BYTES  6960   /* Full stack */
-#elif SLAVE_ONLY == 0
-#define BLE_FIXED_BUFFER_SIZE_BYTES  6256   /* LL only */
+#if (BEACON_ONLY != 0)
+#define BLE_FIXED_BUFFER_SIZE_BYTES  6212   /* Beacon only */
+#elif (LL_ONLY != 0)
+#define BLE_FIXED_BUFFER_SIZE_BYTES  6272   /* LL only */
+#elif (SLAVE_ONLY != 0)
+#define BLE_FIXED_BUFFER_SIZE_BYTES  6712   /* Peripheral only */
+#elif (BASIC_FEATURES != 0)
+#define BLE_FIXED_BUFFER_SIZE_BYTES  6972   /* Basic Features */
 #else
-#define BLE_FIXED_BUFFER_SIZE_BYTES  6696   /* Slave only */
+#define BLE_FIXED_BUFFER_SIZE_BYTES  7240   /* Full stack */
 #endif
 
 /*
  * BLE_PER_LINK_SIZE_BYTES: additional memory size used per link
  */
-#if (SLAVE_ONLY == 0) && (LL_ONLY == 0)
-#define BLE_PER_LINK_SIZE_BYTES       380   /* Full stack */
-#elif SLAVE_ONLY == 0
+#if (BEACON_ONLY != 0)
+#define BLE_PER_LINK_SIZE_BYTES       148   /* Beacon only */
+#elif (LL_ONLY != 0)
 #define BLE_PER_LINK_SIZE_BYTES       196   /* LL only */
+#elif (SLAVE_ONLY != 0)
+#define BLE_PER_LINK_SIZE_BYTES       332   /* Peripheral only */
+#elif (BASIC_FEATURES != 0)
+#define BLE_PER_LINK_SIZE_BYTES       332   /* Basic Features */
 #else
-#define BLE_PER_LINK_SIZE_BYTES       332   /* Slave only */
+#define BLE_PER_LINK_SIZE_BYTES       384   /* Full stack */
 #endif
 
 /*
@@ -126,7 +122,7 @@
  * needed for the storage of data structures (except GATT database elements)
  * whose size depends on the number of supported connections.
  *
- * @param num_links: Maximum number of simultaneous connections that the device
+ * @param n_link: Maximum number of simultaneous connections that the device
  * will support. Valid values are from 1 to 8.
  *
  * @param mblocks_count: Number of memory blocks allocated for packets.
@@ -158,4 +154,4 @@
            (40 * (num_gatt_attributes)) + (48 * (num_gatt_services)))
 
 
-#endif /* ! BLE_BUFSIZE_H__ */
+#endif /* BLE_BUFSIZE_H__ */

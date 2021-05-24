@@ -17,7 +17,7 @@ The characteristics required by this RoT are:
 
 The DeviceKey feature keeps the RoT key in internal storage, using the KVStore component. Internal storage provides protection from external physical attacks to the device.
 
-The RoT is generated at the first use of DeviceKey if the True Random Number Generator(TRNG) is available in the device. If no TRNG is available, you must pass the injected RoT key to the DeviceKey before you call the key derivation API.
+The root of trust must be created before its first use. Otherwise, the key derivation API fails.
 
 ### Key derivation API
 

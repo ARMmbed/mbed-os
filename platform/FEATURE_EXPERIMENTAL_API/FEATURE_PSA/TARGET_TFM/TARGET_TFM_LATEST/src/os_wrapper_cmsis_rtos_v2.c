@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -214,4 +214,39 @@ uint32_t os_wrapper_thread_wait_flag(uint32_t flags, uint32_t timeout)
 uint32_t os_wrapper_get_tick(void)
 {
     return osKernelGetTickCount();
+}
+
+void *os_wrapper_msg_queue_create(size_t msg_size, uint8_t msg_count)
+{
+    osMessageQueueId_t mq_id;
+
+    mq_id = osMessageQueueNew(msg_count, msg_size, NULL);
+
+    return (void *)mq_id;
+}
+
+int32_t os_wrapper_msg_queue_send(void *mq_handle,
+                                  const void *msg_ptr)
+{
+    osStatus_t status;
+
+    status = osMessageQueuePut(mq_handle, msg_ptr, 0, 0);
+    if (status == osOK) {
+        return OS_WRAPPER_SUCCESS;
+    }
+
+    return OS_WRAPPER_ERROR;
+}
+
+int32_t os_wrapper_msg_queue_receive(void *mq_handle,
+                                     void *msg_ptr)
+{
+    osStatus_t status;
+
+    status = osMessageQueueGet(mq_handle, msg_ptr, NULL, osWaitForever);
+    if (status == osOK) {
+        return OS_WRAPPER_SUCCESS;
+    }
+
+    return OS_WRAPPER_ERROR;
 }

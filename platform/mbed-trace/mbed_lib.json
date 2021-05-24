@@ -19,6 +19,12 @@
             "value": "malloc",
             "macro_name": "MEM_ALLOC"
         },
+        "color-theme": {
+            "help": "Set color theme. 0 for readable, 1 for unobtrusive.",
+            "options": [0, 1],
+            "macro_name": "MBED_TRACE_COLOR_THEME",
+            "value": 0
+        },
         "deallocator": {
             "value": "free",
             "macro_name": "MEM_FREE"

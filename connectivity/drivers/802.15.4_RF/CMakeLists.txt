@@ -12,7 +12,7 @@ endif()
 
 add_subdirectory(atmel-rf-driver)
 
-target_link_libraries(mbed-802.15.4-rf
+target_link_libraries(mbed-nanostack
     INTERFACE
-        mbed-nanostack
+        mbed-802.15.4-rf
 )

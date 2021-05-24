@@ -225,7 +225,7 @@
   */
 
 
-#if !defined (STM32L010xB) && !defined (STM32L010x8) && !defined (STM32L010x6) && !defined (STM32L010x4) && !defined (STM32L011xx) && !defined (STM32L021xx) && !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx)
+#if !defined (STM32L010xB) && !defined (STM32L010x8) && !defined (STM32L010x6) && !defined (STM32L010x4) && !defined (STM32L011xx) && !defined (STM32L021xx) && !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L071xx) && !defined (STM32L081xx)
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal.h"
 
@@ -1015,7 +1015,7 @@ HAL_StatusTypeDef HAL_DAC_UnRegisterCallback (DAC_HandleTypeDef *hdac, HAL_DAC_C
   * @}
   */
 #endif /* HAL_DAC_MODULE_ENABLED */
-#endif /* !STM32L010xB && !STM32L010x8 && !STM32L010x6 && !STM32L010x4 && !STM32L011xx && !STM32L021xx && !STM32L031xx && !STM32L041xx && !STM32L051xx && !STM32L061xx&& !STM32L071xx&& !STM32L081xx */
+#endif /* !STM32L010xB && !STM32L010x8 && !STM32L010x6 && !STM32L010x4 && !STM32L011xx && !STM32L021xx && !STM32L031xx && !STM32L041xx && !STM32L051xx !STM32L071xx&& !STM32L081xx */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
 

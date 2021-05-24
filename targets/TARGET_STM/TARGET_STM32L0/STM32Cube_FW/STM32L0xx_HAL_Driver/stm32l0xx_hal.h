@@ -61,9 +61,9 @@ typedef enum
 /** @defgroup SYSCFG_BootMode Boot Mode
   * @{
   */
-#define SYSCFG_BOOT_MAINFLASH          ((uint32_t)0x00000000U)
-#define SYSCFG_BOOT_SYSTEMFLASH        ((uint32_t)SYSCFG_CFGR1_BOOT_MODE_0)
-#define SYSCFG_BOOT_SRAM               ((uint32_t)SYSCFG_CFGR1_BOOT_MODE)
+#define SYSCFG_BOOT_MAINFLASH          (0x00000000U)
+#define SYSCFG_BOOT_SYSTEMFLASH        SYSCFG_CFGR1_BOOT_MODE_0
+#define SYSCFG_BOOT_SRAM               SYSCFG_CFGR1_BOOT_MODE
 
 /**
   * @}
@@ -105,7 +105,7 @@ typedef enum
 /** @defgroup SYSCFG_VREFINT_OUT_SELECT SYSCFG VREFINT Out Selection
   * @{
   */
-#define SYSCFG_VREFINT_OUT_NONE          ((uint32_t)0x00000000U) /* no pad connected */
+#define SYSCFG_VREFINT_OUT_NONE          (0x00000000U)           /* no pad connected */
 #define SYSCFG_VREFINT_OUT_PB0           SYSCFG_CFGR3_VREF_OUT_0 /* Selects PBO as output for the Vrefint */
 #define SYSCFG_VREFINT_OUT_PB1           SYSCFG_CFGR3_VREF_OUT_1 /* Selects PB1 as output for the Vrefint */
 #define SYSCFG_VREFINT_OUT_PB0_PB1       SYSCFG_CFGR3_VREF_OUT   /* Selects PBO and PB1 as output for the Vrefint */

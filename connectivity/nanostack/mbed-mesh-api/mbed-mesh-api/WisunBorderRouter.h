@@ -86,6 +86,21 @@ public:
      * \return MESH_ERROR_NONE on success.
      * \return MESH_ERROR_UNKNOWN in case of failure.
      * */
+    mesh_error_t start(WisunInterface *mesh_if, NetworkInterface *backbone_if);
+
+    /**
+     * \brief Start Wi-SUN Border Router
+     *
+     * Starts Wi-SUN Border Router and routing between the mesh and backbone interfaces. Network interfaces
+     * must be initialized and connected before calling the start. Backbone interface can be either Ethernet
+     * (EMAC) or Cellular.
+     *
+     * \param mesh_if Wi-SUN mesh network interface
+     * \param backbone_if Backbone network interface
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_UNKNOWN in case of failure.
+     * */
+    MBED_DEPRECATED_SINCE("mbed-os-6.10.0", "Using NetworkInterface type for mesh_if is deprecated, use WisunInterface instead")
     mesh_error_t start(NetworkInterface *mesh_if, NetworkInterface *backbone_if);
 
     /**
@@ -100,6 +115,21 @@ public:
      * \return MESH_ERROR_NONE on success.
      * \return MESH_ERROR_UNKNOWN in case of failure.
      * */
+    mesh_error_t start(WisunInterface *mesh_if, OnboardNetworkStack::Interface *backbone_if);
+
+    /**
+     * \brief Start Wi-SUN Border Router
+     *
+     * Starts Wi-SUN Border Router and routing between the mesh and backbone interfaces. Mesh network interface
+     * must be initialized and connected before calling the start. Backbone OnboardNetworkStack::Interface must
+     * be brought up before calling the start. Backbone interface can be either Ethernet (EMAC) or Cellular (PPP).
+     *
+     * \param mesh_if Wi-SUN mesh network interface
+     * \param backbone_if Backbone OnboardNetworkStack::Interface interface
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_UNKNOWN in case of failure.
+     * */
+    MBED_DEPRECATED_SINCE("mbed-os-6.10.0", "Using NetworkInterface type for mesh_if is deprecated, use WisunInterface instead")
     mesh_error_t start(NetworkInterface *mesh_if, OnboardNetworkStack::Interface *backbone_if);
 
     /**

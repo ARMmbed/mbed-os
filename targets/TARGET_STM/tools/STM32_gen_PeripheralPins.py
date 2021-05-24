@@ -27,11 +27,12 @@ from xml.dom.minidom import parse, Node
 from argparse import RawTextHelpFormatter
 import subprocess
 
-GENPINMAP_VERSION = "1.19"
+GENPINMAP_VERSION = "1.20"
 
 ADD_DEVICE_IF = 0
 ADD_GPIO_PINMAP = 0
 DEBUG_PRINT = 0
+FLAT_DIRECTORY = 0
 
 mcu_file=""
 mcu_list = []       #'name'
@@ -81,6 +82,8 @@ BUTTON_list   = []
 DUAL_PAD = False
 MCU_USERNAME= ""
 TIM_MST = ""
+ALTERNATE_DEFINITION = 0
+TARGET_NAME = ""
 
 TIM_DUALCORE_LIST = { # Timer used for us ticker is hardcoded in this script
 "H745":"TIM2",
@@ -139,7 +142,7 @@ def find_tim_mst():
     elif TARGET_FAMILY == "STM32L4":
         search_order = ["TIM5", "TIM2"]
     elif TARGET_FAMILY == "STM32WB":
-        search_order = ["TIM5", "TIM16"]
+        search_order = ["TIM16", "TIM2"]
     elif TARGET_FAMILY == "STM32WL":
         search_order = ["TIM2"]
     else:
@@ -387,6 +390,7 @@ def store_sys(pin, name, signal):
 
 
 def print_header():
+    global ALTERNATE_DEFINITION
     date_year = datetime.datetime.now().year
 
     line_to_write =  ("""/* mbed Microcontroller Library
@@ -447,6 +451,8 @@ def print_header():
  * Automatically generated from STM32CubeMX/db/mcu/%s
  */
 
+/* MBED TARGET LIST: %s */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -456,7 +462,7 @@ def print_header():
 #ifdef __cplusplus
 extern "C" {
 #endif
-""" % (date_year, os.path.basename(input_file_name)))
+""" % (date_year, os.path.basename(input_file_name), TARGET_NAME))
     out_h_file.write(line_to_write)
 
     if DUAL_PAD:
@@ -467,15 +473,6 @@ extern "C" {
 
     line_to_write =  ("""
 typedef enum {
-    ALT0  = 0x100,
-    ALT1  = 0x200,
-    ALT2  = 0x300,
-    ALT3  = 0x400,
-    ALT4  = 0x500
-} ALTx;
-
-typedef enum {
-
 """)
     out_h_file.write(line_to_write)
 
@@ -486,6 +483,31 @@ def print_footer():
     NC = (int)0xFFFFFFFF
 } PinName;
 
+// Standardized LED and button names
+""")
+    out_h_file.write(line_to_write)
+
+    name_counter = 1
+    if not LED_list:
+       LED_list.append("Pxx")
+    for EachLED in LED_list:
+        led_label = ""
+        if EachLED in PinLabel:
+            led_label = " // %s" % PinLabel[EachLED]
+        out_h_file.write("#define LED%i     %-5s %s\n" % (name_counter, re.sub(r'(P.)', r'\1_', EachLED), led_label))
+        name_counter += 1
+
+    name_counter = 1
+    if not BUTTON_list:
+        BUTTON_list.append("Pxx")
+    for EachBUTTON in BUTTON_list:
+        button_label = ""
+        if EachBUTTON in PinLabel:
+            button_label = " // %s" % PinLabel[EachBUTTON]
+        out_h_file.write("#define BUTTON%i  %-5s %s\n" % (name_counter, re.sub(r'(P.)', r'\1_', EachBUTTON).split('/')[0].split('-')[0], button_label))
+        name_counter += 1
+
+    line_to_write = ("""
 #ifdef __cplusplus
 }
 #endif
@@ -637,6 +659,7 @@ def print_gpio():
 
 
 def print_adc():
+    global ALTERNATE_DEFINITION
     # Check GPIO version (alternate or not)
     s_pin_data = "STM_PIN_DATA_EXT(STM_MODE_ANALOG"
     # For STM32L47xxx/48xxx, it is necessary to configure
@@ -664,6 +687,8 @@ def print_adc():
                         parsed_pin[0] += '_ALT%d' % alt_index
                         store_pin(parsed_pin[0], parsed_pin[0], "")
                         alt_index += 1
+                        if alt_index > ALTERNATE_DEFINITION:
+                            ALTERNATE_DEFINITION += 1
                 else:
                     prev_p = parsed_pin[0]
                     alt_index = 0
@@ -724,6 +749,7 @@ def print_dac():
 
 
 def print_i2c(l):
+    global ALTERNATE_DEFINITION
     prev_p = ''
     alt_index = 0
     for parsed_pin in l:
@@ -740,6 +766,8 @@ def print_i2c(l):
                 parsed_pin[0] += '_ALT%d' % alt_index
                 store_pin(parsed_pin[0], parsed_pin[0], "")
                 alt_index += 1
+                if alt_index > ALTERNATE_DEFINITION:
+                    ALTERNATE_DEFINITION += 1
             else:
                 prev_p = parsed_pin[0]
                 alt_index = 0
@@ -767,6 +795,7 @@ def print_i2c(l):
 
 
 def print_pwm():
+    global ALTERNATE_DEFINITION
     prev_p = ''
     alt_index = 0
 
@@ -793,6 +822,8 @@ def print_pwm():
                 parsed_pin[0] += '_ALT%d' % alt_index
                 store_pin(parsed_pin[0], parsed_pin[0], "")
                 alt_index += 1
+                if alt_index > ALTERNATE_DEFINITION:
+                    ALTERNATE_DEFINITION = alt_index
             else:
                 prev_p = parsed_pin[0]
                 alt_index = 0
@@ -830,6 +861,7 @@ def print_pwm():
 
 
 def print_uart(l):
+    global ALTERNATE_DEFINITION
     prev_p = ''
     alt_index = 0
     for parsed_pin in l:
@@ -844,6 +876,8 @@ def print_uart(l):
                 parsed_pin[0] += '_ALT%d' % alt_index
                 store_pin(parsed_pin[0], parsed_pin[0], "")
                 alt_index += 1
+                if alt_index > ALTERNATE_DEFINITION:
+                    ALTERNATE_DEFINITION += 1
             else:
                 prev_p = parsed_pin[0]
                 alt_index = 0
@@ -872,6 +906,7 @@ def print_uart(l):
 
 
 def print_spi(l):
+    global ALTERNATE_DEFINITION
     prev_p = ''
     alt_index = 0
     for parsed_pin in l:
@@ -888,6 +923,8 @@ def print_spi(l):
                 parsed_pin[0] += '_ALT%d' % alt_index
                 store_pin(parsed_pin[0], parsed_pin[0], "")
                 alt_index += 1
+                if alt_index > ALTERNATE_DEFINITION:
+                    ALTERNATE_DEFINITION += 1
             else:
                 prev_p = parsed_pin[0]
                 alt_index = 0
@@ -1077,6 +1114,27 @@ def print_usb(lst):
 
 
 def print_pin_list(pin_list):
+    if ALTERNATE_DEFINITION > 0:
+        line_to_write =  ("""    ALT0  = 0x100,""")
+        if ALTERNATE_DEFINITION > 1:
+            line_to_write += """
+    ALT1  = 0x200,"""
+        if ALTERNATE_DEFINITION > 2:
+            line_to_write += """
+    ALT2  = 0x300,"""
+        if ALTERNATE_DEFINITION > 3:
+            line_to_write += """
+    ALT3  = 0x400,"""
+        if ALTERNATE_DEFINITION > 4:
+            line_to_write += """
+    ALT4  = 0x500,"""
+        line_to_write += """
+} ALTx;
+
+typedef enum {
+"""
+        out_h_file.write(line_to_write)
+
     pin_list.sort(key=natural_sortkey)
     previous_pin = ""
     for parsed_pin in pin_list:
@@ -1128,91 +1186,52 @@ def print_pin_list(pin_list):
     ADC_VREF = 0xF1, // Internal pin virtual value
     ADC_VBAT = 0xF2, // Internal pin virtual value
 
-    // Arduino Uno(Rev3) Header pin connection naming
-    A0 = Px_x,
-    A1 = Px_x,
-    A2 = Px_x,
-    A3 = Px_x,
-    A4 = Px_x,
-    A5 = Px_x,
-    D0 = Px_x,
-    D1 = Px_x,
-    D2 = Px_x,
-    D3 = Px_x,
-    D4 = Px_x,
-    D5 = Px_x,
-    D6 = Px_x,
-    D7 = Px_x,
-    D8 = Px_x,
-    D9 = Px_x,
-    D10= Px_x,
-    D11= Px_x,
-    D12= Px_x,
-    D13= Px_x,
-    D14= Px_x,
-    D15= Px_x,
+#ifdef TARGET_FF_ARDUINO_UNO
+    // Arduino Uno (Rev3) pins
+    ARDUINO_UNO_A0  = Px_x,
+    ARDUINO_UNO_A1  = Px_x,
+    ARDUINO_UNO_A2  = Px_x,
+    ARDUINO_UNO_A3  = Px_x,
+    ARDUINO_UNO_A4  = Px_x,
+    ARDUINO_UNO_A5  = Px_x,
+
+    ARDUINO_UNO_D0  = Px_x,
+    ARDUINO_UNO_D1  = Px_x,
+    ARDUINO_UNO_D2  = Px_x,
+    ARDUINO_UNO_D3  = Px_x,
+    ARDUINO_UNO_D4  = Px_x,
+    ARDUINO_UNO_D5  = Px_x,
+    ARDUINO_UNO_D6  = Px_x,
+    ARDUINO_UNO_D7  = Px_x,
+    ARDUINO_UNO_D8  = Px_x,
+    ARDUINO_UNO_D9  = Px_x,
+    ARDUINO_UNO_D10 = Px_x,
+    ARDUINO_UNO_D11 = Px_x,
+    ARDUINO_UNO_D12 = Px_x,
+    ARDUINO_UNO_D13 = Px_x,
+    ARDUINO_UNO_D14 = Px_x,
+    ARDUINO_UNO_D15 = Px_x,
+#endif
 """)
 
     s = ("""
     // STDIO for console print
 #ifdef MBED_CONF_TARGET_STDIO_UART_TX
-    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+    CONSOLE_TX = MBED_CONF_TARGET_STDIO_UART_TX,
 #else
-    STDIO_UART_TX = %s,
+    CONSOLE_TX = %s,
 #endif
 #ifdef MBED_CONF_TARGET_STDIO_UART_RX
-    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+    CONSOLE_RX = MBED_CONF_TARGET_STDIO_UART_RX,
 #else
-    STDIO_UART_RX = %s,
+    CONSOLE_RX = %s,
 #endif
-
-    CONSOLE_TX = STDIO_UART_TX, // used for greentea tests
-    CONSOLE_RX = STDIO_UART_RX, // used for greentea tests
 """ % (re.sub(r'(P.)', r'\1_', STDIO_list[0]), re.sub(r'(P.)', r'\1_', STDIO_list[1])))
     out_h_file.write(s)
 
-    out_h_file.write("""
-    // I2C signals aliases
-    I2C_SDA = D14,
-    I2C_SCL = D15,
-
-    // SPI signals aliases
-    SPI_CS   = D10,
-    SPI_MOSI = D11,
-    SPI_MISO = D12,
-    SPI_SCK  = D13,
-
-    // Standardized LED and button names
-""")
-
-    name_counter = 1
-    if not LED_list:
-       LED_list.append("Pxx")
-    for EachLED in LED_list:
-        led_label = ""
-        if EachLED in PinLabel:
-            led_label = " // %s" % PinLabel[EachLED]
-        out_h_file.write("    LED%i    = %s,%s\n" % (name_counter, re.sub(r'(P.)', r'\1_', EachLED), led_label))
-        name_counter += 1
-
-    name_counter = 1
-    if not BUTTON_list:
-        BUTTON_list.append("Pxx")
-    for EachBUTTON in BUTTON_list:
-        button_label = ""
-        if EachBUTTON in PinLabel:
-            button_label = " // %s" % PinLabel[EachBUTTON]
-        out_h_file.write("    BUTTON%i = %s,%s\n" % (name_counter, re.sub(r'(P.)', r'\1_', EachBUTTON).split('/')[0].split('-')[0], button_label))
-        name_counter += 1
-
-    out_h_file.write("""
-    // Backward legacy names
-    USER_BUTTON = BUTTON1,
-    PWM_OUT = D3,
-""")
-
 
 def print_h_file(pin_list, comment):
+    global ALTERNATE_DEFINITION
     pin_list.sort(key=natural_sortkey2)
     if len(pin_list) > 0:
         line_to_write = ("\n    /**** %s pins ****/\n" % comment)
@@ -1226,6 +1245,8 @@ def print_h_file(pin_list, comment):
                 parsed_pin[2] += '_ALT%d' % alt_index
                 store_pin(parsed_pin[0], parsed_pin[0], "")
                 alt_index += 1
+                if alt_index > ALTERNATE_DEFINITION:
+                    ALTERNATE_DEFINITION += 1
             else:
                 prev_s = parsed_pin[2]
                 alt_index = 0
@@ -1506,23 +1527,6 @@ cur_dir = os.getcwd()
 PeripheralPins_c_filename = "PeripheralPins.c"
 PinNames_h_filename = "PinNames.h"
 
-print ("\nChecking STM32_open_pin_data repo...")
-if not os.path.exists("STM32_open_pin_data"):
-    try:
-        CONSOLE = subprocess.check_output(["git", "clone", r"https://github.com/STMicroelectronics/STM32_open_pin_data.git"], stderr=subprocess.STDOUT)
-        print("*** git clone done\n")
-        # print(CONSOLE)
-    except:
-        print("!!! Repo clone error !!!")
-else:
-    try:
-        os.chdir("STM32_open_pin_data")
-        CONSOLE = subprocess.check_output(["git", "pull"], stderr=subprocess.STDOUT).decode('ascii')
-        print("\t%s" % CONSOLE)
-        os.chdir("..")
-    except:
-        print("!!! git pull issue !!!")
-        exit(3)
 
 parser = argparse.ArgumentParser(
     description=textwrap.dedent('''\
@@ -1554,8 +1558,33 @@ specify a custom board .ioc file description to use (use double quotes).
 '''))
 
 parser.add_argument("-g", "--gpio", help="Add GPIO PinMap table", action="store_true")
+parser.add_argument("-n", "--nopull", help="Avoid STM32_open_pin_data git pull", action="store_true")
+parser.add_argument("-f", "--flat", help="All targets stored in targets_custom/TARGET_STM/", action="store_true")
 
 args = parser.parse_args()
+
+print ("\nChecking STM32_open_pin_data repo...")
+if not os.path.exists("STM32_open_pin_data"):
+    print("*** git clone https://github.com/STMicroelectronics/STM32_open_pin_data.git ***")
+    try:
+        CONSOLE = subprocess.check_output(["git", "clone", r"https://github.com/STMicroelectronics/STM32_open_pin_data.git"], stderr=subprocess.STDOUT)
+        print("*** git clone done\n")
+        # print(CONSOLE)
+    except:
+        print("!!! Repo clone error !!!")
+else:
+    if args.nopull:
+        print("  ... skipped\n")
+    else:
+        try:
+            os.chdir("STM32_open_pin_data")
+            CONSOLE = subprocess.check_output(["git", "pull"], stderr=subprocess.STDOUT).decode('ascii')
+            print("\t%s" % CONSOLE)
+            os.chdir("..")
+        except:
+            print("!!! git pull issue !!!")
+            exit(3)
+
 
 cubemxdirMCU = os.path.join("STM32_open_pin_data", "mcu")
 cubemxdirIP = os.path.join("STM32_open_pin_data", "mcu", "IP")
@@ -1573,6 +1602,9 @@ print ("STM32_open_pin_data DB version %s\n" % cubemx_db_version)
 
 if args.gpio:
     ADD_GPIO_PINMAP = 1
+
+if args.flat:
+    FLAT_DIRECTORY = 1
 
 if args.list:
     file_count = 0
@@ -1658,21 +1690,20 @@ if args.target:
         sys.exit(0)
 
     parse_board_file(board_file_name)
-    TargetName = ""
     if "Nucleo" in board_file_name:
-        TargetName += "NUCLEO_"
+        TARGET_NAME += "NUCLEO_"
     elif "Discovery" in board_file_name:
-        TargetName += "DISCO_"
+        TARGET_NAME += "DISCO_"
     elif "Evaluation" in board_file_name:
-        TargetName += "EVAL_"
+        TARGET_NAME += "EVAL_"
     m = re.search(r'STM32([MFLGWH][\w]*)_Board', board_file_name)
     if m:
-        TargetName += "%s" % m.group(1)
+        TARGET_NAME += "%s" % m.group(1)
         # specific case
         if "-P" in board_file_name:
-            TargetName += "_P"
+            TARGET_NAME += "_P"
         elif "-Q" in board_file_name:
-            TargetName += "_Q"
+            TARGET_NAME += "_Q"
 
         target_rename = {  # manual renaming for some boards
             "DISCO_L072C": "DISCO_L072CZ_LRWAN1",
@@ -1693,11 +1724,11 @@ if args.target:
             "DISCO_H747XIH": "DISCO_H747I"
         }
 
-        if TargetName in target_rename:
-            TargetName = target_rename[TargetName]
+        if TARGET_NAME in target_rename:
+            TARGET_NAME = target_rename[TARGET_NAME]
 
         if "DISC1" in board_file_name:
-            TargetName += "_DISC1"
+            TARGET_NAME += "_DISC1"
 
     else:
         sys.exit(1)
@@ -1705,7 +1736,6 @@ if args.target:
 # Parse the user's custom board .ioc file
 if args.custom:
     parse_board_file(args.custom)
-    TargetName = ""
 
 for mcu_file in mcu_list:
     TargetNameList = []
@@ -1759,7 +1789,7 @@ for mcu_file in mcu_list:
         if m:
             TARGET_FAMILY = m.group(0)
         else:
-            print("no TARGET_FAMILY")
+            print("!!! no TARGET_FAMILY")
             sys.exit(2)
 
         SearchSubFamily = EachTargetName[:9] + 'x' + EachTargetName[10:]
@@ -1767,7 +1797,7 @@ for mcu_file in mcu_list:
         if m:
             TARGET_SUBFAMILY = m.group(0)
         else:
-            print("no TARGET_SUBFAMILY")
+            print("!!! no TARGET_SUBFAMILY")
             sys.exit(2)
 
         if args.mcu:
@@ -1791,7 +1821,10 @@ for mcu_file in mcu_list:
                 sys.exit(8)
         else:
             if EachTargetName == MCU_USERNAME:
-                out_path = os.path.join(cur_dir, 'targets_custom', 'TARGET_STM', 'TARGET_%s' % TARGET_FAMILY, 'TARGET_%s' % TARGET_SUBFAMILY, 'TARGET_%s' % TargetName)
+                if FLAT_DIRECTORY == 0:
+                    out_path = os.path.join(cur_dir, 'targets_custom', 'TARGET_STM', 'TARGET_%s' % TARGET_FAMILY, 'TARGET_%s' % TARGET_SUBFAMILY, 'TARGET_%s' % TARGET_NAME)
+                else:
+                    out_path = os.path.join(cur_dir, 'targets_custom', 'TARGET_STM', 'TARGET_%s' % TARGET_NAME)
             else:
                 continue
 

@@ -39,3 +39,4 @@ target_sources(mbed-psa
         src/tfm_platform_ipc_api.c
         src/tfm_ps_ipc_api.c
 )
+

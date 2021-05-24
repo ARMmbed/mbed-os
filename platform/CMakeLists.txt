@@ -1,6 +1,10 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+if(NOT ${CMAKE_CROSSCOMPILING})
+    add_subdirectory(tests/UNITTESTS)
+endif()
+
 # List of all optional platform libraries available.
 add_library(mbed-psa INTERFACE)
 

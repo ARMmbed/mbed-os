@@ -499,7 +499,7 @@ HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef *hadc)
     /* Note: Variable divided by 2 to compensate partially              */
     /*       CPU processing cycles, scaling in us split to not          */
     /*       exceed 32 bits register capacity and handle low frequency. */
-    wait_loop_index = ((LL_ADC_DELAY_INTERNAL_REGUL_STAB_US / 10UL) * (SystemCoreClock / (100000UL * 2UL)));
+    wait_loop_index = ((LL_ADC_DELAY_INTERNAL_REGUL_STAB_US / 10UL) * ((SystemCoreClock / (100000UL * 2UL)) + 1UL));
     while (wait_loop_index != 0UL)
     {
       wait_loop_index--;
@@ -857,31 +857,28 @@ HAL_StatusTypeDef HAL_ADC_DeInit(ADC_HandleTypeDef *hadc)
         HAL_ADC_ConfigChannel() or HAL_ADCEx_InjectedConfigChannel() )
     */
     ADC_CLEAR_COMMON_CONTROL_REGISTER(hadc);
-  }
 
-  /* DeInit the low level hardware.
-
-     For example:
-    __HAL_RCC_ADC_FORCE_RESET();
-    __HAL_RCC_ADC_RELEASE_RESET();
-    __HAL_RCC_ADC_CLK_DISABLE();
-
-    Keep in mind that all ADCs use the same clock: disabling
-    the clock will reset all ADCs.
-
-  */
+    /* ========== Hard reset ADC peripheral ========== */
+    /* Performs a global reset of the entire ADC peripherals instances        */
+    /* sharing the same common ADC instance: ADC state is forced to           */
+    /* a similar state as after device power-on.                              */
+    /* Note: A possible implementation is to add RCC bus reset of ADC         */
+    /* (for example, using macro                                              */
+    /*  __HAL_RCC_ADC..._FORCE_RESET()/..._RELEASE_RESET()/..._CLK_DISABLE()) */
+    /* in function "void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)":         */
 #if (USE_HAL_ADC_REGISTER_CALLBACKS == 1)
-  if (hadc->MspDeInitCallback == NULL)
-  {
-    hadc->MspDeInitCallback = HAL_ADC_MspDeInit; /* Legacy weak MspDeInit  */
-  }
+    if (hadc->MspDeInitCallback == NULL)
+    {
+      hadc->MspDeInitCallback = HAL_ADC_MspDeInit; /* Legacy weak MspDeInit  */
+    }
 
-  /* DeInit the low level hardware */
-  hadc->MspDeInitCallback(hadc);
+    /* DeInit the low level hardware */
+    hadc->MspDeInitCallback(hadc);
 #else
-  /* DeInit the low level hardware */
-  HAL_ADC_MspDeInit(hadc);
+    /* DeInit the low level hardware */
+    HAL_ADC_MspDeInit(hadc);
 #endif /* USE_HAL_ADC_REGISTER_CALLBACKS */
+  }
 
   /* Set ADC error code to none */
   ADC_CLEAR_ERRORCODE(hadc);
@@ -1483,13 +1480,17 @@ HAL_StatusTypeDef HAL_ADC_PollForConversion(ADC_HandleTypeDef *hadc, uint32_t Ti
     {
       if (((HAL_GetTick() - tickstart) > Timeout) || (Timeout == 0UL))
       {
-        /* Update ADC state machine to timeout */
-        SET_BIT(hadc->State, HAL_ADC_STATE_TIMEOUT);
+        /* New check to avoid false timeout detection in case of preemption */
+        if ((hadc->Instance->ISR & tmp_Flag_End) == 0UL)
+        {
+          /* Update ADC state machine to timeout */
+          SET_BIT(hadc->State, HAL_ADC_STATE_TIMEOUT);
 
-        /* Process unlocked */
-        __HAL_UNLOCK(hadc);
+          /* Process unlocked */
+          __HAL_UNLOCK(hadc);
 
-        return HAL_TIMEOUT;
+          return HAL_TIMEOUT;
+        }
       }
     }
   }
@@ -1599,13 +1600,17 @@ HAL_StatusTypeDef HAL_ADC_PollForEvent(ADC_HandleTypeDef *hadc, uint32_t EventTy
     {
       if (((HAL_GetTick() - tickstart) > Timeout) || (Timeout == 0UL))
       {
-        /* Update ADC state machine to timeout */
-        SET_BIT(hadc->State, HAL_ADC_STATE_TIMEOUT);
+        /* New check to avoid false timeout detection in case of preemption */
+        if (__HAL_ADC_GET_FLAG(hadc, EventType) == 0UL)
+        {
+          /* Update ADC state machine to timeout */
+          SET_BIT(hadc->State, HAL_ADC_STATE_TIMEOUT);
 
-        /* Process unlocked */
-        __HAL_UNLOCK(hadc);
+          /* Process unlocked */
+          __HAL_UNLOCK(hadc);
 
-        return HAL_TIMEOUT;
+          return HAL_TIMEOUT;
+        }
       }
     }
   }
@@ -2400,44 +2405,46 @@ void HAL_ADC_IRQHandler(ADC_HandleTypeDef *hadc)
     /* group having no further conversion upcoming (same conditions as        */
     /* regular group interruption disabling above),                           */
     /* and if injected scan sequence is completed.                            */
-    if ((tmp_adc_inj_is_trigger_source_sw_start != 0UL)            ||
-        ((READ_BIT(tmp_cfgr, ADC_CFGR_JAUTO) == 0UL)      &&
-         ((tmp_adc_reg_is_trigger_source_sw_start != 0UL)  &&
-          (READ_BIT(tmp_cfgr, ADC_CFGR_CONT) == 0UL))))
+    if (tmp_adc_inj_is_trigger_source_sw_start != 0UL)
     {
-      /* If End of Sequence is reached, disable interrupts */
-      if (__HAL_ADC_GET_FLAG(hadc, ADC_FLAG_JEOS))
+      if ((READ_BIT(tmp_cfgr, ADC_CFGR_JAUTO) == 0UL) ||
+          ((tmp_adc_reg_is_trigger_source_sw_start != 0UL) &&
+           (READ_BIT(tmp_cfgr, ADC_CFGR_CONT) == 0UL)))
       {
-        /* Particular case if injected contexts queue is enabled:             */
-        /* when the last context has been fully processed, JSQR is reset      */
-        /* by the hardware. Even if no injected conversion is planned to come */
-        /* (queue empty, triggers are ignored), it can start again            */
-        /* immediately after setting a new context (JADSTART is still set).   */
-        /* Therefore, state of HAL ADC injected group is kept to busy.        */
-        if (READ_BIT(tmp_cfgr, ADC_CFGR_JQM) == 0UL)
+        /* If End of Sequence is reached, disable interrupts */
+        if (__HAL_ADC_GET_FLAG(hadc, ADC_FLAG_JEOS))
         {
-          /* Allowed to modify bits ADC_IT_JEOC/ADC_IT_JEOS only if bit       */
-          /* JADSTART==0 (no conversion on going)                             */
-          if (LL_ADC_INJ_IsConversionOngoing(hadc->Instance) == 0UL)
+          /* Particular case if injected contexts queue is enabled:             */
+          /* when the last context has been fully processed, JSQR is reset      */
+          /* by the hardware. Even if no injected conversion is planned to come */
+          /* (queue empty, triggers are ignored), it can start again            */
+          /* immediately after setting a new context (JADSTART is still set).   */
+          /* Therefore, state of HAL ADC injected group is kept to busy.        */
+          if (READ_BIT(tmp_cfgr, ADC_CFGR_JQM) == 0UL)
           {
-            /* Disable ADC end of sequence conversion interrupt  */
-            __HAL_ADC_DISABLE_IT(hadc, ADC_IT_JEOC | ADC_IT_JEOS);
-
-            /* Set ADC state */
-            CLEAR_BIT(hadc->State, HAL_ADC_STATE_INJ_BUSY);
-
-            if ((hadc->State & HAL_ADC_STATE_REG_BUSY) == 0UL)
+            /* Allowed to modify bits ADC_IT_JEOC/ADC_IT_JEOS only if bit       */
+            /* JADSTART==0 (no conversion on going)                             */
+            if (LL_ADC_INJ_IsConversionOngoing(hadc->Instance) == 0UL)
             {
-              SET_BIT(hadc->State, HAL_ADC_STATE_READY);
-            }
-          }
-          else
-          {
-            /* Update ADC state machine to error */
-            SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_INTERNAL);
+              /* Disable ADC end of sequence conversion interrupt  */
+              __HAL_ADC_DISABLE_IT(hadc, ADC_IT_JEOC | ADC_IT_JEOS);
 
-            /* Set ADC error code to ADC peripheral internal error */
-            SET_BIT(hadc->ErrorCode, HAL_ADC_ERROR_INTERNAL);
+              /* Set ADC state */
+              CLEAR_BIT(hadc->State, HAL_ADC_STATE_INJ_BUSY);
+
+              if ((hadc->State & HAL_ADC_STATE_REG_BUSY) == 0UL)
+              {
+                SET_BIT(hadc->State, HAL_ADC_STATE_READY);
+              }
+            }
+            else
+            {
+              /* Update ADC state machine to error */
+              SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_INTERNAL);
+
+              /* Set ADC error code to ADC peripheral internal error */
+              SET_BIT(hadc->ErrorCode, HAL_ADC_ERROR_INTERNAL);
+            }
           }
         }
       }
@@ -2888,7 +2895,7 @@ HAL_StatusTypeDef HAL_ADC_ConfigChannel(ADC_HandleTypeDef *hadc, ADC_ChannelConf
           /* Note: Variable divided by 2 to compensate partially              */
           /*       CPU processing cycles, scaling in us split to not          */
           /*       exceed 32 bits register capacity and handle low frequency. */
-          wait_loop_index = ((LL_ADC_DELAY_TEMPSENSOR_STAB_US / 10UL) * (SystemCoreClock / (100000UL * 2UL)));
+          wait_loop_index = ((LL_ADC_DELAY_TEMPSENSOR_STAB_US / 10UL) * ((SystemCoreClock / (100000UL * 2UL)) + 1UL));
           while (wait_loop_index != 0UL)
           {
             wait_loop_index--;
@@ -3356,13 +3363,17 @@ HAL_StatusTypeDef ADC_ConversionStop(ADC_HandleTypeDef *hadc, uint32_t Conversio
     {
       if ((HAL_GetTick() - tickstart) > ADC_STOP_CONVERSION_TIMEOUT)
       {
-        /* Update ADC state machine to error */
-        SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_INTERNAL);
+        /* New check to avoid false timeout detection in case of preemption */
+        if ((hadc->Instance->CR & tmp_ADC_CR_ADSTART_JADSTART) != 0UL)
+        {
+          /* Update ADC state machine to error */
+          SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_INTERNAL);
 
-        /* Set ADC error code to ADC peripheral internal error */
-        SET_BIT(hadc->ErrorCode, HAL_ADC_ERROR_INTERNAL);
+          /* Set ADC error code to ADC peripheral internal error */
+          SET_BIT(hadc->ErrorCode, HAL_ADC_ERROR_INTERNAL);
 
-        return HAL_ERROR;
+          return HAL_ERROR;
+        }
       }
     }
 
@@ -3425,13 +3436,17 @@ HAL_StatusTypeDef ADC_Enable(ADC_HandleTypeDef *hadc)
 
       if ((HAL_GetTick() - tickstart) > ADC_ENABLE_TIMEOUT)
       {
-        /* Update ADC state machine to error */
-        SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_INTERNAL);
+        /* New check to avoid false timeout detection in case of preemption */
+        if (__HAL_ADC_GET_FLAG(hadc, ADC_FLAG_RDY) == 0UL)
+        {
+          /* Update ADC state machine to error */
+          SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_INTERNAL);
 
-        /* Set ADC error code to ADC peripheral internal error */
-        SET_BIT(hadc->ErrorCode, HAL_ADC_ERROR_INTERNAL);
+          /* Set ADC error code to ADC peripheral internal error */
+          SET_BIT(hadc->ErrorCode, HAL_ADC_ERROR_INTERNAL);
 
-        return HAL_ERROR;
+          return HAL_ERROR;
+        }
       }
     }
   }
@@ -3485,13 +3500,17 @@ HAL_StatusTypeDef ADC_Disable(ADC_HandleTypeDef *hadc)
     {
       if ((HAL_GetTick() - tickstart) > ADC_DISABLE_TIMEOUT)
       {
-        /* Update ADC state machine to error */
-        SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_INTERNAL);
+        /* New check to avoid false timeout detection in case of preemption */
+        if ((hadc->Instance->CR & ADC_CR_ADEN) != 0UL)
+        {
+          /* Update ADC state machine to error */
+          SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_INTERNAL);
 
-        /* Set ADC error code to ADC peripheral internal error */
-        SET_BIT(hadc->ErrorCode, HAL_ADC_ERROR_INTERNAL);
+          /* Set ADC error code to ADC peripheral internal error */
+          SET_BIT(hadc->ErrorCode, HAL_ADC_ERROR_INTERNAL);
 
-        return HAL_ERROR;
+          return HAL_ERROR;
+        }
       }
     }
   }

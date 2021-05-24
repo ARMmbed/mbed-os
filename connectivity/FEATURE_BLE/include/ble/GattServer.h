@@ -122,8 +122,9 @@ public:
         }
 
         /**
-         * Function invoked when the server has sent data to a client as
-         * part of a notification/indication.
+         * Function invoked when the server has sent data to a client. For
+         * notifications this is triggered when data is sent, for indications
+         * it's only triggered when the confirmation has been received.
          *
          * @note params has a temporary scope and should be copied by the
          * application if needed later
@@ -188,12 +189,13 @@ public:
         }
 
         /**
-         * Function invoked when an ACK has been received for an
-         * indication sent to the client.
+         * Event not used.
          *
          * @note params has a temporary scope and should be copied by the
          * application if needed later
          */
+        MBED_DEPRECATED_SINCE("mbed-os-6.11.0", "This event is never triggered. Indication triggers onDataSent"
+                                                "when confirmation is received.")
         virtual void onConfirmationReceived(const GattConfirmationReceivedCallbackParams &params) {
             (void)params;
         }
@@ -274,7 +276,7 @@ public:
      * Event handler that handles subscription to characteristic updates,
      * unsubscription from characteristic updates and notification confirmation.
      *
-     * @see onUpdatesEnabled() onUpdateDisabled() onConfirmationReceived()
+     * @see onUpdatesEnabled() onUpdateDisabled()
      */
     typedef FunctionPointerWithContext<GattAttribute::Handle_t> EventCallback_t;
 
@@ -705,7 +707,8 @@ public:
      * @param[in] callback Event handler being registered.
      */
     MBED_DEPRECATED_SINCE("mbed-os-6.3.0", "Individual callback-registering functions have"
-                          "been replaced by GattServer::setEventHandler. Use that function instead.")
+                          "been replaced by an event handler. Indication confirmation triggers"
+                          "GattServer::onDataSent event instead.")
     void onConfirmationReceived(EventCallback_t callback);
 
 #if !defined(DOXYGEN_ONLY)

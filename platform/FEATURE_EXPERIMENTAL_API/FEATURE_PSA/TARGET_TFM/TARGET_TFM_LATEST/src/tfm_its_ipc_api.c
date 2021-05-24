@@ -36,10 +36,6 @@ psa_status_t psa_its_set(psa_storage_uid_t uid,
 
     psa_close(handle);
 
-    if (status == (psa_status_t)TFM_ERROR_INVALID_PARAMETER) {
-        return PSA_ERROR_INVALID_ARGUMENT;
-    }
-
     return status;
 }
 
@@ -75,10 +71,6 @@ psa_status_t psa_its_get(psa_storage_uid_t uid,
 
     psa_close(handle);
 
-    if (status == (psa_status_t)TFM_ERROR_INVALID_PARAMETER) {
-        return PSA_ERROR_INVALID_ARGUMENT;
-    }
-
     *p_data_length = out_vec[0].len;
 
     return status;
@@ -107,10 +99,6 @@ psa_status_t psa_its_get_info(psa_storage_uid_t uid,
                       IOVEC_LEN(out_vec));
 
     psa_close(handle);
-
-    if (status == (psa_status_t)TFM_ERROR_INVALID_PARAMETER) {
-        return PSA_ERROR_INVALID_ARGUMENT;
-    }
 
     return status;
 }
