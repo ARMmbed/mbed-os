@@ -86,6 +86,7 @@ class UnitTestTool(object):
         args = [cmake,
                 "-G",
                 generator,
+                "-DBUILD_TESTING=ON"
                 "-DCMAKE_MAKE_PROGRAM=%s" % self.make_program,
                 "-DCMAKE_CXX_COMPILER=%s" % get_cxx_tool(),
                 "-DCMAKE_C_COMPILER=%s" % get_c_tool()]

@@ -18,6 +18,7 @@
 #include "MBRBlockDevice.h"
 #include "mbed_critical.h"
 #include <algorithm>
+#include "mbed_toolchain.h"
 
 
 // On disk structures, all entries are little endian

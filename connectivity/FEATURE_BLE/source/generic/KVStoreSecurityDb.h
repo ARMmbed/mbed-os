@@ -41,7 +41,7 @@ private:
     };
 
     static entry_t *as_entry(entry_handle_t db_handle);
-    
+
     static constexpr uint8_t KVSTORESECURITYDB_VERSION = 1;
 
     static constexpr size_t DB_PREFIX_SIZE = 7 + sizeof (STR(MBED_CONF_STORAGE_DEFAULT_KV)) - 1;

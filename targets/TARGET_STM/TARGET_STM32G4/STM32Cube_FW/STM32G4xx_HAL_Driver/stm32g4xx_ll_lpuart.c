@@ -274,7 +274,7 @@ void LL_LPUART_StructInit(LL_LPUART_InitTypeDef *LPUART_InitStruct)
   * @}
   */
 
-#endif /* defined (LPUART1) */
+#endif /* LPUART1 */
 
 /**
   * @}

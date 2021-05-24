@@ -384,7 +384,7 @@ typedef struct
 typedef struct __ADC_HandleTypeDef
 #else
 typedef struct
-#endif
+#endif /* USE_HAL_ADC_REGISTER_CALLBACKS */
 {
   ADC_TypeDef                   *Instance;              /*!< Register base address */
   ADC_InitTypeDef               Init;                   /*!< ADC initialization parameters and regular conversions setting */
@@ -768,7 +768,6 @@ typedef  void (*pADC_CallbackTypeDef)(ADC_HandleTypeDef *hadc); /*!< pointer to 
 /**
   * @}
   */
-
 
 /** @defgroup ADC_Event_type ADC Event type
   * @{
@@ -1239,7 +1238,7 @@ typedef  void (*pADC_CallbackTypeDef)(ADC_HandleTypeDef *hadc); /*!< pointer to 
 #else
 #define __HAL_ADC_RESET_HANDLE_STATE(__HANDLE__)                               \
   ((__HANDLE__)->State = HAL_ADC_STATE_RESET)
-#endif
+#endif /* USE_HAL_ADC_REGISTER_CALLBACKS */
 
 /**
   * @brief Enable ADC interrupt.
@@ -1667,7 +1666,7 @@ typedef  void (*pADC_CallbackTypeDef)(ADC_HandleTypeDef *hadc); /*!< pointer to 
   */
 #define __HAL_ADC_MULTI_CONV_DATA_MASTER_SLAVE(__ADC_MULTI_MASTER_SLAVE__, __ADC_MULTI_CONV_DATA__)  \
   __LL_ADC_MULTI_CONV_DATA_MASTER_SLAVE((__ADC_MULTI_MASTER_SLAVE__), (__ADC_MULTI_CONV_DATA__))
-#endif
+#endif /* ADC_MULTIMODE_SUPPORT */
 
 /**
   * @brief  Helper macro to select the ADC common instance
@@ -1738,10 +1737,10 @@ typedef  void (*pADC_CallbackTypeDef)(ADC_HandleTypeDef *hadc); /*!< pointer to 
   */
 #define __HAL_ADC_CONVERT_DATA_RESOLUTION(__DATA__,\
                                           __ADC_RESOLUTION_CURRENT__,\
-                                          __ADC_RESOLUTION_TARGET__)            \
-  __LL_ADC_CONVERT_DATA_RESOLUTION((__DATA__),                                  \
-                                   (__ADC_RESOLUTION_CURRENT__),                \
-                                   (__ADC_RESOLUTION_TARGET__))
+                                          __ADC_RESOLUTION_TARGET__) \
+__LL_ADC_CONVERT_DATA_RESOLUTION((__DATA__),\
+                                 (__ADC_RESOLUTION_CURRENT__),\
+                                 (__ADC_RESOLUTION_TARGET__))
 
 /**
   * @brief  Helper macro to calculate the voltage (unit: mVolt)
@@ -1761,10 +1760,10 @@ typedef  void (*pADC_CallbackTypeDef)(ADC_HandleTypeDef *hadc); /*!< pointer to 
   */
 #define __HAL_ADC_CALC_DATA_TO_VOLTAGE(__VREFANALOG_VOLTAGE__,\
                                        __ADC_DATA__,\
-                                       __ADC_RESOLUTION__)                     \
-  __LL_ADC_CALC_DATA_TO_VOLTAGE((__VREFANALOG_VOLTAGE__),                      \
-                                (__ADC_DATA__),                                \
-                                (__ADC_RESOLUTION__))
+                                       __ADC_RESOLUTION__) \
+__LL_ADC_CALC_DATA_TO_VOLTAGE((__VREFANALOG_VOLTAGE__),\
+                              (__ADC_DATA__),\
+                              (__ADC_RESOLUTION__))
 
 /**
   * @brief  Helper macro to calculate analog reference voltage (Vref+)
@@ -1792,9 +1791,9 @@ typedef  void (*pADC_CallbackTypeDef)(ADC_HandleTypeDef *hadc); /*!< pointer to 
   * @retval Analog reference voltage (unit: mV)
   */
 #define __HAL_ADC_CALC_VREFANALOG_VOLTAGE(__VREFINT_ADC_DATA__,\
-                                          __ADC_RESOLUTION__)                  \
-  __LL_ADC_CALC_VREFANALOG_VOLTAGE((__VREFINT_ADC_DATA__),                     \
-                                  (__ADC_RESOLUTION__))
+                                          __ADC_RESOLUTION__) \
+__LL_ADC_CALC_VREFANALOG_VOLTAGE((__VREFINT_ADC_DATA__),\
+                                 (__ADC_RESOLUTION__))
 
 /**
   * @brief  Helper macro to calculate the temperature (unit: degree Celsius)
@@ -1843,10 +1842,10 @@ typedef  void (*pADC_CallbackTypeDef)(ADC_HandleTypeDef *hadc); /*!< pointer to 
   */
 #define __HAL_ADC_CALC_TEMPERATURE(__VREFANALOG_VOLTAGE__,\
                                    __TEMPSENSOR_ADC_DATA__,\
-                                   __ADC_RESOLUTION__)                         \
-  __LL_ADC_CALC_TEMPERATURE((__VREFANALOG_VOLTAGE__),                          \
-                            (__TEMPSENSOR_ADC_DATA__),                         \
-                            (__ADC_RESOLUTION__))
+                                   __ADC_RESOLUTION__) \
+__LL_ADC_CALC_TEMPERATURE((__VREFANALOG_VOLTAGE__),\
+                          (__TEMPSENSOR_ADC_DATA__),\
+                          (__ADC_RESOLUTION__))
 
 /**
   * @brief  Helper macro to calculate the temperature (unit: degree Celsius)
@@ -1897,13 +1896,13 @@ typedef  void (*pADC_CallbackTypeDef)(ADC_HandleTypeDef *hadc); /*!< pointer to 
                                               __TEMPSENSOR_CALX_TEMP__,\
                                               __VREFANALOG_VOLTAGE__,\
                                               __TEMPSENSOR_ADC_DATA__,\
-                                              __ADC_RESOLUTION__)              \
-  __LL_ADC_CALC_TEMPERATURE_TYP_PARAMS((__TEMPSENSOR_TYP_AVGSLOPE__),          \
-                                      (__TEMPSENSOR_TYP_CALX_V__),             \
-                                      (__TEMPSENSOR_CALX_TEMP__),              \
-                                      (__VREFANALOG_VOLTAGE__),                \
-                                      (__TEMPSENSOR_ADC_DATA__),               \
-                                      (__ADC_RESOLUTION__))
+                                              __ADC_RESOLUTION__) \
+__LL_ADC_CALC_TEMPERATURE_TYP_PARAMS((__TEMPSENSOR_TYP_AVGSLOPE__),\
+                                     (__TEMPSENSOR_TYP_CALX_V__),\
+                                     (__TEMPSENSOR_CALX_TEMP__),\
+                                     (__VREFANALOG_VOLTAGE__),\
+                                     (__TEMPSENSOR_ADC_DATA__),\
+                                     (__ADC_RESOLUTION__))
 
 /**
   * @}

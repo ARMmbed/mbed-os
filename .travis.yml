@@ -39,9 +39,11 @@ addons:
       - sourceline: 'deb https://apt.kitware.com/ubuntu/ focal main'
         key_url: 'https://apt.kitware.com/keys/kitware-archive-latest.asc'
     packages:
-    - cmake
-    - ninja-build
-    - libncursesw5
+      - cmake
+      - ninja-build
+      - gcovr
+      - libncursesw5
+      - g++-7
 
 matrix:
   include:
@@ -321,3 +323,23 @@ matrix:
         - mbedtools configure -p ${ROOT} -t ${TOOLCHAIN} -m ${TARGET_NAME} --mbed-os-path .
         - cmake -S ${ROOT} -B ${ROOT}/cmake_build/${TARGET_NAME}/${PROFILE}/${TOOLCHAIN}/ -GNinja -DCMAKE_BUILD_TYPE=${PROFILE}
         - cmake --build ${ROOT}/cmake_build/${TARGET_NAME}/${PROFILE}/${TOOLCHAIN}/
+
+    ### Mbed OS unittest ###
+    - &cmake-build-run-unittest
+      stage: "CMake"
+      name: "CMake unittest build"
+      env: NAME=cmake_unittest 
+      install:        
+        # Hide Travis-preinstalled CMake
+        # The Travis-preinstalled CMake is unfortunately not installed via apt, so we
+        # can't replace it with an apt-supplied version very easily. Additionally, we
+        # can't permit the Travis-preinstalled copy to survive, as the Travis default
+        # path lists the Travis CMake install location ahead of any place where apt
+        # would install CMake to. Instead of apt removing or upgrading to a new CMake
+        # version, we must instead delete the Travis copy of CMake.
+        - sudo rm -rf /usr/local/cmake*
+      script:
+        - echo ctest --build-and-test . build --build-generator Ninja --build-options -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=ON -DCMAKE_CXX_COMPILER=g++-7 -DCMAKE_C_COMPILER=gcc-7 --test-command ctest        
+        - ctest --build-and-test . build --build-generator Ninja --build-options -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=ON -DCMAKE_CXX_COMPILER=g++-7 -DCMAKE_C_COMPILER=gcc-7 --test-command ctest        
+        - gcovr --gcov-executable gcov-7 -r . ./build -s -e ".*\.h" --exclude-directories=$TRAVIS_BUILD_DIR/build/UNITTESTS --exclude-directories=$TRAVIS_BUILD_DIR/build/_deps
+        - ccache -s
