@@ -44,4 +44,8 @@ extern "C" {
 
 #endif // DEVICE_I2C
 
+#ifdef __cplusplus
+}
+#endif
+
 #endif

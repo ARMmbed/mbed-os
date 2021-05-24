@@ -53,8 +53,10 @@ uint32_t i2c_get_timing(I2CName i2c, int hz);
 void i2c_compute_presc_scldel_sdadel(uint32_t clock_src_freq, uint32_t I2C_speed);
 uint32_t i2c_compute_scll_sclh(uint32_t clock_src_freq, uint32_t I2C_speed);
 
+#endif // DEVICE_I2C
+
 #ifdef __cplusplus
 }
 #endif
-#endif // DEVICE_I2C
+
 #endif
