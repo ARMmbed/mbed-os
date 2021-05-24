@@ -220,17 +220,17 @@ typedef  void (*pUSART_CallbackTypeDef)(USART_HandleTypeDef *husart);  /*!< poin
 /** @defgroup USART_Error_Definition   USART Error Definition
   * @{
   */
-#define HAL_USART_ERROR_NONE             ((uint32_t)0x00000000U)    /*!< No error                  */
-#define HAL_USART_ERROR_PE               ((uint32_t)0x00000001U)    /*!< Parity error              */
-#define HAL_USART_ERROR_NE               ((uint32_t)0x00000002U)    /*!< Noise error               */
-#define HAL_USART_ERROR_FE               ((uint32_t)0x00000004U)    /*!< Frame error               */
-#define HAL_USART_ERROR_ORE              ((uint32_t)0x00000008U)    /*!< Overrun error             */
-#define HAL_USART_ERROR_DMA              ((uint32_t)0x00000010U)    /*!< DMA transfer error        */
-#define HAL_USART_ERROR_UDR              ((uint32_t)0x00000020U)    /*!< SPI slave underrun error  */
+#define HAL_USART_ERROR_NONE             (0x00000000U)    /*!< No error                  */
+#define HAL_USART_ERROR_PE               (0x00000001U)    /*!< Parity error              */
+#define HAL_USART_ERROR_NE               (0x00000002U)    /*!< Noise error               */
+#define HAL_USART_ERROR_FE               (0x00000004U)    /*!< Frame error               */
+#define HAL_USART_ERROR_ORE              (0x00000008U)    /*!< Overrun error             */
+#define HAL_USART_ERROR_DMA              (0x00000010U)    /*!< DMA transfer error        */
+#define HAL_USART_ERROR_UDR              (0x00000020U)    /*!< SPI slave underrun error  */
 #if (USE_HAL_USART_REGISTER_CALLBACKS == 1)
-#define HAL_USART_ERROR_INVALID_CALLBACK ((uint32_t)0x00000040U)    /*!< Invalid Callback error    */
+#define HAL_USART_ERROR_INVALID_CALLBACK (0x00000040U)    /*!< Invalid Callback error    */
 #endif /* USE_HAL_USART_REGISTER_CALLBACKS */
-#define  HAL_USART_ERROR_RTO              ((uint32_t)0x00000080U)    /*!< Receiver Timeout error  */
+#define  HAL_USART_ERROR_RTO              (0x00000080U)    /*!< Receiver Timeout error  */
 /**
   * @}
   */
@@ -262,15 +262,6 @@ typedef  void (*pUSART_CallbackTypeDef)(USART_HandleTypeDef *husart);  /*!< poin
 #define USART_MODE_RX                       USART_CR1_RE                    /*!< RX mode        */
 #define USART_MODE_TX                       USART_CR1_TE                    /*!< TX mode        */
 #define USART_MODE_TX_RX                    (USART_CR1_TE |USART_CR1_RE)    /*!< RX and TX mode */
-/**
-  * @}
-  */
-
-/** @defgroup USART_Over_Sampling USART Over Sampling
-  * @{
-  */
-#define USART_OVERSAMPLING_16               0x00000000U         /*!< Oversampling by 16 */
-#define USART_OVERSAMPLING_8                USART_CR1_OVER8     /*!< Oversampling by 8  */
 /**
   * @}
   */
@@ -556,10 +547,10 @@ typedef  void (*pUSART_CallbackTypeDef)(USART_HandleTypeDef *husart);  /*!< poin
   */
 #define __HAL_USART_ENABLE_IT(__HANDLE__, __INTERRUPT__)\
   (((((__INTERRUPT__) & USART_CR_MASK) >> USART_CR_POS) == 1U)?\
-   ((__HANDLE__)->Instance->CR1 |= ((uint32_t)1U << ((__INTERRUPT__) & USART_IT_MASK))): \
+   ((__HANDLE__)->Instance->CR1 |= (1U << ((__INTERRUPT__) & USART_IT_MASK))): \
    ((((__INTERRUPT__) & USART_CR_MASK) >> USART_CR_POS) == 2U)?\
-   ((__HANDLE__)->Instance->CR2 |= ((uint32_t)1U << ((__INTERRUPT__) & USART_IT_MASK))): \
-   ((__HANDLE__)->Instance->CR3 |= ((uint32_t)1U << ((__INTERRUPT__) & USART_IT_MASK))))
+   ((__HANDLE__)->Instance->CR2 |= (1U << ((__INTERRUPT__) & USART_IT_MASK))): \
+   ((__HANDLE__)->Instance->CR3 |= (1U << ((__INTERRUPT__) & USART_IT_MASK))))
 
 /** @brief  Disable the specified USART interrupt.
   * @param  __HANDLE__ specifies the USART Handle.
@@ -581,10 +572,10 @@ typedef  void (*pUSART_CallbackTypeDef)(USART_HandleTypeDef *husart);  /*!< poin
   */
 #define __HAL_USART_DISABLE_IT(__HANDLE__, __INTERRUPT__)\
   (((((__INTERRUPT__) & USART_CR_MASK) >> USART_CR_POS) == 1U)?\
-   ((__HANDLE__)->Instance->CR1 &= ~ ((uint32_t)1U << ((__INTERRUPT__) & USART_IT_MASK))): \
+   ((__HANDLE__)->Instance->CR1 &= ~ (1U << ((__INTERRUPT__) & USART_IT_MASK))): \
    ((((__INTERRUPT__) & USART_CR_MASK) >> USART_CR_POS) == 2U)?\
-   ((__HANDLE__)->Instance->CR2 &= ~ ((uint32_t)1U << ((__INTERRUPT__) & USART_IT_MASK))): \
-   ((__HANDLE__)->Instance->CR3 &= ~ ((uint32_t)1U << ((__INTERRUPT__) & USART_IT_MASK))))
+   ((__HANDLE__)->Instance->CR2 &= ~ (1U << ((__INTERRUPT__) & USART_IT_MASK))): \
+   ((__HANDLE__)->Instance->CR3 &= ~ (1U << ((__INTERRUPT__) & USART_IT_MASK))))
 
 /** @brief  Check whether the specified USART interrupt has occurred or not.
   * @param  __HANDLE__ specifies the USART Handle.
@@ -607,7 +598,7 @@ typedef  void (*pUSART_CallbackTypeDef)(USART_HandleTypeDef *husart);  /*!< poin
   * @retval The new state of __INTERRUPT__ (SET or RESET).
   */
 #define __HAL_USART_GET_IT(__HANDLE__, __INTERRUPT__) ((((__HANDLE__)->Instance->ISR\
-                                                         & ((uint32_t)0x01U << (((__INTERRUPT__) & USART_ISR_MASK)>>\
+                                                         & (0x01U << (((__INTERRUPT__) & USART_ISR_MASK)>>\
                                                                                 USART_ISR_POS))) != 0U) ? SET : RESET)
 
 /** @brief  Check whether the specified USART interrupt source is enabled or not.
@@ -835,14 +826,6 @@ typedef  void (*pUSART_CallbackTypeDef)(USART_HandleTypeDef *husart);  /*!< poin
   * @retval SET (__MODE__ is valid) or RESET (__MODE__ is invalid)
   */
 #define IS_USART_MODE(__MODE__) ((((__MODE__) & 0xFFFFFFF3U) == 0x00U) && ((__MODE__) != 0x00U))
-
-/**
-  * @brief Ensure that USART oversampling is valid.
-  * @param __SAMPLING__ USART oversampling.
-  * @retval SET (__SAMPLING__ is valid) or RESET (__SAMPLING__ is invalid)
-  */
-#define IS_USART_OVERSAMPLING(__SAMPLING__) (((__SAMPLING__) == USART_OVERSAMPLING_16) || \
-                                             ((__SAMPLING__) == USART_OVERSAMPLING_8))
 
 /**
   * @brief Ensure that USART clock state is valid.

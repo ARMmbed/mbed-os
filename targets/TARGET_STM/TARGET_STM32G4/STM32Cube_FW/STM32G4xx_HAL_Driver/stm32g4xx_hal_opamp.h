@@ -335,7 +335,7 @@ typedef void (*pOPAMP_CallbackTypeDef)(OPAMP_HandleTypeDef *hopamp);
 /** @defgroup OPAMP_PowerMode OPAMP PowerMode
   * @{
   */
-#define OPAMP_POWERMODE_NORMAL        (0x00000000UL)         /*!< Output in normal mode */
+#define OPAMP_POWERMODE_NORMALSPEED   (0x00000000UL)         /*!< Output in normal mode */
 #define OPAMP_POWERMODE_HIGHSPEED     OPAMP_CSR_HIGHSPEEDEN  /*!< Output in highspeed mode */
 /**
   * @}

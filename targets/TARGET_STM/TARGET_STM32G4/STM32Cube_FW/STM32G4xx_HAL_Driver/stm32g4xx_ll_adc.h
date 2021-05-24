@@ -58,7 +58,8 @@ extern "C" {
 #define ADC_SQR3_REGOFFSET                 (0x00000200UL)
 #define ADC_SQR4_REGOFFSET                 (0x00000300UL)
 
-#define ADC_REG_SQRX_REGOFFSET_MASK        (ADC_SQR1_REGOFFSET | ADC_SQR2_REGOFFSET | ADC_SQR3_REGOFFSET | ADC_SQR4_REGOFFSET)
+#define ADC_REG_SQRX_REGOFFSET_MASK        (ADC_SQR1_REGOFFSET | ADC_SQR2_REGOFFSET \
+                                            | ADC_SQR3_REGOFFSET | ADC_SQR4_REGOFFSET)
 #define ADC_SQRX_REGOFFSET_POS             (8UL) /* Position of bits ADC_SQRx_REGOFFSET in ADC_REG_SQRX_REGOFFSET_MASK */
 #define ADC_REG_RANK_ID_SQRX_MASK          (ADC_CHANNEL_ID_NUMBER_MASK_POSBIT0)
 
@@ -95,7 +96,8 @@ extern "C" {
 #define ADC_JDR3_REGOFFSET                 (0x00000200UL)
 #define ADC_JDR4_REGOFFSET                 (0x00000300UL)
 
-#define ADC_INJ_JDRX_REGOFFSET_MASK        (ADC_JDR1_REGOFFSET | ADC_JDR2_REGOFFSET | ADC_JDR3_REGOFFSET | ADC_JDR4_REGOFFSET)
+#define ADC_INJ_JDRX_REGOFFSET_MASK        (ADC_JDR1_REGOFFSET | ADC_JDR2_REGOFFSET \
+                                            | ADC_JDR3_REGOFFSET | ADC_JDR4_REGOFFSET)
 #define ADC_INJ_RANK_ID_JSQR_MASK          (ADC_CHANNEL_ID_NUMBER_MASK_POSBIT0)
 #define ADC_JDRX_REGOFFSET_POS             (8UL) /* Position of bits ADC_JDRx_REGOFFSET in ADC_INJ_JDRX_REGOFFSET_MASK */
 
@@ -178,7 +180,8 @@ extern "C" {
 #define ADC_CHANNEL_ID_NUMBER_MASK         (ADC_CFGR_AWD1CH)
 #define ADC_CHANNEL_ID_BITFIELD_MASK       (ADC_AWD2CR_AWD2CH)
 #define ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS (ADC_CFGR_AWD1CH_Pos)
-#define ADC_CHANNEL_ID_MASK                (ADC_CHANNEL_ID_NUMBER_MASK | ADC_CHANNEL_ID_BITFIELD_MASK | ADC_CHANNEL_ID_INTERNAL_CH_MASK)
+#define ADC_CHANNEL_ID_MASK                (ADC_CHANNEL_ID_NUMBER_MASK | ADC_CHANNEL_ID_BITFIELD_MASK \
+                                            | ADC_CHANNEL_ID_INTERNAL_CH_MASK)
 /* Equivalent mask of ADC_CHANNEL_NUMBER_MASK aligned on register LSB (bit 0) */
 #define ADC_CHANNEL_ID_NUMBER_MASK_POSBIT0 (ADC_SQR2_SQ5) /* Equivalent to shift: (ADC_CHANNEL_NUMBER_MASK >> [Position of bitfield "ADC_CHANNEL_NUMBER_MASK" in register]) */
 
@@ -200,24 +203,25 @@ extern "C" {
 /* Definition of channels ID number information to be inserted into           */
 /* channels literals definition.                                              */
 #define ADC_CHANNEL_0_NUMBER               (0x00000000UL)
-#define ADC_CHANNEL_1_NUMBER               (                                                                                ADC_CFGR_AWD1CH_0)
-#define ADC_CHANNEL_2_NUMBER               (                                                            ADC_CFGR_AWD1CH_1                    )
-#define ADC_CHANNEL_3_NUMBER               (                                                            ADC_CFGR_AWD1CH_1 | ADC_CFGR_AWD1CH_0)
-#define ADC_CHANNEL_4_NUMBER               (                                        ADC_CFGR_AWD1CH_2                                        )
-#define ADC_CHANNEL_5_NUMBER               (                                        ADC_CFGR_AWD1CH_2                     | ADC_CFGR_AWD1CH_0)
-#define ADC_CHANNEL_6_NUMBER               (                                        ADC_CFGR_AWD1CH_2 | ADC_CFGR_AWD1CH_1                    )
-#define ADC_CHANNEL_7_NUMBER               (                                        ADC_CFGR_AWD1CH_2 | ADC_CFGR_AWD1CH_1 | ADC_CFGR_AWD1CH_0)
-#define ADC_CHANNEL_8_NUMBER               (                    ADC_CFGR_AWD1CH_3                                                            )
-#define ADC_CHANNEL_9_NUMBER               (                    ADC_CFGR_AWD1CH_3                                         | ADC_CFGR_AWD1CH_0)
-#define ADC_CHANNEL_10_NUMBER              (                    ADC_CFGR_AWD1CH_3                     | ADC_CFGR_AWD1CH_1                    )
-#define ADC_CHANNEL_11_NUMBER              (                    ADC_CFGR_AWD1CH_3                     | ADC_CFGR_AWD1CH_1 | ADC_CFGR_AWD1CH_0)
-#define ADC_CHANNEL_12_NUMBER              (                    ADC_CFGR_AWD1CH_3 | ADC_CFGR_AWD1CH_2                                        )
-#define ADC_CHANNEL_13_NUMBER              (                    ADC_CFGR_AWD1CH_3 | ADC_CFGR_AWD1CH_2                     | ADC_CFGR_AWD1CH_0)
-#define ADC_CHANNEL_14_NUMBER              (                    ADC_CFGR_AWD1CH_3 | ADC_CFGR_AWD1CH_2 | ADC_CFGR_AWD1CH_1                    )
-#define ADC_CHANNEL_15_NUMBER              (                    ADC_CFGR_AWD1CH_3 | ADC_CFGR_AWD1CH_2 | ADC_CFGR_AWD1CH_1 | ADC_CFGR_AWD1CH_0)
-#define ADC_CHANNEL_16_NUMBER              (ADC_CFGR_AWD1CH_4                                                                                )
-#define ADC_CHANNEL_17_NUMBER              (ADC_CFGR_AWD1CH_4                                                             | ADC_CFGR_AWD1CH_0)
-#define ADC_CHANNEL_18_NUMBER              (ADC_CFGR_AWD1CH_4                                         | ADC_CFGR_AWD1CH_1                    )
+#define ADC_CHANNEL_1_NUMBER               (ADC_CFGR_AWD1CH_0)
+#define ADC_CHANNEL_2_NUMBER               (ADC_CFGR_AWD1CH_1)
+#define ADC_CHANNEL_3_NUMBER               (ADC_CFGR_AWD1CH_1 | ADC_CFGR_AWD1CH_0)
+#define ADC_CHANNEL_4_NUMBER               (ADC_CFGR_AWD1CH_2)
+#define ADC_CHANNEL_5_NUMBER               (ADC_CFGR_AWD1CH_2 | ADC_CFGR_AWD1CH_0)
+#define ADC_CHANNEL_6_NUMBER               (ADC_CFGR_AWD1CH_2 | ADC_CFGR_AWD1CH_1)
+#define ADC_CHANNEL_7_NUMBER               (ADC_CFGR_AWD1CH_2 | ADC_CFGR_AWD1CH_1 | ADC_CFGR_AWD1CH_0)
+#define ADC_CHANNEL_8_NUMBER               (ADC_CFGR_AWD1CH_3)
+#define ADC_CHANNEL_9_NUMBER               (ADC_CFGR_AWD1CH_3 | ADC_CFGR_AWD1CH_0)
+#define ADC_CHANNEL_10_NUMBER              (ADC_CFGR_AWD1CH_3 | ADC_CFGR_AWD1CH_1)
+#define ADC_CHANNEL_11_NUMBER              (ADC_CFGR_AWD1CH_3 | ADC_CFGR_AWD1CH_1 | ADC_CFGR_AWD1CH_0)
+#define ADC_CHANNEL_12_NUMBER              (ADC_CFGR_AWD1CH_3 | ADC_CFGR_AWD1CH_2)
+#define ADC_CHANNEL_13_NUMBER              (ADC_CFGR_AWD1CH_3 | ADC_CFGR_AWD1CH_2 | ADC_CFGR_AWD1CH_0)
+#define ADC_CHANNEL_14_NUMBER              (ADC_CFGR_AWD1CH_3 | ADC_CFGR_AWD1CH_2 | ADC_CFGR_AWD1CH_1)
+#define ADC_CHANNEL_15_NUMBER              (ADC_CFGR_AWD1CH_3 | ADC_CFGR_AWD1CH_2 | \
+                                            ADC_CFGR_AWD1CH_1 | ADC_CFGR_AWD1CH_0)
+#define ADC_CHANNEL_16_NUMBER              (ADC_CFGR_AWD1CH_4)
+#define ADC_CHANNEL_17_NUMBER              (ADC_CFGR_AWD1CH_4 | ADC_CFGR_AWD1CH_0)
+#define ADC_CHANNEL_18_NUMBER              (ADC_CFGR_AWD1CH_4 | ADC_CFGR_AWD1CH_1)
 
 /* Definition of channels ID bitfield information to be inserted into         */
 /* channels literals definition.                                              */
@@ -321,7 +325,8 @@ extern "C" {
 #define ADC_OFR2_REGOFFSET                 (0x00000001UL)
 #define ADC_OFR3_REGOFFSET                 (0x00000002UL)
 #define ADC_OFR4_REGOFFSET                 (0x00000003UL)
-#define ADC_OFRx_REGOFFSET_MASK            (ADC_OFR1_REGOFFSET | ADC_OFR2_REGOFFSET | ADC_OFR3_REGOFFSET | ADC_OFR4_REGOFFSET)
+#define ADC_OFRx_REGOFFSET_MASK            (ADC_OFR1_REGOFFSET | ADC_OFR2_REGOFFSET \
+                                            | ADC_OFR3_REGOFFSET | ADC_OFR4_REGOFFSET)
 
 
 /* ADC registers bits positions */
@@ -346,7 +351,6 @@ extern "C" {
 #define TEMPSENSOR_CAL1_TEMP               (30L)                        /* Internal temperature sensor, temperature at which temperature sensor has been calibrated in production for data into TEMPSENSOR_CAL1_ADDR (tolerance: +-5 DegC) (unit: DegC). */
 #define TEMPSENSOR_CAL2_TEMP               (110L)                       /* Internal temperature sensor, temperature at which temperature sensor has been calibrated in production for data into TEMPSENSOR_CAL2_ADDR (tolerance: +-5 DegC) (unit: DegC). */
 #define TEMPSENSOR_CAL_VREFANALOG          (3000UL)                     /* Analog voltage reference (Vref+) voltage with which temperature sensor has been calibrated in production (+-10 mV) (unit: mV). */
-
 
 /**
   * @}
@@ -615,7 +619,7 @@ typedef struct
 #define LL_ADC_FLAG_AWD2_SLV               ADC_CSR_AWD2_SLV   /*!< ADC flag ADC multimode slave analog watchdog 2 of the ADC slave */
 #define LL_ADC_FLAG_AWD3_MST               ADC_CSR_AWD3_MST   /*!< ADC flag ADC multimode master analog watchdog 3 of the ADC master */
 #define LL_ADC_FLAG_AWD3_SLV               ADC_CSR_AWD3_SLV   /*!< ADC flag ADC multimode slave analog watchdog 3 of the ADC slave */
-#endif
+#endif /* ADC_MULTIMODE_SUPPORT */
 /**
   * @}
   */
@@ -648,7 +652,7 @@ typedef struct
 #define LL_ADC_DMA_REG_REGULAR_DATA          (0x00000000UL) /* ADC group regular conversion data register (corresponding to register DR) to be used with ADC configured in independent mode. Without DMA transfer, register accessed by LL function @ref LL_ADC_REG_ReadConversionData32() and other functions @ref LL_ADC_REG_ReadConversionDatax() */
 #if defined(ADC_MULTIMODE_SUPPORT)
 #define LL_ADC_DMA_REG_REGULAR_DATA_MULTI    (0x00000001UL) /* ADC group regular conversion data register (corresponding to register CDR) to be used with ADC configured in multimode (available on STM32 devices with several ADC instances). Without DMA transfer, register accessed by LL function @ref LL_ADC_REG_ReadMultiConversionData32() */
-#endif
+#endif /* ADC_MULTIMODE_SUPPORT */
 /**
   * @}
   */
@@ -1515,19 +1519,19 @@ typedef struct
 /* Delay set to maximum value (refer to device datasheet,                     */
 /* parameter "tADCVREG_STUP").                                                */
 /* Unit: us                                                                   */
-#define LL_ADC_DELAY_INTERNAL_REGUL_STAB_US ( 10UL)  /*!< Delay for ADC stabilization time (ADC voltage regulator start-up time) */
+#define LL_ADC_DELAY_INTERNAL_REGUL_STAB_US ( 20UL)  /*!< Delay for ADC stabilization time (ADC voltage regulator start-up time) */
 
 /* Delay for internal voltage reference stabilization time.                   */
 /* Delay set to maximum value (refer to device datasheet,                     */
 /* parameter "tstart_vrefint").                                               */
 /* Unit: us                                                                   */
-#define LL_ADC_DELAY_VREFINT_STAB_US       ( 12UL)  /*!< Delay for internal voltage reference stabilization time */
+#define LL_ADC_DELAY_VREFINT_STAB_US           ( 12UL)  /*!< Delay for internal voltage reference stabilization time */
 
 /* Delay for temperature sensor stabilization time.                           */
 /* Literal set to maximum value (refer to device datasheet,                   */
 /* parameter "tSTART").                                                       */
 /* Unit: us                                                                   */
-#define LL_ADC_DELAY_TEMPSENSOR_STAB_US    (120UL)  /*!< Delay for temperature sensor stabilization time */
+#define LL_ADC_DELAY_TEMPSENSOR_STAB_US        (120UL)  /*!< Delay for temperature sensor stabilization time */
 
 /* Delay required between ADC end of calibration and ADC enable.              */
 /* Note: On this STM32 series, a minimum number of ADC clock cycles           */
@@ -1536,7 +1540,7 @@ typedef struct
 /*       equivalent number of CPU cycles, by taking into account              */
 /*       ratio of CPU clock versus ADC clock prescalers.                      */
 /* Unit: ADC clock cycles.                                                    */
-#define LL_ADC_DELAY_CALIB_ENABLE_ADC_CYCLES (  4UL)  /*!< Delay required between ADC end of calibration and ADC enable */
+#define LL_ADC_DELAY_CALIB_ENABLE_ADC_CYCLES   (  4UL)  /*!< Delay required between ADC end of calibration and ADC enable */
 
 /**
   * @}
@@ -1634,10 +1638,10 @@ typedef struct
   * @retval Value between Min_Data=0 and Max_Data=18
   */
 #define __LL_ADC_CHANNEL_TO_DECIMAL_NB(__CHANNEL__)                                        \
-  ((((__CHANNEL__) & ADC_CHANNEL_ID_BITFIELD_MASK) == 0UL)                                 \
-   ? (                                                                                     \
+  ((((__CHANNEL__) & ADC_CHANNEL_ID_BITFIELD_MASK) == 0UL) ?                               \
+   (                                                                                       \
        ((__CHANNEL__) & ADC_CHANNEL_ID_NUMBER_MASK) >> ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS \
-     )                                                                                     \
+   )                                                                                       \
    :                                                                                       \
    (                                                                                       \
        (uint32_t)POSITION_VAL((__CHANNEL__))                                               \
@@ -1698,12 +1702,12 @@ typedef struct
   *                      using helper macro @ref __LL_ADC_CHANNEL_INTERNAL_TO_EXTERNAL().
   */
 #define __LL_ADC_DECIMAL_NB_TO_CHANNEL(__DECIMAL_NB__)                                                  \
-  (((__DECIMAL_NB__) <= 9UL)                                                                            \
-   ? (                                                                                                  \
+  (((__DECIMAL_NB__) <= 9UL) ?                                                                          \
+   (                                                                                                    \
        ((__DECIMAL_NB__) << ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS)                             |          \
        (ADC_AWD2CR_AWD2CH_0 << (__DECIMAL_NB__))                                             |          \
        (ADC_SMPR1_REGOFFSET | (((3UL * (__DECIMAL_NB__))) << ADC_CHANNEL_SMPx_BITOFFSET_POS))           \
-     )                                                                                                  \
+   )                                                                                                    \
    :                                                                                                    \
    (                                                                                                    \
        ((__DECIMAL_NB__) << ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS)                                      | \
@@ -2275,7 +2279,7 @@ typedef struct
   */
 #define __LL_ADC_MULTI_CONV_DATA_MASTER_SLAVE(__ADC_MULTI_MASTER_SLAVE__, __ADC_MULTI_CONV_DATA__) \
   (((__ADC_MULTI_CONV_DATA__) >> ((ADC_CDR_RDATA_SLV_Pos) & ~(__ADC_MULTI_MASTER_SLAVE__))) & ADC_CDR_RDATA_MST)
-#endif
+#endif /* ADC_MULTIMODE_SUPPORT */
 
 #if defined(ADC_MULTIMODE_SUPPORT)
 /**
@@ -2311,8 +2315,8 @@ typedef struct
     :                                                                          \
     (__ADCx__)                                                                 \
   )
-#endif
-#endif
+#endif /* ADC5 */
+#endif /* ADC_MULTIMODE_SUPPORT */
 
 /**
   * @brief  Helper macro to select the ADC common instance
@@ -2337,7 +2341,7 @@ typedef struct
   )
 #else
 #define __LL_ADC_COMMON_INSTANCE(__ADCx__)  (ADC12_COMMON)
-#endif
+#endif /* ADC345_COMMON */
 /**
   * @brief  Helper macro to check if all ADC instances sharing the same
   *         ADC common instance are disabled.
@@ -2422,11 +2426,11 @@ typedef struct
   */
 #define __LL_ADC_CONVERT_DATA_RESOLUTION(__DATA__,\
                                          __ADC_RESOLUTION_CURRENT__,\
-                                         __ADC_RESOLUTION_TARGET__)            \
-  (((__DATA__)                                                                 \
-    << ((__ADC_RESOLUTION_CURRENT__) >> (ADC_CFGR_RES_BITOFFSET_POS - 1UL)))   \
-   >> ((__ADC_RESOLUTION_TARGET__) >> (ADC_CFGR_RES_BITOFFSET_POS - 1UL))      \
-  )
+                                         __ADC_RESOLUTION_TARGET__)          \
+(((__DATA__)                                                                 \
+  << ((__ADC_RESOLUTION_CURRENT__) >> (ADC_CFGR_RES_BITOFFSET_POS - 1UL)))   \
+ >> ((__ADC_RESOLUTION_TARGET__) >> (ADC_CFGR_RES_BITOFFSET_POS - 1UL))      \
+)
 
 /**
   * @brief  Helper macro to calculate the voltage (unit: mVolt)
@@ -2446,10 +2450,10 @@ typedef struct
   */
 #define __LL_ADC_CALC_DATA_TO_VOLTAGE(__VREFANALOG_VOLTAGE__,\
                                       __ADC_DATA__,\
-                                      __ADC_RESOLUTION__)                      \
-  ((__ADC_DATA__) * (__VREFANALOG_VOLTAGE__)                                   \
-   / __LL_ADC_DIGITAL_SCALE(__ADC_RESOLUTION__)                                \
-  )
+                                      __ADC_RESOLUTION__)                    \
+((__ADC_DATA__) * (__VREFANALOG_VOLTAGE__)                                   \
+ / __LL_ADC_DIGITAL_SCALE(__ADC_RESOLUTION__)                                \
+)
 
 /**
   * @brief  Helper macro to calculate analog reference voltage (Vref+)
@@ -2477,11 +2481,12 @@ typedef struct
   * @retval Analog reference voltage (unit: mV)
   */
 #define __LL_ADC_CALC_VREFANALOG_VOLTAGE(__VREFINT_ADC_DATA__,\
-                                         __ADC_RESOLUTION__)                   \
-  (((uint32_t)(*VREFINT_CAL_ADDR) * VREFINT_CAL_VREF)                          \
-   / __LL_ADC_CONVERT_DATA_RESOLUTION((__VREFINT_ADC_DATA__),                  \
-                                      (__ADC_RESOLUTION__),                    \
-                                      LL_ADC_RESOLUTION_12B))
+                                         __ADC_RESOLUTION__)                 \
+(((uint32_t)(*VREFINT_CAL_ADDR) * VREFINT_CAL_VREF)                          \
+ / __LL_ADC_CONVERT_DATA_RESOLUTION((__VREFINT_ADC_DATA__),                  \
+                                    (__ADC_RESOLUTION__),                    \
+                                    LL_ADC_RESOLUTION_12B)                   \
+)
 
 /**
   * @brief  Helper macro to calculate the temperature (unit: degree Celsius)
@@ -2530,17 +2535,17 @@ typedef struct
   */
 #define __LL_ADC_CALC_TEMPERATURE(__VREFANALOG_VOLTAGE__,\
                                   __TEMPSENSOR_ADC_DATA__,\
-                                  __ADC_RESOLUTION__)                              \
-  (((( ((int32_t)((__LL_ADC_CONVERT_DATA_RESOLUTION((__TEMPSENSOR_ADC_DATA__),     \
-                                                    (__ADC_RESOLUTION__),          \
-                                                    LL_ADC_RESOLUTION_12B)         \
-                   * (__VREFANALOG_VOLTAGE__))                                     \
-                  / TEMPSENSOR_CAL_VREFANALOG)                                     \
-        - (int32_t) *TEMPSENSOR_CAL1_ADDR)                                         \
-     ) * (int32_t)(TEMPSENSOR_CAL2_TEMP - TEMPSENSOR_CAL1_TEMP)                    \
-    ) / (int32_t)((int32_t)*TEMPSENSOR_CAL2_ADDR - (int32_t)*TEMPSENSOR_CAL1_ADDR) \
-   ) + TEMPSENSOR_CAL1_TEMP                                                        \
-  )
+                                  __ADC_RESOLUTION__)                            \
+(((( ((int32_t)((__LL_ADC_CONVERT_DATA_RESOLUTION((__TEMPSENSOR_ADC_DATA__),     \
+                                                  (__ADC_RESOLUTION__),          \
+                                                  LL_ADC_RESOLUTION_12B)         \
+                 * (__VREFANALOG_VOLTAGE__))                                     \
+                / TEMPSENSOR_CAL_VREFANALOG)                                     \
+      - (int32_t) *TEMPSENSOR_CAL1_ADDR)                                         \
+   ) * (int32_t)(TEMPSENSOR_CAL2_TEMP - TEMPSENSOR_CAL1_TEMP)                    \
+  ) / (int32_t)((int32_t)*TEMPSENSOR_CAL2_ADDR - (int32_t)*TEMPSENSOR_CAL1_ADDR) \
+ ) + TEMPSENSOR_CAL1_TEMP                                                        \
+)
 
 /**
   * @brief  Helper macro to calculate the temperature (unit: degree Celsius)
@@ -2591,18 +2596,17 @@ typedef struct
                                              __TEMPSENSOR_CALX_TEMP__,\
                                              __VREFANALOG_VOLTAGE__,\
                                              __TEMPSENSOR_ADC_DATA__,\
-                                             __ADC_RESOLUTION__)               \
-  ((( (                                                                        \
-       (int32_t)((((__TEMPSENSOR_ADC_DATA__) * (__VREFANALOG_VOLTAGE__))       \
-                  / __LL_ADC_DIGITAL_SCALE(__ADC_RESOLUTION__))                \
-                 * 1000UL)                                                     \
-       -                                                                       \
-       (int32_t)(((__TEMPSENSOR_TYP_CALX_V__))                                 \
-                 * 1000UL)                                                     \
-      )                                                                        \
-    ) / (int32_t)(__TEMPSENSOR_TYP_AVGSLOPE__)                                 \
-   ) + (int32_t)(__TEMPSENSOR_CALX_TEMP__)                                     \
-  )
+                                             __ADC_RESOLUTION__)            \
+(((((int32_t)((((__TEMPSENSOR_ADC_DATA__) * (__VREFANALOG_VOLTAGE__))       \
+               / __LL_ADC_DIGITAL_SCALE(__ADC_RESOLUTION__))                \
+              * 1000UL)                                                     \
+    -                                                                       \
+    (int32_t)(((__TEMPSENSOR_TYP_CALX_V__))                                 \
+              * 1000UL)                                                     \
+   )                                                                        \
+  ) / (int32_t)(__TEMPSENSOR_TYP_AVGSLOPE__)                                \
+ ) + (int32_t)(__TEMPSENSOR_CALX_TEMP__)                                    \
+)
 
 /**
   * @}
@@ -2682,7 +2686,7 @@ __STATIC_INLINE uint32_t LL_ADC_DMA_GetRegAddr(ADC_TypeDef *ADCx, uint32_t Regis
   /* Retrieve address of register DR */
   return (uint32_t) &(ADCx->DR);
 }
-#endif
+#endif /* ADC_MULTIMODE_SUPPORT */
 
 /**
   * @}
@@ -2944,7 +2948,9 @@ __STATIC_INLINE uint32_t LL_ADC_GetCalibrationFactor(ADC_TypeDef *ADCx, uint32_t
   /* "SingleDiff".                                                            */
   /* Parameter used with mask "ADC_SINGLEDIFF_CALIB_FACTOR_MASK" because      */
   /* containing other bits reserved for other purpose.                        */
-  return (uint32_t)(READ_BIT(ADCx->CALFACT, (SingleDiff & ADC_SINGLEDIFF_CALIB_FACTOR_MASK)) >> ((SingleDiff & ADC_SINGLEDIFF_CALIB_F_BIT_D_MASK) >> ADC_SINGLEDIFF_CALIB_F_BIT_D_SHIFT4));
+  return (uint32_t)(READ_BIT(ADCx->CALFACT,
+                             (SingleDiff & ADC_SINGLEDIFF_CALIB_FACTOR_MASK)) >> ((SingleDiff & ADC_SINGLEDIFF_CALIB_F_BIT_D_MASK) >>
+                                                                                  ADC_SINGLEDIFF_CALIB_F_BIT_D_SHIFT4));
 }
 
 /**
@@ -5716,7 +5722,7 @@ __STATIC_INLINE void LL_ADC_SetAnalogWDMonitChannels(ADC_TypeDef *ADCx, uint32_t
   /* Parameters "AWDChannelGroup" and "AWDy" are used with masks because      */
   /* containing other bits reserved for other purpose.                        */
   __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->CFGR, ((AWDy & ADC_AWD_CRX_REGOFFSET_MASK) >> ADC_AWD_CRX_REGOFFSET_POS)
-                                                      + ((AWDy & ADC_AWD_CR12_REGOFFSETGAP_MASK) * ADC_AWD_CR12_REGOFFSETGAP_VAL));
+                                             + ((AWDy & ADC_AWD_CR12_REGOFFSETGAP_MASK) * ADC_AWD_CR12_REGOFFSETGAP_VAL));
 
   MODIFY_REG(*preg,
              (AWDy & ADC_AWD_CR_ALL_CHANNEL_MASK),
@@ -5848,7 +5854,7 @@ __STATIC_INLINE void LL_ADC_SetAnalogWDMonitChannels(ADC_TypeDef *ADCx, uint32_t
 __STATIC_INLINE uint32_t LL_ADC_GetAnalogWDMonitChannels(ADC_TypeDef *ADCx, uint32_t AWDy)
 {
   const __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->CFGR, ((AWDy & ADC_AWD_CRX_REGOFFSET_MASK) >> ADC_AWD_CRX_REGOFFSET_POS)
-                                                            + ((AWDy & ADC_AWD_CR12_REGOFFSETGAP_MASK) * ADC_AWD_CR12_REGOFFSETGAP_VAL));
+                                                   + ((AWDy & ADC_AWD_CR12_REGOFFSETGAP_MASK) * ADC_AWD_CR12_REGOFFSETGAP_VAL));
 
   uint32_t AnalogWDMonitChannels = (READ_BIT(*preg, AWDy) & AWDy & ADC_AWD_CR_ALL_CHANNEL_MASK);
 
@@ -6026,7 +6032,8 @@ __STATIC_INLINE void LL_ADC_SetAnalogWDThresholds(ADC_TypeDef *ADCx, uint32_t AW
   /* "AWDThresholdsHighLow" and "AWDy".                                       */
   /* Parameters "AWDy" and "AWDThresholdValue" are used with masks because    */
   /* containing other bits reserved for other purpose.                        */
-  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->TR1, ((AWDy & ADC_AWD_TRX_REGOFFSET_MASK) >> ADC_AWD_TRX_REGOFFSET_POS));
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->TR1,
+                                             ((AWDy & ADC_AWD_TRX_REGOFFSET_MASK) >> ADC_AWD_TRX_REGOFFSET_POS));
 
   MODIFY_REG(*preg,
              AWDThresholdsHighLow,
@@ -6063,12 +6070,13 @@ __STATIC_INLINE void LL_ADC_SetAnalogWDThresholds(ADC_TypeDef *ADCx, uint32_t AW
   */
 __STATIC_INLINE uint32_t LL_ADC_GetAnalogWDThresholds(ADC_TypeDef *ADCx, uint32_t AWDy, uint32_t AWDThresholdsHighLow)
 {
-  const __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->TR1, ((AWDy & ADC_AWD_TRX_REGOFFSET_MASK) >> ADC_AWD_TRX_REGOFFSET_POS));
+  const __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->TR1,
+                                                   ((AWDy & ADC_AWD_TRX_REGOFFSET_MASK) >> ADC_AWD_TRX_REGOFFSET_POS));
 
   return (uint32_t)(READ_BIT(*preg,
                              (AWDThresholdsHighLow | ADC_TR1_LT1))
-                    >> (((AWDThresholdsHighLow & ADC_AWD_TRX_BIT_HIGH_MASK) >> ADC_AWD_TRX_BIT_HIGH_SHIFT4) & ~(AWDThresholdsHighLow & ADC_TR1_LT1))
-                   );
+                    >> (((AWDThresholdsHighLow & ADC_AWD_TRX_BIT_HIGH_MASK) >> ADC_AWD_TRX_BIT_HIGH_SHIFT4)
+                        & ~(AWDThresholdsHighLow & ADC_TR1_LT1)));
 }
 
 /**

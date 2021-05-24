@@ -9644,10 +9644,10 @@ __STATIC_INLINE void LL_HRTIM_FLT_SetSrc(HRTIM_TypeDef *HRTIMx, uint32_t Fault, 
   __IO uint32_t *pReg1 = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.FLTINR1)));
   __IO uint32_t *pReg2 = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.FLTINR2)));
 
-  uint64_t  cfg = ((uint64_t)((uint64_t)Src & (uint64_t)HRTIM_FLTINR1_FLT1SRC_0) << REG_SHIFT_TAB_FLTxF[iFault]) |    /* this for SouRCe 0 and polarity bits */
-                  (((uint64_t)((uint64_t)Src & (uint64_t)HRTIM_FLT_SRC_1_MASK) << REG_SHIFT_TAB_FLTx[iFault]) << 32U);      /* this for SouRCe 1 bit  */
-  uint64_t mask = ((uint64_t)(HRTIM_FLTINR1_FLT1SRC_0) << REG_SHIFT_TAB_FLTxF[iFault]) |        /* this for SouRCe bit 0 */
-                  ((uint64_t)(HRTIM_FLT_SRC_1_MASK) << 32U) ;                                 /* this for SouRCe bit 1 */
+  uint64_t  cfg = ( (uint64_t)((uint64_t)Src & (uint64_t)HRTIM_FLTINR1_FLT1SRC_0) << REG_SHIFT_TAB_FLTxF[iFault]) |       /* this for SouRCe 0 bit */
+                  (((uint64_t)((uint64_t)Src & (uint64_t)HRTIM_FLT_SRC_1_MASK)    << REG_SHIFT_TAB_FLTx[iFault]) << 32U); /* this for SouRCe 1 bit */
+  uint64_t mask = ( (uint64_t)(HRTIM_FLTINR1_FLT1SRC_0) << REG_SHIFT_TAB_FLTxF[iFault]) |       /* this for SouRCe bit 0 */
+                  (((uint64_t)(HRTIM_FLTINR2_FLT1SRC_1) << REG_SHIFT_TAB_FLTx[iFault]) << 32U); /* this for SouRCe bit 1 */
 
   MODIFY_REG(*pReg1, (uint32_t)(mask), (uint32_t)(cfg));
   MODIFY_REG(*pReg2, (uint32_t)(mask >> 32U), (uint32_t)(cfg  >> 32U));

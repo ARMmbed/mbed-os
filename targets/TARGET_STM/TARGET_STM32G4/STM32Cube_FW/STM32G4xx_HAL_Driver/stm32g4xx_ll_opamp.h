@@ -297,8 +297,11 @@ typedef struct
 /** @defgroup OPAMP_LL_EC_POWER_MODE OPAMP PowerMode
   * @{
   */
-#define LL_OPAMP_POWERMODE_NORMAL        (0x00000000UL)         /*!< OPAMP output in normal mode */
+#define LL_OPAMP_POWERMODE_NORMALSPEED   (0x00000000UL)         /*!< OPAMP output in normal mode */
 #define LL_OPAMP_POWERMODE_HIGHSPEED     OPAMP_CSR_HIGHSPEEDEN  /*!< OPAMP output in highspeed mode */
+
+#define LL_OPAMP_POWERMODE_NORMAL        LL_OPAMP_POWERMODE_NORMALSPEED /*!< OPAMP power mode normal - Old Naming for compatibility */
+
 /**
   * @}
   */
