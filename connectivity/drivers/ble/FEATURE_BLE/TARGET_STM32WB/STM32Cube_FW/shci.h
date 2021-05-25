@@ -435,7 +435,7 @@ extern "C" {
    * PrWriteListSize
    * NOTE: This parameter is ignored by the CPU2 when the parameter "Options" is set to "LL_only" ( see Options description in that structure )
    *
-   * Maximum number of supported “prepare write request”
+   * Maximum number of supported Â“prepare write requestÂ”
    *    - Min value: given by the macro DEFAULT_PREP_WRITE_LIST_SIZE
    *    - Max value: a value higher than the minimum required can be specified, but it is not recommended
    */
@@ -502,7 +502,7 @@ extern "C" {
    * MaxConnEventLength
    * This parameter determines the maximum duration of a slave connection event. When this duration is reached the slave closes
    * the current connections event (whatever is the CE_length parameter specified by the master in HCI_CREATE_CONNECTION HCI command),
-   * expressed in units of 625/256 µs (~2.44 µs)
+   * expressed in units of 625/256 Âµs (~2.44 Âµs)
    *    - Min value: 0 (if 0 is specified, the master and slave perform only a single TX-RX exchange per connection event)
    *    - Max value: 1638400 (4000 ms). A higher value can be specified (max 0xFFFFFFFF) but results in a maximum connection time
    *      of 4000 ms as specified. In this case the parameter is not applied, and the predicted CE length calculated on slave is not shortened
@@ -511,7 +511,7 @@ extern "C" {
 
   /**
    * HsStartupTime
-   * Startup time of the high speed (16 or 32 MHz) crystal oscillator in units of 625/256 µs (~2.44 µs).
+   * Startup time of the high speed (16 or 32 MHz) crystal oscillator in units of 625/256 Âµs (~2.44 Âµs).
    *    - Min value: 0
    *    - Max value:  820 (~2 ms). A higher value can be specified, but the value that implemented in stack is forced to ~2 ms
    */
