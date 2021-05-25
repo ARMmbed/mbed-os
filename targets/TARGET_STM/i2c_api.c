@@ -1175,10 +1175,10 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
     /* Get object ptr based on handler ptr */
     i2c_t *obj = get_i2c_obj(hi2c);
     struct i2c_s *obj_s = I2C_S(obj);
+    I2C_HandleTypeDef *handle = &(obj_s->handle);
     uint32_t event_code = 0;
 
 #if DEVICE_I2CSLAVE
-    I2C_HandleTypeDef *handle = &(obj_s->handle);
     uint32_t address = 0;
     /*  Store address to handle it after reset */
     if (obj_s->slave) {
