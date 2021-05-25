@@ -15,7 +15,8 @@
 
 #include "stm32f4xx.h"
 
-void TargetBSP_Init(void) {
+void TargetBSP_Init(void)
+{
     /* In DISCO_F413ZH board, Arduino connector and Wifi embeded module are sharing the same SPI pins */
     /* We need to set the default SPI SS pin for the Wifi module to the inactive state i.e. 1 */
     /* See board User Manual: WIFI_SPI_CS = PG_11*/
