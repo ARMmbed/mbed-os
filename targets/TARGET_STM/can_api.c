@@ -142,13 +142,13 @@ static void _can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz
     // !When the sample point should be lower than 50%, this must be changed to
     // !IS_FDCAN_NOMINAL_TSEG2(ntq/nominalPrescaler), since
     // NTSEG2 and SJW max values are lower. For now the sample point is fix @75%
-    while (!IS_FDCAN_NOMINAL_TSEG1(ntq/nominalPrescaler)){
+    while (!IS_FDCAN_NOMINAL_TSEG1(ntq / nominalPrescaler)) {
         nominalPrescaler ++;
-        if (!IS_FDCAN_NOMINAL_PRESCALER(nominalPrescaler)){
+        if (!IS_FDCAN_NOMINAL_PRESCALER(nominalPrescaler)) {
             error("Could not determine good nominalPrescaler. Bad clock value\n");
         }
     }
-    ntq = ntq/nominalPrescaler;
+    ntq = ntq / nominalPrescaler;
 
     obj->CanHandle.Init.FrameFormat = FDCAN_FRAME_CLASSIC;
     obj->CanHandle.Init.Mode = FDCAN_MODE_NORMAL;
@@ -298,13 +298,13 @@ int can_frequency(can_t *obj, int f)
     // !When the sample point should be lower than 50%, this must be changed to
     // !IS_FDCAN_DATA_TSEG2(ntq/nominalPrescaler), since
     // NTSEG2 and SJW max values are lower. For now the sample point is fix @75%
-    while (!IS_FDCAN_DATA_TSEG1(ntq/nominalPrescaler)){
+    while (!IS_FDCAN_DATA_TSEG1(ntq / nominalPrescaler)) {
         nominalPrescaler ++;
-        if (!IS_FDCAN_NOMINAL_PRESCALER(nominalPrescaler)){
+        if (!IS_FDCAN_NOMINAL_PRESCALER(nominalPrescaler)) {
             error("Could not determine good nominalPrescaler. Bad clock value\n");
         }
     }
-    ntq = ntq/nominalPrescaler;
+    ntq = ntq / nominalPrescaler;
 
     obj->CanHandle.Init.NominalPrescaler = nominalPrescaler;
     obj->CanHandle.Init.NominalTimeSeg1 = ntq * 0.75;      // Phase_segment_1
@@ -596,7 +596,7 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
 #ifndef TARGET_STM32G4
             interrupts = FDCAN_IT_RX_BUFFER_NEW_MESSAGE;
 #else
-	    interrupts = FDCAN_IT_RX_FIFO0_NEW_MESSAGE;
+            interrupts = FDCAN_IT_RX_FIFO0_NEW_MESSAGE;
 #endif
             break;
         case IRQ_ERROR:
@@ -1102,7 +1102,7 @@ int can_mode(can_t *obj, CanMode mode)
 int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t handle)
 {
     int success = 0;
-    
+
     // filter for CANAny format cannot be configured for STM32
     if ((format == CANStandard) || (format == CANExtended)) {
         CAN_FilterConfTypeDef  sFilterConfig;
@@ -1126,8 +1126,7 @@ int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t
         sFilterConfig.FilterActivation = ENABLE;
         sFilterConfig.BankNumber = 14;
 
-        if (HAL_CAN_ConfigFilter(&obj->CanHandle, &sFilterConfig) == HAL_OK)
-        {
+        if (HAL_CAN_ConfigFilter(&obj->CanHandle, &sFilterConfig) == HAL_OK) {
             success = 1;
         }
     }

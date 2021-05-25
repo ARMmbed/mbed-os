@@ -285,7 +285,7 @@ void lp_ticker_init(void)
 
 #if (LPTIM_MST_BASE == LPTIM1_BASE)
 #if defined (__HAL_LPTIM_LPTIM1_EXTI_ENABLE_IT)
-__HAL_LPTIM_LPTIM1_EXTI_ENABLE_IT();
+    __HAL_LPTIM_LPTIM1_EXTI_ENABLE_IT();
 #endif
 #endif
 #if defined (__HAL_LPTIM_WAKEUPTIMER_EXTI_ENABLE_IT)
