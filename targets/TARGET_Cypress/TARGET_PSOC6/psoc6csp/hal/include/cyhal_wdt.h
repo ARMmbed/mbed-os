@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2019-2020 Cypress Semiconductor Corporation
+* Copyright 2019-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -52,7 +52,7 @@
 * \subsection subsection_wdt_snippet1 Snippet 1: Initialize the WDT and kick periodically
 * The following snippet initializes the WDT and illustrates how to reset the WDT within
 * the timeout interval.
-* \snippet wdt.c snippet_cyhal_wdt_init_and_reset
+* \snippet hal_wdt.c snippet_cyhal_wdt_init_and_reset
 */
 
 #pragma once
@@ -101,9 +101,7 @@ cy_rslt_t cyhal_wdt_init(cyhal_wdt_t *obj, uint32_t timeout_ms);
 * cyhal_wdt_init().
 *
 * @param[inout] obj The WDT object
-*
 */
-
 void cyhal_wdt_free(cyhal_wdt_t *obj);
 
 /** Resets the WDT
@@ -113,7 +111,6 @@ void cyhal_wdt_free(cyhal_wdt_t *obj);
 * See \ref subsection_wdt_snippet1
 *
 * @param[inout] obj The WDT object
-*
 */
 void cyhal_wdt_kick(cyhal_wdt_t *obj);
 

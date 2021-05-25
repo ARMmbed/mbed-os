@@ -5,7 +5,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -56,7 +56,7 @@ cy_rslt_t _cyhal_comp_ctb_init(cyhal_comp_t *obj, cyhal_gpio_t vin_p, cyhal_gpio
 void _cyhal_comp_ctb_free(cyhal_comp_t *obj);
 
 /** Changes the current operating power level of the comparator for a CTB-based comparator.
- * 
+ *
  * If the power level is set to @ref CYHAL_POWER_LEVEL_OFF, the comparator will be powered-off
  * but it will retain its configuration, so it is not necessary to reconfigure it when changing
  * the power level from @ref CYHAL_POWER_LEVEL_OFF to any other value.
@@ -85,7 +85,7 @@ cy_rslt_t _cyhal_comp_ctb_configure(cyhal_comp_t *obj, cyhal_comp_config_t *cfg)
 /** Reads the Comparator state for a CTB-based comparator.
  *
  * @param[in]  obj    Comparator object
- * @return The Comparator state. True if the non-inverting pin voltage is greater than the 
+ * @return The Comparator state. True if the non-inverting pin voltage is greater than the
  * inverting pin voltage, false otherwise.
  */
 bool _cyhal_comp_ctb_read(cyhal_comp_t *obj);

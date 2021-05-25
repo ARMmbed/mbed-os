@@ -7,7 +7,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,7 +40,7 @@
 * \addtogroup group_hal_impl_pdmpcm PDM/PCM (Pulse Density Modulation to Pulse Code Modulation Converter)
 * \ingroup group_hal_impl
 * \{
-* The PSoC 6 PDM/PCM Supports the following conversion parameters:<ul>
+* The CAT1 (PSoC 6) PDM/PCM Supports the following conversion parameters:<ul>
 * <li>Mode: Mono Left, Mono Right, Stereo
 * <li>Word Length: 16/18/20/24 bits</li>
 * <li>Sampling Rate: up to 48kHz</li>
@@ -658,7 +658,6 @@ cy_rslt_t cyhal_pdm_pcm_read_async(cyhal_pdm_pcm_t *obj, void *data, size_t leng
     obj->async_buffer = data;
     obj->async_read_remaining = length;
 
-    cy_rslt_t rslt;
     if (obj->stabilized)
     {
         if (obj->dma.resource.type == CYHAL_RSC_INVALID)
@@ -675,17 +674,7 @@ cy_rslt_t cyhal_pdm_pcm_read_async(cyhal_pdm_pcm_t *obj, void *data, size_t leng
                     callback(obj->callback_data.callback_arg, CYHAL_PDM_PCM_ASYNC_COMPLETE);
                 }
             }
-            rslt = CY_RSLT_SUCCESS;
         }
-        else
-        {
-            rslt = _cyhal_pdm_pcm_dma_start(obj);
-        }
-    }
-    else
-    {
-        // The block has not stabilized
-        rslt = CY_RSLT_SUCCESS;
     }
     // Setup interrupt for FIFO half full.
     if (0 != obj->async_read_remaining)
@@ -693,7 +682,7 @@ cy_rslt_t cyhal_pdm_pcm_read_async(cyhal_pdm_pcm_t *obj, void *data, size_t leng
         Cy_PDM_PCM_SetInterruptMask(obj->base, Cy_PDM_PCM_GetInterruptMask(obj->base) | CY_PDM_PCM_INTR_RX_TRIGGER);
     }
     NVIC_EnableIRQ(_cyhal_pdm_pcm_irq_n[obj->resource.channel_num]);
-    return rslt;
+    return CY_RSLT_SUCCESS;
 }
 
 bool cyhal_pdm_pcm_is_pending(cyhal_pdm_pcm_t *obj)

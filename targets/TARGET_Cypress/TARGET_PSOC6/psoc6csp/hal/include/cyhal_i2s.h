@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,7 +43,8 @@
 * * Configurable interrupt and callback assignment from I2S events - \ref cyhal_i2s_event_t
 *
 * \section section_i2s_quickstart Quick Start
-* Initialize an I2S instance using the \ref cyhal_i2s_init and provide the transmit (tx) and/or receive (rx) pins.<br>
+* Initialize an I2S instance using the \ref cyhal_i2s_init and provide the transmit (tx) and/or receive (rx) pins. Call
+* \ref cyhal_i2s_start_tx and/or \ref cyhal_i2s_start_rx to enable transmit and/or receive functionality as desired.<br>
 * See \ref subsection_i2s_snippet_1 for example initialization as transmit or receive.
 * \note The clock parameter (const \ref cyhal_clock_t *clk) is optional and can be set
 * to NULL to generate and use an available clock resource with a default frequency.
@@ -61,27 +62,27 @@
 * This snippet initializes an I2S resource for transmit or receive and assigns the pins.
 *
 * Initializing as I2S transmitter
-* \snippet i2s.c snippet_cyhal_i2s_transmit_init
+* \snippet hal_i2s.c snippet_cyhal_i2s_transmit_init
 *
 * Initializing as I2S receiver
-* \snippet i2s.c snippet_cyhal_i2s_receive_init
+* \snippet hal_i2s.c snippet_cyhal_i2s_receive_init
 *
 * \subsection subsection_i2s_snippet_2 Snippet 2: I2S Transmit One-shot
 * This snippet shows how to transmit data using \ref cyhal_i2s_write_async when the entire sample
 * is available at once. <br>
 *
-* \snippet i2s.c snippet_cyhal_i2s_async_transmit_one_shot
+* \snippet hal_i2s.c snippet_cyhal_i2s_async_transmit_one_shot
 
 * \subsection subsection_i2s_snippet_3 Snippet 3: I2S Transmit Streaming
 * This snippet shows how to transmit data using \ref cyhal_i2s_write_async when sample data is
 * being continuously loaded and transmitted (e.g. streaming over the network). <br>
 *
-* \snippet i2s.c snippet_cyhal_i2s_async_transmit_streaming
+* \snippet hal_i2s.c snippet_cyhal_i2s_async_transmit_streaming
 
 * \subsection subsection_i2s_snippet_4 Snippet 4: I2S Receive
 * This snippet shows how to receive data using \ref cyhal_i2s_read_async. <br>
 *
-* \snippet i2s.c snippet_cyhal_i2s_async_receive
+* \snippet hal_i2s.c snippet_cyhal_i2s_async_receive
 *
 * \section subsection_i2s_moreinformation More Information
 *
@@ -220,14 +221,15 @@ void cyhal_i2s_free(cyhal_i2s_t *obj);
  */
 cy_rslt_t cyhal_i2s_set_sample_rate(cyhal_i2s_t *obj, uint32_t sample_rate_hz);
 
-/** Starts transmitting data.
+/** Starts transmitting data. Transmission will continue until it is stopped by
+  * calling @ref cyhal_i2s_stop_tx.
   *
   * @param[in] obj The I2S object
   * @return The status of the start request.
   */
 cy_rslt_t cyhal_i2s_start_tx(cyhal_i2s_t *obj);
 
-/** Stops transmitting data.
+/** Stops transmitting data. This immediately terminates transmission.
   *
   * @param[in] obj The I2S object
   * @return The status of the stop request.
@@ -241,14 +243,15 @@ cy_rslt_t cyhal_i2s_stop_tx(cyhal_i2s_t *obj);
  */
 cy_rslt_t cyhal_i2s_clear_tx(cyhal_i2s_t *obj);
 
-/** Starts receiving data.
+/** Starts receiving data. Data will continue to be received until it is
+  * stopped by calling @ref cyhal_i2s_stop_rx.
   *
   * @param[in] obj The I2S object
   * @return The status of the start request.
   */
 cy_rslt_t cyhal_i2s_start_rx(cyhal_i2s_t *obj);
 
-/** Stops receiving data.
+/** Stops receiving data. This immediately terminates data receipt.
   *
   * @param[in] obj The I2S object
   * @return The status of the stop request.
@@ -264,9 +267,9 @@ cy_rslt_t cyhal_i2s_clear_rx(cyhal_i2s_t *obj);
 
 /** Read data synchronously
  *
- * This will read either `length` words or the number of words that are currently available in the
- * receive buffer, whichever is less, then return. The value pointed to by `length` will be updated
- * to reflect the number of words that were actually read.
+ * This will read the number of words specified by the `length` parameter, or the number of words that
+ * are currently available in the receive buffer, whichever is less, then return. The value pointed to
+ * by `length` will be updated to reflect the number of words that were actually read.
  *
  * @param[in]  obj    The I2S object
  * @param[out] data   The buffer for receiving
@@ -298,9 +301,9 @@ cy_rslt_t cyhal_i2s_read(cyhal_i2s_t *obj, void *data, size_t* length);
 cy_rslt_t cyhal_i2s_write(cyhal_i2s_t *obj, const void *data, size_t *length);
 
 /** Checks if the transmit functionality is enabled for the specified I2S peripheral (regardless of whether data
-  * is currently queued for transmission). 
-  * 
-  * The transmit functionality can be enabled by calling @ref cyhal_i2s_start_tx and disabled by calling 
+  * is currently queued for transmission).
+  *
+  * The transmit functionality can be enabled by calling @ref cyhal_i2s_start_tx and disabled by calling
   * @ref cyhal_i2s_stop_tx
   *
   * @param[in] obj  The I2S peripheral to check
@@ -319,9 +322,9 @@ bool cyhal_i2s_is_tx_busy(cyhal_i2s_t *obj);
 /** Checks if the receive functionality is enabled for the specified I2S peripheral (regardless of whether any
   * unread data has been received).
   *
-  * The receive functionality can be enabled by calling @ref cyhal_i2s_start_rx and disabled by calling 
+  * The receive functionality can be enabled by calling @ref cyhal_i2s_start_rx and disabled by calling
   * @ref cyhal_i2s_stop_rx
-  * 
+  *
   * @param[in] obj  The I2S peripheral to check
   * @return Whether the I2S receive function is enabled.
   */

@@ -7,7 +7,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,7 +30,7 @@
 #include "cyhal_syspm.h"
 #include <string.h>
 
-#ifdef CY_IP_MXS40SRSS
+#if defined(CY_IP_MXS40SRSS) || defined(CY_IP_S8SRSSLT)
 
 #if defined(__cplusplus)
 extern "C" {
@@ -93,6 +93,13 @@ static inline cy_rslt_t _cyhal_flash_convert_status(uint32_t pdl_status)
     }
 }
 
+#if defined(CY_IP_S8SRSSLT) && CY_FLASH_NON_BLOCKING_SUPPORTED
+static void _cyhal_flash_irq_handler(void)
+{
+    (void) Cy_Flash_ResumeWrite();
+}
+#endif
+
 static bool _cyhal_flash_pm_callback(cyhal_syspm_callback_state_t state, cyhal_syspm_callback_mode_t mode, void* callback_arg)
 {
     CY_UNUSED_PARAMETER(state);
@@ -102,10 +109,14 @@ static bool _cyhal_flash_pm_callback(cyhal_syspm_callback_state_t state, cyhal_s
     switch (mode)
     {
         case CYHAL_SYSPM_CHECK_READY:
+            #if defined(CY_IP_MXS40SRSS) || CY_FLASH_NON_BLOCKING_SUPPORTED
             if (CY_RSLT_SUCCESS == Cy_Flash_IsOperationComplete())
                 _cyhal_flash_pending_pm_change = true;
             else
                 allow = false;
+            #else
+                _cyhal_flash_pending_pm_change = true;
+            #endif
             break;
         case CYHAL_SYSPM_AFTER_TRANSITION:
         case CYHAL_SYSPM_CHECK_FAIL:
@@ -121,8 +132,16 @@ static bool _cyhal_flash_pm_callback(cyhal_syspm_callback_state_t state, cyhal_s
 
 static inline bool _cyhal_flash_is_flash_address(uint32_t address)
 {
-    return ((CY_FLASH_BASE <= address) && (address < (CY_FLASH_BASE + CY_FLASH_SIZE))) ||
-           ((CY_EM_EEPROM_BASE <= address) && (address < (CY_EM_EEPROM_BASE + CY_EM_EEPROM_SIZE)));
+    return
+#if (CY_EM_EEPROM_SIZE > 0)
+        ((CY_EM_EEPROM_BASE <= address) && (address < (CY_EM_EEPROM_BASE + CY_EM_EEPROM_SIZE))) ||
+#endif
+
+#if (CY_FLASH_BASE != 0)
+        ((CY_FLASH_BASE <= address) && (address < (CY_FLASH_BASE + CY_FLASH_SIZE)));
+#else
+        (address < (CY_FLASH_BASE + CY_FLASH_SIZE));
+#endif
 }
 static inline bool _cyhal_flash_is_sram_address(uint32_t address)
 {
@@ -162,6 +181,12 @@ cy_rslt_t cyhal_flash_init(cyhal_flash_t *obj)
 {
     CY_UNUSED_PARAMETER(obj);
     CY_ASSERT(NULL != obj);
+#if defined(CY_IP_S8SRSSLT) && CY_FLASH_NON_BLOCKING_SUPPORTED
+    /* Configure Flash interrupt */
+    cy_stc_sysint_t irqCfg = {cpuss_interrupt_spcif_IRQn, 0u};
+    Cy_SysInt_Init(&irqCfg, &_cyhal_flash_irq_handler);
+    NVIC_EnableIRQ(irqCfg.intrSrc);
+#endif
     if(_cyhal_flash_init_count == 0)
         _cyhal_syspm_register_peripheral_callback(&_cyhal_flash_internal_pm_cb);
     _cyhal_flash_init_count++;
@@ -172,6 +197,9 @@ void cyhal_flash_free(cyhal_flash_t *obj)
 {
     CY_UNUSED_PARAMETER(obj);
     CY_ASSERT(NULL != obj);
+#if defined(CY_IP_S8SRSSLT) && CY_FLASH_NON_BLOCKING_SUPPORTED
+    NVIC_DisableIRQ(cpuss_interrupt_spcif_IRQn);
+#endif
     CY_ASSERT(_cyhal_flash_init_count > 0);
     _cyhal_flash_init_count--;
     if(_cyhal_flash_init_count == 0)
@@ -205,6 +233,7 @@ cy_rslt_t cyhal_flash_erase(cyhal_flash_t *obj, uint32_t address)
     CY_ASSERT(NULL != obj);
     cy_rslt_t status = CYHAL_FLASH_RSLT_ERR_ADDRESS;
 
+#if defined(CY_IP_MXS40SRSS)
     if (_cyhal_flash_pending_pm_change)
         status = CYHAL_SYSPM_RSLT_ERR_PM_PENDING;
     else if (_cyhal_flash_is_flash_address(address))
@@ -212,6 +241,12 @@ cy_rslt_t cyhal_flash_erase(cyhal_flash_t *obj, uint32_t address)
         status = (cy_rslt_t)_cyhal_flash_convert_status(Cy_Flash_EraseRow(address));
         Cy_SysLib_ClearFlashCacheAndBuffer();
     }
+#elif defined(CY_IP_S8SRSSLT)
+    CY_UNUSED_PARAMETER(address);
+    status = CYHAL_FLASH_RSLT_ERR_NOT_SUPPORTED;
+#else
+    #error "Current HW block is not supported"
+#endif
 
     return (status);
 }
@@ -233,9 +268,17 @@ cy_rslt_t cyhal_flash_program(cyhal_flash_t *obj, uint32_t address, const uint32
     CY_UNUSED_PARAMETER(obj);
     CY_ASSERT(NULL != obj);
 
+#if defined(CY_IP_MXS40SRSS)
     cy_rslt_t status = _cyhal_flash_is_flash_address(address)
         ? _cyhal_flash_run_operation(Cy_Flash_ProgramRow, address, data, true)
         : CYHAL_FLASH_RSLT_ERR_ADDRESS;
+#elif defined(CY_IP_S8SRSSLT)
+    cy_rslt_t status = CYHAL_FLASH_RSLT_ERR_NOT_SUPPORTED;
+    CY_UNUSED_PARAMETER(address);
+    CY_UNUSED_PARAMETER(data);
+#else
+    #error "Current HW block is not supported"
+#endif
 
     return (status);
 }
@@ -245,6 +288,7 @@ cy_rslt_t cyhal_flash_start_erase(cyhal_flash_t *obj, uint32_t address)
     CY_UNUSED_PARAMETER(obj);
     CY_ASSERT(NULL != obj);
 
+#if defined(CY_IP_MXS40SRSS)
     cy_rslt_t status;
     if (_cyhal_flash_pending_pm_change)
         status = CYHAL_SYSPM_RSLT_ERR_PM_PENDING;
@@ -254,6 +298,12 @@ cy_rslt_t cyhal_flash_start_erase(cyhal_flash_t *obj, uint32_t address)
             ? Cy_Flash_StartEraseRow(address)
             : CYHAL_FLASH_RSLT_ERR_ADDRESS);
     }
+#elif defined(CY_IP_S8SRSSLT)
+    cy_rslt_t status = CYHAL_FLASH_RSLT_ERR_NOT_SUPPORTED;
+    CY_UNUSED_PARAMETER(address);
+#else
+    #error "Current HW block is not supported"
+#endif
 
     return (status);
 }
@@ -263,9 +313,15 @@ cy_rslt_t cyhal_flash_start_write(cyhal_flash_t *obj, uint32_t address, const ui
     CY_UNUSED_PARAMETER(obj);
     CY_ASSERT(NULL != obj);
 
+#if defined(CY_IP_MXS40SRSS) || CY_FLASH_NON_BLOCKING_SUPPORTED
     cy_rslt_t status = _cyhal_flash_is_flash_address(address)
         ? _cyhal_flash_run_operation(Cy_Flash_StartWrite, address, data, false)
         : CYHAL_FLASH_RSLT_ERR_ADDRESS;
+#else
+    cy_rslt_t status = CYHAL_FLASH_RSLT_ERR_NOT_SUPPORTED;
+    CY_UNUSED_PARAMETER(address);
+    CY_UNUSED_PARAMETER(data);
+#endif
 
     return (status);
 }
@@ -275,9 +331,17 @@ cy_rslt_t cyhal_flash_start_program(cyhal_flash_t *obj, uint32_t address, const 
     CY_UNUSED_PARAMETER(obj);
     CY_ASSERT(NULL != obj);
 
+#if defined(CY_IP_MXS40SRSS)
     cy_rslt_t status = _cyhal_flash_is_flash_address(address)
         ? _cyhal_flash_run_operation(Cy_Flash_StartProgram, address, data, false)
         : CYHAL_FLASH_RSLT_ERR_ADDRESS;
+#elif defined(CY_IP_S8SRSSLT)
+    cy_rslt_t status = CYHAL_FLASH_RSLT_ERR_NOT_SUPPORTED;
+    CY_UNUSED_PARAMETER(address);
+    CY_UNUSED_PARAMETER(data);
+#else
+    #error "Current HW block is not supported"
+#endif
 
     return (status);
 }
@@ -286,12 +350,14 @@ bool cyhal_flash_is_operation_complete(cyhal_flash_t *obj)
 {
     CY_UNUSED_PARAMETER(obj);
     CY_ASSERT(NULL != obj);
-
+#if defined(CY_IP_MXS40SRSS) || CY_FLASH_NON_BLOCKING_SUPPORTED
     bool complete = (CY_FLASH_DRV_SUCCESS == Cy_Flash_IsOperationComplete());
     if (complete)
         Cy_SysLib_ClearFlashCacheAndBuffer();
-
     return complete;
+#else
+    return true;
+#endif
 }
 
 #if defined(__cplusplus)

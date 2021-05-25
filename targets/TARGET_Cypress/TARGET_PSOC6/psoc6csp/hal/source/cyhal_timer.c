@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,6 +29,7 @@
 #include "cyhal_timer_impl.h"
 #include "cyhal_hwmgr.h"
 #include "cyhal_gpio.h"
+#include "cyhal_interconnect.h"
 #include "cyhal_syspm.h"
 #include "cyhal_clock.h"
 
@@ -202,10 +203,12 @@ cy_rslt_t cyhal_timer_start(cyhal_timer_t *obj)
     {
         return CYHAL_SYSPM_RSLT_ERR_PM_PENDING;
     }
+
+    Cy_TCPWM_Counter_Enable(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
     #if defined(CY_IP_MXTCPWM) && (CY_IP_MXTCPWM_VERSION >= 2)
     Cy_TCPWM_TriggerStart_Single(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
     #else
-    Cy_TCPWM_TriggerStart(obj->tcpwm.base, 1 << _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
+    Cy_TCPWM_TriggerStart(obj->tcpwm.base, (1 << _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource)));
     #endif
     return CY_RSLT_SUCCESS;
 }
@@ -213,31 +216,14 @@ cy_rslt_t cyhal_timer_start(cyhal_timer_t *obj)
 cy_rslt_t cyhal_timer_stop(cyhal_timer_t *obj)
 {
     CY_ASSERT(NULL != obj);
-    #if defined(CY_IP_MXTCPWM) && (CY_IP_MXTCPWM_VERSION >= 2)
-    Cy_TCPWM_TriggerStopOrKill_Single(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
-    #else
-    Cy_TCPWM_TriggerStopOrKill(obj->tcpwm.base, 1 << _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
-    #endif
+    Cy_TCPWM_Counter_Disable(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
     return CY_RSLT_SUCCESS;
 }
 
 cy_rslt_t cyhal_timer_reset(cyhal_timer_t *obj)
 {
     CY_ASSERT(NULL != obj);
-    bool is_running = CY_TCPWM_PWM_STATUS_COUNTER_RUNNING & Cy_TCPWM_PWM_GetStatus(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
-    #if defined(CY_IP_MXTCPWM) && (CY_IP_MXTCPWM_VERSION >= 2)
-    if (is_running)
-        Cy_TCPWM_TriggerStopOrKill_Single(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
     Cy_TCPWM_Counter_SetCounter(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource), obj->default_value);
-    if (is_running)
-        Cy_TCPWM_TriggerStart_Single(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
-    #else
-     if (is_running)
-        Cy_TCPWM_TriggerStopOrKill(obj->tcpwm.base, 1 << _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
-    Cy_TCPWM_Counter_SetCounter(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource), obj->default_value);
-    if (is_running)
-        Cy_TCPWM_TriggerStart(obj->tcpwm.base, 1 << _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
-    #endif
 
     return CY_RSLT_SUCCESS;
 }
@@ -246,6 +232,64 @@ uint32_t cyhal_timer_read(const cyhal_timer_t *obj)
 {
     CY_ASSERT(NULL != obj);
     return Cy_TCPWM_Counter_GetCounter(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
+}
+
+static cyhal_tcpwm_input_t _cyhal_timer_translate_input_signal(cyhal_timer_input_t event)
+{
+    switch(event)
+    {
+        case CYHAL_TIMER_INPUT_START:
+            return CYHAL_TCPWM_INPUT_START;
+        case CYHAL_TIMER_INPUT_STOP:
+            return CYHAL_TCPWM_INPUT_STOP;
+        case CYHAL_TIMER_INPUT_RELOAD:
+            return CYHAL_TCPWM_INPUT_RELOAD;
+        case CYHAL_TIMER_INPUT_COUNT:
+            return CYHAL_TCPWM_INPUT_COUNT;
+        case CYHAL_TIMER_INPUT_CAPTURE:
+            return CYHAL_TCPWM_INPUT_CAPTURE;
+    }
+    CY_ASSERT(false);
+    return (cyhal_tcpwm_input_t)0;
+}
+
+static cyhal_tcpwm_output_t _cyhal_timer_translate_output_signal(cyhal_timer_output_t signal)
+{
+    switch(signal)
+    {
+        case CYHAL_TIMER_OUTPUT_OVERFLOW:
+            return CYHAL_TCPWM_OUTPUT_OVERFLOW;
+        case CYHAL_TIMER_OUTPUT_UNDERFLOW:
+            return CYHAL_TCPWM_OUTPUT_UNDERFLOW;
+        case CYHAL_TIMER_OUTPUT_COMPARE_MATCH:
+            return CYHAL_TCPWM_OUTPUT_COMPARE_MATCH;
+        case CYHAL_TIMER_OUTPUT_TERMINAL_COUNT:
+            return CYHAL_TCPWM_OUTPUT_TERMINAL_COUNT;
+    }
+    CY_ASSERT(false);
+    return (cyhal_tcpwm_output_t)0;
+}
+
+cy_rslt_t cyhal_timer_connect_digital(cyhal_timer_t *obj, cyhal_source_t source, cyhal_timer_input_t signal, cyhal_edge_type_t type)
+{
+    cyhal_tcpwm_input_t tcpwm_signal = _cyhal_timer_translate_input_signal(signal);
+    return _cyhal_tcpwm_connect_digital(&(obj->tcpwm), source, tcpwm_signal, type);
+}
+
+cy_rslt_t cyhal_timer_enable_output(cyhal_timer_t *obj, cyhal_timer_output_t signal, cyhal_source_t *source)
+{
+    cyhal_tcpwm_output_t tcpwm_signal = _cyhal_timer_translate_output_signal(signal);
+    return _cyhal_tcpwm_enable_output(&(obj->tcpwm), tcpwm_signal, source);
+}
+
+cy_rslt_t cyhal_timer_disconnect_digital(cyhal_timer_t *obj, cyhal_source_t source, cyhal_timer_input_t signal)
+{
+    return _cyhal_tcpwm_disconnect_digital(&(obj->tcpwm), source, _cyhal_timer_translate_input_signal(signal));
+}
+
+cy_rslt_t cyhal_timer_disable_output(cyhal_timer_t *obj, cyhal_timer_output_t signal)
+{
+    return _cyhal_tcpwm_disable_output(&(obj->tcpwm), _cyhal_timer_translate_output_signal(signal));
 }
 
 #if defined(__cplusplus)

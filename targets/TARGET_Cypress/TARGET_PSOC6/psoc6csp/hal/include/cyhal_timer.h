@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -69,12 +69,12 @@
 * \subsection subsection_timer_snippet_1 Snippet 1: Measuring time of an operation
 * The following snippet initializes a Timer and measures the time between two events.
 * The <b>clk</b> need not be provided, in which case a clock resource is assigned.
-* \snippet timer.c snippet_cyhal_timer_event_measure
+* \snippet hal_timer.c snippet_cyhal_timer_event_measure
 *
 * \subsection subsection_timer_snippet_2 Snippet 2: Handling an event in a callback function
 * The following snippet initializes a Timer and triggers an event after every one second.
 * The <b>clk</b> need not be provided (NULL), in which case a clock resource is assigned.
-* \snippet timer.c snippet_cyhal_timer_event_interrupt
+* \snippet hal_timer.c snippet_cyhal_timer_event_interrupt
 *
 */
 
@@ -131,6 +131,25 @@ typedef enum {
     CYHAL_TIMER_IRQ_CAPTURE_COMPARE =  1 << 1, /**< Interrupt when Compare/Capture value is reached **/
     CYHAL_TIMER_IRQ_ALL             = (1 << 2) - 1, /**< Interrupt on terminal count and Compare/Capture values **/
 } cyhal_timer_event_t;
+
+/** Timer/counter input signal */
+typedef enum
+{
+    CYHAL_TIMER_INPUT_START,    //!< Start signal
+    CYHAL_TIMER_INPUT_STOP,     //!< Stop signal
+    CYHAL_TIMER_INPUT_RELOAD,   //!< Reload signal
+    CYHAL_TIMER_INPUT_COUNT,    //!< Count signal
+    CYHAL_TIMER_INPUT_CAPTURE,  //!< Capture signal
+} cyhal_timer_input_t;
+
+/** Timer/counter output signal */
+typedef enum
+{
+    CYHAL_TIMER_OUTPUT_OVERFLOW,       //!< Overflow signal
+    CYHAL_TIMER_OUTPUT_UNDERFLOW,      //!< Underflow signal
+    CYHAL_TIMER_OUTPUT_COMPARE_MATCH,  //!< Compare Match signal
+    CYHAL_TIMER_OUTPUT_TERMINAL_COUNT, //!< Terminal count signal (logical OR of overflow and underflow signal)
+} cyhal_timer_output_t;
 
 /*******************************************************************************
 *       Data Structures
@@ -268,6 +287,48 @@ void cyhal_timer_register_callback(cyhal_timer_t *obj, cyhal_timer_event_callbac
  * @param[in] enable        True to turn on interrupts, False to turn off
  */
 void cyhal_timer_enable_event(cyhal_timer_t *obj, cyhal_timer_event_t event, uint8_t intr_priority, bool enable);
+
+/** Connects a source signal and configures and enables a timer event to be
+ * triggered from that signal. These timer events can be configured
+ * independently and connect to the same or different source signals.
+ *
+ * @param[in] obj      Timer obj
+ * @param[in] source   Source signal obtained from another driver's cyhal_<PERIPH>_enable_output
+ * @param[in] signal   The timer input signal
+ * @param[in] type     The timer input signal edge type
+ * @return The current status of the connection
+ * */
+cy_rslt_t cyhal_timer_connect_digital(cyhal_timer_t *obj, cyhal_source_t source, cyhal_timer_input_t signal, cyhal_edge_type_t type);
+
+/** Enables the specified output signal from a tcpwm that will be triggered
+ * when the corresponding event occurs. Multiple output signals can be
+ * configured simultaneously.
+ *
+ * @param[in]  obj      Timer obj
+ * @param[in]  signal   The timer output signal
+ * @param[out] source   Pointer to user-allocated source signal object which
+ * will be initialized by enable_output. \p source should be passed to
+ * (dis)connect_digital functions to (dis)connect the associated endpoints.
+ * @return The current status of the output enable
+ * */
+cy_rslt_t cyhal_timer_enable_output(cyhal_timer_t *obj, cyhal_timer_output_t signal, cyhal_source_t *source);
+
+/** Disconnects a source signal and disables the timer event.
+ *
+ * @param[in] obj      Timer obj
+ * @param[in] source   Source signal from cyhal_<PERIPH>_enable_output to disable
+ * @param[in] signal   The timer input signal
+ * @return The status of the disconnection
+ * */
+cy_rslt_t cyhal_timer_disconnect_digital(cyhal_timer_t *obj, cyhal_source_t source, cyhal_timer_input_t signal);
+
+/** Disables the specified output signal from a timer.
+ *
+ * @param[in]  obj      Timer obj
+ * @param[in]  signal   The timer output signal
+ * @return The status of the output disable
+ * */
+cy_rslt_t cyhal_timer_disable_output(cyhal_timer_t *obj, cyhal_timer_output_t signal);
 
 #if defined(__cplusplus)
 }

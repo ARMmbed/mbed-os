@@ -2,11 +2,11 @@
 * File Name: cyhal_clock_impl.h
 *
 * Description:
-* PSoC 6 specific implementation for clocks API.
+* Device specific implementation for clocks API.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,14 +32,19 @@ extern "C"
 #endif
 
 /**
- * \ingroup group_hal_impl_impl_adc
+ * \ingroup group_hal_impl_adc
  * \{
+ * \section group_hal_impl_adc_interconnect Interconnect
+ * In PSoC each ADC has a single input trigger which, when activated, will
+ * initiate an ADC scan. Each ADC also has an output trigger which will be
+ * activated when a scan is completed.
  */
 
 /** Convert all samples to be averaged back to back, before proceeding to the next channel.
   * This is the default behavior. */
 #define CYHAL_ADC_AVG_MODE_SEQUENTIAL (1u << (CYHAL_ADC_AVG_MODE_MAX_SHIFT + 1u))
 
+#if defined(CY_IP_MXS40PASS_SAR_INSTANCES)
 /** Convert one sample to be averaged per scan, interleaved with the rest of the channels.
   * This maintains a consistent spacing of samples regardless of whether samples are averaged
   * or not. However, it also means that a new value will only be provided once every n scans,
@@ -51,6 +56,7 @@ extern "C"
   * the working register that is used to accumulate intermediate results.
   */
 #define CYHAL_ADC_AVG_MODE_INTERLEAVED (1u << (CYHAL_ADC_AVG_MODE_MAX_SHIFT + 2u))
+#endif
 
 /** \} group_hal_impl_adc */
 

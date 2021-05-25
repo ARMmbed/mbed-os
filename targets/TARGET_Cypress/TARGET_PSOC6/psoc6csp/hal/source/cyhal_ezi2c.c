@@ -7,7 +7,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -97,9 +97,11 @@ static bool _cyhal_ezi2c_pm_callback_instance(void *obj_ptr, cyhal_syspm_callbac
         case CYHAL_SYSPM_CB_CPU_DEEPSLEEP:
             allow = (CY_SYSPM_SUCCESS == Cy_SCB_EZI2C_DeepSleepCallback(&ezi2c_callback_params, pdl_mode));
             break;
+#if defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B)
         case CYHAL_SYSPM_CB_SYSTEM_HIBERNATE:
             allow = (CY_SYSPM_SUCCESS == Cy_SCB_EZI2C_HibernateCallback(&ezi2c_callback_params, pdl_mode));
             break;
+#endif
         default:
             break;
     }
@@ -122,7 +124,7 @@ cy_rslt_t cyhal_ezi2c_init(cyhal_ezi2c_t *obj, cyhal_gpio_t sda, cyhal_gpio_t sc
     {
         .numberOfAddresses   = cfg->two_addresses ? CY_SCB_EZI2C_TWO_ADDRESSES : CY_SCB_EZI2C_ONE_ADDRESS,
         .slaveAddress1       = cfg->slave1_cfg.slave_address,
-        .slaveAddress2       = cfg->slave2_cfg.slave_address,
+        .slaveAddress2       = cfg->two_addresses ? cfg->slave2_cfg.slave_address : 0,
         .subAddressSize      = (cy_en_scb_ezi2c_sub_addr_size_t)cfg->sub_address_size,
         .enableWakeFromSleep = cfg->enable_wake_from_sleep,
     };

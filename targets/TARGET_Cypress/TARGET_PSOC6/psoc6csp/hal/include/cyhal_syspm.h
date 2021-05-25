@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -132,17 +132,17 @@
 * The following snippet shows how to use the deep sleep locking APIs to restrict
 * when the device can enter deep sleep. In between the lock/unlock calls any
 * attempt to change power modes will automatically be canceled.
-* \snippet syspm.c snippet_cyhal_syspm_simple_locking
+* \snippet hal_syspm.c snippet_cyhal_syspm_simple_locking
 *
 * \subsection subsection_syspm_snippet_2 Snippet 2: Calling different power state functions
 * The following snippet shows the different functions that exist to change power states
 * on the device and how they can each be called.
-* \snippet syspm.c snippet_cyhal_syspm_power_transitions
+* \snippet hal_syspm.c snippet_cyhal_syspm_power_transitions
 *
 * \subsection subsection_syspm_snippet_3 Snippet 3: Using callbacks for application power management
 * The following snippet shows how to use the callback mechanisms to manage whether
 * it is safe to enter low power modes.
-* \snippet syspm.c snippet_cyhal_syspm_app_callback
+* \snippet hal_syspm.c snippet_cyhal_syspm_app_callback
 */
 #pragma once
 
@@ -221,9 +221,9 @@ typedef enum
                                                         See device datasheet for specific pin. */
 } cyhal_syspm_hibernate_source_t;
 
-/** Supply voltages whose levels can be specified and queried via \ref cyhal_syspm_set_supply_voltage and 
+/** Supply voltages whose levels can be specified and queried via \ref cyhal_syspm_set_supply_voltage and
   * \ref cyhal_syspm_get_supply_voltage, respectively.
-  * 
+  *
   * \note Not all supplies which are present are included here. This enum only contains the voltage supplies
   * whose values are relevant to the operation of one or more HAL drivers.
   */
@@ -304,7 +304,7 @@ cy_rslt_t cyhal_syspm_set_system_state(cyhal_syspm_system_state_t state);
  * CYHAL_SYSPM_SYSTEM_NORMAL.
  * @return Returns the current system-wide power state of the device.
  */
-cyhal_syspm_system_state_t cyhal_syspm_get_system_state();
+cyhal_syspm_system_state_t cyhal_syspm_get_system_state(void);
 
 /** Register the specified handler with the power manager to be notified of power
  * state changes. This is intended for application wide decisions. Peripherals handle
@@ -398,7 +398,7 @@ cy_rslt_t cyhal_syspm_tickless_sleep(cyhal_lptimer_t *obj, uint32_t desired_ms, 
   * Once set, this value can be queried via \ref cyhal_syspm_get_supply_voltage.
   *
   * \note This only informs the system of the voltage level. It does not alter any of the device operating conditions.
-  * 
+  *
   * @param supply The supply whose voltage is being specified.
   * @param mvolts The voltage level on the specified supply, in millivolts.
   */

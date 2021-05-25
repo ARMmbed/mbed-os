@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,6 +26,8 @@
 #include "cyhal_dma_dw.h"
 #include "cyhal_dma_impl.h"
 #include "cyhal_hwmgr.h"
+#include "cyhal_hwmgr_impl.h"
+#include "cyhal_interconnect.h"
 #include "cyhal_syspm.h"
 #include "cyhal_utils.h"
 #include "cyhal_triggers.h"
@@ -191,7 +193,7 @@ static inline uint32_t _cyhal_dma_dw_get_trigger_line(uint8_t block_num, uint8_t
     /* cyhal_dest_t triggers are guaranteed to be sorted by trigger type, block
      * num, then channel num, therefore, we can just directly find the proper
      * trigger by calculating an offset. */
-    cyhal_dest_t trigger = (cyhal_dest_t)(TRIGGER_CPUSS_DW0_TR_IN0 + (block_num * CPUSS_DW0_CH_NR) + channel_num);
+    cyhal_dest_t trigger = (cyhal_dest_t)(CYHAL_TRIGGER_CPUSS_DW0_TR_IN0 + (block_num * CPUSS_DW0_CH_NR) + channel_num);
 
     /* One to one triggers have bit 8 set in cyhal_dest_to_mux but
      * Cy_TrigMux_SwTrigger wants the trigger group field to have bit 5 set to
@@ -257,12 +259,23 @@ static void _cyhal_dma_dw_irq_handler(void)
     Cy_DMA_Channel_ClearInterrupt(_cyhal_dma_dw_get_base(block), channel);
 }
 
-cy_rslt_t _cyhal_dma_dw_init(cyhal_dma_t *obj, uint8_t priority)
+static cyhal_source_t _cyhal_dma_dw_get_src(uint8_t block_num, uint8_t channel_num)
+{
+    return (cyhal_source_t)(CYHAL_TRIGGER_CPUSS_DW0_TR_OUT0 + (block_num * CPUSS_DW0_CH_NR) + channel_num);
+}
+
+static cyhal_dest_t _cyhal_dma_dw_get_dest(uint8_t block_num, uint8_t channel_num)
+{
+    return (cyhal_dest_t)(CYHAL_TRIGGER_CPUSS_DW0_TR_IN0 + (block_num * CPUSS_DW0_CH_NR) + channel_num);
+}
+
+cy_rslt_t _cyhal_dma_dw_init(cyhal_dma_t *obj, cyhal_source_t *src, cyhal_dest_t *dest, uint8_t priority)
 {
     if(!CY_DMA_IS_PRIORITY_VALID(priority))
         return CYHAL_DMA_RSLT_ERR_INVALID_PRIORITY;
 
-    cy_rslt_t rslt = cyhal_hwmgr_allocate(CYHAL_RSC_DW, &obj->resource);
+    cy_rslt_t rslt = _cyhal_hwmgr_allocate_with_connection(
+        CYHAL_RSC_DW, src, dest, _cyhal_dma_dw_get_src, _cyhal_dma_dw_get_dest, &obj->resource);
     if(rslt != CY_RSLT_SUCCESS)
         return rslt;
 
@@ -271,10 +284,6 @@ cy_rslt_t _cyhal_dma_dw_init(cyhal_dma_t *obj, uint8_t priority)
     obj->channel_config.dw = _cyhal_dma_dw_default_channel_config;
     obj->channel_config.dw.descriptor = &obj->descriptor.dw;
     obj->channel_config.dw.priority = priority;
-
-    obj->callback_data.callback = NULL;
-    obj->callback_data.callback_arg = NULL;
-    obj->irq_cause = 0;
 
     if (!_cyhal_dma_dw_has_enabled())
     {
@@ -300,11 +309,9 @@ void _cyhal_dma_dw_free(cyhal_dma_t *obj)
         _cyhal_syspm_unregister_peripheral_callback(&cyhal_dma_dw_pm_callback_args);
         _cyhal_dma_dw_pm_transition_pending = false;
     }
-
-    cyhal_hwmgr_free(&obj->resource);
 }
 
-/* Initalize descriptor, initialize channel, enable channel, enable channel
+/* Initialize descriptor, initialize channel, enable channel, enable channel
  * interrupt, and enable DW controller */
 cy_rslt_t _cyhal_dma_dw_configure(cyhal_dma_t *obj, const cyhal_dma_cfg_t *cfg)
 {
@@ -324,6 +331,15 @@ cy_rslt_t _cyhal_dma_dw_configure(cyhal_dma_t *obj, const cyhal_dma_cfg_t *cfg)
         obj->descriptor_config.dw.dataSize = CY_DMA_WORD;
     else
         return CYHAL_DMA_RSLT_ERR_INVALID_TRANSFER_WIDTH;
+
+    /* By default, transfer what the user set for dataSize. However, if transfering between memory
+     * and a peripheral, make sure the peripheral access is using words. */
+    obj->descriptor_config.dw.srcTransferSize =
+        obj->descriptor_config.dw.dstTransferSize = CY_DMA_TRANSFER_SIZE_DATA;
+    if (obj->direction == CYHAL_DMA_DIRECTION_PERIPH2MEM)
+        obj->descriptor_config.dw.srcTransferSize = CY_DMA_TRANSFER_SIZE_WORD;
+    else if (obj->direction == CYHAL_DMA_DIRECTION_MEM2PERIPH)
+        obj->descriptor_config.dw.dstTransferSize = CY_DMA_TRANSFER_SIZE_WORD;
 
     /* Length must be a multiple of burst_size */
     if(cfg->burst_size != 0 && cfg->length % cfg->burst_size != 0)
@@ -438,6 +454,113 @@ bool _cyhal_dma_dw_is_busy(cyhal_dma_t *obj)
     CY_ASSERT(false);
     return false;
 #endif
+}
+
+static cy_en_dma_trigger_type_t _cyhal_convert_input_t(cyhal_dma_input_t input)
+{
+    switch(input)
+    {
+        case CYHAL_DMA_INPUT_TRIGGER_SINGLE_ELEMENT:
+            return CY_DMA_1ELEMENT;
+        case CYHAL_DMA_INPUT_TRIGGER_SINGLE_BURST:
+            return CY_DMA_X_LOOP;
+        case CYHAL_DMA_INPUT_TRIGGER_ALL_ELEMENTS:
+            return CY_DMA_DESCR;
+    }
+    // Should never reach here. Just silencing compiler warnings.
+    CY_ASSERT(false);
+    return CY_DMA_DESCR;
+}
+
+static cy_en_dma_trigger_type_t _cyhal_convert_output_t(cyhal_dma_output_t output)
+{
+    switch(output)
+    {
+        case CYHAL_DMA_OUTPUT_TRIGGER_SINGLE_ELEMENT:
+            return CY_DMA_1ELEMENT;
+        case CYHAL_DMA_OUTPUT_TRIGGER_SINGLE_BURST:
+            return CY_DMA_X_LOOP;
+        case CYHAL_DMA_OUTPUT_TRIGGER_ALL_ELEMENTS:
+            return CY_DMA_DESCR;
+    }
+    // Should never reach here. Just silencing compiler warnings.
+    CY_ASSERT(false);
+    return CY_DMA_DESCR;
+}
+
+cy_rslt_t _cyhal_dma_dw_connect_digital(cyhal_dma_t *obj, cyhal_source_t source, cyhal_dma_input_t input)
+{
+    if(input != CYHAL_DMA_INPUT_TRIGGER_SINGLE_ELEMENT &&
+       input != CYHAL_DMA_INPUT_TRIGGER_SINGLE_BURST &&
+       input != CYHAL_DMA_INPUT_TRIGGER_ALL_ELEMENTS)
+        return CYHAL_DMA_RSLT_ERR_INVALID_PARAMETER;
+    // Check that we are not overwriting an existing connection
+    CY_ASSERT(obj->source == CYHAL_TRIGGER_CPUSS_ZERO);
+
+    obj->descriptor.dw.ctl &= ~CY_DMA_CTL_TR_IN_TYPE_Msk;
+    obj->descriptor.dw.ctl |= _VAL2FLD(CY_DMA_CTL_TR_IN_TYPE, _cyhal_convert_input_t(input));
+
+    cyhal_dest_t dest = _cyhal_dma_dw_get_dest(obj->resource.block_num, obj->resource.channel_num);
+
+    cy_rslt_t rslt = _cyhal_connect_signal(source, dest, CYHAL_SIGNAL_TYPE_EDGE);
+    if (CY_RSLT_SUCCESS == rslt)
+    {
+        obj->source = source;
+    }
+
+    return rslt;
+}
+
+cy_rslt_t _cyhal_dma_dw_enable_output(cyhal_dma_t *obj, cyhal_dma_output_t output, cyhal_source_t *source)
+{
+    if(output != CYHAL_DMA_OUTPUT_TRIGGER_SINGLE_ELEMENT &&
+       output != CYHAL_DMA_OUTPUT_TRIGGER_SINGLE_BURST &&
+       output != CYHAL_DMA_OUTPUT_TRIGGER_ALL_ELEMENTS)
+        return CYHAL_DMA_RSLT_ERR_INVALID_PARAMETER;
+
+    obj->descriptor.dw.ctl &= ~CY_DMA_CTL_TR_OUT_TYPE_Msk;
+    obj->descriptor.dw.ctl |= _VAL2FLD(CY_DMA_CTL_TR_OUT_TYPE, _cyhal_convert_output_t(output));
+
+    *source = _cyhal_dma_dw_get_src(obj->resource.block_num, obj->resource.channel_num);
+
+    return CY_RSLT_SUCCESS;
+}
+
+cy_rslt_t _cyhal_dma_dw_disconnect_digital(cyhal_dma_t *obj, cyhal_source_t source, cyhal_dma_input_t input)
+{
+    if(input != CYHAL_DMA_INPUT_TRIGGER_SINGLE_ELEMENT &&
+       input != CYHAL_DMA_INPUT_TRIGGER_SINGLE_BURST &&
+       input != CYHAL_DMA_INPUT_TRIGGER_ALL_ELEMENTS)
+        return CYHAL_DMA_RSLT_ERR_INVALID_PARAMETER;
+    CY_ASSERT(obj->source != CYHAL_TRIGGER_CPUSS_ZERO);
+
+    // There is no option to totally disable. Just reset to default.
+    obj->descriptor.dw.ctl &= ~CY_DMA_CTL_TR_IN_TYPE_Msk;
+    obj->descriptor.dw.ctl |= _VAL2FLD(CY_DMA_CTL_TR_IN_TYPE, _cyhal_dma_dw_default_descriptor_config.triggerInType);
+
+    cyhal_dest_t dest = _cyhal_dma_dw_get_dest(obj->resource.block_num, obj->resource.channel_num);
+
+    cy_rslt_t rslt = _cyhal_disconnect_signal(source, dest);
+    if (CY_RSLT_SUCCESS == rslt)
+    {
+        obj->source = CYHAL_TRIGGER_CPUSS_ZERO;
+    }
+
+    return rslt;
+}
+
+cy_rslt_t _cyhal_dma_dw_disable_output(cyhal_dma_t *obj, cyhal_dma_output_t output)
+{
+    if(output != CYHAL_DMA_OUTPUT_TRIGGER_SINGLE_ELEMENT &&
+       output != CYHAL_DMA_OUTPUT_TRIGGER_SINGLE_BURST &&
+       output != CYHAL_DMA_OUTPUT_TRIGGER_ALL_ELEMENTS)
+        return CYHAL_DMA_RSLT_ERR_INVALID_PARAMETER;
+
+    // There is no option to totally disable. Just reset to default.
+    obj->descriptor.dw.ctl &= ~CY_DMA_CTL_TR_OUT_TYPE_Msk;
+    obj->descriptor.dw.ctl |= _VAL2FLD(CY_DMA_CTL_TR_OUT_TYPE, _cyhal_dma_dw_default_descriptor_config.triggerOutType);
+
+    return CY_RSLT_SUCCESS;
 }
 
 #endif /* CY_IP_M4CPUSS_DMA */

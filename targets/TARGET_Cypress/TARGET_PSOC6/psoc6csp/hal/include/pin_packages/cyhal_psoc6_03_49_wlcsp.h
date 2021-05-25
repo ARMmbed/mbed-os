@@ -5,11 +5,11 @@
 * PSoC6_03 device GPIO HAL header for 49-WLCSP package
 *
 * \note
-* Generator version: 1.6.0.229
+* Generator version: 1.6.0.453
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2020 Cypress Semiconductor Corporation
+* Copyright 2016-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -55,6 +55,7 @@ typedef enum {
 
     P0_0 = CYHAL_GET_GPIO(CYHAL_PORT_0, 0), //!< Port 0 Pin 0
     P0_1 = CYHAL_GET_GPIO(CYHAL_PORT_0, 1), //!< Port 0 Pin 1
+    P0_4 = CYHAL_GET_GPIO(CYHAL_PORT_0, 4), //!< Port 0 Pin 4
 
     P2_0 = CYHAL_GET_GPIO(CYHAL_PORT_2, 0), //!< Port 2 Pin 0
     P2_1 = CYHAL_GET_GPIO(CYHAL_PORT_2, 1), //!< Port 2 Pin 1
@@ -137,6 +138,14 @@ extern const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_inp_comp[1];
 #define CYHAL_PIN_MAP_PASS_SARMUX_PADS
 /** List of valid pin to peripheral connections for the pass_sarmux_pads signal. */
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_pass_sarmux_pads[6];
+/** Indicates that a pin map exists for peri_tr_io_input*/
+#define CYHAL_PIN_MAP_PERI_TR_IO_INPUT
+/** List of valid pin to peripheral connections for the peri_tr_io_input signal. */
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_peri_tr_io_input[15];
+/** Indicates that a pin map exists for peri_tr_io_output*/
+#define CYHAL_PIN_MAP_PERI_TR_IO_OUTPUT
+/** List of valid pin to peripheral connections for the peri_tr_io_output signal. */
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_peri_tr_io_output[5];
 /** Indicates that a pin map exists for scb_i2c_scl*/
 #define CYHAL_PIN_MAP_SCB_I2C_SCL
 /** List of valid pin to peripheral connections for the scb_i2c_scl signal. */
@@ -148,7 +157,7 @@ extern const cyhal_resource_pin_mapping_t cyhal_pin_map_scb_i2c_sda[6];
 /** Indicates that a pin map exists for scb_spi_m_clk*/
 #define CYHAL_PIN_MAP_SCB_SPI_M_CLK
 /** List of valid pin to peripheral connections for the scb_spi_m_clk signal. */
-extern const cyhal_resource_pin_mapping_t cyhal_pin_map_scb_spi_m_clk[7];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_scb_spi_m_clk[8];
 /** Indicates that a pin map exists for scb_spi_m_miso*/
 #define CYHAL_PIN_MAP_SCB_SPI_M_MISO
 /** List of valid pin to peripheral connections for the scb_spi_m_miso signal. */
@@ -176,7 +185,7 @@ extern const cyhal_resource_pin_mapping_t cyhal_pin_map_scb_spi_m_select3[1];
 /** Indicates that a pin map exists for scb_spi_s_clk*/
 #define CYHAL_PIN_MAP_SCB_SPI_S_CLK
 /** List of valid pin to peripheral connections for the scb_spi_s_clk signal. */
-extern const cyhal_resource_pin_mapping_t cyhal_pin_map_scb_spi_s_clk[7];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_scb_spi_s_clk[8];
 /** Indicates that a pin map exists for scb_spi_s_miso*/
 #define CYHAL_PIN_MAP_SCB_SPI_S_MISO
 /** List of valid pin to peripheral connections for the scb_spi_s_miso signal. */
@@ -208,7 +217,7 @@ extern const cyhal_resource_pin_mapping_t cyhal_pin_map_scb_uart_cts[6];
 /** Indicates that a pin map exists for scb_uart_rts*/
 #define CYHAL_PIN_MAP_SCB_UART_RTS
 /** List of valid pin to peripheral connections for the scb_uart_rts signal. */
-extern const cyhal_resource_pin_mapping_t cyhal_pin_map_scb_uart_rts[6];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_scb_uart_rts[7];
 /** Indicates that a pin map exists for scb_uart_rx*/
 #define CYHAL_PIN_MAP_SCB_UART_RX
 /** List of valid pin to peripheral connections for the scb_uart_rx signal. */
@@ -280,7 +289,7 @@ extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_select2[1];
 /** Indicates that a pin map exists for tcpwm_line*/
 #define CYHAL_PIN_MAP_TCPWM_LINE
 /** List of valid pin to peripheral connections for the tcpwm_line signal. */
-extern const cyhal_resource_pin_mapping_t cyhal_pin_map_tcpwm_line[38];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_tcpwm_line[40];
 /** Indicates that a pin map exists for tcpwm_line_compl*/
 #define CYHAL_PIN_MAP_TCPWM_LINE_COMPL
 /** List of valid pin to peripheral connections for the tcpwm_line_compl signal. */

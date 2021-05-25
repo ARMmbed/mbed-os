@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2019-2020 Cypress Semiconductor Corporation
+* Copyright 2019-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,6 +31,18 @@
 #if defined(__cplusplus)
 extern "C" {
 #endif /* __cplusplus */
+
+/** \addtogroup group_hal_impl_pwm PWM
+ * \ingroup group_hal_impl
+ * \{
+ * \section group_hal_impl_pwm_interconnect Interconnect
+ * In PSoC PWM channels can configure multiple input and output triggers
+ * simultaneously. 1 or more input triggers can be configured to initiate
+ * different PWM actions (e.g start, stop, reload, etc) with configurable edge
+ * detection on that incoming signal. Output triggers are based on certain
+ * events (e.g overflow, cc_match, etc).
+ * Note: The line_out output trigger is only available for TCPWMv2.
+ * \} group_hal_impl_pwm */
 
 __STATIC_INLINE uint32_t _cyhal_pwm_convert_event(cyhal_pwm_event_t event)
 {

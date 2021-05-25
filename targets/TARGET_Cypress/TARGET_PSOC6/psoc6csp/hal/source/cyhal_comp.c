@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,7 +35,7 @@
 /**
 * \addtogroup group_hal_impl_comp COMP (Analog Comparator)
 * \ingroup group_hal_impl
-* On PSoC 6, the COMP driver can use either of two underlying hardware blocks:
+* On CAT1 (PSoC 6), the COMP driver can use either of two underlying hardware blocks:
 * - Opamp (configured as analog comparator)
 * - LPComp (Low Power Comparator)
 *
@@ -58,7 +58,7 @@
 
 cy_rslt_t cyhal_comp_init(cyhal_comp_t *obj, cyhal_gpio_t vin_p, cyhal_gpio_t vin_m, cyhal_gpio_t output, cyhal_comp_config_t *cfg)
 {
-    cy_rslt_t result = CY_RSLT_SUCCESS;
+    cy_rslt_t result = CYHAL_COMP_RSLT_ERR_BAD_ARGUMENT;
 #if defined(CY_IP_MXLPCOMP_INSTANCES) && (CY_IP_MXLPCOMP_INSTANCES > 0)
     result = _cyhal_comp_lp_init(obj, vin_p, vin_m, output, cfg);
 #else
@@ -68,13 +68,12 @@ cy_rslt_t cyhal_comp_init(cyhal_comp_t *obj, cyhal_gpio_t vin_p, cyhal_gpio_t vi
     CY_UNUSED_PARAMETER(output);
     CY_UNUSED_PARAMETER(cfg);
 #endif
+#if defined(CY_IP_MXS40PASS_CTB_INSTANCES) && (CY_IP_MXS40PASS_CTB_INSTANCES > 0)
     if(CY_RSLT_SUCCESS != result)
     {
-        result = CYHAL_COMP_RSLT_ERR_BAD_ARGUMENT;
-#if defined(CY_IP_MXS40PASS_CTB_INSTANCES) && (CY_IP_MXS40PASS_CTB_INSTANCES > 0)
         result = _cyhal_comp_ctb_init(obj, vin_p, vin_m, output, cfg);
-#endif
     }
+#endif
     return result;
 }
 

@@ -7,7 +7,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -69,9 +69,9 @@ static const cy_stc_scb_uart_config_t _cyhal_uart_default_config = {
 
     .enableCts                  = false,
     .ctsPolarity                = CY_SCB_UART_ACTIVE_LOW,
-#if defined(COMPONENT_PSOC6HAL)
+#if defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B)
     .rtsRxFifoLevel             = 20UL,
-#else
+#elif defined(COMPONENT_CAT2)
     .rtsRxFifoLevel             = 3UL,
 #endif
     .rtsPolarity                = CY_SCB_UART_ACTIVE_LOW,
@@ -113,6 +113,7 @@ static void _cyhal_uart_cb_wrapper(uint32_t event)
         callback(obj->callback_data.callback_arg, anded_events);
     }
 }
+
 static bool _cyhal_uart_pm_callback_instance(void *obj_ptr, cyhal_syspm_callback_state_t state, cy_en_syspm_callback_mode_t pdl_mode)
 {
     CY_UNUSED_PARAMETER(state);
@@ -230,9 +231,9 @@ static cy_en_scb_uart_stop_bits_t _cyhal_uart_convert_stopbits(uint8_t stopbits)
 
 static uint32_t _cyhal_uart_actual_baud(uint32_t divider, uint32_t oversample)
 {
-    #if defined(COMPONENT_PSOC6HAL)
+    #if defined(COMPONENT_CAT1A)
     return Cy_SysClk_ClkPeriGetFrequency() / (divider * oversample);
-    #else /* COMPONENT_PSOC4HAL */
+    #elif defined(COMPONENT_CAT2)
     return Cy_SysClk_ClkSysGetFrequency() / (divider * oversample);
     #endif
 }
@@ -387,9 +388,9 @@ void cyhal_uart_free(cyhal_uart_t *obj)
         IRQn_Type irqn = _CYHAL_SCB_IRQ_N[obj->resource.block_num];
         NVIC_DisableIRQ(irqn);
 
-        cyhal_hwmgr_free(&(obj->resource));
-
         _cyhal_scb_update_instance_data(obj->resource.block_num, NULL, NULL);
+        Cy_SCB_UART_DeInit(obj->base);
+        cyhal_hwmgr_free(&(obj->resource));
     }
 
     _cyhal_utils_release_if_used(&(obj->pin_rx));
@@ -704,6 +705,21 @@ void cyhal_uart_enable_event(cyhal_uart_t *obj, cyhal_uart_event_t event, uint8_
     }
 
     NVIC_SetPriority(_CYHAL_SCB_IRQ_N[obj->resource.block_num], intr_priority);
+}
+
+cy_rslt_t cyhal_uart_set_fifo_level(cyhal_uart_t *obj, cyhal_uart_fifo_type_t type, uint16_t level)
+{
+    return _cyhal_scb_set_fifo_level(obj->base, (cyhal_scb_fifo_type_t)type, level);
+}
+
+cy_rslt_t cyhal_uart_enable_output(cyhal_uart_t *obj, cyhal_uart_output_t output, cyhal_source_t *source)
+{
+    return _cyhal_scb_enable_output(obj->base, obj->resource, (cyhal_scb_output_t)output, source);
+}
+
+cy_rslt_t cyhal_uart_disable_output(cyhal_uart_t *obj, cyhal_uart_output_t output)
+{
+    return _cyhal_scb_disable_output(obj->base, obj->resource, (cyhal_scb_output_t)output);
 }
 
 #if defined(__cplusplus)

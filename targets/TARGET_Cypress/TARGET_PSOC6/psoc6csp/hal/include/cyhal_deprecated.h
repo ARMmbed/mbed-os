@@ -7,7 +7,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,7 +40,7 @@ extern "C" {
 * \addtogroup group_hal_impl_deprecated Deprecated
 * \ingroup group_hal_impl
 * \{
-* The following PSoC 6 specific items have been deprecated and replaced by more generic items. Each item
+* The following CAT1 specific items have been deprecated and replaced by more generic items. Each item
 * will continue to work for now, but will be removed in a future release. All deprecated items reference
 * the item that replaces it.
 */
@@ -66,6 +66,40 @@ extern "C" {
  * \warning This function is deprecated. Use \ref cyhal_syspm_deepsleep instead.
  */
 #define cyhal_system_deepsleep()                Cy_SysPm_CpuEnterDeepSleep(CY_SYSPM_WAIT_FOR_INTERRUPT)
+
+#define CYHAL_SDIO_RET_NO_ERRORS           (0x00)    /**< No error*/
+#define CYHAL_SDIO_RET_NO_SP_ERRORS        (0x01)    /**< Non-specific error code*/
+#define CYHAL_SDIO_RET_CMD_CRC_ERROR       (0x02)    /**< There was a CRC error on the Command/Response*/
+#define CYHAL_SDIO_RET_CMD_IDX_ERROR       (0x04)    /**< The index for the command didn't match*/
+#define CYHAL_SDIO_RET_CMD_EB_ERROR        (0x08)    /**< There was an end bit error on the command*/
+#define CYHAL_SDIO_RET_DAT_CRC_ERROR       (0x10)    /**< There was a data CRC Error*/
+#define CYHAL_SDIO_RET_CMD_TIMEOUT         (0x20)    /**< The command didn't finish before the timeout period was over*/
+#define CYHAL_SDIO_RET_DAT_TIMEOUT         (0x40)    /**< The data didn't finish before the timeout period was over*/
+#define CYHAL_SDIO_RET_RESP_FLAG_ERROR     (0x80)    /**< There was an error in the resposne flag for command 53*/
+
+#define CYHAL_SDIO_CLOCK_ERROR             (0x100)    /**< Failed to initial clock for SDIO */
+#define CYHAL_SDIO_BAD_ARGUMENT            (0x200)    /**< Bad argument passed for SDIO */
+#define CYHAL_SDIO_SEMA_NOT_INITED         (0x400)    /**< Semaphore is not initiated */
+#define CYHAL_SDIO_FUNC_NOT_SUPPORTED      (0x800)    /**< Function is not supported */
+#define CYHAL_SDIO_CANCELED               (0x1000)    /**< Operation canceled */
+#define CYHAL_SDIO_PM_PENDING_ERROR       (0x2000)    /**< Transfer cannot be initiated after power mode transition allowed.*/
+
+/** Semaphore not initiated error define */
+#define CYHAL_SDIO_RSLT_ERR_SEMA_NOT_INITED             \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SDIO, CYHAL_SDIO_SEMA_NOT_INITED))
+/** Error define based on SDIO lower function return value */
+#define CYHAL_SDIO_RSLT_ERR_FUNC_RET(retVal)        \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SDIO, ((uint16_t)retVal)))
+/** Clock initialization error define */
+#define CYHAL_SDIO_RSLT_ERR_CLOCK                   \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SDIO, CYHAL_SDIO_CLOCK_ERROR))
+
+/** SDHC CARD INTERRUPT event (The synchronized value of the DAT[1] interrupt input for SD mode) */
+#define CYHAL_SDHC_CARD_INTERRUPT           ((cyhal_sdhc_event_t)0x00100)
+/** SDHC Asynchronous read operation is complete event (CYHAL_SDHC_XFER_COMPLETE is used instead) */
+#define CYHAL_SDHC_ASYNC_READ_COMPLETE      ((cyhal_sdhc_event_t)0x10000)
+/** SDHC Asynchronous write operation is complete event (CYHAL_SDHC_XFER_COMPLETE is used instead) */
+#define CYHAL_SDHC_ASYNC_WRITE_COMPLETE     ((cyhal_sdhc_event_t)0x20000)
 
 /** Enum for clock type to configure. HFCLKs are configured using different APIs and does not using this enum.
  *  \warning This type is deprecated. Use \ref cyhal_clock_block_t instead.

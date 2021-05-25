@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,9 +23,9 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_hal_impl PSoC 6 Implementation Specific
+* \addtogroup group_hal_impl CAT1 (PSoC 6) Implementation Specific
 * \{
-* This section provides details about the PSoC 6 implementation of the Cypress HAL.
+* This section provides details about the CAT1 (PSoC 6) implementation of the Cypress HAL.
 * All information within this section is platform specific and is provided for reference.
 * Portable application code should depend only on the APIs and types which are documented
 * in the @ref group_hal section.
@@ -33,9 +33,9 @@
 * \section group_hal_impl_mapping HAL Resource Hardware Mapping
 * The following table shows a mapping of each HAL driver to the lower level firmware driver
 * and the corresponding hardware resource. This is intended to help understand how the HAL
-* is implemented for PSoC 6 and what features the underlying hardware supports.
+* is implemented for CAT1 and what features the underlying hardware supports.
 *
-* | HAL Resource       | PDL Driver(s)       | PSoC 6 Hardware                  |
+* | HAL Resource       | PDL Driver(s)       | CAT1 Hardware                    |
 * | ------------------ | ------------------- | -------------------------------- |
 * | ADC                | cy_adc              | SAR ADC                          |
 * | Clock              | cy_sysclk           | All clocks (system & peripheral) |
@@ -54,6 +54,7 @@
 * | PDM/PCM            | cy_pdm_pcm          | PDM-PCM                          |
 * | PWM                | cy_pwm              | TCPWM                            |
 * | QSPI               | cy_smif             | QSPI (SMIF)                      |
+* | Quadrature Decoder | cy_tcpwm_quaddec    | TCPWM                            |
 * | RTC                | cy_rtc              | RTC                              |
 * | SDHC               | cy_sd_host          | SD Host                          |
 * | SDIO               | cy_sd_host, or NA   | SD Host, or UDB                  |
@@ -75,7 +76,7 @@
 */
 
 /**
-* \addtogroup group_hal_impl_hw_types PSoC 6 Specific Hardware Types
+* \addtogroup group_hal_impl_hw_types CAT1 Specific Hardware Types
 * \{
 * Aliases for types which are part of the public HAL interface but whose representations
 * need to vary per HAL implementation
@@ -110,31 +111,29 @@ extern "C" {
 * \cond INTERNAL
 */
 
-#define CYHAL_ADC_IMPL_HEADER       "cyhal_adc_impl.h"      //!< Implementation specific header for ADC
-#define CYHAL_CRC_IMPL_HEADER       "cyhal_crc_impl.h"      //!< Implementation specific header for CRC
-#define CYHAL_DMA_IMPL_HEADER       "cyhal_dma_impl.h"      //!< Implementation specific header for DMA
-#define CYHAL_CLOCK_IMPL_HEADER     "cyhal_clock_impl.h"    //!< Implementation specific header for Clocks
-#define CYHAL_GPIO_IMPL_HEADER      "cyhal_gpio_impl.h"     //!< Implementation specific header for GPIO
-#define CYHAL_PDMPCM_IMPL_HEADER    "cyhal_pdmpcm_impl.h"   //!< Implementation specific header for PDMPCM
-#define CYHAL_PWM_IMPL_HEADER       "cyhal_pwm_impl.h"      //!< Implementation specific header for PWM
-#define CYHAL_SYSTEM_IMPL_HEADER    "cyhal_system_impl.h"   //!< Implementation specific header for System
-#define CYHAL_SYSPM_IMPL_HEADER     "cyhal_syspm_impl.h"    //!< Implementation specific header for System Power Management
-#define CYHAL_TIMER_IMPL_HEADER     "cyhal_timer_impl.h"    //!< Implementation specific header for Timer
-#define CYHAL_TRNG_IMPL_HEADER      "cyhal_trng_impl.h"     //!< Implementation specific header for TRNG
+#define CYHAL_ADC_IMPL_HEADER           "cyhal_adc_impl.h"      //!< Implementation specific header for ADC
+#define CYHAL_CRC_IMPL_HEADER           "cyhal_crc_impl.h"      //!< Implementation specific header for CRC
+#define CYHAL_DMA_IMPL_HEADER           "cyhal_dma_impl.h"      //!< Implementation specific header for DMA
+#define CYHAL_CLOCK_IMPL_HEADER         "cyhal_clock_impl.h"    //!< Implementation specific header for Clocks
+#define CYHAL_GPIO_IMPL_HEADER          "cyhal_gpio_impl.h"     //!< Implementation specific header for GPIO
+#define CYHAL_PDMPCM_IMPL_HEADER        "cyhal_pdmpcm_impl.h"   //!< Implementation specific header for PDMPCM
+#define CYHAL_PWM_IMPL_HEADER           "cyhal_pwm_impl.h"      //!< Implementation specific header for PWM
+#define CYHAL_QUADDEC_IMPL_HEADER       "cyhal_quaddec_impl.h"  //!< Implementation specific header for QUADDEC
+#define CYHAL_SYSTEM_IMPL_HEADER        "cyhal_system_impl.h"   //!< Implementation specific header for System
+#define CYHAL_SYSPM_IMPL_HEADER         "cyhal_syspm_impl.h"    //!< Implementation specific header for System Power Management
+#define CYHAL_TIMER_IMPL_HEADER         "cyhal_timer_impl.h"    //!< Implementation specific header for Timer
+#define CYHAL_TRNG_IMPL_HEADER          "cyhal_trng_impl.h"     //!< Implementation specific header for TRNG
+#define CYHAL_INTERCONNECT_IMPL_HEADER  "cyhal_interconnect_impl.h"     //!< Implementation specific header for Interconnect
 
 /** \endcond */
-
-/**
-*/
-typedef uint32_t cyhal_source_t; //!< Routable signal source
 
 /** Callbacks for Sleep and Deepsleep APIs */
 #define cyhal_system_callback_t cy_stc_syspm_callback_t
 
 /** @brief Event callback data object */
 typedef struct {
-    cy_israddress callback;
-    void*         callback_arg;
+    cy_israddress                       callback;
+    void*                               callback_arg;
 } cyhal_event_callback_data_t;
 
 /**
@@ -146,12 +145,15 @@ typedef struct {
  */
 typedef struct {
 #ifdef CY_IP_MXTCPWM
-    TCPWM_Type*                  base;
-    cyhal_resource_inst_t        resource;
-    cyhal_clock_t                clock;
-    bool                         dedicated_clock;
-    uint32_t                     clock_hz;
-    cyhal_event_callback_data_t  callback_data;
+    TCPWM_Type*                         base;
+    cyhal_resource_inst_t               resource;
+    cyhal_clock_t                       clock;
+    bool                                dedicated_clock;
+    uint32_t                            clock_hz;
+    cyhal_event_callback_data_t         callback_data;
+#if defined(CY_IP_MXPERI_TR)
+    cyhal_source_t                      inputs[5];
+#endif
 #else
     void *empty;
 #endif
@@ -167,20 +169,20 @@ typedef struct {
   */
 typedef struct {
 #if defined(CY_IP_M4CPUSS_DMAC) || defined(CY_IP_M4CPUSS_DMA)
-    cyhal_resource_inst_t          resource;
+    cyhal_resource_inst_t               resource;
     union
     {
 #ifdef CY_IP_M4CPUSS_DMA
-        cy_stc_dma_channel_config_t    dw;
+        cy_stc_dma_channel_config_t     dw;
 #endif
 #ifdef CY_IP_M4CPUSS_DMAC
-        cy_stc_dmac_channel_config_t   dmac;
+        cy_stc_dmac_channel_config_t    dmac;
 #endif
     } channel_config;
     union
     {
 #ifdef CY_IP_M4CPUSS_DMA
-        cy_stc_dma_descriptor_config_t dw;
+        cy_stc_dma_descriptor_config_t  dw;
 #endif
 #ifdef CY_IP_M4CPUSS_DMAC
         cy_stc_dmac_descriptor_config_t dmac;
@@ -189,14 +191,16 @@ typedef struct {
     union
     {
 #ifdef CY_IP_M4CPUSS_DMA
-        cy_stc_dma_descriptor_t        dw;
+        cy_stc_dma_descriptor_t         dw;
 #endif
 #ifdef CY_IP_M4CPUSS_DMAC
         cy_stc_dmac_descriptor_t        dmac;
 #endif
     } descriptor;
-    uint32_t                       irq_cause;
-    cyhal_event_callback_data_t    callback_data;
+    uint32_t                            direction;
+    uint32_t                            irq_cause;
+    cyhal_event_callback_data_t         callback_data;
+    cyhal_source_t                      source;
 #else
     void *empty;
 #endif
@@ -213,24 +217,25 @@ struct _cyhal_adc_channel_s;
   */
 typedef struct {
 #ifdef CY_IP_MXS40PASS_SAR
-    SAR_Type*                       base;
-    cyhal_resource_inst_t           resource;
-    cyhal_clock_t                   clock;
-    bool                            dedicated_clock;
-    bool                            continuous_scanning;
+    SAR_Type*                           base;
+    cyhal_resource_inst_t               resource;
+    cyhal_clock_t                       clock;
+    cyhal_source_t                      source;
+    bool                                dedicated_clock;
+    bool                                continuous_scanning;
     /* Has at least one conversion completed since the last configuration change */
-    volatile bool                   conversion_complete;
-    struct _cyhal_adc_channel_s*    channel_config[CY_SAR_MAX_NUM_CHANNELS];
-    uint8_t                         user_enabled_events;
-    cyhal_event_callback_data_t     callback_data;
-    cyhal_async_mode_t              async_mode;
-    cyhal_dma_t                     dma;
+    volatile bool                       conversion_complete;
+    struct _cyhal_adc_channel_s*        channel_config[CY_SAR_MAX_NUM_CHANNELS];
+    uint8_t                             user_enabled_events;
+    cyhal_event_callback_data_t         callback_data;
+    cyhal_async_mode_t                  async_mode;
+    cyhal_dma_t                         dma;
     /* Always updated to contain the location where the next result should be stored */
-    int32_t                         *async_buff_orig;
-    int32_t                         *async_buff_next;
-    bool                            async_transfer_in_uv; /* Default is counts */
+    int32_t                             *async_buff_orig;
+    int32_t                             *async_buff_next;
+    bool                                async_transfer_in_uv; /* Default is counts */
     /* Only decremented after all elements from a scan have been copied into async_buff */
-    size_t                          async_scans_remaining;
+    size_t                              async_scans_remaining;
 #else
     void *empty;
 #endif
@@ -245,11 +250,11 @@ typedef struct {
   */
 typedef struct _cyhal_adc_channel_s { /* Struct given an explicit name to make the forward declaration above work */
 #ifdef CY_IP_MXS40PASS_SAR
-    cyhal_adc_t*                adc;
-    cyhal_gpio_t                vplus;
-    cyhal_gpio_t                vminus;
-    uint8_t                     channel_idx;
-    uint32_t                    minimum_acquisition_ns;
+    cyhal_adc_t*                        adc;
+    cyhal_gpio_t                        vplus;
+    cyhal_gpio_t                        vminus;
+    uint8_t                             channel_idx;
+    uint32_t                            minimum_acquisition_ns;
 #else
     void *empty;
 #endif
@@ -258,21 +263,21 @@ typedef struct _cyhal_adc_channel_s { /* Struct given an explicit name to make t
 /** @brief Comparator object */
 typedef struct {
 #if defined(CY_IP_MXLPCOMP_INSTANCES) || defined(CY_IP_MXS40PASS_CTB_INSTANCES)
-    cyhal_resource_inst_t        resource;
+    cyhal_resource_inst_t               resource;
     union
     {
 #if defined(CY_IP_MXS40PASS_CTB_INSTANCES)
-        CTBM_Type *base_ctb;
+        CTBM_Type                       *base_ctb;
 #endif
 #if defined(CY_IP_MXLPCOMP_INSTANCES)
-        LPCOMP_Type              *base_lpcomp;
+        LPCOMP_Type                     *base_lpcomp;
 #endif
     };
-    cyhal_gpio_t                 pin_vin_p;
-    cyhal_gpio_t                 pin_vin_m;
-    cyhal_gpio_t                 pin_out;
-    cyhal_event_callback_data_t  callback_data;
-    uint32_t                     irq_cause;
+    cyhal_gpio_t                        pin_vin_p;
+    cyhal_gpio_t                        pin_vin_m;
+    cyhal_gpio_t                        pin_out;
+    cyhal_event_callback_data_t         callback_data;
+    uint32_t                            irq_cause;
 #else
     void *empty;
 #endif
@@ -287,9 +292,9 @@ typedef struct {
   */
 typedef struct {
 #if defined(CY_IP_MXCRYPTO_INSTANCES) || defined(CPUSS_CRYPTO_PRESENT)
-    CRYPTO_Type*                base;
-    cyhal_resource_inst_t       resource;
-    uint32_t                    crc_width;
+    CRYPTO_Type*                        base;
+    cyhal_resource_inst_t               resource;
+    uint32_t                            crc_width;
 #endif
 } cyhal_crc_t;
 
@@ -302,12 +307,12 @@ typedef struct {
   */
 typedef struct {
 #ifdef CY_IP_MXS40PASS_CTDAC
-    CTDAC_Type*                 base_dac;
-    CTBM_Type*                  base_opamp;
-    cyhal_resource_inst_t       resource_dac;
-    cyhal_resource_inst_t       resource_opamp;
-    cyhal_resource_inst_t       resource_aref_opamp;
-    cyhal_gpio_t                pin;
+    CTDAC_Type*                         base_dac;
+    CTBM_Type*                          base_opamp;
+    cyhal_resource_inst_t               resource_dac;
+    cyhal_resource_inst_t               resource_opamp;
+    cyhal_resource_inst_t               resource_aref_opamp;
+    cyhal_gpio_t                        pin;
 #else
     void *empty;
 #endif
@@ -321,12 +326,12 @@ typedef struct {
   * between platforms and/or HAL releases.
   */
 typedef struct {
-    CTBM_Type*             base;
-    cyhal_resource_inst_t  resource;
-    cyhal_gpio_t           pin_vin_p;
-    cyhal_gpio_t           pin_vin_m;
-    cyhal_gpio_t           pin_vout;
-    bool                   is_init_success;
+    CTBM_Type*                          base;
+    cyhal_resource_inst_t               resource;
+    cyhal_gpio_t                        pin_vin_p;
+    cyhal_gpio_t                        pin_vin_m;
+    cyhal_gpio_t                        pin_vout;
+    bool                                is_init_success;
 } cyhal_opamp_t;
 
 /**
@@ -349,21 +354,21 @@ typedef struct {
   */
 typedef struct {
 #ifdef CY_IP_MXSCB
-    CySCB_Type*                               base;
-    cyhal_resource_inst_t                     resource;
-    cyhal_gpio_t                              pin_sda;
-    cyhal_gpio_t                              pin_scl;
-    cyhal_clock_t                             clock;
-    bool                                      is_shared_clock;
-    cy_stc_scb_i2c_context_t                  context;
-    cy_stc_scb_i2c_master_xfer_config_t       rx_config;
-    cy_stc_scb_i2c_master_xfer_config_t       tx_config;
-    bool                                      is_slave;
-    uint32_t                                  address;
-    uint32_t                                  irq_cause;
-    uint16_t                                  pending;
-    uint16_t                                  events;
-    cyhal_event_callback_data_t               callback_data;
+    CySCB_Type*                         base;
+    cyhal_resource_inst_t               resource;
+    cyhal_gpio_t                        pin_sda;
+    cyhal_gpio_t                        pin_scl;
+    cyhal_clock_t                       clock;
+    bool                                is_shared_clock;
+    cy_stc_scb_i2c_context_t            context;
+    cy_stc_scb_i2c_master_xfer_config_t rx_config;
+    cy_stc_scb_i2c_master_xfer_config_t tx_config;
+    bool                                is_slave;
+    uint32_t                            address;
+    uint32_t                            irq_cause;
+    uint16_t                            pending;
+    uint16_t                            events;
+    cyhal_event_callback_data_t         callback_data;
 #else
     void *empty;
 #endif
@@ -401,37 +406,37 @@ typedef struct {
   */
 typedef struct {
 #ifdef CY_IP_MXAUDIOSS
-    I2S_Type                        *base;
-    cyhal_resource_inst_t           resource;
-    cyhal_gpio_t                    pin_tx_sck;
-    cyhal_gpio_t                    pin_tx_ws;
-    cyhal_gpio_t                    pin_tx_sdo;
-    cyhal_gpio_t                    pin_rx_sck;
-    cyhal_gpio_t                    pin_rx_ws;
-    cyhal_gpio_t                    pin_rx_sdi;
-    cyhal_gpio_t                    pin_mclk;
-    bool                            is_tx_slave;
-    bool                            is_rx_slave;
-    uint32_t                        mclk_hz;
-    uint8_t                         channel_length;
-    uint8_t                         word_length;
-    uint32_t                        sample_rate_hz;
-    cyhal_clock_t                   clock;
-    bool                            is_clock_owned;
-    uint16_t                        user_enabled_events;
-    cyhal_event_callback_data_t     callback_data;
-    cyhal_async_mode_t              async_mode;
-    uint8_t                         async_dma_priority;
-    cyhal_dma_t                     tx_dma;
-    cyhal_dma_t                     rx_dma;
+    I2S_Type                            *base;
+    cyhal_resource_inst_t               resource;
+    cyhal_gpio_t                        pin_tx_sck;
+    cyhal_gpio_t                        pin_tx_ws;
+    cyhal_gpio_t                        pin_tx_sdo;
+    cyhal_gpio_t                        pin_rx_sck;
+    cyhal_gpio_t                        pin_rx_ws;
+    cyhal_gpio_t                        pin_rx_sdi;
+    cyhal_gpio_t                        pin_mclk;
+    bool                                is_tx_slave;
+    bool                                is_rx_slave;
+    uint32_t                            mclk_hz;
+    uint8_t                             channel_length;
+    uint8_t                             word_length;
+    uint32_t                            sample_rate_hz;
+    cyhal_clock_t                       clock;
+    bool                                is_clock_owned;
+    uint16_t                            user_enabled_events;
+    cyhal_event_callback_data_t         callback_data;
+    cyhal_async_mode_t                  async_mode;
+    uint8_t                             async_dma_priority;
+    cyhal_dma_t                         tx_dma;
+    cyhal_dma_t                         rx_dma;
     // Note: When the async DMA mode is in use, these variables will always reflect the state
     // that the transfer will be in after the in-progress DMA transfer, if any, is complete
-    volatile const void             *async_tx_buff;
-    volatile size_t                 async_tx_length;
-    volatile void                   *async_rx_buff;
-    volatile size_t                 async_rx_length;
-    volatile bool                   pm_transition_ready;
-    cyhal_syspm_callback_data_t     pm_callback;
+    volatile const void                 *async_tx_buff;
+    volatile size_t                     async_tx_length;
+    volatile void                       *async_rx_buff;
+    volatile size_t                     async_rx_length;
+    volatile bool                       pm_transition_ready;
+    cyhal_syspm_callback_data_t         pm_callback;
 #else
     void *empty;
 #endif
@@ -445,14 +450,10 @@ typedef struct {
   * between platforms and/or HAL releases.
   */
 typedef struct {
-#ifdef CY_IP_MXS40SRSS_MCWDT_INSTANCES
-    MCWDT_STRUCT_Type                *base;
-    cyhal_resource_inst_t            resource;
-    cyhal_event_callback_data_t      callback_data;
-    bool                             clear_int_mask;
-#else
-    void *empty;
-#endif
+    MCWDT_STRUCT_Type                   *base;
+    cyhal_resource_inst_t               resource;
+    cyhal_event_callback_data_t         callback_data;
+    bool                                clear_int_mask;
 } cyhal_lptimer_t;
 
 /**
@@ -464,20 +465,20 @@ typedef struct {
   */
 typedef struct {
 #ifdef CY_IP_MXAUDIOSS_INSTANCES
-    PDM_Type                                 *base;
-    cyhal_resource_inst_t                    resource;
-    cyhal_gpio_t                             pin_data;
-    cyhal_gpio_t                             pin_clk;
+    PDM_Type                            *base;
+    cyhal_resource_inst_t               resource;
+    cyhal_gpio_t                        pin_data;
+    cyhal_gpio_t                        pin_clk;
     /** User requested irq, see cyhal_pdm_pcm_event_t */
-    uint32_t                                 irq_cause;
-    cyhal_event_callback_data_t              callback_data;
-    uint8_t                                  word_size;
-    cyhal_dma_t                              dma;
-    volatile bool                            stabilized;
-    volatile bool                            pm_transition_ready;
-    cyhal_syspm_callback_data_t              pm_callback;
-    void                                     *async_buffer;
-    size_t                                   async_read_remaining;
+    uint32_t                            irq_cause;
+    cyhal_event_callback_data_t         callback_data;
+    uint8_t                             word_size;
+    cyhal_dma_t                         dma;
+    volatile bool                       stabilized;
+    volatile bool                       pm_transition_ready;
+    cyhal_syspm_callback_data_t         pm_callback;
+    void                                *async_buffer;
+    size_t                              async_read_remaining;
 #else
     void *empty;
 #endif
@@ -492,9 +493,9 @@ typedef struct {
   */
 typedef struct {
 #ifdef CY_IP_MXTCPWM
-    cyhal_tcpwm_t  tcpwm;
-    cyhal_gpio_t   pin;
-    cyhal_gpio_t   pin_compl;
+    cyhal_tcpwm_t                       tcpwm;
+    cyhal_gpio_t                        pin;
+    cyhal_gpio_t                        pin_compl;
 #else
     void *empty;
 #endif
@@ -509,26 +510,48 @@ typedef struct {
   */
 typedef struct {
 #ifdef CY_IP_MXSMIF
-    SMIF_Type*                       base;
-    cyhal_resource_inst_t            resource;
-    cyhal_gpio_t                     pin_ios[8];
-    cyhal_gpio_t                     pin_sclk;
-    cyhal_gpio_t                     pin_ssel[SMIF_CHIP_TOP_SPI_SEL_NR];
+    SMIF_Type*                          base;
+    cyhal_resource_inst_t               resource;
+    cyhal_gpio_t                        pin_ios[8];
+    en_hsiom_sel_t                      saved_io_hsiom[8];
+    cyhal_gpio_t                        pin_sclk;
+    en_hsiom_sel_t                      saved_sclk_hsiom;
+    cyhal_gpio_t                        pin_ssel[SMIF_CHIP_TOP_SPI_SEL_NR];
+    en_hsiom_sel_t                      saved_ssel_hsiom[SMIF_CHIP_TOP_SPI_SEL_NR];
     /* Active slave select */
-    cy_en_smif_slave_select_t        slave_select;
-    cyhal_clock_t                    clock;
-    bool                             is_clock_owned;
-    uint8_t                          mode;
-    cy_stc_smif_context_t            context;
-    cy_en_smif_data_select_t         data_select;
-    uint32_t                         irq_cause;
-    cyhal_event_callback_data_t      callback_data;
-    cyhal_syspm_callback_data_t      pm_callback;
-    bool                             pm_transition_pending;
+    cy_en_smif_slave_select_t           slave_select;
+    cyhal_clock_t                       clock;
+    bool                                is_clock_owned;
+    uint8_t                             mode;
+    cy_stc_smif_context_t               context;
+    cy_en_smif_data_select_t            data_select;
+    uint32_t                            irq_cause;
+    cyhal_event_callback_data_t         callback_data;
+    cyhal_syspm_callback_data_t         pm_callback;
+    bool                                pm_transition_pending;
 #else
     void *empty;
 #endif /* ifdef CY_IP_MXSMIF */
 } cyhal_qspi_t;
+
+/**
+  * @brief Quadrature Decoder object
+  *
+  * Application code should not rely on the specific contents of this struct.
+  * They are considered an implementation detail which is subject to change
+  * between platforms and/or HAL releases.
+  */
+typedef struct {
+#ifdef CY_IP_MXTCPWM
+    cyhal_tcpwm_t                       tcpwm;
+    cyhal_gpio_t                        phi_a;
+    cyhal_gpio_t                        phi_b;
+    cyhal_gpio_t                        index;
+    uint32_t                            last_counter_value;
+#else
+    void *empty;
+#endif
+} cyhal_quaddec_t;
 
 /**
   * @brief RNG object
@@ -539,8 +562,8 @@ typedef struct {
   */
 typedef struct {
 #if defined(CY_IP_MXCRYPTO_INSTANCES) || defined(CPUSS_CRYPTO_PRESENT)
-    CRYPTO_Type*                base;
-    cyhal_resource_inst_t       resource;
+    CRYPTO_Type*                        base;
+    cyhal_resource_inst_t               resource;
 #else
     void *empty;
 #endif
@@ -555,7 +578,7 @@ typedef struct {
   */
 typedef struct {
 #ifdef CY_IP_MXS40SRSS_RTC
-    cy_stc_rtc_dst_t dst;
+    cy_stc_rtc_dst_t                    dst;
 #else
     void *empty;
 #endif
@@ -570,26 +593,40 @@ typedef struct {
   */
 typedef struct {
 #ifdef CY_IP_MXSDHC
-    SDHC_Type*                       base;
-    cyhal_resource_inst_t            resource;
-    cyhal_clock_t                    clock;
-    bool                             emmc;
-    cy_en_sd_host_dma_type_t         dmaType;
-    bool                             enableLedControl;
-    cy_stc_sd_host_context_t         context;
-    cyhal_gpio_t                     pin_clk;
-    cyhal_gpio_t                     pin_cmd;
-    cyhal_gpio_t                     pin_data[8];
-    cyhal_gpio_t                     pin_cardDetect;
-    cyhal_gpio_t                     pin_ioVoltSel;
-    cyhal_gpio_t                     pin_cardIfPwrEn;
-    cyhal_gpio_t                     pin_cardMechWriteProt;
-    cyhal_gpio_t                     pin_ledCtrl;
-    cyhal_gpio_t                     pin_cardEmmcReset;
-    uint32_t                         irq_cause;
-    cyhal_event_callback_data_t      callback_data;
-    bool                             pm_transition_pending;
-    cyhal_syspm_callback_data_t      pm_callback_data;
+    SDHC_Type*                          base;
+    cyhal_resource_inst_t               resource;
+    cyhal_clock_t                       clock;
+    bool                                emmc;
+    cy_en_sd_host_dma_type_t            dma_type;
+    uint8_t                             bus_width;
+    bool                                enable_led_control;
+    /* TOUT setting of SDHC block */
+    uint8_t                             data_timeout_tout;
+    bool                                data_timeout_auto_reconfig;
+    /* Desired by user data timeout in card clocks */
+    uint32_t                            data_timeout_card_clocks_user;
+    cy_stc_sd_host_context_t            context;
+    cyhal_gpio_t                        pin_clk;
+    cyhal_gpio_t                        pin_cmd;
+    cyhal_gpio_t                        pin_data[8];
+    cyhal_gpio_t                        pin_card_detect;
+    cyhal_gpio_t                        pin_io_vol_sel;
+    cyhal_gpio_t                        pin_card_pwr_en;
+    cyhal_gpio_t                        pin_card_mech_write_prot;
+    cyhal_gpio_t                        pin_led_ctrl;
+    cyhal_gpio_t                        pin_emmc_reset;
+    uint32_t                            irq_cause;
+    cyhal_event_callback_data_t         callback_data;
+    bool                                pm_transition_pending;
+    cyhal_syspm_callback_data_t         pm_callback_data;
+    bool                                low_voltage_io_desired;
+    bool                                low_voltage_io_set;
+    uint32_t                            bus_frequency_hz;
+    /* Frequency of HF clock, that provided to SDHC block */
+    uint32_t                            block_source_freq_hz;
+    /* card detect GPIO callback enabled */
+    bool                                cd_gpio_cb_enabled;
+    uint32_t                            adma_descriptor_tbl[2];
 #else
     void *empty;
 #endif
@@ -604,37 +641,38 @@ typedef struct {
   */
 typedef struct {
 #if defined(CY_IP_MXSDHC)
-    SDHC_Type*                                base;
-    bool                                      emmc;
-    cy_en_sd_host_dma_type_t                  dmaType;
-    cy_stc_sd_host_context_t                  context;
+    SDHC_Type*                          base;
+    bool                                emmc;
+    cy_en_sd_host_dma_type_t            dma_type;
+    cy_stc_sd_host_context_t            context;
+    uint32_t                            adma_descriptor_tbl[2];
 #elif defined(CYHAL_UDB_SDIO)
-    cyhal_dma_t                               dma0Ch0;
-    cyhal_dma_t                               dma0Ch1;
-    cyhal_dma_t                               dma1Ch1;
-    cyhal_dma_t                               dma1Ch3;
-    stc_sdio_irq_cb_t*                        pfuCb;
+    cyhal_dma_t                         dma0Ch0;
+    cyhal_dma_t                         dma0Ch1;
+    cyhal_dma_t                         dma1Ch1;
+    cyhal_dma_t                         dma1Ch3;
+    stc_sdio_irq_cb_t*                  pfuCb;
 #endif /* defined(CY_IP_MXSDHC) */
 
 #if defined(CYHAL_UDB_SDIO) || defined(CY_IP_MXSDHC)
-    cyhal_clock_t                             clock;
-    cyhal_resource_inst_t                     resource;
-    cyhal_gpio_t                              pin_clk;
-    cyhal_gpio_t                              pin_cmd;
-    cyhal_gpio_t                              pin_data0;
-    cyhal_gpio_t                              pin_data1;
-    cyhal_gpio_t                              pin_data2;
-    cyhal_gpio_t                              pin_data3;
+    cyhal_clock_t                       clock;
+    cyhal_resource_inst_t               resource;
+    cyhal_gpio_t                        pin_clk;
+    cyhal_gpio_t                        pin_cmd;
+    cyhal_gpio_t                        pin_data0;
+    cyhal_gpio_t                        pin_data1;
+    cyhal_gpio_t                        pin_data2;
+    cyhal_gpio_t                        pin_data3;
 
-    uint32_t                                  frequencyhal_hz;
-    uint16_t                                  block_size;
-    uint32_t                                  irq_cause;
+    uint32_t                            frequencyhal_hz;
+    uint16_t                            block_size;
+    uint32_t                            irq_cause;
 
-    uint32_t                                  events;
-    cyhal_event_callback_data_t               callback_data;
+    uint32_t                            events;
+    cyhal_event_callback_data_t         callback_data;
 
-    bool                                      pm_transition_pending;
-    cyhal_syspm_callback_data_t               pm_callback_data;
+    bool                                pm_transition_pending;
+    cyhal_syspm_callback_data_t         pm_callback_data;
 #else
     void *empty;
 #endif /* defined(CY_IP_MXSDHC) || defined(CY_IP_MXSDHC) */
@@ -649,32 +687,32 @@ typedef struct {
   */
 typedef struct {
 #ifdef CY_IP_MXSCB
-    CySCB_Type*                               base;
-    cyhal_resource_inst_t                     resource;
-    cyhal_gpio_t                              pin_miso;
-    cyhal_gpio_t                              pin_mosi;
-    cyhal_gpio_t                              pin_sclk;
-    cyhal_gpio_t                              pin_ssel[4];
-    cy_en_scb_spi_polarity_t                  ssel_pol[4];
-    uint8_t                                   active_ssel;
-    cyhal_clock_t                             clock;
-    cy_en_scb_spi_sclk_mode_t                 clk_mode;
-    uint8_t                                   mode;
-    uint8_t                                   data_bits;
-    bool                                      is_slave;
-    bool                                      alloc_clock;
-    uint8_t                                   oversample_value;
-    bool                                      msb_first;
-    cy_stc_scb_spi_context_t                  context;
-    uint32_t                                  irq_cause;
-    uint16_t volatile                         pending;
-    uint8_t                                   write_fill;
-    void                                      *rx_buffer;
-    uint32_t                                  rx_buffer_size;
-    const void                                *tx_buffer;
-    uint32_t                                  tx_buffer_size;
-    bool                                      is_async;
-    cyhal_event_callback_data_t               callback_data;
+    CySCB_Type*                         base;
+    cyhal_resource_inst_t               resource;
+    cyhal_gpio_t                        pin_miso;
+    cyhal_gpio_t                        pin_mosi;
+    cyhal_gpio_t                        pin_sclk;
+    cyhal_gpio_t                        pin_ssel[4];
+    cy_en_scb_spi_polarity_t            ssel_pol[4];
+    uint8_t                             active_ssel;
+    cyhal_clock_t                       clock;
+    cy_en_scb_spi_sclk_mode_t           clk_mode;
+    uint8_t                             mode;
+    uint8_t                             data_bits;
+    bool                                is_slave;
+    bool                                alloc_clock;
+    uint8_t                             oversample_value;
+    bool                                msb_first;
+    cy_stc_scb_spi_context_t            context;
+    uint32_t                            irq_cause;
+    uint16_t volatile                   pending;
+    uint8_t                             write_fill;
+    void                                *rx_buffer;
+    uint32_t                            rx_buffer_size;
+    const void                          *tx_buffer;
+    uint32_t                            tx_buffer_size;
+    bool                                is_async;
+    cyhal_event_callback_data_t         callback_data;
 #else
     void *empty;
 #endif
@@ -689,8 +727,8 @@ typedef struct {
   */
 typedef struct {
 #ifdef CY_IP_MXTCPWM
-    cyhal_tcpwm_t  tcpwm;
-    uint32_t       default_value;
+    cyhal_tcpwm_t                       tcpwm;
+    uint32_t                            default_value;
 #else
     void *empty;
 #endif
@@ -705,20 +743,20 @@ typedef struct {
   */
 typedef struct {
 #ifdef CY_IP_MXSCB
-    CySCB_Type*                      base;
-    cyhal_resource_inst_t            resource;
-    cyhal_gpio_t                     pin_rx;
-    cyhal_gpio_t                     pin_tx;
-    cyhal_gpio_t                     pin_cts;
-    cyhal_gpio_t                     pin_rts;
-    bool                             is_user_clock;
-    cyhal_clock_t                    clock;
-    cy_stc_scb_uart_context_t        context;
-    cy_stc_scb_uart_config_t         config;
-    uint32_t                         irq_cause;
-    en_hsiom_sel_t                   saved_tx_hsiom;
-    en_hsiom_sel_t                   saved_rts_hsiom;
-    cyhal_event_callback_data_t      callback_data;
+    CySCB_Type*                         base;
+    cyhal_resource_inst_t               resource;
+    cyhal_gpio_t                        pin_rx;
+    cyhal_gpio_t                        pin_tx;
+    cyhal_gpio_t                        pin_cts;
+    cyhal_gpio_t                        pin_rts;
+    bool                                is_user_clock;
+    cyhal_clock_t                       clock;
+    cy_stc_scb_uart_context_t           context;
+    cy_stc_scb_uart_config_t            config;
+    uint32_t                            irq_cause;
+    en_hsiom_sel_t                      saved_tx_hsiom;
+    en_hsiom_sel_t                      saved_rts_hsiom;
+    cyhal_event_callback_data_t         callback_data;
 #else
     void *empty;
 #endif
@@ -733,15 +771,15 @@ typedef struct {
   */
 typedef struct {
 #ifdef CY_IP_MXUSBFS
-    USBFS_Type*                     base;
-    cy_stc_usbfs_dev_drv_context_t  context;
-    cyhal_resource_inst_t           resource;
-    cyhal_resource_inst_t           pll_resource;
-    cyhal_clock_t                   clock;
-    bool                            shared_clock;
-    cyhal_gpio_t                    pin_dp;
-    cyhal_gpio_t                    pin_dm;
-    cyhal_syspm_callback_data_t     pm_callback;
+    USBFS_Type*                         base;
+    cy_stc_usbfs_dev_drv_context_t      context;
+    cyhal_resource_inst_t               resource;
+    cyhal_resource_inst_t               pll_resource;
+    cyhal_clock_t                       clock;
+    bool                                shared_clock;
+    cyhal_gpio_t                        pin_dp;
+    cyhal_gpio_t                        pin_dm;
+    cyhal_syspm_callback_data_t         pm_callback;
     uint8_t *rd_data[CY_USBFS_DEV_DRV_NUM_EPS_MAX];
     uint32_t rd_size[CY_USBFS_DEV_DRV_NUM_EPS_MAX];
 #else

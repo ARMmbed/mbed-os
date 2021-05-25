@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -171,7 +171,7 @@ cy_rslt_t _cyhal_comp_lp_init(cyhal_comp_t *obj, cyhal_gpio_t vin_p, cyhal_gpio_
     const cyhal_resource_pin_mapping_t *output_map = (NC != output)    ? CY_UTILS_GET_RESOURCE(output, cyhal_pin_map_lpcomp_dsi_comp)    : NULL;
 
     /* Verify if mapping successful */
-    if((NULL == vin_p_map) || (NULL == vin_m_map) || ((NC != output) && (NULL == vin_m_map)))
+    if((NULL == vin_p_map) || (NULL == vin_m_map) || ((NC != output) && (NULL == output_map)))
     {
         result = CYHAL_COMP_RSLT_ERR_INVALID_PIN;
     }
@@ -270,7 +270,10 @@ void _cyhal_comp_lp_free(cyhal_comp_t *obj)
             NVIC_DisableIRQ(_cyhal_lp_comp_irq_n[obj->resource.block_num / _CYHAL_COMP_PER_LP]);
         }
 
-        Cy_LPComp_Disable(obj->base_lpcomp, (obj->resource.block_num % _CYHAL_COMP_PER_LP) ? CY_LPCOMP_CHANNEL_1 : CY_LPCOMP_CHANNEL_0);
+        if(NULL != obj->base_lpcomp)
+        {
+            Cy_LPComp_Disable(obj->base_lpcomp, (obj->resource.block_num % _CYHAL_COMP_PER_LP) ? CY_LPCOMP_CHANNEL_1 : CY_LPCOMP_CHANNEL_0);
+        }
         cyhal_hwmgr_free(&(obj->resource));
         obj->base_lpcomp = NULL;
         obj->resource.type = CYHAL_RSC_INVALID;

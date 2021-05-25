@@ -7,7 +7,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,19 +26,25 @@
 #include "cy_pdl.h"
 #include "cyhal_hw_types.h"
 #include "cyhal_hwmgr.h"
-#include "cy_ctb.h"
 #include "cyhal_pin_package.h"
 #include "cyhal_gpio.h"
 #include "cyhal_system_impl.h"
 
 #if defined(CY_IP_MXS40PASS_INSTANCES)
+#include "cy_ctb.h"
+#endif
+
+#if defined(CY_IP_MXS40PASS_INSTANCES) || defined(CY_IP_M0S8PASS4A_INSTANCES)
 
 #if defined(__cplusplus)
 extern "C"
 {
 #endif
 
+#if defined(CY_IP_MXS40PASS_INSTANCES)
 static uint16_t cyhal_analog_ref_count = 0;
+#endif
+
 #ifdef CY_IP_MXS40PASS_CTB_INSTANCES
 static uint16_t cyhal_analog_ctb_ref_count = 0;
 
@@ -48,7 +54,7 @@ CTBM_Type *const _cyhal_ctb_base[] =
     CTBM0,
 #endif
 
-/* All current PSoC 6 devices have only one CTB block */
+/* All current CAT1/CAT2 devices have only one CTB block */
 #if (CY_IP_MXS40PASS_CTB_INSTANCES > 1)
     #error "Unhandled CTB instance count"
 #endif
@@ -59,6 +65,7 @@ CTBM_Type *const _cyhal_ctb_base[] =
 
 void _cyhal_analog_init(void)
 {
+#if defined(CY_IP_MXS40PASS_INSTANCES)
     uint32_t saved_intr = cyhal_system_critical_section_enter();
     if(cyhal_analog_ref_count == 0)
     {
@@ -68,10 +75,12 @@ void _cyhal_analog_init(void)
 
     ++cyhal_analog_ref_count;
     cyhal_system_critical_section_exit(saved_intr);
+#endif
 }
 
 void _cyhal_analog_free(void)
 {
+#if defined(CY_IP_MXS40PASS_INSTANCES)
     uint32_t saved_intr = cyhal_system_critical_section_enter();
     CY_ASSERT(cyhal_analog_ref_count > 0);
     --cyhal_analog_ref_count;
@@ -81,6 +90,7 @@ void _cyhal_analog_free(void)
         Cy_SysAnalog_DeInit();
     }
     cyhal_system_critical_section_exit(saved_intr);
+#endif
 }
 
 #ifdef CY_IP_MXS40PASS_CTB_INSTANCES
@@ -266,4 +276,4 @@ uint32 _cyhal_opamp_convert_power(cyhal_power_level_t hal_power)
 }
 #endif
 
-#endif /* defined(CY_IP_MXS40PASS_INSTANCES) */
+#endif /* defined(CY_IP_MXS40PASS_INSTANCES || defined(CY_IP_M0S8PASS4A_INSTANCES) */

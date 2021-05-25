@@ -7,7 +7,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -124,6 +124,69 @@ static cyhal_qspi_t *_cyhal_qspi_get_irq_obj(void)
     return _cyhal_qspi_config_structs[block];
 }
 
+static void _cyhal_qspi_set_pins_frozen(cyhal_qspi_t* obj, bool freeze)
+{
+    GPIO_PRT_Type* port;
+    uint8_t pin;
+    cyhal_gpio_t gpio;
+    for(size_t i = 0; i < sizeof(obj->pin_ios)/sizeof(obj->pin_ios[0]); ++i)
+    {
+        gpio = obj->pin_ios[i];
+        if(NC != gpio)
+        {
+            port = CYHAL_GET_PORTADDR(gpio);
+            pin = (uint8_t)CYHAL_GET_PIN(gpio);
+            if(freeze)
+            {
+                obj->saved_io_hsiom[i] = Cy_GPIO_GetHSIOM(port, pin);
+                Cy_GPIO_Clr(port, pin);
+                Cy_GPIO_SetHSIOM(port, pin, HSIOM_SEL_GPIO);
+            }
+            else
+            {
+                Cy_GPIO_SetHSIOM(port, pin, obj->saved_io_hsiom[i]);
+            }
+        }
+    }
+
+    gpio = obj->pin_sclk;
+    if(NC != gpio)
+    {
+        port = CYHAL_GET_PORTADDR(gpio);
+        pin = (uint8_t)CYHAL_GET_PIN(gpio);
+        if(freeze)
+        {
+            obj->saved_sclk_hsiom = Cy_GPIO_GetHSIOM(port, pin);
+            Cy_GPIO_Clr(port, pin);
+            Cy_GPIO_SetHSIOM(port, pin, HSIOM_SEL_GPIO);
+        }
+        else
+        {
+            Cy_GPIO_SetHSIOM(port, pin, obj->saved_sclk_hsiom);
+        }
+    }
+
+    for(size_t i = 0; i < sizeof(obj->pin_ssel)/sizeof(obj->pin_ssel[0]); ++i)
+    {
+        gpio = obj->pin_ssel[i];
+        if(NC != gpio)
+        {
+            port = CYHAL_GET_PORTADDR(gpio);
+            pin = (uint8_t)CYHAL_GET_PIN(gpio);
+            if(freeze)
+            {
+                obj->saved_ssel_hsiom[i] = Cy_GPIO_GetHSIOM(port, pin);
+                Cy_GPIO_Set(port, pin); // The SMIF IP requires SSEL to be active low
+                Cy_GPIO_SetHSIOM(port, pin, HSIOM_SEL_GPIO);
+            }
+            else
+            {
+                Cy_GPIO_SetHSIOM(port, pin, obj->saved_ssel_hsiom[i]);
+            }
+        }
+    }
+}
+
 static bool _cyhal_qspi_pm_callback(cyhal_syspm_callback_state_t state, cyhal_syspm_callback_mode_t mode, void* callback_arg)
 {
     CY_UNUSED_PARAMETER(state);
@@ -141,7 +204,13 @@ static bool _cyhal_qspi_pm_callback(cyhal_syspm_callback_state_t state, cyhal_sy
                 obj->pm_transition_pending = true;
             }
             break;
+        case CYHAL_SYSPM_BEFORE_TRANSITION:
+            _cyhal_qspi_set_pins_frozen(obj, true);
+            break;
         case CYHAL_SYSPM_AFTER_TRANSITION:
+            _cyhal_qspi_set_pins_frozen(obj, false);
+            obj->pm_transition_pending = false;
+            break;
         case CYHAL_SYSPM_CHECK_FAIL:
             obj->pm_transition_pending = false;
             break;
@@ -508,7 +577,7 @@ cy_rslt_t cyhal_qspi_init(
     cyhal_gpio_t io4, cyhal_gpio_t io5, cyhal_gpio_t io6, cyhal_gpio_t io7, cyhal_gpio_t sclk,
     cyhal_gpio_t ssel, uint32_t hz, uint8_t mode)
 {
-    /* mode (CPOL and CPHA) is not supported in PSoC 6 */
+    /* mode (CPOL and CPHA) are not supported in CAT1 (PSoC 6) */
     (void)mode;
 
     CY_ASSERT(NULL != obj);
@@ -669,7 +738,7 @@ cy_rslt_t cyhal_qspi_init(
         obj->pm_callback.states = (cyhal_syspm_callback_state_t)(CYHAL_SYSPM_CB_CPU_DEEPSLEEP | CYHAL_SYSPM_CB_SYSTEM_HIBERNATE);
         obj->pm_callback.args = obj;
         obj->pm_callback.next = NULL;
-        obj->pm_callback.ignore_modes = CYHAL_SYSPM_BEFORE_TRANSITION;
+        obj->pm_callback.ignore_modes = (cyhal_syspm_callback_mode_t)0;
         _cyhal_syspm_register_peripheral_callback(&(obj->pm_callback));
 
         cy_stc_sysint_t irqCfg = { _CYHAL_QSPI_IRQ_N[obj->resource.block_num], CYHAL_ISR_PRIORITY_DEFAULT };

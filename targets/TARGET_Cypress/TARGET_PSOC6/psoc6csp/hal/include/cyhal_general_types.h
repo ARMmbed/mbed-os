@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -89,29 +89,10 @@ enum cyhal_rslt_module_chip
     CYHAL_RSLT_MODULE_UART          = (0x1B << 8),  //!< An error occurred in UART module
     CYHAL_RSLT_MODULE_USB           = (0x1C << 8),  //!< An error occurred in USB module
     CYHAL_RSLT_MODULE_WDT           = (0x1D << 8),  //!< An error occurred in WDT module
+    // Implementation specific section
+    CYHAL_RSLT_MODULE_IMPL_TCPWM    = (0x1E << 8),  //!< An error occurred in TCPWM module (TCPWM based drivers are: Timer, PWM, Quadrature Decoder)
+    CYHAL_RSLT_MODULE_IMPL_SCB      = (0x1F << 8),  //!< An error occurred in SCB module (SCB based drivers are: I2C, SPI, UART)
 };
-
-/**
- * Enum to specify all of the digital output signals supported by different hardware peripherals. These can be used
- * as inputs to other peripherals if the selected device has internal routing resources.
- */
-typedef enum
-{
-    CYHAL_SIGNAL_DMA_COMPLETE,      //!< DMA complete signal
-
-    CYHAL_SIGNAL_PWM_OUT,           //!< PWM output signal
-    CYHAL_SIGNAL_PWM_OUT_INV,       //!< PWM output signal inverted
-    CYHAL_SIGNAL_PWM_OVERFLOW,      //!< PWM overflow signal
-    CYHAL_SIGNAL_PWM_UNDERFLOW,     //!< PWM underflow signal
-    CYHAL_SIGNAL_PWM_COMPARE,       //!< PWM period match signal
-
-    CYHAL_SIGNAL_TIMER_OVERFLOW,    //!< Timer overflow signal
-    CYHAL_SIGNAL_TIMER_UNDERFLOW,   //!< Timer underflow signal
-    CYHAL_SIGNAL_TIMER_CAPTURE,     //!< Timer capture match signal
-
-    CYHAL_SIGNAL_QUADDEC_TC,        //!< Quadrature Decoder terminal count signal. High on index event,
-                                    //!< or when counter reaches min/max value.
-} cyhal_signal_digital_out_t;
 
 /**
  * \} group_hal_results
@@ -124,6 +105,15 @@ typedef enum {
     /** Always perform a software transfer */
     CYHAL_ASYNC_SW,
 } cyhal_async_mode_t;
+
+/** Enum of signal edge types */
+typedef enum
+{
+    CYHAL_EDGE_TYPE_RISING_EDGE,  //!< Rising edge
+    CYHAL_EDGE_TYPE_FALLING_EDGE, //!< Falling edge
+    CYHAL_EDGE_TYPE_BOTH_EDGES,   //!< Both edges
+    CYHAL_EDGE_TYPE_LEVEL,        //!< Level
+} cyhal_edge_type_t;
 
 /** @brief Selectable power levels.
   *

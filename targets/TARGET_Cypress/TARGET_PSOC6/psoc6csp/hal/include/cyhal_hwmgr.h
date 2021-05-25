@@ -8,7 +8,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,7 +50,7 @@
 * The following snippet shows how a specific resource used directly in PDL or the
 * configurators can be freed so that it can be used by HAL.<br>
 *
-* \snippet hw_mgr.c snippet_cyhal_hwmgr_reserve
+* \snippet hal_hwmgr.c snippet_cyhal_hwmgr_reserve
 */
 
 #pragma once
@@ -79,6 +79,9 @@ extern "C" {
 /** No resources of the requested type are available */
 #define CYHAL_HWMGR_RSLT_ERR_NONE_FREE                  \
     (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_HWMGR, 2))
+/** No hardware connection available */
+#define CYHAL_HWMGR_RSLT_ERR_NO_CONNECTION                \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_HWMGR, 3))
 /** Attempt to free a resource that was not used */
 #define CYHAL_HWMGR_RSLT_WARN_UNUSED                    \
     (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_WARNING, CYHAL_RSLT_MODULE_HWMGR, 50))

@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -58,7 +58,7 @@
 * \subsection subsection_flash_use_case_1 Snippet 1: Discovering flash characteristics
 * Following code snippet demonstrates how to discover flash characteristics. Refer \ref
 * cyhal_flash_info_t for more information.
-* \snippet flash.c snippet_cyhal_flash_get_flash_info
+* \snippet hal_flash.c snippet_cyhal_flash_get_flash_info
 *
 * \subsection subsection_flash_use_case_2 Snippet 2: Blocking Flash Write Operation
 * Following code snippet demonstrates blocking flash write.
@@ -67,7 +67,7 @@
 * It uses blocking flash write operation which blocks the caller until the write is
 * completed. It then verifies the flash data by comparing the flash data with the
 * written data.
-* \snippet flash.c flag_snippet_cyhal_flash_blocking_mode_flashwrite
+* \snippet hal_flash.c flag_snippet_cyhal_flash_blocking_mode_flashwrite
 * \note It is recommended to declare the flash array as global variable.
 *
 * \subsection subsection_flash_use_case_3 Snippet 3: Non-blocking Flash Write Operation using polling
@@ -77,7 +77,7 @@
 * occupies one complete flash row. It uses a polling method to complete the flash
 * write operation. It then verifies the flash data by comparing the flash data with
 * the written data.
-* \snippet flash.c flag_snippet_cyhal_flash_partially_blocking_mode_polling_flashwrite
+* \snippet hal_flash.c flag_snippet_cyhal_flash_partially_blocking_mode_polling_flashwrite
 * \note It is recommended to declare the flash array as global variable.
 */
 
@@ -105,6 +105,9 @@ extern "C" {
 /** Invalid argument */
 #define CYHAL_FLASH_RSLT_ERR_ADDRESS                    \
     (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_FLASH, 0))
+/** API is not supported */
+#define CYHAL_FLASH_RSLT_ERR_NOT_SUPPORTED              \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_FLASH, 1))
 /** Unable to support due to power state */
 /**
  * \}

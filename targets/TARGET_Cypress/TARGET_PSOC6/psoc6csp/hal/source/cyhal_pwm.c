@@ -7,7 +7,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,24 +28,32 @@
  * \ingroup group_hal_impl
  * \{
  * \section section_hal_impl_pwm_compl_pins Complementary PWM output
- * The PWM HAL driver allows generation of a normal and an inverted output. PSoC devices support complementary pin pairs to which the normal and
- * inverted signals can be routed. To identify the complementary pin for a given pin, open the PSoC device datasheet and navigate to the 'Multiple Alternate Functions' table. Each
- * column represents an alternate function of the pin in the corresponding row. Find your pin and make a note of the tcpwm[X].line[Y]:Z. The
- * complementary pin is found by looking up the pin against tcpwm[X].line_<b>compl</b>[Y]:Z from the same column.
- * For example, the image below shows a pair of complementary pins (P0.0 and P0.1) identified by the tcpwm[0].line[0]:0 and tcpwm[0].line_compl[0]:0 mapping.
- * These complementary pins can be supplied to \ref cyhal_pwm_init_adv using <b>pin</b> and <b>compl_pin</b> parameters in any order.
- * \image html pwm_compl_pins.png "Complementary PWM pins"
+ * The PWM HAL driver allows generation of a normal and an inverted output. PSoC devices support
+ * complementary pin pairs to which the normal and inverted signals can be routed. To identify
+ * the complementary pin for a given pin, open the PSoC device datasheet and navigate to the
+ * 'Multiple Alternate Functions' table. Each column represents an alternate function of the pin
+ * in the corresponding row. Find your pin and make a note of the tcpwm[X].line[Y]:Z. The
+ * complementary pin is found by looking up the pin against tcpwm[X].line_<b>compl</b>[Y]:Z from
+ * the same column. For example, the image below shows a pair of complementary pins (P0.0 and P0.1)
+ * identified by the tcpwm[0].line[0]:0 and tcpwm[0].line_compl[0]:0 mapping. These complementary
+ * pins can be supplied to \ref cyhal_pwm_init_adv using <b>pin</b> and <b>compl_pin</b> parameters
+ * in any order. \image html pwm_compl_pins.png "Complementary PWM pins"
  *
  * \section section_psoc6_pwm_resolution PWM Resolution
- * On PSoC 6 devices, not all PWMs hardware blocks are of the same resolution. The resolution of the PWM associated with a given pin is specified by the `TCPWM<idx>_CNT_CNT_WIDTH`
- * macro (provided by cy_device_headers.h in mtb-pdl-cat1), where `<idx>` is the index associated with the `tcpwm` portion of the entry in the pin function table. For example, if the
- * pin function is `tcpwm[1].line[3]:Z`, `<idx>` would be 1.
+ * On CAT1 (PSoC 6) devices, not all PWMs hardware blocks are of the same resolution. The
+ * resolution of the PWM associated with a given pin is specified by the `TCPWM<idx>_CNT_CNT_WIDTH`
+ * macro (provided by cy_device_headers.h in mtb-pdl-cat1), where `<idx>` is the index associated
+ * with the `tcpwm` portion of the entry in the pin function table. For example, if the pin
+ * function is `tcpwm[1].line[3]:Z`, `<idx>` would be 1.
  *
- * By default, the PWM HAL driver will configure the input clock frequency such that all PWM instances are able to provide the same maximum period regardless of the underlying resolution,
- * but period and duty cycle can be specified with reduced granularity on lower-resolution PWM instances.
- * If an application is more sensitive to PWM precision than maximum period, or if a longer maximum period is required (with correspondingly reduced precision), it is possible to override
- * the default clock by passing a \ref cyhal_clock_t instance to the \ref cyhal_pwm_init function with a custom frequency specified.
- * See the \ref group_hal_clock HAL documentation for more details.
+ * By default, the PWM HAL driver will configure the input clock frequency such that all PWM
+ * instances are able to provide the same maximum period regardless of the underlying resolution,
+ * but period and duty cycle can be specified with reduced granularity on lower-resolution PWM
+ * instances. If an application is more sensitive to PWM precision than maximum period, or if a
+ * longer maximum period is required (with correspondingly reduced precision), it is possible to
+ * override the default clock by passing a \ref cyhal_clock_t instance to the
+ * \ref cyhal_pwm_init function with a custom frequency specified. See the \ref group_hal_clock
+ * HAL documentation for more details.
  *
  * \} group_hal_impl_pwm
  */
@@ -56,6 +64,7 @@
 #include "cyhal_gpio.h"
 #include "cyhal_hwmgr.h"
 #include "cyhal_pwm.h"
+#include "cyhal_interconnect.h"
 #include "cyhal_syspm.h"
 #include "cyhal_utils.h"
 
@@ -117,7 +126,13 @@ static cy_rslt_t cyhal_pwm_set_period_and_compare(cyhal_pwm_t *obj, uint32_t per
     Cy_TCPWM_PWM_SetCompare0(obj->tcpwm.base, obj->tcpwm.resource.channel_num, 0u);
     Cy_TCPWM_PWM_SetPeriod0(obj->tcpwm.base, obj->tcpwm.resource.channel_num, period - 1u);
 
+    #if defined(CYHAL_PIN_MAP_TCPWM_LINE_COMPL)
     bool swapped_pins = (_CYHAL_UTILS_GET_RESOURCE(pin, cyhal_pin_map_tcpwm_line_compl) != NULL) && (_CYHAL_UTILS_GET_RESOURCE(pin_compl, cyhal_pin_map_tcpwm_line) != NULL);
+    #else
+    CY_UNUSED_PARAMETER(pin);
+    CY_UNUSED_PARAMETER(pin_compl);
+    bool swapped_pins = false;
+    #endif /* defined(CYHAL_PIN_MAP_TCPWM_LINE_COMPL) */
 
     #if defined(CY_IP_MXTCPWM) && (CY_IP_MXTCPWM_VERSION >= 2)
     uint32_t pwm_ctrl_reg = TCPWM_GRP_CNT_TR_PWM_CTRL(obj->tcpwm.base, TCPWM_GRP_CNT_GET_GRP(_CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource)),
@@ -154,11 +169,13 @@ cy_rslt_t cyhal_pwm_init_adv(cyhal_pwm_t *obj, cyhal_gpio_t pin, cyhal_gpio_t pi
     memset(obj, 0, sizeof(cyhal_pwm_t));
 
     const cyhal_resource_pin_mapping_t* map = _cyhal_utils_try_alloc(pin, cyhal_pin_map_tcpwm_line, sizeof(cyhal_pin_map_tcpwm_line) / sizeof(cyhal_resource_pin_mapping_t));
+    #if defined(CYHAL_PIN_MAP_TCPWM_LINE_COMPL)
     if (map == NULL)
     {
         swapped = true;
         map = _cyhal_utils_try_alloc(pin, cyhal_pin_map_tcpwm_line_compl, sizeof(cyhal_pin_map_tcpwm_line_compl) / sizeof(cyhal_resource_pin_mapping_t));
     }
+    #endif
     if (map == NULL)
     {
         return CYHAL_PWM_RSLT_BAD_ARGUMENT;
@@ -178,11 +195,18 @@ cy_rslt_t cyhal_pwm_init_adv(cyhal_pwm_t *obj, cyhal_gpio_t pin, cyhal_gpio_t pi
 
     if (CY_RSLT_SUCCESS == result && NC != pin_compl)
     {
+    #if defined(CYHAL_PIN_MAP_TCPWM_LINE_COMPL)
         const cyhal_resource_pin_mapping_t *map_compl = swapped
             ? _cyhal_utils_get_resource(pin_compl, cyhal_pin_map_tcpwm_line,
                 sizeof(cyhal_pin_map_tcpwm_line) / sizeof(cyhal_resource_pin_mapping_t), &(obj->tcpwm.resource))
-            : _cyhal_utils_get_resource(pin_compl, cyhal_pin_map_tcpwm_line_compl,
-                sizeof(cyhal_pin_map_tcpwm_line_compl) / sizeof(cyhal_resource_pin_mapping_t), &(obj->tcpwm.resource));
+            :
+    #if defined(CYHAL_PIN_MAP_TCPWM_LINE_COMPL)
+              _cyhal_utils_get_resource(pin_compl, cyhal_pin_map_tcpwm_line_compl,
+                sizeof(cyhal_pin_map_tcpwm_line_compl) / sizeof(cyhal_resource_pin_mapping_t), &(obj->tcpwm.resource))
+    #else
+              NULL
+    #endif
+              ;
 
         if ((NULL == map_compl) || !_cyhal_utils_resources_equal(map->inst, map_compl->inst))
         {
@@ -196,6 +220,9 @@ cy_rslt_t cyhal_pwm_init_adv(cyhal_pwm_t *obj, cyhal_gpio_t pin, cyhal_gpio_t pi
                 obj->pin_compl = pin_compl;
             }
         }
+    #else
+        result = CYHAL_PWM_RSLT_BAD_ARGUMENT;
+    #endif /* defined(CYHAL_PIN_MAP_TCPWM_LINE_COMPL) */
     }
 
     if (CY_RSLT_SUCCESS == result)
@@ -325,7 +352,7 @@ cy_rslt_t cyhal_pwm_set_duty_cycle(cyhal_pwm_t *obj, float duty_cycle, uint32_t 
     CY_ASSERT(NULL != obj);
     if (duty_cycle < 0.0f || duty_cycle > 100.0f || frequencyhal_hz < 1)
         return CYHAL_PWM_RSLT_BAD_ARGUMENT;
-    uint32_t period = obj->tcpwm.clock_hz / frequencyhal_hz;
+    uint32_t period = (obj->tcpwm.clock_hz + (frequencyhal_hz >> 1)) / frequencyhal_hz;
     uint32_t width = (uint32_t)(duty_cycle * 0.01f * period);
     return cyhal_pwm_set_period_and_compare(obj, period, width);
 }
@@ -349,12 +376,66 @@ cy_rslt_t cyhal_pwm_start(cyhal_pwm_t *obj)
 cy_rslt_t cyhal_pwm_stop(cyhal_pwm_t *obj)
 {
     CY_ASSERT(NULL != obj);
-    #if defined(CY_IP_MXTCPWM) && (CY_IP_MXTCPWM_VERSION >= 2)
-    Cy_TCPWM_TriggerStopOrKill_Single(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
-    #else
-    Cy_TCPWM_TriggerStopOrKill(obj->tcpwm.base, 1 << _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
-    #endif
+    Cy_TCPWM_PWM_Disable(obj->tcpwm.base, _CYHAL_TCPWM_CNT_NUMBER(obj->tcpwm.resource));
     return CY_RSLT_SUCCESS;
+}
+
+static cyhal_tcpwm_input_t _cyhal_pwm_translate_input_signal(cyhal_pwm_input_t signal)
+{
+    switch(signal)
+    {
+        case CYHAL_PWM_INPUT_START:
+            return CYHAL_TCPWM_INPUT_START;
+        case CYHAL_PWM_INPUT_STOP:
+            return CYHAL_TCPWM_INPUT_STOP;
+        case CYHAL_PWM_INPUT_RELOAD:
+            return CYHAL_TCPWM_INPUT_RELOAD;
+        case CYHAL_PWM_INPUT_COUNT:
+            return CYHAL_TCPWM_INPUT_COUNT;
+        case CYHAL_PWM_INPUT_CAPTURE:
+            return CYHAL_TCPWM_INPUT_CAPTURE;
+    }
+    CY_ASSERT(false);
+    return (cyhal_tcpwm_input_t)0;
+}
+
+static cyhal_tcpwm_output_t _cyhal_pwm_translate_output_signal(cyhal_pwm_output_t signal)
+{
+    switch(signal)
+    {
+        case CYHAL_PWM_OUTPUT_OVERFLOW:
+            return CYHAL_TCPWM_OUTPUT_OVERFLOW;
+        case CYHAL_PWM_OUTPUT_UNDERFLOW:
+            return CYHAL_TCPWM_OUTPUT_UNDERFLOW;
+        case CYHAL_PWM_OUTPUT_COMPARE_MATCH:
+            return CYHAL_TCPWM_OUTPUT_COMPARE_MATCH;
+        case CYHAL_PWM_OUTPUT_LINE_OUT:
+            return CYHAL_TCPWM_OUTPUT_LINE_OUT;
+    }
+    CY_ASSERT(false);
+    return (cyhal_tcpwm_output_t)0;
+}
+
+cy_rslt_t cyhal_pwm_connect_digital(cyhal_pwm_t *obj, cyhal_source_t source, cyhal_pwm_input_t signal, cyhal_edge_type_t type)
+{
+    cyhal_tcpwm_input_t tcpwm_signal = _cyhal_pwm_translate_input_signal(signal);
+    return _cyhal_tcpwm_connect_digital(&(obj->tcpwm), source, tcpwm_signal, type);
+}
+
+cy_rslt_t cyhal_pwm_enable_output(cyhal_pwm_t *obj, cyhal_pwm_output_t signal, cyhal_source_t *source)
+{
+    cyhal_tcpwm_output_t tcpwm_signal = _cyhal_pwm_translate_output_signal(signal);
+    return _cyhal_tcpwm_enable_output(&(obj->tcpwm), tcpwm_signal, source);
+}
+
+cy_rslt_t cyhal_pwm_disconnect_digital(cyhal_pwm_t *obj, cyhal_source_t source, cyhal_pwm_input_t signal)
+{
+    return _cyhal_tcpwm_disconnect_digital(&(obj->tcpwm), source, _cyhal_pwm_translate_input_signal(signal));
+}
+
+cy_rslt_t cyhal_pwm_disable_output(cyhal_pwm_t *obj, cyhal_pwm_output_t signal)
+{
+    return _cyhal_tcpwm_disable_output(&(obj->tcpwm), _cyhal_pwm_translate_output_signal(signal));
 }
 
 #if defined(__cplusplus)

@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -55,13 +55,13 @@
 * \ref cyhal_system_critical_section_enter returns the current state of interrupts
 * which denote the active interrupts in the system. This must be passed as argument
 * to \ref cyhal_system_critical_section_exit while exiting the critical section.
-* \snippet system.c snippet_cyhal_system_critical_section
+* \snippet hal_system.c snippet_cyhal_system_critical_section
 *
 * \subsection subsection_system_snippet2 Snippet 2: Reset reason
 * \ref cyhal_system_get_reset_reason must be called at the beginning of the main to
 * determine the reason for reset. The return parameters are present in \ref
 * cyhal_reset_reason_t.
-* \snippet system.c snippet_cyhal_system_reset_reason
+* \snippet hal_system.c snippet_cyhal_system_reset_reason
 */
 
 #pragma once

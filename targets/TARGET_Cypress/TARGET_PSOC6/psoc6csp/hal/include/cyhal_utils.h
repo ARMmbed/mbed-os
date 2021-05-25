@@ -2,11 +2,11 @@
 * \file cyhal_utils.h
 *
 * \brief
-* Provides utility functions for working with the PSoC 6 HAL implementation.
+* Provides utility functions for working with the CAT1/CAT2 HAL implementation.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -138,9 +138,9 @@ void _cyhal_utils_release_if_used(cyhal_gpio_t *pin);
  */
 static inline uint32_t _cyhal_utils_divider_value(uint32_t frequency, uint32_t frac_bits)
 {
-    #if defined(COMPONENT_PSOC6HAL)
+    #if defined(COMPONENT_CAT1A)
     return ((Cy_SysClk_ClkPeriGetFrequency() * (1 << frac_bits)) + (frequency / 2)) / frequency;
-    #else /* COMPONENT_PSOC4HAL */
+    #elif defined(COMPONENT_CAT2)
     return ((Cy_SysClk_ClkSysGetFrequency() * (1 << frac_bits)) + (frequency / 2)) / frequency;
     #endif
 }
@@ -199,9 +199,9 @@ cyhal_syspm_callback_mode_t _cyhal_utils_convert_pdltohal_pm_mode(cy_en_syspm_ca
  */
 static inline bool _cyhal_utils_is_new_clock_format(const cyhal_clock_t *clock)
 {
-    #if defined(COMPONENT_PSOC6HAL)
+    #if defined(COMPONENT_CAT1A)
     return (((cyhal_clock_block_t)clock->div_type == clock->block) && (clock->div_num == clock->channel));
-    #else /* COMPONENT_PSOC4HAL */
+    #else
     CY_UNUSED_PARAMETER(clock);
     return true;
     #endif
@@ -214,7 +214,7 @@ static inline bool _cyhal_utils_is_new_clock_format(const cyhal_clock_t *clock)
  */
 static inline void _cyhal_utils_update_clock_format(cyhal_clock_t *clock)
 {
-    #if defined(COMPONENT_PSOC6HAL)
+    #if defined(COMPONENT_CAT1A)
     if(((cyhal_clock_block_t)clock->div_type != clock->block) || (clock->div_num != clock->channel))
     {
         clock->block = (cyhal_clock_block_t)clock->div_type;
@@ -228,68 +228,95 @@ static inline void _cyhal_utils_update_clock_format(cyhal_clock_t *clock)
 /** Gets the peripheral divider information from a provided clock instance. The clock can be using either
  * the new or the old format for clocks.
  *
- * @param[in]   clock       The clock to get peripheral divider information from
- * @param[out]  div_type    The divider type the clock instance represents
- * @param[out]  div_num     The divider number the clock instance represents
+ * @param[in]   clock               The clock to get peripheral divider information from
+ * @param[out]  div_type            The divider type the clock instance represents
+ * @param[out]  div_num             The divider number the clock instance represents
  */
 void _cyhal_utils_get_peri_clock_details(const cyhal_clock_t *clock, cy_en_divider_types_t *div_type, uint32_t *div_num);
 
 /**
  * Calculates clock tolerance in the specified units given a desired and actual frequency
  *
- * @param[in] type          tolerance type
- * @param[in] desired_hz    desired clock frequency in hertz
- * @param[in] actual_hz     actual clock frequency in hertz
+ * @param[in] type                  tolerance type
+ * @param[in] desired_hz            desired clock frequency in hertz
+ * @param[in] actual_hz             actual clock frequency in hertz
  * @return the computed tolerance
  */
 int32_t _cyhal_utils_calculate_tolerance(cyhal_clock_tolerance_unit_t type, uint32_t desired_hz, uint32_t actual_hz);
 
-#if defined(COMPONENT_PSOC6HAL)
+/**
+ * Allocates a clock that can drive the specified instance.
+ *
+ * @param[out]  clock               The clock object to initialize
+ * @param[in]   clocked_item        The destination that the allocated clock must be able to drive
+ * @param[in]   div                 The divider width that is required. This is ignored if the block is hard-wired to
+ *                                  an HFCLK output
+ * @param[in]   accept_larger       If no dividers of the specified width are available, can a wider divider be
+ *                                  substituted.
+ */
+cy_rslt_t _cyhal_utils_allocate_clock(cyhal_clock_t *clock, const cyhal_resource_inst_t *clocked_item,
+                        cyhal_clock_block_t div, bool accept_larger);
+
+#if defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B)
+/** Function for finding most suitable divider for provided clock */
+typedef cy_rslt_t (*_cyhal_utils_clk_div_func_t)(uint32_t hz_src, uint32_t desired_hz,
+                        const cyhal_clock_tolerance_t *tolerance, bool only_below_desired, uint32_t *div);
+
 /**
  * Finds best divider for HF clock according to source and desired frequency data
  *
  * @param[in] hz_src                clock source frequency in hertz
  * @param[in] desired_hz            desired clock frequency in hertz
- * @param[in] tolerance             desired clock tolerance to achieve. If NULL provided, all possible dividers will be checked
- *                                  and selected most suitable.
+ * @param[in] tolerance             desired clock tolerance to achieve. If NULL provided, all possible dividers will
+ *                                  be checked and selected most suitable.
  * @param[in] only_below_desired    resulting clock frequencies, that are above desired_hz will be skipped
  * @param[out] div                  resulting divider
  * @return CYHAL_CLOCK_RSLT_ERR_FREQ if divider is not found, CY_RSLT_SUCCESS in other situations
  */
 cy_rslt_t _cyhal_utils_find_hf_clk_div(uint32_t hz_src, uint32_t desired_hz, const cyhal_clock_tolerance_t *tolerance,
-                        bool only_below_desired, uint8_t *div);
+                        bool only_below_desired, uint32_t *div);
 
 /**
- * Allocates a clock that can drive the specified instance.
+ * Attempts to set the clock to the specified frequency. This is similar to cyhal_clock_set_frequency,
+ * but it will also make an attempt to set the frequency for HFCLK outputs, which are not supported by the public
+ * API due to their limited range of supported dividers (1, 2, 4, 8)
  *
- * @param[out]  clock           The clock object to initialize
- * @param[in]   clocked_item    The destination that the allocated clock must be able to drive
- * @param[in]   div             The divider width that is required. This is ignored if the block is hard-wired to an HFCLK output
- * @param[in]   accept_larger   If no dividers of the specified width are available, can a wider divider be substituted.
- */
-cy_rslt_t _cyhal_utils_allocate_clock(cyhal_clock_t *clock, const cyhal_resource_inst_t *clocked_item, cyhal_clock_block_t div, bool accept_larger);
-
-/**
- * Attempts to set the clock to the specified frequency. This is similar to cyhal_clock_set_frequency, but it will also make
- * an attempt to set the frequency for HFCLK outputs, which are not supported by the public API due to their limited range
- * of supported dividers (1, 2, 4, 8)
- *
- * @param[in] clock     The clock instance to set the frequency for.
- * @param[in] hz        The frequency, in hertz, to set the clock to.
- * @param[in] tolerance The allowed tolerance from the desired hz that is acceptable, use NULL if no
- *                      tolerance check is required.
+ * @param[in] clock                 The clock instance to set the frequency for.
+ * @param[in] hz                    The frequency, in hertz, to set the clock to.
+ * @param[in] tolerance             The allowed tolerance from the desired hz that is acceptable, use NULL if no
+ *                                  tolerance check is required.
  */
 cy_rslt_t _cyhal_utils_set_clock_frequency(cyhal_clock_t* clock, uint32_t hz, const cyhal_clock_tolerance_t *tolerance);
 
 /**
- * Attempts to set the clock to the specified frequency. This is similar to cyhal_clock_set_frequency, but it will also make
- * an attempt to set the frequency for HFCLK outputs. This is an enhancement beyond _cyhal_utils_set_clock_frequency as this
- * will also attemt to adjust the source clock as well as change the divider.
+ * Finds for provided HF clock most suitable source to achieve target clock frequency and returns it with
+ * corresponding divider value. No clock configuration changed in this function.
  *
- * @param[in] clock     The HFCLK clock instance to set the frequency for.
- * @param[in] hz        The maximum frequency, in hertz, to set the clock to. The clock will not exceed this value.
- * @param[in] tolerance The allowed tolerance below the desired hz that is acceptable, use NULL if no
- *                      tolerance check is required.
+ * @param[in] clock                 The HFCLK clock instance that needs clock configuration.
+ * @param[in] hz                    The maximum frequency, in hertz, that needs to be achieved. The clock will not exceed
+ *                                  this value.
+ * @param[in] tolerance             The allowed tolerance below the desired hz that is acceptable, use NULL if no
+ *                                  tolerance check is required.
+ * @param[in] div_find_func         Pointer to _cyhal_utils_clk_div_func_t - type function, that will find most suitable
+ *                                  divider for provided clock.
+ * @param[out] hf_source            Resulting HF source clock, switching to which, in combination with resulting divider,
+ *                                  will provide frequency closest to desired.
+ * @param[out] div                  Resulting divider for resulting HF source clock.
+ */
+cy_rslt_t _cyhal_utils_find_hf_source_n_divider(cyhal_clock_t *clock, uint32_t hz,
+                        const cyhal_clock_tolerance_t *tolerance, _cyhal_utils_clk_div_func_t div_find_func,
+                        cyhal_clock_t *hf_source, uint32_t *div);
+
+/**
+ * Attempts to set the clock to the specified frequency. This is similar to cyhal_clock_set_frequency, but it will also
+ * make an attempt to set the frequency for HFCLK outputs. This is an enhancement beyond _cyhal_utils_set_clock_frequency
+ * as this will also attemt to adjust the source clock as well as change the divider.
+ *
+ * @param[in] clock                 The HFCLK clock instance to set the frequency for.
+ * @param[in] hz                    The maximum frequency, in hertz, to set the clock to. The clock will not exceed this
+ *                                  value.
+ * @param[in] tolerance             The allowed tolerance below the desired hz that is acceptable, use NULL if no
+ *                                  tolerance check is required.
  */
 cy_rslt_t _cyhal_utils_set_clock_frequency2(cyhal_clock_t *clock, uint32_t hz, const cyhal_clock_tolerance_t *tolerance);
 
@@ -300,7 +327,7 @@ cy_rslt_t _cyhal_utils_set_clock_frequency2(cyhal_clock_t *clock, uint32_t hz, c
 #define CYHAL_SCB_BASE_ADDRESSES                        _CYHAL_SCB_BASE_ADDRESSES
 #define CYHAL_TCPWM_DATA                                _CYHAL_TCPWM_DATA
 
-#endif /* defined(COMPONENT_PSOC6HAL) */
+#endif /* defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B) */
 
 #if defined(__cplusplus)
 }

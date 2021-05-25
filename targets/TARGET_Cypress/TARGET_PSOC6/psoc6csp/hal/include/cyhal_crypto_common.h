@@ -7,7 +7,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,35 +36,35 @@
 extern "C" {
 #endif
 
-/** Block count for CRYPTO blocks */
+/* Block count for CRYPTO blocks */
 #define CYHAL_CRYPTO_INST_COUNT      CY_IP_MXCRYPTO_INSTANCES
 
 typedef enum
 {
-    /** CRC hardware acceleration */
+    /* CRC hardware acceleration */
     CYHAL_CRYPTO_CRC,
-    /** TRNG hardware acceleration */
+    /* TRNG hardware acceleration */
     CYHAL_CRYPTO_TRNG,
-    /** VU hardware acceleration */
+    /* VU hardware acceleration */
     CYHAL_CRYPTO_VU,
-    /** Common features of the Crypto block  */
+    /* Common features of the Crypto block  */
     CYHAL_CRYPTO_COMMON,
 } cyhal_crypto_feature_t;
 
 
-/** Reserve the Crypto block and enable it.
+/* Reserve the Crypto block and enable it.
  *
  * @param[out]  base Base address to the Crypto block.
- * @param[out]  obj Resource inst for the function (eg. CRC, TRNG) in the Crypto block.
+ * @param[out]  resource Resource inst for the function (eg. CRC, TRNG) in the Crypto block.
  * @param[in]   feature feature to reserve on the Crypto block (eg. TRNG, CRC, etc.).
  * @return The status of the reserve request.
  */
 cy_rslt_t cyhal_crypto_reserve(CRYPTO_Type** base, cyhal_resource_inst_t *resource, cyhal_crypto_feature_t feature);
 
-/** Free the Crypto block and disable it.
+/* Free the Crypto block and disable it.
  *
  * @param[in]  base Base address to the Crypto block.
- * @param[in]  obj Resource inst for the funtion in Crypto block.
+ * @param[in]  resource Resource inst for the function in Crypto block.
  * @param[in]  feature Feature to free on the Crypto block (eg. TRNG, CRC, etc.).
  */
 void cyhal_crypto_free(CRYPTO_Type* base, cyhal_resource_inst_t *resource, cyhal_crypto_feature_t feature);

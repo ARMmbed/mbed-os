@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,12 +49,12 @@
 *
 * \subsection subsection_lptimer_snippet_1 Snippet 1: LPTimer initialization with Default configuration
 * The following snippet initializes a LPTimer in free running mode.
-* \snippet lptimer.c snippet_cyhal_lptimer_simple_init_def
+* \snippet hal_lptimer.c snippet_cyhal_lptimer_simple_init_def
 *
 * \subsection subsection_lptimer_snippet_2 Snippet 2: LPTimer interrupts
 * The following snippet initializes a LPTimer and uses \ref cyhal_lptimer_set_match() to trigger an interrupt
 * on match. Subsequent interrupts can be triggered at required times using \ref cyhal_lptimer_set_delay() called from the ISR.
-* \snippet lptimer.c snippet_cyhal_lptimer_interrupt
+* \snippet hal_lptimer.c snippet_cyhal_lptimer_interrupt
 */
 
 #pragma once
@@ -77,6 +77,14 @@ extern "C" {
 /** Failed to configure power management callback */
 #define CYHAL_LPTIMER_RSLT_ERR_PM_CALLBACK              \
     (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_WDT, 0))
+
+/** Failed to execute not supported API */
+#define CYHAL_LPTIMER_RSLT_ERR_NOT_SUPPORTED            \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_WDT, 1))
+
+/** Timer is not enabled or it is not clocked */
+#define CYHAL_LPTIMER_RSLT_ERR_DISABLED            \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_WDT, 2))
 
 /**
  * \}

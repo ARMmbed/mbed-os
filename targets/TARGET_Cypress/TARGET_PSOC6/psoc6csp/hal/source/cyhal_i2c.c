@@ -7,7 +7,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -140,8 +140,10 @@ static bool _cyhal_i2c_pm_callback_instance(void *obj_ptr, cyhal_syspm_callback_
 
     if (CYHAL_SYSPM_CB_CPU_DEEPSLEEP == state)
         allow = (CY_SYSPM_SUCCESS == Cy_SCB_I2C_DeepSleepCallback(&i2c_callback_params, pdl_mode));
+#if defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B)
     else if (CYHAL_SYSPM_CB_SYSTEM_HIBERNATE == state)
         allow = (CY_SYSPM_SUCCESS == Cy_SCB_I2C_HibernateCallback(&i2c_callback_params, pdl_mode));
+#endif
 
     return allow;
 }
@@ -227,9 +229,9 @@ cy_rslt_t cyhal_i2c_init(cyhal_i2c_t *obj, cyhal_gpio_t sda, cyhal_gpio_t scl, c
     {
         _cyhal_scb_update_instance_data(obj->resource.block_num, (void*)obj, &_cyhal_i2c_pm_callback_instance);
         /* Enable I2C to operate */
-#if defined(COMPONENT_PSOC6HAL)
+#if defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B)
         Cy_SCB_I2C_Enable(obj->base);
-#else /* COMPONENT_PSOC4HAL */
+#elif defined(COMPONENT_CAT2)
         Cy_SCB_I2C_Enable(obj->base, &(obj->context));
 #endif
 
@@ -300,9 +302,9 @@ cy_rslt_t cyhal_i2c_configure(cyhal_i2c_t *obj, const cyhal_i2c_cfg_t *cfg)
     }
 
     cy_rslt_t result = (cy_rslt_t)Cy_SCB_I2C_Init(obj->base, &config_structure, &(obj->context));
-#if defined(COMPONENT_PSOC6HAL)
+#if defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B)
     (void) Cy_SCB_I2C_Enable(obj->base);
-#else /* COMPONENT_PSOC4HAL */
+#elif defined(COMPONENT_CAT2)
     (void) Cy_SCB_I2C_Enable(obj->base, &(obj->context));
 #endif
 
@@ -523,6 +525,7 @@ cy_rslt_t cyhal_i2c_master_transfer_async(cyhal_i2c_t *obj, uint16_t address, co
 
 cy_rslt_t cyhal_i2c_abort_async(cyhal_i2c_t *obj)
 {
+    uint16_t timeout_us = 10000;
     if (obj->pending != _CYHAL_I2C_PENDING_NONE)
     {
         if (obj->pending == _CYHAL_I2C_PENDING_RX)
@@ -533,6 +536,18 @@ cy_rslt_t cyhal_i2c_abort_async(cyhal_i2c_t *obj)
         {
             Cy_SCB_I2C_MasterAbortWrite(obj->base, &obj->context);
         }
+        /* After abort, next I2C operation can be initiated only after CY_SCB_I2C_MASTER_BUSY is cleared,
+        *   so waiting for that event to occur. */
+        while ((CY_SCB_I2C_MASTER_BUSY & obj->context.masterStatus) && (timeout_us != 0))
+        {
+            cyhal_system_delay_us(1);
+            timeout_us--;
+        }
+        if (0 == timeout_us)
+        {
+            return CYHAL_I2C_RSLT_ERR_ABORT_ASYNC_TIMEOUT;
+        }
+        obj->pending = _CYHAL_I2C_PENDING_NONE;
     }
     return CY_RSLT_SUCCESS;
 }
@@ -561,6 +576,21 @@ void cyhal_i2c_enable_event(cyhal_i2c_t *obj, cyhal_i2c_event_t event, uint8_t i
 
     IRQn_Type irqn = _CYHAL_SCB_IRQ_N[obj->resource.block_num];
     NVIC_SetPriority(irqn, intr_priority);
+}
+
+cy_rslt_t cyhal_i2c_set_fifo_level(cyhal_i2c_t *obj, cyhal_i2c_fifo_type_t type, uint16_t level)
+{
+    return _cyhal_scb_set_fifo_level(obj->base, (cyhal_scb_fifo_type_t)type, level);
+}
+
+cy_rslt_t cyhal_i2c_enable_output(cyhal_i2c_t *obj, cyhal_i2c_output_t output, cyhal_source_t *source)
+{
+    return _cyhal_scb_enable_output(obj->base, obj->resource, (cyhal_scb_output_t)output, source);
+}
+
+cy_rslt_t cyhal_i2c_disable_output(cyhal_i2c_t *obj, cyhal_i2c_output_t output)
+{
+    return _cyhal_scb_disable_output(obj->base, obj->resource, (cyhal_scb_output_t)output);
 }
 
 #if defined(__cplusplus)

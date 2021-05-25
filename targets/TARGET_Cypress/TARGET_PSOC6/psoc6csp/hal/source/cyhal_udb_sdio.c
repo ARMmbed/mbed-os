@@ -7,7 +7,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -74,6 +74,7 @@ extern "C"
 #include "cyhal_gpio.h"
 #include "cyhal_interconnect.h"
 #include "cyhal_syspm.h"
+#include "cyhal_clock.h"
 
 #define _CY_HAL_SDIO_CLK_DIV_VALUE   ((uint8_t) 0xFF)
 
@@ -231,15 +232,6 @@ static void _cyhal_sdio_interrupts_dispatcher_IRQHandler(void)
     }
 }
 
-static void _cyhal_sdio_free_clocks(cyhal_sdio_t *obj)
-{
-    cyhal_resource_inst_t udbClkRsc;
-    udbClkRsc.type = CYHAL_RSC_CLOCK;
-    udbClkRsc.block_num = obj->clock.div_num;
-    udbClkRsc.channel_num = 0;
-    cyhal_hwmgr_free(&udbClkRsc);
-}
-
 static void _cyhal_sdio_free_dmas()
 {
     cyhal_resource_inst_t dmaRsc;
@@ -304,14 +296,15 @@ cy_rslt_t cyhal_sdio_init(cyhal_sdio_t *obj, cyhal_gpio_t cmd, cyhal_gpio_t clk,
     obj->clock.div_type = _CY_HAL_SDIO_CLK_DIV_NC;
 
     /* Reserve clock */
-    cyhal_resource_inst_t udbClkRsc = { CYHAL_RSC_CLOCK, 0, 0 };
-    retVal = cyhal_hwmgr_reserve(&udbClkRsc);
+    obj->clock.div_type = CY_SYSCLK_DIV_8_BIT;
+    obj->clock.div_num = 0;
+    obj->clock.block = CYHAL_CLOCK_BLOCK_PERIPHERAL_8BIT;
+    obj->clock.channel = 0;
+    obj->clock.reserved = false;
+
+    retVal = cyhal_clock_init(&(obj->clock));
     if (retVal == CY_RSLT_SUCCESS)
     {
-        /* Assign clock divider */
-        obj->clock.div_type = CY_SYSCLK_DIV_8_BIT;
-        obj->clock.div_num = 0;
-
         retVal = Cy_SysClk_PeriphSetDivider(obj->clock.div_type, obj->clock.div_num, 0U);
 
         if (CY_SYSCLK_SUCCESS == retVal)
@@ -422,6 +415,8 @@ cy_rslt_t cyhal_sdio_init(cyhal_sdio_t *obj, cyhal_gpio_t cmd, cyhal_gpio_t clk,
             obj->irq_cause = 0u;
             obj->events = 0u;
 
+            obj->pm_transition_pending = false;
+
             /* Register SDIO Deep Sleep Callback */
             if (CY_RSLT_SUCCESS == retVal)
             {
@@ -462,7 +457,11 @@ void cyhal_sdio_free(cyhal_sdio_t *obj)
     _cyhal_utils_release_if_used(&(obj->pin_data2));
     _cyhal_utils_release_if_used(&(obj->pin_data3));
 
-    _cyhal_sdio_free_clocks(obj);
+    if (obj->clock.reserved)
+    {
+        cyhal_clock_free(&(obj->clock));
+    }
+
     _cyhal_sdio_free_dmas();
     cyhal_hwmgr_free(&(obj->resource));
     SDIO_Free();
@@ -506,7 +505,6 @@ cy_rslt_t cyhal_sdio_send_cmd(const cyhal_sdio_t *obj, cyhal_transfer_t directio
 
     uint32_t cmdResponse;
     stc_sdio_cmd_t cmd;
-    en_sdio_result_t status;
     cy_rslt_t retVal = CYHAL_SDIO_RSLT_CANCELED;
 
     /* Check other pending operations */
@@ -529,17 +527,7 @@ cy_rslt_t cyhal_sdio_send_cmd(const cyhal_sdio_t *obj, cyhal_transfer_t directio
         cmd.u16BlockSize = 0U;           /* Not used */
 
         /* Send command only if there is no attempts to enter into Deep Sleep */
-
-        status = SDIO_SendCommandAndWait(&cmd);
-
-        if (Ok != status)
-        {
-            retVal = CYHAL_SDIO_RSLT_ERR_FUNC_RET(status);
-        }
-        else
-        {
-            retVal = CY_RSLT_SUCCESS;
-        }
+        retVal = (Ok == SDIO_SendCommandAndWait(&cmd)) ? CY_RSLT_SUCCESS : CYHAL_SDIO_RSLT_ERR_COMMAND_SEND;
 
         if (response != NULL)
         {
@@ -570,7 +558,6 @@ cy_rslt_t cyhal_sdio_bulk_transfer(cyhal_sdio_t *obj, cyhal_transfer_t direction
         /* Indicate pending operation to prevent entering into Deep Sleep */
         _cyhal_sdio_op_pending = true;
         stc_sdio_cmd_t cmd;
-        en_sdio_result_t status;
         uint32_t cmdResponse;
 
         if (response != NULL)
@@ -598,16 +585,7 @@ cy_rslt_t cyhal_sdio_bulk_transfer(cyhal_sdio_t *obj, cyhal_transfer_t direction
             cmd.u16BlockSize = length;
         }
 
-        status = SDIO_SendCommandAndWait(&cmd);
-
-        if (Ok != status)
-        {
-            retVal = CYHAL_SDIO_RSLT_ERR_FUNC_RET(status);
-        }
-        else
-        {
-            retVal = CY_RSLT_SUCCESS;
-        }
+        retVal = (Ok == SDIO_SendCommandAndWait(&cmd)) ? CY_RSLT_SUCCESS : CYHAL_SDIO_RSLT_ERR_COMMAND_SEND;
 
         if (response != NULL)
         {
@@ -633,7 +611,7 @@ cy_rslt_t cyhal_sdio_transfer_async(cyhal_sdio_t *obj, cyhal_transfer_t directio
         return CYHAL_SDIO_RSLT_ERR_BAD_PARAM;
     }
 
-    return CYHAL_SDIO_FUNC_NOT_SUPPORTED;
+    return CYHAL_SDIO_RSLT_ERR_UNSUPPORTED;
 }
 
 bool cyhal_sdio_is_busy(const cyhal_sdio_t *obj)

@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -56,27 +56,27 @@
 * \subsection subsection_sdio_use_case_1 Snippet1: Simple SDIO Initialization example
 * The following snippet shows how to initialize the SDIO interface with a pre-defined configuration
 *
-* \snippet sdio.c snippet_cyhal_sdio_simple_init
+* \snippet hal_sdio.c snippet_cyhal_sdio_simple_init
 *
 * \subsection subsection_sdio_use_case_2 Snippet2: Configure Interrupt
 * The following snippet shows how to configure an interrupt and handle specific events. Refer \ref cyhal_sdio_event_t for different types of events.
 *
-* \snippet sdio.c snippet_cyhal_sdio_interrupt_callback
+* \snippet hal_sdio.c snippet_cyhal_sdio_interrupt_callback
 *
 * \subsection subsection_sdio_use_case_3 Snippet3: Sending Commands
 * The following snippet shows how to send a particular command. Some steps of the card initialization have been provided for reference. Refer \ref cyhal_sdio_command_t for different commands.
 *
-* \snippet sdio.c snippet_cyhal_sdio_send_command
+* \snippet hal_sdio.c snippet_cyhal_sdio_send_command
 *
 * \subsection subsection_sdio_use_case_4 Snippet4: Bulk Data Transfer
 * The following snippet shows how to start a bulk data transfer.
 *
-* \snippet sdio.c snippet_cyhal_sdio_bulk_transfer
+* \snippet hal_sdio.c snippet_cyhal_sdio_bulk_transfer
 *
 * \subsection subsection_sdio_use_case_5 Snippet5: Async Data Transfer
 *
 * The following snippet shows how to start an async data transfer.
-* \snippet sdio.c snippet_cyhal_sdio_async_transfer
+* \snippet hal_sdio.c snippet_cyhal_sdio_async_transfer
 */
 
 #pragma once
@@ -94,23 +94,6 @@ extern "C" {
 *       Defines
 *******************************************************************************/
 
-#define CYHAL_SDIO_RET_NO_ERRORS           (0x00)    /**< No error*/
-#define CYHAL_SDIO_RET_NO_SP_ERRORS        (0x01)    /**< Non-specific error code*/
-#define CYHAL_SDIO_RET_CMD_CRC_ERROR       (0x02)    /**< There was a CRC error on the Command/Response*/
-#define CYHAL_SDIO_RET_CMD_IDX_ERROR       (0x04)    /**< The index for the command didn't match*/
-#define CYHAL_SDIO_RET_CMD_EB_ERROR        (0x08)    /**< There was an end bit error on the command*/
-#define CYHAL_SDIO_RET_DAT_CRC_ERROR       (0x10)    /**< There was a data CRC Error*/
-#define CYHAL_SDIO_RET_CMD_TIMEOUT         (0x20)    /**< The command didn't finish before the timeout period was over*/
-#define CYHAL_SDIO_RET_DAT_TIMEOUT         (0x40)    /**< The data didn't finish before the timeout period was over*/
-#define CYHAL_SDIO_RET_RESP_FLAG_ERROR     (0x80)    /**< There was an error in the resposne flag for command 53*/
-
-#define CYHAL_SDIO_CLOCK_ERROR             (0x100)    /**< Failed to initial clock for SDIO */
-#define CYHAL_SDIO_BAD_ARGUMENT            (0x200)    /**< Bad argument passed for SDIO */
-#define CYHAL_SDIO_SEMA_NOT_INITED         (0x400)    /**< Semaphore is not initiated */
-#define CYHAL_SDIO_FUNC_NOT_SUPPORTED      (0x800)    /**< Function is not supported */
-#define CYHAL_SDIO_CANCELED               (0x1000)    /**< Operation canceled */
-#define CYHAL_SDIO_PM_PENDING_ERROR       (0x2000)    /**< Transfer cannot be initiated after power mode transition allowed.*/
-
 /* HAL return value defines */
 
 /** \addtogroup group_hal_results_sdio SDIO HAL Results
@@ -120,23 +103,23 @@ extern "C" {
  */
 
 /** Incorrect parameter value define */
-#define CYHAL_SDIO_RSLT_ERR_BAD_PARAM               \
-    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SDIO, CYHAL_SDIO_BAD_ARGUMENT))
-/** Clock initialization error define */
-#define CYHAL_SDIO_RSLT_ERR_CLOCK                   \
-    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SDIO, CYHAL_SDIO_CLOCK_ERROR))
-/** Semaphore not initiated error define */
-#define CYHAL_SDIO_RSLT_ERR_SEMA_NOT_INITED         \
-    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SDIO, CYHAL_SDIO_SEMA_NOT_INITED))
-/** Error define based on SDIO lower function return value */
-#define CYHAL_SDIO_RSLT_ERR_FUNC_RET(retVal)        \
-    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SDIO, ((uint16_t)retVal)))
+#define CYHAL_SDIO_RSLT_ERR_BAD_PARAM                   \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SDIO, 0))
 /** Define to indicate canceled operation */
-#define CYHAL_SDIO_RSLT_CANCELED                    \
-    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SDIO, CYHAL_SDIO_CANCELED))
+#define CYHAL_SDIO_RSLT_CANCELED                        \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SDIO, 1))
 /** Transfers are not allowed after the SDIO block has allowed power mode transition. */
-#define CYHAL_SDIO_RSLT_ERR_PM_PENDING              \
-    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SDIO, CYHAL_SDIO_PM_PENDING_ERROR))
+#define CYHAL_SDIO_RSLT_ERR_PM_PENDING                  \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SDIO, 2))
+/** Requested feature is not supported on this hardware. */
+#define CYHAL_SDIO_RSLT_ERR_UNSUPPORTED                 \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SDIO, 3))
+/** Failure in command send. */
+#define CYHAL_SDIO_RSLT_ERR_COMMAND_SEND               \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SDIO, 4))
+/** SDIO Configuration error. */
+#define CYHAL_SDIO_RSLT_ERR_CONFIG                     \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SDIO, 5))
 
 /**
  * \}
@@ -285,8 +268,6 @@ cy_rslt_t cyhal_sdio_bulk_transfer(cyhal_sdio_t *obj, cyhal_transfer_t direction
 /** Performs a bulk asynchronous data transfer by issuing the \ref CYHAL_SDIO_CMD_IO_RW_EXTENDED command(CMD=53) to the SDIO block.
  * After exiting this function the \ref CYHAL_SDIO_CMD_COMPLETE and \ref CYHAL_SDIO_XFER_COMPLETE events are not asserted.
  *
- * To complete the asynchronous transfer, call \ref cyhal_sdio_is_busy()
- * until it returns false.
  * The \ref CYHAL_SDIO_CMD_COMPLETE and \ref CYHAL_SDIO_XFER_COMPLETE events are enabled
  * after the asynchronous transfer is complete and in the condition they were
  * enabled in before the transfer operation started. Handle these events in the interrupt callback.

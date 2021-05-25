@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -57,23 +57,23 @@
 * the <b>sda</b> and <b>scl</b> pins.
 *
 * Initializing as I2C master
-* \snippet i2c.c snippet_cyhal_i2c_master_init
+* \snippet hal_i2c.c snippet_cyhal_i2c_master_init
 *
 * Initializing as I2C slave
-* \snippet i2c.c snippet_cyhal_i2c_slave_init
+* \snippet hal_i2c.c snippet_cyhal_i2c_slave_init
 *
 * \subsection subsection_i2c_snippet_2 Snippet 2: Handling events
 * This snippet shows how to enable and handle I2C events using \ref cyhal_i2c_enable_event and \ref cyhal_i2c_register_callback.<br>
 * The <b>callback</b> parameter of \ref cyhal_i2c_register_callback is used to pass the callback handler that will be invoked when an event occurs.<br>
 * The <b>event</b> parameter of \ref cyhal_i2c_enable_event is used to pass the bitmasks of events ( \ref cyhal_i2c_event_t) to be enabled.
 *
-* \snippet i2c.c snippet_cyhal_handle_i2c_events
+* \snippet hal_i2c.c snippet_cyhal_handle_i2c_events
 *
 * \subsection subsection_i2c_snippet_3 Snippet 3: I2C Master Asynchronous Transfer
 * This snippet shows how to implement asynchronous transfers using \ref cyhal_i2c_master_transfer_async.<br>
 * \ref cyhal_i2c_abort_async is used to stop the transfer, in this case when an error occurs.
 *
-* \snippet i2c.c snippet_cyhal_async_transfer
+* \snippet hal_i2c.c snippet_cyhal_async_transfer
 *
 * \section subsection_i2c_moreinformation More Information
 *
@@ -121,8 +121,11 @@ extern "C" {
 #define CYHAL_I2C_RSLT_ERR_PREVIOUS_ASYNCH_PENDING      \
     (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_I2C, 4))
 /** Failed to register I2C pm callback */
-#define CYHAL_I2C_RSLT_ERR_PM_CALLBACK  				\
-	(CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_I2C, 5))
+#define CYHAL_I2C_RSLT_ERR_PM_CALLBACK                  \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_I2C, 5))
+/** \ref cyhal_i2c_abort_async operation failed with timeout */
+#define CYHAL_I2C_RSLT_ERR_ABORT_ASYNC_TIMEOUT          \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_I2C, 6))
 /**
  * \}
  */
@@ -149,6 +152,19 @@ typedef enum
     CYHAL_I2C_MASTER_ERR_EVENT         = 1 << 20, /**< Indicates the I2C hardware has detected an error. */
 } cyhal_i2c_event_t;
 
+/** I2C FIFO type */
+typedef enum
+{
+    CYHAL_I2C_FIFO_RX, //!< Set RX FIFO level
+    CYHAL_I2C_FIFO_TX, //!< Set TX FIFO level
+} cyhal_i2c_fifo_type_t;
+
+/** Enum of possible output signals from an I2C */
+typedef enum
+{
+    CYHAL_I2C_OUTPUT_TRIGGER_RX_FIFO_LEVEL_REACHED, //!< Output the RX FIFO signal which is triggered when the receive FIFO has more entries than the configured level.
+    CYHAL_I2C_OUTPUT_TRIGGER_TX_FIFO_LEVEL_REACHED, //!< Output the TX FIFO signal which is triggered when the transmit FIFO has less entries than the configured level.
+} cyhal_i2c_output_t;
 
 /** Handler for I2C events */
 typedef void (*cyhal_i2c_event_callback_t)(void *callback_arg, cyhal_i2c_event_t event);
@@ -361,6 +377,38 @@ void cyhal_i2c_register_callback(cyhal_i2c_t *obj, cyhal_i2c_event_callback_t ca
  * @param[in] enable         True to turn on interrupts, False to turn off
  */
 void cyhal_i2c_enable_event(cyhal_i2c_t *obj, cyhal_i2c_event_t event, uint8_t intr_priority, bool enable);
+
+/** Sets a threshold level for a FIFO that will generate an interrupt and a
+ * trigger output. The RX FIFO interrupt and trigger will be activated when
+ * the receive FIFO has more entries than the threshold. The TX FIFO interrupt
+ * and trigger will be activated when the transmit FIFO has less entries than
+ * the threshold.
+ *
+ * @param[in]  obj        The I2C object
+ * @param[in]  type       FIFO type to set level for
+ * @param[in]  level      Level threshold to set
+ * @return The status of the level set
+ * */
+cy_rslt_t cyhal_i2c_set_fifo_level(cyhal_i2c_t *obj, cyhal_i2c_fifo_type_t type, uint16_t level);
+
+/** Enables the specified output signal from an I2C.
+ *
+ * @param[in]  obj        The I2C object
+ * @param[in]  output     Which output signal to enable
+ * @param[out] source     Pointer to user-allocated source signal object which
+ * will be initialized by enable_output. \p source should be passed to
+ * (dis)connect_digital functions to (dis)connect the associated endpoints.
+ * @return The status of the output enable
+ * */
+cy_rslt_t cyhal_i2c_enable_output(cyhal_i2c_t *obj, cyhal_i2c_output_t output, cyhal_source_t *source);
+
+/** Disables the specified output signal from an I2C
+ *
+ * @param[in]  obj        The I2C object
+ * @param[in]  output     Which output signal to disable
+ * @return The status of the output disable
+ * */
+cy_rslt_t cyhal_i2c_disable_output(cyhal_i2c_t *obj, cyhal_i2c_output_t output);
 
 /*******************************************************************************
 * Backward compatibility macro. The following code is DEPRECATED and must

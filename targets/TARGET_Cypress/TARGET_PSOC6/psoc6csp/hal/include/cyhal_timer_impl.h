@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2019-2020 Cypress Semiconductor Corporation
+* Copyright 2019-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,6 +34,13 @@
 * 100 Mhz) with a 16 bit Peripheral Clock divider. Because of this the frequency
 * range that is supported by \ref cyhal_timer_set_frequency is: 1526 hz -
 * 100 Mhz
+ * \section group_hal_impl_timer_interconnect Interconnect
+ * In PSoC Timer channels can configure multiple input and output triggers
+ * simultaneously. 1 or more input triggers can be configured to initiate
+ * different Timer actions (e.g start, stop, reload, etc) with configurable
+ * edge detection on that incoming signal. Output triggers are based on certain
+ * events (e.g overflow, cc_match, etc).
+ * Note: The terminal_count output trigger is only available for TCPWMv2.
 * \} group_hal_impl_timer */
 
 #include "cyhal_timer.h"

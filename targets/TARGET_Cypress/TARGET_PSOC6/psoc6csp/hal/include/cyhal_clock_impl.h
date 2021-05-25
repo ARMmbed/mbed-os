@@ -2,11 +2,11 @@
 * File Name: cyhal_clock_impl.h
 *
 * Description:
-* PSoC 6 specific implementation for clocks API.
+* CAT1 specific implementation for clocks API.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,7 +49,7 @@ extern "C"
  * \subsection subsection_clock_snippet_5_impl Snippet: System initialization
  * The following snippet shows the clock driver can be used to initialize all clocks in the system.
  * \note This example is device specific.
- * \snippet clock.c snippet_cyhal_clock_system_init_p6
+ * \snippet hal_clock.c snippet_cyhal_clock_system_init_p6
  */
 
 /** \cond INTERNAL */

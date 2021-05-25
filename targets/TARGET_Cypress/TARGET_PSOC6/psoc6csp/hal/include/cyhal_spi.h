@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -59,24 +59,24 @@
 * \subsection subsection_spi_snippet_1 Snippet 1: SPI Master - Single byte transfer operation (Read and Write)
 * The following code snippet initializes an SPI Master interface using the \ref cyhal_spi_init(). The data rate of transfer is set using \ref cyhal_spi_set_frequency().
 * The code snippet shows how to transfer a single byte of data using \ref cyhal_spi_send() and \ref cyhal_spi_recv().
-* \snippet spi.c snippet_cyhal_spi_master_byte_operation
+* \snippet hal_spi.c snippet_cyhal_spi_master_byte_operation
 *
 * \subsection subsection_spi_snippet_2 Snippet 2: SPI Slave - Single byte transfer operation (Read and Write)
 * The following code snippet initializes an SPI Slave interface using the \ref cyhal_spi_init(). The data rate of transfer is set using \ref cyhal_spi_set_frequency.
 * The code snippet shows how to transfer a single byte of data using \ref cyhal_spi_send() and \ref cyhal_spi_recv.
-* \snippet spi.c snippet_cyhal_spi_slave_byte_operation
+* \snippet hal_spi.c snippet_cyhal_spi_slave_byte_operation
 *
 * \subsection subsection_spi_snippet_3 Snippet 3: SPI Block Data transfer
 * The following snippet sends and receives an array of data in a single SPI transaction using \ref cyhal_spi_transfer(). The example
 * uses SPI master to transmit 5 bytes of data and receive 5 bytes of data in a single transaction.
-* \snippet spi.c snippet_cyhal_spi_block_data_transfer
+* \snippet hal_spi.c snippet_cyhal_spi_block_data_transfer
 *
 * \subsection subsection_spi_snippet_4 Snippet 4: Interrupts on SPI events
 * SPI interrupt events ( \ref cyhal_spi_event_t) can be mapped to an interrupt and assigned to a callback function.
 * The callback function needs to be first registered and then the event needs to be enabled.
 * The following snippet initialises a SPI master to perform a block transfer using \ref cyhal_spi_transfer_async(). This is a non-blocking function.
 *  A callback function is registered using \ref cyhal_spi_register_callback to notify whenever the SPI transfer is complete.
-* \snippet spi.c snippet_cyhal_spi_interrupt_callback_events
+* \snippet hal_spi.c snippet_cyhal_spi_interrupt_callback_events
 
 * \section subsection_spi_moreinfor More Information
 *
@@ -189,6 +189,20 @@ typedef enum
     /** Standard motorola SPI CPOL=1, CPHA=1 with LSB first operation */
     CYHAL_SPI_MODE_11_LSB = CYHAL_SPI_MODE(1, 1, 1),
 } cyhal_spi_mode_t;
+
+/** SPI FIFO type */
+typedef enum
+{
+    CYHAL_SPI_FIFO_RX, //!< Set RX FIFO level
+    CYHAL_SPI_FIFO_TX, //!< Set TX FIFO level
+} cyhal_spi_fifo_type_t;
+
+/** Enum of possible output signals from an SPI */
+typedef enum
+{
+    CYHAL_SPI_OUTPUT_TRIGGER_RX_FIFO_LEVEL_REACHED, //!< Output the RX FIFO signal which is triggered when the receive FIFO has more entries than the configured level.
+    CYHAL_SPI_OUTPUT_TRIGGER_TX_FIFO_LEVEL_REACHED, //!< Output the TX FIFO signal which is triggered when the transmit FIFO has less entries than the configured level.
+} cyhal_spi_output_t;
 
 /** @brief Initial SPI configuration. */
 typedef struct
@@ -363,6 +377,38 @@ void cyhal_spi_register_callback(cyhal_spi_t *obj, cyhal_spi_event_callback_t ca
  * @param[in] enable         True to turn on interrupts, False to turn off
  */
 void cyhal_spi_enable_event(cyhal_spi_t *obj, cyhal_spi_event_t event, uint8_t intr_priority, bool enable);
+
+/** Sets a threshold level for a FIFO that will generate an interrupt and a
+ * trigger output. The RX FIFO interrupt and trigger will be activated when
+ * the receive FIFO has more entries than the threshold. The TX FIFO interrupt
+ * and trigger will be activated when the transmit FIFO has less entries than
+ * the threshold.
+ *
+ * @param[in]  obj        The SPI object
+ * @param[in]  type       FIFO type to set level for
+ * @param[in]  level      Level threshold to set
+ * @return The status of the level set
+ * */
+cy_rslt_t cyhal_spi_set_fifo_level(cyhal_spi_t *obj, cyhal_spi_fifo_type_t type, uint16_t level);
+
+/** Enables the specified output signal from an SPI.
+ *
+ * @param[in]  obj        The SPI object
+ * @param[in]  output     Which output signal to enable
+ * @param[out] source     Pointer to user-allocated source signal object which
+ * will be initialized by enable_output. \p source should be passed to
+ * (dis)connect_digital functions to (dis)connect the associated endpoints.
+ * @return The status of the output enable
+ * */
+cy_rslt_t cyhal_spi_enable_output(cyhal_spi_t *obj, cyhal_spi_output_t output, cyhal_source_t *source);
+
+/** Disables the specified output signal from an SPI
+ *
+ * @param[in]  obj        The SPI object
+ * @param[in]  output     Which output signal to disable
+ * @return The status of the output disable
+ * */
+cy_rslt_t cyhal_spi_disable_output(cyhal_spi_t *obj, cyhal_spi_output_t output);
 
 /*******************************************************************************
 * Backward compatibility macro. The following code is DEPRECATED and must

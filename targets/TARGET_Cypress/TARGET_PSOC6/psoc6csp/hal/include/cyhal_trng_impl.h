@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,9 +32,19 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/* Initialization polynomial values for True Random Number Generator */
+/**
+ * \addtogroup group_hal_impl_trng TRNG (True Random Number Generator)
+ * \ingroup group_hal_impl
+ * \{
+ * Initialization polynomial values for the True Random Number Generator.
+ */
+
+/** Galois ring oscillator value */
 #define CYHAL_GARO31_INITSTATE          (0x04c11db7UL)
+/** Fibonacci ring oscillator value */
 #define CYHAL_FIRO31_INITSTATE          (0x04c11db7UL)
+
+/** \} group_hal_impl_trng */
 
 #define MAX_TRNG_BIT_SIZE               (32UL)
 

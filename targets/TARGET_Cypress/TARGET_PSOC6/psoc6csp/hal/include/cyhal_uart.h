@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -76,14 +76,14 @@
 *
 * The snippet also shows how to use \ref cyhal_uart_write, \ref cyhal_uart_putc, \ref cyhal_uart_read API.
 *
-* \snippet uart.c snippet_cyhal_uart_init
+* \snippet hal_uart.c snippet_cyhal_uart_init
 *
 * \subsection subsection_uart_snippet_2 Snippet 2: Interrupts on UART events
 *
 * In the following snippet, UART events are handled in a callback function.
 * The callback function has to be registered and then the events have to be enabled.
 *
-* \snippet uart.c snippet_cyhal_uart_event
+* \snippet hal_uart.c snippet_cyhal_uart_event
 *
 */
 
@@ -156,6 +156,20 @@ typedef enum
     CYHAL_UART_IRQ_RX_NOT_EMPTY        = 1 << 7, //!< The rx hardware buffer is not empty
     CYHAL_UART_IRQ_TX_EMPTY            = 1 << 8, //!< The tx hardware buffer is empty
 } cyhal_uart_event_t;
+
+/** UART FIFO type */
+typedef enum
+{
+    CYHAL_UART_FIFO_RX, //!< Set RX FIFO level
+    CYHAL_UART_FIFO_TX, //!< Set TX FIFO level
+} cyhal_uart_fifo_type_t;
+
+/** Enum of possible output signals from a UART */
+typedef enum
+{
+    CYHAL_UART_OUTPUT_TRIGGER_RX_FIFO_LEVEL_REACHED, //!< Output the RX FIFO signal which is triggered when the receive FIFO has more entries than the configured level.
+    CYHAL_UART_OUTPUT_TRIGGER_TX_FIFO_LEVEL_REACHED, //!< Output the TX FIFO signal which is triggered when the transmit FIFO has less entries than the configured level.
+} cyhal_uart_output_t;
 
 /****************************************************************
 *      Typedef
@@ -369,6 +383,7 @@ cy_rslt_t cyhal_uart_read_abort(cyhal_uart_t *obj);
  * @param[in] callback_arg Generic argument that will be provided to the callback when called
  */
 void cyhal_uart_register_callback(cyhal_uart_t *obj, cyhal_uart_event_callback_t callback, void *callback_arg);
+
 /** Enable or disable specified UART events.
  *
  * When an enabled event occurs, the function specified by \ref cyhal_uart_register_callback will be called.
@@ -379,6 +394,38 @@ void cyhal_uart_register_callback(cyhal_uart_t *obj, cyhal_uart_event_callback_t
  * @param[in] enable         True to turn on interrupts, False to turn off
  */
 void cyhal_uart_enable_event(cyhal_uart_t *obj, cyhal_uart_event_t event, uint8_t intr_priority, bool enable);
+
+/** Sets a threshold level for a FIFO that will generate an interrupt and a
+ * trigger output. The RX FIFO interrupt and trigger will be activated when
+ * the receive FIFO has more entries than the threshold. The TX FIFO interrupt
+ * and trigger will be activated when the transmit FIFO has less entries than
+ * the threshold.
+ *
+ * @param[in]  obj        The UART object
+ * @param[in]  type       FIFO type to set level for
+ * @param[in]  level      Level threshold to set
+ * @return The status of the level set
+ * */
+cy_rslt_t cyhal_uart_set_fifo_level(cyhal_uart_t *obj, cyhal_uart_fifo_type_t type, uint16_t level);
+
+/** Enables the specified output signal from a UART.
+ *
+ * @param[in]  obj        The UART object
+ * @param[in]  output     Which output signal to enable
+ * @param[out] source     Pointer to user-allocated source signal object which
+ * will be initialized by enable_output. \p source should be passed to
+ * (dis)connect_digital functions to (dis)connect the associated endpoints.
+ * @return The status of the output enable
+ * */
+cy_rslt_t cyhal_uart_enable_output(cyhal_uart_t *obj, cyhal_uart_output_t output, cyhal_source_t *source);
+
+/** Disables the specified output signal from a UART
+ *
+ * @param[in]  obj        The UART object
+ * @param[in]  output     Which output signal to disable
+ * @return The status of the output disable
+ * */
+cy_rslt_t cyhal_uart_disable_output(cyhal_uart_t *obj, cyhal_uart_output_t output);
 
 #if defined(__cplusplus)
 }

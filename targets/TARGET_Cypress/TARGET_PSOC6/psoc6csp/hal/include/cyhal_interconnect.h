@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +26,7 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_hal_interconnect INTERCONNECT (Internal digital routing)
+* \addtogroup group_hal_interconnect Interconnect (Internal Digital Routing)
 * \ingroup group_hal
 * \{
 * High level interface to the Cypress digital routing.
@@ -36,7 +36,7 @@
 * The following types of connections are supported:
 * * Connection from a peripheral to a pin. (A dedicated connection must exist
     between the pin and the peripheral; see the device datasheet for more details)
-* * Experimental support for connecting between two on-chip "trigger" terminals.
+* * Connecting two peripherals in hardware using the on-chip trigger signaling
 *
 * \section subsection_interconnect_quickstart Quick Start
 * * \ref cyhal_connect_pin can be used to connect a pin to a peripheral.(A dedicated connection must exist
@@ -47,9 +47,15 @@
 * \section section_interconnect_snippets Code Snippets
 *
 * \subsection subsection_interconnect_snippet1 Snippet 1: Connecting a pin to TCPWM block
-* The following code snippet demonstrates connecting a GPIO pin to an active TCPWM block on a PSoC 6 device.
+* The following code snippet demonstrates connecting a GPIO pin to an active TCPWM block on a device
 * using the \ref cyhal_connect_pin. It is assumed that the TCPWM is already configured and active.<br>
-* \snippet interconnect.c snippet_cyhal_interconnect_connect_pin
+* \snippet hal_interconnect.c snippet_cyhal_interconnect_connect_pin
+*
+* \subsection subsection_interconnect_snippet2 Snippet 2: Connecting a Timer output signal to a DMA input signal
+* The following code snippet demonstrates configuring and connecting a Timer
+* which will overflow every 2 seconds and, in doing so, trigger a DMA channel
+* start.
+* \snippet hal_interconnect.c snippet_cyhal_interconnect_timer_to_dma
 */
 
 #pragma once
@@ -69,22 +75,26 @@ extern "C" {
  *  \{ *//**
  */
 
-/** No connection is available */
-#define CYHAL_CONNECT_RSLT_NO_CONNECTION                \
+/** The source and destination are already connected */
+#define CYHAL_INTERCONNECT_RSLT_ALREADY_CONNECTED            \
     (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_INTERCONNECT, 0))
-/** The connections source and destination are already connected */
-#define CYHAL_CONNECT_RSLT_ALREADY_CONNECTED            \
+/** Connection is invalid */
+#define CYHAL_INTERCONNECT_RSLT_INVALID_CONNECTION           \
     (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_INTERCONNECT, 1))
-/** Invalid trigger connection */
-#define CYHAL_CONNECT_RSLT_INVALID_TRIGGER_CONNECTION   \
+/** Cannot disconnect. Either no connection in the first place or a bad argument */
+#define CYHAL_INTERCONNECT_RSLT_CANNOT_DISCONNECT            \
     (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_INTERCONNECT, 2))
 
 /**
  * \}
  */
 
-/** Indicates that a mux output does not continue to another mux */
-#define CYHAL_INTERCONNECT_MUX_NOT_CONTINUATION 0xFF
+/** Trigger type */
+typedef enum
+{
+    CYHAL_SIGNAL_TYPE_LEVEL = 0, //!< Level triggered
+    CYHAL_SIGNAL_TYPE_EDGE  = 1, //!< Edge triggered
+} cyhal_signal_type_t;
 
 /** Connect a pin to a peripheral terminal. This will route a direct connection from the pin to the peripheral.
  * Any previous direct connection from the pin will be overriden.<br>
@@ -99,20 +109,6 @@ cy_rslt_t cyhal_connect_pin(const cyhal_resource_pin_mapping_t *pin_connection);
  * @return The status of the disconnect request
  */
 cy_rslt_t cyhal_disconnect_pin(cyhal_gpio_t pin);
-
-/**
- * \warning WORK IN PROGRESS. This function is not yet fully implemented.<br>
- *
- * Connects two digital terminals on the device using any internal interconnect. A single
- * source can drive multiple destinations, but a destination can be driven by only one source.
- * If the destination is already connected, or the connection can not be established an error will be returned.
- * @param[in] source The source of the signal to connect
- * @param[in] dest   The destination of the signal to connect
- * @return The status of the connect request
- */
-cy_rslt_t cyhal_connect_trigger(cyhal_source_t source, cyhal_dest_t dest);
-
-
 
 #if defined(__cplusplus)
 }

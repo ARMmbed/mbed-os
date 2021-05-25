@@ -2,11 +2,11 @@
 * \file cyhal_utils.c
 *
 * \brief
-* Provides utility functions for working with the PSoC 6 HAL implementation.
+* Provides utility functions for working with the CAT1/CAT2 HAL implementation.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -184,14 +184,14 @@ cyhal_syspm_callback_mode_t _cyhal_utils_convert_pdltohal_pm_mode(cy_en_syspm_ca
 
 void _cyhal_utils_get_peri_clock_details(const cyhal_clock_t *clock, cy_en_divider_types_t *div_type, uint32_t *div_num)
 {
-    #if defined(COMPONENT_PSOC6HAL)
+    #if defined(COMPONENT_CAT1A)
     if (_cyhal_utils_is_new_clock_format(clock))
     {
     #endif
         CY_ASSERT(clock->reserved);
         *div_num = clock->channel;
         *div_type = (cy_en_divider_types_t)clock->block;
-    #if defined(COMPONENT_PSOC6HAL)
+    #if defined(COMPONENT_CAT1A)
     }
     else
     {
@@ -217,59 +217,42 @@ int32_t _cyhal_utils_calculate_tolerance(cyhal_clock_tolerance_unit_t type, uint
     }
 }
 
-#if defined(COMPONENT_PSOC6HAL)
 cy_rslt_t _cyhal_utils_allocate_clock(cyhal_clock_t *clock, const cyhal_resource_inst_t *clocked_item, cyhal_clock_block_t div, bool accept_larger)
 {
     CY_ASSERT(NULL != clocked_item);
 
+#if defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B)
     cyhal_resource_inst_t clock_rsc;
+#endif
     switch (clocked_item->type)
     {
+#if defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B)
         /* High frequency clock assignments are device specific. */
-#if defined(CY_DEVICE_PSOC6ABLE2)
+#if defined(CY_DEVICE_PSOC6ABLE2) || defined(CY_DEVICE_PSOC6A2M)
         case CYHAL_RSC_I2S:
         case CYHAL_RSC_PDM:
             clock_rsc = CYHAL_CLOCK_HF[1];
             break;
+#endif
+#if defined(CY_DEVICE_PSOC6ABLE2) || defined(CY_DEVICE_PSOC6A2M) || defined(CY_DEVICE_PSOC6A512K) || defined(CY_DEVICE_PSOC6A256K)
         case CYHAL_RSC_SMIF:
             clock_rsc = CYHAL_CLOCK_HF[2];
             break;
         case CYHAL_RSC_USB:
             clock_rsc = CYHAL_CLOCK_HF[3];
             break;
-#elif defined(CY_DEVICE_PSOC6A2M)
-        case CYHAL_RSC_I2S:
-        case CYHAL_RSC_PDM:
-            clock_rsc = CYHAL_CLOCK_HF[1];
-            break;
-        case CYHAL_RSC_SMIF:
-            clock_rsc = CYHAL_CLOCK_HF[2];
-            break;
-        case CYHAL_RSC_USB:
-            clock_rsc = CYHAL_CLOCK_HF[3];
-            break;
+#endif
+#if defined(CY_DEVICE_PSOC6A2M)
         case CYHAL_RSC_SDHC:
             clock_rsc = (clocked_item->block_num == 0)
                 ? CYHAL_CLOCK_HF[4]
                 : CYHAL_CLOCK_HF[2];
             break;
 #elif defined(CY_DEVICE_PSOC6A512K)
-        case CYHAL_RSC_SMIF:
-            clock_rsc = CYHAL_CLOCK_HF[2];
-            break;
-        case CYHAL_RSC_USB:
-            clock_rsc = CYHAL_CLOCK_HF[3];
-            break;
         case CYHAL_RSC_SDHC:
             clock_rsc = CYHAL_CLOCK_HF[4];
             break;
-#elif defined(CY_DEVICE_PSOC6A256K)
-        case CYHAL_RSC_SMIF:
-            clock_rsc = CYHAL_CLOCK_HF[2];
-            break;
-        case CYHAL_RSC_USB:
-            clock_rsc = CYHAL_CLOCK_HF[3];
-            break;
+#endif
 #endif
         case CYHAL_RSC_CLOCK:
             CY_ASSERT(false); /* Use APIs provided by the clock driver */
@@ -305,17 +288,19 @@ cy_rslt_t _cyhal_utils_allocate_clock(cyhal_clock_t *clock, const cyhal_resource
             return result;
         }
     }
-
+#if defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B)
     cy_rslt_t result = cyhal_clock_get(clock, &clock_rsc);
     if(CY_RSLT_SUCCESS == result)
     {
         result = cyhal_clock_init(clock);
     }
     return result;
+#endif
 }
 
+#if defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B)
 cy_rslt_t _cyhal_utils_find_hf_clk_div(uint32_t hz_src, uint32_t desired_hz, const cyhal_clock_tolerance_t *tolerance,
-                        bool only_below_desired, uint8_t *div)
+                        bool only_below_desired, uint32_t *div)
 {
     const uint8_t HFCLK_DIVIDERS[] = { 1, 2, 4, 8};
     cy_rslt_t retval = CYHAL_CLOCK_RSLT_ERR_FREQ;
@@ -324,7 +309,7 @@ cy_rslt_t _cyhal_utils_find_hf_clk_div(uint32_t hz_src, uint32_t desired_hz, con
 
     for(uint8_t i = 0; i < sizeof(HFCLK_DIVIDERS) / sizeof(HFCLK_DIVIDERS[0]); ++i)
     {
-        const uint8_t divider = HFCLK_DIVIDERS[i];
+        const uint32_t divider = HFCLK_DIVIDERS[i];
         uint32_t actual_freq = hz_src / divider;
         if ((actual_freq > desired_hz) && only_below_desired)
             continue;
@@ -349,10 +334,11 @@ cy_rslt_t _cyhal_utils_find_hf_clk_div(uint32_t hz_src, uint32_t desired_hz, con
 
 cy_rslt_t _cyhal_utils_set_clock_frequency(cyhal_clock_t* clock, uint32_t hz, const cyhal_clock_tolerance_t *tolerance)
 {
-    uint32_t source_hz = Cy_SysClk_ClkPathGetFrequency(clock->channel);
     if(clock->block == CYHAL_CLOCK_BLOCK_HF)
     {
-        uint8_t divider;
+        uint32_t divider;
+        cy_en_clkhf_in_sources_t source = Cy_SysClk_ClkHfGetSource(clock->channel);
+        uint32_t source_hz = Cy_SysClk_ClkPathGetFrequency((uint32_t)source);
         if (CY_RSLT_SUCCESS == _cyhal_utils_find_hf_clk_div(source_hz, hz, tolerance, false, &divider))
         {
             return cyhal_clock_set_divider(clock, divider);
@@ -366,7 +352,8 @@ cy_rslt_t _cyhal_utils_set_clock_frequency(cyhal_clock_t* clock, uint32_t hz, co
     }
 }
 
-cy_rslt_t _cyhal_utils_set_clock_frequency2(cyhal_clock_t *clock, uint32_t hz, const cyhal_clock_tolerance_t *tolerance)
+cy_rslt_t _cyhal_utils_find_hf_source_n_divider(cyhal_clock_t *clock, uint32_t hz, const cyhal_clock_tolerance_t *tolerance,
+        _cyhal_utils_clk_div_func_t div_find_func, cyhal_clock_t *hf_source, uint32_t *div)
 {
     CY_ASSERT(NULL != clock);
     CY_ASSERT(hz != 0);
@@ -406,8 +393,8 @@ cy_rslt_t _cyhal_utils_set_clock_frequency2(cyhal_clock_t *clock, uint32_t hz, c
                 }
             }
 
-            uint8_t cur_clock_divider;
-            if (CY_RSLT_SUCCESS == _cyhal_utils_find_hf_clk_div(cur_hf_source_freq, hz, NULL, true, &cur_clock_divider))
+            uint32_t cur_clock_divider;
+            if (CY_RSLT_SUCCESS == div_find_func(cur_hf_source_freq, hz, NULL, true, &cur_clock_divider))
             {
                 uint32_t cur_divided_freq = cur_hf_source_freq / cur_clock_divider;
                 uint32_t cur_clock_tolerance = abs(_cyhal_utils_calculate_tolerance(CYHAL_TOLERANCE_HZ, hz, cur_divided_freq));
@@ -434,12 +421,29 @@ cy_rslt_t _cyhal_utils_set_clock_frequency2(cyhal_clock_t *clock, uint32_t hz, c
 
     if (CY_RSLT_SUCCESS == retval)
     {
-        retval = cyhal_clock_set_source(clock, &best_clock);
+        *hf_source = best_clock;
+        *div = best_divider;
     }
 
+    return retval;
+}
+
+cy_rslt_t _cyhal_utils_set_clock_frequency2(cyhal_clock_t *clock, uint32_t hz, const cyhal_clock_tolerance_t *tolerance)
+{
+    CY_ASSERT(NULL != clock);
+    CY_ASSERT(hz != 0);
+
+    cyhal_clock_t hf_source;
+    uint32_t divider = 0;
+    cy_rslt_t retval = _cyhal_utils_find_hf_source_n_divider(clock, hz, tolerance, _cyhal_utils_find_hf_clk_div,
+                            &hf_source, &divider);
     if (CY_RSLT_SUCCESS == retval)
     {
-        retval = cyhal_clock_set_divider(clock, best_divider);
+        retval = cyhal_clock_set_source(clock, &hf_source);
+    }
+    if (CY_RSLT_SUCCESS == retval)
+    {
+        retval = cyhal_clock_set_divider(clock, divider);
     }
 
     return retval;

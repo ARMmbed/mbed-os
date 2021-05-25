@@ -5,11 +5,11 @@
 * PSoC6_01 device GPIO HAL header for 124-BGA-SIP package
 *
 * \note
-* Generator version: 1.6.0.229
+* Generator version: 1.6.0.453
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2020 Cypress Semiconductor Corporation
+* Copyright 2016-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -296,6 +296,46 @@ const cyhal_resource_pin_mapping_t cyhal_pin_map_pass_sarmux_pads[8] = {
     {&CYHAL_ADC_0, P10_5, (uint8_t)CY_GPIO_DM_ANALOG, HSIOM_SEL_GPIO},
     {&CYHAL_ADC_0, P10_6, (uint8_t)CY_GPIO_DM_ANALOG, HSIOM_SEL_GPIO},
     {&CYHAL_ADC_0, P10_7, (uint8_t)CY_GPIO_DM_ANALOG, HSIOM_SEL_GPIO},
+};
+
+/* Connections for: peri_tr_io_input */
+/* Since the GPIO pin is already specified there is no need to specify a particular resource for every entry.
+   Instead set the resource_inst field to the index of the input or output trigger line. */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_peri_tr_io_input[22] = {
+    {(cyhal_resource_inst_t*)0, P0_0, (uint8_t)CY_GPIO_DM_HIGHZ, P0_0_PERI_TR_IO_INPUT0},
+    {(cyhal_resource_inst_t*)1, P0_1, (uint8_t)CY_GPIO_DM_HIGHZ, P0_1_PERI_TR_IO_INPUT1},
+    {(cyhal_resource_inst_t*)2, P1_0, (uint8_t)CY_GPIO_DM_HIGHZ, P1_0_PERI_TR_IO_INPUT2},
+    {(cyhal_resource_inst_t*)3, P1_1, (uint8_t)CY_GPIO_DM_HIGHZ, P1_1_PERI_TR_IO_INPUT3},
+    {(cyhal_resource_inst_t*)10, P5_0, (uint8_t)CY_GPIO_DM_HIGHZ, P5_0_PERI_TR_IO_INPUT10},
+    {(cyhal_resource_inst_t*)11, P5_1, (uint8_t)CY_GPIO_DM_HIGHZ, P5_1_PERI_TR_IO_INPUT11},
+    {(cyhal_resource_inst_t*)12, P6_4, (uint8_t)CY_GPIO_DM_HIGHZ, P6_4_PERI_TR_IO_INPUT12},
+    {(cyhal_resource_inst_t*)13, P6_5, (uint8_t)CY_GPIO_DM_HIGHZ, P6_5_PERI_TR_IO_INPUT13},
+    {(cyhal_resource_inst_t*)14, P7_0, (uint8_t)CY_GPIO_DM_HIGHZ, P7_0_PERI_TR_IO_INPUT14},
+    {(cyhal_resource_inst_t*)15, P7_1, (uint8_t)CY_GPIO_DM_HIGHZ, P7_1_PERI_TR_IO_INPUT15},
+    {(cyhal_resource_inst_t*)16, P8_0, (uint8_t)CY_GPIO_DM_HIGHZ, P8_0_PERI_TR_IO_INPUT16},
+    {(cyhal_resource_inst_t*)17, P8_1, (uint8_t)CY_GPIO_DM_HIGHZ, P8_1_PERI_TR_IO_INPUT17},
+    {(cyhal_resource_inst_t*)18, P9_0, (uint8_t)CY_GPIO_DM_HIGHZ, P9_0_PERI_TR_IO_INPUT18},
+    {(cyhal_resource_inst_t*)19, P9_1, (uint8_t)CY_GPIO_DM_HIGHZ, P9_1_PERI_TR_IO_INPUT19},
+    {(cyhal_resource_inst_t*)20, P10_0, (uint8_t)CY_GPIO_DM_HIGHZ, P10_0_PERI_TR_IO_INPUT20},
+    {(cyhal_resource_inst_t*)21, P10_1, (uint8_t)CY_GPIO_DM_HIGHZ, P10_1_PERI_TR_IO_INPUT21},
+    {(cyhal_resource_inst_t*)22, P11_0, (uint8_t)CY_GPIO_DM_HIGHZ, P11_0_PERI_TR_IO_INPUT22},
+    {(cyhal_resource_inst_t*)23, P11_1, (uint8_t)CY_GPIO_DM_HIGHZ, P11_1_PERI_TR_IO_INPUT23},
+    {(cyhal_resource_inst_t*)24, P12_0, (uint8_t)CY_GPIO_DM_HIGHZ, P12_0_PERI_TR_IO_INPUT24},
+    {(cyhal_resource_inst_t*)25, P12_1, (uint8_t)CY_GPIO_DM_HIGHZ, P12_1_PERI_TR_IO_INPUT25},
+    {(cyhal_resource_inst_t*)26, P13_0, (uint8_t)CY_GPIO_DM_HIGHZ, P13_0_PERI_TR_IO_INPUT26},
+    {(cyhal_resource_inst_t*)27, P13_1, (uint8_t)CY_GPIO_DM_HIGHZ, P13_1_PERI_TR_IO_INPUT27},
+};
+
+/* Connections for: peri_tr_io_output */
+/* Since the GPIO pin is already specified there is no need to specify a particular resource for every entry.
+   Instead set the resource_inst field to the index of the input or output trigger line. */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_peri_tr_io_output[6] = {
+    {(cyhal_resource_inst_t*)0, P0_4, (uint8_t)CY_GPIO_DM_HIGHZ, P0_4_PERI_TR_IO_OUTPUT0},
+    {(cyhal_resource_inst_t*)1, P0_5, (uint8_t)CY_GPIO_DM_HIGHZ, P0_5_PERI_TR_IO_OUTPUT1},
+    {(cyhal_resource_inst_t*)0, P6_4, (uint8_t)CY_GPIO_DM_HIGHZ, P6_4_PERI_TR_IO_OUTPUT0},
+    {(cyhal_resource_inst_t*)1, P6_5, (uint8_t)CY_GPIO_DM_HIGHZ, P6_5_PERI_TR_IO_OUTPUT1},
+    {(cyhal_resource_inst_t*)0, P11_3, (uint8_t)CY_GPIO_DM_HIGHZ, P11_3_PERI_TR_IO_OUTPUT0},
+    {(cyhal_resource_inst_t*)1, P11_4, (uint8_t)CY_GPIO_DM_HIGHZ, P11_4_PERI_TR_IO_OUTPUT1},
 };
 
 /* Connections for: scb_i2c_scl */

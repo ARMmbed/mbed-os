@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,10 +32,13 @@
 #include "cyhal_utils.h"
 #include "cyhal_lptimer.h"
 
-/** Disable the systick */
+/* Check if the SysTick is enabled */
+#define _cyhal_syspm_is_systick_enabled() (SysTick->CTRL & SysTick_CTRL_ENABLE_Msk)
+
+/* Disable the SysTick */
 #define _cyhal_syspm_disable_systick() (SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk)
 
-/* Enable the systick */
+/* Enable the SysTick */
 #define _cyhal_syspm_enable_systick()  (SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk)
 
 /* Hz to KHz */
@@ -45,10 +48,10 @@
 static cy_stc_syspm_callback_params_t _cyhal_syspm_cb_params_sleep     = {NULL, (uint32_t *)CYHAL_SYSPM_CB_CPU_SLEEP};
 static cy_stc_syspm_callback_params_t _cyhal_syspm_cb_params_deepsleep = {NULL, (uint32_t *)CYHAL_SYSPM_CB_CPU_DEEPSLEEP};
 static cy_stc_syspm_callback_params_t _cyhal_syspm_cb_params_hibernate = {NULL, (uint32_t *)CYHAL_SYSPM_CB_SYSTEM_HIBERNATE};
-#if defined(COMPONENT_PSOC6HAL)
+#if defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B)
 static cy_stc_syspm_callback_params_t _cyhal_syspm_cb_params_lp = {NULL, (uint32_t *)CYHAL_SYSPM_CB_SYSTEM_NORMAL};
 static cy_stc_syspm_callback_params_t _cyhal_syspm_cb_params_ulp = {NULL, (uint32_t *)CYHAL_SYSPM_CB_SYSTEM_LOW};
-#endif /* COMPONENT_PSOC6HAL */
+#endif
 
 /* The first entry in the callback chain is always reserved for the user set
  * cyhal_syspm_register_callback callback. This may be set to a sentinel value
@@ -58,9 +61,12 @@ static cy_stc_syspm_callback_params_t _cyhal_syspm_cb_params_ulp = {NULL, (uint3
 static cyhal_syspm_callback_data_t* _cyhal_syspm_callback_ptr = CYHAL_SYSPM_END_OF_LIST;
 static cyhal_syspm_callback_data_t* _cyhal_syspm_peripheral_callback_ptr = CYHAL_SYSPM_END_OF_LIST;
 
-static uint16_t deep_sleep_lock = 0;
+static uint16_t _cyhal_deep_sleep_lock = 0;
 
 static uint32_t _cyhal_syspm_supply_voltages[((size_t)CYHAL_VOLTAGE_SUPPLY_MAX) + 1] = { 0 };
+
+static bool _cyhal_systick_disable = false;
+static bool _cyhal_disable_systick_before_sleep_deepsleep = false;
 
 #define SYSPM_CALLBACK_ORDER    (10u)
 
@@ -96,7 +102,7 @@ static cy_stc_syspm_callback_t _cyhal_syspm_cb_hibernate =
     .order = SYSPM_CALLBACK_ORDER,
 };
 
-#if defined(COMPONENT_PSOC6HAL)
+#if defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B)
 static cy_stc_syspm_callback_t _cyhal_syspm_cb_lp =
 {
     .callback = _cyhal_syspm_common_cb,
@@ -117,7 +123,7 @@ static cy_stc_syspm_callback_t _cyhal_syspm_cb_ulp =
     .nextItm = NULL,
     .order = SYSPM_CALLBACK_ORDER,
 };
-#endif /* COMPONENT_PSOC6HAL */
+#endif /* defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B) */
 
 static cyhal_syspm_callback_data_t* _cyhal_syspm_call_all_pm_callbacks(
     cyhal_syspm_callback_data_t* entry, bool* allow, cyhal_syspm_callback_state_t state, cyhal_syspm_callback_mode_t mode)
@@ -158,7 +164,7 @@ static cy_en_syspm_status_t _cyhal_syspm_common_cb(cy_stc_syspm_callback_params_
 {
     // The PDL function that wrap around this callback enters critical section, this function does not need to enter critical section.
     cyhal_syspm_callback_state_t state = (cyhal_syspm_callback_state_t)(uintptr_t)callbackParams->context;
-    if ((state == CYHAL_SYSPM_CB_CPU_DEEPSLEEP) && (mode == CY_SYSPM_CHECK_READY) && (deep_sleep_lock != 0))
+    if ((state == CYHAL_SYSPM_CB_CPU_DEEPSLEEP) && (mode == CY_SYSPM_CHECK_READY) && (_cyhal_deep_sleep_lock != 0))
     {
         return CY_SYSPM_FAIL;
     }
@@ -190,7 +196,7 @@ static cy_en_syspm_status_t _cyhal_syspm_common_cb(cy_stc_syspm_callback_params_
             _cyhal_syspm_backtrack_all_pm_callbacks(first, first_current, state);
         }
 
-#if defined(COMPONENT_PSOC6HAL)
+#if defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B)
         if (state == CYHAL_SYSPM_CB_SYSTEM_LOW && hal_mode == CYHAL_SYSPM_BEFORE_TRANSITION)
         {
             uint32_t hfclk_freq_mhz = Cy_SysClk_ClkHfGetFrequency(0) / 1000000;
@@ -202,7 +208,26 @@ static cy_en_syspm_status_t _cyhal_syspm_common_cb(cy_stc_syspm_callback_params_
             uint32_t hfclk_freq_mhz = Cy_SysClk_ClkHfGetFrequency(0) / 1000000;
             Cy_SysLib_SetWaitStates(false, hfclk_freq_mhz);
         }
-#endif /* COMPONENT_PSOC6HAL */
+#endif /* defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B) */
+
+        if (allow && ((state == CYHAL_SYSPM_CB_CPU_DEEPSLEEP) || (state == CYHAL_SYSPM_CB_CPU_SLEEP)))
+        {
+            if (mode == CY_SYSPM_BEFORE_TRANSITION)
+            {
+                _cyhal_systick_disable = _cyhal_syspm_is_systick_enabled() && _cyhal_disable_systick_before_sleep_deepsleep;
+                if (_cyhal_systick_disable)
+                {
+                    _cyhal_syspm_disable_systick();
+                }
+            }
+            else if (mode == CY_SYSPM_AFTER_TRANSITION)
+            {
+                if (_cyhal_systick_disable)
+                {
+                    _cyhal_syspm_enable_systick();
+                }
+            }
+        }
 
         return allow ? CY_SYSPM_SUCCESS : CY_SYSPM_FAIL;
     }
@@ -260,23 +285,23 @@ void _cyhal_syspm_unregister_peripheral_callback(cyhal_syspm_callback_data_t *ca
 
 cy_rslt_t cyhal_syspm_init(void)
 {
-#if defined(COMPONENT_PSOC6HAL)
+#if defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B)
     /* Check the IO status. If current status is frozen, unfreeze the system. */
     if (Cy_SysPm_GetIoFreezeStatus())
     {
         /* Unfreeze the system */
         Cy_SysPm_IoUnfreeze();
     }
-#endif /* COMPONENT_PSOC6HAL */
+#endif /* defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B) */
 
     cy_rslt_t rslt = CY_RSLT_SUCCESS;
     if (!Cy_SysPm_RegisterCallback(&cyhal_syspm_cb_sleep)
         || !Cy_SysPm_RegisterCallback(&_cyhal_syspm_cb_deepsleep)
         || !Cy_SysPm_RegisterCallback(&_cyhal_syspm_cb_hibernate)
-#if defined(COMPONENT_PSOC6HAL)
+#if defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B)
         || !Cy_SysPm_RegisterCallback(&_cyhal_syspm_cb_lp)
         || !Cy_SysPm_RegisterCallback(&_cyhal_syspm_cb_ulp)
-#endif /* COMPONENT_PSOC6HAL */
+#endif /* defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B) */
     )
         {
             rslt = CYHAL_SYSPM_RSLT_INIT_ERROR;
@@ -286,7 +311,7 @@ cy_rslt_t cyhal_syspm_init(void)
 
 cy_rslt_t cyhal_syspm_hibernate(cyhal_syspm_hibernate_source_t source)
 {
-#if defined(COMPONENT_PSOC6HAL)
+#if defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B)
     /* Defines for mapping hal hibernate sources to pdl */
     static const uint32_t source_map[] =
     {
@@ -305,15 +330,15 @@ cy_rslt_t cyhal_syspm_hibernate(cyhal_syspm_hibernate_source_t source)
 
     Cy_SysPm_SetHibernateWakeupSource(_cyhal_utils_convert_flags(source_map, sizeof(source_map) / sizeof(uint32_t), (uint32_t)source));
     return Cy_SysPm_SystemEnterHibernate();
-#else
+#elif defined(COMPONENT_CAT2)
     CY_UNUSED_PARAMETER(source);
     return CYHAL_SYSPM_RSLT_ERR_NOT_SUPPORTED;
-#endif /* COMPONENT_PSOC6HAL */
+#endif /* defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B) */
 }
 
 cy_rslt_t cyhal_syspm_set_system_state(cyhal_syspm_system_state_t state)
 {
-#if defined(COMPONENT_PSOC6HAL)
+#if defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B)
     cy_rslt_t rslt;
 
     /* The wait states are changed in the common syspm handler after
@@ -336,10 +361,10 @@ cy_rslt_t cyhal_syspm_set_system_state(cyhal_syspm_system_state_t state)
             break;
     }
     return rslt;
-#else
+#elif defined(COMPONENT_CAT2)
     CY_UNUSED_PARAMETER(state);
     return CYHAL_SYSPM_RSLT_ERR_NOT_SUPPORTED;
-#endif /* COMPONENT_PSOC6HAL */
+#endif /* defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B) */
 }
 
 void cyhal_syspm_register_callback(cyhal_syspm_callback_data_t *callback_data)
@@ -361,29 +386,29 @@ void cyhal_syspm_unregister_callback(cyhal_syspm_callback_data_t *callback_data)
 
 void cyhal_syspm_lock_deepsleep(void)
 {
-    CY_ASSERT(deep_sleep_lock != USHRT_MAX);
+    CY_ASSERT(_cyhal_deep_sleep_lock != USHRT_MAX);
     uint32_t intr_status = cyhal_system_critical_section_enter();
-    if (deep_sleep_lock < USHRT_MAX)
+    if (_cyhal_deep_sleep_lock < USHRT_MAX)
     {
-        deep_sleep_lock++;
+        _cyhal_deep_sleep_lock++;
     }
     cyhal_system_critical_section_exit(intr_status);
 }
 
 void cyhal_syspm_unlock_deepsleep(void)
 {
-    CY_ASSERT(deep_sleep_lock != 0U);
+    CY_ASSERT(_cyhal_deep_sleep_lock != 0U);
     uint32_t intr_status = cyhal_system_critical_section_enter();
-    if (deep_sleep_lock > 0U)
+    if (_cyhal_deep_sleep_lock > 0U)
     {
-        deep_sleep_lock--;
+        _cyhal_deep_sleep_lock--;
     }
     cyhal_system_critical_section_exit(intr_status);
 }
 
 cy_rslt_t cyhal_syspm_tickless_sleep_deepsleep(cyhal_lptimer_t *obj, uint32_t desired_ms, uint32_t *actual_ms, bool deep_sleep)
 {
-#if defined(COMPONENT_PSOC6HAL)
+#if defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B)
     CY_ASSERT(obj != NULL);
     uint32_t initial_ticks;
     uint32_t sleep_ticks;
@@ -403,9 +428,12 @@ cy_rslt_t cyhal_syspm_tickless_sleep_deepsleep(cyhal_lptimer_t *obj, uint32_t de
         result = cyhal_lptimer_set_delay(obj, sleep_ticks);
         if(result == CY_RSLT_SUCCESS)
         {
-            /* Stop the timer that is generating the tick interrupt. */
-            _cyhal_syspm_disable_systick();
-
+            /* Disabling and enabling the system timer is handled in _cyhal_syspm_common_cb in order
+             * to prevent loosing kernel ticks when sleep/deep-sleep is rejected causing the time spent
+             * in the callback handlers to check if the system can make the sleep/deep-sleep transition
+             * to be not accounted for.
+             */
+            _cyhal_disable_systick_before_sleep_deepsleep = true;
             cyhal_lptimer_enable_event(obj, CYHAL_LPTIMER_COMPARE_MATCH, CYHAL_ISR_PRIORITY_DEFAULT, true);
 
             result = deep_sleep ? cyhal_syspm_deepsleep() : cyhal_syspm_sleep();
@@ -419,20 +447,18 @@ cy_rslt_t cyhal_syspm_tickless_sleep_deepsleep(cyhal_lptimer_t *obj, uint32_t de
             }
 
             cyhal_lptimer_enable_event(obj, CYHAL_LPTIMER_COMPARE_MATCH, CYHAL_ISR_PRIORITY_DEFAULT, false);
-
-            /* Restart the systick timer. */
-            _cyhal_syspm_enable_systick();
+            _cyhal_disable_systick_before_sleep_deepsleep = false;
         }
     }
 
     return result;
-#else
+#elif defined(COMPONENT_CAT2)
     CY_UNUSED_PARAMETER(obj);
     CY_UNUSED_PARAMETER(desired_ms);
     CY_UNUSED_PARAMETER(actual_ms);
     CY_UNUSED_PARAMETER(deep_sleep);
     return CYHAL_SYSPM_RSLT_ERR_NOT_SUPPORTED;
-#endif /* COMPONENT_PSOC6HAL */
+#endif /* defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B) */
 
 }
 

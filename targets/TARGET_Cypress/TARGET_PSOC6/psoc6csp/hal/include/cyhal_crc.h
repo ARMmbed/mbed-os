@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,7 +37,27 @@
 * * One or more calls to \ref cyhal_crc_compute, to provide chunks of data
 * * A single call to \ref cyhal_crc_finish, to finalize the computation and retrieve the result
 *
-* Many of the algorithm parameters can be customized.
+* The table below provides CRC parameters for some common CRC algorithms.
+* \note The Expected CRC column shows the computed CRC when the value "123456789" is passed to \ref cyhal_crc_compute.
+*
+* | CRC algorithm Name  | Len | Polynomial |Initial seed| Data REV | Data XOR | Rem REV | Remainder XOR | Expected CRC |
+* | ------------------- | --- | ---------- |----------- | -------- | -------- | ------- | ------------- | ------------ |
+* | CRC-6  / CDMA2000-A |  6  |    0x27    |    0x3F    |   false  |     0    |  false  |      0x00     |     0x0D     |
+* | CRC-6  / CDMA2000-B |  6  |    0x07    |    0x3F    |   false  |     0    |  false  |      0x00     |     0x3B     |
+* | CRC-6  / DARC       |  6  |    0x19    |    0x00    |   true   |     0    |  true   |      0x00     |     0x26     |
+* | CRC-6  / ITU        |  6  |    0x03    |    0x00    |   true   |     0    |  true   |      0x00     |     0x06     |
+* | CRC-8  / ITU        |  8  |    0x07    |    0x00    |   false  |     0    |  false  |      0x55     |     0xA1     |
+* | CRC-8  / MAXIM      |  8  |    0x31    |    0x00    |   true   |     0    |  true   |      0x00     |     0xA1     |
+* | CRC-8  / ROHC       |  8  |    0x07    |    0xFF    |   true   |     0    |  true   |      0x00     |     0xD0     |
+* | CRC-8  / WCDMA      |  8  |    0x9B    |    0x00    |   true   |     0    |  true   |      0x00     |     0x25     |
+* | CRC-16 / CCITT-0    | 16  |   0x1021   |   0xFFFF   |   false  |     0    |  false  |     0x0000    |    0x29B1    |
+* | CRC-16 / CDMA2000   | 16  |   0xC867   |   0xFFFF   |   false  |     0    |  false  |     0x0000    |    0x4C06    |
+* | CRC-32              | 32  | 0x04C11DB7 | 0xFFFFFFFF |   true   |     0    |  true   |   0xFFFFFFFF  |  0xCBF43926  |
+* | CRC-32 / BZIP2      | 32  | 0x04C11DB7 | 0xFFFFFFFF |   false  |     0    |  false  |   0xFFFFFFFF  |  0xFC891918  |
+*
+* \note Algorithms that have less than 8 bits, like CRC-6, populate the lower bits and leave the high order bits 0.
+*
+* \note Many of the algorithm parameters can be customized.
 *
 * See \ref crc_algorithm_t and \ref subsection_crc_snippet_1 for more details.
 *
@@ -48,7 +68,7 @@
 * \subsection subsection_crc_snippet_1 Snippet1: CRC Generation
 * The following snippet initializes a CRC generator and computes the CRC for a sample message.
 *
-* \snippet crc.c snippet_cyhal_crc_simple_init
+* \snippet hal_crc.c snippet_cyhal_crc_simple_init
 */
 
 #pragma once
@@ -131,8 +151,13 @@ cy_rslt_t cyhal_crc_start(cyhal_crc_t *obj, const crc_algorithm_t *algorithm);
  */
 cy_rslt_t cyhal_crc_compute(const cyhal_crc_t *obj, const uint8_t *data, size_t length);
 
-/** Finalizes the CRC computation and returns the CRC for the complete set of data passed through a single call or multiple calls to \ref cyhal_crc_compute.
- * \note The computed CRC pointer provided must be 4 byte aligned. Refer \ref subsection_crc_snippet_1 for more details.
+/** Finalizes the CRC computation and returns the CRC for the complete set of data passed through a
+ * single call or multiple calls to \ref cyhal_crc_compute.
+ * \note The computed CRC pointer provided must be 4 byte aligned. Refer to
+ * \ref subsection_crc_snippet_1 for more details.
+ *
+ * \note If the length of the CRC is less than a full word, the result will be in the lower bits
+ * allowing the result to be downcast if desired.
  *
  * @param[in]  obj The CRC generator object
  * @param[out] crc The computed CRC

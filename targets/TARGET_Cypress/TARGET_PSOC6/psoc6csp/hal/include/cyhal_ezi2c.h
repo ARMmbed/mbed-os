@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -58,13 +58,13 @@
 * The following snippet shows how to initialize and configure an EZI2C and assign the pins to the <b>sda</b> and <b>scl</b> lines.
 * The <b>clk</b> need not be provided (NULL), in which case a clock resource is assigned.
 *
-* \snippet ezi2c.c snippet_cyhal_ezi2c_init
+* \snippet hal_ezi2c.c snippet_cyhal_ezi2c_init
 *
 * \subsection subsection_ezi2c_snippet_2 Snippet 2: Register Callback function
 * The following snippet shows how to use the \ref cyhal_ezi2c_register_callback function. The <b>callback</b> parameter
 * refers to the handler which will be invoked when an event triggers.
 *
-* \snippet ezi2c.c snippet_cyhal_ezi2c_handler
+* \snippet hal_ezi2c.c snippet_cyhal_ezi2c_handler
 */
 
 #pragma once

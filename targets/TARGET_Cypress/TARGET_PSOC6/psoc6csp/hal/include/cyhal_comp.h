@@ -8,7 +8,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,8 +31,8 @@
 * High level interface for interacting with an analog Comparator.
 *
 * \section cyhal_comp_features Features
-* The analog comparator measures one input voltage from the non-inverting pin against 
-* a second voltage provided on the inverting pin. The result of this comparison can 
+* The analog comparator measures one input voltage from the non-inverting pin against
+* a second voltage provided on the inverting pin. The result of this comparison can
 * be used in three ways:
 * - Output to pin
 * - Read state via firmware (see @ref cyhal_comp_read)
@@ -42,7 +42,7 @@
 *
 * \section cyhal_comp_quickstart Quickstart
 * Call \ref cyhal_comp_init to initialize a comparator instance by providing the comparator
-* object (**obj**), non-inverting input pin (**vin_p**), inverting input pin (**vin_m**), optional 
+* object (**obj**), non-inverting input pin (**vin_p**), inverting input pin (**vin_m**), optional
 * output pin (**output**), and configuration (**cfg**).
 *
 * Use \ref cyhal_comp_read to read the comparator state from firmware.
@@ -54,20 +54,20 @@
 * \note Error checking is omitted for clarity
 * \section subsection_comp_snippet_1 Snippet 1: Comparator initialization
 * The following snippet initializes the comparator and powers it on
-* \snippet comp.c snippet_cyhal_comp_init
+* \snippet hal_comp.c snippet_cyhal_comp_init
 *
 * \section subsection_comp_snippet_2 Snippet 2: Comparator read value
 * The following snippet reads the current comparator value into a variable
-* \snippet comp.c snippet_cyhal_comp_read
+* \snippet hal_comp.c snippet_cyhal_comp_read
 *
 * \section subsection_comp_snippet_3 Snippet 3: Comparator event registration
 * The following snippet registers a callback that will be called on either a rising or falling
 * edge of the comparator output.
-* \snippet comp.c snippet_cyhal_comp_event
+* \snippet hal_comp.c snippet_cyhal_comp_event
 *
 * \section subsection_comp_snippet_4 Snippet 4: Comparator powering-off and on
 * The following snippet demonstrates temporarily powering-off the comparator without freeing it.
-* \snippet comp.c snippet_cyhal_comp_start_stop
+* \snippet hal_comp.c snippet_cyhal_comp_start_stop
 *
 */
 
@@ -116,9 +116,9 @@ typedef struct
     bool hysteresis;
 } cyhal_comp_config_t;
 
-/** 
-  * Handler for Comparator events 
-  * 
+/**
+  * Handler for Comparator events
+  *
   * \note Not all hardware is capable of differentiating which type of edge triggered an
   * event when both rising and falling edges are enabled. If the edge cannot be determined,
   * the `event` argument will be `CYHAL_COMP_RISING_EDGE | CYHAL_COMP_FALLING_EDGE`
@@ -145,7 +145,7 @@ cy_rslt_t cyhal_comp_init(cyhal_comp_t *obj, cyhal_gpio_t vin_p, cyhal_gpio_t vi
 void cyhal_comp_free(cyhal_comp_t *obj);
 
 /** Changes the current operating power level of the comparator.
- * 
+ *
  * If the power level is set to @ref CYHAL_POWER_LEVEL_OFF, the comparator will be powered-off
  * but it will retain its configuration, so it is not necessary to reconfigure it when changing
  * the power level from @ref CYHAL_POWER_LEVEL_OFF to any other value.
@@ -174,7 +174,7 @@ cy_rslt_t cyhal_comp_configure(cyhal_comp_t *obj, cyhal_comp_config_t *cfg);
 /** Reads the Comparator state.
  *
  * @param[in]  obj    Comparator object
- * @return The Comparator state. True if the non-inverting pin voltage is greater than the 
+ * @return The Comparator state. True if the non-inverting pin voltage is greater than the
  * inverting pin voltage, false otherwise.
  */
 bool cyhal_comp_read(cyhal_comp_t *obj);

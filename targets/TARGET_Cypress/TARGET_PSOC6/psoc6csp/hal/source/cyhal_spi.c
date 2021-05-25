@@ -7,7 +7,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -95,9 +95,9 @@ static cy_rslt_t _cyhal_spi_int_frequency(cyhal_spi_t *obj, uint32_t hz, uint8_t
 
     Cy_SysClk_PeriphDisableDivider((cy_en_divider_types_t)obj->clock.block, obj->clock.channel);
 
-#if defined(COMPONENT_PSOC6HAL)
+#if defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B)
     uint32_t peri_freq = Cy_SysClk_ClkPeriGetFrequency();
-#else /* COMPONENT_PSOC4HAL */
+#elif defined(COMPONENT_CAT2)
     uint32_t peri_freq = Cy_SysClk_ClkSysGetFrequency();
 #endif
     if (!obj->is_slave)
@@ -149,7 +149,7 @@ static cy_rslt_t _cyhal_spi_int_frequency(cyhal_spi_t *obj, uint32_t hz, uint8_t
         }
 
         /* Use maximum available clock for slave to make it able to work with any master environment */
-        last_dvdr_val = 2;
+        last_dvdr_val = 1;
     }
 
     result = Cy_SysClk_PeriphSetDivider((cy_en_divider_types_t)obj->clock.block, obj->clock.channel, last_dvdr_val - 1);
@@ -299,8 +299,10 @@ static bool _cyhal_spi_pm_callback_instance(void *obj_ptr, cyhal_syspm_callback_
 
     if (CYHAL_SYSPM_CB_CPU_DEEPSLEEP == state)
         allow = (CY_SYSPM_SUCCESS == Cy_SCB_SPI_DeepSleepCallback(&spi_callback_params, pdl_mode));
+#if defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B)
     else if (CYHAL_SYSPM_CB_SYSTEM_HIBERNATE == state)
         allow = (CY_SYSPM_SUCCESS == Cy_SCB_SPI_HibernateCallback(&spi_callback_params, pdl_mode));
+#endif
 
     return allow;
 }
@@ -308,12 +310,18 @@ static bool _cyhal_spi_pm_callback_instance(void *obj_ptr, cyhal_syspm_callback_
 static cy_rslt_t _cyhal_spi_get_ssel_map_idx(cyhal_spi_t *obj, cyhal_gpio_t ssel,
                         const cyhal_resource_pin_mapping_t **ssel_map, uint8_t *idx)
 {
+    #ifdef CY_IP_M0S8SCB
+    /* SSEL0 is only available for Slave on M0S8SCB */
+    static const cyhal_resource_pin_mapping_t *ssel_s_pin_maps[] = { cyhal_pin_map_scb_spi_s_select0 };
+    static const size_t ssel_s_pin_maps_sizes_bytes[] = { sizeof(cyhal_pin_map_scb_spi_s_select0) };
+    #else
     static const cyhal_resource_pin_mapping_t *ssel_s_pin_maps[] = {
         cyhal_pin_map_scb_spi_s_select0, cyhal_pin_map_scb_spi_s_select1,
         cyhal_pin_map_scb_spi_s_select2, cyhal_pin_map_scb_spi_s_select3 };
     static const size_t ssel_s_pin_maps_sizes_bytes[] = {
         sizeof(cyhal_pin_map_scb_spi_s_select0), sizeof(cyhal_pin_map_scb_spi_s_select1),
         sizeof(cyhal_pin_map_scb_spi_s_select2), sizeof(cyhal_pin_map_scb_spi_s_select3) };
+    #endif /* M0S8 version of SCB or other */
     for (uint8_t i = 0; i < sizeof(ssel_s_pin_maps) / sizeof(ssel_s_pin_maps[0]); i++)
     {
         *ssel_map = _cyhal_scb_find_map(ssel, ssel_s_pin_maps[i],
@@ -335,6 +343,7 @@ cy_rslt_t cyhal_spi_init(cyhal_spi_t *obj, cyhal_gpio_t mosi, cyhal_gpio_t miso,
 
     cy_rslt_t result = CY_RSLT_SUCCESS;
     uint8_t ovr_sample_val = _CYHAL_SPI_OVERSAMPLE_MIN;
+    obj->pending = _CYHAL_SPI_PENDING_NONE;
 
     // Explicitly marked not allocated resources as invalid to prevent freeing them.
     obj->resource.type = CYHAL_RSC_INVALID;
@@ -891,7 +900,7 @@ cy_rslt_t cyhal_spi_transfer_async(cyhal_spi_t *obj, const uint8_t *tx, size_t t
 
 bool cyhal_spi_is_busy(cyhal_spi_t *obj)
 {
-    return Cy_SCB_SPI_IsBusBusy(obj->base);
+    return Cy_SCB_SPI_IsBusBusy(obj->base) || (_CYHAL_SPI_PENDING_NONE != obj->pending);
 }
 
 cy_rslt_t cyhal_spi_abort_async(cyhal_spi_t *obj)
@@ -930,6 +939,21 @@ void cyhal_spi_enable_event(cyhal_spi_t *obj, cyhal_spi_event_t event, uint8_t i
 
     IRQn_Type irqn = _CYHAL_SCB_IRQ_N[obj->resource.block_num];
     NVIC_SetPriority(irqn, intr_priority);
+}
+
+cy_rslt_t cyhal_spi_set_fifo_level(cyhal_spi_t *obj, cyhal_spi_fifo_type_t type, uint16_t level)
+{
+    return _cyhal_scb_set_fifo_level(obj->base, (cyhal_scb_fifo_type_t)type, level);
+}
+
+cy_rslt_t cyhal_spi_enable_output(cyhal_spi_t *obj, cyhal_spi_output_t output, cyhal_source_t *source)
+{
+    return _cyhal_scb_enable_output(obj->base, obj->resource, (cyhal_scb_output_t)output, source);
+}
+
+cy_rslt_t cyhal_spi_disable_output(cyhal_spi_t *obj, cyhal_spi_output_t output)
+{
+    return _cyhal_scb_disable_output(obj->base, obj->resource, (cyhal_scb_output_t)output);
 }
 
 #if defined(__cplusplus)

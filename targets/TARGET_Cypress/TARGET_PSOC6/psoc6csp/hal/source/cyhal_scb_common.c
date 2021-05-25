@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,6 +26,7 @@
 #include "cyhal_hwmgr.h"
 #include "cyhal_syspm.h"
 #include "cyhal_clock.h"
+#include "cyhal_interconnect.h"
 
 #if defined (CY_IP_MXSCB) || (CY_IP_M0S8SCB)
 
@@ -236,9 +237,9 @@ void *_cyhal_scb_get_irq_obj(void)
 #define _CYHAL_SCB_PERI_CLOCK_SLAVE_FST      12500000
 
 /* Must be between 15.84 MHz and 89.0 MHz for running i2c master at 1MHz */
-#if defined (COMPONENT_PSOC6HAL)
+#if defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B)
 #define _CYHAL_SCB_PERI_CLOCK_SLAVE_FSTP     50000000
-#else /* COMPONENT_PSOC4HAL */
+#elif defined(COMPONENT_CAT2)
 #define _CYHAL_SCB_PERI_CLOCK_SLAVE_FSTP     24000000
 #endif
 
@@ -317,6 +318,96 @@ const cyhal_resource_pin_mapping_t* _cyhal_scb_find_map(cyhal_gpio_t pin, const 
         }
     }
     return NULL;
+}
+
+cy_rslt_t _cyhal_scb_set_fifo_level(CySCB_Type *base, cyhal_scb_fifo_type_t type, uint16_t level)
+{
+    if(!CY_SCB_IS_TRIGGER_LEVEL_VALID(base, level))
+        return CYHAL_SCB_RSLT_ERR_BAD_ARGUMENT;
+
+    if(type == CYHAL_SCB_FIFO_RX)
+    {
+        SCB_RX_FIFO_CTRL(base) &= ~SCB_RX_FIFO_CTRL_TRIGGER_LEVEL_Msk;
+        SCB_RX_FIFO_CTRL(base) |= _VAL2FLD(SCB_RX_FIFO_CTRL_TRIGGER_LEVEL, level);
+
+        return CY_RSLT_SUCCESS;
+    }
+    else if(type == CYHAL_SCB_FIFO_TX)
+    {
+        SCB_TX_FIFO_CTRL(base) &= ~SCB_TX_FIFO_CTRL_TRIGGER_LEVEL_Msk;
+        SCB_TX_FIFO_CTRL(base) |= _VAL2FLD(SCB_TX_FIFO_CTRL_TRIGGER_LEVEL, level);
+
+        return CY_RSLT_SUCCESS;
+    }
+
+    return CYHAL_SCB_RSLT_ERR_BAD_ARGUMENT;
+}
+
+cy_rslt_t _cyhal_scb_enable_output(CySCB_Type *base, cyhal_resource_inst_t resource, cyhal_scb_output_t output, cyhal_source_t *source)
+{
+    CY_UNUSED_PARAMETER(base);
+
+// All PSoC6 devices have scb triggers but not all PSoC4 devices do
+#if (defined(CY_IP_MXSCB) || defined(CY_DEVICE_PSOC4AMC) || defined(CY_DEVICE_PSOC4AS3) || defined(CY_DEVICE_PSOC4AS4))
+    // This just returns a proper cyhal_source_t. Use _cyhal_scb_set_fifo_level
+    // to actually set level.
+    if(output == CYHAL_SCB_OUTPUT_TRIGGER_RX_FIFO_LEVEL_REACHED)
+    {
+#if defined(CY_DEVICE_PSOC6A256K)
+        // 256K devices have no SCB3
+        *source = resource.block_num < 3 ? (cyhal_source_t)(CYHAL_TRIGGER_SCB0_TR_RX_REQ + resource.block_num) : (cyhal_source_t)(CYHAL_TRIGGER_SCB0_TR_RX_REQ + resource.block_num - 1);
+#else
+        *source = (cyhal_source_t)(CYHAL_TRIGGER_SCB0_TR_RX_REQ + resource.block_num);
+#endif
+
+        return CY_RSLT_SUCCESS;
+    }
+    // This just returns a proper cyhal_source_t. Use _cyhal_scb_set_fifo_level
+    // to actually set level.
+    else if(output == CYHAL_SCB_OUTPUT_TRIGGER_TX_FIFO_LEVEL_REACHED)
+    {
+#if defined(CY_DEVICE_PSOC6A256K)
+        // 256K devices have no SCB3
+        *source = resource.block_num < 3 ? (cyhal_source_t)(CYHAL_TRIGGER_SCB0_TR_TX_REQ + resource.block_num) : (cyhal_source_t)(CYHAL_TRIGGER_SCB0_TR_TX_REQ + resource.block_num - 1);
+#else
+        *source = (cyhal_source_t)(CYHAL_TRIGGER_SCB0_TR_TX_REQ + resource.block_num);
+#endif
+
+        return CY_RSLT_SUCCESS;
+    }
+
+    return CYHAL_SCB_RSLT_ERR_BAD_ARGUMENT;
+#else
+    CY_UNUSED_PARAMETER(resource);
+    CY_UNUSED_PARAMETER(output);
+    CY_UNUSED_PARAMETER(source);
+    return CYHAL_INTERCONNECT_RSLT_INVALID_CONNECTION;
+#endif
+}
+
+cy_rslt_t _cyhal_scb_disable_output(CySCB_Type *base, cyhal_resource_inst_t resource, cyhal_scb_output_t output)
+{
+    CY_UNUSED_PARAMETER(base);
+    CY_UNUSED_PARAMETER(resource);
+
+// All PSoC6 devices have scb triggers but not all PSoC4 devices do
+#if (defined(CY_IP_MXSCB) || defined(CY_DEVICE_PSOC4AMC) || defined(CY_DEVICE_PSOC4AS3) || defined(CY_DEVICE_PSOC4AS4))
+    // Noop: Use _cyhal_scb_set_fifo_level to actually set level
+    if(output == CYHAL_SCB_OUTPUT_TRIGGER_RX_FIFO_LEVEL_REACHED)
+    {
+        return CY_RSLT_SUCCESS;
+    }
+    // Noop: Use _cyhal_scb_set_fifo_level to actually set level
+    else if(output == CYHAL_SCB_OUTPUT_TRIGGER_TX_FIFO_LEVEL_REACHED)
+    {
+        return CY_RSLT_SUCCESS;
+    }
+
+    return CYHAL_SCB_RSLT_ERR_BAD_ARGUMENT;
+#else
+    CY_UNUSED_PARAMETER(output);
+    return CYHAL_INTERCONNECT_RSLT_INVALID_CONNECTION;
+#endif
 }
 
 static bool __cyhal_scb_pm_transition_pending_value = false;

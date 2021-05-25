@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,6 +51,34 @@ extern "C" {
 #define _SCB_ARRAY_SIZE                 (CY_IP_M0S8SCB_INSTANCES)
 #endif /* CY_IP_MXSCB_INSTANCES */
 
+/** \addtogroup group_hal_results_scb SCB HAL Results
+ *  SCB specific return codes
+ *  \ingroup group_hal_results
+ *  \{ *//**
+
+ */
+/** Bad argument */
+#define CYHAL_SCB_RSLT_ERR_BAD_ARGUMENT                     \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_IMPL_SCB, 0))
+
+/**
+ * \}
+ */
+
+/** SCB FIFO type */
+typedef enum
+{
+    CYHAL_SCB_FIFO_RX, //!< Set RX FIFO level
+    CYHAL_SCB_FIFO_TX, //!< Set TX FIFO level
+} cyhal_scb_fifo_type_t;
+
+/** Enum of possible output signals from an SCB */
+typedef enum
+{
+    CYHAL_SCB_OUTPUT_TRIGGER_RX_FIFO_LEVEL_REACHED, //!< Output the RX FIFO signal which is triggered when the receive FIFO has more entries than the configured level.
+    CYHAL_SCB_OUTPUT_TRIGGER_TX_FIFO_LEVEL_REACHED, //!< Output the TX FIFO signal which is triggered when the transmit FIFO has less entries than the configured level.
+} cyhal_scb_output_t;
+
 /** The start address of the SCB blocks */
 extern CySCB_Type* const _CYHAL_SCB_BASE_ADDRESSES[_SCB_ARRAY_SIZE];
 /** The interrupt number of the SCB blocks. */
@@ -86,8 +114,42 @@ uint32_t _cyhal_i2c_set_peri_divider(CySCB_Type *base, uint32_t block_num, cyhal
  * @param count Number of entries in pin_map
  * @return Pin map pointer or NULL if none found
  */
-const cyhal_resource_pin_mapping_t* _cyhal_scb_find_map(cyhal_gpio_t pin, const cyhal_resource_pin_mapping_t *pin_map, 
+const cyhal_resource_pin_mapping_t* _cyhal_scb_find_map(cyhal_gpio_t pin, const cyhal_resource_pin_mapping_t *pin_map,
                     size_t count, const cyhal_resource_inst_t *block_res);
+
+/** Sets a threshold level for a FIFO that will generate an interrupt and a
+ * trigger output. The RX FIFO interrupt and trigger will be activated when
+ * the receive FIFO has more entries than the threshold. The TX FIFO interrupt
+ * and trigger will be activated when the transmit FIFO has less entries than
+ * the threshold.
+ *
+ * @param[in]  base       SCB base
+ * @param[in]  type       FIFO type to set level for
+ * @param[in]  level      Level threshold to set
+ * @return The status of the level set
+ * */
+cy_rslt_t _cyhal_scb_set_fifo_level(CySCB_Type *base, cyhal_scb_fifo_type_t type, uint16_t level);
+
+/** Enables the specified output signal from an scb.
+ *
+ * @param[in]  base       SCB base
+ * @param[in]  resource   SCB resource
+ * @param[in]  output     Which output signal to enable
+ * @param[out] source     Pointer to user-allocated source signal object which
+ * will be initialized by enable_output. source should be passed to
+ * (dis)connect_digital functions to (dis)connect the associated endpoints.
+ * @return The status of the output enable
+ * */
+cy_rslt_t _cyhal_scb_enable_output(CySCB_Type *base, cyhal_resource_inst_t resource, cyhal_scb_output_t output, cyhal_source_t *source);
+
+/** Disables the specified output signal from an scb
+ *
+ * @param[in]  base       SCB base
+ * @param[in]  resource   SCB resource
+ * @param[in]  output     Which output signal to disable
+ * @return The status of the output disable
+ * */
+cy_rslt_t _cyhal_scb_disable_output(CySCB_Type *base, cyhal_resource_inst_t resource, cyhal_scb_output_t output);
 
 #define _CYHAL_SCB_FIND_MAP(pin, pin_map) \
                     _cyhal_scb_find_map(pin, pin_map, sizeof(pin_map)/sizeof(cyhal_resource_pin_mapping_t), NULL)

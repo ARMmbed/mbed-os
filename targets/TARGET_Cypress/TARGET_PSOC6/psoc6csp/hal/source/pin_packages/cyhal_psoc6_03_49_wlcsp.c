@@ -5,11 +5,11 @@
 * PSoC6_03 device GPIO HAL header for 49-WLCSP package
 *
 * \note
-* Generator version: 1.6.0.229
+* Generator version: 1.6.0.453
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2020 Cypress Semiconductor Corporation
+* Copyright 2016-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,6 +49,7 @@ static const cyhal_resource_inst_t CYHAL_TCPWM_0_1 = { CYHAL_RSC_TCPWM, 0, 1 };
 static const cyhal_resource_inst_t CYHAL_TCPWM_0_2 = { CYHAL_RSC_TCPWM, 0, 2 };
 static const cyhal_resource_inst_t CYHAL_TCPWM_0_3 = { CYHAL_RSC_TCPWM, 0, 3 };
 static const cyhal_resource_inst_t CYHAL_TCPWM_1_0 = { CYHAL_RSC_TCPWM, 1, 0 };
+static const cyhal_resource_inst_t CYHAL_TCPWM_1_2 = { CYHAL_RSC_TCPWM, 1, 2 };
 static const cyhal_resource_inst_t CYHAL_TCPWM_1_3 = { CYHAL_RSC_TCPWM, 1, 3 };
 static const cyhal_resource_inst_t CYHAL_TCPWM_1_4 = { CYHAL_RSC_TCPWM, 1, 4 };
 static const cyhal_resource_inst_t CYHAL_TCPWM_1_5 = { CYHAL_RSC_TCPWM, 1, 5 };
@@ -91,6 +92,38 @@ const cyhal_resource_pin_mapping_t cyhal_pin_map_pass_sarmux_pads[6] = {
     {&CYHAL_ADC_0, P10_5, (uint8_t)CY_GPIO_DM_ANALOG, HSIOM_SEL_GPIO},
 };
 
+/* Connections for: peri_tr_io_input */
+/* Since the GPIO pin is already specified there is no need to specify a particular resource for every entry.
+   Instead set the resource_inst field to the index of the input or output trigger line. */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_peri_tr_io_input[15] = {
+    {(cyhal_resource_inst_t*)0, P0_0, (uint8_t)CY_GPIO_DM_HIGHZ, P0_0_PERI_TR_IO_INPUT0},
+    {(cyhal_resource_inst_t*)1, P0_1, (uint8_t)CY_GPIO_DM_HIGHZ, P0_1_PERI_TR_IO_INPUT1},
+    {(cyhal_resource_inst_t*)2, P0_4, (uint8_t)CY_GPIO_DM_HIGHZ, P0_4_PERI_TR_IO_INPUT2},
+    {(cyhal_resource_inst_t*)4, P2_0, (uint8_t)CY_GPIO_DM_HIGHZ, P2_0_PERI_TR_IO_INPUT4},
+    {(cyhal_resource_inst_t*)5, P2_1, (uint8_t)CY_GPIO_DM_HIGHZ, P2_1_PERI_TR_IO_INPUT5},
+    {(cyhal_resource_inst_t*)10, P5_0, (uint8_t)CY_GPIO_DM_HIGHZ, P5_0_PERI_TR_IO_INPUT10},
+    {(cyhal_resource_inst_t*)11, P5_1, (uint8_t)CY_GPIO_DM_HIGHZ, P5_1_PERI_TR_IO_INPUT11},
+    {(cyhal_resource_inst_t*)12, P6_4, (uint8_t)CY_GPIO_DM_HIGHZ, P6_4_PERI_TR_IO_INPUT12},
+    {(cyhal_resource_inst_t*)13, P6_5, (uint8_t)CY_GPIO_DM_HIGHZ, P6_5_PERI_TR_IO_INPUT13},
+    {(cyhal_resource_inst_t*)14, P7_0, (uint8_t)CY_GPIO_DM_HIGHZ, P7_0_PERI_TR_IO_INPUT14},
+    {(cyhal_resource_inst_t*)15, P7_1, (uint8_t)CY_GPIO_DM_HIGHZ, P7_1_PERI_TR_IO_INPUT15},
+    {(cyhal_resource_inst_t*)18, P9_0, (uint8_t)CY_GPIO_DM_HIGHZ, P9_0_PERI_TR_IO_INPUT18},
+    {(cyhal_resource_inst_t*)19, P9_1, (uint8_t)CY_GPIO_DM_HIGHZ, P9_1_PERI_TR_IO_INPUT19},
+    {(cyhal_resource_inst_t*)20, P10_0, (uint8_t)CY_GPIO_DM_HIGHZ, P10_0_PERI_TR_IO_INPUT20},
+    {(cyhal_resource_inst_t*)21, P10_1, (uint8_t)CY_GPIO_DM_HIGHZ, P10_1_PERI_TR_IO_INPUT21},
+};
+
+/* Connections for: peri_tr_io_output */
+/* Since the GPIO pin is already specified there is no need to specify a particular resource for every entry.
+   Instead set the resource_inst field to the index of the input or output trigger line. */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_peri_tr_io_output[5] = {
+    {(cyhal_resource_inst_t*)0, P0_4, (uint8_t)CY_GPIO_DM_HIGHZ, P0_4_PERI_TR_IO_OUTPUT0},
+    {(cyhal_resource_inst_t*)0, P6_4, (uint8_t)CY_GPIO_DM_HIGHZ, P6_4_PERI_TR_IO_OUTPUT0},
+    {(cyhal_resource_inst_t*)1, P6_5, (uint8_t)CY_GPIO_DM_HIGHZ, P6_5_PERI_TR_IO_OUTPUT1},
+    {(cyhal_resource_inst_t*)0, P11_3, (uint8_t)CY_GPIO_DM_HIGHZ, P11_3_PERI_TR_IO_OUTPUT0},
+    {(cyhal_resource_inst_t*)1, P11_4, (uint8_t)CY_GPIO_DM_HIGHZ, P11_4_PERI_TR_IO_OUTPUT1},
+};
+
 /* Connections for: scb_i2c_scl */
 const cyhal_resource_pin_mapping_t cyhal_pin_map_scb_i2c_scl[6] = {
     {&CYHAL_SCB_1, P2_0, (uint8_t)CY_GPIO_DM_OD_DRIVESLOW, P2_0_SCB1_I2C_SCL},
@@ -112,7 +145,8 @@ const cyhal_resource_pin_mapping_t cyhal_pin_map_scb_i2c_sda[6] = {
 };
 
 /* Connections for: scb_spi_m_clk */
-const cyhal_resource_pin_mapping_t cyhal_pin_map_scb_spi_m_clk[7] = {
+const cyhal_resource_pin_mapping_t cyhal_pin_map_scb_spi_m_clk[8] = {
+    {&CYHAL_SCB_0, P0_4, (uint8_t)CY_GPIO_DM_STRONG_IN_OFF, P0_4_SCB0_SPI_CLK},
     {&CYHAL_SCB_1, P2_2, (uint8_t)CY_GPIO_DM_STRONG_IN_OFF, P2_2_SCB1_SPI_CLK},
     {&CYHAL_SCB_3, P6_2, (uint8_t)CY_GPIO_DM_STRONG_IN_OFF, P6_2_SCB3_SPI_CLK},
     {&CYHAL_SCB_6, P6_6, (uint8_t)CY_GPIO_DM_STRONG_IN_OFF, P6_6_SCB6_SPI_CLK},
@@ -176,7 +210,8 @@ const cyhal_resource_pin_mapping_t cyhal_pin_map_scb_spi_m_select3[1] = {
 };
 
 /* Connections for: scb_spi_s_clk */
-const cyhal_resource_pin_mapping_t cyhal_pin_map_scb_spi_s_clk[7] = {
+const cyhal_resource_pin_mapping_t cyhal_pin_map_scb_spi_s_clk[8] = {
+    {&CYHAL_SCB_0, P0_4, (uint8_t)CY_GPIO_DM_HIGHZ, P0_4_SCB0_SPI_CLK},
     {&CYHAL_SCB_1, P2_2, (uint8_t)CY_GPIO_DM_HIGHZ, P2_2_SCB1_SPI_CLK},
     {&CYHAL_SCB_3, P6_2, (uint8_t)CY_GPIO_DM_HIGHZ, P6_2_SCB3_SPI_CLK},
     {&CYHAL_SCB_6, P6_6, (uint8_t)CY_GPIO_DM_HIGHZ, P6_6_SCB6_SPI_CLK},
@@ -250,7 +285,8 @@ const cyhal_resource_pin_mapping_t cyhal_pin_map_scb_uart_cts[6] = {
 };
 
 /* Connections for: scb_uart_rts */
-const cyhal_resource_pin_mapping_t cyhal_pin_map_scb_uart_rts[6] = {
+const cyhal_resource_pin_mapping_t cyhal_pin_map_scb_uart_rts[7] = {
+    {&CYHAL_SCB_0, P0_4, (uint8_t)CY_GPIO_DM_STRONG_IN_OFF, P0_4_SCB0_UART_RTS},
     {&CYHAL_SCB_1, P2_2, (uint8_t)CY_GPIO_DM_STRONG_IN_OFF, P2_2_SCB1_UART_RTS},
     {&CYHAL_SCB_3, P6_2, (uint8_t)CY_GPIO_DM_STRONG_IN_OFF, P6_2_SCB3_UART_RTS},
     {&CYHAL_SCB_4, P7_2, (uint8_t)CY_GPIO_DM_STRONG_IN_OFF, P7_2_SCB4_UART_RTS},
@@ -356,9 +392,11 @@ const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_select2[1] = {
 };
 
 /* Connections for: tcpwm_line */
-const cyhal_resource_pin_mapping_t cyhal_pin_map_tcpwm_line[38] = {
+const cyhal_resource_pin_mapping_t cyhal_pin_map_tcpwm_line[40] = {
     {&CYHAL_TCPWM_0_0, P0_0, (uint8_t)CY_GPIO_DM_STRONG_IN_OFF, P0_0_TCPWM0_LINE0},
     {&CYHAL_TCPWM_1_0, P0_0, (uint8_t)CY_GPIO_DM_STRONG_IN_OFF, P0_0_TCPWM1_LINE0},
+    {&CYHAL_TCPWM_0_2, P0_4, (uint8_t)CY_GPIO_DM_STRONG_IN_OFF, P0_4_TCPWM0_LINE2},
+    {&CYHAL_TCPWM_1_2, P0_4, (uint8_t)CY_GPIO_DM_STRONG_IN_OFF, P0_4_TCPWM1_LINE2},
     {&CYHAL_TCPWM_0_3, P2_0, (uint8_t)CY_GPIO_DM_STRONG_IN_OFF, P2_0_TCPWM0_LINE3},
     {&CYHAL_TCPWM_1_3, P2_0, (uint8_t)CY_GPIO_DM_STRONG_IN_OFF, P2_0_TCPWM1_LINE3},
     {&CYHAL_TCPWM_0_0, P2_2, (uint8_t)CY_GPIO_DM_STRONG_IN_OFF, P2_2_TCPWM0_LINE0},

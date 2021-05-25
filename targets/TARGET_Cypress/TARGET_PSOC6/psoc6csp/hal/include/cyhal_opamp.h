@@ -8,7 +8,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,13 +50,13 @@
 * \section subsection_opamp_snippet_1 Snippet 1: Bare opamp initialization
 * The following snippet initializes a bare opamp. Note that any passive components
 * (e.g. resistive feedback) must be implemented off-chip.
-* \snippet opamp.c snippet_cyhal_opamp_init_diff
+* \snippet hal_opamp.c snippet_cyhal_opamp_init_diff
 * \section subsection_opamp_snippet_2 Snippet 2: Opamp follower initialization
 * The following snippet initializes an opamp as a follower.
-* \snippet opamp.c snippet_cyhal_opamp_init_follower
+* \snippet hal_opamp.c snippet_cyhal_opamp_init_follower
 * \section subsection_opamp_snippet_3 Snippet 3: Opamp powering-off and on
 * The following snippet demonstrates temporarily powering-off the opamp without freeing it.
-* \snippet opamp.c snippet_cyhal_opamp_start_stop
+* \snippet hal_opamp.c snippet_cyhal_opamp_start_stop
 */
 
 #pragma once

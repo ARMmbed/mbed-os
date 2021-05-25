@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,6 +26,11 @@
 *******************************************************************************/
 
 #include "cyhal_system.h"
+
+#if (defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B))
+#include "cy_syslib.h"
+#endif
+
 #if defined(CY_RTOS_AWARE) || defined(COMPONENT_RTOS_AWARE)
 #include "cyabs_rtos.h"
 #endif
@@ -38,6 +43,19 @@ extern "C"
 #endif
 
 #define _CYHAL_SYSTEM_HZ_PER_MHZ 1000000
+
+#if (defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B)) && !defined(CYHAL_DISABLE_WEAK_FUNC_IMPL)
+/* Overrides weak implemenation for Cy_SysLib_Rtos_Delay to provide a way
+* to call into a RTOS if so configured. This function is only available
+* in mtb-pdl-cat1 version 2.2.0 or later.
+*/
+void Cy_SysLib_Rtos_Delay(uint32_t milliseconds)
+{
+    cy_rslt_t result = cyhal_system_delay_ms(milliseconds);
+    CY_ASSERT(CY_RSLT_SUCCESS == result);
+    CY_UNUSED_PARAMETER(result);
+}
+#endif
 
 cy_rslt_t cyhal_system_delay_ms(uint32_t milliseconds)
 {

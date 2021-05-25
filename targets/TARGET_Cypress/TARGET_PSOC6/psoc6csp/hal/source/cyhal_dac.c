@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -160,12 +160,14 @@ static uint32_t _cyhal_dac_configure_oa0(cyhal_dac_t *obj, bool init)
         result = Cy_CTB_OpampInit(obj->base_opamp, CY_CTB_OPAMP_0, &config);
         Cy_CTB_SetAnalogSwitch(obj->base_opamp, CY_CTB_SWITCH_OA0_SW, CY_CTB_SW_OA0_NEG_OUT_MASK | CY_CTB_SW_OA0_OUT_SHORT_1X_10X_MASK, CY_CTB_SWITCH_CLOSE);
         Cy_CTB_SetAnalogSwitch(obj->base_opamp, CY_CTB_SWITCH_CTD_SW, CY_CTB_SW_CTD_OUT_CHOLD_MASK | CY_CTB_SW_CTD_CHOLD_OA0_POS_MASK, CY_CTB_SWITCH_CLOSE);
+        cyhal_analog_ctb_init(obj->base_opamp);
     }
     else
     {
         /* Open switches OA0 if used */
         Cy_CTB_SetAnalogSwitch(obj->base_opamp, CY_CTB_SWITCH_OA0_SW, CY_CTB_SW_OA0_NEG_OUT_MASK | CY_CTB_SW_OA0_OUT_SHORT_1X_10X_MASK, CY_CTB_SWITCH_OPEN);
         Cy_CTB_SetAnalogSwitch(obj->base_opamp, CY_CTB_SWITCH_CTD_SW, CY_CTB_SW_CTD_OUT_CHOLD_MASK | CY_CTB_SW_CTD_CHOLD_OA0_POS_MASK, CY_CTB_SWITCH_OPEN);
+        cyhal_analog_ctb_free(obj->base_opamp);
     }
     return result;
 }
@@ -179,12 +181,14 @@ static uint32_t _cyhal_dac_configure_oa1(cyhal_dac_t *obj, bool init)
         result = Cy_CTB_OpampInit(obj->base_opamp, CY_CTB_OPAMP_1, &cyhal_opamp_default_config);
         Cy_CTB_SetAnalogSwitch(obj->base_opamp, CY_CTB_SWITCH_OA1_SW, CY_CTB_SW_OA1_NEG_OUT_MASK | CY_CTB_SW_OA1_POS_AREF_MASK, CY_CTB_SWITCH_CLOSE);
         Cy_CTB_SetAnalogSwitch(obj->base_opamp, CY_CTB_SWITCH_CTD_SW, CY_CTB_SW_CTD_REF_OA1_OUT_MASK, CY_CTB_SWITCH_CLOSE);
+        cyhal_analog_ctb_init(obj->base_opamp);
     }
     else
     {
         /* Open switches OA1 if used */
         Cy_CTB_SetAnalogSwitch(obj->base_opamp, CY_CTB_SWITCH_OA1_SW, CY_CTB_SW_OA1_NEG_OUT_MASK | CY_CTB_SW_OA1_POS_AREF_MASK, CY_CTB_SWITCH_OPEN);
         Cy_CTB_SetAnalogSwitch(obj->base_opamp, CY_CTB_SWITCH_CTD_SW, CY_CTB_SW_CTD_REF_OA1_OUT_MASK, CY_CTB_SWITCH_OPEN);
+        cyhal_analog_ctb_free(obj->base_opamp);
     }
     return result;
 }
@@ -303,8 +307,7 @@ cy_rslt_t cyhal_dac_init(cyhal_dac_t *obj, cyhal_gpio_t pin)
 
     if (CY_RSLT_SUCCESS == result)
     {
-        (obj->resource_opamp.type != CYHAL_RSC_INVALID) ? cyhal_analog_ctb_init(obj->base_opamp)
-                                                        : _cyhal_analog_init();
+        _cyhal_analog_init();
     }
 
     if (result == CY_RSLT_SUCCESS)
@@ -337,21 +340,19 @@ void cyhal_dac_free(cyhal_dac_t *obj)
             (void)_cyhal_dac_configure_oa0(obj, false);
         }
 
-        /* Disable CTB block if used */
-        if ((obj->resource_aref_opamp.type != CYHAL_RSC_INVALID) || (obj->resource_opamp.type != CYHAL_RSC_INVALID))
-        {
-            cyhal_analog_ctb_free(obj->base_opamp);
-        }
-        else
-        {
-            _cyhal_analog_free();
-        }
+        _cyhal_analog_free();
 
         Cy_CTDAC_Disable(obj->base_dac);
 
         cyhal_hwmgr_free(&obj->resource_dac);
-        cyhal_hwmgr_free(&obj->resource_opamp);
-        cyhal_hwmgr_free(&obj->resource_aref_opamp);
+        if(CYHAL_RSC_INVALID != obj->resource_opamp.type)
+        {
+            cyhal_hwmgr_free(&obj->resource_opamp);
+        }
+        if(CYHAL_RSC_INVALID != obj->resource_aref_opamp.type)
+        {
+            cyhal_hwmgr_free(&obj->resource_aref_opamp);
+        }
 
         _cyhal_utils_release_if_used(&(obj->pin));
 

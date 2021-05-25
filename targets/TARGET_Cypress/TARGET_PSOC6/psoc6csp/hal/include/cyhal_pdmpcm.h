@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -57,7 +57,7 @@
 * \subsection subsection_pdmpcm_snippet_1 Snippet 1: PDM/PCM Initialization and Configuration
 * This snippet initializes a PCM/PCM resource for conversion and assigns the pins.
 *
-* \snippet pdmpcm.c snippet_cyhal_pdmpcm_init
+* \snippet hal_pdmpcm.c snippet_cyhal_pdmpcm_init
 *
 * \subsection subsection_pdmpcm_snippet_2 Snippet 2: PDM/PCM Asynchronous Receive
 * This snippet shows how to receive data in the background using \ref cyhal_pdm_pcm_read_async.
@@ -65,7 +65,7 @@
 * to register a callback function and \ref cyhal_pdm_pcm_enable_event to enable callling the
 * callback when an synchonous read completes.
 *
-* \snippet pdmpcm.c snippet_cyhal_pdmpcm_async_receive
+* \snippet hal_pdmpcm.c snippet_cyhal_pdmpcm_async_receive
 *
 * \section subsection_pdmpcm_moreinformation More Information
 *

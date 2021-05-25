@@ -5,11 +5,11 @@
 * PSoC6_01 device GPIO HAL header for 68-QFN-BLE package
 *
 * \note
-* Generator version: 1.6.0.229
+* Generator version: 1.6.0.453
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2020 Cypress Semiconductor Corporation
+* Copyright 2016-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -273,6 +273,14 @@ extern const cyhal_resource_pin_mapping_t cyhal_pin_map_opamp_vin_p1[1];
 #define CYHAL_PIN_MAP_PASS_SARMUX_PADS
 /** List of valid pin to peripheral connections for the pass_sarmux_pads signal. */
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_pass_sarmux_pads[2];
+/** Indicates that a pin map exists for peri_tr_io_input*/
+#define CYHAL_PIN_MAP_PERI_TR_IO_INPUT
+/** List of valid pin to peripheral connections for the peri_tr_io_input signal. */
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_peri_tr_io_input[14];
+/** Indicates that a pin map exists for peri_tr_io_output*/
+#define CYHAL_PIN_MAP_PERI_TR_IO_OUTPUT
+/** List of valid pin to peripheral connections for the peri_tr_io_output signal. */
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_peri_tr_io_output[6];
 /** Indicates that a pin map exists for scb_i2c_scl*/
 #define CYHAL_PIN_MAP_SCB_I2C_SCL
 /** List of valid pin to peripheral connections for the scb_i2c_scl signal. */

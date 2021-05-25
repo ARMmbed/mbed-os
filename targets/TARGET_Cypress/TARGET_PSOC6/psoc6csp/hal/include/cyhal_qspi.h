@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,20 +51,20 @@
 * any given flash command. The cyhal_qspi_command_t.mode_bits structure has several other components which should
 * be set as per the command. Mode bits are not required for single SPI read command, hence, mode_bits.disabled
 * is set to TRUE in the below example code.
-* \snippet qspi.c snippet_cyhal_qspi_structure_initialisation
+* \snippet hal_qspi.c snippet_cyhal_qspi_structure_initialisation
 * \subsection subsection_qspi_snippet_2 Code Snippet 2: QSPI initialization and Reading Flash memory
 * This example function demonstrates the initialization of the QSPI component and use of the cyhal_qspi_read() function
 * to complete the read operation and receive the read data in a buffer.
-* \snippet qspi.c snippet_cyhal_qspi_read
+* \snippet hal_qspi.c snippet_cyhal_qspi_read
 * \subsection subsection_qspi_snippet_3 Code Snippet 3: Erasing Flash memory
 * The following code snippet demonstrates the use of cyhal_qspi_transfer() API for sending single byte instruction
 * that may or may not need any address or data bytes. It also shows the usage of status register read command within
 * a while loop to poll the WIP bit status.
-* \snippet qspi.c snippet_cyhal_qspi_erase
+* \snippet hal_qspi.c snippet_cyhal_qspi_erase
 * \note Flash memories need erase operation before programming.
 * \subsection subsection_qspi_snippet_4 Code Snippet 4: Programming Flash memory
 * This code snippet demonstrates the usage cyhal_qspi_write() API for executing program operation on flash memory.
-* \snippet qspi.c snippet_cyhal_qspi_program
+* \snippet hal_qspi.c snippet_cyhal_qspi_program
 */
 
 #pragma once
@@ -217,7 +217,7 @@ cy_rslt_t cyhal_qspi_set_frequency(cyhal_qspi_t *obj, uint32_t hz);
 
 /** Get the actual frequency that QSPI is configured for
  *
- * @param[in] obj The QSPI object to configure
+ * @param[in] obj The QSPI object
  * @return Frequency in Hz
  */
 uint32_t cyhal_qspi_get_frequency(cyhal_qspi_t *obj);

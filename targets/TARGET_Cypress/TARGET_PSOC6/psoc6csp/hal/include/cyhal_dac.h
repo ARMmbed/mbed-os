@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -56,7 +56,7 @@
 * \subsection subsection_dac_use_case_1 Use case 1: Simple DAC initialization
 * The following snippet initializes a DAC resource and assigns the output to the specified <b>pin</b> using \ref cyhal_dac_init.
 * \ref cyhal_dac_write is used to set the DAC output value. \ref cyhal_dac_read is used to read back DAC register.
-* \snippet dac.c snippet_cyhal_dac_simple_init
+* \snippet hal_dac.c snippet_cyhal_dac_simple_init
 */
 
 #pragma once

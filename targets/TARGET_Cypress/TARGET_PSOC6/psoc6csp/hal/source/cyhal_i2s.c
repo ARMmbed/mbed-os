@@ -7,7 +7,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,7 +41,8 @@
 * \addtogroup group_hal_impl_i2s I2S (Inter-IC Sound)
 * \ingroup group_hal_impl
 * \{
-* The PSoC 6 I2S Supports the following values for word and channel lengths (with the constraint that word length must be less than or equal to channel length):
+* The CAT1 (PSoC 6) I2S Supports the following values for word and channel lengths (with the
+* constraint that word length must be less than or equal to channel length):
 * - 8 bits
 * - 16 bits
 * - 18 bits
@@ -49,8 +50,8 @@
 * - 24 bits
 * - 32 bits
 *
-* The sclk signal is formed by integer division of the input clock source (either internally provided or from the mclk pin).
-* The PSoC 6 I2S supports sclk divider values from 1 to 64.
+* The sclk signal is formed by integer division of the input clock source (either internally
+* provided or from the mclk pin). The CAT1 I2S supports sclk divider values from 1 to 64.
 * \} group_hal_impl_i2s
 */
 
@@ -798,7 +799,7 @@ cy_rslt_t cyhal_i2s_read_async(cyhal_i2s_t *obj, void *rx, size_t rx_length)
         {
             // Don't directly kick off the DMA here - it will be triggered
             // from the interrupt handler when the FIFO rised above the threshold
-            // (which may have already happened by the time we get here if the 
+            // (which may have already happened by the time we get here if the
             // application already had the full or half-full event enabled)
             _cyhal_i2s_update_rx_trigger_level(obj);
             _cyhal_i2s_update_enabled_events(obj);
@@ -893,7 +894,7 @@ cy_rslt_t cyhal_i2s_write_async(cyhal_i2s_t *obj, const void *tx, size_t tx_leng
         {
             // Don't directly kick off the DMA here - it will be triggered
             // from the interrupt handler when the FIFO drops below the threshold
-            // (which may have already happened by the time we get here if the 
+            // (which may have already happened by the time we get here if the
             // application already had the half-empty or empty event enabled)
             _cyhal_i2s_update_enabled_events(obj);
             break;
@@ -925,8 +926,8 @@ cy_rslt_t cyhal_i2s_set_async_mode(cyhal_i2s_t *obj, cyhal_async_mode_t mode, ui
         }
         if(mode == CYHAL_ASYNC_DMA && CYHAL_NC_PIN_VALUE != obj->pin_rx_sck && CYHAL_RSC_INVALID == obj->rx_dma.resource.type)
         {
-            /* Reserve a DMA channel for async receive if tx is enabled */
-            result = cyhal_dma_init(&obj->rx_dma, CYHAL_DMA_PRIORITY_DEFAULT, CYHAL_DMA_DIRECTION_MEM2PERIPH);
+            /* Reserve a DMA channel for async receive if rx is enabled */
+            result = cyhal_dma_init(&obj->rx_dma, CYHAL_DMA_PRIORITY_DEFAULT, CYHAL_DMA_DIRECTION_PERIPH2MEM);
             cyhal_dma_register_callback(&obj->rx_dma, &_cyhal_i2s_dma_handler_rx, obj);
         }
     }
@@ -1146,52 +1147,18 @@ static void _cyhal_i2s_update_rx_trigger_level(cyhal_i2s_t *obj)
     // an interrupt as soon as the amount the user requested is ready
     uint32_t savedIntrStatus = cyhal_system_critical_section_enter();
     uint8_t trigger_level = _CYHAL_I2S_FIFO_DEPTH / 2;
-    if(NULL != obj->async_rx_buff 
+    if(NULL != obj->async_rx_buff
        && obj->async_rx_length < trigger_level
        && obj->async_rx_length > 0)
     {
         trigger_level = obj->async_rx_length;
     }
 
-    // Safe to do a blind write of this register because the only other bits are 
-    // CLEAR, which is only set temporarily from clear_tx, and FREEZE, which is 
+    // Safe to do a blind write of this register because the only other bits are
+    // CLEAR, which is only set temporarily from clear_tx, and FREEZE, which is
     // never used by this driver (it exists for debugging purposes only)
-    obj->base->TX_FIFO_CTL = (trigger_level << I2S_TX_FIFO_CTL_TRIGGER_LEVEL_Pos);
+    obj->base->RX_FIFO_CTL = (trigger_level << I2S_RX_FIFO_CTL_TRIGGER_LEVEL_Pos);
     cyhal_system_critical_section_exit(savedIntrStatus);
-}
-
-// This needs to be called before cyhal_dma_configure is called
-static void _cyhal_i2s_dma_fixup_transfer_width(cyhal_dma_t *dma, bool update_dest)
-{
-    // The I2S memory-mapped registers only support 32-bit transfers, so we need to
-    // configure the DMA to perform full-word transfers even when our source array
-    // only contains 8 or 16 bit entries.
-#if defined(CY_IP_M4CPUSS_DMA)
-            if(dma->resource.type == CYHAL_RSC_DW)
-            {
-                if(update_dest)
-                {
-                    dma->descriptor_config.dw.dstTransferSize = CY_DMA_TRANSFER_SIZE_WORD;
-                }
-                else
-                {
-                    dma->descriptor_config.dw.srcTransferSize = CY_DMA_TRANSFER_SIZE_WORD;
-                }
-            }
-#endif
-#if defined(CY_IP_M4CPUSS_DMAC)
-            if(dma->resource.type == CYHAL_RSC_DMA)
-            {
-                if(update_dest)
-                {
-                    dma->descriptor_config.dmac.dstTransferSize = CY_DMAC_TRANSFER_SIZE_WORD;
-                }
-                else
-                {
-                    dma->descriptor_config.dmac.srcTransferSize = CY_DMAC_TRANSFER_SIZE_WORD;
-                }
-            }
-#endif
 }
 
 static cy_rslt_t _cyhal_i2s_dma_perform_rx(cyhal_i2s_t *obj)
@@ -1219,7 +1186,6 @@ static cy_rslt_t _cyhal_i2s_dma_perform_rx(cyhal_i2s_t *obj)
         .burst_size = 0,
         .action = CYHAL_DMA_TRANSFER_FULL,
     };
-    _cyhal_i2s_dma_fixup_transfer_width(&(obj->rx_dma), false);
     cy_rslt_t result = cyhal_dma_configure(&(obj->rx_dma), &dma_cfg);
 
     // Update the buffer first so that it's guaranteed to be correct whenever the DMA completes
@@ -1230,6 +1196,7 @@ static cy_rslt_t _cyhal_i2s_dma_perform_rx(cyhal_i2s_t *obj)
         obj->async_rx_buff = (void*)(((uint8_t*) obj->async_rx_buff) + increment_bytes);
         obj->async_rx_length -= transfer_size;
         _cyhal_i2s_update_rx_trigger_level(obj);
+        _cyhal_i2s_update_enabled_events(obj);
         cyhal_system_critical_section_exit(savedIntrStatus);
 
         result = cyhal_dma_start_transfer(&(obj->rx_dma));
@@ -1266,7 +1233,6 @@ static cy_rslt_t _cyhal_i2s_dma_perform_tx(cyhal_i2s_t *obj)
         .burst_size = 0,
         .action = CYHAL_DMA_TRANSFER_FULL,
     };
-    _cyhal_i2s_dma_fixup_transfer_width(&(obj->tx_dma), true);
     cy_rslt_t result = cyhal_dma_configure(&(obj->tx_dma), &dma_cfg);
 
     // Update the buffer first so that it's guaranteed to be correct whenever the DMA completes
@@ -1333,7 +1299,7 @@ static void _cyhal_i2s_process_event(cyhal_i2s_t *obj, cyhal_i2s_event_t event)
                 {
                     /* Write as much as we can out until the FIFO is full
                      * This is a potentially long operation but we don't want other I2S operations to
-                     * interleave with it. So switch to a "mini critical section" and disable the 
+                     * interleave with it. So switch to a "mini critical section" and disable the
                      * interrupts for this block only while we're copying
                      */
                     uint32_t old_interrupt_mask = Cy_I2S_GetInterruptMask(obj->base);
@@ -1380,7 +1346,7 @@ static void _cyhal_i2s_process_event(cyhal_i2s_t *obj, cyhal_i2s_event_t event)
                 {
                    /* Read as much as we can until the FIFO is empty
                      * This is a potentially long operation but we don't want other I2S operations to
-                     * interleave with it. So switch to a "mini critical section" and disable the 
+                     * interleave with it. So switch to a "mini critical section" and disable the
                      * interrupts for this block only while we're copying
                     */
                    uint32_t old_interrupt_mask = Cy_I2S_GetInterruptMask(obj->base);
@@ -1408,7 +1374,7 @@ static void _cyhal_i2s_process_event(cyhal_i2s_t *obj, cyhal_i2s_event_t event)
                    CY_ASSERT(0); /* Unrecognized async mode */
             }
 
-            // During async rx transfers, we may temporarily set the trigger level below half-full. 
+            // During async rx transfers, we may temporarily set the trigger level below half-full.
             // So make sure that it's a real "half full" and skip propagating to the user if it isn't
             uint8_t trigger_level = (obj->base->TX_FIFO_CTL & I2S_TX_FIFO_CTL_TRIGGER_LEVEL_Msk) >> I2S_TX_FIFO_CTL_TRIGGER_LEVEL_Pos;
             if(trigger_level != _CYHAL_I2S_FIFO_DEPTH / 2)

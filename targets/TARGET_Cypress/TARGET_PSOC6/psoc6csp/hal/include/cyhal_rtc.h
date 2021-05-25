@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,6 +37,7 @@
 * \section section_rtc_features Features
 * * Configurable interrupt and callback assignment on RTC event \ref cyhal_rtc_event_t
 * * Set alarm for a specific time and date \ref cyhal_rtc_set_alarm
+* * Daylight Savings Time adjustment
 *
 * \section section_rtc_quickstart Quick Start
 *
@@ -49,13 +50,12 @@
 * The following code snippet initialises the RTC using the \ref cyhal_rtc_init. The current date and time are set using \ref cyhal_rtc_write.
 * The current date and time is read from the RTC using \ref cyhal_rtc_read. The time structure <b> tm </b>, contains the calendar date and time which
 * are broken down into its components. This structure is declared in standard C library time.h which is included by HAL.
-* \snippet rtc.c snippet_cyhal_rtc_read_write_data_time
+* \snippet hal_rtc.c snippet_cyhal_rtc_read_write_data_time
 *
 * \subsection subsection_rtc_snippet_2 Snippet 2: RTC Alarm using Callbacks
 *  The following code snippet configures the RTC to trigger an alarm event on a specified date and time using \ref cyhal_rtc_set_alarm.
 *  A callback is registered to handle the alarm event using \ref cyhal_rtc_register_callback.
-* \snippet rtc.c snippet_cyhal_set_alarm_callback
-
+* \snippet hal_rtc.c snippet_cyhal_set_alarm_callback
 */
 
 #pragma once
@@ -103,11 +103,17 @@ typedef struct
     uint8_t en_month : 1; /**< Enable match of month */
 } cyhal_alarm_active_t;
 
-/** Enumeration used to configure the DST format */
+/** Enumeration used to configure the DST format
+ *
+ * \note In areas of the world that practice DST, when it should begin and end is not unique. It
+ * can either be in fixed DST format or in relative DST format.
+ */
 typedef enum
 {
-    CYHAL_RTC_DST_RELATIVE,        /**< Relative DST format */
-    CYHAL_RTC_DST_FIXED            /**< Fixed DST format */
+    CYHAL_RTC_DST_RELATIVE,        /**< Relative DST format. eg: Begins on the last Sunday of March
+                                    and ends on the last Sunday of October. */
+    CYHAL_RTC_DST_FIXED            /**< Fixed DST format. eg: Begins on 21st March
+                                    and ends on 21st September. */
 } cyhal_rtc_dst_format_t;
 
 /**
@@ -138,7 +144,7 @@ typedef void (*cyhal_rtc_event_callback_t)(void *callback_arg, cyhal_rtc_event_t
 
 /** Initialize the RTC peripheral
  *
- * Powerup the RTC in preparation for access. This function must be called
+ * Power up the RTC in preparation for access. This function must be called
  * before any other RTC functions are called. This does not change the state
  * of the RTC. It just enables access to it.
  * NOTE: Before calling this, make sure all necessary System Clocks are setup

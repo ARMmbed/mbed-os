@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,17 +35,24 @@
 * \ingroup group_hal_impl
 * \{
 *
-* Internally the PSoC 6 RTC only stores the year as a two digit BCD value
+* Internally the CAT1 (PSoC 6) RTC only stores the year as a two digit BCD value
 * (0-99); no century information is stored. On RTC initialization the HAL must,
 * as a result, assume a default century. If cyhal_rtc_write has been called
 * with a different century than the default, its value must be stored and that
-* value must persist through deep sleep, hibernate, software resets, etc. PSoC 6
+* value must persist through deep sleep, hibernate, software resets, etc. CAT1
 * hardware provides a number of BREG registers which exist in the BACKUP domain
 * and will persist over these power modes and resets. The HAL uses the highest
 * indexed BACKUP->BREG register to store the century for the RTC.
 *
 * Therefore do not use the highest indexed BACKUP->BREG register as it is
 * reserved for internal HAL usage.
+*
+* \note A century rollover (eg: 1999 to 2000) will only be detected if the backup
+* domain is reset. This happens automatically on a hardware reset, or can be done
+* manually by calling Cy_SysLib_ResetBackupDomain(). Calling the reset function
+* will clear any existing RTC/WCO/WDT configuration, so they must be setup after
+* the reset.
+*
 * \} group_hal_impl_wdt
 */
 

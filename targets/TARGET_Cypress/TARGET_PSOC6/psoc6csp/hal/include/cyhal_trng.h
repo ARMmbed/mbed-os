@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,6 +39,9 @@
 * * Generated sequences of numbers cannot be duplicated by running the process again
 * * Uses polynomial generators with fixed and programmable polynomials
 *
+* \note This driver is not intended to be used as a security library. If a full security library
+* is needed something like Mbed TLS should be used instead.
+*
 * \section subsection_trng_quickstart Quick Start
 *
 * \ref cyhal_trng_init initializes the TRNG and passes a pointer to the **TRNG** block through the **obj** object of  type \ref cyhal_trng_t.
@@ -48,7 +51,7 @@
 * \subsection subsection_trng_use_case_1 Simple TRNG number generation example
 * The following snippet initializes a TRNG and generates a true random number.
 *
-* \snippet trng.c snippet_cyhal_trng_simple_init
+* \snippet hal_trng.c snippet_cyhal_trng_simple_init
 */
 
 #pragma once

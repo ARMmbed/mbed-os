@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,7 +31,7 @@
 * \addtogroup group_hal_impl_syspm System Power Management
 * \ingroup group_hal_impl
 * \{
-* The PSoC 6 Power Management has the following characteristics:
+* The CAT1 (PSoC 6) Power Management has the following characteristics:
 * \ref CYHAL_SYSPM_SYSTEM_NORMAL equates to the Low Power mode<br>
 * \ref CYHAL_SYSPM_SYSTEM_LOW equates to the Ultra Low Power mode
 *
@@ -74,14 +74,15 @@ cy_rslt_t cyhal_syspm_tickless_sleep_deepsleep(cyhal_lptimer_t *obj, uint32_t de
 
 #define cyhal_syspm_tickless_sleep(obj, desired_ms, actual_ms) cyhal_syspm_tickless_sleep_deepsleep(obj, desired_ms, actual_ms, false)
 
-#if defined(COMPONENT_PSOC6HAL)
+#if defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B)
 #define cyhal_syspm_sleep()              Cy_SysPm_CpuEnterSleep(CY_SYSPM_WAIT_FOR_INTERRUPT)
 #define cyhal_syspm_deepsleep()          Cy_SysPm_CpuEnterDeepSleep(CY_SYSPM_WAIT_FOR_INTERRUPT)
 #define cyhal_syspm_get_system_state()   (Cy_SysPm_IsSystemUlp() ? CYHAL_SYSPM_SYSTEM_LOW : CYHAL_SYSPM_SYSTEM_NORMAL)
-#else
+#elif defined(COMPONENT_CAT2)
 #define cyhal_syspm_sleep()              Cy_SysPm_CpuEnterSleep()
 #define cyhal_syspm_deepsleep()          Cy_SysPm_CpuEnterDeepSleep()
-#endif /* COMPONENT_PSOC6HAL */
+#define cyhal_syspm_get_system_state()   (CYHAL_SYSPM_SYSTEM_NORMAL)
+#endif /* defined(COMPONENT_CAT1A) || defined(COMPONENT_CAT1B) */
 
 /** \endcond */
 

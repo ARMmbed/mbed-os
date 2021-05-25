@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2019-2020 Cypress Semiconductor Corporation
+* Copyright 2019-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -60,7 +60,7 @@
 * to generate and use an available clock resource with a default frequency. The device can be made
 * physically visible to the USB Host by using \ref cyhal_usb_dev_connect
 *
-* \snippet usb_dev.c snippet_cyhal_usb_dev_init
+* \snippet hal_usb_dev.c snippet_cyhal_usb_dev_init
 *
 *
 * \subsection subsection_usb_dev_snippet_2 Snippet 2: Handling USB Event Completion
@@ -68,14 +68,14 @@
 * a callback function. The callback function needs to be first registered using
 * \ref cyhal_usb_dev_register_event_callback. Use different callback functions to handle events individually.
 *
-* \snippet usb_dev.c snippet_cyhal_usb_dev_event
+* \snippet hal_usb_dev.c snippet_cyhal_usb_dev_event
 *
 *
 * \subsection subsection_usb_dev_snippet_3 Snippet 3: Custom USB Interrupt Handler
 * The following section illustrates how to set up the IRQ interrupt handler for USB device. Inside the handler
 * \ref cyhal_usb_dev_process_irq has been used to process the interrupts.
 *
-* \snippet usb_dev.c snippet_cyhal_usb_dev_irq
+* \snippet hal_usb_dev.c snippet_cyhal_usb_dev_irq
 *
 *
 * \subsection subsection_usb_dev_snippet_4 Snippet 4: Adding an Endpoint and Handling its Interrupts
@@ -84,7 +84,7 @@
 * callback function registered using \ref cyhal_usb_dev_register_endpoint_callback.
 * The endpoint can also be configured using <a href="https://www.cypress.com/ModusToolboxUSBConfig">ModusToolbox USB Configurator</a>
 *
-* \snippet usb_dev.c snippet_cyhal_usb_dev_endpoint
+* \snippet hal_usb_dev.c snippet_cyhal_usb_dev_endpoint
 */
 
 #pragma once

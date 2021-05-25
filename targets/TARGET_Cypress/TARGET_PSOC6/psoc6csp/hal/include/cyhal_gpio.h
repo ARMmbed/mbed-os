@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -53,13 +53,13 @@
 * The following snippet initializes GPIO pin \ref P0_0 as an input with high impedance digital drive mode and initial value = <b>false</b> (low). A value is read
 * from the pin and stored to a uint8_t variable (<b>read_val</b>).
 
-* \snippet gpio.c snippet_cyhal_gpio_read
+* \snippet hal_gpio.c snippet_cyhal_gpio_read
 
 * \subsection subsection_gpio_snippet_2 Snippet 2: Writing value to a GPIO
 * The following snippet initializes GPIO pin \ref P0_0 as an output pin with strong drive mode and initial value = <b>false</b> (low).
 * A value = <b>true</b> (high) is written to the output driver.
 
-* \snippet gpio.c snippet_cyhal_gpio_write
+* \snippet hal_gpio.c snippet_cyhal_gpio_write
 
 * \subsection subsection_gpio_snippet_3 Snippet 3: Reconfiguring a GPIO
 * The following snippet shows how to reconfigure a GPIO pin during run-time using the firmware. The GPIO pin \ref P0_0
@@ -67,7 +67,7 @@
 * \note \ref cyhal_gpio_configure only changes the <b>direction</b> and the <b>drive_mode</b>
 * of the pin. Previously set pin value is retained.
 *
-* \snippet gpio.c snippet_cyhal_gpio_reconfigure
+* \snippet hal_gpio.c snippet_cyhal_gpio_reconfigure
 
 * \subsection subsection_gpio_snippet_4 Snippet 4: Interrupts on GPIO events
 * GPIO events can be mapped to an interrupt and assigned to a callback function. The callback function needs to be first registered and
@@ -76,7 +76,7 @@
 * of a falling edge event to trigger the callback.
 * \note If no argument needs to be passed to the callback function then a NULL can be passed during registering. <br>
 *
-* \snippet gpio.c snippet_cyhal_gpio_interrupt
+* \snippet hal_gpio.c snippet_cyhal_gpio_interrupt
 */
 
 #pragma once
@@ -85,11 +85,28 @@
 #include <stdbool.h>
 #include "cy_result.h"
 #include "cyhal_hw_types.h"
+#include "cyhal_interconnect.h"
 
 #if defined(__cplusplus)
 extern "C" {
 #endif /* __cplusplus */
 
+/** \addtogroup group_hal_results_gpio GPIO HAL Results
+ *  GPIO specific return codes
+ *  \ingroup group_hal_results
+ *  \{ *//**
+ */
+
+/** The specified pin has no supported input signal */
+#define CYHAL_GPIO_RSLT_ERR_NO_INPUT_SIGNAL \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_GPIO, 0))
+/** The specified pin has no supported output signal */
+#define CYHAL_GPIO_RSLT_ERR_NO_OUTPUT_SIGNAL \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_GPIO, 1))
+
+/**
+ * \}
+ */
 
 /*******************************************************************************
 *       Defines
@@ -221,10 +238,46 @@ void cyhal_gpio_register_callback(cyhal_gpio_t pin, cyhal_gpio_event_callback_t 
  *
  * @param[in] pin           The GPIO object
  * @param[in] event         The GPIO event
- * @param[in] intr_priority The priority for NVIC interrupt events
+ * @param[in] intr_priority The priority for NVIC interrupt events. Interrupt priorities specific to a pin may not
+ *                          be supported on all platforms. Refer to platform implementation specific documentation
+ *                          for details.
  * @param[in] enable        True to turn on interrupts, False to turn off
  */
 void cyhal_gpio_enable_event(cyhal_gpio_t pin, cyhal_gpio_event_t event, uint8_t intr_priority, bool enable);
+
+/** Connects a source signal and enables an input to a pin that, when triggered, will set the pins output
+ *
+ * @param[in] pin      GPIO object
+ * @param[in] source   Source signal obtained from another driver's cyhal_<PERIPH>_enable_output
+ * @param[in] type     Whether the incoming signal will act as a edge or level input
+ * @return The status of the connection
+ * */
+cy_rslt_t cyhal_gpio_connect_digital(cyhal_gpio_t pin, cyhal_source_t source, cyhal_signal_type_t type);
+
+/** Enables an output signal from a pin that is triggered by the pins input
+ *
+ * @param[in]  pin      GPIO object
+ * @param[out] source   Pointer to user-allocated source signal object which
+ * will be initialized by enable_output. \p source should be passed to
+ * (dis)connect_digital functions to (dis)connect the associated endpoints.
+ * @return The status of the output enable
+ * */
+cy_rslt_t cyhal_gpio_enable_output(cyhal_gpio_t pin, cyhal_source_t *source);
+
+/** Disconnects a source signal and disables an input to a pin
+ *
+ * @param[in] pin      GPIO object
+ * @param[in] source   Source signal from cyhal_<PERIPH>_enable_output to disable
+ * @return The status of the disconnection
+ * */
+cy_rslt_t cyhal_gpio_disconnect_digital(cyhal_gpio_t pin, cyhal_source_t source);
+
+/** Disables an output signal from a pin
+ *
+ * @param[in]  pin      GPIO object
+ * @return The status of the output enable
+ * */
+cy_rslt_t cyhal_gpio_disable_output(cyhal_gpio_t pin);
 
 /*******************************************************************************
 * Backward compatibility macro. The following code is DEPRECATED and must
