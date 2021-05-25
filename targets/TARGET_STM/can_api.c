@@ -329,9 +329,11 @@ int can_frequency(can_t *obj, int f)
  */
 int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t handle)
 {
-    UNUSED(handle); // Not supported yet (seems to be a used in read function?)
-
     FDCAN_FilterTypeDef sFilterConfig = {0};
+
+    if(handle != 0) { // message filter handle is not supported for STM controllers
+        return 0;
+    }
 
     if (format == CANStandard) {
         sFilterConfig.IdType = FDCAN_STANDARD_ID;
@@ -391,7 +393,7 @@ int can_write(can_t *obj, CAN_Message msg, int cc)
 
 int can_read(can_t *obj, CAN_Message *msg, int handle)
 {
-    UNUSED(handle); // Not supported yet (seems to be a handle to a filter configuration?)
+    UNUSED(handle); // Not supported
 
     if (HAL_FDCAN_GetRxFifoFillLevel(&obj->CanHandle, FDCAN_RX_FIFO0) == 0) {
         return 0; // No message arrived
@@ -1100,6 +1102,10 @@ int can_mode(can_t *obj, CanMode mode)
 int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t handle)
 {
     int success = 0;
+
+    if(handle != 0) { // message filter handle not supported yet for STM controllers
+        return 0;
+    }
     
     // filter for CANAny format cannot be configured for STM32
     if ((format == CANStandard) || (format == CANExtended)) {
@@ -1128,6 +1134,8 @@ int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t
         {
             success = 1;
         }
+    } else if (format == CANAny) {
+	    success = 0;	// filter for CANAny is not supported by STM32, return a failure
     }
 
     return success;
