@@ -10,7 +10,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -66,6 +66,7 @@
       <Entry name="Center Aligned" value="CY_TCPWM_PWM_CENTER_ALIGN" visible="true" />
       <Entry name="Asymmetric" value="CY_TCPWM_PWM_ASYMMETRIC_ALIGN" visible="true" />
     </ParamChoice>
+	<ParamBool id="SwapUnderflowOverflow" name="Swap Underflow Overflow Set/Clear" group="General" default="false" visible="`${((PwmAlignment eq CY_TCPWM_PWM_CENTER_ALIGN) || (PwmAlignment eq CY_TCPWM_PWM_ASYMMETRIC_ALIGN))}`" editable="true" desc="If checked on underflow event, output is SET and on overflow event output is CLEAR." />
     <ParamChoice id="RunMode" name="Run Mode" group="General" default="CY_TCPWM_PWM_CONTINUOUS" visible="true" editable="true" desc="If Continuous is selected counter runs forever. If One Shot is selected counter runs for one period and stops.">
       <Entry name="Continuous" value="CY_TCPWM_PWM_CONTINUOUS" visible="true" />
       <Entry name="One Shot" value="CY_TCPWM_PWM_ONESHOT" visible="true" />
@@ -362,6 +363,7 @@
       <Member name="killInput" value="`${KillInput eq CY_TCPWM_INPUT_DISABLED ? &quot;CY_TCPWM_INPUT_0&quot; : (definePrefix . &quot;_STOP_VALUE&quot;)}`" />
       <Member name="countInputMode" value="`${CountInput eq CY_TCPWM_INPUT_DISABLED ? defineInputDisabled : CountInput}`" />
       <Member name="countInput" value="`${CountInput eq CY_TCPWM_INPUT_DISABLED ? &quot;CY_TCPWM_INPUT_1&quot; : (definePrefix . &quot;_COUNT_VALUE&quot;)}`" />
+      <Member name="swapOverflowUnderflow" value="`${((PwmAlignment eq CY_TCPWM_PWM_CENTER_ALIGN) || (PwmAlignment eq CY_TCPWM_PWM_ASYMMETRIC_ALIGN)) ? SwapUnderflowOverflow : false}`" />
     </ConfigStruct>
     
     <ConfigStruct name="`${INST_NAME}`_obj" type="cyhal_resource_inst_t" const="true" public="true" include="true" guard="defined (CY_USING_HAL)">

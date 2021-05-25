@@ -105,14 +105,30 @@
     <ParamBool id="ep$idxDmaEnabled" name="ep$idxDmaEnabled" group="Internal" default="`${ep$idxEnabled &amp;&amp; isDmaEnabled}`" visible="false" editable="false" desc="" />
     </Repeat>
 
-    <ParamSignal port="dma_req[0]" name="DMA Request EP1" group="DMA Connections" visible="`${ep0DmaEnabled}`" desc="Connects USB DMA Request output of endpoint 1 to DMA channel trigger input ." canBeEmpty="`${!ep0DmaEnabled}`" />
-    <ParamSignal port="dma_req[1]" name="DMA Request EP2" group="DMA Connections" visible="`${ep1DmaEnabled}`" desc="Connects USB DMA Request output  of endpoint 2 to DMA channel trigger input." canBeEmpty="`${!ep1DmaEnabled}`" />
-    <ParamSignal port="dma_req[2]" name="DMA Request EP3" group="DMA Connections" visible="`${ep2DmaEnabled}`" desc="Connects USB DMA Request output  of endpoint 3 to DMA channel trigger input." canBeEmpty="`${!ep2DmaEnabled}`" />
-    <ParamSignal port="dma_req[3]" name="DMA Request EP4" group="DMA Connections" visible="`${ep3DmaEnabled}`" desc="Connects USB DMA Request output of endpoint 4 to DMA channel trigger input." canBeEmpty="`${!ep3DmaEnabled}`" />
-    <ParamSignal port="dma_req[4]" name="DMA Request EP5" group="DMA Connections" visible="`${ep4DmaEnabled}`" desc="Connects USB DMA Request output of endpoint 5 to DMA channel trigger input." canBeEmpty="`${!ep4DmaEnabled}`" />
-    <ParamSignal port="dma_req[5]" name="DMA Request EP6" group="DMA Connections" visible="`${ep5DmaEnabled}`" desc="Connects USB DMA Request output of endpoint 6 to DMA channel trigger input." canBeEmpty="`${!ep5DmaEnabled}`" />    
-    <ParamSignal port="dma_req[6]" name="DMA Request EP7" group="DMA Connections" visible="`${ep6DmaEnabled}`" desc="Connects USB DMA Request output of endpoint 7 to DMA channel trigger input." canBeEmpty="`${!ep6DmaEnabled}`" />
-    <ParamSignal port="dma_req[7]" name="DMA Request EP8" group="DMA Connections" visible="`${ep7DmaEnabled}`" desc="Connects USB DMA Request outputof endpoint 8 to DMA channel trigger input." canBeEmpty="`${!ep7DmaEnabled}`" />
+    <ParamSignal port="dma_req[0]" name="DMA Request EP1" group="DMA Connections" visible="`${ep0DmaEnabled}`" desc="Connects USB DMA Request output of endpoint 1 to DMA channel trigger input ." canBeEmpty="`${!ep0DmaEnabled}`" >
+      <Constraint type="REQUIRE" targetLocation="cpuss(\[\d+\])?\.(dw|dmac).*" valid="true" />
+    </ParamSignal>
+    <ParamSignal port="dma_req[1]" name="DMA Request EP2" group="DMA Connections" visible="`${ep1DmaEnabled}`" desc="Connects USB DMA Request output  of endpoint 2 to DMA channel trigger input." canBeEmpty="`${!ep1DmaEnabled}`" >
+      <Constraint type="REQUIRE" targetLocation="cpuss(\[\d+\])?\.(dw|dmac).*" valid="true" />
+    </ParamSignal>
+    <ParamSignal port="dma_req[2]" name="DMA Request EP3" group="DMA Connections" visible="`${ep2DmaEnabled}`" desc="Connects USB DMA Request output  of endpoint 3 to DMA channel trigger input." canBeEmpty="`${!ep2DmaEnabled}`" >
+      <Constraint type="REQUIRE" targetLocation="cpuss(\[\d+\])?\.(dw|dmac).*" valid="true" />
+    </ParamSignal>
+    <ParamSignal port="dma_req[3]" name="DMA Request EP4" group="DMA Connections" visible="`${ep3DmaEnabled}`" desc="Connects USB DMA Request output of endpoint 4 to DMA channel trigger input." canBeEmpty="`${!ep3DmaEnabled}`" >
+      <Constraint type="REQUIRE" targetLocation="cpuss(\[\d+\])?\.(dw|dmac).*" valid="true" />
+    </ParamSignal>
+    <ParamSignal port="dma_req[4]" name="DMA Request EP5" group="DMA Connections" visible="`${ep4DmaEnabled}`" desc="Connects USB DMA Request output of endpoint 5 to DMA channel trigger input." canBeEmpty="`${!ep4DmaEnabled}`" >
+      <Constraint type="REQUIRE" targetLocation="cpuss(\[\d+\])?\.(dw|dmac).*" valid="true" />
+    </ParamSignal>
+    <ParamSignal port="dma_req[5]" name="DMA Request EP6" group="DMA Connections" visible="`${ep5DmaEnabled}`" desc="Connects USB DMA Request output of endpoint 6 to DMA channel trigger input." canBeEmpty="`${!ep5DmaEnabled}`" >
+      <Constraint type="REQUIRE" targetLocation="cpuss(\[\d+\])?\.(dw|dmac).*" valid="true" />
+    </ParamSignal>
+    <ParamSignal port="dma_req[6]" name="DMA Request EP7" group="DMA Connections" visible="`${ep6DmaEnabled}`" desc="Connects USB DMA Request output of endpoint 7 to DMA channel trigger input." canBeEmpty="`${!ep6DmaEnabled}`" >
+      <Constraint type="REQUIRE" targetLocation="cpuss(\[\d+\])?\.(dw|dmac).*" valid="true" />
+    </ParamSignal>
+    <ParamSignal port="dma_req[7]" name="DMA Request EP8" group="DMA Connections" visible="`${ep7DmaEnabled}`" desc="Connects USB DMA Request outputof endpoint 8 to DMA channel trigger input." canBeEmpty="`${!ep7DmaEnabled}`" >
+      <Constraint type="REQUIRE" targetLocation="cpuss(\[\d+\])?\.(dw|dmac).*" valid="true" />
+    </ParamSignal>
 
     <ParamSignal port="dma_burstend[0]"  name="DMA Burst End EP1" group="DMA Connections" visible="`${ep0DmaEnabled}`" desc="Connects DMA channel completion output to USB Burst End input of endpoint 1." canBeEmpty="`${!ep0DmaEnabled}`" />    
     <ParamSignal port="dma_burstend[1]"  name="DMA Burst End EP2"  group="DMA Connections" visible="`${ep1DmaEnabled}`" desc="Connects DMA channel completion output to USB Burst End input of endpoint 2." canBeEmpty="`${!ep1DmaEnabled}`" />

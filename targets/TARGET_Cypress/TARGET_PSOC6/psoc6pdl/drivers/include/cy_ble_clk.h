@@ -109,12 +109,12 @@
 #if !defined(CY_BLE_CLK_H)
 #define CY_BLE_CLK_H
 
-#include <stddef.h>
 #include "cy_device.h"
-#include "cy_device_headers.h"
-#include "cy_syslib.h"
 
-#if defined(CY_IP_MXBLESS)
+#if defined (CY_IP_MXBLESS) && defined (CY_IP_MXS40IOSS)
+
+#include <stddef.h>
+#include "cy_syslib.h"
 
 /* C binding of definitions if building with C++ compiler */
 #ifdef __cplusplus

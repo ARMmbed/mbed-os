@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_flash.c
-* \version 3.50
+* \version 3.50.1
 *
 * \brief
 * Provides the public functions for the API for the PSoC 6 Flash Driver.
@@ -22,17 +22,21 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+
+#include "cy_device.h"
+
+#if defined (CY_IP_M4CPUSS)
+
 #include "cy_flash.h"
 #include "cy_sysclk.h"
 #include "cy_sysint.h"
 #include "cy_ipc_drv.h"
 #include "cy_ipc_sema.h"
 #include "cy_ipc_pipe.h"
-#include "cy_device.h"
 #include "cy_syslib.h"
-#if defined(CY_DEVICE_SECURE)
+#if defined (CY_DEVICE_SECURE)
     #include "cy_pra.h"
-#endif /* defined(CY_DEVICE_SECURE) */
+#endif /* defined (CY_DEVICE_SECURE) */
 
 CY_MISRA_DEVIATE_BLOCK_START('MISRA C-2012 Rule 11.3', 2, \
 'IPC_STRUCT_Type will typecast to either IPC_STRUCT_V1_Type or IPC_STRUCT_V2_Type but not both on PDL initialization based on the target device at compile time.');
@@ -135,7 +139,7 @@ typedef cy_en_flashdrv_status_t (*Cy_Flash_Proxy)(cy_stc_flash_context_t *contex
 /** Disable delay */
 #define CY_FLASH_NO_DELAY                          (0U)
 
-#if !defined(CY_FLASH_RWW_DRV_SUPPORT_DISABLED)
+#if !defined (CY_FLASH_RWW_DRV_SUPPORT_DISABLED)
     /** Number of ticks to wait 1 uS */
     #define CY_FLASH_TICKS_FOR_1US                     (8U)
     /** Define to set the IMO to perform a delay after the flash operation started */
@@ -200,7 +204,7 @@ typedef cy_en_flashdrv_status_t (*Cy_Flash_Proxy)(cy_stc_flash_context_t *contex
     /** Delay time for Start Erase function in uS with corrective time */
     #define CY_FLASH_START_ERASE_DELAY                 (CY_FLASH_NO_DELAY)
 
-#endif /* !defined(CY_FLASH_RWW_DRV_SUPPORT_DISABLED) */
+#endif /* !defined (CY_FLASH_RWW_DRV_SUPPORT_DISABLED) */
 /** \endcond */
 
 /* Static functions */
@@ -213,7 +217,7 @@ static cy_en_flashdrv_status_t Cy_Flash_SendCmd(uint32_t mode, uint32_t microsec
 static volatile cy_stc_flash_context_t flashContext;
 
 
-#if !defined(CY_FLASH_RWW_DRV_SUPPORT_DISABLED)
+#if !defined (CY_FLASH_RWW_DRV_SUPPORT_DISABLED)
     /*******************************************************************************
     * Function Name: Cy_Flash_InitExt
     ****************************************************************************//**
@@ -274,9 +278,9 @@ static volatile cy_stc_flash_context_t flashContext;
     #endif
     static void Cy_Flash_NotifyHandler(uint32_t * msgPtr)
     {
-    #if !((CY_CPU_CORTEX_M0P) && (defined(CY_DEVICE_SECURE)))
+    #if !((CY_CPU_CORTEX_M0P) && (defined (CY_DEVICE_SECURE)))
         uint32_t intr;
-    #endif /* !((CY_CPU_CORTEX_M0P) && (defined(CY_DEVICE_SECURE))) */
+    #endif /* !((CY_CPU_CORTEX_M0P) && (defined (CY_DEVICE_SECURE))) */
         static uint32_t semaIndex;
         static uint32_t semaMask;
         static volatile uint32_t *semaPtr;
@@ -286,9 +290,9 @@ static volatile cy_stc_flash_context_t flashContext;
 
         if (CY_FLASH_ENTER_WAIT_LOOP == ipcMsgPtr->pktType)
         {
-        #if !((CY_CPU_CORTEX_M0P) && (defined(CY_DEVICE_SECURE)))
+        #if !((CY_CPU_CORTEX_M0P) && (defined (CY_DEVICE_SECURE)))
             intr = Cy_SysLib_EnterCriticalSection();
-        #endif /* !((CY_CPU_CORTEX_M0P) && (defined(CY_DEVICE_SECURE))) */
+        #endif /* !((CY_CPU_CORTEX_M0P) && (defined (CY_DEVICE_SECURE))) */
 
             /* Get pointer to structure */
             semaStruct = (cy_stc_ipc_sema_t *)Cy_IPC_Drv_ReadDataValue(Cy_IPC_Drv_GetIpcBaseAddress(CY_IPC_CHAN_SEMA));
@@ -306,9 +310,9 @@ static volatile cy_stc_flash_context_t flashContext;
             {
             }
 
-        #if !((CY_CPU_CORTEX_M0P) && (defined(CY_DEVICE_SECURE)))
+        #if !((CY_CPU_CORTEX_M0P) && (defined (CY_DEVICE_SECURE)))
             Cy_SysLib_ExitCriticalSection(intr);
-        #endif /* !((CY_CPU_CORTEX_M0P) && (defined(CY_DEVICE_SECURE))) */
+        #endif /* !((CY_CPU_CORTEX_M0P) && (defined (CY_DEVICE_SECURE))) */
         }
     }
     CY_SECTION_RAMFUNC_END
@@ -334,12 +338,12 @@ static volatile cy_stc_flash_context_t flashContext;
 *******************************************************************************/
 void Cy_Flash_Init(void)
 {
-    #if !defined(CY_FLASH_RWW_DRV_SUPPORT_DISABLED)
+    #if !defined (CY_FLASH_RWW_DRV_SUPPORT_DISABLED)
         CY_SECTION_SHAREDMEM
         CY_ALIGN(4) static cy_stc_flash_notify_t ipcWaitMessageStc;
 
         Cy_Flash_InitExt(&ipcWaitMessageStc);
-    #endif /* !defined(CY_FLASH_RWW_DRV_SUPPORT_DISABLED) */
+    #endif /* !defined (CY_FLASH_RWW_DRV_SUPPORT_DISABLED) */
 }
 
 
@@ -372,7 +376,7 @@ static cy_en_flashdrv_status_t Cy_Flash_SendCmd(uint32_t mode, uint32_t microsec
     IPC_STRUCT_Type * locIpcBase = Cy_IPC_Drv_GetIpcBaseAddress(CY_IPC_CHAN_SYSCALL);
     volatile uint32_t *ipcLockStatus = &REG_IPC_STRUCT_LOCK_STATUS(locIpcBase);
 
-#if !defined(CY_FLASH_RWW_DRV_SUPPORT_DISABLED)
+#if !defined (CY_FLASH_RWW_DRV_SUPPORT_DISABLED)
     uint32_t intr;
     uint32_t semaTryCount = 0uL;
 
@@ -469,11 +473,11 @@ static cy_en_flashdrv_status_t Cy_Flash_SendCmd(uint32_t mode, uint32_t microsec
         }
     }
     else
-#endif /* !defined(CY_FLASH_RWW_DRV_SUPPORT_DISABLED) */
+#endif /* !defined (CY_FLASH_RWW_DRV_SUPPORT_DISABLED) */
     {
-    #if !defined(CY_FLASH_RWW_DRV_SUPPORT_DISABLED)
+    #if !defined (CY_FLASH_RWW_DRV_SUPPORT_DISABLED)
         intr = Cy_SysLib_EnterCriticalSection();
-    #endif /* !defined(CY_FLASH_RWW_DRV_SUPPORT_DISABLED) */
+    #endif /* !defined (CY_FLASH_RWW_DRV_SUPPORT_DISABLED) */
         /* Tries to acquire the IPC structure and pass the arguments to SROM API */
         if (Cy_IPC_Drv_SendMsgPtr(locIpcBase, CY_FLASH_IPC_NOTIFY_STRUCT0, (void*)&flashContext) == CY_IPC_DRV_SUCCESS)
         {
@@ -497,9 +501,9 @@ static cy_en_flashdrv_status_t Cy_Flash_SendCmd(uint32_t mode, uint32_t microsec
             /* The IPC structure is already locked by another process */
             result = CY_FLASH_DRV_IPC_BUSY;
         }
-    #if !defined(CY_FLASH_RWW_DRV_SUPPORT_DISABLED)
+    #if !defined (CY_FLASH_RWW_DRV_SUPPORT_DISABLED)
         Cy_SysLib_ExitCriticalSection(intr);
-    #endif /* !defined(CY_FLASH_RWW_DRV_SUPPORT_DISABLED) */
+    #endif /* !defined (CY_FLASH_RWW_DRV_SUPPORT_DISABLED) */
     }
 
     return (result);
@@ -507,7 +511,7 @@ static cy_en_flashdrv_status_t Cy_Flash_SendCmd(uint32_t mode, uint32_t microsec
 CY_SECTION_RAMFUNC_END
 
 
-#if !defined(CY_FLASH_RWW_DRV_SUPPORT_DISABLED)
+#if !defined (CY_FLASH_RWW_DRV_SUPPORT_DISABLED)
     /*******************************************************************************
     * Function Name: Cy_Flash_RAMDelay
     ****************************************************************************//**
@@ -586,11 +590,11 @@ CY_SECTION_RAMFUNC_END
             IPC_STRUCT_Type * locIpcBase = Cy_IPC_Drv_GetIpcBaseAddress(CY_IPC_CHAN_CYPIPE_EP0);
 
             uint32_t bookmark;
-            #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+            #if ((CY_CPU_CORTEX_M4) && (defined (CY_DEVICE_SECURE)))
                 bookmark = CY_PRA_REG32_GET(CY_PRA_INDX_FLASHC_FM_CTL_BOOKMARK) & 0xffffUL; 
             #else
                 bookmark = FLASHC_FM_CTL_BOOKMARK & 0xffffUL;
-            #endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
+            #endif /* ((CY_CPU_CORTEX_M4) && (defined (CY_DEVICE_SECURE))) */
 
             uint32_t intr = Cy_SysLib_EnterCriticalSection();
 
@@ -615,7 +619,7 @@ CY_SECTION_RAMFUNC_END
         }
         CY_SECTION_RAMFUNC_END
     #endif /* (CY_CPU_CORTEX_M4) */
-#endif /* !defined(CY_FLASH_RWW_DRV_SUPPORT_DISABLED) */
+#endif /* !defined (CY_FLASH_RWW_DRV_SUPPORT_DISABLED) */
 
 
 /*******************************************************************************
@@ -1540,7 +1544,7 @@ static cy_en_flashdrv_status_t Cy_Flash_OperationStatus(void)
         result = Cy_Flash_ProcessOpcode(flashContext.opcode);
 
         /* Clear pre-fetch cache after flash operation */
-        #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE)
+        #if CY_CPU_CORTEX_M4 && defined (CY_DEVICE_SECURE)
             CY_PRA_REG32_SET(CY_PRA_INDX_FLASHC_FLASH_CMD, FLASHC_FLASH_CMD_INV_Msk);
             while (CY_PRA_REG32_GET(CY_PRA_INDX_FLASHC_FLASH_CMD) != 0U)
             {
@@ -1550,7 +1554,7 @@ static cy_en_flashdrv_status_t Cy_Flash_OperationStatus(void)
             while (FLASHC_FLASH_CMD != 0U)
             {
             }
-        #endif /* CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE) */
+        #endif /* CY_CPU_CORTEX_M4 && defined (CY_DEVICE_SECURE) */
     }
 
     return (result);
@@ -1581,5 +1585,6 @@ uint32_t Cy_Flash_GetExternalStatus(void)
 }
 
 CY_MISRA_BLOCK_END('MISRA C-2012 Rule 11.3');
+#endif /* CY_IP_M4CPUSS */
 
 /* [] END OF FILE */

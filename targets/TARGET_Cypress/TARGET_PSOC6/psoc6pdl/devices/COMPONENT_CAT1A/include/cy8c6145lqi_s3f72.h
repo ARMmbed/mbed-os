@@ -5,7 +5,7 @@
 * CY8C6145LQI-S3F72 device header
 *
 * \note
-* Generator version: 1.6.0.225
+* Generator version: 1.6.0.414
 *
 ********************************************************************************
 * \copyright
@@ -589,6 +589,7 @@ typedef enum {
 #define PERI_MS_PPU_FX_SCB4                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[217])                    /* 0x40013E40 */
 #define PERI_MS_PPU_FX_SCB5                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[218])                    /* 0x40013E80 */
 #define PERI_MS_PPU_FX_SCB6                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[219])                    /* 0x40013EC0 */
+#define PERI_MS_PPU_FX_PASS                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[220])                    /* 0x40013F00 */
 
 /*******************************************************************************
 *                                    CRYPTO

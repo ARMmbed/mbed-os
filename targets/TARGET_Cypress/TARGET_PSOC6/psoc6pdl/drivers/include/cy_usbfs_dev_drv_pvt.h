@@ -29,7 +29,7 @@
 
 #include "cy_usbfs_dev_drv.h"
 
-#ifdef CY_IP_MXUSBFS
+#if defined (CY_IP_MXUSBFS) && defined (CY_IP_MXPERI)
 
 #if defined(__cplusplus)
 extern "C" {

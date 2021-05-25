@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_syspm.c
-* \version 5.30
+* \version 5.50
 *
 * This driver provides the source code for API power management.
 *
@@ -21,6 +21,11 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+
+#include "cy_device.h"
+
+#if defined (CY_IP_MXS40SRSS)
+
 #include "cy_syspm.h"
 #include "cy_ipc_drv.h"
 #include "cy_ipc_pipe.h"
@@ -313,19 +318,6 @@ static cy_stc_syspm_callback_t* failedCallback[CALLBACK_ROOT_NR] = {NULL, NULL, 
 #endif /* (CY_CPU_CORTEX_M4) */
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_ReadStatus
-****************************************************************************//**
-*
-* Reads the power modes status of the system and CPU(s).
-*
-* \return
-* The current power mode. See \ref group_syspm_return_status.
-*
-* \funcusage
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_ReadStatus
-*
-*******************************************************************************/
 uint32_t Cy_SysPm_ReadStatus(void)
 {
     uint32_t pmStatus = 0UL;
@@ -396,90 +388,6 @@ uint32_t Cy_SysPm_ReadStatus(void)
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_CpuEnterSleep
-****************************************************************************//**
-*
-* Sets executing CPU to Sleep mode.
-*
-* Puts the CPU executing this function into CPU Sleep power mode. If callback
-* functions were registered they are also executed.
-*
-* For more detail about switching into CPU Sleep power mode and debug,
-* refer to the device technical reference manual (TRM).
-*
-* If at least one callback function with the CY_SYSPM_SLEEP type was registered,
-* the following algorithm is executed:
-* Prior to entering CPU Sleep mode, all callback functions of the CY_SYSPM_SLEEP
-* type with the CY_SYSPM_CHECK_READY parameter are called. This allows the
-* driver to signal whether it is ready to enter the low power mode. If any of
-* the callbacks of the CY_SYSPM_SLEEP type with the CY_SYSPM_CHECK_READY
-* parameter returns CY_SYSPM_FAIL, the remaining callbacks of the
-* CY_SYSPM_SLEEP type with the CY_SYSPM_CHECK_READY parameter are skipped.
-* After the first CY_SYSPM_FAIL, all the CY_SYSPM_SLEEP callbacks that were
-* previously executed before getting the CY_SYSPM_CHECK_FAIL are executed with
-* the CY_SYSPM_CHECK_FAIL parameter. The CPU Sleep mode is not entered and the
-* Cy_SysPm_CpuEnterSleep() function returns CY_SYSPM_FAIL.
-*
-* If all of the callbacks of the CY_SYSPM_SLEEP type with the
-* CY_SYSPM_CHECK_READY parameter return CY_SYSPM_SUCCESS, then all
-* callbacks of the CY_SYSPM_SLEEP type with the CY_SYSPM_CHECK_FAIL parameters
-* calls are skipped. All callbacks of the CY_SYSPM_SLEEP type and then
-* CY_SYSPM_BEFORE_TRANSITION parameter calls are executed, allowing the
-* peripherals to prepare for CPU Sleep. The CPU then enters Sleep mode.
-* This is a CPU-centric power mode. This means that the CPU has entered Sleep
-* mode and its main clock is removed. Any enabled interrupt can cause a CPU
-* wakeup from Sleep mode.
-*
-* For multi-core devices, CPU wakeup can also be performed using the Send Event
-* (SEV) assembly instruction executed from the other active CPU. Such wakeup is
-* expected only if the CPU Sleep power mode is done with WFE assembly
-* instruction.
-*
-* After a wakeup from CPU Sleep, all of the registered callbacks of the
-* CY_SYSPM_SLEEP type and with the CY_SYSPM_AFTER_TRANSITION parameter are
-* executed to return the peripherals to CPU active operation.
-* The Cy_SysPm_CpuEnterSleep() function returns CY_SYSPM_SUCCESS.
-* No callbacks of the CY_SYSPM_SLEEP type with the CY_SYSPM_BEFORE_TRANSITION
-* parameter or callbacks of the CY_SYSPM_SLEEP type and
-* CY_SYSPM_AFTER_TRANSITION parameter callbacks are executed if CPU Sleep mode
-* is not entered.
-*
-* \note The last callback that returns CY_SYSPM_FAIL is not executed with the
-* CY_SYSPM_CHECK_FAIL parameter because of the FAIL. The callback generating
-* CY_SYSPM_FAIL is expected to not make any changes that require being undone.
-*
-* To support control of callback execution order th following method is
-* implemented. Callback function with the CY_SYSPM_CHECK_READY and
-* CY_SYSPM_BEFORE_TRANSITION parameter are executed in the same order they are
-* registered. Callback function with the CY_SYSPM_CHECK_FAIL and
-* CY_SYSPM_AFTER_TRANSITION parameter are executed in the reverse order they
-* are registered.
-
-* The return value from executed callback functions with the
-* CY_SYSPM_CHECK_FAIL, CY_SYSPM_BEFORE_TRANSITION, and CY_SYSPM_AFTER_TRANSITION
-* modes are ignored.
-*
-* \ref cy_en_syspm_callback_mode_t, except the CY_SYSPM_CHECK_READY, are ignored
-*
-* \note The Arm BSD assembly instruction is not required in this function
-* because the function implementation ensures the SLEEPDEEP bit of SCS register
-* is settled prior executing WFI/WFE instruction.
-*
-* \param waitFor
-* Selects wait for action. See \ref cy_en_syspm_waitfor_t.
-*
-* \return
-* Entered status, see \ref cy_en_syspm_status_t.
-*
-* \sideeffect
-* For CY8C6xx6, CY8C6xx7 devices this function clears the Event Register of the
-* CM4 CPU after wakeup from WFE.
-*
-* \funcusage
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_CpuEnterSleep
-*
-*******************************************************************************/
 cy_en_syspm_status_t Cy_SysPm_CpuEnterSleep(cy_en_syspm_waitfor_t waitFor)
 {
     uint32_t interruptState;
@@ -559,138 +467,6 @@ cy_en_syspm_status_t Cy_SysPm_CpuEnterSleep(cy_en_syspm_waitfor_t waitFor)
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_CpuEnterDeepSleep
-****************************************************************************//**
-*
-* Sets executing CPU to the Deep Sleep mode.
-*
-* Puts the CPU executing the function into CPU Deep Sleep. For a single CPU
-* devices the device will immediately transition to system Deep Sleep. For a
-* dual CPU devices the device will transition to system Deep Sleep only after
-* both CPUs are in CPU Deep Sleep power mode.
-*
-* Prior to entering the CPU Deep Sleep mode, all callbacks of the
-* CY_SYSPM_DEEPSLEEP type with the CY_SYSPM_CHECK_READY parameter registered
-* callbacks are called, allowing the driver to signal whether it is ready to
-* enter the power mode. If any CY_SYSPM_DEEPSLEEP type with the
-* CY_SYSPM_CHECK_READY parameter call returns CY_SYSPM_FAIL, the remaining
-* callback CY_SYSPM_DEEPSLEEP type with the CY_SYSPM_CHECK_READY parameter are
-* skipped. After the first CY_SYSPM_FAIL, all the CY_SYSPM_DEEPSLEEP callbacks
-* that were previously executed before getting the CY_SYSPM_CHECK_FAIL are
-* executed with the CY_SYSPM_CHECK_FAIL parameter. The CPU Deep Sleep mode is
-* not entered and the Cy_SysPm_CpuEnterDeepSleep() function returns
-* CY_SYSPM_FAIL.
-*
-* If all callbacks of the CY_SYSPM_DEEPSLEEP type with the CY_SYSPM_CHECK_READY
-* parameter return CY_SYSPM_SUCCESS, then all callbacks of the
-* CY_SYSPM_DEEPSLEEP type with the CY_SYSPM_CHECK_FAIL parameter calls are
-* skipped. All callbacks of the CY_SYSPM_DEEPSLEEP type with the
-* CY_SYSPM_BEFORE_TRANSITION parameter calls are then executed, allowing the
-* peripherals to prepare for CPU Deep Sleep. The Deep Sleep mode is then
-* entered. Any enabled interrupt can cause a wakeup from the Deep Sleep mode.
-*
-* \note The last callback that returns CY_SYSPM_FAIL is not executed with the
-* CY_SYSPM_CHECK_FAIL parameter because of the FAIL. The callback generating
-* CY_SYSPM_FAIL is expected to not make any changes that require being undone.
-*
-* For multi-CPU devices (except CY8C6xx6 and CY8C6xx7) there is a possible
-* situation when a syscall operation (for example during flash read or write)
-* is executing. If the CM0+ CPU tries to enter Deep Sleep, it will fail. All
-* the CY_SYSPM_DEEPSLEEP callbacks that were previously executed, are executed
-* with the CY_SYSPM_CHECK_FAIL parameter. Deep Sleep mode is not entered and
-* the Cy_SysPm_CpuEnterDeepSleep() function returns CY_SYSPM_SYSCALL_PENDING.
-*
-* The return value from executed callback functions with the
-* CY_SYSPM_CHECK_FAIL, CY_SYSPM_BEFORE_TRANSITION, and CY_SYSPM_AFTER_TRANSITION
-* modes are ignored.
-*
-* If the firmware attempts to enter this mode before the system is ready (that
-* is, when PWR_CONTROL.LPM_READY = 0), then the CPU(s) will go into the CPU
-* Sleep mode instead and automatically enter system Deep Sleep mode when the
-* system is ready. On dual CPU devices, if one CPU enters CPU Deep Sleep and the
-* other CPU remains active or is in CPU Sleep the first CPU will remain in CPU
-* Deep Sleep. A CPU Deep Sleep is functionally identical to CPU Sleep.
-*
-* The device enters system Deep Sleep mode when all the CPU(s) are in CPU
-* Deep Sleep, there are no busy peripherals, the debugger is not active, and the
-* Deep Sleep power and reference are ready (PWR_CONTROL.LPM_READY=1).
-*
-* The peripherals that do not need a clock or that receive a clock from their
-* external interface (e.g. I2C/SPI) may continue operating in system Deep Sleep.
-* All circuits using current from Vccdpslp supply are limited by its maximum
-* current specification of the Deep Sleep regulator.
-*
-* Wakeup occurs when an interrupt asserts from a Deep Sleep active peripheral.
-* For more detail, see the corresponding peripheral's datasheet.
-*
-* For multi-core devices, CPU wakeup can also be performed using the Send Event
-* (SEV) assembly instruction executed from the other active CPU. Such wakeup is
-* expected only if the CPU Sleep power mode is done with WFE assembly
-* instruction.
-*
-* \note
-* For multi-CPU devices, the second CPU, if it did not participate in
-* system wakeup, remains in CPU Deep Sleep mode. Any Deep Sleep capable
-* interrupt routed to this CPU can also wake it.
-*
-* For more detail about switching into the system Deep Sleep power mode and
-* debug, refer to the device TRM.
-*
-* A normal wakeup from the Deep Sleep power mode returns to either ULP or LP
-* mode, depending on the previous state and programmed behavior for the
-* particular wakeup interrupt. As soon as the system resumes LP or ULP mode the
-* CPU(s) return to CPU Active or CPU Deep Sleep mode, depending on their
-* configured wakeup settings.
-*
-* After wakeup from CPU Deep Sleep, all of the registered callbacks with
-* CY_SYSPM_DEEPSLEEP type with CY_SYSPM_AFTER_TRANSITION are executed to return
-* peripherals to active operation. The Cy_SysPm_CpuEnterDeepSleep() function
-* returns CY_SYSPM_SUCCESS. No callbacks are executed with CY_SYSPM_DEEPSLEEP
-* type with CY_SYSPM_BEFORE_TRANSITION or CY_SYSPM_AFTER_TRANSITION parameter,
-* if Deep Sleep mode was not entered.
-*
-* To support control of callback execution order th following method is
-* implemented. Callback function with the CY_SYSPM_CHECK_READY and
-* CY_SYSPM_BEFORE_TRANSITION parameter are executed in the same order they are
-* registered. Callback function with the CY_SYSPM_CHECK_FAIL and
-* CY_SYSPM_AFTER_TRANSITION parameter are executed in the reverse order they
-* are registered.
-*
-* \param waitFor
-* Selects wait for action. See \ref cy_en_syspm_waitfor_t.
-*
-* \sideeffect
-* For CY8C6xx6, CY8C6xx7 devices this function clears the Event Register of the
-* CM4 CPU after wakeup from WFE.
-*
-* \sideeffect
-* This function changes the slow and fast clock dividers right before
-* entering into system Deep Sleep and restores these dividers after wakeup.
-*
-* \return
-* Entered status, see \ref cy_en_syspm_status_t.
-* For the PSoC 64 devices there are possible situations when function returns
-* the PRA error status code. This is because for PSoC 64 devices the function
-* uses the PRA driver to change the protected registers. Refer to
-* \ref cy_en_pra_status_t for more details.
-*
-* \note
-* The FLL/PLL are not restored right before the CPU(s) start executing the
-* instructions after system Deep Sleep. This can affect the peripheral that is
-* driven by PLL/FLL. Ensure that the PLL/FLL are properly restored (locked)
-* after wakeup from System Deep Sleep. Refer to the
-* \ref group_sysclk driver documentation for information about how to
-* read the PLL/FLL lock statuses.
-*
-* \note The Arm BSD assembly instruction is not required in this function
-* because the function implementation ensures the SLEEPDEEP bit of SCS register
-* is settled prior executing the WFI/WFE instruction.
-*
-* \funcusage
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_CpuEnterDeepSleep
-*
-*******************************************************************************/
 cy_en_syspm_status_t Cy_SysPm_CpuEnterDeepSleep(cy_en_syspm_waitfor_t waitFor)
 {
     /* Structure for registers that should retain while Deep Sleep mode */
@@ -902,85 +678,6 @@ cy_en_syspm_status_t Cy_SysPm_CpuEnterDeepSleep(cy_en_syspm_waitfor_t waitFor)
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_SystemEnterHibernate
-****************************************************************************//**
-*
-* Sets the device into system Hibernate mode.
-*
-* Puts the device into the system Hibernate power mode. Prior to entering
-* Hibernate mode, all callbacks of the CY_SYSPM_HIBERNATE type are executed.
-*
-* First, callbacks of the CY_SYSPM_HIBERNATE type are called with the
-* CY_SYSPM_CHECK_READY parameter. This allows the callback to signal that the
-* driver is not ready to enter the system Hibernate power mode. If any of the
-* callback return CY_SYSPM_FAIL, the remaining CY_SYSPM_HIBERNATE callbacks are
-* skipped. In this case, all of the callbacks that have already been called are
-* called again with the CY_SYSPM_CHECK_FAIL parameter. System Hibernate mode is
-* not entered and the Cy_SysPm_SystemEnterHibernate() function returns
-* CY_SYSPM_FAIL.
-*
-* If all CY_SYSPM_HIBERNATE callbacks with the CY_SYSPM_CHECK_READY parameter
-* return CY_SYSPM_SUCCESS, then all CY_SYSPM_HIBERNATE callbacks with
-* CY_SYSPM_CHECK_FAIL calls are skipped and all CY_SYSPM_HIBERNATE callbacks
-* with CY_SYSPM_BEFORE_TRANSITION parameter are executed allowing the
-* peripherals to prepare for system Hibernate.
-*
-* The I/O output state is automatically frozen by hardware system and Hibernate
-* mode is then entered. In Hibernate mode, all internal supplies are off and no
-* internal state is retained. The only exception is resources powered by the
-* Vbackup domain continue to operate, if enabled. For multi-CPU devices, there
-* is no handshake with the CPUs and the chip will enter Hibernate power
-* mode immediately.
-*
-* \note The last callback that returns CY_SYSPM_FAIL is not executed with the
-* CY_SYSPM_CHECK_FAIL parameter because of the FAIL. The callback generating
-* CY_SYSPM_FAIL is expected to not make any changes that require being undone.
-*
-* The return value from executed callback functions with the
-* CY_SYSPM_CHECK_FAIL, CY_SYSPM_BEFORE_TRANSITION, and CY_SYSPM_AFTER_TRANSITION
-* modes are ignored.
-*
-* Wakeup from system Hibernate is triggered by toggling the wakeup pin(s), WDT
-* match, or back-up domain RTC alarm expiration, depending on how the they are
-* configured. A wakeup causes a normal boot procedure.
-* To configure the wakeup pin(s), a digital input pin must be configured, and
-* resistively pulled up or down to the inverse state of the wakeup polarity. To
-* distinguish a Hibernate mode from a general reset wakeup event, the
-* Cy_SysLib_GetResetReason() function can be used. The wakeup pin and low-power
-* comparators are active-low by default. The wakeup pin or the LPComparators
-* polarity can be changed with the \ref Cy_SysPm_SetHibernateWakeupSource()
-* function.
-* This function call will not return if system Hibernate mode is entered.
-* The CY_SYSPM_HIBERNATE callbacks with the CY_SYSPM_AFTER_TRANSITION parameter
-* are never executed.
-*
-* This function freezes the I/O pins implicitly. Entering system Hibernate mode
-* before freezing the I/O pins is not possible. The I/O pins remain frozen after
-* waking from Hibernate mode until the firmware unfreezes them with
-* a \ref Cy_SysPm_IoUnfreeze() function call.
-*
-* Boot firmware should reconfigure the I/O pins as required by the application
-* prior unfreezing them.
-*
-* To support control of callback execution order th following method is
-* implemented. Callback function with the CY_SYSPM_CHECK_READY and
-* CY_SYSPM_BEFORE_TRANSITION parameter are executed in the same order they are
-* registered. Callback function with the CY_SYSPM_CHECK_FAIL and
-* CY_SYSPM_AFTER_TRANSITION parameter are executed in the reverse order they
-* are registered.
-*
-* \return
-* Entered status, see \ref cy_en_syspm_status_t.
-* For the PSoC 64 devices there are possible situations when function returns
-* the PRA error status code. This is because for PSoC 64 devices the function
-* uses the PRA driver to change the protected registers. Refer to
-* \ref cy_en_pra_status_t for more details.
-*
-* \funcusage
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_SystemEnterHibernate
-*
-*******************************************************************************/
 cy_en_syspm_status_t Cy_SysPm_SystemEnterHibernate(void)
 {
     cy_en_syspm_status_t retVal = CY_SYSPM_SUCCESS;
@@ -1061,78 +758,6 @@ cy_en_syspm_status_t Cy_SysPm_SystemEnterHibernate(void)
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_SystemEnterLp
-****************************************************************************//**
-*
-* Sets device into system Low Power mode.
-*
-* Returns the system to the default LP mode by raising the core voltage.
-* In the LP mode, the clock frequencies can be increased to t
-he LP mode
-* limitations. Refer to the device datasheet for frequency limitations in the
-* LP mode. Approximate LP limit values - \ref group_syspm_lp_limitations.
-*
-* Prior to entering the system LP mode, all the registered CY_SYSPM_LP callbacks
-* with CY_SYSPM_CHECK_READY parameter are called. This allows the driver to
-* signal that it is not ready to enter the system LP mode. If any CY_SYSPM_LP
-* callbacks with the CY_SYSPM_CHECK_READY parameter call return CY_SYSPM_FAIL,
-* the remaining CY_SYSPM_LP callbacks with the
-* CY_SYSPM_CHECK_READY parameter calls are skipped.
-*
-* After a CY_SYSPM_FAIL, all of the CY_SYSPM_LP callbacks with
-* CY_SYSPM_CHECK_FAIL parameter are executed that correspond to the
-* CY_SYSPM_LP callbacks with CY_SYSPM_CHECK_READY parameter that occurred up to
-* the point of failure. System LP mode is not entered and the
-* Cy_SysPm_SystemEnterLp() function returns CY_SYSPM_FAIL.
-*
-* If all CY_SYSPM_LP callbacks with the CY_SYSPM_CHECK_READY
-* parameter return CY_SYSPM_SUCCESS, then all CY_SYSPM_LP callbacks with
-* CY_SYSPM_CHECK_FAIL are skipped and all CY_SYSPM_LP callbacks with the
-* CY_SYSPM_BEFORE_TRANSITION parameter are executed. This allows the
-* peripherals to prepare for LP mode. The system LP mode is then entered.
-*
-* After entering the system LP mode, all of the registered
-* CY_SYSPM_LP callbacks with the CY_SYSPM_AFTER_TRANSITION parameter
-* are executed to complete preparing the peripherals for low power operation.
-* The Cy_SysPm_SystemEnterLp() function returns CY_SYSPM_SUCCESS.
-* No CY_SYSPM_LP callbacks with the CY_SYSPM_BEFORE_TRANSITION or
-* CY_SYSPM_AFTER_TRANSITION parameter are executed if the system LP mode is not
-* entered.
-*
-* \note The last callback that returns CY_SYSPM_FAIL is not executed with the
-* CY_SYSPM_CHECK_FAIL parameter because of the FAIL. The callback generating
-* CY_SYSPM_FAIL is expected to not make any changes that require being undone.
-*
-* The return value from executed callback functions with the
-* CY_SYSPM_CHECK_FAIL, CY_SYSPM_BEFORE_TRANSITION, and CY_SYSPM_AFTER_TRANSITION
-* modes are ignored.
-*
-* To support control of callback execution order th following method is
-* implemented. Callback function with the CY_SYSPM_CHECK_READY and
-* CY_SYSPM_BEFORE_TRANSITION parameter are executed in the same order they are
-* registered. Callback function with the CY_SYSPM_CHECK_FAIL and
-* CY_SYSPM_AFTER_TRANSITION parameter are executed in the reverse order they
-* are registered.
-*
-* \return
-* - CY_SYSPM_SUCCESS - Entered the system LP mode or the device is already in LP mode.
-* - CY_SYSPM_INVALID_STATE - The system LP mode was not set. The system LP mode
-*   was not set because the protection context value is higher than zero
-*   (PC > 0) or the device revision does not support modifying registers
-*   (to enter LP mode) via syscall.
-* - CY_SYSPM_CANCELED - Operation was canceled. Call the function again until
-*   the function returns CY_SYSPM_SUCCESS.
-* - CY_SYSPM_FAIL - The system LP mode is not entered.
-*   For the PSoC 64 devices there are possible situations when function returns
-*   the PRA error status code. This is because for PSoC 64 devices the function
-*   uses the PRA driver to change the protected registers. Refer to
-*   \ref cy_en_pra_status_t for more details.
-*
-* \funcusage
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_SystemEnterLp
-*
-*******************************************************************************/
 cy_en_syspm_status_t Cy_SysPm_SystemEnterLp(void)
 {
     uint32_t interruptState;
@@ -1205,80 +830,6 @@ cy_en_syspm_status_t Cy_SysPm_SystemEnterLp(void)
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_SystemEnterUlp
-****************************************************************************//**
-*
-* Sets device into system Ultra Low Power mode.
-*
-* System ULP mode is similar to system LP mode. The difference is that the
-* system is put under \ref group_syspm_ulp_limitations.
-*
-* Before entering system ULP mode, the user must configure the system so
-* the maximum clock frequencies are less than the ULP mode specifications
-* presented in the device datasheet. Refer to the device datasheet for
-* the maximum clock limitations in the ULP mode with reduced core supply
-* regulator voltages.
-*
-* Prior to entering system ULP mode, all the registered CY_SYSPM_ULP callbacks
-* with CY_SYSPM_CHECK_READY parameter are called. This allows the driver to
-* signal if it is not ready to enter system ULP mode. If any CY_SYSPM_ULP
-* callback with the CY_SYSPM_CHECK_READY parameter call returns CY_SYSPM_FAIL,
-* the remaining CY_SYSPM_ULP callbacks with the CY_SYSPM_CHECK_READY parameter
-* are skipped.
-*
-* After a CY_SYSPM_FAIL, all of the CY_SYSPM_ULP callbacks with the
-* CY_SYSPM_CHECK_FAIL parameter are executed that correspond to the
-* CY_SYSPM_ULP callback with CY_SYSPM_CHECK_READY parameter that occurred up to
-* the point of failure. System ULP mode is not entered
-* and the Cy_SysPm_SystemEnterUlp() function returns CY_SYSPM_FAIL.
-*
-* If all CY_SYSPM_ULP callbacks with the CY_SYSPM_CHECK_READY
-* parameter return CY_SYSPM_SUCCESS, then all CY_SYSPM_ULP
-* callbacks with CY_SYSPM_CHECK_FAIL calls are skipped and all CY_SYSPM_ULP
-* callbacks with the CY_SYSPM_BEFORE_TRANSITION parameter are executed. This
-* allows preparation for ULP. The system ULP mode is then entered.
-*
-* After entering system ULP, all of the registered CY_SYSPM_ULP callbacks with
-* the CY_SYSPM_AFTER_TRANSITION parameter are executed to complete preparing the
-* peripherals for ULP operation. The Cy_SysPm_SystemEnterUlp() function
-* returns CY_SYSPM_SUCCESS. No CY_SYSPM_ULP callbacks with the
-* CY_SYSPM_BEFORE_TRANSITION or CY_SYSPM_AFTER_TRANSITION parameter are
-* executed, if ULP mode is not entered.
-*
-* \note The last callback that returns CY_SYSPM_FAIL is not executed with the
-* CY_SYSPM_CHECK_FAIL parameter because of the FAIL. The callback generating
-* CY_SYSPM_FAIL is expected to not make any changes that require being undone.
-*
-* The return value from executed callback functions with the
-* CY_SYSPM_CHECK_FAIL, CY_SYSPM_BEFORE_TRANSITION, and CY_SYSPM_AFTER_TRANSITION
-* modes are ignored.
-*
-* To support control of callback execution order th following method is
-* implemented. Callback function with the CY_SYSPM_CHECK_READY and
-* CY_SYSPM_BEFORE_TRANSITION parameter are executed in the same order they are
-* registered. Callback function with the CY_SYSPM_CHECK_FAIL and
-* CY_SYSPM_AFTER_TRANSITION parameter are executed in the reverse order they
-* are registered.
-*
-* \return
-* - CY_SYSPM_SUCCESS - Entered the system ULP mode or the device is already in ULP mode.
-* - CY_SYSPM_INVALID_STATE - System ULP mode was not set. The ULP mode was not
-*   set because the protection context value is higher than zero (PC > 0) or the
-*   device revision does not support modifying registers (to enter system
-*   ULP mode) via syscall.
-* - CY_SYSPM_CANCELED - Operation was canceled. Call the function again until
-*   the function returns CY_SYSPM_SUCCESS.
-* - CY_SYSPM_FAIL - The system ULP mode is not entered.
-*   For the PSoC 64 devices there are possible situations when function returns
-*   the PRA error status code. This is because for PSoC 64 devices the function
-*   uses the PRA driver to change the protected registers. Refer to
-*   \ref cy_en_pra_status_t for more details.
-*
-* \funcusage
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_SystemEnterUlp
-*
-*******************************************************************************/
 cy_en_syspm_status_t Cy_SysPm_SystemEnterUlp(void)
 {
     uint32_t interruptState;
@@ -1350,50 +901,6 @@ cy_en_syspm_status_t Cy_SysPm_SystemEnterUlp(void)
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_SystemSetMinRegulatorCurrent
-****************************************************************************//**
-*
-* Sets the system into minimum core regulator current mode. This mode limits
-* maximum current available for the system core logic.
-*
-* Minimum regulator current mode modifies operation of the system in LP or ULP
-* modes to further reduce current consumption. If the system current is below
-* datasheet current limits for the active core voltage regulator (LDO or Buck),
-* this mode may be entered. The user is responsible for ensuring the
-* regulator current limit is met in their application.
-*
-* When in minimum regulator current mode, the following system resources are
-* also set to their LP mode:
-* - Linear regulator (If LDO is active regulator)
-* - POR/BOD circuit
-* - Bandgap reference circuit
-* - Reference buffer circuit
-* - Current reference circuit
-*
-* The LDO and Buck current limits must be met prior to entering this
-* mode. If these are not met, the device may brown out, resulting in an
-* exception or reset. These changes also reduce power supply rejection of
-* the affected system resources, which can result in increased noise or response
-* time. These effects must be evaluated in each application.
-*
-* \return
-* See \ref cy_en_syspm_status_t.
-* - CY_SYSPM_SUCCESS - Minimum regulator current mode was set
-* - CY_SYSPM_CANCELED - The power circuits were not ready to enter into
-*   minimum current mode. You should call the function again.
-*   For the PSoC 64 devices there are possible situations when function returns
-*   the PRA error status code. This is because for PSoC 64 devices the function
-*   uses the PRA driver to change the protected registers. Refer to
-*   \ref cy_en_pra_status_t for more details.
-*
-* Refer to device datasheet for maximum current value in regulator minimum
-* current mode.
-*
-* \funcusage
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_SystemSetMinRegulatorCurrent
-*
-*******************************************************************************/
 cy_en_syspm_status_t Cy_SysPm_SystemSetMinRegulatorCurrent(void)
 {
     cy_en_syspm_status_t retVal = CY_SYSPM_CANCELED;
@@ -1441,38 +948,6 @@ cy_en_syspm_status_t Cy_SysPm_SystemSetMinRegulatorCurrent(void)
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_SystemSetNormalRegulatorCurrent
-****************************************************************************//**
-*
-* Sets the system to normal regulator current mode.
-*
-* Normal regulator current mode modifies operation of the system in LP or ULP
-* modes to provide maximum core current consumption. If the LDO core regulator
-* is in use, the normal mode output current limits may be used. If the buck
-* regulator is in use, its reduced current output limits still apply.
-*
-* When in normal regulator current mode, the following system resources are set
-* to their normal mode:
-* - Linear regulator (If LDO is active regulator)
-* - POR/BOD circuit
-* - Bandgap reference circuit
-* - Reference buffer circuit
-* - Current reference circuit
-*
-* \return
-* - CY_SYSPM_SUCCESS - Normal regulator current mode was set
-* - CY_SYSPM_TIMEOUT - The timeout occurred because device was not
-*   ready to enter into the normal regulator current mode
-*   For the PSoC 64 devices there are possible situations when function returns
-*   the PRA error status code. This is because for PSoC 64 devices the function
-*   uses the PRA driver to change the protected registers. Refer to
-*   \ref cy_en_pra_status_t for more details.
-*
-* \funcusage
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_SystemSetNormalRegulatorCurrent
-*
-*******************************************************************************/
 cy_en_syspm_status_t Cy_SysPm_SystemSetNormalRegulatorCurrent(void)
 {
     cy_en_syspm_status_t retVal = CY_SYSPM_TIMEOUT;
@@ -1526,39 +1001,6 @@ cy_en_syspm_status_t Cy_SysPm_SystemSetNormalRegulatorCurrent(void)
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_CpuSleepOnExit
-****************************************************************************//**
-*
-* This function configures the sleep-on-exit feature of the CPU.
-*
-* This API sets the SLEEPONEXIT bit of the SCR register.
-*
-* When the sleep-on-exit feature is enabled (the SLEEPONEXIT bit is set),
-* the CPU wakes up to service the interrupt and then immediately goes
-* back to sleep. Because of this, the unstacking process is not carried out, so
-* this feature is useful for interrupt driven application and helps to
-* reduce unnecessary stack push and pop operations.
-* The CPU does not go to sleep if the interrupt handler returns to
-* another interrupt handler (nested interrupt).
-* You can use this feature in applications that require the CPU to only run
-* when an interrupt occurs.
-*
-* When the sleep-on-exit feature is disabled (the SLEEPONEXIT bit is cleared),
-* the CPU returns back to the main thread after servicing the interrupt
-* without going back to sleep.
-*
-* Refer to the Arm documentation about the sleep-on-exit feature and
-* SLEEPONEXIT in the SCR register.
-*
-* \param enable
-* - True if enable sleep-on-exit feature.
-* - False if disable sleep-on-exit feature.
-*
-* \funcusage
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_CpuSleepOnExit
-*
-*******************************************************************************/
 void Cy_SysPm_CpuSleepOnExit(bool enable)
 {
     if(enable)
@@ -1574,63 +1016,6 @@ void Cy_SysPm_CpuSleepOnExit(bool enable)
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_SetHibernateWakeupSource
-****************************************************************************//**
-*
-* This function configures sources to wake up the device from the system
-* Hibernate power mode. Sources can be wakeup pins, LPComparators, Watchdog (WDT)
-* interrupt, or a Real-Time clock (RTC) alarm (interrupt). Wakeup from system
-* Hibernate always results in a device reset and normal boot process.
-*
-* Wakeup pins:
-*
-* A wakeup is supported by up to two pins with programmable polarity. These pins
-* are typically connected to the GPIO pins or on-chip peripherals under some
-* conditions. See device datasheet for specific pin connections.
-* Setting the wakeup pin to this level will cause a wakeup from system Hibernate
-* mode. The wakeup pins are active-low by default.
-*
-* LPComparators:
-*
-* A wakeup is supported by up to two LPComps with programmable polarity.
-* Setting the LPComp to this level will cause a wakeup from system Hibernate
-* mode. The wakeup LPComps are active-low by default.
-*
-* \note The low-power comparators should be configured and enabled before
-* switching to system Hibernate mode. Refer to the LPComp
-* driver description for more detail.
-*
-* Watchdog Timer:
-*
-* \note The WDT should be configured and enabled before entering to system
-* Hibernate mode.
-*
-* A wakeup is performed by a WDT interrupt.
-*
-* Real-time Clock:
-*
-* A wakeup is performed by the RTC alarm.
-* Refer to the Real-Time Clock (RTC) driver description for more detail.
-*
-* For information about wakeup sources and their assignment in specific
-* devices, refer to the appropriate device TRM.
-*
-* \param wakeupSource
-* The source to be configured as a wakeup source from
-* the system Hibernate power mode, see \ref cy_en_syspm_hibernate_wakeup_source_t.
-* The input parameter values can be ORed. For example, if you want to enable
-* LPComp0 (active high) and WDT, call this function:
-* Cy_SysPm_SetHibernateWakeupSource(CY_SYSPM_HIBERNATE_LPCOMP0_HIGH | CY_SYSPM_HIBERNATE_WDT).
-*
-* \warning Do not call this function with different polarity levels for the same
-* wakeup source. For example, do not call a function like this:
-* Cy_SysPm_SetHibernateWakeupSource(CY_SYSPM_HIBERNATE_LPCOMP0_LOW, CY_SYSPM_HIBERNATE_LPCOMP0_HIGH);
-*
-* \funcusage
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_SetHibernateWakeupSource
-*
-*******************************************************************************/
 void Cy_SysPm_SetHibernateWakeupSource(uint32_t wakeupSource)
 {
     CY_ASSERT_L3(CY_SYSPM_IS_WAKE_UP_SOURCE_VALID(wakeupSource));
@@ -1672,23 +1057,6 @@ void Cy_SysPm_SetHibernateWakeupSource(uint32_t wakeupSource)
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_ClearHibernateWakeupSource
-****************************************************************************//**
-*
-* This function disables a wakeup source that was previously configured to
-* wake up the device from the system Hibernate mode.
-*
-* \param wakeupSource
-* For the source to be disabled, see \ref cy_en_syspm_hibernate_wakeup_source_t.
-* The input parameters values can be ORed. For example, if you want to disable
-* LPComp0 (active high) and WDT call this function:
-* Cy_SysPm_ClearHibernateWakeupSource(CY_SYSPM_HIBERNATE_LPCOMP0_HIGH | CY_SYSPM_HIBERNATE_WDT).
-*
-* \funcusage
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_ClearHibernateWakeupSource
-*
-*******************************************************************************/
 void Cy_SysPm_ClearHibernateWakeupSource(uint32_t wakeupSource)
 {
     CY_ASSERT_L3(CY_SYSPM_IS_WAKE_UP_SOURCE_VALID(wakeupSource));
@@ -1730,96 +1098,6 @@ void Cy_SysPm_ClearHibernateWakeupSource(uint32_t wakeupSource)
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_BuckEnable
-****************************************************************************//**
-*
-* Switch the core supply regulator to Buck core regulator instead of the LDO
-* regulator.
-* The Buck core regulator provides output voltage(s) using one external
-* inductor and can supply Vccd with higher efficiency than the LDO under some
-* conditions, such as high external supply voltage.
-*
-* Before changing from LDO to Buck, ensure that the circuit board has
-* connected Vccbuck1 to Vccd and also populated the
-* necessary external components for the Buck regulator, including an
-* inductor and a capacitor for each output.
-* Refer to the device TRM for more detail.
-*
-* When changing from a higher voltage to a lower voltage
-* (from system LP = LDO 1.1 V (nominal) to system ULP = Buck 0.9 V (nominal)),
-* ensure that:
-* * The device maximum operating frequency for all the Clk_HF paths, peripheral,
-*   and slow clock are under the \ref group_syspm_ulp_limitations.
-* * The total current consumption is under the \ref group_syspm_ulp_limitations.
-*
-* * The appropriate wait states values are set for the flash using
-*   the Cy_SysLib_SetWaitStates() function as explained below.
-*
-* <b>Setting wait states values for flash</b>
-*
-* The flash access time when the core output voltage is 0.9 V (nominal) is
-* longer than at 1.1 V (nominal). Therefore, the number of the wait states must
-* be adjusted. Use the Cy_SysLib_SetWaitStates() function to set the appropriate
-* wait state values for flash.
-*
-* To change from a higher voltage (LDO 1.1 V) to a lower voltage (Buck 0.9 V),
-* call the Cy_SysLib_SetWaitStates(true, hfClkFreqMz) function before changing
-* the voltage, where hfClkFreqMz is the frequency of HfClk0 in MHz.
-*
-* To change from a lower voltage (LDO 0.9 V (nominal) to a higher voltage
-* (Buck 1.1 V (nominal)), call the Cy_SysLib_SetWaitStates(false,
-* hfClkFreqMz) function to set the wait states after the voltage change.
-* It is optional, but can be done to improve performance. The clock frequency
-* may now be increased up to system LP mode limits for the new voltage.
-*
-* \note 1. If the final Buck output is set to 0.9 V (nominal) - the system is in
-*  ULP mode and flash allows read-only operations.
-* \note 2. If the final Buck output is set to 1.1 V (nominal) - the system is in
-*  LP mode flash allows the read and write operations.
-* \note 3. The actual device Vccd voltage can be different from the nominal
-*  voltage because the actual voltage value depends on conditions
-*  including the load current.
-*
-* \warning There is no safe way to go back to the LDO after the
-*  Buck regulator supplies a core. The function enabling the Buck regulator
-*  switches off the LDO.
-*
-* \warning Buck converter requires additional external components populated on
-* dedicated pins. Refer to device datasheet for details.
-*
-* For more detail, refer to the \ref group_syspm_switching_into_ulp and
-* \ref group_syspm_switching_into_lp sections.
-* Refer to the \ref group_syslib driver for more detail about setting wait
-* states.
-*
-* \param voltage
-* The desired output 1 regulator voltage (Vccbuck1).
-* See \ref cy_en_syspm_buck_voltage1_t.
-*
-* \return
-* - CY_SYSPM_SUCCESS - The voltage is set as requested.
-*   (There is no change if the new voltage is the same as the previous voltage.)
-* - CY_SYSPM_INVALID_STATE - The voltage was not set. The voltage cannot be set
-*   because the protection context value is higher than zero (PC > 0) or the
-*   device revision does not support modifying registers via syscall.
-* - CY_SYSPM_CANCELED - Operation was canceled. Call the function again until
-*   the function returns CY_SYSPM_SUCCESS. See \ref cy_en_syspm_status_t.
-*   For the PSoC 64 devices there are possible situations when function returns
-*   the PRA error status code. This is because for PSoC 64 devices the function
-*   uses the PRA driver to change the protected registers. Refer to
-*   \ref cy_en_pra_status_t for more details.
-*
-* \note
-* The function is applicable only for devices with a Buck regulator.
-*
-* Function uses a critical section to prevent interrupting the regulators
-* switch.
-*
-* \funcusage
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_BuckEnable
-*
-*******************************************************************************/
 cy_en_syspm_status_t Cy_SysPm_BuckEnable(cy_en_syspm_buck_voltage1_t voltage)
 {
     CY_ASSERT_L3(CY_SYSPM_IS_BUCK_VOLTAGE1_VALID(voltage));
@@ -1933,78 +1211,6 @@ cy_en_syspm_status_t Cy_SysPm_BuckEnable(cy_en_syspm_buck_voltage1_t voltage)
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_BuckSetVoltage1
-****************************************************************************//**
-*
-* Sets the output 1 voltage for the Buck regulator that can supply the device
-* core. This output can supply the device core instead of the LDO regulator.
-*
-* When changing from a higher voltage 1.1 V (nominal) to a lower voltage 0.9 V
-* (nominal), ensure that:
-* * The device maximum operating frequency for all the Clk_HF paths, peripheral,
-*   and slow clock are under the \ref group_syspm_ulp_limitations.
-* * The total current consumption is under the \ref group_syspm_ulp_limitations.
-* * The appropriate wait states values are set for the flash using
-*   the Cy_SysLib_SetWaitStates() function as explained below.
-*
-* <b>Setting wait states values for flash</b>
-*
-* The flash access time when the core output voltage is 0.9 V (nominal) is
-* longer than at 1.1 V (nominal). Therefore, the number of the wait states must
-* be adjusted. Use the Cy_SysLib_SetWaitStates() function to set the appropriate
-* wait state values for flash.
-*
-* To change from a higher voltage to a lower voltage 0.9 V (nominal),
-* call the Cy_SysLib_SetWaitStates(true, hfClkFreqMz) function before changing
-* the voltage, where hfClkFreqMz is the frequency of HfClk0 in MHz.
-*
-* To change from a lower voltage to a higher voltage 1.1 V (nominal), call
-* the Cy_SysLib_SetWaitStates(false, hfClkFreqMz) function to set the
-* wait states. It is optional, but can be done to improve the performance.
-* The clock frequency may now be increased up to
-* \ref group_syspm_lp_limitations for a new voltage.
-*
-* \note 1. The output is set to 0.9 V (nominal) - the system  is in ULP mode
-*  flash allows read-only operations.
-* \note 2. The output is set to 1.1 V (nominal) - the system is in LP mode and
-*  flash allows the read and write operations.
-* \note 3. The actual device Vccd voltage can be different from the nominal
-*  voltage because the actual voltage value depends on the conditions
-*  including the load current.
-*
-* \warning Buck converter requires additional external components populated on
-* dedicated pins. Refer to device datasheet for details.
-*
-* For more detail, refer to the \ref group_syspm_switching_into_ulp and
-* \ref group_syspm_switching_into_lp sections.
-* Refer to the \ref group_syslib driver for more detail about setting the
-* wait states.
-*
-* \param voltage
-* The desired output 1 regulator voltage (Vccbuck1).
-* See \ref cy_en_syspm_buck_voltage1_t
-*
-* \return
-* - CY_SYSPM_SUCCESS - The voltage is set.
-* - CY_SYSPM_INVALID_STATE - The voltage was not set. The voltage cannot be set
-*   because the protection context value is higher than zero (PC > 0) or the
-*   device revision does not support modifying registers via syscall.
-* - CY_SYSPM_CANCELED - Operation was canceled. Call the function again until
-*   the function returns CY_SYSPM_SUCCESS. See \ref cy_en_syspm_status_t.
-*   For the PSoC 64 devices there are possible situations when function returns
-*   the PRA error status code. This is because for PSoC 64 devices the function
-*   uses the PRA driver to change the protected registers. Refer to
-*   \ref cy_en_pra_status_t for more details.
-*
-* \funcusage
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_VoltageRegulator
-*
-* \sideeffect
-* For PSoC 64 series devices Cy_SysPm_BuckSetVoltage1() has the same functional
-* behavior as \ref Cy_SysPm_BuckEnable() function.
-*
-*******************************************************************************/
 cy_en_syspm_status_t Cy_SysPm_BuckSetVoltage1(cy_en_syspm_buck_voltage1_t voltage)
 {
     CY_ASSERT_L3(CY_SYSPM_IS_BUCK_VOLTAGE1_VALID(voltage));
@@ -2092,23 +1298,6 @@ cy_en_syspm_status_t Cy_SysPm_BuckSetVoltage1(cy_en_syspm_buck_voltage1_t voltag
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_BuckIsOutputEnabled
-****************************************************************************//**
-*
-* This function gets the current output status of the Buck outputs.
-*
-* \param output
-* The Buck regulator output. See \ref cy_en_syspm_buck_out_t.
-*
-* \return
-* - True if the requested output is enabled.
-* - False if the requested output is disabled.
-*
-* \funcusage
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_BuckIsOutputEnabled
-*
-*******************************************************************************/
 bool Cy_SysPm_BuckIsOutputEnabled(cy_en_syspm_buck_out_t output)
 {
     CY_ASSERT_L3(CY_SYSPM_IS_BUCK_OUTPUT_VALID(output));
@@ -2134,36 +1323,6 @@ bool Cy_SysPm_BuckIsOutputEnabled(cy_en_syspm_buck_out_t output)
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_BuckEnableVoltage2
-****************************************************************************//**
-*
-* Enable the output 2 voltage (Vbuckrf) of the SIMO Buck regulator.
-* The output 2 voltage (Vbuckrf) of the Buck regulator is typically used to
-* supply the BLE radio.
-* This function does following actions, when the Buck regulator does not
-* supply the core:
-* * Enables the Buck regulator
-* * Enables the output 2, but do not enables the output 1.
-*
-* \note The function does not affect Buck output 1 that typically supplies core.
-*
-* \warning The function does not select the Buck output 2 voltage and
-* does not set/clear the HW-controlled bit for Buck output 2. Call
-* Cy_SysPm_BuckSetVoltage2() or Cy_SysPm_BuckSetVoltage2HwControl() to
-* configure the Buck output 2.
-*
-* \warning The function works only on devices with the SIMO Buck regulator.
-* Refer to the device datasheet for information on whether the device contains
-* the SIMO Buck.
-*
-* \warning Buck converter requires additional external components populated on
-* dedicated pins. Refer to device datasheet for details.
-*
-* \funcusage
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_BuckEnableVoltage2
-*
-*******************************************************************************/
 void Cy_SysPm_BuckEnableVoltage2(void)
 {
 #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
@@ -2189,38 +1348,6 @@ void Cy_SysPm_BuckEnableVoltage2(void)
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_BuckSetVoltage2
-****************************************************************************//**
-*
-* This function sets output voltage 2 (Vbuckrf) of the SIMO Buck regulator.
-*
-* \param voltage
-* The voltage of the Buck regulator output 2 (Vbuckrf).
-* See \ref cy_en_syspm_buck_voltage2_t.
-*
-* \param waitToSettle
-* - True to enable the 200 us delay after setting a higher voltage.
-* - False to disable the 200 us delay after setting a higher voltage.
-*
-* \warning You must enable the delay (waitToSettle = true)
-* while changing from a lower voltage to a higher voltage.
-*
-* \note The 200 us delay is required only when changing from a
-* lower voltage to a higher voltage. When changing from a higher voltage to a
-* lower one, the delay is not required.
-*
-* \warning The function works only on devices with the SIMO Buck regulator.
-* Refer to the device datasheet for information on whether the device contains
-* SIMO Buck.
-*
-* \warning Buck converter requires additional external components populated on
-* dedicated pins. Refer to device datasheet for details.
-*
-* \funcusage
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_BuckSetVoltage2
-*
-*******************************************************************************/
 void Cy_SysPm_BuckSetVoltage2(cy_en_syspm_buck_voltage2_t voltage, bool waitToSettle)
 {
 #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
@@ -2260,70 +1387,6 @@ void Cy_SysPm_BuckSetVoltage2(cy_en_syspm_buck_voltage2_t voltage, bool waitToSe
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_LdoSetVoltage
-****************************************************************************//**
-*
-* Set output voltage on the core LDO regulator.
-*
-* When changing from a higher voltage to a lower voltage as when the device
-* enters system ULP mode, ensure that:
-* * The device maximum operating frequency for all the Clk_HF paths, peripheral,
-*   and slow clock are under the \ref group_syspm_ulp_limitations.
-* * The total current consumption is under the \ref group_syspm_ulp_limitations.
-* * The appropriate wait states values are set for the flash using
-*   The Cy_SysLib_SetWaitStates() function as explained below.
-*
-* <b>Setting wait states values for flash</b>
-*
-* The flash access time when the core voltage is 0.9 V (nominal) is
-* longer than at 1.1 V (nominal). Therefore, the number of the wait states must
-* be adjusted. Use the Cy_SysLib_SetWaitStates() function to set the appropriate
-* wait state values for flash.
-*
-* To change from a higher voltage to a lower voltage 0.9 V (nominal),
-* call the Cy_SysLib_SetWaitStates(true, hfClkFreqMz) function before changing
-* the voltage, where hfClkFreqMz is the frequency of HfClk0 in MHz.
-*
-* To change from a lower voltage to a higher voltage 1.1 V (nominal), calling
-* the Cy_SysLib_SetWaitStates(false, hfClkFreqMz) function to set the
-* wait states is optional, but can be done to improve performance.
-* The clock frequency may now be increased up to
-* \ref group_syspm_lp_limitations.
-*
-* \note 1. The output is set to 0.9 V (nominal) - the system is in ULP mode and
-* flash works for read-only operation.
-* \note 2. The output is set to 1.1 V (nominal) - the system is in LP mode
-* and flash works for read and write operations.
-* \note 3. The actual device Vccd voltage can be different from the nominal
-* voltage because the actual voltage value depends on conditions
-* including the load current.
-*
-* For more detail, refer to the \ref group_syspm_switching_into_ulp and
-* \ref group_syspm_switching_into_lp sections.
-* Refer to the \ref group_syslib driver for more detail about setting the wait
-* states.
-*
-* \param voltage
-* The desired output regulator voltage.
-* See \ref cy_en_syspm_ldo_voltage_t voltage
-*
-* \return
-* - CY_SYSPM_SUCCESS - The voltage is set.
-* - CY_SYSPM_INVALID_STATE - The voltage was not set. The voltage cannot be set
-*   because the protection context value is higher than zero (PC > 0) or the
-*   device revision does not support modifying registers via syscall.
-* - CY_SYSPM_CANCELED - Operation was canceled. Call the function again until
-*   the function returns CY_SYSPM_SUCCESS. See \ref cy_en_syspm_status_t.
-*   For the PSoC 64 devices there are possible situations when function returns
-*   the PRA error status code. This is because for PSoC 64 devices the function
-*   uses the PRA driver to change the protected registers. Refer to
-*   \ref cy_en_pra_status_t for more details.
-*
-* \funcusage
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_VoltageRegulator
-*
-*******************************************************************************/
 cy_en_syspm_status_t Cy_SysPm_LdoSetVoltage(cy_en_syspm_ldo_voltage_t voltage)
 {
     CY_ASSERT_L3(CY_SYSPM_IS_LDO_VOLTAGE_VALID(voltage));
@@ -2430,38 +1493,6 @@ cy_en_syspm_status_t Cy_SysPm_LdoSetVoltage(cy_en_syspm_ldo_voltage_t voltage)
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_LdoSetMode
-****************************************************************************//**
-*
-* Configures the core LDO regulator operating mode to one of three modes.
-* Disabled - turns off the LDO regulator and should be selected only after the
-* Buck regulator is operating. Normal mode configures the LDO for operation at
-* the maximum output current limit. Minimal current mode optimizes the LDO at a
-* reduced output current limit. Specific device current limits can be found in
-* the device datasheet.
-*
-* \param mode
-* The desired LDO regulator operating mode.
-* See \ref cy_en_syspm_ldo_mode_t mode
-*
-* \return
-* - CY_SYSPM_SUCCESS - Requested regulator current mode was set
-* - CY_SYSPM_CANCELED - The power circuits were not ready to enter into
-*   minimum current mode. You should try to call the function again
-* - CY_SYSPM_TIMEOUT - Timeout occurred because of active reference was not
-*   ready to enter into the normal regulator current mode
-* - CY_SYSPM_FAIL - incorrect mode value was passed
-*   For the PSoC 64 devices there are possible situations when function returns
-*   the PRA error status code. This is because for PSoC 64 devices the function
-*   uses the PRA driver to change the protected registers. Refer to
-*   \ref cy_en_pra_status_t for more details.
-*
-* \sideeffect
-* For PSoC 64 series devices CY_SYSPM_LDO_MODE_DISABLED mode is not supported.
-* Use \ref Cy_SysPm_BuckEnable() instead.
-*
-*******************************************************************************/
 cy_en_syspm_status_t Cy_SysPm_LdoSetMode(cy_en_syspm_ldo_mode_t mode)
 {
     CY_ASSERT_L3(CY_SYSPM_IS_LDO_MODE_VALID(mode));
@@ -2505,17 +1536,6 @@ cy_en_syspm_status_t Cy_SysPm_LdoSetMode(cy_en_syspm_ldo_mode_t mode)
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_LdoGetMode
-****************************************************************************//**
-*
-* Returns the current core LDO regulator operating mode.
-*
-* \return
-* The LDO regulator operating mode.
-* See \ref cy_en_syspm_ldo_mode_t mode
-*
-*******************************************************************************/
 cy_en_syspm_ldo_mode_t Cy_SysPm_LdoGetMode(void)
 {
     cy_en_syspm_ldo_mode_t retVal;
@@ -2537,44 +1557,6 @@ cy_en_syspm_ldo_mode_t Cy_SysPm_LdoGetMode(void)
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_RegisterCallback
-****************************************************************************//**
-*
-* Registers a new syspm callback.
-*
-* A callback is a function called after an event in the driver or
-* middleware module has occurred. The handler callback API will be executed if
-* the specific event occurs. SysPm callbacks are called when changing power
-* modes. See \ref cy_stc_syspm_callback_t.
-*
-* \note The registered callbacks are executed in two orders, based on callback
-* mode \ref cy_en_syspm_callback_mode_t. For modes CY_SYSPM_CHECK_READY and
-* CY_SYSPM_BEFORE_TRANSITION, the order is same order as callbacks were
-* registered.
-* For modes CY_SYSPM_AFTER_TRANSITION and CY_SYSPM_CHECK_FAIL, the order is
-* reverse as the order callbacks were registered.
-*
-* \param handler
-* The address of the syspm callback structure.
-* See \ref cy_stc_syspm_callback_t.
-*
-* \return
-* - True if a callback was registered.
-* - False if a callback was not registered.
-*
-* \note Do not modify the registered structure in run-time.
-* \warning After being registered, the SysPm callback structures must be
-* allocated during power mode transition.
-*
-* \funcusage
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_Callback_Func_Declaration
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_Callback_Params_Declaration
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_Callback_Structure_Declaration
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_Callback_Func_Implementation
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_RegisterCallback
-*
-*******************************************************************************/
 bool Cy_SysPm_RegisterCallback(cy_stc_syspm_callback_t* handler)
 {
     bool retVal = false;
@@ -2643,26 +1625,6 @@ bool Cy_SysPm_RegisterCallback(cy_stc_syspm_callback_t* handler)
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_UnregisterCallback
-****************************************************************************//**
-*
-* This function unregisters a callback.
-*
-* The registered callback can be unregistered and the function returns true.
-* Otherwise, false is returned.
-*
-* \param handler The item that should be unregistered.
-* See \ref cy_stc_syspm_callback_t.
-*
-* \return
-* - True if callback was unregistered.
-* - False if it was not unregistered or no callbacks are registered.
-*
-* \funcusage
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_UnregisterCallback
-*
-*******************************************************************************/
 bool Cy_SysPm_UnregisterCallback(cy_stc_syspm_callback_t const *handler)
 {
     bool retVal = false;
@@ -2720,49 +1682,6 @@ bool Cy_SysPm_UnregisterCallback(cy_stc_syspm_callback_t const *handler)
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_ExecuteCallback
-****************************************************************************//**
-*
-* The function executes all registered callbacks with provided type and mode.
-* \note This low-level function is being used by \ref Cy_SysPm_CpuEnterSleep,
-* \ref Cy_SysPm_CpuEnterDeepSleep, \ref Cy_SysPm_SystemEnterHibernate,
-* \ref Cy_SysPm_SystemEnterUlp and \ref Cy_SysPm_SystemEnterLp API functions.
-* However, it might be also useful as an independent API function in some custom
-* applications.
-*
-* \note The registered callbacks will be executed in order based on
-* \ref cy_en_syspm_callback_type_t value. There are two possible callback
-* execution orders:
-* * From first registered to last registered. This order applies to
-*   callbacks with mode CY_SYSPM_CHECK_READY and CY_SYSPM_BEFORE_TRANSITION.
-* * Backward flow execution:
-*   - From last registered to the first registered. This order applies
-*     to callbacks with mode CY_SYSPM_AFTER_TRANSITION.
-*   - From last called to the first registered callback. This order applies
-*     to callbacks with mode CY_SYSPM_CHECK_FAIL. Note that, the last called
-*     callback function  that generated the CY_SYSPM_CHECK_FAIL is skipped when
-*     mode CY_SYSPM_CHECK_FAIL. This is because the callback that returns
-*     CY_SYSPM_FAIL already knows that it failed and will not take any action
-*     that requires correction.
-*
-* If no callbacks are registered, returns CY_SYSPM_SUCCESS.
-*
-* \param type
-* The callback type. See \ref cy_en_syspm_callback_type_t.
-*
-* \param mode
-* The callback mode. See \ref cy_en_syspm_callback_mode_t.
-*
-* \return
-* - CY_SYSPM_SUCCESS if callback successfully completed or nor callbacks
-*   registered.
-* - CY_SYSPM_FAIL one of the executed callback(s) returned fail.
-*
-* \funcusage
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_ExecuteCallback
-*
-*******************************************************************************/
 cy_en_syspm_status_t Cy_SysPm_ExecuteCallback(cy_en_syspm_callback_type_t type, cy_en_syspm_callback_mode_t mode)
 {
     CY_ASSERT_L3(CY_SYSPM_IS_CALLBACK_TYPE_VALID(type));
@@ -2866,60 +1785,12 @@ cy_en_syspm_status_t Cy_SysPm_ExecuteCallback(cy_en_syspm_callback_type_t type, 
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_GetFailedCallback
-****************************************************************************//**
-*
-* Reads the result of the callback execution after the power mode functions
-* execution.
-*
-* This function reads the value of the pointer that stores the result of callback
-* execution. It takes power mode as the parameter and returns the address of the
-* callback configuration structure in the case of failure or NULL in the case of
-* success. This address of the failed callback allows finding the callback that
-* blocks entering power mode.
-*
-* \param type
-* Power mode for which a callback execution result is required.
-*
-* \return
-* - The address of the callback configuration structure if the callback handler
-* function failed.
-* - NULL if the callback skipped or executed successfully.
-*
-* \funcusage
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_GetFailedCallback
-*
-*******************************************************************************/
 cy_stc_syspm_callback_t* Cy_SysPm_GetFailedCallback(cy_en_syspm_callback_type_t type)
 {
     return failedCallback[(uint32_t) type];
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_IoUnfreeze
-****************************************************************************//**
-*
-* This function unfreezes the I/O cells that are automatically frozen when
-* Hibernate is entered with the call to \ref Cy_SysPm_SystemEnterHibernate().
-*
-* I/O cells remain frozen after a wakeup from Hibernate mode until the
-* firmware unfreezes them by calling this function.
-*
-* If the firmware must retain the data value on the pin, then the
-* value must be read and re-written to the pin's port data register before
-* calling this function. Furthermore, the drive mode must be re-programmed
-* before the pins are unfrozen. If this is not done, the pin will change to
-* the default state the moment the freeze is removed.
-*
-* Note that I/O cell configuration can be changed while frozen. The new
-* configuration becomes effective only after the pins are unfrozen.
-*
-* \funcusage
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_IoUnfreeze
-*
-*******************************************************************************/
 void Cy_SysPm_IoUnfreeze(void)
 {
     uint32_t interruptState;
@@ -2946,29 +1817,6 @@ void Cy_SysPm_IoUnfreeze(void)
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_WriteVoltageBitForFlash
-****************************************************************************//**
-*
-* Function that changes the voltage setting for flash.
-*
-* \note
-* Call this function before system enters ULP mode. Call this function after
-* the system enters LP mode.
-*
-* \param value
-* Value to be set in the flash voltage control register.
-* See \ref cy_en_syspm_flash_voltage_bit_t.
-*
-* \return
-* - CY_SYSPM_SUCCESS - The voltage is set.
-* - CY_SYSPM_CANCELED - Operation was canceled. Call the function again until
-*   the function returns CY_SYSPM_SUCCESS. See \ref cy_en_syspm_status_t.
-*
-* \funcusage
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_WriteVoltageBitForFlash
-*
-*******************************************************************************/
 cy_en_syspm_status_t Cy_SysPm_WriteVoltageBitForFlash(cy_en_syspm_flash_voltage_bit_t value)
 {
     CY_ASSERT_L3(CY_SYSPM_IS_BIT_FOR_FLASH_VALID(value));
@@ -3037,25 +1885,7 @@ cy_en_syspm_status_t Cy_SysPm_WriteVoltageBitForFlash(cy_en_syspm_flash_voltage_
 }
 
 
-#if !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-/*******************************************************************************
-* Function Name: Cy_SysPm_SaveRegisters
-****************************************************************************//**
-*
-* Saves non-retained UDB registers and the slow and fast clock dividers before
-* system entering system Deep Sleep.
-* Must be called if programmable logic or function are implemented in the UDB
-* array.
-*
-* Cypress ID #280370, #1451.
-*
-* \param regs
-* The structure where the registers are saved.
-*
-* \funcusage
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_SaveRestoreRegisters
-*
-*******************************************************************************/
+#if !((CY_CPU_CORTEX_M4) && (defined (CY_DEVICE_SECURE)))
 void Cy_SysPm_SaveRegisters(cy_stc_syspm_backup_regs_t *regs)
 {
     CY_ASSERT_L1(NULL != regs);
@@ -3079,25 +1909,6 @@ void Cy_SysPm_SaveRegisters(cy_stc_syspm_backup_regs_t *regs)
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysPm_RestoreRegisters
-****************************************************************************//**
-*
-* Restores non-retained UDB registers and the slow and fast clock dividers
-* before system entering system Deep Sleep.
-* Must be called if programmable logic or function are implemented in the UDB
-* array.
-*
-* Cypress ID #280370, #1451.
-*
-* \param regs
-* The structure with data stored (using Cy_SysPm_SaveRegisters()) into the
-* required registers after Deep Sleep.
-*
-* \funcusage
-* \snippet syspm/snippet/main.c snippet_Cy_SysPm_SaveRestoreRegisters
-*
-*******************************************************************************/
 void Cy_SysPm_RestoreRegisters(cy_stc_syspm_backup_regs_t const *regs)
 {
     CY_ASSERT_L1(NULL != regs);
@@ -3240,6 +2051,139 @@ static void EnterDeepSleepRam(cy_en_syspm_waitfor_t waitFor)
 }
 CY_SECTION_RAMFUNC_END
 
+cy_en_syspm_status_t Cy_SysPm_SetSRAMMacroPwrMode(cy_en_syspm_sram_index_t sramNum, uint32_t sramMacroNum, cy_en_syspm_sram_pwr_mode_t sramPwrMode)
+{
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    cy_stc_pra_sram_power_mode_config_t pwrModeConfig;
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
+    cy_en_syspm_status_t status = CY_SYSPM_BAD_PARAM;
+
+    CY_ASSERT_L1( sramNum < CPUSS_SRAM_COUNT );
+
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    pwrModeConfig.sramNum = sramNum;
+    pwrModeConfig.sramMacroNum = sramMacroNum;
+    pwrModeConfig.sramPwrMode = sramPwrMode;
+
+    status = (cy_en_syspm_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_SECURE_ONLY, CY_PRA_PM_FUNC_SRAM_MACRO_PWR_MODE, &pwrModeConfig);
+
+#else
+
+    if(sramNum == CY_SYSPM_SRAM0_MEMORY)
+    {
+        CY_ASSERT_L1( sramMacroNum < CPUSS_RAMC0_MACRO_NR );
+        if (sramMacroNum < CPUSS_RAMC0_MACRO_NR)
+        {
+            CPUSS_RAM0_PWR_CTL(sramMacroNum) = _VAL2FLD(CPUSS_V2_RAM0_PWR_MACRO_CTL_VECTKEYSTAT, CY_SYSPM_PWR_MACRO_CTL_WRITE_KEY) |
+                                                _VAL2FLD(CPUSS_V2_RAM0_PWR_MACRO_CTL_PWR_MODE, sramPwrMode);
+            status = CY_SYSPM_SUCCESS;
+        }
+    }
+    else if(sramNum == CY_SYSPM_SRAM1_MEMORY)
+    {
+        CY_ASSERT_L1( CPUSS_RAMC1_PRESENT );
+        CY_ASSERT_L1( sramMacroNum == 0UL );
+
+        CPUSS_RAM1_PWR_CTL = _VAL2FLD(CPUSS_V2_RAM1_PWR_CTL_VECTKEYSTAT, CY_SYSPM_PWR_MACRO_CTL_WRITE_KEY) |
+                                    _VAL2FLD(CPUSS_V2_RAM1_PWR_CTL_PWR_MODE, sramPwrMode);
+        status = CY_SYSPM_SUCCESS;
+    }
+    else if(sramNum == CY_SYSPM_SRAM2_MEMORY)
+    {
+        CY_ASSERT_L1( CPUSS_RAMC2_PRESENT );
+        CY_ASSERT_L1( sramMacroNum == 0UL );
+
+        CPUSS_RAM2_PWR_CTL = _VAL2FLD(CPUSS_V2_RAM2_PWR_CTL_VECTKEYSTAT, CY_SYSPM_PWR_MACRO_CTL_WRITE_KEY) |
+                                    _VAL2FLD(CPUSS_V2_RAM2_PWR_CTL_PWR_MODE, sramPwrMode);
+        status = CY_SYSPM_SUCCESS;
+    }
+    else
+    {
+        /* Invalid SRAM Number */
+    }
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
+    return status;
+}
+
+cy_en_syspm_sram_pwr_mode_t Cy_SysPm_GetSRAMMacroPwrMode(cy_en_syspm_sram_index_t sramNum, uint32_t sramMacroNum)
+{
+    uint32_t retVal = (uint32_t)CY_SYSPM_SRAM_PWR_MODE_INVALID;
+
+    CY_ASSERT_L1( sramNum < CPUSS_SRAM_COUNT );
+
+    if(sramNum == CY_SYSPM_SRAM0_MEMORY)
+    {
+        CY_ASSERT_L1( sramMacroNum < CPUSS_RAMC0_MACRO_NR );
+        if (sramMacroNum < CPUSS_RAMC0_MACRO_NR)
+        {
+            retVal = _FLD2VAL(CPUSS_V2_RAM0_PWR_MACRO_CTL_PWR_MODE, CPUSS_RAM0_PWR_CTL(sramMacroNum));
+        }
+    }
+    else if(sramNum == CY_SYSPM_SRAM1_MEMORY)
+    {
+        CY_ASSERT_L1( sramMacroNum == 0UL );
+        retVal = _FLD2VAL(CPUSS_V2_RAM1_PWR_CTL_PWR_MODE, CPUSS_RAM1_PWR_CTL);
+    }
+    else if(sramNum == CY_SYSPM_SRAM2_MEMORY)
+    {
+        CY_ASSERT_L1( sramMacroNum == 0UL );
+        retVal = _FLD2VAL(CPUSS_V2_RAM2_PWR_CTL_PWR_MODE, CPUSS_RAM2_PWR_CTL);
+    }
+    else
+    {
+        /* Invalid SRAM Number */
+    }
+    return (cy_en_syspm_sram_pwr_mode_t)retVal;
+}
+
+cy_en_syspm_status_t Cy_SysPm_SetSRAMPwrMode(cy_en_syspm_sram_index_t sramNum, cy_en_syspm_sram_pwr_mode_t sramPwrMode)
+{
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    cy_stc_pra_sram_power_mode_config_t pwrModeConfig;
+#else
+    uint32 idx;
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
+    cy_en_syspm_status_t status = CY_SYSPM_BAD_PARAM;
+    CY_ASSERT_L1( sramNum < CPUSS_SRAM_COUNT );
+
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    pwrModeConfig.sramNum = sramNum;
+    pwrModeConfig.sramPwrMode = sramPwrMode;
+
+    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_SECURE_ONLY, CY_PRA_PM_FUNC_SRAM_PWR_MODE, &pwrModeConfig);
+#else
+    if(sramNum == CY_SYSPM_SRAM0_MEMORY)
+    {
+        for(idx = 0UL; idx < CPUSS_RAMC0_MACRO_NR; idx++)
+        {
+            CPUSS_RAM0_PWR_CTL(idx) = _VAL2FLD(CPUSS_V2_RAM0_PWR_MACRO_CTL_VECTKEYSTAT, CY_SYSPM_PWR_MACRO_CTL_WRITE_KEY) |
+                                        _VAL2FLD(CPUSS_V2_RAM0_PWR_MACRO_CTL_PWR_MODE, sramPwrMode);
+        }
+        status = CY_SYSPM_SUCCESS;
+    }
+    else if(sramNum == CY_SYSPM_SRAM1_MEMORY)
+    {
+        CY_ASSERT_L1( CPUSS_RAMC1_PRESENT );
+        CPUSS_RAM1_PWR_CTL = _VAL2FLD(CPUSS_V2_RAM1_PWR_CTL_VECTKEYSTAT, CY_SYSPM_PWR_MACRO_CTL_WRITE_KEY) |
+                                        _VAL2FLD(CPUSS_V2_RAM1_PWR_CTL_PWR_MODE, sramPwrMode);
+        status = CY_SYSPM_SUCCESS;
+
+    }
+    else if(sramNum == CY_SYSPM_SRAM2_MEMORY)
+    {
+        CY_ASSERT_L1( CPUSS_RAMC2_PRESENT );
+        CPUSS_RAM2_PWR_CTL = _VAL2FLD(CPUSS_V2_RAM2_PWR_CTL_VECTKEYSTAT, CY_SYSPM_PWR_MACRO_CTL_WRITE_KEY) |
+                                        _VAL2FLD(CPUSS_V2_RAM2_PWR_CTL_PWR_MODE, sramPwrMode);
+        status = CY_SYSPM_SUCCESS;
+
+    }
+    else
+    {
+        /* Invalid SRAM Number */
+    }
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
+    return status;
+}
 
 #if !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
 /*******************************************************************************
@@ -3388,4 +2332,296 @@ static bool IsVoltageChangePossible(void)
 #endif /* !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 
 
+
+bool Cy_SysPm_Cm4IsActive(void)
+{
+    return ((Cy_SysPm_ReadStatus() & CY_SYSPM_STATUS_CM4_ACTIVE) != 0U);
+}
+
+
+bool Cy_SysPm_Cm4IsSleep(void)
+{
+    return ((Cy_SysPm_ReadStatus() & CY_SYSPM_STATUS_CM4_SLEEP) != 0U);
+}
+
+
+bool Cy_SysPm_Cm4IsDeepSleep(void)
+{
+    return ((Cy_SysPm_ReadStatus() & CY_SYSPM_STATUS_CM4_DEEPSLEEP) != 0U);
+}
+
+
+bool Cy_SysPm_Cm0IsActive(void)
+{
+    return ((Cy_SysPm_ReadStatus() & CY_SYSPM_STATUS_CM0_ACTIVE) != 0U);
+}
+
+
+bool Cy_SysPm_Cm0IsSleep(void)
+{
+    return((Cy_SysPm_ReadStatus() & CY_SYSPM_STATUS_CM0_SLEEP) != 0U);
+}
+
+
+bool Cy_SysPm_Cm0IsDeepSleep(void)
+{
+    return((Cy_SysPm_ReadStatus() & CY_SYSPM_STATUS_CM0_DEEPSLEEP) != 0U);
+}
+
+
+bool Cy_SysPm_IsSystemLp(void)
+{
+    return((Cy_SysPm_ReadStatus() & CY_SYSPM_STATUS_SYSTEM_LP) != 0U);
+}
+
+
+bool Cy_SysPm_IsSystemUlp(void)
+{
+    return((Cy_SysPm_ReadStatus() & CY_SYSPM_STATUS_SYSTEM_ULP) != 0U);
+}
+
+
+void Cy_SysPm_CpuSendWakeupEvent(void)
+{
+    __SEV();
+}
+
+
+bool Cy_SysPm_SystemIsMinRegulatorCurrentSet(void)
+{
+    uint32_t regMask = Cy_SysPm_LdoIsEnabled() ? CY_SYSPM_PWR_CIRCUITS_LPMODE_ACTIVE_LDO_MASK : CY_SYSPM_PWR_CIRCUITS_LPMODE_ACTIVE_BUCK_MASK;
+
+    return ((SRSS_PWR_CTL & regMask) == regMask);
+}
+
+
+bool Cy_SysPm_BuckIsEnabled(void)
+{
+    return (0U != _FLD2VAL(SRSS_PWR_BUCK_CTL_BUCK_EN, SRSS_PWR_BUCK_CTL));
+}
+
+
+cy_en_syspm_buck_voltage1_t Cy_SysPm_BuckGetVoltage1(void)
+{
+    uint32_t retVal;
+    retVal = _FLD2VAL(SRSS_PWR_BUCK_CTL_BUCK_OUT1_SEL, SRSS_PWR_BUCK_CTL);
+
+    return ((cy_en_syspm_buck_voltage1_t) retVal);
+}
+
+
+cy_en_syspm_buck_voltage2_t Cy_SysPm_BuckGetVoltage2(void)
+{
+    uint32_t retVal = 0UL;
+
+    if (0U != cy_device->sysPmSimoPresent)
+    {
+        retVal = _FLD2VAL(SRSS_PWR_BUCK_CTL2_BUCK_OUT2_SEL, SRSS_PWR_BUCK_CTL2);
+    }
+
+    return ((cy_en_syspm_buck_voltage2_t) retVal);
+}
+
+
+void Cy_SysPm_BuckDisableVoltage2(void)
+{
+#if ((CY_CPU_CORTEX_M4) && (defined (CY_DEVICE_SECURE)))
+    CY_PRA_FUNCTION_CALL_VOID_VOID(CY_PRA_MSG_TYPE_SECURE_ONLY,
+                                   CY_PRA_PM_FUNC_BUCK_DISABLE_VOLTAGE2);
+#else
+    if (0U != cy_device->sysPmSimoPresent)
+    {
+        /* Disable the Vbuck2 output */
+        SRSS_PWR_BUCK_CTL2 &= (uint32_t) ~_VAL2FLD(SRSS_PWR_BUCK_CTL2_BUCK_OUT2_EN, 1U);
+    }
+#endif /* ((CY_CPU_CORTEX_M4) && (defined (CY_DEVICE_SECURE))) */
+}
+
+
+void Cy_SysPm_BuckSetVoltage2HwControl(bool hwControl)
+{
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_SECURE_ONLY,
+                                    CY_PRA_PM_FUNC_BUCK_VOLTAGE2_HW_CTRL,
+                                    hwControl);
+#else
+    bool isBuckEnabled = Cy_SysPm_BuckIsEnabled();
+
+    if ((0U != cy_device->sysPmSimoPresent) && isBuckEnabled)
+    {
+        if(hwControl)
+        {
+            SRSS_PWR_BUCK_CTL2 |= _VAL2FLD(SRSS_PWR_BUCK_CTL2_BUCK_OUT2_HW_SEL, 1U);
+        }
+        else
+        {
+            SRSS_PWR_BUCK_CTL2 &= (uint32_t) ~_VAL2FLD(SRSS_PWR_BUCK_CTL2_BUCK_OUT2_HW_SEL, 1U);
+        }
+    }
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
+}
+
+
+bool Cy_SysPm_BuckIsVoltage2HwControlled(void)
+{
+    bool retVal = false;
+
+    if (0U != cy_device->sysPmSimoPresent)
+    {
+        retVal = (0U != _FLD2VAL(SRSS_PWR_BUCK_CTL2_BUCK_OUT2_HW_SEL, SRSS_PWR_BUCK_CTL2));
+    }
+
+    return retVal;
+}
+
+
+cy_en_syspm_ldo_voltage_t Cy_SysPm_LdoGetVoltage(void)
+{
+    uint32_t curVoltage;
+
+    curVoltage = _FLD2VAL(SRSS_PWR_TRIM_PWRSYS_CTL_ACT_REG_TRIM, SRSS_PWR_TRIM_PWRSYS_CTL);
+
+    return ((curVoltage == (SFLASH_LDO_0P9V_TRIM)) ? CY_SYSPM_LDO_VOLTAGE_ULP : CY_SYSPM_LDO_VOLTAGE_LP);
+}
+
+
+bool Cy_SysPm_LdoIsEnabled(void)
+{
+    return ((0U != _FLD2VAL(SRSS_PWR_CTL_LINREG_DIS, SRSS_PWR_CTL)) ? false : true);
+}
+
+
+bool Cy_SysPm_IoIsFrozen(void)
+{
+    return (0U != _FLD2VAL(SRSS_PWR_HIBERNATE_FREEZE, SRSS_PWR_HIBERNATE));
+}
+
+
+void Cy_SysPm_PmicEnable(void)
+{
+    if (CY_SYSPM_PMIC_UNLOCK_KEY == _FLD2VAL(BACKUP_PMIC_CTL_UNLOCK, BACKUP_PMIC_CTL))
+    {
+        BACKUP_PMIC_CTL =
+        _VAL2FLD(BACKUP_PMIC_CTL_UNLOCK, CY_SYSPM_PMIC_UNLOCK_KEY) |
+        _VAL2FLD(BACKUP_PMIC_CTL_PMIC_EN_OUTEN, 1U) |
+        _VAL2FLD(BACKUP_PMIC_CTL_PMIC_EN, 1U);
+    }
+}
+
+
+void Cy_SysPm_PmicDisable(cy_en_syspm_pmic_wakeup_polarity_t polarity)
+{
+    CY_ASSERT_L3(CY_SYSPM_IS_POLARITY_VALID(polarity));
+
+    if (CY_SYSPM_PMIC_UNLOCK_KEY == _FLD2VAL(BACKUP_PMIC_CTL_UNLOCK, BACKUP_PMIC_CTL))
+    {
+        BACKUP_PMIC_CTL =
+        (_VAL2FLD(BACKUP_PMIC_CTL_UNLOCK, CY_SYSPM_PMIC_UNLOCK_KEY) |
+         _CLR_SET_FLD32U(BACKUP_PMIC_CTL, BACKUP_PMIC_CTL_POLARITY, (uint32_t) polarity)) &
+        ((uint32_t) ~ _VAL2FLD(BACKUP_PMIC_CTL_PMIC_EN, 1U));
+    }
+}
+
+
+void Cy_SysPm_PmicAlwaysEnable(void)
+{
+    BACKUP_PMIC_CTL |= _VAL2FLD(BACKUP_PMIC_CTL_PMIC_ALWAYSEN, 1U);
+}
+
+
+void Cy_SysPm_PmicEnableOutput(void)
+{
+    if (CY_SYSPM_PMIC_UNLOCK_KEY == _FLD2VAL(BACKUP_PMIC_CTL_UNLOCK, BACKUP_PMIC_CTL))
+    {
+        BACKUP_PMIC_CTL |=
+        _VAL2FLD(BACKUP_PMIC_CTL_UNLOCK, CY_SYSPM_PMIC_UNLOCK_KEY) | _VAL2FLD(BACKUP_PMIC_CTL_PMIC_EN_OUTEN, 1U);
+    }
+}
+
+
+void Cy_SysPm_PmicDisableOutput(void)
+{
+    if (CY_SYSPM_PMIC_UNLOCK_KEY == _FLD2VAL(BACKUP_PMIC_CTL_UNLOCK, BACKUP_PMIC_CTL))
+    {
+        BACKUP_PMIC_CTL =
+        (BACKUP_PMIC_CTL | _VAL2FLD(BACKUP_PMIC_CTL_UNLOCK, CY_SYSPM_PMIC_UNLOCK_KEY)) &
+        ((uint32_t) ~ _VAL2FLD(BACKUP_PMIC_CTL_PMIC_EN_OUTEN, 1U));
+    }
+}
+
+
+void Cy_SysPm_PmicLock(void)
+{
+    BACKUP_PMIC_CTL = _CLR_SET_FLD32U(BACKUP_PMIC_CTL, BACKUP_PMIC_CTL_UNLOCK, 0U);
+}
+
+
+void Cy_SysPm_PmicUnlock(void)
+{
+    BACKUP_PMIC_CTL = _CLR_SET_FLD32U(BACKUP_PMIC_CTL, BACKUP_PMIC_CTL_UNLOCK, CY_SYSPM_PMIC_UNLOCK_KEY);
+}
+
+
+bool Cy_SysPm_PmicIsEnabled(void)
+{
+    return (0U != _FLD2VAL(BACKUP_PMIC_CTL_PMIC_EN, BACKUP_PMIC_CTL));
+}
+
+
+bool Cy_SysPm_PmicIsOutputEnabled(void)
+{
+    return (0U != _FLD2VAL(BACKUP_PMIC_CTL_PMIC_EN_OUTEN, BACKUP_PMIC_CTL));
+}
+
+
+bool Cy_SysPm_PmicIsLocked(void)
+{
+    return ((_FLD2VAL(BACKUP_PMIC_CTL_UNLOCK, BACKUP_PMIC_CTL) == CY_SYSPM_PMIC_UNLOCK_KEY) ? false : true);
+}
+
+
+void Cy_SysPm_BackupSetSupply(cy_en_syspm_vddbackup_control_t vddBackControl)
+{
+    CY_ASSERT_L3(CY_SYSPM_IS_VDDBACKUP_VALID(vddBackControl));
+
+    BACKUP_CTL = _CLR_SET_FLD32U((BACKUP_CTL), BACKUP_CTL_VDDBAK_CTL, (uint32_t) vddBackControl);
+}
+
+
+cy_en_syspm_vddbackup_control_t Cy_SysPm_BackupGetSupply(void)
+{
+    uint32_t retVal;
+    retVal = _FLD2VAL(BACKUP_CTL_VDDBAK_CTL, BACKUP_CTL);
+
+    return ((cy_en_syspm_vddbackup_control_t) retVal);
+}
+
+
+void Cy_SysPm_BackupEnableVoltageMeasurement(void)
+{
+    BACKUP_CTL |= BACKUP_CTL_VBACKUP_MEAS_Msk;
+}
+
+
+void Cy_SysPm_BackupDisableVoltageMeasurement(void)
+{
+    BACKUP_CTL &= ((uint32_t) ~BACKUP_CTL_VBACKUP_MEAS_Msk);
+}
+
+
+void Cy_SysPm_BackupSuperCapCharge(cy_en_syspm_sc_charge_key_t key)
+{
+    CY_ASSERT_L3(CY_SYSPM_IS_SC_CHARGE_KEY_VALID(key));
+
+    if(key == CY_SYSPM_SC_CHARGE_ENABLE)
+    {
+        BACKUP_CTL = _CLR_SET_FLD32U((BACKUP_CTL), BACKUP_CTL_EN_CHARGE_KEY, (uint32_t) CY_SYSPM_SC_CHARGE_ENABLE);
+    }
+    else
+    {
+        BACKUP_CTL &= ((uint32_t) ~BACKUP_CTL_EN_CHARGE_KEY_Msk);
+    }
+}
+
+#endif
 /* [] END OF FILE */

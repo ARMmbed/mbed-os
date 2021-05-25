@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_syslib.h
-* \version 2.70
+* \version 2.90
 *
 * Provides an API declaration of the SysLib driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2020 Cypress Semiconductor Corporation
+* Copyright 2016-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -117,6 +117,24 @@
 * \section group_syslib_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td rowspan="2">2.90</td>
+*     <td>Added new functions \ref Cy_SysLib_Rtos_Delay, \ref Cy_SysLib_Rtos_DelayUs.</td>
+*     <td>Provide user an option to overwrite delay function implementation based on target RTOS environment.</td>
+*   </tr>
+*   <tr>
+*     <td>Added new functions \ref Cy_SysLib_GetResetStatus, \ref Cy_SysLib_GetWcoTrim and \ref Cy_SysLib_SetWcoTrim.</td>
+*     <td>Add a possibility to manage the backup domain reset better and to store/restore the WCO trimming value.</td>
+*   </tr>
+*   <tr>
+*     <td rowspan="2">2.80</td>
+*     <td>Support for CM33.</td>
+*     <td>New devices support.</td>
+*   </tr>
+*   <tr>
+*     <td>Update \ref Cy_SysLib_GetResetReason API to read RES_CAUSE2 register as well.</td>
+*     <td>Code Enhancement/Bug Fix.</td>
+*   </tr>
 *   <tr>
 *     <td rowspan="4">2.70</td>
 *     <td>Added new macros CY_SECTION_RAMFUNC_BEGIN, CY_SECTION_RAMFUNC_END,
@@ -274,15 +292,17 @@
 *
 */
 
-#if !defined(CY_SYSLIB_H)
+#if !defined (CY_SYSLIB_H)
 #define CY_SYSLIB_H
+
+#include "cy_device.h"
+
+#if defined (CY_IP_M33SYSCPUSS) || defined (CY_IP_M4CPUSS)
 
 #include <stdint.h>
 #include <stdbool.h>
 #include "cy_utils.h"
 #include "cy_result.h"
-#include "cy_device.h"
-#include "cy_device_headers.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -306,31 +326,101 @@ CY_MISRA_DEVIATE_BLOCK_START('MISRA C-2012 Rule 8.6', 3, \
 * Macros
 *****************************************************************************/
 
-#define CY_CPU_CORTEX_M0P   (__CORTEX_M == 0)    /**< CM0+ core CPU Code */
-#define CY_CPU_CORTEX_M4    (__CORTEX_M == 4)    /**< CM4  core CPU Code */
+#ifdef CY_IP_M4CPUSS
 
+/**
+* \note
+* This macro is available for devices having M4CPUSS IP.
+**/
+#define CY_CPU_CORTEX_M0P   (__CORTEX_M == 0)    /**< CM0+ core CPU Code */
+/**
+* \note
+* This macro is available for devices having M4CPUSS IP.
+**/
+#define CY_CPU_CORTEX_M4    (__CORTEX_M == 4)    /**< CM4  core CPU Code */
+/**
+* \note
+* This macro is available for devices having M4CPUSS IP.
+**/
 /** The macro to disable the Fault Handler */
 #define CY_ARM_FAULT_DEBUG_DISABLED    (0U)
+/**
+* \note
+* This macro is available for devices having M4CPUSS IP.
+**/
 /** The macro to enable the Fault Handler */
 #define CY_ARM_FAULT_DEBUG_ENABLED     (1U)
 
-#if !defined(CY_ARM_FAULT_DEBUG)
+#if !defined (CY_ARM_FAULT_DEBUG)
+    /**
+    * \note
+    * This macro is available for devices having M4CPUSS IP.
+    **/
     /** The macro defines if the Fault Handler is enabled. Enabled by default. */
     #define CY_ARM_FAULT_DEBUG         (CY_ARM_FAULT_DEBUG_ENABLED)
 #endif /* CY_ARM_FAULT_DEBUG */
+
+#endif /* CY_IP_M4CPUSS */
 
 /**
 * \defgroup group_syslib_macros_status_codes Status codes
 * \{
 * Function status type codes
 */
+/** \cond INTERNAL */
+
+#ifdef CY_IP_M4CPUSS
+/**
+* \note
+* This macro is available for devices having M4CPUSS IP.
+**/
 #define CY_PDL_STATUS_CODE_Pos  (CY_RSLT_CODE_POSITION)     /**< The module status code position in the status code */
+/**
+* \note
+* This macro is available for devices having M4CPUSS IP.
+**/
 #define CY_PDL_STATUS_TYPE_Pos  (CY_RSLT_TYPE_POSITION)     /**< The status type position in the status code */
+/**
+* \note
+* This macro is available for devices having M4CPUSS IP.
+**/
 #define CY_PDL_MODULE_ID_Pos    (CY_RSLT_MODULE_POSITION)   /**< The software module ID position in the status code */
+/**
+* \note
+* This macro is available for devices having M4CPUSS IP.
+**/
 #define CY_PDL_STATUS_INFO      ((uint32_t)CY_RSLT_TYPE_INFO << CY_PDL_STATUS_TYPE_Pos)     /**< The information status type */
+/**
+* \note
+* This macro is available for devices having M4CPUSS IP.
+**/
 #define CY_PDL_STATUS_WARNING   ((uint32_t)CY_RSLT_TYPE_WARNING << CY_PDL_STATUS_TYPE_Pos)  /**< The warning status type */
+/**
+* \note
+* This macro is available for devices having M4CPUSS IP.
+**/
 #define CY_PDL_STATUS_ERROR     ((uint32_t)CY_RSLT_TYPE_ERROR << CY_PDL_STATUS_TYPE_Pos)    /**< The error status type */
+/**
+* \note
+* This macro is available for devices having M4CPUSS IP.
+**/
 #define CY_PDL_MODULE_ID_Msk    (CY_RSLT_MODULE_MASK)       /**< The software module ID mask */
+#endif /* CY_IP_M4CPUSS */
+
+/** \endcond */
+
+#if defined (CY_IP_M33SYSCPUSS)
+
+#define CY_PDL_STATUS_CODE_Pos  (0U)        /**< The module status code position in the status code */
+#define CY_PDL_STATUS_TYPE_Pos  (16U)       /**< The status type position in the status code */
+#define CY_PDL_MODULE_ID_Pos    (18U)       /**< The software module ID position in the status code */
+#define CY_PDL_STATUS_INFO      (0UL << CY_PDL_STATUS_TYPE_Pos)    /**< The information status type */
+#define CY_PDL_STATUS_WARNING   (1UL << CY_PDL_STATUS_TYPE_Pos)    /**< The warning status type */
+#define CY_PDL_STATUS_ERROR     (2UL << CY_PDL_STATUS_TYPE_Pos)    /**< The error status type */
+#define CY_PDL_MODULE_ID_Msk    (0x3FFFU)   /**< The software module ID mask */
+
+#endif
+
 /** Get the software PDL module ID */
 #define CY_PDL_DRV_ID(id)       ((uint32_t)((uint32_t)((id) & CY_PDL_MODULE_ID_Msk) << CY_PDL_MODULE_ID_Pos))
 #define CY_SYSLIB_ID            CY_PDL_DRV_ID(0x11U)     /**< SYSLIB PDL ID */
@@ -491,7 +581,7 @@ typedef enum
 #define CY_SYSLIB_DRV_VERSION_MAJOR    2
 
 /** The driver minor version */
-#define CY_SYSLIB_DRV_VERSION_MINOR    70
+#define CY_SYSLIB_DRV_VERSION_MINOR    90
 
 /** Define start of the function placed to the SRAM area by the linker */
 #ifndef CY_SECTION_RAMFUNC_BEGIN
@@ -610,6 +700,34 @@ typedef double   float64_t; /**< Specific-length typedef for the basic numerical
 
 /** \} group_syslib_macros_assert */
 
+#ifdef CY_IP_M33SYSCPUSS
+/*******************************************************************************
+* Macro Name: CY_UNUSED_PARAM
+****************************************************************************//**
+*
+*  Suppresses the unused parameter warning
+*
+* \note
+* This macro is available for devices having M33SYSCPUSS IP.
+*
+*******************************************************************************/
+#define CY_UNUSED_PARAM(a) (void)(a)
+
+/*******************************************************************************
+* Macro Name: CY_ARRAY_SIZE(x)
+****************************************************************************//**
+*
+* Returns the size of Array
+*
+* \param x  Array Name
+*
+* \note
+* This macro is available for devices having M33SYSCPUSS IP.
+*
+*******************************************************************************/
+#define CY_ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+#endif /* CY_IP_M33SYSCPUSS */
+
 
 /******************************************************************************
 * Constants
@@ -628,6 +746,16 @@ typedef double   float64_t; /**< Specific-length typedef for the basic numerical
 #define CY_SYSLIB_RESET_ACT_FAULT       (0x0002U)
 /** The fault logging system requested a reset from its Deep-Sleep logic. */
 #define CY_SYSLIB_RESET_DPSLP_FAULT     (0x0004U)
+
+#ifdef CY_IP_M33SYSCPUSS
+/** The fault logging system requested a reset from its Test Controller or debugger asserted test. */
+/**
+* \note
+* This macro is available for devices having M33SYSCPUSS IP.
+**/
+#define CY_SYSLIB_RESET_TC_DBGRESET     (0x0008U)
+#endif
+
 /** The CPU requested a system reset through it's SYSRESETREQ. This can be done via a debugger probe or in firmware. */
 #define CY_SYSLIB_RESET_SOFT            (0x0010U)
 /** The Multi-Counter Watchdog timer #0 reset has occurred since the last power cycle. */
@@ -638,14 +766,23 @@ typedef double   float64_t; /**< Specific-length typedef for the basic numerical
 #define CY_SYSLIB_RESET_SWWDT2          (0x0080U)
 /** The Multi-Counter Watchdog timer #3 reset has occurred since the last power cycle. */
 #define CY_SYSLIB_RESET_SWWDT3          (0x0100U)
+/** The reset has occured on a loss of high-frequency clock. */
+#define CY_SYSLIB_RESET_CSV_LOSS_WAKEUP      (0x10000UL)
+/** The reset has occured due to frequency error of high-frequency clock. */
+#define CY_SYSLIB_RESET_CSV_ERROR_WAKEUP      (0x20000UL)
 /** The reset has occurred on a wakeup from Hibernate power mode. */
 #define CY_SYSLIB_RESET_HIB_WAKEUP      (0x40000UL)
 
 /** \} group_syslib_macros_reset_cause */
 
+#ifdef CY_IP_M4CPUSS
 /** Bit[31:24] Opcode = 0x1B (SoftReset)
  *  Bit[7:1]   Type   = 1    (Only CM4 reset)
  */
+/**
+* \note
+* This macro is available for devices having M4CPUSS IP.
+**/
 #define CY_IPC_DATA_FOR_CM4_SOFT_RESET  (0x1B000002UL)
 
 /**
@@ -653,17 +790,54 @@ typedef double   float64_t; /**< Specific-length typedef for the basic numerical
 * \{
 * Unique ID fields positions
 */
+/**
+* \note
+* This macro is available for devices having M4CPUSS IP.
+**/
 #define CY_UNIQUE_ID_DIE_YEAR_Pos       (57U)    /**< The position of the DIE_YEAR  field in the silicon Unique ID */
+/**
+* \note
+* This macro is available for devices having M4CPUSS IP.
+**/
 #define CY_UNIQUE_ID_DIE_MINOR_Pos      (56U)    /**< The position of the DIE_MINOR field in the silicon Unique ID */
+/**
+* \note
+* This macro is available for devices having M4CPUSS IP.
+**/
 #define CY_UNIQUE_ID_DIE_SORT_Pos       (48U)    /**< The position of the DIE_SORT  field in the silicon Unique ID */
+/**
+* \note
+* This macro is available for devices having M4CPUSS IP.
+**/
 #define CY_UNIQUE_ID_DIE_Y_Pos          (40U)    /**< The position of the DIE_Y     field in the silicon Unique ID */
+/**
+* \note
+* This macro is available for devices having M4CPUSS IP.
+**/
 #define CY_UNIQUE_ID_DIE_X_Pos          (32U)    /**< The position of the DIE_X     field in the silicon Unique ID */
+/**
+* \note
+* This macro is available for devices having M4CPUSS IP.
+**/
 #define CY_UNIQUE_ID_DIE_WAFER_Pos      (24U)    /**< The position of the DIE_WAFER field in the silicon Unique ID */
+/**
+* \note
+* This macro is available for devices having M4CPUSS IP.
+**/
 #define CY_UNIQUE_ID_DIE_LOT_2_Pos      (16U)    /**< The position of the DIE_LOT_2 field in the silicon Unique ID */
+/**
+* \note
+* This macro is available for devices having M4CPUSS IP.
+**/
 #define CY_UNIQUE_ID_DIE_LOT_1_Pos      (8U)     /**< The position of the DIE_LOT_1 field in the silicon Unique ID */
+/**
+* \note
+* This macro is available for devices having M4CPUSS IP.
+**/
 #define CY_UNIQUE_ID_DIE_LOT_0_Pos      (0U)     /**< The position of the DIE_LOT_0 field in the silicon Unique ID */
 
 /** \} group_syslib_macros_unique_id */
+#endif
 
 /** \} group_syslib_macros */
 
@@ -676,27 +850,427 @@ typedef double   float64_t; /**< Specific-length typedef for the basic numerical
 * \{
 */
 
+/*******************************************************************************
+* Function Name: Cy_SysLib_Delay
+****************************************************************************//**
+*
+* The function delays by the specified number of milliseconds.
+* By default, the number of cycles to delay is calculated based on the
+* \ref SystemCoreClock.
+*
+* \param milliseconds  The number of milliseconds to delay.
+*
+* \note The function calls \ref Cy_SysLib_DelayCycles() API to generate a delay.
+*       If the function parameter (milliseconds) is bigger than
+*       CY_DELAY_MS_OVERFLOW constant, then an additional loop runs to prevent
+*       an overflow in parameter passed to \ref Cy_SysLib_DelayCycles() API.
+*
+*******************************************************************************/
 void Cy_SysLib_Delay(uint32_t milliseconds);
+
+
+/*******************************************************************************
+* Function Name: Cy_SysLib_DelayUs
+****************************************************************************//**
+*
+* The function delays by the specified number of microseconds.
+* By default, the number of cycles to delay is calculated based on the
+* \ref SystemCoreClock.
+*
+* \param microseconds  The number of microseconds to delay.
+*
+* \note If the CPU frequency is a small non-integer number, the actual delay
+*       can be up to twice as long as the nominal value. The actual delay
+*       cannot be shorter than the nominal one.
+*
+*******************************************************************************/
 void Cy_SysLib_DelayUs(uint16_t microseconds);
+
+/*******************************************************************************
+* Function Name: Cy_SysLib_Rtos_Delay
+****************************************************************************//**
+*
+* The function is same as \ref Cy_SysLib_Delay. However, this API is declared WEAK
+* providing option for user to overwrite the implementation based on target RTOS.
+*
+* \param milliseconds  The number of milliseconds to delay.
+*
+*******************************************************************************/
+void Cy_SysLib_Rtos_Delay(uint32_t milliseconds);
+
+
+/*******************************************************************************
+* Function Name: Cy_SysLib_Rtos_DelayUs
+****************************************************************************//**
+*
+* The function is same as \ref Cy_SysLib_DelayUs. However, this API is declared WEAK
+* providing option for user to overwrite the imlementation based on target RTOS.
+*
+* \param microseconds  The number of microseconds to delay.
+*
+*******************************************************************************/
+void Cy_SysLib_Rtos_DelayUs(uint16_t microseconds);
+
+
 /** Delays for the specified number of cycles.
  *  The function is implemented in the assembler for each supported compiler.
  *  \param cycles  The number of cycles to delay.
  */
 void Cy_SysLib_DelayCycles(uint32_t cycles);
+
+
+/*******************************************************************************
+* Function Name: Cy_SysLib_Halt
+****************************************************************************//**
+*
+* This function halts the CPU but only the CPU which calls the function.
+* It doesn't affect other CPUs.
+*
+* \param reason  The value to be used during debugging.
+*
+* \note The function executes the BKPT instruction for halting CPU and is
+*       intended to be used for the debug purpose. A regular use case requires
+*       Debugger attachment before the function call.
+*       The BKPT instruction causes the CPU to enter the Debug state. Debug
+*       tools can use this to investigate the system state, when the
+*       instruction at a particular address is reached.
+*
+* \note Execution of a BKPT instruction without a debugger attached produces
+*       a fault. The fault results in the HardFault exception being taken
+*       or causes a Lockup state if it occurs in the NMI or HardFault handler.
+*       The default HardFault handler make a software reset if the build option
+*       is the release mode (NDEBUG). If the build option is the debug mode,
+*       the system will stay in the infinite loop of the
+*       \ref Cy_SysLib_ProcessingFault() function.
+*
+*******************************************************************************/
+#ifdef CY_IP_M4CPUSS
+/** \cond INTERNAL */
 __NO_RETURN void Cy_SysLib_Halt(uint32_t reason);
+/** \endcond */
+#endif
+#if defined (CY_IP_M33SYSCPUSS) || defined (CY_DOXYGEN)
+    void Cy_SysLib_Halt(uint32_t reason);
+#endif
+
+
+/*******************************************************************************
+* Macro Name: Cy_SysLib_AssertFailed
+****************************************************************************//**
+*
+* This function stores the ASSERT location of the file name (including path
+* to file) and line number in a non-zero init area for debugging. Also it calls
+* the \ref Cy_SysLib_Halt() function to halt the processor.
+*
+* \param file  The file name of the ASSERT location.
+* \param line  The line number of the ASSERT location.
+*
+* \note A stored file name and line number could be accessed by
+*       cy_assertFileName and cy_assertLine global variables.
+* \note This function has the WEAK option, so the user can redefine
+*       the function for a custom processing.
+*
+*******************************************************************************/
 void Cy_SysLib_AssertFailed(const char_t * file, uint32_t line);
+
+#ifdef CY_IP_M4CPUSS
+
+
+/*******************************************************************************
+* Function Name: Cy_SysLib_ClearFlashCacheAndBuffer
+****************************************************************************//**
+*
+* This function invalidates the flash cache and buffer. It ensures the valid
+* data is read from flash instead of using outdated data from the cache.
+* The caches' LRU structure is also reset to their default state.
+*
+* \note The operation takes a maximum of three clock cycles on the slowest of
+*       the clk_slow and clk_fast clocks.
+*
+* \note
+* This API is available for devices having M4CPUSS IP.
+*
+*******************************************************************************/
 void Cy_SysLib_ClearFlashCacheAndBuffer(void);
-cy_en_syslib_status_t Cy_SysLib_ResetBackupDomain(void);
-uint32_t Cy_SysLib_GetResetReason(void);
-void Cy_SysLib_ClearResetReason(void);
+
+
+/*******************************************************************************
+* Function Name: Cy_SysLib_GetUniqueId
+****************************************************************************//**
+*
+* This function returns the silicon unique ID.
+* The ID includes Die lot[3]#, Die Wafer#, Die X, Die Y, Die Sort#, Die Minor
+* and Die Year.
+*
+* \return  A combined 64-bit unique ID.
+*          [63:57] - DIE_YEAR
+*          [56:56] - DIE_MINOR
+*          [55:48] - DIE_SORT
+*          [47:40] - DIE_Y
+*          [39:32] - DIE_X
+*          [31:24] - DIE_WAFER
+*          [23:16] - DIE_LOT[2]
+*          [15: 8] - DIE_LOT[1]
+*          [ 7: 0] - DIE_LOT[0]
+*
+* \note
+* This API is available for devices having M4CPUSS IP.
+*
+*******************************************************************************/
 uint64_t Cy_SysLib_GetUniqueId(void);
-#if (CY_CPU_CORTEX_M0P)
-    void Cy_SysLib_SoftResetCM4(void);
+
+
+#if (CY_CPU_CORTEX_M0P) || defined (CY_DOXYGEN)
+/*******************************************************************************
+* Function Name: Cy_SysLib_SoftResetCM4
+****************************************************************************//**
+*
+* This function performs a CM4 Core software reset using the CM4_PWR_CTL
+* register. The register is accessed by CM0 Core by using a command transferred
+* to SROM API through the IPC channel. When the command is sent, the API waits
+* for the IPC channel release.
+*
+* \note This function should be called only when the CM4 core is in Deep
+*       Sleep mode.
+* \note This function will not reset CM0+ Core.
+* \note This function waits for an IPC channel release state.
+*
+* \note
+* This API is available for devices having M4CPUSS IP.
+*
+*******************************************************************************/
+void Cy_SysLib_SoftResetCM4(void);
 #endif /* CY_CPU_CORTEX_M0P */
+#endif
+
+
+/*******************************************************************************
+* Function Name: Cy_SysLib_ResetBackupDomain
+****************************************************************************//**
+*
+* This function resets the backup domain power to avoid the ILO glitch. The
+* glitch can occur when the device is reset due to POR/BOD/XRES while
+* the backup voltage is supplied into the system.
+*
+* \note Writing 1 to BACKUP->RESET resets the backup logic. Hardware clears it
+*       when the reset is complete. After setting the register, this function
+*       reads the register immediately for returning the result of the backup
+*       domain reset state. The reading register is important because the Read
+*       itself takes multiple AHB clock cycles, and the reset is actually
+*       finishing during that time. Use \ref Cy_SysLib_GetResetStatus to check
+*       the BACKUP->RESET before any other BACKUP register write.
+*
+* \note This function also resets the WCO trimming value - use the
+*       \ref Cy_SysLib_GetWcoTrim and \ref Cy_SysLib_SetWcoTrim to store/restore
+*       the WCO trimming value.
+*
+* \return CY_SYSLIB_SUCCESS, if BACKUP->RESET read-back is 0.
+*         Otherwise returns CY_SYSLIB_INVALID_STATE.
+*
+* \funcusage
+* \snippet syslib/snippet/main.c snippet_Cy_SysLib_WcoTrim
+*
+*******************************************************************************/
+cy_en_syslib_status_t Cy_SysLib_ResetBackupDomain(void);
+
+
+/*******************************************************************************
+* Function Name: Cy_SysLib_GetResetReason
+****************************************************************************//**
+*
+* The function returns the cause for the latest reset(s) that occurred in
+* the system. The reset causes include system faults and
+* device reset on a wakeup from Hibernate mode. For M33SYSCPUSS IP, 
+* the reset causes also include an HFCLK error.
+* The return results are consolidated reset causes from reading RES_CAUSE,
+* RES_CAUSE2 and PWR_HIBERNATE token registers.
+*
+* \return The cause of a system reset. 
+* Return values to be checked as per the CPUSS IP of the device.
+*
+* | Name in M4CPUSS IP            | Name in M33SYSCPUSS IP       | Value
+* |-------------------------------|------------------------------|-------------------
+* | CY_SYSLIB_RESET_HWWDT         | CY_SYSLIB_RESET_HWWDT        | 0x00001 (bit0)
+* | CY_SYSLIB_RESET_ACT_FAULT     | CY_SYSLIB_RESET_ACT_FAULT    | 0x00002 (bit1)
+* | CY_SYSLIB_RESET_DPSLP_FAULT   | CY_SYSLIB_RESET_DPSLP_FAULT  | 0x00004 (bit2)
+* | CY_SYSLIB_RESET_TC_DBGRESET   | CY_SYSLIB_RESET_CSV_WCO_LOSS | 0x00008 (bit3)
+* | CY_SYSLIB_RESET_SOFT          | CY_SYSLIB_RESET_SOFT         | 0x00010 (bit4)
+* | CY_SYSLIB_RESET_SWWDT0        | CY_SYSLIB_RESET_SWWDT0       | 0x00020 (bit5)
+* | CY_SYSLIB_RESET_SWWDT1        | CY_SYSLIB_RESET_SWWDT1       | 0x00040 (bit6)
+* | CY_SYSLIB_RESET_SWWDT2        | CY_SYSLIB_RESET_SWWDT2       | 0x00080 (bit7)
+* | CY_SYSLIB_RESET_SWWDT3        | CY_SYSLIB_RESET_SWWDT3       | 0x00100 (bit8)
+* |                               | CY_SYSLIB_RESET_HFCLK_LOSS   | 0x10000 (bit16)
+* |                               | CY_SYSLIB_RESET_HFCLK_ERR    | 0x20000 (bit17)
+* | CY_SYSLIB_RESET_HIB_WAKEUP    | CY_SYSLIB_RESET_HIB_WAKEUP   | 0x40000 (bit18)
+*
+* \note This not is available for devices having M33SYSCPUSS IP
+*       CY_SYSLIB_RESET_CSV_WCO_LOSS, CY_SYSLIB_RESET_HFCLK_LOSS and
+*       CY_SYSLIB_RESET_HFCLK_ERR causes of a system reset available only if
+*       WCO CSV present in the device.
+*
+*******************************************************************************/
+uint32_t Cy_SysLib_GetResetReason(void);
+
+
+/*******************************************************************************
+* Function Name: Cy_SysLib_ClearResetReason
+****************************************************************************//**
+*
+* This function clears the values of RES_CAUSE and RES_CAUSE2. Also it clears
+* PWR_HIBERNATE token, which indicates reset event on waking up from HIBERNATE.
+*
+*******************************************************************************/
+void Cy_SysLib_ClearResetReason(void);
+
+
+/*******************************************************************************
+* Function Name: Cy_SysLib_GetResetStatus
+****************************************************************************//**
+*
+* This function returns the BACKUP->RESET bit value.
+* It is reused by the \ref Cy_SysLib_ResetBackupDomain itself and also intended to
+* check for CY_SYSLIB_SUCCESS in loop after the \ref Cy_SysLib_ResetBackupDomain call.
+*
+* \note Writing 1 to BACKUP->RESET resets the backup logic. Hardware clears it
+*       when the reset is complete. After setting the register, this function
+*       reads the register immediately for returning the result of the backup
+*       domain reset state. The reading register is important because the Read
+*       itself takes multiple AHB clock cycles, and the reset is actually
+*       finishing during that time.
+*
+* \return CY_SYSLIB_SUCCESS, if BACKUP->RESET read-back is 0.
+*         Otherwise returns CY_SYSLIB_INVALID_STATE.
+*
+* \funcusage
+* \snippet syslib/snippet/main.c snippet_Cy_SysLib_ResetBackup
+*
+*******************************************************************************/
+__STATIC_INLINE cy_en_syslib_status_t Cy_SysLib_GetResetStatus (void)
+{
+    return ((0UL == (BACKUP_RESET & BACKUP_RESET_RESET_Msk)) ? CY_SYSLIB_SUCCESS : CY_SYSLIB_INVALID_STATE);
+}
+
+
+#if defined (CY_IP_MXS40SRSS)
+/*******************************************************************************
+* Function Name: Cy_SysLib_GetWcoTrim
+****************************************************************************//**
+*
+* This function returns the BACKUP->TRIM bitfield value.
+* It is intended to store the WCO trimming value before
+* the \ref Cy_SysLib_ResetBackupDomain usage.
+*
+* \return The WCO trimming value.
+*
+* \funcusage
+* \snippet syslib/snippet/main.c snippet_Cy_SysLib_WcoTrim
+*
+*******************************************************************************/
+__STATIC_INLINE uint32_t Cy_SysLib_GetWcoTrim (void)
+{
+    return (BACKUP_TRIM & BACKUP_TRIM_TRIM_Msk);
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_SysLib_SetWcoTrim
+****************************************************************************//**
+*
+* This function writes the value into the BACKUP->TRIM bitfield.
+* It is intended to restore the WCO trimming value after
+* the \ref Cy_SysLib_ResetBackupDomain usage.
+*
+* \param wcoTrim The WCO trimming value.
+*
+* \funcusage
+* \snippet syslib/snippet/main.c snippet_Cy_SysLib_WcoTrim
+*
+*******************************************************************************/
+__STATIC_INLINE void Cy_SysLib_SetWcoTrim (uint32_t wcoTrim)
+{
+    BACKUP_TRIM = wcoTrim & BACKUP_TRIM_TRIM_Msk;
+}
+#endif /* CY_IP_MXS40SRSS */
+
+
 #if (CY_ARM_FAULT_DEBUG == CY_ARM_FAULT_DEBUG_ENABLED) || defined(CY_DOXYGEN)
+
+
+/*******************************************************************************
+* Function Name: Cy_SysLib_FaultHandler
+****************************************************************************//**
+*
+* This function stores the ARM Cortex registers into a non-zero init area for
+* debugging. This function calls Cy_SysLib_ProcessingFault() after storing all
+* information.
+*
+* \param faultStackAddr The address of the stack pointer, indicates the lowest
+*                       address in the fault stack frame to be stored.
+* \note This function stores the fault stack frame only for the first occurred
+*       fault.
+* \note The PDL doesn't provide an API to analyze the stored register
+*       values. The user has to add additional functions for the analysis,
+*       if necessary.
+* \note The CY_ARM_FAULT_DEBUG macro defines if the Fault Handler is enabled.
+*       By default it is set to CY_ARM_FAULT_DEBUG_ENABLED and enables the
+*       Fault Handler.
+*       If there is a necessity to save memory or have some specific custom
+*       handler, etc. then CY_ARM_FAULT_DEBUG should be redefined as
+*       CY_ARM_FAULT_DEBUG_DISABLED. To do this, the following definition should
+*       be added to the compiler Command Line (through the project Build
+*       Settings): "-D CY_ARM_FAULT_DEBUG=0".
+*
+*******************************************************************************/
     void Cy_SysLib_FaultHandler(uint32_t const *faultStackAddr);
+
+
+/*******************************************************************************
+* Function Name: Cy_SysLib_ProcessingFault
+****************************************************************************//**
+*
+* This function determines how to process the current fault state. By default
+* in case of exception the system will stay in the infinite loop of this
+* function.
+*
+* \note This function has the WEAK option, so the user can redefine the function
+*       behavior for a custom processing.
+*       For example, the function redefinition could be constructed from fault
+*       stack processing and NVIC_SystemReset() function call.
+*
+*******************************************************************************/
     void Cy_SysLib_ProcessingFault(void);
 #endif /* (CY_ARM_FAULT_DEBUG == CY_ARM_FAULT_DEBUG_ENABLED) */
+
+
+/*******************************************************************************
+* Function Name: Cy_SysLib_SetWaitStates
+****************************************************************************//**
+*
+* Sets the number of clock cycles the cache will wait for, before it samples
+* data coming back from ROM, SRAM, and Flash.
+*
+* Call this function before increasing the HFClk0 High Frequency clock.
+* Call this function optionally after lowering the HFClk0 High Frequency clock
+* in order to improve the CPU performance.
+*
+* Also, call this function before switching the core supply regulator voltage
+* (LDO or SIMO Buck) from 1.1V to 0.9V.
+* Call this function optionally after switching the core supply regulator
+* voltage from 0.9V to 1.1V in order to improve the CPU performance.
+*
+* \param ulpMode  The device power mode.
+*        true  if the device should be switched to the ULP mode (nominal
+*              voltage of the core supply regulator should be switched to 0.9V);
+*        false if the device should be switched to the LP mode (nominal
+*              voltage of the core supply regulator should be switched to 1.1V).
+*
+* \note Refer to the device TRM for the low power modes description.
+*
+* \param clkHfMHz  The HFClk0 clock frequency in MHz. Specifying a frequency
+*                  above the supported maximum will set the wait states as for
+*                  the maximum frequency.
+*
+*******************************************************************************/
 void Cy_SysLib_SetWaitStates(bool ulpMode, uint32_t clkHfMHz);
 
 
@@ -747,11 +1321,7 @@ void Cy_SysLib_ExitCriticalSection(uint32_t savedIntrStatus);
 * \return  A device Revision ID.
 *
 *******************************************************************************/
-__STATIC_INLINE uint8_t Cy_SysLib_GetDeviceRevision(void)
-{
-    return ((SFLASH_SI_REVISION_ID == 0UL) ? CY_SYSLIB_DEVICE_REV_0A : SFLASH_SI_REVISION_ID);
-}
-
+uint8_t Cy_SysLib_GetDeviceRevision(void);
 
 /*******************************************************************************
 * Function Name: Cy_SysLib_GetDevice
@@ -762,11 +1332,7 @@ __STATIC_INLINE uint8_t Cy_SysLib_GetDeviceRevision(void)
 * \return  A device Family ID.
 *
 *******************************************************************************/
-__STATIC_INLINE uint16_t Cy_SysLib_GetDevice(void)
-{
-    return ((SFLASH_FAMILY_ID == 0UL) ? CY_SYSLIB_DEVICE_PSOC6ABLE2 : SFLASH_FAMILY_ID);
-}
-
+uint16_t Cy_SysLib_GetDevice(void);
 
 typedef uint32_t cy_status;
 /** The ARM 32-bit status value for backward compatibility with the UDB components. Do not use it in your code. */
@@ -852,10 +1418,16 @@ typedef void (* cyisraddress)(void);
 
 /** \} group_syslib_functions */
 CY_MISRA_BLOCK_END('MISRA C-2012 Rule 8.6');
+/** \cond INTERNAL */
+
+/** \endcond */
+
 
 #if defined(__cplusplus)
 }
 #endif /* defined(__cplusplus) */
+
+#endif /* CY_IP_M33SYSCPUSS, CY_IP_M4CPUSS */
 
 #endif /* CY_SYSLIB_H */
 

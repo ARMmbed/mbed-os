@@ -5,7 +5,7 @@
 * PSoC6_04 device GPIO header for 80-TQFP package
 *
 * \note
-* Generator version: 1.6.0.150
+* Generator version: 1.6.0.409
 *
 ********************************************************************************
 * \copyright

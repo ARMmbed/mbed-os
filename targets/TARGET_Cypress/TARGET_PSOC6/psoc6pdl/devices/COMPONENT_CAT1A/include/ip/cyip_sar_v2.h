@@ -5,7 +5,7 @@
 * SAR IP definitions
 *
 * \note
-* Generator version: 1.6.0.225
+* Generator version: 1.6.0.414
 *
 ********************************************************************************
 * \copyright

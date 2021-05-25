@@ -23,13 +23,14 @@
 * limitations under the License.
 *******************************************************************************/
 
-
-#if !defined(CY_CRYPTO_CORE_TRNG_H)
+#if !defined (CY_CRYPTO_CORE_TRNG_H)
 #define CY_CRYPTO_CORE_TRNG_H
 
-#include "cy_crypto_common.h"
+#include "cy_device.h"
 
-#if defined(CY_IP_MXCRYPTO)
+#if defined (CY_IP_MXCRYPTO)
+
+#include "cy_crypto_common.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -104,7 +105,7 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Trng(CRYPTO_Type *base,
 
 #endif /* CY_IP_MXCRYPTO */
 
-#endif /* #if !defined(CY_CRYPTO_CORE_TRNG_H) */
+#endif /* #if !defined (CY_CRYPTO_CORE_TRNG_H) */
 
 
 /* [] END OF FILE */

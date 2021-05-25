@@ -164,13 +164,14 @@ typedef enum
 
 #define CY_IP_MXTCPWM                   1u
 #define CY_IP_MXTCPWM_INSTANCES         1u
-#define CY_IP_MXTCPWM_VERSION           2u
+#define CY_IP_MXTCPWM_VERSION           1u
 #define CY_IP_MXCSDV2                   1u
 #define CY_IP_MXLCD                     1u
 #define CY_IP_MXS40SRSS                 1u
 #define CY_IP_MXS40SRSS_RTC             1u
 #define CY_IP_MXS40SRSS_MCWDT           1u
 #define CY_IP_MXSCB                     1u
+#define CY_IP_MXSCB_VERSION             1u
 #define CY_IP_MXPERI                    1u
 #define CY_IP_MXPERI_TR                 1u
 #define CY_IP_M4CPUSS                   1u
@@ -187,6 +188,7 @@ typedef enum
 #define CY_IP_MXS40PASS_CTDAC           1u
 #define CY_IP_MXS40PASS_CTB             1u
 #define CY_IP_MXSMIF                    1u
+#define CY_IP_MXSMIF_VERSION            1u
 #define CY_IP_MXUSBFS                   1u
 #define CY_IP_MXS40IOSS                 1u
 #define CY_IP_MXEFUSE                   1u
@@ -365,6 +367,8 @@ extern uint32_t Cy_SysGetCM4Status(void);
 #define PERI_DIV_16_5_NR                4u
 /* Number of 24.5 (fractional) dividers */
 #define PERI_DIV_24_5_NR                1u
+/* The number of protection contexts ([2, 16]). */
+#define PERI_PC_NR                      8u
 /* Number of external devices supported ([1,4]) */
 #define SMIF_DEVICE_NR                  4u
 /* Number of ports in device */
@@ -403,6 +407,25 @@ extern uint32_t Cy_SysGetCM4Status(void);
 #define LCD_NUMPORTS8                   8u
 /* Number of ports supporting up to 16 COMs */
 #define LCD_NUMPORTS16                  0u
+/* SRAM0 is implemented with 8 32KB macros. */
+#define CPUSS_RAMC0_MACRO_NR            9u
+/* System RAM 1 present or not (0=No, 1=Yes) */
+#define CPUSS_RAMC1_PRESENT             0u
+/* System RAM 1 size in kilobytes */
+#define CPUSS_SRAM1_SIZE                32u
+/* Number of macros used to implement System RAM 1. Example: 8 if 256 KB System
+   RAM 1 is implemented with 8 32KB macros. */
+#define CPUSS_RAMC1_MACRO_NR            1u
+/* System RAM 2 present or not (0=No, 1=Yes) */
+#define CPUSS_RAMC2_PRESENT             0u
+/* System RAM 2 size in kilobytes */
+#define CPUSS_SRAM2_SIZE                256u
+/* Number of macros used to implement System RAM 2. Example: 8 if 256 KB System
+   RAM 2 is implemented with 8 32KB macros. */
+#define CPUSS_RAMC2_MACRO_NR            16u
+/* System ROM size in KB */
+#define CPUSS_ROM_SIZE                  128u
+
 
 /*******************************************************************************
 *           Access Definitions for IP Blocks

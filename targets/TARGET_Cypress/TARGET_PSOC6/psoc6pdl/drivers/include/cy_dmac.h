@@ -93,7 +93,7 @@
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
 *     <td>1.20</td>
-*     <td>Fixed/documented MISRA 2012 violations.</td>
+*     <td>Fixed MISRA 2012 violations.</td>
 *     <td>MISRA 2012 compliance.</td>
 *   </tr>
 *   <tr>
@@ -125,17 +125,17 @@
 * \defgroup group_dmac_enums Enumerated Types
 */
 
-#if !defined(CY_DMAC_H)
+#if !defined (CY_DMAC_H)
 #define CY_DMAC_H
 
 #include "cy_device.h"
-#include "cy_device_headers.h"
+
+#if defined (CY_IP_M4CPUSS_DMAC) || defined (CY_IP_MXAHBDMAC)
+
 #include "cy_syslib.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-
-#if defined(CY_IP_M4CPUSS_DMAC)
 
 #if defined(__cplusplus)
 extern "C" {
@@ -1792,9 +1792,9 @@ CY_MISRA_BLOCK_END('MISRA C-2012 Rule 10.8');
 }
 #endif
 
-#endif /* defined(CY_IP_M4CPUSS_DMAC) */
+#endif /* CY_IP_M4CPUSS_DMAC, CY_IP_MXAHBDMAC */
 
-#endif  /* !defined(CY_DMAC_H) */
+#endif  /* !defined (CY_DMAC_H) */
 
 /** \} group_dmac */
 

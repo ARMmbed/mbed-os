@@ -22,10 +22,11 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "cy_device.h"
+
+#if defined (CY_IP_MXCRYPTO)
 
 #include "cy_crypto.h"
-
-#if defined(CY_IP_MXCRYPTO)
 
 #if defined(__cplusplus)
 extern "C" {

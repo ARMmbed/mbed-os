@@ -335,12 +335,13 @@
 #if !defined(CY_CSD_H)
 #define CY_CSD_H
 
+#include "cy_device.h"
+
+#if defined (CY_IP_MXCSDV2)
+
 #include <stdint.h>
 #include <stddef.h>
-#include "cy_device_headers.h"
 #include "cy_syslib.h"
-
-#if defined(CY_IP_MXCSDV2)
 
 #if defined(__cplusplus)
 extern "C" {

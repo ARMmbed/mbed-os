@@ -23,13 +23,14 @@
 * limitations under the License.
 *******************************************************************************/
 
-
-#if !defined(CY_CRYPTO_SERVER_H)
+#if !defined (CY_CRYPTO_SERVER_H)
 #define CY_CRYPTO_SERVER_H
 
-#include "cy_crypto_common.h"
+#include "cy_device.h"
 
-#if defined(CY_IP_MXCRYPTO)
+#if defined (CY_IP_MXCRYPTO)
+
+#include "cy_crypto_common.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -198,7 +199,7 @@ void Cy_Crypto_Server_ErrorHandler(void);
 
 #endif /* CY_IP_MXCRYPTO */
 
-#endif /* #if !defined(CY_CRYPTO_SERVER_H) */
+#endif /* #if !defined (CY_CRYPTO_SERVER_H) */
 
 
 /* [] END OF FILE */

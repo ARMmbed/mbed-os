@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_scb_ezi2c.c
-* \version 2.60
+* \version 2.80
 *
 * Provides EZI2C API implementation of the SCB driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2020 Cypress Semiconductor Corporation
+* Copyright 2016-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,9 +22,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "cy_scb_ezi2c.h"
+#include "cy_device.h"
 
-#ifdef CY_IP_MXSCB
+#if defined (CY_IP_MXSCB)
+
+#include "cy_scb_ezi2c.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -86,9 +88,12 @@ cy_en_scb_ezi2c_status_t Cy_SCB_EZI2C_Init(CySCB_Type *base, cy_stc_scb_ezi2c_co
 
     /* Configure the EZI2C interface */
     SCB_CTRL(base) = _BOOL2FLD(SCB_CTRL_ADDR_ACCEPT, (config->numberOfAddresses == CY_SCB_EZI2C_TWO_ADDRESSES)) |
-                 _BOOL2FLD(SCB_CTRL_EC_AM_MODE, config->enableWakeFromSleep) |
-                 SCB_CTRL_BYTE_MODE_Msk;
-
+                 _BOOL2FLD(SCB_CTRL_EC_AM_MODE, config->enableWakeFromSleep);
+#if (CY_IP_MXSCB_VERSION>=3)
+    SCB_CTRL(base) |= SCB_CTRL_EZ_MODE_Msk;
+#elif (CY_IP_MXSCB_VERSION==1)
+    SCB_CTRL(base) |= SCB_CTRL_BYTE_MODE_Msk;
+#endif /* CY_IP_MXSCB_VERSION */
     SCB_I2C_CTRL(base) = CY_SCB_EZI2C_I2C_CTRL;
 
     /* Configure the RX direction */

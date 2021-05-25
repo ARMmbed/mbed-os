@@ -69,7 +69,7 @@
       <Entry name="CPHA = 1, CPOL = 0" value="CY_SCB_SPI_CPHA1_CPOL0" visible="true" />
       <Entry name="CPHA = 1, CPOL = 1" value="CY_SCB_SPI_CPHA1_CPOL1" visible="true" />
     </ParamChoice> 
-    <ParamRange id="DataRate" name="Data Rate (kbps)" group="General" default="1000" min="1" max="25000" resolution="1" visible="true" editable="true" desc="Data rate that SPI operates. The actual data rate may differ based on the available clock frequency and SPI settings. The range: 1-25000 kbps." />
+    <ParamRange id="DataRate" name="Data Rate (kbps)" group="General" default="1000" min="1" max="`${hasConnection(&quot;spi_miso&quot;, 0) ? 25000 : 50000}`" resolution="1" visible="true" editable="true" desc="Data rate that SPI operates. The actual data rate may differ based on the available clock frequency and SPI settings. The range: 1-25000 kbps." />
     <!--Oversample-->
     <ParamRange id="OvsFactor" name="Oversample" group="General" default="16" min="`${hasConnection(&quot;spi_miso&quot;, 0) ? 4 : 2}`" max="16" resolution="1" visible="`${MasterMode}`" editable="true" desc="This parameter defines how many SCB clocks are used to generate the SCLK period (only applicable for the master mode). When the oversample is even the first and second phase of the clock period are the same. Otherwise the first phase of the clock signal period is one SCB clock cycle longer than the second phase. The range: 4-16 (MISO utilized) and 2-16 (MISO is not utilized)." />
 
@@ -161,8 +161,8 @@
 
     <!-- SCLK, MOSI and MISO connections -->
     <ParamBool id="hasConnectionSclk" name="hasConnectionSclk" group="Internal" default="`${hasVisibleOption(&quot;spi_clk[0]&quot;)}`" visible="false" editable="false" desc="This parameter determines if SCLK has valid connections." />
-    <ParamBool id="hasConnectionMosi" name="hasConnectionMosi" group="Internal" default="`${hasVisibleOption(&quot;spi_miso[0]&quot;)}`" visible="false" editable="false" desc="This parameter determines if MOSI has valid connections." />
-    <ParamBool id="hasConnectionMiso" name="hasConnectionMiso" group="Internal" default="`${hasVisibleOption(&quot;spi_mosi[0]&quot;)}`" visible="false" editable="false" desc="This parameter determines if MISO has valid connections." />
+    <ParamBool id="hasConnectionMosi" name="hasConnectionMosi" group="Internal" default="`${hasVisibleOption(&quot;spi_mosi[0]&quot;)}`" visible="false" editable="false" desc="This parameter determines if MOSI has valid connections." />
+    <ParamBool id="hasConnectionMiso" name="hasConnectionMiso" group="Internal" default="`${hasVisibleOption(&quot;spi_miso[0]&quot;)}`" visible="false" editable="false" desc="This parameter determines if MISO has valid connections." />
 
     <ParamSignal port="spi_clk[0]"  name="SCLK" group="Connections" visible="`${MasterMode ? hasConnectionSclk : true}`" desc="The Serial Clock (SCLK) from the master to slave device." canBeEmpty="`${MasterMode}`">
       <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
@@ -370,9 +370,15 @@
 
     <!--EnableWakeup DRCs-->
     <DRC type="ERROR" text="The API Mode must be High Level to support wakeup capability (the Cy_SCB_SPI_Interrupt function must be called in the interrupt handler hooked to NVIC)." paramId="ApiMode" condition="`${(DeepSleepCapable &amp;&amp; EnableWakeup) ? ConfigIntr : false}`" />
-   
+
     <!-- Check Master valid connections -->
     <DRC type="ERROR" text="The SCLK and MOSI connections are not available for the selected device. The SPI Master can not operate on this SCB." paramId="ModeUser" condition="`${MasterMode &amp;&amp; !hasConnectionSclk &amp;&amp; !hasConnectionMosi}`" />
+
+    <!-- Check data rate value -->
+    <DRC type="ERROR" text="Data rate upto 50000 kbps is allowed only if MISO is not used. Otherwise only upto 25000 kbps data rate is allowed." paramId="DataRate" condition="`${MasterMode ? ((!hasConnection(&quot;spi_miso&quot;, 0)) ? ((DataRate &lt; 50001) ? false : true) : ((DataRate &lt; 25001) ? false : true)) : false}`" />
+
+    <!-- Check oversample value -->
+    <DRC type="ERROR" text="Oversample between 2-16 is allowed only if MISO is not used. Otherwise oversample only between 4-16 is allowed." paramId="OvsFactor" condition="`${MasterMode ? ((!hasConnection(&quot;spi_miso&quot;, 0)) ? ((OvsFactor &lt; 2) ? true : false) : ((OvsFactor &lt; 4) ? true : false)) : false}`" />
 
   </DRCs>
   

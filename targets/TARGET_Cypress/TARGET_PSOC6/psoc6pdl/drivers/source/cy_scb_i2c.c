@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_scb_i2c.c
-* \version 2.60
+* \version 2.80
 *
 * Provides I2C API implementation of the SCB driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2020 Cypress Semiconductor Corporation
+* Copyright 2016-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,9 +22,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "cy_scb_i2c.h"
+#include "cy_device.h"
 
-#ifdef CY_IP_MXSCB
+#if defined (CY_IP_MXSCB)
+
+#include "cy_scb_i2c.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -72,8 +74,8 @@ static uint32_t WaitOneUnit(uint32_t *timeout);
 * \ref cy_en_scb_i2c_status_t
 *
 * \note
-* Ensure that the SCB block is disabled before calling this function.
-*
+* If SCB is already enabled, ensure that the SCB block is disabled \ref Cy_SCB_I2C_Disable
+* before calling this function.
 *******************************************************************************/
 cy_en_scb_i2c_status_t Cy_SCB_I2C_Init(CySCB_Type *base, cy_stc_scb_i2c_config_t const *config, cy_stc_scb_i2c_context_t *context)
 {
@@ -92,8 +94,10 @@ cy_en_scb_i2c_status_t Cy_SCB_I2C_Init(CySCB_Type *base, cy_stc_scb_i2c_config_t
 
     /* Configure the I2C interface */
     SCB_CTRL(base) = _BOOL2FLD(SCB_CTRL_ADDR_ACCEPT, config->acceptAddrInFifo)   |
-                     _BOOL2FLD(SCB_CTRL_EC_AM_MODE, config->enableWakeFromSleep) |
-                     SCB_CTRL_BYTE_MODE_Msk;
+                     _BOOL2FLD(SCB_CTRL_EC_AM_MODE, config->enableWakeFromSleep);
+#if(CY_IP_MXSCB_VERSION==1)
+    SCB_CTRL(base) |= SCB_CTRL_BYTE_MODE_Msk;
+#endif /* CY_IP_MXSCB_VERSION */
 
     SCB_I2C_CTRL(base) = _BOOL2FLD(SCB_I2C_CTRL_S_GENERAL_IGNORE, !config->ackGeneralAddr)        |
                          _VAL2FLD(SCB_I2C_CTRL_HIGH_PHASE_OVS, (config->highPhaseDutyCycle - 1U)) |
@@ -168,7 +172,7 @@ cy_en_scb_i2c_status_t Cy_SCB_I2C_Init(CySCB_Type *base, cy_stc_scb_i2c_config_t
 * The pointer to the I2C SCB instance.
 *
 * \note
-* Ensure that the SCB block is disabled before calling this function.
+* Ensure that the SCB block is disabled \ref Cy_SCB_I2C_Disable before calling this function.
 *
 *******************************************************************************/
 void Cy_SCB_I2C_DeInit(CySCB_Type *base)

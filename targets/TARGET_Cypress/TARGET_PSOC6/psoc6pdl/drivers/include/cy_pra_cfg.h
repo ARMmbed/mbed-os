@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_pra_cfg.h
-* \version 2.10
+* \version 2.20
 *
 * \brief The header file of the PRA driver. The API is not intended to
 * be used directly by the user application.
@@ -25,6 +25,10 @@
 
 #if !defined(CY_PRA_CFG_H)
 #define CY_PRA_CFG_H
+
+#include "cy_device.h"
+
+#if defined (CY_IP_M4CPUSS) && defined (CY_IP_MXS40IOSS)
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -294,6 +298,47 @@ typedef struct
 } cy_stc_pra_system_config_t;
 /** \} group_pra_stc */
 
+/** \cond INTERNAL */
+/* External clock provisioned configuration */
+typedef struct
+{
+    bool extClkEnable;                                  /* EXTCLK Enable */
+    bool ecoEnable;                                     /* ECO Enable */
+    bool wcoEnable;                                     /* WCO Enable */
+    bool bypassEnable;                                  /* WCO Clock port bypass to External sine wave or to normal crystal */
+
+    /* EXTCLK Configuration */
+    uint32_t extClkFreqHz;                              /* External clock frequency in Hz */
+    GPIO_PRT_Type *extClkPort;                          /* External connection port */
+    uint32_t extClkPinNum;                              /* External connection pin */
+
+    /* ECO Configuration */
+    uint32_t ecoFreqHz;                                 /* ECO Frequency in Hz */
+    uint32_t ecoLoad;                                   /* Parallel Load Capacitance (pF) */
+    uint32_t ecoEsr;                                    /* Equivalent series resistance (ohm) */
+    uint32_t ecoDriveLevel;                             /* Drive Level (uW) */
+    GPIO_PRT_Type *ecoInPort;                           /* ECO input port */
+    GPIO_PRT_Type *ecoOutPort;                          /* ECO output port */
+    uint32_t ecoInPinNum;                               /* ECO input pin number */
+    uint32_t ecoOutPinNum;                              /* ECO output pin number */
+
+    /* WCO Configuration */
+    GPIO_PRT_Type *wcoInPort;                           /* WCO Input port */
+    GPIO_PRT_Type *wcoOutPort;                          /* WCO Output port */
+    uint32_t wcoInPinNum;                               /* WCO Input pin */
+    uint32_t wcoOutPinNum;                              /* WCO Output pin */
+
+} cy_stc_pra_extclk_policy_t;
+/** \endcond */
+
+/*******************************************************************************
+*        Global variables
+*******************************************************************************/
+/** \cond INTERNAL */
+/* External clock provisioned configuration */
+extern cy_stc_pra_extclk_policy_t *extClkPolicyPtr;
+/** \endcond */
+
 /*******************************************************************************
 *        Function Prototypes
 *******************************************************************************/
@@ -317,6 +362,8 @@ uint32_t Cy_PRA_CalculatePLLOutFreq(uint8_t pll, const cy_stc_pra_system_config_
 #endif
 
 #endif /* (CY_DEVICE_SECURE) */
+
+#endif /* CY_IP_MXS40IOSS */
 
 #endif /* #if !defined(CY_PRA_CFG_H) */
 

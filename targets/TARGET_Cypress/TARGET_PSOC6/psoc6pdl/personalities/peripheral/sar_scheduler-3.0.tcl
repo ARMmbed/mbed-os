@@ -20,7 +20,7 @@ proc const {name value} {
 }
 
 const DEFAULT_RESOLUTION 12
-const MIN_SAMPLE_TIME_NS 167.0
+const MIN_SAMPLE_TIME_NS 83.0
 const OTHER_ADC_CLOCKS 2
 
 # Actual sample time is 1/2 clock less than specified
@@ -291,7 +291,7 @@ proc schedule_adc_only_with_fixed_adc_clock {adcClockRate} {
     find_min_scan_adc_clocks $adcClockRate
 
     # Set up data structures for optimization without padding.
-    set chanTimesNoPad [lsort [get_channel_timing_info]]
+    set chanTimesNoPad [lsort -dictionary [get_channel_timing_info]]
 
     set apertureClocksNoPad $::aperturesAdcClock
 
@@ -345,7 +345,7 @@ proc schedule_adc_one_shot {adcClockRate} {
     find_min_scan_adc_clocks $adcClockRate
 
     # Set up data structures for optimization without padding.
-    set chanTimesNoPad [lsort [get_channel_timing_info]]
+    set chanTimesNoPad [lsort -dictionary [get_channel_timing_info]]
 
     # Find solution with minimum ADC clocks without padding.
     optimize_apertures "chanTimesNoPad" 0 [llength $chanTimesNoPad] "::aperturesAdcClock" 0 [llength $::aperturesAdcClock]
@@ -502,6 +502,7 @@ proc set_channel_timers {timerBase timerTop} {
         for {set timer $timerBase} {$timer < $timerTop} {incr timer} {
             if {[lindex $::channels $chanNum $::CHAN_MIN_ACQ_ADC_CLOCKS_NEEDED] <= [lindex $::aperturesAdcClock $timer]} {
                 lset ::channels $chanNum $::CHAN_TIMER $timer
+                break
             }
         }
     }

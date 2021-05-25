@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file  cy_sysint.c
-* \version 1.50
+* \version 1.60
 *
 * \brief
 * Provides an API implementation of the SysInt driver.
@@ -23,34 +23,60 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "cy_device.h"
+
+#if defined (CY_IP_M4CPUSS)
+
 #include "cy_sysint.h"
 
+CY_MISRA_FP_BLOCK_START('MISRA C-2012 Rule 8.3', 1, 'Only one prototype will be pciked for compilation');
+CY_MISRA_FP_BLOCK_START('MISRA C-2012 Rule 8.6', 2, 'Only one prototype will be pciked for compilation');
+#if (!CY_CPU_CORTEX_M0P) || defined (CY_DOXYGEN)
+void Cy_SysInt_SetNmiSource(cy_en_sysint_nmi_t nmiNum, IRQn_Type intrSrc)
+#else
+void Cy_SysInt_SetNmiSource(cy_en_sysint_nmi_t nmiNum, cy_en_intr_t intrSrc)
+#endif
+{
+    CY_ASSERT_L3(CY_SYSINT_IS_NMI_NUM_VALID(nmiNum));
 
-/*******************************************************************************
-* Function Name: Cy_SysInt_Init
-****************************************************************************//**
-*
-* \brief Initializes the referenced interrupt by setting the priority and the
-* interrupt vector.
-*
-* Use the CMSIS core function NVIC_EnableIRQ(config.intrSrc) to enable the interrupt.
-*
-* \param config
-* Interrupt configuration structure
-*
-* \param userIsr
-* Address of the ISR
-*
-* \return
-* Initialization status
-*
-* \note The interrupt vector will be relocated only if the vector table was
-* moved to __ramVectors in SRAM. Otherwise it is ignored.
-*
-* \funcusage
-* \snippet sysint/snippet/main.c snippet_Cy_SysInt_Init
-*
-*******************************************************************************/
+#if (CY_CPU_CORTEX_M0P)
+    CY_ASSERT_L1(CY_SYSINT_IS_PC_0);
+#endif
+
+    if (CY_CPUSS_V1)
+    {
+        nmiNum = CY_SYSINT_NMI1; /* For CPUSS_ver1 the NMI number is 1 */
+    }
+
+    #if (CY_CPU_CORTEX_M0P)
+        CPUSS_CM0_NMI_CTL((uint32_t)nmiNum - 1UL) = (uint32_t)intrSrc;
+    #else
+        CPUSS_CM4_NMI_CTL((uint32_t)nmiNum - 1UL) = (uint32_t)intrSrc;
+    #endif
+}
+
+#if (!CY_CPU_CORTEX_M0P) || defined (CY_DOXYGEN)
+IRQn_Type Cy_SysInt_GetNmiSource(cy_en_sysint_nmi_t nmiNum)
+#else
+cy_en_intr_t Cy_SysInt_GetNmiSource(cy_en_sysint_nmi_t nmiNum)
+#endif
+{
+    CY_ASSERT_L3(CY_SYSINT_IS_NMI_NUM_VALID(nmiNum));
+
+    if (CY_CPUSS_V1)
+    {
+        nmiNum = CY_SYSINT_NMI1; /* For CPUSS_ver1 the NMI number is 1 */
+    }
+
+    #if (CY_CPU_CORTEX_M0P)
+        return ((cy_en_intr_t)(CPUSS_CM0_NMI_CTL((uint32_t)nmiNum - 1UL)));
+    #else
+        return ((IRQn_Type)(CPUSS_CM4_NMI_CTL((uint32_t)nmiNum - 1UL)));
+    #endif
+}
+CY_MISRA_BLOCK_END('MISRA C-2012 Rule 8.6');
+CY_MISRA_BLOCK_END('MISRA C-2012 Rule 8.3');
+
 cy_en_sysint_status_t Cy_SysInt_Init(const cy_stc_sysint_t* config, cy_israddress userIsr)
 {
     cy_en_sysint_status_t status = CY_SYSINT_SUCCESS;
@@ -88,28 +114,6 @@ cy_en_sysint_status_t Cy_SysInt_Init(const cy_stc_sysint_t* config, cy_israddres
 
 
 #if (CY_CPU_CORTEX_M0P) || defined (CY_DOXYGEN)
-
-/*******************************************************************************
-* Function Name: Cy_SysInt_SetInterruptSource
-****************************************************************************//**
-*
-* \brief Configures the interrupt selection for the specified NVIC channel.
-*
-* To disconnect the interrupt source from the NVIC channel
-* use the \ref Cy_SysInt_DisconnectInterruptSource.
-*
-* \param IRQn
-* NVIC channel number connected to the CPU core.
-*
-* \param devIntrSrc
-* Device interrupt to be routed to the NVIC channel.
-*
-* \note This function is available for CM0+ core only.
-*
-* \funcusage
-* \snippet sysint/snippet/main.c snippet_Cy_SysInt_SetInterruptSource
-*
-*******************************************************************************/
 void Cy_SysInt_SetInterruptSource(IRQn_Type IRQn, cy_en_intr_t devIntrSrc)
 {
     if (CY_CPUSS_V1)
@@ -133,26 +137,6 @@ void Cy_SysInt_SetInterruptSource(IRQn_Type IRQn, cy_en_intr_t devIntrSrc)
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysInt_DisconnectInterruptSource
-****************************************************************************//**
-*
-* \brief Disconnect the interrupt source from the specified NVIC channel.
-*
-* \param IRQn
-* NVIC channel number connected to the CPU core.
-* This parameter is ignored for devices using CPUSS_ver2.
-*
-* \param devIntrSrc
-* Device interrupt routed to the NVIC channel.
-* This parameter is ignored for devices using CPUSS_ver1.
-*
-* \note This function is available for CM0+ core only.
-*
-* \funcusage
-* \snippet sysint/snippet/main.c snippet_Cy_SysInt_DisconnectInterruptSource
-*
-*******************************************************************************/
 void Cy_SysInt_DisconnectInterruptSource(IRQn_Type IRQn, cy_en_intr_t devIntrSrc)
 {
     if (CY_CPUSS_V1)
@@ -166,28 +150,6 @@ void Cy_SysInt_DisconnectInterruptSource(IRQn_Type IRQn, cy_en_intr_t devIntrSrc
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysInt_GetInterruptSource
-****************************************************************************//**
-*
-* \brief Gets the interrupt source of the NVIC channel.
-*
-* \param IRQn
-* NVIC channel number connected to the CPU core
-*
-* \return
-* Device interrupt connected to the NVIC channel. A returned value of
-* "disconnected_IRQn" indicates that the interrupt source is disconnected.
-*
-* \note This function is available for CM0+ core only.
-*
-* \note This function supports only devices using CPUSS_ver1. For all
-* other devices, use the Cy_SysInt_GetNvicConnection() function.
-*
-* \funcusage
-* \snippet sysint/snippet/main.c snippet_Cy_SysInt_SetInterruptSource
-*
-*******************************************************************************/
 cy_en_intr_t Cy_SysInt_GetInterruptSource(IRQn_Type IRQn)
 {
     uint32_t tempReg = CY_CPUSS_NOT_CONNECTED_IRQN;
@@ -208,27 +170,6 @@ cy_en_intr_t Cy_SysInt_GetInterruptSource(IRQn_Type IRQn)
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysInt_GetNvicConnection
-****************************************************************************//**
-*
-* \brief Gets the NVIC channel to which the interrupt source is connected.
-*
-* \param devIntrSrc
-* Device interrupt that is potentially connected to the NVIC channel.
-*
-* \return
-* NVIC channel number connected to the CPU core. A returned value of
-* "unconnected_IRQn" indicates that the interrupt source is disabled.
-*
-* \note This function is available for CM0+ core only.
-*
-* \note This function supports only devices using CPUSS_ver2 or higher.
-*
-* \funcusage
-* \snippet sysint/snippet/main.c snippet_Cy_SysInt_SetInterruptSource
-*
-*******************************************************************************/
 IRQn_Type Cy_SysInt_GetNvicConnection(cy_en_intr_t devIntrSrc)
 {
     uint32_t tempReg = CY_CPUSS_NOT_CONNECTED_IRQN;
@@ -241,35 +182,6 @@ IRQn_Type Cy_SysInt_GetNvicConnection(cy_en_intr_t devIntrSrc)
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysInt_GetInterruptActive
-****************************************************************************//**
-*
-* \brief Gets the highest priority active interrupt for the selected NVIC channel.
-*
-* The priority of the interrupt in a given channel is determined by the index
-* value of the interrupt in the cy_en_intr_t enum. The lower the index, the
-* higher the priority. E.g. Consider a case where an interrupt source with value
-* 29 and an interrupt source with value 46 both source the same NVIC channel. If
-* both are active (triggered) at the same time, calling Cy_SysInt_GetInterruptActive()
-* will return 29 as the active interrupt.
-*
-* \param IRQn
-* NVIC channel number connected to the CPU core
-*
-* \return
-* Device interrupt connected to the NVIC channel. A returned value of
-* "disconnected_IRQn" indicates that there are no active (pending) interrupts
-* on this NVIC channel.
-*
-* \note This function is available for CM0+ core only.
-*
-* \note This function supports only devices using CPUSS_ver2 or higher.
-*
-* \funcusage
-* \snippet sysint/snippet/main.c snippet_Cy_SysInt_GetInterruptActive
-*
-*******************************************************************************/
 cy_en_intr_t Cy_SysInt_GetInterruptActive(IRQn_Type IRQn)
 {
     uint32_t tempReg = CY_CPUSS_NOT_CONNECTED_IRQN;
@@ -288,32 +200,7 @@ cy_en_intr_t Cy_SysInt_GetInterruptActive(IRQn_Type IRQn)
 #endif
 
 
-/*******************************************************************************
-* Function Name: Cy_SysInt_SetVector
-****************************************************************************//**
-*
-* \brief Changes the ISR vector for the interrupt.
-*
-* This function relies on the assumption that the vector table is
-* relocated to __ramVectors[RAM_VECTORS_SIZE] in SRAM. Otherwise it will
-* return the address of the default ISR location in the flash vector table.
-*
-* \param IRQn
-* Interrupt source
-*
-* \param userIsr
-* Address of the ISR to set in the interrupt vector table
-*
-* \return
-* Previous address of the ISR in the interrupt vector table
-*
-* \note For CM0+, this function sets the interrupt vector for the interrupt
-* channel on the NVIC.
-*
-* \funcusage
-* \snippet sysint/snippet/main.c snippet_Cy_SysInt_SetVector
-*
-*******************************************************************************/
+
 cy_israddress Cy_SysInt_SetVector(IRQn_Type IRQn, cy_israddress userIsr)
 {
     cy_israddress prevIsr;
@@ -335,29 +222,6 @@ cy_israddress Cy_SysInt_SetVector(IRQn_Type IRQn, cy_israddress userIsr)
 }
 
 
-/*******************************************************************************
-* Function Name: Cy_SysInt_GetVector
-****************************************************************************//**
-*
-* \brief Gets the address of the current ISR vector for the interrupt.
-*
-* This function relies on the assumption that the vector table is
-* relocated to __ramVectors[RAM_VECTORS_SIZE] in SRAM. Otherwise it will
-* return the address of the default ISR location in the flash vector table.
-*
-* \param IRQn
-* Interrupt source
-*
-* \return
-* Address of the ISR in the interrupt vector table
-*
-* \note For CM0+, this function returns the interrupt vector for the interrupt
-* channel on the NVIC.
-*
-* \funcusage
-* \snippet sysint/snippet/main.c snippet_Cy_SysInt_SetVector
-*
-*******************************************************************************/
 cy_israddress Cy_SysInt_GetVector(IRQn_Type IRQn)
 {
     cy_israddress currIsr;
@@ -375,5 +239,13 @@ cy_israddress Cy_SysInt_GetVector(IRQn_Type IRQn)
     return (currIsr);
 }
 
+#if (!CY_CPU_CORTEX_M0P)
+void Cy_SysInt_SoftwareTrig(IRQn_Type IRQn)
+{
+    NVIC->STIR = (uint32_t)IRQn & CY_SYSINT_STIR_MASK;
+}
+#endif
+
+#endif
 
 /* [] END OF FILE */

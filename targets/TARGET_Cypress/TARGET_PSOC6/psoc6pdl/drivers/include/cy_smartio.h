@@ -197,10 +197,12 @@
 #if !defined(CY_SMARTIO_H)
 #define CY_SMARTIO_H
 
+#include "cy_device.h"
+
+#if (defined (CY_IP_MXS40IOSS) || (defined(CY_IP_MXS40SIOSS) && defined(SMARTIO_BASE)))
+
 #include <stdbool.h>
 #include <stddef.h>
-#include "cy_device_headers.h"
-#include "cy_device.h"
 #include "cy_syslib.h"
 
 #if defined(__cplusplus)
@@ -858,6 +860,8 @@ CY_MISRA_BLOCK_END('MISRA C-2012 Rule 10.8');
 #if defined(__cplusplus)
 }
 #endif
+
+#endif /* CY_IP_MXS40IOSS */
 
 #endif /* CY_SMARTIO_H */
 

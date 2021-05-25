@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_sd_host.h
-* \version 1.60
+* \version 1.80
 *
 *  This file provides constants and parameter values for
 *  the SD Host Controller driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -248,6 +248,18 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td> 1.80</td>
+*     <td>Added an internal function.</td>
+*     <td>Code efficiency enhancement.</td>
+*   </tr>
+*   <tr>
+*     <td>1.70</td>
+*     <td>Allow SDIO Card initialization through Cy_SD_Host_InitCard() API.
+*         Added new API Cy_SD_Host_GetBlockCount().
+*     </td>
+*     <td>Code enhancement, minor defect fixing.</td>
+*   </tr>
+*   <tr>
 *     <td>1.60</td>
 *     <td>Fixed/Documented MISRA 2012 violations.</td>
 *     <td>MISRA 2012 compliance.</td>
@@ -369,14 +381,14 @@
 #ifndef CY_SD_HOST_PDL_H
 #define CY_SD_HOST_PDL_H
 
+#include "cy_device.h"
+
+#if defined (CY_IP_MXSDHC)
+
 #include <stdbool.h>
 #include <stddef.h>
-#include "cy_device.h"
-#include "cy_device_headers.h"
 #include "cy_syslib.h"
 #include "cy_syspm.h"
-
-#if defined(CY_IP_MXSDHC)
 
 #if defined (__CC_ARM)
     #pragma anon_unions
@@ -397,7 +409,7 @@ extern "C"
 #define CY_SD_HOST_DRV_VERSION_MAJOR       1
 
 /** Driver minor version */
-#define CY_SD_HOST_DRV_VERSION_MINOR       60
+#define CY_SD_HOST_DRV_VERSION_MINOR       80
 
 /******************************************************************************
 * API Constants
@@ -422,15 +434,15 @@ extern "C"
 #ifndef CY_SD_HOST_CLK_RAMP_UP_TIME_US_WAKEUP  /* Define of the CY_SD_HOST_CLK_RAMP_UP_TIME_US_WAKEUP
                                                 * suppresses CY_SD_HOST_CLK_RAMP_UP_TIME_MS_WAKEUP
                                                 */
-    #ifndef CY_SD_HOST_CLK_RAMP_UP_TIME_MS_WAKEUP   /*
-                                                     * This is legacy constant.
-                                                     * It is left here just for backward compatibility.
-                                                     * Do not use it in new designs.
-                                                     */
-        #define CY_SD_HOST_CLK_RAMP_UP_TIME_US_WAKEUP (1U) /**< The default host power ramp up time during wake up from deep sleep. */
-    #else
-        #define CY_SD_HOST_CLK_RAMP_UP_TIME_US_WAKEUP (CY_SD_HOST_CLK_RAMP_UP_TIME_MS_WAKEUP * 1000U)
-    #endif /* !defined CY_SD_HOST_CLK_RAMP_UP_TIME_MS_WAKEUP */
+#ifndef CY_SD_HOST_CLK_RAMP_UP_TIME_MS_WAKEUP   /*
+                                                 * This is legacy constant.
+                                                 * It is left here just for backward compatibility.
+                                                 * Do not use it in new designs.
+                                                 */
+#define CY_SD_HOST_CLK_RAMP_UP_TIME_US_WAKEUP (1U) /**< The default host power ramp up time during wake up from deep sleep. */
+#else
+#define CY_SD_HOST_CLK_RAMP_UP_TIME_US_WAKEUP (CY_SD_HOST_CLK_RAMP_UP_TIME_MS_WAKEUP * 1000U)
+#endif /* !defined CY_SD_HOST_CLK_RAMP_UP_TIME_MS_WAKEUP */
 #endif /* !defined CY_SD_HOST_CLK_RAMP_UP_TIME_US_WAKEUP */
 
 /* ADMA constants. */
@@ -1536,6 +1548,10 @@ bool Cy_SD_Host_IsCardConnected(SDHC_Type const *base);
 void Cy_SD_Host_SoftwareReset(SDHC_Type *base, cy_en_sd_host_reset_t reset);
 cy_en_syspm_status_t Cy_SD_Host_DeepSleepCallback(cy_stc_syspm_callback_params_t *callbackParams,
                                                   cy_en_syspm_callback_mode_t mode);
+cy_en_sd_host_status_t Cy_SD_Host_GetBlockCount(SDHC_Type *base,
+                                         uint32_t *block_count,
+                                         cy_stc_sd_host_context_t *context);
+
 
 /** \} group_sd_host_low_level_functions */
 
@@ -2143,7 +2159,7 @@ __STATIC_INLINE uint32_t Cy_SD_Host_GetErrorInterruptMask(SDHC_Type const *base)
 
 /** \} group_sd_host */
 
-#endif /* defined(CY_IP_MXSDHC) */
+#endif /* defined (CY_IP_MXSDHC) */
 
 #endif /* CY_SD_HOST_PDL_H */
 

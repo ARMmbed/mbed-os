@@ -169,14 +169,14 @@
 /* Include files                                                              */
 /******************************************************************************/
 
+#include "cy_device.h"
+
+#if defined (CY_IP_MXLPCOMP)
+
 #include <stdbool.h>
 #include <stddef.h>
-#include "cy_device.h"
-#include "cy_device_headers.h"
 #include "cy_syslib.h"
 #include "cy_syspm.h"
-
-#ifdef CY_IP_MXLPCOMP
 
 #ifdef __cplusplus
 extern "C"

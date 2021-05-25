@@ -1,6 +1,6 @@
 /*******************************************************************************
 * \file cy_sd_host.c
-* \version 1.60
+* \version 1.80
 *
 * \brief
 *  This file provides the driver code to the API for the SD Host Controller
@@ -8,7 +8,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
+* Copyright 2018-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,11 +23,14 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+
+#include "cy_device.h"
+
+#if defined (CY_IP_MXSDHC)
+
 #include "cy_sd_host.h"
 #include <string.h>
 #include <stdlib.h>
-
-#ifdef CY_IP_MXSDHC
 
 #if defined(__cplusplus)
 extern "C" {
@@ -167,6 +170,7 @@ CY_MISRA_DEVIATE_BLOCK_START('MISRA C-2012 Rule 18.1', 11, \
 #define CY_SD_HOST_SCR_BLOCKS               (8UL)
 #define CY_SD_HOST_CSD_BLOCKS               (16UL)
 #define CY_SD_HOST_SD_STATUS_BLOCKS         (64UL)
+#define CY_SD_HOST_SWITCH_STATUS_LEN        (16UL)
 #define CY_SD_HOST_PERI_FREQUENCY           (100000000UL)
 #define CY_SD_HOST_FREQ_SEL_MSK             (0xFFUL)
 #define CY_SD_HOST_UPPER_FREQ_SEL_POS       (8U)
@@ -342,6 +346,8 @@ static cy_en_sd_host_status_t Cy_SD_Host_OpsVoltageSwitch(SDHC_Type *base,
                                                           cy_stc_sd_host_context_t const *context);
 static cy_en_sd_host_status_t Cy_SD_Host_OpsSwitchFunc(SDHC_Type *base,
                                                        uint32_t cmdArgument);
+static cy_en_sd_host_status_t Cy_SD_Host_SdCardSwitchFunc(SDHC_Type *base, uint32_t cmdArgument,
+                                                                     cy_en_sd_host_card_type_t cardType);
 __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_OpsSetBlockCount(SDHC_Type *base,
                                                                    bool reliableWrite,
                                                                    uint32_t blockNum);
@@ -669,6 +675,7 @@ cy_en_sd_host_status_t Cy_SD_Host_InitCard(SDHC_Type *base,
 
                 /* Clear the insert event */
                 Cy_SD_Host_NormalReset(base);
+                Cy_SysLib_Delay(1);
 
                 /* Send CMD5 to get IO OCR */
                 ret = Cy_SD_Host_IoOcr(base,
@@ -1961,6 +1968,7 @@ static cy_en_sd_host_status_t Cy_SD_Host_OpsGoIdle(SDHC_Type *base)
 static cy_en_sd_host_status_t Cy_SD_Host_OpsVoltageSwitch(SDHC_Type *base,
                                                           cy_stc_sd_host_context_t const *context)
 {
+    (void) context;
     cy_en_sd_host_status_t      ret;
     cy_stc_sd_host_cmd_config_t cmd;
     uint32_t                    pState;
@@ -1985,7 +1993,7 @@ static cy_en_sd_host_status_t Cy_SD_Host_OpsVoltageSwitch(SDHC_Type *base,
 
     Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
 
-    if ((CY_SD_HOST_SUCCESS == ret) && (CY_SD_HOST_SDIO != context->cardType))
+    if (CY_SD_HOST_SUCCESS == ret)
     {
         /* Disable providing the SD Clock. */
         Cy_SD_Host_DisableSdClk(base);
@@ -2351,6 +2359,100 @@ static cy_en_sd_host_status_t Cy_SD_Host_OpsSwitchFunc(SDHC_Type *base, uint32_t
     }
 
     Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
+
+    return ret;
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_SD_Host_SdCardSwitchFunc
+****************************************************************************//**
+*
+*  Sends CMD6 (Switch Function Command) and parses the 512 bits wide
+*  response on the DAT lines.
+*
+* \param *base
+*     The SD host registers structure pointer.
+*
+* \param cmdArgument
+*     The command argument.
+*
+* \param cardType
+*     The type of card.
+*
+* \note
+*     This function is applicable only for \ref CY_SD_HOST_SD &
+*     \ref CY_SD_HOST_COMBO card types
+*
+* \return \ref cy_en_sd_host_status_t
+*
+*******************************************************************************/
+static cy_en_sd_host_status_t Cy_SD_Host_SdCardSwitchFunc(SDHC_Type *base,
+                                                                     uint32_t cmdArgument,
+                                                                     cy_en_sd_host_card_type_t cardType)
+{
+    cy_stc_sd_host_cmd_config_t  cmd;
+    cy_en_sd_host_status_t       ret;
+    cy_stc_sd_host_data_config_t dataConfig;
+    uint32_t status[CY_SD_HOST_SWITCH_STATUS_LEN];
+
+    cmd.commandIndex    = CY_SD_HOST_SD_CMD6;
+    cmd.commandArgument = cmdArgument;
+    cmd.dataPresent     = true;
+    cmd.enableAutoResponseErrorCheck = false;
+    cmd.respType        = CY_SD_HOST_RESPONSE_LEN_48;
+    cmd.enableCrcCheck  = true;
+    cmd.enableIdxCheck  = true;
+    cmd.cmdType         = CY_SD_HOST_CMD_NORMAL;
+
+    dataConfig.blockSize           = CY_SD_HOST_SD_STATUS_BLOCKS;
+    dataConfig.numberOfBlock       = 1UL;
+    dataConfig.enableDma           = false;
+    dataConfig.autoCommand         = CY_SD_HOST_AUTO_CMD_NONE;
+    dataConfig.read                = true;
+    dataConfig.data                = status;
+    dataConfig.dataTimeout         = CY_SD_HOST_MAX_TIMEOUT;
+    dataConfig.enableIntAtBlockGap = false;
+    dataConfig.enReliableWrite     = false;
+
+    if ((cardType == CY_SD_HOST_SD) || (cardType == CY_SD_HOST_COMBO))
+    {
+        (void)Cy_SD_Host_InitDataTransfer(base, &dataConfig);
+
+        ret = Cy_SD_Host_SendCommand(base, &cmd);
+
+        if (CY_SD_HOST_SUCCESS == ret)
+        {
+            /* Wait for the Command Complete event. */
+            ret = Cy_SD_Host_PollCmdComplete(base);
+        }
+
+        if (CY_SD_HOST_SUCCESS == ret)
+        {
+            /* Wait for the response on the DAT lines. */
+            ret = Cy_SD_Host_CmdRxData(base, &dataConfig);
+        }
+
+        if (CY_SD_HOST_SUCCESS == ret)
+        {
+            /* Parse the response on DAT lines. */
+            if ((((status[4] >> 4UL) & 0xFUL) == 0xFUL)   || /* Function group 1 (376-379) */
+                ((status[4] & 0xFUL) == 0xFUL)            || /* Function group 2 (380-383) */
+                (((status[3] >> 28UL)  & 0xFUL) == 0xFUL) || /* Function group 3 (384-387) */
+                (((status[3] >> 24UL) & 0xFUL) == 0xFUL)  || /* Function group 4 (388-391) */
+                (((status[3] >> 20UL) & 0xFUL) == 0xFUL)  || /* Function group 5 (392-395) */
+                (((status[3] >> 16UL) & 0xFUL) == 0xFUL))    /* Function group 6 (396-399) */
+            {
+                ret = CY_SD_HOST_ERROR_INVALID_PARAMETER;
+            }
+        }
+
+        Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
+    }
+    else
+    {
+        ret = CY_SD_HOST_ERROR_INVALID_PARAMETER;
+    }
 
     return ret;
 }
@@ -2965,7 +3067,7 @@ cy_en_sd_host_status_t  Cy_SD_Host_AbortTransfer(SDHC_Type *base,
             {
                 return ret;
             }
-
+            
             Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
 
             /* Get R1 */
@@ -3013,7 +3115,7 @@ cy_en_sd_host_status_t  Cy_SD_Host_AbortTransfer(SDHC_Type *base,
                     (void)Cy_SD_Host_GetResponse(base, (uint32_t *)&response, false);
 
                     /* Check if the card is in the transition state. */
-                    if ((CY_SD_HOST_CARD_TRAN << CY_SD_HOST_CMD13_CURRENT_STATE) !=
+                    if ((CY_SD_HOST_CARD_TRAN << CY_SD_HOST_CMD13_CURRENT_STATE) != 
                         (response & CY_SD_HOST_CMD13_CURRENT_STATE_MSK))
                     {
                        ret = CY_SD_HOST_ERROR;
@@ -4347,6 +4449,9 @@ cy_en_sd_host_status_t Cy_SD_Host_SetBusSpeedMode(SDHC_Type *base,
 
                     /* Set the High Speed/SDR25 bit */
                     cmdArgument |= highSpeedValue & 0xFUL;
+
+                    /* Send CMD6 and parse response */
+                    ret = Cy_SD_Host_SdCardSwitchFunc(base, cmdArgument, context->cardType);
                 }
                 else
                 {
@@ -4354,10 +4459,10 @@ cy_en_sd_host_status_t Cy_SD_Host_SetBusSpeedMode(SDHC_Type *base,
                                       (CY_SD_HOST_EMMC_HS_TIMING_ADDR << CY_SD_HOST_EMMC_CMD6_IDX_OFFSET) |
                                       (highSpeedValue << CY_SD_HOST_EMMC_CMD6_VALUE_OFFSET) |
                                       (0x0UL << CY_SD_HOST_EMMC_CMD6_CMD_SET_OFFSET);
-                }
 
-                /* Send CMD6 */
-                ret = Cy_SD_Host_OpsSwitchFunc(base, cmdArgument);
+                    /* Send CMD6 */
+                    ret = Cy_SD_Host_OpsSwitchFunc(base, cmdArgument);
+                }
             }
         }
 
@@ -4993,6 +5098,50 @@ cy_en_syspm_status_t Cy_SD_Host_DeepSleepCallback(cy_stc_syspm_callback_params_t
 
     return (ret);
 }
+
+/*******************************************************************************
+* Function Name: Cy_SD_Host_GetBlockCount
+****************************************************************************//**
+*
+*  Returns the Block count in SD/eMMC Card.
+*
+* \param *base
+*     The SD host registers structure pointer.
+*
+* \param *block_count
+*     The pointer to store the block_count.
+*
+* \param context
+* The pointer to the context structure \ref cy_stc_sd_host_context_t allocated
+* by the user. The structure is used during the SD host operation for internal
+* configuration and data retention. The user must not modify anything
+* in this structure.
+*
+* \return \ref cy_en_sd_host_status_t
+*
+*******************************************************************************/
+cy_en_sd_host_status_t Cy_SD_Host_GetBlockCount(SDHC_Type *base,
+                                         uint32_t *block_count,
+                                         cy_stc_sd_host_context_t *context)
+{
+    cy_en_sd_host_status_t ret = CY_SD_HOST_SUCCESS;
+
+    /* Check for the NULL pointer */
+    if ((NULL != base) && (NULL != block_count) && (NULL != context))
+    {
+        if ((CY_SD_HOST_SD == context->cardType) || (CY_SD_HOST_EMMC == context->cardType))
+        {
+            *block_count = context->maxSectorNum;
+        }
+    }
+    else
+    {
+        ret = CY_SD_HOST_ERROR_INVALID_PARAMETER;
+    }
+
+    return ret;
+}
+
 
 CY_MISRA_BLOCK_END('MISRA C-2012 Rule 18.1');
 

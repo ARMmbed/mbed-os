@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ipc_drv.c
-* \version 1.50
+* \version 1.60
 *
 *  \brief
 *   IPC Driver - This source file contains the low-level driver code for
@@ -23,8 +23,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "cy_ipc_drv.h"
+#include "cy_device.h"
 
+#if defined (CY_IP_M4CPUSS) || defined (CY_IP_MXIPC)
+
+#include "cy_ipc_drv.h"
 
 /*******************************************************************************
 * Function Name: Cy_IPC_Drv_LockRelease
@@ -177,5 +180,108 @@ cy_en_ipcdrv_status_t  Cy_IPC_Drv_ReadMsgWord (IPC_STRUCT_Type const * base, uin
     return(retStatus);
 }
 
+#if (CY_IP_M4CPUSS_VERSION > 1) || defined (CY_IP_M33SYSCPUSS_VERSION) || defined (CY_DOXYGEN)
+/*******************************************************************************
+* Function Name: Cy_IPC_Drv_SendMsgDWord
+****************************************************************************//**
+*
+* This function is used to send two 32-bit word message through an IPC channel.
+* The function also has an associated notification field that will let the
+* message notify one or multiple IPC interrupts. The IPC channel is locked and
+* remains locked after the function returns.  The receiver of the message should
+* release the channel.
+*
+* \param base
+* This parameter is a handle that represents the base address of the registers
+* of the IPC channel.
+* The parameter is generally returned from a call to the \ref
+* Cy_IPC_Drv_GetIpcBaseAddress.
+*
+* \param notifyEventIntr
+* Bit encoded list of IPC interrupt lines that are triggered by a notification.
+*
+* \param message
+* The message word that is the data placed in the IPC data register.
+*
+* \return   Status of the operation:
+*   \retval CY_IPC_DRV_SUCCESS: The send operation was successful.
+*   \retval CY_IPC_DRV_ERROR: The IPC channel is unavailable because it is already locked.
+*
+* \funcusage
+* \snippet ipc/snippet/main.c snippet_Cy_IPC_Drv_SendMsgWord
+*
+*******************************************************************************/
+cy_en_ipcdrv_status_t  Cy_IPC_Drv_SendMsgDWord (IPC_STRUCT_Type* base, uint32_t notifyEventIntr, uint32_t* message)
+{
+    cy_en_ipcdrv_status_t retStatus = CY_IPC_DRV_ERROR;
 
+    CY_ASSERT_L1(NULL != message);
+
+    if( CY_IPC_DRV_SUCCESS == Cy_IPC_Drv_LockAcquire(base) )
+    {
+        /* If the channel was acquired, send the message. */
+        Cy_IPC_Drv_WriteDDataValue(base, message);
+        Cy_IPC_Drv_AcquireNotify(base, notifyEventIntr);
+        retStatus = CY_IPC_DRV_SUCCESS;
+    }
+    else
+    {
+        /* Channel was already acquired, return Error */
+        retStatus = CY_IPC_DRV_ERROR;
+    }
+    return (retStatus);
+}
+
+/*******************************************************************************
+* Function Name: Cy_IPC_Drv_ReadMsgDWord
+****************************************************************************//**
+*
+* This function is used to read two 32-bit word message through an IPC channel.
+* This function assumes that the channel is locked (for a valid message).
+* If the channel is not locked, the message is invalid.  The user must call
+* Cy_IPC_Drv_Release() function after reading the message to release the
+* IPC channel.
+*
+* \param base
+* This parameter is a handle that represents the base address of the registers
+* of the IPC channel.
+* The parameter is generally returned from a call to the \ref
+* Cy_IPC_Drv_GetIpcBaseAddress.
+*
+* \param message
+*  A variable where the read data is copied.
+*
+* \return  Status of the operation
+*   \retval CY_IPC_DRV_SUCCESS: The function executed successfully and the IPC
+*                       was acquired.
+*   \retval CY_IPC_DRV_ERROR:   The function encountered an error because the IPC
+*                       channel was already in a released state, meaning the data
+*                       may be invalid.
+*
+* \funcusage
+* \snippet ipc/snippet/main.c snippet_Cy_IPC_Drv_ReadMsgWord
+*
+*******************************************************************************/
+cy_en_ipcdrv_status_t  Cy_IPC_Drv_ReadMsgDWord (IPC_STRUCT_Type const* base, uint32_t* message)
+{
+    cy_en_ipcdrv_status_t retStatus;
+
+    CY_ASSERT_L1(NULL != message);
+
+    if ( Cy_IPC_Drv_IsLockAcquired(base) )
+    {
+        /* The channel is locked; message is valid. */
+        Cy_IPC_Drv_ReadDDataValue(base, message);
+        retStatus = CY_IPC_DRV_SUCCESS;
+    }
+    else
+    {
+        /* The channel is not locked so channel is invalid. */
+        retStatus = CY_IPC_DRV_ERROR;
+    }
+    return(retStatus);
+}
+#endif
+
+#endif /* CY_IP_M4CPUSS */
 /* [] END OF FILE */

@@ -86,7 +86,8 @@
     <ParamSignal port="clock[0]" name="Clock Signal" group="Inputs" visible="true" desc="The clock input defines the operating frequency." canBeEmpty="false" />
   
   
-    <ParamChoice id="ShiftInput" name="Shift Input" group="Inputs" default="CY_TCPWM_INPUT_DISABLED" visible="true" editable="true" desc="Determines the shift input event. Signal on this input causes counter to shift in right direction." >
+    <ParamChoice id="ShiftInput" name="Shift Input" group="Inputs" default="CY_TCPWM_INPUT_DISABLED" visible="true" editable="true"
+	desc="Determines the shift input event. Signal on this input causes counter to shift in right direction. Defaut setting selects input trigger 1, which is always '1'" >
       <Entry name="Rising Edge" value="CY_TCPWM_INPUT_RISINGEDGE" visible="true" />
       <Entry name="Falling Edge" value="CY_TCPWM_INPUT_FALLINGEDGE" visible="true" />
       <Entry name="Either Edge" value="CY_TCPWM_INPUT_EITHEREDGE" visible="true" />

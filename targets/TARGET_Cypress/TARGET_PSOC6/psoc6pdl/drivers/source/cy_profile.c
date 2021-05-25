@@ -22,10 +22,12 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "cy_device.h"
+
+#if defined (CY_IP_MXPROFILE)
+
 #include "cy_profile.h"
 #include <string.h>
-
-#ifdef CY_IP_MXPROFILE
 
 #if defined(__cplusplus)
 extern "C" {

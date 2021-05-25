@@ -75,7 +75,7 @@
 *   \}
 * \} */
 
-#if !defined(CY_CRYPTO_CORE_H)
+#if !defined (CY_CRYPTO_CORE_H)
 #define CY_CRYPTO_CORE_H
 
 #include "cy_crypto_core_aes.h"
@@ -93,6 +93,6 @@
 #include "cy_crypto_core_trng.h"
 #include "cy_crypto_core_vu.h"
 
-#endif /* #if !defined(CY_CRYPTO_CORE_H) */
+#endif /* #if !defined (CY_CRYPTO_CORE_H) */
 
 /* [] END OF FILE */

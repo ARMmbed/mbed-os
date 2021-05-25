@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Generator version: 1.6.0.292 -->
+<!-- Generator version: 1.6.0.464 -->
 <device schemaVersion="1.3" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="CMSIS-SVD.xsd">
   <vendor>Cypress Semiconductor</vendor>
   <vendorID>Cypress</vendorID>
@@ -7,7 +7,7 @@
   <series>PSoC6_03</series>
   <version>1.0</version>
   <description>PSoC6_03</description>
-  <licenseText>Copyright 2016-2020 Cypress Semiconductor Corporation\n
+  <licenseText>Copyright 2016-2021 Cypress Semiconductor Corporation\n
     SPDX-License-Identifier: Apache-2.0\n
 \n
     Licensed under the Apache License, Version 2.0 (the "License");\n
@@ -1941,7 +1941,7 @@ The master region includes the SL_ADDR, SL_SIZE, SL_ATT0, ..., SL_ATT3, MS_ADDR,
           </register>
         </cluster>
         <cluster>
-          <dim>220</dim>
+          <dim>221</dim>
           <dimIncrement>64</dimIncrement>
           <name>PPU_FX[%s]</name>
           <description>Fixed protection structure pair</description>
@@ -7488,7 +7488,7 @@ When'1', the parity (ECC_CTL.PARITY[7:0]) is used for a load from the ECC_CTL.WO
 1: Bus transfer does NOT have a bus error; i.e. the error is 'silent'
 In either case, the erroneous FLASH macro data is returned by the bus master interface. The erroneous data is NOT placed in a bus master interface's cache and/or buffer.
 
-This field is ONLY used by CPU bus transfers. Non-CPU bus transfers always have a bus transfer with a bus error, in case of a non-recoverable error.
+This field is ONLY used by CPU (and debug i.e. SYS_AP/CM0_AP/CM4_AP) bus transfers. Non-CPU bus transfers always have a bus transfer with a bus error, in case of a non-recoverable error.
 
 Note: All CPU bus masters have dedicated status registers (CM0_STATUS and CM4_STATUS) to register the occurrence of FLASH macro main interface internal errors (non-correctable ECC errors and memory hole errors are NOT registered).
 
@@ -7522,7 +7522,7 @@ When'1', the parity (ECC_CTL.PARITY[6:0]) is used for a load from the ECC_CTL.WO
 1: Bus transfer does NOT have a bus error; i.e. the error is 'silent'
 In either case, the erroneous FLASH macro data is returned by the bus master interface. The erroneous data is NOT placed in a bus master interface's cache and/or buffer.
 
-This field is ONLY used by CPU bus transfers. Non-CPU bus transfers always have a bus transfer with a bus error, in case of a non-recoverable error.
+This field is ONLY used by CPU (and debug i.e. SYS_AP/CM0_AP/CM4_AP) bus transfers. Non-CPU bus transfers always have a bus transfer with a bus error, in case of a non-recoverable error.
 
 Note: All CPU bus masters have dedicated status registers (CM0_STATUS and CM4_STATUS) to register the occurrence of FLASH macro work interface internal errors (non-correctable ECC errors and memory hole errors are NOT registered).
 
@@ -7770,7 +7770,7 @@ Prefetching requires the cache to be enabled; i.e. ENABLED is '1'.</description>
             <field>
               <name>PWR_MODE</name>
               <description>Specifies power mode for CM0 cache.
-The following sequnece should be followed for truning OFF/ON the cache SRAM.
+The following sequnece should be followed for turning OFF/ON the cache SRAM.
 Turn OFF sequence:
 a) Write CM0_CA_CTL0 to disable cache.
 b) Write CM0_CA_CTL1 to turn OFF cache SRAM.
@@ -7900,7 +7900,7 @@ Bit 0: 2_LRU_3.</description>
           <fields>
             <field>
               <name>MAIN_INTERNAL_ERR</name>
-              <description>Specifies/registers the occurrence of a FLASH macro main interface internal error (typically the result of a read access while a program erase operation is ongoing) as a result of a CM0+ access. 
+              <description>Specifies/registers the occurrence of a FLASH macro main interface internal error (typically the result of a read access while a program erase operation is ongoing) as a result of a CM0+ access (or debug access via SYS_AP/CM0_AP). 
 
 SW clears this field to '0'. HW sets this field to '1' on a FLASH macro main interface internal error. Typically, SW reads this field after a code section to detect the occurrence of an error.
 
@@ -8091,13 +8091,17 @@ Note: Although the SW attribute for this field says ''R', SW need to write the k
           <fields>
             <field>
               <name>MAIN_INTERNAL_ERR</name>
-              <description>See CM0_STATUS.MAIN_INTERNAL_ERROR.</description>
+              <description>Specifies/registers the occurrence of a FLASH macro main interface internal error (typically the result of a read access while a program erase operation is ongoing) as a result of a CM4 access (or debug access via SYS_AP/CM4_AP). 
+
+SW clears this field to '0'. HW sets this field to '1' on a FLASH macro main interface internal error. Typically, SW reads this field after a code section to detect the occurrence of an error.
+
+Note: this field is independent of FLASH_CTL.MAIN_ERR_SILENT.</description>
               <bitRange>[0:0]</bitRange>
               <access>read-write</access>
             </field>
             <field>
               <name>WORK_INTERNAL_ERR</name>
-              <description>See CM0_STATUS.MAIN_INTERNAL_ERROR.</description>
+              <description>See CM4_STATUS.MAIN_INTERNAL_ERROR.</description>
               <bitRange>[1:1]</bitRange>
               <access>read-write</access>
             </field>
@@ -10076,7 +10080,7 @@ Note: the high Voltage page latches are readable for test mode functionality.</d
                 </enumeratedValue>
                 <enumeratedValue>
                   <name>SESSION_ACTIVE</name>
-                  <description>Debug session is active.  Power modes behave differently to keep the debug session active.</description>
+                  <description>Debug session is active.  Power modes behave differently to keep the debug session active, and current consumption may be higher than datasheet specification.</description>
                   <value>1</value>
                 </enumeratedValue>
               </enumeratedValues>
@@ -10092,8 +10096,8 @@ Note: the high Voltage page latches are readable for test mode functionality.</d
             <field>
               <name>IREF_LPMODE</name>
               <description>Control the power mode of the reference current generator.  The value in this register is ignored and normal mode is used until LPM_READY==1.  This register is only reset by XRES/POR/BOD/HIBERNATE.
-0: Current reference generator operates in normal mode.  It works for vddd ramp rates of 100mV/us or less.
-1: Current reference generator operates in low power mode.  Response time is reduced to save current, and it works for vddd ramp rates of 10mV/us or less.</description>
+0: Current reference generator operates in normal mode.
+1: Current reference generator operates in low power mode.  Response time is reduced to save current.</description>
               <bitRange>[18:18]</bitRange>
               <access>read-write</access>
             </field>
@@ -10138,24 +10142,24 @@ Note: the high Voltage page latches are readable for test mode functionality.</d
             <field>
               <name>LINREG_LPMODE</name>
               <description>Control the power mode of the Linear Regulator.  The value in this register is ignored and normal mode is used until LPM_READY==1.  This register is only reset by XRES/POR/BOD/HIBERNATE.
-0: Linear Regulator operates in normal mode.  Internal current consumption is 50uA and load current capability is 50mA to 300mA, depending on the number of regulator modules present in the product.
-1: Linear Regulator operates in low power mode.  Internal current consumption is 5uA and load current capability is 25mA.  Firmware must ensure the current is kept within the limit.</description>
+0: Linear Regulator operates in normal mode.
+1: Linear Regulator operates in low power mode.  Load current capability is reduced, and firmware must ensure the current is kept within the limit for this operating mode.</description>
               <bitRange>[24:24]</bitRange>
               <access>read-write</access>
             </field>
             <field>
               <name>PORBOD_LPMODE</name>
               <description>Control the power mode of the POR/BOD circuits.  The value in this register is ignored and normal mode is used until LPM_READY==1.  This register is only reset by XRES/POR/BOD/HIBERNATE.
-0: POR/BOD circuits operate in normal mode.  They work for vddd ramp rates of 100mV/us or less.
-1: POR/BOD circuits operate in low power mode.  Response time is reduced to save current, and they work for vddd ramp rates of 10mV/us or less.</description>
+0: POR/BOD circuits operate in normal mode.
+1: POR/BOD circuits operate in low power mode.  Response time is reduced to save current.</description>
               <bitRange>[25:25]</bitRange>
               <access>read-write</access>
             </field>
             <field>
               <name>BGREF_LPMODE</name>
               <description>Control the power mode of the Bandgap Voltage and Current References.  This applies to voltage and current generation and is different than the reference voltage buffer.  The value in this register is ignored and normal mode is used until LPM_READY==1.  When lower power mode is used, the Active Reference circuit can be disabled to reduce current.  Firmware is responsible to ensure ACT_REF_OK==1 before changing back to normal mode.  This register is only reset by XRES/POR/BOD/HIBERNATE.
-0: Active Bandgap Voltage and Current Reference operates in normal mode.  They work for vddd ramp rates of 100mV/us or less.
-1: Active Bandgap Voltage and Current Reference operates in low power mode.  Power supply rejection is reduced to save current, and they work for vddd ramp rates of 10mV/us or less.  The Active Reference may be disabled using ACT_REF_DIS=0.</description>
+0: Active Bandgap Voltage and Current Reference operates in normal mode.
+1: Active Bandgap Voltage and Current Reference operates in low power mode.  Power supply rejection is reduced to save current.  The Active Reference may be disabled using ACT_REF_DIS=0.</description>
               <bitRange>[26:26]</bitRange>
               <access>read-write</access>
             </field>
@@ -10170,8 +10174,8 @@ Note: the high Voltage page latches are readable for test mode functionality.</d
             <field>
               <name>VREFBUF_LPMODE</name>
               <description>Control the power mode of the 800mV voltage reference buffer.  The value in this register is ignored and normal mode is used until LPM_READY==1.
-0: Voltage Reference Buffer operates in normal mode.  They work for vddd ramp rates of 100mV/us or less.  This register is only reset by XRES/POR/BOD/HIBERNATE.
-1: Voltage Reference Buffer operates in low power mode.  Power supply rejection is reduced to save current, and they work for vddd ramp rates of 10mV/us or less.</description>
+0: Voltage Reference Buffer operates in normal mode. This register is only reset by XRES/POR/BOD/HIBERNATE.
+1: Voltage Reference Buffer operates in low power mode.  Power supply rejection is reduced to save current.</description>
               <bitRange>[28:28]</bitRange>
               <access>read-write</access>
             </field>
@@ -10220,7 +10224,7 @@ Note: the high Voltage page latches are readable for test mode functionality.</d
             </field>
             <field>
               <name>FREEZE</name>
-              <description>Firmware sets this bit to freeze the configuration, mode and state of all GPIOs and SIOs in the system.  When entering HIBERNATE mode, the first write instructs DEEPSLEEP peripherals that they cannot ignore the upcoming freeze command.  This occurs even in the illegal condition where UNLOCK is not set.  If UNLOCK and HIBERNATE are properly set, the IOs actually freeze on the second write.</description>
+              <description>Controls whether mode and state of GPIOs and SIOs in the system are frozen.  This is intended to be used as part of the HIBERNATE entry and exit sequences.  When entering HIBERNATE mode, the first write instructs DEEPSLEEP peripherals that they cannot ignore the upcoming freeze command.  This occurs even in the illegal condition where UNLOCK is not set.  If UNLOCK and HIBERNATE are properly set, the IOs actually freeze on the second write.</description>
               <bitRange>[17:17]</bitRange>
               <access>read-write</access>
             </field>
@@ -10246,7 +10250,7 @@ Note: the high Voltage page latches are readable for test mode functionality.</d
             </field>
             <field>
               <name>MASK_HIBPIN</name>
-              <description>When set, HIBERNATE will wakeup if the corresponding pin input matches the POLARITY_HIBPIN setting.  Each bit corresponds to one of the wakeup pins.</description>
+              <description>When set, HIBERNATE will wakeup if the corresponding pin input matches the POLARITY_HIBPIN setting.  Each bit corresponds to one of the HIBERNATE wakeup pins.</description>
               <bitRange>[27:24]</bitRange>
               <access>read-write</access>
             </field>
@@ -10974,7 +10978,7 @@ Note that this field is 2 bits to force multiple writes only.  Each MCWDT has a 
           <fields>
             <field>
               <name>DSI_MUX</name>
-              <description>Selects a DSI source or low frequency clock for use in a clock path.  The output of this mux can be selected for clock PATH&lt;i&gt; using CLK_SELECT_PATH register.  Using the output of this mux as HFCLK source will result in undefined behavior.  It can be used to clocks to DSI or to the reference inputs of FLL/PLL, subject to the frequency limits of those circuits.  This mux is not glitch free, so do not change the selection while it is an actively selected clock.</description>
+              <description>Selects a DSI source or low frequency clock for use in a clock path.  The output of this mux can be selected for clock PATH&lt;i&gt; using CLK_PATH_SELECT register.  Using the output of this mux as HFCLK source will result in undefined behavior.  It can be used to clocks to DSI or to the reference inputs of FLL/PLL, subject to the frequency limits of those circuits.  This mux is not glitch free, so do not change the selection while it is an actively selected clock.</description>
               <bitRange>[4:0]</bitRange>
               <access>read-write</access>
               <enumeratedValues>
@@ -11141,7 +11145,7 @@ Note that this field is 2 bits to force multiple writes only.  Each MCWDT has a 
           <fields>
             <field>
               <name>ROOT_MUX</name>
-              <description>Selects a clock path as the root of HFCLK&lt;k&gt; and for SRSS DSI input &lt;k&gt;.  Use CLK_SELECT_PATH[i] to configure the desired path.  Some paths may have FLL or PLL available (product-specific), and the control and bypass mux selections of these are in other registers.  Configure the FLL using CLK_FLL_CONFIG register.  Configure a PLL using the related CLK_PLL_CONFIG[k] register.  Note that not all products support all clock sources.  Selecting a clock source that is not supported will result in undefined behavior.</description>
+              <description>Selects a clock path as the root of HFCLK&lt;k&gt; and for SRSS DSI input &lt;k&gt;.  Use CLK_PATH_SELECT[i] to configure the desired path.  Some paths may have FLL or PLL available (product-specific), and the control and bypass mux selections of these are in other registers.  Configure the FLL using CLK_FLL_CONFIG register.  Configure a PLL using the related CLK_PLL_CONFIG[k] register.  Note that not all products support all clock sources.  Selecting a clock source that is not supported will result in undefined behavior.</description>
               <bitRange>[3:0]</bitRange>
               <access>read-write</access>
               <enumeratedValues>
@@ -13820,7 +13824,7 @@ When '1', the parity (ECC_CTL.PARITY) is used when a full 32-bit write is done t
           <fields>
             <field>
               <name>DATA</name>
-              <description>Copy of DESCR_CTL of the currently active descriptor.</description>
+              <description>N/A</description>
               <bitRange>[31:0]</bitRange>
               <access>read-only</access>
             </field>
@@ -13837,7 +13841,9 @@ When '1', the parity (ECC_CTL.PARITY) is used when a full 32-bit write is done t
           <fields>
             <field>
               <name>DATA</name>
-              <description>Copy of DESCR_SRC of the currently active descriptor.</description>
+              <description>Copy of DESCR_SRC of the currently active descriptor.
+
+Base address of source location.</description>
               <bitRange>[31:0]</bitRange>
               <access>read-only</access>
             </field>
@@ -13854,7 +13860,11 @@ When '1', the parity (ECC_CTL.PARITY) is used when a full 32-bit write is done t
           <fields>
             <field>
               <name>DATA</name>
-              <description>Copy of DESCR_DST of the currently active descriptor.</description>
+              <description>Copy of DESCR_DST of the currently active descriptor.
+
+Base address of destination location. 
+
+Note: For a CRC transfer descriptor, this field should be programmed with the address of the CRC_LFSR_CTL register. The calculated CRC LFSR state is written to this address (through the CRYPTO AHB-Lite master interface) when the input trigger is processed. The write transfer will be submitted to the CPUSS and PERI protection schemes.</description>
               <bitRange>[31:0]</bitRange>
               <access>read-only</access>
             </field>
@@ -13871,7 +13881,20 @@ When '1', the parity (ECC_CTL.PARITY) is used when a full 32-bit write is done t
           <fields>
             <field>
               <name>DATA</name>
-              <description>Copy of DESCR_X_CTL of the currently active descriptor.</description>
+              <description>Copy of DESCR_X_CTL of the currently active descriptor.
+
+[11:0] SRC_X_INCR
+Specifies increment of source address for each X loop iteration (in multiples of SRC_TRANSFER_SIZE). This field is a signed number in the range [-2048, 2047]. If this field is '0', the source address is not incremented. This is useful for reading from RX FIFO structures.
+
+[23:12] DST_X_INCR
+Specifies increment of destination address for each X loop iteration (in multiples of DST_TRANSFER_SIZE). This field is a signed number in the range [-2048, 2047]. If this field is '0', the destination address is not incremented. This is useful for writing to TX FIFO structures.
+
+Note: this field is not used for CRC transfer descriptors and must be set to '0'.
+
+[31:24] X_COUNT
+Number of iterations (minus 1) of the 'X loop' (X_COUNT+1 is the number of single transfers in a 1D transfer). This field is an unsigned number in the range [0, 255], representing 1 through 256 iterations.
+
+For a single transfer descriptor type, descriptor will not have X_CTL.</description>
               <bitRange>[31:0]</bitRange>
               <access>read-only</access>
             </field>
@@ -13888,7 +13911,18 @@ When '1', the parity (ECC_CTL.PARITY) is used when a full 32-bit write is done t
           <fields>
             <field>
               <name>DATA</name>
-              <description>Copy of DESCR_Y_CTL of the currently active descriptor.</description>
+              <description>Copy of DESCR_Y_CTL of the currently active descriptor.
+
+[11:0] SRC_Y_INCR
+Specifies increment of source address for each Y loop iteration (in multiples of SRC_TRANSFER_SIZE). This field is a signed number in the range [-2048, 2047].
+
+[23:12] DST_Y_INCR
+Specifies increment of destination address for each Y loop iteration (in multiples of DST_TRANSFER_SIZE). This field is a signed number in the range [-2048, 2047].
+
+[31:24] Y_COUNT
+Number of iterations (minus 1) of the 'Y loop' (X_COUNT+1)*(Y_COUNT+1) is the number of single transfers in a 2D transfer). This field is an unsigned number in the range [0, 255], representing 1 through 256 iterations.
+
+For single, 1D and CRC transfer descriptor types, descriptor will not have Y_CTL.</description>
               <bitRange>[31:0]</bitRange>
               <access>read-only</access>
             </field>
@@ -13905,7 +13939,10 @@ When '1', the parity (ECC_CTL.PARITY) is used when a full 32-bit write is done t
           <fields>
             <field>
               <name>ADDR</name>
-              <description>Copy of DESCR_NEXT_PTR of the currently active descriptor.</description>
+              <description>Copy of DESCR_NEXT_PTR of the currently active descriptor.
+
+[31:2] ADDR
+Address of next descriptor in descriptor list. When this field is '0', this is the last descriptor in the descriptor list.</description>
               <bitRange>[31:2]</bitRange>
               <access>read-only</access>
             </field>
@@ -14104,8 +14141,8 @@ Note: This field is combinatorially derived from CRC_LFSR_CTL.LFSR32, CRC_CTL.RE
             <addressOffset>0x0</addressOffset>
             <size>32</size>
             <access>read-write</access>
-            <resetValue>0x2</resetValue>
-            <resetMask>0x80000BF7</resetMask>
+            <resetValue>0x0</resetValue>
+            <resetMask>0x80000300</resetMask>
             <fields>
               <field>
                 <name>P</name>
@@ -14194,7 +14231,7 @@ HW sets this field to '0' on an error interrupt cause (the specific error is spe
             <size>32</size>
             <access>read-only</access>
             <resetValue>0x0</resetValue>
-            <resetMask>0x0</resetMask>
+            <resetMask>0x80000000</resetMask>
             <fields>
               <field>
                 <name>INTR_CAUSE</name>
@@ -14671,61 +14708,132 @@ Note: HW updates the current descriptor pointer CH_CURR_PTR with DESCR_NEXT_PTR 
             <fields>
               <field>
                 <name>WAIT_FOR_DEACT</name>
-                <description>N/A</description>
+                <description>Specifies whether the controller should wait for the input trigger to be deactivated; i.e. the selected system trigger is not active. This field is used to synchronize the controller with the agent that generated the trigger. This field is ONLY used at the completion of the transfer as specified by TR_IN. E.g., a TX FIFO indicates that it is empty and it needs a new data sample. The agent removes the trigger ONLY when the data sample has been written by the controller AND received by the agent.  Furthermore, the agent's trigger may be delayed by a few cycles before it reaches the controller. This field is used for level sensitive trigger, which reflect state (pulse sensitive triggers should have this field set to '0'). The wait cycles incurred by this field reduce DW controller performance.
+'0': Do not wait for trigger de-activation (for pulse sensitive triggers).
+'1': Wait for up to 4 cycles.
+'2': Wait for up to 16 cycles.
+'3': Wait indefinitely. This option may result in controller lockup if the trigger is not de-activated.</description>
                 <bitRange>[1:0]</bitRange>
                 <access>read-only</access>
               </field>
               <field>
                 <name>INTR_TYPE</name>
-                <description>N/A</description>
+                <description>Specifies when a completion interrupt is generated (CH_STATUS.INTR_CAUSE is set to COMPLETION):
+'0': An interrupt is generated after a single transfer. 
+'1': An interrupt is generated after a single 1D transfer or a memory copy transfer
+- If the descriptor type is 'single', the interrupt is generated after a single transfer.
+- If the descriptor type is '1D' or '2D', the interrupt is generated after the execution of a 1D transfer.
+- If the descriptor type is 'memory copy', the interrupt is generated after the execution of a memory copy transfer.
+- If the descriptor type is 'scatter' the interrupt is generated after the execution of a scatter transfer.
+'2': An interrupt is generated after the execution of the current descriptor (independent of the value of DESCR_NEXT_PTR.ADDR of the current descriptor).
+'3': An interrupt is generated after the execution of the current descriptor and the current descriptor's DESCR_NEXT_PTR.ADDR is '0'.</description>
                 <bitRange>[3:2]</bitRange>
                 <access>read-only</access>
               </field>
               <field>
                 <name>TR_OUT_TYPE</name>
-                <description>N/A</description>
+                <description>Specifies when an output trigger is generated:
+'0': An output trigger is generated after a single transfer. 
+'1': An output trigger is generated after a single 1D transfer or a memory copy transfer.
+- If the descriptor type is 'single', the output trigger is generated after a single transfer.
+- If the descriptor type is '1D' or '2D', the output trigger is generated after the execution of a 1D transfer.
+- If the descriptor type is 'memory copy', the output trigger is generated after the execution of a memory copy transfer.
+- If the descriptor type is 'scatter', the output trigger is generated after the execution of a scatter transfer.
+'2': An output trigger is generated after the execution of the current descriptor. 
+'3': An output trigger is generated after the execution of a descriptor list: after the execution of the current descriptor AND the current descriptor's DESCR_NEXT_PTR.ADDR is '0'.</description>
                 <bitRange>[5:4]</bitRange>
                 <access>read-only</access>
               </field>
               <field>
                 <name>TR_IN_TYPE</name>
-                <description>N/A</description>
+                <description>Specifies the input trigger type (not to be confused with the descriptor type):
+'0': A trigger results in the execution of a single transfer. The descriptor type can be single, 1D or 2D.
+'1': A trigger results in the execution of a single 1D transfer.
+- If the descriptor type is 'single', the trigger results in the execution of a single transfer.
+- If the descriptor type is '1D' or '2D', the trigger results in the execution of a 1D transfer.
+- If the descriptor type is 'memory copy', the trigger results in the execution of a memory copy transfer.
+- If the descriptor type is 'scatter', the trigger results in the execution of an scatter transfer.
+'2': A trigger results in the execution of the current descriptor. 
+'3': A trigger results in the execution of the current descriptor and continues (without requiring another input trigger) with the execution of the next descriptor using the next descriptor's information.</description>
                 <bitRange>[7:6]</bitRange>
                 <access>read-only</access>
               </field>
               <field>
                 <name>DATA_PREFETCH</name>
-                <description>N/A</description>
+                <description>Source data prefetch:
+'0': No source data prefetch. Source data transfers are only initiated AFTER the input trigger is activated.
+'1': Source data prefetch. Source data transfers are initiated as soon as the channel is enabled, the current descriptor pointer is NOT '0' and there is space available in the channel's data FIFO. When the input trigger is activated, the trigger can initiate destination data transfers with data that is already in the channel's data FIFO. This effectively shortens the initial delay of the data transfer.
+
+Note: data prefetch should be used with care, to ensure that data coherency is guaranteed and that prefetches do not cause undesired side effects.</description>
                 <bitRange>[8:8]</bitRange>
                 <access>read-only</access>
               </field>
               <field>
                 <name>DATA_SIZE</name>
-                <description>N/A</description>
+                <description>Specifies the data element size:
+'0': Byte (8 bits).
+'1': Halfword (16 bits).
+'2': Word (32 bits).
+DATA_SIZE, SRC_TRANSFER_SIZE and DST_TRANSFER_SIZE together determine how data elements are transferred. The following are the 9 legal settings:
+- DATA is 8 bit, SRC is 8 bit, DST is 8 bit.
+- DATA is 8 bit, SRC is 32 bit (higher 24 bits are dropped), DST is 8 bit.
+- DATA is 8 bit, SRC is 8 bit, DST is 32 bit (higher 24 bits are made '0').
+- DATA is 8 bit, SRC is 32 bit (higher 24 bits are dropped), DST is 32 bit (higher 24 bits are made '0').
+- DATA is 16 bit, SRC is 16 bit, DST is 16 bit.
+- DATA is 16 bit, SRC is 32 bit (higher 16 bits are dropped), DST is 16 bit.
+- DATA is 16 bit, SRC is 16 bit, DST is 32 bit (higher 16 bits are made '0').
+- DATA is 16 bit, SRC is 32 bit (higher 16 bits are dropped), DST is 32 bit (higher 16 bits are made '0').
+- DATA is 32 bit, SRC is 32 bit, DST is 32 bit.
+
+Note: this field is not used for a 'memory copy' descriptor type. Note: this field must be set to '2' for a 'initialization' descriptor type.</description>
                 <bitRange>[17:16]</bitRange>
                 <access>read-only</access>
               </field>
               <field>
                 <name>CH_DISABLE</name>
-                <description>N/A</description>
+                <description>Specifies whether the channel is disabled or not after completion of the current descriptor (independent of the value of the DESCR_NEXT_PTR value):
+'0': Channel is not disabled.
+'1': Channel is disabled.</description>
                 <bitRange>[24:24]</bitRange>
                 <access>read-only</access>
               </field>
               <field>
                 <name>SRC_TRANSFER_SIZE</name>
-                <description>N/A</description>
+                <description>Specifies the bus transfer size to the source location:
+'0': As specified by DATA_SIZE.
+'1': Word (32 bits).
+Distinguishing bus transfer size from data element size allows for source components with data elements that are smaller than their 32-bit bus interface width. E.g., an ADC source has a 32-bit bus transfer size, but only provides a 16-bit data element.
+
+Note: this field is not used for a 'memory copy' descriptor type. Note: this field must be set to '1' for a 'scatter' descriptor type.</description>
                 <bitRange>[26:26]</bitRange>
                 <access>read-only</access>
               </field>
               <field>
                 <name>DST_TRANSFER_SIZE</name>
-                <description>N/A</description>
+                <description>Specifies the bus transfer size to the destination location:
+'0': As specified by DATA_SIZE.
+'1': Word (32 bits).
+Distinguishing bus transfer size from data element size allows for destination components with data elements that are smaller than their 32-bit bus interface width. E.g., a DAC destination has a 32-bit bus transfer size, but only requires a 16-bit data element.
+
+Note: this field is not used for a 'memory copy' descriptor type. Note: this field must be set to '1' for a 'scatter' descriptor type.</description>
                 <bitRange>[27:27]</bitRange>
                 <access>read-only</access>
               </field>
               <field>
                 <name>DESCR_TYPE</name>
-                <description>N/A</description>
+                <description>Specifies the descriptor type (not to be confused with the trigger type):
+'0': Single transfer.
+The DESCR_X_SIZE, DESCR_X_INCR, DESCR_Y_SIZE and DESCR_Y_INCR registers are NOT present. The DESCR_NEXT_PTR is at offset 0x0c.
+'1': 1D transfer.
+The DESCR_X_SIZE and DESCR_X_INCR registers are present, the DESCR_Y_SIZE and DESCR_Y_INCR are NOT present. A 1D transfer consists out of DESCR_X_SIZE.X_COUNT+1 single transfers. The DESCR_NEXT_PTR is at offset 0x14.
+'2': 2D transfer.
+The DESCR_X_SIZE, DESCR_X_INCR, DESCR_Y_SIZE and DESCR_Y_INCR registers are present. A 2D transfer consists of (DESCR_X_SIZE.X_COUNT+1)*(DESCR_Y_SIZE.Y_COUNT+1) single transfers. The DESCR_NEXT_PTR is at offset 0x1c.
+'3': Memory copy.
+The DESCR_X_SIZE register is present, the DESCR_X_INCR, DESCR_Y_SIZE and DESCR_Y_INCR are NOT present. A memory copy transfer copies DESCR_X_SIZE.X_COUNT+1 Bytes and may use Byte, halfword and word transfers. The DESCR_NEXT_PTR is at offset 0x10.
+'4': Scatter transfer. The DESCR_X_SIZE register is present, the DESCR_DST, DESCR_X_INCR, DESCR_Y_SIZE and DESCR_Y_INCR are NOT present.
+'5'-'7': Undefined.
+
+After the execution of the current descriptor, the DESCR_NEXT_PTR address is copied to the channel's CH_CURR_PTR address and CH_STATUS.X_IDX and CH_STATUS.Y_IDX are set to '0'.</description>
                 <bitRange>[30:28]</bitRange>
                 <access>read-only</access>
               </field>
@@ -14742,7 +14850,7 @@ Note: HW updates the current descriptor pointer CH_CURR_PTR with DESCR_NEXT_PTR 
             <fields>
               <field>
                 <name>ADDR</name>
-                <description>N/A</description>
+                <description>Base address of source location.</description>
                 <bitRange>[31:0]</bitRange>
                 <access>read-only</access>
               </field>
@@ -14759,7 +14867,7 @@ Note: HW updates the current descriptor pointer CH_CURR_PTR with DESCR_NEXT_PTR 
             <fields>
               <field>
                 <name>ADDR</name>
-                <description>N/A</description>
+                <description>Base address of destination location.</description>
                 <bitRange>[31:0]</bitRange>
                 <access>read-only</access>
               </field>
@@ -14776,7 +14884,9 @@ Note: HW updates the current descriptor pointer CH_CURR_PTR with DESCR_NEXT_PTR 
             <fields>
               <field>
                 <name>X_COUNT</name>
-                <description>N/A</description>
+                <description>Number of iterations (minus 1) of the 'X loop' (X_COUNT+1 is the number of single transfers in a 1D transfer). This field is an unsigned number in the range [0, 65535], representing 1 through 65536 iterations.
+
+For the 'memory copy' descriptor type, (X_COUNT + 1) is the number of transferred Bytes. For the 'scatter' descriptor type, ceiling(X_COUNT/2) is the number of (address, write data) initialization pairs processed.</description>
                 <bitRange>[15:0]</bitRange>
                 <access>read-only</access>
               </field>
@@ -14793,13 +14903,13 @@ Note: HW updates the current descriptor pointer CH_CURR_PTR with DESCR_NEXT_PTR 
             <fields>
               <field>
                 <name>SRC_X</name>
-                <description>N/A</description>
+                <description>Specifies increment of source address for each X loop iteration (in multiples of SRC_TRANSFER_SIZE). This field is a signed number (sign-magnitude format) in the range [-32768, 32767]. If this field is '0', the source address is not incremented. This is useful for reading from RX FIFO structures.</description>
                 <bitRange>[15:0]</bitRange>
                 <access>read-only</access>
               </field>
               <field>
                 <name>DST_X</name>
-                <description>N/A</description>
+                <description>Specifies increment of destination address for each X loop iteration (in multiples of DST_TRANSFER_SIZE). This field is a signed number (sign-magnitude format) in the range [-32768, 32767]. If this field is '0', the destination address is not incremented. This is useful for writing to TX FIFO structures.</description>
                 <bitRange>[31:16]</bitRange>
                 <access>read-only</access>
               </field>
@@ -14816,7 +14926,7 @@ Note: HW updates the current descriptor pointer CH_CURR_PTR with DESCR_NEXT_PTR 
             <fields>
               <field>
                 <name>Y_COUNT</name>
-                <description>N/A</description>
+                <description>Number of iterations (minus 1) of the 'Y loop' (X_COUNT+1)*(Y_COUNT+1) is the number of single transfers in a 2D transfer). This field is an unsigned number in the range [0, 65535], representing 1 through 65536 iterations.</description>
                 <bitRange>[15:0]</bitRange>
                 <access>read-only</access>
               </field>
@@ -14833,13 +14943,13 @@ Note: HW updates the current descriptor pointer CH_CURR_PTR with DESCR_NEXT_PTR 
             <fields>
               <field>
                 <name>SRC_Y</name>
-                <description>N/A</description>
+                <description>Specifies increment of source address for each Y loop iteration (in multiples of SRC_TRANSFER_SIZE). This field is a signed number in the range [-32768, 32767].</description>
                 <bitRange>[15:0]</bitRange>
                 <access>read-only</access>
               </field>
               <field>
                 <name>DST_Y</name>
-                <description>N/A</description>
+                <description>Specifies increment of destination address for each Y loop iteration (in multiples of DST_TRANSFER_SIZE). This field is a signed number in the range [-32768, 32767].</description>
                 <bitRange>[31:16]</bitRange>
                 <access>read-only</access>
               </field>
@@ -14856,7 +14966,7 @@ Note: HW updates the current descriptor pointer CH_CURR_PTR with DESCR_NEXT_PTR 
             <fields>
               <field>
                 <name>PTR</name>
-                <description>N/A</description>
+                <description>Address of next descriptor in descriptor list. When this field is '0', this is the last descriptor in the descriptor list.</description>
                 <bitRange>[31:2]</bitRange>
                 <access>read-only</access>
               </field>
@@ -14932,49 +15042,49 @@ Note: HW updates the current descriptor pointer CH_CURR_PTR with DESCR_NEXT_PTR 
             <fields>
               <field>
                 <name>COMPLETION</name>
-                <description>Write this field with '1' to set corresponding INTR field to '1' (a write of '0' has no effect).</description>
+                <description>Write this field with '1' to set INTR.COMPLETION field to '1' (a write of '0' has no effect).</description>
                 <bitRange>[0:0]</bitRange>
                 <access>read-write</access>
               </field>
               <field>
                 <name>SRC_BUS_ERROR</name>
-                <description>N/A</description>
+                <description>Write this field with '1' to set INTR.SRC_BUS_ERROR field to '1' (a write of '0' has no effect).</description>
                 <bitRange>[1:1]</bitRange>
                 <access>read-write</access>
               </field>
               <field>
                 <name>DST_BUS_ERROR</name>
-                <description>N/A</description>
+                <description>Write this field with '1' to set INTR.DST_BUS_ERROR field to '1' (a write of '0' has no effect).</description>
                 <bitRange>[2:2]</bitRange>
                 <access>read-write</access>
               </field>
               <field>
                 <name>SRC_MISAL</name>
-                <description>N/A</description>
+                <description>Write this field with '1' to set INTR.SRC_MISAL field to '1' (a write of '0' has no effect).</description>
                 <bitRange>[3:3]</bitRange>
                 <access>read-write</access>
               </field>
               <field>
                 <name>DST_MISAL</name>
-                <description>N/A</description>
+                <description>Write this field with '1' to set INTR.DST_MISAL field to '1' (a write of '0' has no effect).</description>
                 <bitRange>[4:4]</bitRange>
                 <access>read-write</access>
               </field>
               <field>
                 <name>CURR_PTR_NULL</name>
-                <description>N/A</description>
+                <description>Write this field with '1' to set INTR.CURR_PTR_NULL field to '1' (a write of '0' has no effect).</description>
                 <bitRange>[5:5]</bitRange>
                 <access>read-write</access>
               </field>
               <field>
                 <name>ACTIVE_CH_DISABLED</name>
-                <description>N/A</description>
+                <description>Write this field with '1' to set INTR.ACT_CH_DISABLED field to '1' (a write of '0' has no effect).</description>
                 <bitRange>[6:6]</bitRange>
                 <access>read-write</access>
               </field>
               <field>
                 <name>DESCR_BUS_ERROR</name>
-                <description>N/A</description>
+                <description>Write this field with '1' to set INTR.DESCR_BUS_ERROR field to '1' (a write of '0' has no effect).</description>
                 <bitRange>[7:7]</bitRange>
                 <access>read-write</access>
               </field>
@@ -14991,49 +15101,49 @@ Note: HW updates the current descriptor pointer CH_CURR_PTR with DESCR_NEXT_PTR 
             <fields>
               <field>
                 <name>COMPLETION</name>
-                <description>Mask for corresponding field in INTR register.</description>
+                <description>Mask for INTR.COMPLETION interrupt.</description>
                 <bitRange>[0:0]</bitRange>
                 <access>read-write</access>
               </field>
               <field>
                 <name>SRC_BUS_ERROR</name>
-                <description>N/A</description>
+                <description>Mask for INTR.SRC_BUS_ERROR interrupt.</description>
                 <bitRange>[1:1]</bitRange>
                 <access>read-write</access>
               </field>
               <field>
                 <name>DST_BUS_ERROR</name>
-                <description>N/A</description>
+                <description>Mask for INTR.DST_BUS_ERROR interrupt.</description>
                 <bitRange>[2:2]</bitRange>
                 <access>read-write</access>
               </field>
               <field>
                 <name>SRC_MISAL</name>
-                <description>N/A</description>
+                <description>Mask for INTR.SRC_MISAL interrupt.</description>
                 <bitRange>[3:3]</bitRange>
                 <access>read-write</access>
               </field>
               <field>
                 <name>DST_MISAL</name>
-                <description>N/A</description>
+                <description>Mask for INTR.DST_MISAL interrupt.</description>
                 <bitRange>[4:4]</bitRange>
                 <access>read-write</access>
               </field>
               <field>
                 <name>CURR_PTR_NULL</name>
-                <description>N/A</description>
+                <description>Mask for INTR.CURR_PTR_NULL interrupt.</description>
                 <bitRange>[5:5]</bitRange>
                 <access>read-write</access>
               </field>
               <field>
                 <name>ACTIVE_CH_DISABLED</name>
-                <description>N/A</description>
+                <description>Mask for INTR.ACTIVE_CH_DISABLED interrupt.</description>
                 <bitRange>[6:6]</bitRange>
                 <access>read-write</access>
               </field>
               <field>
                 <name>DESCR_BUS_ERROR</name>
-                <description>N/A</description>
+                <description>Mask for INTR.DESCR_BUS_ERROR interrupt.</description>
                 <bitRange>[7:7]</bitRange>
                 <access>read-write</access>
               </field>
@@ -15050,49 +15160,49 @@ Note: HW updates the current descriptor pointer CH_CURR_PTR with DESCR_NEXT_PTR 
             <fields>
               <field>
                 <name>COMPLETION</name>
-                <description>Logical and of corresponding INTR and INTR_MASK fields.</description>
+                <description>Logical and of corresponding INTR.COMPLETION and INTR_MASK.COMPLETION fields.</description>
                 <bitRange>[0:0]</bitRange>
                 <access>read-only</access>
               </field>
               <field>
                 <name>SRC_BUS_ERROR</name>
-                <description>N/A</description>
+                <description>Logical and of corresponding INTR.SRC_BUS_ERROR and INTR_MASK.SRC_BUS_ERROR fields.</description>
                 <bitRange>[1:1]</bitRange>
                 <access>read-only</access>
               </field>
               <field>
                 <name>DST_BUS_ERROR</name>
-                <description>N/A</description>
+                <description>Logical and of corresponding INTR.DST_BUS_ERROR and INTR_MASK.DST_BUS_ERROR fields.</description>
                 <bitRange>[2:2]</bitRange>
                 <access>read-only</access>
               </field>
               <field>
                 <name>SRC_MISAL</name>
-                <description>N/A</description>
+                <description>Logical and of corresponding INTR.SRC_MISAL and INTR_MASK.SRC_MISAL fields.</description>
                 <bitRange>[3:3]</bitRange>
                 <access>read-only</access>
               </field>
               <field>
                 <name>DST_MISAL</name>
-                <description>N/A</description>
+                <description>Logical and of corresponding INTR.DST_MISAL and INTR_MASK.DST_MISAL fields.</description>
                 <bitRange>[4:4]</bitRange>
                 <access>read-only</access>
               </field>
               <field>
                 <name>CURR_PTR_NULL</name>
-                <description>N/A</description>
+                <description>Logical and of corresponding INTR.CURR_PTR_NULL and INTR_MASK.CURR_PTR_NULL fields.</description>
                 <bitRange>[5:5]</bitRange>
                 <access>read-only</access>
               </field>
               <field>
                 <name>ACTIVE_CH_DISABLED</name>
-                <description>N/A</description>
+                <description>Logical and of corresponding INTR.ACTIVE_CH_DISABLED and INTR_MASK.ACTIVE_CH_DISABLED fields.</description>
                 <bitRange>[6:6]</bitRange>
                 <access>read-only</access>
               </field>
               <field>
                 <name>DESCR_BUS_ERROR</name>
-                <description>N/A</description>
+                <description>Logical and of corresponding INTR.DESCR_BUS_ERROR and INTR_MASK.DESCR_BUS_ERROR fields.</description>
                 <bitRange>[7:7]</bitRange>
                 <access>read-only</access>
               </field>
@@ -16689,7 +16799,8 @@ This connectivity works ONLY in ACTIVE mode.</description>
                 <name>IN0</name>
                 <description>IO pin state for pin 0
 '0': Low logic level present on pin.
-'1': High logic level present on pin.</description>
+'1': High logic level present on pin.
+On reset assertion , IN register will get reset. The Pad value takes 2 clock cycles to be reflected into IN Register.  It's value then depends on the external pin value.</description>
                 <bitRange>[0:0]</bitRange>
                 <access>read-only</access>
               </field>
@@ -37250,7 +37361,7 @@ Start address of extended Message ID filter list (32-bit word address, see Figur
               <addressOffset>0x90</addressOffset>
               <size>32</size>
               <access>read-write</access>
-              <resetValue>0x0</resetValue>
+              <resetValue>0x1FFFFFFF</resetValue>
               <resetMask>0x1FFFFFFF</resetMask>
               <fields>
                 <field>
@@ -37626,7 +37737,15 @@ After the Host has read a message or a sequence of messages from Rx FIFO 1 it ha
               <fields>
                 <field>
                   <name>F0DS</name>
-                  <description>N/A</description>
+                  <description>Rx FIFO 0 Data Field Size
+000= 8 byte data field
+001= 12 byte data field
+010= 16 byte data field
+011= 20 byte data field
+100= 24 byte data field
+101= 32 byte data field
+110= 48 byte data field
+111= 64 byte data field</description>
                   <bitRange>[2:0]</bitRange>
                   <access>read-write</access>
                 </field>

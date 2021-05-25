@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_dma.c
-* \version 2.30
+* \version 2.40
 *
 * \brief
 * The source code file for the DMA driver.
@@ -23,9 +23,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "cy_dma.h"
+#include "cy_device.h"
 
-#ifdef CY_IP_M4CPUSS_DMA
+#if defined (CY_IP_M4CPUSS_DMA) || defined (CY_IP_MXDW)
+
+#include "cy_dma.h"
 
 CY_MISRA_DEVIATE_BLOCK_START('MISRA C-2012 Rule 11.3', 5, \
 'DW_Type will typecast to either DW_V1_Type or DW_V2_Type but not both on PDL initialization based on the target device at compile time.');
@@ -52,8 +54,11 @@ CY_MISRA_DEVIATE_BLOCK_START('MISRA C-2012 Rule 10.8', 2, \
 cy_en_dma_status_t Cy_DMA_Crc_Init(DW_Type * base, cy_stc_dma_crc_config_t const * crcConfig)
 {
     cy_en_dma_status_t ret = CY_DMA_BAD_PARAM;
-
+#ifdef CY_IP_MXDW
+    if((NULL != base) && (NULL != crcConfig) )
+#else
     if((NULL != base) && (NULL != crcConfig) && CY_DW_CRC)
+#endif /* CY_IP_MXDW */
     {
         DW_CRC_CTL(base) = _BOOL2FLD(DW_V2_CRC_CTL_DATA_REVERSE, crcConfig->dataReverse) |
                            _BOOL2FLD(DW_V2_CRC_CTL_REM_REVERSE,  crcConfig->reminderReverse);
@@ -209,6 +214,8 @@ cy_en_dma_status_t Cy_DMA_Descriptor_Init(cy_stc_dma_descriptor_t * descriptor, 
 *******************************************************************************/
 void Cy_DMA_Descriptor_DeInit(cy_stc_dma_descriptor_t * descriptor)
 {
+    CY_ASSERT_L1(descriptor);
+
     descriptor->ctl = 0UL;
     descriptor->src = 0UL;
     descriptor->dst = 0UL;
@@ -317,7 +324,8 @@ void Cy_DMA_Channel_DeInit(DW_Type * base, uint32_t channel)
 *
 *******************************************************************************/
 void Cy_DMA_Descriptor_SetNextDescriptor(cy_stc_dma_descriptor_t * descriptor, cy_stc_dma_descriptor_t const * nextDescriptor)
-{
+{   
+    CY_ASSERT_L1(descriptor);
     switch((cy_en_dma_descriptor_type_t) _FLD2VAL(CY_DMA_CTL_TYPE, descriptor->ctl))
     {
         case CY_DMA_SINGLE_TRANSFER:
@@ -364,7 +372,7 @@ void Cy_DMA_Descriptor_SetNextDescriptor(cy_stc_dma_descriptor_t * descriptor, c
 cy_stc_dma_descriptor_t * Cy_DMA_Descriptor_GetNextDescriptor(cy_stc_dma_descriptor_t const * descriptor)
 {
     cy_stc_dma_descriptor_t * retVal = NULL;
-
+    CY_ASSERT_L1(descriptor);
     switch((cy_en_dma_descriptor_type_t) _FLD2VAL(CY_DMA_CTL_TYPE, descriptor->ctl))
     {
         case CY_DMA_SINGLE_TRANSFER:
@@ -418,7 +426,7 @@ cy_stc_dma_descriptor_t * Cy_DMA_Descriptor_GetNextDescriptor(cy_stc_dma_descrip
 void Cy_DMA_Descriptor_SetDescriptorType(cy_stc_dma_descriptor_t * descriptor, cy_en_dma_descriptor_type_t descriptorType)
 {
     CY_ASSERT_L3(CY_DMA_IS_TYPE_VALID(descriptorType));
-
+    CY_ASSERT_L1(descriptor);
     if ((CY_DMA_CRC_TRANSFER != descriptorType) || CY_DW_CRC)
     {
         if (descriptorType != Cy_DMA_Descriptor_GetDescriptorType(descriptor)) /* Do not perform if the type is not changed */
@@ -436,6 +444,6 @@ void Cy_DMA_Descriptor_SetDescriptorType(cy_stc_dma_descriptor_t * descriptor, c
 CY_MISRA_BLOCK_END('MISRA C-2012 Rule 11.3');
 CY_MISRA_BLOCK_END('MISRA C-2012 Rule 10.8');
 
-#endif /* CY_IP_M4CPUSS_DMA */
+#endif /* CY_IP_M4CPUSS_DMA, CY_IP_MXDW */
 
 /* [] END OF FILE */

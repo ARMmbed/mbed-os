@@ -24,12 +24,12 @@
 *******************************************************************************/
 
 
-#if !defined(CY_CRYPTO_CORE_AES_V2_H)
+#if !defined (CY_CRYPTO_CORE_AES_V2_H)
 #define CY_CRYPTO_CORE_AES_V2_H
 
 #include "cy_crypto_common.h"
 
-#if defined(CY_IP_MXCRYPTO)
+#if defined (CY_IP_MXCRYPTO)
 
 #if defined(__cplusplus)
 extern "C" {
@@ -90,7 +90,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Aes_Ctr(CRYPTO_Type *base,
 
 #endif /* CY_IP_MXCRYPTO */
 
-#endif /* #if !defined(CY_CRYPTO_CORE_AES_V2_H) */
+#endif /* #if !defined (CY_CRYPTO_CORE_AES_V2_H) */
 
 
 /* [] END OF FILE */

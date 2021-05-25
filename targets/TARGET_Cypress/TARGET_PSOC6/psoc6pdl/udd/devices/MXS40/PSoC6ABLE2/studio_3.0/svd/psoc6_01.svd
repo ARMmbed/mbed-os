@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Generator version: 1.6.0.292 -->
+<!-- Generator version: 1.6.0.464 -->
 <device schemaVersion="1.3" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="CMSIS-SVD.xsd">
   <vendor>Cypress Semiconductor</vendor>
   <vendorID>Cypress</vendorID>
@@ -7,7 +7,7 @@
   <series>PSoC6_01</series>
   <version>1.0</version>
   <description>PSoC6_01</description>
-  <licenseText>Copyright 2016-2020 Cypress Semiconductor Corporation\n
+  <licenseText>Copyright 2016-2021 Cypress Semiconductor Corporation\n
     SPDX-License-Identifier: Apache-2.0\n
 \n
     Licensed under the Apache License, Version 2.0 (the "License");\n
@@ -7447,7 +7447,7 @@ Note: This bit is a write-once bit until the next reset.  Avoid changing any oth
             </field>
             <field>
               <name>BUCK_OUT1_EN</name>
-              <description>Enable for vccbuck1 output.  The value in this register is ignored unless PWR_BUCK_CTL.BUCK_EN==1.    This register is only reset by XRES/POR/BOD/HIBERNATE.  The regulator takes up to 600us to charge the external capacitor.  If there is additional load current while charging, this will increase the startup time.  The TRM specifies the required sequence when transitioning vccd from the LDO to SIMO Buck output #1.</description>
+              <description>Enable for vccbuck1 output.  The value in this register is ignored unless PWR_BUCK_CTL.BUCK_EN==1.    This register is only reset by XRES/POR/BOD/HIBERNATE.  The regulator takes up to 600us to charge the external capacitor.  If there is additional load current while charging, this will increase the startup time.  The TRM specifies the required sequence when transitioning vccd from the LDO to SIMO Buck output #1.  TRM must follow the SAS.</description>
               <bitRange>[31:31]</bitRange>
               <access>read-write</access>
             </field>
@@ -8051,7 +8051,7 @@ Note that this field is 2 bits to force multiple writes only.  Each MCWDT has a 
           <fields>
             <field>
               <name>DSI_MUX</name>
-              <description>Selects a DSI source or low frequency clock for use in a clock path.  The output of this mux can be selected for clock PATH&lt;i&gt; using CLK_SELECT_PATH register.  Using the output of this mux as HFCLK source will result in undefined behavior.  It can be used to clocks to DSI or to the reference inputs of FLL/PLL, subject to the frequency limits of those circuits.  This mux is not glitch free, so do not change the selection while it is an actively selected clock.</description>
+              <description>Selects a DSI source or low frequency clock for use in a clock path.  The output of this mux can be selected for clock PATH&lt;i&gt; using CLK_PATH_SELECT register.  Using the output of this mux as HFCLK source will result in undefined behavior.  It can be used to clocks to DSI or to the reference inputs of FLL/PLL, subject to the frequency limits of those circuits.  This mux is not glitch free, so do not change the selection while it is an actively selected clock.</description>
               <bitRange>[4:0]</bitRange>
               <access>read-write</access>
               <enumeratedValues>
@@ -8218,7 +8218,7 @@ Note that this field is 2 bits to force multiple writes only.  Each MCWDT has a 
           <fields>
             <field>
               <name>ROOT_MUX</name>
-              <description>Selects a clock path as the root of HFCLK&lt;k&gt; and for SRSS DSI input &lt;k&gt;.  Use CLK_SELECT_PATH[i] to configure the desired path.  Some paths may have FLL or PLL available (product-specific), and the control and bypass mux selections of these are in other registers.  Configure the FLL using CLK_FLL_CONFIG register.  Configure a PLL using the related CLK_PLL_CONFIG[k] register.  Note that not all products support all clock sources.  Selecting a clock source that is not supported will result in undefined behavior.</description>
+              <description>Selects a clock path as the root of HFCLK&lt;k&gt; and for SRSS DSI input &lt;k&gt;.  Use CLK_PATH_SELECT[i] to configure the desired path.  Some paths may have FLL or PLL available (product-specific), and the control and bypass mux selections of these are in other registers.  Configure the FLL using CLK_FLL_CONFIG register.  Configure a PLL using the related CLK_PLL_CONFIG[k] register.  Note that not all products support all clock sources.  Selecting a clock source that is not supported will result in undefined behavior.</description>
               <bitRange>[3:0]</bitRange>
               <access>read-write</access>
               <enumeratedValues>
@@ -13007,7 +13007,8 @@ See PORT_SEL0 for connection details.</description>
                 <name>IN0</name>
                 <description>IO pin state for pin 0
 '0': Low logic level present on pin.
-'1': High logic level present on pin.</description>
+'1': High logic level present on pin.
+On reset assertion , IN register will get reset. The Pad value takes 2 clock cycles to be reflected into IN Register.  It's value then depends on the external pin value.</description>
                 <bitRange>[0:0]</bitRange>
                 <access>read-only</access>
               </field>

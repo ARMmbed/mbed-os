@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_flash.h
-* \version 3.50
+* \version 3.50.1
 *
 * Provides the API declarations of the Flash driver.
 *
@@ -22,7 +22,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#if !defined(CY_FLASH_H)
+#if !defined (CY_FLASH_H)
 #define CY_FLASH_H
 
 /**
@@ -104,7 +104,7 @@
 * -# User must guarantee that during flash write operation no flash read
 *    operations are performed by bus masters other than CM0+ and CM4 (DMA and
 *    Crypto).
-* -# If you do not use the default startup, perform the following steps
+* -# For the CY8C6xx6, CY8C6xx7 devices if you do not use the default startup, perform the following steps
 *    before any flash write/erase operations:
 * \snippet flash/snippet/main.c Flash Initialization
 *
@@ -215,7 +215,7 @@
 *    interrupts (IPC interrupts 3 and 4) have the highest priority, or at
 *    least that pipe interrupts are not interrupted or in a pending state
 *    for more than 700 &micro;s.
-* -# If you do not use the default startup, perform the following steps
+* -# For the CY8C6xx6, CY8C6xx7 devices if you do not use the default startup, perform the following steps
 *    before any flash write/erase operations:
 * \snippet flash/snippet/main.c Flash Initialization
 *
@@ -235,6 +235,11 @@
 *
 * <table class="doxtable">
 *   <tr><th>Version</th><th style="width: 52%;">Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>3.50.1</td>
+*     <td>Updated documentation to limit devices with the restrictions.</td>
+*     <td>User experience enhancement.</td>
+*   </tr>
 *   <tr>
 *     <td rowspan="2">3.50</td>
 *     <td>Updated attribute usage for the linker section placement.</td>
@@ -369,7 +374,8 @@
 */
 
 #include "cy_device.h"
-#include <cy_device_headers.h>
+
+#if defined (CY_IP_M4CPUSS)
 
 #include "cy_syslib.h"
 
@@ -436,7 +442,7 @@ typedef enum cy_en_flashdrv_status
 } cy_en_flashdrv_status_t;
 
 
-#if !defined(CY_FLASH_RWW_DRV_SUPPORT_DISABLED)
+#if !defined (CY_FLASH_RWW_DRV_SUPPORT_DISABLED)
     /** Flash notification configuration structure */
     typedef struct
     {
@@ -444,7 +450,7 @@ typedef enum cy_en_flashdrv_status
         uint8_t  pktType;       /**< Message Type */
         uint16_t intrRelMask;   /**< Mask */
     } cy_stc_flash_notify_t;
-#endif /* !defined(CY_FLASH_RWW_DRV_SUPPORT_DISABLED) */
+#endif /* !defined (CY_FLASH_RWW_DRV_SUPPORT_DISABLED) */
 
 /** \} group_flash_enumerated_types */
 
@@ -472,9 +478,9 @@ cy_en_flashdrv_status_t Cy_Flash_RowChecksum(uint32_t rowAddr, uint32_t* checksu
 cy_en_flashdrv_status_t Cy_Flash_CalculateHash(const uint32_t* data, uint32_t numberOfBytes, uint32_t* hashPtr);
 uint32_t Cy_Flash_GetExternalStatus(void);
 
-#if !defined(CY_FLASH_RWW_DRV_SUPPORT_DISABLED)
+#if !defined (CY_FLASH_RWW_DRV_SUPPORT_DISABLED)
     void Cy_Flash_InitExt(cy_stc_flash_notify_t *ipcWaitMessageAddr);
-#endif /* !defined(CY_FLASH_RWW_DRV_SUPPORT_DISABLED) */
+#endif /* !defined (CY_FLASH_RWW_DRV_SUPPORT_DISABLED) */
 
 /** \} group_flash_functions */
 
@@ -499,8 +505,9 @@ not be used in new projects
 }
 #endif
 
+#endif /* CY_IP_M4CPUSS */
 
-#endif /* #if !defined(CY_FLASH_H) */
+#endif /* #if !defined (CY_FLASH_H) */
 
 /** \} group_flash */
 

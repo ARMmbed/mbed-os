@@ -255,11 +255,12 @@
 #if !defined(CY_CANFD_H)
 #define CY_CANFD_H
 
+#include "cy_device.h"
+
+#if defined (CY_IP_MXTTCANFD)
+
 #include <stddef.h>
 #include "cy_syslib.h"
-#include "cy_device_headers.h"
-
-#ifdef CY_IP_MXTTCANFD
 
 #if defined(__cplusplus)
 extern "C" {

@@ -24,12 +24,14 @@
 *******************************************************************************/
 
 
-#if !defined(CY_CRYPTO_CORE_VU_H)
+#if !defined (CY_CRYPTO_CORE_VU_H)
 #define CY_CRYPTO_CORE_VU_H
 
-#include "cy_crypto_common.h"
+#include "cy_device.h"
 
-#if defined(CY_IP_MXCRYPTO)
+#if defined (CY_IP_MXCRYPTO)
+
+#include "cy_crypto_common.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -338,6 +340,6 @@ void Cy_Crypto_Core_VU_RegInvertEndianness(CRYPTO_Type *base, uint32_t srcReg);
 
 #endif /* CY_IP_MXCRYPTO */
 
-#endif /* #if !defined(CY_CRYPTO_CORE_VU_H) */
+#endif /* #if !defined (CY_CRYPTO_CORE_VU_H) */
 
 /* [] END OF FILE */

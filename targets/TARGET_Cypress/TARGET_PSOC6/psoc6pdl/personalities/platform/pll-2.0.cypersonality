@@ -32,7 +32,7 @@
     <Resource name="srss\.clock\.pll" used="true" />
   </Dependencies>
   <ExposedMembers>
-    <ExposedMember key="frequency" paramId="frequency" />
+    <ExposedMember key="frequency" paramId="frequencyDisplay" />
     <ExposedMember key="accuracy"  paramId="accuracy" />
     <ExposedMember key="error"     paramId="error" />
   </ExposedMembers>
@@ -77,14 +77,15 @@
     <ParamRange id="reference" name="Reference (1-18)" group="General" default="`${getTclVar(&quot;referenceDiv&quot;, callSolver)}`" min="1" max="18" resolution="1"  visible="true" editable="`${manConfig}`" desc="The reference clock divider" />
     <ParamRange id="output" name="Output (2-16)" group="General" default="`${getTclVar(&quot;outputDiv&quot;, callSolver)}`" min="2" max="16" resolution="1"  visible="true" editable="`${manConfig}`" desc="The output clock divider" />
     <ParamRange id="frequency" name="Frequency" group="Internal" default="`${sourceFrequency * feedback / reference / output}`" min="10625000" max="150000000" resolution="1" visible="false" editable="false" desc="" />
+    <ParamRange id="frequencyDisplay" name="Display Frequency" group="Internal" default="`${(sourceFrequencyActual eq 0) ? sourceFrequencyActual : frequency}`" min="0" max="150000000" resolution="1" visible="false" editable="false" desc="" />
     <ParamString id="frequencyInfo" name="Actual Frequency" group="General" default="`${formatFrequency(!error ? frequency : 0,accuracy)}`" visible="true" editable="false" desc="The calculated resulting PLL output frequency" />
-    
+
     <!-- Manual DRC verify params -->
     <ParamRange id="pfdFreq" name="PFD Frequency" group="internal" default="`${sourceFrequency / reference / 1000000.0}`" min="0" max="10000" resolution="0.001" visible="false" editable="false" desc="" />
     <ParamRange id="vcoFreq" name="VCO Frequency" group="internal" default="`${pfdFreq * feedback}`" min="0" max="10000" resolution="0.001" visible="false" editable="false" desc="" />
     <ParamRange id="vcoMin" name="VCO Min" group="internal" default="`${lowFrequencyMode ? 170 : 200}`" min="170" max="200" resolution="1" visible="false" editable="false" desc="" />
     <ParamRange id="vcoMax" name="VCO Max" group="internal" default="`${lowFrequencyMode ? 200 : 400}`" min="200" max="400" resolution="1" visible="false" editable="false" desc="" />
-    
+
   </Parameters>
   <DRCs>
     <DRC type="ERROR" text="Source clock for PLL is not enabled" condition="`${srcNotUsed &amp;&amp; !hasBlock(&quot;srss[0].clock[0].pll[1]&quot;)}`" >

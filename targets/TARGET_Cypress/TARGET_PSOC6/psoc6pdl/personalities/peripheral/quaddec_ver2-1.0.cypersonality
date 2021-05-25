@@ -352,7 +352,6 @@
       <Member name="phiBInputMode" value="`${Resolution eq CY_TCPWM_QUADDEC_UP_DOWN_ROTARY_COUNT ? phiBInputMode : CY_TCPWM_INPUT_LEVEL }`" />
       <Member name="trigger0Event" value="`${trigger0Event}`" />
       <Member name="trigger1Event" value="`${trigger1Event}`" />
-      <Member name="trigger1Event" value="`${trigger1Event}`" />
       <Member name="captureOnIndex" value="`${QuadMode ne CY_TCPWM_QUADDEC_MODE_RANGE0_CMP ? defineInputDisabled : CaptureOnIndex}`"/>
       <Member name="compare0" value="`${Compare0}`" />
       <Member name="compareBuf0" value="`${CompareBuf0}`" />

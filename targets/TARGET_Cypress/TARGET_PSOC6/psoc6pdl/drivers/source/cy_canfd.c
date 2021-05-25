@@ -22,9 +22,12 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-#include "cy_canfd.h"
 
-#ifdef CY_IP_MXTTCANFD
+#include "cy_device.h"
+
+#if defined (CY_IP_MXTTCANFD)
+
+#include "cy_canfd.h"
 
 #if defined(__cplusplus)
 extern "C" {

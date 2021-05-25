@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_scb_uart.c
-* \version 2.60
+* \version 2.80
 *
 * Provides UART API implementation of the SCB driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2020 Cypress Semiconductor Corporation
+* Copyright 2016-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,9 +22,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "cy_scb_uart.h"
+#include "cy_device.h"
 
-#ifdef CY_IP_MXSCB
+#if defined (CY_IP_MXSCB)
+
+#include "cy_scb_uart.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -36,6 +38,203 @@ static void HandleRingBuffer  (CySCB_Type *base, cy_stc_scb_uart_context_t *cont
 static void HandleDataTransmit(CySCB_Type *base, cy_stc_scb_uart_context_t *context);
 static uint32_t SelectRxFifoLevel(CySCB_Type const *base);
 
+/*******************************************************************************
+* Function Name: Cy_SCB_UART_SetOverSample
+****************************************************************************//**
+*
+* Sets oversample bits of UART.
+*
+* \param base
+* The pointer to the UART SCB instance.
+*
+* \param overSample
+* Value of oversample to be set.
+*
+* \param context
+* The pointer to the context structure \ref cy_stc_scb_uart_context_t allocated
+* by the user. The structure is used during the UART operation for internal
+* configuration and data retention. The user must not modify anything
+* in this structure.
+* User should not pass NULL as pointer to context.
+*
+* \return
+* \ref cy_en_scb_uart_status_t
+*
+* \note
+* Ensure that the SCB block is disabled before calling this function.
+*
+* \snippet scb/uart_snippet/main.c UART_SET_OVS
+*
+*******************************************************************************/
+cy_en_scb_uart_status_t Cy_SCB_UART_SetOverSample(CySCB_Type *base, uint32_t overSample, cy_stc_scb_uart_context_t *context)
+{
+    CY_MISRA_DEVIATE_BLOCK_START('MISRA C-2012 Rule 10.8', 1, \
+    'Intentional typecast to cy_en_scb_uart_mode_t enum to validate arguments.');
+    if((NULL == base) || (NULL == context) ||
+       ((CY_SCB_UART_IS_OVERSAMPLE_VALID(overSample, ((cy_en_scb_uart_mode_t)_FLD2VAL(SCB_UART_CTRL_MODE,SCB_UART_CTRL(base))), context->irdaEnableLowPowerReceiver)) == false))
+    {
+        return CY_SCB_UART_BAD_PARAM;
+    }
+    CY_MISRA_BLOCK_END('MISRA C-2012 Rule 10.8');
+
+    uint32_t ovs;
+
+    if (((uint32_t)CY_SCB_UART_IRDA == _FLD2VAL(SCB_UART_CTRL_MODE,SCB_UART_CTRL(base))) && (!context->irdaEnableLowPowerReceiver))
+    {
+        /* For Normal IrDA mode oversampling is always zero */
+        ovs = 0UL;
+    }
+    else
+    {
+        ovs = overSample - 1UL;
+    }
+
+    /* Set oversample bits */
+    CY_REG32_CLR_SET(SCB_CTRL(base), SCB_CTRL_OVS, ovs);
+
+    return CY_SCB_UART_SUCCESS;
+}
+
+/*******************************************************************************
+* Function Name: Cy_SCB_UART_SetDataWidth
+****************************************************************************//**
+*
+* Sets datawidth for UART transaction.
+*
+* \param base
+* The pointer to the UART SCB instance.
+*
+* \param dataWidth
+* The width of UART data in the UART transaction.
+*
+* \note
+* Ensure that the SCB block is disabled before calling this function.
+*
+* \snippet scb/uart_snippet/main.c UART_SET_DATA_WIDTH
+*
+*******************************************************************************/
+void Cy_SCB_UART_SetDataWidth(CySCB_Type *base, uint32_t dataWidth)
+{
+    CY_ASSERT_L2(CY_SCB_UART_IS_DATA_WIDTH_VALID (dataWidth));
+
+    /* Configure the memory width */
+    Cy_SCB_SetByteMode(base, (dataWidth <= CY_SCB_BYTE_WIDTH));
+
+    CY_REG32_CLR_SET(SCB_RX_CTRL(base), SCB_RX_CTRL_DATA_WIDTH, (dataWidth - 1UL));
+
+    CY_REG32_CLR_SET(SCB_TX_CTRL(base), SCB_TX_CTRL_DATA_WIDTH, (dataWidth - 1UL));
+}
+
+/*******************************************************************************
+* Function Name: Cy_SCB_UART_SetParity
+****************************************************************************//**
+*
+* Sets parity for UART transaction.
+*
+* \param base
+* The pointer to the UART SCB instance.
+*
+* \param parity
+* The UART parity bit in the UART transaction.
+*
+* \note
+* Ensure that the SCB block is disabled before calling this function.
+*
+* \snippet scb/uart_snippet/main.c UART_SET_PARITY
+*
+*******************************************************************************/
+void Cy_SCB_UART_SetParity(CySCB_Type *base, cy_en_scb_uart_parity_t parity)
+{
+    CY_ASSERT_L3(CY_SCB_UART_IS_PARITY_VALID (parity));
+
+    /* Configure the RX direction with given parameters */
+    CY_REG32_CLR_SET(SCB_UART_RX_CTRL(base), CY_SCB_UART_RX_CTRL_SET_PARITY, (uint32_t) parity);
+
+    /* Configure the TX direction with given parameters*/
+    CY_REG32_CLR_SET(SCB_UART_TX_CTRL(base), CY_SCB_UART_TX_CTRL_SET_PARITY, (uint32_t) parity);
+}
+
+/*******************************************************************************
+* Function Name: Cy_SCB_UART_SetStopBits
+****************************************************************************//**
+*
+* Sets stop bits for UART transaction.
+*
+* \param base
+* The pointer to the UART SCB instance.
+*
+* \param stopBits
+* The number of stop bits in the UART transaction.
+*
+* \note
+* Ensure that the SCB block is disabled before calling this function.
+*
+* \snippet scb/uart_snippet/main.c UART_SET_STOP_BITS
+*
+*******************************************************************************/
+void Cy_SCB_UART_SetStopBits(CySCB_Type *base, cy_en_scb_uart_stop_bits_t stopBits)
+{
+    CY_ASSERT_L3(CY_SCB_UART_IS_STOP_BITS_VALID (stopBits));
+
+    /* Configure the RX direction with given parameters */
+    CY_REG32_CLR_SET(SCB_UART_RX_CTRL(base), SCB_UART_RX_CTRL_STOP_BITS, ((uint32_t) stopBits) - 1UL);
+
+    /* Configure the TX direction with given parameters*/
+    CY_REG32_CLR_SET(SCB_UART_TX_CTRL(base), SCB_UART_TX_CTRL_STOP_BITS, ((uint32_t) stopBits) - 1UL);
+}
+
+/*******************************************************************************
+* Function Name: Cy_SCB_UART_SetDropOnParityError
+****************************************************************************//**
+*
+* Sets SetDropOnParityError for UART transaction.
+*
+* \param base
+* The pointer to the UART SCB instance.
+*
+* \param dropOnParityError
+* To enable the hardware to drop data in the RX FIFO when a parity error is
+* detected in the UART transaction.
+*
+* \note
+* Ensure that the SCB block is disabled before calling this function.
+*
+* \snippet scb/uart_snippet/main.c UART_SET_DROP_ON_PARITY_ERROR
+*
+*******************************************************************************/
+void Cy_SCB_UART_SetDropOnParityError(CySCB_Type *base, bool dropOnParityError)
+{
+    /* Configure the RX direction with given parameters */
+    CY_REG32_CLR_SET(SCB_UART_RX_CTRL(base), SCB_UART_RX_CTRL_DROP_ON_PARITY_ERROR, dropOnParityError);
+}
+
+/*******************************************************************************
+* Function Name: Cy_SCB_UART_SetEnableMsbFirst
+****************************************************************************//**
+*
+* Sets enableMsbFirst for UART transaction.
+*
+* \param base
+* The pointer to the UART SCB instance.
+*
+* \param enableMsbFirst
+* Enables the hardware to shift out data element MSB first;
+* otherwise, LSB first in the UART transaction.
+*
+* \note
+* Ensure that the SCB block is disabled before calling this function.
+*
+* \snippet scb/uart_snippet/main.c UART_SET_ENABLE_MSB_FIRST
+*
+*******************************************************************************/
+void Cy_SCB_UART_SetEnableMsbFirst(CySCB_Type *base, bool enableMsbFirst)
+{
+    /* Configure the RX direction with given parameters */
+    CY_REG32_CLR_SET(SCB_RX_CTRL(base), SCB_RX_CTRL_MSB_FIRST, enableMsbFirst);
+
+    /* Configure the TX direction with given parameters*/
+    CY_REG32_CLR_SET(SCB_TX_CTRL(base), SCB_TX_CTRL_MSB_FIRST, enableMsbFirst);
+}
 
 /*******************************************************************************
 * Function Name: Cy_SCB_UART_Init
@@ -100,11 +299,17 @@ cy_en_scb_uart_status_t Cy_SCB_UART_Init(CySCB_Type *base, cy_stc_scb_uart_confi
     }
 
     /* Configure the UART interface */
+#if(CY_IP_MXSCB_VERSION>=3)
+    SCB_CTRL(base) = _BOOL2FLD(SCB_CTRL_ADDR_ACCEPT, config->acceptAddrInFifo)                      |
+                 _VAL2FLD(SCB_CTRL_MEM_WIDTH, ((config->dataWidth <= CY_SCB_BYTE_WIDTH)? 0UL:1UL))  |
+                 _VAL2FLD(SCB_CTRL_OVS, ovs)                                                        |
+                 _VAL2FLD(SCB_CTRL_MODE, CY_SCB_CTRL_MODE_UART);
+#elif(CY_IP_MXSCB_VERSION==1)
     SCB_CTRL(base) = _BOOL2FLD(SCB_CTRL_ADDR_ACCEPT, config->acceptAddrInFifo)               |
                  _BOOL2FLD(SCB_CTRL_BYTE_MODE, (config->dataWidth <= CY_SCB_BYTE_WIDTH)) |
                  _VAL2FLD(SCB_CTRL_OVS, ovs)                                             |
                  _VAL2FLD(SCB_CTRL_MODE, CY_SCB_CTRL_MODE_UART);
-
+#endif /* CY_IP_MXSCB_VERSION */
     /* Configure SCB_CTRL.BYTE_MODE then verify levels */
     CY_ASSERT_L2(CY_SCB_IS_TRIGGER_LEVEL_VALID(base, config->rxFifoTriggerLevel));
     CY_ASSERT_L2(CY_SCB_IS_TRIGGER_LEVEL_VALID(base, config->txFifoTriggerLevel));
@@ -120,6 +325,9 @@ cy_en_scb_uart_status_t Cy_SCB_UART_Init(CySCB_Type *base, cy_stc_scb_uart_confi
                          _VAL2FLD(SCB_UART_RX_CTRL_BREAK_WIDTH, (config->breakWidth - 1UL))          |
                          _VAL2FLD(SCB_UART_RX_CTRL_STOP_BITS,   ((uint32_t) config->stopBits) - 1UL) |
                          _VAL2FLD(CY_SCB_UART_RX_CTRL_SET_PARITY, (uint32_t) config->parity);
+#if(CY_IP_MXSCB_VERSION>=3)
+    SCB_UART_RX_CTRL(base)|=_BOOL2FLD(SCB_UART_RX_CTRL_BREAK_LEVEL, config->breaklevel);
+#endif /* CY_IP_MXSCB_VERSION */
 
     SCB_RX_CTRL(base) = _BOOL2FLD(SCB_RX_CTRL_MSB_FIRST, config->enableMsbFirst)          |
                     _BOOL2FLD(SCB_RX_CTRL_MEDIAN, ((config->enableInputFilter) || \
@@ -169,6 +377,7 @@ cy_en_scb_uart_status_t Cy_SCB_UART_Init(CySCB_Type *base, cy_stc_scb_uart_confi
         context->txLeftToTransmit = 0UL;
 
         context->cbEvents = NULL;
+        context->irdaEnableLowPowerReceiver = config->irdaEnableLowPowerReceiver;
 
     #if !defined(NDEBUG)
         /* Put an initialization key into the initKey variable to verify

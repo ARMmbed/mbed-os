@@ -204,11 +204,11 @@
 #define CY_PROFILE_H
 
 #include "cy_device.h"
-#include "cy_device_headers.h"
+
+#if defined (CY_IP_MXPROFILE)
+
 #include "cy_syslib.h"
 #include <stddef.h>
-
-#ifdef CY_IP_MXPROFILE
 
 #if defined(__cplusplus)
 extern "C" {

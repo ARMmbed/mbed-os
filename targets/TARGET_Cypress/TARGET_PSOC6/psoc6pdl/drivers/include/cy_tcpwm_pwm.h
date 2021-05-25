@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_tcpwm_pwm.h
-* \version 1.20
+* \version 1.30
 *
 * \brief
 * The header file of the TCPWM PWM driver.
@@ -158,6 +158,8 @@ typedef struct cy_stc_tcpwm_pwm_config
     uint32_t    countInputMode;     /**< Configures how the count input behaves. See \ref group_tcpwm_input_modes */
     /** Selects which input the count uses. The inputs are device-specific. See \ref group_tcpwm_input_selection */
     uint32_t    countInput;
+    /** If enabled, line output is set on underflow and cleared on overflow. This configuration is available only in center and asymmetric alignment modes. */
+    bool        swapOverflowUnderflow;
 #if (CY_IP_MXTCPWM_VERSION >= 2U)
     bool        immediateKill;      /**< Specifies whether the kill event immediately deactivates the dt_line_out and dt_line_compl_out or with the next module clock */
     uint32_t    tapsEnabled;        /**< In pseudo random mode sets the enabled taps */
@@ -296,6 +298,7 @@ typedef struct cy_stc_tcpwm_pwm_config
 #define CY_TCPWM_PWM_TR_CTRL2_INVERT        (2UL) /**< Invert define for PWM output signal configuration */
 #define CY_TCPWM_PWM_TR_CTRL2_NO_CHANGE     (3UL) /**< No change define for PWM output signal configuration */
 
+#if (CY_IP_MXTCPWM_VERSION == 1U)
 /** The configuration of PWM output signal in Pseudo Random Mode */
 #define CY_TCPWM_PWM_MODE_PR         (_VAL2FLD(TCPWM_CNT_TR_CTRL2_CC_MATCH_MODE, CY_TCPWM_PWM_TR_CTRL2_NO_CHANGE) | \
                                       _VAL2FLD(TCPWM_CNT_TR_CTRL2_OVERFLOW_MODE, CY_TCPWM_PWM_TR_CTRL2_NO_CHANGE) | \
@@ -315,7 +318,39 @@ typedef struct cy_stc_tcpwm_pwm_config
 #define CY_TCPWM_PWM_MODE_CNTR_OR_ASYMM (_VAL2FLD(TCPWM_CNT_TR_CTRL2_CC_MATCH_MODE, CY_TCPWM_PWM_TR_CTRL2_INVERT) | \
                                          _VAL2FLD(TCPWM_CNT_TR_CTRL2_OVERFLOW_MODE, CY_TCPWM_PWM_TR_CTRL2_SET) | \
                                          _VAL2FLD(TCPWM_CNT_TR_CTRL2_UNDERFLOW_MODE, CY_TCPWM_PWM_TR_CTRL2_CLEAR))
-     
+
+/** The configuration of PWM output signal for Center and Asymmetric alignment with swapped underflow and overflow setting */
+#define CY_TCPWM_PWM_MODE_CNTR_OR_ASYMM_SWAPPED (_VAL2FLD(TCPWM_CNT_TR_CTRL2_CC_MATCH_MODE, CY_TCPWM_PWM_TR_CTRL2_INVERT) | \
+                                         _VAL2FLD(TCPWM_CNT_TR_CTRL2_OVERFLOW_MODE, CY_TCPWM_PWM_TR_CTRL2_CLEAR) | \
+                                         _VAL2FLD(TCPWM_CNT_TR_CTRL2_UNDERFLOW_MODE, CY_TCPWM_PWM_TR_CTRL2_SET))
+
+#else
+
+/** The configuration of PWM output signal in Pseudo Random Mode */
+#define CY_TCPWM_PWM_MODE_PR         (_VAL2FLD(TCPWM_GRP_CNT_V2_TR_PWM_CTRL_CC0_MATCH_MODE, CY_TCPWM_PWM_TR_CTRL2_NO_CHANGE) | \
+                                      _VAL2FLD(TCPWM_GRP_CNT_V2_TR_PWM_CTRL_OVERFLOW_MODE, CY_TCPWM_PWM_TR_CTRL2_NO_CHANGE) | \
+                                      _VAL2FLD(TCPWM_GRP_CNT_V2_TR_PWM_CTRL_UNDERFLOW_MODE, CY_TCPWM_PWM_TR_CTRL2_NO_CHANGE))
+
+/** The configuration of PWM output signal for Left alignment */
+#define CY_TCPWM_PWM_MODE_LEFT       (_VAL2FLD(TCPWM_GRP_CNT_V2_TR_PWM_CTRL_CC0_MATCH_MODE, CY_TCPWM_PWM_TR_CTRL2_CLEAR) | \
+                                      _VAL2FLD(TCPWM_GRP_CNT_V2_TR_PWM_CTRL_OVERFLOW_MODE, CY_TCPWM_PWM_TR_CTRL2_SET) | \
+                                      _VAL2FLD(TCPWM_GRP_CNT_V2_TR_PWM_CTRL_UNDERFLOW_MODE, CY_TCPWM_PWM_TR_CTRL2_NO_CHANGE))
+
+/** The configuration of PWM output signal for Right alignment */
+#define CY_TCPWM_PWM_MODE_RIGHT      (_VAL2FLD(TCPWM_GRP_CNT_V2_TR_PWM_CTRL_CC0_MATCH_MODE, CY_TCPWM_PWM_TR_CTRL2_SET) | \
+                                      _VAL2FLD(TCPWM_GRP_CNT_V2_TR_PWM_CTRL_OVERFLOW_MODE, CY_TCPWM_PWM_TR_CTRL2_NO_CHANGE) | \
+                                      _VAL2FLD(TCPWM_GRP_CNT_V2_TR_PWM_CTRL_UNDERFLOW_MODE, CY_TCPWM_PWM_TR_CTRL2_CLEAR))
+
+/** The configuration of PWM output signal for Center and Asymmetric alignment */
+#define CY_TCPWM_PWM_MODE_CNTR_OR_ASYMM (_VAL2FLD(TCPWM_GRP_CNT_V2_TR_PWM_CTRL_CC0_MATCH_MODE, CY_TCPWM_PWM_TR_CTRL2_INVERT) | \
+                                         _VAL2FLD(TCPWM_GRP_CNT_V2_TR_PWM_CTRL_OVERFLOW_MODE, CY_TCPWM_PWM_TR_CTRL2_SET) | \
+                                         _VAL2FLD(TCPWM_GRP_CNT_V2_TR_PWM_CTRL_UNDERFLOW_MODE, CY_TCPWM_PWM_TR_CTRL2_CLEAR))
+
+/** The configuration of PWM output signal for Center and Asymmetric alignment with swapped underflow and overflow setting */
+#define CY_TCPWM_PWM_MODE_CNTR_OR_ASYMM_SWAPPED (_VAL2FLD(TCPWM_GRP_CNT_V2_TR_PWM_CTRL_CC0_MATCH_MODE, CY_TCPWM_PWM_TR_CTRL2_INVERT) | \
+                                         _VAL2FLD(TCPWM_GRP_CNT_V2_TR_PWM_CTRL_OVERFLOW_MODE, CY_TCPWM_PWM_TR_CTRL2_CLEAR) | \
+                                         _VAL2FLD(TCPWM_GRP_CNT_V2_TR_PWM_CTRL_UNDERFLOW_MODE, CY_TCPWM_PWM_TR_CTRL2_SET))
+
 /** The configuration of PWM output signal to ignore CC1 match event */
 #define CY_TCPWM_PWM_MODE_CC1_IGNORE   (_VAL2FLD(TCPWM_GRP_CNT_V2_TR_PWM_CTRL_CC1_MATCH_MODE, CY_TCPWM_PWM_TR_CTRL2_NO_CHANGE))
 
@@ -333,7 +368,7 @@ typedef struct cy_stc_tcpwm_pwm_config
                                                 
 #define CY_TCPWM_PWM_MODE_CNTR_ASYMM_CC0_CC1_MATCH    ((TCPWM_GRP_CNT_V2_CTRL_CC0_MATCH_UP_EN_Msk) | \
                                                        (TCPWM_GRP_CNT_V2_CTRL_CC1_MATCH_DOWN_EN_Msk))
-
+#endif
 /** \endcond */
 
 

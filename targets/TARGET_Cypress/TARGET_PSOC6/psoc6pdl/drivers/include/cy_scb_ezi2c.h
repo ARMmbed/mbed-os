@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_scb_ezi2c.h
-* \version 2.60
+* \version 2.80
 *
 * Provides EZI2C API declarations of the SCB driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2020 Cypress Semiconductor Corporation
+* Copyright 2016-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,6 +39,11 @@
 * master and your code. I2C devices based on the SCB hardware are compatible
 * with the I2C Standard mode, Fast mode, and Fast mode Plus specifications, as
 * defined in the I2C bus specification.
+* 
+* EZI2C slave is a special implementation of the I2C that handles all communication
+* between the master and slave through ISR (interrupt service routine) and requires
+* no interaction with the main program flow from the slave side. The EZI2C should be
+* used when a shared memory model between the I2C master and I2C slave is needed.
 *
 * Features:
 * * An industry-standard I2C bus interface
@@ -47,7 +52,7 @@
 * * Acts like dual-port memory between the external master and your code
 * * Supports Hardware Address Match
 * * Supports two hardware addresses with separate buffers
-* * Supports Wake from Deep Sleep on address match
+* * On deep sleep-capable SCB, it supports wake from deep sleep on address match
 * * Simple to set up and use; does not require calling EZI2C API
 *   at run time.
 *
@@ -240,9 +245,11 @@
 #if !defined(CY_SCB_EZI2C_H)
 #define CY_SCB_EZI2C_H
 
-#include "cy_scb_common.h"
+#include "cy_device.h"
 
-#ifdef CY_IP_MXSCB
+#if defined (CY_IP_MXSCB)
+
+#include "cy_scb_common.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -488,7 +495,12 @@ cy_en_syspm_status_t Cy_SCB_EZI2C_HibernateCallback(cy_stc_syspm_callback_params
 
 /** \cond INTERNAL */
 /* Default registers values */
+#if (CY_IP_MXSCB_VERSION>=3)
+#define CY_SCB_EZI2C_I2C_CTRL   (SCB_I2C_CTRL_S_GENERAL_IGNORE_Msk | SCB_I2C_CTRL_SLAVE_MODE_Msk | \
+                                 SCB_I2C_CTRL_S_READY_ADDR_ACK_Msk | SCB_I2C_CTRL_S_READY_DATA_ACK_Msk)
+#elif (CY_IP_MXSCB_VERSION==1)
 #define CY_SCB_EZI2C_I2C_CTRL   (SCB_I2C_CTRL_S_GENERAL_IGNORE_Msk | SCB_I2C_CTRL_SLAVE_MODE_Msk)
+#endif /* CY_IP_MXSCB_VERSION */
 #define CY_SCB_EZI2C_RX_CTRL    (CY_SCB_I2C_RX_CTRL)
 #define CY_SCB_EZI2C_TX_CTRL    (CY_SCB_I2C_TX_CTRL)
 

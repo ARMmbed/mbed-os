@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_smif_memslot.h
-* \version 2.0
+* \version 2.20
 *
 * \brief
 *  This file provides the constants and parameter values for the memory-level
@@ -10,7 +10,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2020 Cypress Semiconductor Corporation
+* Copyright 2016-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,16 +26,17 @@
 * limitations under the License.
 *******************************************************************************/
 
-#if !defined(CY_SMIF_MEMORYSLOT_H)
+#if !defined (CY_SMIF_MEMORYSLOT_H)
 #define CY_SMIF_MEMORYSLOT_H
+
+#include "cy_device.h"
+
+#if defined (CY_IP_MXSMIF)
 
 #include <stdint.h>
 #include <stdbool.h>
 #include "cy_syslib.h"
-#include "cy_device_headers.h"
 #include "cy_smif.h"
-
-#ifdef CY_IP_MXSMIF
 
 #if defined(__cplusplus)
 extern "C" {
@@ -95,6 +96,16 @@ extern "C" {
 * Valid when the memory-mapped mode is enabled */
 #define CY_SMIF_FLAG_CRYPTO_ENABLE      (SMIF_DEVICE_CTL_CRYPTO_EN_Msk)
 
+#if (CY_IP_MXSMIF_VERSION>=3) || defined (CY_DOXYGEN)
+/**
+* \note
+* This macro is available for CAT1B devices.
+**/
+/** Enables IP version 3 features such as octal SPI/DDR mode/ 2 byte addressing
+*/
+#define CY_SMIF_FLAG_SMIF_REV_3      (8U)
+#endif /* CY_IP_MXSMIF_VERSION */
+
 /** \} group_smif_macros_flags */
 
 /**
@@ -144,6 +155,14 @@ extern "C" {
 #define CY_SMIF_FAST_READ_4_BYTES_CMD_1S_2S_2S      (0xBCU)                 /**< The command for a 1S-2S-2S SMIF fast read with 4-byte addressing */
 #define CY_SMIF_FAST_READ_4_BYTES_CMD_1S_1S_4S      (0x6CU)                 /**< The command for a 1S-1S-4S SMIF fast read with 4-byte addressing */
 #define CY_SMIF_FAST_READ_4_BYTES_CMD_1S_4S_4S      (0xECU)                 /**< The command for a 1S-4S-4S SMIF fast read with 4-byte addressing */
+
+#if (CY_IP_MXSMIF_VERSION>=3) || defined (CY_DOXYGEN)
+/**
+* \note
+* This macro is available for CAT1B devices.
+**/
+#define CY_SMIF_FAST_READ_4_BYTES_CMD_1S_4D_4D      (0xEEU)                 /**< The command for a 1S-4D-4D SMIF fast read with 4-byte addressing */
+#endif /* CY_IP_MXSMIF_VERSION */
 
 #define CY_SMIF_PAGE_PROGRAM_4_BYTES_CMD_1S_1S_1S   (0x12U)                 /**< The command for a 1S-1S-1S SMIF page program with 4-byte addressing */
 #define CY_SMIF_PAGE_PROGRAM_4_BYTES_CMD_1S_1S_4S   (0x34U)                 /**< The command for a 1S-1S-4S SMIF page program with 4-byte addressing */
@@ -226,13 +245,27 @@ extern "C" {
 #define CY_SMIF_SFDP_FAST_READ_1_4_4_Msk            (0x20UL)                /**< The SFDP 1-4-4 fast read support (Bitfield-Mask: 0x01) */
 #define CY_SMIF_SFDP_FAST_READ_1_2_2_Pos            (4UL)                   /**< The SFDP 1-2-2 fast read support (Bit 4)               */
 #define CY_SMIF_SFDP_FAST_READ_1_2_2_Msk            (0x10UL)                /**< The SFDP 1-2-2 fast read support (Bitfield-Mask: 0x01) */
+
+#if (CY_IP_MXSMIF_VERSION>=3) || defined (CY_DOXYGEN)
+/**
+* \note
+* This macro is available for CAT1B devices.
+**/
+#define CY_SMIF_SFDP_DTR_SUPPORT_Pos                  (3UL)                   /**< The SFDP DTR support (Bit 3)                           */
+/**
+* \note
+* This macro is available for CAT1B devices.
+**/
+#define CY_SMIF_SFDP_DTR_SUPPORT_Msk                  (0x08UL)                /**< The SFDP DTR support (Bitfield-Mask: 0x08)             */
+#endif /* CY_IP_MXSMIF_VERSION */
+
 #define CY_SMIF_SFDP_ADDRESS_BYTES_Pos              (1UL)                   /**< The SFDP number of address bytes (Bit 1)               */
 #define CY_SMIF_SFDP_ADDRESS_BYTES_Msk              (0x06UL)                /**< The SFDP number of address bytes (Bitfield-Mask: 0x03) */
 #define CY_SMIF_SFDP_FAST_READ_1_1_2_Pos            (0UL)                   /**< The SFDP 1-1-2 fast read support (Bit 0)               */
 #define CY_SMIF_SFDP_FAST_READ_1_1_2_Msk            (0x01UL)                /**< The SFDP 1-1-2 fast read support (Bitfield-Mask: 0x01) */
 
 /* ----------------------------  2nd DWORD  ---------------------------- */
-#define CY_SMIF_SFDP_SIZE_ABOVE_4GB_Msk             (0x80000000UL)          /**< Flash memory density bit define if it >= 4 Gbit  or <= 2Gbit*/
+#define CY_SMIF_SFDP_SIZE_ABOVE_4GB_Msk             (0x80000000UL)          /**< Flash memory density bit define if it >= 4 Gbit  or <= 2Gbit */
 
 /* ----------------------------  3rd DWORD  ---------------------------- */
 #define CY_SMIF_SFDP_1_4_4_DUMMY_CYCLES_Pos         (0UL)                   /**< The SFDP number of 1-4-4 fast read dummy cycles (Bit 0)               */
@@ -326,7 +359,7 @@ extern "C" {
 #define Cy_SMIF_Memslot_CmdProgram                  Cy_SMIF_MemCmdProgram
 #define Cy_SMIF_Memslot_CmdRead                     Cy_SMIF_MemCmdRead 
 
-/** \endcond*/
+/** \endcond */
 /** \} group_smif_macros_sfdp */
 
 
@@ -346,6 +379,53 @@ typedef struct
     cy_en_smif_txfr_width_t modeWidth;      /**< The width of the mode transfer */
     uint32_t dummyCycles;                   /**< The number of the dummy cycles. A zero value suggests no dummy cycles */
     cy_en_smif_txfr_width_t dataWidth;      /**< The width of the data transfer */
+#if (CY_IP_MXSMIF_VERSION>=3) || defined (CY_DOXYGEN)
+    /**
+    * \note
+    * This parameter is available for CAT1B devices.
+    **/
+    cy_en_smif_data_rate_t dataRate;           /**< The Data rate of data */
+    /**
+    * \note
+    * This parameter is available for CAT1B devices.
+    **/
+    cy_en_smif_field_presence_t dummyCyclesPresence;   /**< This specifies the presence of the dummy field */
+    /**
+    * \note
+    * This parameter is available for CAT1B devices.
+    **/
+    cy_en_smif_field_presence_t modePresence;  /**< This specifies the presence of the mode field */
+    /**
+    * \note
+    * This parameter is available for CAT1B devices.
+    **/
+    uint32_t modeH;                            /**< The 8-bit command. This value is 0x0 when there is no higher byte mode present */
+    /**
+    * \note
+    * This parameter is available for CAT1B devices.
+    **/
+    cy_en_smif_data_rate_t modeRate;           /**< The Data rate of mode */
+    /**
+    * \note
+    * This parameter is available for CAT1B devices.
+    **/
+    cy_en_smif_data_rate_t addrRate;           /**< The Data rate of address */
+    /**
+    * \note
+    * This parameter is available for CAT1B devices.
+    **/
+    cy_en_smif_field_presence_t cmdPresence;   /**< This specifies the presence of the command field */
+    /**
+    * \note
+    * This parameter is available for CAT1B devices.
+    **/
+    uint32_t commandH;                         /**< The 8-bit command. This value is 0x0 when there is no higher byte command present */
+    /**
+    * \note
+    * This parameter is available for CAT1B devices.
+    **/
+    cy_en_smif_data_rate_t cmdRate;            /**< The Data rate of command */
+#endif /* CY_IP_MXSMIF_VERSION */
 } cy_stc_smif_mem_cmd_t;
 
 /** This structure specifies data used for memory with hybrid sectors */
@@ -353,9 +433,9 @@ typedef struct
 {
     uint32_t regionAddress;                 /**< This specifies the address where a region starts */
     uint32_t sectorsCount;                  /**< This specifies the number of sectors in the region */
-    uint32_t eraseCmd;                      /**< This specifies the region specific erase instruction*/
+    uint32_t eraseCmd;                      /**< This specifies the region specific erase instruction */
     uint32_t eraseSize;                     /**< This specifies the size of one sector */
-    uint32_t eraseTime;                     /**< Max time for sector erase type 1 cycle time in ms*/
+    uint32_t eraseTime;                     /**< Max time for sector erase type 1 cycle time in ms */
 } cy_stc_smif_hybrid_region_info_t;
 
 

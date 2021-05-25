@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_pra_cfg.c
-* \version 2.10
+* \version 2.20
 *
 * \brief The source code file for the PRA driver.  The API is not intented to
 * be used directly by user application.
@@ -22,6 +22,11 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+
+#include "cy_device.h"
+
+#if defined (CY_IP_M4CPUSS) && defined (CY_IP_MXS40IOSS)
+
 #include "cy_pra_cfg.h"
 #include "cy_device.h"
 #include "cy_gpio.h"
@@ -63,6 +68,7 @@ static uint32_t Cy_PRA_GetClkLfFreq(const cy_stc_pra_system_config_t *devConfig)
 static uint32_t Cy_PRA_GetClkBakFreq(const cy_stc_pra_system_config_t *devConfig);
 static cy_en_clkpath_in_sources_t Cy_PRA_GetInputSourceClock(uint32_t clkPath, const cy_stc_pra_system_config_t *devConfig, cy_en_pra_status_t *status);
 static cy_en_pra_status_t Cy_PRA_ValidateECO(const cy_stc_pra_system_config_t *devConfig);
+static cy_en_pra_status_t Cy_PRA_ValidateExtClkConfig(const cy_stc_pra_system_config_t *devConfig);
 static cy_en_pra_status_t Cy_PRA_ValidateEXTClk(const cy_stc_pra_system_config_t *devConfig);
 static cy_en_pra_status_t Cy_PRA_ValidateFLL(const cy_stc_pra_system_config_t *devConfig);
 static cy_en_pra_status_t Cy_PRA_ValidatePLL(const cy_stc_pra_system_config_t *devConfig, uint8_t pll);
@@ -80,6 +86,15 @@ static cy_en_pra_status_t Cy_PRA_ValidateClkPeri(const cy_stc_pra_system_config_
 static cy_en_pra_status_t Cy_PRA_ValidateClkTimer(const cy_stc_pra_system_config_t *devConfig);
 static cy_en_pra_status_t Cy_PRA_ValidateClkSlow(const cy_stc_pra_system_config_t *devConfig);
 static cy_en_pra_status_t Cy_PRA_ValidateSystemConfig(const cy_stc_pra_system_config_t *devConfig);
+
+
+/*******************************************************************************
+*        Global variables
+*******************************************************************************/
+/* External clock provisioned configuration */
+cy_stc_pra_extclk_policy_t *extClkPolicyPtr = NULL;
+
+
 
 /*******************************************************************************
 * Function Name: Cy_PRA_IloEnable
@@ -1013,6 +1028,94 @@ static cy_en_pra_status_t Cy_PRA_ValidateECO(const cy_stc_pra_system_config_t *d
 }
 
 /*******************************************************************************
+* Function Name: Cy_PRA_ValidateExtClkConfig
+****************************************************************************//**
+*
+* Validate External Clocks in respect to provisioned data
+*
+* \param devConfig System Configuration Parameter
+*
+* \return
+* CY_PRA_STATUS_SUCCESS for valid input configuration.
+* CY_PRA_STATUS_INVALID_EXTCLK_PROVISION for invalid EXTCLK input configuration.
+* CY_PRA_STATUS_INVALID_ECO_PROVISION for invalid ECO input configuration.
+* CY_PRA_STATUS_INVALID_WCO_PROVISION for invalid WCO input configuration.
+* CY_PRA_STATUS_ERROR_PROCESSING_EXTCLK_PROVISION if failed to process provisioned data
+* or devConfig is NULL.
+*
+*******************************************************************************/
+static cy_en_pra_status_t Cy_PRA_ValidateExtClkConfig(const cy_stc_pra_system_config_t *devConfig)
+{
+    cy_en_pra_status_t clkStatus, retStatus = CY_PRA_STATUS_SUCCESS;
+    cy_en_clkpath_in_sources_t hf0SourceClk;
+
+    hf0SourceClk = Cy_PRA_GetInputSourceClock((uint32_t) devConfig->hf0Source, devConfig, &clkStatus);
+    if (clkStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        retStatus = CY_PRA_STATUS_INVALID_PARAM_CLKHF0;
+    }
+    else
+    {
+        /* check for provision data only if External clock source to HF0 */
+        switch (hf0SourceClk)
+        {
+            case CY_SYSCLK_CLKPATH_IN_EXT:
+            {
+                if ((NULL == extClkPolicyPtr) ||
+                (!((extClkPolicyPtr->extClkEnable) &&
+                (extClkPolicyPtr->extClkFreqHz == devConfig->extClkFreqHz) &&
+                (extClkPolicyPtr->extClkPort   == devConfig->extClkPort) &&
+                (extClkPolicyPtr->extClkPinNum == devConfig->extClkPinNum) &&
+                (HSIOM_SEL_ACT_4  == devConfig->extClkHsiom)))) /* HSIOM_SEL_ACT_4 is Digital Active
+                                                                 * port settings for srss.ext_clk, equals to
+                                                                 * P0_0_SRSS_EXT_CLK or P0_5_SRSS_EXT_CLK
+                                                                 */
+                {
+                    retStatus = CY_PRA_STATUS_ERROR_PROCESSING_EXTCLK_PROVISION;
+                }
+            }
+            break;
+            case CY_SYSCLK_CLKPATH_IN_ECO:
+            {
+                if ((NULL == extClkPolicyPtr) ||
+                (!((extClkPolicyPtr->ecoEnable) &&
+                (extClkPolicyPtr->ecoFreqHz     == devConfig->ecoFreqHz) &&
+                (extClkPolicyPtr->ecoLoad       == devConfig->ecoLoad) &&
+                (extClkPolicyPtr->ecoEsr        == devConfig->ecoEsr)  &&
+                (extClkPolicyPtr->ecoDriveLevel == devConfig->ecoDriveLevel) &&
+                (extClkPolicyPtr->ecoInPort     == devConfig->ecoInPort) &&
+                (extClkPolicyPtr->ecoOutPort    == devConfig->ecoOutPort) &&
+                (extClkPolicyPtr->ecoInPinNum   == devConfig->ecoInPinNum) &&
+                (extClkPolicyPtr->ecoOutPinNum  == devConfig->ecoOutPinNum))))
+                {
+                    retStatus = CY_PRA_STATUS_ERROR_PROCESSING_ECO_PROVISION;
+                }
+            }
+            break;
+            case CY_SYSCLK_CLKPATH_IN_WCO:
+            {
+                if ((NULL == extClkPolicyPtr) ||
+                (!((extClkPolicyPtr->wcoEnable) &&
+                (extClkPolicyPtr->bypassEnable == devConfig->bypassEnable) &&
+                (extClkPolicyPtr->wcoInPort    == devConfig->wcoInPort) &&
+                (extClkPolicyPtr->wcoOutPort   == devConfig->wcoOutPort) &&
+                (extClkPolicyPtr->wcoInPinNum  == devConfig->wcoInPinNum) &&
+                (extClkPolicyPtr->wcoOutPinNum == devConfig->wcoOutPinNum))))
+                {
+                    retStatus = CY_PRA_STATUS_ERROR_PROCESSING_WCO_PROVISION;
+                }
+            }
+            break;
+            default:
+            /* None of the external clocks are source to HF0. So skipping validation for provisioning */
+            break;
+        } /* end switch case */
+    } /* end if (clkStatus != CY_PRA_STATUS_SUCCESS) */
+
+    return retStatus;
+}
+
+/*******************************************************************************
 * Function Name: Cy_PRA_ValidateEXTClk
 ****************************************************************************//**
 *
@@ -1681,9 +1784,11 @@ static cy_en_pra_status_t Cy_PRA_ValidateClkHFs(const cy_stc_pra_system_config_t
             return CY_PRA_STATUS_INVALID_PARAM_CLKHF0;
         }
 
-        /* ILO, PILO, and all external clocks can't be source to HF0  */
+        /* ILO, PILO and ALTHF can't be source to HF0  */
         clkSource = Cy_PRA_GetInputSourceClock((uint32_t) devConfig->hf0Source, devConfig, &status);
-        if ((clkSource != CY_SYSCLK_CLKPATH_IN_IMO) ||
+        if ((clkSource == CY_SYSCLK_CLKPATH_IN_ILO) ||
+            (clkSource == CY_SYSCLK_CLKPATH_IN_PILO) ||
+            (clkSource == CY_SYSCLK_CLKPATH_IN_ALTHF) ||
             (status != CY_PRA_STATUS_SUCCESS))
             {
                 return CY_PRA_STATUS_INVALID_PARAM_CLKHF0;
@@ -2191,6 +2296,13 @@ static cy_en_pra_status_t Cy_PRA_ValidateSystemConfig(const cy_stc_pra_system_co
     /* Enables IMO for proper chip operation. So, the user option is not given for IMO.
      * The output frequency of IMO is fixed to 8MHz.
      */
+
+    /* Validate external clock with provisioned data */
+    retStatus = Cy_PRA_ValidateExtClkConfig(devConfig);
+    if (CY_PRA_STATUS_SUCCESS != retStatus)
+    {
+        return retStatus;
+    }
 
      /* Validates ECO */
     retStatus = Cy_PRA_ValidateECO(devConfig);
@@ -3082,5 +3194,8 @@ void Cy_PRA_OpenSrssMain2(void)
 #endif /* (CY_CPU_CORTEX_M0P) || defined (CY_DOXYGEN) */
 
 #endif /* (CY_DEVICE_SECURE) */
+
+
+#endif /* CY_IP_M4CPUSS */
 
 /* [] END OF FILE */

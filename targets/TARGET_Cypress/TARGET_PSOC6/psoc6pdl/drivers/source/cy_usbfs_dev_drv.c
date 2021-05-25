@@ -22,10 +22,12 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "cy_device.h"
+
+#if defined (CY_IP_MXUSBFS) && defined (CY_IP_MXPERI)
+
 #include "cy_usbfs_dev_drv.h"
 #include "cy_usbfs_dev_drv_pvt.h"
-
-#ifdef CY_IP_MXUSBFS
 
 #if defined(__cplusplus)
 extern "C" {

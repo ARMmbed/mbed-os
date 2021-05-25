@@ -286,12 +286,12 @@
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
 *     <td rowspan="2">2.0</td>
-*     <td>Added new function \ref Cy_CTB_SetPumpClkSource with new pump clock source \ref CY_CTB_CLK_PUMP_DEEPSLEEP for PASS_ver2.</td>
+*     <td>Added new function \ref Cy_CTB_SetPumpClkSource with new pump clock source \ref CY_CTB_CLK_PUMP_DEEPSLEEP for PASS_v2.</td>
 *     <td>New silicon family support.</td>
 *   </tr>
 *   <tr>
-*     <td>The analog routing switches now open on power down.</td>
-*     <td>A firmware workaround for possible side-effects of the weak pull-ups at OpAmps terminals in PASS_ver2.</td>
+*     <td>The analog routing switches are opening on power down.</td>
+*     <td>A FW workaround for possible side-effects of the weak pull-ups at OpAmps terminals in PASS_v2.</td>
 *   </tr>
 *   <tr>
 *     <td>1.20</td>
@@ -355,15 +355,15 @@
 #if !defined(CY_CTB_H)
 #define CY_CTB_H
 
+#include "cy_device.h"
+
+#ifdef CY_IP_MXS40PASS_CTB
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "cy_device_headers.h"
-#include "cy_device.h"
 #include "cy_syslib.h"
 #include "cy_sysanalog.h"
-
-#ifdef CY_IP_MXS40PASS_CTB
 
 #if defined(__cplusplus)
 extern "C" {
@@ -1489,7 +1489,7 @@ __STATIC_INLINE void Cy_CTB_SetPumpClkSource(PASS_Type * base, cy_en_ctb_clk_pum
 }
 
 /** \cond **********************************************************************
-* Deprecated legacy function - do not use for new designs.
+* Deprecated legacy function - strongly not recommended for new designs.
 * Use Cy_CTB_SetPumpClkSource instead.
 *******************************************************************************/
 __STATIC_INLINE void Cy_CTB_SetClkPumpSource(cy_en_ctb_clk_pump_source_t clkPump)

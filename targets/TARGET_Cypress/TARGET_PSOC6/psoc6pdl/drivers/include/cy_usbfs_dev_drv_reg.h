@@ -61,15 +61,14 @@
 #if !defined(CY_USBFS_DEV_DRV_REG_H)
 #define CY_USBFS_DEV_DRV_REG_H
 
+#include "cy_device.h"
+
+#if defined (CY_IP_MXUSBFS) && defined (CY_IP_MXPERI)
+
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-
-#include "cy_device.h"
-#include "cy_device_headers.h"
 #include "cy_syslib.h"
-
-#ifdef CY_IP_MXUSBFS
 
 #if defined(__cplusplus)
 extern "C" {

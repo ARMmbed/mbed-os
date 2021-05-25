@@ -22,9 +22,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "cy_i2s.h"
+#include "cy_device.h"
 
-#ifdef CY_IP_MXAUDIOSS
+#if defined (CY_IP_MXAUDIOSS)
+
+#include "cy_i2s.h"
 
 
 /*******************************************************************************

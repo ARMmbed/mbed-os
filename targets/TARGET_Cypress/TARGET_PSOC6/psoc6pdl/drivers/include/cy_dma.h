@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_dma.h
-* \version 2.30
+* \version 2.40
 *
 * \brief
 * The header file of the DMA driver.
@@ -93,8 +93,13 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>2.40</td>
+*     <td>Minor Bug fixes.</td>
+*     <td>Check for valid parameters.</td>
+*   </tr>
+*   <tr>
 *     <td>2.30</td>
-*     <td>Fixed/documented MISRA 2012 violations.</td>
+*     <td>Fixed MISRA 2012 violations.</td>
 *     <td>MISRA 2012 compliance.</td>
 *   </tr>
 *   <tr>
@@ -161,17 +166,17 @@
 * \defgroup group_dma_enums Enumerated Types
 */
 
-#if !defined(CY_DMA_H)
+#if !defined (CY_DMA_H)
 #define CY_DMA_H
 
 #include "cy_device.h"
-#include "cy_device_headers.h"
+
+#if defined (CY_IP_M4CPUSS_DMA) || defined (CY_IP_MXDW)
+
 #include "cy_syslib.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-
-#ifdef CY_IP_M4CPUSS_DMA
 
 #if defined(__cplusplus)
 extern "C" {
@@ -193,7 +198,7 @@ CY_MISRA_DEVIATE_BLOCK_START('MISRA C-2012 Rule 10.8', 15, \
 #define CY_DMA_DRV_VERSION_MAJOR       2
 
 /** The driver minor version */
-#define CY_DMA_DRV_VERSION_MINOR       30
+#define CY_DMA_DRV_VERSION_MINOR       40
 
 /** The DMA driver identifier */
 #define CY_DMA_ID                      (CY_PDL_DRV_ID(0x13U))
@@ -218,7 +223,6 @@ CY_MISRA_DEVIATE_BLOCK_START('MISRA C-2012 Rule 10.8', 15, \
 #endif
 
 /** \} group_dma_macros */
-
 
 /**
 * \addtogroup group_dma_enums
@@ -1991,7 +1995,7 @@ CY_MISRA_BLOCK_END('MISRA C-2012 Rule 10.8');
 }
 #endif
 
-#endif /* CY_IP_M4CPUSS_DMA */
+#endif /* CY_IP_M4CPUSS_DMA, CY_IP_MXDW */
 
 #endif  /* (CY_DMA_H) */
 

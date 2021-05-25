@@ -159,13 +159,14 @@
 #if !defined(CY_I2S_H)
 #define CY_I2S_H
 
+#include "cy_device.h"
+
+#if defined (CY_IP_MXAUDIOSS)
+
 #include <stddef.h>
 #include <stdbool.h>
-#include "cy_device.h"
 #include "cy_syslib.h"
 #include "cy_syspm.h"
-
-#ifdef CY_IP_MXAUDIOSS
 
 #ifdef __cplusplus
 extern "C" {

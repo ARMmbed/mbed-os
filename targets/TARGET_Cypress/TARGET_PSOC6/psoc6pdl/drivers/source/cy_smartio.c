@@ -23,6 +23,10 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "cy_device.h"
+
+#if (defined (CY_IP_MXS40IOSS) || (defined(CY_IP_MXS40SIOSS) && defined(SMARTIO_BASE)))
+
 #include "cy_smartio.h"
 
 #if defined(__cplusplus)
@@ -1002,6 +1006,7 @@ CY_MISRA_BLOCK_END('MISRA C-2012 Rule 10.8');
 
 #if defined(__cplusplus)
 }
+#endif
 #endif
 
 /* [] END OF FILE */

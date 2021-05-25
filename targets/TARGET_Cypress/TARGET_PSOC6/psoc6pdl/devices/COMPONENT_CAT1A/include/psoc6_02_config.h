@@ -5,7 +5,7 @@
 * PSoC6_02 device configuration header
 *
 * \note
-* Generator version: 1.6.0.225
+* Generator version: 1.6.0.414
 *
 ********************************************************************************
 * \copyright
@@ -4171,9 +4171,10 @@ typedef enum
     PROT_SCB10                      = 223,      /* Address 0x406a0000, size 0x00010000 */
     PROT_SCB11                      = 224,      /* Address 0x406b0000, size 0x00010000 */
     PROT_SCB12                      = 225,      /* Address 0x406c0000, size 0x00010000 */
-    PROT_PDM0                       = 226,      /* Address 0x40a00000, size 0x00001000 */
-    PROT_I2S0                       = 227,      /* Address 0x40a10000, size 0x00001000 */
-    PROT_I2S1                       = 228       /* Address 0x40a11000, size 0x00001000 */
+    PROT_PASS                       = 226,      /* Address 0x40900000, size 0x00100000 */
+    PROT_PDM0                       = 227,      /* Address 0x40a00000, size 0x00001000 */
+    PROT_I2S0                       = 228,      /* Address 0x40a10000, size 0x00001000 */
+    PROT_I2S1                       = 229       /* Address 0x40a11000, size 0x00001000 */
 } cy_en_prot_region_t;
 
 #endif /* _PSOC6_02_CONFIG_H_ */

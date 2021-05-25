@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_scb_common.h
-* \version 2.60
+* \version 2.80
 *
 * Provides common API declarations of the SCB driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2020 Cypress Semiconductor Corporation
+* Copyright 2016-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -56,12 +56,43 @@
 *******************************************************************************
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
-*   <tr rowspan="2">
-*     <td>2.60</td>
+*   <tr>
+*     <td>2.80</td>
+*     <td>Updated the behaviour of \ref Cy_SCB_UART_SetEnableMsbFirst and \ref Cy_SCB_UART_GetEnableMsbFirst functions.
+*         Now the value of enableMsbFirst is being set and fetched correctly.
+*     <td>Defect fixing.</td>
+*   </tr>
+*   <tr>
+*     <td rowspan="2">2.70</td>
+*     <td>Newly added API's for runtime parameter set/get functionality which include
+*         \ref Cy_SCB_UART_SetOverSample to set oversample bits of UART,
+*         \ref Cy_SCB_UART_GetOverSample to add return value of oversample,
+*         \ref Cy_SCB_UART_GetDataWidth to get data width,
+*         \ref Cy_SCB_UART_SetDataWidth to set data width,
+*         \ref Cy_SCB_UART_GetParity to get parity,
+*         \ref Cy_SCB_UART_SetParity to set parity,
+*         \ref Cy_SCB_UART_GetStopBits to get stop bits,
+*         \ref Cy_SCB_UART_SetStopBits to set stop bits,
+*         \ref Cy_SCB_UART_GetDropOnParityError to get drop on parity error,
+*         \ref Cy_SCB_UART_SetDropOnParityError to set drop on parity error,
+*         \ref Cy_SCB_UART_GetEnableMsbFirst to get enable MSB first and
+*         \ref Cy_SCB_UART_SetEnableMsbFirst to set enable MSB first.</td>
+*     <td>Runtime Parameter update.</td>
+*   </tr>
+*   <tr>
+*     <td>Newly added API's which include
+*         \ref Cy_SCB_Get_RxDataWidth to return the RX data width,
+*         \ref Cy_SCB_Get_TxDataWidth to return the TX data width,
+*         \ref Cy_SCB_SetMemWidth to set the RX and TX FIFOs byte mode/halfword/word mode.
+*         Updated Structures \ref cy_stc_scb_uart_config_t, \ref cy_en_scb_spi_parity_t, \ref cy_stc_scb_spi_config_t.</td>
+*     <td>New device support.</td>
+*   </tr>
+*   <tr>
+*     <td  rowspan="2">2.60</td>
 *     <td>Fixed the \ref Cy_SCB_UART_GetNumInRingBuffer function to
 *         return correct number of the elements in ring buffer.</td>
 *     <td> \ref Cy_SCB_UART_GetNumInRingBuffer function works incorrectly, when
-*         write pointer of the ring buffer is behind the read pointer. </td>
+*         write pointer of the ring buffer is behind the read pointer.</td>
 *   </tr>
 *   <tr>
 *     <td>Fixed/Documented MISRA 2012 violations.</td>
@@ -274,15 +305,15 @@
 #if !defined(CY_SCB_COMMON_H)
 #define CY_SCB_COMMON_H
 
+#include "cy_device.h"
+
+#if defined (CY_IP_MXSCB)
+
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "cy_device.h"
-#include "cy_device_headers.h"
 #include "cy_syslib.h"
 #include "cy_syspm.h"
-
-#ifdef CY_IP_MXSCB
 
 #if defined(__cplusplus)
 extern "C" {
@@ -376,6 +407,10 @@ __STATIC_INLINE void     Cy_SCB_FwBlockReset(CySCB_Type *base);
 __STATIC_INLINE bool     Cy_SCB_IsRxDataWidthByte(CySCB_Type const *base);
 __STATIC_INLINE bool     Cy_SCB_IsTxDataWidthByte(CySCB_Type const *base);
 __STATIC_INLINE uint32_t Cy_SCB_GetRxFifoLevel   (CySCB_Type const *base);
+#if(CY_IP_MXSCB_VERSION>=3)
+__STATIC_INLINE uint32_t Cy_SCB_Get_RxDataWidth(CySCB_Type const *base);
+__STATIC_INLINE uint32_t Cy_SCB_Get_TxDataWidth(CySCB_Type const *base);
+#endif /* CY_IP_MXSCB_VERSION */
 /** \endcond */
 
 /** \} group_scb_common_functions */
@@ -394,7 +429,7 @@ __STATIC_INLINE uint32_t Cy_SCB_GetRxFifoLevel   (CySCB_Type const *base);
 #define CY_SCB_DRV_VERSION_MAJOR    (2)
 
 /** Driver minor version */
-#define CY_SCB_DRV_VERSION_MINOR    (60)
+#define CY_SCB_DRV_VERSION_MINOR    (80)
 
 /** SCB driver identifier */
 #define CY_SCB_ID           CY_PDL_DRV_ID(0x2AU)
@@ -675,6 +710,17 @@ __STATIC_INLINE uint32_t Cy_SCB_GetRxFifoLevel   (CySCB_Type const *base);
                                              SCB_SPI_CTRL_SSEL_POLARITY2_Msk | \
                                              SCB_SPI_CTRL_SSEL_POLARITY3_Msk)
 
+#if(CY_IP_MXSCB_VERSION>=3)
+/* SPI parity and parity enable combination */
+#define CY_SCB_SPI_RX_CTRL_SET_PARITY_Msk      (SCB_SPI_RX_CTRL_PARITY_ENABLED_Msk | \
+                                                 SCB_SPI_RX_CTRL_PARITY_Msk)
+#define CY_SCB_SPI_RX_CTRL_SET_PARITY_Pos      SCB_SPI_RX_CTRL_PARITY_Pos
+
+#define CY_SCB_SPI_TX_CTRL_SET_PARITY_Msk      (SCB_SPI_TX_CTRL_PARITY_ENABLED_Msk | \
+                                                 SCB_SPI_TX_CTRL_PARITY_Msk)
+#define CY_SCB_SPI_TX_CTRL_SET_PARITY_Pos      SCB_SPI_TX_CTRL_PARITY_Pos
+#endif /* CY_IP_MXSCB_VERSION */
+
 /* SPI clock modes: CPHA and CPOL */
 #define CY_SCB_SPI_CTRL_CLK_MODE_Pos    SCB_SPI_CTRL_CPHA_Pos
 #define CY_SCB_SPI_CTRL_CLK_MODE_Msk    (SCB_SPI_CTRL_CPHA_Msk | SCB_SPI_CTRL_CPOL_Msk)
@@ -690,6 +736,19 @@ __STATIC_INLINE uint32_t Cy_SCB_GetRxFifoLevel   (CySCB_Type const *base);
 
 /* Max number of bits for byte mode */
 #define CY_SCB_BYTE_WIDTH   (8UL)
+
+#if(CY_IP_MXSCB_VERSION>=3)
+/* Max number of bits for HALF WORD mode */
+#define CY_SCB_HALF_WORD_WIDTH   (16UL)
+
+/* Max number of bits for WORD mode */
+#define CY_SCB_WORD_WIDTH   (32UL)
+
+/*SCB Mem width modes */
+#define CY_SCB_MEM_WIDTH_BYTE   (0UL)
+#define CY_SCB_MEM_WIDTH_HALFWORD   (1UL)
+#define CY_SCB_MEM_WIDTH_WORD   (2UL)
+#endif /* CY_IP_MXSCB_VERSION */
 
 /* Single unit to wait */
 #define CY_SCB_WAIT_1_UNIT  (1U)
@@ -723,6 +782,10 @@ __STATIC_INLINE uint32_t Cy_SCB_GetRxFifoLevel   (CySCB_Type const *base);
 #define CY_SCB_I2C_INTR_MASK    CY_SCB_I2C_INTR_WAKEUP
 
 #define CY_SCB_SPI_INTR_MASK    CY_SCB_SPI_INTR_WAKEUP
+
+#if(CY_IP_MXSCB_VERSION>=3)
+#define CY_SCB_IS_MEMWIDTH_VALID(memwidth)          ((memwidth) <= CY_SCB_MEM_WIDTH_WORD)
+#endif /* CY_IP_MXSCB_VERSION */
 
 #define CY_SCB_IS_INTR_VALID(intr, mask)            ( 0UL == ((intr) & ((uint32_t) ~(mask))) )
 #define CY_SCB_IS_TRIGGER_LEVEL_VALID(base, level)  ((level) < Cy_SCB_GetFifoSize(base))
@@ -989,6 +1052,17 @@ __STATIC_INLINE void Cy_SCB_ClearTxFifo(CySCB_Type *base)
 *******************************************************************************/
 __STATIC_INLINE void Cy_SCB_SetByteMode(CySCB_Type *base, bool byteMode)
 {
+#if(CY_IP_MXSCB_VERSION>=3)
+    SCB_CTRL(base) &= ~SCB_CTRL_MEM_WIDTH_Msk;
+    if (byteMode)
+    {
+        SCB_CTRL(base) |=  _VAL2FLD(SCB_CTRL_MEM_WIDTH, CY_SCB_MEM_WIDTH_BYTE);
+    }
+    else
+    {
+        SCB_CTRL(base) |=  _VAL2FLD(SCB_CTRL_MEM_WIDTH, CY_SCB_MEM_WIDTH_HALFWORD);
+    }
+#elif(CY_IP_MXSCB_VERSION==1)
     if (byteMode)
     {
         SCB_CTRL(base) |=  SCB_CTRL_BYTE_MODE_Msk;
@@ -997,8 +1071,39 @@ __STATIC_INLINE void Cy_SCB_SetByteMode(CySCB_Type *base, bool byteMode)
     {
         SCB_CTRL(base) &= ~SCB_CTRL_BYTE_MODE_Msk;
     }
+#endif /* CY_IP_MXSCB_VERSION */
 }
 
+#if(CY_IP_MXSCB_VERSION>=3) || defined (CY_DOXYGEN)
+/*******************************************************************************
+* Function Name: Cy_SCB_SetMemWidth
+****************************************************************************//**
+*
+* Sets the RX and TX FIFOs byte mode/halfword/word mode.
+* The FIFOs are either 8-bit(byte),16-bit(halfword) or 32-bit (word) wide.
+* See the device datasheet for FIFO depths.
+*
+* \param base
+* The pointer to the SCB instance.
+*
+* \param MemWidthMode
+* If 0x0, TX and RX FIFOs are 8-bit wide.
+* If 0x1, the FIFOs are 16-bit wide.
+* If 0x2, the FIFOs are 32-bit wide.
+*
+* \note
+* This API is available for CAT1B devices.
+*
+*******************************************************************************/
+__STATIC_INLINE void Cy_SCB_SetMemWidth(CySCB_Type *base, uint32_t MemWidthMode)
+{
+        CY_ASSERT_L2(CY_SCB_IS_MEMWIDTH_VALID(MemWidthMode));
+
+        SCB_CTRL(base) &= ~SCB_CTRL_MEM_WIDTH_Msk;
+
+        SCB_CTRL(base) |=  _VAL2FLD(SCB_CTRL_MEM_WIDTH, MemWidthMode);
+}
+#endif /* CY_IP_MXSCB_VERSION */
 
 /*******************************************************************************
 * Function Name: Cy_SCB_GetInterruptCause
@@ -1830,8 +1935,11 @@ __STATIC_INLINE void Cy_SCB_ClearSpiInterrupt(CySCB_Type *base, uint32_t interru
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_SCB_GetFifoSize(CySCB_Type const *base)
 {
-    return (_FLD2BOOL(SCB_CTRL_BYTE_MODE, SCB_CTRL(base)) ?
-                (CY_SCB_FIFO_SIZE) : (CY_SCB_FIFO_SIZE / 2UL));
+#if(CY_IP_MXSCB_VERSION>=3)
+    {return (((uint32_t)(CY_SCB_FIFO_SIZE)) >> _FLD2VAL(SCB_CTRL_MEM_WIDTH, SCB_CTRL(base)));}
+#elif(CY_IP_MXSCB_VERSION==1)
+    {return (_FLD2BOOL(SCB_CTRL_BYTE_MODE, SCB_CTRL(base)) ? (CY_SCB_FIFO_SIZE) : (CY_SCB_FIFO_SIZE / 2UL));}
+#endif /* CY_IP_MXSCB_VERSION */
 }
 
 
@@ -1853,6 +1961,31 @@ __STATIC_INLINE bool Cy_SCB_IsRxDataWidthByte(CySCB_Type const *base)
     return (_FLD2VAL(SCB_RX_CTRL_DATA_WIDTH, SCB_RX_CTRL(base)) < CY_SCB_BYTE_WIDTH);
 }
 
+/** \endcond */
+
+#if(CY_IP_MXSCB_VERSION>=3) || defined (CY_DOXYGEN)
+/*******************************************************************************
+* Function Name: Cy_SCB_Get_RxDataWidth
+****************************************************************************//**
+*
+* Returns the RX data width.
+*
+* \param base
+* The pointer to the SCB instance.
+*
+* \return
+* RX data width.
+*
+*
+* \note
+* This API is available for CAT1B devices.
+*
+*******************************************************************************/
+__STATIC_INLINE uint32_t Cy_SCB_Get_RxDataWidth(CySCB_Type const *base)
+{
+    return (_FLD2VAL(SCB_RX_CTRL_DATA_WIDTH, SCB_RX_CTRL(base)) + 1UL);
+}
+#endif /* CY_IP_MXSCB_VERSION */
 
 /*******************************************************************************
 * Function Name: Cy_SCB_IsTxDataWidthByte
@@ -1872,6 +2005,31 @@ __STATIC_INLINE bool Cy_SCB_IsTxDataWidthByte(CySCB_Type const *base)
     return (_FLD2VAL(SCB_TX_CTRL_DATA_WIDTH, SCB_TX_CTRL(base)) < CY_SCB_BYTE_WIDTH);
 }
 
+#if(CY_IP_MXSCB_VERSION>=3) || defined (CY_DOXYGEN)
+/*******************************************************************************
+* Function Name: Cy_SCB_Get_TxDataWidth
+****************************************************************************//**
+*
+* Returns the TX data width.
+*
+* \param base
+* The pointer to the SCB instance.
+*
+* \return
+* The TX data width.
+*
+*
+* \note
+* This API is available for CAT1B devices.
+*
+*******************************************************************************/
+__STATIC_INLINE uint32_t Cy_SCB_Get_TxDataWidth(CySCB_Type const *base)
+{
+        return (_FLD2VAL(SCB_TX_CTRL_DATA_WIDTH, SCB_TX_CTRL(base)) + 1UL);
+}
+#endif /* CY_IP_MXSCB_VERSION */
+
+/** \cond INTERNAL */
 
 /*******************************************************************************
 * Function Name: Cy_SCB_FwBlockReset

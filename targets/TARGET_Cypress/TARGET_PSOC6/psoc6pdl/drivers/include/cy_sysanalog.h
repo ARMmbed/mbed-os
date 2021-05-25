@@ -247,15 +247,16 @@
 #if !defined(CY_SYSANALOG_H)
 #define CY_SYSANALOG_H
 
+#include "cy_device.h"
+
+#ifdef CY_IP_MXS40PASS
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "cy_device_headers.h"
-#include "cy_device.h"
+
 #include "cy_syslib.h"
 #include "cy_syspm.h"
-
-#ifdef CY_IP_MXS40PASS
 
 #if defined(__cplusplus)
 extern "C" {

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ipc_sema.c
-* \version 1.50
+* \version 1.60
 *
 *  Description:
 *   IPC Semaphore Driver - This source file contains the source code for the
@@ -22,6 +22,10 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+
+#include "cy_device.h"
+
+#if defined (CY_IP_M4CPUSS)
 
 #include "cy_ipc_drv.h"
 #include "cy_ipc_sema.h"
@@ -441,5 +445,6 @@ uint32_t Cy_IPC_Sema_GetMaxSems(void)
     return (semaStruct->maxSema);
 }
 
+#endif
 
 /* [] END OF FILE */

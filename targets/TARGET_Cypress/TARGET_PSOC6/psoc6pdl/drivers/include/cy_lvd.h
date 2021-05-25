@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_lvd.h
-* \version 1.30
+* \version 1.40
 *
 * The header file of the LVD driver.
 *
@@ -65,6 +65,11 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason of Change</th></tr>
 *   <tr>
+*     <td>1.40</td>
+*     <td>Added new device support.</td>
+*     <td>Added new family of devices.</td>
+*   </tr>
+*   <tr>
 *     <td>1.30</td>
 *     <td>Fixed/documented MISRA 2012 violations.</td>
 *     <td>MISRA 2012 compliance.</td>
@@ -117,9 +122,12 @@
 #if !defined(CY_LVD_H)
 #define CY_LVD_H
 
+#include "cy_device.h"
+
+#if defined (CY_IP_MXS40SRSS) || defined (CY_IP_MXS40SSRSS)
+
 #include "cy_pra.h"
 #include "cy_syspm.h"
-#include "cy_device.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -133,15 +141,54 @@ extern "C" {
 #define CY_LVD_DRV_VERSION_MAJOR       1
 
 /** The driver minor version */
-#define CY_LVD_DRV_VERSION_MINOR       30
+#define CY_LVD_DRV_VERSION_MINOR       40
 
 /** The LVD driver identifier */
 #define CY_LVD_ID                      (CY_PDL_DRV_ID(0x39U))
 
+#if defined (CY_IP_MXS40SRSS)
+/**
+* \note
+* These macros are available for CAT1A devices.
+**/
+
 /** Interrupt mask for \ref Cy_LVD_GetInterruptStatus(),
-                       \ref Cy_LVD_GetInterruptMask() and
-                       \ref Cy_LVD_GetInterruptStatusMasked() */
-#define CY_LVD_INTR        (SRSS_SRSS_INTR_HVLVD1_Msk)
+                       \ref Cy_LVD_ClearInterrupt() */
+#define CY_LVD_SRSS_INTR_HVLVD1_MASK        (SRSS_SRSS_INTR_HVLVD1_Msk)
+
+/** Interrupt mask for \ref Cy_LVD_SetInterrupt() */
+#define CY_LVD_SRSS_INTR_SET_HVLVD1_MASK    (SRSS_SRSS_INTR_SET_HVLVD1_Msk)
+
+/** Interrupt mask for \ref Cy_LVD_GetInterruptMask(),
+                       \ref Cy_LVD_SetInterruptMask() and
+                       \ref Cy_LVD_ClearInterruptMask() */
+#define CY_LVD_SRSS_INTR_MASK_HVLVD1_MASK   (SRSS_SRSS_INTR_MASK_HVLVD1_Msk)
+
+/** Interrupt mask for \ref Cy_LVD_GetInterruptStatusMasked() */
+#define CY_LVD_SRSS_INTR_MASKED_HVLVD1_MASK (SRSS_SRSS_INTR_MASKED_HVLVD1_Msk)
+#endif
+
+#if defined (CY_IP_MXS40SSRSS)
+/**
+* \note
+* These macros are available for devices having MXS40SSRSS IP.
+**/
+
+/** Interrupt mask for \ref Cy_LVD_GetInterruptStatus(),
+                       \ref Cy_LVD_ClearInterrupt() */
+#define CY_LVD_SRSS_INTR_HVLVD1_MASK        (SRSS_SRSS_AINTR_HVLVD1_Msk)
+
+/** Interrupt mask for \ref Cy_LVD_SetInterrupt() */
+#define CY_LVD_SRSS_INTR_SET_HVLVD1_MASK    (SRSS_SRSS_AINTR_SET_HVLVD1_Msk)
+
+/** Interrupt mask for \ref Cy_LVD_GetInterruptMask(),
+                       \ref Cy_LVD_SetInterruptMask() and
+                       \ref Cy_LVD_ClearInterruptMask() */
+#define CY_LVD_SRSS_INTR_MASK_HVLVD1_MASK   (SRSS_SRSS_AINTR_MASK_HVLVD1_Msk)
+
+/** Interrupt mask for \ref Cy_LVD_GetInterruptStatusMasked() */
+#define CY_LVD_SRSS_INTR_MASKED_HVLVD1_MASK (SRSS_SRSS_AINTR_MASKED_HVLVD1_Msk)
+#endif
 
 /** \} group_lvd_macros */
 
@@ -219,6 +266,9 @@ typedef enum
                                           ((intrCfg) == CY_LVD_INTR_RISING) || \
                                           ((intrCfg) == CY_LVD_INTR_FALLING) || \
                                           ((intrCfg) == CY_LVD_INTR_BOTH))
+
+/* Added for backward Compatibility */
+#define CY_LVD_INTR        (SRSS_SRSS_INTR_HVLVD1_Msk)
 
 /** \endcond */
 
@@ -299,7 +349,7 @@ __STATIC_INLINE void Cy_LVD_SetThreshold(cy_en_lvd_tripsel_t threshold)
 {
     CY_ASSERT_L3(CY_LVD_CHECK_TRIPSEL(threshold));
 
-    #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE)
+    #if CY_CPU_CORTEX_M4 && defined (CY_DEVICE_SECURE)
         CY_PRA_REG32_CLR_SET(CY_PRA_INDX_SRSS_PWR_LVD_CTL, SRSS_PWR_LVD_CTL_HVLVD1_TRIPSEL, threshold);
     #else
         SRSS_PWR_LVD_CTL = _CLR_SET_FLD32U(SRSS_PWR_LVD_CTL, SRSS_PWR_LVD_CTL_HVLVD1_TRIPSEL, threshold);
@@ -331,12 +381,12 @@ __STATIC_INLINE cy_en_lvd_status_t Cy_LVD_GetStatus(void)
 *  Returns the status of LVD interrupt.
 *  SRSS Interrupt Register (SRSS_INTR).
 *
-*  \return SRSS Interrupt status, \ref CY_LVD_INTR.
+*  \return SRSS Interrupt status, \ref CY_LVD_SRSS_INTR_HVLVD1_MASK.
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_LVD_GetInterruptStatus(void)
 {
-    return (SRSS_SRSS_INTR & SRSS_SRSS_INTR_HVLVD1_Msk);
+    return (SRSS_SRSS_INTR & CY_LVD_SRSS_INTR_HVLVD1_MASK);
 }
 
 
@@ -351,9 +401,9 @@ __STATIC_INLINE uint32_t Cy_LVD_GetInterruptStatus(void)
 __STATIC_INLINE void Cy_LVD_ClearInterrupt(void)
 {
     #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE)
-        CY_PRA_REG32_SET(CY_PRA_INDX_SRSS_SRSS_INTR, SRSS_SRSS_INTR_HVLVD1_Msk);
+        CY_PRA_REG32_SET(CY_PRA_INDX_SRSS_SRSS_INTR, CY_LVD_SRSS_INTR_HVLVD1_MASK);
     #else
-        SRSS_SRSS_INTR = SRSS_SRSS_INTR_HVLVD1_Msk;
+        SRSS_SRSS_INTR = CY_LVD_SRSS_INTR_HVLVD1_MASK;
     #endif
 
     (void) SRSS_SRSS_INTR;
@@ -371,9 +421,9 @@ __STATIC_INLINE void Cy_LVD_ClearInterrupt(void)
 __STATIC_INLINE void Cy_LVD_SetInterrupt(void)
 {
     #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE)
-        CY_PRA_REG32_SET(CY_PRA_INDX_SRSS_SRSS_INTR_SET, SRSS_SRSS_INTR_SET_HVLVD1_Msk);
+        CY_PRA_REG32_SET(CY_PRA_INDX_SRSS_SRSS_INTR_SET, CY_LVD_SRSS_INTR_SET_HVLVD1_MASK);
     #else
-        SRSS_SRSS_INTR_SET = SRSS_SRSS_INTR_SET_HVLVD1_Msk;
+        SRSS_SRSS_INTR_SET = CY_LVD_SRSS_INTR_SET_HVLVD1_MASK;
     #endif
 }
 
@@ -385,12 +435,12 @@ __STATIC_INLINE void Cy_LVD_SetInterrupt(void)
 *  Returns the mask value of LVD interrupts.
 *  SRSS Interrupt Mask Register (SRSS_INTR_MASK).
 *
-*  \return SRSS Interrupt Mask value, \ref CY_LVD_INTR.
+*  \return SRSS Interrupt Mask value, \ref CY_LVD_SRSS_INTR_HVLVD1_MASK.
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_LVD_GetInterruptMask(void)
 {
-    return (SRSS_SRSS_INTR_MASK & SRSS_SRSS_INTR_MASK_HVLVD1_Msk);
+    return (SRSS_SRSS_INTR_MASK & CY_LVD_SRSS_INTR_MASK_HVLVD1_MASK);
 }
 
 
@@ -405,9 +455,9 @@ __STATIC_INLINE uint32_t Cy_LVD_GetInterruptMask(void)
 __STATIC_INLINE void Cy_LVD_SetInterruptMask(void)
 {
     #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE)
-        CY_PRA_REG32_CLR_SET(CY_PRA_INDX_SRSS_SRSS_INTR_MASK, SRSS_SRSS_INTR_SET_HVLVD1, 1U);
+        CY_PRA_REG32_CLR_SET(CY_PRA_INDX_SRSS_SRSS_INTR_MASK, SRSS_SRSS_INTR_MASK_HVLVD1, 1U);
     #else
-        SRSS_SRSS_INTR_MASK |= SRSS_SRSS_INTR_MASK_HVLVD1_Msk;
+        SRSS_SRSS_INTR_MASK |= CY_LVD_SRSS_INTR_MASK_HVLVD1_MASK;
     #endif
 }
 
@@ -425,7 +475,7 @@ __STATIC_INLINE void Cy_LVD_ClearInterruptMask(void)
     #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE)
         CY_PRA_REG32_CLR_SET(CY_PRA_INDX_SRSS_SRSS_INTR_MASK, SRSS_SRSS_INTR_MASK_HVLVD1, 0U);
     #else
-        SRSS_SRSS_INTR_MASK &= (uint32_t) ~SRSS_SRSS_INTR_MASK_HVLVD1_Msk;
+        SRSS_SRSS_INTR_MASK &= (uint32_t) ~CY_LVD_SRSS_INTR_MASK_HVLVD1_MASK;
     #endif
 }
 
@@ -438,12 +488,12 @@ __STATIC_INLINE void Cy_LVD_ClearInterruptMask(void)
 *  interrupt status and interrupt mask registers.
 *  SRSS Interrupt Masked Register (SRSS_INTR_MASKED).
 *
-*  \return SRSS Interrupt Masked value, \ref CY_LVD_INTR.
+*  \return SRSS Interrupt Masked value, \ref CY_LVD_SRSS_INTR_MASKED_HVLVD1_MASK.
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_LVD_GetInterruptStatusMasked(void)
 {
-    return (SRSS_SRSS_INTR_MASKED & SRSS_SRSS_INTR_MASKED_HVLVD1_Msk);
+    return (SRSS_SRSS_INTR_MASKED & CY_LVD_SRSS_INTR_MASKED_HVLVD1_MASK);
 }
 
 
@@ -461,13 +511,18 @@ __STATIC_INLINE void Cy_LVD_SetInterruptConfig(cy_en_lvd_intr_config_t lvdInterr
 {
     CY_ASSERT_L3(CY_LVD_CHECK_INTR_CFG(lvdInterruptConfig));
 
+#if defined (CY_IP_MXS40SRSS)
     #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE)
         CY_PRA_REG32_CLR_SET(CY_PRA_INDX_SRSS_SRSS_INTR_CFG, SRSS_SRSS_INTR_CFG_HVLVD1_EDGE_SEL, lvdInterruptConfig);
     #else
         SRSS_SRSS_INTR_CFG = _CLR_SET_FLD32U(SRSS_SRSS_INTR_CFG, SRSS_SRSS_INTR_CFG_HVLVD1_EDGE_SEL, lvdInterruptConfig);
+#endif
+
+#if defined (CY_IP_MXS40SSRSS)
+        SRSS_PWR_LVD_CTL = _CLR_SET_FLD32U(SRSS_PWR_LVD_CTL, SRSS_PWR_LVD_CTL_HVLVD1_EDGE_SEL, lvdInterruptConfig);
+#endif
     #endif
 }
-
 
 /** \} group_lvd_functions */
 
@@ -475,8 +530,9 @@ __STATIC_INLINE void Cy_LVD_SetInterruptConfig(cy_en_lvd_intr_config_t lvdInterr
 }
 #endif
 
-#endif /* CY_LVD_H */
+#endif /* CY_IP_MXS40SRSS */
 
+#endif /* CY_LVD_H */
 
 /** \} group_lvd */
 

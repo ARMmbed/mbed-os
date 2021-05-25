@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_lvd.c
-* \version 1.30
+* \version 1.40
 *
 * The source code file for the LVD driver.
 *
@@ -21,6 +21,10 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+
+#include "cy_device.h"
+
+#if defined (CY_IP_MXS40SRSS) || defined (CY_IP_MXS40SSRSS)
 
 #include "cy_lvd.h"
 
@@ -75,5 +79,5 @@ cy_en_syspm_status_t Cy_LVD_DeepSleepCallback(cy_stc_syspm_callback_params_t * c
 }
 #endif
 
-
+#endif
 /* [] END OF FILE */

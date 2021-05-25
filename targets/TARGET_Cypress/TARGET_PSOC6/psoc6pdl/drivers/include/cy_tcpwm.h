@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_tcpwm.h
-* \version 1.20
+* \version 1.30
 *
 * The header file of the TCPWM driver.
 *
@@ -199,6 +199,11 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>1.30</td>
+*     <td>Added new option to Swap Overflow/Underflow behavior in PWM Centre/Asymmetric Alignment modes.</td>
+*     <td>New feature.</td>
+*   </tr>
+*   <tr>
 *     <td>1.20</td>
 *     <td>Added new features: Shift Register, New QuadDec modes, Additional Compare/Capture Buffer.</td>
 *     <td>New silicon family support.</td>
@@ -289,7 +294,7 @@ extern "C" {
 #define CY_TCPWM_DRV_VERSION_MAJOR       1
 
 /** Driver minor version */
-#define CY_TCPWM_DRV_VERSION_MINOR       20
+#define CY_TCPWM_DRV_VERSION_MINOR       30
 
 
 /******************************************************************************

@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_gpio.h
-* \version 1.30
+* \version 1.50
 *
 * Provides an API declaration of the GPIO driver
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2020 Cypress Semiconductor Corporation
+* Copyright 2016-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,6 +39,12 @@
 * configuration should be used in the field. Refer to the product device header files
 * for the list of supported ports and pins.
 *
+* A port is represented by GPIO_PRT_Type and a pin is represented by a number
+* 0 to 7.
+*
+* For PSoC 64 devices the the un-intended protected pins (due to constrain on PPU configuration)
+* are modified using PRA driver. But the GPIO diver does not modify the intended protected pins .
+*
 * - Single pin configuration is performed by using \ref Cy_GPIO_Pin_FastInit
 *   (provide specific values) or \ref Cy_GPIO_Pin_Init (provide a filled
 *   cy_stc_gpio_pin_config_t structure).
@@ -48,6 +54,8 @@
 * - Pin configuration and management is based on the port address and pin number.
 *   \ref Cy_GPIO_PortToAddr function can optionally be used to calculate the port
 *   address from the port number at run-time.
+* - Each I/O is individually configurable to one of eight drive modes represented
+*   by drivemode of cy_stc_gpio_pin_config_t structure.
 *
 * Once the pin/port initialization is complete, each pin can be accessed by
 * specifying the port (GPIO_PRT_Type) and the pin (0-7) in the provided API
@@ -75,6 +83,12 @@
 * appropriate port mask. An example is shown below, highlighting the different ways of
 * configuring Port 1 pins using:
 *
+* - Initialize a Pin using cy_stc_gpio_pin_config_t structure
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_Pin_Init
+*
+* - Initialize entire port using cy_stc_gpio_prt_config_t structure
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_Port_Init
+*
 * - Port output data register
 * - Port output data set register
 * - Port output data clear register
@@ -88,6 +102,21 @@
 * \section group_gpio_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.50</td>
+*     <td>Modified \ref Cy_GPIO_Pin_Init, \ref Cy_GPIO_Pin_FastInit, and
+*         \ref Cy_GPIO_SetDrivemode APIs to catch wrong drive modes.</td>
+*     <td>Defect fix.</td>
+*   </tr>
+*   <tr>
+*     <td rowspan="2">1.40</td>
+*     <td>Changes in Support of the new family of devices</td>
+*     <td>Added new family of devices</td>
+*   </tr>
+*   <tr>
+*     <td>Changes in support of Secure pins used for External clocks on Secure devices</td>
+*     <td>Added support for accessing External clocks protected pins</td>
+*   </tr>
 *   <tr>
 *     <td>1.30</td>
 *     <td>Fixed/documented MISRA 2012 violations.</td>
@@ -152,9 +181,11 @@
 #if !defined(CY_GPIO_H)
 #define CY_GPIO_H
 
-#include <stddef.h>
 #include "cy_device.h"
-#include "cy_device_headers.h"
+
+#if defined (CY_IP_MXS40SIOSS) || defined (CY_IP_MXS40IOSS)
+
+#include <stddef.h>
 #include "cy_syslib.h"
 
 #if defined(__cplusplus)
@@ -169,7 +200,7 @@ extern "C" {
 #define CY_GPIO_DRV_VERSION_MAJOR       1
 
 /** Driver minor version */
-#define CY_GPIO_DRV_VERSION_MINOR       30
+#define CY_GPIO_DRV_VERSION_MINOR       50
 
 /** GPIO driver ID */
 #define CY_GPIO_ID CY_PDL_DRV_ID(0x16U)
@@ -238,6 +269,28 @@ typedef struct
     uint32_t cfgSIO;        /**< Port SIO pins configuration */
     uint32_t sel0Active;    /**< HSIOM selection for port pins 0,1,2,3 */
     uint32_t sel1Active;    /**< HSIOM selection for port pins 4,5,6,7 */
+#if defined (CY_IP_MXS40SIOSS)
+    /**
+    * \note
+    * This parameter is available for the CAT1B devices.
+    **/
+    uint32_t cfgSlew;       /**< Port slew rate configuration */
+    /**
+    * \note
+    * This parameter is available for the CAT1B devices.
+    **/
+    uint32_t cfgDriveSel0;  /**< Drive strength configuration for pins 0,1,2,3 */
+    /**
+    * \note
+    * This parameter is available for the CAT1B devices.
+    **/
+    uint32_t cfgDriveSel1;  /**< Drive strength configuration for pins 4,5,6,7 */
+    /**
+    * \note
+    * This parameter is available for the CAT1B devices.
+    **/
+    uint32_t nonSecMask;    /**< HSIOM non secure mask for port pins 0-7 */
+#endif /* CY_IP_MXS40SIOSS */
 } cy_stc_gpio_prt_config_t;
 
 /** This structure is used to initialize a single GPIO pin */
@@ -256,6 +309,13 @@ typedef struct
     uint32_t vtripSel;       /**< SIO pair input buffer trip point */
     uint32_t vrefSel;        /**< SIO pair reference voltage for input buffer trip point */
     uint32_t vohSel;         /**< SIO pair regulated voltage output level */
+#if defined (CY_IP_MXS40SIOSS)
+    /**
+    * \note
+    * This parameter is available for the CAT1B devices.
+    **/
+    uint32_t nonSec;         /**< Secure attribute for each Pin of a port */
+#endif /* CY_IP_MXS40SIOSS */
 } cy_stc_gpio_pin_config_t;
 
 /** \} group_gpio_data_structures */
@@ -269,6 +329,9 @@ typedef struct
 /* General Constants */
 #define CY_GPIO_PRT_HALF                       (4UL)      /**< Half-way point of a GPIO port */
 #define CY_GPIO_PRT_DEINIT                     (0UL)      /**< De-init value for port registers */
+#if defined (CY_IP_MXS40SIOSS)
+#define CY_HSIOM_NONSEC_DEINIT                 (0xFFUL)   /**< De-init value for port non sec register */
+#endif /* CY_IP_MXS40SIOSS */
 
 /* GPIO Masks */
 #define CY_GPIO_HSIOM_MASK                     (0x1FUL)   /**< HSIOM selection mask */
@@ -276,14 +339,20 @@ typedef struct
 #define CY_GPIO_IN_MASK                        (0x01UL)   /**< Single pin mask for IN register */
 #define CY_GPIO_CFG_DM_MASK                    (0x0FUL)   /**< Single pin mask for drive mode in CFG register */
 #define CY_GPIO_CFG_IN_VTRIP_SEL_MASK          (0x01UL)   /**< Single pin mask for VTRIP selection in CFG IN register */
-#define CY_GPIO_CFG_OUT_SLOW_MASK              (0x01UL)   /**< Single pin mask for slew rate in CFG OUT register */
-#define CY_GPIO_CFG_OUT_DRIVE_SEL_MASK         (0x03UL)   /**< Single pin mask for drive strength in CFG OUT register */
 #define CY_GPIO_INTR_STATUS_MASK               (0x01UL)   /**< Single pin mask for interrupt status in INTR register */
 #define CY_GPIO_INTR_EN_MASK                   (0x01UL)   /**< Single pin mask for interrupt status in INTR register */
 #define CY_GPIO_INTR_MASKED_MASK               (0x01UL)   /**< Single pin mask for masked interrupt status in INTR_MASKED register */
 #define CY_GPIO_INTR_SET_MASK                  (0x01UL)   /**< Single pin mask for setting the interrupt in INTR_MASK register */
 #define CY_GPIO_INTR_EDGE_MASK                 (0x03UL)   /**< Single pin mask for interrupt edge type in INTR_EDGE register */
 #define CY_GPIO_INTR_FLT_EDGE_MASK             (0x07UL)   /**< Single pin mask for setting filtered interrupt */
+#if defined (CY_IP_MXS40IOSS)
+#define CY_GPIO_CFG_OUT_SLOW_MASK              (0x01UL)   /**< Single pin mask for slew rate in CFG OUT register */
+#define CY_GPIO_CFG_OUT_DRIVE_SEL_MASK         (0x03UL)   /**< Single pin mask for drive strength in CFG OUT register */
+#else
+#define CY_GPIO_HSIOM_SEC_MASK                 (0x01UL)   /**< Single pin mask for NONSECURE_MASK register */
+#define CY_GPIO_CFG_SLEW_EXT_MASK              (0x07UL)   /**< Single pin mask for slew rate in CFG SLEW EXT register */
+#define CY_GPIO_CFG_DRIVE_SEL_EXT_MASK         (0x1FUL)   /**< Single pin mask for drive strength in CFG DRIVE EXT register */
+#endif /* CY_IP_MXS40IOSS */
 
 /* SIO Masks */
 #define CY_GPIO_VREG_EN_MASK                   (0x01UL)   /**< Single SIO pin mask for voltage regulation enable */
@@ -308,6 +377,10 @@ typedef struct
 #define CY_GPIO_INTR_CFG_OFFSET                (1UL)      /**< Offset for interrupt config */
 #define CY_GPIO_INTR_FILT_OFFSET               (18UL)     /**< Offset for filtered interrupt config */
 #define CY_GPIO_CFG_SIO_OFFSET                 (2UL)      /**< Offset for SIO config */
+#if defined (CY_IP_MXS40SIOSS)
+#define CY_GPIO_CFG_SLEW_EXT_OFFSET            (2UL)      /**< Offset for CFG SLEW EXT */
+#define CY_GPIO_CFG_DRIVE_SEL_EXT_OFFSET       (3UL)      /**< Offset for CFG SLEW EXT */
+#endif /* CY_IP_MXS40SIOSS */
 
 /* Parameter validation constants */
 #define CY_GPIO_PINS_MAX                       (8UL)      /**< Number of pins in the port */
@@ -332,7 +405,9 @@ typedef struct
 #define CY_GPIO_IS_PIN_VALID(pinNum)           (CY_GPIO_PINS_MAX > (pinNum))
 #define CY_GPIO_IS_FILTER_PIN_VALID(pinNum)    (CY_GPIO_PINS_MAX >= (pinNum))
 #define CY_GPIO_IS_VALUE_VALID(outVal)         (1UL >= (outVal))
-#define CY_GPIO_IS_DM_VALID(driveMode)         (0U == ((driveMode) & (uint32_t)~CY_GPIO_CFG_DM_MASK))
+#define CY_GPIO_IS_DM_VALID(driveMode)         ((0U == ((driveMode) & (uint32_t)~CY_GPIO_CFG_DM_MASK)) && \
+                                               ((driveMode) != CY_GPIO_DM_INVALID_IN_OFF) && \
+                                               ((driveMode) != CY_GPIO_DM_INVALID))
 
 #define CY_GPIO_IS_HSIOM_VALID(hsiom)          (0U == ((hsiom) & (uint32_t)~CY_GPIO_HSIOM_MASK))
 
@@ -340,11 +415,6 @@ typedef struct
                                                 (CY_GPIO_INTR_RISING   == (intEdge)) || \
                                                 (CY_GPIO_INTR_FALLING  == (intEdge)) || \
                                                 (CY_GPIO_INTR_BOTH     == (intEdge)))
-
-#define CY_GPIO_IS_DRIVE_SEL_VALID(driveSel)   ((CY_GPIO_DRIVE_FULL    == (driveSel)) || \
-                                                (CY_GPIO_DRIVE_1_2     == (driveSel)) || \
-                                                (CY_GPIO_DRIVE_1_4     == (driveSel)) || \
-                                                (CY_GPIO_DRIVE_1_8     == (driveSel)))
 
 #define CY_GPIO_IS_VREF_SEL_VALID(vrefSel)     ((CY_SIO_VREF_PINREF    == (vrefSel)) || \
                                                 (CY_SIO_VREF_1_2V      == (vrefSel)) || \
@@ -378,6 +448,18 @@ typedef struct
 
 #define CY_GPIO_IS_AMUX_SELECT_VALID(amuxBus)       ((CY_GPIO_AMUXBUSA       == (amuxBus)) || \
                                                      (CY_GPIO_AMUXBUSB       == (amuxBus)))
+
+#if defined (CY_IP_MXS40IOSS)
+#define CY_GPIO_IS_DRIVE_SEL_VALID(driveSel)   ((CY_GPIO_DRIVE_FULL    == (driveSel)) || \
+                                                (CY_GPIO_DRIVE_1_2     == (driveSel)) || \
+                                                (CY_GPIO_DRIVE_1_4     == (driveSel)) || \
+                                                (CY_GPIO_DRIVE_1_8     == (driveSel)))
+#else
+#define CY_GPIO_IS_HSIOM_SEC_VALID(secValue)   (0U == ((secValue) & (uint32_t)~CY_GPIO_HSIOM_SEC_MASK))
+#define CY_GPIO_IS_SLEW_RATE_VALID(slewRate)   (0U == ((slewRate) & (uint32_t)~CY_GPIO_CFG_SLEW_EXT_MASK))
+#define CY_GPIO_IS_DRIVE_SEL_VALID(driveSel)   (0U == ((driveSel) & (uint32_t)~CY_GPIO_CFG_DRIVE_SEL_EXT_MASK))
+#endif /* CY_IP_MXS40IOSS */
+
 /** \endcond */
 
 
@@ -393,9 +475,60 @@ typedef struct
 /**
 * \defgroup group_gpio_driveModes Pin drive mode
 * \{
-* Constants to be used for setting the drive mode of the pin.
+* Constants to be used for setting the drive mode of the pin. There are eight
+* primary drive modes.
+* Below diagrams are simplified output driver diagrams of the pin view for the
+* CPU register and UDB/DSI based digital peripherals on each of the eight drive
+* modes.
+* \image html gpio_cpu_dm_block_diagram.png
+*
+* Below is a simplified output driver diagram that shows the pin view for
+* fixed-function-based peripherals for each of the eight drive modes.
+* \image html gpio_periio_dm_block_diagram.png
+*
+* - High-Impedance:
+*   This is the standard high-impedance (HI-Z) state recommended for analog and
+*   digital inputs. For digital signals, the input buffer is enabled; for analog
+*   signals, the input buffer is typically disabled to reduce crowbar current
+*   and leakage in low-power designs. To achieve the lowest device current, unused
+*   GPIOs must be configured to the high-impedance drive mode with input buffer
+*   disabled. Highimpedance drive mode with input buffer disabled is also the
+*   default pin reset state.
+*
+* - Resistive Pull-Up or Resistive Pull-Down:
+*   Resistive modes provide a series resistance in one of the data states and
+*   strong drive in the other. Pins can be used for either digital input or
+*   digital output in these modes. If resistive pull-up is required, a '1' must be
+*   written to that pin's Data Register bit. If resistive pull-down is required,
+*   a '0' must be written to that pin's Data Register. Interfacing mechanical
+*   switches is a common application of these drive modes. The resistive modes are
+*   also used to interface PSoC with open drain drive lines. Resistive pull-up is
+*   used when the input is open drain low and resistive pull-down is used when the
+*   input is open drain high.
+*
+* - Open Drain Drives High and Open Drain Drives Low:
+*   Open drain modes provide high impedance in one of the data states and strong
+*   drive in the other. Pins are useful as digital inputs or outputs in these
+*   modes. Therefore, these modes are widely used in bidirectional digital
+*   communication. Open drain drive high mode is used when the signal is
+*   externally pulled down and open drain drive low is used when the signal is
+*   externally pulled high. A common application for the open drain drives low
+*   mode is driving I2C bus signal lines.
+*
+* - Strong Drive:
+*   The strong drive mode is the standard digital output mode for pins; it
+*   provides a strong CMOS output drive in both high and low states. Strong drive
+*   mode pins should not be used as inputs under normal circumstances. This mode
+*   is often used for digital output signals or to drive external devices.
+*
+* - Resistive Pull-Up and Resistive Pull-Down:
+*   In the resistive pull-up and pull-down mode, the GPIO will have a series
+*   resistance in both logic 1 and logic 0 output states. The high data state is
+*   pulled up while the low data state is pulled down. This mode is useful when
+*   the pin is driven by other signals that may cause shorts.
 */
 #define CY_GPIO_DM_ANALOG                      (0x00UL) /**< Analog High-Z. Input buffer off */
+#define CY_GPIO_DM_INVALID_IN_OFF              (0x01UL) /**< Invalid mode. It should not be used */
 #define CY_GPIO_DM_PULLUP_IN_OFF               (0x02UL) /**< Resistive Pull-Up. Input buffer off */
 #define CY_GPIO_DM_PULLDOWN_IN_OFF             (0x03UL) /**< Resistive Pull-Down. Input buffer off */
 #define CY_GPIO_DM_OD_DRIVESLOW_IN_OFF         (0x04UL) /**< Open Drain, Drives Low. Input buffer off */
@@ -403,6 +536,7 @@ typedef struct
 #define CY_GPIO_DM_STRONG_IN_OFF               (0x06UL) /**< Strong Drive. Input buffer off */
 #define CY_GPIO_DM_PULLUP_DOWN_IN_OFF          (0x07UL) /**< Resistive Pull-Up/Down. Input buffer off */
 #define CY_GPIO_DM_HIGHZ                       (0x08UL) /**< Digital High-Z. Input buffer on */
+#define CY_GPIO_DM_INVALID                     (0x09UL) /**< Invalid mode. It should not be used */
 #define CY_GPIO_DM_PULLUP                      (0x0AUL) /**< Resistive Pull-Up. Input buffer on */
 #define CY_GPIO_DM_PULLDOWN                    (0x0BUL) /**< Resistive Pull-Down. Input buffer on */
 #define CY_GPIO_DM_OD_DRIVESLOW                (0x0CUL) /**< Open Drain, Drives Low. Input buffer on */
@@ -526,9 +660,14 @@ cy_en_gpio_status_t Cy_GPIO_Pin_Init(GPIO_PRT_Type* base, uint32_t pinNum, const
 cy_en_gpio_status_t Cy_GPIO_Port_Init(GPIO_PRT_Type* base, const cy_stc_gpio_prt_config_t *config);
 void Cy_GPIO_Pin_FastInit(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t driveMode, uint32_t outVal, en_hsiom_sel_t hsiom);
 void Cy_GPIO_Port_Deinit(GPIO_PRT_Type* base);
-__STATIC_INLINE void Cy_GPIO_SetHSIOM(GPIO_PRT_Type* base, uint32_t pinNum, en_hsiom_sel_t value);
-__STATIC_INLINE en_hsiom_sel_t Cy_GPIO_GetHSIOM(GPIO_PRT_Type* base, uint32_t pinNum);
+void Cy_GPIO_SetHSIOM(GPIO_PRT_Type* base, uint32_t pinNum, en_hsiom_sel_t value);
+en_hsiom_sel_t Cy_GPIO_GetHSIOM(GPIO_PRT_Type* base, uint32_t pinNum);
 __STATIC_INLINE GPIO_PRT_Type* Cy_GPIO_PortToAddr(uint32_t portNum);
+#if defined (CY_IP_MXS40SIOSS)
+void Cy_GPIO_Pin_SecFastInit(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t driveMode, uint32_t outVal, en_hsiom_sel_t hsiom);
+__STATIC_INLINE void Cy_GPIO_SetHSIOM_SecPin(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value);
+__STATIC_INLINE uint32_t Cy_GPIO_GetHSIOM_SecPin(GPIO_PRT_Type* base, uint32_t pinNum);
+#endif /* CY_IP_MXS40SIOSS */
 
 /** \} group_gpio_functions_init */
 
@@ -540,20 +679,20 @@ __STATIC_INLINE GPIO_PRT_Type* Cy_GPIO_PortToAddr(uint32_t portNum);
 void Cy_GPIO_SetAmuxSplit(cy_en_amux_split_t switchCtrl, cy_en_gpio_amuxconnect_t amuxConnect, cy_en_gpio_amuxselect_t amuxBus);
 cy_en_gpio_amuxconnect_t Cy_GPIO_GetAmuxSplit(cy_en_amux_split_t switchCtrl, cy_en_gpio_amuxselect_t amuxBus);
 
-__STATIC_INLINE uint32_t Cy_GPIO_Read(GPIO_PRT_Type* base, uint32_t pinNum);
-__STATIC_INLINE void Cy_GPIO_Write(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value);
-__STATIC_INLINE uint32_t Cy_GPIO_ReadOut(GPIO_PRT_Type* base, uint32_t pinNum);
-__STATIC_INLINE void Cy_GPIO_Set(GPIO_PRT_Type* base, uint32_t pinNum);
-__STATIC_INLINE void Cy_GPIO_Clr(GPIO_PRT_Type* base, uint32_t pinNum);
-__STATIC_INLINE void Cy_GPIO_Inv(GPIO_PRT_Type* base, uint32_t pinNum);
-__STATIC_INLINE void Cy_GPIO_SetDrivemode(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value);
-__STATIC_INLINE uint32_t Cy_GPIO_GetDrivemode(GPIO_PRT_Type* base, uint32_t pinNum);
-__STATIC_INLINE void Cy_GPIO_SetVtrip(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value);
-__STATIC_INLINE uint32_t Cy_GPIO_GetVtrip(GPIO_PRT_Type* base, uint32_t pinNum);
-__STATIC_INLINE void Cy_GPIO_SetSlewRate(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value);
-__STATIC_INLINE uint32_t Cy_GPIO_GetSlewRate(GPIO_PRT_Type* base, uint32_t pinNum);
-__STATIC_INLINE void Cy_GPIO_SetDriveSel(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value);
-__STATIC_INLINE uint32_t Cy_GPIO_GetDriveSel(GPIO_PRT_Type* base, uint32_t pinNum);
+uint32_t Cy_GPIO_Read(GPIO_PRT_Type* base, uint32_t pinNum);
+void Cy_GPIO_Write(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value);
+uint32_t Cy_GPIO_ReadOut(GPIO_PRT_Type* base, uint32_t pinNum);
+void Cy_GPIO_Set(GPIO_PRT_Type* base, uint32_t pinNum);
+void Cy_GPIO_Clr(GPIO_PRT_Type* base, uint32_t pinNum);
+void Cy_GPIO_Inv(GPIO_PRT_Type* base, uint32_t pinNum);
+void Cy_GPIO_SetDrivemode(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value);
+uint32_t Cy_GPIO_GetDrivemode(GPIO_PRT_Type* base, uint32_t pinNum);
+void Cy_GPIO_SetVtrip(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value);
+uint32_t Cy_GPIO_GetVtrip(GPIO_PRT_Type* base, uint32_t pinNum);
+void Cy_GPIO_SetSlewRate(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value);
+uint32_t Cy_GPIO_GetSlewRate(GPIO_PRT_Type* base, uint32_t pinNum);
+void Cy_GPIO_SetDriveSel(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value);
+uint32_t Cy_GPIO_GetDriveSel(GPIO_PRT_Type* base, uint32_t pinNum);
 
 /** \} group_gpio_functions_gpio */
 
@@ -562,16 +701,16 @@ __STATIC_INLINE uint32_t Cy_GPIO_GetDriveSel(GPIO_PRT_Type* base, uint32_t pinNu
 * \{
 */
 
-__STATIC_INLINE void Cy_GPIO_SetVregEn(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value);
-__STATIC_INLINE uint32_t Cy_GPIO_GetVregEn(GPIO_PRT_Type* base, uint32_t pinNum);
-__STATIC_INLINE void Cy_GPIO_SetIbufMode(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value);
-__STATIC_INLINE uint32_t Cy_GPIO_GetIbufMode(GPIO_PRT_Type* base, uint32_t pinNum);
-__STATIC_INLINE void Cy_GPIO_SetVtripSel(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value);
-__STATIC_INLINE uint32_t Cy_GPIO_GetVtripSel(GPIO_PRT_Type* base, uint32_t pinNum);
-__STATIC_INLINE void Cy_GPIO_SetVrefSel(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value);
-__STATIC_INLINE uint32_t Cy_GPIO_GetVrefSel(GPIO_PRT_Type* base, uint32_t pinNum);
-__STATIC_INLINE void Cy_GPIO_SetVohSel(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value);
-__STATIC_INLINE uint32_t Cy_GPIO_GetVohSel(GPIO_PRT_Type* base, uint32_t pinNum);
+void Cy_GPIO_SetVregEn(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value);
+uint32_t Cy_GPIO_GetVregEn(GPIO_PRT_Type* base, uint32_t pinNum);
+void Cy_GPIO_SetIbufMode(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value);
+uint32_t Cy_GPIO_GetIbufMode(GPIO_PRT_Type* base, uint32_t pinNum);
+void Cy_GPIO_SetVtripSel(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value);
+uint32_t Cy_GPIO_GetVtripSel(GPIO_PRT_Type* base, uint32_t pinNum);
+void Cy_GPIO_SetVrefSel(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value);
+uint32_t Cy_GPIO_GetVrefSel(GPIO_PRT_Type* base, uint32_t pinNum);
+void Cy_GPIO_SetVohSel(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value);
+uint32_t Cy_GPIO_GetVohSel(GPIO_PRT_Type* base, uint32_t pinNum);
 
 /** \} group_gpio_functions_sio */
 
@@ -580,38 +719,48 @@ __STATIC_INLINE uint32_t Cy_GPIO_GetVohSel(GPIO_PRT_Type* base, uint32_t pinNum)
 * \{
 */
 
-__STATIC_INLINE uint32_t Cy_GPIO_GetInterruptStatus(GPIO_PRT_Type* base, uint32_t pinNum);
-__STATIC_INLINE void Cy_GPIO_ClearInterrupt(GPIO_PRT_Type* base, uint32_t pinNum);
-__STATIC_INLINE void Cy_GPIO_SetInterruptMask(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value);
-__STATIC_INLINE uint32_t Cy_GPIO_GetInterruptMask(GPIO_PRT_Type* base, uint32_t pinNum);
-__STATIC_INLINE uint32_t Cy_GPIO_GetInterruptStatusMasked(GPIO_PRT_Type* base, uint32_t pinNum);
-__STATIC_INLINE void Cy_GPIO_SetSwInterrupt(GPIO_PRT_Type* base, uint32_t pinNum);
-__STATIC_INLINE void Cy_GPIO_SetInterruptEdge(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value);
-__STATIC_INLINE uint32_t Cy_GPIO_GetInterruptEdge(GPIO_PRT_Type* base, uint32_t pinNum);
-__STATIC_INLINE void Cy_GPIO_SetFilter(GPIO_PRT_Type* base, uint32_t value);
-__STATIC_INLINE uint32_t Cy_GPIO_GetFilter(GPIO_PRT_Type* base);
+uint32_t Cy_GPIO_GetInterruptStatus(GPIO_PRT_Type* base, uint32_t pinNum);
+void Cy_GPIO_ClearInterrupt(GPIO_PRT_Type* base, uint32_t pinNum);
+void Cy_GPIO_SetInterruptMask(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value);
+uint32_t Cy_GPIO_GetInterruptMask(GPIO_PRT_Type* base, uint32_t pinNum);
+uint32_t Cy_GPIO_GetInterruptStatusMasked(GPIO_PRT_Type* base, uint32_t pinNum);
+void Cy_GPIO_SetSwInterrupt(GPIO_PRT_Type* base, uint32_t pinNum);
+void Cy_GPIO_SetInterruptEdge(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value);
+uint32_t Cy_GPIO_GetInterruptEdge(GPIO_PRT_Type* base, uint32_t pinNum);
+void Cy_GPIO_SetFilter(GPIO_PRT_Type* base, uint32_t value);
+uint32_t Cy_GPIO_GetFilter(GPIO_PRT_Type* base);
 
 __STATIC_INLINE uint32_t Cy_GPIO_GetInterruptCause0(void);
 __STATIC_INLINE uint32_t Cy_GPIO_GetInterruptCause1(void);
 __STATIC_INLINE uint32_t Cy_GPIO_GetInterruptCause2(void);
 __STATIC_INLINE uint32_t Cy_GPIO_GetInterruptCause3(void);
+#if defined (CY_IP_MXS40SIOSS)
+__STATIC_INLINE uint32_t Cy_GPIO_GetSecureInterruptCause0(void);
+__STATIC_INLINE uint32_t Cy_GPIO_GetSecureInterruptCause1(void);
+__STATIC_INLINE uint32_t Cy_GPIO_GetSecureInterruptCause2(void);
+__STATIC_INLINE uint32_t Cy_GPIO_GetSecureInterruptCause3(void);
+#endif /* CY_IP_MXS40SIOSS */
 
 /** \} group_gpio_functions_interrupt */
 
+/** \cond INTERNAL */
+#if defined (CY_IP_MXS40SIOSS)
+#define HSIOM_PRT_V1_Type HSIOM_PRT_Type
+#endif /* CY_IP_MXS40SIOSS */
+/** \endcond */
 
 /**
 * \addtogroup group_gpio_functions_init
 * \{
 */
 
+#if defined (CY_IP_MXS40SIOSS)
 /*******************************************************************************
-* Function Name: Cy_GPIO_SetHSIOM
+* Function Name: Cy_GPIO_SetHSIOM_SecPin
 ****************************************************************************//**
 *
-* Configures the HSIOM connection to the pin.
+* Configures the pin as secure or non-secure.
 *
-* Connects the specified High-Speed Input Output Multiplexer (HSIOM) selection
-* to the pin.
 *
 * \param base
 * Pointer to the pin's port register base address
@@ -620,47 +769,41 @@ __STATIC_INLINE uint32_t Cy_GPIO_GetInterruptCause3(void);
 * Position of the pin bit-field within the port register
 *
 * \param value
-* HSIOM input selection
+* Secure HSIOM non-secure mask
 *
 * \note
 * This function modifies a port register in a read-modify-write operation. It is
 * not thread safe as the resource is shared among multiple pins on a port.
+* This function should be called from the right protection context to access
+* HSIOM secure port (HSIOM_SECURE_PRT_Type).
+*
+* \note
+* This API is available for the CAT1B devices.
 *
 * \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetHSIOM
 *
 *******************************************************************************/
-__STATIC_INLINE void Cy_GPIO_SetHSIOM(GPIO_PRT_Type* base, uint32_t pinNum, en_hsiom_sel_t value)
+__STATIC_INLINE void Cy_GPIO_SetHSIOM_SecPin(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value)
 {
-    uint32_t portNum;
     uint32_t tempReg;
-    HSIOM_PRT_V1_Type* portAddrHSIOM;
+    uint32_t portNum;
+    HSIOM_SECURE_PRT_Type* portAddrSecHSIOM;
 
     CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
     CY_ASSERT_L2(CY_GPIO_IS_HSIOM_VALID(value));
 
     portNum = ((uint32_t)(base) - CY_GPIO_BASE) / GPIO_PRT_SECTION_SIZE;
-    portAddrHSIOM = (HSIOM_PRT_V1_Type*)(CY_HSIOM_BASE + (HSIOM_PRT_SECTION_SIZE * portNum));
+    portAddrSecHSIOM = (HSIOM_SECURE_PRT_Type*)(CY_HSIOM_SECURE_BASE + (HSIOM_SECURE_PRT_SECTION_SIZE * portNum));
 
-    if(pinNum < CY_GPIO_PRT_HALF)
-    {
-        tempReg = HSIOM_PRT_PORT_SEL0(portAddrHSIOM) & ~(CY_GPIO_HSIOM_MASK << (pinNum << CY_GPIO_HSIOM_OFFSET));
-        HSIOM_PRT_PORT_SEL0(portAddrHSIOM) = tempReg | (((uint32_t)value & CY_GPIO_HSIOM_MASK) << (pinNum << CY_GPIO_HSIOM_OFFSET));
-    }
-    else
-    {
-        pinNum -= CY_GPIO_PRT_HALF;
-        tempReg = HSIOM_PRT_PORT_SEL1(portAddrHSIOM) & ~(CY_GPIO_HSIOM_MASK << (pinNum << CY_GPIO_HSIOM_OFFSET));
-        HSIOM_PRT_PORT_SEL1(portAddrHSIOM) = tempReg | (((uint32_t)value & CY_GPIO_HSIOM_MASK) << (pinNum << CY_GPIO_HSIOM_OFFSET));
-    }
+    tempReg= HSIOM_SEC_PRT_NONSEC_MASK(portAddrSecHSIOM) & ~(CY_GPIO_HSIOM_SEC_MASK << pinNum);
+    HSIOM_SEC_PRT_NONSEC_MASK(portAddrSecHSIOM) = tempReg | ((value & CY_GPIO_HSIOM_SEC_MASK) << pinNum);
 }
 
-
 /*******************************************************************************
-* Function Name: Cy_GPIO_GetHSIOM
+* Function Name: Cy_GPIO_GetHSIOM_SecPin
 ****************************************************************************//**
 *
-* Returns the current HSIOM multiplexer connection to the pin.
+* Returns the current status of secure Pin.
 *
 * \param base
 * Pointer to the pin's port register base address
@@ -671,34 +814,26 @@ __STATIC_INLINE void Cy_GPIO_SetHSIOM(GPIO_PRT_Type* base, uint32_t pinNum, en_h
 * \return
 * HSIOM input selection
 *
+* \note
+* This API is available for the CAT1B devices.
+*
 * \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetHSIOM
 *
 *******************************************************************************/
-__STATIC_INLINE en_hsiom_sel_t Cy_GPIO_GetHSIOM(GPIO_PRT_Type* base, uint32_t pinNum)
+__STATIC_INLINE uint32_t Cy_GPIO_GetHSIOM_SecPin(GPIO_PRT_Type* base, uint32_t pinNum)
 {
-    uint32_t returnValue;
     uint32_t portNum;
-    HSIOM_PRT_V1_Type* portAddrHSIOM;
+    HSIOM_SECURE_PRT_Type* portAddrSecHSIOM;
 
     CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
 
     portNum = ((uint32_t)(base) - CY_GPIO_BASE) / GPIO_PRT_SECTION_SIZE;
-    portAddrHSIOM = (HSIOM_PRT_V1_Type*)(CY_HSIOM_BASE + (HSIOM_PRT_SECTION_SIZE * portNum));
+    portAddrSecHSIOM = (HSIOM_SECURE_PRT_Type*)(CY_HSIOM_SECURE_BASE + (HSIOM_SECURE_PRT_SECTION_SIZE * portNum));
 
-    if(pinNum < CY_GPIO_PRT_HALF)
-    {
-        returnValue = (HSIOM_PRT_PORT_SEL0(portAddrHSIOM) >> (pinNum << CY_GPIO_HSIOM_OFFSET)) & CY_GPIO_HSIOM_MASK;
-    }
-    else
-    {
-        pinNum -= CY_GPIO_PRT_HALF;
-        returnValue = (HSIOM_PRT_PORT_SEL1(portAddrHSIOM) >> (pinNum << CY_GPIO_HSIOM_OFFSET)) & CY_GPIO_HSIOM_MASK;
-    }
-
-    return (en_hsiom_sel_t)returnValue;
+    return (uint32_t)((HSIOM_SEC_PRT_NONSEC_MASK(portAddrSecHSIOM) >> pinNum) & CY_GPIO_HSIOM_SEC_MASK);
 }
 
+#endif /* CY_IP_MXS40SIOSS */
 
 /*******************************************************************************
 * Function Name: Cy_GPIO_PortToAddr
@@ -738,1128 +873,12 @@ __STATIC_INLINE GPIO_PRT_Type* Cy_GPIO_PortToAddr(uint32_t portNum)
 
 /** \} group_gpio_functions_init */
 
-/**
-* \addtogroup group_gpio_functions_gpio
-* \{
-*/
 
-/*******************************************************************************
-* Function Name: Cy_GPIO_Read
-****************************************************************************//**
-*
-* Reads the current logic level on the input buffer of the pin.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register.
-* Bit position 8 is the routed pin through the port glitch filter.
-*
-* \return
-* Logic level present on the pin
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_Read
-*
-*******************************************************************************/
-__STATIC_INLINE uint32_t Cy_GPIO_Read(GPIO_PRT_Type* base, uint32_t pinNum)
-{
-    CY_ASSERT_L2(CY_GPIO_IS_FILTER_PIN_VALID(pinNum));
-
-    return (GPIO_PRT_IN(base) >> (pinNum)) & CY_GPIO_IN_MASK;
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_Write
-****************************************************************************//**
-*
-* Write a logic 0 or logic 1 state to the output driver.
-*
-* This function should be used only for software driven pins. It does not have
-* any effect on peripheral driven pins.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register
-*
-* \param value
-* Logic level to drive out on the pin
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_Write
-*
-*******************************************************************************/
-__STATIC_INLINE void Cy_GPIO_Write(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value)
-{
-    CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
-    CY_ASSERT_L2(CY_GPIO_IS_VALUE_VALID(value));
-
-    /* Thread-safe: Directly access the pin registers instead of base->OUT */
-    if(0UL == value)
-    {
-        GPIO_PRT_OUT_CLR(base) = CY_GPIO_OUT_MASK << pinNum;
-    }
-    else
-    {
-        GPIO_PRT_OUT_SET(base) = CY_GPIO_OUT_MASK << pinNum;
-    }
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_ReadOut
-****************************************************************************//**
-*
-* Reads the current logic level on the pin output driver.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register
-*
-* \return
-* Logic level on the pin output driver
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_ReadOut
-*
-*******************************************************************************/
-__STATIC_INLINE uint32_t Cy_GPIO_ReadOut(GPIO_PRT_Type* base, uint32_t pinNum)
-{
-    CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
-
-    return (GPIO_PRT_OUT(base) >> pinNum) & CY_GPIO_OUT_MASK;
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_Set
-****************************************************************************//**
-*
-* Set a pin output to logic state high.
-*
-* This function should be used only for software driven pins. It does not have
-* any effect on peripheral driven pins.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_Set
-*
-*******************************************************************************/
-__STATIC_INLINE void Cy_GPIO_Set(GPIO_PRT_Type* base, uint32_t pinNum)
-{
-    CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
-
-    GPIO_PRT_OUT_SET(base) = CY_GPIO_OUT_MASK << pinNum;
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_Clr
-****************************************************************************//**
-*
-* Set a pin output to logic state Low.
-*
-* This function should be used only for software driven pins. It does not have
-* any effect on peripheral driven pins.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_Clr
-*
-*******************************************************************************/
-__STATIC_INLINE void Cy_GPIO_Clr(GPIO_PRT_Type* base, uint32_t pinNum)
-{
-    CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
-
-    GPIO_PRT_OUT_CLR(base) = CY_GPIO_OUT_MASK << pinNum;
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_Inv
-****************************************************************************//**
-*
-* Set a pin output logic state to the inverse of the current output
-* logic state.
-*
-* This function should be used only for software driven pins. It does not have
-* any effect on peripheral driven pins.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_Inv
-*
-*******************************************************************************/
-__STATIC_INLINE void Cy_GPIO_Inv(GPIO_PRT_Type* base, uint32_t pinNum)
-{
-    CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
-
-    GPIO_PRT_OUT_INV(base) = CY_GPIO_OUT_MASK << pinNum;
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_SetDrivemode
-****************************************************************************//**
-*
-* Configures the pin output buffer drive mode and input buffer enable.
-*
-* The output buffer drive mode and input buffer enable are combined into a single
-* parameter. The drive mode controls the behavior of the pin in general.
-* Enabling the input buffer allows the digital pin state to be read but also
-* contributes to extra current consumption.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register
-*
-* \param value
-* Pin drive mode. Options are detailed in \ref group_gpio_driveModes macros
-*
-* \note
-* This function modifies a port register in a read-modify-write operation. It is
-* not thread safe as the resource is shared among multiple pins on a port.
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetDrivemode
-*
-*******************************************************************************/
-__STATIC_INLINE void Cy_GPIO_SetDrivemode(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value)
-{
-    uint32_t tempReg;
-    uint32_t pinLoc;
-
-    CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
-    CY_ASSERT_L2(CY_GPIO_IS_DM_VALID(value));
-
-    pinLoc = pinNum << CY_GPIO_DRIVE_MODE_OFFSET;
-    tempReg = (GPIO_PRT_CFG(base) & ~(CY_GPIO_CFG_DM_MASK << pinLoc));
-    GPIO_PRT_CFG(base) = tempReg | ((value & CY_GPIO_CFG_DM_MASK) << pinLoc);
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_GetDrivemode
-****************************************************************************//**
-*
-* Returns the pin output buffer drive mode and input buffer enable state.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register
-*
-* \return
-* Pin drive mode. Options are detailed in \ref group_gpio_driveModes macros
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetDrivemode
-*
-*******************************************************************************/
-__STATIC_INLINE uint32_t Cy_GPIO_GetDrivemode(GPIO_PRT_Type* base, uint32_t pinNum)
-{
-    CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
-
-    return (GPIO_PRT_CFG(base) >> (pinNum << CY_GPIO_DRIVE_MODE_OFFSET)) & CY_GPIO_CFG_DM_MASK;
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_SetVtrip
-****************************************************************************//**
-*
-* Configures the GPIO pin input buffer voltage threshold mode.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register
-*
-* \param value
-* Pin voltage threshold mode. Options are detailed in \ref group_gpio_vtrip macros
-*
-* \note
-* This function modifies a port register in a read-modify-write operation. It is
-* not thread safe as the resource is shared among multiple pins on a port.
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetVtrip
-*
-*******************************************************************************/
-__STATIC_INLINE void Cy_GPIO_SetVtrip(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value)
-{
-    uint32_t tempReg;
-
-    CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
-    CY_ASSERT_L2(CY_GPIO_IS_VALUE_VALID(value));
-
-    tempReg = GPIO_PRT_CFG_IN(base) & ~(CY_GPIO_CFG_IN_VTRIP_SEL_MASK << pinNum);
-    GPIO_PRT_CFG_IN(base) = tempReg | ((value & CY_GPIO_CFG_IN_VTRIP_SEL_MASK) << pinNum);
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_GetVtrip
-****************************************************************************//**
-*
-* Returns the pin input buffer voltage threshold mode.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register
-*
-* \return
-* Pin voltage threshold mode. Options are detailed in \ref group_gpio_vtrip macros
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetVtrip
-*
-*******************************************************************************/
-__STATIC_INLINE uint32_t Cy_GPIO_GetVtrip(GPIO_PRT_Type* base, uint32_t pinNum)
-{
-    CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
-
-    return (GPIO_PRT_CFG_IN(base) >> pinNum) & CY_GPIO_CFG_IN_VTRIP_SEL_MASK;
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_SetSlewRate
-****************************************************************************//**
-*
-* Configures the pin output buffer slew rate.
-*
-* \note
-* This function has no effect for the GPIO ports, where the slew rate
-* configuration is not available. Refer to device datasheet for details.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register
-*
-* \param value
-* Pin slew rate. Options are detailed in \ref group_gpio_slewRate macros
-*
-* \note
-* This function modifies a port register in a read-modify-write operation. It is
-* not thread safe as the resource is shared among multiple pins on a port.
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetSlewRate
-*
-*******************************************************************************/
-__STATIC_INLINE void Cy_GPIO_SetSlewRate(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value)
-{
-    uint32_t tempReg;
-
-    CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
-    CY_ASSERT_L2(CY_GPIO_IS_VALUE_VALID(value));
-
-    tempReg = GPIO_PRT_CFG_OUT(base) & ~(CY_GPIO_CFG_OUT_SLOW_MASK << pinNum);
-    GPIO_PRT_CFG_OUT(base) = tempReg | ((value & CY_GPIO_CFG_OUT_SLOW_MASK) << pinNum);
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_GetSlewRate
-****************************************************************************//**
-*
-* Returns the pin output buffer slew rate.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register
-*
-* \return
-* Pin slew rate. Options are detailed in \ref group_gpio_slewRate macros
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetSlewRate
-*
-*******************************************************************************/
-__STATIC_INLINE uint32_t Cy_GPIO_GetSlewRate(GPIO_PRT_Type* base, uint32_t pinNum)
-{
-    CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
-
-    return (GPIO_PRT_CFG_OUT(base) >> pinNum) & CY_GPIO_CFG_OUT_SLOW_MASK;
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_SetDriveSel
-****************************************************************************//**
-*
-* Configures the pin output buffer drive strength.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register
-*
-* \param value
-* Pin drive strength. Options are detailed in \ref group_gpio_driveStrength macros
-*
-* \note
-* This function modifies a port register in a read-modify-write operation. It is
-* not thread safe as the resource is shared among multiple pins on a port.
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetDriveSel
-*
-*******************************************************************************/
-__STATIC_INLINE void Cy_GPIO_SetDriveSel(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value)
-{
-    uint32_t tempReg;
-    uint32_t pinLoc;
-
-    CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
-    CY_ASSERT_L2(CY_GPIO_IS_DRIVE_SEL_VALID(value));
-
-    pinLoc = (uint32_t)(pinNum << 1u) + CY_GPIO_CFG_OUT_DRIVE_OFFSET;
-    tempReg = GPIO_PRT_CFG_OUT(base) & ~(CY_GPIO_CFG_OUT_DRIVE_SEL_MASK << pinLoc);
-    GPIO_PRT_CFG_OUT(base) = tempReg | ((value & CY_GPIO_CFG_OUT_DRIVE_SEL_MASK) << pinLoc);
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_GetDriveSel
-****************************************************************************//**
-*
-* Returns the pin output buffer drive strength.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register
-*
-* \return
-* Pin drive strength. Options are detailed in \ref group_gpio_driveStrength macros
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetDriveSel
-*
-*******************************************************************************/
-__STATIC_INLINE uint32_t Cy_GPIO_GetDriveSel(GPIO_PRT_Type* base, uint32_t pinNum)
-{
-    CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
-
-    return ((GPIO_PRT_CFG_OUT(base) >> ((uint32_t)(pinNum << 1u) + CY_GPIO_CFG_OUT_DRIVE_OFFSET))
-            & CY_GPIO_CFG_OUT_DRIVE_SEL_MASK);
-}
-
-/** \} group_gpio_functions_gpio */
-
-/**
-* \addtogroup group_gpio_functions_sio
-* \{
-*/
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_SetVregEn
-****************************************************************************//**
-*
-* Configures the SIO pin pair output buffer regulation mode.
-*
-* Note that this function has no effect on non-SIO pins.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register
-*
-* \param value
-* SIO pair output buffer regulator mode. Options are detailed in \ref group_gpio_sioVreg macros
-*
-* \note
-* This function modifies a port register in a read-modify-write operation. It is
-* not thread safe as the resource is shared among multiple pins on a port.
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetVregEn
-*
-*******************************************************************************/
-__STATIC_INLINE void Cy_GPIO_SetVregEn(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value)
-{
-    uint32_t tempReg;
-    uint32_t pinLoc;
-
-    CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
-    CY_ASSERT_L2(CY_GPIO_IS_VALUE_VALID(value));
-
-    pinLoc = (pinNum & CY_GPIO_SIO_ODD_PIN_MASK) << CY_GPIO_CFG_SIO_OFFSET;
-    tempReg = GPIO_PRT_CFG_SIO(base) & ~(CY_GPIO_VREG_EN_MASK << pinLoc);
-    GPIO_PRT_CFG_SIO(base) = tempReg | ((value & CY_GPIO_VREG_EN_MASK) << pinLoc);
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_GetVregEn
-****************************************************************************//**
-*
-* Returns the SIO pin pair output buffer regulation mode.
-*
-* Note that this function has no effect on non-SIO pins.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register
-*
-* \return
-* SIO pair output buffer regulator mode. Options are detailed in \ref group_gpio_sioVreg macros
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetVregEn
-*
-*******************************************************************************/
-__STATIC_INLINE uint32_t Cy_GPIO_GetVregEn(GPIO_PRT_Type* base, uint32_t pinNum)
-{
-    CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
-
-    return (GPIO_PRT_CFG_SIO(base) >> ((pinNum & CY_GPIO_SIO_ODD_PIN_MASK) << CY_GPIO_CFG_SIO_OFFSET)) & CY_GPIO_VREG_EN_MASK;
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_SetIbufMode
-****************************************************************************//**
-*
-* Configures the SIO pin pair input buffer mode.
-*
-* Note that this function has no effect on non-SIO pins.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register
-*
-* \param value
-* SIO pair input buffer mode. Options are detailed in \ref group_gpio_sioIbuf macros
-*
-* \note
-* This function modifies a port register in a read-modify-write operation. It is
-* not thread safe as the resource is shared among multiple pins on a port.
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetIbufMode
-*
-*******************************************************************************/
-__STATIC_INLINE void Cy_GPIO_SetIbufMode(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value)
-{
-    uint32_t tempReg;
-    uint32_t pinLoc;
-
-    CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
-    CY_ASSERT_L2(CY_GPIO_IS_VALUE_VALID(value));
-
-    pinLoc = ((pinNum & CY_GPIO_SIO_ODD_PIN_MASK) << CY_GPIO_CFG_SIO_OFFSET) + CY_GPIO_IBUF_SHIFT;
-    tempReg = (GPIO_PRT_CFG_SIO(base) & ~(CY_GPIO_IBUF_MASK << pinLoc));
-    GPIO_PRT_CFG_SIO(base) = tempReg | ((value & CY_GPIO_IBUF_MASK) << pinLoc);
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_GetIbufMode
-****************************************************************************//**
-*
-* Returns the SIO pin pair input buffer mode.
-*
-* Note that this function has no effect on non-SIO pins.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register
-*
-* \return
-* SIO pair input buffer mode. Options are detailed in \ref group_gpio_sioIbuf macros
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetIbufMode
-*
-*******************************************************************************/
-__STATIC_INLINE uint32_t Cy_GPIO_GetIbufMode(GPIO_PRT_Type* base, uint32_t pinNum)
-{
-    CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
-
-    return (GPIO_PRT_CFG_SIO(base) >> (((pinNum & CY_GPIO_SIO_ODD_PIN_MASK) << CY_GPIO_CFG_SIO_OFFSET) + CY_GPIO_IBUF_SHIFT)) & CY_GPIO_IBUF_MASK;
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_SetVtripSel
-****************************************************************************//**
-*
-* Configures the SIO pin pair input buffer trip point.
-*
-* Note that this function has no effect on non-SIO pins.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register
-*
-* \param value
-* SIO pair input buffer trip point. Options are detailed in \ref group_gpio_sioVtrip macros
-*
-* \note
-* This function modifies a port register in a read-modify-write operation. It is
-* not thread safe as the resource is shared among multiple pins on a port.
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetVtripSel
-*
-*******************************************************************************/
-__STATIC_INLINE void Cy_GPIO_SetVtripSel(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value)
-{
-    uint32_t tempReg;
-    uint32_t pinLoc;
-
-    CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
-    CY_ASSERT_L2(CY_GPIO_IS_VALUE_VALID(value));
-
-    pinLoc = ((pinNum & CY_GPIO_SIO_ODD_PIN_MASK) << CY_GPIO_CFG_SIO_OFFSET) + CY_GPIO_VTRIP_SEL_SHIFT;
-    tempReg = (GPIO_PRT_CFG_SIO(base) & ~(CY_GPIO_VTRIP_SEL_MASK << pinLoc));
-    GPIO_PRT_CFG_SIO(base) = tempReg | ((value & CY_GPIO_VTRIP_SEL_MASK) << pinLoc);
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_GetVtripSel
-****************************************************************************//**
-*
-* Returns the SIO pin pair input buffer trip point.
-*
-* Note that this function has no effect on non-SIO pins.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register
-*
-* \return
-* SIO pair input buffer trip point. Options are detailed in \ref group_gpio_sioVtrip macros
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetVtripSel
-*
-*******************************************************************************/
-__STATIC_INLINE uint32_t Cy_GPIO_GetVtripSel(GPIO_PRT_Type* base, uint32_t pinNum)
-{
-    CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
-
-    return (GPIO_PRT_CFG_SIO(base) >> (((pinNum & CY_GPIO_SIO_ODD_PIN_MASK) << CY_GPIO_CFG_SIO_OFFSET) + CY_GPIO_VTRIP_SEL_SHIFT)) & CY_GPIO_VTRIP_SEL_MASK;
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_SetVrefSel
-****************************************************************************//**
-*
-* Configures the SIO reference voltage for the input buffer trip point.
-*
-* Note that this function has no effect on non-SIO pins.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register
-*
-* \param value
-* SIO pair reference voltage. Options are detailed in \ref group_gpio_sioVref macros
-*
-* \note
-* This function modifies a port register in a read-modify-write operation. It is
-* not thread safe as the resource is shared among multiple pins on a port.
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetVrefSel
-*
-*******************************************************************************/
-__STATIC_INLINE void Cy_GPIO_SetVrefSel(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value)
-{
-    uint32_t tempReg;
-    uint32_t pinLoc;
-
-    CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
-    CY_ASSERT_L2(CY_GPIO_IS_VREF_SEL_VALID(value));
-
-    pinLoc = ((pinNum & CY_GPIO_SIO_ODD_PIN_MASK) << CY_GPIO_CFG_SIO_OFFSET) + CY_GPIO_VREF_SEL_SHIFT;
-    tempReg = (GPIO_PRT_CFG_SIO(base) & ~(CY_GPIO_VREF_SEL_MASK << pinLoc));
-    GPIO_PRT_CFG_SIO(base) = tempReg | ((value & CY_GPIO_VREF_SEL_MASK) << pinLoc);
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_GetVrefSel
-****************************************************************************//**
-*
-* Returns the SIO reference voltage for the input buffer trip point.
-*
-* Note that this function has no effect on non-SIO pins.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register
-*
-* \return
-* SIO pair reference voltage. Options are detailed in \ref group_gpio_sioVref macros
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetVrefSel
-*
-*******************************************************************************/
-__STATIC_INLINE uint32_t Cy_GPIO_GetVrefSel(GPIO_PRT_Type* base, uint32_t pinNum)
-{
-    CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
-
-    return (GPIO_PRT_CFG_SIO(base) >> (((pinNum & CY_GPIO_SIO_ODD_PIN_MASK) << CY_GPIO_CFG_SIO_OFFSET) + CY_GPIO_VREF_SEL_SHIFT)) & CY_GPIO_VREF_SEL_MASK;
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_SetVohSel
-****************************************************************************//**
-*
-* Configures the regulated output reference multiplier for the SIO pin pair.
-*
-* The regulated output reference controls both the output level of digital output
-* pin and the input trip point of digital input pin in the SIO pair.
-*
-* Note that this function has no effect on non-SIO pins.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register
-*
-* \param value
-* SIO pair reference voltage. Options are detailed in \ref group_gpio_sioVoh macros
-*
-* \note
-* This function modifies a port register in a read-modify-write operation. It is
-* not thread safe as the resource is shared among multiple pins on a port.
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetVohSel
-*
-*******************************************************************************/
-__STATIC_INLINE void Cy_GPIO_SetVohSel(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value)
-{
-    uint32_t tempReg;
-    uint32_t pinLoc;
-
-    CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
-    CY_ASSERT_L2(CY_GPIO_IS_VOH_SEL_VALID(value));
-
-    pinLoc = ((pinNum & CY_GPIO_SIO_ODD_PIN_MASK) << CY_GPIO_CFG_SIO_OFFSET) + CY_GPIO_VOH_SEL_SHIFT;
-    tempReg = (GPIO_PRT_CFG_SIO(base) & ~(CY_GPIO_VOH_SEL_MASK << pinLoc));
-    GPIO_PRT_CFG_SIO(base) = tempReg | ((value & CY_GPIO_VOH_SEL_MASK) << pinLoc);
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_GetVohSel
-****************************************************************************//**
-*
-* Returns the regulated output reference multiplier for the SIO pin pair.
-*
-* Note that this function has no effect on non-SIO pins.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register
-*
-* \return
-* SIO pair reference voltage. Options are detailed in \ref group_gpio_sioVoh macros
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetVohSel
-*
-*******************************************************************************/
-__STATIC_INLINE uint32_t Cy_GPIO_GetVohSel(GPIO_PRT_Type* base, uint32_t pinNum)
-{
-    CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
-
-    return (GPIO_PRT_CFG_SIO(base) >> (((pinNum & CY_GPIO_SIO_ODD_PIN_MASK) << CY_GPIO_CFG_SIO_OFFSET) + CY_GPIO_VOH_SEL_SHIFT)) & CY_GPIO_VOH_SEL_MASK;
-}
-
-/** \} group_gpio_functions_sio */
 
 /**
 * \addtogroup group_gpio_functions_interrupt
 * \{
 */
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_GetInterruptStatus
-****************************************************************************//**
-*
-* Returns the current unmasked interrupt state of the pin.
-*
-* The core processor's NVIC is triggered by the masked interrupt bits. This
-* function allows reading the unmasked interrupt state. Whether the bit
-* positions actually trigger the interrupt are defined by the interrupt mask bits.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register
-* Bit position 8 is the routed pin through the port glitch filter.
-*
-* \return
-* 0 = Pin interrupt condition not detected
-* 1 = Pin interrupt condition detected
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_GetInterruptStatus
-*
-*******************************************************************************/
-__STATIC_INLINE uint32_t Cy_GPIO_GetInterruptStatus(GPIO_PRT_Type* base, uint32_t pinNum)
-{
-    CY_ASSERT_L2(CY_GPIO_IS_FILTER_PIN_VALID(pinNum));
-
-    return (GPIO_PRT_INTR(base) >> pinNum) & CY_GPIO_INTR_STATUS_MASK;
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_ClearInterrupt
-****************************************************************************//**
-*
-* Clears the triggered pin interrupt.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register
-* Bit position 8 is the routed pin through the port glitch filter.
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_ClearInterrupt
-*
-*******************************************************************************/
-__STATIC_INLINE void Cy_GPIO_ClearInterrupt(GPIO_PRT_Type* base, uint32_t pinNum)
-{
-    CY_ASSERT_L2(CY_GPIO_IS_FILTER_PIN_VALID(pinNum));
-
-    /* Any INTR MMIO registers AHB clearing must be preceded with an AHB read access */
-    (void)GPIO_PRT_INTR(base);
-
-    GPIO_PRT_INTR(base) = CY_GPIO_INTR_STATUS_MASK << pinNum;
-
-    /* This read ensures that the initial write has been flushed out to the hardware */
-    (void)GPIO_PRT_INTR(base);
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_SetInterruptMask
-****************************************************************************//**
-*
-* Configures the pin interrupt to be forwarded to the CPU NVIC.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register.
-* Bit position 8 is the routed pin through the port glitch filter.
-*
-* \param value
-* 0 = Pin interrupt not forwarded to CPU interrupt controller
-* 1 = Pin interrupt masked and forwarded to CPU interrupt controller
-*
-* \note
-* This function modifies a port register in a read-modify-write operation. It is
-* not thread safe as the resource is shared among multiple pins on a port.
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetInterruptMask
-*
-*******************************************************************************/
-__STATIC_INLINE void Cy_GPIO_SetInterruptMask(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value)
-{
-    uint32_t tempReg;
-
-    CY_ASSERT_L2(CY_GPIO_IS_FILTER_PIN_VALID(pinNum));
-    CY_ASSERT_L2(CY_GPIO_IS_VALUE_VALID(value));
-
-    tempReg= GPIO_PRT_INTR_MASK(base) & ~(CY_GPIO_INTR_EN_MASK << pinNum);
-    GPIO_PRT_INTR_MASK(base) = tempReg | ((value & CY_GPIO_INTR_EN_MASK) << pinNum);
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_GetInterruptMask
-****************************************************************************//**
-*
-* Returns the state of the pin interrupt mask.
-*
-* This mask is used to determine whether the pin is configured to be forwarded
-* to the CPU NVIC.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register.
-* Bit position 8 is the routed pin through the port glitch filter.
-*
-* \return
-* 0 = Pin interrupt not forwarded to CPU interrupt controller
-* 1 = Pin interrupt masked and forwarded to CPU interrupt controller
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetInterruptMask
-*
-*******************************************************************************/
-__STATIC_INLINE uint32_t Cy_GPIO_GetInterruptMask(GPIO_PRT_Type* base, uint32_t pinNum)
-{
-    CY_ASSERT_L2(CY_GPIO_IS_FILTER_PIN_VALID(pinNum));
-
-    return (GPIO_PRT_INTR_MASK(base) >> pinNum) & CY_GPIO_INTR_EN_MASK;
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_GetInterruptStatusMasked
-****************************************************************************//**
-*
-* Return the pin's current interrupt state after being masked.
-*
-* The core processor's NVIC is triggered by the masked interrupt bits. This
-* function allows reading this masked interrupt state. Note that the bits that
-* are not masked will not be forwarded to the NVIC.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register.
-* Bit position 8 is the routed pin through the port glitch filter.
-*
-* \return
-* 0 = Pin interrupt not detected or not forwarded to CPU interrupt controller
-* 1 = Pin interrupt detected and forwarded to CPU interrupt controller
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_GetInterruptStatusMasked
-*
-*******************************************************************************/
-__STATIC_INLINE uint32_t Cy_GPIO_GetInterruptStatusMasked(GPIO_PRT_Type* base, uint32_t pinNum)
-{
-    CY_ASSERT_L2(CY_GPIO_IS_FILTER_PIN_VALID(pinNum));
-
-    return (GPIO_PRT_INTR_MASKED(base) >> pinNum) & CY_GPIO_INTR_MASKED_MASK;
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_SetSwInterrupt
-****************************************************************************//**
-*
-* Force a pin interrupt to trigger.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register.
-* Bit position 8 is the routed pin through the port glitch filter.
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetSwInterrupt
-*
-*******************************************************************************/
-__STATIC_INLINE void Cy_GPIO_SetSwInterrupt(GPIO_PRT_Type* base, uint32_t pinNum)
-{
-    CY_ASSERT_L2(CY_GPIO_IS_FILTER_PIN_VALID(pinNum));
-
-    GPIO_PRT_INTR_SET(base) = CY_GPIO_INTR_SET_MASK << pinNum;
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_SetInterruptEdge
-****************************************************************************//**
-*
-* Configures the type of edge that will trigger a pin interrupt.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register.
-* Bit position 8 is the routed pin through the port glitch filter.
-*
-* \param value
-* Pin interrupt mode. Options are detailed in \ref group_gpio_interruptTrigger macros
-*
-* \note
-* This function modifies a port register in a read-modify-write operation. It is
-* not thread safe as the resource is shared among multiple pins on a port.
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetInterruptEdge
-*
-*******************************************************************************/
-__STATIC_INLINE void Cy_GPIO_SetInterruptEdge(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value)
-{
-    uint32_t tempReg;
-    uint32_t pinLoc;
-
-    CY_ASSERT_L2(CY_GPIO_IS_FILTER_PIN_VALID(pinNum));
-    CY_ASSERT_L2(CY_GPIO_IS_INT_EDGE_VALID(value));
-
-    pinLoc = pinNum << CY_GPIO_INTR_CFG_OFFSET;
-    tempReg = GPIO_PRT_INTR_CFG(base) & ~(CY_GPIO_INTR_EDGE_MASK << pinLoc);
-    GPIO_PRT_INTR_CFG(base) = tempReg | ((value & CY_GPIO_INTR_EDGE_MASK) << pinLoc);
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_GetInterruptEdge
-****************************************************************************//**
-*
-* Returns the current pin interrupt edge type.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param pinNum
-* Position of the pin bit-field within the port register.
-* Bit position 8 is the routed pin through the port glitch filter.
-*
-* \return
-* Pin interrupt mode. Options are detailed in \ref group_gpio_interruptTrigger macros
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetInterruptEdge
-*
-*******************************************************************************/
-__STATIC_INLINE uint32_t Cy_GPIO_GetInterruptEdge(GPIO_PRT_Type* base, uint32_t pinNum)
-{
-    CY_ASSERT_L2(CY_GPIO_IS_FILTER_PIN_VALID(pinNum));
-
-    return (GPIO_PRT_INTR_CFG(base) >> (pinNum << CY_GPIO_INTR_CFG_OFFSET)) & CY_GPIO_INTR_EDGE_MASK;
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_SetFilter
-****************************************************************************//**
-*
-* Configures which pin on the port connects to the port-specific glitch filter.
-*
-* Each port contains a single 50ns glitch filter. Any of the pins on the port
-* can be routed to this filter such that the input signal is filtered before
-* reaching the edge-detect interrupt circuitry. The state of the filtered pin
-* can also be read by calling the Cy_GPIO_Read() function.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \param value
-* The number of the port pin to route to the port filter (0...7)
-*
-* \note
-* This function modifies a port register in a read-modify-write operation. It is
-* not thread safe as the resource is shared among multiple pins on a port.
-*
-* \note
-* The filtered pin does not have an associated HSIOM connection. Therefore
-* it cannot be routed directly to other peripherals in hardware.
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetFilter
-*
-*******************************************************************************/
-__STATIC_INLINE void Cy_GPIO_SetFilter(GPIO_PRT_Type* base, uint32_t value)
-{
-    uint32_t tempReg;
-
-    CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(value));
-
-    tempReg = GPIO_PRT_INTR_CFG(base) & ~(CY_GPIO_INTR_FLT_EDGE_MASK << CY_GPIO_INTR_FILT_OFFSET);
-    GPIO_PRT_INTR_CFG(base) = tempReg | ((value & CY_GPIO_INTR_FLT_EDGE_MASK) << CY_GPIO_INTR_FILT_OFFSET);
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_GPIO_GetFilter
-****************************************************************************//**
-*
-* Returns which pin is currently configured to connect to the port-specific
-* glitch filter.
-*
-* Each port contains a single 50ns glitch filter. Any of the pins on the port
-* can be routed to this filter such that the input signal is filtered before
-* reaching the edge-detect interrupt circuitry. The state of the filtered pin
-* can also be read by calling the Cy_GPIO_Read() function.
-*
-* \param base
-* Pointer to the pin's port register base address
-*
-* \return
-* The number of the port pin routed to the port filter (0...7)
-*
-* \funcusage
-* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetFilter
-*
-*******************************************************************************/
-__STATIC_INLINE uint32_t Cy_GPIO_GetFilter(GPIO_PRT_Type* base)
-{
-    return ((GPIO_PRT_INTR_CFG(base) >> CY_GPIO_INTR_FILT_OFFSET) & CY_GPIO_INTR_FLT_EDGE_MASK);
-}
-
 
 /*******************************************************************************
 * Function Name: Cy_GPIO_GetInterruptCause0
@@ -1939,6 +958,95 @@ __STATIC_INLINE uint32_t Cy_GPIO_GetInterruptCause3(void)
     return (GPIO_INTR_CAUSE3);
 }
 
+#if defined (CY_IP_MXS40SIOSS)
+/*******************************************************************************
+* Function Name: Cy_GPIO_GetSecureInterruptCause0
+****************************************************************************//**
+*
+* Returns the interrupt status for ports 0 to 31.
+*
+* \return
+* 0 = Interrupt not detected on port
+* 1 = Interrupt detected on port
+*
+* \note
+* This API is available for the CAT1B devices.
+*
+* \funcusage
+*
+*******************************************************************************/
+__STATIC_INLINE uint32_t Cy_GPIO_GetSecureInterruptCause0(void)
+{
+    return (GPIO_SEC_INTR_CAUSE0);
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_GPIO_GetSecureInterruptCause1
+****************************************************************************//**
+*
+* Returns the interrupt status for ports 32 to 63.
+*
+* \return
+* 0 = Interrupt not detected on port
+* 1 = Interrupt detected on port
+*
+* \note
+* This API is available for the CAT1B devices.
+*
+* \funcusage
+*
+*******************************************************************************/
+__STATIC_INLINE uint32_t Cy_GPIO_GetSecureInterruptCause1(void)
+{
+    return (GPIO_SEC_INTR_CAUSE1);
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_GPIO_GetSecureInterruptCause2
+****************************************************************************//**
+*
+* Returns the interrupt status for ports 64 to 95.
+*
+* \return
+* 0 = Interrupt not detected on port
+* 1 = Interrupt detected on port
+*
+* \note
+* This API is available for the CAT1B devices.
+*
+* \funcusage
+*
+*******************************************************************************/
+__STATIC_INLINE uint32_t Cy_GPIO_GetSecureInterruptCause2(void)
+{
+    return (GPIO_SEC_INTR_CAUSE2);
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_GPIO_GetSecureInterruptCause3
+****************************************************************************//**
+*
+* Returns the interrupt status for ports 96 to 127.
+*
+* \return
+* 0 = Interrupt not detected on port
+* 1 = Interrupt detected on port
+*
+* \note
+* This API is available for the CAT1B devices.
+*
+* \funcusage
+*
+*******************************************************************************/
+__STATIC_INLINE uint32_t Cy_GPIO_GetSecureInterruptCause3(void)
+{
+    return (GPIO_SEC_INTR_CAUSE3);
+}
+#endif /* CY_IP_MXS40SIOSS */
+
 /** \} group_gpio_functions_interrupt */
 
 /** \} group_gpio_functions */
@@ -1946,6 +1054,8 @@ __STATIC_INLINE uint32_t Cy_GPIO_GetInterruptCause3(void)
 #if defined(__cplusplus)
 }
 #endif
+
+#endif /* CY_IP_MXS40SIOSS, CY_IP_MXS40IOSS */
 
 #endif /* CY_GPIO_H */
 

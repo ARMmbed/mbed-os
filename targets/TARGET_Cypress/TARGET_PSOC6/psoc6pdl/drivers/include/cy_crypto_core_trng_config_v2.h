@@ -24,10 +24,10 @@
 *******************************************************************************/
 
 
-#if !defined(CY_CRYPTO_CORE_TRNG_CONFIG_V2_H)
+#if !defined (CY_CRYPTO_CORE_TRNG_CONFIG_V2_H)
 #define CY_CRYPTO_CORE_TRNG_CONFIG_V2_H
 
-#if defined(CY_IP_MXCRYPTO)
+#if defined (CY_IP_MXCRYPTO)
 
 #if defined(__cplusplus)
 extern "C" {
@@ -243,7 +243,7 @@ extern "C" {
 
 #endif /* CY_IP_MXCRYPTO */
 
-#endif /* #if !defined(CY_CRYPTO_CORE_TRNG_CONFIG_V2_H) */
+#endif /* #if !defined (CY_CRYPTO_CORE_TRNG_CONFIG_V2_H) */
 
 
 /* [] END OF FILE */

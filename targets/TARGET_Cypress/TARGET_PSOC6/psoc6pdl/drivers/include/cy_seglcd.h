@@ -284,9 +284,11 @@
 #if !defined(CY_SEGLCD_H)
 #define CY_SEGLCD_H
 
-#include "cy_syslib.h"
+#include "cy_device.h"
 
-#ifdef CY_IP_MXLCD
+#if defined (CY_IP_MXLCD)
+
+#include "cy_syslib.h"
 
 #if defined(__cplusplus)
 extern "C" {

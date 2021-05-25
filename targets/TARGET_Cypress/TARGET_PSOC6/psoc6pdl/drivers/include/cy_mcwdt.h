@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_mcwdt.h
-* \version 1.40
+* \version 1.50.1
 *
 * Provides an API declaration of the Cypress PDL 3.0 MCWDT driver
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2020 Cypress Semiconductor Corporation
+* Copyright 2016-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -102,6 +102,16 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>1.50.1</td>
+*     <td>Minor documentation updates.</td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
+*   <tr>
+*     <td>1.50</td>
+*     <td>Added support for new family of devices.</td>
+*     <td>New device support.</td>
+*   </tr>
+*   <tr>
 *     <td>1.40</td>
 *     <td>Fixed/documented MISRA 2012 violations.</td>
 *     <td>MISRA 2012 compliance.</td>
@@ -121,7 +131,7 @@
 *     </td>
 *   </tr>
 *   <tr>
-*     <td>1.20</td>
+*     <td rowspan="2">1.20</td>
 *     <td>Flattened the organization of the driver source code into the single
 *         source directory and the single include directory.
 *     </td>
@@ -164,13 +174,13 @@
 extern "C" {
 #endif
 
+#include "cy_device.h"
+
+#if defined (CY_IP_MXS40SRSS_MCWDT) || defined (CY_IP_MXS28SRSS) || defined (CY_IP_MXS40SSRSS)
+
 #include <stdbool.h>
 #include <stddef.h>
-#include "cy_device_headers.h"
-#include "cy_device.h"
 #include "cy_syslib.h"
-
-#ifdef CY_IP_MXS40SRSS_MCWDT
 
 /**
 * \addtogroup group_mcwdt_data_structures
@@ -194,6 +204,48 @@ typedef struct
                                   Range: 0 - 31. */
     uint8_t  c2Mode;         /**< The sub-counter#2 mode. It can have the following values: \ref CY_MCWDT_MODE_NONE
                                   and \ref CY_MCWDT_MODE_INT. */
+#if defined (CY_IP_MXS28SRSS) || defined (CY_IP_MXS40SSRSS)
+/**
+* \note
+* This parameter is available for CAT1B devices.
+**/
+    uint16_t c0LowerLimit;        /**< Lower limit for sub-counter 0 of this MCWDT. 
+                                  Range: 0 - 65535. */
+/**
+* \note
+* This parameter is available for CAT1B devices.
+**/
+    uint16_t c1LowerLimit;        /**< Lower limit for sub-counter 0 of this MCWDT. 
+                                  Range: 0 - 65535. */
+/**
+* \note
+* This parameter is available for CAT1B devices.
+**/
+    uint16_t c0LowerLimitMode;        /**< Watchdog Counter Action on service before lower limit.
+                                  Range: 0 - 2., 0 - Do nothing, 1 - Assert WDT_INTx, 2 - Assert WDT Reset */
+/**
+* \note
+* This parameter is available for CAT1B devices.
+**/
+    uint16_t c1LowerLimitMode;        /**< Watchdog Counter Action on service before lower limit.
+                                  Range: 0 - 2., 0 - Do nothing, 1 - Assert WDT_INTx, 2 - Assert WDT Reset */
+#endif /* CY_IP_MXS28SRSS, CY_IP_MXS40SSRSS */
+
+/**
+* \note
+* This parameter is available for devices having MXS40SSRSS IP.
+**/
+
+#if defined (CY_IP_MXS40SSRSS)
+    uint8_t  c0c1carryoutconfig;      /**< Carryout behaviour that applies when counter 0 and 1 are cascaded
+                                      0: carry out on counter 0 match, 1: carry out on counter 0 roll-over */
+    uint8_t  c0c1matchconfig;         /**< Matching behaviour that applies when counter 0 and 1 are cascaded
+                                      0: Match based on counter 1 alone, 1: Match based on counter 1 and 0 simulataneously */
+    uint8_t  c1c2carryoutconfig;      /**< Carryout behaviour that applies when counter 1 and 2 are cascaded
+                                      0: carry out on counter 1 match, 1: carry out on counter 1 roll-over */
+    uint8_t  c1c2matchconfig;         /**< Matching behaviour that applies when counter 1 and 2 are cascaded
+                                      0: Match based on counter 1 alone, 1: Match based on counter 2 and 1 simulataneously */
+#endif /* CY_IP_MXS40SSRSS */
     bool     c0ClearOnMatch; /**< The sub-counter#0 Clear On Match parameter enabled/disabled. */
     bool     c1ClearOnMatch; /**< The sub-counter#1 Clear On Match parameter enabled/disabled. */
     bool     c0c1Cascade;    /**< The sub-counter#1 is clocked by LFCLK or from sub-counter#0 cascade. */
@@ -211,7 +263,7 @@ typedef struct
 #define CY_MCWDT_DRV_VERSION_MAJOR       1
 
 /** Driver minor version */
-#define CY_MCWDT_DRV_VERSION_MINOR       40
+#define CY_MCWDT_DRV_VERSION_MINOR       50
 
 /** \cond INTERNAL_MACROS */
 
@@ -296,6 +348,59 @@ typedef enum
                               It is used for Set/GetCascade functions. */
 } cy_en_mcwdtcascade_t;
 
+#if defined (CY_IP_MXS28SRSS) || defined (CY_IP_MXS40SSRSS)
+/** The mcwdt lower limit identifiers. */
+/**
+* \note
+* This enum is available for CAT1B devices.
+**/
+typedef enum
+{
+    CY_MCWDT_LOWER_LIMIT0,  /**< Lower limit for Sub-counter#0 identifier. */
+    CY_MCWDT_LOWER_LIMIT1,  /**< Lower limit for Sub-counter#1 identifier. */
+} cy_en_mcwdtlowerlimit_t;
+
+/** The mcwdt lower limit mode identifiers. */
+/**
+* \note
+* This enum is available for CAT1B devices.
+**/
+typedef enum
+{
+    CY_MCWDT_LOWER_LIMIT_MODE_NOTHING,  /**< Do nothing. */
+    CY_MCWDT_LOWER_LIMIT_MODE_INT,      /**< Assert WDT_INTx. */
+    CY_MCWDT_LOWER_LIMIT_MODE_RESET,         /**< Assert WDT Reset. */
+} cy_en_mcwdtlowerlimitmode_t;
+#endif /* CY_IP_MXS28SRSS, CY_IP_MXS40SSRSS*/
+
+#if defined (CY_IP_MXS40SSRSS)
+/** The mcwdt carryout config used during cascading. */
+/**
+* \note
+* This enum is available for CAT1B devices.
+**/
+typedef enum
+{
+    CY_MCWDT_CASCADE_CARRYOUT_CONFIG_MATCH,     /**< For CY_MCWDT_CASCADE_C0C1: carry out on counter 0 match,
+                                                     For CY_MCWDT_CASCADE_C1C2: carry out on counter 1 match */
+    CY_MCWDT_CASCADE_CARRYOUT_CONFIG_ROLLOVER,  /**< For CY_MCWDT_CASCADE_C0C1: carry out on counter 0 rollover,
+                                                     For CY_MCWDT_CASCADE_C1C2: carry out on counter 1 rollover */
+} cy_en_mcwdtcascadecarryoutconfig_t ;
+
+/** The mcwdt match config used during cascading. */
+/**
+* \note
+* This enum is available for CAT1B devices.
+**/
+typedef enum
+{
+    CY_MCWDT_CASCADE_MATCH_CONFIG_COUNTER,     /**< For CY_MCWDT_CASCADE_C0C1: Based on counter 1 alone,
+                                                    For CY_MCWDT_CASCADE_C1C2: Based on counter 2 alone */
+    CY_MCWDT_CASCADE_MATCH_CONFIG_CASCADE,     /**< For CY_MCWDT_CASCADE_C0C1: Based on counter 1 and 0 simulataneously,
+                                                    For CY_MCWDT_CASCADE_C1C2: Based on counter 2 and 1 simulataneously */
+} cy_en_mcwdtcascadematchconfig_t ;
+
+#endif /* CY_IP_MXS40SSRSS*/
 /** The MCWDT error codes. */
 typedef enum
 {
@@ -311,6 +416,22 @@ typedef enum
 /** Parameter check macros */
 #define CY_MCWDT_IS_CNTS_MASK_VALID(counters)  (0U == ((counters) & (uint32_t)~CY_MCWDT_CTR_Msk))
 
+#if defined (CY_IP_MXS28SRSS) || defined (CY_IP_MXS40SSRSS)
+#define CY_MCWDT_IS_LOWER_LIMIT_VALID(counter)             ((CY_MCWDT_LOWER_LIMIT0 == (counter)) || \
+                                                           (CY_MCWDT_LOWER_LIMIT1 == (counter)))
+
+#define CY_MCWDT_IS_LOWER_LIMIT_MODE_VALID(mode)           ((CY_MCWDT_LOWER_LIMIT_MODE_NOTHING == (mode)) || \
+                                                           (CY_MCWDT_LOWER_LIMIT_MODE_INT == (mode))       || \
+                                                           (CY_MCWDT_LOWER_LIMIT_MODE_RESET == (mode)))
+#endif /* CY_IP_MXS28SRSS, CY_IP_MXS40SSRSS */
+#if defined (CY_IP_MXS40SSRSS)
+#define CY_MCWDT_IS_CASCADE_CARRYOUT_CONFIG_VALID(mode)    ((CY_MCWDT_CASCADE_CARRYOUT_CONFIG_MATCH == (mode)) || \
+                                                           (CY_MCWDT_CASCADE_CARRYOUT_CONFIG_ROLLOVER == (mode)))
+
+#define CY_MCWDT_IS_CASCADE_MATCH_CONFIG_VALID(mode)       ((CY_MCWDT_CASCADE_MATCH_CONFIG_COUNTER == (mode)) || \
+                                                           (CY_MCWDT_CASCADE_MATCH_CONFIG_CASCADE == (mode)))
+
+#endif /* CY_IP_MXS40SSRSS */
 #define CY_MCWDT_IS_CNT_NUM_VALID(counter)    ((CY_MCWDT_COUNTER0 == (counter)) || \
                                                (CY_MCWDT_COUNTER1 == (counter)) || \
                                                (CY_MCWDT_COUNTER2 == (counter)))
@@ -370,6 +491,23 @@ __STATIC_INLINE void     Cy_MCWDT_SetInterrupt(MCWDT_STRUCT_Type *base, uint32_t
 __STATIC_INLINE uint32_t Cy_MCWDT_GetInterruptMask(MCWDT_STRUCT_Type const *base);
 __STATIC_INLINE void     Cy_MCWDT_SetInterruptMask(MCWDT_STRUCT_Type *base, uint32_t counters);
 __STATIC_INLINE uint32_t Cy_MCWDT_GetInterruptStatusMasked(MCWDT_STRUCT_Type const *base);
+#if defined (CY_IP_MXS28SRSS) || defined (CY_IP_MXS40SSRSS)
+__STATIC_INLINE uint32_t Cy_MCWDT_GetLowerLimit(MCWDT_STRUCT_Type const *base, cy_en_mcwdtlowerlimit_t counter);
+__STATIC_INLINE void Cy_MCWDT_SetLowerLimit(MCWDT_STRUCT_Type *base, cy_en_mcwdtlowerlimit_t counter, uint32_t lowerLimit, uint16_t waitUs);
+__STATIC_INLINE cy_en_mcwdtlowerlimitmode_t Cy_MCWDT_GetLowerLimitMode(MCWDT_STRUCT_Type const *base, cy_en_mcwdtlowerlimit_t counter);
+__STATIC_INLINE void Cy_MCWDT_SetLowerLimitMode(MCWDT_STRUCT_Type *base, cy_en_mcwdtlowerlimit_t counter, cy_en_mcwdtlowerlimitmode_t mode);
+__STATIC_INLINE uint32_t Cy_MCWDT_GetLowerLimitCascaded(MCWDT_STRUCT_Type const *base);
+#endif /* CY_IP_MXS28SRSS, CY_IP_MXS40SSRSS */
+
+#if defined (CY_IP_MXS40SSRSS)
+__STATIC_INLINE uint32_t Cy_MCWDT_GetCascadeCarryOutMode(MCWDT_STRUCT_Type const *base, cy_en_mcwdtcascade_t counter);
+__STATIC_INLINE void Cy_MCWDT_SetCascadeCarryOutMode(MCWDT_STRUCT_Type *base, cy_en_mcwdtcascade_t counter, cy_en_mcwdtcascadecarryoutconfig_t carryoutconfig);
+
+__STATIC_INLINE uint32_t Cy_MCWDT_GetCascadeMatchMode(MCWDT_STRUCT_Type const *base, cy_en_mcwdtcascade_t counter);
+__STATIC_INLINE void Cy_MCWDT_SetCascadeMatchMode(MCWDT_STRUCT_Type *base, cy_en_mcwdtcascade_t counter, cy_en_mcwdtcascadematchconfig_t matchconfig);
+
+
+#endif /* CY_IP_MXS40SSRSS */
 uint32_t Cy_MCWDT_GetCountCascaded(MCWDT_STRUCT_Type const *base);
 
 
@@ -1113,14 +1251,360 @@ __STATIC_INLINE uint32_t Cy_MCWDT_GetInterruptStatusMasked(MCWDT_STRUCT_Type con
     return (MCWDT_STRUCT_MCWDT_INTR_MASKED(base));
 }
 
+#if defined (CY_IP_MXS28SRSS) || defined (CY_IP_MXS40SSRSS)
+/*******************************************************************************
+* Function Name: Cy_MCWDT_GetLowerLimit
+****************************************************************************//**
+*
+*  Reports the Lower Limit value of the specified counter.
+*
+*  \param base
+*  The base pointer to a structure that describes registers.
+*
+*  \param counter
+*  The number of the WDT counter. The valid range is [0-1].
+*
+*  \return
+*  A Lower Limit value. Counters 0 and 1 are 16-bit counters.
+*
+* \note
+* This API is available for CAT1B devices.
+*
+*******************************************************************************/
+__STATIC_INLINE uint32_t Cy_MCWDT_GetLowerLimit(MCWDT_STRUCT_Type const *base, cy_en_mcwdtlowerlimit_t counter)
+{
+    uint32_t countVal = 0u;
+
+    CY_ASSERT_L3(CY_MCWDT_IS_LOWER_LIMIT_VALID(counter));
+    
+    switch (counter)
+    {
+        case CY_MCWDT_LOWER_LIMIT0:
+            countVal = _FLD2VAL(MCWDT_STRUCT_MCWDT_LOWER_LIMIT_WDT_LOWER_LIMIT0, MCWDT_STRUCT_MCWDT_LOWER_LIMIT(base));
+            break;
+        case CY_MCWDT_LOWER_LIMIT1:
+            countVal = _FLD2VAL(MCWDT_STRUCT_MCWDT_LOWER_LIMIT_WDT_LOWER_LIMIT1, MCWDT_STRUCT_MCWDT_LOWER_LIMIT(base));
+            break;
+        default:
+            CY_ASSERT(0u != 0u);
+        break;
+    }
+
+    return (countVal);
+}
+
+/*******************************************************************************
+* Function Name: Cy_MCWDT_SetLowerLimit
+****************************************************************************//**
+*
+*  Sets the lower limit value for the specified counter (0 or 1).
+*
+*  \param base
+*  The base pointer to a structure that describes registers.
+*
+*  \param counter
+*   The number of the WDT counter. The valid range is [0-1].
+*
+*  \param lowerLimit
+*  The value to be written in the lower limit register
+*  The valid range is [0-65535] for c0 
+*  and [1-65535] for c1.
+*
+*  \note
+*  The lower limit mode is not supported by Counter 2.
+*
+*  \param waitUs
+*  The function waits for some delay in microseconds before returning, 
+*  because the lower limit register write affects after two lf_clk cycles pass.
+* The recommended value is 93 us.
+*  \note
+*  Setting this parameter to a zero means No wait. This must be taken
+*  into account when changing the lower limit register values.
+*
+* \note
+* This API is available for CAT1B devices.
+*
+*******************************************************************************/
+__STATIC_INLINE void Cy_MCWDT_SetLowerLimit(MCWDT_STRUCT_Type *base, cy_en_mcwdtlowerlimit_t counter, uint32_t lowerLimit, uint16_t waitUs)
+{
+    CY_ASSERT_L3(CY_MCWDT_IS_LOWER_LIMIT_VALID(counter));
+
+    MCWDT_STRUCT_MCWDT_LOWER_LIMIT(base) = (counter == CY_MCWDT_LOWER_LIMIT0) ?
+        _CLR_SET_FLD32U(MCWDT_STRUCT_MCWDT_LOWER_LIMIT(base), MCWDT_STRUCT_MCWDT_LOWER_LIMIT_WDT_LOWER_LIMIT0,
+                        (lowerLimit & MCWDT_STRUCT_MCWDT_LOWER_LIMIT_WDT_LOWER_LIMIT0_Msk)) :
+        _CLR_SET_FLD32U(MCWDT_STRUCT_MCWDT_LOWER_LIMIT(base), MCWDT_STRUCT_MCWDT_LOWER_LIMIT_WDT_LOWER_LIMIT1,
+                        (lowerLimit & MCWDT_STRUCT_MCWDT_LOWER_LIMIT_WDT_LOWER_LIMIT0_Msk));
+
+    Cy_SysLib_DelayUs(waitUs);
+}
+
+/*******************************************************************************
+* Function Name: Cy_MCWDT_SetLowerLimitMode
+****************************************************************************//**
+*
+*  Sets the lower limit mode option for the specified counter.
+*
+*  \param base
+*  The base pointer to a structure that describes registers.
+*
+*  \param counter
+*   The number of the WDT counter. The valid range is [0-1].
+*
+*  \note
+*  The lower limit mode is not supported by Counter 2.
+*
+*  \param mode
+*  Set 0 - Do nothing, 1 - Assert WDT_INTx, 2 - Assert WDT Reset
+*
+*  \note
+*  This API must not be called while the counters are running. 
+*  Prior to calling this API, the counter must be disabled.
+*  This API is available for CAT1B devices.
+*
+*******************************************************************************/
+__STATIC_INLINE void Cy_MCWDT_SetLowerLimitMode(MCWDT_STRUCT_Type *base, cy_en_mcwdtlowerlimit_t counter, cy_en_mcwdtlowerlimitmode_t mode)
+{
+    CY_ASSERT_L3(CY_MCWDT_IS_LOWER_LIMIT_VALID(counter));
+    CY_ASSERT_L2(CY_MCWDT_IS_LOWER_LIMIT_MODE_VALID(mode));
+
+    if (CY_MCWDT_LOWER_LIMIT0 == counter)
+    {
+        MCWDT_STRUCT_MCWDT_CONFIG(base) = _CLR_SET_FLD32U(MCWDT_STRUCT_MCWDT_CONFIG(base), MCWDT_STRUCT_MCWDT_CONFIG_WDT_LOWER_MODE0, mode);
+    }
+    else
+    {
+        MCWDT_STRUCT_MCWDT_CONFIG(base) = _CLR_SET_FLD32U(MCWDT_STRUCT_MCWDT_CONFIG(base), MCWDT_STRUCT_MCWDT_CONFIG_WDT_LOWER_MODE1, mode);
+    }
+}
+
+/*******************************************************************************
+* Function Name: Cy_MCWDT_GetLowerLimitMode
+****************************************************************************//**
+*
+*  Reports the lower limit mode of the  specified counter.
+*
+*  \param base
+*  The base pointer to a structure that describes registers.
+*
+*  \param counter
+*  The number of the WDT counter. The valid range is [0-1].
+*
+*  \return
+*  The current lower limit mode of the counter. See enum typedef cy_en_mcwdtlowerlimitmode_t.
+*
+* \note
+* This API is available for CAT1B devices.
+*
+*******************************************************************************/
+__STATIC_INLINE cy_en_mcwdtlowerlimitmode_t Cy_MCWDT_GetLowerLimitMode(MCWDT_STRUCT_Type const *base, cy_en_mcwdtlowerlimit_t counter)
+{
+    uint32_t getLowerLimitMode;
+
+    CY_ASSERT_L3(CY_MCWDT_IS_LOWER_LIMIT_VALID(counter));
+
+    if (CY_MCWDT_LOWER_LIMIT0 == counter)
+    {
+        getLowerLimitMode = _FLD2VAL(MCWDT_STRUCT_MCWDT_CONFIG_WDT_LOWER_MODE0, MCWDT_STRUCT_MCWDT_CONFIG(base));
+    }
+    else
+    {
+        getLowerLimitMode = _FLD2VAL(MCWDT_STRUCT_MCWDT_CONFIG_WDT_LOWER_MODE1, MCWDT_STRUCT_MCWDT_CONFIG(base));
+    }
+
+    return (cy_en_mcwdtlowerlimitmode_t)getLowerLimitMode;
+
+}
+
+/*******************************************************************************
+* Function Name: Cy_MCWDT_GetLowerLimitCascaded
+****************************************************************************//**
+*
+*  Gets lower limit registers cascaded value.
+*
+*  \param base
+*  The base pointer to a structure that describes registers.
+*
+*  \note
+*  The lower limit mode is not supported by Counter 2.
+*
+*  \return
+*  A 32-bit lower limit register value.
+*
+* \note
+* This API is available for CAT1B devices.
+*
+*******************************************************************************/
+__STATIC_INLINE uint32_t Cy_MCWDT_GetLowerLimitCascaded(MCWDT_STRUCT_Type const *base)
+{
+    return (uint32_t)(MCWDT_STRUCT_MCWDT_LOWER_LIMIT(base));
+}
+#endif /* CY_IP_MXS28SRSS, CY_IP_MXS40SSRSS */
+
+#if defined (CY_IP_MXS40SSRSS)
+
+/*******************************************************************************
+* Function Name: Cy_MCWDT_GetCascadeCarryOutMode
+****************************************************************************//**
+*
+*  Reports the Carry out value of the specified cascaded counter.
+*
+*  \param base
+*  The base pointer to a structure that describes registers.
+*
+*  \param counter
+*  The cascaded counter type. The valid cascaded type is either C0C1 or C1C2.
+*
+*  \return
+*  Carry out value for the specified cascade type.
+*
+* \note
+* This API is available for CAT1B devices.
+*
+*******************************************************************************/
+__STATIC_INLINE uint32_t Cy_MCWDT_GetCascadeCarryOutMode(MCWDT_STRUCT_Type const *base, cy_en_mcwdtcascade_t counter)
+{
+    uint32_t countVal = 0u;
+
+    switch (counter)
+    {
+        case CY_MCWDT_CASCADE_C0C1:
+            countVal = _FLD2VAL(MCWDT_STRUCT_MCWDT_CONFIG_WDT_CARRY0_1, MCWDT_STRUCT_MCWDT_CONFIG(base));
+            break;
+        case CY_MCWDT_CASCADE_C1C2:
+            countVal = _FLD2VAL(MCWDT_STRUCT_MCWDT_CONFIG_WDT_CARRY1_2, MCWDT_STRUCT_MCWDT_CONFIG(base));
+            break;
+        default:
+            CY_ASSERT(0u != 0u);
+        break;
+    }
+
+    return (countVal);
+}
+
+/*******************************************************************************
+* Function Name: Cy_MCWDT_SetCascadeCarryOutMode
+****************************************************************************//**
+*
+*  Sets the Carry out mode for the specified cascaded counter.
+*
+*  \param base
+*  The base pointer to a structure that describes registers.
+*
+*  \param counter
+*   The cascaded counter type. The valid cascaded type is either C0C1 or C1C2.
+*
+*  \param carryoutconfig
+*   CY_MCWDT_CASCADE_CARRYOUT_CONFIG_MATCH:
+*   For CY_MCWDT_CASCADE_C0C1: carry out on counter 0 match
+*   For CY_MCWDT_CASCADE_C1C2: carry out on counter 1 match.
+*   CY_MCWDT_CASCADE_CARRYOUT_CONFIG_ROLLOVER:
+*   For CY_MCWDT_CASCADE_C0C1: carry out on counter 0 rollover,
+*   For CY_MCWDT_CASCADE_C1C2: carry out on counter 1 rollover.
+*
+*  \note
+*  This API is available for CAT1B devices.
+*
+*******************************************************************************/
+__STATIC_INLINE void Cy_MCWDT_SetCascadeCarryOutMode(MCWDT_STRUCT_Type *base, cy_en_mcwdtcascade_t counter, cy_en_mcwdtcascadecarryoutconfig_t carryoutconfig)
+{
+    CY_ASSERT_L2(CY_MCWDT_IS_CASCADE_CARRYOUT_CONFIG_VALID(carryoutconfig));
+
+    if (CY_MCWDT_CASCADE_C0C1 == counter)
+    {
+        MCWDT_STRUCT_MCWDT_CONFIG(base) = _CLR_SET_FLD32U(MCWDT_STRUCT_MCWDT_CONFIG(base), MCWDT_STRUCT_MCWDT_CONFIG_WDT_CARRY0_1, carryoutconfig);
+    }
+    else
+    {
+        MCWDT_STRUCT_MCWDT_CONFIG(base) = _CLR_SET_FLD32U(MCWDT_STRUCT_MCWDT_CONFIG(base), MCWDT_STRUCT_MCWDT_CONFIG_WDT_CARRY1_2, carryoutconfig);
+    }
+}
+
+/*******************************************************************************
+* Function Name: Cy_MCWDT_GetCascadeMatchMode
+****************************************************************************//**
+*
+*  Reports the match value of the specified cascaded counter.
+*
+*  \param base
+*  The base pointer to a structure that describes registers.
+*
+*  \param counter
+*  The cascaded counter type. The valid cascaded type is either C0C1 or C1C2.
+*
+*  \return
+*  Match value for the specified cascade type.
+*
+* \note
+* This API is available for CAT1B devices.
+*
+*******************************************************************************/
+__STATIC_INLINE uint32_t Cy_MCWDT_GetCascadeMatchMode(MCWDT_STRUCT_Type const *base, cy_en_mcwdtcascade_t counter)
+{
+    uint32_t countVal = 0u;
+
+    switch (counter)
+    {
+        case CY_MCWDT_CASCADE_C0C1:
+            countVal = _FLD2VAL(MCWDT_STRUCT_MCWDT_CONFIG_WDT_MATCH0_1, MCWDT_STRUCT_MCWDT_CONFIG(base));
+            break;
+        case CY_MCWDT_CASCADE_C1C2:
+            countVal = _FLD2VAL(MCWDT_STRUCT_MCWDT_CONFIG_WDT_MATCH1_2, MCWDT_STRUCT_MCWDT_CONFIG(base));
+            break;
+        default:
+            CY_ASSERT(0u != 0u);
+        break;
+    }
+
+    return (countVal);
+}
+
+/*******************************************************************************
+* Function Name: Cy_MCWDT_SetCascadeMatchMode
+****************************************************************************//**
+*
+*  Sets the match config for the specified cascaded counter.
+*
+*  \param base
+*  The base pointer to a structure that describes registers.
+*
+*  \param counter
+*   The cascaded counter type. The valid cascaded type is either C0C1 or C1C2.
+*
+*  \param matchconfig
+*   CY_MCWDT_CASCADE_MATCH_CONFIG_COUNTER:
+*   For CY_MCWDT_CASCADE_C0C1: Based on counter 1 alone
+*   For CY_MCWDT_CASCADE_C1C2: Based on counter 2 alone
+*   CY_MCWDT_CASCADE_MATCH_CONFIG_CASCADE:
+*   For CY_MCWDT_CASCADE_C0C1: Based on counter 1 and 0 simulataneously
+*   For CY_MCWDT_CASCADE_C1C2: Based on counter 2 and 1 simulataneously
+*
+*  \note
+*  This API is available for CAT1B devices.
+*
+*******************************************************************************/
+__STATIC_INLINE void Cy_MCWDT_SetCascadeMatchMode(MCWDT_STRUCT_Type *base, cy_en_mcwdtcascade_t counter, cy_en_mcwdtcascadematchconfig_t matchconfig)
+{
+    CY_ASSERT_L2(CY_MCWDT_IS_CASCADE_MATCH_CONFIG_VALID(matchconfig));
+
+    if (CY_MCWDT_CASCADE_C0C1 == counter)
+    {
+        MCWDT_STRUCT_MCWDT_CONFIG(base) = _CLR_SET_FLD32U(MCWDT_STRUCT_MCWDT_CONFIG(base), MCWDT_STRUCT_MCWDT_CONFIG_WDT_MATCH0_1, matchconfig);
+    }
+    else
+    {
+        MCWDT_STRUCT_MCWDT_CONFIG(base) = _CLR_SET_FLD32U(MCWDT_STRUCT_MCWDT_CONFIG(base), MCWDT_STRUCT_MCWDT_CONFIG_WDT_MATCH1_2, matchconfig);
+    }
+}
+
+#endif /*  CY_IP_MXS40SSRSS */
 
 /** \} group_mcwdt_functions */
+
+#endif /* CY_IP_MXS40SRSS_MCWDT, CY_IP_MXS28SRSS, CY_IP_MXS40SSRSS */
 
 #if defined(__cplusplus)
 }
 #endif
-
-#endif /* CY_IP_MXS40SRSS_MCWDT */
 
 #endif /* CY_MCWDT_H */
 

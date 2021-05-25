@@ -352,16 +352,15 @@
 #if !defined(CY_CTDAC_H)
 #define CY_CTDAC_H
 
+#include "cy_device.h"
+#ifdef CY_IP_MXS40PASS_CTDAC
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "cy_device.h"
-#include "cy_device_headers.h"
 #include "cy_syspm.h"
 #include "cy_syslib.h"
 #include "cy_sysclk.h"
-
-#ifdef CY_IP_MXS40PASS_CTDAC
 
 #if defined(__cplusplus)
 extern "C" {

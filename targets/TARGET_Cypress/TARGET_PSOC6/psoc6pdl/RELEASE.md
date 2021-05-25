@@ -1,4 +1,4 @@
-# PSoC 6 Peripheral Driver Library v2.0.0
+# MTB CAT1A Peripheral Driver Library v2.2.0
 
 Please refer to the [README.md](./README.md) and the
 [PDL API Reference Manual](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/index.html)
@@ -8,67 +8,33 @@ Some restrictions apply to the PSoC 64 devices configuration. Please refer to [P
 
 ## New Features
 
-* MISRA-C compliance for the PDL has been upgraded to MISRA-C:2012.
+* Added support for new silicon revision of CY8C61x4 and CY8C62x4 devices.
+* Added RTOS friendly delay APIs in SYSLIB driver.
+* Enhanced SYSPM driver to manage the backup domain reset in a better manner and to store/restore the WCO trim value.
 
 ## Updated Personalities
 
-* SYSANALOG - Added PASSv2 support.
-* CTB - Added PASSv2 support
-* CSD - Updated Operation Clock Divider default value. Fixed CapSense Configurator launch command parameters.
-* CTDAC - Added PASSv2 support.
-* PDM PCM - Updated High Pass Filter Gain default value.
-* TCPWM - Added support for CY8C61x4 and CY8C62x4 devices.
-* SAR - Added PASSv2 support
-* SEGLCD - Fixed SegLCD Configurator launch command parameters
-* SMARTIO - Fixed Smart I/O Configurator launch command parameters
-* UART - Fixed DRC fractional divider value calculation
-* POWER - Allow deep sleep latency upto 1000 milliseconds
+* SAR - Bug fix/Code enhancement.
+* SYSCLK - Fixed compiler warning.
+* SYSPM - Minor bug fix.
+* TCPWM - Minor bug fix.
 
 ## Added Drivers
 
 ## Updated Drivers
 
-* [BLECLK 3.60](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__ble__clk.html)
-* [CANFD 1.20](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__canfd.html)
-* [CRYPTO 2.40](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__crypto.html)
-* [CTB 2.0](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__ctb.html)
-* [DMA 2.30](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__dma.html)
-* [DMAC 1.20](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__dmac.html)
-* [FLASH 3.50](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__flash.html)
-* [GPIO 1.30](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__gpio.html)
-* [I2S 2.20](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__i2s.html)
-* [IPC 1.50](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__ipc.html)
-* [LPCOMP 1.30](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__lpcomp.html)
-* [LVD 1.30](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__lvd.html)
-* [MCWDT 1.40](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__mcwdt.html)
-* [PDMPCM 2.30](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__pdm__pcm.html)
-* [PRA 2.10](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__pra.html)
-* [PROFILE 1.30](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__energy__profiler.html)
-* [PROT 1.50](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__prot.html)
-* [RTC 2.40](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__rtc.html)
-* [SAR 2.0](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__sar.html)
-* [SCB 2.60](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__scb.html)
-* [SDHOST 1.60](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__sd__host.html)
-* [SEGLCD 1.10](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__seglcd.html)
-* [SMIF 2.0](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__smif.html)
-* [SYSANALOG 2.0](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__sysanalog.html)
-* [SYSCLK 3.0](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__sysclk.html)
-* [SYSINT 1.50](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__sysint.html)
-* [SYSLIB 2.70](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__syslib.html)
-* [SYSPM 5.30](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__syspm.html)
-* [SYSTICK 1.30](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__arm__system__timer.html)
-* [TCPWM 1.20](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__tcpwm.html)
+* [GPIO 1.50](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__gpio.html)
+* [SCB 2.80](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__scb.html)
+* [SDHOST 1.80](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__sd__host.html)
+* [SMIF 2.20](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__smif.html)
+* [SYSCLK 3.20](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__sysclk.html)
+* [SYSLIB 2.90](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__syslib.html)
 
 ### Drivers with patch version updates
 
 Minor documentation changes:
-* [CSD 1.10.2](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__csd.html)
-* [CTDAC 2.0.2](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__ctdac.html)
-* [EFUSE 1.10.4](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__efuse.html)
-* [SMARTIO 1.0.2](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__smartio.html)
-* [TRIGMUX 1.20.3](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__trigmux.html)
-* [USBFS 2.20.2](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__usbfs__dev__drv.html)
-* [WDT 1.30.1](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__wdt.html)
+* [MCWDT 1.50.1](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__mcwdt.html)
+* [SAR 2.0.1](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/group__group__sar.html)
 
 ### Obsoleted part numbers
 
@@ -90,10 +56,12 @@ Below is a list of PSoC 6 part numbers obsoleted in psoc6pdl release-v1.6.0, wit
 | CY8C624ALQI-D42       | N/A                   |
 
 ## Known Issues
+* On soft reset, user need to reset back up domain using Cy_SysLib_ResetBackupDomain() to receive Cy_RTC_CenturyInterrupt() callback on Century roll over.
+* On building with tools 2.2, user get warning related to the older version of tools used. To avoid this warning, user is advised to migrate to newer tools version or keep working with previous version of this library.  The warning generated is as follows:
+  * _#warning "(Library) The referenced 'device support library' contains newer content than is supported. Either downgrade the version of the 'device support library' referenced or upgrade the version of tools being used_
+  
 
 ## Defect Fixes
-
-A non-blocking flash write initiated by the Cortex-M4 application failed to complete because the Cortex-M0+ CPU is in deep sleep mode. The issue is fixed in the PSoC 6 Cortex M0+ prebuilt image (psoc6cm0p). Update existing applications to use this new image. Please refer to the Changelog section of the SysPm driver for more details.
 
 See the Changelog section of each Driver in the [PDL API Reference](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/modules.html) for all fixes and updates.
 
@@ -123,4 +91,4 @@ This version of PDL was validated for compatibility with the following Software 
 * [Cypress Semiconductor](http://www.cypress.com)
 
 ---
-© Cypress Semiconductor Corporation, 2020.
+© Cypress Semiconductor Corporation, 2021.

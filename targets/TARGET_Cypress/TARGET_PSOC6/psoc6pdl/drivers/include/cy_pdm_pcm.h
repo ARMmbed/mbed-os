@@ -85,7 +85,6 @@
 * \section group_pdm_pcm_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
-*   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
 *     <td>2.30</td>
 *     <td>Fixed MISRA 2012 violations.</td>
@@ -177,13 +176,19 @@
 /******************************************************************************/
 
 #include "cy_device.h"
-#include "cy_device_headers.h"
+
+#if defined (CY_IP_MXPDM)
+
+#include "cy_pdm_pcm_v2.h"
+
+#endif /* CY_IP_MXPDM */
+
+#if defined (CY_IP_MXAUDIOSS)
+
 #include "cy_syslib.h"
 #include "cy_syspm.h"
 #include <stddef.h>
 #include <stdbool.h>
-
-#ifdef CY_IP_MXAUDIOSS
 
 #ifdef __cplusplus
 extern "C"

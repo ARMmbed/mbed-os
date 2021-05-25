@@ -5,7 +5,7 @@
 * PSoC6_04 device configuration header
 *
 * \note
-* Generator version: 1.6.0.225
+* Generator version: 1.6.0.409
 *
 ********************************************************************************
 * \copyright
@@ -885,20 +885,20 @@ typedef enum
 /* Trigger Output Group 3 - TCPWM0 trigger multiplexer - 2nd */
 typedef enum
 {
-    TRIG_OUT_MUX_3_TCPWM1_TR_IN0    = 0x40000300u, /* tcpwm[0].tr_all_cnt_in[14] */
-    TRIG_OUT_MUX_3_TCPWM1_TR_IN1    = 0x40000301u, /* tcpwm[0].tr_all_cnt_in[15] */
-    TRIG_OUT_MUX_3_TCPWM1_TR_IN2    = 0x40000302u, /* tcpwm[0].tr_all_cnt_in[16] */
-    TRIG_OUT_MUX_3_TCPWM1_TR_IN3    = 0x40000303u, /* tcpwm[0].tr_all_cnt_in[17] */
-    TRIG_OUT_MUX_3_TCPWM1_TR_IN4    = 0x40000304u, /* tcpwm[0].tr_all_cnt_in[18] */
-    TRIG_OUT_MUX_3_TCPWM1_TR_IN5    = 0x40000305u, /* tcpwm[0].tr_all_cnt_in[19] */
-    TRIG_OUT_MUX_3_TCPWM1_TR_IN6    = 0x40000306u, /* tcpwm[0].tr_all_cnt_in[20] */
-    TRIG_OUT_MUX_3_TCPWM1_TR_IN7    = 0x40000307u, /* tcpwm[0].tr_all_cnt_in[21] */
-    TRIG_OUT_MUX_3_TCPWM1_TR_IN8    = 0x40000308u, /* tcpwm[0].tr_all_cnt_in[22] */
-    TRIG_OUT_MUX_3_TCPWM1_TR_IN9    = 0x40000309u, /* tcpwm[0].tr_all_cnt_in[23] */
-    TRIG_OUT_MUX_3_TCPWM1_TR_IN10   = 0x4000030Au, /* tcpwm[0].tr_all_cnt_in[24] */
-    TRIG_OUT_MUX_3_TCPWM1_TR_IN11   = 0x4000030Bu, /* tcpwm[0].tr_all_cnt_in[25] */
-    TRIG_OUT_MUX_3_TCPWM1_TR_IN12   = 0x4000030Cu, /* tcpwm[0].tr_all_cnt_in[26] */
-    TRIG_OUT_MUX_3_TCPWM1_TR_IN13   = 0x4000030Du /* tcpwm[0].tr_all_cnt_in[27] */
+    TRIG_OUT_MUX_3_TCPWM0_TR_IN14   = 0x40000300u, /* tcpwm[0].tr_all_cnt_in[14] */
+    TRIG_OUT_MUX_3_TCPWM0_TR_IN15   = 0x40000301u, /* tcpwm[0].tr_all_cnt_in[15] */
+    TRIG_OUT_MUX_3_TCPWM0_TR_IN16   = 0x40000302u, /* tcpwm[0].tr_all_cnt_in[16] */
+    TRIG_OUT_MUX_3_TCPWM0_TR_IN17   = 0x40000303u, /* tcpwm[0].tr_all_cnt_in[17] */
+    TRIG_OUT_MUX_3_TCPWM0_TR_IN18   = 0x40000304u, /* tcpwm[0].tr_all_cnt_in[18] */
+    TRIG_OUT_MUX_3_TCPWM0_TR_IN19   = 0x40000305u, /* tcpwm[0].tr_all_cnt_in[19] */
+    TRIG_OUT_MUX_3_TCPWM0_TR_IN20   = 0x40000306u, /* tcpwm[0].tr_all_cnt_in[20] */
+    TRIG_OUT_MUX_3_TCPWM0_TR_IN21   = 0x40000307u, /* tcpwm[0].tr_all_cnt_in[21] */
+    TRIG_OUT_MUX_3_TCPWM0_TR_IN22   = 0x40000308u, /* tcpwm[0].tr_all_cnt_in[22] */
+    TRIG_OUT_MUX_3_TCPWM0_TR_IN23   = 0x40000309u, /* tcpwm[0].tr_all_cnt_in[23] */
+    TRIG_OUT_MUX_3_TCPWM0_TR_IN24   = 0x4000030Au, /* tcpwm[0].tr_all_cnt_in[24] */
+    TRIG_OUT_MUX_3_TCPWM0_TR_IN25   = 0x4000030Bu, /* tcpwm[0].tr_all_cnt_in[25] */
+    TRIG_OUT_MUX_3_TCPWM0_TR_IN26   = 0x4000030Cu, /* tcpwm[0].tr_all_cnt_in[26] */
+    TRIG_OUT_MUX_3_TCPWM0_TR_IN27   = 0x4000030Du /* tcpwm[0].tr_all_cnt_in[27] */
 } en_trig_output_tcpwm0_1_t;
 
 /* Trigger Output Group 4 - HSIOM trigger multiplexer */
@@ -3384,7 +3384,8 @@ typedef enum
     PROT_SCB2                       = 222,      /* Address 0x40620000, size 0x00010000 */
     PROT_SCB4                       = 223,      /* Address 0x40640000, size 0x00010000 */
     PROT_SCB5                       = 224,      /* Address 0x40650000, size 0x00010000 */
-    PROT_SCB6                       = 225       /* Address 0x40660000, size 0x00010000 */
+    PROT_SCB6                       = 225,      /* Address 0x40660000, size 0x00010000 */
+    PROT_PASS                       = 226       /* Address 0x40900000, size 0x00100000 */
 } cy_en_prot_region_t;
 
 #endif /* _PSOC6_04_CONFIG_H_ */

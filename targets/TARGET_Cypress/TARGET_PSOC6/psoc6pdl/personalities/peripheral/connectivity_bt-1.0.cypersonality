@@ -37,20 +37,17 @@
   <Parameters>
     <ParamDoc id="doc" name="Configuration Help" group="Documentation" default="https://cypresssemiconductorco.github.io/lpa/lpa_api_reference_manual/html/index.html" linkText="Open Low Power Assistant Documentation" visible="true" desc="Open the Low Power Assistant Documentation" />
 
-    <!-- BT Wake-Up Configuration Enable -->
-    <ParamBool id="btHostWake" name="Enable" group="BT Wake-Up Configurations" default="false" visible="true" editable="true" desc="Enable/disable the host wake configuration. If disabled, host wake configuration defined by BSP will be used." />
-
     <!-- Host wake settings -->
-    <ParamBlock id="hostWakePin" blockType="ioss\.port\.pin" name="Host-Wake-Up Signal" group="Host-Wake-Up Configuration" canBeEmpty="true" visible="`${btHostWake}`" desc="Select the host IRQ signal connected to BT_HOST_WAKE signal. The pin must be enabled on the Pins tab to be added as an option to the pull-down menu. If left empty, the pin will be unconfigured." />
-    <ParamBool id="hostWakeConnected" name="hostWakeConnected" group="Internal" default="`${hostWakePin ne &quot;&quot; &amp;&amp; btHostWake}`" visible="false" editable="false" desc="True, if HOST_WAKE is connected" />
+    <ParamBlock id="hostWakePin" blockType="ioss\.port\.pin" name="Host-Wake-Up Signal" group="Host-Wake-Up Configuration" canBeEmpty="true" visible="true" desc="Select the host IRQ signal connected to BT_HOST_WAKE signal. The pin must be enabled on the Pins tab to be added as an option to the pull-down menu. If left empty, the pin will be unconfigured." />
+    <ParamBool id="hostWakeConnected" name="hostWakeConnected" group="Internal" default="`${hostWakePin ne &quot;&quot;}`" visible="false" editable="false" desc="True, if HOST_WAKE is connected" />
     <ParamChoice id="hostWakeIrqEvent" name="Host-Wake-Up IRQ Event" group="Host-Wake-Up Configuration" default="CYCFG_BT_WAKE_EVENT_ACTIVE_LOW" visible="`${hostWakeConnected}`" editable="true" desc="Select the trigger condition for the BT_HOST_WAKE signal.">
       <Entry name="Falling Edge" value="CYCFG_BT_WAKE_EVENT_ACTIVE_LOW" visible="true" />
       <Entry name="Rising Edge" value="CYCFG_BT_WAKE_EVENT_ACTIVE_HIGH" visible="true" />
     </ParamChoice>
 
     <!-- Device wake settings -->
-    <ParamBlock id="devWakePin" blockType="ioss\.port\.pin" name="Device-Wake-Up Signal" group="Device-Wake-Up Configuration" canBeEmpty="true" visible="`${btHostWake}`" desc="Select the host pin connected to the BT_DEV_WAKE signal. The pin must be enabled on the Pins tab to be added as an option to the pull-down menu. If left empty, the pin will be unconfigured." />
-    <ParamBool id="devWakeConnected" name="devWakeConnected" group="Internal" default="`${devWakePin ne &quot;&quot; &amp;&amp; btHostWake}`" visible="false" editable="false" desc="True, if DEV_WAKE is connected." />
+    <ParamBlock id="devWakePin" blockType="ioss\.port\.pin" name="Device-Wake-Up Signal" group="Device-Wake-Up Configuration" canBeEmpty="true" visible="true" desc="Select the host pin connected to the BT_DEV_WAKE signal. The pin must be enabled on the Pins tab to be added as an option to the pull-down menu. If left empty, the pin will be unconfigured." />
+    <ParamBool id="devWakeConnected" name="devWakeConnected" group="Internal" default="`${devWakePin ne &quot;&quot;}`" visible="false" editable="false" desc="True, if DEV_WAKE is connected." />
     <ParamChoice id="devWakePolarity" name="Device-Wake-Up Polarity" group="Device-Wake-Up Configuration" default="CYCFG_BT_WAKE_EVENT_ACTIVE_LOW" visible="`${devWakeConnected}`" editable="true" desc="Select the polarity for the BT_DEV_WAKE signal.">
       <Entry name="Active Low" value="CYCFG_BT_WAKE_EVENT_ACTIVE_LOW" visible="true" />
       <Entry name="Active High" value="CYCFG_BT_WAKE_EVENT_ACTIVE_HIGH" visible="true" />
@@ -59,24 +56,22 @@
   </Parameters>
 
   <DRCs>
-    <DRC type="INFO" text="The Host-wake-up pin must be connected when the system is configured for Deep Sleep power state." condition="`${!devWakeConnected &amp;&amp; !hostWakeConnected &amp;&amp; btHostWake}`" paramId="hostWakePin" />
-    <DRC type="INFO" text="The Device-wake-up pin must be connected when the system is configured for Deep Sleep power state." condition="`${!devWakeConnected &amp;&amp; !hostWakeConnected &amp;&amp; btHostWake}`" paramId="devWakePin" />
-    <DRC type="ERROR" text="Host-wake-up and Device-wake-up signals must be connected or not connected." condition="`${!devWakeConnected &amp;&amp; hostWakeConnected}`" paramId="devWakePin"/>
-    <DRC type="ERROR" text="Host-wake-up and Device-wake-up signals must be connected or not connected." condition="`${!hostWakeConnected &amp;&amp; devWakeConnected}`" paramId="hostWakePin"/>
+    <DRC type="INFO" text="The Host-wake-up pin must be connected when the system is configured for Deep Sleep power state." condition="`${!devWakeConnected &amp;&amp; !hostWakeConnected}`" paramId="hostWakePin" />
+    <DRC type="INFO" text="The Device-wake-up pin must be connected when the system is configured for Deep Sleep power state." condition="`${!devWakeConnected &amp;&amp; !hostWakeConnected}`" paramId="devWakePin" />
     <DRC type="ERROR" text="Host-wake-up can not be assigned to the same pin as Device-wake-up signal." condition="`${(devWakePin eq hostWakePin) &amp;&amp; hostWakeConnected &amp;&amp; devWakeConnected}`"/>
   </DRCs>
 
   <!-- Generated firmware -->
   <ConfigFirmware>
-    <ConfigInclude value="cycfg_pins.h" include="`${btHostWake}`" />
-    <ConfigDefine name="CYCFG_BT_LP_ENABLED" public="true" value="(`${(hostWakeConnected &amp;&amp; devWakeConnected) ? &quot;1&quot; : &quot;0&quot;}`u)" include="`${btHostWake}`" preventOverride="false" />
-    <ConfigDefine name="CYCFG_BT_WAKE_EVENT_ACTIVE_LOW"  public="true" value="(0)" include="`${btHostWake}`" preventOverride="false" />
-    <ConfigDefine name="CYCFG_BT_WAKE_EVENT_ACTIVE_HIGH" public="true" value="(1)" include="`${btHostWake}`" preventOverride="false" />
+    <ConfigInclude value="cycfg_pins.h" include="true" />
+    <ConfigDefine name="CYCFG_BT_LP_ENABLED" public="true" value="(1u)" include="true" preventOverride="false" />
+    <ConfigDefine name="CYCFG_BT_WAKE_EVENT_ACTIVE_LOW"  public="true" value="(0)" include="true" preventOverride="false" />
+    <ConfigDefine name="CYCFG_BT_WAKE_EVENT_ACTIVE_HIGH" public="true" value="(1)" include="true" preventOverride="false" />
 
-    <ConfigDefine name="CYCFG_BT_HOST_WAKE_GPIO" public="true" value="`${hostWakeConnected ? hostWakePin . &quot;_HAL_PORT_PIN&quot; : &quot;CYHAL_NC_PIN_VALUE&quot;}`" include="`${btHostWake}`" preventOverride="false" />
-    <ConfigDefine name="CYCFG_BT_HOST_WAKE_IRQ_EVENT" public="true" value="`${hostWakeConnected ? hostWakeIrqEvent : &quot;0&quot;}`" include="`${btHostWake}`" preventOverride="false" />
+    <ConfigDefine name="CYCFG_BT_HOST_WAKE_GPIO" public="true" value="`${hostWakeConnected ? hostWakePin . &quot;_HAL_PORT_PIN&quot; : &quot;CYBSP_BT_HOST_WAKE&quot;}`" include="true" preventOverride="false" />
+    <ConfigDefine name="CYCFG_BT_HOST_WAKE_IRQ_EVENT" public="true" value="`${hostWakeConnected ? hostWakeIrqEvent : &quot;CYBT_WAKE_ACTIVE_LOW&quot;}`" include="true" preventOverride="false" />
 
-    <ConfigDefine name="CYCFG_BT_DEV_WAKE_GPIO" public="true" value="`${devWakeConnected ? devWakePin . &quot;_HAL_PORT_PIN&quot; : &quot;CYHAL_NC_PIN_VALUE&quot;}`" include="`${btHostWake}`" preventOverride="false" />
-    <ConfigDefine name="CYCFG_BT_DEV_WAKE_POLARITY" public="true" value="`${devWakeConnected ? devWakePolarity : &quot;0&quot;}`" include="`${btHostWake}`" preventOverride="false" />
+    <ConfigDefine name="CYCFG_BT_DEV_WAKE_GPIO" public="true" value="`${devWakeConnected ? devWakePin . &quot;_HAL_PORT_PIN&quot; : &quot;CYBSP_BT_DEVICE_WAKE&quot;}`" include="true" preventOverride="false" />
+    <ConfigDefine name="CYCFG_BT_DEV_WAKE_POLARITY" public="true" value="`${devWakeConnected ? devWakePolarity : &quot;CYBT_WAKE_ACTIVE_LOW&quot;}`" include="true" preventOverride="false" />
   </ConfigFirmware>
 </Personality>

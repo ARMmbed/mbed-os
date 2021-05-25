@@ -79,6 +79,7 @@
       <Entry name="Asymmetric CC0 &amp; CC1" value="CY_TCPWM_PWM_ASYMMETRIC_CC0_CC1_ALIGN" visible="`${pCntCC1}`" />
       <Entry name="Center Asymmetric CC0 &amp; CC1" value="CY_TCPWM_PWM_CENTER_ASYMMETRIC_CC0_CC1_ALIGN" visible="`${pCntCC1}`" />
     </ParamChoice>
+    <ParamBool id="SwapUnderflowOverflow" name="Swap Underflow Overflow Set/Clear" group="General" default="false" visible="`${((PwmAlignment eq CY_TCPWM_PWM_CENTER_ALIGN) || (PwmAlignment eq CY_TCPWM_PWM_ASYMMETRIC_ALIGN))}`" editable="true" desc="If checked on underflow event, output is SET and on overflow event output is CLEAR." />
     <ParamChoice id="RunMode" name="Run Mode" group="General" default="CY_TCPWM_PWM_CONTINUOUS" visible="true" editable="true" desc="If Continuous is selected counter runs forever. If One Shot is selected counter runs for one period and stops.">
       <Entry name="Continuous" value="CY_TCPWM_PWM_CONTINUOUS" visible="true" />
       <Entry name="One Shot" value="CY_TCPWM_PWM_ONESHOT" visible="true" />
@@ -509,6 +510,7 @@
       <Member name="killInput" value="`${Kill0Input eq CY_TCPWM_INPUT_DISABLED ? &quot;CY_TCPWM_INPUT_0&quot; : (definePrefix . &quot;_STOP_VALUE&quot;)}`" />
       <Member name="countInputMode" value="`${CountInput eq CY_TCPWM_INPUT_DISABLED ? defineInputDisabled : CountInput}`" />
       <Member name="countInput" value="`${CountInput eq CY_TCPWM_INPUT_DISABLED ? &quot;CY_TCPWM_INPUT_1&quot; : (definePrefix . &quot;_COUNT_VALUE&quot;)}`" />
+      <Member name="swapOverflowUnderflow" value="`${((PwmAlignment eq CY_TCPWM_PWM_CENTER_ALIGN) || (PwmAlignment eq CY_TCPWM_PWM_ASYMMETRIC_ALIGN)) ? SwapUnderflowOverflow : false}`" />
       <Member name="immediateKill" value="`${ImmediateKill}`" />
       <Member name="tapsEnabled" value="`${TapsEnabled}`" />
       <Member name="compare2" value="`${pCntCC1 ? Compare2 : &quot;CY_TCPWM_GRP_CNT_CC0_DEFAULT&quot;}`" />

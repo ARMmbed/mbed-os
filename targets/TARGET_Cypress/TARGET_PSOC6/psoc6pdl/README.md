@@ -1,7 +1,7 @@
-# PSoC 6 Peripheral Driver Library
+# MTB CAT1A Peripheral Driver Library
 
 ### Overview
-The Cypress PDL simplifies software development for PSoC 6 family of devices.
+The Cypress PDL simplifies software development for PSoC 6 (or CAT1A) family of devices.
 The PDL integrates device header files, startup code, and 
 peripheral drivers into a single package. The drivers abstract the hardware functions into a set of 
 easy-to-use APIs. These are fully documented in the [PDL API Reference Manual](https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/index.html). 

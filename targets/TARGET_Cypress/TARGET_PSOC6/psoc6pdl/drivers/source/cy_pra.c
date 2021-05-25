@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_pra.c
-* \version 2.10
+* \version 2.20
 *
 * \brief The source code file for the PRA driver. The API is not intended to
 * be used directly by the user application.
@@ -23,6 +23,10 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "cy_device.h"
+
+#if defined (CY_IP_M4CPUSS) && defined (CY_IP_MXS40IOSS)
+
 #include "cy_pra.h"
 #include "cy_pra_cfg.h"
 #include "cy_sysint.h"
@@ -30,6 +34,7 @@
 #include "cy_device.h"
 #include "cy_syspm.h"
 #include "cy_ble_clk.h"
+#include "cy_gpio.h"
 
 #if defined (CY_DEVICE_SECURE) || defined (CY_DOXYGEN)
 
@@ -37,11 +42,32 @@
 #define CY_PRA_REG_POLICY_WRITE_NONE  (0xFFFFFFFFUL)
 #define CY_PRA_MS_NR                  (16U)
 
+#define CY_PRA_GPIO_V2_PRT_REG_NR       (21U)   /* No of registers in GPIO PRT_V2 */
+#define CY_PRA_HSIOM_PRT_REG_NR         (2U)    /* No of registers in GPIO PRT_V1 */
+
+#define CY_PRA_CLK_EXT_PIN_INDEX        (0UL)
+#define CY_PRA_CLK_ECO_INPIN_INDEX      (1UL)
+#define CY_PRA_CLK_ECO_OUTPIN_INDEX     (2UL)
+#define CY_PRA_CLK_WCO_INPIN_INDEX      (3UL)
+#define CY_PRA_CLK_WCO_OUTPIN_INDEX     (4UL)
+
+
 /* The table to get a register address based on its index */
 cy_stc_pra_reg_policy_t regIndexToAddr[CY_PRA_REG_INDEX_COUNT];
 
+#if (CY_CPU_CORTEX_M0P) || defined (CY_DOXYGEN)
+/* SRAM power mode configurations */
+cy_pra_sram_pwr_mode_config_t sramPwrModeConfig[CY_PRA_SRAM_MAX_NR];
+#endif
+
 #if (CY_CPU_CORTEX_M4)
     static IPC_STRUCT_Type *ipcPraBase = NULL;
+
+    /* External clock secure pin list */
+    cy_stc_pra_extclk_pin_t secExtclkPinList[CY_PRA_EXTCLK_PIN_NR];
+#if defined(CY_DEVICE_PSOC6ABLE2)
+    cy_stc_pra_extclk_hsiom_t secExtClkAdjHsiomList[CY_PRA_EXTCLK_PIN_NR];
+#endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 #endif /* (CY_CPU_CORTEX_M0P) */
 
 
@@ -58,6 +84,13 @@ cy_stc_pra_reg_policy_t regIndexToAddr[CY_PRA_REG_INDEX_COUNT];
     static bool Cy_PRA_RegAccessRangeValid(uint16_t index);
     static cy_en_pra_status_t Cy_PRA_ClocksReset(void);
     static cy_en_pra_status_t Cy_PRA_BackupReset(bool iloHibernateON);
+    static void Cy_PRA_InitGpioPort(cy_stc_pra_reg_policy_t *regPolicy, uint16_t index, GPIO_PRT_Type *port, uint32_t pinNum);
+    static void Cy_PRA_InitHsiomPort(cy_stc_pra_reg_policy_t *regPolicy, uint16_t index, GPIO_PRT_Type *port, uint32_t pinNum);
+#if defined(CY_DEVICE_PSOC6ABLE2)
+    static void Cy_PRA_InitAdjHsiomPort(cy_stc_pra_reg_policy_t *regPolicy, uint16_t index, GPIO_PRT_Type *base);
+#endif /* defined(CY_DEVICE_PSOC6ABLE2) */
+    static cy_en_pra_status_t Cy_PRA_ValidateSramPowerMode(cy_en_syspm_sram_index_t sramNum, uint32_t sramMacroNum, cy_en_syspm_sram_pwr_mode_t sramPwrMode);
+    static cy_en_pra_status_t Cy_PRA_ValidateEntireSramPowerMode(cy_en_syspm_sram_index_t sramNum, cy_en_syspm_sram_pwr_mode_t sramPwrMode);
 #endif /* (CY_CPU_CORTEX_M0P) || defined (CY_DOXYGEN) */
 
 
@@ -117,6 +150,12 @@ void Cy_PRA_Init(void)
         regIndexToAddr[CY_PRA_INDX_PROT_MPU_MS_CTL + i].writeMask= CY_PRA_REG_POLICY_WRITE_NONE;
     }
 
+    /* Initialize SRAM power modes */
+    for (uint32_t i = 0UL; i < CY_PRA_SRAM_MAX_NR; i++)
+    {
+        sramPwrModeConfig[i].macroConfigCount = 0UL;
+    }
+
     /* Configures the IPC interrupt handler. */
     Cy_IPC_Drv_SetInterruptMask(Cy_IPC_Drv_GetIntrBaseAddr(CY_IPC_INTR_PRA), CY_PRA_IPC_NONE_INTR, CY_PRA_IPC_CHAN_INTR);
     cy_stc_sysint_t intr = {
@@ -148,11 +187,248 @@ void Cy_PRA_Init(void)
         */
         CY_HALT();
     }
+
+    /* Fill the external clock ports */
+    if (CY_PRA_STATUS_SUCCESS != Cy_PRA_SendCmd(CY_PRA_MSG_TYPE_EXTCLK_PIN_LIST,
+                                    (uint16_t) 0U,
+                                    (uint32_t) secExtclkPinList,
+                                    (uint32_t) CY_PRA_EXTCLK_PIN_NR))
+    {
+        /* Initilize the List */
+        for (uint32_t index = 0UL; index<CY_PRA_EXTCLK_PIN_NR; index++)
+        {
+            secExtclkPinList[index].port = NULL;
+        }
+    }
+
+#if defined(CY_DEVICE_PSOC6ABLE2)
+    /* Fill the external clock HSIOM ports */
+    if (CY_PRA_STATUS_SUCCESS != Cy_PRA_SendCmd(CY_PRA_MSG_TYPE_EXTCLK_ADJHSIOM_LIST,
+                                    (uint16_t) 0U,
+                                    (uint32_t) secExtClkAdjHsiomList,
+                                    (uint32_t) CY_PRA_EXTCLK_PIN_NR))
+    {
+        /* Initilize the List */
+        for (uint32_t index = 0UL; index<CY_PRA_EXTCLK_PIN_NR; index++)
+        {
+            secExtClkAdjHsiomList[index].port = NULL;
+        }
+    }
+#endif /* defined(CY_DEVICE_PSOC6ABLE2) */
+
 #endif /* (CY_CPU_CORTEX_M0P) */
 }
 
 
 #if (CY_CPU_CORTEX_M0P) || defined (CY_DOXYGEN)
+
+/*******************************************************************************
+* Function Name: Cy_PRA_UpdateExtClockRegIndex
+****************************************************************************//**
+*
+* Update Index-to-Addr Array with External clock addresses
+*
+*******************************************************************************/
+void Cy_PRA_UpdateExtClockRegIndex(void)
+{
+    if (NULL != extClkPolicyPtr)
+    {
+        if (extClkPolicyPtr->extClkEnable)
+        {
+            Cy_PRA_InitGpioPort(regIndexToAddr, CY_PRA_INDX_GPIO_EXTCLK_PRT, extClkPolicyPtr->extClkPort, extClkPolicyPtr->extClkPinNum);
+            Cy_PRA_InitHsiomPort(regIndexToAddr, CY_PRA_INDEX_HSIOM_EXTCLK_PRT, extClkPolicyPtr->extClkPort, extClkPolicyPtr->extClkPinNum);
+            #if defined(CY_DEVICE_PSOC6ABLE2)
+                Cy_PRA_InitAdjHsiomPort(regIndexToAddr, CY_PRA_INDEX_HSIOM_EXTCLK_ADJ_PRT, extClkPolicyPtr->extClkPort);
+            #endif /* defined(CY_DEVICE_PSOC6ABLE2) */
+        }
+
+        if (extClkPolicyPtr->ecoEnable)
+        {
+            Cy_PRA_InitGpioPort(regIndexToAddr, CY_PRA_INDX_GPIO_ECO_IN_PRT, extClkPolicyPtr->ecoInPort, extClkPolicyPtr->ecoInPinNum);
+            Cy_PRA_InitGpioPort(regIndexToAddr, CY_PRA_INDX_GPIO_ECO_OUT_PRT, extClkPolicyPtr->ecoOutPort, extClkPolicyPtr->ecoOutPinNum);
+            Cy_PRA_InitHsiomPort(regIndexToAddr, CY_PRA_INDEX_HSIOM_ECO_IN_PRT, extClkPolicyPtr->ecoInPort, extClkPolicyPtr->ecoInPinNum);
+            Cy_PRA_InitHsiomPort(regIndexToAddr, CY_PRA_INDEX_HSIOM_ECO_OUT_PRT, extClkPolicyPtr->ecoOutPort, extClkPolicyPtr->ecoOutPinNum);
+            #if defined(CY_DEVICE_PSOC6ABLE2)
+                Cy_PRA_InitAdjHsiomPort(regIndexToAddr, CY_PRA_INDEX_HSIOM_ECO_IN_ADJ_PRT, extClkPolicyPtr->ecoInPort);
+                Cy_PRA_InitAdjHsiomPort(regIndexToAddr, CY_PRA_INDEX_HSIOM_ECO_OUT_ADJ_PRT, extClkPolicyPtr->ecoOutPort);
+            #endif /* defined(CY_DEVICE_PSOC6ABLE2) */
+        }
+
+        if (extClkPolicyPtr->wcoEnable)
+        {
+            Cy_PRA_InitGpioPort(regIndexToAddr, CY_PRA_INDX_GPIO_WCO_IN_PRT, extClkPolicyPtr->wcoInPort, extClkPolicyPtr->wcoInPinNum);
+            Cy_PRA_InitGpioPort(regIndexToAddr, CY_PRA_INDX_GPIO_WCO_OUT_PRT, extClkPolicyPtr->wcoOutPort, extClkPolicyPtr->wcoOutPinNum);
+            Cy_PRA_InitHsiomPort(regIndexToAddr, CY_PRA_INDEX_HSIOM_WCO_IN_PRT, extClkPolicyPtr->wcoInPort, extClkPolicyPtr->wcoInPinNum);
+            Cy_PRA_InitHsiomPort(regIndexToAddr, CY_PRA_INDEX_HSIOM_WCO_OUT_PRT, extClkPolicyPtr->wcoOutPort, extClkPolicyPtr->wcoOutPinNum);
+            #if defined(CY_DEVICE_PSOC6ABLE2)
+                Cy_PRA_InitAdjHsiomPort(regIndexToAddr, CY_PRA_INDEX_HSIOM_WCO_IN_ADJ_PRT, extClkPolicyPtr->wcoInPort);
+                Cy_PRA_InitAdjHsiomPort(regIndexToAddr, CY_PRA_INDEX_HSIOM_WCO_OUT_ADJ_PRT, extClkPolicyPtr->wcoOutPort);
+            #endif /* defined(CY_DEVICE_PSOC6ABLE2) */
+        }
+    }
+}
+
+/*******************************************************************************
+* Function Name: Cy_PRA_InitGpioPort
+****************************************************************************//**
+*
+* Initializes all port register address and write mask
+*
+*******************************************************************************/
+static void Cy_PRA_InitGpioPort(cy_stc_pra_reg_policy_t *regPolicy, uint16_t index, GPIO_PRT_Type *port, uint32_t pinNum)
+{
+    uint32_t pinLoc;
+    volatile uint32_t *portAddr;
+
+    if ((NULL != regPolicy) && (NULL != port) && CY_GPIO_IS_PIN_VALID(pinNum))
+    {
+        portAddr = (volatile uint32_t *)((void *)(port));
+        for (uint32_t i = 0UL; i < CY_PRA_GPIO_V2_PRT_REG_NR; i++)
+        {
+            regPolicy[index + i].addr = (portAddr + i);
+        }
+
+        regPolicy[index + CY_SYSLIB_DIV_ROUND(offsetof(GPIO_PRT_Type, OUT), 4U)].writeMask = (CY_GPIO_OUT_MASK << pinNum); /* OUT */
+        regPolicy[index + CY_SYSLIB_DIV_ROUND(offsetof(GPIO_PRT_Type, OUT_CLR), 4U)].writeMask = (CY_GPIO_OUT_MASK << pinNum); /* OUT_CLR */
+        regPolicy[index + CY_SYSLIB_DIV_ROUND(offsetof(GPIO_PRT_Type, OUT_SET), 4U)].writeMask = (CY_GPIO_OUT_MASK << pinNum); /* OUT_SET */
+        regPolicy[index + CY_SYSLIB_DIV_ROUND(offsetof(GPIO_PRT_Type, OUT_INV), 4U)].writeMask = (CY_GPIO_OUT_MASK << pinNum); /* OUT_INV */
+        regPolicy[index + CY_SYSLIB_DIV_ROUND(offsetof(GPIO_PRT_Type, IN), 4U)].writeMask = (CY_GPIO_IN_MASK << pinNum); /* IN */
+        regPolicy[index + CY_SYSLIB_DIV_ROUND(offsetof(GPIO_PRT_Type, INTR), 4U)].writeMask = (CY_GPIO_INTR_STATUS_MASK << pinNum); /* INTR */
+        regPolicy[index + CY_SYSLIB_DIV_ROUND(offsetof(GPIO_PRT_Type, INTR_MASK), 4U)].writeMask = (CY_GPIO_INTR_EN_MASK << pinNum); /* INTR_MASK */
+        regPolicy[index + CY_SYSLIB_DIV_ROUND(offsetof(GPIO_PRT_Type, INTR_MASKED), 4U)].writeMask = (CY_GPIO_INTR_MASKED_MASK << pinNum); /* INTR_MASKED */
+        regPolicy[index + CY_SYSLIB_DIV_ROUND(offsetof(GPIO_PRT_Type, INTR_SET), 4U)].writeMask = (CY_GPIO_INTR_SET_MASK << pinNum); /* INTR_SET */
+
+        pinLoc = pinNum << CY_GPIO_INTR_CFG_OFFSET;
+        regPolicy[index + CY_SYSLIB_DIV_ROUND((uint16_t)(cy_device->gpioPrtIntrCfgOffset), 4U)].writeMask = (CY_GPIO_INTR_EDGE_MASK << pinLoc); /* INTR_CFG */
+
+        pinLoc = pinNum << CY_GPIO_DRIVE_MODE_OFFSET;
+        regPolicy[index + CY_SYSLIB_DIV_ROUND((uint16_t)(cy_device->gpioPrtCfgOffset), 4U)].writeMask = (CY_GPIO_CFG_DM_MASK << pinLoc); /* CFG */
+
+        regPolicy[index + CY_SYSLIB_DIV_ROUND((uint16_t)(cy_device->gpioPrtCfgInOffset), 4U)].writeMask = (CY_GPIO_CFG_IN_VTRIP_SEL_MASK << pinNum); /* CFG_IN */
+
+        pinLoc = (uint32_t)(pinNum << 1u) + CY_GPIO_CFG_OUT_DRIVE_OFFSET;
+        regPolicy[index + CY_SYSLIB_DIV_ROUND((uint16_t)(cy_device->gpioPrtCfgOutOffset), 4U)].writeMask = (CY_GPIO_CFG_OUT_DRIVE_SEL_MASK << pinLoc) |
+                                                                                                            (CY_GPIO_CFG_OUT_SLOW_MASK << pinNum); /* CFG_OUT */
+
+        pinLoc = (pinNum & CY_GPIO_SIO_ODD_PIN_MASK) << CY_GPIO_CFG_SIO_OFFSET;
+        regPolicy[index + CY_SYSLIB_DIV_ROUND((uint16_t)(cy_device->gpioPrtCfgSioOffset), 4U)].writeMask = (CY_GPIO_VREG_EN_MASK << pinLoc);
+        pinLoc = ((pinNum & CY_GPIO_SIO_ODD_PIN_MASK) << CY_GPIO_CFG_SIO_OFFSET) + CY_GPIO_IBUF_SHIFT;
+        regPolicy[index + CY_SYSLIB_DIV_ROUND((uint16_t)(cy_device->gpioPrtCfgSioOffset), 4U)].writeMask |= (CY_GPIO_IBUF_MASK << pinLoc);
+        pinLoc = ((pinNum & CY_GPIO_SIO_ODD_PIN_MASK) << CY_GPIO_CFG_SIO_OFFSET) + CY_GPIO_VTRIP_SEL_SHIFT;
+        regPolicy[index + CY_SYSLIB_DIV_ROUND((uint16_t)(cy_device->gpioPrtCfgSioOffset), 4U)].writeMask |= (CY_GPIO_VTRIP_SEL_MASK << pinLoc);
+        pinLoc = ((pinNum & CY_GPIO_SIO_ODD_PIN_MASK) << CY_GPIO_CFG_SIO_OFFSET) + CY_GPIO_VREF_SEL_SHIFT;
+        regPolicy[index + CY_SYSLIB_DIV_ROUND((uint16_t)(cy_device->gpioPrtCfgSioOffset), 4U)].writeMask |= (CY_GPIO_VREF_SEL_MASK << pinLoc);
+        pinLoc = ((pinNum & CY_GPIO_SIO_ODD_PIN_MASK) << CY_GPIO_CFG_SIO_OFFSET) + CY_GPIO_VOH_SEL_SHIFT;
+        regPolicy[index + CY_SYSLIB_DIV_ROUND((uint16_t)(cy_device->gpioPrtCfgSioOffset), 4U)].writeMask |= (CY_GPIO_VOH_SEL_MASK << pinLoc);
+    }
+    else if (NULL != regPolicy)
+    {
+        /* regIndexToAddr Indexes are filled with NULL addresses. So don't allow to write in these indexes */
+        for (uint32_t i = 0UL; i < CY_PRA_GPIO_V2_PRT_REG_NR; i++)
+        {
+            regPolicy[index + i].addr = NULL;
+            regPolicy[index + i].writeMask = CY_PRA_REG_POLICY_WRITE_NONE;
+        }
+    }
+    else
+    {
+        /* Invalid parameters */
+    }
+}
+
+/*******************************************************************************
+* Function Name: Cy_PRA_InitHsiomPort
+****************************************************************************//**
+*
+* Initializes all HSIOM port register adrress and write mask
+*
+*******************************************************************************/
+static void Cy_PRA_InitHsiomPort(cy_stc_pra_reg_policy_t *regPolicy, uint16_t index, GPIO_PRT_Type *port, uint32_t pinNum)
+{
+    uint32_t portNum;
+    volatile uint32_t *portAddrHSIOM;
+
+    if ((NULL != regPolicy) && (NULL != port) && CY_GPIO_IS_PIN_VALID(pinNum))
+    {
+        /* calculate hsiom port */
+        portNum = ((uint32_t)(port) - CY_GPIO_BASE) / GPIO_PRT_SECTION_SIZE;
+        portAddrHSIOM = (volatile uint32_t *)(CY_HSIOM_BASE + (HSIOM_PRT_SECTION_SIZE * portNum));
+
+        for (uint32_t i = 0UL; i < CY_PRA_HSIOM_PRT_REG_NR; i++)
+        {
+            regPolicy[index + i].addr = (portAddrHSIOM + i);
+        }
+
+        if (pinNum < CY_GPIO_PRT_HALF)
+        {
+            regPolicy[index + CY_SYSLIB_DIV_ROUND(offsetof(HSIOM_PRT_V1_Type, PORT_SEL0), 4U)].writeMask = (CY_GPIO_HSIOM_MASK << (pinNum << CY_GPIO_HSIOM_OFFSET));
+        }
+        else
+        {
+            pinNum -= CY_GPIO_PRT_HALF;
+            regPolicy[index + CY_SYSLIB_DIV_ROUND(offsetof(HSIOM_PRT_V1_Type, PORT_SEL1), 4U)].writeMask = (CY_GPIO_HSIOM_MASK << (pinNum << CY_GPIO_HSIOM_OFFSET));
+        }
+    }
+    else if (NULL != regPolicy)
+    {
+        /* regIndexToAddr Indexes are filled with NULL addresses. So don't allow to write in these indexes */
+        for (uint32_t i = 0UL; i < CY_PRA_HSIOM_PRT_REG_NR; i++)
+        {
+            regPolicy[index + i].addr = NULL;
+            regPolicy[index + i].writeMask = CY_PRA_REG_POLICY_WRITE_NONE;
+        }
+    }
+    else
+    {
+        /* Invalid parameters */
+    }
+}
+
+#if defined(CY_DEVICE_PSOC6ABLE2)
+/*******************************************************************************
+* Function Name: Cy_PRA_InitAdjHsiomPort
+****************************************************************************//**
+*
+* Initializes all adjacent HSIOM port register address and write mask
+*
+*******************************************************************************/
+static void Cy_PRA_InitAdjHsiomPort(cy_stc_pra_reg_policy_t *regPolicy, uint16_t index, GPIO_PRT_Type *base)
+{
+    uint32_t portNum;
+    volatile uint32_t *portAddrHSIOM;
+    GPIO_PRT_Type *port;
+
+    if ((NULL != regPolicy) && (NULL != base))
+    {
+        /* calculate next port address */
+        port = base + 1UL;
+
+        /* calculate hsiom port */
+        portNum = ((uint32_t)(port) - CY_GPIO_BASE) / GPIO_PRT_SECTION_SIZE;
+        portAddrHSIOM = (volatile uint32_t *)(CY_HSIOM_BASE + (HSIOM_PRT_SECTION_SIZE * portNum));
+
+        for (uint32_t i = 0UL; i < CY_PRA_HSIOM_PRT_REG_NR; i++)
+        {
+            regPolicy[index + i].addr = (portAddrHSIOM + i);
+            regPolicy[index + i].writeMask = CY_PRA_REG_POLICY_WRITE_ALL;
+        }
+    }
+    else if (NULL != regPolicy)
+    {
+        /* regIndexToAddr Indexes are filled with NULL addresses. So don't allow to write in these indexes */
+        for (uint32_t i = 0UL; i < CY_PRA_HSIOM_PRT_REG_NR; i++)
+        {
+            regPolicy[index + i].addr = NULL;
+            regPolicy[index + i].writeMask = CY_PRA_REG_POLICY_WRITE_NONE;
+        }
+    }
+    else
+    {
+        /* Invalid parameters */
+    }
+}
+#endif /* defined(CY_DEVICE_PSOC6ABLE2) */
+
 /*******************************************************************************
 * Function Name: Cy_PRA_Handler
 ****************************************************************************//**
@@ -226,26 +502,34 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
 
         case CY_PRA_MSG_TYPE_REG32_SET:
             /* Reports an error if any of the following conditions is false:
-            *  - A new value (message->praData1) has zeros in the write-protected fields
+            *  - A new value (message->praData1) has zeros or same value in the write-protected fields
             *  - The register index is within the valid range.
             */
-            if ((0U == (message->praData1 & regIndexToAddr[message->praIndex].writeMask)) &&
-                (CY_PRA_REG_POLICY_WRITE_NONE != regIndexToAddr[message->praIndex].writeMask) &&
+            if ((CY_PRA_REG_POLICY_WRITE_NONE != regIndexToAddr[message->praIndex].writeMask) &&
                 (Cy_PRA_RegAccessRangeValid(message->praIndex)))
             {
                 uint32_t tmp;
 
                 tmp =  CY_GET_REG32(regIndexToAddr[message->praIndex].addr);
 
-                /* Clears the bits allowed to write */
-                tmp &= regIndexToAddr[message->praIndex].writeMask;
+                if ((0U == (message->praData1 & regIndexToAddr[message->praIndex].writeMask)) ||
+                    ((tmp & regIndexToAddr[message->praIndex].writeMask) ==
+                    (message->praData1 & regIndexToAddr[message->praIndex].writeMask)))
+                {
+                    /* Clears the bits allowed to write */
+                    tmp &= regIndexToAddr[message->praIndex].writeMask;
 
-                /* Sets the allowed bits based on the new value.
-                *  The write-protected fields have zeros in the new value, so no additional checks needed
-                */
-                tmp |= message->praData1;
-                CY_SET_REG32(regIndexToAddr[message->praIndex].addr, tmp);
-                message->praStatus = CY_PRA_STATUS_SUCCESS;
+                    /* Sets the allowed bits based on the new value.
+                    *  The write-protected fields have zeros in the new value, so no additional checks needed
+                    */
+                    tmp |= message->praData1;
+                    CY_SET_REG32(regIndexToAddr[message->praIndex].addr, tmp);
+                    message->praStatus = CY_PRA_STATUS_SUCCESS;
+                }
+                else
+                {
+                    message->praStatus = CY_PRA_STATUS_ACCESS_DENIED;
+                }
             }
             else
             {
@@ -284,6 +568,112 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
             }
             break;
 
+        case CY_PRA_MSG_TYPE_EXTCLK_PIN_LIST:
+
+            if ((NULL != (cy_stc_pra_extclk_pin_t *) (message->praData1)) && ((uint32_t) (message->praData2) <= CY_PRA_EXTCLK_PIN_NR))
+            {
+                cy_stc_pra_extclk_pin_t *pinList =  (cy_stc_pra_extclk_pin_t *) message->praData1;
+                message->praStatus = CY_PRA_STATUS_SUCCESS;
+
+                if (extClkPolicyPtr->extClkEnable)
+                {
+                    pinList[CY_PRA_CLK_EXT_PIN_INDEX].port = extClkPolicyPtr->extClkPort;
+                    pinList[CY_PRA_CLK_EXT_PIN_INDEX].pinNum = extClkPolicyPtr->extClkPinNum;
+                    pinList[CY_PRA_CLK_EXT_PIN_INDEX].index = CY_PRA_INDX_GPIO_EXTCLK_PRT;
+                    pinList[CY_PRA_CLK_EXT_PIN_INDEX].hsiomIndex = CY_PRA_INDEX_HSIOM_EXTCLK_PRT;
+                }
+                else
+                {
+                    pinList[CY_PRA_CLK_EXT_PIN_INDEX].port = NULL;
+                }
+
+                if (extClkPolicyPtr->ecoEnable)
+                {
+                    pinList[CY_PRA_CLK_ECO_INPIN_INDEX].port = extClkPolicyPtr->ecoInPort;
+                    pinList[CY_PRA_CLK_ECO_INPIN_INDEX].pinNum = extClkPolicyPtr->ecoInPinNum;
+                    pinList[CY_PRA_CLK_ECO_INPIN_INDEX].index = CY_PRA_INDX_GPIO_ECO_IN_PRT;
+                    pinList[CY_PRA_CLK_ECO_INPIN_INDEX].hsiomIndex = CY_PRA_INDEX_HSIOM_ECO_IN_PRT;
+
+                    pinList[CY_PRA_CLK_ECO_OUTPIN_INDEX].port = extClkPolicyPtr->ecoOutPort;
+                    pinList[CY_PRA_CLK_ECO_OUTPIN_INDEX].pinNum = extClkPolicyPtr->ecoOutPinNum;
+                    pinList[CY_PRA_CLK_ECO_OUTPIN_INDEX].index = CY_PRA_INDX_GPIO_ECO_OUT_PRT;
+                    pinList[CY_PRA_CLK_ECO_OUTPIN_INDEX].hsiomIndex = CY_PRA_INDEX_HSIOM_ECO_OUT_PRT;
+                }
+                else
+                {
+                    pinList[CY_PRA_CLK_ECO_INPIN_INDEX].port = NULL;
+                    pinList[CY_PRA_CLK_ECO_OUTPIN_INDEX].port = NULL;
+                }
+
+                if (extClkPolicyPtr->wcoEnable)
+                {
+                    pinList[CY_PRA_CLK_WCO_INPIN_INDEX].port = extClkPolicyPtr->wcoInPort;
+                    pinList[CY_PRA_CLK_WCO_INPIN_INDEX].pinNum = extClkPolicyPtr->wcoInPinNum;
+                    pinList[CY_PRA_CLK_WCO_INPIN_INDEX].index = CY_PRA_INDX_GPIO_WCO_IN_PRT;
+                    pinList[CY_PRA_CLK_WCO_INPIN_INDEX].hsiomIndex = CY_PRA_INDEX_HSIOM_WCO_IN_PRT;
+
+                    pinList[CY_PRA_CLK_WCO_OUTPIN_INDEX].port = extClkPolicyPtr->wcoOutPort;
+                    pinList[CY_PRA_CLK_WCO_OUTPIN_INDEX].pinNum = extClkPolicyPtr->wcoOutPinNum;
+                    pinList[CY_PRA_CLK_WCO_OUTPIN_INDEX].index = CY_PRA_INDX_GPIO_WCO_OUT_PRT;
+                    pinList[CY_PRA_CLK_WCO_OUTPIN_INDEX].hsiomIndex = CY_PRA_INDEX_HSIOM_WCO_OUT_PRT;
+                }
+                else
+                {
+                    pinList[CY_PRA_CLK_WCO_INPIN_INDEX].port = NULL;
+                    pinList[CY_PRA_CLK_WCO_OUTPIN_INDEX].port = NULL;
+                }
+            }
+            else
+            {
+                message->praStatus = CY_PRA_STATUS_INVALID_PARAM;
+            }
+
+            break;
+#if defined(CY_DEVICE_PSOC6ABLE2)
+        case CY_PRA_MSG_TYPE_EXTCLK_ADJHSIOM_LIST:
+            if ((NULL != (cy_stc_pra_extclk_hsiom_t *) (message->praData1)) && ((uint32_t) (message->praData2) <= CY_PRA_EXTCLK_PIN_NR))
+            {
+                cy_stc_pra_extclk_hsiom_t *hsiomList =  (cy_stc_pra_extclk_hsiom_t *) message->praData1;
+                if (extClkPolicyPtr->extClkEnable)
+                {
+                    hsiomList[CY_PRA_CLK_EXT_PIN_INDEX].port = extClkPolicyPtr->extClkPort + 1; /* Fill adjacent GPIO port */
+                    hsiomList[CY_PRA_CLK_EXT_PIN_INDEX].hsiomIndex = CY_PRA_INDEX_HSIOM_EXTCLK_ADJ_PRT;
+                }
+                else
+                {
+                    hsiomList[CY_PRA_CLK_EXT_PIN_INDEX].port = NULL;
+                }
+
+                if (extClkPolicyPtr->ecoEnable)
+                {
+                    hsiomList[CY_PRA_CLK_ECO_INPIN_INDEX].port = extClkPolicyPtr->ecoInPort + 1; /* Fill adjacent GPIO port */
+                    hsiomList[CY_PRA_CLK_ECO_INPIN_INDEX].hsiomIndex = CY_PRA_INDEX_HSIOM_ECO_IN_ADJ_PRT;
+                    hsiomList[CY_PRA_CLK_ECO_OUTPIN_INDEX].port = extClkPolicyPtr->ecoOutPort + 1; /* Fill adjacent GPIO port */
+                    hsiomList[CY_PRA_CLK_ECO_OUTPIN_INDEX].hsiomIndex = CY_PRA_INDEX_HSIOM_ECO_OUT_ADJ_PRT;
+                }
+                else
+                {
+                    hsiomList[CY_PRA_CLK_ECO_INPIN_INDEX].port = NULL;
+                    hsiomList[CY_PRA_CLK_ECO_OUTPIN_INDEX].port = NULL;
+                }
+
+                if (extClkPolicyPtr->wcoEnable)
+                {
+                    hsiomList[CY_PRA_CLK_WCO_INPIN_INDEX].port = extClkPolicyPtr->wcoInPort + 1; /* Fill adjacent GPIO port */
+                    hsiomList[CY_PRA_CLK_WCO_INPIN_INDEX].hsiomIndex = CY_PRA_INDEX_HSIOM_WCO_IN_ADJ_PRT;
+                    hsiomList[CY_PRA_CLK_WCO_OUTPIN_INDEX].port = extClkPolicyPtr->wcoOutPort + 1; /* Fill adjacent GPIO port */
+                    hsiomList[CY_PRA_CLK_WCO_OUTPIN_INDEX].hsiomIndex = CY_PRA_INDEX_HSIOM_WCO_OUT_ADJ_PRT;
+                }
+                else
+                {
+                    hsiomList[CY_PRA_CLK_WCO_INPIN_INDEX].port = NULL;
+                    hsiomList[CY_PRA_CLK_WCO_OUTPIN_INDEX].port = NULL;
+                }
+
+                message->praStatus = CY_PRA_STATUS_SUCCESS;
+            }
+            break;
+#endif /* defined(CY_DEVICE_PSOC6ABLE2) */
         case CY_PRA_MSG_TYPE_SYS_CFG_FUNC:
             CY_ASSERT_L1((cy_stc_pra_system_config_t *)(message->praData1) != NULL);
 
@@ -380,6 +770,56 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                     {
                         message->praStatus = CY_PRA_STATUS_INVALID_PARAM;
                     }
+                    break;
+
+                case CY_PRA_PM_FUNC_SRAM_MACRO_PWR_MODE:
+                {
+                    cy_en_syspm_sram_index_t sramNum;
+                    uint32_t sramMacroNum;
+                    cy_en_syspm_sram_pwr_mode_t sramPwrMode;
+
+                    sramNum = ((cy_stc_pra_sram_power_mode_config_t *) message->praData1)->sramNum;
+                    sramMacroNum = ((cy_stc_pra_sram_power_mode_config_t *) message->praData1)->sramMacroNum;
+                    sramPwrMode = ((cy_stc_pra_sram_power_mode_config_t *) message->praData1)->sramPwrMode;
+
+                    message->praStatus = Cy_PRA_ValidateSramPowerMode(sramNum, sramMacroNum, sramPwrMode);
+
+                    if (message->praStatus == CY_PRA_STATUS_SUCCESS)
+                    {
+                        if (CY_SYSPM_SUCCESS != Cy_SysPm_SetSRAMMacroPwrMode(sramNum, sramMacroNum, sramPwrMode))
+                        {
+                            message->praStatus = CY_PRA_STATUS_INVALID_PARAM;
+                        }
+                    }
+                    else
+                    {
+                        /* Not allowed to modify sram power mode */
+                    }
+                }
+                    break;
+
+                case CY_PRA_PM_FUNC_SRAM_PWR_MODE:
+                {
+                    cy_en_syspm_sram_index_t sramNum;
+                    cy_en_syspm_sram_pwr_mode_t sramPwrMode;
+
+                    sramNum = ((cy_stc_pra_sram_power_mode_config_t *) message->praData1)->sramNum;
+                    sramPwrMode = ((cy_stc_pra_sram_power_mode_config_t *) message->praData1)->sramPwrMode;
+
+                    message->praStatus = Cy_PRA_ValidateEntireSramPowerMode(sramNum, sramPwrMode);
+
+                    if (message->praStatus == CY_PRA_STATUS_SUCCESS)
+                    {
+                        if (CY_SYSPM_SUCCESS != Cy_SysPm_SetSRAMPwrMode(sramNum, sramPwrMode))
+                        {
+                            message->praStatus = CY_PRA_STATUS_INVALID_PARAM;
+                        }
+                    }
+                    else
+                    {
+                        /* Not allowed to modify sram power mode */
+                    }
+                }
                     break;
 
             #ifdef CY_IP_MXBLESS
@@ -1869,6 +2309,258 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
     CY_SECTION_RAMFUNC_END
 #endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 
+/*******************************************************************************
+* Function Name: Cy_PRA_GetPinProtType
+****************************************************************************//**
+*
+* Find the matching PORT and PIN number from External clock secure PIN list and
+* returns protection status of the PIN.
+*
+*******************************************************************************/
+    cy_en_pra_pin_prot_type_t Cy_PRA_GetPinProtType(GPIO_PRT_Type *base, uint32_t pinNum)
+    {
+        uint32_t index;
+        cy_en_pra_pin_prot_type_t pinType = CY_PRA_PIN_SECURE_NONE;
+
+        if ((NULL != base) && (CY_GPIO_IS_PIN_VALID(pinNum)))
+        {
+            for (index=0; index<CY_PRA_EXTCLK_PIN_NR; index++)
+            {
+                if (secExtclkPinList[index].port == base)
+                {
+                    pinType = CY_PRA_PIN_SECURE_UNCONSTRAINED;
+
+                    if (secExtclkPinList[index].pinNum == pinNum)
+                    {
+                        pinType = CY_PRA_PIN_SECURE;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return pinType;
+    }
+
+/*******************************************************************************
+* Function Name: Cy_PRA_IsPortSecure
+****************************************************************************//**
+*
+* Find the matching PORT from External clock secure PIN list and returns
+* protection status of the PORT.
+*
+*******************************************************************************/
+    bool Cy_PRA_IsPortSecure(GPIO_PRT_Type *base)
+    {
+        uint32_t index;
+        bool retPort = false;
+        if (NULL != base)
+        {
+            for (index=0; index<CY_PRA_EXTCLK_PIN_NR; index++)
+            {
+                if (secExtclkPinList[index].port == base)
+                {
+                    retPort = true;
+                    break;
+                }
+            }
+        }
+
+        return retPort;
+    }
+
+#if defined(CY_DEVICE_PSOC6ABLE2)
+/*******************************************************************************
+* Function Name: Cy_PRA_IsHsiomSecure
+****************************************************************************//**
+*
+* Find the matching PORT from External clock adjacent HSIOM list and returns
+* protection status of the PORT.
+*
+*******************************************************************************/
+    bool Cy_PRA_IsHsiomSecure(GPIO_PRT_Type *base)
+    {
+        uint32_t index;
+        bool retPort = false;
+        if (NULL != base)
+        {
+            for (index=0; index<CY_PRA_EXTCLK_PIN_NR; index++)
+            {
+                if (secExtClkAdjHsiomList[index].port == base)
+                {
+                    retPort = true;
+                    break;
+                }
+            }
+        }
+
+        return retPort;
+    }
+
+#endif /* defined(CY_DEVICE_PSOC6ABLE2) */
+
+/*******************************************************************************
+* Function Name: Cy_PRA_GetPortRegIndex
+****************************************************************************//**
+*
+* Find the matching PORT and PIN number from External clock secure PIN list and
+* returns port address index
+*
+*******************************************************************************/
+    uint16_t Cy_PRA_GetPortRegIndex(GPIO_PRT_Type *base, uint16_t subIndex)
+    {
+        uint32_t index;
+        uint16_t portIndex;
+        uint16_t retIndex = CY_PRA_REG_INDEX_COUNT; /* assigned with invalid index */
+
+        if (NULL != base)
+        {
+            for (index=0; index<CY_PRA_EXTCLK_PIN_NR; index++)
+            {
+                if (secExtclkPinList[index].port == base)
+                {
+                    portIndex = secExtclkPinList[index].index;
+
+                    switch (subIndex)
+                    {
+                        case CY_PRA_SUB_INDEX_PORT_OUT:
+                        retIndex = portIndex + CY_SYSLIB_DIV_ROUND(offsetof(GPIO_PRT_Type, OUT), 4U);
+                        break;
+                        case CY_PRA_SUB_INDEX_PORT_OUT_CLR:
+                        retIndex = portIndex + CY_SYSLIB_DIV_ROUND(offsetof(GPIO_PRT_Type, OUT_CLR), 4U);
+                        break;
+                        case CY_PRA_SUB_INDEX_PORT_OUT_SET:
+                        retIndex = portIndex + CY_SYSLIB_DIV_ROUND(offsetof(GPIO_PRT_Type, OUT_SET), 4U);
+                        break;
+                        case CY_PRA_SUB_INDEX_PORT_OUT_INV:
+                        retIndex = portIndex + CY_SYSLIB_DIV_ROUND(offsetof(GPIO_PRT_Type, OUT_INV), 4U);
+                        break;
+                        case CY_PRA_SUB_INDEX_PORT_IN:
+                        retIndex = portIndex + CY_SYSLIB_DIV_ROUND(offsetof(GPIO_PRT_Type, IN), 4U);
+                        break;
+                        case CY_PRA_SUB_INDEX_PORT_INTR:
+                        retIndex = portIndex + CY_SYSLIB_DIV_ROUND(offsetof(GPIO_PRT_Type, INTR), 4U);
+                        break;
+                        case CY_PRA_SUB_INDEX_PORT_INTR_MASK:
+                        retIndex = portIndex + CY_SYSLIB_DIV_ROUND(offsetof(GPIO_PRT_Type, INTR_MASK), 4U);
+                        break;
+                        case CY_PRA_SUB_INDEX_PORT_INTR_MASKED:
+                        retIndex = portIndex + CY_SYSLIB_DIV_ROUND(offsetof(GPIO_PRT_Type, INTR_MASKED), 4U);
+                        break;
+                        case CY_PRA_SUB_INDEX_PORT_INTR_SET:
+                        retIndex = portIndex + CY_SYSLIB_DIV_ROUND(offsetof(GPIO_PRT_Type, INTR_SET), 4U);
+                        break;
+                        case CY_PRA_SUB_INDEX_PORT_INTR_CFG:
+                        retIndex = portIndex + CY_SYSLIB_DIV_ROUND((uint16_t)(cy_device->gpioPrtIntrCfgOffset), 4U);
+                        break;
+                        case CY_PRA_SUB_INDEX_PORT_CFG:
+                        retIndex = portIndex + CY_SYSLIB_DIV_ROUND((uint16_t)(cy_device->gpioPrtCfgOffset), 4U);
+                        break;
+                        case CY_PRA_SUB_INDEX_PORT_CFG_IN:
+                        retIndex = portIndex + CY_SYSLIB_DIV_ROUND((uint16_t)(cy_device->gpioPrtCfgInOffset), 4U);
+                        break;
+                        case CY_PRA_SUB_INDEX_PORT_CFG_OUT:
+                        retIndex = portIndex + CY_SYSLIB_DIV_ROUND((uint16_t)(cy_device->gpioPrtCfgOutOffset), 4U);
+                        break;
+                        case CY_PRA_SUB_INDEX_PORT_CFG_SIO:
+                        retIndex = portIndex + CY_SYSLIB_DIV_ROUND((uint16_t)(cy_device->gpioPrtCfgSioOffset), 4U);
+                        break;
+                        default:
+                        retIndex = CY_PRA_REG_INDEX_COUNT;
+                        break;
+                    }
+
+                    break;
+                }
+            }
+        }
+        return retIndex;
+    }
+
+/*******************************************************************************
+* Function Name: Cy_PRA_GetHsiomRegIndex
+****************************************************************************//**
+*
+* Find the matching PORT address from External clock secure PIN list and
+* returns HSIOM port address index
+*
+*******************************************************************************/
+    uint16_t Cy_PRA_GetHsiomRegIndex(GPIO_PRT_Type *base, uint16_t subIndex)
+    {
+        uint32_t index;
+        uint16_t hsiomIndex;
+        uint16_t retIndex = CY_PRA_REG_INDEX_COUNT; /* assigned with invalid index */
+
+        if (NULL != base)
+        {
+            for (index=0; index<CY_PRA_EXTCLK_PIN_NR; index++)
+            {
+                if (secExtclkPinList[index].port == base)
+                {
+                    hsiomIndex = secExtclkPinList[index].hsiomIndex;
+
+                    switch (subIndex)
+                    {
+                        case CY_PRA_SUB_INDEX_HSIOM_PORT0:
+                        retIndex = hsiomIndex + CY_SYSLIB_DIV_ROUND(offsetof(HSIOM_PRT_V1_Type, PORT_SEL0), 4U);
+                        break;
+                        case CY_PRA_SUB_INDEX_HSIOM_PORT1:
+                        retIndex = hsiomIndex + CY_SYSLIB_DIV_ROUND(offsetof(HSIOM_PRT_V1_Type, PORT_SEL1), 4U);
+                        break;
+                        default:
+                        retIndex = CY_PRA_REG_INDEX_COUNT;
+                        break;
+                    }
+                    break;
+                }
+            }
+        }
+        return retIndex;
+    }
+
+#if defined(CY_DEVICE_PSOC6ABLE2)
+/*******************************************************************************
+* Function Name: Cy_PRA_GetAdjHsiomRegIndex
+****************************************************************************//**
+*
+* Find the matching PORT address from External clock adjacent hsiom list and
+* returns HSIOM port address index
+*
+*******************************************************************************/
+    uint16_t Cy_PRA_GetAdjHsiomRegIndex(GPIO_PRT_Type *base, uint16_t subIndex)
+    {
+        uint32_t index;
+        uint16_t hsiomIndex;
+        uint16_t retIndex = CY_PRA_REG_INDEX_COUNT; /* assigned with invalid index */
+
+        if (NULL != base)
+        {
+            for (index=0; index<CY_PRA_EXTCLK_PIN_NR; index++)
+            {
+                if (secExtClkAdjHsiomList[index].port == base)
+                {
+                    hsiomIndex = secExtClkAdjHsiomList[index].hsiomIndex;
+
+                    switch (subIndex)
+                    {
+                        case CY_PRA_SUB_INDEX_HSIOM_PORT0:
+                        retIndex = hsiomIndex + CY_SYSLIB_DIV_ROUND(offsetof(HSIOM_PRT_V1_Type, PORT_SEL0), 4U);
+                        break;
+                        case CY_PRA_SUB_INDEX_HSIOM_PORT1:
+                        retIndex = hsiomIndex + CY_SYSLIB_DIV_ROUND(offsetof(HSIOM_PRT_V1_Type, PORT_SEL1), 4U);
+                        break;
+                        default:
+                        retIndex = CY_PRA_REG_INDEX_COUNT;
+                        break;
+                    }
+                    break;
+                }
+            }
+        }
+        return retIndex;
+    }
+#endif /* defined(CY_DEVICE_PSOC6ABLE2) */
+
 #endif /* (CY_CPU_CORTEX_M4) */
 
 
@@ -2312,9 +3004,124 @@ static cy_en_pra_status_t Cy_PRA_BackupReset(bool iloHibernateON)
     return returnStatus;
 }
 
+/*******************************************************************************
+* Function Name: Cy_PRA_ValidateSramPowerMode
+****************************************************************************//**
+*
+* Validate SRAM power mode for a particular macro.
+*
+*******************************************************************************/
+static cy_en_pra_status_t Cy_PRA_ValidateSramPowerMode(cy_en_syspm_sram_index_t sramNum, uint32_t sramMacroNum, cy_en_syspm_sram_pwr_mode_t sramPwrMode)
+{
+    uint32_t macroConfigIndex;
+    cy_en_pra_status_t praStatus = CY_PRA_STATUS_SUCCESS;
+
+    if (((uint8_t)sramNum < CY_PRA_SRAM_MAX_NR) && ((uint8_t)sramMacroNum < CY_PRA_SRAM_MACRO_MAX_NR))
+    {
+        /* find the sram macro */
+        for (macroConfigIndex=0UL; macroConfigIndex<sramPwrModeConfig[sramNum].macroConfigCount; macroConfigIndex++)
+        {
+            if (0UL != (sramPwrModeConfig[sramNum].macroConfigs[macroConfigIndex].sramMacros & (1UL<<sramMacroNum)))
+            {
+                switch(sramPwrMode)
+                {
+                    case CY_SYSPM_SRAM_PWR_MODE_OFF:
+                    if (0U == _FLD2VAL(CY_PRA_PM_SRAM_PWR_MODE_OFF, sramPwrModeConfig[sramNum].macroConfigs[macroConfigIndex].sramPwrMode))
+                    {
+                        praStatus = CY_PRA_STATUS_INVALID_PARAM;
+                    }
+                    break;
+                    case CY_SYSPM_SRAM_PWR_MODE_RET:
+                    if (0U == _FLD2VAL(CY_PRA_PM_SRAM_PWR_MODE_RETAIN, sramPwrModeConfig[sramNum].macroConfigs[macroConfigIndex].sramPwrMode))
+                    {
+                        praStatus = CY_PRA_STATUS_INVALID_PARAM;
+                    }
+                    break;
+                    case CY_SYSPM_SRAM_PWR_MODE_ON:
+                    if (0U == _FLD2VAL(CY_PRA_PM_SRAM_PWR_MODE_ON, sramPwrModeConfig[sramNum].macroConfigs[macroConfigIndex].sramPwrMode))
+                    {
+                        praStatus = CY_PRA_STATUS_INVALID_PARAM;
+                    }
+                    break;
+                    default:
+                    /* invalid power mode */
+                    break;
+                }
+                break; /* found the macro number */
+            }
+        }
+
+        /* if configuration is not present in policy, then all power modes are allowed */
+    }
+    else
+    {
+        praStatus = CY_PRA_STATUS_INVALID_PARAM;
+    }
+
+    return praStatus;
+}
+
+/*******************************************************************************
+* Function Name: Cy_PRA_ValidateEntireSramPowerMode
+****************************************************************************//**
+*
+* Validate SRAM power mode for all macros.
+*
+*******************************************************************************/
+static cy_en_pra_status_t Cy_PRA_ValidateEntireSramPowerMode(cy_en_syspm_sram_index_t sramNum, cy_en_syspm_sram_pwr_mode_t sramPwrMode)
+{
+    uint32_t macroConfigIndex;
+    cy_en_pra_status_t praStatus = CY_PRA_STATUS_SUCCESS;
+
+    if ((uint8_t)sramNum < CY_PRA_SRAM_MAX_NR)
+    {
+        /* find the sram macro */
+        for (macroConfigIndex=0UL; macroConfigIndex<sramPwrModeConfig[sramNum].macroConfigCount; macroConfigIndex++)
+        {
+            switch(sramPwrMode)
+            {
+                case CY_SYSPM_SRAM_PWR_MODE_OFF:
+                if (0U == _FLD2VAL(CY_PRA_PM_SRAM_PWR_MODE_OFF, sramPwrModeConfig[sramNum].macroConfigs[macroConfigIndex].sramPwrMode))
+                {
+                    praStatus = CY_PRA_STATUS_INVALID_PARAM;
+                }
+                break;
+                case CY_SYSPM_SRAM_PWR_MODE_RET:
+                if (0U == _FLD2VAL(CY_PRA_PM_SRAM_PWR_MODE_RETAIN, sramPwrModeConfig[sramNum].macroConfigs[macroConfigIndex].sramPwrMode))
+                {
+                    praStatus = CY_PRA_STATUS_INVALID_PARAM;
+                }
+                break;
+                case CY_SYSPM_SRAM_PWR_MODE_ON:
+                if (0U == _FLD2VAL(CY_PRA_PM_SRAM_PWR_MODE_ON, sramPwrModeConfig[sramNum].macroConfigs[macroConfigIndex].sramPwrMode))
+                {
+                    praStatus = CY_PRA_STATUS_INVALID_PARAM;
+                }
+                break;
+                default:
+                /* invalid power mode */
+                break;
+            }
+            if (praStatus == CY_PRA_STATUS_INVALID_PARAM)
+            {
+                break;
+            }
+        }
+
+        /* if configuration is not present in policy, then all power modes are allowed */
+    }
+    else
+    {
+        praStatus = CY_PRA_STATUS_INVALID_PARAM;
+    }
+
+    return praStatus;
+}
+
 #endif /* (CY_CPU_CORTEX_M0P) */
 
 #endif /* (CY_DEVICE_SECURE) */
 
+#endif /* CY_IP_M4CPUSS */
 
 /* [] END OF FILE */

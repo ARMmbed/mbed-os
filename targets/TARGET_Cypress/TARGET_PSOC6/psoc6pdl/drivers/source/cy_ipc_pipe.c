@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ipc_pipe.c
-* \version 1.50
+* \version 1.60
 *
 *  Description:
 *   IPC Pipe Driver - This source file includes code for the Pipe layer on top
@@ -22,6 +22,10 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+
+#include "cy_device.h"
+
+#if defined (CY_IP_M4CPUSS)
 
 #include "cy_ipc_pipe.h"
 
@@ -606,5 +610,5 @@ cy_en_ipc_pipe_status_t Cy_IPC_Pipe_EndpointResume(uint32_t epAddr)
     return (CY_IPC_PIPE_SUCCESS);
 }
 
-
+#endif
 /* [] END OF FILE */

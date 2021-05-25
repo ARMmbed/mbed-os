@@ -5,7 +5,7 @@
 * CY8C6148BZI-S2F44 device header
 *
 * \note
-* Generator version: 1.6.0.225
+* Generator version: 1.6.0.414
 *
 ********************************************************************************
 * \copyright
@@ -625,9 +625,10 @@ typedef enum {
 #define PERI_MS_PPU_FX_SCB10                    ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[223])                    /* 0x40013FC0 */
 #define PERI_MS_PPU_FX_SCB11                    ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[224])                    /* 0x40014000 */
 #define PERI_MS_PPU_FX_SCB12                    ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[225])                    /* 0x40014040 */
-#define PERI_MS_PPU_FX_PDM0                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[226])                    /* 0x40014080 */
-#define PERI_MS_PPU_FX_I2S0                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[227])                    /* 0x400140C0 */
-#define PERI_MS_PPU_FX_I2S1                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[228])                    /* 0x40014100 */
+#define PERI_MS_PPU_FX_PASS                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[226])                    /* 0x40014080 */
+#define PERI_MS_PPU_FX_PDM0                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[227])                    /* 0x400140C0 */
+#define PERI_MS_PPU_FX_I2S0                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[228])                    /* 0x40014100 */
+#define PERI_MS_PPU_FX_I2S1                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[229])                    /* 0x40014140 */
 
 /*******************************************************************************
 *                                    CRYPTO

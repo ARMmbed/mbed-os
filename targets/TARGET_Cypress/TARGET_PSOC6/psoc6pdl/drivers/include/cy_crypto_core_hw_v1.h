@@ -24,12 +24,12 @@
 *******************************************************************************/
 
 
-#if !defined(CY_CRYPTO_CORE_HW_V1_H)
+#if !defined (CY_CRYPTO_CORE_HW_V1_H)
 #define CY_CRYPTO_CORE_HW_V1_H
 
 #include "cy_crypto_common.h"
 
-#if defined(CY_IP_MXCRYPTO)
+#if defined (CY_IP_MXCRYPTO)
 
 #if defined(__cplusplus)
 extern "C" {
@@ -98,7 +98,7 @@ void Cy_Crypto_Run4ParamInstr(CRYPTO_Type *base, uint8_t instr,
 
 #endif /* CY_IP_MXCRYPTO */
 
-#endif /* #if !defined(CY_CRYPTO_CORE_HW_V1_H) */
+#endif /* #if !defined (CY_CRYPTO_CORE_HW_V1_H) */
 
 
 /* [] END OF FILE */

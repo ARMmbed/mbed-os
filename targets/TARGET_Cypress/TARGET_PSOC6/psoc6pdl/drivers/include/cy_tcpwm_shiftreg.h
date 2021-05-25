@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_tcpwm_shiftreg.h
-* \version 1.20
+* \version 1.30
 *
 * \brief
 * The header file of the TCPWM Shift Register driver.

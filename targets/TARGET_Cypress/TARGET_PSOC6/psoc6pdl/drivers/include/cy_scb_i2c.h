@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_scb_i2c.h
-* \version 2.60
+* \version 2.80
 *
 * Provides I2C API declarations of the SCB driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2020 Cypress Semiconductor Corporation
+* Copyright 2016-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,7 +45,18 @@
 * * Supports standard data rates of 100/400/1000 kbps
 * * Hardware Address Match, multiple addresses
 * * Wake from Deep Sleep on Address Match
-*
+* 
+* \note
+* I2C supports clock stretching. This occurs when a slave device is not capable
+* of processing data, it holds the SCL line by driving a '0'. The master device monitors
+* the SCL line and detects it when it cannot generate a positive clock pulse ('1') on the
+* SCL line. It then reacts by delaying the generation of a positive edge on the SCL line,
+* effectively synchronizing with the slave device that is stretching the clock.
+* Clock stretching can occur in the case of externally clocked address matching until the
+* internally clocked logic takes over. The largest reason for clock stretching is when the
+* master tries to write to the slave and the slave's RX FIFO is full, the slave will then
+* clock stretch until the FIFO is no longer full. For more information on FIFO size and clock
+* stretching see the architecture TRM.
 ********************************************************************************
 * \section group_scb_i2c_configuration Configuration Considerations
 ********************************************************************************
@@ -70,7 +81,7 @@
 * \ref cy_stc_scb_i2c_config_t structure. Provide i2cMode to the select
 * operation mode slave, master or master-slave. The useRxFifo and useTxFifo
 * parameters specify if RX and TX FIFO is used during operation. Typically, both
-* FIFOs should be enabled to reduce possibility of clock stringing. However,
+* FIFOs should be enabled to reduce possibility of clock stretching. However,
 * using RX FIFO has side effects that needs to be taken into account
 * (see useRxFifo field description in \ref cy_stc_scb_i2c_config_t structure).
 * For master modes, parameters lowPhaseDutyCycle, highPhaseDutyCycle and
@@ -302,9 +313,11 @@
 #if !defined(CY_SCB_I2C_H)
 #define CY_SCB_I2C_H
 
-#include "cy_scb_common.h"
+#include "cy_device.h"
 
-#ifdef CY_IP_MXSCB
+#if defined (CY_IP_MXSCB)
+
+#include "cy_scb_common.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -1112,6 +1125,8 @@ cy_en_syspm_status_t Cy_SCB_I2C_HibernateCallback(cy_stc_syspm_callback_params_t
 *
 * \param base
 * The pointer to the I2C SCB instance.
+* \note
+* Ensure SCB is initialized with \ref Cy_SCB_I2C_Init before calling this function
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_SCB_I2C_Enable(CySCB_Type *base)

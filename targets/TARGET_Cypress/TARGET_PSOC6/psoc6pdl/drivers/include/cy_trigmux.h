@@ -1,6 +1,6 @@
 /*******************************************************************************
 * \file cy_trigmux.h
-* \version 1.20.3
+* \version 1.30
 *
 *  This file provides constants and parameter values for the Trigger multiplexer driver.
 *
@@ -168,6 +168,15 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td rowspan="2">1.30</td>
+*     <td>Minor bug fixes.</td>
+*     <td>Keep device specific changes under a compile time device flag.</td>
+*   </tr>
+*   <tr>
+*     <td>Added new device support.</td>
+*     <td>Added new family of device.</td>
+*   </tr>
+*   <tr>
 *     <td>1.20.3</td>
 *     <td>Minor documentation updates.</td>
 *     <td>Removed MISRA 2004 compliance details and verified MISRA 2012 complaince.</td>
@@ -247,9 +256,11 @@
 #if !defined(CY_TRIGMUX_H)
 #define CY_TRIGMUX_H
 
+#include "cy_device.h"
+
+#if defined (CY_IP_MXSPERI) || defined (CY_IP_MXPERI)
 
 #include "cy_syslib.h"
-
 
 #if defined(__cplusplus)
 extern "C" {
@@ -268,7 +279,7 @@ extern "C" {
 #define CY_TRIGMUX_DRV_VERSION_MAJOR       1
 
 /** The driver minor version */
-#define CY_TRIGMUX_DRV_VERSION_MINOR       20
+#define CY_TRIGMUX_DRV_VERSION_MINOR       30
 
 /** TRIGMUX PDL ID */
 #define CY_TRIGMUX_ID                       CY_PDL_DRV_ID(0x33UL) /**< The trigger multiplexer driver identifier */
@@ -331,6 +342,8 @@ cy_en_trigmux_status_t Cy_TrigMux_SetDebugFreeze(uint32_t outTrig, bool enable);
 #if defined(__cplusplus)
 }
 #endif
+
+#endif /* CY_IP_MXSPERI, CY_IP_MXPERI */
 
 #endif /* CY_TRIGMUX_H */
 

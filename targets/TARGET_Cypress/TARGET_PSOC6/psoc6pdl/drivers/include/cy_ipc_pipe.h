@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ipc_pipe.h
-* \version 1.50
+* \version 1.60
 *
 *  Description:
 *   IPC Pipe Driver - This header file contains all the function prototypes,
@@ -28,6 +28,11 @@
 /******************************************************************************/
 /* Include files                                                              */
 /******************************************************************************/
+
+#include "cy_device.h"
+
+#if defined (CY_IP_M4CPUSS)
+
 #include "cy_ipc_drv.h"
 #include "cy_syslib.h"
 #include "cy_sysint.h"
@@ -285,6 +290,8 @@ void                     Cy_IPC_Pipe_ExecCallback(cy_stc_ipc_pipe_ep_t * endpoin
 #endif
 
 /** \} group_ipc_pipe_functions */
+
+#endif /* CY_IP_M4CPUSS */
 
 #endif /* CY_IPC_PIPE_H  */
 

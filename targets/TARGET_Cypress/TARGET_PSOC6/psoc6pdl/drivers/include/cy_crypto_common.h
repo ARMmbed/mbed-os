@@ -24,14 +24,15 @@
 *******************************************************************************/
 
 
-#if !defined(CY_CRYPTO_COMMON_H)
+#if !defined (CY_CRYPTO_COMMON_H)
 #define CY_CRYPTO_COMMON_H
 
 #include "cy_device.h"
 #include "cy_device_headers.h"
-#include "cy_syslib.h"
 
-#if defined(CY_IP_MXCRYPTO)
+#if defined (CY_IP_MXCRYPTO)
+
+#include "cy_syslib.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -999,7 +1000,7 @@ typedef struct
 
 #endif /* CY_IP_MXCRYPTO */
 
-#endif /* #if !defined(CY_CRYPTO_COMMON_H) */
+#endif /* #if !defined (CY_CRYPTO_COMMON_H) */
 
 
 /* [] END OF FILE */

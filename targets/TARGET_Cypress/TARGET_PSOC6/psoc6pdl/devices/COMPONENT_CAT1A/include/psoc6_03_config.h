@@ -5,7 +5,7 @@
 * PSoC6_03 device configuration header
 *
 * \note
-* Generator version: 1.6.0.225
+* Generator version: 1.6.0.414
 *
 ********************************************************************************
 * \copyright
@@ -3332,7 +3332,8 @@ typedef enum
     PROT_SCB3                       = 216,      /* Address 0x40630000, size 0x00010000 */
     PROT_SCB4                       = 217,      /* Address 0x40640000, size 0x00010000 */
     PROT_SCB5                       = 218,      /* Address 0x40650000, size 0x00010000 */
-    PROT_SCB6                       = 219       /* Address 0x40660000, size 0x00010000 */
+    PROT_SCB6                       = 219,      /* Address 0x40660000, size 0x00010000 */
+    PROT_PASS                       = 220       /* Address 0x40900000, size 0x00100000 */
 } cy_en_prot_region_t;
 
 #endif /* _PSOC6_03_CONFIG_H_ */

@@ -5,11 +5,11 @@
 * Common header file to be included by the drivers.
 *
 * \note
-* Generator version: 1.6.0.225
+* Generator version: 1.6.0.457
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2020 Cypress Semiconductor Corporation
+* Copyright 2016-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -228,6 +228,22 @@
     #include "cy8c6248fni_d43.h"
 #elif defined (CY8C624ALQI_D42)
     #include "cy8c624alqi_d42.h"
+#elif defined (CY8C624ALQI_S2D42)
+    #include "cy8c624alqi_s2d42.h"
+#elif defined (CY8C624ALQI_S2D02)
+    #include "cy8c624alqi_s2d02.h"
+#elif defined (CY8C6248LQI_S2D42)
+    #include "cy8c6248lqi_s2d42.h"
+#elif defined (CY8C6248LQI_S2D02)
+    #include "cy8c6248lqi_s2d02.h"
+#elif defined (CY8C614ALQI_S2F42)
+    #include "cy8c614alqi_s2f42.h"
+#elif defined (CY8C614ALQI_S2F02)
+    #include "cy8c614alqi_s2f02.h"
+#elif defined (CY8C6148LQI_S2F42)
+    #include "cy8c6148lqi_s2f42.h"
+#elif defined (CY8C6148LQI_S2F02)
+    #include "cy8c6148lqi_s2f02.h"
 #elif defined (CY8C6245AZI_S3D72)
     #include "cy8c6245azi_s3d72.h"
 #elif defined (CY8C6245LQI_S3D72)
@@ -330,6 +346,8 @@
     #include "cy8c6144azi_s4f12.h"
 #elif defined (CY8C6144LQI_S4F12)
     #include "cy8c6144lqi_s4f12.h"
+#elif defined (CY_DEVICE_UUT)
+    #include "cy_device_uut.h"
 #else
     #include "cy_device_common.h"
 #endif

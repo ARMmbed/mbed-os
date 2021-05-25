@@ -5,7 +5,7 @@
 * CTDAC IP definitions
 *
 * \note
-* Generator version: 1.6.0.111
+* Generator version: 1.6.0.409
 *
 ********************************************************************************
 * \copyright

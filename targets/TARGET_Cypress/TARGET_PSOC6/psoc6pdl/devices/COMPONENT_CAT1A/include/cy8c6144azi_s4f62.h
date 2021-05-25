@@ -5,11 +5,11 @@
 * CY8C6144AZI-S4F62 device header
 *
 * \note
-* Generator version: 1.6.0.275
+* Generator version: 1.6.0.457
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2020 Cypress Semiconductor Corporation
+* Copyright 2016-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -272,7 +272,7 @@ typedef enum {
 #define CY_IP_MXS40PASS_INSTANCES       1u
 #define CY_IP_MXS40PASS_VERSION         2u
 #define CY_IP_MXS40PASS_SAR             1u
-#define CY_IP_MXS40PASS_SAR_INSTANCES   2u
+#define CY_IP_MXS40PASS_SAR_INSTANCES   1u
 #define CY_IP_MXS40PASS_SAR_VERSION     2u
 #define CY_IP_MXS40PASS_CTDAC           1u
 #define CY_IP_MXS40PASS_CTDAC_INSTANCES 1u
@@ -306,7 +306,7 @@ typedef enum {
 #include "gpio_psoc6_04_64_tqfp.h"
 
 #define CY_DEVICE_PSOC6A256K
-#define CY_SILICON_ID                   0xEAD0110EUL
+#define CY_SILICON_ID                   0xEAD0120EUL
 #define CY_HF_CLK_MAX_FREQ              150000000UL
 
 #define CPUSS_FLASHC_PA_SIZE_LOG2       0x7UL
@@ -594,6 +594,7 @@ typedef enum {
 #define PERI_MS_PPU_FX_SCB4                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[223])                    /* 0x40013FC0 */
 #define PERI_MS_PPU_FX_SCB5                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[224])                    /* 0x40014000 */
 #define PERI_MS_PPU_FX_SCB6                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[225])                    /* 0x40014040 */
+#define PERI_MS_PPU_FX_PASS                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[226])                    /* 0x40014080 */
 
 /*******************************************************************************
 *                                    CPUSS

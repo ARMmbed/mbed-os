@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_scb_spi.h
-* \version 2.60
+* \version 2.80
 *
 * Provides SPI API declarations of the SCB driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2020 Cypress Semiconductor Corporation
+* Copyright 2016-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -289,9 +289,11 @@
 #if !defined(CY_SCB_SPI_H)
 #define CY_SCB_SPI_H
 
-#include "cy_scb_common.h"
+#include "cy_device.h"
 
-#ifdef CY_IP_MXSCB
+#if defined (CY_IP_MXSCB)
+
+#include "cy_scb_common.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -378,6 +380,20 @@ typedef enum
     CY_SCB_SPI_ACTIVE_HIGH = 1U,    /**< Signal in question is active high */
 } cy_en_scb_spi_polarity_t;
 
+/** SPI Parity */
+#if(CY_IP_MXSCB_VERSION>=3) || defined (CY_DOXYGEN)
+/**
+* \note
+* This enum is available for CAT1B devices.
+**/
+typedef enum
+{
+    CY_SCB_SPI_PARITY_NONE = 0U,    /**< SPI has no parity check   */
+    CY_SCB_SPI_PARITY_EVEN = 2U,    /**< SPI has even parity check */
+    CY_SCB_SPI_PARITY_ODD  = 3U,    /**< SPI has odd parity check  */
+} cy_en_scb_spi_parity_t;
+#endif /* CY_IP_MXSCB_VERSION */
+
 /** \} group_scb_spi_enums */
 
 
@@ -412,7 +428,23 @@ typedef struct cy_stc_scb_spi_config
     * other submodes
     */
     cy_en_scb_spi_sclk_mode_t    sclkMode;
-
+#if(CY_IP_MXSCB_VERSION>=3) || defined (CY_DOXYGEN)
+    /** Configures the SPI parity */
+    /**
+    * \note
+    * This parameter is available for CAT1B devices.
+    **/
+    cy_en_scb_spi_parity_t parity;
+    /**
+    * Enables the hardware to drop data in the RX FIFO when a parity error is
+    * detected
+    */
+    /**
+    * \note
+    * This parameter is available for CAT1B devices.
+    **/
+    bool        dropOnParityError;
+#endif /* CY_IP_MXSCB_VERSION */
     /**
     * Oversample factor for SPI.
     * * For the master mode, the data rate is the SCB clock / oversample
@@ -472,6 +504,56 @@ typedef struct cy_stc_scb_spi_config
     * 1 means active high, a 0 means active low.
     */
     uint32_t    ssPolarity;
+
+#if(CY_IP_MXSCB_VERSION>=3) || defined (CY_DOXYGEN)
+    /**
+    * Indicates the SPI SELECT setup delay (between SELECT activation and SPI clock).
+    * '0': With this setting the same timing is generated as in SCB v1 block.
+    * CPHA=0: 0.75 SPI clock cycles
+    * CPHA=1: 0.25 SPI clock cycles
+    * '1': With this setting an additional delay of 1 SPI clock cycle is generated.
+    * CPHA=0: 1.75 SPI clock cycles
+    * CPHA=1: 1.25 SPI clock cycles
+    * Only applies in SPI MOTOROLA submode and when SCLK_CONTINUOUS=0
+    */
+    /**
+    * \note
+    * This parameter is available for CAT1B devices.
+    **/
+    bool        ssSetupDelay;
+
+    /**
+    * Indicates the SPI SELECT hold delay (between SPI clock and SELECT deactivation).
+    * '0': With this setting the same timing is generated as in CAT1A devices.
+    * CPHA=0: 0.75 SPI clock cycles
+    * CPHA=1: 0.25 SPI clock cycles
+    * '1': With this setting an additional delay of 1 SPI clock cycle is generated.
+    * CPHA=0: 1.75 SPI clock cycles
+    * CPHA=1: 1.25 SPI clock cycles
+    * Only applies in SPI MOTOROLA submode and when SCLK_CONTINUOUS=0
+    */
+    /**
+    * \note
+    * This parameter is available for CAT1B devices.
+    **/
+    bool        ssHoldDelay;
+
+    /**
+    * Indicates the SPI SELECT inter-dataframe delay (between SELECT deactivation and SELECT activation).
+    * '0': With this setting the same timing is generated as in CAT1A devices.
+    * CPHA=0: 0.75 SPI clock cycles
+    * CPHA=1: 0.25 SPI clock cycles
+    * '1': With this setting an additional delay of 1 SPI clock cycle is generated.
+    * CPHA=0: 1.75 SPI clock cycles
+    * CPHA=1: 1.25 SPI clock cycles
+    * Only applies in SPI MOTOROLA submode and when SCLK_CONTINUOUS=0
+    */
+    /**
+    * \note
+    * This parameter is available for CAT1B devices.
+    **/
+    bool        ssInterFrameDelay;
+#endif /* CY_IP_MXSCB_VERSION */
 
     /**
     * When set, the slave will wake the device when the slave select line

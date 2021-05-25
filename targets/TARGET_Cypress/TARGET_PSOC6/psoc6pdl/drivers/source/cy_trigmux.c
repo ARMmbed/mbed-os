@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_trigmux.c
-* \version 1.20.3
+* \version 1.30
 *
 * \brief Trigger mux API.
 *
@@ -22,9 +22,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "cy_trigmux.h"
 #include "cy_device.h"
 
+#if defined (CY_IP_MXSPERI) || defined (CY_IP_MXPERI)
+
+#include "cy_trigmux.h"
 
 #define CY_TRIGMUX_IS_TRIGTYPE_VALID(trigType)  (((trigType) == TRIGGER_TYPE_EDGE) || \
                                                  ((trigType) == TRIGGER_TYPE_LEVEL))
@@ -44,9 +46,17 @@
                                                  (0UL != ((outTrg) & PERI_TR_CMD_OUT_SEL_Msk)))
 
 #define CY_TRIGMUX_ONETRIG_MASK                 (PERI_V2_TR_CMD_OUT_SEL_Msk | PERI_V2_TR_CMD_GROUP_SEL_Msk | CY_PERI_TR_CTL_SEL_Msk)
+
+#if defined (CY_IP_MXSPERI)
+#define CY_TRIGMUX_ONETRIG_GR_START                0x10UL /* trigger 1-1 group [16-31] */
+#define CY_TRIGMUX_IS_ONETRIG_VALID(oneTrg)     ((0UL == ((oneTrg) & (uint32_t)~CY_TRIGMUX_ONETRIG_MASK)) && \
+                                                 (0UL != ((oneTrg) & PERI_V2_TR_CMD_OUT_SEL_Msk)) && \
+                                                 (0UL != (_FLD2VAL(PERI_V2_TR_CMD_GROUP_SEL, oneTrg) & (uint32_t)CY_TRIGMUX_ONETRIG_GR_START)))
+#else
 #define CY_TRIGMUX_IS_ONETRIG_VALID(oneTrg)     ((0UL == ((oneTrg) & (uint32_t)~CY_TRIGMUX_ONETRIG_MASK)) && \
                                                  (0UL != ((oneTrg) & PERI_V2_TR_CMD_OUT_SEL_Msk)) && \
                                                  (0UL != ((oneTrg) & (PERI_V2_TR_CMD_GROUP_SEL_Msk & (uint32_t)~PERI_TR_CMD_GROUP_SEL_Msk))))
+#endif
 
 #define CY_TRIGMUX_TRIGLINE_MASK                (PERI_TR_CMD_OUT_SEL_Msk | CY_PERI_TR_CMD_GROUP_SEL_Msk | CY_PERI_TR_CTL_SEL_Msk)
 #define CY_TRIGMUX_IS_TRIGLINE_VALID(trgLn)     (0U == ((trgLn) & (uint32_t)~CY_TRIGMUX_TRIGLINE_MASK))
@@ -239,7 +249,8 @@ cy_en_trigmux_status_t Cy_TrigMux_Deselect(uint32_t outTrig)
 * \param outTrig
 * The output of the trigger mux or dedicated 1-to-1 trigger line.
 * - Bit 30 should be set.
-* - Bits 12:8 represent the trigger group selection.
+* - For PERI_ver1 Bits 11:8 represent the trigger group selection.
+* - For PERI_ver2 Bits 12:8 represent the trigger group selection.
 * - Bits 7:0 select the output trigger number in the trigger group.
 *
 * \param enable
@@ -296,13 +307,14 @@ cy_en_trigmux_status_t Cy_TrigMux_SetDebugFreeze(uint32_t outTrig, bool enable)
 * - Bit 30 represents if the signal is an input/output. When this bit is set,
 *   the trigger activation is for an output trigger from the trigger multiplexer.
 *   When this bit is reset, the trigger activation is for an input trigger to
-*   the trigger multiplexer.
-* - Bits 12:8 represent the trigger group selection.<br>
-* In case of output trigger line (bit 30 is set):
-*  For PERI_ver1:
+*   the trigger multiplexer.<br>
+* - For PERI_ver1 Bits 11:8 represent the trigger group selection.<br>
+* - For PERI_ver2 Bits 12:8 represent the trigger group selection.<br>
+* In case of output trigger line (bit 30 is set):<br>
+* For PERI_ver1:
 * - Bits 6:0 select the output trigger number in the trigger group.<br>
-*  For PERI_ver2:
-* - Bits 7:0 select the output trigger number in the trigger group.
+* For PERI_ver2:
+* - Bits 7:0 select the output trigger number in the trigger group.<br>
 * In case of input trigger line (bit 30 is unset):
 * - Bits 7:0 select the input trigger signal for the trigger multiplexer.
 *
@@ -377,5 +389,6 @@ cy_en_trigmux_status_t Cy_TrigMux_SwTrigger(uint32_t trigLine, uint32_t cycles)
     return retVal;
 }
 
+#endif /* CY_IP_MXSPERI, CY_IP_MXPERI */
 
 /* [] END OF FILE */

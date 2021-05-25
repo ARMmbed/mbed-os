@@ -24,12 +24,12 @@
 *******************************************************************************/
 
 
-#if !defined(CY_CRYPTO_CORE_HW_VU_H)
+#if !defined (CY_CRYPTO_CORE_HW_VU_H)
 #define CY_CRYPTO_CORE_HW_VU_H
 
 #include "cy_crypto_core_hw.h"
 
-#if defined(CY_IP_MXCRYPTO)
+#if defined (CY_IP_MXCRYPTO)
 
 #if defined(__cplusplus)
 extern "C" {
@@ -1118,4 +1118,4 @@ __STATIC_INLINE void CY_CRYPTO_VU_RESTORE_REG (CRYPTO_Type *base, uint32_t rdst,
 #endif /* CY_IP_MXCRYPTO */
 
 
-#endif /* #if !defined(CY_CRYPTO_CORE_HW_VU_H) */
+#endif /* #if !defined (CY_CRYPTO_CORE_HW_VU_H) */

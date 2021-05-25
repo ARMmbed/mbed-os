@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +21,10 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+
+#include "cy_device.h"
+
+#if defined (CY_IP_MXS28SRSS) || defined (CY_IP_MXS40SRSS) || defined (CY_IP_MXS40SSRSS )
 
 #include "cy_wdt.h"
 
@@ -213,5 +217,6 @@ void Cy_WDT_ClearWatchdog(void)
 }
 #endif
 
+#endif /* CY_IP_MXS28SRSS, CY_IP_MXS40SRSS */
 
 /* [] END OF FILE */

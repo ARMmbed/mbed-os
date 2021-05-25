@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,14 +22,13 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "cy_device.h"
+
+#if defined (CY_IP_MXCSDV2)
 
 #include <stdint.h>
-#include "cy_device_headers.h"
 #include "cy_syslib.h"
 #include "cy_csd.h"
-
-#if defined(CY_IP_MXCSDV2)
-
 
 /**
 * \addtogroup group_csd_functions

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_prot.h
-* \version 1.50
+* \version 1.60
 *
 * \brief
 * Provides an API declaration of the Protection Unit driver
@@ -370,6 +370,12 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>1.60</td>
+*     <td>Modified \ref Cy_Prot_ConfigPpuProgMasterAtt() & \ref Cy_Prot_ConfigPpuFixedMasterAtt()
+*         functions to ignore unavailable protection context.</td>
+*     <td>Defect fix.</td>
+*   </tr>
+*   <tr>
 *     <td rowspan="3">1.50</td>
 *     <td>Updated implementation of the \ref Cy_Prot_ConfigPpuProgMasterAtt(),
 *         \ref Cy_Prot_ConfigPpuProgSlaveAtt(), \ref Cy_Prot_ConfigPpuFixedMasterAtt(),
@@ -476,12 +482,15 @@
 * \defgroup group_prot_enums Enumerated Types
 */
 
-#if !defined(CY_CY_PROT_PDL_H)
+#if !defined (CY_CY_PROT_PDL_H)
 #define CY_CY_PROT_PDL_H
+
+#include "cy_device.h"
+
+#if defined (CY_IP_M4CPUSS)
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "cy_device.h"
 #include "cy_device_headers.h"
 #include "cy_syslib.h"
 
@@ -497,7 +506,7 @@ extern "C" {
 #define CY_PROT_DRV_VERSION_MAJOR       1
 
 /** Driver minor version */
-#define CY_PROT_DRV_VERSION_MINOR       50
+#define CY_PROT_DRV_VERSION_MINOR       60
 
 /** Prot driver ID */
 #define CY_PROT_ID                      (CY_PDL_DRV_ID(0x30U))
@@ -722,6 +731,7 @@ typedef enum
 #define CY_PROT_STRUCT_DISABLE                  (0x00UL) /**< Disable protection unit struct */
 #define CY_PROT_ADDR_SHIFT                      (8UL)    /**< Address shift for MPU, SMPU and PROG PPU structs */
 #define CY_PROT_PCMASK_CHECK                    (0x01UL) /**< Shift and mask for pcMask check */
+#define CY_PROT_PCMASK_VALID                    ((0xFFFFUL) & (~(0xFFFFUL << PERI_PC_NR))) /**< Bitmask to mask pcMask for unavailable protection contexts */
 
 /* Permission masks and shifts */
 #define CY_PROT_ATT_PERMISSION_MASK             (0x07UL) /**< Protection Unit attribute permission mask */
@@ -1214,5 +1224,7 @@ __STATIC_INLINE cy_en_prot_status_t Cy_Prot_DisablePpuProgStruct(PERI_PPU_PR_Typ
 #if defined(__cplusplus)
 }
 #endif
+
+#endif /* CY_IP_M4CPUSS */
 
 #endif /* CY_PROT_H */

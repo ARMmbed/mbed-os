@@ -22,10 +22,12 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "cy_device.h"
+
+#if defined (CY_IP_MXUSBFS) && defined (CY_IP_MXPERI)
+
 #include <string.h>
 #include "cy_usbfs_dev_drv_pvt.h"
-
-#ifdef CY_IP_MXUSBFS
 
 #if defined(__cplusplus)
 extern "C" {
@@ -51,7 +53,7 @@ extern "C" {
                                          USBFS_USBDEV_ARB_EP_BUF_UNDER_Msk  | \
                                          USBFS_USBDEV_ARB_EP_ERR_Msk)
 
-/* DMA configuration defines*/
+/* DMA configuration defines */
 #define DMA_XLOOP_INCREMENT    (1)
 #define DMA_YLOOP_INCREMENT    (32)
 #define DMA_NO_INCREMENT       (0)

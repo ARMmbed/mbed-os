@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_efuse.c
-* \version 1.10.4
+* \version 2.0
 *
 * \brief
 * Provides API implementation of the eFuse driver.
@@ -23,10 +23,12 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "cy_device.h"
+
+#if defined (CY_IP_MXEFUSE) && (CY_IP_MXEFUSE_VERSION == 1)
+
 #include "cy_efuse.h"
 #include "cy_ipc_drv.h"
-
-#ifdef CY_IP_MXEFUSE
 
 /** \cond INTERNAL */
 #define CY_EFUSE_OPCODE_SUCCESS             (0xA0000000UL)    /**< The command completed with no errors */
@@ -44,38 +46,6 @@ static volatile uint32_t opcode;
 
 static cy_en_efuse_status_t ProcessOpcode(void);
 
-/*******************************************************************************
-* Function Name: Cy_EFUSE_GetEfuseBit
-****************************************************************************//**
-*
-* Reports the current state of a given eFuse bit-number. Consult the device TRM
-* to determine the target fuse bit number.
-*
-* \note An attempt to read an eFuse data from a protected memory region
-* will generate a HardFault.
-*
-* \param bitNum
-* The number of the bit to read. The valid range of the bit number is
-* from 0 to EFUSE_EFUSE_NR * 32 * 8 - 1 where:
-* - EFUSE_EFUSE_NR is number of efuse macros in the selected device series,
-* - 32 is a number of fuse bytes in one efuse macro,
-* - 8 is a number of fuse bits in the byte.
-*
-* The EFUSE_EFUSE_NR macro is defined in the series-specific header file, e.g
-* \e \<PDL_DIR\>/devices/include/psoc6_01_config.\e h
-*
-* \param bitVal
-* The pointer to the location to store the bit value.
-*
-* \return
-* \ref cy_en_efuse_status_t
-*
-* \funcusage
-* The example below shows how to read device life-cycle register bits in
-* PSoC 6:
-* \snippet efuse/snippet/main.c SNIPPET_EFUSE_READ_BIT
-*
-*******************************************************************************/
 cy_en_efuse_status_t Cy_EFUSE_GetEfuseBit(uint32_t bitNum, bool *bitVal)
 {
     cy_en_efuse_status_t result = CY_EFUSE_BAD_PARAM;
@@ -99,40 +69,6 @@ cy_en_efuse_status_t Cy_EFUSE_GetEfuseBit(uint32_t bitNum, bool *bitVal)
     return (result);
 }
 
-
-/*******************************************************************************
-* Function Name: Cy_EFUSE_GetEfuseByte
-****************************************************************************//**
-*
-* Reports the current state of the eFuse byte.
-* If the offset parameter is beyond the available quantities,
-* zeroes will be stored to the byteVal parameter. Consult the device TRM
-* to determine the target fuse byte offset.
-*
-* \note An attempt to read an eFuse data from a protected memory region
-* will generate a HardFault.
-*
-* \param offset
-* The offset of the byte to read. The valid range of the byte offset is
-* from 0 to EFUSE_EFUSE_NR * 32 - 1 where:
-* - EFUSE_EFUSE_NR is a number of efuse macros in the selected device series,
-* - 32 is a number of fuse bytes in one efuse macro.
-*
-* The EFUSE_EFUSE_NR macro is defined in the series-specific header file, e.g
-* \e \<PDL_DIR\>/devices/include/psoc6_01_config.\e h
-*
-* \param byteVal
-* The pointer to the location to store eFuse data.
-*
-* \return
-* \ref cy_en_efuse_status_t
-*
-* \funcusage
-* The example below shows how to read a device life-cycle stage register in
-* PSoC 6:
-* \snippet efuse/snippet/main.c SNIPPET_EFUSE_READ_LIFECYCLE
-*
-*******************************************************************************/
 cy_en_efuse_status_t Cy_EFUSE_GetEfuseByte(uint32_t offset, uint8_t *byteVal)
 {
     cy_en_efuse_status_t result = CY_EFUSE_BAD_PARAM;
@@ -170,25 +106,6 @@ cy_en_efuse_status_t Cy_EFUSE_GetEfuseByte(uint32_t offset, uint8_t *byteVal)
     return (result);
 }
 
-
-/*******************************************************************************
-* Function Name: Cy_EFUSE_GetExternalStatus
-****************************************************************************//**
-*
-* This function handles the case where a module such as a security image captures
-* a system call from this driver and reports its own status or error code,
-* for example, protection violation. In that case, a function from this
-* driver returns an unknown error (see \ref cy_en_efuse_status_t). After receipt
-* of an unknown error, the user may call this function to get the status
-* of the capturing module.
-*
-* The user is responsible for parsing the content of the returned value
-* and casting it to the appropriate enumeration.
-*
-* \return
-* The error code of the previous efuse operation.
-*
-*******************************************************************************/
 uint32_t Cy_EFUSE_GetExternalStatus(void)
 {
     return (opcode);
@@ -233,6 +150,6 @@ static cy_en_efuse_status_t ProcessOpcode(void)
     return (result);
 }
 
-#endif /* #ifdef CY_IP_MXEFUSE */
+#endif /* #ifdef (CY_IP_MXEFUSE) && (CY_IP_MXEFUSE_VERSION == 1) */
 
 /* [] END OF FILE */

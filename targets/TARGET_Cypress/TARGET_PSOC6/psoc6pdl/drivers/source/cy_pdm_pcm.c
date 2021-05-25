@@ -22,10 +22,11 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "cy_device.h"
+
+#if defined (CY_IP_MXAUDIOSS)
+
 #include "cy_pdm_pcm.h"
-
-#ifdef CY_IP_MXAUDIOSS
-
 
 /**
 * \addtogroup group_pdm_pcm_functions
@@ -105,7 +106,6 @@ cy_en_pdm_pcm_status_t Cy_PDM_PCM_Init(PDM_Type * base, cy_stc_pdm_pcm_config_t 
 
     return (ret);
 }
-
 
 /*******************************************************************************
 * Function Name: Cy_PDM_PCM_DeInit

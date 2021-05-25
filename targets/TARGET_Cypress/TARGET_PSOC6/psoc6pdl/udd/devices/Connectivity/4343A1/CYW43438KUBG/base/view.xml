@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <baseview>
-  <mcu>CortexM3</mcu>
+  <mcu>
+  </mcu>
   <vendor>Cypress</vendor>
   <flash>0</flash>
   <ram>524288</ram>

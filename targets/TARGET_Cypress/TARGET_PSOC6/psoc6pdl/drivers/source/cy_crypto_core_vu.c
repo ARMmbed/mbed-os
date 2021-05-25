@@ -23,10 +23,11 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "cy_device.h"
+
+#if defined (CY_IP_MXCRYPTO)
 
 #include "cy_crypto_core_vu.h"
-
-#if defined(CY_IP_MXCRYPTO)
 
 #if defined(__cplusplus)
 extern "C" {
@@ -42,7 +43,7 @@ extern "C" {
 CY_MISRA_DEVIATE_BLOCK_START('MISRA C-2012 Rule 11.3', 4, \
 'CRYPTO_Type will typecast to either CRYPTO_V1_Type or CRYPTO_V2_Type but not both on PDL initialization based on the target device at compile time.');
 
-#if !defined(CY_CRYPTO_SERVICE_LIBRARY_LEVEL)
+#if !defined (CY_CRYPTO_SERVICE_LIBRARY_LEVEL)
     #define CY_CRYPTO_SERVICE_LIBRARY_LEVEL CY_CRYPTO_FULL_LIBRARY
 #endif
 

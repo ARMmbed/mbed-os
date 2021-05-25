@@ -26,10 +26,11 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "cy_device.h"
+
+#if defined (CY_IP_MXCRYPTO)
 
 #include "cy_crypto_core_cmac_v2.h"
-
-#if defined(CY_IP_MXCRYPTO)
 
 #if defined(__cplusplus)
 extern "C" {

@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_scb_common.c
-* \version 2.60
+* \version 2.80
 *
 * Provides common API implementation of the SCB driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2020 Cypress Semiconductor Corporation
+* Copyright 2016-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,9 +22,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "cy_scb_common.h"
+#include "cy_device.h"
 
-#ifdef CY_IP_MXSCB
+#if defined (CY_IP_MXSCB)
+
+#include "cy_scb_common.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -53,7 +55,7 @@ extern "C" {
 void Cy_SCB_ReadArrayNoCheck(CySCB_Type const *base, void *buffer, uint32_t size)
 {
     uint32_t idx;
-
+#if(CY_IP_MXSCB_VERSION==1)
     if (Cy_SCB_IsRxDataWidthByte(base))
     {
         uint8_t *buf = (uint8_t *) buffer;
@@ -74,6 +76,40 @@ void Cy_SCB_ReadArrayNoCheck(CySCB_Type const *base, void *buffer, uint32_t size
             buf[idx] = (uint16_t) Cy_SCB_ReadRxFifo(base);
         }
     }
+#elif(CY_IP_MXSCB_VERSION>=3)
+    uint32_t datawidth = Cy_SCB_Get_RxDataWidth(base);
+
+    if (datawidth == CY_SCB_BYTE_WIDTH)
+    {
+        uint8_t *buf = (uint8_t *) buffer;
+
+        /* Get data available in RX FIFO */
+        for (idx = 0UL; idx < size; ++idx)
+        {
+            buf[idx] = (uint8_t) Cy_SCB_ReadRxFifo(base);
+        }
+    }
+    else if(datawidth == CY_SCB_HALF_WORD_WIDTH)
+    {
+        uint16_t *buf = (uint16_t *) buffer;
+
+        /* Get data available in RX FIFO */
+        for (idx = 0UL; idx < size; ++idx)
+        {
+            buf[idx] = (uint16_t) Cy_SCB_ReadRxFifo(base);
+        }
+    }
+    else
+    {
+        uint32_t *buf = (uint32_t *) buffer;
+
+        /* Get data available in RX FIFO */
+        for (idx = 0UL; idx < size; ++idx)
+        {
+            buf[idx] = (uint32_t) Cy_SCB_ReadRxFifo(base);
+        }
+    }
+#endif /* CY_IP_MXSCB_VERSION */
 }
 
 
@@ -142,14 +178,20 @@ void Cy_SCB_ReadArrayBlocking(CySCB_Type const *base, void *buffer, uint32_t siz
 {
     uint32_t numCopied;
     uint8_t  *buf = (uint8_t *) buffer;
+#if(CY_IP_MXSCB_VERSION>=3)
+    uint32_t datawidth = Cy_SCB_Get_RxDataWidth(base);
+#elif(CY_IP_MXSCB_VERSION==1)
     bool     byteMode = Cy_SCB_IsRxDataWidthByte(base);
-
+#endif /* CY_IP_MXSCB_VERSION */
     /* Get data from RX FIFO. Stop when the requested size is read. */
     while (size > 0UL)
     {
         numCopied = Cy_SCB_ReadArray(base, (void *) buf, size);
-
+#if(CY_IP_MXSCB_VERSION>=3)
+        buf = &buf[((datawidth/8UL) * numCopied)];
+#elif(CY_IP_MXSCB_VERSION==1)
         buf = &buf[(byteMode ? (numCopied) : (2UL * numCopied))];
+#endif /* CY_IP_MXSCB_VERSION */
         size -= numCopied;
     }
 }
@@ -217,7 +259,7 @@ uint32_t Cy_SCB_Write(CySCB_Type *base, uint32_t data)
 void Cy_SCB_WriteArrayNoCheck(CySCB_Type *base, void *buffer, uint32_t size)
 {
     uint32_t idx;
-
+#if(CY_IP_MXSCB_VERSION==1)
     if (Cy_SCB_IsTxDataWidthByte(base))
     {
         uint8_t *buf = (uint8_t *) buffer;
@@ -238,6 +280,40 @@ void Cy_SCB_WriteArrayNoCheck(CySCB_Type *base, void *buffer, uint32_t size)
             Cy_SCB_WriteTxFifo(base, (uint32_t) buf[idx]);
         }
     }
+#elif(CY_IP_MXSCB_VERSION>=3)
+    uint32_t datawidth = Cy_SCB_Get_TxDataWidth(base);
+    
+    if (datawidth == CY_SCB_BYTE_WIDTH)
+    {
+        uint8_t *buf = (uint8_t *) buffer;
+
+        /* Put data into TX FIFO */
+        for (idx = 0UL; idx < size; ++idx)
+        {
+            Cy_SCB_WriteTxFifo(base, (uint32_t) buf[idx]);
+        }
+    }
+    else if(datawidth == CY_SCB_HALF_WORD_WIDTH)
+    {
+        uint16_t *buf = (uint16_t *) buffer;
+
+        /* Put data into TX FIFO */
+        for (idx = 0UL; idx < size; ++idx)
+        {
+            Cy_SCB_WriteTxFifo(base, (uint32_t) buf[idx]);
+        }
+    }
+    else
+    {
+        uint32_t *buf = (uint32_t *) buffer;
+
+        /* Put data into TX FIFO */
+        for (idx = 0UL; idx < size; ++idx)
+        {
+            Cy_SCB_WriteTxFifo(base, (uint32_t) buf[idx]);
+        }
+    }
+#endif /* CY_IP_MXSCB_VERSION */
 }
 
 
@@ -305,14 +381,20 @@ void Cy_SCB_WriteArrayBlocking(CySCB_Type *base, void *buffer, uint32_t size)
 {
     uint32_t numCopied;
     uint8_t  *buf = (uint8_t *) buffer;
+#if(CY_IP_MXSCB_VERSION>=3)
+    uint32_t datawidth = Cy_SCB_Get_TxDataWidth(base);
+#elif(CY_IP_MXSCB_VERSION==1)
     bool     byteMode = Cy_SCB_IsTxDataWidthByte(base);
-
+#endif /* CY_IP_MXSCB_VERSION */
     /* Get data from RX FIFO. Stop when the requested size is read. */
     while (size > 0UL)
     {
         numCopied = Cy_SCB_WriteArray(base, (void *) buf, size);
-
+#if(CY_IP_MXSCB_VERSION>=3)
+        buf = &buf[((datawidth/8UL) * numCopied)];
+#elif(CY_IP_MXSCB_VERSION==1)
         buf = &buf[(byteMode ? (numCopied) : (2UL * numCopied))];
+#endif /* CY_IP_MXSCB_VERSION */
         size -= numCopied;
     }
 }

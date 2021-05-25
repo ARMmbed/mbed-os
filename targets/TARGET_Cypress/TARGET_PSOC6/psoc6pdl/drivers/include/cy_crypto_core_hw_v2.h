@@ -24,12 +24,12 @@
 *******************************************************************************/
 
 
-#if !defined(CY_CRYPTO_CORE_HW_V2_H)
+#if !defined (CY_CRYPTO_CORE_HW_V2_H)
 #define CY_CRYPTO_CORE_HW_V2_H
 
 #include "cy_crypto_core_hw.h"
 
-#if defined(CY_IP_MXCRYPTO)
+#if defined (CY_IP_MXCRYPTO)
 
 #if defined(__cplusplus)
 extern "C" {
@@ -378,7 +378,7 @@ CY_MISRA_BLOCK_END('MISRA C-2012 Rule 11.3');
 
 #endif /* CY_IP_MXCRYPTO */
 
-#endif /* #if !defined(CY_CRYPTO_CORE_HW_V2_H) */
+#endif /* #if !defined (CY_CRYPTO_CORE_HW_V2_H) */
 
 
 /* [] END OF FILE */

@@ -24,12 +24,14 @@
 *******************************************************************************/
 
 
-#if !defined(CY_CRYPTO_CORE_NIST_P_H)
+#if !defined (CY_CRYPTO_CORE_NIST_P_H)
 #define CY_CRYPTO_CORE_NIST_P_H
 
-#include "cy_crypto_core_ecc.h"
+#include "cy_device.h"
 
-#if defined(CY_IP_MXCRYPTO)
+#if defined (CY_IP_MXCRYPTO)
+
+#include "cy_crypto_core_ecc.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -77,9 +79,9 @@ void Cy_Crypto_Core_EC_NistP_PointMul(CRYPTO_Type *base, uint32_t p_x, uint32_t 
 }
 #endif
 
-#endif /* #if defined(CY_IP_MXCRYPTO) */
+#endif /* #if defined (CY_IP_MXCRYPTO) */
 
-#endif /* #if !defined(CY_CRYPTO_CORE_NIST_P_H) */
+#endif /* #if !defined (CY_CRYPTO_CORE_NIST_P_H) */
 
 
 /* [] END OF FILE */

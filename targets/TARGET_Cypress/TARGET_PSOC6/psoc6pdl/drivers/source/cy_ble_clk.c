@@ -23,13 +23,15 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "cy_device.h"
+
+#if defined (CY_IP_MXBLESS) && defined (CY_IP_MXS40IOSS)
+
 #include "cy_syslib.h"
 #include "cy_gpio.h"
 #include "cy_syspm.h"
 #include "cy_ble_clk.h"
 #include "cy_sysclk.h"
-
-#if defined(CY_IP_MXBLESS)
 
 /* C binding of definitions if building with C++ compiler */
 #ifdef __cplusplus

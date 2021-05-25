@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_scb_uart.h
-* \version 2.60
+* \version 2.80
 *
 * Provides UART API declarations of the SCB driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2020 Cypress Semiconductor Corporation
+* Copyright 2016-2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -289,9 +289,11 @@
 #if !defined(CY_SCB_UART_H)
 #define CY_SCB_UART_H
 
-#include "cy_scb_common.h"
+#include "cy_device.h"
 
-#ifdef CY_IP_MXSCB
+#if defined (CY_IP_MXSCB)
+
+#include "cy_scb_common.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -496,7 +498,14 @@ typedef struct stc_scb_uart_config
 
     /** Specifies the number of bits to detect a break condition */
     uint32_t    breakWidth;
-
+#if(CY_IP_MXSCB_VERSION>=3) || defined (CY_DOXYGEN)
+    /** Specifies the low or high level pulse detection for break condition */
+    /**
+    * \note
+    * This parameter is available for CAT1B devices.
+    **/
+    bool        breaklevel;
+#endif /* CY_IP_MXSCB_VERSION */
     /**
     * When there are more entries in the RX FIFO than this level
     * the RX trigger output goes high. This output can be connected
@@ -551,6 +560,12 @@ typedef struct cy_stc_scb_uart_context
     void     *txBuf;                    /**< The pointer to the transmit buffer */
     uint32_t  txBufSize;                /**< The transmit buffer size */
     uint32_t volatile txLeftToTransmit; /**< The number of data elements left to be transmitted */
+
+    /**
+    * Enables the low-power receive for IrDA mode.
+    * Note that the transmission must be disabled if this mode is enabled.
+    */
+    bool irdaEnableLowPowerReceiver;
 
     /** The pointer to an event callback that is called when any of
     * \ref group_scb_uart_macros_callback_events occurs
@@ -638,6 +653,24 @@ __STATIC_INLINE uint32_t Cy_SCB_UART_GetNumInRxFifo   (CySCB_Type const *base);
 
 __STATIC_INLINE void     Cy_SCB_UART_ClearRxFifo      (CySCB_Type *base);
 __STATIC_INLINE void     Cy_SCB_UART_ClearTxFifo      (CySCB_Type *base);
+
+__STATIC_INLINE uint32_t Cy_SCB_UART_GetOverSample(CySCB_Type const *base);
+cy_en_scb_uart_status_t Cy_SCB_UART_SetOverSample(CySCB_Type *base, uint32_t overSample, cy_stc_scb_uart_context_t *context);
+
+__STATIC_INLINE uint32_t Cy_SCB_UART_GetDataWidth(CySCB_Type const *base);
+void Cy_SCB_UART_SetDataWidth(CySCB_Type *base, uint32_t dataWidth);
+
+__STATIC_INLINE uint32_t Cy_SCB_UART_GetParity(CySCB_Type const *base);
+void Cy_SCB_UART_SetParity(CySCB_Type *base, cy_en_scb_uart_parity_t parity);
+
+__STATIC_INLINE uint32_t Cy_SCB_UART_GetStopBits(CySCB_Type const *base);
+void Cy_SCB_UART_SetStopBits(CySCB_Type *base, cy_en_scb_uart_stop_bits_t stopBits);
+
+__STATIC_INLINE bool Cy_SCB_UART_GetDropOnParityError(CySCB_Type const *base);
+void Cy_SCB_UART_SetDropOnParityError(CySCB_Type *base, bool dropOnParityError);
+
+__STATIC_INLINE bool Cy_SCB_UART_GetEnableMsbFirst(CySCB_Type const *base);
+void Cy_SCB_UART_SetEnableMsbFirst(CySCB_Type *base, bool enableMsbFirst);
 /** \} group_scb_uart_low_level_functions */
 
 /**
@@ -922,7 +955,7 @@ cy_en_syspm_status_t Cy_SCB_UART_HibernateCallback(cy_stc_syspm_callback_params_
 #define CY_SCB_UART_IS_DATA_WIDTH_VALID(width)      ( ((width) >= 5UL) && ((width) <= 9UL) )
 #define CY_SCB_UART_IS_OVERSAMPLE_VALID(ovs, mode, lpRx)    ( ((CY_SCB_UART_STANDARD  == (mode)) || (CY_SCB_UART_SMARTCARD == (mode))) ? \
                                                               (((ovs) >= 8UL) && ((ovs) <= 16UL)) :                                      \
-                                                              ((lpRx) ? CY_SCB_UART_IS_IRDA_LP_OVS_VALID(ovs) : true) )
+                                                              (bool) ((lpRx) ? CY_SCB_UART_IS_IRDA_LP_OVS_VALID(ovs) : true) )
 
 #define CY_SCB_UART_IS_RX_BREAK_WIDTH_VALID(base, width)    ( ((width) >= (_FLD2VAL(SCB_RX_CTRL_DATA_WIDTH, (base)->RX_CTRL) + 3UL)) && \
                                                               ((width) <= 16UL) )
@@ -1088,6 +1121,146 @@ __STATIC_INLINE void Cy_SCB_UART_DisableSkipStart(CySCB_Type *base)
 * \addtogroup group_scb_uart_low_level_functions
 * \{
 */
+
+
+/*******************************************************************************
+* Function Name: Cy_SCB_UART_GetOverSample
+****************************************************************************//**
+*
+* Returns the value of oversample.
+*
+* \param base
+* The pointer to the UART SCB instance.
+*
+* \return
+* The value of oversample.
+*
+* \snippet scb/uart_snippet/main.c UART_GET_OVS
+*
+*******************************************************************************/
+__STATIC_INLINE uint32_t Cy_SCB_UART_GetOverSample(CySCB_Type const *base)
+{
+    return (_FLD2VAL(SCB_CTRL_OVS, SCB_CTRL(base))+1UL);
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_SCB_UART_GetDataWidth
+****************************************************************************//**
+*
+* Returns the value of datawidth.
+*
+* \param base
+* The pointer to the UART SCB instance.
+*
+* \return
+* The value of datawidth.
+*
+* \note
+* Values of Tx and Rx datawidth are same.
+*
+* \snippet scb/uart_snippet/main.c UART_GET_DATA_WIDTH
+*
+*******************************************************************************/
+__STATIC_INLINE uint32_t Cy_SCB_UART_GetDataWidth(CySCB_Type const *base)
+{
+    return (_FLD2VAL(SCB_TX_CTRL_DATA_WIDTH, SCB_TX_CTRL(base))+1UL);
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_SCB_UART_GetParity
+****************************************************************************//**
+*
+* Returns the value of parity.
+*
+* \param base
+* The pointer to the UART SCB instance.
+*
+* \return
+* The value of parity.
+*
+* \note
+* Values of Tx and Rx parity are same.
+*
+* \snippet scb/uart_snippet/main.c UART_GET_PARITY
+*
+*******************************************************************************/
+__STATIC_INLINE uint32_t Cy_SCB_UART_GetParity(CySCB_Type const *base)
+{
+    return _FLD2VAL(CY_SCB_UART_TX_CTRL_SET_PARITY, SCB_UART_TX_CTRL(base));
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_SCB_UART_GetStopBits
+****************************************************************************//**
+*
+* Returns the value of stop bits.
+*
+* \param base
+* The pointer to the UART SCB instance.
+*
+* \return
+* The value of stop bits.
+*
+* \note
+* Values of Tx and Rx stop bits are same.
+*
+* \snippet scb/uart_snippet/main.c UART_GET_STOP_BITS
+*
+*******************************************************************************/
+__STATIC_INLINE uint32_t Cy_SCB_UART_GetStopBits(CySCB_Type const *base)
+{
+    return (_FLD2VAL(SCB_UART_TX_CTRL_STOP_BITS, SCB_UART_TX_CTRL(base))+1UL);
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_SCB_UART_GetDropOnParityError
+****************************************************************************//**
+*
+* Returns the value of SetDropOnParityError.
+*
+* \param base
+* The pointer to the UART SCB instance.
+*
+* \return
+* The value of SetDropOnParityError.
+*
+* \snippet scb/uart_snippet/main.c UART_GET_DROP_ON_PARITY_ERROR
+*
+*******************************************************************************/
+__STATIC_INLINE bool Cy_SCB_UART_GetDropOnParityError(CySCB_Type const *base)
+{
+    return _FLD2BOOL(SCB_UART_RX_CTRL_DROP_ON_PARITY_ERROR, SCB_UART_RX_CTRL(base));
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_SCB_UART_GetEnableMsbFirst
+****************************************************************************//**
+*
+* Returns the value of enableMsbFirst.
+*
+* \param base
+* The pointer to the UART SCB instance.
+*
+* \return
+* The value of enableMsbFirst.
+*
+* \note
+* Values of Tx and Rx enableMsbFirst are same.
+*
+* \snippet scb/uart_snippet/main.c UART_GET_ENABLE_MSB_FIRST
+*
+*******************************************************************************/
+__STATIC_INLINE bool Cy_SCB_UART_GetEnableMsbFirst(CySCB_Type const *base)
+{
+    return _FLD2BOOL(SCB_TX_CTRL_MSB_FIRST, SCB_TX_CTRL(base));
+}
+
+
 /*******************************************************************************
 * Function Name: Cy_SCB_UART_Get
 ****************************************************************************//**

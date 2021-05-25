@@ -53,9 +53,9 @@
     <ConfigStruct name="`${INST_NAME . &quot;_secureConfig&quot;}`" type="cy_stc_pra_system_config_t" const="false" public="false" include="true" guard="defined (CY_DEVICE_SECURE) &amp;&amp; (CY_CPU_CORTEX_M4)" >
     </ConfigStruct>
 
-    <ConfigFunction signature="__WEAK void cycfg_ClockStartupError(uint32_t error)" body="    (void)error; /* Suppress the compiler warning */&#xA;    while(1);" public="false" include="true" />
+    <ConfigFunction signature="__WEAK void __NO_RETURN cycfg_ClockStartupError(uint32_t error)" body="    (void)error; /* Suppress the compiler warning */&#xA;    while(1);" public="false" include="true" />
 
-    <ConfigFunction signature="__STATIC_INLINE void init_cycfg_secure_struct(cy_stc_pra_system_config_t * secure_config)" body="
+    <ConfigFunction signature="void init_cycfg_secure_struct(cy_stc_pra_system_config_t * secure_config)" body="
    #ifdef CY_CFG_PWR_ENABLED&#xA;
        secure_config->powerEnable = CY_CFG_PWR_ENABLED;&#xA;
    #endif /* CY_CFG_PWR_ENABLED */&#xA;
@@ -530,23 +530,23 @@
     <ConfigInstruction value="#if ((CY_CPU_CORTEX_M4) &amp;&amp; (defined(CY_DEVICE_SECURE)))" include="true" />
     <ConfigInstruction value="    cy_en_pra_status_t configStatus;" include="true" />
     <ConfigInstruction value="    init_cycfg_secure_struct(&amp;`${INST_NAME . &quot;_secureConfig&quot;}`);" include="true" />
-    <ConfigInstruction value="    #if ((CY_CFG_SYSCLK_CLKPATH0_SOURCE_NUM != 0UL) &amp;&amp; (CY_CFG_SYSCLK_CLKHF0_CLKPATH_NUM == 0UL))" include="true" />
-    <ConfigInstruction value="        #error Configuration Error : ECO, WCO, ALTHF, EXTCLK, ILO, PILO cannot drive HF0." include="true" />
+    <ConfigInstruction value="    #if (((CY_CFG_SYSCLK_CLKPATH0_SOURCE_NUM &gt;= 3UL) &amp;&amp; (CY_CFG_SYSCLK_CLKPATH0_SOURCE_NUM &lt;= 5UL))  &amp;&amp; (CY_CFG_SYSCLK_CLKHF0_CLKPATH_NUM == 0UL))" include="true" />
+    <ConfigInstruction value="        #error Configuration Error : ALTHF, ILO, PILO cannot drive HF0." include="true" />
     <ConfigInstruction value="    #endif" include="true" />
-    <ConfigInstruction value="    #if ((CY_CFG_SYSCLK_CLKPATH1_SOURCE_NUM != 0UL) &amp;&amp; (CY_CFG_SYSCLK_CLKHF0_CLKPATH_NUM == 1UL))" include="true" />
-    <ConfigInstruction value="        #error Configuration Error : ECO, WCO, ALTHF, EXTCLK, ILO, PILO cannot drive HF0." include="true" />
+    <ConfigInstruction value="    #if (((CY_CFG_SYSCLK_CLKPATH1_SOURCE_NUM &gt;= 3UL) &amp;&amp; (CY_CFG_SYSCLK_CLKPATH1_SOURCE_NUM &lt;= 5UL)) &amp;&amp; (CY_CFG_SYSCLK_CLKHF0_CLKPATH_NUM == 1UL))" include="true" />
+    <ConfigInstruction value="        #error Configuration Error : ALTHF, ILO, PILO cannot drive HF0." include="true" />
     <ConfigInstruction value="    #endif" include="true" />
-    <ConfigInstruction value="    #if ((CY_CFG_SYSCLK_CLKPATH2_SOURCE_NUM != 0UL) &amp;&amp; (CY_CFG_SYSCLK_CLKHF0_CLKPATH_NUM == 2UL))" include="true" />
-    <ConfigInstruction value="        #error Configuration Error : ECO, WCO, ALTHF, EXTCLK, ILO, PILO cannot drive HF0." include="true" />
+    <ConfigInstruction value="    #if (((CY_CFG_SYSCLK_CLKPATH2_SOURCE_NUM &gt;= 3UL) &amp;&amp; (CY_CFG_SYSCLK_CLKPATH2_SOURCE_NUM &lt;= 5UL)) &amp;&amp; (CY_CFG_SYSCLK_CLKHF0_CLKPATH_NUM == 2UL))" include="true" />
+    <ConfigInstruction value="        #error Configuration Error : ALTHF, ILO, PILO cannot drive HF0." include="true" />
     <ConfigInstruction value="    #endif" include="true" />
-    <ConfigInstruction value="    #if ((CY_CFG_SYSCLK_CLKPATH3_SOURCE_NUM != 0UL) &amp;&amp; (CY_CFG_SYSCLK_CLKHF0_CLKPATH_NUM == 3UL))" include="true" />
-    <ConfigInstruction value="        #error Configuration Error : ECO, WCO, ALTHF, EXTCLK, ILO, PILO cannot drive HF0." include="true" />
+    <ConfigInstruction value="    #if (((CY_CFG_SYSCLK_CLKPATH3_SOURCE_NUM &gt;= 3UL) &amp;&amp; (CY_CFG_SYSCLK_CLKPATH3_SOURCE_NUM &lt;= 5UL)) &amp;&amp; (CY_CFG_SYSCLK_CLKHF0_CLKPATH_NUM == 3UL))" include="true" />
+    <ConfigInstruction value="        #error Configuration Error : ALTHF, ILO, PILO cannot drive HF0." include="true" />
     <ConfigInstruction value="    #endif" include="true" />
-    <ConfigInstruction value="    #if ((CY_CFG_SYSCLK_CLKPATH4_SOURCE_NUM != 0UL) &amp;&amp; (CY_CFG_SYSCLK_CLKHF0_CLKPATH_NUM == 4UL))" include="true" />
-    <ConfigInstruction value="        #error Configuration Error : ECO, WCO, ALTHF, EXTCLK, ILO, PILO cannot drive HF0." include="true" />
+    <ConfigInstruction value="    #if (((CY_CFG_SYSCLK_CLKPATH4_SOURCE_NUM &gt;= 3UL) &amp;&amp; (CY_CFG_SYSCLK_CLKPATH4_SOURCE_NUM &lt;= 5UL)) &amp;&amp; (CY_CFG_SYSCLK_CLKHF0_CLKPATH_NUM == 4UL))" include="true" />
+    <ConfigInstruction value="        #error Configuration Error : ALTHF, ILO, PILO cannot drive HF0." include="true" />
     <ConfigInstruction value="    #endif" include="true" />
-    <ConfigInstruction value="    #if ((CY_CFG_SYSCLK_CLKPATH5_SOURCE_NUM != 0UL) &amp;&amp; (CY_CFG_SYSCLK_CLKHF0_CLKPATH_NUM == 5UL))" include="true" />
-    <ConfigInstruction value="        #error Configuration Error : ECO, WCO, ALTHF, EXTCLK, ILO, PILO cannot drive HF0." include="true" />
+    <ConfigInstruction value="    #if (((CY_CFG_SYSCLK_CLKPATH5_SOURCE_NUM &gt;= 3UL) &amp;&amp; (CY_CFG_SYSCLK_CLKPATH5_SOURCE_NUM &lt;= 5UL)) &amp;&amp; (CY_CFG_SYSCLK_CLKHF0_CLKPATH_NUM == 5UL))" include="true" />
+    <ConfigInstruction value="        #error Configuration Error : ALTHF, ILO, PILO cannot drive HF0." include="true" />
     <ConfigInstruction value="    #endif" include="true" />
     <ConfigInstruction value="" include="true" />
     <ConfigInstruction value="    configStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_SYS_CFG_FUNC," include="true" />
@@ -857,6 +857,11 @@
 
     <ConfigInstruction value="    #ifndef CY_CFG_SYSCLK_IMO_ENABLED" include="true" />
     <ConfigInstruction value="        #error the IMO must be enabled for proper chip operation" include="true" />
+    <ConfigInstruction value="    #endif" include="true" />
+    <ConfigInstruction value="" include="true" />
+
+    <ConfigInstruction value="    #ifndef CY_CFG_SYSCLK_CLKHF0_ENABLED" include="true" />
+    <ConfigInstruction value="        #error the CLKHF0 must be enabled for proper chip operation" include="true" />
     <ConfigInstruction value="    #endif" include="true" />
     <ConfigInstruction value="" include="true" />
 

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_pra.h
-* \version 2.10
+* \version 2.20
 *
 * \brief The header file of the PRA driver. The API is not intended to
 * be used directly by the user application.
@@ -92,11 +92,13 @@
 * Configurator and passed to the secure Cortex-M0+ for validation and
 * register the update in the cybsp_init() function.
 *
-* \warning The external clocks (ECO, ALTHF, WCO, and EXTCLK) are not
-* allowed to source CLK_HF0 (clocks both Cortex-M0+ and Cortex-M4 CPUs)
-* in order to prevent clock tampering. The external clock support for
-* CLK_HF0 feature is planned to be added and validated via secure policy
-* statements in the future releases.
+* \note The external clocks (ECO, WCO, and EXTCLK) require
+* additional configuration to be allowed to source CLK_HF0 (clocks both
+* Cortex-M0+ and Cortex-M4 CPUs) in order to prevent clock tampering.
+* See \ref group_pra_external_clocks for details.
+*
+* \note The ALTHF (BLE ECO) is not allowed to source CLK_HF0 (clocks both
+* Cortex-M0+ and Cortex-M4 CPUs) in order to prevent clock tampering.
 *
 * \note The internal low-frequency clocks (ILO and PILO) are not allowed to
 * source the CLK_HF0 directly and through PLL or FLL.
@@ -106,6 +108,98 @@
 * compilation error. SysTick still can be configured in run-time with
 * some limitations. For more details, refer to \ref Cy_SysTick_SetClockSource()
 * in \ref group_arm_system_timer.
+*
+*\section group_pra_external_clocks External Clock Sources
+* The PSoC 64 devices must be provisioned with the external clocks
+* (ECO, WCO, and EXTCLK) configuration before routing these
+* clocks to CLK_HF0. To do that, update the JSON
+* file (delivered with CySecureTools) with the "extclk" node in the
+* custom data section as shown below. The configuration fields in the
+* JSON file match the fields in the Device Configurator.
+*
+* For more details, refer to the PSoC 64 Secure MCU Secure Boot SDK User Guide.
+*
+*\code{json}
+*    For EXTCLK:
+*        "custom_data_sections": ["extclk"],
+*        "extclk": {
+*                "extClkEnable": 1,
+*                "extClkFreqHz": 24000000,
+*                "extClkPort": 0,
+*                "extClkPinNum": 0,
+*                "extClkHsiom": 0
+*        }
+*
+*    For ECO:
+*        "custom_data_sections": ["extclk"],
+*        "extclk": {
+*                "ecoEnable": 1,
+*                "ecoFreqHz": 24000000,
+*                "ecoLoad": 18,
+*                "ecoEsr": 50,
+*                "ecoDriveLevel": 100,
+*                "ecoInPort": 12,
+*                "ecoOutPort": 12,
+*                "ecoInPinNum": 6,
+*                "ecoOutPinNum": 7,
+*        }
+*
+*    For WCO:
+*        "custom_data_sections": ["extclk"],
+*        "extclk": {
+*                "wcoEnable": 1,
+*                "bypassEnable": 0
+*                "wcoInPort": 0,
+*                "wcoOutPort": 0,
+*                "wcoInPinNum": 0,
+*                "wcoOutPinNum": 1
+*        }
+*\endcode
+*
+*\note The same "extclk" section is used for all external clocks. If more than
+* one external clock source is required, please append its parameters.
+*
+*\section group_pra_sram_power_config SRAM Power Mode Configurations
+* The PSoC 64 devices must be provisioned with the SRAM power mode configuration
+* to protects secure core memory. To do that, update the JSON
+* file (delivered with CySecureTools) with the "srampwrmode" node in the
+* custom data section as shown below.
+*
+* For more details, refer to the PSoC 64 Secure MCU Secure Boot SDK User Guide.
+*
+*\code{json}
+*    "custom_data_sections": ["srampwrmode"],
+*    "sram0": [
+*        {
+*            "macroNum": 1,      // bits 0
+*            "powerMode": 6,     // bit 2 = ON, bit 1 = RETAIN, bit 0 = OFF
+*        },
+*        {
+*            "macroNum": 2,      // bits 1
+*            "powerMode": 1,     // bit 2 = ON, bit 1 = RETAIN, bit 0 = OFF
+*        },
+*        {
+*            "macroNum": 65532,  // bits [15-2] = 0xFFFC
+*            "powerMode": 7,     // bit 2 = ON, bit 1 = RETAIN, bit 0 = OFF
+*        }
+*    ],
+*    "sram1": [
+*        {
+*            "macroNum": 1,      // bit 0
+*            "powerMode": 7,     // bit 2 = ON, bit 1 = RETAIN, bit 0 = OFF
+*        }
+*    ],
+*    "sram2": [
+*        {
+*            "macroNum": 1,      // bit 0
+*            "powerMode": 7,     // bit 2 = ON, bit 1 = RETAIN, bit 0 = OFF
+*        }
+*    ]
+*\endcode
+*
+*\note If a particular configuration(either SRAM or macro section) is
+* not present in the policy file but available in the device then SRAM MACRO
+* can be allowed to be modified to any of power modes (ON, RETAIN and OFF).
 *
 * \section group_pra_standalone Using without BSPs
 * If PDL is used in Standalone mode without Board Support Package (BSP),
@@ -124,6 +218,13 @@
 * \section group_pra_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>2.20</td>
+*     <td>Allowing external clocks (EXT_CLK, ECO and WCO) can be source to secure core.
+*         Provide interface for validating and configuring SRAM power modes.</td>
+*     <td>External clock support and
+*         SRAM power mode configuration support.</td>
+*   </tr>
 *   <tr>
 *     <td rowspan="3">2.10</td>
 *     <td>Removed include of cy_gpio.h from the driver's c source files.
@@ -188,6 +289,10 @@
 #if !defined(CY_PRA_H)
 #define CY_PRA_H
 
+#include "cy_device.h"
+
+#if defined (CY_IP_M4CPUSS) && defined (CY_IP_MXS40IOSS)
+
 #include <stdint.h>
 #include <stdbool.h>
 #include "cy_systick.h"
@@ -206,7 +311,14 @@ extern "C" {
 
 /** \cond INTERNAL */
 
-#define CY_PRA_REG_INDEX_COUNT           (32U)
+#if defined(CY_DEVICE_PSOC6ABLE2)
+#define CY_PRA_REG_INDEX_COUNT           (157U)
+#else
+#define CY_PRA_REG_INDEX_COUNT           (147U)
+#endif /* defined(CY_DEVICE_PSOC6ABLE2) */
+#define CY_PRA_EXTCLK_PIN_NR             (5U) /* Protected pins: EXTCLK, ECO_IN, ECO_OUT, WCO_IN,  WCO_OUT */
+#define CY_PRA_SRAM_MAX_NR               CPUSS_SRAM_COUNT
+#define CY_PRA_SRAM_MACRO_MAX_NR         (16U)
 
 #define CY_PRA_MSG_TYPE_REG32_GET        (1U)
 #define CY_PRA_MSG_TYPE_REG32_CLR_SET    (2U)
@@ -216,6 +328,8 @@ extern "C" {
 #define CY_PRA_MSG_TYPE_SECURE_ONLY      (6U)
 #define CY_PRA_MSG_TYPE_FUNC_POLICY      (7U)
 #define CY_PRA_MSG_TYPE_VERSION_CHECK    (8U)
+#define CY_PRA_MSG_TYPE_EXTCLK_PIN_LIST  (9U)
+#define CY_PRA_MSG_TYPE_EXTCLK_ADJHSIOM_LIST    (10U)
 
 /* IPC */
 #define CY_PRA_IPC_NOTIFY_INTR          (0x1UL << CY_IPC_INTR_PRA)
@@ -243,6 +357,63 @@ extern "C" {
 /* There are MS_NR (16) registers. The index 16 to 31 are used. */
 #define CY_PRA_INDX_PROT_MPU_MS_CTL             (16u)
 /* The next index should be 32. */
+/* EXT CLK port has 21 registers. The index 32 to 52 are used. */
+#define CY_PRA_INDX_GPIO_EXTCLK_PRT             (32U)
+/* ECO in-Port has 21 registers. The index 53 to 73 are used */
+#define CY_PRA_INDX_GPIO_ECO_IN_PRT             (53U)
+/* ECO out-Port has 21 registers. The index 74 to 94 are used */
+#define CY_PRA_INDX_GPIO_ECO_OUT_PRT            (74U)
+/* HSIOM PORT has 2 registers. The index 95 to 115 are used */
+#define CY_PRA_INDX_GPIO_WCO_IN_PRT             (95U)
+/* WCO out-Port has 21 registers. The index 116 to 136 are used */
+#define CY_PRA_INDX_GPIO_WCO_OUT_PRT            (116U)
+/* HSIOM PORT has 2 registers. The index 137 to 138 are used */
+#define CY_PRA_INDEX_HSIOM_EXTCLK_PRT           (137U)
+/* HSIOM PORT has 2 registers. The index 139 to 140 are used */
+#define CY_PRA_INDEX_HSIOM_ECO_IN_PRT           (139U)
+/* HSIOM PORT has 2 registers. The index 141 to 142 are used */
+#define CY_PRA_INDEX_HSIOM_ECO_OUT_PRT          (141U)
+/* HSIOM PORT has 2 registers. The index 143 to 144 are used */
+#define CY_PRA_INDEX_HSIOM_WCO_IN_PRT           (143U)
+/* HSIOM PORT has 2 registers. The index 145 to 146 are used */
+#define CY_PRA_INDEX_HSIOM_WCO_OUT_PRT          (145U)
+
+#if defined(CY_DEVICE_PSOC6ABLE2)
+/* HSIOM PORT has 2 registers. The index 147 to 148 are used */
+#define CY_PRA_INDEX_HSIOM_EXTCLK_ADJ_PRT       (147U)
+/* HSIOM PORT has 2 registers. The index 149 to 150 are used */
+#define CY_PRA_INDEX_HSIOM_ECO_IN_ADJ_PRT       (149U)
+/* HSIOM PORT has 2 registers. The index 151 to 152 are used */
+#define CY_PRA_INDEX_HSIOM_ECO_OUT_ADJ_PRT      (151U)
+/* HSIOM PORT has 2 registers. The index 153 to 154 are used */
+#define CY_PRA_INDEX_HSIOM_WCO_IN_ADJ_PRT       (153U)
+/* HSIOM PORT has 2 registers. The index 155 to 156 are used */
+#define CY_PRA_INDEX_HSIOM_WCO_OUT_ADJ_PRT      (155U)
+/* The next index should be 157 */
+#else
+/* The next index should be 147 */
+#endif /* defined(CY_DEVICE_PSOC6ABLE2) */
+
+/* GPIO PORT REG Sub Index */
+#define CY_PRA_SUB_INDEX_PORT_OUT                   (0U)
+#define CY_PRA_SUB_INDEX_PORT_OUT_CLR               (1U)
+#define CY_PRA_SUB_INDEX_PORT_OUT_SET               (2U)
+#define CY_PRA_SUB_INDEX_PORT_OUT_INV               (3U)
+#define CY_PRA_SUB_INDEX_PORT_IN                    (4U)
+#define CY_PRA_SUB_INDEX_PORT_INTR                  (5U)
+#define CY_PRA_SUB_INDEX_PORT_INTR_MASK             (6U)
+#define CY_PRA_SUB_INDEX_PORT_INTR_MASKED           (7U)
+#define CY_PRA_SUB_INDEX_PORT_INTR_SET              (8U)
+#define CY_PRA_SUB_INDEX_PORT_INTR_CFG              (9U)
+#define CY_PRA_SUB_INDEX_PORT_CFG                   (10U)
+#define CY_PRA_SUB_INDEX_PORT_CFG_IN                (11U)
+#define CY_PRA_SUB_INDEX_PORT_CFG_OUT               (12U)
+#define CY_PRA_SUB_INDEX_PORT_CFG_SIO               (13U)
+
+/* HSIOM PORT REG sub index */
+#define CY_PRA_SUB_INDEX_HSIOM_PORT0                (0U)
+#define CY_PRA_SUB_INDEX_HSIOM_PORT1                (1U)
+
 
 /* Functions Index */
 #define CY_PRA_FUNC_INIT_CYCFG_DEVICE           (0U)
@@ -302,16 +473,30 @@ extern "C" {
 #define CY_PRA_PM_FUNC_BUCK_DISABLE_VOLTAGE2    (109U)
 #define CY_PRA_PM_FUNC_BUCK_VOLTAGE2_HW_CTRL    (110U)
 #define CY_PRA_PM_FUNC_BUCK_SET_VOLTAGE2        (111U)
+#define CY_PRA_PM_FUNC_SRAM_MACRO_PWR_MODE      (112U) /* Apply power mode to particular macro */
+#define CY_PRA_PM_FUNC_SRAM_PWR_MODE            (113U) /* Apply power mode to entire sram */
 
 #define CY_PRA_BLE_CLK_FUNC_ECO_CONFIGURE       (200U)
 #define CY_PRA_BLE_CLK_FUNC_ECO_RESET           (201U)
 
+#define CY_PRA_GPIO_FUNC_SECPIN                 (300U)
+
+#define CY_PRA_PM_SRAM_PWR_MODE_OFF_Pos         (0UL)
+#define CY_PRA_PM_SRAM_PWR_MODE_OFF_Msk         (0x1UL)
+#define CY_PRA_PM_SRAM_PWR_MODE_RETAIN_Pos      (1UL)
+#define CY_PRA_PM_SRAM_PWR_MODE_RETAIN_Msk      (0x2UL)
+#define CY_PRA_PM_SRAM_PWR_MODE_ON_Pos          (2UL)
+#define CY_PRA_PM_SRAM_PWR_MODE_ON_Msk          (0x4UL)
+
+#define CY_PRA_SRAM0_INDEX                      (0U) /* SRAM0 index */
+#define CY_PRA_SRAM1_INDEX                      (1U) /* SRAM1 index */
+#define CY_PRA_SRAM2_INDEX                      (2U) /* SRAM2 index */
 
 /** Driver major version */
 #define CY_PRA_DRV_VERSION_MAJOR       2
 
 /** Driver minor version */
-#define CY_PRA_DRV_VERSION_MINOR       10
+#define CY_PRA_DRV_VERSION_MINOR       20
 
 /** Protected Register Access driver ID */
 #define CY_PRA_ID                       (CY_PDL_DRV_ID(0x46U))
@@ -341,7 +526,10 @@ typedef enum
     CY_PRA_STATUS_INVALID_PARAM_ILO                 = CY_PRA_ID | CY_PDL_STATUS_ERROR | 0xFECU,     /**< Returns Error while validating the CLK_ILO parameters */
     CY_PRA_STATUS_INVALID_PARAM_PILO                = CY_PRA_ID | CY_PDL_STATUS_ERROR | 0xFEBU,     /**< Returns Error while validating the CLK_PILO parameters */
     CY_PRA_STATUS_INVALID_PARAM_WCO                 = CY_PRA_ID | CY_PDL_STATUS_ERROR | 0xFEAU,     /**< Returns Error while validating the CLK_WCO parameters */
-    /* Reserve for other source clocks 0xFE9 - 0xFE0 */
+    CY_PRA_STATUS_INVALID_ECO_PROVISION             = CY_PRA_ID | CY_PDL_STATUS_ERROR | 0xFE9U,     /**< Returns Error while validating the provisioned CLK_ECO policy */
+    CY_PRA_STATUS_INVALID_EXTCLK_PROVISION          = CY_PRA_ID | CY_PDL_STATUS_ERROR | 0xFE8U,     /**< Returns Error while validating the provisioned CLK_EXT policy */
+    CY_PRA_STATUS_INVALID_WCO_PROVISION             = CY_PRA_ID | CY_PDL_STATUS_ERROR | 0xFE7U,     /**< Returns Error while validating the provisioned CLK_WCO policy */
+    /* Reserve for other source clocks 0xFE6 - 0xFE0 */
 
     CY_PRA_STATUS_INVALID_PARAM_PATHMUX0            = CY_PRA_ID | CY_PDL_STATUS_ERROR | 0xFDFU,     /**< Returns Error while validating PATH_MUX0 */
     CY_PRA_STATUS_INVALID_PARAM_PATHMUX1            = CY_PRA_ID | CY_PDL_STATUS_ERROR | 0xFDEU,     /**< Returns Error while validating PATH_MUX1 */
@@ -389,7 +577,10 @@ typedef enum
     CY_PRA_STATUS_ERROR_PROCESSING_PILO             = CY_PRA_ID | CY_PDL_STATUS_ERROR | 0xF5BU,     /**< Returns Error while enabling/disabling CLK_ALTHF */
     CY_PRA_STATUS_ERROR_PROCESSING_WCO              = CY_PRA_ID | CY_PDL_STATUS_ERROR | 0xF5AU,     /**< Returns Error while enabling/disabling CLK_WCO */
     CY_PRA_STATUS_ERROR_PROCESSING_ECO_ENABLED      = CY_PRA_ID | CY_PDL_STATUS_ERROR | 0xF59U,     /**< Returns Error while enabling CLK_ECO */
-    /* Reserve for other source clocks 0xF58 - 0xF50 */
+    CY_PRA_STATUS_ERROR_PROCESSING_ECO_PROVISION    = CY_PRA_ID | CY_PDL_STATUS_ERROR | 0xF58U,     /**< Returns Error if failed to process the provisioned CLK_ECO policy  */
+    CY_PRA_STATUS_ERROR_PROCESSING_EXTCLK_PROVISION = CY_PRA_ID | CY_PDL_STATUS_ERROR | 0xF57U,     /**< Returns Error if failed to process the provisioned CLK_EXT policy  */
+    CY_PRA_STATUS_ERROR_PROCESSING_WCO_PROVISION    = CY_PRA_ID | CY_PDL_STATUS_ERROR | 0xF56U,     /**< Returns Error if failed to process the provisioned CLK_WCO policy  */
+    /* Reserve for other source clocks 0xF55 - 0xF50 */
 
     CY_PRA_STATUS_ERROR_PROCESSING_PATHMUX0         = CY_PRA_ID | CY_PDL_STATUS_ERROR | 0xF4FU,     /**< Returns Error while setting PATH_MUX0 */
     CY_PRA_STATUS_ERROR_PROCESSING_PATHMUX1         = CY_PRA_ID | CY_PDL_STATUS_ERROR | 0xF4EU,     /**< Returns Error while setting PATH_MUX1 */
@@ -427,6 +618,14 @@ typedef enum
     CY_PRA_STATUS_ERROR_PROCESSING_SYSTICK          = CY_PRA_ID | CY_PDL_STATUS_ERROR | 0xEFAU,     /**< Returns Error while enabling/disabling CLK_ALT_SYS_TICK */
     CY_PRA_STATUS_ERROR_PROCESSING_CLKTIMER         = CY_PRA_ID | CY_PDL_STATUS_ERROR | 0xEF9U,     /**< Returns Error while enabling/disabling CLK_TIMER */
 } cy_en_pra_status_t;
+
+/** GPIO PIN protection type */
+typedef enum
+{
+    CY_PRA_PIN_SECURE,                      /**< Is a secure PIN. Can't be updated from CM4 application through register level PRA policy. This PIN can only be updated through service-level policy */
+    CY_PRA_PIN_SECURE_UNCONSTRAINED,        /**< Is a secure PIN. Can be updated from CM4 application through register level PRA policy */
+    CY_PRA_PIN_SECURE_NONE,                 /**< Not a secure PIN */
+} cy_en_pra_pin_prot_type_t;
 /** \} group_pra_enums */
 
 
@@ -451,11 +650,60 @@ typedef struct
     uint32_t praData1;              /**< The first data word. The usage depends on \ref group_pra_macros. */
     uint32_t praData2;              /**< The second data word. The usage depends on \ref group_pra_macros. */
 } cy_stc_pra_msg_t;
+
+/* External clock pin structure */
+typedef struct
+{
+    GPIO_PRT_Type *port;            /**< Port Number */
+    uint32_t pinNum;                /**< Bit fields for each secure pin number */
+    uint16_t index;                 /**< GPIO Port base address index */
+    uint16_t hsiomIndex;            /**< HSIOM Port base address index */
+} cy_stc_pra_extclk_pin_t;
+
+#if defined(CY_DEVICE_PSOC6ABLE2)
+/* External clock adjacent HSIOM index structure */
+typedef struct
+{
+    GPIO_PRT_Type *port;            /**< Port Number */
+    uint16_t hsiomIndex;            /**< HSIOM Port base address index */
+} cy_stc_pra_extclk_hsiom_t;
+
+#endif /* defined(CY_DEVICE_PSOC6ABLE2) */
+
 /** \endcond */
+
+#if (CY_CPU_CORTEX_M0P) || defined (CY_DOXYGEN)
+/** \cond INTERNAL */
+/* contains power mode configuration of a macro */
+typedef struct
+{
+    uint32_t sramMacros;            /**< Bit fields for each SRAM macro number */
+    uint32_t sramPwrMode;           /**< Bit fields for SRAM power modes. bit 0->OFF, bit 1->RETAIN bit 2->ON */
+} cy_pra_sram_pwr_macro_config_t;
+
+/* contains all macro configurations of a sram */
+typedef struct
+{
+    cy_pra_sram_pwr_macro_config_t macroConfigs[CY_PRA_SRAM_MACRO_MAX_NR];       /**< SRAM macro configurations */
+    uint32_t macroConfigCount;                                                   /**< Number of macros present in in policy file */
+} cy_pra_sram_pwr_mode_config_t;
+
+/** \endcond */
+
+/** \cond INTERNAL */
+extern cy_pra_sram_pwr_mode_config_t sramPwrModeConfig[CY_PRA_SRAM_MAX_NR];
+/** \endcond */
+
+#endif /* (CY_CPU_CORTEX_M0P) || defined (CY_DOXYGEN) */
 
 /** \cond INTERNAL */
 /* Public for testing purposes */
 extern cy_stc_pra_reg_policy_t regIndexToAddr[CY_PRA_REG_INDEX_COUNT];
+
+extern cy_stc_pra_extclk_pin_t secExtclkPinList[CY_PRA_EXTCLK_PIN_NR];
+#if defined(CY_DEVICE_PSOC6ABLE2)
+extern cy_stc_pra_extclk_hsiom_t secExtClkAdjHsiomList[CY_PRA_EXTCLK_PIN_NR];
+#endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 /** \endcond */
 
 
@@ -471,6 +719,7 @@ void Cy_PRA_Init(void);
 
 /** \cond INTERNAL */
 #if (CY_CPU_CORTEX_M0P) || defined (CY_DOXYGEN)
+    void Cy_PRA_UpdateExtClockRegIndex(void);
     void Cy_PRA_CloseSrssMain2(void);
     void Cy_PRA_OpenSrssMain2(void);
 #endif /* (CY_CPU_CORTEX_M0P) || defined (CY_DOXYGEN) */
@@ -478,6 +727,19 @@ void Cy_PRA_Init(void);
 
 #if (CY_CPU_CORTEX_M4) || defined (CY_DOXYGEN)
     cy_en_pra_status_t Cy_PRA_SendCmd(uint16_t cmd, uint16_t regIndex, uint32_t clearMask, uint32_t setMask);
+
+    cy_en_pra_pin_prot_type_t Cy_PRA_GetPinProtType(GPIO_PRT_Type *base, uint32_t pinNum);
+
+    bool Cy_PRA_IsPortSecure(GPIO_PRT_Type *base);
+
+    uint16_t Cy_PRA_GetPortRegIndex(GPIO_PRT_Type *base, uint16_t subIndex);
+
+    uint16_t Cy_PRA_GetHsiomRegIndex(GPIO_PRT_Type *base, uint16_t subIndex);
+
+#if defined(CY_DEVICE_PSOC6ABLE2)
+    bool Cy_PRA_IsHsiomSecure(GPIO_PRT_Type *base);
+    uint16_t Cy_PRA_GetAdjHsiomRegIndex(GPIO_PRT_Type *base, uint16_t subIndex);
+#endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 
     /** \} group_pra_functions */
 
@@ -506,11 +768,7 @@ void Cy_PRA_Init(void);
 *
 *******************************************************************************/
     #define CY_PRA_REG32_CLR_SET(regIndex, field, value)  \
-        (void)Cy_PRA_SendCmd(CY_PRA_MSG_TYPE_REG32_CLR_SET, \
-                              (regIndex), \
-                              ((uint32_t)(~(field ## _Msk))), \
-                              (_VAL2FLD(field, \
-                              (value))))
+        (void)Cy_PRA_SendCmd(CY_PRA_MSG_TYPE_REG32_CLR_SET, (regIndex), ((uint32_t)(~(field ## _Msk))), (_VAL2FLD(field, (value))))
 
 
 /*******************************************************************************
@@ -632,6 +890,105 @@ void Cy_PRA_Init(void);
     #define CY_PRA_FUNCTION_CALL_VOID_VOID(msgType, funcIndex)  \
         (void)Cy_PRA_SendCmd((msgType), (funcIndex), 0UL, 0UL)
 
+
+/*******************************************************************************
+* Macro Name: CY_PRA_GET_PIN_PROT_TYPE(base, pinNum)
+****************************************************************************//**
+*
+* Compares the PORT and PIN number with secure PIN list and returns PIN
+* protection type.
+*
+* \param base GPIO Port address
+*
+* \param pinNum GPIO PIN number
+*
+* \return The categories of PIN.
+*
+*******************************************************************************/
+    #define CY_PRA_GET_PIN_PROT_TYPE(base, pinNum)  \
+        Cy_PRA_GetPinProtType(base, pinNum)
+
+/*******************************************************************************
+* Macro Name: CY_PRA_IS_PORT_SECURE(base)
+****************************************************************************//**
+*
+* Compares the PORT with secure PIN list and returns PORT protection status.
+*
+* \param base GPIO Port address
+*
+* \return true if port is secure otherwise false.
+*
+*******************************************************************************/
+    #define CY_PRA_IS_PORT_SECURE(base)  \
+        Cy_PRA_IsPortSecure(base)
+
+#if defined(CY_DEVICE_PSOC6ABLE2)
+/*******************************************************************************
+* Macro Name: CY_PRA_IS_HSIOM_SECURE(base)
+****************************************************************************//**
+*
+* Compares the PORT with secure adjacent HSIOM list and returns protection status.
+*
+* \param base GPIO Port address
+*
+* \return true if HSIOM is secure otherwise false.
+*
+*******************************************************************************/
+    #define CY_PRA_IS_HSIOM_SECURE(base)  \
+        Cy_PRA_IsHsiomSecure(base)
+
+#endif /* defined(CY_DEVICE_PSOC6ABLE2) */
+
+/*******************************************************************************
+* Macro Name: CY_PRA_GET_PORT_INDEX(base, pinNum, subIndex)
+****************************************************************************//**
+*
+* Compares the PORT and PIN number with secure PIN list and returns PORT index
+*
+* \param base GPIO Port address
+*
+* \param subIndex register index of GPIO PORT
+*
+* \return PRA GPIO PORT register index
+*
+*******************************************************************************/
+    #define CY_PRA_GET_PORT_REG_INDEX(base, subIndex)  \
+        Cy_PRA_GetPortRegIndex(base, subIndex)
+
+/*******************************************************************************
+* Macro Name: CY_PRA_GET_HSIOM_REG_INDEX(base, subIndex)
+****************************************************************************//**
+*
+* Compares the PORT with secure PIN list and returns HSIOM port index
+*
+* \param base GPIO Port address
+*
+* \param subIndex register index of HSIOM PORT
+*
+* \return PRA HSIOM PORT register index
+*
+*******************************************************************************/
+    #define CY_PRA_GET_HSIOM_REG_INDEX(base, subIndex)  \
+        Cy_PRA_GetHsiomRegIndex(base, subIndex)
+
+#if defined(CY_DEVICE_PSOC6ABLE2)
+/*******************************************************************************
+* Macro Name: CY_PRA_GET_ADJHSIOM_REG_INDEX(base, subIndex)
+****************************************************************************//**
+*
+* Compares the PORT with adjacent HSIOM list and returns HSIOM port index
+*
+* \param base GPIO Port address
+*
+* \param subIndex register index of HSIOM PORT
+*
+* \return PRA HSIOM PORT register index
+*
+*******************************************************************************/
+    #define CY_PRA_GET_ADJHSIOM_REG_INDEX(base, subIndex)  \
+        Cy_PRA_GetAdjHsiomRegIndex(base, subIndex)
+#endif /* defined(CY_DEVICE_PSOC6ABLE2) */
+
 /** \} group_pra_macros */
 
 #endif /* (CY_CPU_CORTEX_M4) */
@@ -641,6 +998,9 @@ void Cy_PRA_Init(void);
 #endif
 
 #endif /* (CY_DEVICE_SECURE) */
+
+
+#endif /* CY_IP_MXS40IOSS */
 
 #endif /* #if !defined(CY_PRA_H) */
 

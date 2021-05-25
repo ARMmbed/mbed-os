@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_rtc.h
-* \version 2.40
+* \version 2.50
 *
 * This file provides constants and parameter values for the APIs for the
 * Real-Time Clock (RTC).
@@ -225,6 +225,11 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>2.50</td>
+*     <td>Removed the calls that convert among BCD and Binary.</td>
+*     <td>RTC encoding changed from BCD to Binary.</td>
+*   </tr>
+*   <tr>
 *     <td>2.40</td>
 *     <td>Fixed/Documented MISRA 2012 violations.</td>
 *     <td>MISRA 2012 compliance.</td>
@@ -319,15 +324,15 @@
 #if !defined (CY_RTC_H)
 #define CY_RTC_H
 
+#include "cy_device.h"
+
+#if defined (CY_IP_MXS40SRSS_RTC) || defined (CY_IP_MXS28SRSS) || defined (CY_IP_MXS40SSRSS)
+
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "cy_device_headers.h"
-#include "cy_device.h"
 #include "cy_syslib.h"
 #include "cy_syspm.h"
-
-#ifdef CY_IP_MXS40SRSS_RTC
 
 #if defined(__cplusplus)
 extern "C" {
@@ -345,7 +350,7 @@ extern "C" {
 #define CY_RTC_DRV_VERSION_MAJOR                    2
 
 /** Driver minor version */
-#define CY_RTC_DRV_VERSION_MINOR                    40
+#define CY_RTC_DRV_VERSION_MINOR                    50
 /** \} group_rtc_macros */
 
 /*******************************************************************************
@@ -416,6 +421,20 @@ typedef enum
     CY_RTC_ALARM_DISABLE,     /**< Disable alarm on match with required value */
     CY_RTC_ALARM_ENABLE       /**< Enable alarm on match with required value */
 } cy_en_rtc_alarm_enable_t;
+
+
+/** Enumeration to list all the clock sources for RTC */
+/**
+**/
+typedef enum
+{
+    CY_RTC_CLK_SELECT_WCO               =        0U, /**< Select WCO as input to RTC */
+    CY_RTC_CLK_SELECT_ALTBAK            =        1U, /**< Select ALTBAK as input to RTC */
+    CY_RTC_CLK_SELECT_ILO               =        2U, /**< Select ILO as input to RTC */
+    CY_RTC_CLK_SELECT_LPECO_PRESCALER   =        3U, /**< Select LPECO_PRESCALER as input to RTC */
+    CY_RTC_CLK_SELECT_PILO              =        4U, /**< Select PILO as input to RTC */
+} cy_rtc_clk_select_sources_t;
+
 /** \} group_rtc_enums */
 
 
@@ -549,7 +568,11 @@ void   Cy_RTC_GetDateAndTime(cy_stc_rtc_config_t *dateTime);
 cy_en_rtc_status_t Cy_RTC_SetDateAndTimeDirect(uint32_t sec, uint32_t min, uint32_t hour,
                                                uint32_t date, uint32_t month, uint32_t year);
 cy_en_rtc_status_t Cy_RTC_SetHoursFormat(cy_en_rtc_hours_format_t hoursFormat);
+#if defined (CY_IP_MXS40SRSS_RTC)
 void Cy_RTC_SelectFrequencyPrescaler(cy_en_rtc_clock_freq_t clkSel);
+#endif /* CY_IP_MXS40SRSS_RTC */
+void Cy_RTC_SelectClockSource(cy_rtc_clk_select_sources_t clkSel);
+
 /** \} group_rtc_general_functions */
 
 /**
@@ -567,6 +590,8 @@ cy_en_rtc_status_t Cy_RTC_SetAlarmDateAndTimeDirect(uint32_t sec, uint32_t min, 
 * \{
 */
 cy_en_rtc_status_t Cy_RTC_EnableDstTime(cy_stc_rtc_dst_t const *dstTime, cy_stc_rtc_config_t const *timeDate);
+cy_en_rtc_status_t Cy_RTC_SetNextDstTime(cy_stc_rtc_dst_format_t const *nextDst);
+bool Cy_RTC_GetDstStatus(cy_stc_rtc_dst_t const *dstTime, cy_stc_rtc_config_t const *timeDate);
 /** \} group_rtc_dst_functions */
 
 /**
@@ -604,16 +629,12 @@ __STATIC_INLINE uint32_t Cy_RTC_DaysInMonth(uint32_t month, uint32_t year);
 __STATIC_INLINE void Cy_RTC_SyncFromRtc(void);
 __STATIC_INLINE cy_en_rtc_status_t Cy_RTC_WriteEnable(cy_en_rtc_write_status_t writeEnable);
 __STATIC_INLINE uint32_t Cy_RTC_GetSyncStatus(void);
-__STATIC_INLINE uint32_t Cy_RTC_ConvertBcdToDec(uint32_t bcdNum);
-__STATIC_INLINE uint32_t Cy_RTC_ConvertDecToBcd(uint32_t decNum);
 __STATIC_INLINE cy_en_rtc_hours_format_t Cy_RTC_GetHoursFormat(void);
 __STATIC_INLINE bool Cy_RTC_IsExternalResetOccurred(void);
 
 __STATIC_INLINE void Cy_RTC_SyncToRtcAhbDateAndTime(uint32_t timeBcd, uint32_t dateBcd);
 __STATIC_INLINE void Cy_RTC_SyncToRtcAhbAlarm(uint32_t alarmTimeBcd, uint32_t alarmDateBcd, cy_en_rtc_alarm_t alarmIndex);
 
-cy_en_rtc_status_t Cy_RTC_SetNextDstTime(cy_stc_rtc_dst_format_t const *nextDst);
-bool Cy_RTC_GetDstStatus(cy_stc_rtc_dst_t const *dstTime, cy_stc_rtc_config_t const *timeDate);
 /** \} group_rtc_low_level_functions */
 
 /** \} group_rtc_functions */
@@ -803,11 +824,18 @@ bool Cy_RTC_GetDstStatus(cy_stc_rtc_dst_t const *dstTime, cy_stc_rtc_config_t co
 /** RTC days in months table */
 extern uint8_t const cy_RTC_daysInMonthTbl[CY_RTC_MONTHS_PER_YEAR];
 
+#if defined (CY_IP_MXS40SRSS_RTC)
 /* Internal macro to validate parameters in Cy_RTC_SelectFrequencyPrescaler() function */
 #define CY_RTC_IS_CLK_VALID(clkSel)               (((clkSel) == CY_RTC_FREQ_WCO_32768_HZ) || \
                                                    ((clkSel) == CY_RTC_FREQ_60_HZ) || \
                                                    ((clkSel) == CY_RTC_FREQ_50_HZ))
-
+#endif /* CY_IP_MXS40SRSS_RTC */
+/* Internal macro to validate parameters in Cy_RTC_SelectClockSource() function */
+#define CY_RTC_IS_SRC_CLK_SELECT_VALID(clkSel)               (((clkSel) == CY_RTC_CLK_SELECT_WCO) || \
+                                                   ((clkSel) == CY_RTC_CLK_SELECT_ALTBAK) || \
+                                                   ((clkSel) == CY_RTC_CLK_SELECT_ILO) || \
+                                                   ((clkSel) == CY_RTC_CLK_SELECT_LPECO_PRESCALER) || \
+                                                   ((clkSel) == CY_RTC_CLK_SELECT_PILO))
 /* Internal macro to validate parameters in Cy_RTC_SetHoursFormat() function */
 #define CY_RTC_IS_HRS_FORMAT_VALID(hoursFormat)    (((hoursFormat) == CY_RTC_24_HOURS) || \
                                                     ((hoursFormat) == CY_RTC_12_HOURS))
@@ -1115,70 +1143,6 @@ __STATIC_INLINE uint32_t Cy_RTC_GetSyncStatus(void)
 
 
 /*******************************************************************************
-* Function Name: Cy_RTC_ConvertBcdToDec
-****************************************************************************//**
-*
-* Converts an 8-bit BCD number into an 8-bit hexadecimal number. Each byte is
-* converted individually and returned as an individual byte in the 32-bit
-* variable.
-*
-* \param
-* bcdNum An 8-bit BCD number. Each byte represents BCD.
-*
-* \return
-* decNum An 8-bit hexadecimal equivalent number of the BCD number.
-*
-* For example, for 0x11223344 BCD number, the function returns
-* 0x2C in hexadecimal format.
-*
-*******************************************************************************/
-__STATIC_INLINE uint32_t Cy_RTC_ConvertBcdToDec(uint32_t bcdNum)
-{
-    uint32_t retVal;
-
-    retVal =
-    ((bcdNum & (CY_RTC_BCD_ONE_DIGIT_MASK << CY_RTC_BCD_NUMBER_SIZE))
-                          >> CY_RTC_BCD_NUMBER_SIZE ) * CY_RTC_BCD_DOZED_DEGREE;
-
-    retVal += bcdNum & CY_RTC_BCD_ONE_DIGIT_MASK;
-
-    return (retVal);
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_RTC_ConvertDecToBcd
-****************************************************************************//**
-*
-* Converts an 8-bit hexadecimal number into an 8-bit BCD number. Each byte
-* is converted individually and returned as an individual byte in the 32-bit
-* variable.
-*
-* \param
-* decNum An 8-bit hexadecimal number. Each byte is represented in hex.
-* 0x11223344 -> 0x20 hex format.
-*
-* \return
-* An 8-bit BCD equivalent of the passed hexadecimal number.
-*
-* For example, for 0x11223344 hexadecimal number, the function returns
-* 0x20 BCD number.
-*
-*******************************************************************************/
-__STATIC_INLINE uint32_t Cy_RTC_ConvertDecToBcd(uint32_t decNum)
-{
-    uint32_t retVal;
-    uint32_t tmpVal;
-
-    tmpVal = decNum % CY_RTC_BCD_HUNDRED_DEGRE;
-    retVal = ((uint32_t)(tmpVal / CY_RTC_BCD_DOZED_DEGREE)) << CY_RTC_BCD_NUMBER_SIZE;
-    retVal += tmpVal % CY_RTC_BCD_DOZED_DEGREE;
-
-    return (retVal);
-}
-
-
-/*******************************************************************************
 * Function Name: Cy_RTC_GetHoursFormat
 ****************************************************************************//**
 *
@@ -1334,16 +1298,87 @@ __STATIC_INLINE void Cy_RTC_SyncToRtcAhbAlarm(uint32_t alarmTimeBcd, uint32_t al
     }
 }
 
-#if defined(__cplusplus)
+__STATIC_INLINE uint32_t Cy_RTC_ConvertBcdToDec(uint32_t bcdNum);
+__STATIC_INLINE uint32_t Cy_RTC_ConvertDecToBcd(uint32_t decNum);
+
+/*******************************************************************************
+* Function Name: Cy_RTC_ConvertBcdToDec
+****************************************************************************//**
+*
+* Converts an 8-bit BCD number into an 8-bit hexadecimal number. Each byte is
+* converted individually and returned as an individual byte in the 32-bit
+* variable.
+*
+* \param
+* bcdNum An 8-bit BCD number. Each byte represents BCD.
+*
+* \return
+* decNum An 8-bit hexadecimal equivalent number of the BCD number.
+*
+* For example, for 0x11223344 BCD number, the function returns
+* 0x2C in hexadecimal format.
+*
+* \note
+* This API is available for CAT1A devices.
+*
+*******************************************************************************/
+__STATIC_INLINE uint32_t Cy_RTC_ConvertBcdToDec(uint32_t bcdNum)
+{
+    uint32_t retVal;
+
+    retVal =
+    ((bcdNum & (CY_RTC_BCD_ONE_DIGIT_MASK << CY_RTC_BCD_NUMBER_SIZE))
+                          >> CY_RTC_BCD_NUMBER_SIZE ) * CY_RTC_BCD_DOZED_DEGREE;
+
+    retVal += bcdNum & CY_RTC_BCD_ONE_DIGIT_MASK;
+
+    return (retVal);
 }
-#endif
 
-#endif /* CY_IP_MXS40SRSS_RTC */
 
-#endif /* CY_RTC_H */
+/*******************************************************************************
+* Function Name: Cy_RTC_ConvertDecToBcd
+****************************************************************************//**
+*
+* Converts an 8-bit hexadecimal number into an 8-bit BCD number. Each byte
+* is converted individually and returned as an individual byte in the 32-bit
+* variable.
+*
+* \param
+* decNum An 8-bit hexadecimal number. Each byte is represented in hex.
+* 0x11223344 -> 0x20 hex format.
+*
+* \return
+* An 8-bit BCD equivalent of the passed hexadecimal number.
+*
+* For example, for 0x11223344 hexadecimal number, the function returns
+* 0x20 BCD number.
+*
+* \note
+* This API is available for CAT1A devices.
+*
+*******************************************************************************/
+__STATIC_INLINE uint32_t Cy_RTC_ConvertDecToBcd(uint32_t decNum)
+{
+    uint32_t retVal;
+    uint32_t tmpVal;
+
+    tmpVal = decNum % CY_RTC_BCD_HUNDRED_DEGRE;
+    retVal = ((uint32_t)(tmpVal / CY_RTC_BCD_DOZED_DEGREE)) << CY_RTC_BCD_NUMBER_SIZE;
+    retVal += tmpVal % CY_RTC_BCD_DOZED_DEGREE;
+
+    return (retVal);
+}
 
 /** \} group_rtc_low_level_functions */
 /** \} group_rtc */
 
+#if defined(__cplusplus)
+}
+#endif
+
+#endif /* CY_IP_MXS40SRSS_RTC, CY_IP_MXS28SRSS, CY_IP_MXS40SSRSS */
+
+#endif /* CY_RTC_H */
 
 /* [] END OF FILE */

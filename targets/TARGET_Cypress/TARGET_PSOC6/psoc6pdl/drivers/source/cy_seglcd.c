@@ -23,10 +23,12 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "cy_device.h"
+
+#if defined (CY_IP_MXLCD)
+
 #include "cy_seglcd.h"
 #include "cy_sysclk.h"
-
-#if defined(CY_IP_MXLCD)
 
 CY_MISRA_DEVIATE_BLOCK_START('MISRA C-2012 Rule 11.3', 28, \
 'LCD_Type will typecast to either LCD_V1_Type or LCD_V2_Type but not both on PDL initialization based on the target device at compile time.');

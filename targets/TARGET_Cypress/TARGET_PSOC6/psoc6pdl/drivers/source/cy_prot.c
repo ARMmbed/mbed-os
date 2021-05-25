@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_prot.c
-* \version 1.50
+* \version 1.60
 *
 * \brief
 * Provides an API implementation of the Protection Unit driver
@@ -22,6 +22,10 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+
+#include "cy_device.h"
+
+#if defined (CY_IP_M4CPUSS)
 
 #include "cy_prot.h"
 
@@ -910,10 +914,11 @@ static cy_en_prot_status_t Prot_ConfigPpuAtt(volatile uint32_t * reg, uint16_t p
 * The protection context mask. It specifies the protection context or a set of
 * multiple protection contexts to be configured.
 * It is a value of OR'd (|) items of \ref cy_en_prot_pcmask_t.
-* For example: (\ref CY_PROT_PCMASK1 | \ref CY_PROT_PCMASK3 | \ref CY_PROT_PCMASK4).
-* \note The function accepts pcMask values from \ref CY_PROT_PCMASK1 to \ref CY_PROT_PCMASK15.
-* But each device has its own number of available protection contexts.
-* That number is defined by PERI_PC_NR in the config file.
+* \note The function accepts pcMask values from \ref CY_PROT_PCMASK1 to
+* \ref CY_PROT_PCMASK15. But each device has its own number of available protection
+* contexts. That number is defined by PERI_PC_NR in the config file. If pcMask
+* is passed beyond the range of available protection context, the bits above PERI_PC_NR
+* will be ignored.
 *
 * \param userPermission
 * The user permission setting. The CY_PROT_PERM_R or CY_PROT_PERM_RW values
@@ -951,6 +956,8 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuProgMasterAtt(PERI_MS_PPU_PR_Type* base, ui
     CY_ASSERT_L1(NULL != base);
     CY_ASSERT_L3(CY_PROT_IS_PROG_MS_PERM_VALID(userPermission));
     CY_ASSERT_L3(CY_PROT_IS_PROG_MS_PERM_VALID(privPermission));
+
+    pcMask &= ((uint16_t) CY_PROT_PCMASK_VALID);
 
     CY_MISRA_DEVIATE_LINE('MISRA C-2012 Rule 18.1','Checked manually, base pointer will not exceed register range.');
     return (Prot_ConfigPpuAtt(PERI_MS_PPU_PR_MS_ATT(base), pcMask, userPermission, privPermission, secure));
@@ -1193,10 +1200,11 @@ cy_en_prot_status_t Cy_Prot_DisablePpuProgSlaveRegion(PERI_MS_PPU_PR_Type* base)
 * The protection context mask. It specifies the protection context or a set of
 * multiple protection contexts to be configured.
 * It is a value of OR'd (|) items of \ref cy_en_prot_pcmask_t.
-* For example: (\ref CY_PROT_PCMASK1 | \ref CY_PROT_PCMASK3 | \ref CY_PROT_PCMASK4).
-* \note The function accepts pcMask values from \ref CY_PROT_PCMASK1 to \ref CY_PROT_PCMASK15.
-* But each device has its own number of available protection contexts.
-* That number is defined by PERI_PC_NR in the config file.
+* \note The function accepts pcMask values from \ref CY_PROT_PCMASK1 to
+* \ref CY_PROT_PCMASK15. But each device has its own number of available protection
+* contexts. That number is defined by PERI_PC_NR in the config file. If pcMask
+* is passed beyond the range of available protection context, the bits above PERI_PC_NR
+* will be ignored.
 *
 * \param userPermission
 * The user permission setting. The CY_PROT_PERM_R or CY_PROT_PERM_RW values
@@ -1234,6 +1242,8 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedMasterAtt(PERI_MS_PPU_FX_Type* base, u
     CY_ASSERT_L1(NULL != base);
     CY_ASSERT_L3(CY_PROT_IS_FIXED_MS_MS_PERM_VALID(userPermission));
     CY_ASSERT_L3(CY_PROT_IS_FIXED_MS_MS_PERM_VALID(privPermission));
+
+    pcMask &= ((uint16_t) CY_PROT_PCMASK_VALID);
 
     CY_MISRA_DEVIATE_LINE('MISRA C-2012 Rule 18.1','Checked manually, base pointer will not exceed register range.');
     return (Prot_ConfigPpuAtt(PERI_MS_PPU_FX_MS_ATT(base), pcMask, userPermission, privPermission, secure));
@@ -2836,5 +2846,5 @@ static bool Prot_IsPpuProgStructDisabled(uint32_t ppuStcIndex)
 }
 #endif
 
-
+#endif
 /* [] END OF FILE */

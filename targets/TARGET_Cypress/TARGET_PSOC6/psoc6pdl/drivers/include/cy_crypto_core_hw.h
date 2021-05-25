@@ -24,12 +24,14 @@
 *******************************************************************************/
 
 
-#if !defined(CY_CRYPTO_CORE_HW_H)
+#if !defined (CY_CRYPTO_CORE_HW_H)
 #define CY_CRYPTO_CORE_HW_H
 
-#include "cy_crypto_common.h"
+#include "cy_device.h"
 
-#if defined(CY_IP_MXCRYPTO)
+#if defined (CY_IP_MXCRYPTO)
+
+#include "cy_crypto_common.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -527,7 +529,7 @@ __STATIC_INLINE void * Cy_Crypto_Core_GetVuMemoryAddress(CRYPTO_Type *base)
 
 #endif /* CY_IP_MXCRYPTO */
 
-#endif /* #if !defined(CY_CRYPTO_CORE_HW_H) */
+#endif /* #if !defined (CY_CRYPTO_CORE_HW_H) */
 
 
 /* [] END OF FILE */
