@@ -1,33 +1,45 @@
-/***************************************************************************//**
-* \file cy_serial_flash_qspi.h
-*
-* \brief
-* Provides APIs for interacting with an external flash connected to the SPI or
-* QSPI interface. Flash operations read, write, and erase are implemented as
-* blocking functions.
-*
-********************************************************************************
-* \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
-* SPDX-License-Identifier: Apache-2.0
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*******************************************************************************/
+/***********************************************************************************************//**
+ * \file cy_serial_flash_qspi.h
+ *
+ * \brief
+ * Provides APIs for interacting with an external flash connected to the SPI or
+ * QSPI interface. Read is implemented as both blocking and non-blocking whereas
+ * write, and erase are implemented as blocking functions.
+ *
+ ***************************************************************************************************
+ * \copyright
+ * Copyright 2018-2021 Cypress Semiconductor Corporation
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ **************************************************************************************************/
 
 /**
-* \addtogroup group_board_libs Serial Flash
-* \{
-*/
+ * \addtogroup group_board_libs Serial Flash
+ * \ingroup group_lib
+ * \{
+ *
+ * \section section_resource_usage DMA Resource Usage
+ * This library uses fixed DMA (Datawire or DW) resources and supports DMA only
+ * for the following devices. DMA is not supported for other devices and the
+ * functions \ref cy_serial_flash_qspi_read_async() and
+ * \ref cy_serial_flash_qspi_abort_read() will return
+ * \ref CY_RSLT_SERIAL_FLASH_ERR_UNSUPPORTED error and
+ * \ref cy_serial_flash_qspi_set_dma_interrupt_priority() will simply return
+ * doing nothing.
+ * * CY8C6xx4, CY8C6xx5, CY8C6xx8, CY8C6xxA, CYB06xx5, CYB06xxA, CYS06xxA: <b>DW1, Channel 23</b>
+ * * CY8C6xx6, CY8C6xx7, CYB06xx7: <b>DW1, Channel 15</b>
+ */
 
 #pragma once
 
@@ -43,7 +55,37 @@ extern "C" {
 #endif
 
 /** The function or operation is not supported on the target or the memory */
-#define CY_RSLT_SERIAL_FLASH_ERR_UNSUPPORTED (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_BOARD_LIB_SERIAL_FLASH, 1))
+#define CY_RSLT_SERIAL_FLASH_ERR_UNSUPPORTED \
+    (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_BOARD_LIB_SERIAL_FLASH, 1))
+
+/** Parameters passed to a function are invalid */
+#define CY_RSLT_SERIAL_FLASH_ERR_BAD_PARAM \
+    (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_BOARD_LIB_SERIAL_FLASH, 2))
+
+/** A previously initiated read operation is not yet complete */
+#define CY_RSLT_SERIAL_FLASH_ERR_READ_BUSY \
+    (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_BOARD_LIB_SERIAL_FLASH, 3))
+
+/** A DMA error occurred during read transfer */
+#define CY_RSLT_SERIAL_FLASH_ERR_DMA \
+    (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_BOARD_LIB_SERIAL_FLASH, 4))
+
+/** Read abort failed. QSPI block is busy. */
+#define CY_RSLT_SERIAL_FLASH_ERR_QSPI_BUSY \
+    (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_BOARD_LIB_SERIAL_FLASH, 5))
+
+#ifdef DOXYGEN
+/** Enables thread-safety for use with multi-threaded RTOS environment. */
+#define CY_SERIAL_FLASH_QSPI_THREAD_SAFE
+#endif /* #ifdef DOXYGEN */
+
+/**
+ * Callback pointer to use with \ref cy_serial_flash_qspi_read_async().
+ * \param peration_status Status of the read operation
+ * \param callback_arg Pointer to be passed back to the callback function
+ */
+typedef void (* cy_serial_flash_qspi_read_complete_callback_t)(cy_rslt_t operation_status,
+                                                               void* callback_arg);
 
 /**
  * \brief Initializes the serial flash memory. This function accepts up to 8
@@ -84,6 +126,10 @@ cy_rslt_t cy_serial_flash_qspi_init(
 
 /**
  * \brief De-initializes the serial flash memory.
+ * Before calling this function, ensure that an ongoing asynchronous read
+ * operation is either completed or successfully aborted.
+ * Async read is started by calling \ref cy_serial_flash_qspi_read_async() and
+ * aborted by calling \ref cy_serial_flash_qspi_abort_read().
  */
 void cy_serial_flash_qspi_deinit(void);
 
@@ -120,6 +166,7 @@ __STATIC_INLINE uint32_t cy_serial_flash_get_sector_start_address(uint32_t addr)
     return (addr & ~(cy_serial_flash_qspi_get_erase_size(addr) - 1));
 }
 
+
 /**
  * \brief Reads data from the serial flash memory. This is a blocking
  * function. Returns error if (addr + length) exceeds the flash size.
@@ -128,7 +175,34 @@ __STATIC_INLINE uint32_t cy_serial_flash_get_sector_start_address(uint32_t addr)
  * \param buf Pointer to the buffer to store the data read from the memory
  * \returns CY_RSLT_SUCCESS if the read was successful, an error code otherwise.
  */
-cy_rslt_t cy_serial_flash_qspi_read(uint32_t addr, size_t length, uint8_t *buf);
+cy_rslt_t cy_serial_flash_qspi_read(uint32_t addr, size_t length, uint8_t* buf);
+
+/**
+ * \brief Reads data from the serial flash memory. This is a non-blocking
+ * function. Returns error if (addr + length) exceeds the flash size.
+ * Uses fixed DMA (DW) instance and channel for transferring the data from
+ * QSPI RX FIFO to the user-provided buffer.
+ * \param addr Starting address to read from
+ * \param length Number of data bytes to read
+ * \param buf Pointer to the buffer to store the data read from the memory
+ * \param callback Pointer to the callback function to be called after the read
+ *        operation is complete. Callback is invoked from the DMA ISR.
+ * \param callback_arg Pointer to the argument to be passed to the callback
+ *        function
+ * \returns CY_RSLT_SUCCESS if the read was successful, an error code otherwise.
+ */
+cy_rslt_t cy_serial_flash_qspi_read_async(uint32_t addr, size_t length, uint8_t* buf,
+                                          cy_serial_flash_qspi_read_complete_callback_t callback,
+                                          void* callback_arg);
+
+/**
+ * \brief Aborts an ongoing asynchronous read initiated by calling
+ * \ref cy_serial_flash_qspi_read_async().
+ *
+ * \returns CY_RSLT_SUCCESS if the abort was successful, an error code
+ *          if the QSPI block is still busy after a timeout.
+ */
+cy_rslt_t cy_serial_flash_qspi_abort_read(void);
 
 /**
  * \brief Writes the data to the serial flash memory. The program area
@@ -141,13 +215,16 @@ cy_rslt_t cy_serial_flash_qspi_read(uint32_t addr, size_t length, uint8_t *buf);
  * \returns CY_RSLT_SUCCESS if the write was successful, an error code
  *          otherwise.
  */
-cy_rslt_t cy_serial_flash_qspi_write(uint32_t addr, size_t length, const uint8_t *buf);
+cy_rslt_t cy_serial_flash_qspi_write(uint32_t addr, size_t length, const uint8_t* buf);
 
 /**
  * \brief Erases the serial flash memory, uses chip erase command when
  * addr = 0 and length = flash_size otherwise uses sector erase command. This is
  * a blocking function. Returns error if addr or (addr + length) is not aligned
  * to the sector size or if (addr + length) exceeds the flash size.
+ * For memories with hybrid sectors, returns error if the end address
+ * (=addr + length) is not aligned to the size of the sector in which the end
+ * address is located.
  * Call \ref cy_serial_flash_qspi_get_size() to get the flash size and
  * call \ref cy_serial_flash_qspi_get_erase_size() to get the size of an erase
  * sector.
@@ -177,10 +254,17 @@ cy_rslt_t cy_serial_flash_qspi_enable_xip(bool enable);
  */
 void cy_serial_flash_qspi_set_interrupt_priority(uint8_t priority);
 
+/**
+ * \brief Changes the DMA interrupt priority
+ * \param priority interrupt priority to be set
+ */
+void cy_serial_flash_qspi_set_dma_interrupt_priority(uint8_t priority);
+
+
 #if defined(__cplusplus)
 }
 #endif
 
-#endif /* CY_IP_MXSMIF */
+#endif // CY_IP_MXSMIF
 
 /** \} group_board_libs */
