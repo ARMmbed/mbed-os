@@ -1,32 +1,31 @@
-/***************************************************************************//**
-* \file cyabs_rtos.h
-*
-* \brief
-* Defines the Cypress RTOS Interface. Provides prototypes for functions that
-* allow Cypress libraries to use RTOS resources such as threads, mutexes &
-* timing functions in an abstract way. The APIs are implemented in the Port
-* Layer RTOS interface which is specific to the RTOS in use.
-*
-********************************************************************************
-* \copyright
-* Copyright 2018-2020 Cypress Semiconductor Corporation
-* SPDX-License-Identifier: Apache-2.0
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*******************************************************************************/
+/***********************************************************************************************//**
+ * \file cyabs_rtos.h
+ *
+ * \brief
+ * Defines the Cypress RTOS Interface. Provides prototypes for functions that
+ * allow Cypress libraries to use RTOS resources such as threads, mutexes &
+ * timing functions in an abstract way. The APIs are implemented in the Port
+ * Layer RTOS interface which is specific to the RTOS in use.
+ *
+ ***************************************************************************************************
+ * \copyright
+ * Copyright 2018-2021 Cypress Semiconductor Corporation
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ **************************************************************************************************/
 
-#ifndef INCLUDED_CY_RTOS_INTERFACE_H_
-#define INCLUDED_CY_RTOS_INTERFACE_H_
+#pragma once
 
 #include "cyabs_rtos_impl.h"
 #include "cy_result.h"
@@ -35,28 +34,30 @@
 #include <stddef.h>
 
 /**
-* \defgroup group_abstraction_rtos_common Common
+ * \defgroup group_abstraction_rtos_common Common
  * General types and defines for working with the RTOS abstraction layer.
-* \defgroup group_abstraction_rtos_mutex Mutex
+ * \defgroup group_abstraction_rtos_event Events
+ * APIs for acquiring and working with Events.
+ * \defgroup group_abstraction_rtos_mutex Mutex
  * APIs for acquiring and working with Mutexes.
-* \defgroup group_abstraction_rtos_queue Queue
+ * \defgroup group_abstraction_rtos_queue Queue
  * APIs for creating and working with Queues.
-* \defgroup group_abstraction_rtos_semaphore Semaphore
+ * \defgroup group_abstraction_rtos_semaphore Semaphore
  * APIs for acquiring and working with Semaphores.
-* \defgroup group_abstraction_rtos_threads Threads
+ * \defgroup group_abstraction_rtos_threads Threads
  * APIs for creating and working with Threads.
-* \defgroup group_abstraction_rtos_time Time
+ * \defgroup group_abstraction_rtos_time Time
  * APIs for getting the current time and waiting.
-* \defgroup group_abstraction_rtos_timer Timer
+ * \defgroup group_abstraction_rtos_timer Timer
  * APIs for creating and working with Timers.
-*/
+ */
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-/*********************************************** CONSTANTS **********************************************/
+/******************************************** CONSTANTS *******************************************/
 
 /**
  * \ingroup group_abstraction_rtos_common
@@ -67,7 +68,7 @@ extern "C"
 //#include "Template/cyabs_rtos_impl.h"
 
 /** Return value indicating success */
-#define CY_RSLT_SUCCESS                    ((cy_rslt_t)0x00000000U)
+#define CY_RSLT_SUCCESS ((cy_rslt_t)0x00000000U)
 #endif
 
 /** Used with RTOS calls that require a timeout.  This implies the call will never timeout. */
@@ -75,20 +76,27 @@ extern "C"
 
 //
 // Note on error strategy.  If the error is a normal part of operation (timeouts, full queues, empty
-// queues), the these errors are listed here and the abstraction layer implementation must map from the
-// underlying errors to these.  If the errors are special cases, the the error \ref CY_RTOS_GENERAL_ERROR
-// will be returned and \ref cy_rtos_last_error() can be used to retrieve the RTOS specific error message.
+// queues), the these errors are listed here and the abstraction layer implementation must map from
+// the underlying errors to these.  If the errors are special cases, the the error \ref
+// CY_RTOS_GENERAL_ERROR will be returned and \ref cy_rtos_last_error() can be used to retrieve the
+// RTOS specific error message.
 //
 /** Requested operation did not complete in the specified time */
-#define CY_RTOS_TIMEOUT                     CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_OS, 0)
+#define CY_RTOS_TIMEOUT                     \
+    CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_OS, 0)
 /** The RTOS could not allocate memory for the specified operation */
-#define CY_RTOS_NO_MEMORY                   CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_OS, 1)
+#define CY_RTOS_NO_MEMORY                   \
+    CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_OS, 1)
 /** An error occured in the RTOS */
-#define CY_RTOS_GENERAL_ERROR               CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_OS, 2)
+#define CY_RTOS_GENERAL_ERROR               \
+    CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_OS, 2)
 /** A bad argument was passed into the APIs */
-#define CY_RTOS_BAD_PARAM                   CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_OS, 5)
-/** A memory alignment issue was detected. Ensure memory provided is aligned per \ref CY_RTOS_ALIGNMENT_MASK */
-#define CY_RTOS_ALIGNMENT_ERROR             CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_OS, 6)
+#define CY_RTOS_BAD_PARAM                   \
+    CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_OS, 5)
+/** A memory alignment issue was detected. Ensure memory provided is aligned per \ref
+   CY_RTOS_ALIGNMENT_MASK */
+#define CY_RTOS_ALIGNMENT_ERROR             \
+    CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_OS, 6)
 
 /** \} group_abstraction_rtos_common */
 
@@ -98,13 +106,15 @@ extern "C"
  */
 
 /** The Queue is already full and can't accept any more items at this time */
-#define CY_RTOS_QUEUE_FULL                  CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_OS, 3)
+#define CY_RTOS_QUEUE_FULL                  \
+    CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_OS, 3)
 /** The Queue is empty and has nothing to remove */
-#define CY_RTOS_QUEUE_EMPTY                 CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_OS, 4)
+#define CY_RTOS_QUEUE_EMPTY                 \
+    CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_OS, 4)
 
 /** \} group_abstraction_rtos_queue */
 
-/*********************************************** TYPES **********************************************/
+/********************************************* TYPES **********************************************/
 
 /**
  * The state a thread can be in
@@ -118,7 +128,7 @@ typedef enum cy_thread_state
     CY_THREAD_STATE_RUNNING,    /**< thread is currently running */
     CY_THREAD_STATE_BLOCKED,    /**< thread is blocked waiting for something */
     CY_THREAD_STATE_TERMINATED, /**< thread has terminated but not freed */
-    CY_THREAD_STATE_UNKNOWN,    /**< thread is in an unknown state */
+    CY_THREAD_STATE_UNKNOWN     /**< thread is in an unknown state */
 } cy_thread_state_t;
 
 /**
@@ -130,8 +140,10 @@ typedef enum cy_timer_trigger_type
 {
     CY_TIMER_TYPE_PERIODIC,                             /**< called periodically until stopped */
     CY_TIMER_TYPE_ONCE,                                 /**< called once only */
-    cy_timer_type_periodic = CY_TIMER_TYPE_PERIODIC,    /**< \deprecated replaced by \ref CY_TIMER_TYPE_PERIODIC */
-    cy_timer_type_once = CY_TIMER_TYPE_ONCE,            /**< \deprecated replaced by \ref CY_TIMER_TYPE_ONCE */
+    cy_timer_type_periodic = CY_TIMER_TYPE_PERIODIC,    /**< \deprecated replaced by \ref
+                                                           CY_TIMER_TYPE_PERIODIC */
+    cy_timer_type_once     = CY_TIMER_TYPE_ONCE         /**< \deprecated replaced by \ref
+                                                           CY_TIMER_TYPE_ONCE */
 } cy_timer_trigger_type_t;
 
 /**
@@ -141,14 +153,14 @@ typedef enum cy_timer_trigger_type
  *
  * \ingroup group_abstraction_rtos_threads
  */
-typedef void (*cy_thread_entry_fn_t)(cy_thread_arg_t arg);
+typedef void (* cy_thread_entry_fn_t)(cy_thread_arg_t arg);
 
 /**
  * The callback function to be called by a timer
  *
  * \ingroup group_abstraction_rtos_timer
  */
-typedef void (*cy_timer_callback_t)(cy_timer_callback_arg_t arg);
+typedef void (* cy_timer_callback_t)(cy_timer_callback_arg_t arg);
 
 /**
  * Return the last error from the RTOS.
@@ -165,7 +177,8 @@ typedef void (*cy_timer_callback_t)(cy_timer_callback_arg_t arg);
  */
 cy_rtos_error_t cy_rtos_last_error();
 
-/*********************************************** Threads **********************************************/
+
+/********************************************* Threads ********************************************/
 
 /**
  * \ingroup group_abstraction_rtos_threads
@@ -183,20 +196,24 @@ cy_rtos_error_t cy_rtos_last_error();
  * @param[in]  entry_function Function pointer which points to the main function for the new thread
  * @param[in]  name           String thread name used for a debugger
  * @param[in]  stack          The buffer to use for the thread stack. This must be aligned to
- *                            \ref CY_RTOS_ALIGNMENT_MASK with a size of at least \ref CY_RTOS_MIN_STACK_SIZE.
- *                            If stack is null, cy_rtos_create_thread will allocate a stack from the heap.
+ *                            \ref CY_RTOS_ALIGNMENT_MASK with a size of at least \ref
+ *                            CY_RTOS_MIN_STACK_SIZE.
+ *                            If stack is null, cy_rtos_create_thread will allocate a stack from
+ *                            the heap.
  * @param[in]  stack_size     The size of the thread stack in bytes
- * @param[in]  priority       The priority of the thread. Values are operating system specific, but some
- *                            common priority levels are defined:
+ * @param[in]  priority       The priority of the thread. Values are operating system specific,
+ *                            but some common priority levels are defined:
  *                                CY_THREAD_PRIORITY_LOW
  *                                CY_THREAD_PRIORITY_NORMAL
  *                                CY_THREAD_PRIORITY_HIGH
  * @param[in]  arg            The argument to pass to the new thread
  *
- * @return The status of thread create request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY, \ref CY_RTOS_GENERAL_ERROR]
+ * @return The status of thread create request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY, \ref
+ *         CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_create_thread(cy_thread_t *thread, cy_thread_entry_fn_t entry_function,
-            const char *name, void *stack, uint32_t stack_size, cy_thread_priority_t priority, cy_thread_arg_t arg);
+cy_rslt_t cy_rtos_create_thread(cy_thread_t* thread, cy_thread_entry_fn_t entry_function,
+                                const char* name, void* stack, uint32_t stack_size,
+                                cy_thread_priority_t priority, cy_thread_arg_t arg);
 
 /** Exit the current thread.
  *
@@ -227,7 +244,7 @@ cy_rslt_t cy_rtos_exit_thread();
  *
  * @returns The status of the thread terminate. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_terminate_thread(cy_thread_t *thread);
+cy_rslt_t cy_rtos_terminate_thread(cy_thread_t* thread);
 
 /** Waits for a thread to complete.
  *
@@ -238,7 +255,7 @@ cy_rslt_t cy_rtos_terminate_thread(cy_thread_t *thread);
  *
  * @returns The status of thread join request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_join_thread(cy_thread_t *thread);
+cy_rslt_t cy_rtos_join_thread(cy_thread_t* thread);
 
 /** Checks if the thread is running
  *
@@ -248,9 +265,10 @@ cy_rslt_t cy_rtos_join_thread(cy_thread_t *thread);
  * @param[in] thread     Handle of the terminated thread to delete
  * @param[out] running   Returns true if the thread is running, otherwise false
  *
- * @returns The status of the thread running check. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
+ * @returns The status of the thread running check. [\ref CY_RSLT_SUCCESS, \ref
+ *          CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_is_thread_running(cy_thread_t *thread, bool *running);
+cy_rslt_t cy_rtos_is_thread_running(cy_thread_t* thread, bool* running);
 
 /** Gets the state the thread is currently in
  *
@@ -261,7 +279,7 @@ cy_rslt_t cy_rtos_is_thread_running(cy_thread_t *thread, bool *running);
  *
  * @returns The status of the thread state check. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_get_thread_state(cy_thread_t *thread, cy_thread_state_t *state);
+cy_rslt_t cy_rtos_get_thread_state(cy_thread_t* thread, cy_thread_state_t* state);
 
 /** Get current thread handle
  *
@@ -271,11 +289,42 @@ cy_rslt_t cy_rtos_get_thread_state(cy_thread_t *thread, cy_thread_state_t *state
  *
  * @returns The status of thread join request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_get_thread_handle(cy_thread_t *thread);
+cy_rslt_t cy_rtos_get_thread_handle(cy_thread_t* thread);
+
+
+/** Suspend current thread until notification is received
+ *
+ * This function suspends the execution of current thread until it is notified
+ * by \ref cy_rtos_set_thread_notification from another thread or ISR, or timed out with
+ * specify timeout value
+ *
+ * @param[in] timeout_ms  Maximum number of milliseconds to wait
+ *                        Use the \ref CY_RTOS_NEVER_TIMEOUT constant to wait forever.
+ *
+ * @returns The status of thread wait. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_TIMEOUT, \ref
+ *                                     CY_RTOS_GENERAL_ERROR]
+ */
+cy_rslt_t cy_rtos_wait_thread_notification(cy_time_t timeout_ms);
+
+
+/** Set the thread notification for a thread
+ *
+ * This function sets the thread notification for the target thread.
+ * The target thread waiting for the notification to be set will resume from suspended state.
+ *
+ * @param[in] thread     Handle of the target thread
+ * @param[in] in_isr     If true this is being called from within an ISR
+ *
+ * @returns The status of thread wait. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR,
+ *                                      \ref CY_RTOS_BAD_PARAM]
+ */
+cy_rslt_t cy_rtos_set_thread_notification(cy_thread_t* thread, bool in_isr);
+
 
 /** \} group_abstraction_rtos_threads */
 
-/*********************************************** Mutexes **********************************************/
+
+/********************************************* Mutexes ********************************************/
 
 /**
  * \ingroup group_abstraction_rtos_mutex
@@ -292,7 +341,8 @@ cy_rslt_t cy_rtos_get_thread_handle(cy_thread_t *thread);
  *
  * @param[out] mutex Pointer to the mutex handle to be initialized
  *
- * @return The status of mutex creation request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY, \ref CY_RTOS_GENERAL_ERROR]
+ * @return The status of mutex creation request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY, \ref
+ *         CY_RTOS_GENERAL_ERROR]
  */
 #define cy_rtos_init_mutex(mutex) cy_rtos_init_mutex2(mutex, true)
 
@@ -307,9 +357,10 @@ cy_rslt_t cy_rtos_get_thread_handle(cy_thread_t *thread);
  * @param[out] mutex     Pointer to the mutex handle to be initialized
  * @param[in]  recursive Should the created mutex support recursion or not
  *
- * @return The status of mutex creation request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY, \ref CY_RTOS_GENERAL_ERROR]
+ * @return The status of mutex creation request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY, \ref
+ *         CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_init_mutex2(cy_mutex_t *mutex, bool recursive);
+cy_rslt_t cy_rtos_init_mutex2(cy_mutex_t* mutex, bool recursive);
 
 /** Get a mutex.
  *
@@ -325,9 +376,10 @@ cy_rslt_t cy_rtos_init_mutex2(cy_mutex_t *mutex, bool recursive);
  *                        Must be zero if in_isr is true.
  *
  * @return The status of the get mutex. Returns timeout if mutex was not acquired
- *                    before timeout_ms period. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_TIMEOUT, \ref CY_RTOS_GENERAL_ERROR]
+ *                    before timeout_ms period. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_TIMEOUT, \ref
+ *                    CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_get_mutex(cy_mutex_t *mutex, cy_time_t timeout_ms);
+cy_rslt_t cy_rtos_get_mutex(cy_mutex_t* mutex, cy_time_t timeout_ms);
 
 /** Set a mutex.
  *
@@ -339,7 +391,7 @@ cy_rslt_t cy_rtos_get_mutex(cy_mutex_t *mutex, cy_time_t timeout_ms);
  * @return The status of the set mutex request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
  *
  */
-cy_rslt_t cy_rtos_set_mutex(cy_mutex_t *mutex);
+cy_rslt_t cy_rtos_set_mutex(cy_mutex_t* mutex);
 
 /** Deletes a mutex.
  *
@@ -349,11 +401,11 @@ cy_rslt_t cy_rtos_set_mutex(cy_mutex_t *mutex);
  *
  * @return The status to the delete request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_deinit_mutex(cy_mutex_t *mutex);
+cy_rslt_t cy_rtos_deinit_mutex(cy_mutex_t* mutex);
 
 /** \} group_abstraction_rtos_mutex */
 
-/*********************************************** Semaphores **********************************************/
+/******************************************** Semaphores ******************************************/
 
 /**
  * \ingroup group_abstraction_rtos_semaphore
@@ -369,9 +421,10 @@ cy_rslt_t cy_rtos_deinit_mutex(cy_mutex_t *mutex);
  * @param[in] maxcount       The maximum count for this semaphore
  * @param[in] initcount      The initial count for this semaphore
  *
- * @return The status of the semaphore creation. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY, \ref CY_RTOS_GENERAL_ERROR]
+ * @return The status of the semaphore creation. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY, \ref
+ *         CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_init_semaphore(cy_semaphore_t *semaphore, uint32_t maxcount, uint32_t initcount);
+cy_rslt_t cy_rtos_init_semaphore(cy_semaphore_t* semaphore, uint32_t maxcount, uint32_t initcount);
 
 /**
  * Get/Acquire a semaphore
@@ -382,12 +435,13 @@ cy_rslt_t cy_rtos_init_semaphore(cy_semaphore_t *semaphore, uint32_t maxcount, u
  *
  * @param[in] semaphore   Pointer to the semaphore handle
  * @param[in] timeout_ms  Maximum number of milliseconds to wait while attempting to get
- *                        the semaphore. Use the \ref CY_RTOS_NEVER_TIMEOUT constant to wait forever. Must
- *                        be zero is in_isr is true
+ *                        the semaphore. Use the \ref CY_RTOS_NEVER_TIMEOUT constant to wait
+ *                        forever. Must be zero is in_isr is true
  * @param[in] in_isr      true if we are trying to get the semaphore from with an ISR
- * @return The status of get semaphore operation [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_TIMEOUT, \ref CY_RTOS_NO_MEMORY, \ref CY_RTOS_GENERAL_ERROR]
+ * @return The status of get semaphore operation [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_TIMEOUT, \ref
+ *         CY_RTOS_NO_MEMORY, \ref CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_get_semaphore(cy_semaphore_t *semaphore, cy_time_t timeout_ms, bool in_isr);
+cy_rslt_t cy_rtos_get_semaphore(cy_semaphore_t* semaphore, cy_time_t timeout_ms, bool in_isr);
 
 /**
  * Set/Release a semaphore
@@ -397,9 +451,10 @@ cy_rslt_t cy_rtos_get_semaphore(cy_semaphore_t *semaphore, cy_time_t timeout_ms,
  * @param[in] semaphore   Pointer to the semaphore handle
  * @param[in] in_isr      Value of true indicates calling from interrupt context
  *                        Value of false indicates calling from normal thread context
- * @return The status of set semaphore operation [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY, \ref CY_RTOS_GENERAL_ERROR]
+ * @return The status of set semaphore operation [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY, \ref
+ *         CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_set_semaphore(cy_semaphore_t *semaphore, bool in_isr);
+cy_rslt_t cy_rtos_set_semaphore(cy_semaphore_t* semaphore, bool in_isr);
 
 /**
  * Get the count of a semaphore.
@@ -408,9 +463,10 @@ cy_rslt_t cy_rtos_set_semaphore(cy_semaphore_t *semaphore, bool in_isr);
  *
  * @param[in]  semaphore   Pointer to the semaphore handle
  * @param[out] count       Pointer to the return count
- * @return The status of get semaphore count operation [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
+ * @return The status of get semaphore count operation [\ref CY_RSLT_SUCCESS, \ref
+ *         CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_get_count_semaphore(cy_semaphore_t *semaphore, size_t *count);
+cy_rslt_t cy_rtos_get_count_semaphore(cy_semaphore_t* semaphore, size_t* count);
 
 /**
  * Deletes a semaphore
@@ -419,13 +475,14 @@ cy_rslt_t cy_rtos_get_count_semaphore(cy_semaphore_t *semaphore, size_t *count);
  *
  * @param[in] semaphore   Pointer to the semaphore handle
  *
- * @return The status of semaphore deletion [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY, \ref CY_RTOS_GENERAL_ERROR]
+ * @return The status of semaphore deletion [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY, \ref
+ *         CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_deinit_semaphore(cy_semaphore_t *semaphore);
+cy_rslt_t cy_rtos_deinit_semaphore(cy_semaphore_t* semaphore);
 
 /** \} group_abstraction_rtos_semaphore */
 
-/*********************************************** Events **********************************************/
+/********************************************* Events ********************************************/
 
 /**
  * \ingroup group_abstraction_rtos_event
@@ -442,7 +499,7 @@ cy_rslt_t cy_rtos_deinit_semaphore(cy_semaphore_t *semaphore);
  * @return The status of the event initialization request.
  *         [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY, \ref CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_init_event(cy_event_t *event);
+cy_rslt_t cy_rtos_init_event(cy_event_t* event);
 
 /** Set the event flag bits.
  *
@@ -453,9 +510,10 @@ cy_rslt_t cy_rtos_init_event(cy_event_t *event);
  * @param[in] bits   The value of the 32 bit flags
  * @param[in] in_isr If true, this is called from an ISR, otherwise from a thread
  *
- * @return The status of the set request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY, \ref CY_RTOS_GENERAL_ERROR]
+ * @return The status of the set request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY, \ref
+ *         CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_setbits_event(cy_event_t *event, uint32_t bits, bool in_isr) ;
+cy_rslt_t cy_rtos_setbits_event(cy_event_t* event, uint32_t bits, bool in_isr);
 
 /**
  * Clear the event flag bits
@@ -466,9 +524,10 @@ cy_rslt_t cy_rtos_setbits_event(cy_event_t *event, uint32_t bits, bool in_isr) ;
  * @param[in] bits    Any bits set in this value, will be cleared in the event.
  * @param[in] in_isr  if true, this is called from an ISR, otherwise from a thread
  *
- * @return The status of the clear flags request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY, \ref CY_RTOS_GENERAL_ERROR]
+ * @return The status of the clear flags request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY,
+ *         \ref CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_clearbits_event(cy_event_t *event, uint32_t bits, bool in_isr) ;
+cy_rslt_t cy_rtos_clearbits_event(cy_event_t* event, uint32_t bits, bool in_isr);
 
 /** Get the event bits.
  *
@@ -477,9 +536,10 @@ cy_rslt_t cy_rtos_clearbits_event(cy_event_t *event, uint32_t bits, bool in_isr)
  * @param[in]  event Pointer to the event handle
  * @param[out] bits  pointer to receive the value of the event flags
  *
- * @return The status of the get request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY, \ref CY_RTOS_GENERAL_ERROR]
+ * @return The status of the get request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY, \ref
+ *         CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_getbits_event(cy_event_t *event, uint32_t *bits);
+cy_rslt_t cy_rtos_getbits_event(cy_event_t* event, uint32_t* bits);
 
 /** Wait for the event and return bits.
  *
@@ -495,9 +555,11 @@ cy_rslt_t cy_rtos_getbits_event(cy_event_t *event, uint32_t *bits);
  *                      if false, any one bit in the initial bits value must be set to return
  * @param[in] timeout   The amount of time to wait in milliseconds
  *
- * @return The status of the wait for event request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY, \ref CY_RTOS_GENERAL_ERROR]
+ * @return The status of the wait for event request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY,
+ *         \ref CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_waitbits_event(cy_event_t *event, uint32_t *bits, bool clear, bool all, cy_time_t timeout);
+cy_rslt_t cy_rtos_waitbits_event(cy_event_t* event, uint32_t* bits, bool clear, bool all,
+                                 cy_time_t timeout);
 
 /** Deinitialize a event.
  *
@@ -507,11 +569,11 @@ cy_rslt_t cy_rtos_waitbits_event(cy_event_t *event, uint32_t *bits, bool clear, 
  *
  * @return The status of the deletion request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_deinit_event(cy_event_t *event);
+cy_rslt_t cy_rtos_deinit_event(cy_event_t* event);
 
 /** \} group_abstraction_rtos_event */
 
-/*********************************************** Queues **********************************************/
+/********************************************* Queues *********************************************/
 
 /**
  * \ingroup group_abstraction_rtos_queue
@@ -527,9 +589,10 @@ cy_rslt_t cy_rtos_deinit_event(cy_event_t *event);
  * @param[in]  length   The maximum length of the queue in items
  * @param[in]  itemsize The size of each item in the queue.
  *
- * @return The status of the creation request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY, \ref CY_RTOS_GENERAL_ERROR]
+ * @return The status of the init request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY, \ref
+ *         CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_init_queue(cy_queue_t *queue, size_t length, size_t itemsize);
+cy_rslt_t cy_rtos_init_queue(cy_queue_t* queue, size_t length, size_t itemsize);
 
 /** Put an item in a queue.
  *
@@ -544,9 +607,11 @@ cy_rslt_t cy_rtos_init_queue(cy_queue_t *queue, size_t length, size_t itemsize);
  * @param[in] timeout_ms The time to wait to place the item in the queue
  * @param[in] in_isr     If true this is being called from within and ISR
  *
- * @return The status of the creation request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY, \ref CY_RTOS_GENERAL_ERROR, \ref CY_RTOS_QUEUE_FULL]
+ * @return The status of the put request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY, \ref
+ *         CY_RTOS_GENERAL_ERROR, \ref CY_RTOS_QUEUE_FULL]
  */
-cy_rslt_t cy_rtos_put_queue(cy_queue_t *queue, const void *item_ptr, cy_time_t timeout_ms, bool in_isr);
+cy_rslt_t cy_rtos_put_queue(cy_queue_t* queue, const void* item_ptr, cy_time_t timeout_ms,
+                            bool in_isr);
 
 /** Gets an item in a queue.
  *
@@ -561,9 +626,10 @@ cy_rslt_t cy_rtos_put_queue(cy_queue_t *queue, const void *item_ptr, cy_time_t t
  * @param[in] timeout_ms The time to wait to get an item from the queue
  * @param[in] in_isr     If true this is being called from within an ISR
  *
- * @return The status of the creation request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY, \ref CY_RTOS_GENERAL_ERROR, \ref CY_RTOS_QUEUE_EMPTY]
+ * @return The status of the get request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_NO_MEMORY, \ref
+ *         CY_RTOS_GENERAL_ERROR, \ref CY_RTOS_QUEUE_EMPTY]
  */
-cy_rslt_t cy_rtos_get_queue(cy_queue_t *queue, void *item_ptr, cy_time_t timeout_ms, bool in_isr);
+cy_rslt_t cy_rtos_get_queue(cy_queue_t* queue, void* item_ptr, cy_time_t timeout_ms, bool in_isr);
 
 /** Return the number of items in the queue.
  *
@@ -572,9 +638,9 @@ cy_rslt_t cy_rtos_get_queue(cy_queue_t *queue, void *item_ptr, cy_time_t timeout
  * @param[in]  queue       Pointer to the queue handle
  * @param[out] num_waiting Pointer to the return count
  *
- * @return The status of the creation request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
+ * @return The status of the count request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_count_queue(cy_queue_t *queue, size_t *num_waiting);
+cy_rslt_t cy_rtos_count_queue(cy_queue_t* queue, size_t* num_waiting);
 
 /** Return the amount of empty space in the queue.
  *
@@ -585,9 +651,9 @@ cy_rslt_t cy_rtos_count_queue(cy_queue_t *queue, size_t *num_waiting);
  * @param[in]  queue      Pointer to the queue handle
  * @param[out] num_spaces Pointer to the return count.
  *
- * @return The status of the creation request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
+ * @return The status of the space request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_space_queue(cy_queue_t *queue, size_t *num_spaces);
+cy_rslt_t cy_rtos_space_queue(cy_queue_t* queue, size_t* num_spaces);
 
 /** Reset the queue.
  *
@@ -595,9 +661,9 @@ cy_rslt_t cy_rtos_space_queue(cy_queue_t *queue, size_t *num_spaces);
  *
  * @param[in] queue pointer to the queue handle
  *
- * @return The status of the creation request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
+ * @return The status of the reset request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_reset_queue(cy_queue_t *queue);
+cy_rslt_t cy_rtos_reset_queue(cy_queue_t* queue);
 
 /** Deinitialize the queue handle.
  *
@@ -606,13 +672,13 @@ cy_rslt_t cy_rtos_reset_queue(cy_queue_t *queue);
  *
  * @param[in] queue Pointer to the queue handle
  *
- * @return The status of the creation request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
+ * @return The status of the deinit request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_deinit_queue(cy_queue_t *queue);
+cy_rslt_t cy_rtos_deinit_queue(cy_queue_t* queue);
 
 /** \} group_abstraction_rtos_queue */
 
-/*********************************************** Timers **********************************************/
+/********************************************* Timers *********************************************/
 
 /**
  * \ingroup group_abstraction_rtos_timer
@@ -630,36 +696,38 @@ cy_rslt_t cy_rtos_deinit_queue(cy_queue_t *queue);
  * @param[in]  fun   The function
  * @param[in]  arg   Argument to pass along to the callback function
  *
- * @return The status of the creation request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
+ * @return The status of the init request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_init_timer(cy_timer_t *timer, cy_timer_trigger_type_t type,
-        cy_timer_callback_t fun, cy_timer_callback_arg_t arg);
+cy_rslt_t cy_rtos_init_timer(cy_timer_t* timer, cy_timer_trigger_type_t type,
+                             cy_timer_callback_t fun, cy_timer_callback_arg_t arg);
 
-/** Start a timer.
+/** Sends a request to start the timer. Depending on the priorities of threads in the system,
+ * it may be necessary for high priority items to wait before the timer actually starts running.
  *
  * @param[in] timer  Pointer to the timer handle
  * @param[in] num_ms The number of milliseconds to wait before the timer fires
  *
- * @return The status of the creation request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
+ * @return The status of the start request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_start_timer(cy_timer_t *timer, cy_time_t num_ms);
+cy_rslt_t cy_rtos_start_timer(cy_timer_t* timer, cy_time_t num_ms);
 
-/** Stop a timer.
+/** Sends a request to stop the timer. Depending on the priorities of threads in the system,
+ * it may be necessary for high priority items to wait before the timer is actually stopped.
  *
  * @param[in] timer Pointer to the timer handle
  *
- * @return The status of the creation request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
+ * @return The status of the stop request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_stop_timer(cy_timer_t *timer);
+cy_rslt_t cy_rtos_stop_timer(cy_timer_t* timer);
 
 /** Returns state of a timer.
  *
  * @param[in]  timer Pointer to the timer handle
  * @param[out] state Return value for state, true if running, false otherwise
  *
- * @return The status of the creation request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
+ * @return The status of the is_running request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_is_running_timer(cy_timer_t *timer, bool *state);
+cy_rslt_t cy_rtos_is_running_timer(cy_timer_t* timer, bool* state);
 
 /** Deinit the timer.
  *
@@ -667,13 +735,13 @@ cy_rslt_t cy_rtos_is_running_timer(cy_timer_t *timer, bool *state);
  *
  * @param[in] timer Pointer to the timer handle
  *
- * @return The status of the creation request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
+ * @return The status of the deinit request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
  */
-cy_rslt_t cy_rtos_deinit_timer(cy_timer_t *timer);
+cy_rslt_t cy_rtos_deinit_timer(cy_timer_t* timer);
 
 /** \} group_abstraction_rtos_timer */
 
-/*********************************************** Time **********************************************/
+/********************************************** Time **********************************************/
 
 /**
  * \ingroup group_abstraction_rtos_time
@@ -682,13 +750,14 @@ cy_rslt_t cy_rtos_deinit_timer(cy_timer_t *timer);
 
 /** Gets time in milliseconds since RTOS start.
  *
- * @note Since this is only 32 bits, it will roll over every 49 days, 17 hours, 2 mins, 47.296 seconds
+ * @note Since this is only 32 bits, it will roll over every 49 days, 17 hours, 2 mins, 47.296
+ * seconds
  *
  * @param[out] tval Pointer to the struct to populate with the RTOS time
  *
  * @returns Time in milliseconds since the RTOS started.
  */
-cy_rslt_t cy_rtos_get_time(cy_time_t *tval);
+cy_rslt_t cy_rtos_get_time(cy_time_t* tval);
 
 /** Delay for a number of milliseconds.
  *
@@ -699,13 +768,12 @@ cy_rslt_t cy_rtos_get_time(cy_time_t *tval);
  *
  * @param[in] num_ms The number of milliseconds to delay for
  *
- * @return The status of the creation request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
+ * @return The status of the delay request. [\ref CY_RSLT_SUCCESS, \ref CY_RTOS_GENERAL_ERROR]
  */
 cy_rslt_t cy_rtos_delay_milliseconds(cy_time_t num_ms);
 
 /** \} group_abstraction_rtos_time */
 
 #ifdef __cplusplus
-} /* extern "C" */
+} // extern "C"
 #endif
-#endif /* ifndef INCLUDED_CY_RTOS_INTERFACE_H_ */
