@@ -406,6 +406,17 @@ Option is also to define your own `HAL_ETH_MspInit` function,
 you then have to add **USE_USER_DEFINED_HAL_ETH_MSPINIT** macro.
 
 
+### Asynchronous SPI limitation
+
+The current Asynchronous SPI implementation will not be able to support high speeds (MHz Range).
+The maximum speed supported depends on
+- core operating frequency
+- depth of SPI FIFOs (if available).
+
+For application that require optimized maximum performance, the recommendation is to implement the DMA-based SPI transfer.
+The SPI DMA transfer support shall be implemented on a case-by-case based on below example
+https://github.com/ABOSTM/mbed-os/tree/I2C_SPI_DMA_IMPLEMENTATION_FOR_STM32L4
+
 
 ## Mbed OS Wiki pages
 
