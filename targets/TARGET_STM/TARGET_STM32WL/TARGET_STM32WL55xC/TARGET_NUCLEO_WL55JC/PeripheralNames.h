@@ -35,7 +35,7 @@ typedef enum {
 
 typedef enum {
     UART_1 = (int)USART1_BASE,
-	UART_2 = (int)USART2_BASE,
+    UART_2 = (int)USART2_BASE,
     LPUART_1 = (int)LPUART1_BASE
 } UARTName;
 
