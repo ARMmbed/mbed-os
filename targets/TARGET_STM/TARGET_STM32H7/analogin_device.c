@@ -67,6 +67,9 @@ void analogin_init(analogin_t *obj, PinName pin)
         // Get the functions (adc channel) from the pin and assign it to the object
         function = pinmap_function(pin, PinMap_ADC);
         // Configure GPIO
+#if defined(ALTC)
+    if ((pin != PA_0C) && (pin != PA_1C) && (pin != PC_2C) && (pin != PC_3C))
+#endif
         pinmap_pinout(pin, PinMap_ADC);
     } else {
         // Internal channels
