@@ -317,6 +317,9 @@ matrix:
       stage: "Frozen tools check"
       name: "Frozen tools check"
       env: NAME=frozen_tools_check
+      before_script:
+        # Fetch the base branch to compare against
+        - git fetch origin "${TRAVIS_BRANCH}" --depth=1
       script:
         # Reject any changes to tools that would require a re-release of the
         # tools for the online compiler.
