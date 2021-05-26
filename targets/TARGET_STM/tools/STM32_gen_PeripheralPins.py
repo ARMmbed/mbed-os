@@ -666,7 +666,6 @@ def print_adc():
     # the GPIOx_ASCR register
     if re.match("STM32L4[78]+", mcu_file):
         s_pin_data += "_ADC_CONTROL"
-    s_pin_data += ", GPIO_NOPULL, 0, "
 
     prev_p = ''
     alt_index = 0
@@ -698,8 +697,9 @@ def print_adc():
             if len(inst) == 0:
                 inst = '1' #single ADC for this product
             line_to_write += "%-7s" % ('ADC_' + inst + ',')
-            chan = re.sub('IN[N|P]?', '', a[1])
-            line_to_write += s_pin_data + chan
+            chan = re.sub(r"^IN[N|P]?|\D*$", "", a[1])
+            bank = "_ADC_CHANNEL_BANK_B" if a[1].endswith("b") else ""
+            line_to_write += s_pin_data + bank + ", GPIO_NOPULL, 0, " + chan
             line_to_write += ', 0)}, // ' + parsed_pin[2]
             if parsed_pin[1] in PinLabel:
                 line_to_write += ' // Connected to ' + PinLabel[parsed_pin[1]]
