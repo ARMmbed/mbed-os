@@ -325,7 +325,7 @@ matrix:
         # tools for the online compiler.
         - >-
             frozen_files=`\
-                git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
+                git diff --name-only FETCH_HEAD..HEAD \
                     | egrep \
                       -e "^tools/build_api*" \
                       -e "^tools/config*" \
