@@ -153,6 +153,8 @@ public:
         if (!_stack) {
             _stack = new my_stack(_at, *get_device());
         }
+
+        return _stack;
     }
     virtual uint32_t get_timeout_for_operation(ContextOperation op) const
     {

@@ -94,6 +94,7 @@ void LoRaMac::post_process_mlme_ind()
 
 lorawan_time_t LoRaMac::get_current_time(void)
 {
+    return 0;
 }
 
 rx_slot_t LoRaMac::get_current_slot(void)

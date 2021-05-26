@@ -62,6 +62,7 @@ int EmulatedSD::deinit()
 {
     fclose(_p->fs);
     _p->fs = nullptr;
+    return 0;
 }
 
 int EmulatedSD::read(void *buffer, bd_addr_t addr, bd_size_t size)

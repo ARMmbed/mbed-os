@@ -88,6 +88,7 @@ public:
 
     virtual uint32_t random(void)
     {
+        return 4;
     };
 
     virtual uint8_t get_status(void)
@@ -105,6 +106,7 @@ public:
 
     virtual uint32_t time_on_air(radio_modems_t modem, uint8_t pkt_len)
     {
+        return 0;
     };
 
     virtual bool perform_carrier_sense(radio_modems_t modem,

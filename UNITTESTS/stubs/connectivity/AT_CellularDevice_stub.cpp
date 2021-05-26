@@ -56,6 +56,7 @@ ATHandler *AT_CellularDevice::get_at_handler()
 
 CellularContext *create_context(const char *apn)
 {
+    return nullptr;
 }
 
 void delete_context(CellularContext *context)

@@ -85,6 +85,7 @@ ssize_t BufferedSerial::write_unbuffered(const char *buf_ptr, size_t length)
 
 bool BufferedSerial::hup() const
 {
+    return false;
 }
 
 void BufferedSerial::wake()
