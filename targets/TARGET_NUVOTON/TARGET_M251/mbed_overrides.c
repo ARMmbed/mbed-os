@@ -48,12 +48,18 @@ void mbed_sdk_init(void)
 #if MBED_CONF_TARGET_HXT_PRESENT
     /* Enable HXT clock (external XTAL 12MHz) */
     CLK_EnableXtalRC(CLK_PWRCTL_HXTEN_Msk);
+#else
+    /* Disable HXT clock (external XTAL 12MHz) */
+    CLK_DisableXtalRC(CLK_PWRCTL_HXTEN_Msk);
 #endif
     /* Enable LIRC */
     CLK_EnableXtalRC(CLK_PWRCTL_LIRCEN_Msk);
 #if MBED_CONF_TARGET_LXT_PRESENT
     /* Enable LXT */
     CLK_EnableXtalRC(CLK_PWRCTL_LXTEN_Msk);
+#else
+    /* Disable LXT */
+    CLK_DisableXtalRC(CLK_PWRCTL_LXTEN_Msk);
 #endif
 
     /* Wait for HIRC clock ready */
