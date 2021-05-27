@@ -613,43 +613,45 @@ HAL_StatusTypeDef HAL_IRDA_UnRegisterCallback(IRDA_HandleTypeDef *hirda, HAL_IRD
     switch (CallbackID)
     {
       case HAL_IRDA_TX_HALFCOMPLETE_CB_ID :
-        hirda->TxHalfCpltCallback = HAL_IRDA_TxHalfCpltCallback;               /* Legacy weak  TxHalfCpltCallback       */
+        hirda->TxHalfCpltCallback = HAL_IRDA_TxHalfCpltCallback;               /* Legacy weak  TxHalfCpltCallback    */
         break;
 
       case HAL_IRDA_TX_COMPLETE_CB_ID :
-        hirda->TxCpltCallback = HAL_IRDA_TxCpltCallback;                       /* Legacy weak TxCpltCallback            */
+        hirda->TxCpltCallback = HAL_IRDA_TxCpltCallback;                       /* Legacy weak TxCpltCallback         */
         break;
 
       case HAL_IRDA_RX_HALFCOMPLETE_CB_ID :
-        hirda->RxHalfCpltCallback = HAL_IRDA_RxHalfCpltCallback;               /* Legacy weak RxHalfCpltCallback        */
+        hirda->RxHalfCpltCallback = HAL_IRDA_RxHalfCpltCallback;               /* Legacy weak RxHalfCpltCallback     */
         break;
 
       case HAL_IRDA_RX_COMPLETE_CB_ID :
-        hirda->RxCpltCallback = HAL_IRDA_RxCpltCallback;                       /* Legacy weak RxCpltCallback            */
+        hirda->RxCpltCallback = HAL_IRDA_RxCpltCallback;                       /* Legacy weak RxCpltCallback         */
         break;
 
       case HAL_IRDA_ERROR_CB_ID :
-        hirda->ErrorCallback = HAL_IRDA_ErrorCallback;                         /* Legacy weak ErrorCallback             */
+        hirda->ErrorCallback = HAL_IRDA_ErrorCallback;                         /* Legacy weak ErrorCallback          */
         break;
 
       case HAL_IRDA_ABORT_COMPLETE_CB_ID :
-        hirda->AbortCpltCallback = HAL_IRDA_AbortCpltCallback;                 /* Legacy weak AbortCpltCallback         */
+        hirda->AbortCpltCallback = HAL_IRDA_AbortCpltCallback;                 /* Legacy weak AbortCpltCallback      */
         break;
 
       case HAL_IRDA_ABORT_TRANSMIT_COMPLETE_CB_ID :
-        hirda->AbortTransmitCpltCallback = HAL_IRDA_AbortTransmitCpltCallback; /* Legacy weak AbortTransmitCpltCallback */
+        hirda->AbortTransmitCpltCallback = HAL_IRDA_AbortTransmitCpltCallback; /* Legacy weak
+                                                                                  AbortTransmitCpltCallback          */
         break;
 
       case HAL_IRDA_ABORT_RECEIVE_COMPLETE_CB_ID :
-        hirda->AbortReceiveCpltCallback = HAL_IRDA_AbortReceiveCpltCallback;   /* Legacy weak AbortReceiveCpltCallback  */
+        hirda->AbortReceiveCpltCallback = HAL_IRDA_AbortReceiveCpltCallback;   /* Legacy weak
+                                                                                  AbortReceiveCpltCallback           */
         break;
 
       case HAL_IRDA_MSPINIT_CB_ID :
-        hirda->MspInitCallback = HAL_IRDA_MspInit;                             /* Legacy weak MspInitCallback           */
+        hirda->MspInitCallback = HAL_IRDA_MspInit;                             /* Legacy weak MspInitCallback        */
         break;
 
       case HAL_IRDA_MSPDEINIT_CB_ID :
-        hirda->MspDeInitCallback = HAL_IRDA_MspDeInit;                         /* Legacy weak MspDeInitCallback         */
+        hirda->MspDeInitCallback = HAL_IRDA_MspDeInit;                         /* Legacy weak MspDeInitCallback      */
         break;
 
       default :
@@ -2242,7 +2244,7 @@ static HAL_StatusTypeDef IRDA_SetConfig(IRDA_HandleTypeDef *hirda)
   uint32_t tmpreg;
   IRDA_ClockSourceTypeDef clocksource;
   HAL_StatusTypeDef ret = HAL_OK;
-  const uint16_t IRDAPrescTable[12] = {1U, 2U, 4U, 6U, 8U, 10U, 12U, 16U, 32U, 64U, 128U, 256U};
+  static const uint16_t IRDAPrescTable[12] = {1U, 2U, 4U, 6U, 8U, 10U, 12U, 16U, 32U, 64U, 128U, 256U};
   uint32_t pclk;
 
   /* Check the communication parameters */

@@ -164,8 +164,8 @@ typedef enum
   HASH_IRQn                 = 96,     /*!< HASH global interrupt                                             */
   LPTIM3_IRQn               = 98,     /*!< LPTIM3 global interrupt                                           */
   SPI3_IRQn                 = 99,     /*!< SPI3 global interrupt                                             */
-  I2C4_EV_IRQn              = 100,    /*!< I2C4 Event interrupt                                              */
-  I2C4_ER_IRQn              = 101,    /*!< I2C4 Error interrupt                                              */
+  I2C4_ER_IRQn              = 100,    /*!< I2C4 Error interrupt                                              */
+  I2C4_EV_IRQn              = 101,    /*!< I2C4 Event interrupt                                              */
   DFSDM1_FLT0_IRQn          = 102,    /*!< DFSDM1 Filter 0 global interrupt                                  */
   DFSDM1_FLT1_IRQn          = 103,    /*!< DFSDM1 Filter 1 global interrupt                                  */
   DFSDM1_FLT2_IRQn          = 104,    /*!< DFSDM1 Filter 2 global interrupt                                  */
@@ -1022,7 +1022,9 @@ typedef struct
   __IO uint32_t SMISR;       /*!< TAMP secure masked interrupt status register, Address offset: 0x38 */
   __IO uint32_t SCR;         /*!< TAMP status clear register,               Address offset: 0x3C */
   __IO uint32_t COUNTR;      /*!< TAMP monotonic counter register,          Address offset: 0x40 */
-       uint32_t RESERVED1[47];/*!< Reserved,                                Address offset: 0x54 -- 0xFC */
+       uint32_t RESERVED1[3];/*!< Reserved,                                 Address offset: 0x44 -- 0x4C */
+  __IO uint32_t CFGR;        /*!< TAMP configuration register,              Address offset: 0x50 */
+       uint32_t RESERVED2[43];/*!< Reserved,                                Address offset: 0x54 -- 0xFC */
   __IO uint32_t BKP0R;       /*!< TAMP backup register 0,                   Address offset: 0x100 */
   __IO uint32_t BKP1R;       /*!< TAMP backup register 1,                   Address offset: 0x104 */
   __IO uint32_t BKP2R;       /*!< TAMP backup register 2,                   Address offset: 0x108 */
@@ -13974,9 +13976,20 @@ typedef struct
 #define TAMP_SCR_CITAMP8F            TAMP_SCR_CITAMP8F_Msk
 
 /********************  Bits definition for TAMP_COUNTR register  ***************/
-#define TAMP_COUNTR_Pos               (16U)
-#define TAMP_COUNTR_Msk               (0xFFFFUL << TAMP_COUNTR_Pos)            /*!< 0xFFFF0000 */
-#define TAMP_COUNTR                   TAMP_COUNTR_Msk
+#define TAMP_COUNTR_Pos              (16U)
+#define TAMP_COUNTR_Msk              (0xFFFFUL << TAMP_COUNTR_Pos)            /*!< 0xFFFF0000 */
+#define TAMP_COUNTR                  TAMP_COUNTR_Msk
+
+/********************  Bits definition for TAMP_CFGR register  *****************/
+#define TAMP_CFGR_TMONEN_Pos         (1U)
+#define TAMP_CFGR_TMONEN_Msk         (0x1UL << TAMP_CFGR_TMONEN_Pos)           /*!< 0x00000002 */
+#define TAMP_CFGR_TMONEN             TAMP_CFGR_TMONEN_Msk
+#define TAMP_CFGR_VMONEN_Pos         (2U)
+#define TAMP_CFGR_VMONEN_Msk         (0x1UL << TAMP_CFGR_VMONEN_Pos)           /*!< 0x00000004 */
+#define TAMP_CFGR_VMONEN             TAMP_CFGR_VMONEN_Msk
+#define TAMP_CFGR_WUTMONEN_Pos       (3U)
+#define TAMP_CFGR_WUTMONEN_Msk       (0x1UL << TAMP_CFGR_WUTMONEN_Pos)         /*!< 0x00000008 */
+#define TAMP_CFGR_WUTMONEN           TAMP_CFGR_WUTMONEN_Msk
 
 /********************  Bits definition for TAMP_BKP0R register  ***************/
 #define TAMP_BKP0R_Pos               (0U)

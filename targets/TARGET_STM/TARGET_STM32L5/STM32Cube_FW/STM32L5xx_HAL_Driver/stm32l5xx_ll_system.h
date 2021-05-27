@@ -59,16 +59,16 @@ extern "C" {
   * @{
   */
 /**
- * @brief VREFBUF VREF_SC0 & VREF_SC1 calibration values
- */
+  * @brief VREFBUF VREF_SC0 & VREF_SC1 calibration values
+  */
 #define VREFBUF_SC0_CAL_ADDR   ((uint8_t*) (0x0BFA0579UL)) /*!<  Address of VREFBUF trimming value for VRS=0,
                                                                  VREF_SC0 in STM32L5 datasheet */
 #define VREFBUF_SC1_CAL_ADDR   ((uint8_t*) (0x0BFA0530UL)) /*!<  Address of VREFBUF trimming value for VRS=1,
                                                                  VREF_SC1 in STM32L5 datasheet */
 
 /**
- * @brief Power-down in Run mode Flash key
- */
+  * @brief Power-down in Run mode Flash key
+  */
 #define FLASH_PDKEY1                  0x04152637U /*!< Flash power down key1 */
 #define FLASH_PDKEY2                  0xFAFBFCFDU /*!< Flash power down key2: used with FLASH_PDKEY1
                                                        to unlock the RUN_PD bit in FLASH_ACR */

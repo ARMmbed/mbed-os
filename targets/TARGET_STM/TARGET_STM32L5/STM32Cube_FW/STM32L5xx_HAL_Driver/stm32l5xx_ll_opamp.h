@@ -153,8 +153,11 @@ typedef struct
 /** @defgroup OPAMP_LL_EC_POWERMODE OPAMP power mode
   * @{
   */
-#define LL_OPAMP_POWERMODE_NORMAL       (OPAMP_POWERMODE_OTR_REGOFFSET)                      /*!< OPAMP power mode normal */
+#define LL_OPAMP_POWERMODE_NORMALPOWER  (OPAMP_POWERMODE_OTR_REGOFFSET)                      /*!< OPAMP power mode normal */
 #define LL_OPAMP_POWERMODE_LOWPOWER     (OPAMP_POWERMODE_LPOTR_REGOFFSET | OPAMP_CSR_OPALPM) /*!< OPAMP power mode low-power */
+
+#define LL_OPAMP_POWERMODE_NORMAL       LL_OPAMP_POWERMODE_NORMALPOWER                       /*!< OPAMP power mode normal - Old Naming for compatibility */
+
 /**
   * @}
   */

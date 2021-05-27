@@ -44,7 +44,8 @@
         @ref HAL_ICACHE_InvalidateCompleteCallback() is called when the invalidate
         procedure is complete. The function @ref HAL_ICACHE_WaitForInvalidateComplete()
         may be called to wait for the end of the invalidate procedure automatically
-        initiated when disabling the Instruction Cache with @ref HAL_ICACHE_Disable()
+        initiated when disabling the Instruction Cache with @ref HAL_ICACHE_Disable().
+        The cache operation is bypassed during the invalidation procedure.
 
     (#) Use the performance monitoring counters for Hit and Miss with the following
         functions: @ref HAL_ICACHE_Monitor_Start(), @ref HAL_ICACHE_Monitor_Stop(),
@@ -216,8 +217,12 @@ HAL_StatusTypeDef HAL_ICACHE_Disable(void)
   {
     if ((HAL_GetTick() - tickstart) > ICACHE_DISABLE_TIMEOUT_VALUE)
     {
-      status = HAL_TIMEOUT;
-      break;
+      /* New check to avoid false timeout detection in case of preemption */
+      if (READ_BIT(ICACHE->CR, ICACHE_CR_EN) != 0U)
+      {
+        status = HAL_TIMEOUT;
+        break;
+      }
     }
   }
 
@@ -306,8 +311,12 @@ HAL_StatusTypeDef HAL_ICACHE_WaitForInvalidateComplete(void)
     {
       if ((HAL_GetTick() - tickstart) > ICACHE_INVALIDATE_TIMEOUT_VALUE)
       {
-        status = HAL_TIMEOUT;
-        break;
+        /* New check to avoid false timeout detection in case of preemption */
+        if (READ_BIT(ICACHE->SR, ICACHE_SR_BSYENDF) == 0U)
+        {
+          status = HAL_TIMEOUT;
+          break;
+        }
       }
     }
   }
