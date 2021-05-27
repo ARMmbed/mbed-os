@@ -71,7 +71,6 @@ if(${CMAKE_CROSSCOMPILING})
     
     mbed_set_cpu_core_definitions(mbed-core)
     if(${MBED_TOOLCHAIN_FILE_USED})
-        message(STATUS ${MBED_TOOLCHAIN})
         mbed_set_profile_options(mbed-core ${MBED_TOOLCHAIN})
         mbed_set_c_lib(mbed-core ${MBED_C_LIB})
         mbed_set_printf_lib(mbed-core ${MBED_PRINTF_LIB})
