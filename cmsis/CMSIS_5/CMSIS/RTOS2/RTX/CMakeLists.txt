@@ -39,11 +39,7 @@ if(${CMAKE_CROSSCOMPILING})
     
     _mbed_get_cortex_a_exception_handlers()
     
-    if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
-        _mbed_get_cortex_m_exception_handlers(TOOLCHAIN_GCC)
-    elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
-        _mbed_get_cortex_m_exception_handlers(TOOLCHAIN_ARM)
-    endif()
+    _mbed_get_cortex_m_exception_handlers(TOOLCHAIN_GCC)
 endif()
 
 target_include_directories(mbed-rtos
