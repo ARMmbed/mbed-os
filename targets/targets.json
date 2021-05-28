@@ -6260,7 +6260,7 @@
         "device_name": "NUC472HI8AE",
         "bootloader_supported": true,
         "overrides": {
-            "hxt-present": true,
+            "hxt-present": false,
             "lxt-present": true,
             "network-default-interface-type": "ETHERNET",
             "deep-sleep-latency": 1,
@@ -6397,7 +6397,7 @@
         "device_name": "M453VG6AE",
         "bootloader_supported": true,
         "overrides": {
-            "hxt-present": true,
+            "hxt-present": false,
             "lxt-present": true,
             "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
@@ -6510,7 +6510,7 @@
         ],
         "device_name": "NANO130KE3BN",
         "overrides": {
-            "hxt-present": true,
+            "hxt-present": false,
             "lxt-present": true,
             "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
@@ -6673,7 +6673,7 @@
             "1304"
         ],
         "overrides": {
-            "hxt-present": true,
+            "hxt-present": false,
             "lxt-present": true,
             "usb-uart": "UART_0",
             "usb-uart-tx": "PB_13",
@@ -6694,7 +6694,7 @@
             "1308"
         ],
         "overrides": {
-            "hxt-present": true,
+            "hxt-present": false,
             "lxt-present": true,
             "usb-uart": "UART_0",
             "usb-uart-tx": "PB_13",
@@ -8084,7 +8084,7 @@
         ],
         "bootloader_supported": true,
         "overrides": {
-            "hxt-present": true,
+            "hxt-present": false,
             "lxt-present": true,
             "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
