@@ -100,7 +100,7 @@ private:
     NetworkStack *_nstack = NULL;
     NetworkInterface *_niface = NULL;
     UDPSocket _socket;
-    Thread _thread;
+    rtos::Thread _thread;
     bool _running = false;
 
     cy_ip_addr_t _available_addr;

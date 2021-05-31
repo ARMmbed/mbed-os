@@ -27,6 +27,7 @@
 #include "whd_emac.h"
 #include "whd_wifi_api.h"
 #include "whd_wlioctl.h"
+#include "cy_utils.h"
 
 #define CMP_MAC( a, b )  (((((unsigned char*)a)[0])==(((unsigned char*)b)[0]))&& \
                           ((((unsigned char*)a)[1])==(((unsigned char*)b)[1]))&& \
