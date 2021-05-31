@@ -105,7 +105,7 @@ void equeue_background(equeue_t *queue,
 
 int equeue_chain(equeue_t *queue, equeue_t *target)
 {
-
+    return 0;
 }
 
 int equeue_call_in(equeue_t *q, int ms, void (*cb)(void *), void *data)

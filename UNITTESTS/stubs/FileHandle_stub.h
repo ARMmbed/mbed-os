@@ -67,6 +67,7 @@ public:
 
     virtual int close()
     {
+        return 0;
     }
 
     virtual short poll(short events) const
