@@ -20,10 +20,6 @@
 #error [NOT_SUPPORTED] ITS/PS test cases require RTOS to run.
 #else
 
-#ifndef TARGET_PSA
-#error [NOT_SUPPORTED] ITS/PS tests can run only on PSA-enabled targets.
-#else
-
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
 #include "utest/utest.h"
@@ -243,5 +239,4 @@ int main()
     return !Harness::run(specification);
 }
 
-#endif // TARGET_PSA
 #endif // !defined(MBED_CONF_RTOS_PRESENT)

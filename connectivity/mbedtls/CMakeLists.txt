@@ -84,6 +84,7 @@ target_sources(mbed-mbedtls
         source/ssl_srv.c
         source/ssl_ticket.c
         source/ssl_tls.c
+        source/ssl_tls13_keys.c
         source/threading.c
         source/timing.c
         source/version.c

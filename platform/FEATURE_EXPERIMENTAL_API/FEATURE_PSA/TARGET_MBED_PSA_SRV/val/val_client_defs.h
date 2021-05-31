@@ -20,7 +20,8 @@
 
 #include "val.h"
 #include "psa/client.h"
-#include "crypto_values.h"
+#include "psa/crypto_types.h"
+#include "psa/crypto_values.h"
 
 #define INVALID_SID                     0x0000FA20
 
