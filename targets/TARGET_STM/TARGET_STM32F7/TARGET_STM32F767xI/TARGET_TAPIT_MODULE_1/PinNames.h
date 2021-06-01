@@ -249,10 +249,12 @@ typedef enum {
 #else
     CONSOLE_RX = PD_9,
 #endif
+    /*
     USBTX = CONSOLE_TX,
     USBRX = CONSOLE_RX,
     STDIO_UART_TX = CONSOLE_TX,
     STDIO_UART_RX = CONSOLE_RX,
+    */
 
     // Generic signals namings
     SOL3 = PA_4,
