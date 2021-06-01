@@ -2403,8 +2403,8 @@ ble_error_t Gap::startAdvertising(
         }
 
         _event_queue.post([this, handle, maxDuration, maxEvents] {
-            start_advertising_enable(handle, maxDuration, maxEvents);
-            evaluate_advertising_enable_queue();
+            queue_advertising_start(handle, maxDuration, maxEvents);
+            process_enable_queue();
         });
 
     } else
@@ -2448,7 +2448,7 @@ ble_error_t Gap::startAdvertising(
 #endif
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING
-void Gap::start_advertising_enable(
+void Gap::queue_advertising_start(
     advertising_handle_t handle,
     adv_duration_t maxDuration,
     uint8_t maxEvents
@@ -2470,7 +2470,7 @@ void Gap::start_advertising_enable(
             }
             next = &(*next)->next;
         }
-        *next = new AdvertisingEnableStackNode_t();
+        *next = new(std::nothrow) AdvertisingEnableStackNode_t();
         if (!*next) {
             tr_error("Out of memory creating pending advertising enable node for handle %d", handle);
             return;
@@ -2482,7 +2482,7 @@ void Gap::start_advertising_enable(
     }
 }
 
-void Gap::evaluate_advertising_enable_queue()
+void Gap::process_enable_queue()
 {
     tr_info("Evaluating pending advertising sets to be started");
     if (_advertising_enable_pending) {
@@ -2575,7 +2575,7 @@ ble_error_t Gap::stopAdvertising(advertising_handle_t handle)
             }
             _pending_stop_sets.set(handle);
             if (!delay) {
-                evaluate_advertising_stop();
+                process_stop();
             }
         });
 
@@ -2604,7 +2604,7 @@ ble_error_t Gap::stopAdvertising(advertising_handle_t handle)
 }
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING
-void Gap::evaluate_advertising_stop()
+void Gap::process_stop()
 {
     // refresh for address for all connectable advertising sets
     for (size_t i = 0; i < BLE_GAP_MAX_ADVERTISING_SETS; ++i) {
@@ -3461,7 +3461,7 @@ void Gap::on_advertising_set_started(const mbed::Span<const uint8_t>& handles)
 
     _event_queue.post([this] {
         _advertising_enable_pending = false;
-        evaluate_advertising_enable_queue();
+        process_enable_queue();
     });
 
     for (const auto &handle : handles) {
@@ -3506,7 +3506,7 @@ void Gap::on_advertising_set_terminated(
 
     _event_queue.post([this, advertising_handle] {
         _pending_stop_sets.clear(advertising_handle);
-        evaluate_advertising_stop();
+        process_stop();
     });
 
     if (!_event_handler) {

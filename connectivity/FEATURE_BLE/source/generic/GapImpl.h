@@ -563,14 +563,14 @@ private:
 
 #if BLE_ROLE_BROADCASTER
 #if BLE_FEATURE_EXTENDED_ADVERTISING
-    void start_advertising_enable(
+    void queue_advertising_start(
         advertising_handle_t handle,
         adv_duration_t maxDuration,
         uint8_t maxEvents
     );
 
-    void evaluate_advertising_enable_queue();
-    void evaluate_advertising_stop();
+    void process_enable_queue();
+    void process_stop();
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
     ble_error_t setAdvertisingData(
