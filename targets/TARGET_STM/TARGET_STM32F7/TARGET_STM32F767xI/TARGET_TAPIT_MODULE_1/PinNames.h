@@ -42,7 +42,6 @@ typedef enum {
     ALT0  = 0x100,
     ALT1  = 0x200,
     ALT2  = 0x300,
-    ALT3  = 0x400
 } ALTx;
 
 typedef enum {
@@ -240,12 +239,20 @@ typedef enum {
     QSPI_FLASH1_SCK = PF_10,
 
     // STDIO for console print
-    SERIAL_TX = PD_8,
-    SERIAL_RX = PD_9,
-    USBTX = SERIAL_TX,
-    USBRX = SERIAL_RX,
-    STDIO_UART_TX = SERIAL_TX,
-    STDIO_UART_RX = SERIAL_RX,
+#ifdef MBED_CONF_TARGET_STDIO_UART_TX
+    CONSOLE_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+#else
+    CONSOLE_TX = PD_8,
+#endif
+#ifdef MBED_CONF_TARGET_STDIO_UART_RX
+    CONSOLE_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+#else
+    CONSOLE_RX = PD_9,
+#endif
+    USBTX = CONSOLE_TX,
+    USBRX = CONSOLE_RX,
+    STDIO_UART_TX = CONSOLE_TX,
+    STDIO_UART_RX = CONSOLE_RX,
 
     // Generic signals namings
     SOL3 = PA_4,
