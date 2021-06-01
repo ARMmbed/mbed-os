@@ -586,9 +586,10 @@ struct AdvertisingStartEvent {
     /** Create an advertising start event.
      *
      * @param advHandle Advertising set handle.
+     * @param status Advertising set start command status.
      */
-    AdvertisingStartEvent(advertising_handle_t advHandle) :
-        advHandle(advHandle)
+    AdvertisingStartEvent(advertising_handle_t advHandle, ble_error_t status = BLE_ERROR_NONE) :
+        advHandle(advHandle), status(status)
     {
     }
 
@@ -600,43 +601,12 @@ struct AdvertisingStartEvent {
         return advHandle;
     }
 
-private:
-    advertising_handle_t advHandle;
-};
-
-/**
- * Event produced when an async advertising command fails.
- *
- * @see ble::Gap::EventHandler::onAdvertisingCommandFailed().
- */
-struct AdvertisingCommandFailedEvent {
-#if !defined(DOXYGEN_ONLY)
-    /** Create an extended advertising command failed event.
-     *
-     * @param advHandle Advertising set handle.
-     * @param status Error code.
-     */
-    AdvertisingCommandFailedEvent(
-        advertising_handle_t advHandle,
-        ble_error_t status
-    ) :
-        advHandle(advHandle),
-        status(status)
-    {
-    }
-
-#endif
-    /** Get advertising handle. */
-    advertising_handle_t getAdvHandle() const
-    {
-        return advHandle;
-    }
-
-    /** Error code that caused the event. */
-    uint8_t getStatus() const
+    /** Get status of operation. */
+    ble_error_t getStatus() const
     {
         return status;
     }
+
 private:
     advertising_handle_t advHandle;
     ble_error_t status;
@@ -648,7 +618,8 @@ private:
  * @see ble::Gap::EventHandler::onAdvertisingEnd().
  *
  * @note The connection handle, connected flag and completed_event fields are
- * valid if the flag legacy is not set to true.
+ * valid if the flag legacy is not set to true. If status is different from BLE_ERROR_NONE
+ * the completed_events field is not valid and the set may still be active.
  */
 struct AdvertisingEndEvent {
 #if !defined(DOXYGEN_ONLY)
@@ -659,18 +630,21 @@ struct AdvertisingEndEvent {
      * @param connection Connection handle.
      * @param completed_events Number of events created during before advertising end.
      * @param connected True if connection has been established.
+     * @param status Error code if stop command failed.
      */
     AdvertisingEndEvent(
         advertising_handle_t advHandle,
         connection_handle_t connection,
         uint8_t completed_events,
-        bool connected
+        bool connected,
+        ble_error_t status = BLE_ERROR_NONE
     ) :
         advHandle(advHandle),
         connection(connection),
         completed_events(completed_events),
         connected(connected),
-        legacy(false)
+        legacy(false),
+        status(status)
     {
     }
 
@@ -681,7 +655,8 @@ struct AdvertisingEndEvent {
         connection(),
         completed_events(0),
         connected(false),
-        legacy(true)
+        legacy(true),
+        status(BLE_ERROR_NONE)
     {
     }
 
@@ -721,12 +696,20 @@ struct AdvertisingEndEvent {
         return legacy;
     }
 
+    /** Get the result of the stop advertising event. If the status is not BLE_ERROR_NONE the set
+     * may still be active. */
+    ble_error_t getStatus() const
+    {
+        return status;
+    }
+
 private:
     advertising_handle_t advHandle;
     connection_handle_t connection;
     uint8_t completed_events;
     bool connected;
     bool legacy;
+    ble_error_t status;
 };
 
 /**
