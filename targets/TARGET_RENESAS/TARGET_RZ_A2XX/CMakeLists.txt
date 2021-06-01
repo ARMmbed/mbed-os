@@ -30,11 +30,13 @@ target_sources(mbed-rz-a2xx
         sleep.c
         spi_api.c
         us_ticker.c
+        USBPhy_RZ_A2.cpp
 
         common/r_cache/src/lld/r_cache_lld_rza2m.c
         common/r_octabus/src/lld/r_octabus_lld_rza2m_api.c
         common/r_octabus/src/lld/r_octabus_memclk_setup.c
         common/rza_io_regrw.c
+        common/target_override_console.cpp        
 
         r_can/src/r_can_rz.c
 )

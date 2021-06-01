@@ -70,6 +70,7 @@ target_sources(mbed-stm32l4cube-fw
         STM32L4xx_HAL_Driver/stm32l4xx_hal_smartcard.c
         STM32L4xx_HAL_Driver/stm32l4xx_hal_smartcard_ex.c
         STM32L4xx_HAL_Driver/stm32l4xx_hal_smbus.c
+        STM32L4xx_HAL_Driver/stm32l4xx_hal_smbus_ex.c
         STM32L4xx_HAL_Driver/stm32l4xx_hal_spi.c
         STM32L4xx_HAL_Driver/stm32l4xx_hal_spi_ex.c
         STM32L4xx_HAL_Driver/stm32l4xx_hal_sram.c

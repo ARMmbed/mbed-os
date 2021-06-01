@@ -83,6 +83,23 @@ typedef struct {
     uint16_t etx_2nd_parent;    /*<! Secondary parent ETX. */
     uint32_t asynch_tx_count;   /*<! Asynch TX counter */
     uint32_t asynch_rx_count;   /*<! Asynch RX counter */
+    uint32_t join_state_1;      /*<! Time spent in individual Wi-SUN join state 1 Discovery */
+    uint32_t join_state_2;      /*<! Time spent in individual Wi-SUN join state 2 Authentication */
+    uint32_t join_state_3;      /*<! Time spent in individual Wi-SUN join state 3 Configuration learn */
+    uint32_t join_state_4;      /*<! Time spent in individual Wi-SUN join state 4 RPL parent discovery */
+    uint32_t join_state_5;      /*<! Time spent in individual Wi-SUN join state 5 Active state */
+    uint32_t sent_PAS;          /*<! Amount of Wi-SUN Pan Advertisement Solicit Message sent */
+    uint32_t sent_PA;           /*<! Amount of Wi-SUN Pan Advertisement Message sent */
+    uint32_t sent_PCS;          /*<! Amount of Wi-SUN Pan Configuration Solicit Message sent */
+    uint32_t sent_PC;           /*<! Amount of Wi-SUN Pan Configuration Message sent */
+    uint32_t recv_PAS;          /*<! Amount of Wi-SUN Pan Advertisement Solicit Message received */
+    uint32_t recv_PA;           /*<! Amount of Wi-SUN Pan Advertisement Message received */
+    uint32_t recv_PCS;          /*<! Amount of Wi-SUN Pan Configuration Solicit Message received */
+    uint32_t recv_PC;           /*<! Amount of Wi-SUN Pan Configuration Message received */
+    uint32_t Neighbour_add;     /*<! New Neighbours found */
+    uint32_t Neighbour_remove;  /*<! New Neighbours Removed */
+    uint32_t Child_add;         /*<! New Child added */
+    uint32_t child_remove;      /*<! Child lost */
 } mesh_nw_statistics_t;
 
 /**

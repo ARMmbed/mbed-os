@@ -298,7 +298,7 @@ List the RF protocols that have been activated to communicate with that endpoint
 virtual void on_connected();
 ```
 
-This is called when a connection to this endpoint is succesfully established.
+This is called when a connection to this endpoint is successfully established.
 
 ```cpp
 virtual void on_disconnected();

@@ -63,12 +63,12 @@
 /* Delay for VREFINT stabilization time. */
 /* Internal reference startup time max value is 3ms  (refer to device datasheet, parameter TVREFINT). */
 /* Unit: ms */
-#define SYSCFG_BUF_VREFINT_ENABLE_TIMEOUT       ((uint32_t) 3U)
+#define SYSCFG_BUF_VREFINT_ENABLE_TIMEOUT       (3U)
 
 /* Delay for TEMPSENSOR stabilization time. */
 /* Temperature sensor startup time max value is 10us  (refer to device datasheet, parameter tSTART). */
 /* Unit: ms */
-#define SYSCFG_BUF_TEMPSENSOR_ENABLE_TIMEOUT    ((uint32_t) 1U)
+#define SYSCFG_BUF_TEMPSENSOR_ENABLE_TIMEOUT    (1U)
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -249,8 +249,9 @@ HAL_StatusTypeDef HAL_ADCEx_Calibration_SetValue(ADC_HandleTypeDef* hadc, uint32
   *         (in case of previous ADC operations: function HAL_ADC_DeInit() must be called first)
   *         For more details on procedure and buffer current consumption, refer to device reference manual.
   * @note   This is functional only if the LOCK is not set.
+  * @note   This API is obsolete. This configuration is done in HAL_ADC_ConfigChannel().
   * @retval None
-*/
+  */
 HAL_StatusTypeDef HAL_ADCEx_EnableVREFINT(void)
 {
   uint32_t tickstart = 0U;
@@ -276,6 +277,7 @@ HAL_StatusTypeDef HAL_ADCEx_EnableVREFINT(void)
 /**
   * @brief Disables the Buffer Vrefint for the ADC.
   * @note This is functional only if the LOCK is not set.
+  * @note This API is obsolete. This configuration is done in HAL_ADC_ConfigChannel().
   * @retval None
   */
 void HAL_ADCEx_DisableVREFINT(void)
@@ -285,13 +287,14 @@ void HAL_ADCEx_DisableVREFINT(void)
 }
 
 /**
-* @brief  Enables the buffer of temperature sensor for the ADC, required when device is in mode low-power (low-power run, low-power sleep or stop mode)
-*         This function must be called before function HAL_ADC_Init()
-*         (in case of previous ADC operations: function HAL_ADC_DeInit() must be called first)
-*         For more details on procedure and buffer current consumption, refer to device reference manual.
-* @note   This is functional only if the LOCK is not set.
-* @retval None
-*/
+  * @brief  Enables the buffer of temperature sensor for the ADC, required when device is in mode low-power (low-power run, low-power sleep or stop mode)
+  *         This function must be called before function HAL_ADC_Init()
+  *         (in case of previous ADC operations: function HAL_ADC_DeInit() must be called first)
+  *         For more details on procedure and buffer current consumption, refer to device reference manual.
+  * @note   This is functional only if the LOCK is not set.
+  * @note   This API is obsolete. This configuration is done in HAL_ADC_ConfigChannel().
+  * @retval None
+  */
 HAL_StatusTypeDef HAL_ADCEx_EnableVREFINTTempSensor(void)
 {
   uint32_t tickstart = 0U;
@@ -317,6 +320,7 @@ HAL_StatusTypeDef HAL_ADCEx_EnableVREFINTTempSensor(void)
 /**
   * @brief Disables the VREFINT and Sensor for the ADC.
   * @note This is functional only if the LOCK is not set.
+  * @note This API is obsolete. This configuration is done in HAL_ADC_ConfigChannel().
   * @retval None
   */
 void HAL_ADCEx_DisableVREFINTTempSensor(void)

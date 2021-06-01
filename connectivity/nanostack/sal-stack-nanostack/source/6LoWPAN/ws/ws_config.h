@@ -50,6 +50,11 @@
 #define WS_RPL_MIN_HOP_RANK_INCREASE 196
 #define WS_RPL_MAX_HOP_RANK_INCREASE 2048
 
+#define WS_RPL_DEFAULT_LIFETIME        (3600*2) // 2 hours
+#define WS_RPL_DEFAULT_LIFETIME_MEDIUM (3600*4) // 4 hours
+#define WS_RPL_DEFAULT_LIFETIME_LARGE  (3600*8) // 8 hours
+#define WS_RPL_DEFAULT_LIFETIME_XLARGE (3600*12) // 12 hours
+
 #define WS_DHCP_ADDRESS_LIFETIME_SMALL 2*3600 // small networks less than devices 100
 #define WS_DHCP_ADDRESS_LIFETIME_MEDIUM 12*3600 // Medium size networks from 100 - 1000 device networks
 #define WS_DHCP_ADDRESS_LIFETIME_LARGE 24*3600 // Large size networks 1000 + device networks
@@ -60,7 +65,7 @@
 /*
  *  RPL DAO timeout maximum value. This will force DAO timeout to happen before this time
  */
-#define WS_RPL_DAO_MAX_TIMOUT (3600*2)
+#define WS_RPL_DAO_MAX_TIMOUT (3600*12)
 
 /* Border router version change interval
  *
@@ -90,9 +95,9 @@
  *
  */
 
-#define PAN_VERSION_SMALL_NETWORK_TIMEOUT 32*60
+#define PAN_VERSION_SMALL_NETWORK_TIMEOUT 30*60
 
-#define PAN_VERSION_MEDIUM_NETWORK_TIMEOUT 64*60
+#define PAN_VERSION_MEDIUM_NETWORK_TIMEOUT 60*60
 
 #define PAN_VERSION_LARGE_NETWORK_TIMEOUT 90*60
 
@@ -249,9 +254,8 @@ extern uint8_t DEVICE_MIN_SENS;
 #define SEC_PROT_TIMER_EXPIRATIONS 2        // Number of retries
 
 // Maximum number of simultaneous security negotiations
-#define MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_SMALL     20
-#define MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_MEDIUM    20
-#define MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_LARGE     50
+#define MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_TX_QUEUE_MIN   64
+#define MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_TX_QUEUE_MAX   192
 
 /*
  *  Security protocol timer configuration parameters
@@ -286,7 +290,7 @@ extern uint8_t DEVICE_MIN_SENS;
 // Large network trickle values for sending of initial EAPOL-key
 #define LARGE_NW_INITIAL_KEY_TRICKLE_IMIN_SECS         600   /* 10 to 20 minutes */
 #define LARGE_NW_INITIAL_KEY_TRICKLE_IMAX_SECS         1200
-#define LARGE_NW_INITIAL_KEY_RETRY_COUNT               4
+#define LARGE_NW_INITIAL_KEY_RETRY_COUNT               3
 
 // Very slow network values for sending of initial EAPOL-key
 #define EXTRA_LARGE_NW_INITIAL_KEY_TRICKLE_IMIN_SECS   600   /* 10 to 20 minutes */

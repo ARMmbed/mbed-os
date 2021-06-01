@@ -55,7 +55,7 @@ CAN::~CAN()
     // No lock needed in destructor
 
     // Detaching interrupts releases the sleep lock if it was locked
-    for (int irq = 0; irq < IrqCnt; irq++) {
+    for (int irq = 0; irq < IrqType::IrqCnt; irq++) {
         attach(nullptr, (IrqType)irq);
     }
     can_irq_free(&_can);

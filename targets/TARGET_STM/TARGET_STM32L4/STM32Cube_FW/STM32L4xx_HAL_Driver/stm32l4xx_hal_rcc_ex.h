@@ -3171,7 +3171,11 @@ void              HAL_RCCEx_CRS_ErrorCallback(uint32_t Error);
 
 #define IS_RCC_CRS_ERRORLIMIT(__VALUE__)   (((__VALUE__) <= 0xFFU))
 
+#if defined(STM32L412xx) || defined(STM32L422xx)
+#define IS_RCC_CRS_HSI48CALIBRATION(__VALUE__) (((__VALUE__) <= 0x7FU))
+#else
 #define IS_RCC_CRS_HSI48CALIBRATION(__VALUE__) (((__VALUE__) <= 0x3FU))
+#endif /* STM32L412xx || STM32L422xx */
 
 #define IS_RCC_CRS_FREQERRORDIR(__DIR__)   (((__DIR__) == RCC_CRS_FREQERRORDIR_UP) || \
                                             ((__DIR__) == RCC_CRS_FREQERRORDIR_DOWN))

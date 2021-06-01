@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -21,9 +21,10 @@ extern "C" {
 
 /**
  * The version of the PSA Framework API that is being used to build the calling
- * firmware.
+ * firmware. Only part of features of FF-M v1.1 have been implemented. FF-M v1.1
+ * is compatible with v1.0.
  */
-#define PSA_FRAMEWORK_VERSION       (0x0100u)
+#define PSA_FRAMEWORK_VERSION       (0x0101u)
 
 /**
  * Return value from psa_version() if the requested RoT Service is not present
@@ -130,7 +131,7 @@ psa_handle_t psa_connect(uint32_t sid, uint32_t version);
  *                              Must be zero( \ref PSA_IPC_CALL) or positive.
  * \param[in] in_vec            Array of input \ref psa_invec structures.
  * \param[in] in_len            Number of input \ref psa_invec structures.
- * \param[in/out] out_vec       Array of output \ref psa_outvec structures.
+ * \param[in,out] out_vec       Array of output \ref psa_outvec structures.
  * \param[in] out_len           Number of output \ref psa_outvec structures.
  *
  * \retval >=0                  RoT Service-specific status value.

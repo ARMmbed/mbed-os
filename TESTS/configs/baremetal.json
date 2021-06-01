@@ -20,6 +20,7 @@
         "fat_chan",
         "lora",
         "sx1276-lora-driver",
+        "stm32wl-lora-driver",
         "nfc",
         "network-emac",
         "flashiap-block-device",

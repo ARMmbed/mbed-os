@@ -29,6 +29,7 @@
 #include "platform/internal/mbed_error_hist.h"
 #include "drivers/MbedCRC.h"
 #include "mbed_rtx.h"
+#include "cmsis_compiler.h"
 #ifdef MBED_CONF_RTOS_PRESENT
 #include "rtx_os.h"
 #endif
@@ -65,6 +66,8 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
 #define report_error_ctx MBED_CRASH_DATA.error.context
 static bool is_reboot_error_valid = false;
 #endif
+
+extern uint32_t __INITIAL_SP;
 
 //Helper function to halt the system
 static MBED_NORETURN void mbed_halt_system(void)
@@ -518,7 +521,7 @@ static void print_stack_dump(uint32_t stack_start, uint32_t stack_size, uint32_t
             // PSP mode. Then SP_reg is more correct.
             psp_sp = mfc->SP_reg;
         }
-        uint32_t msp_size = MAX(0, (int)INITIAL_SP - (int)msp_sp);
+        uint32_t msp_size = MAX(0, (int)__INITIAL_SP - (int)msp_sp);
         print_stack_dump_core(msp_sp, msp_size, msp_sp, "MSP");
 
         stack_sp = psp_sp;

@@ -15,8 +15,8 @@ elseif("STM32L4S5xI" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_STM32L4S5xI)
 elseif("STM32L562xx" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_STM32L562xx)
-elseif("STM32WB55xx" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32WB55xx)
+elseif("STM32WB" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32WB)
 endif()
 
 target_sources(mbed-mbedtls

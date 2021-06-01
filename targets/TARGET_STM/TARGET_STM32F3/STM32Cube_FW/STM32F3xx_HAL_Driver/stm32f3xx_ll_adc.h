@@ -934,6 +934,7 @@ typedef struct
 #define LL_ADC_REG_TRIG_EXT_TIM1_CH1          (ADC_REG_TRIG_EXT_EDGE_DEFAULT)                                                              /*!< ADC group regular conversion trigger from external IP: TIM1 channel 1 event (capture compare: input capture or output capture). Trigger edge set to rising edge (default setting). */
 #define LL_ADC_REG_TRIG_EXT_TIM1_CH2          (ADC_CFGR_EXTSEL_0 | ADC_REG_TRIG_EXT_EDGE_DEFAULT)                                          /*!< ADC group regular conversion trigger from external IP: TIM1 channel 2 event (capture compare: input capture or output capture). Trigger edge set to rising edge (default setting). */
 #define LL_ADC_REG_TRIG_EXT_TIM1_CH3          (ADC_CFGR_EXTSEL_1 | ADC_REG_TRIG_EXT_EDGE_DEFAULT)                                          /*!< ADC group regular conversion trigger from external IP: TIM1 channel 3 event (capture compare: input capture or output capture). Trigger edge set to rising edge (default setting). */
+#define LL_ADC_REG_TRIG_EXT_TIM2_CH2          (ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0 | ADC_REG_TRIG_EXT_EDGE_DEFAULT)                      /*!< ADC group regular conversion trigger from external IP: TIM2 channel 2 event (capture compare: input capture or output capture). Trigger edge set to rising edge (default setting). */
 #define LL_ADC_REG_TRIG_EXT_EXTI_LINE11       (ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1 | ADC_REG_TRIG_EXT_EDGE_DEFAULT)                      /*!< ADC group regular conversion trigger from external IP: external interrupt line 11. Trigger edge set to rising edge (default setting). */
 #define LL_ADC_REG_TRIG_EXT_TIM1_TRGO         (ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_0 | ADC_REG_TRIG_EXT_EDGE_DEFAULT)                      /*!< ADC group regular conversion trigger from external IP: TIM1 TRGO. Trigger edge set to rising edge (default setting). */
 #define LL_ADC_REG_TRIG_EXT_TIM1_TRGO2        (ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1 | ADC_REG_TRIG_EXT_EDGE_DEFAULT)                      /*!< ADC group regular conversion trigger from external IP: TIM1 TRGO2. Trigger edge set to rising edge (default setting). */
@@ -2491,7 +2492,7 @@ typedef struct
 #if defined(ADC_MULTIMODE_SUPPORT)
 __STATIC_INLINE uint32_t LL_ADC_DMA_GetRegAddr(ADC_TypeDef *ADCx, uint32_t Register)
 {
-  register uint32_t data_reg_addr = 0U;
+  uint32_t data_reg_addr = 0U;
   
   if (Register == LL_ADC_DMA_REG_REGULAR_DATA)
   {
@@ -2791,9 +2792,12 @@ __STATIC_INLINE uint32_t LL_ADC_GetDataAlignment(ADC_TypeDef *ADCx)
   *           Moreover, this avoids risk of overrun for low frequency
   *           applications.
   *           How to use this low power mode:
-  *           - Do not use with interruption or DMA since these modes
-  *             have to clear immediately the EOC flag to free the
-  *             IRQ vector sequencer.
+  *           - It is not recommended to use with interruption or DMA
+  *             since these modes have to clear immediately the EOC flag
+  *             (by CPU to free the IRQ pending event or by DMA).
+  *             Auto wait will work but fort a very short time, discarding
+  *             its intended benefit (except specific case of high load of CPU
+  *             or DMA transfers which can justify usage of auto wait).
   *           - Do use with polling: 1. Start conversion,
   *             2. Later on, when conversion data is needed: poll for end of
   *             conversion  to ensure that conversion is completed and
@@ -2844,9 +2848,12 @@ __STATIC_INLINE void LL_ADC_SetLowPowerMode(ADC_TypeDef *ADCx, uint32_t LowPower
   *           Moreover, this avoids risk of overrun for low frequency
   *           applications.
   *           How to use this low power mode:
-  *           - Do not use with interruption or DMA since these modes
-  *             have to clear immediately the EOC flag to free the
-  *             IRQ vector sequencer.
+  *           - It is not recommended to use with interruption or DMA
+  *             since these modes have to clear immediately the EOC flag
+  *             (by CPU to free the IRQ pending event or by DMA).
+  *             Auto wait will work but fort a very short time, discarding
+  *             its intended benefit (except specific case of high load of CPU
+  *             or DMA transfers which can justify usage of auto wait).
   *           - Do use with polling: 1. Start conversion,
   *             2. Later on, when conversion data is needed: poll for end of
   *             conversion  to ensure that conversion is completed and
@@ -2951,7 +2958,7 @@ __STATIC_INLINE uint32_t LL_ADC_GetLowPowerMode(ADC_TypeDef *ADCx)
   */
 __STATIC_INLINE void LL_ADC_SetOffset(ADC_TypeDef *ADCx, uint32_t Offsety, uint32_t Channel, uint32_t OffsetLevel)
 {
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->OFR1, Offsety);
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->OFR1, Offsety);
   
   MODIFY_REG(*preg,
              ADC_OFR1_OFFSET1_EN | ADC_OFR1_OFFSET1_CH | ADC_OFR1_OFFSET1,
@@ -3024,7 +3031,7 @@ __STATIC_INLINE void LL_ADC_SetOffset(ADC_TypeDef *ADCx, uint32_t Offsety, uint3
   */
 __STATIC_INLINE uint32_t LL_ADC_GetOffsetChannel(ADC_TypeDef *ADCx, uint32_t Offsety)
 {
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->OFR1, Offsety);
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->OFR1, Offsety);
   
   return (uint32_t) READ_BIT(*preg, ADC_OFR1_OFFSET1_CH);
 }
@@ -3050,7 +3057,7 @@ __STATIC_INLINE uint32_t LL_ADC_GetOffsetChannel(ADC_TypeDef *ADCx, uint32_t Off
   */
 __STATIC_INLINE uint32_t LL_ADC_GetOffsetLevel(ADC_TypeDef *ADCx, uint32_t Offsety)
 {
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->OFR1, Offsety);
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->OFR1, Offsety);
   
   return (uint32_t) READ_BIT(*preg, ADC_OFR1_OFFSET1);
 }
@@ -3083,7 +3090,7 @@ __STATIC_INLINE uint32_t LL_ADC_GetOffsetLevel(ADC_TypeDef *ADCx, uint32_t Offse
   */
 __STATIC_INLINE void LL_ADC_SetOffsetState(ADC_TypeDef *ADCx, uint32_t Offsety, uint32_t OffsetState)
 {
-  register __IO uint32_t *preg = (__IO uint32_t *)((uint32_t)
+  __IO uint32_t *preg = (__IO uint32_t *)((uint32_t)
                             ((uint32_t)(&ADCx->OFR1) + (Offsety*4U)));
   
   MODIFY_REG(*preg,
@@ -3110,7 +3117,7 @@ __STATIC_INLINE void LL_ADC_SetOffsetState(ADC_TypeDef *ADCx, uint32_t Offsety, 
   */
 __STATIC_INLINE uint32_t LL_ADC_GetOffsetState(ADC_TypeDef *ADCx, uint32_t Offsety)
 {
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->OFR1, Offsety);
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->OFR1, Offsety);
   
   return (uint32_t) READ_BIT(*preg, ADC_OFR1_OFFSET1_EN);
 }
@@ -3283,11 +3290,11 @@ __STATIC_INLINE void LL_ADC_REG_SetTriggerSource(ADC_TypeDef *ADCx, uint32_t Tri
   */
 __STATIC_INLINE uint32_t LL_ADC_REG_GetTriggerSource(ADC_TypeDef *ADCx)
 {
-  register uint32_t TriggerSource = READ_BIT(ADCx->CFGR, ADC_CFGR_EXTSEL | ADC_CFGR_EXTEN);
+  uint32_t TriggerSource = READ_BIT(ADCx->CFGR, ADC_CFGR_EXTSEL | ADC_CFGR_EXTEN);
   
   /* Value for shift of {0; 4; 8; 12} depending on value of bitfield          */
   /* corresponding to ADC_CFGR_EXTEN {0; 1; 2; 3}.                            */
-  register uint32_t ShiftExten = ((TriggerSource & ADC_CFGR_EXTEN) >> (ADC_REG_TRIG_EXTEN_BITOFFSET_POS - 2U));
+  uint32_t ShiftExten = ((TriggerSource & ADC_CFGR_EXTEN) >> (ADC_REG_TRIG_EXTEN_BITOFFSET_POS - 2U));
   
   /* Set bitfield corresponding to ADC_CFGR_EXTEN and ADC_CFGR_EXTSEL         */
   /* to match with triggers literals definition.                              */
@@ -3613,11 +3620,11 @@ __STATIC_INLINE void LL_ADC_REG_SetSequencerRanks(ADC_TypeDef *ADCx, uint32_t Ra
   /* in register and register position depending on parameter "Rank".         */
   /* Parameters "Rank" and "Channel" are used with masks because containing   */
   /* other bits reserved for other purpose.                                   */
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->SQR1, __ADC_MASK_SHIFT(Rank, ADC_REG_SQRX_REGOFFSET_MASK));
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->SQR1, __ADC_MASK_SHIFT(Rank, ADC_REG_SQRX_REGOFFSET_MASK));
   
   MODIFY_REG(*preg,
              ADC_CHANNEL_ID_NUMBER_MASK_POSBIT0 << (Rank & ADC_REG_RANK_ID_SQRX_MASK),
-             (Channel & ADC_CHANNEL_ID_NUMBER_MASK) >> (ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS - (Rank & ADC_REG_RANK_ID_SQRX_MASK)));
+             ((Channel & ADC_CHANNEL_ID_NUMBER_MASK) >> ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS) << (Rank & ADC_REG_RANK_ID_SQRX_MASK));
 }
 
 /**
@@ -3714,11 +3721,11 @@ __STATIC_INLINE void LL_ADC_REG_SetSequencerRanks(ADC_TypeDef *ADCx, uint32_t Ra
   */
 __STATIC_INLINE uint32_t LL_ADC_REG_GetSequencerRanks(ADC_TypeDef *ADCx, uint32_t Rank)
 {
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->SQR1, __ADC_MASK_SHIFT(Rank, ADC_REG_SQRX_REGOFFSET_MASK));
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->SQR1, __ADC_MASK_SHIFT(Rank, ADC_REG_SQRX_REGOFFSET_MASK));
   
-  return (uint32_t) (READ_BIT(*preg,
+  return (uint32_t) ((READ_BIT(*preg,
                               ADC_CHANNEL_ID_NUMBER_MASK_POSBIT0 << (Rank & ADC_REG_RANK_ID_SQRX_MASK))
-                     << (ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS - (Rank & ADC_REG_RANK_ID_SQRX_MASK))
+                     >> (Rank & ADC_REG_RANK_ID_SQRX_MASK)) << ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS
                     );
 }
 
@@ -4038,11 +4045,11 @@ __STATIC_INLINE void LL_ADC_INJ_SetTriggerSource(ADC_TypeDef *ADCx, uint32_t Tri
   */
 __STATIC_INLINE uint32_t LL_ADC_INJ_GetTriggerSource(ADC_TypeDef *ADCx)
 {
-  register uint32_t TriggerSource = READ_BIT(ADCx->JSQR, ADC_JSQR_JEXTSEL | ADC_JSQR_JEXTEN);
+  uint32_t TriggerSource = READ_BIT(ADCx->JSQR, ADC_JSQR_JEXTSEL | ADC_JSQR_JEXTEN);
   
   /* Value for shift of {0; 4; 8; 12} depending on value of bitfield          */
   /* corresponding to ADC_JSQR_JEXTEN {0; 1; 2; 3}.                           */
-  register uint32_t ShiftJexten = ((TriggerSource & ADC_JSQR_JEXTEN) >> (ADC_INJ_TRIG_EXTEN_BITOFFSET_POS - 2U));
+  uint32_t ShiftJexten = ((TriggerSource & ADC_JSQR_JEXTEN) >> (ADC_INJ_TRIG_EXTEN_BITOFFSET_POS - 2U));
   
   /* Set bitfield corresponding to ADC_JSQR_JEXTEN and ADC_JSQR_JEXTSEL       */
   /* to match with triggers literals definition.                              */
@@ -4263,8 +4270,8 @@ __STATIC_INLINE void LL_ADC_INJ_SetSequencerRanks(ADC_TypeDef *ADCx, uint32_t Ra
   /* Parameters "Rank" and "Channel" are used with masks because containing   */
   /* other bits reserved for other purpose.                                   */
   MODIFY_REG(ADCx->JSQR,
-             ADC_CHANNEL_ID_NUMBER_MASK >> (ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS - (Rank & ADC_INJ_RANK_ID_JSQR_MASK)),
-             (Channel & ADC_CHANNEL_ID_NUMBER_MASK) >> (ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS - (Rank & ADC_INJ_RANK_ID_JSQR_MASK)));
+             (ADC_CHANNEL_ID_NUMBER_MASK >> ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS) << (Rank & ADC_INJ_RANK_ID_JSQR_MASK),
+             ((Channel & ADC_CHANNEL_ID_NUMBER_MASK) >> ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS) << (Rank & ADC_INJ_RANK_ID_JSQR_MASK));
 }
 
 /**
@@ -4333,9 +4340,9 @@ __STATIC_INLINE void LL_ADC_INJ_SetSequencerRanks(ADC_TypeDef *ADCx, uint32_t Ra
   */
 __STATIC_INLINE uint32_t LL_ADC_INJ_GetSequencerRanks(ADC_TypeDef *ADCx, uint32_t Rank)
 {
-  return (uint32_t)(READ_BIT(ADCx->JSQR,
-                             ADC_CHANNEL_ID_NUMBER_MASK >> (ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS - (Rank & ADC_INJ_RANK_ID_JSQR_MASK)))
-                    << (ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS - (Rank & ADC_INJ_RANK_ID_JSQR_MASK))
+  return (uint32_t)((READ_BIT(ADCx->JSQR,
+                              (ADC_CHANNEL_ID_NUMBER_MASK >> ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS) << (Rank & ADC_INJ_RANK_ID_JSQR_MASK))
+                     >> (Rank & ADC_INJ_RANK_ID_JSQR_MASK)) << ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS
                    );
 }
 
@@ -4817,7 +4824,7 @@ __STATIC_INLINE void LL_ADC_SetChannelSamplingTime(ADC_TypeDef *ADCx, uint32_t C
   /* in register and register position depending on parameter "Channel".      */
   /* Parameter "Channel" is used with masks because containing                */
   /* other bits reserved for other purpose.                                   */
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->SMPR1, __ADC_MASK_SHIFT(Channel, ADC_CHANNEL_SMPRX_REGOFFSET_MASK));
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->SMPR1, __ADC_MASK_SHIFT(Channel, ADC_CHANNEL_SMPRX_REGOFFSET_MASK));
   
   MODIFY_REG(*preg,
              ADC_SMPR1_SMP0 << __ADC_MASK_SHIFT(Channel, ADC_CHANNEL_SMPx_BITOFFSET_MASK),
@@ -4901,7 +4908,7 @@ __STATIC_INLINE void LL_ADC_SetChannelSamplingTime(ADC_TypeDef *ADCx, uint32_t C
   */
 __STATIC_INLINE uint32_t LL_ADC_GetChannelSamplingTime(ADC_TypeDef *ADCx, uint32_t Channel)
 {
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->SMPR1, __ADC_MASK_SHIFT(Channel, ADC_CHANNEL_SMPRX_REGOFFSET_MASK));
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->SMPR1, __ADC_MASK_SHIFT(Channel, ADC_CHANNEL_SMPRX_REGOFFSET_MASK));
   
   return (uint32_t)(READ_BIT(*preg,
                              ADC_SMPR1_SMP0 << __ADC_MASK_SHIFT(Channel, ADC_CHANNEL_SMPx_BITOFFSET_MASK))
@@ -5173,7 +5180,7 @@ __STATIC_INLINE void LL_ADC_SetAnalogWDMonitChannels(ADC_TypeDef *ADCx, uint32_t
   /* in register and register position depending on parameter "AWDy".         */
   /* Parameters "AWDChannelGroup" and "AWDy" are used with masks because      */
   /* containing other bits reserved for other purpose.                        */
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->CFGR, __ADC_MASK_SHIFT(AWDy, ADC_AWD_CRX_REGOFFSET_MASK)
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->CFGR, __ADC_MASK_SHIFT(AWDy, ADC_AWD_CRX_REGOFFSET_MASK)
                                                              + ((AWDy & ADC_AWD_CR12_REGOFFSETGAP_MASK) * ADC_AWD_CR12_REGOFFSETGAP_VAL));
   
   MODIFY_REG(*preg,
@@ -5305,12 +5312,12 @@ __STATIC_INLINE void LL_ADC_SetAnalogWDMonitChannels(ADC_TypeDef *ADCx, uint32_t
   */
 __STATIC_INLINE uint32_t LL_ADC_GetAnalogWDMonitChannels(ADC_TypeDef *ADCx, uint32_t AWDy)
 {
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->CFGR, __ADC_MASK_SHIFT(AWDy, ADC_AWD_CRX_REGOFFSET_MASK)
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->CFGR, __ADC_MASK_SHIFT(AWDy, ADC_AWD_CRX_REGOFFSET_MASK)
                                                              + ((AWDy & ADC_AWD_CR12_REGOFFSETGAP_MASK) * ADC_AWD_CR12_REGOFFSETGAP_VAL));
   
   /* Variable "AWDy" used to retrieve appropriate bitfield corresponding to   */
   /* ADC_AWD_CR1_CHANNEL_MASK or ADC_AWD_CR23_CHANNEL_MASK.                   */
-  register uint32_t AWD123ChannelGroup = READ_BIT(*preg, (AWDy | ADC_AWD_CR_ALL_CHANNEL_MASK));
+  uint32_t AWD123ChannelGroup = READ_BIT(*preg, (AWDy | ADC_AWD_CR_ALL_CHANNEL_MASK));
   
   /* Set variable of AWD1 monitored channel according to AWD1 features        */
   /* and ADC channel definition:                                              */
@@ -5319,9 +5326,9 @@ __STATIC_INLINE uint32_t LL_ADC_GetAnalogWDMonitChannels(ADC_TypeDef *ADCx, uint
   /* - AWD1 single or all channels                                            */
   /* - AWD1 enable or disable (also used to discard AWD1 bitfield in case of  */
   /*   AWD2 or AWD3 selected).                                                */
-  register uint32_t AWD1ChannelSingle = ((AWD123ChannelGroup & ADC_CFGR_AWD1SGL) >> ADC_CFGR_AWD1SGL_BITOFFSET_POS);
+  uint32_t AWD1ChannelSingle = ((AWD123ChannelGroup & ADC_CFGR_AWD1SGL) >> ADC_CFGR_AWD1SGL_BITOFFSET_POS);
   
-  register uint32_t AWD1ChannelGroup = ( (  AWD123ChannelGroup
+  uint32_t AWD1ChannelGroup = ( (  AWD123ChannelGroup
                                           | ((ADC_CHANNEL_0_BITFIELD << ((AWD123ChannelGroup & ADC_CHANNEL_ID_NUMBER_MASK) >> ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS)) * AWD1ChannelSingle)
                                           | (ADC_CHANNEL_ID_BITFIELD_MASK * (~AWD1ChannelSingle & ((uint32_t)0x00000001U)))
                                          )
@@ -5340,9 +5347,9 @@ __STATIC_INLINE uint32_t LL_ADC_GetAnalogWDMonitChannels(ADC_TypeDef *ADCx, uint
   /*       is activated, therefore the channel monitoring value channel "3"   */
   /*       is not not supported by this function, there is no risk of         */
   /*       conflict.                                                          */
-  register uint32_t AWD23Enabled = ((((uint32_t)0x00000001U) >> (AWD123ChannelGroup % 3U)) << 6U); /* Value "0" if AWD2-3 is enabled, value "32" if AWD2-3 is disabled */
+  uint32_t AWD23Enabled = ((((uint32_t)0x00000001U) >> (AWD123ChannelGroup % 3U)) << 6U); /* Value "0" if AWD2-3 is enabled, value "32" if AWD2-3 is disabled */
   
-  register uint32_t AWD23ChannelGroup = (((  AWD123ChannelGroup
+  uint32_t AWD23ChannelGroup = (((  AWD123ChannelGroup
                                            | ((uint32_t)POSITION_VAL(AWD123ChannelGroup) << ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS)
                                            | ((ADC_CFGR_AWD1SGL) >> ((((uint32_t)0x00000001U) >> (ADC_AWD_CR23_CHANNEL_MASK - AWD123ChannelGroup)) << 5U))
                                            | (ADC_CFGR_JAWD1EN | ADC_CFGR_AWD1EN)
@@ -5407,7 +5414,7 @@ __STATIC_INLINE void LL_ADC_ConfigAnalogWDThresholds(ADC_TypeDef *ADCx, uint32_t
   /* "AWDy".                                                                  */
   /* Parameters "AWDy" and "AWDThresholdxxxValue" are used with masks because */
   /* containing other bits reserved for other purpose.                        */
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->TR1, __ADC_MASK_SHIFT(AWDy, ADC_AWD_TRX_REGOFFSET_MASK));
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->TR1, __ADC_MASK_SHIFT(AWDy, ADC_AWD_TRX_REGOFFSET_MASK));
   
   MODIFY_REG(*preg,
              ADC_TR1_HT1 | ADC_TR1_LT1,
@@ -5471,7 +5478,7 @@ __STATIC_INLINE void LL_ADC_SetAnalogWDThresholds(ADC_TypeDef *ADCx, uint32_t AW
   /* "AWDThresholdsHighLow" and "AWDy".                                       */
   /* Parameters "AWDy" and "AWDThresholdValue" are used with masks because    */
   /* containing other bits reserved for other purpose.                        */
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->TR1, __ADC_MASK_SHIFT(AWDy, ADC_AWD_TRX_REGOFFSET_MASK));
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->TR1, __ADC_MASK_SHIFT(AWDy, ADC_AWD_TRX_REGOFFSET_MASK));
   
   MODIFY_REG(*preg,
              AWDThresholdsHighLow,
@@ -5508,7 +5515,7 @@ __STATIC_INLINE void LL_ADC_SetAnalogWDThresholds(ADC_TypeDef *ADCx, uint32_t AW
 */
 __STATIC_INLINE uint32_t LL_ADC_GetAnalogWDThresholds(ADC_TypeDef *ADCx, uint32_t AWDy, uint32_t AWDThresholdsHighLow)
 {
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->TR1, __ADC_MASK_SHIFT(AWDy, ADC_AWD_TRX_REGOFFSET_MASK));
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->TR1, __ADC_MASK_SHIFT(AWDy, ADC_AWD_TRX_REGOFFSET_MASK));
   
   return (uint32_t)(READ_BIT(*preg,
                              (AWDThresholdsHighLow | ADC_TR1_LT1))
@@ -6202,7 +6209,7 @@ __STATIC_INLINE uint32_t LL_ADC_INJ_IsStopConversionOngoing(ADC_TypeDef *ADCx)
   */
 __STATIC_INLINE uint32_t LL_ADC_INJ_ReadConversionData32(ADC_TypeDef *ADCx, uint32_t Rank)
 {
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->JDR1, __ADC_MASK_SHIFT(Rank, ADC_INJ_JDRX_REGOFFSET_MASK));
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->JDR1, __ADC_MASK_SHIFT(Rank, ADC_INJ_JDRX_REGOFFSET_MASK));
   
   return (uint32_t)(READ_BIT(*preg,
                              ADC_JDR1_JDATA)
@@ -6229,7 +6236,7 @@ __STATIC_INLINE uint32_t LL_ADC_INJ_ReadConversionData32(ADC_TypeDef *ADCx, uint
   */
 __STATIC_INLINE uint16_t LL_ADC_INJ_ReadConversionData12(ADC_TypeDef *ADCx, uint32_t Rank)
 {
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->JDR1, __ADC_MASK_SHIFT(Rank, ADC_INJ_JDRX_REGOFFSET_MASK));
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->JDR1, __ADC_MASK_SHIFT(Rank, ADC_INJ_JDRX_REGOFFSET_MASK));
   
   return (uint16_t)(READ_BIT(*preg,
                              ADC_JDR1_JDATA)
@@ -6256,7 +6263,7 @@ __STATIC_INLINE uint16_t LL_ADC_INJ_ReadConversionData12(ADC_TypeDef *ADCx, uint
   */
 __STATIC_INLINE uint16_t LL_ADC_INJ_ReadConversionData10(ADC_TypeDef *ADCx, uint32_t Rank)
 {
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->JDR1, __ADC_MASK_SHIFT(Rank, ADC_INJ_JDRX_REGOFFSET_MASK));
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->JDR1, __ADC_MASK_SHIFT(Rank, ADC_INJ_JDRX_REGOFFSET_MASK));
   
   return (uint16_t)(READ_BIT(*preg,
                              ADC_JDR1_JDATA)
@@ -6283,7 +6290,7 @@ __STATIC_INLINE uint16_t LL_ADC_INJ_ReadConversionData10(ADC_TypeDef *ADCx, uint
   */
 __STATIC_INLINE uint8_t LL_ADC_INJ_ReadConversionData8(ADC_TypeDef *ADCx, uint32_t Rank)
 {
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->JDR1, __ADC_MASK_SHIFT(Rank, ADC_INJ_JDRX_REGOFFSET_MASK));
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->JDR1, __ADC_MASK_SHIFT(Rank, ADC_INJ_JDRX_REGOFFSET_MASK));
   
   return (uint8_t)(READ_BIT(*preg,
                             ADC_JDR1_JDATA)
@@ -6310,7 +6317,7 @@ __STATIC_INLINE uint8_t LL_ADC_INJ_ReadConversionData8(ADC_TypeDef *ADCx, uint32
   */
 __STATIC_INLINE uint8_t LL_ADC_INJ_ReadConversionData6(ADC_TypeDef *ADCx, uint32_t Rank)
 {
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->JDR1, __ADC_MASK_SHIFT(Rank, ADC_INJ_JDRX_REGOFFSET_MASK));
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->JDR1, __ADC_MASK_SHIFT(Rank, ADC_INJ_JDRX_REGOFFSET_MASK));
   
   return (uint8_t)(READ_BIT(*preg,
                             ADC_JDR1_JDATA)
@@ -9278,7 +9285,7 @@ __STATIC_INLINE void LL_ADC_REG_SetSequencerRanks(ADC_TypeDef *ADCx, uint32_t Ra
   /* in register and register position depending on parameter "Rank".         */
   /* Parameters "Rank" and "Channel" are used with masks because containing   */
   /* other bits reserved for other purpose.                                   */
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->SQR1, __ADC_MASK_SHIFT(Rank, ADC_REG_SQRX_REGOFFSET_MASK));
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->SQR1, __ADC_MASK_SHIFT(Rank, ADC_REG_SQRX_REGOFFSET_MASK));
   
   MODIFY_REG(*preg,
              ADC_CHANNEL_ID_NUMBER_MASK << (Rank & ADC_REG_RANK_ID_SQRX_MASK),
@@ -9368,7 +9375,7 @@ __STATIC_INLINE void LL_ADC_REG_SetSequencerRanks(ADC_TypeDef *ADCx, uint32_t Ra
   */
 __STATIC_INLINE uint32_t LL_ADC_REG_GetSequencerRanks(ADC_TypeDef *ADCx, uint32_t Rank)
 {
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->SQR1, __ADC_MASK_SHIFT(Rank, ADC_REG_SQRX_REGOFFSET_MASK));
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->SQR1, __ADC_MASK_SHIFT(Rank, ADC_REG_SQRX_REGOFFSET_MASK));
   
   return (uint32_t) (READ_BIT(*preg,
                               ADC_CHANNEL_ID_NUMBER_MASK << (Rank & ADC_REG_RANK_ID_SQRX_MASK))
@@ -9834,7 +9841,7 @@ __STATIC_INLINE uint32_t LL_ADC_INJ_GetTrigAuto(ADC_TypeDef *ADCx)
   */
 __STATIC_INLINE void LL_ADC_INJ_SetOffset(ADC_TypeDef *ADCx, uint32_t Rank, uint32_t OffsetLevel)
 {
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->JOFR1, __ADC_MASK_SHIFT(Rank, ADC_INJ_JOFRX_REGOFFSET_MASK));
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->JOFR1, __ADC_MASK_SHIFT(Rank, ADC_INJ_JOFRX_REGOFFSET_MASK));
   
   MODIFY_REG(*preg,
              ADC_JOFR1_JOFFSET1,
@@ -9861,7 +9868,7 @@ __STATIC_INLINE void LL_ADC_INJ_SetOffset(ADC_TypeDef *ADCx, uint32_t Rank, uint
   */
 __STATIC_INLINE uint32_t LL_ADC_INJ_GetOffset(ADC_TypeDef *ADCx, uint32_t Rank)
 {
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->JOFR1, __ADC_MASK_SHIFT(Rank, ADC_INJ_JOFRX_REGOFFSET_MASK));
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->JOFR1, __ADC_MASK_SHIFT(Rank, ADC_INJ_JOFRX_REGOFFSET_MASK));
   
   return (uint32_t)(READ_BIT(*preg,
                              ADC_JOFR1_JOFFSET1)
@@ -9954,7 +9961,7 @@ __STATIC_INLINE void LL_ADC_SetChannelSamplingTime(ADC_TypeDef *ADCx, uint32_t C
   /* in register and register position depending on parameter "Channel".      */
   /* Parameter "Channel" is used with masks because containing                */
   /* other bits reserved for other purpose.                                   */
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->SMPR1, __ADC_MASK_SHIFT(Channel, ADC_CHANNEL_SMPRX_REGOFFSET_MASK));
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->SMPR1, __ADC_MASK_SHIFT(Channel, ADC_CHANNEL_SMPRX_REGOFFSET_MASK));
   
   MODIFY_REG(*preg,
              ADC_SMPR2_SMP0 << __ADC_MASK_SHIFT(Channel, ADC_CHANNEL_SMPx_BITOFFSET_MASK),
@@ -10023,7 +10030,7 @@ __STATIC_INLINE void LL_ADC_SetChannelSamplingTime(ADC_TypeDef *ADCx, uint32_t C
   */
 __STATIC_INLINE uint32_t LL_ADC_GetChannelSamplingTime(ADC_TypeDef *ADCx, uint32_t Channel)
 {
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->SMPR1, __ADC_MASK_SHIFT(Channel, ADC_CHANNEL_SMPRX_REGOFFSET_MASK));
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->SMPR1, __ADC_MASK_SHIFT(Channel, ADC_CHANNEL_SMPRX_REGOFFSET_MASK));
   
   return (uint32_t)(READ_BIT(*preg,
                              ADC_SMPR2_SMP0 << __ADC_MASK_SHIFT(Channel, ADC_CHANNEL_SMPx_BITOFFSET_MASK))
@@ -10247,7 +10254,7 @@ __STATIC_INLINE uint32_t LL_ADC_GetAnalogWDMonitChannels(ADC_TypeDef *ADCx)
   */
 __STATIC_INLINE void LL_ADC_SetAnalogWDThresholds(ADC_TypeDef *ADCx, uint32_t AWDThresholdsHighLow, uint32_t AWDThresholdValue)
 {
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->HTR, AWDThresholdsHighLow);
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->HTR, AWDThresholdsHighLow);
   
   MODIFY_REG(*preg,
              ADC_HTR_HT,
@@ -10270,7 +10277,7 @@ __STATIC_INLINE void LL_ADC_SetAnalogWDThresholds(ADC_TypeDef *ADCx, uint32_t AW
 */
 __STATIC_INLINE uint32_t LL_ADC_GetAnalogWDThresholds(ADC_TypeDef *ADCx, uint32_t AWDThresholdsHighLow)
 {
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->HTR, AWDThresholdsHighLow);
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->HTR, AWDThresholdsHighLow);
   
   return (uint32_t)(READ_BIT(*preg, ADC_HTR_HT));
 }
@@ -10493,7 +10500,7 @@ __STATIC_INLINE void LL_ADC_INJ_StopConversionExtTrig(ADC_TypeDef *ADCx)
   */
 __STATIC_INLINE uint32_t LL_ADC_INJ_ReadConversionData32(ADC_TypeDef *ADCx, uint32_t Rank)
 {
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->JDR1, __ADC_MASK_SHIFT(Rank, ADC_INJ_JDRX_REGOFFSET_MASK));
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->JDR1, __ADC_MASK_SHIFT(Rank, ADC_INJ_JDRX_REGOFFSET_MASK));
   
   return (uint32_t)(READ_BIT(*preg,
                              ADC_JDR1_JDATA)
@@ -10520,7 +10527,7 @@ __STATIC_INLINE uint32_t LL_ADC_INJ_ReadConversionData32(ADC_TypeDef *ADCx, uint
   */
 __STATIC_INLINE uint16_t LL_ADC_INJ_ReadConversionData12(ADC_TypeDef *ADCx, uint32_t Rank)
 {
-  register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->JDR1, __ADC_MASK_SHIFT(Rank, ADC_INJ_JDRX_REGOFFSET_MASK));
+  __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->JDR1, __ADC_MASK_SHIFT(Rank, ADC_INJ_JDRX_REGOFFSET_MASK));
   
   return (uint16_t)(READ_BIT(*preg,
                              ADC_JDR1_JDATA)

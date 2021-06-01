@@ -24,7 +24,6 @@ extern "C"
 #include "iodefine.h"
 }
 #include "USBPhyHw.h"
-#include "USBDevice_Types.h"
 #include "USBEndpoints_RZ_A2.h"
 #include "USBPhy_RZ_A2_Def.h"
 #include "pinmap.h"

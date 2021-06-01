@@ -4227,13 +4227,13 @@
             "BLE"
         ]
     },
-    "MCU_STM32WB55xx": {
+    "MCU_STM32WB55xG": {
         "inherits": [
             "MCU_STM32WB"
         ],
         "public": false,
         "extra_labels_add": [
-            "STM32WB55xx"
+            "STM32WB55xG"
         ],
         "macros_add": [
             "STM32WB55xx",
@@ -4242,7 +4242,7 @@
     },
     "NUCLEO_WB55RG": {
         "inherits": [
-            "MCU_STM32WB55xx"
+            "MCU_STM32WB55xG"
         ],
         "supported_form_factors": [
             "ARDUINO_UNO"
@@ -4254,6 +4254,31 @@
             "USBDEVICE"
         ],
         "device_name": "STM32WB55RGVx"
+    },
+    "MCU_STM32WB5MxG": {
+        "inherits": [
+            "MCU_STM32WB"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32WB5MxG"
+        ],
+        "macros_add": [
+            "STM32WB5Mxx",
+            "MBEDTLS_CONFIG_HW_SUPPORT"
+        ]
+    },
+    "DISCO_WB5MMG": {
+        "inherits": [
+            "MCU_STM32WB5MxG"
+        ],
+        "supported_form_factors": [
+            "ARDUINO_UNO"
+        ],
+        "detect_code": [
+            "0884"
+        ],
+        "device_name": "STM32WB55VGYx"
     },
     "MCU_STM32WL": {
         "inherits": [
@@ -4317,7 +4342,7 @@
     },
     "MIMXRT1050_EVK": {
         "supported_form_factors": [
-            "ARDUINO"
+            "ARDUINO_UNO"
         ],
         "core": "Cortex-M7FD",
         "supported_toolchains": [
@@ -4395,6 +4420,71 @@
         "overrides": {
             "deep-sleep-latency": 10,
             "network-default-interface-type": "ETHERNET"
+        }
+    },
+    "MIMXRT1170_EVK": {
+        "supported_form_factors": [
+            "ARDUINO_UNO"
+        ],
+        "core": "Cortex-M7FD",
+        "supported_toolchains": [
+            "ARM",
+            "GCC_ARM"
+        ],
+        "extra_labels": [
+            "NXP",
+            "MCUXpresso_MCUS",
+            "EVK",
+            "MIMXRT1170",
+	        "IMX"
+        ],
+        "is_disk_virtual": true,
+        "macros": [
+            "CPU_MIMXRT1176DVMAA_cm7",
+            "FSL_RTOS_MBED",
+            "XIP_BOOT_HEADER_ENABLE=1",
+            "XIP_EXTERNAL_FLASH=1",
+            "XIP_BOOT_HEADER_DCD_ENABLE=1",
+            "SKIP_SYSCLK_INIT",
+            "MBED_MPU_CUSTOM",
+            "FSL_SDK_DRIVER_QUICK_ACCESS_ENABLE=1",
+            "__STARTUP_INITIALIZE_RAMFUNCTION",
+            "__STARTUP_INITIALIZE_NONCACHEDATA",
+            "MBED_TICKLESS",
+            "DATA_SECTION_IS_CACHEABLE=1"
+        ],
+        "inherits": [
+            "Target"
+        ],
+        "detect_code": [
+            "0228"
+        ],
+        "device_has": [
+            "ANALOGIN",
+            "FLASH",
+            "INTERRUPTIN",
+            "I2C",
+            "I2CSLAVE",
+            "PWMOUT",
+            "SERIAL",
+            "SPI",
+            "SPISLAVE",
+            "LPTICKER",
+            "USTICKER"
+        ],
+        "release_versions": [
+            "5"
+        ],
+        "supported_application_profiles" : ["full", "bare-metal"],
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
         }
     },
     "LPC54114": {
@@ -4913,7 +5003,7 @@
             "function": "ArmMuscaB1Code.binary_hook"
         },
         "secure_image_filename": "tfm_s.bin",
-        "tfm_target_name": "musca_b1",
+        "tfm_target_name": "musca_b1/sse_200",
         "tfm_bootloader_supported": true,
         "tfm_default_toolchain": "ARMCLANG",
         "tfm_supported_toolchains": [
@@ -4921,6 +5011,9 @@
             "GNUARM"
         ],
         "tfm_delivery_dir": "TARGET_ARM_SSG/TARGET_MUSCA_B1",
+        "detect_code": [
+            "5007"
+        ],
         "OUTPUT_EXT": "bin"
     },
     "ARM_MUSCA_S1": {

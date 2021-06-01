@@ -565,6 +565,16 @@ mesh_error_t WisunInterface::enable_statistics(void)
     return ret_val;
 }
 
+mesh_error_t WisunInterface::reset_statistics(void)
+{
+    mesh_error_t ret_val = MESH_ERROR_NONE;
+    int status = wisun_tasklet_statistics_reset();
+    if (status < 0) {
+        ret_val = MESH_ERROR_UNKNOWN;
+    }
+    return ret_val;
+}
+
 mesh_error_t WisunInterface::read_nw_statistics(mesh_nw_statistics_t *statistics)
 {
     mesh_error_t ret_val = MESH_ERROR_NONE;
@@ -683,6 +693,19 @@ mesh_error_t WisunInterface::cca_threshold_table_get(ws_cca_threshold_table_t *t
         return MESH_ERROR_UNKNOWN;
     }
 
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::nbr_info_get(ws_nbr_info_t *nbr_ptr, uint16_t *count)
+{
+    uint16_t nbr_count;
+
+    if (count == NULL) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    nbr_count = ws_neighbor_info_get(get_interface_id(), (ws_neighbour_info_t *)nbr_ptr, *count);
+    *count = nbr_count;
     return MESH_ERROR_NONE;
 }
 

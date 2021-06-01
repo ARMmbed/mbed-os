@@ -49,10 +49,9 @@
 #define __MPU_PRESENT             1U       /*!< STM32F302xC devices provide an MPU */
 #define __NVIC_PRIO_BITS          4U       /*!< STM32F302xC devices use 4 Bits for the Priority Levels */
 #define __Vendor_SysTickConfig    0U       /*!< Set to 1 if different SysTick Config is used */
-#ifndef __FPU_PRESENT
+ifndef __FPU_PRESENT
 #define __FPU_PRESENT             1U       /*!< STM32F302xC devices provide an FPU */
 #endif
-
 /**
   * @}
   */
@@ -803,7 +802,7 @@ typedef struct
 #define UART5               ((USART_TypeDef *) UART5_BASE)
 #define I2C1                ((I2C_TypeDef *) I2C1_BASE)
 #define I2C2                ((I2C_TypeDef *) I2C2_BASE)
-#define CAN1                ((CAN_TypeDef *) CAN_BASE)
+#define CAN1                 ((CAN_TypeDef *) CAN_BASE)
 #define PWR                 ((PWR_TypeDef *) PWR_BASE)
 #define DAC                 ((DAC_TypeDef *) DAC_BASE)
 #define DAC1                ((DAC_TypeDef *) DAC1_BASE)

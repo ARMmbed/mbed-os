@@ -37,7 +37,7 @@
 #define HAL_MODULE_ENABLED
 #define HAL_ADC_MODULE_ENABLED
 // For MBED we use the CAN legacy for now
-//#define HAL_CAN_MODULE_ENABLED
+/* #define HAL_CAN_MODULE_ENABLED */
 #define HAL_CAN_LEGACY_MODULE_ENABLED
 #define HAL_COMP_MODULE_ENABLED
 #define HAL_CORTEX_MODULE_ENABLED
@@ -127,7 +127,7 @@
   *        When the CRS is not used, the HSI48 RC oscillator runs on it default frequency
   *        which is subject to manufacturing process variations.
   */
-#if !defined  (HSI48_VALUE) 
+#if !defined  (HSI48_VALUE)
   #define HSI48_VALUE   48000000U             /*!< Value of the Internal High Speed oscillator for USB FS/SDMMC/RNG in Hz.
                                                The real value my vary depending on manufacturing process variations.*/
 #endif /* HSI48_VALUE */
@@ -135,7 +135,7 @@
 /**
   * @brief Internal Low Speed oscillator (LSI) value.
   */
-#if !defined  (LSI_VALUE) 
+#if !defined  (LSI_VALUE)
   #define LSI_VALUE  32000U                 /*!< LSI Typical Value in Hz*/
 #endif /* LSI_VALUE */                      /*!< Value of the Internal Low Speed oscillator in Hz
                                               The real value may vary depending on the variations
@@ -154,7 +154,7 @@
 
 /**
   * @brief External clock source for SAI1 peripheral
-  *        This value is used by the RCC HAL module to compute the SAI1 & SAI2 clock source 
+  *        This value is used by the RCC HAL module to compute the SAI1 & SAI2 clock source
   *        frequency.
   */
 #if !defined  (EXTERNAL_SAI1_CLOCK_VALUE)
@@ -163,7 +163,7 @@
 
 /**
   * @brief External clock source for SAI2 peripheral
-  *        This value is used by the RCC HAL module to compute the SAI1 & SAI2 clock source 
+  *        This value is used by the RCC HAL module to compute the SAI1 & SAI2 clock source
   *        frequency.
   */
 #if !defined  (EXTERNAL_SAI2_CLOCK_VALUE)
@@ -201,140 +201,141 @@
   *        for possible callback identifiers defined in HAL_PPP_CallbackIDTypeDef
   *        for each PPP peripheral).
   */
-#if !defined  (USE_HAL_ADC_REGISTER_CALLBACKS)
-  #define USE_HAL_ADC_REGISTER_CALLBACKS        0U
+
+#if !defined  (USE_HAL_ADC_REGISTER_CALLBACKS)  
+#define USE_HAL_ADC_REGISTER_CALLBACKS        0U
 #endif
 
 #if !defined  (USE_HAL_CAN_REGISTER_CALLBACKS)
-  #define USE_HAL_CAN_REGISTER_CALLBACKS        0U
+#define USE_HAL_CAN_REGISTER_CALLBACKS        0U
 #endif
 
 #if !defined  (USE_HAL_COMP_REGISTER_CALLBACKS)
-  #define USE_HAL_COMP_REGISTER_CALLBACKS       0U
+#define USE_HAL_COMP_REGISTER_CALLBACKS       0U
 #endif
 
 #if !defined  (USE_HAL_CRYP_REGISTER_CALLBACKS)
-  #define USE_HAL_CRYP_REGISTER_CALLBACKS       0U
+#define USE_HAL_CRYP_REGISTER_CALLBACKS       0U
 #endif
 
 #if !defined  (USE_HAL_DAC_REGISTER_CALLBACKS)
-  #define USE_HAL_DAC_REGISTER_CALLBACKS        0U
+#define USE_HAL_DAC_REGISTER_CALLBACKS        0U
 #endif
 
 #if !defined  (USE_HAL_DCMI_REGISTER_CALLBACKS)
-  #define USE_HAL_DCMI_REGISTER_CALLBACKS       0U
+#define USE_HAL_DCMI_REGISTER_CALLBACKS       0U
 #endif
 
 #if !defined  (USE_HAL_DFSDM_REGISTER_CALLBACKS)
-  #define USE_HAL_DFSDM_REGISTER_CALLBACKS      0U
+#define USE_HAL_DFSDM_REGISTER_CALLBACKS      0U
 #endif
 
 #if !defined  (USE_HAL_DMA2D_REGISTER_CALLBACKS)
-  #define USE_HAL_DMA2D_REGISTER_CALLBACKS      0U
+#define USE_HAL_DMA2D_REGISTER_CALLBACKS      0U
 #endif
 
 #if !defined  (USE_HAL_DSI_REGISTER_CALLBACKS)
-  #define USE_HAL_DSI_REGISTER_CALLBACKS        0U
+#define USE_HAL_DSI_REGISTER_CALLBACKS        0U
 #endif
 
 #if !defined  (USE_HAL_GFXMMU_REGISTER_CALLBACKS)
-  #define USE_HAL_GFXMMU_REGISTER_CALLBACKS     0U
+#define USE_HAL_GFXMMU_REGISTER_CALLBACKS     0U
 #endif
 
 #if !defined  (USE_HAL_HASH_REGISTER_CALLBACKS)
-  #define USE_HAL_HASH_REGISTER_CALLBACKS       0U
+#define USE_HAL_HASH_REGISTER_CALLBACKS       0U
 #endif
 
 #if !defined  (USE_HAL_HCD_REGISTER_CALLBACKS)
-  #define USE_HAL_HCD_REGISTER_CALLBACKS        0U
+#define USE_HAL_HCD_REGISTER_CALLBACKS        0U
 #endif
 
 #if !defined  (USE_HAL_I2C_REGISTER_CALLBACKS)
-  #define USE_HAL_I2C_REGISTER_CALLBACKS        0U
+#define USE_HAL_I2C_REGISTER_CALLBACKS        0U
 #endif
 
 #if !defined  (USE_HAL_IRDA_REGISTER_CALLBACKS)
-  #define USE_HAL_IRDA_REGISTER_CALLBACKS       0U
+#define USE_HAL_IRDA_REGISTER_CALLBACKS       0U
 #endif
 
 #if !defined  (USE_HAL_LPTIM_REGISTER_CALLBACKS)
-  #define USE_HAL_LPTIM_REGISTER_CALLBACKS      0U
+#define USE_HAL_LPTIM_REGISTER_CALLBACKS      0U
 #endif
 
 #if !defined  (USE_HAL_LTDC_REGISTER_CALLBACKS)
-  #define USE_HAL_LTDC_REGISTER_CALLBACKS       0U
+#define USE_HAL_LTDC_REGISTER_CALLBACKS       0U
 #endif
 
 #if !defined  (USE_HAL_MMC_REGISTER_CALLBACKS)
-  #define USE_HAL_MMC_REGISTER_CALLBACKS        0U
+#define USE_HAL_MMC_REGISTER_CALLBACKS        0U
 #endif
 
 #if !defined  (USE_HAL_OPAMP_REGISTER_CALLBACKS)
-  #define USE_HAL_OPAMP_REGISTER_CALLBACKS      0U
+#define USE_HAL_OPAMP_REGISTER_CALLBACKS      0U
 #endif
 
 #if !defined  (USE_HAL_OSPI_REGISTER_CALLBACKS)
-  #define USE_HAL_OSPI_REGISTER_CALLBACKS       0U
+#define USE_HAL_OSPI_REGISTER_CALLBACKS       0U
 #endif
 
 #if !defined  (USE_HAL_PCD_REGISTER_CALLBACKS)
-  #define USE_HAL_PCD_REGISTER_CALLBACKS        0U
+#define USE_HAL_PCD_REGISTER_CALLBACKS        0U
 #endif
 
 #if !defined  (USE_HAL_QSPI_REGISTER_CALLBACKS)
-  #define USE_HAL_QSPI_REGISTER_CALLBACKS       0U
+#define USE_HAL_QSPI_REGISTER_CALLBACKS       0U
 #endif
 
 #if !defined  (USE_HAL_RNG_REGISTER_CALLBACKS)
-  #define USE_HAL_RNG_REGISTER_CALLBACKS        0U
+#define USE_HAL_RNG_REGISTER_CALLBACKS        0U
 #endif
 
 #if !defined  (USE_HAL_RTC_REGISTER_CALLBACKS)
-  #define USE_HAL_RTC_REGISTER_CALLBACKS        0U
+#define USE_HAL_RTC_REGISTER_CALLBACKS        0U
 #endif
 
 #if !defined  (USE_HAL_SAI_REGISTER_CALLBACKS)
-  #define USE_HAL_SAI_REGISTER_CALLBACKS        0U
+#define USE_HAL_SAI_REGISTER_CALLBACKS        0U
 #endif
 
 #if !defined  (USE_HAL_SD_REGISTER_CALLBACKS)
-  #define USE_HAL_SD_REGISTER_CALLBACKS         0U
+#define USE_HAL_SD_REGISTER_CALLBACKS         0U
 #endif
 
 #if !defined  (USE_HAL_SMARTCARD_REGISTER_CALLBACKS)
-  #define USE_HAL_SMARTCARD_REGISTER_CALLBACKS  0U
+#define USE_HAL_SMARTCARD_REGISTER_CALLBACKS  0U
 #endif
 
 #if !defined  (USE_HAL_SMBUS_REGISTER_CALLBACKS)
-  #define USE_HAL_SMBUS_REGISTER_CALLBACKS      0U
+#define USE_HAL_SMBUS_REGISTER_CALLBACKS      0U
 #endif
 
 #if !defined  (USE_HAL_SPI_REGISTER_CALLBACKS)
-  #define USE_HAL_SPI_REGISTER_CALLBACKS        0U
+#define USE_HAL_SPI_REGISTER_CALLBACKS        0U
 #endif
 
 #if !defined  (USE_HAL_SWPMI_REGISTER_CALLBACKS)
-  #define USE_HAL_SWPMI_REGISTER_CALLBACKS      0U
+#define USE_HAL_SWPMI_REGISTER_CALLBACKS      0U
 #endif
 
 #if !defined  (USE_HAL_TIM_REGISTER_CALLBACKS)
-  #define USE_HAL_TIM_REGISTER_CALLBACKS        0U
+#define USE_HAL_TIM_REGISTER_CALLBACKS        0U
 #endif
 
 #if !defined  (USE_HAL_TSC_REGISTER_CALLBACKS)
-  #define USE_HAL_TSC_REGISTER_CALLBACKS        0U
+#define USE_HAL_TSC_REGISTER_CALLBACKS        0U
 #endif
 
 #if !defined  (USE_HAL_UART_REGISTER_CALLBACKS)
-  #define USE_HAL_UART_REGISTER_CALLBACKS       0U
+#define USE_HAL_UART_REGISTER_CALLBACKS       0U
 #endif
 
 #if !defined  (USE_HAL_USART_REGISTER_CALLBACKS)
-  #define USE_HAL_USART_REGISTER_CALLBACKS      0U
+#define USE_HAL_USART_REGISTER_CALLBACKS      0U
 #endif
 
 #if !defined  (USE_HAL_WWDG_REGISTER_CALLBACKS)
-  #define USE_HAL_WWDG_REGISTER_CALLBACKS       0U
+#define USE_HAL_WWDG_REGISTER_CALLBACKS       0U
 #endif
 
 /* ################## SPI peripheral configuration ########################## */

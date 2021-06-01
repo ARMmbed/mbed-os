@@ -21,6 +21,9 @@
 #include "Core/include/ns_address_internal.h"
 #include "rpl_control.h"
 
+bool rpl_policy_force_tunnel(void);
+void rpl_policy_force_tunnel_set(bool enable);
+
 bool rpl_policy_join_instance(rpl_domain_t *domain, uint8_t instance_id, const uint8_t *dodagid);
 bool rpl_policy_join_dodag(rpl_domain_t *domain, uint8_t g_mop_prf, uint8_t instance_id, const uint8_t *dodagid);
 bool rpl_policy_join_config(rpl_domain_t *domain, const rpl_dodag_conf_t *conf, bool *leaf_only);

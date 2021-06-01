@@ -18,7 +18,7 @@
 #include "platform/mbed_assert.h"
 #include "cmsis.h"
 
-#if ((__ARM_ARCH_8M_BASE__ == 1U) || (__ARM_ARCH_8M_MAIN__ == 1U)) && \
+#if ((__ARM_ARCH_8M_BASE__ == 1U) || (__ARM_ARCH_8M_MAIN__ == 1U) || (__ARM_ARCH_8_1M_MAIN__ == 1U)) && \
     defined (__MPU_PRESENT) && (__MPU_PRESENT == 1U) && \
     !defined(MBED_MPU_CUSTOM)
 

@@ -729,7 +729,7 @@ typedef struct
 #define USART2              ((USART_TypeDef *) USART2_BASE)
 #define USART3              ((USART_TypeDef *) USART3_BASE)
 #define I2C1                ((I2C_TypeDef *) I2C1_BASE)
-#define CAN1                ((CAN_TypeDef *) CAN_BASE)
+#define CAN1                 ((CAN_TypeDef *) CAN_BASE)
 #define PWR                 ((PWR_TypeDef *) PWR_BASE)
 #define DAC                 ((DAC_TypeDef *) DAC_BASE)
 #define DAC1                ((DAC_TypeDef *) DAC1_BASE)

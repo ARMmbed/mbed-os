@@ -145,6 +145,13 @@ static void call_all_event_listeners(NetworkInterface *iface, nsapi_event_t even
 void NetworkInterface::add_event_listener(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
     iface_eventlist_t *event_list = get_interface_event_list_head();
+#if MBED_CONF_PLATFORM_CALLBACK_COMPARABLE
+    ns_list_foreach_safe(iface_eventlist_entry_t, entry, event_list) {
+        if (entry->status_cb == status_cb && entry->iface == this) {
+            return;
+        }
+    }
+#endif
     iface_eventlist_entry_t *entry = new iface_eventlist_entry_t;
     entry->iface = this;
     entry->status_cb = status_cb;
@@ -160,7 +167,6 @@ void NetworkInterface::remove_event_listener(mbed::Callback<void(nsapi_event_t, 
         if (entry->status_cb == status_cb && entry->iface == this) {
             ns_list_remove(event_list, entry);
             delete entry;
-            return;
         }
     }
 }

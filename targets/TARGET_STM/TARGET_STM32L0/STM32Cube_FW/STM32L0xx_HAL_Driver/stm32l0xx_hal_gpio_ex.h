@@ -1177,9 +1177,9 @@ extern "C" {
 /*------------------------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------*/
-/*------------------------- STM32L051xx/STM32L061xx---------------------------*/
+/*------------------------------- STM32L051xx---------------------------------*/
 /*----------------------------------------------------------------------------*/
-#if defined (STM32L051xx)|| defined (STM32L061xx)
+#if defined (STM32L051xx)
 /* The table below gives an overview of the different alternate functions per port.
  * For more details refer yourself to the product data sheet.
  *
@@ -1365,7 +1365,7 @@ extern "C" {
 /**
   * @}
   */
-#endif /* STM32L051xx/STM32L061xx*/
+#endif /* STM32L051xx */
 /*------------------------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------*/
@@ -2445,9 +2445,8 @@ extern "C" {
   * @}
   */
 
-#elif defined (STM32L063xx) || defined (STM32L062xx) || defined (STM32L061xx) || \
-      defined (STM32L053xx) || defined (STM32L052xx) || defined (STM32L051xx) || \
-      defined (STM32L010x8)
+#elif defined (STM32L063xx) || defined (STM32L062xx) || defined (STM32L053xx) || \
+      defined (STM32L052xx) || defined (STM32L051xx) || defined (STM32L010x8)
 
 /** @addtogroup GPIOEx_Exported_Constants
   * @{

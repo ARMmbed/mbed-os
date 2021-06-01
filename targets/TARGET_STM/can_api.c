@@ -1124,7 +1124,7 @@ int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t
 
         sFilterConfig.FilterFIFOAssignment = 0;
         sFilterConfig.FilterActivation = ENABLE;
-        sFilterConfig.BankNumber = 14 + handle;
+        sFilterConfig.BankNumber = 14;
 
         if (HAL_CAN_ConfigFilter(&obj->CanHandle, &sFilterConfig) == HAL_OK)
         {
