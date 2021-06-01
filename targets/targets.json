@@ -6833,6 +6833,146 @@
             "MPU"
         ]
     },
+    "MCU_M2354": {
+        "inherits": [
+            "PSA_V8_M"
+        ],
+        "public": false,
+        "core": "Cortex-M23-NS",
+        "default_toolchain": "ARMC6",
+        "supported_toolchains": [
+            "ARMC6",
+            "GCC_ARM",
+            "IAR"
+        ],
+        "features_add": [
+            "EXPERIMENTAL_API"
+        ],
+        "extra_labels_add": [
+            "NUVOTON",
+            "M2354"
+        ],
+        "macros": [
+            "CMSIS_NVIC_VIRTUAL",
+            "LPTICKER_DELAY_TICKS=4"
+        ],
+        "is_disk_virtual": true,
+        "config": {
+            "usb-uart": {
+                "help": "Configure USB_UART. USB_UART and USBTX/USBRX must be consistent.",
+                "value": null
+            },
+            "usb-uart-tx": {
+                "help": "Configure USBTX. USB_UART and USBTX/USBRX must be consistent.",
+                "value": null
+            },
+            "usb-uart-rx": {
+                "help": "Configure USBRX. USB_UART and USBTX/USBRX must be consistent.",
+                "value": null
+            },
+            "stdio-uart": {
+                "help": "Configure STDIO_UART. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART defaults to USB_UART.",
+                "value": null
+            },
+            "stdio-uart-tx": {
+                "help": "Configure STDIO_UART_TX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_TX defaults to USBTX.",
+                "value": null
+            },
+            "stdio-uart-rx": {
+                "help": "Configure STDIO_UART_RX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_RX defaults to USBRX.",
+                "value": null
+            },
+            "gpio-irq-debounce-enable": {
+                "help": "Enable GPIO IRQ debounce",
+                "value": 0
+            },
+            "gpio-irq-debounce-enable-list": {
+                "help": "Comma separated pin list to enable GPIO IRQ debounce",
+                "value": "NC"
+            },
+            "gpio-irq-debounce-clock-source": {
+                "help": "Select GPIO IRQ debounce clock source: GPIO_DBCTL_DBCLKSRC_HCLK or GPIO_DBCTL_DBCLKSRC_LIRC",
+                "value": "GPIO_DBCTL_DBCLKSRC_LIRC"
+            },
+            "gpio-irq-debounce-sample-rate": {
+                "help": "Select GPIO IRQ debounce sample rate: GPIO_DBCTL_DBCLKSEL_1, GPIO_DBCTL_DBCLKSEL_2, GPIO_DBCTL_DBCLKSEL_4, ..., or GPIO_DBCTL_DBCLKSEL_32768",
+                "value": "GPIO_DBCTL_DBCLKSEL_16"
+            }
+        },
+        "overrides": {
+            "deep-sleep-latency": 1,
+            "tickless-from-us-ticker": true,
+            "mpu-rom-end": "0x1fffffff"
+        },
+        "device_has": [
+            "USTICKER",
+            "LPTICKER",
+            "RTC",
+            "ANALOGIN",
+            "ANALOGOUT",
+            "I2C",
+            "I2CSLAVE",
+            "I2C_ASYNCH",
+            "INTERRUPTIN",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "PWMOUT",
+            "SERIAL",
+            "SERIAL_ASYNCH",
+            "SERIAL_FC",
+            "STDIO_MESSAGES",
+            "SLEEP",
+            "SPI",
+            "SPISLAVE",
+            "SPI_ASYNCH",
+            "MPU"
+        ],
+        "release_versions": [
+            "5"
+        ],
+        "sectors": [
+            [
+                0,
+                2048
+            ]
+        ],
+        "bootloader_supported": true,
+        "forced_reset_timeout": 3
+    },
+    "NU_M2354": {
+        "inherits": [
+            "MCU_M2354"
+        ],
+        "supported_form_factors": [
+            "ARDUINO_UNO"
+        ],
+        "detect_code": [
+            "1312"
+        ],
+        "device_name": "M2354KJFAE",
+        "overrides": {
+            "usb-uart": "UART_0",
+            "usb-uart-tx": "PA_7",
+            "usb-uart-rx": "PA_6"
+        },
+        "OUTPUT_EXT": "bin",
+        "components_add": [
+            "TFM_S_FW"
+        ],
+        "post_binary_hook": {
+            "function": "NuM2354Code.merge_secure"
+        },
+        "secure_image_filename": "tfm_s.bin",
+        "tfm_target_name": "nuvoton/m2354",
+        "tfm_bootloader_supported": true,
+        "tfm_default_toolchain": "GNUARM",
+        "tfm_supported_toolchains": [
+            "ARMCLANG",
+            "GNUARM"
+        ],
+        "tfm_delivery_dir": "TARGET_NUVOTON/TARGET_M2354/TARGET_TFM/TARGET_NU_M2354/COMPONENT_TFM_S_FW"
+    },
     "MCU_M251": {
         "core": "Cortex-M23",
         "public": false,

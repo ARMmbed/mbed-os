@@ -789,6 +789,21 @@ class M2351Code(object):
         s_ih.merge(ns_ih)
         s_ih.tofile(ns_hex, 'hex')
 
+class NuM2354Code(object):
+    """M2354 Hooks"""
+    @staticmethod
+    def merge_secure(t_self, resources, elf, binf):
+        from tools.targets.NU_M2354 import m2354_tfm_bin
+        configured_secure_image_filename = t_self.target.secure_image_filename
+        secure_bin = find_secure_image(
+            t_self.notify,
+            resources,
+            binf,
+            configured_secure_image_filename,
+            FileType.BIN
+        )
+        m2354_tfm_bin(t_self, binf, secure_bin)
+
 # End Target specific section
 ###############################################################################
 def update_target_data():
