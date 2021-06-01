@@ -127,12 +127,12 @@ typedef enum {
     ARDUINO_UNO_D7 = PB_2,
     ARDUINO_UNO_D8 = PD_13,
     ARDUINO_UNO_D9 = PD_15,
-    ARDUINO_UNO_D10= PA_4,
-    ARDUINO_UNO_D11= PA_7,
-    ARDUINO_UNO_D12= PB_4,
-    ARDUINO_UNO_D13= PA_1,
-    ARDUINO_UNO_D14= PA_10,
-    ARDUINO_UNO_D15= PB_8,
+    ARDUINO_UNO_D10 = PA_4,
+    ARDUINO_UNO_D11 = PA_7,
+    ARDUINO_UNO_D12 = PB_4,
+    ARDUINO_UNO_D13 = PA_1,
+    ARDUINO_UNO_D14 = PA_10,
+    ARDUINO_UNO_D15 = PB_8,
 #endif
 
     // STDIO for console print
@@ -186,8 +186,8 @@ typedef enum {
 
 // Standardized LED and button names
 #define LED1     PA_7  // LD4 is a RGB LED connected to a PWM LED driver // TODO
-#define BUTTON1  PC_12  
-#define BUTTON2  PC_13  
+#define BUTTON1  PC_12
+#define BUTTON2  PC_13
 
 #ifdef __cplusplus
 }

@@ -234,7 +234,7 @@ typedef enum {
     SYS_WKUP4 = PA_2,
     SYS_WKUP5 = PC_5,
 
-   /**** QSPI FLASH pins ****/
+    /**** QSPI FLASH pins ****/
     QSPI_FLASH1_IO0 = PE_12,
     QSPI_FLASH1_IO1 = PE_13,
     QSPI_FLASH1_IO2 = PE_14,
