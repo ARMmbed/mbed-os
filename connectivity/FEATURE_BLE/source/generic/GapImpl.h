@@ -23,8 +23,6 @@
 
 #include <algorithm>
 
-#include "drivers/LowPowerTimeout.h"
-#include "drivers/LowPowerTicker.h"
 #include "platform/mbed_error.h"
 
 #include "ble/common/BLERoles.h"
@@ -42,6 +40,14 @@
 #include "source/generic/PrivateAddressController.h"
 
 #include "ble/Gap.h"
+
+#ifdef DEVICE_LPTICKER
+#include "drivers/LowPowerTimeout.h"
+#include "drivers/LowPowerTicker.h"
+#else
+#include "drivers/Timeout.h"
+#include "drivers/Ticker.h"
+#endif
 
 namespace ble {
 
@@ -74,6 +80,14 @@ class Gap :
     using GapShutdownCallbackChain_t  = ::ble::Gap::GapShutdownCallbackChain_t ;
 public:
     using PreferredConnectionParams_t = ::ble::Gap::PreferredConnectionParams_t ;
+
+#ifdef DEVICE_LPTICKER
+    using Timeout = mbed::LowPowerTimeout;
+    using Ticker  = mbed::LowPowerTicker;
+#else
+    using Timeout = mbed::Timeout;
+    using Ticker  = mbed::Ticker;
+#endif
 
 #if BLE_FEATURE_PRIVACY
 #if BLE_ROLE_BROADCASTER
@@ -927,9 +941,9 @@ private:
     ConnectionParameters *_connect_to_host_resolved_address_parameters = nullptr;
 #endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
-    mbed::LowPowerTimeout _advertising_timeout;
-    mbed::LowPowerTimeout _scan_timeout;
-    mbed::LowPowerTicker _address_rotation_ticker;
+    Timeout _advertising_timeout;
+    Timeout _scan_timeout;
+    Ticker _address_rotation_ticker;
 
     bool _initiating = false;
 

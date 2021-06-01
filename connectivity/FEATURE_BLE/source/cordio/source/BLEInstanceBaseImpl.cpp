@@ -745,7 +745,7 @@ void BLEInstanceBase::callDispatcher()
 
     wsfOsDispatcher();
 
-    static mbed::LowPowerTimeout nextTimeout;
+    static Timeout nextTimeout;
     mbed::CriticalSectionLock critical_section;
 
     if (wsfOsReadyToSleep()) {
