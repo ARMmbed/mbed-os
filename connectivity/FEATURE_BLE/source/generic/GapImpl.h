@@ -563,14 +563,8 @@ private:
 
 #if BLE_ROLE_BROADCASTER
 #if BLE_FEATURE_EXTENDED_ADVERTISING
-    void queue_advertising_start(
-        advertising_handle_t handle,
-        adv_duration_t maxDuration,
-        uint8_t maxEvents
-    );
-
     void process_enable_queue();
-    void process_stop();
+    void process_disable_queue();
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
     ble_error_t setAdvertisingData(
@@ -1006,16 +1000,19 @@ private:
     BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _adv_started_from_refresh;
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING
-    struct AdvertisingEnableStackNode_t {
-        adv_duration_t max_duration;
-        advertising_handle_t handle;
-        uint8_t max_events;
-        AdvertisingEnableStackNode_t* next;
+#if BLE_GAP_HOST_MAX_OUTSTANDING_ADVERTISING_START_COMMANDS < 1 || BLE_GAP_HOST_MAX_OUTSTANDING_ADVERTISING_START_COMMANDS > BLE_GAP_MAX_ADVERTISING_SETS
+#error "BLE_GAP_HOST_MAX_OUTSTANDING_ADVERTISING_START_COMMANDS must be at least 1 and not bigget than BLE_GAP_MAX_ADVERTISING_SETS"
+#endif
+    struct AdvertisingEnableCommandParams_t {
+        adv_duration_t max_durations[BLE_GAP_HOST_MAX_OUTSTANDING_ADVERTISING_START_COMMANDS];
+        advertising_handle_t handles[BLE_GAP_HOST_MAX_OUTSTANDING_ADVERTISING_START_COMMANDS];
+        uint8_t max_events[BLE_GAP_HOST_MAX_OUTSTANDING_ADVERTISING_START_COMMANDS];
+        uint8_t number_of_handles;
     };
 
-    /* to simplify code and avoid allocation unless multiple requests issued we keep one node as member */
-    AdvertisingEnableStackNode_t _advertising_enable_queue;
-    bool _advertising_enable_pending;
+    AdvertisingEnableCommandParams_t _advertising_enable_command_params;
+    bool _process_enable_queue_pending = false;
+    bool _process_disable_queue_pending = false;
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
     bool _user_manage_connection_parameter_requests;
