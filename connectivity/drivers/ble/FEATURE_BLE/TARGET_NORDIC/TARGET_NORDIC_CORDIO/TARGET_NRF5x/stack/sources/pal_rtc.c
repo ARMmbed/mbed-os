@@ -231,9 +231,6 @@ void PalRtcInit(void)
         PalRtcDisableCompareIrq(channelId);
     }
 
-    /* Configure low-frequency clock. */
-    NRF_CLOCK->LFCLKSRC             = (CLOCK_LFCLKSRC_SRC_Xtal << CLOCK_LFCLKSRC_SRC_Pos);
-
     NRF_CLOCK->EVENTS_LFCLKSTARTED  = 0;
     NRF_CLOCK->TASKS_LFCLKSTART     = 1;
     while (NRF_CLOCK->EVENTS_LFCLKSTARTED == 0) { }

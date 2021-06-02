@@ -202,6 +202,10 @@ NRFCordioHCIDriver::~NRFCordioHCIDriver()
     // Stop timer
     NRF_TIMER0->TASKS_STOP  = 1;
     NRF_TIMER0->TASKS_CLEAR = 1;
+    NRF_TIMER0->TASKS_SHUTDOWN = 1;
+
+    // Stop rtc
+    NRF_RTC1->TASKS_STOP = 1;
 
 	NVIC_ClearPendingIRQ(RADIO_IRQn);
 	NVIC_ClearPendingIRQ(TIMER0_IRQn);
@@ -233,6 +237,7 @@ ble::buf_pool_desc_t NRFCordioHCIDriver::get_buffer_pool_description()
 void NRFCordioHCIDriver::do_initialize()
 {
 	if(_is_init) {
+        NRF_RTC1->TASKS_START       = 1;
 		return;
 	}
 
@@ -260,7 +265,13 @@ void NRFCordioHCIDriver::do_initialize()
     {
     }
 
-
+    if(NRF_CLOCK->LFCLKSRC == CLOCK_LFCLKSRC_SRC_RC) {
+        NRF_CLOCK->EVENTS_DONE = 0;
+        NRF_CLOCK->TASKS_CAL = 1;
+        while (NRF_CLOCK->EVENTS_DONE == 0)
+        {
+        }
+    }
 
     // mbed-os target uses IRQ Handler names with _v added at the end
     // (TIMER0_IRQHandler_v and TIMER2_IRQHandler_v) so we need to register these manually
@@ -313,7 +324,13 @@ void NRFCordioHCIDriver::do_initialize()
 
 void NRFCordioHCIDriver::do_terminate()
 {
+    // Stop timer
+    NRF_TIMER0->TASKS_STOP  = 1;
+    NRF_TIMER0->TASKS_CLEAR = 1;
+    NRF_TIMER0->TASKS_SHUTDOWN = 1;
 
+    // Stop rtc
+    NRF_RTC1->TASKS_STOP = 1;
 }
 
 void NRFCordioHCIDriver::start_reset_sequence()
