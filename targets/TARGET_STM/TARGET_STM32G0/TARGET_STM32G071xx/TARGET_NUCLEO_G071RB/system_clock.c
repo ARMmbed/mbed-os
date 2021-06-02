@@ -97,6 +97,7 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 
     /** Configure the main internal regulator output voltage
     */
+    __HAL_RCC_PWR_CLK_ENABLE();
     HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1);
     /** Initializes the CPU, AHB and APB busses clocks
     */
@@ -139,6 +140,7 @@ uint8_t SetSysClock_PLL_HSI(void)
 
     /** Configure the main internal regulator output voltage
     */
+    __HAL_RCC_PWR_CLK_ENABLE();
     HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1);
     /** Initializes the CPU, AHB and APB busses clocks
     */
