@@ -79,7 +79,13 @@ void lp_ticker_clear_interrupt(void)
 
 void lp_ticker_fire_interrupt(void)
 {
-    cyhal_lptimer_irq_trigger(&cy_lptimer0);
+    // mbed expects this function to trigger an actual interrupt (not just call
+    // the callback). Since recent changes made to cyhal_lptimer_irq_trigger
+    // do, in fact, just call the callback directly, set a pending irq here and
+    // don't call the cyhal function.
+    CY_ASSERT(CYHAL_RSC_INVALID != cy_lptimer0.resource.block_num);
+    IRQn_Type irqn = (IRQn_Type)(srss_interrupt_mcwdt_0_IRQn + cy_lptimer0.resource.block_num);
+    NVIC_SetPendingIRQ(irqn);
 }
 
 const ticker_info_t *lp_ticker_get_info(void)
