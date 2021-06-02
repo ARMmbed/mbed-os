@@ -1,8 +1,8 @@
 /*******************************************************************************
-* File Name: cycfg.h
+* File Name: cycfg_connectivity_bt.h
 *
 * Description:
-* Simple wrapper header containing all generated files.
+* Connectivity BT configuration
 * This file was automatically generated and should not be modified.
 * Tools Package 2.2.0.2790
 * latest-v2.X 2.0.0.6211
@@ -26,22 +26,24 @@
 * limitations under the License.
 ********************************************************************************/
 
-#if !defined(CYCFG_H)
-#define CYCFG_H
+#if !defined(CYCFG_CONNECTIVITY_BT_H)
+#define CYCFG_CONNECTIVITY_BT_H
+
+#include "cycfg_notices.h"
+#include "cycfg_pins.h"
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-#include "cycfg_notices.h"
-#include "cycfg_system.h"
-#include "cycfg_connectivity_bt.h"
-#include "cycfg_clocks.h"
-#include "cycfg_routing.h"
-#include "cycfg_peripherals.h"
-#include "cycfg_pins.h"
-
-void init_cycfg_all(void);
+#define bt_0_power_0_ENABLED 1U
+#define CYCFG_BT_LP_ENABLED (1u)
+#define CYCFG_BT_WAKE_EVENT_ACTIVE_LOW (0)
+#define CYCFG_BT_WAKE_EVENT_ACTIVE_HIGH (1)
+#define CYCFG_BT_HOST_WAKE_GPIO CYBSP_BT_HOST_WAKE
+#define CYCFG_BT_HOST_WAKE_IRQ_EVENT CYBT_WAKE_ACTIVE_LOW
+#define CYCFG_BT_DEV_WAKE_GPIO CYBSP_BT_DEVICE_WAKE
+#define CYCFG_BT_DEV_WAKE_POLARITY CYBT_WAKE_ACTIVE_LOW
 
 
 #if defined(__cplusplus)
@@ -49,4 +51,4 @@ void init_cycfg_all(void);
 #endif
 
 
-#endif /* CYCFG_H */
+#endif /* CYCFG_CONNECTIVITY_BT_H */
