@@ -109,7 +109,7 @@
             "macro_name": "BLE_GAP_HOST_PRIVACY_RESOLVED_CACHE_SIZE"
         },
         "ble-gap-host-max-advertising-start-commands": {
-            "help": "There can only be one outstanding advertising set command sent to the controller. This determines how many advertising set start commands can be queued on the host. Must be between 1 and BLE_GAP_MAX_ADVERTISING_SETS.",
+            "help": "There can only be one outstanding advertising set command sent to the controller. This determines how many advertising set start commands can be queued on the host. Must be between 1 and BLE_GAP_MAX_ADVERTISING_SETS. If privacy is used, this must be at equal or higher than then number of simultaneously active sets with a private address.",
             "value": 4,
             "macro_name": "BLE_GAP_HOST_MAX_OUTSTANDING_ADVERTISING_START_COMMANDS"
         },
