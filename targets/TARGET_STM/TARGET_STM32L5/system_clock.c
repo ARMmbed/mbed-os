@@ -121,17 +121,17 @@ uint8_t SetSysClock_PLL_MSI(void)
 {
     RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-
-    /* Configure the main internal regulator output voltage */
-    if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE0) != HAL_OK) {
-        return 0; // FAIL
-    }
-
+    
     /* Configure LSE Drive Capability */
     __HAL_RCC_PWR_CLK_ENABLE();
     __HAL_RCC_SYSCFG_CLK_ENABLE();
     HAL_PWR_EnableBkUpAccess();
     __HAL_RCC_RTCAPB_CLK_ENABLE();
+
+    /* Configure the main internal regulator output voltage */
+    if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE0) != HAL_OK) {
+        return 0; // FAIL
+    }
 
 #if MBED_CONF_TARGET_LSE_AVAILABLE
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
