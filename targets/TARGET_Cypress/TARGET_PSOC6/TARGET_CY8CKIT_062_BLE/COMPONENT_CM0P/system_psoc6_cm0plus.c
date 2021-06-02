@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file system_psoc6_cm0plus.c
-* \version 2.90
+* \version 2.90.1
 *
 * The device system-source file.
 *
@@ -167,7 +167,7 @@ void SystemInit(void)
 
 #if !defined(CY_IPC_DEFAULT_CFG_DISABLE)
     /* Allocate and initialize semaphores for the system operations. */
-    CY_SECTION(".cy_sharedmem")
+    CY_SECTION_SHAREDMEM
     static uint32_t ipcSemaArray[CY_IPC_SEMA_COUNT / CY_IPC_SEMA_PER_WORD];
 
     (void) Cy_IPC_Sema_Init(CY_IPC_CHAN_SEMA, CY_IPC_SEMA_COUNT, ipcSemaArray);
