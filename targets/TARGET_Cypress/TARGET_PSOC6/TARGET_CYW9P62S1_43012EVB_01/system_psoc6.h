@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file system_psoc6.h
-* \version 2.90
+* \version 2.90.1
 *
 * \brief Device system header file.
 *
@@ -229,6 +229,19 @@
 * Change the stack size by modifying the following line:\n
 * \code STACK_SIZE = 0x1000; \endcode
 *
+* \note Correct operation of malloc and related functions depends on the working
+* implementation of the 'sbrk' function. Newlib-nano (default C runtime library
+* used by the GNU Arm Embedded toolchain) provides weak 'sbrk' implementation that
+* doesn't check for heap and stack collisions during excessive memory allocations.
+* To ensure the heap always remains within the range defined by __HeapBase and
+* __HeapLimit linker symbols, provide a strong override for the 'sbrk' function:
+* \snippet startup/snippet/main.c snippet_sbrk
+* For FreeRTOS-enabled multi-threaded applications, it is sufficient to include
+* clib-support library that provides newlib-compatible implementations of
+* 'sbrk', '__malloc_lock' and '__malloc_unlock':
+* <br>
+* https://github.com/cypresssemiconductorco/clib-support.
+*
 * \subsubsection group_system_config_heap_stack_config_mdk ARM Compiler
 * - <b>Editing source code files</b>\n
 * The stack size is defined in the linker script files: 'xx_yy.sct',
@@ -321,9 +334,27 @@
 *       <th>Reason for Change</th>
 *   </tr>
 *   <tr>
-*     <td>2.90</td>
-*     <td>Updated linker scripts for PSoC 64 Secure MCU cyb06xx7 devices.</td>
-*     <td>Flash allocation adjustment.</td>
+*       <td rowspan="4">2.90.1</td>
+*       <td>Updated \ref group_system_config_heap_stack_config_gcc section with the note
+*           on the dynamic memory allocation for ARM GCC.</td>
+*       <td>Documentation update.</td>
+*   </tr>
+*   <tr>
+*       <td>Updated system_psoc6.h to include custom CY_SYSTEM_PSOC6_CONFIG passed as compiler macro.</td>
+*       <td>Improve configuration flexibility.</td>
+*   </tr>
+*   <tr>
+*       <td>Updated attribute usage for the linker section placement in CM0+ startup code</td>
+*       <td>Enhancement based on usability feedback.</td>
+*   </tr>
+*   <tr>
+*       <td>Renamed the '.cy_xip' linker script region as 'cy_xip'</td>
+*       <td>Enable access to the XIP region start/end addresses from the C code.</td>
+*   </tr>
+*   <tr>
+*       <td>2.90</td>
+*       <td>Updated linker scripts for PSoC 64 Secure MCU cyb06xx7 devices.</td>
+*       <td>Flash allocation adjustment.</td>
 *   </tr>
 *   <tr>
 *       <td rowspan="2">2.80</td>
@@ -336,9 +367,9 @@
 *       <td>Updated PSoC 64 Secure MCU startup sequence to initialize the Protected Register Access driver.</td>
 *   </tr>
 *   <tr>
-*     <td>2.70.1</td>
-*     <td>Updated documentation for the better description of the existing startup implementation.</td>
-*     <td>User experience enhancement.</td>
+*       <td>2.70.1</td>
+*       <td>Updated documentation for the better description of the existing startup implementation.</td>
+*       <td>User experience enhancement.</td>
 *   </tr>
 *   <tr>
 *       <td rowspan="5">2.70</td>
@@ -496,6 +527,17 @@ extern "C" {
 * \addtogroup group_system_config_user_settings_macro
 * \{
 */
+
+/*
+ * Include optional application-specific configuration header.
+ *
+ * For example, custom system_psoc6_config.h can be included here
+ * by adding the below macro definition to the build system:
+ * DEFINES+=CY_SYSTEM_PSOC6_CONFIG='"system_psoc6_config.h"'
+ */
+#if defined(CY_SYSTEM_PSOC6_CONFIG)
+#include CY_SYSTEM_PSOC6_CONFIG
+#endif
 
 
 /***************************************************************************//**
