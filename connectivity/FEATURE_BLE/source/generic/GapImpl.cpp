@@ -2392,11 +2392,19 @@ ble_error_t Gap::startAdvertising(
             _pal_gap.set_advertising_set_random_address(handle, *random_address);
         }
 
-        /* remember the parameters that will be enabled when the last command completes */
+        /* check we hanve't run out of space to remember parameters */
         if (_advertising_enable_command_params.number_of_handles == BLE_GAP_HOST_MAX_OUTSTANDING_ADVERTISING_START_COMMANDS) {
-            return BLE_ERROR_NO_MEM;
+            /* try to process early */
+            tr_debug("Processing enable queue early as run out of queue space");
+            process_enable_queue();
+            /* if the processing didn't clear the handles we cannot continue */
+            if (_advertising_enable_command_params.number_of_handles) {
+                tr_debug("Cannot enable set as no memory to record the parameters");
+                return BLE_ERROR_NO_MEM;
+            }
         }
 
+        /* remember the parameters that will be enabled in the delayed processing */
         const uint8_t i = _advertising_enable_command_params.number_of_handles;
         _advertising_enable_command_params.handles[i] = handle;
         _advertising_enable_command_params.max_durations[i] = maxDuration;
@@ -2442,9 +2450,9 @@ ble_error_t Gap::startAdvertising(
         }
 
         _interruptible_sets.set(LEGACY_ADVERTISING_HANDLE);
-    }
 
-    _pending_sets.set(handle);
+        _pending_sets.set(handle);
+    }
 
     return error;
 }
@@ -2456,12 +2464,14 @@ void Gap::process_enable_queue()
     tr_info("Evaluating pending advertising sets to be started");
     if (!_advertising_enable_command_params.number_of_handles) {
         /* no set pending to be enabled */
+        tr_debug("No sets to be enabled");
         return;
     }
 
     for (size_t i = 0; i < BLE_GAP_MAX_ADVERTISING_SETS; ++i) {
         if (_pending_sets.get(i)) {
             /* we have to wait until nothing is pending */
+            tr_debug("Cannot enable sets as pending sets present");
             return;
         }
     }
@@ -2491,6 +2501,7 @@ void Gap::process_enable_queue()
             } else {
                 _interruptible_sets.set(_advertising_enable_command_params.handles[i]);
             }
+            _pending_sets.set(_advertising_enable_command_params.handles[i]);
         }
     }
 
@@ -2553,9 +2564,9 @@ ble_error_t Gap::stopAdvertising(advertising_handle_t handle)
         }
 
         _advertising_timeout.detach();
-    }
 
-    _pending_sets.set(handle);
+        _pending_sets.set(handle);
+    }
 
     return status;
 }
@@ -2575,14 +2586,15 @@ void Gap::process_disable_queue()
     }
 
     if (number_of_handles) {
-        ble_error_t status = _pal_gap.extended_advertising_enable(
+        ble_error_t error = _pal_gap.extended_advertising_enable(
             /* enable */ false,
              number_of_handles,
              (advertising_handle_t*)&sets,
              nullptr,
              nullptr
         );
-        if (status) {
+
+        if (error) {
             for (size_t i = 0; i < number_of_handles; ++i) {
                 _event_handler->onAdvertisingEnd(
                     AdvertisingEndEvent(
@@ -2590,10 +2602,14 @@ void Gap::process_disable_queue()
                         0/*connection*/,
                         0/*completed_events*/,
                         false/*connected*/,
-                        status
+                        error
                     )
                 );
-                tr_error("Could not stop advertising set %u, error: %s", i, to_string(status));
+                tr_error("Could not stop advertising set %u, error: %s", i, to_string(error));
+            }
+        } else {
+            for (size_t i = 0; i < number_of_handles; ++i) {
+                _pending_sets.set(sets[i]);
             }
         }
     }
