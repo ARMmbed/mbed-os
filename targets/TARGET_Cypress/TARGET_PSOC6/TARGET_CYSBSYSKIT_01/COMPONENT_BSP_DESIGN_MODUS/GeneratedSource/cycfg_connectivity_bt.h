@@ -1,14 +1,16 @@
 /*******************************************************************************
-* File Name: cycfg_routing.c
+* File Name: cycfg_connectivity_bt.h
 *
 * Description:
-* Establishes all necessary connections between hardware elements.
+* Connectivity BT configuration
 * This file was automatically generated and should not be modified.
-* Device Configurator: 2.0.0.1483
-* Device Support Library (../../../psoc6pdl): 1.6.0.4266
+* Tools Package 2.2.0.2801
+* mtb-pdl-cat1 2.0.0.6211
+* personalities 3.0.0.0
+* udd 3.0.0.562
 *
 ********************************************************************************
-* Copyright 2017-2019 Cypress Semiconductor Corporation
+* Copyright 2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,8 +26,20 @@
 * limitations under the License.
 ********************************************************************************/
 
-#include "cycfg_routing.h"
+#if !defined(CYCFG_CONNECTIVITY_BT_H)
+#define CYCFG_CONNECTIVITY_BT_H
 
-void init_cycfg_routing(void)
-{
+#include "cycfg_notices.h"
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+#define bt_0_power_0_ENABLED 1U
+
+
+#if defined(__cplusplus)
 }
+#endif
+
+
+#endif /* CYCFG_CONNECTIVITY_BT_H */

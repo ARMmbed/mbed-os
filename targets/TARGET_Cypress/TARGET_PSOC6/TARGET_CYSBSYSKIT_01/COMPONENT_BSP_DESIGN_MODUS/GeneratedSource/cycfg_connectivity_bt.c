@@ -1,16 +1,16 @@
 /*******************************************************************************
-* File Name: cycfg.h
+* File Name: cycfg_connectivity_bt.c
 *
 * Description:
-* Simple wrapper header containing all generated files.
+* Connectivity BT configuration
 * This file was automatically generated and should not be modified.
-* Tools Package 2.2.0.2790
-* latest-v2.X 2.0.0.6211
+* Tools Package 2.2.0.2801
+* mtb-pdl-cat1 2.0.0.6211
 * personalities 3.0.0.0
 * udd 3.0.0.562
 *
 ********************************************************************************
-* Copyright 2020 Cypress Semiconductor Corporation
+* Copyright 2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,25 +26,5 @@
 * limitations under the License.
 ********************************************************************************/
 
-#if !defined(CYCFG_H)
-#define CYCFG_H
+#include "cycfg_connectivity_bt.h"
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
-
-#include "cycfg_notices.h"
-#include "cycfg_system.h"
-#include "cycfg_routing.h"
-#include "cycfg_peripherals.h"
-#include "cycfg_pins.h"
-
-void init_cycfg_all(void);
-
-
-#if defined(__cplusplus)
-}
-#endif
-
-
-#endif /* CYCFG_H */
