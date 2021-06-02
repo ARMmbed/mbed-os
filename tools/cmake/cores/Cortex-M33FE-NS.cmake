@@ -25,7 +25,6 @@ function(mbed_set_cpu_core_definitions target)
             DOMAIN_NS=1
             __FPU_PRESENT=1U
             __CMSIS_RTOS
-            __MBED_CMSIS_RTOS_CM
             __DSP_PRESENT=1U
     )
 endfunction()

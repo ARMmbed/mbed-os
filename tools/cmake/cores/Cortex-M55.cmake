@@ -24,6 +24,5 @@ function(mbed_set_cpu_core_definitions target)
             __CORTEX_M55
             __FPU_PRESENT=1
             __CMSIS_RTOS
-            __MBED_CMSIS_RTOS_CM
     )
 endfunction()

@@ -26,6 +26,5 @@ function(mbed_set_cpu_core_definitions target)
             __FPU_PRESENT
             __CMSIS_RTOS
             __EVAL
-            __MBED_CMSIS_RTOS_CA9
     )
 endfunction()
