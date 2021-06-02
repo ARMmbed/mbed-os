@@ -9,6 +9,7 @@ cpuss[0].dw0[0].chan[0]
 cpuss[0].dw0[0].chan[1]
 cpuss[0].dw1[0].chan[1]
 cpuss[0].dw1[0].chan[3]
+
 # CYBSP_WIFI_SDIO_D0
 ioss[0].port[2].pin[0]
 # CYBSP_WIFI_SDIO_D1
@@ -39,4 +40,4 @@ udb[0].tr_udb[7]
 tr_group[0].input[43] 
 tr_group[0].input[44] 
 tr_group[0].input[47] 
-tr_group[0].input[48] 
+tr_group[0].input[48]
