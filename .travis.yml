@@ -106,6 +106,12 @@ matrix:
           fi
 
     - <<: *basic-vm
+      name: "UTF-8 Check"
+      script:
+        # Make sure we're not introducing any text which is not UTF-8 encoded
+        - git diff $TRAVIS_BRANCH...HEAD -U0 | ( grep -a '^+' || true ) | ( ! grep -axv '.*' )
+
+    - <<: *basic-vm
       name: "include check"
       env: NAME=include_check
       script:
