@@ -102,7 +102,14 @@ set(c_cxx_compile_options "") # compile options only for C/CXX
 set(asm_compile_options "") # compile options only for ASM
 
 include(toolchains/${MBED_TOOLCHAIN})
-include(cores/${MBED_CPU_CORE})
+
+set(MBED_CPU_CORE_TAG ${MBED_CPU_CORE})
+if (MBED_CPU_CORE MATCHES "Cortex-A[0-9]+$")
+    set(MBED_CPU_CORE_TAG "Cortex-A")
+    string(REPLACE "Cortex-" "" MBED_CPU_CORE_CODE "${MBED_CPU_CORE}")
+endif()
+
+include(cores/${MBED_CPU_CORE_TAG})
 
 #converts a list into a string with each of its elements seperated by a space
 macro(list_to_space_separated OUTPUT_VAR)# 2nd arg: LIST...

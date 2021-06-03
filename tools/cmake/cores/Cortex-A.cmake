@@ -8,21 +8,21 @@ if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
         "-mfpu=vfpv3"
         "-mfloat-abi=softfp"
         "-mno-unaligned-access"
-        "-mcpu=cortex-a9"
+        "-mcpu=${CMAKE_SYSTEM_PROCESSOR}"
     )
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     list(APPEND common_options
         "-mfpu=vfpv3"
         "-mfloat-abi=hard"
-        "-mcpu=cortex-a9"
+        "-mcpu=${CMAKE_SYSTEM_PROCESSOR}"
     )
 endif()
 
 function(mbed_set_cpu_core_definitions target)
     target_compile_definitions(${target}
         INTERFACE
-            __CORTEX_A9
-            ARM_MATH_CA9
+            __CORTEX_${MBED_CPU_CORE_CODE}
+            ARM_MATH_C${MBED_CPU_CORE_CODE}
             __FPU_PRESENT
             __CMSIS_RTOS
             __EVAL
