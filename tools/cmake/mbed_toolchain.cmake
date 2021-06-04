@@ -25,6 +25,8 @@ endfunction()
 # Set the system processor depending on the CPU core type
 if (MBED_CPU_CORE STREQUAL Cortex-A9)
     set(CMAKE_SYSTEM_PROCESSOR cortex-a9)
+elseif (MBED_CPU_CORE STREQUAL Cortex-A5)
+    set(CMAKE_SYSTEM_PROCESSOR cortex-a5)
 elseif (MBED_CPU_CORE STREQUAL Cortex-M0+)
     set(CMAKE_SYSTEM_PROCESSOR cortex-m0plus)
 elseif (MBED_CPU_CORE STREQUAL Cortex-M0)

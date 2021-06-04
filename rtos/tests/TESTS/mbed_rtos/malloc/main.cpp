@@ -32,7 +32,7 @@ volatile bool thread_should_continue = true;
 #define NUM_THREADS         4
 #define THREAD_MALLOC_SIZE  100
 
-#if defined(__CORTEX_A9)
+#if defined(__CORTEX_A9) || defined(__CORTEX_A5)
 #define THREAD_STACK_SIZE   512
 #elif defined(__CORTEX_M23) || defined(__CORTEX_M33)
 #define THREAD_STACK_SIZE   512
