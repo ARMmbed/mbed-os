@@ -19,6 +19,7 @@ target_include_directories(mbed-stm32wb15xc
 target_sources(mbed-stm32wb15xc
     INTERFACE
         ${STARTUP_FILE}
+        system_clock.c
 )
 
 mbed_set_linker_script(mbed-stm32wb15xc ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
