@@ -57,7 +57,7 @@ class ARM(mbedToolchain):
     SHEBANG = "#! armcc -E"
     SUPPORTED_CORES = [
         "Cortex-M0", "Cortex-M0+", "Cortex-M3", "Cortex-M4", "Cortex-M4F",
-        "Cortex-M7", "Cortex-M7F", "Cortex-M7FD", "Cortex-A9"
+        "Cortex-M7", "Cortex-M7F", "Cortex-M7FD", "Cortex-A5", "Cortex-A9"
     ]
     ARMCC_RANGE = (LooseVersion("5.06"), LooseVersion("5.07"))
     ARMCC_PRODUCT_RE = re.compile(b"Product: (.*)")
@@ -544,7 +544,7 @@ class ARMC6(ARM_STD):
         "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD",
         "Cortex-M23", "Cortex-M23-NS", "Cortex-M33", "Cortex-M33F",
         "Cortex-M33-NS", "Cortex-M33F-NS", "Cortex-M33FE-NS", "Cortex-M33FE",
-        "Cortex-A9"
+        "Cortex-A5", "Cortex-A9"
     ]
     ARMCC_RANGE = (LooseVersion("6.10"), LooseVersion("7.0"))
     LD_DIAGNOSTIC_PATTERN = re.compile(
