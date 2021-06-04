@@ -47,6 +47,9 @@ extern "C" {
 #endif
 /** \} group_bsp_pin_state */
 
+#define CYBSP_D8                    (NC)
+#define CYBSP_D9                    (NC)
+
 #if defined(__cplusplus)
 }
 #endif
