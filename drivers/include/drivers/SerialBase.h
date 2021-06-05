@@ -119,7 +119,9 @@ public:
      */
     void send_break();
 
-    /** Flush hardware buffers associated with serial port
+    /** Ensures all data stored in peripheral buffers is transmitted to the bus
+     *
+     *  The function shall block until all the content of peripheral buffers is transmitted.
      *
      *  @return         0 on success, negative error code on failure
      */
