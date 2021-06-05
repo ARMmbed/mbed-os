@@ -18,8 +18,8 @@
 #include "platform/mbed_wait_api.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_power_mgmt.h"
-#include "mbed_chrono.h"
-#include "ThisThread.h"
+#include "platform/mbed_chrono.h"
+#include "rtos/ThisThread.h"
 
 #if DEVICE_SERIAL
 
