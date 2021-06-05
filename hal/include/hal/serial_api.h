@@ -296,7 +296,8 @@ int  serial_readable(serial_t *obj);
  */
 int  serial_writable(serial_t *obj);
 
-/** Check if the serial peripheral tx buffer is empty
+/** Check if the serial peripheral tx buffer or tx FIFO is empty and the last byte has
+ *  been completely transmitted from the shift register to the bus.
  *
  * @param obj The serial object
  * @return Non-zero value if tx is empty, 0 otherwise.
