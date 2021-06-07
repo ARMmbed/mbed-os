@@ -72,6 +72,33 @@ mbedls -m 0884:DISCO_WB5MMG
 ```
 
 
+## NUCLEO_WB15CC (NUCLEO-WB15CC)
+
+[st.com STM32WB15CC module page](https://www.st.com/en/microcontrollers-microprocessors/stm32wb15cc.html)
+
+[st.com NUCLEO board page]()
+
+[mbed.com platform page](https://os.mbed.com/platforms/ST-NUCLEO-WB15CC/)
+
+- Total FLASH is 320KB
+
+But FLASH is shared by M4 and M0 cores, [see BLE FW](#ble-fw)
+
+- RAM: 48 KB
+    - SRAM1:  12 KB
+    - SRAM2a: 32 KB
+    - SRAM2b:  4 KB
+
+SRAM1 is dedicated for M4 core, and then for mbed-os applications.
+
+SRAM2 is dedicated for M0 core and inter CPU communication, and some part can not be addressed by M4.
+
+NB: MBED CLI1 tool can be used thanks to this command:
+```
+mbedls -m 0883:NUCLEO_WB15CC
+```
+
+
 # BLE
 
 ## MBED-OS support
@@ -90,6 +117,8 @@ Official ST Application Note :
 
 All available BLE FW for M0 core are provided in ths ST STM32CubeWB repo:
 
+### STM32WB5x
+
 https://github.com/STMicroelectronics/STM32CubeWB/tree/master/Projects/STM32WB_Copro_Wireless_Binaries/STM32WB5x
 
 Default BLE FW in ST boards is **stm32wb5x_BLE_Stack_full_fw.bin**
@@ -107,6 +136,17 @@ Example in your local mbed_app.json:
             "target.mbed_rom_size": "0xE0000"
         }
 ```
+
+### STM32WB1x
+
+https://github.com/STMicroelectronics/STM32CubeWB/tree/master/Projects/STM32WB_Copro_Wireless_Binaries/STM32WB1x
+
+Default BLE FW in ST boards is **stm32wb1x_BLE_Stack_full_fw.bin**
+- **this is not supported in mbed**
+
+It is mandatory to use **stm32wb1x_BLE_HCILayer_fw.bin**
+- As explained in Release_Notes.html, this FW is flashed at @ 0x08032800
+- Then "mbed_rom_size" is "0x32800" (202K) (default configuration in targets.json)
 
 
 ## BLE FW update
