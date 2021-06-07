@@ -29,6 +29,7 @@
 #include "stm32h7xx_ll_cortex.h"
 #endif /* CONFIG_STM32H7_DUAL_CORE */
 #include "stm32h7xx_ll_pwr.h"
+#include "stm32h7xx_ll_system.h"
 
 #ifdef __cplusplus
 extern "C" {
