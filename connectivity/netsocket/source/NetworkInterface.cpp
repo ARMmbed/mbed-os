@@ -21,6 +21,7 @@
 #include "platform/Callback.h"
 #include "platform/mbed_error.h"
 #include <string.h>
+#include <new>
 
 // Default network-interface state
 void NetworkInterface::set_as_default()
@@ -142,15 +143,43 @@ static void call_all_event_listeners(NetworkInterface *iface, nsapi_event_t even
     }
 }
 
-void NetworkInterface::add_event_listener(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
+nsapi_error_t NetworkInterface::internal_add_event_listener(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
     iface_eventlist_t *event_list = get_interface_event_list_head();
-    iface_eventlist_entry_t *entry = new iface_eventlist_entry_t;
+#if MBED_CONF_PLATFORM_CALLBACK_COMPARABLE
+    ns_list_foreach_safe(iface_eventlist_entry_t, entry, event_list) {
+        if (entry->status_cb == status_cb && entry->iface == this) {
+            return NSAPI_ERROR_OK;
+        }
+    }
+#endif
+
+    iface_eventlist_entry_t *entry = new (std::nothrow) iface_eventlist_entry_t;
+    if (!entry) {
+        return NSAPI_ERROR_NO_MEMORY;
+    }
+
     entry->iface = this;
     entry->status_cb = status_cb;
     ns_list_add_to_end(event_list, entry);
     attach(mbed::callback(&call_all_event_listeners, this));
+    return NSAPI_ERROR_OK;
 }
+
+#if MBED_CONF_NSAPI_ADD_EVENT_LISTENER_RETURN_CHANGE
+nsapi_error_t NetworkInterface::add_event_listener(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
+{
+    return internal_add_event_listener(status_cb);
+}
+#else
+void NetworkInterface::add_event_listener(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
+{
+    auto error = internal_add_event_listener(status_cb);
+    if (error) {
+        MBED_ERROR(error, __func__);
+    }
+}
+#endif // MBED_CONF_NSAPI_ADD_EVENT_LISTENER_RETURN_CHANGE
 
 #if MBED_CONF_PLATFORM_CALLBACK_COMPARABLE
 void NetworkInterface::remove_event_listener(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
@@ -160,7 +189,6 @@ void NetworkInterface::remove_event_listener(mbed::Callback<void(nsapi_event_t, 
         if (entry->status_cb == status_cb && entry->iface == this) {
             ns_list_remove(event_list, entry);
             delete entry;
-            return;
         }
     }
 }
