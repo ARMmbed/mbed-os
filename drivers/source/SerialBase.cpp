@@ -172,7 +172,8 @@ int SerialBase::sync()
     // See send_break(), ensure at least 1ms sleep time
     auto char_time_allowance = chrono::milliseconds_u32((18000 / _baud) + 1);
     lock();
-    while ((!serial_tx_empty(&_serial)) && (count < 16)) {
+    // Assuming the biggest Tx FIFO of 128 bytes (as for CY8CPROTO_062_4343W)
+    while ((!serial_tx_empty(&_serial)) && (count < 128)) {
         rtos::ThisThread::sleep_for(char_time_allowance);
 #if DEVICE_SERIAL_FC
         if ((_flow_type == RTS) || (_flow_type == Disabled))
@@ -181,7 +182,7 @@ int SerialBase::sync()
     }
     unlock();
 
-    if (count < 16) {
+    if (count < 128) {
         return 0;
     } else {
         return -ETIME;
