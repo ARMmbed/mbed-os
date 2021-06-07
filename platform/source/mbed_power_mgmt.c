@@ -28,6 +28,9 @@
 #include "platform/mbed_wait_api.h"
 
 #include <stdio.h>
+#ifdef MBED_SLEEP_TRACING_ENABLED
+#include <string.h>
+#endif
 
 #if DEVICE_SLEEP
 
@@ -138,19 +141,27 @@ static sleep_statistic_t *sleep_tracker_add(const char *const filename)
 
 static void sleep_tracker_print_stats(void)
 {
-    mbed_error_printf("Sleep locks held:\r\n");
-    for (int i = 0; i < STATISTIC_COUNT; ++i) {
-        if (sleep_stats[i].count == 0) {
-            continue;
-        }
+    if (sleep_manager_can_deep_sleep()) {
+        mbed_error_printf("deepsleep unlocked");
+#ifdef MBED_DEBUG
+        mbed_error_printf(" but disabled with MBED_DEBUG");
+#endif
+    } else {
+        mbed_error_printf("deepsleep locked by:");
+        for (int i = 0; i < STATISTIC_COUNT; ++i) {
+            if (sleep_stats[i].count == 0) {
+                continue;
+            }
 
-        if (sleep_stats[i].identifier[0] == '\0') {
-            return;
-        }
+            if (sleep_stats[i].identifier[0] == '\0') {
+                return;
+            }
 
-        mbed_error_printf("[id: %s, count: %u]\r\n", sleep_stats[i].identifier,
-                          sleep_stats[i].count);
+            mbed_error_printf(" [%s x %u]", sleep_stats[i].identifier,
+                              sleep_stats[i].count);
+        }
     }
+    mbed_error_printf("\r\n");
 }
 
 void sleep_tracker_lock(const char *const filename, int line)
@@ -164,7 +175,9 @@ void sleep_tracker_lock(const char *const filename, int line)
 
     core_util_atomic_incr_u8(&stat->count, 1);
 
+#if MBED_CONF_PLATFORM_DEEPSLEEP_STATS_VERBOSE
     mbed_error_printf("LOCK: %s, ln: %i, lock count: %u\r\n", filename, line, deep_sleep_lock);
+#endif
 }
 
 void sleep_tracker_unlock(const char *const filename, int line)
@@ -179,7 +192,9 @@ void sleep_tracker_unlock(const char *const filename, int line)
 
     core_util_atomic_decr_u8(&stat->count, 1);
 
+#if MBED_CONF_PLATFORM_DEEPSLEEP_STATS_VERBOSE
     mbed_error_printf("UNLOCK: %s, ln: %i, lock count: %u\r\n", filename, line, deep_sleep_lock);
+#endif
 }
 
 #endif // MBED_SLEEP_TRACING_ENABLED
