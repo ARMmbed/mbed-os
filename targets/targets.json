@@ -6861,6 +6861,11 @@
         ],
         "is_disk_virtual": true,
         "config": {
+            "hxt-present": {
+                "help": "High-speed external crystal oscillator HXT is present",
+                "options": [false, true],
+                "value": false
+            },
             "usb-uart": {
                 "help": "Configure USB_UART. USB_UART and USBTX/USBRX must be consistent.",
                 "value": null
@@ -6955,6 +6960,7 @@
         ],
         "device_name": "M2354KJFAE",
         "overrides": {
+            "hxt-present": false,
             "usb-uart": "UART_0",
             "usb-uart-tx": "PA_7",
             "usb-uart-rx": "PA_6"
