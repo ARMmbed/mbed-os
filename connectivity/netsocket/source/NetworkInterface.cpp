@@ -175,8 +175,14 @@ nsapi_error_t NetworkInterface::add_event_listener(mbed::Callback<void(nsapi_eve
 void NetworkInterface::add_event_listener(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
     auto error = internal_add_event_listener(status_cb);
-    if (error) {
-        MBED_ERROR(error, __func__);
+    switch (error) {
+        case NSAPI_ERROR_OK:
+            return;
+        case NSAPI_ERROR_NO_MEMORY:
+            MBED_ERROR(error, "Out of memory when adding an event listener");
+            break;
+        default:
+            MBED_UNREACHABLE;
     }
 }
 #endif // MBED_CONF_NSAPI_ADD_EVENT_LISTENER_RETURN_CHANGE

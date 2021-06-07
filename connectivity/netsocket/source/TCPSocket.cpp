@@ -269,7 +269,6 @@ TCPSocket *TCPSocket::accept(nsapi_error_t *error)
         if (0 == ret) {
             connection = new (std::nothrow) TCPSocket(this, socket, address);
             if (!connection) {
-                _stack->socket_close(socket);
                 ret = NSAPI_ERROR_NO_MEMORY;
                 break;
             }

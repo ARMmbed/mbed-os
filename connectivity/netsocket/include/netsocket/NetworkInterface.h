@@ -409,7 +409,7 @@ public:
      *
      *  @param status_cb The callback for status changes.
      */
-    MBED_DEPRECATED_SINCE("mbed-os-6.8", "This function return value will change to nsapi_error_t in the next major release. See documentation for details.")
+    MBED_DEPRECATED_SINCE("mbed-os-6.12", "This function return value will change to nsapi_error_t in the next major release. See documentation for details.")
     void add_event_listener(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
 #endif
 
