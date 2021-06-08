@@ -2392,14 +2392,14 @@ ble_error_t Gap::startAdvertising(
             _pal_gap.set_advertising_set_random_address(handle, *random_address);
         }
 
-        /* check we hanve't run out of space to remember parameters */
+        /* check we haven't run out of space to remember parameters */
         if (_advertising_enable_command_params.number_of_handles == BLE_GAP_HOST_MAX_OUTSTANDING_ADVERTISING_START_COMMANDS) {
             /* try to process early */
             tr_debug("Processing enable queue early as run out of queue space");
             process_enable_queue();
             /* if the processing didn't clear the handles we cannot continue */
             if (_advertising_enable_command_params.number_of_handles) {
-                tr_debug("Cannot enable set as no memory to record the parameters");
+                tr_warn("Cannot enable set as no memory to record the parameters");
                 return BLE_ERROR_NO_MEM;
             }
         }
@@ -2471,7 +2471,7 @@ void Gap::process_enable_queue()
     for (size_t i = 0; i < BLE_GAP_MAX_ADVERTISING_SETS; ++i) {
         if (_pending_sets.get(i)) {
             /* we have to wait until nothing is pending */
-            tr_debug("Cannot enable sets as pending sets present");
+            tr_info("Cannot enable sets as pending sets present, will retry later");
             return;
         }
     }
