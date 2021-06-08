@@ -46,6 +46,9 @@
 #undef QSPI_CMD_WRITE_DPI
 #undef QSPI_CMD_WRITE_QPI
 
+#elif defined(TARGET_MTS_DRAGONFLY_L496VG)
+#include "MT25Q_config.h"
+
 #elif defined(TARGET_NRF52840)
 #if TARGET_EP_AGORA
 #include "NORDIC/EP_AGORA/flash_config.h"

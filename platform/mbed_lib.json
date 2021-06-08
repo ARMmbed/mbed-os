@@ -164,7 +164,7 @@
         },
         "UNO_91H": {
             "stdio-baud-rate": 115200
-        }, 
+        },
         "DISCO_L475VG_IOT01A": {
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
