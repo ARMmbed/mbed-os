@@ -694,9 +694,9 @@ void SX126X_LoRaRadio::read_fifo(uint8_t *buffer, uint8_t size, uint8_t offset)
     _chip_select = 1;
 }
 
-#if MBED_CONF_SX126X_LORA_DRIVER_DEVICE_VARIANT == -1
 uint8_t SX126X_LoRaRadio::get_device_variant(void)
 {
+#if MBED_CONF_SX126X_LORA_DRIVER_DEVICE_VARIANT == -1
     uint16_t val = 0;
     val = _dev_select.read_u16();
 
@@ -707,17 +707,14 @@ uint8_t SX126X_LoRaRadio::get_device_variant(void)
     } else {
         return SX1261;
     }
-}
 #else
-uint8_t SX126X_LoRaRadio::get_device_variant(void)
-{
     return MBED_CONF_SX126X_LORA_DRIVER_DEVICE_VARIANT;
-}
 #endif
+}
 
-#if MBED_CONF_SX126X_LORA_DRIVER_FREQ_SUPPORT == -1
 uint8_t SX126X_LoRaRadio::get_frequency_support(void)
 {
+#if MBED_CONF_SX126X_LORA_DRIVER_FREQ_SUPPORT == -1
     uint16_t val = 0;
     val = _freq_select.read_u16();
 
@@ -736,13 +733,10 @@ uint8_t SX126X_LoRaRadio::get_frequency_support(void)
     } else {
         return (MATCHING_FREQ_868);
     }
-}
 #else
-uint8_t SX126X_LoRaRadio::get_frequency_support(void)
-{
     return MBED_CONF_SX126X_LORA_DRIVER_FREQ_SUPPORT;
-}
 #endif
+}
 
 uint8_t SX126X_LoRaRadio::get_fsk_bw_reg_val(uint32_t bandwidth)
 {
