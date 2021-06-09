@@ -278,9 +278,9 @@ private:
     /** Unbuffered write - invoked when write called from critical section */
     ssize_t write_unbuffered(const char *buf_ptr, size_t length);
 
-    void enable_rx_irq();
+    void update_rx_irq();
     void disable_rx_irq();
-    void enable_tx_irq();
+    void update_tx_irq();
     void disable_tx_irq();
 
     /** Software serial buffers
@@ -296,8 +296,6 @@ private:
     bool _blocking;
     bool _tx_irq_enabled;
     bool _rx_irq_enabled;
-    bool _tx_enabled;
-    bool _rx_enabled;
     InterruptIn *_dcd_irq;
 
     /** Device Hanged up
