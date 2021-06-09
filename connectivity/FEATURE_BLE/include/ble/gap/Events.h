@@ -627,10 +627,15 @@ struct AdvertisingEndEvent {
     /** Create an extended advertising end event.
      *
      * @param advHandle Advertising set handle.
-     * @param connection Connection handle.
-     * @param completed_events Number of events created during before advertising end.
+     * @param connection Connection handle - only valid if connected is True.
+     * @param completed_events Number of events created during before advertising end - only valid
+     *        if advertising end has been caused by BLE_ERROR_LIMIT_REACHED, not the local user.
+     *        Check getStatus().
      * @param connected True if connection has been established.
-     * @param status Error code if stop command failed.
+     * @param status Error code showing the reason for event. BLE_ERROR_LIMIT_REACHED if set number
+     *        of events have been reached. BLE_ERROR_TIMEOUT if set time has elapsed.
+     *        BLE_ERROR_SUCCESS if connection occurred or user ended the set. Check isConnected()
+     *        to determine which.
      */
     AdvertisingEndEvent(
         advertising_handle_t advHandle,
