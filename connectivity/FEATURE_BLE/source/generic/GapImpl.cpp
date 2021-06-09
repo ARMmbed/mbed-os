@@ -2461,6 +2461,8 @@ ble_error_t Gap::startAdvertising(
 #if BLE_FEATURE_EXTENDED_ADVERTISING
 void Gap::process_enable_queue()
 {
+    _process_enable_queue_pending = false;
+
     tr_info("Evaluating pending advertising sets to be started");
     if (!_advertising_enable_command_params.number_of_handles) {
         /* no set pending to be enabled */
@@ -2506,7 +2508,6 @@ void Gap::process_enable_queue()
     }
 
     _advertising_enable_command_params.number_of_handles = 0;
-    _process_enable_queue_pending = false;
 }
 #endif //BLE_FEATURE_EXTENDED_ADVERTISING
 
