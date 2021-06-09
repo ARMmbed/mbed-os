@@ -1215,7 +1215,8 @@ void dmExtAdvActHciEnableCmpl(hciEvt_t *pEvent)
   dmEvt_t dmMsg;
 
   memcpy(&dmMsg, &pEvent->hdr, sizeof(wsfMsgHdr_t));
-  dmMsg.advSetStart.numSets = 0;
+
+  /* we have to handle stopping and starting separately as it uses the same message memory */
 
   for ( i= 0; i < DM_NUM_ADV_SETS; i++)
   {
@@ -1223,7 +1224,11 @@ void dmExtAdvActHciEnableCmpl(hciEvt_t *pEvent)
     {
     case DM_ADV_STATE_STOPPING:
     case DM_ADV_STATE_STOPPING_DIRECTED:
+      /* prepare the message for callback */
+      dmMsg.advSetStop.handle = DM_ADV_HCI_HANDLE_NONE;
+      dmMsg.advSetStop.status = dmMsg.hdr.status;
       dmMsg.advSetStop.advHandle = i;
+
       advType = dmAdvCb.advType[i];
 
       if (dmMsg.hdr.status == HCI_SUCCESS)
@@ -1243,10 +1248,24 @@ void dmExtAdvActHciEnableCmpl(hciEvt_t *pEvent)
       /* if not connectable directed advertising */
       if ((advType != DM_ADV_NONE) && !DM_ADV_CONN_DIRECTED(advType))
       {
-        cbackEvent = DM_ADV_SET_STOP_IND;
+        /* we have to dispatch callbacks one by one as msg only has space for one set of parameters */
+        dmMsg.hdr.event = DM_ADV_SET_STOP_IND;
+        (*dmCb.cback)((dmEvt_t *) &dmMsg);
       }
       break;
 
+    default:
+      break;
+    }
+  }
+
+  /* safe to write as message is only used by starting, removing and clearing does not send a message */
+  dmMsg.advSetStart.numSets = 0;
+
+  for ( i= 0; i < DM_NUM_ADV_SETS; i++)
+  {
+    switch(dmAdvCb.advState[i])
+    {
     case DM_ADV_STATE_STARTING:
     case DM_ADV_STATE_STARTING_DIRECTED:
       dmMsg.advSetStart.advHandle[dmMsg.advSetStart.numSets++] = i;
