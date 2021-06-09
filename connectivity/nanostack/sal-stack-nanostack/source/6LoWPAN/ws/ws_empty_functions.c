@@ -440,11 +440,6 @@ int ws_statistics_stop(int8_t interface_id)
     return -1;
 }
 
-void ns_time_api_system_time_callback_set(ns_time_api_system_time_callback callback)
-{
-    (void) callback;
-}
-
 int ws_stack_info_get(int8_t interface_id, ws_stack_info_t *info_ptr)
 {
     (void) interface_id;
