@@ -31,6 +31,7 @@
 #include "dm_adv.h"
 #include "dm_dev.h"
 #include "dm_main.h"
+#include "dm_conn.h"
 
 /**************************************************************************************************
   Macros
@@ -1374,6 +1375,13 @@ void dmExtAdvHciHandler(hciEvt_t *pEvent)
       if (!DM_ADV_CONN_DIRECTED(advType))
       {
         pEvent->hdr.event = DM_ADV_SET_STOP_IND;
+        if (pEvent->leAdvSetTerm.status == HCI_SUCCESS) {
+            /* translate the handle to conn id */
+            dmConnCcb_t* ccb = dmConnCcbByHandle(pEvent->leAdvSetTerm.handle);
+            if (ccb) {
+                pEvent->hdr.param = ccb->connId;
+            }
+        }
         (*dmCb.cback)((dmEvt_t *) pEvent);
       }
       /* else if low duty cycle directed advertising failed to create connection */
