@@ -1,0 +1,256 @@
+name: Publish or Update docker image for head of branch
+# This work flow is disabled for forked repositories. 
+# If you need to enable it, find references for github.repository_owner in this file
+# and replace with ARMmbed with your organisation/account name
+# Read more details in TODO: add design link
+
+on:
+
+  schedule:
+    - cron:  '15 4 * * *'
+
+  push:
+    branches: 
+      - master
+
+    paths:
+      - requirements.txt
+      - docker_images/mbed-os-env/**
+      - .github/workflows/docker_management.branch.yml
+
+
+  workflow_dispatch: 
+
+
+jobs:
+  prepare-tags:
+    if: github.repository_owner == 'saheerb' || github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+
+    steps:
+      - 
+        name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      - 
+        name: Print event name
+        shell: bash
+        run: echo ${{github.event_name}}
+
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - 
+        name: Set UUID
+        id: generate-uuid
+        uses: filipstefansson/uuid-action@v1
+
+# set docker tags we are building, and intending to publish
+# dev-tag is temporary for testing purpose. This should be considered as unstable.
+# dated-tag is created for versioning purpose
+# prod-tag-latest could be used by customers, CI etc for keeping up to date
+      - 
+        name: Get build information
+        shell: bash
+        run: |
+          mkdir -p build_info
+          date=$(date +"%Y.%m.%dT%H.%M.%S")
+          echo dev-${{ steps.extract_branch.outputs.branch }}-${date}-${{ steps.generate-uuid.outputs.uuid }} > build_info/dev_tag
+          echo ${{ steps.extract_branch.outputs.branch }}-${date} > build_info/prod_tag_dated
+          echo ${{ steps.extract_branch.outputs.branch }}-latest > build_info/prod_tag_latest
+          echo ${{ steps.extract_branch.outputs.branch }} > build_info/mbed_os_version
+          
+      # archiving and unarchiving are github actions ways to pass variables between jobs    
+      - 
+        name: Archive information 
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-info
+          path: build_info
+          
+
+
+  build-container:
+    runs-on: ubuntu-latest
+    needs: prepare-tags
+    outputs:
+      DEV_DIGEST: ${{ steps.docker_info_dev.outputs.DIGEST }}
+      PROD_DIGEST: ${{ steps.docker_info_prod.outputs.DIGEST }}
+
+    steps:
+      - 
+        name: unarchive artefacts
+        uses: actions/download-artifact@v2
+        with:
+          name: build-info
+          
+      - 
+        name: Get build info from archive
+        shell: bash
+        id: build_info
+        run: |
+          value=`cat dev_tag`
+          echo "DEV TAG is $value"
+          echo "::set-output name=DOCKER_DEV_TAG::$value"
+          value=`cat prod_tag_dated`
+          echo "PROD TAG DATED is $value"
+          echo "::set-output name=DOCKER_PROD_TAG_DATED::$value"
+          value=`cat prod_tag_latest`
+          echo "::set-output name=DOCKER_PROD_TAG_LATEST::$value"
+          echo "PROD TAG is $value"
+
+      - 
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - 
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - 
+        name: Login to DockerHub
+        uses: docker/login-action@v1 
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+
+      -
+        name: Build with remote cache
+        uses: docker/build-push-action@v2
+        id: docker_build_dev
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          # load: true - not supported for multi arch
+          push: true
+          file: ./docker_images/mbed-os-env/Dockerfile
+          tags: ghcr.io/${{ github.actor }}/mbed-os-env-tmp:${{ steps.build_info.outputs.DOCKER_DEV_TAG }}
+          cache-from: type=registry,ref=ghcr.io/${{ github.actor }}/mbed-os-env:${{ steps.build_info.outputs.DOCKER_PROD_TAG_LATEST }}
+          cache-to: type=inline
+
+      -
+        name: Find DOCKER DIGEST trying to publish (if exists in docker repository)
+        id: docker_info_prod
+        run: |
+          DIGEST=$(docker run quay.io/skopeo/stable --creds=${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} inspect docker://ghcr.io/${{ github.actor }}/mbed-os-env:${{ steps.build_info.outputs.DOCKER_PROD_TAG_LATEST }} | jq ".Digest")
+          echo "::set-output name=DIGEST::$DIGEST"
+          echo "Docker DIGEST: $DIGEST"
+
+      - 
+        name: Find DEV DOCKER DIGEST
+        id: docker_info_dev
+        run: |
+          DIGEST=$(docker run quay.io/skopeo/stable --creds=${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} inspect docker://ghcr.io/${{ github.actor }}/mbed-os-env-tmp:${{ steps.build_info.outputs.DOCKER_DEV_TAG }} | jq ".Digest")
+          echo "Docker DIGEST: $DIGEST"
+          echo "::set-output name=DIGEST::$DIGEST"
+          echo "Docker DIGEST: $DIGEST"
+
+  test-container:
+    runs-on: ubuntu-latest
+    needs: build-container
+    # no need to test (nor publish) if we already have the same image in dockerhub
+    if: needs.build-container.outputs.DEV_DIGEST != needs.build-container.outputs.PROD_DIGEST
+    outputs:
+      STATUS: ${{ steps.test.outputs.STATUS }}
+    strategy:
+      matrix:
+        platform: [linux/amd64, linux/arm64]
+        
+    steps:
+      - 
+        name: unarchive artefacts
+        uses: actions/download-artifact@v2
+        with:
+          name: build-info
+          
+      - 
+        name: Get build info from archive
+        shell: bash
+        id: build_info
+        run: |
+          value=`cat dev_tag`
+          echo "TAG is $value"
+          echo "::set-output name=DOCKER_DEV_TAG::$value"
+          value=`cat prod_tag_dated`
+          echo "TAG is $value"
+          echo "::set-output name=DOCKER_PROD_TAG_DATED::$value"
+          value=`cat prod_tag_latest`
+          echo "::set-output name=DOCKER_PROD_TAG_LATEST::$value"
+          value=`cat mbed_os_version`
+          echo "::set-output name=MBED_OS_VERSION::$value"
+
+      - 
+        name: Checkout
+        uses: actions/checkout@v2
+
+      - 
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - 
+        name: test the container
+        id: test
+        uses: addnab/docker-run-action@v3
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ghcr.io
+          options: -v ${{ github.workspace }}:/work -w=/work
+          image: ghcr.io/${{ github.actor }}/mbed-os-env-tmp@${{ steps.docker_info_dev.outputs.DIGEST }}
+          shell: bash
+          
+          run: |
+            set -e
+            echo "::set-output name=STATUS::failed"
+            uname -m
+            ./docker_images/mbed-os-env/test.sh ${{ steps.build_info.outputs.MBED_OS_VERSION }}
+            echo "::set-output name=STATUS::passed"
+            
+      
+  deploy-container:
+    runs-on: ubuntu-latest
+    needs: test-container
+        
+    steps:
+      - 
+        name: unarchive artefacts
+        uses: actions/download-artifact@v2
+        with:
+          name: build-info
+        
+      - 
+        name: Get build info from archive
+        shell: bash
+        id: build_info
+        run: |
+          value=`cat dev_tag`
+          echo "TAG is $value"
+          echo "::set-output name=DOCKER_DEV_TAG::$value"
+          value=`cat prod_tag_dated`
+          echo "TAG is $value"
+          echo "::set-output name=DOCKER_PROD_TAG_DATED::$value"
+          value=`cat prod_tag_latest`
+          echo "::set-output name=DOCKER_PROD_TAG_LATEST::$value"
+          
+      - 
+        if: needs.test-container.outputs.STATUS == 'passed'
+        name: copy dev tag to prod
+        run: |
+          docker run quay.io/skopeo/stable --src-creds=${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} --dest-creds=${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} copy --all docker://ghcr.io/${{ github.actor }}/mbed-os-env-tmp:${{ steps.build_info.outputs.DOCKER_DEV_TAG }}  docker://ghcr.io/${{ github.actor }}/mbed-os-env:${{ steps.build_info.outputs.DOCKER_PROD_TAG_LATEST }}
+          docker run quay.io/skopeo/stable --src-creds=${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} --dest-creds=${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} copy --all docker://ghcr.io/${{ github.actor }}/mbed-os-env-tmp:${{ steps.build_info.outputs.DOCKER_DEV_TAG }}  docker://ghcr.io/${{ github.actor }}/mbed-os-env:${{ steps.build_info.outputs.DOCKER_PROD_TAG_DATED }}
+
+      # move failed images to temporary name for troubleshooting
+      - if: needs.test-container.outputs.STATUS == 'failed'
+        name: Rename Dev Tag
+        run: |
+          docker run quay.io/skopeo/stable --src-creds=${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} --dest-creds=${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} copy --all docker://ghcr.io/${{ github.actor }}/mbed-os-env-tmp:${{ steps.build_info.outputs.DOCKER_DEV_TAG }}  docker://ghcr.io/${{ github.actor }}/mbed-os-env-tmp:failed-${{ steps.build_info.outputs.DOCKER_DEV_TAG }}
