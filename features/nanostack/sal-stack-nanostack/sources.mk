@@ -211,6 +211,7 @@ SRCS += \
 	source/Service_Libs/utils/ns_crc.c \
 	source/Service_Libs/utils/isqrt.c \
 	source/Service_Libs/utils/ns_file_system.c \
+	source/Service_Libs/utils/ns_time.c \
 	source/Service_Libs/utils/ns_conf.c \
 	source/Service_Libs/mdns/ns_mdns_api.c \
 	source/Service_Libs/mdns/ns_fnet_port.c \
