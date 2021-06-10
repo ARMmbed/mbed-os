@@ -45,7 +45,7 @@ int8_t prepare_blockwise_message(struct coap_s *handle, struct sn_coap_hdr_ *coa
 
 /* Structure which is stored to Linked list for message sending purposes */
 typedef struct coap_send_msg_ {
-    uint8_t             resending_counter;  /* Tells how many times message is still tried to resend */
+    uint_fast8_t        resending_counter;  /* Tells how many times message is still tried to resend */
     uint32_t            resending_time;     /* Tells next resending time */
 
     sn_nsdl_transmit_s  send_msg_ptr;
@@ -86,25 +86,35 @@ typedef NS_LIST_HEAD(coap_blockwise_msg_s, link) coap_blockwise_msg_list_t;
 
 /* Structure which is stored to Linked list for blockwise messages receiving purposes */
 typedef struct coap_blockwise_payload_ {
-    uint32_t            timestamp; /* Tells when Payload is stored to Linked list */
-
     uint8_t             addr_len;
-    uint8_t             *addr_ptr;
+    uint8_t             token_len;
+    bool                use_size1;
     uint16_t            port;
+    uint16_t            payload_len;
+    uint8_t             *addr_ptr;
     uint32_t            block_number;
     uint8_t             *token_ptr;
-    uint8_t             token_len;
-
-    uint16_t            payload_len;
     uint8_t             *payload_ptr;
-    unsigned int        use_size1:1;
-
+    uint32_t            timestamp; /* Tells when Payload is stored to Linked list */
     ns_list_link_t     link;
 } coap_blockwise_payload_s;
 
 typedef NS_LIST_HEAD(coap_blockwise_payload_s, link) coap_blockwise_payload_list_t;
 
 struct coap_s {
+    uint8_t sn_coap_resending_queue_msgs;
+    uint8_t sn_coap_resending_count;
+    uint8_t sn_coap_resending_intervall;
+    uint8_t sn_coap_duplication_buffer_size;
+    uint8_t sn_coap_internal_block2_resp_handling; /* If this is set then coap itself sends a next GET request automatically */
+    uint16_t sn_coap_block_data_size;
+    #if ENABLE_RESENDINGS
+    uint16_t count_resent_msgs;
+    #endif
+#if SN_COAP_DUPLICATION_MAX_MSGS_COUNT
+    uint16_t                      count_duplication_msgs;
+#endif
+
     void *(*sn_coap_protocol_malloc)(uint16_t);
     void (*sn_coap_protocol_free)(void *);
 
@@ -113,12 +123,10 @@ struct coap_s {
 
     #if ENABLE_RESENDINGS /* If Message resending is not used at all, this part of code will not be compiled */
         coap_send_msg_list_t linked_list_resent_msgs; /* Active resending messages are stored to this Linked list */
-        uint16_t count_resent_msgs;
     #endif
 
     #if SN_COAP_DUPLICATION_MAX_MSGS_COUNT /* If Message duplication detection is not used at all, this part of code will not be compiled */
         coap_duplication_info_list_t  linked_list_duplication_msgs; /* Messages for duplicated messages detection is stored to this Linked list */
-        uint16_t                      count_duplication_msgs;
     #endif
 
     #if SN_COAP_BLOCKWISE_ENABLED || SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE /* If Message blockwise is not enabled, this part of code will not be compiled */
@@ -127,20 +135,14 @@ struct coap_s {
     #endif
 
     uint32_t system_time;    /* System time seconds */
-    uint16_t sn_coap_block_data_size;
-    uint8_t sn_coap_resending_queue_msgs;
     uint32_t sn_coap_resending_queue_bytes;
-    uint8_t sn_coap_resending_count;
-    uint8_t sn_coap_resending_intervall;
-    uint8_t sn_coap_duplication_buffer_size;
-    uint8_t sn_coap_internal_block2_resp_handling; /* If this is set then coap itself sends a next GET request automatically */
 };
 
 /* Utility function which performs a call to sn_coap_protocol_malloc() and memset's the result to zero. */
-void *sn_coap_protocol_calloc(struct coap_s *handle, uint16_t length);
+void *sn_coap_protocol_calloc(struct coap_s *handle, uint_fast16_t length);
 
 /* Utility function which performs a call to sn_coap_protocol_malloc() and memcopy's the source to result buffer. */
-void *sn_coap_protocol_malloc_copy(struct coap_s *handle, const void *source, uint16_t length);
+void *sn_coap_protocol_malloc_copy(struct coap_s *handle, const void *source, uint_fast16_t length);
 
 #ifdef __cplusplus
 }
