@@ -84,7 +84,9 @@ static bool get_bd_address(uint8_t *bd_addr);
 static bool sysevt_wait(void);
 static bool sysevt_check(void);
 
+#if DEVICE_FLASH
 extern int BLE_inited;
+#endif
 
 namespace ble {
 namespace vendor {
@@ -490,6 +492,20 @@ public:
                 tr_info("WIRELESS COPROCESSOR FW VERSION ID = %d.%d.%d", p_wireless_info->VersionMajor, p_wireless_info->VersionMinor, p_wireless_info->VersionSub);
                 tr_info("WIRELESS COPROCESSOR FW STACK TYPE = %d (ROM size 0x%x)", p_wireless_info->StackType, MBED_ROM_SIZE);
 
+#if STM32WB15xx
+                switch (p_wireless_info->StackType) {
+                    case INFO_STACK_TYPE_BLE_FULL:
+                        error("Wrong BLE FW\n");
+                        break;
+                    case INFO_STACK_TYPE_BLE_HCI:
+                        if (MBED_ROM_SIZE > 0x32800)  {
+                            error("Wrong MBED_ROM_SIZE with HCI FW\n");
+                        }
+                        break;
+                    default:
+                        tr_error("StackType %u not expected\n", p_wireless_info->StackType);
+                }
+#endif
 #if STM32WB55xx
                 switch (p_wireless_info->StackType) {
                     case INFO_STACK_TYPE_BLE_FULL:
@@ -681,8 +697,10 @@ private:
          */
         SHCI_C2_BLE_Init(&ble_init_cmd_packet);
 
+#if DEVICE_FLASH
         /* Used in flash_api.c */
         BLE_inited = 1;
+#endif
     }
 
     TL_CmdPacket_t *bleCmdBuf;

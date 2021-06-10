@@ -4189,6 +4189,38 @@
             "BLE"
         ]
     },
+    "MCU_STM32WB15xC": {
+        "inherits": [
+            "MCU_STM32WB"
+        ],
+        "public": false,
+        "supported_application_profiles": [
+            "bare-metal"
+        ],
+        "c_lib": "small",
+        "extra_labels_add": [
+            "STM32WB15xC"
+        ],
+        "mbed_rom_size": "0x32800",
+        "overrides": {
+            "boot-stack-size": "0x400"
+        },
+        "macros_add": [
+            "STM32WB15xx"
+        ]
+    },
+    "NUCLEO_WB15CC": {
+        "inherits": [
+            "MCU_STM32WB15xC"
+        ],
+        "supported_form_factors": [
+            "ARDUINO_UNO"
+        ],
+        "detect_code": [
+            "0883"
+        ],
+        "device_name": "STM32WB15CCUx"
+    },
     "MCU_STM32WB55xG": {
         "inherits": [
             "MCU_STM32WB"
