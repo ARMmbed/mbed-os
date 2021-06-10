@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2018 ARM Limited
+ * Copyright (c) 2021 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -314,7 +314,7 @@ int SPINANDBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t si
 
         //Send WREN
         if (_set_write_enable() != 0) {
-            tr_error("Write Enabe failed");
+            tr_error("Write Enable failed");
             program_failed = true;
             status = SPINAND_BD_ERROR_WREN_FAILED;
             goto exit_point;
