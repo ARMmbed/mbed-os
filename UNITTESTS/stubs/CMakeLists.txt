@@ -45,13 +45,13 @@ target_include_directories(mbed-headers-base
 )
 
 target_include_directories(mbed-headers-storage
-    INTERFACE        
+    INTERFACE
         ${mbed-os_SOURCE_DIR}/storage/filesystem/fat/include
         ${mbed-os_SOURCE_DIR}/storage/filesystem/fat/ChaN
         ${mbed-os_SOURCE_DIR}/storage/filesystem/littlefs
         ${mbed-os_SOURCE_DIR}/storage/filesystem/littlefs/include
         ${mbed-os_SOURCE_DIR}/storage/filesystem/littlefsv2/littlefs
-        ${mbed-os_SOURCE_DIR}/storage/filesystem/littlefsv2/littlefs/bd        
+        ${mbed-os_SOURCE_DIR}/storage/filesystem/littlefsv2/littlefs/bd
         ${mbed-os_SOURCE_DIR}/storage/filesystem/littlefs/littlefs
         ${mbed-os_SOURCE_DIR}/storage/blockdevice/include
         ${mbed-os_SOURCE_DIR}/storage/filesystem/include
@@ -91,7 +91,7 @@ target_include_directories(mbed-headers-drivers
     INTERFACE
         ${mbed-os_SOURCE_DIR}/drivers
         ${mbed-os_SOURCE_DIR}/drivers/include
-        ${mbed-os_SOURCE_DIR}/drivers/include/drivers        
+        ${mbed-os_SOURCE_DIR}/drivers/include/drivers
 )
 
 target_include_directories(mbed-headers-events
@@ -100,7 +100,7 @@ target_include_directories(mbed-headers-events
         ${mbed-os_SOURCE_DIR}/events/tests/UNITTESTS/target_h/equeue
         ${mbed-os_SOURCE_DIR}/events/include
         ${mbed-os_SOURCE_DIR}/events/include/events
-        ${mbed-os_SOURCE_DIR}/events/include/events/internal        
+        ${mbed-os_SOURCE_DIR}/events/include/events/internal
 )
 
 target_include_directories(mbed-headers-hal
