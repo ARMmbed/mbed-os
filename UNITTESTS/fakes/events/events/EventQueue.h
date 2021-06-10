@@ -41,7 +41,7 @@ public:
 
     ~EventQueue() { };
 
-    /** This will advence time by given amount of milliseonds and then dispatch all events that were set to happen in that time.
+    /** This will advance time by given amount of milliseconds and then dispatch all events that were set to happen in that time.
      *
      * @param ms number of miliseconds to advance time
      */
