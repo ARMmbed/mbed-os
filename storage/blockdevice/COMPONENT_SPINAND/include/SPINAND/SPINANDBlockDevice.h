@@ -148,7 +148,7 @@ public:
      */
     virtual int deinit();
 
-    /** Desctruct SPINANDBlockDevie
+    /** Destruct SPINANDBlockDevie
       */
     ~SPINANDBlockDevice()
     {
@@ -272,7 +272,7 @@ private:
     /* Flash Configuration Functions */
     /*********************************/
 
-    // Quad Enable in Sercurity Register
+    // Quad Enable in Security Register
     int _set_quad_enable();
 
     // Clear the device's block protection
