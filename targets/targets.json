@@ -7172,7 +7172,8 @@
             "SPISLAVE",
             "SPI_ASYNCH",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "components_add": [
             "FLASHIAP"
@@ -8109,6 +8110,7 @@
             "TRNG",
             "FLASH",
             "MPU",
+            "WATCHDOG",
             "USBDEVICE"
         ],
         "components_add": [
