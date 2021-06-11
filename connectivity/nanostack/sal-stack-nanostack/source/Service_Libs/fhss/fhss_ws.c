@@ -502,12 +502,14 @@ static uint32_t fhss_ws_calculate_ufsi(fhss_structure_t *fhss_structure, uint32_
 
     uint32_t time_to_tx = 0;
     uint32_t cur_time = fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api);
-    if (cur_time < tx_time) {
+    // High time to TX value (1000ms) is because actual TX time already passed.
+    if (US_TO_MS(tx_time - cur_time) < 1000) {
         time_to_tx = US_TO_MS(tx_time - cur_time);
     }
     uint64_t ms_since_seq_start;
     if (fhss_structure->ws->unicast_timer_running == true) {
-        if (fhss_structure->ws->next_uc_timeout < cur_time) {
+        // Allow timer interrupt to delay max 10 seconds, otherwise assume next_uc_timeout overflowed
+        if ((fhss_structure->ws->next_uc_timeout < cur_time) && ((cur_time - fhss_structure->ws->next_uc_timeout) < 10000000)) {
             // The unicast timer has already expired, so count all previous slots
             // plus 1 completed slot
             // plus the time from timer expiration to now
