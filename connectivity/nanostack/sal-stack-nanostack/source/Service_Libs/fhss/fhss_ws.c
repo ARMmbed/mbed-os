@@ -525,7 +525,7 @@ static uint32_t fhss_ws_calculate_ufsi(fhss_structure_t *fhss_structure, uint32_
         // count all previous slots
         // plus 1 completed slot
         // plus the time until Tx
-        ms_since_seq_start = ( (cur_slot + 1) * dwell_time) + time_to_tx;
+        ms_since_seq_start = ((cur_slot + 1) * dwell_time) + time_to_tx;
     }
 
     uint32_t seq_length = 0x10000;
