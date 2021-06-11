@@ -26,6 +26,10 @@ target_sources(mbed-stubs-platform
         randLIB_stub.c
         randLIB_stub.cpp
 )
+target_include_directories(mbed-stubs-platform
+    PUBLIC
+        .
+)
 target_link_options(mbed-stubs-platform
     PRIVATE
         --coverage
@@ -35,5 +39,4 @@ target_link_libraries(mbed-stubs-platform
         mbed-headers-base
         mbed-headers-hal
         mbed-headers-platform
-        mbed-stubs-headers
 )
