@@ -58,3 +58,5 @@ if (VALGRIND)
 endif(VALGRIND)
 
 add_subdirectory(stubs)
+add_subdirectory(fakes)
+
