@@ -31,7 +31,9 @@ target_link_options(mbed-stubs-platform
         --coverage
 )
 target_link_libraries(mbed-stubs-platform
-    PRIVATE
-        mbed-headers
+    PUBLIC
+        mbed-headers-base
+        mbed-headers-hal
+        mbed-headers-platform
         mbed-stubs-headers
 )
