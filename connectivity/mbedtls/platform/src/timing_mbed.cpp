@@ -25,6 +25,8 @@
 #endif
 #include "mbedtls/timing.h"
 #include "drivers/Timeout.h"
+#include "drivers/Timer.h"
+#include "drivers/LowPowerTimer.h"
 #include <chrono>
 
 extern "C" {
@@ -46,22 +48,24 @@ extern "C" void mbedtls_set_alarm(int seconds)
 
 #if !defined(HAVE_HARDCLOCK)
 #define HAVE_HARDCLOCK
-#include "platform/mbed_rtc_time.h"
-static int hardclock_init = 0;
-static struct timeval tv_init;
+static int timer_init = 0;
 
 extern "C" unsigned long mbedtls_timing_hardclock(void)
 {
-    struct timeval tv_cur;
+#if DEVICE_LPTICKER
+    static mbed::LowPowerTimer timer;
+#elif DEVICE_USTICKER
+    static mbed::Timer timer;
+#else
+#error "MBEDTLS_TIMING_C requires either LPTICKER or USTICKER"
+#endif
 
-    if (hardclock_init == 0)
-    {
-        gettimeofday(&tv_init, NULL);
-        hardclock_init = 1;
+    if (timer_init == 0) {
+        timer.reset();
+        timer.start();
+        timer_init = 1;
     }
 
-    gettimeofday(&tv_cur, NULL);
-    return((tv_cur.tv_sec - tv_init.tv_sec) * 1000000
-          + (tv_cur.tv_usec - tv_init.tv_usec));
+    return timer.elapsed_time().count();
 }
 #endif /* !HAVE_HARDCLOCK */

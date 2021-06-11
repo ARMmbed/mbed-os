@@ -24,11 +24,9 @@
 #include "mbedtls/timing.h"
 #if defined(MBEDTLS_TIMING_ALT)
 
-#include <time.h>
-
 struct mbedtls_timing_hr_time
 {
-    struct timeval start;
+    unsigned long start;
 };
 
 typedef struct mbedtls_timing_delay_context
