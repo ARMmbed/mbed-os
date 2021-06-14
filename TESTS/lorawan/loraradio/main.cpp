@@ -17,17 +17,6 @@
 #error [NOT_SUPPORTED] LORADIO test cases require a RTOS to run.
 #else
 
-#include "utest.h"
-#include "unity.h"
-#include "greentea-client/test_env.h"
-
-#include "Semaphore.h"
-
-#include "mbed_trace.h"
-#define TRACE_GROUP "RTST"
-
-#include "LoRaRadio.h"
-
 #define SX1272   0xFF
 #define SX1276   0xEE
 
@@ -38,6 +27,17 @@
 #else
 #error [NOT_SUPPORTED] Requires parameters from application config file.
 #endif
+
+#include "utest.h"
+#include "unity.h"
+#include "greentea-client/test_env.h"
+
+#include "Semaphore.h"
+
+#include "mbed_trace.h"
+#define TRACE_GROUP "RTST"
+
+#include "LoRaRadio.h"
 
 #if (MBED_CONF_APP_LORA_RADIO == SX1272) || (MBED_CONF_APP_LORA_RADIO == SX1276)
 
