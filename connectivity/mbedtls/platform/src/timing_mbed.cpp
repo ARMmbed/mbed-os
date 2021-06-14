@@ -24,6 +24,9 @@
 #else
 #include MBEDTLS_CONFIG_FILE
 #endif
+
+#if defined(MBEDTLS_TIMING_ALT)
+
 #include "mbedtls/timing.h"
 #include "drivers/Timeout.h"
 #include "drivers/Timer.h"
@@ -130,3 +133,5 @@ extern "C" int mbedtls_timing_get_delay(void *data)
 
     return 0;
 }
+
+#endif // MBEDTLS_TIMING_ALT
