@@ -22,7 +22,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <string.h>
+#include <string>
 #include "sockets.h"
 #include "resources.h"
 #include "wiced_filesystem.h"
