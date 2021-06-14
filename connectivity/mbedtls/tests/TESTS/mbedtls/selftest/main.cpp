@@ -31,6 +31,10 @@ using namespace utest::v1;
 #include MBEDTLS_CONFIG_FILE
 #endif
 
+#if !defined(MBEDTLS_SELF_TEST)
+#error [NOT_SUPPORTED] MBEDTLS_SELF_TEST undefined
+#endif
+
 #include "mbedtls/sha256.h"
 #include "mbedtls/sha512.h"
 #include "mbedtls/entropy.h"
