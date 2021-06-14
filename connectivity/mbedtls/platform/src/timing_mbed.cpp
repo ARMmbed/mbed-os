@@ -29,6 +29,7 @@
 
 #include "mbedtls/timing.h"
 #include "drivers/Timeout.h"
+#include "drivers/LowPowerTimeout.h"
 #include "drivers/Timer.h"
 #include "drivers/LowPowerTimer.h"
 #include <chrono>
@@ -44,7 +45,14 @@ static void handle_alarm(void)
 
 extern "C" void mbedtls_set_alarm(int seconds)
 {
+#if DEVICE_LPTICKER
+    static mbed::LowPowerTimeout t;
+#elif DEVICE_USTICKER
     static mbed::Timeout t;
+#else
+#error "MBEDTLS_TIMING_C requires either LPTICKER or USTICKER"
+#endif
+
     mbedtls_timing_alarmed = 0;
 
     t.attach(handle_alarm, std::chrono::seconds(seconds));
