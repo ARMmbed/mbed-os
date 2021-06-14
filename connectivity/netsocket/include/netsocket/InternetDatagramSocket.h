@@ -74,6 +74,15 @@ public:
     nsapi_size_or_error_t recvfrom(SocketAddress *address,
                                    void *data, nsapi_size_t size) override;
 
+    // TODO: documentation
+    nsapi_size_or_error_t sendmsg(const SocketAddress &address,
+                                          const void *data, nsapi_size_t size, 
+                                          nsapi_msghdr_t* control, nsapi_size_t control_size) override;
+
+    nsapi_size_or_error_t recvmsg(SocketAddress *address,
+                                          void *data, nsapi_size_t size,
+                                          nsapi_msghdr_t* control, nsapi_size_t control_size) override;
+
     /** Set the remote address for next send() call and filtering
      *  of incoming packets. To reset the address, zero initialized
      *  SocketAddress must be in the address parameter.

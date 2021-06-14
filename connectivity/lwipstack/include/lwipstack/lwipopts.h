@@ -311,6 +311,9 @@
 
 #endif
 
+// FIXME: Add compile time configuration and define conditionaly 
+#define LWIP_NETBUF_RECVINFO            1
+
 // Make sure we default these to off, so
 // LWIP doesn't default to on
 #ifndef LWIP_ARP

@@ -27,6 +27,53 @@ nsapi_error_t InternetDatagramSocket::connect(const SocketAddress &address)
     return NSAPI_ERROR_OK;
 }
 
+nsapi_size_or_error_t InternetDatagramSocket::sendmsg(const SocketAddress &address, const void *data, nsapi_size_t size, nsapi_msghdr_t* control, nsapi_size_t control_size)
+{
+    _lock.lock();
+    nsapi_size_or_error_t ret;
+
+    _writers++;
+    if (_socket) {
+        _socket_stats.stats_update_socket_state(this, SOCK_OPEN);
+        _socket_stats.stats_update_peer(this, address);
+    }
+    while (true) {
+        if (!_socket) {
+            ret = NSAPI_ERROR_NO_SOCKET;
+            break;
+        }
+
+        core_util_atomic_flag_clear(&_pending);
+        nsapi_size_or_error_t sent = _stack->socket_sendmsg(_socket, address, data, size, control, control_size);
+        if ((0 == _timeout) || (NSAPI_ERROR_WOULD_BLOCK != sent)) {
+            _socket_stats.stats_update_sent_bytes(this, sent);
+            ret = sent;
+            break;
+        } else {
+            uint32_t flag;
+
+            // Release lock before blocking so other threads
+            // accessing this object aren't blocked
+            _lock.unlock();
+            flag = _event_flag.wait_any(WRITE_FLAG, _timeout);
+            _lock.lock();
+
+            if (flag & osFlagsError) {
+                // Timeout break
+                ret = NSAPI_ERROR_WOULD_BLOCK;
+                break;
+            }
+        }
+    }
+
+    _writers--;
+    if (!_socket || !_writers) {
+        _event_flag.set(FINISHED_FLAG);
+    }
+    _lock.unlock();
+    return ret;
+}
+
 nsapi_size_or_error_t InternetDatagramSocket::sendto(const SocketAddress &address, const void *data, nsapi_size_t size)
 {
     _lock.lock();
@@ -80,6 +127,68 @@ nsapi_size_or_error_t InternetDatagramSocket::send(const void *data, nsapi_size_
         return NSAPI_ERROR_NO_ADDRESS;
     }
     return sendto(_remote_peer, data, size);
+}
+
+
+nsapi_size_or_error_t InternetDatagramSocket::recvmsg(SocketAddress *address, void *buffer, nsapi_size_t size, nsapi_msghdr_t* control, nsapi_size_t control_size)
+{
+    _lock.lock();
+    nsapi_size_or_error_t ret;
+    SocketAddress ignored;
+
+    if (!address) {
+        address = &ignored;
+    }
+
+    _readers++;
+
+    if (_socket) {
+        _socket_stats.stats_update_socket_state(this, SOCK_OPEN);
+    }
+    while (true) {
+        if (!_socket) {
+            ret = NSAPI_ERROR_NO_SOCKET;
+            break;
+        }
+
+        core_util_atomic_flag_clear(&_pending);
+        nsapi_size_or_error_t recv = _stack->socket_recvmsg(_socket, address, buffer, size, control, control_size);
+
+        // Filter incomming packets using connected peer address
+        if (recv >= 0 && _remote_peer && _remote_peer != *address) {
+            continue;
+        }
+
+        _socket_stats.stats_update_peer(this, _remote_peer);
+        // Non-blocking sockets always return. Blocking only returns when success or errors other than WOULD_BLOCK
+        if ((0 == _timeout) || (NSAPI_ERROR_WOULD_BLOCK != recv)) {
+            ret = recv;
+            _socket_stats.stats_update_recv_bytes(this, recv);
+            break;
+        } else {
+            uint32_t flag;
+
+            // Release lock before blocking so other threads
+            // accessing this object aren't blocked
+            _lock.unlock();
+            flag = _event_flag.wait_any(READ_FLAG, _timeout);
+            _lock.lock();
+
+            if (flag & osFlagsError) {
+                // Timeout break
+                ret = NSAPI_ERROR_WOULD_BLOCK;
+                break;
+            }
+        }
+    }
+
+    _readers--;
+    if (!_socket || !_readers) {
+        _event_flag.set(FINISHED_FLAG);
+    }
+
+    _lock.unlock();
+    return ret;
 }
 
 nsapi_size_or_error_t InternetDatagramSocket::recvfrom(SocketAddress *address, void *buffer, nsapi_size_t size)

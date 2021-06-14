@@ -145,6 +145,14 @@ public:
     nsapi_size_or_error_t recvfrom(SocketAddress *address,
                                    void *data, nsapi_size_t size) override;
 
+    virtual nsapi_size_or_error_t sendmsg(const SocketAddress &address,
+                                          const void *data, nsapi_size_t size, 
+                                          nsapi_msghdr_t* control, nsapi_size_t control_size) override;
+
+    virtual nsapi_size_or_error_t recvmsg(SocketAddress *address,
+                                          void *data, nsapi_size_t size,
+                                          nsapi_msghdr_t* control, nsapi_size_t control_size) override;
+
     /** Accepts a connection on a socket.
      *
      *  The server socket must be bound and set to listen for connections.
