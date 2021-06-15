@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-/*  Define I2C Device */
+/* Define I2C Device */
 #if DEVICE_I2C
 
 /*  Define IP version */
@@ -50,10 +50,13 @@ extern "C" {
 #define I2CAPI_I2C3_CLKSRC RCC_I2C3CLKSOURCE_SYSCLK
 
 uint32_t i2c_get_pclk(I2CName i2c);
-uint32_t i2c_compute_timing(uint32_t clock_src_freq, uint32_t i2c_freq);
 uint32_t i2c_get_timing(I2CName i2c, int hz);
+
+#if MBED_CONF_TARGET_I2C_TIMING_VALUE_ALGO
+uint32_t i2c_compute_timing(uint32_t clock_src_freq, uint32_t i2c_freq);
 void i2c_compute_presc_scldel_sdadel(uint32_t clock_src_freq, uint32_t I2C_speed);
 uint32_t i2c_compute_scll_sclh(uint32_t clock_src_freq, uint32_t I2C_speed);
+#endif // MBED_CONF_TARGET_I2C_TIMING_VALUE_ALGO
 
 #endif // DEVICE_I2C
 
