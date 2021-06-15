@@ -29,7 +29,7 @@ extern "C" {
 #define TIMING_VAL_DEFAULT_CLK_100KHZ  0xC0311319  // Standard mode with Rise Time = 400ns and Fall Time = 100ns
 #define TIMING_VAL_DEFAULT_CLK_400KHZ  0x10B1102E  // Fast mode with Rise Time = 250ns and Fall Time = 100ns
 #define TIMING_VAL_DEFAULT_CLK_1MHZ    0x00710B1E  // Fast mode Plus with Rise Time = 60ns and Fall Time = 100ns
-#define I2C_PCLK_DEF                170000000   // 170 MHz
+#define I2C_PCLK_DEF                160000000   // 160 MHz
 
 /*  Define IP version */
 #define I2C_IP_VERSION_V2
