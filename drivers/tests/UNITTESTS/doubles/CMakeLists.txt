@@ -27,6 +27,8 @@ target_compile_definitions(mbed-stubs-drivers
 
 target_link_libraries(mbed-stubs-drivers
     PRIVATE
-        mbed-headers
-        mbed-stubs-headers
+        mbed-headers-base
+        mbed-headers-hal
+        mbed-headers-drivers
+        mbed-headers-platform
 )
