@@ -21,7 +21,7 @@ target_link_libraries(${TEST_NAME}
     PRIVATE
         mbed-headers
         mbed-stubs-platform
-        mbed-stubs-hal  
+        mbed-stubs-hal
         gmock_main
 )
 
