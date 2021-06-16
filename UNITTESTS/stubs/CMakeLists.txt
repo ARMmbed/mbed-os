@@ -7,7 +7,6 @@ add_library(mbed-headers-base INTERFACE)
 add_library(mbed-headers-platform INTERFACE)
 add_library(mbed-headers-connectivity INTERFACE)
 add_library(mbed-headers-storage INTERFACE)
-add_library(mbed-headers-drivers INTERFACE)
 add_library(mbed-headers-hal INTERFACE)
 add_library(mbed-headers-events INTERFACE)
 add_library(mbed-headers-rtos INTERFACE)
@@ -85,13 +84,6 @@ target_include_directories(mbed-headers-connectivity
         ${mbed-os_SOURCE_DIR}/connectivity/mbedtls/include
         ${mbed-os_SOURCE_DIR}/connectivity/FEATURE_BLE/include
         ${mbed-os_SOURCE_DIR}/connectivity/FEATURE_BLE/include/ble
-)
-
-target_include_directories(mbed-headers-drivers
-    INTERFACE
-        ${mbed-os_SOURCE_DIR}/drivers
-        ${mbed-os_SOURCE_DIR}/drivers/include
-        ${mbed-os_SOURCE_DIR}/drivers/include/drivers
 )
 
 target_include_directories(mbed-headers-events
