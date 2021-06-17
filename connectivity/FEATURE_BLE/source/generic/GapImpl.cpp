@@ -1233,20 +1233,20 @@ ble_error_t Gap::reset()
 #endif
 
 #if BLE_ROLE_BROADCASTER
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     /* clear advertising set data on the controller */
     _pal_gap.clear_advertising_sets();
-#if BLE_FEATURE_EXTENDED_ADVERTISING
     /* reset pending advertising sets */
     _advertising_enable_command_params.number_of_handles = 0;
     _process_enable_queue_pending = false;
     _process_disable_queue_pending = false;
     _existing_sets.clear();
+    _pending_stop_sets.clear();
 #if BLE_FEATURE_PERIODIC_ADVERTISING
     _active_periodic_sets.clear();
 #endif // BLE_FEATURE_PERIODIC_ADVERTISING
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
     _active_sets.clear();
-    _pending_stop_sets.clear();
     _pending_sets.clear();
     _address_refresh_sets.clear();
     _interruptible_sets.clear();
