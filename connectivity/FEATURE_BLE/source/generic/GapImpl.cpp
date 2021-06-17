@@ -2461,6 +2461,8 @@ ble_error_t Gap::startAdvertising(
 #if BLE_FEATURE_EXTENDED_ADVERTISING
 void Gap::process_enable_queue()
 {
+    _process_enable_queue_pending = false;
+
     tr_info("Evaluating pending advertising sets to be started");
     if (!_advertising_enable_command_params.number_of_handles) {
         /* no set pending to be enabled */
@@ -2506,7 +2508,6 @@ void Gap::process_enable_queue()
     }
 
     _advertising_enable_command_params.number_of_handles = 0;
-    _process_enable_queue_pending = false;
 }
 #endif //BLE_FEATURE_EXTENDED_ADVERTISING
 
@@ -3480,16 +3481,34 @@ void Gap::on_advertising_set_terminated(
             to_string(status),
             number_of_completed_extended_advertising_events);
 
-    _active_sets.clear(advertising_handle);
-    _pending_sets.clear(advertising_handle);
+    ble_error_t error_code = BLE_ERROR_UNSPECIFIED;
+    bool connected = false;
 
-    // If this is part of the address refresh start advertising again.
-    if (_address_refresh_sets.get(advertising_handle) && !connection_handle) {
-        _address_refresh_sets.clear(advertising_handle);
-        tr_info("Part of the address refresh, restarting advertising");
-        startAdvertising(advertising_handle);
-        _adv_started_from_refresh.set(advertising_handle);
-        return;
+    /* translate HCI error into BLE API error code */
+    if (status == hci_error_code_t::SUCCESS) {
+        error_code = BLE_ERROR_NONE;
+        /* self cancelled set will have the handle set to invalid value */
+        if (connection_handle != DM_CONN_ID_NONE) {
+            connected = true;
+        }
+    } else if (status == hci_error_code_t::ADVERTISING_TIMEOUT) {
+        error_code = BLE_ERROR_TIMEOUT;
+    } else if (status == hci_error_code_t::LIMIT_REACHED) {
+        error_code = BLE_ERROR_LIMIT_REACHED;
+    }
+
+    if (error_code != BLE_ERROR_UNSPECIFIED) {
+        _active_sets.clear(advertising_handle);
+        _pending_sets.clear(advertising_handle);
+
+        // If this is part of the address refresh start advertising again.
+        if (_address_refresh_sets.get(advertising_handle) && !connection_handle) {
+            _address_refresh_sets.clear(advertising_handle);
+            tr_info("Part of the address refresh, restarting advertising");
+            startAdvertising(advertising_handle);
+            _adv_started_from_refresh.set(advertising_handle);
+            return;
+        }
     }
 
     /* postpone as other events may still be pending */
@@ -3508,7 +3527,8 @@ void Gap::on_advertising_set_terminated(
             advertising_handle,
             connection_handle,
             number_of_completed_extended_advertising_events,
-            status == hci_error_code_t::SUCCESS
+            connected,
+            error_code
         )
     );
 }
