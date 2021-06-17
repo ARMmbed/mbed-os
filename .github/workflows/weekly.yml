@@ -17,7 +17,7 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Checkout mbed-os-scripts repo (This repo is currently private)
+      - name: Checkout mbed-os-ci-scripts repo (This repo is currently private)
         uses: actions/checkout@v2
         with:
           repository: ARMmbed/mbed-os-ci-scripts
