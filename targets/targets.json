@@ -7016,7 +7016,8 @@
             "SPI",
             "SPISLAVE",
             "SPI_ASYNCH",
-            "MPU"
+            "MPU",
+            "TRNG"
         ],
         "release_versions": [
             "5"
