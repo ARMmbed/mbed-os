@@ -268,7 +268,7 @@ void PalTimerStart(uint32_t expTimeUsec)
 
   #if SCH_TIMER_REQUIRED == TRUE
     #if BB_CLK_RATE_HZ == 32768
-      uint32_t startTimeTick = palTimerGetCurrentTime() + PAL_TIMER_US_TO_TICKS(expTimeUsec);
+      uint32_t startTimeTick = PalBbGetCurrentTime() + PAL_TIMER_US_TO_TICKS(expTimeUsec);
 
       /* Set compare value to start BB. */
       PalRtcCompareSet(RTC_CHANNEL_START_BB, startTimeTick);
@@ -285,22 +285,25 @@ void PalTimerStart(uint32_t expTimeUsec)
       uint32_t startTimeTick = palTimerGetCurrentTime() + PAL_TIMER_US_TO_TICKS(expTimeUsec);
 
       /* Clear pending events. */
-      NRF_TIMER2->EVENTS_COMPARE[TIMER_CHANNEL_START_BB] = 0;
+      NRF_TIMER2->EVENTS_COMPARE[5] = 0;
 
+      WAIT_FOR_WR_BUF_EMPTY(NRF_TIMER2->EVENTS_COMPARE[5]);
       /* Set compare value. */
-      NRF_TIMER2->CC[TIMER_CHANNEL_START_BB] = startTimeTick;
-
-      /* Enable timer1 interrupt source for CC[0].  */
-      NRF_TIMER2->INTENSET = TIMER_INTENSET_COMPARE0_Msk;
+      NRF_TIMER2->CC[5] = startTimeTick;
+      /* Enable timer1 interrupt source for CC[5].  */
+      NRF_TIMER2->INTENSET = TIMER_INTENSET_COMPARE5_Msk;
     #endif
-
     palTimerCb.compareVal = startTimeTick;
     palTimerCb.state = PAL_TIMER_STATE_BUSY;
   #else
     (void)expTimeUsec;
     if (BbGetCurrentBod() == NULL)
     {
-      SchLoadHandler();
+      /* PORTING: SchLoadHandler was renamed to schSetBodExecuteEvent and made static */
+      if (palTimerExpCback)
+      {
+        palTimerExpCback();
+      }
     }
   #endif
 }
@@ -318,7 +321,7 @@ void PalTimerStop()
       PalRtcDisableCompareIrq(RTC_CHANNEL_START_BB);
     #else
       /* Disable this interrupt */
-      NRF_TIMER2->INTENCLR = TIMER_INTENCLR_COMPARE0_Msk;
+      NRF_TIMER2->INTENCLR = TIMER_INTENCLR_COMPARE5_Msk;
     #endif
 
     palTimerCb.state = PAL_TIMER_STATE_READY;
