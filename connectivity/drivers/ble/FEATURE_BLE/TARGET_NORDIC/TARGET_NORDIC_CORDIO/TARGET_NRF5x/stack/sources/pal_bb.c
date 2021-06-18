@@ -26,8 +26,11 @@
 #include "pal_types.h"
 #include "pal_bb.h"
 #include "pal_bb.h"
+#include "pal_led.h"
+
 #include "nrf.h"
 #include "nrf_timer.h"
+
 #include <string.h>
 
 /**************************************************************************************************
@@ -111,7 +114,7 @@ void PalBbDisable(void)
 void PalBbLoadCfg(PalBbCfg_t *pCfg)
 {
   pCfg->clkPpm = 20;
-  pCfg->rfSetupDelayUsec  = BB_RF_SETUP_DELAY_US;
+  pCfg->rfSetupDelayUsec = BB_RF_SETUP_DELAY_US;
   pCfg->maxScanPeriodMsec = BB_MAX_SCAN_PERIOD_MS;
   pCfg->schSetupDelayUsec = BB_SCH_SETUP_DELAY_US;
 #if (BB_CLK_RATE_HZ == 32768)
@@ -153,44 +156,6 @@ uint32_t PalBbGetCurrentTime(void)
     }
   }
   return 0;
-}
-
-/*************************************************************************************************/
-/*!
- *  \brief      Get the current FRC time tick.
- *
- *  \param      pTime   Pointer to return the current time.
- *
- *  \return     Status error code.
- *
- *  Get the current FRC time.
- *
- *  \note       FRC is limited to the same bit-width as the BB clock. Return value is available
- *              only when the BB is active.
- */
-/*************************************************************************************************/
-bool_t PalBbGetTimestamp(uint32_t *pTime)
-{
-  if (palBbEnableCnt == 0)
-  {
-    return FALSE;
-  }
-
-  if (USE_RTC_BB_CLK && pTime)
-  {
-    /* return the RTC counter value */
-    *pTime = NRF_RTC1->COUNTER;
-  }
-  else if (pTime)
-  {
-    /* Capture current TIMER0 count to capture register 3 */
-    nrf_timer_task_trigger(NRF_TIMER0, NRF_TIMER_TASK_CAPTURE3);
-
-    /* Read and return the captured count value from capture register 3 */
-    *pTime = nrf_timer_cc_read(NRF_TIMER0, NRF_TIMER_CC_CHANNEL3);
-  }
-
-  return TRUE;
 }
 
 /*************************************************************************************************/
