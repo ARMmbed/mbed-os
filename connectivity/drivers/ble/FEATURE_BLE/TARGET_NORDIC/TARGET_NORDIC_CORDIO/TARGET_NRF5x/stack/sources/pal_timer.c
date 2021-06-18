@@ -26,7 +26,7 @@
  * Notes:
  *
  *    This is timer driver used for scheduler and other low power related tasks.
- *    It has dependency on pal_rtc.c, and some scheduler and BB API due to the complexity explained below.
+ *    It has dependency on PAL API, and some scheduler and BB API due to the complexity explained below.
  *    This is not ideal and should be fixed later.
  *
  *    If SCH_TIMER_REQUIRED == FALSE:
@@ -36,7 +36,7 @@
  *    RTC1 timer(channel 3) is in use for scheduler.
  *
  *    If SCH_TIMER_REQUIRED == TRUE and BB_CLK_RATE_HZ == 1MHz or 8MHz:
- *    Timer1 is in used for scheduler.
+ *    Timer2 is in used for scheduler.
  *
  *    RTC1 timer(Channel 0) is required for wsf software timer no matter what options are chosen.
  *
@@ -75,6 +75,9 @@
   #define PAL_TIMER_TICKS_TO_US(ticks)      (ticks)
 #endif
 
+/*! \brief  23 RTC ticks time(700us) for xtal start up befor scheduler load. */
+#define PAL_HFCLK_OSC_SETTLE_TICKS  (23)
+
 #ifdef DEBUG
 
 /*! \brief      Parameter and state check. */
@@ -101,6 +104,8 @@
 #define RTC_CHANNEL_START_HFCLK        2
 #define RTC_CHANNEL_START_BB           3
 
+/* for nRF52, stall until write buffer empties */
+#define WAIT_FOR_WR_BUF_EMPTY(r)    ((void)r)
 
 /**************************************************************************************************
   Global Variables
@@ -111,8 +116,9 @@ static struct
 {
   PalTimerState_t    state;            /*!< State. */
   uint32_t           compareVal;       /*!<  Absolute compare value for timer expiry interrupt. */
-  PalTimerCompCback_t expCback;         /*!< Timer expiry call back function. */
 } palTimerCb;
+
+PalTimerCompCback_t palTimerExpCback;   /*!< Timer expiry call back function. */
 
 /* Nordic specific internal functions. */
 extern void PalRtcIrqRegister(uint8_t channelId, palRtcIrqCback_t cback);
@@ -134,9 +140,9 @@ static void palTimerRtcIrqHandler(void)
 
   palTimerCb.state = PAL_TIMER_STATE_READY;
 
-  if (palTimerCb.expCback)
+  if (palTimerExpCback)
   {
-    palTimerCb.expCback();
+    palTimerExpCback();
   }
 
   #ifdef DEBUG
@@ -218,7 +224,7 @@ void PalTimerInit(PalTimerCompCback_t expCback)
   #endif
 
   palTimerCb.compareVal = 0;
-  palTimerCb.expCback = expCback;
+  palTimerExpCback = expCback;
   palTimerCb.state = PAL_TIMER_STATE_READY;
 }
 
@@ -256,9 +262,39 @@ PalTimerState_t PalTimerGetState(void)
 
 /*************************************************************************************************/
 /*!
+ *  \brief      Get time to the next timer expiration.
+ *
+ *  \return     Time to next expiration in microseconds; 0 if no timer is set..
+ */
+/*************************************************************************************************/
+uint32_t PalTimerGetTimeToNextExpiration(void)
+{
+  if (palTimerCb.state == PAL_TIMER_STATE_BUSY)
+  {
+    uint32_t currentTime = PalBbGetCurrentTime();
+    if (currentTime < palTimerCb.compareVal)
+    {
+      /* Return the number of usecs to the next timer expiration. */
+      return palTimerCb.compareVal - PalBbGetCurrentTime();
+    }
+    else
+    {
+      /* Next timer expiration is in the past. */
+      return 1;
+    }
+  }
+  else
+  {
+    /* No timer is active. */
+    return 0;
+  }
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief      Start the scheduler timer.
  *
- *  \param      expTimeUsec      Set timer expiry in microseconds.
+ *  \param      expTimeUsec      Absolute expiration time.
  */
 /*************************************************************************************************/
 void PalTimerStart(uint32_t expTimeUsec)
@@ -267,45 +303,41 @@ void PalTimerStart(uint32_t expTimeUsec)
   PAL_TIMER_CHECK(expTimeUsec != 0);
 
   #if SCH_TIMER_REQUIRED == TRUE
+    uint32_t startTimeTick = palTimerGetCurrentTime() + PAL_TIMER_US_TO_TICKS(expTimeUsec);
+
     #if BB_CLK_RATE_HZ == 32768
-      uint32_t startTimeTick = PalBbGetCurrentTime() + PAL_TIMER_US_TO_TICKS(expTimeUsec);
+	    /* Set compare value to start BB. */
+	    PalRtcCompareSet(RTC_CHANNEL_START_BB, startTimeTick);
 
-      /* Set compare value to start BB. */
-      PalRtcCompareSet(RTC_CHANNEL_START_BB, startTimeTick);
-      /* Enable RTC interrupt source to start BB.  */
-      PalRtcEnableCompareIrq(RTC_CHANNEL_START_BB);
+	    /* Enable RTC interrupt source to start BB.  */
+	    PalRtcEnableCompareIrq(RTC_CHANNEL_START_BB);
 
-      /* Set compare value to start HFCLK. */
+	    /* Set compare value to start HFCLK. */
+	    uint32_t startHFCLKTick = (startTimeTick - PAL_HFCLK_OSC_SETTLE_TICKS) & PAL_MAX_RTC_COUNTER_VAL;
 
-      uint32_t startHFCLKTick = (startTimeTick - PAL_HFCLK_OSC_SETTLE_TICKS) & PAL_MAX_RTC_COUNTER_VAL;
+	    PalRtcClearCompareEvents(RTC_CHANNEL_START_HFCLK);
+	    PalRtcCompareSet(RTC_CHANNEL_START_HFCLK, startHFCLKTick);
+ 	  #else
+		  /* Clear pending events. */
+	   	NRF_TIMER2->EVENTS_COMPARE[5] = 0;
+    	WAIT_FOR_WR_BUF_EMPTY(NRF_TIMER2->EVENTS_COMPARE[5]);
 
-      PalRtcClearCompareEvents(RTC_CHANNEL_START_HFCLK);
-      PalRtcCompareSet(RTC_CHANNEL_START_HFCLK, startHFCLKTick);
-    #else
-      uint32_t startTimeTick = palTimerGetCurrentTime() + PAL_TIMER_US_TO_TICKS(expTimeUsec);
-
-      /* Clear pending events. */
-      NRF_TIMER2->EVENTS_COMPARE[5] = 0;
-
-      WAIT_FOR_WR_BUF_EMPTY(NRF_TIMER2->EVENTS_COMPARE[5]);
       /* Set compare value. */
-      NRF_TIMER2->CC[5] = startTimeTick;
+    	NRF_TIMER2->CC[5] = startTimeTick;
+
       /* Enable timer1 interrupt source for CC[5].  */
-      NRF_TIMER2->INTENSET = TIMER_INTENSET_COMPARE5_Msk;
-    #endif
-    palTimerCb.compareVal = startTimeTick;
-    palTimerCb.state = PAL_TIMER_STATE_BUSY;
+   	 	NRF_TIMER2->INTENSET = TIMER_INTENSET_COMPARE5_Msk;
+    #endif // BB_CLK_RATE_HZ
+
+	  palTimerCb.compareVal = startTimeTick;
+  	palTimerCb.state = PAL_TIMER_STATE_BUSY;
   #else
     (void)expTimeUsec;
-    if (BbGetCurrentBod() == NULL)
+    if (BbGetCurrentBod() == NULL && palTimerExpCback)
     {
-      /* PORTING: SchLoadHandler was renamed to schSetBodExecuteEvent and made static */
-      if (palTimerExpCback)
-      {
-        palTimerExpCback();
-      }
+      palTimerExpCback();
     }
-  #endif
+  #endif // SCH_TIMER_REQUIRED
 }
 
 /*************************************************************************************************/
@@ -321,14 +353,17 @@ void PalTimerStop()
       PalRtcDisableCompareIrq(RTC_CHANNEL_START_BB);
     #else
       /* Disable this interrupt */
-      NRF_TIMER2->INTENCLR = TIMER_INTENCLR_COMPARE5_Msk;
+      NRF_TIMER2->INTENCLR = TIMER_INTENCLR_COMPARE0_Msk;
     #endif
 
     palTimerCb.state = PAL_TIMER_STATE_READY;
   #else
     BbCancelBod();
   #endif
+
+  palTimerCb.state = PAL_TIMER_STATE_READY;
 }
+
 
 /*************************************************************************************************/
 /*!
@@ -354,9 +389,9 @@ void TIMER2_IRQHandler(void)
 
   palTimerCb.state = PAL_TIMER_STATE_READY;
 
-  if (palTimerCb.expCback)
+  if (palTimerExpCback)
   {
-    palTimerCb.expCback();
+    palTimerExpCback();
   }
 
   #ifdef DEBUG
