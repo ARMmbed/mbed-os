@@ -2,7 +2,7 @@
 /*!
  *  \file
  *
- *  \brief      LED driver definition.
+ *  \brief      FRC interface file.
  *
  *  Copyright (c) 2019-2020 Packetcraft, Inc.
  *  
@@ -20,8 +20,8 @@
  */
 /*************************************************************************************************/
 
-#ifndef PAL_LED_H
-#define PAL_LED_H
+#ifndef PAL_FRC_H
+#define PAL_FRC_H
 
 #include "pal_types.h"
 
@@ -29,37 +29,26 @@
 extern "C" {
 #endif
 
-/*! \addtogroup PAL_LED
+/*! \addtogroup PAL_FRC
  *  \{ */
-
-/**************************************************************************************************
-  Data Types
-**************************************************************************************************/
-
-/*! \brief      Reserved LED IDs. */
-enum
-{
-  /* System signals. */
-  PAL_LED_ID_CPU_ACTIVE     = 30,	/*!< CPU active LED ID. */
-  PAL_LED_ID_ERROR          = 31  	/*!< Error LED ID. */
-};
 
 /**************************************************************************************************
   Function Declarations
 **************************************************************************************************/
 
 /* Initialization */
-void PalLedInit(void);
-void PalLedDeInit(void);
+void PalFrcInit(void);
 
 /* Control and Status */
-void PalLedOn(uint8_t id);
-void PalLedOff(uint8_t id);
+uint32_t PalFrcGetCurrentTime(void);
+uint32_t PalFrcMsToTicks(uint32_t deltaMs);
+uint32_t PalFrcDeltaMs(uint32_t endTime, uint32_t startTime);
+uint32_t PalFrcDeltaUs(uint32_t endTime, uint32_t startTime);
 
-/*! \} */    /* PAL_LED */
+/*! \} */    /* PAL_FRC */
 
 #ifdef __cplusplus
 };
 #endif
 
-#endif /* PAL_LED_H */
+#endif

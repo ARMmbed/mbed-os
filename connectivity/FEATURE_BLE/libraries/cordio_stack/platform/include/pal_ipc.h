@@ -2,7 +2,7 @@
 /*!
  *  \file
  *
- *  \brief      LED driver definition.
+ *  \brief      IPC driver definition.
  *
  *  Copyright (c) 2019-2020 Packetcraft, Inc.
  *  
@@ -20,8 +20,8 @@
  */
 /*************************************************************************************************/
 
-#ifndef PAL_LED_H
-#define PAL_LED_H
+#ifndef PAL_IPC_H
+#define PAL_IPC_H
 
 #include "pal_types.h"
 
@@ -29,37 +29,42 @@
 extern "C" {
 #endif
 
-/*! \addtogroup PAL_LED
+/*! \addtogroup PAL_IPC
  *  \{ */
 
 /**************************************************************************************************
-  Data Types
+  Type Definitions
 **************************************************************************************************/
 
-/*! \brief      Reserved LED IDs. */
-enum
+/*! \brief      Operational states. */
+typedef enum
 {
-  /* System signals. */
-  PAL_LED_ID_CPU_ACTIVE     = 30,	/*!< CPU active LED ID. */
-  PAL_LED_ID_ERROR          = 31  	/*!< Error LED ID. */
-};
+  PAL_IPC_STATE_UNINIT = 0,         /*!< Uninitialized state. */
+  PAL_IPC_STATE_ERROR  = 0,         /*!< Error state. */
+  PAL_IPC_STATE_IDLE,               /*!< Initialized state. */
+  PAL_IPC_STATE_BUSY                /*!< Busy state. */
+} PalIpcState_t;
+
+typedef void (*PalIpcMsgHandler_t)(uint8_t *pBuf, uint16_t len);
 
 /**************************************************************************************************
   Function Declarations
 **************************************************************************************************/
 
 /* Initialization */
-void PalLedInit(void);
-void PalLedDeInit(void);
+void PalIpcInit(PalIpcMsgHandler_t recvCback);
+void PalIpcDeInit(void);
 
 /* Control and Status */
-void PalLedOn(uint8_t id);
-void PalLedOff(uint8_t id);
+PalIpcState_t PalIpcGetState(void);
 
-/*! \} */    /* PAL_LED */
+/* Data Transfer */
+void PalIpcWriteData(const uint8_t *pData, uint16_t len);
+
+/*! \} */    /* PAL_IPC */
 
 #ifdef __cplusplus
 };
 #endif
 
-#endif /* PAL_LED_H */
+#endif /* PAL_IPC_H */
