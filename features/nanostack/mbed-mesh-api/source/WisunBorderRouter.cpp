@@ -40,8 +40,17 @@ mesh_error_t WisunBorderRouter::start(NetworkInterface *mesh_if, NetworkInterfac
         return MESH_ERROR_PARAM;
     }
 
-    InterfaceNanostack *nano_mesh_if = reinterpret_cast<InterfaceNanostack *>(mesh_if);
-    int8_t mesh_if_id = nano_mesh_if->get_interface_id();
+    WisunInterface *wisun_mesh_if = reinterpret_cast<WisunInterface *>(mesh_if);
+    return start(wisun_mesh_if, backbone_if);
+}
+
+mesh_error_t WisunBorderRouter::start(WisunInterface *mesh_if, NetworkInterface *backbone_if)
+{
+    if (mesh_if == NULL || backbone_if == NULL) {
+        return MESH_ERROR_PARAM;
+    }
+
+    int8_t mesh_if_id = mesh_if->get_interface_id();
     if (mesh_if_id < 0) {
         return MESH_ERROR_UNKNOWN;
     }
@@ -71,10 +80,24 @@ mesh_error_t WisunBorderRouter::start(NetworkInterface *mesh_if, NetworkInterfac
     return MESH_ERROR_NONE;
 }
 
+
 mesh_error_t WisunBorderRouter::start(NetworkInterface *mesh_if, OnboardNetworkStack::Interface *backbone_if)
 {
-    InterfaceNanostack *nano_mesh_if = reinterpret_cast<InterfaceNanostack *>(mesh_if);
-    int8_t mesh_if_id = nano_mesh_if->get_interface_id();
+    if (mesh_if == NULL || backbone_if == NULL) {
+        return MESH_ERROR_PARAM;
+    }
+
+    WisunInterface *wisun_mesh_if = reinterpret_cast<WisunInterface *>(mesh_if);
+    return start(wisun_mesh_if, backbone_if);
+}
+
+mesh_error_t WisunBorderRouter::start(WisunInterface *mesh_if, OnboardNetworkStack::Interface *backbone_if)
+{
+    if (mesh_if == NULL || backbone_if == NULL) {
+        return MESH_ERROR_PARAM;
+    }
+
+    int8_t mesh_if_id = mesh_if->get_interface_id();
     if (mesh_if_id < 0) {
         return MESH_ERROR_UNKNOWN;
     }
