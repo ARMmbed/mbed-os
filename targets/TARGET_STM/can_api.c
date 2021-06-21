@@ -163,12 +163,23 @@ static void _can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz
     obj->CanHandle.Init.DataSyncJumpWidth = 0x1;   // Not used - only in FDCAN
     obj->CanHandle.Init.DataTimeSeg1 = 0x1;        // Not used - only in FDCAN
     obj->CanHandle.Init.DataTimeSeg2 = 0x1;        // Not used - only in FDCAN
-#ifndef TARGET_STM32G4
+#ifdef TARGET_STM32H7
+    /* Message RAM offset is only supported in STM32H7 platforms of supported FDCAN platforms */
     obj->CanHandle.Init.MessageRAMOffset = 0;
+
+    /* The number of Standard and Extended ID filters are initialized to the maximum possile extent
+     * for STM32H7 platforms
+     */
+    obj->CanHandle.Init.StdFiltersNbr = 128; // to be aligned with the handle parameter in can_filter
+    obj->CanHandle.Init.ExtFiltersNbr = 128; // to be aligned with the handle parameter in can_filter
+#else
+    /* The number of Standard and Extended ID filters are initialized to the maximum possile extent 
+     * for STM32G0x1, STM32G4 and STM32L5  platforms
+    */
+    obj->CanHandle.Init.StdFiltersNbr = 28; // to be aligned with the handle parameter in can_filter
+    obj->CanHandle.Init.ExtFiltersNbr = 8; // to be aligned with the handle parameter in can_filter
 #endif
-    obj->CanHandle.Init.StdFiltersNbr = 1; // to be aligned with the handle parameter in can_filter
-    obj->CanHandle.Init.ExtFiltersNbr = 1; // to be aligned with the handle parameter in can_filter
-#ifndef TARGET_STM32G4
+#ifdef TARGET_STM32H7
     obj->CanHandle.Init.RxFifo0ElmtsNbr = 8;
     obj->CanHandle.Init.RxFifo0ElmtSize = FDCAN_DATA_BYTES_8;
     obj->CanHandle.Init.RxFifo1ElmtsNbr = 0;
@@ -180,7 +191,7 @@ static void _can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz
     obj->CanHandle.Init.TxFifoQueueElmtsNbr = 3;
 #endif
     obj->CanHandle.Init.TxFifoQueueMode = FDCAN_TX_FIFO_OPERATION;
-#ifndef TARGET_STM32G4
+#ifdef TARGET_STM32H7
     obj->CanHandle.Init.TxElmtSize = FDCAN_DATA_BYTES_8;
 #endif
     can_internal_init(obj);
@@ -331,20 +342,16 @@ int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t
 {
     FDCAN_FilterTypeDef sFilterConfig = {0};
 
-    if(handle != 0) { // message filter handle is not supported for STM controllers
-        return 0;
-    }
-
     if (format == CANStandard) {
         sFilterConfig.IdType = FDCAN_STANDARD_ID;
-        sFilterConfig.FilterIndex = 0;
+        sFilterConfig.FilterIndex = handle;
         sFilterConfig.FilterType = FDCAN_FILTER_MASK;
         sFilterConfig.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
         sFilterConfig.FilterID1 = id;
         sFilterConfig.FilterID2 = mask;
     } else if (format == CANExtended) {
         sFilterConfig.IdType = FDCAN_EXTENDED_ID;
-        sFilterConfig.FilterIndex = 0;
+        sFilterConfig.FilterIndex = handle;
         sFilterConfig.FilterType = FDCAN_FILTER_MASK;
         sFilterConfig.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
         sFilterConfig.FilterID1 = id;
