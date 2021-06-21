@@ -6,7 +6,6 @@ target_include_directories(mbed-psa
         inc
         inc/psa
         mbedtls
-        pal
         services/platform
         services/attestation
         services/attestation/qcbor
@@ -27,13 +26,6 @@ target_sources(mbed-psa
         mbedtls/psa_crypto_slot_management.c
         mbedtls/psa_crypto_storage.c
         mbedtls/psa_its_file.c
-
-        pal/pal_attestation_eat.c
-        pal/pal_attestation_intf.c
-        pal/pal_client_api_empty_intf.c
-        pal/pal_client_api_intf.c
-        pal/pal_internal_trusted_storage_intf.c
-        pal/pal_protected_storage_intf.c
 
         services/attestation/attest_boot_status_loader.c
         services/attestation/attest_crypto.c
@@ -78,3 +70,6 @@ target_link_libraries(mbed-psa
         mbed-storage-kv-global-api
         mbed-device_key
 )
+
+add_subdirectory(test_abstraction_layers)
+
