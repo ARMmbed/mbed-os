@@ -123,7 +123,7 @@ static void uart_test_common(int baudrate, int data_bits, SerialParity parity, i
 
     // start_bit + data_bits + parity_bit + stop_bits
     int packet_bits = 1 + data_bits + stop_bits + (parity == ParityNone ? 0 : 1);
-    us_timestamp_t packet_tx_time = 1000000 * packet_bits / baudrate;
+    us_timestamp_t packet_tx_time = (1000000 * packet_bits / baudrate) + 0.5;
     const ticker_data_t *const us_ticker = get_us_ticker_data();
 
     bool use_flow_control = (cts != NC && rts != NC) ? true : false;
