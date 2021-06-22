@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,8 +51,9 @@ void dhcp_client_configure(int8_t interface, bool renew_uses_solicit, bool one_c
  * /param timeout SOLICIT timeout initial value. 0 means use defaults
  * /param max_rt SOLICIT timeout max value.
  * /param max_rc SOLICIT re-transmission count. 0 means infinite.
+ * /param max_delay Max delay of first Solicit
  */
-void dhcp_client_solicit_timeout_set(int8_t interface, uint16_t timeout, uint16_t max_rt, uint8_t max_rc);
+void dhcp_client_solicit_timeout_set(int8_t interface, uint16_t timeout, uint16_t max_rt, uint8_t max_rc, uint8_t max_delay);
 
 /* Delete dhcp client.
  *
@@ -83,6 +84,7 @@ typedef struct dhcp_server_notify_info {
     uint16_t duid_type;
     uint16_t duid_length;
     uint32_t life_time;
+    uint32_t rtt; // Round trip time with 100ms tics.
     uint8_t *duid;
 } dhcp_server_notify_info_t;
 

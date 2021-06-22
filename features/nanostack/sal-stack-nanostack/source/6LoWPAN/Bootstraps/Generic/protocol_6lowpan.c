@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, Arm Limited and affiliates.
+ * Copyright (c) 2013-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -870,7 +870,12 @@ bool protocol_6lowpan_stagger_estimate_get(int8_t interface_id, uint32_t data_am
         datarate = STAGGER_DATARATE_FOR_APPL(datarate);
     }
 
-    stagger_value = 1 + ((data_amount * 1024 * 8 * network_size) / datarate);
+    // For small networks sets 10 seconds stagger
+    if (network_size <= 100 && ws_info(cur_interface)) {
+        stagger_value = 10;
+    } else {
+        stagger_value = 1 + ((data_amount * 1024 * 8 * network_size) / datarate);
+    }
     /**
      * Example:
      * Maximum stagger value to send 1kB to 100 device network using data rate of 50kbs:
@@ -882,7 +887,7 @@ bool protocol_6lowpan_stagger_estimate_get(int8_t interface_id, uint32_t data_am
     if (stagger_value > 0xFFFF) {
         *stagger_max = 0xFFFF;
     } else {
-        *stagger_max = (uint16_t)stagger_value;
+        *stagger_max = (uint16_t)stagger_value + *stagger_min;
     }
 
     // Randomize stagger value
