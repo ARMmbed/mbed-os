@@ -202,6 +202,7 @@ void mbed_trace_free(void)
     m_trace.line_length = DEFAULT_TRACE_LINE_LENGTH;
     m_trace.tmp_data = 0;
     m_trace.tmp_data_length = DEFAULT_TRACE_TMP_LINE_LEN;
+    m_trace.tmp_data_ptr = 0;
     m_trace.prefix_f = 0;
     m_trace.suffix_f = 0;
     m_trace.printf  = mbed_trace_default_print;
