@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, Arm Limited and affiliates.
+ * Copyright (c) 2017-2019, 2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

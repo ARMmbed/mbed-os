@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2021, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,6 +42,7 @@
 #include "ws_management_api.h"
 #include "net_rpl.h"
 #include "Service_Libs/nd_proxy/nd_proxy.h"
+#include "Service_Libs/utils/ns_time.h"
 #include "6LoWPAN/ws/ws_bbr_api_internal.h"
 #include "6LoWPAN/ws/ws_pae_controller.h"
 #include "6LoWPAN/lowpan_adaptation_interface.h"
@@ -95,9 +96,6 @@ static uint8_t current_local_prefix[8] = {0};
 static uint8_t current_global_prefix[16] = {0}; // DHCP requires 16 bytes prefix
 static uint32_t bbr_delay_timer = BBR_CHECK_INTERVAL; // initial delay.
 static uint32_t global_prefix_unavailable_timer = 0; // initial delay.
-
-static uint8_t *dhcp_vendor_data_ptr = NULL;
-static uint8_t dhcp_vendor_data_len = 0;
 
 static rpl_dodag_conf_t rpl_conf = {
     // Lifetime values
@@ -485,9 +483,38 @@ static bool wisun_dhcp_address_add_cb(int8_t interfaceId, dhcp_address_cache_upd
     return true;
 }
 
+static uint8_t *ws_bbr_dhcp_server_dynamic_vendor_data_write(int8_t interfaceId, uint8_t *ptr, uint16_t *data_len)
+{
+    // If local time is not available vendor data is not written and data_len is not modified
+    (void)interfaceId;
+
+    uint64_t time_read;
+
+    if (0 != ns_time_system_time_read(&time_read)) {
+        return ptr;
+    }
+
+    if (data_len) {
+        *data_len += net_vendor_option_current_time_length();
+    }
+    if (!ptr) {
+        return ptr;
+    }
+    time_read += 2208988800; // Time starts now from the 0 era instead of First day of Unix (1 Jan 1970)
+
+    uint32_t era = time_read / (uint64_t)(4294967296);
+    uint32_t timestamp = time_read - (era * (uint64_t)(4294967296));
+    ptr = net_vendor_option_current_time_write(ptr, era, timestamp, 0);
+
+    return ptr;
+}
+
+
 static void ws_bbr_dhcp_server_dns_info_update(protocol_interface_info_entry_t *cur, uint8_t *global_id)
 {
     //add DNS server information to DHCP server that is learned from the backbone interface.
+    uint8_t *dhcp_vendor_data_ptr = NULL;
+    uint8_t dhcp_vendor_data_len = 0;
     uint8_t dns_server_address[16];
     uint8_t *dns_search_list_ptr = NULL;
     uint8_t dns_search_list_len = 0;
@@ -497,33 +524,40 @@ static void ws_bbr_dhcp_server_dns_info_update(protocol_interface_info_entry_t *
         DHCPv6_server_service_set_dns_server(cur->id, global_id, dns_server_address, dns_search_list_ptr, dns_search_list_len);
     }
 
-    //TODO Generate vendor data in Wi-SUN network include the cached DNS query results in some sort of TLV format
+    //Generate ARM specific vendor data in Wi-SUN network
+    // Cached DNS query results
+    // Network Time
+
     int vendor_data_len = 0;
     for (int n = 0; n < MAX_DNS_RESOLUTIONS; n++) {
         if (pre_resolved_dns_queries[n].domain_name != NULL) {
             vendor_data_len += net_dns_option_vendor_option_data_dns_query_length(pre_resolved_dns_queries[n].domain_name);
         }
     }
+
     if (vendor_data_len) {
-        ns_dyn_mem_free(dhcp_vendor_data_ptr);
-        dhcp_vendor_data_ptr = ns_dyn_mem_alloc(vendor_data_len);
+        dhcp_vendor_data_ptr = ns_dyn_mem_temporary_alloc(vendor_data_len);
         if (!dhcp_vendor_data_ptr) {
             tr_warn("Vendor info set fail");
             return;
         }
         dhcp_vendor_data_len = vendor_data_len;
     }
+    // Write ARM vendor data
+    uint8_t *ptr = dhcp_vendor_data_ptr;
+
     if (dhcp_vendor_data_ptr) {
         // Write vendor data
-        uint8_t *ptr = dhcp_vendor_data_ptr;
         for (int n = 0; n < MAX_DNS_RESOLUTIONS; n++) {
             if (pre_resolved_dns_queries[n].domain_name != NULL) {
                 ptr = net_dns_option_vendor_option_data_dns_query_write(ptr, pre_resolved_dns_queries[n].address, pre_resolved_dns_queries[n].domain_name);
             }
         }
     }
+    DHCPv6_server_service_set_vendor_data_callback(cur->id, global_id, ARM_ENTERPRISE_NUMBER, ws_bbr_dhcp_server_dynamic_vendor_data_write);
 
     DHCPv6_server_service_set_vendor_data(cur->id, global_id, ARM_ENTERPRISE_NUMBER, dhcp_vendor_data_ptr, dhcp_vendor_data_len);
+    ns_dyn_mem_free(dhcp_vendor_data_ptr);
 }
 
 static void wisun_dhcp_address_remove_cb(int8_t interfaceId, uint8_t *targetAddress, void *prefix_info)

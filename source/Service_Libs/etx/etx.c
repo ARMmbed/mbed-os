@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, Arm Limited and affiliates.
+ * Copyright (c) 2014-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -439,11 +439,6 @@ uint16_t etx_local_etx_read(int8_t interface_id, uint8_t attribute_index)
     }
 
     if (etx_info.cache_sample_requested && entry->etx_samples < etx_info.init_etx_sample_count) {
-        etx_sample_storage_t *storage = etx_info.etx_cache_storage_list + attribute_index;
-        if (storage->received_acks == 0 && storage->attempts_count) {
-            //No ack so return max value
-            return etx_info.max_etx;
-        }
         //Not ready yet
         return 0xffff;
     }

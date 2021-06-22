@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -75,13 +75,6 @@ int8_t ws_generate_channel_list(uint32_t *channel_mask, uint16_t number_of_chann
         channel_mask[0 + (i / 32)] |= (1 << (i % 32));
     }
     // Disable unsupported channels per regional frequency bands
-    if (regulatory_domain == REG_DOMAIN_NA) {
-        if (channel_plan_id == 1) {
-            ws_disable_channels_in_range(channel_mask, number_of_channels, 1, 7);
-        } else if (channel_plan_id == 5) {
-            ws_disable_channels_in_range(channel_mask, number_of_channels, 5, 7);
-        }
-    }
     if (regulatory_domain == REG_DOMAIN_BZ) {
         if (channel_plan_id == 255) {
             if (operating_class == 1) {
@@ -93,17 +86,11 @@ int8_t ws_generate_channel_list(uint32_t *channel_mask, uint16_t number_of_chann
             }
         } else {
             if (channel_plan_id == 1) {
-                ws_disable_channels_in_range(channel_mask, number_of_channels, 1, 7);
-                ws_disable_channels_in_range(channel_mask, number_of_channels, 64, 64);
-                ws_disable_channels_in_range(channel_mask, number_of_channels, 72, 103);
-                ws_disable_channels_in_range(channel_mask, number_of_channels, 106, 111);
+                ws_disable_channels_in_range(channel_mask, number_of_channels, 26, 64);
             } else if (channel_plan_id == 2) {
-                ws_disable_channels_in_range(channel_mask, number_of_channels, 24, 24);
-                ws_disable_channels_in_range(channel_mask, number_of_channels, 32, 47);
-                ws_disable_channels_in_range(channel_mask, number_of_channels, 52, 55);
+                ws_disable_channels_in_range(channel_mask, number_of_channels, 12, 32);
             } else if (channel_plan_id == 5) {
-                ws_disable_channels_in_range(channel_mask, number_of_channels, 5, 10);
-                ws_disable_channels_in_range(channel_mask, number_of_channels, 19, 23);
+                ws_disable_channels_in_range(channel_mask, number_of_channels, 3, 10);
             }
         }
     }
@@ -424,11 +411,11 @@ uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operat
             }
         } else {
             if (channel_plan_id == 1) {
-                return 136;
+                return 129;
             } else if (channel_plan_id == 2) {
                 return 64;
             } else if (channel_plan_id == 5) {
-                return 24;
+                return 21;
             }
         }
     } else if (regulatory_domain == REG_DOMAIN_JP) {
@@ -450,11 +437,11 @@ uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operat
             }
         } else {
             if (channel_plan_id == 1) {
-                return 136;
+                return 129;
             } else if (channel_plan_id == 2) {
                 return 64;
             } else if (channel_plan_id == 5) {
-                return 24;
+                return 21;
             }
         }
     } else if (regulatory_domain == REG_DOMAIN_WW) {
