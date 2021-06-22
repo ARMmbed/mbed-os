@@ -23,6 +23,12 @@
 #include "stm32f4xx_hal.h"
 #include "PeripheralPins.h"
 
+// These variables are used for the "free" function
+static int dac_channel1_used = 0;
+#if defined(DAC_CHANNEL_2)
+static int dac_channel2_used = 0;
+#endif
+
 #if STATIC_PINMAP_READY
 #define ANALOGOUT_INIT_DIRECT analogout_init_direct
 void analogout_init_direct(dac_t *obj, const PinMap *pinmap)
@@ -62,6 +68,9 @@ static void _analogout_init_direct(dac_t *obj, const PinMap *pinmap)
     pin_function(pinmap->pin, pinmap->function);
     pin_mode(pinmap->pin, PullNone);
 
+    // Save the pin for future use
+    obj->pin = pinmap->pin;
+
     __HAL_RCC_GPIOA_CLK_ENABLE();
 
     __HAL_RCC_DAC_CLK_ENABLE();
@@ -80,6 +89,14 @@ static void _analogout_init_direct(dac_t *obj, const PinMap *pinmap)
         error("HAL_DAC_ConfigChannel failed");
     }
 
+    if (obj->channel == DAC_CHANNEL_1) {
+        dac_channel1_used = 1;
+    }
+#if defined(DAC_CHANNEL_2)
+    if (obj->channel == DAC_CHANNEL_2) {
+        dac_channel2_used = 1;
+    }
+#endif
     analogout_write_u16(obj, 0);
     HAL_DAC_Start(&obj->handle, obj->channel);
 }
@@ -96,6 +113,28 @@ void analogout_init(dac_t *obj, PinName pin)
 
 void analogout_free(dac_t *obj)
 {
+    if (obj->channel == DAC_CHANNEL_1) {
+        dac_channel1_used = 0;
+    }
+#if defined(DAC_CHANNEL_2)
+    if (obj->channel == DAC_CHANNEL_2) {
+        dac_channel2_used = 0;
+    }
+#endif
+
+    if ((dac_channel1_used == 0)
+#if defined(DAC_CHANNEL_2)
+        && (dac_channel2_used == 0)
+#endif
+        ) {
+        // Reset DAC and disable clock
+        __HAL_RCC_DAC_FORCE_RESET();
+        __HAL_RCC_DAC_RELEASE_RESET();
+        __HAL_RCC_DAC_CLK_DISABLE();
+
+        // Configure GPIO back to reset value
+        pin_function(obj->pin, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0));
+    }
 }
 
 const PinMap *analogout_pinmap()
