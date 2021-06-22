@@ -1,7 +1,9 @@
 {
     "ETHERNET" : "EthernetInterface.json",
+    "EXPERIMENTAL": "experimental.json",
     "HEAPBLOCKDEVICE": "HeapBlockDevice.json",
     "HEAPBLOCKDEVICE_AND_ETHERNET": "HeapBlockDeviceAndEthernetInterface.json",
+    "HEAPBLOCKDEVICE_AND_ETHERNET_AND_EXPERIMENTAL": "HeapBlockDeviceAndEthernetAndExperimental.json",
     "HEAPBLOCKDEVICE_AND_WIFI": "HeapBlockDeviceAndWifiInterface.json",
     "ESP8266_WIFI" : "ESP8266Interface.json",
     "ISM43362_WIFI" : "ISM43362Interface.json",

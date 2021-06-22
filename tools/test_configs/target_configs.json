@@ -1,7 +1,10 @@
 {
     "K64F": {
-        "default_test_configuration": "HEAPBLOCKDEVICE_AND_ETHERNET",
+        "default_test_configuration": "HEAPBLOCKDEVICE_AND_ETHERNET_AND_EXPERIMENTAL",
         "test_configurations": ["HEAPBLOCKDEVICE_AND_ETHERNET", "NANOSTACK_MAC_TESTER", "ESP8266_WIFI", "ETHERNET"]
+    },
+    "K66F": {
+        "default_test_configuration": "EXPERIMENTAL"
     },
     "NUCLEO_F429ZI": {
         "default_test_configuration": "HEAPBLOCKDEVICE_AND_ETHERNET",
