@@ -967,10 +967,8 @@ int can_write(can_t *obj, CAN_Message msg, int cc)
 
 int can_read(can_t *obj, CAN_Message *msg, int handle)
 {
-
-    //handle is the FIFO number
-
-    int rxfifo_default = DEFAULT_RXFIFO;    //FIFO selection cannot be controlled by software for STM32, default FIFO is 0
+    //FIFO selection cannot be controlled by software for STM32, default FIFO is 0, hence handle is not used
+    int rxfifo_default = DEFAULT_RXFIFO; 
     CAN_TypeDef *can = obj->CanHandle.Instance;
 
     // check FPM0 which holds the pending message count in FIFO 0
