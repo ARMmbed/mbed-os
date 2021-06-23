@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited and affiliates.
+ * Copyright (c) 2020, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -97,4 +97,62 @@ uint16_t net_dns_option_vendor_option_data_dns_query_read(uint8_t *ptr, uint16_t
         *domain = (char *)(ptr + 4 + 16);
     }
     return option_len;
+}
+
+uint16_t net_vendor_option_current_time_length(void)
+{
+    return 4 + 3 * sizeof(uint32_t);
+}
+
+uint8_t *net_vendor_option_current_time_write(uint8_t *ptr, int32_t era, uint32_t offset, uint32_t fraction)
+{
+    /*
+     * Time value written using NTP time format
+     * Following rfc5905
+     */
+
+    ptr = common_write_16_bit(ARM_DHCP_VENDOR_DATA_NETWORK_TIME, ptr);
+    ptr = common_write_16_bit(3 * sizeof(uint32_t), ptr);
+    ptr = common_write_32_bit((uint32_t)era, ptr);
+    ptr = common_write_32_bit(offset, ptr);
+    ptr = common_write_32_bit(fraction, ptr);
+    return ptr;
+}
+
+uint8_t *net_vendor_option_current_time_read(uint8_t *ptr, uint16_t length, int32_t *era, uint32_t *offset, uint32_t *fraction)
+{
+    /*
+     * Time value written using NTP time format
+     * Following rfc5905
+     */
+    uint16_t option_len;
+
+    if (length < net_vendor_option_current_time_length()) {
+        // Corrupted as there is no room for all fields
+        return 0;
+    }
+
+    if (common_read_16_bit(ptr) != ARM_DHCP_VENDOR_DATA_NETWORK_TIME) {
+        return 0;
+    }
+
+    option_len = common_read_16_bit(ptr + 2);
+    ptr += 4;
+
+    if (option_len < 3 * sizeof(uint32_t)) {
+        // Corrupted as not enough room for fields
+        return 0;
+    }
+
+    if (era) {
+        *era = (int32_t)common_read_32_bit(ptr);
+    }
+    if (offset) {
+        *offset = common_read_32_bit(ptr + sizeof(uint32_t));
+    }
+    if (fraction) {
+        *fraction = common_read_32_bit(ptr + 2 * sizeof(uint32_t));
+    }
+
+    return ptr;
 }

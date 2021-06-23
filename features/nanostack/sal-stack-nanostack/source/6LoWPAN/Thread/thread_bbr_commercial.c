@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, Arm Limited and affiliates.
+ * Copyright (c) 2017-2019, 2021, Pelion and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1351,7 +1351,7 @@ void thread_bbr_commercial_route_update(protocol_interface_info_entry_t *cur)
     // remove with info and add valid domain prefix again to back bone interface
     ipv6_route_table_remove_info(this->backbone_interface_id, ROUTE_THREAD_BBR, NULL);
 
-    if (!addr_is_ipv6_unspecified(this->domain_prefix)) {
+    if (memcmp(this->domain_prefix, ADDR_UNSPECIFIED, 8) != 0) {
         // add dua route to backbone, delete dua from on-mesh route
         ipv6_route_add_with_info(this->domain_prefix, 64, this->backbone_interface_id, NULL, ROUTE_THREAD_BBR, NULL, 0, 0xffffffff, 0);
         tr_info("Hosting pBBR for DUA prefix");

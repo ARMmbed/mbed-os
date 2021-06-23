@@ -123,6 +123,7 @@ SRCS += \
 	source/Security/protocols/gkh_sec_prot/supp_gkh_sec_prot.c \
 	source/Security/protocols/radius_sec_prot/radius_client_sec_prot.c \
 	source/Security/protocols/radius_sec_prot/avp_helper.c \
+	source/Security/protocols/msg_sec_prot/msg_sec_prot.c \
 	source/Security/protocols/tls_sec_prot/tls_sec_prot.c \
 	source/Security/protocols/tls_sec_prot/tls_sec_prot_lib.c \
 	source/Security/PANA/eap_protocol.c \
@@ -211,6 +212,7 @@ SRCS += \
 	source/Service_Libs/utils/ns_crc.c \
 	source/Service_Libs/utils/isqrt.c \
 	source/Service_Libs/utils/ns_file_system.c \
+	source/Service_Libs/utils/ns_time.c \
 	source/Service_Libs/utils/ns_conf.c \
 	source/Service_Libs/mdns/ns_mdns_api.c \
 	source/Service_Libs/mdns/ns_fnet_port.c \

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -165,6 +165,13 @@ static void ws_eapol_auth_relay_socket_cb(void *cb)
         eui_64 = ptr;
         ptr += 8;
         uint16_t data_len = cb_data->d_len - 26;
+        /* If EAPOL PDU data length is zero (message contains only supplicant EUI-64 and KMP ID)
+         * i.e. is purge message and is not going to authenticator local relay then ignores message
+         */
+        if (data_len == 1 && !addr_ipv6_equal(relay_ip_addr.address, eapol_auth_relay->relay_addr.address)) {
+            ns_dyn_mem_free(socket_pdu);
+            return;
+        }
         ws_eapol_relay_lib_send_to_relay(eapol_auth_relay->socket_id, eui_64, &relay_ip_addr,
                                          ptr, data_len);
         ns_dyn_mem_free(socket_pdu);

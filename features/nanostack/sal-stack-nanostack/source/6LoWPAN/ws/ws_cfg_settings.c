@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited and affiliates.
+ * Copyright (c) 2020-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -467,10 +467,10 @@ static void ws_cfg_network_size_config_set_small(ws_cfg_nw_size_t *cfg)
     cfg->sec_prot.sec_prot_trickle_timer_exp = SEC_PROT_TIMER_EXPIRATIONS;
     cfg->sec_prot.sec_prot_retry_timeout = SEC_PROT_RETRY_TIMEOUT_SMALL;
 
-    cfg->sec_prot.initial_key_retry_delay = DEFAULT_INITIAL_KEY_RETRY_TIMER;
-    cfg->sec_prot.initial_key_imin = SMALL_NW_INITIAL_KEY_TRICKLE_IMIN_SECS;
-    cfg->sec_prot.initial_key_imax = SMALL_NW_INITIAL_KEY_TRICKLE_IMAX_SECS;
-    cfg->sec_prot.initial_key_retry_cnt = DEFAULT_INITIAL_KEY_RETRY_COUNT;
+    cfg->sec_prot.initial_key_retry_min = SMALL_NW_INITIAL_KEY_RETRY_MIN_SECS;
+    cfg->sec_prot.initial_key_retry_max = SMALL_NW_INITIAL_KEY_RETRY_MAX_SECS;
+    cfg->sec_prot.initial_key_retry_max_limit = SMALL_NW_INITIAL_KEY_RETRY_MAX_LIMIT_SECS;
+    cfg->sec_prot.initial_key_retry_cnt = SMALL_NW_INITIAL_KEY_RETRY_COUNT;
 
     // Multicast timing configuration
     cfg->mpl.mpl_trickle_imin = MPL_SMALL_IMIN;
@@ -510,10 +510,10 @@ static void ws_cfg_network_size_config_set_medium(ws_cfg_nw_size_t *cfg)
     cfg->sec_prot.sec_prot_trickle_timer_exp = SEC_PROT_TIMER_EXPIRATIONS;
     cfg->sec_prot.sec_prot_retry_timeout = SEC_PROT_RETRY_TIMEOUT_SMALL;
 
-    cfg->sec_prot.initial_key_retry_delay = DEFAULT_INITIAL_KEY_RETRY_TIMER;
-    cfg->sec_prot.initial_key_imin = MEDIUM_NW_INITIAL_KEY_TRICKLE_IMIN_SECS;
-    cfg->sec_prot.initial_key_imax = MEDIUM_NW_INITIAL_KEY_TRICKLE_IMAX_SECS;
-    cfg->sec_prot.initial_key_retry_cnt = DEFAULT_INITIAL_KEY_RETRY_COUNT;
+    cfg->sec_prot.initial_key_retry_min = MEDIUM_NW_INITIAL_KEY_RETRY_MIN_SECS;
+    cfg->sec_prot.initial_key_retry_max = MEDIUM_NW_INITIAL_KEY_RETRY_MAX_SECS;
+    cfg->sec_prot.initial_key_retry_max_limit = MEDIUM_NW_INITIAL_KEY_RETRY_MAX_LIMIT_SECS;
+    cfg->sec_prot.initial_key_retry_cnt = MEDIUM_NW_INITIAL_KEY_RETRY_COUNT;
 
     // Multicast timing configuration
     cfg->mpl.mpl_trickle_imin = MPL_MEDIUM_IMIN;
@@ -552,9 +552,9 @@ static void ws_cfg_network_size_config_set_large(ws_cfg_nw_size_t *cfg)
     cfg->sec_prot.sec_prot_trickle_timer_exp = SEC_PROT_TIMER_EXPIRATIONS;
     cfg->sec_prot.sec_prot_retry_timeout = SEC_PROT_RETRY_TIMEOUT_LARGE;
 
-    cfg->sec_prot.initial_key_retry_delay = NONE_INITIAL_KEY_RETRY_TIMER;
-    cfg->sec_prot.initial_key_imin = LARGE_NW_INITIAL_KEY_TRICKLE_IMIN_SECS;
-    cfg->sec_prot.initial_key_imax = LARGE_NW_INITIAL_KEY_TRICKLE_IMAX_SECS;
+    cfg->sec_prot.initial_key_retry_min = LARGE_NW_INITIAL_KEY_RETRY_MIN_SECS;
+    cfg->sec_prot.initial_key_retry_max = LARGE_NW_INITIAL_KEY_RETRY_MAX_SECS;
+    cfg->sec_prot.initial_key_retry_max_limit = LARGE_NW_INITIAL_KEY_RETRY_MAX_LIMIT_SECS;
     cfg->sec_prot.initial_key_retry_cnt = LARGE_NW_INITIAL_KEY_RETRY_COUNT;
 
     // Multicast timing configuration
@@ -595,9 +595,9 @@ static void ws_cfg_network_size_config_set_xlarge(ws_cfg_nw_size_t *cfg)
     cfg->sec_prot.sec_prot_trickle_timer_exp = SEC_PROT_TIMER_EXPIRATIONS;
     cfg->sec_prot.sec_prot_retry_timeout = SEC_PROT_RETRY_TIMEOUT_LARGE;
 
-    cfg->sec_prot.initial_key_retry_delay = NONE_INITIAL_KEY_RETRY_TIMER;
-    cfg->sec_prot.initial_key_imin = EXTRA_LARGE_NW_INITIAL_KEY_TRICKLE_IMIN_SECS;
-    cfg->sec_prot.initial_key_imax = EXTRA_LARGE_NW_INITIAL_KEY_TRICKLE_IMAX_SECS;
+    cfg->sec_prot.initial_key_retry_min = EXTRA_LARGE_NW_INITIAL_KEY_RETRY_MIN_SECS;
+    cfg->sec_prot.initial_key_retry_max = EXTRA_LARGE_NW_INITIAL_KEY_RETRY_MAX_SECS;
+    cfg->sec_prot.initial_key_retry_max_limit = EXTRA_LARGE_NW_INITIAL_KEY_RETRY_MAX_LIMIT_SECS;
     cfg->sec_prot.initial_key_retry_cnt = EXTRA_LARGE_NW_INITIAL_KEY_RETRY_COUNT;
 
     // Multicast timing configuration
@@ -637,10 +637,10 @@ static void ws_cfg_network_size_config_set_certificate(ws_cfg_nw_size_t *cfg)
     cfg->sec_prot.sec_prot_trickle_timer_exp = SEC_PROT_TIMER_EXPIRATIONS;
     cfg->sec_prot.sec_prot_retry_timeout = SEC_PROT_RETRY_TIMEOUT_SMALL;
 
-    cfg->sec_prot.initial_key_retry_delay = DEFAULT_INITIAL_KEY_RETRY_TIMER;
-    cfg->sec_prot.initial_key_imin = SMALL_NW_INITIAL_KEY_TRICKLE_IMIN_SECS;
-    cfg->sec_prot.initial_key_imax = SMALL_NW_INITIAL_KEY_TRICKLE_IMAX_SECS;
-    cfg->sec_prot.initial_key_retry_cnt = DEFAULT_INITIAL_KEY_RETRY_COUNT;
+    cfg->sec_prot.initial_key_retry_min = SMALL_NW_INITIAL_KEY_RETRY_MIN_SECS;
+    cfg->sec_prot.initial_key_retry_max = SMALL_NW_INITIAL_KEY_RETRY_MAX_SECS;
+    cfg->sec_prot.initial_key_retry_max_limit = SMALL_NW_INITIAL_KEY_RETRY_MAX_LIMIT_SECS;
+    cfg->sec_prot.initial_key_retry_cnt = SMALL_NW_INITIAL_KEY_RETRY_COUNT;
 
     // Multicast timing configuration for certification uses the LARGE values as it is the one mentioned ins specification
     cfg->mpl.mpl_trickle_imin = MPL_XLARGE_IMIN;
@@ -1237,14 +1237,14 @@ static int8_t ws_cfg_sec_prot_default_set(ws_sec_prot_cfg_t *cfg)
 {
     cfg->sec_prot_trickle_imin = SEC_PROT_SMALL_IMIN;
     cfg->sec_prot_trickle_imax = SEC_PROT_SMALL_IMAX;
-    cfg->sec_prot_trickle_timer_exp = 2;
+    cfg->sec_prot_trickle_timer_exp = SEC_PROT_TIMER_EXPIRATIONS;
     cfg->sec_prot_retry_timeout = SEC_PROT_RETRY_TIMEOUT_SMALL;
     cfg->max_simult_sec_neg_tx_queue_min = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_TX_QUEUE_MIN;
     cfg->max_simult_sec_neg_tx_queue_max = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_TX_QUEUE_MAX;
-    cfg->initial_key_retry_delay = DEFAULT_INITIAL_KEY_RETRY_TIMER;
-    cfg->initial_key_imin = MEDIUM_NW_INITIAL_KEY_TRICKLE_IMIN_SECS;
-    cfg->initial_key_imax = MEDIUM_NW_INITIAL_KEY_TRICKLE_IMAX_SECS;
-    cfg->initial_key_retry_cnt = DEFAULT_INITIAL_KEY_RETRY_COUNT;
+    cfg->initial_key_retry_min = MEDIUM_NW_INITIAL_KEY_RETRY_MIN_SECS;
+    cfg->initial_key_retry_max = MEDIUM_NW_INITIAL_KEY_RETRY_MAX_SECS;
+    cfg->initial_key_retry_max_limit = MEDIUM_NW_INITIAL_KEY_RETRY_MAX_LIMIT_SECS;
+    cfg->initial_key_retry_cnt = MEDIUM_NW_INITIAL_KEY_RETRY_COUNT;
 
     return CFG_SETTINGS_OK;
 }
@@ -1268,10 +1268,10 @@ int8_t ws_cfg_sec_prot_validate(ws_sec_prot_cfg_t *cfg, ws_sec_prot_cfg_t *new_c
             cfg->sec_prot_retry_timeout != new_cfg->sec_prot_retry_timeout ||
             cfg->max_simult_sec_neg_tx_queue_min != new_cfg->max_simult_sec_neg_tx_queue_min ||
             cfg->max_simult_sec_neg_tx_queue_max != new_cfg->max_simult_sec_neg_tx_queue_max ||
-            cfg->initial_key_retry_delay != new_cfg->initial_key_retry_delay ||
-            cfg->initial_key_imin != new_cfg->initial_key_retry_delay ||
-            cfg->initial_key_imax != new_cfg->initial_key_retry_delay ||
-            cfg->initial_key_retry_cnt != new_cfg->initial_key_retry_delay) {
+            cfg->initial_key_retry_min != new_cfg->initial_key_retry_min ||
+            cfg->initial_key_retry_max != new_cfg->initial_key_retry_max ||
+            cfg->initial_key_retry_max_limit != new_cfg->initial_key_retry_max_limit ||
+            cfg->initial_key_retry_cnt != new_cfg->initial_key_retry_cnt) {
 
         return CFG_SETTINGS_CHANGED;
     }
