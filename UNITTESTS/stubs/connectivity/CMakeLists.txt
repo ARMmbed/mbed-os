@@ -57,7 +57,9 @@ target_sources(mbed-stubs-connectivity
 
 target_link_libraries(mbed-stubs-connectivity
     PRIVATE
+        mbed-stubs-rtos-headers
         mbed-headers
         mbed-stubs-headers
+        mbed-stubs-rtos
         gtest
 )
