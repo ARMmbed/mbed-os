@@ -34,6 +34,7 @@ public:
     MOCK_METHOD(ble_error_t, init, (bool enableBonding, bool requireMITM, SecurityIOCapabilities_t iocaps, const Passkey_t passkey, bool signing, const char *dbFilepath), (override));
     MOCK_METHOD(ble_error_t, setDatabaseFilepath, (const char *dbFilepath), (override));
     MOCK_METHOD(ble_error_t, preserveBondingStateOnReset, (bool enable), (override));
+    MOCK_METHOD(ble_error_t, writeBondingStateToPersistentStorage, (), (override));
     MOCK_METHOD(ble_error_t, purgeAllBondingState, (), (override));
     MOCK_METHOD(ble_error_t, generateWhitelistFromBondTable, (::ble::whitelist_t *whitelist), (const, override));
     MOCK_METHOD(ble_error_t, requestPairing, (ble::connection_handle_t connectionHandle), (override));

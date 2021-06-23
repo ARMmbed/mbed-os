@@ -222,6 +222,18 @@ ble_error_t SecurityManager::preserveBondingStateOnReset(bool enabled)
     return BLE_ERROR_NONE;
 }
 
+
+ble_error_t SecurityManager::writeBondingStateToPersistentStorage()
+{
+    tr_info("Writing bonding to storage");
+    if (!_db) {
+        tr_error("Failure, DB not initialized");
+        return BLE_ERROR_INITIALIZATION_INCOMPLETE;
+    }
+    _db->sync();
+    return BLE_ERROR_NONE;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 // List management
 //

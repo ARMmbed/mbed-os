@@ -113,6 +113,8 @@ public:
      */
     typedef void* entry_handle_t;
 
+    static constexpr entry_handle_t invalid_entry_handle = nullptr;
+
     /* callbacks for asynchronous data retrieval from the security db */
 
     typedef mbed::Callback<void(entry_handle_t, const SecurityEntryKeys_t*)>
@@ -522,7 +524,7 @@ public:
     /**
      * Flush all values which might be stored in memory into NVM.
      */
-    virtual void sync(entry_handle_t db_handle);
+    virtual void sync(entry_handle_t db_handle = invalid_entry_handle);
 
     /**
      * Toggle whether values should be preserved across resets.
