@@ -69,8 +69,9 @@ reset_reason_t hal_reset_reason_get(void)
         count++;
     }
 
-    if (count > 1)
+    if (count > 1) {
         reason = RESET_REASON_MULTIPLE;
+    }
 
     return reason;
 }
