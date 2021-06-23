@@ -1,6 +1,17 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_library(mbed-headers-events INTERFACE)
+
+target_include_directories(mbed-headers-events
+    INTERFACE
+        ${mbed-os_SOURCE_DIR}/events/tests/UNITTESTS/target_h
+        ${mbed-os_SOURCE_DIR}/events/tests/UNITTESTS/target_h/equeue
+        ${mbed-os_SOURCE_DIR}/events/include
+        ${mbed-os_SOURCE_DIR}/events/include/events
+        ${mbed-os_SOURCE_DIR}/events/include/events/internal
+)
+
 add_library(mbed-stubs-events)
 
 target_sources(mbed-stubs-events
