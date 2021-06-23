@@ -1,6 +1,14 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_library(mbed-headers-rtos INTERFACE)
+
+target_include_directories(mbed-headers-rtos
+    INTERFACE
+        ${mbed-os_SOURCE_DIR}/rtos/include
+        ${mbed-os_SOURCE_DIR}/rtos/include/rtos
+)
+
 add_library(mbed-stubs-rtos-headers INTERFACE)
 
 target_include_directories(mbed-stubs-rtos-headers
