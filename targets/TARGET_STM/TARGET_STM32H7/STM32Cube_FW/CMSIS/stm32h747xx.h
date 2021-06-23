@@ -13916,9 +13916,13 @@ typedef struct
 */
 #define FLASH_SIZE_DATA_REGISTER             0x1FF1E880U
 #define FLASH_SECTOR_TOTAL                   8U                    /* 8 sectors */
+#ifdef CORE_CM4
+#define FLASH_SIZE                           0x200000UL /* 2 MB */
+#else
 #define FLASH_SIZE                           ((((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) == 0xFFFFU)) ? 0x200000U : \
                                              ((((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) == 0x0000U)) ? 0x200000U : \
                                              (((uint32_t)(*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) & (0x0FFFU)) << 10U)))  /* 2 MB   */
+#endif
 #define FLASH_BANK_SIZE                      (FLASH_SIZE >> 1)     /* 1 MB   */
 #define FLASH_SECTOR_SIZE                    0x00020000UL          /* 128 KB */
 #define FLASH_LATENCY_DEFAULT                FLASH_ACR_LATENCY_7WS /* FLASH Seven Latency cycles */
