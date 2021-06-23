@@ -302,7 +302,7 @@ public:
      */
     struct EventHandler {
         /**
-         * Called when an advertising device receive a scan response.
+         * Called when an advertising device receive a scan request.
          *
          * @param event Scan request event.
          *
@@ -319,6 +319,8 @@ public:
          *
          * @param event Advertising start event.
          *
+         * @note Check event.getStatus() to see if advertising started successfully
+         *
          * @see startAdvertising()
          */
         virtual void onAdvertisingStart(const AdvertisingStartEvent &event)
@@ -333,7 +335,8 @@ public:
          *
          * @param event Advertising end event.
          *
-         * @see startAdvertising()
+         * @note Check event.getStatus() to see if advertising ended successfully
+         *
          * @see stopAdvertising()
          * @see onConnectionComplete()
          */
@@ -409,8 +412,9 @@ public:
         }
 
         /**
-         * Called when connection attempt ends or an advertising device has been
-         * connected.
+         * Called when connection attempt ends. Check event.getStatus() to see if connection
+         * was established. If this device is the peripheral and it as advertising this will
+         * end advertising which will also create the onAdvertisingEnd event.
          *
          * @see startAdvertising()
          * @see connect()
@@ -431,8 +435,8 @@ public:
          *
          * @version 4.1+.
          *
-         * @note This event is not generated if connection parameters update
-         * is managed by the middleware.
+         * @note This event will only be produced if manageConnectionParametersUpdateRequest(true)
+         * was called. Otherwise the stack will handle the request and no event will be generated.
          *
          * @see manageConnectionParametersUpdateRequest()
          * @see acceptConnectionParametersUpdate()
@@ -553,6 +557,8 @@ public:
         /**
          * Function invoked when the privacy subsystem has been enabled and is
          * ready to be used.
+         *
+         * @see enablePrivacy()
          */
         virtual void onPrivacyEnabled()
         {
@@ -1286,6 +1292,8 @@ public:
      * false to disable it.
      *
      * @return BLE_ERROR_NONE in case of success or an appropriate error code.
+     *
+     * @see EventHandler::onPrivacyEnabled()
      */
     ble_error_t enablePrivacy(bool enable);
 
@@ -1433,7 +1441,7 @@ public:
      */
     ble_error_t reset();
 
-        /**
+    /**
      * Register a Gap shutdown event handler.
      *
      * The handler is called when the Gap instance is about to shut down.
