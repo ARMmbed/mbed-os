@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, Arm Limited and affiliates.
+ * Copyright (c) 2013-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -1837,7 +1837,7 @@ int8_t mac_mlme_beacon_tx(protocol_interface_rf_mac_setup_s *rf_ptr)
             ptr += BEACON_OPTION_JOIN_PRIORITY_LEN;
         }*/
     }
-    buf->priority = MAC_PD_DATA_HIGH_PRIOTITY;
+    buf->priority = MAC_PD_DATA_HIGH_PRIORITY;
     mcps_sap_pd_req_queue_write(rf_ptr, buf);
     sw_mac_stats_update(rf_ptr, STAT_MAC_BEA_TX_COUNT, 0);
     return 0;

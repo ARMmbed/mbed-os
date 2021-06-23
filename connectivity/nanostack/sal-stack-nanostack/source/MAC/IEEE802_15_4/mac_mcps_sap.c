@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, Arm Limited and affiliates.
+ * Copyright (c) 2014-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -56,6 +56,8 @@
 
 // Used to set TX time (us) with FHSS. Must be <= 65ms.
 #define MAC_TX_PROCESSING_DELAY_INITIAL 2000
+// Give up on data request after given timeout (seconds)
+#define DATA_REQUEST_TIMEOUT_NORMAL_PRIORITY_S  10
 
 typedef struct {
     uint8_t address[8];
@@ -275,7 +277,7 @@ void mcps_sap_data_req_handler_ext(protocol_interface_rf_mac_setup_s *rf_mac_set
             }
             break;
         case MAC_DATA_HIGH_PRIORITY:
-            buffer->priority = MAC_PD_DATA_HIGH_PRIOTITY;
+            buffer->priority = MAC_PD_DATA_HIGH_PRIORITY;
             break;
         case MAC_DATA_MEDIUM_PRIORITY:
             buffer->priority = MAC_PD_DATA_MEDIUM_PRIORITY;
@@ -382,6 +384,8 @@ void mcps_sap_data_req_handler_ext(protocol_interface_rf_mac_setup_s *rf_mac_set
     }
     buffer->tx_request_restart_cnt = rf_mac_setup->tx_failure_restart_max;
     //check that header + payload length is not bigger than MAC MTU
+
+    buffer->request_start_time_us = mac_mcps_sap_get_phy_timestamp(rf_mac_setup);
 
     if (data_req->InDirectTx) {
         mac_indirect_queue_write(rf_mac_setup, buffer);
@@ -1100,6 +1104,17 @@ static void mac_mcps_asynch_finish(protocol_interface_rf_mac_setup_s *rf_mac_set
     }
 }
 
+static bool mcps_sap_check_buffer_timeout(protocol_interface_rf_mac_setup_s *rf_mac_setup, mac_pre_build_frame_t *buffer)
+{
+    // Convert from 1us slots to seconds
+    uint32_t buffer_age_s = (mac_mcps_sap_get_phy_timestamp(rf_mac_setup) - buffer->request_start_time_us) / 1000000;
+    // Do not timeout broadcast frames. Broadcast interval could be very long.
+    if (buffer->fcf_dsn.ackRequested && (buffer_age_s > DATA_REQUEST_TIMEOUT_NORMAL_PRIORITY_S)) {
+        return true;
+    }
+    return false;
+}
+
 void mac_mcps_trig_buffer_from_queue(protocol_interface_rf_mac_setup_s *rf_mac_setup)
 {
     if (!rf_mac_setup) {
@@ -1119,22 +1134,31 @@ void mac_mcps_trig_buffer_from_queue(protocol_interface_rf_mac_setup_s *rf_mac_s
         buffer = mcps_sap_pd_req_queue_read(rf_mac_setup, is_bc_queue, false);
 
         if (buffer) {
-            //Here
-            if (buffer->ExtendedFrameExchange) {
-                //Update here state and store peer
-                memcpy(rf_mac_setup->mac_edfe_info->PeerAddr, buffer->DstAddr, 8);
-                rf_mac_setup->mac_edfe_info->state = MAC_EDFE_FRAME_CONNECTING;
-            }
-            rf_mac_setup->active_pd_data_request = buffer;
-            if (mcps_pd_data_request(rf_mac_setup, buffer) != 0) {
+            if (mcps_sap_check_buffer_timeout(rf_mac_setup, buffer)) {
+                // Buffer is quite old. Return it to adaptation layer with timeout event.
+                rf_mac_setup->mac_tx_result = MAC_TX_TIMEOUT;
                 if (buffer->ExtendedFrameExchange) {
                     rf_mac_setup->mac_edfe_info->state = MAC_EDFE_FRAME_IDLE;
                 }
-                rf_mac_setup->active_pd_data_request = NULL;
                 mac_mcps_asynch_finish(rf_mac_setup, buffer);
                 mcps_data_confirm_handle(rf_mac_setup, buffer, NULL);
             } else {
-                return;
+                if (buffer->ExtendedFrameExchange) {
+                    //Update here state and store peer
+                    memcpy(rf_mac_setup->mac_edfe_info->PeerAddr, buffer->DstAddr, 8);
+                    rf_mac_setup->mac_edfe_info->state = MAC_EDFE_FRAME_CONNECTING;
+                }
+                rf_mac_setup->active_pd_data_request = buffer;
+                if (mcps_pd_data_request(rf_mac_setup, buffer) != 0) {
+                    if (buffer->ExtendedFrameExchange) {
+                        rf_mac_setup->mac_edfe_info->state = MAC_EDFE_FRAME_IDLE;
+                    }
+                    rf_mac_setup->active_pd_data_request = NULL;
+                    mac_mcps_asynch_finish(rf_mac_setup, buffer);
+                    mcps_data_confirm_handle(rf_mac_setup, buffer, NULL);
+                } else {
+                    return;
+                }
             }
         } else {
             return;
@@ -1434,12 +1458,6 @@ static void mac_common_data_confirmation_handle(protocol_interface_rf_mac_setup_
         } else if (m_event == MAC_TX_DONE_PENDING) {
             buf->status = MLME_SUCCESS;
         } else if (m_event == MAC_TX_TIMEOUT) {
-            /* Make MAC Soft Reset */;
-            tr_debug("Driver TO event");
-            //Disable allways
-            mac_mlme_mac_radio_disabled(rf_mac_setup);
-            //Enable Radio
-            mac_mlme_mac_radio_enable(rf_mac_setup);
             buf->status = MLME_TRANSACTION_EXPIRED;
         } else if (m_event == MAC_UNKNOWN_DESTINATION) {
             buf->status = MLME_UNAVAILABLE_KEY;
@@ -1628,6 +1646,11 @@ static void mcps_data_confirm_handle(protocol_interface_rf_mac_setup_s *rf_ptr, 
         confirm.timestamp = ack_buf->timestamp;
     } else {
         confirm.timestamp = 0;
+    }
+
+    if (buffer->fcf_dsn.ackRequested) {
+        // Update latency for unicast packets. Given as milliseconds.
+        sw_mac_stats_update(rf_ptr, STAT_MAC_TX_LATENCY, ((mac_mcps_sap_get_phy_timestamp(rf_ptr) - buffer->request_start_time_us) + 500) / 1000);
     }
 
     if (buffer->upper_layer_request) {
@@ -2430,10 +2453,16 @@ static mac_pre_build_frame_t *mcps_sap_pd_req_queue_read(protocol_interface_rf_m
 
     mac_pre_build_frame_t *buffer = queue;
     mac_pre_build_frame_t *prev = NULL;
-    // With FHSS, check TX conditions
+    /* With FHSS, read buffer out from queue if:
+     * - Buffer has timed out, OR
+     * - Buffer is asynch request, OR
+     * - Queue is flushed, OR
+     * - Blacklisting AND FHSS allows buffer to be transmitted
+     */
     if (rf_mac_setup->fhss_api) {
         while (buffer) {
-            if (buffer->asynch_request ||
+            if (mcps_sap_check_buffer_timeout(rf_mac_setup, buffer) ||
+                    buffer->asynch_request ||
                     (flush == true) ||
                     ((mcps_check_packet_blacklist(rf_mac_setup, buffer) == false) &&
                      (rf_mac_setup->fhss_api->check_tx_conditions(rf_mac_setup->fhss_api, !mac_is_ack_request_set(buffer),
