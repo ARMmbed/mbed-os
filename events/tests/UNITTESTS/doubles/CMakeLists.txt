@@ -23,6 +23,11 @@ target_sources(mbed-stubs-events
         mbed_shared_queues_stub.cpp
 )
 
+target_include_directories(mbed-stubs-events
+    PUBLIC
+        .
+)
+
 target_link_libraries(mbed-stubs-events
     PRIVATE
         mbed-headers
