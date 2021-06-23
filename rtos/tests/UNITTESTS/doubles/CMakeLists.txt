@@ -3,6 +3,8 @@
 
 add_library(mbed-stubs-rtos)
 
+add_definitions(-DUNITTEST)
+
 target_sources(mbed-stubs-rtos
     PRIVATE
         ConditionVariable_stub.cpp
@@ -16,7 +18,10 @@ target_sources(mbed-stubs-rtos
 )
 
 target_link_libraries(mbed-stubs-rtos
-    PRIVATE
-        mbed-headers
-        mbed-stubs-headers
+    PRIVATE        
+        mbed-headers-base
+        mbed-headers-rtos
+        mbed-headers-platform
+        mbed-headers-drivers
+        mbed-headers-hal
 )
