@@ -361,6 +361,22 @@ void FileSecurityDb::restore()
 
 void FileSecurityDb::sync(entry_handle_t db_handle)
 {
+    /* if no entry is selected we will sync all entries */
+    if (db_handle == invalid_entry_handle) {
+        /* only write the connected devices as others are already written */
+        for (size_t i = 0; i < get_entry_count(); i++) {
+            entry_handle_t db_handle = get_entry_handle_by_index(i);
+            SecurityDistributionFlags_t* flags = get_distribution_flags(db_handle);
+
+            if (flags && flags->connected) {
+                sync(db_handle);
+            }
+        }
+        /* global sync triggers a flush */
+        fflush(_db_file);
+        return;
+    }
+
     entry_t *entry = as_entry(db_handle);
     if (!entry) {
         return;

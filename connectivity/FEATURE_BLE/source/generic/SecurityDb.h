@@ -522,7 +522,11 @@ public:
     virtual void restore();
 
     /**
-     * Flush all values which might be stored in memory into NVM.
+     * Write all values and attempt to sync persistent storage. Passing in an optional valid
+     * db_handle will only write the given entry and not attempt to flush buffers.
+     *
+     * @param db_handle database entry to write. If invalid all entries are written and
+     *        persistent storage attempts to sync (flush buffers).
      */
     virtual void sync(entry_handle_t db_handle = invalid_entry_handle);
 
