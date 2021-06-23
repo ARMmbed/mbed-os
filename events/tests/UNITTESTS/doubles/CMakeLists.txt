@@ -6,7 +6,7 @@ add_library(mbed-stubs-events)
 target_sources(mbed-stubs-events
     PRIVATE
         equeue_stub.c
-        ${mbed-os_SOURCE_DIR}/events/tests/UNITTESTS/stubs/EqueuePosix_stub.c
+        EqueuePosix_stub.c
         EventFlags_stub.cpp
         EventQueue_stub.cpp
         mbed_shared_queues_stub.cpp

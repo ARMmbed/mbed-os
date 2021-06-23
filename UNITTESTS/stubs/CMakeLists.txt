@@ -62,7 +62,6 @@ target_include_directories(mbed-stubs-headers
 )
 
 add_subdirectory(connectivity)
-add_subdirectory(events)
 
 add_library(mbed-stubs INTERFACE)
 
