@@ -7,7 +7,6 @@ add_library(mbed-headers-base INTERFACE)
 add_library(mbed-headers-platform INTERFACE)
 add_library(mbed-headers-connectivity INTERFACE)
 add_library(mbed-headers-storage INTERFACE)
-add_library(mbed-headers-drivers INTERFACE)
 add_library(mbed-headers-hal INTERFACE)
 add_library(mbed-headers-events INTERFACE)
 add_library(mbed-headers-rtos INTERFACE)
@@ -87,13 +86,6 @@ target_include_directories(mbed-headers-connectivity
         ${mbed-os_SOURCE_DIR}/connectivity/FEATURE_BLE/include/ble
 )
 
-target_include_directories(mbed-headers-drivers
-    INTERFACE
-        ${mbed-os_SOURCE_DIR}/drivers
-        ${mbed-os_SOURCE_DIR}/drivers/include
-        ${mbed-os_SOURCE_DIR}/drivers/include/drivers
-)
-
 target_include_directories(mbed-headers-events
     INTERFACE
         ${mbed-os_SOURCE_DIR}/events/tests/UNITTESTS/target_h
@@ -128,7 +120,6 @@ target_include_directories(mbed-stubs-headers
 )
 
 add_subdirectory(connectivity)
-add_subdirectory(drivers)
 add_subdirectory(events)
 add_subdirectory(hal)
 add_subdirectory(platform)
