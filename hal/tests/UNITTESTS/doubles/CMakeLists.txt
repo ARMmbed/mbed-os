@@ -1,6 +1,14 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_library(mbed-headers-hal INTERFACE)
+
+target_include_directories(mbed-headers-hal
+    INTERFACE
+        ${mbed-os_SOURCE_DIR}/hal
+        ${mbed-os_SOURCE_DIR}/hal/include
+)
+
 add_library(mbed-stubs-hal)
 
 target_compile_definitions(mbed-stubs-hal

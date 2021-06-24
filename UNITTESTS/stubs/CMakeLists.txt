@@ -7,7 +7,6 @@ add_library(mbed-headers-base INTERFACE)
 add_library(mbed-headers-platform INTERFACE)
 add_library(mbed-headers-connectivity INTERFACE)
 add_library(mbed-headers-storage INTERFACE)
-add_library(mbed-headers-hal INTERFACE)
 add_library(mbed-headers-events INTERFACE)
 
 target_link_libraries(mbed-headers
@@ -87,12 +86,6 @@ target_include_directories(mbed-headers-events
         ${mbed-os_SOURCE_DIR}/events/include
         ${mbed-os_SOURCE_DIR}/events/include/events
         ${mbed-os_SOURCE_DIR}/events/include/events/internal
-)
-
-target_include_directories(mbed-headers-hal
-    INTERFACE
-        ${mbed-os_SOURCE_DIR}/hal
-        ${mbed-os_SOURCE_DIR}/hal/include
 )
 
 target_include_directories(mbed-headers
