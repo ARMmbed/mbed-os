@@ -1,6 +1,10 @@
 # Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+    add_subdirectory(tests/UNITTESTS)
+endif()
+
 add_subdirectory(TARGET_FLASH_CMSIS_ALGO EXCLUDE_FROM_ALL)
 
 add_subdirectory(usb)
