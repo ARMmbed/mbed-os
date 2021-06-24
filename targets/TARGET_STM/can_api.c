@@ -612,7 +612,16 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
     }
 
     if (enable) {
-        HAL_FDCAN_ActivateNotification(&obj->CanHandle, interrupts, 0);
+        /* The TXBTIE register controls the TX complete interrupt in FDCAN 
+         * and is only used in case of TX interrupts, Hence in case of enabling the 
+         * TX interrupts the bufferIndexes of TXBTIE are to be set  */
+#ifdef TARGET_STM32H7
+        // TXBTIE for STM32H7 is 2 bytes long
+        HAL_FDCAN_ActivateNotification(&obj->CanHandle, interrupts, 0xFFFF);
+#else
+        //TXBTIE for rest supported FDCAN Platforms(STM32G0x1, STM32G4 and STM32L5) is 3 bits.
+        HAL_FDCAN_ActivateNotification(&obj->CanHandle, interrupts, 0x07);
+#endif
     } else {
         HAL_FDCAN_DeactivateNotification(&obj->CanHandle, interrupts);
     }
