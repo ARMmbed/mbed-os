@@ -1,6 +1,17 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_library(mbed-headers-cellular INTERFACE)
+
+target_include_directories(mbed-headers-cellular
+    INTERFACE
+        ${mbed-os_SOURCE_DIR}/connectivity/cellular/include/cellular/framework/API
+        ${mbed-os_SOURCE_DIR}/connectivity/cellular/include/cellular/framework/AT
+        ${mbed-os_SOURCE_DIR}/connectivity/cellular/include/cellular/framework/device
+        ${mbed-os_SOURCE_DIR}/connectivity/cellular/include/cellular/framework
+        ${mbed-os_SOURCE_DIR}/connectivity/cellular/include/cellular/framework/common        
+)
+
 add_library(mbed-stubs-cellular)
 
 target_compile_definitions(mbed-stubs-cellular
@@ -34,6 +45,7 @@ target_sources(mbed-stubs-cellular
 target_link_libraries(mbed-stubs-cellular
     PRIVATE
         mbed-headers
+        mbed-headers-cellular
         mbed-stubs-headers
         gtest
 )
