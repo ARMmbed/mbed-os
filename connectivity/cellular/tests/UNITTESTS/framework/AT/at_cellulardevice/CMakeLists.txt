@@ -31,6 +31,7 @@ target_link_libraries(${TEST_NAME}
     PRIVATE
         mbed-headers
         mbed-stubs
+        mbed-stubs-cellular
         mbed-stubs-headers
         mbed-stubs-rtos
         gmock_main
