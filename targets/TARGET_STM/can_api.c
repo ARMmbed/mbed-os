@@ -1136,7 +1136,7 @@ int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t
             success = 1;
         }
     } else if (format == CANAny) {
-	    success = 0;	// filter for CANAny is not supported by STM32, return a failure
+        success = 0;	// filter for CANAny is not supported by STM32, return a failure
     }
 
     return success;
