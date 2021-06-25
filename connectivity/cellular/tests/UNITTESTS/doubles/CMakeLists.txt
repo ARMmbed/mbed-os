@@ -44,7 +44,13 @@ target_sources(mbed-stubs-cellular
 
 target_link_libraries(mbed-stubs-cellular
     PRIVATE
-        mbed-headers
+        mbed-headers-base
+        mbed-headers-connectivity
+        mbed-headers-platform
+        mbed-headers-rtos
+        mbed-headers-drivers
+        mbed-headers-hal
+        mbed-headers-events
         mbed-headers-cellular
         mbed-stubs-headers
         gtest
