@@ -136,7 +136,7 @@ static ETH_TxPacketConfig TxConfig;
 
 #endif // ETH_IP_VERSION_V2
 
-__weak uint8_t mbed_otp_mac_address(char *mac);
+MBED_WEAK uint8_t mbed_otp_mac_address(char *mac);
 void mbed_default_mac_address(char *mac);
 
 #ifdef __cplusplus
@@ -852,7 +852,7 @@ void mbed_mac_address(char *mac)
     return;
 }
 
-__weak uint8_t mbed_otp_mac_address(char *mac)
+MBED_WEAK uint8_t mbed_otp_mac_address(char *mac)
 {
     return 0;
 }

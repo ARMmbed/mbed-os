@@ -458,7 +458,40 @@ https://github.com/ARMmbed/mbed-os/blob/master/connectivity/drivers/emac/TARGET_
 Option is also to define your own `HAL_ETH_MspInit` function,
 you then have to add **USE_USER_DEFINED_HAL_ETH_MSPINIT** macro.
 
+To change the default MAC address in STM32,
+If we have the function mbed_otp_mac_address() in the user application,the default ethernet address
+can be changed.
+Because as this is defined as weak in mbed-os/connectivity/drivers/emac/TARGET_STM/stm32xx_emac.cpp
+```
+#include "platform/mbed_toolchain.h"
+MBED_WEAK uint8_t mbed_otp_mac_address(char *mac).
+```
 
+Please find the code snippet here for reference:
+
+```
+..
+uint8_t mbed_otp_mac_address(char *mac);
+uint8_t mbed_otp_mac_address(char *mac)
+{
+	unsigned char ST_mac_addr[6] = {0x00, 0x88, 0xe0,0x90,0x80,0x70}; // New User mac address
+	// printf("%s:%s\n",__FILE__,__func__);
+	memcpy(mac,ST_mac_addr,sizeof(ST_mac_addr));
+	return 1;
+}
+
+int main()
+{
+	// Bring up the ethernet interface
+	printf("Ethernet socket example\n");
+	uint8_t MyMAC[6];
+	printf("return of set_mac_address:%d\n",net.set_mac_address(MyMAC,sizeof(MyMAC)));
+
+	net.connect();
+	printf("MAC address %s\n",net.get_mac_address());
+...
+
+```
 ### Asynchronous SPI limitation
 
 The current Asynchronous SPI implementation will not be able to support high speeds (MHz Range).
