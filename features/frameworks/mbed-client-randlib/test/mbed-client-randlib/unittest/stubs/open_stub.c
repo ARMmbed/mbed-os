@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ARM Limited. All rights reserved.
+ * Copyright (c) 2016, 2018, 2021, Pelion and affiliates.
  */
 #include <stdbool.h>
 #include <sys/types.h>
