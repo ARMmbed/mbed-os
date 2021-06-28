@@ -30,6 +30,7 @@ target_link_libraries(${TEST_NAME}
         mbed-headers-cellular
         mbed-stubs
         mbed-stubs-headers
+        mbed-stubs-lorawan
         gmock_main
 )
 
