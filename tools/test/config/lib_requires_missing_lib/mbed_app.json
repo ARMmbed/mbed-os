@@ -1,9 +1,0 @@
-{
-    "requires" : ["lib1"],
-    "target_overrides": {
-        "test_target": {
-            "lib2.test": "GOOD",
-            "lib1.test": "GOOD"
-        }
-    }
-}
