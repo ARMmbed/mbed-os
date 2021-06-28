@@ -1,5 +1,9 @@
-# Contributing to Mbed OS
+# Hello!
+We are an open source project of [ARM mbed](www.mbed.com). Contributions via [pull request](https://github.com/armmbed/mbed-client-trace/pulls), and [bug reports](https://github.com/armmbed/mbed-client-trace/issues) are welcome!
 
-Mbed OS is an open-source, device software platform for the Internet of Things. Contributions are an important part of the platform, and our goal is to make it as simple as possible to become a contributor.
+For more details please see our general [CONTRIBUTING.md](https://github.com/ARMmbed/greentea/blob/master/docs/CONTRIBUTING.md) document.
 
-To encourage productive collaboration, as well as robust, consistent and maintainable code, we have a set of guidelines for [contributing to Mbed OS](https://os.mbed.com/docs/mbed-os/latest/contributing/index.html).
+# Contributor agreement
+For your pull request to be accepted, we will need you to agree to our [contributor agreement](http://developer.mbed.org/contributor_agreement/) to give us the necessary rights to use and distribute your contributions. (To click through the agreement create an account on mbed.com and log in.)
+
+<3
