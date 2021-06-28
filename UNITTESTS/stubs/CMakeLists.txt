@@ -67,12 +67,6 @@ target_include_directories(mbed-headers-connectivity
         ${mbed-os_SOURCE_DIR}/connectivity/libraries/nanostack-libservice/mbed-client-libservice
         ${mbed-os_SOURCE_DIR}/connectivity/netsocket/include
         ${mbed-os_SOURCE_DIR}/connectivity
-        ${mbed-os_SOURCE_DIR}/connectivity/lorawan/include/lorawan
-        ${mbed-os_SOURCE_DIR}/connectivity/lorawan/lorastack
-        ${mbed-os_SOURCE_DIR}/connectivity/lorawan/lorastack/mac
-        ${mbed-os_SOURCE_DIR}/connectivity/lorawan/lorastack/phy
-        ${mbed-os_SOURCE_DIR}/connectivity/lorawan
-        ${mbed-os_SOURCE_DIR}/connectivity/lorawan/system
         ${mbed-os_SOURCE_DIR}/connectivity/mbedtls
         ${mbed-os_SOURCE_DIR}/connectivity/mbedtls/include
         ${mbed-os_SOURCE_DIR}/connectivity/FEATURE_BLE/include

@@ -1,6 +1,18 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_library(mbed-headers-lorawan INTERFACE)
+
+target_include_directories(mbed-headers-lorawan
+    INTERFACE
+        ${mbed-os_SOURCE_DIR}/connectivity/lorawan/include/lorawan
+        ${mbed-os_SOURCE_DIR}/connectivity/lorawan/lorastack
+        ${mbed-os_SOURCE_DIR}/connectivity/lorawan/lorastack/mac
+        ${mbed-os_SOURCE_DIR}/connectivity/lorawan/lorastack/phy
+        ${mbed-os_SOURCE_DIR}/connectivity/lorawan
+        ${mbed-os_SOURCE_DIR}/connectivity/lorawan/system
+)
+
 add_library(mbed-stubs-lorawan)
 
 target_compile_definitions(mbed-stubs-lorawan
@@ -23,6 +35,7 @@ target_sources(mbed-stubs-lorawan
 target_link_libraries(mbed-stubs-lorawan
     PRIVATE
         mbed-headers
+        mbed-headers-lorawan
         mbed-stubs-headers
         gtest
 )
