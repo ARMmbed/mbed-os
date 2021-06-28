@@ -273,6 +273,7 @@ public:
          * @param[in] result result of the pairing indicating success or reason for failure
          *
          * @see acceptPairingRequest()
+         * @see requestPairing()
          */
         virtual void pairingResult(ble::connection_handle_t connectionHandle, SecurityCompletionStatus_t result) {
             (void)connectionHandle;
@@ -626,8 +627,9 @@ public:
      *                     or cancelPairingRequest if the user wishes to reject it.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      *
-     *
      * @see EventHandler::pairingRequest()
+     * @see EventHandler::acceptPairingRequest()
+     * @see EventHandler::cancelPairingRequest()
      */
     ble_error_t setPairingRequestAuthorisation(bool required = true);
 

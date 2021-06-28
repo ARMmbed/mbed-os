@@ -413,8 +413,8 @@ public:
 
         /**
          * Called when connection attempt ends. Check event.getStatus() to see if connection
-         * was established. If this device is the peripheral and it as advertising this will
-         * end advertising which will also create the onAdvertisingEnd event.
+         * was established. If this device is the peripheral and it was advertising this will
+         * end the advertising set which will also create the onAdvertisingEnd event.
          *
          * @see startAdvertising()
          * @see connect()
@@ -1093,6 +1093,7 @@ public:
      * @see EventHandler::onUpdateConnectionParametersRequest when a central
      * receives a request to update the connection parameters.
      *
+     * @see onUpdateConnectionParametersRequest
      * @see acceptConnectionParametersUpdate to accept the request.
      * @see rejectConnectionParametersUpdate to reject the request.
      */
