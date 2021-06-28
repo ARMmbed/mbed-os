@@ -514,8 +514,7 @@ public:
      * Some or all of bonding information may be stored in memory while in use. This will write
      * bonding data to persistent storage. This will have no effect if no persistent storage is enabled.
      *
-     * @note You still need to call preserveBondingStateOnReset(true) before reset happens for data to be
-     * loaded when it's read.
+     * @note This implicitly also calls preserveBondingStateOnReset(true) inside.
      *
      * @note Depending on the driver used to implement the storage solution used this may be a disruptive
      * operation and may cause active connections to drop due to failed processing deadlines.

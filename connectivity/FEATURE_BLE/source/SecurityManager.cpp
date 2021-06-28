@@ -49,6 +49,10 @@ ble_error_t SecurityManager::preserveBondingStateOnReset(bool enable)
 
 ble_error_t SecurityManager::writeBondingStateToPersistentStorage()
 {
+    ble_error_t err = impl->preserveBondingStateOnReset(true);
+    if (err) {
+        return err;
+    }
     return impl->writeBondingStateToPersistentStorage();
 }
 
