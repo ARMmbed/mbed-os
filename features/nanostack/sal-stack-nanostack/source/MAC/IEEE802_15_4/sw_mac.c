@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, Arm Limited and affiliates.
+ * Copyright (c) 2016-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -764,6 +764,11 @@ void sw_mac_stats_update(protocol_interface_rf_mac_setup_s *setup, mac_stats_typ
                 break;
             case STAT_MAC_TX_CCA_FAIL:
                 setup->mac_statistics->mac_failed_cca_count++;
+                break;
+            case STAT_MAC_TX_LATENCY:
+                if (update_val > setup->mac_statistics->mac_tx_latency_max) {
+                    setup->mac_statistics->mac_tx_latency_max = update_val;
+                }
                 break;
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, Arm Limited and affiliates.
+ * Copyright (c) 2015-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -533,6 +533,9 @@ bool rpl_neighbour_update_dtsn(rpl_neighbour_t *neighbour, uint8_t dtsn)
 
 rpl_instance_t *rpl_neighbour_instance(const rpl_neighbour_t *neighbour)
 {
+    if (!neighbour || !neighbour->dodag_version || !neighbour->dodag_version->dodag) {
+        return NULL;
+    }
     return neighbour->dodag_version->dodag->instance;
 }
 
