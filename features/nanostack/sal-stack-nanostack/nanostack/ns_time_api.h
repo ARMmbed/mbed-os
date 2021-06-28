@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited and affiliates.
+ * Copyright (c) 2020-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,7 @@
 #include "ns_types.h"
 
 /**
- * System time callback.
+ * System time read callback.
  *
  * Callback shall return the system time in seconds after 1970.
  *
@@ -39,13 +39,33 @@
 typedef uint64_t ns_time_api_system_time_callback(void);
 
 /**
- * System time callback set.
+ * System time write callback.
  *
- * Sets callback for the system time.
+ * Callback will write the time in seconds after 1970.
  *
- * \param callback system time callback
+ * \param seconds system time in seconds
  *
  */
-void ns_time_api_system_time_callback_set(ns_time_api_system_time_callback callback);
+typedef void ns_time_api_system_time_write_callback(uint64_t write_time);
+
+/**
+ * System time read callback set.
+ *
+ * Sets callback for the system time read.
+ *
+ * \param callback_rd system time read callback
+ *
+ */
+void ns_time_api_system_time_callback_set(ns_time_api_system_time_callback callback_rd);
+
+/**
+ * Set system time write callback.
+ *
+ * Sets system time write callback.
+ *
+ * \param callback_wr system time write callback.
+ *
+ */
+void ns_time_api_system_time_write_callback_set(ns_time_api_system_time_write_callback callback_wr);
 
 #endif /* NS_TIME_API_H_ */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, Arm Limited and affiliates.
+ * Copyright (c) 2016-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,6 +33,7 @@ typedef enum {
 
     IEEE_802_1X_MKA        = 1,
     RADIUS_IEEE_802_1X_MKA = 2,
+    MSG_PROT               = 5,
     IEEE_802_11_4WH        = 6,
     IEEE_802_11_GKH        = 7,
     TLS_PROT               = 8,

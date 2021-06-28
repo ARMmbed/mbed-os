@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Arm Limited and affiliates.
+ * Copyright (c) 2016-2017, 2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,6 +35,7 @@ typedef enum {
     STAT_MAC_TX_RETRY,
     STAT_MAC_TX_CCA_ATT,
     STAT_MAC_TX_CCA_FAIL,
+    STAT_MAC_TX_LATENCY
 } mac_stats_type_t;
 
 typedef enum arm_nwk_timer_id {

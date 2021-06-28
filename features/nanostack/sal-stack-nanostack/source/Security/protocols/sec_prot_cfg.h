@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited and affiliates.
+ * Copyright (c) 2020-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,8 +23,9 @@
 typedef struct sec_prot_cfg_s {
     trickle_params_t sec_prot_trickle_params;
     uint16_t sec_prot_retry_timeout;
-    uint16_t initial_key_retry_delay;
-    trickle_params_t initial_key_trickle_params;
+    uint16_t initial_key_retry_min;
+    uint16_t initial_key_retry_max;
+    uint16_t initial_key_retry_max_limit;
     uint8_t initial_key_retry_cnt;
     uint8_t max_ongoing_auth_constant;
     uint16_t max_ongoing_auth_size_scaler;

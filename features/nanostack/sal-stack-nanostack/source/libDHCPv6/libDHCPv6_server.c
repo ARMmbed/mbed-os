@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, Arm Limited and affiliates.
+ * Copyright (c) 2014-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -461,11 +461,11 @@ dhcpv6_vendor_data_t *libdhcpv6_vendor_data_allocate(dhcpv6_gua_server_entry_s *
     }
     ns_list_add_to_end(&serverInfo->vendorDataList, entry);
     entry->enterprise_number = enterprise_number;
+    entry->vendor_data_cb = NULL;
     entry->vendor_data = NULL;
     entry->vendor_data_length = 0;
     return entry;
 }
-
 
 uint16_t libdhcpv6_dns_server_message_sizes(dhcpv6_gua_server_entry_s *serverInfo)
 {
@@ -482,7 +482,13 @@ uint16_t libdhcpv6_vendor_data_message_sizes(dhcpv6_gua_server_entry_s *serverIn
 {
     uint16_t message_size = 0;
     ns_list_foreach(dhcpv6_vendor_data_t, cur, &serverInfo->vendorDataList) {
-        message_size += 4 + 4 + cur->vendor_data_length; //Type + Length + enterprise + vendor_data_length
+        uint16_t size = cur->vendor_data_length; //Type + Length + enterprise + vendor_data_length
+        if (cur->vendor_data_cb) {
+            cur->vendor_data_cb(serverInfo->interfaceId, NULL, &size);
+        }
+        if (size != 0) {
+            message_size += 2 + 2 + 4 + size;
+        }
     }
     return message_size;
 }
@@ -510,13 +516,26 @@ uint8_t *libdhcpv6_vendor_data_message_writes(dhcpv6_gua_server_entry_s *serverI
 {
     ns_list_foreach(dhcpv6_vendor_data_t, cur, &serverInfo->vendorDataList) {
 
-        uint16_t length = cur->vendor_data_length + 4;
+        uint16_t length = cur->vendor_data_length;
+
+        if (cur->vendor_data_cb) {
+            cur->vendor_data_cb(serverInfo->interfaceId, NULL, &length);
+        }
+        if (length == 0) {
+            // No vendor data
+            continue;
+        }
+        length += 4;
+
         ptr = common_write_16_bit(DHCPV6_OPTION_VENDOR_SPECIFIC_INFO, ptr);
         ptr = common_write_16_bit(length, ptr); //Length
         ptr = common_write_32_bit(cur->enterprise_number, ptr);
         if (cur->vendor_data_length) {
             memcpy(ptr, cur->vendor_data, cur->vendor_data_length);
             ptr += cur->vendor_data_length;
+        }
+        if (cur->vendor_data_cb) {
+            ptr = cur->vendor_data_cb(serverInfo->interfaceId, ptr, NULL);
         }
     }
     return ptr;

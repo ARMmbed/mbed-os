@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2017, 2019-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,7 +45,8 @@ typedef enum {
     STATS_ETX_1ST_PARENT,
     STATS_ETX_2ND_PARENT,
     STATS_AL_TX_QUEUE_SIZE,
-    STATS_AL_TX_CONGESTION_DROP
+    STATS_AL_TX_CONGESTION_DROP,
+    STATS_AL_TX_LATENCY
 
 } nwk_stats_type_t;
 

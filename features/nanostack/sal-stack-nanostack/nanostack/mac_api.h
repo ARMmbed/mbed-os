@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, Arm Limited and affiliates.
+ * Copyright (c) 2016-2018, 2020-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -325,6 +325,7 @@ typedef struct mac_statistics_s {
     uint32_t mac_retry_count;           /**< MAC TX retry count. */
     uint32_t mac_cca_attempts_count;    /**< MAC CCA attempts count. */
     uint32_t mac_failed_cca_count;      /**< MAC failed CCA count. */
+    uint32_t mac_tx_latency_max;        /**< MAC data request max latency. */
 } mac_statistics_t;
 
 #ifdef __cplusplus
