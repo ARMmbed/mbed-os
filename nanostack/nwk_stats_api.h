@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, Arm Limited and affiliates.
+ * Copyright (c) 2013-2017, 2019-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -74,6 +74,7 @@ typedef struct nwk_stats_t {
     uint16_t adapt_layer_tx_queue_size; /**< Adaptation layer direct TX queue size. */
     uint16_t adapt_layer_tx_queue_peak; /**< Adaptation layer direct TX queue size peak. */
     uint32_t adapt_layer_tx_congestion_drop; /**< Adaptation layer direct TX randon early detection drop packet. */
+    uint16_t adapt_layer_tx_latency_max; /**< Adaptation layer latency between TX request and TX ready in seconds (MAX). */
 } nwk_stats_t;
 
 /**

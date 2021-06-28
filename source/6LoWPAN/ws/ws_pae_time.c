@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited and affiliates.
+ * Copyright (c) 2020-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,6 +25,7 @@
 #include "6LoWPAN/ws/ws_pae_time.h"
 #include "Security/protocols/sec_prot_certs.h"
 #include "Security/protocols/sec_prot_keys.h"
+#include "Service_Libs/utils/ns_time.h"
 
 #ifdef HAVE_WS
 
@@ -34,7 +35,6 @@
 #define CURRENT_TIME_INIT_VALUE        1577836800
 
 static uint64_t current_time = CURRENT_TIME_INIT_VALUE;
-static ns_time_api_system_time_callback *system_time_callback = NULL;
 
 uint16_t ws_pae_time_to_short_convert(uint32_t time)
 {
@@ -148,8 +148,9 @@ int8_t ws_pae_time_diff_calc(uint64_t curr_time, uint64_t comp_time, uint32_t *t
 
 uint64_t ws_pae_current_time_get(void)
 {
-    if (system_time_callback) {
-        return system_time_callback();
+    uint64_t new_time;
+    if (ns_time_system_time_read(&new_time) == 0) {
+        return new_time;
     }
 
     return current_time;
@@ -162,25 +163,20 @@ void ws_pae_current_time_update(uint16_t seconds)
 
 int8_t ws_pae_current_time_set(uint64_t time)
 {
+    uint64_t new_system_time;
     current_time = time;
 
     tr_debug("Current time set: %"PRIi64, time);
 
-    if (system_time_callback) {
-        uint64_t system_time = system_time_callback();
+    if (ns_time_system_time_read(&new_system_time) == 0) {
         // System time has gone backwards
-        if (system_time < current_time || system_time > current_time + SYSTEM_TIME_MAXIMUM_DIFF) {
-            tr_error("FATAL: system time less than reference time or more than 12 months in future: %"PRIi64" reference time: %"PRIi64, system_time, current_time);
+        if (new_system_time < current_time || new_system_time > current_time + SYSTEM_TIME_MAXIMUM_DIFF) {
+            tr_error("FATAL: system time less than reference time or more than 12 months in future: %"PRIi64" reference time: %"PRIi64, new_system_time, current_time);
             return -1;
         }
     }
 
     return 0;
-}
-
-void ns_time_api_system_time_callback_set(ns_time_api_system_time_callback callback)
-{
-    system_time_callback = callback;
 }
 
 #endif /* HAVE_WS */

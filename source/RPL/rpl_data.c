@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Arm Limited and affiliates.
+ * Copyright (c) 2015-2018, 2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -351,8 +351,9 @@ static buffer_t *rpl_data_exthdr_provider_hbh_2(buffer_t *buf, rpl_instance_t *i
     //     size because of the LL addresses used on the outer header, so
     //     this is an unconditional change. Exception remains for local
     //     DODAGs, where the destination address must be the DODAGID.
-    if (addr_ipv6_equal(route_info->next_hop_addr, buf->dst_sa.address)  || (!rpl_policy_force_tunnel() &&
-                                                                             addr_ipv6_equal(buf->dst_sa.address, dodag->id))) {
+    const uint8_t *ip_dest = buf->route->ip_dest ? buf->route->ip_dest : buf->dst_sa.address;
+    if (addr_ipv6_equal(route_info->next_hop_addr, ip_dest)  || (!rpl_policy_force_tunnel() &&
+                                                                 addr_ipv6_equal(ip_dest, dodag->id))) {
         destination_in_instance = true;
 
         if (buf->rpl_option) {
@@ -997,7 +998,7 @@ static buffer_t *rpl_data_exthdr_provider_srh(buffer_t *buf, ipv6_exthdr_stage_t
      * (RFC 6554 4.1). When not tunnelling, we include all hops regardless,
      * which means the final destination is there as needed.
      */
-    srh_info = rpl_data_sr_compute_header_size(final_rpl_dest, buf->options.tunnelled && buf->options.type == IPV6_NH_IPV6 ? buf->options.hop_limit : 0xFF);
+    srh_info = rpl_data_sr_compute_header_size(final_rpl_dest, buf->options.tunnelled ? buf->options.hop_limit : 0xFF);
     if (!srh_info) {
         /* No source routing header required - this must be because it's one hop. */
         /* In this case, we do need to add a HbH option header */
@@ -1033,6 +1034,7 @@ static buffer_t *rpl_data_exthdr_provider_srh(buffer_t *buf, ipv6_exthdr_stage_t
             if (final_rpl_dest != buf->dst_sa.address) {
                 memcpy(buf->dst_sa.address, final_rpl_dest, 16);
             }
+            buf->route->ip_dest = rpl_data_sr_next_hop();
             *result = IPV6_EXTHDR_MODIFY_TUNNEL;
             buf->src_sa.addr_type = ADDR_NONE; // force auto-selection
             return buf;

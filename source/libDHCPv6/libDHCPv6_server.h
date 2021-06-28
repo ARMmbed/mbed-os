@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, 2017-2018, Arm Limited and affiliates.
+ * Copyright (c) 2014-2015, 2017-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,6 +32,8 @@
 #define DHCP_ADDRESS_ID_START 2
 
 typedef void (dhcp_address_prefer_remove_cb)(int8_t interfaceId, uint8_t *targetAddress, void *prefix_info);
+typedef uint8_t *(dhcp_vendor_data_cb)(int8_t interfaceId, uint8_t *ptr, uint16_t *dhcp_vendor_data_len);
+
 
 typedef struct dhcpv6_allocated_address_entry_s {
     uint8_t             linkId[8];  /*!< Services UL64 */
@@ -54,8 +56,9 @@ typedef struct dhcpv6_dns_server_data_s {
 
 typedef struct dhcpv6_vendor_data_s {
     uint32_t            enterprise_number;
+    dhcp_vendor_data_cb *vendor_data_cb;    // Additional vendor data that can be set for individual reply
     uint8_t             *vendor_data;
-    uint8_t             vendor_data_length;
+    uint16_t             vendor_data_length;
     ns_list_link_t      link;               /*!< List link entry */
 } dhcpv6_vendor_data_t;
 

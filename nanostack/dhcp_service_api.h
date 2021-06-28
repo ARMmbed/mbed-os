@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, Arm Limited and affiliates.
+ * Copyright (c) 2013-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -197,11 +197,12 @@ int dhcp_service_send_resp(uint32_t msg_tr_id, uint8_t options, uint8_t *msg_ptr
  * \param msg_ptr An allocated message pointer. This pointer is the responsibility of the service after this call.
  * \param msg_len The length of the message.
  * \param receive_resp_cb Callback pointer
+ * \param delay_tx Transmit may be delayed and this parameter define that
  *
  * \return Transaction ID of the DHCP transaction
  * \return 0, if error occurred.
  */
-uint32_t dhcp_service_send_req(uint16_t instance_id, uint8_t options, void *ptr, const uint8_t addr[static 16], uint8_t *msg_ptr, uint16_t msg_len, dhcp_service_receive_resp_cb *receive_resp_cb);
+uint32_t dhcp_service_send_req(uint16_t instance_id, uint8_t options, void *ptr, const uint8_t addr[static 16], uint8_t *msg_ptr, uint16_t msg_len, dhcp_service_receive_resp_cb *receive_resp_cb, uint16_t delay_tx);
 
 /**
  * \brief Setting retransmission parameters.
@@ -224,6 +225,16 @@ void dhcp_service_set_retry_timers(uint32_t msg_tr_id, uint16_t timeout_init, ui
  *
  */
 void dhcp_service_update_server_address(uint32_t msg_tr_id, uint8_t *server_address);
+
+/**
+ * \brief Get Round Trip time of the request
+ *
+ * get the elapsed time of the request from last message sent to server.
+ *
+ * \param msg_tr_id The message transaction ID.
+ *
+ */
+uint32_t dhcp_service_rtt_get(uint32_t msg_tr_id);
 
 /**
  * \brief Stops transactions for a message (retransmissions).
