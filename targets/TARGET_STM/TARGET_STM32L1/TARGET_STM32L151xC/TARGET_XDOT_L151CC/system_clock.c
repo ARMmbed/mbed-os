@@ -63,7 +63,7 @@ uint8_t SetSysClock_PLL_HSI(void);
   * @param  None
   * @retval None
   */
-void SystemInit (void)
+void SystemInit(void)
 {
     /*!< Set MSION bit */
     RCC->CR |= (uint32_t)0x00000100;
@@ -131,7 +131,7 @@ void SetSysClock(void)
         {
             /* 3- If fail start with HSI clock */
             if (SetSysClock_PLL_HSI() == 0) {
-                while(1) {
+                while (1) {
                     // [TODO] Put something here to tell the user that a problem occured...
                 }
             }

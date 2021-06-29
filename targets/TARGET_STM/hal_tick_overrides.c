@@ -71,7 +71,7 @@ uint32_t HAL_GetTick()
         prev_tick_remainder = elapsed_time % 1000;
     }
     total_ticks += elapsed_ticks;
-    
+
     core_util_critical_section_exit();
     return total_ticks;
 }

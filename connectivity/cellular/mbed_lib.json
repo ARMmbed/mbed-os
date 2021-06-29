@@ -44,6 +44,10 @@
         "plmn-fallback-auto" : {
             "help": "If manual PLMN is selected, use mode 4 manual/automatic in AT+COPS to try automatic mode if manual selection fails. Set to null to disable",
             "value": null
+        },
+        "at-handler-buffer-size" : {
+            "help": "Size of the AT handler buffer",
+            "value": 32
         }
     }
 }

@@ -1,0 +1,29 @@
+on:
+  issues:
+    types: [ opened, reopened ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Install Python environment
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Checkout mbed-os-scripts repo (This repo is currently private)
+        uses: actions/checkout@v2
+        with:
+          repository: ARMmbed/mbed-os-ci-scripts
+          token: ${{ secrets.ISSUE_TRIAGING_PERMS }}
+          path: scripts
+          ref: master
+
+      - name: Run the script
+        run: |
+          python -m pip install pygithub
+          python ./scripts/issue_triaging/__init__.py -i ${{github.event.issue.number}} -r ${{ github.event.repository.name }} -t ${{ secrets.ISSUE_TRIAGING_PERMS }}

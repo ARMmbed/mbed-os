@@ -95,7 +95,7 @@ MBED_WEAK uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     //Select HSI as system clock source to allow modification of the PLL configuration
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_SYSCLK;
     RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
-    if(HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK) {
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK) {
         return 0; // FAIL
     }
 

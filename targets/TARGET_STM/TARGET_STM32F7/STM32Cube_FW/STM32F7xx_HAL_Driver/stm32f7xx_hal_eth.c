@@ -543,7 +543,7 @@ HAL_StatusTypeDef HAL_ETH_DMATxDescListInit(ETH_HandleTypeDef *heth, ETH_DMADesc
   /* Fill each DMATxDesc descriptor with the right values */   
   for(i=0; i < TxBuffCount; i++)
   {
-    /* Get the pointer on the ith member of the Tx Desc list */
+    /* Get the pointer on the member (i) of the Tx Desc list */
     dmatxdesc = DMATxDescTab + i;
     
     /* Set Second Address Chained bit */
@@ -610,7 +610,7 @@ HAL_StatusTypeDef HAL_ETH_DMARxDescListInit(ETH_HandleTypeDef *heth, ETH_DMADesc
   /* Fill each DMARxDesc descriptor with the right values */
   for(i=0; i < RxBuffCount; i++)
   {
-    /* Get the pointer on the ith member of the Rx Desc list */
+    /* Get the pointer on the member (i) of the Rx Desc list */
     DMARxDesc = DMARxDescTab+i;
     
     /* Set Own bit of the Rx descriptor Status */
@@ -934,7 +934,7 @@ HAL_StatusTypeDef HAL_ETH_TransmitFrame(ETH_HandleTypeDef *heth, uint32_t FrameL
     // MBED: added
     // Ensure rest of descriptor is written to RAM before the OWN bit
     __DMB();
-
+	
     /* Set Own bit of the Tx descriptor Status: gives the buffer back to ETHERNET DMA */
     heth->TxDesc->Status |= ETH_DMATXDESC_OWN;
     /* Point to next descriptor */
@@ -963,11 +963,11 @@ HAL_StatusTypeDef HAL_ETH_TransmitFrame(ETH_HandleTypeDef *heth, uint32_t FrameL
         size = FrameLength - (bufcount-1)*ETH_TX_BUF_SIZE;
         heth->TxDesc->ControlBufferSize = (size & ETH_DMATXDESC_TBS1);
       }
-      
-      // MBED: added
+	  
+     // MBED: added
       // Ensure rest of descriptor is written to RAM before the OWN bit
       __DMB();
-
+      
       /* Set Own bit of the Tx descriptor Status: gives the buffer back to ETHERNET DMA */
       heth->TxDesc->Status |= ETH_DMATXDESC_OWN;
       /* point to next descriptor */
@@ -978,7 +978,7 @@ HAL_StatusTypeDef HAL_ETH_TransmitFrame(ETH_HandleTypeDef *heth, uint32_t FrameL
   // MBED: added
   // Ensure all descriptors are written to RAM before checking transmitter status
   __DMB();
-
+  
   /* When Tx Buffer unavailable flag is set: clear it and resume transmission */
   if (((heth->Instance)->DMASR & ETH_DMASR_TBUS) != (uint32_t)RESET)
   {
@@ -1129,7 +1129,7 @@ HAL_StatusTypeDef HAL_ETH_GetReceivedFrame_IT(ETH_HandleTypeDef *heth)
       
       /* Set HAL State to Ready */
       heth->State = HAL_ETH_STATE_READY;
-      
+  
       /* Return function status */
       return HAL_OK;
     }

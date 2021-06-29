@@ -537,7 +537,7 @@ TEST_F(Test_LoRaMac, post_process_mlme_ind)
 
 uint8_t batt_cb()
 {
-
+    return 100;
 }
 
 TEST_F(Test_LoRaMac, set_batterylevel_callback)

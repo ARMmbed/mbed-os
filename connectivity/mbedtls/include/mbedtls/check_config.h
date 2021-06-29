@@ -55,9 +55,8 @@
 #endif
 #endif /* _WIN32 */
 
-#if defined(TARGET_LIKE_MBED) && \
-    ( defined(MBEDTLS_NET_C) || defined(MBEDTLS_TIMING_C) )
-#error "The NET and TIMING modules are not available for mbed OS - please use the network and timing functions provided by mbed OS"
+#if defined(TARGET_LIKE_MBED) && defined(MBEDTLS_NET_C)
+#error "The NET module is not available for mbed OS - please use the network functions provided by mbed OS"
 #endif
 
 #if defined(MBEDTLS_DEPRECATED_WARNING) && \
@@ -604,6 +603,11 @@
 #error "MBEDTLS_PSA_ITS_FILE_C defined, but not all prerequisites"
 #endif
 
+#if defined(MBEDTLS_PSA_CRYPTO_KEY_ID_ENCODES_OWNER) && \
+    defined(MBEDTLS_USE_PSA_CRYPTO)
+#error "MBEDTLS_PSA_CRYPTO_KEY_ID_ENCODES_OWNER defined, but it cannot coexist with MBEDTLS_USE_PSA_CRYPTO."
+#endif
+
 #if defined(MBEDTLS_RSA_C) && ( !defined(MBEDTLS_BIGNUM_C) ||         \
     !defined(MBEDTLS_OID_C) )
 #error "MBEDTLS_RSA_C defined, but not all prerequisites"
@@ -865,6 +869,10 @@
 #warning "MBEDTLS_SSL_HW_RECORD_ACCEL is deprecated and will be removed in a future version of Mbed TLS"
 #endif /* MBEDTLS_DEPRECATED_REMOVED */
 #endif /* MBEDTLS_SSL_HW_RECORD_ACCEL */
+
+#if defined(MBEDTLS_SSL_DTLS_SRTP) && ( !defined(MBEDTLS_SSL_PROTO_DTLS) )
+#error "MBEDTLS_SSL_DTLS_SRTP defined, but not all prerequisites"
+#endif
 
 /*
  * Avoid warning from -pedantic. This is a convenient place for this

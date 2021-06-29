@@ -17,8 +17,8 @@
 #include "filesystem/mbed_filesystem.h"
 #include "littlefs/LittleFileSystem.h"
 #include "errno.h"
-#include "storage/filesystem/littlefs/littlefs/lfs.h"
-#include "storage/filesystem/littlefs/littlefs/lfs_util.h"
+#include "littlefs/lfs.h"
+#include "littlefs/lfs_util.h"
 #include "MbedCRC.h"
 
 namespace mbed {

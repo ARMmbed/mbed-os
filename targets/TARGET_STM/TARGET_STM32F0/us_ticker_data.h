@@ -17,7 +17,7 @@
 #define __US_TICKER_DATA_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #include "stm32f0xx.h"

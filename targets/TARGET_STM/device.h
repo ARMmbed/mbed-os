@@ -37,4 +37,11 @@
 
 #include "objects.h"
 
+#if DEVICE_USTICKER
+#include "us_ticker_defines.h"
+#endif
+#if DEVICE_LPTICKER
+#include "lp_ticker_defines.h"
+#endif
+
 #endif

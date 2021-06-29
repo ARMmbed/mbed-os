@@ -24,6 +24,8 @@
 #ifndef PSA_CRYPTO_VALUES_H
 #define PSA_CRYPTO_VALUES_H
 
+#include "mbedtls_svc_key_id.h"
+
 /** \defgroup error Error codes
  * @{
  */
@@ -982,6 +984,26 @@
  * are whole number of blocks for the chosen block cipher.
  */
 #define PSA_ALG_CBC_NO_PADDING                  ((psa_algorithm_t)0x04600100)
+
+/** The Electronic Code Book (ECB) mode of a block cipher, with no padding.
+ *
+ * \warning ECB mode does not protect the confidentiality of the encrypted data
+ * except in extremely narrow circumstances. It is recommended that applications
+ * only use ECB if they need to construct an operating mode that the
+ * implementation does not provide. Implementations are encouraged to provide
+ * the modes that applications need in preference to supporting direct access
+ * to ECB.
+ *
+ * The underlying block cipher is determined by the key type.
+ *
+ * This symmetric cipher mode can only be used with messages whose lengths are a
+ * multiple of the block size of the chosen block cipher.
+ *
+ * ECB mode does not accept an initialization vector (IV). When using a
+ * multi-part cipher operation with this algorithm, psa_cipher_generate_iv()
+ * and psa_cipher_set_iv() must not be called.
+ */
+#define PSA_ALG_ECB_NO_PADDING                  ((psa_algorithm_t)0x04404400)
 
 /** The CBC block cipher chaining mode with PKCS#7 padding.
  *

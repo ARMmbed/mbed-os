@@ -23,6 +23,7 @@ target_sources(mbed-psa
     INTERFACE
         mbedtls/psa_crypto.c
         mbedtls/psa_crypto_se.c
+        mbedtls/psa_crypto_driver_wrappers.c
         mbedtls/psa_crypto_slot_management.c
         mbedtls/psa_crypto_storage.c
         mbedtls/psa_its_file.c

@@ -61,14 +61,13 @@
 void HAL_ETH_MspInit(ETH_HandleTypeDef *heth)
 {
     GPIO_InitTypeDef GPIO_InitStruct;
-    if(heth->Instance == ETH)
-    {
+    if (heth->Instance == ETH) {
         enableEthPowerSupply();
-        
-        #if !(defined(DUAL_CORE) && defined(CORE_CM4))
+
+#if !(defined(DUAL_CORE) && defined(CORE_CM4))
         /* Disable DCache for STM32H7 family */
         SCB_DisableDCache();
-        #endif
+#endif
 
         /* GPIO Ports Clock Enable */
         __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -118,21 +117,21 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef *heth)
         PC4     ------> ETH_RXD0
         PC5     ------> ETH_RXD1
         */
-        GPIO_InitStruct.Pin = ETH_TX_EN_Pin|ETH_TXD1_Pin|ETH_TXD0_Pin;
+        GPIO_InitStruct.Pin = ETH_TX_EN_Pin | ETH_TXD1_Pin | ETH_TXD0_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
         GPIO_InitStruct.Alternate = GPIO_AF11_ETH;
         HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
-        GPIO_InitStruct.Pin = ETH_MDC_SAI4_D1_Pin|ETH_RXD0_Pin|ETH_RXD1_Pin;
+        GPIO_InitStruct.Pin = ETH_MDC_SAI4_D1_Pin | ETH_RXD0_Pin | ETH_RXD1_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
         GPIO_InitStruct.Alternate = GPIO_AF11_ETH;
         HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-        GPIO_InitStruct.Pin = ETH_MDIO_Pin|ETH_REF_CLK_Pin|ETH_CRS_DV_Pin;
+        GPIO_InitStruct.Pin = ETH_MDIO_Pin | ETH_REF_CLK_Pin | ETH_CRS_DV_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
@@ -146,8 +145,7 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef *heth)
  */
 void HAL_ETH_MspDeInit(ETH_HandleTypeDef *heth)
 {
-    if(heth->Instance == ETH)
-    {
+    if (heth->Instance == ETH) {
         /* Peripheral clock disable */
         __HAL_RCC_ETH1MAC_CLK_DISABLE();
         __HAL_RCC_ETH1TX_CLK_DISABLE();
@@ -164,11 +162,11 @@ void HAL_ETH_MspDeInit(ETH_HandleTypeDef *heth)
         PC4     ------> ETH_RXD0
         PC5     ------> ETH_RXD1
         */
-        HAL_GPIO_DeInit(GPIOG, ETH_TX_EN_Pin|ETH_TXD1_Pin|ETH_TXD0_Pin);
+        HAL_GPIO_DeInit(GPIOG, ETH_TX_EN_Pin | ETH_TXD1_Pin | ETH_TXD0_Pin);
 
-        HAL_GPIO_DeInit(GPIOC, ETH_MDC_SAI4_D1_Pin|ETH_RXD0_Pin|ETH_RXD1_Pin);
+        HAL_GPIO_DeInit(GPIOC, ETH_MDC_SAI4_D1_Pin | ETH_RXD0_Pin | ETH_RXD1_Pin);
 
-        HAL_GPIO_DeInit(GPIOA, ETH_MDIO_Pin|ETH_REF_CLK_Pin|ETH_CRS_DV_Pin);
+        HAL_GPIO_DeInit(GPIOA, ETH_MDIO_Pin | ETH_REF_CLK_Pin | ETH_CRS_DV_Pin);
 
         HAL_GPIO_WritePin(GPIOJ, GPIO_PIN_15, 0);
     }

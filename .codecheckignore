@@ -6,6 +6,7 @@
 ^connectivity/libraries/ppp
 ^connectivity/drivers/emac
 ^connectivity/drivers/mbedtls
+^connectivity/drivers/wifi/COMPONENT_WHD
 ^connectivity/mbedtls
 ^features/frameworks
 ^connectivity/lwipstack/lwip

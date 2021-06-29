@@ -1007,6 +1007,9 @@ error:
   */
 HAL_StatusTypeDef HAL_SPI_Receive(SPI_HandleTypeDef *hspi, uint8_t *pData, uint16_t Size, uint32_t Timeout)
 {
+#if (USE_SPI_CRC != 0U)
+  __IO uint32_t tmpreg = 0U;
+#endif /* USE_SPI_CRC */
   uint32_t tickstart;
   HAL_StatusTypeDef errorcode = HAL_OK;
 
@@ -1173,12 +1176,16 @@ HAL_StatusTypeDef HAL_SPI_Receive(SPI_HandleTypeDef *hspi, uint8_t *pData, uint1
     if (hspi->Init.DataSize == SPI_DATASIZE_16BIT)
     {
       /* Read 16bit CRC */
-      READ_REG(hspi->Instance->DR);
+      tmpreg = READ_REG(hspi->Instance->DR);
+      /* To avoid GCC warning */
+      UNUSED(tmpreg);
     }
     else
     {
       /* Read 8bit CRC */
-      READ_REG(*(__IO uint8_t *)&hspi->Instance->DR);
+      tmpreg = READ_REG(*(__IO uint8_t *)&hspi->Instance->DR);
+      /* To avoid GCC warning */
+      UNUSED(tmpreg);
 
       if ((hspi->Init.DataSize == SPI_DATASIZE_8BIT) && (hspi->Init.CRCLength == SPI_CRC_LENGTH_16BIT))
       {
@@ -1190,7 +1197,9 @@ HAL_StatusTypeDef HAL_SPI_Receive(SPI_HandleTypeDef *hspi, uint8_t *pData, uint1
           goto error;
         }
         /* Read 8bit CRC again in case of 16bit CRC in 8bit Data mode */
-        READ_REG(*(__IO uint8_t *)&hspi->Instance->DR);
+        tmpreg = READ_REG(*(__IO uint8_t *)&hspi->Instance->DR);
+        /* To avoid GCC warning */
+        UNUSED(tmpreg);
       }
     }
   }
@@ -1235,6 +1244,9 @@ error :
 HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, uint8_t *pTxData, uint8_t *pRxData, uint16_t Size,
                                           uint32_t Timeout)
 {
+#if (USE_SPI_CRC != 0U)
+  __IO uint32_t tmpreg = 0U;
+#endif /* USE_SPI_CRC */
   uint16_t             initial_TxXferCount;
   uint16_t             initial_RxXferCount;
   uint32_t             tmp_mode;
@@ -1476,12 +1488,16 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, uint8_t *pTxD
     if (hspi->Init.DataSize == SPI_DATASIZE_16BIT)
     {
       /* Read 16bit CRC */
-      READ_REG(hspi->Instance->DR);
+      tmpreg = READ_REG(hspi->Instance->DR);
+      /* To avoid GCC warning */
+      UNUSED(tmpreg);
     }
     else
     {
       /* Read 8bit CRC */
-      READ_REG(*(__IO uint8_t *)&hspi->Instance->DR);
+      tmpreg = READ_REG(*(__IO uint8_t *)&hspi->Instance->DR);
+      /* To avoid GCC warning */
+      UNUSED(tmpreg);
 
       if (hspi->Init.CRCLength == SPI_CRC_LENGTH_16BIT)
       {
@@ -1493,7 +1509,9 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, uint8_t *pTxD
           goto error;
         }
         /* Read 8bit CRC again in case of 16bit CRC in 8bit Data mode */
-        READ_REG(*(__IO uint8_t *)&hspi->Instance->DR);
+        tmpreg = READ_REG(*(__IO uint8_t *)&hspi->Instance->DR);
+        /* To avoid GCC warning */
+        UNUSED(tmpreg);
       }
     }
   }
@@ -3048,6 +3066,9 @@ static void SPI_DMAReceiveCplt(DMA_HandleTypeDef *hdma)
 {
   SPI_HandleTypeDef *hspi = (SPI_HandleTypeDef *)(((DMA_HandleTypeDef *)hdma)->Parent); /* Derogation MISRAC2012-Rule-11.5 */
   uint32_t tickstart;
+#if (USE_SPI_CRC != 0U)
+  __IO uint32_t tmpreg = 0U;
+#endif /* USE_SPI_CRC */
 
   /* Init tickstart for timeout management*/
   tickstart = HAL_GetTick();
@@ -3072,12 +3093,16 @@ static void SPI_DMAReceiveCplt(DMA_HandleTypeDef *hdma)
       if (hspi->Init.DataSize > SPI_DATASIZE_8BIT)
       {
         /* Read 16bit CRC */
-        READ_REG(hspi->Instance->DR);
+        tmpreg = READ_REG(hspi->Instance->DR);
+        /* To avoid GCC warning */
+        UNUSED(tmpreg);
       }
       else
       {
         /* Read 8bit CRC */
-        READ_REG(*(__IO uint8_t *)&hspi->Instance->DR);
+        tmpreg = READ_REG(*(__IO uint8_t *)&hspi->Instance->DR);
+        /* To avoid GCC warning */
+        UNUSED(tmpreg);
 
         if (hspi->Init.CRCLength == SPI_CRC_LENGTH_16BIT)
         {
@@ -3087,7 +3112,9 @@ static void SPI_DMAReceiveCplt(DMA_HandleTypeDef *hdma)
             SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_CRC);
           }
           /* Read 8bit CRC again in case of 16bit CRC in 8bit Data mode */
-          READ_REG(*(__IO uint8_t *)&hspi->Instance->DR);
+          tmpreg = READ_REG(*(__IO uint8_t *)&hspi->Instance->DR);
+          /* To avoid GCC warning */
+          UNUSED(tmpreg);
         }
       }
     }
@@ -3152,6 +3179,9 @@ static void SPI_DMATransmitReceiveCplt(DMA_HandleTypeDef *hdma)
 {
   SPI_HandleTypeDef *hspi = (SPI_HandleTypeDef *)(((DMA_HandleTypeDef *)hdma)->Parent); /* Derogation MISRAC2012-Rule-11.5 */
   uint32_t tickstart;
+#if (USE_SPI_CRC != 0U)
+  __IO uint32_t tmpreg = 0U;
+#endif /* USE_SPI_CRC */
 
   /* Init tickstart for timeout management*/
   tickstart = HAL_GetTick();
@@ -3175,7 +3205,9 @@ static void SPI_DMATransmitReceiveCplt(DMA_HandleTypeDef *hdma)
           SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_CRC);
         }
         /* Read CRC to Flush DR and RXNE flag */
-        READ_REG(*(__IO uint8_t *)&hspi->Instance->DR);
+        tmpreg = READ_REG(*(__IO uint8_t *)&hspi->Instance->DR);
+        /* To avoid GCC warning */
+        UNUSED(tmpreg);
       }
       else
       {
@@ -3185,7 +3217,9 @@ static void SPI_DMATransmitReceiveCplt(DMA_HandleTypeDef *hdma)
           SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_CRC);
         }
         /* Read CRC to Flush DR and RXNE flag */
-        READ_REG(hspi->Instance->DR);
+        tmpreg = READ_REG(hspi->Instance->DR);
+        /* To avoid GCC warning */
+        UNUSED(tmpreg);
       }
     }
 #endif /* USE_SPI_CRC */
@@ -3520,8 +3554,12 @@ static void SPI_2linesRxISR_8BIT(struct __SPI_HandleTypeDef *hspi)
   */
 static void SPI_2linesRxISR_8BITCRC(struct __SPI_HandleTypeDef *hspi)
 {
+  __IO uint32_t tmpreg = 0U;
+
   /* Read 8bit CRC to flush Data Register */
-  READ_REG(*(__IO uint8_t *)&hspi->Instance->DR);
+  tmpreg = READ_REG(*(__IO uint8_t *)&hspi->Instance->DR);
+  /* To avoid GCC warning */
+  UNUSED(tmpreg);
 
   hspi->CRCSize--;
 
@@ -3628,8 +3666,12 @@ static void SPI_2linesRxISR_16BIT(struct __SPI_HandleTypeDef *hspi)
   */
 static void SPI_2linesRxISR_16BITCRC(struct __SPI_HandleTypeDef *hspi)
 {
+  __IO uint32_t tmpreg = 0U;
+
   /* Read 16bit CRC to flush Data Register */
-  READ_REG(hspi->Instance->DR);
+  tmpreg = READ_REG(hspi->Instance->DR);
+  /* To avoid GCC warning */
+  UNUSED(tmpreg);  
 
   /* Disable RXNE interrupt */
   __HAL_SPI_DISABLE_IT(hspi, SPI_IT_RXNE);
@@ -3684,8 +3726,12 @@ static void SPI_2linesTxISR_16BIT(struct __SPI_HandleTypeDef *hspi)
   */
 static void SPI_RxISR_8BITCRC(struct __SPI_HandleTypeDef *hspi)
 {
+  __IO uint32_t tmpreg = 0U;
+
   /* Read 8bit CRC to flush Data Register */
-  READ_REG(*(__IO uint8_t *)&hspi->Instance->DR);
+  tmpreg = READ_REG(*(__IO uint8_t *)&hspi->Instance->DR);
+  /* To avoid GCC warning */
+  UNUSED(tmpreg);
 
   hspi->CRCSize--;
 
@@ -3738,8 +3784,12 @@ static void SPI_RxISR_8BIT(struct __SPI_HandleTypeDef *hspi)
   */
 static void SPI_RxISR_16BITCRC(struct __SPI_HandleTypeDef *hspi)
 {
+  __IO uint32_t tmpreg = 0U;
+
   /* Read 16bit CRC to flush Data Register */
-  READ_REG(hspi->Instance->DR);
+  tmpreg = READ_REG(hspi->Instance->DR);
+  /* To avoid GCC warning */
+  UNUSED(tmpreg);
 
   /* Disable RXNE and ERR interrupt */
   __HAL_SPI_DISABLE_IT(hspi, (SPI_IT_RXNE | SPI_IT_ERR));
@@ -3914,6 +3964,7 @@ static HAL_StatusTypeDef SPI_WaitFlagStateUntilTimeout(SPI_HandleTypeDef *hspi, 
 static HAL_StatusTypeDef SPI_WaitFifoStateUntilTimeout(SPI_HandleTypeDef *hspi, uint32_t Fifo, uint32_t State,
                                                        uint32_t Timeout, uint32_t Tickstart)
 {
+  __IO uint32_t tmpreg;
   __IO uint32_t count;
   uint32_t tmp_timeout;
   uint32_t tmp_tickstart;
@@ -3929,8 +3980,10 @@ static HAL_StatusTypeDef SPI_WaitFifoStateUntilTimeout(SPI_HandleTypeDef *hspi, 
   {
     if ((Fifo == SPI_SR_FRLVL) && (State == SPI_FRLVL_EMPTY))
     {
-      /* Read 8bit CRC to flush Data Register */
-      READ_REG(*((__IO uint8_t *)&hspi->Instance->DR));
+      /* Flush Data Register by a blank read */
+      tmpreg = READ_REG(*((__IO uint8_t *)&hspi->Instance->DR));
+      /* To avoid GCC warning */
+      UNUSED(tmpreg);
     }
 
     if (Timeout != HAL_MAX_DELAY)

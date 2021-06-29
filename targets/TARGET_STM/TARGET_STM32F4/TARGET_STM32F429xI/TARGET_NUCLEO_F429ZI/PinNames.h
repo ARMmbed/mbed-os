@@ -290,7 +290,7 @@ typedef enum {
     D69 = PF_1,
     D70 = PF_2,
     D71 = PA_7,
-    
+
     // STDIO for console print
 #ifdef MBED_CONF_TARGET_STDIO_UART_TX
     CONSOLE_TX = MBED_CONF_TARGET_STDIO_UART_TX,
@@ -394,4 +394,3 @@ typedef enum {
 #endif
 
 #endif
-    

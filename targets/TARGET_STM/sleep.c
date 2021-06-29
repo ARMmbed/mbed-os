@@ -181,7 +181,7 @@ __WEAK void hal_deepsleep(void)
     save_timer_ctx();
 
     // Request to enter STOP mode with regulator in low power mode
-	//PWR_CR1_LPMS_STOP2 -> STM32L4 ; PWR_LOWPOWERMODE_STOP2 -> STM32WL
+    //PWR_CR1_LPMS_STOP2 -> STM32L4 ; PWR_LOWPOWERMODE_STOP2 -> STM32WL
 #if defined (PWR_CR1_LPMS_STOP2) || defined(PWR_LOWPOWERMODE_STOP2)
     int pwrClockEnabled = __HAL_RCC_PWR_IS_CLK_ENABLED();
     int lowPowerModeEnabled = PWR->CR1 & PWR_CR1_LPR;

@@ -977,8 +977,8 @@ static void UARTEx_SetNbDataToProcess(UART_HandleTypeDef *huart)
   uint8_t tx_fifo_depth;
   uint8_t rx_fifo_threshold;
   uint8_t tx_fifo_threshold;
-  uint8_t numerator[] = {1U, 1U, 1U, 3U, 7U, 1U, 0U, 0U};
-  uint8_t denominator[] = {8U, 4U, 2U, 4U, 8U, 1U, 1U, 1U};
+  static const uint8_t numerator[] = {1U, 1U, 1U, 3U, 7U, 1U, 0U, 0U};
+  static const uint8_t denominator[] = {8U, 4U, 2U, 4U, 8U, 1U, 1U, 1U};
 
   if (huart->FifoMode == UART_FIFOMODE_DISABLE)
   {

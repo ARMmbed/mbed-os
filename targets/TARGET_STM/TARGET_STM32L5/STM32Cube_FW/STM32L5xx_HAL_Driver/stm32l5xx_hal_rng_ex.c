@@ -44,12 +44,8 @@
   * @{
   */
 /*  Health test control register information to use in CCM algorithm */
-#define RNG_HTCFG_1   0x17590ABCU /*!< magic number */
-#if defined(RNG_VER_3_1) || defined(RNG_VER_3_0)
-#define RNG_HTCFG     0x000CAA74U /*!< for best latency and To be compliant with NIST */
-#else /* RNG_VER_3_2 */
-#define RNG_HTCFG     0x00007274U /*!< for best latency and To be compliant with NIST */
-#endif /* RNG_VER_3_1 || RNG_VER_3_0 */
+#define RNG_HTCFG_1   0x17590ABCU /*!< Magic number */
+#define RNG_HTCFG     0x0000A2B3U /*!< Recommended value for NIST compliancy */
 /**
   * @}
   */
@@ -64,14 +60,6 @@
   */
 /* Private macros ------------------------------------------------------------*/
 /* Private functions prototypes ----------------------------------------------*/
-/** @addtogroup RNG_Private_Functions
-  * @{
-  */
-HAL_StatusTypeDef RNG_RecoverSeedError(RNG_HandleTypeDef *hrng);
-
-/**
-  * @}
-  */
 /* Private functions  --------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
 
@@ -164,9 +152,13 @@ HAL_StatusTypeDef HAL_RNGEx_SetConfig(RNG_HandleTypeDef *hrng, RNG_ConfigTypeDef
     {
       if ((HAL_GetTick() - tickstart) > RNG_TIMEOUT_VALUE)
       {
-        hrng->State = HAL_RNG_STATE_READY;
-        hrng->ErrorCode = HAL_RNG_ERROR_TIMEOUT;
-        return HAL_ERROR;
+        /* New check to avoid false timeout detection in case of prememption */
+        if (HAL_IS_BIT_SET(hrng->Instance->CR, RNG_CR_CONDRST))
+        {
+          hrng->State = HAL_RNG_STATE_READY;
+          hrng->ErrorCode = HAL_RNG_ERROR_TIMEOUT;
+          return HAL_ERROR;
+        }
       }
     }
 

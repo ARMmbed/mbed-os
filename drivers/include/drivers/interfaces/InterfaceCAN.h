@@ -109,6 +109,35 @@ public:
         id     = _id;
         memset(data, 0, 8);
     }
+
+    /**
+     * "Deep" comparison operator (ie: compare value of each data member)
+     */
+    bool operator ==(const CANMessage &b) const
+    {
+        if (id != b.id) {
+            return false;
+        }
+        if (len != b.len) {
+            return false;
+        }
+        if (format != b.format) {
+            return false;
+        }
+        if (type != b.type) {
+            return false;
+        }
+        if (memcmp(data, b.data, len) != 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    bool operator !=(const CANMessage &b) const
+    {
+        return !(*this == b);
+    }
 };
 
 /** @}*/

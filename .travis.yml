@@ -39,9 +39,11 @@ addons:
       - sourceline: 'deb https://apt.kitware.com/ubuntu/ focal main'
         key_url: 'https://apt.kitware.com/keys/kitware-archive-latest.asc'
     packages:
-    - cmake
-    - ninja-build
-    - libncursesw5
+      - cmake
+      - ninja-build
+      - gcovr
+      - libncursesw5
+      - g++-7
 
 matrix:
   include:
@@ -66,9 +68,8 @@ matrix:
       before_script:
         - mkdir -p SCANCODE
         - mkdir -p SCANCODE_NEW_FILES
-        # Fetch remaining information needed for branch comparison
-        - git fetch --all --unshallow --tags
-        - git fetch origin "${TRAVIS_BRANCH}"
+        # Fetch the base branch to compare against
+        - git fetch origin "${TRAVIS_BRANCH}" --depth=1
       script:
         # scancode does not support list of files, only one file or directory
         # we use SCANCODE directory for all changed files (their copies with full tree)
@@ -105,6 +106,12 @@ matrix:
           fi
 
     - <<: *basic-vm
+      name: "UTF-8 Check"
+      script:
+        # Make sure we're not introducing any text which is not UTF-8 encoded
+        - git diff $TRAVIS_BRANCH...HEAD -U0 | ( grep -a '^+' || true ) | ( ! grep -axv '.*' )
+
+    - <<: *basic-vm
       name: "include check"
       env: NAME=include_check
       script:
@@ -128,9 +135,8 @@ matrix:
           export PATH="${PWD}/bin:${PATH}";
           cd -
         - astyle --version
-        # Fetch remaining information needed for branch comparison
-        - git fetch --all --unshallow --tags
-        - git fetch origin "${TRAVIS_BRANCH}"
+        # Fetch the base branch to compare against
+        - git fetch origin "${TRAVIS_BRANCH}" --depth=1
       script:
         - >-
           git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
@@ -189,35 +195,6 @@ matrix:
           find  -name "*.s" | tee BUILD/badasm |
           sed -e "s/^/Bad Assembler file name found: /" && [ ! -s BUILD/badasm ]
 
-    - <<: *docs-vm
-      name: "Frozen tools check"
-      env: NAME=frozen_tools_check
-      script:
-        # Reject any changes to tools that would require a re-release of the
-        # tools for the online compiler.
-        - >-
-            frozen_files=`\
-                git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
-                    | egrep \
-                      -e "^tools/build_api*" \
-                      -e "^tools/config*" \
-                      -e "^tools/export*" \
-                      -e "^tools/notifier*" \
-                      -e "^tools/paths*" \
-                      -e "^tools/resources*" \
-                      -e "^tools/targets*" \
-                      -e "^tools/toolchains*" \
-                      -e "^tools/utils*" \
-                      -e "^$"`
-            if [ -z "$frozen_files" ]; then
-                echo "Success!";
-            else
-                echo -e "Failure: Frozen files were modified\n$frozen_files";
-                echo -e "Please see https://os.mbed.com/blog/entry/Introducing-the-new-Mbed-Tools/" \
-                        "\nfor why we've frozen the legacy tools.";
-                false;
-            fi
-
     ### Python Tests ###
     - &pytools-vm
       stage: "Pytest"
@@ -273,9 +250,8 @@ matrix:
         - python -m pip install --upgrade setuptools==40.4.3
         - pip install tabulate argparse
         - pip list --verbose
-        # Fetch remaining information needed for branch comparison
-        - git fetch --all --unshallow --tags
-        - git fetch origin "${TRAVIS_BRANCH}"
+        # Fetch the base branch to compare against
+        - git fetch origin "${TRAVIS_BRANCH}" --depth=1
       script:
         - >-
           git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
@@ -321,3 +297,57 @@ matrix:
         - mbedtools configure -p ${ROOT} -t ${TOOLCHAIN} -m ${TARGET_NAME} --mbed-os-path .
         - cmake -S ${ROOT} -B ${ROOT}/cmake_build/${TARGET_NAME}/${PROFILE}/${TOOLCHAIN}/ -GNinja -DCMAKE_BUILD_TYPE=${PROFILE}
         - cmake --build ${ROOT}/cmake_build/${TARGET_NAME}/${PROFILE}/${TOOLCHAIN}/
+
+    ### Mbed OS unittest ###
+    - &cmake-build-run-unittest
+      stage: "CMake"
+      name: "CMake unittest build"
+      env: NAME=cmake_unittest 
+      install:        
+        # Hide Travis-preinstalled CMake
+        # The Travis-preinstalled CMake is unfortunately not installed via apt, so we
+        # can't replace it with an apt-supplied version very easily. Additionally, we
+        # can't permit the Travis-preinstalled copy to survive, as the Travis default
+        # path lists the Travis CMake install location ahead of any place where apt
+        # would install CMake to. Instead of apt removing or upgrading to a new CMake
+        # version, we must instead delete the Travis copy of CMake.
+        - sudo rm -rf /usr/local/cmake*
+      script:
+        - echo ctest --build-and-test . build --build-generator Ninja --build-options -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=ON -DCMAKE_CXX_COMPILER=g++-7 -DCMAKE_C_COMPILER=gcc-7 --test-command ctest        
+        - ctest --build-and-test . build --build-generator Ninja --build-options -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=ON -DCMAKE_CXX_COMPILER=g++-7 -DCMAKE_C_COMPILER=gcc-7 --test-command ctest        
+        - gcovr --gcov-executable gcov-7 -r . ./build -s -e ".*\.h" --exclude-directories=$TRAVIS_BUILD_DIR/build/UNITTESTS --exclude-directories=$TRAVIS_BUILD_DIR/build/_deps
+        - ccache -s
+
+    ### Frozen tools check ###
+    - &frozen-tools-vm
+      stage: "Frozen tools check"
+      name: "Frozen tools check"
+      env: NAME=frozen_tools_check
+      before_script:
+        # Fetch the base branch to compare against
+        - git fetch origin "${TRAVIS_BRANCH}" --depth=1
+      script:
+        # Reject any changes to tools that would require a re-release of the
+        # tools for the online compiler.
+        - >-
+            frozen_files=`\
+                git diff --name-only FETCH_HEAD..HEAD \
+                    | egrep \
+                      -e "^tools/build_api*" \
+                      -e "^tools/config*" \
+                      -e "^tools/export*" \
+                      -e "^tools/notifier*" \
+                      -e "^tools/paths*" \
+                      -e "^tools/resources*" \
+                      -e "^tools/targets*" \
+                      -e "^tools/toolchains*" \
+                      -e "^tools/utils*" \
+                      -e "^$"`
+            if [ -z "$frozen_files" ]; then
+                echo "Success!";
+            else
+                echo -e "Failure: Frozen files were modified\n$frozen_files";
+                echo -e "Please see https://os.mbed.com/blog/entry/Introducing-the-new-Mbed-Tools/" \
+                        "\nfor why we've frozen the legacy tools.";
+                false;
+            fi

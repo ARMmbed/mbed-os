@@ -106,8 +106,7 @@ MBED_WEAK uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     HAL_RCC_GetOscConfig(&RCC_OscInitStruct);
 
     /* PLL could be already configured by bootlader */
-    if (RCC_OscInitStruct.PLL.PLLState != RCC_PLL_ON)
-    {
+    if (RCC_OscInitStruct.PLL.PLLState != RCC_PLL_ON) {
         /* Enable HSE oscillator and activate PLL with HSE as source */
         RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSE;
         if (bypass == 0) {

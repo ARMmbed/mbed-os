@@ -14,6 +14,7 @@ target_sources(mbed-stm32l5
         analogout_device.c
         flash_api.c
         gpio_irq_device.c
+        i2c_device.c
         pwmout_device.c
         serial_device.c
         system_clock.c

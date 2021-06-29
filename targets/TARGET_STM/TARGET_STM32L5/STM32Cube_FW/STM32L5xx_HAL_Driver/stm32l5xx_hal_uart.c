@@ -1370,6 +1370,16 @@ HAL_StatusTypeDef HAL_UART_Receive_IT(UART_HandleTypeDef *huart, uint8_t *pData,
     /* Set Reception type to Standard reception */
     huart->ReceptionType = HAL_UART_RECEPTION_STANDARD;
 
+    if (!(IS_LPUART_INSTANCE(huart->Instance)))
+    {
+      /* Check that USART RTOEN bit is set */
+      if(READ_BIT(huart->Instance->CR2, USART_CR2_RTOEN) != 0U)
+      {
+        /* Enable the UART Receiver Timeout Interrupt */
+        SET_BIT(huart->Instance->CR1, USART_CR1_RTOIE);
+      }
+    }
+
     return(UART_Start_Receive_IT(huart, pData, Size));
   }
   else
@@ -1478,6 +1488,16 @@ HAL_StatusTypeDef HAL_UART_Receive_DMA(UART_HandleTypeDef *huart, uint8_t *pData
 
     /* Set Reception type to Standard reception */
     huart->ReceptionType = HAL_UART_RECEPTION_STANDARD;
+
+    if (!(IS_LPUART_INSTANCE(huart->Instance)))
+    {
+      /* Check that USART RTOEN bit is set */
+      if(READ_BIT(huart->Instance->CR2, USART_CR2_RTOEN) != 0U)
+      {
+        /* Enable the UART Receiver Timeout Interrupt */
+        SET_BIT(huart->Instance->CR1, USART_CR1_RTOIE);
+      }
+    }
 
     return(UART_Start_Receive_DMA(huart, pData, Size));
   }
@@ -3012,7 +3032,6 @@ HAL_StatusTypeDef UART_SetConfig(UART_HandleTypeDef *huart)
   *  set TE and RE bits according to huart->Init.Mode value
   *  set OVER8 bit according to huart->Init.OverSampling value */
   tmpreg = (uint32_t)huart->Init.WordLength | huart->Init.Parity | huart->Init.Mode | huart->Init.OverSampling ;
-  tmpreg |= (uint32_t)huart->FifoMode;
   MODIFY_REG(huart->Instance->CR1, USART_CR1_FIELDS, tmpreg);
 
   /*-------------------------- USART CR2 Configuration -----------------------*/
