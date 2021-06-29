@@ -43,6 +43,7 @@
 #include "mbed_error.h"
 #include "platform/mbed_power_mgmt.h"
 
+#if MBED_CONF_TARGET_I2C_TIMING_VALUE_ALGO
 /** @defgroup I2C_DEVICE_Private_Constants I2C_DEVICE Private Constants
  * @{
  */
@@ -151,6 +152,7 @@ static const I2C_Charac_t I2C_Charac[] = {
 */
 static I2C_Timings_t I2c_valid_timing[I2C_VALID_TIMING_NBR];
 static uint32_t      I2c_valid_timing_nbr = 0;
+#endif // MBED_CONF_TARGET_I2C_TIMING_VALUE_ALGO 
 
 #ifndef DEBUG_STDIO
 #   define DEBUG_STDIO 0
@@ -597,10 +599,6 @@ void i2c_frequency(i2c_t *obj, int hz)
     handle->Init.DutyCycle       = I2C_DUTYCYCLE_2;
 #endif
 #ifdef I2C_IP_VERSION_V2
-    /*  Only predefined timing for below frequencies are supported */
-    MBED_ASSERT((hz == 100000) || (hz == 400000) || (hz == 1000000));
-    /* Calculates I2C timing value with respect to I2C input clock and I2C bus frequency */
-    handle->Init.Timing = i2c_get_timing(obj_s->i2c, hz);
     // Enable the Fast Mode Plus capability
     if (hz == 1000000) {
 #if defined(I2C1_BASE) && defined(I2C_FASTMODEPLUS_I2C1)  // sometimes I2C_FASTMODEPLUS_I2Cx is define even if not supported by the chip
@@ -658,6 +656,12 @@ void i2c_frequency(i2c_t *obj, int hz)
     if (obj_s->i2c == I2C_4) {
         __HAL_RCC_I2C4_CONFIG(I2CAPI_I2C4_CLKSRC);
     }
+#endif
+#ifdef I2C_IP_VERSION_V2
+/*  Only predefined timing for below frequencies are supported */
+    MBED_ASSERT((hz == 100000) || (hz == 400000) || (hz == 1000000));
+    /* Calculates I2C timing value with respect to I2C input clock and I2C bus frequency */
+    handle->Init.Timing = i2c_get_timing(obj_s->i2c, hz);
 #endif
 #if defined(DUAL_CORE) && (TARGET_STM32H7)
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
@@ -1551,6 +1555,7 @@ void i2c_abort_asynch(i2c_t *obj)
     HAL_I2C_Master_Abort_IT(handle, Dummy_DevAddress);
 }
 
+#if MBED_CONF_TARGET_I2C_TIMING_VALUE_ALGO
 /**
   * @brief  Calculate SCLL and SCLH and find best configuration.
   * @param  clock_src_freq I2C source clock in HZ.
@@ -1728,6 +1733,7 @@ uint32_t i2c_compute_timing(uint32_t clock_src_freq, uint32_t i2c_freq)
 
     return ret;
 }
+#endif // MBED_CONF_TARGET_I2C_TIMING_VALUE_ALGO
 
 #endif // DEVICE_I2C_ASYNCH
 

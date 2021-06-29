@@ -103,7 +103,13 @@ uint32_t i2c_get_timing(I2CName i2c, int hz)
                 break;
         }
     } else {
+        /* If MBED_CONF_TARGET_I2C_TIMING_VALUE_ALGO assert is triggered. 
+        User needs to enable I2C_TIMING_VALUE_ALGO in target.json for specific target. 
+        Enabling this may impact performance*/
+        MBED_ASSERT(MBED_CONF_TARGET_I2C_TIMING_VALUE_ALGO);
+#if MBED_CONF_TARGET_I2C_TIMING_VALUE_ALGO
         tim = i2c_compute_timing(pclk, hz);
+#endif
     }
     return tim;
 }
