@@ -217,8 +217,7 @@ matrix:
           hypothesis>=3,<4
           coverage>=4.5,<5
           "
-        - python -m pip install --upgrade pip==18.1
-        - python -m pip install --upgrade setuptools==40.4.3
+        - pip install --upgrade pip
         - pip install -r requirements.txt
         - pip list --verbose
       script:
@@ -246,8 +245,7 @@ matrix:
       python: 3.7
       install:
         # Install python modules
-        - python -m pip install --upgrade pip==18.1
-        - python -m pip install --upgrade setuptools==40.4.3
+        - pip install --upgrade pip
         - pip install tabulate argparse
         - pip list --verbose
         # Fetch the base branch to compare against
