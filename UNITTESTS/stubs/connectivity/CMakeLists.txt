@@ -13,6 +13,7 @@ target_compile_definitions(mbed-stubs-connectivity
         MBED_CONF_LORA_OVER_THE_AIR_ACTIVATION=true
         MBED_CONF_LORA_AUTOMATIC_UPLINK_MESSAGE=true
         MBED_CONF_LORA_TX_MAX_SIZE=255
+        MBED_CONF_CELLULAR_AT_HANDLER_BUFFER_SIZE=32
         MDMTXD=NC
         MDMRXD=NC
 )
