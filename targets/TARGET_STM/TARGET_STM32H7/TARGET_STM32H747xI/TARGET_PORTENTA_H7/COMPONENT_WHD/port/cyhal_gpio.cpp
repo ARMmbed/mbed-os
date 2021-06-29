@@ -97,3 +97,8 @@ void cyhal_gpio_enable_event(cyhal_gpio_t pin, cyhal_gpio_event_t event, uint8_t
         delete oob_irq;
     }
 }
+
+void cyhal_gpio_free(cyhal_gpio_t pin)
+{
+    // Do nothing
+}
