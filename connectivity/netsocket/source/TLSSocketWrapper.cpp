@@ -28,6 +28,10 @@
 #include "mbed_error.h"
 #include "rtos/Kernel.h"
 
+#if defined(MBEDTLS_USE_PSA_CRYPTO)
+#include "psa/crypto.h"
+#endif
+
 // This class requires Mbed TLS SSL/TLS client code
 #if defined(MBEDTLS_SSL_CLI_C)
 
@@ -41,6 +45,16 @@ TLSSocketWrapper::TLSSocketWrapper(Socket *transport, const char *hostname, cont
     _clicert_allocated(false),
     _ssl_conf_allocated(false)
 {
+#if defined(MBEDTLS_USE_PSA_CRYPTO)
+    // It is safe to call psa_crypto_init() any number of times as
+    // defined by the PSA Crypto API. There is no standard "deinit"
+    // function.
+    psa_status_t status = psa_crypto_init();
+    if (status != PSA_SUCCESS) {
+        tr_err("psa_crypto_init() failed (" PRIu32 ")", status);
+    }
+#endif /* MBEDTLS_USE_PSA_CRYPTO */
+
 #if defined(MBEDTLS_PLATFORM_C)
     int ret = mbedtls_platform_setup(nullptr);
     if (ret != 0) {
