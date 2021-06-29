@@ -59,7 +59,7 @@ target_sources(mbed-nanostack-sal_stack
 
         protocols/key_sec_prot/key_sec_prot.c
         
-        msg_sec_prot/msg_sec_prot.c
+        protocols/msg_sec_prot/msg_sec_prot.c
 
         protocols/radius_sec_prot/avp_helper.c
         protocols/radius_sec_prot/radius_client_sec_prot.c
