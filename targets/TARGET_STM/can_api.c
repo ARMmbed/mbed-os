@@ -651,7 +651,6 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
 
 static uint32_t can_irq_ids[CAN_NUM] = {0};
 static can_irq_handler irq_handler;
-static uint32_t rx_irq_status = DISABLED;
 
 static void can_registers_init(can_t *obj)
 {
@@ -762,6 +761,7 @@ void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id)
 {
     irq_handler = handler;
     can_irq_ids[obj->index] = id;
+    obj->rxIrqStatus = false;
 }
 
 void can_irq_free(can_t *obj)
@@ -771,7 +771,7 @@ void can_irq_free(can_t *obj)
     can->IER &= ~(CAN_IT_FMP0 | CAN_IT_FMP1 | CAN_IT_TME | \
                   CAN_IT_ERR | CAN_IT_EPV | CAN_IT_BOF);
     can_irq_ids[obj->index] = 0;
-    rx_irq_status = DISABLED;
+    obj->rxIrqStatus = DISABLED;
 }
 
 void can_free(can_t *obj)
@@ -1003,7 +1003,7 @@ int can_read(can_t *obj, CAN_Message *msg, int handle)
         can->RF1R |= CAN_RF1R_RFOM1;
     }
 
-    if(rx_irq_status == ENABLED) {
+    if(obj->rxIrqStatus == ENABLED) {
         __HAL_CAN_ENABLE_IT(&obj->CanHandle, CAN_IT_FMP0);
     }
 
@@ -1020,7 +1020,7 @@ void can_reset(can_t *obj)
 
     /* restore registers state as saved in obj context */
     can_registers_init(obj);
-    rx_irq_status = DISABLED;
+    obj->rxIrqStatus = DISABLED;
 }
 
 unsigned char can_rderror(can_t *obj)
@@ -1276,7 +1276,7 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
                 ier = CAN_IT_FMP0;
                 irq_n = CAN1_IRQ_RX_IRQN;
                 vector = (uint32_t)&CAN1_IRQ_RX_VECT;
-                rx_irq_status = ENABLED;
+                obj->rxIrqStatus = ENABLED;
                 break;
             case IRQ_TX:
                 ier = CAN_IT_TME;
@@ -1309,7 +1309,7 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
                 ier = CAN_IT_FMP0;
                 irq_n = CAN2_IRQ_RX_IRQN;
                 vector = (uint32_t)&CAN2_IRQ_RX_VECT;
-                rx_irq_status = ENABLED;
+                obj->rxIrqStatus = ENABLED;
                 break;
             case IRQ_TX:
                 ier = CAN_IT_TME;
@@ -1343,7 +1343,7 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
                 ier = CAN_IT_FMP0;
                 irq_n = CAN3_IRQ_RX_IRQN;
                 vector = (uint32_t)&CAN3_IRQ_RX_VECT;
-                rx_irq_status = ENABLED;
+                obj->rxIrqStatus = ENABLED;
                 break;
             case IRQ_TX:
                 ier = CAN_IT_TME;
