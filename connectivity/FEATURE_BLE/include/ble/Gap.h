@@ -435,8 +435,8 @@ public:
          *
          * @version 4.1+.
          *
-         * @note This event will only be produced if manageConnectionParametersUpdateRequest(true)
-         * was called. Otherwise the stack will handle the request and no event will be generated.
+         * @note This event will only be produced if manageConnectionParametersUpdateRequest() was called
+         * with true. Otherwise the stack will handle the request and no event will be generated.
          *
          * @see manageConnectionParametersUpdateRequest()
          * @see acceptConnectionParametersUpdate()

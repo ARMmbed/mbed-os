@@ -251,7 +251,7 @@ public:
         /**
          * Called when a pairing request is received. Application should respond by
          * calling the appropriate function: acceptPairingRequest() or cancelPairingRequest().
-         * This event will only trigger if setPairingRequestAuthorisation(true) was called.
+         * This event will only trigger if setPairingRequestAuthorisation() was called with true.
          * Otherwise the stack will handle the requests.
          *
          * @param[in] connectionHandle connection connectionHandle
