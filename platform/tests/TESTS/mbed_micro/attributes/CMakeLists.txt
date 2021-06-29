@@ -10,6 +10,17 @@ include(${MBED_PATH}/tools/cmake/mbed_greentea.cmake)
 
 project(${TEST_TARGET})
 
-list(APPEND TEST_SOURCE_LIST weak.c attributes.c)
+list(
+    APPEND
+        TEST_SOURCE_LIST
+            main.cpp
+            weak.c
+            attributes.c
+)
 
-mbed_greentea_add_test(TEST_NAME ${TEST_TARGET} TEST_SOURCES ${TEST_SOURCE_LIST})
+mbed_greentea_add_test(
+    TEST_NAME
+        ${TEST_TARGET}
+    TEST_SOURCES
+        ${TEST_SOURCE_LIST}
+)

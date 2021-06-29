@@ -39,7 +39,10 @@ if("SPIF" IN_LIST MBED_TARGET_LABELS)
 endif()
 
 mbed_greentea_add_test(
-    TEST_NAME ${TEST_TARGET}
+    TEST_NAME
+        ${TEST_TARGET}
+    TEST_SOURCES
+        main.cpp
     TEST_REQUIRED_LIBS
         mbed-storage-blockdevice
         mbed-storage

@@ -22,10 +22,20 @@ elseif(TARGET mbed-efm32gg11-stk3701)
     set(FLASH_TARGET_CONFIG_HEADER SiliconLabs/EFM32GG11_STK3701)
 endif()
 
-list(APPEND TEST_HEADER_DIRS flash_configs flash_configs/${FLASH_TARGET_CONFIG_HEADER})
+list(
+    APPEND
+        TEST_HEADER_DIRS
+            flash_configs
+            flash_configs/${FLASH_TARGET_CONFIG_HEADER}
+)
 
-mbed_greentea_add_test(TEST_NAME ${TEST_TARGET}
-    TEST_SOURCES qspi_test_utils.cpp
-    TEST_INCLUDE_DIRS ${TEST_HEADER_DIRS}
+mbed_greentea_add_test(
+    TEST_NAME
+        ${TEST_TARGET}
+    TEST_SOURCES
+        main.cpp
+        qspi_test_utils.cpp
+    TEST_INCLUDE_DIRS
+        ${TEST_HEADER_DIRS}
 )
 

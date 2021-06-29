@@ -10,6 +10,17 @@ include(${MBED_PATH}/tools/cmake/mbed_greentea.cmake)
 
 project(${TEST_TARGET})
 
-list(APPEND TEST_SOURCE_LIST test_c.c test_cpp.cpp)
+list(
+    APPEND
+        TEST_SOURCE_LIST
+            main.cpp
+            test_c.c
+            test_cpp.cpp
+)
 
-mbed_greentea_add_test(TEST_NAME ${TEST_TARGET} TEST_SOURCES ${TEST_SOURCE_LIST})
+mbed_greentea_add_test(
+    TEST_NAME
+        ${TEST_TARGET}
+    TEST_SOURCES
+        ${TEST_SOURCE_LIST}
+)
