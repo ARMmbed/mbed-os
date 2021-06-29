@@ -35,24 +35,22 @@ macro(mbed_greentea_add_test)
         ${ARGN}
     )
 
-    set(TEST_NAME ${MBED_GREENTEA_TEST_NAME})
-
     add_subdirectory(${MBED_PATH} build)
 
-    add_executable(${TEST_NAME})
+    add_executable(${MBED_GREENTEA_TEST_NAME})
 
     # Explicitly enable BUILD_TESTING until CTest is added to the Greentea client
     set(BUILD_TESTING ON)
 
-    mbed_configure_app_target(${TEST_NAME})
+    mbed_configure_app_target(${MBED_GREENTEA_TEST_NAME})
 
-    target_include_directories(${TEST_NAME}
+    target_include_directories(${MBED_GREENTEA_TEST_NAME}
         PRIVATE
             .
             ${MBED_GREENTEA_TEST_INCLUDE_DIRS}
     )
 
-    target_sources(${TEST_NAME}
+    target_sources(${MBED_GREENTEA_TEST_NAME}
         PRIVATE
             main.cpp
             ${MBED_GREENTEA_TEST_SOURCES}
@@ -67,16 +65,16 @@ macro(mbed_greentea_add_test)
     if (DEFINED MBED_TEST_LINK_LIBRARIES)
         separate_arguments(MBED_TEST_LINK_LIBRARIES)
         list(APPEND MBED_GREENTEA_TEST_REQUIRED_LIBS ${MBED_TEST_LINK_LIBRARIES} mbed-greentea)
-    else()        
+    else()
         list(APPEND MBED_GREENTEA_TEST_REQUIRED_LIBS mbed-greentea)
     endif()
 
-    target_link_libraries(${TEST_NAME}
+    target_link_libraries(${MBED_GREENTEA_TEST_NAME}
         PRIVATE
             ${MBED_GREENTEA_TEST_REQUIRED_LIBS}
     )
 
-    mbed_set_post_build(${TEST_NAME})
+    mbed_set_post_build(${MBED_GREENTEA_TEST_NAME})
 
     option(VERBOSE_BUILD "Have a verbose build process")
     if(VERBOSE_BUILD)
