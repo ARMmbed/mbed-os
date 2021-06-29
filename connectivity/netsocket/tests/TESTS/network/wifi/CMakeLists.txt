@@ -10,29 +10,35 @@ include(${MBED_PATH}/tools/cmake/mbed_greentea.cmake)
 
 project(${TEST_TARGET})
 
-list(APPEND TEST_SOURCE_LIST
-    get_interface.cpp
-    get_security.cpp
-    wifi-constructor.cpp
-    wifi_connect.cpp
-    wifi_connect_disconnect_nonblock.cpp
-    wifi_connect_disconnect_repeat.cpp
-    wifi_connect_nocredentials.cpp
-    wifi_connect_params_channel.cpp
-    wifi_connect_params_channel_fail.cpp
-    wifi_connect_params_null.cpp
-    wifi_connect_params_valid_secure.cpp
-    wifi_connect_secure.cpp
-    wifi_connect_secure_fail.cpp
-    wifi_get_rssi.cpp
-    wifi_scan.cpp
-    wifi_scan_null.cpp
-    wifi_set_channel.cpp
-    wifi_set_credential.cpp
+list(
+    APPEND
+        TEST_SOURCE_LIST
+            main.cpp
+            get_interface.cpp
+            get_security.cpp
+            wifi-constructor.cpp
+            wifi_connect.cpp
+            wifi_connect_disconnect_nonblock.cpp
+            wifi_connect_disconnect_repeat.cpp
+            wifi_connect_nocredentials.cpp
+            wifi_connect_params_channel.cpp
+            wifi_connect_params_channel_fail.cpp
+            wifi_connect_params_null.cpp
+            wifi_connect_params_valid_secure.cpp
+            wifi_connect_secure.cpp
+            wifi_connect_secure_fail.cpp
+            wifi_get_rssi.cpp
+            wifi_scan.cpp
+            wifi_scan_null.cpp
+            wifi_set_channel.cpp
+            wifi_set_credential.cpp
 )
 
 mbed_greentea_add_test(
-    TEST_NAME ${TEST_TARGET}
-    TEST_SOURCES ${TEST_SOURCE_LIST}
-    TEST_REQUIRED_LIBS mbed-netsocket
+    TEST_NAME
+        ${TEST_TARGET}
+    TEST_SOURCES
+        ${TEST_SOURCE_LIST}
+    TEST_REQUIRED_LIBS
+        mbed-netsocket
 )

@@ -52,7 +52,6 @@ macro(mbed_greentea_add_test)
 
     target_sources(${MBED_GREENTEA_TEST_NAME}
         PRIVATE
-            main.cpp
             ${MBED_GREENTEA_TEST_SOURCES}
     )
 

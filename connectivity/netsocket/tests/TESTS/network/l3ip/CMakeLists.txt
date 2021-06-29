@@ -10,10 +10,18 @@ include(${MBED_PATH}/tools/cmake/mbed_greentea.cmake)
 
 project(${TEST_TARGET})
 
-list(APPEND TEST_SOURCE_LIST cellular_driver_l3ip.cpp)
+list(
+    APPEND
+        TEST_SOURCE_LIST
+            main.cpp
+            cellular_driver_l3ip.cpp
+)
 
 mbed_greentea_add_test(
-    TEST_NAME ${TEST_TARGET}
-    TEST_SOURCES ${TEST_SOURCE_LIST}
-    TEST_REQUIRED_LIBS mbed-netsocket
+    TEST_NAME
+        ${TEST_TARGET}
+    TEST_SOURCES
+        ${TEST_SOURCE_LIST}
+    TEST_REQUIRED_LIBS
+        mbed-netsocket
 )

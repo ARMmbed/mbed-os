@@ -10,13 +10,19 @@ include(${MBED_PATH}/tools/cmake/mbed_greentea.cmake)
 
 project(${TEST_TARGET})
 
-list(APPEND TEST_SOURCE_LIST
-    networkinterface_conn_disc_repeat.cpp
-    networkinterface_status.cpp
+list(
+    APPEND
+        TEST_SOURCE_LIST
+            main.cpp
+            networkinterface_conn_disc_repeat.cpp
+            networkinterface_status.cpp
 )
 
 mbed_greentea_add_test(
-    TEST_NAME ${TEST_TARGET}
-    TEST_SOURCES ${TEST_SOURCE_LIST}
-    TEST_REQUIRED_LIBS mbed-netsocket
+    TEST_NAME
+        ${TEST_TARGET}
+    TEST_SOURCES
+        ${TEST_SOURCE_LIST}
+    TEST_REQUIRED_LIBS
+        mbed-netsocket
 )

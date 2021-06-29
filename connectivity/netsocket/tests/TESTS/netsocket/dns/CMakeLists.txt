@@ -13,6 +13,7 @@ project(${TEST_TARGET})
 list(
     APPEND 
         TEST_SOURCE_LIST
+            main.cpp
             synchronous_dns_multiple.cpp
             synchronous_dns_multi_ip.cpp
             synchronous_dns_invalid.cpp
@@ -32,7 +33,10 @@ list(
 )
 
 mbed_greentea_add_test(
-    TEST_NAME ${TEST_TARGET}
-    TEST_SOURCES ${TEST_SOURCE_LIST}
-    TEST_REQUIRED_LIBS mbed-netsocket
+    TEST_NAME
+        ${TEST_TARGET}
+    TEST_SOURCES
+        ${TEST_SOURCE_LIST}
+    TEST_REQUIRED_LIBS
+        mbed-netsocket
 )
