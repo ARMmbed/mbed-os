@@ -20,6 +20,11 @@ target_compile_definitions(mbed-stubs-lorawan
         MBED_CONF_LORA_TX_MAX_SIZE=255
 )
 
+target_include_directories(mbed-stubs-lorawan
+    PUBLIC
+        .
+)
+
 target_sources(mbed-stubs-lorawan
     PRIVATE
         LoRaMacChannelPlan_stub.cpp
