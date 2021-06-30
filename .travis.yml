@@ -201,7 +201,7 @@ matrix:
       name: "tools-py35"
       env: NAME=tools-py3.5
       language: python
-      python: 3.5
+      python: 3.7
       install:
         # Install gcc
         - source_pkg gcc
@@ -226,16 +226,6 @@ matrix:
         - python tools/test/pylint.py
         - coverage run -a tools/project.py -S | sed -n '/^Total/p'
         - coverage html
-
-    - <<: *pytools-vm
-      name: "tools-py36"
-      env: NAME=tools-py3.6
-      python: 3.6
-
-    - <<: *pytools-vm
-      name: "tools-py37"
-      env: NAME=tools-py3.7
-      python: 3.7
 
     - &extended-vm
       stage: "Pin validation"
