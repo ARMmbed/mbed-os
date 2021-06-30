@@ -41,6 +41,7 @@ void PalFrcInit(void);
 
 /* Control and Status */
 uint32_t PalFrcGetCurrentTime(void);
+void palFrcSetWakeup(uint32_t nextWakeMs);
 uint32_t PalFrcMsToTicks(uint32_t deltaMs);
 uint32_t PalFrcDeltaMs(uint32_t endTime, uint32_t startTime);
 uint32_t PalFrcDeltaUs(uint32_t endTime, uint32_t startTime);

@@ -62,6 +62,8 @@
 #include "nrf.h"
 #include "nrf_gpio.h"
 
+#include "mbed_nrf5x_adaptation.h"
+
 /**************************************************************************************************
   Macros
 **************************************************************************************************/
@@ -169,9 +171,9 @@ static uint32_t palTimerGetCurrentTime(void)
       return PalRtcCounterGet();
     #else
       /* Capture current TIMER2 count to capture register 1 */
-      NRF_TIMER2->TASKS_CAPTURE[TIMER_CHANNEL_READ_TICK] = 1;
+      PAL_BB_TIMER->TASKS_CAPTURE[TIMER_CHANNEL_READ_TICK] = 1;
       /* Read and return the captured count value from capture register 1 */
-      return NRF_TIMER2->CC[TIMER_CHANNEL_READ_TICK];
+      return PAL_BB_TIMER->CC[TIMER_CHANNEL_READ_TICK];
     #endif
   }
   return 0;
@@ -198,28 +200,28 @@ void PalTimerInit(PalTimerCompCback_t expCback)
       PalRtcIrqRegister(RTC_CHANNEL_START_BB, palTimerRtcIrqHandler);
     #else
       /* Give scheduler timer the highest priority. */
-      NVIC_SetPriority(TIMER2_IRQn, 0);  /* highest priority */
-      NVIC_DisableIRQ(TIMER2_IRQn);
+      NVIC_SetPriority(PAL_BB_IRQn, 0);  /* highest priority */
+      NVIC_DisableIRQ(PAL_BB_IRQn);
 
       /* stop timer if it was somehow running (timer must be stopped for configuration) */
-      NRF_TIMER2->TASKS_STOP  = 1;
+      PAL_BB_TIMER->TASKS_STOP  = 1;
 
       /* clear timer to zero count */
-      NRF_TIMER2->TASKS_CLEAR = 1;
+      PAL_BB_TIMER->TASKS_CLEAR = 1;
 
       /* configure timer */
-      NRF_TIMER2->MODE      = TIMER_MODE_MODE_Timer;
-      NRF_TIMER2->BITMODE   = TIMER_BITMODE_BITMODE_32Bit;
-      NRF_TIMER2->PRESCALER = PAL_TIMER_1MHZ_PRESCALER;  /* f = 16MHz / (2 ^ TIMER_PRESCALER) */
+      PAL_BB_TIMER->MODE      = TIMER_MODE_MODE_Timer;
+      PAL_BB_TIMER->BITMODE   = TIMER_BITMODE_BITMODE_32Bit;
+      PAL_BB_TIMER->PRESCALER = PAL_TIMER_1MHZ_PRESCALER;  /* f = 16MHz / (2 ^ TIMER_PRESCALER) */
 
       /* timer1 is a free running clock. */
-      NRF_TIMER2->TASKS_START = 1;
+      PAL_BB_TIMER->TASKS_START = 1;
 
       /* Clear out and enable timer1 interrupt at system level. */
-      NRF_TIMER2->INTENCLR = 0xFFFFFFFF;
-      NRF_TIMER2->EVENTS_COMPARE[TIMER_CHANNEL_START_BB] = 0;
-      NVIC_ClearPendingIRQ(TIMER2_IRQn);
-      NVIC_EnableIRQ(TIMER2_IRQn);
+      PAL_BB_TIMER->INTENCLR = 0xFFFFFFFF;
+      PAL_BB_TIMER->EVENTS_COMPARE[TIMER_CHANNEL_START_BB] = 0;
+      NVIC_ClearPendingIRQ(PAL_BB_IRQn);
+      NVIC_EnableIRQ(PAL_BB_IRQn);
     #endif
   #endif
 
@@ -237,11 +239,11 @@ void PalTimerDeInit(void)
 {
   #if SCH_TIMER_REQUIRED == TRUE
     #if BB_CLK_RATE_HZ != 32768
-      NVIC_DisableIRQ(TIMER2_IRQn);
+      NVIC_DisableIRQ(PAL_BB_IRQn);
 
       /* stop timer */
-      NRF_TIMER2->TASKS_STOP  = 1;
-      NRF_TIMER2->TASKS_SHUTDOWN = 1;
+      PAL_BB_TIMER->TASKS_STOP  = 1;
+      PAL_BB_TIMER->TASKS_SHUTDOWN = 1;
     #endif
   #endif
 
@@ -319,14 +321,14 @@ void PalTimerStart(uint32_t expTimeUsec)
 	    PalRtcCompareSet(RTC_CHANNEL_START_HFCLK, startHFCLKTick);
  	  #else
 		  /* Clear pending events. */
-	   	NRF_TIMER2->EVENTS_COMPARE[5] = 0;
-    	WAIT_FOR_WR_BUF_EMPTY(NRF_TIMER2->EVENTS_COMPARE[5]);
+	   	PAL_BB_TIMER->EVENTS_COMPARE[PAL_BB_IRQ_EXPIRY_CHANNEL] = 0;
+    	WAIT_FOR_WR_BUF_EMPTY(PAL_BB_TIMER->EVENTS_COMPARE[PAL_BB_IRQ_EXPIRY_CHANNEL]);
 
       /* Set compare value. */
-    	NRF_TIMER2->CC[5] = startTimeTick;
+    	PAL_BB_TIMER->CC[PAL_BB_IRQ_EXPIRY_CHANNEL] = startTimeTick;
 
-      /* Enable timer1 interrupt source for CC[5].  */
-   	 	NRF_TIMER2->INTENSET = TIMER_INTENSET_COMPARE5_Msk;
+      /* Enable timer1 interrupt source for CC[PAL_BB_IRQ_EXPIRY_CHANNEL].  */
+   	 	PAL_BB_TIMER->INTENSET = PAL_BB_TIMER_EXPIRY_INTENSET_MASK;
     #endif // BB_CLK_RATE_HZ
 
 	  palTimerCb.compareVal = startTimeTick;
@@ -353,7 +355,7 @@ void PalTimerStop()
       PalRtcDisableCompareIrq(RTC_CHANNEL_START_BB);
     #else
       /* Disable this interrupt */
-      NRF_TIMER2->INTENCLR = TIMER_INTENCLR_COMPARE0_Msk;
+      PAL_BB_TIMER->INTENCLR = PAL_BB_TIMER_EXPIRY_INTENCLR_MASK;
     #endif
 
     palTimerCb.state = PAL_TIMER_STATE_READY;
@@ -362,39 +364,4 @@ void PalTimerStop()
   #endif
 
   palTimerCb.state = PAL_TIMER_STATE_READY;
-}
-
-
-/*************************************************************************************************/
-/*!
- *  \brief      TIMER2 interrupt handler dedicated to scheduler timer.
- */
-/*************************************************************************************************/
-void TIMER2_IRQHandler(void)
-{
-  #ifdef DEBUG
-    nrf_gpio_pin_set(PAL_TIMER_DEBUG_0_PIN);
-  #endif
-
-  PAL_TIMER_CHECK(palTimerCb.state == PAL_TIMER_STATE_BUSY);
-  /* Check hardware status */
-  PAL_TIMER_CHECK(NRF_TIMER2->EVENTS_COMPARE[TIMER_CHANNEL_START_BB]);
-  PAL_TIMER_CHECK(NRF_TIMER2->CC[TIMER_CHANNEL_START_BB] == palTimerCb.compareVal);
-  PAL_TIMER_CHECK(NRF_TIMER2->INTENSET == TIMER_INTENSET_COMPARE0_Msk);
-
-  /* Callback function could restart timer1. However, we blindly stop timer1 first. */
-  NRF_TIMER2->INTENCLR = TIMER_INTENCLR_COMPARE0_Msk;
-  /* Clear event again just in case. */
-  NRF_TIMER2->EVENTS_COMPARE[TIMER_CHANNEL_START_BB] = 0;
-
-  palTimerCb.state = PAL_TIMER_STATE_READY;
-
-  if (palTimerExpCback)
-  {
-    palTimerExpCback();
-  }
-
-  #ifdef DEBUG
-    nrf_gpio_pin_clear(PAL_TIMER_DEBUG_0_PIN);
-  #endif
 }

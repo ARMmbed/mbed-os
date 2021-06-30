@@ -29,6 +29,8 @@
         "LHCI_ENABLE_VS=0",
         "BB_CLK_RATE_HZ=1000000",
         "LL_MAX_PER_SCAN=3",
-        "NRFX_RTC0_ENABLED=1"
+        "NRFX_RTC_ENABLED=1",
+        "NRFX_RTC2_ENABLED=1",
+        "NRFX_CLOCK_ENABLED=1"
     ]
 }

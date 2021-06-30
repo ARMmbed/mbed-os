@@ -33,6 +33,8 @@
 
 #include <string.h>
 
+#include "mbed_nrf5x_adaptation.h"
+
 /**************************************************************************************************
   Local Variables
 **************************************************************************************************/
@@ -144,15 +146,15 @@ uint32_t PalBbGetCurrentTime(void)
     if (USE_RTC_BB_CLK)
     {
       /* return the RTC counter value */
-      return BB_TICKS_TO_US(NRF_RTC1->COUNTER);
+      return BB_TICKS_TO_US(PAL_BB_RTC->COUNTER);
     }
     else
     {
       /* Capture current TIMER0 count to capture register 3 */
-      nrf_timer_task_trigger(NRF_TIMER0, NRF_TIMER_TASK_CAPTURE3);
+      nrf_timer_task_trigger(PAL_BB_TIMER, NRF_TIMER_TASK_CAPTURE3);
 
       /* Read and return the captured count value from capture register 3 */
-      return BB_TICKS_TO_US(nrf_timer_cc_read(NRF_TIMER0, NRF_TIMER_CC_CHANNEL3));
+      return BB_TICKS_TO_US(nrf_timer_cc_read(PAL_BB_TIMER, NRF_TIMER_CC_CHANNEL3));
     }
   }
   return 0;
@@ -203,7 +205,7 @@ void RADIO_IRQHandler(void)
  *  \brief      Combined BLE and 154 timer interrupt handler.
  */
 /*************************************************************************************************/
-void TIMER0_IRQHandler(void)
+void PAL_BB_IRQ_HANDLER(void)
 {
   if (palBbTimerIrqCbackTbl[palBbProtId])
   {
