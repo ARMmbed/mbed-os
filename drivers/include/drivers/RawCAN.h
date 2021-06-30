@@ -60,7 +60,6 @@ public:
      *    1 if message arrived
      */
     int read(CANMessage &msg, int handle = 0);
-    
 };
 }
 

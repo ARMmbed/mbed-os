@@ -33,7 +33,8 @@ RawCAN::RawCAN(PinName rd, PinName td, int hz): CAN(rd, td, hz) {}
  * any effect on the performance. This will work only in case of a single
  * thread accessing a CAN instance, multiple threads will lead to race conditions
 */
-int RawCAN::read(CANMessage &msg, int handle) {
+int RawCAN::read(CANMessage &msg, int handle)
+{
     int ret = can_read(&_can, &msg, handle);
     return ret;
 }
