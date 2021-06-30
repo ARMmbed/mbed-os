@@ -21,7 +21,9 @@
 #ifndef __PLATFORM_MBED__H__
 #define __PLATFORM_MBED__H__
 
-#if (defined(FEATURE_EXPERIMENTAL_API) && defined(FEATURE_PSA) && defined(MBEDTLS_ENTROPY_NV_SEED))
+#if defined(FEATURE_EXPERIMENTAL_API) && defined(FEATURE_PSA)
+
+#if defined(MBEDTLS_ENTROPY_NV_SEED)
 
 #include "default_random_seed.h"
 
@@ -37,7 +39,18 @@
  * MBEDTLS_ENTROPY_NV_SEED is enabled. */
 #define MBEDTLS_PSA_INJECT_ENTROPY
 
-#endif  // (defined(FEATURE_PSA) && defined(MBEDTLS_ENTROPY_NV_SEED))
+#endif // defined(MBEDTLS_ENTROPY_NV_SEED)
+
+/* The following configurations are a needed for Mbed Crypto submodule.
+ * They are related to the persistent key storage feature.
+ */
+#define MBEDTLS_PSA_CRYPTO_STORAGE_C
+#define MBEDTLS_PSA_CRYPTO_STORAGE_ITS_C
+#undef MBEDTLS_PSA_CRYPTO_STORAGE_FILE_C
+
+#define MBEDTLS_ENTROPY_HARDWARE_ALT
+
+#endif  // defined(FEATURE_EXPERIMENTAL_API) && defined(FEATURE_PSA)
 
 #if DEVICE_TRNG
 #if !defined(MBEDTLS_ENTROPY_HARDWARE_ALT)
@@ -47,17 +60,6 @@
 
 #if defined(MBEDTLS_CONFIG_HW_SUPPORT)
 #include "mbedtls_device.h"
-#endif
-
-#if defined(FEATURE_PSA)
-/* The following configurations are a needed for Mbed Crypto submodule.
- * They are related to the persistent key storage feature.
- */
-#define MBEDTLS_PSA_CRYPTO_STORAGE_C
-#define MBEDTLS_PSA_CRYPTO_STORAGE_ITS_C
-#undef MBEDTLS_PSA_CRYPTO_STORAGE_FILE_C
-
-#define MBEDTLS_ENTROPY_HARDWARE_ALT
 #endif
 
 /*
