@@ -67,11 +67,6 @@ target_include_directories(mbed-headers-connectivity
         ${mbed-os_SOURCE_DIR}/connectivity/libraries/nanostack-libservice
         ${mbed-os_SOURCE_DIR}/connectivity/libraries/nanostack-libservice/mbed-client-libservice
         ${mbed-os_SOURCE_DIR}/connectivity/netsocket/include
-        ${mbed-os_SOURCE_DIR}/connectivity/cellular/include/cellular/framework/API
-        ${mbed-os_SOURCE_DIR}/connectivity/cellular/include/cellular/framework/AT
-        ${mbed-os_SOURCE_DIR}/connectivity/cellular/include/cellular/framework/device
-        ${mbed-os_SOURCE_DIR}/connectivity/cellular/include/cellular/framework
-        ${mbed-os_SOURCE_DIR}/connectivity/cellular/include/cellular/framework/common
         ${mbed-os_SOURCE_DIR}/connectivity
         ${mbed-os_SOURCE_DIR}/connectivity/lorawan/include/lorawan
         ${mbed-os_SOURCE_DIR}/connectivity/lorawan/lorastack

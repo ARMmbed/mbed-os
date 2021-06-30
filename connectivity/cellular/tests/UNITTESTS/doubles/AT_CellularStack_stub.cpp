@@ -31,7 +31,7 @@ AT_CellularStack::~AT_CellularStack()
 {
 }
 
-nsapi_error_t AT_CellularStack::get_ip_address(SocketAddress* address)
+nsapi_error_t AT_CellularStack::get_ip_address(SocketAddress *address)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
