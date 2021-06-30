@@ -38,4 +38,5 @@ namespace mbed {
     }
 
 } // namespace
+
 #endif //DEVICE_CAN
