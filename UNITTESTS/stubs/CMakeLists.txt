@@ -9,7 +9,6 @@ add_library(mbed-headers-connectivity INTERFACE)
 add_library(mbed-headers-storage INTERFACE)
 add_library(mbed-headers-hal INTERFACE)
 add_library(mbed-headers-events INTERFACE)
-add_library(mbed-headers-rtos INTERFACE)
 
 target_link_libraries(mbed-headers
     INTERFACE
@@ -101,12 +100,6 @@ target_include_directories(mbed-headers-hal
         ${mbed-os_SOURCE_DIR}/hal/include
 )
 
-target_include_directories(mbed-headers-rtos
-    INTERFACE
-        ${mbed-os_SOURCE_DIR}/rtos/include
-        ${mbed-os_SOURCE_DIR}/rtos/include/rtos
-)
-
 target_include_directories(mbed-headers
     INTERFACE
         ${mbed-os_SOURCE_DIR}/features
@@ -123,7 +116,6 @@ add_subdirectory(connectivity)
 add_subdirectory(events)
 add_subdirectory(hal)
 add_subdirectory(platform)
-add_subdirectory(rtos)
 add_subdirectory(storage)
 
 add_library(mbed-stubs INTERFACE)

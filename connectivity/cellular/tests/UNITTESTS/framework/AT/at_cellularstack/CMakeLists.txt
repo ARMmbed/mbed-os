@@ -30,6 +30,7 @@ target_link_libraries(${TEST_NAME}
         mbed-headers
         mbed-stubs
         mbed-stubs-headers
+        mbed-stubs-rtos-headers
         gmock_main
 )
 
