@@ -760,7 +760,7 @@
     },
     "K64F": {
         "supported_form_factors": [
-            "ARDUINO"
+            "ARDUINO_UNO"
         ],
         "components_add": [
             "SD",
