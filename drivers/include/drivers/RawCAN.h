@@ -65,5 +65,4 @@ class RawCAN: public CAN {
 }    //namespace mbed
 
 #endif
-
 #endif //RAWCAN_H
