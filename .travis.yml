@@ -302,8 +302,8 @@ matrix:
     - &cmake-build-run-unittest
       stage: "CMake"
       name: "CMake unittest build"
-      env: NAME=cmake_unittest 
-      install:        
+      env: NAME=cmake_unittest
+      install:
         # Hide Travis-preinstalled CMake
         # The Travis-preinstalled CMake is unfortunately not installed via apt, so we
         # can't replace it with an apt-supplied version very easily. Additionally, we
