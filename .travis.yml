@@ -201,7 +201,7 @@ matrix:
       name: "tools-py35"
       env: NAME=tools-py3.5
       language: python
-      python: 3.5
+      python: 3.7
       install:
         # Install gcc
         - source_pkg gcc
@@ -217,8 +217,7 @@ matrix:
           hypothesis>=3,<4
           coverage>=4.5,<5
           "
-        - python -m pip install --upgrade pip==18.1
-        - python -m pip install --upgrade setuptools==40.4.3
+        - pip install --upgrade pip
         - pip install -r requirements.txt
         - pip list --verbose
       script:
@@ -228,16 +227,6 @@ matrix:
         - coverage run -a tools/project.py -S | sed -n '/^Total/p'
         - coverage html
 
-    - <<: *pytools-vm
-      name: "tools-py36"
-      env: NAME=tools-py3.6
-      python: 3.6
-
-    - <<: *pytools-vm
-      name: "tools-py37"
-      env: NAME=tools-py3.7
-      python: 3.7
-
     - &extended-vm
       stage: "Pin validation"
       name: "pinvalidate"
@@ -246,8 +235,7 @@ matrix:
       python: 3.7
       install:
         # Install python modules
-        - python -m pip install --upgrade pip==18.1
-        - python -m pip install --upgrade setuptools==40.4.3
+        - pip install --upgrade pip
         - pip install tabulate argparse
         - pip list --verbose
         # Fetch the base branch to compare against
@@ -302,8 +290,8 @@ matrix:
     - &cmake-build-run-unittest
       stage: "CMake"
       name: "CMake unittest build"
-      env: NAME=cmake_unittest 
-      install:        
+      env: NAME=cmake_unittest
+      install:
         # Hide Travis-preinstalled CMake
         # The Travis-preinstalled CMake is unfortunately not installed via apt, so we
         # can't replace it with an apt-supplied version very easily. Additionally, we
