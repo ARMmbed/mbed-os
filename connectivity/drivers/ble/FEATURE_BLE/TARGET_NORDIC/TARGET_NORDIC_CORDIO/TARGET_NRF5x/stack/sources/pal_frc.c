@@ -54,25 +54,16 @@
 **************************************************************************************************/
 
 /*! \brief  RTC control block. */
-#if NRFX_CHECK(NRFX_RTC0_ENABLED)
-#define HAVE_RTC_ENABLED 1
-static const nrfx_rtc_t palFrcRtcInst = NRFX_RTC_INSTANCE(0);
-#elif NRFX_CHECK(NRFX_RTC1_ENABLED)
-#define HAVE_RTC_ENABLED 1
+#if NRFX_RTC1_ENABLED
 static const nrfx_rtc_t palFrcRtcInst = NRFX_RTC_INSTANCE(1);
-#elif NRFX_CHECK(NRFX_RTC2_ENABLED)
-#define HAVE_RTC_ENABLED 1
+#elif NRFX_RTC2_ENABLED
 static const nrfx_rtc_t palFrcRtcInst = NRFX_RTC_INSTANCE(2);
-#else
-# define HAVE_RTC_ENABLED 0
-# warning No RTC is enabled - one of NRFX_RTC0_ENABLED, NRFX_RTC1_ENABLED or NRFX_RTC2_ENABLED should be set (1)
 #endif
 
 /**************************************************************************************************
   Local Functions
 **************************************************************************************************/
 
-#if HAVE_RTC_ENABLED
 /*************************************************************************************************/
 /*!
  *  \brief  Set wakeup timer.
@@ -124,13 +115,11 @@ static void palFrcWakeupRtcEvent(nrfx_rtc_int_type_t int_type)
     break;
   }
 }
-#endif
 
 /**************************************************************************************************
   Public Functions
 **************************************************************************************************/
 
-#if HAVE_RTC_ENABLED
 /*************************************************************************************************/
 /*!
  *  \brief  FRC initialization.
@@ -170,7 +159,6 @@ uint32_t PalFrcGetCurrentTime(void)
 {
   return nrfx_rtc_counter_get(&palFrcRtcInst);
 }
-#endif
 
 /*************************************************************************************************/
 /*!

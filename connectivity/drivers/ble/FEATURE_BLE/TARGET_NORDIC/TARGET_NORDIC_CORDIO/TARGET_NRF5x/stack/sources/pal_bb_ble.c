@@ -72,6 +72,8 @@
 #include "ll_tester_api.h"
 #endif
 
+#include "mbed_nrf5x_adaptation.h"
+
 /**************************************************************************************************
   Macros
 **************************************************************************************************/
@@ -510,17 +512,17 @@ static inline void palBbSetRadioMode(uint8_t phy, uint8_t option)
 #if (USE_RTC_BB_CLK)
 /*************************************************************************************************/
 /*!
- *  \brief      Set the time for the TIMER0 to start.
+ *  \brief      Set the time for the PAL_BB_TIMER to start.
  *
- *  \param      startTime     TIMER0 start time.
+ *  \param      startTime     PAL_BB_TIMER start time.
  *
  */
 /*************************************************************************************************/
 static void palBbStartTimer(uint32_t startTime)
 {
-  bbEventStartTime = NRF_RTC1->CC[1] = startTime;
-  NRF_RTC1->EVENTS_COMPARE[1] = 0;
-  WAIT_FOR_WR_BUF_EMPTY(NRF_RTC1->EVENTS_COMPARE[1]);
+  bbEventStartTime = PAL_BB_RTC->CC[1] = startTime;
+  PAL_BB_RTC->EVENTS_COMPARE[1] = 0;
+  WAIT_FOR_WR_BUF_EMPTY(PAL_BB_RTC->EVENTS_COMPARE[1]);
 }
 #endif
 
@@ -535,8 +537,8 @@ void PalBbBleLowPower(void)
 {
   /* Stop high frequency timer between BLE events if low lower mode. */
 #if (USE_RTC_BB_CLK)
-  NRF_TIMER0->TASKS_STOP = 1;
-  NRF_TIMER0->TASKS_CLEAR = 1;
+  PAL_BB_TIMER->TASKS_STOP = 1;
+  PAL_BB_TIMER->TASKS_CLEAR = 1;
 #endif
 }
 
@@ -761,8 +763,8 @@ void PalBbBleInit(void)
   bbDecryptRxFlag = 0;
 
 #if (USE_RTC_BB_CLK)
-  NRF_RTC1->EVTENCLR = RTC_EVTENCLR_COMPARE1_Msk;
-  NRF_RTC1->EVTENCLR = RTC_EVTENCLR_COMPARE2_Msk;
+  PAL_BB_RTC->EVTENCLR = RTC_EVTENCLR_COMPARE1_Msk;
+  PAL_BB_RTC->EVTENCLR = RTC_EVTENCLR_COMPARE2_Msk;
 #endif
 
   /* update driver state */
@@ -797,9 +799,9 @@ void PalBbBleEnable(void)
 {
   /* Give the BB the highest priority. */
   NVIC_SetPriority(RADIO_IRQn, 1);
-  NVIC_SetPriority(TIMER0_IRQn, 1);
+  NVIC_SetPriority(PAL_BB_IRQn, 1);
 
-  BB_ASSERT(NVIC_GetPriority(RADIO_IRQn) == NVIC_GetPriority(TIMER0_IRQn)); /* BB driver related interrupts must have same priority */
+  BB_ASSERT(NVIC_GetPriority(RADIO_IRQn) == NVIC_GetPriority(PAL_BB_IRQn)); /* BB driver related interrupts must have same priority */
   BB_ASSERT(driverState == SLEEP_STATE); /* the BB driver should never be re-enabled */
   BB_ASSERT(NRF_CLOCK->HFCLKSTAT & CLOCK_HFCLKSTAT_STATE_Msk); /* HF clock must be running */
 #if (USE_RTC_BB_CLK)
@@ -813,15 +815,15 @@ void PalBbBleEnable(void)
 #endif
 
   /* stop timer if it was somehow running (timer must be stopped for configuration) */
-  NRF_TIMER0->TASKS_STOP  = 1;
+  PAL_BB_TIMER->TASKS_STOP  = 1;
 
   /* clear timer to zero count */
-  NRF_TIMER0->TASKS_CLEAR = 1;
+  PAL_BB_TIMER->TASKS_CLEAR = 1;
 
   /* configure timer */
-  NRF_TIMER0->MODE      = TIMER_MODE_MODE_Timer;
-  NRF_TIMER0->BITMODE   = TIMER_BITMODE_BITMODE_32Bit;
-  NRF_TIMER0->PRESCALER = TIMER_PRESCALER;  /* f = 16MHz / (2 ^ TIMER_PRESCALER),  for TIMER_PRESCALER of 4, clock has 1us resolution
+  PAL_BB_TIMER->MODE      = TIMER_MODE_MODE_Timer;
+  PAL_BB_TIMER->BITMODE   = TIMER_BITMODE_BITMODE_32Bit;
+  PAL_BB_TIMER->PRESCALER = TIMER_PRESCALER;  /* f = 16MHz / (2 ^ TIMER_PRESCALER),  for TIMER_PRESCALER of 4, clock has 1us resolution
                                                                                        TIMER_PRESCALER of 3, clock is 0.5us resolution
                                                                                        TIMER_PRESCALER of 2, clock is 0.25us resolution
                                                                                        TIMER_PRESCALER of 1, clock is 0.125us resolution  */
@@ -833,17 +835,17 @@ void PalBbBleEnable(void)
    */
 #if (USE_RTC_BB_CLK)
   /* TIMER0 starts when RTC0.COMPARE[1] event is triggered */
-  NRF_PPI->CH[13].EEP = (uint32_t) &NRF_RTC1->EVENTS_COMPARE[1];
-  NRF_PPI->CH[13].TEP = (uint32_t) &NRF_TIMER0->TASKS_START;
+  NRF_PPI->CH[13].EEP = (uint32_t) &PAL_BB_RTC->EVENTS_COMPARE[1];
+  NRF_PPI->CH[13].TEP = (uint32_t) &PAL_BB_TIMER->TASKS_START;
   NRF_PPI->CHENSET = PPI_CHENSET_CH13_Msk;                                        /* enable channel */
 
   /* HFCLK starts when RTC0.COMPARE[2] event is triggered */
-  NRF_PPI->CH[10].EEP = (uint32_t) &NRF_RTC1->EVENTS_COMPARE[2];
+  NRF_PPI->CH[10].EEP = (uint32_t) &PAL_BB_RTC->EVENTS_COMPARE[2];
   NRF_PPI->CH[10].TEP = (uint32_t) &NRF_CLOCK->TASKS_HFCLKSTART;
   NRF_PPI->CHENSET = PPI_CHENSET_CH10_Msk;                                        /* enable channel */
 #else
   /* TIMER0 is a free running clock */
-  NRF_TIMER0->TASKS_START = 1;
+  PAL_BB_TIMER->TASKS_START = 1;
 #endif
 
   /*
@@ -854,7 +856,7 @@ void PalBbBleEnable(void)
    *   before the channel is enabled. This task will be either TXEN or RXEN depending on radio
    *   operation. The event is static and never changes. It is configured below.
    */
-  NRF_PPI->CH[14].EEP = (uint32_t) &NRF_TIMER0->EVENTS_COMPARE[0];   /* configure event */
+  NRF_PPI->CH[14].EEP = (uint32_t) &PAL_BB_TIMER->EVENTS_COMPARE[0];   /* configure event */
 
   /*
    *   Configure and enable PPI Channel 15 -  "Chan 15: PAYLOAD -> CAPTURE[2]"
@@ -866,7 +868,7 @@ void PalBbBleEnable(void)
    *   It will stay active until the BB driver is disabled.
    */
   NRF_PPI->CH[15].EEP = (uint32_t) &NRF_RADIO->EVENTS_PAYLOAD;        /* configure event */
-  NRF_PPI->CH[15].TEP = (uint32_t) &NRF_TIMER0->TASKS_CAPTURE[2];     /* configure task */
+  NRF_PPI->CH[15].TEP = (uint32_t) &PAL_BB_TIMER->TASKS_CAPTURE[2];     /* configure task */
   NRF_PPI->CHENSET = PPI_CHENSET_CH15_Msk;                            /* enable channel */
 
   /*
@@ -879,7 +881,7 @@ void PalBbBleEnable(void)
    *   It will stay active until the BB driver is disabled.
    */
   NRF_PPI->CH[16].EEP = (uint32_t) &NRF_RADIO->EVENTS_ADDRESS;        /* configure event */
-  NRF_PPI->CH[16].TEP = (uint32_t) &NRF_TIMER0->TASKS_CAPTURE[4];     /* configure task */
+  NRF_PPI->CH[16].TEP = (uint32_t) &PAL_BB_TIMER->TASKS_CAPTURE[4];     /* configure task */
   NRF_PPI->CHENSET = PPI_CHENSET_CH16_Msk;                            /* enable channel */
 
   /*
@@ -889,10 +891,10 @@ void PalBbBleEnable(void)
    *         reference manual.)
    */
 
-  /* clear out and enable TIMER0 interrupts at system level */
-  NRF_TIMER0->INTENCLR = 0xFFFFFFFF;
-  NVIC_ClearPendingIRQ(TIMER0_IRQn);
-  NVIC_EnableIRQ(TIMER0_IRQn);
+  /* clear out and enable BB scheduler interrupts at system level */
+  PAL_BB_TIMER->INTENCLR = 0xFFFFFFFF;
+  NVIC_ClearPendingIRQ(PAL_BB_IRQn);
+  NVIC_EnableIRQ(PAL_BB_IRQn);
 
   /* clear out and enable RADIO interrupts at system level */
   NRF_RADIO->INTENCLR = 0xFFFFFFFF;
@@ -910,8 +912,8 @@ void PalBbBleEnable(void)
     */
 
 #if (USE_RTC_BB_CLK)
-  NRF_RTC1->EVTENSET = RTC_EVTENSET_COMPARE1_Msk;
-  NRF_RTC1->EVTENSET = RTC_EVTENSET_COMPARE2_Msk;
+  PAL_BB_RTC->EVTENSET = RTC_EVTENSET_COMPARE1_Msk;
+  PAL_BB_RTC->EVTENSET = RTC_EVTENSET_COMPARE2_Msk;
 #endif
 
   /* enable the radio "TIFS Expired" interrupt (triggers on radio PAYLOAD event) */
@@ -958,14 +960,14 @@ void PalBbBleDisable(void)
   NRF_PPI->CHENCLR = PPI_CHENCLR_CH16_Msk;   /* Chan 16: ADDRESS -> CAPTURE[4] */
 
 #if (USE_RTC_BB_CLK)
-  NRF_RTC1->EVTENCLR = RTC_EVTENCLR_COMPARE1_Msk;
-  NRF_RTC1->EVTENCLR = RTC_EVTENCLR_COMPARE2_Msk;
+  PAL_BB_RTC->EVTENCLR = RTC_EVTENCLR_COMPARE1_Msk;
+  PAL_BB_RTC->EVTENCLR = RTC_EVTENCLR_COMPARE2_Msk;
 #endif
 
   /* disable and clean up TIMER0 interrupts */
-  NVIC_DisableIRQ(TIMER0_IRQn);
-  NRF_TIMER0->INTENCLR = 0xFFFFFFFF;
-  NVIC_ClearPendingIRQ(TIMER0_IRQn);
+  NVIC_DisableIRQ(PAL_BB_IRQn);
+  PAL_BB_TIMER->INTENCLR = 0xFFFFFFFF;
+  NVIC_ClearPendingIRQ(PAL_BB_IRQn);
 
   /* disable and clean up RADIO interrupts */
   NVIC_DisableIRQ(RADIO_IRQn);
@@ -1455,15 +1457,15 @@ void PalBbBleTxData(PalBbBleTxBufDesc_t descs[], uint8_t cnt)
     bbDueOffsetUsec = 1;                /* CC[0] can't trigger on 0 */
   }
 
-  NRF_TIMER0->CC[0] = bbDueOffsetUsec;
-  NRF_TIMER0->EVENTS_COMPARE[0] = 0;
-  WAIT_FOR_WR_BUF_EMPTY(NRF_TIMER0->EVENTS_COMPARE[0]);
+  PAL_BB_TIMER->CC[0] = bbDueOffsetUsec;
+  PAL_BB_TIMER->EVENTS_COMPARE[0] = 0;
+  WAIT_FOR_WR_BUF_EMPTY(PAL_BB_TIMER->EVENTS_COMPARE[0]);
   palBbStartTimer(txStart);
 #else
   BB_ASSERT(bbDueOffsetUsec == 0);     /* Always 0 with HFCLK. */
-  NRF_TIMER0->CC[0] = txStart;
-  NRF_TIMER0->EVENTS_COMPARE[0] = 0;
-  WAIT_FOR_WR_BUF_EMPTY(NRF_TIMER0->EVENTS_COMPARE[0]);
+  PAL_BB_TIMER->CC[0] = txStart;
+  PAL_BB_TIMER->EVENTS_COMPARE[0] = 0;
+  WAIT_FOR_WR_BUF_EMPTY(PAL_BB_TIMER->EVENTS_COMPARE[0]);
 #endif
 
   /* configure radio hardware registers for transmit */
@@ -1499,7 +1501,7 @@ void PalBbBleTxData(PalBbBleTxBufDesc_t descs[], uint8_t cnt)
   NRF_PPI->CHENSET = PPI_CHENSET_CH14_Msk;                  /* enable channel */
 
   /* see if the compare point was already reached */
-  if (NRF_TIMER0->EVENTS_COMPARE[0])
+  if (PAL_BB_TIMER->EVENTS_COMPARE[0])
   {
     /* it's 99.99999% certain did not make it, but... maybe, just maybe... */
     if (NRF_RADIO->STATE == RADIO_STATE_STATE_Disabled)
@@ -2091,15 +2093,15 @@ void PalBbBleRxData(uint8_t *pBuf, uint16_t len)
     bbDueOffsetUsec = 1;                /* CC[0] can't trigger on 0 */
   }
 
-  NRF_TIMER0->CC[0] = bbDueOffsetUsec;
-  NRF_TIMER0->EVENTS_COMPARE[0] = 0;
-  WAIT_FOR_WR_BUF_EMPTY(NRF_TIMER0->EVENTS_COMPARE[0]);
+  PAL_BB_TIMER->CC[0] = bbDueOffsetUsec;
+  PAL_BB_TIMER->EVENTS_COMPARE[0] = 0;
+  WAIT_FOR_WR_BUF_EMPTY(PAL_BB_TIMER->EVENTS_COMPARE[0]);
   palBbStartTimer(rxStart - 1);        /* Subtract 1 for receive uncertainty due to rounding. */
 #else
   BB_ASSERT(bbDueOffsetUsec == 0);     /* Always 0 with HFCLK. */
-  NRF_TIMER0->CC[0] = rxStart;
-  NRF_TIMER0->EVENTS_COMPARE[0] = 0;
-  WAIT_FOR_WR_BUF_EMPTY(NRF_TIMER0->EVENTS_COMPARE[0]);
+  PAL_BB_TIMER->CC[0] = rxStart;
+  PAL_BB_TIMER->EVENTS_COMPARE[0] = 0;
+  WAIT_FOR_WR_BUF_EMPTY(PAL_BB_TIMER->EVENTS_COMPARE[0]);
 #endif
 
 #if (USE_RTC_BB_CLK)
@@ -2137,7 +2139,7 @@ void PalBbBleRxData(uint8_t *pBuf, uint16_t len)
       correction = 0;
     }
   /* set timer compare CC[1] for RX timeout (allow time to recognize address, and account for propagation delay) */
-  NRF_TIMER0->CC[1]  = NRF_TIMER0->CC[0]
+  PAL_BB_TIMER->CC[1]  = PAL_BB_TIMER->CC[0]
                        + TICKS_PER_USEC * (bbRxTimeoutUsec
                                            + preambleTime
                                            + accessAddrTime
@@ -2146,8 +2148,8 @@ void PalBbBleRxData(uint8_t *pBuf, uint16_t len)
                                            + correction);
 
   /* clear RX timeout compare event, but do not enable interrupt, that happens in radio isr */
-  NRF_TIMER0->EVENTS_COMPARE[1] = 0;
-  WAIT_FOR_WR_BUF_EMPTY(NRF_TIMER0->EVENTS_COMPARE[1]);
+  PAL_BB_TIMER->EVENTS_COMPARE[1] = 0;
+  WAIT_FOR_WR_BUF_EMPTY(PAL_BB_TIMER->EVENTS_COMPARE[1]);
 
   /* configure radio hardware registers for receive */
   palBbRxHwRadioConfig(pBuf, len);
@@ -2183,7 +2185,7 @@ void PalBbBleRxData(uint8_t *pBuf, uint16_t len)
   NRF_PPI->CHENSET = PPI_CHENSET_CH14_Msk;                  /* enable channel */
 
   /* see if the compare point was already reached */
-  if (NRF_TIMER0->EVENTS_COMPARE[0])
+  if (PAL_BB_TIMER->EVENTS_COMPARE[0])
   {
     /* it's 99.99999% certain did not make it, but... maybe, just maybe... */
     if (NRF_RADIO->STATE == RADIO_STATE_STATE_Disabled)
@@ -2527,14 +2529,14 @@ void BbBleDrvTimerIRQHandler(void)
    *                         COMPARE1 - "RX Timeout"
    * -----------------------------------------------------------------------------*/
 
-  if (NRF_TIMER0->INTENSET & TIMER_INTENSET_COMPARE1_Msk)
+  if (PAL_BB_TIMER->INTENSET & TIMER_INTENSET_COMPARE1_Msk)
   {
-    BB_ASSERT(NRF_TIMER0->EVENTS_COMPARE[1]);
+    BB_ASSERT(PAL_BB_TIMER->EVENTS_COMPARE[1]);
     BB_ASSERT(driverState == RX_STATE); /* an RX timeout should only occur for an RX */
     BB_ASSERT(NRF_RADIO->STATE == RADIO_STATE_STATE_Rx); /* should only be timeout if receiver is actually on */
 
     /* disable this interrupt */
-    NRF_TIMER0->INTENCLR = TIMER_INTENCLR_COMPARE1_Msk;
+    PAL_BB_TIMER->INTENCLR = TIMER_INTENCLR_COMPARE1_Msk;
 
     /*   Once the ADDRESS event has happened, the receive will not be timed out. This event happens
      *   just after the incoming preamble/address has been recognized.
@@ -2553,7 +2555,7 @@ void BbBleDrvTimerIRQHandler(void)
    *                         COMPARE5 - "Scheduler"
    * -----------------------------------------------------------------------------*/
 
-  if (NRF_TIMER0->INTENSET & TIMER_INTENSET_COMPARE5_Msk)
+  if (PAL_BB_TIMER->INTENSET & PAL_BB_TIMER_EXPIRY_INTENSET_MASK)
   {
     PalTimerStop();
 
@@ -2628,13 +2630,13 @@ void BbBleDrvRadioIRQHandler(void)
       WAIT_FOR_WR_BUF_EMPTY(NRF_RADIO->EVENTS_ADDRESS);
 
       /* enable the RX interrupt */
-      NRF_TIMER0->INTENSET = TIMER_INTENSET_COMPARE1_Msk;
+      PAL_BB_TIMER->INTENSET = TIMER_INTENSET_COMPARE1_Msk;
 
       /*  if the compare event is set, the RX timeout already occurred */
-      if (NRF_TIMER0->EVENTS_COMPARE[1])
+      if (PAL_BB_TIMER->EVENTS_COMPARE[1])
       {
         /* force a compare event, which will trigger the interrupt (it was disabled when the actual event happened) */
-        NRF_TIMER0->EVENTS_COMPARE[1] = 1;
+        PAL_BB_TIMER->EVENTS_COMPARE[1] = 1;
       }
     }
 
@@ -2652,8 +2654,8 @@ void BbBleDrvRadioIRQHandler(void)
     WAIT_FOR_WR_BUF_EMPTY(NRF_RADIO->EVENTS_PAYLOAD);
 
     /* disable the "RX Timeout" interrupt (timer COMPARE1 event) */
-    NRF_TIMER0->INTENCLR = TIMER_INTENCLR_COMPARE1_Msk;
-    NVIC_ClearPendingIRQ(TIMER0_IRQn); /* necessary, if interrupt already "fired" this is the only way to clear it */
+    PAL_BB_TIMER->INTENCLR = TIMER_INTENCLR_COMPARE1_Msk;
+    NVIC_ClearPendingIRQ(PAL_BB_IRQn); /* necessary, if interrupt already "fired" this is the only way to clear it */
 
     /*
      *  Setup for potential TIFS operation.
@@ -2737,13 +2739,13 @@ void BbBleDrvRadioIRQHandler(void)
        *   The transmit propagation delay from event to antenna is added to get the actual "antenna time" when the
        *   last transmitted bit finishes at the antenna.
        */
-      antennaTimeTxPktEnd =  NRF_TIMER0->CC[2]                                        /* start with timer value when payload just finished */
+      antennaTimeTxPktEnd =  PAL_BB_TIMER->CC[2]                                        /* start with timer value when payload just finished */
                               + TICKS_PER_USEC * crcTime                              /* add CRC time to arrive at end of packet */
                               + TICKS_PER_USEC * term2Time                            /* add TERM2 time to arrive at end of packet */
                               + TICKS_PER_USEC * NRF5x_PROP_DELAY_TX_USECS;           /* add propagation delay to get "antenna time" */
 
       /* set timer trigger for upcoming TIFS receive operation */
-      NRF_TIMER0->CC[0]   =  antennaTimeTxPktEnd                                      /* start with "antenna time" at end of packet just transmitted */
+      PAL_BB_TIMER->CC[0]   =  antennaTimeTxPktEnd                                      /* start with "antenna time" at end of packet just transmitted */
                               + TICKS_PER_USEC * LL_BLE_TIFS_US                       /* add the TIFS period */
                               - TICKS_PER_USEC * NRF5x_tRXEN_BLE_USECS                /* subtract time it takes to ramp-up for receive */
                               - TICKS_PER_USEC * MAX_TIFS_DEVIATION_USECS;            /* subtract allowed deviation */
@@ -2753,7 +2755,7 @@ void BbBleDrvRadioIRQHandler(void)
       NRF_PPI->CHENSET = PPI_CHENSET_CH14_Msk;                                        /* enable channel */
 
       /* calculate and set RX timeout */
-      NRF_TIMER0->CC[1] = antennaTimeTxPktEnd                                                             /* start with "antenna time" at end of packet just transmitted */
+      PAL_BB_TIMER->CC[1] = antennaTimeTxPktEnd                                                             /* start with "antenna time" at end of packet just transmitted */
                             + TICKS_PER_USEC * LL_BLE_TIFS_US                                             /* add the TIFS period */
                             + TICKS_PER_USEC * preambleTime                                               /* allow time preamble to be received */
                             + TICKS_PER_USEC * accessAddrTime                                             /* allow time access address to be received */
@@ -2771,8 +2773,8 @@ void BbBleDrvRadioIRQHandler(void)
        */
 
       /* clear RX timeout compare event, but do not enable interrupt, that happens in radio isr */
-      NRF_TIMER0->EVENTS_COMPARE[1] = 0;
-      WAIT_FOR_WR_BUF_EMPTY(NRF_TIMER0->EVENTS_COMPARE[1]);
+      PAL_BB_TIMER->EVENTS_COMPARE[1] = 0;
+      WAIT_FOR_WR_BUF_EMPTY(PAL_BB_TIMER->EVENTS_COMPARE[1]);
 
       /* a TX is completing, the radio will soon be ramping up for possible TIFS RX */
       tifsState = TIFS_RX_RAMPUP;
@@ -2847,13 +2849,13 @@ void BbBleDrvRadioIRQHandler(void)
       }
 
       /* calculate "antenna time" when the packet ended (see comments in above transmit code for more explanation) */
-      antennaTimeRxPktEnd =  NRF_TIMER0->CC[2]                                        /* start with timer value when payload just finished */
+      antennaTimeRxPktEnd =  PAL_BB_TIMER->CC[2]                                        /* start with timer value when payload just finished */
                               + TICKS_PER_USEC * crcTime                              /* add CRC time to arrive at end of packet */
                               + TICKS_PER_USEC * term2Time                            /* add TERM2 time to arrive at end of packet */
                               - TICKS_PER_USEC * NRF5x_PROP_DELAY_RX_USECS;           /* subtract propagation delay to get "antenna time" */
 
       /* set timer trigger for upcoming TIFS transmit operation */
-      NRF_TIMER0->CC[0] = antennaTimeRxPktEnd                                         /* start with antenna time */
+      PAL_BB_TIMER->CC[0] = antennaTimeRxPktEnd                                         /* start with antenna time */
                             + TICKS_PER_USEC * LL_BLE_TIFS_US                         /* add the TIFS period */
                             - TICKS_PER_USEC * NRF5x_tTXEN_BLE_USECS                  /* subtract ramp-up time */
                             - TICKS_PER_USEC * NRF5x_PROP_DELAY_TX_USECS              /* subtract internal propagation delay */
@@ -2905,14 +2907,14 @@ void BbBleDrvRadioIRQHandler(void)
           correction = 4;
       }
 
-      NRF_TIMER0->CC[0] = BB_US_TO_BB_TICKS(bbOpParam.ifsTime - (NRF5x_tRXEN_BLE_USECS + NRF5x_PROP_DELAY_RX_USECS));
+      PAL_BB_TIMER->CC[0] = BB_US_TO_BB_TICKS(bbOpParam.ifsTime - (NRF5x_tRXEN_BLE_USECS + NRF5x_PROP_DELAY_RX_USECS));
 
       /* configure and enable PPI trigger for RXEN, happens on next timer COMPARE[0] just configured above */
       NRF_PPI->CH[14].TEP = (uint32_t) &NRF_RADIO->TASKS_RXEN;                        /* configure task */
       NRF_PPI->CHENSET = PPI_CHENSET_CH14_Msk;                                        /* enable channel */
 
       /* set timer compare CC[1] for RX timeout (allow time to recognize address, and account for propagation delay) */
-      NRF_TIMER0->CC[1]  = NRF_TIMER0->CC[0]
+      PAL_BB_TIMER->CC[1]  = PAL_BB_TIMER->CC[0]
                            + TICKS_PER_USEC * (30       /* TODO Resolve total deviation allowed */
                                                + preambleTime
                                                + accessAddrTime
@@ -2932,8 +2934,8 @@ void BbBleDrvRadioIRQHandler(void)
        */
 
       /* clear RX timeout compare event, but do not enable interrupt, that happens in radio isr */
-      NRF_TIMER0->EVENTS_COMPARE[1] = 0;
-      WAIT_FOR_WR_BUF_EMPTY(NRF_TIMER0->EVENTS_COMPARE[1]);
+      PAL_BB_TIMER->EVENTS_COMPARE[1] = 0;
+      WAIT_FOR_WR_BUF_EMPTY(PAL_BB_TIMER->EVENTS_COMPARE[1]);
 
       /* update channel parameters */
       if (bbOpParam.pIfsChan)
@@ -2952,7 +2954,7 @@ void BbBleDrvRadioIRQHandler(void)
              (driverState == TX_STATE))
     {
       /* calculate start time */
-      NRF_TIMER0->CC[0] = BB_US_TO_BB_TICKS(bbOpParam.ifsTime - (NRF5x_tTXEN_BLE_USECS + NRF5x_PROP_DELAY_TX_USECS));
+      PAL_BB_TIMER->CC[0] = BB_US_TO_BB_TICKS(bbOpParam.ifsTime - (NRF5x_tTXEN_BLE_USECS + NRF5x_PROP_DELAY_TX_USECS));
 
       /* configure and enable PPI trigger for TXEN, happens on next timer COMPARE[0] */
       NRF_PPI->CH[14].TEP = (uint32_t) &NRF_RADIO->TASKS_TXEN;  /* configure task */
@@ -2981,10 +2983,10 @@ void BbBleDrvRadioIRQHandler(void)
      */
 
     /* capture current time */
-    NRF_TIMER0->TASKS_CAPTURE[3] = 1;
+    PAL_BB_TIMER->TASKS_CAPTURE[3] = 1;
 
     /* see if current time is already past the TX/RX trigger point */
-    if ((NRF_TIMER0->CC[0] - NRF_TIMER0->CC[3]) & 0x80000000)
+    if ((PAL_BB_TIMER->CC[0] - PAL_BB_TIMER->CC[3]) & 0x80000000)
     {
       /* disable the PPI channel... which was just enabled */
       NRF_PPI->CHENCLR = PPI_CHENCLR_CH14_Msk;  /* COMPARE[0] -> TXEN/RXEN */
@@ -3073,7 +3075,7 @@ void BbBleDrvRadioIRQHandler(void)
        *
        *  The PDU payload length was retrieved from the incoming buffer of the last receive packet.
        */
-      timestamp = NRF_TIMER0->CC[4] - (TICKS_PER_USEC * NRF5x_PROP_DELAY_RX_USECS);
+      timestamp = PAL_BB_TIMER->CC[4] - (TICKS_PER_USEC * NRF5x_PROP_DELAY_RX_USECS);
       switch(bbRxPhy)
       {
         case BB_PHY_BLE_1M:
@@ -3208,8 +3210,8 @@ void PalBbBleCancelData(void)
   BB_ASSERT(driverState != SLEEP_STATE); /* driver cannot be asleep */
 
   /* cancel RX timeout if active */
-  NRF_TIMER0->INTENCLR = TIMER_INTENCLR_COMPARE1_Msk;  /* disable interrupt */
-  NVIC_ClearPendingIRQ(TIMER0_IRQn); /* just in case we are running in interrupt context above TIMER0 */
+  PAL_BB_TIMER->INTENCLR = TIMER_INTENCLR_COMPARE1_Msk;  /* disable interrupt */
+  NVIC_ClearPendingIRQ(PAL_BB_IRQn); /* just in case we are running in interrupt context above TIMER0 */
 
   /* stop radio */
   palBbRadioHardStop();
