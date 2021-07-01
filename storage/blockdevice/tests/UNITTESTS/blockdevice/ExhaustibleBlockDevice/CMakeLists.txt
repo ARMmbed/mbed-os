@@ -16,6 +16,7 @@ target_link_libraries(${TEST_NAME}
         mbed-headers
         mbed-stubs-headers
         mbed-stubs-platform
+        mbed-stubs-blockdevice
         gmock_main
 )
 

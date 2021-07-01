@@ -3,3 +3,4 @@
 
 add_subdirectory(blockdevice)
 add_subdirectory(SFDP)
+add_subdirectory(doubles)

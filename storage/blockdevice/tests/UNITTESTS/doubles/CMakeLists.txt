@@ -1,9 +1,14 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-stubs-storage)
+add_library(mbed-stubs-blockdevice)
 
-target_sources(mbed-stubs-storage
+target_include_directories(mbed-stubs-blockdevice
+    PUBLIC
+        .
+)
+
+target_sources(mbed-stubs-blockdevice
     PRIVATE
         BufferedBlockDevice_stub.cpp
         ChainingBlockDevice_stub.cpp
@@ -15,10 +20,9 @@ target_sources(mbed-stubs-storage
         ProfilingBlockDevice_stub.cpp
         ReadOnlyBlockDevice_stub.cpp
         SlicingBlockDevice_stub.cpp
-        kv_config_stub.cpp
 )
 
-target_link_libraries(mbed-stubs-storage
+target_link_libraries(mbed-stubs-blockdevice
     PRIVATE
         mbed-headers
         mbed-stubs-headers

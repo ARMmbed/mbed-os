@@ -103,7 +103,6 @@ target_include_directories(mbed-stubs-headers
 add_subdirectory(connectivity)
 add_subdirectory(events)
 add_subdirectory(platform)
-add_subdirectory(storage)
 
 add_library(mbed-stubs INTERFACE)
 
@@ -115,5 +114,4 @@ target_link_libraries(mbed-stubs
         mbed-stubs-hal
         mbed-stubs-platform
         mbed-stubs-rtos
-        mbed-stubs-storage
 )
