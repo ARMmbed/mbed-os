@@ -57,7 +57,14 @@ void analogout_init(dac_t *obj, PinName pin)
 
     __GPIOA_CLK_ENABLE();
 
-    __HAL_RCC_DAC12_CLK_ENABLE();
+    if (obj->dac == DAC_1) {
+         __HAL_RCC_DAC12_CLK_ENABLE();
+    }
+#if defined(DAC2)
+    if (obj->dac == DAC_2) {
+        __HAL_RCC_DAC2_CLK_ENABLE();
+    }
+#endif
 
     obj->handle.Instance = DAC1;
     obj->handle.State = HAL_DAC_STATE_RESET;
