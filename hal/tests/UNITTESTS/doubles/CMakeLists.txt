@@ -25,11 +25,6 @@ target_sources(mbed-stubs-hal
         watchdog_api_stub.c
 )
 
-target_link_options(mbed-stubs-hal
-    PRIVATE
-        --coverage
-)
-
 target_link_libraries(mbed-stubs-hal
     PRIVATE
         mbed-headers-base
