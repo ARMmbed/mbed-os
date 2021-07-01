@@ -20,7 +20,7 @@
 #if defined (TARGET_LORA_E5) || defined (TARGET_RAK3172)
 /* This configuration is for RAK3172 or LoRa-E5 modules */
 /* Theese one use only HP mode the LP mode is not connected nor RF Switch ctrl3 */
-/* Added to avoid declarion in sample code for lorawan example with these mmodules
+/* Added to avoid declarion in sample code for lorawan example with these mmodules */
 /* But provided as __weak so it has to be overwritten to match each specicific HW board */
 MBED_WEAK void set_antenna_switch(RBI_Switch_TypeDef state)
 {
