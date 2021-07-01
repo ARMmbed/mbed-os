@@ -131,7 +131,7 @@ class GCC(mbedToolchain):
             self.cpu.append("-mfpu=fpv5-d16")
             self.cpu.append("-mfloat-abi=softfp")
 
-        if target.core == "Cortex-A9":
+        if target.core == "Cortex-A9" or target.core == "Cortex-A5":
             self.cpu.append("-mthumb-interwork")
             self.cpu.append("-marm")
             self.cpu.append("-march=armv7-a")

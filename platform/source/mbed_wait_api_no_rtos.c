@@ -91,7 +91,7 @@ void wait_us(int us)
 #define LOOP_SCALER 2000
 #endif
 #elif defined __CORTEX_A
-#if __CORTEX_A == 9
+#if __CORTEX_A == 9 || __CORTEX_A == 5
 // Cortex-A9 can dual issue for 3 cycles per iteration (SUB,NOP) = 1, (NOP,BCS) = 2
 #define LOOP_SCALER 3000
 #endif

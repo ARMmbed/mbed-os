@@ -21,7 +21,7 @@
 #include<stdint.h>
 
 #if defined(__CORTEX_M0PLUS) || defined(__CORTEX_M3) || defined(__CORTEX_M4) || defined(__CORTEX_M7)\
-    || defined(__CORTEX_M23) || defined(__CORTEX_A9) || defined(__CORTEX_M33)
+    || defined(__CORTEX_M23) || defined(__CORTEX_A9) || defined(__CORTEX_A5) || defined(__CORTEX_M33)
 #define MBED_APPLICATION_SUPPORT 1
 #else
 #define MBED_APPLICATION_SUPPORT 0
