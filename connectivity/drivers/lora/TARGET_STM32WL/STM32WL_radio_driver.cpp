@@ -41,7 +41,12 @@ MBED_WEAK void set_antenna_switch(RBI_Switch_TypeDef state)
             _rf_switch_ctrl2 = 0;
             break;
         }
-        case RBI_SWITCH_RFO_LP: 
+        case RBI_SWITCH_RFO_LP: {
+            /*Turns On in Tx High Power the RF Switch */
+            _rf_switch_ctrl1 = 0;
+            _rf_switch_ctrl2 = 1;
+            break;
+        }
         case RBI_SWITCH_RFO_HP: {
             /*Turns On in Tx High Power the RF Switch */
             _rf_switch_ctrl1 = 0;
