@@ -7,7 +7,6 @@ target_sources(mbed-stubs-storage
     PRIVATE
         BufferedBlockDevice_stub.cpp
         ChainingBlockDevice_stub.cpp
-        EmulatedSD.cpp
         ExhaustibleBlockDevice_stub.cpp
         FlashSimBlockDevice_stub.cpp
         HeapBlockDevice_stub.cpp
