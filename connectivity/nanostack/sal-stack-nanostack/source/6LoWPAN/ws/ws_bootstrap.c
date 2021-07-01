@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,6 +49,7 @@
 #include "Common_Protocols/ip.h"
 #include "Service_Libs/Trickle/trickle.h"
 #include "Service_Libs/fhss/channel_list.h"
+#include "Service_Libs/utils/ns_time.h"
 #include "6LoWPAN/ws/ws_common_defines.h"
 #include "6LoWPAN/ws/ws_common_defines.h"
 #include "6LoWPAN/ws/ws_config.h"
@@ -199,57 +200,10 @@ static void ws_bootstrap_neighbor_delete(struct protocol_interface_info_entry *i
     ws_neighbor_class_entry_remove(&interface->ws_info->neighbor_storage, entry_ptr->index);
 }
 
-static void ws_bootstap_eapol_neigh_entry_allocate(struct protocol_interface_info_entry *interface)
-{
-    uint8_t mac_64[8];
-    memset(mac_64, 0, sizeof(mac_64));
-
-    mac_neighbor_table_entry_t *mac_entry = ws_bootstrap_mac_neighbor_add(interface, mac_64);
-
-    if (!mac_entry) {
-        return;
-    }
-    mac_entry->lifetime = 0xffffffff;
-    mac_entry->link_lifetime = 0xffffffff;
-    ws_neighbor_class_entry_t *ws_neigh = ws_neighbor_class_entry_get(&interface->ws_info->neighbor_storage, mac_entry->index);
-    if (!ws_neigh) {
-        return;
-    }
-
-    interface->ws_info->eapol_tx_index = mac_entry->index;
-}
-
-ws_neighbor_class_entry_t *ws_bootstrap_eapol_tx_temporary_set(struct protocol_interface_info_entry *interface, const uint8_t *src64)
-{
-    mlme_device_descriptor_t device_desc;
-    mac_neighbor_table_entry_t *mac_entry = mac_neighbor_table_attribute_discover(mac_neighbor_info(interface), interface->ws_info->eapol_tx_index);
-    if (!mac_entry) {
-        return NULL;
-    }
-
-    memcpy(mac_entry->mac64, src64, 8);
-    mac_helper_device_description_write(interface, &device_desc, src64, 0xffff, 0, false);
-    mac_helper_devicetable_direct_set(interface->mac_api, &device_desc, interface->ws_info->eapol_tx_index);
-    return ws_neighbor_class_entry_get(&interface->ws_info->neighbor_storage, mac_entry->index);
-}
-
-void ws_bootstrap_eapol_tx_temporary_clear(struct protocol_interface_info_entry *interface)
-{
-    mac_neighbor_table_entry_t *mac_entry = mac_neighbor_table_attribute_discover(mac_neighbor_info(interface), interface->ws_info->eapol_tx_index);
-    if (!mac_entry) {
-        return;
-    }
-
-    memset(mac_entry->mac64, 0xff, 8);
-    mac_helper_devicetable_remove(interface->mac_api, interface->ws_info->eapol_tx_index, NULL);
-}
-
 static void ws_bootstrap_neighbor_list_clean(struct protocol_interface_info_entry *interface)
 {
 
     mac_neighbor_table_neighbor_list_clean(mac_neighbor_info(interface));
-    //Allocate EAPOL TX temporary neigh entry
-    ws_bootstap_eapol_neigh_entry_allocate(interface);
 }
 
 static void ws_address_reregister_trig(struct protocol_interface_info_entry *interface)
@@ -561,14 +515,19 @@ static fhss_ws_neighbor_timing_info_t *ws_get_neighbor_info(const fhss_api_t *ap
         return NULL;
     }
     mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(cur), eui64, MAC_ADDR_MODE_64_BIT);
-    if (!mac_neighbor) {
+    if (mac_neighbor) {
+        ws_neighbor_class_entry_t *ws_neighbor =  ws_neighbor_class_entry_get(&cur->ws_info->neighbor_storage, mac_neighbor->index);
+        if (!ws_neighbor) {
+            return NULL;
+        }
+        return &ws_neighbor->fhss_data;
+    }
+    //Discover temporary entry
+    ws_neighbor_temp_class_t *temp_entry = ws_llc_get_eapol_temp_entry(cur, eui64);
+    if (!temp_entry) {
         return NULL;
     }
-    ws_neighbor_class_entry_t *ws_neighbor =  ws_neighbor_class_entry_get(&cur->ws_info->neighbor_storage, mac_neighbor->index);
-    if (!ws_neighbor) {
-        return NULL;
-    }
-    return &ws_neighbor->fhss_data;
+    return &temp_entry->neigh_info_list.fhss_data;
 }
 static void ws_bootstrap_llc_hopping_update(struct protocol_interface_info_entry *cur, const fhss_ws_configuration_t *fhss_configuration)
 {
@@ -909,17 +868,17 @@ static void ws_bootstrap_ll_address_validate(struct protocol_interface_info_entr
  * \return 0x0000 address unknown or other error
  * \return 0x0001 no ETX statistics on this interface
  */
-uint16_t ws_etx_read(protocol_interface_info_entry_t *interface, addrtype_t addr_type, const uint8_t *addr_ptr)
+uint16_t ws_local_etx_read(protocol_interface_info_entry_t *interface, addrtype_t addr_type, const uint8_t *mac_adddress)
 {
     uint16_t etx;
 
-    if (!addr_ptr || !interface) {
+    if (!mac_adddress || !interface) {
         return 0;
     }
 
     uint8_t attribute_index;
 
-    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(interface), addr_ptr + PAN_ID_LEN, addr_type);
+    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(interface), mac_adddress, addr_type);
     if (!mac_neighbor) {
         return 0xffff;
     }
@@ -933,6 +892,12 @@ uint16_t ws_etx_read(protocol_interface_info_entry_t *interface, addrtype_t addr
 
     etx = etx_local_etx_read(interface->id, attribute_index);
 
+    // if we have a measurement ready then we will check the RSL validity
+    if (etx != 0xffff && !ws_neighbour->candidate_parent) {
+        // RSL value measured is lower than acceptable ETX will be given as MAX
+        return WS_ETX_MAX << 1; // We use 8 bit fraction and ETX is usually 7 bit fraction
+    }
+
     // If we dont have valid ETX for children we assume good ETX.
     // After enough packets is sent to children real calculated ETX is given.
     // This might result in ICMP source route errors returned to Border router causing secondary route uses
@@ -942,6 +907,15 @@ uint16_t ws_etx_read(protocol_interface_info_entry_t *interface, addrtype_t addr
 
     return etx;
 }
+
+uint16_t ws_etx_read(protocol_interface_info_entry_t *interface, addrtype_t addr_type, const uint8_t *addr_ptr)
+{
+    if (!addr_ptr || !interface) {
+        return 0;
+    }
+    return ws_local_etx_read(interface, addr_type, addr_ptr + PAN_ID_LEN);
+}
+
 bool ws_bootstrap_nd_ns_transmit(protocol_interface_info_entry_t *cur, ipv6_neighbour_t *entry,  bool unicast, uint8_t seq)
 {
     (void)cur;
@@ -1024,6 +998,41 @@ static void ws_bootstrap_dhcp_info_notify_cb(int8_t interface, dhcp_option_notif
                             domain || address) {
                         // Valid ARM DNS query entry
                         net_dns_query_result_set(interface, address, domain, server_info->life_time);
+                    }
+                }
+                if (option_type == ARM_DHCP_VENDOR_DATA_NETWORK_TIME) {
+                    // Process ARM Network Time
+                    // Get Current time
+                    // Get Round trip time of the DHCP request
+                    // Estimated error is elapsed time of request
+                    // If current time difference is larger than estimated error update current time
+                    //     set the time for server time + *.5 RTT
+                    int32_t era;
+                    uint32_t offset;
+                    if (net_vendor_option_current_time_read(options->option.vendor_spesific.data, options->option.vendor_spesific.data_length, &era, &offset, NULL)) {
+                        uint64_t current_time;
+                        uint64_t network_time = (era * (uint64_t)(4294967296)) + offset - 2208988800; //Convert to First day of Unix (1 Jan 1970)
+
+                        tr_debug("Network Time option Era:%"PRId32" Offset:%"PRIu32" rtt: %"PRId32" time: %"PRIu64,  era, offset, server_info->rtt, network_time);
+                        if (0 == ns_time_system_time_read(&current_time)) {
+                            uint64_t difference;
+                            // We only adjust clock if time has drifted more than 10 seconds to avoid constant changing of time
+                            // If Round trip time is very high the accuracy is reduced.
+                            uint32_t estimated_error = 10 + server_info->rtt / 10;
+                            // Take into account the round trip time it took the response to arrive from the time server Write the time.
+                            network_time += server_info->rtt / 20;
+
+                            if (current_time > network_time) {
+                                difference = current_time - network_time;
+                            } else {
+                                difference = network_time - current_time;
+                            }
+                            if (difference > estimated_error) {
+                                // Larger than 10 second difference update the time
+                                int ret = ns_time_system_time_write(network_time);
+                                tr_info("Network Time %s: Era:%"PRId32" Offset:%"PRIu32" old time: %"PRIu64" time: %"PRIu64, ret == 0 ? "updated" : "update FAILED", era, offset, current_time, network_time);
+                            }
+                        }
                     }
                 }
 
@@ -1126,7 +1135,8 @@ static int8_t ws_bootstrap_up(protocol_interface_info_entry_t *cur)
     dhcp_client_init(cur->id, DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE);
     dhcp_service_link_local_rx_cb_set(cur->id, ws_bootstrap_dhcp_neighbour_update_cb);
     dhcp_client_configure(cur->id, true, true, true); //RENEW uses SOLICIT, Interface will use 1 instance for address get, IAID address hint is not used.
-    dhcp_client_solicit_timeout_set(cur->id, WS_DHCP_SOLICIT_TIMEOUT, WS_DHCP_SOLICIT_MAX_RT, WS_DHCP_SOLICIT_MAX_RC);
+
+    dhcp_client_solicit_timeout_set(cur->id, WS_DHCP_SOLICIT_TIMEOUT, WS_DHCP_SOLICIT_MAX_RT, WS_DHCP_SOLICIT_MAX_RC, WS_DHCP_SOLICIT_MAX_DELAY);
     dhcp_client_option_notification_cb_set(cur->id, ws_bootstrap_dhcp_info_notify_cb);
 
     // Configure memory limits and garbage collection values;
@@ -1387,6 +1397,12 @@ static void ws_bootstrap_candidate_parent_store(parent_info_t *parent, const str
     parent->signal_dbm = data->signal_dbm;
     memcpy(parent->addr, data->SrcAddr, 8);
 
+    if (ws_neighbor_class_rsl_from_dbm_calculate(parent->signal_dbm) > (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERISIS)) {
+        parent->link_acceptable = true;
+    }
+    if (ws_neighbor_class_rsl_from_dbm_calculate(parent->signal_dbm) < (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD - CAND_PARENT_HYSTERISIS)) {
+        parent->link_acceptable = false;
+    }
     parent->age = protocol_core_monotonic_time;
 }
 
@@ -1421,6 +1437,7 @@ static parent_info_t *ws_bootstrap_candidate_parent_allocate(protocol_interface_
     }
     if (entry) {
         entry->tx_fail = 0;
+        entry->link_acceptable = false;
     }
     return entry;
 }
@@ -1442,13 +1459,11 @@ static void ws_bootstrap_candidate_parent_mark_failure(protocol_interface_info_e
 {
     parent_info_t *entry = ws_bootstrap_candidate_parent_get(cur, addr, false);
     if (entry) {
-        ns_list_remove(&cur->ws_info->parent_list_reserved, entry);
         if (entry->tx_fail >= 2) {
+            ns_list_remove(&cur->ws_info->parent_list_reserved, entry);
             ns_list_add_to_end(&cur->ws_info->parent_list_free, entry);
         } else {
             entry->tx_fail++;
-            //New last
-            ns_list_add_to_end(&cur->ws_info->parent_list_reserved, entry);
             ws_bootstrap_candidate_parent_sort(cur, entry);
         }
 
@@ -1466,14 +1481,16 @@ static bool ws_bootstrap_candidate_parent_compare(parent_info_t *p1, parent_info
         return false;
     }
 
-    if (ws_neighbor_class_rsl_from_dbm_calculate(p1->signal_dbm) < (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERISIS) &&
-            ws_neighbor_class_rsl_from_dbm_calculate(p2->signal_dbm) > (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERISIS)) {
-        // above threshold is always better than not.
+    if (p2->tx_fail < p1->tx_fail) {
         return true;
     }
-    if (ws_neighbor_class_rsl_from_dbm_calculate(p2->signal_dbm) < (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERISIS) &&
-            ws_neighbor_class_rsl_from_dbm_calculate(p1->signal_dbm) > (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERISIS)) {
-        // P2 is less than threshold and P1 is larger so P1 is always better.
+
+    if (p1->link_acceptable && !p2->link_acceptable) {
+        // Link acceptable is always better than not
+        return true;
+    }
+    if (!p1->link_acceptable && p2->link_acceptable) {
+        // Link acceptable is always better than not
         return false;
     }
 
@@ -1498,6 +1515,7 @@ static void ws_bootstrap_candidate_list_clean(struct protocol_interface_info_ent
     int pan_count = 0;
 
     ns_list_foreach_safe(parent_info_t, entry, &cur->ws_info->parent_list_reserved) {
+
         if ((current_time - entry->age) > WS_PARENT_LIST_MAX_AGE) {
             ns_list_remove(&cur->ws_info->parent_list_reserved, entry);
             ns_list_add_to_end(&cur->ws_info->parent_list_free, entry);
@@ -1534,6 +1552,9 @@ static void ws_bootstrap_candidate_parent_sort(struct protocol_interface_info_en
             return;
         }
     }
+    // This is the last entry
+    ns_list_remove(&cur->ws_info->parent_list_reserved, new_entry);
+    ns_list_add_to_end(&cur->ws_info->parent_list_reserved, new_entry);
 }
 
 static void ws_bootstrap_pan_information_store(struct protocol_interface_info_entry *cur, const struct mcps_data_ind_s *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us, ws_pan_information_t *pan_information)
@@ -1560,6 +1581,14 @@ static void ws_bootstrap_pan_information_store(struct protocol_interface_info_en
     }
     // Safe the information
     ws_bootstrap_candidate_parent_store(new_entry, data, ws_utt, ws_us, pan_information);
+    if (!new_entry->link_acceptable) {
+        // This entry is either poor quality or changed to poor quality link so we will remove this
+        // Todo in future possibility to try poor link parents if we have not found any good link parents
+        tr_info("neighbour not accepted: addr:%s panid:%x rsl:%d device_min_sens: %d", trace_array(new_entry->addr, 8), new_entry->pan_id, ws_neighbor_class_rsl_from_dbm_calculate(new_entry->signal_dbm), DEVICE_MIN_SENS);
+        ns_list_remove(&cur->ws_info->parent_list_reserved, new_entry);
+        ns_list_add_to_end(&cur->ws_info->parent_list_free, new_entry);
+        return;
+    }
     // set to the correct place in list
     ws_bootstrap_candidate_parent_sort(cur, new_entry);
 
@@ -2052,10 +2081,6 @@ static void ws_bootstrap_neighbor_table_clean(struct protocol_interface_info_ent
     ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &mac_neighbor_info(interface)->neighbour_list) {
         ws_neighbor_class_entry_t *ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info->neighbor_storage, cur->index);
 
-        if (cur->index == interface->ws_info->eapol_tx_index) {
-            continue;
-        }
-
         if (cur->link_role == PRIORITY_PARENT_NEIGHBOUR) {
             //This is our primary parent we cannot delete
             continue;
@@ -2201,6 +2226,11 @@ static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, 
     etx_storage_t *etx_entry = etx_storage_entry_get(cur->id, entry_ptr->index);
 
     if (!entry_ptr->trusted_device || !ws_neighbor || !etx_entry || entry_ptr->link_lifetime <= WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME) {
+        return false;
+    }
+
+    if (lowpan_adaptation_expedite_forward_state_get(cur)) {
+        //Do not send any probe or NUD when Expedite forward state is enabled
         return false;
     }
 
@@ -2981,17 +3011,17 @@ static bool ws_rpl_new_parent_callback(uint8_t *ll_parent_address, void *handle,
             return false;
         }
         // +2 Is for PAN ID space
-        memcpy(mac64 + 2, replacing + 8, 8);
-        mac64[2] ^= 2;
+        memcpy(mac64, replacing + 8, 8);
+        mac64[0] ^= 2;
 
-        if (ws_etx_read(cur, ADDR_802_15_4_LONG, mac64) == 0xffff) {
-            //Not proped yet because ETX is 0xffff
+        if (ws_local_etx_read(cur, ADDR_802_15_4_LONG, mac64) == 0xffff) {
+            //Not probed yet because ETX is 0xffff
             return false;
         }
 
         uint16_t etx = 0;
         if (neigh_buffer.neighbor) {
-            etx = etx_local_etx_read(cur->id, neigh_buffer.neighbor->index);
+            etx = ws_local_etx_read(cur, ADDR_802_15_4_LONG, neigh_buffer.neighbor->mac64);
         }
 
         // Accept now only better one's when max candidates selected and max candidate list size is reached
@@ -3534,7 +3564,7 @@ static uint16_t ws_bootstrap_routing_cost_calculate(protocol_interface_info_entr
         return 0xffff;
     }
 
-    uint16_t etx = etx_local_etx_read(cur->id, mac_neighbor->index);
+    uint16_t etx = ws_local_etx_read(cur, ADDR_802_15_4_LONG, mac_neighbor->mac64);
     if (etx == 0) {
         etx = WS_ETX_MAX; //SET maximum value here if ETX is unknown
     } else {
@@ -4234,7 +4264,7 @@ int ws_bootstrap_neighbor_info_get(protocol_interface_info_entry_t *cur, ws_neig
             neighbor_ptr[count].rsl_out = ws_neighbor_class_rsl_out_get(ws_neighbor);
 
             // ETX is shown calculated as 8 bit integer, but more common way is to use 7 bit such that 128 means ETX:1.0
-            neighbor_ptr[count].etx = etx_local_etx_read(cur->id, mac_entry->index);
+            neighbor_ptr[count].etx = ws_local_etx_read(cur, ADDR_802_15_4_LONG, mac_entry->mac64);
             if (neighbor_ptr[count].etx != 0xffff) {
                 neighbor_ptr[count].etx = neighbor_ptr[count].etx >> 1;
             }

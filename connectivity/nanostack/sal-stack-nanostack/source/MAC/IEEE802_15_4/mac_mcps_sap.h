@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, Arm Limited and affiliates.
+ * Copyright (c) 2016-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -48,7 +48,7 @@ typedef enum {
 
 #define MAC_PD_DATA_NORMAL_PRIORITY 0    //Normal MCPS DATA REQ
 #define MAC_PD_DATA_MEDIUM_PRIORITY 1    //Indirect Data which is polled
-#define MAC_PD_DATA_HIGH_PRIOTITY   2    //Beacon request Beacon response
+#define MAC_PD_DATA_HIGH_PRIORITY   2    //Beacon request Beacon response
 #define MAC_PD_DATA_EF_PRIORITY     3    //Expedited forwarding
 #define MAC_PD_DATA_TX_IMMEDIATELY  4    //Only for packets whose transmission was interrupted by wrong channel type. E.g. unicast on broadcast channel.
 

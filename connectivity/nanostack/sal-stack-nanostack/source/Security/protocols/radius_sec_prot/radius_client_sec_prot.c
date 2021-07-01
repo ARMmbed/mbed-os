@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited and affiliates.
+ * Copyright (c) 2020-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -71,6 +71,7 @@ typedef enum {
 #define RADIUS_ACCESS_ACCEPT          2
 #define RADIUS_ACCESS_REJECT          3
 #define RADIUS_ACCESS_CHALLENGE       11
+#define RADIUS_MESSAGE_NONE           0
 
 #define MS_MPPE_RECV_KEY_SALT_LEN     2
 #define MS_MPPE_RECV_KEY_BLOCK_LEN    16
@@ -239,7 +240,7 @@ static int8_t radius_client_sec_prot_init(sec_prot_t *prot)
     data->send_radius_msg = NULL;
     data->identity_len = 0;
     data->identity = NULL;
-    data->radius_code = 0;
+    data->radius_code = RADIUS_MESSAGE_NONE;
     data->radius_identifier = 0;
     memset(data->request_authenticator, 0, 16);
     data->state_len = 0;
@@ -247,6 +248,7 @@ static int8_t radius_client_sec_prot_init(sec_prot_t *prot)
     memset(data->remote_eui_64_hash, 0, 8);
     data->remote_eui_64_hash_set = false;
     data->new_pmk_set = false;
+    data->radius_id_range_set = false;
 
     if (!shared_data) {
         shared_data = ns_dyn_mem_alloc(sizeof(radius_client_sec_prot_shared_t));
@@ -379,6 +381,10 @@ static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16
     uint8_t *radius_msg_ptr = pdu;
 
     uint8_t code = *radius_msg_ptr++;
+    if (code != RADIUS_ACCESS_ACCEPT && code != RADIUS_ACCESS_REJECT && code != RADIUS_ACCESS_CHALLENGE) {
+        return -1;
+    }
+
     uint8_t identifier = *radius_msg_ptr++;
     /* If identifier does not match to sent identifier, silently ignore message,
        already checked on socket if before routing the request to receive, so
@@ -430,6 +436,7 @@ static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16
         // Message does not have radius EAP-TLS specific fields
         data->radius_code = code;
         prot->state_machine(prot);
+        data->radius_code = RADIUS_MESSAGE_NONE;
 
         return 0;
     }
@@ -519,6 +526,7 @@ static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16
     data->radius_code = code;
     data->recv_eap_msg_len += data->radius_eap_tls_header_size;
     prot->state_machine(prot);
+    data->radius_code = RADIUS_MESSAGE_NONE;
 
     return 0;
 }
@@ -1124,6 +1132,16 @@ static void radius_client_sec_prot_state_machine(sec_prot_t *prot)
                 if (radius_client_sec_prot_radius_msg_send(prot) < 0) {
                     tr_error("Radius: retry msg send error");
                 }
+                return;
+            }
+
+            if (data->radius_code != RADIUS_MESSAGE_NONE) {
+                // Received retry for already handled message from RADIUS server, ignore
+                if (data->recv_eap_msg) {
+                    ns_dyn_mem_free(data->recv_eap_msg);
+                }
+                data->recv_eap_msg = NULL;
+                data->recv_eap_msg_len = 0;
                 return;
             }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -102,8 +102,23 @@ typedef struct {
 typedef NS_LIST_HEAD(llc_message_t, link) llc_message_list_t;
 
 #define MAX_NEIGH_TEMPORARY_MULTICAST_SIZE 5
-#define MAX_NEIGH_TEMPORRY_EAPOL_SIZE 20
+#define MAX_NEIGH_TEMPORRY_EAPOL_SIZE 5
 #define MAX_NEIGH_TEMPORAY_LIST_SIZE (MAX_NEIGH_TEMPORARY_MULTICAST_SIZE + MAX_NEIGH_TEMPORRY_EAPOL_SIZE)
+
+#define WS_LLC_EAPOL_DYNAMIC_ALLOCATE_MIN 10
+#define WS_LLC_EAPOL_DYNAMIC_ALLOCATE_MAX 100
+#define WS_LLC_EAPOL_DYNAMIC_HEAP_PERCENT 7
+/**
+ *  7 % from total heap take about
+ *
+ *  How to max entry is defined: (Total heap / 100 * 7) / size of temporary entry
+ *
+ *  32 kBytes define 14 entry
+ *  64 kBytes define 29 entry
+ *  128 kBytes define 58 entry
+ *
+ */
+
 
 typedef struct {
     ws_neighbor_temp_class_t        neighbour_temporary_table[MAX_NEIGH_TEMPORAY_LIST_SIZE];
@@ -112,6 +127,7 @@ typedef struct {
     ws_neighbor_temp_list_t         free_temp_neigh;
     llc_message_list_t              llc_eap_pending_list;           /**< Active Message list */
     uint16_t                        llc_eap_pending_list_size;      /**< EAPOL active Message list size */
+    uint16_t                        dynamic_alloc_max;              /**< How big EAPOL temp entry list can be extend */
     bool                            active_eapol_session: 1;        /**< Indicating active EAPOL message */
 } temp_entriest_t;
 
@@ -171,9 +187,11 @@ static void ws_llc_mpx_init(mpx_class_t *mpx_class);
 
 static void ws_llc_temp_neigh_info_table_reset(temp_entriest_t *base);
 static ws_neighbor_temp_class_t *ws_allocate_multicast_temp_entry(temp_entriest_t *base, const uint8_t *mac64);
-static ws_neighbor_temp_class_t *ws_llc_discover_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64);
-static void ws_llc_release_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64);
 static ws_neighbor_temp_class_t *ws_allocate_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64);
+static void ws_llc_temp_entry_free(temp_entriest_t *base, ws_neighbor_temp_class_t *entry);
+static ws_neighbor_temp_class_t *ws_llc_discover_temp_entry(ws_neighbor_temp_list_t *list, const uint8_t *mac64);
+static void ws_llc_release_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64);
+
 
 static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message);
 
@@ -432,6 +450,11 @@ static llc_data_base_t *ws_llc_base_allocate(void)
     ns_list_init(&temp_entries->active_eapol_temp_neigh);
     ns_list_init(&temp_entries->free_temp_neigh);
     ns_list_init(&temp_entries->llc_eap_pending_list);
+
+    //Add to free list to full from static
+    for (int i = 0; i < MAX_NEIGH_TEMPORAY_LIST_SIZE; i++) {
+        ns_list_add_to_end(&temp_entries->free_temp_neigh, &temp_entries->neighbour_temporary_table[i]);
+    }
     base->temp_entries = temp_entries;
 
     ns_list_init(&base->llc_message_list);
@@ -439,6 +462,15 @@ static llc_data_base_t *ws_llc_base_allocate(void)
     ns_list_add_to_end(&llc_data_base_list, base);
     return base;
 }
+
+static void ws_llc_mac_eapol_clear(llc_data_base_t *base)
+{
+    //Clear active EAPOL Session
+    if (base->temp_entries->active_eapol_session) {
+        base->temp_entries->active_eapol_session = false;
+    }
+}
+
 
 /** WS LLC MAC data extension confirmation  */
 static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *data, const mcps_data_conf_payload_t *conf_data)
@@ -458,12 +490,10 @@ static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *
     uint8_t messsage_type = message->messsage_type;
     uint8_t mpx_user_handle = message->mpx_user_handle;
     if (message->eapol_temporary) {
-        //Clear
-        ws_bootstrap_eapol_tx_temporary_clear(interface);
 
         if (data->status == MLME_SUCCESS || data->status == MLME_NO_DATA) {
             //Update timeout
-            ws_neighbor_temp_class_t *temp_entry = ws_llc_discover_eapol_temp_entry(base->temp_entries, message->dst_address);
+            ws_neighbor_temp_class_t *temp_entry = ws_llc_discover_temp_entry(&base->temp_entries->active_eapol_temp_neigh, message->dst_address);
             if (temp_entry) {
                 //Update Temporary Lifetime
                 temp_entry->eapol_temp_info.eapol_timeout = interface->ws_info->cfg->timing.temp_eapol_min_timeout + 1;
@@ -490,8 +520,11 @@ static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *
                 }
 
                 if (neighbor_info.ws_neighbor && neighbor_info.neighbor && neighbor_info.neighbor->link_lifetime == WS_NEIGHBOR_LINK_TIMEOUT) {
-                    etx_transm_attempts_update(interface->id, 1 + data->tx_retries, success, neighbor_info.neighbor->index, neighbor_info.neighbor->mac64);
-                    //TODO discover RSL from Enchanced ACK Header IE elements
+
+                    if (!base->high_priority_mode) {
+                        //Update ETX only when High priority state is not activated
+                        etx_transm_attempts_update(interface->id, 1 + data->tx_retries, success, neighbor_info.neighbor->index, neighbor_info.neighbor->mac64);
+                    }
                     ws_utt_ie_t ws_utt;
                     if (ws_wh_utt_read(conf_data->headerIeList, conf_data->headerIeListLength, &ws_utt)) {
                         //UTT header
@@ -1110,24 +1143,6 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     base->interface_ptr->mac_api->mcps_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, NULL, message->priority);
 }
 
-static bool ws_llc_eapol_temp_entry_set(llc_data_base_t *base, const uint8_t *mac64)
-{
-    //Discover Temporary entry
-    ws_neighbor_temp_class_t *temp_neigh = ws_llc_discover_eapol_temp_entry(base->temp_entries, mac64);
-
-    if (!temp_neigh) {
-        return false;
-    }
-    ws_neighbor_class_entry_t *entry = ws_bootstrap_eapol_tx_temporary_set(base->interface_ptr, mac64);
-    if (!entry) {
-        return false;
-    }
-    *entry = temp_neigh->neigh_info_list;
-    return true;
-
-}
-
-
 static void ws_llc_eapol_data_req_init(mcps_data_req_t *data_req, llc_message_t *message)
 {
     memset(data_req, 0, sizeof(mcps_data_req_t));
@@ -1155,11 +1170,21 @@ static void ws_llc_eapol_data_req_init(mcps_data_req_t *data_req, llc_message_t 
 static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
 {
     mcps_data_req_t data_req;
+
+    //Discover Temporary entry
+    ws_neighbor_temp_class_t *temp_neigh = ws_llc_discover_temp_entry(&base->temp_entries->active_eapol_temp_neigh, message->dst_address);
+
+    if (temp_neigh) {
+        message->eapol_temporary = true;
+    } else {
+        message->eapol_temporary = false;
+    }
+
+    //Allocate message ID
     llc_message_id_allocate(message, base, true);
     base->llc_message_list_size++;
     random_early_detetction_aq_calc(base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
     ns_list_add_to_end(&base->llc_message_list, message);
-    message->eapol_temporary = ws_llc_eapol_temp_entry_set(base, message->dst_address);
     ws_llc_eapol_data_req_init(&data_req, message);
     base->temp_entries->active_eapol_session = true;
     base->interface_ptr->mac_api->mcps_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, NULL, message->priority);
@@ -1342,6 +1367,9 @@ static uint8_t ws_llc_mpx_data_purge_request(const mpx_api_t *api, struct mcps_p
     purge_req.msduHandle = message->msg_handle;
     purge_status = base->interface_ptr->mac_api->mcps_purge_req(base->interface_ptr->mac_api, &purge_req);
     if (purge_status == 0) {
+        if (message->messsage_type == WS_FT_EAPOL) {
+            ws_llc_mac_eapol_clear(base);
+        }
         llc_message_free(message, base);
     }
 
@@ -1376,6 +1404,9 @@ static void ws_llc_clean(llc_data_base_t *base)
     mcps_purge_t purge_req;
     ns_list_foreach_safe(llc_message_t, message, &base->llc_message_list) {
         purge_req.msduHandle = message->msg_handle;
+        if (message->messsage_type == WS_FT_EAPOL) {
+            ws_llc_mac_eapol_clear(base);
+        }
         llc_message_free(message, base);
         base->interface_ptr->mac_api->mcps_purge_req(base->interface_ptr->mac_api, &purge_req);
 
@@ -1394,32 +1425,34 @@ static void ws_llc_clean(llc_data_base_t *base)
     base->high_priority_mode = false;
 }
 
+static void ws_llc_temp_entry_free(temp_entriest_t *base, ws_neighbor_temp_class_t *entry)
+{
+    //Pointer is static add to free list
+    if (entry >= &base->neighbour_temporary_table[0] && entry <= &base->neighbour_temporary_table[MAX_NEIGH_TEMPORAY_LIST_SIZE - 1]) {
+        ns_list_add_to_end(&base->free_temp_neigh, entry);
+    } else {
+        ns_dyn_mem_free(entry);
+    }
+}
+
+
 static void ws_llc_temp_neigh_info_table_reset(temp_entriest_t *base)
 {
-    //Empty active list
-    ns_list_init(&base->active_multicast_temp_neigh);
-    ns_list_init(&base->active_eapol_temp_neigh);
-    ns_list_init(&base->free_temp_neigh);
+    //Empty active list eapol list
+    ns_list_foreach_safe(ws_neighbor_temp_class_t, entry, &base->active_eapol_temp_neigh) {
+        ns_list_remove(&base->active_eapol_temp_neigh, entry);
+        ws_llc_temp_entry_free(base, entry);
+    }
 
-    //Add to free list to full
-    for (int i = 0; i < MAX_NEIGH_TEMPORAY_LIST_SIZE; i++) {
-        ns_list_add_to_end(&base->free_temp_neigh, &base->neighbour_temporary_table[i]);
+    ns_list_foreach_safe(ws_neighbor_temp_class_t, entry, &base->active_multicast_temp_neigh) {
+        ns_list_remove(&base->active_multicast_temp_neigh, entry);
+        ws_llc_temp_entry_free(base, entry);
     }
 }
 
-static ws_neighbor_temp_class_t *ws_llc_discover_mc_temp_entry(temp_entriest_t *base, const uint8_t *mac64)
+static ws_neighbor_temp_class_t *ws_llc_discover_temp_entry(ws_neighbor_temp_list_t *list, const uint8_t *mac64)
 {
-    ns_list_foreach(ws_neighbor_temp_class_t, entry, &base->active_multicast_temp_neigh) {
-        if (memcmp(entry->mac64, mac64, 8) == 0) {
-            return entry;
-        }
-    }
-    return NULL;
-}
-
-static ws_neighbor_temp_class_t *ws_llc_discover_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64)
-{
-    ns_list_foreach(ws_neighbor_temp_class_t, entry, &base->active_eapol_temp_neigh) {
+    ns_list_foreach(ws_neighbor_temp_class_t, entry, list) {
         if (memcmp(entry->mac64, mac64, 8) == 0) {
             return entry;
         }
@@ -1429,13 +1462,14 @@ static ws_neighbor_temp_class_t *ws_llc_discover_eapol_temp_entry(temp_entriest_
 
 static void ws_llc_release_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64)
 {
-    ws_neighbor_temp_class_t *neighbor = ws_llc_discover_eapol_temp_entry(base, mac64);
+    ws_neighbor_temp_class_t *neighbor = ws_llc_discover_temp_entry(&base->active_eapol_temp_neigh, mac64);
     if (!neighbor) {
         return;
     }
 
     ns_list_remove(&base->active_eapol_temp_neigh, neighbor);
-    ns_list_add_to_end(&base->free_temp_neigh, neighbor);
+    ws_llc_temp_entry_free(base, neighbor);
+
 }
 
 ws_neighbor_temp_class_t *ws_llc_get_multicast_temp_entry(protocol_interface_info_entry_t *interface, const uint8_t *mac64)
@@ -1445,7 +1479,17 @@ ws_neighbor_temp_class_t *ws_llc_get_multicast_temp_entry(protocol_interface_inf
         return NULL;
     }
 
-    return ws_llc_discover_mc_temp_entry(base->temp_entries, mac64);
+    return ws_llc_discover_temp_entry(&base->temp_entries->active_multicast_temp_neigh, mac64);
+}
+
+ws_neighbor_temp_class_t *ws_llc_get_eapol_temp_entry(struct protocol_interface_info_entry *interface, const uint8_t *mac64)
+{
+    llc_data_base_t *base = ws_llc_discover_by_interface(interface);
+    if (!base) {
+        return NULL;
+    }
+
+    return ws_llc_discover_temp_entry(&base->temp_entries->active_eapol_temp_neigh, mac64);
 }
 
 
@@ -1464,7 +1508,7 @@ static void ws_init_temporary_neigh_data(ws_neighbor_temp_class_t *entry, const 
 static ws_neighbor_temp_class_t *ws_allocate_multicast_temp_entry(temp_entriest_t *base, const uint8_t *mac64)
 {
 
-    ws_neighbor_temp_class_t *entry = ws_llc_discover_mc_temp_entry(base, mac64);
+    ws_neighbor_temp_class_t *entry = ws_llc_discover_temp_entry(&base->active_multicast_temp_neigh, mac64);
     if (entry) {
         ns_list_remove(&base->active_multicast_temp_neigh, entry);
         ns_list_add_to_start(&base->active_multicast_temp_neigh, entry);
@@ -1492,25 +1536,30 @@ static ws_neighbor_temp_class_t *ws_allocate_multicast_temp_entry(temp_entriest_
 static ws_neighbor_temp_class_t *ws_allocate_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64)
 {
 
-    ws_neighbor_temp_class_t *entry = ws_llc_discover_eapol_temp_entry(base, mac64);
+    ws_neighbor_temp_class_t *entry = ws_llc_discover_temp_entry(&base->active_eapol_temp_neigh, mac64);
     if (entry) {
         //TODO referesh Timer here
         return entry;
     }
 
-    if (ns_list_count(&base->active_eapol_temp_neigh) < MAX_NEIGH_TEMPORRY_EAPOL_SIZE) {
+    //Take static if there is still space for multicast
+    if (ns_list_count(&base->free_temp_neigh) > (MAX_NEIGH_TEMPORARY_MULTICAST_SIZE - ns_list_count(&base->active_multicast_temp_neigh))) {
         entry = ns_list_get_first(&base->free_temp_neigh);
+        ns_list_remove(&base->free_temp_neigh, entry);
+    } else {
+        //Allocate Dynamic entry
+        //validate Can we allocate more
+        if (ns_list_count(&base->active_eapol_temp_neigh) < base->dynamic_alloc_max) {
+            entry = ns_dyn_mem_temporary_alloc(sizeof(ws_neighbor_temp_class_t));
+        }
     }
 
-    if (!entry) {
-        return NULL;
-    }
-
-    ns_list_remove(&base->free_temp_neigh, entry);
     //Add to list
-    ns_list_add_to_start(&base->active_eapol_temp_neigh, entry);
-    //Clear Old data
-    ws_init_temporary_neigh_data(entry, mac64);
+    if (entry) {
+        ns_list_add_to_start(&base->active_eapol_temp_neigh, entry);
+        //Clear Old data
+        ws_init_temporary_neigh_data(entry, mac64);
+    }
     return entry;
 }
 
@@ -1622,12 +1671,40 @@ static void ws_llc_mcps_edfe_handler(const mac_api_t *api, mcps_edfe_response_t 
 }
 
 
+static uint16_t ws_llc_calculate_dynamic_entries_max(uint16_t min_entry, uint16_t max_entry, uint8_t dynamic_heap_percent)
+{
+    const mem_stat_t *mem_stats = ns_dyn_mem_get_mem_stat();
+    if (!mem_stats) {
+        return min_entry;
+    }
+
+    uint32_t total_heap_size = mem_stats->heap_sector_size;
+    total_heap_size = (total_heap_size / 100) * dynamic_heap_percent;
+
+    uint16_t sizeof_entry = sizeof(ws_neighbor_temp_class_t) + 2 * sizeof(int);
+
+    if (total_heap_size > (sizeof_entry * max_entry)) {
+        //Use given MAX entry size
+        return max_entry;
+    }
+
+    if (total_heap_size < (sizeof_entry * min_entry)) {
+        //Use given Min entry size
+        return min_entry;
+    }
+
+    uint16_t max_entry_possible = (uint16_t)total_heap_size / sizeof_entry;
+    tr_debug("Dynamic EAPOL entry max %d", max_entry_possible);
+    return max_entry_possible;
+}
+
 
 int8_t ws_llc_create(struct protocol_interface_info_entry *interface, ws_asynch_ind *asynch_ind_cb, ws_asynch_confirm *asynch_cnf_cb, ws_neighbor_info_request *ws_neighbor_info_request_cb)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (base) {
         ws_llc_clean(base);
+        base->temp_entries->dynamic_alloc_max = ws_llc_calculate_dynamic_entries_max(WS_LLC_EAPOL_DYNAMIC_ALLOCATE_MIN, WS_LLC_EAPOL_DYNAMIC_ALLOCATE_MAX, WS_LLC_EAPOL_DYNAMIC_HEAP_PERCENT);
         return 0;
     }
 
@@ -1647,6 +1724,7 @@ int8_t ws_llc_create(struct protocol_interface_info_entry *interface, ws_asynch_
     //Init MPX class
     ws_llc_mpx_init(&base->mpx_data_base);
     ws_llc_temp_neigh_info_table_reset(base->temp_entries);
+    base->temp_entries->dynamic_alloc_max = ws_llc_calculate_dynamic_entries_max(WS_LLC_EAPOL_DYNAMIC_ALLOCATE_MIN, WS_LLC_EAPOL_DYNAMIC_ALLOCATE_MAX, WS_LLC_EAPOL_DYNAMIC_HEAP_PERCENT);
     return 0;
 }
 
@@ -1948,7 +2026,7 @@ bool ws_llc_eapol_relay_forward_filter(struct protocol_interface_info_entry *int
         return false;
     }
 
-    ws_neighbor_temp_class_t *neighbor = ws_llc_discover_eapol_temp_entry(base->temp_entries, joiner_eui64);
+    ws_neighbor_temp_class_t *neighbor = ws_llc_discover_temp_entry(&base->temp_entries->active_eapol_temp_neigh, joiner_eui64);
     if (!neighbor) {
         llc_neighbour_req_t neighbor_info;
         //Discover here Normal Neighbour

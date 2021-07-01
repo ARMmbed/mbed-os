@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited and affiliates.
+ * Copyright (c) 2019-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -100,6 +100,7 @@ typedef struct mac_pre_build_frame {
     uint16_t blacklist_period_ms;
     uint16_t initial_tx_channel;
     uint32_t tx_time;
+    uint32_t request_start_time_us;
     bool upper_layer_request: 1;
     bool mac_allocated_payload_ptr: 1;
     bool asynch_request: 1;
