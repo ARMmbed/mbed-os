@@ -4381,6 +4381,33 @@
         ],
         "device_name": "STM32WL55JCIx"
     },
+    "MCU_STM32WLe5xC": {
+        "inherits": [
+            "MCU_STM32WL"
+        ],
+        "public": false,
+   		"macros_add": [
+			"STM32WLE5xx"
+		],
+		"extra_labels_add": [
+			"STM32WLE5xC"
+		],
+        "device_name": "STM32WLE5JCIx",
+        "mbed_rom_start": "0x8000000",
+        "mbed_rom_size": "0x40000",
+        "mbed_ram_start": "0x20000000",
+        "mbed_ram_size": "0x10000"    
+    },
+    "LORA_E5": {
+        "inherits": [
+            "MCU_STM32WLe5xC"
+        ]
+    },
+    "RAK3172": {
+        "inherits": [
+            "MCU_STM32WLe5xC"
+        ]
+    },
     "MIMXRT1050_EVK": {
         "supported_form_factors": [
             "ARDUINO_UNO"

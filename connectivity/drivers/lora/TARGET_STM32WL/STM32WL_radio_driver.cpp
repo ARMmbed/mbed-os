@@ -16,8 +16,44 @@
 #include "STM32WL_radio_driver.h"
 #include "drivers/DigitalOut.h"
 
-
 /* Sets up radio switch position according to the radio mode */
+#if defined (TARGET_LORA_E5) || defined (TARGET_RAK3172)
+/* This configuration is for RAK3172 or LoRa-E5 modules */
+/* Theese one use only HP mode the LP mode is not connected nor RF Switch ctrl3 */
+/* Added to avoid declarion in sample code for lorawan example with these mmodules
+/* But provided as __weak so it has to be overwritten to match each specicific HW board */
+MBED_WEAK void set_antenna_switch(RBI_Switch_TypeDef state)
+{
+    // Radio specific controls (TX/RX duplexer switch control)
+    mbed::DigitalOut _rf_switch_ctrl1(MBED_CONF_STM32WL_LORA_DRIVER_RF_SWITCH_CTL1);
+    mbed::DigitalOut _rf_switch_ctrl2(MBED_CONF_STM32WL_LORA_DRIVER_RF_SWITCH_CTL2);
+
+    switch (state) {
+        case RBI_SWITCH_OFF: {
+            /* Turn off switch */
+            _rf_switch_ctrl1 = 0;
+            _rf_switch_ctrl2 = 0;
+            break;
+        }
+        case RBI_SWITCH_RX: {
+            /*Turns On in Rx Mode the RF Switch */
+            _rf_switch_ctrl1 = 1;
+            _rf_switch_ctrl2 = 0;
+            break;
+        }
+        case RBI_SWITCH_RFO_LP: 
+        case RBI_SWITCH_RFO_HP: {
+            /*Turns On in Tx High Power the RF Switch */
+            _rf_switch_ctrl1 = 0;
+            _rf_switch_ctrl2 = 1;
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+#else
 /* This configuration is for NUCLEO_WL55JC */
 /* But provided as __weak so it has to be overwritten to match each specicific HW board */
 MBED_WEAK void set_antenna_switch(RBI_Switch_TypeDef state)
@@ -62,3 +98,4 @@ MBED_WEAK void set_antenna_switch(RBI_Switch_TypeDef state)
     }
 }
 
+#endif
