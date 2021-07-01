@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited and affiliates.
+ * Copyright (c) 2020-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -112,10 +112,11 @@ int8_t net_dns_server_address_set(int8_t interface_id, const uint8_t address[16]
 
     if (!info_ptr) {
         info_ptr = dns_server_info_create(interface_id, address);
+        // Trace only when new entry is created
+        tr_info("DNS Server: %s from: %s Lifetime: %lu", trace_ipv6(dns_server_address), trace_ipv6(info_ptr->address), (unsigned long) lifetime);
     }
     info_ptr->lifetime = lifetime;
     memcpy(info_ptr->dns_server_address, dns_server_address, 16);
-    tr_info("DNS Server: %s from: %s Lifetime: %lu", trace_ipv6(info_ptr->dns_server_address), trace_ipv6(info_ptr->address), (unsigned long) info_ptr->lifetime);
     return 0;
 }
 
@@ -148,22 +149,22 @@ int8_t net_dns_server_search_list_set(int8_t interface_id, const uint8_t address
     if (info_ptr->dns_search_list_ptr && info_ptr->dns_search_list_len != dns_search_list_len) {
         ns_dyn_mem_free(info_ptr->dns_search_list_ptr);
         info_ptr->dns_search_list_ptr = NULL;
+        info_ptr->dns_search_list_len = 0;
     }
 
     if (dns_search_list_len) {
         if (!info_ptr->dns_search_list_ptr) {
             info_ptr->dns_search_list_ptr = ns_dyn_mem_alloc(dns_search_list_len);
+
+            tr_info("DNS Search List: %s Lifetime: %lu", trace_array(dns_search_list_ptr, dns_search_list_len), (unsigned long) info_ptr->lifetime);
         }
 
         if (!info_ptr->dns_search_list_ptr) {
             return -2;
         }
         memcpy(info_ptr->dns_search_list_ptr, dns_search_list_ptr, dns_search_list_len);
+        info_ptr->dns_search_list_len = dns_search_list_len;
     }
-
-    info_ptr->dns_search_list_len = dns_search_list_len;
-    tr_info("DNS Search List: %s Lifetime: %lu", trace_array(info_ptr->dns_search_list_ptr, info_ptr->dns_search_list_len), (unsigned long) info_ptr->lifetime);
-
     return 0;
 }
 

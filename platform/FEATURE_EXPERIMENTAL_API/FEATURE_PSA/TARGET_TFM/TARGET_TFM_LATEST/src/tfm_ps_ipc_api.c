@@ -36,14 +36,6 @@ psa_status_t psa_ps_set(psa_storage_uid_t uid,
 
     psa_close(handle);
 
-    /* A parameter with a buffer pointer pointer that has data length longer
-     * than maximum permitted is treated as a secure violation.
-     * TF-M framework rejects the request with TFM_ERROR_INVALID_PARAMETER.
-     */
-    if (status == (psa_status_t)TFM_ERROR_INVALID_PARAMETER) {
-        return PSA_ERROR_INVALID_ARGUMENT;
-    }
-
     return status;
 }
 

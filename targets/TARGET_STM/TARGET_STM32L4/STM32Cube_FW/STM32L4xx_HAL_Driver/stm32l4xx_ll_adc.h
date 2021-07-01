@@ -1348,7 +1348,7 @@ typedef struct
 /* Delay set to maximum value (refer to device datasheet,                     */
 /* parameter "tADCVREG_STUP").                                                */
 /* Unit: us                                                                   */
-#define LL_ADC_DELAY_INTERNAL_REGUL_STAB_US ( 10UL)  /*!< Delay for ADC stabilization time (ADC voltage regulator start-up time) */
+#define LL_ADC_DELAY_INTERNAL_REGUL_STAB_US ( 20UL)  /*!< Delay for ADC stabilization time (ADC voltage regulator start-up time) */
 
 /* Delay for internal voltage reference stabilization time.                   */
 /* Delay set to maximum value (refer to device datasheet,                     */

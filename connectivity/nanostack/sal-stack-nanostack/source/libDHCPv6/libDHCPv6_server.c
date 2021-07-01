@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, Arm Limited and affiliates.
+ * Copyright (c) 2014-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,6 +31,8 @@
 
 #ifdef HAVE_DHCPV6_SERVER
 
+#define TRACE_GROUP "dhcp"
+
 static NS_LARGE NS_LIST_DEFINE(dhcpv6_gua_server_list, dhcpv6_gua_server_entry_s, link);
 
 bool libdhcpv6_gua_server_list_empty(void)
@@ -49,10 +51,9 @@ static dhcpv6_gua_server_entry_s *libdhcpv6_server_entry_allocate(void)
     }
     entry->serverDynamic_DUID = server_duid_ptr;
     entry->serverDynamic_DUID_length = 16;
-    entry->firstFreedId = 0;
     entry->firstUnusedId = DHCP_ADDRESS_ID_START;
-    entry->enableAddressAutonous = true;
-    entry->disableAddressListAllocation = false;
+    entry->anonymousAddress = false;
+    entry->disableAddressList = false;
     entry->maxSupportedClients = 200;
     entry->validLifetime = 7200;
     entry->removeCb = NULL;
@@ -63,47 +64,34 @@ static dhcpv6_gua_server_entry_s *libdhcpv6_server_entry_allocate(void)
     return entry;
 }
 
-static uint16_t libdhcpv6_get_next_freed_id(dhcpv6_gua_server_entry_s *serverInfo)
+static uint16_t libdhcpv6_get_unique_id(dhcpv6_gua_server_entry_s *serverInfo)
 {
-    uint16_t last_allocated_id = DHCP_ADDRESS_ID_START - 1;
-    ns_list_foreach(dhcpv6_allocated_address_entry_t, cur, &serverInfo->allocatedAddressList) {
+    uint8_t suggested_id = serverInfo->firstUnusedId;
 
-        if (last_allocated_id + 1 == cur->allocatedID) {
-            //Last and current plus 1 so normal order
-            last_allocated_id = cur->allocatedID;
-            continue;
-        }
-
-        if ((cur->allocatedID - last_allocated_id) == 2) {
-            //one missing sequence between last and current
-            if (last_allocated_id + 1 == serverInfo->firstFreedId) {
-                //Skip Current freedID this will update after this call to new one
-                last_allocated_id = cur->allocatedID;
-                continue;
+    do {
+        ns_list_foreach(dhcpv6_allocated_address_entry_t, cur, &serverInfo->allocatedAddressList) {
+            if (serverInfo->firstUnusedId == cur->allocatedID) {
+                serverInfo->firstUnusedId++;
+                if (serverInfo->firstUnusedId == 0) {
+                    serverInfo->firstUnusedId++;
+                }
+                //Start from beginning
+                break;
             }
-        } else if (last_allocated_id + 1 == serverInfo->firstFreedId) {
-            //Skip first if it is last freedId
-            return last_allocated_id + 2;
         }
 
-        return last_allocated_id + 1;
-    }
-    //No more freed ID so return 0
-    return 0;
+    } while (suggested_id != serverInfo->firstUnusedId);
+    //return the first free and increase the value for the next time.
+    serverInfo->firstUnusedId = suggested_id + 1;
+    return suggested_id;
 }
 
 static uint16_t libdhcpv6_address_id_allocate(dhcpv6_gua_server_entry_s *serverInfo)
 {
-    uint16_t address_id;
-    if (serverInfo->firstFreedId) {
-        address_id = serverInfo->firstFreedId;
-        //Discover next free freed possible value
-        serverInfo->firstFreedId = libdhcpv6_get_next_freed_id(serverInfo);
-    } else {
-        //Allocated new ID
-        address_id = serverInfo->firstUnusedId++;
-    }
-    return address_id;
+    // Unique IDs start to generate from 1 and continue to go up every new address
+    // if we go around 65535 we start from 1 and search for free id
+
+    return libdhcpv6_get_unique_id(serverInfo);
 }
 
 static void libdhcpv6_gen_suffics_from_eui48(uint8_t *ptr, uint8_t *eui48)
@@ -124,92 +112,11 @@ static void libdhcpv6_gen_suffics_from_allocated_id(uint8_t *ptr, uint8_t *serve
     common_write_16_bit(allocated_id, ptr + 6);
 }
 
-
-static uint16_t libdhcpv6_address_generate(dhcpv6_gua_server_entry_s *serverInfo, dhcpv6_allocated_address_t *entry)
-{
-    //GENERATE ADDRESS
-    uint8_t *ptr = entry->nonTemporalAddress;
-    memcpy(ptr, serverInfo->guaPrefix, 8);
-    ptr += 8;
-    if (serverInfo->enableAddressAutonous) {
-        if (entry->linkType == DHCPV6_DUID_HARDWARE_EUI64_TYPE ||
-                entry->linkType == DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE) {
-            memcpy(ptr, entry->linkId, 8);
-            *ptr ^= 2;
-            return 0;
-        }
-
-        if (entry->linkType == DHCPV6_DUID_HARDWARE_EUI48_TYPE) {
-            libdhcpv6_gen_suffics_from_eui48(ptr, entry->linkId);
-            return 0;
-        }
-    }
-
-    uint16_t allocated_id = libdhcpv6_address_id_allocate(serverInfo);
-    libdhcpv6_gen_suffics_from_allocated_id(ptr, serverInfo->clientIdDefaultSuffics, allocated_id);
-    return allocated_id;
-}
-
-static void libdhcpv6_address_free(dhcpv6_gua_server_entry_s *server_info, dhcpv6_allocated_address_entry_t *entry)
+static void libdhcpv6_address_list_entry_free(dhcpv6_gua_server_entry_s *server_info, dhcpv6_allocated_address_entry_t *entry)
 {
     ns_list_remove(&server_info->allocatedAddressList, entry);
-    if (!server_info->enableAddressAutonous) {
-        if (entry->allocatedID + 1 == server_info->firstUnusedId) {
-            server_info->firstUnusedId--;
-        } else if (server_info->firstFreedId == 0 || server_info->firstFreedId > entry->allocatedID) {
-            server_info->firstFreedId = entry->allocatedID;
-        }
-    }
     ns_dyn_mem_free(entry);
 }
-
-void libdhcpv6_allocated_address_write(uint8_t *ptr, dhcpv6_allocated_address_entry_t *address, dhcpv6_gua_server_entry_s *serverInfo)
-{
-    memcpy(ptr, serverInfo->guaPrefix, 8);
-    ptr += 8;
-    if (serverInfo->enableAddressAutonous) {
-        //Generate address from link layer address
-        if (address->linkType == DHCPV6_DUID_HARDWARE_EUI64_TYPE ||
-                address->linkType == DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE) {
-            memcpy(ptr, address->linkId, 8);
-            *ptr ^= 2;
-            return;
-        } else if (address->linkType == DHCPV6_DUID_HARDWARE_EUI48_TYPE) {
-            libdhcpv6_gen_suffics_from_eui48(ptr, address->linkId);
-            return;
-        }
-    }
-    //Generate from 16-bit allocate and default suffic's
-    libdhcpv6_gen_suffics_from_allocated_id(ptr, serverInfo->clientIdDefaultSuffics, address->allocatedID);
-}
-
-static bool libdhcpv6_address_suffics_compare(const uint8_t *suffics, dhcpv6_allocated_address_entry_t *address, dhcpv6_gua_server_entry_s *serverInfo)
-{
-    uint8_t allocated_suffics[8];
-    if (serverInfo->enableAddressAutonous) {
-        //Generate address from link layer address
-        if (address->linkType == DHCPV6_DUID_HARDWARE_EUI64_TYPE ||
-                address->linkType == DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE) {
-            memcpy(allocated_suffics, address->linkId, 8);
-            allocated_suffics[0] ^= 2;
-            goto compare_suffics;
-        } else if (address->linkType == DHCPV6_DUID_HARDWARE_EUI48_TYPE) {
-            libdhcpv6_gen_suffics_from_eui48(allocated_suffics, address->linkId);
-            goto compare_suffics;
-        }
-    }
-    //Generate from 16-bit allocate and default suffic's
-    libdhcpv6_gen_suffics_from_allocated_id(allocated_suffics, serverInfo->clientIdDefaultSuffics, address->allocatedID);
-
-compare_suffics:
-    if (memcmp(allocated_suffics, suffics, 8)) {
-        return false;
-    }
-
-    return true;
-
-}
-
 
 void libdhcpv6_gua_servers_time_update(uint32_t timeUpdateInSeconds)
 {
@@ -223,9 +130,9 @@ void libdhcpv6_gua_servers_time_update(uint32_t timeUpdateInSeconds)
                     //Stop use this address for leasequery and delete Route or address map
                     address->preferredLifetime = 0;
                     if (cur->removeCb) {
-                        uint8_t allocated_address[16];
-                        libdhcpv6_allocated_address_write(allocated_address, address, cur);
-                        cur->removeCb(cur->interfaceId, allocated_address, cur->guaPrefix);
+                        uint8_t ipAddress[16];
+                        libdhcpv6_allocated_address_write(ipAddress, address, cur);
+                        cur->removeCb(cur->interfaceId, ipAddress, cur->guaPrefix);
                     }
                 } else {
                     address->preferredLifetime -= timeUpdateInSeconds;
@@ -233,7 +140,7 @@ void libdhcpv6_gua_servers_time_update(uint32_t timeUpdateInSeconds)
             }
 
             if (address->lifetime <= timeUpdateInSeconds) {
-                libdhcpv6_address_free(cur, address);
+                libdhcpv6_address_list_entry_free(cur, address);
             } else {
                 address->lifetime -= timeUpdateInSeconds;
             }
@@ -337,8 +244,7 @@ void libdhcpv6_gua_server_free_by_prefix_and_interfaceid(uint8_t *prefix, int8_t
     if (serverInfo) {
         if ((serverInfo->interfaceId == interfaceId) && (memcmp(serverInfo->guaPrefix, prefix, 8) == 0)) {
             ns_list_foreach_safe(dhcpv6_allocated_address_entry_t, cur, &serverInfo->allocatedAddressList) {
-                ns_list_remove(&serverInfo->allocatedAddressList, cur);
-                ns_dyn_mem_free(cur);
+                libdhcpv6_address_list_entry_free(serverInfo, cur);
             }
 
             ns_list_foreach_safe(dhcpv6_dns_server_data_t, cur, &serverInfo->dnsServerList) {
@@ -372,7 +278,28 @@ static void libdhcpv6_address_entry_lifetime_set(dhcpv6_allocated_address_entry_
     }
 }
 
-static void libdhcpv6_copy_allocated_entry_to_temp(dhcpv6_allocated_address_entry_t *cur, dhcpv6_allocated_address_t *address, dhcpv6_gua_server_entry_s *serverInfo)
+void libdhcpv6_allocated_address_write(uint8_t *ptr, dhcpv6_allocated_address_entry_t *address, dhcpv6_gua_server_entry_s *serverInfo)
+{
+    memcpy(ptr, serverInfo->guaPrefix, 8);
+    ptr += 8;
+    if (serverInfo->anonymousAddress) {
+        //Generate from 16-bit allocate and default suffic's
+        libdhcpv6_gen_suffics_from_allocated_id(ptr, serverInfo->clientIdDefaultSuffics, address->allocatedID);
+        return;
+    }
+    //Generate address from link layer address
+    if (address->linkType == DHCPV6_DUID_HARDWARE_EUI64_TYPE ||
+            address->linkType == DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE) {
+        memcpy(ptr, address->linkId, 8);
+        *ptr ^= 2;
+        return;
+    } else if (address->linkType == DHCPV6_DUID_HARDWARE_EUI48_TYPE) {
+        libdhcpv6_gen_suffics_from_eui48(ptr, address->linkId);
+        return;
+    }
+}
+
+static void libdhcpv6_generate_address_entry(dhcpv6_allocated_address_t *address, dhcpv6_allocated_address_entry_t *cur, dhcpv6_gua_server_entry_s *serverInfo)
 {
     libdhcpv6_allocated_address_write(address->nonTemporalAddress, cur, serverInfo);
     memcpy(address->linkId, cur->linkId, 8);
@@ -384,61 +311,14 @@ static void libdhcpv6_copy_allocated_entry_to_temp(dhcpv6_allocated_address_entr
     address->linkType = cur->linkType;
 }
 
-
-static void libdhcpv6_copy_temp_to_allocated_entry(dhcpv6_allocated_address_entry_t *cur, dhcpv6_allocated_address_t *address, uint16_t allocated_id)
+static void libdhcpv6_address_list_entry_add_to_list(dhcpv6_gua_server_entry_s *serverInfo, dhcpv6_allocated_address_entry_t *allocated)
 {
-    memcpy(cur->linkId, address->linkId, 8);
-    cur->allocatedID = allocated_id;
-    cur->T0 = address->T0;
-    cur->T1 = address->T1;
-    cur->iaID = address->iaID;
-    cur->lifetime = address->lifetime;
-    cur->preferredLifetime = address->preferredLifetime;
-    cur->linkType = address->linkType;
-}
-
-dhcpv6_allocated_address_t *libdhcpv6_address_get_from_allocated_list(dhcpv6_gua_server_entry_s *serverInfo, const uint8_t *address)
-{
-    if (memcmp(serverInfo->guaPrefix, address, 8)) {
-        return NULL;
-    }
-
-    ns_list_foreach(dhcpv6_allocated_address_entry_t, cur, &serverInfo->allocatedAddressList) {
-        if (libdhcpv6_address_suffics_compare(address + 8, cur, serverInfo) == 0) {
-            libdhcpv6_copy_allocated_entry_to_temp(cur, &serverInfo->tempAddressEntry, serverInfo);
-            return &serverInfo->tempAddressEntry;
-        }
-    }
-    return NULL;
-}
-
-void libdhcpv6_address_rm_from_allocated_list(dhcpv6_gua_server_entry_s *serverInfo, const uint8_t *address)
-{
-    if (memcmp(serverInfo->guaPrefix, address, 8)) {
-        return;
-    }
-
-    ns_list_foreach_safe(dhcpv6_allocated_address_entry_t, cur, &serverInfo->allocatedAddressList) {
-        if (libdhcpv6_address_suffics_compare(address + 8, cur, serverInfo) == 0) {
-            libdhcpv6_address_free(serverInfo, cur);
-            return;
-        }
-    }
-}
-
-
-static void libdhcpv6_address_id_add_to_list(dhcpv6_gua_server_entry_s *serverInfo, dhcpv6_allocated_address_entry_t *allocated)
-{
-    if (serverInfo->firstUnusedId != allocated->allocatedID + 1) {
+    if (allocated->allocatedID != 0) {
+        // If we have allocated ID we sort by it if it is 0 we dont do any sorting
         ns_list_foreach_safe(dhcpv6_allocated_address_entry_t, cur, &serverInfo->allocatedAddressList) {
             if (cur->allocatedID > allocated->allocatedID) {
                 //Add before new allocated
-                if (cur->link.prev) {
-                    ns_list_add_before(&serverInfo->allocatedAddressList, cur, allocated);
-                } else {
-                    //New first
-                    ns_list_add_to_start(&serverInfo->allocatedAddressList, allocated);
-                }
+                ns_list_add_before(&serverInfo->allocatedAddressList, cur, allocated);
                 return;
             }
         }
@@ -446,68 +326,87 @@ static void libdhcpv6_address_id_add_to_list(dhcpv6_gua_server_entry_s *serverIn
     ns_list_add_to_end(&serverInfo->allocatedAddressList, allocated);
 }
 
-
-dhcpv6_allocated_address_t *libdhcpv6_address_allocated_list_scan(dhcpv6_gua_server_entry_s *serverInfo, uint8_t *linkId, uint16_t linkType, uint32_t iaID, uint32_t T0, uint32_t T1, bool allocateNew)
+void libdhcpv6_address_delete(dhcpv6_gua_server_entry_s *serverInfo, const uint8_t *address)
 {
-    dhcpv6_allocated_address_t *newEntry = NULL;
-    dhcpv6_allocated_address_entry_t *allocatedEntry = NULL;
+    uint8_t device_address[16];
+    if (memcmp(serverInfo->guaPrefix, address, 8)) {
+        return;
+    }
+
+    ns_list_foreach_safe(dhcpv6_allocated_address_entry_t, cur, &serverInfo->allocatedAddressList) {
+        libdhcpv6_allocated_address_write(device_address, cur, serverInfo);
+        if (memcmp(address, device_address, 16) == 0) {
+            libdhcpv6_address_list_entry_free(serverInfo, cur);
+            return;
+        }
+    }
+}
+
+static dhcpv6_allocated_address_entry_t *libdhcpv6_address_list_entry_create(dhcpv6_gua_server_entry_s *serverInfo, dhcpv6_allocated_address_entry_t *source)
+{
+    dhcpv6_allocated_address_entry_t *entry;
+
+    entry = ns_dyn_mem_alloc(sizeof(dhcpv6_allocated_address_entry_t));
+
+    if (!entry) {
+        return NULL;
+    }
+
+    *entry = *source;
+    libdhcpv6_address_list_entry_add_to_list(serverInfo, entry);
+    return entry;
+}
+
+
+dhcpv6_allocated_address_t *libdhcpv6_address_allocate(dhcpv6_gua_server_entry_s *serverInfo, uint8_t *linkId, uint16_t linkType, uint32_t iaID, uint32_t T0, uint32_t T1, bool allocateNew)
+{
+    dhcpv6_allocated_address_entry_t newEntry;
     uint16_t duiLength = 6;
     if (linkType == DHCPV6_DUID_HARDWARE_EUI64_TYPE ||
             linkType == DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE) {
         duiLength = 8;
     }
 
-    if (serverInfo->enableAddressAutonous && serverInfo->disableAddressListAllocation) {
-        //Accept allways when autonous
-        newEntry = &serverInfo->tempAddressEntry;
-        allocateNew = false;
-    }
-
+    // Search if we have old address in list
     ns_list_foreach(dhcpv6_allocated_address_entry_t, cur, &serverInfo->allocatedAddressList) {
-        if (cur->linkType == linkType) {
-            if (memcmp(cur->linkId, linkId, duiLength) == 0) {
-                cur->iaID = iaID;
-                libdhcpv6_address_entry_lifetime_set(cur, serverInfo->validLifetime);
-                libdhcpv6_copy_allocated_entry_to_temp(cur, &serverInfo->tempAddressEntry, serverInfo);
-                return &serverInfo->tempAddressEntry;
-            }
+        if (cur->linkType == linkType && memcmp(cur->linkId, linkId, duiLength) == 0) {
+            cur->iaID = iaID;
+            cur->T0 = T0;
+            cur->T1 = T1;
+            libdhcpv6_address_entry_lifetime_set(cur, serverInfo->validLifetime);
+            libdhcpv6_generate_address_entry(&serverInfo->tempAddressEntry, cur, serverInfo);
+            return &serverInfo->tempAddressEntry;
         }
     }
-    if (allocateNew) {
-        if (ns_list_count(&serverInfo->allocatedAddressList) < serverInfo->maxSupportedClients) {
-            allocatedEntry = ns_dyn_mem_alloc(sizeof(dhcpv6_allocated_address_entry_t));
-            if (allocatedEntry) {
-                newEntry = &serverInfo->tempAddressEntry;
-            }
-        }
-    }
-    if (newEntry) {
-
-        if (serverInfo->validLifetime != 0xffffffff) {
-            newEntry->lifetime = serverInfo->validLifetime;
-            newEntry->preferredLifetime = (serverInfo->validLifetime >> 1);
-        } else {
-            newEntry->lifetime = 0xffffffff;
-            newEntry->preferredLifetime = 0xffffffff;
-        }
-        memcpy(newEntry->linkId, linkId, duiLength);
-        newEntry->linkType = linkType;
-        newEntry->iaID = iaID;
-        newEntry->T0 = T0;
-        newEntry->T1 = T1;
-        uint16_t allocated_id = libdhcpv6_address_generate(serverInfo, newEntry);
-        if (!serverInfo->disableAddressListAllocation) {
-            libdhcpv6_copy_temp_to_allocated_entry(allocatedEntry, newEntry, allocated_id);
-            if (serverInfo->enableAddressAutonous) {
-                ns_list_add_to_end(&serverInfo->allocatedAddressList, allocatedEntry);
-            } else {
-                //Add to list to proper order
-                libdhcpv6_address_id_add_to_list(serverInfo, allocatedEntry);
-            }
-        }
+    if (!allocateNew) {
+        return NULL;
     }
 
-    return newEntry;
+    if (ns_list_count(&serverInfo->allocatedAddressList) >= serverInfo->maxSupportedClients) {
+        // Maximum supported clients reached
+        return NULL;
+    }
+
+    // Generate new address
+    memcpy(newEntry.linkId, linkId, duiLength);
+    newEntry.linkType = linkType;
+    newEntry.iaID = iaID;
+    newEntry.T0 = T0;
+    newEntry.T1 = T1;
+    newEntry.allocatedID = 0;
+    libdhcpv6_address_entry_lifetime_set(&newEntry, serverInfo->validLifetime);
+    if (serverInfo->anonymousAddress) {
+        // Generate anonymous address id
+        newEntry.allocatedID = libdhcpv6_address_id_allocate(serverInfo);
+    }
+
+    if (!serverInfo->disableAddressList) {
+        // Create new List item and add to list
+        libdhcpv6_address_list_entry_create(serverInfo, &newEntry);
+    }
+
+    libdhcpv6_generate_address_entry(&serverInfo->tempAddressEntry, &newEntry, serverInfo);
+    return &serverInfo->tempAddressEntry;
 }
 
 dhcpv6_dns_server_data_t *libdhcpv6_dns_server_discover(dhcpv6_gua_server_entry_s *serverInfo, const uint8_t *address)
@@ -562,11 +461,11 @@ dhcpv6_vendor_data_t *libdhcpv6_vendor_data_allocate(dhcpv6_gua_server_entry_s *
     }
     ns_list_add_to_end(&serverInfo->vendorDataList, entry);
     entry->enterprise_number = enterprise_number;
+    entry->vendor_data_cb = NULL;
     entry->vendor_data = NULL;
     entry->vendor_data_length = 0;
     return entry;
 }
-
 
 uint16_t libdhcpv6_dns_server_message_sizes(dhcpv6_gua_server_entry_s *serverInfo)
 {
@@ -583,7 +482,13 @@ uint16_t libdhcpv6_vendor_data_message_sizes(dhcpv6_gua_server_entry_s *serverIn
 {
     uint16_t message_size = 0;
     ns_list_foreach(dhcpv6_vendor_data_t, cur, &serverInfo->vendorDataList) {
-        message_size += 4 + 4 + cur->vendor_data_length; //Type + Length + enterprise + vendor_data_length
+        uint16_t size = cur->vendor_data_length; //Type + Length + enterprise + vendor_data_length
+        if (cur->vendor_data_cb) {
+            cur->vendor_data_cb(serverInfo->interfaceId, NULL, &size);
+        }
+        if (size != 0) {
+            message_size += 2 + 2 + 4 + size;
+        }
     }
     return message_size;
 }
@@ -611,13 +516,26 @@ uint8_t *libdhcpv6_vendor_data_message_writes(dhcpv6_gua_server_entry_s *serverI
 {
     ns_list_foreach(dhcpv6_vendor_data_t, cur, &serverInfo->vendorDataList) {
 
-        uint16_t length = cur->vendor_data_length + 4;
+        uint16_t length = cur->vendor_data_length;
+
+        if (cur->vendor_data_cb) {
+            cur->vendor_data_cb(serverInfo->interfaceId, NULL, &length);
+        }
+        if (length == 0) {
+            // No vendor data
+            continue;
+        }
+        length += 4;
+
         ptr = common_write_16_bit(DHCPV6_OPTION_VENDOR_SPECIFIC_INFO, ptr);
         ptr = common_write_16_bit(length, ptr); //Length
         ptr = common_write_32_bit(cur->enterprise_number, ptr);
         if (cur->vendor_data_length) {
             memcpy(ptr, cur->vendor_data, cur->vendor_data_length);
             ptr += cur->vendor_data_length;
+        }
+        if (cur->vendor_data_cb) {
+            ptr = cur->vendor_data_cb(serverInfo->interfaceId, ptr, NULL);
         }
     }
     return ptr;

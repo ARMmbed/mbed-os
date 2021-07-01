@@ -46,7 +46,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #ifndef HCI_DRV_APOLLO3_H
 #define HCI_DRV_APOLLO3_H
-
+#include "wsf_os.h"
 #ifdef __cplusplus
 extern "C"
 {

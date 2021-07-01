@@ -6,6 +6,7 @@ add_subdirectory(TARGET_LPC EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_LPC54114 EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_MCU_LPC546XX EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_MIMXRT1050 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_MIMXRT1170 EXCLUDE_FROM_ALL)
 add_subdirectory(middleware/TARGET_USB EXCLUDE_FROM_ALL)
 
 add_library(mbed-mcuxpresso-mcus INTERFACE)

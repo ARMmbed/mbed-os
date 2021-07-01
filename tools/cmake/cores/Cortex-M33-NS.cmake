@@ -28,6 +28,5 @@ function(mbed_set_cpu_core_definitions target)
             ARM_MATH_ARMV8MML
             DOMAIN_NS=1
             __CMSIS_RTOS
-            __MBED_CMSIS_RTOS_CM
     )
 endfunction()

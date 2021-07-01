@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, Arm Limited and affiliates.
+ * Copyright (c) 2013-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -68,7 +68,9 @@ static uint8_t tls_parse_server_key_exchange(uint8_t *ptr, uint16_t len, sec_sui
 
 static uint8_t *tls_set_client_key_excange(uint8_t *ptr, sec_suite_t *tls_suite);
 static uint8_t tls_parse_server_hello(uint8_t *ptr, sec_suite_t *tls_suite);
+#ifdef PANA_SERVER_API
 static uint8_t tls_parse_client_hello(uint8_t *ptr, uint16_t len, sec_suite_t *tls_suite);
+#endif
 static tls_psk_key_t *tls_get_key(uint16_t key_id);
 
 tls_session_t *amr_tls_session_allocate(void)
@@ -171,7 +173,7 @@ void tls_finnish_copy(uint8_t *ptr, tls_heap_t *heap_ptr)
 
 }
 
-uint8_t tls_parse_client_hello(uint8_t *ptr, uint16_t len, sec_suite_t *tls_suite)
+static uint8_t tls_parse_client_hello(uint8_t *ptr, uint16_t len, sec_suite_t *tls_suite)
 {
     uint8_t ret_val = 0, i = 0;
     uint16_t tls_version;
@@ -548,6 +550,7 @@ uint8_t tls_parse_server_key_exchange(uint8_t *ptr, uint16_t len, sec_suite_t *t
     return 0;
 }
 
+#ifdef ECC
 static uint8_t tls_parse_client_key_exchange(uint8_t *ptr, uint16_t len, sec_suite_t *tls_suite)
 {
     (void)len;
@@ -567,6 +570,7 @@ static uint8_t tls_parse_client_key_exchange(uint8_t *ptr, uint16_t len, sec_sui
 
     return 0;
 }
+#endif
 
 
 void tls_read_certi_signature(tls_heap_t *theap, uint8_t certificate)
@@ -589,8 +593,8 @@ void tls_read_certi_signature(tls_heap_t *theap, uint8_t certificate)
 
 }
 
-
-uint8_t tls_parse_certificate_verify(uint8_t *ptr, uint16_t len, sec_suite_t *tls_suite)
+#ifdef ECC
+static uint8_t tls_parse_certificate_verify(uint8_t *ptr, uint16_t len, sec_suite_t *tls_suite)
 {
     (void)len;
     uint16_t sig_algh, sig_len;
@@ -653,7 +657,7 @@ uint8_t tls_parse_certificate_verify(uint8_t *ptr, uint16_t len, sec_suite_t *tl
     }
     return 1;
 }
-
+#endif
 
 tls_ecc_heap_t *ecc_allocate_ram(void)
 {
@@ -1690,6 +1694,7 @@ buffer_t *tls_server_up(buffer_t *buf, sec_suite_t *tls_suite)
         buf = tls_certificate_buffer_store(buf, certi_rx, tls_suite);
     }
 #else
+    (void)tls_suite;
     if (buf) {
         buf = buffer_free(buf);
     }

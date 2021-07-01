@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -185,6 +185,13 @@ static void ws_eapol_relay_socket_cb(void *cb)
     ns_address_t src_addr;
 
     if (socket_recvfrom(cb_data->socket_id, socket_pdu, cb_data->d_len, 0, &src_addr) != cb_data->d_len) {
+        ns_dyn_mem_free(socket_pdu);
+        return;
+    }
+
+    // EAPOL PDU data length is zero (message contains only supplicant EUI-64 and KMP ID)
+    if (cb_data->d_len == 9) {
+        ws_eapol_pdu_mpx_eui64_purge(eapol_relay->interface_ptr, socket_pdu);
         ns_dyn_mem_free(socket_pdu);
         return;
     }

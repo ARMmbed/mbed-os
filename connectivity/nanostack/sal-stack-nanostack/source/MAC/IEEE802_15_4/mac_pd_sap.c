@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, Arm Limited and affiliates.
+ * Copyright (c) 2014-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -97,7 +97,7 @@ uint32_t mac_csma_backoff_get(protocol_interface_rf_mac_setup_s *rf_mac_setup)
     uint32_t backoff_in_us;
     //Multiple aUnitBackoffPeriod symbol time
     if (rf_mac_setup->rf_csma_extension_supported) {
-        backoff_in_us = backoff * rf_mac_setup->aUnitBackoffPeriod * rf_mac_setup->symbol_time_us;
+        backoff_in_us = backoff * rf_mac_setup->aUnitBackoffPeriod * (rf_mac_setup->symbol_time_ns / 1000);
     } else {
         backoff_in_us = backoff * rf_mac_setup->backoff_period_in_10us * 10;
     }
@@ -189,6 +189,9 @@ int8_t mac_plme_cca_req(protocol_interface_rf_mac_setup_s *rf_mac_setup)
         length = tx_buf->len;
     }
     if (dev_driver->tx(buffer, length, 1, PHY_LAYER_PAYLOAD) == 0) {
+#ifdef TIMING_TOOL_TRACES
+        tr_info("%u CSMA_start", mac_mcps_sap_get_phy_timestamp(rf_mac_setup));
+#endif
         return 0;
     }
 
@@ -451,9 +454,13 @@ static int8_t mac_data_interface_tx_done_cb(protocol_interface_rf_mac_setup_s *r
         return -1;
     }
 
+#ifdef TIMING_TOOL_TRACES
+    if ((status == PHY_LINK_CCA_FAIL) || (status == PHY_LINK_CCA_FAIL_RX) || (status == PHY_LINK_CCA_PREPARE)) {
+        tr_info("%u CSMA_done", mac_mcps_sap_get_phy_timestamp(rf_ptr));
+    }
+#endif
+
     if (status == PHY_LINK_CCA_PREPARE) {
-
-
         if (rf_ptr->mac_ack_tx_active || rf_ptr->mac_edfe_tx_active) {
             goto VALIDATE_TX_TIME;
         }
@@ -485,10 +492,12 @@ static int8_t mac_data_interface_tx_done_cb(protocol_interface_rf_mac_setup_s *r
                 mac_sap_cca_fail_cb(rf_ptr, 0xffff);
                 return PHY_TX_NOT_ALLOWED;
             }
-            // When FHSS TX handle returns -3, we are trying to transmit broadcast packet on unicast channel -> push back
-            // to queue by using CCA fail event
+            // When FHSS TX handle returns -3, we are trying to:
+            //  - transmit broadcast packet on unicast channel
+            //  - transmit unicast packet on broadcast channel
+            // Push back to queue to allow sending applicable packet
             if (tx_handle_retval == -3) {
-                mac_tx_done_state_set(rf_ptr, MAC_CCA_FAIL);
+                mac_tx_done_state_set(rf_ptr, MAC_RETURN_TO_QUEUE);
                 return PHY_TX_NOT_ALLOWED;
             } else if (tx_handle_retval == -2) {
                 mac_tx_done_state_set(rf_ptr, MAC_UNKNOWN_DESTINATION);
@@ -505,6 +514,9 @@ static int8_t mac_data_interface_tx_done_cb(protocol_interface_rf_mac_setup_s *r
                 active_buf->csma_periods_left--;
                 active_buf->tx_time += rf_ptr->multi_cca_interval;
                 mac_pd_sap_set_phy_tx_time(rf_ptr, active_buf->tx_time, true);
+#ifdef TIMING_TOOL_TRACES
+                tr_info("%u CSMA_start", mac_mcps_sap_get_phy_timestamp(rf_ptr));
+#endif
                 return PHY_RESTART_CSMA;
             }
         }
@@ -547,7 +559,8 @@ VALIDATE_TX_TIME:
 
         // Do not update CCA count when Ack is received, it was already updated with PHY_LINK_TX_SUCCESS event
         // Do not update CCA count when CCA_OK is received, PHY_LINK_TX_SUCCESS will update it
-        if ((status != PHY_LINK_TX_DONE) && (status != PHY_LINK_TX_DONE_PENDING) && (status != PHY_LINK_CCA_OK)) {
+        // Do not update CCA count when CCA fail was because of active reception, MAC will restart CCA check in this case
+        if ((status != PHY_LINK_TX_DONE) && (status != PHY_LINK_TX_DONE_PENDING) && (status != PHY_LINK_CCA_OK) && (status != PHY_LINK_CCA_FAIL_RX)) {
             /* For PHY_LINK_TX_SUCCESS and PHY_LINK_CCA_FAIL cca_retry must always be > 0.
              * PHY_LINK_TX_FAIL either happened during transmission or when waiting Ack -> we must use the CCA count given by PHY.
              */
@@ -581,6 +594,9 @@ VALIDATE_TX_TIME:
         } else if (status == PHY_LINK_CCA_FAIL) {
             waiting_ack = false;
             tx_completed = false;
+        } else if (status == PHY_LINK_CCA_FAIL_RX) {
+            waiting_ack = false;
+            tx_completed = false;
         } else if (status == PHY_LINK_CCA_OK) {
             waiting_ack = false;
             tx_completed = false;
@@ -608,6 +624,7 @@ VALIDATE_TX_TIME:
             break;
 
         case PHY_LINK_CCA_FAIL:
+        case PHY_LINK_CCA_FAIL_RX:
             mac_sap_cca_fail_cb(rf_ptr, failed_channel);
             break;
 

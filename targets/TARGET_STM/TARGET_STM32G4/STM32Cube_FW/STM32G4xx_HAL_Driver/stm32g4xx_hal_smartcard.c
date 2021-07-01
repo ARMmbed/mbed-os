@@ -199,23 +199,24 @@
 /** @defgroup SMARTCARD_Private_Constants SMARTCARD Private Constants
   * @{
   */
-#define SMARTCARD_TEACK_REACK_TIMEOUT               1000U      /*!< SMARTCARD TX or RX enable acknowledge time-out value  */
+#define SMARTCARD_TEACK_REACK_TIMEOUT  1000U       /*!< SMARTCARD TX or RX enable acknowledge time-out value */
 
-#define USART_CR1_FIELDS      ((uint32_t)(USART_CR1_M | USART_CR1_PCE | USART_CR1_PS   | \
-                                          USART_CR1_TE | USART_CR1_RE | USART_CR1_OVER8| \
-                                          USART_CR1_FIFOEN ))                                         /*!< USART CR1 fields of parameters set by SMARTCARD_SetConfig API */
+#define USART_CR1_FIELDS  ((uint32_t)(USART_CR1_M | USART_CR1_PCE | USART_CR1_PS | USART_CR1_TE | \
+                                      USART_CR1_RE | USART_CR1_OVER8| \
+                                      USART_CR1_FIFOEN))  /*!< USART CR1 fields of parameters set by SMARTCARD_SetConfig API */
 
-#define USART_CR2_CLK_FIELDS  ((uint32_t)(USART_CR2_CLKEN | USART_CR2_CPOL | USART_CR2_CPHA | \
-                                          USART_CR2_LBCL))                                            /*!< SMARTCARD clock-related USART CR2 fields of parameters */
+#define USART_CR2_CLK_FIELDS  ((uint32_t)(USART_CR2_CLKEN | USART_CR2_CPOL | \
+                                          USART_CR2_CPHA | USART_CR2_LBCL)) /*!< SMARTCARD clock-related USART CR2 fields of parameters */
 
-#define USART_CR2_FIELDS      ((uint32_t)(USART_CR2_RTOEN | USART_CR2_CLK_FIELDS | USART_CR2_STOP))   /*!< USART CR2 fields of parameters set by SMARTCARD_SetConfig API */
+#define USART_CR2_FIELDS  ((uint32_t)(USART_CR2_RTOEN | USART_CR2_CLK_FIELDS | \
+                                      USART_CR2_STOP)) /*!< USART CR2 fields of parameters set by SMARTCARD_SetConfig API */
 
-#define USART_CR3_FIELDS      ((uint32_t)(USART_CR3_ONEBIT | USART_CR3_NACK | USART_CR3_SCARCNT | \
-                                          USART_CR3_TXFTCFG | USART_CR3_RXFTCFG ))                    /*!< USART CR3 fields of parameters set by SMARTCARD_SetConfig API */
+#define USART_CR3_FIELDS  ((uint32_t)(USART_CR3_ONEBIT | USART_CR3_NACK | USART_CR3_SCARCNT | \
+                                      USART_CR3_TXFTCFG | USART_CR3_RXFTCFG )) /*!< USART CR3 fields of parameters set by SMARTCARD_SetConfig API */
 
-#define USART_BRR_MIN    0x10U        /*!< USART BRR minimum authorized value */
+#define USART_BRR_MIN  0x10U        /*!< USART BRR minimum authorized value */
 
-#define USART_BRR_MAX    0x0000FFFFU  /*!< USART BRR maximum authorized value */
+#define USART_BRR_MAX  0x0000FFFFU  /*!< USART BRR maximum authorized value */
 /**
   * @}
   */
@@ -2345,7 +2346,7 @@ static HAL_StatusTypeDef SMARTCARD_SetConfig(SMARTCARD_HandleTypeDef *hsmartcard
   uint32_t tmpreg;
   SMARTCARD_ClockSourceTypeDef clocksource;
   HAL_StatusTypeDef ret = HAL_OK;
-  const uint16_t SMARTCARDPrescTable[12] = {1U, 2U, 4U, 6U, 8U, 10U, 12U, 16U, 32U, 64U, 128U, 256U};
+  static const uint16_t SMARTCARDPrescTable[12] = {1U, 2U, 4U, 6U, 8U, 10U, 12U, 16U, 32U, 64U, 128U, 256U};
   uint32_t pclk;
 
   /* Check the parameters */
@@ -2370,8 +2371,8 @@ static HAL_StatusTypeDef SMARTCARD_SetConfig(SMARTCARD_HandleTypeDef *hsmartcard
    * Configure the Parity and Mode:
    *  set PS bit according to hsmartcard->Init.Parity value
    *  set TE and RE bits according to hsmartcard->Init.Mode value */
-  tmpreg = (uint32_t) hsmartcard->Init.Parity | hsmartcard->Init.Mode;
-  tmpreg |= (uint32_t) hsmartcard->Init.WordLength | hsmartcard->FifoMode;
+  tmpreg = (((uint32_t)hsmartcard->Init.Parity) | ((uint32_t)hsmartcard->Init.Mode) |
+            ((uint32_t)hsmartcard->Init.WordLength));
   MODIFY_REG(hsmartcard->Instance->CR1, USART_CR1_FIELDS, tmpreg);
 
   /*-------------------------- USART CR2 Configuration -----------------------*/

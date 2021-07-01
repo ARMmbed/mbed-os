@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited and affiliates.
+ * Copyright (c) 2020-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -64,6 +64,7 @@ typedef struct ws_bbr_cfg_s {
     uint16_t dag_max_rank_increase;
     uint16_t min_hop_rank_increase;
     uint32_t dhcp_address_lifetime;     /**< DHCP address lifetime in seconds minimum 2 hours and maximum as days hours*/
+    uint32_t rpl_default_lifetime;      /**< RPL default lifetime value minimum from 30 minutes to 16 hours*/
 } ws_bbr_cfg_t;
 
 /**
@@ -114,11 +115,12 @@ typedef struct ws_sec_prot_cfg_s {
     uint16_t sec_prot_trickle_imin;           /**< Security protocol trickle parameters Imin; seconds; default 30 */
     uint16_t sec_prot_trickle_imax;           /**< Security protocol trickle parameters Imax; seconds; default 90 */
     uint8_t sec_prot_trickle_timer_exp;       /**< Security protocol trickle timer expirations; default 2 */
-    uint16_t sec_max_ongoing_authentication;  /**< Pae authenticator max Accept ongoing authentication count */
-    uint16_t initial_key_retry_delay;         /**< Delay before starting initial key trickle; seconds; default 120 */
-    uint16_t initial_key_imin;                /**< Initial key trickle Imin; seconds; default 360 */
-    uint16_t initial_key_imax;                /**< Initial key trickle Imax; seconds; default 720 */
-    uint8_t initial_key_retry_cnt;            /**< Number of initial key retries; default 2 */
+    uint16_t max_simult_sec_neg_tx_queue_min; /**< PAE authenticator max simultaneous security negotiations TX queue minimum */
+    uint16_t max_simult_sec_neg_tx_queue_max; /**< PAE authenticator max simultaneous security negotiations TX queue maximum */
+    uint16_t initial_key_retry_min;           /**< Initial EAPOL-Key retry exponential backoff min; seconds; default 180 */
+    uint16_t initial_key_retry_max;           /**< Initial EAPOL-Key retry exponential backoff max; seconds; default 420 */
+    uint16_t initial_key_retry_max_limit;     /**< Initial EAPOL-Key retry exponential backoff max limit; seconds; default 720 */
+    uint8_t initial_key_retry_cnt;            /**< Number of initial key retries; default 4 */
 } ws_sec_prot_cfg_t;
 
 /**

@@ -132,6 +132,10 @@ typedef struct
 #if !defined  (LSI_VALUE)
 #define LSI_VALUE    40000U    /*!< Value of the LSI oscillator in Hz */
 #endif /* LSI_VALUE */
+
+#if !defined  (EXTERNAL_CLOCK_VALUE)
+#define EXTERNAL_CLOCK_VALUE    12288000U /*!< Value of the I2S_CKIN external oscillator in Hz */
+#endif /* EXTERNAL_CLOCK_VALUE */
 /**
   * @}
   */

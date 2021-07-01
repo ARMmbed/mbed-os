@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited and affiliates.
+ * Copyright (c) 2019-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,9 +33,9 @@ int ns_monitor_clear(void);
 
 void ns_monitor_timer(uint16_t seconds);
 
-int ns_monitor_heap_gc_threshold_set(uint8_t percentage_high, uint8_t percentage_critical);
+int ns_monitor_heap_gc_threshold_set(uint32_t high_min, uint32_t high_max, uint8_t high_percentage, uint32_t critical_min, uint32_t critical_max, uint8_t critical_percentage);
 
-int ns_monitor_packet_ingress_rate_limit_by_memory(uint8_t free_heap_percentage);
+int ns_monitor_packet_ingress_rate_limit_by_memory(uint32_t minimum_required, uint32_t Maximum_allowed, uint8_t free_heap_percentage);
 
 bool ns_monitor_packet_allocation_allowed(void);
 

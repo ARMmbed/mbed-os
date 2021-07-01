@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2019, Arm Limited and affiliates.
+ * Copyright (c) 2008-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -218,6 +218,7 @@ typedef struct buffer {
     bool                rpl_instance_known: 1;
     bool                ip_routed_up: 1;
     uint8_t             rpl_flag_error;
+    uint32_t            adaptation_timestamp;   /*!< Timestamp when buffer pushed to adaptation interface. Unit 100ms */
     //uint8_t             bc_sending_superframe;  /*FHSS uses this randomly chosen superframe to send this packet (if broadcast)*/
     //uint8_t             fhss_channel_retries_left;
     //uint8_t             ip_transmission_prev_seq;  /*!< XXX: this stores the data packet seq. number, which is needed for re-transmission. */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, Arm Limited and affiliates.
+ * Copyright (c) 2017-2019, Pelion and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without

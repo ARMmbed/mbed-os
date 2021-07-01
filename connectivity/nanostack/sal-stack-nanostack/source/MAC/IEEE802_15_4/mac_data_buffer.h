@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited and affiliates.
+ * Copyright (c) 2019-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -91,8 +91,16 @@ typedef struct mac_pre_build_frame {
     uint8_t csma_periods_left;
     uint8_t fhss_retry_count;
     uint8_t fhss_cca_retry_count;
+    uint8_t stored_retry_cnt;
+    uint8_t stored_cca_cnt;
+    uint8_t cca_request_restart_cnt;
+    uint8_t tx_request_restart_cnt;
+    uint8_t priority;
+    uint32_t blacklist_start_time_us;
+    uint16_t blacklist_period_ms;
     uint16_t initial_tx_channel;
     uint32_t tx_time;
+    uint32_t request_start_time_us;
     bool upper_layer_request: 1;
     bool mac_allocated_payload_ptr: 1;
     bool asynch_request: 1;
@@ -101,7 +109,7 @@ typedef struct mac_pre_build_frame {
     bool ExtendedFrameExchange: 1;
     bool WaitResponse: 1;
     unsigned security_mic_len: 5;   //Max possible lengths 0, 4, 8, 16 bytes
-    unsigned priority: 2;
+    unsigned stored_priority: 2;
     struct mac_pre_build_frame *next; //Pointer for queue purpose
 } mac_pre_build_frame_t;
 

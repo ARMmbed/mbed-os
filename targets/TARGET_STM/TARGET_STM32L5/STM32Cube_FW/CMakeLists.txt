@@ -61,6 +61,7 @@ target_sources(mbed-stm32l5cube-fw
         STM32L5xx_HAL_Driver/stm32l5xx_hal_smartcard.c
         STM32L5xx_HAL_Driver/stm32l5xx_hal_smartcard_ex.c
         STM32L5xx_HAL_Driver/stm32l5xx_hal_smbus.c
+        STM32L5xx_HAL_Driver/stm32l5xx_hal_smbus_ex.c
         STM32L5xx_HAL_Driver/stm32l5xx_hal_spi.c
         STM32L5xx_HAL_Driver/stm32l5xx_hal_spi_ex.c
         STM32L5xx_HAL_Driver/stm32l5xx_hal_sram.c
@@ -82,6 +83,7 @@ target_sources(mbed-stm32l5cube-fw
         STM32L5xx_HAL_Driver/stm32l5xx_ll_fmc.c
         STM32L5xx_HAL_Driver/stm32l5xx_ll_gpio.c
         STM32L5xx_HAL_Driver/stm32l5xx_ll_i2c.c
+        STM32L5xx_HAL_Driver/stm32l5xx_ll_icache.c
         STM32L5xx_HAL_Driver/stm32l5xx_ll_lptim.c
         STM32L5xx_HAL_Driver/stm32l5xx_ll_lpuart.c
         STM32L5xx_HAL_Driver/stm32l5xx_ll_opamp.c

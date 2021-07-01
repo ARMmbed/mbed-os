@@ -9,4 +9,5 @@ target_include_directories(mbed-emac
 target_sources(mbed-emac
     INTERFACE
         stm32f4_eth_conf.c
+        stm32f4_eth_init.c
 )

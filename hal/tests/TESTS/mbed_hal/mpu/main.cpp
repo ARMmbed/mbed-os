@@ -177,7 +177,10 @@ utest::v1::status_t fault_override_teardown(const Case *const source, const size
 Case cases[] = {
     Case("MPU - init", fault_override_setup, mpu_init_test, fault_override_teardown),
     Case("MPU - free", fault_override_setup, mpu_free_test, fault_override_teardown),
-#if !((__ARM_ARCH_8M_BASE__ == 1U) || (__ARM_ARCH_8M_MAIN__ == 1U))
+#if !((__ARM_ARCH_8M_BASE__ == 1U) || \
+      (__ARM_ARCH_8M_MAIN__ == 1U) || \
+      (__ARM_ARCH_8_1M_MAIN__ == 1U) \
+     )
     // Skip fault tests for ARMv8-M until a fault handler hook is provided
     Case("MPU - data fault", fault_override_setup, mpu_fault_test_data, fault_override_teardown),
     Case("MPU - bss fault", fault_override_setup, mpu_fault_test_bss, fault_override_teardown),

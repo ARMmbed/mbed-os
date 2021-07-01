@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2017, 2019, Arm Limited and affiliates.
+ * Copyright (c) 2008-2017, 2019-2020, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,6 +50,10 @@
 
 #ifndef SOCKET_DEFAULT_STREAM_SNDLOWAT
 #define SOCKET_DEFAULT_STREAM_SNDLOWAT 512
+#endif
+
+#ifndef SOCKET_DEFAULT_REFERENCE_LIMIT
+#define SOCKET_DEFAULT_REFERENCE_LIMIT 512
 #endif
 
 typedef enum socket_family_e {

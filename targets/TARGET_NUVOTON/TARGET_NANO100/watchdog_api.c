@@ -20,31 +20,12 @@
 
 #include "cmsis.h"
 
-/* Define WDT clock source in target configuration option */
-#ifndef MBED_CONF_TARGET_WDT_CLKSRC_SEL
-#define MBED_CONF_TARGET_WDT_CLKSRC_SEL     LIRC
-#endif
-
-/* WDT clock source definition */
-#define NU_INTERN_WDT_CLKSRC_LXT            1
-/* Not support LIRC clocked WDT */
-//#define NU_INTERN_WDT_CLKSRC_LIRC           2
-
-/* WDT clock source selection */
-#define NU_INTERN_WDT_CLKSRC_SEL__(SEL)     NU_INTERN_WDT_CLKSRC_##SEL
-#define NU_INTERN_WDT_CLKSRC_SEL_(SEL)      NU_INTERN_WDT_CLKSRC_SEL__(SEL)
-#define NU_INTERN_WDT_CLKSRC_SEL            NU_INTERN_WDT_CLKSRC_SEL_(MBED_CONF_TARGET_WDT_CLKSRC_SEL)
+/* WDT can only clock by LIRC */
 
 /* Watchdog clock per second */
-#if NU_INTERN_WDT_CLKSRC_SEL == NU_INTERN_WDT_CLKSRC_LXT
-#define NU_WDTCLK_PER_SEC           (__LXT)
-#define NU_WDTCLK_PER_SEC_MAX       (__LXT)
-#define NU_WDTCLK_PER_SEC_MIN       (__LXT)
-#elif NU_INTERN_WDT_CLKSRC_SEL == NU_INTERN_WDT_CLKSRC_LIRC
 #define NU_WDTCLK_PER_SEC           (__LIRC)
 #define NU_WDTCLK_PER_SEC_MAX       ((uint32_t) ((__LIRC) * 1.5f))
 #define NU_WDTCLK_PER_SEC_MIN       ((uint32_t) ((__LIRC) * 0.5f))
-#endif
 
 /* Convert watchdog clock to nearest ms */
 #define NU_WDTCLK2MS(WDTCLK)        (((WDTCLK) * 1000 + ((NU_WDTCLK_PER_SEC) / 2)) / (NU_WDTCLK_PER_SEC))
@@ -123,6 +104,11 @@ watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
 
 void hal_watchdog_kick(void)
 {
+    /* If a watchdog is not running, this function does nothing */
+    if (!(WDT->CTL & WDT_CTL_WTE_Msk)) {
+        return;
+    }
+
     wdt_timeout_rmn_clk = NU_MS2WDTCLK(wdt_timeout_reload_ms);
     watchdog_setup_cascade_timeout();
 }

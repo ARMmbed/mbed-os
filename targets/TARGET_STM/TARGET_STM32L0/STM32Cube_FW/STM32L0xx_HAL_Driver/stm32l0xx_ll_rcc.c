@@ -111,7 +111,7 @@ uint32_t RCC_PLL_GetFreqDomain_SYS(void);
   */
 ErrorStatus LL_RCC_DeInit(void)
 {
-  uint32_t vl_mask;
+  __IO uint32_t vl_mask;
 
   /* Set MSION bit */
   LL_RCC_MSI_Enable();

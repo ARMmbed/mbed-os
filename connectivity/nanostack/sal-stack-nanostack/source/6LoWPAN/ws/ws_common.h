@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,9 +47,10 @@ typedef struct parent_info_s {
     ws_pan_information_t pan_information;
     ws_utt_ie_t          ws_utt;
     ws_us_ie_t           ws_us;
-    uint32_t             timestamp;          /**< Timestamp when packet was received */
-    uint32_t             age;          /**< Age of entry in 100ms ticks */
-    uint8_t              excluded_channel_data[32]; //Channel mask Max length and it accept 8 different range
+    uint32_t             timestamp;                 /**< Timestamp when packet was received */
+    uint32_t             age;                       /**< Age of entry in 100ms ticks */
+    uint8_t              excluded_channel_data[32]; /**< Channel mask Max length and it accept 8 different range*/
+    bool                 link_acceptable: 1;        /**< True when Link quality is in acceptable level*/
     ns_list_link_t       link;
 } parent_info_t;
 
@@ -88,7 +89,6 @@ typedef struct ws_info_s {
     trickle_params_t trickle_params_pan_discovery;
     uint8_t rpl_state; // state from rpl_event_t
     uint8_t pas_requests; // Amount of PAN solicits sent
-    uint8_t eapol_tx_index;
     uint8_t device_min_sens; // Device min sensitivity set by the application
     int8_t weakest_received_rssi; // Weakest received signal (dBm)
     parent_info_t parent_info[WS_PARENT_LIST_SIZE];
@@ -97,7 +97,10 @@ typedef struct ws_info_s {
     ws_bsi_block_t ws_bsi_block;
     uint16_t aro_registration_timer;       /**< Aro registration timer */
     uint16_t rpl_version_timer;            /**< RPL version update timeout */
-    uint32_t pan_timeout_timer;    /**< routers will fallback to previous state after this */
+    uint32_t pan_timeout_timer;            /**< routers will fallback to previous state after this */
+    uint32_t uptime;                       /**< Seconds after interface has been started */
+    uint32_t authentication_time;          /**< When the last authentication was performed */
+    uint32_t connected_time;               /**< Time we have been connected to network */
     uint32_t pan_config_sol_max_timeout;
     uint8_t gtkhash[32];
     uint16_t network_pan_id;
@@ -164,15 +167,25 @@ uint32_t ws_common_version_timeout_get(uint8_t config);
 
 uint32_t ws_common_latency_estimate_get(protocol_interface_info_entry_t *cur);
 
+uint32_t ws_common_datarate_get_from_phy_mode(uint8_t phy_mode_id, uint8_t operating_mode);
+
 uint32_t ws_common_datarate_get(protocol_interface_info_entry_t *cur);
 
+uint32_t ws_common_usable_application_datarate_get(protocol_interface_info_entry_t *cur);
+
 uint32_t ws_common_network_size_estimate_get(protocol_interface_info_entry_t *cur);
+
+uint32_t ws_common_connected_time_get(protocol_interface_info_entry_t *cur);
+
+uint32_t ws_common_authentication_time_get(protocol_interface_info_entry_t *cur);
 
 void ws_common_primary_parent_update(protocol_interface_info_entry_t *interface, mac_neighbor_table_entry_t *neighbor);
 
 void ws_common_secondary_parent_update(protocol_interface_info_entry_t *interface);
 
 uint8_t ws_common_temporary_entry_size(uint8_t mac_table_size);
+void ws_common_border_router_alive_update(protocol_interface_info_entry_t *interface);
+
 #define ws_info(cur) ((cur)->ws_info)
 #else
 #define ws_info(cur) ((ws_info_t *) NULL)
@@ -185,10 +198,15 @@ uint8_t ws_common_temporary_entry_size(uint8_t mac_table_size);
 #define ws_common_allow_child_registration(cur, eui64, aro_timeout) (2)
 #define ws_common_negative_aro_mark(interface, eui64)(false)
 #define ws_common_latency_estimate_get(cur) 0
+#define ws_common_datarate_get_from_phy_mode(phy_mode_id, operating_mode) 0
 #define ws_common_datarate_get(cur) 0
+#define ws_common_usable_application_datarate_get(cur) 0
 #define ws_common_network_size_estimate_get(cur) 0
+#define ws_common_connected_time_get(cur) 0
+#define ws_common_authentication_time_get(cur) 0
 #define ws_common_primary_parent_update(interface, neighbor)
 #define ws_common_secondary_parent_update(interface)
+#define ws_common_border_router_alive_update(interface) ((void) 0)
 
 
 #endif //HAVE_WS

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, Arm Limited and affiliates.
+ * Copyright (c) 2014-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -62,13 +62,19 @@ void DHCPv6_server_service_timeout_cb(uint32_t timeUpdateInSeconds);
 
 /* Control GUA address for client by DUI.Default value is true
  *
+ * Anonymous and disable address list can optimize either
+ * Using 16 bit suffix to optimize data amount in network
+ * and having list of assigned addresses meaning larger RAM usage at border router
+ *
+ * or Using SLAAC type address generation and not have a list of addresses at Border router
+ * -> Less RAM usage, but more bandwidth used
  *
  *  /param interface interface id of this thread instance.
  *  /param guaPrefix Prefix which will be removed
- *  /param mode true trig autonous mode, false define address by default suffics + client id
- *  /param autonomous_skip_list true skip address list allocation when autonous mode is selected
+ *  /param mode true assign addresses anonymously. false define address by Prefix + client id
+ *  /param disable_address_list Dont keep track of assigned Addresses (Can't be used if anonymous)
  */
-int DHCPv6_server_service_set_address_autonous_flag(int8_t interface, uint8_t guaPrefix[static 16], bool mode, bool autonomous_skip_list);
+int DHCPv6_server_service_set_address_generation_anonymous(int8_t interface, uint8_t guaPrefix[static 16], bool mode, bool autonomous_skip_list);
 
 
 /* SET max accepted clients to server, Default is 200
@@ -92,7 +98,9 @@ int DHCPv6_server_service_set_address_validlifetime(int8_t interface, uint8_t gu
 
 int DHCPv6_server_service_set_dns_server(int8_t interface, uint8_t guaPrefix[static 16], uint8_t dns_server_address[static 16], uint8_t *dns_search_list_ptr, uint8_t dns_search_list_len);
 
-int DHCPv6_server_service_set_vendor_data(int8_t interface, uint8_t guaPrefix[static 16], uint32_t enterprise_number, uint8_t *dhcp_vendor_data_ptr, uint8_t dhcp_vendor_data_len);
+int DHCPv6_server_service_set_vendor_data(int8_t interface, uint8_t guaPrefix[static 16], uint32_t enterprise_number, uint8_t *dhcp_vendor_data_ptr, uint16_t dhcp_vendor_data_len);
+
+int DHCPv6_server_service_set_vendor_data_callback(int8_t interface, uint8_t guaPrefix[static 16], uint32_t enterprise_number, dhcp_vendor_data_cb *vendor_data_cb);
 
 #else
 #define DHCPv6_server_service_delete(interface, guaPrefix, delete_gua_addresses)

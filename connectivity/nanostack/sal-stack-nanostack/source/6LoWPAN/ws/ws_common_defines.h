@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -239,6 +239,13 @@ typedef struct ws_bs_ie {
 #define MPX_KEY_MANAGEMENT_ENC_USER_ID 0x0001   /**< MPX Key management user ID */
 #define MPX_LOWPAN_ENC_USER_ID 0xA0ED           /**< MPX Lowpan User Id */
 
+/*
+ * Wi-SUN MPX MTU size
+ *
+ */
+
+#define WS_MPX_MAX_MTU 1576
+
 #define WS_FAN_VERSION_1_0 1
 
 #define WS_NEIGHBOR_LINK_TIMEOUT 2200
@@ -319,10 +326,10 @@ typedef struct ws_bs_ie {
 
 
 /* WS requires at least 19 MAC retransmissions (total 1+19=20 attempts). Default 802.15.4 macMaxFrameRetries is 3 (total 1+3=4 attempts).
- * At least 4 channel retries must be used: (Initial channel + WS_NUMBER_OF_CHANNEL_RETRIES) * MAC attempts = (1+4)*4=20 attempts
+ * At least 4 request restarts must be used: (Initial channel + WS_TX_REQUEST_RESTART_MAX) * MAC attempts = (1+4)*4=20 attempts
  *
  * Valid settings could be for example:
- * WS_MAX_FRAME_RETRIES     WS_NUMBER_OF_CHANNEL_RETRIES    Total attempts
+ * WS_MAX_FRAME_RETRIES     WS_TX_REQUEST_RESTART_MAX       Total attempts
  * 0                        19                              1+0*1+19=20
  * 1                        9                               1+1*1+9=20
  * 2                        6                               1+2*1+6=21
@@ -331,15 +338,27 @@ typedef struct ws_bs_ie {
  */
 // This configuration is used when bootstrap is ready
 #define WS_MAX_FRAME_RETRIES            3
-#define WS_NUMBER_OF_CHANNEL_RETRIES    4
 // This configuration is used during bootstrap
-#define WS_MAX_FRAME_RETRIES_BOOTSTRAP          0
-#define WS_NUMBER_OF_CHANNEL_RETRIES_BOOTSTRAP  19
+#define WS_MAX_FRAME_RETRIES_BOOTSTRAP  0
 
+// Configuring data request restart allows MAC to push failed packet back to MAC TX queue up to WS_CCA_REQUEST_RESTART_MAX times for CCA failure and WS_TX_REQUEST_RESTART_MAX for TX failure.
+// Packet cannot be taken back to transmission before it has finished the blacklist period.
+#define WS_CCA_REQUEST_RESTART_MAX          9
+#define WS_TX_REQUEST_RESTART_MAX           4
+#define WS_TX_REQUEST_RESTART_MAX_BOOTSTRAP 19
+#define WS_REQUEST_RESTART_BLACKLIST_MIN    20
+#define WS_REQUEST_RESTART_BLACKLIST_MAX    300
 
-#if (1 + WS_MAX_FRAME_RETRIES) * (1 + WS_NUMBER_OF_CHANNEL_RETRIES) < 20
+#if (1 + WS_MAX_FRAME_RETRIES) * (1 + WS_TX_REQUEST_RESTART_MAX) < 20
 #warning "MAX frame retries set too low"
 #endif
+
+// Total CCA attempts: 1 + WS_MAX_CSMA_BACKOFFS
+#define WS_MAX_CSMA_BACKOFFS    0
+
+// Use minimum possible CSMA-CA backoffs
+#define WS_MAC_MIN_BE   1
+#define WS_MAC_MAX_BE   1
 
 /*
  * Automatic CCA threshold: default threshold and range in dBm.
@@ -372,5 +391,6 @@ typedef struct ws_bs_ie {
 #define EAPOL_RELAY_SOCKET_PORT               10253
 #define BR_EAPOL_RELAY_SOCKET_PORT            10255
 #define PAE_AUTH_SOCKET_PORT                  10254
+
 
 #endif /* WS_COMMON_DEFINES_H_ */

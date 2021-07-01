@@ -45,7 +45,13 @@
 #include "source/PalPrivateAddressControllerImpl.h"
 #include "source/generic/PrivateAddressController.h"
 
+#include "drivers/Timeout.h"
+#ifdef DEVICE_LPTICKER
+#include "drivers/LowPowerTimeout.h"
 #include "drivers/LowPowerTimer.h"
+#else
+#include "drivers/Timer.h"
+#endif
 
 namespace ble {
 
@@ -57,6 +63,14 @@ namespace impl {
  * @see BLEInstanceBase
  */
 class BLEInstanceBase final : public ble::BLEInstanceBase {
+#ifdef DEVICE_LPTICKER
+    using Timeout = mbed::LowPowerTimeout;
+    using Timer   = mbed::LowPowerTimer;
+#else
+    using Timeout = mbed::Timeout;
+    using Timer   = mbed::Timer;
+#endif
+
     friend PalSigningMonitor;
 
     /**
@@ -200,7 +214,7 @@ private:
     } initialization_status;
 
     mutable ble::impl::PalEventQueue _event_queue;
-    mbed::LowPowerTimer _timer;
+    Timer _timer;
     uint64_t _last_update_us;
 };
 

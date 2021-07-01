@@ -1,5 +1,37 @@
 # README for Mbed OS STM32 targets
 
+Table of Contents
+=================
+
+* [README for Mbed OS STM32 targets](#readme-for-mbed-os-stm32-targets)
+   * [ST TOOLS](#st-tools)
+      * [USB drivers](#usb-drivers)
+      * [ST-Link FW](#st-link-fw)
+      * [STM32 Cube](#stm32-cube)
+      * [STM32CubeMX](#stm32cubemx)
+      * [STM32CubeProgrammer](#stm32cubeprogrammer)
+   * [STM32 families](#stm32-families)
+      * [STM32WB](#stm32wb)
+      * [STM32WL](#stm32wl)
+      * [STM32H7](#stm32h7)
+   * [Custom boards](#custom-boards)
+      * [STM32 organisation](#stm32-organisation)
+      * [Add a custom board](#add-a-custom-board)
+      * [Board specific files (pinmap)](#board-specific-files-pinmap)
+      * [Use of custom_targets.json](#use-of-custom_targetsjson)
+   * [ST specific implementation](#st-specific-implementation)
+      * [Pin configuration](#pin-configuration)
+         * [Alternate feature](#alternate-feature)
+         * [Conflict pins](#conflict-pins)
+      * [Clock selection](#clock-selection)
+         * [System clock](#system-clock)
+         * [Low power clock](#low-power-clock)
+      * [Sleep feature](#sleep-feature)
+      * [WiFi configuration](#wifi-configuration)
+      * [Ethernet configuration](#ethernet-configuration)
+   * [Mbed OS Wiki pages](#mbed-os-wiki-pages)
+
+
 ## ST TOOLS
 
 ### USB drivers
@@ -64,17 +96,17 @@ This table summarizes the STM32Cube versions currently used in Mbed OS master br
 | F0          |    1.11.2    | https://github.com/STMicroelectronics/STM32CubeF0 |
 | F1          |    1.8.3     | https://github.com/STMicroelectronics/STM32CubeF1 |
 | F2          |    1.6.0     | https://github.com/STMicroelectronics/STM32CubeF2 |
-| F3          |    1.9.0     | https://github.com/STMicroelectronics/STM32CubeF3 |
-| F4          |    1.26.0    | https://github.com/STMicroelectronics/STM32CubeF4 |
-| F7          |    1.16.0    | https://github.com/STMicroelectronics/STM32CubeF7 |
-| G0          |    1.3.0     | https://github.com/STMicroelectronics/STM32CubeG0 |
-| G4          |    1.1.0     | https://github.com/STMicroelectronics/STM32CubeG4 |
-| H7          |    1.8.0     | https://github.com/STMicroelectronics/STM32CubeH7 |
-| L0          |    1.11.3    | https://github.com/STMicroelectronics/STM32CubeL0 |
+| F3          |    1.11.2    | https://github.com/STMicroelectronics/STM32CubeF3 |
+| F4          |    1.26.1    | https://github.com/STMicroelectronics/STM32CubeF4 |
+| F7          |    1.16.1    | https://github.com/STMicroelectronics/STM32CubeF7 |
+| G0          |    1.4.1     | https://github.com/STMicroelectronics/STM32CubeG0 |
+| G4          |    1.4.0     | https://github.com/STMicroelectronics/STM32CubeG4 |
+| H7          |    1.9.0     | https://github.com/STMicroelectronics/STM32CubeH7 |
+| L0          |    1.12.0    | https://github.com/STMicroelectronics/STM32CubeL0 |
 | L1          |    1.10.2    | https://github.com/STMicroelectronics/STM32CubeL1 |
-| L4          |    1.16.0    | https://github.com/STMicroelectronics/STM32CubeL4 |
-| L5          |    1.3.0     | https://github.com/STMicroelectronics/STM32CubeL5 |
-| WB          |    1.8.0     | https://github.com/STMicroelectronics/STM32CubeWB |
+| L4          |    1.17.0    | https://github.com/STMicroelectronics/STM32CubeL4 |
+| L5          |    1.4.0     | https://github.com/STMicroelectronics/STM32CubeL5 |
+| WB          |    1.11.1    | https://github.com/STMicroelectronics/STM32CubeWB |
 | WL          |    1.0.0     | https://github.com/STMicroelectronics/STM32CubeWL |
 
 In Mbed OS repository, we try to minimize the difference between "official" and copied files.
@@ -377,6 +409,27 @@ You can change this in you local mbed_app.json:
 ```
 
 
+### Sleep feature
+
+ST MCUs feature several low-power modes, please check Reference Manual of each one for more details.
+
+- MBED sleep mode is usually mapped to ST SLEEP mode:
+  - CPU clock is off
+  - all peripherals can run and wake up the CPU when an interrupt or an event
+occurs
+
+- MBED deepsleep mode is mapped to ST STOP2 mode:
+  - all clocks in the VCORE domain are stopped
+  - the PLL, the MSI, the HSI and the HSE are disabled
+  - the LSI and the LSE can be kept running
+  - RTC can remain active
+
+Detailed sleep Mbed OS description : https://os.mbed.com/docs/mbed-os/latest/apis/power-management-sleep.html
+- debug profile is disabling deepsleep
+- deepsleep can also be disabled by application or drivers using sleep_manager_lock_deep_sleep()
+- deep-sleep-latency value is configured to 4 by default for STM32
+
+
 ### WiFi configuration
 
 https://github.com/ARMmbed/wifi-ism43362
@@ -405,6 +458,17 @@ https://github.com/ARMmbed/mbed-os/blob/master/connectivity/drivers/emac/TARGET_
 Option is also to define your own `HAL_ETH_MspInit` function,
 you then have to add **USE_USER_DEFINED_HAL_ETH_MSPINIT** macro.
 
+
+### Asynchronous SPI limitation
+
+The current Asynchronous SPI implementation will not be able to support high speeds (MHz Range).
+The maximum speed supported depends on
+- core operating frequency
+- depth of SPI FIFOs (if available).
+
+For application that require optimized maximum performance, the recommendation is to implement the DMA-based SPI transfer.
+The SPI DMA transfer support shall be implemented on a case-by-case based on below example
+https://github.com/ABOSTM/mbed-os/tree/I2C_SPI_DMA_IMPLEMENTATION_FOR_STM32L4
 
 
 ## Mbed OS Wiki pages

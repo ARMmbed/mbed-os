@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2021 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -198,62 +198,36 @@ typedef enum {
     PTE30 = (4 << GPIO_PORT_SHIFT | 30),
     PTE31 = (4 << GPIO_PORT_SHIFT | 31),
 
-    LED_RED   = PTB22,
-    LED_GREEN = PTE26,
-    LED_BLUE  = PTB21,
-
-    // mbed original LED naming
-    LED1 = LED_RED,
-    LED2 = LED_GREEN,
-    LED3 = LED_BLUE,
-    LED4 = LED_RED,
-
-    //Push buttons
-    SW2 = PTC6,
-    SW3 = PTA4,
-    // Standardized button names
-    BUTTON1 = SW2,
-    BUTTON2 = SW3,
-
     // USB Pins
     CONSOLE_TX = PTB17,
     CONSOLE_RX = PTB16,
 
     // Arduino Headers
-    D0 = PTC16,
-    D1 = PTC17,
-    D2 = PTB9,
-    D3 = PTA1,
-    D4 = PTB23,
-    D5 = PTA2,
-    D6 = PTC2,
-    D7 = PTC3,
-    D8 = PTC12,
-    D9 = PTC4,
-    D10 = PTD0,
-    D11 = PTD2,
-    D12 = PTD3,
-    D13 = PTD1,
-    D14 = PTE25,
-    D15 = PTE24,
+    ARDUINO_UNO_D0 = PTC16,
+    ARDUINO_UNO_D1 = PTC17,
+    ARDUINO_UNO_D2 = PTB9,
+    ARDUINO_UNO_D3 = PTA1,
+    ARDUINO_UNO_D4 = PTB23,
+    ARDUINO_UNO_D5 = PTA2,
+    ARDUINO_UNO_D6 = PTC2,
+    ARDUINO_UNO_D7 = PTC3,
+    ARDUINO_UNO_D8 = PTC12,
+    ARDUINO_UNO_D9 = PTC4,
+    ARDUINO_UNO_D10 = PTD0,
+    ARDUINO_UNO_D11 = PTD2,
+    ARDUINO_UNO_D12 = PTD3,
+    ARDUINO_UNO_D13 = PTD1,
+    ARDUINO_UNO_D14 = PTE25,
+    ARDUINO_UNO_D15 = PTE24,
 
-    I2C_SCL = D15,
-    I2C_SDA = D14,
-
-    A0 = PTB2,
-    A1 = PTB3,
-    A2 = PTB10,
-    A3 = PTB11,
-    A4 = PTC11,
-    A5 = PTC10,
+    ARDUINO_UNO_A0 = PTB2,
+    ARDUINO_UNO_A1 = PTB3,
+    ARDUINO_UNO_A2 = PTB10,
+    ARDUINO_UNO_A3 = PTB11,
+    ARDUINO_UNO_A4 = PTC11,
+    ARDUINO_UNO_A5 = PTC10,
 
     DAC0_OUT = 0xFEFE, /* DAC does not have Pin Name in RM */
-
-    //SPI Pins configuration
-    SPI_MOSI    = PTE3,
-    SPI_MISO    = PTE1,
-    SPI_SCK     = PTE2,
-    SPI_CS      = PTE4,
 
     // Not connected
     NC = (int)0xFFFFFFFF
@@ -266,6 +240,38 @@ typedef enum {
     PullUp   = 2,
     PullDefault = PullUp
 } PinMode;
+
+
+// LEDs
+#define LED_RED   PTB22
+#define LED_GREEN PTE26
+#define LED_BLUE  PTB21
+
+// Standardized LED names
+#define LED1 LED_RED
+#define LED2 LED_GREEN
+#define LED3 LED_BLUE
+
+
+//Push buttons
+#define SW2 PTC6
+#define SW3 PTA4
+
+// Standardized button names
+#define BUTTON1 SW2
+#define BUTTON2 SW3
+
+
+// SPI Pins for SD card.
+// Note: They are different from the Arduino Uno SPI pins
+// (ARDUINO_UNO_SPI_xxx) for general purpose uses.
+// By default, Mbed OS maps those alias to Arduino Uno pins, but
+// for backward compatibility we map them to the SD card SPI.
+#define SPI_MOSI PTE3
+#define SPI_MISO PTE1
+#define SPI_SCK  PTE2
+#define SPI_CS   PTE4
+
 
 #ifdef __cplusplus
 }

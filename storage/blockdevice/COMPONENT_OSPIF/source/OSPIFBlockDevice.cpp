@@ -20,9 +20,6 @@
 #include "OSPIFBlockDevice.h"
 #include <string.h>
 #include "rtos/ThisThread.h"
-#if defined(TARGET_MX25LM51245G)
-#include "MX25LM51245G_config.h"
-#endif
 
 #ifndef MBED_CONF_MBED_TRACE_ENABLE
 #define MBED_CONF_MBED_TRACE_ENABLE        0
@@ -50,9 +47,6 @@ using namespace mbed;
 #define OSPIF_STATUS_BIT_WIP        0x1 // Write In Progress
 #define OSPIF_STATUS_BIT_WEL        0x2 // Write Enable Latch
 #define OSPIF_NO_QUAD_ENABLE        (-1)
-
-// Configuration Register2 address
-#define OSPIF_CR2_OPI_EN_ADDR    0x00000000
 
 /* SFDP Header Parsing */
 /***********************/
@@ -168,6 +162,21 @@ using namespace mbed;
 // Length of data returned from RDID instruction
 #define OSPI_RDID_DATA_LENGTH 3
 
+#ifdef NEED_DEFINE_SFDP_PARA
+static const uint8_t _sfdp_head_table[32] = {0x53, 0x46, 0x44, 0x50, 0x06, 0x01, 0x02, 0xFF, 0x00, 0x06, 0x01,
+                                             0x10, 0x30, 0x00, 0x00, 0xFF, 0xC2, 0x00, 0x01, 0x04, 0x10, 0x01,
+                                             0x00, 0xFF, 0x84, 0x00, 0x01, 0x02, 0xC0, 0x00, 0x00, 0xFF
+                                            };
+static const uint8_t _sfdp_basic_param_table[64] = {0x30, 0xFF, 0xFB, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xFF, 0xFF,
+                                                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x14, 0xEC,
+                                                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x0C, 0x20,
+                                                    0x10, 0xDC, 0x00, 0xFF, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                    0x81, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                    0xFF, 0x50, 0xF9, 0x80
+                                                   };
+static const uint8_t _sfdp_4_byte_inst_table[8] = {0x7F, 0xEF, 0xFF, 0xFF, 0x21, 0x5C, 0xDC, 0x14};
+#endif
 
 /* Init function to initialize Different Devices CS static list */
 static PinName *generate_initialized_active_ospif_csel_arr();
@@ -232,6 +241,11 @@ OSPIFBlockDevice::OSPIFBlockDevice(PinName io0, PinName io1, PinName io2, PinNam
     _attempt_4_byte_addressing = true;
     _4byte_msb_reg_write_inst = OSPIF_INST_4BYTE_REG_WRITE_DEFAULT;
     _support_4_byte_inst = false;
+
+#ifdef MX_FLASH_SUPPORT_RWW
+    _wait_flag = NOT_STARTED;
+    _busy_bank = 0xffffffff;
+#endif
 }
 
 int OSPIFBlockDevice::init()
@@ -358,6 +372,14 @@ int OSPIFBlockDevice::deinit()
         return result;
     }
 
+    if (false == _is_mem_ready()) {
+        tr_error("Device not ready after write, failed");
+    }
+
+#ifdef MX_FLASH_SUPPORT_RWW
+    _wait_flag = NOT_STARTED;
+#endif
+
     change_mode(SPI);
 
     // Disable Device for Writing
@@ -383,6 +405,29 @@ int OSPIFBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
     int status = OSPIF_BD_ERROR_OK;
     tr_debug("Read Inst: 0x%xh", _read_instruction);
 
+#ifdef MX_FLASH_SUPPORT_RWW
+    bool need_wait;
+    need_wait = (_wait_flag != NOT_STARTED) && ((addr & MX_FLASH_BANK_SIZE_MASK) == _busy_bank);
+
+    // Wait for ready
+    if (need_wait) {
+
+        _busy_mutex.lock();
+
+        if (_is_mem_ready_rww(addr, false) == false) {
+            return OSPIF_BD_ERROR_OK;
+        }
+
+    } else {
+        if (_wait_flag == WRITE_WAIT_STARTED) {
+            tr_debug("\r\n RWW1 CNT");
+        } else if (_wait_flag == ERASE_WAIT_STARTED) {
+            tr_debug("\r\n RWE2 CNT");
+        }
+    }
+
+#endif
+
     _mutex.lock();
 
     // In DOPI mode, the number of read data should be even
@@ -397,8 +442,13 @@ int OSPIFBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 
     _mutex.unlock();
 
-    return status;
+#ifdef MX_FLASH_SUPPORT_RWW
+    if (need_wait) {
+        _busy_mutex.unlock();
+    }
+#endif
 
+    return status;
 }
 
 int OSPIFBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
@@ -417,6 +467,16 @@ int OSPIFBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size
         offset = addr % _page_size_bytes;
         chunk = (offset + size < _page_size_bytes) ? size : (_page_size_bytes - offset);
         written_bytes = chunk;
+
+#ifdef MX_FLASH_SUPPORT_RWW
+        _busy_mutex.lock();
+
+        // Wait for ready
+        if (_is_mem_ready_rww(addr, true) == false) {
+            return OSPIF_BD_ERROR_OK;
+        }
+
+#endif
 
         _mutex.lock();
 
@@ -437,10 +497,14 @@ int OSPIFBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size
             goto exit_point;
         }
 
-        buffer = static_cast<const uint8_t *>(buffer) + chunk;
-        addr += chunk;
-        size -= chunk;
+#ifdef MX_FLASH_SUPPORT_RWW
+        _wait_flag = WRITE_WAIT_STARTED;
+        _busy_bank = addr & MX_FLASH_BANK_SIZE_MASK;
 
+        _mutex.unlock();
+
+        _busy_mutex.unlock();
+#else
         if (false == _is_mem_ready()) {
             tr_error("Device not ready after write, failed");
             program_failed = true;
@@ -448,6 +512,10 @@ int OSPIFBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size
             goto exit_point;
         }
         _mutex.unlock();
+#endif
+        buffer = static_cast<const uint8_t *>(buffer) + chunk;
+        addr += chunk;
+        size -= chunk;
     }
 
 exit_point:
@@ -511,6 +579,15 @@ int OSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t size)
         tr_debug("Erase - Region: %d, Type:%d ",
                  region, type);
 
+#ifdef MX_FLASH_SUPPORT_RWW
+        _busy_mutex.lock();
+
+        // Wait for ready
+        if (_is_mem_ready_rww(addr, true) == false) {
+            return OSPIF_BD_ERROR_OK;
+        }
+#endif
+
         _mutex.lock();
 
         if (_set_write_enable() != 0) {
@@ -527,15 +604,14 @@ int OSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t size)
             goto exit_point;
         }
 
-        addr += eu_size;
-        size -= eu_size;
+#ifdef MX_FLASH_SUPPORT_RWW
+        _wait_flag = ERASE_WAIT_STARTED;
+        _busy_bank = addr & MX_FLASH_BANK_SIZE_MASK;
 
-        if ((size > 0) && (addr > _sfdp_info.smptbl.region_high_boundary[region])) {
-            // erase crossed to next region
-            region++;
-            bitfield = _sfdp_info.smptbl.region_erase_types_bitfld[region];
-        }
+        _mutex.unlock();
 
+        _busy_mutex.unlock();
+#else
         if (false == _is_mem_ready()) {
             tr_error("OSPI After Erase Device not ready - failed");
             erase_failed = true;
@@ -544,6 +620,16 @@ int OSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t size)
         }
 
         _mutex.unlock();
+#endif
+
+        addr += eu_size;
+        size -= eu_size;
+
+        if ((size > 0) && (addr > _sfdp_info.smptbl.region_high_boundary[region])) {
+            // erase crossed to next region
+            region++;
+            bitfield = _sfdp_info.smptbl.region_erase_types_bitfld[region];
+        }
     }
 
 exit_point:
@@ -1537,6 +1623,51 @@ bool OSPIFBlockDevice::_is_mem_ready()
     return mem_ready;
 }
 
+#ifdef MX_FLASH_SUPPORT_RWW
+bool OSPIFBlockDevice::_is_mem_ready_rww(bd_addr_t addr, uint8_t rw)
+{
+    uint16_t cr2_value = 0;
+    bool mem_ready = true;
+    static uint32_t rww_cnt = 0;   // For testing
+    static uint32_t rwe_cnt = 0;   // For testing
+
+    bd_addr_t bank_addr = addr & MX_FLASH_BANK_SIZE_MASK;
+
+    if ((_wait_flag == NOT_STARTED) || (!rw && bank_addr != _busy_bank)) {
+        return mem_ready;
+    }
+    //Read CR2 Register 1 from device, the number of read byte need to be even in octa flash DOPI mode
+    if (OSPI_STATUS_OK != _ospi_send_general_command(OSPIF_INST_RDCR2, bank_addr + OSPIF_CR2_BANK_STATUS_ADDR,
+                                                     NULL, 0,
+                                                     (char *) &cr2_value, OSPI_DEFAULT_STATUS_REGISTERS)) { // store received value in cr2_value
+        tr_error("Reading CR2 Register failed");
+    }
+
+    cr2_value &= OSPIF_CR2_RWWBS;
+
+    if ((cr2_value == OSPIF_CR2_RWWBS) || (rw && (cr2_value == OSPIF_CR2_RWWDS))) {
+
+        // Wait until device ready
+        if (false == _is_mem_ready()) {
+            tr_error(" _is_mem_ready Failed");
+            mem_ready = false;
+        }
+        _wait_flag = NOT_STARTED;
+    } else if (!rw && (cr2_value == OSPIF_CR2_RWWDS)) {
+        // For testing
+        if (_wait_flag == WRITE_WAIT_STARTED) {
+            rww_cnt++;
+            tr_debug("rww_cnt = 0x%x ", rww_cnt);
+        } else {
+            rwe_cnt++;
+            tr_debug("rwe_cnt = 0x%x ", rwe_cnt);
+        }
+    }
+
+    return mem_ready;
+}
+#endif
+
 /***************************************************/
 /*********** OSPI Driver API Functions *************/
 /***************************************************/
@@ -1665,9 +1796,12 @@ ospi_status_t OSPIFBlockDevice::_ospi_send_general_command(ospi_inst_t instructi
     if ((_inst_width == OSPI_CFG_BUS_OCTA) || (_inst_width == OSPI_CFG_BUS_OCTA_DTR)) {
         if ((instruction == OSPIF_INST_RSR1) || (instruction == OSPIF_INST_RDID) ||
                 (instruction == OSPIF_INST_RDCR2) || (instruction == OSPIF_INST_RDCR)) {
-            _ospi.configure_format(_inst_width, _inst_size, _address_width, _address_size, OSPI_CFG_BUS_SINGLE, 0, _data_width, _dummy_cycles);
-            addr = 0;
-        } else if (instruction == OSPIF_INST_WSR1) {
+            _ospi.configure_format(_inst_width, _inst_size, _address_width, _address_size, OSPI_CFG_BUS_SINGLE,
+                                   0, _data_width, _dummy_cycles);
+            if (instruction != OSPIF_INST_RDCR2) {
+                addr = 0;
+            }
+        } else if ((instruction == OSPIF_INST_WSR1)) {
             addr = 0;
         }
     }

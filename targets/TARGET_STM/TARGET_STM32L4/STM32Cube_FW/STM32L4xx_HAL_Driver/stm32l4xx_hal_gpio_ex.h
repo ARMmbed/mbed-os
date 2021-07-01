@@ -719,6 +719,8 @@
   */
 #define GPIO_AF6_DFSDM1        ((uint8_t)0x06)  /* DFSDM1 Alternate Function mapping */
 #define GPIO_AF6_I2C3          ((uint8_t)0x06)  /* I2C3 Alternate Function mapping   */
+#define GPIO_AF6_OCTOSPIM_P1   ((uint8_t)0x06)  /* OctoSPI Manager Port 1 Alternate Function mapping */
+#define GPIO_AF6_OCTOSPIM_P2   ((uint8_t)0x06)  /* OctoSPI Manager Port 2 Alternate Function mapping */
 #define GPIO_AF6_SPI3          ((uint8_t)0x06)  /* SPI3 Alternate Function mapping   */
 
 /**

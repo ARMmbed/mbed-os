@@ -152,23 +152,23 @@ typedef struct
   * @{
   */
 #if defined(TIM1) && defined(TIM8) && defined(TIM20) && defined(TIM16)
-#define IS_TIM_REMAP(__INSTANCE__, __REMAP__)                                             \
-          ((((__INSTANCE__) == TIM1)  && ((((__REMAP__) & 0xFFFFFFF0U) == 0x00000000U)))  \
-        || (((__INSTANCE__) == TIM8)  && ((((__REMAP__) & 0xFFFFFFF0U) == 0x00000000U)))  \
-        || (((__INSTANCE__) == TIM20) && ((((__REMAP__) & 0xFFFFFFF0U) == 0x00000000U)))  \
-        || (((__INSTANCE__) == TIM16) && ((((__REMAP__) & 0xFFFFFFFCU) == 0x00000000U))))
+#define IS_TIM_REMAP(__INSTANCE__, __REMAP__)                                        \
+  ((((__INSTANCE__) == TIM1)  && ((((__REMAP__) & 0xFFFFFFF0U) == 0x00000000U)))     \
+   || (((__INSTANCE__) == TIM8)  && ((((__REMAP__) & 0xFFFFFFF0U) == 0x00000000U)))  \
+   || (((__INSTANCE__) == TIM20) && ((((__REMAP__) & 0xFFFFFFF0U) == 0x00000000U)))  \
+   || (((__INSTANCE__) == TIM16) && ((((__REMAP__) & 0xFFFFFFFCU) == 0x00000000U))))
 #elif defined(TIM1) && defined(TIM8) && defined(TIM16)
-#define IS_TIM_REMAP(__INSTANCE__, __REMAP__)                                             \
-          ((((__INSTANCE__) == TIM1)  && ((((__REMAP__) & 0xFFFFFFF0U) == 0x00000000U)))  \
-        || (((__INSTANCE__) == TIM8)  && ((((__REMAP__) & 0xFFFFFFF0U) == 0x00000000U)))  \
-        || (((__INSTANCE__) == TIM16) && ((((__REMAP__) & 0xFFFFFFFCU) == 0x00000000U))))
+#define IS_TIM_REMAP(__INSTANCE__, __REMAP__)                                        \
+  ((((__INSTANCE__) == TIM1)  && ((((__REMAP__) & 0xFFFFFFF0U) == 0x00000000U)))     \
+   || (((__INSTANCE__) == TIM8)  && ((((__REMAP__) & 0xFFFFFFF0U) == 0x00000000U)))  \
+   || (((__INSTANCE__) == TIM16) && ((((__REMAP__) & 0xFFFFFFFCU) == 0x00000000U))))
 #elif defined(TIM1) && defined(TIM16)
-#define IS_TIM_REMAP(__INSTANCE__, __REMAP__)                                             \
-          ((((__INSTANCE__) == TIM1)  && ((((__REMAP__) & 0xFFFFFFF0U) == 0x00000000U)))  \
-        || (((__INSTANCE__) == TIM16) && ((((__REMAP__) & 0xFFFFFFFCU) == 0x00000000U))))
+#define IS_TIM_REMAP(__INSTANCE__, __REMAP__)                                        \
+  ((((__INSTANCE__) == TIM1)  && ((((__REMAP__) & 0xFFFFFFF0U) == 0x00000000U)))     \
+   || (((__INSTANCE__) == TIM16) && ((((__REMAP__) & 0xFFFFFFFCU) == 0x00000000U))))
 #elif defined(TIM14)
-#define IS_TIM_REMAP(__INSTANCE__, __REMAP__)                                             \
-          (((__INSTANCE__) == TIM14)  && (((__REMAP__) & 0xFFFFFFFCU) == 0x00000000U))
+#define IS_TIM_REMAP(__INSTANCE__, __REMAP__)                                        \
+  (((__INSTANCE__) == TIM14)  && (((__REMAP__) & 0xFFFFFFFCU) == 0x00000000U))
 #endif /* TIM1 && TIM8 && TIM20 && TIM16 */
 
 /**
@@ -304,6 +304,7 @@ void HAL_TIMEx_Break2Callback(TIM_HandleTypeDef *htim);
   */
 /* Extended Peripheral State functions  ***************************************/
 HAL_TIM_StateTypeDef HAL_TIMEx_HallSensor_GetState(TIM_HandleTypeDef *htim);
+HAL_TIM_ChannelStateTypeDef HAL_TIMEx_GetChannelNState(TIM_HandleTypeDef *htim,  uint32_t ChannelN);
 /**
   * @}
   */

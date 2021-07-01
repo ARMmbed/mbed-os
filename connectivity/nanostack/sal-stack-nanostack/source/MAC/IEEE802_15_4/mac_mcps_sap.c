@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, Arm Limited and affiliates.
+ * Copyright (c) 2014-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,6 +35,7 @@
 #include "platform/arm_hal_interrupt.h"
 #include "common_functions.h"
 #include "Core/include/ns_monitor.h"
+#include "randLIB.h"
 
 #include "MAC/IEEE802_15_4/sw_mac_internal.h"
 #include "MAC/IEEE802_15_4/mac_defines.h"
@@ -55,6 +56,8 @@
 
 // Used to set TX time (us) with FHSS. Must be <= 65ms.
 #define MAC_TX_PROCESSING_DELAY_INITIAL 2000
+// Give up on data request after given timeout (seconds)
+#define DATA_REQUEST_TIMEOUT_NORMAL_PRIORITY_S  10
 
 typedef struct {
     uint8_t address[8];
@@ -153,7 +156,7 @@ void mcps_sap_data_req_handler(protocol_interface_rf_mac_setup_s *rf_mac_setup, 
 {
     mcps_data_req_ie_list_t ie_list;
     memset(&ie_list, 0, sizeof(mcps_data_req_ie_list_t));
-    mcps_sap_data_req_handler_ext(rf_mac_setup, data_req, &ie_list, NULL);
+    mcps_sap_data_req_handler_ext(rf_mac_setup, data_req, &ie_list, NULL, MAC_DATA_NORMAL_PRIORITY);
 }
 
 static bool mac_ie_vector_length_validate(ns_ie_iovec_t *ie_vector, uint16_t iov_length,  uint16_t *length_out)
@@ -192,7 +195,7 @@ static bool mac_ie_vector_length_validate(ns_ie_iovec_t *ie_vector, uint16_t iov
 }
 
 
-void mcps_sap_data_req_handler_ext(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mcps_data_req_t *data_req, const mcps_data_req_ie_list_t *ie_list, const channel_list_s *asynch_channel_list)
+void mcps_sap_data_req_handler_ext(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mcps_data_req_t *data_req, const mcps_data_req_ie_list_t *ie_list, const channel_list_s *asynch_channel_list, mac_data_priority_t priority)
 {
     uint8_t status = MLME_SUCCESS;
     mac_pre_build_frame_t *buffer = NULL;
@@ -263,6 +266,27 @@ void mcps_sap_data_req_handler_ext(protocol_interface_rf_mac_setup_s *rf_mac_set
         buffer->asynch_channel_list = *asynch_channel_list;
         buffer->asynch_request = true;
     }
+
+    //Set Priority level
+    switch (priority) {
+        case MAC_DATA_EXPEDITE_FORWARD:
+            buffer->priority = MAC_PD_DATA_EF_PRIORITY;
+            // Enable FHSS expedited forwarding
+            if (rf_mac_setup->fhss_api) {
+                rf_mac_setup->fhss_api->synch_state_set(rf_mac_setup->fhss_api, FHSS_EXPEDITED_FORWARDING, 0);
+            }
+            break;
+        case MAC_DATA_HIGH_PRIORITY:
+            buffer->priority = MAC_PD_DATA_HIGH_PRIORITY;
+            break;
+        case MAC_DATA_MEDIUM_PRIORITY:
+            buffer->priority = MAC_PD_DATA_MEDIUM_PRIORITY;
+            break;
+        default:
+            buffer->priority = MAC_PD_DATA_NORMAL_PRIORITY;
+            break;
+    }
+
 
     buffer->upper_layer_request = true;
     buffer->fcf_dsn.frametype = FC_DATA_FRAME;
@@ -353,7 +377,15 @@ void mcps_sap_data_req_handler_ext(protocol_interface_rf_mac_setup_s *rf_mac_set
     buffer->mac_header_length_with_security += mac_header_address_length(&buffer->fcf_dsn);
     buffer->mac_payload = data_req->msdu;
     buffer->mac_payload_length = data_req->msduLength;
+    buffer->cca_request_restart_cnt = rf_mac_setup->cca_failure_restart_max;
+    // Multiply number of backoffs for higher priority packets
+    if (buffer->priority == MAC_PD_DATA_EF_PRIORITY) {
+        buffer->cca_request_restart_cnt *= MAC_PRIORITY_EF_BACKOFF_MULTIPLIER;
+    }
+    buffer->tx_request_restart_cnt = rf_mac_setup->tx_failure_restart_max;
     //check that header + payload length is not bigger than MAC MTU
+
+    buffer->request_start_time_us = mac_mcps_sap_get_phy_timestamp(rf_mac_setup);
 
     if (data_req->InDirectTx) {
         mac_indirect_queue_write(rf_mac_setup, buffer);
@@ -1072,6 +1104,17 @@ static void mac_mcps_asynch_finish(protocol_interface_rf_mac_setup_s *rf_mac_set
     }
 }
 
+static bool mcps_sap_check_buffer_timeout(protocol_interface_rf_mac_setup_s *rf_mac_setup, mac_pre_build_frame_t *buffer)
+{
+    // Convert from 1us slots to seconds
+    uint32_t buffer_age_s = (mac_mcps_sap_get_phy_timestamp(rf_mac_setup) - buffer->request_start_time_us) / 1000000;
+    // Do not timeout broadcast frames. Broadcast interval could be very long.
+    if (buffer->fcf_dsn.ackRequested && (buffer_age_s > DATA_REQUEST_TIMEOUT_NORMAL_PRIORITY_S)) {
+        return true;
+    }
+    return false;
+}
+
 void mac_mcps_trig_buffer_from_queue(protocol_interface_rf_mac_setup_s *rf_mac_setup)
 {
     if (!rf_mac_setup) {
@@ -1091,22 +1134,31 @@ void mac_mcps_trig_buffer_from_queue(protocol_interface_rf_mac_setup_s *rf_mac_s
         buffer = mcps_sap_pd_req_queue_read(rf_mac_setup, is_bc_queue, false);
 
         if (buffer) {
-            //Here
-            if (buffer->ExtendedFrameExchange) {
-                //Update here state and store peer
-                memcpy(rf_mac_setup->mac_edfe_info->PeerAddr, buffer->DstAddr, 8);
-                rf_mac_setup->mac_edfe_info->state = MAC_EDFE_FRAME_CONNECTING;
-            }
-            rf_mac_setup->active_pd_data_request = buffer;
-            if (mcps_pd_data_request(rf_mac_setup, buffer) != 0) {
+            if (mcps_sap_check_buffer_timeout(rf_mac_setup, buffer)) {
+                // Buffer is quite old. Return it to adaptation layer with timeout event.
+                rf_mac_setup->mac_tx_result = MAC_TX_TIMEOUT;
                 if (buffer->ExtendedFrameExchange) {
                     rf_mac_setup->mac_edfe_info->state = MAC_EDFE_FRAME_IDLE;
                 }
-                rf_mac_setup->active_pd_data_request = NULL;
                 mac_mcps_asynch_finish(rf_mac_setup, buffer);
                 mcps_data_confirm_handle(rf_mac_setup, buffer, NULL);
             } else {
-                return;
+                if (buffer->ExtendedFrameExchange) {
+                    //Update here state and store peer
+                    memcpy(rf_mac_setup->mac_edfe_info->PeerAddr, buffer->DstAddr, 8);
+                    rf_mac_setup->mac_edfe_info->state = MAC_EDFE_FRAME_CONNECTING;
+                }
+                rf_mac_setup->active_pd_data_request = buffer;
+                if (mcps_pd_data_request(rf_mac_setup, buffer) != 0) {
+                    if (buffer->ExtendedFrameExchange) {
+                        rf_mac_setup->mac_edfe_info->state = MAC_EDFE_FRAME_IDLE;
+                    }
+                    rf_mac_setup->active_pd_data_request = NULL;
+                    mac_mcps_asynch_finish(rf_mac_setup, buffer);
+                    mcps_data_confirm_handle(rf_mac_setup, buffer, NULL);
+                } else {
+                    return;
+                }
             }
         } else {
             return;
@@ -1406,12 +1458,6 @@ static void mac_common_data_confirmation_handle(protocol_interface_rf_mac_setup_
         } else if (m_event == MAC_TX_DONE_PENDING) {
             buf->status = MLME_SUCCESS;
         } else if (m_event == MAC_TX_TIMEOUT) {
-            /* Make MAC Soft Reset */;
-            tr_debug("Driver TO event");
-            //Disable allways
-            mac_mlme_mac_radio_disabled(rf_mac_setup);
-            //Enable Radio
-            mac_mlme_mac_radio_enable(rf_mac_setup);
             buf->status = MLME_TRANSACTION_EXPIRED;
         } else if (m_event == MAC_UNKNOWN_DESTINATION) {
             buf->status = MLME_UNAVAILABLE_KEY;
@@ -1498,6 +1544,66 @@ static bool mcps_buffer_edfe_data_failure(protocol_interface_rf_mac_setup_s *rf_
     return false;
 }
 
+static void mcps_set_packet_blacklist(protocol_interface_rf_mac_setup_s *rf_ptr, mac_pre_build_frame_t *buffer, uint8_t number_of_restarts)
+{
+    /*
+     * Random min = configured blacklist min << attempt count, but never larger than configured blacklist max / 2.
+     * Random max = random min * 2, but never larger than blacklist max.
+     * Example:
+     * blacklist_min_ms: 20ms
+     * blacklist_max_ms: 300ms
+     * blacklist_retry_attempts: 4
+     *
+     * Packet is blacklisted:
+     * 20ms - 40ms after 1st failure
+     * 40ms - 80ms after 2nd failure
+     * 80ms - 160ms after 3rd failure
+     * 150ms - 300ms after 4th failure
+     */
+    uint8_t i = 0;
+    uint32_t blacklist_min_ms = 0;
+    while (i < number_of_restarts) {
+        blacklist_min_ms = rf_ptr->blacklist_min_ms << i;
+        if (blacklist_min_ms > (rf_ptr->blacklist_max_ms / 2)) {
+            break;
+        }
+        i++;
+    }
+    uint32_t blacklist_max_ms = blacklist_min_ms * 2;
+    if (blacklist_min_ms > (rf_ptr->blacklist_max_ms / 2)) {
+        blacklist_min_ms = (rf_ptr->blacklist_max_ms / 2);
+    }
+    if (blacklist_max_ms > rf_ptr->blacklist_max_ms) {
+        blacklist_max_ms = rf_ptr->blacklist_max_ms;
+    }
+    buffer->blacklist_period_ms = randLIB_get_random_in_range(blacklist_min_ms, blacklist_max_ms);
+    if (!buffer->blacklist_period_ms) {
+        buffer->blacklist_period_ms++;
+    }
+    buffer->blacklist_start_time_us = mac_mcps_sap_get_phy_timestamp(rf_ptr);
+}
+
+static bool mcps_update_packet_request_restart(protocol_interface_rf_mac_setup_s *rf_ptr, mac_pre_build_frame_t *buffer)
+{
+    // Function returns true when buffer needs to be requeued
+    if (!rf_ptr || !buffer) {
+        return false;
+    }
+    if (rf_ptr->mac_tx_result == MAC_CCA_FAIL && buffer->cca_request_restart_cnt) {
+        buffer->cca_request_restart_cnt--;
+        if (buffer->priority == MAC_PD_DATA_EF_PRIORITY) {
+            mcps_set_packet_blacklist(rf_ptr, buffer, (rf_ptr->cca_failure_restart_max * MAC_PRIORITY_EF_BACKOFF_MULTIPLIER) - buffer->cca_request_restart_cnt);
+        } else {
+            mcps_set_packet_blacklist(rf_ptr, buffer, rf_ptr->cca_failure_restart_max - buffer->cca_request_restart_cnt);
+        }
+        return true;
+    } else if (rf_ptr->mac_tx_result == MAC_TX_FAIL && buffer->tx_request_restart_cnt) {
+        buffer->tx_request_restart_cnt--;
+        mcps_set_packet_blacklist(rf_ptr, buffer, rf_ptr->tx_failure_restart_max - buffer->tx_request_restart_cnt);
+        return true;
+    }
+    return false;
+}
 
 static void mcps_data_confirm_handle(protocol_interface_rf_mac_setup_s *rf_ptr, mac_pre_build_frame_t *buffer, mac_pre_parsed_frame_t *ack_buf)
 {
@@ -1506,12 +1612,17 @@ static void mcps_data_confirm_handle(protocol_interface_rf_mac_setup_s *rf_ptr, 
     sw_mac_stats_update(rf_ptr, STAT_MAC_TX_RETRY, rf_ptr->mac_tx_status.retry);
     mcps_data_conf_t confirm;
     if (rf_ptr->fhss_api && !buffer->asynch_request) {
-        // FHSS checks if this failed buffer needs to be pushed back to TX queue and retransmitted
-        if (!mcps_buffer_edfe_data_failure(rf_ptr, buffer) && ((rf_ptr->mac_tx_result == MAC_TX_FAIL) || (rf_ptr->mac_tx_result == MAC_CCA_FAIL))) {
-            if (rf_ptr->fhss_api->data_tx_fail(rf_ptr->fhss_api, buffer->msduHandle, mac_convert_frame_type_to_fhss(buffer->fcf_dsn.frametype), rf_ptr->mac_tx_start_channel) == true) {
-
+        if (!mcps_buffer_edfe_data_failure(rf_ptr, buffer) && ((rf_ptr->mac_tx_result == MAC_TX_FAIL) || (rf_ptr->mac_tx_result == MAC_CCA_FAIL) || (rf_ptr->mac_tx_result == MAC_RETURN_TO_QUEUE))) {
+            // Packet has return to queue status or it needs to be blacklisted and queued
+            if ((rf_ptr->mac_tx_result == MAC_RETURN_TO_QUEUE) || mcps_update_packet_request_restart(rf_ptr, buffer) == true) {
                 if (rf_ptr->mac_tx_result == MAC_TX_FAIL) {
                     buffer->fhss_retry_count += 1 + rf_ptr->mac_tx_status.retry;
+                } else if (rf_ptr->mac_tx_result == MAC_RETURN_TO_QUEUE) {
+                    buffer->stored_retry_cnt = rf_ptr->mac_tx_retry;
+                    buffer->stored_cca_cnt = rf_ptr->mac_cca_retry;
+                    buffer->stored_priority = buffer->priority;
+                    // Use priority to transmit it first when proper channel is available
+                    buffer->priority = MAC_PD_DATA_TX_IMMEDIATELY;
                 } else {
                     buffer->fhss_retry_count += rf_ptr->mac_tx_status.retry;
                 }
@@ -1535,6 +1646,11 @@ static void mcps_data_confirm_handle(protocol_interface_rf_mac_setup_s *rf_ptr, 
         confirm.timestamp = ack_buf->timestamp;
     } else {
         confirm.timestamp = 0;
+    }
+
+    if (buffer->fcf_dsn.ackRequested) {
+        // Update latency for unicast packets. Given as milliseconds.
+        sw_mac_stats_update(rf_ptr, STAT_MAC_TX_LATENCY, ((mac_mcps_sap_get_phy_timestamp(rf_ptr) - buffer->request_start_time_us) + 500) / 1000);
     }
 
     if (buffer->upper_layer_request) {
@@ -2135,8 +2251,16 @@ static int8_t mcps_pd_data_request(protocol_interface_rf_mac_setup_s *rf_ptr, ma
     rf_ptr->macTxRequestAck = false;
 
     memset(&(rf_ptr->mac_tx_status), 0, sizeof(mac_tx_status_t));
-    rf_ptr->mac_cca_retry = 0;
-    rf_ptr->mac_tx_retry = 0;
+    if (buffer->priority == MAC_PD_DATA_TX_IMMEDIATELY) {
+        // Return original priority and retry/CCA counts
+        buffer->priority = buffer->stored_priority;
+        rf_ptr->mac_tx_retry = rf_ptr->mac_tx_status.retry = buffer->stored_retry_cnt;
+        rf_ptr->mac_cca_retry = rf_ptr->mac_tx_status.cca_cnt = buffer->stored_cca_cnt;
+        buffer->stored_retry_cnt = buffer->stored_cca_cnt = 0;
+    } else {
+        rf_ptr->mac_tx_retry = 0;
+        rf_ptr->mac_cca_retry = 0;
+    }
     rf_ptr->mac_tx_start_channel = rf_ptr->mac_channel;
     mac_csma_param_init(rf_ptr);
     if (mcps_generic_packet_build(rf_ptr, buffer) != 0) {
@@ -2198,6 +2322,17 @@ int mac_convert_frame_type_to_fhss(uint8_t frame_type)
     return FHSS_DATA_FRAME;
 }
 
+static bool mcps_check_packet_blacklist(protocol_interface_rf_mac_setup_s *rf_mac_setup, mac_pre_build_frame_t *buffer)
+{
+    if (!buffer->blacklist_period_ms) {
+        return false;
+    }
+    if ((mac_mcps_sap_get_phy_timestamp(rf_mac_setup) - buffer->blacklist_start_time_us) >= (buffer->blacklist_period_ms * 1000)) {
+        return false;
+    }
+    return true;
+}
+
 void mcps_sap_pd_req_queue_write(protocol_interface_rf_mac_setup_s *rf_mac_setup, mac_pre_build_frame_t *buffer)
 {
     if (!rf_mac_setup || !buffer) {
@@ -2216,9 +2351,9 @@ void mcps_sap_pd_req_queue_write(protocol_interface_rf_mac_setup_s *rf_mac_setup
         }
         if (rf_mac_setup->fhss_api && (buffer->asynch_request == false)) {
             uint16_t frame_length = buffer->mac_payload_length + buffer->headerIeLength + buffer->payloadsIeLength;
-            if (rf_mac_setup->fhss_api->check_tx_conditions(rf_mac_setup->fhss_api, !mac_is_ack_request_set(buffer),
-                                                            buffer->msduHandle, mac_convert_frame_type_to_fhss(buffer->fcf_dsn.frametype), frame_length,
-                                                            rf_mac_setup->dev_driver->phy_driver->phy_header_length, rf_mac_setup->dev_driver->phy_driver->phy_tail_length) == false) {
+            if ((mcps_check_packet_blacklist(rf_mac_setup, buffer) == true) || rf_mac_setup->fhss_api->check_tx_conditions(rf_mac_setup->fhss_api, !mac_is_ack_request_set(buffer),
+                                                                                                                           buffer->msduHandle, mac_convert_frame_type_to_fhss(buffer->fcf_dsn.frametype), frame_length,
+                                                                                                                           rf_mac_setup->dev_driver->phy_driver->phy_header_length, rf_mac_setup->dev_driver->phy_driver->phy_tail_length) == false) {
                 if (buffer->ExtendedFrameExchange) {
                     rf_mac_setup->mac_edfe_info->state = MAC_EDFE_FRAME_IDLE;
                 }
@@ -2318,12 +2453,21 @@ static mac_pre_build_frame_t *mcps_sap_pd_req_queue_read(protocol_interface_rf_m
 
     mac_pre_build_frame_t *buffer = queue;
     mac_pre_build_frame_t *prev = NULL;
-    // With FHSS, check TX conditions
+    /* With FHSS, read buffer out from queue if:
+     * - Buffer has timed out, OR
+     * - Buffer is asynch request, OR
+     * - Queue is flushed, OR
+     * - Blacklisting AND FHSS allows buffer to be transmitted
+     */
     if (rf_mac_setup->fhss_api) {
         while (buffer) {
-            if (buffer->asynch_request || (flush == true) || (rf_mac_setup->fhss_api->check_tx_conditions(rf_mac_setup->fhss_api, !mac_is_ack_request_set(buffer),
-                                                                                                          buffer->msduHandle, mac_convert_frame_type_to_fhss(buffer->fcf_dsn.frametype), buffer->mac_payload_length,
-                                                                                                          rf_mac_setup->dev_driver->phy_driver->phy_header_length, rf_mac_setup->dev_driver->phy_driver->phy_tail_length) == true)) {
+            if (mcps_sap_check_buffer_timeout(rf_mac_setup, buffer) ||
+                    buffer->asynch_request ||
+                    (flush == true) ||
+                    ((mcps_check_packet_blacklist(rf_mac_setup, buffer) == false) &&
+                     (rf_mac_setup->fhss_api->check_tx_conditions(rf_mac_setup->fhss_api, !mac_is_ack_request_set(buffer),
+                                                                  buffer->msduHandle, mac_convert_frame_type_to_fhss(buffer->fcf_dsn.frametype), buffer->mac_payload_length,
+                                                                  rf_mac_setup->dev_driver->phy_driver->phy_header_length, rf_mac_setup->dev_driver->phy_driver->phy_tail_length) == true))) {
                 break;
             }
             prev = buffer;

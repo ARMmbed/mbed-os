@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited and affiliates.
+ * Copyright (c) 2019-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -295,13 +295,13 @@ static void supp_eap_tls_sec_prot_tls_create_confirm(sec_prot_t *tls_prot, sec_p
     }
 }
 
-static void supp_eap_tls_sec_prot_tls_finished_indication(sec_prot_t *tls_prot, sec_prot_result_e result, sec_prot_keys_t *sec_keys)
+static bool supp_eap_tls_sec_prot_tls_finished_indication(sec_prot_t *tls_prot, sec_prot_result_e result, sec_prot_keys_t *sec_keys)
 {
     (void) sec_keys;
 
     sec_prot_t *prot = tls_prot->type_get(tls_prot, SEC_PROT_TYPE_EAP_TLS);
     if (!prot) {
-        return;
+        return false;
     }
 
     eap_tls_sec_prot_int_t *data = eap_tls_sec_prot_get(prot);
@@ -324,6 +324,8 @@ static void supp_eap_tls_sec_prot_tls_finished_indication(sec_prot_t *tls_prot, 
         // On fatal error and on success calls state machine to sent empty EAP-TLS message
         prot->state_machine_call(prot);
     }
+
+    return false;
 }
 
 static int8_t supp_eap_tls_sec_prot_tls_send(sec_prot_t *tls_prot, void *pdu, uint16_t size)

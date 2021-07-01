@@ -16,7 +16,7 @@
 
 #include "gtest/gtest.h"
 #include "blockdevice/ExhaustibleBlockDevice.h"
-#include "stubs/BlockDevice_mock.h"
+#include "BlockDevice_mock.h"
 
 #define BLOCK_SIZE (512)
 #define DEVICE_SIZE (BLOCK_SIZE*10)

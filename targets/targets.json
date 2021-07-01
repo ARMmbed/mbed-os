@@ -760,7 +760,7 @@
     },
     "K64F": {
         "supported_form_factors": [
-            "ARDUINO"
+            "ARDUINO_UNO"
         ],
         "components_add": [
             "SD",
@@ -1307,6 +1307,10 @@
             "lse_drive_load_level": {
                 "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
                 "value": "RCC_LSEDRIVE_LOW"
+            },
+            "i2c_timing_value_algo": {
+                "help": "If value was set to true I2C timing algorithm is enabled. Enabling may leads to performance issue. Keeping this false and changing system clock will trigger assert.)",
+                "value": false
             }
         },
         "macros_add": [
@@ -1597,6 +1601,10 @@
             "lse_drive_load_level": {
                 "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
                 "value": "RCC_LSEDRIVE_LOW"
+            },
+            "i2c_timing_value_algo": {
+                "help": "If value was set to true I2C timing algorithm is enabled. Enabling may leads to performance issue. Keeping this false and changing system clock will trigger assert.)",
+                "value": false
             }
         },
         "device_has_add": [
@@ -2343,6 +2351,10 @@
             "lse_drive_load_level": {
                 "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
                 "value": "RCC_LSEDRIVE_LOW"
+            },
+            "i2c_timing_value_algo": {
+                "help": "If value was set to true I2C timing algorithm is enabled. Enabling may leads to performance issue. Keeping this false and changing system clock will trigger assert.)",
+                "value": false
             }
         },
         "overrides": {
@@ -2590,6 +2602,10 @@
             "lse_drive_load_level": {
                 "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
                 "value": "RCC_LSEDRIVE_LOW"
+            },
+            "i2c_timing_value_algo": {
+                "help": "If value was set to true I2C timing algorithm is enabled. Enabling may leads to performance issue. Keeping this false and changing system clock will trigger assert.)",
+                "value": false
             }
         },
         "extra_labels_add": [
@@ -2716,6 +2732,10 @@
             "lse_drive_load_level": {
                 "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
                 "value": "RCC_LSEDRIVE_LOW"
+            },
+            "i2c_timing_value_algo": {
+                "help": "If value was set to true I2C timing algorithm is enabled. Enabling may leads to performance issue. Keeping this false and changing system clock will trigger assert.)",
+                "value": false
             }
         },
         "extra_labels_add": [
@@ -2917,6 +2937,10 @@
                 "expected_value2": "PWR_SMPS_1V8_SUPPLIES_LDO | PWR_SMPS_2V5_SUPPLIES_LDO | PWR_SMPS_1V8_SUPPLIES_EXT_AND_LDO | PWR_SMPS_2V5_SUPPLIES_EXT_AND_LDO",
                 "expected_value3": "PWR_SMPS_1V8_SUPPLIES_EXT | PWR_SMPS_2V5_SUPPLIES_EXT | PWR_EXTERNAL_SOURCE_SUPPLY",
                 "value": "NC"
+            },
+            "i2c_timing_value_algo": {
+                "help": "If value was set to true I2C timing algorithm is enabled. Enabling may leads to performance issue. Keeping this false and changing system clock will trigger assert.)",
+                "value": false
             }
         },
         "components_add": [
@@ -3174,7 +3198,8 @@
             "clock_source": "USE_PLL_HSE_EXTC",
             "lse_available": 1,
             "lpticker_delay_ticks": 0,
-            "network-default-interface-type": "ETHERNET"
+            "network-default-interface-type": "ETHERNET",
+            "i2c_timing_value_algo": true
         },
         "device_name": "STM32H747XIHx"
     },
@@ -3266,6 +3291,10 @@
             "lse_drive_load_level": {
                 "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
                 "value": "RCC_LSEDRIVE_LOW"
+            },
+            "i2c_timing_value_algo": {
+                "help": "If value was set to true I2C timing algorithm is enabled. Enabling may leads to performance issue. Keeping this false and changing system clock will trigger assert.)",
+                "value": false
             }
         },
         "macros_add": [
@@ -3539,6 +3568,10 @@
             "lse_drive_load_level": {
                 "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
                 "value": "RCC_LSEDRIVE_LOW"
+            },
+            "i2c_timing_value_algo": {
+                "help": "If value was set to true I2C timing algorithm is enabled. Enabling may leads to performance issue. Keeping this false and changing system clock will trigger assert.)",
+                "value": false
             }
         },
         "macros_add": [
@@ -4069,6 +4102,10 @@
             "lse_drive_load_level": {
                 "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
                 "value": "RCC_LSEDRIVE_LOW"
+            },
+            "i2c_timing_value_algo": {
+                "help": "If value was set to true I2C timing algorithm is enabled. Enabling may leads to performance issue. Keeping this false and changing system clock will trigger assert.)",
+                "value": false
             }
         },
         "overrides": {
@@ -4160,6 +4197,7 @@
             "STM32WB",
             "CORDIO"
         ],
+        "mbed_rom_start": "0x08000000",
         "config": {
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
@@ -4168,6 +4206,10 @@
             "lse_drive_load_level": {
                 "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
                 "value": "RCC_LSEDRIVE_LOW"
+            },
+            "i2c_timing_value_algo": {
+                "help": "If value was set to true I2C timing algorithm is enabled. Enabling may leads to performance issue. Keeping this false and changing system clock will trigger assert.)",
+                "value": false
             }
         },
         "macros_add": [
@@ -4188,14 +4230,47 @@
             "BLE"
         ]
     },
-    "MCU_STM32WB55xx": {
+    "MCU_STM32WB15xC": {
+        "inherits": [
+            "MCU_STM32WB"
+        ],
+        "public": false,
+        "supported_application_profiles": [
+            "bare-metal"
+        ],
+        "c_lib": "small",
+        "extra_labels_add": [
+            "STM32WB15xC"
+        ],
+        "mbed_rom_size": "0x32800",
+        "overrides": {
+            "boot-stack-size": "0x400"
+        },
+        "macros_add": [
+            "STM32WB15xx"
+        ]
+    },
+    "NUCLEO_WB15CC": {
+        "inherits": [
+            "MCU_STM32WB15xC"
+        ],
+        "supported_form_factors": [
+            "ARDUINO_UNO"
+        ],
+        "detect_code": [
+            "0883"
+        ],
+        "device_name": "STM32WB15CCUx"
+    },
+    "MCU_STM32WB55xG": {
         "inherits": [
             "MCU_STM32WB"
         ],
         "public": false,
         "extra_labels_add": [
-            "STM32WB55xx"
+            "STM32WB55xG"
         ],
+        "mbed_rom_size": "0xCA000",
         "macros_add": [
             "STM32WB55xx",
             "MBEDTLS_CONFIG_HW_SUPPORT"
@@ -4203,7 +4278,7 @@
     },
     "NUCLEO_WB55RG": {
         "inherits": [
-            "MCU_STM32WB55xx"
+            "MCU_STM32WB55xG"
         ],
         "supported_form_factors": [
             "ARDUINO_UNO"
@@ -4215,6 +4290,32 @@
             "USBDEVICE"
         ],
         "device_name": "STM32WB55RGVx"
+    },
+    "MCU_STM32WB5MxG": {
+        "inherits": [
+            "MCU_STM32WB"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32WB5MxG"
+        ],
+        "mbed_rom_size": "0xCA000",
+        "macros_add": [
+            "STM32WB5Mxx",
+            "MBEDTLS_CONFIG_HW_SUPPORT"
+        ]
+    },
+    "DISCO_WB5MMG": {
+        "inherits": [
+            "MCU_STM32WB5MxG"
+        ],
+        "supported_form_factors": [
+            "ARDUINO_UNO"
+        ],
+        "detect_code": [
+            "0884"
+        ],
+        "device_name": "STM32WB55VGYx"
     },
     "MCU_STM32WL": {
         "inherits": [
@@ -4233,6 +4334,10 @@
             "lse_drive_load_level": {
                 "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
                 "value": "RCC_LSEDRIVE_LOW"
+            },
+            "i2c_timing_value_algo": {
+                "help": "If value was set to true I2C timing algorithm is enabled. Enabling may leads to performance issue. Keeping this false and changing system clock will trigger assert.)",
+                "value": false
             }
         },
         "macros_add": [
@@ -4278,7 +4383,7 @@
     },
     "MIMXRT1050_EVK": {
         "supported_form_factors": [
-            "ARDUINO"
+            "ARDUINO_UNO"
         ],
         "core": "Cortex-M7FD",
         "supported_toolchains": [
@@ -4356,6 +4461,71 @@
         "overrides": {
             "deep-sleep-latency": 10,
             "network-default-interface-type": "ETHERNET"
+        }
+    },
+    "MIMXRT1170_EVK": {
+        "supported_form_factors": [
+            "ARDUINO_UNO"
+        ],
+        "core": "Cortex-M7FD",
+        "supported_toolchains": [
+            "ARM",
+            "GCC_ARM"
+        ],
+        "extra_labels": [
+            "NXP",
+            "MCUXpresso_MCUS",
+            "EVK",
+            "MIMXRT1170",
+	        "IMX"
+        ],
+        "is_disk_virtual": true,
+        "macros": [
+            "CPU_MIMXRT1176DVMAA_cm7",
+            "FSL_RTOS_MBED",
+            "XIP_BOOT_HEADER_ENABLE=1",
+            "XIP_EXTERNAL_FLASH=1",
+            "XIP_BOOT_HEADER_DCD_ENABLE=1",
+            "SKIP_SYSCLK_INIT",
+            "MBED_MPU_CUSTOM",
+            "FSL_SDK_DRIVER_QUICK_ACCESS_ENABLE=1",
+            "__STARTUP_INITIALIZE_RAMFUNCTION",
+            "__STARTUP_INITIALIZE_NONCACHEDATA",
+            "MBED_TICKLESS",
+            "DATA_SECTION_IS_CACHEABLE=1"
+        ],
+        "inherits": [
+            "Target"
+        ],
+        "detect_code": [
+            "0228"
+        ],
+        "device_has": [
+            "ANALOGIN",
+            "FLASH",
+            "INTERRUPTIN",
+            "I2C",
+            "I2CSLAVE",
+            "PWMOUT",
+            "SERIAL",
+            "SPI",
+            "SPISLAVE",
+            "LPTICKER",
+            "USTICKER"
+        ],
+        "release_versions": [
+            "5"
+        ],
+        "supported_application_profiles" : ["full", "bare-metal"],
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
         }
     },
     "LPC54114": {
@@ -4874,7 +5044,7 @@
             "function": "ArmMuscaB1Code.binary_hook"
         },
         "secure_image_filename": "tfm_s.bin",
-        "tfm_target_name": "musca_b1",
+        "tfm_target_name": "musca_b1/sse_200",
         "tfm_bootloader_supported": true,
         "tfm_default_toolchain": "ARMCLANG",
         "tfm_supported_toolchains": [
@@ -4882,6 +5052,9 @@
             "GNUARM"
         ],
         "tfm_delivery_dir": "TARGET_ARM_SSG/TARGET_MUSCA_B1",
+        "detect_code": [
+            "5007"
+        ],
         "OUTPUT_EXT": "bin"
     },
     "ARM_MUSCA_S1": {
@@ -5805,6 +5978,9 @@
             "TRNG",
             "USTICKER"
         ],
+        "components": [
+            "FLASHIAP"
+        ],
         "extra_labels": [
             "NORDIC",
             "NRF5x",
@@ -6090,6 +6266,16 @@
             "GCC_ARM"
         ],
         "config": {
+            "hxt-present": {
+                "help": "High-speed external crystal oscillator HXT is present",
+                "options": [false, true],
+                "value": false
+            },
+            "lxt-present": {
+                "help": "Low-speed external crystal oscillator LXT is present",
+                "options": [false, true],
+                "value": true
+            },
             "gpio-irq-debounce-enable": {
                 "help": "Enable GPIO IRQ debounce",
                 "value": 0
@@ -6154,6 +6340,8 @@
         "device_name": "NUC472HI8AE",
         "bootloader_supported": true,
         "overrides": {
+            "hxt-present": false,
+            "lxt-present": true,
             "network-default-interface-type": "ETHERNET",
             "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
@@ -6192,6 +6380,16 @@
             "IAR"
         ],
         "config": {
+            "hxt-present": {
+                "help": "High-speed external crystal oscillator HXT is present",
+                "options": [false, true],
+                "value": false
+            },
+            "lxt-present": {
+                "help": "Low-speed external crystal oscillator LXT is present",
+                "options": [false, true],
+                "value": true
+            },
             "gpio-irq-debounce-enable": {
                 "help": "Enable GPIO IRQ debounce",
                 "value": 0
@@ -6279,6 +6477,8 @@
         "device_name": "M453VG6AE",
         "bootloader_supported": true,
         "overrides": {
+            "hxt-present": false,
+            "lxt-present": true,
             "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
         },
@@ -6301,6 +6501,16 @@
             "IAR"
         ],
         "config": {
+            "hxt-present": {
+                "help": "High-speed external crystal oscillator HXT is present",
+                "options": [false, true],
+                "value": false
+            },
+            "lxt-present": {
+                "help": "Low-speed external crystal oscillator LXT is present",
+                "options": [false, true],
+                "value": true
+            },
             "gpio-irq-debounce-enable": {
                 "help": "Enable GPIO IRQ debounce",
                 "value": 0
@@ -6380,6 +6590,8 @@
         ],
         "device_name": "NANO130KE3BN",
         "overrides": {
+            "hxt-present": false,
+            "lxt-present": true,
             "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
         },
@@ -6403,6 +6615,16 @@
             "GCC_ARM"
         ],
         "config": {
+            "hxt-present": {
+                "help": "High-speed external crystal oscillator HXT is present",
+                "options": [false, true],
+                "value": false
+            },
+            "lxt-present": {
+                "help": "Low-speed external crystal oscillator LXT is present",
+                "options": [false, true],
+                "value": true
+            },
             "spim-ccm-enable": {
                 "help": "Enable SPIM CCM mode to spare 32KiB SRAM for normal use",
                 "value": 0
@@ -6531,6 +6753,8 @@
             "1304"
         ],
         "overrides": {
+            "hxt-present": false,
+            "lxt-present": true,
             "usb-uart": "UART_0",
             "usb-uart-tx": "PB_13",
             "usb-uart-rx": "PB_12",
@@ -6550,6 +6774,8 @@
             "1308"
         ],
         "overrides": {
+            "hxt-present": false,
+            "lxt-present": true,
             "usb-uart": "UART_0",
             "usb-uart-tx": "PB_13",
             "usb-uart-rx": "PB_12",
@@ -6737,6 +6963,152 @@
             "MPU"
         ]
     },
+    "MCU_M2354": {
+        "inherits": [
+            "PSA_V8_M"
+        ],
+        "public": false,
+        "core": "Cortex-M23-NS",
+        "default_toolchain": "ARMC6",
+        "supported_toolchains": [
+            "ARMC6",
+            "GCC_ARM",
+            "IAR"
+        ],
+        "features_add": [
+            "EXPERIMENTAL_API"
+        ],
+        "extra_labels_add": [
+            "NUVOTON",
+            "M2354"
+        ],
+        "macros": [
+            "CMSIS_NVIC_VIRTUAL",
+            "LPTICKER_DELAY_TICKS=4"
+        ],
+        "is_disk_virtual": true,
+        "config": {
+            "hxt-present": {
+                "help": "High-speed external crystal oscillator HXT is present",
+                "options": [false, true],
+                "value": false
+            },
+            "usb-uart": {
+                "help": "Configure USB_UART. USB_UART and USBTX/USBRX must be consistent.",
+                "value": null
+            },
+            "usb-uart-tx": {
+                "help": "Configure USBTX. USB_UART and USBTX/USBRX must be consistent.",
+                "value": null
+            },
+            "usb-uart-rx": {
+                "help": "Configure USBRX. USB_UART and USBTX/USBRX must be consistent.",
+                "value": null
+            },
+            "stdio-uart": {
+                "help": "Configure STDIO_UART. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART defaults to USB_UART.",
+                "value": null
+            },
+            "stdio-uart-tx": {
+                "help": "Configure STDIO_UART_TX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_TX defaults to USBTX.",
+                "value": null
+            },
+            "stdio-uart-rx": {
+                "help": "Configure STDIO_UART_RX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_RX defaults to USBRX.",
+                "value": null
+            },
+            "gpio-irq-debounce-enable": {
+                "help": "Enable GPIO IRQ debounce",
+                "value": 0
+            },
+            "gpio-irq-debounce-enable-list": {
+                "help": "Comma separated pin list to enable GPIO IRQ debounce",
+                "value": "NC"
+            },
+            "gpio-irq-debounce-clock-source": {
+                "help": "Select GPIO IRQ debounce clock source: GPIO_DBCTL_DBCLKSRC_HCLK or GPIO_DBCTL_DBCLKSRC_LIRC",
+                "value": "GPIO_DBCTL_DBCLKSRC_LIRC"
+            },
+            "gpio-irq-debounce-sample-rate": {
+                "help": "Select GPIO IRQ debounce sample rate: GPIO_DBCTL_DBCLKSEL_1, GPIO_DBCTL_DBCLKSEL_2, GPIO_DBCTL_DBCLKSEL_4, ..., or GPIO_DBCTL_DBCLKSEL_32768",
+                "value": "GPIO_DBCTL_DBCLKSEL_16"
+            }
+        },
+        "overrides": {
+            "deep-sleep-latency": 1,
+            "tickless-from-us-ticker": true,
+            "mpu-rom-end": "0x1fffffff"
+        },
+        "device_has_add": [
+            "USTICKER",
+            "LPTICKER",
+            "RTC",
+            "ANALOGIN",
+            "ANALOGOUT",
+            "I2C",
+            "I2CSLAVE",
+            "I2C_ASYNCH",
+            "INTERRUPTIN",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "PWMOUT",
+            "SERIAL",
+            "SERIAL_ASYNCH",
+            "SERIAL_FC",
+            "STDIO_MESSAGES",
+            "SLEEP",
+            "SPI",
+            "SPISLAVE",
+            "SPI_ASYNCH",
+            "MPU"
+        ],
+        "release_versions": [
+            "5"
+        ],
+        "sectors": [
+            [
+                0,
+                2048
+            ]
+        ],
+        "bootloader_supported": true,
+        "forced_reset_timeout": 3
+    },
+    "NU_M2354": {
+        "inherits": [
+            "MCU_M2354"
+        ],
+        "supported_form_factors": [
+            "ARDUINO_UNO"
+        ],
+        "detect_code": [
+            "1312"
+        ],
+        "device_name": "M2354KJFAE",
+        "overrides": {
+            "hxt-present": false,
+            "usb-uart": "UART_0",
+            "usb-uart-tx": "PA_7",
+            "usb-uart-rx": "PA_6"
+        },
+        "OUTPUT_EXT": "bin",
+        "components_add": [
+            "TFM_S_FW"
+        ],
+        "post_binary_hook": {
+            "function": "NuM2354Code.merge_secure"
+        },
+        "secure_image_filename": "tfm_s.bin",
+        "tfm_target_name": "nuvoton/m2354",
+        "tfm_bootloader_supported": true,
+        "tfm_default_toolchain": "GNUARM",
+        "tfm_supported_toolchains": [
+            "ARMCLANG",
+            "GNUARM"
+        ],
+        "tfm_delivery_dir": "TARGET_NUVOTON/TARGET_M2354/TARGET_TFM/TARGET_NU_M2354/COMPONENT_TFM_S_FW"
+    },
     "MCU_M251": {
         "core": "Cortex-M23",
         "public": false,
@@ -6756,6 +7128,16 @@
             "GCC_ARM"
         ],
         "config": {
+            "hxt-present": {
+                "help": "High-speed external crystal oscillator HXT is present",
+                "options": [false, true],
+                "value": false
+            },
+            "lxt-present": {
+                "help": "Low-speed external crystal oscillator LXT is present",
+                "options": [false, true],
+                "value": true
+            },
             "usb-uart": {
                 "help": "Configure USB_UART. USB_UART and USB_UART_TX/USB_UART_RX must be consistent.",
                 "value": null
@@ -6803,6 +7185,8 @@
             }
         },
         "overrides": {
+            "hxt-present": false,
+            "lxt-present": true,
             "mpu-rom-end": "0x1fffffff",
             "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
@@ -6833,7 +7217,8 @@
             "SPISLAVE",
             "SPI_ASYNCH",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "components_add": [
             "FLASHIAP"
@@ -7691,6 +8076,16 @@
             "GCC_ARM"
         ],
         "config": {
+            "hxt-present": {
+                "help": "High-speed external crystal oscillator HXT is present",
+                "options": [false, true],
+                "value": false
+            },
+            "lxt-present": {
+                "help": "Low-speed external crystal oscillator LXT is present",
+                "options": [false, true],
+                "value": true
+            },
             "usb-uart": {
                 "help": "Configure USB_UART. USB_UART and USB_UART_TX/USB_UART_RX must be consistent.",
                 "value": null
@@ -7760,6 +8155,7 @@
             "TRNG",
             "FLASH",
             "MPU",
+            "WATCHDOG",
             "USBDEVICE"
         ],
         "components_add": [
@@ -7776,6 +8172,8 @@
         ],
         "bootloader_supported": true,
         "overrides": {
+            "hxt-present": false,
+            "lxt-present": true,
             "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
         },

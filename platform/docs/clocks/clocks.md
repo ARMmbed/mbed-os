@@ -133,7 +133,7 @@ Unlike direct clock access, those high-level classes always handle deep sleep lo
 
 There is also a generic `TickerDataClock` which provides a Chrono Clock wrapper for a `ticker_data *`, so that `TickerDataClock::time_point` can be used to express absolute times for arbitrary clocks.
 
-Note that the `TickerDataClock` is a non-standard Chrono clock, in that its `now` method is non-static. The Chrono type-checking will not detect that `TickerDataClock::time_point`s for different tickers are not interchangable. It is generally preferable to use the dedicated `HighResClock` or `LowPowerClock`, but `TickerDataClock` is used by some generic code, to avoid template bloat from separate code for each Clock. 
+Note that the `TickerDataClock` is a non-standard Chrono clock, in that its `now` method is non-static. The Chrono type-checking will not detect that `TickerDataClock::time_point`s for different tickers are not interchangeable. It is generally preferable to use the dedicated `HighResClock` or `LowPowerClock`, but `TickerDataClock` is used by some generic code, to avoid template bloat from separate code for each Clock. 
 
 The base classes `TimerBase`, `TickerBase` and `TimeoutBase` use `TickerDataClock` to provide the core of the high-level implementation, and these are then used to provide the separate strongly-typed high-resolution and low-power classes above.
 

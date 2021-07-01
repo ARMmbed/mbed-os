@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,7 @@
 #include <ns_types.h>
 #include <ns_trace.h>
 #include "nsdynmemLIB.h"
+#include "randLIB.h"
 #include "ns_list.h"
 #include "common_functions.h"
 
@@ -36,6 +37,7 @@ typedef struct {
     dhcp_client_options_notify_cb *option_information_cb;
     uint16_t service_instance;
     uint16_t relay_instance;
+    uint16_t sol_max_delay;
     uint16_t sol_timeout;
     uint16_t sol_max_rt;
     uint8_t sol_max_rc;
@@ -104,6 +106,7 @@ void dhcp_client_init(int8_t interface, uint16_t link_type)
         dhcp_client->sol_timeout = 0;
         dhcp_client->sol_max_rt = 0;
         dhcp_client->sol_max_rc = 0;
+        dhcp_client->sol_max_delay = 0;
         dhcp_client->renew_uses_solicit = false;
         dhcp_client->one_instance_interface = false;
         dhcp_client->no_address_hint = false;
@@ -139,13 +142,14 @@ void dhcp_client_configure(int8_t interface, bool renew_uses_solicit, bool one_c
     dhcp_client->no_address_hint = no_address_hint;
 }
 
-void dhcp_client_solicit_timeout_set(int8_t interface, uint16_t timeout, uint16_t max_rt, uint8_t max_rc)
+void dhcp_client_solicit_timeout_set(int8_t interface, uint16_t timeout, uint16_t max_rt, uint8_t max_rc, uint8_t max_delay)
 {
     // Set the default retry values for SOLICIT and RENEW messages.
     dhcp_client_class_t *dhcp_client = dhcpv6_client_entry_discover(interface);
     if (!dhcp_client) {
         return;
     }
+    dhcp_client->sol_max_delay = max_delay * 10; //Convert to ticks
     dhcp_client->sol_timeout = timeout;
     dhcp_client->sol_max_rt = max_rt;
     dhcp_client->sol_max_rc = max_rc;
@@ -173,6 +177,16 @@ void dhcp_relay_agent_enable(int8_t interface, uint8_t border_router_address[sta
 
     dhcp_client->relay_instance = dhcp_service_init(interface, DHCP_INTANCE_RELAY_AGENT, NULL);
     dhcp_service_relay_instance_enable(dhcp_client->relay_instance, border_router_address);
+}
+
+void dhcp_relay_agent_interface_id_option_enable(int8_t interface, bool enable)
+{
+    dhcp_client_class_t *dhcp_client = dhcpv6_client_entry_discover(interface);
+    if (!dhcp_client) {
+        return;
+    }
+
+    dhcp_service_relay_interface_id_option_enable(dhcp_client->relay_instance, enable);
 }
 
 void dhcp_client_delete(int8_t interface)
@@ -227,7 +241,7 @@ void dhcpv6_client_send_error_cb(dhcpv6_client_server_data_t *srv_data_ptr)
 }
 
 
-static void dhcp_vendor_information_notify(uint8_t *ptr, uint16_t data_len, dhcp_client_class_t *dhcp_client, dhcpv6_client_server_data_t *srv_data_ptr)
+static void dhcp_vendor_information_notify(uint8_t *ptr, uint16_t data_len, dhcp_client_class_t *dhcp_client, dhcpv6_client_server_data_t *srv_data_ptr, uint32_t message_rtt)
 {
     if (!dhcp_client->option_information_cb) {
         return;
@@ -247,6 +261,8 @@ static void dhcp_vendor_information_notify(uint8_t *ptr, uint16_t data_len, dhcp
     server_info.duid = srv_data_ptr->serverDUID.duid + 2; // Skip the type
     server_info.duid_type = srv_data_ptr->serverDUID.type;
     server_info.duid_length = srv_data_ptr->serverDUID.duid_length - 2;// remove the type
+    server_info.rtt = message_rtt;
+
 
     while (data_len >= 4) {
         type = common_read_16_bit(ptr);
@@ -295,6 +311,7 @@ int dhcp_solicit_resp_cb(uint16_t instance_id, void *ptr, uint8_t msg_name,  uin
     dhcp_duid_options_params_t clientId;
     dhcp_duid_options_params_t serverId;
     dhcpv6_client_server_data_t *srv_data_ptr = NULL;
+    uint32_t message_rtt;
     (void)instance_id;
 
     //Validate that started TR ID class is still at list
@@ -312,6 +329,8 @@ int dhcp_solicit_resp_cb(uint16_t instance_id, void *ptr, uint8_t msg_name,  uin
         goto error_exit;
     }
 
+
+    message_rtt = dhcp_service_rtt_get(srv_data_ptr->transActionId);
 
     //Clear Active Transaction state
     srv_data_ptr->transActionId = 0;
@@ -385,7 +404,7 @@ int dhcp_solicit_resp_cb(uint16_t instance_id, void *ptr, uint8_t msg_name,  uin
     }
 
     //Optional Options notify from Reply
-    dhcp_vendor_information_notify(msg_ptr, msg_len, dhcp_client, srv_data_ptr);
+    dhcp_vendor_information_notify(msg_ptr, msg_len, dhcp_client, srv_data_ptr, message_rtt);
 
     return RET_MSG_ACCEPTED;
 error_exit:
@@ -488,8 +507,12 @@ dhcp_address_get:
         libdhcpv6_generic_nontemporal_address_message_write(payload_ptr, &solPacket, NULL, NULL);
     }
 
+    uint16_t delay_tx = 0;
+    if (dhcp_client->sol_max_delay) {
+        delay_tx = randLIB_get_random_in_range(0, dhcp_client->sol_max_delay);
+    }
     // send solicit
-    srv_data_ptr->transActionId = dhcp_service_send_req(dhcp_client->service_instance, 0, srv_data_ptr, dhcp_addr, payload_ptr, payload_len, dhcp_solicit_resp_cb);
+    srv_data_ptr->transActionId = dhcp_service_send_req(dhcp_client->service_instance, 0, srv_data_ptr, dhcp_addr, payload_ptr, payload_len, dhcp_solicit_resp_cb, delay_tx);
     if (srv_data_ptr->transActionId == 0) {
         ns_dyn_mem_free(payload_ptr);
         libdhcvp6_nontemporalAddress_server_data_free(srv_data_ptr);
@@ -647,7 +670,7 @@ void dhcpv6_renew(protocol_interface_info_entry_t *interface, if_address_entry_t
         server_address = srv_data_ptr->server_address;
     }
 
-    srv_data_ptr->transActionId = dhcp_service_send_req(dhcp_client->service_instance, 0, srv_data_ptr, server_address, payload_ptr, payload_len, dhcp_solicit_resp_cb);
+    srv_data_ptr->transActionId = dhcp_service_send_req(dhcp_client->service_instance, 0, srv_data_ptr, server_address, payload_ptr, payload_len, dhcp_solicit_resp_cb, 0);
     if (srv_data_ptr->transActionId == 0) {
         ns_dyn_mem_free(payload_ptr);
         if (addr) {

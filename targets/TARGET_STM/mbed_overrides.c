@@ -41,30 +41,31 @@ extern void SetSysClock(void);
 
 /**
  * @brief configure the LSE crystal driver load
- * This settings ist target hardware dependend and 
+ * This setting is target hardware dependend and
  * depends on the crystal that is used for LSE clock.
  * For low power requirements, crystals with low load capacitors can be used and
  * driver setting is RCC_LSEDRIVE_LOW.
  * For higher stablity, crystals with higher load capacitys can be used and
  * driver setting is RCC_LSEDRIVE_HIGH.
- * 
+ *
  * A detailed description about this setting can be found here:
  * https://www.st.com/resource/en/application_note/cd00221665-oscillator-design-guide-for-stm8afals-stm32-mcus-and-mpus-stmicroelectronics.pdf
- * 
- * LSE maybe used later, but crystal load drive setting is necessary before 
+ *
+ * LSE maybe used later, but crystal load drive setting is necessary before
  * enabling LSE.
- *   
+ *
  * @param None
  * @retval None
  */
 
-static void LSEDriveConfig(void) {
+static void LSEDriveConfig(void)
+{
     HAL_PWR_EnableBkUpAccess();
-    #if defined(__HAL_RCC_LSEDRIVE_CONFIG)
-        __HAL_RCC_LSEDRIVE_CONFIG(LSE_DRIVE_LOAD_LEVEL);
-    #else
-        HAL_RCCEx_SelectLSEMode(LSE_DRIVE_LOAD_LEVEL);
-    #endif
+#if defined(__HAL_RCC_LSEDRIVE_CONFIG)
+    __HAL_RCC_LSEDRIVE_CONFIG(LSE_DRIVE_LOAD_LEVEL);
+#else
+    HAL_RCCEx_SelectLSEMode(LSE_DRIVE_LOAD_LEVEL);
+#endif
 }
 #endif  // LSE_CONFIG_AVAILABLE
 
@@ -79,13 +80,15 @@ static void LSEDriveConfig(void) {
  * @param None
  * @retval None
  */
-MBED_WEAK void TargetBSP_Init(void) {
+MBED_WEAK void TargetBSP_Init(void)
+{
     /** Do nothing */
 }
 
 #ifndef MBED_DEBUG
 #if MBED_CONF_TARGET_GPIO_RESET_AT_INIT
-void GPIO_Full_Init(void) {
+void GPIO_Full_Init(void)
+{
     GPIO_InitTypeDef GPIO_InitStruct;
 
     GPIO_InitStruct.Pin        = GPIO_PIN_All;
@@ -238,7 +241,7 @@ void mbed_sdk_init()
 #if IS_PWR_SUPPLY(MBED_CONF_TARGET_SYSTEM_POWER_SUPPLY)
     HAL_PWREx_ConfigSupply(MBED_CONF_TARGET_SYSTEM_POWER_SUPPLY);
 #else
-    #error system_power_supply not configured
+#error system_power_supply not configured
 #endif
 #endif
 
@@ -276,7 +279,7 @@ void mbed_sdk_init()
 #if IS_PWR_SUPPLY(MBED_CONF_TARGET_SYSTEM_POWER_SUPPLY)
     HAL_PWREx_ConfigSupply(MBED_CONF_TARGET_SYSTEM_POWER_SUPPLY);
 #else
-    #error system_power_supply not configured
+#error system_power_supply not configured
 #endif
 #endif
 
@@ -290,8 +293,7 @@ void mbed_sdk_init()
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
     PeriphClkInitStruct.RTCClockSelection = (RCC_RTCCLKSOURCE_HSE_DIVX | RTC_HSE_DIV << 16);
-    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-    {
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
         error("PeriphClkInitStruct RTC failed with HSE\n");
     }
 #elif ((MBED_CONF_TARGET_RTC_CLOCK_SOURCE == USE_RTC_CLK_LSE_OR_LSI) && !MBED_CONF_TARGET_LSE_AVAILABLE) || (MBED_CONF_TARGET_RTC_CLOCK_SOURCE == USE_RTC_CLK_LSI)

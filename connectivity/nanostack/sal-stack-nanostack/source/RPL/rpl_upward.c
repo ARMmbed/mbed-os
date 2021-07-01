@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, Arm Limited and affiliates.
+ * Copyright (c) 2015-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -347,6 +347,14 @@ void rpl_instance_poison(rpl_instance_t *instance, uint8_t count)
     rpl_instance_inconsistency(instance);
 }
 
+void rpl_control_instant_poison(protocol_interface_info_entry_t *cur, rpl_domain_t *domain)
+{
+    ns_list_foreach(rpl_instance_t, instance, &domain->instances) {
+        rpl_instance_poison(instance, 1);
+        rpl_instance_dio_trigger(instance, cur, NULL);
+    }
+}
+
 void rpl_instance_force_leaf(rpl_instance_t *instance)
 {
     instance->current_rank = RPL_RANK_INFINITE;
@@ -363,7 +371,7 @@ void rpl_instance_trigger_parent_selection(rpl_instance_t *instance, uint16_t de
         }
     }
     if (instance->parent_selection_timer == 0 || instance->parent_selection_timer > delay) {
-        instance->parent_selection_timer = randLIB_randomise_base(delay, 0x8000, 0x999A) /* Random between delay * 1.0-1.2 */;
+        instance->parent_selection_timer = randLIB_randomise_base(delay, 0x8000, 0xc000) /* Random between delay * 1.0-1.5 */;
         tr_debug("Timed parent triggered %u", instance->parent_selection_timer);
     }
 }
@@ -525,6 +533,9 @@ bool rpl_neighbour_update_dtsn(rpl_neighbour_t *neighbour, uint8_t dtsn)
 
 rpl_instance_t *rpl_neighbour_instance(const rpl_neighbour_t *neighbour)
 {
+    if (!neighbour || !neighbour->dodag_version || !neighbour->dodag_version->dodag) {
+        return NULL;
+    }
     return neighbour->dodag_version->dodag->instance;
 }
 
@@ -1594,6 +1605,45 @@ void rpl_instance_remove_interface(rpl_instance_t *instance, int8_t if_id)
     }
 }
 
+static bool rpl_instance_parent_selected(rpl_instance_t *instance)
+{
+    if (rpl_instance_am_root(instance)) {
+        return true;
+    }
+
+    // We don't have DAO target generated
+    if (ns_list_count(&instance->dao_targets) == 0) {
+        return false;
+    }
+
+    // We don't have any valid parent selected
+    if (!rpl_instance_parent_selection_ready(instance)) {
+        return false;
+    }
+
+    return true;
+}
+
+static bool rpl_instance_dao_route_registered(rpl_instance_t *instance)
+{
+    if (rpl_instance_am_root(instance)) {
+        //Border router is allways at stable state
+        return true;
+    }
+
+    /* Address registrations for parent ongoing*/
+    if (rpl_policy_parent_confirmation_requested() && instance->pending_neighbour_confirmation) {
+        return false;
+    }
+
+    /* If we are waiting for DAO or DAO registration is needed we dont send periodic DIOs */
+    if (instance->dao_in_transit || instance->delay_dao_timer > 0) {
+        return false;
+    }
+
+    return true;
+}
+
 /* Trigger DIO transmission - all interfaces multicast if addr+cur are NULL, else unicast */
 void rpl_instance_dio_trigger(rpl_instance_t *instance, protocol_interface_info_entry_t *cur, const uint8_t *addr)
 {
@@ -1620,12 +1670,23 @@ void rpl_instance_dio_trigger(rpl_instance_t *instance, protocol_interface_info_
         instance->poison_count--;
         rank = RPL_RANK_INFINITE;
         tr_debug("Poison count -> set RPL_RANK_INFINITE");
+        if (instance->poison_count == 0) {
+            //Report RPL user that Poison message is triggered
+            rpl_control_event(instance->domain, RPL_EVENT_POISON_FINISHED);
+        }
     }
 
     // Always send config in unicasts (as required), never in multicasts (optional)
     rpl_dodag_conf_t *conf;
     if (addr) {
         conf = &dodag->config;
+        //Unicast
+        if (rank != RPL_RANK_INFINITE) {
+            if (!rpl_instance_parent_selected(instance)) {
+                tr_debug("parent selection not ready. DIO rank INFINITE");
+                rank = RPL_RANK_INFINITE;
+            }
+        }
     } else if (dodag->new_config_advertisment_count < rpl_policy_dio_multicast_config_advertisment_min_count()) {
         conf = &dodag->config;
         if (dodag->new_config_advertisment_count < 0xfe) {
@@ -1636,6 +1697,10 @@ void rpl_instance_dio_trigger(rpl_instance_t *instance, protocol_interface_info_
     }
 
     rpl_control_transmit_dio(instance->domain, cur, instance->id, dodag_version->number, rank, dodag->g_mop_prf, instance->dtsn, dodag, dodag->id, conf, addr);
+
+    if (addr) {
+        return;
+    }
 
     dodag_version->last_advertised_rank = rank;
 
@@ -1716,8 +1781,10 @@ void rpl_instance_set_local_repair(rpl_instance_t *instance, bool repair)
         instance->repair_dis_count = 0;
     } else {
         instance->repair_dis_timer = 0;
-        instance->advertised_dodag_membership_since_last_repair = false;
+
     }
+    //SET False allways for guarantee reboot possibility
+    instance->advertised_dodag_membership_since_last_repair = false;
 
     /* When repair ends, eliminate all higher-rank neighbours (potential sub-DODAG) from table */
     if (!repair && instance->current_dodag_version) {
@@ -1843,21 +1910,12 @@ void rpl_upward_dio_timer(rpl_instance_t *instance, uint16_t ticks)
     /* Important to always send DIOs if we ever have sent any, so we can indicate problems to others */
     if (!rpl_instance_am_root(instance) && !instance->poison_count && !instance->advertised_dodag_membership_since_last_repair && rpl_policy_parent_confirmation_requested()) {
 
-        // We don't have DAO target generated
-        if (ns_list_count(&instance->dao_targets) == 0) {
+        //Validate Parent is selected and registered
+        if (!rpl_instance_parent_selected(instance)) {
             return;
         }
-
-        // We don't have any valid parent selected
-        if (!rpl_instance_parent_selection_ready(instance)) {
-            return;
-        }
-        /* Address registrations for parent ongoing*/
-        if (instance->pending_neighbour_confirmation) {
-            return;
-        }
-        /* If we are waiting for DAO or DAO registration is needed we dont send periodic DIOs */
-        if (instance->dao_in_transit || instance->delay_dao_timer > 0) {
+        //Verify that DAO is registered
+        if (!rpl_instance_dao_route_registered(instance)) {
             return;
         }
     }

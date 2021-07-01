@@ -160,7 +160,7 @@ ble_error_t Gap::startPeriodicAdvertising(advertising_handle_t handle)
 
 ble_error_t Gap::stopPeriodicAdvertising(advertising_handle_t handle)
 {
-    return impl->stopAdvertising(handle);
+    return impl->stopPeriodicAdvertising(handle);
 }
 
 

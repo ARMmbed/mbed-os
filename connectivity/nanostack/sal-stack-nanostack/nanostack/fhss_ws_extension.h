@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited and affiliates.
+ * Copyright (c) 2018, 2020-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -117,6 +117,27 @@ extern int ns_fhss_set_neighbor_info_fp(const fhss_api_t *fhss_api, fhss_get_nei
  * @return 0 on success, -1 on fail.
  */
 extern int ns_fhss_ws_set_hop_count(const fhss_api_t *fhss_api, const uint8_t hop_count);
+
+/**
+ * @brief WS TX allowance levels.
+ */
+typedef enum {
+    /** Allow transmitting only on TX slots. */
+    WS_TX_SLOT,
+    /** Allow transmitting only on TX and RX slots. */
+    WS_TX_AND_RX_SLOT,
+    /** Allow transmitting always. Also unicast on broadcast channel. */
+    WS_TX_ALWAYS
+} fhss_ws_tx_allow_level;
+
+/**
+ * @brief Set node unicast TX allowance level. Allows device to use the unicast and broadcast channel for unicast transmission as described by fhss_ws_tx_allow_level.
+ * @param fhss_api FHSS instance.
+ * @param global_level Level of TX allowance in normal mode.
+ * @param ef_level Level of TX allowance in expedited forwarding mode.
+ * @return 0 on success, -1 on fail.
+ */
+extern int ns_fhss_ws_set_tx_allowance_level(const fhss_api_t *fhss_api, const fhss_ws_tx_allow_level global_level, const fhss_ws_tx_allow_level ef_level);
 
 #ifdef __cplusplus
 }

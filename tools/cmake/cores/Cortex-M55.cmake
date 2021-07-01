@@ -17,12 +17,12 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     )
 endif()
 
+
 function(mbed_set_cpu_core_definitions target)
     target_compile_definitions(${target}
         INTERFACE
             __CORTEX_M55
             __FPU_PRESENT=1
             __CMSIS_RTOS
-            __MBED_CMSIS_RTOS_CM
     )
 endfunction()

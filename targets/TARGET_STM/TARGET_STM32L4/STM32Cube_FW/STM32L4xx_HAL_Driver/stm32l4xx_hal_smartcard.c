@@ -2437,7 +2437,7 @@ static HAL_StatusTypeDef SMARTCARD_SetConfig(SMARTCARD_HandleTypeDef *hsmartcard
   SMARTCARD_ClockSourceTypeDef clocksource;
   HAL_StatusTypeDef ret = HAL_OK;
 #if defined(USART_PRESC_PRESCALER)
-  const uint16_t SMARTCARDPrescTable[12] = {1U, 2U, 4U, 6U, 8U, 10U, 12U, 16U, 32U, 64U, 128U, 256U};
+  static const uint16_t SMARTCARDPrescTable[12] = {1U, 2U, 4U, 6U, 8U, 10U, 12U, 16U, 32U, 64U, 128U, 256U};
 #endif /* USART_PRESC_PRESCALER */
   uint32_t pclk;
 
@@ -2465,12 +2465,7 @@ static HAL_StatusTypeDef SMARTCARD_SetConfig(SMARTCARD_HandleTypeDef *hsmartcard
    * Configure the Parity and Mode:
    *  set PS bit according to hsmartcard->Init.Parity value
    *  set TE and RE bits according to hsmartcard->Init.Mode value */
-#if defined(USART_CR1_FIFOEN)
-  tmpreg = (uint32_t) hsmartcard->Init.Parity | hsmartcard->Init.Mode;
-  tmpreg |= (uint32_t) hsmartcard->Init.WordLength | hsmartcard->FifoMode;
-#else
   tmpreg = (uint32_t)(hsmartcard->Init.Parity | hsmartcard->Init.Mode | hsmartcard->Init.WordLength);
-#endif /* USART_CR1_FIFOEN */
   MODIFY_REG(hsmartcard->Instance->CR1, USART_CR1_FIELDS, tmpreg);
 
   /*-------------------------- USART CR2 Configuration -----------------------*/

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, Arm Limited and affiliates.
+ * Copyright (c) 2016-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -129,6 +129,12 @@ void mac_helper_devicetable_set(const mlme_device_descriptor_t *device_dec, stru
 void mac_helper_devicetable_direct_set(struct mac_api_s *mac_api, const mlme_device_descriptor_t *device_desc, uint8_t attribute_index);
 
 int8_t mac_helper_mac_mlme_max_retry_set(int8_t interface_id, uint8_t mac_retry_set);
+
+int8_t mac_helper_mac_mlme_max_csma_backoffs_set(int8_t interface_id, uint8_t csma_backoffs);
+
+int8_t mac_helper_mac_mlme_be_set(int8_t interface_id, uint8_t min_be, uint8_t max_be);
+
+int8_t mac_helper_mac_mlme_data_request_restart_set(int8_t interface_id, mlme_request_restart_config_t *request_restart_config);
 
 int8_t mac_helper_mac_device_description_pan_id_update(int8_t interface_id, uint16_t pan_id);
 

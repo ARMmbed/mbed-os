@@ -67,6 +67,37 @@ typedef struct ws_cca_threshold_table {
     const int8_t *cca_threshold_table;
 } ws_cca_threshold_table_t;
 
+typedef enum {
+    WISUN_OTHER = 0,            /**< temporary or soon to be removed neighbor*/
+    WISUN_PRIMARY_PARENT,       /**< Primary parent used for upward packets and used from Border router downwards*/
+    WISUN_SECONDARY_PARENT,     /**< Secondary parent reported to border router and might be used as alternate route*/
+    WISUN_CANDIDATE_PARENT,     /**< Candidate neighbor that is considered as parent if there is problem with active parents*/
+    WISUN_CHILD                 /**< Child with registered address*/
+} ws_nbr_type_e;
+
+/**
+ * \brief Struct ws_nbr_info_t Gives the neighbor information.
+ */
+typedef struct ws_nbr_info {
+    /** Link local address*/
+    uint8_t link_local_address[16];
+    /** Global address if it is known set to 0 if not available*/
+    uint8_t global_address[16];
+    /** parent RSSI Out measured RSSI value calculated using EWMA specified by Wi-SUN from range of -174 (0) to +80 (254) dBm.*/
+    uint8_t rsl_out;
+    /** parent RSSI in measured RSSI value calculated using EWMA specified by Wi-SUN from range of -174 (0) to +80 (254) dBm.*/
+    uint8_t rsl_in;
+    /** RPL Rank value for parents 0xffff for neighbors RANK is unknown*/
+    uint16_t rpl_rank;
+    /** Measured ETX value if known set to 0xFFFF if not known or Child*/
+    uint16_t etx;
+    /** Remaining lifetime Link lifetime for parents and ARO lifetime for children*/
+    uint32_t lifetime;
+    /** Neighbour type (Primary Parent, Secondary Parent, Candidate parent, child, other(Temporary neighbours))*/
+    ws_nbr_type_e type;
+} ws_nbr_info_t;
+
+
 /** Wi-SUN mesh network interface class
  *
  * Configure Nanostack to use Wi-SUN protocol.
@@ -156,6 +187,48 @@ public:
      * \return MESH_ERROR_UNKNOWN in case of failure.
      * */
     mesh_error_t validate_network_regulatory_domain(uint8_t regulatory_domain, uint8_t operating_class, uint8_t operating_mode);
+
+    /**
+     * \brief Set Wi-SUN network regulatory domain, PHY mode ID and channel plan ID.
+     *
+     * Function stores new parameters to mbed-mesh-api and uses them when connect() is called next time.
+     * If device is already connected to the Wi-SUN network then device will restart network discovery after
+     * changing the regulatory_domain, phy_mode_id or channel_plan_id.
+     *
+     * \param regulatory_domain Values defined in Wi-SUN PHY-specification. Use 0 to leave parameter unchanged or 0xff to use default value.
+     * \param phy_mode_id Values defined in Wi-SUN PHY-specification. Use 0 to leave parameter unchanged or 0xff to use default value.
+     * \param channel_plan_id Values defined in Wi-SUN PHY-specification. Use 0 to leave parameter unchanged or 0xff to use default value.
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_UNKNOWN in case of failure.
+     * */
+    mesh_error_t set_network_domain_configuration(uint8_t regulatory_domain, uint8_t phy_mode_id, uint8_t channel_plan_id);
+
+    /**
+     * \brief Get Wi-SUN network regulatory domain, PHY mode ID and channel plan ID.
+     *
+     * Function reads regulatory_domain, phy_mode_id and channel_plan_id from mbed-mesh-api.
+     *
+     * \param regulatory_domain Values defined in Wi-SUN PHY-specification.
+     * \param phy_mode_id Values defined in Wi-SUN PHY-specification.
+     * \param channel_plan_id Values defined in Wi-SUN PHY-specification.
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_UNKNOWN in case of failure.
+     * */
+    mesh_error_t get_network_domain_configuration(uint8_t *regulatory_domain, uint8_t *phy_mode_id, uint8_t *channel_plan_id);
+
+    /**
+     * \brief Validate Wi-SUN network regulatory domain, PHY mode ID and channel plan ID.
+     *
+     * Function validates regulatory_domain, phy_mode_id and channel_plan_id. Function can be used to test that values that will
+     * be used on set function are valid.
+     *
+     * \param regulatory_domain Values defined in Wi-SUN PHY-specification.
+     * \param phy_mode_id Values defined in Wi-SUN PHY-specification.
+     * \param channel_plan_id Values defined in Wi-SUN PHY-specification.
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_UNKNOWN in case of failure.
+     * */
+    mesh_error_t validate_network_domain_configuration(uint8_t regulatory_domain, uint8_t phy_mode_id, uint8_t channel_plan_id);
 
     /**
      * \brief Set Wi-SUN network size.
@@ -509,6 +582,16 @@ public:
     mesh_error_t enable_statistics(void);
 
     /**
+     * \brief Reset Wi-SUN statistics
+     *
+     * Resets MAC statistics and Wi-SUN statistics.
+     *
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_UNKNOWN on error
+     * */
+    mesh_error_t reset_statistics(void);
+
+    /**
      * \brief Reads Wi-SUN network statistics
      *
      * Reads network statistics.
@@ -567,6 +650,20 @@ public:
      * \return MESH_ERROR_UNKNOWN in case of failure.
      * */
     mesh_error_t cca_threshold_table_get(ws_cca_threshold_table_t *table);
+
+    /**
+     * \brief Get Wi-SUN Neighbor table information.
+     *
+     * To allocate correct amount of memory first use the API with nbr_ptr = NULL to get current amount
+     * of neighbors in count pointer. Then Allocate the memory and call the function to fill the table.
+     *
+     * \param nbr_ptr Pointer to memory where Neighbor table entries can be written.
+     * \param count amount of neighbor table entries allocated to memory.
+     *
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_UNKNOWN in case of failure.
+     * */
+    mesh_error_t nbr_info_get(ws_nbr_info_t *nbr_ptr, uint16_t *count);
 
 protected:
     Nanostack::WisunInterface *get_interface() const;

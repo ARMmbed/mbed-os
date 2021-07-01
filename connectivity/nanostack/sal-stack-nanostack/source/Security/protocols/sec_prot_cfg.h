@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited and affiliates.
+ * Copyright (c) 2020-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,10 +23,12 @@
 typedef struct sec_prot_cfg_s {
     trickle_params_t sec_prot_trickle_params;
     uint16_t sec_prot_retry_timeout;
-    uint16_t sec_max_ongoing_authentication;
-    uint16_t initial_key_retry_delay;
-    trickle_params_t initial_key_trickle_params;
+    uint16_t initial_key_retry_min;
+    uint16_t initial_key_retry_max;
+    uint16_t initial_key_retry_max_limit;
     uint8_t initial_key_retry_cnt;
+    uint8_t max_ongoing_auth_constant;
+    uint16_t max_ongoing_auth_size_scaler;
 } sec_prot_cfg_t;
 
 /* Security timer configuration settings */
@@ -53,9 +55,14 @@ typedef struct sec_radius_cfg_s {
     bool radius_addr_set : 1;                        /**< Radius server address is set */
 } sec_radius_cfg_t;
 
+typedef struct sec_timing_cfg_s {
+    uint16_t temp_eapol_min_timeout;                 /**< Temporary neighbor link minimum timeout; seconds; default 330 */
+} sec_timing_cfg_t;
+
 typedef struct sec_cfg_s {
     sec_prot_cfg_t prot_cfg;
     sec_timer_cfg_t timer_cfg;
+    sec_timing_cfg_t timing_cfg;
     sec_radius_cfg_t *radius_cfg;
 } sec_cfg_t;
 

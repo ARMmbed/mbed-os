@@ -68,9 +68,9 @@ uint8_t SetSysClock_PLL_HSI(void);
 void SetSysClock(void)
 {
 
-  bool lowspeed = false;
+    bool lowspeed = false;
 #if defined(LOWSPEED) && (LOWSPEED == 1)
-  lowspeed = true;
+    lowspeed = true;
 #endif
 
 #if ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC)
@@ -95,17 +95,19 @@ void SetSysClock(void)
 }
 
 static const uint32_t _keep;
-bool isBootloader() {
-  return ((uint32_t)&_keep < 0x8040000);
+bool isBootloader()
+{
+    return ((uint32_t)&_keep < 0x8040000);
 }
 
-bool isBetaBoard() {
-  uint8_t* bootloader_data = (uint8_t*)(0x801F000);
-  if (bootloader_data[0] != 0xA0 || bootloader_data[1] < 14) {
-    return true;
-  } else {
-    return (bootloader_data[10] == 27);
-  }
+bool isBetaBoard()
+{
+    uint8_t *bootloader_data = (uint8_t *)(0x801F000);
+    if (bootloader_data[0] != 0xA0 || bootloader_data[1] < 14) {
+        return true;
+    } else {
+        return (bootloader_data[10] == 27);
+    }
 }
 
 #if ( ((CLOCK_SOURCE) & USE_PLL_HSE_XTAL) || ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC) )
@@ -118,14 +120,13 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass, bool lowspeed)
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
 
-    // If we are reconfiguring the clock, select CSI as system clock source to allow modification of the PLL configuration 
+    // If we are reconfiguring the clock, select CSI as system clock source to allow modification of the PLL configuration
     if (__HAL_RCC_GET_PLL_OSCSOURCE() == RCC_PLLSOURCE_HSE) {
-      RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_SYSCLK;
-      RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_CSI;
-      if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
-      {
-        return 0;
-      }
+        RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_SYSCLK;
+        RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_CSI;
+        if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK) {
+            return 0;
+        }
     }
 
     /* Enable oscillator pin */
@@ -148,9 +149,9 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass, bool lowspeed)
     /* Configure the main internal regulator output voltage */
 
     if (lowspeed) {
-      __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
+        __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
     } else {
-      __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+        __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
     }
 
     while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {}
@@ -167,17 +168,17 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass, bool lowspeed)
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM = 5;
     if (lowspeed) {
-      RCC_OscInitStruct.PLL.PLLN = 40;
+        RCC_OscInitStruct.PLL.PLLN = 40;
     } else {
-      RCC_OscInitStruct.PLL.PLLN = 160;
+        RCC_OscInitStruct.PLL.PLLN = 160;
     }
 
 #if HSE_VALUE == 27000000
     RCC_OscInitStruct.PLL.PLLM = 9;
     if (lowspeed) {
-      RCC_OscInitStruct.PLL.PLLN = 80;
+        RCC_OscInitStruct.PLL.PLLN = 80;
     } else {
-      RCC_OscInitStruct.PLL.PLLN = 300;
+        RCC_OscInitStruct.PLL.PLLN = 300;
     }
 #endif
 
@@ -203,11 +204,13 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass, bool lowspeed)
     RCC_ClkInitStruct.APB3CLKDivider = RCC_APB3_DIV2;
     RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV2;
     if (lowspeed) {
-      if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
-        return 0; // FAIL
+        if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK) {
+            return 0;    // FAIL
+        }
     } else {
-      if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
-        return 0; // FAIL
+        if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK) {
+            return 0;    // FAIL
+        }
     }
 
     // HAL_RCCEx_EnableBootCore(RCC_BOOT_C2);
@@ -294,13 +297,13 @@ uint8_t SetSysClock_PLL_HSI(void)
 #if defined (CORE_CM4)
 void HSEM2_IRQHandler(void)
 {
-  HAL_HSEM_IRQHandler();
+    HAL_HSEM_IRQHandler();
 }
 #endif
 
 #if defined (CORE_CM7)
 void HSEM1_IRQHandler(void)
 {
-  HAL_HSEM_IRQHandler();
+    HAL_HSEM_IRQHandler();
 }
 #endif

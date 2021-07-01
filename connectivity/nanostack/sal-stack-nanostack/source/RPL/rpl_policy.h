@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, 2019, Arm Limited and affiliates.
+ * Copyright (c) 2015-2017, 2019-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,9 @@
 
 #include "Core/include/ns_address_internal.h"
 #include "rpl_control.h"
+
+bool rpl_policy_force_tunnel(void);
+void rpl_policy_force_tunnel_set(bool enable);
 
 bool rpl_policy_join_instance(rpl_domain_t *domain, uint8_t instance_id, const uint8_t *dodagid);
 bool rpl_policy_join_dodag(rpl_domain_t *domain, uint8_t g_mop_prf, uint8_t instance_id, const uint8_t *dodagid);

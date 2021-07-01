@@ -1,4 +1,3 @@
-/* USER CODE BEGIN Header */
 /**
  ***************************************************************************************
   * File Name          : stm32_lpm_if.c
@@ -16,39 +15,28 @@
   *
   ******************************************************************************
   */
-/* USER CODE END Header */
   
 /* Includes ------------------------------------------------------------------*/  
+#include "stm32_lpm_if.h"
+#include "app_conf.h"
+
 #include "stm32wbxx_ll_hsem.h"
 #include "stm32wbxx_ll_cortex.h"
-#include "app_conf.h"
-/* USER CODE BEGIN include */
 
-/* USER CODE END include */
 
 /* Exported variables --------------------------------------------------------*/
 
 /* Private function prototypes -----------------------------------------------*/
 static void Switch_On_HSI( void );
-/* USER CODE BEGIN Private_Function_Prototypes */
 
-/* USER CODE END Private_Function_Prototypes */
 /* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN Private_Typedef */
 
-/* USER CODE END Private_Typedef */
 /* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN Private_Define */
 
-/* USER CODE END Private_Define */
 /* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN Private_Macro */
 
-/* USER CODE END Private_Macro */
 /* Private variables ---------------------------------------------------------*/
-/* USER CODE BEGIN Private_Variables */
 
-/* USER CODE END Private_Variables */
 
 /* Functions Definition ------------------------------------------------------*/
 /**
@@ -58,7 +46,6 @@ static void Switch_On_HSI( void );
   */
 void PWR_EnterOffMode( void )
 {
-/* USER CODE BEGIN PWR_EnterOffMode */
   /************************************************************************************
    * ENTER OFF MODE
    ***********************************************************************************/
@@ -83,7 +70,6 @@ void PWR_EnterOffMode( void )
 #endif
 
   __WFI( );
-/* USER CODE END PWR_EnterOffMode */
 }
 
 /**
@@ -93,9 +79,7 @@ void PWR_EnterOffMode( void )
   */
 void PWR_ExitOffMode( void )
 {
-/* USER CODE BEGIN PWR_ExitOffMode */
 
-/* USER CODE END PWR_ExitOffMode */
 }
 
 /**
@@ -106,7 +90,6 @@ void PWR_ExitOffMode( void )
   */
 void PWR_EnterStopMode( void )
 {
-/* USER CODE BEGIN PWR_EnterStopMode */
   /**
    * This function is called from CRITICAL SECTION
    */
@@ -120,8 +103,7 @@ void PWR_EnterStopMode( void )
       LL_HSEM_ReleaseLock( HSEM, CFG_HW_ENTRY_STOP_MODE_SEMID, 0 );
 
       /**
-       * The switch on HSI before entering Stop Mode is required on Cut2.0
-       * It is useless from Cut2.1
+       * The switch on HSI before entering Stop Mode is required 
        */
       Switch_On_HSI( );
     }
@@ -129,8 +111,7 @@ void PWR_EnterStopMode( void )
   else
   {
     /**
-     * The switch on HSI before entering Stop Mode is required on Cut2.0
-     * It is useless from Cut2.1
+     * The switch on HSI before entering Stop Mode is required 
      */
     Switch_On_HSI( );
   }
@@ -141,7 +122,11 @@ void PWR_EnterStopMode( void )
   /************************************************************************************
    * ENTER STOP MODE
    ***********************************************************************************/
+#if defined(PWR_SUPPORT_STOP2)
   LL_PWR_SetPowerMode( LL_PWR_MODE_STOP2 );
+#else
+  LL_PWR_SetPowerMode( LL_PWR_MODE_STOP1 );
+#endif
 
   LL_LPM_EnableDeepSleep( ); /**< Set SLEEPDEEP bit of Cortex System Control Register */
 
@@ -153,7 +138,6 @@ void PWR_EnterStopMode( void )
 #endif
 
   __WFI();
-/* USER CODE END PWR_EnterStopMode */
 }
 
 /**
@@ -164,7 +148,6 @@ void PWR_EnterStopMode( void )
   */
 void PWR_ExitStopMode( void )
 {
-/* USER CODE BEGIN PWR_ExitStopMode */
   /**
    * This function is called from CRITICAL SECTION
    */
@@ -191,7 +174,6 @@ void PWR_ExitStopMode( void )
 
   /* Release RCC semaphore */
   LL_HSEM_ReleaseLock( HSEM, CFG_HW_RCC_SEMID, 0 );
-/* USER CODE END PWR_ExitStopMode */
 }
 
 /**
@@ -202,7 +184,6 @@ void PWR_ExitStopMode( void )
   */
 void PWR_EnterSleepMode( void )
 {
-/* USER CODE BEGIN PWR_EnterSleepMode */
 
   HAL_SuspendTick();
 
@@ -219,7 +200,6 @@ void PWR_EnterSleepMode( void )
 #endif
 
   __WFI( );
-/* USER CODE END PWR_EnterSleepMode */
 }
 
 /**
@@ -230,11 +210,9 @@ void PWR_EnterSleepMode( void )
   */
 void PWR_ExitSleepMode( void )
 {
-/* USER CODE BEGIN PWR_ExitSleepMode */
 
   HAL_ResumeTick();
 
-/* USER CODE END PWR_ExitSleepMode */
 }
 
 /*************************************************************
@@ -256,9 +234,7 @@ static void Switch_On_HSI( void )
   while (LL_RCC_GetSysClkSource( ) != LL_RCC_SYS_CLKSOURCE_STATUS_HSI);
 }
 
-/* USER CODE BEGIN Private_Functions */
 
-/* USER CODE END Private_Functions */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
 

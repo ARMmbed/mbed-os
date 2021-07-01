@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, Arm Limited and affiliates.
+ * Copyright (c) 2017-2019, 2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -1721,6 +1721,8 @@ static void pana_client_authentication_fail(sec_suite_t *suite)
 int8_t pana_server_nvm_callback_set(pana_server_update_cb *update_cb, pana_server_session_get_cb *nvm_get, pana_server_session_get_by_id_cb *nvm_session_get, uint8_t *nvm_static_buffer)
 {
     (void)update_cb;
+    (void)nvm_get;
+    (void)nvm_session_get;
     (void)nvm_static_buffer;
     return -1;
 }

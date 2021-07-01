@@ -1124,13 +1124,15 @@ uint8_t GattServer::atts_read_cb(
     attsAttr_t *pAttr
 )
 {
+    uint8_t err = ATT_SUCCESS;
+
     char_auth_callback *auth_cb = getInstance().get_auth_callback(handle);
     if (auth_cb && auth_cb->read_cb) {
         GattReadAuthCallbackParams read_auth_params = {
             connId,
             handle,
             offset,
-            /* len */ 0,
+            /* len */ pAttr->maxLen,
             /* data */ nullptr,
             AUTH_CALLBACK_REPLY_SUCCESS
         };
@@ -1146,8 +1148,23 @@ uint8_t GattServer::atts_read_cb(
             return read_auth_params.authorizationReply & 0xFF;
         }
 
-        pAttr->pValue = read_auth_params.data;
-        *pAttr->pLen = read_auth_params.len;
+        /* if new data provided copy into the attribute value buffer */
+        if (read_auth_params.data) {
+            if (read_auth_params.len > pAttr->maxLen) {
+                tr_error("Read authorisation callback set length larger than maximum attribute length, "
+                         "cannot copy data");
+                err = ATT_ERR_UNLIKELY;
+            } else {
+                memcpy(pAttr->pValue, read_auth_params.data, read_auth_params.len);
+                *pAttr->pLen = read_auth_params.len;
+
+                if (read_auth_params.len < offset) {
+                    tr_warning("Read authorisation callback shortened data beyond current offset, "
+                               "current read will fail");
+                    err = ATT_ERR_OFFSET;
+                }
+            }
+        }
     }
 
     tr_debug("Read attribute %d on connection %d - value=%s",
@@ -1161,11 +1178,11 @@ uint8_t GattServer::atts_read_cb(
         offset,
         *pAttr->pLen,
         pAttr->pValue,
-        /* status */ BLE_ERROR_NONE,
+        /* status */ (err == ATT_SUCCESS) ? BLE_ERROR_NONE : BLE_ERROR_PARAM_OUT_OF_RANGE
     };
     getInstance().handleDataReadEvent(&read_params);
 
-    return ATT_SUCCESS;
+    return err;
 }
 
 uint8_t GattServer::atts_write_cb(
@@ -1765,21 +1782,6 @@ void GattServer::handleEvent(
             // Execute deprecated callback
             if (updatesDisabledCallback) {
                 updatesDisabledCallback(attributeHandle);
-            }
-            break;
-        case GattServerEvents::GATT_EVENT_CONFIRMATION_RECEIVED:
-            tr_debug("Confirmation received for attribute %d on connection %d", attributeHandle, connHandle);
-            if(eventHandler) {
-                GattConfirmationReceivedCallbackParams params({
-                    .connHandle = connHandle,
-                    .attHandle = attributeHandle
-                });
-                eventHandler->onConfirmationReceived(params);
-            }
-
-            // Execute deprecated callback
-            if (confirmationReceivedCallback) {
-                confirmationReceivedCallback(attributeHandle);
             }
             break;
 

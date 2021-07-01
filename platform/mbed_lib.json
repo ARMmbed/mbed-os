@@ -208,6 +208,9 @@
         "NU_PFM_M2351": {
             "stdio-baud-rate": 115200
         },
+        "NU_M2354": {
+            "stdio-baud-rate": 115200
+        },
         "NRF52840_DK": {
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true

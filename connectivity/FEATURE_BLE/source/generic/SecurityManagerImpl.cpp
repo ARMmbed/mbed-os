@@ -83,7 +83,7 @@ ble_error_t SecurityManager::init(
     const char* db_path
 )
 {
-    tr_info("SM init: bondable=%s, mitm=%s, iocaps=%s, passkey=%p, signing=%s, db_path=%p",
+    tr_info("SM init: bondable=%s, mitm=%s, iocaps=%s, passkey=%s, signing=%s, db_path=%p",
         to_string(bondable),
         to_string(mitm),
         to_string(iocaps),

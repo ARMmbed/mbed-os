@@ -1,0 +1,150 @@
+#!armclang --target=arm-arm-none-eabi -mcpu=cortex-m7 -E -x c
+/*
+** ###################################################################
+**     Processors:          MIMXRT1176AVM8A_cm7
+**                          MIMXRT1176CVM8A_cm7
+**                          MIMXRT1176DVMAA_cm7
+**
+**     Compiler:            Keil ARM C/C++ Compiler
+**     Reference manual:    IMXRT1170RM, Rev 0, 12/2020
+**     Version:             rev. 1.0, 2020-12-29
+**     Build:               b210202
+**
+**     Abstract:
+**         Linker file for the Keil ARM C/C++ Compiler
+**
+**     Copyright 2016 Freescale Semiconductor, Inc.
+**     Copyright 2016-2021 NXP
+**     All rights reserved.
+**
+**     SPDX-License-Identifier: BSD-3-Clause
+**
+**     http:                 www.nxp.com
+**     mail:                 support@nxp.com
+**
+** ###################################################################
+*/
+
+#define __ram_vector_table__           1
+
+#if (defined(__ram_vector_table__))
+  #define __ram_vector_table_size__    0x00000400
+#else
+  #define __ram_vector_table_size__    0x00000000
+#endif
+
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x30000400
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 0x1000000
+#endif
+
+#if !defined(MBED_APP_COMPILE)
+#define m_flash_config_start           MBED_APP_START
+#define m_flash_config_size            0x00000C00
+
+#define m_ivt_start                    MBED_APP_START + 0x0C00
+#define m_ivt_size                     0x00001000
+
+#define m_interrupts_start             MBED_APP_START + 0x1C00
+#define m_interrupts_size              0x00000400
+
+#define m_text_start                   MBED_APP_START + 0x2000
+#define m_text_size                    MBED_APP_SIZE - 0x2000
+#else
+#define m_interrupts_start             MBED_APP_START
+#define m_interrupts_size              0x00000400
+
+#define m_text_start                   MBED_APP_START + 0x400
+#define m_text_size                    MBED_APP_SIZE - 0x400
+#endif
+
+#define m_text2_start                  0x00000000
+#define m_text2_size                   0x00040000
+
+#define m_data_start                   0x80000000
+#define m_data_size                    0x03000000
+
+#define m_ncache_start                 0x83000000
+#define m_ncache_size                  0x01000000 - Heap_Size
+
+#define m_interrupts_ram_start         0x20000000
+#define m_interrupts_ram_size          __ram_vector_table_size__
+
+#define m_data2_start                   (m_interrupts_ram_start + m_interrupts_ram_size)
+#define m_data2_size                    (0x00040000 - m_interrupts_ram_size)
+
+#define m_data3_start                  0x202C0000
+#define m_data3_size                   0x00080000
+
+/* Sizes */
+
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+#  if defined(MBED_BOOT_STACK_SIZE)
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE MBED_BOOT_STACK_SIZE
+#  else
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
+#  endif
+#endif
+
+#if (defined(__stack_size__))
+  #define Stack_Size                   __stack_size__
+#else
+  #define Stack_Size                   MBED_CONF_TARGET_BOOT_STACK_SIZE
+#endif
+
+#if (defined(__heap_size__))
+  #define Heap_Size                    __heap_size__
+#else
+  #define Heap_Size                    0x0400
+#endif
+
+LR_IROM1 MBED_APP_START m_text_start+m_text_size-MBED_APP_START {   ; load region size_region
+#if !defined(MBED_APP_COMPILE)
+  RW_m_config_text m_flash_config_start FIXED m_flash_config_size { ; load address = execution address
+    * (.boot_hdr.conf, +FIRST)
+  }
+
+  RW_m_ivt_text m_ivt_start FIXED m_ivt_size { ; load address = execution address
+    * (.boot_hdr.ivt, +FIRST)
+    * (.boot_hdr.boot_data)
+    * (.boot_hdr.dcd_data)
+  }
+#endif
+  VECTOR_ROM m_interrupts_start FIXED m_interrupts_size { ; load address = execution address
+    * (RESET,+FIRST)
+  }
+  ER_IROM1 m_text_start FIXED m_text_size { ; load address = execution address
+    * (InRoot$$Sections)
+    .ANY (+RO)
+  }
+
+#if (defined(__ram_vector_table__))
+  VECTOR_RAM m_interrupts_ram_start EMPTY m_interrupts_ram_size {
+  }
+#else
+  VECTOR_RAM m_interrupts_start EMPTY 0 {
+  }
+#endif
+  RW_m_data m_data_start m_data_size { ; RW data
+    .ANY (+RW +ZI)
+    *(m_usb_dma_init_data)
+    *(m_usb_dma_noninit_data)
+  }
+  RW_IRAM1 ImageLimit(RW_m_data)  {
+  }
+  ARM_LIB_HEAP AlignExpr(+0, 16) EMPTY (m_data_start + m_data_size - Stack_Size - AlignExpr(ImageLimit(RW_IRAM1), 16)) {
+  }
+  ARM_LIB_STACK m_data_start+m_data_size EMPTY -Stack_Size  { ; Stack region growing down
+  }
+  RW_m_ram_text m_text2_start m_text2_size {
+    * (CodeQuickAccess)
+  }
+  RW_m_ncache m_ncache_start m_ncache_size { ; ncache RW data
+    * (NonCacheable.init)
+    * (*NonCacheable)
+  }
+}
+

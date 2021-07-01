@@ -214,16 +214,16 @@
 /* Literal set to maximum value (refer to device datasheet,                   */
 /* parameter "tSTART").                                                       */
 /* Unit: us                                                                   */
-#define COMP_DELAY_STARTUP_US             ((uint32_t) 25U)  /*!< Delay for COMP startup time */
+#define COMP_DELAY_STARTUP_US             (25U)  /*!< Delay for COMP startup time */
 
 /* Delay for COMP voltage scaler stabilization time (voltage from VrefInt,    */
 /* delay based on VrefInt startup time).                                      */
 /* Literal set to maximum value (refer to device datasheet,                   */
 /* parameter "TVREFINT").                                                     */
 /* Unit: us                                                                   */
-#define COMP_DELAY_VOLTAGE_SCALER_STAB_US ((uint32_t)3000U)  /*!< Delay for COMP voltage scaler stabilization time */
+#define COMP_DELAY_VOLTAGE_SCALER_STAB_US (3000U)  /*!< Delay for COMP voltage scaler stabilization time */
 
-#define COMP_OUTPUT_LEVEL_BITOFFSET_POS  ((uint32_t)  30U)
+#define COMP_OUTPUT_LEVEL_BITOFFSET_POS  (30U)
 
 #define C_REV_ID_A              0x1000U /* Cut1.0 */
 #define C_REV_ID_Z              0x1008U /* Cut1.1 */

@@ -383,6 +383,16 @@ typedef struct
   * @}
   */
 
+
+/** @defgroup RTCEx_Tamper_Maskable_nb  RTCEx Tampers maskable number
+  * @{
+  */
+#define RTC_TAMPER_MASKABLE_NB              3u
+
+/**
+  * @}
+  */
+
 /** @defgroup RTCEx_Tamper_EraseBackUp  RTCEx Tamper EraseBackUp
 * @{
 */
@@ -1395,6 +1405,12 @@ void              HAL_RTCEx_InternalTamper2EventCallback(RTC_HandleTypeDef *hrtc
 void              HAL_RTCEx_InternalTamper3EventCallback(RTC_HandleTypeDef *hrtc);
 void              HAL_RTCEx_InternalTamper5EventCallback(RTC_HandleTypeDef *hrtc);
 void              HAL_RTCEx_InternalTamper8EventCallback(RTC_HandleTypeDef *hrtc);
+void              HAL_RTCEx_EnableTemperatureMonitoring(RTC_HandleTypeDef *hrtc);
+void              HAL_RTCEx_DisableTemperatureMonitoring(RTC_HandleTypeDef *hrtc);
+void              HAL_RTCEx_EnableVoltageMonitoring(RTC_HandleTypeDef *hrtc);
+void              HAL_RTCEx_DisableVoltageMonitoring(RTC_HandleTypeDef *hrtc);
+void              HAL_RTCEx_EnableWUTMonitoring(RTC_HandleTypeDef *hrtc);
+void              HAL_RTCEx_DisableWUTMonitoring(RTC_HandleTypeDef *hrtc);
 /**
   * @}
   */

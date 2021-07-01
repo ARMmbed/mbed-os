@@ -160,8 +160,8 @@ typedef struct
   */
 #define LL_OPAMP_INPUT_NONINVERT_IO0      (OPAMP_CSR_VPSEL)       /*!< OPAMP non inverting input connected to GPIO pin (pin PA1 for OPAMP1, pin PA7  for OPAMP2, pin PB0  for OPAMP3, pin PB13 for OPAMP4) */
 #define LL_OPAMP_INPUT_NONINVERT_IO1      (0x00000000)            /*!< OPAMP non inverting input connected to GPIO pin (pin PA7 for OPAMP1, pin PD14 for OPAMP2, pin PB13 for OPAMP3, pin PD11 for OPAMP4) */
-#define LL_OPAMP_INPUT_NONINVERT_IO2      (OPAMP_CSR_VPSEL_1)     /*!< OPAMP non inverting input connected to GPIO pin (pin PA3 for OPAMP1, pin PB0  for OPAMP2, pin PA1  for OPAMP3, pin PB11 for OPAMP4) */
-#define LL_OPAMP_INPUT_NONINVERT_IO3      (OPAMP_CSR_VPSEL_0)     /*!< OPAMP non inverting input connected to GPIO pin (pin PA5 for OPAMP1, pin PB14 for OPAMP2, pin PA5  for OPAMP3, pin PA4  for OPAMP4) */
+#define LL_OPAMP_INPUT_NONINVERT_IO2      (OPAMP_CSR_VPSEL_1)     /*!< OPAMP non inverting input connected to GPIO pin (pin PA3 for OPAMP1, pin PB0  for OPAMP2, pin PA1  for OPAMP3, pin PA4  for OPAMP4) */
+#define LL_OPAMP_INPUT_NONINVERT_IO3      (OPAMP_CSR_VPSEL_0)     /*!< OPAMP non inverting input connected to GPIO pin (pin PA5 for OPAMP1, pin PB14 for OPAMP2, pin PA5  for OPAMP3, pin PB11 for OPAMP4) */
 #define LL_OPAMP_INPUT_NONINV_DAC1_CH1    (LL_OPAMP_INPUT_NONINVERT_IO3) /*!< OPAMP non inverting input connected to DAC1 channel1 output (specific to OPAMP instances: OPAMP4) */
 #define LL_OPAMP_INPUT_NONINV_DAC1_CH2    (LL_OPAMP_INPUT_NONINVERT_IO3) /*!< OPAMP non inverting input connected to DAC1 channel2 output (specific to OPAMP instances: OPAMP1, OPAMP3) */
 /**
@@ -504,7 +504,7 @@ __STATIC_INLINE void LL_OPAMP_SetInputInverting(OPAMP_TypeDef *OPAMPx, uint32_t 
   */
 __STATIC_INLINE uint32_t LL_OPAMP_GetInputInverting(OPAMP_TypeDef *OPAMPx)
 {
-  register uint32_t input_inverting = READ_BIT(OPAMPx->CSR, OPAMP_CSR_VMSEL);
+  uint32_t input_inverting = READ_BIT(OPAMPx->CSR, OPAMP_CSR_VMSEL);
 
   /* Manage cases 0x10 and 0x11 to return the same value: OPAMP inverting     */
   /* input not connected.                                                     */
@@ -689,7 +689,7 @@ __STATIC_INLINE void LL_OPAMP_SetCalibrationSelection(OPAMP_TypeDef *OPAMPx, uin
   */
 __STATIC_INLINE uint32_t LL_OPAMP_GetCalibrationSelection(OPAMP_TypeDef *OPAMPx)
 {
-  register uint32_t CalibrationSelection = (uint32_t)(READ_BIT(OPAMPx->CSR, OPAMP_CSR_CALSEL));
+  uint32_t CalibrationSelection = (uint32_t)(READ_BIT(OPAMPx->CSR, OPAMP_CSR_CALSEL));
 
   return (CalibrationSelection |
           (((CalibrationSelection & OPAMP_CSR_CALSEL) == 0UL) ? OPAMP_CSR_TRIMOFFSETN : OPAMP_CSR_TRIMOFFSETP));

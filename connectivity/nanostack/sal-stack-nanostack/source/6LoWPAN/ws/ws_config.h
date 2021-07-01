@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,6 +50,11 @@
 #define WS_RPL_MIN_HOP_RANK_INCREASE 196
 #define WS_RPL_MAX_HOP_RANK_INCREASE 2048
 
+#define WS_RPL_DEFAULT_LIFETIME        (3600*2) // 2 hours
+#define WS_RPL_DEFAULT_LIFETIME_MEDIUM (3600*4) // 4 hours
+#define WS_RPL_DEFAULT_LIFETIME_LARGE  (3600*8) // 8 hours
+#define WS_RPL_DEFAULT_LIFETIME_XLARGE (3600*12) // 12 hours
+
 #define WS_DHCP_ADDRESS_LIFETIME_SMALL 2*3600 // small networks less than devices 100
 #define WS_DHCP_ADDRESS_LIFETIME_MEDIUM 12*3600 // Medium size networks from 100 - 1000 device networks
 #define WS_DHCP_ADDRESS_LIFETIME_LARGE 24*3600 // Large size networks 1000 + device networks
@@ -60,7 +65,7 @@
 /*
  *  RPL DAO timeout maximum value. This will force DAO timeout to happen before this time
  */
-#define WS_RPL_DAO_MAX_TIMOUT (3600*2)
+#define WS_RPL_DAO_MAX_TIMOUT (3600*12)
 
 /* Border router version change interval
  *
@@ -90,9 +95,9 @@
  *
  */
 
-#define PAN_VERSION_SMALL_NETWORK_TIMEOUT 32*60
+#define PAN_VERSION_SMALL_NETWORK_TIMEOUT 30*60
 
-#define PAN_VERSION_MEDIUM_NETWORK_TIMEOUT 64*60
+#define PAN_VERSION_MEDIUM_NETWORK_TIMEOUT 60*60
 
 #define PAN_VERSION_LARGE_NETWORK_TIMEOUT 90*60
 
@@ -168,6 +173,7 @@ extern uint8_t DEVICE_MIN_SENS;
 #define WS_DHCP_SOLICIT_TIMEOUT         60
 #define WS_DHCP_SOLICIT_MAX_RT          900
 #define WS_DHCP_SOLICIT_MAX_RC          0
+#define WS_DHCP_SOLICIT_MAX_DELAY       5
 
 
 /* Neighbour table configuration
@@ -236,22 +242,23 @@ extern uint8_t DEVICE_MIN_SENS;
 #define WISUN_1_0_ERRATA_FIX
 
 /*
- *  Security protocol message retry configuration parameters
+ * Security protocol message retry configuration parameters
+ *
+ * Trickle is reset on start (inconsistent heard is set)
  */
-#define SEC_PROT_SMALL_IMIN 30              // Retries done in 30 seconds
-#define SEC_PROT_SMALL_IMAX 90              // Largest value 90 seconds
-#define SEC_PROT_RETRY_TIMEOUT_SMALL 330    // Retry timeout for small network additional 30 seconds for authenticator delay
+#define SEC_PROT_SMALL_IMIN 60              // Retries done in 60 seconds
+#define SEC_PROT_SMALL_IMAX 120             // Largest value 120 seconds
+#define SEC_PROT_RETRY_TIMEOUT_SMALL 450    // Retry timeout for small network additional 30 seconds for authenticator delay
 
 #define SEC_PROT_LARGE_IMIN 60              // Retries done in 60 seconds
 #define SEC_PROT_LARGE_IMAX 240             // Largest value 240 seconds
 #define SEC_PROT_RETRY_TIMEOUT_LARGE 750    // Retry timeout for large network additional 30 seconds for authenticator delay
 
-#define SEC_PROT_TIMER_EXPIRATIONS 2        // Number of retries
+#define SEC_PROT_TIMER_EXPIRATIONS 4        // Number of retries
 
 // Maximum number of simultaneous security negotiations
-#define MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_SMALL     20
-#define MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_MEDIUM    20
-#define MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_LARGE     50
+#define MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_TX_QUEUE_MIN   64
+#define MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_TX_QUEUE_MAX   192
 
 /*
  *  Security protocol timer configuration parameters
@@ -269,32 +276,51 @@ extern uint8_t DEVICE_MIN_SENS;
 
 /*
  *  Security protocol initial EAPOL-key parameters
+ *
+ * Retry time is randomized between minimum and maximum retry time: rand(min,max).
+ * For each subsequent retry the maximum retry time is doubled until the maximum
+ * limit is reached.
  */
 
-// How long the wait is before the first initial EAPOL-key retry
-#define DEFAULT_INITIAL_KEY_RETRY_TIMER                120
-#define NONE_INITIAL_KEY_RETRY_TIMER                   0
+/* Small network initial EAPOL-key retry exponential backoff parameters
+ *     1st backoff 3 to 7 minutes, max 7 minutes, retries 2
+ *     Minimum time for sequence is 3 + 3 = 6 minutes
+ *     Maximum time for sequence is 7 + 7 = 14 minutes
+ */
+#define SMALL_NW_INITIAL_KEY_RETRY_MIN_SECS               180     // 3
+#define SMALL_NW_INITIAL_KEY_RETRY_MAX_SECS               420     // 7
+#define SMALL_NW_INITIAL_KEY_RETRY_MAX_LIMIT_SECS         420     // 7
+#define SMALL_NW_INITIAL_KEY_RETRY_COUNT                  2
 
-// Small network Default trickle values for sending of initial EAPOL-key
-#define SMALL_NW_INITIAL_KEY_TRICKLE_IMIN_SECS         360   /* 6 to 8.3 minutes */
-#define SMALL_NW_INITIAL_KEY_TRICKLE_IMAX_SECS         500
+/* Medium network initial EAPOL-key retry exponential backoff parameters
+ *     1st backoff 3 to 7 minutes, max 12 minutes, retries 4
+ *     Minimum time for sequence is 3 + 3 + 3 + 3 = 12 minutes
+ *     Maximum time for sequence is 7 + 12 + 12 + 12 = 43 minutes
+ */
+#define MEDIUM_NW_INITIAL_KEY_RETRY_MIN_SECS              180     // 3
+#define MEDIUM_NW_INITIAL_KEY_RETRY_MAX_SECS              420     // 7
+#define MEDIUM_NW_INITIAL_KEY_RETRY_MAX_LIMIT_SECS        720     // 12
+#define MEDIUM_NW_INITIAL_KEY_RETRY_COUNT                 4
 
-// Small network Default trickle values for sending of initial EAPOL-key
-#define MEDIUM_NW_INITIAL_KEY_TRICKLE_IMIN_SECS        360   /* 6 to 12 minutes */
-#define MEDIUM_NW_INITIAL_KEY_TRICKLE_IMAX_SECS        720
+/* Large network initial EAPOL-key retry exponential backoff parameters
+ *     1st backoff 5 to 10 minutes, max 15 minutes, retries 4
+ *     Minimum time for sequence is 5 + 5 + 5 + 5 = 20 minutes
+ *     Maximum time for sequence is 10 + 15 + 15 + 15 = 55 minutes
+ */
+#define LARGE_NW_INITIAL_KEY_RETRY_MIN_SECS               300     // 5
+#define LARGE_NW_INITIAL_KEY_RETRY_MAX_SECS               600     // 10
+#define LARGE_NW_INITIAL_KEY_RETRY_MAX_LIMIT_SECS         900     // 15
+#define LARGE_NW_INITIAL_KEY_RETRY_COUNT                  4
 
-// Large network trickle values for sending of initial EAPOL-key
-#define LARGE_NW_INITIAL_KEY_TRICKLE_IMIN_SECS         600   /* 10 to 20 minutes */
-#define LARGE_NW_INITIAL_KEY_TRICKLE_IMAX_SECS         1200
-#define LARGE_NW_INITIAL_KEY_RETRY_COUNT               4
-
-// Very slow network values for sending of initial EAPOL-key
-#define EXTRA_LARGE_NW_INITIAL_KEY_TRICKLE_IMIN_SECS   600   /* 10 to 20 minutes */
-#define EXTRA_LARGE_NW_INITIAL_KEY_TRICKLE_IMAX_SECS   1200
-#define EXTRA_LARGE_NW_INITIAL_KEY_RETRY_COUNT         4
-
-// How many times sending of initial EAPOL-key is retried
-#define DEFAULT_INITIAL_KEY_RETRY_COUNT                2
+/* Extra large network initial EAPOL-key retry exponential backoff parameters
+ *     1st backoff 5 to 10 minutes, max 20 minutes, retries 4
+ *     Minimum time for sequence is 5 + 5 + 5 + 5 = 20 minutes
+ *     Maximum time for sequence is 10 + 20 + 20 + 20 = 70 minutes
+ */
+#define EXTRA_LARGE_NW_INITIAL_KEY_RETRY_MIN_SECS         300     // 5
+#define EXTRA_LARGE_NW_INITIAL_KEY_RETRY_MAX_SECS         600     // 10
+#define EXTRA_LARGE_NW_INITIAL_KEY_RETRY_MAX_LIMIT_SECS   1200    // 20
+#define EXTRA_LARGE_NW_INITIAL_KEY_RETRY_COUNT            4
 
 /*
  *  RADIUS client retry timer defaults

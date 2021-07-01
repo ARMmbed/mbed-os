@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, Arm Limited and affiliates.
+ * Copyright (c) 2013-2019, 2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -128,6 +128,10 @@ void tls_server_hash_copy(uint8_t *ptr, tls_msg_t *tmp_msg, sec_suite_t *suite)
     tls_build_server_hello_msg(ptr, suite->tls_session);
     tls_handshake_copy(tmp_msg, t_heap);
     tr_debug("Pana server S-Hello,Cert hash");
+#else
+    (void) ptr;
+    (void) tmp_msg;
+    (void) suite;
 #endif
 }
 #endif

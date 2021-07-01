@@ -18,7 +18,7 @@
 #define SEMAPHORE_H
 
 #include <stdint.h>
-#include "cmsis_os2.h"
+#include "internal/mbed_rtos1_types.h"
 #include "rtos/Kernel.h"
 
 namespace rtos {

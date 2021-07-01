@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, Arm Limited and affiliates.
+ * Copyright (c) 2016-2019, 2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,6 +49,7 @@ typedef struct fhss_callback fhss_callback_t;
 typedef enum {
     FHSS_UNSYNCHRONIZED,
     FHSS_SYNCHRONIZED,
+    FHSS_EXPEDITED_FORWARDING
 } fhss_states;
 
 /**

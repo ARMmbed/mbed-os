@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited and affiliates.
+ * Copyright (c) 2018-2019, 2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -76,6 +76,15 @@ int fhss_ws_set_hop_count(fhss_structure_t *fhss_structure, const uint8_t hop_co
 {
     (void) fhss_structure;
     (void) hop_count;
+
+    return -1;
+}
+
+int fhss_ws_set_tx_allowance_level(fhss_structure_t *fhss_structure, const fhss_ws_tx_allow_level global_level, const fhss_ws_tx_allow_level ef_level)
+{
+    (void) fhss_structure;
+    (void) global_level;
+    (void) ef_level;
 
     return -1;
 }

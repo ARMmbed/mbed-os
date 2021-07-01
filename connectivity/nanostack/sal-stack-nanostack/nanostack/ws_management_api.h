@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -90,10 +90,47 @@ extern "C" {
 #define NETWORK_SIZE_XLARGE         0x19    /**< 2500+ devices */
 #define NETWORK_SIZE_AUTOMATIC      0xFF    /**< Automatic network size */
 
+/**
+ * \brief Neighbor type to differentiate the Role of the neighbor.
+ */
+
+typedef enum {
+    WS_OTHER = 0,            /**< temporary or soon to be removed neighbor*/
+    WS_PRIMARY_PARENT,       /**< Primary parent used for upward packets and used from Border router downwards*/
+    WS_SECONDARY_PARENT,     /**< Secondary parent reported to border router and might be used as alternate route*/
+    WS_CANDIDATE_PARENT,     /**< Candidate neighbor that is considered as parent if there is problem with active parents*/
+    WS_CHILD                 /**< Child with registered address*/
+} ws_management_neighbor_type_e;
+
+
 /** Temporary API change flag. this will be removed when new version of API is implemented on applications
  *
  */
 #define WS_MANAGEMENT_API_VER_2 /**< Management API version */
+
+/**
+ * Deprecated!
+ * Configure PHY mode ID of Wi-SUN stack as defined by Wi-SUN FAN 1.1.
+ *
+ * \param interface_id Network interface ID.
+ * \param phy_mode_id PHY mode ID. Default 255 (not used).
+ *
+ * \return 0, Init OK.
+ * \return <0 Init fail.
+ */
+#define ws_management_phy_mode_id_set(interface_id, phy_mode_id) ws_management_domain_configuration_set(interface_id, 0, phy_mode_id, 0)
+
+/**
+ * Deprecated!
+ * Configure Channel plan ID of Wi-SUN stack as defined by Wi-SUN FAN 1.1.
+ *
+ * \param interface_id Network interface ID.
+ * \param channel_plan_id Channel plan ID. Default 255 (not used).
+ *
+ * \return 0, Init OK.
+ * \return <0 Init fail.
+ */
+#define ws_management_channel_plan_id_set(interface_id, channel_plan_id) ws_management_domain_configuration_set(interface_id, 0, 0, channel_plan_id)
 
 /**
  * \brief Struct ws_statistics defines the Wi-SUN statistics storage structure.
@@ -103,6 +140,47 @@ typedef struct ws_statistics {
     uint32_t asynch_tx_count;
     /** Asynch RX counter */
     uint32_t asynch_rx_count;
+
+
+    /** Time spent in individual Wi-SUN join state 1 Discovery*/
+    uint32_t join_state_1;
+    /** Time spent in individual Wi-SUN join state 2 Authentication*/
+    uint32_t join_state_2;
+    /** Time spent in individual Wi-SUN join state 3 Configuration learn*/
+    uint32_t join_state_3;
+    /** Time spent in individual Wi-SUN join state 4 RPL parent discovery*/
+    uint32_t join_state_4;
+    /** Time spent in individual Wi-SUN join state 5 Active state*/
+    uint32_t join_state_5;
+
+
+    /** Amount of Wi-SUN Pan Advertisement Solicit Message sent*/
+    uint32_t sent_PAS;
+    /** Amount of Wi-SUN Pan Advertisement Message sent*/
+    uint32_t sent_PA;
+    /** Amount of Wi-SUN Pan Configuration Solicit Message sent*/
+    uint32_t sent_PCS;
+    /** Amount of Wi-SUN Pan Configuration Message sent*/
+    uint32_t sent_PC;
+
+    /** Amount of Wi-SUN Pan Advertisement Solicit Message sent*/
+    uint32_t recv_PAS;
+    /** Amount of Wi-SUN Pan Advertisement Message sent*/
+    uint32_t recv_PA;
+    /** Amount of Wi-SUN Pan Configuration Solicit Message sent*/
+    uint32_t recv_PCS;
+    /** Amount of Wi-SUN Pan Configuration Message sent*/
+    uint32_t recv_PC;
+
+    /** New Neighbours found */
+    uint32_t Neighbour_add;
+    /** New Neighbours Removed */
+    uint32_t Neighbour_remove;
+    /** New Child added */
+    uint32_t Child_add;
+    /** Child lost */
+    uint32_t child_remove;
+
 } ws_statistics_t;
 
 /**
@@ -124,6 +202,28 @@ typedef struct ws_stack_info {
     /** Wi-SUN join state defined by Wi-SUN specification 1-5*/
     uint8_t join_state;
 } ws_stack_info_t;
+
+/**
+ * \brief Struct ws_neighbour_info_t Gives the neighbour information.
+ */
+typedef struct ws_neighbour_info {
+    /** Link local address*/
+    uint8_t link_local_address[16];
+    /** Global address if it is known set to 0 if not available*/
+    uint8_t global_address[16];
+    /** parent RSSI Out measured RSSI value calculated using EWMA specified by Wi-SUN from range of -174 (0) to +80 (254) dBm.*/
+    uint8_t rsl_out;
+    /** parent RSSI in measured RSSI value calculated using EWMA specified by Wi-SUN from range of -174 (0) to +80 (254) dBm.*/
+    uint8_t rsl_in;
+    /** RPL Rank value for parents 0xffff for neighbors RANK is unknown*/
+    uint16_t rpl_rank;
+    /** Measured ETX value if known set to 0xFFFF if not known or Child*/
+    uint16_t etx;
+    /** Remaining lifetime Link lifetime for parents and ARO lifetime for children*/
+    uint32_t lifetime;
+    /** Neighbour type (Primary Parent, Secondary Parent, Candidate parent, child, other(Temporary neighbours))*/
+    ws_management_neighbor_type_e type;
+} ws_neighbour_info_t;
 
 /**
  * Initialize Wi-SUN stack.
@@ -187,80 +287,107 @@ int ws_management_network_name_validate(
     char *network_name_ptr);
 
 /**
- * Configure PHY mode ID of Wi-SUN stack as defined by Wi-SUN FAN 1.1.
+ * Set domain configuration of Wi-SUN stack.
  *
  * Change the default configuration for Wi-SUN PHY operation.
  *
  * Supported values:
- * FSK without FEC:
- * PHY mode ID | Symbol Rate (kbps) | Modulation Index
- *           1                   50                0.5
- *           2                   50                1.0
- *           3                  100                0.5
- *           4                  100                1.0
- *           5                  150                0.5
- *           6                  200                0.5
- *           7                  200                1.0
- *           8                  300                0.5
+ *     Regulatory domain: "NA"(0x01), "KR"(0x09), "EU"(0x03), "IN"(0x05), "BZ"(0x07), "JP"(0x09), "WW"(0x00)
  *
- * FSK with FEC:
- * PHY mode ID | Symbol Rate (kbps) | Modulation Index
- *          17                   50                0.5
- *          18                   50                1.0
- *          19                  100                0.5
- *          20                  100                1.0
- *          21                  150                0.5
- *          22                  200                0.5
- *          23                  200                1.0
- *          24                  300                0.5
+ *     PHY mode ID:
+ *         FSK without FEC:
+ *         PHY mode ID | Symbol Rate (kbps) | Modulation Index
+ *                   1                   50                0.5
+ *                   2                   50                1.0
+ *                   3                  100                0.5
+ *                   4                  100                1.0
+ *                   5                  150                0.5
+ *                   6                  200                0.5
+ *                   7                  200                1.0
+ *                   8                  300                0.5
  *
- * OFDM:
- * PHY mode ID | Option | MCS | Data rate (kbps)
- *          34        1     2                400
- *          35        1     3                800
- *          36        1     4               1200
- *          37        1     5               1600
- *          38        1     6               2400
- *          51        2     3                400
- *          52        2     4                600
- *          53        2     5                800
- *          54        2     6               1200
- *          68        3     4                300
- *          69        3     5                400
- *          70        3     6                600
- *          84        4     4                150
- *          85        4     5                200
- *          86        4     6                300
+ *         FSK with FEC:
+ *         PHY mode ID | Symbol Rate (kbps) | Modulation Index
+ *                  17                   50                0.5
+ *                  18                   50                1.0
+ *                  19                  100                0.5
+ *                  20                  100                1.0
+ *                  21                  150                0.5
+ *                  22                  200                0.5
+ *                  23                  200                1.0
+ *                  24                  300                0.5
  *
- * if value of 255 is given then previous value is used.
+ *         OFDM:
+ *         PHY mode ID | Option | MCS | Data rate (kbps)
+ *                  34        1     2                400
+ *                  35        1     3                800
+ *                  36        1     4               1200
+ *                  37        1     5               1600
+ *                  38        1     6               2400
+ *                  51        2     3                400
+ *                  52        2     4                600
+ *                  53        2     5                800
+ *                  54        2     6               1200
+ *                  68        3     4                300
+ *                  69        3     5                400
+ *                  70        3     6                600
+ *                  84        4     4                150
+ *                  85        4     5                200
+ *                  86        4     6                300
+ *
+ *     Channel plan ID:
+ *         North America (NA):  (1), (2), (5)
+ *         Brazil (BZ):         (1), (2), (5)
+ *
+ * If value of 0 is given then previous value is used.
+ * If value of 255 is given then default value is used.
  *
  * \param interface_id Network interface ID.
- * \param phy_mode_id PHY mode ID. Default 255 (not used).
+ * \param regulatory_domain Regulatory domain.
+ * \param phy_mode_id PHY mode ID.
+ * \param channel_plan_id Channel plan ID.
  *
- * \return 0, Init OK.
- * \return <0 Init fail.
+ * \return 0, OK.
+ * \return <0 Fail.
  */
-int ws_management_phy_mode_id_set(
+int ws_management_domain_configuration_set(
     int8_t interface_id,
-    uint8_t phy_mode_id);
+    uint8_t regulatory_domain,
+    uint8_t phy_mode_id,
+    uint8_t channel_plan_id);
 
 /**
- * Configure Channel plan ID of Wi-SUN stack as defined by Wi-SUN FAN 1.1.
- *
- * Change the default channel configuration for Wi-SUN.
- *
- * Supported values: TBD
- *
- * if value of 255 is given then previous value is used.
+ * Get domain configuration of Wi-SUN stack.
  *
  * \param interface_id Network interface ID.
- * \param channel_plan_id Channel plan ID. Default 255 (not used).
+ * \param regulatory_domain Regulatory domain.
+ * \param phy_mode_id PHY mode ID.
+ * \param channel_plan_id Channel plan ID.
  *
- * \return 0, Init OK.
- * \return <0 Init fail.
+ * \return 0, OK.
+ * \return <0 Fail.
  */
-int ws_management_channel_plan_id_set(
+int ws_management_domain_configuration_get(
     int8_t interface_id,
+    uint8_t *regulatory_domain,
+    uint8_t *phy_mode_id,
+    uint8_t *channel_plan_id);
+
+/**
+ * Validate domain configuration of Wi-SUN stack.
+ *
+ * \param interface_id Network interface ID.
+ * \param regulatory_domain Regulatory domain.
+ * \param phy_mode_id PHY mode ID.
+ * \param channel_plan_id Channel plan ID.
+ *
+ * \return 0, OK.
+ * \return <0 Fail.
+ */
+int ws_management_domain_configuration_validate(
+    int8_t interface_id,
+    uint8_t regulatory_domain,
+    uint8_t phy_mode_id,
     uint8_t channel_plan_id);
 
 /**
@@ -702,6 +829,25 @@ int ws_stack_info_get(
     ws_stack_info_t *info_ptr);
 
 /**
+ * Get Neighbor table information from stack.
+ *
+ * To allocate correct amount of memory first use the API with NULL to get current amount
+ * of neighbors. Then Allocate the memory and call the function to fill the table.
+ *
+ * \param interface_id Network interface ID.
+ * \param neighbor_ptr Pointer to memory where Neighbor table entries can be written.
+ * \param count amount of neighbor table entries allocated to memory.
+ *
+ * \return >=0 Success with amount of entries written in table.
+ * \return >=0 if neighbor_ptr is NULL returns the amount of neighbors currently.
+ * \return <0 Failure.
+ */
+int ws_neighbor_info_get(
+    int8_t interface_id,
+    ws_neighbour_info_t *neighbor_ptr,
+    uint16_t count);
+
+/**
  * Set minimum RF sensitivity acceptable for the parent selection
  *
  * Set radio signal minimum sensitivity level acceptable for parent selection.
@@ -711,9 +857,13 @@ int ws_stack_info_get(
  *
  * Setting a value that is not suitable for Radio might prevent the device joining to the network.
  *
- * NOTE: Currently lower EAPOL parents are accepted if there is no parents higher than
- *       DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERESIS
- * NOTE: Currently not using this value to limit parents as it is only RECOMENDED in specification.
+ * This configuration limits the EAPOL parents accepted for Authentication and device must hear signal
+ * level higher than device_min_sens + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERESIS
+ * to start authentication.
+ *
+ * ETX Calculation gives a maximum ETX if two way EWMA RSL is less than
+ * device_min_sens + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERESIS to
+ * prevent selecting parents with poor signal quality
  *
  * \param interface_id Network interface ID.
  * \param device_min_sens value used in the parent selections.

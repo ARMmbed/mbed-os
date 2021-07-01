@@ -70,10 +70,12 @@ public:
 
     virtual uint32_t random(void)
     {
+        return 4;
     };
 
     virtual uint8_t get_status(void)
     {
+        return 0;
     };
 
     virtual void set_max_payload_length(radio_modems_t modem, uint8_t max)
@@ -86,6 +88,7 @@ public:
 
     virtual uint32_t time_on_air(radio_modems_t modem, uint8_t pkt_len)
     {
+        return 0;
     };
 
     virtual bool perform_carrier_sense(radio_modems_t modem,
@@ -93,6 +96,7 @@ public:
                                        int16_t rssi_threshold,
                                        uint32_t max_carrier_sense_time)
     {
+        return true;
     };
 
     virtual void start_cad(void)
@@ -101,6 +105,7 @@ public:
 
     virtual bool check_rf_frequency(uint32_t frequency)
     {
+        return true;
     };
 
     virtual void set_tx_continuous_wave(uint32_t freq, int8_t power, uint16_t time)

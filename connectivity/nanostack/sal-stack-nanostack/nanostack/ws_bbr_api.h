@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, Arm Limited and affiliates.
+ * Copyright (c) 2017-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -99,6 +99,7 @@ int ws_bbr_start(int8_t interface_id, int8_t backbone_interface_id);
 #define BBR_REQUIRE_DAO_REFRESH   0x0000 /**< Deprecated DAO Refresh is now the default functionality*/
 #define BBR_PERIODIC_VERSION_INC  0x0010 /**< Increment PAN version number Periodically*/
 #define BBR_GUA_SLAAC             0x0020 /**< in Global prefix use SLAAC address generation to reduce traffic during bootstrap */
+#define BBR_DHCP_ANONYMOUS        0x0040 /**< Generate anonymous addresses from DHCP server */
 
 /**
  * Configure border router features.
@@ -108,6 +109,9 @@ int ws_bbr_start(int8_t interface_id, int8_t backbone_interface_id);
  *          BBR_ULA_C     Configure Mesh local ULA prefix with SLAAC address
  *          BBR_GUA_ROUTE Add more specific route for GUA
  *          BBR_BB_WAIT   Start Wi-SUN network only when backbone is ready
+ *          BBR_DHCP_ANONYMOUS if true give anonymous address (16 bit suffix) to
+ *                             optimize data in RF interface (saves 12 bytes per hop)
+ *                             or false to reduce RAM usage in Border router as assigned address list is not needed (40 bytes per device).
  *
  * By default Wi-SUN network is started and is treated as separate interface even if backbone is not available.
  *

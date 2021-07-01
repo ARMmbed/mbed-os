@@ -22,11 +22,16 @@
 
 #include <cstdio>
 
-#include "drivers/LowPowerTicker.h"
 #include "ble/common/BLETypes.h"
 #include "ble/common/blecommon.h"
 #include "source/pal/PalEventQueue.h"
 #include "source/pal/PalPrivateAddressController.h"
+
+#ifdef DEVICE_LPTICKER
+#include "drivers/LowPowerTicker.h"
+#else
+#include "drivers/Ticker.h"
+#endif
 
 namespace ble {
 
@@ -38,6 +43,12 @@ namespace ble {
  */
 class PrivateAddressController : private PalPrivateAddressController::EventHandler {
 public:
+#ifdef DEVICE_LPTICKER
+    using Ticker  = mbed::LowPowerTicker;
+#else
+    using Ticker  = mbed::Ticker;
+#endif
+
     struct EventHandler {
         /**
          * Called when a new resolvable private address has been generated.
@@ -313,7 +324,7 @@ private:
     bool _generation_started;
     irk_t _local_irk = {};
     EventHandler *_event_handler = nullptr;
-    mbed::LowPowerTicker _address_rotation_ticker;
+    Ticker _address_rotation_ticker;
     address_t _resolvable_address = {};
     address_t _non_resolvable_address = {};
 

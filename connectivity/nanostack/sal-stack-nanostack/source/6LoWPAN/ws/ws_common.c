@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,6 +34,7 @@
 #include "6LoWPAN/ws/ws_bbr_api_internal.h"
 #include "6LoWPAN/ws/ws_pae_controller.h"
 #include "6LoWPAN/ws/ws_cfg_settings.h"
+#include "6LoWPAN/ws/ws_stats.h"
 #include "Service_Libs/etx/etx.h"
 #include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "Service_Libs/blacklist/blacklist.h"
@@ -74,13 +75,6 @@ int8_t ws_generate_channel_list(uint32_t *channel_mask, uint16_t number_of_chann
         channel_mask[0 + (i / 32)] |= (1 << (i % 32));
     }
     // Disable unsupported channels per regional frequency bands
-    if (regulatory_domain == REG_DOMAIN_NA) {
-        if (channel_plan_id == 1) {
-            ws_disable_channels_in_range(channel_mask, number_of_channels, 1, 7);
-        } else if (channel_plan_id == 5) {
-            ws_disable_channels_in_range(channel_mask, number_of_channels, 5, 7);
-        }
-    }
     if (regulatory_domain == REG_DOMAIN_BZ) {
         if (channel_plan_id == 255) {
             if (operating_class == 1) {
@@ -92,17 +86,11 @@ int8_t ws_generate_channel_list(uint32_t *channel_mask, uint16_t number_of_chann
             }
         } else {
             if (channel_plan_id == 1) {
-                ws_disable_channels_in_range(channel_mask, number_of_channels, 1, 7);
-                ws_disable_channels_in_range(channel_mask, number_of_channels, 64, 64);
-                ws_disable_channels_in_range(channel_mask, number_of_channels, 72, 103);
-                ws_disable_channels_in_range(channel_mask, number_of_channels, 106, 111);
+                ws_disable_channels_in_range(channel_mask, number_of_channels, 26, 64);
             } else if (channel_plan_id == 2) {
-                ws_disable_channels_in_range(channel_mask, number_of_channels, 24, 24);
-                ws_disable_channels_in_range(channel_mask, number_of_channels, 32, 47);
-                ws_disable_channels_in_range(channel_mask, number_of_channels, 52, 55);
+                ws_disable_channels_in_range(channel_mask, number_of_channels, 12, 32);
             } else if (channel_plan_id == 5) {
-                ws_disable_channels_in_range(channel_mask, number_of_channels, 5, 10);
-                ws_disable_channels_in_range(channel_mask, number_of_channels, 19, 23);
+                ws_disable_channels_in_range(channel_mask, number_of_channels, 3, 10);
             }
         }
     }
@@ -223,7 +211,7 @@ phy_modulation_index_e ws_get_modulation_index_using_operating_mode(uint8_t oper
 int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, ws_hopping_schedule_t *hopping_schdule)
 {
     (void)cur;
-    if (ws_get_datarate_using_operating_mode(hopping_schdule->operating_mode) == 0) {
+    if (ws_common_datarate_get_from_phy_mode(hopping_schdule->phy_mode_id, hopping_schdule->operating_mode) == 0) {
         //Unsupported operation mode
         return -1;
     }
@@ -423,11 +411,11 @@ uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operat
             }
         } else {
             if (channel_plan_id == 1) {
-                return 136;
+                return 129;
             } else if (channel_plan_id == 2) {
                 return 64;
             } else if (channel_plan_id == 5) {
-                return 24;
+                return 21;
             }
         }
     } else if (regulatory_domain == REG_DOMAIN_JP) {
@@ -449,11 +437,11 @@ uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operat
             }
         } else {
             if (channel_plan_id == 1) {
-                return 136;
+                return 129;
             } else if (channel_plan_id == 2) {
                 return 64;
             } else if (channel_plan_id == 5) {
-                return 24;
+                return 21;
             }
         }
     } else if (regulatory_domain == REG_DOMAIN_WW) {
@@ -629,6 +617,7 @@ uint8_t ws_common_allow_child_registration(protocol_interface_info_entry_t *inte
     ws_common_neighbour_address_reg_link_update(interface, eui64, link_lifetime);
     tr_info("Child registration allowed %d/%d, max:%d", child_count, max_child_count, mac_neighbor_info(interface)->list_total_size);
 
+    ws_stats_update(interface, STATS_WS_CHILD_ADD, 1);
     return ARO_SUCCESS;
 }
 
@@ -639,9 +628,7 @@ bool ws_common_negative_aro_mark(protocol_interface_info_entry_t *interface, con
         return false;
     }
 
-    ws_neighbor_class_entry_t *ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info->neighbor_storage, neighbour->index);
-    ws_neighbor->negative_aro_send = true;
-    neighbour->lifetime = WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT_SMALL; //Remove anyway if Packet is freed before MAC push
+    ws_bootstrap_mac_neighbor_short_time_set(interface, eui64, WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME);
     return true;
 }
 
@@ -663,10 +650,36 @@ uint32_t ws_common_latency_estimate_get(protocol_interface_info_entry_t *cur)
     return latency;
 }
 
+uint32_t ws_common_datarate_get_from_phy_mode(uint8_t phy_mode_id, uint8_t operating_mode)
+{
+    if (((phy_mode_id >= 34) && (phy_mode_id <= 38)) ||
+            ((phy_mode_id >= 51) && (phy_mode_id <= 54)) ||
+            ((phy_mode_id >= 68) && (phy_mode_id <= 70)) ||
+            ((phy_mode_id >= 84) && (phy_mode_id <= 86))) {
+        return ws_get_datarate_using_phy_mode_id(phy_mode_id);
+    }
+    return ws_get_datarate_using_operating_mode(operating_mode);
+}
+
 uint32_t ws_common_datarate_get(protocol_interface_info_entry_t *cur)
 {
-    return ws_get_datarate_using_operating_mode(cur->ws_info->hopping_schdule.operating_mode);
+    return ws_common_datarate_get_from_phy_mode(cur->ws_info->hopping_schdule.phy_mode_id, cur->ws_info->hopping_schdule.operating_mode);
 }
+
+uint32_t ws_common_usable_application_datarate_get(protocol_interface_info_entry_t *cur)
+{
+    /* Usable data rate is a available data rate when removed ACK and wait times required to send a packet
+     *
+     * Estimated to be around 70% with following assumptions with 150kbs data rate
+     * Average ACK size 48 bytes
+     * Average tACK 2ms
+     * Average CCA check time + processing 7ms
+     * Delays in bytes with 150kbs data rate 168 + 48 bytes for ACK 216 bytes
+     * Usable data rate is 1 - 216/(216 + 500) about 70%
+     */
+    return 70 * ws_common_datarate_get_from_phy_mode(cur->ws_info->hopping_schdule.phy_mode_id, cur->ws_info->hopping_schdule.operating_mode) / 100;
+}
+
 
 uint32_t ws_common_network_size_estimate_get(protocol_interface_info_entry_t *cur)
 {
@@ -680,6 +693,30 @@ uint32_t ws_common_network_size_estimate_get(protocol_interface_info_entry_t *cu
     return network_size_estimate;
 }
 
+uint32_t ws_common_connected_time_get(protocol_interface_info_entry_t *cur)
+{
+    if (!ws_info(cur)) {
+        return 0;
+    }
+    if (cur->ws_info->connected_time == 0) {
+        // We are not connected
+        return 0;
+    }
+    return cur->ws_info->uptime - cur->ws_info->connected_time;
+}
+
+uint32_t ws_common_authentication_time_get(protocol_interface_info_entry_t *cur)
+{
+    if (!ws_info(cur)) {
+        return 0;
+    }
+    if (cur->ws_info->authentication_time == 0) {
+        // Authentication was not done when joined to network so time is not known
+        return 0;
+    }
+    return cur->ws_info->uptime - cur->ws_info->authentication_time;
+}
+
 void ws_common_primary_parent_update(protocol_interface_info_entry_t *interface, mac_neighbor_table_entry_t *neighbor)
 {
     ws_bootstrap_primary_parent_update(interface, neighbor);
@@ -688,6 +725,16 @@ void ws_common_primary_parent_update(protocol_interface_info_entry_t *interface,
 void ws_common_secondary_parent_update(protocol_interface_info_entry_t *interface)
 {
     ws_bootstrap_secondary_parent_update(interface);
+}
+
+void ws_common_border_router_alive_update(protocol_interface_info_entry_t *interface)
+{
+    if (interface->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+        return;
+    }
+
+    // After successful DAO ACK connection to border router is verified
+    interface->ws_info->pan_timeout_timer = interface->ws_info->cfg->timing.pan_timeout;
 }
 
 #endif // HAVE_WS

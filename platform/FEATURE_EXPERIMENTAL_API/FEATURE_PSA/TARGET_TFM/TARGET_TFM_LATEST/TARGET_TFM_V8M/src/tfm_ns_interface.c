@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -25,16 +25,12 @@ int32_t tfm_ns_interface_dispatch(veneer_fn fn,
     int32_t result;
 
     /* TFM request protected by NS lock */
-    if (os_wrapper_mutex_acquire(ns_lock_handle, OS_WRAPPER_WAIT_FOREVER)
-            != OS_WRAPPER_SUCCESS) {
-        return (int32_t)TFM_ERROR_GENERIC;
-    }
+    while (os_wrapper_mutex_acquire(ns_lock_handle, OS_WRAPPER_WAIT_FOREVER)
+            != OS_WRAPPER_SUCCESS);
 
     result = fn(arg0, arg1, arg2, arg3);
 
-    if (os_wrapper_mutex_release(ns_lock_handle) != OS_WRAPPER_SUCCESS) {
-        return (int32_t)TFM_ERROR_GENERIC;
-    }
+    while (os_wrapper_mutex_release(ns_lock_handle) != OS_WRAPPER_SUCCESS);
 
     return result;
 }

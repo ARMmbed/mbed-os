@@ -10,6 +10,18 @@ include(${MBED_PATH}/tools/cmake/mbed_greentea.cmake)
 
 project(${TEST_TARGET})
 
-list(APPEND TEST_REQ_LIBS_LIST mbed-fpga-ci-test-shield mbed-storage-blockdevice)
+list(
+    APPEND
+        TEST_REQ_LIBS_LIST
+            mbed-fpga-ci-test-shield
+            mbed-storage-blockdevice
+)
 
-mbed_greentea_add_test(TEST_NAME ${TEST_TARGET} TEST_REQUIRED_LIBS ${TEST_REQ_LIBS_LIST})
+mbed_greentea_add_test(
+    TEST_NAME
+        ${TEST_TARGET}
+    TEST_SOURCES
+        main.cpp
+    TEST_REQUIRED_LIBS
+        ${TEST_REQ_LIBS_LIST}
+)

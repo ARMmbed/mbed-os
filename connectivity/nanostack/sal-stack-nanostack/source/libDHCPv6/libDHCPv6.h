@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, 2017-2018, Arm Limited and affiliates.
+ * Copyright (c) 2014-2015, 2017-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -125,6 +125,7 @@ typedef struct dhcpv6_relay_msg {
     uint8_t    hop_limit;
     uint8_t    *link_address;
     uint8_t    *peer_address;
+    dhcp_options_msg_t relay_interface_id;
     dhcp_options_msg_t relay_options;
 } dhcpv6_relay_msg_t;
 
@@ -237,6 +238,7 @@ typedef struct dhcpv6_relay_msg {
 
 #define DHCPV6_RELAY_LENGTH 34
 #define DHCPV6_OPTION_RELAY 0x0009
+#define DHCPV6_OPTION_INTERFACE_ID 0x0012
 
 
 
@@ -293,7 +295,7 @@ uint16_t libdhcpv6_address_reply_message_len(uint16_t clientDUIDLength, uint16_t
 
 uint8_t *libdhcpv6_generic_nontemporal_address_message_write(uint8_t *ptr, dhcpv6_solication_base_packet_s *packet, dhcpv6_ia_non_temporal_address_s *nonTemporalAddress, dhcp_duid_options_params_t *serverLink);
 uint8_t *libdhcpv6_dhcp_relay_msg_write(uint8_t *ptr, uint8_t type, uint8_t hop_limit,  uint8_t *peer_addres, uint8_t *link_address);
-uint8_t *libdhcpv6_dhcp_option_header_write(uint8_t *ptr, uint16_t length);
+uint8_t *libdhcpv6_dhcp_option_header_write(uint8_t *ptr, uint16_t option_type, uint16_t length);
 
 int libdhcpv6_get_IA_address(uint8_t *ptr, uint16_t data_length, dhcp_ia_non_temporal_params_t *params);
 int libdhcpv6_get_duid_by_selected_type_id_opt(uint8_t *ptr, uint16_t data_length, uint16_t type, dhcp_duid_options_params_t *params);
@@ -340,6 +342,8 @@ uint8_t *libdhcpv6_rapid_commit_option_write(uint8_t *ptr);
  * return incremented pointer after write
  */
 uint8_t *libdhcvp6_request_option_write(uint8_t *ptr, uint8_t optionCnt, uint16_t *optionPtr);
+
+uint8_t *libdhcpv6_option_interface_id_write(uint8_t *ptr, int8_t interface_id);
 
 
 

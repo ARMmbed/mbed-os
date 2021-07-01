@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and affiliates.
+ * Copyright (c) 2018-2019, 2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,20 +51,69 @@ int ws_statistics_stop(int8_t interface_id)
 
 void ws_stats_update(protocol_interface_info_entry_t *cur, ws_stats_type_t type, uint32_t update_val)
 {
-    if (!cur || !ws_info(cur)) {
+    if (!cur || !ws_info(cur) || !cur->ws_info->stored_stats_ptr) {
         return;
     }
     ws_statistics_t *stored_stats = cur->ws_info->stored_stats_ptr;
 
-    if (stored_stats) {
-        switch (type) {
-            case STATS_WS_ASYNCH_TX:
-                stored_stats->asynch_tx_count += update_val;
-                break;
-            case STATS_WS_ASYNCH_RX:
-                stored_stats->asynch_rx_count += update_val;
-                break;
-        }
+    switch (type) {
+        case STATS_WS_ASYNCH_TX:
+            stored_stats->asynch_tx_count += update_val;
+            break;
+        case STATS_WS_ASYNCH_RX:
+            stored_stats->asynch_rx_count += update_val;
+            break;
+        case STATS_WS_ASYNCH_TX_PAS:
+            stored_stats->sent_PAS += update_val;
+            break;
+        case STATS_WS_ASYNCH_TX_PA:
+            stored_stats->sent_PA += update_val;
+            break;
+        case STATS_WS_ASYNCH_TX_PCS:
+            stored_stats->sent_PCS += update_val;
+            break;
+        case STATS_WS_ASYNCH_TX_PC:
+            stored_stats->sent_PC += update_val;
+            break;
+        case STATS_WS_ASYNCH_RX_PAS:
+            stored_stats->recv_PAS += update_val;
+            break;
+        case STATS_WS_ASYNCH_RX_PA:
+            stored_stats->recv_PA += update_val;
+            break;
+        case STATS_WS_ASYNCH_RX_PCS:
+            stored_stats->recv_PCS += update_val;
+            break;
+        case STATS_WS_ASYNCH_RX_PC:
+            stored_stats->recv_PC += update_val;
+            break;
+        case STATS_WS_STATE_1:
+            stored_stats->join_state_1 += update_val;
+            break;
+        case STATS_WS_STATE_2:
+            stored_stats->join_state_2 += update_val;
+            break;
+        case STATS_WS_STATE_3:
+            stored_stats->join_state_3 += update_val;
+            break;
+        case STATS_WS_STATE_4:
+            stored_stats->join_state_4 += update_val;
+            break;
+        case STATS_WS_STATE_5:
+            stored_stats->join_state_5 += update_val;
+            break;
+        case STATS_WS_NEIGHBOUR_ADD:
+            stored_stats->Neighbour_add += update_val;
+            break;
+        case STATS_WS_NEIGHBOUR_REMOVE:
+            stored_stats->Neighbour_remove += update_val;
+            break;
+        case STATS_WS_CHILD_ADD:
+            stored_stats->Child_add += update_val;
+            break;
+        case STATS_WS_CHILD_REMOVE:
+            stored_stats->child_remove += update_val;
+            break;
     }
 }
 #endif // HAVE_WS

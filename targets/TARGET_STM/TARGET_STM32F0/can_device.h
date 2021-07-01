@@ -40,4 +40,8 @@ extern "C" {
 
 #endif // DEVICE_CAN
 
+#ifdef __cplusplus
+}
+#endif
+
 #endif

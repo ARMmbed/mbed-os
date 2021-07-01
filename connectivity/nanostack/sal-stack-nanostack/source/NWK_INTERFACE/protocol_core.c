@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, Arm Limited and affiliates.
+ * Copyright (c) 2014-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -265,6 +265,7 @@ void core_timer_event_handle(uint16_t ticksUpdate)
                         cur->nwk_wpan_nvm_api->nvm_params_update_cb(cur->nwk_wpan_nvm_api, false);
                     }
                     etx_cache_timer(cur->id, seconds);
+                    lowpan_adaptation_interface_slow_timer(cur);
                 }
             } else if (cur->nwk_id == IF_IPV6) {
                 //Slow Pointer Update
@@ -461,6 +462,7 @@ static void protocol_core_base_init(protocol_interface_info_entry_t *entry, nwk_
     entry->ipv6_configure = NULL;
     entry->if_lowpan_security_params = NULL;
     entry->if_ns_transmit = NULL;
+    entry->if_common_forwarding_out_cb = NULL;
     entry->if_special_forwarding = NULL;
     entry->if_snoop = NULL;
     entry->if_icmp_handler = NULL;

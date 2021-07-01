@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Arm Limited and affiliates.
+ * Copyright (c) 2015-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -1065,6 +1065,7 @@ static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_t stage, i
     if (!domain) {
         // We will need to tunnel - do nothing on the inner packet
         *result = 0;
+        buf->options.ipv6_use_min_mtu = 1;
         return buf;
     }
 

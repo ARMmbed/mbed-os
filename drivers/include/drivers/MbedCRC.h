@@ -649,6 +649,7 @@ private:
 #if (__ARM_ARCH_7M__      == 1U) || \
     (__ARM_ARCH_7EM__     == 1U) || \
     (__ARM_ARCH_8M_MAIN__ == 1U) || \
+    (__ARM_ARCH_8_1M_MAIN__ == 1U) || \
     (__ARM_ARCH_7A__      == 1U)
     /* ARM that has Thumb-2 - same unified assembly is good for either ARM or Thumb state (LSRS; IT CS; EORCS reg/imm) */
 #define MBED_CRC_ARM_THUMB2     1

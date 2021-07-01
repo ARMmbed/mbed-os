@@ -106,7 +106,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal.h"
 
-#if defined FMC_BANK1
+#if defined(FMC_BANK1)
 
 /** @addtogroup STM32L4xx_HAL_Driver
   * @{
@@ -473,9 +473,12 @@ HAL_StatusTypeDef HAL_NOR_Read_ID(NOR_HandleTypeDef *hnor, NOR_IDTypeDef *pNOR_I
     {
       /* Read the NOR IDs */
       pNOR_ID->Manufacturer_Code = *(__IO uint16_t *) NOR_ADDR_SHIFT(deviceaddress, uwNORMemoryDataWidth, MC_ADDRESS);
-      pNOR_ID->Device_Code1      = *(__IO uint16_t *) NOR_ADDR_SHIFT(deviceaddress, uwNORMemoryDataWidth, DEVICE_CODE1_ADDR);
-      pNOR_ID->Device_Code2      = *(__IO uint16_t *) NOR_ADDR_SHIFT(deviceaddress, uwNORMemoryDataWidth, DEVICE_CODE2_ADDR);
-      pNOR_ID->Device_Code3      = *(__IO uint16_t *) NOR_ADDR_SHIFT(deviceaddress, uwNORMemoryDataWidth, DEVICE_CODE3_ADDR);
+      pNOR_ID->Device_Code1      = *(__IO uint16_t *) NOR_ADDR_SHIFT(deviceaddress, uwNORMemoryDataWidth,
+                                                                     DEVICE_CODE1_ADDR);
+      pNOR_ID->Device_Code2      = *(__IO uint16_t *) NOR_ADDR_SHIFT(deviceaddress, uwNORMemoryDataWidth,
+                                                                     DEVICE_CODE2_ADDR);
+      pNOR_ID->Device_Code3      = *(__IO uint16_t *) NOR_ADDR_SHIFT(deviceaddress, uwNORMemoryDataWidth,
+                                                                     DEVICE_CODE3_ADDR);
     }
 
     /* Check the NOR controller state */
@@ -740,7 +743,9 @@ HAL_StatusTypeDef HAL_NOR_Program(NOR_HandleTypeDef *hnor, uint32_t *pAddress, u
 HAL_StatusTypeDef HAL_NOR_ReadBuffer(NOR_HandleTypeDef *hnor, uint32_t uwAddress, uint16_t *pData,
                                      uint32_t uwBufferSize)
 {
-  uint32_t deviceaddress, size = uwBufferSize, address = uwAddress;
+  uint32_t deviceaddress;
+  uint32_t size = uwBufferSize;
+  uint32_t address = uwAddress;
   uint16_t *data = pData;
   HAL_NOR_StateTypeDef state;
   HAL_StatusTypeDef status = HAL_OK;
@@ -871,7 +876,7 @@ HAL_StatusTypeDef HAL_NOR_ProgramBuffer(NOR_HandleTypeDef *hnor, uint32_t uwAddr
 
     /* Initialize variables */
     p_currentaddress  = (uint16_t *)(deviceaddress + uwAddress);
-    p_endaddress      = (uint16_t *)(deviceaddress + uwAddress + (2U*(uwBufferSize - 1U)));
+    p_endaddress      = (uint16_t *)(deviceaddress + uwAddress + (2U * (uwBufferSize - 1U)));
 
     if (hnor->CommandSet == NOR_AMD_FUJITSU_COMMAND_SET)
     {
@@ -901,7 +906,7 @@ HAL_StatusTypeDef HAL_NOR_ProgramBuffer(NOR_HandleTypeDef *hnor, uint32_t uwAddr
       while (p_currentaddress <= p_endaddress)
       {
         NOR_WRITE(p_currentaddress, *data);
-        
+
         data++;
         p_currentaddress ++;
       }
@@ -1390,7 +1395,8 @@ HAL_NOR_StateTypeDef HAL_NOR_GetState(NOR_HandleTypeDef *hnor)
 HAL_NOR_StatusTypeDef HAL_NOR_GetStatus(NOR_HandleTypeDef *hnor, uint32_t Address, uint32_t Timeout)
 {
   HAL_NOR_StatusTypeDef status = HAL_NOR_STATUS_ONGOING;
-  uint16_t tmpSR1, tmpSR2;
+  uint16_t tmpsr1;
+  uint16_t tmpsr2;
   uint32_t tickstart;
 
   /* Poll on NOR memory Ready/Busy signal ------------------------------------*/
@@ -1415,29 +1421,29 @@ HAL_NOR_StatusTypeDef HAL_NOR_GetStatus(NOR_HandleTypeDef *hnor, uint32_t Addres
       }
 
       /* Read NOR status register (DQ6 and DQ5) */
-      tmpSR1 = *(__IO uint16_t *)Address;
-      tmpSR2 = *(__IO uint16_t *)Address;
+      tmpsr1 = *(__IO uint16_t *)Address;
+      tmpsr2 = *(__IO uint16_t *)Address;
 
       /* If DQ6 did not toggle between the two reads then return HAL_NOR_STATUS_SUCCESS  */
-      if ((tmpSR1 & NOR_MASK_STATUS_DQ6) == (tmpSR2 & NOR_MASK_STATUS_DQ6))
+      if ((tmpsr1 & NOR_MASK_STATUS_DQ6) == (tmpsr2 & NOR_MASK_STATUS_DQ6))
       {
         return HAL_NOR_STATUS_SUCCESS ;
       }
 
-      if ((tmpSR1 & NOR_MASK_STATUS_DQ5) == NOR_MASK_STATUS_DQ5)
+      if ((tmpsr1 & NOR_MASK_STATUS_DQ5) == NOR_MASK_STATUS_DQ5)
       {
         status = HAL_NOR_STATUS_ONGOING;
       }
 
-      tmpSR1 = *(__IO uint16_t *)Address;
-      tmpSR2 = *(__IO uint16_t *)Address;
+      tmpsr1 = *(__IO uint16_t *)Address;
+      tmpsr2 = *(__IO uint16_t *)Address;
 
       /* If DQ6 did not toggle between the two reads then return HAL_NOR_STATUS_SUCCESS  */
-      if ((tmpSR1 & NOR_MASK_STATUS_DQ6) == (tmpSR2 & NOR_MASK_STATUS_DQ6))
+      if ((tmpsr1 & NOR_MASK_STATUS_DQ6) == (tmpsr2 & NOR_MASK_STATUS_DQ6))
       {
         return HAL_NOR_STATUS_SUCCESS;
       }
-      if ((tmpSR1 & NOR_MASK_STATUS_DQ5) == NOR_MASK_STATUS_DQ5)
+      if ((tmpsr1 & NOR_MASK_STATUS_DQ5) == NOR_MASK_STATUS_DQ5)
       {
         return HAL_NOR_STATUS_ERROR;
       }
@@ -1448,21 +1454,21 @@ HAL_NOR_StatusTypeDef HAL_NOR_GetStatus(NOR_HandleTypeDef *hnor, uint32_t Addres
     do
     {
       NOR_WRITE(Address, NOR_CMD_READ_STATUS_REG);
-      tmpSR2 = *(__IO uint16_t*)(Address);
+      tmpsr2 = *(__IO uint16_t *)(Address);
 
       /* Check for the Timeout */
-      if(Timeout != HAL_MAX_DELAY)
+      if (Timeout != HAL_MAX_DELAY)
       {
         if (((HAL_GetTick() - tickstart) > Timeout) || (Timeout == 0U))
         {
           return HAL_NOR_STATUS_TIMEOUT;
         }
       }
-    } while ((tmpSR2 & NOR_MASK_STATUS_DQ7) == 0U);
+    } while ((tmpsr2 & NOR_MASK_STATUS_DQ7) == 0U);
 
     NOR_WRITE(Address, NOR_CMD_READ_STATUS_REG);
-    tmpSR1 = *(__IO uint16_t*)(Address);
-    if((tmpSR1  & (NOR_MASK_STATUS_DQ5 | NOR_MASK_STATUS_DQ4)) != 0U)
+    tmpsr1 = *(__IO uint16_t *)(Address);
+    if ((tmpsr1  & (NOR_MASK_STATUS_DQ5 | NOR_MASK_STATUS_DQ4)) != 0U)
     {
       /* Clear the Status Register  */
       NOR_WRITE(Address, NOR_CMD_READ_STATUS_REG);

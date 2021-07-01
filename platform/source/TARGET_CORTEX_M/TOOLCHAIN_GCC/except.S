@@ -105,7 +105,11 @@ UsageFault_Handler:
 Fault_Handler:
 #if (DOMAIN_NS == 1)
 #if MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED
+#if defined(__ARMCC_VERSION)
+#define mbed_fault_context Image$$RW_m_crash_data$$ZI$$Base
+#else
 #define mbed_fault_context __CRASH_DATA_RAM_START__
+#endif
 #endif
 
         MOV     R12,R3

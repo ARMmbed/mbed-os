@@ -30,6 +30,9 @@ extern "C" {
 /* If this macro is defined, then constexpr utility functions for pin-map seach can be used. */
 #define STATIC_PINMAP_READY 1
 
+/* If this macro is defined, then PinMap_GPIO is present in PeripheralPins.c */
+#define GPIO_PINMAP_READY 1
+
 typedef enum {
     ALT0  = 0x100,
     ALT1  = 0x200,

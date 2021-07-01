@@ -946,6 +946,12 @@ void LL_ADC_REG_StructInit(LL_ADC_REG_InitTypeDef *ADC_REG_InitStruct)
   *            Refer to function @ref LL_ADC_INJ_SetSequencerRanks().
   *          - Set ADC channel sampling time
   *            Refer to function LL_ADC_SetChannelSamplingTime();
+  * @note   Caution if feature ADC group injected contexts queue is enabled
+  *         (refer to with function @ref LL_ADC_INJ_SetQueueMode() ):
+  *         using successively several times this function will appear as
+  *         having no effect.
+  *         To set several features of ADC group injected, use
+  *         function @ref LL_ADC_INJ_ConfigQueueContext().
   * @param  ADCx ADC instance
   * @param  ADC_INJ_InitStruct Pointer to a @ref LL_ADC_INJ_InitTypeDef structure
   * @retval An ErrorStatus enumeration value:

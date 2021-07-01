@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2014-2019, Arm Limited and affiliates.
+ * Copyright (c) 2012, 2014-2019, 2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -162,6 +162,7 @@ extern bool ipv6_neighbour_ll_addr_match(const ipv6_neighbour_t *entry, addrtype
 extern void ipv6_neighbour_invalidate_ll_addr(ipv6_neighbour_cache_t *cache, addrtype_t ll_type, const uint8_t *ll_address);
 extern void ipv6_neighbour_delete_registered_by_eui64(ipv6_neighbour_cache_t *cache, const uint8_t *eui64);
 extern bool ipv6_neighbour_has_registered_by_eui64(ipv6_neighbour_cache_t *cache, const uint8_t *eui64);
+extern ipv6_neighbour_t *ipv6_neighbour_get_registered_by_eui64(ipv6_neighbour_cache_t *cache, const uint8_t *eui64);
 extern void ipv6_neighbour_entry_update_unsolicited(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, addrtype_t type, const uint8_t *ll_address/*, bool tentative*/);
 extern ipv6_neighbour_t *ipv6_neighbour_update_unsolicited(ipv6_neighbour_cache_t *cache, const uint8_t *ip_address, addrtype_t ll_type, const uint8_t *ll_address);
 extern void ipv6_neighbour_reachability_confirmation(const uint8_t ip_address[__static 16], int8_t interface_id);
@@ -223,6 +224,7 @@ void ipv6_destination_cache_timer(uint8_t ticks);
 void ipv6_destination_redirect(const uint8_t *dest_addr, const uint8_t *sender_addr, const uint8_t *redirect_addr, int8_t interface_id, addrtype_t ll_type, const uint8_t *ll_address);
 #endif
 void ipv6_destination_cache_forced_gc(bool full_gc);
+void ipv6_destination_cache_clean(int8_t interface_id);
 
 /* Combined Routing Table (RFC 4191) and Prefix List (RFC 4861) */
 /* On-link prefixes have the on_link flag set and next_hop is unset */

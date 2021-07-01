@@ -170,50 +170,42 @@ typedef enum {
     GPIO_SD_B1_10 = ((3 << GPIO_PORT_SHIFT) | 10),
     GPIO_SD_B1_11 = ((3 << GPIO_PORT_SHIFT) | 11),
 
-    LED_GREEN = GPIO_AD_B0_09,
-
-    // mbed original LED naming
-    LED1 = LED_GREEN,
-    LED2 = LED_GREEN,
-    LED3 = LED_GREEN,
-    LED4 = LED_GREEN,
-
     // USB Pins
     CONSOLE_TX = GPIO_AD_B0_12,
     CONSOLE_RX = GPIO_AD_B0_13,
 
-    // Arduino Headers
-    D0 = GPIO_AD_B1_07,
-    D1 = GPIO_AD_B1_06,
-    D2 = GPIO_AD_B0_11,
-    D3 = GPIO_AD_B1_08,
-    D4 = GPIO_AD_B0_09,
-    D5 = GPIO_AD_B0_10,
-    D6 = GPIO_AD_B1_02,
-    D7 = GPIO_AD_B1_03,
-    D8 = GPIO_AD_B0_03,
-    D9 = GPIO_AD_B0_02,
-    D10 = GPIO_SD_B0_01,
-    D11 = GPIO_SD_B0_02,
-    D12 = GPIO_SD_B0_03,
-    D13 = GPIO_SD_B0_00,
-    D14 = GPIO_AD_B0_01,
-    D15 = GPIO_AD_B0_00,
+    // Arduino Uno Headers
+    ARDUINO_UNO_D0 = GPIO_AD_B1_07,
+    ARDUINO_UNO_D1 = GPIO_AD_B1_06,
+    ARDUINO_UNO_D2 = GPIO_AD_B0_11,
+    ARDUINO_UNO_D3 = GPIO_AD_B1_08,
+    ARDUINO_UNO_D4 = GPIO_AD_B0_09,
+    ARDUINO_UNO_D5 = GPIO_AD_B0_10,
+    ARDUINO_UNO_D6 = GPIO_AD_B1_02,
+    ARDUINO_UNO_D7 = GPIO_AD_B1_03,
+    ARDUINO_UNO_D8 = GPIO_AD_B0_03,
+    ARDUINO_UNO_D9 = GPIO_AD_B0_02,
+    ARDUINO_UNO_D10 = GPIO_SD_B0_01,
+    ARDUINO_UNO_D11 = GPIO_SD_B0_02,
+    ARDUINO_UNO_D12 = GPIO_SD_B0_03,
+    ARDUINO_UNO_D13 = GPIO_SD_B0_00,
+    ARDUINO_UNO_D14 = GPIO_AD_B0_01,
+    ARDUINO_UNO_D15 = GPIO_AD_B0_00,
 
-    A0 = GPIO_AD_B1_10,
-    A1 = GPIO_AD_B1_11,
-    A2 = GPIO_AD_B1_04,
-    A3 = GPIO_AD_B1_05,
-    A4 = GPIO_AD_B1_01,
-    A5 = GPIO_AD_B1_00,
-
-    I2C_SCL = A5,
-    I2C_SDA = A4,
+    ARDUINO_UNO_A0 = GPIO_AD_B1_10,
+    ARDUINO_UNO_A1 = GPIO_AD_B1_11,
+    ARDUINO_UNO_A2 = GPIO_AD_B1_04,
+    ARDUINO_UNO_A3 = GPIO_AD_B1_05,
+    ARDUINO_UNO_A4 = GPIO_AD_B1_01,
+    ARDUINO_UNO_A5 = GPIO_AD_B1_00,
 
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
 
+// Standardized LED and button names
+#define LED1 		GPIO_AD_B0_09		// USER LED (green)
+#define USER_LED	LED1
 
 typedef enum {
     PullNone = 0,
