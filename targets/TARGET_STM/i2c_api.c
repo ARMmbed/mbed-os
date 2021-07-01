@@ -152,7 +152,7 @@ static const I2C_Charac_t I2C_Charac[] = {
 */
 static I2C_Timings_t I2c_valid_timing[I2C_VALID_TIMING_NBR];
 static uint32_t      I2c_valid_timing_nbr = 0;
-#endif // MBED_CONF_TARGET_I2C_TIMING_VALUE_ALGO 
+#endif // MBED_CONF_TARGET_I2C_TIMING_VALUE_ALGO
 
 #ifndef DEBUG_STDIO
 #   define DEBUG_STDIO 0
@@ -398,7 +398,14 @@ void i2c_init_internal(i2c_t *obj, const i2c_pinmap_t *pinmap)
 {
     struct i2c_s *obj_s = I2C_S(obj);
 
-    // Determine the I2C to use
+#ifdef I2C_IP_VERSION_V2
+    /* These variables are initialized with 0, to overcome possiblity of
+    garbage assignment */
+    obj_s->current_hz = 0;
+    obj_s->handle.Init.Timing = 0;
+#endif
+
+    /* Determine the I2C to use */
     if (pinmap != NULL) {
         obj_s->sda = pinmap->sda_pin;
         obj_s->scl = pinmap->scl_pin;
@@ -487,6 +494,10 @@ void i2c_init_internal(i2c_t *obj, const i2c_pinmap_t *pinmap)
     // Reset to clear pending flags if any
     i2c_hw_reset(obj);
     i2c_frequency(obj, obj_s->hz);
+
+#ifdef I2C_IP_VERSION_V2
+    obj_s->current_hz = obj_s->hz;
+#endif
 
 #if DEVICE_I2CSLAVE
     // I2C master by default
@@ -583,7 +594,6 @@ void i2c_free(i2c_t *obj)
     i2c_deinit_internal(obj);
 }
 
-
 void i2c_frequency(i2c_t *obj, int hz)
 {
     int timeout;
@@ -657,12 +667,6 @@ void i2c_frequency(i2c_t *obj, int hz)
         __HAL_RCC_I2C4_CONFIG(I2CAPI_I2C4_CLKSRC);
     }
 #endif
-#ifdef I2C_IP_VERSION_V2
-/*  Only predefined timing for below frequencies are supported */
-    MBED_ASSERT((hz == 100000) || (hz == 400000) || (hz == 1000000));
-    /* Calculates I2C timing value with respect to I2C input clock and I2C bus frequency */
-    handle->Init.Timing = i2c_get_timing(obj_s->i2c, hz);
-#endif
 #if defined(DUAL_CORE) && (TARGET_STM32H7)
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
 #endif /* DUAL_CORE */
@@ -671,6 +675,23 @@ void i2c_frequency(i2c_t *obj, int hz)
     /* Enable the Analog I2C Filter */
     HAL_I2CEx_ConfigAnalogFilter(handle, I2C_ANALOGFILTER_ENABLE);
 #endif
+
+#ifdef I2C_IP_VERSION_V2
+    /*  Only predefined timing for below frequencies are supported */
+    MBED_ASSERT((hz == 100000) || (hz == 400000) || (hz == 1000000));
+
+    /* Derives I2C timing value with respect to I2C input clock source speed
+    and I2C bus frequency requested. "Init.Timing" is passed to this function to
+    reduce multiple computation of timing value which there by reduces CPU load.
+    */
+    handle->Init.Timing = i2c_get_timing(obj_s->i2c, handle->Init.Timing, \
+                                         obj_s->current_hz, hz);
+    /* Only non-zero timing value is supported */
+    MBED_ASSERT(handle->Init.Timing != 0);
+
+    /* hz value is stored for computing timing value next time */
+    obj_s->current_hz = hz;
+#endif // I2C_IP_VERSION_V2
 
     // I2C configuration
     handle->Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
@@ -1306,7 +1327,7 @@ void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *I2cHandle)
 
     if (obj_s->slave == SLAVE_MODE_LISTEN) {
         obj_s->slave_rx_count++;
-        if (obj_s->slave_rx_count < obj_s->slave_rx_buffer_size){
+        if (obj_s->slave_rx_count < obj_s->slave_rx_buffer_size) {
             HAL_I2C_Slave_Seq_Receive_IT(I2cHandle, &(obj_s->slave_rx_buffer[obj_s->slave_rx_count]), 1, I2C_NEXT_FRAME);
         } else {
             obj_s->pending_slave_rx_maxter_tx = 0;
@@ -1356,12 +1377,12 @@ int i2c_slave_read(i2c_t *obj, char *data, int length)
     int _length = 0;
 
     if (obj_s->slave == SLAVE_MODE_LISTEN) {
-       /*  We don't know in advance how many bytes will be sent by master so
-        *  we'll fetch one by one until master ends the sequence */
+        /*  We don't know in advance how many bytes will be sent by master so
+         *  we'll fetch one by one until master ends the sequence */
         _length = 1;
         obj_s->slave_rx_buffer_size = length;
         obj_s->slave_rx_count = 0;
-        obj_s->slave_rx_buffer = (uint8_t*)data;
+        obj_s->slave_rx_buffer = (uint8_t *)data;
     } else {
         _length = length;
     }
@@ -1733,7 +1754,215 @@ uint32_t i2c_compute_timing(uint32_t clock_src_freq, uint32_t i2c_freq)
 
     return ret;
 }
-#endif // MBED_CONF_TARGET_I2C_TIMING_VALUE_ALGO
+#endif /* MBED_CONF_TARGET_I2C_TIMING_VALUE_ALGO */
+
+#ifdef I2C_IP_VERSION_V2
+/**
+ * @brief  Provide the suitable timing depending on requested frequency
+ * @param  i2c Required I2C instance.
+ * @param  current_timing Required I2C timing value.
+ * @param  current_hz Required I2C current hz value.
+ * @param  hz Required I2C bus clock speed.
+ * @retval I2C timing value or 0 in case of error.
+ */
+uint32_t i2c_get_timing(I2CName i2c, uint32_t current_timing, int current_hz,
+                        int hz)
+{
+    uint32_t tim = 0;
+    uint32_t pclk;
+
+    pclk = i2c_get_pclk(i2c);
+
+    if ((current_timing == 0) || (current_hz != hz)) {
+        switch (pclk) {
+#if defined (I2C_PCLK_32M)
+            case I2C_PCLK_32M:
+                switch (hz) {
+                    case 100000:
+                        tim = TIMING_VAL_32M_CLK_100KHZ;
+                        break;
+                    case 400000:
+                        tim = TIMING_VAL_32M_CLK_400KHZ;
+                        break;
+                    case 1000000:
+                        tim = TIMING_VAL_32M_CLK_1MHZ;
+                        break;
+                    default:
+                        MBED_ASSERT((hz == 100000) || (hz == 400000) || \
+                                    (hz == 1000000));
+                        break;
+                }
+                break;
+#endif
+#if defined (I2C_PCLK_48M)
+            case I2C_PCLK_48M:
+                switch (hz) {
+                    case 100000:
+                        tim = TIMING_VAL_48M_CLK_100KHZ;
+                        break;
+                    case 400000:
+                        tim = TIMING_VAL_48M_CLK_400KHZ;
+                        break;
+                    case 1000000:
+                        tim = TIMING_VAL_48M_CLK_1MHZ;
+                        break;
+                    default:
+                        MBED_ASSERT((hz == 100000) || (hz == 400000) || \
+                                    (hz == 1000000));
+                        break;
+                }
+                break;
+#endif
+#if defined (I2C_PCLK_54M)
+            case I2C_PCLK_54M:
+                switch (hz) {
+                    case 100000:
+                        tim = TIMING_VAL_54M_CLK_100KHZ;
+                        break;
+                    case 400000:
+                        tim = TIMING_VAL_54M_CLK_400KHZ;
+                        break;
+                    case 1000000:
+                        tim = TIMING_VAL_54M_CLK_1MHZ;
+                        break;
+                    default:
+                        MBED_ASSERT((hz == 100000) || (hz == 400000) || \
+                                    (hz == 1000000));
+                        break;
+                }
+                break;
+#endif
+#if defined(I2C_PCLK_64M)
+            case I2C_PCLK_64M:
+                switch (hz) {
+                    case 100000:
+                        tim = TIMING_VAL_64M_CLK_100KHZ;
+                    case 400000:
+                        tim = TIMING_VAL_64M_CLK_400KHZ;
+                        break;
+                    case 1000000:
+                        tim = TIMING_VAL_64M_CLK_1MHZ;
+                        break;
+                    default:
+                        MBED_ASSERT((hz == 100000) || (hz == 400000) || \
+                                    (hz == 1000000));
+                        break;
+                }
+                break;
+#endif
+#if defined (I2C_PCLK_72M)
+            case I2C_PCLK_72M:
+                switch (hz) {
+                    case 100000:
+                        tim = TIMING_VAL_72M_CLK_100KHZ;
+                        break;
+                    case 400000:
+                        tim = TIMING_VAL_72M_CLK_400KHZ;
+                        break;
+                    case 1000000:
+                        tim = TIMING_VAL_72M_CLK_1MHZ;
+                        break;
+                    default:
+                        MBED_ASSERT((hz == 100000) || (hz == 400000) || \
+                                    (hz == 1000000));
+                        break;
+                }
+                break;
+#endif
+#if defined (I2C_PCLK_80M)
+            case I2C_PCLK_80M:
+                switch (hz) {
+                    case 100000:
+                        tim = TIMING_VAL_80M_CLK_100KHZ;
+                        break;
+                    case 400000:
+                        tim = TIMING_VAL_80M_CLK_400KHZ;
+                        break;
+                    case 1000000:
+                        tim = TIMING_VAL_80M_CLK_1MHZ;
+                        break;
+                    default:
+                        MBED_ASSERT((hz == 100000) || (hz == 400000) || \
+                                    (hz == 1000000));
+                        break;
+                }
+                break;
+#endif
+#if defined (I2C_PCLK_110M)
+            case I2C_PCLK_110M:
+                switch (hz) {
+                    case 100000:
+                        tim = TIMING_VAL_110M_CLK_100KHZ;
+                        break;
+                    case 400000:
+                        tim = TIMING_VAL_110M_CLK_400KHZ;
+                        break;
+                    case 1000000:
+                        tim = TIMING_VAL_110M_CLK_1MHZ;
+                        break;
+                    default:
+                        MBED_ASSERT((hz == 100000) || (hz == 400000) || \
+                                    (hz == 1000000));
+                        break;
+                }
+                break;
+#endif
+#if defined (I2C_PCLK_120M)
+            case I2C_PCLK_120M:
+                switch (hz) {
+                    case 100000:
+                        tim = TIMING_VAL_120M_CLK_100KHZ;
+                        break;
+                    case 400000:
+                        tim = TIMING_VAL_120M_CLK_400KHZ;
+                        break;
+                    case 1000000:
+                        tim = TIMING_VAL_120M_CLK_1MHZ;
+                        break;
+                    default:
+                        MBED_ASSERT((hz == 100000) || (hz == 400000) || \
+                                    (hz == 1000000));
+                        break;
+                }
+                break;
+#endif
+#if defined (I2C_PCLK_160M)
+            case I2C_PCLK_160M:
+                switch (hz) {
+                    case 100000:
+                        tim = TIMING_VAL_160M_CLK_100KHZ;
+                        break;
+                    case 400000:
+                        tim = TIMING_VAL_160M_CLK_400KHZ;
+                        break;
+                    case 1000000:
+                        tim = TIMING_VAL_160M_CLK_1MHZ;
+                        break;
+                    default:
+                        MBED_ASSERT((hz == 100000) || (hz == 400000) || \
+                                    (hz == 1000000));
+                        break;
+                }
+                break;
+#endif
+            default:
+                /* If MBED_CONF_TARGET_I2C_TIMING_VALUE_ALGO assert is triggered.
+                User need to enable I2C_TIMING_VALUE_ALGO in target.json for specific
+                target. Enabling this may impact performance*/
+                MBED_ASSERT(MBED_CONF_TARGET_I2C_TIMING_VALUE_ALGO);
+#if MBED_CONF_TARGET_I2C_TIMING_VALUE_ALGO
+                tim = i2c_compute_timing(pclk, hz);
+#endif
+                break;
+        }
+    } else {
+        tim = current_timing;
+    }
+    return tim;
+}
+
+
+#endif /* I2C_IP_VERSION_V2 */
 
 #endif // DEVICE_I2C_ASYNCH
 
