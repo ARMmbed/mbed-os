@@ -7039,7 +7039,7 @@
             "tickless-from-us-ticker": true,
             "mpu-rom-end": "0x1fffffff"
         },
-        "device_has": [
+        "device_has_add": [
             "USTICKER",
             "LPTICKER",
             "RTC",
