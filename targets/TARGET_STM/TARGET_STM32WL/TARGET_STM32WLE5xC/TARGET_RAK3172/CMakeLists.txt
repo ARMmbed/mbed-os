@@ -6,7 +6,6 @@ add_library(mbed-rak3172 INTERFACE)
 target_sources(mbed-rak3172
     INTERFACE
         PeripheralPins.c
-        system_clock.c
 )
 
 target_include_directories(mbed-rak3172

@@ -6,7 +6,6 @@ add_library(mbed-lora-e5 INTERFACE)
 target_sources(mbed-lora-e5
     INTERFACE
         PeripheralPins.c
-        system_clock.c
 )
 
 target_include_directories(mbed-lora-e5

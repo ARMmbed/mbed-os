@@ -6,7 +6,6 @@ add_library(mbed-nucleo-wl55jc INTERFACE)
 target_sources(mbed-nucleo-wl55jc
     INTERFACE
         PeripheralPins.c
-        system_clock.c
 )
 
 target_include_directories(mbed-nucleo-wl55jc
