@@ -43,7 +43,7 @@
       "exporters": [],
       "compile" : true,
       "export": true,
-      "test" : false,
+      "test" : true,
       "baud_rate": 115200,
       "compare_log": ["mbed-os-example-for-google-iot-cloud/tests/google-iot-cloud.log"],
       "auto-update" : true
