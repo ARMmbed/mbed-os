@@ -11,7 +11,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/app.cmake)
 # TEST_INCLUDE_DIRS - Test suite include directories for the test
 # TEST_SOURCES - Test suite sources
 # TEST_REQUIRED_LIBS - Test suite required libraries
-# 
+#
 # calling the macro:
 # mbed_greentea_add_test(
 #    TEST_NAME mbed-platform-system-reset
@@ -59,7 +59,7 @@ macro(mbed_greentea_add_test)
     # For example:
     #  - To select mbed-os library, use cmake with -DMBED_TEST_LINK_LIBRARIES=mbed-os
     #  - To select baremetal library, use cmake with -DMBED_TEST_LINK_LIBRARIES=mbed-baremetal
-    #  - To select baremetal with extra external error logging library to the test, use cmake with 
+    #  - To select baremetal with extra external error logging library to the test, use cmake with
     #    -D "MBED_TEST_LINK_LIBRARIES=mbed-baremetal ext-errorlogging"
     if (DEFINED MBED_TEST_LINK_LIBRARIES)
         separate_arguments(MBED_TEST_LINK_LIBRARIES)
