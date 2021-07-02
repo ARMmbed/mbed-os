@@ -16,6 +16,7 @@ target_sources(mbed-stm32wl
         pwmout_device.c
         serial_device.c
         spi_api.c
+        system_clock.c
 )
 
 target_include_directories(mbed-stm32wl
