@@ -15,6 +15,7 @@ target_sources(${TEST_NAME}
 target_link_libraries(${TEST_NAME}
     PRIVATE
         mbed-headers
+        mbed-headers-blockdevice
         mbed-stubs-platform
         mbed-stubs-blockdevice
         gmock_main

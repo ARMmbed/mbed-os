@@ -1,6 +1,14 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_library(mbed-headers-blockdevice INTERFACE)
+
+target_include_directories(mbed-headers-blockdevice
+    INTERFACE
+        ${mbed-os_SOURCE_DIR}/storage/blockdevice/include
+        ${mbed-os_SOURCE_DIR}/storage/blockdevice/include/blockdevice
+)
+
 add_library(mbed-stubs-blockdevice)
 
 target_include_directories(mbed-stubs-blockdevice
@@ -26,5 +34,5 @@ target_link_libraries(mbed-stubs-blockdevice
     PRIVATE
         mbed-headers-base
         mbed-headers-platform
-        mbed-headers-storage
+        mbed-headers-blockdevice
 )

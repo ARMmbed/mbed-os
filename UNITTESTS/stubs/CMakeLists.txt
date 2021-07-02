@@ -50,7 +50,6 @@ target_include_directories(mbed-headers-storage
         ${mbed-os_SOURCE_DIR}/storage/filesystem/littlefsv2/littlefs
         ${mbed-os_SOURCE_DIR}/storage/filesystem/littlefsv2/littlefs/bd
         ${mbed-os_SOURCE_DIR}/storage/filesystem/littlefs/littlefs
-        ${mbed-os_SOURCE_DIR}/storage/blockdevice/include
         ${mbed-os_SOURCE_DIR}/storage/filesystem/include
         ${mbed-os_SOURCE_DIR}/storage/kvstore/include
         ${mbed-os_SOURCE_DIR}/storage/kvstore/kv_config
@@ -58,7 +57,6 @@ target_include_directories(mbed-headers-storage
         ${mbed-os_SOURCE_DIR}/storage/kvstore/tdbstore/include
         ${mbed-os_SOURCE_DIR}/storage/kvstore/filesystemstore/include
         ${mbed-os_SOURCE_DIR}/storage/kvstore/kvstore_global_api/include
-        ${mbed-os_SOURCE_DIR}/storage/blockdevice/include/blockdevice
 )
 
 target_include_directories(mbed-headers-connectivity
