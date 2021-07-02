@@ -16,7 +16,6 @@
  */
 
 #include "ExhaustibleBlockDevice.h"
-#include "mbed.h"
 #include "mbed_critical.h"
 
 
