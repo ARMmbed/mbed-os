@@ -6,7 +6,6 @@ add_library(mbed-headers INTERFACE)
 add_library(mbed-headers-base INTERFACE)
 add_library(mbed-headers-platform INTERFACE)
 add_library(mbed-headers-connectivity INTERFACE)
-add_library(mbed-headers-storage INTERFACE)
 add_library(mbed-headers-events INTERFACE)
 
 target_link_libraries(mbed-headers
@@ -14,7 +13,6 @@ target_link_libraries(mbed-headers
         mbed-headers-base
         mbed-headers-platform
         mbed-headers-connectivity
-        mbed-headers-storage
         mbed-headers-drivers
         mbed-headers-hal
         mbed-headers-events
@@ -39,10 +37,6 @@ target_include_directories(mbed-headers-base
         ${mbed-os_SOURCE_DIR}/UNITTESTS/target_h/rtos/include
         ${mbed-os_SOURCE_DIR}/UNITTESTS/target_h/rtos
         ${mbed-os_SOURCE_DIR}/UNITTESTS/target_h/sys
-)
-
-target_include_directories(mbed-headers-storage
-    INTERFACE
 )
 
 target_include_directories(mbed-headers-connectivity
