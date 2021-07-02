@@ -43,14 +43,6 @@ target_include_directories(mbed-headers-base
 
 target_include_directories(mbed-headers-storage
     INTERFACE
-        ${mbed-os_SOURCE_DIR}/storage/filesystem/fat/include
-        ${mbed-os_SOURCE_DIR}/storage/filesystem/fat/ChaN
-        ${mbed-os_SOURCE_DIR}/storage/filesystem/littlefs
-        ${mbed-os_SOURCE_DIR}/storage/filesystem/littlefs/include
-        ${mbed-os_SOURCE_DIR}/storage/filesystem/littlefsv2/littlefs
-        ${mbed-os_SOURCE_DIR}/storage/filesystem/littlefsv2/littlefs/bd
-        ${mbed-os_SOURCE_DIR}/storage/filesystem/littlefs/littlefs
-        ${mbed-os_SOURCE_DIR}/storage/filesystem/include
         ${mbed-os_SOURCE_DIR}/storage/kvstore/include
         ${mbed-os_SOURCE_DIR}/storage/kvstore/kv_config
         ${mbed-os_SOURCE_DIR}/storage/kvstore/kv_config/include
