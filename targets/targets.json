@@ -4386,12 +4386,12 @@
             "MCU_STM32WL"
         ],
         "public": false,
-   		"macros_add": [
-			"STM32WLE5xx"
-		],
-		"extra_labels_add": [
-			"STM32WLE5xC"
-		],
+        "macros_add": [
+            "STM32WLE5xx"
+        ],
+        "extra_labels_add": [
+            "STM32WLE5xC"
+        ],
         "mbed_rom_start": "0x8000000",
         "mbed_rom_size": "0x40000",
         "mbed_ram_start": "0x20000000",
