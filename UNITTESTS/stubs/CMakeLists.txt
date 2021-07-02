@@ -43,12 +43,6 @@ target_include_directories(mbed-headers-base
 
 target_include_directories(mbed-headers-storage
     INTERFACE
-        ${mbed-os_SOURCE_DIR}/storage/kvstore/include
-        ${mbed-os_SOURCE_DIR}/storage/kvstore/kv_config
-        ${mbed-os_SOURCE_DIR}/storage/kvstore/kv_config/include
-        ${mbed-os_SOURCE_DIR}/storage/kvstore/tdbstore/include
-        ${mbed-os_SOURCE_DIR}/storage/kvstore/filesystemstore/include
-        ${mbed-os_SOURCE_DIR}/storage/kvstore/kvstore_global_api/include
 )
 
 target_include_directories(mbed-headers-connectivity

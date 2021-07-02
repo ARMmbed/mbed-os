@@ -11,5 +11,5 @@ target_sources(mbed-stubs-filesystemstore
 target_link_libraries(mbed-stubs-filesystemstore
     PRIVATE
         mbed-headers-blockdevice
-        mbed-headers-storage
+        mbed-headers-kvstore
 )

@@ -35,6 +35,7 @@ target_link_libraries(${TEST_NAME}
         mbed-headers
         mbed-headers-blockdevice
         mbed-headers-filesystem
+        mbed-headers-kvstore
         mbed-stubs-platform
         mbed-stubs-filesystemstore
         gmock_main
