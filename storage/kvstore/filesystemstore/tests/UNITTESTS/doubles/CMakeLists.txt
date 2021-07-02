@@ -10,6 +10,5 @@ target_sources(mbed-stubs-filesystemstore
 
 target_link_libraries(mbed-stubs-filesystemstore
     PRIVATE
-        mbed-headers
-        mbed-stubs-headers
+        mbed-headers-storage
 )
