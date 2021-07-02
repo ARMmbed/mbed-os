@@ -408,6 +408,31 @@ You can change this in you local mbed_app.json:
 }
 ```
 
+#### I2C TIming calculation algorothm
+
+I2C drivers version 2 use I2C timing register.
+
+Enable I2C timing algorithm by setting the value of `i2c_timing_value_algo`
+target config to `true`
+
+```
+"i2c_timing_value_algo": {
+                "help": "If value was set to true I2C timing algorithm is 
+                enabled. Enabling may leads to performance issue. Keeping this
+                false and changing system clock will trigger assert.",
+                "value": false
+            }
+```
+Default configuration disables I2C timing algorithm. If user need to use
+different system clock speed other than default system clock configuration.
+Then I2C timing calculation algorithm need to enable. To enable
+
+```
+"i2c_timing_value_algo": {
+                "value": true
+            }
+```
+
 
 ### Sleep feature
 
