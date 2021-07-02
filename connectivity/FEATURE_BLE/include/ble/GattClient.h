@@ -107,6 +107,8 @@ public:
          *
          * @param connectionHandle The handle of the connection that changed the size.
          * @param attMtuSize
+         *
+         * @see negotiateAttMtu()
          */
         virtual void onAttMtuChange(
             ble::connection_handle_t connectionHandle,

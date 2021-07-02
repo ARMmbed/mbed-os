@@ -31,6 +31,8 @@
 
 #include "lifecycle.h"
 
+#include "mbedtls/entropy.h"
+
 #define TEST_STACK_SIZE 8192
 #define TEST_KEY_ID_VALUE 17
 
