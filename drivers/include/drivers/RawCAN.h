@@ -31,35 +31,14 @@
 namespace mbed {
 class RawCAN: public CAN {
 public:
-    RawCAN(PinName rd, PinName td);
+    using CAN::CAN;
 
-    /** Initialize CAN interface and set the frequency
-      *
-      * @param rd the read pin
-      * @param td the transmit pin
-      * @param hz the bus frequency in hertz
-      */
-    RawCAN(PinName rd, PinName td, int hz);
-
-    /** Initialize CAN interface
-      *
-      * @param pinmap reference to structure which holds static pinmap
-      * @param td the transmit pin
-      * @param hz the bus frequency in hertz
+    /** Overriding lock apis to create unlocked CAN
       */
 
-    virtual ~RawCAN() {};
+    void lock() override {};
+    void unlock() override {};
 
-    /** Read a CANMessage from the bus.
-     *
-     *  @param msg A CANMessage to read to.
-     *  @param handle message filter handle (0 for any message)
-     *
-     *  @returns
-     *    0 if no message arrived,
-     *    1 if message arrived
-     */
-    int read(CANMessage &msg, int handle = 0);
 };
 }
 

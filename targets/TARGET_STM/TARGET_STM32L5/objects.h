@@ -156,7 +156,7 @@ struct can_s {
     CAN_HandleTypeDef CanHandle;
     int index;
     int hz;
-    int rxIrqStatus;
+    int rxIrqEnabled;
 };
 #endif
 
