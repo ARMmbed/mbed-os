@@ -33,9 +33,8 @@ class RawCAN: public CAN {
 public:
     using CAN::CAN;
 
-    /** Overriding lock apis to create unlocked CAN
-      */
 
+    // override lock apis to create unlocked CAN
     void lock() override {};
     void unlock() override {};
 
