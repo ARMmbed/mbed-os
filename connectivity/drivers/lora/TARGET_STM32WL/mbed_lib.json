@@ -54,14 +54,6 @@
             "rf-switch-ctl1": "PC_4",
             "rf-switch-ctl2": "PC_5",
             "rf-switch-ctl3": "PC_3"
-        },
-        "LORA_E5": {
-            "rf-switch-ctl1": "PA_4",
-            "rf-switch-ctl2": "PA_5"
-        },
-        "RAK3172": {
-            "rf-switch-ctl1": "PB_8",
-            "rf-switch-ctl2": "PC_13"
         }
     }
 }
