@@ -42,8 +42,6 @@ macro(mbed_greentea_add_test)
     # Explicitly enable BUILD_TESTING until CTest is added to the Greentea client
     set(BUILD_TESTING ON)
 
-    mbed_configure_app_target(${MBED_GREENTEA_TEST_NAME})
-
     target_include_directories(${MBED_GREENTEA_TEST_NAME}
         PRIVATE
             .
