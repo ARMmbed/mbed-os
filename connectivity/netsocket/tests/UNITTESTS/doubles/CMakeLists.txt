@@ -10,6 +10,11 @@ target_include_directories(mbed-headers-netsocket
 
 add_library(mbed-stubs-netsocket)
 
+target_include_directories(mbed-stubs-netsocket
+    PUBLIC
+        .
+)
+
 target_sources(mbed-stubs-netsocket
     PRIVATE
         CellularInterface_stub.cpp
