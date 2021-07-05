@@ -9,14 +9,12 @@ target_include_directories(mbed-headers-rtos
         ${mbed-os_SOURCE_DIR}/rtos/include/rtos
 )
 
-add_library(mbed-stubs-rtos-headers INTERFACE)
+add_library(mbed-stubs-rtos)
 
-target_include_directories(mbed-stubs-rtos-headers
+target_include_directories(mbed-stubs-rtos
     INTERFACE
         .
 )
-
-add_library(mbed-stubs-rtos)
 
 target_compile_definitions(mbed-stubs-rtos
     PRIVATE

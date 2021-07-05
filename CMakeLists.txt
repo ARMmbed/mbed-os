@@ -21,6 +21,7 @@ option(BUILD_TESTING "Run unit tests only." OFF)
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
     include(CTest)
+    add_definitions(-DUNITTEST)
     add_subdirectory(UNITTESTS)
 endif()
 
