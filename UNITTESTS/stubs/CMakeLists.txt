@@ -43,7 +43,6 @@ target_include_directories(mbed-headers-connectivity
     INTERFACE
         ${mbed-os_SOURCE_DIR}/connectivity/libraries/nanostack-libservice
         ${mbed-os_SOURCE_DIR}/connectivity/libraries/nanostack-libservice/mbed-client-libservice
-        ${mbed-os_SOURCE_DIR}/connectivity/netsocket/include
         ${mbed-os_SOURCE_DIR}/connectivity
         ${mbed-os_SOURCE_DIR}/connectivity/mbedtls
         ${mbed-os_SOURCE_DIR}/connectivity/mbedtls/include
