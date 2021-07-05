@@ -16,6 +16,8 @@
 #include "STM32WL_radio_driver.h"
 #include "drivers/DigitalOut.h"
 
+
+/* Sets up radio switch position according to the radio mode */
 /* This configuration is for NUCLEO_WL55JC */
 /* But provided as __weak so it has to be overwritten to match each specicific HW board */
 MBED_WEAK void set_antenna_switch(RBI_Switch_TypeDef state)
