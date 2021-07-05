@@ -24,6 +24,7 @@ target_link_libraries(${TEST_NAME}
         mbed-headers
         mbed-headers-cellular
         mbed-stubs
+        mbed-stubs-netsocket
         mbed-stubs-cellular
         mbed-stubs-headers
         gmock_main

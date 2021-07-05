@@ -27,6 +27,7 @@ target_link_libraries(${TEST_NAME}
         mbed-headers-cellular
         mbed-headers-filesystem
         mbed-stubs
+        mbed-stubs-netsocket
         mbed-stubs-cellular
         mbed-stubs-headers
         mbed-stubs-rtos-headers

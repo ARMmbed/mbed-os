@@ -52,6 +52,7 @@ target_link_libraries(mbed-stubs-cellular
         mbed-headers-hal
         mbed-headers-events
         mbed-headers-cellular
+        mbed-stubs-netsocket
         mbed-stubs-headers
         gtest
 )
