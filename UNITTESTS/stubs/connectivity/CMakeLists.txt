@@ -19,17 +19,9 @@ target_compile_definitions(mbed-stubs-connectivity
 target_sources(mbed-stubs-connectivity
     PRIVATE
         aes_stub.c
-        CellularInterface_stub.cpp
         cipher_stub.c
         cmac_stub.c
         ip4tos_stub.c
-        MeshInterface_stub.cpp
-        NetworkInterfaceDefaults_stub.cpp
-        NetworkInterface_stub.cpp
-        NetworkStack_stub.cpp
-        nsapi_dns_stub.cpp
-        SocketAddress_stub.cpp
-        SocketStats_Stub.cpp
         stoip4_stub.c
         ${mbed-os_SOURCE_DIR}/connectivity/nanostack/coap-service/test/coap-service/unittest/stub/mbedtls_stub.c
 )

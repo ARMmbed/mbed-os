@@ -40,7 +40,7 @@ public:
     {
     }
 
-    virtual nsapi_error_t get_ip_address(SocketAddress* address)
+    virtual nsapi_error_t get_ip_address(SocketAddress *address)
     {
         address->set_ip_address("127.0.0.1");
         return NSAPI_ERROR_OK;
