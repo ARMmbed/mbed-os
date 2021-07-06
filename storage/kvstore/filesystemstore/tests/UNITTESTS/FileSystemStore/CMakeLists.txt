@@ -7,7 +7,6 @@ add_executable(${TEST_NAME})
 
 target_compile_definitions(${TEST_NAME} 
     PRIVATE
-        UNITTEST
         MBED_LFS_READ_SIZE=64
         MBED_LFS_PROG_SIZE=64
         MBED_LFS_BLOCK_SIZE=512
