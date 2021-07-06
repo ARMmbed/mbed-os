@@ -6,7 +6,6 @@ add_library(mbed-headers INTERFACE)
 add_library(mbed-headers-base INTERFACE)
 add_library(mbed-headers-platform INTERFACE)
 add_library(mbed-headers-connectivity INTERFACE)
-add_library(mbed-headers-storage INTERFACE)
 add_library(mbed-headers-events INTERFACE)
 
 target_link_libraries(mbed-headers
@@ -14,7 +13,6 @@ target_link_libraries(mbed-headers
         mbed-headers-base
         mbed-headers-platform
         mbed-headers-connectivity
-        mbed-headers-storage
         mbed-headers-drivers
         mbed-headers-hal
         mbed-headers-events
@@ -39,26 +37,6 @@ target_include_directories(mbed-headers-base
         ${mbed-os_SOURCE_DIR}/UNITTESTS/target_h/rtos/include
         ${mbed-os_SOURCE_DIR}/UNITTESTS/target_h/rtos
         ${mbed-os_SOURCE_DIR}/UNITTESTS/target_h/sys
-)
-
-target_include_directories(mbed-headers-storage
-    INTERFACE
-        ${mbed-os_SOURCE_DIR}/storage/filesystem/fat/include
-        ${mbed-os_SOURCE_DIR}/storage/filesystem/fat/ChaN
-        ${mbed-os_SOURCE_DIR}/storage/filesystem/littlefs
-        ${mbed-os_SOURCE_DIR}/storage/filesystem/littlefs/include
-        ${mbed-os_SOURCE_DIR}/storage/filesystem/littlefsv2/littlefs
-        ${mbed-os_SOURCE_DIR}/storage/filesystem/littlefsv2/littlefs/bd
-        ${mbed-os_SOURCE_DIR}/storage/filesystem/littlefs/littlefs
-        ${mbed-os_SOURCE_DIR}/storage/blockdevice/include
-        ${mbed-os_SOURCE_DIR}/storage/filesystem/include
-        ${mbed-os_SOURCE_DIR}/storage/kvstore/include
-        ${mbed-os_SOURCE_DIR}/storage/kvstore/kv_config
-        ${mbed-os_SOURCE_DIR}/storage/kvstore/kv_config/include
-        ${mbed-os_SOURCE_DIR}/storage/kvstore/tdbstore/include
-        ${mbed-os_SOURCE_DIR}/storage/kvstore/filesystemstore/include
-        ${mbed-os_SOURCE_DIR}/storage/kvstore/kvstore_global_api/include
-        ${mbed-os_SOURCE_DIR}/storage/blockdevice/include/blockdevice
 )
 
 target_include_directories(mbed-headers-connectivity
@@ -103,7 +81,6 @@ target_include_directories(mbed-stubs-headers
 add_subdirectory(connectivity)
 add_subdirectory(events)
 add_subdirectory(platform)
-add_subdirectory(storage)
 
 add_library(mbed-stubs INTERFACE)
 
@@ -115,5 +92,4 @@ target_link_libraries(mbed-stubs
         mbed-stubs-hal
         mbed-stubs-platform
         mbed-stubs-rtos
-        mbed-stubs-storage
 )

@@ -33,8 +33,11 @@ target_sources(${TEST_NAME}
 target_link_libraries(${TEST_NAME}
     PRIVATE
         mbed-headers
+        mbed-headers-blockdevice
+        mbed-headers-filesystem
+        mbed-headers-kvstore
         mbed-stubs-platform
-        mbed-stubs-storage
+        mbed-stubs-filesystemstore
         gmock_main
 )
 

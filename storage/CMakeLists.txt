@@ -35,6 +35,7 @@ if(${CMAKE_CROSSCOMPILING})
 else()
     # Add these subdirectories for the Unit test
     add_subdirectory(blockdevice)
+    add_subdirectory(filesystem)
     add_subdirectory(kvstore)
 endif()
 
