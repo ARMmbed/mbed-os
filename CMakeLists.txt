@@ -94,7 +94,7 @@ if(${CMAKE_CROSSCOMPILING})
     # Add MBED_TEST_MODE for backward compatibility with Greentea tests written for use with Mbed CLI 1
     if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
         target_compile_definitions(${PROJECT_NAME}
-            PUBLIC
+            INTERFACE
                 MBED_TEST_MODE
         )
     endif()
