@@ -8,7 +8,6 @@ add_executable(${TEST_NAME})
 target_sources(${TEST_NAME}
     PRIVATE
         ${mbed-os_SOURCE_DIR}/storage/blockdevice/source/ReadOnlyBlockDevice.cpp
-        ${mbed-os_SOURCE_DIR}/storage/blockdevice/source/HeapBlockDevice.cpp
         test_ReadOnlyBlockDevice.cpp
 )
 
