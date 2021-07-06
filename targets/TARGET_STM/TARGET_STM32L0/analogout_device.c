@@ -25,7 +25,9 @@
 
 // These variables are used for the "free" function
 static int channel1_used = 0;
+#if defined(DAC_CHANNEL_2)
 static int channel2_used = 0;
+#endif
 
 #if STATIC_PINMAP_READY
 #define ANALOGOUT_INIT_DIRECT analogout_init_direct
@@ -85,9 +87,12 @@ static void _analogout_init_direct(dac_t *obj, const PinMap *pinmap)
 
     if (obj->channel == DAC_CHANNEL_1) {
         channel1_used = 1;
-    } else {
+    }
+#if defined(DAC_CHANNEL_2)
+    if (obj->channel == DAC_CHANNEL_2) {
         channel2_used = 1;
     }
+#endif
 
     analogout_write_u16(obj, 0);
     HAL_DAC_Start(&obj->handle, obj->channel);
@@ -114,7 +119,11 @@ void analogout_free(dac_t *obj)
         channel2_used = 0;
     }
 #endif
-    if ((channel1_used == 0) && (channel2_used == 0)) {
+    if ((channel1_used == 0)
+#if defined(DAC_CHANNEL_2)
+        && (channel2_used == 0)
+#endif
+        ) {
         __DAC_FORCE_RESET();
         __DAC_RELEASE_RESET();
         __DAC_CLK_DISABLE();

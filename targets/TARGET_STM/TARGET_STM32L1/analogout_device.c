@@ -24,8 +24,10 @@
 #include "PeripheralPins.h"
 
 // These variables are used for the "free" function
-static int pa4_used = 0;
-static int pa5_used = 0;
+static int channel1_used = 0;
+#if defined(DAC_CHANNEL_2)
+static int channel2_used = 0;
+#endif
 
 void analogout_init(dac_t *obj, PinName pin)
 {
@@ -70,12 +72,14 @@ void analogout_init(dac_t *obj, PinName pin)
     sConfig.DAC_Trigger      = DAC_TRIGGER_NONE;
     sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
 
-    if (pin == PA_4) {
-        pa4_used = 1;
-    } else { // PA_5
-        pa5_used = 1;
+    if (obj->channel == DAC_CHANNEL_1) {
+        channel1_used = 1;
     }
-
+#if defined(DAC_CHANNEL_2)
+    if (obj->channel == DAC_CHANNEL_2) {
+        channel2_used = 1;
+    }
+#endif
     if (HAL_DAC_ConfigChannel(&obj->handle, &sConfig, obj->channel) != HAL_OK) {
         error("Cannot configure DAC channel\n");
     }
@@ -87,13 +91,20 @@ void analogout_init(dac_t *obj, PinName pin)
 void analogout_free(dac_t *obj)
 {
     // Reset DAC and disable clock
-    if (obj->pin == PA_4) {
-        pa4_used = 0;
+    if (obj->channel == DAC_CHANNEL_1) {
+        channel1_used = 0;
     }
-    if (obj->pin == PA_5) {
-        pa5_used = 0;
+#if defined(DAC_CHANNEL_2)
+    if (obj->channel == DAC_CHANNEL_2) {
+        channel2_used = 0;
     }
-    if ((pa4_used == 0) && (pa5_used == 0)) {
+#endif
+
+    if ((channel1_used == 0)
+#if defined(DAC_CHANNEL_2)
+        && (channel2_used == 0)
+#endif
+        ) {
         __DAC_FORCE_RESET();
         __DAC_RELEASE_RESET();
         __DAC_CLK_DISABLE();
