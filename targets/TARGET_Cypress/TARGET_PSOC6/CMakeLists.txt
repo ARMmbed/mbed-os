@@ -95,8 +95,8 @@ target_include_directories(mbed-psoc6
         mtb-hal-cat1/include
         mtb-hal-cat1/include/pin_packages
         mtb-hal-cat1/include/triggers
-        mtb-pdl-cat1/devices/include
-        mtb-pdl-cat1/devices/include/ip
+        mtb-pdl-cat1/devices/COMPONENT_CAT1A/include
+        mtb-pdl-cat1/devices/COMPONENT_CAT1A/include/ip
         mtb-pdl-cat1/drivers/include
 )
 
@@ -203,12 +203,9 @@ target_sources(mbed-psoc6
         mtb-hal-cat1/source/triggers/cyhal_triggers_psoc6_04.c
 
         mtb-pdl-cat1/devices/COMPONENT_CAT1A/source/cy_device.c
-        mtb-pdl-cat1/drivers/source/cy_adc.c
         mtb-pdl-cat1/drivers/source/cy_ble_clk.c
         mtb-pdl-cat1/drivers/source/cy_canfd.c
-        mtb-pdl-cat1/drivers/source/cy_comp.c
         mtb-pdl-cat1/drivers/source/cy_crypto.c
-        mtb-pdl-cat1/drivers/source/cy_cryptolite.c
         mtb-pdl-cat1/drivers/source/cy_crypto_core_aes_v1.c
         mtb-pdl-cat1/drivers/source/cy_crypto_core_aes_v2.c
         mtb-pdl-cat1/drivers/source/cy_crypto_core_cmac_v1.c
@@ -242,29 +239,16 @@ target_sources(mbed-psoc6
         mtb-pdl-cat1/drivers/source/cy_dma.c
         mtb-pdl-cat1/drivers/source/cy_dmac.c
         mtb-pdl-cat1/drivers/source/cy_efuse.c
-        mtb-pdl-cat1/drivers/source/cy_efuse_v3.c
-        mtb-pdl-cat1/drivers/source/cy_ephy.c
-        mtb-pdl-cat1/drivers/source/cy_ethif.c
         mtb-pdl-cat1/drivers/source/cy_flash.c
         mtb-pdl-cat1/drivers/source/cy_gpio.c
         mtb-pdl-cat1/drivers/source/cy_i2s.c
-        mtb-pdl-cat1/drivers/source/cy_i3c.c
-        mtb-pdl-cat1/drivers/source/cy_ipc_bt.c
         mtb-pdl-cat1/drivers/source/cy_ipc_drv.c
         mtb-pdl-cat1/drivers/source/cy_ipc_pipe.c
         mtb-pdl-cat1/drivers/source/cy_ipc_sema.c
-        mtb-pdl-cat1/drivers/source/cy_keyscan.c
-        mtb-pdl-cat1/drivers/source/cy_lin.c
         mtb-pdl-cat1/drivers/source/cy_lpcomp.c
         mtb-pdl-cat1/drivers/source/cy_lvd.c
         mtb-pdl-cat1/drivers/source/cy_mcwdt.c
-        mtb-pdl-cat1/drivers/source/cy_mpc.c
-        mtb-pdl-cat1/drivers/source/cy_mxconnbridge.c
-        mtb-pdl-cat1/drivers/source/cy_mxotpc.c
-        mtb-pdl-cat1/drivers/source/cy_mxsdiodev.c
         mtb-pdl-cat1/drivers/source/cy_pdm_pcm.c
-        mtb-pdl-cat1/drivers/source/cy_pdm_pcm_v2.c
-        mtb-pdl-cat1/drivers/source/cy_pd_ppu.c
         mtb-pdl-cat1/drivers/source/cy_pra.c
         mtb-pdl-cat1/drivers/source/cy_pra_cfg.c
         mtb-pdl-cat1/drivers/source/cy_profile.c
@@ -283,28 +267,19 @@ target_sources(mbed-psoc6
         mtb-pdl-cat1/drivers/source/cy_smif_memslot.c
         mtb-pdl-cat1/drivers/source/cy_sysanalog.c
         mtb-pdl-cat1/drivers/source/cy_sysclk.c
-        mtb-pdl-cat1/drivers/source/cy_sysclk_v2.c
         mtb-pdl-cat1/drivers/source/cy_sysint.c
-        mtb-pdl-cat1/drivers/source/cy_sysint_v2.c
         mtb-pdl-cat1/drivers/source/cy_syslib.c
         mtb-pdl-cat1/drivers/source/cy_syspm.c
-        mtb-pdl-cat1/drivers/source/cy_syspm_v2.c
         mtb-pdl-cat1/drivers/source/cy_systick.c
-        mtb-pdl-cat1/drivers/source/cy_systick_v2.c
         mtb-pdl-cat1/drivers/source/cy_tcpwm_counter.c
         mtb-pdl-cat1/drivers/source/cy_tcpwm_pwm.c
         mtb-pdl-cat1/drivers/source/cy_tcpwm_quaddec.c
         mtb-pdl-cat1/drivers/source/cy_tcpwm_shiftreg.c
-        mtb-pdl-cat1/drivers/source/cy_tdm.c
         mtb-pdl-cat1/drivers/source/cy_trigmux.c
         mtb-pdl-cat1/drivers/source/cy_usbfs_dev_drv.c
         mtb-pdl-cat1/drivers/source/cy_usbfs_dev_drv_io.c
         mtb-pdl-cat1/drivers/source/cy_usbfs_dev_drv_io_dma.c
         mtb-pdl-cat1/drivers/source/cy_wdt.c
-        mtb-pdl-cat1/drivers/source/edd.c
-        mtb-pdl-cat1/drivers/source/edd_rx.c
-        mtb-pdl-cat1/drivers/source/edd_tx.c
-        mtb-pdl-cat1/drivers/source/ppu_v1.c
 
         ${ASSEMBLY_ROUTINES}
 )
