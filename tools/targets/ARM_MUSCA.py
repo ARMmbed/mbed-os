@@ -159,14 +159,11 @@ def find_bl2_size(configFile):
     return bl2_size
 
 def run_cmd(cmd, directory):
-
     POPEN_INSTANCE = subprocess.Popen(
         cmd,
-        stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         cwd=directory,
     )
-
     POPEN_INSTANCE.communicate()
     return POPEN_INSTANCE.returncode
 
