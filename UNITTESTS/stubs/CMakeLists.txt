@@ -4,7 +4,6 @@
 add_library(mbed-stubs-headers INTERFACE)
 add_library(mbed-headers INTERFACE)
 add_library(mbed-headers-base INTERFACE)
-add_library(mbed-headers-platform INTERFACE)
 add_library(mbed-headers-connectivity INTERFACE)
 add_library(mbed-headers-events INTERFACE)
 
@@ -17,15 +16,6 @@ target_link_libraries(mbed-headers
         mbed-headers-hal
         mbed-headers-events
         mbed-headers-rtos
-)
-
-target_include_directories(mbed-headers-platform
-    INTERFACE
-        ${mbed-os_SOURCE_DIR}/platform/include
-        ${mbed-os_SOURCE_DIR}/platform/include/platform
-        ${mbed-os_SOURCE_DIR}/platform/randlib/include/mbed-client-randlib/
-        ${mbed-os_SOURCE_DIR}/platform/randlib/include/
-        ${mbed-os_SOURCE_DIR}/platform/mbed-trace/include
 )
 
 target_include_directories(mbed-headers-base
@@ -74,7 +64,6 @@ target_include_directories(mbed-stubs-headers
 
 add_subdirectory(connectivity)
 add_subdirectory(events)
-add_subdirectory(platform)
 
 add_library(mbed-stubs INTERFACE)
 

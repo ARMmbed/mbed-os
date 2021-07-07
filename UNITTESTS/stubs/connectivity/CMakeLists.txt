@@ -40,5 +40,6 @@ target_link_libraries(mbed-stubs-connectivity
         mbed-headers
         mbed-stubs-headers
         mbed-stubs-rtos
+        mbed-stubs-platform
         gtest
 )

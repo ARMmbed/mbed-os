@@ -6,14 +6,13 @@ set(TEST_NAME circularbuffer-unittest)
 add_executable(${TEST_NAME})
 
 target_sources(${TEST_NAME}
-    PRIVATE        
+    PRIVATE
         test_CircularBuffer.cpp
 )
 
 target_link_libraries(${TEST_NAME}
     PRIVATE
-        mbed-headers        
-        mbed-stubs-platform      
+        mbed-stubs-platform
         gmock_main
 )
 
