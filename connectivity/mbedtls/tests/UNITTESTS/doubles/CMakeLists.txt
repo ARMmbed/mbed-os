@@ -1,0 +1,20 @@
+# Copyright (c) 2021 ARM Limited. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+add_library(mbed-stubs-mbedtls)
+
+target_sources(mbed-stubs-mbedtls
+    PRIVATE
+        aes_stub.c
+        cipher_stub.c
+        cmac_stub.c
+        ${mbed-os_SOURCE_DIR}/connectivity/nanostack/coap-service/test/coap-service/unittest/stub/mbedtls_stub.c
+)
+
+target_link_libraries(mbed-stubs-mbedtls
+    PRIVATE
+        mbed-headers
+        mbed-stubs-headers
+        mbed-stubs-rtos
+        gtest
+)
