@@ -8,14 +8,14 @@ add_executable(${TEST_NAME})
 target_sources(${TEST_NAME}
     PRIVATE
         ${mbed-os_SOURCE_DIR}/storage/blockdevice/source/ReadOnlyBlockDevice.cpp
-        ${mbed-os_SOURCE_DIR}/storage/blockdevice/source/HeapBlockDevice.cpp
         test_ReadOnlyBlockDevice.cpp
 )
 
 target_link_libraries(${TEST_NAME}
     PRIVATE
-        mbed-headers
+        mbed-headers-base
         mbed-headers-blockdevice
+        mbed-headers-platform
         mbed-stubs-headers
         mbed-stubs-platform
         mbed-stubs-blockdevice
