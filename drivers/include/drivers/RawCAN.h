@@ -74,10 +74,10 @@ public:
      * @endcode
      */
 
-     /* Note: The can apis are unlocked hence using this when multiple
-     *  threads are accessing a single instance of CAN will lead to
-     *  race conditions, can be used in single threaded CAN.
-     */
+    /* Note: The can apis are unlocked hence using this when multiple
+    *  threads are accessing a single instance of CAN will lead to
+    *  race conditions, can be used in single threaded CAN.
+    */
     using CAN::CAN;
 
 
