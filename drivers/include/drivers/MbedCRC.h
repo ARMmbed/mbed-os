@@ -29,12 +29,7 @@
 #include "platform/SingletonPtr.h"
 #include "platform/PlatformMutex.h"
 
-#ifdef UNITTEST
-#include <type_traits>
-#define MSTD_CONSTEXPR_IF_HAS_IS_CONSTANT_EVALUATED
-#else
 #include <mstd_type_traits>
-#endif
 
 namespace mbed {
 /** \addtogroup drivers-public-api */

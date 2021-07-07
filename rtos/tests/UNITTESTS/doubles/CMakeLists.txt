@@ -18,7 +18,10 @@ target_include_directories(mbed-stubs-rtos-headers
 
 add_library(mbed-stubs-rtos)
 
-add_definitions(-DUNITTEST)
+target_compile_definitions(mbed-stubs-rtos
+    PRIVATE
+        MBED_CONF_RTOS_PRESENT=1
+)
 
 target_sources(mbed-stubs-rtos
     PRIVATE

@@ -17,7 +17,7 @@
 #ifndef MBED_RTOS_STORAGE_H
 #define MBED_RTOS_STORAGE_H
 
-#if MBED_CONF_RTOS_PRESENT || defined(UNITTEST)
+#if MBED_CONF_RTOS_PRESENT
 
 #include "mbed_rtx_storage.h"
 

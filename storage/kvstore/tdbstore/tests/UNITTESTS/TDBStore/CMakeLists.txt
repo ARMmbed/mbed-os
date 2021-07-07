@@ -5,11 +5,6 @@ set(TEST_NAME tdbstore-unittest)
 
 add_executable(${TEST_NAME})
 
-target_compile_definitions(${TEST_NAME} 
-    PRIVATE
-        UNITTEST
-)
-
 target_sources(${TEST_NAME}
     PRIVATE
         ${mbed-os_SOURCE_DIR}/storage/blockdevice/source/HeapBlockDevice.cpp
