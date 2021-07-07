@@ -1,7 +1,7 @@
 # Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-option(MBED_TEST_BAREMETAL OFF)
+option(MBED_GREENTEA_TEST_BAREMETAL "Select baremetal greentea tests" OFF)
 
 set(MBED_HTRUN_ARGUMENTS "" CACHE STRING "Argument list to forward to htrun.")
 
@@ -64,7 +64,7 @@ macro(mbed_greentea_add_test)
             ${MBED_GREENTEA_TEST_SOURCES}
     )
 
-    if(MBED_TEST_BAREMETAL)
+    if(MBED_GREENTEA_TEST_BAREMETAL)
         list(APPEND MBED_GREENTEA_TEST_REQUIRED_LIBS mbed-baremetal)
     else()
         list(APPEND MBED_GREENTEA_TEST_REQUIRED_LIBS mbed-os)
