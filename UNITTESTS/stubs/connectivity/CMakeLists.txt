@@ -23,14 +23,6 @@ target_sources(mbed-stubs-connectivity
         cipher_stub.c
         cmac_stub.c
         ip4tos_stub.c
-        LoRaMacChannelPlan_stub.cpp
-        LoRaMacCommand_stub.cpp
-        LoRaMacCrypto_stub.cpp
-        LoRaMac_stub.cpp
-        LoRaPHYEU868_stub.cpp
-        LoRaPHY_stub.cpp
-        LoRaWANStack_stub.cpp
-        LoRaWANTimer_stub.cpp
         MeshInterface_stub.cpp
         NetworkInterfaceDefaults_stub.cpp
         NetworkInterface_stub.cpp
