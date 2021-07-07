@@ -46,7 +46,6 @@ target_include_directories(mbed-headers
 target_include_directories(mbed-stubs-headers
     INTERFACE
         .
-        ${mbed-os_SOURCE_DIR}/connectivity/nanostack/coap-service/test/coap-service/unittest/stub
 )
 
 add_subdirectory(connectivity)
