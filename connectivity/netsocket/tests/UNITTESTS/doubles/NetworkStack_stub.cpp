@@ -94,7 +94,7 @@ nsapi_error_t NetworkStack::call_in(int delay, mbed::Callback<void()> func)
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
-nsapi_error_t NetworkStack::get_ip_address(SocketAddress* address)
+nsapi_error_t NetworkStack::get_ip_address(SocketAddress *address)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
@@ -104,7 +104,7 @@ nsapi_error_t NetworkStack::get_ipv6_link_local_address(SocketAddress *address)
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
-nsapi_error_t NetworkStack::get_ip_address_if(SocketAddress* address, const char *interface_name)
+nsapi_error_t NetworkStack::get_ip_address_if(SocketAddress *address, const char *interface_name)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }

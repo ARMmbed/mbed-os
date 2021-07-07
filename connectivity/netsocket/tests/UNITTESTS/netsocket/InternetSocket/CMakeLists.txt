@@ -26,8 +26,10 @@ target_sources(${TEST_NAME}
 target_link_libraries(${TEST_NAME}
     PRIVATE
         mbed-headers
+        mbed-headers-netsocket
         mbed-stubs
         mbed-stubs-headers
+        mbed-stubs-netsocket
         gmock_main
 )
 
