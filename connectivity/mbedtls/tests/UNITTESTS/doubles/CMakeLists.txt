@@ -27,9 +27,7 @@ target_sources(mbed-stubs-mbedtls
 
 target_link_libraries(mbed-stubs-mbedtls
     PRIVATE
-        mbed-headers
         mbed-headers-mbedtls
-        mbed-stubs-headers
         mbed-stubs-rtos
         gtest
 )
