@@ -26,6 +26,11 @@ target_compile_definitions(mbed-stubs-cellular
         MDMRXD=NC
 )
 
+target_include_directories(mbed-stubs-cellular
+    PUBLIC
+        .
+)
+
 target_sources(mbed-stubs-cellular
     PRIVATE
         AT_CellularContext_stub.cpp
