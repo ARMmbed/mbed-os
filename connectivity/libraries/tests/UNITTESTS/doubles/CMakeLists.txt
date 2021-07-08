@@ -18,11 +18,6 @@ target_sources(mbed-stubs-nanostack-libservice
 
 target_link_libraries(mbed-stubs-nanostack-libservice
     PRIVATE
-        mbed-stubs-rtos-headers
-        mbed-headers
         mbed-headers-nanostack-libservice
-        mbed-stubs-headers
-        mbed-stubs-rtos
-        mbed-stubs-platform
         gtest
 )
