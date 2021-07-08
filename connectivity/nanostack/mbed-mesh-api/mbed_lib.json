@@ -24,6 +24,10 @@
             "help": "Definition of heap statistics `mem_stat_t` storage.",
             "value": null
         },
+        "system-time-update-from-nanostack": {
+            "help": "Allow nanostack to read and write device system time to synchronise time in the network. Feature enabled when set to true, false otherwise.",
+            "value": true
+        },
         "6lowpan-nd-channel-mask": {
             "help": "Channel mask, bit-mask of channels to use. [0-0x07fff800]",
             "value": "0x7fff800"
