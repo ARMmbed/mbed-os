@@ -23,11 +23,18 @@ endif()
 #
 # calling the macro:
 # mbed_greentea_add_test(
-#    TEST_NAME mbed-platform-system-reset
-#    TEST_INCLUDE_DIRS mbed_store
-#    TEST_SOURCES foo.cpp bar.cpp
-#    TEST_REQUIRED_LIBS mbed-kvstore mbed-xyz
-#    HOST_TESTS_DIR ${CMAKE_CURRENT_LIST_DIR}/host_tests
+#     TEST_NAME
+#         mbed-platform-system-reset
+#     TEST_INCLUDE_DIRS
+#         mbed_store
+#     TEST_SOURCES
+#         foo.cpp
+#         bar.cpp
+#     TEST_REQUIRED_LIBS
+#         mbed-kvstore
+#         mbed-xyz
+#     HOST_TESTS_DIR
+#         ${CMAKE_CURRENT_LIST_DIR}/host_tests
 # )
 
 function(mbed_greentea_add_test)
