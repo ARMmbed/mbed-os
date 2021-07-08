@@ -30,8 +30,6 @@ target_include_directories(mbed-headers-base
 
 target_include_directories(mbed-headers-connectivity
     INTERFACE
-        ${mbed-os_SOURCE_DIR}/connectivity/libraries/nanostack-libservice
-        ${mbed-os_SOURCE_DIR}/connectivity/libraries/nanostack-libservice/mbed-client-libservice
         ${mbed-os_SOURCE_DIR}/connectivity
         ${mbed-os_SOURCE_DIR}/connectivity/FEATURE_BLE/include
         ${mbed-os_SOURCE_DIR}/connectivity/FEATURE_BLE/include/ble

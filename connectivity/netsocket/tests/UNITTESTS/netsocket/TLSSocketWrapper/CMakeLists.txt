@@ -28,6 +28,7 @@ target_sources(${TEST_NAME}
 target_link_libraries(${TEST_NAME}
     PRIVATE
         mbed-headers
+        mbed-headers-nanostack-libservice
         mbed-headers-mbedtls
         mbed-headers-netsocket
         mbed-stubs
