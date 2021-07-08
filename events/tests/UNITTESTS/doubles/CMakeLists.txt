@@ -1,6 +1,8 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_subdirectory(fakes)
+
 add_library(mbed-headers-events INTERFACE)
 
 target_include_directories(mbed-headers-events
