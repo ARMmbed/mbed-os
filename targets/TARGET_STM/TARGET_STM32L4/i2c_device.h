@@ -34,7 +34,7 @@ extern "C" {
 #define TIMING_VAL_80M_CLK_100KHZ 0x30C14E6B   // Standard mode with Rise Time = 400ns and Fall Time = 100ns
 #define TIMING_VAL_80M_CLK_400KHZ 0x10D1143A   // Fast mode with Rise Time = 250ns and Fall Time = 100ns
 #define TIMING_VAL_80M_CLK_1MHZ   0x00810E27   // Fast mode Plus with Rise Time = 60ns and Fall Time = 100ns
-#define I2C_PCLK_80M                80000000     // 80 MHz
+#define I2C_PCLK_80M              80000000     // 80 MHz
 
 // Common settings: I2C clock = 48 MHz, Analog filter = ON, Digital filter coefficient = 0
 #define TIMING_VAL_48M_CLK_100KHZ 0x20A03E55   // Standard mode with Rise Time = 400ns and Fall Time = 100ns
@@ -57,7 +57,7 @@ extern "C" {
 #define I2CAPI_I2C4_CLKSRC RCC_I2C4CLKSOURCE_SYSCLK
 
 uint32_t i2c_get_pclk(I2CName i2c);
-uint32_t i2c_get_timing(I2CName i2c, int hz);
+uint32_t i2c_get_timing(I2CName i2c, uint32_t current_timing, int current_hz, int hz);
 
 #if MBED_CONF_TARGET_I2C_TIMING_VALUE_ALGO
 uint32_t i2c_compute_timing(uint32_t clock_src_freq, uint32_t i2c_freq);

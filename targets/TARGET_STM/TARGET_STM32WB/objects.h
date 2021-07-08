@@ -97,6 +97,7 @@ struct i2c_s {
     uint32_t XferOperation;
     volatile uint8_t event;
     volatile int pending_start;
+    int current_hz;
 #if DEVICE_I2CSLAVE
     uint8_t slave;
     volatile uint8_t pending_slave_tx_master_rx;

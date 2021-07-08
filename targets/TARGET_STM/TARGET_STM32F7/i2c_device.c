@@ -106,45 +106,4 @@ uint32_t i2c_get_pclk(I2CName i2c)
     }
     return pclk;
 }
-
-/**
- * @brief  Provide the suitable timing depending on requested frequency
- * @param  hz Required I2C clock in Hz.
- * @retval I2C timing or 0 in case of error.
- */
-uint32_t i2c_get_timing(I2CName i2c, int hz)
-{
-    uint32_t tim;
-    uint32_t pclk;
-    pclk = i2c_get_pclk(i2c);
-    if (pclk == I2C_PCLK_DEF) {
-        switch (hz) {
-            case 100000:
-                tim = TIMING_VAL_DEFAULT_CLK_100KHZ;
-                break;
-            case 400000:
-                tim = TIMING_VAL_DEFAULT_CLK_400KHZ;
-                break;
-            case 1000000:
-                tim = TIMING_VAL_DEFAULT_CLK_1MHZ;
-                break;
-            default:
-                MBED_ASSERT((hz == 100000) || (hz == 400000) || (hz == 1000000));
-                break;
-        }
-    } else {
-        /* If MBED_CONF_TARGET_I2C_TIMING_VALUE_ALGO assert is triggered. 
-        User needs to enable I2C_TIMING_VALUE_ALGO in target.json for specific target. 
-        Enabling this may impact performance*/
-        MBED_ASSERT(MBED_CONF_TARGET_I2C_TIMING_VALUE_ALGO);
-#if MBED_CONF_TARGET_I2C_TIMING_VALUE_ALGO
-        tim = i2c_compute_timing(pclk, hz);
-#endif
-    }
-    return tim;
-}
-
-/**
-  * @}
-  */
 #endif // DEVICE_I2C
