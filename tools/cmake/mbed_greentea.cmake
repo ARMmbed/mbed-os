@@ -61,7 +61,7 @@ macro(mbed_greentea_add_test)
         list(APPEND MBED_GREENTEA_TEST_REQUIRED_LIBS mbed-os)
     endif()
 
-    list(APPEND MBED_GREENTEA_TEST_REQUIRED_LIBS mbed-greentea)
+    list(APPEND MBED_GREENTEA_TEST_REQUIRED_LIBS greentea::client mbed-unity mbed-utest)
 
     target_link_libraries(${MBED_GREENTEA_TEST_NAME}
         PRIVATE

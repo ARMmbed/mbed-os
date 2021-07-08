@@ -17,6 +17,8 @@ list(APPEND CMAKE_MODULE_PATH
     "${mbed-os_SOURCE_DIR}/platform/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_TFM/TARGET_TFM_LATEST/scripts;${mbed-os_SOURCE_DIR}/targets/TARGET_Cypress/scripts;${mbed-os_SOURCE_DIR}/targets/TARGET_NXP/scripts"
 )
 
+add_subdirectory(extern)
+
 option(BUILD_TESTING "Run unit tests only." OFF)
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
@@ -92,7 +94,7 @@ if(${CMAKE_CROSSCOMPILING})
     # Add MBED_TEST_MODE for backward compatibility with Greentea tests written for use with Mbed CLI 1
     if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
         target_compile_definitions(${PROJECT_NAME}
-            PUBLIC
+            INTERFACE
                 MBED_TEST_MODE
         )
     endif()
