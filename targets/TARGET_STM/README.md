@@ -18,7 +18,7 @@ Table of Contents
       * [Add a custom board](#add-a-custom-board)
       * [Board specific files (pinmap)](#board-specific-files-pinmap)
       * [Use of custom_targets.json](#use-of-custom_targetsjson)
-      * [Make you custom board public](#make-you-custom-board-public)
+      * [Make your custom board public](#make-you-custom-board-public)
    * [ST specific implementation](#st-specific-implementation)
       * [Pin configuration](#pin-configuration)
          * [Alternate feature](#alternate-feature)
@@ -26,7 +26,7 @@ Table of Contents
       * [Clock selection](#clock-selection)
          * [System clock](#system-clock)
          * [Low power clock](#low-power-clock)
-         * [I2C TIming calculation algorothm](#i2c-timing-calculation-algorothm)
+         * [I2C Timing calculation algorithm](#i2c-timing-calculation-algorithm)
       * [Sleep feature](#sleep-feature)
       * [WiFi configuration](#wifi-configuration)
       * [Ethernet configuration](#ethernet-configuration)
@@ -334,9 +334,9 @@ $ mv TARGET_STM32H745ZIT TARGET_H745ZI_BOARD
 ```
 
 
-### Make you custom board public
+### Make your custom board public
 
-We will be happy to add every public boards in https://github.com/ARMmbed/stm32customtargets
+We will be happy to add every public board in https://github.com/ARMmbed/stm32customtargets
 
 Make a Pull request, we will check consistency and build.
 
@@ -428,7 +428,7 @@ You can change this in you local mbed_app.json:
 }
 ```
 
-#### I2C TIming calculation algorothm
+#### I2C Timing calculation algorithm
 
 I2C drivers version 2 use I2C timing register.
 
