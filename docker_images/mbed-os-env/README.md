@@ -18,7 +18,7 @@ docker pull mbedos/mbed-os-env
 ## Run mbed OS environment without HW support (build mbed images only)
 launch docker by
 ```bash
-docker run -it mbedos/mbed-os-env:<lable>
+docker run -it mbedos/mbed-os-env:<label>
 ```
 Then you will have the container with mbed OS development environment.
 you should be able to compile mbed commands/examples as recommenced in mbed documentations
@@ -46,4 +46,3 @@ mbed clone https://github.com/ARMmbed/mbed-os.git
 cd mbed-os
 mbed test -t GCC_ARM -m <target> 
 ```
-
