@@ -29,6 +29,7 @@
 #include "platform/PlatformMutex.h"
 
 namespace mbed {
+#ifndef FEATURE_EXPERIMENTAL_API
 class RawCAN: public CAN {
 public:
     /** Creates an unlocked CAN interface connected to specific pins.
@@ -86,6 +87,7 @@ public:
     void unlock() override {};
 
 };
+#endif //FEATURE_EXPERIMENTAL_API
 }
 
 #endif
