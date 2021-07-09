@@ -5,8 +5,6 @@
 set(CMAKE_CXX_STANDARD 14 CACHE STRING "")
 set(CMAKE_CXX_STANDARD_REQUIRED ON CACHE BOOL "")
 
-add_definitions(-DUNITTEST)
-
 if (MINGW)
     # enable PRIx formatting globally
     add_definitions(-D__STDC_FORMAT_MACROS)

@@ -30,7 +30,6 @@ target_sources(mbed-stubs-netsocket
 target_link_libraries(mbed-stubs-netsocket
     PRIVATE
         mbed-headers-netsocket
-        mbed-stubs-rtos-headers
         mbed-headers
         mbed-stubs-headers
         mbed-stubs-rtos
