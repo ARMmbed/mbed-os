@@ -20,8 +20,12 @@ endif()
 # TEST_SOURCES - Test suite sources
 # TEST_REQUIRED_LIBS - Test suite required libraries
 # HOST_TESTS_DIR - Path to the "host_tests" directory
+# TEST_SKIPPED - Reason if suite is skipped
 #
 # calling the macro:
+# if(MBED_GREENTEA_TEST_BAREMETAL)
+#     set(skip_reason "RTOS required")
+# endif()
 # mbed_greentea_add_test(
 #     TEST_NAME
 #         mbed-platform-system-reset
@@ -35,11 +39,16 @@ endif()
 #         mbed-xyz
 #     HOST_TESTS_DIR
 #         ${CMAKE_CURRENT_LIST_DIR}/host_tests
+#     TEST_SKIPPED
+#         ${skip_reason}
 # )
 
 function(mbed_greentea_add_test)
     set(options)
-    set(singleValueArgs TEST_NAME)
+    set(singleValueArgs
+        TEST_NAME
+        TEST_SKIPPED
+    )
     set(multipleValueArgs
         TEST_INCLUDE_DIRS
         TEST_SOURCES
@@ -52,6 +61,22 @@ function(mbed_greentea_add_test)
         "${multipleValueArgs}"
         ${ARGN}
     )
+
+    if(NOT "${MBED_GREENTEA_TEST_SKIPPED}" STREQUAL "")
+        add_test(
+            NAME
+                ${MBED_GREENTEA_TEST_NAME}
+            COMMAND
+                ${CMAKE_COMMAND} -E echo
+                "Skipping ${MBED_GREENTEA_TEST_NAME}:"
+                "${MBED_GREENTEA_TEST_SKIPPED}"
+        )
+        set_tests_properties(${MBED_GREENTEA_TEST_NAME}
+            PROPERTIES
+                SKIP_REGULAR_EXPRESSION "."
+        )
+        return()
+    endif()
 
     # TODO: After we convert all greentea tests to use CTest, remove this
     # add_subdirectory call. We will attach the tests to the mbed-os project,
