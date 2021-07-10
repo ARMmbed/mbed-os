@@ -51,6 +51,17 @@ SPDX-License-Identifier: BSD-3-Clause
 #define MAX_DATA_BUFFER_SIZE_STM32WL                        255
 #endif
 
+#define DEBUG_LED_ON  1
+#define DEBUG_LED_OFF 0
+
+#ifdef MBED_CONF_STM32WL_LORA_DRIVER_DEBUG_INVERT
+#if MBED_CONF_STM32WL_LORA_DRIVER_DEBUG_INVERT == 1
+#define DEBUG_LED_ON  0
+#define DEBUG_LED_OFF 1
+#endif // MBED_CONF_STM32WL_LORA_DRIVER_DEBUG_INVERT == 1
+#endif // MBED_CONF_STM32WL_LORA_DRIVER_DEBUG_INVERT
+
+
 extern void set_antenna_switch(RBI_Switch_TypeDef state);
 
 class STM32WL_LoRaRadio : public LoRaRadio {

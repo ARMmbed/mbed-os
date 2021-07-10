@@ -302,7 +302,7 @@ void STM32WL_LoRaRadio::HAL_SUBGHZ_TxCpltCallback(void)
 
 #ifdef MBED_CONF_STM32WL_LORA_DRIVER_DEBUG_TX
         /* Reset TX DBG pin */
-        _rf_dbg_tx = 0;
+        _rf_dbg_tx = DEBUG_LED_OFF;
 #endif
     }
 }
@@ -330,7 +330,7 @@ void STM32WL_LoRaRadio::HAL_SUBGHZ_RxCpltCallback(void)
 
 #ifdef MBED_CONF_STM32WL_LORA_DRIVER_DEBUG_RX
         /* Reset RX DBG pin */
-        _rf_dbg_rx = 0;
+        _rf_dbg_rx = DEBUG_LED_OFF;
 #endif
     }
 }
@@ -360,7 +360,7 @@ void STM32WL_LoRaRadio::HAL_SUBGHZ_RxTxTimeoutCallback(void)
 
 #if MBED_CONF_STM32WL_LORA_DRIVER_DEBUG_TX
         /* Reset TX DBG pin */
-        _rf_dbg_tx = 0;
+        _rf_dbg_tx = DEBUG_LED_OFF;
 #endif
 
     } else if ((_radio_events && _radio_events->rx_timeout) && (_operating_mode == MODE_RX)) {
@@ -368,7 +368,7 @@ void STM32WL_LoRaRadio::HAL_SUBGHZ_RxTxTimeoutCallback(void)
 
 #ifdef MBED_CONF_STM32WL_LORA_DRIVER_DEBUG_RX
         /* Reset RX DBG pin */
-        _rf_dbg_rx = 0;
+        _rf_dbg_rx = DEBUG_LED_OFF;
 #endif
     }
 }
@@ -1079,7 +1079,7 @@ void STM32WL_LoRaRadio::send(uint8_t *buffer, uint8_t size)
 
 #ifdef MBED_CONF_STM32WL_LORA_DRIVER_DEBUG_TX
     /* Set TX DBG pin */
-    _rf_dbg_tx = 1;
+    _rf_dbg_tx = DEBUG_LED_ON;
 #endif
 
     /* Set RF switch */
@@ -1137,7 +1137,7 @@ void STM32WL_LoRaRadio::receive(void)
 
 #ifdef MBED_CONF_STM32WL_LORA_DRIVER_DEBUG_RX
     /* Set RX DBG pin */
-    _rf_dbg_rx = 1;
+    _rf_dbg_rx = DEBUG_LED_ON;
 #endif
 
     /* RF switch configuration */
