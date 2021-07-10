@@ -54,13 +54,17 @@ SPDX-License-Identifier: BSD-3-Clause
 #define DEBUG_LED_ON  1
 #define DEBUG_LED_OFF 0
 
+// How is driven debug LED
+// Default is 1 to ON, 0 to OFF
+// Can be overwriten in mbed_app.json with 
+// "stm32wl-lora-driver.debug_invert": 1
 #ifdef MBED_CONF_STM32WL_LORA_DRIVER_DEBUG_INVERT
-#if MBED_CONF_STM32WL_LORA_DRIVER_DEBUG_INVERT == 1
+#if MBED_CONF_STM32WL_LORA_DRIVER_DEBUG_INVERT==1
 #undef DEBUG_LED_ON
 #undef DEBUG_LED_OFF
 #define DEBUG_LED_ON  0
 #define DEBUG_LED_OFF 1
-#endif // MBED_CONF_STM32WL_LORA_DRIVER_DEBUG_INVERT == 1
+#endif // MBED_CONF_STM32WL_LORA_DRIVER_DEBUG_INVERT==1
 #endif // MBED_CONF_STM32WL_LORA_DRIVER_DEBUG_INVERT
 
 
