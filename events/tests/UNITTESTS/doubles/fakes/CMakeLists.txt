@@ -10,7 +10,7 @@ target_sources(mbed-fakes-event-queue
 
 target_include_directories(mbed-fakes-event-queue
     PUBLIC
-        .        
+        .
 )
 
 target_link_libraries(mbed-fakes-event-queue

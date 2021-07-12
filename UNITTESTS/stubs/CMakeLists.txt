@@ -5,7 +5,6 @@ add_library(mbed-stubs-headers INTERFACE)
 add_library(mbed-headers INTERFACE)
 add_library(mbed-headers-base INTERFACE)
 add_library(mbed-headers-connectivity INTERFACE)
-add_library(mbed-headers-events INTERFACE)
 
 target_link_libraries(mbed-headers
     INTERFACE
@@ -40,15 +39,6 @@ target_include_directories(mbed-headers-connectivity
         ${mbed-os_SOURCE_DIR}/connectivity/FEATURE_BLE/include/ble
 )
 
-target_include_directories(mbed-headers-events
-    INTERFACE
-        ${mbed-os_SOURCE_DIR}/events/tests/UNITTESTS/target_h
-        ${mbed-os_SOURCE_DIR}/events/tests/UNITTESTS/target_h/equeue
-        ${mbed-os_SOURCE_DIR}/events/include
-        ${mbed-os_SOURCE_DIR}/events/include/events
-        ${mbed-os_SOURCE_DIR}/events/include/events/internal
-)
-
 target_include_directories(mbed-headers
     INTERFACE
         ${mbed-os_SOURCE_DIR}/features
@@ -62,7 +52,6 @@ target_include_directories(mbed-stubs-headers
 )
 
 add_subdirectory(connectivity)
-add_subdirectory(events)
 
 add_library(mbed-stubs INTERFACE)
 
