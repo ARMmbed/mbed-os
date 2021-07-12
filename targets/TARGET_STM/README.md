@@ -528,6 +528,63 @@ For application that require optimized maximum performance, the recommendation i
 The SPI DMA transfer support shall be implemented on a case-by-case based on below example
 https://github.com/ABOSTM/mbed-os/tree/I2C_SPI_DMA_IMPLEMENTATION_FOR_STM32L4
 
+### CAN receive interrupt problem due to mutex and resolution
+
+In bxCAN and earlier versions the receive interrupt flags can be cleared only on performing a read operation in ST MCUs
+But can_read() cannot be used in interrupt context as it is gaurded by lock operation and mbed does not allow locks in 
+interrupt context. Hence the Rx interrupt is disabled for a while and read is deferred to thread context, the interrupt is
+enabled on a successful read.
+
+As an other option RawCAN (with unlocked CAN apis) is also available and can be used directly, if only one thread is accessing
+the CAN interface.
+
+While using RxInterrupt with the CAN object the receive ISR callback registered should defer read to thread context.
+A simple example is as shown below:
+
+#include "mbed.h"
+
+Ticker ticker;
+Thread canReadThread;
+
+DigitalOut led1(LED1);
+DigitalOut led2(LED2);
+DigitalOut led3(LED3);
+
+CAN can1(PD_0 ,PD_1);
+
+EventQueue queue(32 * EVENTS_EVENT_SIZE);
+
+int counter = 0xABCD;
+CANMessage msg;
+
+void canRead(){
+        if(can1.read(msg)) {
+            if(msg.id==1100)
+                led2 = !led2;
+            if(msg.id==1102){
+                led3 = !led3;
+            }
+        }
+}
+
+void canISR(){
+    queue.call(canRead);
+    led3 = !led3;
+}
+
+int main() {
+
+    can1.frequency(100000);
+    can1.mode(CAN::Normal);
+
+    can1.attach(canISR, CAN::RxIrq);
+
+    canReadThread.start(callback(&queue, &EventQueue::dispatch_forever));
+
+    while(1) {
+    }
+}
+
 
 ## Mbed OS Wiki pages
 
