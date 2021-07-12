@@ -52,7 +52,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #endif
 
 // How are driven debug Rx and Tx LEDs
-// Can be overwriten in the file mbed_app.json with 
+// Can be overwriten in the file mbed_app.json with
 // "stm32wl-lora-driver.debug_invert": 1
 // Default is set GPIO to 1 for ON and to 0 for OFF
 #define DEBUG_LED_ON  1
