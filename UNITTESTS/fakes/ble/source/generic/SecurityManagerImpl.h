@@ -52,6 +52,8 @@ public:
 
     virtual ble_error_t preserveBondingStateOnReset(bool enable) { return BLE_ERROR_NONE; };
 
+    virtual ble_error_t writeBondingStateToPersistentStorage() { return BLE_ERROR_NONE; };
+
     ////////////////////////////////////////////////////////////////////////////
     // List management
     //

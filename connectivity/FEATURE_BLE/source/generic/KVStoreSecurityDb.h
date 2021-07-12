@@ -200,7 +200,7 @@ public:
 
     virtual void restore();
 
-    virtual void sync(entry_handle_t db_handle);
+    virtual void sync(entry_handle_t db_handle = invalid_entry_handle);
 
     virtual void set_restore(bool reload);
 

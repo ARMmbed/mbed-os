@@ -543,10 +543,27 @@ public:
      * Normally all bonding information is lost when device is reset, this requests that the stack
      * attempts to save the information and reload it during initialisation. This is not guaranteed.
      *
+     * @note This option is itself saved together with bonding data. When data is read after reset,
+     * the state of this option decides if data should be restored. If this option has not been saved
+     * the data will not be restored even if partial data is present.
+     *
      * @param[in] enable if true the stack will attempt to preserve bonding information on reset.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
     ble_error_t preserveBondingStateOnReset(bool enable);
+
+    /**
+     * Some or all of bonding information may be stored in memory while in use. This will write
+     * bonding data to persistent storage. This will have no effect if no persistent storage is enabled.
+     *
+     * @note This implicitly also calls preserveBondingStateOnReset(true) inside.
+     *
+     * @note Depending on the driver used to implement the storage solution used this may be a disruptive
+     * operation and may cause active connections to drop due to failed processing deadlines.
+     *
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    ble_error_t writeBondingStateToPersistentStorage();
 
     ////////////////////////////////////////////////////////////////////////////
     // List management
