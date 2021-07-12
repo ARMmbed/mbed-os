@@ -134,10 +134,15 @@ public:
     UnlockedSPI spi;
     DigitalOut CS;
     DigitalOut SDN;
+#if INTERRUPT_GPIO == S2LP_GPIO0
     InterruptIn RF_S2LP_GPIO0;
+#elif INTERRUPT_GPIO == S2LP_GPIO1
     InterruptIn RF_S2LP_GPIO1;
+#elif INTERRUPT_GPIO == S2LP_GPIO2
     InterruptIn RF_S2LP_GPIO2;
+#else
     InterruptIn RF_S2LP_GPIO3;
+#endif
     Timeout cca_timer;
     Timeout backup_timer;
     Timer tx_timer;
@@ -153,10 +158,15 @@ RFPins::RFPins(PinName spi_sdi, PinName spi_sdo,
     :   spi(spi_sdi, spi_sdo, spi_sclk),
         CS(spi_cs),
         SDN(spi_sdn),
+#if INTERRUPT_GPIO == S2LP_GPIO0
         RF_S2LP_GPIO0(spi_gpio0),
+#elif INTERRUPT_GPIO == S2LP_GPIO1
         RF_S2LP_GPIO1(spi_gpio1),
+#elif INTERRUPT_GPIO == S2LP_GPIO2
         RF_S2LP_GPIO2(spi_gpio2),
+#else
         RF_S2LP_GPIO3(spi_gpio3),
+#endif
         irq_thread(osPriorityRealtime, 1024)
 {
     irq_thread.start(mbed::callback(this, &RFPins::rf_irq_task));
