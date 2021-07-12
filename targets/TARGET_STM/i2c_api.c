@@ -1733,6 +1733,9 @@ uint32_t i2c_compute_timing(uint32_t clock_src_freq, uint32_t i2c_freq)
     uint32_t speed;
     uint32_t idx;
 
+    /* Reset valid timing count at the beginning of each new computation */
+    I2c_valid_timing_nbr = 0;
+
     if ((clock_src_freq != 0U) && (i2c_freq != 0U)) {
         for (speed = 0 ; speed <= (uint32_t)I2C_SPEED_FREQ_FAST_PLUS ; speed++) {
             if ((i2c_freq >= I2C_Charac[speed].freq_min) &&
