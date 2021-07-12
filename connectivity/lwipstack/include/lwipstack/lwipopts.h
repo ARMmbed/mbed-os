@@ -34,6 +34,8 @@
 #error "Either IPv4 or IPv6 must be enabled."
 #endif
 
+#define LWIP_HAVE_LOOPIF 1
+
 #define LWIP_IPV4                   MBED_CONF_LWIP_IPV4_ENABLED
 
 #define LWIP_IPV6                   MBED_CONF_LWIP_IPV6_ENABLED
