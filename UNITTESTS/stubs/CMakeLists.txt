@@ -30,8 +30,6 @@ target_include_directories(mbed-headers-base
 
 target_include_directories(mbed-headers-connectivity
     INTERFACE
-        ${mbed-os_SOURCE_DIR}/connectivity/libraries/nanostack-libservice
-        ${mbed-os_SOURCE_DIR}/connectivity/libraries/nanostack-libservice/mbed-client-libservice
         ${mbed-os_SOURCE_DIR}/connectivity
         ${mbed-os_SOURCE_DIR}/connectivity/FEATURE_BLE/include
         ${mbed-os_SOURCE_DIR}/connectivity/FEATURE_BLE/include/ble
@@ -48,13 +46,10 @@ target_include_directories(mbed-stubs-headers
         .
 )
 
-add_subdirectory(connectivity)
-
 add_library(mbed-stubs INTERFACE)
 
 target_link_libraries(mbed-stubs
     INTERFACE
-        mbed-stubs-connectivity
         mbed-stubs-drivers
         mbed-stubs-events
         mbed-stubs-hal
