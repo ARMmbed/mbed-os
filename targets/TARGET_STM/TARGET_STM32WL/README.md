@@ -6,6 +6,18 @@ This ST MCU family is dual-core : based on an Arm Cortex-M4 core and an Arm Cort
 
 Only M4 core is currently used by mbed-os applications.
 
+* [Supported boards](#supported-boards)
+   * [NUCLEO_WL55JC](#nucleo_wl55jc)
+   * [CUSTOM boards](#custom-boards)
+* [LoRa](#lora)
+   * [MBED-OS support](#mbed-os-support)
+   * [baremetal support](#baremetal-support)
+   * [Antenna configuration](#antenna-configuration)
+   * [GPIO debug pins](#gpio-debug-pins)
+   * [mbed-os test](#mbed-os-test)
+   * [Application example](#application-example)
+
+
 # Supported boards
 
 ## NUCLEO_WL55JC
@@ -18,6 +30,12 @@ Only M4 core is currently used by mbed-os applications.
 
 - Total FLASH is 256KB
 - RAM: 64 KB
+
+
+## CUSTOM boards
+
+Check https://github.com/ARMmbed/stm32customtargets
+
 
 # LoRa
 
@@ -35,6 +53,18 @@ mbed_app.json:
     "requires": ["bare-metal", "lora", "stm32wl-lora-driver"]
 }
 ```
+
+
+## Antenna configuration
+
+NUCLEO HW configuration is provided as the default configuration.
+
+https://github.com/ARMmbed/mbed-os/blob/master/connectivity/drivers/lora/TARGET_STM32WL/STM32WL_radio_driver.cpp#L23
+```
+MBED_WEAK void set_antenna_switch(RBI_Switch_TypeDef state)
+```
+
+So you can overwrite it for your custom board.
 
 
 ## GPIO debug pins

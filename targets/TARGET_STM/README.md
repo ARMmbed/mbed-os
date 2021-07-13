@@ -3,7 +3,6 @@
 Table of Contents
 =================
 
-* [README for Mbed OS STM32 targets](#readme-for-mbed-os-stm32-targets)
    * [ST TOOLS](#st-tools)
       * [USB drivers](#usb-drivers)
       * [ST-Link FW](#st-link-fw)
@@ -19,6 +18,7 @@ Table of Contents
       * [Add a custom board](#add-a-custom-board)
       * [Board specific files (pinmap)](#board-specific-files-pinmap)
       * [Use of custom_targets.json](#use-of-custom_targetsjson)
+      * [Make your custom board public](#make-you-custom-board-public)
    * [ST specific implementation](#st-specific-implementation)
       * [Pin configuration](#pin-configuration)
          * [Alternate feature](#alternate-feature)
@@ -26,9 +26,11 @@ Table of Contents
       * [Clock selection](#clock-selection)
          * [System clock](#system-clock)
          * [Low power clock](#low-power-clock)
+         * [I2C Timing calculation algorithm](#i2c-timing-calculation-algorithm)
       * [Sleep feature](#sleep-feature)
       * [WiFi configuration](#wifi-configuration)
       * [Ethernet configuration](#ethernet-configuration)
+      * [Asynchronous SPI limitation](#asynchronous-spi-limitation)
    * [Mbed OS Wiki pages](#mbed-os-wiki-pages)
 
 
@@ -64,6 +66,14 @@ $ mbedls
 | DISCO_H747I         | DISCO_H747I[0]         | D:          | COM13       | 081402210D03E72132477E08 | V3J7M2            |
 | DISCO_L475VG_IOT01A | DISCO_L475VG_IOT01A[0] | E:          | COM9        | 07640221683B630A577FF553 | V2J37M26          |
 ```
+
+```
+$ mbedtools detect
+Board name       Serial number             Serial port    Mount point(s)    Build target(s)    Interface Version
+---------------  ------------------------  -------------  ----------------  -----------------  -------------------
+NUCLEO-U575ZI-Q  0022003c5553500d20393256  COM25          D:                NUCLEO_U575ZI_Q    V3J7M3
+```
+
 
 ### STM32 Cube
 
@@ -149,6 +159,9 @@ Tool is not used in Mbed OS, but it can be useful for you.
 ## Custom boards
 
 It should be "easy" to add your custom board with a STM32 MCU in Mbed OS
+
+You can also check in https://github.com/ARMmbed/stm32customtargets
+
 
 ### STM32 organisation
 
@@ -259,7 +272,7 @@ STM32_open_pin_data DB version STM32CubeMX-DB.6.0.10
 
 ### Use of custom_targets.json
 
-https://os.mbed.com/docs/mbed-os/v6.0/porting/porting-a-custom-board.html
+https://os.mbed.com/docs/mbed-os/latest/porting/porting-a-custom-board.html
 
 Example with a board based on STM32F103C8 (like BluePill):
 - MCU_STM32F103x8 generic configuration is already available in targets.json file
@@ -319,6 +332,13 @@ $ mv TARGET_STM32H745ZIT TARGET_H745ZI_BOARD
     }
 }
 ```
+
+
+### Make your custom board public
+
+We will be happy to add every public board in https://github.com/ARMmbed/stm32customtargets
+
+Make a Pull request, we will check consistency and build.
 
 
 ## ST specific implementation
@@ -408,7 +428,7 @@ You can change this in you local mbed_app.json:
 }
 ```
 
-#### I2C TIming calculation algorothm
+#### I2C Timing calculation algorithm
 
 I2C drivers version 2 use I2C timing register.
 
