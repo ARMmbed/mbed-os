@@ -51,26 +51,6 @@ SPDX-License-Identifier: BSD-3-Clause
 #define MAX_DATA_BUFFER_SIZE_STM32WL                        255
 #endif
 
-// How are driven debug Rx and Tx LEDs
-// Can be overwriten in the file mbed_app.json with
-// "stm32wl-lora-driver.debug_invert": 1
-// Default is set GPIO to 1 for ON and to 0 for OFF
-#define DEBUG_LED_ON  1
-#define DEBUG_LED_OFF 0
-
-#ifdef MBED_CONF_STM32WL_LORA_DRIVER_DEBUG_INVERT
-
-#if MBED_CONF_STM32WL_LORA_DRIVER_DEBUG_INVERT == 1
-// Invert, set GPIO to 0 for ON and to 1 for OFF
-#undef  DEBUG_LED_ON
-#undef  DEBUG_LED_OFF
-#define DEBUG_LED_ON  0
-#define DEBUG_LED_OFF 1
-#endif
-
-#endif
-
-
 extern void set_antenna_switch(RBI_Switch_TypeDef state);
 
 class STM32WL_LoRaRadio : public LoRaRadio {
