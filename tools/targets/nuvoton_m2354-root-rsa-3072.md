@@ -2,7 +2,7 @@
 
 A default RSA key pair is given to the Nuvoton M2354 target.
 
-Public key was pre-compiled to `targets/TARGET_NUVOTON/TARGET_M2354/TARGET_TFM/TARGET_NU_M2354/COMPONENT_TFM_S_FW/bl2.bin` and private key is in `nuvoton_m2354-root-rsa-3072.pem` for Secure image and Non-Secure image together.
+Public key was pre-compiled to `targets/TARGET_NUVOTON/TARGET_M2354/TARGET_TFM/TARGET_NU_M2354/COMPONENT_TFM_S_FW/bl2.bin` and private key is in `nuvoton_m2354-root-rsa-3072.pem` for Secure image and `nuvoton_m2354-root-rsa-3072_1.pem` for Non-Secure image.
 
 DO NOT use them in production code, they are exclusively for testing!
 

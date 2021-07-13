@@ -1,16 +1,16 @@
-# Rebuild TF-M and integrate with Mbed on M2354
+# Rebuild TF-M and integrate with Mbed for M2354
 
-This document guides how to rebuild TF-M and integrate with Mbed on M2354.
+This document guides how to rebuild TF-M and integrate with Mbed for M2354.
 
 ### Downloading TF-M source
 
 The M2354 port in TF-M must patch to enable TF-M integration with Mbed.
-For TF-M 1.3/Mbed integration on M2354, the [mainstream TF-M](https://git.trustedfirmware.org/TF-M/trusted-firmware-m.git) is patched as follows:
+For TF-M 1.3/Mbed integration for M2354, the [mainstream TF-M](https://git.trustedfirmware.org/TF-M/trusted-firmware-m.git) is patched as follows:
 -   Apply Mbed-enabled patch to `nuvoton/m2354` TF-M target.
 
 Run the following command to fetch and switch to the intended version:
-```sh
-git clone https://github.com/OpenNuvoton/trusted-firmware-m -b nuvoton_mbed_m2354_tfm-1.3
+```
+$ git clone https://github.com/OpenNuvoton/trusted-firmware-m -b nuvoton_mbed_m2354_tfm-1.3
 ```
 
 ## Customizing TF-M
@@ -36,6 +36,7 @@ In TF-M, by default, the M2354 hardware is partitioned as follows:
     - **PDMA1**: Configured to nonsecure for Mbed asynchronous transfer.
     - **CRYPTO**: Configured to secure. Inaccessible to Mbed.
     - **TRNG**: Hardwired to secure. Accessible to Mbed indirectly through PSA Cryptography API.
+    - **SDH**: Configured to secure to enable PSA Firmware Update. Inaccessible to Mbed.
 
 ### Defining Flash for TF-M/Mbed
 
@@ -75,14 +76,22 @@ To define memory spec of SRAM for TF-M/Mbed, search/change the line:
 Navigate [TF-M](https://www.trustedfirmware.org/projects/tf-m/).
 Then go through **DOCS** → **Getting Started Guides** → **Software requirements** for TF-M build environment setup.
 
+**NOTE**: **GNU Arm Embedded Toolchain 9 2020-q2-update** and earlier built code **FAILS** to run with `-Os`. Avoid these toolchain versions. Check [their bug report](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=95646).
+
 **NOTE**: **GNU Arm Embedded Toolchain 10-2020-q4-major** built code **FAILS** to run. Avoid this toolchain version. Check [its bug report](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=99157).
 
-### Compile
+### Default relevant build configurations
 
-To compile TF-M on M2354, run:
+-   Enabled BL2 (MCUboot)
+-   Enabled multiple image boot
+-   Enabled SDH (SD card) as update staging area for PSA Firmware Update
 
-```sh
-cmake -S . \
+### Compiling
+
+To compile TF-M for M2354, run:
+
+```
+$ cmake -S . \
 -B cmake_build \
 -DTFM_PLATFORM=nuvoton/m2354 \
 -DTFM_TOOLCHAIN_FILE=toolchain_GNUARM.cmake \
@@ -93,8 +102,8 @@ cmake -S . \
 
 Then:
 
-```sh
-cmake --build cmake_build -- install
+```
+$ cmake --build cmake_build -- install
 ```
 
 ## Integrating with Mbed
@@ -111,21 +120,41 @@ The following TF-M exported stuffs must update into Mbed:
 
 -   partition/: Flash layout for image signing and concatenating in post-build process
 
-    **NOTE**: On import, `signing_layout_s_ns.o` is renamed to `signing_layout_preprocessed.h` for the following reasons:
-    -   Post-build script checks file name with `_s`/`_ns` to resolve `sw_type` as `SPE`/`NSPE` respectively.
-        To recognize as `NSPE_SPE`, don't use `_s_ns`/`_ns_s` file name to avoid mis-recognized.
-    -   Use `.h` instead of `.c` as file extension name.
-        This is to enable custom TF-M build where the locatioin of this directory can change elsewhere.
-        In Greentea build process, `.c` file isn't but`.h` file is copied into `BUILD` directory, so that post-build script can still access the file.
+    **NOTE**: On import, `signing_layout_*.o` are renamed to `signing_layout_*.h`.
+    This is to use `.h` instead of `.c`/`.o` as file extension name and avoid adding into compile/link list.
+
+    **NOTE**: On import for single image boot, `signing_layout_s_ns.o` is renamed to `signing_layout_preprocessed.h`.
+    Post-build script checks file name with `_s`/`_ns` to resolve `sw_type` as `SPE`/`NSPE` respectively.
+    To recognize as `NSPE_SPE`, don't use `_s_ns`/`_ns_s` file name to avoid mis-recognized.
 
 -   [signing_key/](signing_key/nuvoton_m2354-root-rsa-3072.md)
 
-Below summarizes the copy paths from TF-M into Mbed:
+Below summarize the copy paths from TF-M into Mbed:
 
--   trusted-firmware-m/cmake_build/bin/bl2.bin → bl2.bin
--   trusted-firmware-m/cmake_build/install/export/tfm/lib/s_veneers.o → s_veneers.o
--   trusted-firmware-m/cmake_build/bin/tfm_s.bin → tfm_s.bin
+-   trusted-firmware-m/cmake_build/install/outputs/NUVOTON/M2354/bl2.bin → bl2.bin
+-   trusted-firmware-m/cmake_build/install/outputs/NUVOTON/M2354/tfm_s.bin → tfm_s.bin
+-   trusted-firmware-m/cmake_build/install/interface/lib/s_veneers.o → s_veneers.o
 -   trusted-firmware-m/platform/ext/target/nuvoton/m2354/partition/flash_layout.h → partition/flash_layout.h
 -   trusted-firmware-m/platform/ext/target/nuvoton/m2354/partition/region_defs.h → partition/region_defs.h
--   trusted-firmware-m/cmake_build/bl2/ext/mcuboot/CMakeFiles/signing_layout_s.dir/signing_layout_s_ns.o → partition/signing_layout_preprocessed.h
--   trusted-firmware-m/bl2/ext/mcuboot/root-RSA-3072.pem → signing_key/nuvoton_m2354-root-rsa-3072.pem
+-   trusted-firmware-m/cmake_build/install/image_signing/layout_files/signing_layout_s.o → partition/signing_layout_s_preprocessed.h
+-   trusted-firmware-m/cmake_build/install/image_signing/layout_files/signing_layout_ns.o → partition/signing_layout_ns_preprocessed.h
+-   trusted-firmware-m/cmake_build/install/image_signing/keys/root-RSA-3072.pem → signing_key/nuvoton_m2354-root-rsa-3072.pem
+-   trusted-firmware-m/cmake_build/install/image_signing/keys/root-RSA-3072_1.pem → signing_key/nuvoton_m2354-root-rsa-3072_1.pem
+
+**NOTE**: `trusted-firmware-m/cmake_build/install/image_signing/keys/root-RSA-3072.pem` can be missing due to TF-M build tool issue.
+Try to get it from `trusted-firmware-m/bl2/ext/mcuboot/root-RSA-3072.pem` instead if it is just the original source.
+
+## PSA Firmware Update
+
+### Requirement
+
+-   SD card: Used for update staging area according to above TF-M build configurations.
+
+### Update binary files
+
+After finishing Mbed build, you will find the following files under build directory.
+They are to write to update staging area through PSA Firmware Update API for firmware upgrade.
+
+-   `tfm_s_update.bin`: TF-M secure binary file for update separately when multiple image boot is enabled
+-   `<application>_update.bin`: Mbed non-secure binary file for update separately when multiple image boot is enabled or
+    combined TF-M secure+Mbed non-secure binary file for update together when single image boot is enabled

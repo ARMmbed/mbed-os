@@ -36,10 +36,10 @@ define symbol MBED_ROM_START_ORIDE      = 0x10070400;
 define symbol MBED_ROM_SIZE_ORIDE       = 0x8F400;
 
 /* Resolve non-secure RAM start */
-define symbol MBED_RAM_START_ORIDE      = 0x30014000;
+define symbol MBED_RAM_START_ORIDE      = 0x30018000;
 
 /* Resolve non-secure RAM size */
-define symbol MBED_RAM_SIZE_ORIDE       = 0x2C000;
+define symbol MBED_RAM_SIZE_ORIDE       = 0x28000;
 
 /* Mbed build tool passes just APPLICATION_xxx macros to C/C++ files and just
  * MBED_APP_xxx macros to linker files even though they mean the same thing.
