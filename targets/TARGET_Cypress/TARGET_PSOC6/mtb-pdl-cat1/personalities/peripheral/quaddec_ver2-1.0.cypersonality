@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<!--****************************************************************************
+* \file quaddec_ver2.cypersonality
+* \version 1.0
+*
+* \brief
+* Quadrature Decoder personality description file.
+*
+********************************************************************************
+* \copyright
+* Copyright 2018-2020 Cypress Semiconductor Corporation
+* SPDX-License-Identifier: Apache-2.0
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*****************************************************************************-->
+
+<Personality id="mxs40quaddac_ver2" name="Quadrature Decoder" version="1.0" path="Digital/Functions" xmlns="http://cypress.com/xsd/cyhwpersonality_v1">
+  <Dependencies>
+    <IpBlock name="mxtcpwm_ver2" />
+    <Resource name="tcpwm\.group\.cnt" used="true" />
+  </Dependencies>
+  <ExposedMembers />
+  <Parameters>
+    <!-- PDL documentation -->
+    <ParamDoc id="pdlDoc" name="Configuration Help" group="Peripheral Documentation" default="file:///`${cy_libs_path()}`/docs/pdl_api_reference_manual/html/group__group__tcpwm__quaddec.html" linkText="Open Quadrature Decoder (TCPWM) Documentation" visible="true" desc="Opens the Peripheral Driver Library Documentation" />
+  
+    <!--General-->
+    <ParamRange id="pCntGroup" name="pCntGroup" desc="pCntGroup" group="Internal"  default="`${getInstNumber(&quot;group&quot;)}`" min="0" max="3" resolution="1" visible="false" editable="false" />
+    <ParamString id="pCntWidthEx" name="pCntWidthEx" desc="pCntWidthEx" group="Internal"  default="GRP_NR[`${pCntGroup}`].CNT.GRP_CNT_WIDTH" visible="false" editable="false" />
+    <ParamRange id="pCntWidth" name="pCntWidth" desc="pCntWidth" group="Internal"  default="`${lookupExpression(pCntWidthEx)}`" min="0" max="32" resolution="1" visible="false" editable="false" />
+    <ParamRange id="pCntWidthMax" name="pCntWidthMax" desc="pCntWidthMax" group="Internal"  default="`${pow(2, pCntWidth)-1}`" min="0" max="4294967296" resolution="1" visible="false" editable="false" />
+    <ParamRange id="tcpwmInst" name="TCPWM Number" group="Internal" default="`${getInstNumber(&quot;tcpwm&quot;)}`" min="0" max="3" resolution="1" visible="false" editable="false" desc="" />
+    <ParamRange id="cntInst" name="CNT Number" group="Internal" default="`${getInstNumber(&quot;cnt&quot;) + pCntGroup * 256}`" min="0" max="1023" resolution="1" visible="false" editable="false" desc="" />
+    <ParamString id="pCntCC1Ex" name="pCntCC1Ex" desc="pCntCC1Ex" group="Internal" default="GRP_NR[`${pCntGroup}`].CNT.GRP_CC1_PRESENT" visible="false" editable="false" />
+    <ParamBool id="pCntCC1" name="pCntCC1" desc="pCntCC1" group="Internal" default="`${lookupExpression(pCntCC1Ex) eq 1}`" visible="false" editable="false" />
+
+    <ParamString id="TCPWM_version" name="TCPWM version" group="General" default="TCPWM_ver2" visible="true" editable="false" desc="Version of the TCPWM hardware block"/>
+    <ParamChoice id="QuadMode" name="Quad Mode" group="General" default="CY_TCPWM_QUADDEC_MODE_RANGE0" visible="true" editable="true" desc="Selects the Quad mode of operation.">
+      <Entry name="Range 0" value="CY_TCPWM_QUADDEC_MODE_RANGE0" visible="true" />
+      <Entry name="Range 0 Compare" value="CY_TCPWM_QUADDEC_MODE_RANGE0_CMP" visible="true" />
+      <Entry name="Range 1 Capture" value="CY_TCPWM_QUADDEC_MODE_RANGE1_CAPT" visible="true" />
+      <Entry name="Range 1 Compare" value="CY_TCPWM_QUADDEC_MODE_RANGE1_CMP" visible="true" />
+    </ParamChoice>
+    <ParamChoice id="CounterSize" name="Quadrature Decoder Resolution" group="General" default="`${(pCntWidth eq 16) ? &quot;16&quot; : &quot;32&quot;}`" visible="true" editable="false" desc="Sets the resolution of the counter">
+      <Entry name="16-bits" value="16" visible="true" />
+      <Entry name="32-bits" value="32" visible="true" />
+    </ParamChoice>
+    <ParamChoice id="Resolution" name="Quadrature Mode" group="General" default="CY_TCPWM_QUADDEC_X1" visible="true" editable="true" desc="Selects the quadrature encoding mode">
+      <Entry name="x1" value="CY_TCPWM_QUADDEC_X1" visible="true" />
+      <Entry name="x2" value="CY_TCPWM_QUADDEC_X2" visible="true" />
+      <Entry name="x4" value="CY_TCPWM_QUADDEC_X4" visible="true" />
+      <Entry name="Up/Down Rotary" value="CY_TCPWM_QUADDEC_UP_DOWN_ROTARY_COUNT" visible="true" />
+    </ParamChoice>
+
+    <!--Capture-->
+    <ParamChoice id="CaptureOnIndex" name="Capture" group="Capture" default="true" visible="`${QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE0_CMP}`" editable="true" desc="Selects the capture source.">
+      <Entry name="Capture on Index" value="true" visible="true" />
+      <Entry name="Capture on Wrap Around" value="false" visible="true" />
+    </ParamChoice>
+
+    <ParamChoice id="Capture1Input" name="Capture 1 Input" group="Inputs" default="CY_TCPWM_INPUT_DISABLED" visible="`${pCntCC1 &amp;&amp; QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE1_CAPT}`" editable="true" desc="Selects which input the capture1 uses. The inputs are device-specific." >
+      <Entry name="Rising Edge" value="CY_TCPWM_INPUT_RISINGEDGE" visible="true" />
+      <Entry name="Falling Edge" value="CY_TCPWM_INPUT_FALLINGEDGE" visible="true" />
+      <Entry name="Either Edge" value="CY_TCPWM_INPUT_EITHEREDGE" visible="true" />
+      <Entry name="Disabled" value="CY_TCPWM_INPUT_DISABLED" visible="true" />
+    </ParamChoice>
+    <ParamSignal port="capture1[0]" name="Capture 1 Signal" group="Inputs" visible="`${pCntCC1 &amp;&amp; QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE1_CAPT &amp;&amp; Capture1Input ne CY_TCPWM_INPUT_DISABLED}`" desc="This input triggers a capture of the current count value." canBeEmpty="`${Capture1Input eq CY_TCPWM_INPUT_DISABLED}`" >
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="DEFAULT" reason="">
+          <Fixed value="CY_GPIO_DM_HIGHZ" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="INFO" reason="The pin Drive Mode parameter does not match expected.">
+          <Fixed value="CY_GPIO_DM_HIGHZ" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
+    </ParamSignal>
+
+    <!--Compare0-->
+    <ParamBool id="EnableCompare0Swap" name="Enable Compare 0 Swap" group="Compare" default="false" visible="`${QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE0_CMP || QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE1_CMP}`" editable="true" desc="If enabled, allows a compare function using a CC0/CC0_BUFF." />    
+    <ParamRange id="Compare0" name="Compare 0" group="Compare" default="16384" min="0" max="`${pCntWidthMax}`" resolution="1" visible="`${QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE0_CMP || QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE1_CMP}`" editable="true" desc="Sets the value for Compare0. Range: 0-65535 (for 16 bit resolution) or 0–4294967295 (for 32 bit resolution)." />
+    <ParamRange id="CompareBuf0" name="Compare 0 Buff" group="Compare" default="16384" min="0" max="`${pCntWidthMax}`" resolution="1" visible="`${(EnableCompare0Swap &amp;&amp; QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE0_CMP) || (EnableCompare0Swap &amp;&amp; QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE1_CMP)}`" editable="true" desc="Sets the value for the buffered Compare0. Range: 0-65535 (for 16 bit resolution) or 0–4294967295 (for 32 bit resolution)." />
+
+    <!--Compare1-->
+    <ParamBool id="EnableCompare1Swap" name="Enable Compare 1 Swap" group="Compare" default="false" visible="`${pCntCC1 &amp;&amp; (QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE0_CMP ||QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE1_CMP)}`" editable="true" desc="If enabled, allows a compare function using a CC1/CC1_BUFF." />
+    <ParamRange id="Compare1" name="Compare 1" group="Compare" default="16384" min="0" max="`${pCntWidthMax}`" resolution="1" visible="`${pCntCC1 &amp;&amp; (QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE0_CMP || QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE1_CMP)}`" editable="true" desc="Sets the compare value. When the count value equals the compare the compare output pulses high. Range: 0-65535 (for 16 bit resolution) or 0–4294967295 (for 32 bit resolution)." />
+    <ParamRange id="CompareBuf1" name="Compare 1 Buff" group="Compare" default="16384" min="0" max="`${pCntWidthMax}`" resolution="1" visible="`${EnableCompare1Swap &amp;&amp; pCntCC1 &amp;&amp; (QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE0_CMP ||QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE1_CMP)}`" editable="true" desc="Sets the buffered compare value. Range: 0-65535 (for 16 bit resolution) or 0–4294967295 (for 32 bit resolution)." />
+
+    <!--Interrupts-->
+    <ParamBool id="InterruptCC0" name="`${QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE0 ? &quot;Reload/Index&quot; : (((QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE0_CMP) || (QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE1_CMP)) ? &quot;Compare 0 &quot; : &quot;Capture 0 Event&quot;)}`" group="Interrupts" default="false" visible="true" editable="true" desc="`${QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE0 ? &quot;Generate interrupt on Index.&quot; : ( QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE0_CMP ? &quot;Generate interrupt on Compare 0 &amp; Capture 0.&quot; : &quot;Generate interrupt on Capture 0 Event.&quot;)}`" />
+    <ParamBool id="InterruptCC1" name="`${QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE1_CAPT ? &quot;Capture 1 Event&quot; : &quot;Compare 1 &quot;}`" group="Interrupts" default="false" visible="`${pCntCC1 &amp;&amp; QuadMode ne CY_TCPWM_QUADDEC_MODE_RANGE0}`" editable="true" desc="`${QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE1_CAPT ? &quot;Generate interrupt on Capture 1 Event.&quot; : &quot;Generate interrupt on Compare 1 &amp; Capture 1.&quot;}`" />
+    <ParamBool id="InterruptTC" name="`${QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE0 ? &quot;Overflow &amp; Underflow &quot; : ((QuadMode eq  CY_TCPWM_QUADDEC_MODE_RANGE1_CAPT) || (QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE1_CMP) ? &quot;Overflow, Underflow and Index&quot; : (!CaptureOnIndex ? &quot;Overflow &amp; Underflow&quot; : &quot;Index &amp; Capture 0&quot;))}`" group="Interrupts" default="false" visible="true" editable="true" desc="`${QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE0 ? &quot;Generate interrupt on TC.&quot; : ((QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE1_CAPT) || (QuadMode eq  CY_TCPWM_QUADDEC_MODE_RANGE1_CMP) ? &quot;Generate interrupt on Overflow, Underflow and Index.&quot; : (!CaptureOnIndex ? &quot;Generate interrupt on Overflow &amp; Underflow.&quot; : &quot;Generate interrupt on Index &amp; Capture 0.&quot;))}`" />
+    <ParamString id="InterruptSource" name="InterruptSource" desc="InterruptSource" group="Interrupt Source" default="(CY_TCPWM_INT_ON_TC `${(InterruptTC)? &quot;&quot; : &quot;&amp; 0U&quot;}`) | (CY_TCPWM_INT_ON_CC0 `${(InterruptCC0)? &quot;&quot; : &quot;&amp; 0U&quot;}`) | (CY_TCPWM_INT_ON_CC1 `${(InterruptCC1)? &quot;&quot; : &quot;&amp; 0U&quot;}`)" visible="false" editable="false" />
+
+    <!--Period-->
+    <ParamRange id="Period" name="Period" group="Period" default="32768" min="0" max="`${pCntWidthMax}`" resolution="1" visible="`${QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE1_CAPT || QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE1_CMP}`" editable="true" desc="Sets the period of the Timer/Counter. Range: 0-65535 (for 16 bit resolution) or 0–4294967295 (for 32 bit resolution)." />
+
+    <!--Inputs-->
+    <ParamSignal port="clock[0]" name="Clock Signal" group="Inputs" visible="true" desc="The clock input defines the operating frequency." canBeEmpty="false" />
+    <ParamChoice id="IndexInput" name="`${QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE0_CMP ? &quot;Index 0 Input&quot; : &quot;Index Input&quot;}`" group="Inputs" default="CY_TCPWM_INPUT_DISABLED" visible="true" editable="true" desc="Determines if an index is needed and what edge causes an index to occur">
+      <Entry name="Rising Edge" value="CY_TCPWM_INPUT_RISINGEDGE" visible="true" />
+      <Entry name="Falling Edge" value="CY_TCPWM_INPUT_FALLINGEDGE" visible="true" />
+      <Entry name="Either Edge" value="CY_TCPWM_INPUT_EITHEREDGE" visible="true" />
+      <Entry name="Disabled" value="CY_TCPWM_INPUT_DISABLED" visible="true" />
+    </ParamChoice>
+    <ParamSignal port="reload[0]" name="`${QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE0 ? &quot;Index Signal&quot; : &quot;Index 0 Signal&quot;}`" group="Inputs" visible="`${IndexInput ne CY_TCPWM_INPUT_DISABLED}`" desc="This input causes an index (reload) event to occur (indicates a completed rotation to determine absolute position). This input is only visible if the IndexInput parameter is set to anything other than disabled." canBeEmpty="`${IndexInput eq CY_TCPWM_INPUT_DISABLED}`" >
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="DEFAULT" reason="">
+          <Fixed value="CY_GPIO_DM_HIGHZ" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="INFO" reason="The pin Drive Mode parameter does not match expected.">
+          <Fixed value="CY_GPIO_DM_HIGHZ" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
+    </ParamSignal>
+    
+	<ParamChoice id="phiAInputMode" name="phiA Input" group="Inputs" default="CY_TCPWM_INPUT_LEVEL" visible="`${Resolution eq CY_TCPWM_QUADDEC_UP_DOWN_ROTARY_COUNT}`" editable="true" desc="Determines if phiA should use pass through or edge detection.">
+      <Entry name="Rising Edge" value="CY_TCPWM_INPUT_RISINGEDGE" visible="true" />
+      <Entry name="Falling Edge" value="CY_TCPWM_INPUT_FALLINGEDGE" visible="true" />
+      <Entry name="Either Edge" value="CY_TCPWM_INPUT_EITHEREDGE" visible="true" />
+      <Entry name="Pass Through" value="CY_TCPWM_INPUT_LEVEL" visible="true" />
+    </ParamChoice>
+    <ParamSignal port="count[0]" name="PhiA Signal" group="Inputs" visible="true" desc="This is the phase A input it is always required." canBeEmpty="false" >
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="DEFAULT" reason="">
+          <Fixed value="CY_GPIO_DM_HIGHZ" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="INFO" reason="The pin Drive Mode parameter does not match expected.">
+          <Fixed value="CY_GPIO_DM_HIGHZ" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
+    </ParamSignal>
+
+	<ParamChoice id="phiBInputMode" name="phiB Input" group="Inputs" default="CY_TCPWM_INPUT_LEVEL" visible="`${Resolution eq CY_TCPWM_QUADDEC_UP_DOWN_ROTARY_COUNT}`" editable="true" desc="Determines if phiB should use pass through or edge detection.">
+      <Entry name="Rising Edge" value="CY_TCPWM_INPUT_RISINGEDGE" visible="true" />
+      <Entry name="Falling Edge" value="CY_TCPWM_INPUT_FALLINGEDGE" visible="true" />
+      <Entry name="Either Edge" value="CY_TCPWM_INPUT_EITHEREDGE" visible="true" />
+      <Entry name="Pass Through" value="CY_TCPWM_INPUT_LEVEL" visible="true" />
+    </ParamChoice>
+    <ParamSignal port="start[0]" name="PhiB Signal" group="Inputs" visible="true" desc="This is the phase B input it is always required." canBeEmpty="false" >
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="DEFAULT" reason="">
+          <Fixed value="CY_GPIO_DM_HIGHZ" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="INFO" reason="The pin Drive Mode parameter does not match expected.">
+          <Fixed value="CY_GPIO_DM_HIGHZ" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
+    </ParamSignal>    
+    
+    <ParamChoice id="StopInput" name="Stop Input" group="Inputs" default="CY_TCPWM_INPUT_DISABLED" visible="true" editable="true" desc="Determines if a stop input is needed and what edges causes a stop to occur">
+      <Entry name="Rising Edge" value="CY_TCPWM_INPUT_RISINGEDGE" visible="true" />
+      <Entry name="Falling Edge" value="CY_TCPWM_INPUT_FALLINGEDGE" visible="true" />
+      <Entry name="Either Edge" value="CY_TCPWM_INPUT_EITHEREDGE" visible="true" />
+      <Entry name="Disabled" value="CY_TCPWM_INPUT_DISABLED" visible="true" />
+    </ParamChoice>
+    <ParamSignal port="stop[0]" name="Stop Signal" group="Inputs" visible="`${StopInput ne CY_TCPWM_INPUT_DISABLED}`" desc="This input causes the Quad Dec to stop Counting. This input is only visible if the StopInput parameter is set to anything other than disabled." canBeEmpty="`${StopInput eq CY_TCPWM_INPUT_DISABLED}`" > 
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="DEFAULT" reason="">
+          <Fixed value="CY_GPIO_DM_HIGHZ" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="INFO" reason="The pin Drive Mode parameter does not match expected.">
+          <Fixed value="CY_GPIO_DM_HIGHZ" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
+    </ParamSignal>
+
+    <ParamChoice id="Capture0OrIndex1Input" name="`${QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE0_CMP ? &quot;Index 1 Input&quot; : &quot;Capture 0 Input&quot;}`" group="Inputs" default="CY_TCPWM_INPUT_DISABLED" visible="`${QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE0_CMP || QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE1_CAPT}`" editable="true" desc="Determines if an index1(capture0) is needed and what edge causes an index to occur.">
+      <Entry name="Rising Edge" value="CY_TCPWM_INPUT_RISINGEDGE" visible="true" />
+      <Entry name="Falling Edge" value="CY_TCPWM_INPUT_FALLINGEDGE" visible="true" />
+      <Entry name="Either Edge" value="CY_TCPWM_INPUT_EITHEREDGE" visible="true" />
+      <Entry name="Disabled" value="CY_TCPWM_INPUT_DISABLED" visible="true" />
+    </ParamChoice>
+    <ParamSignal port="capture0[0]" name="`${QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE0_CMP ? &quot;Index 1 Signal &quot; : &quot;Capture 0 Input&quot;}`" group="Inputs" visible="`${Capture0OrIndex1Input ne CY_TCPWM_INPUT_DISABLED}`" desc="This input causes an index1 (capture0) event to occur (indicates a completed rotation to determine absolute position). This input is only visible if the Input parameter is set to anything other than disabled." canBeEmpty="`${Capture0OrIndex1Input eq CY_TCPWM_INPUT_DISABLED}`" >
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="DEFAULT" reason="">
+          <Fixed value="CY_GPIO_DM_HIGHZ" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="INFO" reason="The pin Drive Mode parameter does not match expected.">
+          <Fixed value="CY_GPIO_DM_HIGHZ" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
+    </ParamSignal>
+
+    <!--Trigger Outputs-->
+    <ParamChoice id="trigger0Event" name="Trigger 0 Event" group="Trigger Outputs" default="CY_TCPWM_CNT_TRIGGER_ON_DISABLED" visible="true" editable="true" desc="This output used to connect TCPWM event signals to other peripherals." >
+      <Entry name="Overflow" value="CY_TCPWM_CNT_TRIGGER_ON_OVERFLOW" visible="false" />
+      <Entry name="Underflow" value="CY_TCPWM_CNT_TRIGGER_ON_UNDEFLOW" visible="false" />
+      <Entry name="Terminal Count" value="CY_TCPWM_CNT_TRIGGER_ON_TC" visible="true" />
+      <Entry name="Compare 0 Match" value="CY_TCPWM_CNT_TRIGGER_ON_CC0_MATCH" visible="true" />
+      <Entry name="Compare 1 Match" value="CY_TCPWM_CNT_TRIGGER_ON_CC1_MATCH" visible="false" />
+      <Entry name="Disabled" value="CY_TCPWM_CNT_TRIGGER_ON_DISABLED" visible="true" />
+    </ParamChoice>
+    <ParamSignal port="tr_out0[0]" name="Trigger 0 Signal" group="Trigger Outputs" visible="`${trigger0Event ne CY_TCPWM_CNT_TRIGGER_ON_DISABLED}`" desc="Signals to connect on Trigger 0 Event" canBeEmpty="`${trigger0Event eq CY_TCPWM_CNT_TRIGGER_ON_DISABLED}`" >
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="DEFAULT" reason="">
+          <Fixed value="CY_GPIO_DM_STRONG_IN_OFF" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="INFO" reason="The pin Drive Mode parameter does not match expected.">
+          <Fixed value="CY_GPIO_DM_STRONG_IN_OFF" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
+    </ParamSignal>
+    <ParamChoice id="trigger1Event" name="Trigger 1 Event" group="Trigger Outputs" default="CY_TCPWM_CNT_TRIGGER_ON_DISABLED" visible="true" editable="true" desc="This output used to connect TCPWM event signals to other peripherals." >
+      <Entry name="Overflow" value="CY_TCPWM_CNT_TRIGGER_ON_OVERFLOW" visible="false" />
+      <Entry name="Underflow" value="CY_TCPWM_CNT_TRIGGER_ON_UNDEFLOW" visible="false" />
+      <Entry name="Terminal Count" value="CY_TCPWM_CNT_TRIGGER_ON_TC" visible="true" />
+      <Entry name="Compare 0 Match" value="CY_TCPWM_CNT_TRIGGER_ON_CC0_MATCH" visible="true" />
+      <Entry name="Compare 1 Match" value="CY_TCPWM_CNT_TRIGGER_ON_CC1_MATCH" visible="false" />
+      <Entry name="Disabled" value="CY_TCPWM_CNT_TRIGGER_ON_DISABLED" visible="true" />
+    </ParamChoice>
+    <ParamSignal port="tr_out1[0]" name="Trigger 1 Signal" group="Trigger Outputs" visible="`${trigger1Event ne CY_TCPWM_CNT_TRIGGER_ON_DISABLED}`" desc="Signals to connect on Trigger 1 Event" canBeEmpty="`${trigger1Event eq CY_TCPWM_CNT_TRIGGER_ON_DISABLED}`" >
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="DEFAULT" reason="">
+          <Fixed value="CY_GPIO_DM_STRONG_IN_OFF" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="INFO" reason="The pin Drive Mode parameter does not match expected.">
+          <Fixed value="CY_GPIO_DM_STRONG_IN_OFF" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
+    </ParamSignal>
+
+    <!--Config-->
+    <ParamBool id="inFlash" name="Store Config in Flash" group="Advanced" default="true" visible="true" editable="true" desc="Controls whether the configuration structure is stored in flash (const, true) or SRAM (not const, false)." />
+
+    <!-- Peripheral clock divider connection -->
+    <ParamRange id="tcpwmInst" name="TCPWM Number" group="Internal" default="`${getInstNumber(&quot;tcpwm&quot;)}`" min="0" max="127" resolution="1" visible="false" editable="false" desc="" />
+    <ParamRange id="cntInst" name="CNT Number" group="Internal" default="`${getInstNumber(&quot;cnt&quot;)}`" min="0" max="31" resolution="1" visible="false" editable="false" desc="" />
+    <ParamString id="definePrefix" name="Define prefix" group="Internal" default="`${&quot;TCPWM&quot; . tcpwmInst . &quot;_GRP&quot; . pCntGroup . &quot;_CNT&quot; . getInstNumber(&quot;cnt&quot;)}`" visible="false" editable="false" desc="" />
+    <ParamString id="defineInputDisabled" name="Define input disabled" group="Internal" default="`${INST_NAME . &quot;_INPUT_DISABLED &amp; 0x3U&quot;}`" visible="false" editable="false" desc="" />
+    <ParamString id="pclk" name="PCLK" group="Internal" default="`${getBlockFromSignal(&quot;clock[0]&quot;)}`" visible="false" editable="false" desc="Connected peripheral clock divider (PCLK)" />
+    <ParamBool id="pclkOk" name="PCLK Valid" group="Internal" default="`${hasConnection(&quot;clock&quot;, 0) &amp;&amp; isBlockUsed(pclk)}`" visible="false" editable="false" desc="Checks whether there is a PCLK connected and enabled" />
+    <ParamString id="pclkDst" name="PCLK Destination" group="Internal" default="PCLK_TCPWM`${tcpwmInst}`_CLOCKS`${cntInst}`" visible="false" editable="false" desc="" />
+  </Parameters>
+
+  <DRCs>
+    <!--Compare0 DRC-->
+    <DRC type="INFO" text="Compare 0 value have to be less or equal to Period" condition="`${(QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE1_CMP) &amp;&amp; (Compare0 > Period)}`" paramId="Compare0" />
+	<!--CompareBuff0 DRC-->
+	<DRC type="INFO" text="Compare 0 Buffer value have to be less or equal to Period" condition="`${(EnableCompare0Swap) &amp;&amp; (QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE1_CMP) &amp;&amp; (CompareBuf0 > Period)}`" paramId="CompareBuf0" />
+
+    <!--Compare1 DRC-->
+    <DRC type="INFO" text="Compare 1 value have to be less or equal to Period" condition="`${pCntCC1 &amp;&amp; (QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE1_CMP) &amp;&amp; (Compare1 > Period)}`" paramId="Compare1"/>
+    <!--CompareBuf1 DRC-->
+	<DRC type="INFO" text="Compare 1 Buffer value have to be less or equal to Period" condition="`${pCntCC1 &amp;&amp;(EnableCompare1Swap) &amp;&amp; (QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE1_CMP) &amp;&amp; (CompareBuf1 > Period)}`" paramId="CompareBuf1" />
+
+    <!--IndexInput DRCs-->
+    <DRC type="ERROR" text="Index Input Event has to be enabled to use Index Signal." condition="`${hasConnection(&quot;reload&quot;, 0) &amp;&amp; (IndexInput eq CY_TCPWM_INPUT_DISABLED)}`" paramId="IndexInput">
+        <FixIt action="SET_PARAM" target="IndexInput" value="CY_TCPWM_INPUT_RISINGEDGE" valid="true" />
+        <FixIt action="SET_PARAM" target="IndexInput" value="CY_TCPWM_INPUT_FALLINGEDGE" valid="true" />
+        <FixIt action="SET_PARAM" target="IndexInput" value="CY_TCPWM_INPUT_EITHEREDGE" valid="true" />
+    </DRC>
+
+    <!--IndexInput1/Capture0 DRCs-->
+	<DRC type="ERROR" text="Capture 0 or Index 1 Input cannot be used in Range 0 Quad Mode." condition="`${(QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE0) &amp;&amp; hasConnection(&quot;capture0&quot;, 0)}`" paramId="Capture0OrIndex1Input">
+        <FixIt action="SET_PARAM" target="QuadMode" value="CY_TCPWM_QUADDEC_MODE_RANGE0_CMP" valid="true" />
+        <FixIt action="SET_PARAM" target="QuadMode" value="CY_TCPWM_QUADDEC_MODE_RANGE1_CAPT" valid="true" />
+    </DRC>
+    <DRC type="ERROR" text="`${QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE0_CMP ? &quot;Index 1 Input Event has to be enabled to use Index Signal.&quot; : &quot;Capture 0 Input Event has to be enabled to use Index Signal.&quot;}`" condition="`${!(QuadMode eq CY_TCPWM_QUADDEC_MODE_RANGE0) &amp;&amp; hasConnection(&quot;capture0&quot;, 0) &amp;&amp; (Capture0OrIndex1Input eq CY_TCPWM_INPUT_DISABLED)}`" paramId="Capture0OrIndex1Input">
+        <FixIt action="SET_PARAM" target="Capture0OrIndex1Input" value="CY_TCPWM_INPUT_RISINGEDGE" valid="true" />
+        <FixIt action="SET_PARAM" target="Capture0OrIndex1Input" value="CY_TCPWM_INPUT_FALLINGEDGE" valid="true" />
+        <FixIt action="SET_PARAM" target="Capture0OrIndex1Input" value="CY_TCPWM_INPUT_EITHEREDGE" valid="true" />
+    </DRC>
+
+    <!--Capture1 DRCs-->
+    <DRC type="ERROR" text="Capture 1 Input Event has to be enabled to use Index Signal." condition="`${hasConnection(&quot;capture1&quot;, 0) &amp;&amp; (Capture1Input eq CY_TCPWM_INPUT_DISABLED)}`" paramId="Capture1Input">
+        <FixIt action="SET_PARAM" target="Capture1Input" value="CY_TCPWM_INPUT_RISINGEDGE" valid="true" />
+        <FixIt action="SET_PARAM" target="Capture1Input" value="CY_TCPWM_INPUT_FALLINGEDGE" valid="true" />
+        <FixIt action="SET_PARAM" target="Capture1Input" value="CY_TCPWM_INPUT_EITHEREDGE" valid="true" />
+    </DRC>
+
+    <!--StopInput DRCs-->
+    <DRC type="ERROR" text="Stop Event has to be enabled to use Stop Signal." condition="`${hasConnection(&quot;stop&quot;, 0) &amp;&amp; (StopInput eq CY_TCPWM_INPUT_DISABLED)}`" paramId="StopInput">
+        <FixIt action="SET_PARAM" target="StopInput" value="CY_TCPWM_INPUT_RISINGEDGE" valid="true" />
+        <FixIt action="SET_PARAM" target="StopInput" value="CY_TCPWM_INPUT_FALLINGEDGE" valid="true" />
+        <FixIt action="SET_PARAM" target="StopInput" value="CY_TCPWM_INPUT_EITHEREDGE" valid="true" />
+    </DRC>
+
+    <!--Trigger Output DRCs-->
+    <DRC type="ERROR" text="Trigger 0 Event has to be enabled to use Trigger 0 Signal." condition="`${hasConnection(&quot;tr_out0&quot;, 0) &amp;&amp; (trigger0Event eq CY_TCPWM_CNT_TRIGGER_ON_DISABLED)}`" paramId="trigger0Event">
+        <FixIt action="SET_PARAM" target="trigger0Event" value="CY_TCPWM_CNT_TRIGGER_ON_OVERFLOW" valid="true" />
+        <FixIt action="SET_PARAM" target="trigger0Event" value="CY_TCPWM_CNT_TRIGGER_ON_UNDEFLOW" valid="true" />
+        <FixIt action="SET_PARAM" target="trigger0Event" value="CY_TCPWM_CNT_TRIGGER_ON_TC" valid="true" />
+        <FixIt action="SET_PARAM" target="trigger0Event" value="CY_TCPWM_CNT_TRIGGER_ON_CC0_MATCH" valid="true" />
+        <FixIt action="SET_PARAM" target="trigger0Event" value="CY_TCPWM_CNT_TRIGGER_ON_CC1_MATCH" valid="false" />
+    </DRC>
+    <DRC type="ERROR" text="Trigger 1 Event has to be enabled to use Trigger 1 Signal." condition="`${hasConnection(&quot;tr_out1&quot;, 0) &amp;&amp; (trigger1Event eq CY_TCPWM_CNT_TRIGGER_ON_DISABLED)}`" paramId="trigger1Event">
+          <FixIt action="SET_PARAM" target="trigger1Event" value="CY_TCPWM_CNT_TRIGGER_ON_OVERFLOW" valid="true" />
+        <FixIt action="SET_PARAM" target="trigger1Event" value="CY_TCPWM_CNT_TRIGGER_ON_UNDEFLOW" valid="true" />
+        <FixIt action="SET_PARAM" target="trigger1Event" value="CY_TCPWM_CNT_TRIGGER_ON_TC" valid="true" />
+        <FixIt action="SET_PARAM" target="trigger1Event" value="CY_TCPWM_CNT_TRIGGER_ON_CC0_MATCH" valid="true" />
+        <FixIt action="SET_PARAM" target="trigger1Event" value="CY_TCPWM_CNT_TRIGGER_ON_CC1_MATCH" valid="false" />
+    </DRC>
+  </DRCs>
+
+  <ConfigFirmware>
+    <ConfigInclude value="cy_tcpwm_quaddec.h" include="true" />
+    <ConfigInclude value="cy_sysclk.h" include="`${pclkOk}`" />
+    <ConfigInclude value="cycfg_routing.h" include="true" />
+    <ConfigInclude value="cyhal_hwmgr.h" include="true" guard="defined (CY_USING_HAL)" />
+    
+    <ConfigDefine name="`${INST_NAME}`_HW" value="TCPWM`${tcpwmInst}`" public="true" include="true" />
+    <ConfigDefine name="`${INST_NAME}`_NUM" value="`${cntInst}`UL" public="true" include="true" />
+    <ConfigDefine name="`${INST_NAME}`_IRQ" value="tcpwm_`${tcpwmInst}`_interrupts_`${cntInst}`_IRQn" public="true" include="`${InterruptTC || InterruptCC0 || InterruptCC1}`" />
+    <ConfigDefine name="`${INST_NAME}`_INPUT_DISABLED" value="0x7U" public="false" include="true" />
+    <ConfigStruct name="`${INST_NAME . &quot;_config&quot;}`" type="cy_stc_tcpwm_quaddec_config_t" const="`${inFlash}`" public="true" include="true">
+      <Member name="quadMode" value="`${QuadMode}`" />
+      <Member name="resolution" value="`${Resolution}`" />
+      <Member name="interruptSources" value="`${InterruptSource}`" />
+      <Member name="indexInputMode" value="`${IndexInput eq CY_TCPWM_INPUT_DISABLED ? defineInputDisabled : IndexInput}`" />
+      <Member name="indexInput" value="`${IndexInput eq CY_TCPWM_INPUT_DISABLED ? &quot;CY_TCPWM_INPUT_0&quot; : (definePrefix . &quot;_RELOAD_VALUE&quot;)}`" />
+      <Member name="stopInputMode" value="`${StopInput eq CY_TCPWM_INPUT_DISABLED ? defineInputDisabled : StopInput}`" />
+      <Member name="stopInput" value="`${StopInput eq CY_TCPWM_INPUT_DISABLED ? &quot;CY_TCPWM_INPUT_0&quot; : (definePrefix . &quot;_STOP_VALUE&quot;)}`" />
+      <Member name="phiAInput" value="`${(definePrefix . &quot;_COUNT_VALUE&quot;)}`" />
+      <Member name="phiBInput" value="`${(definePrefix . &quot;_START_VALUE&quot;)}`" />
+      <Member name="phiAInputMode" value="`${Resolution eq CY_TCPWM_QUADDEC_UP_DOWN_ROTARY_COUNT ? phiAInputMode : CY_TCPWM_INPUT_LEVEL }`" />
+      <Member name="phiBInputMode" value="`${Resolution eq CY_TCPWM_QUADDEC_UP_DOWN_ROTARY_COUNT ? phiBInputMode : CY_TCPWM_INPUT_LEVEL }`" />
+      <Member name="trigger0Event" value="`${trigger0Event}`" />
+      <Member name="trigger1Event" value="`${trigger1Event}`" />
+      <Member name="captureOnIndex" value="`${QuadMode ne CY_TCPWM_QUADDEC_MODE_RANGE0_CMP ? defineInputDisabled : CaptureOnIndex}`"/>
+      <Member name="compare0" value="`${Compare0}`" />
+      <Member name="compareBuf0" value="`${CompareBuf0}`" />
+      <Member name="enableCompare0Swap" value="`${EnableCompare0Swap}`" />
+      <Member name="compare1" value="`${pCntCC1 ? Compare1 : &quot;CY_TCPWM_GRP_CNT_CC0_DEFAULT&quot;}`" />
+      <Member name="compareBuf1" value="`${pCntCC1 ? CompareBuf1 : &quot;CY_TCPWM_GRP_CNT_CC0_BUFF_DEFAULT&quot;}`" />
+      <Member name="enableCompare1Swap" value="`${EnableCompare1Swap}`" />
+      <Member name="capture0OrIndex1InputMode" value="`${Capture0OrIndex1Input eq CY_TCPWM_INPUT_DISABLED ? defineInputDisabled : Capture0OrIndex1Input}`" />
+      <Member name="capture0OrIndex1Input" value="`${Capture0OrIndex1Input eq CY_TCPWM_INPUT_DISABLED ? &quot;CY_TCPWM_INPUT_0&quot; : (definePrefix . &quot;_CAPTURE0_VALUE&quot;)}`" />
+      <Member name="period0" value="`${Period}`" />
+      <Member name="capture1InputMode" value="`${Capture1Input eq CY_TCPWM_INPUT_DISABLED ? defineInputDisabled : Capture1Input}`" />
+      <Member name="capture1Input" value="`${Capture1Input eq CY_TCPWM_INPUT_DISABLED ? &quot;CY_TCPWM_INPUT_0&quot; : (definePrefix . &quot;_CAPTURE1_VALUE&quot;)}`" />
+    </ConfigStruct>
+
+    <ConfigStruct name="`${INST_NAME}`_obj" type="cyhal_resource_inst_t" const="true" public="true" include="true" guard="defined (CY_USING_HAL)">
+      <Member name="type" value="CYHAL_RSC_TCPWM" />
+      <Member name="block_num" value="`${getInstNumber(&quot;tcpwm&quot;)}`U" />
+      <Member name="channel_num" value="`${getInstNumber(&quot;cnt&quot;)}`U" />
+    </ConfigStruct>
+    
+    <ConfigInstruction value="Cy_SysClk_PeriphAssignDivider(`${pclkDst}`, `${getExposedMember(pclk, &quot;clockSel&quot;)}`);" include="`${pclkOk}`" />
+    <ConfigInstruction value="cyhal_hwmgr_reserve(&amp;`${INST_NAME}`_obj);" include="true" guard="defined (CY_USING_HAL)" />
+  </ConfigFirmware>
+</Personality>

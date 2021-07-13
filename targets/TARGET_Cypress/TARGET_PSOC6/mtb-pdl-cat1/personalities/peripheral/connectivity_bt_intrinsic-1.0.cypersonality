@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<!--****************************************************************************
+* \file connectivity_bt_intrinsic.cypersonality
+* \version 1.0
+*
+* \brief
+* Personality description file for the BT part of Low Power Assistant.
+*
+********************************************************************************
+* \copyright
+* Copyright 2020 Cypress Semiconductor Corporation
+* SPDX-License-Identifier: Apache-2.0
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*****************************************************************************-->
+
+<Personality id="connectivity_bt_intrinsic" name="BT-Instrinsic" intrinsic="true"  version="1.0" xmlns="http://cypress.com/xsd/cyhwpersonality_v2">
+  <Dependencies>
+    <IpBlock name="43xxx_bt" />
+    <Resource name="bt\.power" />
+  </Dependencies>
+  <ExposedMembers>
+  </ExposedMembers>
+  <Parameters>
+    <ParamBool id="isEnabled" name="isEnabled" group="" default="`${isBlockUsed(&quot;bt[&quot; . getInstNumber(&quot;bt&quot;) . &quot;].power[&quot; . getInstNumber(&quot;power&quot;) . &quot;]&quot;)}`" visible="false" editable="false" desc="" />
+  </Parameters>
+  <ConfigFirmware>
+      <ConfigInclude value="cycfg_pins.h" include="`${!isEnabled}`" />
+      <ConfigDefine name="bt_0_power_0_ENABLED" public="true" value="(0)" include="`${!isEnabled}`" />
+      <ConfigDefine name="CYCFG_BT_LP_ENABLED" public="true" value="`${!isEnabled ?  &quot;0&quot; : &quot;1&quot;}`" include="`${!isEnabled}`" />
+      <ConfigDefine name="CYCFG_BT_WAKE_EVENT_ACTIVE_LOW"  public="true" value="(0)" include="`${!isEnabled}`" />
+      <ConfigDefine name="CYCFG_BT_WAKE_EVENT_ACTIVE_HIGH" public="true" value="(1)" include="`${!isEnabled}`"/>
+      <ConfigDefine name="CYCFG_BT_HOST_WAKE_GPIO" public="true" value="`${isEnabled ?  &quot;CYBSP_BT_HOST_WAKE&quot; : &quot;CYHAL_NC_PIN_VALUE&quot;}`" include="`${!isEnabled}`" />
+      <ConfigDefine name="CYCFG_BT_HOST_WAKE_IRQ_EVENT" public="true" value="`${isEnabled ? &quot;CYBT_WAKE_ACTIVE_LOW&quot; : &quot;0&quot;}`" include="`${!isEnabled}`" />
+      <ConfigDefine name="CYCFG_BT_DEV_WAKE_GPIO" public="true" value="`${isEnabled ? &quot;CYBSP_BT_DEVICE_WAKE&quot; : &quot;CYHAL_NC_PIN_VALUE&quot;}`" include="`${!isEnabled}`" />
+      <ConfigDefine name="CYCFG_BT_DEV_WAKE_POLARITY" public="true" value="`${isEnabled ? &quot;CYBT_WAKE_ACTIVE_LOW&quot; : &quot;0&quot;}`" include="`${!isEnabled}`" />
+  </ConfigFirmware>
+</Personality>

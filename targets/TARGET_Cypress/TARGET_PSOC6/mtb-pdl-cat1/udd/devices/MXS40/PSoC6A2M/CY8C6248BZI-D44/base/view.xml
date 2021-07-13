@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<baseview>
+  <mcu>CortexM0p,CortexM4</mcu>
+  <vendor>Cypress</vendor>
+  <flash>1048576</flash>
+  <ram>524288</ram>
+  <package>124-BGA</package>
+  <minvoltage>1700</minvoltage>
+  <maxvoltage>3600</maxvoltage>
+  <description>The CY8C6248BZI-D44 device.</description>
+</baseview>

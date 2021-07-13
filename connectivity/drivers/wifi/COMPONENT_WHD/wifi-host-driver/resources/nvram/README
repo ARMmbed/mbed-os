@@ -1,0 +1,8 @@
+The following list is for specific board from customer
+
+COMPONENT_LAIRD_LWB5PM2 folder is for Laird's 4373 board and includes nvram,clm and resources.h.
+When using LAIRD_LWB5PM2 component, you need to rename the duplicate files in resources/firmware/COMPONENT_4373, 
+or adding them into cyignore or adding CY_IGNORE variable as part of the BSP's makefile.
+1.4373A0_clm_blob.c
+2.resources.h
+3.wifi_nvram_image.h
