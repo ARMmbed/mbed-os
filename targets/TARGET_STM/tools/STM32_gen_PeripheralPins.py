@@ -27,7 +27,7 @@ from xml.dom.minidom import parse, Node
 from argparse import RawTextHelpFormatter
 import subprocess
 
-GENPINMAP_VERSION = "1.20.1"
+GENPINMAP_VERSION = "1.20.2"
 
 ADD_DEVICE_IF = 0
 ADD_GPIO_PINMAP = 0
@@ -267,7 +267,9 @@ def store_pin(pin, name, functionality):
 
 # function to store ADC list
 def store_adc(pin, name, signal):
-    adclist.append([pin, name, signal])
+    #INN channels not supported in mbed
+    if("IN" in signal and "INN" not in signal):
+        adclist.append([pin, name, signal])
 
 
 # function to store DAC list
@@ -680,41 +682,40 @@ def print_adc():
     prev_p = ''
     alt_index = 0
     for parsed_pin in adclist:
-        if "IN" in parsed_pin[2]:
-            commented_line = "  "
-            if parsed_pin[1] in PinLabel:
-                if "STDIO_UART" in PinLabel[parsed_pin[1]]:
-                    commented_line = "//"
-                if "RCC_OSC" in PinLabel[parsed_pin[1]]:
-                    commented_line = "//"
-            if commented_line != "//":
-                if parsed_pin[0] == prev_p:
-                    if "STM32F1" in mcu_file:
-                        continue
-                    else:
-                        prev_p = parsed_pin[0]
-                        parsed_pin[0] += '_ALT%d' % alt_index
-                        store_pin(parsed_pin[0], parsed_pin[0], "")
-                        alt_index += 1
-                        if alt_index > ALTERNATE_DEFINITION:
-                            ALTERNATE_DEFINITION += 1
+        commented_line = "  "
+        if parsed_pin[1] in PinLabel:
+            if "STDIO_UART" in PinLabel[parsed_pin[1]]:
+                commented_line = "//"
+            if "RCC_OSC" in PinLabel[parsed_pin[1]]:
+                commented_line = "//"
+        if commented_line != "//":
+            if parsed_pin[0] == prev_p:
+                if "STM32F1" in mcu_file:
+                    continue
                 else:
                     prev_p = parsed_pin[0]
-                    alt_index = 0
-            line_to_write = "%-17s" % (commented_line + "  {" + parsed_pin[0] + ',')
-            a = parsed_pin[2].split('_')
-            inst = a[0].replace("ADC", "")
-            if len(inst) == 0:
-                inst = '1' #single ADC for this product
-            line_to_write += "%-7s" % ('ADC_' + inst + ',')
-            chan = re.sub(r"^IN[N|P]?|\D*$", "", a[1])
-            bank = "_ADC_CHANNEL_BANK_B" if a[1].endswith("b") else ""
-            line_to_write += s_pin_data + bank + ", GPIO_NOPULL, 0, " + chan
-            line_to_write += ', 0)}, // ' + parsed_pin[2]
-            if parsed_pin[1] in PinLabel:
-                line_to_write += ' // Connected to ' + PinLabel[parsed_pin[1]]
-            line_to_write += '\n'
-            out_c_file.write(line_to_write)
+                    parsed_pin[0] += '_ALT%d' % alt_index
+                    store_pin(parsed_pin[0], parsed_pin[0], "")
+                    alt_index += 1
+                    if alt_index > ALTERNATE_DEFINITION:
+                        ALTERNATE_DEFINITION += 1
+            else:
+                prev_p = parsed_pin[0]
+                alt_index = 0
+        line_to_write = "%-17s" % (commented_line + "  {" + parsed_pin[0] + ',')
+        a = parsed_pin[2].split('_')
+        inst = a[0].replace("ADC", "")
+        if len(inst) == 0:
+            inst = '1' #single ADC for this product
+        line_to_write += "%-7s" % ('ADC_' + inst + ',')
+        chan = re.sub(r"^IN[N|P]?|\D*$", "", a[1])
+        bank = "_ADC_CHANNEL_BANK_B" if a[1].endswith("b") else ""
+        line_to_write += s_pin_data + bank + ", GPIO_NOPULL, 0, " + chan
+        line_to_write += ', 0)}, // ' + parsed_pin[2]
+        if parsed_pin[1] in PinLabel:
+            line_to_write += ' // Connected to ' + PinLabel[parsed_pin[1]]
+        line_to_write += '\n'
+        out_c_file.write(line_to_write)
     out_c_file.write( """    {NC, NC, 0}
 };
 
