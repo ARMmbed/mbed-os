@@ -33,8 +33,6 @@ target_include_directories(mbed-headers-connectivity
         ${mbed-os_SOURCE_DIR}/connectivity/libraries/nanostack-libservice
         ${mbed-os_SOURCE_DIR}/connectivity/libraries/nanostack-libservice/mbed-client-libservice
         ${mbed-os_SOURCE_DIR}/connectivity
-        ${mbed-os_SOURCE_DIR}/connectivity/mbedtls
-        ${mbed-os_SOURCE_DIR}/connectivity/mbedtls/include
         ${mbed-os_SOURCE_DIR}/connectivity/FEATURE_BLE/include
         ${mbed-os_SOURCE_DIR}/connectivity/FEATURE_BLE/include/ble
 )
@@ -48,7 +46,6 @@ target_include_directories(mbed-headers
 target_include_directories(mbed-stubs-headers
     INTERFACE
         .
-        ${mbed-os_SOURCE_DIR}/connectivity/nanostack/coap-service/test/coap-service/unittest/stub
 )
 
 add_subdirectory(connectivity)

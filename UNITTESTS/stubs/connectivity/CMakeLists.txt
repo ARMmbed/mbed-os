@@ -18,12 +18,8 @@ target_compile_definitions(mbed-stubs-connectivity
 
 target_sources(mbed-stubs-connectivity
     PRIVATE
-        aes_stub.c
-        cipher_stub.c
-        cmac_stub.c
         ip4tos_stub.c
         stoip4_stub.c
-        ${mbed-os_SOURCE_DIR}/connectivity/nanostack/coap-service/test/coap-service/unittest/stub/mbedtls_stub.c
 )
 
 target_link_libraries(mbed-stubs-connectivity

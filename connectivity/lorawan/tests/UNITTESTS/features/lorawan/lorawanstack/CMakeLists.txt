@@ -21,6 +21,7 @@ target_sources(${TEST_NAME}
 target_link_libraries(${TEST_NAME}
     PRIVATE
         mbed-headers
+        mbed-headers-mbedtls
         mbed-headers-lorawan
         mbed-stubs
         mbed-stubs-headers

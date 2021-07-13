@@ -46,5 +46,6 @@ target_link_libraries(mbed-stubs-lorawan
         mbed-headers-connectivity
         mbed-headers-platform
         mbed-headers-lorawan
+        mbed-headers-mbedtls
         gtest
 )
