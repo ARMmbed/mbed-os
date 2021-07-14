@@ -24,7 +24,7 @@
   ],
   "files":[
      {
-        "path":"tools/test/travis-ci/scancode_test/test3.h",
+        "path":"tools/test/ci/scancode_test/test3.h",
         "type":"file",
         "licenses":[
            {

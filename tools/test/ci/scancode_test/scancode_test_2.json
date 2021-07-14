@@ -31,7 +31,7 @@
   ],
   "files":[
      {
-        "path":"tools/test/travis-ci/scancode_test/test.h",
+        "path":"tools/test/ci/scancode_test/test.h",
         "type":"file",
         "licenses":[
            {
@@ -141,7 +141,7 @@
         ]
      },
      {
-        "path":"tools/test/travis-ci/scancode_test/test2.h",
+        "path":"tools/test/ci/scancode_test/test2.h",
         "type":"file",
         "licenses":[
            {
@@ -251,7 +251,7 @@
         ]
      },
      {
-        "path":"tools/test/travis-ci/scancode_test/test3.h",
+        "path":"tools/test/ci/scancode_test/test3.h",
         "type":"file",
         "licenses":[
            {
@@ -361,7 +361,7 @@
         ]
      },
      {
-        "path":"tools/test/travis-ci/scancode_test/test4.h",
+        "path":"tools/test/ci/scancode_test/test4.h",
         "type":"file",
         "licenses":[
            {
@@ -471,7 +471,7 @@
         ]
      },
      {
-        "path":"tools/test/travis-ci/scancode_test/test5.c",
+        "path":"tools/test/ci/scancode_test/test5.c",
         "type":"file",
         "licenses":[
            {
@@ -548,7 +548,7 @@
         ]
      },
      {
-        "path":"tools/test/travis-ci/scancode_test/test6.c",
+        "path":"tools/test/ci/scancode_test/test6.c",
         "type":"file",
         "licenses":[
            {
@@ -625,7 +625,7 @@
         ]
      },
      {
-        "path":"tools/test/travis-ci/scancode_test/test7.c",
+        "path":"tools/test/ci/scancode_test/test7.c",
         "type":"file",
         "licenses":[
            {
@@ -702,7 +702,7 @@
         ]
      },
      {
-        "path":"tools/test/travis-ci/scancode_test/test8.c",
+        "path":"tools/test/ci/scancode_test/test8.c",
         "type":"file",
         "licenses":[
            {
