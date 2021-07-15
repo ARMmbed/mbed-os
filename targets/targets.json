@@ -6152,7 +6152,8 @@
             "SPI",
             "STDIO_MESSAGES",
             "USTICKER",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "features": ["BLE"],
         "release_versions": ["2", "5"]
