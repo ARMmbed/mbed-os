@@ -1,8 +1,7 @@
 name: run conditional BLE feature compilation
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 1 * * 6'
+  pull_request:
 jobs:
   run-conditional-feature-compilation-test:
     name: Conditional BLE features compilation tested
