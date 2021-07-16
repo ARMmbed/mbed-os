@@ -2,6 +2,8 @@ name: run conditional BLE feature compilation
 on:
   workflow_dispatch:
   pull_request:
+    paths:
+      - 'connectivity/FEATURE_BLE/**'
 jobs:
   run-conditional-feature-compilation-test:
     name: Conditional BLE features compilation tested
