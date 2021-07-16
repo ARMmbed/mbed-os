@@ -20,7 +20,6 @@ target_sources(${TEST_NAME}
 
 target_link_libraries(${TEST_NAME}
     PRIVATE
-        mbed-headers-base
         mbed-headers-platform
         mbed-headers-mbedtls
         mbed-headers-lorawan
