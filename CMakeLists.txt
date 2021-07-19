@@ -144,12 +144,16 @@ target_include_directories(mbed-core
 add_library(mbed-device_key INTERFACE)
 add_library(mbed-rtos INTERFACE)
 
+# Include targets/ first, because any post-build hook needs to be defined
+# before other parts of Mbed OS can add greentea tests which require
+# mbed_set_post_build().
+add_subdirectory(targets)
+
 add_subdirectory(cmsis)
 add_subdirectory(drivers)
 add_subdirectory(hal)
 add_subdirectory(platform)
 add_subdirectory(rtos)
-add_subdirectory(targets)
 add_subdirectory(storage)
 add_subdirectory(events)
 add_subdirectory(connectivity)

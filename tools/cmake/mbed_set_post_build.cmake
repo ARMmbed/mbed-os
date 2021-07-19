@@ -39,33 +39,12 @@ function(mbed_generate_bin_hex target)
         TARGET
             ${target}
         POST_BUILD
+        COMMAND
             ${CMAKE_POST_BUILD_COMMAND}
         COMMENT
             "executable:"
         VERBATIM
     )
-
-    if(TARGET mbed-post-build-bin-${MBED_TARGET})
-        # Remove the .elf file to force regenerate the application binaries
-        # (including .bin and .hex). This ensures that the post-build script runs
-        # on a raw application instead of a previous build that already went
-        # through the post-build process once.
-        file(REMOVE ${CMAKE_CURRENT_BINARY_DIR}/${target}.elf)
-
-        # Pass the application's name to the Mbed target's post build operation
-        set_target_properties(mbed-post-build-bin-${MBED_TARGET}
-            PROPERTIES
-                application ${target}
-        )
-
-        # The artefacts must be created before they can be further manipulated
-        add_dependencies(mbed-post-build-bin-${MBED_TARGET} ${target})
-
-        # Add a post-build hook to the top-level CMake target in the form of a
-        # CMake custom target. The hook depends on Mbed target specific
-        # post-build CMake target which has a custom command attached to it.
-        add_custom_target(mbed-post-build ALL DEPENDS mbed-post-build-bin-${MBED_TARGET})
-    endif()
 endfunction()
 
 #
@@ -112,25 +91,11 @@ function(mbed_set_post_build target)
     mbed_validate_application_profile(${target})
     mbed_generate_bin_hex(${target})
 
+    if(COMMAND mbed_post_build_function)
+        mbed_post_build_function(${target})
+    endif()
+
     if(HAVE_MEMAP_DEPS)
         mbed_generate_map_file(${target})
     endif()
 endfunction()
-
-
-#
-# Sets the post build operation for Mbed targets.
-#
-macro(mbed_set_post_build_operation)
-
-    add_custom_target(mbed-post-build-bin-${mbed_target_name})
-
-    add_custom_command(
-        TARGET
-            mbed-post-build-bin-${mbed_target_name}
-        POST_BUILD
-        COMMAND
-            ${post_build_command}
-        VERBATIM
-    )
-endmacro()
