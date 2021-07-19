@@ -37,7 +37,7 @@
 #endif
 #include <errno.h>
 
-#if !defined(__ARMCC_VERSION)
+#if !defined(__ARMCC_VERSION) && defined(__GNUC__)
 #include <fcntl.h>
 #endif
 
@@ -468,9 +468,16 @@ typedef struct DIR_impl DIR;
 #ifndef  ELIBEXEC
 #define ELIBEXEC        83      /* Cannot exec a shared library directly */
 #endif
+
+#if defined ( __ICCARM__ )
+#undef  EILSEQ                  /* defined in IAR arm/inc/c/errno.h:  #define EILSEQ  36 */
+#define EILSEQ          84      /* Illegal byte sequence */
+#else
 #ifndef  EILSEQ
 #define EILSEQ          84      /* Illegal byte sequence */
 #endif
+#endif
+
 #ifndef  ERESTART
 #define ERESTART        285      /* Interrupted system call should be restarted */
 #endif
