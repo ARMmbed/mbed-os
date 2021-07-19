@@ -26,6 +26,9 @@
 
         .syntax  unified
 
+        // Mbed OS patch: Exclude RTE_Components.h and RTX_Config.h inclusion in .S files
+        #define RTX_CONFIG_H_
+        #undef _RTE_
         #include "rtx_def.h"
 
         #if (defined(__ARM_FP) && (__ARM_FP > 0))
