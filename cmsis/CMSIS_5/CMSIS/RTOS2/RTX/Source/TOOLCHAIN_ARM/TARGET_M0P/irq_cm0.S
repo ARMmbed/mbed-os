@@ -24,9 +24,9 @@
 ; */
 
 
-                IF       :LNOT::DEF:RTX_STACK_CHECK
+#ifndef RTX_STACK_CHECK
 RTX_STACK_CHECK EQU      0
-                ENDIF
+#endif
 
 I_T_RUN_OFS     EQU      20                     ; osRtxInfo.thread.run offset
 TCB_SP_OFS      EQU      56                     ; TCB.SP offset

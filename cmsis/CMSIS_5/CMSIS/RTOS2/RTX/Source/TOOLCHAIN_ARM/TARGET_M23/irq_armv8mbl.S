@@ -24,13 +24,13 @@
 ; */
 
 
-                IF       :LNOT::DEF:RTX_STACK_CHECK
+#ifndef RTX_STACK_CHECK
 RTX_STACK_CHECK EQU      0
-                ENDIF
+#endif
 
-                IF       :LNOT::DEF:DOMAIN_NS
+#ifndef DOMAIN_NS
 DOMAIN_NS       EQU      0
-                ENDIF
+#endif
 
 I_T_RUN_OFS     EQU      20                     ; osRtxInfo.thread.run offset
 TCB_SM_OFS      EQU      48                     ; TCB.stack_mem offset

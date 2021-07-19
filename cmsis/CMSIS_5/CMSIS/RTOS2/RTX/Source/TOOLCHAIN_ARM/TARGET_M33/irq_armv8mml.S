@@ -24,13 +24,13 @@
 ; */
 
 
-                IF       :LNOT::DEF:RTX_STACK_CHECK
+#ifndef RTX_STACK_CHECK
 RTX_STACK_CHECK EQU      0
-                ENDIF
+#endif
 
-                IF       :LNOT::DEF:DOMAIN_NS
+#ifndef DOMAIN_NS
 DOMAIN_NS       EQU      0
-                ENDIF
+#endif
 
                 IF       ({FPU}="FPv5-SP") || ({FPU}="FPv5_D16")
 FPU_USED        EQU      1

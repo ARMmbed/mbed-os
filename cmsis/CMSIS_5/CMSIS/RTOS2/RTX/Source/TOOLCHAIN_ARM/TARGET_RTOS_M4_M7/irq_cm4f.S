@@ -24,9 +24,9 @@
 ; */
 
 
-                IF       :LNOT::DEF:RTX_STACK_CHECK
+#ifndef RTX_STACK_CHECK
 RTX_STACK_CHECK EQU      0
-                ENDIF
+#endif
 
                 IF       ({FPU}="FPv4-SP")
 FPU_USED        EQU      1
