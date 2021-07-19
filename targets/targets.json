@@ -4002,6 +4002,7 @@
             "STM32L4R9xI"
         ],
         "components_add": [
+            "FLASHIAP"
         ],
         "macros_add": [
             "STM32L4R9xx"
@@ -4021,7 +4022,7 @@
             "MX25LM51245G"
         ],
         "components_add": [
-            "SPINAND"
+            "OSPIF"
         ],
         "macros_add": [
             "HSE_VALUE=16000000"
