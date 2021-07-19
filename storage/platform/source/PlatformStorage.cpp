@@ -48,6 +48,10 @@ const spi_pinmap_t static_spi_pinmap = get_spi_pinmap(MBED_CONF_SD_SPI_MOSI, MBE
 #include "FlashIAPBlockDevice.h"
 #endif
 
+#if COMPONENT_SPINAND
+#include "SPINANDBlockDevice.h"
+#endif
+
 using namespace mbed;
 
 // Align a value to a specified size.
@@ -82,6 +86,12 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
 #elif COMPONENT_OSPIF
 
     static OSPIFBlockDevice default_bd;
+
+    return &default_bd;
+
+#elif COMPONENT_SPINAND
+
+    static SPINANDBlockDevice default_bd;
 
     return &default_bd;
 
@@ -150,7 +160,7 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
 
 MBED_WEAK FileSystem *FileSystem::get_default_instance()
 {
-#if COMPONENT_SPIF || COMPONENT_QSPIF || COMPONENT_OSPIF || COMPONENT_DATAFLASH
+#if COMPONENT_SPIF || COMPONENT_QSPIF || COMPONENT_OSPIF || COMPONENT_DATAFLASH || COMPONENT_SPINAND
 
     static LittleFileSystem flash("flash", BlockDevice::get_default_instance());
     flash.set_as_default();

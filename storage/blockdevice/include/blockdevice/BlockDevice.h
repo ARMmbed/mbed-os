@@ -95,7 +95,9 @@ public:
      *  @return         0 on success or a negative error code on failure
      */
     virtual int read(void *buffer, bd_addr_t addr, bd_size_t size) = 0;
-
+#if COMPONENT_SPINAND
+    //virtual int read_spare(void *buffer, bd_addr_t addr, bd_size_t size) = 0;
+#endif
     /** Program blocks to a block device
      *
      *  The blocks must have been erased prior to being programmed
@@ -109,6 +111,9 @@ public:
      */
     virtual int program(const void *buffer, bd_addr_t addr, bd_size_t size) = 0;
 
+#if COMPONENT_SPINAND
+   // virtual int program_spare(const void *buffer, bd_addr_t addr, bd_size_t size) = 0;
+#endif
     /** Erase blocks on a block device
      *
      *  The state of an erased block is undefined until it has been programmed,

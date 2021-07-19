@@ -21,6 +21,12 @@
 #include "lfs2_util.h"
 #include "MbedCRC.h"
 
+#define NFTL 1
+
+#ifdef NFTL
+#include "nftl.h"
+#endif
+
 namespace mbed {
 
 extern "C" uint32_t lfs2_crc(uint32_t crc, const void *buffer, size_t size)
@@ -117,21 +123,53 @@ static int lfs2_totype(int type)
 static int lfs2_bd_read(const struct lfs2_config *c, lfs2_block_t block,
                         lfs2_off_t off, void *buffer, lfs2_size_t size)
 {
+#if COMPONENT_SPINAND
+#if NFTL
+    return nftl_flash_read(NFTL_PARTITION0, block, off, buffer, size);
+#else
     BlockDevice *bd = (BlockDevice *)c->context;
+
+    return bd->read(buffer, (bd_addr_t)(block * c->block_size + off) / 0x800 * 0x1000, size);
+#endif
+#else
+    BlockDevice *bd = (BlockDevice *)c->context;
+
     return bd->read(buffer, (bd_addr_t)block * c->block_size + off, size);
+#endif
 }
 
 static int lfs2_bd_prog(const struct lfs2_config *c, lfs2_block_t block,
                         lfs2_off_t off, const void *buffer, lfs2_size_t size)
 {
+#if COMPONENT_SPINAND
+#if NFTL
+    return nftl_flash_write(NFTL_PARTITION0, block, off, buffer, size);
+#else
+    BlockDevice *bd = (BlockDevice *)c->context;
+
+    return bd->program(buffer, (bd_addr_t)(block * c->block_size + off) / 0x800 * 0x1000, size);
+#endif
+#else
     BlockDevice *bd = (BlockDevice *)c->context;
     return bd->program(buffer, (bd_addr_t)block * c->block_size + off, size);
+#endif
 }
 
 static int lfs2_bd_erase(const struct lfs2_config *c, lfs2_block_t block)
 {
+#if COMPONENT_SPINAND
+#if NFTL
+    return nftl_flash_erase(NFTL_PARTITION0, block);
+#else
     BlockDevice *bd = (BlockDevice *)c->context;
+
+    return bd->erase((bd_addr_t)(block * c->block_size) / 0x800 * 0x1000, c->block_size);
+#endif
+#else
+    BlockDevice *bd = (BlockDevice *)c->context;
+
     return bd->erase((bd_addr_t)block * c->block_size, c->block_size);
+#endif
 }
 
 static int lfs2_bd_sync(const struct lfs2_config *c)
@@ -175,7 +213,9 @@ int LittleFileSystem2::mount(BlockDevice *bd)
         _mutex.unlock();
         return err;
     }
-
+#if NFTL
+    nftl_init();
+#endif
     _config.context         = bd;
     _config.read            = lfs2_bd_read;
     _config.prog            = lfs2_bd_prog;
@@ -183,8 +223,8 @@ int LittleFileSystem2::mount(BlockDevice *bd)
     _config.sync            = lfs2_bd_sync;
     _config.read_size       = bd->get_read_size();
     _config.prog_size       = bd->get_program_size();
-    _config.block_size      = lfs2_max(_config.block_size, (lfs2_size_t)bd->get_erase_size());
-    _config.block_count     = bd->size() / _config.block_size;
+    _config.block_size      = 2048;//lfs2_max(_config.block_size, (lfs2_size_t)bd->get_erase_size());
+    _config.block_count     = 16000;//bd->size() / _config.block_size;
     _config.block_cycles    = _config.block_cycles;
     _config.cache_size      = lfs2_max(_config.cache_size, _config.prog_size);
     _config.lookahead_size  = lfs2_min(_config.lookahead_size, 8 * ((_config.block_count + 63) / 64));
@@ -218,6 +258,10 @@ int LittleFileSystem2::unmount()
         _bd = NULL;
     }
 
+#if NFTL
+    nftl_deinit();
+#endif
+
     _mutex.unlock();
     return res;
 }
@@ -233,7 +277,9 @@ int LittleFileSystem2::format(BlockDevice *bd,
 
     lfs2_t _lfs;
     struct lfs2_config _config;
-
+#if NFTL
+    nftl_init();
+#endif
     memset(&_config, 0, sizeof(_config));
     _config.context         = bd;
     _config.read            = lfs2_bd_read;
@@ -242,8 +288,8 @@ int LittleFileSystem2::format(BlockDevice *bd,
     _config.sync            = lfs2_bd_sync;
     _config.read_size       = bd->get_read_size();
     _config.prog_size       = bd->get_program_size();
-    _config.block_size      = lfs2_max(block_size, (lfs2_size_t)bd->get_erase_size());
-    _config.block_count     = bd->size() / _config.block_size;
+    _config.block_size      = 2048;//lfs2_max(block_size, (lfs2_size_t)bd->get_erase_size());
+    _config.block_count     = 16000;//bd->size() / _config.block_size;
     _config.block_cycles    = block_cycles;
     _config.cache_size      = lfs2_max(cache_size, _config.prog_size);
     _config.lookahead_size  = lfs2_min(lookahead_size, 8 * ((_config.block_count + 63) / 64));

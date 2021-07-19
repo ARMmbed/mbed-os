@@ -21,6 +21,12 @@
 #include "littlefs/lfs_util.h"
 #include "MbedCRC.h"
 
+#define NFTL 1
+
+#ifdef NFTL
+#include "nftl.h"
+#endif
+
 namespace mbed {
 
 extern "C" void lfs_crc(uint32_t *crc, const void *buffer, size_t size)
@@ -117,21 +123,55 @@ static int lfs_totype(int type)
 static int lfs_bd_read(const struct lfs_config *c, lfs_block_t block,
                        lfs_off_t off, void *buffer, lfs_size_t size)
 {
+#if COMPONENT_SPINAND
+#if NFTL
+    return nftl_flash_read(NFTL_PARTITION0, block, off, buffer, size);
+#else
     BlockDevice *bd = (BlockDevice *)c->context;
+
+    return bd->read(buffer, (bd_addr_t)(block * c->block_size + off) / 0x800 * 0x1000, size);
+#endif
+#else
+    BlockDevice *bd = (BlockDevice *)c->context;
+
     return bd->read(buffer, (bd_addr_t)block * c->block_size + off, size);
+#endif
 }
 
 static int lfs_bd_prog(const struct lfs_config *c, lfs_block_t block,
                        lfs_off_t off, const void *buffer, lfs_size_t size)
 {
+#if COMPONENT_SPINAND
+#if NFTL
+    return nftl_flash_write(NFTL_PARTITION0, block, off, buffer, size);
+#else
     BlockDevice *bd = (BlockDevice *)c->context;
+
+    return bd->program(buffer, (bd_addr_t)(block * c->block_size + off) / 0x800 * 0x1000, size);
+#endif
+#else
+    BlockDevice *bd = (BlockDevice *)c->context;
+
     return bd->program(buffer, (bd_addr_t)block * c->block_size + off, size);
+#endif
 }
 
 static int lfs_bd_erase(const struct lfs_config *c, lfs_block_t block)
 {
+
+#if COMPONENT_SPINAND
+#if NFTL
+    return nftl_flash_erase(NFTL_PARTITION0, block);
+#else
     BlockDevice *bd = (BlockDevice *)c->context;
+
+    return bd->erase((bd_addr_t)(block * c->block_size) / 0x800 * 0x1000, c->block_size);
+#endif
+#else
+    BlockDevice *bd = (BlockDevice *)c->context;
+
     return bd->erase((bd_addr_t)block * c->block_size, c->block_size);
+#endif
 }
 
 static int lfs_bd_sync(const struct lfs_config *c)
@@ -179,7 +219,9 @@ int LittleFileSystem::mount(BlockDevice *bd)
         _mutex.unlock();
         return err;
     }
-
+#if NFTL
+    nftl_init();
+#endif
     memset(&_config, 0, sizeof(_config));
     _config.context = bd;
     _config.read  = lfs_bd_read;
@@ -194,11 +236,11 @@ int LittleFileSystem::mount(BlockDevice *bd)
     if (_config.prog_size < _prog_size) {
         _config.prog_size = _prog_size;
     }
-    _config.block_size  = bd->get_erase_size();
+    _config.block_size  = 2048;//bd->get_erase_size();
     if (_config.block_size < _block_size) {
         _config.block_size = _block_size;
     }
-    _config.block_count = bd->size() / _config.block_size;
+    _config.block_count = 16000;//bd->size() / _config.block_size;
     _config.lookahead = 32 * ((_config.block_count + 31) / 32);
     if (_config.lookahead > _lookahead) {
         _config.lookahead = _lookahead;
@@ -236,6 +278,10 @@ int LittleFileSystem::unmount()
         _bd = NULL;
     }
 
+#if NFTL
+    nftl_deinit();
+#endif
+
     LFS_INFO("unmount -> %d", res);
     _mutex.unlock();
     return res;
@@ -256,6 +302,10 @@ int LittleFileSystem::format(BlockDevice *bd,
     lfs_t _lfs;
     struct lfs_config _config;
 
+#if NFTL
+    nftl_init();
+#endif
+
     memset(&_config, 0, sizeof(_config));
     _config.context = bd;
     _config.read  = lfs_bd_read;
@@ -270,11 +320,11 @@ int LittleFileSystem::format(BlockDevice *bd,
     if (_config.prog_size < prog_size) {
         _config.prog_size = prog_size;
     }
-    _config.block_size  = bd->get_erase_size();
+    _config.block_size  = 2048;//bd->get_erase_size();
     if (_config.block_size < block_size) {
         _config.block_size = block_size;
     }
-    _config.block_count = bd->size() / _config.block_size;
+    _config.block_count = 16000;//bd->size() / _config.block_size;
     _config.lookahead = 32 * ((_config.block_count + 31) / 32);
     if (_config.lookahead > lookahead) {
         _config.lookahead = lookahead;
