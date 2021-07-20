@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+/* MBED TARGET LIST: UNITTESTS */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -30,6 +32,11 @@ typedef enum {
 typedef enum {
     PTC0 = 0,
     PTC1 = 1,
+
+    // USB Pins
+    CONSOLE_TX = 2,
+    CONSOLE_RX = 3,
+
     NC = (int)0xFFFFFFFF
 } PinName;
 
