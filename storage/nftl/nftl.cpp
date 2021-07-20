@@ -80,8 +80,8 @@ int32_t hal_flash_read_with_spare(hal_partition_t in_partition, uint32_t *off_se
 
     ret = bd.read_spare(buf, *off_set, data_buf_len + spare_buf_len + TAG_OFFSET);
     if (ret != 0) {
-	    NFTL_ERROR("[%s] read spare error, off_set: %lx, spare_buf_len: %lx", __func__, *off_set, spare_buf_len);
-	    return ret;
+        NFTL_ERROR("[%s] read spare error, off_set: %lx, spare_buf_len: %lx", __func__, *off_set, spare_buf_len);
+        return ret;
     }
 
     memcpy(data_buf, buf, data_buf_len);
@@ -91,8 +91,8 @@ int32_t hal_flash_read_with_spare(hal_partition_t in_partition, uint32_t *off_se
 }
 
 int32_t hal_flash_write_with_spare(hal_partition_t in_partition, uint32_t *off_set,
-                                  void *data_buf, uint32_t data_buf_len,
-                                  void *spare_buf, uint32_t spare_buf_len)
+                                   void *data_buf, uint32_t data_buf_len,
+                                   void *spare_buf, uint32_t spare_buf_len)
 {
     int ret;
 
@@ -102,8 +102,8 @@ int32_t hal_flash_write_with_spare(hal_partition_t in_partition, uint32_t *off_s
 
     ret = bd.program_spare(buf, *off_set, data_buf_len + spare_buf_len + TAG_OFFSET);
     if (ret != 0) {
-	    NFTL_ERROR("[%s] program spare error, off_set: %lx, spare_buf_len: %lx", __func__, *off_set, spare_buf_len);
-	    return ret;
+        NFTL_ERROR("[%s] program spare error, off_set: %lx, spare_buf_len: %lx", __func__, *off_set, spare_buf_len);
+        return ret;
     }
 
     return ret;
@@ -129,7 +129,7 @@ int hal_flash_isbad(hal_partition_t in_partition, uint32_t off_set)
         return ret;
     }
 
-    if((bad_flag0 == 0x00) && (bad_flag1 == 0x00)) {
+    if ((bad_flag0 == 0x00) && (bad_flag1 == 0x00)) {
         return true;
     } else {
         return false;
@@ -214,7 +214,7 @@ static uint32_t count_empty_block(nftl_block_mgr_t *mgr)
 
     for (i = 0; i < mgr->phy_block_nums; i++) {
         if (!hal_flash_isbad(mgr->partition, (NFTL_BLOCK_OFFSET * i)) &&
-            (i != mgr->allocating_blk)) {
+                (i != mgr->allocating_blk)) {
             for (j = 0; j < NFTL_TAG_PAGE_IN_BLOCK; j++) {
                 if (nftl_isvalid_bitmap(mgr->phy_blocks[i].page_bitmap, j)) {
                     break;
@@ -285,7 +285,7 @@ static void nftl_create_mapping_tables(nftl_block_mgr_t *blk_mgr, nftl_block_tag
     logic_blk = &blk_mgr->logic_blocks[tag->logic_block];
 
     if ((logic_blk->page_id == NFTL_INVALID_BLOCK) ||
-         nftl_scmp(tag->reversion, logic_blk->reversion) > 0) {
+            nftl_scmp(tag->reversion, logic_blk->reversion) > 0) {
         /*  clear old page bitmap */
         if (logic_blk->page_id != NFTL_INVALID_BLOCK) {
             blk_off  = logic_blk->page_id / NFTL_PAGES_PER_BLK;
@@ -355,7 +355,7 @@ static void nftl_recover_mapping_from_tagpage(nftl_block_tag *tag, nftl_block_mg
     }
 }
 
-static void nftl_blk_release(nftl_block_mgr_t *blk_mgr ,uint32_t phy_blk)
+static void nftl_blk_release(nftl_block_mgr_t *blk_mgr, uint32_t phy_blk)
 {
     int             ret;
 
@@ -433,9 +433,9 @@ static nftl_err_t nftl_immigrate_block(nftl_block_mgr_t *blk_mgr, uint32_t old_b
 
                 if (tag->logic_block >= blk_mgr->logic_block_nums) {
                     NFTL_ERROR("[nftl] %s, logic block error: p: %d, blk: %ld, ver: %ld, nums: %ld",
-                            __func__, blk_mgr->partition, tag->logic_block, tag->reversion, blk_mgr->logic_block_nums);
+                               __func__, blk_mgr->partition, tag->logic_block, tag->reversion, blk_mgr->logic_block_nums);
                     NFTL_ERROR("[nftl] %s, rblk: %ld, rpage: %ld, wpageid: %ld",
-                            __func__, old_blk, i, page_id);
+                               __func__, old_blk, i, page_id);
                     NFTL_ASSERT(tag->logic_block < blk_mgr->logic_block_nums);
                 }
 
@@ -589,9 +589,9 @@ static void nftl_complete_gc(nftl_block_mgr_t *blk_mgr, bool completely)
         valid_pages = count_valid_page(blk_mgr, gc_blk);
 
         if ((gc_blk != blk_mgr->allocating_blk) &&
-            (valid_pages > 0 && valid_pages < NFTL_TAG_PAGE_IN_BLOCK)) {
+                (valid_pages > 0 && valid_pages < NFTL_TAG_PAGE_IN_BLOCK)) {
             NFTL_WARN("%s complete gc, part: %d, blk: %ld, empty blocks: %ld, gc pages: %ld", __func__,
-                    blk_mgr->partition, gc_blk, empty_blocks, valid_pages);
+                      blk_mgr->partition, gc_blk, empty_blocks, valid_pages);
 
             for (j = 0; j < NFTL_TAG_PAGE_IN_BLOCK; j++) {
                 if (nftl_isvalid_bitmap(blk_mgr->phy_blocks[gc_blk].page_bitmap, j)) {
@@ -627,10 +627,10 @@ static void nftl_complete_gc(nftl_block_mgr_t *blk_mgr, bool completely)
 
                     if (tag->logic_block >= blk_mgr->logic_block_nums) {
                         NFTL_ERROR("[nftl] %s, logic block error: p: %d, blk: %ld, ver: %ld, nums: %ld",
-                                __func__, blk_mgr->partition, tag->logic_block, tag->reversion, blk_mgr->logic_block_nums);
+                                   __func__, blk_mgr->partition, tag->logic_block, tag->reversion, blk_mgr->logic_block_nums);
 
                         NFTL_ERROR("[nftl] %s, rblk: %ld, rpage: %ld, wpageid: %ld",
-                                __func__, gc_blk, j, page_id);
+                                   __func__, gc_blk, j, page_id);
 
                         NFTL_ASSERT(tag->logic_block < blk_mgr->logic_block_nums);
                     }
@@ -800,10 +800,10 @@ static void nftl_gc_start(nftl_block_mgr_t *blk_mgr)
 
             if (tag->logic_block >= blk_mgr->logic_block_nums) {
                 NFTL_ERROR("[nftl] %s, logic block error: p: %d, blk: %ld, ver: %ld nums: %ld",
-                        __func__, blk_mgr->partition, tag->logic_block, tag->reversion, blk_mgr->logic_block_nums);
+                           __func__, blk_mgr->partition, tag->logic_block, tag->reversion, blk_mgr->logic_block_nums);
 
                 NFTL_ERROR("[nftl] %s, rblk: %ld, rpage: %ld, wpageid: %ld",
-                        __func__, dirtiest_block, i, page_id);
+                           __func__, dirtiest_block, i, page_id);
 
                 NFTL_ASSERT(tag->logic_block < blk_mgr->logic_block_nums);
             }
@@ -931,13 +931,13 @@ static uint32_t nftl_alloc_new_block(nftl_block_mgr_t *blk_mgr)
         offset = new_blk * NFTL_BLOCK_OFFSET;
 
         NFTL_TRACE("[%s] erasing offset %ld in part %d, blk: %ld", __func__,
-                    offset, blk_mgr->partition, blk_mgr->allocating_blk);
+                   offset, blk_mgr->partition, blk_mgr->allocating_blk);
 
         ret = bd.erase(offset, NFTL_BLOCK_SIZE);
 
         if (ret) {
             NFTL_ERROR("[%s] bad block %ld found in part %d, ret: %d", __func__,
-                        new_blk, blk_mgr->partition, ret);
+                       new_blk, blk_mgr->partition, ret);
             nftl_proc_bad_block(blk_mgr, new_blk);
         }
 
@@ -1221,7 +1221,7 @@ int nftl_flash_write(nftl_partition_t p, nftl_block_t blk, nftl_size_t off,
             if (tag->logic_block >= blk_mgr->logic_block_nums) {
 
                 NFTL_ERROR("[nftl] %s, logic block error: p: %d, blk: %ld, ver: %ld nums: %ld",
-                        __func__, blk_mgr->partition, tag->logic_block, tag->reversion, blk_mgr->logic_block_nums);
+                           __func__, blk_mgr->partition, tag->logic_block, tag->reversion, blk_mgr->logic_block_nums);
 
                 NFTL_ASSERT(tag->logic_block < blk_mgr->logic_block_nums);
             }
@@ -1399,8 +1399,8 @@ static void nftl_dump_partition(nftl_block_mgr_t *blk_mgr)
     printf("page_id\treversion\r\n");
     for (i = 0; i < NFTL_TAG_PAGE_IN_BLOCK; i++) {
         printf("%u\t%ld\r\n",
-                blk_mgr->allocating_blk_tags[i].logic_block,
-                blk_mgr->allocating_blk_tags[i].reversion);
+               blk_mgr->allocating_blk_tags[i].logic_block,
+               blk_mgr->allocating_blk_tags[i].reversion);
     }
 
     printf("\r\n");
@@ -1408,27 +1408,27 @@ static void nftl_dump_partition(nftl_block_mgr_t *blk_mgr)
     printf("blkidx\tbitmap\r\n");
     for (i = 0; i < blk_mgr->phy_block_nums; i++) {
         if (
-             (blk_mgr->phy_blocks[i].page_bitmap[0] == 0) &&
-             (blk_mgr->phy_blocks[i].page_bitmap[1] == 0) &&
-             (blk_mgr->phy_blocks[i].page_bitmap[2] == 0) &&
-             (blk_mgr->phy_blocks[i].page_bitmap[3] == 0) &&
-             (blk_mgr->phy_blocks[i].page_bitmap[4] == 0) &&
-             (blk_mgr->phy_blocks[i].page_bitmap[5] == 0) &&
-             (blk_mgr->phy_blocks[i].page_bitmap[6] == 0) &&
-             (blk_mgr->phy_blocks[i].page_bitmap[7] == 0)
-           ) {
+            (blk_mgr->phy_blocks[i].page_bitmap[0] == 0) &&
+            (blk_mgr->phy_blocks[i].page_bitmap[1] == 0) &&
+            (blk_mgr->phy_blocks[i].page_bitmap[2] == 0) &&
+            (blk_mgr->phy_blocks[i].page_bitmap[3] == 0) &&
+            (blk_mgr->phy_blocks[i].page_bitmap[4] == 0) &&
+            (blk_mgr->phy_blocks[i].page_bitmap[5] == 0) &&
+            (blk_mgr->phy_blocks[i].page_bitmap[6] == 0) &&
+            (blk_mgr->phy_blocks[i].page_bitmap[7] == 0)
+        ) {
             continue;
         }
 
         printf("%u\t%02x%02x%02x%02x%02x%02x%02x%02x\r\n", i,
-                blk_mgr->phy_blocks[i].page_bitmap[0],
-                blk_mgr->phy_blocks[i].page_bitmap[1],
-                blk_mgr->phy_blocks[i].page_bitmap[2],
-                blk_mgr->phy_blocks[i].page_bitmap[3],
-                blk_mgr->phy_blocks[i].page_bitmap[4],
-                blk_mgr->phy_blocks[i].page_bitmap[5],
-                blk_mgr->phy_blocks[i].page_bitmap[6],
-                blk_mgr->phy_blocks[i].page_bitmap[7]);
+               blk_mgr->phy_blocks[i].page_bitmap[0],
+               blk_mgr->phy_blocks[i].page_bitmap[1],
+               blk_mgr->phy_blocks[i].page_bitmap[2],
+               blk_mgr->phy_blocks[i].page_bitmap[3],
+               blk_mgr->phy_blocks[i].page_bitmap[4],
+               blk_mgr->phy_blocks[i].page_bitmap[5],
+               blk_mgr->phy_blocks[i].page_bitmap[6],
+               blk_mgr->phy_blocks[i].page_bitmap[7]);
     }
 
     printf("logic block\tpage_id\treversion\r\n");
@@ -1499,16 +1499,16 @@ void nftl_statistics(void)
         }
 
         printf("%15u%15lu%9lu(%3lu%%)%9lu(%3lu%%)%15lu%9lu(%3lu%%)%15lu\n",
-                blk_mgr->partition,
-                blk_mgr->phy_block_nums,
-                used_blks,
-                used_blks * 100 / blk_mgr->phy_block_nums,
-                blk_mgr->bad_block_nums,
-                blk_mgr->bad_block_nums * 100 / blk_mgr->phy_block_nums,
-                blk_mgr->phy_block_nums * NFTL_TAG_PAGE_IN_BLOCK,
-                used_pages,
-                used_pages * 100 / (blk_mgr->phy_block_nums * NFTL_TAG_PAGE_IN_BLOCK),
-                blk_mgr->gc_times);
+               blk_mgr->partition,
+               blk_mgr->phy_block_nums,
+               used_blks,
+               used_blks * 100 / blk_mgr->phy_block_nums,
+               blk_mgr->bad_block_nums,
+               blk_mgr->bad_block_nums * 100 / blk_mgr->phy_block_nums,
+               blk_mgr->phy_block_nums * NFTL_TAG_PAGE_IN_BLOCK,
+               used_pages,
+               used_pages * 100 / (blk_mgr->phy_block_nums * NFTL_TAG_PAGE_IN_BLOCK),
+               blk_mgr->gc_times);
     }
     return;
 }
@@ -1541,27 +1541,26 @@ void nftl_init(void)
     nftl_err_t            ret;
 
 
-    if (!g_block_mgr[NFTL_PARTITION0].initialized)
-    {
+    if (!g_block_mgr[NFTL_PARTITION0].initialized) {
         bd.init();
 
         g_block_mgr[NFTL_PARTITION0].partition        = NFTL_PHYSICAL_PARTITION0;
         g_block_mgr[NFTL_PARTITION0].logic_block_nums = NFTL_TAG_PAGE_IN_BLOCK * NFTL_PART0_BLOCK_NUMS;
         g_block_mgr[NFTL_PARTITION0].phy_block_nums   = NFTL_PART0_BLOCK_NUMS + NFTL_PART0_BUFFER_BLOCK_NUMS;
-    	g_block_mgr[NFTL_PARTITION0].initialized      = 0;
+        g_block_mgr[NFTL_PARTITION0].initialized      = 0;
 
-    #if NFTL_LOGICAL_PARTITION_NUM > 1
-    	g_block_mgr[NFTL_PARTITION1].partition        = NFTL_PHYSICAL_PARTITION1;
-    	g_block_mgr[NFTL_PARTITION1].logic_block_nums = NFTL_TAG_PAGE_IN_BLOCK * NFTL_PART1_BLOCK_NUMS;
+#if NFTL_LOGICAL_PARTITION_NUM > 1
+        g_block_mgr[NFTL_PARTITION1].partition        = NFTL_PHYSICAL_PARTITION1;
+        g_block_mgr[NFTL_PARTITION1].logic_block_nums = NFTL_TAG_PAGE_IN_BLOCK * NFTL_PART1_BLOCK_NUMS;
         g_block_mgr[NFTL_PARTITION1].phy_block_nums   = NFTL_PART1_BLOCK_NUMS + NFTL_PART1_BUFFER_BLOCK_NUMS;
-    	g_block_mgr[NFTL_PARTITION1].initialized      = 0;
-    #if NFTL_LOGICAL_PARTITION_NUM > 2
-    	g_block_mgr[NFTL_PARTITION2].partition        = NFTL_PHYSICAL_PARTITION2,
-    	g_block_mgr[NFTL_PARTITION2].logic_block_nums = NFTL_TAG_PAGE_IN_BLOCK * NFTL_PART2_BLOCK_NUMS,
-    	g_block_mgr[NFTL_PARTITION2].phy_block_nums   = NFTL_PART2_BLOCK_NUMS + NFTL_PART2_BUFFER_BLOCK_NUMS,
-    	g_block_mgr[NFTL_PARTITION2].initialized      = 0,
-    #endif /* NFTL_LOGICAL_PARTITION_NUM > 1 */
-    #endif /* NFTL_LOGICAL_PARTITION_NUM > 2 */
+        g_block_mgr[NFTL_PARTITION1].initialized      = 0;
+#if NFTL_LOGICAL_PARTITION_NUM > 2
+        g_block_mgr[NFTL_PARTITION2].partition        = NFTL_PHYSICAL_PARTITION2,
+        g_block_mgr[NFTL_PARTITION2].logic_block_nums = NFTL_TAG_PAGE_IN_BLOCK * NFTL_PART2_BLOCK_NUMS,
+        g_block_mgr[NFTL_PARTITION2].phy_block_nums   = NFTL_PART2_BLOCK_NUMS + NFTL_PART2_BUFFER_BLOCK_NUMS,
+        g_block_mgr[NFTL_PARTITION2].initialized      = 0,
+#endif /* NFTL_LOGICAL_PARTITION_NUM > 1 */
+#endif /* NFTL_LOGICAL_PARTITION_NUM > 2 */
 
         for (partition = NFTL_PARTITION0; partition < 1; partition = (nftl_partition_t)(partition + 1)) {
             blk_mgr = &g_block_mgr[partition];
@@ -1587,11 +1586,11 @@ void nftl_deinit(void)
     nftl_partition_t      partition;
     nftl_block_mgr_t     *blk_mgr;
 
-	g_block_mgr[NFTL_PARTITION0].initialized      = 0;
+    g_block_mgr[NFTL_PARTITION0].initialized      = 0;
 #if NFTL_LOGICAL_PARTITION_NUM > 1
-	g_block_mgr[NFTL_PARTITION1].initialized      = 0;
+    g_block_mgr[NFTL_PARTITION1].initialized      = 0;
 #if NFTL_LOGICAL_PARTITION_NUM > 2
-	g_block_mgr[NFTL_PARTITION2].initialized      = 0,
+    g_block_mgr[NFTL_PARTITION2].initialized      = 0,
 #endif /* NFTL_LOGICAL_PARTITION_NUM > 1 */
 #endif /* NFTL_LOGICAL_PARTITION_NUM > 2 */
 

@@ -35,47 +35,47 @@ uint8_t     read_spare_buf[16];
 // Simple test for all APIs
 void functionality_test()
 {
-	uint32_t    block;
-	uint32_t    i;
-	uint32_t    j;
-	uint32_t    w_off;
-	uint32_t    r_off;
-	uint32_t    total_blk;
-	uint8_t     data_record[200];
+    uint32_t    block;
+    uint32_t    i;
+    uint32_t    j;
+    uint32_t    w_off;
+    uint32_t    r_off;
+    uint32_t    total_blk;
+    uint8_t     data_record[200];
 
-	nftl_init();
+    nftl_init();
 
-	total_blk = 200;
+    total_blk = 200;
 
-	//for (i = 0; i < 3; i++)
-	{
+    //for (i = 0; i < 3; i++)
+    {
 
-		for (j = 0; j < 1; j++) {
+        for (j = 0; j < 1; j++) {
 
-			data_record[j] = i*64 + j;
+            data_record[j] = i*64 + j;
 
-			memset(write_buf, data_record[j], 2048);
+            memset(write_buf, data_record[j], 2048);
 
-			nftl_flash_write(NFTL_PARTITION0, j, 0, write_buf, 2048);
-			nftl_flash_write(NFTL_PARTITION0, j, 0, write_buf, 2048);
-			nftl_flash_write(NFTL_PARTITION0, j, 0, write_buf, 2048);
-		}
-	}
+            nftl_flash_write(NFTL_PARTITION0, j, 0, write_buf, 2048);
+            nftl_flash_write(NFTL_PARTITION0, j, 0, write_buf, 2048);
+            nftl_flash_write(NFTL_PARTITION0, j, 0, write_buf, 2048);
+        }
+    }
 
-	printf("write finished\r\n");
+    printf("write finished\r\n");
 
-	for (i = 0; i < 1; i++) {
+    for (i = 0; i < 1; i++) {
 
-		nftl_flash_read(NFTL_PARTITION0, i, 0, read_buf, 2048);
+        nftl_flash_read(NFTL_PARTITION0, i, 0, read_buf, 2048);
 
-		if (read_buf[10] != data_record[i]) {
-			printf("failed to check data\r\n");
-		} else {
-			printf("match: %d, %d\r\n", read_buf[10], data_record[i]);
-		}
-	}
+        if (read_buf[10] != data_record[i]) {
+            printf("failed to check data\r\n");
+        } else {
+            printf("match: %d, %d\r\n", read_buf[10], data_record[i]);
+        }
+    }
 
-	printf("test pass\r\n");
+    printf("test pass\r\n");
 
  /*   uint8_t *dummy = new (std::nothrow) uint8_t[num_blocks * erase_size];
     TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory for test");

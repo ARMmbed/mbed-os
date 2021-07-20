@@ -19,7 +19,8 @@
 #include "nftl_util.h"
 
 // Software CRC implementation
-uint32_t nftl_crc32(uint32_t init, const void *buffer, size_t size) {
+uint32_t nftl_crc32(uint32_t init, const void *buffer, size_t size)
+{
     uint32_t crc = init;
 
     static const uint32_t rtable[16] = {
@@ -29,7 +30,7 @@ uint32_t nftl_crc32(uint32_t init, const void *buffer, size_t size) {
         0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c,
     };
 
-    const uint8_t *data = (uint8_t*)buffer;
+    const uint8_t *data = (uint8_t *)buffer;
 
     for (size_t i = 0; i < size; i++) {
         crc = (crc >> 4) ^ rtable[(crc ^ (data[i] >> 0)) & 0xf];
@@ -85,7 +86,9 @@ int nftl_task_new(const char *name, nftl_fn_t func, void *arg, int stack_size)
 {
     pthread_t tid;
     thread_helper_t *helper = (thread_helper_t *)malloc(sizeof(thread_helper_t));
-    if (!helper) return -1;
+    if (!helper) {
+        return -1;
+    }
     helper->func = func;
     helper->arg = arg;
     pthread_create(&tid, NULL, pthread_helper, helper);
@@ -127,17 +130,17 @@ void nftl_lock_destroy(nftl_lock_t *lock)
 
 void nftl_lock(nftl_lock_t *lock)
 {
-	lock->lock();
+    lock->lock();
 }
 
 void nftl_unlock(nftl_lock_t *lock)
 {
-	lock->unlock();
+    lock->unlock();
 }
 
 int nftl_task_new(const char *name, void (*fn)(void *), void *arg, int stack_size)
 {
-	return 0;
+    return 0;
     //return aos_task_new(name, fn, arg, stack_size);
 }
 

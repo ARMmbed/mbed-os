@@ -81,7 +81,8 @@
 #endif
 
 // Convert between 32-bit little-endian and native order
-static inline uint32_t nftl_fromle32(uint32_t a) {
+static inline uint32_t nftl_fromle32(uint32_t a)
+{
 #if !defined(NFTL_NO_INTRINSICS) && ( \
     (defined(  BYTE_ORDER  ) && defined(  ORDER_LITTLE_ENDIAN  ) &&   BYTE_ORDER   ==   ORDER_LITTLE_ENDIAN  ) || \
     (defined(__BYTE_ORDER  ) && defined(__ORDER_LITTLE_ENDIAN  ) && __BYTE_ORDER   == __ORDER_LITTLE_ENDIAN  ) || \
@@ -93,14 +94,15 @@ static inline uint32_t nftl_fromle32(uint32_t a) {
     (defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__))
     return __builtin_bswap32(a);
 #else
-    return (((uint8_t*)&a)[0] <<  0) |
-           (((uint8_t*)&a)[1] <<  8) |
-           (((uint8_t*)&a)[2] << 16) |
-           (((uint8_t*)&a)[3] << 24);
+    return (((uint8_t *)&a)[0] <<  0) |
+           (((uint8_t *)&a)[1] <<  8) |
+           (((uint8_t *)&a)[2] << 16) |
+           (((uint8_t *)&a)[3] << 24);
 #endif
 }
 
-static inline uint32_t nftl_tole32(uint32_t a) {
+static inline uint32_t nftl_tole32(uint32_t a)
+{
     return nftl_fromle32(a);
 }
 
@@ -117,36 +119,42 @@ static inline uint16_t nftl_fromle16(uint16_t a) {
     (defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__))
     return __builtin_bswap16(a);
 #else
-    return (((uint8_t*)&a)[0] <<  0) |
-           (((uint8_t*)&a)[1] <<  8);
+    return (((uint8_t *)&a)[0] <<  0) |
+           (((uint8_t *)&a)[1] <<  8);
 #endif
 }
 
-static inline uint16_t nftl_tole16(uint16_t a) {
+static inline uint16_t nftl_tole16(uint16_t a)
+{
     return nftl_fromle16(a);
 }
 
 // Min/max functions for unsigned 32-bit numbers
-static inline uint32_t nftl_max(uint32_t a, uint32_t b) {
+static inline uint32_t nftl_max(uint32_t a, uint32_t b)
+{
     return (a > b) ? a : b;
 }
 
-static inline uint32_t nftl_min(uint32_t a, uint32_t b) {
+static inline uint32_t nftl_min(uint32_t a, uint32_t b)
+{
     return (a < b) ? a : b;
 }
 
 // Align to nearest multiple of a size
-static inline uint32_t nftl_aligndown(uint32_t a, uint32_t alignment) {
+static inline uint32_t nftl_aligndown(uint32_t a, uint32_t alignment)
+{
     return a - (a % alignment);
 }
 
-static inline unsigned long long nftl_alignup(unsigned long long a, uint32_t alignment) {
+static inline unsigned long long nftl_alignup(unsigned long long a, uint32_t alignment)
+{
     return nftl_aligndown(a + alignment-1, alignment);
 }
 
 // Find the sequence comparison of a and b, this is the distance
 // between a and b ignoring overflow
-static inline int nftl_scmp(uint32_t a, uint32_t b) {
+static inline int nftl_scmp(uint32_t a, uint32_t b)
+{
     return (int)(unsigned)(a - b);
 }
 

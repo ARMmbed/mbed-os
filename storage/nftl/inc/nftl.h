@@ -27,7 +27,7 @@
 
 /**
  * Short description:
- * 
+ *
  * NFTL (i.e. Nand Flash Translation Layer), is used to provide
  * logical-to-physical block mapping on Nand Flash.
  *
@@ -69,7 +69,7 @@
  *    Note: 1. vendor area may be stored before or after nftl bytes, depending on
  *             how the vendor hal APIs (hal_flash_xxx) implemented.
  *          2. LB and Rev data is stored in little-endian format on flash.
- *             Please ensure endian conversion when read from to write 
+ *             Please ensure endian conversion when read from to write
  *             to the flash area.
  *
  * 3. page format on each block:

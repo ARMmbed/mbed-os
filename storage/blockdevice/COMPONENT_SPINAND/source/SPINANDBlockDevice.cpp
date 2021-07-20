@@ -299,8 +299,7 @@ int SPINANDBlockDevice::read_spare(void *buffer, bd_addr_t addr, bd_size_t size)
 
     tr_debug("Read Inst: 0x%xh", _read_instruction);
 
-    while (size > 0)
-    {
+    while (size > 0) {
 
         _mutex.lock();
 
@@ -379,8 +378,7 @@ int SPINANDBlockDevice::program_spare(const void *buffer, bd_addr_t addr, bd_siz
 
     tr_debug("Program - Buff: %p, addr: %llu, size: %llu", buffer, addr, size);
 
-    while (size > 0)
-    {
+    while (size > 0) {
 
         _mutex.lock();
 

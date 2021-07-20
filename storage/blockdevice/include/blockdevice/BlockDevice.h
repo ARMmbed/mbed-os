@@ -112,7 +112,7 @@ public:
     virtual int program(const void *buffer, bd_addr_t addr, bd_size_t size) = 0;
 
 #if COMPONENT_SPINAND
-   // virtual int program_spare(const void *buffer, bd_addr_t addr, bd_size_t size) = 0;
+    // virtual int program_spare(const void *buffer, bd_addr_t addr, bd_size_t size) = 0;
 #endif
     /** Erase blocks on a block device
      *
