@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"
@@ -23,9 +24,6 @@
 #include "nftl_conf.h"
 #include "nftl_util.h"
 #include "nftl.h"
-
-
-
 
 using namespace utest::v1;
 
@@ -169,7 +167,6 @@ void functionality_test()
     err = bd.read(read_buf, 0, test_buf_size);
     TEST_ASSERT_EQUAL(0, err);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(write_buf, read_buf, test_buf_size);*/
-	utest_printf("\nTest Init block device222222222222.\n");
 }
 
 
@@ -190,29 +187,3 @@ int main()
 {
     return !Harness::run(specification);
 }
-
-
-#if 0
-#include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
-#include <inc/nftl_conf.h>
-#include <inc/nftl_util.h>
-#include <inc/nftl.h>
-#include <aos/hal/flash.h>
-#include <aos/hal/nand_flash.h>
-
-
-
-int main(int argc, char *argv[])
-{
-
-
-    return 0;
-}
-
-#endif
