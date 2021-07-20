@@ -1555,10 +1555,10 @@ void nftl_init(void)
         g_block_mgr[NFTL_PARTITION1].phy_block_nums   = NFTL_PART1_BLOCK_NUMS + NFTL_PART1_BUFFER_BLOCK_NUMS;
         g_block_mgr[NFTL_PARTITION1].initialized      = 0;
 #if NFTL_LOGICAL_PARTITION_NUM > 2
-        g_block_mgr[NFTL_PARTITION2].partition        = NFTL_PHYSICAL_PARTITION2,
-        g_block_mgr[NFTL_PARTITION2].logic_block_nums = NFTL_TAG_PAGE_IN_BLOCK * NFTL_PART2_BLOCK_NUMS,
-        g_block_mgr[NFTL_PARTITION2].phy_block_nums   = NFTL_PART2_BLOCK_NUMS + NFTL_PART2_BUFFER_BLOCK_NUMS,
-        g_block_mgr[NFTL_PARTITION2].initialized      = 0,
+        g_block_mgr[NFTL_PARTITION2].partition        = NFTL_PHYSICAL_PARTITION2;
+        g_block_mgr[NFTL_PARTITION2].logic_block_nums = NFTL_TAG_PAGE_IN_BLOCK * NFTL_PART2_BLOCK_NUMS;
+        g_block_mgr[NFTL_PARTITION2].phy_block_nums   = NFTL_PART2_BLOCK_NUMS + NFTL_PART2_BUFFER_BLOCK_NUMS;
+        g_block_mgr[NFTL_PARTITION2].initialized      = 0;
 #endif /* NFTL_LOGICAL_PARTITION_NUM > 1 */
 #endif /* NFTL_LOGICAL_PARTITION_NUM > 2 */
 

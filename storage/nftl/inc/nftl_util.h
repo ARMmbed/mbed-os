@@ -107,7 +107,8 @@ static inline uint32_t nftl_tole32(uint32_t a)
 }
 
 // Convert between 16-bit little-endian and native order
-static inline uint16_t nftl_fromle16(uint16_t a) {
+static inline uint16_t nftl_fromle16(uint16_t a)
+{
 #if !defined(NFTL_NO_INTRINSICS) && ( \
     (defined(  BYTE_ORDER  ) && defined(  ORDER_LITTLE_ENDIAN  ) &&   BYTE_ORDER   ==   ORDER_LITTLE_ENDIAN  ) || \
     (defined(__BYTE_ORDER  ) && defined(__ORDER_LITTLE_ENDIAN  ) && __BYTE_ORDER   == __ORDER_LITTLE_ENDIAN  ) || \
@@ -148,7 +149,7 @@ static inline uint32_t nftl_aligndown(uint32_t a, uint32_t alignment)
 
 static inline unsigned long long nftl_alignup(unsigned long long a, uint32_t alignment)
 {
-    return nftl_aligndown(a + alignment-1, alignment);
+    return nftl_aligndown(a + alignment - 1, alignment);
 }
 
 // Find the sequence comparison of a and b, this is the distance

@@ -52,7 +52,7 @@ void functionality_test()
 
         for (j = 0; j < 1; j++) {
 
-            data_record[j] = i*64 + j;
+            data_record[j] = i * 64 + j;
 
             memset(write_buf, data_record[j], 2048);
 
@@ -77,96 +77,6 @@ void functionality_test()
 
     printf("test pass\r\n");
 
- /*   uint8_t *dummy = new (std::nothrow) uint8_t[num_blocks * erase_size];
-    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory for test");
-    delete[] dummy;
-
-    HeapBlockDevice heap_bd(num_blocks * erase_size, read_size, prog_size, erase_size);
-    FlashSimBlockDevice bd(&heap_bd, blank);
-
-    int err = bd.init();
-    TEST_ASSERT_EQUAL(0, err);
-
-    uint8_t read_buf[test_buf_size], write_buf[test_buf_size];
-
-    TEST_ASSERT_EQUAL(num_blocks * erase_size, bd.size());
-    TEST_ASSERT_EQUAL(read_size, bd.get_read_size());
-    TEST_ASSERT_EQUAL(prog_size, bd.get_program_size());
-    TEST_ASSERT_EQUAL(erase_size, bd.get_erase_size());
-    TEST_ASSERT_EQUAL(blank, bd.get_erase_value());
-
-    srand(1);
-    for (bd_size_t i = 0; i < test_buf_size; i++) {
-        write_buf[i] = 0xff & rand();
-    }
-
-    // Make sure we can't program if not erased (even after init)
-    err = bd.program(write_buf, 0, test_buf_size);
-    TEST_ASSERT_EQUAL(BD_ERROR_NOT_ERASED, err);
-
-    err = bd.erase(0, erase_size * 2);
-    TEST_ASSERT_EQUAL(0, err);
-
-    err = bd.program(write_buf, 0, test_buf_size);
-    TEST_ASSERT_EQUAL(0, err);
-
-    // Allow programming same data
-    err = bd.program(write_buf, 0, test_buf_size);
-    TEST_ASSERT_EQUAL(0, err);
-
-    srand(2);
-    for (bd_size_t i = 0; i < test_buf_size; i++) {
-        write_buf[i] = 0xff & rand();
-    }
-
-    err = bd.program(write_buf, 0, test_buf_size);
-    TEST_ASSERT_EQUAL(BD_ERROR_NOT_ERASED, err);
-
-    err = bd.program(write_buf, 2 * erase_size - test_buf_size, test_buf_size);
-    TEST_ASSERT_EQUAL(0, err);
-
-    memset(write_buf, blank, test_buf_size / 2);
-    err = bd.read(read_buf, test_buf_size * 2, test_buf_size / 2);
-    TEST_ASSERT_EQUAL(0, err);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(write_buf, read_buf, test_buf_size / 2);
-
-    srand(1);
-    for (bd_size_t i = 0; i < test_buf_size; i++) {
-        write_buf[i] = 0xff & rand();
-    }
-
-    err = bd.read(read_buf, 0, test_buf_size);
-    TEST_ASSERT_EQUAL(0, err);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(write_buf, read_buf, test_buf_size);
-
-    srand(2);
-    for (bd_size_t i = 0; i < test_buf_size; i++) {
-        write_buf[i] = 0xff & rand();
-    }
-
-    err = bd.read(read_buf, 2 * erase_size - test_buf_size, test_buf_size);
-    TEST_ASSERT_EQUAL(0, err);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(write_buf, read_buf, test_buf_size);
-
-    err = bd.deinit();
-    TEST_ASSERT_EQUAL(0, err);
-
-    err = bd.init();
-    TEST_ASSERT_EQUAL(0, err);
-
-    // Make sure data lives across inits
-    err = bd.read(read_buf, 2 * erase_size - test_buf_size, test_buf_size);
-    TEST_ASSERT_EQUAL(0, err);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(write_buf, read_buf, test_buf_size);
-
-    err = bd.erase(0, erase_size);
-    TEST_ASSERT_EQUAL(0, err);
-
-    // Make sure erase returns the erase value
-    memset(write_buf, blank, test_buf_size);
-    err = bd.read(read_buf, 0, test_buf_size);
-    TEST_ASSERT_EQUAL(0, err);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(write_buf, read_buf, test_buf_size);*/
 }
 
 
