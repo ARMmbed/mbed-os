@@ -440,6 +440,22 @@ def legacy_assignment_check(pin_name_content):
         invalid_items.append({"key": key, "val": val, "message": message})
     return invalid_items
 
+
+def legacy_alias_check(pin_name_content):
+    invalid_items = []
+    legacy_assignments = dict(
+        re.findall(
+            r"^\s*((?:SPI|I2C)_\w*)\s*=\s*([a-zA-Z0-9_]+)",
+            pin_name_content,
+            re.MULTILINE,
+        )
+    )
+    for key, val in legacy_assignments.items():
+        message = "legacy assignment; SPI_xxx and I2C_xxx must be #define'd"
+        invalid_items.append({"key": key, "val": val, "message": message})
+    return invalid_items
+
+
 def legacy_uart_check(pin_name_dict):
     invalid_items = []
     if "CONSOLE_TX" not in pin_name_dict or "CONSOLE_RX" not in pin_name_dict:
@@ -660,6 +676,12 @@ test_cases = [
         "suite_name": "generic",
         "case_name": "legacy",
         "case_function": legacy_assignment_check,
+        "case_input": "content",
+    },
+    {
+        "suite_name": "generic",
+        "case_name": "alias",
+        "case_function": legacy_alias_check,
         "case_input": "content",
     },
     {
