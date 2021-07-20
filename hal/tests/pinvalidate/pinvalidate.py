@@ -260,7 +260,7 @@ def check_duplicate_markers(test_mode=False):
     return errors
 
 
-def target_has_arduino_form_factor(target_name):
+def target_has_form_factor(target_name, form_factor):
     """Check if the target has the Arduino form factor."""
     mbed_os_root = pathlib.Path(__file__).absolute().parents[3]
 
@@ -272,7 +272,7 @@ def target_has_arduino_form_factor(target_name):
     if target_name in target_data:
         if "supported_form_factors" in target_data[target_name]:
             form_factors = target_data[target_name]["supported_form_factors"]
-            if "ARDUINO_UNO" in form_factors:
+            if form_factor in form_factors:
                 return True
 
     return False
@@ -463,6 +463,13 @@ def legacy_uart_check(pin_name_dict):
         invalid_items.append({"key": "", "val": "", "message": message})
     return invalid_items
 
+
+def legacy_arduino_uno_check(arduino_form_factor):
+    invalid_items = []
+    if arduino_form_factor == True:
+        message = "ARDUINO form factor is deprecated, should be replaced by ARDUINO_UNO"
+        invalid_items.append({"key": "", "val": "", "message": message})
+    return invalid_items
 
 def print_summary(report):
     targets = set([case["platform_name"] for case in report])
@@ -691,6 +698,12 @@ test_cases = [
         "case_input": "content",
     },
     {
+        "suite_name": "generic",
+        "case_name": "arduino_formfactor",
+        "case_function": legacy_arduino_uno_check,
+        "case_input": "arduino_form_factor",
+    },
+    {
         "suite_name": "arduino_uno",
         "case_name": "duplicate",
         "case_function": arduino_duplicate_assignment_check,
@@ -740,21 +753,27 @@ def validate_pin_names(args):
 
         pin_name_dict = pin_name_to_dict(pin_name_content)
 
-        arduino_support = target_has_arduino_form_factor(target)
+        arduino_uno_support = target_has_form_factor(target, "ARDUINO_UNO")
+
+        arduino_support = target_has_form_factor(target, "ARDUINO")
 
         for case in test_cases:
             if suites:
                 if case["suite_name"] not in suites:
                     continue
             else:
-                if not arduino_support and case["suite_name"] == "arduino_uno":
+                if not arduino_uno_support and case["suite_name"] == "arduino_uno":
                     continue
+                if not arduino_uno_support and not arduino_support and case["case_name"] == "arduino_formfactor":
+                    continue
+
 
             if case["case_input"] == "dict":
                 case_input = pin_name_dict
             elif case["case_input"] == "content":
                 case_input = pin_name_content
-
+            elif case["case_input"] == "arduino_form_factor":
+                case_input = arduino_support
             case_output = case["case_function"](case_input)
 
             case_result = "FAILED" if case_output else "PASSED"
