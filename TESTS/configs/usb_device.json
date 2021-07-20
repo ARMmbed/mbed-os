@@ -1,0 +1,5 @@
+{
+    "macros": [
+        "USB_DEVICE_TESTS"
+    ]
+}
