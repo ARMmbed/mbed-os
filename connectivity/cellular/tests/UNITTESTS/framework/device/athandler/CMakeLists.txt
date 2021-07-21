@@ -1,6 +1,8 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include(GoogleTest)
+
 set(TEST_NAME cellular-framework-device-athandler-unittest)
 
 add_executable(${TEST_NAME})
@@ -39,6 +41,4 @@ target_link_libraries(${TEST_NAME}
         gmock_main
 )
 
-add_test(NAME "${TEST_NAME}" COMMAND ${TEST_NAME})
-
-set_tests_properties(${TEST_NAME} PROPERTIES LABELS "cellular")
+gtest_discover_tests(${TEST_NAME} PROPERTIES LABELS "cellular")
