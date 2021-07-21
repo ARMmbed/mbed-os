@@ -8,7 +8,7 @@ add_executable(${TEST_NAME})
 target_compile_definitions(${TEST_NAME}
     PRIVATE
         MBED_CONF_LORA_OVER_THE_AIR_ACTIVATION=true
-        MBED_CONF_LORA_AUTOMATIC_UPLINK_MESSAGE=true        
+        MBED_CONF_LORA_AUTOMATIC_UPLINK_MESSAGE=true
         MBED_CONF_LORA_TX_MAX_SIZE=255
 )
 

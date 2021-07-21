@@ -5,7 +5,7 @@ set(TEST_NAME filesystemstore-unittest)
 
 add_executable(${TEST_NAME})
 
-target_compile_definitions(${TEST_NAME} 
+target_compile_definitions(${TEST_NAME}
     PRIVATE
         MBED_LFS_READ_SIZE=64
         MBED_LFS_PROG_SIZE=64

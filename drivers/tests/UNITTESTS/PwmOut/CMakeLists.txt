@@ -5,7 +5,7 @@ set(TEST_NAME pwmout-unittest)
 
 add_executable(${TEST_NAME})
 
-target_compile_definitions(${TEST_NAME} 
+target_compile_definitions(${TEST_NAME}
     PRIVATE
         DEVICE_PWMOUT
 )

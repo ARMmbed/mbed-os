@@ -5,7 +5,7 @@ set(TEST_NAME equeue-unittest)
 
 add_executable(${TEST_NAME})
 
-target_compile_definitions(${TEST_NAME} 
+target_compile_definitions(${TEST_NAME}
     PRIVATE
         EQUEUE_PLATFORM_POSIX
 )
@@ -16,8 +16,8 @@ target_compile_options(${TEST_NAME}
 )
 
 target_sources(${TEST_NAME}
-    PRIVATE        
-        ${mbed-os_SOURCE_DIR}/events/source/equeue.c           
+    PRIVATE
+        ${mbed-os_SOURCE_DIR}/events/source/equeue.c
         test_equeue.cpp
 )
 
