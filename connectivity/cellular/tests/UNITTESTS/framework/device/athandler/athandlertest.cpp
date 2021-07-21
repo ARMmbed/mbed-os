@@ -906,6 +906,7 @@ TEST_F(TestATHandler, test_ATHandler_resp_start)
 
     filehandle_stub_table = NULL;
     filehandle_stub_table_pos = 0;
+    mbed_poll_stub::revents_value = POLLIN;
 
     ATHandler at(&fh1, que, 0, ",");
     at.resp_start();
@@ -914,6 +915,7 @@ TEST_F(TestATHandler, test_ATHandler_resp_start)
     char table2[] = "\"2,\"OK\r\n\0";
     filehandle_stub_table = table2;
     filehandle_stub_table_pos = 0;
+    mbed_poll_stub::int_value = strlen(table2);
 
     at.flush();
     at.clear_error();
@@ -1052,12 +1054,14 @@ TEST_F(TestATHandler, test_ATHandler_resp_stop)
 {
     EventQueue que;
     FileHandle_stub fh1;
+    mbed_poll_stub::revents_value = POLLIN;
 
     ATHandler at(&fh1, que, 0, ",");
 
     char table[] = "21 OK\r\n\0";
     filehandle_stub_table = table;
     filehandle_stub_table_pos = 0;
+    mbed_poll_stub::int_value = strlen(table);
 
     at.info_elem('2');
     at.set_stop_tag("OK\r\n");
@@ -1266,6 +1270,7 @@ TEST_F(TestATHandler, test_ATHandler_at_cmd_str)
 {
     EventQueue que;
     FileHandle_stub fh1;
+    mbed_poll_stub::revents_value = POLLIN;
 
     ATHandler at(&fh1, que, 0, ",");
     uint8_t byte[] = {1, 2, 3, 4};
