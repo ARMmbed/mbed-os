@@ -1,6 +1,5 @@
 colorama==0.3.9
 urllib3[secure]>=1.26.5
-prettytable==0.7.2
 junit-xml==1.8
 PyYAML>=5.4
 jsonschema==2.6.0
