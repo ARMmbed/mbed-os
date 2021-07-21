@@ -37,7 +37,6 @@ target_link_libraries(${TEST_NAME}
         mbed-headers-events
         mbed-headers-hal
         mbed-headers-platform
-        mbed-headers-connectivity
         mbed-headers-mbedtls
         mbed-headers-lorawan
         mbed-stubs
