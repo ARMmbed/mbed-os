@@ -30,7 +30,6 @@ using utest::v1::Case;
 #define MULTI_TICKER_TIME_MS 100
 volatile uint32_t callback_trigger_count = 0;
 static const int test_timeout = 240;
-static const int total_ticks = 10;
 
 
 /* Tolerance is quite arbitrary due to large number of boards with varying level of accuracy */
