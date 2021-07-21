@@ -8,13 +8,13 @@ if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
         "-mfpu=vfpv3"
         "-mfloat-abi=softfp"
         "-mno-unaligned-access"
-        "-mcpu=${CMAKE_SYSTEM_PROCESSOR}"
+        "-mcpu=${MBED_CPU_CORE}"
     )
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     list(APPEND common_options
         "-mfpu=vfpv3"
         "-mfloat-abi=hard"
-        "-mcpu=${CMAKE_SYSTEM_PROCESSOR}"
+        "-mcpu=${MBED_CPU_CORE}"
     )
 endif()
 
