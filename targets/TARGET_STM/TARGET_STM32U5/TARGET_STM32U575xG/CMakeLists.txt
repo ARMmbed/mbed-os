@@ -19,6 +19,7 @@ target_include_directories(mbed-stm32u575xg
 target_sources(mbed-stm32u575xg
     INTERFACE
         ${STARTUP_FILE}
+        system_clock.c
 )
 
 mbed_set_linker_script(mbed-stm32u575xg ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
