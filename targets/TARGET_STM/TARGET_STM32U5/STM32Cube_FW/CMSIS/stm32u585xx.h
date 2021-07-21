@@ -227,7 +227,7 @@ typedef enum
 #define __VTOR_PRESENT            1U        /* VTOR present */
 #define __NVIC_PRIO_BITS          4U        /* Number of Bits used for Priority Levels */
 #define __Vendor_SysTickConfig    0U        /* Set to 1 if different SysTick Config is used */
-#define __FPU_PRESENT             1         /* FPU present */
+#define __FPU_PRESENT             1U        /* FPU present */
 #define __DSP_PRESENT             1U        /* DSP extension present */
 
 /** @} */ /* End of group Configuration_of_CMSIS */
@@ -1854,7 +1854,7 @@ typedef struct
 #define ADC12_COMMON_BASE_NS     (AHB2PERIPH_BASE_NS + 0x08308UL)
 #define DCMI_BASE_NS             (AHB2PERIPH_BASE_NS + 0x0C000UL)
 #define PSSI_BASE_NS             (AHB2PERIPH_BASE_NS + 0x0C400UL)
-#define OTG_FS_BASE_NS           (AHB2PERIPH_BASE_NS + 0x20000UL)
+#define USB_OTG_FS_BASE_NS       (AHB2PERIPH_BASE_NS + 0x20000UL)
 #define AES_BASE_NS              (AHB2PERIPH_BASE_NS + 0xA0000UL)
 #define HASH_BASE_NS             (AHB2PERIPH_BASE_NS + 0xA0400UL)
 #define HASH_DIGEST_BASE_NS      (AHB2PERIPH_BASE_NS + 0xA0710UL)
@@ -2040,7 +2040,7 @@ typedef struct
 #define ADC12_COMMON_BASE_S     (AHB2PERIPH_BASE_S + 0x08308UL)
 #define DCMI_BASE_S             (AHB2PERIPH_BASE_S + 0x0C000UL)
 #define PSSI_BASE_S             (AHB2PERIPH_BASE_S + 0x0C400UL)
-#define OTG_FS_BASE_S           (AHB2PERIPH_BASE_S + 0x20000UL)
+#define USB_OTG_FS_BASE_S       (AHB2PERIPH_BASE_S + 0x20000UL)
 #define AES_BASE_S              (AHB2PERIPH_BASE_S + 0xA0000UL)
 #define HASH_BASE_S             (AHB2PERIPH_BASE_S + 0xA0400UL)
 #define HASH_DIGEST_BASE_S      (AHB2PERIPH_BASE_S + 0xA0710UL)
@@ -2302,7 +2302,7 @@ typedef struct
 #define ADC12_COMMON_NS        ((ADC_Common_TypeDef *) ADC12_COMMON_BASE_NS)
 #define DCMI_NS                ((DCMI_TypeDef *) DCMI_BASE_NS)
 #define PSSI_NS                ((PSSI_TypeDef *) PSSI_BASE_NS)
-#define USB_OTG_FS_NS          ((USB_OTG_GlobalTypeDef *) OTG_FS_BASE_NS)
+#define USB_OTG_FS_NS          ((USB_OTG_GlobalTypeDef *) USB_OTG_FS_BASE_NS)
 #define AES_NS                 ((AES_TypeDef *) AES_BASE_NS)
 #define HASH_NS                ((HASH_TypeDef *) HASH_BASE_NS)
 #define HASH_DIGEST_NS         ((HASH_DIGEST_TypeDef *) HASH_DIGEST_BASE_NS)
@@ -2466,7 +2466,7 @@ typedef struct
 #define ADC12_COMMON_S         ((ADC_Common_TypeDef *) ADC12_COMMON_BASE_S)
 #define DCMI_S                 ((DCMI_TypeDef *) DCMI_BASE_S)
 #define PSSI_S                 ((PSSI_TypeDef *) PSSI_BASE_S)
-#define USB_OTG_FS_S           ((USB_OTG_GlobalTypeDef *) OTG_FS_BASE_S)
+#define USB_OTG_FS_S           ((USB_OTG_GlobalTypeDef *) USB_OTG_FS_BASE_S)
 #define AES_S                  ((AES_TypeDef *) AES_BASE_S)
 #define HASH_S                 ((HASH_TypeDef *) HASH_BASE_S)
 #define HASH_DIGEST_S          ((HASH_DIGEST_TypeDef *) HASH_DIGEST_BASE_S)
