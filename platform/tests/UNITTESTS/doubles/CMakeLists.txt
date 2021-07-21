@@ -35,4 +35,5 @@ target_link_libraries(mbed-stubs-platform
         mbed-headers-base
         mbed-headers-hal
         mbed-headers-platform
+        gmock_main
 )
