@@ -262,34 +262,42 @@ void lp_ticker_init(void)
 #else
     LptimHandle.Init.Clock.Prescaler = LPTIM_PRESCALER_DIV1;
 #endif /* MBED_CONF_TARGET_LPTICKER_LPTIM_CLOCK */
-
     LptimHandle.Init.Trigger.Source = LPTIM_TRIGSOURCE_SOFTWARE;
 #if defined (LPTIM_ACTIVEEDGE_FALLING)
     LptimHandle.Init.Trigger.ActiveEdge = LPTIM_ACTIVEEDGE_FALLING;
 #endif
+#if defined(TARGET_STM32U5)
+    LptimHandle.Init.Period = 0xFFFF;
+#endif
 #if defined (LPTIM_TRIGSAMPLETIME_DIRECTTRANSITION)
     LptimHandle.Init.Trigger.SampleTime = LPTIM_TRIGSAMPLETIME_DIRECTTRANSITION;
 #endif
-
-    LptimHandle.Init.UltraLowPowerClock.SampleTime = LPTIM_TRIGSAMPLETIME_DIRECTTRANSITION; // L5 ?
-
+#if defined(LPTIM_CLOCKPOLARITY_RISING)
+    LptimHandle.Init.UltraLowPowerClock.Polarity   = LPTIM_CLOCKPOLARITY_RISING;
+    LptimHandle.Init.UltraLowPowerClock.SampleTime = LPTIM_CLOCKSAMPLETIME_DIRECTTRANSITION;
+#endif
+#if defined(LPTIM_OUTPUTPOLARITY_HIGH)
     LptimHandle.Init.OutputPolarity = LPTIM_OUTPUTPOLARITY_HIGH;
+#endif
     LptimHandle.Init.UpdateMode = LPTIM_UPDATE_IMMEDIATE;
     LptimHandle.Init.CounterSource = LPTIM_COUNTERSOURCE_INTERNAL;
-#if defined (LPTIM_INPUT1SOURCE_GPIO) /* STM32L4 / STM32L5 */
+#if defined (LPTIM_INPUT1SOURCE_GPIO)
     LptimHandle.Init.Input1Source = LPTIM_INPUT1SOURCE_GPIO;
     LptimHandle.Init.Input2Source = LPTIM_INPUT2SOURCE_GPIO;
 #endif /* LPTIM_INPUT1SOURCE_GPIO */
-
-#if defined(LPTIM_RCR_REP) /* STM32L4 / STM32L5 */
+#if defined(LPTIM_RCR_REP)
     LptimHandle.Init.RepetitionCounter = 0;
 #endif /* LPTIM_RCR_REP */
-
 
     if (HAL_LPTIM_Init(&LptimHandle) != HAL_OK) {
         error("HAL_LPTIM_Init ERROR\n");
         return;
     }
+
+#if defined(__HAL_RCC_LPTIM1_CLKAM_ENABLE)
+    /* Enable autonomous mode for LPTIM1 */
+    __HAL_RCC_LPTIM1_CLKAM_ENABLE();
+#endif
 
     NVIC_SetVector(LPTIM_MST_IRQ, (uint32_t)LPTIM_IRQHandler);
 
@@ -306,8 +314,25 @@ void lp_ticker_init(void)
     __HAL_LPTIM_WAKEUPTIMER_EXTI_ENABLE_RISING_EDGE();
 #endif
 
+#if defined(LPTIM_FLAG_DIEROK)
+    HAL_LPTIM_Counter_Start(&LptimHandle);
+
+    __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_DIEROK);
+    __HAL_LPTIM_ENABLE_IT(&LptimHandle, LPTIM_IT_CC1 | LPTIM_IT_CMP1OK);
+    while (__HAL_LPTIM_GET_FLAG(&LptimHandle, LPTIM_FLAG_DIEROK) == RESET) {
+    }
+
+    /* Need to write a compare value in order to get LPTIM_FLAG_CMPOK in set_interrupt */
+    __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMP1OK);
+    __HAL_LPTIM_COMPARE_SET(&LptimHandle, LPTIM_CHANNEL_1, 0);
+    while (__HAL_LPTIM_GET_FLAG(&LptimHandle, LPTIM_FLAG_CMP1OK) == RESET) {
+    }
+    __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMP1OK);
+
+#else
     __HAL_LPTIM_ENABLE_IT(&LptimHandle, LPTIM_IT_CMPM);
     __HAL_LPTIM_ENABLE_IT(&LptimHandle, LPTIM_IT_CMPOK);
+
     HAL_LPTIM_Counter_Start(&LptimHandle, 0xFFFF);
 
     /* Need to write a compare value in order to get LPTIM_FLAG_CMPOK in set_interrupt */
@@ -316,6 +341,7 @@ void lp_ticker_init(void)
     while (__HAL_LPTIM_GET_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK) == RESET) {
     }
     __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK);
+#endif
 
     /* Init is called with Interrupts disabled, so the CMPOK interrupt
      * will not be handled. Let's mark it is now safe to write to LP counter */
@@ -330,11 +356,24 @@ static void LPTIM_IRQHandler(void)
         lp_Fired = 0;
         /* We're already in handler and interrupt might be pending,
          * so clear the flag, to avoid calling irq_handler twice */
+#if defined(LPTIM_FLAG_CC1)
+        __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CC1);
+#else
         __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPM);
+#endif
         lp_ticker_irq_handler();
     }
 
     /* Compare match interrupt */
+#if defined(LPTIM_FLAG_CC1)
+    if (__HAL_LPTIM_GET_FLAG(&LptimHandle, LPTIM_FLAG_CC1) != RESET) {
+        if (__HAL_LPTIM_GET_IT_SOURCE(&LptimHandle, LPTIM_IT_CC1) != RESET) {
+            /* Clear Compare match flag */
+            __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CC1);
+            lp_ticker_irq_handler();
+        }
+    }
+#else
     if (__HAL_LPTIM_GET_FLAG(&LptimHandle, LPTIM_FLAG_CMPM) != RESET) {
         if (__HAL_LPTIM_GET_IT_SOURCE(&LptimHandle, LPTIM_IT_CMPM) != RESET) {
             /* Clear Compare match flag */
@@ -342,10 +381,17 @@ static void LPTIM_IRQHandler(void)
             lp_ticker_irq_handler();
         }
     }
+#endif
 
+#if defined(LPTIM_FLAG_CMP1OK)
+    if (__HAL_LPTIM_GET_FLAG(&LptimHandle, LPTIM_FLAG_CMP1OK) != RESET) {
+        if (__HAL_LPTIM_GET_IT_SOURCE(&LptimHandle, LPTIM_IT_CMP1OK) != RESET) {
+            __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMP1OK);
+#else
     if (__HAL_LPTIM_GET_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK) != RESET) {
         if (__HAL_LPTIM_GET_IT_SOURCE(&LptimHandle, LPTIM_IT_CMPOK) != RESET) {
             __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK);
+#endif
             lp_cmpok = true;
             if (sleep_manager_locked) {
                 sleep_manager_unlock_deep_sleep();
@@ -379,11 +425,11 @@ static void LPTIM_IRQHandler(void)
         }
     }
 
-
 #if defined (__HAL_LPTIM_WAKEUPTIMER_EXTI_CLEAR_FLAG)
     /* EXTI lines are not configured by default */
     __HAL_LPTIM_WAKEUPTIMER_EXTI_CLEAR_FLAG();
 #endif
+
     core_util_critical_section_exit();
 }
 
@@ -466,10 +512,19 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
          */
         if ((timestamp < last_read_counter) && (last_read_counter <= (0xFFFF - LP_TIMER_SAFE_GUARD))) {
             /*  Workaround, because limitation */
+#if defined(LPTIM_CHANNEL_1)
+            __HAL_LPTIM_COMPARE_SET(&LptimHandle, LPTIM_CHANNEL_1, ~0);
+#else
             __HAL_LPTIM_COMPARE_SET(&LptimHandle, ~0);
+#endif
         } else {
             /*  It is safe to write */
+#if defined(LPTIM_CHANNEL_1)
+            __HAL_LPTIM_COMPARE_SET(&LptimHandle, LPTIM_CHANNEL_1, timestamp);
+#else
             __HAL_LPTIM_COMPARE_SET(&LptimHandle, timestamp);
+#endif
+
         }
 
         /* We just programed the CMP so we'll need to wait for cmpok before
@@ -501,9 +556,15 @@ void lp_ticker_disable_interrupt(void)
     core_util_critical_section_enter();
 
     if (!lp_cmpok) {
+#if defined(LPTIM_FLAG_CMP1OK)
+        while (__HAL_LPTIM_GET_FLAG(&LptimHandle, LPTIM_FLAG_CMP1OK) == RESET) {
+        }
+        __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMP1OK);
+#else
         while (__HAL_LPTIM_GET_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK) == RESET) {
         }
         __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK);
+#endif
         lp_cmpok = true;
     }
     /*  now that CMPOK is set, allow deep sleep again */
@@ -522,7 +583,11 @@ void lp_ticker_disable_interrupt(void)
 void lp_ticker_clear_interrupt(void)
 {
     core_util_critical_section_enter();
+#if defined(LPTIM_FLAG_CC1)
+    __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CC1);
+#else
     __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPM);
+#endif
     NVIC_ClearPendingIRQ(LPTIM_MST_IRQ);
     core_util_critical_section_exit();
 }
