@@ -7,7 +7,7 @@ add_executable(${TEST_NAME})
 
 target_compile_definitions(${TEST_NAME}
     PRIVATE
-        NDEBUG=1        
+        NDEBUG=1
         MBED_CONF_LORA_TX_MAX_SIZE=255
 )
 
