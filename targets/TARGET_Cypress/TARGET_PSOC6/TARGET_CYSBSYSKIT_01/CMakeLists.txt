@@ -59,4 +59,7 @@ target_compile_definitions(mbed-cysbsyskit-01
         "CY8C624AFNI_S2D43F"
 )
 
-mbed_post_build_psoc6_merge_hex("CYSBSYSKIT_01")
+mbed_post_build_psoc6_merge_hex(
+    PSOC6_TARGET
+        "CYSBSYSKIT_01"
+)

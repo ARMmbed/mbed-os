@@ -6,34 +6,35 @@ include(mbed_set_post_build)
 #
 # Merge Cortex-M4 HEX and a Cortex-M0 HEX.
 #
-macro(mbed_post_build_psoc6_merge_hex cypress_psoc6_target)
-    if("${cypress_psoc6_target}" STREQUAL "${MBED_TARGET}")
+macro(mbed_post_build_psoc6_merge_hex)
+    set(prefix "CYPRESS")
+    set(options)
+    set(oneValueArgs
+        PSOC6_TARGET
+        CORTEX_M0_HEX
+    )
+    set(multiValueArgs)
+    cmake_parse_arguments(
+        "${prefix}"
+        "${options}"
+        "${oneValueArgs}"
+        "${multipleValueArgs}"
+        ${ARGN}
+    )
+
+    if("${CYPRESS_PSOC6_TARGET}" STREQUAL "${MBED_TARGET}")
         function(mbed_post_build_function target)
             find_package(Python3)
+            set(post_build_command
+                ${Python3_EXECUTABLE} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/PSOC6.py
+                merge
+                --elf $<TARGET_FILE_DIR:${target}>/$<TARGET_FILE_BASE_NAME:${target}>.elf
+                --m4hex $<TARGET_FILE_DIR:${target}>/$<TARGET_FILE_BASE_NAME:${target}>.hex
+            )
 
-            # Copy ${ARGN} to a variable first as it cannot be used directly with
-            # the list() command
-            set (extra_macro_args ${ARGN})
-
-            # Get the number of arguments past the last expected argument
-            list(LENGTH extra_macro_args num_extra_args)
-
-            if(${num_extra_args} GREATER 0)
-                # Get extra argument as `cortex_m0_hex`
-                list(GET extra_macro_args 0 cortex_m0_hex)
-                set(post_build_command
-                    ${Python3_EXECUTABLE} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/PSOC6.py
-                    merge
-                    --elf $<TARGET_FILE_DIR:${target}>/$<TARGET_FILE_BASE_NAME:${target}>.elf
-                    --m4hex $<TARGET_FILE_DIR:${target}>/$<TARGET_FILE_BASE_NAME:${target}>.hex
-                    --m0hex ${cortex_m0_hex}
-                )
-            else()
-                set(post_build_command
-                    ${Python3_EXECUTABLE} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/PSOC6.py
-                    merge
-                    --elf $<TARGET_FILE_DIR:${target}>/$<TARGET_FILE_BASE_NAME:${target}>.elf
-                    --m4hex $<TARGET_FILE_DIR:${target}>/$<TARGET_FILE_BASE_NAME:${target}>.hex
+            if(NOT "${CYPRESS_CORTEX_M0_HEX}" STREQUAL "")
+                list(APPEND post_build_command
+                    --m0hex ${CYPRESS_CORTEX_M0_HEX}
                 )
             endif()
 
