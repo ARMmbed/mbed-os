@@ -69,7 +69,7 @@ TEST_F(TestCircularBuffer, push_pop_multiple)
     const int test_numbers[TEST_BUFFER_SIZE] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
     /* this will check pushing across the buffer end */
-    for (int i = 0; i < TEST_BUFFER_SIZE; i++) {
+    for (int i = 1; i < TEST_BUFFER_SIZE; i++) {
         int test_numbers_popped[TEST_BUFFER_SIZE] = { 0 };
         buf->push(test_numbers, i);
         EXPECT_EQ(buf->size(), i);
