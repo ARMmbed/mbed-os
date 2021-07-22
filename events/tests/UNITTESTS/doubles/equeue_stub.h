@@ -15,6 +15,9 @@
  * limitations under the License.
  */
 
+#ifndef __EQUEUE_STUB_H__
+#define __EQUEUE_STUB_H__
+
 #include "stdint.h"
 #include "stdbool.h"
 
@@ -24,3 +27,5 @@ typedef struct {
 } equeue_stub_def;
 
 extern equeue_stub_def equeue_stub;
+
+#endif
