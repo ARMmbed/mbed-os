@@ -21,11 +21,19 @@
 #include "stdint.h"
 #include "stdbool.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
     void *void_ptr;
     bool call_cb_immediately;
 } equeue_stub_def;
 
 extern equeue_stub_def equeue_stub;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
