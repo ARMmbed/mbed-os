@@ -56,7 +56,7 @@ def find_target_by_path(target_path):
 
     with open(target_path) as pin_names_file:
         pin_names_file_content = pin_names_file.read()
-    
+
     target_list_match = re.search(
         "\/* MBED TARGET LIST: ([0-9A-Z_,* \n]+)*\/",
         pin_names_file_content
@@ -71,7 +71,7 @@ def find_target_by_path(target_path):
                 re.MULTILINE,
             )
         )
-    
+
     if not target_list:
         print("WARNING: MBED TARGET LIST marker invalid or not found in file " + target_path)
         print("Target could not be determined. Only the generic test suite will run. You can manually specify additional suites.")
@@ -98,18 +98,18 @@ def find_target_by_path(target_path):
 def find_target_by_name(target_name=""):
     """Find a target by name."""
     mbed_os_root = pathlib.Path(__file__).absolute().parents[3]
-    
+
     targets = dict()
 
     for f in mbed_os_root.joinpath('targets').rglob("PinNames.h"):
         with open(f) as pin_names_file:
             pin_names_file_content = pin_names_file.read()
-        
+
         target_list_match = re.search(
             "\/* MBED TARGET LIST: ([0-9A-Z_,* \n]+)*\/",
             pin_names_file_content
         )
-        
+
         target_list = []
         if target_list_match:
             target_list = list(
@@ -127,7 +127,7 @@ def find_target_by_name(target_name=""):
         else:
             for target in target_list:
                 targets[target] = f
-    
+
     return targets
 
 
@@ -150,12 +150,12 @@ def check_markers(test_mode=False):
     for f in search_dir.rglob("PinNames.h"):
         with open(f) as pin_names_file:
             pin_names_file_content = pin_names_file.read()
-        
+
         target_list_match = re.search(
             "\/* MBED TARGET LIST: ([0-9A-Z_,* \n]+)*\/",
             pin_names_file_content
         )
-        
+
         marker_target_list = []
         if target_list_match:
             marker_target_list = list(
@@ -165,7 +165,7 @@ def check_markers(test_mode=False):
                     re.MULTILINE,
                 )
             )
-        
+
         if not marker_target_list:
             print("WARNING: MBED TARGET LIST marker invalid or not found in file " + str(f))
             errors.append({ "file": str(f), "error": "marker invalid or not found"})
@@ -181,7 +181,7 @@ def check_markers(test_mode=False):
             if not target_is_valid:
                 print("WARNING: MBED TARGET LIST in file " + str(f) + " includes target '" + target + "' which doesn't exist in targets.json or is not public")
                 errors.append({ "file": str(f), "error": "target not found"})
-    
+
     return errors
 
 
@@ -190,7 +190,7 @@ def check_duplicate_pinnames_files(test_mode=False):
     mbed_os_root = pathlib.Path(__file__).absolute().parents[3]
 
     errors = []
-    
+
     file_hash_dict = dict()
 
     if test_mode:
@@ -202,20 +202,20 @@ def check_duplicate_pinnames_files(test_mode=False):
         with open(f) as pin_names_file:
             pin_names_file_content = pin_names_file.read()
         file_hash_dict[str(f)] = hashlib.md5(pin_names_file_content.encode('utf-8')).hexdigest()
-    
-    rev_dict = {} 
-    for key, value in file_hash_dict.items(): 
-        rev_dict.setdefault(value, set()).add(key) 
-    duplicates = [key for key, values in rev_dict.items() 
-                                if len(values) > 1] 
-    
+
+    rev_dict = {}
+    for key, value in file_hash_dict.items():
+        rev_dict.setdefault(value, set()).add(key)
+    duplicates = [key for key, values in rev_dict.items()
+                                if len(values) > 1]
+
     for duplicate in duplicates:
         print("WARNING: Duplicate files")
         for file_path, file_hash in file_hash_dict.items():
             if file_hash == duplicate:
                 errors.append({ "file": file_path, "error": "duplicate file"})
                 print("\t" + file_path)
-    
+
     return errors
 
 def check_duplicate_markers(test_mode=False):
@@ -225,7 +225,7 @@ def check_duplicate_markers(test_mode=False):
     errors = []
 
     markers = dict()
-    
+
     if test_mode:
         search_dir = pathlib.Path(__file__).parent.joinpath('test_files').absolute()
     else:
@@ -234,12 +234,12 @@ def check_duplicate_markers(test_mode=False):
     for f in search_dir.rglob("PinNames.h"):
         with open(f) as pin_names_file:
             pin_names_file_content = pin_names_file.read()
-        
+
         target_list_match = re.search(
             "\/* MBED TARGET LIST: ([0-9A-Z_,* \n]+)*\/",
             pin_names_file_content
         )
-        
+
         marker_target_list = []
         if target_list_match:
             marker_target_list = list(
@@ -249,7 +249,7 @@ def check_duplicate_markers(test_mode=False):
                     re.MULTILINE,
                 )
             )
-        
+
         for target in marker_target_list:
             if target in markers:
                 print("WARNING: target duplicate in " + str(f) + ", " + target + " first listed in " + markers[target])
@@ -260,7 +260,7 @@ def check_duplicate_markers(test_mode=False):
     return errors
 
 
-def target_has_arduino_form_factor(target_name):
+def target_has_form_factor(target_name, form_factor):
     """Check if the target has the Arduino form factor."""
     mbed_os_root = pathlib.Path(__file__).absolute().parents[3]
 
@@ -272,7 +272,7 @@ def target_has_arduino_form_factor(target_name):
     if target_name in target_data:
         if "supported_form_factors" in target_data[target_name]:
             form_factors = target_data[target_name]["supported_form_factors"]
-            if "ARDUINO_UNO" in form_factors:
+            if form_factor in form_factors:
                 return True
 
     return False
@@ -440,6 +440,22 @@ def legacy_assignment_check(pin_name_content):
         invalid_items.append({"key": key, "val": val, "message": message})
     return invalid_items
 
+
+def legacy_alias_check(pin_name_content):
+    invalid_items = []
+    legacy_assignments = dict(
+        re.findall(
+            r"^\s*((?:SPI|I2C)_\w*)\s*=\s*([a-zA-Z0-9_]+)",
+            pin_name_content,
+            re.MULTILINE,
+        )
+    )
+    for key, val in legacy_assignments.items():
+        message = "legacy assignment; SPI_xxx and I2C_xxx must be #define'd"
+        invalid_items.append({"key": key, "val": val, "message": message})
+    return invalid_items
+
+
 def legacy_uart_check(pin_name_dict):
     invalid_items = []
     if "CONSOLE_TX" not in pin_name_dict or "CONSOLE_RX" not in pin_name_dict:
@@ -447,6 +463,13 @@ def legacy_uart_check(pin_name_dict):
         invalid_items.append({"key": "", "val": "", "message": message})
     return invalid_items
 
+
+def legacy_arduino_uno_check(arduino_form_factor):
+    invalid_items = []
+    if arduino_form_factor == True:
+        message = "ARDUINO form factor is deprecated, should be replaced by ARDUINO_UNO"
+        invalid_items.append({"key": "", "val": "", "message": message})
+    return invalid_items
 
 def print_summary(report):
     targets = set([case["platform_name"] for case in report])
@@ -610,13 +633,13 @@ def print_pretty_html_report(report):
         output.append("'>")
         output.append(case["result"])
         output.append("</td>")
-        
+
         output.append("<td style='color:")
         output.append(count_color)
         output.append("'>")
         output.append(str(len(case["errors"])))
         output.append("</td>")
-        
+
         output.append("<td>")
         output.extend(error_details)
         output.append("</td>")
@@ -664,9 +687,21 @@ test_cases = [
     },
     {
         "suite_name": "generic",
+        "case_name": "alias",
+        "case_function": legacy_alias_check,
+        "case_input": "content",
+    },
+    {
+        "suite_name": "generic",
         "case_name": "uart",
         "case_function": legacy_uart_check,
         "case_input": "content",
+    },
+    {
+        "suite_name": "generic",
+        "case_name": "arduino_formfactor",
+        "case_function": legacy_arduino_uno_check,
+        "case_input": "arduino_form_factor",
     },
     {
         "suite_name": "arduino_uno",
@@ -718,21 +753,27 @@ def validate_pin_names(args):
 
         pin_name_dict = pin_name_to_dict(pin_name_content)
 
-        arduino_support = target_has_arduino_form_factor(target)
+        arduino_uno_support = target_has_form_factor(target, "ARDUINO_UNO")
+
+        arduino_support = target_has_form_factor(target, "ARDUINO")
 
         for case in test_cases:
             if suites:
                 if case["suite_name"] not in suites:
                     continue
             else:
-                if not arduino_support and case["suite_name"] == "arduino_uno":
+                if not arduino_uno_support and case["suite_name"] == "arduino_uno":
                     continue
+                if not arduino_uno_support and not arduino_support and case["case_name"] == "arduino_formfactor":
+                    continue
+
 
             if case["case_input"] == "dict":
                 case_input = pin_name_dict
             elif case["case_input"] == "content":
                 case_input = pin_name_content
-
+            elif case["case_input"] == "arduino_form_factor":
+                case_input = arduino_support
             case_output = case["case_function"](case_input)
 
             case_result = "FAILED" if case_output else "PASSED"
