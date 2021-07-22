@@ -26,7 +26,7 @@ add_library(mbed-storage-kv-config INTERFACE)
 add_library(mbed-storage-direct-access-devicekey INTERFACE)
 add_library(mbed-storage-kv-global-api INTERFACE)
 
-if(${CMAKE_CROSSCOMPILING})
+if(${CMAKE_CROSSCOMPILING} AND NOT BUILD_GREENTEA_TESTS)
     # The directories below contain optional target libraries
     add_subdirectory(blockdevice EXCLUDE_FROM_ALL)
     add_subdirectory(filesystem EXCLUDE_FROM_ALL)
@@ -37,6 +37,7 @@ else()
     add_subdirectory(blockdevice)
     add_subdirectory(filesystem)
     add_subdirectory(kvstore)
+    add_subdirectory(platform)
 endif()
 
 target_include_directories(mbed-storage
