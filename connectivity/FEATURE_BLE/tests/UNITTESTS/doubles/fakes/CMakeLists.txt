@@ -33,10 +33,14 @@ target_sources(mbed-fakes-ble
         ${mbed-os_SOURCE_DIR}/connectivity/FEATURE_BLE/tests/UNITTESTS/doubles/fakes/SecurityManagerImpl_mock.h
 )
 
+target_link_options(mbed-fakes-ble
+    PRIVATE
+        --coverage
+)
+
 target_link_libraries(mbed-fakes-ble
     PRIVATE
         mbed-headers-base
         mbed-headers-platform
         mbed-headers-events
-        gcov
 )
