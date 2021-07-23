@@ -21,7 +21,6 @@ function(mbed_generate_bin_hex target)
             )
         endif()
     elseif(MBED_TOOLCHAIN STREQUAL "ARM")
-        get_property(mbed_studio_arm_compiler GLOBAL PROPERTY MBED_STUDIO_ARM_COMPILER)
         if ("${MBED_OUTPUT_EXT}" STREQUAL "" OR MBED_OUTPUT_EXT STREQUAL "bin")
             list(APPEND CMAKE_POST_BUILD_COMMAND
                 COMMAND ${elf_to_bin} ${mbed_studio_arm_compiler} --bin  -o ${CMAKE_CURRENT_BINARY_DIR}/${target}.bin $<TARGET_FILE:${target}>
