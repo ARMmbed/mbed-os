@@ -30,7 +30,7 @@ endif()
 #    HOST_TESTS_DIR ${CMAKE_CURRENT_LIST_DIR}/host_tests
 # )
 
-macro(mbed_greentea_add_test)
+function(mbed_greentea_add_test)
     set(options)
     set(singleValueArgs TEST_NAME)
     set(multipleValueArgs
@@ -119,4 +119,4 @@ macro(mbed_greentea_add_test)
         set(CMAKE_VERBOSE_MAKEFILE ON)
     endif()
 
-endmacro()
+endfunction()
