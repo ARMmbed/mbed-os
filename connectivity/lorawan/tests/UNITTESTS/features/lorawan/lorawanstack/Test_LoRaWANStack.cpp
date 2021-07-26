@@ -631,6 +631,7 @@ TEST_F(Test_LoRaWANStack, acquire_tx_metadata)
     memset(&conf, 0, sizeof(conf));
     conf.status = LORAMAC_EVENT_INFO_STATUS_OK;
     LoRaMac_stub::mcps_conf_ptr = &conf;
+    LoRaMac_stub::bool_true_counter = 1;
     radio._ev->tx_done();
 
     LoRaMac_stub::slot_value = RX_SLOT_WIN_2;
