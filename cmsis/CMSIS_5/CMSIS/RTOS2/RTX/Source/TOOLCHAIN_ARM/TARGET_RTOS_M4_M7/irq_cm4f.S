@@ -28,7 +28,7 @@
 RTX_STACK_CHECK EQU      0
 #endif
 
-                IF       ({FPU}="FPv4-SP")
+                IF       ({FPU}="FPv4-SP") || ({FPU}="VFPv4_SP_D16") || ({FPU}="FPv5-SP") || ({FPU}="FPv5_D16")
 FPU_USED        EQU      1
                 ELSE
 FPU_USED        EQU      0
