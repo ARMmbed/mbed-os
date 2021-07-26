@@ -696,6 +696,11 @@ TEST_F(Test_LoRaWANStack, acquire_rx_metadata)
     cb.battery_level = batt_lvl;
     EXPECT_TRUE(LORAWAN_STATUS_OK == object->set_lora_callbacks(&cb));
     mlme.req_type = MLME_LINK_CHECK;
+
+    loramac_mlme_indication_t ind2;
+    memset(&ind2, 0, sizeof(ind2));
+    LoRaMac_stub::mlme_ind_ptr = &ind2;
+
     mlme.status = LORAMAC_EVENT_INFO_STATUS_OK;
     LoRaMac_stub::bool_true_counter = true;
     radio._ev->rx_done(NULL, 0, 0, 0);
