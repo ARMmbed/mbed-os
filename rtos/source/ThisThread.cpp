@@ -221,9 +221,12 @@ void ThisThread::sleep_for(uint32_t millisec)
 void ThisThread::sleep_for(Clock::duration_u32 rel_time)
 {
 #if MBED_CONF_RTOS_PRESENT
-    osStatus_t status = osDelay(rel_time.count());
-    MBED_ASSERT(status == osOK);
-    (void) status;
+    uint32_t delay = rel_time.count();
+    if (delay != 0) {
+        osStatus_t status = osDelay(delay);
+        MBED_ASSERT(status == osOK);
+        (void) status;
+    }
 #else
     thread_sleep_for(rel_time.count());
 #endif
