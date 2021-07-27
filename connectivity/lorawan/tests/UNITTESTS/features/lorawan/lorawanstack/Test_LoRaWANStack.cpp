@@ -554,7 +554,7 @@ TEST_F(Test_LoRaWANStack, handle_rx)
     }
     ind.buffer = ind_buf;
     ind.buffer_size = 50;
-    ind.type = mcps_type_t(66);
+    ind.type = MCPS_MULTICAST;
     radio._ev->rx_done(NULL, 0, 0, 0);
     EXPECT_TRUE(50 == object->handle_rx(data, 50, port, flags, false));
     EXPECT_EQ(10, data[10]);

@@ -13,8 +13,12 @@ target_include_directories(mbed-fakes-event-queue
         .
 )
 
+target_link_options(mbed-fakes-event-queue
+    PRIVATE
+        --coverage
+)
+
 target_link_libraries(mbed-fakes-event-queue
     PRIVATE
         mbed-headers
-        gcov
 )
