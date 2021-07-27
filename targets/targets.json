@@ -6234,7 +6234,7 @@
     },
     "NRF52840_DK": {
         "supported_form_factors": [
-            "ARDUINO"
+            "ARDUINO_UNO"
         ],
         "inherits": [
             "MCU_NRF52840"
