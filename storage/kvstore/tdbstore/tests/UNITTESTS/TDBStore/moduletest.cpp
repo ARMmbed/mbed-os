@@ -99,7 +99,7 @@ TEST_F(TDBStoreModuleTest, corrupted_set_deinit_init_get)
 
     srand(0); // Prefer to have always the same pattern
 
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 0; i < 10; ++i) {
         EXPECT_EQ(tdb.deinit(), MBED_SUCCESS);
         // Corrupt the first part of the storage
         for (int j = 0; j < heap.size() / BLOCK_SIZE / 2; j++) {
@@ -109,7 +109,7 @@ TEST_F(TDBStoreModuleTest, corrupted_set_deinit_init_get)
             EXPECT_EQ(heap.program(block, BLOCK_SIZE * j, BLOCK_SIZE), MBED_SUCCESS);
         }
         EXPECT_EQ(tdb.init(), MBED_SUCCESS);
-        for (int j = 0; j < 100; ++j) {
+        for (int j = 0; j < 10; ++j) {
             // Use random data, so the data has to be updated
             EXPECT_EQ(tdb.set("key", block + j, 50, 0), MBED_SUCCESS);
             EXPECT_EQ(tdb.deinit(), MBED_SUCCESS);

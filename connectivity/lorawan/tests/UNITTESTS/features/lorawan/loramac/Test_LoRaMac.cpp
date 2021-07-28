@@ -432,7 +432,7 @@ TEST_F(Test_LoRaMac, post_process_mcps_req)
     LoRaMacCrypto_stub::int_table_idx_value = 0;
     LoRaMacCrypto_stub::int_table[0] = 4;
     LoRaMacCrypto_stub::int_table[1] = 4;
-//    LoRaPHY_stub::uint16_value = 0;
+    LoRaPHY_stub::uint16_value = 0;
     object->on_radio_rx_done(payload, 16, 0, 0);
     object->post_process_mcps_req();
 

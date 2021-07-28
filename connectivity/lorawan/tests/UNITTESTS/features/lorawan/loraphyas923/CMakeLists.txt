@@ -1,13 +1,15 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include(GoogleTest)
+
 set(TEST_NAME lorawan-loraphy-as923-unittest)
 
 add_executable(${TEST_NAME})
 
 target_compile_definitions(${TEST_NAME}
     PRIVATE
-        MBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH=5        
+        MBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH=5
         MBED_CONF_LORA_TX_MAX_SIZE=255
         MBED_CONF_LORA_UPLINK_PREAMBLE_LENGTH=8
 )
@@ -31,6 +33,4 @@ target_link_libraries(${TEST_NAME}
         gmock_main
 )
 
-add_test(NAME "${TEST_NAME}" COMMAND ${TEST_NAME})
-
-set_tests_properties(${TEST_NAME} PROPERTIES LABELS "lorawan")
+gtest_discover_tests(${TEST_NAME} PROPERTIES LABELS "lorawan")

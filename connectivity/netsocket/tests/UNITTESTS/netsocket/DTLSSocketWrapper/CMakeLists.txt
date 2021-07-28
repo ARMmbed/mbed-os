@@ -1,6 +1,8 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include(GoogleTest)
+
 set(TEST_NAME netsocket-dtls-socket-wrapper-unittest)
 
 add_executable(${TEST_NAME})
@@ -41,6 +43,4 @@ set_source_files_properties(${mbed-os_SOURCE_DIR}/connectivity/netsocket/tests/U
 set_source_files_properties(${mbed-os_SOURCE_DIR}/connectivity/netsocket/source/DTLSSocketWrapper.cpp PROPERTIES COMPILE_DEFINITIONS MBEDTLS_USER_CONFIG_FILE=${MBEDTLS_USER_CONFIG_FILE_PATH})
 set_source_files_properties(${mbed-os_SOURCE_DIR}/connectivity/netsocket/source/TLSSocketWrapper.cpp PROPERTIES COMPILE_DEFINITIONS MBEDTLS_USER_CONFIG_FILE=${MBEDTLS_USER_CONFIG_FILE_PATH})
 
-add_test(NAME "${TEST_NAME}" COMMAND ${TEST_NAME})
-
-set_tests_properties(${TEST_NAME} PROPERTIES LABELS "netsocket")
+gtest_discover_tests(${TEST_NAME} PROPERTIES LABELS "netsocket")
