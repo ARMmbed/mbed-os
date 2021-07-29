@@ -47,6 +47,10 @@
         },
         "debug_tx": {
             "help": "GPIO pin for TX debug"
+        },
+        "debug_invert": {
+            "help": "invert levels of the debug_rx and debug_tx pins. Default: 0 standard, 1 invert",
+            "value" : 0
         }
     },
     "target_overrides": {
