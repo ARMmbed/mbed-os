@@ -25,20 +25,31 @@
 #else
 
 using utest::v1::Case;
+using namespace std::chrono;
 
-static const int test_timeout = 10;
+#define TEST_ASSERT_EQUAL_DURATION(expected, actual) \
+    do { \
+        using ct = std::common_type_t<decltype(expected), decltype(actual)>; \
+        TEST_ASSERT_EQUAL(ct(expected).count(), ct(actual).count()); \
+    } while (0)
+
+#define TEST_ASSERT_DURATION_WITHIN(delta, expected, actual) \
+    do { \
+        using ct = std::common_type_t<decltype(delta), decltype(expected), decltype(actual)>; \
+        TEST_ASSERT_INT_WITHIN(ct(delta).count(), ct(expected).count(), ct(actual).count()); \
+    } while (0)
 
 #define TICKER_COUNT 16
-#define MULTI_TICKER_TIME_MS 100
+#define MULTI_TICKER_TIME 100ms
 
 /* Due to poor accuracy of LowPowerTicker on many platforms
    there is no sense to tune tolerance value as it was in Ticker tests.
 
    Tolerance value is set to 600us for measurement inaccuracy + 5% tolerance
    for LowPowerTicker. */
-#define TOLERANCE_US(DELAY) (600 + DELAY / 20)
+#define TOLERANCE(DELAY) (600us + DELAY / 20)
 
-
+static const int test_timeout = 10;
 volatile uint32_t ticker_callback_flag;
 volatile uint32_t multi_counter;
 Timer gtimer;
@@ -73,14 +84,14 @@ void increment_multi_counter(void)
 void test_multi_ticker(void)
 {
     LowPowerTicker ticker[TICKER_COUNT];
-    const uint32_t extra_wait = 10; // extra 10ms wait time
+    const milliseconds extra_wait = 10ms; // extra 10ms wait time
 
     multi_counter = 0;
     for (int i = 0; i < TICKER_COUNT; i++) {
-        ticker[i].attach_us(callback(increment_multi_counter), MULTI_TICKER_TIME_MS * 1000);
+        ticker[i].attach(callback(increment_multi_counter), MULTI_TICKER_TIME);
     }
 
-    ThisThread::sleep_for(MULTI_TICKER_TIME_MS + extra_wait);
+    ThisThread::sleep_for(MULTI_TICKER_TIME + extra_wait);
     TEST_ASSERT_EQUAL(TICKER_COUNT, multi_counter);
 
     for (int i = 0; i < TICKER_COUNT; i++) {
@@ -93,10 +104,10 @@ void test_multi_ticker(void)
 
     multi_counter = 0;
     for (int i = 0; i < TICKER_COUNT; i++) {
-        ticker[i].attach_us(callback(increment_multi_counter), (MULTI_TICKER_TIME_MS + i) * 1000);
+        ticker[i].attach(callback(increment_multi_counter), MULTI_TICKER_TIME + milliseconds{i});
     }
 
-    ThisThread::sleep_for(MULTI_TICKER_TIME_MS + TICKER_COUNT + extra_wait);
+    ThisThread::sleep_for(MULTI_TICKER_TIME + milliseconds{TICKER_COUNT} + extra_wait);
     TEST_ASSERT_EQUAL(TICKER_COUNT, multi_counter);
 
     for (int i = 0; i < TICKER_COUNT; i++) {
@@ -117,7 +128,6 @@ void test_multi_ticker(void)
 void test_multi_call_time(void)
 {
     LowPowerTicker ticker;
-    int time_diff;
     const int attach_count = 10;
 
     for (int i = 0; i < attach_count; i++) {
@@ -125,11 +135,11 @@ void test_multi_call_time(void)
         gtimer.reset();
 
         gtimer.start();
-        ticker.attach_us(callback(stop_gtimer_set_flag), MULTI_TICKER_TIME_MS * 1000);
+        ticker.attach(callback(stop_gtimer_set_flag), MULTI_TICKER_TIME);
         while (!ticker_callback_flag);
-        time_diff = gtimer.read_us();
+        const auto time_diff = gtimer.elapsed_time();
 
-        TEST_ASSERT_UINT32_WITHIN(TOLERANCE_US(MULTI_TICKER_TIME_MS * 1000), MULTI_TICKER_TIME_MS * 1000, time_diff);
+        TEST_ASSERT_DURATION_WITHIN(TOLERANCE(MULTI_TICKER_TIME), MULTI_TICKER_TIME, time_diff);
     }
 }
 
@@ -142,20 +152,16 @@ void test_multi_call_time(void)
 void test_detach(void)
 {
     LowPowerTicker ticker;
-    bool ret;
-    const float ticker_time_s = 0.1f;
-    const uint32_t wait_time_ms = 500;
     Semaphore sem(0, 1);
 
-    ticker.attach(callback(sem_release, &sem), ticker_time_s);
+    ticker.attach(callback(sem_release, &sem), 100ms);
 
     sem.acquire();
 
     sem.acquire();
     ticker.detach(); /* cancel */
 
-    ret = sem.try_acquire_for(wait_time_ms);
-    TEST_ASSERT_FALSE(ret);
+    TEST_ASSERT_FALSE(sem.try_acquire_for(500ms));
 }
 
 /** Test single callback time via attach
@@ -164,54 +170,29 @@ void test_detach(void)
     When callback attached with time interval specified
     Then ticker properly executes callback within a specified time interval
  */
-template<us_timestamp_t DELAY_US>
+template<typename Duration, uint64_t DELAY>
 void test_attach_time(void)
 {
     LowPowerTicker ticker;
     ticker_callback_flag = 0;
+    const auto delay  = Duration{DELAY};
 
     gtimer.reset();
     gtimer.start();
-    ticker.attach(callback(stop_gtimer_set_flag), ((float)DELAY_US) / 1000000.0f);
+    ticker.attach(callback(stop_gtimer_set_flag), delay);
     while (!ticker_callback_flag);
     ticker.detach();
-    const int time_diff = gtimer.read_us();
+    const auto time_diff = gtimer.elapsed_time();
 
-    TEST_ASSERT_UINT64_WITHIN(TOLERANCE_US(DELAY_US), DELAY_US, time_diff);
-}
-
-/** Test single callback time via attach_us
-
-    Given a Ticker
-    When callback attached with time interval specified
-    Then ticker properly executes callback within a specified time interval
- */
-template<us_timestamp_t DELAY_US>
-void test_attach_us_time(void)
-{
-    LowPowerTicker ticker;
-    ticker_callback_flag = 0;
-
-    gtimer.reset();
-    gtimer.start();
-    ticker.attach_us(callback(stop_gtimer_set_flag), DELAY_US);
-    while (!ticker_callback_flag);
-    ticker.detach();
-    const int time_diff = gtimer.read_us();
-
-    TEST_ASSERT_UINT64_WITHIN(TOLERANCE_US(DELAY_US), DELAY_US, time_diff);
+    TEST_ASSERT_DURATION_WITHIN(TOLERANCE(delay), delay, time_diff);
 }
 
 // Test cases
 Case cases[] = {
-    Case("Test attach for 0.001s and time measure", test_attach_time<1000>),
-    Case("Test attach_us for 1ms and time measure", test_attach_us_time<1000>),
-    Case("Test attach for 0.01s and time measure", test_attach_time<10000>),
-    Case("Test attach_us for 10ms and time measure", test_attach_us_time<10000>),
-    Case("Test attach for 0.1s and time measure", test_attach_time<100000>),
-    Case("Test attach_us for 100ms and time measure", test_attach_us_time<100000>),
-    Case("Test attach for 0.5s and time measure", test_attach_time<500000>),
-    Case("Test attach_us for 500ms and time measure", test_attach_us_time<500000>),
+    Case("Test attach for 1ms and time measure", test_attach_time<milliseconds, 1>),
+    Case("Test attach for 10ms and time measure", test_attach_time<milliseconds, 10>),
+    Case("Test attach for 100ms and time measure", test_attach_time<milliseconds, 100>),
+    Case("Test attach for 500ms and time measure", test_attach_time<milliseconds, 500>),
     Case("Test detach", test_detach),
     Case("Test multi call and time measure", test_multi_call_time),
     Case("Test multi ticker", test_multi_ticker),
