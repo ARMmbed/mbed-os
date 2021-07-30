@@ -25,7 +25,7 @@ project(mbed-os)
 
 # Add all paths to the list files within Mbed OS
 list(APPEND CMAKE_MODULE_PATH
-    "${mbed-os_SOURCE_DIR}/platform/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_TFM/TARGET_TFM_LATEST/scripts;${mbed-os_SOURCE_DIR}/targets/TARGET_Cypress/scripts;${mbed-os_SOURCE_DIR}/targets/TARGET_NXP/scripts"
+    "${mbed-os_SOURCE_DIR}/platform/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_TFM/TARGET_TFM_LATEST/scripts;${mbed-os_SOURCE_DIR}/targets/TARGET_Cypress/scripts;${mbed-os_SOURCE_DIR}/targets/TARGET_NXP/scripts;${mbed-os_SOURCE_DIR}/targets/TARGET_NUVOTON/scripts/"
 )
 
 add_subdirectory(extern)
