@@ -37,7 +37,7 @@
 
 #define IRQ_MODE_CHECK(is_func_void) \
     /* Secure service can't be called in interrupt context. */ \
-    if (IsIrqMode()) { \
+    if (IsException()) { \
         MBED_WARNING(MBED_MAKE_ERROR(MBED_MODULE_HAL, \
                 MBED_ERROR_INVALID_OPERATION), \
                 "GPIO secure service can't be called in interrupt context\n"); \

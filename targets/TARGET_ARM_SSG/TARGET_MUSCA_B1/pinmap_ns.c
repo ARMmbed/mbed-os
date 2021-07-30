@@ -81,7 +81,7 @@ void pin_function(PinName pin, int function)
     MBED_ASSERT(pin != NC);
 
     /* Secure service can't be called in interrupt context. */
-    if (IsIrqMode()) {
+    if (IsException()) {
         MBED_WARNING(MBED_MAKE_ERROR(MBED_MODULE_HAL,
                 MBED_ERROR_INVALID_OPERATION),
                 "Pin secure service can't be called in interrupt context\n");
@@ -127,7 +127,7 @@ void pin_mode(PinName pin, PinMode mode)
     MBED_ASSERT(pin != NC);
 
     /* Secure service can't be called in interrupt context. */
-    if (IsIrqMode()) {
+    if (IsException()) {
         MBED_WARNING(MBED_MAKE_ERROR(MBED_MODULE_HAL,
                 MBED_ERROR_INVALID_OPERATION),
                 "Pin secure service can't be called in interrupt context\n");
