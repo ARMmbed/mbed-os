@@ -89,10 +89,10 @@ __vectors:
 // these are separated out for clarity
 decl_isr_bkpt isr_invalid
 decl_isr_bkpt isr_nmi
-decl_isr_bkpt isr_hardfault
-decl_isr_bkpt isr_svcall
-decl_isr_bkpt isr_pendsv
-decl_isr_bkpt isr_systick
+decl_isr_bkpt HardFault_Handler
+decl_isr_bkpt SVC_Handler
+decl_isr_bkpt PendSV_Handler
+decl_isr_bkpt SysTick_Handler
 
 .macro decl_isr name
 .weak \name
