@@ -123,8 +123,6 @@ private:
     bool     enabled_powersave;
     uint8_t  host_wake_irq_event;
     uint8_t  dev_wake_irq_event;
-
-    bool     holding_deep_sleep_lock;
 };
 
 } // namespace cypress

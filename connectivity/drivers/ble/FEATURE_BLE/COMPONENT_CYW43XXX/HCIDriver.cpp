@@ -101,8 +101,6 @@ public:
 
     virtual void do_initialize()
     {
-        //Prevent PSoC6 to enter deep-sleep till BT initialization is complete
-        sleep_manager_lock_deep_sleep();
         rtos::ThisThread::sleep_for(500ms);
         bt_power = 1;
         rtos::ThisThread::sleep_for(500ms);
@@ -175,7 +173,6 @@ public:
                 // Note: Reset is handled by ack_service_pack.
                 case HCI_VS_CMD_SET_SLEEP_MODE:
                     HciWriteLeHostSupport();
-                    sleep_manager_unlock_deep_sleep();
                     break;
 
                 case HCI_OPCODE_WRITE_LE_HOST_SUPPORT:

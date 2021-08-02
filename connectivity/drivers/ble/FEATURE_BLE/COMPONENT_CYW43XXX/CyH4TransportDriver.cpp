@@ -49,10 +49,8 @@ CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, Pi
     bt_device_wake(bt_device_wake_name, PIN_OUTPUT, PullNone, 1),
     host_wake_irq_event(host_wake_irq),
     dev_wake_irq_event(dev_wake_irq)
-
 {
     enabled_powersave = true;
-    bt_host_wake_active = false;
 }
 
 CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, PinName rts, PinName bt_power_name, int baud) :
@@ -70,20 +68,11 @@ CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, Pi
 
 {
     enabled_powersave = false;
-    bt_host_wake_active = false;
-
-    sleep_manager_lock_deep_sleep();        // locking deep sleep because this option 
-                                            // does not include a host wake pin
-    holding_deep_sleep_lock = true;
 }
 
 CyH4TransportDriver::~CyH4TransportDriver()
 {
-    if (holding_deep_sleep_lock)
-    {
-       sleep_manager_unlock_deep_sleep();
-       holding_deep_sleep_lock = false;
-    }
+
 }
 
 void CyH4TransportDriver::bt_host_wake_rise_irq_handler(void)
@@ -91,12 +80,12 @@ void CyH4TransportDriver::bt_host_wake_rise_irq_handler(void)
     if (host_wake_irq_event == WAKE_EVENT_ACTIVE_LOW) {
         if(bt_host_wake_active == true)
         {
-            /* lock PSoC 6 DeepSleep entry as long as host_wake is asserted */
+            /* lock MCU Deep Sleep entry as long as host_wake is asserted */
             sleep_manager_unlock_deep_sleep();
             bt_host_wake_active = false;
         }
     } else {
-        /* lock PSoC 6 DeepSleep entry as long as host_wake is asserted */
+        /* lock MCU Deep Sleep entry as long as host_wake is asserted */
         sleep_manager_lock_deep_sleep();
         bt_host_wake_active = true;
     }
@@ -105,13 +94,13 @@ void CyH4TransportDriver::bt_host_wake_rise_irq_handler(void)
 void CyH4TransportDriver::bt_host_wake_fall_irq_handler(void)
 {
     if (host_wake_irq_event == WAKE_EVENT_ACTIVE_LOW) {
-        /* lock PSoC 6 DeepSleep entry as long as host_wake is asserted */
+        /* lock MCU Deep Sleep entry as long as host_wake is asserted */
         sleep_manager_lock_deep_sleep();
         bt_host_wake_active = true;
     } else {
         if(bt_host_wake_active == true)
         {
-            /* lock PSoC 6 DeepSleep entry as long as host_wake is asserted */
+            /* lock MCU Deep Sleep entry as long as host_wake is asserted */
             sleep_manager_unlock_deep_sleep();
             bt_host_wake_active = false;
         }
@@ -150,6 +139,18 @@ static void on_controller_irq(void *callback_arg, cyhal_uart_event_t event)
 
 void CyH4TransportDriver::initialize()
 {
+    // Initial MCU Deep Sleep locking. CyH4TransportDriver has the following MCU Deep Sleep locking
+    // scenarios:
+    // a) A BT device or MCU does not support Low Power mode (MBED configuration does not include
+    //    MBED_TICKLESS, DEVICE_SLEEP, DEVICE_LPTICKER or CYCFG_BT_LP_ENABLED features).
+    //    In this case, CyH4TransportDriver locks Deep Sleep in the initialize() function and
+    //    unlocks the terminate() function.
+    // b) A BT device and MCU support Low Power mode. 
+    //    In this case, the control of the unlock/lock of the Deep Sleep
+    //    functionality will be done in bt_host_wake_rise_irq_handler and bt_host_wake_fall_irq_handler 
+    //    handlers. Finally, CyH4TransportDriver unlocks the Deep Sleep in terminate() function 
+    //    (if it was locked before) by checking the bt_host_wake_active flag.
+    bt_host_wake_active = true;
     sleep_manager_lock_deep_sleep();
 
     bt_power = 0;
@@ -202,7 +203,6 @@ void CyH4TransportDriver::initialize()
        if (bt_device_wake_name != NC)
            bt_device_wake = WAKE_EVENT_ACTIVE_HIGH;
     }
-    sleep_manager_unlock_deep_sleep();
 }
 
 void CyH4TransportDriver::terminate()
@@ -236,6 +236,13 @@ void CyH4TransportDriver::terminate()
 #else
     cyhal_uart_free(&uart);
 #endif
+
+    // Unlock Deep Sleep if it was locked by CyH4TransportDriver before.
+    if (bt_host_wake_active == true)
+    {
+       sleep_manager_unlock_deep_sleep();
+       bt_host_wake_active = false;
+    }
 }
 
 uint16_t CyH4TransportDriver::write(uint8_t type, uint16_t len, uint8_t *pData)
