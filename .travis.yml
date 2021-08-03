@@ -244,7 +244,7 @@ matrix:
         - >-
           git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
             | ( grep '.*[\\|\/]PinNames.h$' || true ) \
-            | while read file; do python ./hal/tests/pinvalidate/pinvalidate.py -vfp "${file}"; done
+            | while read file; do python ./hal/tests/pinvalidate/pinvalidate.py -vvvfp "${file}"; done
         - git diff --exit-code --diff-filter=d --color
 
     ### CMake Check ###

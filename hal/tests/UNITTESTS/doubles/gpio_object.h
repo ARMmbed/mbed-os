@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited and affiliates.
+ * Copyright (c) 2017, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,20 +15,23 @@
  * limitations under the License.
  */
 
-#ifndef MBED_H
-#define MBED_H
+#ifndef MBED_GPIO_OBJECT_H
+#define MBED_GPIO_OBJECT_H
 
-#include <cstdio>
-#include <cstring>
+#include "mbed_assert.h"
+#include "PeripheralNames.h"
+#include "PinNames.h"
 
-#include "events/mbed_events.h"
-#include "events/mbed_shared_queues.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-namespace mbed {
-#include "platform/Callback.h"
-};
+typedef struct {
+    int unused;
+} gpio_t;
 
-using namespace mbed;
-using namespace std;
+#ifdef __cplusplus
+}
+#endif
 
-#endif // MBED_H
+#endif
