@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2018 ARM Limited
+ * Copyright (c) 2021 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,9 +21,7 @@
 #include "blockdevice/BlockDevice.h"
 #include "platform/Callback.h"
 
-//#if defined(TARGET_MX31LF4GE4BC)
 #include "MX31LF4GE4BC_config.h"
-//#endif
 
 #ifndef MBED_CONF_SPINAND_SPINAND_IO0
 #define MBED_CONF_SPINAND_SPINAND_IO0 NC
