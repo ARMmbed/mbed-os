@@ -18,8 +18,96 @@
 #include "gmock/gmock.h"
 #include "blockdevice/internal/SFDP.h"
 
-class TestSFDP : public testing::Test {
+using ::testing::_;
+using ::testing::MockFunction;
+using ::testing::Return;
+
+/**
+ * The Sector Map Parameter Table of Cypress S25FS512S:
+ * https://www.cypress.com/file/216376/download Table 71.
+ */
+static const mbed::bd_addr_t sector_map_start_addr = 0xD81000;
+
+/**
+ * Based on Cypress S25FS512S, modified to have one descriptor,
+ * three regions for test purpose.
+ */
+static const uint8_t sector_map_single_descriptor[] {
+    0xFF, 0x01, 0x02, 0xFF,     // header, highest region = 0x02
+    0xF1, 0x7F, 0x00, 0x00,     // region 0
+    0xF4, 0x7F, 0x03, 0x00,     // region 1
+    0xF4, 0xFF, 0xFB, 0x03      // region 2
 };
+
+/**
+ * Based on Cypress S25FS512S, modified to have one descriptor,
+ * twelve regions for test purpose.
+ */
+static const uint8_t sector_map_single_descriptor_twelve_regions[] {
+    0xFF, 0x01, 0x0B, 0xFF,     // header, highest region = 0x0B
+    0xF1, 0x7F, 0x00, 0x00,     // region 0
+    0xF4, 0x7F, 0x03, 0x00,     // region 1
+    0xF4, 0xFF, 0xFB, 0x03,     // region 2
+    0xF1, 0x7F, 0x00, 0x00,     // region 3
+    0xF4, 0x7F, 0x03, 0x00,     // region 4
+    0xF4, 0xFF, 0xFB, 0x03,     // region 5
+    0xF1, 0x7F, 0x00, 0x00,     // region 6
+    0xF4, 0x7F, 0x03, 0x00,     // region 7
+    0xF4, 0xFF, 0xFB, 0x03,     // region 8
+    0xF1, 0x7F, 0x00, 0x00,     // region 9
+    0xF4, 0x7F, 0x03, 0x00,     // region 10
+    0xF4, 0xFF, 0xFB, 0x03,     // region 11
+};
+
+class TestSFDP : public testing::Test {
+
+public:
+    mbed::Callback<int(mbed::bd_addr_t, void*, bd_size_t)> sfdp_reader_callback;
+
+protected:
+    TestSFDP() : sfdp_reader_callback(this, &TestSFDP::sfdp_reader) {};
+
+    int sfdp_reader(mbed::bd_addr_t addr, void *buff, bd_size_t buff_size)
+    {
+        int mock_return = sfdp_reader_mock.Call(addr, buff, buff_size);
+        if (mock_return != 0) {
+            return mock_return;
+        }
+
+        memcpy(buff, sector_descriptors, sector_descriptors_size);
+        return 0;
+    };
+
+    void set_sector_map_param_table(mbed::sfdp_smptbl_info &smptbl, const uint8_t *table, const size_t table_size)
+    {
+        smptbl.size = table_size;
+        smptbl.addr = sector_map_start_addr;
+
+        sector_descriptors = table;
+        sector_descriptors_size = table_size;
+    }
+
+    MockFunction<int(mbed::bd_addr_t, void*, bd_size_t)> sfdp_reader_mock;
+    const uint8_t *sector_descriptors;
+    bd_size_t sector_descriptors_size;
+};
+
+/**
+ * Utilities for conversions to bytes.
+ */
+namespace{
+    auto operator "" _B(unsigned long long int size) {
+        return size;
+    }
+
+    auto operator "" _KB(unsigned long long int size) {
+        return size * 1024;
+    }
+
+    auto operator "" _MB(unsigned long long int size) {
+        return size * 1024 * 1024;
+    }
+}
 
 /**
  * Test if sfdp_iterate_next_largest_erase_type() returns the most
@@ -88,4 +176,94 @@ TEST_F(TestSFDP, TestEraseTypeAlgorithm)
                 region,
                 smptbl);
     EXPECT_EQ(type, -1); // Invalid erase
+}
+
+/**
+ * Test that sfdp_parse_sector_map_table() treats a whole flash
+ * as one region if no sector map is available.
+ */
+TEST_F(TestSFDP, TestNoSectorMap)
+{
+    const bd_size_t device_size = 512_KB;
+
+    mbed::sfdp_hdr_info header_info;
+    header_info.smptbl.size = 0; // No Sector Map Table
+    header_info.bptbl.device_size_bytes = device_size;
+
+    // No need to read anything
+    EXPECT_CALL(sfdp_reader_mock, Call(_, _, _)).Times(0);
+
+    EXPECT_EQ(0, sfdp_parse_sector_map_table(sfdp_reader_callback, header_info));
+
+    EXPECT_EQ(1, header_info.smptbl.region_cnt);
+    EXPECT_EQ(device_size, header_info.smptbl.region_size[0]);
+    EXPECT_EQ(device_size - 1, header_info.smptbl.region_high_boundary[0]);
+}
+
+/**
+ * When a Sector Map Parameter Table has a single descriptor (i.e. non-configurable flash layout).
+ */
+TEST_F(TestSFDP, TestSingleSectorConfig)
+{
+    mbed::sfdp_hdr_info header_info;
+    set_sector_map_param_table(header_info.smptbl, sector_map_single_descriptor, sizeof(sector_map_single_descriptor));
+
+    EXPECT_CALL(sfdp_reader_mock, Call(sector_map_start_addr, _, sizeof(sector_map_single_descriptor)))
+    .Times(1)
+    .WillOnce(Return(0));
+
+    EXPECT_EQ(0, sfdp_parse_sector_map_table(sfdp_reader_callback, header_info));
+
+    // Three regions
+    EXPECT_EQ(3, header_info.smptbl.region_cnt);
+
+    // Region 0: erase type 1 (32KB erase)
+    EXPECT_EQ(32_KB, header_info.smptbl.region_size[0]);
+    EXPECT_EQ(32_KB - 1_B, header_info.smptbl.region_high_boundary[0]);
+    EXPECT_EQ(1 << (1 - 1), header_info.smptbl.region_erase_types_bitfld[0]);
+
+    // Region 1: erase type 3 (256KB erase which includes 32KB from Region 0)
+    EXPECT_EQ(224_KB, header_info.smptbl.region_size[1]);
+    EXPECT_EQ(256_KB - 1_B, header_info.smptbl.region_high_boundary[1]);
+    EXPECT_EQ(1 << (3 - 1), header_info.smptbl.region_erase_types_bitfld[1]);
+
+    // Region 2: erase type 3 (256KB erase)
+    EXPECT_EQ(64_MB - 32_KB - 224_KB, header_info.smptbl.region_size[2]);
+    EXPECT_EQ(64_MB - 1_B, header_info.smptbl.region_high_boundary[2]);
+    EXPECT_EQ(1 << (3 - 1), header_info.smptbl.region_erase_types_bitfld[2]);
+}
+
+/**
+ * When an SFDP reader fails to read data requested by sfdp_parse_sector_map_table().
+ */
+TEST_F(TestSFDP, TestSFDPReadFailure)
+{
+    mbed::sfdp_hdr_info header_info;
+    set_sector_map_param_table(header_info.smptbl, sector_map_single_descriptor, sizeof(sector_map_single_descriptor));
+
+    EXPECT_CALL(sfdp_reader_mock, Call(sector_map_start_addr, _, sizeof(sector_map_single_descriptor)))
+    .Times(1)
+    .WillOnce(Return(-1)); // Emulate read failure
+
+    EXPECT_EQ(-1, sfdp_parse_sector_map_table(sfdp_reader_callback, header_info));
+}
+
+/**
+ * When a flash layout has more regions than Mbed OS supports (10).
+ * Note: This is unlikely to happens in practice.
+ */
+TEST_F(TestSFDP, TestMoreRegionsThanSupported)
+{
+    mbed::sfdp_hdr_info header_info;
+    set_sector_map_param_table(
+        header_info.smptbl,
+        sector_map_single_descriptor_twelve_regions,
+        sizeof(sector_map_single_descriptor_twelve_regions)
+    );
+
+    EXPECT_CALL(sfdp_reader_mock, Call(sector_map_start_addr, _, sizeof(sector_map_single_descriptor_twelve_regions)))
+    .Times(1)
+    .WillOnce(Return(0));
+
+    EXPECT_EQ(-1, sfdp_parse_sector_map_table(sfdp_reader_callback, header_info));
 }
