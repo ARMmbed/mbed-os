@@ -121,11 +121,11 @@ jobs:
         uses: docker/setup-qemu-action@v1
 
       - 
-        name: Login to DockerHub
+        name: Login to ghcr.io
         uses: docker/login-action@v1 
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
+          username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       -
@@ -143,7 +143,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           file: ./docker_images/mbed-os-env/Dockerfile
-          tags: ghcr.io/${{ github.actor }}/mbed-os-env-tmp:${{ steps.build_info.outputs.DOCKER_DEV_TAG }}
+          tags: ghcr.io/${{ github.repository_owner }}/mbed-os-env-tmp:${{ steps.build_info.outputs.DOCKER_DEV_TAG }}
 
 
   test-container:
@@ -215,7 +215,7 @@ jobs:
         id: docker_info
         run: |
           cd mbed-os-example-blinky/mbed-os
-          DIGEST=$(python ./.github/workflows/ci_scripts/ghcr_utils.py -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} get-digest -r mbed-os-env-tmp -t ${{ steps.build_info.outputs.DOCKER_DEV_TAG }} -p ${{ matrix.platform }} )
+          DIGEST=$(python ./.github/workflows/ci_scripts/ghcr_utils.py -u ${{ github.repository_owner }} -p ${{ secrets.GITHUB_TOKEN }} get-digest -r mbed-os-env-tmp -t ${{ steps.build_info.outputs.DOCKER_DEV_TAG }} -p ${{ matrix.platform }} )
           echo "::set-output name=DIGEST::$DIGEST"
           echo "Docker DIGEST: $DIGEST"
 
@@ -228,11 +228,11 @@ jobs:
         id: test
         uses: addnab/docker-run-action@v3
         with:
-          username: ${{ github.actor }}
+          username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: ghcr.io
           options: -v ${{ github.workspace }}:/work -w=/work
-          image: ghcr.io/${{ github.actor }}/mbed-os-env-tmp@${{ steps.docker_info.outputs.DIGEST }}
+          image: ghcr.io/${{ github.repository_owner }}/mbed-os-env-tmp@${{ steps.docker_info.outputs.DIGEST }}
           shell: bash
           run: |
             uname -m
@@ -277,9 +277,9 @@ jobs:
           upto_patch_version=${{ steps.build_info.outputs.MBED_OS_VERSION }}-latest
           upto_min_version=${upto_patch_version%.[0-9]*}-latest
           upto_major_version=${upto_patch_version%.[0-9]*.[0-9]*}-latest
-          docker run quay.io/skopeo/stable --src-creds=${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} --dest-creds=${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} copy --all docker://ghcr.io/${{ github.actor }}/mbed-os-env-tmp:${{ steps.build_info.outputs.DOCKER_DEV_TAG }}  docker://ghcr.io/${{ github.actor }}/mbed-os-env:${upto_patch_version}
-          docker run quay.io/skopeo/stable --src-creds=${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} --dest-creds=${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} copy --all docker://ghcr.io/${{ github.actor }}/mbed-os-env-tmp:${{ steps.build_info.outputs.DOCKER_DEV_TAG }}  docker://ghcr.io/${{ github.actor }}/mbed-os-env:${upto_min_version}
-          docker run quay.io/skopeo/stable --src-creds=${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} --dest-creds=${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} copy --all docker://ghcr.io/${{ github.actor }}/mbed-os-env-tmp:${{ steps.build_info.outputs.DOCKER_DEV_TAG }}  docker://ghcr.io/${{ github.actor }}/mbed-os-env:${upto_major_version}
+          docker run quay.io/skopeo/stable --src-creds=${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }} --dest-creds=${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }} copy --all docker://ghcr.io/${{ github.repository_owner }}/mbed-os-env-tmp:${{ steps.build_info.outputs.DOCKER_DEV_TAG }}  docker://ghcr.io/${{ github.repository_owner }}/mbed-os-env:${upto_patch_version}
+          docker run quay.io/skopeo/stable --src-creds=${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }} --dest-creds=${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }} copy --all docker://ghcr.io/${{ github.repository_owner }}/mbed-os-env-tmp:${{ steps.build_info.outputs.DOCKER_DEV_TAG }}  docker://ghcr.io/${{ github.repository_owner }}/mbed-os-env:${upto_min_version}
+          docker run quay.io/skopeo/stable --src-creds=${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }} --dest-creds=${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }} copy --all docker://ghcr.io/${{ github.repository_owner }}/mbed-os-env-tmp:${{ steps.build_info.outputs.DOCKER_DEV_TAG }}  docker://ghcr.io/${{ github.repository_owner }}/mbed-os-env:${upto_major_version}
 
           # copy to fixed tag
-          docker run quay.io/skopeo/stable --src-creds=${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} --dest-creds=${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} copy --all docker://ghcr.io/${{ github.actor }}/mbed-os-env-tmp:${{ steps.build_info.outputs.DOCKER_DEV_TAG }}  docker://ghcr.io/${{ github.actor }}/mbed-os-env:${{ steps.build_info.outputs.DOCKER_PROD_TAG_DATED }}
+          docker run quay.io/skopeo/stable --src-creds=${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }} --dest-creds=${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }} copy --all docker://ghcr.io/${{ github.repository_owner }}/mbed-os-env-tmp:${{ steps.build_info.outputs.DOCKER_DEV_TAG }}  docker://ghcr.io/${{ github.repository_owner }}/mbed-os-env:${{ steps.build_info.outputs.DOCKER_PROD_TAG_DATED }}
