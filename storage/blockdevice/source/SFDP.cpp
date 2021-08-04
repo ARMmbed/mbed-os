@@ -243,6 +243,7 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp
         tr_debug("No Sector Map Table");
 
         // If there's no sector map, we have a single region sized the entire device size
+        sfdp_info.smptbl.region_cnt = 1;
         sfdp_info.smptbl.region_size[0] = sfdp_info.bptbl.device_size_bytes;
         sfdp_info.smptbl.region_high_boundary[0] = sfdp_info.bptbl.device_size_bytes - 1;
 
