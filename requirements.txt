@@ -5,7 +5,6 @@ PyYAML>=5.4
 jsonschema==2.6.0
 future>=0.18.0,<1.0
 six==1.12.0
-mbed-cloud-sdk>=2.0.6,<2.1
 requests>=2.20,<3
 idna>=2,<2.8
 pyserial>=3,<=3.4
@@ -16,7 +15,6 @@ mbed-host-tests>=1.4.4,<2.0
 mbed-greentea>=0.2.24,<2.0
 beautifulsoup4>=4,<=4.6.3
 pyelftools>=0.24,<=0.25
-manifest-tool==1.5.2
 pycryptodome>=3.9.3,<4
 pyusb>=1.0.0,<2.0.0
 hidapi>=0.7.99,<0.8.0;platform_system!="Linux"
