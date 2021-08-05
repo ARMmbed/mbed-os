@@ -101,9 +101,6 @@ public:
 
     virtual void do_initialize()
     {
-        rtos::ThisThread::sleep_for(500ms);
-        bt_power = 1;
-        rtos::ThisThread::sleep_for(500ms);
     }
 
     virtual void do_terminate() { }

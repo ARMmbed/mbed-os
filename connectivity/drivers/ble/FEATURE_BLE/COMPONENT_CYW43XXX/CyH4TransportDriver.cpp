@@ -29,6 +29,17 @@
 #include "rtos/ThisThread.h"
 #include <chrono>
 
+// BT settling time after power on
+#if !defined (CY_BT_POWER_ON_SETTLING_TIME)
+    #define CY_BT_POWER_ON_SETTLING_TIME                    (500ms)
+#endif /* !defined (CY_BT_POWER_ON_SETTLING_TIME) */
+
+// Power on reset time 
+#if !defined (CY_BT_POWER_ON_RESET_TIME)
+    #define CY_BT_POWER_ON_RESET_TIME                       (1ms)      
+#endif /* !defined (CY_BT_POWER_ON_RESET_TIME) */
+
+
 namespace ble {
 namespace vendor {
 namespace cypress_ble {
@@ -153,8 +164,9 @@ void CyH4TransportDriver::initialize()
     bt_host_wake_active = true;
     sleep_manager_lock_deep_sleep();
 
+    // Keep the bt_power line in the low level to ensure that the device resets.
     bt_power = 0;
-    rtos::ThisThread::sleep_for(1ms);
+    rtos::ThisThread::sleep_for(CY_BT_POWER_ON_RESET_TIME);
 
 #if defined(CYW43XXX_UNBUFFERED_UART)
     uart.baud(DEF_BT_BAUD_RATE);
@@ -186,7 +198,9 @@ void CyH4TransportDriver::initialize()
     cyhal_uart_enable_event(&uart, CYHAL_UART_IRQ_RX_NOT_EMPTY, CYHAL_ISR_PRIORITY_DEFAULT, true);
 #endif
 
+    // Power up BT
     bt_power = 1;
+    rtos::ThisThread::sleep_for(CY_BT_POWER_ON_SETTLING_TIME);
 
 #if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
     if (bt_host_wake_name != NC) {
@@ -229,6 +243,7 @@ void CyH4TransportDriver::terminate()
 
     deassert_bt_dev_wake();
 
+    // Power down BT
     bt_power = 0; //BT_POWER is an output, should not be freed only set inactive
 
 #if defined(CYW43XXX_UNBUFFERED_UART)
