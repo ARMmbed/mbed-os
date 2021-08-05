@@ -1,4 +1,4 @@
-/* Copyright (c) 2020 ARM Limited
+/* Copyright (c) 2020-2021 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,35 +19,6 @@
 #include "blockdevice/internal/SFDP.h"
 
 class TestSFDP : public testing::Test {
-protected:
-    struct mbed::sfdp_smptbl_info smptbl;
-
-    /**
-     * Construct Mbed OS SFDP info.
-     * Normally this is parsed from the flash-chips's
-     * raw SFDP table bytes, but for unit test we construct
-     * SFDP info manually
-     */
-    virtual void SetUp()
-    {
-        // The mock flash supports 4KB, 32KB and 64KB erase types
-        smptbl.erase_type_size_arr[0] = 4 * 1024;
-        smptbl.erase_type_size_arr[1] = 32 * 1024;
-        smptbl.erase_type_size_arr[2] = 64 * 1024;
-
-        // The mock flash has three regions, with address ranges:
-        // * 0 to 64KB - 1B
-        // * 64KB to 256KB - 1B
-        // * 256KB to 1024KB - 1B
-        smptbl.region_high_boundary[0] = 64 * 1024 - 1;
-        smptbl.region_high_boundary[1] = 256 * 1024 - 1;
-        smptbl.region_high_boundary[2] = 1024 * 1024 - 1;
-
-        // Bitfields indicating which regions support which erase types
-        smptbl.region_erase_types_bitfld[0] = 0b0001;   // 4KB only
-        smptbl.region_erase_types_bitfld[1] = 0b0111;   // 64KB, 32KB, 4KB
-        smptbl.region_erase_types_bitfld[2] = 0b0110;   // 64KB, 32KB
-    }
 };
 
 /**
@@ -62,6 +33,25 @@ TEST_F(TestSFDP, TestEraseTypeAlgorithm)
     int size = 104 * 1024;
     int region = 1;
     int type;
+
+    // The mock flash supports 4KB, 32KB and 64KB erase types
+    struct mbed::sfdp_smptbl_info smptbl;
+    smptbl.erase_type_size_arr[0] = 4 * 1024;
+    smptbl.erase_type_size_arr[1] = 32 * 1024;
+    smptbl.erase_type_size_arr[2] = 64 * 1024;
+
+    // The mock flash has three regions, with address ranges:
+    // * 0 to 64KB - 1B
+    // * 64KB to 256KB - 1B
+    // * 256KB to 1024KB - 1B
+    smptbl.region_high_boundary[0] = 64 * 1024 - 1;
+    smptbl.region_high_boundary[1] = 256 * 1024 - 1;
+    smptbl.region_high_boundary[2] = 1024 * 1024 - 1;
+
+    // Bitfields indicating which regions support which erase types
+    smptbl.region_erase_types_bitfld[0] = 0b0001;   // 4KB only
+    smptbl.region_erase_types_bitfld[1] = 0b0111;   // 64KB, 32KB, 4KB
+    smptbl.region_erase_types_bitfld[2] = 0b0110;   // 64KB, 32KB
 
     // Expected outcome:
     // * The starting position 92KB is 4KB-aligned
