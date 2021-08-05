@@ -22,4 +22,4 @@ jobs:
           # deletion if only one image exists or if DOCKER_MANAGEMENT_TOKEN is not 
           # setup. This shouldn't create any alarm as temporary image deletion is 
           # not a critical activity.
-          python ./.github/workflows/ci_scripts/ghcr_utils.py -u ${{ github.actor }} -p ${{ secrets.DOCKER_MANAGEMENT_TOKEN }} delete-old-images -r mbed-os-env-tmp || true
+          python ./.github/workflows/ci_scripts/ghcr_utils.py -u ${{ github.repository_owner }} -p ${{ secrets.DOCKER_MANAGEMENT_TOKEN }} delete-old-images -r mbed-os-env-tmp || true
