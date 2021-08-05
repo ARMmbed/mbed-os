@@ -58,6 +58,7 @@ jobs:
           echo ${{ steps.extract_branch.outputs.branch }}-${date} > build_info/prod_tag_dated
           echo ${{ steps.extract_branch.outputs.branch }}-latest > build_info/prod_tag_latest
           echo ${{ steps.extract_branch.outputs.branch }} > build_info/mbed_os_version
+          echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]' > build_info/repository_owner
           
       - 
         name: Archive information 
@@ -95,6 +96,8 @@ jobs:
           value=`cat prod_tag_latest`
           echo "::set-output name=DOCKER_PROD_TAG_LATEST::$value"
           echo "PROD TAG is $value"
+          value=`cat repository_owner`
+          echo "::set-output name=REPO_OWNER::$value"
 
       - 
         name: Set up Docker Buildx
@@ -125,7 +128,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           file: ./docker_images/mbed-os-env/Dockerfile
-          tags: ghcr.io/${{ github.repository_owner }}/mbed-os-env-tmp:${{ steps.build_info.outputs.DOCKER_DEV_TAG }}
+          tags: ghcr.io/${{ steps.build_info.outputs.REPO_OWNER }}/mbed-os-env-tmp:${{ steps.build_info.outputs.DOCKER_DEV_TAG }}
 
   test-container:
     runs-on: ubuntu-latest
@@ -156,6 +159,8 @@ jobs:
           echo "::set-output name=DOCKER_PROD_TAG_LATEST::$value"
           value=`cat mbed_os_version`
           echo "::set-output name=MBED_OS_VERSION::$value"
+          value=`cat repository_owner`
+          echo "::set-output name=REPO_OWNER::$value"
 
       -
         name: Checkout
@@ -165,7 +170,7 @@ jobs:
         name: Find DEV DOCKER DIGEST
         id: docker_info_dev
         run: |
-          DIGEST=$(python ./.github/workflows/ci_scripts/ghcr_utils.py -u ${{ github.repository_owner }} -p ${{ secrets.GITHUB_TOKEN }} get-digest -r mbed-os-env-tmp -t ${{ steps.build_info.outputs.DOCKER_DEV_TAG }} -p ${{ matrix.platform }} )
+          DIGEST=$(python ./.github/workflows/ci_scripts/ghcr_utils.py -u ${{ steps.build_info.outputs.REPO_OWNER }} -p ${{ secrets.GITHUB_TOKEN }} get-digest -r mbed-os-env-tmp -t ${{ steps.build_info.outputs.DOCKER_DEV_TAG }} -p ${{ matrix.platform }} )
           echo "::set-output name=DIGEST::$DIGEST"
           echo "Docker DIGEST: $DIGEST"
 
@@ -191,7 +196,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: ghcr.io
           options: -v ${{ github.workspace }}:/work -w=/work
-          image: ghcr.io/${{ github.repository_owner }}/mbed-os-env-tmp@${{ steps.docker_info_dev.outputs.DIGEST }}
+          image: ghcr.io/${{ steps.build_info.outputs.REPO_OWNER }}/mbed-os-env-tmp@${{ steps.docker_info_dev.outputs.DIGEST }}
           shell: bash
           
           run: |
@@ -229,9 +234,11 @@ jobs:
           echo "::set-output name=DOCKER_PROD_TAG_DATED::$value"
           value=`cat prod_tag_latest`
           echo "::set-output name=DOCKER_PROD_TAG_LATEST::$value"
+          value=`cat repository_owner`
+          echo "::set-output name=REPO_OWNER::$value"
           
       - 
         name: copy dev tag to prod
         run: |
-          docker run quay.io/skopeo/stable --src-creds=${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }} --dest-creds=${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }} copy --all docker://ghcr.io/${{ github.repository_owner }}/mbed-os-env-tmp:${{ steps.build_info.outputs.DOCKER_DEV_TAG }}  docker://ghcr.io/${{ github.repository_owner }}/mbed-os-env:${{ steps.build_info.outputs.DOCKER_PROD_TAG_LATEST }}
-          docker run quay.io/skopeo/stable --src-creds=${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }} --dest-creds=${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }} copy --all docker://ghcr.io/${{ github.repository_owner }}/mbed-os-env-tmp:${{ steps.build_info.outputs.DOCKER_DEV_TAG }}  docker://ghcr.io/${{ github.repository_owner }}/mbed-os-env:${{ steps.build_info.outputs.DOCKER_PROD_TAG_DATED }}
+          docker run quay.io/skopeo/stable --src-creds=${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }} --dest-creds=${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }} copy --all docker://ghcr.io/${{ steps.build_info.outputs.REPO_OWNER }}/mbed-os-env-tmp:${{ steps.build_info.outputs.DOCKER_DEV_TAG }}  docker://ghcr.io/${{ steps.build_info.outputs.REPO_OWNER }}/mbed-os-env:${{ steps.build_info.outputs.DOCKER_PROD_TAG_LATEST }}
+          docker run quay.io/skopeo/stable --src-creds=${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }} --dest-creds=${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }} copy --all docker://ghcr.io/${{ steps.build_info.outputs.REPO_OWNER }}/mbed-os-env-tmp:${{ steps.build_info.outputs.DOCKER_DEV_TAG }}  docker://ghcr.io/${{ steps.build_info.outputs.REPO_OWNER }}/mbed-os-env:${{ steps.build_info.outputs.DOCKER_PROD_TAG_DATED }}
