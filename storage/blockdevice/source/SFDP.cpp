@@ -181,7 +181,7 @@ int sfdp_parse_single_param_header(sfdp_prm_hdr *phdr_ptr, sfdp_hdr_info &hdr_in
     return 0;
 }
 
-int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_hdr_info &sfdp_info)
+int sfdp_parse_headers(Callback<int(bd_addr_t, sfdp_cmd_addr_size_t, uint8_t, uint8_t, void *, bd_size_t)> sfdp_reader, sfdp_hdr_info &sfdp_info)
 {
     bd_addr_t addr = 0x0;
     int number_of_param_headers = 0;
@@ -191,7 +191,14 @@ int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, 
         data_length = SFDP_HEADER_SIZE;
         uint8_t sfdp_header[SFDP_HEADER_SIZE];
 
-        int status = sfdp_reader(addr, sfdp_header, data_length);
+        int status = sfdp_reader(
+                         addr,
+                         SFDP_READ_CMD_ADDR_TYPE,
+                         SFDP_READ_CMD_INST,
+                         SFDP_READ_CMD_DUMMY_CYCLES,
+                         sfdp_header,
+                         data_length
+                     );
         if (status < 0) {
             tr_error("Retrieving SFDP Header failed");
             return -1;
@@ -213,7 +220,14 @@ int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, 
 
         // Loop over Param Headers and parse them (currently supports Basic Param Table and Sector Region Map Table)
         for (int idx = 0; idx < number_of_param_headers; idx++) {
-            status = sfdp_reader(addr, param_header, data_length);
+            status = sfdp_reader(
+                         addr,
+                         SFDP_READ_CMD_ADDR_TYPE,
+                         SFDP_READ_CMD_INST,
+                         SFDP_READ_CMD_DUMMY_CYCLES,
+                         param_header,
+                         data_length
+                     );
             if (status < 0) {
                 tr_error("Retrieving a parameter header %d failed", idx + 1);
                 return -1;
@@ -231,7 +245,7 @@ int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, 
     return 0;
 }
 
-int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_hdr_info &sfdp_info)
+int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, sfdp_cmd_addr_size_t, uint8_t, uint8_t, void *, bd_size_t)> sfdp_reader, sfdp_hdr_info &sfdp_info)
 {
     uint32_t tmp_region_size = 0;
     uint8_t type_mask;
@@ -264,7 +278,14 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp
 
     tr_debug("Parsing Sector Map Table - addr: 0x%" PRIx32 ", Size: %d", sfdp_info.smptbl.addr, sfdp_info.smptbl.size);
 
-    int status = sfdp_reader(sfdp_info.smptbl.addr, smptbl_buff.get(), sfdp_info.smptbl.size);
+    int status = sfdp_reader(
+                     sfdp_info.smptbl.addr,
+                     SFDP_READ_CMD_ADDR_TYPE,
+                     SFDP_READ_CMD_INST,
+                     SFDP_READ_CMD_DUMMY_CYCLES,
+                     smptbl_buff.get(),
+                     sfdp_info.smptbl.size
+                 );
     if (status < 0) {
         tr_error("Sector Map: Table retrieval failed");
         return -1;
@@ -313,6 +334,7 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp
 
     return 0;
 }
+
 
 size_t sfdp_detect_page_size(uint8_t *basic_param_table_ptr, size_t basic_param_table_size)
 {

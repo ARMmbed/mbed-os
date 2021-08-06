@@ -62,14 +62,14 @@ static const uint8_t sector_map_single_descriptor_twelve_regions[] {
 class TestSFDP : public testing::Test {
 
 public:
-    mbed::Callback<int(mbed::bd_addr_t, void*, bd_size_t)> sfdp_reader_callback;
+    mbed::Callback<int(mbed::bd_addr_t, mbed::sfdp_cmd_addr_size_t, uint8_t, uint8_t, void*, bd_size_t)> sfdp_reader_callback;
 
 protected:
     TestSFDP() : sfdp_reader_callback(this, &TestSFDP::sfdp_reader) {};
 
-    int sfdp_reader(mbed::bd_addr_t addr, void *buff, bd_size_t buff_size)
+    int sfdp_reader(mbed::bd_addr_t addr, mbed::sfdp_cmd_addr_size_t addr_size, uint8_t instr, uint8_t cycles, void *buff, bd_size_t buff_size)
     {
-        int mock_return = sfdp_reader_mock.Call(addr, buff, buff_size);
+        int mock_return = sfdp_reader_mock.Call(addr, addr_size, instr, cycles, buff, buff_size);
         if (mock_return != 0) {
             return mock_return;
         }
@@ -87,7 +87,7 @@ protected:
         sector_descriptors_size = table_size;
     }
 
-    MockFunction<int(mbed::bd_addr_t, void*, bd_size_t)> sfdp_reader_mock;
+    MockFunction<int(mbed::bd_addr_t, uint8_t, uint8_t, uint8_t, void*, bd_size_t)> sfdp_reader_mock;
     const uint8_t *sector_descriptors;
     bd_size_t sector_descriptors_size;
 };
@@ -191,7 +191,7 @@ TEST_F(TestSFDP, TestNoSectorMap)
     header_info.bptbl.device_size_bytes = device_size;
 
     // No need to read anything
-    EXPECT_CALL(sfdp_reader_mock, Call(_, _, _)).Times(0);
+    EXPECT_CALL(sfdp_reader_mock, Call(_, _, _, _, _, _)).Times(0);
 
     EXPECT_EQ(0, sfdp_parse_sector_map_table(sfdp_reader_callback, header_info));
 
@@ -208,9 +208,17 @@ TEST_F(TestSFDP, TestSingleSectorConfig)
     mbed::sfdp_hdr_info header_info;
     set_sector_map_param_table(header_info.smptbl, sector_map_single_descriptor, sizeof(sector_map_single_descriptor));
 
-    EXPECT_CALL(sfdp_reader_mock, Call(sector_map_start_addr, _, sizeof(sector_map_single_descriptor)))
-    .Times(1)
-    .WillOnce(Return(0));
+    EXPECT_CALL(
+        sfdp_reader_mock,
+        Call(
+            sector_map_start_addr,
+            mbed::SFDP_READ_CMD_ADDR_TYPE,
+            mbed::SFDP_READ_CMD_INST,
+            mbed::SFDP_READ_CMD_DUMMY_CYCLES,
+            _,
+            sizeof(sector_map_single_descriptor)
+        )
+    ).Times(1).WillOnce(Return(0));
 
     EXPECT_EQ(0, sfdp_parse_sector_map_table(sfdp_reader_callback, header_info));
 
@@ -241,9 +249,17 @@ TEST_F(TestSFDP, TestSFDPReadFailure)
     mbed::sfdp_hdr_info header_info;
     set_sector_map_param_table(header_info.smptbl, sector_map_single_descriptor, sizeof(sector_map_single_descriptor));
 
-    EXPECT_CALL(sfdp_reader_mock, Call(sector_map_start_addr, _, sizeof(sector_map_single_descriptor)))
-    .Times(1)
-    .WillOnce(Return(-1)); // Emulate read failure
+    EXPECT_CALL(
+        sfdp_reader_mock,
+        Call(
+            sector_map_start_addr,
+            mbed::SFDP_READ_CMD_ADDR_TYPE,
+            mbed::SFDP_READ_CMD_INST,
+            mbed::SFDP_READ_CMD_DUMMY_CYCLES,
+            _,
+            sizeof(sector_map_single_descriptor)
+        )
+    ).Times(1).WillOnce(Return(-1)); // Emulate read failure
 
     EXPECT_EQ(-1, sfdp_parse_sector_map_table(sfdp_reader_callback, header_info));
 }
@@ -261,9 +277,17 @@ TEST_F(TestSFDP, TestMoreRegionsThanSupported)
         sizeof(sector_map_single_descriptor_twelve_regions)
     );
 
-    EXPECT_CALL(sfdp_reader_mock, Call(sector_map_start_addr, _, sizeof(sector_map_single_descriptor_twelve_regions)))
-    .Times(1)
-    .WillOnce(Return(0));
+    EXPECT_CALL(
+        sfdp_reader_mock,
+        Call(
+            sector_map_start_addr,
+            mbed::SFDP_READ_CMD_ADDR_TYPE,
+            mbed::SFDP_READ_CMD_INST,
+            mbed::SFDP_READ_CMD_DUMMY_CYCLES,
+            _,
+            sizeof(sector_map_single_descriptor_twelve_regions)
+        )
+    ).Times(1).WillOnce(Return(0));
 
     EXPECT_EQ(-1, sfdp_parse_sector_map_table(sfdp_reader_callback, header_info));
 }

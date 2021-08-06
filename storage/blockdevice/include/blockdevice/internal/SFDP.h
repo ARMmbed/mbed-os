@@ -47,6 +47,22 @@ constexpr int SFDP_ERASE_BITMASK_ALL = 0x0F;   ///< Erase type All
 
 constexpr int SFDP_MAX_NUM_OF_ERASE_TYPES = 4;  ///< Maximum number of different erase types (erase granularity)
 
+// Size of a command specified by SFDP
+enum sfdp_cmd_addr_size_t {
+    SFDP_CMD_ADDR_NONE = 0x00,      // No address in command
+    SFDP_CMD_ADDR_3_BYTE = 0x01,    // 3-byte address
+    SFDP_CMD_ADDR_4_BYTE = 0x02,    // 4-byte address
+    SFDP_CMD_ADDR_SIZE_VARIABLE = 0x03   // Address size from current setting
+};
+
+// Parameters for SFDP Read command
+constexpr sfdp_cmd_addr_size_t SFDP_READ_CMD_ADDR_TYPE = SFDP_CMD_ADDR_3_BYTE; // Read SFDP has 3-byte address
+constexpr uint8_t SFDP_READ_CMD_INST = 0x5A; // Read SFDP instruction
+constexpr uint8_t SFDP_READ_CMD_DUMMY_CYCLES = 8; // READ SFDP dummy cycles
+
+// Special value from SFDP for using dummy cycles from current setting
+constexpr uint8_t SFDP_CMD_DUMMY_CYCLES_VARIABLE = 0xF;
+
 /** JEDEC Basic Flash Parameter Table info */
 struct sfdp_bptbl_info {
     uint32_t addr; ///< Address
@@ -92,7 +108,7 @@ struct sfdp_hdr_info {
  *
  * @return MBED_SUCCESS on success, negative error code on failure
  */
-int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_hdr_info &sfdp_info);
+int sfdp_parse_headers(Callback<int(bd_addr_t, sfdp_cmd_addr_size_t, uint8_t, uint8_t, void *, bd_size_t)> sfdp_reader, sfdp_hdr_info &sfdp_info);
 
 /** Parse Sector Map Parameter Table
  * Retrieves the table from a device and parses the information contained by the table
@@ -102,7 +118,7 @@ int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, 
  *
  * @return MBED_SUCCESS on success, negative error code on failure
  */
-int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_hdr_info &sfdp_info);
+int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, sfdp_cmd_addr_size_t, uint8_t, uint8_t, void *, bd_size_t)> sfdp_reader, sfdp_hdr_info &sfdp_info);
 
 /** Detect page size used for writing on flash
  *

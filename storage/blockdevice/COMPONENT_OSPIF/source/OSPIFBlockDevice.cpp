@@ -921,12 +921,19 @@ int OSPIFBlockDevice::remove_csel_instance(PinName csel)
 /*********************************************************/
 /********** SFDP Parsing and Detection Functions *********/
 /*********************************************************/
-int OSPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader,
+int OSPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, mbed::sfdp_cmd_addr_size_t, uint8_t, uint8_t, void *, bd_size_t)> sfdp_reader,
                                                     sfdp_hdr_info &sfdp_info)
 {
     uint8_t param_table[SFDP_BASIC_PARAMS_TBL_SIZE]; /* Up To 20 DWORDS = 80 Bytes */
 
-    int status = sfdp_reader(sfdp_info.bptbl.addr, param_table, sfdp_info.bptbl.size);
+    int status = sfdp_reader(
+                     sfdp_info.bptbl.addr,
+                     SFDP_READ_CMD_ADDR_TYPE,
+                     SFDP_READ_CMD_INST,
+                     SFDP_READ_CMD_DUMMY_CYCLES,
+                     param_table,
+                     sfdp_info.bptbl.size
+                 );
     if (status != OSPI_STATUS_OK) {
         tr_error("Init - Read SFDP First Table Failed");
         return -1;
@@ -1383,12 +1390,19 @@ int OSPIFBlockDevice::_sfdp_detect_reset_protocol_and_reset(uint8_t *basic_param
     return status;
 }
 
-int OSPIFBlockDevice::_sfdp_parse_4_byte_inst_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader,
+int OSPIFBlockDevice::_sfdp_parse_4_byte_inst_table(Callback<int(mbed::bd_addr_t, mbed::sfdp_cmd_addr_size_t, uint8_t, uint8_t, void *, mbed::bd_size_t)> sfdp_reader,
                                                     sfdp_hdr_info &sfdp_info)
 {
     uint8_t four_byte_inst_table[SFDP_DEFAULT_4_BYTE_INST_TABLE_SIZE_BYTES]; /* Up To 2 DWORDS = 8 Bytes */
 
-    int status = sfdp_reader(sfdp_info.fbatbl.addr, four_byte_inst_table, sfdp_info.fbatbl.size);
+    int status = sfdp_reader(
+                     sfdp_info.fbatbl.addr,
+                     SFDP_READ_CMD_ADDR_TYPE,
+                     SFDP_READ_CMD_INST,
+                     SFDP_READ_CMD_DUMMY_CYCLES,
+                     four_byte_inst_table,
+                     sfdp_info.fbatbl.size
+                 );
     if (status != OSPI_STATUS_OK) {
         tr_error("Init - Read SFDP Four Byte Inst Table Failed");
         return -1;
@@ -1823,13 +1837,39 @@ ospi_status_t OSPIFBlockDevice::_ospi_send_general_command(ospi_inst_t instructi
     return OSPI_STATUS_OK;
 }
 
-int OSPIFBlockDevice::_ospi_send_read_sfdp_command(bd_addr_t addr, void *rx_buffer, bd_size_t rx_length)
+int OSPIFBlockDevice::_ospi_send_read_sfdp_command(mbed::bd_addr_t addr, mbed::sfdp_cmd_addr_size_t addr_size,
+                                                   uint8_t inst, uint8_t dummy_cycles,
+                                                   void *rx_buffer, mbed::bd_size_t rx_length)
 {
-    size_t rx_len = rx_length;
     uint8_t *rx_buffer_tmp = (uint8_t *)rx_buffer;
 
+    // Set default here to avoid uninitialized variable warning
+    ospi_address_size_t address_size = _address_size;
+    int address = addr;
+    switch (addr_size) {
+        case SFDP_CMD_ADDR_3_BYTE:
+            address_size = OSPI_CFG_ADDR_SIZE_24;
+            break;
+        case SFDP_CMD_ADDR_4_BYTE:
+            address_size = OSPI_CFG_ADDR_SIZE_32;
+            break;
+        case SFDP_CMD_ADDR_SIZE_VARIABLE: // use current setting
+            break;
+        case SFDP_CMD_ADDR_NONE: // no address in command
+            address = static_cast<int>(OSPI_NO_ADDRESS_COMMAND);
+            break;
+        default:
+            tr_error("Invalid SFDP command address size: 0x%02X", addr_size);
+            return -1;
+    }
+
+    if (dummy_cycles == SFDP_CMD_DUMMY_CYCLES_VARIABLE) {
+        // use current setting
+        dummy_cycles = _dummy_cycles;
+    }
+
     // SFDP read instruction requires 1-1-1 bus mode with 8 dummy cycles and a 3-byte address
-    ospi_status_t status = _ospi.configure_format(OSPI_CFG_BUS_SINGLE, OSPI_CFG_INST_SIZE_8, OSPI_CFG_BUS_SINGLE, OSPI_CFG_ADDR_SIZE_24, OSPI_CFG_BUS_SINGLE, 0, OSPI_CFG_BUS_SINGLE, OSPIF_RSFDP_DUMMY_CYCLES);
+    ospi_status_t status = _ospi.configure_format(OSPI_CFG_BUS_SINGLE, OSPI_CFG_INST_SIZE_8, OSPI_CFG_BUS_SINGLE, address_size, OSPI_CFG_BUS_SINGLE, 0, OSPI_CFG_BUS_SINGLE, dummy_cycles);
     if (OSPI_STATUS_OK != status) {
         tr_error("_ospi_configure_format failed");
         return status;
@@ -1837,7 +1877,8 @@ int OSPIFBlockDevice::_ospi_send_read_sfdp_command(bd_addr_t addr, void *rx_buff
 
     // Don't check the read status until after we've configured the format back to 1-1-1, to avoid leaving the interface in an
     // incorrect state if the read fails.
-    status = _ospi.read(OSPIF_INST_RSFDP, -1, (unsigned int) addr, (char *) rx_buffer, &rx_len);
+    size_t rx_len = rx_length;
+    status = _ospi.read(inst, -1, address, static_cast<char *>(rx_buffer), &rx_len);
 
     ospi_status_t format_status = _ospi.configure_format(OSPI_CFG_BUS_SINGLE, OSPI_CFG_INST_SIZE_8, OSPI_CFG_BUS_SINGLE, _address_size, OSPI_CFG_BUS_SINGLE, 0, OSPI_CFG_BUS_SINGLE, 0);
     // All commands other than Read and RSFDP use default 1-1-1 bus mode (Program/Erase are constrained by flash memory performance more than bus performance)

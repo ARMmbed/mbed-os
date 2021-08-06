@@ -497,13 +497,32 @@ spif_bd_error SPIFBlockDevice::_spi_send_read_command(int read_inst, uint8_t *bu
     return SPIF_BD_ERROR_OK;
 }
 
-int SPIFBlockDevice::_spi_send_read_sfdp_command(bd_addr_t addr, void *rx_buffer, bd_size_t rx_length)
+int SPIFBlockDevice::_spi_send_read_sfdp_command(mbed::bd_addr_t addr, mbed::sfdp_cmd_addr_size_t addr_size,
+                                                 uint8_t inst, uint8_t dummy_cycles,
+                                                 void *rx_buffer, mbed::bd_size_t rx_length)
 {
-    // Set 1-1-1 bus mode for SFDP header parsing
-    // Initial SFDP read tables are read with 8 dummy cycles
-    _dummy_and_mode_cycles = 8;
+    switch (addr_size) {
+        case SFDP_CMD_ADDR_3_BYTE:
+            _address_size = SPIF_ADDR_SIZE_3_BYTES;
+            break;
+        case SFDP_CMD_ADDR_4_BYTE:
+            _address_size = SPIF_ADDR_SIZE_4_BYTES;
+            break;
+        case SFDP_CMD_ADDR_SIZE_VARIABLE: // use current setting
+            break;
+        case SFDP_CMD_ADDR_NONE: // no address in command
+            addr = static_cast<int>(SPI_NO_ADDRESS_COMMAND);
+            break;
+        default:
+            tr_error("Invalid SFDP command address size: 0x%02X", addr_size);
+            return -1;
+    }
 
-    int status = _spi_send_read_command(SPIF_SFDP, (uint8_t *)rx_buffer, addr, rx_length);
+    if (dummy_cycles != SFDP_CMD_DUMMY_CYCLES_VARIABLE) {
+        _dummy_and_mode_cycles = dummy_cycles;
+    }
+
+    int status = _spi_send_read_command(inst, static_cast<uint8_t *>(rx_buffer), addr, rx_length);
     if (status < 0) {
         tr_error("_spi_send_read_sfdp_command failed");
     }
@@ -588,12 +607,19 @@ spif_bd_error SPIFBlockDevice::_spi_send_general_command(int instruction, bd_add
 /*********************************************************/
 /********** SFDP Parsing and Detection Functions *********/
 /*********************************************************/
-int SPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader,
-                                                   mbed::sfdp_hdr_info &sfdp_info)
+int SPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, mbed::sfdp_cmd_addr_size_t, uint8_t, uint8_t, void *, bd_size_t)> sfdp_reader,
+                                                   sfdp_hdr_info &sfdp_info)
 {
     uint8_t param_table[SFDP_BASIC_PARAMS_TBL_SIZE]; /* Up To 20 DWORDS = 80 Bytes */
 
-    int status = sfdp_reader(sfdp_info.bptbl.addr, param_table, sfdp_info.bptbl.size);
+    int status = sfdp_reader(
+                     sfdp_info.bptbl.addr,
+                     SFDP_READ_CMD_ADDR_TYPE,
+                     SFDP_READ_CMD_INST,
+                     SFDP_READ_CMD_DUMMY_CYCLES,
+                     param_table,
+                     sfdp_info.bptbl.size
+                 );
     if (status != SPIF_BD_ERROR_OK) {
         tr_error("init - Read SFDP First Table Failed");
         return -1;
