@@ -239,12 +239,14 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp
     // Default set to all type bits 1-4 are common
     int min_common_erase_type_bits = SFDP_ERASE_BITMASK_ALL;
 
-    // If there's no region map, we have a single region sized the entire device size
-    sfdp_info.smptbl.region_size[0] = sfdp_info.bptbl.device_size_bytes;
-    sfdp_info.smptbl.region_high_boundary[0] = sfdp_info.bptbl.device_size_bytes - 1;
-
     if (!sfdp_info.smptbl.addr || !sfdp_info.smptbl.size) {
         tr_debug("No Sector Map Table");
+
+        // If there's no sector map, we have a single region sized the entire device size
+        sfdp_info.smptbl.region_cnt = 1;
+        sfdp_info.smptbl.region_size[0] = sfdp_info.bptbl.device_size_bytes;
+        sfdp_info.smptbl.region_high_boundary[0] = sfdp_info.bptbl.device_size_bytes - 1;
+
         return MBED_SUCCESS;
     }
 
