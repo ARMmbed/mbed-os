@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  basic:
+  basic-checks:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/armmbed/mbed-os-env:master-latest
@@ -141,7 +141,6 @@ jobs:
         name: install dependencies
         run: |
           pip install -r requirements.txt 
-          pip install icetea pytz
           pip install mock==2.0.0 attrs==19.1.0 pytest==3.3.0 'pylint>=1.9,<2' 'hypothesis>=3,<4' 'coverage>=4.5,<5'
 
       -
@@ -153,7 +152,7 @@ jobs:
           coverage run -a tools/project.py -S | sed -n '/^Total/p'
           coverage html
 
-  Pin-validation:
+  pin-validation:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/armmbed/mbed-os-env:master-latest
