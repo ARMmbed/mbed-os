@@ -33,7 +33,7 @@ static const mbed::bd_addr_t sector_map_start_addr = 0xD81000;
  * three regions for test purpose.
  */
 static const uint8_t sector_map_single_descriptor[] {
-    0xFF, 0x01, 0x02, 0xFF,     // header, highest region = 0x02
+    0xFF, 0x00, 0x02, 0xFF,     // header, highest region = 0x02
     0xF1, 0x7F, 0x00, 0x00,     // region 0
     0xF4, 0x7F, 0x03, 0x00,     // region 1
     0xF4, 0xFF, 0xFB, 0x03      // region 2
@@ -255,7 +255,7 @@ TEST_F(TestSFDP, TestMoreRegionsThanSupported)
      * twelve regions for test purpose.
      */
     const uint8_t sector_map_single_descriptor_twelve_regions[] {
-        0xFF, 0x01, 0x0B, 0xFF,     // header, highest region = 0x0B
+        0xFF, 0x00, 0x0B, 0xFF,     // header, highest region = 0x0B
         0xF1, 0x7F, 0x00, 0x00,     // region 0
         0xF4, 0x7F, 0x03, 0x00,     // region 1
         0xF4, 0xFF, 0xFB, 0x03,     // region 2
