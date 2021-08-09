@@ -19,14 +19,50 @@
 #include "blockdevice/internal/SFDP.h"
 
 using ::testing::_;
+using ::testing::Expectation;
 using ::testing::MockFunction;
 using ::testing::Return;
+
+// The following data is used by multiple test cases.
 
 /**
  * The Sector Map Parameter Table of Cypress S25FS512S:
  * https://www.cypress.com/file/216376/download Table 71.
  */
 static const mbed::bd_addr_t sector_map_start_addr = 0xD81000;
+static const mbed::bd_addr_t register_CR1NV = 0x000002;
+static const mbed::bd_addr_t register_CR3NV = 0x000004;
+static const uint8_t sector_map_multiple_descriptors[] = {
+    // Detect 1
+    0xFC, 0x65, 0xFF, 0x08,
+    0x04, 0x00, 0x00, 0x00,
+
+    // Detect 2
+    0xFC, 0x65, 0xFF, 0x04,
+    0x02, 0x00, 0x00, 0x00,
+
+    // Detect 3
+    0xFD, 0x65, 0xFF, 0x02,
+    0x04, 0x00, 0x00, 0x00,
+
+    // Config 1
+    0xFE, 0x01, 0x02, 0xFF,     // header
+    0xF1, 0x7F, 0x00, 0x00,     // region 0
+    0xF4, 0x7F, 0x03, 0x00,     // region 1
+    0xF4, 0xFF, 0xFB, 0x03,     // region 2
+
+    // No Config 2
+
+    // Config 3
+    0xFE, 0x03, 0x02, 0xFF,     // header
+    0xF4, 0xFF, 0xFB, 0x03,     // region 0
+    0xF4, 0x7F, 0x03, 0x00,     // region 1
+    0xF1, 0x7F, 0x00, 0x00,     // region 2
+
+    // Config 4
+    0xFF, 0x05, 0x00, 0xFF,     // header
+    0xF4, 0xFF, 0xFF, 0x03      // region 0
+};
 
 /**
  * Based on Cypress S25FS512S, modified to have one descriptor,
@@ -54,7 +90,19 @@ protected:
             return mock_return;
         }
 
-        memcpy(buff, sector_descriptors, sector_descriptors_size);
+        // The following register values give Configuration ID = 0x03.
+        uint8_t *out = static_cast<uint8_t*>(buff);
+        switch (addr) {
+            case sector_map_start_addr:
+                memcpy(buff, sector_descriptors, sector_descriptors_size);
+                break;
+            case register_CR1NV:
+                out[0] = 0x04;
+                break;
+            case register_CR3NV:
+                out[0] = 0x02;
+                break;
+        }
         return 0;
     };
 
@@ -289,5 +337,293 @@ TEST_F(TestSFDP, TestMoreRegionsThanSupported)
         )
     ).Times(1).WillOnce(Return(0));
 
+    EXPECT_EQ(-1, sfdp_parse_sector_map_table(sfdp_reader_callback, header_info));
+}
+
+/**
+ * When a Sector Map Parameter Table has multiple configuration detection
+ * commands and sector maps, sfdp_parse_sector_map_table() runs all commands
+ * to find the active configuration and selects the matching sector map.
+ */
+TEST_F(TestSFDP, TestMultipleSectorConfigs)
+{
+    mbed::sfdp_hdr_info header_info;
+    set_sector_map_param_table(
+        header_info.smptbl,
+        sector_map_multiple_descriptors,
+        sizeof(sector_map_multiple_descriptors)
+    );
+
+    // First call: get all detection command and sector map descriptors
+    Expectation call_1 = EXPECT_CALL(
+        sfdp_reader_mock,
+        Call(
+            sector_map_start_addr,
+            mbed::SFDP_READ_CMD_ADDR_TYPE,
+            mbed::SFDP_READ_CMD_INST,
+            mbed::SFDP_READ_CMD_DUMMY_CYCLES,
+            _,
+            sizeof(sector_map_multiple_descriptors)
+        )
+    ).Times(1).WillOnce(Return(0));
+
+    // Second call: detect bit-0 of configuration
+    Expectation call_2 = EXPECT_CALL(
+        sfdp_reader_mock,
+        Call(register_CR3NV, mbed::SFDP_CMD_ADDR_SIZE_VARIABLE, 0x65, mbed::SFDP_CMD_DUMMY_CYCLES_VARIABLE, _, 1)
+    ).Times(1).After(call_1).WillOnce(Return(0));
+
+    // Third call: detect bit-1 of configuration
+    Expectation call_3 = EXPECT_CALL(
+        sfdp_reader_mock,
+        Call(register_CR1NV, mbed::SFDP_CMD_ADDR_SIZE_VARIABLE, 0x65, mbed::SFDP_CMD_DUMMY_CYCLES_VARIABLE, _, 1)
+    ).Times(1).After(call_2).WillOnce(Return(0));
+
+    // Fourth call: detect bit-2 of configuration
+    Expectation call_4 = EXPECT_CALL(
+        sfdp_reader_mock,
+        Call(register_CR3NV, mbed::SFDP_CMD_ADDR_SIZE_VARIABLE, 0x65, mbed::SFDP_CMD_DUMMY_CYCLES_VARIABLE, _, 1)
+    ).Times(1).After(call_3).WillOnce(Return(0));
+
+    EXPECT_EQ(0, sfdp_parse_sector_map_table(sfdp_reader_callback, header_info));
+
+    // Expecting sector map for Configuration ID = 0x03:
+    // Three regions
+    EXPECT_EQ(3, header_info.smptbl.region_cnt);
+
+    // Region 0: erase type 3 (256KB erase)
+    // Range: first 64 MB minus 256 KB
+    EXPECT_EQ(64_MB - 256_KB, header_info.smptbl.region_size[0]);
+    EXPECT_EQ(64_MB - 256_KB - 1_B, header_info.smptbl.region_high_boundary[0]);
+    EXPECT_EQ(1 << (3 - 1), header_info.smptbl.region_erase_types_bitfld[0]);
+
+    // Region 1: erase type 3 (256KB erase, which also covers 32KB from Region 2)
+    // Range: between Region 0 and Region 2
+    EXPECT_EQ(256_KB - 32_KB, header_info.smptbl.region_size[1]);
+    EXPECT_EQ(64_MB - 32_KB - 1_B, header_info.smptbl.region_high_boundary[1]);
+    EXPECT_EQ(1 << (3 - 1), header_info.smptbl.region_erase_types_bitfld[1]);
+
+    // Region 2: erase type 1 (4KB erase)
+    // Range: last 32 KB
+    EXPECT_EQ(32_KB, header_info.smptbl.region_size[2]);
+    EXPECT_EQ(64_MB - 1_B, header_info.smptbl.region_high_boundary[2]);
+    EXPECT_EQ(1 << (1 - 1), header_info.smptbl.region_erase_types_bitfld[2]);
+}
+
+/**
+ * When a Sector Map Parameter Table has multiple configuration detection
+ * commands and sector maps, but one of the detection commands returns
+ * an error (e.g. due to a bus fault).
+ */
+TEST_F(TestSFDP, TestConfigDetectCmdFailure)
+{
+    mbed::sfdp_hdr_info header_info;
+    set_sector_map_param_table(
+        header_info.smptbl,
+        sector_map_multiple_descriptors,
+        sizeof(sector_map_multiple_descriptors)
+    );
+
+    // First call: get all detection command and sector map descriptors
+    Expectation call_1 = EXPECT_CALL(
+        sfdp_reader_mock,
+        Call(
+            sector_map_start_addr,
+            mbed::SFDP_READ_CMD_ADDR_TYPE,
+            mbed::SFDP_READ_CMD_INST,
+            mbed::SFDP_READ_CMD_DUMMY_CYCLES,
+            _,
+            sizeof(sector_map_multiple_descriptors)
+        )
+    ).Times(1).WillOnce(Return(0));
+
+    // Second call: detect bit-0 of configuration
+    Expectation call_2 = EXPECT_CALL(
+        sfdp_reader_mock,
+        Call(register_CR3NV, mbed::SFDP_CMD_ADDR_SIZE_VARIABLE, 0x65, mbed::SFDP_CMD_DUMMY_CYCLES_VARIABLE, _, 1)
+    ).Times(1).After(call_1).WillOnce(Return(0));
+
+    // Third call: detect bit-1 of configuration (failed)
+    Expectation call_3 = EXPECT_CALL(
+        sfdp_reader_mock,
+        Call(register_CR1NV, mbed::SFDP_CMD_ADDR_SIZE_VARIABLE, 0x65, mbed::SFDP_CMD_DUMMY_CYCLES_VARIABLE, _, 1)
+    ).Times(1).After(call_2).WillOnce(Return(-1)); // Emulate command failure
+
+    // No further calls after failure
+    Expectation call_4 = EXPECT_CALL(
+        sfdp_reader_mock,
+        Call(_, _, _, _, _, _)
+    ).Times(0).After(call_3);
+
+    EXPECT_EQ(-1, sfdp_parse_sector_map_table(sfdp_reader_callback, header_info));
+}
+
+/**
+ * When a Sector Map Parameter Table has multiple configuration detection
+ * commands and sector maps, but no detection command is declared as the
+ * last command.
+ * Note: This means either reading went wrong, or the SFDP data is inconsistent
+ * possibly due to hardware manufactured with wrong data. When the latter happens in
+ * practice, the solution is to let the block device apply a device-specific quirk
+ * and supply "corrected" SFDP data in its callback.
+ */
+TEST_F(TestSFDP, TestConfigIncompleteDetectCommands)
+{
+    const uint8_t table_incomplete_detect_commands[] = {
+        // Detect 1
+        0xFC, 0x65, 0xFF, 0x08,
+        0x04, 0x00, 0x00, 0x00,
+
+        // Detect 2
+        0xFC, 0x65, 0xFF, 0x04,
+        0x02, 0x00, 0x00, 0x00,
+
+        // Detect 3
+        // Removed to trigger a parsing error
+
+        // Config 1
+        0xFE, 0x01, 0x02, 0xFF,     // header
+        0xF1, 0x7F, 0x00, 0x00,     // region 0
+        0xF4, 0x7F, 0x03, 0x00,     // region 1
+        0xF4, 0xFF, 0xFB, 0x03,     // region 2
+
+        // No Config 2
+
+        // Config 3
+        0xFE, 0x03, 0x02, 0xFF,     // header
+        0xF4, 0xFF, 0xFB, 0x03,     // region 0
+        0xF4, 0x7F, 0x03, 0x00,     // region 1
+        0xF1, 0x7F, 0x00, 0x00,     // region 2
+
+        // Config 4
+        0xFF, 0x05, 0x00, 0xFF,     // header
+        0xF4, 0xFF, 0xFF, 0x03      // region 0
+    };
+
+    mbed::sfdp_hdr_info header_info;
+    set_sector_map_param_table(
+        header_info.smptbl,
+        table_incomplete_detect_commands,
+        sizeof(table_incomplete_detect_commands)
+    );
+
+    // First call: get all detection command and sector map descriptors
+    Expectation call_1 = EXPECT_CALL(
+        sfdp_reader_mock,
+        Call(
+            sector_map_start_addr,
+            mbed::SFDP_READ_CMD_ADDR_TYPE,
+            mbed::SFDP_READ_CMD_INST,
+            mbed::SFDP_READ_CMD_DUMMY_CYCLES,
+            _,
+            sizeof(table_incomplete_detect_commands)
+        )
+    ).Times(1).WillOnce(Return(0));
+
+    // Second call: detect bit-0 of configuration
+    Expectation call_2 = EXPECT_CALL(
+        sfdp_reader_mock,
+        Call(register_CR3NV, mbed::SFDP_CMD_ADDR_SIZE_VARIABLE, 0x65, mbed::SFDP_CMD_DUMMY_CYCLES_VARIABLE, _, 1)
+    ).Times(1).After(call_1).WillOnce(Return(0));
+
+    // Third call: detect bit-1 of configuration
+    Expectation call_3 = EXPECT_CALL(
+        sfdp_reader_mock,
+        Call(register_CR1NV, mbed::SFDP_CMD_ADDR_SIZE_VARIABLE, 0x65, mbed::SFDP_CMD_DUMMY_CYCLES_VARIABLE, _, 1)
+    ).Times(1).After(call_2).WillOnce(Return(0));
+
+    // No further calls - incomplete detect command
+    Expectation call_4 = EXPECT_CALL(
+        sfdp_reader_mock,
+        Call(_, _, _, _, _, _)
+    ).Times(0).After(call_3);
+
+    EXPECT_EQ(-1, sfdp_parse_sector_map_table(sfdp_reader_callback, header_info));
+}
+
+/**
+ * When a Sector Map Parameter Table has multiple configuration detection
+ * commands and sector maps, but no sector map matches the active
+ * configuration.
+ * Note: This means either detection went wrong, or the SFDP data is inconsistent
+ * possibly due to hardware manufactured with wrong data. When the latter happens in
+ * practice, the solution is to let the block device apply a device-specific quirk
+ * and supply "corrected" SFDP data in its callback.
+ */
+TEST_F(TestSFDP, TestConfigNoMatchingSectorMap)
+{
+    const uint8_t table_no_matching_sector_map[] = {
+        // Detect 1
+        0xFC, 0x65, 0xFF, 0x08,
+        0x04, 0x00, 0x00, 0x00,
+
+        // Detect 2
+        0xFC, 0x65, 0xFF, 0x04,
+        0x02, 0x00, 0x00, 0x00,
+
+        // Detect 3
+        0xFD, 0x65, 0xFF, 0x02,
+        0x04, 0x00, 0x00, 0x00,
+
+        // Config 1
+        0xFE, 0x01, 0x02, 0xFF,     // header
+        0xF1, 0x7F, 0x00, 0x00,     // region 0
+        0xF4, 0x7F, 0x03, 0x00,     // region 1
+        0xF4, 0xFF, 0xFB, 0x03,     // region 2
+
+        // No Config 2
+
+        // Config 3
+        // The active configuration (for test purpose) is 0x03 which should match header[1],
+        // but we change the latter to 0x02 to trigger a parsing error.
+        0xFE, 0x02, 0x02, 0xFF,     // header
+        0xF4, 0xFF, 0xFB, 0x03,     // region 0
+        0xF4, 0x7F, 0x03, 0x00,     // region 1
+        0xF1, 0x7F, 0x00, 0x00,     // region 2
+
+        // Config 4
+        0xFF, 0x05, 0x00, 0xFF,     // header
+        0xF4, 0xFF, 0xFF, 0x03      // region 0
+    };
+
+    mbed::sfdp_hdr_info header_info;
+    set_sector_map_param_table(
+        header_info.smptbl,
+        table_no_matching_sector_map,
+        sizeof(table_no_matching_sector_map)
+    );
+
+    // First call: get all detection command and sector map descriptors
+    Expectation call_1 = EXPECT_CALL(
+        sfdp_reader_mock,
+        Call(
+            sector_map_start_addr,
+            mbed::SFDP_READ_CMD_ADDR_TYPE,
+            mbed::SFDP_READ_CMD_INST,
+            mbed::SFDP_READ_CMD_DUMMY_CYCLES,
+            _,
+            sizeof(table_no_matching_sector_map)
+        )
+    ).Times(1).WillOnce(Return(0));
+
+    // Second call: detect bit-0 of configuration
+    Expectation call_2 = EXPECT_CALL(
+        sfdp_reader_mock,
+        Call(register_CR3NV, mbed::SFDP_CMD_ADDR_SIZE_VARIABLE, 0x65, mbed::SFDP_CMD_DUMMY_CYCLES_VARIABLE, _, 1)
+    ).Times(1).After(call_1).WillOnce(Return(0));
+
+    // Third call: detect bit-1 of configuration
+    Expectation call_3 = EXPECT_CALL(
+        sfdp_reader_mock,
+        Call(register_CR1NV, mbed::SFDP_CMD_ADDR_SIZE_VARIABLE, 0x65, mbed::SFDP_CMD_DUMMY_CYCLES_VARIABLE, _, 1)
+    ).Times(1).After(call_2).WillOnce(Return(0));
+
+    // Fourth call: detect bit-2 of configuration
+    Expectation call_4 = EXPECT_CALL(
+        sfdp_reader_mock,
+        Call(register_CR3NV, mbed::SFDP_CMD_ADDR_SIZE_VARIABLE, 0x65, mbed::SFDP_CMD_DUMMY_CYCLES_VARIABLE, _, 1)
+    ).Times(1).After(call_3).WillOnce(Return(0));
+
+    // Failed to find a sector map for the active configuration.
     EXPECT_EQ(-1, sfdp_parse_sector_map_table(sfdp_reader_callback, header_info));
 }

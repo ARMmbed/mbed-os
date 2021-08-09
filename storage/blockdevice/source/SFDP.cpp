@@ -245,6 +245,110 @@ int sfdp_parse_headers(Callback<int(bd_addr_t, sfdp_cmd_addr_size_t, uint8_t, ui
     return 0;
 }
 
+static constexpr size_t min_descriptor_size = 8; // two DWORDs
+
+static inline bool is_last_descriptor(const uint8_t *descriptor)
+{
+    // Last descriptor of the current type (detection command/sector map)
+    MBED_ASSERT(nullptr != descriptor);
+    return descriptor[0] & 0x01;
+}
+
+static inline bool is_sector_map_descriptor(const uint8_t *descriptor)
+{
+    // true - sector map descriptor
+    // false - configuration detection command descriptor
+    MBED_ASSERT(nullptr != descriptor);
+    return descriptor[0] & 0x02;
+}
+
+static int sfdp_detect_sector_map_configuration(
+    Callback<int(bd_addr_t, sfdp_cmd_addr_size_t, uint8_t, uint8_t, void *, bd_size_t)> sfdp_reader,
+    sfdp_hdr_info &sfdp_info,
+    uint8_t *&descriptor,
+    const uint8_t *table_end,
+    uint8_t &config)
+{
+    config = 0;
+
+    // If the table starts with a sector map descriptor instead of a configuration
+    // detection command descriptor, this device has only one configuration (i.e. is
+    // not configurable) with ID equal to 0.
+    if (is_sector_map_descriptor(descriptor)) {
+        return 0;
+    }
+
+    // Loop through all configuration detection descriptors and run detection commands
+    while (!is_sector_map_descriptor(descriptor) && (descriptor + min_descriptor_size <= table_end)) {
+        uint8_t instruction = descriptor[1];
+        uint8_t dummy_cycles = descriptor[2] & 0x0F;
+        auto addr_size = static_cast<sfdp_cmd_addr_size_t>(descriptor[2] >> 6);
+        uint8_t mask = descriptor[3];
+        uint32_t cmd_addr;
+        memcpy(&cmd_addr, &descriptor[4], sizeof(cmd_addr)); // last 32 bits of the descriptor
+
+        uint8_t rx;
+        int status = sfdp_reader(cmd_addr, addr_size, instruction, dummy_cycles, &rx, sizeof(rx));
+        if (status < 0) {
+            tr_error("Sector Map: Configuration detection command failed");
+            return -1;
+        }
+
+        // Shift existing bits to the left, so we can add the newly detected bit
+        config <<= 1;
+
+        // The mask may apply to any bit of rx, so we can't directly combine
+        // (rx & mask) with config. Instead, treat (rx & mask) as a boolean.
+        if (rx & mask) {
+            config |= 0x01;
+        }
+
+        if (is_last_descriptor(descriptor)) {
+            // We've processed the last configuration detection command descriptor
+            descriptor += min_descriptor_size; // Increment the descriptor for the caller
+            return 0;
+        }
+        descriptor += min_descriptor_size; // next descriptor
+    }
+
+    tr_error("Sector Map: Incomplete configuration detection command descriptors");
+    return -1;
+}
+
+static int sfdp_locate_sector_map_by_config(
+    const uint8_t config,
+    sfdp_hdr_info &sfdp_info,
+    uint8_t *&descriptor,
+    const uint8_t *table_end)
+{
+    // The size of a sector map descriptor depends on the number of regions. Before
+    // the number of regions is calculated, use the minimum possible size in the a loop condition.
+    while (is_sector_map_descriptor(descriptor) && (descriptor + min_descriptor_size <= table_end)) {
+        size_t regions = descriptor[2] + 1; // Region ID starts at 0
+        size_t current_descriptor_size = (1 /*header*/ + regions) * 4 /*DWORD size*/;
+        if (descriptor + current_descriptor_size > table_end) {
+            tr_error("Sector Map: Incomplete sector map descriptor at the end of the table");
+            return -1;
+        }
+
+        if (descriptor[1] == config) {
+            // matching sector map found
+            return 0;
+        }
+
+        if (is_last_descriptor(descriptor)) {
+            // We've processed the last sector map descriptor
+            tr_error("Sector Map: Failed to find a sector map that matches the current configuration");
+            return -1;
+        }
+
+        descriptor += current_descriptor_size; // next descriptor
+    }
+
+    tr_error("Sector Map: Incomplete sector map descriptors");
+    return -1;
+}
+
 int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, sfdp_cmd_addr_size_t, uint8_t, uint8_t, void *, bd_size_t)> sfdp_reader, sfdp_hdr_info &sfdp_info)
 {
     uint32_t tmp_region_size = 0;
@@ -268,7 +372,7 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, sfdp_cmd_addr_size_t, ui
      * - sector map configuration detection commands
      * - configurations
      * - regions in each configuration
-     *  is variable -> the size of this table is variable
+     * are variable -> the size of this table is variable
      */
     auto smptbl_buff = std::unique_ptr<uint8_t[]>(new (std::nothrow) uint8_t[sfdp_info.smptbl.size]);
     if (!smptbl_buff) {
@@ -291,13 +395,26 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, sfdp_cmd_addr_size_t, ui
         return -1;
     }
 
-    // Currently we support only Single Map Descriptor
-    if (!((smptbl_buff[0] & 0x3) == 0x03) && (smptbl_buff[1] == 0x0)) {
-        tr_error("Sector Map: Supporting Only Single Map Descriptor (not map commands)");
-        return -1;
+    uint8_t *table = smptbl_buff.get();
+    uint8_t *descriptor = table;
+
+    // Detect which configuration is in use
+    uint8_t active_config_id = 0x00;
+    status = sfdp_detect_sector_map_configuration(sfdp_reader, sfdp_info, descriptor, table + sfdp_info.smptbl.size, active_config_id);
+    if (status != 0) {
+        tr_error("Failed to detect sector map configuration");
+        return status;
     }
 
-    sfdp_info.smptbl.region_cnt = smptbl_buff[2] + 1;
+    // Locate the sector map for the configuration
+    status = sfdp_locate_sector_map_by_config(active_config_id, sfdp_info, descriptor, table + sfdp_info.smptbl.size);
+    if (status != 0) {
+        tr_error("Failed to locate a matching sector map");
+        return status;
+    }
+
+    // Find the number of regions from the sector map
+    sfdp_info.smptbl.region_cnt = descriptor[2] + 1;
     if (sfdp_info.smptbl.region_cnt > SFDP_SECTOR_MAP_MAX_REGIONS) {
         tr_error("Sector Map: Supporting up to %d regions, current setup to %d regions - fail",
                  SFDP_SECTOR_MAP_MAX_REGIONS,
@@ -305,13 +422,13 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, sfdp_cmd_addr_size_t, ui
         return -1;
     }
 
-    // Loop through Regions and set for each one: size, supported erase types, high boundary offset
-    // Calculate minimum Common Erase Type for all Regions
+    // Loop through the regions and set for each one: size, supported erase types, high boundary offset
+    // Calculate the minimum common erase type for all regions
     for (auto idx = 0; idx < sfdp_info.smptbl.region_cnt; idx++) {
-        tmp_region_size = ((*((uint32_t *)&smptbl_buff[(idx + 1) * 4])) >> 8) & 0x00FFFFFF; // bits 9-32
+        tmp_region_size = ((*((uint32_t *)&descriptor[(idx + 1) * 4])) >> 8) & 0x00FFFFFF; // bits 9-32
         sfdp_info.smptbl.region_size[idx] = (tmp_region_size + 1) * 256; // Region size is 0 based multiple of 256 bytes;
 
-        sfdp_info.smptbl.region_erase_types_bitfld[idx] = smptbl_buff[(idx + 1) * 4] & 0x0F; // bits 1-4
+        sfdp_info.smptbl.region_erase_types_bitfld[idx] = descriptor[(idx + 1) * 4] & 0x0F; // bits 1-4
 
         min_common_erase_type_bits &= sfdp_info.smptbl.region_erase_types_bitfld[idx];
 
@@ -334,7 +451,6 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, sfdp_cmd_addr_size_t, ui
 
     return 0;
 }
-
 
 size_t sfdp_detect_page_size(uint8_t *basic_param_table_ptr, size_t basic_param_table_size)
 {
