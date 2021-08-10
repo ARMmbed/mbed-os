@@ -1,11 +1,12 @@
 # This workflow performs the checks like license check,
 # doxygen, unit tests etc.
+name: PR Basic Checks
 
 on:
   pull_request:
 
 jobs:
-  basic-checks:
+  license-check:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/armmbed/mbed-os-env:master-latest
@@ -27,7 +28,6 @@ jobs:
         shell: bash
         run: |
           set -x
-          ls
           mkdir -p SCANCODE
           git diff --name-only --diff-filter=ad origin/${GITHUB_BASE_REF}.. \
             | ( grep '.\(c\|cpp\|h\|hpp\|py\)$' || true ) \
@@ -50,6 +50,7 @@ jobs:
         name: license check new files
         shell: bash
         run: |
+          set -x
           mkdir -p SCANCODE_NEW_FILES
           git diff --name-only --diff-filter=A origin/${GITHUB_BASE_REF}.. \
             | ( grep '.\(c\|cpp\|h\|hpp\|py\)$' || true ) \
@@ -68,32 +69,58 @@ jobs:
             false;
           fi
 
-      - 
-        name: "UTF-8 Check"
-        run: |
-          # Make sure we're not introducing any text which is not UTF-8 encoded
-          git diff origin/${GITHUB_BASE_REF} -U0 | ( grep -a '^+' || true ) | ( ! grep -axv '.*' )
+  include-check:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/armmbed/mbed-os-env:master-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - 
-        name: "include check"
+        name: include check
         run: |
           ! git grep '^#include\s["'"']mbed.h['"'"]$' -- '*.c' '*.h' '*.cpp' '*.hpp' \
               ':!*platform_mbed.h' ':!*TESTS/*' ':!TEST_APPS/' ':!UNITTESTS/' \
               ':!*tests/*' ':!*targets/*' ':!*TARGET_*' ':!*unsupported/*' \
               ':!*events/tests/*' ':!*drivers/tests/*'
 
+  style-check:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/armmbed/mbed-os-env:master-latest
+
+    steps:
+      - 
+        name: UTF-8 Check
+        run: |
+          # Make sure we're not introducing any text which is not UTF-8 encoded
+          git diff origin/${GITHUB_BASE_REF} -U0 | ( grep -a '^+' || true ) | ( ! grep -axv '.*' )
+
       - 
         name: astyle checks
         run: |
+          set -x
           git diff --name-only --diff-filter=d origin/${GITHUB_BASE_REF} \
             | ( grep '.*\.\(c\|cpp\|h\|hpp\)$' || true ) \
             | ( grep -v -f .codecheckignore || true ) \
             | while read file; do astyle -n --options=.astylerc "${file}"; done
           git diff --exit-code --diff-filter=d --color
 
+
+  docs-check:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/armmbed/mbed-os-env:master-latest
+
+    steps:
       - 
         name: spell checks
         run: |
+          set -x
           ./tools/test/travis-ci/doxy-spellchecker/spell.sh drivers .codecheckignore
           ./tools/test/travis-ci/doxy-spellchecker/spell.sh platform .codecheckignore
           ./tools/test/travis-ci/doxy-spellchecker/spell.sh events .codecheckignore
@@ -103,6 +130,7 @@ jobs:
       - 
         name: doxygen
         run: |
+          set -x
           ccache -s
           mkdir BUILD
           # Assert that the Doxygen build produced no warnings.
@@ -126,7 +154,6 @@ jobs:
   python-tests:
     # these tests run in 3.7, hence running in vm not in pre-built docker
     runs-on: ubuntu-latest
-
     steps:
       -
         name: Checkout repo
@@ -146,7 +173,7 @@ jobs:
       -
         name: pytest
         run: |
-          # PYTHONPATH=. 
+          set -x
           coverage run -a -m pytest tools/test
           python tools/test/pylint.py
           coverage run -a tools/project.py -S | sed -n '/^Total/p'
@@ -166,6 +193,7 @@ jobs:
       -
         name: validate pins
         run: |
+          set -x
           git diff --name-only --diff-filter=d origin/${GITHUB_BASE_REF} \
             | ( grep '.*[\\|\/]PinNames.h$' || true ) \
             | while read file; do python ./hal/tests/pinvalidate/pinvalidate.py -vfp "${file}"; done
@@ -189,6 +217,7 @@ jobs:
       -
         name: cmake build
         run: |
+          set -x
           mbedtools configure -p ${{ env.ROOT}} -t ${{ env.TOOLCHAIN }} -m ${{ env.TARGET_NAME }} --mbed-os-path .
           cmake -S ${{env.ROOT}} -B ${{ env.ROOT }}/cmake_build/${{env.TARGET_NAME}}/${{ env.PROFILE }}/${{ env.TOOLCHAIN }}/ -GNinja -DCMAKE_BUILD_TYPE=${{ env.PROFILE }}
           cmake --build ${{ env.ROOT }}/cmake_build/${{ env.TARGET_NAME }}/${{ env.PROFILE }}/${{ env.TOOLCHAIN }}/
@@ -196,8 +225,7 @@ jobs:
       -
         name: cmake unittest
         run: |
-          set -x
-          echo ctest --build-and-test . build --build-generator Ninja --build-options -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=ON --test-command ctest        
+          set -x     
           ctest --build-and-test . build --build-generator Ninja --build-options -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=ON --test-command ctest        
           gcovr --gcov-executable gcov -r . ./build -s -e ".*\.h" --exclude-directories=${GITHUB_WORKSPACE}/build/UNITTESTS --exclude-directories=${GITHUB_WORKSPACE}/build/_deps
           ccache -s
