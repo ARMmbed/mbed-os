@@ -1109,6 +1109,13 @@ int QSPIFBlockDevice::_handle_vendor_quirks()
                 // * The SFDP table expects the register bitfield CR3NV[1] to be 1
                 //   but its actual value on the hardware is 0. In order for SFDP parsing
                 //   to work, the quirk reports CR3NV[1] as 1.
+                // * All three possible configurations support 256KB sectors across
+                //   the entire chip. But when CR3NV[3] is 0, eight 4KB sectors overlay
+                //   either the first 32KB or the last 32KB of the chip, whereas when
+                //   CR3NV[3] is 1 there are no overlaying 4KB sectors. Mbed OS can't
+                //   handle this type of overlay, so the quirk reports CR3NV[3] as 1 to
+                //   let the code treat the chip as if it has no overlay. (Also CR1NV[2]
+                //   is required to be 0 when CR3NV[3] is 1.)
                 _S25FS512S_quirk = true;
             }
             break;
@@ -1483,12 +1490,16 @@ int QSPIFBlockDevice::_qspi_send_read_sfdp_command(mbed::bd_addr_t addr, mbed::s
     }
 
     // Handle S25FS512S quirk.
+    const mbed::bd_addr_t S25FS512S_CR1NV = 0x2;
     const mbed::bd_addr_t S25FS512S_CR3NV = 0x4;
     if (_S25FS512S_quirk) {
         if (addr == S25FS512S_CR3NV) {
             // If we reach here, rx_buffer is guaranteed to be non-null
             // because it's been checked by _qspi.read() above.
             static_cast<uint8_t *>(rx_buffer)[0] |= (1 << 1);
+            static_cast<uint8_t *>(rx_buffer)[0] |= (1 << 3);
+        } else if (addr == S25FS512S_CR1NV) {
+            static_cast<uint8_t *>(rx_buffer)[0] &= ~(1 << 2);
         }
     }
 
