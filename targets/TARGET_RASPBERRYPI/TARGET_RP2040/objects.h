@@ -129,4 +129,6 @@ typedef struct serial_s serial_t;
 }
 #endif
 
+#define LED1   LED1
+
 #endif
