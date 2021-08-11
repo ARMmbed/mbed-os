@@ -5,6 +5,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
     if(BUILD_GREENTEA_TESTS)
         # add greentea test
     else()
+        add_subdirectory(COMPONENT_QSPIF)
         add_subdirectory(tests/UNITTESTS)
     endif()
 endif()
