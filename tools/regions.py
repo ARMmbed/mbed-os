@@ -106,7 +106,6 @@ def merge_region_list(
         region_list,
         destination,
         notify,
-        padding=b'\xFF',
         restrict_size=None
 ):
     """Merge the region_list into a single image
@@ -114,7 +113,6 @@ def merge_region_list(
     Positional Arguments:
     region_list - list of regions, which should contain filenames
     destination - file name to write all regions to
-    padding - bytes to fill gaps with
     restrict_size - check to ensure a region fits within the given size
     """
     merged = IntelHex()
@@ -158,16 +156,6 @@ def merge_region_list(
             notify.info(
                 "  Skipping %s as it is merged previously" % (region.name)
             )
-
-    # Hex file can have gaps, so no padding needed. While other formats may
-    # need padding. Iterate through segments and pad the gaps.
-    if format != ".hex":
-        # begin patching from the end of the first segment
-        _, begin = merged.segments()[0]
-        for start, stop in merged.segments()[1:]:
-            pad_size = start - begin
-            merged.puts(begin, padding * pad_size)
-            begin = stop + 1
 
     if not exists(dirname(destination)):
         makedirs(dirname(destination))
