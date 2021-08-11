@@ -5,6 +5,17 @@
 
 cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
 
+option(BUILD_GREENTEA_TESTS "Build greentea tests only." OFF)
+
+if(BUILD_GREENTEA_TESTS)
+    # Usually we rely on the application to set MBED_CONFIG_PATH and include
+    # app.cmake. They are both required if we're building an application to run
+    # on an mbed-target.
+    set(MBED_CONFIG_PATH ${CMAKE_CURRENT_BINARY_DIR} CACHE STRING "")
+    # TODO: Remove when https://github.com/ARMmbed/mbed-os/issues/14518 is fixed
+    include(${CMAKE_CURRENT_LIST_DIR}/tools/cmake/app.cmake)
+endif()
+
 if(${CMAKE_CROSSCOMPILING})
     include(${MBED_CONFIG_PATH}/mbed_config.cmake)
     include(mbed_set_linker_script)
@@ -14,17 +25,19 @@ project(mbed-os)
 
 # Add all paths to the list files within Mbed OS
 list(APPEND CMAKE_MODULE_PATH
-    "${mbed-os_SOURCE_DIR}/platform/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_TFM/TARGET_TFM_LATEST/scripts;${mbed-os_SOURCE_DIR}/targets/TARGET_Cypress/scripts;${mbed-os_SOURCE_DIR}/targets/TARGET_NXP/scripts"
+    "${mbed-os_SOURCE_DIR}/platform/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_TFM/TARGET_TFM_LATEST/scripts;${mbed-os_SOURCE_DIR}/targets/TARGET_Cypress/scripts;${mbed-os_SOURCE_DIR}/targets/TARGET_NXP/scripts;${mbed-os_SOURCE_DIR}/targets/TARGET_NUVOTON/scripts/"
 )
 
 add_subdirectory(extern)
 
-option(BUILD_TESTING "Run unit tests only." OFF)
-
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     include(CTest)
-    add_definitions(-DUNITTEST)
-    add_subdirectory(UNITTESTS)
+
+    if((NOT BUILD_GREENTEA_TESTS) AND BUILD_TESTING)
+        # Building unit tests only.
+        add_definitions(-DUNITTEST)
+        add_subdirectory(UNITTESTS)
+    endif()
 endif()
 
 add_library(mbed-core INTERFACE)
@@ -94,10 +107,12 @@ if(${CMAKE_CROSSCOMPILING})
 
     # Add MBED_TEST_MODE for backward compatibility with Greentea tests written for use with Mbed CLI 1
     if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
-        target_compile_definitions(${PROJECT_NAME}
-            INTERFACE
-                MBED_TEST_MODE
-        )
+        if(NOT BUILD_GREENTEA_TESTS)
+            target_compile_definitions(${PROJECT_NAME}
+                INTERFACE
+                    MBED_TEST_MODE
+            )
+        endif()
     endif()
 
     # We need to generate a "response file" to pass to the C preprocessor when we preprocess the linker

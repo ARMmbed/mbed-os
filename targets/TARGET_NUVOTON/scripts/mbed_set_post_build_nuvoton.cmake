@@ -1,7 +1,7 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(${MBED_PATH}/tools/cmake/mbed_set_post_build.cmake)
+include(mbed_set_post_build)
 
 #
 # Sign TF-M secure and non-secure images and combine them with the bootloader

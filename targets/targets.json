@@ -993,6 +993,10 @@
             "GCC_ARM",
             "IAR"
         ],
+        "supported_application_profiles": [
+            "full",
+            "bare-metal"
+        ],
         "macros": [
             "CPU_MK64FN1M0VMD12",
             "FSL_RTOS_MBED",
@@ -4416,6 +4420,10 @@
             "ARM",
             "GCC_ARM",
             "IAR"
+        ],
+        "supported_application_profiles": [
+            "full",
+            "bare-metal"
         ],
         "extra_labels": [
             "NXP",

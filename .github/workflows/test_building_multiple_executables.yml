@@ -5,7 +5,7 @@ on: [pull_request]
 jobs:
   multiple-executables-example:
     runs-on: ubuntu-latest
-    container: mbedos/mbed-os-env:latest
+    container: ghcr.io/armmbed/mbed-os-env:master-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2

@@ -2,8 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
-    add_subdirectory(tests/UNITTESTS)
-else()
+    if(BUILD_GREENTEA_TESTS)
+        # add greentea test
+    else()
+        add_subdirectory(tests/UNITTESTS)
+    endif()
+endif()
 
 add_library(mbed-events INTERFACE)
 
@@ -28,4 +32,3 @@ target_compile_definitions(mbed-events
     INTERFACE
         MBED_CONF_EVENTS_PRESENT=1
 )
-endif()

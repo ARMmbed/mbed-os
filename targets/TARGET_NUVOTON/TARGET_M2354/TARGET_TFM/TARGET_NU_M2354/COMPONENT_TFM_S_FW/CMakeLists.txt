@@ -1,7 +1,7 @@
 # Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(${MBED_PATH}/targets/TARGET_NUVOTON/scripts/mbed_set_post_build_nuvoton.cmake)
+include(mbed_set_post_build_nuvoton)
 
 target_link_libraries(mbed-m2354-tfm
     INTERFACE

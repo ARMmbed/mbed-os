@@ -1,0 +1,30 @@
+name: test building greentea tests with cmake
+
+on: [pull_request]
+
+jobs:
+  build-greentea-cmake:
+    runs-on: ubuntu-latest
+    container: ghcr.io/armmbed/mbed-os-env:master-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install the latest mbed-tools
+        run: |
+            pip3 install --upgrade mbed-tools
+            mbedtools --version
+
+      - name: Build NUCLEO_G031K8 with baremetal profile
+        run: |
+            rm -rf __build
+            mbedtools configure -t GCC_ARM -m NUCLEO_G031K8 --mbed-os-path . --output-dir __build --app-config TESTS/configs/baremetal.json
+            cmake -S . -B __build -GNinja -DCMAKE_CTEST_ARGUMENTS="--output-on-failure;-V" -DBUILD_GREENTEA_TESTS=ON -DMBED_GREENTEA_TEST_BAREMETAL=ON
+            cmake --build __build
+
+      - name: Build ARM_MUSCA_S1 with full profile
+        run: |
+            rm -rf __build
+            mbedtools configure -t GCC_ARM -m ARM_MUSCA_S1 --mbed-os-path . --output-dir __build
+            cmake -S . -B __build -GNinja -DCMAKE_CTEST_ARGUMENTS="--output-on-failure;-V" -DBUILD_GREENTEA_TESTS=ON
+            cmake --build __build
