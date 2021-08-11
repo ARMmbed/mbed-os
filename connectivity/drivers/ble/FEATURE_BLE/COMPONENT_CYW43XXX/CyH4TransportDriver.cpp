@@ -55,7 +55,7 @@ CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, Pi
     cts(cts), rts(rts),
     bt_host_wake_name(bt_host_wake_name),
     bt_device_wake_name(bt_device_wake_name),
-    bt_power(bt_power_name, PIN_OUTPUT, PullNone, 0),
+    bt_power(bt_power_name, PIN_OUTPUT, PullUp, 0),
     bt_host_wake(bt_host_wake_name, PIN_INPUT, PullNone, 0),
     bt_device_wake(bt_device_wake_name, PIN_OUTPUT, PullNone, 1),
     host_wake_irq_event(host_wake_irq),
