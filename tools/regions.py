@@ -157,6 +157,11 @@ def merge_region_list(
                 "  Skipping %s as it is merged previously" % (region.name)
             )
 
+    if restrict_size is not None:
+        desired_size = int(restrict_size, 0)
+        # Rely on IntelHex to pad the binary as required
+        merged[merged.minaddr() + desired_size - 1] = merged.padding
+
     if not exists(dirname(destination)):
         makedirs(dirname(destination))
     notify.info("Space used after regions merged: 0x%x" %
