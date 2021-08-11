@@ -17,7 +17,7 @@
 
 #include "blockdevice/internal/SFDP.h"
 #include "platform/Callback.h"
-#include "QSPIFBlockDevice.h"
+#include "QSPIF/QSPIFBlockDevice.h"
 #include <string.h>
 #include "rtos/ThisThread.h"
 
@@ -25,7 +25,7 @@
 #define MBED_CONF_MBED_TRACE_ENABLE        0
 #endif
 
-#include "mbed_trace.h"
+#include "mbed-trace/mbed_trace.h"
 #define TRACE_GROUP "QSPIF"
 
 using namespace std::chrono;
