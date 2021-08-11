@@ -1,5 +1,4 @@
 /*
- * @copyright SPDX-License-Identifier: Apache-2.0
  * Copyright (c) 2017-2020 Arm Limited. All rights reserved.
  * Copyright (c) 2020 Nuvoton Technology Corp. All rights reserved.
  *
@@ -21,15 +20,42 @@
 
 /* Flash layout on M2354 with BL2 (single image boot):
  *
- * 0x0000_0000 BL2 - MCUBoot (64KB)
- * 0x0001_0000 Protected Storage Area (32 KB)
- * 0x0000_8000 Internal Trusted Storage Area (28 KB)
- * 0x0000_F000 NV counters area (4 KB)
- * 0x0002_0000 Primary image area (320KB):
- *    0x0002_0000 Secure     image primary
- *    0x0007_0000 Non-secure image primary
- * 0x0010_0000 Scratch area (4KB)
+ * Internal Flash:
+ * 0x0000_0000 BL2 - MCUBoot (48KB)
+ * 0x0000_C000 Protected Storage Area (56 KB)
+ * 0x0001_A000 Internal Trusted Storage Area (20 KB)
+ * 0x0001_F000 NV counters area (4 KB)
+ * 0x0002_0000 Primary image area (896KB):
+ *    0x0002_0000 Secure     image primary (320KB)
+ *    0x0007_0000 Non-secure image primary (576KB)
+ * 0x0010_0000 Secondary image area (2KB):
+ *    0x0010_0000 Secure     image secondary (320KB) (Dummy)
+ *    0x0015_0000 Non-secure image secondary (576KB) (Dummy)
+ * 0x001E_0000 Scratch area (4KB) (Dummy)
  *
+ * SDH Flash:
+ * 0x0000_0000 Secondary image area (896KB)
+ *    0x0000_0000 Secure     image secondary (320KB)
+ *    0x0005_0000 Non-secure image secondary (576KB)
+ * 0x0020_0000 Scratch area (4 KB)
+ *
+ * Flash layout on M2354 with BL2 (multiple image boot):
+ *
+ * Internal Flash:
+ * 0x0000_0000 BL2 - MCUBoot (48KB)
+ * 0x0000_C000 Protected Storage Area (56 KB)
+ * 0x0001_A000 Internal Trusted Storage Area (20 KB)
+ * 0x0001_F000 NV counters area (4 KB)
+ * 0x0002_0000 Secure image     primary slot (320KB)
+ * 0x0007_0000 Non-secure image primary slot (576KB)
+ * 0x0010_0000 Secure image     secondary slot (320KB) (Dummy)
+ * 0x0015_0000 Non-secure image secondary slot (576KB) (Dummy)
+ * 0x001E_0000 Scratch area (4KB) (Dummy)
+ *
+ * SDH Flash:
+ * 0x0000_0000 Secure image     secondary slot (320KB)
+ * 0x0010_0000 Non-secure image secondary slot (576KB)
+ * 0x0020_0000 Scratch area (2 KB)
  */
 
 /* This header file is included from linker scatter file as well, where only a
@@ -40,8 +66,13 @@
  */
 
 /* Size of a Secure and of a Non-secure image */
-#define FLASH_S_PARTITION_SIZE          (0x50000)        /* S partition : 192+64+64 KB */
-#define FLASH_NS_PARTITION_SIZE         (0x90000)        /* NS partition: 768-64-64 KB */
+#if !NU_UPDATE_STAGE_FLASH
+#define FLASH_S_PARTITION_SIZE          (0x50000)        /* S partition : 320 KB */
+#define FLASH_NS_PARTITION_SIZE         (0x90000)        /* NS partition: 576 KB */
+#else
+#define FLASH_S_PARTITION_SIZE          (0x46000)        /* S partition : 280 KB */
+#define FLASH_NS_PARTITION_SIZE         (0x28000)        /* NS partition: 160 KB */
+#endif
 #define FLASH_MAX_PARTITION_SIZE        ((FLASH_S_PARTITION_SIZE >   \
                                           FLASH_NS_PARTITION_SIZE) ? \
                                          FLASH_S_PARTITION_SIZE :    \
@@ -50,11 +81,17 @@
 /* Sector size of the flash hardware; same as FLASH0_SECTOR_SIZE */
 #define FLASH_AREA_IMAGE_SECTOR_SIZE    (0x800)   /* 2 KB */
 /* Same as FLASH0_SIZE */
-#define FLASH_TOTAL_SIZE                (0x00100000) /* 512 KB */
+#define FLASH_TOTAL_SIZE                (0x00100000) /* 1024 KB */
 
 /* Flash layout info for BL2 bootloader */
 /* Same as FLASH0_BASE_S */
 #define FLASH_BASE_ADDRESS              (0x00000000)
+
+#if NU_UPDATE_STAGE_SDH
+#define SDH_FLASH_DEVICE_ID             (FLASH_DEVICE_ID + 1)
+#define SDH_FLASH_DEV_NAME              Driver_SDH_FLASH0
+#define SDH_FLASH_BASE_ADDRESS          (0x00000000)
+#endif
 
 /* Offset and size definitions of the flash partitions that are handled by the
  * bootloader. The image swapping is done between IMAGE_PRIMARY and
@@ -62,22 +99,38 @@
  * swapping.
  */
 #define FLASH_AREA_BL2_OFFSET      (0x0)
-#define FLASH_AREA_BL2_SIZE        (0x10000) /* 64 KB */
+#define FLASH_AREA_BL2_SIZE        (0xC000) /* 48 KB */
 
 #if !defined(MCUBOOT_IMAGE_NUMBER) || (MCUBOOT_IMAGE_NUMBER == 1)
 /* Secure + Non-secure image primary slot */
 #define FLASH_AREA_0_ID            (1)
-#define FLASH_AREA_0_OFFSET        (FLASH_AREA_BL2_OFFSET + FLASH_AREA_BL2_SIZE + 0x10000)        /* 0x10000 */
-#define FLASH_AREA_0_SIZE          (FLASH_S_PARTITION_SIZE + FLASH_NS_PARTITION_SIZE)   /* 480 KB */
+#define FLASH_AREA_0_OFFSET        (FLASH_AREA_BL2_OFFSET + FLASH_AREA_BL2_SIZE + 0x14000)  /* Reserved for storage */
+#define FLASH_AREA_0_SIZE          (FLASH_S_PARTITION_SIZE + FLASH_NS_PARTITION_SIZE)
 /* Secure + Non-secure secondary slot */
+#if NU_UPDATE_STAGE_SDH
 #define FLASH_AREA_2_ID            (FLASH_AREA_0_ID + 1)
-#define FLASH_AREA_2_OFFSET        (0x100000)
-#define FLASH_AREA_2_SIZE          (0x800)
+#define FLASH_AREA_2_OFFSET        (0x0)
+#define FLASH_AREA_2_SIZE          (FLASH_S_PARTITION_SIZE + FLASH_NS_PARTITION_SIZE)
+#define FLASH_DEVICE_ID_2          SDH_FLASH_DEVICE_ID
+#define FLASH_DEV_NAME_2           SDH_FLASH_DEV_NAME
+#else
+#define FLASH_AREA_2_ID            (FLASH_AREA_0_ID + 1)
+#define FLASH_AREA_2_OFFSET        (FLASH_AREA_0_OFFSET + FLASH_AREA_0_SIZE)
+#define FLASH_AREA_2_SIZE          (FLASH_S_PARTITION_SIZE + FLASH_NS_PARTITION_SIZE)
+#endif
 
 /* Scratch area */
+#if NU_UPDATE_STAGE_SDH
 #define FLASH_AREA_SCRATCH_ID      (FLASH_AREA_2_ID + 1)
-#define FLASH_AREA_SCRATCH_OFFSET  (0x100800)
-#define FLASH_AREA_SCRATCH_SIZE    (0x800)
+#define FLASH_AREA_SCRATCH_OFFSET  (0x200000)
+#define FLASH_AREA_SCRATCH_SIZE    (0x1000)
+#define FLASH_DEVICE_ID_SCRATCH    SDH_FLASH_DEVICE_ID
+#define FLASH_DEV_NAME_SCRATCH     SDH_FLASH_DEV_NAME
+#else
+#define FLASH_AREA_SCRATCH_ID      (FLASH_AREA_2_ID + 1)
+#define FLASH_AREA_SCRATCH_OFFSET  (FLASH_AREA_2_OFFSET + FLASH_AREA_2_SIZE)
+#define FLASH_AREA_SCRATCH_SIZE    (0x1000)
+#endif
 
 /* The maximum number of status entries supported by the bootloader. */
 #define MCUBOOT_STATUS_MAX_ENTRIES ((FLASH_S_PARTITION_SIZE + \
@@ -88,24 +141,79 @@
 #define MCUBOOT_MAX_IMG_SECTORS    ((FLASH_S_PARTITION_SIZE + \
                                      FLASH_NS_PARTITION_SIZE) / \
                                     FLASH_AREA_IMAGE_SECTOR_SIZE)
+#elif (MCUBOOT_IMAGE_NUMBER == 2)
+/* Secure image primary slot */
+#define FLASH_AREA_0_ID            (1)
+#define FLASH_AREA_0_OFFSET        (FLASH_AREA_BL2_OFFSET + FLASH_AREA_BL2_SIZE + 0x14000)  /* Reserved for storage */
+#define FLASH_AREA_0_SIZE          (FLASH_S_PARTITION_SIZE)
+/* Non-secure image primary slot */
+#define FLASH_AREA_1_ID            (FLASH_AREA_0_ID + 1)
+#define FLASH_AREA_1_OFFSET        (FLASH_AREA_0_OFFSET + FLASH_AREA_0_SIZE)
+#define FLASH_AREA_1_SIZE          (FLASH_NS_PARTITION_SIZE)
 
+/* Secure image secondary slot */
+#if NU_UPDATE_STAGE_SDH
+#define FLASH_AREA_2_ID            (FLASH_AREA_1_ID + 1)
+#define FLASH_AREA_2_OFFSET        (0x0)
+#define FLASH_AREA_2_SIZE          (FLASH_S_PARTITION_SIZE)
+#define FLASH_DEVICE_ID_2          SDH_FLASH_DEVICE_ID
+#define FLASH_DEV_NAME_2           SDH_FLASH_DEV_NAME
 #else
-#error "Only MCUBOOT_IMAGE_NUMBER 1 are supported!"
+#define FLASH_AREA_2_ID            (FLASH_AREA_1_ID + 1)
+#define FLASH_AREA_2_OFFSET        (FLASH_AREA_1_OFFSET + FLASH_AREA_1_SIZE)
+#define FLASH_AREA_2_SIZE          (FLASH_S_PARTITION_SIZE)
+#endif
+
+/* Non-secure image secondary slot */
+#if NU_UPDATE_STAGE_SDH
+#define FLASH_AREA_3_ID            (FLASH_AREA_2_ID + 1)
+#define FLASH_AREA_3_OFFSET        (0x100000)
+#define FLASH_AREA_3_SIZE          (FLASH_NS_PARTITION_SIZE)
+#define FLASH_DEVICE_ID_3          SDH_FLASH_DEVICE_ID
+#define FLASH_DEV_NAME_3           SDH_FLASH_DEV_NAME
+#else
+#define FLASH_AREA_3_ID            (FLASH_AREA_2_ID + 1)
+#define FLASH_AREA_3_OFFSET        (FLASH_AREA_2_OFFSET + FLASH_AREA_2_SIZE)
+#define FLASH_AREA_3_SIZE          (FLASH_NS_PARTITION_SIZE)
+#endif
+
+/* Scratch area */
+#if NU_UPDATE_STAGE_SDH
+#define FLASH_AREA_SCRATCH_ID      (FLASH_AREA_3_ID + 1)
+#define FLASH_AREA_SCRATCH_OFFSET  (0x200000)
+#define FLASH_AREA_SCRATCH_SIZE    (0x1000)
+#define FLASH_DEVICE_ID_SCRATCH    SDH_FLASH_DEVICE_ID
+#define FLASH_DEV_NAME_SCRATCH     SDH_FLASH_DEV_NAME
+#else
+#define FLASH_AREA_SCRATCH_ID      (FLASH_AREA_3_ID + 1)
+#define FLASH_AREA_SCRATCH_OFFSET  (FLASH_AREA_3_OFFSET + FLASH_AREA_3_SIZE)
+#define FLASH_AREA_SCRATCH_SIZE    (0x1000)
+#endif
+
+/* The maximum number of status entries supported by the bootloader. */
+#define MCUBOOT_STATUS_MAX_ENTRIES (FLASH_MAX_PARTITION_SIZE / \
+                                    FLASH_AREA_SCRATCH_SIZE)
+
+/* Maximum number of image sectors supported by the bootloader. */
+#define MCUBOOT_MAX_IMG_SECTORS    (FLASH_MAX_PARTITION_SIZE / \
+                                    FLASH_AREA_IMAGE_SECTOR_SIZE)
+#else /* MCUBOOT_IMAGE_NUMBER > 2 */
+#error "Only MCUBOOT_IMAGE_NUMBER 1 and 2 are supported!"
 #endif /* MCUBOOT_IMAGE_NUMBER */
 
 /* Protected Storage (PS) Service definitions */
-#define FLASH_PS_AREA_OFFSET            (0x10000)
-#define FLASH_PS_AREA_SIZE              (0x8000)
+#define FLASH_PS_AREA_OFFSET            (FLASH_AREA_BL2_OFFSET + FLASH_AREA_BL2_SIZE)
+#define FLASH_PS_AREA_SIZE              (0xE000)
 
 /* Internal Trusted Storage (ITS) Service definitions */
 #define FLASH_ITS_AREA_OFFSET           (FLASH_PS_AREA_OFFSET + \
                                          FLASH_PS_AREA_SIZE)
-#define FLASH_ITS_AREA_SIZE             (0x7000)
+#define FLASH_ITS_AREA_SIZE             (0x5000)
 
 /* NV Counters definitions */
 #define FLASH_NV_COUNTERS_AREA_OFFSET   (FLASH_ITS_AREA_OFFSET + \
                                          FLASH_ITS_AREA_SIZE)
-#define FLASH_NV_COUNTERS_AREA_SIZE     (FLASH_AREA_IMAGE_SECTOR_SIZE)
+#define FLASH_NV_COUNTERS_AREA_SIZE     (0x1000)
 
 /* Offset and size definition in flash area used by assemble.py */
 #define SECURE_IMAGE_OFFSET             (0x0)

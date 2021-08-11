@@ -22,9 +22,12 @@ import re
 import subprocess
 import shutil
 from intelhex import IntelHex
+from datetime import datetime
+
 
 SCRIPT_DIR = dirname(abspath(__file__))
 MBED_OS_ROOT = abspath(path_join(SCRIPT_DIR, os.pardir, os.pardir))
+SECURE_ROOT = path_join(MBED_OS_ROOT, 'targets', 'TARGET_NUVOTON', 'TARGET_M2354', 'TARGET_TFM', 'TARGET_NU_M2354', 'COMPONENT_TFM_S_FW')
 
 def m2354_tfm_bin(t_self, non_secure_image, secure_bin):
 
@@ -34,8 +37,6 @@ def m2354_tfm_bin(t_self, non_secure_image, secure_bin):
     secure_bin = abspath(secure_bin)
     non_secure_image = abspath(non_secure_image)
 
-    SECURE_ROOT = abspath(dirname(secure_bin))
-
     build_dir = dirname(non_secure_image)
     tempdir = path_join(build_dir, 'temp')
     if not isdir(tempdir):
@@ -44,11 +45,8 @@ def m2354_tfm_bin(t_self, non_secure_image, secure_bin):
     flash_layout = path_join(SECURE_ROOT, 'partition', 'flash_layout.h')
 
     bl2_bin = path_join(SECURE_ROOT, 'bl2.bin')
-    image_macros_s_ns = path_join(SECURE_ROOT, 'partition', 'signing_layout_preprocessed.h')
+    s_bin_basename = splitext(basename(secure_bin))[0]
     ns_bin_basename, output_ext = splitext(basename(non_secure_image))
-    concatenated_bin = abspath(path_join(tempdir, 'tfm_' + ns_bin_basename + ".bin"))
-    signed_bin = abspath(path_join(tempdir, 'tfm_' + ns_bin_basename + '_signed' + ".bin"))
-    signed_nopad_bin = abspath(path_join(tempdir, 'tfm_' + ns_bin_basename + '_signed_nopad' + ".bin"))
 
     # Convert NS image to BIN format if it is HEX
     if output_ext == ".hex":
@@ -58,49 +56,35 @@ def m2354_tfm_bin(t_self, non_secure_image, secure_bin):
     else:
         non_secure_bin = non_secure_image
 
-    assert os.path.isfile(image_macros_s_ns)
-
     signing_key = path_join(SCRIPT_DIR, 'nuvoton_m2354-root-rsa-3072.pem')
     assert os.path.isfile(signing_key)
 
     # Find Python 3 command name across platforms
     python3_cmd = "python3" if shutil.which("python3") is not None else "python"
 
-    #1. Concatenate secure TFM and non-secure mbed binaries
-    cmd = [
-        python3_cmd,
-        path_join(MBED_OS_ROOT, "tools", "psa","tfm", "bin_utils","assemble.py"),
-        "--layout",
-        image_macros_s_ns,
-        "-s",
-        secure_bin,
-        "-n",
-        non_secure_bin,
-        "-o",
-        concatenated_bin,
-    ]
+    img_ver_major = 1
+    img_ver_minor = 3
+    img_ver_revision = 0
+    img_ver_build = 0
 
-    retcode = run_cmd(cmd, MBED_OS_ROOT)
-    if retcode:
-        raise Exception("Unable to concatenate " + "TF-M Secure/Mbed Non-secure" +
-                            " binaries, Error code: " + str(retcode))
-        return
-
-    #2.1 Run wrapper to sign the concatenated binary with padding ("--pad"), so upgradeable by mcuboot
-    cmd = [
+    # wrapper.py command template
+    cmd_wrapper = [
         python3_cmd,
         path_join(MBED_OS_ROOT, "tools", "psa", "tfm", "bin_utils", "wrapper.py"),
         "-v",
-        '1.2.0',
+        "{}.{}.{}+{}".format(img_ver_major, img_ver_minor, img_ver_revision, img_ver_build),
         "-k",
-        signing_key,
+        "SIGNING_KEY_PATH",
         "--layout",
-        image_macros_s_ns,
+        "IMAGE_MACRO_PATH",
         "--public-key-format",
         'full',
         "--align",
         '1',
-        "--pad",
+        # Reasons for removing padding and boot magic option "--pad":
+        # 1. PSA FWU API psa_fwu_install() will be responsible for writing boot magic to enable upgradeable.
+        # 2. The image size gets smaller instead of slot size.
+        #"--pad",
         "--pad-header",
         "-H",
         '0x400',
@@ -108,34 +92,145 @@ def m2354_tfm_bin(t_self, non_secure_image, secure_bin):
         "-s",
         'auto',
         "-d",
-        '(0,0.0.0+0)',
-        concatenated_bin,
-        signed_bin,
+        '(IMAGE_ID,MAJOR.MINOR.REVISION+BUILD)',
+        "RAW_BIN_PATH",
+        "SIGNED_BIN_PATH",
     ]
+    pos_wrapper_signing_key = cmd_wrapper.index("-k") + 1
+    pos_wrapper_layout = cmd_wrapper.index("--layout") + 1
+    pos_wrapper_dependency = cmd_wrapper.index("-d") + 1
+    pos_wrapper_raw_bin = len(cmd_wrapper) - 2
+    pos_wrapper_signed_bin = len(cmd_wrapper) - 1
 
-    retcode = run_cmd(cmd, MBED_OS_ROOT)
-    if retcode:
-        raise Exception("Unable to sign " + "concatenated" +
+    # assemble.py command template
+    cmd_assemble = [
+        python3_cmd,
+        path_join(MBED_OS_ROOT, "tools", "psa", "tfm", "bin_utils", "assemble.py"),
+        "--layout",
+        "IMAGE_MACRO_PATH",
+        "-s",
+        "SECURE_BIN_PATH",
+        "-n",
+        "NONSECURE_BIN_PATH",
+        "-o",
+        "CONCATENATED_BIN_PATH",
+    ]
+    pos_assemble_layout = cmd_assemble.index("--layout") + 1
+    pos_assemble_secure_bin = cmd_assemble.index("-s") + 1
+    pos_assemble_nonsecure_bin = cmd_assemble.index("-n") + 1
+    pos_assemble_concat_bin = cmd_assemble.index("-o") + 1
+
+    # If second signing key is passed down, go signing separately; otherwise, go signing together.
+    if os.path.isfile(path_join(SECURE_ROOT, 'partition', 'signing_layout_ns_preprocessed.h')):
+        signing_key_1 = 'nuvoton_m2354-root-rsa-3072_1.pem'
+    else:
+        signing_key_1 = None
+
+    if signing_key_1 is not None:
+        signing_key_1 = path_join(SCRIPT_DIR, signing_key_1)
+        assert os.path.isfile(signing_key_1)
+
+        image_macros_s = path_join(SECURE_ROOT, 'partition', 'signing_layout_s_preprocessed.h')
+        image_macros_ns = path_join(SECURE_ROOT, 'partition', 'signing_layout_ns_preprocessed.h')
+        assert os.path.isfile(image_macros_s)
+        assert os.path.isfile(image_macros_ns)
+
+        s_signed_bin = abspath(path_join(tempdir, 'tfm_s_signed' + '.bin'))
+        ns_signed_bin = abspath(path_join(tempdir, 'tfm_' + ns_bin_basename + '_signed' + '.bin'))
+        signed_concat_bin = abspath(path_join(tempdir, 'tfm_s_signed_' + ns_bin_basename + '_signed_concat' + '.bin'))
+        s_update_bin = abspath(path_join(build_dir, s_bin_basename + '_update' + '.bin'))
+        ns_update_bin = abspath(path_join(build_dir, ns_bin_basename + '_update' + '.bin'))
+
+        #1. Run wrapper to sign the secure TF-M binary
+        cmd_wrapper[pos_wrapper_signing_key] = signing_key
+        cmd_wrapper[pos_wrapper_layout] = image_macros_s
+        cmd_wrapper[pos_wrapper_dependency] = '(1,0.0.0+0)' # Minimum version of non-secure image required for upgrading to the secure image
+        cmd_wrapper[pos_wrapper_raw_bin] = secure_bin
+        cmd_wrapper[pos_wrapper_signed_bin] = s_signed_bin
+
+        retcode = run_cmd(cmd_wrapper, MBED_OS_ROOT)
+        if retcode:
+            raise Exception("Unable to sign " + "TF-M Secure" +
                             " binary, Error code: " + str(retcode))
-        return
+            return
 
-    #2.2. Re-run above but without padding ("--pad"), so non-upgradeable by mcuboot
-    cmd.remove("--pad")
-    cmd.pop()
-    cmd.append(signed_nopad_bin)
+        #2. Run wrapper to sign the non-secure mbed binary
+        cmd_wrapper[pos_wrapper_signing_key] = signing_key_1
+        cmd_wrapper[pos_wrapper_layout] = image_macros_ns
+        cmd_wrapper[pos_wrapper_dependency] = '(0,0.0.0+0)' # Minimum version of secure image required for upgrading to the non-secure image
+        cmd_wrapper[pos_wrapper_raw_bin] = non_secure_bin
+        cmd_wrapper[pos_wrapper_signed_bin] = ns_signed_bin
 
-    retcode = run_cmd(cmd, MBED_OS_ROOT)
-    if retcode:
-        raise Exception("Unable to sign " + "concatenated" +
+        retcode = run_cmd(cmd_wrapper, MBED_OS_ROOT)
+        if retcode:
+            raise Exception("Unable to sign " + "TF-M Secure" +
                             " binary, Error code: " + str(retcode))
-        return
+            return
 
-    #3. Concatenate mcuboot and signed binary and overwrite mbed built bin/hex file
-    flash_area_0_offset = find_flash_area_0_offset(flash_layout)
-    out_ih = IntelHex()
-    out_ih.loadbin(bl2_bin)
-    out_ih.loadbin(signed_nopad_bin, flash_area_0_offset)
-    out_ih.tofile(non_secure_image, 'hex' if output_ext == ".hex" else "bin")
+        #3. Concatenate signed secure TF-M binary and signed non-secure mbed binary
+        cmd_assemble[pos_assemble_layout] = image_macros_s
+        cmd_assemble[pos_assemble_secure_bin] = s_signed_bin
+        cmd_assemble[pos_assemble_nonsecure_bin] = ns_signed_bin
+        cmd_assemble[pos_assemble_concat_bin] = signed_concat_bin
+
+        retcode = run_cmd(cmd_assemble, MBED_OS_ROOT)
+        if retcode:
+            raise Exception("Unable to concatenate " + "Secure TF-M (signed)/Non-secure Mbed (signed)" +
+                            " binaries, Error code: " + str(retcode))
+            return
+
+        #4. Concatenate MCUboot and concatenated signed secure TF-M binary/signed non-secure mbed binary
+        flash_area_0_offset = find_flash_area_0_offset(flash_layout)
+        out_ih = IntelHex()
+        out_ih.loadbin(bl2_bin)
+        out_ih.loadbin(signed_concat_bin, flash_area_0_offset)
+        out_ih.tofile(non_secure_image, 'hex' if output_ext == ".hex" else "bin")
+
+        # Generate firmware update file for PSA Firmware Update
+        shutil.copy(s_signed_bin, s_update_bin)
+        shutil.copy(ns_signed_bin, ns_update_bin)
+    else:
+        image_macros_s_ns = path_join(SECURE_ROOT, 'partition', 'signing_layout_preprocessed.h')
+        assert os.path.isfile(image_macros_s_ns)
+
+        concat_bin = abspath(path_join(tempdir, 'tfm_s_' + ns_bin_basename + ".bin"))
+        concat_signed_bin = abspath(path_join(tempdir, 'tfm_s_' + ns_bin_basename + '_signed' + ".bin"))
+        update_bin = abspath(path_join(build_dir, ns_bin_basename + '_update' + '.bin'))
+
+        #1. Concatenate secure TFM and non-secure mbed binaries
+        cmd_assemble[pos_assemble_layout] = image_macros_s_ns
+        cmd_assemble[pos_assemble_secure_bin] = secure_bin
+        cmd_assemble[pos_assemble_nonsecure_bin] = non_secure_bin
+        cmd_assemble[pos_assemble_concat_bin] = concat_bin
+
+        retcode = run_cmd(cmd_assemble, MBED_OS_ROOT)
+        if retcode:
+            raise Exception("Unable to concatenate " + "Secure TF-M/Non-secure Mbed" +
+                            " binaries, Error code: " + str(retcode))
+            return
+
+        #2. Run wrapper to sign the concatenated binary
+        cmd_wrapper[pos_wrapper_signing_key] = signing_key
+        cmd_wrapper[pos_wrapper_layout] = image_macros_s_ns
+        cmd_wrapper[pos_wrapper_dependency] = '(1,0.0.0+0)' # No effect for single image boot
+        cmd_wrapper[pos_wrapper_raw_bin] = concat_bin
+        cmd_wrapper[pos_wrapper_signed_bin] = concat_signed_bin
+
+        retcode = run_cmd(cmd_wrapper, MBED_OS_ROOT)
+        if retcode:
+            raise Exception("Unable to sign " + "concatenated" +
+                            " binary, Error code: " + str(retcode))
+            return
+
+        #3. Concatenate MCUboot and signed binary
+        flash_area_0_offset = find_flash_area_0_offset(flash_layout)
+        out_ih = IntelHex()
+        out_ih.loadbin(bl2_bin)
+        out_ih.loadbin(concat_signed_bin, flash_area_0_offset)
+        out_ih.tofile(non_secure_image, 'hex' if output_ext == ".hex" else "bin")
+
+        # Generate firmware update file for PSA Firmware Update
+        shutil.copy(concat_signed_bin, update_bin)
 
 def find_flash_area_0_offset(configFile):
     # Compiled regular expressions 

@@ -39,11 +39,19 @@
  * If not, NU_TFM_S_BL2 and friends must update manually. */
 
 #ifndef NU_TFM_S_BL2
-#define NU_TFM_S_BL2            1
+#define NU_TFM_S_BL2                    1
 #endif
 
 #ifndef NU_TFM_S_MCUBOOT_IMAGE_NUMBER
-#define NU_TFM_S_MCUBOOT_IMAGE_NUMBER   1
+#define NU_TFM_S_MCUBOOT_IMAGE_NUMBER   2
+#endif
+
+#ifndef NU_TFM_S_UPDATE_STAGE_SDH
+#define NU_TFM_S_UPDATE_STAGE_SDH       1
+#endif
+
+#ifndef NU_TFM_S_UPDATE_STAGE_FLASH
+#define NU_TFM_S_UPDATE_STAGE_FLASH     0
 #endif
 
 #ifndef NU_TFM_S_REGION_DEFS_H_PATH
@@ -57,10 +65,14 @@
 #endif
 #define MCUBOOT_IMAGE_NUMBER    NU_TFM_S_MCUBOOT_IMAGE_NUMBER
 #include NU_TFM_S_REGION_DEFS_H_PATH
+#define NU_UPDATE_STAGE_SDH     NU_TFM_S_UPDATE_STAGE_SDH
+#define NU_UPDATE_STAGE_FLASH   NU_TFM_S_UPDATE_STAGE_FLASH
 
 /* Avoid polluting name space, esp. BL2 */
 #undef BL2
 #undef MCUBOOT_IMAGE_NUMBER
+#undef NU_UPDATE_STAGE_SDH
+#undef NU_UPDATE_STAGE_FLASH
 
 /* Resolve MBED_ROM_START and friends
  *
