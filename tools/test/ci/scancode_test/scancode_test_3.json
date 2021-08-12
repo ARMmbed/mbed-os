@@ -5,11 +5,11 @@
         "tool_version":"3.1.1",
         "options":{
            "input":[
-              "tools/test/travis-ci/scancode_test/test.h",
-              "tools/test/travis-ci/scancode_test/test2.h",
-              "tools/test/travis-ci/scancode_test/test3.h",
-              "tools/test/travis-ci/scancode_test/test4.h",
-              "tools/test/travis-ci/scancode_test/test5.h"
+              "tools/test/ci/scancode_test/test.h",
+              "tools/test/ci/scancode_test/test2.h",
+              "tools/test/ci/scancode_test/test3.h",
+              "tools/test/ci/scancode_test/test4.h",
+              "tools/test/ci/scancode_test/test5.h"
            ],
            "--json-pp":"scancode.json",
            "--license":true
@@ -28,7 +28,7 @@
   ],
   "files":[
      {
-        "path":"tools/test/travis-ci/scancode_test/test.h",
+        "path":"tools/test/ci/scancode_test/test.h",
         "type":"file",
         "licenses":[
            
@@ -41,51 +41,7 @@
         ]
      },
      {
-        "path":"tools/test/travis-ci/scancode_test/test3.h",
-        "type":"file",
-        "licenses":[
-           {
-              "key":"proprietary-license",
-              "score":77.0,
-              "name":"Proprietary License",
-              "short_name":"Proprietary License",
-              "category":"Proprietary Free",
-              "is_exception":false,
-              "owner":"Unspecified",
-              "homepage_url":null,
-              "text_url":"",
-              "reference_url":"https://enterprise.dejacode.com/urn/urn:dje:license:proprietary-license",
-              "spdx_license_key":null,
-              "spdx_url":"",
-              "start_line":2,
-              "end_line":3,
-              "matched_rule":{
-                 "identifier":"proprietary_12.RULE",
-                 "license_expression":"proprietary-license",
-                 "licenses":[
-                    "proprietary-license"
-                 ],
-                 "is_license_text":false,
-                 "is_license_notice":true,
-                 "is_license_reference":false,
-                 "is_license_tag":false,
-                 "matcher":"2-aho",
-                 "rule_length":14,
-                 "matched_length":14,
-                 "match_coverage":100.0,
-                 "rule_relevance":77
-              }
-           }
-        ],
-        "license_expressions":[
-           "proprietary-license"
-        ],
-        "scan_errors":[
-           
-        ]
-     },
-     {
-        "path":"tools/test/travis-ci/scancode_test/test4.h",
+        "path":"tools/test/ci/scancode_test/test3.h",
         "type":"file",
         "licenses":[
            {
@@ -129,7 +85,51 @@
         ]
      },
      {
-      "path":"tools/test/travis-ci/scancode_test/test5.h",
+        "path":"tools/test/ci/scancode_test/test4.h",
+        "type":"file",
+        "licenses":[
+           {
+              "key":"proprietary-license",
+              "score":77.0,
+              "name":"Proprietary License",
+              "short_name":"Proprietary License",
+              "category":"Proprietary Free",
+              "is_exception":false,
+              "owner":"Unspecified",
+              "homepage_url":null,
+              "text_url":"",
+              "reference_url":"https://enterprise.dejacode.com/urn/urn:dje:license:proprietary-license",
+              "spdx_license_key":null,
+              "spdx_url":"",
+              "start_line":2,
+              "end_line":3,
+              "matched_rule":{
+                 "identifier":"proprietary_12.RULE",
+                 "license_expression":"proprietary-license",
+                 "licenses":[
+                    "proprietary-license"
+                 ],
+                 "is_license_text":false,
+                 "is_license_notice":true,
+                 "is_license_reference":false,
+                 "is_license_tag":false,
+                 "matcher":"2-aho",
+                 "rule_length":14,
+                 "matched_length":14,
+                 "match_coverage":100.0,
+                 "rule_relevance":77
+              }
+           }
+        ],
+        "license_expressions":[
+           "proprietary-license"
+        ],
+        "scan_errors":[
+           
+        ]
+     },
+     {
+      "path":"tools/test/ci/scancode_test/test5.h",
       "type":"file",
       "licenses":[
          {
@@ -173,7 +173,7 @@
       ]
    },
      {
-      "path":"tools/test/travis-ci/scancode_test/test6.h",
+      "path":"tools/test/ci/scancode_test/test6.h",
       "type":"file",
       "licenses":[
          {
