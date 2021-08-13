@@ -82,27 +82,57 @@ If you're running CMake directly, you may need to pass it in yourself as follows
 cmake -S <source-dir> -B <build-dir> -DCMAKE_BUILD_TYPE=debug
 ```
 
-## How to build a greentea test
+## How to build and run greentea tests
 
-Install prerequisites suggested in the previous section and follow the below steps to build:
-* Set your current directory to the test suite directory
+### Set up
+Install the [mbed-hosts-tests](https://pypi.org/project/mbed-host-tests/) python package.
 
-* Run the following command for the configuration CMake module to be generated
+Also install the prerequisites suggested in the previous section.
+
+### Configuring the build system
+1. Set your current directory to the mbed-os root.
+1. Connect your target and detect it using `mbed-tools`
+   ```
+   mbedtools detect
+   ```
+   _Make a note of the mount point and serial port. We will need to pass them to CMake in a later step._
+
+1. Generate an mbed_config.cmake configuration file for your target using `mbed-tools`
+   ```
+   mbedtools configure -t <TOOLCHAIN> -m <MBED_TARGET> --mbed-os-path . --output-dir __build
+   ```
+1. Generate the build system with CMake, configuring it to build greentea tests.
+   Here you will pass the serial port and mount point you noted in an earlier
+   step
+   ```
+   cmake -S . -B __build -G Ninja -DBUILD_GREENTEA_TESTS=ON -DCMAKE_CTEST_ARGUMENTS="--output-on-failure;-V" -DMBED_HTRUN_ARGUMENTS="-p;<serial-port-from-detect>;-d;<mount-point-from-detect>"
+   ```
+   The `MBED_HTRUN_ARGUMENTS` argument is a semicolon separated list of arguments
+   to forward to `mbedhtrun`. You can pass any of the optional flags you would
+   usually pass to `mbedhtrun` by adding them to this list.
+
+   The `CMAKE_CTEST_ARGUMENTS` argument is a semicolon separated list of
+   arguments to forward to CTest, for more details see [the CMake documentation.](https://cmake.org/cmake/help/latest/variable/CMAKE_CTEST_ARGUMENTS.html)
+
+  If you want to build with the "bare-metal" profile, append
+  `-DMBED_GREENTEA_TEST_BAREMETAL=ON` to the above command.
+
+### Build and run tests
+  To build and run the tests run the following commands
   ```
-  mbedtools configure -t <TOOLCHAIN> -m <MBED_TARGET> --mbed-os-path /path/to/mbed-os
+  cmake --build __build && cmake --build __build --target test
   ```
-* Build the test binary with the full profile
+  Alternatively you can run ctest directly
   ```
-  cd cmake_build/<MBED_TARGET>/<PROFILE>/<TOOLCHAIN>/ && cmake ../../../.. -G Ninja && cmake --build .
+  cmake --build __build
+  cd __build
+  ctest -V
   ```
-  Or build the test binary with the baremetal profile
-  ```
-  cd cmake_build/<MBED_TARGET>/<PROFILE>/<TOOLCHAIN>/ && cmake ../../../.. -G Ninja -DMBED_GREENTEA_TEST_BAREMETAL=ON && cmake --build .
-  ```
+  This will build the tests and run them using `mbedhtrun` to communicate with the target.
+  For more information on `ctest` and the options it offers, see [the ctest documentation.](https://cmake.org/cmake/help/latest/manual/ctest.1.html)
 
 Notes:
-* These steps will change when `mbedtools` implements a sub-command to invoke Greentea tests
-* Some Greentea tests require specific application configuration files in order to build and run successfully. For example, the `connectivity/mbedtls/tests/TESTS/mbedtls/sanity` test requires the configuration file found at `TESTs/configs/experimental.json`.
+* Some Greentea tests require specific application configuration files in order to build and run successfully. For example, the `connectivity/mbedtls/tests/TESTS/mbedtls/sanity` test requires the configuration file found at `TESTs/configs/experimental.json`. The config should be passed to `mbed-tools configure` using the `--app-config` argument.
 
 ## Naming convention
 
