@@ -1,0 +1,53 @@
+{
+    "name": "storage_tdb_internal",
+    "config": {
+        "internal_size": {
+            "help": "Size of the FlashIAP block device. Default size will be the larger of the last 2 sectors or last 14 pages of flash.",
+            "value": "0"
+        },
+        "internal_base_address": {
+            "help": "If default, the base address is set to internal_size bytes before the end of flash.",
+            "value": "0"
+        }
+    },
+    "target_overrides": {
+        "LPC55S69_S": {
+            "internal_size": "0x8000",
+            "internal_base_address": "0x00028000"
+        },
+        "LPC55S69_NS": {
+            "internal_size": "0x8000",
+            "internal_base_address": "0x00090000"
+        },
+        "DISCO_H747I": {
+            "internal_size": "2*FLASH_SECTOR_SIZE",
+            "internal_base_address": "0x080C0000"
+        },
+       "ARM_MUSCA_B1_S": {
+            "internal_size": "0x8000",
+            "internal_base_address": "0x10000000"
+        },
+        "ARM_MUSCA_S1_S": {
+            "internal_size": "0x8000",
+            "internal_base_address": "0x1A1CA000"
+        },
+        "FVP_MPS2": {
+            "internal_size": "0x200000",
+            "internal_base_address": "0x00200000"
+        },
+        "NU_PFM_M2351_S": {
+            "internal_size": "0x8000",
+            "internal_base_address": "(PSA_SECURE_ROM_START + PSA_SECURE_ROM_SIZE - 0x1000 - MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE)"
+        },
+        "MCU_PSOC6": {
+            "internal_size": "0x10000"
+        },
+        "CYTFM_064B0S2_4343W": {
+            "internal_size": "0x8000",
+            "internal_base_address": "0x10168000"
+        },
+        "NUMAKER_IOT_M252": {
+            "internal_size": "0x2000"
+        }
+    }
+}

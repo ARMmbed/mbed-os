@@ -1,0 +1,33 @@
+{
+    "name": "storage_tdb_external",
+    "config": {
+        "rbp_internal_size": {
+            "help": "Default is the larger of the last 2 sectors or last 14 pages of flash.",
+            "value": "0"
+        },
+        "internal_base_address": {
+            "help": "If default, the base address is set to internal_size bytes before the end of flash.",
+            "value": "0"
+        },
+        "blockdevice": {
+            "help": "Options are default, SPIF, DATAFASH, QSPIF, SD or other. If default the block device will be chosen by the defined component. If other, override get_other_blockdevice() to support block device out of Mbed OS tree.",
+            "value": "default"
+        },
+        "external_size": {
+            "help": "Size in bytes of the external block device, if default the maximum size available is used.",
+            "value": "0"
+        },
+        "external_base_address": {
+            "help": "The default will set start address to address 0",
+            "value": "0"
+        }
+    },
+    "target_overrides": {
+        "MCU_PSOC6": {
+            "rbp_internal_size": "7168"
+        },
+        "CY_EXTERNAL_WIFI_FW": {
+            "blockdevice": "other"
+        }
+    }
+}

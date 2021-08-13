@@ -14359,6 +14359,135 @@
         ],
         "release_versions": ["5"]
     },
+    "MCU_STM32": {
+        "inherits": [
+            "Target"
+        ],
+        "public": false,
+        "extra_labels": [
+            "STM"
+        ],
+        "supported_toolchains": [
+            "ARM",
+            "IAR",
+            "GCC_ARM"
+        ],
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ],
+            "iar": [
+                "std"
+            ]
+        },
+        "supported_application_profiles": [
+            "full",
+            "bare-metal"
+        ],
+        "macros": [
+            "USE_HAL_DRIVER",
+            "USE_FULL_LL_DRIVER",
+            "TRANSACTION_QUEUE_SIZE_SPI=2"
+        ],
+        "bootloader_supported": true,
+        "config": {
+            "lse_available": {
+                "help": "Define if a Low Speed External xtal (LSE) is available on the board (0 = No, 1 = Yes). If Yes, the LSE will be used to clock the RTC, LPUART, ... otherwise the Low Speed Internal clock (LSI) will be used",
+                "value": "1"
+            },
+            "lpuart_clock_source": {
+                "help": "Define the LPUART clock source. Mask values: USE_LPUART_CLK_LSE, USE_LPUART_CLK_PCLK1, USE_LPUART_CLK_HSI",
+                "value": "USE_LPUART_CLK_LSE|USE_LPUART_CLK_PCLK1"
+            },
+            "stdio_uart_tx": {
+                "help": "default TX STDIO pins is defined in PinNames.h file, but it can be overridden"
+            },
+            "stdio_uart_rx": {
+                "help": "default RX STDIO pins is defined in PinNames.h file, but it can be overridden"
+            },
+            "lpticker_delay_ticks": {
+                "help": "https://os.mbed.com/docs/latest/porting/low-power-ticker.html",
+                "value": 1,
+                "macro_name": "LPTICKER_DELAY_TICKS"
+            },
+            "lpticker_lptim_clock": {
+                "help": "Default value for LPTIM clock (lpticker_lptim == 1). Value is the dividing factor. Choose 1, 2 or 4",
+                "value": 1
+            },
+            "gpio_reset_at_init": {
+                "help": "if value set, all GPIO are reset during init",
+                "value": false
+            }
+        },
+        "overrides": {
+            "deep-sleep-latency": 4,
+            "init-us-ticker-at-boot": true
+        },
+        "device_has": [
+            "USTICKER",
+            "LPTICKER",
+            "RTC",
+            "ANALOGIN",
+            "I2C",
+            "I2CSLAVE",
+            "I2C_ASYNCH",
+            "INTERRUPTIN",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "PWMOUT",
+            "SERIAL",
+            "SERIAL_FC",
+            "SLEEP",
+            "SPI",
+            "SPISLAVE",
+            "SPI_ASYNCH",
+            "STDIO_MESSAGES",
+            "WATCHDOG",
+            "RESET_REASON"
+        ]
+    },
+    "MCU_STM32WL": {
+        "inherits": [
+            "MCU_STM32"
+        ],
+        "public": false,
+        "core": "Cortex-M4",
+        "extra_labels_add": [
+            "STM32WL"
+        ],
+        "config": {
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
+                "value": 1
+            },
+            "lse_drive_load_level": {
+                "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
+                "value": "RCC_LSEDRIVE_LOW"
+            }
+        },
+        "macros_add": [
+            "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED"
+        ],
+        "overrides": {
+            "lpticker_delay_ticks": 0
+        },
+        "device_has_add": [
+            "MPU",
+            "CRC",
+            "FLASH",
+            "SERIAL_ASYNCH",
+            "ANALOGOUT",
+            "ANALOGIN",
+            "TRNG"
+        ]
+    },
     "__build_tools_metadata__": {
         "version": "1",
         "public": false

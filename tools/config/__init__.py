@@ -69,7 +69,8 @@ BOOTLOADER_OVERRIDES = ROM_OVERRIDES | RAM_OVERRIDES | DELIVERY_OVERRIDES
 
 
 ALLOWED_FEATURES = [
-    "BOOTLOADER", "BLE", "LWIP", "STORAGE", "NANOSTACK", "CRYPTOCELL310",
+    "BOOTLOADER", "BLE", "LWIP", "STORAGE", "NANOSTACK", "CRYPTOCELL310", "PSA",
+    "EXPERIMENTAL_API",
 ]
 
 # List of all possible ram memories that can be available for a target
@@ -706,25 +707,6 @@ class Config(object):
             )
         if hasattr(self.target, "mbed_{}_size".format(memory_type)):
             mem_size = getattr(self.target, "mbed_{}_size".format(memory_type))
-        if (
-            self.target.is_PSA_non_secure_target or
-            self.target.is_PSA_secure_target
-        ):
-            config, _ = self.get_config_data()
-            if self.target.is_PSA_secure_target:
-                mem_start = config.get(
-                    "target.secure-{}-start".format(memory_type), mem_start
-                ).value
-                mem_size = config.get(
-                    "target.secure-{}-size".format(memory_type), mem_size
-                ).value
-            elif self.target.is_PSA_non_secure_target:
-                mem_start = config.get(
-                    "target.non-secure-{}-start".format(memory_type), mem_start
-                ).value
-                mem_size = config.get(
-                    "target.non-secure-{}-size".format(memory_type), mem_size
-                ).value
         if mem_start and not isinstance(mem_start, int):
             mem_start = int(mem_start, 0)
         if mem_size and not isinstance(mem_size, int):

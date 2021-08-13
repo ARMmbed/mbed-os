@@ -63,7 +63,14 @@ void trng_init(trng_t *obj)
 #if defined(DUAL_CORE)
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
 #endif /* DUAL_CORE */
-
+#elif defined(TARGET_STM32WL)
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
+    /*Select PLLQ output as RNG clock source*/
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RNG;
+    PeriphClkInitStruct.RngClockSelection = RCC_RNGCLKSOURCE_MSI;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+    	error("RNG clock configuration error\n");
+    }
 #elif defined(TARGET_STM32L4)
     /* RNG and USB clocks have the same source, so the common source selection could be already done by USB */
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;

@@ -1,0 +1,12 @@
+{
+    "name": "psa-services",
+    "requires": [
+        "drivers",
+        "platform",
+        "mbedtls",
+        "storage",
+        "flashiap-block-device",
+        "kv-global-api",
+        "storage_tdb_internal"
+    ]
+}
