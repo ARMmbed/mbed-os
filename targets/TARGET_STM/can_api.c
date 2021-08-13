@@ -171,7 +171,7 @@ static void _can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz
      * for STM32H7 platforms
      */
     obj->CanHandle.Init.StdFiltersNbr = 128; // to be aligned with the handle parameter in can_filter
-    obj->CanHandle.Init.ExtFiltersNbr = 128; // to be aligned with the handle parameter in can_filter
+    obj->CanHandle.Init.ExtFiltersNbr = 64; // to be aligned with the handle parameter in can_filter
 #else
     /* The number of Standard and Extended ID filters are initialized to the maximum possile extent 
      * for STM32G0x1, STM32G4 and STM32L5  platforms
