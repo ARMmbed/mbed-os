@@ -24,6 +24,8 @@
 
 using namespace utest::v1;
 
+using namespace std::chrono;
+
 #if !DEVICE_USTICKER
 #error [NOT_SUPPORTED] test not supported
 #else
@@ -36,6 +38,9 @@ using namespace utest::v1;
 #ifndef TEST_EVENTS_TIMING_MEAN
 #define TEST_EVENTS_TIMING_MEAN 25
 #endif
+
+#define TEST_EVENTS_TIMING_TIME_DURATION milliseconds{TEST_EVENTS_TIMING_TIME}
+#define TEST_EVENTS_TIMING_MEAN_DURATION milliseconds{TEST_EVENTS_TIMING_MEAN}
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846264338327950288
@@ -57,6 +62,17 @@ float chisq(float sigma)
     return pow(gauss(0, sqrt(sigma)), 2);
 }
 
+milliseconds random_duration(milliseconds sigma)
+{
+    milliseconds{static_cast<int>(chisq(sigma.count()))};
+}
+
+// Macro for test assertions between std::chrono values
+#define TEST_ASSERT_DURATION_WITHIN(delta, expected, actual) \
+    do { \
+        using ct = std::common_type_t<decltype(delta), decltype(expected), decltype(actual)>; \
+        TEST_ASSERT_INT_WITHIN(ct(delta).count(), ct(expected).count(), ct(actual).count()); \
+    } while (0)
 
 Timer timer;
 
@@ -67,13 +83,16 @@ void timer_timing_test()
 {
     timer.reset();
     timer.start();
-    int prev = timer.read_us();
+    auto prev = timer.elapsed_time();
 
-    while (prev < TEST_EVENTS_TIMING_TIME * 1000) {
-        int next = timer.read_us();
+    while (prev < TEST_EVENTS_TIMING_TIME_DURATION) {
+        const auto next = timer.elapsed_time();
         if (next < prev) {
-            printf("backwards drift %d -> %d (%08x -> %08x)\r\n",
-                   prev, next, prev, next);
+            printf("backwards drift %lldus -> %lldus (%08llx -> %08llx)\r\n",
+                   duration_cast<microseconds>(prev).count(),
+                   duration_cast<microseconds>(next).count(),
+                   static_cast<uint64_t>(duration_cast<microseconds>(prev).count()),
+                   static_cast<uint64_t>(duration_cast<microseconds>(next).count()));
         }
         TEST_ASSERT(next >= prev);
         prev = next;
@@ -83,14 +102,18 @@ void timer_timing_test()
 // equeue tick timing test
 void tick_timing_test()
 {
-    unsigned start = equeue_tick();
-    int prev = 0;
+    // equeue_tick() returns an integral millisecond value
+    const auto start = milliseconds{equeue_tick()};
+    auto prev = 0us;
 
-    while (prev < TEST_EVENTS_TIMING_TIME) {
-        int next = equeue_tick() - start;
+    while (prev < TEST_EVENTS_TIMING_TIME_DURATION) {
+        const auto next = milliseconds{equeue_tick()} - start;
         if (next < prev) {
-            printf("backwards drift %d -> %d (%08x -> %08x)\r\n",
-                   prev, next, prev, next);
+            printf("backwards drift %lldus -> %lldus (%08llx -> %08llx)\r\n",
+                   duration_cast<microseconds>(prev).count(),
+                   duration_cast<microseconds>(next).count(),
+                   static_cast<uint64_t>(duration_cast<microseconds>(prev).count()),
+                   static_cast<uint64_t>(duration_cast<microseconds>(next).count()));
         }
         TEST_ASSERT(next >= prev);
         prev = next;
@@ -104,21 +127,23 @@ void semaphore_timing_test()
     timer.reset();
     timer.start();
 
-    int err = equeue_sema_create(&sema);
+    const int err = equeue_sema_create(&sema);
     TEST_ASSERT_EQUAL(0, err);
 
-    while (timer.read_ms() < TEST_EVENTS_TIMING_TIME) {
-        int delay = chisq(TEST_EVENTS_TIMING_MEAN);
+    while (timer.elapsed_time() < TEST_EVENTS_TIMING_TIME_DURATION) {
+        const auto delay = random_duration(TEST_EVENTS_TIMING_MEAN_DURATION);
 
-        int start = timer.read_us();
-        equeue_sema_wait(&sema, delay);
-        int taken = timer.read_us() - start;
+        const auto start = timer.elapsed_time();
+        equeue_sema_wait(&sema, duration_cast<milliseconds>(delay).count());
+        const auto taken = timer.elapsed_time() - start;
 
-        if (taken < (delay * 1000 - 5000) || taken > (delay * 1000 + 5000)) {
-            printf("delay %dms => error %dus\r\n", delay, abs(1000 * delay - taken));
+        if (taken < (delay - 5000us) || taken > (delay + 5000us)) {
+            printf("delay %lldms => error %lldus\r\n",
+                   duration_cast<milliseconds>(delay).count(),
+                   abs(duration_cast<microseconds>(delay - taken).count()));
         }
 
-        TEST_ASSERT_INT_WITHIN(5000, taken, delay * 1000);
+        TEST_ASSERT_DURATION_WITHIN(5000us, taken, delay);
     }
 
     equeue_sema_destroy(&sema);
@@ -128,7 +153,8 @@ void semaphore_timing_test()
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP((number_of_cases + 1)*TEST_EVENTS_TIMING_TIME / 1000, "default_auto");
+    GREENTEA_SETUP((number_of_cases + 1) * duration_cast<seconds>(TEST_EVENTS_TIMING_TIME_DURATION).count(),
+                   "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 

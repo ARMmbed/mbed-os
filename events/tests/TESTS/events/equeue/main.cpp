@@ -24,6 +24,8 @@
 
 using namespace utest::v1;
 
+using namespace std::chrono_literals;
+
 #define TEST_EQUEUE_SIZE (4*EVENTS_EVENT_SIZE)
 #define TEST_THREAD_STACK_SIZE 512
 #define DISPATCH_INFINITE -1
@@ -43,7 +45,7 @@ static void simple_func(void *p)
 
 static void sloth_func(void *p)
 {
-    ThisThread::sleep_for(10);
+    ThisThread::sleep_for(10ms);
     (*(reinterpret_cast<uint8_t *>(p)))++;
 }
 
@@ -118,7 +120,7 @@ static void nest_func(void *p)
     struct nest *nst = reinterpret_cast<struct nest *>(p);
     equeue_call(nst->q, nst->cb, nst->data);
 
-    ThisThread::sleep_for(10);
+    ThisThread::sleep_for(10ms);
 }
 
 static void multithread_thread(equeue_t *p)
@@ -151,7 +153,7 @@ static void simple_breaker(void *p)
 {
     struct count_and_queue *caq = reinterpret_cast<struct count_and_queue *>(p);
     equeue_break(caq->q);
-    ThisThread::sleep_for(10);
+    ThisThread::sleep_for(10ms);
     caq->p++;
 }
 
@@ -646,7 +648,7 @@ static void test_equeue_multithread()
 
     Thread t1(osPriorityNormal, TEST_THREAD_STACK_SIZE);
     t1.start(callback(multithread_thread, &q));
-    ThisThread::sleep_for(10);
+    ThisThread::sleep_for(10ms);
     equeue_break(&q);
     err = t1.join();
     TEST_ASSERT_EQUAL_INT(0, err);

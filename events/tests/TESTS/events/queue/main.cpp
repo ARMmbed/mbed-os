@@ -26,6 +26,15 @@
 
 using namespace utest::v1;
 
+using namespace std::chrono;
+
+// Macro for test assertions between std::chrono values
+#define TEST_ASSERT_DURATION_WITHIN(delta, expected, actual) \
+    do { \
+        using ct = std::common_type_t<decltype(delta), decltype(expected), decltype(actual)>; \
+        TEST_ASSERT_INT_WITHIN(ct(delta).count(), ct(expected).count(), ct(actual).count()); \
+    } while (0)
+
 // Assume that tolerance is 5% of measured time.
 #define DELTA(ms) (ms / 20)
 
@@ -111,9 +120,9 @@ SIMPLE_POSTS_TEST(1, 0x01)
 SIMPLE_POSTS_TEST(0)
 
 
-void time_func(Timer *t, int ms)
+void time_func(Timer *t, milliseconds time)
 {
-    TEST_ASSERT_INT_WITHIN(DELTA(ms), ms, t->read_ms());
+    TEST_ASSERT_DURATION_WITHIN(DELTA(time), time, t->elapsed_time());
     t->reset();
 }
 
@@ -126,7 +135,7 @@ void call_in_test()
 
     for (int i = 0; i < N; i++) {
         tickers[i].start();
-        queue.call_in((i + 1) * 100ms, time_func, &tickers[i], (i + 1) * 100);
+        queue.call_in((i + 1) * 100ms, time_func, &tickers[i], (i + 1) * 100ms);
     }
 
     queue.dispatch_for(N * 100ms);
@@ -141,7 +150,7 @@ void call_every_test()
 
     for (int i = 0; i < N; i++) {
         tickers[i].start();
-        queue.call_every((i + 1) * 100ms, time_func, &tickers[i], (i + 1) * 100);
+        queue.call_every((i + 1) * 100ms, time_func, &tickers[i], (i + 1) * 100ms);
     }
 
     queue.dispatch_for(N * 100ms);
@@ -528,7 +537,7 @@ void event_period_tests()
     period_tests_queue.dispatch_for(80ms);
 
     // Wait 100ms and check the event execution status
-    wait_us(100 * 1000);
+    ThisThread::sleep_for(100ms);
 
     // Event should only have been dispatched once and thus counter
     // should be 1
@@ -546,7 +555,7 @@ void event_period_tests()
     period_tests_queue.dispatch_for(80ms);
 
     // Wait 100ms and check the event execution status
-    wait_us(100 * 1000);
+    ThisThread::sleep_for(100ms);
 
     // Event should default to non_periodic and thus only have been
     // dispatched once. Counter should be 1.
@@ -564,7 +573,7 @@ void event_period_tests()
     period_tests_queue.dispatch_for(80ms);
 
     // Wait 100ms and check the event execution status
-    wait_us(100 * 1000);
+    ThisThread::sleep_for(100ms);
 
     // Event should default to non_periodic and thus only have been
     // dispatched once. Counter should be 1.
@@ -581,7 +590,7 @@ void event_period_tests()
     period_tests_queue.dispatch_for(80ms);
 
     // Wait 100ms and check the event execution status
-    wait_us(100 * 1000);
+    ThisThread::sleep_for(100ms);
 
     // The event should be first dispatched after 10ms and then
     // every subsequent 20ms until the dispatcher has completed.
