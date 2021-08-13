@@ -20,6 +20,7 @@
 #ifndef MBED_INTERFACE_DIGITALIN_H_
 #define MBED_INTERFACE_DIGITALIN_H_
 
+#include "PinNames.h"
 
 namespace mbed {
 
