@@ -28,10 +28,6 @@
 
 using namespace utest::v1;
 
-#ifndef MBED_EXTENDED_TESTS
-#error [NOT_SUPPORTED] Filesystem tests not supported by default
-#else
-
 static constexpr int mem_alloc_threshold = 32 * 1024;
 static constexpr int BLOCK_SIZE = 512;
 static constexpr int BLOCK_COUNT = 512;
@@ -265,4 +261,3 @@ int main()
     return !Harness::run(specification);
 }
 
-#endif // MBED_EXTENDED_TESTS

@@ -15,10 +15,6 @@
  * limitations under the License.
  */
 
-#ifndef MBED_EXTENDED_TESTS
-#error [NOT_SUPPORTED] When running on CI this test is disabled due to limiting testing time.
-#else
-
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -1100,4 +1096,3 @@ int main()
     Harness::run(specification);
 }
 
-#endif // MBED_EXTENDED_TESTS
