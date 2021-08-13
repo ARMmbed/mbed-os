@@ -632,6 +632,7 @@ static void test_equeue_sloth()
     equeue_destroy(&q);
 }
 
+#ifdef MBED_CONF_RTOS_PRESENT // This test requires Thread API
 /** Test that equeue can be broken of dispatching from a different thread.
  *
  *  Given queue is initialized.
@@ -658,6 +659,7 @@ static void test_equeue_multithread()
 
     equeue_destroy(&q);
 }
+#endif // MBED_CONF_RTOS_PRESENT
 
 /** Test that variable referred via equeue_background shows value in ms to the next event.
  *
@@ -878,6 +880,7 @@ static void test_equeue_fragmenting_barrage()
     equeue_destroy(&q);
 }
 
+#ifdef MBED_CONF_RTOS_PRESENT // This test requires Thread API
 /** Test that equeue keeps good time at starting events even if it is working on different thread.
  *
  *  Given queue is initialized.
@@ -917,6 +920,7 @@ static void test_equeue_multithreaded_barrage()
 
     equeue_destroy(&q);
 }
+#endif // MBED_CONF_RTOS_PRESENT
 
 /** Test that break request flag is cleared when equeue stops dispatching timeouts.
  *
@@ -1062,7 +1066,9 @@ Case cases[] = {
     Case("nested test", test_equeue_nested),
     Case("sloth test", test_equeue_sloth),
 
+#ifdef MBED_CONF_RTOS_PRESENT
     Case("multithread test", test_equeue_multithread),
+#endif // MBED_CONF_RTOS_PRESENT
 
     Case("background test", test_equeue_background),
     Case("chain test", test_equeue_chain),
@@ -1070,7 +1076,11 @@ Case cases[] = {
 
     Case("simple barrage test", test_equeue_simple_barrage<20>),
     Case("fragmenting barrage test", test_equeue_fragmenting_barrage<10>),
+
+#ifdef MBED_CONF_RTOS_PRESENT
     Case("multithreaded barrage test", test_equeue_multithreaded_barrage<10>),
+#endif // MBED_CONF_RTOS_PRESENT
+
     Case("break request cleared on timeout test", test_equeue_break_request_cleared_on_timeout),
     Case("sibling test", test_equeue_sibling),
     Case("user allocated event test", test_equeue_user_allocated_event_post)
