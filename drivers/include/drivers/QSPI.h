@@ -115,12 +115,7 @@ public:
     QSPI(const qspi_pinmap_t &pinmap, int mode = 0);
     QSPI(const qspi_pinmap_t &&, int = 0) = delete; // prevent passing of temporary objects
 
-    virtual ~QSPI()
-    {
-        lock();
-        qspi_free(&_qspi);
-        unlock();
-    }
+    virtual ~QSPI();
 
     /** Configure the data transmission format
      *
