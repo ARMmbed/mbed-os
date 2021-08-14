@@ -30,6 +30,8 @@
 #include "mbed_assert.h"
 #include "mbed_error.h"
 #include "mbed_debug.h"
+#include "mbed_critical.h"
+#include "mbed_wait_api.h"
 #include "spi_api.h"
 
 #if DEVICE_SPI
@@ -602,6 +604,50 @@ static const uint32_t baudrate_prescaler_table[] =  {SPI_BAUDRATEPRESCALER_2,
                                                      SPI_BAUDRATEPRESCALER_256
                                                     };
 
+/**
+ * Convert SPI_BAUDRATEPRESCALER_<X> constant into numeric prescaler rank.
+ */
+static uint8_t spi_get_baudrate_prescaler_rank(uint32_t value)
+{
+    switch (value) {
+        case SPI_BAUDRATEPRESCALER_2:
+            return 0;
+        case SPI_BAUDRATEPRESCALER_4:
+            return 1;
+        case SPI_BAUDRATEPRESCALER_8:
+            return 2;
+        case SPI_BAUDRATEPRESCALER_16:
+            return 3;
+        case SPI_BAUDRATEPRESCALER_32:
+            return 4;
+        case SPI_BAUDRATEPRESCALER_64:
+            return 5;
+        case SPI_BAUDRATEPRESCALER_128:
+            return 6;
+        case SPI_BAUDRATEPRESCALER_256:
+            return 7;
+        default:
+            return 0xFF;
+    }
+}
+
+/**
+ * Get actual SPI baudrate.
+ *
+ * It may differ from a value that is passed to the ::spi_frequency function.
+ */
+int spi_get_baudrate(spi_t *obj)
+{
+    struct spi_s *spiobj = SPI_S(obj);
+    SPI_HandleTypeDef *handle = &(spiobj->handle);
+
+    int freq = spi_get_clock_freq(obj);
+    uint8_t baudrate_rank = spi_get_baudrate_prescaler_rank(handle->Init.BaudRatePrescaler);
+    MBED_ASSERT(baudrate_rank != 0xFF);
+    return freq >> (baudrate_rank + 1);
+}
+
+
 void spi_frequency(spi_t *obj, int hz)
 {
     struct spi_s *spiobj = SPI_S(obj);
@@ -824,6 +870,29 @@ static inline void msp_wait_readable(spi_t *obj)
 }
 
 /**
+ * Check if SPI master interface is busy.
+ *
+ * @param obj
+ * @return 0 - SPI isn't busy, non-zero - SPI is busy
+ */
+static inline int msp_busy(spi_t *obj)
+{
+#if TARGET_STM32H7
+    return !(int)LL_SPI_IsActiveFlag_TXC(SPI_INST(obj));
+#else /* TARGET_STM32H7 */
+    return (int)LL_SPI_IsActiveFlag_BSY(SPI_INST(obj));
+#endif /* TARGET_STM32H7 */
+}
+
+/**
+ * Wait till SPI master interface isn't busy.
+ */
+static inline void msp_wait_not_busy(spi_t *obj)
+{
+    while (msp_busy(obj));
+}
+
+/**
  * Write data to SPI master interface.
  */
 static inline void msp_write_data(spi_t *obj, int value, int bitshift)
@@ -855,13 +924,126 @@ static inline int msp_read_data(spi_t *obj, int bitshift)
     }
 }
 
+/**
+ * Transmit and receive SPI data in bidirectional mode.
+ *
+ * @param obj spi object
+ * @param tx_buffer byte-array of data to write to the device
+ * @param tx_length number of bytes to write, may be zero
+ * @param rx_buffer byte-array of data to read from the device
+ * @param rx_length number of bytes to read, may be zero
+ * @return number of transmitted and received bytes or negative code in case of error.
+ */
+static int spi_master_one_wire_transfer(spi_t *obj, const char *tx_buffer, int tx_length,
+                                        char *rx_buffer, int rx_length)
+{
+    struct spi_s *spiobj = SPI_S(obj);
+    SPI_HandleTypeDef *handle = &(spiobj->handle);
+    const int bitshift = datasize_to_transfer_bitshift(handle->Init.DataSize);
+    MBED_ASSERT(bitshift >= 0);
+
+    /* Ensure that spi is disabled */
+    LL_SPI_Disable(SPI_INST(obj));
+
+    /* Transmit data */
+    if (tx_length) {
+        LL_SPI_SetTransferDirection(SPI_INST(obj), LL_SPI_HALF_DUPLEX_TX);
+#if TARGET_STM32H7
+        /* Set transaction size */
+        LL_SPI_SetTransferSize(SPI_INST(obj), tx_length);
+#endif /* TARGET_STM32H7 */
+        LL_SPI_Enable(SPI_INST(obj));
+#if TARGET_STM32H7
+        /* Master transfer start */
+        LL_SPI_StartMasterTransfer(SPI_INST(obj));
+#endif /* TARGET_STM32H7 */
+
+        for (int i = 0; i < tx_length; i++) {
+            msp_wait_writable(obj);
+            msp_write_data(obj, tx_buffer[i], bitshift);
+        }
+
+        /* Wait end of transaction */
+        msp_wait_not_busy(obj);
+
+        LL_SPI_Disable(SPI_INST(obj));
+
+#if TARGET_STM32H7
+        /* Clear transaction flags */
+        LL_SPI_ClearFlag_EOT(SPI_INST(obj));
+        LL_SPI_ClearFlag_TXTF(SPI_INST(obj));
+        /* Reset transaction size */
+        LL_SPI_SetTransferSize(SPI_INST(obj), 0);
+#endif /* TARGET_STM32H7 */
+    }
+
+    /* Receive data */
+    if (rx_length) {
+        LL_SPI_SetTransferDirection(SPI_INST(obj), LL_SPI_HALF_DUPLEX_RX);
+#if TARGET_STM32H7
+        /* Set transaction size and run SPI */
+        LL_SPI_SetTransferSize(SPI_INST(obj), rx_length);
+        LL_SPI_Enable(SPI_INST(obj));
+        LL_SPI_StartMasterTransfer(SPI_INST(obj));
+
+        /* Receive data */
+        for (int i = 0; i < rx_length; i++) {
+            msp_wait_readable(obj);
+            rx_buffer[i] = msp_read_data(obj, bitshift);
+        }
+
+        /* Stop SPI */
+        LL_SPI_Disable(SPI_INST(obj));
+        /* Clear transaction flags */
+        LL_SPI_ClearFlag_EOT(SPI_INST(obj));
+        LL_SPI_ClearFlag_TXTF(SPI_INST(obj));
+        /* Reset transaction size */
+        LL_SPI_SetTransferSize(SPI_INST(obj), 0);
+
+#else  /* TARGET_STM32H7 */
+        /* Unlike STM32H7 other STM32 families generates SPI Clock signal continuously in half-duplex receive mode
+         * till SPI is enabled. To stop clock generation a SPI should be disabled during last frame receiving,
+         * after generation at least one SPI clock cycle. It causes necessity of critical section usage.
+         * So the following consequences of steps is used to receive each byte:
+         * 1. Enter into critical section.
+         * 2. Enable SPI.
+         * 3. Wait one SPI clock cycle.
+         * 4. Disable SPI.
+         * 5. Wait full byte receiving.
+         * 6. Read byte.
+         * It gives some overhead, but gives stable byte reception without dummy reads and
+         * short delay of critical section holding.
+         */
+
+        /* get estimation about one SPI clock cycle */
+        uint32_t baudrate_period_ns = 1000000000 / spi_get_baudrate(obj);
+
+        for (int i = 0; i < rx_length; i++) {
+            core_util_critical_section_enter();
+            LL_SPI_Enable(SPI_INST(obj));
+            /* Wait single SPI clock cycle. */
+            wait_ns(baudrate_period_ns);
+            LL_SPI_Disable(SPI_INST(obj));
+            core_util_critical_section_exit();
+
+            msp_wait_readable(obj);
+            rx_buffer[i] = msp_read_data(obj, bitshift);
+        }
+
+#endif /* TARGET_STM32H7 */
+    }
+
+    return rx_length + tx_length;
+}
+
 int spi_master_write(spi_t *obj, int value)
 {
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
 
     if (handle->Init.Direction == SPI_DIRECTION_1LINE) {
-        return HAL_SPI_Transmit(handle, (uint8_t *)&value, 1, TIMEOUT_1_BYTE);
+        int result = spi_master_one_wire_transfer(obj, (const char *)&value, 1, NULL, 0);
+        return result == 1 ? HAL_OK : HAL_ERROR;
     }
     const int bitshift = datasize_to_transfer_bitshift(handle->Init.DataSize);
     MBED_ASSERT(bitshift >= 0);
@@ -910,18 +1092,11 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
             }
         }
     } else {
-        /* In case of 1 WIRE only, first handle TX, then Rx */
-        if (tx_length != 0) {
-            if (HAL_OK != HAL_SPI_Transmit(handle, (uint8_t *)tx_buffer, tx_length, tx_length * TIMEOUT_1_BYTE)) {
-                /*  report an error */
-                total = 0;
-            }
-        }
-        if (rx_length != 0) {
-            if (HAL_OK != HAL_SPI_Receive(handle, (uint8_t *)rx_buffer, rx_length, rx_length * TIMEOUT_1_BYTE)) {
-                /*  report an error */
-                total = 0;
-            }
+        /* 1 wire case */
+        int result = spi_master_one_wire_transfer(obj, tx_buffer, tx_length, rx_buffer, rx_length);
+        if (result != tx_length + rx_length) {
+            /*  report an error */
+            total = 0;
         }
     }
 
