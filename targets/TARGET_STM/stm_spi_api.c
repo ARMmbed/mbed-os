@@ -777,6 +777,84 @@ static inline int datasize_to_transfer_bitshift(uint32_t DataSize)
     }
 }
 
+/**
+ * Check if SPI master interface is writable.
+ *
+ * @param obj
+ * @return  0 - SPI isn't writable, non-zero - SPI is writable
+ */
+static inline int msp_writable(spi_t *obj)
+{
+#if TARGET_STM32H7
+    return (int)LL_SPI_IsActiveFlag_TXP(SPI_INST(obj));
+#else /* TARGET_STM32H7 */
+    return (int)LL_SPI_IsActiveFlag_TXE(SPI_INST(obj));
+#endif /* TARGET_STM32H7 */
+}
+
+/**
+ * Check if SPI master interface is readable.
+ *
+ * @param obj
+ * @return 0 - SPI isn't readable, non-zero - SPI is readable
+ */
+static inline int msp_readable(spi_t *obj)
+{
+#if TARGET_STM32H7
+    return (int)LL_SPI_IsActiveFlag_RXP(SPI_INST(obj));
+#else /* TARGET_STM32H7 */
+    return (int)LL_SPI_IsActiveFlag_RXNE(SPI_INST(obj));
+#endif /* TARGET_STM32H7 */
+}
+
+/**
+ * Wait till SPI master interface is writable.
+ */
+static inline void msp_wait_writable(spi_t *obj)
+{
+    while (!msp_writable(obj));
+}
+
+/**
+ * Wait till SPI master interface is readable.
+ */
+static inline void msp_wait_readable(spi_t *obj)
+{
+    while (!msp_readable(obj));
+}
+
+/**
+ * Write data to SPI master interface.
+ */
+static inline void msp_write_data(spi_t *obj, int value, int bitshift)
+{
+    if (bitshift == 1) {
+        LL_SPI_TransmitData16(SPI_INST(obj), (uint16_t)value);
+#ifdef HAS_32BIT_SPI_TRANSFERS
+    } else if (bitshift == 2) {
+        LL_SPI_TransmitData32(SPI_INST(obj), (uint32_t)value);
+#endif /* HAS_32BIT_SPI_TRANSFERS */
+    } else {
+        LL_SPI_TransmitData8(SPI_INST(obj), (uint8_t)value);
+    }
+}
+
+/**
+ * Read data from SPI master interface.
+ */
+static inline int msp_read_data(spi_t *obj, int bitshift)
+{
+    if (bitshift == 1) {
+        return LL_SPI_ReceiveData16(SPI_INST(obj));
+#ifdef HAS_32BIT_SPI_TRANSFERS
+    } else if (bitshift == 2) {
+        return LL_SPI_ReceiveData32(SPI_INST(obj));
+#endif /* HAS_32BIT_SPI_TRANSFERS */
+    } else {
+        return LL_SPI_ReceiveData8(SPI_INST(obj));
+    }
+}
+
 int spi_master_write(spi_t *obj, int value)
 {
     struct spi_s *spiobj = SPI_S(obj);
@@ -806,44 +884,15 @@ int spi_master_write(spi_t *obj, int value)
 #if TARGET_STM32H7
     /* Master transfer start */
     LL_SPI_StartMasterTransfer(SPI_INST(obj));
-
-    /* Wait TXP flag to transmit data */
-    while (!LL_SPI_IsActiveFlag_TXP(SPI_INST(obj)));
-#else
-    /* Wait TXE flag to transmit data */
-    while (!LL_SPI_IsActiveFlag_TXE(SPI_INST(obj)));
-
-#endif /* TARGET_STM32H7 */
+#endif
 
     /* Transmit data */
-    if (bitshift == 1) {
-        LL_SPI_TransmitData16(SPI_INST(obj), (uint16_t)value);
-#ifdef HAS_32BIT_SPI_TRANSFERS
-    } else if (bitshift == 2) {
-        LL_SPI_TransmitData32(SPI_INST(obj), (uint32_t)value);
-#endif
-    } else {
-        LL_SPI_TransmitData8(SPI_INST(obj), (uint8_t)value);
-    }
+    msp_wait_writable(obj);
+    msp_write_data(obj, value, bitshift);
 
-#if TARGET_STM32H7
-    /* Wait for RXP or end of Transfer */
-    while (!LL_SPI_IsActiveFlag_RXP(SPI_INST(obj)));
-#else /* TARGET_STM32H7 */
-    /* Wait for RXNE flag before reading */
-    while (!LL_SPI_IsActiveFlag_RXNE(SPI_INST(obj)));
-#endif /* TARGET_STM32H7 */
-
-    /* Read received data */
-    if (bitshift == 1) {
-        return LL_SPI_ReceiveData16(SPI_INST(obj));
-#ifdef HAS_32BIT_SPI_TRANSFERS
-    } else if (bitshift == 2) {
-        return LL_SPI_ReceiveData32(SPI_INST(obj));
-#endif
-    } else {
-        return LL_SPI_ReceiveData8(SPI_INST(obj));
-    }
+    /* Receive data */
+    msp_wait_readable(obj);
+    return msp_read_data(obj, bitshift);
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
