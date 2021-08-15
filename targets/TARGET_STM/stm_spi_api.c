@@ -81,6 +81,17 @@ extern HAL_StatusTypeDef HAL_SPIEx_FlushRxFifo(SPI_HandleTypeDef *hspi);
 #define HAS_32BIT_SPI_TRANSFERS 1
 #endif // SPI_DATASIZE_X
 
+/**
+ * Flush RX FIFO/input register of SPI interface and clear overrun flag.
+ */
+static inline void spi_flush_rx(spi_t *obj)
+{
+#if defined(SPI_FLAG_FRLVL)
+    HAL_SPIEx_FlushRxFifo(&(SPI_S(obj)->handle));
+#endif
+    LL_SPI_ClearFlag_OVR(SPI_INST(obj));
+}
+
 void spi_get_capabilities(PinName ssel, bool slave, spi_capabilities_t *cap)
 {
     if (slave) {
@@ -1373,10 +1384,15 @@ void spi_abort_asynch(spi_t *obj)
     NVIC_DisableIRQ(irq_n);
 
     // clean-up
-    __HAL_SPI_DISABLE(handle);
+    LL_SPI_Disable(SPI_INST(obj));
     HAL_SPI_DeInit(handle);
     HAL_SPI_Init(handle);
-    __HAL_SPI_ENABLE(handle);
+    // cleanup input buffer
+    spi_flush_rx(obj);
+    // enable SPI back if it isn't 3-wire mode
+    if (handle->Init.Direction != SPI_DIRECTION_1LINE) {
+        LL_SPI_Enable(SPI_INST(obj));
+    }
 }
 
 #endif //DEVICE_SPI_ASYNCH
