@@ -149,6 +149,9 @@ void init_spi(spi_t *obj)
     if (HAL_SPI_Init(handle) != HAL_OK) {
         error("Cannot initialize SPI");
     }
+    /* In some cases after SPI object re-creation SPI overrun flag may not
+     * be cleared, so clear RX data explicitly to prevent any transmissions errors */
+    spi_flush_rx(obj);
     /* In case of standard 4 wires SPI,PI can be kept enabled all time
      * and SCK will only be generated during the write operations. But in case
      * of 3 wires, it should be only enabled during rd/wr unitary operations,
@@ -1329,11 +1332,12 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
 inline uint32_t spi_irq_handler_asynch(spi_t *obj)
 {
     int event = 0;
+    SPI_HandleTypeDef *handle = &(SPI_S(obj)->handle);
 
     // call the CubeF4 handler, this will update the handle
-    HAL_SPI_IRQHandler(&obj->spi.handle);
+    HAL_SPI_IRQHandler(handle);
 
-    if (obj->spi.handle.State == HAL_SPI_STATE_READY) {
+    if (handle->State == HAL_SPI_STATE_READY) {
         // When HAL SPI is back to READY state, check if there was an error
         int error = obj->spi.handle.ErrorCode;
         if (error != HAL_SPI_ERROR_NONE) {
@@ -1351,8 +1355,18 @@ inline uint32_t spi_irq_handler_asynch(spi_t *obj)
         // disable the interrupt
         NVIC_DisableIRQ(obj->spi.spiIRQ);
         NVIC_ClearPendingIRQ(obj->spi.spiIRQ);
+#ifndef TARGET_STM32H7
+        if (handle->Init.Direction == SPI_DIRECTION_1LINE && obj->rx_buff.buffer != NULL) {
+            /**
+             * In case of 3-wire SPI data receiving we usually get dummy reads.
+             * So we need to cleanup FIFO/input register before next transmission.
+             * Probably it's better to set SPI_EVENT_RX_OVERFLOW event flag,
+             * but let's left it as is for backward compatibility.
+             */
+            spi_flush_rx(obj);
+        }
+#endif
     }
-
 
     return (event & (obj->spi.event | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE));
 }
