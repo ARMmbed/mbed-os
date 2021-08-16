@@ -61,3 +61,15 @@ else()
     message(STATUS "Missing Python dependencies (python3, intelhex, prettytable) so the memory map cannot be printed")
 endif()
 
+# Ninja requires to be forced for response files
+if ("${CMAKE_GENERATOR}" MATCHES "Ninja")
+    if(CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
+        # known issue ARMClang and Ninja with response files for windows
+        # https://gitlab.kitware.com/cmake/cmake/-/issues/21093
+        if(CMAKE_C_COMPILER_ID MATCHES "ARMClang")
+            # fixed the issue by changing the CMAKE_C_COMPILER_ID to "Clang" before `project(${APP_TARGET})`
+            set(CMAKE_C_COMPILER_ID "Clang")
+        endif()
+        set(CMAKE_NINJA_FORCE_RESPONSE_FILE 1 CACHE INTERNAL "")
+    endif()
+endif()

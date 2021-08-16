@@ -190,15 +190,6 @@ if(${CMAKE_CROSSCOMPILING})
     target_link_libraries(mbed-core INTERFACE ${MBED_TARGET_CONVERTED})
 endif()
 
-# Ninja requires to be forced for response files
-if ("${CMAKE_GENERATOR}" MATCHES "Ninja")
-    # known issue ARMClang and Ninja with response files for windows
-    # https://gitlab.kitware.com/cmake/cmake/-/issues/21093
-    if((CMAKE_HOST_SYSTEM_NAME MATCHES "Windows" AND NOT CMAKE_CXX_COMPILER_ID MATCHES "ARMClang"))
-        set(CMAKE_NINJA_FORCE_RESPONSE_FILE 1 CACHE INTERNAL "")
-    endif()
-endif()
-
 # TODO: Remove once all example applications have removed it
 function(mbed_configure_app_target target)
 endfunction()
