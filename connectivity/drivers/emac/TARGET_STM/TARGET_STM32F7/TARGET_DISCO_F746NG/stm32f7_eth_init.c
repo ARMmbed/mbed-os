@@ -29,6 +29,7 @@
 #ifndef USE_USER_DEFINED_HAL_ETH_MSPINIT
 
 #include "stm32f7xx_hal.h"
+#include "platform/mbed_critical.h"
 
 /**
  * Override HAL Eth Init function
@@ -38,7 +39,9 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef *heth)
     GPIO_InitTypeDef GPIO_InitStructure;
     if (heth->Instance == ETH) {
         /* Disable DCache for STM32F7 family */
+        core_util_critical_section_enter();
         SCB_DisableDCache();
+        core_util_critical_section_exit();
 
         /* Enable GPIOs clocks */
         __HAL_RCC_GPIOA_CLK_ENABLE();

@@ -29,6 +29,7 @@
 #ifndef USE_USER_DEFINED_HAL_ETH_MSPINIT
 
 #include "stm32h7xx_hal.h"
+#include "platform/mbed_critical.h"
 
 #define MCO_Pin GPIO_PIN_0
 #define MCO_GPIO_Port GPIOH
@@ -63,7 +64,9 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef *heth)
     GPIO_InitTypeDef GPIO_InitStruct;
     if (heth->Instance == ETH) {
         /* Disable DCache for STM32H7 family */
+        core_util_critical_section_enter();
         SCB_DisableDCache();
+        core_util_critical_section_exit();
 
         /* GPIO Ports Clock Enable */
         __HAL_RCC_GPIOH_CLK_ENABLE();
