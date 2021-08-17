@@ -234,7 +234,7 @@ static int pl011_serial_writable(void *obj)
     return !(p_PL011_UART->FR & (1u << 5));
 }
 
-static int pl011_serial_serial_tx_empty(void *obj)
+static int pl011_serial_tx_empty(void *obj)
 {
     struct serial_s *priv = (struct serial_s *)obj;
     S5JS100_UART_TypeDef *p_PL011_UART = UART_PTR(priv->uart);
