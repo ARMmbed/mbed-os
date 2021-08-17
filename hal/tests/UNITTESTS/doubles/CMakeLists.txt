@@ -17,6 +17,7 @@ target_compile_definitions(mbed-stubs-hal
         DEVICE_PWMOUT
         DEVICE_WATCHDOG
         MBED_WDOG_ASSERT=1
+        DEVICE_ANALOGIN
 )
 
 target_sources(mbed-stubs-hal
@@ -24,6 +25,7 @@ target_sources(mbed-stubs-hal
         pwmout_api_stub.c
         us_ticker_stub.cpp
         watchdog_api_stub.c
+        analogin_api_stub.c
 )
 
 target_link_libraries(mbed-stubs-hal
