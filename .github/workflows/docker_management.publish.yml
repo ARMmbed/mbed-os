@@ -1,0 +1,121 @@
+
+name: Publish or Update docker image for mbed-os-5.15
+
+on:
+  push:
+    branches: 
+      - mbed-os-5.15
+
+    paths:
+      - requirements.txt
+      - docker_images/mbed-os-env/**
+      - .github/workflows/docker_management.publish.yml
+
+  # manual trigger when needed 
+  workflow_dispatch: 
+
+jobs:
+  prepare-tags:
+    runs-on: ubuntu-latest
+    steps:
+      - 
+        name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - 
+        name: Set UUID
+        id: generate-uuid
+        uses: filipstefansson/uuid-action@v1
+
+# set docker tags we are building, and intending to publish
+# dev-tag is temporary for testing purpose. This should be considered as unstable.
+# dated-tag is created for versioning purpose
+# prod-tag-latest could be used by customers, CI etc for keeping up to date
+      - 
+        name: Get build information
+        shell: bash
+        run: |
+          mkdir -p build_info
+          date=$(date +"%Y.%m.%dT%H.%M.%S")
+          echo dev-${{ steps.extract_branch.outputs.branch }}-${date}-${{ steps.generate-uuid.outputs.uuid }} > build_info/dev_tag
+          echo ${{ steps.extract_branch.outputs.branch }}-${date} > build_info/prod_tag_dated
+          echo ${{ steps.extract_branch.outputs.branch }}-latest > build_info/prod_tag_latest
+          echo ${{ steps.extract_branch.outputs.branch }} > build_info/mbed_os_version
+          echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]' > build_info/repository_owner
+          
+      - 
+        name: Archive information 
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-info
+          path: build_info
+
+          
+  build-container:
+    runs-on: ubuntu-latest
+    needs: prepare-tags
+
+    steps:
+      - 
+        name: unarchive artefacts
+        uses: actions/download-artifact@v2
+        with:
+          name: build-info
+          
+      - 
+        name: Get build info from archive
+        shell: bash
+        id: build_info
+        run: |
+          value=`cat dev_tag`
+          echo "DEV TAG is $value"
+          echo "::set-output name=DOCKER_DEV_TAG::$value"
+          value=`cat prod_tag_dated`
+          echo "PROD TAG DATED is $value"
+          echo "::set-output name=DOCKER_PROD_TAG_DATED::$value"
+          value=`cat prod_tag_latest`
+          echo "::set-output name=DOCKER_PROD_TAG_LATEST::$value"
+          echo "PROD TAG is $value"
+          value=`cat repository_owner`
+          echo "::set-output name=REPO_OWNER::$value"
+      - 
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - 
+        name: Login to ghcr.io
+        uses: docker/login-action@v1 
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+
+      -
+        name: Build docker containers
+        uses: docker/build-push-action@v2
+        id: docker_build_dev
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          file: ./docker_images/mbed-os-env/Dockerfile
+          tags: ghcr.io/${{ steps.build_info.outputs.REPO_OWNER }}/mbed-os-env:${{ steps.build_info.outputs.DOCKER_PROD_TAG_LATEST }}
+
+      # as docker tags are reused, copy also to a "fixed tag" 
+      # for troubleshooting purpose if needed
+      - 
+          name: copy tag to fixed tag
+          run: |
+            docker run quay.io/skopeo/stable --src-creds=${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }} --dest-creds=${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }} copy --all docker://ghcr.io/${{ steps.build_info.outputs.REPO_OWNER }}/mbed-os-env:${{ steps.build_info.outputs.DOCKER_PROD_TAG_LATEST }}  docker://ghcr.io/${{ steps.build_info.outputs.REPO_OWNER }}/mbed-os-env:${{ steps.build_info.outputs.DOCKER_PROD_TAG_DATED }}
