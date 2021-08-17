@@ -265,7 +265,7 @@ int serial_writable(serial_t *obj)
 int serial_tx_empty(serial_t *obj)
 {
     bool bAvailable = false;
-    adi_uart_IsTxComplete(hDevice[obj->index], &bAvailable);
+    adi_uart_IsTxComplete(hDevice, &bAvailable);
     return bAvailable;
 }
 
