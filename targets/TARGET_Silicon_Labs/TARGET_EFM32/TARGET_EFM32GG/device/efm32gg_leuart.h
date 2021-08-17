@@ -246,6 +246,7 @@ typedef struct {
 #define _LEUART_STATUS_RXDATAV_MASK              0x20UL                                /**< Bit mask for LEUART_RXDATAV */
 #define _LEUART_STATUS_RXDATAV_DEFAULT           0x00000000UL                          /**< Mode DEFAULT for LEUART_STATUS */
 #define LEUART_STATUS_RXDATAV_DEFAULT            (_LEUART_STATUS_RXDATAV_DEFAULT << 5) /**< Shifted mode DEFAULT for LEUART_STATUS */
+#define LEUART_STATUS_TXIDLE                     (0x1UL << 6)                          /**< TX Idle */
 
 /* Bit fields for LEUART CLKDIV */
 #define _LEUART_CLKDIV_RESETVALUE                0x00000000UL                      /**< Default value for LEUART_CLKDIV */

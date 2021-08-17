@@ -471,6 +471,11 @@ typedef struct {
 #define _USART_STATUS_RXFULLRIGHT_MASK        0x1000UL                                   /**< Bit mask for USART_RXFULLRIGHT */
 #define _USART_STATUS_RXFULLRIGHT_DEFAULT     0x00000000UL                               /**< Mode DEFAULT for USART_STATUS */
 #define USART_STATUS_RXFULLRIGHT_DEFAULT      (_USART_STATUS_RXFULLRIGHT_DEFAULT << 12)  /**< Shifted mode DEFAULT for USART_STATUS */
+#define USART_STATUS_TXIDLE                   (0x1UL << 13)                              /**< TX Idle */
+#define _USART_STATUS_TXIDLE_SHIFT            13                                         /**< Shift value for USART_TXIDLE */
+#define _USART_STATUS_TXIDLE_MASK             0x2000UL                                   /**< Bit mask for USART_TXIDLE */
+#define _USART_STATUS_TXIDLE_DEFAULT          0x00000001UL                               /**< Mode DEFAULT for USART_STATUS */
+#define USART_STATUS_TXIDLE_DEFAULT           (_USART_STATUS_TXIDLE_DEFAULT << 13)       /**< Shifted mode DEFAULT for USART_STATUS */
 
 /* Bit fields for USART CLKDIV */
 #define _USART_CLKDIV_RESETVALUE              0x00000000UL                     /**< Default value for USART_CLKDIV */
