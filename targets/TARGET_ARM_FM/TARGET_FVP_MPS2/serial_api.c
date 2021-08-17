@@ -361,6 +361,11 @@ int serial_writable(serial_t *obj)
     return !(obj->uart->STATE & 0x1);
 }
 
+int serial_tx_empty(serial_t *obj)
+{
+    return !(obj->uart->STATE & 0x1);
+}
+
 void serial_clear(serial_t *obj)
 {
     obj->uart->DATA = 0x00;

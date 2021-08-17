@@ -355,6 +355,11 @@ int serial_writable(serial_t *obj)
     return arm_uart_tx_ready(obj->uart);
 }
 
+int serial_tx_empty(serial_t *obj)
+{
+    return arm_uart_tx_ready(obj->uart);
+}
+
 void serial_clear(serial_t *obj)
 {
     (void)arm_uart_write(obj->uart, 0x00);
