@@ -1,0 +1,196 @@
+# This workflow performs the checks like license check,
+# doxygen, unit tests etc.
+
+name: Basic Checks
+
+on:
+  pull_request:
+  push:
+    branches:
+      - mbed-os-5.15
+
+jobs:
+
+  license-check:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/armmbed/mbed-os-env:mbed-os-5.15-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - 
+        name: license check 
+        run: |
+          set -x
+          mkdir -p SCANCODE
+          
+          git diff --name-only --diff-filter=d origin/${GITHUB_BASE_REF} \
+            | ( grep '.\(c\|cpp\|h\|hpp\|py\)$' || true )
+          echo $?
+          git diff --name-only --diff-filter=d origin/${GITHUB_BASE_REF} \
+            | ( grep '.\(c\|cpp\|h\|hpp\|py\)$' || true ) \
+            | ( grep -v '^tools/test/toolchains/api_test.py' || true ) \
+            | while read file; do cp --parents "${file}" SCANCODE; done
+          ls SCANCODE
+          scancode -l --json-pp scancode.json SCANCODE
+
+          python ./tools/test/ci/scancode-evaluate.py scancode.json || true
+          cat scancode-evaluate.log
+          COUNT=$(cat scancode-evaluate.log | grep 'File:' | grep -v 'SPDX' | wc -l) || true
+          if [ $COUNT = 0 ]; then
+            echo "License check OK";
+            true;
+          else
+            echo "License check failed, please review license issues found in files";
+            false;
+          fi
+
+  include-check:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/armmbed/mbed-os-env:mbed-os-5.15-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - 
+        name: "include check"
+        run: |
+          ! git grep '^#include\s["'"']mbed.h['"'"]$' -- '*.c' '*.h' '*.cpp' '*.hpp' \
+              ':!*platform_mbed.h' ':!*TESTS/*' ':!TEST_APPS/' ':!UNITTESTS/' \
+              ':!*tests/*' ':!*targets/*' ':!*TARGET_*' ':!*unsupported/*'
+
+  docs-check:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/armmbed/mbed-os-env:mbed-os-5.15-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - 
+        name: spell checks
+        run: |
+          ./tools/test/ci/doxy-spellchecker/spell.sh drivers
+          ./tools/test/ci/doxy-spellchecker/spell.sh platform
+          ./tools/test/ci/doxy-spellchecker/spell.sh events
+          ./tools/test/ci/doxy-spellchecker/spell.sh rtos
+          ./tools/test/ci/doxy-spellchecker/spell.sh connectivity/netsocket
+
+      - 
+        name: doxygen
+        run: |
+          mkdir BUILD
+          # Assert that the Doxygen build produced no warnings.
+          # The strange command below asserts that the Doxygen command had an
+          # output of zero length
+          doxygen doxyfile_options 2>&1
+          # Once Mbed OS has been fixed, enable the full test by replacing the top line with this:
+          # - ( ! doxygen doxyfile_options 2>&1 | grep . )
+          # Assert that all binary libraries are named correctly
+          # The strange command below asserts that there are exactly 0 libraries
+          # that do not start with lib
+          find "(" -name "*.a" -or -name "*.ar" ")" -and -not -name "lib*" |
+          tee BUILD/badlibs |
+          sed -e "s/^/Bad library name found: /" && [ ! -s BUILD/badlibs ]
+          # Assert that all assembler files are named correctly
+          # The strange command below asserts that there are exactly 0 libraries
+          # that do end with .s
+          find  -name "*.s" | tee BUILD/badasm |
+          sed -e "s/^/Bad Assembler file name found: /" && [ ! -s BUILD/badasm ]
+  
+
+  style-check:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/armmbed/mbed-os-env:mbed-os-5.15-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - 
+        name: astyle checks
+        run: |
+          git diff --name-only --diff-filter=d origin/${GITHUB_BASE_REF} \
+            | ( grep '.*\.\(c\|cpp\|h\|hpp\)$' || true ) \
+            | ( grep -v -f .astyleignore || true ) \
+            | while read file; do astyle -n --options=.astylerc "${file}"; done
+          git diff --exit-code --diff-filter=d --color
+
+      - 
+        name: "UTF-8 Check"
+        run: |
+          # Make sure we're not introducing any text which is not UTF-8 encoded
+          git diff origin/${GITHUB_BASE_REF} -U0 | ( grep -a '^+' || true ) | ( ! grep -axv '.*' )
+
+
+  python-tests:
+    # these tests run in 3.7, hence running in vm not in pre-built docker
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ '3.5', '3.6', '3.7' ]
+        
+    steps:
+      -
+        name: Checkout repo
+        uses: actions/checkout@v2
+
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      -
+        name: install dependencies
+        run: |
+          pip install -r requirements.txt 
+          pip install mock==2.0.0 attrs==19.1.0 pytest==3.3.0 'pylint>=1.9,<2' 'hypothesis>=3,<4' 'coverage>=4.5,<5'
+      -
+        name: pytest
+        run: |
+          # PYTHONPATH=. 
+          coverage run -a -m pytest tools/test
+          python tools/test/pylint.py
+          coverage run -a tools/project.py -S | sed -n '/^Total/p'
+          coverage html
+
+  events-library:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/armmbed/mbed-os-env:mbed-os-5.15-latest
+
+    steps:
+
+      -
+        name: Checkout repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      -
+        name: run test
+        shell: bash
+        run: |
+          # Check that example compiles
+          sed -n '/``` cpp/,/```/{/```$/Q;/```/d;p;}' events/README.md > main.cpp
+          python tools/make.py -t GCC_ARM -m K64F --source=. --build=BUILD/K64F/GCC_ARM -j0
+          # Check that example compiles without rtos
+          sed -n '/``` cpp/,/```/{/```$/Q;/```/d;p;}' events/README.md > main.cpp
+          rm -r rtos drivers/source/usb features/cellular features/netsocket features/nanostack \
+              features/lwipstack features/frameworks/greentea-client \
+              features/frameworks/utest features/frameworks/unity components BUILD
+          python tools/make.py -t GCC_ARM -m DISCO_F401VC --source=. --build=BUILD/DISCO_F401VC/GCC_ARM -j0
+          # Run local equeue tests
+          make -C events/source test
+          # Run profiling tests
+          make -C events/source prof | tee prof
