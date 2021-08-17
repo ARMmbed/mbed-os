@@ -34,6 +34,7 @@ target_sources(mbed-core
         source/I2CSlave.cpp
         source/InterruptIn.cpp
         source/MbedCRC.cpp
+        source/OSPI.cpp
         source/PortIn.cpp
         source/PortInOut.cpp
         source/PortOut.cpp
