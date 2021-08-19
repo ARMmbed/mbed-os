@@ -452,7 +452,25 @@ void STM32WL_LoRaRadio::SUBGRF_SetTxParams(uint8_t paSelect, int8_t power, radio
         // RegTxClampConfig = @address 0x08D8
         write_to_register(REG_TX_CLAMP, read_register(REG_TX_CLAMP) | (0x0F << 1));
 
-        set_pa_config(0x04, 0x07, 0x00, 0x01);
+        // if in mbed_app.json we have configured rf_switch_config in rfo_hp ONLY
+        // so "stm32wl-lora-driver.rf_switch_config": "RBI_CONF_RFO_HP"
+        // in this particular case it's not optimal settings for power<=20dBm
+        if (board_rf_switch_config == RBI_CONF_RFO_HP) {
+            // See Section 5.1.2 of the following Application Note
+            // https://www.st.com/resource/en/application_note/an5457-rf-matching-network-design-guide-for-stm32wl-series-stmicroelectronics.pdf
+            if (power > 20) {
+                set_pa_config(0x04, 0x07, 0x00, 0x01);
+            } else if (power > 17) {
+                set_pa_config(0x03, 0x05, 0x00, 0x01);
+            } else if (power > 14) {
+                set_pa_config(0x02, 0x03, 0x00, 0x01);
+            } else {
+                set_pa_config(0x02, 0x02, 0x00, 0x01);
+            }
+        } else {
+            set_pa_config(0x04, 0x07, 0x00, 0x01);
+        }
+
         if (power > 22) {
             power = 22;
         } else if (power < -9) {

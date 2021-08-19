@@ -26,7 +26,7 @@
             "value": "IS_TCXO_SUPPORTED"
         },
         "rf_switch_config": {
-            "help": "Default: CONF_RFO_LP_HP = 0, CONF_RFO_LP = 1, CONF_RFO_HP = 2",
+            "help": "Default: RBI_CONF_RFO_LP_HP = 0, RBI_CONF_RFO_LP = 1, RBI_CONF_RFO_HP = 2",
             "value": "RBI_CONF_RFO_LP_HP"
         },
         "rf_wakeup_time": {
