@@ -23,7 +23,6 @@
 #include "HeapBlockDevice.h"
 #include "FATFileSystem.h"
 #include "MBRBlockDevice.h"
-#include "LittleFileSystem.h"
 #include <stdlib.h>
 #include "mbed_retarget.h"
 
@@ -245,76 +244,6 @@ void test_single_mbr()
     TEST_ASSERT_EQUAL(0, err);
 }
 
-void test_formatting_before_mounting_other_fs()
-{
-    TEST_SKIP_UNLESS_MESSAGE(check_heap_allocation(mem_alloc_threshold), "Not enough heap memory to run test. Test skipped.");
-
-    HeapBlockDevice bd {BLOCK_COUNT * BLOCK_SIZE, BLOCK_SIZE};
-
-    format_partitions(bd);
-
-    LittleFileSystem lfs {"lfs"};
-
-    int err = lfs.mount(&bd);
-    TEST_ASSERT_NOT_EQUAL(0, err);
-}
-
-void test_mounting_before_mounting_other_fs()
-{
-    TEST_SKIP_UNLESS_MESSAGE(check_heap_allocation(mem_alloc_threshold), "Not enough heap memory to run test. Test skipped.");
-
-    HeapBlockDevice bd {BLOCK_COUNT * BLOCK_SIZE, BLOCK_SIZE};
-
-    int err = MBRBlockDevice::partition(&bd, 1, LINUX_FS_PARTITION_ID, 0, BLOCK_COUNT * BLOCK_SIZE);
-    TEST_ASSERT_EQUAL(0, err);
-
-    MBRBlockDevice part {&bd, 1};
-
-    err = part.init();
-    TEST_ASSERT_EQUAL(0, err);
-
-    err = FATFileSystem::format(&part);
-    TEST_ASSERT_EQUAL(0, err);
-
-    FATFileSystem fat_fs {"fat"};
-
-    err = fat_fs.mount(&part);
-    TEST_ASSERT_EQUAL(0, err);
-
-    LittleFileSystem lfs {"lfs"};
-
-    err = lfs.mount(&bd);
-    TEST_ASSERT_NOT_EQUAL(0, err);
-}
-
-void test_mounting_other_fs_before_mounting()
-{
-    TEST_SKIP_UNLESS_MESSAGE(check_heap_allocation(mem_alloc_threshold), "Not enough heap memory to run test. Test skipped.");
-
-    HeapBlockDevice bd {BLOCK_COUNT * BLOCK_SIZE, BLOCK_SIZE};
-
-    LittleFileSystem lfs {"lfs"};
-
-    int err = LittleFileSystem::format(&bd);
-    TEST_ASSERT_EQUAL(0, err);
-
-    err = lfs.mount(&bd);
-    TEST_ASSERT_EQUAL(0, err);
-
-    err = MBRBlockDevice::partition(&bd, 1, LINUX_FS_PARTITION_ID, 0, BLOCK_COUNT * BLOCK_SIZE);
-    TEST_ASSERT_EQUAL(0, err);
-
-    MBRBlockDevice part {&bd, 1};
-
-    err = part.init();
-    TEST_ASSERT_EQUAL(0, err);
-
-    FATFileSystem fat_fs {"fat"};
-
-    err = fat_fs.mount(&part);
-    TEST_ASSERT_NOT_EQUAL(0, err);
-}
-
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
@@ -327,9 +256,6 @@ Case cases[] = {
     Case("Testing read write < block", test_read_write < BLOCK_SIZE / 2 >),
     Case("Testing read write > block", test_read_write<2 * BLOCK_SIZE>),
     Case("Testing for no extra MBRs", test_single_mbr),
-    Case("Testing formatting before other file system", test_formatting_before_mounting_other_fs),
-    Case("Testing mounting before other file system", test_mounting_before_mounting_other_fs),
-    Case("Testing mounting other file system before mounting", test_mounting_other_fs_before_mounting)
 };
 
 Specification specification(test_setup, cases);
