@@ -27,7 +27,6 @@
                 NAME     irq_armv7m.s
 
 
-                #include "rtx_def.h"
 
 #ifdef __ARMVFP__
 FPU_USED        EQU      1

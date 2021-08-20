@@ -27,7 +27,6 @@
                 NAME     irq_armv8mbl.s
 
 
-                #include "rtx_def.h"
 
 #ifndef DOMAIN_NS
 #define DOMAIN_NS        0
