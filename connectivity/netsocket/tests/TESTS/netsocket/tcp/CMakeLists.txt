@@ -13,6 +13,7 @@ project(${TEST_TARGET})
 list(
     APPEND
         TEST_SOURCE_LIST
+            main.cpp
             tcpsocket_thread_per_socket_safety.cpp
             tcpsocket_setsockopt_keepalive_valid.cpp
             tcpsocket_send_timeout.cpp
@@ -35,8 +36,11 @@ list(
             tcpsocket_recv_100k.cpp       	
 )
 
-mbed_greentea_cmake_macro(
-    TEST_NAME ${TEST_TARGET}
-    TEST_SOURCES ${TEST_SOURCE_LIST}
-    TEST_REQUIRED_LIBS mbed-netsocket
+mbed_greentea_add_test(
+    TEST_NAME
+        ${TEST_TARGET}
+    TEST_SOURCES
+        ${TEST_SOURCE_LIST}
+    TEST_REQUIRED_LIBS
+        mbed-netsocket
 )

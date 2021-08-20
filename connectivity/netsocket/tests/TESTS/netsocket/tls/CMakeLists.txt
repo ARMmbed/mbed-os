@@ -13,6 +13,7 @@ project(${TEST_TARGET})
 list(
     APPEND
         TEST_SOURCE_LIST
+            main.cpp
             tlssocket_simultaneous.cpp
             tlssocket_send_unconnected.cpp
             tlssocket_send_timeout.cpp
@@ -30,8 +31,11 @@ list(
             tlssocket_connect_invalid.cpp       
 )
 
-mbed_greentea_cmake_macro(
-    TEST_NAME ${TEST_TARGET}
-    TEST_SOURCES ${TEST_SOURCE_LIST}
-    TEST_REQUIRED_LIBS mbed-netsocket
+mbed_greentea_add_test(
+    TEST_NAME
+        ${TEST_TARGET}
+    TEST_SOURCES
+        ${TEST_SOURCE_LIST}
+    TEST_REQUIRED_LIBS
+        mbed-netsocket
 )

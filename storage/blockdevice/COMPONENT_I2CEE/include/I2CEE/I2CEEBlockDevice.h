@@ -72,7 +72,7 @@ public:
      */
     I2CEEBlockDevice(
         PinName sda, PinName scl, uint8_t address,
-        bd_size_t size, bd_size_t block = 32,
+        mbed::bd_size_t size, mbed::bd_size_t block = 32,
         int bus_speed = 400000,
         bool address_is_eight_bit = false);
 
@@ -89,7 +89,7 @@ public:
      */
     I2CEEBlockDevice(
         mbed::I2C *i2c_obj, uint8_t address,
-        bd_size_t size, bd_size_t block = 32,
+        mbed::bd_size_t size, mbed::bd_size_t block = 32,
         bool address_is_eight_bit = false);
 
     /** Destructor of I2CEEBlockDevice
@@ -116,7 +116,7 @@ public:
      *  @param size     Size to read in bytes, must be a multiple of read block size
      *  @return         0 on success, negative error code on failure
      */
-    virtual int read(void *buffer, bd_addr_t addr, bd_size_t size);
+    virtual int read(void *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     /** Program blocks to a block device
      *
@@ -127,7 +127,7 @@ public:
      *  @param size     Size to write in bytes, must be a multiple of program block size
      *  @return         0 on success, negative error code on failure
      */
-    virtual int program(const void *buffer, bd_addr_t addr, bd_size_t size);
+    virtual int program(const void *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     /** Erase blocks on a block device
      *
@@ -137,33 +137,33 @@ public:
      *  @param size     Size to erase in bytes, must be a multiple of erase block size
      *  @return         0 on success, negative error code on failure
      */
-    virtual int erase(bd_addr_t addr, bd_size_t size);
+    virtual int erase(mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     /** Get the size of a readable block
      *
      *  @return         Size of a readable block in bytes
      */
-    virtual bd_size_t get_read_size() const;
+    virtual mbed::bd_size_t get_read_size() const;
 
     /** Get the size of a programable block
      *
      *  @return         Size of a programable block in bytes
      *  @note Must be a multiple of the read size
      */
-    virtual bd_size_t get_program_size() const;
+    virtual mbed::bd_size_t get_program_size() const;
 
     /** Get the size of a eraseable block
      *
      *  @return         Size of a eraseable block in bytes
      *  @note Must be a multiple of the program size
      */
-    virtual bd_size_t get_erase_size() const;
+    virtual mbed::bd_size_t get_erase_size() const;
 
     /** Get the total size of the underlying device
      *
      *  @return         Size of the underlying device in bytes
      */
-    virtual bd_size_t size() const;
+    virtual mbed::bd_size_t size() const;
 
     /** Get the BlockDevice class type.
      *
@@ -189,7 +189,7 @@ private:
      * @param address An address in the requested page.
      * @return The device's I2C address for that page
      */
-    uint8_t get_paged_device_address(bd_addr_t address);
+    uint8_t get_paged_device_address(mbed::bd_addr_t address);
 };
 
 

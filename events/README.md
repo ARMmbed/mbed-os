@@ -75,7 +75,7 @@ queue.call_every(400, printf, "called every 0.4 seconds\n");
 
 The call functions return an ID that uniquely represents the event in the 
 the event queue. You can pass this ID to `EventQueue::cancel` to cancel
-an in-flight event.
+an in-flight event prior to dispatch.
 
 ``` cpp
 // The event id uniquely represents the event in the queue
@@ -88,7 +88,7 @@ if (id) {
 }
 
 // Events can be cancelled as long as they have not been dispatched. If the
-// event has already expired, cancel has no side-effects.
+// event has already expired, cancel may have negative side-effects.
 queue.cancel(id);
 ```
 
@@ -192,7 +192,7 @@ out of interrupt contexts.
 ## Documentation ##
 
 The in-depth documentation on specific functions can be found in
-[equeue.h](equeue.h).
+[equeue.h](include/events/equeue.h).
 
 The core of the equeue library is the `equeue_t` type which represents a
 single event queue, and the `equeue_dispatch` function which runs the equeue,
@@ -257,7 +257,7 @@ int enet_consume(void *buffer, int size) {
 ```
 
 Additionally, in-flight events can be cancelled with `equeue_cancel`. Events
-are given unique ids on post, allowing safe cancellation of expired events.
+are given unique ids on post, allowing safe cancellation until dispatch.
 
 ``` c
 #include "equeue.h"

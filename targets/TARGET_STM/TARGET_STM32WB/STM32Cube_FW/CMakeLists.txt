@@ -1,9 +1,10 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_sources(mbed-core
+add_library(mbed-stm32wbcube-fw INTERFACE)
+
+target_sources(mbed-stm32wbcube-fw
     INTERFACE
-        otp.c
         STM32WBxx_HAL_Driver/stm32wbxx_hal.c
         STM32WBxx_HAL_Driver/stm32wbxx_hal_adc.c
         STM32WBxx_HAL_Driver/stm32wbxx_hal_adc_ex.c
@@ -73,11 +74,12 @@ target_sources(mbed-core
         STM32WBxx_HAL_Driver/stm32wbxx_ll_usart.c
         STM32WBxx_HAL_Driver/stm32wbxx_ll_usb.c
         STM32WBxx_HAL_Driver/stm32wbxx_ll_utils.c
-        stm32_lpm_if.c
         system_stm32wbxx.c
+        otp.c
+        stm32_lpm_if.c
 )
 
-target_include_directories(mbed-core
+target_include_directories(mbed-stm32wbcube-fw
     INTERFACE
         .
         CMSIS

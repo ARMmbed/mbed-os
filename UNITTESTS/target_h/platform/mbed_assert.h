@@ -41,9 +41,7 @@ extern "C" {
  */
 // mbed_assert_internal UT stub only prints an assert trace and returns, so therefore
 // MBED_NORETURN must not be defined for UTs.
-#ifndef UNITTEST
 MBED_NORETURN
-#endif
 void mbed_assert_internal(const char *expr, const char *file, int line);
 
 #ifdef __cplusplus

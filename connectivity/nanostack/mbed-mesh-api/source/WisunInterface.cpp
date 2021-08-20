@@ -98,6 +98,16 @@ nsapi_error_t WisunInterface::configure()
     }
 #endif
 
+#if (MBED_CONF_MBED_MESH_API_WISUN_PHY_MODE_ID != 255) || (MBED_CONF_MBED_MESH_API_WISUN_CHANNEL_PLAN_ID != 255)
+    status = set_network_domain_configuration(MBED_CONF_MBED_MESH_API_WISUN_REGULATORY_DOMAIN,
+                                              MBED_CONF_MBED_MESH_API_WISUN_PHY_MODE_ID,
+                                              MBED_CONF_MBED_MESH_API_WISUN_CHANNEL_PLAN_ID);
+    if (status != MESH_ERROR_NONE) {
+        tr_error("Failed to set domain configuration!");
+        return NSAPI_ERROR_PARAMETER;
+    }
+#endif
+
 #if (MBED_CONF_MBED_MESH_API_WISUN_UC_CHANNEL_FUNCTION != 255)
     status = set_unicast_channel_function(static_cast<mesh_channel_function_t>(MBED_CONF_MBED_MESH_API_WISUN_UC_CHANNEL_FUNCTION),
                                           MBED_CONF_MBED_MESH_API_WISUN_UC_FIXED_CHANNEL,
@@ -301,6 +311,36 @@ mesh_error_t WisunInterface::get_network_regulatory_domain(uint8_t *regulatory_d
 mesh_error_t WisunInterface::validate_network_regulatory_domain(uint8_t regulatory_domain, uint8_t operating_class, uint8_t operating_mode)
 {
     int status = ws_management_regulatory_domain_validate(get_interface_id(), regulatory_domain, operating_class, operating_mode);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::set_network_domain_configuration(uint8_t regulatory_domain, uint8_t phy_mode_id, uint8_t channel_plan_id)
+{
+    int status = ws_management_domain_configuration_set(get_interface_id(), regulatory_domain, phy_mode_id, channel_plan_id);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::get_network_domain_configuration(uint8_t *regulatory_domain, uint8_t *phy_mode_id, uint8_t *channel_plan_id)
+{
+    int status = ws_management_domain_configuration_get(get_interface_id(), regulatory_domain, phy_mode_id, channel_plan_id);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::validate_network_domain_configuration(uint8_t regulatory_domain, uint8_t phy_mode_id, uint8_t channel_plan_id)
+{
+    int status = ws_management_domain_configuration_validate(get_interface_id(), regulatory_domain, phy_mode_id, channel_plan_id);
     if (status != 0) {
         return MESH_ERROR_UNKNOWN;
     }
@@ -565,6 +605,16 @@ mesh_error_t WisunInterface::enable_statistics(void)
     return ret_val;
 }
 
+mesh_error_t WisunInterface::reset_statistics(void)
+{
+    mesh_error_t ret_val = MESH_ERROR_NONE;
+    int status = wisun_tasklet_statistics_reset();
+    if (status < 0) {
+        ret_val = MESH_ERROR_UNKNOWN;
+    }
+    return ret_val;
+}
+
 mesh_error_t WisunInterface::read_nw_statistics(mesh_nw_statistics_t *statistics)
 {
     mesh_error_t ret_val = MESH_ERROR_NONE;
@@ -683,6 +733,19 @@ mesh_error_t WisunInterface::cca_threshold_table_get(ws_cca_threshold_table_t *t
         return MESH_ERROR_UNKNOWN;
     }
 
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::nbr_info_get(ws_nbr_info_t *nbr_ptr, uint16_t *count)
+{
+    uint16_t nbr_count;
+
+    if (count == NULL) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    nbr_count = ws_neighbor_info_get(get_interface_id(), (ws_neighbour_info_t *)nbr_ptr, *count);
+    *count = nbr_count;
     return MESH_ERROR_NONE;
 }
 

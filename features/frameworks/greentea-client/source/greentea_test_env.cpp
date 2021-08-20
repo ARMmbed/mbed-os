@@ -240,22 +240,6 @@ static void greentea_write_postamble()
 }
 
 /**
- * \brief Write a string to the serial port
- *
- *        This function writes a '\0' terminated string from the target
- *        to the host. It writes directly to the serial port using the
- *        the write() method.
- *
- * \param str - string value
- *
- */
-void greentea_write_string(const char *str)
-{
-    write(STDOUT_FILENO, str, strlen(str));
-}
-
-
-/**
  * \brief Write an int to the serial port
  *
  *        This function writes an integer value from the target
@@ -284,7 +268,7 @@ static void greentea_write_int(const int val)
  * \brief Encapsulate and send key-value message from DUT to host
  *
  *        This function uses underlying functions to write directly
- *        to the serial port, (USBTX). This allows KVs to be used
+ *        to the serial port, (CONSOLE_TX). This allows KVs to be used
  *        from within interrupt context.
  *
  * \param key Message key (message/event name)
@@ -305,7 +289,7 @@ extern "C" void greentea_send_kv(const char *key, const char *val) {
  * \brief Encapsulate and send key-value message from DUT to host
  *
  *        This function uses underlying functions to write directly
- *        to the serial port, (USBTX). This allows KVs to be used
+ *        to the serial port, (CONSOLE_TX). This allows KVs to be used
  *        from within interrupt context.
  *        Last value is an integer to avoid integer to string conversion
  *        made by the user.
@@ -328,7 +312,7 @@ void greentea_send_kv(const char *key, const int val) {
  * \brief Encapsulate and send key-value-value message from DUT to host
  *
  *        This function uses underlying functions to write directly
- *        to the serial port, (USBTX). This allows KVs to be used
+ *        to the serial port, (CONSOLE_TX). This allows KVs to be used
  *        from within interrupt context.
  *        Last value is an integer to avoid integer to string conversion
  *        made by the user.
@@ -355,7 +339,7 @@ void greentea_send_kv(const char *key, const char *val, const int result) {
  * \brief Encapsulate and send key-value-value-value message from DUT to host
  *
  *        This function uses underlying functions to write directly
- *        to the serial port, (USBTX). This allows KVs to be used
+ *        to the serial port, (CONSOLE_TX). This allows KVs to be used
  *        from within interrupt context.
  *        Last 2 values are integers to avoid integer to string conversion
  *        made by the user.
@@ -389,7 +373,7 @@ void greentea_send_kv(const char *key, const char *val, const int passes, const 
  * \brief Encapsulate and send key-value-value message from DUT to host
  *
  *        This function uses underlying functions to write directly
- *        to the serial port, (USBTX). This allows key-value-value to be used
+ *        to the serial port, (CONSOLE_TX). This allows key-value-value to be used
  *        from within interrupt context.
  *        Both values are integers to avoid integer to string conversion
  *        made by the user.
@@ -535,40 +519,6 @@ enum Token {
     tok_semicolon = -4,
     tok_string = -5
 };
-
-/**
- * \brief Read character from stream of data
- *
- *        Closure for default "get character" function.
- *        This function is used to read characters from the stream
- *        (default is serial port RX). Key-value protocol tokenizer
- *        will build stream of tokes used by key-value protocol to
- *        detect valid messages.
- *
- *        If EOF is received parser finishes parsing and stops. In
- *        situation where we have serial port stream of data parsing
- *        goes forever.
- *
- * \return Next character from the stream or EOF if stream has ended.
- *
- */
-extern "C" int greentea_getc() {
-    uint8_t c;
-    read(STDOUT_FILENO, &c, 1);
-    return c;
-}
-
-
-/**
- * \brief Write character from stream of data
- *
- * \return The number of bytes written
- *
- */
-extern "C" void greentea_putc(int c) {
-    uint8_t _c = c;
-    write(STDOUT_FILENO, &_c, 1);
-}
 
 /**
  * \brief parse input string for key-value pairs: {{key;value}}

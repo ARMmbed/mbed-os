@@ -12,6 +12,11 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
         "-mcpu=cortex-m4"
         "-mfpu=none"
     )
+#Necessary as the linker does not always detect
+#the architecture from the objectfiles correctly.
+    list(APPEND link_options
+        "--cpu=Cortex-M4.no_fp"
+    )
 endif()
 
 function(mbed_set_cpu_core_definitions target)
@@ -20,6 +25,5 @@ function(mbed_set_cpu_core_definitions target)
             __CORTEX_M4
             ARM_MATH_CM4
             __CMSIS_RTOS
-            __MBED_CMSIS_RTOS_CM
     )
 endfunction()

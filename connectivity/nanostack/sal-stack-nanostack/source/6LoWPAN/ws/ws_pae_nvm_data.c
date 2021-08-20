@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited and affiliates.
+ * Copyright (c) 2019-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -67,7 +67,7 @@ void ws_pae_nvm_store_generic_tlv_free(nvm_tlv_t *tlv_entry)
     ns_dyn_mem_free(tlv_entry);
 }
 
-void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry, uint16_t pan_id, char *nw_name, sec_prot_gtk_keys_t *gtks)
+void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry, uint16_t pan_id, char *nw_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks)
 {
     int len;
     tlv_entry->tag = PAE_NVM_NW_INFO_TAG;
@@ -86,6 +86,9 @@ void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry, uint16_t 
     }
     memcpy((char *)tlv, nw_name, len);
     tlv += 33;
+
+    memcpy((char *)tlv, gtk_eui64, 8);
+    tlv += 8;
 
     uint64_t current_time = ws_pae_current_time_get();
 
@@ -119,7 +122,7 @@ void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry, uint16_t 
 
 }
 
-int8_t ws_pae_nvm_store_nw_info_tlv_read(nw_info_nvm_tlv_t *tlv_entry, uint16_t *pan_id, char *nw_name, sec_prot_gtk_keys_t *gtks)
+int8_t ws_pae_nvm_store_nw_info_tlv_read(nw_info_nvm_tlv_t *tlv_entry, uint16_t *pan_id, char *nw_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks)
 {
     if (!tlv_entry || !pan_id || !nw_name) {
         return -1;
@@ -143,6 +146,9 @@ int8_t ws_pae_nvm_store_nw_info_tlv_read(nw_info_nvm_tlv_t *tlv_entry, uint16_t 
         strncpy(nw_name, (char *) tlv, 32);
     }
     tlv += 33;
+
+    memcpy(gtk_eui64, (char *)tlv, 8);
+    tlv += 8;
 
     uint64_t current_time = ws_pae_current_time_get();
 

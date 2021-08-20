@@ -1,7 +1,9 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_sources(mbed-core
+add_library(mbed-stm32l5cube-fw INTERFACE)
+
+target_sources(mbed-stm32l5cube-fw
     INTERFACE
         STM32L5xx_HAL_Driver/stm32l5xx_hal.c
         STM32L5xx_HAL_Driver/stm32l5xx_hal_adc.c
@@ -59,6 +61,7 @@ target_sources(mbed-core
         STM32L5xx_HAL_Driver/stm32l5xx_hal_smartcard.c
         STM32L5xx_HAL_Driver/stm32l5xx_hal_smartcard_ex.c
         STM32L5xx_HAL_Driver/stm32l5xx_hal_smbus.c
+        STM32L5xx_HAL_Driver/stm32l5xx_hal_smbus_ex.c
         STM32L5xx_HAL_Driver/stm32l5xx_hal_spi.c
         STM32L5xx_HAL_Driver/stm32l5xx_hal_spi_ex.c
         STM32L5xx_HAL_Driver/stm32l5xx_hal_sram.c
@@ -80,6 +83,7 @@ target_sources(mbed-core
         STM32L5xx_HAL_Driver/stm32l5xx_ll_fmc.c
         STM32L5xx_HAL_Driver/stm32l5xx_ll_gpio.c
         STM32L5xx_HAL_Driver/stm32l5xx_ll_i2c.c
+        STM32L5xx_HAL_Driver/stm32l5xx_ll_icache.c
         STM32L5xx_HAL_Driver/stm32l5xx_ll_lptim.c
         STM32L5xx_HAL_Driver/stm32l5xx_ll_lpuart.c
         STM32L5xx_HAL_Driver/stm32l5xx_ll_opamp.c
@@ -98,7 +102,7 @@ target_sources(mbed-core
         system_stm32l5xx.c
 )
 
-target_include_directories(mbed-core
+target_include_directories(mbed-stm32l5cube-fw
     INTERFACE
         .
         CMSIS

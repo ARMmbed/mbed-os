@@ -197,7 +197,7 @@ private:
     void _write_enable(bool enable);
     int _sync(void);
     int _write_page(const uint8_t *buffer, uint32_t addr, uint32_t offset, uint32_t size);
-    uint32_t _translate_address(bd_addr_t addr);
+    uint32_t _translate_address(mbed::bd_addr_t addr);
 
     // Mutex for thread safety
     mutable PlatformMutex _mutex;

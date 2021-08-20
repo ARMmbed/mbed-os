@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited and affiliates.
+ * Copyright (c) 2019-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -63,7 +63,7 @@ typedef struct ns_monitor__s {
 
 static ns_monitor_t *ns_monitor_ptr = NULL;
 
-static uint8_t ns_dyn_mem_rate_limiting_threshold_percentage = 0; // Percentage of free memory required to allow routing
+static ns_mem_heap_size_t ns_dyn_mem_rate_limiting_threshold = 0; // amount of free memory required to allow routing 0 = disabled
 
 typedef void (ns_maintenance_gc_cb)(bool full_gc);
 
@@ -176,32 +176,75 @@ int ns_monitor_clear(void)
     return -1;
 }
 
-int ns_monitor_heap_gc_threshold_set(uint8_t percentage_high, uint8_t percentage_critical)
+int ns_monitor_heap_gc_threshold_set(uint32_t high_min, uint32_t high_max, uint8_t high_percentage, uint32_t critical_min, uint32_t critical_max, uint8_t critical_percentage)
 {
-    if (ns_monitor_ptr && (percentage_critical <= 100) && (percentage_high < percentage_critical)) {
+    if (ns_monitor_ptr && (critical_percentage <= 100) && (high_percentage < critical_percentage)) {
         ns_monitor_ptr->heap_high_watermark = SET_WATERMARK(
                                                   ns_monitor_ptr->mem_stats->heap_sector_size,
-                                                  percentage_high
+                                                  high_percentage
                                               );
+        if (ns_monitor_ptr->mem_stats->heap_sector_size - ns_monitor_ptr->heap_high_watermark < high_min) {
+            ns_monitor_ptr->heap_high_watermark = ns_monitor_ptr->mem_stats->heap_sector_size - high_min;
+        }
+
+        if (high_max && ns_monitor_ptr->mem_stats->heap_sector_size - ns_monitor_ptr->heap_high_watermark > high_max) {
+            ns_monitor_ptr->heap_high_watermark = ns_monitor_ptr->mem_stats->heap_sector_size - high_max;
+        }
+
         ns_monitor_ptr->heap_critical_watermark = SET_WATERMARK(
                                                       ns_monitor_ptr->mem_stats->heap_sector_size,
-                                                      percentage_critical
+                                                      critical_percentage
                                                   );
-        tr_debug("Monitor set high:%lu, critical:%lu total:%lu", (unsigned long)ns_monitor_ptr->heap_high_watermark, (unsigned long)ns_monitor_ptr->heap_critical_watermark, (unsigned long)ns_monitor_ptr->mem_stats->heap_sector_size);
+        if (ns_monitor_ptr->mem_stats->heap_sector_size - ns_monitor_ptr->heap_critical_watermark < critical_min) {
+            ns_monitor_ptr->heap_critical_watermark = ns_monitor_ptr->mem_stats->heap_sector_size - critical_min;
+        }
+
+        if (critical_max && ns_monitor_ptr->mem_stats->heap_sector_size - ns_monitor_ptr->heap_critical_watermark > critical_max) {
+            ns_monitor_ptr->heap_critical_watermark = ns_monitor_ptr->mem_stats->heap_sector_size - critical_max;
+        }
+
+        tr_info("Monitor set high:%lu, critical:%lu total:%lu", (unsigned long)ns_monitor_ptr->heap_high_watermark, (unsigned long)ns_monitor_ptr->heap_critical_watermark, (unsigned long)ns_monitor_ptr->mem_stats->heap_sector_size);
         return 0;
     }
 
     return -1;
 }
 
-int ns_monitor_packet_ingress_rate_limit_by_memory(uint8_t free_heap_percentage)
+int ns_monitor_packet_ingress_rate_limit_by_memory(uint32_t minimum_required, uint32_t Maximum_allowed, uint8_t free_heap_percentage)
 {
-    if (free_heap_percentage < 100) {
-        ns_dyn_mem_rate_limiting_threshold_percentage = free_heap_percentage;
+    /* To make this function dynamic and useful in larger range of memories the minimum value can be given
+     *
+     * example limit(1024, 1)
+     * 32k RAM      Limit = 1024
+     * 64k RAM      Limit = 1024
+     * 128k RAM     Limit = 1280
+     * 320k RAM     Limit = 3200
+    */
+    if (free_heap_percentage == 0 && minimum_required == 0) {
+        // Disable rate limiting
+        ns_dyn_mem_rate_limiting_threshold = 0;
         return 0;
     }
+    if (free_heap_percentage > 100) {
+        // Sanity check this should not be high at all, but dont want to limit without any good reason
+        return -1;
+    }
 
-    return -1;
+    const mem_stat_t *ns_dyn_mem_stat = ns_dyn_mem_get_mem_stat();
+    if (ns_dyn_mem_stat && free_heap_percentage) {
+        ns_dyn_mem_rate_limiting_threshold = ns_dyn_mem_stat->heap_sector_size / 100 * free_heap_percentage;
+    }
+
+    if (ns_dyn_mem_rate_limiting_threshold < minimum_required) {
+        ns_dyn_mem_rate_limiting_threshold = minimum_required;
+    }
+
+    if (Maximum_allowed && ns_dyn_mem_rate_limiting_threshold > Maximum_allowed) {
+        ns_dyn_mem_rate_limiting_threshold = Maximum_allowed;
+    }
+    tr_info("Monitor rate limit incoming packets at:%lu", (unsigned long)ns_dyn_mem_rate_limiting_threshold);
+
+    return 0;
 }
 
 bool ns_monitor_packet_allocation_allowed(void)
@@ -212,8 +255,8 @@ bool ns_monitor_packet_allocation_allowed(void)
 
     const mem_stat_t *ns_dyn_mem_stat = ns_dyn_mem_get_mem_stat();
 
-    if (ns_dyn_mem_stat && ns_dyn_mem_rate_limiting_threshold_percentage) {
-        if (ns_dyn_mem_stat->heap_sector_allocated_bytes > ns_dyn_mem_stat->heap_sector_size / 100 * (100 - ns_dyn_mem_rate_limiting_threshold_percentage)) {
+    if (ns_dyn_mem_stat && ns_dyn_mem_rate_limiting_threshold) {
+        if (ns_dyn_mem_stat->heap_sector_size - ns_dyn_mem_stat->heap_sector_allocated_bytes < ns_dyn_mem_rate_limiting_threshold) {
             // Packet allocation not allowed as memory is running low.
             return false;
         }

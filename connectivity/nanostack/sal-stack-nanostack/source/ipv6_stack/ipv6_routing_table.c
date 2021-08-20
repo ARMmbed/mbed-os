@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2019, Arm Limited and affiliates.
+ * Copyright (c) 2012-2019, 2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -96,7 +96,7 @@ static NS_LIST_DEFINE(ipv6_routing_table, ipv6_route_t, link);
 static ipv6_destination_t *ipv6_destination_lookup(const uint8_t *address, int8_t interface_id);
 static void ipv6_destination_cache_forget_router(ipv6_neighbour_cache_t *cache, const uint8_t neighbour_addr[16]);
 static void ipv6_destination_cache_forget_neighbour(const ipv6_neighbour_t *neighbour);
-static void ipv6_destination_release(ipv6_destination_t *dest);
+static bool ipv6_destination_release(ipv6_destination_t *dest);
 static void ipv6_route_table_remove_router(int8_t interface_id, const uint8_t *addr, ipv6_route_src_t source);
 static uint16_t total_metric(const ipv6_route_t *route);
 static uint8_t ipv6_route_table_count_source(int8_t interface_id, ipv6_route_src_t source);
@@ -481,6 +481,16 @@ bool ipv6_neighbour_has_registered_by_eui64(ipv6_neighbour_cache_t *cache, const
     return false;
 }
 
+ipv6_neighbour_t *ipv6_neighbour_get_registered_by_eui64(ipv6_neighbour_cache_t *cache, const uint8_t *eui64)
+{
+    ns_list_foreach_safe(ipv6_neighbour_t, cur, &cache->list) {
+        if (cur->type != IP_NEIGHBOUR_GARBAGE_COLLECTIBLE && memcmp(ipv6_neighbour_eui64(cache, cur), eui64, 8) == 0) {
+            return cur;
+        }
+    }
+    return NULL;
+}
+
 void ipv6_neighbour_set_state(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, ip_neighbour_cache_state_t state)
 {
     if (!ipv6_neighbour_state_is_probably_reachable(entry->state) &&
@@ -863,7 +873,7 @@ void ipv6_destination_cache_print(route_print_fn_t *print_fn)
     print_fn("Destination Cache:");
     ns_list_foreach(ipv6_destination_t, entry, &ipv6_destination_cache) {
         ROUTE_PRINT_ADDR_STR_BUFFER_INIT(addr_str);
-        print_fn(" %s (life %u)", ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, entry->destination), entry->lifetime);
+        print_fn(" %s (%d id) (life %u)", ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, entry->destination), entry->interface_id, entry->lifetime);
 #ifdef HAVE_IPV6_ND
         if (entry->redirected) {
             print_fn("     Redirect %s%%%u", ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, entry->redirect_addr), entry->interface_id);
@@ -939,7 +949,6 @@ ipv6_destination_t *ipv6_destination_lookup_or_create(const uint8_t *address, in
     if (!entry) {
         if (count > destination_cache_config.max_entries) {
             entry = ns_list_get_last(&ipv6_destination_cache);
-            ns_list_remove(&ipv6_destination_cache, entry);
             ipv6_destination_release(entry);
         }
 
@@ -1082,18 +1091,31 @@ void ipv6_destination_cache_forced_gc(bool full_gc)
      **/
     ns_list_foreach_reverse_safe(ipv6_destination_t, entry, &ipv6_destination_cache) {
         if (entry->lifetime == 0 || gc_count > destination_cache_config.long_term_entries || full_gc) {
-            ns_list_remove(&ipv6_destination_cache, entry);
-            ipv6_destination_release(entry);
-            gc_count--;
+            if (ipv6_destination_release(entry)) {
+                gc_count--;
+            }
         }
     }
 }
 
-static void ipv6_destination_release(ipv6_destination_t *dest)
+void ipv6_destination_cache_clean(int8_t interface_id)
+{
+    ns_list_foreach_reverse_safe(ipv6_destination_t, entry, &ipv6_destination_cache) {
+        if (entry->interface_id == interface_id) {
+            ipv6_destination_release(entry);
+        }
+    }
+}
+
+static bool ipv6_destination_release(ipv6_destination_t *dest)
 {
     if (--dest->refcount == 0) {
+        ns_list_remove(&ipv6_destination_cache, dest);
+        tr_debug("Destination cache remove: %s", trace_ipv6(dest->destination));
         ns_dyn_mem_free(dest);
+        return true;
     }
+    return false;
 }
 
 static void ipv6_destination_cache_gc_periodic(void)
@@ -1137,9 +1159,11 @@ static void ipv6_destination_cache_gc_periodic(void)
      */
     ns_list_foreach_reverse_safe(ipv6_destination_t, entry, &ipv6_destination_cache) {
         if (entry->lifetime == 0 || gc_count > destination_cache_config.short_term_entries) {
-            ns_list_remove(&ipv6_destination_cache, entry);
-            ipv6_destination_release(entry);
-            if (--gc_count <= destination_cache_config.long_term_entries) {
+            if (ipv6_destination_release(entry)) {
+                gc_count--;
+            }
+
+            if (gc_count <= destination_cache_config.long_term_entries) {
                 break;
             }
         }
@@ -1193,17 +1217,6 @@ static const bool ipv6_route_probing[ROUTE_MAX] = {
     [ROUTE_RPL_DIO] = true,
     [ROUTE_RPL_ROOT] = true,
     [ROUTE_RPL_INSTANCE] = true,
-};
-
-/* Which route types get minimum link MTU by default */
-/* Makes life easier for tunnel-based systems like RPL */
-static const bool ipv6_route_min_mtu[ROUTE_MAX] = {
-    [ROUTE_RPL_DAO] = true,
-    [ROUTE_RPL_DAO_SR] = true,
-    [ROUTE_RPL_DIO] = true,
-    [ROUTE_RPL_ROOT] = true,
-    [ROUTE_RPL_INSTANCE] = true,
-    [ROUTE_MPL] = true,
 };
 
 // Remember when a route source has deleted an entry - allows buffers still in
@@ -1647,7 +1660,7 @@ ipv6_route_t *ipv6_route_add_metric(const uint8_t *prefix, uint8_t prefix_len, i
         route->info.info = info;
         route->info.source_id = source_id;
         route->info.interface_id = interface_id;
-        route->info.pmtu = ipv6_route_min_mtu[source] ? IPV6_MIN_LINK_MTU : 0xFFFF;
+        route->info.pmtu = 0xFFFF;
         if (next_hop) {
             route->on_link = false;
             memcpy(route->info.next_hop_addr, next_hop, 16);

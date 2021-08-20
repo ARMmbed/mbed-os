@@ -80,7 +80,7 @@ This feature will be implemented in different phases as follow:
 
 Phase 1 (5.12 Release):
 1. Adopt 2-region memory model for Stack and Heap memory.
-1. Unify the stack size accross all targets (RTOS: ISR stack - 1K Main thread Stack - 4K; Bare Metal(No RTOS) ISR/Main Stack - 4K)
+1. Unify the stack size across all targets (RTOS: ISR stack - 1K Main thread Stack - 4K; Bare Metal(No RTOS) ISR/Main Stack - 4K)
 
 Phase 2:
 1. Heap memory to be dynamic and starts at the end of ZI growing up till end of RAM memory (In case of single RAM bank)

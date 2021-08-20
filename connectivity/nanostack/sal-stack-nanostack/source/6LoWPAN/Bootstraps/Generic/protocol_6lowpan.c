@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, Arm Limited and affiliates.
+ * Copyright (c) 2013-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -83,7 +83,10 @@
 #define TRACE_GROUP "6lo"
 
 /* Data rate for application used in Stagger calculation */
-#define STAGGER_DATARATE_FOR_APPL(n) ((n)*25/100)
+#define STAGGER_DATARATE_FOR_APPL(n) ((n)*75/100)
+
+/* Time after network is considered stable and smaller stagger values can be given*/
+#define STAGGER_STABLE_NETWORK_TIME 3600*4
 
 #ifdef HAVE_RPL
 rpl_domain_t *protocol_6lowpan_rpl_domain;
@@ -839,7 +842,7 @@ bool protocol_6lowpan_stagger_estimate_get(int8_t interface_id, uint32_t data_am
         datarate = 250000;
     } else if (ws_info(cur_interface)) {
         network_size = ws_common_network_size_estimate_get(cur_interface);
-        datarate = ws_common_datarate_get(cur_interface);
+        datarate = ws_common_usable_application_datarate_get(cur_interface);
     } else {
         // 6LoWPAN ND
         network_size = 1000;
@@ -850,12 +853,29 @@ bool protocol_6lowpan_stagger_estimate_get(int8_t interface_id, uint32_t data_am
         // If no data amount given, use 1kB
         data_amount = 1;
     }
+    if (datarate < 25000) {
+        // Minimum data rate used in calculations is 25kbs to prevent invalid values
+        datarate = 25000;
+    }
 
     /*
      * Do not occupy whole bandwidth, leave space for network formation etc...
      */
-    datarate = STAGGER_DATARATE_FOR_APPL(datarate);
-    stagger_value = 1 + ((data_amount * 1024 * 8 * network_size) / datarate);
+    if (ws_info(cur_interface) &&
+            (ws_common_connected_time_get(cur_interface) > STAGGER_STABLE_NETWORK_TIME || ws_common_authentication_time_get(cur_interface) == 0)) {
+        // After four hours of network connected full bandwidth is given to application
+        // Authentication has not been required during bootstrap so network load is much smaller
+    } else {
+        // Smaller data rate allowed as we have just joined to the network and Authentication was made
+        datarate = STAGGER_DATARATE_FOR_APPL(datarate);
+    }
+
+    // For small networks sets 10 seconds stagger
+    if (network_size <= 100 && ws_info(cur_interface)) {
+        stagger_value = 10;
+    } else {
+        stagger_value = 1 + ((data_amount * 1024 * 8 * network_size) / datarate);
+    }
     /**
      * Example:
      * Maximum stagger value to send 1kB to 100 device network using data rate of 50kbs:
@@ -867,7 +887,7 @@ bool protocol_6lowpan_stagger_estimate_get(int8_t interface_id, uint32_t data_am
     if (stagger_value > 0xFFFF) {
         *stagger_max = 0xFFFF;
     } else {
-        *stagger_max = (uint16_t)stagger_value;
+        *stagger_max = (uint16_t)stagger_value + *stagger_min;
     }
 
     // Randomize stagger value

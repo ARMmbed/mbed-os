@@ -110,8 +110,8 @@
 /* Private constants ---------------------------------------------------------*/
 
 /** @defgroup GTZC_Private_Constants GTZC Private Constants
- * @{
- */
+  * @{
+  */
 
 /* Definitions for GTZC_TZSC_MPCWM */
 #define GTZC_TZSC_MPCWM1_MEM_SIZE      0x10000000U    /* 256MB max size */
@@ -153,25 +153,25 @@
 /* Private macros ------------------------------------------------------------*/
 
 /** @defgroup GTZC_Private_Macros GTZC Private Macros
- * @{
- */
+  * @{
+  */
 
 #define IS_ADDRESS_IN(mem, address)\
-(   (   ( (uint32_t)(address) >= (uint32_t)GTZC_BASE_ADDRESS_NS(mem) )                                \
-     && ( (uint32_t)(address) < ((uint32_t)GTZC_BASE_ADDRESS_NS(mem) + (uint32_t)GTZC_MEM_SIZE(mem) ) ) )  \
- || (   ( (uint32_t)(address) >= (uint32_t)GTZC_BASE_ADDRESS_S(mem) )                                \
-     && ( (uint32_t)(address) < ((uint32_t)GTZC_BASE_ADDRESS_S(mem) + (uint32_t)GTZC_MEM_SIZE(mem) ) ) ) )
+  (   (   ( (uint32_t)(address) >= (uint32_t)GTZC_BASE_ADDRESS_NS(mem) )                                \
+          && ( (uint32_t)(address) < ((uint32_t)GTZC_BASE_ADDRESS_NS(mem) + (uint32_t)GTZC_MEM_SIZE(mem) ) ) )  \
+      || (   ( (uint32_t)(address) >= (uint32_t)GTZC_BASE_ADDRESS_S(mem) )                                \
+             && ( (uint32_t)(address) < ((uint32_t)GTZC_BASE_ADDRESS_S(mem) + (uint32_t)GTZC_MEM_SIZE(mem) ) ) ) )
 
 #define IS_ADDRESS_IN_S(mem, address)\
-(   ( (uint32_t)(address) >= (uint32_t)GTZC_BASE_ADDRESS_S(mem) )                                \
- && ( (uint32_t)(address) < ((uint32_t)GTZC_BASE_ADDRESS_S(mem) + (uint32_t)GTZC_MEM_SIZE(mem) ) ) )
+  (   ( (uint32_t)(address) >= (uint32_t)GTZC_BASE_ADDRESS_S(mem) )                                \
+      && ( (uint32_t)(address) < ((uint32_t)GTZC_BASE_ADDRESS_S(mem) + (uint32_t)GTZC_MEM_SIZE(mem) ) ) )
 
 #define IS_ADDRESS_IN_NS(mem, address)\
-(   ( (uint32_t)(address) >= (uint32_t)GTZC_BASE_ADDRESS_NS(mem) )                                \
- && ( (uint32_t)(address) < ((uint32_t)GTZC_BASE_ADDRESS_NS(mem) + (uint32_t)GTZC_MEM_SIZE(mem) ) ) )
+  (   ( (uint32_t)(address) >= (uint32_t)GTZC_BASE_ADDRESS_NS(mem) )                                \
+      && ( (uint32_t)(address) < ((uint32_t)GTZC_BASE_ADDRESS_NS(mem) + (uint32_t)GTZC_MEM_SIZE(mem) ) ) )
 
 #define GTZC_BASE_ADDRESS(mem)\
-( mem ## _BASE )
+  ( mem ## _BASE )
 
 /**
   * @}
@@ -219,10 +219,9 @@ HAL_StatusTypeDef HAL_GTZC_TZSC_ConfigPeriphAttributes(uint32_t PeriphId,
   uint32_t register_address;
 
   /* check entry parameters */
-  if (   (PeriphAttributes > (GTZC_TZSC_PERIPH_SEC | GTZC_TZSC_PERIPH_PRIV))
-      || (  HAL_GTZC_GET_ARRAY_INDEX(PeriphId) >= GTZC_TZSC_PERIPH_NUMBER)
-      || (   ((PeriphId & GTZC_PERIPH_ALL) != 0U)
-          && (HAL_GTZC_GET_ARRAY_INDEX(PeriphId) != 0U)))
+  if ((PeriphAttributes > (GTZC_TZSC_PERIPH_SEC | GTZC_TZSC_PERIPH_PRIV))
+      || (HAL_GTZC_GET_ARRAY_INDEX(PeriphId) >= GTZC_TZSC_PERIPH_NUMBER)
+      || (((PeriphId & GTZC_PERIPH_ALL) != 0U) && (HAL_GTZC_GET_ARRAY_INDEX(PeriphId) != 0U)))
   {
     return HAL_ERROR;
   }
@@ -271,8 +270,7 @@ HAL_StatusTypeDef HAL_GTZC_TZSC_ConfigPeriphAttributes(uint32_t PeriphId,
 
 #if defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
     /* secure configuration */
-    register_address =   (uint32_t)&(GTZC_TZSC->SECCFGR1)
-                       + (4U * GTZC_GET_REG_INDEX(PeriphId));
+    register_address = (uint32_t) &(GTZC_TZSC->SECCFGR1) + (4U * GTZC_GET_REG_INDEX(PeriphId));
     if ((PeriphAttributes & GTZC_TZSC_PERIPH_SEC) == GTZC_TZSC_PERIPH_SEC)
     {
       SET_BIT(*(__IO uint32_t *)register_address, 1UL << GTZC_GET_PERIPH_POS(PeriphId));
@@ -288,8 +286,7 @@ HAL_StatusTypeDef HAL_GTZC_TZSC_ConfigPeriphAttributes(uint32_t PeriphId,
 #endif /* defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) */
 
     /* privilege configuration */
-    register_address =   (uint32_t)&(GTZC_TZSC->PRIVCFGR1)
-                       + (4U * GTZC_GET_REG_INDEX(PeriphId));
+    register_address = (uint32_t) &(GTZC_TZSC->PRIVCFGR1) + (4U * GTZC_GET_REG_INDEX(PeriphId));
     if ((PeriphAttributes & GTZC_TZSC_PERIPH_PRIV) == GTZC_TZSC_PERIPH_PRIV)
     {
       SET_BIT(*(__IO uint32_t *)register_address, 1UL << GTZC_GET_PERIPH_POS(PeriphId));
@@ -326,10 +323,9 @@ HAL_StatusTypeDef HAL_GTZC_TZSC_GetConfigPeriphAttributes(uint32_t PeriphId,
   uint32_t register_address;
 
   /* check entry parameters */
-  if (   (PeriphAttributes == NULL)
-      || (  HAL_GTZC_GET_ARRAY_INDEX(PeriphId) >= GTZC_TZSC_PERIPH_NUMBER)
-      || (    ((PeriphId & GTZC_PERIPH_ALL) != 0U)
-           && (HAL_GTZC_GET_ARRAY_INDEX(PeriphId) != 0U)))
+  if ((PeriphAttributes == NULL)
+      || (HAL_GTZC_GET_ARRAY_INDEX(PeriphId) >= GTZC_TZSC_PERIPH_NUMBER)
+      || (((PeriphId & GTZC_PERIPH_ALL) != 0U) && (HAL_GTZC_GET_ARRAY_INDEX(PeriphId) != 0U)))
   {
     return HAL_ERROR;
   }
@@ -342,7 +338,7 @@ HAL_StatusTypeDef HAL_GTZC_TZSC_GetConfigPeriphAttributes(uint32_t PeriphId,
     reg_value = READ_REG(GTZC_TZSC->SECCFGR1);
     for (i = 0U; i < 32U; i++)
     {
-      if(((reg_value & (1UL << i)) >> i) != 0U)
+      if (((reg_value & (1UL << i)) >> i) != 0U)
       {
         PeriphAttributes[i] = GTZC_TZSC_PERIPH_SEC;
       }
@@ -355,7 +351,7 @@ HAL_StatusTypeDef HAL_GTZC_TZSC_GetConfigPeriphAttributes(uint32_t PeriphId,
     reg_value = READ_REG(GTZC_TZSC->SECCFGR2);
     for (/*i = 32U*/; i < GTZC_TZSC_PERIPH_NUMBER; i++)
     {
-      if(((reg_value & (1UL << (i - 32U))) >> (i - 32U)) != 0U)
+      if (((reg_value & (1UL << (i - 32U))) >> (i - 32U)) != 0U)
       {
         PeriphAttributes[i] = GTZC_TZSC_PERIPH_SEC;
       }
@@ -371,7 +367,7 @@ HAL_StatusTypeDef HAL_GTZC_TZSC_GetConfigPeriphAttributes(uint32_t PeriphId,
     reg_value = READ_REG(GTZC_TZSC->PRIVCFGR1);
     for (i = 0U; i < 32U; i++)
     {
-      if(((reg_value & (1UL << i)) >> i) != 0U)
+      if (((reg_value & (1UL << i)) >> i) != 0U)
       {
         PeriphAttributes[i] |= GTZC_TZSC_PERIPH_PRIV;
       }
@@ -384,7 +380,7 @@ HAL_StatusTypeDef HAL_GTZC_TZSC_GetConfigPeriphAttributes(uint32_t PeriphId,
     reg_value = READ_REG(GTZC_TZSC->PRIVCFGR2);
     for (/*i = 32U*/; i < GTZC_TZSC_PERIPH_NUMBER; i++)
     {
-      if(((reg_value & (1UL << (i - 32U))) >> (i - 32U)) != 0U)
+      if (((reg_value & (1UL << (i - 32U))) >> (i - 32U)) != 0U)
       {
         PeriphAttributes[i] |= GTZC_TZSC_PERIPH_PRIV;
       }
@@ -400,11 +396,10 @@ HAL_StatusTypeDef HAL_GTZC_TZSC_GetConfigPeriphAttributes(uint32_t PeriphId,
     /* common case where only one peripheral is configured */
 
     /* secure configuration */
-    register_address =   (uint32_t)&(GTZC_TZSC->SECCFGR1)
-                       + (4U * GTZC_GET_REG_INDEX(PeriphId));
+    register_address = (uint32_t) &(GTZC_TZSC->SECCFGR1) + (4U * GTZC_GET_REG_INDEX(PeriphId));
 
-    if(((READ_BIT(*(__IO uint32_t *)register_address,
-                  1UL << GTZC_GET_PERIPH_POS(PeriphId))) >> GTZC_GET_PERIPH_POS(PeriphId))
+    if (((READ_BIT(*(__IO uint32_t *)register_address,
+                   1UL << GTZC_GET_PERIPH_POS(PeriphId))) >> GTZC_GET_PERIPH_POS(PeriphId))
         != 0U)
     {
       *PeriphAttributes = GTZC_TZSC_PERIPH_SEC;
@@ -415,11 +410,10 @@ HAL_StatusTypeDef HAL_GTZC_TZSC_GetConfigPeriphAttributes(uint32_t PeriphId,
     }
 
     /* privilege configuration */
-    register_address =   (uint32_t)&(GTZC_TZSC->PRIVCFGR1)
-                       + (4U * GTZC_GET_REG_INDEX(PeriphId));
+    register_address = (uint32_t) &(GTZC_TZSC->PRIVCFGR1) + (4U * GTZC_GET_REG_INDEX(PeriphId));
 
-    if(((READ_BIT(*(__IO uint32_t *)register_address,
-                  1UL << GTZC_GET_PERIPH_POS(PeriphId))) >> GTZC_GET_PERIPH_POS(PeriphId))
+    if (((READ_BIT(*(__IO uint32_t *)register_address,
+                   1UL << GTZC_GET_PERIPH_POS(PeriphId))) >> GTZC_GET_PERIPH_POS(PeriphId))
         != 0U)
     {
       *PeriphAttributes |= GTZC_TZSC_PERIPH_PRIV;
@@ -459,9 +453,8 @@ HAL_StatusTypeDef HAL_GTZC_TZSC_GetConfigPeriphAttributes(uint32_t PeriphId,
   *         The structure description is available in @ref GTZC_Exported_Types.
   * @retval HAL status.
   */
-HAL_StatusTypeDef HAL_GTZC_TZSC_MPCWM_ConfigMemAttributes(
-                    uint32_t MemBaseAddress,
-                    MPCWM_ConfigTypeDef *pMPCWM_Desc)
+HAL_StatusTypeDef HAL_GTZC_TZSC_MPCWM_ConfigMemAttributes(uint32_t MemBaseAddress,
+                                                          MPCWM_ConfigTypeDef *pMPCWM_Desc)
 {
   uint32_t register_address;
   uint32_t reg_value;
@@ -470,11 +463,10 @@ HAL_StatusTypeDef HAL_GTZC_TZSC_MPCWM_ConfigMemAttributes(
   uint32_t length_pos, length_msk;
 
   /* check entry parameters */
-  if (   (pMPCWM_Desc->AreaId > GTZC_TZSC_MPCWM_ID2)
-      || (   (MemBaseAddress == FMC_BANK3)
-          && (pMPCWM_Desc->AreaId == GTZC_TZSC_MPCWM_ID2))
-      || ((   pMPCWM_Desc->Offset % GTZC_TZSC_MPCWM_GRANULARITY) != 0U)
-      || ((   pMPCWM_Desc->Length % GTZC_TZSC_MPCWM_GRANULARITY) != 0U))
+  if ((pMPCWM_Desc->AreaId > GTZC_TZSC_MPCWM_ID2)
+      || ((MemBaseAddress == FMC_BANK3) && (pMPCWM_Desc->AreaId == GTZC_TZSC_MPCWM_ID2))
+      || ((pMPCWM_Desc->Offset % GTZC_TZSC_MPCWM_GRANULARITY) != 0U)
+      || ((pMPCWM_Desc->Length % GTZC_TZSC_MPCWM_GRANULARITY) != 0U))
   {
     return HAL_ERROR;
   }
@@ -486,44 +478,44 @@ HAL_StatusTypeDef HAL_GTZC_TZSC_MPCWM_ConfigMemAttributes(
       size = GTZC_TZSC_MPCWM1_MEM_SIZE;
       if (pMPCWM_Desc->AreaId == GTZC_TZSC_MPCWM_ID1)
       {
-          register_address = (uint32_t)&(GTZC_TZSC_S->MPCWM1_NSWMR1);
-          start_pos = GTZC_TZSC_MPCWM1_NSWMR1_NSWM1STRT_Pos;
-          start_msk = GTZC_TZSC_MPCWM1_NSWMR1_NSWM1STRT_Msk;
-          length_pos = GTZC_TZSC_MPCWM1_NSWMR1_NSWM1LGTH_Pos;
-          length_msk = GTZC_TZSC_MPCWM1_NSWMR1_NSWM1LGTH_Msk;
+        register_address = (uint32_t) &(GTZC_TZSC_S->MPCWM1_NSWMR1);
+        start_pos = GTZC_TZSC_MPCWM1_NSWMR1_NSWM1STRT_Pos;
+        start_msk = GTZC_TZSC_MPCWM1_NSWMR1_NSWM1STRT_Msk;
+        length_pos = GTZC_TZSC_MPCWM1_NSWMR1_NSWM1LGTH_Pos;
+        length_msk = GTZC_TZSC_MPCWM1_NSWMR1_NSWM1LGTH_Msk;
       }
       else
       {
-          /* Here pMPCWM_Desc->AreaId == GTZC_TZSC_MPCWM_ID2
-           * (Parameter already checked)
-           */
-          register_address = (uint32_t)&(GTZC_TZSC_S->MPCWM1_NSWMR2);
-          start_pos = GTZC_TZSC_MPCWM1_NSWMR2_NSWM2STRT_Pos;
-          start_msk = GTZC_TZSC_MPCWM1_NSWMR2_NSWM2STRT_Msk;
-          length_pos = GTZC_TZSC_MPCWM1_NSWMR2_NSWM2LGTH_Pos;
-          length_msk = GTZC_TZSC_MPCWM1_NSWMR2_NSWM2LGTH_Msk;
+        /* Here pMPCWM_Desc->AreaId == GTZC_TZSC_MPCWM_ID2
+         * (Parameter already checked)
+         */
+        register_address = (uint32_t) &(GTZC_TZSC_S->MPCWM1_NSWMR2);
+        start_pos = GTZC_TZSC_MPCWM1_NSWMR2_NSWM2STRT_Pos;
+        start_msk = GTZC_TZSC_MPCWM1_NSWMR2_NSWM2STRT_Msk;
+        length_pos = GTZC_TZSC_MPCWM1_NSWMR2_NSWM2LGTH_Pos;
+        length_msk = GTZC_TZSC_MPCWM1_NSWMR2_NSWM2LGTH_Msk;
       }
       break;
     case FMC_BANK1:
       size = GTZC_TZSC_MPCWM1_MEM_SIZE;
       if (pMPCWM_Desc->AreaId == GTZC_TZSC_MPCWM_ID1)
       {
-          register_address = (uint32_t)&(GTZC_TZSC_S->MPCWM2_NSWMR1);
-          start_pos = GTZC_TZSC_MPCWM2_NSWMR1_NSWM1STRT_Pos;
-          start_msk = GTZC_TZSC_MPCWM2_NSWMR1_NSWM1STRT_Msk;
-          length_pos = GTZC_TZSC_MPCWM2_NSWMR1_NSWM1LGTH_Pos;
-          length_msk = GTZC_TZSC_MPCWM2_NSWMR1_NSWM1LGTH_Msk;
+        register_address = (uint32_t) &(GTZC_TZSC_S->MPCWM2_NSWMR1);
+        start_pos = GTZC_TZSC_MPCWM2_NSWMR1_NSWM1STRT_Pos;
+        start_msk = GTZC_TZSC_MPCWM2_NSWMR1_NSWM1STRT_Msk;
+        length_pos = GTZC_TZSC_MPCWM2_NSWMR1_NSWM1LGTH_Pos;
+        length_msk = GTZC_TZSC_MPCWM2_NSWMR1_NSWM1LGTH_Msk;
       }
       else
       {
-          /* Here pMPCWM_Desc->AreaId == GTZC_TZSC_MPCWM_ID2
-           * (Parameter already checked)
-           */
-          register_address = (uint32_t)&(GTZC_TZSC_S->MPCWM2_NSWMR2);
-          start_pos = GTZC_TZSC_MPCWM2_NSWMR2_NSWM2STRT_Pos;
-          start_msk = GTZC_TZSC_MPCWM2_NSWMR2_NSWM2STRT_Msk;
-          length_pos = GTZC_TZSC_MPCWM2_NSWMR2_NSWM2LGTH_Pos;
-          length_msk = GTZC_TZSC_MPCWM2_NSWMR2_NSWM2LGTH_Msk;
+        /* Here pMPCWM_Desc->AreaId == GTZC_TZSC_MPCWM_ID2
+         * (Parameter already checked)
+         */
+        register_address = (uint32_t) &(GTZC_TZSC_S->MPCWM2_NSWMR2);
+        start_pos = GTZC_TZSC_MPCWM2_NSWMR2_NSWM2STRT_Pos;
+        start_msk = GTZC_TZSC_MPCWM2_NSWMR2_NSWM2STRT_Msk;
+        length_pos = GTZC_TZSC_MPCWM2_NSWMR2_NSWM2LGTH_Pos;
+        length_msk = GTZC_TZSC_MPCWM2_NSWMR2_NSWM2LGTH_Msk;
       }
       break;
     case FMC_BANK3:
@@ -531,7 +523,7 @@ HAL_StatusTypeDef HAL_GTZC_TZSC_MPCWM_ConfigMemAttributes(
        * (Parameter already checked)
        */
       size = GTZC_TZSC_MPCWM3_MEM_SIZE;
-      register_address = (uint32_t)&(GTZC_TZSC_S->MPCWM3_NSWMR1);
+      register_address = (uint32_t) &(GTZC_TZSC_S->MPCWM3_NSWMR1);
       start_pos = GTZC_TZSC_MPCWM3_NSWMR1_NSWM1STRT_Pos;
       start_msk = GTZC_TZSC_MPCWM3_NSWMR1_NSWM1STRT_Msk;
       length_pos = GTZC_TZSC_MPCWM3_NSWMR1_NSWM1LGTH_Pos;
@@ -542,10 +534,8 @@ HAL_StatusTypeDef HAL_GTZC_TZSC_MPCWM_ConfigMemAttributes(
       break;
   }
 
-  if (   (pMPCWM_Desc->Offset > size)
-      || (   (   pMPCWM_Desc->Offset
-               + pMPCWM_Desc->Length)
-           > size))
+  if ((pMPCWM_Desc->Offset > size)
+      || ((pMPCWM_Desc->Offset + pMPCWM_Desc->Length) > size))
   {
     return HAL_ERROR;
   }
@@ -565,9 +555,8 @@ HAL_StatusTypeDef HAL_GTZC_TZSC_MPCWM_ConfigMemAttributes(
   *         The structure description is available in @ref GTZC_Exported_Types.
   * @retval HAL status.
   */
-HAL_StatusTypeDef HAL_GTZC_TZSC_MPCWM_GetConfigMemAttributes(
-                    uint32_t MemBaseAddress,
-                    MPCWM_ConfigTypeDef *pMPCWM_Desc)
+HAL_StatusTypeDef HAL_GTZC_TZSC_MPCWM_GetConfigMemAttributes(uint32_t MemBaseAddress,
+                                                             MPCWM_ConfigTypeDef *pMPCWM_Desc)
 {
   uint32_t register_address;
   uint32_t reg_value;
@@ -578,21 +567,21 @@ HAL_StatusTypeDef HAL_GTZC_TZSC_MPCWM_GetConfigMemAttributes(
   switch (MemBaseAddress)
   {
     case OCTOSPI1_BASE:
-      register_address = (uint32_t)&(GTZC_TZSC_S->MPCWM1_NSWMR1);
+      register_address = (uint32_t) &(GTZC_TZSC_S->MPCWM1_NSWMR1);
       start_pos = GTZC_TZSC_MPCWM1_NSWMR1_NSWM1STRT_Pos;
       start_msk = GTZC_TZSC_MPCWM1_NSWMR1_NSWM1STRT_Msk;
       length_pos = GTZC_TZSC_MPCWM1_NSWMR1_NSWM1LGTH_Pos;
       length_msk = GTZC_TZSC_MPCWM1_NSWMR1_NSWM1LGTH_Msk;
       break;
     case FMC_BANK1:
-      register_address = (uint32_t)&(GTZC_TZSC_S->MPCWM2_NSWMR1);
+      register_address = (uint32_t) &(GTZC_TZSC_S->MPCWM2_NSWMR1);
       start_pos = GTZC_TZSC_MPCWM2_NSWMR1_NSWM1STRT_Pos;
       start_msk = GTZC_TZSC_MPCWM2_NSWMR1_NSWM1STRT_Msk;
       length_pos = GTZC_TZSC_MPCWM2_NSWMR1_NSWM1LGTH_Pos;
       length_msk = GTZC_TZSC_MPCWM2_NSWMR1_NSWM1LGTH_Msk;
       break;
     case FMC_BANK3:
-      register_address = (uint32_t)&(GTZC_TZSC_S->MPCWM3_NSWMR1);
+      register_address = (uint32_t) &(GTZC_TZSC_S->MPCWM3_NSWMR1);
       start_pos = GTZC_TZSC_MPCWM3_NSWMR1_NSWM1STRT_Pos;
       start_msk = GTZC_TZSC_MPCWM3_NSWMR1_NSWM1STRT_Msk;
       length_pos = GTZC_TZSC_MPCWM3_NSWMR1_NSWM1LGTH_Pos;
@@ -618,14 +607,14 @@ HAL_StatusTypeDef HAL_GTZC_TZSC_MPCWM_GetConfigMemAttributes(
     switch (MemBaseAddress)
     {
       case OCTOSPI1_BASE:
-        register_address = (uint32_t)&(GTZC_TZSC_S->MPCWM1_NSWMR2);
+        register_address = (uint32_t) &(GTZC_TZSC_S->MPCWM1_NSWMR2);
         start_pos = GTZC_TZSC_MPCWM1_NSWMR2_NSWM2STRT_Pos;
         start_msk = GTZC_TZSC_MPCWM1_NSWMR2_NSWM2STRT_Msk;
         length_pos = GTZC_TZSC_MPCWM1_NSWMR2_NSWM2LGTH_Pos;
         length_msk = GTZC_TZSC_MPCWM1_NSWMR2_NSWM2LGTH_Msk;
         break;
       case FMC_BANK1:
-        register_address = (uint32_t)&(GTZC_TZSC_S->MPCWM2_NSWMR2);
+        register_address = (uint32_t) &(GTZC_TZSC_S->MPCWM2_NSWMR2);
         start_pos = GTZC_TZSC_MPCWM2_NSWMR2_NSWM2STRT_Pos;
         start_msk = GTZC_TZSC_MPCWM2_NSWMR2_NSWM2STRT_Msk;
         length_pos = GTZC_TZSC_MPCWM2_NSWMR2_NSWM2LGTH_Pos;
@@ -729,16 +718,12 @@ HAL_StatusTypeDef HAL_GTZC_MPCBB_ConfigMem(uint32_t MemBaseAddress,
   uint32_t i;
 
   /* check entry parameters */
-  if (   (     !(IS_GTZC_BASE_ADDRESS(SRAM1, MemBaseAddress))
-           &&  !(IS_GTZC_BASE_ADDRESS(SRAM2, MemBaseAddress)))
-      || (   (    pMPCBB_desc->SecureRWIllegalMode
-               != GTZC_MPCBB_SRWILADIS_ENABLE)
-          && (    pMPCBB_desc->SecureRWIllegalMode
-               != GTZC_MPCBB_SRWILADIS_DISABLE))
-      || (   (    pMPCBB_desc->InvertSecureState
-               != GTZC_MPCBB_INVSECSTATE_NOT_INVERTED)
-          && (    pMPCBB_desc->InvertSecureState
-               != GTZC_MPCBB_INVSECSTATE_INVERTED)))
+  if ((!(IS_GTZC_BASE_ADDRESS(SRAM1, MemBaseAddress))
+       &&  !(IS_GTZC_BASE_ADDRESS(SRAM2, MemBaseAddress)))
+      || ((pMPCBB_desc->SecureRWIllegalMode != GTZC_MPCBB_SRWILADIS_ENABLE)
+          && (pMPCBB_desc->SecureRWIllegalMode != GTZC_MPCBB_SRWILADIS_DISABLE))
+      || ((pMPCBB_desc->InvertSecureState != GTZC_MPCBB_INVSECSTATE_NOT_INVERTED)
+          && (pMPCBB_desc->InvertSecureState != GTZC_MPCBB_INVSECSTATE_INVERTED)))
   {
     return HAL_ERROR;
   }
@@ -795,8 +780,8 @@ HAL_StatusTypeDef HAL_GTZC_MPCBB_GetConfigMem(uint32_t MemBaseAddress,
   uint32_t i;
 
   /* check entry parameters */
-  if (    !(IS_GTZC_BASE_ADDRESS(SRAM1, MemBaseAddress))
-       && !(IS_GTZC_BASE_ADDRESS(SRAM2, MemBaseAddress)))
+  if (!(IS_GTZC_BASE_ADDRESS(SRAM1, MemBaseAddress))
+      && !(IS_GTZC_BASE_ADDRESS(SRAM2, MemBaseAddress)))
   {
     return HAL_ERROR;
   }
@@ -820,8 +805,7 @@ HAL_StatusTypeDef HAL_GTZC_MPCBB_GetConfigMem(uint32_t MemBaseAddress,
   pMPCBB_desc->SecureRWIllegalMode = (reg_value & GTZC_MPCBB_CR_SRWILADIS_Msk);
   size_mask = (1UL << (mem_size / GTZC_MPCBB_SUPERBLOCK_SIZE)) - 1U;
   /* limitation: code not portable with memory > 256K */
-  pMPCBB_desc->AttributeConfig.MPCBB_LockConfig_array[0] = READ_REG(mpcbb_ptr->LCKVTR1)
-                                                         & size_mask;
+  pMPCBB_desc->AttributeConfig.MPCBB_LockConfig_array[0] = READ_REG(mpcbb_ptr->LCKVTR1)& size_mask;
 
   /* read vector register information */
   size_in_superblocks = (mem_size / GTZC_MPCBB_SUPERBLOCK_SIZE);
@@ -860,26 +844,26 @@ HAL_StatusTypeDef HAL_GTZC_MPCBB_ConfigMemAttributes(uint32_t MemAddress,
 
   /* check entry parameters and deduce physical base address */
   end_address = MemAddress + (NbBlocks * GTZC_MPCBB_BLOCK_SIZE) - 1U;
-  if ( ( (IS_ADDRESS_IN_NS(SRAM1, MemAddress))
-      && (IS_ADDRESS_IN_NS(SRAM1, end_address))) != 0U )
+  if (((IS_ADDRESS_IN_NS(SRAM1, MemAddress))
+       && (IS_ADDRESS_IN_NS(SRAM1, end_address))) != 0U)
   {
     mpcbb_ptr = GTZC_MPCBB1_S;
     base_address = SRAM1_BASE_NS;
   }
-  else if ( ( (IS_ADDRESS_IN_S(SRAM1, MemAddress))
-           && (IS_ADDRESS_IN_S(SRAM1, end_address))) != 0U )
+  else if (((IS_ADDRESS_IN_S(SRAM1, MemAddress))
+            && (IS_ADDRESS_IN_S(SRAM1, end_address))) != 0U)
   {
     mpcbb_ptr = GTZC_MPCBB1_S;
     base_address = SRAM1_BASE_S;
   }
-  else if ( ( (IS_ADDRESS_IN_NS(SRAM2, MemAddress))
-           && (IS_ADDRESS_IN_NS(SRAM2, end_address))) != 0U )
+  else if (((IS_ADDRESS_IN_NS(SRAM2, MemAddress))
+            && (IS_ADDRESS_IN_NS(SRAM2, end_address))) != 0U)
   {
     mpcbb_ptr = GTZC_MPCBB2_S;
     base_address = SRAM2_BASE_NS;
   }
-  else if ( ( (IS_ADDRESS_IN_S(SRAM2, MemAddress))
-           && (IS_ADDRESS_IN_S(SRAM2, end_address))) != 0U )
+  else if (((IS_ADDRESS_IN_S(SRAM2, MemAddress))
+            && (IS_ADDRESS_IN_S(SRAM2, end_address))) != 0U)
   {
     mpcbb_ptr = GTZC_MPCBB2_S;
     base_address = SRAM2_BASE_S;
@@ -955,25 +939,25 @@ HAL_StatusTypeDef HAL_GTZC_MPCBB_GetConfigMemAttributes(uint32_t MemAddress,
 
   /* check entry parameters and deduce physical base address */
   end_address = MemAddress + (NbBlocks * GTZC_MPCBB_BLOCK_SIZE) - 1U;
-  if (   (IS_ADDRESS_IN_NS(SRAM1, MemAddress))
+  if ((IS_ADDRESS_IN_NS(SRAM1, MemAddress))
       && (IS_ADDRESS_IN_NS(SRAM1, end_address)))
   {
     mpcbb_ptr = GTZC_MPCBB1_S;
     base_address = SRAM1_BASE_NS;
   }
-  else if (   (IS_ADDRESS_IN_S(SRAM1, MemAddress))
+  else if ((IS_ADDRESS_IN_S(SRAM1, MemAddress))
            && (IS_ADDRESS_IN_S(SRAM1, end_address)))
   {
     mpcbb_ptr = GTZC_MPCBB1_S;
     base_address = SRAM1_BASE_S;
   }
-  else if (   (IS_ADDRESS_IN_NS(SRAM2, MemAddress))
+  else if ((IS_ADDRESS_IN_NS(SRAM2, MemAddress))
            && (IS_ADDRESS_IN_NS(SRAM2, end_address)))
   {
     mpcbb_ptr = GTZC_MPCBB2_S;
     base_address = SRAM2_BASE_NS;
   }
-  else if (   (IS_ADDRESS_IN_S(SRAM2, MemAddress))
+  else if ((IS_ADDRESS_IN_S(SRAM2, MemAddress))
            && (IS_ADDRESS_IN_S(SRAM2, end_address)))
   {
     mpcbb_ptr = GTZC_MPCBB2_S;
@@ -991,8 +975,8 @@ HAL_StatusTypeDef HAL_GTZC_MPCBB_GetConfigMemAttributes(uint32_t MemAddress,
 
   for (i = 0U; i < NbBlocks; i++)
   {
-    pMemAttributes[i] =    READ_BIT(mpcbb_ptr->VCTR[offset_reg_start],
-                                    1UL << (offset_bit_start % 32U))
+    pMemAttributes[i] = READ_BIT(mpcbb_ptr->VCTR[offset_reg_start],
+                                 1UL << (offset_bit_start % 32U))
                         >> (offset_bit_start % 32U);
 
     offset_bit_start++;
@@ -1034,20 +1018,19 @@ HAL_StatusTypeDef HAL_GTZC_MPCBB_LockConfig(uint32_t MemAddress,
   }
 
   /* check entry parameters */
-  if (   (IS_ADDRESS_IN(SRAM1, MemAddress))
+  if ((IS_ADDRESS_IN(SRAM1, MemAddress))
       && (IS_ADDRESS_IN(SRAM1, (MemAddress
-                               + (NbSuperBlocks * GTZC_MPCBB_SUPERBLOCK_SIZE)
-                               - 1U))))
+                                + (NbSuperBlocks * GTZC_MPCBB_SUPERBLOCK_SIZE)
+                                - 1U))))
   {
     base_address = GTZC_BASE_ADDRESS(SRAM1);
     /* limitation: code not portable with memory > 256K */
     reg_mpcbb = (__IO uint32_t *)&GTZC_MPCBB1_S->LCKVTR1;
   }
-  else if (   (IS_ADDRESS_IN(SRAM2, MemAddress))
+  else if ((IS_ADDRESS_IN(SRAM2, MemAddress))
            && (IS_ADDRESS_IN(SRAM2, (MemAddress
-                                    + (   NbSuperBlocks
-                                        * GTZC_MPCBB_SUPERBLOCK_SIZE)
-                                    - 1U))))
+                                     + (NbSuperBlocks * GTZC_MPCBB_SUPERBLOCK_SIZE)
+                                     - 1U))))
   {
     base_address = GTZC_BASE_ADDRESS(SRAM2);
     /* limitation: code not portable with memory > 256K */
@@ -1117,20 +1100,19 @@ HAL_StatusTypeDef HAL_GTZC_MPCBB_GetLockConfig(uint32_t MemAddress,
   }
 
   /* check entry parameters */
-  if (   (IS_ADDRESS_IN(SRAM1, MemAddress))
+  if ((IS_ADDRESS_IN(SRAM1, MemAddress))
       && (IS_ADDRESS_IN(SRAM1, (MemAddress
-                               + (NbSuperBlocks * GTZC_MPCBB_SUPERBLOCK_SIZE)
-                               - 1U))))
+                                + (NbSuperBlocks * GTZC_MPCBB_SUPERBLOCK_SIZE)
+                                - 1U))))
   {
     base_address = GTZC_BASE_ADDRESS(SRAM1);
     /* limitation: code not portable with memory > 256K */
     reg_mpcbb = GTZC_MPCBB1_S->LCKVTR1;
   }
-  else if (   (IS_ADDRESS_IN(SRAM2, MemAddress))
+  else if ((IS_ADDRESS_IN(SRAM2, MemAddress))
            && (IS_ADDRESS_IN(SRAM2, (MemAddress
-                                    + (   NbSuperBlocks
-                                        * GTZC_MPCBB_SUPERBLOCK_SIZE)
-                                    - 1U))))
+                                     + (NbSuperBlocks * GTZC_MPCBB_SUPERBLOCK_SIZE)
+                                     - 1U))))
   {
     base_address = GTZC_BASE_ADDRESS(SRAM2);
     /* limitation: code not portable with memory > 256K */
@@ -1147,8 +1129,8 @@ HAL_StatusTypeDef HAL_GTZC_MPCBB_GetLockConfig(uint32_t MemAddress,
 
   for (i = 0U; i < NbSuperBlocks; i++)
   {
-    pLockAttributes[i] =   (reg_mpcbb & (1UL << (offset_bit_start % 32U)))
-                        >> (offset_bit_start % 32U);
+    pLockAttributes[i] = (reg_mpcbb & (1UL << (offset_bit_start % 32U)))
+                         >> (offset_bit_start % 32U);
     offset_bit_start++;
   }
 
@@ -1235,9 +1217,8 @@ HAL_StatusTypeDef HAL_GTZC_TZIC_DisableIT(uint32_t PeriphId)
   uint32_t register_address;
 
   /* check entry parameters */
-  if (   (   HAL_GTZC_GET_ARRAY_INDEX(PeriphId) >= GTZC_TZIC_PERIPH_NUMBER)
-      || (    ((PeriphId & GTZC_PERIPH_ALL) != 0U)
-           && (HAL_GTZC_GET_ARRAY_INDEX(PeriphId) != 0U)))
+  if ((HAL_GTZC_GET_ARRAY_INDEX(PeriphId) >= GTZC_TZIC_PERIPH_NUMBER)
+      || (((PeriphId & GTZC_PERIPH_ALL) != 0U) && (HAL_GTZC_GET_ARRAY_INDEX(PeriphId) != 0U)))
   {
     return HAL_ERROR;
   }
@@ -1252,8 +1233,7 @@ HAL_StatusTypeDef HAL_GTZC_TZIC_DisableIT(uint32_t PeriphId)
   else
   {
     /* common case where only one peripheral is configured */
-    register_address =   (uint32_t)&(GTZC_TZIC->IER1)
-                       + (4U * GTZC_GET_REG_INDEX(PeriphId));
+    register_address = (uint32_t) &(GTZC_TZIC->IER1) + (4U * GTZC_GET_REG_INDEX(PeriphId));
     CLEAR_BIT(*(__IO uint32_t *)register_address, 1UL << GTZC_GET_PERIPH_POS(PeriphId));
   }
 
@@ -1272,9 +1252,8 @@ HAL_StatusTypeDef HAL_GTZC_TZIC_EnableIT(uint32_t PeriphId)
   uint32_t register_address;
 
   /* check entry parameters */
-  if (   (   HAL_GTZC_GET_ARRAY_INDEX(PeriphId) >= GTZC_TZIC_PERIPH_NUMBER)
-      || (    ((PeriphId & GTZC_PERIPH_ALL) != 0U)
-           && (HAL_GTZC_GET_ARRAY_INDEX(PeriphId) != 0U)))
+  if ((HAL_GTZC_GET_ARRAY_INDEX(PeriphId) >= GTZC_TZIC_PERIPH_NUMBER)
+      || (((PeriphId & GTZC_PERIPH_ALL) != 0U) && (HAL_GTZC_GET_ARRAY_INDEX(PeriphId) != 0U)))
   {
     return HAL_ERROR;
   }
@@ -1289,8 +1268,7 @@ HAL_StatusTypeDef HAL_GTZC_TZIC_EnableIT(uint32_t PeriphId)
   else
   {
     /* common case where only one peripheral is configured */
-    register_address =   (uint32_t)&(GTZC_TZIC->IER1)
-                       + (4U * GTZC_GET_REG_INDEX(PeriphId));
+    register_address = (uint32_t) &(GTZC_TZIC->IER1) + (4U * GTZC_GET_REG_INDEX(PeriphId));
     SET_BIT(*(__IO uint32_t *)register_address, 1UL << GTZC_GET_PERIPH_POS(PeriphId));
   }
 
@@ -1317,9 +1295,8 @@ HAL_StatusTypeDef HAL_GTZC_TZIC_GetFlag(uint32_t PeriphId, uint32_t *pFlag)
   uint32_t register_address;
 
   /* check entry parameters */
-  if (   (   HAL_GTZC_GET_ARRAY_INDEX(PeriphId) >= GTZC_TZIC_PERIPH_NUMBER)
-      || (    ((PeriphId & GTZC_PERIPH_ALL) != 0U)
-           && (HAL_GTZC_GET_ARRAY_INDEX(PeriphId) != 0U)))
+  if ((HAL_GTZC_GET_ARRAY_INDEX(PeriphId) >= GTZC_TZIC_PERIPH_NUMBER)
+      || (((PeriphId & GTZC_PERIPH_ALL) != 0U) && (HAL_GTZC_GET_ARRAY_INDEX(PeriphId) != 0U)))
   {
     return HAL_ERROR;
   }
@@ -1348,10 +1325,9 @@ HAL_StatusTypeDef HAL_GTZC_TZIC_GetFlag(uint32_t PeriphId, uint32_t *pFlag)
   else
   {
     /* common case where only one peripheral is concerned */
-    register_address =    (uint32_t)&(GTZC_TZIC->SR1)
-                        + (4U * GTZC_GET_REG_INDEX(PeriphId));
+    register_address = (uint32_t) &(GTZC_TZIC->SR1) + (4U * GTZC_GET_REG_INDEX(PeriphId));
     *pFlag = READ_BIT(*(__IO uint32_t *)register_address,
-                     1UL << GTZC_GET_PERIPH_POS(PeriphId)) >> GTZC_GET_PERIPH_POS(PeriphId);
+                      1UL << GTZC_GET_PERIPH_POS(PeriphId)) >> GTZC_GET_PERIPH_POS(PeriphId);
   }
 
   return HAL_OK;
@@ -1369,9 +1345,8 @@ HAL_StatusTypeDef HAL_GTZC_TZIC_ClearFlag(uint32_t PeriphId)
   uint32_t register_address;
 
   /* check entry parameters */
-  if (   (   HAL_GTZC_GET_ARRAY_INDEX(PeriphId) >= GTZC_TZIC_PERIPH_NUMBER)
-      || (    ((PeriphId & GTZC_PERIPH_ALL) != 0U)
-           && (HAL_GTZC_GET_ARRAY_INDEX(PeriphId) != 0U)))
+  if ((HAL_GTZC_GET_ARRAY_INDEX(PeriphId) >= GTZC_TZIC_PERIPH_NUMBER)
+      || (((PeriphId & GTZC_PERIPH_ALL) != 0U) && (HAL_GTZC_GET_ARRAY_INDEX(PeriphId) != 0U)))
   {
     return HAL_ERROR;
   }
@@ -1386,8 +1361,7 @@ HAL_StatusTypeDef HAL_GTZC_TZIC_ClearFlag(uint32_t PeriphId)
   else
   {
     /* common case where only one peripheral is configured */
-    register_address =   (uint32_t)&(GTZC_TZIC->FCR1)
-                       + (4U * GTZC_GET_REG_INDEX(PeriphId));
+    register_address = (uint32_t) &(GTZC_TZIC->FCR1) + (4U * GTZC_GET_REG_INDEX(PeriphId));
     SET_BIT(*(__IO uint32_t *)register_address, 1UL << GTZC_GET_PERIPH_POS(PeriphId));
   }
 
@@ -1428,7 +1402,7 @@ void HAL_GTZC_IRQHandler(void)
 
   /* Get Mask interrupt and then clear them */
   flag = ier_itsources & sr_flags;
-  if(flag != 0U)
+  if (flag != 0U)
   {
     WRITE_REG(GTZC_TZIC->FCR1, flag);
 
@@ -1452,7 +1426,7 @@ void HAL_GTZC_IRQHandler(void)
 
   /* Get Mask interrupt and then clear them */
   flag = ier_itsources & sr_flags;
-  if(flag != 0U)
+  if (flag != 0U)
   {
     WRITE_REG(GTZC_TZIC->FCR2, flag);
 
@@ -1476,7 +1450,7 @@ void HAL_GTZC_IRQHandler(void)
 
   /* Get Mask interrupt and then clear them */
   flag = ier_itsources & sr_flags;
-  if(flag != 0U)
+  if (flag != 0U)
   {
     WRITE_REG(GTZC_TZIC->FCR3, flag);
 

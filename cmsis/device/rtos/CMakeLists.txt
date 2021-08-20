@@ -1,21 +1,18 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
-    target_sources(mbed-rtos
-        INTERFACE
-            TOOLCHAIN_GCC_ARM/mbed_boot_gcc_arm.c
-    )
-elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
-    target_sources(mbed-rtos
-        INTERFACE
-            TOOLCHAIN_ARM_STD/mbed_boot_arm_std.c
-    )
-elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
-    target_sources(mbed-rtos
-        INTERFACE
-            TOOLCHAIN_IAR/mbed_boot_iar.c
-    )
+if(${CMAKE_CROSSCOMPILING})
+    if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
+        target_sources(mbed-rtos
+            INTERFACE
+                TOOLCHAIN_GCC_ARM/mbed_boot_gcc_arm.c
+        )
+    elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
+        target_sources(mbed-rtos
+            INTERFACE
+                TOOLCHAIN_ARM_STD/mbed_boot_arm_std.c
+        )
+    endif()
 endif()
 
 target_include_directories(mbed-rtos

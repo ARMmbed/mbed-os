@@ -14,6 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* MBED TARGET LIST: LPC546XX */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -196,8 +199,8 @@ typedef enum {
     SW5 = P1_1,
 
     // USB Pins
-    USBTX = P0_30,
-    USBRX = P0_29,
+    CONSOLE_TX = P0_30,
+    CONSOLE_RX = P0_29,
 
     // Arduino Headers
     D0 = P3_26,

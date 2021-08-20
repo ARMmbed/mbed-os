@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, Arm Limited and affiliates.
+ * Copyright (c) 2013-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -449,6 +449,8 @@ int8_t mac_mlme_reset(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlm
     rf_mac_setup->macWaitingData = false;
     rf_mac_setup->macDataPollReq = false;
     rf_mac_setup->macRxDataAtPoll = false;
+    rf_mac_setup->macTxProcessActive = false;
+    rf_mac_setup->mac_ack_tx_active = false;
     //Clean MAC
     if (reset->SetDefaultPIB) {
         tr_debug("RESET MAC PIB");
@@ -596,7 +598,7 @@ static int8_t mac_mlme_8bit_set(protocol_interface_rf_mac_setup_s *rf_mac_setup,
             break;
 
         case macMaxBE:
-            if (value > 8 || value < 3) {
+            if (value > 8 || value < 1) {
                 return -1;
             }
             rf_mac_setup->macMaxBE = value;
@@ -652,11 +654,11 @@ void mac_extended_mac_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, const
 
 static uint32_t mac_calc_ack_wait_duration(protocol_interface_rf_mac_setup_s *rf_mac_setup, uint16_t symbols)
 {
-    uint32_t AckWaitDuration = 0;
+    uint32_t AckWaitDuration_us = 0;
     if (rf_mac_setup->rf_csma_extension_supported) {
-        AckWaitDuration = symbols * rf_mac_setup->symbol_time_us;
+        AckWaitDuration_us = (symbols * rf_mac_setup->symbol_time_ns) / 1000;
     }
-    return AckWaitDuration;
+    return AckWaitDuration_us;
 }
 
 static int8_t mac_mlme_set_ack_wait_duration(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
@@ -747,6 +749,18 @@ static int8_t mac_mlme_set_multi_csma_parameters(protocol_interface_rf_mac_setup
     return 0;
 }
 
+static int8_t mac_mlme_set_data_request_restart_config(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
+{
+    mlme_request_restart_config_t request_restart_config;
+    memcpy(&request_restart_config, set_req->value_pointer, sizeof(mlme_request_restart_config_t));
+    rf_mac_setup->cca_failure_restart_max = request_restart_config.cca_failure_restart_max;
+    rf_mac_setup->tx_failure_restart_max = request_restart_config.tx_failure_restart_max;
+    rf_mac_setup->blacklist_min_ms = request_restart_config.blacklist_min_ms;
+    rf_mac_setup->blacklist_max_ms = request_restart_config.blacklist_max_ms;
+    tr_debug("Request restart config: CCA %u, TX %u, min %u, max %u", rf_mac_setup->cca_failure_restart_max, rf_mac_setup->tx_failure_restart_max, rf_mac_setup->blacklist_min_ms, rf_mac_setup->blacklist_max_ms);
+    return 0;
+}
+
 int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
 {
     if (!set_req || !rf_mac_setup || !rf_mac_setup->dev_driver || !rf_mac_setup->dev_driver->phy_driver) {
@@ -816,6 +830,8 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const m
             return 0;
         case macMultiCSMAParameters:
             return mac_mlme_set_multi_csma_parameters(rf_mac_setup, set_req);
+        case macRequestRestart:
+            return mac_mlme_set_data_request_restart_config(rf_mac_setup, set_req);
         case macRfConfiguration:
             rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_RF_CONFIGURATION, (uint8_t *) set_req->value_pointer);
             mac_mlme_set_symbol_rate(rf_mac_setup);
@@ -1107,8 +1123,8 @@ static int mac_mlme_set_symbol_rate(protocol_interface_rf_mac_setup_s *rf_mac_se
 {
     if (rf_mac_setup->rf_csma_extension_supported) {
         rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_GET_SYMBOLS_PER_SECOND, (uint8_t *) &rf_mac_setup->symbol_rate);
-        rf_mac_setup->symbol_time_us = 1000000 / rf_mac_setup->symbol_rate;
-        tr_debug("SW-MAC driver support rf extension %"PRIu32" symbol/seconds  %"PRIu32" us symbol time length", rf_mac_setup->symbol_rate, rf_mac_setup->symbol_time_us);
+        rf_mac_setup->symbol_time_ns = 1000000000 / rf_mac_setup->symbol_rate;
+        tr_debug("SW-MAC driver support rf extension %"PRIu32" symbol/seconds  %"PRIu32" ns symbol time length", rf_mac_setup->symbol_rate, rf_mac_setup->symbol_time_ns);
         return 0;
     }
     return -1;
@@ -1821,7 +1837,7 @@ int8_t mac_mlme_beacon_tx(protocol_interface_rf_mac_setup_s *rf_ptr)
             ptr += BEACON_OPTION_JOIN_PRIORITY_LEN;
         }*/
     }
-    buf->priority = MAC_PD_DATA_HIGH_PRIOTITY;
+    buf->priority = MAC_PD_DATA_HIGH_PRIORITY;
     mcps_sap_pd_req_queue_write(rf_ptr, buf);
     sw_mac_stats_update(rf_ptr, STAT_MAC_BEA_TX_COUNT, 0);
     return 0;

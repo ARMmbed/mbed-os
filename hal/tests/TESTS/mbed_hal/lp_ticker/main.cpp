@@ -111,8 +111,8 @@ void lp_ticker_info_test()
     TEST_ASSERT(p_ticker_info->frequency <= 64000);
     TEST_ASSERT(p_ticker_info->bits >= 12);
 
-#ifdef LP_TICKER_PERIOD_NUM
-    TEST_ASSERT_UINT32_WITHIN(1, 1000000 * LP_TICKER_PERIOD_DEN / LP_TICKER_PERIOD_NUM, p_ticker_info->frequency);
+#if defined(LP_TICKER_PERIOD_NUM) || defined(CHECK_TICKER_OPTIM)
+    TEST_ASSERT_UINT32_WITHIN(1, (uint64_t)1000000 * LP_TICKER_PERIOD_DEN / LP_TICKER_PERIOD_NUM, p_ticker_info->frequency);
     TEST_ASSERT_EQUAL_UINT32(LP_TICKER_MASK, ((uint64_t)1 << p_ticker_info->bits) - 1);
 #endif
 

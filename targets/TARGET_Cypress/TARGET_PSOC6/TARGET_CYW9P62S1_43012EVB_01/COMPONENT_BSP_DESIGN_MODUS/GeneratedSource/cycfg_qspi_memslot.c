@@ -4,10 +4,10 @@
 * Description:
 * Provides definitions of the SMIF-driver memory configuration.
 * This file was automatically generated and should not be modified.
-* QSPI Configurator: 2.0.0.1483
+* QSPI Configurator 2.20.0.2857
 *
 ********************************************************************************
-* Copyright 2017-2019 Cypress Semiconductor Corporation
+* Copyright 2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -82,7 +82,7 @@ const cy_stc_smif_mem_cmd_t S25FS512S_SlaveSlot_0_writeDisCmd =
 const cy_stc_smif_mem_cmd_t S25FS512S_SlaveSlot_0_eraseCmd =
 {
     /* The 8-bit command. 1 x I/O read command. */
-    .command = 0x21U,
+    .command = 0xDCU,
     /* The width of the command transfer. */
     .cmdWidth = CY_SMIF_WIDTH_SINGLE,
     /* The width of the address transfer. */
@@ -187,6 +187,57 @@ const cy_stc_smif_mem_cmd_t S25FS512S_SlaveSlot_0_writeStsRegQeCmd =
     .dataWidth = CY_SMIF_WIDTH_SINGLE
 };
 
+#if (CY_SMIF_DRV_VERSION_MAJOR > 1) || (CY_SMIF_DRV_VERSION_MINOR >= 50)
+const cy_stc_smif_hybrid_region_info_t S25FS512S_SlaveSlot_0_region0 =
+{
+    /* The region start address. */
+    .regionAddress = 0x0U,
+    /* The number of sectors in this region. */
+    .sectorsCount = 8U,
+    /* The erase command to use for erasing sectors in this region. */
+    .eraseCmd = 0x21U,
+    /* The sector size in bytes. */
+    .eraseSize = 0x1000U,
+    /* The erase time for these sectors in ms. */
+    .eraseTime = 725U
+};
+
+const cy_stc_smif_hybrid_region_info_t S25FS512S_SlaveSlot_0_region1 =
+{
+    /* The region start address. */
+    .regionAddress = 0x8000U,
+    /* The number of sectors in this region. */
+    .sectorsCount = 1U,
+    /* The erase command to use for erasing sectors in this region. */
+    .eraseCmd = 0xDCU,
+    /* The sector size in bytes. */
+    .eraseSize = 0x38000U,
+    /* The erase time for these sectors in ms. */
+    .eraseTime = 2900U
+};
+
+const cy_stc_smif_hybrid_region_info_t S25FS512S_SlaveSlot_0_region2 =
+{
+    /* The region start address. */
+    .regionAddress = 0x40000U,
+    /* The number of sectors in this region. */
+    .sectorsCount = 255U,
+    /* The erase command to use for erasing sectors in this region. */
+    .eraseCmd = 0xDCU,
+    /* The sector size in bytes. */
+    .eraseSize = 0x40000U,
+    /* The erase time for these sectors in ms. */
+    .eraseTime = 2900U
+};
+
+const cy_stc_smif_hybrid_region_info_t * const S25FS512S_SlaveSlot_0_regionInfo[] = {
+   &S25FS512S_SlaveSlot_0_region0,
+   &S25FS512S_SlaveSlot_0_region1,
+   &S25FS512S_SlaveSlot_0_region2
+};
+
+#endif
+
 const cy_stc_smif_mem_device_cfg_t deviceCfg_S25FS512S_SlaveSlot_0 =
 {
     /* Specifies the number of address bytes used by the memory slave device. */
@@ -202,7 +253,7 @@ const cy_stc_smif_mem_device_cfg_t deviceCfg_S25FS512S_SlaveSlot_0 =
     /* Specifies the Erase command. */
     .eraseCmd = (cy_stc_smif_mem_cmd_t*)&S25FS512S_SlaveSlot_0_eraseCmd,
     /* Specifies the sector size of each erase. */
-    .eraseSize = 0x0001000U,
+    .eraseSize = 0x0040000U,
     /* Specifies the Chip Erase command. */
     .chipEraseCmd = (cy_stc_smif_mem_cmd_t*)&S25FS512S_SlaveSlot_0_chipEraseCmd,
     /* Specifies the Program command. */
@@ -220,11 +271,18 @@ const cy_stc_smif_mem_device_cfg_t deviceCfg_S25FS512S_SlaveSlot_0 =
     /* The mask for the status register. */
     .stsRegQuadEnableMask = 0x02U,
     /* The max time for the erase type-1 cycle-time in ms. */
-    .eraseTime = 725U,
+    .eraseTime = 2900U,
     /* The max time for the chip-erase cycle-time in ms. */
     .chipEraseTime = 720000U,
     /* The max time for the page-program cycle-time in us. */
-    .programTime = 2000U
+    .programTime = 2000U,
+#if (CY_SMIF_DRV_VERSION_MAJOR > 1) || (CY_SMIF_DRV_VERSION_MINOR >= 50)
+    /* Points to NULL or to structure with info about sectors for hybrid memory. */
+    .hybridRegionCount = 3U,
+    .hybridRegionInfo = (cy_stc_smif_hybrid_region_info_t**)S25FS512S_SlaveSlot_0_regionInfo
+#else
+#error Hybrid erase sectors require SMIF driver 1.50 or greater.
+#endif
 };
 
 const cy_stc_smif_mem_config_t S25FS512S_SlaveSlot_0 =

@@ -19,7 +19,7 @@
 #error [NOT_SUPPORTED] SPI not supported for this target
 #elif !COMPONENT_FPGA_CI_TEST_SHIELD
 #error [NOT_SUPPORTED] FPGA CI Test Shield is needed to run this test
-#elif !defined(TARGET_FF_ARDUINO) && !defined(MBED_CONF_TARGET_DEFAULT_FORM_FACTOR)
+#elif !(defined(TARGET_FF_ARDUINO) || defined(TARGET_FF_ARDUINO_UNO)) && !defined(MBED_CONF_TARGET_DEFAULT_FORM_FACTOR)
 #error [NOT_SUPPORTED] Test not supported for this form factor
 #else
 
@@ -415,8 +415,8 @@ Case cases[] = {
     Case("SPI - hardware ss handling", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ, BUFFERS_COMMON, true, false> >),
     Case("SPI - hardware ss handling(block)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_BLOCK_WRITE_SYNC, FREQ_1_MHZ, BUFFERS_COMMON, true, false> >),
 #if DEVICE_SPI_ASYNCH
-    Case("SPI - async mode (sw ss)", one_peripheral<SPINoCSPort, DefaultFormFactor, fpga_spi_test_common_no_ss<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_TRANSFER_ASYNC, FREQ_1_MHZ, BUFFERS_COMMON, false, false> >),
-    Case("SPI - async mode (hw ss)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_TRANSFER_ASYNC, FREQ_1_MHZ, BUFFERS_COMMON, true, false> >)
+    Case("SPI - async mode (sw ss)", one_peripheral<SPINoCSPort, DefaultFormFactor, fpga_spi_test_common_no_ss<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_TRANSFER_ASYNC, FREQ_500_KHZ, BUFFERS_COMMON, false, false> >),
+    Case("SPI - async mode (hw ss)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_TRANSFER_ASYNC, FREQ_500_KHZ, BUFFERS_COMMON, true, false> >)
 #endif
 };
 

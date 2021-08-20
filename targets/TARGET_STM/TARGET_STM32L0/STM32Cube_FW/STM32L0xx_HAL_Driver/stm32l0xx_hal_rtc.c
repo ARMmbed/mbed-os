@@ -87,10 +87,12 @@
   *** Callback registration ***
   =============================================
 
+  [..]
   The compilation define  USE_RTC_REGISTER_CALLBACKS when set to 1
   allows the user to configure dynamically the driver callbacks.
   Use Function @ref HAL_RTC_RegisterCallback() to register an interrupt callback.
 
+  [..]
   Function @ref HAL_RTC_RegisterCallback() allows to register following callbacks:
     (+) AlarmAEventCallback          : RTC Alarm A Event callback.
     (+) AlarmBEventCallback          : RTC Alarm B Event callback.
@@ -101,9 +103,11 @@
     (+) Tamper3EventCallback         : RTC Tamper 3 Event callback.
     (+) MspInitCallback              : RTC MspInit callback.
     (+) MspDeInitCallback            : RTC MspDeInit callback.
+  [..]
   This function takes as parameters the HAL peripheral handle, the Callback ID
   and a pointer to the user callback function.
 
+  [..]
   Use function @ref HAL_RTC_UnRegisterCallback() to reset a callback to the default
   weak function.
   @ref HAL_RTC_UnRegisterCallback() takes as parameters the HAL peripheral handle,
@@ -119,6 +123,7 @@
     (+) MspInitCallback              : RTC MspInit callback.
     (+) MspDeInitCallback            : RTC MspDeInit callback.
 
+  [..]
   By default, after the @ref HAL_RTC_Init() and when the state is HAL_RTC_STATE_RESET,
   all callbacks are set to the corresponding weak functions :
   examples @ref AlarmAEventCallback(), @ref WakeUpTimerEventCallback().
@@ -128,6 +133,7 @@
   If not, MspInit or MspDeInit are not null, @ref HAL_RTC_Init()/@ref HAL_RTC_DeInit()
   keep and use the user MspInit/MspDeInit callbacks (registered beforehand)
 
+  [..]
   Callbacks can be registered/unregistered in HAL_RTC_STATE_READY state only.
   Exception done MspInit/MspDeInit that can be registered/unregistered
   in HAL_RTC_STATE_READY or HAL_RTC_STATE_RESET state,
@@ -136,6 +142,7 @@
   using @ref HAL_RTC_RegisterCallback() before calling @ref HAL_RTC_DeInit()
   or @ref HAL_RTC_Init() function.
 
+  [..]
   When The compilation define USE_HAL_RTC_REGISTER_CALLBACKS is set to 0 or
   not defined, the callback registration feature is not available and all callbacks
   are set to the corresponding weak functions.
@@ -374,7 +381,7 @@ HAL_StatusTypeDef HAL_RTC_DeInit(RTC_HandleTypeDef *hrtc)
   else
   {
     /* Reset TR, DR and CR registers */
-    hrtc->Instance->TR = (uint32_t)0x00000000U;
+    hrtc->Instance->TR = 0x00000000U;
     hrtc->Instance->DR = ((uint32_t)(RTC_DR_WDU_0 | RTC_DR_MU_0 | RTC_DR_DU_0));
     /* Reset All CR bits except CR[2:0] */
     hrtc->Instance->CR &= RTC_CR_WUCKSEL;
@@ -397,18 +404,18 @@ HAL_StatusTypeDef HAL_RTC_DeInit(RTC_HandleTypeDef *hrtc)
     }
 
     /* Reset all RTC CR register bits */
-    hrtc->Instance->CR &= (uint32_t)0x00000000U;
+    hrtc->Instance->CR &= 0x00000000U;
     hrtc->Instance->WUTR = RTC_WUTR_WUT;
     hrtc->Instance->PRER = ((uint32_t)(RTC_PRER_PREDIV_A | 0x000000FFU));
-    hrtc->Instance->ALRMAR = (uint32_t)0x00000000U;
-    hrtc->Instance->ALRMBR = (uint32_t)0x00000000U;
-    hrtc->Instance->SHIFTR = (uint32_t)0x00000000U;
-    hrtc->Instance->CALR = (uint32_t)0x00000000U;
-    hrtc->Instance->ALRMASSR = (uint32_t)0x00000000U;
-    hrtc->Instance->ALRMBSSR = (uint32_t)0x00000000U;
+    hrtc->Instance->ALRMAR = 0x00000000U;
+    hrtc->Instance->ALRMBR = 0x00000000U;
+    hrtc->Instance->SHIFTR = 0x00000000U;
+    hrtc->Instance->CALR = 0x00000000U;
+    hrtc->Instance->ALRMASSR = 0x00000000U;
+    hrtc->Instance->ALRMBSSR = 0x00000000U;
 
     /* Reset ISR register and exit initialization mode */
-    hrtc->Instance->ISR = (uint32_t)0x00000000U;
+    hrtc->Instance->ISR = 0x00000000U;
 
     /* Reset Tamper configuration register */
     hrtc->Instance->TAMPCR = 0x00000000U;

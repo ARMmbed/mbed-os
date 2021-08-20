@@ -88,6 +88,17 @@ public:
 
     /** Dispatch events
      *
+     *  Executes events for the specified number of milliseconds.
+     *
+     *  The dispatch_for() function is guaranteed to terminate after the elapsed wait.
+     *
+     *  @param ms       Time to wait for events in milliseconds, expressed as a
+     *                  Chrono duration.
+     */
+    void dispatch_for(duration ms);
+
+    /** Dispatch events
+     *
      *  Executes events until the specified milliseconds have passed.
      *  If ms is negative, the dispatch function will dispatch events
      *  indefinitely or until break_dispatch is called on this queue.
@@ -96,23 +107,32 @@ public:
      *  to terminate. When called with a timeout of 0, the dispatch function
      *  does not wait and is IRQ safe.
      *
+     *  NOTE: Since the majority of the event library was updated to use
+     *  Chrono types (as part of the Mbed 6 release), this function will not
+     *  function as expected. Please update to use the new dispatch functions
+     *  to ensure correct functionality.
+     *
      *  @param ms       Time to wait for events in milliseconds, a negative
      *                  value will dispatch events indefinitely
      *                  (default to -1)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-6.7.0", "Use dispatch_for() to pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
     void dispatch(int ms = -1);
 
     /** Dispatch events without a timeout
      *
-     *  This is equivalent to EventQueue::dispatch with no arguments, but
-     *  avoids overload ambiguities when passed as a callback.
+     * Executes events indefinitely unless the dispatch loop is forcibly broken.
+     * @See break_dispatch()
      *
-     *  @see EventQueue::dispatch
      */
-    void dispatch_forever()
-    {
-        dispatch();
-    }
+    void dispatch_forever();
+
+    /** Dispatch currently queued events only and then terminate
+     *
+     * In this case the dispatch function does not wait.
+     *
+     */
+    void dispatch_once();
 
     /** Break out of a running event loop
      *
@@ -134,7 +154,7 @@ public:
     /** Cancel an in-flight event
      *
      *  Attempts to cancel an event referenced by the unique id returned from
-     *  one of the call functions. It is safe to call cancel after an event
+     *  one of the call functions. It is not safe to call cancel after an event
      *  has already been dispatched.
      *
      *  id must be valid i.e. event must have not finished executing.
@@ -155,7 +175,7 @@ public:
     /** Cancel an in-flight user allocated event
      *
      *  Attempts to cancel an UserAllocatedEvent referenced by its address
-     *  It is safe to call cancel after an event has already been dispatched.
+     *  It is not safe to call cancel after an event has already been dispatched.
      *
      *  Event must be valid i.e. event must have not finished executing
      *  and must have been bound to this queue.

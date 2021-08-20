@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, Arm Limited and affiliates.
+ * Copyright (c) 2016-2018, 2020-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -191,6 +191,18 @@ typedef struct mcps_edfe_response_s {
     bool wait_response: 1;          /**< True enable response wait timer and re-send operation.  */
     bool use_message_handle_to_discover: 1; /**< EDFE Data request message ID is valid at message_handle.  */
 } mcps_edfe_response_t;
+
+/**
+ * @brief enum mac_data_priority_t Data request priority level
+ *
+ * Data request priority level may affect CCA process and MAC queue process
+ */
+typedef enum mac_data_priority_e {
+    MAC_DATA_NORMAL_PRIORITY = 0,   /**< Normal MCPS DATA REQ */
+    MAC_DATA_MEDIUM_PRIORITY = 1,   /**< Indirect Data which is polled */
+    MAC_DATA_HIGH_PRIORITY = 2,     /**< MAC command usually use this and beacon */
+    MAC_DATA_EXPEDITE_FORWARD = 3   /**< Expedite forward level give highest priority */
+} mac_data_priority_t;
 
 
 #endif // MAC_MCPS_H

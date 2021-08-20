@@ -43,6 +43,7 @@ using ::testing::SaveArgPointee;
 using ::testing::SetArrayArgument;
 using ::testing::SetArgPointee;
 using ::testing::SetArgReferee;
+using ::testing::DoAll;
 
 class TestEthernetInterface: public testing::Test {
 protected:

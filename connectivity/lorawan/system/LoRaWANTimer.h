@@ -76,6 +76,13 @@ public:
      */
     void stop(timer_event_t &obj);
 
+    /** Clear timer state so it is not inadvertently canceled. This function
+     * must be called by the callback registered in init.
+     *
+     * @param [in] obj The structure containing the timer object parameters.
+     */
+    void clear(timer_event_t &obj);
+
 private:
     events::EventQueue *_queue;
 };

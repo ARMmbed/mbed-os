@@ -74,11 +74,11 @@ void us_ticker_init(void)
          * replaced once we have a way to allocate dedicated timers for TF-M
          * and Mbed OS. */
         cyhal_resource_inst_t res = { CYHAL_RSC_TCPWM, 0, 0 };
-        if(CY_RSLT_SUCCESS != cyhal_hwmgr_reserve(&res)) {
+        if (CY_RSLT_SUCCESS != cyhal_hwmgr_reserve(&res)) {
             MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_timer_init");
         }
         res.channel_num = 1;
-        if(CY_RSLT_SUCCESS != cyhal_hwmgr_reserve(&res)) {
+        if (CY_RSLT_SUCCESS != cyhal_hwmgr_reserve(&res)) {
             MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_timer_init");
         }
 #endif

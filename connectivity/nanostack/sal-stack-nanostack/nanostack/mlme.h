@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, Arm Limited and affiliates.
+ * Copyright (c) 2013-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -264,6 +264,7 @@ typedef enum {
     macAutoRequestKeyIndex = 0x7b,  /*<The index of the key used for automatic data*/
     macDefaultKeySource = 0x7c,      /*<Default key source*/
     //NON standard extension
+    macRequestRestart = 0xf1,       /*< Configure failed packet data request restart */
     macEdfeForceStop = 0xf2,          /*< Use this command for Data wait timeout at LLC: Mac stop Edfe session data wait and enable normal FHSS mode */
     macSetDataWhitening = 0xf3,     /*< Enable or disable data whitening, boolean true for enable, false for disable */
     macCCAThresholdStart = 0xf4,    /*< Start automatic CCA threshold */
@@ -516,5 +517,17 @@ typedef struct mlme_multi_csma_ca_s {
     uint8_t number_of_csma_ca_periods;  /**< Number of CSMA-CA periods */
     uint16_t multi_cca_interval;        /**< Length of the additional CSMA-CA period(s) in microseconds */
 } mlme_multi_csma_ca_param_t;
+
+/**
+ * @brief struct mlme_request_restart_config_s Set failed packet request restart configuration
+ *
+ * Non standard extension to restart data request after failed CCA or TX attempts
+ */
+typedef struct mlme_request_restart_config_s {
+    uint8_t cca_failure_restart_max;    /**< Max number of restarts after CCA failure */
+    uint8_t tx_failure_restart_max;     /**< Max number of restarts after TX failure */
+    uint16_t blacklist_min_ms;          /**< Blacklist min, which is doubled by every restart */
+    uint16_t blacklist_max_ms;          /**< Blacklist max, largest allowed blacklist time */
+} mlme_request_restart_config_t;
 
 #endif /* MLME_H_ */

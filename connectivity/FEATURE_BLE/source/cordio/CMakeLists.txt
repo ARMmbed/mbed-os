@@ -29,4 +29,5 @@ target_sources(mbed-ble-cordio
         stack_adaptation/wsf_cs.c
         stack_adaptation/wsf_mbed_os_adaptation.c
         stack_adaptation/wsf_os.c
+        stack_adaptation/mbed_wsf_trace.c
 )

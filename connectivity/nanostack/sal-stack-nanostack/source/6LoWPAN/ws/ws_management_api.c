@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -156,12 +156,13 @@ int ws_management_network_name_validate(
     return 0;
 }
 
-int ws_management_phy_mode_id_set(
+int ws_management_domain_configuration_set(
     int8_t interface_id,
-    uint8_t phy_mode_id)
+    uint8_t regulatory_domain,
+    uint8_t phy_mode_id,
+    uint8_t channel_plan_id)
 {
     protocol_interface_info_entry_t *cur;
-
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
         return -1;
@@ -177,10 +178,22 @@ int ws_management_phy_mode_id_set(
         return -3;
     }
 
-    if (phy_mode_id != 255) {
-        cfg.phy_mode_id = phy_mode_id;
-    } else {
+    if (regulatory_domain == 255) {
+        cfg.regulatory_domain = cfg_default.regulatory_domain;
+    } else if (regulatory_domain != 0) {
+        cfg.regulatory_domain = regulatory_domain;
+    }
+
+    if (phy_mode_id == 255) {
         cfg.phy_mode_id = cfg_default.phy_mode_id;
+    } else if (phy_mode_id != 0) {
+        cfg.phy_mode_id = phy_mode_id;
+    }
+
+    if (channel_plan_id == 255) {
+        cfg.channel_plan_id = cfg_default.channel_plan_id;
+    } else if (channel_plan_id != 0) {
+        cfg.channel_plan_id = channel_plan_id;
     }
 
     if (ws_cfg_phy_set(cur, NULL, &cfg, 0) < 0) {
@@ -190,34 +203,58 @@ int ws_management_phy_mode_id_set(
     return 0;
 }
 
-int ws_management_channel_plan_id_set(
+int ws_management_domain_configuration_get(
     int8_t interface_id,
-    uint8_t channel_plan_id)
+    uint8_t *regulatory_domain,
+    uint8_t *phy_mode_id,
+    uint8_t *channel_plan_id)
 {
     protocol_interface_info_entry_t *cur;
-
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
         return -1;
     }
 
     ws_phy_cfg_t cfg;
-    ws_phy_cfg_t cfg_default;
+    if (ws_cfg_phy_get(&cfg, NULL) < 0) {
+        return -2;
+    }
+
+    if (regulatory_domain) {
+        *regulatory_domain = cfg.regulatory_domain;
+    }
+    if (phy_mode_id) {
+        *phy_mode_id = cfg.phy_mode_id;
+    }
+    if (channel_plan_id) {
+        *channel_plan_id = cfg.channel_plan_id;
+    }
+
+    return 0;
+}
+
+int ws_management_domain_configuration_validate(
+    int8_t interface_id,
+    uint8_t regulatory_domain,
+    uint8_t phy_mode_id,
+    uint8_t channel_plan_id)
+{
+    protocol_interface_info_entry_t *cur;
+    cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (interface_id >= 0 && (!cur || !ws_info(cur))) {
+        return -1;
+    }
+
+    ws_phy_cfg_t cfg;
     if (ws_cfg_phy_get(&cfg, NULL) < 0) {
         return -3;
     }
 
-    if (ws_cfg_phy_default_set(&cfg_default) < 0) {
-        return -3;
-    }
+    cfg.regulatory_domain = regulatory_domain;
+    cfg.phy_mode_id = phy_mode_id;
+    cfg.channel_plan_id = channel_plan_id;
 
-    if (channel_plan_id != 255) {
-        cfg.channel_plan_id = channel_plan_id;
-    } else {
-        cfg.channel_plan_id = cfg_default.channel_plan_id;
-    }
-
-    if (ws_cfg_phy_set(cur, NULL, &cfg, 0) < 0) {
+    if (ws_cfg_phy_validate(NULL, &cfg) < 0) {
         return -4;
     }
 
@@ -890,7 +927,20 @@ int ws_stack_info_get(int8_t interface_id, ws_stack_info_t *info_ptr)
     if (!cur || !ws_info(cur) || !info_ptr) {
         return -1;
     }
-    return ws_bootstrap_get_info(cur, info_ptr);
+    return ws_bootstrap_stack_info_get(cur, info_ptr);
+}
+
+int ws_neighbor_info_get(
+    int8_t interface_id,
+    ws_neighbour_info_t *neighbor_ptr,
+    uint16_t count)
+{
+    protocol_interface_info_entry_t *cur;
+    cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur || !ws_info(cur)) {
+        return -1;
+    }
+    return ws_bootstrap_neighbor_info_get(cur, neighbor_ptr, count);
 }
 
 int ws_device_min_sens_set(

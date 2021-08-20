@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2018, Arm Limited and affiliates.
+ * Copyright (c) 2010-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -138,10 +138,41 @@ extern "C" {
  * After the successful state change, data can be sent using socket_send().
  * The connection can be shut down in either direction with socket_shutdown() function - shutting down write signals end-of-data to the peer.
  *
+ *
  * \section socket-udpicmp How to use UDP and RAW socket:
  *
  * A UDP socket is ready to receive and send data immediately after a successful call of socket_open() and a NET_READY event is received.
  * Data can be transmitted with the socket_sendto() function. An ICMP socket works with same function call.
+ *
+ * \section socket-trafficpriority How to set socket message priority to improve Quality of Service (QoS):
+ *
+ * IPv6 header has a field traffic class that contains a 6-bit Differentiated Services Code Point (DSCP) field that is used for packet
+ * classification. By default the packet class level is set to 0 NS_DSCP_DEFAULT.
+ *
+ * Recommend QoS levels:
+ *
+ * |     Level        |Description                                                                                          |
+ * | :--------------: | :-------------------------------------------------------------------------------------------------: |
+ * | NS_DSCP_DEFAULT  | Default level for normal data usage                                                                 |
+ * | NS_DSCP_AF11     | Higher Application data service for prioritize packet forwarding.                                   |
+ * | NS_DSCP_EF       | Expedited Forwarding (EF) for short messages. Allows low loss, low delay, and low jitter services.  |
+ * |                  | This is meant for very important messages like alerts. EF packet length should be kept in           |
+ * |                  | minimum. This should not be used for any other purpose as it will block other network traffic       |
+ * | NS_DSCP_CS6      | Network protocol message Priority. Application should not use this.                                 |
+ *
+ * High priority messages can be set to use higher than default class by using socket_setsockopt() and
+ * socket_option_traffic_class_dsc_set() helper.
+ *
+ * Example to send a message using Expedited Forwarding class:
+ *
+ * //Set EF class to high priority messages
+ * int16_t traffic_class = socket_option_traffic_class_dsc_set(NS_DSCP_EF);
+ * socket_setsockopt(socket_id, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_TCLASS, &traffic_class, sizeof traffic_class);
+ *
+ * //Set traffic class back to default
+ * traffic_class = socket_option_traffic_class_dsc_set(NS_DSCP_DEFAULT);
+ * socket_setsockopt(socket_id, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_TCLASS, &traffic_class, sizeof traffic_class);
+ *
  */
 
 #include "ns_address.h"
@@ -250,6 +281,24 @@ typedef struct ns_in6_pktinfo {
     int8_t  ipi6_ifindex;    /**< send/recv interface index */
 } ns_in6_pktinfo_t;
 
+/** \name Socket DSCP (Differentiated Services Code Point) QoS level examples.
+ * \anchor MSG_QOS_LEVELS
+ */
+///@{
+/** Standard priority and it is socket default */
+#define NS_DSCP_DEFAULT 0
+/** Application high priority service: Stack priorities these messages over the default priority messages */
+#define NS_DSCP_AF11 10
+/** Expedited Forwarding (EF) QoS level enable high priority state: low loss, low delay, and low jitter services */
+#define NS_DSCP_EF 46
+/** Network protocol traffic allocated QoS level stack may internally use that */
+#define NS_DSCP_CS6 48
+///@}
+
+/** Helper Traffic class Differentiated Services Code for QoS  0-63. 0 is default which define Lowest Priority
+ *
+ * */
+#define socket_option_traffic_class_dsc_set(x)  (uint8_t)((x & 63) << 2)
 
 /** \name Alignment macros for control message headers
 * \anchor CMSG_ALIGN_FLAGS

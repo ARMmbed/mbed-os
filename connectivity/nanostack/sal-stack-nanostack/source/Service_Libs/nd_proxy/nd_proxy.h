@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Arm Limited and affiliates.
+ * Copyright (c) 2015-2018, 2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -142,9 +142,9 @@ bool nd_proxy_upstream_route_onlink(int8_t downstream_id, uint8_t *address);
 NS_DUMMY_DEFINITIONS_OK
 
 #define nd_proxy_downstream_interface_register(interface_id, nd_proxy_req, bridge_state_update) -1
-#define nd_proxy_downstream_interface_unregister(interface_id) -1
-#define nd_proxy_upstream_interface_register(interface_id, route_validation_req) -1
-#define nd_proxy_upstream_interface_unregister(interface_id) -1
+#define nd_proxy_downstream_interface_unregister(interface_id) (-1)
+#define nd_proxy_upstream_interface_register(interface_id, route_validation_req) (-1)
+#define nd_proxy_upstream_interface_unregister(interface_id) (-1)
 #define nd_proxy_enabled_for_downstream(interface_id) false
 #define nd_proxy_enabled_for_upstream(interface_id) false
 #define nd_proxy_target_address_validation(upstream_id, address) false

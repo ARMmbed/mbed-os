@@ -208,6 +208,9 @@
         "NU_PFM_M2351": {
             "stdio-baud-rate": 115200
         },
+        "NU_M2354": {
+            "stdio-baud-rate": 115200
+        },
         "NRF52840_DK": {
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
@@ -235,6 +238,10 @@
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },
+        "ARM_MUSCA_B1": {
+            "stdio-convert-newlines": true,
+            "stdio-baud-rate": 115200
+        },
         "ARM_MUSCA_S1": {
             "stdio-convert-newlines": true,
             "stdio-baud-rate": 115200
@@ -242,6 +249,9 @@
         "MTS_DRAGONFLY_L471QG": {
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
+        },
+        "CY8CKIT064B0S2_4343W": {
+            "stdio-baud-rate": 115200
         }
     }
 }

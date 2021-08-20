@@ -228,7 +228,7 @@ public:
 
     /** Cancels the most recently posted event
      *
-     *  Attempts to cancel the most recently posted event. It is safe to call
+     *  Attempts to cancel the most recently posted event. It is not safe to call
      *  cancel after an event has already been dispatched.
      *
      *  The cancel function is IRQ safe.

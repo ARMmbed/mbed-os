@@ -1,9 +1,12 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-set(MBED_CONFIG_PATH ${CMAKE_CURRENT_SOURCE_DIR}/.mbedbuild CACHE INTERNAL "")
+option(MBED_TEST_BAREMETAL OFF)
 
-include(${MBED_PATH}/tools/cmake/app.cmake)
+set(MBED_CONFIG_PATH ${CMAKE_CURRENT_BINARY_DIR} CACHE INTERNAL "")
+
+include(${CMAKE_CURRENT_LIST_DIR}/app.cmake)
+set(MBED_ROOT ${CMAKE_CURRENT_LIST_DIR}/../.. CACHE INTERNAL "")
 
 # CMake Macro for generalizing CMake configuration across the greentea test suite with configurable parameters
 # Macro args:
@@ -11,16 +14,16 @@ include(${MBED_PATH}/tools/cmake/app.cmake)
 # TEST_INCLUDE_DIRS - Test suite include directories for the test
 # TEST_SOURCES - Test suite sources
 # TEST_REQUIRED_LIBS - Test suite required libraries
-# 
+#
 # calling the macro:
-# mbed_greentea_cmake_macro(
+# mbed_greentea_add_test(
 #    TEST_NAME mbed-platform-system-reset
 #    TEST_INCLUDE_DIRS mbed_store
 #    TEST_SOURCES foo.cpp bar.cpp
 #    TEST_REQUIRED_LIBS mbed-kvstore mbed-xyz
 # )
 
-macro(mbed_greentea_cmake_macro)
+macro(mbed_greentea_add_test)
     set(options)
     set(singleValueArgs TEST_NAME)
     set(multipleValueArgs
@@ -34,41 +37,38 @@ macro(mbed_greentea_cmake_macro)
         "${multipleValueArgs}"
         ${ARGN}
     )
+    add_subdirectory(${MBED_ROOT} build)
 
-    set(TEST_NAME ${MBED_GREENTEA_TEST_NAME})
+    add_executable(${MBED_GREENTEA_TEST_NAME})
 
-    add_subdirectory(${MBED_PATH} build)
+    # Explicitly enable BUILD_TESTING until CTest is added to the Greentea client
+    set(BUILD_TESTING ON)
 
-    add_executable(${TEST_NAME})
-
-    mbed_configure_app_target(${TEST_NAME})
-
-    mbed_set_mbed_target_linker_script(${TEST_NAME})
-
-    target_include_directories(${TEST_NAME}
+    target_include_directories(${MBED_GREENTEA_TEST_NAME}
         PRIVATE
             .
             ${MBED_GREENTEA_TEST_INCLUDE_DIRS}
     )
 
-    target_sources(${TEST_NAME}
+    target_sources(${MBED_GREENTEA_TEST_NAME}
         PRIVATE
-            main.cpp
             ${MBED_GREENTEA_TEST_SOURCES}
     )
 
-    if(MBED_BAREMETAL_GREENTEA_TEST)
-        list(APPEND MBED_GREENTEA_TEST_REQUIRED_LIBS mbed-baremetal mbed-greentea)
+    if(MBED_TEST_BAREMETAL)
+        list(APPEND MBED_GREENTEA_TEST_REQUIRED_LIBS mbed-baremetal)
     else()
-        list(APPEND MBED_GREENTEA_TEST_REQUIRED_LIBS mbed-os mbed-greentea)
+        list(APPEND MBED_GREENTEA_TEST_REQUIRED_LIBS mbed-os)
     endif()
 
-    target_link_libraries(${TEST_NAME}
+    list(APPEND MBED_GREENTEA_TEST_REQUIRED_LIBS greentea::client_userio mbed-greentea-io mbed-unity mbed-utest)
+
+    target_link_libraries(${MBED_GREENTEA_TEST_NAME}
         PRIVATE
             ${MBED_GREENTEA_TEST_REQUIRED_LIBS}
     )
 
-    mbed_set_post_build(${TEST_NAME})
+    mbed_set_post_build(${MBED_GREENTEA_TEST_NAME})
 
     option(VERBOSE_BUILD "Have a verbose build process")
     if(VERBOSE_BUILD)

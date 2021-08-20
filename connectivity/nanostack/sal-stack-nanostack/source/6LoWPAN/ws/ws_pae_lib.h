@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,7 +36,7 @@ typedef struct supp_entry_s {
     kmp_addr_t addr;                   /**< EUI-64 (Relay IP address, Relay port) */
     sec_prot_keys_t sec_keys;          /**< Security keys */
     uint32_t ticks;                    /**< Ticks */
-    uint16_t retry_ticks;              /**< Retry ticks */
+    uint16_t waiting_ticks;            /**< Waiting ticks */
     uint16_t store_ticks;              /**< NVM store ticks */
     bool active : 1;                   /**< Is active */
     bool access_revoked : 1;           /**< Nodes access is revoked */
@@ -212,15 +212,25 @@ void ws_pae_lib_supp_list_init(supp_list_t *supp_list);
 supp_entry_t *ws_pae_lib_supp_list_add(supp_list_t *supp_list, const kmp_addr_t *addr);
 
 /**
+ * ws_pae_lib_supp_deleted supplicant delete callback
+ *
+ * \param instance Instance
+ *
+ */
+typedef void ws_pae_lib_supp_deleted(void *instance);
+
+/**
  *  ws_pae_lib_supp_list_add removes entry from supplicant list
  *
+ * \param instance Instance
  * \param supp_list supplicant list
  * \param entry entry
+ * \param supp_deleted callback to call on supplicant delete
  *
  * \return < 0 failure
  * \return >= 0 success
  */
-int8_t ws_pae_lib_supp_list_remove(supp_list_t *supp_list, supp_entry_t *entry);
+int8_t ws_pae_lib_supp_list_remove(void *instance, supp_list_t *supp_list, supp_entry_t *supp, ws_pae_lib_supp_deleted supp_deleted);
 
 /**
  *  ws_pae_lib_supp_list_entry_eui_64_get gets entry from supplicant list based on EUI-64
@@ -249,11 +259,12 @@ void ws_pae_lib_supp_list_delete(supp_list_t *supp_list);
  * \param inactive_supp_list list of inactive supplicants
  * \param ticks timer ticks
  * \param timeout callback to call on timeout
+ * \param supp_deleted callback to call on supplicant delete
  *
  * \return true timer needs still to be running
  * \return false timer can be stopped
  */
-bool ws_pae_lib_supp_list_timer_update(void *instance, supp_list_t *active_supp_list, uint16_t ticks, ws_pae_lib_kmp_timer_timeout timeout);
+bool ws_pae_lib_supp_list_timer_update(void *instance, supp_list_t *active_supp_list, uint16_t ticks, ws_pae_lib_kmp_timer_timeout timeout, ws_pae_lib_supp_deleted supp_deleted);
 
 /**
  *  ws_pae_lib_supp_list_slow_timer_update updates slow timer on supplicant list
@@ -336,31 +347,23 @@ void ws_pae_lib_supp_list_to_active(supp_list_t *active_supp_list, supp_list_t *
  * \param instance Instance
  * \param active_supp_list list of active supplicants
  * \param entry supplicant entry
+ * \param supp_deleted callback to call on supplicant delete
  *
  */
-void ws_pae_lib_supp_list_to_inactive(void *instance, supp_list_t *active_supp_list, supp_entry_t *entry);
+void ws_pae_lib_supp_list_to_inactive(void *instance, supp_list_t *active_supp_list, supp_entry_t *entry, ws_pae_lib_supp_deleted supp_deleted);
 
 /**
  *  ws_pae_lib_supp_list_purge purge inactive supplicants list
  *
+ * \param instance Instance
  * \param active_supp_list list of active supplicants
  * \param max_number maximum number of supplicant entries, can be set to 0 in combination with max_purge
  *                   to free list entries even when maximum number supplicant entries has not been reached
  * \param max_purge maximum number of supplicants to purge in one call, 0 means not limited
+ * \param supp_deleted callback to call on supplicant delete
  *
  */
-void ws_pae_lib_supp_list_purge(supp_list_t *active_supp_list, uint16_t max_number, uint8_t max_purge);
-
-/**
- *  ws_pae_lib_supp_list_limit_reached_check check if active supplicant list limit has been reached
- *
- * \param active_supp_list list of active supplicants
- * \param max_number maximum number of supplicant entries
- *
- * \return true limit has been reached
- * \return false limit has not been reached
- */
-bool ws_pae_lib_supp_list_active_limit_reached(supp_list_t *active_supp_list, uint16_t max_number);
+void ws_pae_lib_supp_list_purge(void *instance, supp_list_t *active_supp_list, uint16_t max_number, uint8_t max_purge, ws_pae_lib_supp_deleted supp_deleted);
 
 /**
  *  ws_pae_lib_supp_list_kmp_count counts the number of KMPs of a certain type in a list of supplicants
@@ -374,6 +377,17 @@ bool ws_pae_lib_supp_list_active_limit_reached(supp_list_t *active_supp_list, ui
 uint16_t ws_pae_lib_supp_list_kmp_count(supp_list_t *supp_list, kmp_type_e type);
 
 /**
+ *  ws_pae_lib_supp_list_entry_is_in_list checks if the entry is in the list
+ *
+ * \param supp_list list of supplicants
+ * \param searched_entry entry that is searched
+ *
+ * \return TRUE entry is in list, FALSE otherwise
+ *
+ */
+bool ws_pae_lib_supp_list_entry_is_in_list(supp_list_t *supp_list, supp_entry_t *searched_entry);
+
+/**
  *  ws_pae_lib_supp_list_kmp_receive_check check if received message is for this KMP in a list of supplicants
  *
  * \param supp_list list of supplicants
@@ -384,16 +398,6 @@ uint16_t ws_pae_lib_supp_list_kmp_count(supp_list_t *supp_list, kmp_type_e type)
  *
  */
 kmp_api_t *ws_pae_lib_supp_list_kmp_receive_check(supp_list_t *supp_list, const void *pdu, uint16_t size);
-
-/**
- *  ws_pae_lib_supp_list_entry_retry_timer_get checks if some supplicant has retry timer running
- *
- * \param supp_list list of supplicants
- *
- * \return supplicant with retry timer running or NULL if no supplicants with timer running
- *
- */
-supp_entry_t *ws_pae_lib_supp_list_entry_retry_timer_get(supp_list_t *supp_list);
 
 /**
  *  ws_pae_lib_shared_comp_list_init init shared component list

@@ -23,10 +23,6 @@
             "internal_size": "2*FLASH_SECTOR_SIZE",
             "internal_base_address": "0x080C0000"
         },
-        "ARM_MUSCA_A1_S": {
-            "internal_size": "0x8000",
-            "internal_base_address": "0x00420000"
-        },
        "ARM_MUSCA_B1_S": {
             "internal_size": "0x8000",
             "internal_base_address": "0x10000000"

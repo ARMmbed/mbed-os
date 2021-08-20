@@ -28,9 +28,11 @@
 
 namespace mbed {
 
-/** Lazily allocated heap-backed block device
+/** Lazily allocated heap-backed block device.
  *
- * Useful for simulating a block device and tests
+ * Useful for simulating a block device and tests.
+ *
+ * @note Each block is allocated when used, and freed when erased.
  *
  * @code
  * #include "mbed.h"

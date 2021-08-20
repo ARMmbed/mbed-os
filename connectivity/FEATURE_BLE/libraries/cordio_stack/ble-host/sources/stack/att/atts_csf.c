@@ -134,14 +134,14 @@ uint8_t attsCsfIsClientChangeAware(dmConnId_t connId, uint16_t handle)
 /*!
  *  \brief  Update client change-aware state based on protocol event.
  *
- *  \param  connId      Connection handle.
+ *  \param  connId      Connection ID.
  *  \param  opcode      ATT PDU type.
  *  \param  pPacket     Data packet from L2CAP.
  *
  *  \return \ref ATT_SUCCESS if client is change-aware, else \ref ATT_ERR_DATABASE_OUT_OF_SYNC.
  */
 /*************************************************************************************************/
-uint8_t attsCsfActClientState(uint16_t handle, uint8_t opcode, uint8_t *pPacket)
+uint8_t attsCsfActClientState(dmConnId_t connId, uint8_t opcode, uint8_t *pPacket)
 {
   uint8_t err = ATT_SUCCESS;
   attsCsfRec_t *pRec;
@@ -152,7 +152,7 @@ uint8_t attsCsfActClientState(uint16_t handle, uint8_t opcode, uint8_t *pPacket)
     return err;
   }
 
-  pRec = &attsCsfCb.attsCsfTable[handle];
+  pRec = &attsCsfCb.attsCsfTable[connId - 1];
 
   /* If the client is change-unaware */
   if (pRec->changeAwareState == ATTS_CLIENT_CHANGE_UNAWARE)
@@ -167,7 +167,7 @@ uint8_t attsCsfActClientState(uint16_t handle, uint8_t opcode, uint8_t *pPacket)
       /* Move client change-aware state to pending */
       pRec->changeAwareState = ATTS_CLIENT_CHANGE_PENDING_AWARE;
 
-      ATT_TRACE_INFO2("ConnId %d change aware state is %d", handle + 1,
+      ATT_TRACE_INFO2("ConnId %d change aware state is %d", connId,
                       ATTS_CLIENT_CHANGE_PENDING_AWARE);
     }
 
@@ -189,12 +189,12 @@ uint8_t attsCsfActClientState(uint16_t handle, uint8_t opcode, uint8_t *pPacket)
       /* Move client change-aware state to aware */
       pRec->changeAwareState = ATTS_CLIENT_CHANGE_AWARE;
 
-      ATT_TRACE_INFO2("ConnId %d change aware state is %d", handle + 1, ATTS_CLIENT_CHANGE_AWARE);
+      ATT_TRACE_INFO2("ConnId %d change aware state is %d", connId, ATTS_CLIENT_CHANGE_AWARE);
 
       /* Callback to application to store updated awareness, if bonded. */
       if (attsCsfCb.writeCback != NULL)
       {
-        attsCsfCb.writeCback(handle + 1, pRec->changeAwareState, &pRec->csf);
+        attsCsfCb.writeCback(connId, pRec->changeAwareState, &pRec->csf);
       }
     }
     else
@@ -227,7 +227,7 @@ uint8_t attsCsfActClientState(uint16_t handle, uint8_t opcode, uint8_t *pPacket)
         */
         pRec->changeAwareState = ATTS_CLIENT_CHANGE_AWARE_DB_READ_PENDING;
 
-        ATT_TRACE_INFO2("ConnId %d change aware state is %d", handle + 1,
+        ATT_TRACE_INFO2("ConnId %d change aware state is %d", connId,
                         ATTS_CLIENT_CHANGE_AWARE_DB_READ_PENDING);
       }
     }
@@ -235,7 +235,7 @@ uint8_t attsCsfActClientState(uint16_t handle, uint8_t opcode, uint8_t *pPacket)
 
   if (err == ATT_ERR_DATABASE_OUT_OF_SYNC)
   {
-    ATT_TRACE_INFO2("ConnId %d out of sync, PDU with opcode 0x%02x ignored!", handle + 1, opcode);
+    ATT_TRACE_INFO2("ConnId %d out of sync, PDU with opcode 0x%02x ignored!", connId, opcode);
   }
 
   return err;

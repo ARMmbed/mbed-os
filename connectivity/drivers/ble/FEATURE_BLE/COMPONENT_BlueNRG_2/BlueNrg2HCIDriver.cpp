@@ -42,6 +42,11 @@
 #include "rtos/Semaphore.h"
 #include "rtos/Mutex.h"
 
+#include "mbed-trace/mbed_trace.h"
+#include "common/ble_trace_helpers.h"
+
+#define TRACE_GROUP "BLHC"
+
 #define HCI_RESET_RAND_CNT              4
 
 #define VENDOR_SPECIFIC_EVENT           0xFF
@@ -55,7 +60,11 @@
 #define RANDOM_STATIC_ADDRESS_OFFSET    0x80
 #define LL_WITHOUT_HOST_OFFSET          0x2C
 
+#ifdef NDEBUG
 #define SPI_STACK_SIZE                  1024
+#else
+#define SPI_STACK_SIZE                  2048
+#endif
 
 #define IRQ_TIMEOUT_DURATION            100 //ms
 

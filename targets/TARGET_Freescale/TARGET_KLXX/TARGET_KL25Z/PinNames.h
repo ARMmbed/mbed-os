@@ -14,6 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* MBED TARGET LIST: KL25Z */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -203,8 +206,8 @@ typedef enum {
     LED4 = LED_BLUE,
 
     // USB Pins
-    USBTX = PTA2,
-    USBRX = PTA1,
+    CONSOLE_TX = PTA2,
+    CONSOLE_RX = PTA1,
 
     // Arduino Headers
     D0 = PTA1,

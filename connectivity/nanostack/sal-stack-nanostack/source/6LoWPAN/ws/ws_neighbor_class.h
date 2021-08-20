@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,7 +33,6 @@ typedef struct ws_neighbor_class_entry {
     bool broadcast_timing_info_stored: 1;
     bool broadcast_shedule_info_stored: 1;
     bool synch_done : 1;
-    bool negative_aro_send : 1;
     bool unicast_data_rx : 1;
 } ws_neighbor_class_entry_t;
 

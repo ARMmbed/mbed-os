@@ -29,6 +29,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+
+/* MBED TARGET LIST: UHURU_RAVEN */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -135,30 +138,19 @@ typedef enum {
 
     // STDIO for console print
 #ifdef MBED_CONF_TARGET_STDIO_UART_TX
-    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+    CONSOLE_TX = MBED_CONF_TARGET_STDIO_UART_TX,
 #else
-    STDIO_UART_TX = PD_8,
+    CONSOLE_TX = PD_8,
 #endif
 #ifdef MBED_CONF_TARGET_STDIO_UART_RX
-    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+    CONSOLE_RX = MBED_CONF_TARGET_STDIO_UART_RX,
 #else
-    STDIO_UART_RX = PD_9,
+    CONSOLE_RX = PD_9,
 #endif
 
-    // Generic signals namings
-    LED1        = PE_10, // LED_USER
-    LED2        = PE_10, // LED_USER
-    LED3        = PE_10, // LED_USER
-    LED4        = PE_10, // LED_USER
     SW_USER     = PC_13,
-    LED_USER    = LED1,
-    USER_BUTTON = SW_USER,
-    // Standardized button names
-    BUTTON1 = USER_BUTTON,
-    SERIAL_TX   = STDIO_UART_TX, // Virtual Com Port
-    SERIAL_RX   = STDIO_UART_RX, // Virtual Com Port
-    USBTX       = STDIO_UART_TX, // Virtual Com Port
-    USBRX       = STDIO_UART_RX, // Virtual Com Port
+    LED_USER    = PE_10,
+
     I2C_SCL     = PB_8,
     I2C_SDA     = PB_9,
     SPI_MOSI    = PE_14,
@@ -170,6 +162,11 @@ typedef enum {
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
+
+// Standardized LED and button names
+#define LED1     PE_10  // LED_USER
+#define BUTTON1  PC_13
+
 
 #ifdef __cplusplus
 }

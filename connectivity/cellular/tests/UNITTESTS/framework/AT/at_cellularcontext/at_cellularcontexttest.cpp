@@ -58,10 +58,8 @@ protected:
         ATHandler_stub::call_immediately = false;
         ATHandler_stub::resp_info_true_counter = false;
         ATHandler_stub::info_elem_true_counter = false;
-        ATHandler_stub::int_valid_count_table[kRead_int_table_size];
         ATHandler_stub::int_count = kRead_int_table_size;
         ATHandler_stub::read_string_index = kRead_string_table_size;
-        ATHandler_stub::read_string_table[kRead_string_table_size];
         ATHandler_stub::resp_stop_success_count = kResp_stop_count_default;
         CellularDevice_stub::connect_counter = 2;
 
@@ -153,6 +151,8 @@ public:
         if (!_stack) {
             _stack = new my_stack(_at, *get_device());
         }
+
+        return _stack;
     }
     virtual uint32_t get_timeout_for_operation(ContextOperation op) const
     {

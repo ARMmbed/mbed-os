@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Arm Limited and affiliates.
+ * Copyright (c) 2015-2018, 2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,6 +46,7 @@
 #include "RPL/rpl_structures.h"
 #include "RPL/rpl_policy.h"
 #include "RPL/rpl_data.h"
+#include "6LoWPAN/ws/ws_common.h"
 
 #define TRACE_GROUP "RPLa"
 
@@ -334,8 +335,25 @@ static buffer_t *rpl_data_exthdr_provider_hbh_2(buffer_t *buf, rpl_instance_t *i
 
     bool destination_in_instance = false;
     uint16_t ext_size = 0;
-    if (addr_ipv6_equal(route_info->next_hop_addr, buf->dst_sa.address) ||
-            addr_ipv6_equal(buf->dst_sa.address, dodag->id)) {
+
+    // Limit creation of multi-hop RPL packets
+    // Previous code created multi-hop RPL packets as much as possible,
+    // sending direct to border router in particular.
+    // This has caused WiSUN interop problems, so limit this.
+    // a) When creating a basic packet, have a policy option that prevents
+    //    direct RPL header insertion, forcing tunnelling. This means
+    //    we never put a RPL header on the innermost packet. Option is
+    //    off by default, except for WiSUN, as it increases packet size
+    //    when talking to the border router (eg DAOs).
+    //  b) When putting a packet into a tunnel, set the tunnel exit to the
+    //     next hop always, rather than having a special case for exiting
+    //     at the border router. This is probably a net benefit to packet
+    //     size because of the LL addresses used on the outer header, so
+    //     this is an unconditional change. Exception remains for local
+    //     DODAGs, where the destination address must be the DODAGID.
+    const uint8_t *ip_dest = buf->route->ip_dest ? buf->route->ip_dest : buf->dst_sa.address;
+    if (addr_ipv6_equal(route_info->next_hop_addr, ip_dest)  || (!rpl_policy_force_tunnel() &&
+                                                                 addr_ipv6_equal(ip_dest, dodag->id))) {
         destination_in_instance = true;
 
         if (buf->rpl_option) {
@@ -357,6 +375,7 @@ static buffer_t *rpl_data_exthdr_provider_hbh_2(buffer_t *buf, rpl_instance_t *i
         case IPV6_EXTHDR_INSERT: {
             if (!destination_in_instance) {
                 /* We don't add a header - we'll do it on the tunnel */
+                buf->options.ipv6_use_min_mtu = 1;
                 *result = 0;
                 return buf;
             }
@@ -409,10 +428,12 @@ static buffer_t *rpl_data_exthdr_provider_hbh_2(buffer_t *buf, rpl_instance_t *i
             rpl_data_locate_info(buf, &opt, NULL);
             if (!opt) {
                 *result = IPV6_EXTHDR_MODIFY_TUNNEL;
-                // Tunnel to next hop in general case, but if going to DODAGID,
-                // it can tunnel all the way (and it HAS to if it is a local
-                // DODAG).
-                if (!addr_ipv6_equal(buf->dst_sa.address, dodag->id)) {
+                // Tunnel to next hop always, even if we could tunnel all
+                // the way to DODAG root (this may be better for
+                // packet compression, and it was found to be necessary for
+                // Wi-SUN interoperability). Except for local DODAGs the
+                // destination must be the DODAGID, so retain that in dst_sa.
+                if (!rpl_instance_id_is_local(instance->id)) {
                     memcpy(buf->dst_sa.address, route_info->next_hop_addr, 16);
                 }
                 buf->src_sa.addr_type = ADDR_NONE; // force auto-selection
@@ -427,18 +448,20 @@ static buffer_t *rpl_data_exthdr_provider_hbh_2(buffer_t *buf, rpl_instance_t *i
                  * strictly less for Down packets and strictly greater for Up.
                  */
                 sender_rank = common_read_16_bit(opt + 4);
-                rpl_cmp_t cmp = rpl_rank_compare_dagrank_rank(dodag, sender_rank, instance->current_rank);
-                rpl_cmp_t expected_cmp = (opt[2] & RPL_OPT_DOWN) ? RPL_CMP_LESS : RPL_CMP_GREATER;
-                if (cmp != expected_cmp) {
-                    /* Set the Rank-Error bit; if already set, drop */
-                    if (opt[2] & RPL_OPT_RANK_ERROR) {
-                        protocol_stats_update(STATS_RPL_ROUTELOOP, 1);
-                        tr_info("Forwarding inconsistency R");
-                        rpl_instance_inconsistency(instance);
-                        *result = -1;
-                        return buf;
-                    } else {
-                        opt[2] |= RPL_OPT_RANK_ERROR;
+                if (sender_rank != 0) {
+                    rpl_cmp_t cmp = rpl_rank_compare_dagrank_rank(dodag, sender_rank, instance->current_rank);
+                    rpl_cmp_t expected_cmp = (opt[2] & RPL_OPT_DOWN) ? RPL_CMP_LESS : RPL_CMP_GREATER;
+                    if (cmp != expected_cmp) {
+                        /* Set the Rank-Error bit; if already set, drop */
+                        if (opt[2] & RPL_OPT_RANK_ERROR) {
+                            protocol_stats_update(STATS_RPL_ROUTELOOP, 1);
+                            tr_info("Forwarding inconsistency R");
+                            rpl_instance_inconsistency(instance);
+                            *result = -1;
+                            return buf;
+                        } else {
+                            opt[2] |= RPL_OPT_RANK_ERROR;
+                        }
                     }
                 }
             }
@@ -944,6 +967,7 @@ static buffer_t *rpl_data_exthdr_provider_srh(buffer_t *buf, ipv6_exthdr_stage_t
         if (!buf->options.tunnelled) {
             if (stage == IPV6_EXTHDR_SIZE || stage == IPV6_EXTHDR_INSERT) {
                 *result = 0;
+                buf->options.ipv6_use_min_mtu = 1;
                 return buf;
             }
         }
@@ -974,7 +998,7 @@ static buffer_t *rpl_data_exthdr_provider_srh(buffer_t *buf, ipv6_exthdr_stage_t
      * (RFC 6554 4.1). When not tunnelling, we include all hops regardless,
      * which means the final destination is there as needed.
      */
-    srh_info = rpl_data_sr_compute_header_size(final_rpl_dest, buf->options.tunnelled && buf->options.type == IPV6_NH_IPV6 ? buf->options.hop_limit : 0xFF);
+    srh_info = rpl_data_sr_compute_header_size(final_rpl_dest, buf->options.tunnelled ? buf->options.hop_limit : 0xFF);
     if (!srh_info) {
         /* No source routing header required - this must be because it's one hop. */
         /* In this case, we do need to add a HbH option header */
@@ -1010,6 +1034,7 @@ static buffer_t *rpl_data_exthdr_provider_srh(buffer_t *buf, ipv6_exthdr_stage_t
             if (final_rpl_dest != buf->dst_sa.address) {
                 memcpy(buf->dst_sa.address, final_rpl_dest, 16);
             }
+            buf->route->ip_dest = rpl_data_sr_next_hop();
             *result = IPV6_EXTHDR_MODIFY_TUNNEL;
             buf->src_sa.addr_type = ADDR_NONE; // force auto-selection
             return buf;
@@ -1033,6 +1058,11 @@ drop:
     }
 
     buf->options.ip_extflags |= IPEXT_SRH_RPL;
+
+    if (ws_info(cur)) {
+        //Call SRC route header handler hook to Wi-SUN refresh border router alive
+        ws_common_border_router_alive_update(cur);
+    }
 
     uint16_t hlen = (ptr[1] + 1) * 8;
     uint8_t segs_left = ptr[3];

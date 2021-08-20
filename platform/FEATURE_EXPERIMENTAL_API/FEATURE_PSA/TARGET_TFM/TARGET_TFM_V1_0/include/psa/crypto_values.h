@@ -24,6 +24,8 @@
 #ifndef PSA_CRYPTO_VALUES_H
 #define PSA_CRYPTO_VALUES_H
 
+#include "mbedtls_svc_key_id.h"
+
 /** \defgroup error Error codes
  * @{
  */
@@ -983,6 +985,26 @@
  */
 #define PSA_ALG_CBC_NO_PADDING                  ((psa_algorithm_t)0x04600100)
 
+/** The Electronic Code Book (ECB) mode of a block cipher, with no padding.
+ *
+ * \warning ECB mode does not protect the confidentiality of the encrypted data
+ * except in extremely narrow circumstances. It is recommended that applications
+ * only use ECB if they need to construct an operating mode that the
+ * implementation does not provide. Implementations are encouraged to provide
+ * the modes that applications need in preference to supporting direct access
+ * to ECB.
+ *
+ * The underlying block cipher is determined by the key type.
+ *
+ * This symmetric cipher mode can only be used with messages whose lengths are a
+ * multiple of the block size of the chosen block cipher.
+ *
+ * ECB mode does not accept an initialization vector (IV). When using a
+ * multi-part cipher operation with this algorithm, psa_cipher_generate_iv()
+ * and psa_cipher_set_iv() must not be called.
+ */
+#define PSA_ALG_ECB_NO_PADDING                  ((psa_algorithm_t)0x04404400)
+
 /** The CBC block cipher chaining mode with PKCS#7 padding.
  *
  * The underlying block cipher is determined by the key type.
@@ -1696,6 +1718,85 @@
  */
 #define PSA_KEY_DERIVATION_INPUT_SEED       ((psa_key_derivation_step_t)0x0204)
 
+/** Extract the curve from an elliptic curve key type. */
+#define PSA_KEY_TYPE_ECC_GET_FAMILY(type)                        \
+    ((psa_ecc_family_t) (PSA_KEY_TYPE_IS_ECC(type) ?             \
+                        ((type) & PSA_KEY_TYPE_ECC_CURVE_MASK) : \
+                        0))
+
+
+/** SEC Koblitz curves over prime fields.
+ *
+ * This family comprises the following curves:
+ * secp192k1, secp224k1, secp256k1.
+ * They are defined in _Standards for Efficient Cryptography_,
+ * _SEC 2: Recommended Elliptic Curve Domain Parameters_.
+ * https://www.secg.org/sec2-v2.pdf
+ */
+#define PSA_ECC_FAMILY_SECP_K1           ((psa_ecc_family_t) 0x17)
+
+/** SEC random curves over prime fields.
+ *
+ * This family comprises the following curves:
+ * secp192k1, secp224r1, secp256r1, secp384r1, secp521r1.
+ * They are defined in _Standards for Efficient Cryptography_,
+ * _SEC 2: Recommended Elliptic Curve Domain Parameters_.
+ * https://www.secg.org/sec2-v2.pdf
+ */
+#define PSA_ECC_FAMILY_SECP_R1           ((psa_ecc_family_t) 0x12)
+/* SECP160R2 (SEC2 v1, obsolete) */
+#define PSA_ECC_FAMILY_SECP_R2           ((psa_ecc_family_t) 0x1b)
+
+/** SEC Koblitz curves over binary fields.
+ *
+ * This family comprises the following curves:
+ * sect163k1, sect233k1, sect239k1, sect283k1, sect409k1, sect571k1.
+ * They are defined in _Standards for Efficient Cryptography_,
+ * _SEC 2: Recommended Elliptic Curve Domain Parameters_.
+ * https://www.secg.org/sec2-v2.pdf
+ */
+#define PSA_ECC_FAMILY_SECT_K1           ((psa_ecc_family_t) 0x27)
+
+/** SEC random curves over binary fields.
+ *
+ * This family comprises the following curves:
+ * sect163r1, sect233r1, sect283r1, sect409r1, sect571r1.
+ * They are defined in _Standards for Efficient Cryptography_,
+ * _SEC 2: Recommended Elliptic Curve Domain Parameters_.
+ * https://www.secg.org/sec2-v2.pdf
+ */
+#define PSA_ECC_FAMILY_SECT_R1           ((psa_ecc_family_t) 0x22)
+
+/** SEC additional random curves over binary fields.
+ *
+ * This family comprises the following curve:
+ * sect163r2.
+ * It is defined in _Standards for Efficient Cryptography_,
+ * _SEC 2: Recommended Elliptic Curve Domain Parameters_.
+ * https://www.secg.org/sec2-v2.pdf
+ */
 /**@}*/
+#define PSA_ECC_FAMILY_SECT_R2           ((psa_ecc_family_t) 0x2b)
+
+/** Brainpool P random curves.
+ *
+ * This family comprises the following curves:
+ * brainpoolP160r1, brainpoolP192r1, brainpoolP224r1, brainpoolP256r1,
+ * brainpoolP320r1, brainpoolP384r1, brainpoolP512r1.
+ * It is defined in RFC 5639.
+ */
+#define PSA_ECC_FAMILY_BRAINPOOL_P_R1    ((psa_ecc_family_t) 0x30)
+
+/** Curve25519 and Curve448.
+ *
+ * This family comprises the following Montgomery curves:
+ * - 255-bit: Bernstein et al.,
+ *   _Curve25519: new Diffie-Hellman speed records_, LNCS 3958, 2006.
+ *   The algorithm #PSA_ALG_ECDH performs X25519 when used with this curve.
+ * - 448-bit: Hamburg,
+ *   _Ed448-Goldilocks, a new elliptic curve_, NIST ECC Workshop, 2015.
+ *   The algorithm #PSA_ALG_ECDH performs X448 when used with this curve.
+ */
+#define PSA_ECC_FAMILY_MONTGOMERY        ((psa_ecc_family_t) 0x41)
 
 #endif /* PSA_CRYPTO_VALUES_H */

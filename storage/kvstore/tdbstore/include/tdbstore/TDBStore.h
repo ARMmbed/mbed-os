@@ -346,14 +346,15 @@ private:
     int reset_area(uint8_t area);
 
     /**
-     * @brief Erase an erase unit.
+     * @brief Erase an area.
      *
      * @param[in]  area                   Area.
      * @param[in]  offset                 Offset in area.
+     * @param[in]  size                   Number of bytes to erase.
      *
      * @returns 0 for success, nonzero for failure.
      */
-    int erase_erase_unit(uint8_t area, uint32_t offset);
+    int erase_area(uint8_t area, uint32_t offset, uint32_t size);
 
     /**
      * @brief Calculate addresses and sizes of areas.

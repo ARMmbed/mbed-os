@@ -1,10 +1,6 @@
 {
     "name": "sx1272-lora-driver",
     "config": {
-        "radio": {
-            "value": "SX1272",
-            "macro_name" : "MBED_CONF_LORA_RADIO"
-        },
         "spi-frequency": {
         	"help": "SPI frequency, Default: 8 MHz",
         	"value": 8000000

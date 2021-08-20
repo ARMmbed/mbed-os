@@ -10,8 +10,11 @@ include(${MBED_PATH}/tools/cmake/mbed_greentea.cmake)
 
 project(${TEST_TARGET})
 
-mbed_greentea_cmake_macro(
-    TEST_NAME ${TEST_TARGET}
+mbed_greentea_add_test(
+    TEST_NAME
+        ${TEST_TARGET}
+    TEST_SOURCES
+        main.cpp
     TEST_REQUIRED_LIBS
         mbed-storage-blockdevice
 )

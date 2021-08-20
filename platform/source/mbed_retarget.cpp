@@ -180,7 +180,8 @@ DirectSerial::DirectSerial(PinName tx, PinName rx, int baud)
     if (stdio_uart_inited) {
         return;
     }
-    static const serial_pinmap_t console_pinmap = get_uart_pinmap(STDIO_UART_TX, STDIO_UART_RX);
+
+    static const serial_pinmap_t console_pinmap = get_uart_pinmap(CONSOLE_TX, CONSOLE_RX);
     serial_init_direct(&stdio_uart, &console_pinmap);
     serial_baud(&stdio_uart, baud);
 
@@ -255,7 +256,7 @@ static void do_serial_init()
         return;
     }
 
-    static const serial_pinmap_t console_pinmap = get_uart_pinmap(STDIO_UART_TX, STDIO_UART_RX);
+    static const serial_pinmap_t console_pinmap = get_uart_pinmap(CONSOLE_TX, CONSOLE_RX);
     serial_init_direct(&stdio_uart, &console_pinmap);
     serial_baud(&stdio_uart, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
 #if   CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTS
@@ -334,7 +335,7 @@ static FileHandle *default_console()
 #if MBED_CONF_TARGET_CONSOLE_UART && DEVICE_SERIAL
 
 #  if MBED_CONF_PLATFORM_STDIO_BUFFERED_SERIAL
-    static const serial_pinmap_t console_pinmap = get_uart_pinmap(STDIO_UART_TX, STDIO_UART_RX);
+    static const serial_pinmap_t console_pinmap = get_uart_pinmap(CONSOLE_TX, CONSOLE_RX);
     static BufferedSerial console(console_pinmap, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
 #   if   CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTS
     static const serial_fc_pinmap_t fc_pinmap = get_uart_fc_pinmap(STDIO_UART_RTS, NC);
@@ -347,7 +348,7 @@ static FileHandle *default_console()
     console.serial_set_flow_control(SerialBase::RTSCTS, fc_pinmap);
 #   endif
 #  else
-    static const serial_pinmap_t console_pinmap = get_uart_pinmap(STDIO_UART_TX, STDIO_UART_RX);
+    static const serial_pinmap_t console_pinmap = get_uart_pinmap(CONSOLE_TX, CONSOLE_RX);
     static DirectSerial console(console_pinmap, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
 #  endif
 #else // MBED_CONF_TARGET_CONSOLE_UART && DEVICE_SERIAL
@@ -1180,7 +1181,7 @@ extern "C" int fcntl(int fildes, int cmd, ...)
     switch (cmd) {
         case F_GETFL: {
             int flags = 0;
-            if (fhc->is_blocking()) {
+            if (!fhc->is_blocking()) {
                 flags |= O_NONBLOCK;
             }
             return flags;
@@ -1190,11 +1191,12 @@ extern "C" int fcntl(int fildes, int cmd, ...)
             va_start(ap, cmd);
             int flags = va_arg(ap, int);
             va_end(ap);
-            int ret = fhc->set_blocking(flags & O_NONBLOCK);
+            int ret = fhc->set_blocking(!(flags & O_NONBLOCK));
             if (ret < 0) {
                 errno = -ret;
                 return -1;
             }
+
             return 0;
         }
 
@@ -1931,4 +1933,299 @@ extern "C" MBED_WEAK long int _scanf_mbtowc(
 )
 {
     return 0;
+}
+
+static  void validate_errno_values(int value)
+{
+
+    switch (value) {
+        case EPERM:
+            break;
+        case ENOENT:
+            break;
+        case ESRCH:
+            break;
+        case EINTR:
+            break;
+        case EIO:
+            break;
+        case ENXIO:
+            break;
+        case E2BIG:
+            break;
+        case ENOEXEC:
+            break;
+        case EBADF:
+            break;
+        case ECHILD:
+            break;
+        case ENOMEM:
+            break;
+        case EACCES:
+            break;
+        case EFAULT:
+            break;
+        case ENOTBLK:
+            break;
+        case EBUSY:
+            break;
+        case EEXIST:
+            break;
+        case EXDEV:
+            break;
+        case ENODEV:
+            break;
+        case ENOTDIR:
+            break;
+        case EISDIR:
+            break;
+        case EINVAL:
+            break;
+        case ENFILE:
+            break;
+        case EMFILE:
+            break;
+        case ENOTTY:
+            break;
+        case ETXTBSY:
+            break;
+        case EFBIG:
+            break;
+        case ENOSPC:
+            break;
+        case ESPIPE:
+            break;
+        case EROFS:
+            break;
+        case EMLINK:
+            break;
+        case EPIPE:
+            break;
+        case EDOM:
+            break;
+        case ERANGE:
+            break;
+        case EDEADLK:
+            break;
+        case ENAMETOOLONG:
+            break;
+        case ENOLCK:
+            break;
+        case ENOSYS:
+            break;
+        case ENOTEMPTY:
+            break;
+        case ELOOP:
+            break;
+        case ENOMSG:
+            break;
+        case EIDRM:
+            break;
+        case ECHRNG:
+            break;
+        case EL2NSYNC:
+            break;
+        case EL3HLT:
+            break;
+        case EL3RST:
+            break;
+        case ELNRNG:
+            break;
+        case EUNATCH:
+            break;
+        case ENOCSI:
+            break;
+        case EL2HLT:
+            break;
+        case EBADE:
+            break;
+        case EBADR:
+            break;
+        case EXFULL:
+            break;
+        case ENOANO:
+            break;
+        case EBADRQC:
+            break;
+        case EBADSLT:
+            break;
+        case EBFONT:
+            break;
+        case ENOSTR:
+            break;
+        case ENODATA:
+            break;
+        case ETIME:
+            break;
+        case ENOSR:
+            break;
+        case ENONET:
+            break;
+        case ENOPKG:
+            break;
+        case EREMOTE:
+            break;
+        case ENOLINK:
+            break;
+        case EADV:
+            break;
+        case ESRMNT:
+            break;
+        case ECOMM:
+            break;
+        case EPROTO:
+            break;
+        case EMULTIHOP:
+            break;
+        case EDOTDOT:
+            break;
+        case EBADMSG:
+            break;
+        case EOVERFLOW:
+            break;
+        case ENOTUNIQ:
+            break;
+        case EBADFD:
+            break;
+        case EREMCHG:
+            break;
+        case ELIBACC:
+            break;
+        case ELIBBAD:
+            break;
+        case ELIBSCN:
+            break;
+        case ELIBMAX:
+            break;
+        case ELIBEXEC:
+            break;
+        case EILSEQ:
+            break;
+        case ERESTART:
+            break;
+        case ESTRPIPE:
+            break;
+        case EUSERS:
+            break;
+        case ENOTSOCK:
+            break;
+        case EDESTADDRREQ:
+            break;
+        case EMSGSIZE:
+            break;
+        case EPROTOTYPE:
+            break;
+        case ENOPROTOOPT:
+            break;
+        case EPROTONOSUPPORT:
+            break;
+        case ESOCKTNOSUPPORT:
+            break;
+        case EOPNOTSUPP:
+            break;
+        case EPFNOSUPPORT:
+            break;
+        case EAFNOSUPPORT:
+            break;
+        case EADDRINUSE:
+            break;
+        case EADDRNOTAVAIL:
+            break;
+        case ENETDOWN:
+            break;
+        case ENETUNREACH:
+            break;
+        case ENETRESET:
+            break;
+        case ECONNABORTED:
+            break;
+        case ECONNRESET:
+            break;
+        case ENOBUFS:
+            break;
+        case EISCONN:
+            break;
+        case ENOTCONN:
+            break;
+        case ESHUTDOWN:
+            break;
+        case ETOOMANYREFS:
+            break;
+        case ETIMEDOUT:
+            break;
+        case ECONNREFUSED:
+            break;
+        case EHOSTDOWN:
+            break;
+        case EHOSTUNREACH:
+            break;
+        case EALREADY:
+            break;
+        case EINPROGRESS:
+            break;
+        case ESTALE:
+            break;
+        case EUCLEAN:
+            break;
+        case ENOTNAM:
+            break;
+        case ENAVAIL:
+            break;
+        case EISNAM:
+            break;
+        case EREMOTEIO:
+            break;
+        case EDQUOT:
+            break;
+        case ENOMEDIUM:
+            break;
+        case EMEDIUMTYPE:
+            break;
+        case ECANCELED:
+            break;
+        case ENOKEY:
+            break;
+        case EKEYEXPIRED:
+            break;
+        case EKEYREVOKED:
+            break;
+        case EKEYREJECTED:
+            break;
+        case EOWNERDEAD:
+            break;
+        case ENOTRECOVERABLE:
+            break;
+#if EAGAIN != EWOULDBLOCK
+        case EAGAIN:
+#endif
+        case EWOULDBLOCK:
+            break;
+    };
+
+    switch (value) {
+        case O_RDONLY:
+            break;
+        case O_WRONLY:
+            break;
+        case O_RDWR:
+            break;
+        case O_NONBLOCK:
+            break;
+        case O_APPEND:
+            break;
+        case O_CREAT:
+            break;
+        case O_TRUNC:
+            break;
+        case O_EXCL:
+            break;
+        case O_BINARY:
+            break;
+        case O_ACCMODE:
+            break;
+    };
+
+
+    static_assert((O_ACCMODE & (O_NONBLOCK | O_APPEND | O_CREAT | O_TRUNC | O_EXCL | O_BINARY)) == 0, "O_ACCMODE clash");
+
 }

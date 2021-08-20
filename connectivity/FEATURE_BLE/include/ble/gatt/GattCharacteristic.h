@@ -1580,6 +1580,17 @@ public:
     }
 
     /**
+     * Return the callback registered to handle client's write.
+     *
+     * @return the callback that handles client's write requests.
+     */
+    const FunctionPointerWithContext<GattWriteAuthCallbackParams *>&
+    getWriteAuthorizationCallback() const
+    {
+        return writeAuthorizationCallback;
+    }
+
+    /**
      * Register the read requests event handler.
      *
      * The callback registered is invoked when the client attempts to read the
@@ -1617,6 +1628,17 @@ public:
     }
 
     /**
+     * Return the callback registered to handle client's read.
+     *
+     * @return the callback that handles client's read requests.
+     */
+    const FunctionPointerWithContext<GattReadAuthCallbackParams *>&
+    getReadAuthorizationCallback() const
+    {
+        return readAuthorizationCallback;
+    }
+
+    /**
      * Invoke the write authorization callback.
      *
      * This function is a helper that calls the registered write handler to
@@ -1650,19 +1672,30 @@ public:
      *
      * @attention This function is not meant to be called by user code.
      *
-     * @param[in] params Context of the read-auth request; it contains an
+     * @param[in,out] params Context of the read-auth request; it contains an
      * out-parameter used as a reply and the handler can fill it with outgoing
-     * data.
+     * data. The params->data provides a pointer to the data and params->len
+     * provides the length of this data. params->len is also used to pass the
+     * maximum size of data that the params->data can contain. If you set the
+     * params->len to a value larger than the passed in value the read operation
+     * will fail.
      *
      * @return A GattAuthCallbackReply_t value indicating whether authorization
      * is granted.
      *
+     * @note If the read is approved, the event handler can specify an outgoing
+     * value directly with the help of the fields params->data and params->len.
+     *
      * @note If the read request is approved and params->data remains nullptr, then
      * the current characteristic value is used in the read response payload.
      *
-     * @note If the read is approved, the event handler can specify an outgoing
-     * value directly with the help of the fields
-     * GattReadAuthCallbackParams::data and GattReadAuthCallbackParams::len.
+     * @note The params->len parameter initially contains the maximum length of
+     * data that can be returned. Set it to the length of your data but it must
+     * not be larger than the original value.
+     *
+     * @note You must also take into account the offset provided in params->offset.
+     * The params->len you provide must be larger then the offset as the read operation
+     * will attempt to read at that offset.
      */
     GattAuthCallbackReply_t authorizeRead(GattReadAuthCallbackParams *params)
     {

@@ -68,6 +68,7 @@
 #include "drivers/I2C.h"
 #include "drivers/I2CSlave.h"
 #include "drivers/CAN.h"
+#include "drivers/RawCAN.h"
 #include "drivers/UnbufferedSerial.h"
 #include "drivers/BufferedSerial.h"
 #include "drivers/FlashIAP.h"
@@ -104,6 +105,7 @@
 #include "platform/ScopedRomWriteLock.h"
 #include "platform/ScopedRamExecutionLock.h"
 #include "platform/mbed_stats.h"
+#include "platform/Stream.h"
 
 // mbed Non-hardware components
 #include "platform/Callback.h"

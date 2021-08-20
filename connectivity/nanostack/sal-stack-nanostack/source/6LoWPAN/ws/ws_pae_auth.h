@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -250,6 +250,17 @@ typedef void ws_pae_auth_nw_info_updated(protocol_interface_info_entry_t *interf
 typedef void ws_pae_auth_ip_addr_get(protocol_interface_info_entry_t *interface_ptr, uint8_t *address);
 
 /**
+ * ws_pae_auth_congestion_get get congestion information
+ *
+ * \param interface_ptr interface
+ * \param active_supp active supplicants
+ *
+ * \return TRUE reject, FALSE accept
+ *
+ */
+typedef bool ws_pae_auth_congestion_get(protocol_interface_info_entry_t *interface_ptr, uint16_t active_supp);
+
+/**
  *  ws_pae_auth_cb_register register PAE authenticator callbacks
  *
  * \param interface_ptr interface
@@ -258,9 +269,10 @@ typedef void ws_pae_auth_ip_addr_get(protocol_interface_info_entry_t *interface_
  * \param nw_key_index_set network send key index callback
  * \param nw_info_updated network keys updated callback
  * \param ip_addr_get IP addressing information callback
+ * \param congestion_get congestion get callback
  *
  */
-void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_auth_gtk_hash_set *hash_set, ws_pae_auth_nw_key_insert *nw_key_insert, ws_pae_auth_nw_key_index_set *nw_key_index_set, ws_pae_auth_nw_info_updated *nw_info_updated, ws_pae_auth_ip_addr_get *ip_addr_get);
+void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_auth_gtk_hash_set *hash_set, ws_pae_auth_nw_key_insert *nw_key_insert, ws_pae_auth_nw_key_index_set *nw_key_index_set, ws_pae_auth_nw_info_updated *nw_info_updated, ws_pae_auth_ip_addr_get *ip_addr_get, ws_pae_auth_congestion_get *congestion_get);
 
 #else
 
@@ -268,7 +280,7 @@ void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_
 #define ws_pae_auth_timing_adjust(timing)
 #define ws_pae_auth_addresses_set(interface_ptr, local_port, remote_addr, remote_port) 1
 #define ws_pae_auth_delete NULL
-#define ws_pae_auth_cb_register(interface_ptr, hash_set, nw_key_insert, nw_key_index_set, nw_info_updated, ip_addr_get) {(void) hash_set;}
+#define ws_pae_auth_cb_register(interface_ptr, hash_set, nw_key_insert, nw_key_index_set, nw_info_updated, ip_addr_get, congestion_get) {(void) hash_set;}
 #define ws_pae_auth_start(interface_ptr)
 #define ws_pae_auth_gtks_updated NULL
 #define ws_pae_auth_nw_key_index_update NULL

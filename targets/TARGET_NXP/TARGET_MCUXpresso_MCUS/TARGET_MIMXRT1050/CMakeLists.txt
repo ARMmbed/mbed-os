@@ -1,26 +1,7 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("EVK" IN_LIST MBED_TARGET_LABELS)
-    target_include_directories(mbed-core
-        INTERFACE
-            TARGET_EVK
-            TARGET_EVK/xip
-    )
-
-    target_sources(mbed-core
-        INTERFACE
-            TARGET_EVK/PeripheralPins.c
-            TARGET_EVK/fsl_clock_config.c
-            TARGET_EVK/fsl_phy.c
-            TARGET_EVK/lpm.c
-            TARGET_EVK/mbed_overrides.c
-            TARGET_EVK/specific.c
-
-            TARGET_EVK/xip/evkbimxrt1050_flexspi_nor_config.c
-            TARGET_EVK/xip/evkbimxrt1050_sdram_ini_dcd.c
-    )
-endif()
+add_subdirectory(TARGET_EVK EXCLUDE_FROM_ALL)
 
 if(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(STARTUP_FILE device/TOOLCHAIN_ARM_STD/startup_MIMXRT1052.S)
@@ -30,14 +11,16 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(LINKER_FILE device/TOOLCHAIN_GCC_ARM/MIMXRT1052xxxxx.ld)
 endif()
 
-target_include_directories(mbed-core
+add_library(mbed-mimxrt1050-evk INTERFACE)
+
+target_include_directories(mbed-mimxrt1050-evk
     INTERFACE
         .
         device
         drivers
 )
 
-target_sources(mbed-core
+target_sources(mbed-mimxrt1050-evk
     INTERFACE
         usb_device_ch9.c
         usb_device_class.c
@@ -110,4 +93,16 @@ target_sources(mbed-core
         drivers/fsl_wdog.c
         drivers/fsl_xbara.c
         drivers/fsl_xbarb.c
+
+        ${STARTUP_FILE}
 )
+
+target_link_libraries(mbed-mimxrt1050-evk
+    INTERFACE
+        mbed-mcuxpresso-mcus
+        mbed-evk
+        mbed-imx
+        mbed-nxp-usb
+)
+
+mbed_set_linker_script(mbed-mimxrt1050-evk ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, Arm Limited and affiliates.
+ * Copyright (c) 2016-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -100,7 +100,7 @@ static uint8_t kmp_instance_identifier = 0;
 static kmp_msg_if_entry_t *kmp_api_msg_if_get(kmp_service_t *service, uint8_t msg_if_instance_id);
 static void kmp_api_sec_prot_create_confirm(sec_prot_t *prot, sec_prot_result_e result);
 static void kmp_api_sec_prot_create_indication(sec_prot_t *prot);
-static void kmp_api_sec_prot_finished_indication(sec_prot_t *prot, sec_prot_result_e result, sec_prot_keys_t *sec_keys);
+static bool kmp_api_sec_prot_finished_indication(sec_prot_t *prot, sec_prot_result_e result, sec_prot_keys_t *sec_keys);
 static void kmp_api_sec_prot_finished(sec_prot_t *prot);
 static int8_t kmp_sec_prot_send(sec_prot_t *prot, void *pdu, uint16_t size);
 static int8_t kmp_sec_prot_conn_send(sec_prot_t *prot, void *pdu, uint16_t size, uint8_t conn_number, uint8_t flags);
@@ -234,10 +234,10 @@ static void kmp_api_sec_prot_create_indication(sec_prot_t *prot)
     kmp->create_ind((kmp_api_t *)kmp, kmp->type, kmp->addr);
 }
 
-static void kmp_api_sec_prot_finished_indication(sec_prot_t *prot, sec_prot_result_e result, sec_prot_keys_t *sec_keys)
+static bool kmp_api_sec_prot_finished_indication(sec_prot_t *prot, sec_prot_result_e result, sec_prot_keys_t *sec_keys)
 {
     kmp_api_t *kmp = kmp_api_get_from_prot(prot);
-    kmp->finished_ind((kmp_api_t *)kmp, (kmp_result_e) result, sec_keys);
+    return kmp->finished_ind((kmp_api_t *)kmp, (kmp_result_e) result, sec_keys);
 }
 
 static void kmp_api_sec_prot_finished(sec_prot_t *prot)
@@ -598,8 +598,7 @@ int8_t kmp_service_msg_if_receive(kmp_service_t *service, uint8_t instance_id, k
     int8_t ret = -1;
     if (kmp->sec_prot.receive != NULL) {
         ret = kmp->sec_prot.receive(&kmp->sec_prot, pdu, size);
-    }
-    if (kmp->sec_prot.conn_receive != NULL) {
+    } else if (kmp->sec_prot.conn_receive != NULL) {
         ret = kmp->sec_prot.conn_receive(&kmp->sec_prot, pdu, size, connection_num);
     }
 

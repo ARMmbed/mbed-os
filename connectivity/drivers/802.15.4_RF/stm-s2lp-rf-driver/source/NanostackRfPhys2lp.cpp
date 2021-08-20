@@ -1,15 +1,16 @@
 /*
- * Copyright (c) 2018 ARM Limited. All rights reserved.
+ * Copyright (c) 2018-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
- * Licensed under the Apache License, Version 2.0 (the License); you may
- * not use this file except in compliance with the License.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an AS IS BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
@@ -133,10 +134,15 @@ public:
     UnlockedSPI spi;
     DigitalOut CS;
     DigitalOut SDN;
+#if INTERRUPT_GPIO == S2LP_GPIO0
     InterruptIn RF_S2LP_GPIO0;
+#elif INTERRUPT_GPIO == S2LP_GPIO1
     InterruptIn RF_S2LP_GPIO1;
+#elif INTERRUPT_GPIO == S2LP_GPIO2
     InterruptIn RF_S2LP_GPIO2;
+#else
     InterruptIn RF_S2LP_GPIO3;
+#endif
     Timeout cca_timer;
     Timeout backup_timer;
     Timer tx_timer;
@@ -152,10 +158,15 @@ RFPins::RFPins(PinName spi_sdi, PinName spi_sdo,
     :   spi(spi_sdi, spi_sdo, spi_sclk),
         CS(spi_cs),
         SDN(spi_sdn),
+#if INTERRUPT_GPIO == S2LP_GPIO0
         RF_S2LP_GPIO0(spi_gpio0),
+#elif INTERRUPT_GPIO == S2LP_GPIO1
         RF_S2LP_GPIO1(spi_gpio1),
+#elif INTERRUPT_GPIO == S2LP_GPIO2
         RF_S2LP_GPIO2(spi_gpio2),
+#else
         RF_S2LP_GPIO3(spi_gpio3),
+#endif
         irq_thread(osPriorityRealtime, 1024)
 {
     irq_thread.start(mbed::callback(this, &RFPins::rf_irq_task));
@@ -848,7 +859,11 @@ static void rf_cca_timer_interrupt(void)
         rf_flush_tx_fifo();
         tx_finnish_time = rf_get_timestamp();
         if (device_driver.phy_tx_done_cb) {
-            device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_CCA_FAIL, 0, 0);
+            if (rf_state == RF_RX_STARTED) {
+                device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_CCA_FAIL_RX, 0, 0);
+            } else {
+                device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_CCA_FAIL, 0, 0);
+            }
         }
     } else {
         if (status == PHY_RESTART_CSMA) {
@@ -1143,7 +1158,7 @@ static void rf_irq_task_process_irq(void)
         tx_finnish_time = rf_get_timestamp();
         rf_update_tx_active_time();
         TEST_TX_DONE
-        device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_CCA_FAIL, 1, 0);
+        device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_CCA_FAIL_RX, 1, 0);
         rf_send_command(S2LP_CMD_SABORT);
         rf_poll_state_change(S2LP_STATE_READY);
         rf_send_command(S2LP_CMD_FLUSHTXFIFO);

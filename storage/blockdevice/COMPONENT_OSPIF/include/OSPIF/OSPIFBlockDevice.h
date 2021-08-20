@@ -22,6 +22,14 @@
 #include "blockdevice/BlockDevice.h"
 #include "platform/Callback.h"
 
+#if defined(TARGET_MX25LM51245G)
+#include "MX25LM51245G_config.h"
+#endif
+
+#if defined(TARGET_MX25LW51245G)
+#include "MX25LW51245G_config.h"
+#endif
+
 #ifndef MBED_CONF_OSPIF_OSPI_IO0
 #define MBED_CONF_OSPIF_OSPI_IO0 NC
 #endif
@@ -68,7 +76,7 @@
  */
 enum ospif_bd_error {
     OSPIF_BD_ERROR_OK                    = 0,     /*!< no error */
-    OSPIF_BD_ERROR_DEVICE_ERROR          = BD_ERROR_DEVICE_ERROR, /*!< device specific error -4001 */
+    OSPIF_BD_ERROR_DEVICE_ERROR          = mbed::BD_ERROR_DEVICE_ERROR, /*!< device specific error -4001 */
     OSPIF_BD_ERROR_PARSING_FAILED        = -4002, /* SFDP Parsing failed */
     OSPIF_BD_ERROR_READY_FAILED          = -4003, /* Wait for Mem Ready failed */
     OSPIF_BD_ERROR_WREN_FAILED           = -4004, /* Write Enable Failed */
@@ -331,7 +339,7 @@ private:
     ospi_status_t _ospi_set_frequency(int freq);
 
     // Update the 4-byte addressing extension register with the MSB of the address if it is in use
-    ospi_status_t _ospi_update_4byte_ext_addr_reg(bd_addr_t addr);
+    ospi_status_t _ospi_update_4byte_ext_addr_reg(mbed::bd_addr_t addr);
 
     /*********************************/
     /* Flash Configuration Functions */
@@ -380,6 +388,10 @@ private:
 
     // Detect 4-byte addressing mode and enable it if supported
     int _sfdp_detect_and_enable_4byte_addressing(uint8_t *basic_param_table_ptr, int basic_param_table_size);
+
+#ifdef MX_FLASH_SUPPORT_RWW
+    bool _is_mem_ready_rww(bd_addr_t addr, uint8_t rw);
+#endif
 
 private:
     enum ospif_clear_protection_method_t {
@@ -449,6 +461,16 @@ private:
 
     uint32_t _init_ref_count;
     bool _is_initialized;
+#ifdef MX_FLASH_SUPPORT_RWW
+    enum wait_flag {
+        NOT_STARTED,         // no wait is started
+        WRITE_WAIT_STARTED,  // write wait is started
+        ERASE_WAIT_STARTED,  // erase wait is started
+    };
+    uint32_t _busy_bank;    // Current busy bank
+    wait_flag _wait_flag;  // wait flag
+    PlatformMutex _busy_mutex;
+#endif
 };
 
 #endif

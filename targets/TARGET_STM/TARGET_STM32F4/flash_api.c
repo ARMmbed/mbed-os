@@ -1,19 +1,16 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
- * Copyright (c) 2017 STMicroelectronics
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: BSD-3-Clause
+ ******************************************************************************
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Copyright (c) 2015-2021 STMicroelectronics.
+ * All rights reserved.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ ******************************************************************************
  */
 
 #if DEVICE_FLASH
@@ -84,8 +81,6 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
         return -1;
     }
 
-    core_util_critical_section_enter();
-
     /* Note: If an erase operation in Flash memory also concerns data in the data or instruction cache,
        you have to make sure that these data are rewritten before they are accessed during code
        execution. If this cannot be done safely, it is recommended to flush the caches by setting the
@@ -108,8 +103,6 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
             data++;
         }
     }
-
-    core_util_critical_section_exit();
 
     if (HAL_FLASH_Lock() != HAL_OK) {
         return -1;

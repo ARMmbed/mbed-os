@@ -9,7 +9,7 @@
  * integrations except when building the library for testing.
  */
 /*
- *  Copyright (C) 2018, ARM Limited, All Rights Reserved
+ *  Copyright The Mbed TLS Contributors
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -23,8 +23,6 @@
  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 
 #ifndef PSA_CRYPTO_INVASIVE_H
@@ -64,12 +62,12 @@
  *                      It is called by mbedtls_psa_crypto_free().
  *                      By default this is mbedtls_entropy_free().
  *
- * \retval PSA_SUCCESS
+ * \retval #PSA_SUCCESS
  *         Success.
- * \retval PSA_ERROR_NOT_PERMITTED
+ * \retval #PSA_ERROR_NOT_PERMITTED
  *         The caller does not have the permission to configure
  *         entropy sources.
- * \retval PSA_ERROR_BAD_STATE
+ * \retval #PSA_ERROR_BAD_STATE
  *         The library has already been initialized.
  */
 psa_status_t mbedtls_psa_crypto_configure_entropy_sources(

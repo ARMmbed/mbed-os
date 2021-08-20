@@ -149,7 +149,7 @@ pull_request_rules:
       - "label=ready for merge"
     actions:
       label:
-        remove: ['ready for merge']
+        remove: ['ready for merge', 'stale']
 
   - name: add "do not merge" label when WIP is in title
     conditions:

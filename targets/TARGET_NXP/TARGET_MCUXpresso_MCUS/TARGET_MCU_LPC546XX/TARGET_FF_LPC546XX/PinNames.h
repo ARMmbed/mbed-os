@@ -14,6 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* MBED TARGET LIST: FF_LPC546XX */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -191,8 +194,8 @@ typedef enum {
 
 
     // USB Pins
-    USBTX = P0_30,
-    USBRX = P0_29,
+    CONSOLE_TX = P0_30,
+    CONSOLE_RX = P0_29,
 
 
     A0 = P0_16,

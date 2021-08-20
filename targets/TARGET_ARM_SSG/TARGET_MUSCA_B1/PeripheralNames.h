@@ -35,12 +35,20 @@ typedef enum {
     I2C_1
 } I2CName;
 
-#define STDIO_UART_TX  UART1_TX
-#define STDIO_UART_RX  UART1_RX
+#if defined(MBED_CONF_TARGET_STDIO_UART_TX)
+#define STDIO_UART_TX MBED_CONF_TARGET_STDIO_UART_TX
+#else
+#define STDIO_UART_TX UART1_TX
+#endif
+#if defined(MBED_CONF_TARGET_STDIO_UART_RX)
+#define STDIO_UART_RX MBED_CONF_TARGET_STDIO_UART_RX
+#else
+#define STDIO_UART_RX UART1_RX
+#endif
 #define STDIO_UART     UART_1
 
-#define USBTX          STDIO_UART_TX
-#define USBRX          STDIO_UART_RX
+#define CONSOLE_TX          STDIO_UART_TX
+#define CONSOLE_RX          STDIO_UART_RX
 
 #ifdef __cplusplus
 }

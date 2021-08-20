@@ -622,7 +622,7 @@ uint32_t LL_RCC_GetI2CClockFreq(uint32_t I2CxSource)
   return i2c_frequency;
 }
 
-#if  defined(RCC_CFGR_I2SSRC)
+#if defined(RCC_CFGR_I2SSRC)
 /**
   * @brief  Return I2Sx clock frequency
   * @param  I2SxSource This parameter can be one of the following values:
@@ -643,7 +643,11 @@ uint32_t LL_RCC_GetI2SClockFreq(uint32_t I2SxSource)
       i2s_frequency = RCC_GetSystemClockFreq();
       break;
 
+    /* If an external I2S clock has to be used, LL_RCC_SetI2SClockSource(LL_RCC_I2S_CLKSOURCE_PIN)
+       have to be called in the main after calling SystemClock_Config() */
     case LL_RCC_I2S_CLKSOURCE_PIN:    /*!< External clock selected as I2S clock source */
+      i2s_frequency = EXTERNAL_CLOCK_VALUE;
+      break;
     default:
       i2s_frequency = LL_RCC_PERIPH_FREQUENCY_NA;
       break;

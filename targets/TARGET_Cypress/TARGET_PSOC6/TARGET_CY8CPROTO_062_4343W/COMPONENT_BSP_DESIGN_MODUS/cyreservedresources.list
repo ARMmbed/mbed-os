@@ -1,5 +1,5 @@
-[Device=CY8C624ABZI-D44]
- 
+[Device=CY8C624ABZI-S2D44]
+
 [Blocks]
 # WIFI
 # CYBSP_WIFI_SDIO

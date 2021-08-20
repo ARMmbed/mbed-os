@@ -63,6 +63,8 @@ public:
 
         /**
          * Response received from Characteristic Value Indication message.
+         * @deprecated This event is never used. Indications use GATT_EVENT_DATA_SENT
+         * only after confirmation is received.
          */
         GATT_EVENT_CONFIRMATION_RECEIVED = 5,
 

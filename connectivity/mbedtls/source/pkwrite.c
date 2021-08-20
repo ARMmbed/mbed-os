@@ -1,7 +1,7 @@
 /*
  *  Public Key layer for writing key files and structures
  *
- *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
+ *  Copyright The Mbed TLS Contributors
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,15 +15,9 @@
  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "mbedtls/config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "common.h"
 
 #if defined(MBEDTLS_PK_WRITE_C)
 
@@ -168,7 +162,7 @@ static int pk_write_ec_private( unsigned char **p, unsigned char *start,
     size_t byte_length = ( ec->grp.pbits + 7 ) / 8;
     unsigned char tmp[MBEDTLS_ECP_MAX_BYTES];
 
-    ret = mbedtls_mpi_write_binary( &ec->d, tmp, byte_length );
+    ret = mbedtls_ecp_write_key( ec, tmp, byte_length );
     if( ret != 0 )
         goto exit;
     ret = mbedtls_asn1_write_octet_string( p, start, tmp, byte_length );
@@ -204,13 +198,13 @@ int mbedtls_pk_write_pubkey( unsigned char **p, unsigned char *start,
     if( mbedtls_pk_get_type( key ) == MBEDTLS_PK_OPAQUE )
     {
         size_t buffer_size;
-        psa_key_handle_t* key_slot = (psa_key_handle_t*) key->pk_ctx;
+        psa_key_id_t* key_id = (psa_key_id_t*) key->pk_ctx;
 
         if ( *p < start )
             return( MBEDTLS_ERR_PK_BAD_INPUT_DATA );
 
         buffer_size = (size_t)( *p - start );
-        if ( psa_export_public_key( *key_slot, start, buffer_size, &len )
+        if ( psa_export_public_key( *key_id, start, buffer_size, &len )
              != PSA_SUCCESS )
         {
             return( MBEDTLS_ERR_PK_BAD_INPUT_DATA );
@@ -271,18 +265,18 @@ int mbedtls_pk_write_pubkey_der( mbedtls_pk_context *key, unsigned char *buf, si
     {
         psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
         psa_key_type_t key_type;
-        psa_key_handle_t handle;
-        psa_ecc_curve_t curve;
+        psa_key_id_t key_id;
+        psa_ecc_family_t curve;
         size_t bits;
 
-        handle = *((psa_key_handle_t*) key->pk_ctx );
-        if( PSA_SUCCESS != psa_get_key_attributes( handle, &attributes ) )
+        key_id = *((psa_key_id_t*) key->pk_ctx );
+        if( PSA_SUCCESS != psa_get_key_attributes( key_id, &attributes ) )
             return( MBEDTLS_ERR_PK_HW_ACCEL_FAILED );
         key_type = psa_get_key_type( &attributes );
         bits = psa_get_key_bits( &attributes );
         psa_reset_key_attributes( &attributes );
 
-        curve = PSA_KEY_TYPE_GET_CURVE( key_type );
+        curve = PSA_KEY_TYPE_ECC_GET_FAMILY( key_type );
         if( curve == 0 )
             return( MBEDTLS_ERR_PK_FEATURE_UNAVAILABLE );
 

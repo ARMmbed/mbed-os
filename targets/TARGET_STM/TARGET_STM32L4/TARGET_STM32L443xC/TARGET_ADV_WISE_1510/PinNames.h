@@ -27,6 +27,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+
+/* MBED TARGET LIST: ADV_WISE_1510 */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -38,10 +41,7 @@ extern "C" {
 #endif
 
 typedef enum {
-    ALT0 = 0x100,
-    ALT1 = 0x200,
-    ALT2 = 0x300,
-    ALT3 = 0x400
+    ALT0  = 0x100,
 } ALTx;
 
 typedef enum {
@@ -153,12 +153,7 @@ typedef enum {
     W_DISABLE   = PC_2,
     WAKE        = PC_3,
 
-    I2C_SCL     = PC_0,
-    I2C_SDA     = PC_1,
 
-    SPI_MOSI    = PB_15,
-    SPI_MISO    = PB_14,
-    SPI_SCK     = PB_10,
     SPI_CS0     = PB_12,
     SPI_CS1     = PB_9,
 
@@ -181,26 +176,17 @@ typedef enum {
 
     ANT_SWITCH  = PC_15,
 
-    // Generic signals namings
-    LED1        = PWM0,
-    LED2        = GPIO2,
-    LED3        = GPIO4,
 
 #ifdef MBED_CONF_TARGET_STDIO_UART_TX
-    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+    CONSOLE_TX = MBED_CONF_TARGET_STDIO_UART_TX,
 #else
-    STDIO_UART_TX = UART3_TX,
+    CONSOLE_TX = UART3_TX,
 #endif
 #ifdef MBED_CONF_TARGET_STDIO_UART_RX
-    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+    CONSOLE_RX = MBED_CONF_TARGET_STDIO_UART_RX,
 #else
-    STDIO_UART_RX = UART3_RX,
+    CONSOLE_RX = UART3_RX,
 #endif
-
-    SERIAL_TX   = STDIO_UART_TX,
-    SERIAL_RX   = STDIO_UART_RX,
-    USBTX       = SERIAL_TX,
-    USBRX       = SERIAL_RX,
 
     UART_TXD    = UART1_TX,
     UART_RXD    = UART1_RX,
@@ -208,6 +194,12 @@ typedef enum {
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
+
+// Standardized LED and button names
+#define LED1  PA_5
+#define LED2  PC_7
+#define LED3  PB_0
+
 
 #ifdef __cplusplus
 }

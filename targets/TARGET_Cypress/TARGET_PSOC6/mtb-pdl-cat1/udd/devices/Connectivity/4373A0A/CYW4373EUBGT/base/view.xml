@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<baseview>
+  <mcu>
+  </mcu>
+  <vendor>Cypress</vendor>
+  <flash>0</flash>
+  <ram>917504</ram>
+  <package>128-WLBGA</package>
+  <minvoltage>3130</minvoltage>
+  <maxvoltage>3500</maxvoltage>
+  <description>The CYW4373EUBGT device.</description>
+</baseview>

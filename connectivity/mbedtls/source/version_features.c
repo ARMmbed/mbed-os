@@ -1,7 +1,7 @@
 /*
  *  Version feature information
  *
- *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
+ *  Copyright The Mbed TLS Contributors
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,15 +15,9 @@
  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "mbedtls/config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "common.h"
 
 #if defined(MBEDTLS_VERSION_C)
 
@@ -354,6 +348,9 @@ static const char * const features[] = {
 #if defined(MBEDTLS_ECP_NIST_OPTIM)
     "MBEDTLS_ECP_NIST_OPTIM",
 #endif /* MBEDTLS_ECP_NIST_OPTIM */
+#if defined(MBEDTLS_ECP_NO_INTERNAL_RNG)
+    "MBEDTLS_ECP_NO_INTERNAL_RNG",
+#endif /* MBEDTLS_ECP_NO_INTERNAL_RNG */
 #if defined(MBEDTLS_ECP_RESTARTABLE)
     "MBEDTLS_ECP_RESTARTABLE",
 #endif /* MBEDTLS_ECP_RESTARTABLE */
@@ -420,9 +417,9 @@ static const char * const features[] = {
 #if defined(MBEDTLS_ENTROPY_NV_SEED)
     "MBEDTLS_ENTROPY_NV_SEED",
 #endif /* MBEDTLS_ENTROPY_NV_SEED */
-#if defined(MBEDTLS_PSA_CRYPTO_KEY_FILE_ID_ENCODES_OWNER)
-    "MBEDTLS_PSA_CRYPTO_KEY_FILE_ID_ENCODES_OWNER",
-#endif /* MBEDTLS_PSA_CRYPTO_KEY_FILE_ID_ENCODES_OWNER */
+#if defined(MBEDTLS_PSA_CRYPTO_KEY_ID_ENCODES_OWNER)
+    "MBEDTLS_PSA_CRYPTO_KEY_ID_ENCODES_OWNER",
+#endif /* MBEDTLS_PSA_CRYPTO_KEY_ID_ENCODES_OWNER */
 #if defined(MBEDTLS_MEMORY_DEBUG)
     "MBEDTLS_MEMORY_DEBUG",
 #endif /* MBEDTLS_MEMORY_DEBUG */
@@ -438,6 +435,9 @@ static const char * const features[] = {
 #if defined(MBEDTLS_PKCS1_V21)
     "MBEDTLS_PKCS1_V21",
 #endif /* MBEDTLS_PKCS1_V21 */
+#if defined(MBEDTLS_PSA_CRYPTO_DRIVERS)
+    "MBEDTLS_PSA_CRYPTO_DRIVERS",
+#endif /* MBEDTLS_PSA_CRYPTO_DRIVERS */
 #if defined(MBEDTLS_PSA_CRYPTO_SPM)
     "MBEDTLS_PSA_CRYPTO_SPM",
 #endif /* MBEDTLS_PSA_CRYPTO_SPM */
@@ -519,6 +519,9 @@ static const char * const features[] = {
 #if defined(MBEDTLS_SSL_PROTO_TLS1_2)
     "MBEDTLS_SSL_PROTO_TLS1_2",
 #endif /* MBEDTLS_SSL_PROTO_TLS1_2 */
+#if defined(MBEDTLS_SSL_PROTO_TLS1_3_EXPERIMENTAL)
+    "MBEDTLS_SSL_PROTO_TLS1_3_EXPERIMENTAL",
+#endif /* MBEDTLS_SSL_PROTO_TLS1_3_EXPERIMENTAL */
 #if defined(MBEDTLS_SSL_PROTO_DTLS)
     "MBEDTLS_SSL_PROTO_DTLS",
 #endif /* MBEDTLS_SSL_PROTO_DTLS */
@@ -531,6 +534,9 @@ static const char * const features[] = {
 #if defined(MBEDTLS_SSL_DTLS_HELLO_VERIFY)
     "MBEDTLS_SSL_DTLS_HELLO_VERIFY",
 #endif /* MBEDTLS_SSL_DTLS_HELLO_VERIFY */
+#if defined(MBEDTLS_SSL_DTLS_SRTP)
+    "MBEDTLS_SSL_DTLS_SRTP",
+#endif /* MBEDTLS_SSL_DTLS_SRTP */
 #if defined(MBEDTLS_SSL_DTLS_CLIENT_PORT_REUSE)
     "MBEDTLS_SSL_DTLS_CLIENT_PORT_REUSE",
 #endif /* MBEDTLS_SSL_DTLS_CLIENT_PORT_REUSE */
@@ -555,6 +561,15 @@ static const char * const features[] = {
 #if defined(MBEDTLS_SSL_VARIABLE_BUFFER_LENGTH)
     "MBEDTLS_SSL_VARIABLE_BUFFER_LENGTH",
 #endif /* MBEDTLS_SSL_VARIABLE_BUFFER_LENGTH */
+#if defined(MBEDTLS_TEST_CONSTANT_FLOW_MEMSAN)
+    "MBEDTLS_TEST_CONSTANT_FLOW_MEMSAN",
+#endif /* MBEDTLS_TEST_CONSTANT_FLOW_MEMSAN */
+#if defined(MBEDTLS_TEST_CONSTANT_FLOW_VALGRIND)
+    "MBEDTLS_TEST_CONSTANT_FLOW_VALGRIND",
+#endif /* MBEDTLS_TEST_CONSTANT_FLOW_VALGRIND */
+#if defined(MBEDTLS_TEST_HOOKS)
+    "MBEDTLS_TEST_HOOKS",
+#endif /* MBEDTLS_TEST_HOOKS */
 #if defined(MBEDTLS_THREADING_ALT)
     "MBEDTLS_THREADING_ALT",
 #endif /* MBEDTLS_THREADING_ALT */
@@ -564,6 +579,9 @@ static const char * const features[] = {
 #if defined(MBEDTLS_USE_PSA_CRYPTO)
     "MBEDTLS_USE_PSA_CRYPTO",
 #endif /* MBEDTLS_USE_PSA_CRYPTO */
+#if defined(MBEDTLS_PSA_CRYPTO_CONFIG)
+    "MBEDTLS_PSA_CRYPTO_CONFIG",
+#endif /* MBEDTLS_PSA_CRYPTO_CONFIG */
 #if defined(MBEDTLS_VERSION_FEATURES)
     "MBEDTLS_VERSION_FEATURES",
 #endif /* MBEDTLS_VERSION_FEATURES */

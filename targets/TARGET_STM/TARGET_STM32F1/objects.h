@@ -123,6 +123,9 @@ struct i2c_s {
     uint8_t slave;
     volatile uint8_t pending_slave_tx_master_rx;
     volatile uint8_t pending_slave_rx_maxter_tx;
+    uint8_t *slave_rx_buffer;
+    volatile uint8_t slave_rx_buffer_size;
+    volatile uint8_t slave_rx_count;
 #endif
 #if DEVICE_I2C_ASYNCH
     uint32_t address;
@@ -142,6 +145,7 @@ struct can_s {
     CAN_HandleTypeDef CanHandle;
     int index;
     int hz;
+    int rxIrqEnabled;
 };
 #endif
 
@@ -151,6 +155,17 @@ struct flash_s {
     uint32_t dummy;
 };
 #endif
+
+#if DEVICE_ANALOGOUT
+struct dac_s {
+    DACName dac;
+    PinName pin;
+    uint32_t channel;
+    DAC_HandleTypeDef handle;
+};
+#endif
+
+#define HAL_CRC_IS_SUPPORTED(polynomial, width) ((width) == 7 || (width) == 8 || (width) == 16 || (width) == 32)
 
 #ifdef __cplusplus
 }

@@ -1,13 +1,13 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-greentea
+target_include_directories(mbed-unity
     INTERFACE
         .
         unity
 )
 
-target_sources(mbed-greentea
+target_sources(mbed-unity
     INTERFACE
         source/unity.c
 )

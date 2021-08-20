@@ -53,6 +53,7 @@ typedef struct gpio_channel {
 } gpio_channel_t;
 
 static gpio_irq_handler irq_handler;
+static uint16_t irq_channel_used = 0x00;
 
 static gpio_channel_t channels[CHANNEL_NUM] = {
 #ifdef EXTI_IRQ0_NUM_LINES
@@ -149,7 +150,7 @@ static void handle_interrupt_in(uint32_t irq_index, uint32_t max_num_pin_line)
 #else /* TARGET_STM32L5 */
 
             // Clear interrupt flag
-#if defined(DUAL_CORE) && defined(CORE_CM4)
+#if defined(DUAL_CORE) && defined(CORE_CM4) && defined(TARGET_STM32H7)
             if (__HAL_GPIO_EXTID2_GET_FLAG(pin) != RESET) {
                 __HAL_GPIO_EXTID2_CLEAR_FLAG(pin);
 #else
@@ -323,13 +324,21 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     core_util_critical_section_enter();
 
     /* Enable SYSCFG Clock */
-#if !defined(TARGET_STM32WB)
+#if (!defined(TARGET_STM32WB) && !defined(TARGET_STM32WL))
     __HAL_RCC_SYSCFG_CLK_ENABLE();
 #endif
 
     uint32_t port_index  = STM_PORT(pin);
     uint32_t pin_index  = STM_PIN(pin);
     irq_index =  pin_lines_desc[pin_index].irq_index;
+
+    if (irq_channel_used & (1<<pin_index)) {
+        error("InterruptIn error: irq channel conflict\n");
+        return -1;
+    }
+    else {
+        irq_channel_used |= (1<<pin_index);
+    }
 
     switch (irq_index) {
 #ifdef EXTI_IRQ0_NUM_LINES
@@ -457,6 +466,8 @@ void gpio_irq_free(gpio_irq_t *obj)
     gpio_channel->channel_gpio[gpio_idx] = 0;
     gpio_channel->channel_pin[gpio_idx] = 0;
 
+    irq_channel_used &= ~(1<<(STM_PIN(obj->pin)));
+
     core_util_critical_section_exit();
 }
 
@@ -503,7 +514,7 @@ void gpio_irq_enable(gpio_irq_t *obj)
     SYSCFG->EXTICR[pin_index >> 2] = temp;
 #endif
 
-#if defined(DUAL_CORE) && defined(CORE_CM4)
+#if defined(DUAL_CORE) && defined(CORE_CM4) && defined(TARGET_STM32H7)
     LL_C2_EXTI_EnableIT_0_31(1 << pin_index);
 #else
     LL_EXTI_EnableIT_0_31(1 << pin_index);
@@ -532,7 +543,7 @@ void gpio_irq_disable(gpio_irq_t *obj)
     LL_EXTI_DisableRisingTrig_0_31(1 << pin_index);
     LL_EXTI_DisableFallingTrig_0_31(1 << pin_index);
 
-#if defined(DUAL_CORE) && defined(CORE_CM4)
+#if defined(DUAL_CORE) && defined(CORE_CM4) && defined(TARGET_STM32H7)
     LL_C2_EXTI_DisableIT_0_31(1 << pin_index);
 #else
     LL_EXTI_DisableIT_0_31(1 << pin_index);

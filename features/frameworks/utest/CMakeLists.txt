@@ -1,13 +1,13 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-greentea
+target_include_directories(mbed-utest
     INTERFACE
         .
         utest
 )
 
-target_sources(mbed-greentea
+target_sources(mbed-utest
     INTERFACE
         mbed-utest-shim.cpp
         source/unity_handler.cpp

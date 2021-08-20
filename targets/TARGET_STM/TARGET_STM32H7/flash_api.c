@@ -134,8 +134,6 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data,
         return -1;
     }
 
-    core_util_critical_section_enter();
-
     StartAddress = address;
     while ((address < (StartAddress + size)) && (status == 0)) {
         if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_FLASHWORD, address, (uint32_t)data) == HAL_OK) {
@@ -150,13 +148,13 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data,
 #if defined(CORE_CM7)
     SCB_CleanInvalidateDCache_by_Addr((uint32_t *)StartAddress, FullSize);
     SCB_InvalidateICache();
+#else /* CORE_CM4 */
+   __HAL_ART_ENABLE();
 #endif /* CORE_CM7 */
 #else /* DUAL_CORE */
     SCB_CleanInvalidateDCache_by_Addr((uint32_t *)StartAddress, FullSize);
     SCB_InvalidateICache();
 #endif /* DUAL_CORE */
-
-    core_util_critical_section_exit();
 
     if (HAL_FLASH_Lock() != HAL_OK) {
         return -1;

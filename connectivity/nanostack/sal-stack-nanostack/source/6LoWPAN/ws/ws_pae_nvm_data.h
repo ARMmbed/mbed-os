@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,8 +35,8 @@
 #define PAE_NVM_KEY_STORAGE_INDEX_TAG    4
 #define PAE_NVM_KEY_STORAGE_TAG          5
 
-// pan_id (2) +  network name (33) + (GTK set (1) + GTK expiry timestamp (8) + status (1) + install order (1) + GTK (16)) * 4
-#define PAE_NVM_NW_INFO_LEN              2 + 33 + (1 + 8 + 1 + 1 + GTK_LEN) * GTK_NUM
+// pan_id (2) +  network name (33) + GTK EUI-64 (own EUI-64) (8) + (GTK set (1) + GTK expiry timestamp (8) + status (1) + install order (1) + GTK (16)) * 4
+#define PAE_NVM_NW_INFO_LEN              2 + 33 + 8 + (1 + 8 + 1 + 1 + GTK_LEN) * GTK_NUM
 
 // PTK EUI-64 set (1) + PTK EUI-64 (8) + PMK set (1) + PMK lifetime (4) + PMK (32) + PMK replay counter (8) + PTK set (1) + PTK lifetime (4) + PTK (48)
 #define PAE_NVM_KEYS_LEN                 1 + 8 + 1 + 4 + PMK_LEN + 8 + 1 + 4 + PTK_LEN
@@ -95,7 +95,7 @@ void ws_pae_nvm_store_generic_tlv_free(nvm_tlv_t *tlv_entry);
  * \return TLV entry or NULL
  *
  */
-void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry, uint16_t pan_id, char *nw_name, sec_prot_gtk_keys_t *gtks);
+void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry, uint16_t pan_id, char *nw_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks);
 
 /**
  * ws_pae_nvm_store_nw_info_tlv_read read from NVM network info TLV
@@ -109,7 +109,7 @@ void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry, uint16_t 
  * \return >= 0 success
  *
  */
-int8_t ws_pae_nvm_store_nw_info_tlv_read(nw_info_nvm_tlv_t *tlv_entry, uint16_t *pan_id, char *nw_name, sec_prot_gtk_keys_t *gtks);
+int8_t ws_pae_nvm_store_nw_info_tlv_read(nw_info_nvm_tlv_t *tlv_entry, uint16_t *pan_id, char *nw_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks);
 
 /**
  * ws_pae_nvm_store_keys_tlv_create create NVM keys TLV

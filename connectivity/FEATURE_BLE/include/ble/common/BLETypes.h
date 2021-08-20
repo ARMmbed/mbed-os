@@ -272,7 +272,11 @@ public:
      * @param[in] passkey value of the data.
      */
     PasskeyAscii(passkey_num_t passkey) {
+#if BLE_PASSKEY_DISPLAY_REVERSED_DIGITS_DEPRECATION
         for (int i = 5, m = 100000; i >= 0; --i, m /= 10) {
+#else
+        for (int i = 0, m = 100000; i < PASSKEY_LEN; ++i, m /= 10) {
+#endif //BLE_PASSKEY_DISPLAY_REVERSED_DIGITS_DEPRECATION
             uint32_t result = passkey / m;
             ascii[i] = NUMBER_OFFSET + result;
             passkey -= result * m;

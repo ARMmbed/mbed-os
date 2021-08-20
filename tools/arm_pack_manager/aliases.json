@@ -1,10 +1,4 @@
 {
-  "32F469IDISCOVERY": {
-    "name": "32F469IDISCOVERY",
-    "mounted_devices": [
-      "STM32F469NI"
-    ]
-  },
   "A31G112 MINI B/D": {
     "name": "A31G112 MINI B/D",
     "mounted_devices": [
@@ -130,12 +124,6 @@
     "name": "Bulb Board",
     "mounted_devices": [
       "S6E1A12B0A"
-    ]
-  },
-  "CMSIS_RTOS_Tutorial": {
-    "name": "CMSIS_RTOS_Tutorial",
-    "mounted_devices": [
-      "STM32F103RB"
     ]
   },
   "Colibri-VF50": {
@@ -522,12 +510,6 @@
       "MCIMX7D7"
     ]
   },
-  "Koala EVM": {
-    "name": "Koala EVM",
-    "mounted_devices": [
-      "STM32F429II"
-    ]
-  },
   "LPC1788-32 Developers Kit": {
     "name": "LPC1788-32 Developers Kit",
     "mounted_devices": [
@@ -777,30 +759,6 @@
       "NUC140VE3AN"
     ]
   },
-  "MCBSTM32C": {
-    "name": "MCBSTM32C",
-    "mounted_devices": [
-      "STM32F107VC"
-    ]
-  },
-  "MCBSTM32E": {
-    "name": "MCBSTM32E",
-    "mounted_devices": [
-      "STM32F103ZG"
-    ]
-  },
-  "MCBSTM32F200": {
-    "name": "MCBSTM32F200",
-    "mounted_devices": [
-      "STM32F207IG"
-    ]
-  },
-  "MCBSTM32F400": {
-    "name": "MCBSTM32F400",
-    "mounted_devices": [
-      "STM32F407IG"
-    ]
-  },
   "MCBTMPM330": {
     "name": "MCBTMPM330",
     "mounted_devices": [
@@ -950,48 +908,6 @@
       "nRF51422_xxAA"
     ]
   },
-  "NUCLEO-F072RB": {
-    "name": "NUCLEO-F072RB",
-    "mounted_devices": [
-      "STM32F072RB"
-    ]
-  },
-  "NUCLEO-F091RC": {
-    "name": "NUCLEO-F091RC",
-    "mounted_devices": [
-      "STM32F091RC"
-    ]
-  },
-  "NUCLEO-F103RB": {
-    "name": "NUCLEO-F103RB",
-    "mounted_devices": [
-      "STM32F103RB"
-    ]
-  },
-  "NUCLEO-F401RE": {
-    "name": "NUCLEO-F401RE",
-    "mounted_devices": [
-      "STM32F401RE"
-    ]
-  },
-  "NUCLEO-F446RE": {
-    "name": "NUCLEO-F446RE",
-    "mounted_devices": [
-      "STM32F446RE"
-    ]
-  },
-  "NUCLEO-L152RE": {
-    "name": "NUCLEO-L152RE",
-    "mounted_devices": [
-      "STM32L152RE"
-    ]
-  },
-  "NUCLEO-L476RG": {
-    "name": "NUCLEO-L476RG",
-    "mounted_devices": [
-      "STM32L476RG"
-    ]
-  },
   "NuTiny-SDK-M051": {
     "name": "NuTiny-SDK-M051",
     "mounted_devices": [
@@ -1002,12 +918,6 @@
     "name": "NuTiny-SDK-M2351",
     "mounted_devices": [
       "M2351KIAAE"
-    ]
-  },
-  "OLIMEX-STM32E407": {
-    "name": "OLIMEX-STM32E407",
-    "mounted_devices": [
-      "STM32F407ZG"
     ]
   },
   "PAC52XX EVK": {
@@ -1256,120 +1166,6 @@
     "name": "SN32F770 Starter Kit Rev1_0",
     "mounted_devices": [
       "SN32F70*B"
-    ]
-  },
-  "STM32072B-EVAL": {
-    "name": "STM32072B-EVAL",
-    "mounted_devices": [
-      "STM32F072VB"
-    ]
-  },
-  "STM32091C-EVAL": {
-    "name": "STM32091C-EVAL",
-    "mounted_devices": [
-      "STM32F091VC"
-    ]
-  },
-  "STM32303C-EVAL": {
-    "name": "STM32303C-EVAL",
-    "mounted_devices": [
-      "STM32F303VC"
-    ]
-  },
-  "STM32303E-EVAL": {
-    "name": "STM32303E-EVAL",
-    "mounted_devices": [
-      "STM32F303VE"
-    ]
-  },
-  "STM32373C-EVAL": {
-    "name": "STM32373C-EVAL",
-    "mounted_devices": [
-      "STM32F373VC"
-    ]
-  },
-  "STM32756G-EVAL": {
-    "name": "STM32756G-EVAL",
-    "mounted_devices": [
-      "STM32F756NGHx"
-    ]
-  },
-  "STM32F3-Discovery": {
-    "name": "STM32F3-Discovery",
-    "mounted_devices": [
-      "STM32F303VC"
-    ]
-  },
-  "STM32F334-Discovery": {
-    "name": "STM32F334-Discovery",
-    "mounted_devices": [
-      "STM32F334C8"
-    ]
-  },
-  "STM32F429I-Discovery": {
-    "name": "STM32F429I-Discovery",
-    "mounted_devices": [
-      "STM32F429ZI"
-    ]
-  },
-  "STM32F7-SOM": {
-    "name": "STM32F7-SOM",
-    "mounted_devices": [
-      "STM32F746NGHx"
-    ]
-  },
-  "STM32F746G-Discovery": {
-    "name": "STM32F746G-Discovery",
-    "mounted_devices": [
-      "STM32F746NGHx"
-    ]
-  },
-  "STM32F769I-Discovery": {
-    "name": "STM32F769I-Discovery",
-    "mounted_devices": [
-      "STM32F769NIHx"
-    ]
-  },
-  "STM32F769I-EVAL": {
-    "name": "STM32F769I-EVAL",
-    "mounted_devices": [
-      "STM32F769NIHx"
-    ]
-  },
-  "STM32H743I-EVAL": {
-    "name": "STM32H743I-EVAL",
-    "mounted_devices": [
-      "STM32H743XI"
-    ]
-  },
-  "STM32L-Discovery": {
-    "name": "STM32L-Discovery",
-    "mounted_devices": [
-      "STM32L152RB"
-    ]
-  },
-  "STM32L073Z-EVAL": {
-    "name": "STM32L073Z-EVAL",
-    "mounted_devices": [
-      "STM32L073VZ"
-    ]
-  },
-  "STM32L476G-EVAL": {
-    "name": "STM32L476G-EVAL",
-    "mounted_devices": [
-      "STM32L476ZG"
-    ]
-  },
-  "STM32L496G-Discovery": {
-    "name": "STM32L496G-Discovery",
-    "mounted_devices": [
-      "STM32L496AGIx"
-    ]
-  },
-  "STM32L4R9I-EVAL": {
-    "name": "STM32L4R9I-EVAL",
-    "mounted_devices": [
-      "STM32L4R9AIIx"
     ]
   },
   "TLE984x Eval.Board Rev1.4": {

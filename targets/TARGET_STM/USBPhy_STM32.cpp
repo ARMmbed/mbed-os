@@ -250,13 +250,13 @@ void USBPhyHw::init(USBPhyEvents *events)
 
     __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
 
-    #ifdef __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE
-        __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
-    #endif
-    #ifdef __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE
-        __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
-    #endif
-     
+#ifdef __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE
+    __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
+#endif
+#ifdef __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE
+    __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
+#endif
+
     map = PinMap_USB_HS;
 
 #elif (MBED_CONF_TARGET_USB_SPEED == USE_USB_OTG_FS)
@@ -267,13 +267,13 @@ void USBPhyHw::init(USBPhyEvents *events)
 
     __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
 
-    #ifdef __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE
-        __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
-    #endif
-    #ifdef __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE
-        __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
-    #endif
-     
+#ifdef __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE
+    __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
+#endif
+#ifdef __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE
+    __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
+#endif
+
     map = PinMap_USB_FS;
 
 #elif (MBED_CONF_TARGET_USB_SPEED == USE_USB_NO_OTG)
@@ -317,6 +317,7 @@ void USBPhyHw::init(USBPhyEvents *events)
     hpcd.State = HAL_PCD_STATE_RESET;
     HAL_StatusTypeDef ret = HAL_PCD_Init(&hpcd);
     MBED_ASSERT(ret == HAL_OK);
+    __HAL_PCD_ENABLE(&hpcd);
 
     // Configure FIFOs
 #if (MBED_CONF_TARGET_USB_SPEED == USE_USB_NO_OTG)

@@ -1,28 +1,30 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("NUCLEO_F446RE" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_NUCLEO_F446RE)
-elseif("NUCLEO_F446ZE" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_NUCLEO_F446ZE)
-endif()
+add_subdirectory(TARGET_NUCLEO_F446RE EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_NUCLEO_F446ZE EXCLUDE_FROM_ALL)
 
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(STARTUP_FILE TOOLCHAIN_GCC_ARM/startup_stm32f446xx.S)
-    set(LINKER_FILE TOOLCHAIN_GCC_ARM/STM32F446XE.ld)
+    set(LINKER_FILE TOOLCHAIN_GCC_ARM/stm32f446xe.ld)
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(STARTUP_FILE TOOLCHAIN_ARM/startup_stm32f446xx.S)
-    set(LINKER_FILE TOOLCHAIN_ARM/stm32f446xx.sct)
+    set(LINKER_FILE TOOLCHAIN_ARM/stm32f446xe.sct)
 endif()
 
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+add_library(mbed-stm32f446xe INTERFACE)
 
-target_sources(mbed-core
-    INTERFACE
-        ${STARTUP_FILE}
-)
-
-target_include_directories(mbed-core
+target_include_directories(mbed-stm32f446xe
     INTERFACE
         .
 )
+
+target_sources(mbed-stm32f446xe
+    INTERFACE
+        ${STARTUP_FILE}
+        system_clock.c
+)
+
+mbed_set_linker_script(mbed-stm32f446xe ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+
+target_link_libraries(mbed-stm32f446xe INTERFACE mbed-stm32f4)

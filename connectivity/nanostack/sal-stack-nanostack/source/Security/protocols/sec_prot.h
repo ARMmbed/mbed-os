@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, Arm Limited and affiliates.
+ * Copyright (c) 2016-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,7 +31,7 @@ typedef enum {
     SEC_RESULT_OK = 0,
     SEC_RESULT_ERR_NO_MEM = -1,
     SEC_RESULT_ERR_TX_NO_ACK = -2,
-    SEC_RESULT_ERR_UNSPEC = -3,
+    SEC_RESULT_ERR_TX_UNSPEC = -3,
     SEC_RESULT_TIMEOUT = -4,
     SEC_RESULT_ERROR = -5,
     SEC_RESULT_CONF_ERROR = -6,
@@ -106,8 +106,10 @@ typedef void sec_prot_create_indication(sec_prot_t *prot);
  * \param result result
  * \param sec_keys security keys
  *
+ * \return TRUE authentication has been completed, FALSE authentication continues
+ *
  */
-typedef void sec_prot_finished_indication(sec_prot_t *prot, sec_prot_result_e result, sec_prot_keys_t *sec_keys);
+typedef bool sec_prot_finished_indication(sec_prot_t *prot, sec_prot_result_e result, sec_prot_keys_t *sec_keys);
 
 /**
  * sec_prot_finished Security protocol has finished and is ready for delete

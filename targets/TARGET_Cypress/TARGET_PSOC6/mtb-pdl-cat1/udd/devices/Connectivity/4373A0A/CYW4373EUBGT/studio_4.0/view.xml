@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Parameters xml_version="1" xmlns="http://cypress.com/xsd/cydatawounding_v1">
+  <Param name="PartNumber" value="CYW4373EUBGT" />
+  <Param name="PartAvailability" value="Active" />
+  <Param name="DeviceDie" value="4373A0A" />
+  <Param name="Silicon_Revision" value="PRODUCTION" />
+  <Param name="Package" value="128-WLBGA" />
+  <Param name="CPU" value="None" />
+  <Param name="DeviceSeries" value="4373E" />
+  <Param name="Speed_MHz" value="0" />
+  <Param name="Flash_KB" value="0" />
+  <Param name="ROM_KB" value="896" />
+  <Param name="SRAM_KB" value="896" />
+  <Param name="Bluetooth" value="5" />
+  <Param name="Vddmin_volts" value="3.13" />
+  <Param name="Vddmax_volts" value="3.5" />
+  <Param name="TempMin_Celsius" value="-40" />
+  <Param name="TempMax_Celsius" value="85" />
+  <Param name="SiliconID" value="0x00000000" />
+  <Param name="Module" value="No" />
+  <Param name="REQUIRED_KITS" value="None" />
+  <Param name="Next_Best_Alt_Part" value="None" />
+  <Param name="DATASHEET" value="https://www.cypress.com/file/511921/download" />
+</Parameters>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,16 +38,19 @@
 #include "RPL/rpl_data.h"
 #include "Common_Protocols/icmpv6.h"
 #include "Common_Protocols/icmpv6_radv.h"
+#include "Common_Protocols/ip.h"
 #include "ws_management_api.h"
 #include "net_rpl.h"
 #include "Service_Libs/nd_proxy/nd_proxy.h"
+#include "Service_Libs/utils/ns_time.h"
 #include "6LoWPAN/ws/ws_bbr_api_internal.h"
 #include "6LoWPAN/ws/ws_pae_controller.h"
+#include "6LoWPAN/lowpan_adaptation_interface.h"
 #include "DHCPv6_Server/DHCPv6_server_service.h"
 #include "DHCPv6_client/dhcpv6_client_api.h"
 #include "libDHCPv6/libDHCPv6_vendordata.h"
 #include "libNET/src/net_dns_internal.h"
-
+#include "platform/os_whiteboard.h"
 
 #include "ws_bbr_api.h"
 
@@ -93,9 +96,6 @@ static uint8_t current_local_prefix[8] = {0};
 static uint8_t current_global_prefix[16] = {0}; // DHCP requires 16 bytes prefix
 static uint32_t bbr_delay_timer = BBR_CHECK_INTERVAL; // initial delay.
 static uint32_t global_prefix_unavailable_timer = 0; // initial delay.
-
-static uint8_t *dhcp_vendor_data_ptr = NULL;
-static uint8_t dhcp_vendor_data_len = 0;
 
 static rpl_dodag_conf_t rpl_conf = {
     // Lifetime values
@@ -197,7 +197,7 @@ static void ws_bbr_rpl_version_increase(protocol_interface_info_entry_t *cur)
     ws_bbr_rpl_version_timer_start(cur, rpl_control_increment_dodag_version(protocol_6lowpan_rpl_root_dodag));
 }
 
-void ws_bbr_rpl_config(protocol_interface_info_entry_t *cur, uint8_t imin, uint8_t doubling, uint8_t redundancy, uint16_t dag_max_rank_increase, uint16_t min_hop_rank_increase)
+void ws_bbr_rpl_config(protocol_interface_info_entry_t *cur, uint8_t imin, uint8_t doubling, uint8_t redundancy, uint16_t dag_max_rank_increase, uint16_t min_hop_rank_increase, uint32_t lifetime)
 {
     if (imin == 0 || doubling == 0) {
         // use default values
@@ -205,12 +205,33 @@ void ws_bbr_rpl_config(protocol_interface_info_entry_t *cur, uint8_t imin, uint8
         doubling = WS_RPL_DIO_DOUBLING_SMALL;
         redundancy = WS_RPL_DIO_REDUNDANCY_SMALL;
     }
+    uint8_t lifetime_unit = 60;
+    uint8_t default_lifetime;
+
+    if (lifetime == 0) {
+        // 2 hours default lifetime
+        lifetime = 120 * 60;
+    } else if (lifetime <= 250 * 60) {
+        // Lifetime unit of 60 is ok up to 4 hours
+    } else if (lifetime <= 250 * 120) {
+        //more than 4 hours needs larger lifetime unit
+        lifetime_unit = 120;
+    } else if (lifetime <= 250 * 240) {
+        lifetime_unit = 240;
+    } else {
+        // Maximum lifetime is 16 hours 40 minutes
+        lifetime = 250 * 240;
+        lifetime_unit = 240;
+    }
+    default_lifetime = lifetime / lifetime_unit;
 
     if (rpl_conf.dio_interval_min == imin &&
             rpl_conf.dio_interval_doublings == doubling &&
             rpl_conf.dio_redundancy_constant == redundancy &&
             rpl_conf.dag_max_rank_increase == dag_max_rank_increase &&
-            rpl_conf.min_hop_rank_increase == min_hop_rank_increase) {
+            rpl_conf.min_hop_rank_increase == min_hop_rank_increase &&
+            rpl_conf.default_lifetime == default_lifetime &&
+            rpl_conf.lifetime_unit == lifetime_unit) {
         // Same values no update needed
         return;
     }
@@ -220,6 +241,8 @@ void ws_bbr_rpl_config(protocol_interface_info_entry_t *cur, uint8_t imin, uint8
     rpl_conf.dio_redundancy_constant = redundancy;
     rpl_conf.dag_max_rank_increase = dag_max_rank_increase;
     rpl_conf.min_hop_rank_increase = min_hop_rank_increase;
+    rpl_conf.default_lifetime = default_lifetime;
+    rpl_conf.lifetime_unit = lifetime_unit;
 
     if (protocol_6lowpan_rpl_root_dodag) {
         rpl_control_update_dodag_config(protocol_6lowpan_rpl_root_dodag, &rpl_conf);
@@ -343,6 +366,34 @@ static void ws_bbr_slaac_remove(protocol_interface_info_entry_t *cur, uint8_t *u
     addr_policy_table_delete_entry(ula_prefix, 64);
 }
 
+/*
+ * 0 static non rooted self generated own address
+ * 1 static address with backbone connectivity
+ */
+static uint8_t *ws_bbr_bb_static_prefix_get(uint8_t *dodag_id_ptr)
+{
+
+    /* Get static ULA prefix if we have configuration in backbone and there is address we use that.
+     *
+     * If there is no address we can use our own generated ULA as a backup ULA
+     */
+
+    protocol_interface_info_entry_t *bb_interface = protocol_stack_interface_info_get_by_id(backbone_interface_id);
+
+    if (bb_interface && bb_interface->ipv6_configure->ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
+        ns_list_foreach(if_address_entry_t, addr, &bb_interface->ip_addresses) {
+            if (bitsequal(addr->address, bb_interface->ipv6_configure->static_prefix64, 64)) {
+                // static address available in interface copy the prefix and return the address
+                if (dodag_id_ptr) {
+                    memcpy(dodag_id_ptr, bb_interface->ipv6_configure->static_prefix64, 8);
+                }
+                return addr->address;
+            }
+        }
+    }
+    return NULL;
+}
+
 
 static int ws_bbr_static_dodagid_create(protocol_interface_info_entry_t *cur)
 {
@@ -350,6 +401,14 @@ static int ws_bbr_static_dodagid_create(protocol_interface_info_entry_t *cur)
         // address generated
         return 0;
     }
+
+    uint8_t *static_address_ptr = ws_bbr_bb_static_prefix_get(NULL);
+    if (static_address_ptr) {
+        memcpy(current_dodag_id, static_address_ptr, 16);
+        tr_info("BBR Static DODAGID %s", trace_ipv6(current_dodag_id));
+        return 0;
+    }
+
     // This address is only used if no other address available.
     if_address_entry_t *add_entry = ws_bbr_slaac_generate(cur, static_dodag_id_prefix);
     if (!add_entry) {
@@ -361,29 +420,6 @@ static int ws_bbr_static_dodagid_create(protocol_interface_info_entry_t *cur)
 
     return 0;
 }
-
-/*
- * 0 static non rooted self generated own address
- * 1 static address with backbone connectivity
- */
-static void ws_bbr_bb_static_prefix_get(uint8_t *dodag_id_ptr)
-{
-
-    /* Get static ULA prefix if we have configuration in backbone and there is address we use that.
-     *
-     * If there is no address we can use our own generated ULA as a backup ULA
-     */
-
-    protocol_interface_info_entry_t *bb_interface = protocol_stack_interface_info_get_by_id(backbone_interface_id);
-
-    if (bb_interface && bb_interface->ipv6_configure->ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
-        if (protocol_address_prefix_cmp(bb_interface, bb_interface->ipv6_configure->static_prefix64, 64)) {
-            memcpy(dodag_id_ptr, bb_interface->ipv6_configure->static_prefix64, 8);
-        }
-    }
-    return;
-}
-
 
 static void ws_bbr_dodag_get(uint8_t *local_prefix_ptr, uint8_t *global_prefix_ptr)
 {
@@ -414,6 +450,7 @@ static void ws_bbr_dodag_get(uint8_t *local_prefix_ptr, uint8_t *global_prefix_p
     memcpy(global_prefix_ptr, global_address, 8);
     return;
 }
+
 static void wisun_bbr_na_send(int8_t interface_id, const uint8_t target[static 16])
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
@@ -424,6 +461,8 @@ static void wisun_bbr_na_send(int8_t interface_id, const uint8_t target[static 1
     if (!cur->send_na) {
         return;
     }
+
+    whiteboard_os_modify(target, ADD);
 
     buffer_t *buffer = icmpv6_build_na(cur, false, true, true, target, NULL, ADDR_UNSPECIFIED);
     protocol_push(buffer);
@@ -444,9 +483,38 @@ static bool wisun_dhcp_address_add_cb(int8_t interfaceId, dhcp_address_cache_upd
     return true;
 }
 
+static uint8_t *ws_bbr_dhcp_server_dynamic_vendor_data_write(int8_t interfaceId, uint8_t *ptr, uint16_t *data_len)
+{
+    // If local time is not available vendor data is not written and data_len is not modified
+    (void)interfaceId;
+
+    uint64_t time_read;
+
+    if (0 != ns_time_system_time_read(&time_read)) {
+        return ptr;
+    }
+
+    if (data_len) {
+        *data_len += net_vendor_option_current_time_length();
+    }
+    if (!ptr) {
+        return ptr;
+    }
+    time_read += 2208988800; // Time starts now from the 0 era instead of First day of Unix (1 Jan 1970)
+
+    uint32_t era = time_read / (uint64_t)(4294967296);
+    uint32_t timestamp = time_read - (era * (uint64_t)(4294967296));
+    ptr = net_vendor_option_current_time_write(ptr, era, timestamp, 0);
+
+    return ptr;
+}
+
+
 static void ws_bbr_dhcp_server_dns_info_update(protocol_interface_info_entry_t *cur, uint8_t *global_id)
 {
     //add DNS server information to DHCP server that is learned from the backbone interface.
+    uint8_t *dhcp_vendor_data_ptr = NULL;
+    uint8_t dhcp_vendor_data_len = 0;
     uint8_t dns_server_address[16];
     uint8_t *dns_search_list_ptr = NULL;
     uint8_t dns_search_list_len = 0;
@@ -456,34 +524,49 @@ static void ws_bbr_dhcp_server_dns_info_update(protocol_interface_info_entry_t *
         DHCPv6_server_service_set_dns_server(cur->id, global_id, dns_server_address, dns_search_list_ptr, dns_search_list_len);
     }
 
-    //TODO Generate vendor data in Wi-SUN network include the cached DNS query results in some sort of TLV format
+    //Generate ARM specific vendor data in Wi-SUN network
+    // Cached DNS query results
+    // Network Time
+
     int vendor_data_len = 0;
     for (int n = 0; n < MAX_DNS_RESOLUTIONS; n++) {
         if (pre_resolved_dns_queries[n].domain_name != NULL) {
             vendor_data_len += net_dns_option_vendor_option_data_dns_query_length(pre_resolved_dns_queries[n].domain_name);
         }
     }
+
     if (vendor_data_len) {
-        ns_dyn_mem_free(dhcp_vendor_data_ptr);
-        dhcp_vendor_data_ptr = ns_dyn_mem_alloc(vendor_data_len);
+        dhcp_vendor_data_ptr = ns_dyn_mem_temporary_alloc(vendor_data_len);
         if (!dhcp_vendor_data_ptr) {
             tr_warn("Vendor info set fail");
             return;
         }
         dhcp_vendor_data_len = vendor_data_len;
     }
+    // Write ARM vendor data
+    uint8_t *ptr = dhcp_vendor_data_ptr;
+
     if (dhcp_vendor_data_ptr) {
         // Write vendor data
-        uint8_t *ptr = dhcp_vendor_data_ptr;
         for (int n = 0; n < MAX_DNS_RESOLUTIONS; n++) {
             if (pre_resolved_dns_queries[n].domain_name != NULL) {
                 ptr = net_dns_option_vendor_option_data_dns_query_write(ptr, pre_resolved_dns_queries[n].address, pre_resolved_dns_queries[n].domain_name);
-                tr_info("set DNS query result for %s, addr: %s", pre_resolved_dns_queries[n].domain_name, tr_ipv6(pre_resolved_dns_queries[n].address));
             }
         }
     }
+    DHCPv6_server_service_set_vendor_data_callback(cur->id, global_id, ARM_ENTERPRISE_NUMBER, ws_bbr_dhcp_server_dynamic_vendor_data_write);
 
     DHCPv6_server_service_set_vendor_data(cur->id, global_id, ARM_ENTERPRISE_NUMBER, dhcp_vendor_data_ptr, dhcp_vendor_data_len);
+    ns_dyn_mem_free(dhcp_vendor_data_ptr);
+}
+
+static void wisun_dhcp_address_remove_cb(int8_t interfaceId, uint8_t *targetAddress, void *prefix_info)
+{
+    (void) interfaceId;
+    (void) prefix_info;
+    if (targetAddress) {
+        whiteboard_os_modify(targetAddress, REMOVE);
+    }
 }
 
 static void ws_bbr_dhcp_server_start(protocol_interface_info_entry_t *cur, uint8_t *global_id, uint32_t dhcp_address_lifetime)
@@ -499,9 +582,11 @@ static void ws_bbr_dhcp_server_start(protocol_interface_info_entry_t *cur, uint8
         tr_error("DHCPv6 Server create fail");
         return;
     }
-    DHCPv6_server_service_callback_set(cur->id, global_id, NULL, wisun_dhcp_address_add_cb);
-    //Enable SLAAC mode to border router
-    DHCPv6_server_service_set_address_autonous_flag(cur->id, global_id, true, false);
+    DHCPv6_server_service_callback_set(cur->id, global_id, wisun_dhcp_address_remove_cb, wisun_dhcp_address_add_cb);
+    //Check for anonymous mode
+    bool anonymous = (configuration & BBR_DHCP_ANONYMOUS) ? true : false;
+
+    DHCPv6_server_service_set_address_generation_anonymous(cur->id, global_id, anonymous, false);
     DHCPv6_server_service_set_address_validlifetime(cur->id, global_id, dhcp_address_lifetime);
     //SEt max value for not limiting address allocation
     DHCPv6_server_service_set_max_clients_accepts_count(cur->id, global_id, MAX_SUPPORTED_ADDRESS_LIST_SIZE);
@@ -510,6 +595,7 @@ static void ws_bbr_dhcp_server_start(protocol_interface_info_entry_t *cur, uint8
 
     ws_dhcp_client_address_request(cur, global_id, ll);
 }
+
 static void ws_bbr_dhcp_server_stop(protocol_interface_info_entry_t *cur, uint8_t *global_id)
 {
     if (!cur) {
@@ -626,9 +712,16 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
      */
     if ((configuration & BBR_ULA_C) == 0 && memcmp(global_prefix, ADDR_UNSPECIFIED, 8) == 0) {
         //Global prefix not available count if backup ULA should be created
+        uint32_t prefix_wait_time = BBR_BACKUP_ULA_DELAY;
         global_prefix_unavailable_timer += BBR_CHECK_INTERVAL;
-        tr_debug("Check for backup prefix %"PRIu32"", global_prefix_unavailable_timer);
-        if (global_prefix_unavailable_timer >= BBR_BACKUP_ULA_DELAY) {
+
+        if (NULL != ws_bbr_bb_static_prefix_get(NULL)) {
+            // If we have a static configuration we activate it faster.
+            prefix_wait_time = 40;
+        }
+
+        tr_debug("Check for backup prefix %"PRIu32" / %"PRIu32"", prefix_wait_time, global_prefix_unavailable_timer);
+        if (global_prefix_unavailable_timer >= prefix_wait_time) {
             if (memcmp(current_global_prefix, ADDR_UNSPECIFIED, 8) == 0) {
                 tr_info("start using backup prefix %s", trace_ipv6_prefix(local_prefix, 64));
             }
@@ -850,6 +943,18 @@ bool ws_bbr_ready_to_start(protocol_interface_info_entry_t *cur)
     return true;
 }
 
+static void ws_bbr_forwarding_cb(protocol_interface_info_entry_t *interface, buffer_t *buf)
+{
+    uint8_t traffic_class = buf->options.traffic_class >> IP_TCLASS_DSCP_SHIFT;
+
+    if (traffic_class == IP_DSCP_EF) {
+        //indicate EF forwarding to adaptation
+        lowpan_adaptation_expedite_forward_enable(interface);
+    }
+}
+
+
+
 void ws_bbr_init(protocol_interface_info_entry_t *interface)
 {
     (void) interface;
@@ -862,6 +967,7 @@ void ws_bbr_init(protocol_interface_info_entry_t *interface)
         ws_bbr_fhss_bsi = ws_bbr_bsi_read(&bbr_info_nvm_tlv);
         tr_debug("Read BSI %u from NVM", ws_bbr_fhss_bsi);
     }
+    interface->if_common_forwarding_out_cb = &ws_bbr_forwarding_cb;
 }
 
 
@@ -1401,6 +1507,7 @@ int ws_bbr_dns_query_result_set(int8_t interface_id, const uint8_t address[16], 
             if (address) {
                 // Update address
                 memcpy(pre_resolved_dns_queries[n].address, address, 16);
+                tr_info("Update DNS query result for %s, addr: %s", pre_resolved_dns_queries[n].domain_name, tr_ipv6(pre_resolved_dns_queries[n].address));
             } else {
                 // delete entry
                 memset(pre_resolved_dns_queries[n].address, 0, 16);
@@ -1423,6 +1530,7 @@ int ws_bbr_dns_query_result_set(int8_t interface_id, const uint8_t address[16], 
                 }
                 memcpy(pre_resolved_dns_queries[n].address, address, 16);
                 strcpy(pre_resolved_dns_queries[n].domain_name, domain_name_ptr);
+                tr_info("set DNS query result for %s, addr: %s", pre_resolved_dns_queries[n].domain_name, tr_ipv6(pre_resolved_dns_queries[n].address));
                 goto update_information;
             }
         }

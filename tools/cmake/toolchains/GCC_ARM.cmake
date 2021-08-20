@@ -84,3 +84,11 @@ function(mbed_set_printf_lib target lib_type)
         )
     endif()
 endfunction()
+
+# Add linker flags to generate a mapfile with a given name
+function(mbed_configure_memory_map target mapfile)
+    target_link_options(${target}
+        PRIVATE
+            "-Wl,-Map=${mapfile}"
+    )
+endfunction()

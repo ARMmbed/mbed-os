@@ -15,7 +15,7 @@
  */
 
 #include "gtest/gtest.h"
-#include "stubs/BlockDevice_mock.h"
+#include "BlockDevice_mock.h"
 #include "blockdevice/ReadOnlyBlockDevice.h"
 #include "platform/mbed_error.h"
 

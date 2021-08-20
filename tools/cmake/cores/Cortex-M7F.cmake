@@ -11,9 +11,9 @@ if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     )
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     list(APPEND common_options
-        "-mcpu=cortex-m7"
         "-mfpu=fpv5-sp-d16"
         "-mfloat-abi=hard"
+        "-mcpu=cortex-m7"
     )
 endif()
 
@@ -25,6 +25,5 @@ function(mbed_set_cpu_core_definitions target)
             ARM_MATH_CM7
             __FPU_PRESENT=1
             __CMSIS_RTOS
-            __MBED_CMSIS_RTOS_CM
     )
 endfunction()

@@ -1,7 +1,9 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_sources(mbed-core
+add_library(mbed-stm32l0cube-fw INTERFACE)
+
+target_sources(mbed-stm32l0cube-fw
     INTERFACE
         STM32L0xx_HAL_Driver/stm32l0xx_hal.c
         STM32L0xx_HAL_Driver/stm32l0xx_hal_adc.c
@@ -16,6 +18,7 @@ target_sources(mbed-core
         STM32L0xx_HAL_Driver/stm32l0xx_hal_dac.c
         STM32L0xx_HAL_Driver/stm32l0xx_hal_dac_ex.c
         STM32L0xx_HAL_Driver/stm32l0xx_hal_dma.c
+        STM32L0xx_HAL_Driver/stm32l0xx_hal_exti.c
         STM32L0xx_HAL_Driver/stm32l0xx_hal_firewall.c
         STM32L0xx_HAL_Driver/stm32l0xx_hal_flash.c
         STM32L0xx_HAL_Driver/stm32l0xx_hal_flash_ex.c
@@ -40,6 +43,7 @@ target_sources(mbed-core
         STM32L0xx_HAL_Driver/stm32l0xx_hal_smartcard.c
         STM32L0xx_HAL_Driver/stm32l0xx_hal_smartcard_ex.c
         STM32L0xx_HAL_Driver/stm32l0xx_hal_smbus.c
+        STM32L0xx_HAL_Driver/stm32l0xx_hal_smbus_ex.c
         STM32L0xx_HAL_Driver/stm32l0xx_hal_spi.c
         STM32L0xx_HAL_Driver/stm32l0xx_hal_tim.c
         STM32L0xx_HAL_Driver/stm32l0xx_hal_tim_ex.c
@@ -71,7 +75,7 @@ target_sources(mbed-core
         system_stm32l0xx.c
 )
 
-target_include_directories(mbed-core
+target_include_directories(mbed-stm32l0cube-fw
     INTERFACE
         .
         CMSIS

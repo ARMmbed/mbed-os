@@ -34,6 +34,12 @@
 #include "pinmap.h"
 #include "PeripheralNames.h"
 
+//*** GPIO ***
+#if GPIO_PINMAP_READY
+/* If this macro is defined, then PinMap_GPIO is present in PeripheralPins.c */
+extern const PinMap PinMap_GPIO[];
+#endif
+
 //*** ADC ***
 #if DEVICE_ANALOGIN
 extern const PinMap PinMap_ADC[];

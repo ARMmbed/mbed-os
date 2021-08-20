@@ -38,7 +38,7 @@ uint32_t PWM_ConfigOutputChannel (PWM_T *pwm,
                                   uint32_t u32Frequency,
                                   uint32_t u32DutyCycle)
 {
-    return PWM_ConfigOutputChannel2(pwm, u32ChannelNum, u32Frequency, u32DutyCycle, 1);
+    return PWM_ConfigOutputChannel2(pwm, u32ChannelNum, u32Frequency, u32DutyCycle*100, 1);
 }
 
 /**
@@ -46,7 +46,7 @@ uint32_t PWM_ConfigOutputChannel (PWM_T *pwm,
  * @param[in] pwm The base address of PWM module
  * @param[in] u32ChannelNum PWM channel number. Valid values are between 0~5
  * @param[in] u32Frequency Target generator frequency = u32Frequency / u32Frequency2
- * @param[in] u32DutyCycle Target generator duty cycle percentage. Valid range are between 0 ~ 100. 10 means 10%, 20 means 20%...
+ * @param[in] u32HighDutyCycle Target generator duty cycle percentage. Valid range are between 0 ~ 10000. 1000 means 10%, 2000 means 20%...
  * @param[in] u32Frequency2 Target generator frequency = u32Frequency / u32Frequency2
  * @return Nearest frequency clock in nano second
  * @note Since every two channels, (0 & 1), (2 & 3), (4 & 5), shares a prescaler. Call this API to configure PWM frequency may affect
@@ -55,7 +55,7 @@ uint32_t PWM_ConfigOutputChannel (PWM_T *pwm,
 uint32_t PWM_ConfigOutputChannel2 (PWM_T *pwm,
                                   uint32_t u32ChannelNum,
                                   uint32_t u32Frequency,
-                                  uint32_t u32DutyCycle,
+                                  uint32_t u32HighDutyCycle,
                                   uint32_t u32Frequency2)
 {
     uint32_t i;
@@ -182,10 +182,10 @@ uint32_t PWM_ConfigOutputChannel2 (PWM_T *pwm,
     pwm->CLKPSC = (pwm->CLKPSC & ~(PWM_CLKPSC_CLKPSC01_Msk << ((u32ChannelNum >> 1) * 8))) | (u8Prescale << ((u32ChannelNum >> 1) * 8));
     pwm->CLKDIV = (pwm->CLKDIV & ~(PWM_CLKDIV_CLKDIV0_Msk << (4 * u32ChannelNum))) | (u8Divider << (4 * u32ChannelNum));
     pwm->CTL |= 1 << (PWM_CTL_CNTMODE_Pos + u32ChannelNum);
-    if(u32DutyCycle == 0)
+    if(u32HighDutyCycle == 0)
         pwm->CMPDAT[u32ChannelNum] = 0;
     else
-        pwm->CMPDAT[u32ChannelNum] = u32DutyCycle * (u16CNR + 1) / 100 - 1;
+        pwm->CMPDAT[u32ChannelNum] = u32HighDutyCycle * (u16CNR + 1) / 10000 - 1;
     pwm->PERIOD[u32ChannelNum] = u16CNR;
 
     return(i);

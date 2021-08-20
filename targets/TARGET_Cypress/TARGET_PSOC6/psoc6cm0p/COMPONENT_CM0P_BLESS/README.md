@@ -35,10 +35,11 @@ BLESS Controller pre-built image executes the following steps:
 - goes to the while loop where processes BLE controller events and puts the CM0+ core into Deep Sleep.
 
 ### New in this image
-- Updated the BLE Stack to version 5.0.7
+- Updated the BLE Stack to version 5.0.8
 
 ### Defect Fixes
-* Addressed [CVE-2019-16336](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-16336) and [CVE-2019-17061](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-17061) Vulnerabilities.
+* Updated Cy_BLE_ControllerEnterLPM API for handling a scenario where wake-up is initiated by the hardware.
+* Improved the handling of Cy_BLE_StackShutdown API to avoid timing-sensitive bugs.
 
 
 The revision history of the PSoC 6 BLE Middleware is also available on the [API Reference Guide Changelog](https://cypresssemiconductorco.github.io/bless/ble_api_reference_manual/html/page_group_ble_changelog.html).

@@ -36,6 +36,8 @@
  * 
  */
 
+/* MBED TARGET LIST: SDT52832B */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -128,8 +130,16 @@ typedef enum {
     RTS_PIN_NUMBER = p5,
 
     // mBed interface Pins
-    STDIO_UART_TX = TX_PIN_NUMBER,
-    STDIO_UART_RX = RX_PIN_NUMBER,
+#if defined(MBED_CONF_TARGET_STDIO_UART_TX)
+    STDIO_UART_TX   = MBED_CONF_TARGET_STDIO_UART_TX,
+#else
+    STDIO_UART_TX   = TX_PIN_NUMBER,
+#endif
+#if defined(MBED_CONF_TARGET_STDIO_UART_RX)
+    STDIO_UART_RX   = MBED_CONF_TARGET_STDIO_UART_RX,
+#else
+    STDIO_UART_RX   = RX_PIN_NUMBER,
+#endif
     STDIO_UART_CTS = CTS_PIN_NUMBER,
     STDIO_UART_RTS = RTS_PIN_NUMBER,
 
@@ -164,8 +174,8 @@ typedef enum {
     LED_BLUE  = LED2,
 
     // USB bridge and SWD UART connected UART pins
-    USBTX = TX_PIN_NUMBER,
-    USBRX = RX_PIN_NUMBER,
+    CONSOLE_TX = TX_PIN_NUMBER,
+    CONSOLE_RX = RX_PIN_NUMBER,
 
     // UART pins
     UART0_RX  = NOT_CONNECTED,

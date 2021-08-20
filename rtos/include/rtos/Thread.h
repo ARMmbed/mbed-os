@@ -33,7 +33,7 @@
 #include "rtos/Semaphore.h"
 #include "rtos/Mutex.h"
 
-#if MBED_CONF_RTOS_PRESENT || defined(DOXYGEN_ONLY) || defined(UNITTEST)
+#if MBED_CONF_RTOS_PRESENT || defined(DOXYGEN_ONLY)
 
 namespace rtos {
 /** \addtogroup rtos-public-api */

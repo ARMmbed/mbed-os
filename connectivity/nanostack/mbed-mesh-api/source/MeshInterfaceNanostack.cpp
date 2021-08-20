@@ -22,6 +22,21 @@
 #include "thread_management_if.h"
 #include "ip6string.h"
 #include "mbed_error.h"
+#include "mbed_rtc_time.h"
+
+#if (MBED_CONF_MBED_MESH_API_SYSTEM_TIME_UPDATE_FROM_NANOSTACK == true)
+static uint64_t time_read_callback(void)
+{
+    time_t seconds = time(NULL);
+
+    return (uint64_t)seconds;
+}
+
+static void time_write_callback(uint64_t time_write)
+{
+    set_time((time_t)time_write);
+}
+#endif /* MBED_CONF_MBED_MESH_API_SYSTEM_TIME_UPDATE_FROM_NANOSTACK */
 
 nsapi_error_t Nanostack::Interface::get_ip_address(SocketAddress *address)
 {
@@ -109,6 +124,10 @@ int InterfaceNanostack::connect()
     if (error) {
         return error;
     }
+
+#if (MBED_CONF_MBED_MESH_API_SYSTEM_TIME_UPDATE_FROM_NANOSTACK == true)
+    mesh_system_time_callback_set(time_read_callback, time_write_callback);
+#endif /* MBED_CONF_MBED_MESH_API_SYSTEM_TIME_UPDATE_FROM_NANOSTACK */
 
     return _interface->bringup(false, NULL, NULL, NULL, IPV6_STACK, _blocking);
 }

@@ -351,8 +351,8 @@ static struct equeue_event *equeue_dequeue(equeue_t *q, unsigned target)
 {
     equeue_mutex_lock(&q->queuelock);
 
-    // find all expired events and mark a new generation
-    q->generation += 1;
+    // find all expired events
+
     if (equeue_tickdiff(q->tick, target) <= 0) {
         q->tick = target;
     }
@@ -369,6 +369,12 @@ static struct equeue_event *equeue_dequeue(equeue_t *q, unsigned target)
     }
 
     *p = 0;
+
+    /* we only increment the generation if events have been taken off the queue
+     * as this is the only time cancellation may conflict with dequeueing */
+    if (head) {
+        q->generation += 1;
+    }
 
     equeue_mutex_unlock(&q->queuelock);
 

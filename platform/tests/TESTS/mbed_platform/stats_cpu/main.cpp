@@ -28,10 +28,12 @@
 
 using namespace utest::v1;
 
+#ifdef LED1
 DigitalOut led1(LED1);
+#endif
 
 // Targets with these cores have their RAM enough size to create threads with bigger stacks
-#if defined(__CORTEX_A9) || defined(__CORTEX_M23) || defined(__CORTEX_M33) || defined(__CORTEX_M7)
+#if defined(__CORTEX_A9) || defined(__CORTEX_A5) || defined(__CORTEX_M23) || defined(__CORTEX_M33) || defined(__CORTEX_M7)
 #define MAX_THREAD_STACK        512
 #else
 #define MAX_THREAD_STACK        384
@@ -47,7 +49,9 @@ static void busy_thread()
     volatile uint64_t i = ~0;
 
     while (i--) {
+#ifdef LED1
         led1 = !led1;
+#endif
         wait_us(wait_time);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, Arm Limited and affiliates.
+ * Copyright (c) 2014-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -1072,7 +1072,7 @@ int8_t arm_network_certificate_revocation_list_remove(const arm_cert_revocation_
  */
 int8_t arm_network_key_get(int8_t interface_id, ns_keys_t *key)
 {
-#ifndef PANA
+#ifndef PANA_SERVER
     (void)interface_id;
     (void)key;
 #endif
@@ -1081,7 +1081,7 @@ int8_t arm_network_key_get(int8_t interface_id, ns_keys_t *key)
 
 int8_t arm_pana_server_library_init(int8_t interface_id, net_tls_cipher_e cipher_mode, const uint8_t *key_material, uint32_t time_period_before_activate_key)
 {
-#ifndef PANA
+#ifndef PANA_SERVER
     (void)interface_id;
     (void)cipher_mode;
     (void)key_material;
@@ -1092,7 +1092,7 @@ int8_t arm_pana_server_library_init(int8_t interface_id, net_tls_cipher_e cipher
 
 int8_t arm_pana_activate_new_key(int8_t interface_id)
 {
-#ifndef PANA
+#ifndef PANA_SERVER
     (void)interface_id;
 #endif
     return  pana_server_trig_new_key(interface_id);
@@ -1100,7 +1100,7 @@ int8_t arm_pana_activate_new_key(int8_t interface_id)
 
 int8_t arm_pana_server_key_update(int8_t interface_id, const uint8_t *network_key_material)
 {
-#ifndef PANA
+#ifndef PANA_SERVER
     (void)interface_id;
     (void)network_key_material;
 #endif
@@ -1199,7 +1199,7 @@ int8_t arm_6lowpan_bootsrap_set_for_selected_interface(int8_t interface_id)
 int8_t arm_nwk_interface_configure_6lowpan_bootstrap_set(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode, net_6lowpan_mode_extension_e net_6lowpan_mode_extension)
 {
     int8_t ret_val;
-
+    (void)bootstrap_mode;
     ret_val = arm_6lowpan_bootsrap_set_for_selected_interface(interface_id);
 
     if (ret_val == 0) {

@@ -4,7 +4,7 @@
  * \brief Internal functions shared by the SSL modules
  */
 /*
- *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
+ *  Copyright The Mbed TLS Contributors
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -18,8 +18,6 @@
  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 #ifndef MBEDTLS_SSL_INTERNAL_H
 #define MBEDTLS_SSL_INTERNAL_H
@@ -146,12 +144,26 @@
 #define MBEDTLS_SSL_COMPRESSION_ADD             0
 #endif
 
+/* This macro determines whether CBC is supported. */
+#if defined(MBEDTLS_CIPHER_MODE_CBC) &&                               \
+    ( defined(MBEDTLS_AES_C)      ||                                  \
+      defined(MBEDTLS_CAMELLIA_C) ||                                  \
+      defined(MBEDTLS_ARIA_C)     ||                                  \
+      defined(MBEDTLS_DES_C) )
+#define MBEDTLS_SSL_SOME_SUITES_USE_CBC
+#endif
+
+/* This macro determines whether the CBC construct used in TLS 1.0-1.2 (as
+ * opposed to the very different CBC construct used in SSLv3) is supported. */
+#if defined(MBEDTLS_SSL_SOME_SUITES_USE_CBC) && \
+    ( defined(MBEDTLS_SSL_PROTO_TLS1) ||        \
+      defined(MBEDTLS_SSL_PROTO_TLS1_1) ||      \
+      defined(MBEDTLS_SSL_PROTO_TLS1_2) )
+#define MBEDTLS_SSL_SOME_SUITES_USE_TLS_CBC
+#endif
+
 #if defined(MBEDTLS_ARC4_C) || defined(MBEDTLS_CIPHER_NULL_CIPHER) ||   \
-    ( defined(MBEDTLS_CIPHER_MODE_CBC) &&                               \
-      ( defined(MBEDTLS_AES_C)      ||                                  \
-        defined(MBEDTLS_CAMELLIA_C) ||                                  \
-        defined(MBEDTLS_ARIA_C)     ||                                  \
-        defined(MBEDTLS_DES_C) ) )
+    defined(MBEDTLS_SSL_SOME_SUITES_USE_CBC)
 #define MBEDTLS_SSL_SOME_MODES_USE_MAC
 #endif
 
@@ -206,6 +218,12 @@
         ? ( MBEDTLS_SSL_OUT_CONTENT_LEN )                            \
         : ( MBEDTLS_SSL_IN_CONTENT_LEN )                             \
         )
+
+/* Maximum size in bytes of list in sig-hash algorithm ext., RFC 5246 */
+#define MBEDTLS_SSL_MAX_SIG_HASH_ALG_LIST_LEN  65534
+
+/* Maximum size in bytes of list in supported elliptic curve ext., RFC 4492 */
+#define MBEDTLS_SSL_MAX_CURVE_LIST_LEN         65535
 
 /*
  * Check that we obey the standard's message size bounds
@@ -299,6 +317,41 @@ static inline uint32_t mbedtls_ssl_get_input_buflen( const mbedtls_ssl_context *
 #define MBEDTLS_TLS_EXT_SUPPORTED_POINT_FORMATS_PRESENT (1 << 0)
 #define MBEDTLS_TLS_EXT_ECJPAKE_KKPP_OK                 (1 << 1)
 
+/**
+ * \brief        This function checks if the remaining size in a buffer is
+ *               greater or equal than a needed space.
+ *
+ * \param cur    Pointer to the current position in the buffer.
+ * \param end    Pointer to one past the end of the buffer.
+ * \param need   Needed space in bytes.
+ *
+ * \return       Zero if the needed space is available in the buffer, non-zero
+ *               otherwise.
+ */
+static inline int mbedtls_ssl_chk_buf_ptr( const uint8_t *cur,
+                                           const uint8_t *end, size_t need )
+{
+    return( ( cur > end ) || ( need > (size_t)( end - cur ) ) );
+}
+
+/**
+ * \brief        This macro checks if the remaining size in a buffer is
+ *               greater or equal than a needed space. If it is not the case,
+ *               it returns an SSL_BUFFER_TOO_SMALL error.
+ *
+ * \param cur    Pointer to the current position in the buffer.
+ * \param end    Pointer to one past the end of the buffer.
+ * \param need   Needed space in bytes.
+ *
+ */
+#define MBEDTLS_SSL_CHK_BUF_PTR( cur, end, need )                        \
+    do {                                                                 \
+        if( mbedtls_ssl_chk_buf_ptr( ( cur ), ( end ), ( need ) ) != 0 ) \
+        {                                                                \
+            return( MBEDTLS_ERR_SSL_BUFFER_TOO_SMALL );                  \
+        }                                                                \
+    } while( 0 )
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -325,6 +378,49 @@ typedef int  mbedtls_ssl_tls_prf_cb( const unsigned char *secret, size_t slen,
                                      const char *label,
                                      const unsigned char *random, size_t rlen,
                                      unsigned char *dstbuf, size_t dlen );
+
+/* cipher.h exports the maximum IV, key and block length from
+ * all ciphers enabled in the config, regardless of whether those
+ * ciphers are actually usable in SSL/TLS. Notably, XTS is enabled
+ * in the default configuration and uses 64 Byte keys, but it is
+ * not used for record protection in SSL/TLS.
+ *
+ * In order to prevent unnecessary inflation of key structures,
+ * we introduce SSL-specific variants of the max-{key,block,IV}
+ * macros here which are meant to only take those ciphers into
+ * account which can be negotiated in SSL/TLS.
+ *
+ * Since the current definitions of MBEDTLS_MAX_{KEY|BLOCK|IV}_LENGTH
+ * in cipher.h are rough overapproximations of the real maxima, here
+ * we content ourselves with replicating those overapproximations
+ * for the maximum block and IV length, and excluding XTS from the
+ * computation of the maximum key length. */
+#define MBEDTLS_SSL_MAX_BLOCK_LENGTH 16
+#define MBEDTLS_SSL_MAX_IV_LENGTH    16
+#define MBEDTLS_SSL_MAX_KEY_LENGTH   32
+
+/**
+ * \brief   The data structure holding the cryptographic material (key and IV)
+ *          used for record protection in TLS 1.3.
+ */
+struct mbedtls_ssl_key_set
+{
+    /*! The key for client->server records. */
+    unsigned char client_write_key[ MBEDTLS_SSL_MAX_KEY_LENGTH ];
+    /*! The key for server->client records. */
+    unsigned char server_write_key[ MBEDTLS_SSL_MAX_KEY_LENGTH ];
+    /*! The IV  for client->server records. */
+    unsigned char client_write_iv[ MBEDTLS_SSL_MAX_IV_LENGTH ];
+    /*! The IV  for server->client records. */
+    unsigned char server_write_iv[ MBEDTLS_SSL_MAX_IV_LENGTH ];
+
+    size_t key_len; /*!< The length of client_write_key and
+                     *   server_write_key, in Bytes. */
+    size_t iv_len;  /*!< The length of client_write_iv and
+                     *   server_write_iv, in Bytes. */
+};
+typedef struct mbedtls_ssl_key_set mbedtls_ssl_key_set;
+
 /*
  * This structure contains the parameters only needed during handshake.
  */
@@ -341,17 +437,22 @@ struct mbedtls_ssl_handshake_params
 #if defined(MBEDTLS_DHM_C)
     mbedtls_dhm_context dhm_ctx;                /*!<  DHM key exchange        */
 #endif
-#if defined(MBEDTLS_ECDH_C)
+/* Adding guard for MBEDTLS_ECDSA_C to ensure no compile errors due
+ * to guards also being in ssl_srv.c and ssl_cli.c. There is a gap
+ * in functionality that access to ecdh_ctx structure is needed for
+ * MBEDTLS_ECDSA_C which does not seem correct.
+ */
+#if defined(MBEDTLS_ECDH_C) || defined(MBEDTLS_ECDSA_C)
     mbedtls_ecdh_context ecdh_ctx;              /*!<  ECDH key exchange       */
 
 #if defined(MBEDTLS_USE_PSA_CRYPTO)
     psa_key_type_t ecdh_psa_type;
     uint16_t ecdh_bits;
-    psa_key_handle_t ecdh_psa_privkey;
+    psa_key_id_t ecdh_psa_privkey;
     unsigned char ecdh_psa_peerkey[MBEDTLS_PSA_MAX_EC_PUBKEY_LENGTH];
     size_t ecdh_psa_peerkey_len;
 #endif /* MBEDTLS_USE_PSA_CRYPTO */
-#endif /* MBEDTLS_ECDH_C */
+#endif /* MBEDTLS_ECDH_C || MBEDTLS_ECDSA_C */
 
 #if defined(MBEDTLS_KEY_EXCHANGE_ECJPAKE_ENABLED)
     mbedtls_ecjpake_context ecjpake_ctx;        /*!< EC J-PAKE key exchange */
@@ -366,7 +467,7 @@ struct mbedtls_ssl_handshake_params
 #endif
 #if defined(MBEDTLS_KEY_EXCHANGE_SOME_PSK_ENABLED)
 #if defined(MBEDTLS_USE_PSA_CRYPTO)
-    psa_key_handle_t psk_opaque;        /*!< Opaque PSK from the callback   */
+    psa_key_id_t psk_opaque;            /*!< Opaque PSK from the callback   */
 #endif /* MBEDTLS_USE_PSA_CRYPTO */
     unsigned char *psk;                 /*!<  PSK from the callback         */
     size_t psk_len;                     /*!<  Length of PSK from callback   */
@@ -553,6 +654,10 @@ typedef struct mbedtls_ssl_hs_buffer mbedtls_ssl_hs_buffer;
  *   the IV is obtained by XOR'ing a static IV obtained at key extraction
  *   time with the 8-byte record sequence number, without prepending the
  *   latter to the encrypted record.
+ *
+ * Additionally, DTLS 1.2 + CID as well as TLS 1.3 use an inner plaintext
+ * which allows to add flexible length padding and to hide a record's true
+ * content type.
  *
  * In addition to type and version, the following parameters are relevant:
  * - The symmetric cipher algorithm to be used.
@@ -921,7 +1026,60 @@ void mbedtls_ssl_optimize_checksum( mbedtls_ssl_context *ssl,
 
 #if defined(MBEDTLS_KEY_EXCHANGE_SOME_PSK_ENABLED)
 int mbedtls_ssl_psk_derive_premaster( mbedtls_ssl_context *ssl, mbedtls_key_exchange_type_t key_ex );
-#endif
+
+/**
+ * Get the first defined PSK by order of precedence:
+ * 1. handshake PSK set by \c mbedtls_ssl_set_hs_psk() in the PSK callback
+ * 2. static PSK configured by \c mbedtls_ssl_conf_psk()
+ * Return a code and update the pair (PSK, PSK length) passed to this function
+ */
+static inline int mbedtls_ssl_get_psk( const mbedtls_ssl_context *ssl,
+    const unsigned char **psk, size_t *psk_len )
+{
+    if( ssl->handshake->psk != NULL && ssl->handshake->psk_len > 0 )
+    {
+        *psk = ssl->handshake->psk;
+        *psk_len = ssl->handshake->psk_len;
+    }
+
+    else if( ssl->conf->psk != NULL && ssl->conf->psk_len > 0 )
+    {
+        *psk = ssl->conf->psk;
+        *psk_len = ssl->conf->psk_len;
+    }
+
+    else
+    {
+        *psk = NULL;
+        *psk_len = 0;
+        return( MBEDTLS_ERR_SSL_PRIVATE_KEY_REQUIRED );
+    }
+
+    return( 0 );
+}
+
+#if defined(MBEDTLS_USE_PSA_CRYPTO)
+/**
+ * Get the first defined opaque PSK by order of precedence:
+ * 1. handshake PSK set by \c mbedtls_ssl_set_hs_psk_opaque() in the PSK
+ *    callback
+ * 2. static PSK configured by \c mbedtls_ssl_conf_psk_opaque()
+ * Return an opaque PSK
+ */
+static inline psa_key_id_t mbedtls_ssl_get_opaque_psk(
+    const mbedtls_ssl_context *ssl )
+{
+    if( ! mbedtls_svc_key_id_is_null( ssl->handshake->psk_opaque ) )
+        return( ssl->handshake->psk_opaque );
+
+    if( ! mbedtls_svc_key_id_is_null( ssl->conf->psk_opaque ) )
+        return( ssl->conf->psk_opaque );
+
+    return( MBEDTLS_SVC_KEY_ID_INIT );
+}
+#endif /* MBEDTLS_USE_PSA_CRYPTO */
+
+#endif /* MBEDTLS_KEY_EXCHANGE_SOME_PSK_ENABLED */
 
 #if defined(MBEDTLS_PK_C)
 unsigned char mbedtls_ssl_sig_from_pk( mbedtls_pk_context *pk );
@@ -940,6 +1098,23 @@ int mbedtls_ssl_check_curve( const mbedtls_ssl_context *ssl, mbedtls_ecp_group_i
 #if defined(MBEDTLS_KEY_EXCHANGE_WITH_CERT_ENABLED)
 int mbedtls_ssl_check_sig_hash( const mbedtls_ssl_context *ssl,
                                 mbedtls_md_type_t md );
+#endif
+
+#if defined(MBEDTLS_SSL_DTLS_SRTP)
+static inline mbedtls_ssl_srtp_profile mbedtls_ssl_check_srtp_profile_value
+                                                    ( const uint16_t srtp_profile_value )
+{
+    switch( srtp_profile_value )
+    {
+        case MBEDTLS_TLS_SRTP_AES128_CM_HMAC_SHA1_80:
+        case MBEDTLS_TLS_SRTP_AES128_CM_HMAC_SHA1_32:
+        case MBEDTLS_TLS_SRTP_NULL_HMAC_SHA1_80:
+        case MBEDTLS_TLS_SRTP_NULL_HMAC_SHA1_32:
+            return srtp_profile_value;
+        default: break;
+    }
+    return( MBEDTLS_TLS_SRTP_UNSET );
+}
 #endif
 
 #if defined(MBEDTLS_X509_CRT_PARSE_C)

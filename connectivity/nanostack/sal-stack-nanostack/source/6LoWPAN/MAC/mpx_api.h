@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited and affiliates.
+ * Copyright (c) 2018, 2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@
 
 #ifndef MPX_API_H_
 #define MPX_API_H_
-
+#include "mac_mcps.h"
 struct mcps_data_req_s;
 struct mcps_data_conf_s;
 struct mcps_data_ind_s;
@@ -30,9 +30,10 @@ typedef struct mpx_api_s mpx_api_t;
  * @param api API to handle the request
  * @param data MCPS-DATA.request specific values
  * @param user_id MPX user ID
+ * @param priority priority level
  *
  */
-typedef void mpx_data_request(const mpx_api_t *api, const struct mcps_data_req_s *data, uint16_t user_id);
+typedef void mpx_data_request(const mpx_api_t *api, const struct mcps_data_req_s *data, uint16_t user_id, mac_data_priority_t priority);
 
 /**
  * @brief mpx_data_queue_clean clean MPX user data
@@ -83,6 +84,22 @@ typedef uint16_t mpx_header_size_get(const mpx_api_t *api, uint16_t user_id);
 typedef int8_t mpx_data_cb_register(const mpx_api_t *api, mpx_data_confirm *confirm_cb, mpx_data_indication *indication_cb, uint16_t user_id);
 
 /**
+ * @brief mpx_eui64_purge_request Purge EUI-64 related data from MPX
+ * @param api The API which handled the response
+ * @param eui64 EUI-64 to purge
+ *
+ */
+typedef void mpx_eui64_purge_request(const mpx_api_t *api, const uint8_t *eui64);
+
+/**
+ * \brief mpx_high_priority_mode_set Enable/Disable MPX high priority mode for TX process
+ * @param api The API which handled the response
+ * @param enable_mode True for enable High Priority mode, False disable
+ *
+ */
+typedef void mpx_high_priority_mode_set(const mpx_api_t *api, bool enable_mode);
+
+/**
  * \brief Struct mpx_api_s defines functions for MPX user for register call backs and send data.
  */
 struct mpx_api_s {
@@ -90,6 +107,8 @@ struct mpx_api_s {
     mpx_data_purge_request *mpx_data_purge;            /**< MPX data Purge. */
     mpx_header_size_get *mpx_headroom_size_get;     /**< MPX headroom size get in bytes. */
     mpx_data_cb_register *mpx_user_registration;    /**< MPX User cb registration must be call before enable to send or RX data*/
+    mpx_eui64_purge_request *mpx_eui64_purge;       /**< MPX Purge EUI-64 related data */
+    mpx_high_priority_mode_set *mpx_priority_mode_set; /**< MPX request to enable / disable High Priority mode */
 };
 
 

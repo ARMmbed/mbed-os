@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2015, 2017-2019, Arm Limited and affiliates.
+ * Copyright (c) 2008-2015, 2017-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,6 +44,8 @@
 #define RANDOM_PORT_NUMBER_END 65535
 #define RANDOM_PORT_NUMBER_COUNT (RANDOM_PORT_NUMBER_END - RANDOM_PORT_NUMBER_START + 1)
 #define RANDOM_PORT_NUMBER_MAX_STEP 500
+
+static bool socket_reference_limit(socket_t *socket_ptr);
 
 static uint16_t port_counter;
 
@@ -113,6 +115,7 @@ socket_t *socket_pointer_get(int8_t socket)
 
 static void socket_data_event_push(buffer_t *buf)
 {
+    buf->socket = socket_reference(buf->socket);
     arm_event_s event = {
         .receiver = socket_event_handler,
         .sender = 0,
@@ -137,6 +140,7 @@ bool socket_data_queued_event_push(socket_t *socket)
     };
 
     if (eventOS_event_send(&event) != 0) {
+        socket_dereference(socket);
         return false;
     }
     return true;
@@ -167,12 +171,8 @@ static void socket_cb_event_run(const socket_cb_event_t *event)
     }
 }
 
-void socket_buffer_cb_run(socket_t *socket, buffer_t *buffer)
+static void socket_buffer_cb_run(socket_t *socket, buffer_t *buffer)
 {
-    if (socket->id == -1 || !socket->u.live.fptr) {
-        buffer_free(buffer);
-        return;
-    }
 
     eventOS_scheduler_set_active_tasklet(socket->tasklet);
 
@@ -222,9 +222,19 @@ void socket_tasklet_event_handler(arm_event_s *event)
         }
         case ARM_SOCKET_DATA_CB: {
             buffer_t *buf = event->data_ptr;
-            /* Reference the socket here*/
-            socket_t *socket = socket_reference(buf->socket);
-            if (socket->flags & SOCKET_BUFFER_CB) {
+
+            if (!buf || !buf->socket) {
+                tr_error("Socket CB: Buf or Socket pointer NULL");
+                buffer_free(buf);
+                break;
+            }
+
+            socket_t *socket = buf->socket;
+
+            if (socket->id == -1 || !socket->u.live.fptr) {
+                //Socket is released Free just Buffer
+                buffer_free(buf);
+            } else if (socket->flags & SOCKET_BUFFER_CB) {
                 // They just take ownership of the buffer. No read calls.
                 socket_buffer_cb_run(socket, buf);
             } else {
@@ -243,7 +253,9 @@ void socket_tasklet_event_handler(arm_event_s *event)
         }
         case ARM_SOCKET_DATA_QUEUED_CB: {
             socket_t *socket = event->data_ptr;
-            socket_cb_run(socket);
+            if (socket) {
+                socket_cb_run(socket);
+            }
             socket_dereference(socket);
             break;
         }
@@ -454,6 +466,14 @@ socket_t *socket_allocate(socket_type_t type)
     return socket;
 }
 
+static bool socket_reference_limit(socket_t *socket_ptr)
+{
+    if (socket_ptr && socket_ptr->refcount < SOCKET_DEFAULT_REFERENCE_LIMIT) {
+        return false;
+    }
+    return true;
+}
+
 /* Increase reference counter on socket, returning now-owned pointer */
 socket_t *socket_reference(socket_t *socket_ptr)
 {
@@ -479,7 +499,7 @@ socket_t *socket_dereference(socket_t *socket_ptr)
     }
 
     if (socket_ptr->refcount == 0) {
-        tr_error("ref underflow");
+        tr_error("Socket %d ref underflow", socket_ptr->id);
         return NULL;
     }
     if (--socket_ptr->refcount == 0) {
@@ -870,6 +890,13 @@ socket_error_t socket_up(buffer_t *buf)
         goto drop;
     }
 
+    //Limit here
+    if (socket_reference_limit(socket)) {
+        tr_error("Socket reference limit drop RX %u", socket->refcount);
+        goto drop;
+    }
+
+
     if (socket->rcvq.data_byte_limit == 0) {
         // Old-style one event per buffer
         socket_data_event_push(buf);
@@ -1092,7 +1119,7 @@ int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct ns_msghdr 
 
 #ifndef NO_TCP
     if (socket_ptr->type == SOCKET_TYPE_STREAM) {
-        tcp_session_t *tcp_info = tcp_info(inet_pcb);
+        tcp_session_t *tcp_info = inet_pcb->session;
         if (!tcp_info) {
             tr_warn("No TCP session for cur Socket");
             ret_val = -3;
@@ -1112,6 +1139,12 @@ int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct ns_msghdr 
     // TCP system has taken ownership of buffer, or we've failed
     // Everything below this point is non-TCP
 #endif //NO_TCP
+
+    if (socket_reference_limit(socket_ptr)) {
+        tr_error("Socket reference limit drop TX %u", socket_ptr->refcount);
+        ret_val = -1;
+        goto fail;
+    }
 
     /**
      * Mark Socket id to buffer meta data

@@ -13,6 +13,7 @@ project(${TEST_TARGET})
 list(
     APPEND
         TEST_SOURCE_LIST
+            main.cpp
             niddsocket_send_timeout.cpp
             niddsocket_send_repeat.cpp
             niddsocket_send_invalid.cpp
@@ -26,8 +27,11 @@ list(
             niddsocket_connect.cpp       
 )
 
-mbed_greentea_cmake_macro(
-    TEST_NAME ${TEST_TARGET}
-    TEST_SOURCES ${TEST_SOURCE_LIST}
-    TEST_REQUIRED_LIBS mbed-netsocket
+mbed_greentea_add_test(
+    TEST_NAME
+        ${TEST_TARGET}
+    TEST_SOURCES
+        ${TEST_SOURCE_LIST}
+    TEST_REQUIRED_LIBS
+        mbed-netsocket
 )

@@ -31,7 +31,7 @@
  ******************************************************************************/
 
 static const PinMap PinMap_UART_TX[] = {
-    {USBTX     , UART_0, 0},
+    {CONSOLE_TX     , UART_0, 0},
     {XB_TX   , UART_1, 0},
     {SH0_TX  , UART_2, 0},
     {SH1_TX  , UART_3, 0},
@@ -39,7 +39,7 @@ static const PinMap PinMap_UART_TX[] = {
 };
 
 static const PinMap PinMap_UART_RX[] = {
-    {USBRX     , UART_0, 0},
+    {CONSOLE_RX     , UART_0, 0},
     {XB_RX   , UART_1, 0},
     {SH0_RX  , UART_2, 0},
     {SH1_RX  , UART_3, 0},

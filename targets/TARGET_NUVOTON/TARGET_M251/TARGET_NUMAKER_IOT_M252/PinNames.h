@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+/* MBED TARGET LIST: NUMAKER_IOT_M252 */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -67,24 +69,24 @@ typedef enum {
 
     /* UART naming */
 #if defined(MBED_CONF_TARGET_USB_UART_TX)
-    USBTX           = MBED_CONF_TARGET_USB_UART_TX,
+    CONSOLE_TX           = MBED_CONF_TARGET_USB_UART_TX,
 #else
-    USBTX           = NC,
+    CONSOLE_TX           = NC,
 #endif
 #if defined(MBED_CONF_TARGET_USB_UART_RX)
-    USBRX           = MBED_CONF_TARGET_USB_UART_RX,
+    CONSOLE_RX           = MBED_CONF_TARGET_USB_UART_RX,
 #else
-    USBRX           = NC,
+    CONSOLE_RX           = NC,
 #endif
 #if defined(MBED_CONF_TARGET_STDIO_UART_TX)
     STDIO_UART_TX   = MBED_CONF_TARGET_STDIO_UART_TX,
 #else
-    STDIO_UART_TX   = USBTX,
+    STDIO_UART_TX   = CONSOLE_TX,
 #endif
 #if defined(MBED_CONF_TARGET_STDIO_UART_RX)
     STDIO_UART_RX   = MBED_CONF_TARGET_STDIO_UART_RX,
 #else
-    STDIO_UART_RX   = USBRX,
+    STDIO_UART_RX   = CONSOLE_RX,
 #endif
     SERIAL_TX       = D10,
     SERIAL_RX       = D13,

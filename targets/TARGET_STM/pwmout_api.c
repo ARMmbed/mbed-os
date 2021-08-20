@@ -197,7 +197,6 @@ static void _pwmout_init_direct(pwmout_t *obj, const PinMap *pinmap)
 #endif
     // Configure GPIO
     pin_function(pinmap->pin, pinmap->function);
-    pin_mode(pinmap->pin, PullNone);
 
     obj->pin = pinmap->pin;
     obj->period = 0;
@@ -219,8 +218,8 @@ void pwmout_init(pwmout_t *obj, PinName pin)
 
 void pwmout_free(pwmout_t *obj)
 {
-    // Configure GPIO
-    pin_function(obj->pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    // Configure GPIO back to reset value
+    pin_function(obj->pin, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0));
 }
 
 void pwmout_write(pwmout_t *obj, float value)

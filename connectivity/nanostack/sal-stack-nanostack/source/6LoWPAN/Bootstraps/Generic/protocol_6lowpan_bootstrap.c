@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, Arm Limited and affiliates.
+ * Copyright (c) 2015-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -2184,7 +2184,7 @@ void nwk_6lowpan_nd_address_registartion_ready(protocol_interface_info_entry_t *
             // arm_nwk_6lowpan_rpl_dodag_poison from a previous connection may have left force_leaf set
             rpl_control_force_leaf(protocol_6lowpan_rpl_domain, false);
             rpl_control_set_domain_on_interface(cur, protocol_6lowpan_rpl_domain, true);
-            rpl_control_set_callback(protocol_6lowpan_rpl_domain, protocol_6lowpan_bootstrap_rpl_callback, NULL, NULL, cur);
+            rpl_control_set_callback(protocol_6lowpan_rpl_domain, protocol_6lowpan_bootstrap_rpl_callback, NULL, NULL, NULL, cur);
         }
         // Send unicast DIS to coordinator
         nwk_bootstrap_icmp_rpl_dis_coord_msg_tx(cur);

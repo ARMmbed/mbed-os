@@ -14,14 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* MBED TARGET LIST: ARM_CM3DS_MPS2 */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
 #include "cmsis.h"
 
 /* Pins used by mbed OS to identify STDIO UART pins */
-#define STDIO_UART_TX     USBTX
-#define STDIO_UART_RX     USBRX
+#if defined(MBED_CONF_TARGET_STDIO_UART_TX)
+#define STDIO_UART_TX MBED_CONF_TARGET_STDIO_UART_TX
+#else
+#define STDIO_UART_TX CONSOLE_TX
+#endif
+#if defined(MBED_CONF_TARGET_STDIO_UART_RX)
+#define STDIO_UART_RX MBED_CONF_TARGET_STDIO_UART_RX
+#else
+#define STDIO_UART_RX CONSOLE_RX
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -153,8 +164,8 @@ typedef enum {
     /* MPS2 UART */
     MCC_TX = 400,
     MCC_RX = 401,
-    USBTX  = 402,
-    USBRX  = 403,
+    CONSOLE_TX  = 402,
+    CONSOLE_RX  = 403,
     XB_TX  = EXP24,
     XB_RX  = EXP23,
     SH0_TX = EXP4,

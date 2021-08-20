@@ -14,6 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* MBED TARGET LIST: WIO_EMW3166 */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -198,17 +201,9 @@ typedef enum {
     ADC_VREF = 0xF1,
     ADC_VBAT = 0xF2,
 
-
     // Generic signals namings
-    LED1        = PB_2,
-    LED2        = PB_10,
-    LED3        = NC,
-    LED_RED     = LED1,
-    LED_BLUE    = LED2,
-    USER_BUTTON = PC_13,
-
-    // Standardized button names
-    BUTTON1 = USER_BUTTON,
+    LED_RED     = PB_2, // LED1
+    LED_BLUE    = PB_10, // LED2
 
     SERIAL_TX   = P_8,
     SERIAL_RX   = P_12,
@@ -223,23 +218,21 @@ typedef enum {
 
     // STDIO for console print
 #ifdef MBED_CONF_TARGET_STDIO_UART_TX
-    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+    CONSOLE_TX = MBED_CONF_TARGET_STDIO_UART_TX,
 #elif MBED_CONF_TARGET_USB_TX
-    STDIO_UART_TX = MBED_CONF_TARGET_USB_TX,
+    CONSOLE_TX = MBED_CONF_TARGET_USB_TX,
 #else
-    STDIO_UART_TX = PB_6,
+    CONSOLE_TX = PB_6,
 #endif
 
 #ifdef MBED_CONF_TARGET_STDIO_UART_RX
-    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+    CONSOLE_RX = MBED_CONF_TARGET_STDIO_UART_RX,
 #elif MBED_CONF_TARGET_USB_RX
-    STDIO_UART_TX = MBED_CONF_TARGET_USB_RX,
+    CONSOLE_RX = MBED_CONF_TARGET_USB_RX,
 #else
-    STDIO_UART_RX = PB_7,
+    CONSOLE_RX = PB_7,
 #endif
-    //DAPLink
-    USBRX      = STDIO_UART_RX,
-    USBTX      = STDIO_UART_TX,
+
     SWDIO      = P_26,
     SWCLK      = P_25,
     NTRST      = P_13,
@@ -253,12 +246,12 @@ typedef enum {
     PB7           = P_29,
     PC6           = SERIAL_TX,
     PC7           = SERIAL_RX,
-    PB9           = I2C_SDA,
-    PB8           = I2C_SCL,
-    PB15          = SPI_MOSI,
-    PB14          = SPI_MISO,
-    PB13          = SPI_SCK,
-    PC13          = SPI_CS,
+    PB9           = PB_9,
+    PB8           = PB_8,
+    PB15          = PB_15,
+    PB14          = PB_14,
+    PB13          = PB_13,
+    PC13          = PC_13,
     PC0           = P_14,
     PA4           = P_38,
     PA5           = P_34,
@@ -273,10 +266,16 @@ typedef enum {
     PA15          = P_9,  //A0 for LCD
     PA10          = P_33,
     PB12          = P_5,
-    PB10          = LED2,
-    PB2           = LED1,
+    PB10          = PB_10,
+    PB2           = PB_2,
 
 } PinName;
+
+// Standardized LED and button names
+#define LED1     PB_2
+#define LED2     PB_10
+#define BUTTON1  PC_13
+
 
 #ifdef __cplusplus
 }

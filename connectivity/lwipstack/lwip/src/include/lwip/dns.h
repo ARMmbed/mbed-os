@@ -50,12 +50,6 @@
 extern "C" {
 #endif
 
-struct dns_server_interface {
-    char interface_name [INTERFACE_NAME_MAX_SIZE];
-    ip_addr_t dns_servers[DNS_MAX_SERVERS];
-    struct dns_server_interface *next;
-};
-
 /** DNS timer period */
 #define DNS_TMR_INTERVAL          1000
 

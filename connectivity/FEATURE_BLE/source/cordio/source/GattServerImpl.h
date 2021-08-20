@@ -293,6 +293,8 @@ private:
 
     bool get_cccd_index_by_value_handle(GattAttribute::Handle_t char_handle, uint8_t &idx) const;
 
+    bool get_value_handle_by_cccd_handle(GattAttribute::Handle_t cccd_handle, GattAttribute::Handle_t &char_handle) const;
+
     bool is_update_authorized(connection_handle_t connection, GattAttribute::Handle_t value_handle);
 
     struct alloc_block_t {

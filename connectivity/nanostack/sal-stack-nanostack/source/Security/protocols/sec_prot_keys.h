@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, Arm Limited and affiliates.
+ * Copyright (c) 2016-2020, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -114,6 +114,7 @@ typedef struct {
 
 typedef struct {
     frame_counter_t counter[GTK_NUM];                 /**< Frame counter for each GTK key */
+    int8_t active_gtk_index;                          /**< Active GTK index */
 } frame_counters_t;
 
 // Authenticator supplicant security key data

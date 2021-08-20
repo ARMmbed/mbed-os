@@ -5,6 +5,7 @@
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     list(APPEND common_options
         "-mthumb"
+        "-mcpu=cortex-m1"
     )
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     list(APPEND common_options
@@ -18,6 +19,5 @@ function(mbed_set_cpu_core_definitions target)
             __CORTEX_M3
             ARM_MATH_CM1
             __CMSIS_RTOS
-            __MBED_CMSIS_RTOS_CM
     )
 endfunction()

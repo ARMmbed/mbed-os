@@ -1,0 +1,20 @@
+# Copyright (c) 2021 ARM Limited. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+add_subdirectory(lorawaninterface)
+add_subdirectory(loraphyus915)
+add_subdirectory(loraphykr920)
+add_subdirectory(loraphyin865)
+add_subdirectory(loraphyeu868)
+add_subdirectory(loraphyeu433)
+add_subdirectory(loraphycn779)
+add_subdirectory(loraphycn470)
+add_subdirectory(loraphyau915)
+add_subdirectory(loraphyas923)
+add_subdirectory(loraphy)
+add_subdirectory(loramaccrypto)
+add_subdirectory(loramaccommand)
+add_subdirectory(loramacchannelplan)
+add_subdirectory(loramac)
+add_subdirectory(lorawantimer)
+add_subdirectory(lorawanstack)

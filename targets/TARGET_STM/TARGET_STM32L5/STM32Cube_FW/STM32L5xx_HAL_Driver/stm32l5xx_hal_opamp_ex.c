@@ -45,11 +45,11 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
 
-/** @defgroup OPAMP_Exported_Functions OPAMP Exported Functions
+/** @defgroup OPAMPEx_Exported_Functions OPAMPEx Extended Exported Functions
   * @{
   */
 
-/** @addtogroup OPAMPEx_Exported_Functions_Group1
+/** @defgroup OPAMPEx_Exported_Functions_Group1 Extended operation functions
   * @brief    Extended operation functions
   *
 @verbatim
@@ -365,7 +365,7 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
   * @}
   */
 
-/** @defgroup OPAMPEx_Exported_Functions_Group2 Peripheral Control functions
+/** @defgroup OPAMPEx_Exported_Functions_Group2 Extended Peripheral Control functions
  *  @brief   Peripheral Control functions
  *
 @verbatim

@@ -38,13 +38,37 @@
 extern "C" {
 #endif
 
-#if MBED_CONF_TARGET_LSE_AVAILABLE
+// Possible choices of the RTC_CLOCK_SOURCE configuration set in json file
+#define USE_RTC_CLK_LSE_OR_LSI 1
+#define USE_RTC_CLK_LSI 2
+#define USE_RTC_CLK_HSE 3
+
+#if !((MBED_CONF_TARGET_RTC_CLOCK_SOURCE == USE_RTC_CLK_LSE_OR_LSI) || (MBED_CONF_TARGET_RTC_CLOCK_SOURCE == USE_RTC_CLK_LSI) || (MBED_CONF_TARGET_RTC_CLOCK_SOURCE == USE_RTC_CLK_HSE))
+#error "RTC clock configuration is invalid!"
+#endif
+
+#if (MBED_CONF_TARGET_RTC_CLOCK_SOURCE == USE_RTC_CLK_HSE) && !(TARGET_STM32F2 || TARGET_STM32F4 || TARGET_STM32F7)
+#error "RTC from HSE not supported for this target"
+#endif
+
+#if (MBED_CONF_TARGET_RTC_CLOCK_SOURCE == USE_RTC_CLK_HSE)
+#define RTC_CLOCK 1000000U
+#define RTC_HSE_DIV (HSE_VALUE / RTC_CLOCK)
+#if RTC_HSE_DIV > 31
+#error "HSE value too high for RTC"
+#endif
+#elif (MBED_CONF_TARGET_RTC_CLOCK_SOURCE == USE_RTC_CLK_LSE_OR_LSI) && MBED_CONF_TARGET_LSE_AVAILABLE
 #define RTC_CLOCK LSE_VALUE
 #else
 #define RTC_CLOCK LSI_VALUE
 #endif
 
 #if DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM
+
+#if (MBED_CONF_TARGET_RTC_CLOCK_SOURCE == USE_RTC_CLK_HSE)
+#error "LPTICKER is not available with HSE as RTC clock source and should be removed from the target configuration."
+#endif
+
 /* PREDIV_A : 7-bit asynchronous prescaler */
 /* PREDIV_A is set to set LPTICKER frequency to RTC_CLOCK/4 */
 #define PREDIV_A_VALUE 3

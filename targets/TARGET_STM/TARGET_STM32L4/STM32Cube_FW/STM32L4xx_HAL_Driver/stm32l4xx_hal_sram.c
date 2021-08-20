@@ -115,7 +115,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal.h"
 
-#if defined FMC_BANK1
+#if defined(FMC_BANK1)
 
 /** @addtogroup STM32L4xx_HAL_Driver
   * @{
@@ -128,9 +128,6 @@
   * @{
   */
 
-/**
-  @cond 0
-  */
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
@@ -139,9 +136,6 @@
 static void SRAM_DMACplt(DMA_HandleTypeDef *hdma);
 static void SRAM_DMACpltProt(DMA_HandleTypeDef *hdma);
 static void SRAM_DMAError(DMA_HandleTypeDef *hdma);
-/**
-  @endcond
-  */
 
 /* Exported functions --------------------------------------------------------*/
 
@@ -198,7 +192,7 @@ HAL_StatusTypeDef HAL_SRAM_Init(SRAM_HandleTypeDef *hsram, FMC_NORSRAM_TimingTyp
 #else
     /* Initialize the low level hardware (MSP) */
     HAL_SRAM_MspInit(hsram);
-#endif
+#endif /* USE_HAL_SRAM_REGISTER_CALLBACKS */
   }
 
   /* Initialize SRAM control Interface */
@@ -209,7 +203,7 @@ HAL_StatusTypeDef HAL_SRAM_Init(SRAM_HandleTypeDef *hsram, FMC_NORSRAM_TimingTyp
 
   /* Initialize SRAM extended mode timing Interface */
   (void)FMC_NORSRAM_Extended_Timing_Init(hsram->Extended, ExtTiming, hsram->Init.NSBank,
-                                                  hsram->Init.ExtendedMode);
+                                         hsram->Init.ExtendedMode);
 
   /* Enable the NORSRAM device */
   __FMC_NORSRAM_ENABLE(hsram->Instance, hsram->Init.NSBank);
@@ -239,7 +233,7 @@ HAL_StatusTypeDef HAL_SRAM_DeInit(SRAM_HandleTypeDef *hsram)
 #else
   /* De-Initialize the low level hardware (MSP) */
   HAL_SRAM_MspDeInit(hsram);
-#endif
+#endif /* USE_HAL_SRAM_REGISTER_CALLBACKS */
 
   /* Configure the SRAM registers with their reset values */
   (void)FMC_NORSRAM_DeInit(hsram->Instance, hsram->Extended, hsram->Init.NSBank);
@@ -687,7 +681,7 @@ HAL_StatusTypeDef HAL_SRAM_Read_DMA(SRAM_HandleTypeDef *hsram, uint32_t *pAddres
   }
   else
   {
-    return HAL_ERROR;
+    status = HAL_ERROR;
   }
 
   return status;
@@ -728,7 +722,7 @@ HAL_StatusTypeDef HAL_SRAM_Write_DMA(SRAM_HandleTypeDef *hsram, uint32_t *pAddre
   }
   else
   {
-    return HAL_ERROR;
+    status = HAL_ERROR;
   }
 
   return status;
@@ -910,7 +904,7 @@ HAL_StatusTypeDef HAL_SRAM_RegisterDmaCallback(SRAM_HandleTypeDef *hsram, HAL_SR
   __HAL_UNLOCK(hsram);
   return status;
 }
-#endif
+#endif /* USE_HAL_SRAM_REGISTER_CALLBACKS */
 
 /**
   * @}
@@ -1038,9 +1032,6 @@ HAL_SRAM_StateTypeDef HAL_SRAM_GetState(SRAM_HandleTypeDef *hsram)
   */
 
 /**
-  @cond 0
-  */
-/**
   * @brief  DMA SRAM process complete callback.
   * @param  hdma : DMA handle
   * @retval None
@@ -1059,7 +1050,7 @@ static void SRAM_DMACplt(DMA_HandleTypeDef *hdma)
   hsram->DmaXferCpltCallback(hdma);
 #else
   HAL_SRAM_DMA_XferCpltCallback(hdma);
-#endif
+#endif /* USE_HAL_SRAM_REGISTER_CALLBACKS */
 }
 
 /**
@@ -1081,7 +1072,7 @@ static void SRAM_DMACpltProt(DMA_HandleTypeDef *hdma)
   hsram->DmaXferCpltCallback(hdma);
 #else
   HAL_SRAM_DMA_XferCpltCallback(hdma);
-#endif
+#endif /* USE_HAL_SRAM_REGISTER_CALLBACKS */
 }
 
 /**
@@ -1103,11 +1094,8 @@ static void SRAM_DMAError(DMA_HandleTypeDef *hdma)
   hsram->DmaXferErrorCallback(hdma);
 #else
   HAL_SRAM_DMA_XferErrorCallback(hdma);
-#endif
+#endif /* USE_HAL_SRAM_REGISTER_CALLBACKS */
 }
-/**
-  @endcond
-  */
 
 /**
   * @}

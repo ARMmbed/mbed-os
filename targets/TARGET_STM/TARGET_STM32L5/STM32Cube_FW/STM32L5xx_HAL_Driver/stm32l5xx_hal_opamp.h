@@ -145,10 +145,6 @@ void (* MspDeInitCallback)              (struct __OPAMP_HandleTypeDef *hopamp);
 
 typedef  uint32_t HAL_OPAMP_TrimmingValueTypeDef;
 
-/**
-  * @}
-  */
-
 #if (USE_HAL_OPAMP_REGISTER_CALLBACKS == 1)
 /**
   * @brief  HAL OPAMP Callback ID enumeration definition
@@ -165,6 +161,10 @@ typedef enum
   */
 typedef void (*pOPAMP_CallbackTypeDef)(OPAMP_HandleTypeDef *hopamp);
 #endif /* USE_HAL_OPAMP_REGISTER_CALLBACKS */
+
+/**
+  * @}
+  */
 
 
 /* Exported constants --------------------------------------------------------*/
@@ -223,8 +223,8 @@ typedef void (*pOPAMP_CallbackTypeDef)(OPAMP_HandleTypeDef *hopamp);
 /** @defgroup OPAMP_PowerMode OPAMP PowerMode
   * @{
   */
-#define OPAMP_POWERMODE_NORMAL        0x00000000U
-#define OPAMP_POWERMODE_LOWPOWER      OPAMP_CSR_OPALPM
+#define OPAMP_POWERMODE_NORMALPOWER   0x00000000U              /*!< OPAMP power mode normal */   
+#define OPAMP_POWERMODE_LOWPOWER      OPAMP_CSR_OPALPM         /*!< OPAMP power mode low-power */
 
 /**
   * @}

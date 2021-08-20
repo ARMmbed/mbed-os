@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, Arm Limited and affiliates.
+ * Copyright (c) 2014-2019, 2021, Pelion and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -699,7 +699,7 @@ int thread_dhcpv6_server_set_anonymous_addressing(int8_t interface_id, uint8_t *
         return -1;
     }
 
-    return DHCPv6_server_service_set_address_autonous_flag(interface_id, prefix_ptr, anonymous, false);
+    return DHCPv6_server_service_set_address_generation_anonymous(interface_id, prefix_ptr, anonymous, false);
 #else
     (void) interface_id;
     (void) prefix_ptr;

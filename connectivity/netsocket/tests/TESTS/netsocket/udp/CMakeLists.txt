@@ -13,6 +13,7 @@ project(${TEST_TARGET})
 list(
     APPEND
         TEST_SOURCE_LIST
+            main.cpp
             udpsocket_bind_port.cpp
             udpsocket_bind_address_null.cpp
             udpsocket_bind_address_invalid.cpp
@@ -32,8 +33,11 @@ list(
             udpsocket_echotest_burst.cpp       
 )
 
-mbed_greentea_cmake_macro(
-    TEST_NAME ${TEST_TARGET}
-    TEST_SOURCES ${TEST_SOURCE_LIST}
-    TEST_REQUIRED_LIBS mbed-netsocket
+mbed_greentea_add_test(
+    TEST_NAME
+        ${TEST_TARGET}
+    TEST_SOURCES
+        ${TEST_SOURCE_LIST}
+    TEST_REQUIRED_LIBS
+        mbed-netsocket
 )

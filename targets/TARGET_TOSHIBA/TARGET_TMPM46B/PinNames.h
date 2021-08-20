@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* MBED TARGET LIST: TMPM46B */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -83,10 +86,10 @@ typedef enum {
     A5 = PJ7,
 
     // DAP_UART
-    USBTX = PE5,
-    USBRX = PE6,
-    MBEDIF_TXD = USBTX,
-    MBEDIF_RXD = USBRX,
+    CONSOLE_TX = PE5,
+    CONSOLE_RX = PE6,
+    MBEDIF_TXD = CONSOLE_TX,
+    MBEDIF_RXD = CONSOLE_RX,
 
     MBED_CONF_APP_UART0_TX = PE2,
     MBED_CONF_APP_UART0_RX = PE1,

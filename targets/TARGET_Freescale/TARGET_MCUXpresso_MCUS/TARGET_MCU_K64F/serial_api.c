@@ -63,14 +63,14 @@ void serial_init_direct(serial_t *obj, const serial_pinmap_t *pinmap)
 
     UART_Init(uart_addrs[obj->serial.index], &config, CLOCK_GetFreq(uart_clocks[obj->serial.index]));
 
-    pin_function(pinmap->tx_pin, pinmap->tx_function);
-    pin_function(pinmap->rx_pin, pinmap->rx_function);
 
     if (pinmap->tx_pin != NC) {
+        pin_function(pinmap->tx_pin, pinmap->tx_function);
         UART_EnableTx(uart_addrs[obj->serial.index], true);
         pin_mode(pinmap->tx_pin, PullUp);
     }
     if (pinmap->rx_pin != NC) {
+        pin_function(pinmap->rx_pin, pinmap->rx_function);
         UART_EnableRx(uart_addrs[obj->serial.index], true);
         pin_mode(pinmap->rx_pin, PullUp);
     }

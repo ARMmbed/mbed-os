@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -214,7 +214,19 @@ int8_t ws_eapol_pdu_send_to_mpx(protocol_interface_info_entry_t *interface_ptr, 
 
     eapol_pdu_data->msdu_handle++;
 
-    eapol_pdu_data->mpx_api->mpx_data_request(eapol_pdu_data->mpx_api, &data_request, eapol_pdu_data->mpx_user_id);
+    eapol_pdu_data->mpx_api->mpx_data_request(eapol_pdu_data->mpx_api, &data_request, eapol_pdu_data->mpx_user_id, MAC_DATA_NORMAL_PRIORITY);
+    return 0;
+}
+
+int8_t ws_eapol_pdu_mpx_eui64_purge(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64)
+{
+    eapol_pdu_data_t *eapol_pdu_data = ws_eapol_pdu_data_get(interface_ptr);
+    if (!eapol_pdu_data) {
+        return -1;
+    }
+
+    eapol_pdu_data->mpx_api->mpx_eui64_purge(eapol_pdu_data->mpx_api, eui_64);
+
     return 0;
 }
 

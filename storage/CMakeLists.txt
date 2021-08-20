@@ -26,11 +26,18 @@ add_library(mbed-storage-kv-config INTERFACE)
 add_library(mbed-storage-direct-access-devicekey INTERFACE)
 add_library(mbed-storage-kv-global-api INTERFACE)
 
-
-add_subdirectory(blockdevice)
-add_subdirectory(filesystem)
-add_subdirectory(kvstore)
-add_subdirectory(platform)
+if(${CMAKE_CROSSCOMPILING})
+    # The directories below contain optional target libraries
+    add_subdirectory(blockdevice EXCLUDE_FROM_ALL)
+    add_subdirectory(filesystem EXCLUDE_FROM_ALL)
+    add_subdirectory(kvstore EXCLUDE_FROM_ALL)
+    add_subdirectory(platform EXCLUDE_FROM_ALL)
+else()
+    # Add these subdirectories for the Unit test
+    add_subdirectory(blockdevice)
+    add_subdirectory(filesystem)
+    add_subdirectory(kvstore)
+endif()
 
 target_include_directories(mbed-storage
     INTERFACE

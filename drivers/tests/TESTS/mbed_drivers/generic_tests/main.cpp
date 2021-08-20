@@ -76,6 +76,7 @@ void test_case_basic()
                              "The quick brown fox jumps over the lazy dog");
 }
 
+#ifdef LED1
 void test_case_blinky()
 {
     static DigitalOut myled(LED1);
@@ -84,6 +85,7 @@ void test_case_blinky()
         myled = !myled;
     }
 }
+#endif
 
 void test_case_cpp_stack()
 {
@@ -113,7 +115,9 @@ utest::v1::status_t greentea_failure_handler(const Case *const source, const fai
 // Generic test cases
 Case cases[] = {
     Case("Basic", test_case_basic, greentea_failure_handler),
+#ifdef LED1
     Case("Blinky", test_case_blinky, greentea_failure_handler),
+#endif
     Case("C++ stack", test_case_cpp_stack, greentea_failure_handler),
     Case("C++ heap", test_case_cpp_heap, greentea_failure_handler)
 };

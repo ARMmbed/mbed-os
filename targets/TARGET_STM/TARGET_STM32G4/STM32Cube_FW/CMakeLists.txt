@@ -1,7 +1,9 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_sources(mbed-core
+add_library(mbed-stm32g4cube-fw INTERFACE)
+
+target_sources(mbed-stm32g4cube-fw
     INTERFACE
         STM32G4xx_HAL_Driver/stm32g4xx_hal.c
         STM32G4xx_HAL_Driver/stm32g4xx_hal_adc.c
@@ -50,6 +52,7 @@ target_sources(mbed-core
         STM32G4xx_HAL_Driver/stm32g4xx_hal_smartcard.c
         STM32G4xx_HAL_Driver/stm32g4xx_hal_smartcard_ex.c
         STM32G4xx_HAL_Driver/stm32g4xx_hal_smbus.c
+        STM32G4xx_HAL_Driver/stm32g4xx_hal_smbus_ex.c
         STM32G4xx_HAL_Driver/stm32g4xx_hal_spi.c
         STM32G4xx_HAL_Driver/stm32g4xx_hal_spi_ex.c
         STM32G4xx_HAL_Driver/stm32g4xx_hal_sram.c
@@ -89,7 +92,7 @@ target_sources(mbed-core
         system_stm32g4xx.c
 )
 
-target_include_directories(mbed-core
+target_include_directories(mbed-stm32g4cube-fw
     INTERFACE
         .
         CMSIS

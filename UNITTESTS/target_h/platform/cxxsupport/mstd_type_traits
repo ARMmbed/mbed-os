@@ -20,26 +20,6 @@
 /* <mstd_type_traits>
  *
  * - includes toolchain's <type_traits>
- * - For ARM C 5, standard C++11/14 features:
- *   - std::integral_constant, std::true_type, std::false_type
- *   - primary type categories (std::is_void, std::is_integral etc)
- *   - composite type categories (std::is_reference etc)
- *   - type properties (std::is_const, std::is_constructible etc), except std::is_final
- *   - type property queries (std::alignment_of, std::rank, std::extent)
- *   - type relations (std::is_same, std::is_base_of, std::is_convertible)
- *   - const-volatile modifications (std::remove_cv, std::add_const etc)
- *   - reference modifications (std::remove_reference, std::add_lvalue_reference etc)
- *   - sign modifications (std::make_signed, std::make_unsigned)
- *   - array modifications (std::remove_extent, std::remove_all_extents)
- *   - pointer modifications (std::remove_pointer, std::add_pointer)
- *   - other modifications:
- *      - std::aligned_storage
- *      - std::decay
- *      - std::enable_if
- *      - std::conditional
- *      - std::common_type
- *      - std::underlying_type
- *      - std::result_of
  * - For all toolchains, C++17/20 backports:
  *   - mstd::type_identity
  *   - mstd::bool_constant
@@ -47,6 +27,7 @@
  *   - mstd::is_invocable, mbed::is_invocable_r, etc
  *   - mstd::invoke_result
  *   - logical operator traits (mstd::conjunction, mstd::disjunction, mstd::negation)
+ *   - mstd::is_constant_evaluated
  */
 
 #include <mstd_cstddef>
@@ -54,7 +35,6 @@
 
 // The template stuff in here is too confusing for astyle
 // *INDENT-OFF*
-
 
 namespace mstd {
 
@@ -91,6 +71,10 @@ using std::invoke_result;
 template <typename F, typename... Args>
 struct invoke_result;
 #endif
+
+} // namespace mstd
+
+namespace mstd {
 
 using std::is_same;
 using std::conditional;
@@ -462,8 +446,30 @@ struct is_nothrow_invocable_r : impl::is_invocable_r<R, invoke_result<F, Args...
 
 #endif // __cpp_lib_is_invocable
 
+/* C++20 is_constant_evaluated */
+constexpr bool is_constant_evaluated() noexcept
+{
+#ifdef __clang__
+#if __has_builtin(__builtin_is_constant_evaluated)
+#define MSTD_HAS_IS_CONSTANT_EVALUATED 1
+   return __builtin_is_constant_evaluated();
+#else
+   return false;
+#endif
+#elif __GNUC__ >= 9
+#define MSTD_HAS_IS_CONSTANT_EVALUATED 1
+   return __builtin_is_constant_evaluated();
+#else
+   return false;
+#endif
+}
+
+#if MSTD_HAS_IS_CONSTANT_EVALUATED
+#define MSTD_CONSTEXPR_IF_HAS_IS_CONSTANT_EVALUATED constexpr
+#else
+#define MSTD_CONSTEXPR_IF_HAS_IS_CONSTANT_EVALUATED
+#endif
 
 } // namespace mstd
-
 
 #endif /* MSTD_TYPE_TRAITS_ */

@@ -1,30 +1,18 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2016, STMicroelectronics
+ * SPDX-License-Identifier: BSD-3-Clause
+ ******************************************************************************
+ *
+ * Copyright (c) 2016-2020 STMicroelectronics.
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- * 3. Neither the name of STMicroelectronics nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ******************************************************************************
  */
+
 #include "mbed_assert.h"
 #include "analogin_api.h"
 
@@ -74,7 +62,6 @@ void analogin_init(analogin_t *obj, PinName pin)
     obj->handle.Init.EOCSelection          = EOC_SINGLE_CONV;               // On STM32L1xx ADC, overrun detection is enabled only if EOC selection is set to each conversion (or transfer by DMA enabled, this is not the case in this example).
     obj->handle.Init.LowPowerAutoWait      = ADC_AUTOWAIT_UNTIL_DATA_READ;  // Enable the dynamic low power Auto Delay: new conversion start only when the previous conversion (for regular group) or previous sequence (for injected group) has been treated by user software.
     obj->handle.Init.LowPowerAutoPowerOff  = ADC_AUTOPOWEROFF_IDLE_PHASE;   // Enable the auto-off mode: the ADC automatically powers-off after a conversion and automatically wakes-up when a new conversion is triggered (with startup time between trigger and start of sampling).
-    obj->handle.Init.ChannelsBank          = ADC_CHANNELS_BANK_A;
     obj->handle.Init.ContinuousConvMode    = DISABLE;                       // Continuous mode disabled to have only 1 conversion at each conversion trig
     obj->handle.Init.NbrOfConversion       = 1;                             // Parameter discarded because sequencer is disabled
     obj->handle.Init.DiscontinuousConvMode = DISABLE;                       // Parameter discarded because sequencer is disabled
@@ -83,11 +70,26 @@ void analogin_init(analogin_t *obj, PinName pin)
     obj->handle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
     obj->handle.Init.DMAContinuousRequests = DISABLE;
 
+#if defined ADC_CHANNELS_BANK_B
+    if (STM_PIN_ANALOG_CHANNEL_BANK_B(function)) {
+        obj->handle.Init.ChannelsBank = ADC_CHANNELS_BANK_B;
+    } else {
+        obj->handle.Init.ChannelsBank = ADC_CHANNELS_BANK_A;
+    }
+#else
+    obj->handle.Init.ChannelsBank = ADC_CHANNELS_BANK_A;
+#endif
+
     __HAL_RCC_ADC1_CLK_ENABLE();
 
     if (HAL_ADC_Init(&obj->handle) != HAL_OK) {
         error("Cannot initialize ADC");
     }
+}
+
+uint16_t adc_read(analogin_t *obj)
+{
+    ADC_ChannelConfTypeDef sConfig = {0};
 
     if (!__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY)) {
         // Enable the HSI (to clock the ADC)
@@ -98,11 +100,6 @@ void analogin_init(analogin_t *obj, PinName pin)
         RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
         HAL_RCC_OscConfig(&RCC_OscInitStruct);
     }
-}
-
-uint16_t adc_read(analogin_t *obj)
-{
-    ADC_ChannelConfTypeDef sConfig = {0};
 
     // Configure ADC channel
     sConfig.Rank         = ADC_REGULAR_RANK_1;

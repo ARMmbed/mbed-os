@@ -26,16 +26,12 @@ import sys
 from collections import namedtuple
 from copy import copy
 from future.utils import raise_from
+from os.path import dirname, abspath, join
 from tools.resources import FileType
 from tools.settings import ROOT
 from tools.targets.LPC import patch
 from tools.paths import TOOLS_BOOTLOADERS
 from tools.utils import json_file_to_dict, NotSupportedException
-
-# Add PSA TF-M binary utility scripts in system path
-from os.path import dirname, abspath, join
-TFM_SCRIPTS = abspath(join(dirname(__file__), '..', 'psa', 'tfm', 'bin_utils'))
-sys.path.insert(0, TFM_SCRIPTS)
 
 
 __all__ = ["target", "TARGETS", "TARGET_MAP", "TARGET_NAMES", "CORE_LABELS",
@@ -53,6 +49,7 @@ CORE_LABELS = {
     "Cortex-M7F": ["M7", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M7", "CORTEX"],
     "Cortex-M7FD": ["M7", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M7",
                     "CORTEX"],
+    "Cortex-A5": ["A5", "CORTEX_A", "LIKE_CORTEX_A5", "CORTEX"],
     "Cortex-A9": ["A9", "CORTEX_A", "LIKE_CORTEX_A9", "CORTEX"],
     "Cortex-M23": ["M23", "CORTEX_M", "LIKE_CORTEX_M23", "CORTEX"],
     "Cortex-M23-NS": ["M23", "M23_NS", "CORTEX_M", "LIKE_CORTEX_M23",
@@ -78,6 +75,7 @@ CORE_ARCH = {
     "Cortex-M7": 7,
     "Cortex-M7F": 7,
     "Cortex-M7FD": 7,
+    "Cortex-A5": 7,
     "Cortex-A9": 7,
     "Cortex-M23": 8,
     "Cortex-M23-NS": 8,
@@ -681,26 +679,11 @@ class PSOC6Code(object):
             psoc6_sign_image(t_self, resources, elf, binf, m0hexf)
 
 
-class ArmMuscaA1Code(object):
-    """Musca-A1 Hooks"""
-    @staticmethod
-    def binary_hook(t_self, resources, elf, binf):
-        from tools.targets.ARM_MUSCA_A1 import musca_tfm_bin
-        configured_secure_image_filename = t_self.target.secure_image_filename
-        secure_bin = find_secure_image(
-            t_self.notify,
-            resources,
-            binf,
-            configured_secure_image_filename,
-            FileType.BIN
-        )
-        musca_tfm_bin(t_self, binf, secure_bin)
-
 class ArmMuscaB1Code(object):
     """Musca-B1 Hooks"""
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
-        from tools.targets.ARM_MUSCA_B1 import musca_tfm_bin
+        from tools.targets.ARM_MUSCA import musca_tfm_bin
         configured_secure_image_filename = t_self.target.secure_image_filename
         secure_bin = find_secure_image(
             t_self.notify,
@@ -709,13 +692,13 @@ class ArmMuscaB1Code(object):
             configured_secure_image_filename,
             FileType.BIN
         )
-        musca_tfm_bin(t_self, binf, secure_bin)
+        musca_tfm_bin(t_self, binf, secure_bin, 'MUSCA_B1')
 
 class ArmMuscaS1Code(object):
     """Musca-S1 Hooks"""
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
-        from tools.targets.ARM_MUSCA_S1 import musca_tfm_bin
+        from tools.targets.ARM_MUSCA import musca_tfm_bin
         configured_secure_image_filename = t_self.target.secure_image_filename
         secure_bin = find_secure_image(
             t_self.notify,
@@ -724,7 +707,7 @@ class ArmMuscaS1Code(object):
             configured_secure_image_filename,
             FileType.BIN
         )
-        musca_tfm_bin(t_self, binf, secure_bin)
+        musca_tfm_bin(t_self, binf, secure_bin, 'MUSCA_S1')
 
 def find_secure_image(notify, resources, ns_image_path,
                       configured_s_image_filename, image_type):
@@ -807,6 +790,21 @@ class M2351Code(object):
         ns_ih.start_addr = None
         s_ih.merge(ns_ih)
         s_ih.tofile(ns_hex, 'hex')
+
+class NuM2354Code(object):
+    """M2354 Hooks"""
+    @staticmethod
+    def merge_secure(t_self, resources, elf, binf):
+        from tools.targets.NU_M2354 import m2354_tfm_bin
+        configured_secure_image_filename = t_self.target.secure_image_filename
+        secure_bin = find_secure_image(
+            t_self.notify,
+            resources,
+            binf,
+            configured_secure_image_filename,
+            FileType.BIN
+        )
+        m2354_tfm_bin(t_self, binf, secure_bin)
 
 # End Target specific section
 ###############################################################################

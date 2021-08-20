@@ -24,6 +24,10 @@
             "help": "Definition of heap statistics `mem_stat_t` storage.",
             "value": null
         },
+        "system-time-update-from-nanostack": {
+            "help": "Allow nanostack to read and write device system time to synchronise time in the network. Feature enabled when set to true, false otherwise.",
+            "value": true
+        },
         "6lowpan-nd-channel-mask": {
             "help": "Channel mask, bit-mask of channels to use. [0-0x07fff800]",
             "value": "0x7fff800"
@@ -121,7 +125,7 @@
             "value": "\"Wi-SUN Network\""
         },
         "wisun-network-size": {
-            "help": "Expected amount of devices in the network as 100s of devices. with possible pre defined constants NETWORK_SIZE_SMALL, NETWORK_SIZE_MEDIUM, NETWORK_SIZE_LARGE, NETWORK_SIZE_XLARGE. if set to 0 Wi-SUN Certification configuration values are used. If don't define this(default null), then NETWORK_SIZE_MEDIUM will be used.",
+            "help": "Expected amount of devices in the network as hundreds of devices. Use any number or one of the predefined values NETWORK_SIZE_SMALL, NETWORK_SIZE_MEDIUM, NETWORK_SIZE_LARGE or NETWORK_SIZE_XLARGE. Set to 0 to use Wi-SUN Certification configuration values. If set to null, then NETWORK_SIZE_MEDIUM (meaning hundreds of devices in the network) will be used.",
             "value": null
         },
         "wisun-regulatory-domain": {
@@ -134,6 +138,14 @@
         },
         "wisun-operating-mode": {
             "help": "Operating mode as specified in the Wi-SUN PHY Specification. Wi-SUN stack uses operating-mode suitable for EU-region if value 255 is used.",
+            "value": "255"
+        },
+        "wisun-phy-mode-id": {
+            "help": "PHY mode ID as specified in the Wi-SUN PHY Specification. With default value 255, parameter is not used.",
+            "value": "255"
+        },
+        "wisun-channel-plan-id": {
+            "help": "Channel plan ID as specified in the Wi-SUN PHY Specification. With default value 255, parameter is not used.",
             "value": "255"
         },
         "wisun-uc-channel-function": {

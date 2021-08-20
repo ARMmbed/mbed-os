@@ -85,6 +85,8 @@ public:
 
     ble_error_t preserveBondingStateOnReset(bool enable);
 
+    ble_error_t writeBondingStateToPersistentStorage();
+
     ////////////////////////////////////////////////////////////////////////////
     // List management
     //

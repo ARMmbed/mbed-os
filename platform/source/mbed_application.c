@@ -23,7 +23,7 @@
 
 #if MBED_APPLICATION_SUPPORT
 
-#if defined(__CORTEX_A9)
+#if defined(__CORTEX_A9) || defined(__CORTEX_A5)
 
 static void powerdown_gic(void);
 

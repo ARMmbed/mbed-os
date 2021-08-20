@@ -1,6 +1,10 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+    add_subdirectory(tests/UNITTESTS)
+endif()
+
 target_include_directories(mbed-mbedtls
     INTERFACE
         .
@@ -12,9 +16,11 @@ target_include_directories(mbed-mbedtls
 
 target_sources(mbed-mbedtls
     INTERFACE
+        platform/src/hash_wrappers.c
         platform/src/mbed_trng.cpp
         platform/src/platform_alt.cpp
         platform/src/shared_rng.cpp
+        platform/src/timing_mbed.cpp
 
         source/aes.c
         source/aesni.c
@@ -46,7 +52,6 @@ target_sources(mbed-mbedtls
         source/entropy_poll.c
         source/error.c
         source/gcm.c
-        source/hash_wrappers.c
         source/havege.c
         source/hkdf.c
         source/hmac_drbg.c
@@ -84,6 +89,7 @@ target_sources(mbed-mbedtls
         source/ssl_srv.c
         source/ssl_ticket.c
         source/ssl_tls.c
+        source/ssl_tls13_keys.c
         source/threading.c
         source/timing.c
         source/version.c
@@ -102,3 +108,20 @@ target_compile_definitions(mbed-mbedtls
     INTERFACE
         MBED_CONF_MBEDTLS_PRESENT=1
 )
+
+# Workaround for https://github.com/ARMmbed/mbedtls/issues/1077
+# which affects cores without __thumb2__ set by the compiler
+# due to the lack of full Thumb-2 support
+set(partial-thumb2-cores
+    Cortex-M0
+    Cortex-M0+
+    Cortex-M1
+    Cortex-M23
+    Cortex-M23-NS
+)
+if(MBED_CPU_CORE IN_LIST partial-thumb2-cores)
+    target_compile_definitions(mbed-mbedtls
+        INTERFACE
+            MULADDC_CANNOT_USE_R7
+    )
+endif()

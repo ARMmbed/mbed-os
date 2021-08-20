@@ -29,6 +29,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+
+/* MBED TARGET LIST: ARCH_MAX */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -198,57 +201,45 @@ typedef enum {
     ADC_VREF = 0xF1,
     ADC_VBAT = 0xF2,
 
-    // Arduino connector namings
-    A0          = PA_0,
-    A1          = PA_3,
-    A2          = PA_4,
-    A3          = PA_5,
-    A4          = PA_6,
-    A5          = PB_0,
-    A6          = PB_1,
-    A7          = PC_0,
-    D0          = PD_3,
-    D1          = PD_6,
-    D2          = PD_11,
-    D3          = PD_12,
-    D4          = PD_13,
-    D5          = PA_8,
-    D6          = PB_6,
-    D7          = PB_7,
-    D8          = PB_15,
-    D9          = PB_14,
-    D10         = PA_15,
-    D11         = PB_5,
-    D12         = PB_4,
-    D13         = PB_3,
-    D14         = PB_9,
-    D15         = PB_8,
+#ifdef TARGET_FF_ARDUINO_UNO
+    ARDUINO_UNO_A0  = PA_0,
+    ARDUINO_UNO_A1  = PA_3,
+    ARDUINO_UNO_A2  = PA_4,
+    ARDUINO_UNO_A3  = PA_5,
+    ARDUINO_UNO_A4  = PA_6,
+    ARDUINO_UNO_A5  = PB_0,
+    ARDUINO_UNO_A6  = PB_1,
+    ARDUINO_UNO_A7  = PC_0,
+    ARDUINO_UNO_D0  = PD_3,
+    ARDUINO_UNO_D1  = PD_6,
+    ARDUINO_UNO_D2  = PD_11,
+    ARDUINO_UNO_D3  = PD_12,
+    ARDUINO_UNO_D4  = PD_13,
+    ARDUINO_UNO_D5  = PA_8,
+    ARDUINO_UNO_D6  = PB_6,
+    ARDUINO_UNO_D7  = PB_7,
+    ARDUINO_UNO_D8  = PB_15,
+    ARDUINO_UNO_D9  = PB_14,
+    ARDUINO_UNO_D10 = PA_15,
+    ARDUINO_UNO_D11 = PB_5,
+    ARDUINO_UNO_D12 = PB_4,
+    ARDUINO_UNO_D13 = PB_3,
+    ARDUINO_UNO_D14 = PB_9,
+    ARDUINO_UNO_D15 = PB_8,
+#endif
 
     // STDIO for console print
 #ifdef MBED_CONF_TARGET_STDIO_UART_TX
-    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+    CONSOLE_TX = MBED_CONF_TARGET_STDIO_UART_TX,
 #else
-    STDIO_UART_TX = PC_6,
+    CONSOLE_TX = PC_6,
 #endif
 #ifdef MBED_CONF_TARGET_STDIO_UART_RX
-    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+    CONSOLE_RX = MBED_CONF_TARGET_STDIO_UART_RX,
 #else
-    STDIO_UART_RX = PC_7,
+    CONSOLE_RX = PC_7,
 #endif
 
-    // Generic signals namings
-    LED1        = PB_3,
-    LED2        = PD_8,
-    LED3        = PD_9,
-    LED4        = PD_10,
-    USBTX       = STDIO_UART_TX,    /* USART6 */
-    USBRX       = STDIO_UART_RX,
-    I2C_SCL     = PB_8, /* I2C1 */
-    I2C_SDA     = PB_9,
-    SPI_MOSI    = PC_3,
-    SPI_MISO    = PC_2,
-    SPI_SCK     = PB_10,
-    SPI_CS      = PE_3,
     SD_MOSI     = PC_3,
     SD_MISO     = PC_2,
     SD_SCK      = PB_10,
@@ -257,6 +248,13 @@ typedef enum {
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
+
+// Standardized LED and button names
+#define LED1     PB_3
+#define LED2     PD_8
+#define LED3     PD_9
+#define LED4     PD_10
+
 
 #ifdef __cplusplus
 }

@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* MBED TARGET LIST: NUMAKER_PFM_NUC472 */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -117,12 +120,20 @@ typedef enum {
      
     // NOTE: other board-specific naming
     // UART naming
-    USBTX = PD_5,
-    USBRX = PD_4,
-    STDIO_UART_TX   = USBTX,
-    STDIO_UART_RX   = USBRX,
-    SERIAL_TX = USBTX,
-    SERIAL_RX = USBRX,    
+    CONSOLE_TX = PD_5,
+    CONSOLE_RX = PD_4,
+#if defined(MBED_CONF_TARGET_STDIO_UART_TX)
+    STDIO_UART_TX   = MBED_CONF_TARGET_STDIO_UART_TX,
+#else
+    STDIO_UART_TX   = CONSOLE_TX,
+#endif
+#if defined(MBED_CONF_TARGET_STDIO_UART_RX)
+    STDIO_UART_RX   = MBED_CONF_TARGET_STDIO_UART_RX,
+#else
+    STDIO_UART_RX   = CONSOLE_RX,
+#endif
+    SERIAL_TX = CONSOLE_TX,
+    SERIAL_RX = CONSOLE_RX,    
     // LED naming
     LED1 = PD_9,
     LED2 = PA_4,

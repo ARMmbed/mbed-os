@@ -302,6 +302,8 @@ static void mbed_minimal_formatted_string_double(char *buffer, size_t length, in
             precision *= 10;
         }
 
+        value = (value - integer) * precision;
+
         /* convert to positive number */
         if (value < 0.0) {
             value *= -1.0;

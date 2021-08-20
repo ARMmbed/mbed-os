@@ -22,7 +22,7 @@
  * information.
  */
 /*
- *  Copyright (C) 2006-2019, Arm Limited (or its affiliates), All Rights Reserved
+ *  Copyright The Mbed TLS Contributors
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -36,8 +36,6 @@
  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
- *  This file is part of Mbed TLS (https://tls.mbed.org)
  */
 
 #ifndef MBEDTLS_CTR_DRBG_H
@@ -212,6 +210,11 @@ mbedtls_ctr_drbg_context;
  *                      and prepares it for mbedtls_ctr_drbg_seed()
  *                      or mbedtls_ctr_drbg_free().
  *
+ * \note                The reseed interval is
+ *                      #MBEDTLS_CTR_DRBG_RESEED_INTERVAL by default.
+ *                      You can override it by calling
+ *                      mbedtls_ctr_drbg_set_reseed_interval().
+ *
  * \param ctx           The CTR_DRBG context to initialize.
  */
 void mbedtls_ctr_drbg_init( mbedtls_ctr_drbg_context *ctx );
@@ -311,7 +314,8 @@ int mbedtls_ctr_drbg_seed( mbedtls_ctr_drbg_context *ctx,
                    size_t len );
 
 /**
- * \brief               This function clears CTR_CRBG context data.
+ * \brief               This function resets CTR_DRBG context to the state immediately
+ *                      after initial call of mbedtls_ctr_drbg_init().
  *
  * \param ctx           The CTR_DRBG context to clear.
  */

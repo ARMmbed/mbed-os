@@ -98,10 +98,9 @@ test_suite.json
 # default delivery dir
 DELIVERY/
 
-# Directory used to clone and build TF-M
-features/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_TFM/TARGET_IGNORE/
-
 # CMake
 CMakeCache.txt
 cmake_install.cmake
 CMakeFiles/
+cmake_build/
+Testing/

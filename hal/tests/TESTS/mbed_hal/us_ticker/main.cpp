@@ -46,8 +46,8 @@ void us_ticker_info_test()
 
     TEST_ASSERT(p_ticker_info->bits >= 16);
 
-#ifdef US_TICKER_PERIOD_NUM
-    TEST_ASSERT_UINT32_WITHIN(1, 1000000 * US_TICKER_PERIOD_DEN / US_TICKER_PERIOD_NUM, p_ticker_info->frequency);
+#if defined(US_TICKER_PERIOD_NUM) || defined(CHECK_TICKER_OPTIM)
+    TEST_ASSERT_UINT32_WITHIN(1, (uint64_t)1000000 * US_TICKER_PERIOD_DEN / US_TICKER_PERIOD_NUM, p_ticker_info->frequency);
     TEST_ASSERT_EQUAL_UINT32(US_TICKER_MASK, ((uint64_t)1 << p_ticker_info->bits) - 1);
 #endif
 }

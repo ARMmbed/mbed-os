@@ -1,17 +1,18 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("NRF52_DK" IN_LIST MBED_TARGET_LABELS)
-    target_include_directories(mbed-core
-        INTERFACE
-            TARGET_NRF52_DK
-    )
-elseif("SDT52832B" IN_LIST MBED_TARGET_LABELS)
-    target_include_directories(mbed-core
-        INTERFACE
-            TARGET_SDT52832B
-    )
-endif()
+add_library(mbed-nrf52-dk INTERFACE)
+add_library(mbed-sdt52832b INTERFACE)
+
+target_include_directories(mbed-nrf52-dk
+    INTERFACE
+        TARGET_NRF52_DK
+)
+
+target_include_directories(mbed-sdt52832b
+    INTERFACE
+        TARGET_SDT52832B
+)
 
 if(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE device/TOOLCHAIN_ARM_STD/nRF52832.sct)
@@ -21,16 +22,16 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(STARTUP_FILE device/TOOLCHAIN_GCC_ARM/startup_NRF52832.S)
 endif()
 
-set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+add_library(mbed-mcu-nrf52832 INTERFACE)
 
-target_include_directories(mbed-core
+target_include_directories(mbed-mcu-nrf52832
     INTERFACE
         .
         config
         device
 )
 
-target_sources(mbed-core
+target_sources(mbed-mcu-nrf52832
     INTERFACE
         PeripheralPins.c
 
@@ -39,3 +40,9 @@ target_sources(mbed-core
 
         ${STARTUP_FILE}
 )
+
+mbed_set_linker_script(mbed-mcu-nrf52832 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+
+target_link_libraries(mbed-mcu-nrf52832 INTERFACE mbed-nrf52 mbed-sdk-15-0)
+target_link_libraries(mbed-nrf52-dk INTERFACE mbed-mcu-nrf52832)
+target_link_libraries(mbed-sdt52832b INTERFACE mbed-mcu-nrf52832)

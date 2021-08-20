@@ -12,7 +12,7 @@
  */
 
 /*
- *  Copyright (C) 2018, ARM Limited, All Rights Reserved
+ *  Copyright The Mbed TLS Contributors
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -47,7 +47,7 @@ extern "C" {
  *                                      containing any context information for
  *                                      the implementation
  *
- * \retval PSA_SUCCESS
+ * \retval #PSA_SUCCESS
  */
 typedef psa_status_t (*psa_drv_entropy_init_t)(void *p_context);
 
@@ -75,7 +75,7 @@ typedef psa_status_t (*psa_drv_entropy_init_t)(void *p_context);
  * \param[out] p_received_entropy_bits      The amount of entropy (in bits)
  *                                          actually provided in `p_buffer`
  *
- * \retval PSA_SUCCESS
+ * \retval #PSA_SUCCESS
  */
 typedef psa_status_t (*psa_drv_entropy_get_bits_t)(void *p_context,
                                                    uint8_t *p_buffer,

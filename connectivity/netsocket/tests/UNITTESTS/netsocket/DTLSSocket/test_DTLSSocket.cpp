@@ -62,5 +62,6 @@ TEST_F(TestDTLSSocket, connect)
 
     stack.return_value = NSAPI_ERROR_OK;
     SocketAddress a("127.0.0.1", 1024);
+    stack.return_socketAddress = a;
     EXPECT_EQ(socket->connect(a), NSAPI_ERROR_OK);
 }

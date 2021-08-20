@@ -4,10 +4,10 @@
 * Description:
 * Provides definitions of the SMIF-driver memory configuration.
 * This file was automatically generated and should not be modified.
-* QSPI Configurator: 2.0.0.1483
+* QSPI Configurator 2.20.0.2857
 *
 ********************************************************************************
-* Copyright 2017-2019 Cypress Semiconductor Corporation
+* Copyright 2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +25,7 @@
 
 #include "cycfg_qspi_memslot.h"
 
-const cy_stc_smif_mem_cmd_t S25FL512S_4byteaddr_SlaveSlot_0_readCmd =
+const cy_stc_smif_mem_cmd_t S25FL512S_SlaveSlot_0_readCmd =
 {
     /* The 8-bit command. 1 x I/O read command. */
     .command = 0xECU,
@@ -43,7 +43,7 @@ const cy_stc_smif_mem_cmd_t S25FL512S_4byteaddr_SlaveSlot_0_readCmd =
     .dataWidth = CY_SMIF_WIDTH_QUAD
 };
 
-const cy_stc_smif_mem_cmd_t S25FL512S_4byteaddr_SlaveSlot_0_writeEnCmd =
+const cy_stc_smif_mem_cmd_t S25FL512S_SlaveSlot_0_writeEnCmd =
 {
     /* The 8-bit command. 1 x I/O read command. */
     .command = 0x06U,
@@ -61,7 +61,7 @@ const cy_stc_smif_mem_cmd_t S25FL512S_4byteaddr_SlaveSlot_0_writeEnCmd =
     .dataWidth = CY_SMIF_WIDTH_SINGLE
 };
 
-const cy_stc_smif_mem_cmd_t S25FL512S_4byteaddr_SlaveSlot_0_writeDisCmd =
+const cy_stc_smif_mem_cmd_t S25FL512S_SlaveSlot_0_writeDisCmd =
 {
     /* The 8-bit command. 1 x I/O read command. */
     .command = 0x04U,
@@ -79,7 +79,7 @@ const cy_stc_smif_mem_cmd_t S25FL512S_4byteaddr_SlaveSlot_0_writeDisCmd =
     .dataWidth = CY_SMIF_WIDTH_SINGLE
 };
 
-const cy_stc_smif_mem_cmd_t S25FL512S_4byteaddr_SlaveSlot_0_eraseCmd =
+const cy_stc_smif_mem_cmd_t S25FL512S_SlaveSlot_0_eraseCmd =
 {
     /* The 8-bit command. 1 x I/O read command. */
     .command = 0xDCU,
@@ -97,7 +97,7 @@ const cy_stc_smif_mem_cmd_t S25FL512S_4byteaddr_SlaveSlot_0_eraseCmd =
     .dataWidth = CY_SMIF_WIDTH_SINGLE
 };
 
-const cy_stc_smif_mem_cmd_t S25FL512S_4byteaddr_SlaveSlot_0_chipEraseCmd =
+const cy_stc_smif_mem_cmd_t S25FL512S_SlaveSlot_0_chipEraseCmd =
 {
     /* The 8-bit command. 1 x I/O read command. */
     .command = 0x60U,
@@ -115,7 +115,7 @@ const cy_stc_smif_mem_cmd_t S25FL512S_4byteaddr_SlaveSlot_0_chipEraseCmd =
     .dataWidth = CY_SMIF_WIDTH_SINGLE
 };
 
-const cy_stc_smif_mem_cmd_t S25FL512S_4byteaddr_SlaveSlot_0_programCmd =
+const cy_stc_smif_mem_cmd_t S25FL512S_SlaveSlot_0_programCmd =
 {
     /* The 8-bit command. 1 x I/O read command. */
     .command = 0x34U,
@@ -133,7 +133,7 @@ const cy_stc_smif_mem_cmd_t S25FL512S_4byteaddr_SlaveSlot_0_programCmd =
     .dataWidth = CY_SMIF_WIDTH_QUAD
 };
 
-const cy_stc_smif_mem_cmd_t S25FL512S_4byteaddr_SlaveSlot_0_readStsRegQeCmd =
+const cy_stc_smif_mem_cmd_t S25FL512S_SlaveSlot_0_readStsRegQeCmd =
 {
     /* The 8-bit command. 1 x I/O read command. */
     .command = 0x35U,
@@ -151,7 +151,7 @@ const cy_stc_smif_mem_cmd_t S25FL512S_4byteaddr_SlaveSlot_0_readStsRegQeCmd =
     .dataWidth = CY_SMIF_WIDTH_SINGLE
 };
 
-const cy_stc_smif_mem_cmd_t S25FL512S_4byteaddr_SlaveSlot_0_readStsRegWipCmd =
+const cy_stc_smif_mem_cmd_t S25FL512S_SlaveSlot_0_readStsRegWipCmd =
 {
     /* The 8-bit command. 1 x I/O read command. */
     .command = 0x05U,
@@ -169,7 +169,7 @@ const cy_stc_smif_mem_cmd_t S25FL512S_4byteaddr_SlaveSlot_0_readStsRegWipCmd =
     .dataWidth = CY_SMIF_WIDTH_SINGLE
 };
 
-const cy_stc_smif_mem_cmd_t S25FL512S_4byteaddr_SlaveSlot_0_writeStsRegQeCmd =
+const cy_stc_smif_mem_cmd_t S25FL512S_SlaveSlot_0_writeStsRegQeCmd =
 {
     /* The 8-bit command. 1 x I/O read command. */
     .command = 0x01U,
@@ -187,34 +187,34 @@ const cy_stc_smif_mem_cmd_t S25FL512S_4byteaddr_SlaveSlot_0_writeStsRegQeCmd =
     .dataWidth = CY_SMIF_WIDTH_SINGLE
 };
 
-const cy_stc_smif_mem_device_cfg_t deviceCfg_S25FL512S_4byteaddr_SlaveSlot_0 =
+const cy_stc_smif_mem_device_cfg_t deviceCfg_S25FL512S_SlaveSlot_0 =
 {
     /* Specifies the number of address bytes used by the memory slave device. */
     .numOfAddrBytes = 0x04U,
     /* The size of the memory. */
     .memSize = 0x04000000U,
     /* Specifies the Read command. */
-    .readCmd = (cy_stc_smif_mem_cmd_t*)&S25FL512S_4byteaddr_SlaveSlot_0_readCmd,
+    .readCmd = (cy_stc_smif_mem_cmd_t*)&S25FL512S_SlaveSlot_0_readCmd,
     /* Specifies the Write Enable command. */
-    .writeEnCmd = (cy_stc_smif_mem_cmd_t*)&S25FL512S_4byteaddr_SlaveSlot_0_writeEnCmd,
+    .writeEnCmd = (cy_stc_smif_mem_cmd_t*)&S25FL512S_SlaveSlot_0_writeEnCmd,
     /* Specifies the Write Disable command. */
-    .writeDisCmd = (cy_stc_smif_mem_cmd_t*)&S25FL512S_4byteaddr_SlaveSlot_0_writeDisCmd,
+    .writeDisCmd = (cy_stc_smif_mem_cmd_t*)&S25FL512S_SlaveSlot_0_writeDisCmd,
     /* Specifies the Erase command. */
-    .eraseCmd = (cy_stc_smif_mem_cmd_t*)&S25FL512S_4byteaddr_SlaveSlot_0_eraseCmd,
+    .eraseCmd = (cy_stc_smif_mem_cmd_t*)&S25FL512S_SlaveSlot_0_eraseCmd,
     /* Specifies the sector size of each erase. */
     .eraseSize = 0x00040000U,
     /* Specifies the Chip Erase command. */
-    .chipEraseCmd = (cy_stc_smif_mem_cmd_t*)&S25FL512S_4byteaddr_SlaveSlot_0_chipEraseCmd,
+    .chipEraseCmd = (cy_stc_smif_mem_cmd_t*)&S25FL512S_SlaveSlot_0_chipEraseCmd,
     /* Specifies the Program command. */
-    .programCmd = (cy_stc_smif_mem_cmd_t*)&S25FL512S_4byteaddr_SlaveSlot_0_programCmd,
+    .programCmd = (cy_stc_smif_mem_cmd_t*)&S25FL512S_SlaveSlot_0_programCmd,
     /* Specifies the page size for programming. */
     .programSize = 0x00000200U,
     /* Specifies the command to read the QE-containing status register. */
-    .readStsRegQeCmd = (cy_stc_smif_mem_cmd_t*)&S25FL512S_4byteaddr_SlaveSlot_0_readStsRegQeCmd,
+    .readStsRegQeCmd = (cy_stc_smif_mem_cmd_t*)&S25FL512S_SlaveSlot_0_readStsRegQeCmd,
     /* Specifies the command to read the WIP-containing status register. */
-    .readStsRegWipCmd = (cy_stc_smif_mem_cmd_t*)&S25FL512S_4byteaddr_SlaveSlot_0_readStsRegWipCmd,
+    .readStsRegWipCmd = (cy_stc_smif_mem_cmd_t*)&S25FL512S_SlaveSlot_0_readStsRegWipCmd,
     /* Specifies the command to write into the QE-containing status register. */
-    .writeStsRegQeCmd = (cy_stc_smif_mem_cmd_t*)&S25FL512S_4byteaddr_SlaveSlot_0_writeStsRegQeCmd,
+    .writeStsRegQeCmd = (cy_stc_smif_mem_cmd_t*)&S25FL512S_SlaveSlot_0_writeStsRegQeCmd,
     /* The mask for the status register. */
     .stsRegBusyMask = 0x01U,
     /* The mask for the status register. */
@@ -224,10 +224,15 @@ const cy_stc_smif_mem_device_cfg_t deviceCfg_S25FL512S_4byteaddr_SlaveSlot_0 =
     /* The max time for the chip-erase cycle-time in ms. */
     .chipEraseTime = 460000U,
     /* The max time for the page-program cycle-time in us. */
-    .programTime = 1300U
+    .programTime = 1300U,
+#if (CY_SMIF_DRV_VERSION_MAJOR > 1) || (CY_SMIF_DRV_VERSION_MINOR >= 50)
+    /* Points to NULL or to structure with info about sectors for hybrid memory. */
+    .hybridRegionCount = 0U,
+    .hybridRegionInfo = NULL
+#endif
 };
 
-const cy_stc_smif_mem_config_t S25FL512S_4byteaddr_SlaveSlot_0 =
+const cy_stc_smif_mem_config_t S25FL512S_SlaveSlot_0 =
 {
     /* Determines the slot number where the memory device is placed. */
     .slaveSelect = CY_SMIF_SLAVE_SELECT_0,
@@ -245,11 +250,11 @@ const cy_stc_smif_mem_config_t S25FL512S_4byteaddr_SlaveSlot_0 =
     Valid when the memory mapped mode is enabled. */
     .dualQuadSlots = 0,
     /* The configuration of the device. */
-    .deviceCfg = (cy_stc_smif_mem_device_cfg_t*)&deviceCfg_S25FL512S_4byteaddr_SlaveSlot_0
+    .deviceCfg = (cy_stc_smif_mem_device_cfg_t*)&deviceCfg_S25FL512S_SlaveSlot_0
 };
 
 const cy_stc_smif_mem_config_t* const smifMemConfigs[] = {
-   &S25FL512S_4byteaddr_SlaveSlot_0
+   &S25FL512S_SlaveSlot_0
 };
 
 const cy_stc_smif_block_config_t smifBlockConfig =

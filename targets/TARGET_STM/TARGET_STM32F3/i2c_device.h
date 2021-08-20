@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2015, STMicroelectronics
+ * Copyright (c) 2015-2021, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,76 +27,53 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+
 #ifndef MBED_I2C_DEVICE_H
 #define MBED_I2C_DEVICE_H
 
-#include "cmsis.h"
+#include "PeripheralNames.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/*  Define I2C Device */
 #if DEVICE_I2C
 
-#define I2C_IP_VERSION_V2
+#define TIMING_VAL_64M_CLK_100KHZ  0x10B17DB4  // Standard mode with Rise time = 120ns, Fall time = 120ns
+#define TIMING_VAL_64M_CLK_400KHZ  0x00E22163  // Fast Mode with Rise time = 120ns, Fall time = 120ns
+#define TIMING_VAL_64M_CLK_1MHZ    0x00A00D1E  // Fast Mode Plus with Rise time = 120ns, Fall time = 10ns
+#define I2C_PCLK_64M               64000000    // 64 MHz
+
+#define TIMING_VAL_72M_CLK_100KHZ  0x10D28DCB  // Standard mode with Rise time = 120ns, Fall time = 120ns
+#define TIMING_VAL_72M_CLK_400KHZ  0x00F32571  // Fast Mode with Rise time = 120ns, Fall time = 120ns
+#define TIMING_VAL_72M_CLK_1MHZ    0x00C00D24  // Fast Mode Plus with Rise time = 120ns, Fall time = 10ns
+#define I2C_PCLK_72M               72000000    // 72 MHz
+
 
 #define I2C_IT_ALL (I2C_IT_ERRI|I2C_IT_TCI|I2C_IT_STOPI|I2C_IT_NACKI|I2C_IT_ADDRI|I2C_IT_RXI|I2C_IT_TXI)
+
+/*  Define IP version */
+#define I2C_IP_VERSION_V2
 
 /*  Family specifc settings for clock source */
 #define I2CAPI_I2C1_CLKSRC RCC_I2C1CLKSOURCE_SYSCLK
 #define I2CAPI_I2C2_CLKSRC RCC_I2C2CLKSOURCE_SYSCLK
 #define I2CAPI_I2C3_CLKSRC RCC_I2C3CLKSOURCE_SYSCLK
 
-/*  Provide the suitable timing depending on requested frequencie */
-static inline uint32_t get_i2c_timing(int hz)
-{
-    uint32_t tim = 0;
-    /*
-       Values calculated with I2C_Timing_Configuration_V1.0.1.xls file (see AN4235)
-       * Standard mode (up to 100 kHz)
-       * Fast Mode (up to 400 kHz)
-       * Fast Mode Plus (up to 1 MHz)
-       Below values obtained with:
-       - I2C clock source = 64 MHz (System Clock w/ HSI) or 72 (System Clock w/ HSE)
-       - Analog filter delay = ON
-       - Digital filter coefficient = 0
-    */
-    if (SystemCoreClock == 64000000) {
-        switch (hz) {
-            case 100000:
-                tim = 0x10B17DB4; // Standard mode with Rise time = 120ns, Fall time = 120ns
-                break;
-            case 400000:
-                tim = 0x00E22163; // Fast Mode with Rise time = 120ns, Fall time = 120ns
-                break;
-            case 1000000:
-                tim = 0x00A00D1E; // Fast Mode Plus with Rise time = 120ns, Fall time = 10ns
-                break;
-            default:
-                break;
-        }
-    } else if (SystemCoreClock == 72000000) {
-        switch (hz) {
-            case 100000:
-                tim = 0x10D28DCB; // Standard mode with Rise time = 120ns, Fall time = 120ns
-                break;
-            case 400000:
-                tim = 0x00F32571; // Fast Mode with Rise time = 120ns, Fall time = 120ns
-                break;
-            case 1000000:
-                tim = 0x00C00D24; // Fast Mode Plus with Rise time = 120ns, Fall time = 10ns
-                break;
-            default:
-                break;
-        }
-    }
-    return tim;
-}
+uint32_t i2c_get_pclk(I2CName i2c);
+uint32_t i2c_get_timing(I2CName i2c, uint32_t current_timing, int current_hz, int hz);
+
+#if MBED_CONF_TARGET_I2C_TIMING_VALUE_ALGO
+uint32_t i2c_compute_timing(uint32_t clock_src_freq, uint32_t i2c_freq);
+void i2c_compute_presc_scldel_sdadel(uint32_t clock_src_freq, uint32_t I2C_speed);
+uint32_t i2c_compute_scll_sclh(uint32_t clock_src_freq, uint32_t I2C_speed);
+#endif // MBED_CONF_TARGET_I2C_TIMING_VALUE_ALGO
+
+#endif // DEVICE_I2C
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif // DEVICE_I2C
 
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,7 @@ void ws_bbr_pan_version_increase(protocol_interface_info_entry_t *cur);
 
 uint16_t ws_bbr_pan_size(protocol_interface_info_entry_t *cur);
 
-void ws_bbr_rpl_config(protocol_interface_info_entry_t *cur, uint8_t imin, uint8_t doubling, uint8_t redundancy, uint16_t dag_max_rank_increase, uint16_t min_hop_rank_increase);
+void ws_bbr_rpl_config(protocol_interface_info_entry_t *cur, uint8_t imin, uint8_t doubling, uint8_t redundancy, uint16_t dag_max_rank_increase, uint16_t min_hop_rank_increase, uint32_t lifetime);
 
 void ws_bbr_dhcp_address_lifetime_set(protocol_interface_info_entry_t *cur, uint32_t dhcp_address_lifetime);
 
@@ -45,7 +45,7 @@ void ws_bbr_init(protocol_interface_info_entry_t *interface);
 #define ws_bbr_seconds_timer( cur, seconds)
 #define ws_bbr_pan_version_increase(cur)
 #define ws_bbr_pan_size(cur) 0
-#define ws_bbr_rpl_config( cur, imin, doubling, redundancy, dag_max_rank_increase, min_hop_rank_increase)
+#define ws_bbr_rpl_config( cur, imin, doubling, redundancy, dag_max_rank_increase, min_hop_rank_increase, lifetime)
 #define ws_bbr_dhcp_address_lifetime_set(cur, dhcp_address_lifetime)
 #define ws_bbr_ready_to_start(cur) true
 #define ws_bbr_backbone_address_get(address) 0

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, Arm Limited and affiliates.
+ * Copyright (c) 2014-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -859,9 +859,16 @@ uint8_t *libdhcpv6_dhcp_relay_msg_write(uint8_t *ptr, uint8_t type, uint8_t hop_
     return ptr;
 }
 
-uint8_t *libdhcpv6_dhcp_option_header_write(uint8_t *ptr, uint16_t length)
+uint8_t *libdhcpv6_option_interface_id_write(uint8_t *ptr, int8_t interface_id)
 {
-    ptr = common_write_16_bit(DHCPV6_OPTION_RELAY, ptr);
+    ptr = libdhcpv6_dhcp_option_header_write(ptr, DHCPV6_OPTION_INTERFACE_ID, 1);
+    *ptr++ = interface_id;
+    return ptr;
+}
+
+uint8_t *libdhcpv6_dhcp_option_header_write(uint8_t *ptr, uint16_t option_type, uint16_t length)
+{
+    ptr = common_write_16_bit(option_type, ptr);
     ptr = common_write_16_bit(length, ptr);
     return ptr;
 }
@@ -878,6 +885,11 @@ bool libdhcpv6_relay_msg_read(uint8_t *ptr, uint16_t length, dhcpv6_relay_msg_t 
     relay_msg->peer_address = ptr + 16;
     ptr += 32;
     //Discover
+    if (libdhcpv6_message_option_discover(ptr, length - 34, DHCPV6_OPTION_INTERFACE_ID, &relay_msg->relay_interface_id) != 0) {
+        relay_msg->relay_interface_id.len = 0;
+        relay_msg->relay_interface_id.msg_ptr = NULL;
+    }
+
     if (libdhcpv6_message_option_discover(ptr, length - 34, DHCPV6_OPTION_RELAY, &relay_msg->relay_options) != 0) {
         return false;
     }

@@ -625,6 +625,18 @@ int wisun_tasklet_statistics_start(void)
     return 0;
 }
 
+int wisun_tasklet_statistics_reset(void)
+{
+    if (!statistics) {
+        return -1;
+    }
+
+    memset(&statistics->mac_statistics, 0, sizeof(mac_statistics_t));
+    memset(&statistics->ws_statistics, 0, sizeof(ws_statistics_t));
+
+    return 0;
+}
+
 static void wisun_tasklet_statistics_do_start(void)
 {
     if (!wisun_tasklet_data_ptr || wisun_tasklet_data_ptr->network_interface_id < 0 || !mac_api) {
@@ -647,6 +659,23 @@ int wisun_tasklet_statistics_nw_read(mesh_nw_statistics_t *stats)
     stats->etx_2nd_parent = statistics->nwk_stats.etx_2nd_parent;
     stats->asynch_tx_count = statistics->ws_statistics.asynch_tx_count;
     stats->asynch_rx_count = statistics->ws_statistics.asynch_rx_count;
+    stats->join_state_1 = statistics->ws_statistics.join_state_1;
+    stats->join_state_2 = statistics->ws_statistics.join_state_2;
+    stats->join_state_3 = statistics->ws_statistics.join_state_3;
+    stats->join_state_4 = statistics->ws_statistics.join_state_4;
+    stats->join_state_5 = statistics->ws_statistics.join_state_5;
+    stats->sent_PAS = statistics->ws_statistics.sent_PAS;
+    stats->sent_PA = statistics->ws_statistics.sent_PA;
+    stats->sent_PCS = statistics->ws_statistics.sent_PCS;
+    stats->sent_PC = statistics->ws_statistics.sent_PC;
+    stats->recv_PAS = statistics->ws_statistics.recv_PAS;
+    stats->recv_PA = statistics->ws_statistics.recv_PA;
+    stats->recv_PCS = statistics->ws_statistics.recv_PCS;
+    stats->recv_PC = statistics->ws_statistics.recv_PC;
+    stats->Neighbour_add = statistics->ws_statistics.Neighbour_add;
+    stats->Neighbour_remove = statistics->ws_statistics.Neighbour_remove;
+    stats->Child_add = statistics->ws_statistics.Child_add;
+    stats->child_remove = statistics->ws_statistics.child_remove;
 
     return 0;
 }

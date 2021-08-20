@@ -12,6 +12,15 @@ target_sources(mbed-ble
         GapImpl.cpp
         GattClientImpl.cpp
         KVStoreSecurityDb.cpp
+        MemorySecurityDb.cpp
         PrivateAddressController.cpp
+        SecurityDb.cpp
         SecurityManagerImpl.cpp
+)
+
+target_link_libraries(mbed-ble
+    INTERFACE
+        mbed-storage-kvstore
+        mbed-storage-tdbstore
+        mbed-storage-kv-global-api
 )
