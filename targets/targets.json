@@ -1242,7 +1242,7 @@
             },
             "lpuart_clock_source": {
                 "help": "Define the LPUART clock source. Mask values: USE_LPUART_CLK_LSE, USE_LPUART_CLK_PCLK1, USE_LPUART_CLK_HSI",
-                "value": "USE_LPUART_CLK_LSE|USE_LPUART_CLK_PCLK1"
+                "value": "USE_LPUART_CLK_LSE|USE_LPUART_CLK_PCLK1|USE_LPUART_CLK_PCLK3"
             },
             "stdio_uart_tx": {
                 "help": "default TX STDIO pins is defined in PinNames.h file, but it can be overridden"
@@ -4219,6 +4219,104 @@
         "device_name": "STM32L562QEIxQ",
         "detect_code": [
             "0854"
+        ]
+    },
+    "MCU_STM32U5": {
+        "inherits": [
+            "MCU_STM32"
+        ],
+        "public": false,
+        "core": "Cortex-M33FE",
+        "extra_labels_add": [
+            "STM32U5"
+        ],
+        "components_add": [
+            "FLASHIAP"
+        ],
+        "macros_add": [
+            "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED"
+        ],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
+                "value": "USE_PLL_MSI",
+                "macro_name": "CLOCK_SOURCE"
+            },
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
+                "value": 1
+            },
+            "lse_drive_load_level": {
+                "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
+                "value": "RCC_LSEDRIVE_LOW"
+            },
+            "i2c_timing_value_algo": {
+                "help": "If value was set to true I2C timing algorithm is enabled. Enabling may leads to performance issue. Keeping this false and changing system clock will trigger assert.)",
+                "value": false
+            }
+        },
+        "overrides": {
+            "lpticker_delay_ticks": 0,
+            "lpuart_clock_source": "USE_LPUART_CLK_HSI"
+        },
+        "device_has_add": [
+            "ANALOGOUT",
+            "CRC",
+            "FLASH",
+            "MPU",
+            "TRNG",
+            "SERIAL_ASYNCH"
+        ]
+    },
+	"MCU_STM32U575xI": {
+        "inherits": [
+            "MCU_STM32U5"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32U575xI"
+        ],
+        "macros_add": [
+            "STM32U575xx"
+        ]
+    },
+    "NUCLEO_U575ZI_Q": {
+        "inherits": [
+            "MCU_STM32U575xI"
+        ],
+        "supported_form_factors": [
+            "ARDUINO_UNO"
+        ],
+        "device_name": "STM32U575ZITx",
+        "detect_code": [
+            "886"
+        ]
+    },
+	"MCU_STM32U585xI": {
+        "inherits": [
+            "MCU_STM32U5"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32U585xI"
+        ],
+        "macros_add": [
+            "STM32U585xx"
+        ]
+    },
+    "B_U585I_IOT02A": {
+        "inherits": [
+            "MCU_STM32U585xI"
+        ],
+        "supported_form_factors": [
+            "STMOD",
+            "PMOD",
+            "ARDUINO_UNO"
+        ],
+        "device_name": "STM32U585AIIx",
+        "detect_code": [
+            "887"
         ]
     },
     "MCU_STM32WB": {
