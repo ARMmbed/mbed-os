@@ -3,6 +3,10 @@
 
 include(mbed_greentea)
 
+if(DEFINED TARGET_ARM_FM)
+    set(TEST_SKIPPED "Wait ns test not supported.")
+endif()
+
 mbed_greentea_add_test(
     TEST_NAME
         mbed-platform-wait-ns
@@ -10,4 +14,6 @@ mbed_greentea_add_test(
         main.cpp
     HOST_TESTS_DIR
         "${CMAKE_CURRENT_LIST_DIR}/../../host_tests"
+    TEST_SKIPPED
+        ${TEST_SKIPPED}
 )
