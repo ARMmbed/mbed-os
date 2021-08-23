@@ -3,6 +3,14 @@
 
 include(mbed_greentea)
 
+if(DEFINED MBED_RTOS_SINGLE_THREAD OR MBED_GREENTEA_TEST_BAREMETAL)
+    set(TEST_SKIPPED "RTOS basic test cases require RTOS with multithread to run")
+endif()
+
+if(NOT "DEVICE_USTICKER=1" IN_LIST MBED_TARGET_DEFINITIONS)
+    set(TEST_SKIPPED "UsTicker need to be enabled for this test.")
+endif()
+
 mbed_greentea_add_test(
     TEST_NAME
         mbed-rtos-basic
@@ -10,4 +18,6 @@ mbed_greentea_add_test(
         main.cpp
     HOST_TESTS_DIR
         "${CMAKE_CURRENT_LIST_DIR}/../../host_tests"
+    TEST_SKIPPED
+        ${TEST_SKIPPED}
 )

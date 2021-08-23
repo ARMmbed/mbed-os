@@ -3,9 +3,19 @@
 
 include(mbed_greentea)
 
+if(DEFINED MBED_RTOS_SINGLE_THREAD OR MBED_GREENTEA_TEST_BAREMETAL)
+    set(TEST_SKIPPED "mail test cases require RTOS with multithread to run")
+endif()
+
+if(NOT "DEVICE_USTICKER=1" IN_LIST MBED_TARGET_DEFINITIONS)
+    set(TEST_SKIPPED "UsTicker need to be enabled for this test.")
+endif()
+
 mbed_greentea_add_test(
     TEST_NAME
         mbed-rtos-mail
     TEST_SOURCES
         main.cpp
+    TEST_SKIPPED
+        ${TEST_SKIPPED}
 )
