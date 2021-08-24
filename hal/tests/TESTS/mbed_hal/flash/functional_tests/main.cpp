@@ -270,4 +270,4 @@ int main()
     Harness::run(specification);
 }
 
-#endif !DEVICE_FLASH
+#endif // !DEVICE_FLASH
