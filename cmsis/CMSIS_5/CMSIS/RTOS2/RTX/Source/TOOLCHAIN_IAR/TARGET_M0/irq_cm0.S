@@ -27,7 +27,6 @@
                 NAME     irq_armv6m.s
 
 
-                #include "rtx_def.h"
 
 I_T_RUN_OFS     EQU      20                     ; osRtxInfo.thread.run offset
 TCB_SP_OFS      EQU      56                     ; TCB.SP offset
