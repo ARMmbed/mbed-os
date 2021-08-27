@@ -1801,7 +1801,7 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive_IT(SPI_HandleTypeDef *hspi, uint8_t *p
   __HAL_SPI_ENABLE(hspi);
 
   /* Fill in the TxFIFO */
-  while ((__HAL_SPI_GET_FLAG(hspi, SPI_FLAG_TXP)) && (tmp_TxXferCount != 0UL))
+  while ((__HAL_SPI_GET_FLAG(hspi, SPI_FLAG_TXP)) && (tmp_TxXferCount != 0UL) && (max_fifo_length < MAX_FIFO_LENGTH))
   {
     if (max_fifo_length < MAX_FIFO_LENGTH)
     {
