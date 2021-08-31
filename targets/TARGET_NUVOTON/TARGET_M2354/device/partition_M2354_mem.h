@@ -33,46 +33,9 @@
  *       (already there or via copy).
  */
 
-/* Update NU_TFM_S_BL2 and friends on redoing TF-M import
- *
- * We expect NU_TFM_S_BL2 and friends are passed along from build tool, esp. Mbed CLI2,
- * If not, NU_TFM_S_BL2 and friends must update manually. */
-
-#ifndef NU_TFM_S_BL2
-#define NU_TFM_S_BL2                    1
-#endif
-
-#ifndef NU_TFM_S_MCUBOOT_IMAGE_NUMBER
-#define NU_TFM_S_MCUBOOT_IMAGE_NUMBER   2
-#endif
-
-#ifndef NU_TFM_S_UPDATE_STAGE_SDH
-#define NU_TFM_S_UPDATE_STAGE_SDH       1
-#endif
-
-#ifndef NU_TFM_S_UPDATE_STAGE_FLASH
-#define NU_TFM_S_UPDATE_STAGE_FLASH     0
-#endif
-
-#ifndef NU_TFM_S_REGION_DEFS_H_PATH
-#define NU_TFM_S_REGION_DEFS_H_PATH     "../TARGET_TFM/TARGET_NU_M2354/COMPONENT_TFM_S_FW/partition/region_defs.h"
-#endif
-
-/* TF-M exported region_defs.h depends on BL2 and MCUBOOT_IMAGE_NUMBER, so the
- * following order is significant. */
-#if NU_TFM_S_BL2
-#define BL2
-#endif
-#define MCUBOOT_IMAGE_NUMBER    NU_TFM_S_MCUBOOT_IMAGE_NUMBER
+#include "nu_tfm_import_define.h"
 #include NU_TFM_S_REGION_DEFS_H_PATH
-#define NU_UPDATE_STAGE_SDH     NU_TFM_S_UPDATE_STAGE_SDH
-#define NU_UPDATE_STAGE_FLASH   NU_TFM_S_UPDATE_STAGE_FLASH
-
-/* Avoid polluting name space, esp. BL2 */
-#undef BL2
-#undef MCUBOOT_IMAGE_NUMBER
-#undef NU_UPDATE_STAGE_SDH
-#undef NU_UPDATE_STAGE_FLASH
+#include "nu_tfm_import_undefine.h"
 
 /* Resolve MBED_ROM_START and friends
  *
