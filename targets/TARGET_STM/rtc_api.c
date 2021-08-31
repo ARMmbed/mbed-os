@@ -65,7 +65,11 @@ void rtc_init(void)
 #if (MBED_CONF_TARGET_RTC_CLOCK_SOURCE == USE_RTC_CLK_HSE)
     (void)RCC_OscInitStruct;
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+#if defined(RCC_RTCCLKSOURCE_HSE_DIVX)
     PeriphClkInitStruct.RTCClockSelection = (RCC_RTCCLKSOURCE_HSE_DIVX | RTC_HSE_DIV << 16);
+#else
+    PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_HSE_DIV128;
+#endif
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
         error("PeriphClkInitStruct RTC failed with HSE\n");
     }
