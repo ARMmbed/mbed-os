@@ -215,6 +215,9 @@ static void _spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
             error("HAL_RCCEx_PeriphCLKConfig\n");
         }
 #endif /* SPI_IP_VERSION_V2 */
+
+        __HAL_RCC_SPI1_FORCE_RESET();
+        __HAL_RCC_SPI1_RELEASE_RESET();
         __HAL_RCC_SPI1_CLK_ENABLE();
         spiobj->spiIRQ = SPI1_IRQn;
     }
@@ -233,6 +236,9 @@ static void _spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
             error("HAL_RCCEx_PeriphCLKConfig\n");
         }
 #endif /* SPI_IP_VERSION_V2 */
+
+        __HAL_RCC_SPI2_FORCE_RESET();
+        __HAL_RCC_SPI2_RELEASE_RESET();
         __HAL_RCC_SPI2_CLK_ENABLE();
         spiobj->spiIRQ = SPI2_IRQn;
     }
@@ -251,6 +257,9 @@ static void _spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
             error("HAL_RCCEx_PeriphCLKConfig\n");
         }
 #endif /* SPI_IP_VERSION_V2 */
+
+        __HAL_RCC_SPI3_FORCE_RESET();
+        __HAL_RCC_SPI3_RELEASE_RESET();
         __HAL_RCC_SPI3_CLK_ENABLE();
         spiobj->spiIRQ = SPI3_IRQn;
     }
@@ -265,6 +274,9 @@ static void _spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
             error("HAL_RCCEx_PeriphCLKConfig\n");
         }
 #endif /* SPI_IP_VERSION_V2 */
+
+        __HAL_RCC_SPI4_FORCE_RESET();
+        __HAL_RCC_SPI4_RELEASE_RESET();
         __HAL_RCC_SPI4_CLK_ENABLE();
         spiobj->spiIRQ = SPI4_IRQn;
     }
@@ -279,6 +291,9 @@ static void _spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
             error("HAL_RCCEx_PeriphCLKConfig\n");
         }
 #endif /* SPI_IP_VERSION_V2 */
+
+        __HAL_RCC_SPI5_FORCE_RESET();
+        __HAL_RCC_SPI5_RELEASE_RESET();
         __HAL_RCC_SPI5_CLK_ENABLE();
         spiobj->spiIRQ = SPI5_IRQn;
     }
@@ -293,6 +308,9 @@ static void _spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
             error("HAL_RCCEx_PeriphCLKConfig\n");
         }
 #endif /* SPI_IP_VERSION_V2 */
+
+        __HAL_RCC_SPI6_FORCE_RESET();
+        __HAL_RCC_SPI6_RELEASE_RESET();
         __HAL_RCC_SPI6_CLK_ENABLE();
         spiobj->spiIRQ = SPI6_IRQn;
     }
