@@ -36,7 +36,7 @@ public:
      *  nonblocking or times out, NSAPI_ERROR_WOULD_BLOCK is returned
      *  immediately.
      *
-     *  It uses sendmsg with zero ancillary data
+     *  It uses sendto_control with zero ancillary data
      *  @param address  The SocketAddress of the remote host.
      *  @param data     Buffer of data to send to the host.
      *  @param size     Size of the buffer in bytes.
@@ -61,7 +61,7 @@ public:
      *  are accepted.
      *
      *  @note recvfrom() is allowed write to address and data buffers even if error occurs.
-     *  It uses recvmsg with zero ancillary data
+     *  It uses recvfrom_control with zero ancillary data
      *  @param address  Destination for the source address or NULL.
      *  @param data     Destination buffer for RAW data to be received from the host.
      *  @param size     Size of the buffer in bytes.
@@ -81,7 +81,7 @@ public:
      *  nonblocking or times out, NSAPI_ERROR_WOULD_BLOCK is returned
      *  immediately.
      *
-     *  It uses sendmsg with zero ancillary data
+     *  It uses sendto_control with zero ancillary data
      *  @param address  The SocketAddress of the remote host.
      *  @param data     Buffer of data to send to the host.
      *  @param size     Size of the buffer in bytes.
@@ -93,9 +93,9 @@ public:
      *  @retval         int Other negative error codes for stack-related failures.
      *                  See \ref NetworkStack::socket_send.
      */
-    nsapi_size_or_error_t sendmsg(const SocketAddress &address,
-                                  const void *data, nsapi_size_t size,
-                                  nsapi_msghdr_t *control, nsapi_size_t control_size) override;
+    nsapi_size_or_error_t sendto_control(const SocketAddress &address,
+                                         const void *data, nsapi_size_t size,
+                                         nsapi_msghdr_t *control, nsapi_size_t control_size) override;
 
 
     /** Receive a datagram with ancillary data and store the source address in address if it's not NULL.
@@ -109,7 +109,7 @@ public:
     *  @note If socket is connected, only packets coming from connected peer address
     *  are accepted.
     *
-    *  @note recvmsg() is allowed write to address and data buffers even if error occurs.
+    *  @note recvfrom_control() is allowed write to address and data buffers even if error occurs.
     *
     *  @param address  Destination for the source address or NULL.
     *  @param data     Destination buffer for RAW data to be received from the host.
@@ -123,9 +123,9 @@ public:
     *  @retval         int Other negative error codes for stack-related failures.
     *                  See \ref NetworkStack::socket_recv.
     */
-    nsapi_size_or_error_t recvmsg(SocketAddress *address,
-                                  void *data, nsapi_size_t size,
-                                  nsapi_msghdr_t *control, nsapi_size_t control_size) override;
+    nsapi_size_or_error_t recvfrom_control(SocketAddress *address,
+                                           void *data, nsapi_size_t size,
+                                           nsapi_msghdr_t *control, nsapi_size_t control_size) override;
 
     /** Set the remote address for next send() call and filtering
      *  of incoming packets. To reset the address, zero initialized

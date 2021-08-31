@@ -22,6 +22,7 @@
 #define NSAPI_TYPES_H
 
 #include <stdint.h>
+#include "mbed_toolchain.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -319,7 +320,7 @@ typedef enum nsapi_socket_option {
     NSAPI_STAGGER,           /*!< Read estimated stagger value to destination */
     NSAPI_IPTOS,             /*!< Set IP type of service to set specific precedence */
     NSAPI_BROADCAST,         /*!< Set broadcast flag for UDP socket */
-    NSAPI_PKTINFO            /*!< Get additional information when using sendmsg/recvmsg */
+    NSAPI_PKTINFO            /*!< Get additional information when using sendto_control/recvfrom_control */
 } nsapi_socket_option_t;
 
 typedef enum nsapi_tlssocket_level {
@@ -409,7 +410,7 @@ typedef struct nsapi_stagger_req {
 
 /** nsapi_msghdr
  */
-typedef struct nsapi_msghdr {
+typedef struct MBED_ALIGN(double) nsapi_msghdr {
     nsapi_size_t len;    /* Data byte count, including header */
     int          level;  /* Originating protocol */
     int          type;   /* Protocol-specific type */
@@ -663,15 +664,15 @@ typedef struct nsapi_stack_api {
                                              nsapi_addr_t *addr, uint16_t *port, void *buffer, nsapi_size_t size);
 
     // TODO: Documentation
-    nsapi_size_or_error_t (*socket_sendmsg)(nsapi_stack_t *stack, nsapi_socket_t socket,
-                                            nsapi_addr_t addr, uint16_t port,
-                                            const void *data, nsapi_size_t size,
-                                            const nsapi_msghdr_t *control, nsapi_size_t control_size);
+    nsapi_size_or_error_t (*socket_sendto_control)(nsapi_stack_t *stack, nsapi_socket_t socket,
+                                                   nsapi_addr_t addr, uint16_t port,
+                                                   const void *data, nsapi_size_t size,
+                                                   const nsapi_msghdr_t *control, nsapi_size_t control_size);
 
-    nsapi_size_or_error_t (*socket_recvmsg)(nsapi_stack_t *stack, nsapi_socket_t socket,
-                                            nsapi_addr_t *addr, uint16_t *port,
-                                            void *data, nsapi_size_t size,
-                                            nsapi_msghdr_t *control, nsapi_size_t control_size);
+    nsapi_size_or_error_t (*socket_recvfrom_control)(nsapi_stack_t *stack, nsapi_socket_t socket,
+                                                     nsapi_addr_t *addr, uint16_t *port,
+                                                     void *data, nsapi_size_t size,
+                                                     nsapi_msghdr_t *control, nsapi_size_t control_size);
 
     /** Register a callback on state change of the socket
      *

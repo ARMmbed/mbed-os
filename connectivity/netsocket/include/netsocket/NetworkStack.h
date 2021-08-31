@@ -412,9 +412,16 @@ protected:
      *  @return         Number of sent bytes on success, negative error
      *                  code on failure
      */
-    virtual nsapi_size_or_error_t socket_sendmsg(nsapi_socket_t handle, const SocketAddress &address,
-                                                 const void *data, nsapi_size_t size,
-                                                 nsapi_msghdr_t *control, nsapi_size_t control_size) = 0;
+    virtual nsapi_size_or_error_t socket_sendto_control(nsapi_socket_t handle, const SocketAddress &address,
+                                                        const void *data, nsapi_size_t size,
+                                                        nsapi_msghdr_t *control, nsapi_size_t control_size)
+    {
+        if (control != NULL) {
+            return NSAPI_ERROR_UNSUPPORTED;
+        }
+
+        return socket_sendto(handle, address, data, size);
+    }
 
     /** Receive a packet with ancillary data over a UDP socket
      *
@@ -436,9 +443,16 @@ protected:
      *  @return         Number of received bytes on success, negative error
      *                  code on failure
      */
-    virtual nsapi_size_or_error_t socket_recvmsg(nsapi_socket_t handle, SocketAddress *address,
-                                                 void *data, nsapi_size_t size,
-                                                 nsapi_msghdr_t *control, nsapi_size_t control_size) = 0;
+    virtual nsapi_size_or_error_t socket_recvfrom_control(nsapi_socket_t handle, SocketAddress *address,
+                                                          void *data, nsapi_size_t size,
+                                                          nsapi_msghdr_t *control, nsapi_size_t control_size)
+    {
+        if (control != NULL) {
+            return NSAPI_ERROR_UNSUPPORTED;
+        }
+
+        return socket_recvfrom(handle, address, data, size);
+    }
 
     /** Register a callback on state change of the socket
      *

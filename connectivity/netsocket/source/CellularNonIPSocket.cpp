@@ -244,9 +244,9 @@ nsapi_size_or_error_t CellularNonIPSocket::sendto(const SocketAddress &address,
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
-nsapi_size_or_error_t CellularNonIPSocket::sendmsg(const SocketAddress &address,
-                                                   const void *data, nsapi_size_t size,
-                                                   nsapi_msghdr_t *control, nsapi_size_t control_size)
+nsapi_size_or_error_t CellularNonIPSocket::sendto_control(const SocketAddress &address,
+                                                          const void *data, nsapi_size_t size,
+                                                          nsapi_msghdr_t *control, nsapi_size_t control_size)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
@@ -257,9 +257,9 @@ nsapi_size_or_error_t CellularNonIPSocket::recvfrom(SocketAddress *address,
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
-nsapi_size_or_error_t CellularNonIPSocket::recvmsg(SocketAddress *address,
-                                                   void *data, nsapi_size_t size,
-                                                   nsapi_msghdr_t *control, nsapi_size_t control_size)
+nsapi_size_or_error_t CellularNonIPSocket::recvfrom_control(SocketAddress *address,
+                                                            void *data, nsapi_size_t size,
+                                                            nsapi_msghdr_t *control, nsapi_size_t control_size)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }

@@ -472,9 +472,9 @@ protected:
       *  @return              Number of sent bytes on success, negative error
       *                       code on failure
       */
-    nsapi_size_or_error_t socket_sendmsg(nsapi_socket_t handle, const SocketAddress &address,
-                                         const void *data, nsapi_size_t size,
-                                         nsapi_msghdr_t *control, nsapi_size_t control_size) override;
+    nsapi_size_or_error_t socket_sendto_control(nsapi_socket_t handle, const SocketAddress &address,
+                                                const void *data, nsapi_size_t size,
+                                                nsapi_msghdr_t *control, nsapi_size_t control_size) override;
 
     /** Receive data over a TCP socket
      *
@@ -519,7 +519,7 @@ protected:
      *  This call is non-blocking. If recvfrom would block,
      *  NSAPI_ERROR_WOULD_BLOCK is returned immediately.
      *
-     *  It uses socket_recvmsg with  zero ancillary data.
+     *  It uses socket_recvfrom_control with  zero ancillary data.
      *  @param handle   Socket handle
      *  @param address  Destination for the source address or NULL
      *  @param buffer   Destination buffer for data received from the host
@@ -547,9 +547,9 @@ protected:
     *  @return         Number of received bytes on success, negative error
     *                  code on failure
     */
-    nsapi_size_or_error_t socket_recvmsg(nsapi_socket_t handle, SocketAddress *address,
-                                         void *data, nsapi_size_t size,
-                                         nsapi_msghdr_t *control, nsapi_size_t control_size) override;
+    nsapi_size_or_error_t socket_recvfrom_control(nsapi_socket_t handle, SocketAddress *address,
+                                                  void *data, nsapi_size_t size,
+                                                  nsapi_msghdr_t *control, nsapi_size_t control_size) override;
 
     /** Register a callback on state change of the socket
      *

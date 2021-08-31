@@ -443,18 +443,18 @@ nsapi_size_or_error_t LWIP::socket_recv(nsapi_socket_t handle, void *data, nsapi
 
 nsapi_size_or_error_t LWIP::socket_sendto(nsapi_socket_t handle, const SocketAddress &address, const void *data, nsapi_size_t size)
 {
-    return socket_sendmsg(handle, address, data, size, NULL, 0);
+    return socket_sendto_control(handle, address, data, size, NULL, 0);
 }
 
 nsapi_size_or_error_t LWIP::socket_recvfrom(nsapi_socket_t handle, SocketAddress *address, void *data, nsapi_size_t size)
 {
-    return socket_recvmsg(handle, address, data, size, NULL, 0);
+    return socket_recvfrom_control(handle, address, data, size, NULL, 0);
 
 }
 
-nsapi_size_or_error_t LWIP::socket_recvmsg(nsapi_socket_t handle, SocketAddress *address,
-                                           void *data, nsapi_size_t size,
-                                           nsapi_msghdr_t *control, nsapi_size_t control_size)
+nsapi_size_or_error_t LWIP::socket_recvfrom_control(nsapi_socket_t handle, SocketAddress *address, void *data,
+                                                    nsapi_size_t size, nsapi_msghdr_t *control,
+                                                    nsapi_size_t control_size)
 {
     struct mbed_lwip_socket *s = (struct mbed_lwip_socket *)handle;
     struct netbuf *buf;
@@ -491,9 +491,9 @@ nsapi_size_or_error_t LWIP::socket_recvmsg(nsapi_socket_t handle, SocketAddress 
     return recv;
 }
 
-nsapi_size_or_error_t LWIP::socket_sendmsg(nsapi_socket_t handle, const SocketAddress &address,
-                                           const void *data, nsapi_size_t size,
-                                           nsapi_msghdr_t *control, nsapi_size_t control_size)
+nsapi_size_or_error_t LWIP::socket_sendto_control(nsapi_socket_t handle, const SocketAddress &address,
+                                                  const void *data, nsapi_size_t size, nsapi_msghdr_t *control,
+                                                  nsapi_size_t control_size)
 {
     struct mbed_lwip_socket *s = (struct mbed_lwip_socket *)handle;
     ip_addr_t ip_addr = {};

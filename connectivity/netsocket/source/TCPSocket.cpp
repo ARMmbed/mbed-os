@@ -173,9 +173,8 @@ nsapi_size_or_error_t TCPSocket::sendto(const SocketAddress &address, const void
     return send(data, size);
 }
 
-nsapi_size_or_error_t TCPSocket::sendmsg(const SocketAddress &address,
-                                         const void *data, nsapi_size_t size,
-                                         nsapi_msghdr_t *control, nsapi_size_t control_size)
+nsapi_size_or_error_t TCPSocket::sendto_control(const SocketAddress &address, const void *data, nsapi_size_t size,
+                                                nsapi_msghdr_t *control, nsapi_size_t control_size)
 {
     // FIXME: Implement
     if (control) {
@@ -240,9 +239,8 @@ nsapi_size_or_error_t TCPSocket::recvfrom(SocketAddress *address, void *data, ns
     return recv(data, size);
 }
 
-nsapi_size_or_error_t TCPSocket::recvmsg(SocketAddress *address,
-                                         void *data, nsapi_size_t size,
-                                         nsapi_msghdr_t *control, nsapi_size_t control_size)
+nsapi_size_or_error_t TCPSocket::recvfrom_control(SocketAddress *address, void *data, nsapi_size_t size,
+                                                  nsapi_msghdr_t *control, nsapi_size_t control_size)
 {
     // FIXME: Implement
     if (control) {

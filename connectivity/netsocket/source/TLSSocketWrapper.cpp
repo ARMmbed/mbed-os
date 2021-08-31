@@ -385,9 +385,9 @@ nsapi_size_or_error_t TLSSocketWrapper::sendto(const SocketAddress &, const void
     return send(data, size);
 }
 
-nsapi_size_or_error_t TLSSocketWrapper::sendmsg(const SocketAddress &address,
-                                                const void *data, nsapi_size_t size,
-                                                nsapi_msghdr_t *control, nsapi_size_t control_size)
+nsapi_size_or_error_t TLSSocketWrapper::sendto_control(const SocketAddress &address, const void *data,
+                                                       nsapi_size_t size, nsapi_msghdr_t *control,
+                                                       nsapi_size_t control_size)
 {
     return sendto(address, data, size);
 }
@@ -452,7 +452,8 @@ nsapi_size_or_error_t TLSSocketWrapper::recvfrom(SocketAddress *address, void *d
     return recv(data, size);
 }
 
-nsapi_size_or_error_t TLSSocketWrapper::recvmsg(SocketAddress *address, void *data, nsapi_size_t size, nsapi_msghdr_t *control, nsapi_size_t control_size)
+nsapi_size_or_error_t TLSSocketWrapper::recvfrom_control(SocketAddress *address, void *data, nsapi_size_t size,
+                                                         nsapi_msghdr_t *control, nsapi_size_t control_size)
 {
     return recvfrom(address, data, size);
 }

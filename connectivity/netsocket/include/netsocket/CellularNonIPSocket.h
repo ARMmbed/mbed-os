@@ -133,13 +133,13 @@ public:
     nsapi_size_or_error_t recvfrom(SocketAddress *address,
                                    void *data, nsapi_size_t size) override;
     /// NOT APPLICABLE
-    nsapi_size_or_error_t sendmsg(const SocketAddress &address,
-                                  const void *data, nsapi_size_t size,
-                                  nsapi_msghdr_t *control, nsapi_size_t control_size) override;
+    nsapi_size_or_error_t sendto_control(const SocketAddress &address,
+                                         const void *data, nsapi_size_t size,
+                                         nsapi_msghdr_t *control, nsapi_size_t control_size) override;
     /// NOT APPLICABLE
-    nsapi_size_or_error_t recvmsg(SocketAddress *address,
-                                  void *data, nsapi_size_t size,
-                                  nsapi_msghdr_t *control, nsapi_size_t control_size) override;
+    nsapi_size_or_error_t recvfrom_control(SocketAddress *address,
+                                           void *data, nsapi_size_t size,
+                                           nsapi_msghdr_t *control, nsapi_size_t control_size) override;
     /// NOT APPLICABLE
     nsapi_error_t bind(const SocketAddress &address) override;
 

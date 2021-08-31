@@ -159,7 +159,7 @@ public:
 
     /** Send a message on a socket.
      *
-     * The sendmsg() function sends a message through a connection-mode or connectionless-mode socket.
+     * The sendto_control() function sends a message through a connection-mode or connectionless-mode socket.
      * If the socket is a connectionless-mode socket, the message is sent to the address specified.
      * If the socket is a connected-mode socket, address is ignored.
      *
@@ -175,9 +175,9 @@ public:
      *  @return         Number of sent bytes on success, negative subclass-dependent error
      *                  code on failure
      */
-    virtual nsapi_size_or_error_t sendmsg(const SocketAddress &address,
-                                          const void *data, nsapi_size_t size,
-                                          nsapi_msghdr_t *control, nsapi_size_t control_size) = 0;
+    virtual nsapi_size_or_error_t sendto_control(const SocketAddress &address,
+                                                 const void *data, nsapi_size_t size,
+                                                 nsapi_msghdr_t *control, nsapi_size_t control_size) = 0;
 
 
     /** Receive a data from a socket
@@ -190,7 +190,7 @@ public:
      *
      * Additional information related to the message can be retrieved with the control data.
      *
-     *  @note recvmsg() is allowed write to address and data buffers even if error occurs.
+     *  @note recvfrom_control() is allowed write to address and data buffers even if error occurs.
      *
      *  By default, recvfrom blocks until a datagram is received. If socket is set to
      *  non-blocking or times out with no data, NSAPI_ERROR_WOULD_BLOCK
@@ -202,9 +202,9 @@ public:
      *  @return         Number of received bytes on success, negative subclass-dependent
      *                  error code on failure
      */
-    virtual nsapi_size_or_error_t recvmsg(SocketAddress *address,
-                                          void *data, nsapi_size_t size,
-                                          nsapi_msghdr_t *control, nsapi_size_t control_size) = 0;
+    virtual nsapi_size_or_error_t recvfrom_control(SocketAddress *address,
+                                                   void *data, nsapi_size_t size,
+                                                   nsapi_msghdr_t *control, nsapi_size_t control_size) = 0;
 
     /** Bind a specific address to a socket.
      *
