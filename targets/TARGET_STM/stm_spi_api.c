@@ -318,13 +318,14 @@ static void _spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
 
     // Configure the SPI pins
     pin_function(pinmap->mosi_pin, pinmap->mosi_function);
-    pin_mode(pinmap->mosi_pin, PullNone);
+    pin_mode(pinmap->mosi_pin, PullDown);  // Pull Down is set for output line
 
     pin_function(pinmap->miso_pin, pinmap->miso_function);
     pin_mode(pinmap->miso_pin, PullNone);
 
     pin_function(pinmap->sclk_pin, pinmap->sclk_function);
     pin_mode(pinmap->sclk_pin, PullNone);
+
     spiobj->pin_miso = pinmap->miso_pin;
     spiobj->pin_mosi = pinmap->mosi_pin;
     spiobj->pin_sclk = pinmap->sclk_pin;
@@ -667,16 +668,21 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
         handle->Init.NSS = (slave) ? SPI_NSS_HARD_INPUT : SPI_NSS_HARD_OUTPUT;
     }
 
-    handle->Init.Mode = (slave) ? SPI_MODE_SLAVE : SPI_MODE_MASTER;
+    if (slave) {
+        handle->Init.Mode = SPI_MODE_SLAVE;
 
-    if (slave && (handle->Init.Direction == SPI_DIRECTION_1LINE)) {
-        /*  SPI slave implemtation in MBED does not support the 3 wires SPI.
-         *  (e.g. when MISO is not connected). So we're forcing slave in
-         *  2LINES mode. As MISO is not connected, slave will only read
-         *  from master, and cannot write to it. Inform user.
-         */
-        debug("3 wires SPI slave not supported - slave will only read\r\n");
-        handle->Init.Direction = SPI_DIRECTION_2LINES;
+        if (handle->Init.Direction == SPI_DIRECTION_1LINE) {
+            /*  SPI slave implemtation in MBED does not support the 3 wires SPI.
+             *  (e.g. when MISO is not connected). So we're forcing slave in
+             *  2LINES mode. As MISO is not connected, slave will only read
+             *  from master, and cannot write to it. Inform user.
+             */
+            debug("3 wires SPI slave not supported - slave will only read\r\n");
+            handle->Init.Direction = SPI_DIRECTION_2LINES;
+        }
+
+        pin_mode(spiobj->pin_mosi, PullNone);
+        pin_mode(spiobj->pin_miso, PullDown);  // Pull Down is set for output line
     }
 
     /*
