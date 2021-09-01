@@ -1,18 +1,18 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
+include(mbed_greentea)
 
-set(MBED_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../../.. CACHE INTERNAL "")
-set(TEST_TARGET mbed-platform-stats-cpu)
-
-include(${MBED_PATH}/tools/cmake/mbed_greentea.cmake)
-
-project(${TEST_TARGET})
+if(NOT DEFINED MBED_CPU_STATS_ENABLED OR NOT "DEVICE_LPTICKER=1" IN_LIST MBED_TARGET_DEFINITIONS
+   OR NOT "DEVICE_SLEEP=1" IN_LIST MBED_TARGET_DEFINITIONS)
+    set(TEST_SKIPPED "Stats cpu test not supported.")
+endif()
 
 mbed_greentea_add_test(
     TEST_NAME
-        ${TEST_TARGET}
+        mbed-platform-stats-cpu
     TEST_SOURCES
         main.cpp
+    TEST_SKIPPED
+        ${TEST_SKIPPED}
 )

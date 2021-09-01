@@ -1,18 +1,19 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
+include(mbed_greentea)
 
-set(MBED_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../../.. CACHE INTERNAL "")
-set(TEST_TARGET mbed-platform-crash-reporting)
-
-include(${MBED_PATH}/tools/cmake/mbed_greentea.cmake)
-
-project(${TEST_TARGET})
+if(NOT DEFINED MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED)
+    set(TEST_SKIPPED "crash_reporting test not supported.")
+endif()
 
 mbed_greentea_add_test(
     TEST_NAME
-        ${TEST_TARGET}
+        mbed-platform-crash-reporting
     TEST_SOURCES
         main.cpp
+    HOST_TESTS_DIR
+        "${CMAKE_CURRENT_LIST_DIR}/../../host_tests"
+    TEST_SKIPPED
+        ${TEST_SKIPPED}
 )
