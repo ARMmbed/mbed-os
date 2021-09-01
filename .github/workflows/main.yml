@@ -13,7 +13,7 @@ jobs:
       - name: Install Python environment
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: 3.9
 
       - name: Checkout mbed-os-scripts repo (This repo is currently private)
         uses: actions/checkout@v2
