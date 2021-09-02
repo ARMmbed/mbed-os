@@ -473,6 +473,7 @@ Detailed sleep Mbed OS description : https://os.mbed.com/docs/mbed-os/latest/api
 - debug profile is disabling deepsleep
 - deepsleep can also be disabled by application or drivers using sleep_manager_lock_deep_sleep()
 - deep-sleep-latency value is configured to 4 by default for STM32
+- MBED_SLEEP_TRACING_ENABLED macro can be too much verbose for some STM32 targets. This can be reduced enabling additonal STM32_SLEEP_TRACING macro
 
 
 ### WiFi configuration
