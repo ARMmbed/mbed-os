@@ -27,22 +27,21 @@
 #include "utest.h"
 #include "wifi_tests.h"
 
+#if !defined(MBED_CONF_APP_WIFI_SECURE_SSID)
+#error [NOT_SUPPORTED] Requires secure AP
+#endif
+
 // Test for parameters
 #if defined(MBED_CONF_APP_WIFI_SECURE_SSID) &&    \
-   (!defined(MBED_CONF_APP_AP_MAC_SECURE)      || \
-    !defined(MBED_CONF_APP_MAX_SCAN_SIZE)      || \
-    !defined(MBED_CONF_APP_WIFI_CH_SECURE)     || \
+   (!defined(MBED_CONF_APP_MAX_SCAN_SIZE)      || \
     !defined(MBED_CONF_APP_WIFI_PASSWORD)      || \
-    !defined(MBED_CONF_APP_WIFI_SECURE_SSID)   || \
     !defined(MBED_CONF_APP_WIFI_SECURE_PROTOCOL))
 #error [NOT_SUPPORTED] Requires parameters from mbed_app.json (for secure connections)
 #else
 
 #if defined(MBED_CONF_APP_WIFI_UNSECURE_SSID) &&  \
-   (!defined(MBED_CONF_APP_AP_MAC_UNSECURE)    || \
-    !defined(MBED_CONF_APP_MAX_SCAN_SIZE)      || \
-    !defined(MBED_CONF_APP_WIFI_CH_UNSECURE)   || \
-    !defined(MBED_CONF_APP_WIFI_UNSECURE_SSID))
+   (!defined(MBED_CONF_APP_MAX_SCAN_SIZE)      || \
+    !defined(MBED_CONF_APP_WIFI_CH_UNSECURE))
 #error [NOT_SUPPORTED] Requires parameters from mbed_app.json (for unsecure connections)
 #else
 

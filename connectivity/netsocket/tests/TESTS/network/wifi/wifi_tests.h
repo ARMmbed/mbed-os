@@ -17,7 +17,28 @@
 #ifndef WIFI_TESTS_H
 #define WIFI_TESTS_H
 
+#ifdef MBED_CONF_NSAPI_PRESENT
 #include "WiFiInterface.h"
+
+#if !defined(MBED_CONF_APP_WIFI_SECURE_SSID)
+#define MBED_CONF_APP_WIFI_SECURE_SSID MBED_CONF_NSAPI_DEFAULT_WIFI_SSID
+#endif
+
+#if !defined(MBED_CONF_APP_WIFI_PASSWORD)
+#define MBED_CONF_APP_WIFI_PASSWORD MBED_CONF_NSAPI_DEFAULT_WIFI_PASSWORD
+#endif
+
+#if !defined(MBED_CONF_APP_WIFI_SECURE_PROTOCOL)
+#define MBED_CONF_APP_WIFI_SECURE_PROTOCOL MBED_CONF_NSAPI_DEFAULT_WIFI_SECURITY
+#endif
+
+#if !defined(MBED_CONF_APP_WIFI_CH_SECURE)
+#define MBED_CONF_APP_WIFI_CH_SECURE 1
+#endif
+
+#if !defined(MBED_CONF_APP_MAX_SCAN_SIZE)
+#define MBED_CONF_APP_MAX_SCAN_SIZE 10
+#endif
 
 /** Get WiFiInterface based on provided
  * app_json. */
@@ -82,3 +103,4 @@ void wifi_scan_null(void);
 void wifi_scan(void);
 
 #endif //WIFI_TESTS_H
+#endif // MBED_CONF_NSAPI_PRESENT

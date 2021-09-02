@@ -47,6 +47,8 @@ nsapi_security get_security()
     if (strcmp(MBED_CONF_APP_WIFI_SECURE_PROTOCOL, SEC_WPA3_WPA2) == 0) {
         return NSAPI_SECURITY_WPA3_WPA2;
     }
+#elif defined MBED_CONF_NSAPI_DEFAULT_WIFI_SECURITY
+    return MBED_CONCAT(NSAPI_SECURITY_, MBED_CONF_NSAPI_DEFAULT_WIFI_SECURITY);
 #endif
     return NSAPI_SECURITY_NONE;
 }

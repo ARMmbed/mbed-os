@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#include "wifi_tests.h"
+
 #define WIFI 2
 #if !defined(MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE) || \
     MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE != WIFI
@@ -25,7 +27,6 @@
 #else
 
 #include "mbed.h"
-#include "WiFiInterface.h"
 
 WiFiInterface *get_interface()
 {
