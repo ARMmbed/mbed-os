@@ -28,14 +28,6 @@
             "help": "Channel number of unsecure SSID (if set_channel() is supported)",
             "value": 2
         },
-        "ap-mac-secure": {
-            "help": "BSSID of secure AP in form of AA:BB:CC:DD:EE:FF",
-            "value": "\"AA:AA:AA:AA:AA:AA\""
-        },
-        "ap-mac-unsecure": {
-            "help": "BSSID of unsecure AP in form of \"AA:BB:CC:DD:EE:FF\"",
-            "value": "\"BB:BB:BB:BB:BB:BB\""
-        },
         "max-scan-size": {
             "help": "How many networks may appear in Wifi scan result (default is 10)",
             "value": 10
