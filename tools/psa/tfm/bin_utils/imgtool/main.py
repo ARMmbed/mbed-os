@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 #
 # Copyright 2017-2020 Linaro Limited
-# Copyright 2019-2020 Arm Limited
+# Copyright 2019-2021 Arm Limited
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -241,6 +241,8 @@ class BasedIntParamType(click.ParamType):
               help='Adjust address in hex output file.')
 @click.option('-L', '--load-addr', type=BasedIntParamType(), required=False,
               help='Load address for image when it should run from RAM.')
+@click.option('-F', '--rom-fixed', type=BasedIntParamType(), required=False,
+              help='Set flash address the image is built for.')
 @click.option('--save-enctlv', default=False, is_flag=True,
               help='When upgrading, save encrypted key TLVs instead of plain '
                    'keys. Enable when BOOT_SWAP_SAVE_ENCTLV config option '
@@ -248,6 +250,10 @@ class BasedIntParamType(click.ParamType):
 @click.option('-E', '--encrypt', metavar='filename',
               help='Encrypt image using the provided public key. '
                    '(Not supported in direct-xip or ram-load mode.)')
+@click.option('--encrypt-keylen', default='128',
+              type=click.Choice(['128','256']),
+              help='When encrypting the image using AES, select a 128 bit or '
+                   '256 bit key len.')
 @click.option('-e', '--endian', type=click.Choice(['little', 'big']),
               default='little', help="Select little or big endian")
 @click.option('--overwrite-only', default=False, is_flag=True,
@@ -293,8 +299,9 @@ class BasedIntParamType(click.ParamType):
                .hex extension, otherwise binary format is used''')
 def sign(key, public_key_format, align, version, pad_sig, header_size,
          pad_header, slot_size, pad, confirm, max_sectors, overwrite_only,
-         endian, encrypt, infile, outfile, dependencies, load_addr, hex_addr,
-         erased_val, save_enctlv, security_counter, boot_record, custom_tlv):
+         endian, encrypt_keylen, encrypt, infile, outfile, dependencies,
+         load_addr, hex_addr, erased_val, save_enctlv, security_counter,
+         boot_record, custom_tlv, rom_fixed):
 
     if confirm:
         # Confirmed but non-padded images don't make much sense, because
@@ -304,8 +311,8 @@ def sign(key, public_key_format, align, version, pad_sig, header_size,
                       pad_header=pad_header, pad=pad, confirm=confirm,
                       align=int(align), slot_size=slot_size,
                       max_sectors=max_sectors, overwrite_only=overwrite_only,
-                      endian=endian, load_addr=load_addr, erased_val=erased_val,
-                      save_enctlv=save_enctlv,
+                      endian=endian, load_addr=load_addr, rom_fixed=rom_fixed,
+                      erased_val=erased_val, save_enctlv=save_enctlv,
                       security_counter=security_counter)
     img.load(infile)
     key = load_key(key) if key else None
@@ -341,7 +348,7 @@ def sign(key, public_key_format, align, version, pad_sig, header_size,
             custom_tlvs[tag] = value.encode('utf-8')
 
     img.create(key, public_key_format, enckey, dependencies, boot_record,
-               custom_tlvs)
+               custom_tlvs, int(encrypt_keylen))
     img.save(outfile, hex_addr)
 
 

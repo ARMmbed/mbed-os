@@ -46,7 +46,7 @@ class KeyClass(object):
 
     def emit_rust_public(self, file=sys.stdout):
         self._emit(
-                header="static {}_PUB_KEY: &'static [u8] = &[".format(self.shortname().upper()),
+                header="static {}_PUB_KEY: &[u8] = &[".format(self.shortname().upper()),
                 trailer="];",
                 encoded_bytes=self.get_public_bytes(),
                 indent="    ",

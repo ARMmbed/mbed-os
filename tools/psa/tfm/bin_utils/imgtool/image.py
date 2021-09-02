@@ -1,6 +1,6 @@
 # Copyright 2018 Nordic Semiconductor ASA
 # Copyright 2017-2020 Linaro Limited
-# Copyright 2019-2020 Arm Limited
+# Copyright 2019-2021 Arm Limited
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -51,9 +51,11 @@ MAX_SW_TYPE_LENGTH = 12  # Bytes
 # Image header flags.
 IMAGE_F = {
         'PIC':                   0x0000001,
+        'ENCRYPTED_AES128':      0x0000004,
+        'ENCRYPTED_AES256':      0x0000008,
         'NON_BOOTABLE':          0x0000010,
         'RAM_LOAD':              0x0000020,
-        'ENCRYPTED':             0x0000004,
+        'ROM_FIXED':             0x0000100,
 }
 
 TLV_VALUES = {
@@ -66,7 +68,7 @@ TLV_VALUES = {
         'RSA3072': 0x23,
         'ED25519': 0x24,
         'ENCRSA2048': 0x30,
-        'ENCKW128': 0x31,
+        'ENCKW': 0x31,
         'ENCEC256': 0x32,
         'ENCX25519': 0x33,
         'DEPENDENCY': 0x40,
@@ -132,7 +134,12 @@ class Image():
                  pad_header=False, pad=False, confirm=False, align=1,
                  slot_size=0, max_sectors=DEFAULT_MAX_SECTORS,
                  overwrite_only=False, endian="little", load_addr=0,
-                 erased_val=None, save_enctlv=False, security_counter=None):
+                 rom_fixed=None, erased_val=None, save_enctlv=False,
+                 security_counter=None):
+
+        if load_addr and rom_fixed:
+            raise click.UsageError("Can not set rom_fixed and load_addr at the same time")
+
         self.version = version or versmod.decode_version("0")
         self.header_size = header_size
         self.pad_header = pad_header
@@ -145,6 +152,7 @@ class Image():
         self.endian = endian
         self.base_addr = None
         self.load_addr = 0 if load_addr is None else load_addr
+        self.rom_fixed = rom_fixed
         self.erased_val = 0xff if erased_val is None else int(erased_val, 0)
         self.payload = []
         self.enckey = None
@@ -281,7 +289,7 @@ class Image():
         return cipherkey, ciphermac, pubk
 
     def create(self, key, public_key_format, enckey, dependencies=None,
-               sw_type=None, custom_tlvs=None):
+               sw_type=None, custom_tlvs=None, encrypt_keylen=128):
         self.enckey = enckey
 
         # Calculate the hash of the public key
@@ -347,10 +355,17 @@ class Image():
         if self.enckey is not None:
             pad_len = len(self.payload) % 16
             if pad_len > 0:
-                self.payload += bytes(16 - pad_len)
+                pad = bytes(16 - pad_len)
+                if isinstance(self.payload, bytes):
+                    self.payload += pad
+                else:
+                    self.payload.extend(pad)
 
         # This adds the header to the payload as well
-        self.add_header(enckey, protected_tlv_size)
+        if encrypt_keylen == 256:
+            self.add_header(enckey, protected_tlv_size, 256)
+        else:
+            self.add_header(enckey, protected_tlv_size)
 
         prot_tlv = TLV(self.endian, TLV_PROT_INFO_MAGIC)
 
@@ -418,7 +433,10 @@ class Image():
             self.payload = self.payload[:protected_tlv_off]
 
         if enckey is not None:
-            plainkey = os.urandom(16)
+            if encrypt_keylen == 256:
+                plainkey = os.urandom(32)
+            else:
+                plainkey = os.urandom(16)
 
             if isinstance(enckey, rsa.RSAPublic):
                 cipherkey = enckey._get_public().encrypt(
@@ -451,16 +469,21 @@ class Image():
 
         self.check_trailer()
 
-    def add_header(self, enckey, protected_tlv_size):
+    def add_header(self, enckey, protected_tlv_size, aes_length=128):
         """Install the image header."""
 
         flags = 0
         if enckey is not None:
-            flags |= IMAGE_F['ENCRYPTED']
+            if aes_length == 128:
+                flags |= IMAGE_F['ENCRYPTED_AES128']
+            else:
+                flags |= IMAGE_F['ENCRYPTED_AES256']
         if self.load_addr != 0:
             # Indicates that this image should be loaded into RAM
             # instead of run directly from flash.
             flags |= IMAGE_F['RAM_LOAD']
+        if self.rom_fixed:
+            flags |= IMAGE_F['ROM_FIXED']
 
         e = STRUCT_ENDIAN_DICT[self.endian]
         fmt = (e +
@@ -477,7 +500,7 @@ class Image():
         assert struct.calcsize(fmt) == IMAGE_HEADER_SIZE
         header = struct.pack(fmt,
                 IMAGE_MAGIC,
-                self.load_addr,
+                self.rom_fixed or self.load_addr,
                 self.header_size,
                 protected_tlv_size,  # TLV Info header + Protected TLVs
                 len(self.payload) - self.header_size,  # ImageSz
@@ -537,16 +560,22 @@ class Image():
         if magic != IMAGE_MAGIC:
             return VerifyResult.INVALID_MAGIC, None, None
 
-        tlv_info = b[header_size+img_size:header_size+img_size+TLV_INFO_SIZE]
+        tlv_off = header_size + img_size
+        tlv_info = b[tlv_off:tlv_off+TLV_INFO_SIZE]
         magic, tlv_tot = struct.unpack('HH', tlv_info)
+        if magic == TLV_PROT_INFO_MAGIC:
+            tlv_off += tlv_tot
+            tlv_info = b[tlv_off:tlv_off+TLV_INFO_SIZE]
+            magic, tlv_tot = struct.unpack('HH', tlv_info)
+
         if magic != TLV_INFO_MAGIC:
             return VerifyResult.INVALID_TLV_INFO_MAGIC, None, None
 
         sha = hashlib.sha256()
-        sha.update(b[:header_size+img_size])
+        prot_tlv_size = tlv_off
+        sha.update(b[:prot_tlv_size])
         digest = sha.digest()
 
-        tlv_off = header_size + img_size
         tlv_end = tlv_off + tlv_tot
         tlv_off += TLV_INFO_SIZE  # skip tlv info
         while tlv_off < tlv_end:
@@ -562,7 +591,7 @@ class Image():
             elif key is not None and tlv_type == TLV_VALUES[key.sig_tlv()]:
                 off = tlv_off + TLV_SIZE
                 tlv_sig = b[off:off+tlv_len]
-                payload = b[:header_size+img_size]
+                payload = b[:prot_tlv_size]
                 try:
                     if hasattr(key, 'verify'):
                         key.verify(tlv_sig, payload)
