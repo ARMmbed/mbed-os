@@ -3,7 +3,7 @@
 
 include(mbed_greentea)
 
-if(DEFINED TARGET_CORTEX_A)
+if("TARGET_CORTEX_A" IN_LIST MBED_TARGET_DEFINITIONS)
     set(TEST_SKIPPED "test not supported for cortex-A.")
 elseif(NOT "DEVICE_USTICKER=1" IN_LIST MBED_TARGET_DEFINITIONS)
     set(TEST_SKIPPED "UsTicker need to be enabled for this test.")
