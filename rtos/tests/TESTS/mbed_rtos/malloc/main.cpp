@@ -106,7 +106,7 @@ void test_multithread_allocation(void)
 #endif
 
 /** Test for multiple heap alloc and free calls */
-#define ALLOC_ARRAY_SIZE    50
+#define ALLOC_ARRAY_SIZE    100
 #define ALLOC_LOOP          20
 #define SIZE_INCREMENTS     1023
 #define SIZE_MODULO         31
