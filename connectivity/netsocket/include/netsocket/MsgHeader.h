@@ -23,17 +23,88 @@
 /**
  * Allows iteration through the list of message headers received in the control parameter of the
  * socket_sendto_control / socket_recvfrom_control methods.
+ *
+ * @par Members types
+ *
+ * MsgHeaderIterator works on the list which members are of type nsapi_msghdr_t or other types
+ * extending this struct. For example nsapi_pktinfo:
+ *
+ * @code
+    typedef struct nsapi_pktinfo {
+        nsapi_msghdr_t hdr;
+        nsapi_addr_t   ipi_addr;
+        int            ipi_ifindex;
+        void          *network_interface;
+    } nsapi_pktinfo_t;
+ * @endcode
+ *
+ * There are two requirements for such structs to work well with MsgHeaderIterator:
+ * first element needs to of type nsapi_msghdr_t
+ * value of the field len of the nsapi_msghdr_t needs to bet set to the size of the whole extending type. For example:
+ *
+ * @code
+    nsapi_pktinfo_t pkt_info;
+    pkt_info.hdr.len = sizeof(nsapi_pktinfo_t);
+ * @endcode
+ *
+ * This value is used in the MsgHeaderIterator to calculate proper addresses of the list elements.
+ *
+ * @par Example
+ *
+ * Code presenting minimal usage example.
+ *
+ * @code
+ *
+    struct default_buffer_t {
+        default_buffer_t()
+        {
+            el1.hdr.len = sizeof(nsapi_pktinfo_t);
+            el2.len = sizeof(nsapi_msghdr_t);
+            el3.len = sizeof(nsapi_msghdr_t);
+            el4.hdr.len = sizeof(nsapi_pktinfo_t);
+        }
+        nsapi_pktinfo_t el1;
+        nsapi_msghdr_t el2;
+        nsapi_msghdr_t el3;
+        nsapi_pktinfo_t el4;
+    };
+
+    default_buffer buff;
+    nsapi_msghdr_t *hdr_p = reinterpret_cast<nsapi_msghdr_t *>(&buff);
+
+    MsgHeaderIterator it(hdr_p, sizeof(buff));
+
+    it.has_next() // returns true
+    auto p1 = it.next()  // returns pointer to el1
+    auto p2 = it.next()  // returns pointer to el2
+    auto p3 = it.next()  // returns pointer to el3
+    auto p4 = it.next()  // returns pointer to el4
+
+    it.has_next() // returns false
+     auto p5 = it.next() // returns nullptr
+ * @endcode
+ *
+ * @note More usage examples are implemented in the `MsgHeaderIterator` unit test
+ *  in `netsocket/tests/UNITTESTS/NetworkStack/test_MsgHeaderIterator.cpp`
  */
 
 struct MsgHeaderIterator {
-    // Constructor takes pointer to the first header element and size of the whole list.
+    /** Create a MsgHeaderIterator over given nsapi_msghdr_t list.
+     *
+     *  @param hdr  Pointer to the first list element.
+     *  @param size Size of the whole list.
+     */
     MsgHeaderIterator(nsapi_msghdr_t *hdr, nsapi_size_t size) :
         start(hdr),
         current(nullptr),
         size(size)
     {}
 
-    // Checks if the next address of the iterator is a valid list member.
+    /** Checks if the next address of the iterator is a valid list member.
+     *
+     *  @retval True if the next address is a valid member.
+     *  @retval False otherwise.
+     */
     bool has_next()
     {
         if (current == nullptr) {
@@ -55,8 +126,11 @@ struct MsgHeaderIterator {
         return true;
     }
 
-    // Returns pointer to the next member of the list.
-    // If next member doesn't exist nullptr is returned.
+    /** Returns next element of the list.
+     *
+     *  @retval nullptr if the list doesn't contain next element.
+     *  @retval Pointer to the next element otherwise.
+     */
     nsapi_msghdr_t *next()
     {
         if (!has_next()) {

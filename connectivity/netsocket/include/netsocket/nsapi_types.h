@@ -22,6 +22,7 @@
 #define NSAPI_TYPES_H
 
 #include <stdint.h>
+#include <stddef.h>
 #include "mbed_toolchain.h"
 
 #ifdef __cplusplus
@@ -410,7 +411,7 @@ typedef struct nsapi_stagger_req {
 
 /** nsapi_msghdr
  */
-typedef struct MBED_ALIGN(double) nsapi_msghdr {
+typedef struct MBED_ALIGN(max_align_t) nsapi_msghdr {
     nsapi_size_t len;    /* Data byte count, including header */
     int          level;  /* Originating protocol */
     int          type;   /* Protocol-specific type */

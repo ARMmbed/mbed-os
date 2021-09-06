@@ -311,7 +311,6 @@
 
 #endif
 
-// FIXME: Add compile time configuration and define conditionaly
 #define LWIP_NETBUF_RECVINFO            MBED_CONF_LWIP_NETBUF_RECVINFO_ENABLED
 
 // Make sure we default these to off, so
