@@ -38,9 +38,10 @@
     } nsapi_pktinfo_t;
  * @endcode
  *
- * There are two requirements for such structs to work well with MsgHeaderIterator:
- * first element needs to of type nsapi_msghdr_t
- * value of the field len of the nsapi_msghdr_t needs to bet set to the size of the whole extending type. For example:
+ * There are two requirements for such structures to work well with MsgHeaderIterator.
+ * - First element needs to be of type nsapi_msghdr_t.
+ * - Value of the field len of the nsapi_msghdr_t needs to bet set to the size of the whole extending type.
+ *   For example:
  *
  * @code
     nsapi_pktinfo_t pkt_info;
@@ -54,7 +55,6 @@
  * Code presenting minimal usage example.
  *
  * @code
- *
     struct default_buffer_t {
         default_buffer_t()
         {
@@ -84,8 +84,8 @@
      auto p5 = it.next() // returns nullptr
  * @endcode
  *
- * @note More usage examples are implemented in the `MsgHeaderIterator` unit test
- *  in `netsocket/tests/UNITTESTS/NetworkStack/test_MsgHeaderIterator.cpp`
+ * @note More usage examples are implemented in the MsgHeaderIterator unit test
+ *  in netsocket/tests/UNITTESTS/NetworkStack/test_MsgHeaderIterator.cpp
  */
 
 struct MsgHeaderIterator {
