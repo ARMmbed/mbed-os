@@ -41,7 +41,7 @@ def get_digest(ctx, repository, tag, platform=None):
     :param tag: docker tag
     :param platform: platform for e.g, linux/arm64
     """
-    command = f"docker run quay.io/skopeo/stable --creds={ctx.obj['username']}:{ctx.obj['passwd']} inspect docker://ghcr.io/{ctx.obj['username']}/{repository}:{tag} --raw"
+    command = f"docker run quay.io/skopeo/stable:v1.4.1 inspect --creds={ctx.obj['username']}:{ctx.obj['passwd']} docker://ghcr.io/{ctx.obj['username']}/{repository}:{tag} --raw"
     output = subprocess.run(
         command.split(), stdout=subprocess.PIPE, check=True
     ).stdout.decode("utf-8")
