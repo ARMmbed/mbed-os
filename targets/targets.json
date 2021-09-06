@@ -1257,7 +1257,8 @@
             },
             "lpticker_lptim_clock": {
                 "help": "Default value for LPTIM clock (lpticker_lptim == 1). Value is the dividing factor. Choose 1, 2, 4, 8, 16, 32, 64 or 128",
-                "value": 1
+                "value": 1,
+                "constraint": "Disclaimers : values from 8 to 128 have impacts on mbed-os timer precision and therefore on scheduling. It's not supported by mbed-os. Use it if you know what you're doing such as long low power sleep."
             },
             "gpio_reset_at_init": {
                 "help": "if value set, all GPIO are reset during init",
