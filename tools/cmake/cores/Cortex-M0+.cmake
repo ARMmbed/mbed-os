@@ -19,6 +19,5 @@ function(mbed_set_cpu_core_definitions target)
             __CORTEX_M0PLUS
             ARM_MATH_CM0PLUS
             __CMSIS_RTOS
-            __MBED_CMSIS_RTOS_CM
     )
 endfunction()

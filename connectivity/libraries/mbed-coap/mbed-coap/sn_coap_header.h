@@ -23,6 +23,9 @@
 #ifndef SN_COAP_HEADER_H_
 #define SN_COAP_HEADER_H_
 
+#include "sn_config.h"
+#include "ns_types.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -180,8 +183,8 @@ typedef enum sn_coap_status_ {
  */
 typedef struct sn_coap_options_list_ {
     uint8_t         etag_len;           /**< 1-8 bytes. Repeatable */
-    unsigned int    use_size1:1;
-    unsigned int    use_size2:1;
+    bool            use_size1;
+    bool            use_size2;
 
     uint16_t    proxy_uri_len;      /**< 1-1034 bytes. */
     uint16_t    uri_host_len;       /**< 1-255 bytes. */
@@ -351,7 +354,10 @@ extern int16_t sn_coap_builder(uint8_t *dst_packet_data_ptr, const sn_coap_hdr_s
  * \return Return value is count of needed memory as bytes for build Packet data
  *          Null if failed
  */
-extern uint16_t sn_coap_builder_calc_needed_packet_data_size(const sn_coap_hdr_s *src_coap_msg_ptr);
+extern uint16_t (sn_coap_builder_calc_needed_packet_data_size)(const sn_coap_hdr_s *src_coap_msg_ptr);
+#ifdef SN_COAP_CONSTANT_NEEDED_SIZE
+#define sn_coap_builder_calc_needed_packet_data_size(m) (SN_COAP_CONSTANT_NEEDED_SIZE)
+#endif
 
 /**
  * \fn int16_t sn_coap_builder_2(uint8_t *dst_packet_data_ptr, sn_coap_hdr_s *src_coap_msg_ptr,  uint16_t blockwise_size)
@@ -382,7 +388,10 @@ extern int16_t sn_coap_builder_2(uint8_t *dst_packet_data_ptr, const sn_coap_hdr
  * \return Return value is count of needed memory as bytes for build Packet data
  *          Null if failed
  */
-extern uint16_t sn_coap_builder_calc_needed_packet_data_size_2(const sn_coap_hdr_s *src_coap_msg_ptr, uint16_t blockwise_payload_size);
+extern uint16_t (sn_coap_builder_calc_needed_packet_data_size_2)(const sn_coap_hdr_s *src_coap_msg_ptr, uint16_t blockwise_payload_size);
+#ifdef SN_COAP_CONSTANT_NEEDED_SIZE
+#define sn_coap_builder_calc_needed_packet_data_size_2(m, p) (SN_COAP_CONSTANT_NEEDED_SIZE)
+#endif
 
 /**
  * \fn sn_coap_hdr_s *sn_coap_build_response(struct coap_s *handle, sn_coap_hdr_s *coap_packet_ptr, uint8_t msg_code)

@@ -59,7 +59,6 @@ float chisq(float sigma)
 
 
 Timer timer;
-DigitalOut led(LED1);
 
 equeue_sema_t sema;
 
@@ -120,8 +119,6 @@ void semaphore_timing_test()
         }
 
         TEST_ASSERT_INT_WITHIN(5000, taken, delay * 1000);
-
-        led = !led;
     }
 
     equeue_sema_destroy(&sema);

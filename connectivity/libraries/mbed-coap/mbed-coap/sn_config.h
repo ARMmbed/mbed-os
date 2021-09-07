@@ -69,6 +69,23 @@
 #endif
 
 /**
+ * \def SN_COAP_CONSTANT_NEEDED_SIZE
+ * \brief Avoid needed size calculations
+ * If this is defined, sn_coap_builder_calc_needed_packet_data_size always returns that value,
+ * saving a lot of calculation code, at the cost of outgoing TX buffers being oversized, and
+ * with danger of them being undersized.
+ *
+ * sn_coap_builder_payload_build does not have any size input to limit its output, so it is
+ * always wise for users to assert that it has not output more than the size returned by
+ * sn_coap_builder_calc_needed_packet_size, whether this option is defined or not.
+ */
+#ifdef MBED_CONF_MBED_CLIENT_SN_COAP_CONSTANT_NEEDED_SIZE
+#define SN_COAP_CONSTANT_NEEDED_SIZE MBED_CONF_MBED_CLIENT_SN_COAP_CONSTANT_NEEDED_SIZE
+#endif
+
+//#define SN_COAP_CONSTANT_NEEDED_SIZE                  1024
+
+/**
  * \def SN_COAP_DISABLE_RESENDINGS
  * \brief Disables resending feature. Resending feature should not be needed
  * when using CoAP with TCP transport for example. By default resendings are

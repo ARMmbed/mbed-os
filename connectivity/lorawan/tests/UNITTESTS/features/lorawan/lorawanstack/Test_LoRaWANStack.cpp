@@ -97,6 +97,7 @@ public:
 
     virtual uint32_t random(void)
     {
+        return 4;
     };
 
     virtual uint8_t get_status(void)
@@ -114,6 +115,7 @@ public:
 
     virtual uint32_t time_on_air(radio_modems_t modem, uint8_t pkt_len)
     {
+        return 0;
     };
 
     virtual bool perform_carrier_sense(radio_modems_t modem,
@@ -552,7 +554,7 @@ TEST_F(Test_LoRaWANStack, handle_rx)
     }
     ind.buffer = ind_buf;
     ind.buffer_size = 50;
-    ind.type = mcps_type_t(66);
+    ind.type = MCPS_MULTICAST;
     radio._ev->rx_done(NULL, 0, 0, 0);
     EXPECT_TRUE(50 == object->handle_rx(data, 50, port, flags, false));
     EXPECT_EQ(10, data[10]);
@@ -629,6 +631,7 @@ TEST_F(Test_LoRaWANStack, acquire_tx_metadata)
     memset(&conf, 0, sizeof(conf));
     conf.status = LORAMAC_EVENT_INFO_STATUS_OK;
     LoRaMac_stub::mcps_conf_ptr = &conf;
+    LoRaMac_stub::bool_true_counter = 1;
     radio._ev->tx_done();
 
     LoRaMac_stub::slot_value = RX_SLOT_WIN_2;
@@ -693,6 +696,11 @@ TEST_F(Test_LoRaWANStack, acquire_rx_metadata)
     cb.battery_level = batt_lvl;
     EXPECT_TRUE(LORAWAN_STATUS_OK == object->set_lora_callbacks(&cb));
     mlme.req_type = MLME_LINK_CHECK;
+
+    loramac_mlme_indication_t ind2;
+    memset(&ind2, 0, sizeof(ind2));
+    LoRaMac_stub::mlme_ind_ptr = &ind2;
+
     mlme.status = LORAMAC_EVENT_INFO_STATUS_OK;
     LoRaMac_stub::bool_true_counter = true;
     radio._ev->rx_done(NULL, 0, 0, 0);

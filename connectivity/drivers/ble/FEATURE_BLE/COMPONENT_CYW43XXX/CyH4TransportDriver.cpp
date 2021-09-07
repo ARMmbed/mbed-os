@@ -20,10 +20,25 @@
 #include "CyH4TransportDriver.h"
 #include "mbed_power_mgmt.h"
 #include "drivers/InterruptIn.h"
+#if !defined(CYW43XXX_UNBUFFERED_UART)
 #include "cybsp_types.h"
+#else
+#include "mbed_wait_api.h"
+#endif
 #include "Callback.h"
 #include "rtos/ThisThread.h"
 #include <chrono>
+
+// BT settling time after power on
+#if !defined (CY_BT_POWER_ON_SETTLING_TIME)
+    #define CY_BT_POWER_ON_SETTLING_TIME                    (500ms)
+#endif /* !defined (CY_BT_POWER_ON_SETTLING_TIME) */
+
+// Power on reset time 
+#if !defined (CY_BT_POWER_ON_RESET_TIME)
+    #define CY_BT_POWER_ON_RESET_TIME                       (1ms)      
+#endif /* !defined (CY_BT_POWER_ON_RESET_TIME) */
+
 
 namespace ble {
 namespace vendor {
@@ -32,25 +47,30 @@ namespace cypress_ble {
 using namespace std::chrono_literals;
 
 CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, PinName rts, PinName bt_power_name, int baud, PinName bt_host_wake_name, PinName bt_device_wake_name, uint8_t host_wake_irq, uint8_t dev_wake_irq) :
-    cts(cts), rts(rts),
+#if defined(CYW43XXX_UNBUFFERED_UART)
+    uart(tx, rx),
+#else
     tx(tx), rx(rx),
+#endif
+    cts(cts), rts(rts),
     bt_host_wake_name(bt_host_wake_name),
     bt_device_wake_name(bt_device_wake_name),
-    bt_power(bt_power_name, PIN_OUTPUT, PullNone, 0),
+    bt_power(bt_power_name, PIN_OUTPUT, PullUp, 0),
     bt_host_wake(bt_host_wake_name, PIN_INPUT, PullNone, 0),
     bt_device_wake(bt_device_wake_name, PIN_OUTPUT, PullNone, 1),
     host_wake_irq_event(host_wake_irq),
     dev_wake_irq_event(dev_wake_irq)
-
 {
     enabled_powersave = true;
-    bt_host_wake_active = false;
 }
 
-CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, PinName rts,  PinName bt_power_name, int baud) :
-    cts(cts),
-    rts(rts),
+CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, PinName rts, PinName bt_power_name, int baud) :
+#if defined(CYW43XXX_UNBUFFERED_UART)
+    uart(tx, rx),
+#else
     tx(tx), rx(rx),
+#endif
+    cts(cts), rts(rts),
     bt_host_wake_name(NC),
     bt_device_wake_name(NC),
     bt_power(bt_power_name, PIN_OUTPUT, PullNone, 0),
@@ -59,20 +79,11 @@ CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, Pi
 
 {
     enabled_powersave = false;
-    bt_host_wake_active = false;
-
-    sleep_manager_lock_deep_sleep();        // locking deep sleep because this option 
-                                            // does not include a host wake pin
-    holding_deep_sleep_lock = true;
 }
 
 CyH4TransportDriver::~CyH4TransportDriver()
 {
-    if (holding_deep_sleep_lock)
-    {
-       sleep_manager_unlock_deep_sleep();
-       holding_deep_sleep_lock = false;
-    }
+
 }
 
 void CyH4TransportDriver::bt_host_wake_rise_irq_handler(void)
@@ -80,12 +91,12 @@ void CyH4TransportDriver::bt_host_wake_rise_irq_handler(void)
     if (host_wake_irq_event == WAKE_EVENT_ACTIVE_LOW) {
         if(bt_host_wake_active == true)
         {
-            /* lock PSoC 6 DeepSleep entry as long as host_wake is asserted */
+            /* lock MCU Deep Sleep entry as long as host_wake is asserted */
             sleep_manager_unlock_deep_sleep();
             bt_host_wake_active = false;
         }
     } else {
-        /* lock PSoC 6 DeepSleep entry as long as host_wake is asserted */
+        /* lock MCU Deep Sleep entry as long as host_wake is asserted */
         sleep_manager_lock_deep_sleep();
         bt_host_wake_active = true;
     }
@@ -94,29 +105,44 @@ void CyH4TransportDriver::bt_host_wake_rise_irq_handler(void)
 void CyH4TransportDriver::bt_host_wake_fall_irq_handler(void)
 {
     if (host_wake_irq_event == WAKE_EVENT_ACTIVE_LOW) {
-        /* lock PSoC 6 DeepSleep entry as long as host_wake is asserted */
+        /* lock MCU Deep Sleep entry as long as host_wake is asserted */
         sleep_manager_lock_deep_sleep();
         bt_host_wake_active = true;
     } else {
         if(bt_host_wake_active == true)
         {
-            /* lock PSoC 6 DeepSleep entry as long as host_wake is asserted */
+            /* lock MCU Deep Sleep entry as long as host_wake is asserted */
             sleep_manager_unlock_deep_sleep();
             bt_host_wake_active = false;
         }
     }
 }
 
+#if defined(CYW43XXX_UNBUFFERED_UART)
+void CyH4TransportDriver::on_controller_irq()
+#else
 static void on_controller_irq(void *callback_arg, cyhal_uart_event_t event)
+#endif
 {
+#if !defined(CYW43XXX_UNBUFFERED_UART)
     (void)(event);
     cyhal_uart_t *uart_obj = (cyhal_uart_t *)callback_arg;
+#endif
+
     sleep_manager_lock_deep_sleep();
 
+#if defined(CYW43XXX_UNBUFFERED_UART)
+    while (uart.readable()) {
+        uint8_t char_received;
+        if (uart.read(&char_received, 1)) {
+            CordioHCITransportDriver::on_data_received(&char_received, 1);
+        }
+#else
     while (cyhal_uart_readable(uart_obj)) {
         uint8_t char_received;
         cyhal_uart_getc(uart_obj, &char_received, 0);
         CyH4TransportDriver::on_data_received(&char_received, 1);
+#endif
     }
 
     sleep_manager_unlock_deep_sleep();
@@ -124,11 +150,44 @@ static void on_controller_irq(void *callback_arg, cyhal_uart_event_t event)
 
 void CyH4TransportDriver::initialize()
 {
+    // Initial MCU Deep Sleep locking. CyH4TransportDriver has the following MCU Deep Sleep locking
+    // scenarios:
+    // a) A BT device or MCU does not support Low Power mode (MBED configuration does not include
+    //    MBED_TICKLESS, DEVICE_SLEEP, DEVICE_LPTICKER or CYCFG_BT_LP_ENABLED features).
+    //    In this case, CyH4TransportDriver locks Deep Sleep in the initialize() function and
+    //    unlocks the terminate() function.
+    // b) A BT device and MCU support Low Power mode. 
+    //    In this case, the control of the unlock/lock of the Deep Sleep
+    //    functionality will be done in bt_host_wake_rise_irq_handler and bt_host_wake_fall_irq_handler 
+    //    handlers. Finally, CyH4TransportDriver unlocks the Deep Sleep in terminate() function 
+    //    (if it was locked before) by checking the bt_host_wake_active flag.
+    bt_host_wake_active = true;
     sleep_manager_lock_deep_sleep();
 
+    // Keep the bt_power line in the low level to ensure that the device resets.
     bt_power = 0;
-    rtos::ThisThread::sleep_for(1ms);
+    rtos::ThisThread::sleep_for(CY_BT_POWER_ON_RESET_TIME);
 
+#if defined(CYW43XXX_UNBUFFERED_UART)
+    uart.baud(DEF_BT_BAUD_RATE);
+
+    uart.format(
+        /* bits */ 8,
+        /* parity */ mbed::SerialBase::None,
+        /* stop bit */ 1
+    );
+
+    uart.set_flow_control(
+        /* flow */ mbed::SerialBase::RTSCTS,
+        /* rts */ rts,
+        /* cts */ cts
+    );
+
+    uart.attach(
+        mbed::callback(this, &CyH4TransportDriver::on_controller_irq),
+        mbed::SerialBase::RxIrq
+    );
+#else
     cyhal_uart_init(&uart, tx, rx, NULL, NULL);
 
     const cyhal_uart_cfg_t uart_cfg = { .data_bits = 8, .stop_bits = 1, .parity = CYHAL_UART_PARITY_NONE, .rx_buffer = NULL, .rx_buffer_size = 0 };
@@ -137,8 +196,11 @@ void CyH4TransportDriver::initialize()
     cyhal_uart_clear(&uart);
     cyhal_uart_register_callback(&uart, &on_controller_irq, &uart);
     cyhal_uart_enable_event(&uart, CYHAL_UART_IRQ_RX_NOT_EMPTY, CYHAL_ISR_PRIORITY_DEFAULT, true);
+#endif
 
+    // Power up BT
     bt_power = 1;
+    rtos::ThisThread::sleep_for(CY_BT_POWER_ON_SETTLING_TIME);
 
 #if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
     if (bt_host_wake_name != NC) {
@@ -155,11 +217,11 @@ void CyH4TransportDriver::initialize()
        if (bt_device_wake_name != NC)
            bt_device_wake = WAKE_EVENT_ACTIVE_HIGH;
     }
-    sleep_manager_unlock_deep_sleep();
 }
 
 void CyH4TransportDriver::terminate()
 {
+#if !defined(CYW43XXX_UNBUFFERED_UART)
     cyhal_uart_event_t enable_irq_event = (cyhal_uart_event_t)(CYHAL_UART_IRQ_RX_DONE
                                        | CYHAL_UART_IRQ_TX_DONE
                                        | CYHAL_UART_IRQ_RX_NOT_EMPTY
@@ -170,6 +232,7 @@ void CyH4TransportDriver::terminate()
                             CYHAL_ISR_PRIORITY_DEFAULT,
                             false
                         );
+#endif
 
     if(bt_host_wake.is_connected())
     {
@@ -180,9 +243,21 @@ void CyH4TransportDriver::terminate()
 
     deassert_bt_dev_wake();
 
+    // Power down BT
     bt_power = 0; //BT_POWER is an output, should not be freed only set inactive
 
+#if defined(CYW43XXX_UNBUFFERED_UART)
+    uart.close();
+#else
     cyhal_uart_free(&uart);
+#endif
+
+    // Unlock Deep Sleep if it was locked by CyH4TransportDriver before.
+    if (bt_host_wake_active == true)
+    {
+       sleep_manager_unlock_deep_sleep();
+       bt_host_wake_active = false;
+    }
 }
 
 uint16_t CyH4TransportDriver::write(uint8_t type, uint16_t len, uint8_t *pData)
@@ -194,11 +269,25 @@ uint16_t CyH4TransportDriver::write(uint8_t type, uint16_t len, uint8_t *pData)
 
     while (i < len + 1) {
         uint8_t to_write = i == 0 ? type : pData[i - 1];
+#if defined(CYW43XXX_UNBUFFERED_UART)
+        while (uart.writeable() == 0);
+        uart.write(&to_write, 1);
+#else
         while (cyhal_uart_writable(&uart) == 0);
         cyhal_uart_putc(&uart, to_write);
+#endif
         ++i;
     }
+#if defined(CYW43XXX_UNBUFFERED_UART)
+/* Assuming a 16 byte FIFO as worst case this will ensure all bytes are sent before deasserting bt_dev_wake */
+#ifndef BT_UART_NO_3M_SUPPORT
+    wait_us(50); // 3000000 bps
+#else
+    rtos::ThisThread::sleep_for(2ms); // 115200 bps
+#endif
+#else
     while(cyhal_uart_is_tx_active(&uart));
+#endif
 
     deassert_bt_dev_wake();
     sleep_manager_unlock_deep_sleep();
@@ -234,8 +323,12 @@ void CyH4TransportDriver::deassert_bt_dev_wake()
 
 void CyH4TransportDriver::update_uart_baud_rate(int baud)
 {
+#if defined(CYW43XXX_UNBUFFERED_UART)
+    uart.baud((uint32_t)baud);
+#else
     uint32_t ignore;
     cyhal_uart_set_baud(&uart, (uint32_t)baud, &ignore);
+#endif
 }
 
 bool CyH4TransportDriver::get_enabled_powersave()

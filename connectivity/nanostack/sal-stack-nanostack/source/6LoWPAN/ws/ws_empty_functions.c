@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -438,11 +438,6 @@ int ws_statistics_stop(int8_t interface_id)
 {
     (void) interface_id;
     return -1;
-}
-
-void ns_time_api_system_time_callback_set(ns_time_api_system_time_callback callback)
-{
-    (void) callback;
 }
 
 int ws_stack_info_get(int8_t interface_id, ws_stack_info_t *info_ptr)

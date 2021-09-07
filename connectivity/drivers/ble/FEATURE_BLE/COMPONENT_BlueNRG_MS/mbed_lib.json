@@ -39,6 +39,14 @@
             "SPI_RESET": "PG_8",
             "SPI_IRQ":   "PG_6",
             "SPI_SCK":   "PG_2"
+        },
+        "STWIN": {
+            "SPI_MOSI":  "PC_3",
+            "SPI_MISO":  "PD_3",
+            "SPI_nCS":   "PG_5",
+            "SPI_RESET": "PA_8",
+            "SPI_IRQ":   "PG_1",
+            "SPI_SCK":   "PD_1"
         }
     }
 }

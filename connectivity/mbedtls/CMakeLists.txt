@@ -1,6 +1,10 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+    add_subdirectory(tests/UNITTESTS)
+endif()
+
 target_include_directories(mbed-mbedtls
     INTERFACE
         .
@@ -16,6 +20,7 @@ target_sources(mbed-mbedtls
         platform/src/mbed_trng.cpp
         platform/src/platform_alt.cpp
         platform/src/shared_rng.cpp
+        platform/src/timing_mbed.cpp
 
         source/aes.c
         source/aesni.c
@@ -84,6 +89,7 @@ target_sources(mbed-mbedtls
         source/ssl_srv.c
         source/ssl_ticket.c
         source/ssl_tls.c
+        source/ssl_tls13_keys.c
         source/threading.c
         source/timing.c
         source/version.c

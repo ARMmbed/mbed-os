@@ -1,5 +1,39 @@
 # README for Mbed OS STM32 targets
 
+Table of Contents
+=================
+
+   * [ST TOOLS](#st-tools)
+      * [USB drivers](#usb-drivers)
+      * [ST-Link FW](#st-link-fw)
+      * [STM32 Cube](#stm32-cube)
+      * [STM32CubeMX](#stm32cubemx)
+      * [STM32CubeProgrammer](#stm32cubeprogrammer)
+   * [STM32 families](#stm32-families)
+      * [STM32WB](#stm32wb)
+      * [STM32WL](#stm32wl)
+      * [STM32H7](#stm32h7)
+   * [Custom boards](#custom-boards)
+      * [STM32 organisation](#stm32-organisation)
+      * [Add a custom board](#add-a-custom-board)
+      * [Board specific files (pinmap)](#board-specific-files-pinmap)
+      * [Use of custom_targets.json](#use-of-custom_targetsjson)
+      * [Make your custom board public](#make-you-custom-board-public)
+   * [ST specific implementation](#st-specific-implementation)
+      * [Pin configuration](#pin-configuration)
+         * [Alternate feature](#alternate-feature)
+         * [Conflict pins](#conflict-pins)
+      * [Clock selection](#clock-selection)
+         * [System clock](#system-clock)
+         * [Low power clock](#low-power-clock)
+         * [I2C Timing calculation algorithm](#i2c-timing-calculation-algorithm)
+      * [Sleep feature](#sleep-feature)
+      * [WiFi configuration](#wifi-configuration)
+      * [Ethernet configuration](#ethernet-configuration)
+      * [Asynchronous SPI limitation](#asynchronous-spi-limitation)
+   * [Mbed OS Wiki pages](#mbed-os-wiki-pages)
+
+
 ## ST TOOLS
 
 ### USB drivers
@@ -32,6 +66,14 @@ $ mbedls
 | DISCO_H747I         | DISCO_H747I[0]         | D:          | COM13       | 081402210D03E72132477E08 | V3J7M2            |
 | DISCO_L475VG_IOT01A | DISCO_L475VG_IOT01A[0] | E:          | COM9        | 07640221683B630A577FF553 | V2J37M26          |
 ```
+
+```
+$ mbedtools detect
+Board name       Serial number             Serial port    Mount point(s)    Build target(s)    Interface Version
+---------------  ------------------------  -------------  ----------------  -----------------  -------------------
+NUCLEO-U575ZI-Q  0022003c5553500d20393256  COM25          D:                NUCLEO_U575ZI_Q    V3J7M3
+```
+
 
 ### STM32 Cube
 
@@ -66,14 +108,14 @@ This table summarizes the STM32Cube versions currently used in Mbed OS master br
 | F2          |    1.6.0     | https://github.com/STMicroelectronics/STM32CubeF2 |
 | F3          |    1.11.2    | https://github.com/STMicroelectronics/STM32CubeF3 |
 | F4          |    1.26.1    | https://github.com/STMicroelectronics/STM32CubeF4 |
-| F7          |    1.16.0    | https://github.com/STMicroelectronics/STM32CubeF7 |
+| F7          |    1.16.1    | https://github.com/STMicroelectronics/STM32CubeF7 |
 | G0          |    1.4.1     | https://github.com/STMicroelectronics/STM32CubeG0 |
-| G4          |    1.1.0     | https://github.com/STMicroelectronics/STM32CubeG4 |
-| H7          |    1.8.0     | https://github.com/STMicroelectronics/STM32CubeH7 |
+| G4          |    1.4.0     | https://github.com/STMicroelectronics/STM32CubeG4 |
+| H7          |    1.9.0     | https://github.com/STMicroelectronics/STM32CubeH7 |
 | L0          |    1.12.0    | https://github.com/STMicroelectronics/STM32CubeL0 |
 | L1          |    1.10.2    | https://github.com/STMicroelectronics/STM32CubeL1 |
 | L4          |    1.17.0    | https://github.com/STMicroelectronics/STM32CubeL4 |
-| L5          |    1.3.0     | https://github.com/STMicroelectronics/STM32CubeL5 |
+| L5          |    1.4.0     | https://github.com/STMicroelectronics/STM32CubeL5 |
 | WB          |    1.11.1    | https://github.com/STMicroelectronics/STM32CubeWB |
 | WL          |    1.0.0     | https://github.com/STMicroelectronics/STM32CubeWL |
 
@@ -117,6 +159,9 @@ Tool is not used in Mbed OS, but it can be useful for you.
 ## Custom boards
 
 It should be "easy" to add your custom board with a STM32 MCU in Mbed OS
+
+You can also check in https://github.com/ARMmbed/stm32customtargets
+
 
 ### STM32 organisation
 
@@ -227,7 +272,7 @@ STM32_open_pin_data DB version STM32CubeMX-DB.6.0.10
 
 ### Use of custom_targets.json
 
-https://os.mbed.com/docs/mbed-os/v6.0/porting/porting-a-custom-board.html
+https://os.mbed.com/docs/mbed-os/latest/porting/porting-a-custom-board.html
 
 Example with a board based on STM32F103C8 (like BluePill):
 - MCU_STM32F103x8 generic configuration is already available in targets.json file
@@ -287,6 +332,13 @@ $ mv TARGET_STM32H745ZIT TARGET_H745ZI_BOARD
     }
 }
 ```
+
+
+### Make your custom board public
+
+We will be happy to add every public board in https://github.com/ARMmbed/stm32customtargets
+
+Make a Pull request, we will check consistency and build.
 
 
 ## ST specific implementation
@@ -376,6 +428,52 @@ You can change this in you local mbed_app.json:
 }
 ```
 
+#### I2C Timing calculation algorithm
+
+I2C drivers version 2 use I2C timing register.
+
+Enable I2C timing algorithm by setting the value of `i2c_timing_value_algo`
+target config to `true`
+
+```
+"i2c_timing_value_algo": {
+                "help": "If value was set to true I2C timing algorithm is 
+                enabled. Enabling may leads to performance issue. Keeping this
+                false and changing system clock will trigger assert.",
+                "value": false
+            }
+```
+Default configuration disables I2C timing algorithm. If user need to use
+different system clock speed other than default system clock configuration.
+Then I2C timing calculation algorithm need to enable. To enable
+
+```
+"i2c_timing_value_algo": {
+                "value": true
+            }
+```
+
+
+### Sleep feature
+
+ST MCUs feature several low-power modes, please check Reference Manual of each one for more details.
+
+- MBED sleep mode is usually mapped to ST SLEEP mode:
+  - CPU clock is off
+  - all peripherals can run and wake up the CPU when an interrupt or an event
+occurs
+
+- MBED deepsleep mode is mapped to ST STOP2 mode:
+  - all clocks in the VCORE domain are stopped
+  - the PLL, the MSI, the HSI and the HSE are disabled
+  - the LSI and the LSE can be kept running
+  - RTC can remain active
+
+Detailed sleep Mbed OS description : https://os.mbed.com/docs/mbed-os/latest/apis/power-management-sleep.html
+- debug profile is disabling deepsleep
+- deepsleep can also be disabled by application or drivers using sleep_manager_lock_deep_sleep()
+- deep-sleep-latency value is configured to 4 by default for STM32
+
 
 ### WiFi configuration
 
@@ -405,6 +503,107 @@ https://github.com/ARMmbed/mbed-os/blob/master/connectivity/drivers/emac/TARGET_
 Option is also to define your own `HAL_ETH_MspInit` function,
 you then have to add **USE_USER_DEFINED_HAL_ETH_MSPINIT** macro.
 
+To change the default MAC address in STM32,
+If we have the function mbed_otp_mac_address() in the user application,the default ethernet address
+can be changed.
+Because as this is defined as weak in mbed-os/connectivity/drivers/emac/TARGET_STM/stm32xx_emac.cpp
+```
+#include "platform/mbed_toolchain.h"
+MBED_WEAK uint8_t mbed_otp_mac_address(char *mac).
+```
+
+Please find the code snippet here for reference:
+
+```
+..
+uint8_t mbed_otp_mac_address(char *mac);
+uint8_t mbed_otp_mac_address(char *mac)
+{
+	unsigned char ST_mac_addr[6] = {0x00, 0x88, 0xe0,0x90,0x80,0x70}; // New User mac address
+	// printf("%s:%s\n",__FILE__,__func__);
+	memcpy(mac,ST_mac_addr,sizeof(ST_mac_addr));
+	return 1;
+}
+
+int main()
+{
+	// Bring up the ethernet interface
+	printf("Ethernet socket example\n");
+	uint8_t MyMAC[6];
+	printf("return of set_mac_address:%d\n",net.set_mac_address(MyMAC,sizeof(MyMAC)));
+
+	net.connect();
+	printf("MAC address %s\n",net.get_mac_address());
+...
+
+```
+### Asynchronous SPI limitation
+
+The current Asynchronous SPI implementation will not be able to support high speeds (MHz Range).
+The maximum speed supported depends on
+- core operating frequency
+- depth of SPI FIFOs (if available).
+
+For application that require optimized maximum performance, the recommendation is to implement the DMA-based SPI transfer.
+The SPI DMA transfer support shall be implemented on a case-by-case based on below example
+https://github.com/ABOSTM/mbed-os/tree/I2C_SPI_DMA_IMPLEMENTATION_FOR_STM32L4
+
+### CAN receive interrupt problem due to mutex and resolution
+
+In bxCAN and earlier versions the receive interrupt flags can be cleared only on performing a read operation in ST MCUs
+But can_read() cannot be used in interrupt context as it is gaurded by lock operation and mbed does not allow locks in 
+interrupt context. Hence the Rx interrupt is disabled for a while and read is deferred to thread context, the interrupt is
+enabled on a successful read.
+
+As an other option RawCAN (with unlocked CAN apis) is also available and can be used directly, if only one thread is accessing
+the CAN interface.
+
+While using RxInterrupt with the CAN object the receive ISR callback registered should defer read to thread context.
+A simple example is as shown below:
+
+#include "mbed.h"
+
+Ticker ticker;
+Thread canReadThread;
+
+DigitalOut led1(LED1);
+DigitalOut led2(LED2);
+DigitalOut led3(LED3);
+
+CAN can1(PD_0 ,PD_1);
+
+EventQueue queue(32 * EVENTS_EVENT_SIZE);
+
+int counter = 0xABCD;
+CANMessage msg;
+
+void canRead(){
+        if(can1.read(msg)) {
+            if(msg.id==1100)
+                led2 = !led2;
+            if(msg.id==1102){
+                led3 = !led3;
+            }
+        }
+}
+
+void canISR(){
+    queue.call(canRead);
+    led3 = !led3;
+}
+
+int main() {
+
+    can1.frequency(100000);
+    can1.mode(CAN::Normal);
+
+    can1.attach(canISR, CAN::RxIrq);
+
+    canReadThread.start(callback(&queue, &EventQueue::dispatch_forever));
+
+    while(1) {
+    }
+}
 
 
 ## Mbed OS Wiki pages

@@ -35,10 +35,17 @@ pull_request_rules:
         remove: ['needs: review', 'needs: CI']
 
   # From needs: review to needs: work - CI failure
-  - name: "label needs: work when travis-ci failed"
+  - name: "label needs: work when GitHub Actions jobs have failed"
     conditions:
-      # Travis failing
-      - status-failure~=Travis CI - Pull Request
+      # GitHub Actions are failing
+      - check-failure=license-check 
+      - check-failure=include-check
+      - check-failure=style-check
+      - check-failure=docs-check
+      - check-failure=python-tests
+      - check-failure=pin-validation
+      - check-failure=cmake-checks
+      - check-failure=frozen-tools-check 
       - "label!=mergify skip"
     actions:
       label:
@@ -49,7 +56,7 @@ pull_request_rules:
   - name: "label needs: work when Jenkins CI failed - pr head"
     conditions:
       # Jenkins CI failing
-      - status-failure~=continuous-integration/jenkins/pr-head
+      - check-failure~=continuous-integration/jenkins/pr-head
       - "label!=mergify skip"
     actions:
       label:
@@ -60,7 +67,7 @@ pull_request_rules:
   - name: "label needs: work when Jenkins CI failed - any of the pipeline"
     conditions:
       # Jenkins CI failing - any of the pipeline
-      - status-failure~=^jenkins-ci
+      - check-failure~=^jenkins-ci
       - "label!=mergify skip"
     actions:
       label:
@@ -80,11 +87,18 @@ pull_request_rules:
       # No conflict with the base branch
       - -conflict
 
-      # CI green policy, at least Travis should be green
-      - status-success~=Travis CI - Pull Request
+      # CI green policy, at least GitHub Actions jobs should be green
+      - check-success=license-check 
+      - check-success=include-check
+      - check-success=style-check
+      - check-success=docs-check
+      - check-success=python-tests
+      - check-success=pin-validation
+      - check-success=cmake-checks
+      - check-success=frozen-tools-check 
       # new CI needs to be done (neutral does not work, lets check if it failed or passed, if none, we need to run again)
-      - -status-success~=continuous-integration/jenkins/pr-head
-      - -status-failure~=continuous-integration/jenkins/pr-head
+      - -check-success~=continuous-integration/jenkins/pr-head
+      - -check-failure~=continuous-integration/jenkins/pr-head
     actions:
       label:
         add: ['needs: CI']
@@ -132,11 +146,19 @@ pull_request_rules:
       - "#changes-requested-reviews-by=0"
 
       # CI green policy
-      - status-success~=Travis CI - Pull Request
+      - check-success=license-check 
+      - check-success=include-check
+      - check-success=style-check
+      - check-success=docs-check
+      - check-success=python-tests
+      - check-success=pin-validation
+      - check-success=cmake-checks
+      - check-success=frozen-tools-check 
+
       # Internal Jenkins - we rely on PR head to provide status
-      - status-success~=continuous-integration/jenkins/pr-head
+      - check-success~=continuous-integration/jenkins/pr-head
       # any of the jenkins pipeline needs to be green. We rely on not failure means all good (if skipped or executed) 
-      - -status-failure~=^jenkins-ci
+      - -check-failure~=^jenkins-ci
     actions:
       label:
         add: ['ready for merge']

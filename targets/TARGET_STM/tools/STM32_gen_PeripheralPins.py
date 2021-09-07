@@ -27,7 +27,7 @@ from xml.dom.minidom import parse, Node
 from argparse import RawTextHelpFormatter
 import subprocess
 
-GENPINMAP_VERSION = "1.20"
+GENPINMAP_VERSION = "1.20.3"
 
 ADD_DEVICE_IF = 0
 ADD_GPIO_PINMAP = 0
@@ -267,7 +267,9 @@ def store_pin(pin, name, functionality):
 
 # function to store ADC list
 def store_adc(pin, name, signal):
-    adclist.append([pin, name, signal])
+    #INN channels not supported in mbed
+    if("IN" in signal and "INN" not in signal):
+        adclist.append([pin, name, signal])
 
 
 # function to store DAC list
@@ -386,7 +388,34 @@ def store_osc(pin, name, signal):
 
 # function to store SYS pins
 def store_sys(pin, name, signal):
+    if 'PWR_WKUP' in signal:
+        signal = "SYS_" + signal
     sys_list.append([pin, name, signal])
+
+
+
+def make_cmakelist():
+    mbed_target = "mbed-" + TARGET_NAME.replace("_", "-").lower()
+    mbed_family = "mbed-" + TARGET_SUBFAMILY.lower()
+
+    line_to_write =  ("""# Copyright (c) %i ARM Limited. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+add_library(%s INTERFACE)
+
+target_sources(%s
+    INTERFACE
+        PeripheralPins.c
+)
+
+target_include_directories(%s
+    INTERFACE
+        .
+)
+
+target_link_libraries(%s INTERFACE %s)
+""" % (datetime.datetime.now().year, mbed_target, mbed_target, mbed_target, mbed_target, mbed_family))
+    cmake_file.write(line_to_write)
 
 
 def print_header():
@@ -467,7 +496,14 @@ extern "C" {
 
     if DUAL_PAD:
         line_to_write = ("""
-#define ALTC 0xF00
+#define DUAL_PAD 0xF00
+""")
+        out_h_file.write(line_to_write)
+
+    if ADD_GPIO_PINMAP:
+        line_to_write = ("""
+/* If this macro is defined, then PinMap_GPIO is present in PeripheralPins.c */
+#define GPIO_PINMAP_READY 1
 """)
         out_h_file.write(line_to_write)
 
@@ -490,11 +526,15 @@ def print_footer():
     name_counter = 1
     if not LED_list:
        LED_list.append("Pxx")
+    StandardLED = {}
     for EachLED in LED_list:
-        led_label = ""
-        if EachLED in PinLabel:
-            led_label = " // %s" % PinLabel[EachLED]
-        out_h_file.write("#define LED%i     %-5s %s\n" % (name_counter, re.sub(r'(P.)', r'\1_', EachLED), led_label))
+        if EachLED not in PinLabel:
+            PinLabel[EachLED] = "TODO"
+        StandardLED[PinLabel[EachLED]] = EachLED
+
+    for EachLED in sorted(StandardLED):
+        led_label = " // %s" % EachLED
+        out_h_file.write("#define LED%i     %-5s %s\n" % (name_counter, re.sub(r'(P.)', r'\1_', StandardLED[EachLED]), led_label))
         name_counter += 1
 
     name_counter = 1
@@ -642,7 +682,7 @@ def print_gpio():
         if "OSC" in parsed_pin[2]:
             commented_line = "//"
         line_to_write = "%-11s" % (commented_line + "  {" + parsed_pin[0] + ',')
-        line_to_write += ' 0, 0},'
+        line_to_write += ' 0, GPIO_NOPULL},'
         if parsed_pin[1] in PinLabel:
             line_to_write += ' // Connected to ' + PinLabel[parsed_pin[1]]
         if parsed_pin[1] in PinPuPd:
@@ -666,45 +706,44 @@ def print_adc():
     # the GPIOx_ASCR register
     if re.match("STM32L4[78]+", mcu_file):
         s_pin_data += "_ADC_CONTROL"
-    s_pin_data += ", GPIO_NOPULL, 0, "
 
     prev_p = ''
     alt_index = 0
     for parsed_pin in adclist:
-        if "IN" in parsed_pin[2]:
-            commented_line = "  "
-            if parsed_pin[1] in PinLabel:
-                if "STDIO_UART" in PinLabel[parsed_pin[1]]:
-                    commented_line = "//"
-                if "RCC_OSC" in PinLabel[parsed_pin[1]]:
-                    commented_line = "//"
-            if commented_line != "//":
-                if parsed_pin[0] == prev_p:
-                    if "STM32F1" in mcu_file:
-                        continue
-                    else:
-                        prev_p = parsed_pin[0]
-                        parsed_pin[0] += '_ALT%d' % alt_index
-                        store_pin(parsed_pin[0], parsed_pin[0], "")
-                        alt_index += 1
-                        if alt_index > ALTERNATE_DEFINITION:
-                            ALTERNATE_DEFINITION += 1
+        commented_line = "  "
+        if parsed_pin[1] in PinLabel:
+            if "STDIO_UART" in PinLabel[parsed_pin[1]]:
+                commented_line = "//"
+            if "RCC_OSC" in PinLabel[parsed_pin[1]]:
+                commented_line = "//"
+        if commented_line != "//":
+            if parsed_pin[0] == prev_p:
+                if "STM32F1" in mcu_file:
+                    continue
                 else:
                     prev_p = parsed_pin[0]
-                    alt_index = 0
-            line_to_write = "%-17s" % (commented_line + "  {" + parsed_pin[0] + ',')
-            a = parsed_pin[2].split('_')
-            inst = a[0].replace("ADC", "")
-            if len(inst) == 0:
-                inst = '1' #single ADC for this product
-            line_to_write += "%-7s" % ('ADC_' + inst + ',')
-            chan = re.sub('IN[N|P]?', '', a[1])
-            line_to_write += s_pin_data + chan
-            line_to_write += ', 0)}, // ' + parsed_pin[2]
-            if parsed_pin[1] in PinLabel:
-                line_to_write += ' // Connected to ' + PinLabel[parsed_pin[1]]
-            line_to_write += '\n'
-            out_c_file.write(line_to_write)
+                    parsed_pin[0] += '_ALT%d' % alt_index
+                    store_pin(parsed_pin[0], parsed_pin[0], "")
+                    alt_index += 1
+                    if alt_index > ALTERNATE_DEFINITION:
+                        ALTERNATE_DEFINITION += 1
+            else:
+                prev_p = parsed_pin[0]
+                alt_index = 0
+        line_to_write = "%-17s" % (commented_line + "  {" + parsed_pin[0] + ',')
+        a = parsed_pin[2].split('_')
+        inst = a[0].replace("ADC", "")
+        if len(inst) == 0:
+            inst = '1' #single ADC for this product
+        line_to_write += "%-7s" % ('ADC_' + inst + ',')
+        chan = re.sub(r"^IN[N|P]?|\D*$", "", a[1])
+        bank = "_ADC_CHANNEL_BANK_B" if a[1].endswith("b") else ""
+        line_to_write += s_pin_data + bank + ", GPIO_NOPULL, 0, " + chan
+        line_to_write += ', 0)}, // ' + parsed_pin[2]
+        if parsed_pin[1] in PinLabel:
+            line_to_write += ' // Connected to ' + PinLabel[parsed_pin[1]]
+        line_to_write += '\n'
+        out_c_file.write(line_to_write)
     out_c_file.write( """    {NC, NC, 0}
 };
 
@@ -1146,7 +1185,7 @@ typedef enum {
         if "_ALT" in parsed_pin[0]:
             s1 = "    %-10s = %-5s | %s, // same pin used for alternate HW\n" % (parsed_pin[0], parsed_pin[0].split('_A')[0], parsed_pin[0].split('_')[2])
         elif len(parsed_pin[0]) > 4 and "C" == parsed_pin[0][4]:
-            s1 = "    %-10s = %-5s | ALTC, // dual pad\n" % (parsed_pin[0], parsed_pin[0].split('_A')[0].replace("PC", "PP").replace("C", "").replace("PP", "PC"))
+            s1 = "    %-10s = %-5s | DUAL_PAD, // dual pad\n" % (parsed_pin[0], parsed_pin[0].split('_A')[0].replace("PC", "PP").replace("C", "").replace("PP", "PC"))
         else:
             pin_value = 0
             if "PA" in parsed_pin[0]:
@@ -1371,10 +1410,6 @@ def parse_pins():
             name = s.attributes["Name"].value.strip()  # full name: "PF0 / OSC_IN"
             if "_C" in name:
                 DUAL_PAD = True
-                store_pin("PA_0C", "", "")
-                store_pin("PA_1C", "", "")
-                store_pin("PC_2C", "", "")
-                store_pin("PC_3C", "", "")
 
             if s.attributes["Type"].value == "I/O":
                 if "-" in s.attributes["Name"].value:
@@ -1560,8 +1595,12 @@ specify a custom board .ioc file description to use (use double quotes).
 parser.add_argument("-g", "--gpio", help="Add GPIO PinMap table", action="store_true")
 parser.add_argument("-n", "--nopull", help="Avoid STM32_open_pin_data git pull", action="store_true")
 parser.add_argument("-f", "--flat", help="All targets stored in targets_custom/TARGET_STM/", action="store_true")
+parser.add_argument("-d", "--debug", help="Few debug info in console", action="store_true")
 
 args = parser.parse_args()
+
+if args.debug:
+    DEBUG_PRINT = 1
 
 print ("\nChecking STM32_open_pin_data repo...")
 if not os.path.exists("STM32_open_pin_data"):
@@ -1645,6 +1684,9 @@ if args.target:
     board_file_name = os.path.join(cubemxdirBOARDS, args.target)
     if not(os.path.isfile(board_file_name)):
         board_list = fnmatch.filter(os.listdir(cubemxdirBOARDS), '*%s*AllConfig.ioc' % args.target)
+        for item in list(board_list):
+            if "TrustZone" in item:
+                board_list.remove(item)
         if len(board_list) == 0:
             print (" ! ! ! No file contains " + args.target)
             print (" ! ! ! Check in " + cubemxdirBOARDS + " the correct filter to apply")
@@ -1671,7 +1713,7 @@ if args.target:
         print("C40_Discovery_STM32F4DISCOVERY_STM32F407VG_Board replaced by C47_Discovery_STM32F407G-DISC1_STM32F407VG_Board")
         sys.exit(0)
     elif "P-NUCLEO-WB55" in board_file_name:
-        print("Same board as NUCLEO-WB55")
+        print("Same board as NUCLEO-WB55 (J02)")
         sys.exit(0)
     elif "MultiToSingleCore_Board" in board_file_name:
         print("Same board as PL0_Nucleo_NUCLEO-WL55JC1_STM32WL55JCI_Board_AllConfig.ioc")
@@ -1680,7 +1722,7 @@ if args.target:
         print("Same board as PL0_Nucleo_NUCLEO-WL55JC1_STM32WL55JCI_Board_AllConfig.ioc")
         sys.exit(0)
     elif "B-L475E-IOT01A2" in board_file_name:
-        print("Same board as B-L475E-IOT01A1")
+        print("Same board as B-L475E-IOT01A1 (42)")
         sys.exit(0)
     elif "USBDongle" in board_file_name:
         print("USB dongle not parsed")
@@ -1691,12 +1733,12 @@ if args.target:
 
     parse_board_file(board_file_name)
     if "Nucleo" in board_file_name:
-        TARGET_NAME += "NUCLEO_"
+        TARGET_NAME = "NUCLEO_"
     elif "Discovery" in board_file_name:
-        TARGET_NAME += "DISCO_"
+        TARGET_NAME = "DISCO_"
     elif "Evaluation" in board_file_name:
-        TARGET_NAME += "EVAL_"
-    m = re.search(r'STM32([MFLGWH][\w]*)_Board', board_file_name)
+        TARGET_NAME = "EVAL_"
+    m = re.search(r'STM32([MFLGWHU][\w]*)_Board', board_file_name)
     if m:
         TARGET_NAME += "%s" % m.group(1)
         # specific case
@@ -1711,6 +1753,7 @@ if args.target:
             "DISCO_L4S5V": "B_L4S5I_IOT01A",
             "DISCO_G071RBT": "DISCO_G071RB",
             "DISCO_L4R9A": "DISCO_L4R9I",
+            "DISCO_U585AI": "B_U585I_IOT02A",
             "NUCLEO_WB55R": "NUCLEO_WB55RG",
             "NUCLEO_WL55JCI": "NUCLEO_WL55JC",
             "NUCLEO_H743ZIT": "NUCLEO_H743ZI2",
@@ -1838,12 +1881,14 @@ for mcu_file in mcu_list:
         print(" * Generating %s and %s with '%s'" % (PeripheralPins_c_filename, PinNames_h_filename, input_file_name))
         output_cfilename = os.path.join(out_path, PeripheralPins_c_filename)
         output_hfilename = os.path.join(out_path, PinNames_h_filename)
+        cmake_filename = os.path.join(out_path, "CMakeLists.txt")
 
         if os.path.isfile(output_cfilename):
             print_debug(" * Requested %s file already exists and will be overwritten" % PeripheralPins_c_filename)
             os.remove(output_cfilename)
         out_c_file = open(output_cfilename, 'w')
         out_h_file = open(output_hfilename, 'w')
+        cmake_file = open(cmake_filename, 'w')
 
         #open input file
         try:
@@ -1890,6 +1935,7 @@ for mcu_file in mcu_list:
         print_header()
         print_all_lists()
         print_footer()
+        make_cmakelist()
 
         nb_pin = (len(gpio_list))
         nb_connected_pin = len(PinLabel)
@@ -1898,3 +1944,4 @@ for mcu_file in mcu_list:
 
         out_c_file.close()
         out_h_file.close()
+        cmake_file.close()

@@ -13,6 +13,7 @@ project(${TEST_TARGET})
 list(
     APPEND
         TEST_SOURCE_LIST
+            main.cpp
             tlssocket_simultaneous.cpp
             tlssocket_send_unconnected.cpp
             tlssocket_send_timeout.cpp
@@ -31,7 +32,10 @@ list(
 )
 
 mbed_greentea_add_test(
-    TEST_NAME ${TEST_TARGET}
-    TEST_SOURCES ${TEST_SOURCE_LIST}
-    TEST_REQUIRED_LIBS mbed-netsocket
+    TEST_NAME
+        ${TEST_TARGET}
+    TEST_SOURCES
+        ${TEST_SOURCE_LIST}
+    TEST_REQUIRED_LIBS
+        mbed-netsocket
 )

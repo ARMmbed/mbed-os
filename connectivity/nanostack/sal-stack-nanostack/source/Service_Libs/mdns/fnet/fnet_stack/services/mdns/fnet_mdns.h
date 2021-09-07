@@ -1,6 +1,6 @@
 /**************************************************************************
 *
-* Copyright (c) 2017, Arm Limited and affiliates.
+* Copyright (c) 2017, Pelion and affiliates.
 * SPDX-License-Identifier: Apache-2.0
 * Copyright 2016 by Andrey Butok. FNET Community.
 *
@@ -71,7 +71,7 @@ struct fnet_mdns_params
 };
 
 /**************************************************************************/ /*!
- * @brief The mDNS Service structure defining application-specific 
+ * @brief The mDNS Service structure defining application-specific
  * service, advertised by the mDNS server.
  * @see fnet_mdns_service_register()
  ******************************************************************************/
@@ -79,7 +79,7 @@ typedef struct fnet_mdns_service
 {
     const char*         service_type;               /**< @brief Service Type. Null-terminated string. Example "_http._tcp". */
     fnet_uint16_t       service_port;               /**< @brief Service Port number (in network byte order). */
-    const fnet_uint8_t* (*service_get_txt)(void);   /**< @brief Call-back function, which returns a pointer to the service TXT record (null-terminated). 
+    const fnet_uint8_t* (*service_get_txt)(void);   /**< @brief Call-back function, which returns a pointer to the service TXT record (null-terminated).
                                                     If the service does not provide any TXT record, this parameter must be set to NULL. */
 } fnet_mdns_service_t;
 
@@ -173,7 +173,7 @@ fnet_mdns_service_desc_t fnet_mdns_service_register(fnet_mdns_desc_t mdns_desc, 
  ******************************************************************************
  *
  * This function unregisters application service, assigned to the @c service_desc
- * descriptor, and stops its advertisement by the mDNS server.  
+ * descriptor, and stops its advertisement by the mDNS server.
  *
  ******************************************************************************/
 void fnet_mdns_service_unregister(fnet_mdns_service_desc_t service_desc);
@@ -189,7 +189,7 @@ void fnet_mdns_service_unregister(fnet_mdns_service_desc_t service_desc);
  ******************************************************************************
  *
  * This function sends unsolicited mDNS announcement.@n
- * Application may call it when any advertised application-specific parameter 
+ * Application may call it when any advertised application-specific parameter
  * has changed (e.g. network interface IP address or service TXT-record content).@n
  * RFC 6762: "At any time, if the rdata of any of a host's Multicast DNS records
  *  changes, the host MUST repeat the Announcing step to

@@ -86,6 +86,8 @@ CORTEX_SYMBOLS = {
                         "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
     "Cortex-M7FD":     ["__CORTEX_M7", "ARM_MATH_CM7", "__FPU_PRESENT=1",
                         "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
+    "Cortex-A5":       ["__CORTEX_A5", "ARM_MATH_CA5", "__FPU_PRESENT",
+                        "__CMSIS_RTOS", "__EVAL"],
     "Cortex-A9":       ["__CORTEX_A9", "ARM_MATH_CA9", "__FPU_PRESENT",
                         "__CMSIS_RTOS", "__EVAL", "__MBED_CMSIS_RTOS_CA9"],
     "Cortex-M23-NS":   ["__CORTEX_M23", "ARM_MATH_ARMV8MBL", "DOMAIN_NS=1",

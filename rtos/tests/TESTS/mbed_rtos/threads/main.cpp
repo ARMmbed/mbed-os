@@ -32,7 +32,7 @@
 #include <type_traits>
 
 #define THREAD_STACK_SIZE 512
-#if defined(__CORTEX_A9) || defined(__CORTEX_M23) || defined(__CORTEX_M33) || defined(TARGET_ARM_FM) ||  defined(TARGET_CY8CKIT_062_WIFI_BT_PSA)
+#if defined(__CORTEX_A9) || defined(__CORTEX_A5) || defined(__CORTEX_M23) || defined(__CORTEX_M33) || defined(TARGET_ARM_FM) ||  defined(TARGET_CY8CKIT_062_WIFI_BT_PSA)
 #define PARALLEL_THREAD_STACK_SIZE 512
 #define CHILD_THREAD_STACK_SIZE 512
 #else

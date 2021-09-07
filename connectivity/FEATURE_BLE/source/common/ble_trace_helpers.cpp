@@ -522,7 +522,12 @@ const char *to_string(const UUID& uuid)
     static constexpr const char *HEX = "0123456789ABCDEF";
     static constexpr const size_t HYPHENS_DELIMITER_COUNT = 4;
 
-    static char string_buffer[ROW_COUNT][UUID::LENGTH_OF_LONG_UUID + HYPHENS_DELIMITER_COUNT];
+    /*
+     * For each hex digit, we require 2 bytes. So, we need at most 2 * 16 = 32 bytes for the hex digits.
+     * In the case of 128-bit UUIDs, we also need space for 4 hyphen delimiters.
+     * An additional byte is required at the end of each array to store the null terminator.
+     */
+    static char string_buffer[ROW_COUNT][2 * UUID::LENGTH_OF_LONG_UUID + HYPHENS_DELIMITER_COUNT + 1];
     static uint8_t idx = 0;
 
     ++idx;

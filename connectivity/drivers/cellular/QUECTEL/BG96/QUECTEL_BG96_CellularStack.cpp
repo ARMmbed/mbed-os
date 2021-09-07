@@ -20,6 +20,7 @@
 #include "QUECTEL/BG96/QUECTEL_BG96_CellularStack.h"
 #include "CellularLog.h"
 #include "netsocket/TLSSocket.h"
+#include "CellularUtil.h"
 
 // Ref: Quectel_BG96_SSL_AT_Commands_Manual, ch 2.1.1 AT+QSSLCFG
 static const int BG96_SUPPORTED_SSL_VERSION     = 4; // All
@@ -155,6 +156,40 @@ nsapi_error_t QUECTEL_BG96_CellularStack::socket_connect(nsapi_socket_t handle, 
     }
 
     return err;
+}
+
+nsapi_error_t QUECTEL_BG96_CellularStack::get_ip_address(SocketAddress *address)
+{
+    if (!address) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+    _at.lock();
+
+    _at.cmd_start_stop("+QIACT", "?");
+    _at.resp_start("+QIACT:");
+
+    int32_t context_type = 0;
+
+    if (_at.info_resp()) {
+        _at.skip_param(); // ID
+        _at.skip_param(); // State
+
+        context_type = _at.read_int();
+        if (context_type == 1) {
+            _stack_type = IPV4_STACK;
+        } else if (context_type == 2) {
+            _stack_type = IPV6_STACK;
+        }
+
+        if (_at.read_string(_ip, PDP_IPV6_SIZE) != -1) {
+            mbed_cellular_util::convert_ipv6(_ip);
+            address->set_ip_address(_ip);
+        }
+    }
+    _at.resp_stop();
+    _at.unlock();
+
+    return (context_type > 0) ? NSAPI_ERROR_OK : NSAPI_ERROR_NO_ADDRESS;
 }
 
 void QUECTEL_BG96_CellularStack::urc_qiurc_recv()
@@ -335,10 +370,6 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
 nsapi_size_or_error_t QUECTEL_BG96_CellularStack::socket_sendto_impl(CellularSocket *socket, const SocketAddress &address,
                                                                      const void *data, nsapi_size_t size)
 {
-    if (size > BG96_MAX_SEND_SIZE) {
-        return NSAPI_ERROR_PARAMETER;
-    }
-
     if (_ip_ver_sendto != address.get_ip_version()) {
         _ip_ver_sendto =  address.get_ip_version();
         socket_close_impl(socket->id);
@@ -358,29 +389,59 @@ nsapi_size_or_error_t QUECTEL_BG96_CellularStack::socket_sendto_impl(CellularSoc
 
     // Send
     if (socket->proto == NSAPI_UDP) {
+        if (size > BG96_MAX_SEND_SIZE) {
+            return NSAPI_ERROR_PARAMETER;
+        }
         char ipdot[NSAPI_IP_SIZE];
         ip2dot(address, ipdot);
         _at.cmd_start_stop("+QISEND", "=", "%d%d%s%d", socket->id, size,
                            ipdot, address.get_port());
-    } else {
-        if (socket->tls_socket) {
-            _at.cmd_start_stop("+QSSLSEND", "=", "%d%d", socket->id, size);
-        } else {
-            _at.cmd_start_stop("+QISEND", "=", "%d%d", socket->id, size);
+        _at.resp_start(">");
+        _at.write_bytes((uint8_t *)data, size);
+        _at.resp_start();
+        _at.set_stop_tag("\r\n");
+        // Possible responses are SEND OK, SEND FAIL or ERROR.
+        char response[16];
+        response[0] = '\0';
+        _at.read_string(response, sizeof(response));
+        _at.resp_stop();
+        if (strcmp(response, "SEND OK") != 0) {
+            return NSAPI_ERROR_DEVICE_ERROR;
         }
-    }
+    } else {
+        const char *buf = (const char *)data;
+        nsapi_size_t blk = BG96_MAX_SEND_SIZE;
+        nsapi_size_t count = size;
 
-    _at.resp_start(">");
-    _at.write_bytes((uint8_t *)data, size);
-    _at.resp_start();
-    _at.set_stop_tag("\r\n");
-    // Possible responses are SEND OK, SEND FAIL or ERROR.
-    char response[16];
-    response[0] = '\0';
-    _at.read_string(response, sizeof(response));
-    _at.resp_stop();
-    if (strcmp(response, "SEND OK") != 0) {
-        return NSAPI_ERROR_DEVICE_ERROR;
+        while (count > 0) {
+            if (count < blk) {
+                blk = count;
+            }
+
+            if (socket->tls_socket) {
+                _at.cmd_start_stop("+QSSLSEND", "=", "%d%d", socket->id, blk);
+            }
+
+            else {
+                _at.cmd_start_stop("+QISEND", "=", "%d%d", socket->id, blk);
+            }
+
+            _at.resp_start(">");
+            _at.write_bytes((uint8_t *)buf, blk);
+            _at.resp_start();
+            _at.set_stop_tag("\r\n");
+            // Possible responses are SEND OK, SEND FAIL or ERROR.
+            char response[16];
+            response[0] = '\0';
+            _at.read_string(response, sizeof(response));
+            _at.resp_stop();
+            if (strcmp(response, "SEND OK") != 0) {
+                return NSAPI_ERROR_DEVICE_ERROR;
+            }
+
+            buf += blk;
+            count -= blk;
+        }
     }
 
     // Get the sent count after sending

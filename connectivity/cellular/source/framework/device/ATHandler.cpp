@@ -683,7 +683,7 @@ int32_t ATHandler::read_int()
         return -1;
     }
 
-    char buff[BUFF_SIZE];
+    char buff[MBED_CONF_CELLULAR_AT_HANDLER_BUFFER_SIZE];
     if (read_string(buff, sizeof(buff)) == 0) {
         return -1;
     }
@@ -960,7 +960,7 @@ void ATHandler::resp_start(const char *prefix, bool stop)
     (void)fill_buffer(false);
 
     if (prefix) {
-        MBED_ASSERT(strlen(prefix) < BUFF_SIZE);
+        MBED_ASSERT(strlen(prefix) < MBED_CONF_CELLULAR_AT_HANDLER_BUFFER_SIZE);
         strcpy(_info_resp_prefix, prefix); // copy prefix so we can later use it without having to provide again for info_resp
     }
 
@@ -1225,7 +1225,7 @@ void ATHandler::handle_start(const char *cmd, const char *cmd_chr)
     if (cmd_chr) {
         cmd_char_len = strlen(cmd_chr);
     }
-    MBED_ASSERT((3 + strlen(cmd) + cmd_char_len) < BUFF_SIZE);
+    MBED_ASSERT((3 + strlen(cmd) + cmd_char_len) < MBED_CONF_CELLULAR_AT_HANDLER_BUFFER_SIZE);
 
     memcpy(_cmd_buffer + len, cmd, strlen(cmd));
     len += strlen(cmd);
@@ -1258,7 +1258,7 @@ void ATHandler::cmd_start_stop(const char *cmd, const char *cmd_chr, const char 
 
 nsapi_error_t ATHandler::at_cmd_str(const char *cmd, const char *cmd_chr, char *resp_buf, size_t buf_size, const char *format, ...)
 {
-    MBED_ASSERT(strlen(cmd) < BUFF_SIZE);
+    MBED_ASSERT(strlen(cmd) < MBED_CONF_CELLULAR_AT_HANDLER_BUFFER_SIZE);
     lock();
 
     handle_start(cmd, cmd_chr);
@@ -1551,21 +1551,25 @@ void ATHandler::set_send_delay(uint16_t send_delay)
     _at_send_delay = std::chrono::duration<uint16_t, std::milli>(send_delay);
 }
 
-void ATHandler::write_hex_string(const char *str, size_t size)
+void ATHandler::write_hex_string(const char *str, size_t size, bool quote_string)
 {
     // do common checks before sending subparameter
     if (check_cmd_send() == false) {
         return;
     }
 
-    (void) write("\"", 1);
+    if (quote_string) {
+        (void) write("\"", 1);
+    }
     char hexbuf[2];
     for (size_t i = 0; i < size; i++) {
         hexbuf[0] = hex_values[((str[i]) >> 4) & 0x0F];
         hexbuf[1] = hex_values[(str[i]) & 0x0F];
         write(hexbuf, 2);
     }
-    (void) write("\"", 1);
+    if (quote_string) {
+        (void) write("\"", 1);
+    }
 }
 
 void ATHandler::set_baud(int baud_rate)

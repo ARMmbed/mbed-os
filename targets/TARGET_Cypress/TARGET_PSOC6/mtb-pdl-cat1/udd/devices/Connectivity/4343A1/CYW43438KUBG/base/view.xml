@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<baseview>
+  <mcu>
+  </mcu>
+  <vendor>Cypress</vendor>
+  <flash>0</flash>
+  <ram>524288</ram>
+  <package>63-WLBGA</package>
+  <minvoltage>2400</minvoltage>
+  <maxvoltage>4800</maxvoltage>
+  <description>The CYW43438KUBG device.</description>
+</baseview>

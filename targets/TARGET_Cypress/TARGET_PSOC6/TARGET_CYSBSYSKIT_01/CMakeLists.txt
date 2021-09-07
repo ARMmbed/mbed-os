@@ -11,23 +11,24 @@ target_include_directories(mbed-cysbsyskit-01-bsp-design-modus
 target_sources(mbed-cysbsyskit-01-bsp-design-modus
     INTERFACE
         COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/cycfg.c
+        COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/cycfg_connectivity_bt.c
+        COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/cycfg_peripherals.c
         COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/cycfg_pins.c
         COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/cycfg_qspi_memslot.c
-        COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/cycfg_routing.c
         COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/cycfg_system.c
 )
 
 add_library(mbed-cysbsyskit-01-cm4 INTERFACE)
 if(${MBED_TOOLCHAIN} STREQUAL "ARM")
-    set(LINKER_FILE_CM4 device/COMPONENT_CM4/TOOLCHAIN_ARM/cy8c6xxa_cm4_dual.sct)
-    set(STARTUP_FILE_CM4 device/COMPONENT_CM4/TOOLCHAIN_ARM/startup_psoc6_02_cm4.S)
+    set(LINKER_FILE_CM4 COMPONENT_CM4/TOOLCHAIN_ARM/cy8c6xxa_cm4_dual.sct)
+    set(STARTUP_FILE_CM4 COMPONENT_CM4/TOOLCHAIN_ARM/startup_psoc6_02_cm4.S)
 elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
-    set(LINKER_FILE_CM4 device/COMPONENT_CM4/TOOLCHAIN_GCC_ARM/cy8c6xxa_cm4_dual.ld)
-    set(STARTUP_FILE_CM4 device/COMPONENT_CM4/TOOLCHAIN_GCC_ARM/startup_psoc6_02_cm4.S)
+    set(LINKER_FILE_CM4 COMPONENT_CM4/TOOLCHAIN_GCC_ARM/cy8c6xxa_cm4_dual.ld)
+    set(STARTUP_FILE_CM4 COMPONENT_CM4/TOOLCHAIN_GCC_ARM/startup_psoc6_02_cm4.S)
 endif()
 target_sources(mbed-cysbsyskit-01-cm4
     INTERFACE
-        device/COMPONENT_CM4/system_psoc6_cm4.c
+        COMPONENT_CM4/system_psoc6_cm4.c
         ${STARTUP_FILE_CM4}
 )
 mbed_set_linker_script(mbed-cysbsyskit-01-cm4 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE_CM4})
@@ -36,7 +37,6 @@ add_library(mbed-cysbsyskit-01 INTERFACE)
 target_include_directories(mbed-cysbsyskit-01
     INTERFACE
         .
-        device
 )
 target_sources(mbed-cysbsyskit-01
     INTERFACE
@@ -59,4 +59,7 @@ target_compile_definitions(mbed-cysbsyskit-01
         "CY8C624AFNI_S2D43F"
 )
 
-mbed_post_build_psoc6_merge_hex("CYSBSYSKIT_01")
+mbed_post_build_psoc6_merge_hex(
+    PSOC6_TARGET
+        "CYSBSYSKIT_01"
+)

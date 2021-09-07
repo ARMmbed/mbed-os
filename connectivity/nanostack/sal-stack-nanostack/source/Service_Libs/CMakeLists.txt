@@ -101,6 +101,7 @@ target_sources(mbed-nanostack-sal_stack
         utils/ns_conf.c
         utils/ns_crc.c
         utils/ns_file_system.c
+        utils/ns_time.c
 
         whiteboard/whiteboard.c
 )

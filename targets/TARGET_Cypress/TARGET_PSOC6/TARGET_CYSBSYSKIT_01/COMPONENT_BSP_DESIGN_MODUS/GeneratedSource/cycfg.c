@@ -4,11 +4,13 @@
 * Description:
 * Wrapper function to initialize all generated code.
 * This file was automatically generated and should not be modified.
-* Device Configurator: 2.0.0.1483
-* Device Support Library (../../../psoc6pdl): 1.6.0.4266
+* Tools Package 2.2.0.2790
+* latest-v2.X 2.0.0.6211
+* personalities 3.0.0.0
+* udd 3.0.0.562
 *
 ********************************************************************************
-* Copyright 2017-2019 Cypress Semiconductor Corporation
+* Copyright 2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");

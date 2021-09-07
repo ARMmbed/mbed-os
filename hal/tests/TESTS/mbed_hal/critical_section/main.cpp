@@ -29,7 +29,7 @@ using utest::v1::Case;
 
 bool test_are_interrupts_enabled(void)
 {
-#if defined(__CORTEX_A9)
+#if defined(__CORTEX_A)
     return ((__get_CPSR() & 0x80) == 0);
 #else
     return ((__get_PRIMASK() & 0x1) == 0);

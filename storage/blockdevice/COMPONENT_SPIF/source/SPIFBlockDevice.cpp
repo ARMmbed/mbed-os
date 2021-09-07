@@ -66,14 +66,14 @@ enum spif_default_instructions {
     SPIF_PP = 0x02, // Page Program data
     SPIF_READ = 0x03, // Read data
     SPIF_SE   = 0x20, // 4KB Sector Erase
-    SPIF_SFDP = 0x5a, // Read SFDP
+    SPIF_SFDP = 0x5A, // Read SFDP
     SPIF_WRSR = 0x01, // Write Status/Configuration Register
     SPIF_WRDI = 0x04, // Write Disable
     SPIF_RDSR = 0x05, // Read Status Register
     SPIF_WREN = 0x06, // Write Enable
     SPIF_RSTEN = 0x66, // Reset Enable
     SPIF_RST = 0x99, // Reset
-    SPIF_RDID = 0x9f, // Read Manufacturer and JDEC Device ID
+    SPIF_RDID = 0x9F, // Read Manufacturer and JDEC Device ID
     SPIF_ULBPR = 0x98, // Clears all write-protection bits in the Block-Protection register,
     SPIF_4BEN = 0xB7, // Enable 4-byte address mode
     SPIF_4BDIS = 0xE9, // Disable 4-byte address mode
@@ -91,7 +91,6 @@ SPIFBlockDevice::SPIFBlockDevice(PinName mosi, PinName miso, PinName sclk, PinNa
     _spi(mosi, miso, sclk, csel, use_gpio_ssel), _prog_instruction(0), _erase_instruction(0),
     _page_size_bytes(0), _init_ref_count(0), _is_initialized(false)
 {
-    _address_size = SPIF_ADDR_SIZE_3_BYTES;
     // Initial SFDP read tables are read with 8 dummy cycles
     // Default Bus Setup 1_1_1 with 0 dummy and mode cycles
     _read_dummy_and_mode_cycles = 8;
@@ -128,6 +127,8 @@ int SPIFBlockDevice::init()
         goto exit_point;
     }
 
+    _address_size = SPIF_ADDR_SIZE_3_BYTES;         // Set to 3-bytes since SFDP always use only A23 ~ A0
+
     // Soft Reset
     if (-1 == _reset_flash_mem()) {
         tr_error("init - Unable to initialize flash memory, tests failed");
@@ -143,7 +144,7 @@ int SPIFBlockDevice::init()
         goto exit_point;
     }
 
-    //Synchronize Device
+    // Synchronize Device
     if (false == _is_mem_ready()) {
         tr_error("init - _is_mem_ready Failed");
         status = SPIF_BD_ERROR_READY_FAILED;
@@ -650,7 +651,7 @@ int SPIFBlockDevice::_reset_flash_mem()
     int status = 0;
     char status_value[2] = {0};
     tr_info("_reset_flash_mem:");
-    //Read the Status Register from device
+    // Read the Status Register from device
     if (SPIF_BD_ERROR_OK == _spi_send_general_command(SPIF_RDSR, SPI_NO_ADDRESS_COMMAND, NULL, 0, status_value, 1)) {
         // store received values in status_value
         tr_debug("Reading Status Register Success: value = 0x%x", (int)status_value[0]);
@@ -660,7 +661,7 @@ int SPIFBlockDevice::_reset_flash_mem()
     }
 
     if (0 == status) {
-        //Send Reset Enable
+        // Send Reset Enable
         if (SPIF_BD_ERROR_OK == _spi_send_general_command(SPIF_RSTEN, SPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0)) {
             // store received values in status_value
             tr_debug("Sending RSTEN Success");
@@ -670,7 +671,7 @@ int SPIFBlockDevice::_reset_flash_mem()
         }
 
         if (0 == status) {
-            //Send Reset
+            // Send Reset
             if (SPIF_BD_ERROR_OK == _spi_send_general_command(SPIF_RST, SPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0)) {
                 // store received values in status_value
                 tr_debug("Sending RST Success");
@@ -698,7 +699,7 @@ bool SPIFBlockDevice::_is_mem_ready()
     do {
         rtos::ThisThread::sleep_for(1ms);
         retries++;
-        //Read the Status Register from device
+        // Read the Status Register from device
         if (SPIF_BD_ERROR_OK != _spi_send_general_command(SPIF_RDSR, SPI_NO_ADDRESS_COMMAND, NULL, 0, status_value,
                                                           1)) {   // store received values in status_value
             tr_error("Reading Status Register failed");
@@ -750,7 +751,7 @@ int SPIFBlockDevice::_handle_vendor_quirks()
     uint8_t vendor_device_ids[4];
     size_t data_length = 3;
 
-    /* Read Manufacturer ID (1byte), and Device ID (2bytes)*/
+    // Read Manufacturer ID (1byte), and Device ID (2bytes)
     spif_bd_error spi_status = _spi_send_general_command(SPIF_RDID, SPI_NO_ADDRESS_COMMAND, NULL, 0,
                                                          (char *)vendor_device_ids,
                                                          data_length);
@@ -763,7 +764,7 @@ int SPIFBlockDevice::_handle_vendor_quirks()
     tr_debug("Vendor device ID = 0x%x 0x%x 0x%x", vendor_device_ids[0], vendor_device_ids[1], vendor_device_ids[2]);
 
     switch (vendor_device_ids[0]) {
-        case 0xbf:
+        case 0xBF:
             // SST devices come preset with block protection
             // enabled for some regions, issue global protection unlock to clear
             _set_write_enable();

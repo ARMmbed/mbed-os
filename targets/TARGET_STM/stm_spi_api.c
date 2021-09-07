@@ -400,132 +400,132 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
             DataSize = SPI_DATASIZE_4BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_5BIT)        
+#if defined(SPI_DATASIZE_5BIT)
         case 5:
             DataSize = SPI_DATASIZE_5BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_6BIT)        
+#if defined(SPI_DATASIZE_6BIT)
         case 6:
             DataSize = SPI_DATASIZE_6BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_7BIT)        
+#if defined(SPI_DATASIZE_7BIT)
         case 7:
             DataSize = SPI_DATASIZE_7BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_9BIT)        
+#if defined(SPI_DATASIZE_9BIT)
         case 9:
             DataSize = SPI_DATASIZE_9BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_10BIT)        
+#if defined(SPI_DATASIZE_10BIT)
         case 10:
             DataSize = SPI_DATASIZE_10BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_11BIT)        
+#if defined(SPI_DATASIZE_11BIT)
         case 11:
             DataSize = SPI_DATASIZE_11BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_12BIT)        
+#if defined(SPI_DATASIZE_12BIT)
         case 12:
             DataSize = SPI_DATASIZE_12BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_13BIT)        
+#if defined(SPI_DATASIZE_13BIT)
         case 13:
             DataSize = SPI_DATASIZE_13BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_14BIT)        
+#if defined(SPI_DATASIZE_14BIT)
         case 14:
             DataSize = SPI_DATASIZE_14BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_15BIT)        
+#if defined(SPI_DATASIZE_15BIT)
         case 15:
             DataSize = SPI_DATASIZE_15BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_17BIT)        
+#if defined(SPI_DATASIZE_17BIT)
         case 17:
             DataSize = SPI_DATASIZE_17BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_18BIT)        
+#if defined(SPI_DATASIZE_18BIT)
         case 18:
             DataSize = SPI_DATASIZE_18BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_19BIT)        
+#if defined(SPI_DATASIZE_19BIT)
         case 19:
             DataSize = SPI_DATASIZE_19BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_20BIT)        
+#if defined(SPI_DATASIZE_20BIT)
         case 20:
             DataSize = SPI_DATASIZE_20BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_21BIT)        
+#if defined(SPI_DATASIZE_21BIT)
         case 21:
             DataSize = SPI_DATASIZE_21BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_22BIT)        
+#if defined(SPI_DATASIZE_22BIT)
         case 22:
             DataSize = SPI_DATASIZE_22BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_23BIT)        
+#if defined(SPI_DATASIZE_23BIT)
         case 23:
             DataSize = SPI_DATASIZE_23BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_24BIT)        
+#if defined(SPI_DATASIZE_24BIT)
         case 24:
             DataSize = SPI_DATASIZE_24BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_25BIT)        
+#if defined(SPI_DATASIZE_25BIT)
         case 25:
             DataSize = SPI_DATASIZE_25BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_26BIT)        
+#if defined(SPI_DATASIZE_26BIT)
         case 26:
             DataSize = SPI_DATASIZE_26BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_27BIT)        
+#if defined(SPI_DATASIZE_27BIT)
         case 27:
             DataSize = SPI_DATASIZE_27BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_28BIT)        
+#if defined(SPI_DATASIZE_28BIT)
         case 28:
             DataSize = SPI_DATASIZE_28BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_29BIT)        
+#if defined(SPI_DATASIZE_29BIT)
         case 29:
             DataSize = SPI_DATASIZE_29BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_30BIT)        
+#if defined(SPI_DATASIZE_30BIT)
         case 30:
             DataSize = SPI_DATASIZE_30BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_31BIT)        
+#if defined(SPI_DATASIZE_31BIT)
         case 31:
             DataSize = SPI_DATASIZE_31BIT;
             break;
 #endif
-#if defined(SPI_DATASIZE_32BIT)        
+#if defined(SPI_DATASIZE_32BIT)
         case 32:
             DataSize = SPI_DATASIZE_32BIT;
             break;
@@ -667,106 +667,107 @@ static inline int ssp_busy(spi_t *obj)
     return status;
 }
 
-static inline int datasize_to_transfer_bitshift(uint32_t DataSize) {
+static inline int datasize_to_transfer_bitshift(uint32_t DataSize)
+{
     switch (DataSize) {
 #if defined(SPI_DATASIZE_4BIT)
         case SPI_DATASIZE_4BIT:
 #endif
-#if defined(SPI_DATASIZE_5BIT)        
+#if defined(SPI_DATASIZE_5BIT)
         case SPI_DATASIZE_5BIT:
 #endif
-#if defined(SPI_DATASIZE_6BIT)        
+#if defined(SPI_DATASIZE_6BIT)
         case SPI_DATASIZE_6BIT:
 #endif
-#if defined(SPI_DATASIZE_7BIT)        
+#if defined(SPI_DATASIZE_7BIT)
         case SPI_DATASIZE_7BIT:
 #endif
         case SPI_DATASIZE_8BIT:
             return 0;
-#if defined(SPI_DATASIZE_9BIT)        
+#if defined(SPI_DATASIZE_9BIT)
         case SPI_DATASIZE_9BIT:
 #endif
-#if defined(SPI_DATASIZE_10BIT)        
+#if defined(SPI_DATASIZE_10BIT)
         case SPI_DATASIZE_10BIT:
 #endif
-#if defined(SPI_DATASIZE_11BIT)        
+#if defined(SPI_DATASIZE_11BIT)
         case SPI_DATASIZE_11BIT:
 #endif
-#if defined(SPI_DATASIZE_12BIT)        
+#if defined(SPI_DATASIZE_12BIT)
         case SPI_DATASIZE_12BIT:
 #endif
-#if defined(SPI_DATASIZE_13BIT)        
+#if defined(SPI_DATASIZE_13BIT)
         case SPI_DATASIZE_13BIT:
 #endif
-#if defined(SPI_DATASIZE_14BIT)        
+#if defined(SPI_DATASIZE_14BIT)
         case SPI_DATASIZE_14BIT:
 #endif
-#if defined(SPI_DATASIZE_15BIT)        
+#if defined(SPI_DATASIZE_15BIT)
         case SPI_DATASIZE_15BIT:
 #endif
         case SPI_DATASIZE_16BIT:
             return 1;
-#if defined(SPI_DATASIZE_17BIT)        
+#if defined(SPI_DATASIZE_17BIT)
         case SPI_DATASIZE_17BIT:
             return 2;
 #endif
-#if defined(SPI_DATASIZE_18BIT)        
+#if defined(SPI_DATASIZE_18BIT)
         case SPI_DATASIZE_18BIT:
             return 2;
 #endif
-#if defined(SPI_DATASIZE_19BIT)        
+#if defined(SPI_DATASIZE_19BIT)
         case SPI_DATASIZE_19BIT:
             return 2;
 #endif
-#if defined(SPI_DATASIZE_20BIT)        
+#if defined(SPI_DATASIZE_20BIT)
         case SPI_DATASIZE_20BIT:
             return 2;
 #endif
-#if defined(SPI_DATASIZE_21BIT)        
+#if defined(SPI_DATASIZE_21BIT)
         case SPI_DATASIZE_21BIT:
             return 2;
 #endif
-#if defined(SPI_DATASIZE_22BIT)        
+#if defined(SPI_DATASIZE_22BIT)
         case SPI_DATASIZE_22BIT:
             return 2;
 #endif
-#if defined(SPI_DATASIZE_23BIT)        
+#if defined(SPI_DATASIZE_23BIT)
         case SPI_DATASIZE_23BIT:
             return 2;
 #endif
-#if defined(SPI_DATASIZE_24BIT)        
+#if defined(SPI_DATASIZE_24BIT)
         case SPI_DATASIZE_24BIT:
             return 2;
 #endif
-#if defined(SPI_DATASIZE_25BIT)        
+#if defined(SPI_DATASIZE_25BIT)
         case SPI_DATASIZE_25BIT:
             return 2;
 #endif
-#if defined(SPI_DATASIZE_26BIT)        
+#if defined(SPI_DATASIZE_26BIT)
         case SPI_DATASIZE_26BIT:
             return 2;
 #endif
-#if defined(SPI_DATASIZE_27BIT)        
+#if defined(SPI_DATASIZE_27BIT)
         case SPI_DATASIZE_27BIT:
             return 2;
 #endif
-#if defined(SPI_DATASIZE_28BIT)        
+#if defined(SPI_DATASIZE_28BIT)
         case SPI_DATASIZE_28BIT:
             return 2;
 #endif
-#if defined(SPI_DATASIZE_29BIT)        
+#if defined(SPI_DATASIZE_29BIT)
         case SPI_DATASIZE_29BIT:
             return 2;
 #endif
-#if defined(SPI_DATASIZE_30BIT)        
+#if defined(SPI_DATASIZE_30BIT)
         case SPI_DATASIZE_30BIT:
             return 2;
 #endif
-#if defined(SPI_DATASIZE_31BIT)        
+#if defined(SPI_DATASIZE_31BIT)
         case SPI_DATASIZE_31BIT:
             return 2;
 #endif
-#if defined(SPI_DATASIZE_32BIT)        
+#if defined(SPI_DATASIZE_32BIT)
         case SPI_DATASIZE_32BIT:
             return 2;
 #endif
@@ -1034,6 +1035,7 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
 }
 
 // asynchronous API
+// DMA support for SPI is currently not supported, hence asynchronous SPI does not support high speeds(MHZ range)
 void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     struct spi_s *spiobj = SPI_S(obj);

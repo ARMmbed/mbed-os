@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  ******************************************************************************
  *
- * Copyright (c) 2015-2020 STMicroelectronics.
+ * Copyright (c) 2015-2021 STMicroelectronics.
  * All rights reserved.
  *
  * This software component is licensed by ST under BSD 3-Clause license,
@@ -16,12 +16,13 @@
 #ifndef MBED_I2C_DEVICE_H
 #define MBED_I2C_DEVICE_H
 
-#include "cmsis.h"
+#include "PeripheralNames.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/*  Define I2C Device */
 #if DEVICE_I2C
 
 #if defined I2C1_BASE
@@ -32,41 +33,33 @@ extern "C" {
 #define I2C2_EV_IRQn I2C2_IRQn
 #define I2C2_ER_IRQn I2C2_IRQn
 #endif
-#if defined I2C3_BASE
-#define I2C3_EV_IRQn I2C3_IRQn
-#define I2C3_ER_IRQn I2C3_IRQn
-#endif
-
-#define I2C_IT_ALL (I2C_IT_ERRI|I2C_IT_TCI|I2C_IT_STOPI|I2C_IT_NACKI|I2C_IT_ADDRI|I2C_IT_RXI|I2C_IT_TXI)
-
 
 /*  Define IP version */
 #define I2C_IP_VERSION_V2
 
+#define TIMING_VAL_48M_CLK_100KHZ  0x10805E89  // Standard mode with Rise Time = 400ns and Fall Time = 100ns
+#define TIMING_VAL_48M_CLK_400KHZ  0x00901850  // Fast mode with Rise Time = 250ns and Fall Time = 100ns
+#define TIMING_VAL_48M_CLK_1MHZ    0x00700818  // Fast mode Plus with Rise Time = 60ns and Fall Time = 100ns
+#define I2C_PCLK_48M               48000000    // 48 MHz    
+
+#define I2C_IT_ALL (I2C_IT_ERRI|I2C_IT_TCI|I2C_IT_STOPI|I2C_IT_NACKI|I2C_IT_ADDRI|I2C_IT_RXI|I2C_IT_TXI)
+
 /*  Family specifc settings for clock source */
 #define I2CAPI_I2C1_CLKSRC RCC_I2C1CLKSOURCE_SYSCLK
 
-/*  Provide the suitable timing depending on requested frequencie */
-static inline uint32_t get_i2c_timing(int hz)
-{
-    uint32_t tim = 0;
+uint32_t i2c_get_pclk(I2CName i2c);
+uint32_t i2c_get_timing(I2CName i2c, uint32_t current_timing, int current_hz, int hz);
 
-    switch (hz) {
-        case 100000:
-            tim = 0x10805E89; // Standard mode with Rise Time = 400ns and Fall Time = 100ns
-            break;
-        case 400000:
-            tim = 0x00901850; // Fast mode with Rise Time = 250ns and Fall Time = 100ns
-            break;
-        case 1000000:
-            tim = 0x00700818; // Fast mode Plus with Rise Time = 60ns and Fall Time = 100ns
-            break;
-        default:
-            break;
-    }
-    return tim;
-}
+#if MBED_CONF_TARGET_I2C_TIMING_VALUE_ALGO
+uint32_t i2c_compute_timing(uint32_t clock_src_freq, uint32_t i2c_freq);
+void i2c_compute_presc_scldel_sdadel(uint32_t clock_src_freq, uint32_t I2C_speed);
+uint32_t i2c_compute_scll_sclh(uint32_t clock_src_freq, uint32_t I2C_speed);
+#endif // MBED_CONF_TARGET_I2C_TIMING_VALUE_ALGO
 
 #endif // DEVICE_I2C
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

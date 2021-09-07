@@ -49,6 +49,7 @@ CORE_LABELS = {
     "Cortex-M7F": ["M7", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M7", "CORTEX"],
     "Cortex-M7FD": ["M7", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M7",
                     "CORTEX"],
+    "Cortex-A5": ["A5", "CORTEX_A", "LIKE_CORTEX_A5", "CORTEX"],
     "Cortex-A9": ["A9", "CORTEX_A", "LIKE_CORTEX_A9", "CORTEX"],
     "Cortex-M23": ["M23", "CORTEX_M", "LIKE_CORTEX_M23", "CORTEX"],
     "Cortex-M23-NS": ["M23", "M23_NS", "CORTEX_M", "LIKE_CORTEX_M23",
@@ -74,6 +75,7 @@ CORE_ARCH = {
     "Cortex-M7": 7,
     "Cortex-M7F": 7,
     "Cortex-M7FD": 7,
+    "Cortex-A5": 7,
     "Cortex-A9": 7,
     "Cortex-M23": 8,
     "Cortex-M23-NS": 8,
@@ -788,6 +790,21 @@ class M2351Code(object):
         ns_ih.start_addr = None
         s_ih.merge(ns_ih)
         s_ih.tofile(ns_hex, 'hex')
+
+class NuM2354Code(object):
+    """M2354 Hooks"""
+    @staticmethod
+    def merge_secure(t_self, resources, elf, binf):
+        from tools.targets.NU_M2354 import m2354_tfm_bin
+        configured_secure_image_filename = t_self.target.secure_image_filename
+        secure_bin = find_secure_image(
+            t_self.notify,
+            resources,
+            binf,
+            configured_secure_image_filename,
+            FileType.BIN
+        )
+        m2354_tfm_bin(t_self, binf, secure_bin)
 
 # End Target specific section
 ###############################################################################

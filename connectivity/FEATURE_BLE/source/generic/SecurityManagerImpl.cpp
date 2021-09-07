@@ -222,6 +222,18 @@ ble_error_t SecurityManager::preserveBondingStateOnReset(bool enabled)
     return BLE_ERROR_NONE;
 }
 
+
+ble_error_t SecurityManager::writeBondingStateToPersistentStorage()
+{
+    tr_info("Writing bonding to storage");
+    if (!_db) {
+        tr_error("Failure, DB not initialized");
+        return BLE_ERROR_INITIALIZATION_INCOMPLETE;
+    }
+    _db->sync();
+    return BLE_ERROR_NONE;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 // List management
 //
@@ -1198,15 +1210,23 @@ ble_error_t SecurityManager::init_database(
     const char *db_path
 )
 {
-    tr_info("Initialize database. Path = %s", db_path);
+    tr_info("Initialize database.");
     delete _db;
 
 #if BLE_SECURITY_DATABASE_FILESYSTEM
-    FILE* db_file = FileSecurityDb::open_db_file(db_path);
+    FILE* db_file = nullptr;
+    if (db_path) {
+        tr_info("Using filesystem path = %s", db_path);
+        db_file = FileSecurityDb::open_db_file(db_path);
+    }
 
     if (db_file) {
         _db = new (std::nothrow) FileSecurityDb(db_file);
     } else
+#else
+    if (db_path) {
+        tr_error("Passed in a path for BLE security DB init but BLE_SECURITY_DATABASE_FILESYSTEM is disabled");
+    }
 #endif
 #if BLE_SECURITY_DATABASE_KVSTORE
     if (KVStoreSecurityDb::open_db()) {

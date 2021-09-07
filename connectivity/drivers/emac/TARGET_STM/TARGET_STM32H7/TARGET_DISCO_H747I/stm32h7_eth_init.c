@@ -36,6 +36,7 @@
 #ifndef USE_USER_DEFINED_HAL_ETH_MSPINIT
 
 #include "stm32h7xx_hal.h"
+#include "platform/mbed_critical.h"
 
 #define ETH_TX_EN_Pin GPIO_PIN_11
 #define ETH_TX_EN_GPIO_Port GPIOG
@@ -66,7 +67,9 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef *heth)
     if (heth->Instance == ETH) {
 #if defined(CORE_CM7)
         /* Disable DCache for STM32H7 family */
+        core_util_critical_section_enter();
         SCB_DisableDCache();
+        core_util_critical_section_exit();
 #endif
 
         /* GPIO Ports Clock Enable */

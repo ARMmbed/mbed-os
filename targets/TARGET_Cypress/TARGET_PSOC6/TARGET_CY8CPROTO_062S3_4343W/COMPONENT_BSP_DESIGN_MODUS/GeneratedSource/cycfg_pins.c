@@ -4,11 +4,13 @@
 * Description:
 * Pin configuration
 * This file was automatically generated and should not be modified.
-* Device Configurator: 2.0.0.1483
-* Device Support Library (libs/psoc6pdl): 1.4.1.2240
+* Tools Package 2.2.0.2790
+* latest-v2.X 2.0.0.6211
+* personalities 3.0.0.0
+* udd 3.0.0.562
 *
 ********************************************************************************
-* Copyright 2017-2019 Cypress Semiconductor Corporation
+* Copyright 2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -74,11 +76,11 @@ const cy_stc_gpio_pin_config_t CYBSP_WCO_OUT_config =
 		.channel_num = CYBSP_WCO_OUT_PIN,
 	};
 #endif //defined (CY_USING_HAL)
-const cy_stc_gpio_pin_config_t SWDIO_config =
+const cy_stc_gpio_pin_config_t CYBSP_SWDIO_config =
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_PULLUP,
-	.hsiom = SWDIO_HSIOM,
+	.hsiom = CYBSP_SWDIO_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
@@ -91,18 +93,18 @@ const cy_stc_gpio_pin_config_t SWDIO_config =
 	.vohSel = 0UL,
 };
 #if defined (CY_USING_HAL)
-	const cyhal_resource_inst_t SWDIO_obj =
+	const cyhal_resource_inst_t CYBSP_SWDIO_obj =
 	{
 		.type = CYHAL_RSC_GPIO,
-		.block_num = SWDIO_PORT_NUM,
-		.channel_num = SWDIO_PIN,
+		.block_num = CYBSP_SWDIO_PORT_NUM,
+		.channel_num = CYBSP_SWDIO_PIN,
 	};
 #endif //defined (CY_USING_HAL)
-const cy_stc_gpio_pin_config_t SWCLK_config =
+const cy_stc_gpio_pin_config_t CYBSP_SWDCK_config =
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_PULLDOWN,
-	.hsiom = SWCLK_HSIOM,
+	.hsiom = CYBSP_SWDCK_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
@@ -115,11 +117,11 @@ const cy_stc_gpio_pin_config_t SWCLK_config =
 	.vohSel = 0UL,
 };
 #if defined (CY_USING_HAL)
-	const cyhal_resource_inst_t SWCLK_obj =
+	const cyhal_resource_inst_t CYBSP_SWDCK_obj =
 	{
 		.type = CYHAL_RSC_GPIO,
-		.block_num = SWCLK_PORT_NUM,
-		.channel_num = SWCLK_PIN,
+		.block_num = CYBSP_SWDCK_PORT_NUM,
+		.channel_num = CYBSP_SWDCK_PIN,
 	};
 #endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t CYBSP_CSD_SLD0_config =
@@ -328,14 +330,14 @@ void init_cycfg_pins(void)
 	cyhal_hwmgr_reserve(&CYBSP_WCO_OUT_obj);
 #endif //defined (CY_USING_HAL)
 
-	Cy_GPIO_Pin_Init(SWDIO_PORT, SWDIO_PIN, &SWDIO_config);
+	Cy_GPIO_Pin_Init(CYBSP_SWDIO_PORT, CYBSP_SWDIO_PIN, &CYBSP_SWDIO_config);
 #if defined (CY_USING_HAL)
-	cyhal_hwmgr_reserve(&SWDIO_obj);
+	cyhal_hwmgr_reserve(&CYBSP_SWDIO_obj);
 #endif //defined (CY_USING_HAL)
 
-	Cy_GPIO_Pin_Init(SWCLK_PORT, SWCLK_PIN, &SWCLK_config);
+	Cy_GPIO_Pin_Init(CYBSP_SWDCK_PORT, CYBSP_SWDCK_PIN, &CYBSP_SWDCK_config);
 #if defined (CY_USING_HAL)
-	cyhal_hwmgr_reserve(&SWCLK_obj);
+	cyhal_hwmgr_reserve(&CYBSP_SWDCK_obj);
 #endif //defined (CY_USING_HAL)
 
 #if defined (CY_USING_HAL)

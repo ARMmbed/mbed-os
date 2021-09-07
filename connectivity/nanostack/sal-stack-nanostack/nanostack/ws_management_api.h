@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -857,9 +857,13 @@ int ws_neighbor_info_get(
  *
  * Setting a value that is not suitable for Radio might prevent the device joining to the network.
  *
- * NOTE: Currently lower EAPOL parents are accepted if there is no parents higher than
- *       DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERESIS
- * NOTE: Currently not using this value to limit parents as it is only RECOMENDED in specification.
+ * This configuration limits the EAPOL parents accepted for Authentication and device must hear signal
+ * level higher than device_min_sens + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERESIS
+ * to start authentication.
+ *
+ * ETX Calculation gives a maximum ETX if two way EWMA RSL is less than
+ * device_min_sens + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERESIS to
+ * prevent selecting parents with poor signal quality
  *
  * \param interface_id Network interface ID.
  * \param device_min_sens value used in the parent selections.

@@ -1,0 +1,475 @@
+/* mbed Microcontroller Library
+ * Copyright (c) 2019 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#ifndef MSTD_TYPE_TRAITS_
+#define MSTD_TYPE_TRAITS_
+
+/* <mstd_type_traits>
+ *
+ * - includes toolchain's <type_traits>
+ * - For all toolchains, C++17/20 backports:
+ *   - mstd::type_identity
+ *   - mstd::bool_constant
+ *   - mstd::void_t
+ *   - mstd::is_invocable, mbed::is_invocable_r, etc
+ *   - mstd::invoke_result
+ *   - logical operator traits (mstd::conjunction, mstd::disjunction, mstd::negation)
+ *   - mstd::is_constant_evaluated
+ */
+
+#include <mstd_cstddef>
+#include <type_traits>
+
+// The template stuff in here is too confusing for astyle
+// *INDENT-OFF*
+
+namespace mstd {
+
+/* C++20 type identity */
+template<typename T>
+struct type_identity {
+    using type = T;
+};
+
+template <typename T>
+using type_identity_t = typename type_identity<T>::type;
+
+/* C++17 void_t (foundation for detection idiom) */
+/* void_t<Args...> is void if args are valid, else a substitution failure */
+#if __cpp_lib_void_t >= 201411
+using std::void_t;
+#else
+template <typename...>
+using void_t = void;
+#endif
+
+/* C++17 bool_constant */
+#if __cpp_lib_bool_constant >= 201505
+using std::bool_constant;
+#else
+template <bool B>
+using bool_constant = std::integral_constant<bool, B>;
+#endif
+
+/* Forward declarations */
+#if __cpp_lib_is_invocable >= 201703
+using std::invoke_result;
+#else
+template <typename F, typename... Args>
+struct invoke_result;
+#endif
+
+} // namespace mstd
+
+namespace mstd {
+
+using std::is_same;
+using std::conditional;
+using std::conditional_t;
+using std::enable_if;
+using std::enable_if_t;
+using std::is_convertible;
+using std::is_object;
+using std::is_reference;
+
+/* Reinvent or pull in good stuff not in C++14 into namespace mstd */
+/* C++17 logical operations on traits */
+#if __cpp_lib_logical_traits >= 201510
+using std::conjunction;
+using std::disjunction;
+using std::negation;
+#else
+template<class...>
+struct conjunction : std::true_type { };
+template<class B1>
+struct conjunction<B1> : B1 { };
+template<class B1, class... BN>
+struct conjunction<B1, BN...> : std::conditional_t<bool(B1::value), conjunction<BN...>, B1> { };
+
+template<class...>
+struct disjunction : std::false_type { };
+template<class B1>
+struct disjunction<B1> : B1 { };
+template<class B1, class... BN>
+struct disjunction<B1, BN...> : std::conditional_t<bool(B1::value), B1, disjunction<BN...>> { };
+
+template<class B>
+struct negation : bool_constant<!bool(B::value)> { };
+#endif
+
+/* C++ detection idiom from Library fundamentals v2 TS */
+/* Place into mstd::experimental to match their std::experimental */
+namespace experimental {
+
+namespace impl {
+template <class Default, class Void, template<class...> class Op, class... Args>
+struct detector {
+    using value_t = std::false_type;
+    using type = Default;
+};
+
+template <class Default, template<class...> class Op, class... Args>
+struct detector<Default, void_t<Op<Args...>>, Op, Args...> {
+    using value_t = std::true_type;
+    using type = Op<Args...>;
+};
+
+} // namespace impl
+
+struct nonesuch {
+    ~nonesuch() = delete;
+    nonesuch(nonesuch const &) = delete;
+    void operator=(nonesuch const &) = delete;
+};
+
+#if 0
+/* Deactivated because impl::detector appears to not work on ARM C 5; it seems to produce
+ * hard errors in the template template parameter expansion. You can use void_t directly instead.
+ *
+ * Reactivate if working ARM C 5 implementation discovered, or ARM C 5 support
+ * dropped.
+ */
+
+template<template<class...> class Op, class... Args>
+using is_detected = typename impl::detector<nonesuch, void, Op, Args...>::value_t;
+
+template<template<class...> class Op, class... Args>
+using detected_t = typename impl::detector<nonesuch, void, Op, Args...>::type;
+
+template<class Default, template<class...> class Op, class... Args>
+using detected_or = typename impl::detector<Default, void, Op, Args...>;
+
+template<class Default, template<class...> class Op, class... Args>
+using detected_or_t = typename detected_or<Default, Op, Args...>::type;
+
+template<class Expected, template<class...> class Op, class... Args>
+using is_detected_exact = std::is_same<Expected, detected_t<Op, Args...>>;
+
+template<class To, template<class...> class Op, class... Args>
+using is_detected_convertible = std::is_convertible<detected_t<Op, Args...>, To>;
+#endif // if 0 - deactivated detector idiom
+} // namespace experimental
+} // namespace mstd
+
+/* More post-C++14 stuff */
+namespace mstd {
+
+using std::remove_const;
+using std::remove_const_t;
+using std::remove_volatile;
+using std::remove_volatile_t;
+using std::remove_cv;
+using std::remove_cv_t;
+using std::add_const;
+using std::add_const_t;
+using std::add_volatile;
+using std::add_volatile_t;
+using std::add_cv;
+using std::add_cv_t;
+using std::remove_reference;
+using std::remove_reference_t;
+using std::add_lvalue_reference;
+using std::add_rvalue_reference;
+using std::is_void;
+using std::is_null_pointer;
+using std::is_integral;
+using std::is_floating_point;
+using std::is_array;
+using std::is_pointer;
+using std::is_lvalue_reference;
+using std::is_rvalue_reference;
+using std::is_enum;
+using std::is_union;
+using std::is_class;
+using std::is_function;
+using std::is_member_function_pointer;
+using std::is_member_object_pointer;
+using std::is_reference;
+using std::is_arithmetic;
+using std::is_fundamental;
+using std::is_compound;
+using std::is_member_pointer;
+using std::is_scalar;
+using std::is_object;
+using std::is_const;
+using std::is_volatile;
+using std::is_trivial;
+using std::is_trivially_copyable;
+using std::is_standard_layout;
+using std::is_pod;
+using std::is_literal_type;
+using std::is_empty;
+using std::is_polymorphic;
+using std::is_abstract;
+using std::is_signed;
+using std::is_unsigned;
+using std::is_constructible;
+using std::is_default_constructible;
+using std::is_copy_constructible;
+using std::is_move_constructible;
+using std::is_assignable;
+using std::is_copy_assignable;
+using std::is_move_assignable;
+using std::is_destructible;
+using std::is_trivially_constructible;
+using std::is_trivially_default_constructible;
+using std::is_trivially_copy_constructible;
+using std::is_trivially_move_constructible;
+using std::is_trivially_assignable;
+using std::is_trivially_copy_assignable;
+using std::is_trivially_move_assignable;
+using std::is_trivially_destructible;
+// Exceptions are disabled in mbed, so short-circuit nothrow tests
+// (Compilers don't make noexcept() return false with exceptions
+// disabled, presumably to preserve binary compatibility, so the
+// std versions of these are unduly pessimistic).
+template <typename T, typename... Args>
+struct is_nothrow_constructible : is_constructible<T, Args...> { };
+template <typename T>
+struct is_nothrow_default_constructible : is_default_constructible<T> { };
+template <typename T>
+struct is_nothrow_copy_constructible : is_copy_constructible<T> { };
+template <typename T>
+struct is_nothrow_move_constructible : is_move_constructible<T> { };
+template <typename To, typename From>
+struct is_nothrow_assignable: is_assignable<To, From> { };
+template <typename T>
+struct is_nothrow_copy_assignable : is_copy_assignable<T> { };
+template <typename T>
+struct is_nothrow_move_assignable : is_move_assignable<T> { };
+using std::has_virtual_destructor;
+using std::alignment_of;
+using std::rank;
+using std::extent;
+using std::is_convertible;
+using std::is_base_of;
+using std::make_signed;
+using std::make_signed_t;
+using std::make_unsigned;
+using std::make_unsigned_t;
+using std::remove_extent;
+using std::remove_extent_t;
+using std::remove_all_extents;
+using std::remove_all_extents_t;
+using std::remove_pointer;
+using std::remove_pointer_t;
+using std::add_pointer;
+using std::add_pointer_t;
+using std::aligned_storage;
+using std::aligned_storage_t;
+using std::decay;
+using std::decay_t;
+using std::common_type;
+using std::common_type_t;
+using std::result_of;
+using std::result_of_t;
+
+/* C++20 remove_cvref */
+template <typename T>
+struct remove_cvref : type_identity<std::remove_cv_t<std::remove_reference_t<T>>> { };
+
+template <typename T>
+using remove_cvref_t = typename remove_cvref<T>::type;
+
+}
+
+#if __cpp_lib_invoke < 201411
+#include <utility> // want std::forward
+#include <functional> // want std::reference_wrapper
+#elif __cpp_lib_is_invocable < 201703
+#include <functional> // want std::invoke
+#endif
+
+namespace mstd {
+/* C++17 invoke_result, is_invocable, invoke */
+#if __cpp_lib_is_invocable >= 201703
+/* Library has complete suite - pull it into mstd */
+using std::invoke_result;
+using std::invoke_result_t;
+using std::is_invocable;
+using std::is_nothrow_invocable;
+using std::is_invocable_r;
+using std::is_nothrow_invocable_r;
+#else // __cpp_lib_is_invocable
+namespace impl {
+#if __cpp_lib_invoke >= 201411
+/* Library has just invoke - make it our impl::INVOKE so we can create invoke_result */
+template <typename F, typename... Args>
+using INVOKE = std::invoke<F, Args...>;
+#else // __cpp_lib_invoke
+/* Define our own INVOKE */
+template <typename T>
+struct is_reference_wrapper : std::false_type { };
+
+template <typename T>
+struct is_reference_wrapper<std::reference_wrapper<T>> : std::true_type { };
+
+/* F is pointer to member function, and 1st arg decays to matching class */
+template<typename Base, typename F, typename T1, class... Args>
+auto INVOKE(F Base::* fn, T1 &&target, Args &&...args)
+// Noexcept specifications generate compiler errors unpacking args
+//noexcept(noexcept((std::forward<T1>(target).*fn)(std::forward<Args>(args)...)))
+ -> std::enable_if_t<std::is_function<F>::value &&
+                     std::is_base_of<Base, std::decay_t<T1>>::value,
+                     decltype((std::forward<T1>(target).*fn)(std::forward<Args>(args)...))>
+{
+    return (std::forward<T1>(target).*fn)(std::forward<Args>(args)...);
+}
+/* F is pointer to member function, and 1st arg is a reference wrapper  */
+template<typename Base, typename F, typename T1, class... Args>
+auto INVOKE(F Base::* fn, T1 &&target, Args &&...args)
+//noexcept(noexcept((std::forward<T1>(target).get().*fn)(std::forward<Args>(args)...)))
+ -> std::enable_if_t<std::is_function<F>::value &&
+                     is_reference_wrapper<std::decay_t<T1>>::value,
+                     decltype((std::forward<T1>(target).get().*fn)(std::forward<Args>(args)...))>
+{
+    return (std::forward<T1>(target).get().*fn)(std::forward<Args>(args)...);
+}
+/* F is pointer to member function, and 1st arg doesn't match class and isn't reference wrapper - assume pointer */
+template<typename Base, typename F, typename T1, class... Args>
+auto INVOKE(F Base::* fn, T1 &&target, Args &&...args)
+//noexcept(noexcept(((*std::forward<T1>(target)).*fn)(std::forward<Args>(args)...)))
+ -> std::enable_if_t<std::is_function<F>::value &&
+                     !std::is_base_of<Base, std::decay_t<T1>>::value &&
+                     !is_reference_wrapper<std::decay_t<T1>>::value,
+                     decltype(((*std::forward<T1>(target)).*fn)(std::forward<Args>(args)...))>
+{
+    return ((*std::forward<T1>(target)).*fn)(std::forward<Args>(args)...);
+}
+/* F is pointer to member object, and only arg decays to matching class */
+template<typename Base, typename F, typename T1>
+auto INVOKE(F Base::* obj, T1 &&target)
+//noexcept(noexcept(std::forward<T1>(target).*obj))
+ -> std::enable_if_t<!std::is_function<F>::value &&
+                     std::is_base_of<Base, std::decay_t<T1>>::value,
+                     decltype(std::forward<T1>(target).*obj)>
+{
+    return std::forward<T1>(target).*obj;
+}
+/* F is pointer to member object, and only arg is a reference wrapper */
+template<typename Base, typename F, typename T1>
+auto INVOKE(F Base::* obj, T1 &&target)
+//noexcept(noexcept(std::forward<T1>(target).get().*obj))
+ -> std::enable_if_t<!std::is_function<F>::value &&
+                     is_reference_wrapper<std::decay_t<T1>>::value,
+                     decltype(std::forward<T1>(target).get().*obj)>
+{
+    return std::forward<T1>(target).get().*obj;
+}
+/* F is pointer to member object, and only arg doesn't match class and isn't reference wrapper - assume pointer */
+template<typename Base, typename F, typename T1>
+auto INVOKE(F Base::* obj, T1 &&target)
+//noexcept(noexcept((*std::forward<T1>(target)).*obj))
+ -> std::enable_if_t<!std::is_function<F>::value &&
+                     !std::is_base_of<Base, std::decay_t<T1>>::value &&
+                     !is_reference_wrapper<std::decay_t<T1>>::value,
+                     decltype((*std::forward<T1>(target)).*obj)>
+{
+    return (*std::forward<T1>(target)).*obj;
+}
+/* F is not a pointer to member */
+template<typename F, typename... Args>
+auto INVOKE(F&& f, Args&&... args)
+//noexcept(noexcept(std::forward<F>(f)(std::forward<Args>(args)...)))
+ -> std::enable_if_t<!std::is_member_pointer<std::decay_t<F>>::value ||
+                      (std::is_member_object_pointer<std::decay_t<F>>::value && sizeof...(args) != 1),
+                     decltype(std::forward<F>(f)(std::forward<Args>(args)...))>
+{
+    return std::forward<F>(f)(std::forward<Args>(args)...);
+}
+#endif // __cpp_lib_invoke
+
+template <typename Void, typename F, typename... Args>
+struct invoke_result { };
+template <typename F, typename... Args> // void_t<decltype(INVOKE)> appears not to work here - why?
+struct invoke_result<decltype(void(INVOKE(std::declval<F>(), std::declval<Args>()...))), F, Args...> :
+    type_identity<decltype(INVOKE(std::declval<F>(), std::declval<Args>()...))> { };
+
+// This would be a lot shorter if we could get the detector idiom to work and use it
+template <typename R, typename InvokeResult, typename = void>
+struct is_invocable_r : std::false_type { };
+template <typename R, typename InvokeResult>
+struct is_invocable_r <R, InvokeResult, void_t<typename InvokeResult::type>> :
+    disjunction<std::is_void<R>, std::is_convertible<typename InvokeResult::type, R>> { };
+
+template <typename R, typename InvokeResult, typename = void>
+struct is_nothrow_invocable_r : std::false_type { };
+template <typename R, typename InvokeResult>
+struct is_nothrow_invocable_r<R, InvokeResult, void_t<typename InvokeResult::type>> :
+    disjunction<std::is_void<R>,
+                     conjunction<std::is_convertible<typename InvokeResult::type, R>,
+                                 std::is_nothrow_constructible<R, typename InvokeResult::type>>> { };
+
+} //namespace impl
+
+template <class F, class... Args>
+struct invoke_result : impl::invoke_result<void, F, Args...> { };
+
+template <class F, class... Args>
+using invoke_result_t = typename invoke_result<F, Args...>::type;
+
+template <class F, class... Args>
+struct is_invocable : impl::is_invocable_r<void, invoke_result<F, Args...>> { };
+
+#if 0 // No exceptions in mbed OS
+template <class F, class... Args>
+struct is_nothrow_invocable : impl::is_nothrow_invocable_r<void, invoke_result<F, Args...>> { };
+#else
+template <class F, class... Args>
+struct is_nothrow_invocable : impl::is_invocable_r<void, invoke_result<F, Args...>> { };
+#endif
+
+template <typename R, typename F, typename... Args>
+struct is_invocable_r : impl::is_invocable_r<R, invoke_result<F, Args...>> { };
+
+#if 0 // No exceptions in mbed OS
+template <typename R, typename F, typename... Args>
+struct is_nothrow_invocable_r : conjunction<impl::is_nothrow_invocable_r<R, invoke_result<F>>,
+                                            std::is_convertible<invoke_result_t<F, Args...>, R>> { };
+#else
+template <typename R, typename F, typename... Args>
+struct is_nothrow_invocable_r : impl::is_invocable_r<R, invoke_result<F, Args...>> { };
+#endif
+
+#endif // __cpp_lib_is_invocable
+
+/* C++20 is_constant_evaluated */
+constexpr bool is_constant_evaluated() noexcept
+{
+#ifdef __clang__
+#if __has_builtin(__builtin_is_constant_evaluated)
+#define MSTD_HAS_IS_CONSTANT_EVALUATED 1
+   return __builtin_is_constant_evaluated();
+#else
+   return false;
+#endif
+#elif __GNUC__ >= 9
+#define MSTD_HAS_IS_CONSTANT_EVALUATED 1
+   return __builtin_is_constant_evaluated();
+#else
+   return false;
+#endif
+}
+
+#if MSTD_HAS_IS_CONSTANT_EVALUATED
+#define MSTD_CONSTEXPR_IF_HAS_IS_CONSTANT_EVALUATED constexpr
+#else
+#define MSTD_CONSTEXPR_IF_HAS_IS_CONSTANT_EVALUATED
+#endif
+
+} // namespace mstd
+
+#endif /* MSTD_TYPE_TRAITS_ */

@@ -10,14 +10,21 @@ include(${MBED_PATH}/tools/cmake/mbed_greentea.cmake)
 
 project(${TEST_TARGET})
 
-list(APPEND TEST_SOURCE_LIST
-    multihoming_asynchronous_dns.cpp
-    multihoming_synchronous_dns.cpp
-    multihoming_udpsocket_echotest.cpp
+list(
+    APPEND
+        TEST_SOURCE_LIST
+            main.cpp
+            multihoming_asynchronous_dns.cpp
+            multihoming_synchronous_dns.cpp
+            multihoming_udpsocket_echotest.cpp
 )
 
 mbed_greentea_add_test(
-    TEST_NAME ${TEST_TARGET}
-    TEST_SOURCES ${TEST_SOURCE_LIST}
-    TEST_REQUIRED_LIBS mbed-netsocket mbed-nanostack
+    TEST_NAME
+        ${TEST_TARGET}
+    TEST_SOURCES
+        ${TEST_SOURCE_LIST}
+    TEST_REQUIRED_LIBS
+        mbed-netsocket
+        mbed-nanostack
 )

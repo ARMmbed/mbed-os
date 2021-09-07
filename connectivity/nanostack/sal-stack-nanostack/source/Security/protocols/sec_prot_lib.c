@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, Arm Limited and affiliates.
+ * Copyright (c) 2016-2020, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -88,6 +88,8 @@ void sec_prot_timer_timeout_handle(sec_prot_t *prot, sec_prot_common_t *data, co
 void sec_prot_timer_trickle_start(sec_prot_common_t *data, const trickle_params_t *trickle_params)
 {
     trickle_start(&data->trickle_timer, trickle_params);
+    trickle_inconsistent_heard(&data->trickle_timer, trickle_params);
+    tr_info("Security prot trickle start, I: %i, t: %i", data->trickle_timer.I, data->trickle_timer.t);
     data->trickle_running = true;
 }
 

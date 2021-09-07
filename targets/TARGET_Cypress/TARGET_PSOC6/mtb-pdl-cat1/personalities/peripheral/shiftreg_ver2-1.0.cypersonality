@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<!--****************************************************************************
+* \file shiftreg_ver2-1.0.cypersonality
+* \version 1.0
+*
+* \brief
+* Shift Register personality description file.
+*
+********************************************************************************
+* \copyright
+* Copyright 2020 Cypress Semiconductor Corporation
+* SPDX-License-Identifier: Apache-2.0
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*****************************************************************************-->
+
+<Personality id="mxs40shiftreg_ver2" name="ShiftReg" version="1.0" path="Digital/Functions" xmlns="http://cypress.com/xsd/cyhwpersonality_v1">
+  <Dependencies>
+    <IpBlock name="mxtcpwm_ver2" />
+    <Resource name="tcpwm\.group\.cnt" used="true" />
+  </Dependencies>
+  <ExposedMembers />
+  <Parameters>  
+    <!-- PDL documentation -->
+    <ParamDoc id="pdlDoc" name="Configuration Help" group="Peripheral Documentation" default="file:///`${cy_libs_path()}`/docs/pdl_api_reference_manual/html/group__group__tcpwm__shiftreg.html" linkText="Open Shift Register (TCPWM) Documentation" visible="true" desc="Opens the Peripheral Driver Library Documentation" />
+  
+    <!--General-->
+    <ParamRange id="pCntGroup" name="pCntGroup" desc="pCntGroup" group="Internal"  default="`${getInstNumber(&quot;group&quot;)}`" min="0" max="3" resolution="1" visible="false" editable="false" />
+    <ParamString id="pCntWidthEx" name="pCntWidthEx" desc="pCntWidthEx" group="Internal"  default="GRP_NR[`${pCntGroup}`].CNT.GRP_CNT_WIDTH" visible="false" editable="false" />
+    <ParamRange id="pCntWidth" name="pCntWidth" desc="pCntWidth" group="Internal"  default="`${lookupExpression(pCntWidthEx)}`" min="0" max="32" resolution="1" visible="false" editable="false" />
+    <ParamRange id="pCntWidthMax" name="pCntWidthMax" desc="pCntWidthMax" group="Internal"  default="`${pow(2, pCntWidth)-1}`" min="0" max="4294967296" resolution="1" visible="false" editable="false" />
+    <ParamRange id="tcpwmInst" name="TCPWM Number" group="Internal" default="`${getInstNumber(&quot;tcpwm&quot;)}`" min="0" max="3" resolution="1" visible="false" editable="false" desc="" />
+    <ParamRange id="cntInst" name="CNT Number" group="Internal" default="`${getInstNumber(&quot;cnt&quot;) + pCntGroup * 256}`" min="0" max="1023" resolution="1" visible="false" editable="false" desc="" />
+    <ParamString id="pCntCC1Ex" name="pCntCC1Ex" desc="pCntCC1Ex" group="Internal" default="GRP_NR[`${pCntGroup}`].CNT.GRP_CC1_PRESENT" visible="false" editable="false" />
+    <ParamBool id="pCntCC1" name="pCntCC1" desc="pCntCC1" group="Internal" default="`${lookupExpression(pCntCC1Ex) eq 1}`" visible="false" editable="false" />
+    <ParamString id="pCntAMCEx" name="pCntAMCEx" desc="pCntAMCEx" group="Internal" default="GRP_NR[`${pCntGroup}`].CNT.GRP_AMC_PRESENT" visible="false" editable="false" />
+    <ParamBool id="pCntAMC" name="pCntAMC" desc="pCntAMC" group="Internal" default="`${lookupExpression(pCntAMCEx) eq 1}`" visible="false" editable="false" />
+    
+    <ParamString id="TCPWM_version" name="TCPWM version" group="General" default="TCPWM_ver2" visible="true" editable="false" desc="Version of the TCPWM hardware block"/>
+
+    <ParamChoice id="ClockPrescaler" name="Clock Prescaler" group="General" default="CY_TCPWM_SHIFTREG_PRESCALER_DIVBY_1" visible="true" editable="true" desc="Divides down the input clock." >
+      <Entry name="Divide by 1" value="CY_TCPWM_SHIFTREG_PRESCALER_DIVBY_1" visible="true" />
+      <Entry name="Divide by 2" value="CY_TCPWM_SHIFTREG_PRESCALER_DIVBY_2" visible="true" />
+      <Entry name="Divide by 4" value="CY_TCPWM_SHIFTREG_PRESCALER_DIVBY_4" visible="true" />
+      <Entry name="Divide by 8" value="CY_TCPWM_SHIFTREG_PRESCALER_DIVBY_8" visible="true" />
+      <Entry name="Divide by 16" value="CY_TCPWM_SHIFTREG_PRESCALER_DIVBY_16" visible="true" />
+      <Entry name="Divide by 32" value="CY_TCPWM_SHIFTREG_PRESCALER_DIVBY_32" visible="true" />
+      <Entry name="Divide by 64" value="CY_TCPWM_SHIFTREG_PRESCALER_DIVBY_64" visible="true" />
+      <Entry name="Divide by 128" value="CY_TCPWM_SHIFTREG_PRESCALER_DIVBY_128" visible="true" />
+    </ParamChoice>
+    <ParamChoice id="Resolution" name="Shift Register width" group="General" default="`${(pCntWidth eq 16) ? &quot;CY_TCPWM_SHIFTREG_WIDTH_16_BITS&quot; : &quot;CY_TCPWM_SHIFTREG_WIDTH_32_BITS&quot;}`" visible="true" editable="false" desc="Selects the width of the PWM.">
+      <Entry name="16-bits" value="CY_TCPWM_SHIFTREG_WIDTH_16_BITS" visible="true" />
+      <Entry name="32-bits" value="CY_TCPWM_SHIFTREG_WIDTH_32_BITS" visible="true" />
+    </ParamChoice>
+ 
+    <ParamRange id="TapsEnabled" name="Taps Enabled" group="Taps" default="1" min="0" max="`${pCntWidthMax}`" resolution="1" visible="true" editable="true" desc="Sets enabled taps. Range: 0-65535 (for 16 bit resolution) or 0–4294967295 (for 32 bit resolution)." />
+    
+    <!--Compare-->
+    <ParamBool id="EnableCompare0Swap" name="Enable Compare 0 Swap" group="Compare" default="false" visible="true" editable="true" desc="If checked the compare register will be swapped at the CC0 match event." />
+    <ParamRange id="Compare0" name="Compare 0" group="Compare" default="16384" min="0" max="`${pCntWidthMax}`" resolution="1" visible="true" editable="true" desc="Sets the compare value. When the count value equals the compare the compare output pulses high. Range: 0-65535 (for 16 bit resolution) or 0–4294967295 (for 32 bit resolution)." />
+    <ParamRange id="CompareBuf0" name="Compare 0 Buff" group="Compare" default="16384" min="0" max="`${pCntWidthMax}`" resolution="1" visible="`${EnableCompare0Swap}`" editable="true" desc="Sets the buffered compare value. Range: 0-65535 (for 16 bit resolution) or 0–4294967295 (for 32 bit resolution)." />
+
+    <!--CompareBuf0-->
+    <ParamBool id="EnableCompare1Swap" name="Enable Compare 1 Swap" group="Compare" default="false" visible="`${pCntCC1}`" editable="true" desc="If checked the compare register will be swapped at the CC1 match event." />
+    <ParamRange id="Compare1" name="Compare 1" group="Compare" default="16384" min="0" max="`${pCntWidthMax}`" resolution="1" visible="`${pCntCC1}`" editable="true" desc="Sets the compare value. When the count value equals the compare the compare output pulses high. Range: 0-65535 (for 16 bit resolution) or 0–4294967295 (for 32 bit resolution)." />
+    <ParamRange id="CompareBuf1" name="Compare 1 Buff" group="Compare" default="16384" min="0" max="`${pCntWidthMax}`" resolution="1" visible="`${EnableCompare1Swap &amp;&amp; pCntCC1}`" editable="true" desc="Sets the buffered compare value. Range: 0-65535 (for 16 bit resolution) or 0–4294967295 (for 32 bit resolution)." />
+    
+    <!--Interrupts-->
+    <ParamBool id="InterruptCC0" name="Compare 0" group="Interrupt Source" default="false" visible="true" editable="true" desc="Generates interrupt when counter value matches with compare 0 value" />
+    <ParamBool id="InterruptCC1" name="Compare 1" group="Interrupt Source" default="false" visible="`${pCntCC1}`" editable="true" desc="Generates interrupt when counter value matches with compare 1 value" />
+    <ParamString id="InterruptSource" name="InterruptSource" desc="InterruptSource" group="Interrupt Source" default="(CY_TCPWM_INT_ON_CC0 `${(InterruptCC0)? &quot;&quot; : &quot;&amp; 0U&quot;}`) | (CY_TCPWM_INT_ON_CC1 `${(InterruptCC1)? &quot;&quot; : &quot;&amp; 0U&quot;}`)" visible="false" editable="false" />
+    
+    <!--Inputs-->
+    <ParamSignal port="clock[0]" name="Clock Signal" group="Inputs" visible="true" desc="The clock input defines the operating frequency." canBeEmpty="false" />
+  
+  
+    <ParamChoice id="ShiftInput" name="Shift Input" group="Inputs" default="CY_TCPWM_INPUT_DISABLED" visible="true" editable="true"
+	desc="Determines the shift input event. Signal on this input causes counter to shift in right direction. Defaut setting selects input trigger 1, which is always '1'" >
+      <Entry name="Rising Edge" value="CY_TCPWM_INPUT_RISINGEDGE" visible="true" />
+      <Entry name="Falling Edge" value="CY_TCPWM_INPUT_FALLINGEDGE" visible="true" />
+      <Entry name="Either Edge" value="CY_TCPWM_INPUT_EITHEREDGE" visible="true" />
+      <Entry name="Level" value="CY_TCPWM_INPUT_LEVEL" visible="true" />
+      <Entry name="Disabled" value="CY_TCPWM_INPUT_DISABLED" visible="true" />
+    </ParamChoice>
+    <ParamSignal port="count[0]" name="Shift Signal" group="Inputs" visible="`${ShiftInput ne CY_TCPWM_INPUT_DISABLED}`" desc="Determines the shift input connection." canBeEmpty="`${ShiftInput eq CY_TCPWM_INPUT_DISABLED}`" >
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="DEFAULT" reason="">
+          <Fixed value="CY_GPIO_DM_HIGHZ" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="INFO" reason="The pin Drive Mode parameter does not match expected.">
+          <Fixed value="CY_GPIO_DM_HIGHZ" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
+    </ParamSignal>
+    <ParamChoice id="KillInput" name="Stop Input" group="Inputs" default="CY_TCPWM_INPUT_DISABLED" visible="true" editable="true" desc="Determines the stop input event. Signal on this input stops the Shift Register." >
+      <Entry name="Rising Edge" value="CY_TCPWM_INPUT_RISINGEDGE" visible="true" />
+      <Entry name="Falling Edge" value="CY_TCPWM_INPUT_FALLINGEDGE" visible="true" />
+      <Entry name="Either Edge" value="CY_TCPWM_INPUT_EITHEREDGE" visible="true" />
+      <Entry name="Disabled" value="CY_TCPWM_INPUT_DISABLED" visible="true" />
+    </ParamChoice>
+    <ParamSignal port="stop[0]" name="Stop Signal" group="Inputs" visible="`${KillInput ne CY_TCPWM_INPUT_DISABLED}`" desc="Determines the stop input connection." canBeEmpty="`${KillInput eq CY_TCPWM_INPUT_DISABLED}`" >
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="DEFAULT" reason="">
+          <Fixed value="CY_GPIO_DM_HIGHZ" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="INFO" reason="The pin Drive Mode parameter does not match expected.">
+          <Fixed value="CY_GPIO_DM_HIGHZ" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
+    </ParamSignal>
+    <ParamChoice id="ReloadInput" name="Reload Input" group="Inputs" default="CY_TCPWM_INPUT_DISABLED" visible="true" editable="true" desc="Determines the reload input event. Signal on this input sets the counter value to “0” and starts the counter shift operation." >
+      <Entry name="Rising Edge" value="CY_TCPWM_INPUT_RISINGEDGE" visible="true" />
+      <Entry name="Falling Edge" value="CY_TCPWM_INPUT_FALLINGEDGE" visible="true" />
+      <Entry name="Either Edge" value="CY_TCPWM_INPUT_EITHEREDGE" visible="true" />
+      <Entry name="Disabled" value="CY_TCPWM_INPUT_DISABLED" visible="true" />
+    </ParamChoice>
+    <ParamSignal port="reload[0]" name="Reload Signal" group="Inputs" visible="`${ReloadInput ne CY_TCPWM_INPUT_DISABLED}`" desc="Determines the reload input connection." canBeEmpty="`${ReloadInput eq CY_TCPWM_INPUT_DISABLED}`" >
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="DEFAULT" reason="">
+          <Fixed value="CY_GPIO_DM_HIGHZ" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="INFO" reason="The pin Drive Mode parameter does not match expected.">
+          <Fixed value="CY_GPIO_DM_HIGHZ" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
+    </ParamSignal>
+    <ParamChoice id="StartInput" name="Start Input" group="Inputs" default="CY_TCPWM_INPUT_DISABLED" visible="true" editable="true" desc="Determines the start input event. Signal on this input starts the shift operation using current counter value." >
+      <Entry name="Rising Edge" value="CY_TCPWM_INPUT_RISINGEDGE" visible="true" />
+      <Entry name="Falling Edge" value="CY_TCPWM_INPUT_FALLINGEDGE" visible="true" />
+      <Entry name="Either Edge" value="CY_TCPWM_INPUT_EITHEREDGE" visible="true" />
+      <Entry name="Disabled" value="CY_TCPWM_INPUT_DISABLED" visible="true" />
+    </ParamChoice>
+    <ParamSignal port="start[0]" name="Start Signal" group="Inputs" visible="`${StartInput ne CY_TCPWM_INPUT_DISABLED}`" desc="Determines the start input connection." canBeEmpty="`${StartInput eq CY_TCPWM_INPUT_DISABLED}`" >
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="DEFAULT" reason="">
+          <Fixed value="CY_GPIO_DM_HIGHZ" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="INFO" reason="The pin Drive Mode parameter does not match expected.">
+          <Fixed value="CY_GPIO_DM_HIGHZ" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
+    </ParamSignal>
+    <ParamChoice id="SerialInput" name="Serial Input" group="Inputs" default="CY_TCPWM_INPUT_DISABLED" visible="true" editable="true" desc="Determines the serial input event. This input is used as serial input to the MSB of the counter." >
+      <Entry name="Rising Edge" value="CY_TCPWM_INPUT_RISINGEDGE" visible="true" />
+      <Entry name="Falling Edge" value="CY_TCPWM_INPUT_FALLINGEDGE" visible="true" />
+      <Entry name="Either Edge" value="CY_TCPWM_INPUT_EITHEREDGE" visible="true" />
+      <Entry name="Level" value="CY_TCPWM_INPUT_LEVEL" visible="true" />
+      <Entry name="Disabled" value="CY_TCPWM_INPUT_DISABLED" visible="true" />
+    </ParamChoice>
+    <ParamSignal port="capture0[0]" name="Serial Signal" group="Inputs" visible="`${SerialInput ne CY_TCPWM_INPUT_DISABLED}`" desc="Determines the serial input connection." canBeEmpty="`${SerialInput eq CY_TCPWM_INPUT_DISABLED}`" >
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="DEFAULT" reason="">
+          <Fixed value="CY_GPIO_DM_HIGHZ" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="INFO" reason="The pin Drive Mode parameter does not match expected.">
+          <Fixed value="CY_GPIO_DM_HIGHZ" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
+    </ParamSignal>
+    
+    <!--Shift Register Output Polarity-->
+    <ParamBool id="InvertShiftReg" name="Invert line Output" group="Shift Register Output Polarity" default="false" visible="true" editable="true" desc="If checked the line Shift Register output is inverted." />
+    <ParamBool id="InvertShiftReg_n" name="Invert line_n Output" group="Shift Register Output Polarity" default="false" visible="true" editable="true" desc="If checked the line_n Shift Register output is inverted." />
+
+    <!--Shift Register output on Disable-->
+    <ParamChoice id="ShiftRegDisabledOutput" name="Shift Register output on Disable" group="Shift Register output on Disable" default="CY_TCPWM_SHIFTREG_OUTPUT_HIGHZ" visible="true" editable="true" desc="Specifies the behavior of the Shift Register outputs while Shift Register is disabled." >
+      <Entry name="High Impedance" value="CY_TCPWM_SHIFTREG_OUTPUT_HIGHZ" visible="true" />
+      <Entry name="Retain" value="CY_TCPWM_SHIFTREG_OUTPUT_RETAIN" visible="true" />
+      <Entry name="Low" value="CY_TCPWM_SHIFTREG_OUTPUT_LOW" visible="true" />
+	  <Entry name="High" value="CY_TCPWM_SHIFTREG_OUTPUT_HIGH" visible="true" />
+    </ParamChoice>
+    
+    <!--Outputs-->
+    <ParamSignal port="line[0]" name="line" group="Outputs" visible="true" desc="Shift Register output" canBeEmpty="true" >
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="DEFAULT" reason="">
+          <Fixed value="CY_GPIO_DM_STRONG_IN_OFF" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="INFO" reason="The pin Drive Mode parameter does not match expected.">
+          <Fixed value="CY_GPIO_DM_STRONG_IN_OFF" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
+    </ParamSignal>
+    <ParamSignal port="line_compl[0]" name="line_n (line_compl)" group="Outputs" visible="true" desc="Complimentary Shift Register output." canBeEmpty="true" >
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="DEFAULT" reason="">
+          <Fixed value="CY_GPIO_DM_STRONG_IN_OFF" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="INFO" reason="The pin Drive Mode parameter does not match expected.">
+          <Fixed value="CY_GPIO_DM_STRONG_IN_OFF" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
+    </ParamSignal>
+  
+    <!--Trigger Outputs-->
+    <ParamChoice id="trigger0Event" name="Trigger 0 Event" group="Trigger Outputs" default="CY_TCPWM_CNT_TRIGGER_ON_DISABLED" visible="true" editable="true" desc="This output used to connect TCPWM event signals to other peripherals." >
+      <Entry name="Compare 0 Match" value="CY_TCPWM_CNT_TRIGGER_ON_CC0_MATCH" visible="true" />
+      <Entry name="Compare 1 Match" value="CY_TCPWM_CNT_TRIGGER_ON_CC1_MATCH" visible="`${pCntCC1}`" />
+      <Entry name="Shift Register Output (line_out)" value="CY_TCPWM_CNT_TRIGGER_ON_LINE_OUT" visible="true" />
+      <Entry name="Disabled" value="CY_TCPWM_CNT_TRIGGER_ON_DISABLED" visible="true" />
+    </ParamChoice>
+    <ParamSignal port="tr_out0[0]" name="Trigger 0 Signal" group="Trigger Outputs" visible="`${trigger0Event ne CY_TCPWM_CNT_TRIGGER_ON_DISABLED}`" desc="Signals to connect on Trigger 0 Event" canBeEmpty="`${trigger0Event eq CY_TCPWM_CNT_TRIGGER_ON_DISABLED}`" >
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="DEFAULT" reason="">
+          <Fixed value="CY_GPIO_DM_STRONG_IN_OFF" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="INFO" reason="The pin Drive Mode parameter does not match expected.">
+          <Fixed value="CY_GPIO_DM_STRONG_IN_OFF" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
+    </ParamSignal>
+    <ParamChoice id="trigger1Event" name="Trigger 1 Event" group="Trigger Outputs" default="CY_TCPWM_CNT_TRIGGER_ON_DISABLED" visible="true" editable="true" desc="This output used to connect TCPWM event signals to other peripherals." >
+      <Entry name="Compare 0 Match" value="CY_TCPWM_CNT_TRIGGER_ON_CC0_MATCH" visible="true" />
+      <Entry name="Compare 1 Match" value="CY_TCPWM_CNT_TRIGGER_ON_CC1_MATCH" visible="`${pCntCC1}`" />
+      <Entry name="Shift Register Output (line_out)" value="CY_TCPWM_CNT_TRIGGER_ON_LINE_OUT" visible="true" />
+      <Entry name="Disabled" value="CY_TCPWM_CNT_TRIGGER_ON_DISABLED" visible="true" />
+    </ParamChoice>
+    <ParamSignal port="tr_out1[0]" name="Trigger 1 Signal" group="Trigger Outputs" visible="`${trigger1Event ne CY_TCPWM_CNT_TRIGGER_ON_DISABLED}`" desc="Signals to connect on Trigger 1 Event" canBeEmpty="`${trigger1Event eq CY_TCPWM_CNT_TRIGGER_ON_DISABLED}`" >
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="DEFAULT" reason="">
+          <Fixed value="CY_GPIO_DM_STRONG_IN_OFF" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="INFO" reason="The pin Drive Mode parameter does not match expected.">
+          <Fixed value="CY_GPIO_DM_STRONG_IN_OFF" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
+    </ParamSignal>
+
+    <!--Config-->
+    <ParamBool id="inFlash" name="Store Config in Flash" group="Advanced" default="true" visible="true" editable="true" desc="Controls whether the configuration structure is stored in flash (const, true) or SRAM (not const, false)." />
+    
+     <!-- Peripheral clock divider connection -->
+    <ParamString id="definePrefix" name="Define prefix" group="Internal" default="`${&quot;TCPWM&quot; . tcpwmInst . &quot;_GRP&quot; . pCntGroup . &quot;_CNT&quot; . getInstNumber(&quot;cnt&quot;)}`" visible="false" editable="false" desc="" />
+    <ParamString id="defineInputDisabled" name="Define input disabled" group="Internal" default="`${INST_NAME . &quot;_INPUT_DISABLED &amp; 0x3U&quot;}`" visible="false" editable="false" desc="" />
+    <ParamString id="pclk" name="PCLK" group="Internal" default="`${getBlockFromSignal(&quot;clock[0]&quot;)}`" visible="false" editable="false" desc="Connected peripheral clock divider (PCLK)" />
+    <ParamBool id="pclkOk" name="PCLK Valid" group="Internal" default="`${hasConnection(&quot;clock&quot;, 0) &amp;&amp; isBlockUsed(pclk)}`" visible="false" editable="false" desc="Checks whether there is a PCLK connected and enabled" />
+    <ParamString id="pclkDst" name="PCLK Destination" group="Internal" default="PCLK_TCPWM`${tcpwmInst}`_CLOCKS`${cntInst}`" visible="false" editable="false" desc="" />
+  
+  </Parameters>
+  
+  <DRCs>
+    <!--ShiftInput DRCs-->
+    <DRC type="ERROR" text="Shift Input event has to be enabled to use Shift Signal." condition="`${hasConnection(&quot;count&quot;, 0) &amp;&amp; (ShiftInput eq CY_TCPWM_INPUT_DISABLED)}`" paramId="ShiftInput">
+	    <FixIt action="SET_PARAM" target="ShiftInput" value="CY_TCPWM_INPUT_RISINGEDGE" valid="true" />
+	    <FixIt action="SET_PARAM" target="ShiftInput" value="CY_TCPWM_INPUT_FALLINGEDGE" valid="true" />
+	    <FixIt action="SET_PARAM" target="ShiftInput" value="CY_TCPWM_INPUT_EITHEREDGE" valid="true" />
+	    <FixIt action="SET_PARAM" target="ShiftInput" value="CY_TCPWM_INPUT_LEVEL" valid="true" />
+	</DRC>
+
+    <!--ReloadInput DRCs-->
+    <DRC type="ERROR" text="Reload Event has to be enabled to use Reload Signal." condition="`${hasConnection(&quot;reload&quot;, 0) &amp;&amp; (ReloadInput eq CY_TCPWM_INPUT_DISABLED)}`" paramId="ReloadInput">
+	    <FixIt action="SET_PARAM" target="ReloadInput" value="CY_TCPWM_INPUT_RISINGEDGE" valid="true" />
+	    <FixIt action="SET_PARAM" target="ReloadInput" value="CY_TCPWM_INPUT_FALLINGEDGE" valid="true" />
+	    <FixIt action="SET_PARAM" target="ReloadInput" value="CY_TCPWM_INPUT_EITHEREDGE" valid="true" />
+	</DRC>
+
+    <!--StartInput DRCs-->
+    <DRC type="ERROR" text="Start Event has to be enabled to use Start Signal." condition="`${hasConnection(&quot;start&quot;, 0) &amp;&amp; (StartInput eq CY_TCPWM_INPUT_DISABLED)}`" paramId="StartInput">
+	    <FixIt action="SET_PARAM" target="StartInput" value="CY_TCPWM_INPUT_RISINGEDGE" valid="true" />
+	    <FixIt action="SET_PARAM" target="StartInput" value="CY_TCPWM_INPUT_FALLINGEDGE" valid="true" />
+	    <FixIt action="SET_PARAM" target="StartInput" value="CY_TCPWM_INPUT_EITHEREDGE" valid="true" />
+	</DRC>
+
+    <!--SerialInput DRCs-->
+    <DRC type="ERROR" text="Serial Input Event has to be enabled to use Serial Input Signal." condition="`${hasConnection(&quot;capture0&quot;, 0) &amp;&amp; (SerialInput eq CY_TCPWM_INPUT_DISABLED)}`" paramId="SerialInput">
+	    <FixIt action="SET_PARAM" target="SerialInput" value="CY_TCPWM_INPUT_RISINGEDGE" valid="true" />
+	    <FixIt action="SET_PARAM" target="SerialInput" value="CY_TCPWM_INPUT_FALLINGEDGE" valid="true" />
+	    <FixIt action="SET_PARAM" target="SerialInput" value="CY_TCPWM_INPUT_EITHEREDGE" valid="true" />
+	    <FixIt action="SET_PARAM" target="SerialInput" value="CY_TCPWM_INPUT_LEVEL" valid="true" />
+	</DRC>
+
+    <!--KillInput DRCs-->
+    <DRC type="ERROR" text="Kill Event has to be enabled to use Kill Signal." condition="`${hasConnection(&quot;stop&quot;, 0) &amp;&amp; (KillInput eq CY_TCPWM_INPUT_DISABLED)}`" paramId="KillInput">
+	    <FixIt action="SET_PARAM" target="KillInput" value="CY_TCPWM_INPUT_RISINGEDGE" valid="true" />
+	    <FixIt action="SET_PARAM" target="KillInput" value="CY_TCPWM_INPUT_FALLINGEDGE" valid="true" />
+	    <FixIt action="SET_PARAM" target="KillInput" value="CY_TCPWM_INPUT_EITHEREDGE" valid="true" />
+	</DRC>
+
+	<!--Trigger Output DRCs-->
+	<DRC type="ERROR" text="Trigger 0 Event has to be enabled to use Trigger 0 Signal." condition="`${hasConnection(&quot;tr_out0&quot;, 0) &amp;&amp; (trigger0Event eq CY_TCPWM_CNT_TRIGGER_ON_DISABLED)}`" paramId="trigger0Event">
+	    <FixIt action="SET_PARAM" target="trigger0Event" value="CY_TCPWM_CNT_TRIGGER_ON_CC0_MATCH" valid="true" />
+	    <FixIt action="SET_PARAM" target="trigger0Event" value="CY_TCPWM_CNT_TRIGGER_ON_CC1_MATCH" valid="`${pCntCC1}`" />
+	    <FixIt action="SET_PARAM" target="trigger0Event" value="CY_TCPWM_CNT_TRIGGER_ON_LINE_OUT" valid="true" />
+	</DRC>
+	<DRC type="ERROR" text="Trigger 1 Event has to be enabled to use Trigger 1 Signal." condition="`${hasConnection(&quot;tr_out1&quot;, 0) &amp;&amp; (trigger1Event eq CY_TCPWM_CNT_TRIGGER_ON_DISABLED)}`" paramId="trigger1Event">
+	    <FixIt action="SET_PARAM" target="trigger1Event" value="CY_TCPWM_CNT_TRIGGER_ON_CC0_MATCH" valid="true" />
+	    <FixIt action="SET_PARAM" target="trigger1Event" value="CY_TCPWM_CNT_TRIGGER_ON_CC1_MATCH" valid="`${pCntCC1}`" />
+	    <FixIt action="SET_PARAM" target="trigger1Event" value="CY_TCPWM_CNT_TRIGGER_ON_LINE_OUT" valid="true" />
+	</DRC>
+  </DRCs>  
+
+  
+  
+  
+  <ConfigFirmware>
+    <ConfigInclude value="cy_tcpwm_shiftreg.h" include="true" />
+    <ConfigInclude value="cy_sysclk.h" include="`${pclkOk}`" />
+    <ConfigInclude value="cycfg_routing.h" include="true" />
+    <ConfigInclude value="cyhal_hwmgr.h" include="true" guard="defined (CY_USING_HAL)" />
+    
+    <ConfigDefine name="`${INST_NAME}`_HW" value="TCPWM`${tcpwmInst}`" public="true" include="true" />
+    <ConfigDefine name="`${INST_NAME}`_NUM" value="`${cntInst}`UL" public="true" include="true" />
+    <ConfigDefine name="`${INST_NAME}`_IRQ" value="tcpwm_`${tcpwmInst}`_interrupts_`${cntInst}`_IRQn" public="true" include="`${InterruptCC0 || InterruptCC1}`" />
+    <ConfigDefine name="`${INST_NAME}`_INPUT_DISABLED" value="0x7U" public="false" include="true" />
+    <ConfigStruct name="`${INST_NAME . &quot;_config&quot;}`" type="cy_stc_tcpwm_shiftreg_config_t" const="`${inFlash}`" public="true" include="true">
+      <Member name="clockPrescaler" value="`${ClockPrescaler}`" />
+      <Member name="tapsEnabled" value="`${TapsEnabled}`" />
+      <Member name="compare0" value="`${Compare0}`" />
+      <Member name="compareBuf0" value="`${CompareBuf0}`" />
+      <Member name="enableCompare0Swap" value="`${EnableCompare0Swap}`" />
+      <Member name="compare1" value="`${pCntCC1 ? Compare1 : &quot;CY_TCPWM_GRP_CNT_CC0_DEFAULT&quot;}`" />
+      <Member name="compareBuf1" value="`${pCntCC1 ? CompareBuf1 : &quot;CY_TCPWM_GRP_CNT_CC0_BUFF_DEFAULT&quot;}`" />
+      <Member name="enableCompare1Swap" value="`${EnableCompare1Swap}`" />
+      <Member name="interruptSources" value="`${InterruptSource}`" />
+      <Member name="invertShiftRegOut" value="`${InvertShiftReg ? &quot;CY_TCPWM_SHIFTREG_INVERT_ENABLE&quot; : &quot;CY_TCPWM_SHIFTREG_INVERT_DISABLE&quot;}`" />
+      <Member name="invertShiftRegOutN" value="`${InvertShiftReg_n ? &quot;CY_TCPWM_SHIFTREG_INVERT_ENABLE&quot; : &quot;CY_TCPWM_SHIFTREG_INVERT_DISABLE&quot;}`" />
+      <Member name="reloadInputMode" value="`${ReloadInput eq CY_TCPWM_INPUT_DISABLED ? defineInputDisabled : ReloadInput}`" />
+      <Member name="reloadInput" value="`${ReloadInput eq CY_TCPWM_INPUT_DISABLED ? &quot;CY_TCPWM_INPUT_0&quot; : (definePrefix . &quot;_RELOAD_VALUE&quot;)}`" />
+      <Member name="startInputMode" value="`${StartInput eq CY_TCPWM_INPUT_DISABLED ? defineInputDisabled : StartInput}`" />
+      <Member name="startInput" value="`${StartInput eq CY_TCPWM_INPUT_DISABLED ? &quot;CY_TCPWM_INPUT_0&quot; : (definePrefix . &quot;_START_VALUE&quot;)}`" />
+      <Member name="killInputMode" value="`${KillInput eq CY_TCPWM_INPUT_DISABLED ? defineInputDisabled : KillInput}`" />
+      <Member name="killInput" value="`${KillInput eq CY_TCPWM_INPUT_DISABLED ? &quot;CY_TCPWM_INPUT_0&quot; : (definePrefix . &quot;_STOP_VALUE&quot;)}`" />
+      <Member name="shiftInputMode" value="`${ShiftInput eq CY_TCPWM_INPUT_DISABLED ? defineInputDisabled : ShiftInput}`" />
+      <Member name="shiftInput" value="`${ShiftInput eq CY_TCPWM_INPUT_DISABLED ? &quot;CY_TCPWM_INPUT_1&quot; :  (definePrefix . &quot;_COUNT_VALUE&quot;)}`" />
+      <Member name="serialInputMode" value="`${SerialInput eq CY_TCPWM_INPUT_DISABLED ? defineInputDisabled : SerialInput}`" />
+      <Member name="serialInput" value="`${SerialInput eq CY_TCPWM_INPUT_DISABLED ? &quot;CY_TCPWM_INPUT_0&quot; : (definePrefix . &quot;_CAPTURE0_VALUE&quot;)}`" />
+      <Member name="shiftRegOnDisable" value="`${ShiftRegDisabledOutput}`" />
+      <Member name="trigger0Event" value="`${trigger0Event}`" />
+      <Member name="trigger1Event" value="`${trigger1Event}`" />
+    </ConfigStruct>
+    
+    <ConfigStruct name="`${INST_NAME}`_obj" type="cyhal_resource_inst_t" const="true" public="true" include="true" guard="defined (CY_USING_HAL)">
+      <Member name="type" value="CYHAL_RSC_TCPWM" />
+      <Member name="block_num" value="`${getInstNumber(&quot;tcpwm&quot;)}`U" />
+      <Member name="channel_num" value="`${getInstNumber(&quot;cnt&quot;)}`U" />
+    </ConfigStruct>
+    
+    <ConfigInstruction value="Cy_SysClk_PeriphAssignDivider(`${pclkDst}`, `${getExposedMember(pclk, &quot;clockSel&quot;)}`);" include="`${pclkOk}`" />
+    <ConfigInstruction value="cyhal_hwmgr_reserve(&amp;`${INST_NAME}`_obj);" include="true" guard="defined (CY_USING_HAL)" />
+  </ConfigFirmware> 
+   
+</Personality>

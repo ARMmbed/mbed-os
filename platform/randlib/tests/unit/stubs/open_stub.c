@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2016, 2018, 2021, Pelion and affiliates.
+ */
 #include <stdbool.h>
 #include <sys/types.h>
 #include <sys/stat.h>

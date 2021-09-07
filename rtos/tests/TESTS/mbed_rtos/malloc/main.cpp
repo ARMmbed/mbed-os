@@ -32,7 +32,7 @@ volatile bool thread_should_continue = true;
 #define NUM_THREADS         4
 #define THREAD_MALLOC_SIZE  100
 
-#if defined(__CORTEX_A9)
+#if defined(__CORTEX_A9) || defined(__CORTEX_A5)
 #define THREAD_STACK_SIZE   512
 #elif defined(__CORTEX_M23) || defined(__CORTEX_M33)
 #define THREAD_STACK_SIZE   512
@@ -106,7 +106,7 @@ void test_multithread_allocation(void)
 #endif
 
 /** Test for multiple heap alloc and free calls */
-#define ALLOC_ARRAY_SIZE    100
+#define ALLOC_ARRAY_SIZE    50
 #define ALLOC_LOOP          20
 #define SIZE_INCREMENTS     1023
 #define SIZE_MODULO         31

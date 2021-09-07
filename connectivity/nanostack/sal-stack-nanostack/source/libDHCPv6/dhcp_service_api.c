@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, Arm Limited and affiliates.
+ * Copyright (c) 2013-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -75,7 +75,9 @@ typedef struct {
     void  *client_obj_ptr;
     uint32_t msg_tr_id;
     uint32_t message_tr_id;
+    uint32_t transmit_time;
     uint32_t first_transmit_time;
+    uint16_t delayed_tx;
     uint16_t timeout;
     uint16_t timeout_init;
     uint16_t timeout_max;
@@ -768,7 +770,7 @@ int dhcp_service_send_resp(uint32_t msg_tr_id, uint8_t options, uint8_t *msg_ptr
     dhcp_tr_delete(msg_tr_ptr);
     return 0;
 }
-uint32_t dhcp_service_send_req(uint16_t instance_id, uint8_t options, void *ptr, const uint8_t addr[static 16], uint8_t *msg_ptr, uint16_t msg_len, dhcp_service_receive_resp_cb *receive_resp_cb)
+uint32_t dhcp_service_send_req(uint16_t instance_id, uint8_t options, void *ptr, const uint8_t addr[static 16], uint8_t *msg_ptr, uint16_t msg_len, dhcp_service_receive_resp_cb *receive_resp_cb, uint16_t delay_tx)
 {
     tr_debug("Send DHCPv6 request");
     msg_tr_t *msg_tr_ptr;
@@ -792,7 +794,9 @@ uint32_t dhcp_service_send_req(uint16_t instance_id, uint8_t options, void *ptr,
     msg_tr_ptr->instance_id = instance_id;
     msg_tr_ptr->socket = dhcp_service->dhcp_client_socket;
     msg_tr_ptr->recv_resp_cb = receive_resp_cb;
-    msg_tr_ptr->first_transmit_time = protocol_core_monotonic_time;
+    msg_tr_ptr->delayed_tx = delay_tx;
+    msg_tr_ptr->first_transmit_time = 0;
+    msg_tr_ptr->transmit_time = 0;
     dhcp_tr_set_retry_timers(msg_tr_ptr, msg_tr_ptr->msg_ptr[0]);
     common_write_24_bit(msg_tr_ptr->msg_tr_id, &msg_tr_ptr->msg_ptr[1]);
 
@@ -824,6 +828,16 @@ void dhcp_service_update_server_address(uint32_t msg_tr_id, uint8_t *server_addr
     }
 }
 
+uint32_t dhcp_service_rtt_get(uint32_t msg_tr_id)
+{
+    msg_tr_t *msg_tr_ptr = dhcp_tr_find(msg_tr_id);
+
+    if (msg_tr_ptr && msg_tr_ptr->transmit_time) {
+        return protocol_core_monotonic_time - msg_tr_ptr->transmit_time;
+    }
+    return 0;
+}
+
 void dhcp_service_req_remove(uint32_t msg_tr_id)
 {
     if (dhcp_service) {
@@ -850,8 +864,9 @@ void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
     const uint32_t address_pref = SOCKET_IPV6_PREFER_SRC_6LOWPAN_SHORT;
     dhcp_options_msg_t elapsed_time;
 
-    if (libdhcpv6_message_option_discover((msg_tr_ptr->msg_ptr + 4), (msg_tr_ptr->msg_len - 4), DHCPV6_ELAPSED_TIME_OPTION, &elapsed_time) == 0 &&
+    if (msg_tr_ptr->first_transmit_time && libdhcpv6_message_option_discover((msg_tr_ptr->msg_ptr + 4), (msg_tr_ptr->msg_len - 4), DHCPV6_ELAPSED_TIME_OPTION, &elapsed_time) == 0 &&
             elapsed_time.len == 2) {
+
         uint32_t t = protocol_core_monotonic_time - msg_tr_ptr->first_transmit_time; // time in 1/10s ticks
         uint16_t cs;
         if (t > 0xffff / 10) {
@@ -911,12 +926,25 @@ void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
 
         uint8_t *ptr = msg_tr_ptr->relay_start;
         *ptr = DHCPV6_RELAY_REPLY;
-        retval = socket_sendmsg(msg_tr_ptr->socket, &msghdr, NS_MSG_LEGACY0);
+        if (msg_tr_ptr->delayed_tx) {
+            retval = 0;
+        } else {
+            retval = socket_sendmsg(msg_tr_ptr->socket, &msghdr, NS_MSG_LEGACY0);
+        }
 
     } else {
-        int16_t tc = 0;
-        socket_setsockopt(msg_tr_ptr->socket, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_TCLASS, &tc, sizeof(tc));
-        retval = socket_sendto(msg_tr_ptr->socket, &msg_tr_ptr->addr, msg_tr_ptr->msg_ptr, msg_tr_ptr->msg_len);
+        if (msg_tr_ptr->delayed_tx) {
+            retval = 0;
+        } else {
+            int16_t tc = 0;
+            socket_setsockopt(msg_tr_ptr->socket, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_TCLASS, &tc, sizeof(tc));
+            retval = socket_sendto(msg_tr_ptr->socket, &msg_tr_ptr->addr, msg_tr_ptr->msg_ptr, msg_tr_ptr->msg_len);
+            msg_tr_ptr->transmit_time = protocol_core_monotonic_time ? protocol_core_monotonic_time : 1;
+            if (msg_tr_ptr->first_transmit_time == 0 && retval == 0) {
+                //Mark first pushed message timestamp
+                msg_tr_ptr->first_transmit_time = protocol_core_monotonic_time ? protocol_core_monotonic_time : 1;
+            }
+        }
     }
     if (retval != 0) {
         tr_warn("dhcp service socket_sendto fails: %i", retval);
@@ -928,6 +956,18 @@ bool dhcp_service_timer_tick(uint16_t ticks)
 {
     bool activeTimerNeed = false;
     ns_list_foreach_safe(msg_tr_t, cur_ptr, &dhcp_service->tr_list) {
+
+        if (cur_ptr->delayed_tx) {
+            activeTimerNeed = true;
+            if (cur_ptr->delayed_tx <= ticks) {
+                cur_ptr->delayed_tx = 0;
+                dhcp_service_send_message(cur_ptr);
+            } else {
+                cur_ptr->delayed_tx -= ticks;
+            }
+            continue;
+        }
+
         if (cur_ptr->timeout == 0) {
             continue;
         }
@@ -1023,7 +1063,7 @@ int dhcp_service_send_resp(uint32_t msg_tr_id, uint8_t options, uint8_t *msg_ptr
     return -1;
 }
 
-uint32_t dhcp_service_send_req(uint16_t instance_id, uint8_t options, void *ptr, const uint8_t addr[static 16], uint8_t *msg_ptr, uint16_t msg_len, dhcp_service_receive_resp_cb *receive_resp_cb)
+uint32_t dhcp_service_send_req(uint16_t instance_id, uint8_t options, void *ptr, const uint8_t addr[static 16], uint8_t *msg_ptr, uint16_t msg_len, dhcp_service_receive_resp_cb *receive_resp_cb, uint16_t delay_tx)
 {
     (void)instance_id;
     (void)options;
@@ -1032,6 +1072,7 @@ uint32_t dhcp_service_send_req(uint16_t instance_id, uint8_t options, void *ptr,
     (void)msg_ptr;
     (void)msg_len;
     (void)receive_resp_cb;
+    (void)delay_tx;
     return 0;
 }
 

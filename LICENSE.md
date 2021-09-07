@@ -44,8 +44,6 @@ The Python modules used by Mbed tools are used under the following licenses:
 - [Jinja2](https://pypi.org/project/Jinja2) - BSD-3-Clause
 - [jsonschema](https://pypi.org/project/jsonschema) - MIT
 - [junit-xml](https://pypi.org/project/junit-xml) - MIT
-- [manifest-tool](https://pypi.org/project/manifest-tool) - Apache-2.0
-- [mbed-cloud-sdk](https://pypi.org/project/mbed-cloud-sdk) - Apache 2.0
 - [mbed-greentea](https://pypi.org/project/mbed-greentea) - Apache-2.0
 - [mbed-host-tests](https://pypi.org/project/mbed-host-tests) - Apache-2.0
 - [mbed-ls](https://pypi.org/project/mbed-ls) - Apache-2.0

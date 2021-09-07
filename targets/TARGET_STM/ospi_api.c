@@ -34,7 +34,7 @@
 
 /* Max amount of flash size is 4Gbytes */
 /* hence 2^(31+1), then FLASH_SIZE_DEFAULT = 1<<31 */
-#define OSPI_FLASH_SIZE_DEFAULT 0x80000000
+#define OSPI_FLASH_SIZE_DEFAULT 0x4000000 //512Mbits
 
 static uint32_t get_alt_bytes_size(const uint32_t num_bytes)
 {
@@ -65,7 +65,7 @@ ospi_status_t ospi_prepare_command(const ospi_command_t *command, OSPI_RegularCm
         st_command->Instruction = 0;
     } else {
         st_command->Instruction = ((command->instruction.bus_width == OSPI_CFG_BUS_OCTA) || (command->instruction.bus_width == OSPI_CFG_BUS_OCTA_DTR))
-		                            ? command->instruction.value << 8 | (0xFF - command->instruction.value) : command->instruction.value;
+                                  ? command->instruction.value << 8 | (0xFF - command->instruction.value) : command->instruction.value;
         switch (command->instruction.bus_width) {
             case OSPI_CFG_BUS_SINGLE:
                 st_command->InstructionMode = HAL_OSPI_INSTRUCTION_1_LINE;
@@ -87,14 +87,14 @@ ospi_status_t ospi_prepare_command(const ospi_command_t *command, OSPI_RegularCm
     }
 
     st_command->InstructionSize    = (st_command->InstructionMode == HAL_OSPI_INSTRUCTION_8_LINES) ? HAL_OSPI_INSTRUCTION_16_BITS : HAL_OSPI_INSTRUCTION_8_BITS;
-    st_command->InstructionDtrMode = (command->instruction.bus_width == OSPI_CFG_BUS_OCTA_DTR) ? HAL_OSPI_INSTRUCTION_DTR_ENABLE :HAL_OSPI_INSTRUCTION_DTR_DISABLE;
+    st_command->InstructionDtrMode = (command->instruction.bus_width == OSPI_CFG_BUS_OCTA_DTR) ? HAL_OSPI_INSTRUCTION_DTR_ENABLE : HAL_OSPI_INSTRUCTION_DTR_DISABLE;
     st_command->DummyCycles = command->dummy_count;
     // these are target specific settings, use default values
     st_command->SIOOMode = HAL_OSPI_SIOO_INST_EVERY_CMD;
     st_command->DataDtrMode = (command->instruction.bus_width == OSPI_CFG_BUS_OCTA_DTR) ? HAL_OSPI_DATA_DTR_ENABLE : HAL_OSPI_DATA_DTR_DISABLE;
     st_command->AddressDtrMode = (command->instruction.bus_width == OSPI_CFG_BUS_OCTA_DTR) ? HAL_OSPI_ADDRESS_DTR_ENABLE : HAL_OSPI_ADDRESS_DTR_DISABLE;
     st_command->AlternateBytesDtrMode = (command->instruction.bus_width == OSPI_CFG_BUS_OCTA_DTR) ? HAL_OSPI_ALTERNATE_BYTES_DTR_ENABLE : HAL_OSPI_ALTERNATE_BYTES_DTR_DISABLE;
-    st_command->DQSMode = (command->instruction.bus_width == OSPI_CFG_BUS_OCTA_DTR) ? HAL_OSPI_DQS_ENABLE :HAL_OSPI_DQS_DISABLE;
+    st_command->DQSMode = (command->instruction.bus_width == OSPI_CFG_BUS_OCTA_DTR) ? HAL_OSPI_DQS_ENABLE : HAL_OSPI_DQS_DISABLE;
 
     st_command->OperationType = HAL_OSPI_OPTYPE_COMMON_CFG;
     if (command->address.disabled == true) {
@@ -245,14 +245,14 @@ static ospi_status_t _ospi_init_direct(ospi_t *obj, const ospi_pinmap_t *pinmap,
     // Set default OCTOSPI handle values
     obj->handle.Init.DualQuad = HAL_OSPI_DUALQUAD_DISABLE;
 //#if defined(TARGET_MX25LM512451G)
- //   obj->handle.Init.MemoryType = HAL_OSPI_MEMTYPE_MACRONIX; // Read sequence in DTR mode: D1-D0-D3-D2
+//   obj->handle.Init.MemoryType = HAL_OSPI_MEMTYPE_MACRONIX; // Read sequence in DTR mode: D1-D0-D3-D2
 //#else
     obj->handle.Init.MemoryType = HAL_OSPI_MEMTYPE_MICRON;   // Read sequence in DTR mode: D0-D1-D2-D3
 //#endif
     obj->handle.Init.ClockPrescaler = 4; // default value, will be overwritten in ospi_frequency
     obj->handle.Init.FifoThreshold = 4;
     obj->handle.Init.SampleShifting = HAL_OSPI_SAMPLE_SHIFTING_NONE;
-    obj->handle.Init.DeviceSize = POSITION_VAL(OSPI_FLASH_SIZE_DEFAULT) - 1;
+    obj->handle.Init.DeviceSize = 32;
     obj->handle.Init.ChipSelectHighTime = 3;
     obj->handle.Init.FreeRunningClock = HAL_OSPI_FREERUNCLK_DISABLE;
 #if defined(HAL_OSPI_WRAP_NOT_SUPPORTED) // removed in STM32L4
@@ -365,7 +365,7 @@ static ospi_status_t _ospi_init_direct(ospi_t *obj, const ospi_pinmap_t *pinmap,
 }
 
 ospi_status_t ospi_init(ospi_t *obj, PinName io0, PinName io1, PinName io2, PinName io3, PinName io4, PinName io5, PinName io6, PinName io7,
-			PinName sclk, PinName ssel, PinName dqs, uint32_t hz, uint8_t mode)
+                        PinName sclk, PinName ssel, PinName dqs, uint32_t hz, uint8_t mode)
 {
     OSPIName ospiio0name = (OSPIName)pinmap_peripheral(io0, PinMap_OSPI_DATA0);
     OSPIName ospiio1name = (OSPIName)pinmap_peripheral(io1, PinMap_OSPI_DATA1);
@@ -403,8 +403,9 @@ ospi_status_t ospi_init(ospi_t *obj, PinName io0, PinName io1, PinName io2, PinN
     int function_dqs = (int)pinmap_find_function(dqs, PinMap_OSPI_DQS);
 
     const ospi_pinmap_t static_pinmap = {peripheral, io0, function_io0, io1, function_io1, io2, function_io2, io3, function_io3,
-    		                             io4, function_io4, io5, function_io5, io6, function_io6, io7, function_io7,
-    		                             sclk, function_sclk, ssel, function_ssel, dqs, function_dqs};
+                                         io4, function_io4, io5, function_io5, io6, function_io6, io7, function_io7,
+                                         sclk, function_sclk, ssel, function_ssel, dqs, function_dqs
+                                        };
 
     return OSPI_INIT_DIRECT(obj, &static_pinmap, hz, mode);
 }

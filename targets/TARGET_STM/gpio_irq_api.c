@@ -53,6 +53,7 @@ typedef struct gpio_channel {
 } gpio_channel_t;
 
 static gpio_irq_handler irq_handler;
+static uint16_t irq_channel_used = 0x00;
 
 static gpio_channel_t channels[CHANNEL_NUM] = {
 #ifdef EXTI_IRQ0_NUM_LINES
@@ -331,6 +332,14 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     uint32_t pin_index  = STM_PIN(pin);
     irq_index =  pin_lines_desc[pin_index].irq_index;
 
+    if (irq_channel_used & (1<<pin_index)) {
+        error("InterruptIn error: irq channel conflict\n");
+        return -1;
+    }
+    else {
+        irq_channel_used |= (1<<pin_index);
+    }
+
     switch (irq_index) {
 #ifdef EXTI_IRQ0_NUM_LINES
         case 0:
@@ -456,6 +465,8 @@ void gpio_irq_free(gpio_irq_t *obj)
     gpio_channel->channel_ids[gpio_idx] = 0;
     gpio_channel->channel_gpio[gpio_idx] = 0;
     gpio_channel->channel_pin[gpio_idx] = 0;
+
+    irq_channel_used &= ~(1<<(STM_PIN(obj->pin)));
 
     core_util_critical_section_exit();
 }

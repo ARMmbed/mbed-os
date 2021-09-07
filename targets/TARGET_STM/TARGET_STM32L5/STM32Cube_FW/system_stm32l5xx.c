@@ -206,7 +206,7 @@
   * @retval None
   */
 
-void SystemInit(void)
+__WEAK void SystemInit(void)
 {
   /* Configure the Vector Table location -------------------------------------*/
 #include "nvic_addr.h"                   // MBED

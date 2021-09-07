@@ -1,0 +1,28 @@
+name: test building multiple executables with CMake
+
+on: [pull_request]
+
+jobs:
+  multiple-executables-example:
+    runs-on: ubuntu-latest
+    container: ghcr.io/armmbed/mbed-os-env:master-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build the multiple_executables example
+        run: |
+            mbedtools compile \
+              -t GCC_ARM \
+              -m ARM_MUSCA_S1 \
+              --program-path tools/cmake/tests/multiple_executables/ \
+              --mbed-os-path .
+
+      - name: Verify the post-build command has run successfully on each image
+        run: |
+            APP1=tools/cmake/tests/multiple_executables/cmake_build/ARM_MUSCA_S1/develop/GCC_ARM/app1/app1.bin
+            APP2=tools/cmake/tests/multiple_executables/cmake_build/ARM_MUSCA_S1/develop/GCC_ARM/app2/app2.bin
+            BOOTLOADER=targets/TARGET_ARM_SSG/TARGET_MUSCA_S1/bl2.bin
+            BOOTLOADER_SIZE=`du -b targets/TARGET_ARM_SSG/TARGET_MUSCA_S1/bl2.bin | cut -f1`
+            cmp -n $BOOTLOADER_SIZE $APP1 $BOOTLOADER
+            cmp -n $BOOTLOADER_SIZE $APP2 $BOOTLOADER

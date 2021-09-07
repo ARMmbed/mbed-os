@@ -37,6 +37,10 @@
 #endif
 #include <errno.h>
 
+#if !defined(__ARMCC_VERSION) && defined(__GNUC__)
+#include <fcntl.h>
+#endif
+
 #if defined __has_include
 #  if __has_include (<sys/stat.h>)
 #    include <sys/stat.h>
@@ -63,17 +67,36 @@ typedef unsigned int  gid_t;    ///< Group ID
 /* Flags for open() and fcntl(GETFL/SETFL)
  * At present, fcntl only supports reading and writing O_NONBLOCK
  */
+#ifndef O_RDONLY
 #define O_RDONLY 0        ///< Open for reading
+#endif
+#ifndef O_WRONLY
 #define O_WRONLY 1        ///< Open for writing
+#endif
+#ifndef O_RDWR
 #define O_RDWR   2        ///< Open for reading and writing
+#endif
+#ifndef O_NONBLOCK
 #define O_NONBLOCK 0x0004 ///< Non-blocking mode
+#endif
+#ifndef O_APPEND
 #define O_APPEND   0x0008 ///< Set file offset to end of file prior to each write
+#endif
+#ifndef O_CREAT
 #define O_CREAT    0x0200 ///< Create file if it does not exist
+#endif
+#ifndef O_TRUNC
 #define O_TRUNC    0x0400 ///< Truncate file to zero length
+#endif
+#ifndef O_EXCL
 #define O_EXCL     0x0800 ///< Fail if file exists
+#endif
+#ifndef O_BINARY
 #define O_BINARY   0x8000 ///< Open file in binary mode
-
+#endif
+#ifndef O_ACCMODE
 #define O_ACCMODE   (O_RDONLY|O_WRONLY|O_RDWR)
+#endif
 
 #define NAME_MAX 255    ///< Maximum size of a name in a file path
 
@@ -196,268 +219,406 @@ typedef struct DIR_impl DIR;
  * the GCC_ARM/IAR/standard POSIX definitions. The definitions guard against
  * this and future changes by changing the symbol definition as shown below.
  */
-#undef  EPERM
+#ifndef  EPERM
 #define EPERM           1       /* Operation not permitted */
-#undef  ENOENT
+#endif
+#ifndef  ENOENT
 #define ENOENT          2       /* No such file or directory */
-#undef  ESRCH
+#endif
+#ifndef  ESRCH
 #define ESRCH           3       /* No such process */
-#undef  EINTR
+#endif
+#ifndef  EINTR
 #define EINTR           4       /* Interrupted system call */
-#undef  EIO
+#endif
+#ifndef  EIO
 #define EIO             5       /* I/O error */
-#undef  ENXIO
+#endif
+#ifndef  ENXIO
 #define ENXIO           6       /* No such device or address */
-#undef  E2BIG
+#endif
+#ifndef  E2BIG
 #define E2BIG           7       /* Argument list too long */
-#undef  ENOEXEC
+#endif
+#ifndef  ENOEXEC
 #define ENOEXEC         8       /* Exec format error */
-#undef  EBADF
+#endif
+#ifndef  EBADF
 #define EBADF           9       /* Bad file number */
-#undef  ECHILD
+#endif
+#ifndef  ECHILD
 #define ECHILD          10      /* No child processes */
-#undef  EAGAIN
+#endif
+#ifndef  EAGAIN
 #define EAGAIN          11      /* Try again */
-#undef  ENOMEM
+#endif
+#ifndef  ENOMEM
 #define ENOMEM          12      /* Out of memory */
-#undef  EACCES
+#endif
+#ifndef  EACCES
 #define EACCES          13      /* Permission denied */
-#undef  EFAULT
+#endif
+#ifndef  EFAULT
 #define EFAULT          14      /* Bad address */
-#undef  ENOTBLK
+#endif
+#ifndef  ENOTBLK
 #define ENOTBLK         15      /* Block device required */
-#undef  EBUSY
+#endif
+#ifndef  EBUSY
 #define EBUSY           16      /* Device or resource busy */
-#undef  EEXIST
+#endif
+#ifndef  EEXIST
 #define EEXIST          17      /* File exists */
-#undef  EXDEV
+#endif
+#ifndef  EXDEV
 #define EXDEV           18      /* Cross-device link */
-#undef  ENODEV
+#endif
+#ifndef  ENODEV
 #define ENODEV          19      /* No such device */
-#undef  ENOTDIR
+#endif
+#ifndef  ENOTDIR
 #define ENOTDIR         20      /* Not a directory */
-#undef  EISDIR
+#endif
+#ifndef  EISDIR
 #define EISDIR          21      /* Is a directory */
-#undef  EINVAL
+#endif
+#ifndef  EINVAL
 #define EINVAL          22      /* Invalid argument */
-#undef  ENFILE
+#endif
+#ifndef  ENFILE
 #define ENFILE          23      /* File table overflow */
-#undef  EMFILE
+#endif
+#ifndef  EMFILE
 #define EMFILE          24      /* Too many open files */
-#undef  ENOTTY
+#endif
+#ifndef  ENOTTY
 #define ENOTTY          25      /* Not a typewriter */
-#undef  ETXTBSY
+#endif
+#ifndef  ETXTBSY
 #define ETXTBSY         26      /* Text file busy */
-#undef  EFBIG
+#endif
+#ifndef  EFBIG
 #define EFBIG           27      /* File too large */
-#undef  ENOSPC
+#endif
+#ifndef  ENOSPC
 #define ENOSPC          28      /* No space left on device */
-#undef  ESPIPE
+#endif
+#ifndef  ESPIPE
 #define ESPIPE          29      /* Illegal seek */
-#undef  EROFS
+#endif
+#ifndef  EROFS
 #define EROFS           30      /* Read-only file system */
-#undef  EMLINK
+#endif
+#ifndef  EMLINK
 #define EMLINK          31      /* Too many links */
-#undef  EPIPE
+#endif
+#ifndef  EPIPE
 #define EPIPE           32      /* Broken pipe */
-#undef  EDOM
+#endif
+#ifndef  EDOM
 #define EDOM            33      /* Math argument out of domain of func */
-#undef  ERANGE
+#endif
+#ifndef  ERANGE
 #define ERANGE          34      /* Math result not representable */
-#undef  EDEADLK
+#endif
+#ifndef  EDEADLK
 #define EDEADLK         35      /* Resource deadlock would occur */
-#undef  ENAMETOOLONG
+#endif
+#ifndef  ENAMETOOLONG
 #define ENAMETOOLONG    36      /* File name too long */
-#undef  ENOLCK
+#endif
+#ifndef  ENOLCK
 #define ENOLCK          37      /* No record locks available */
-#undef  ENOSYS
+#endif
+#ifndef  ENOSYS
 #define ENOSYS          38      /* Function not implemented */
-#undef  ENOTEMPTY
+#endif
+#ifndef  ENOTEMPTY
 #define ENOTEMPTY       39      /* Directory not empty */
-#undef  ELOOP
+#endif
+#ifndef  ELOOP
 #define ELOOP           40      /* Too many symbolic links encountered */
-#undef  EWOULDBLOCK
+#endif
+#ifndef  EWOULDBLOCK
 #define EWOULDBLOCK     EAGAIN  /* Operation would block */
-#undef  ENOMSG
+#endif
+#ifndef  ENOMSG
 #define ENOMSG          42      /* No message of desired type */
-#undef  EIDRM
+#endif
+#ifndef  EIDRM
 #define EIDRM           43      /* Identifier removed */
-#undef  ECHRNG
+#endif
+#ifndef  ECHRNG
 #define ECHRNG          44      /* Channel number out of range */
-#undef  EL2NSYNC
-#define EL2NSYNC        45      /* Level 2 not synchronized */
-#undef  EL3HLT
-#define EL3HLT          46      /* Level 3 halted */
-#undef  EL3RST
+#endif
+#ifndef  EL2NSYNC
+#define EL2NSYNC        245      /* Level 2 not synchronized */
+#endif
+#ifndef  EL3HLT
+#define EL3HLT          246      /* Level 3 halted */
+#endif
+#ifndef  EL3RST
 #define EL3RST          47      /* Level 3 reset */
-#undef  ELNRNG
+#endif
+#ifndef  ELNRNG
 #define ELNRNG          48      /* Link number out of range */
-#undef  EUNATCH
+#endif
+#ifndef  EUNATCH
 #define EUNATCH         49      /* Protocol driver not attached */
-#undef  ENOCSI
+#endif
+#ifndef  ENOCSI
 #define ENOCSI          50      /* No CSI structure available */
-#undef  EL2HLT
+#endif
+#ifndef  EL2HLT
 #define EL2HLT          51      /* Level 2 halted */
-#undef  EBADE
+#endif
+#ifndef  EBADE
 #define EBADE           52      /* Invalid exchange */
-#undef  EBADR
+#endif
+#ifndef  EBADR
 #define EBADR           53      /* Invalid request descriptor */
-#undef  EXFULL
+#endif
+#ifndef  EXFULL
 #define EXFULL          54      /* Exchange full */
-#undef  ENOANO
+#endif
+#ifndef  ENOANO
 #define ENOANO          55      /* No anode */
-#undef  EBADRQC
+#endif
+#ifndef  EBADRQC
 #define EBADRQC         56      /* Invalid request code */
-#undef  EBADSLT
+#endif
+#ifndef  EBADSLT
 #define EBADSLT         57      /* Invalid slot */
-#undef  EDEADLOCK
+#endif
+#ifndef  EDEADLOCK
 #define EDEADLOCK       EDEADLK /* Resource deadlock would occur */
-#undef  EBFONT
+#endif
+#ifndef  EBFONT
 #define EBFONT          59      /* Bad font file format */
-#undef  ENOSTR
+#endif
+#ifndef  ENOSTR
 #define ENOSTR          60      /* Device not a stream */
-#undef  ENODATA
+#endif
+#ifndef  ENODATA
 #define ENODATA         61      /* No data available */
-#undef  ETIME
+#endif
+#ifndef  ETIME
 #define ETIME           62      /* Timer expired */
-#undef  ENOSR
+#endif
+#ifndef  ENOSR
 #define ENOSR           63      /* Out of streams resources */
-#undef  ENONET
+#endif
+#ifndef  ENONET
 #define ENONET          64      /* Machine is not on the network */
-#undef  ENOPKG
+#endif
+#ifndef  ENOPKG
 #define ENOPKG          65      /* Package not installed */
-#undef  EREMOTE
+#endif
+#ifndef  EREMOTE
 #define EREMOTE         66      /* Object is remote */
-#undef  ENOLINK
+#endif
+#ifndef  ENOLINK
 #define ENOLINK         67      /* Link has been severed */
-#undef  EADV
+#endif
+#ifndef  EADV
 #define EADV            68      /* Advertise error */
-#undef  ESRMNT
+#endif
+#ifndef  ESRMNT
 #define ESRMNT          69      /* Srmount error */
-#undef  ECOMM
+#endif
+#ifndef  ECOMM
 #define ECOMM           70      /* Communication error on send */
-#undef  EPROTO
+#endif
+#ifndef  EPROTO
 #define EPROTO          71      /* Protocol error */
-#undef  EMULTIHOP
+#endif
+#ifndef  EMULTIHOP
 #define EMULTIHOP       72      /* Multihop attempted */
-#undef  EDOTDOT
+#endif
+#ifndef  EDOTDOT
 #define EDOTDOT         73      /* RFS specific error */
-#undef  EBADMSG
+#endif
+#ifndef  EBADMSG
 #define EBADMSG         74      /* Not a data message */
-#undef  EOVERFLOW
+#endif
+#ifndef  EOVERFLOW
 #define EOVERFLOW       75      /* Value too large for defined data type */
-#undef  ENOTUNIQ
+#endif
+#ifndef  ENOTUNIQ
 #define ENOTUNIQ        76      /* Name not unique on network */
-#undef  EBADFD
-#define EBADFD          77      /* File descriptor in bad state */
-#undef  EREMCHG
+#endif
+#ifndef  EBADFD
+#define EBADFD          277      /* File descriptor in bad state */
+#endif
+#ifndef  EREMCHG
 #define EREMCHG         78      /* Remote address changed */
-#undef  ELIBACC
+#endif
+#ifndef  ELIBACC
 #define ELIBACC         79      /* Can not access a needed shared library */
-#undef  ELIBBAD
+#endif
+#ifndef  ELIBBAD
 #define ELIBBAD         80      /* Accessing a corrupted shared library */
-#undef  ELIBSCN
+#endif
+#ifndef  ELIBSCN
 #define ELIBSCN         81      /* .lib section in a.out corrupted */
-#undef  ELIBMAX
+#endif
+#ifndef  ELIBMAX
 #define ELIBMAX         82      /* Attempting to link in too many shared libraries */
-#undef  ELIBEXEC
+#endif
+#ifndef  ELIBEXEC
 #define ELIBEXEC        83      /* Cannot exec a shared library directly */
-#undef  EILSEQ
+#endif
+
+#if defined ( __ICCARM__ )
+#undef  EILSEQ                  /* defined in IAR arm/inc/c/errno.h:  #define EILSEQ  36 */
 #define EILSEQ          84      /* Illegal byte sequence */
-#undef  ERESTART
-#define ERESTART        85      /* Interrupted system call should be restarted */
-#undef  ESTRPIPE
+#else
+#ifndef  EILSEQ
+#define EILSEQ          84      /* Illegal byte sequence */
+#endif
+#endif
+
+#ifndef  ERESTART
+#define ERESTART        285      /* Interrupted system call should be restarted */
+#endif
+#ifndef  ESTRPIPE
 #define ESTRPIPE        86      /* Streams pipe error */
-#undef  EUSERS
+#endif
+#ifndef  EUSERS
 #define EUSERS          87      /* Too many users */
-#undef  ENOTSOCK
+#endif
+#ifndef  ENOTSOCK
 #define ENOTSOCK        88      /* Socket operation on non-socket */
-#undef  EDESTADDRREQ
+#endif
+#ifndef  EDESTADDRREQ
 #define EDESTADDRREQ    89      /* Destination address required */
-#undef  EMSGSIZE
+#endif
+#ifndef  EMSGSIZE
 #define EMSGSIZE        90      /* Message too long */
-#undef  EPROTOTYPE
+#endif
+#ifndef  EPROTOTYPE
 #define EPROTOTYPE      91      /* Protocol wrong type for socket */
-#undef  ENOPROTOOPT
+#endif
+#ifndef  ENOPROTOOPT
 #define ENOPROTOOPT     92      /* Protocol not available */
-#undef  EPROTONOSUPPORT
+#endif
+#ifndef  EPROTONOSUPPORT
 #define EPROTONOSUPPORT 93      /* Protocol not supported */
-#undef  ESOCKTNOSUPPORT
+#endif
+#ifndef  ESOCKTNOSUPPORT
 #define ESOCKTNOSUPPORT 94      /* Socket type not supported */
-#undef  EOPNOTSUPP
+#endif
+#ifndef  EOPNOTSUPP
 #define EOPNOTSUPP      95      /* Operation not supported on transport endpoint */
-#undef  EPFNOSUPPORT
+#endif
+#ifndef  EPFNOSUPPORT
 #define EPFNOSUPPORT    96      /* Protocol family not supported */
-#undef  EAFNOSUPPORT
+#endif
+#ifndef  EAFNOSUPPORT
 #define EAFNOSUPPORT    97      /* Address family not supported by protocol */
-#undef  EADDRINUSE
+#endif
+#ifndef  EADDRINUSE
 #define EADDRINUSE      98      /* Address already in use */
-#undef  EADDRNOTAVAIL
+#endif
+#ifndef  EADDRNOTAVAIL
 #define EADDRNOTAVAIL   99      /* Cannot assign requested address */
-#undef  ENETDOWN
+#endif
+#ifndef  ENETDOWN
 #define ENETDOWN        100     /* Network is down */
-#undef  ENETUNREACH
+#endif
+#ifndef  ENETUNREACH
 #define ENETUNREACH     101     /* Network is unreachable */
-#undef  ENETRESET
+#endif
+#ifndef  ENETRESET
 #define ENETRESET       102     /* Network dropped connection because of reset */
-#undef  ECONNABORTED
+#endif
+#ifndef  ECONNABORTED
 #define ECONNABORTED    103     /* Software caused connection abort */
-#undef  ECONNRESET
+#endif
+#ifndef  ECONNRESET
 #define ECONNRESET      104     /* Connection reset by peer */
-#undef  ENOBUFS
+#endif
+#ifndef  ENOBUFS
 #define ENOBUFS         105     /* No buffer space available */
-#undef  EISCONN
+#endif
+#ifndef  EISCONN
 #define EISCONN         106     /* Transport endpoint is already connected */
-#undef  ENOTCONN
+#endif
+#ifndef  ENOTCONN
 #define ENOTCONN        107     /* Transport endpoint is not connected */
-#undef  ESHUTDOWN
-#define ESHUTDOWN       108     /* Cannot send after transport endpoint shutdown */
-#undef  ETOOMANYREFS
+#endif
+#ifndef  ESHUTDOWN
+#define ESHUTDOWN       208     /* Cannot send after transport endpoint shutdown */
+#endif
+#ifndef  ETOOMANYREFS
 #define ETOOMANYREFS    109     /* Too many references: cannot splice */
-#undef  ETIMEDOUT
+#endif
+#ifndef  ETIMEDOUT
 #define ETIMEDOUT       110     /* Connection timed out */
-#undef  ECONNREFUSED
+#endif
+#ifndef  ECONNREFUSED
 #define ECONNREFUSED    111     /* Connection refused */
-#undef  EHOSTDOWN
+#endif
+#ifndef  EHOSTDOWN
 #define EHOSTDOWN       112     /* Host is down */
-#undef  EHOSTUNREACH
+#endif
+#ifndef  EHOSTUNREACH
 #define EHOSTUNREACH    113     /* No route to host */
-#undef  EALREADY
+#endif
+#ifndef  EALREADY
 #define EALREADY        114     /* Operation already in progress */
-#undef  EINPROGRESS
+#endif
+#ifndef  EINPROGRESS
 #define EINPROGRESS     115     /* Operation now in progress */
-#undef  ESTALE
+#endif
+#ifndef  ESTALE
 #define ESTALE          116     /* Stale NFS file handle */
-#undef  EUCLEAN
-#define EUCLEAN         117     /* Structure needs cleaning */
-#undef  ENOTNAM
-#define ENOTNAM         118     /* Not a XENIX named type file */
-#undef  ENAVAIL
-#define ENAVAIL         119     /* No XENIX semaphores available */
-#undef  EISNAM
-#define EISNAM          120     /* Is a named type file */
-#undef  EREMOTEIO
-#define EREMOTEIO       121     /* Remote I/O error */
-#undef  EDQUOT
+#endif
+#ifndef  EUCLEAN
+#define EUCLEAN         217     /* Structure needs cleaning */
+#endif
+#ifndef  ENOTNAM
+#define ENOTNAM         218     /* Not a XENIX named type file */
+#endif
+#ifndef  ENAVAIL
+#define ENAVAIL         219     /* No XENIX semaphores available */
+#endif
+#ifndef  EISNAM
+#define EISNAM          220     /* Is a named type file */
+#endif
+#ifndef  EREMOTEIO
+#define EREMOTEIO       221     /* Remote I/O error */
+#endif
+#ifndef  EDQUOT
 #define EDQUOT          122     /* Quota exceeded */
-#undef  ENOMEDIUM
-#define ENOMEDIUM       123     /* No medium found */
-#undef  EMEDIUMTYPE
-#define EMEDIUMTYPE     124     /* Wrong medium type */
-#undef  ECANCELED
+#endif
+#ifndef  ENOMEDIUM
+#define ENOMEDIUM       223     /* No medium found */
+#endif
+#ifndef  EMEDIUMTYPE
+#define EMEDIUMTYPE     224     /* Wrong medium type */
+#endif
+#ifndef  ECANCELED
 #define ECANCELED       125     /* Operation Canceled */
-#undef  ENOKEY
-#define ENOKEY          126     /* Required key not available */
-#undef  EKEYEXPIRED
-#define EKEYEXPIRED     127     /* Key has expired */
-#undef  EKEYREVOKED
-#define EKEYREVOKED     128     /* Key has been revoked */
-#undef  EKEYREJECTED
-#define EKEYREJECTED    129     /* Key was rejected by service */
-#undef  EOWNERDEAD
+#endif
+#ifndef  ENOKEY
+#define ENOKEY          226     /* Required key not available */
+#endif
+#ifndef  EKEYEXPIRED
+#define EKEYEXPIRED     227     /* Key has expired */
+#endif
+#ifndef  EKEYREVOKED
+#define EKEYREVOKED     228     /* Key has been revoked */
+#endif
+#ifndef  EKEYREJECTED
+#define EKEYREJECTED    229     /* Key was rejected by service */
+#endif
+#ifndef  EOWNERDEAD
 #define EOWNERDEAD      130     /* Owner died */
-#undef  ENOTRECOVERABLE
+#endif
+#ifndef  ENOTRECOVERABLE
 #define ENOTRECOVERABLE 131     /* State not recoverable */
+#endif
 
 /* Missing stat.h defines.
  * The following are sys/stat.h definitions not currently present in the ARMCC

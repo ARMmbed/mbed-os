@@ -1,6 +1,6 @@
 /**************************************************************************
 *
-* Copyright (c) 2019 Arm Limited and affiliates.
+* Copyright (c) 2019, Pelion and affiliates.
 * SPDX-License-Identifier: Apache-2.0
 * Copyright 2011-2016 by Andrey Butok. FNET Community.
 * Copyright 2008-2010 by Andrey Butok. Freescale Semiconductor, Inc.

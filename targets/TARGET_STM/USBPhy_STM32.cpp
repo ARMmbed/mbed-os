@@ -20,6 +20,9 @@
 
 #include "USBPhyHw.h"
 #include "pinmap.h"
+#if defined(TARGET_STM32L1) && defined(SYSCFG_PMC_USB_PU)
+#include "stm32l1xx_ll_system.h"
+#endif
 
 /* endpoint conversion macros */
 #define EP_TO_LOG(ep)       ((ep) & 0xF)
@@ -189,15 +192,22 @@ USBPhyHw::~USBPhyHw()
 
 }
 
-#if defined(TARGET_STM32F1)
+#if defined(TARGET_STM32F1) || defined(SYSCFG_PMC_USB_PU)
 
 #include "drivers/DigitalOut.h"
 
 void USB_reenumerate()
 {
+#if defined(SYSCFG_PMC_USB_PU)
+    // Manage internal pullups manually
+    LL_SYSCFG_DisableUSBPullUp();
+    wait_us(10000); // 10ms
+    LL_SYSCFG_EnableUSBPullUp();
+#else
     // Force USB_DP pin (with external pull up) to 0
     mbed::DigitalOut usb_dp_pin(USB_DP, 0) ;
     wait_us(10000); // 10ms
+#endif
 }
 #endif
 
@@ -250,13 +260,13 @@ void USBPhyHw::init(USBPhyEvents *events)
 
     __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
 
-    #ifdef __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE
-        __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
-    #endif
-    #ifdef __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE
-        __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
-    #endif
-     
+#ifdef __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE
+    __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
+#endif
+#ifdef __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE
+    __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
+#endif
+
     map = PinMap_USB_HS;
 
 #elif (MBED_CONF_TARGET_USB_SPEED == USE_USB_OTG_FS)
@@ -267,13 +277,13 @@ void USBPhyHw::init(USBPhyEvents *events)
 
     __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
 
-    #ifdef __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE
-        __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
-    #endif
-    #ifdef __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE
-        __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
-    #endif
-     
+#ifdef __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE
+    __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
+#endif
+#ifdef __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE
+    __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
+#endif
+
     map = PinMap_USB_FS;
 
 #elif (MBED_CONF_TARGET_USB_SPEED == USE_USB_NO_OTG)
@@ -282,9 +292,10 @@ void USBPhyHw::init(USBPhyEvents *events)
     hpcd.Init.speed = PCD_SPEED_FULL;
 
     __HAL_RCC_USB_CLK_ENABLE();
+
     map = PinMap_USB_FS;
 
-#if defined(TARGET_STM32F1)
+#if defined(TARGET_STM32F1) || defined(SYSCFG_PMC_USB_PU)
     // USB_DevConnect is empty
     USB_reenumerate();
 #endif
@@ -317,6 +328,8 @@ void USBPhyHw::init(USBPhyEvents *events)
     hpcd.State = HAL_PCD_STATE_RESET;
     HAL_StatusTypeDef ret = HAL_PCD_Init(&hpcd);
     MBED_ASSERT(ret == HAL_OK);
+    __HAL_PCD_ENABLE(&hpcd);
+    HAL_PCD_Start(&hpcd);
 
     // Configure FIFOs
 #if (MBED_CONF_TARGET_USB_SPEED == USE_USB_NO_OTG)
@@ -405,7 +418,7 @@ void USBPhyHw::connect()
     // Initializes the USB controller registers
     USB_DevInit(hpcd.Instance, hpcd.Init); // hpcd.Init not used
 
-#if defined(TARGET_STM32F1)
+#if defined(TARGET_STM32F1) || defined(SYSCFG_PMC_USB_PU)
     // USB_DevConnect is empty
     USB_reenumerate();
 #endif

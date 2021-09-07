@@ -9,6 +9,10 @@
 
 # greentea-client
 
+*Note*: This copy of greentea-client is used only with Mbed CLI 1. Mbed CLI 2
+will use the standalone greentea-client, automatically fetched by CMake [in the
+`extern/` directory](../../../extern/README.md).
+
 `greentea-client` is a client library for [the Greentea test tool](https://github.com/ARMmbed/mbed-os-tools/tree/master/packages/mbed-greentea) when used in an [Mbed OS](https://os.mbed.com/) project.
 
 This package implements the client side of the key-value protocol used  for communication between the device under test (DUT) and the host. The `Greentea` tool implements the protocol's host behavior. We use [utest](https://github.com/ARMmbed/mbed-os/blob/master/features/frameworks/utest/README.md) as our test harness.

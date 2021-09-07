@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,6 +44,7 @@
 #include "Security/protocols/fwh_sec_prot/auth_fwh_sec_prot.h"
 #include "Security/protocols/gkh_sec_prot/auth_gkh_sec_prot.h"
 #include "Security/protocols/radius_sec_prot/radius_client_sec_prot.h"
+#include "Security/protocols/msg_sec_prot/msg_sec_prot.h"
 #include "6LoWPAN/ws/ws_cfg_settings.h"
 #include "6LoWPAN/ws/ws_pae_controller.h"
 #include "6LoWPAN/ws/ws_pae_timers.h"
@@ -234,6 +235,10 @@ int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot
     }
 
     if (auth_gkh_sec_prot_register(pae_auth->kmp_service) < 0) {
+        goto error;
+    }
+
+    if (msg_sec_prot_register(pae_auth->kmp_service) < 0) {
         goto error;
     }
 
@@ -964,10 +969,20 @@ static supp_entry_t *ws_pae_auth_waiting_supp_list_add(pae_auth_t *pae_auth, sup
         ns_list_add_to_start(&pae_auth->waiting_supp_list, supp_entry);
         pae_auth->waiting_supp_list_size++;
     } else {
-        // Create a new supplicant entry if not at limit
-        if (pae_auth->waiting_supp_list_size > WAITING_SUPPLICANT_LIST_MAX_SIZE) {
-            tr_info("PAE: waiting list full, eui-64: %s", trace_array(addr->eui_64, 8));
-            return NULL;
+        // If the waiting list if full removes the oldest entry from the list
+        if (pae_auth->waiting_supp_list_size >= WAITING_SUPPLICANT_LIST_MAX_SIZE) {
+            supp_entry_t *delete_supp = ns_list_get_last(&pae_auth->waiting_supp_list);
+            if (!delete_supp) {
+                return NULL;
+            }
+            tr_info("PAE: waiting list full, eui-64: %s, deleted eui-64: %s", trace_array(addr->eui_64, 8), trace_array(delete_supp->addr.eui_64, 8));
+            // Create new instance
+            kmp_api_t *new_kmp = ws_pae_auth_kmp_create_and_start(pae_auth->kmp_service, MSG_PROT, pae_auth->relay_socked_msg_if_instance_id, delete_supp, pae_auth->sec_cfg);
+            if (!new_kmp) {
+                return NULL;
+            }
+            kmp_api_create_request(new_kmp, MSG_PROT, &delete_supp->addr, &delete_supp->sec_keys);
+            (void) ws_pae_lib_supp_list_remove(pae_auth, &pae_auth->waiting_supp_list, delete_supp, ws_pae_auth_waiting_supp_deleted);
         }
         supp_entry = ws_pae_lib_supp_list_add(&pae_auth->waiting_supp_list, addr);
         if (!supp_entry) {
@@ -981,7 +996,7 @@ static supp_entry_t *ws_pae_auth_waiting_supp_list_add(pae_auth_t *pae_auth, sup
     // 90 percent of the EAPOL temporary entry lifetime (10 ticks per second)
     supp_entry->waiting_ticks = pae_auth->sec_cfg->timing_cfg.temp_eapol_min_timeout * 900 / 100;
 
-    tr_debug("PAE: to waiting, list size %i, retry %i, eui-64: %s", pae_auth->waiting_supp_list_size, supp_entry->waiting_ticks, trace_array(supp_entry->addr.eui_64, 8));
+    tr_info("PAE: to waiting, list size %i, retry %i, eui-64: %s", pae_auth->waiting_supp_list_size, supp_entry->waiting_ticks, trace_array(supp_entry->addr.eui_64, 8));
 
     return supp_entry;
 }

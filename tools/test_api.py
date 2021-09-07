@@ -71,8 +71,7 @@ from tools.utils import argparse_lowercase_type
 from tools.utils import argparse_many
 from tools.notifier.mock import MockNotifier
 from tools.notifier.term import TerminalNotifier
-
-import tools.host_tests.host_tests_plugins as host_tests_plugins
+from mbed_host_tests import host_tests_plugins
 
 try:
     import mbed_lstools
@@ -2168,7 +2167,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
             'toolchain_paths': TOOLCHAIN_PATHS,
             'stats_depth': stats_depth,
             'notify': MockNotifier(),
-            'coverage_patterns': coverage_patterns, 
+            'coverage_patterns': coverage_patterns,
             'resource_filter': resource_filter
         }
 

@@ -125,7 +125,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
             __HAL_UART_DISABLE_IT(huart, UART_IT_TXE);
             // Check if RxIrq is disabled too
             if ((huart->Instance->CR1 & USART_CR1_RXNEIE_RXFNEIE) == 0) {
-				
+
                 all_disabled = 1;
             }
         }

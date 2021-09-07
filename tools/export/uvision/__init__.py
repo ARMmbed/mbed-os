@@ -135,7 +135,8 @@ class Uvision(Exporter):
         "LPCTargetCode.lpc_patch",
         "MTSCode.combine_bins_mts_dragonfly",
         "LPC55S69Code.binary_hook",
-        "M2351Code.merge_secure"
+        "M2351Code.merge_secure",
+        "M2354Code.merge_secure"
     ])
 
     # File associations within .uvprojx file

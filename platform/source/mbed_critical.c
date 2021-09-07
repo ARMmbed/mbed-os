@@ -27,7 +27,7 @@ static uint32_t critical_section_reentrancy_counter = 0;
 
 bool core_util_are_interrupts_enabled(void)
 {
-#if defined(__CORTEX_A9)
+#if defined(__CORTEX_A)
     return ((__get_CPSR() & 0x80) == 0);
 #else
     return ((__get_PRIMASK() & 0x1) == 0);
@@ -36,7 +36,7 @@ bool core_util_are_interrupts_enabled(void)
 
 bool core_util_is_isr_active(void)
 {
-#if defined(__CORTEX_A9)
+#if defined(__CORTEX_A)
     switch (__get_CPSR() & 0x1FU) {
         case CPSR_M_USR:
         case CPSR_M_SYS:

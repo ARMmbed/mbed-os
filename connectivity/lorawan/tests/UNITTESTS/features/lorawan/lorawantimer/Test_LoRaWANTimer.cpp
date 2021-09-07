@@ -71,9 +71,12 @@ TEST_F(Test_LoRaWANTimer, init)
 
 TEST_F(Test_LoRaWANTimer, start)
 {
-    equeue_stub.void_ptr = NULL;
+    struct equeue_event ptr;
+    equeue_stub.void_ptr = &ptr;
     timer_event_t ev;
     memset(&ev, 0, sizeof(ev));
+    object->init(ev, my_callback);
+    equeue_stub.call_cb_immediately = true;
     object->start(ev, 10);
 }
 

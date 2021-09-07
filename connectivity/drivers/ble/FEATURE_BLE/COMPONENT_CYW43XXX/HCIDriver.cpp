@@ -75,16 +75,13 @@ class HCIDriver : public CordioHCIDriver {
 public:
     HCIDriver(
         ble::vendor::cypress_ble::CyH4TransportDriver& transport_driver,
-        PinName bt_power_name,
-	bool ps_enabled,
-	uint8_t host_wake_irq,
-	uint8_t dev_wake_irq
+        bool ps_enabled,
+        uint8_t host_wake_irq,
+        uint8_t dev_wake_irq
     ) : CordioHCIDriver(transport_driver),
-        bt_power_name(bt_power_name),
-        bt_power(bt_power_name, PIN_OUTPUT, PullUp, 0),
-	is_powersave_enabled(ps_enabled),
-	host_wake_irq(host_wake_irq),
-	dev_wake_irq(dev_wake_irq),
+        is_powersave_enabled(ps_enabled),
+        host_wake_irq(host_wake_irq),
+        dev_wake_irq(dev_wake_irq),
         service_pack_index(0),
         service_pack_ptr(0),
         service_pack_length(0),
@@ -101,11 +98,6 @@ public:
 
     virtual void do_initialize()
     {
-        //Prevent PSoC6 to enter deep-sleep till BT initialization is complete
-        sleep_manager_lock_deep_sleep();
-        rtos::ThisThread::sleep_for(500ms);
-        bt_power = 1;
-        rtos::ThisThread::sleep_for(500ms);
     }
 
     virtual void do_terminate() { }
@@ -175,7 +167,6 @@ public:
                 // Note: Reset is handled by ack_service_pack.
                 case HCI_VS_CMD_SET_SLEEP_MODE:
                     HciWriteLeHostSupport();
-                    sleep_manager_unlock_deep_sleep();
                     break;
 
                 case HCI_OPCODE_WRITE_LE_HOST_SUPPORT:
@@ -422,68 +413,68 @@ private:
 
     void set_sleep_mode()
     {
-            uint8_t *pBuf;
-            if ((pBuf = hciCmdAlloc(HCI_VS_CMD_SET_SLEEP_MODE, 12)) != NULL)
-            {
-                  if (is_powersave_on()) {
-                     pBuf[HCI_CMD_HDR_LEN] = 0x01; // sleep
-		  } else {
-                     pBuf[HCI_CMD_HDR_LEN] = 0x00; // no sleep
-		  }
-                  pBuf[HCI_CMD_HDR_LEN + 1] = 0x00; // no idle threshold host (N/A)
-                  if (is_powersave_on()) {
-                     pBuf[HCI_CMD_HDR_LEN + 2] = 0x05; // no idle threshold HC (N/A)
-		  } else {
-                     pBuf[HCI_CMD_HDR_LEN + 2] = 0x00; // no idle threshold HC (N/A)
-                  }
-                  if (is_powersave_on()) {
-                     pBuf[HCI_CMD_HDR_LEN + 3] = dev_wake_irq; // BT WAKE
-		  } else {
-                     pBuf[HCI_CMD_HDR_LEN + 3] = 0x00; // BT WAKE
-		  }
-                  if (is_powersave_on()) {
-                      pBuf[HCI_CMD_HDR_LEN + 4] = host_wake_irq; // HOST WAKE
-		  } else {
-                     pBuf[HCI_CMD_HDR_LEN + 4] = 0x00; // HOST WAKE
-		  }
-                  pBuf[HCI_CMD_HDR_LEN + 5] = 0x00; // Sleep during SCO
-                  pBuf[HCI_CMD_HDR_LEN + 6] = 0x00; // Combining sleep mode and SCM
-                  pBuf[HCI_CMD_HDR_LEN + 7] = 0x00; // Tristate TX
-                  pBuf[HCI_CMD_HDR_LEN + 8] = 0x00; // Active connection handling on suspend
-                  pBuf[HCI_CMD_HDR_LEN + 9] = 0x00; // resume timeout
-                  pBuf[HCI_CMD_HDR_LEN + 10] = 0x00; // break to host
-                  pBuf[HCI_CMD_HDR_LEN + 11] = 0x00; // Pulsed host wake
-                  hciCmdSend(pBuf);
+        uint8_t *pBuf;
+        if ((pBuf = hciCmdAlloc(HCI_VS_CMD_SET_SLEEP_MODE, 12)) != NULL)
+        {
+            if (is_powersave_on()) {
+                pBuf[HCI_CMD_HDR_LEN] = 0x01;             // sleep
+            } else {
+                pBuf[HCI_CMD_HDR_LEN] = 0x00;             // no sleep
             }
+            pBuf[HCI_CMD_HDR_LEN + 1] = 0x00;             // no idle threshold host (N/A)
+            if (is_powersave_on()) {
+                pBuf[HCI_CMD_HDR_LEN + 2] = 0x05;         // no idle threshold HC (N/A)
+            } else {
+                pBuf[HCI_CMD_HDR_LEN + 2] = 0x00;         // no idle threshold HC (N/A)
+            }
+            if (is_powersave_on()) {
+                pBuf[HCI_CMD_HDR_LEN + 3] = dev_wake_irq; // BT WAKE
+            } else {
+                pBuf[HCI_CMD_HDR_LEN + 3] = 0x00;         // no BT WAKE
+            }
+            if (is_powersave_on()) {
+                pBuf[HCI_CMD_HDR_LEN + 4] = host_wake_irq; // HOST WAKE
+            } else {
+                pBuf[HCI_CMD_HDR_LEN + 4] = 0x00;          // no HOST WAKE
+            }
+            pBuf[HCI_CMD_HDR_LEN + 5] = 0x00;              // Sleep during SCO
+            pBuf[HCI_CMD_HDR_LEN + 6] = 0x00;              // Combining sleep mode and SCM
+            pBuf[HCI_CMD_HDR_LEN + 7] = 0x00;              // Tristate TX
+            pBuf[HCI_CMD_HDR_LEN + 8] = 0x00;              // Active connection handling on suspend
+            pBuf[HCI_CMD_HDR_LEN + 9] = 0x00;              // resume timeout
+            pBuf[HCI_CMD_HDR_LEN + 10] = 0x00;             // break to host
+            pBuf[HCI_CMD_HDR_LEN + 11] = 0x00;             // Pulsed host wake
+            hciCmdSend(pBuf);
+        }
     }
 
     // 0x18, 0xFC, 0x06, 0x00, 0x00, 0xC0, 0xC6, 0x2D, 0x00,   //update uart baudrate 3 mbp
     void HciUpdateUartBaudRate()
     {
-            uint8_t *pBuf;
-            if ((pBuf = hciCmdAlloc(HCI_VS_CMD_UPDATE_UART_BAUD_RATE, 6)) != NULL)
-            {
-                  pBuf[HCI_CMD_HDR_LEN] = 0x00; // encoded_baud_rate
-                  pBuf[HCI_CMD_HDR_LEN + 1] = 0x00; // use_encoded_form
-                  pBuf[HCI_CMD_HDR_LEN + 2] = 0xC0; // explicit baud rate bit 0-7
-                  pBuf[HCI_CMD_HDR_LEN + 3] = 0xC6; // explicit baud rate bit 8-15
-                  pBuf[HCI_CMD_HDR_LEN + 4] = 0x2D; // explicit baud rate bit 16-23
-                  pBuf[HCI_CMD_HDR_LEN + 5] = 0x00; // explicit baud rate bit 24-31
-                  hciCmdSend(pBuf);
-            }
+        uint8_t *pBuf;
+        if ((pBuf = hciCmdAlloc(HCI_VS_CMD_UPDATE_UART_BAUD_RATE, 6)) != NULL)
+        {
+            pBuf[HCI_CMD_HDR_LEN] = 0x00; // encoded_baud_rate
+            pBuf[HCI_CMD_HDR_LEN + 1] = 0x00; // use_encoded_form
+            pBuf[HCI_CMD_HDR_LEN + 2] = 0xC0; // explicit baud rate bit 0-7
+            pBuf[HCI_CMD_HDR_LEN + 3] = 0xC6; // explicit baud rate bit 8-15
+            pBuf[HCI_CMD_HDR_LEN + 4] = 0x2D; // explicit baud rate bit 16-23
+            pBuf[HCI_CMD_HDR_LEN + 5] = 0x00; // explicit baud rate bit 24-31
+            hciCmdSend(pBuf);
+        }
     }
 
     static const uint16_t HCI_OPCODE_WRITE_LE_HOST_SUPPORT = 0x0C6D;
 
     void HciWriteLeHostSupport()
     {
-      uint8_t *pBuf;
-      if ((pBuf = hciCmdAlloc(HCI_OPCODE_WRITE_LE_HOST_SUPPORT, 2)) != NULL)
-      {
-        pBuf[HCI_CMD_HDR_LEN] = 0x01;
-        pBuf[HCI_CMD_HDR_LEN + 1] = 0x00;
-        hciCmdSend(pBuf);
-      }
+        uint8_t *pBuf;
+        if ((pBuf = hciCmdAlloc(HCI_OPCODE_WRITE_LE_HOST_SUPPORT, 2)) != NULL)
+        {
+            pBuf[HCI_CMD_HDR_LEN] = 0x01;
+            pBuf[HCI_CMD_HDR_LEN + 1] = 0x00;
+            hciCmdSend(pBuf);
+        }
     }
 
     void hciCoreReadResolvingListSize(void)
@@ -506,7 +497,7 @@ private:
 
     void hciCoreReadMaxDataLen(void)
     {
-    /* if LE Data Packet Length Extensions is supported by Controller and included */
+        /* if LE Data Packet Length Extensions is supported by Controller and included */
         if ((hciCoreCb.leSupFeat & HCI_LE_SUP_FEAT_DATA_LEN_EXT) &&
             (hciLeSupFeatCfg & HCI_LE_SUP_FEAT_DATA_LEN_EXT))
         {
@@ -524,9 +515,6 @@ private:
     {
        return (is_powersave_enabled);
     }
-
-    PinName bt_power_name;
-    mbed::DigitalInOut bt_power;
 
     bool is_powersave_enabled;
     uint8_t host_wake_irq;
@@ -549,12 +537,12 @@ ble::CordioHCIDriver& ble_cordio_get_hci_driver()
 {
     static ble::vendor::cypress_ble::CyH4TransportDriver& transport_driver =
           ble_cordio_get_h4_transport_driver();
+
     static ble::vendor::cypress::HCIDriver hci_driver(
         transport_driver,
-        /* bt_power */ CYBSP_BT_POWER,
-	transport_driver.get_enabled_powersave(),
-	transport_driver.get_host_wake_irq_event(),
-	transport_driver.get_dev_wake_irq_event()
+        transport_driver.get_enabled_powersave(),
+        transport_driver.get_host_wake_irq_event(),
+        transport_driver.get_dev_wake_irq_event()
     );
     return hci_driver;
 }

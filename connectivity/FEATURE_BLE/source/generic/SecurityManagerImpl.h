@@ -33,7 +33,9 @@
 
 #include "source/pal/GapTypes.h"
 #include "source/pal/PalConnectionMonitor.h"
+#if BLE_FEATURE_SIGNING
 #include "source/pal/PalSigningMonitor.h"
+#endif //BLE_FEATURE_SIGNING
 #include "source/pal/PalSecurityManager.h"
 
 #include "source/generic/SecurityDb.h"
@@ -84,6 +86,8 @@ public:
     ble_error_t reset();
 
     ble_error_t preserveBondingStateOnReset(bool enable);
+
+    ble_error_t writeBondingStateToPersistentStorage();
 
     ////////////////////////////////////////////////////////////////////////////
     // List management
@@ -477,15 +481,19 @@ private:
 public:
     SecurityManager(
         ble::PalSecurityManager &palImpl,
-        ble::PalConnectionMonitor &connMonitorImpl,
-        ble::PalSigningMonitor &signingMonitorImpl
+        ble::PalConnectionMonitor &connMonitorImpl
+#if BLE_FEATURE_SIGNING
+        , ble::PalSigningMonitor &signingMonitorImpl
+#endif //BLE_FEATURE_SIGNING
 #if BLE_FEATURE_PRIVACY
         , PrivateAddressController &privateAddressController
 #endif // BLE_FEATURE_PRIVACY
     ) : eventHandler(nullptr),
         _pal(palImpl),
         _connection_monitor(connMonitorImpl),
+#if BLE_FEATURE_SIGNING
         _signing_monitor(signingMonitorImpl),
+#endif //BLE_FEATURE_SIGNING
         _db(nullptr),
 #if BLE_FEATURE_PRIVACY
         _private_address_controller(privateAddressController),
@@ -679,7 +687,9 @@ private:
 
     PalSecurityManager &_pal;
     PalConnectionMonitor &_connection_monitor;
+#if BLE_FEATURE_SIGNING
     PalSigningMonitor &_signing_monitor;
+#endif //BLE_FEATURE_SIGNING
 
     SecurityDb *_db;
 #if BLE_FEATURE_PRIVACY

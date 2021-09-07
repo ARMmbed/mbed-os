@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Design version="12" device_library_hint_path="../../psoc6pdl/devicesupport.xml" xmlns="http://cypress.com/xsd/cydesignfile_v3">
-    <ToolInfo version="1.0.0"/>
+<Design version="12" xmlns="http://cypress.com/xsd/cydesignfile_v3">
+    <ToolInfo version="2.2.0.2790"/>
     <Devices>
         <Device mpn="CY8C624AFNI-S2D43">
             <BlockConfig>
@@ -10,8 +10,96 @@
                         <Param id="traceEnable" value="false"/>
                     </Personality>
                 </Block>
-                <Block location="ioss[0].port[0].pin[4]"/>
-                <Block location="ioss[0].port[11].pin[1]"/>
+                <Block location="ioss[0].port[0].pin[4]">
+                    <Alias value="CYBSP_USER_BTN"/>
+                </Block>
+                <Block location="ioss[0].port[10].pin[0]">
+                    <Alias value="CYBSP_GPIOA0"/>
+                </Block>
+                <Block location="ioss[0].port[10].pin[1]">
+                    <Alias value="CYBSP_GPIOA1"/>
+                </Block>
+                <Block location="ioss[0].port[10].pin[2]">
+                    <Alias value="CYBSP_GPIOA2"/>
+                </Block>
+                <Block location="ioss[0].port[10].pin[3]">
+                    <Alias value="CYBSP_GPIOA3"/>
+                </Block>
+                <Block location="ioss[0].port[10].pin[4]">
+                    <Alias value="CYBSP_GPIOA4"/>
+                </Block>
+                <Block location="ioss[0].port[10].pin[5]">
+                    <Alias value="CYBSP_GPIOA5"/>
+                </Block>
+                <Block location="ioss[0].port[10].pin[6]">
+                    <Alias value="CYBSP_THERM_VDD"/>
+                </Block>
+                <Block location="ioss[0].port[10].pin[7]">
+                    <Alias value="CYBSP_THERM_OUT"/>
+                </Block>
+                <Block location="ioss[0].port[11].pin[1]">
+                    <Alias value="CYBSP_USER_LED"/>
+                </Block>
+                <Block location="ioss[0].port[11].pin[2]">
+                    <Alias value="CYBSP_QSPI_SS"/>
+                </Block>
+                <Block location="ioss[0].port[11].pin[3]">
+                    <Alias value="CYBSP_QSPI_D3"/>
+                </Block>
+                <Block location="ioss[0].port[11].pin[4]">
+                    <Alias value="CYBSP_QSPI_D2"/>
+                </Block>
+                <Block location="ioss[0].port[11].pin[5]">
+                    <Alias value="CYBSP_QSPI_D1"/>
+                </Block>
+                <Block location="ioss[0].port[11].pin[6]">
+                    <Alias value="CYBSP_QSPI_D0"/>
+                </Block>
+                <Block location="ioss[0].port[11].pin[7]">
+                    <Alias value="CYBSP_QSPI_SCK"/>
+                </Block>
+                <Block location="ioss[0].port[12].pin[6]">
+                    <Alias value="CYBSP_ECO_IN"/>
+                </Block>
+                <Block location="ioss[0].port[12].pin[7]">
+                    <Alias value="CYBSP_ECO_OUT"/>
+                </Block>
+                <Block location="ioss[0].port[5].pin[0]">
+                    <Alias value="CYBSP_SPI_MOSI"/>
+                </Block>
+                <Block location="ioss[0].port[5].pin[1]">
+                    <Alias value="CYBSP_SPI_MISO"/>
+                </Block>
+                <Block location="ioss[0].port[5].pin[2]">
+                    <Alias value="CYBSP_SPI_CLK"/>
+                </Block>
+                <Block location="ioss[0].port[5].pin[3]">
+                    <Alias value="CYBSP_SPI_CS"/>
+                </Block>
+                <Block location="ioss[0].port[5].pin[4]">
+                    <Alias value="CYBSP_DEBUG_UART_RX"/>
+                </Block>
+                <Block location="ioss[0].port[5].pin[5]">
+                    <Alias value="CYBSP_DEBUG_UART_TX"/>
+                </Block>
+                <Block location="ioss[0].port[5].pin[6]">
+                    <Alias value="CYBSP_DEBUG_UART_RTS"/>
+                </Block>
+                <Block location="ioss[0].port[5].pin[7]">
+                    <Alias value="CYBSP_DEBUG_UART_CTS"/>
+                </Block>
+                <Block location="ioss[0].port[6].pin[0]">
+                    <Alias value="CYBSP_I2C_SCL"/>
+                </Block>
+                <Block location="ioss[0].port[6].pin[1]">
+                    <Alias value="CYBSP_I2C_SDA"/>
+                </Block>
+                <Block location="ioss[0].port[6].pin[4]">
+                    <Alias value="CYBSP_UART_RX"/>
+                </Block>
+                <Block location="ioss[0].port[6].pin[5]">
+                    <Alias value="CYBSP_UART_TX"/>
+                </Block>
                 <Block location="ioss[0].port[6].pin[6]">
                     <Alias value="CYBSP_SWDIO"/>
                     <Personality template="mxs40pin" version="1.1">
@@ -38,14 +126,32 @@
                         <Param id="inFlash" value="true"/>
                     </Personality>
                 </Block>
-                <Block location="ioss[0].port[8].pin[5]">
-                    <Alias value="CYBSP_CSD_SLD2"/>
+                <Block location="ioss[0].port[8].pin[4]">
+                    <Alias value="CYBSP_GPIO5"/>
                 </Block>
-                <Block location="ioss[0].port[8].pin[6]">
-                    <Alias value="CYBSP_CSD_SLD3"/>
+                <Block location="ioss[0].port[9].pin[0]">
+                    <Alias value="CYBSP_GPIO13"/>
                 </Block>
-                <Block location="ioss[0].port[8].pin[7]">
-                    <Alias value="CYBSP_CSD_SLD4"/>
+                <Block location="ioss[0].port[9].pin[1]">
+                    <Alias value="CYBSP_GPIO12"/>
+                </Block>
+                <Block location="ioss[0].port[9].pin[2]">
+                    <Alias value="CYBSP_GPIO11"/>
+                </Block>
+                <Block location="ioss[0].port[9].pin[3]">
+                    <Alias value="CYBSP_GPIO10"/>
+                </Block>
+                <Block location="ioss[0].port[9].pin[4]">
+                    <Alias value="CYBSP_GPIO9"/>
+                </Block>
+                <Block location="ioss[0].port[9].pin[7]">
+                    <Alias value="CYBSP_GPIO6"/>
+                </Block>
+                <Block location="peri[0].div_16[0]">
+                    <Alias value="CYBSP_DEBUG_UART_CLK_DIV"/>
+                </Block>
+                <Block location="peri[0].div_16[1]">
+                    <Alias value="CYBSP_BT_UART_CLK_DIV"/>
                 </Block>
                 <Block location="srss[0].clock[0]">
                     <Personality template="mxs40sysclocks" version="1.2"/>
@@ -108,17 +214,40 @@
                         <Param id="sourceClock" value="imo"/>
                     </Personality>
                 </Block>
+                <Block location="srss[0].clock[0].pathmux[2]">
+                    <Personality template="mxs40pathmux" version="1.0">
+                        <Param id="sourceClock" value="imo"/>
+                    </Personality>
+                </Block>
+                <Block location="srss[0].clock[0].pathmux[3]">
+                    <Personality template="mxs40pathmux" version="1.0">
+                        <Param id="sourceClock" value="imo"/>
+                    </Personality>
+                </Block>
+                <Block location="srss[0].clock[0].pathmux[4]">
+                    <Personality template="mxs40pathmux" version="1.0">
+                        <Param id="sourceClock" value="imo"/>
+                    </Personality>
+                </Block>
+                <Block location="srss[0].clock[0].pathmux[5]">
+                    <Personality template="mxs40pathmux" version="1.0">
+                        <Param id="sourceClock" value="imo"/>
+                    </Personality>
+                </Block>
                 <Block location="srss[0].clock[0].periclk[0]">
                     <Personality template="mxs40periclk" version="1.0">
                         <Param id="divider" value="1"/>
                     </Personality>
                 </Block>
                 <Block location="srss[0].clock[0].pll[0]">
-                    <Personality template="mxs40pll" version="1.0">
+                    <Personality template="mxs40pll" version="2.0">
                         <Param id="lowFrequencyMode" value="false"/>
                         <Param id="configuration" value="auto"/>
                         <Param id="desiredFrequency" value="100.000"/>
                         <Param id="optimization" value="MinPower"/>
+                        <Param id="feedback" value=""/>
+                        <Param id="reference" value=""/>
+                        <Param id="output" value=""/>
                     </Personality>
                 </Block>
                 <Block location="srss[0].clock[0].slowclk[0]">
@@ -145,6 +274,5 @@
             </Netlist>
         </Device>
     </Devices>
-    <Libraries/>
     <ConfiguratorData/>
 </Design>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, Arm Limited and affiliates.
+ * Copyright (c) 2016-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -63,6 +63,8 @@ int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct protocol_in
 int8_t lowpan_adaptation_indirect_queue_params_set(struct protocol_interface_info_entry *cur, uint16_t indirect_big_packet_threshold, uint16_t max_indirect_big_packets_total, uint16_t max_indirect_small_packets_per_child);
 
 void lowpan_adaptation_expedite_forward_enable(struct protocol_interface_info_entry *cur);
+
+bool lowpan_adaptation_expedite_forward_state_get(struct protocol_interface_info_entry *cur);
 
 void lowpan_adaptation_interface_slow_timer(struct protocol_interface_info_entry *cur);
 
