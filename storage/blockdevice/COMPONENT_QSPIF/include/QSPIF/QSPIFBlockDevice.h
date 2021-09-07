@@ -376,6 +376,9 @@ private:
 
     bool _needs_fast_mode;
 
+    // S25FS512S needs a quirk
+    bool _S25FS512S_quirk;
+
     // Clear block protection
     qspif_clear_protection_method_t _clear_protection_method;
 

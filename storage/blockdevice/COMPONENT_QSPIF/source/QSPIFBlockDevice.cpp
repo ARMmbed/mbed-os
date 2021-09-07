@@ -176,6 +176,9 @@ QSPIFBlockDevice::QSPIFBlockDevice(PinName io0, PinName io1, PinName io2, PinNam
     // Set default 4-byte addressing extension register write instruction
     _attempt_4_byte_addressing = true;
     _4byte_msb_reg_write_inst = QSPIF_INST_4BYTE_REG_WRITE_DEFAULT;
+
+    // Quirk for Cypress S25FS512S
+    _S25FS512S_quirk = false;
 }
 
 int QSPIFBlockDevice::init()
@@ -1099,6 +1102,16 @@ int QSPIFBlockDevice::_handle_vendor_quirks()
             tr_debug("Applying quirks for ISSI");
             _num_status_registers = 1;
             break;
+        case 0x01:
+            if (vendor_device_ids[1] == 0x02 && vendor_device_ids[2] == 0x20) {
+                tr_debug("Applying quirks for Cypress S25FS512S");
+                // On a Cypress S25FS512S flash chip
+                // * The SFDP table expects the register bitfield CR3NV[1] to be 1
+                //   but its actual value on the hardware is 0. In order for SFDP parsing
+                //   to work, the quirk reports CR3NV[1] as 1.
+                _S25FS512S_quirk = true;
+            }
+            break;
     }
 
     return 0;
@@ -1467,6 +1480,16 @@ int QSPIFBlockDevice::_qspi_send_read_sfdp_command(mbed::bd_addr_t addr, mbed::s
     if (QSPI_STATUS_OK != status) {
         tr_error("Sending SFDP read instruction");
         return status;
+    }
+
+    // Handle S25FS512S quirk.
+    const mbed::bd_addr_t S25FS512S_CR3NV = 0x4;
+    if (_S25FS512S_quirk) {
+        if (addr == S25FS512S_CR3NV) {
+            // If we reach here, rx_buffer is guaranteed to be non-null
+            // because it's been checked by _qspi.read() above.
+            static_cast<uint8_t *>(rx_buffer)[0] |= (1 << 1);
+        }
     }
 
     return QSPI_STATUS_OK;
