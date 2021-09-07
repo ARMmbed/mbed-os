@@ -421,40 +421,35 @@ void test_multi_threads()
 
     osStatus threadStatus;
     int i_ind, j_ind;
-    char *dummy;
 
-    rtos::Thread **bd_thread = new (std::nothrow) rtos::Thread*[TEST_NUM_OF_THREADS];
-    TEST_SKIP_UNLESS_MESSAGE((*bd_thread) != NULL, "not enough heap to run test.");
-    memset(bd_thread, 0, TEST_NUM_OF_THREADS * sizeof(rtos::Thread *));
+    rtos::Thread *bd_thread[TEST_NUM_OF_THREADS] {};
 
     for (i_ind = 0; i_ind < TEST_NUM_OF_THREADS; i_ind++) {
 
         bd_thread[i_ind] = new (std::nothrow) rtos::Thread((osPriority_t)((int)osPriorityNormal), TEST_THREAD_STACK_SIZE);
-        dummy = new (std::nothrow) char[TEST_THREAD_STACK_SIZE];
 
-        if (!bd_thread[i_ind] || !dummy) {
-            utest_printf("Not enough heap to run Thread  %d !\n", i_ind + 1);
+        if (!bd_thread[i_ind]) {
+            utest_printf("Not enough heap to create Thread %d\n", i_ind + 1);
             break;
         }
-        delete[] dummy;
 
         threadStatus = bd_thread[i_ind]->start(callback(test_thread_job));
-        if (threadStatus != 0) {
-            utest_printf("Thread %d Start Failed!\n", i_ind + 1);
+        if (threadStatus == osErrorNoMemory) {
+            utest_printf("Not enough heap to start Thread %d\n", i_ind + 1);
+        } else if (threadStatus != osOK) {
+            utest_printf("Thread %d failed to start: %d\n", i_ind + 1, threadStatus);
             break;
         }
     }
 
+    // Join threads that successfully started
     for (j_ind = 0; j_ind < i_ind; j_ind++) {
         bd_thread[j_ind]->join();
     }
 
-    if (bd_thread) {
-        for (j_ind = 0; j_ind < i_ind; j_ind++) {
-            delete bd_thread[j_ind];
-        }
-
-        delete[] bd_thread;
+    // Delete all threads, even those that failed to start
+    for (j_ind = 0; j_ind < TEST_NUM_OF_THREADS; j_ind++) {
+        delete bd_thread[j_ind];
     }
 }
 #endif
