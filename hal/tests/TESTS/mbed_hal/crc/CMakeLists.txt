@@ -3,6 +3,10 @@
 
 include(mbed_greentea)
 
+if(NOT "DEVICE_CRC=1" IN_LIST MBED_TARGET_DEFINITIONS)
+    set(TEST_SKIPPED "CRC not supported for this target")
+endif()
+
 mbed_greentea_add_test(
     TEST_NAME
         mbed-hal-crc
@@ -10,4 +14,6 @@ mbed_greentea_add_test(
         .
     TEST_SOURCES
         main.cpp
+    TEST_SKIPPED
+        ${TEST_SKIPPED}
 )

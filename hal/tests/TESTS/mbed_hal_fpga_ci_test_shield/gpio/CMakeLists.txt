@@ -3,6 +3,14 @@
 
 include(mbed_greentea)
 
+if(NOT "COMPONENT_FPGA_CI_TEST_SHIELD=1" IN_LIST MBED_TARGET_DEFINITIONS)
+    set(TEST_SKIPPED "FPGA CI Test Shield is needed to run this test")
+elseif(NOT("TARGET_FF_ARDUINO" IN_LIST MBED_TARGET_DEFINITIONS OR
+    "TARGET_FF_ARDUINO_UNO" IN_LIST MBED_TARGET_DEFINITIONS) AND
+    NOT DEFINED MBED_CONF_TARGET_DEFAULT_FORM_FACTOR)
+endif()
+
+
 list(
     APPEND
         TEST_REQ_LIBS_LIST
@@ -19,4 +27,6 @@ mbed_greentea_add_test(
         .
     TEST_REQUIRED_LIBS
         ${TEST_REQ_LIBS_LIST}
+    TEST_SKIPPED
+        ${TEST_SKIPPED}
 )

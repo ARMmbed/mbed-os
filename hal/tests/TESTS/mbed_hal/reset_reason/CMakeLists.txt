@@ -3,6 +3,10 @@
 
 include(mbed_greentea)
 
+if(NOT "DEVICE_RESET_REASON=1" IN_LIST MBED_TARGET_DEFINITIONS)
+    set(TEST_SKIPPED "Reset reason API not supported for this target")
+endif()
+
 mbed_greentea_add_test(
     TEST_NAME
         mbed-hal-reset-reason
@@ -10,4 +14,8 @@ mbed_greentea_add_test(
         .
     TEST_SOURCES
         main.cpp
+    HOST_TESTS_DIR
+        "${CMAKE_CURRENT_LIST_DIR}/../../host_tests"
+    TEST_SKIPPED
+        ${TEST_SKIPPED}
 )

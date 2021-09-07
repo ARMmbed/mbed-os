@@ -8,4 +8,6 @@ mbed_greentea_add_test(
         mbed-hal-rtc-time-conv
     TEST_SOURCES
         main.cpp
+    HOST_TESTS_DIR
+        "${CMAKE_CURRENT_LIST_DIR}/../../host_tests"
 )

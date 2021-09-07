@@ -3,6 +3,10 @@
 
 include(mbed_greentea)
 
+if(NOT "DEVICE_QSPI=1" IN_LIST MBED_TARGET_DEFINITIONS)
+    set(TEST_SKIPPED "QSPI not supported for this target")
+endif()
+
 if(TARGET mbed-ep-agora)
     set(FLASH_TARGET_CONFIG_HEADER NORDIC/EP_AGORA)
 elseif(TARGET mbed-nrf52840-dk)
@@ -30,5 +34,7 @@ mbed_greentea_add_test(
         qspi_test_utils.cpp
     TEST_INCLUDE_DIRS
         ${TEST_HEADER_DIRS}
+    TEST_SKIPPED
+        ${TEST_SKIPPED}
 )
 

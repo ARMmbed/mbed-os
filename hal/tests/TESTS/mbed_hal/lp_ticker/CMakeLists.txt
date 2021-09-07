@@ -3,6 +3,10 @@
 
 include(mbed_greentea)
 
+if(NOT "DEVICE_LPTICKER=1" IN_LIST MBED_TARGET_DEFINITIONS)
+    set(TEST_SKIPPED "Low power timer not supported for this target")
+endif()
+
 mbed_greentea_add_test(
     TEST_NAME
         mbed-hal-lp-ticker
@@ -10,4 +14,6 @@ mbed_greentea_add_test(
         .
     TEST_SOURCES
         main.cpp
+    TEST_SKIPPED
+        ${TEST_SKIPPED}
 )

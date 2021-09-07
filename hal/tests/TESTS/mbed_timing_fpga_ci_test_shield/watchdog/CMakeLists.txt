@@ -3,6 +3,16 @@
 
 include(mbed_greentea)
 
+if(NOT "DEVICE_WATCHDOG=1" IN_LIST MBED_TARGET_DEFINITIONS)
+    set(TEST_SKIPPED "Watchdog not supported for this target")
+elseif(NOT "COMPONENT_FPGA_CI_TEST_SHIELD=1" IN_LIST MBED_TARGET_DEFINITIONS)
+    set(TEST_SKIPPED "FPGA CI Test Shield is needed to run this test")
+elseif(NOT("TARGET_FF_ARDUINO" IN_LIST MBED_TARGET_DEFINITIONS OR
+    "TARGET_FF_ARDUINO_UNO" IN_LIST MBED_TARGET_DEFINITIONS) AND
+    NOT DEFINED MBED_CONF_TARGET_DEFAULT_FORM_FACTOR)
+    set(TEST_SKIPPED "Test not supported for this form factor")
+endif()
+
 list(
     APPEND
         TEST_REQ_LIBS_LIST
@@ -17,4 +27,8 @@ mbed_greentea_add_test(
         main.cpp
     TEST_REQUIRED_LIBS
         ${TEST_REQ_LIBS_LIST}
+    HOST_TESTS_DIR
+        "${CMAKE_CURRENT_LIST_DIR}/../../host_tests"
+    TEST_SKIPPED
+        ${TEST_SKIPPED}
 )
