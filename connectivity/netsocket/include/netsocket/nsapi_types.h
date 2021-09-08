@@ -411,8 +411,11 @@ typedef struct nsapi_stagger_req {
 
 /** nsapi_msghdr
  */
-typedef struct MBED_ALIGN(max_align_t) nsapi_msghdr {
-    nsapi_size_t len;    /* Data byte count, including header */
+typedef struct nsapi_msghdr {
+    /* In C alignment can't be specified in the type declaration.
+     * Specifying it in the first member definition will affect whole structure.
+     */
+    MBED_ALIGN(max_align_t) nsapi_size_t len;    /* Data byte count, including header */
     int          level;  /* Originating protocol */
     int          type;   /* Protocol-specific type */
 } nsapi_msghdr_t;
