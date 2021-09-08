@@ -256,7 +256,7 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp
      * - regions in each configuration
      *  is variable -> the size of this table is variable
      */
-    auto smptbl_buff = std::make_unique<uint8_t[]>(sfdp_info.smptbl.size);
+    auto smptbl_buff = std::unique_ptr<uint8_t[]>(new (std::nothrow) uint8_t[sfdp_info.smptbl.size]);
     if (!smptbl_buff) {
         tr_error("Failed to allocate memory");
         return -1;
