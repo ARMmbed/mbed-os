@@ -81,8 +81,11 @@ osStatus Thread::start(mbed::Callback<void()> task)
     }
 
     if (_attr.stack_mem == nullptr) {
-        _attr.stack_mem = new uint32_t[_attr.stack_size / sizeof(uint32_t)];
-        MBED_ASSERT(_attr.stack_mem != nullptr);
+        _attr.stack_mem = new (std::nothrow) uint32_t[_attr.stack_size / sizeof(uint32_t)];
+        if (_attr.stack_mem == nullptr) {
+            _mutex.unlock();
+            return osErrorNoMemory;
+        }
     }
 
     //Fill the stack with a magic word for maximum usage checking
