@@ -8,22 +8,24 @@
  * Copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 
-#ifndef PARTITION_M2354
-#define PARTITION_M2354
-
-#include "partition_M2354_mem.h"
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+#ifndef PARTITION_M2354_WRAPPER
+#define PARTITION_M2354_WRAPPER
 
 /* Since 6.0, Mbed OS doesn't support secure build and target platform code is basically TrustZone-unaware.
- * So make this file trivial. */
+ * However, some BSP driver code are still TrustZone-aware. To avoid make big change on them, import
+ * mcu partition header from TF-M.
+ *
+ * For example, LCD will incorrectly resolve to LCD_S without `SCU_INIT_PNSSET5_VAL` define:
+ *
+ * #if defined (SCU_INIT_PNSSET5_VAL) && (SCU_INIT_PNSSET5_VAL & BIT27)
+ * # define LCD LCD_NS
+ * #else
+ * # define LCD LCD_S
+ * #endif
+ *
+ */
+#include "nu_tfm_import_define.h"
+#include NU_TFM_S_PARTITION_MCU_H_PATH
+#include "nu_tfm_import_undefine.h"
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif  /* PARTITION_M2354 */
-
+#endif  /* PARTITION_M2354_WRAPPER */
