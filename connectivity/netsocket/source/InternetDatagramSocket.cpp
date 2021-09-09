@@ -27,7 +27,9 @@ nsapi_error_t InternetDatagramSocket::connect(const SocketAddress &address)
     return NSAPI_ERROR_OK;
 }
 
-nsapi_size_or_error_t InternetDatagramSocket::sendto(const SocketAddress &address, const void *data, nsapi_size_t size)
+nsapi_size_or_error_t InternetDatagramSocket::sendto_control(const SocketAddress &address, const void *data,
+                                                             nsapi_size_t size, nsapi_msghdr_t *control,
+                                                             nsapi_size_t control_size)
 {
     _lock.lock();
     nsapi_size_or_error_t ret;
@@ -44,7 +46,8 @@ nsapi_size_or_error_t InternetDatagramSocket::sendto(const SocketAddress &addres
         }
 
         core_util_atomic_flag_clear(&_pending);
-        nsapi_size_or_error_t sent = _stack->socket_sendto(_socket, address, data, size);
+        nsapi_size_or_error_t sent = _stack->socket_sendto_control(_socket, address, data, size, control,
+                                                                   control_size);
         if ((0 == _timeout) || (NSAPI_ERROR_WOULD_BLOCK != sent)) {
             _socket_stats.stats_update_sent_bytes(this, sent);
             ret = sent;
@@ -74,6 +77,12 @@ nsapi_size_or_error_t InternetDatagramSocket::sendto(const SocketAddress &addres
     return ret;
 }
 
+nsapi_size_or_error_t InternetDatagramSocket::sendto(const SocketAddress &address, const void *data, nsapi_size_t size)
+{
+
+    return sendto_control(address, data, size, NULL, 0);
+}
+
 nsapi_size_or_error_t InternetDatagramSocket::send(const void *data, nsapi_size_t size)
 {
     if (!_remote_peer) {
@@ -82,7 +91,8 @@ nsapi_size_or_error_t InternetDatagramSocket::send(const void *data, nsapi_size_
     return sendto(_remote_peer, data, size);
 }
 
-nsapi_size_or_error_t InternetDatagramSocket::recvfrom(SocketAddress *address, void *buffer, nsapi_size_t size)
+nsapi_size_or_error_t InternetDatagramSocket::recvfrom_control(SocketAddress *address, void *buffer, nsapi_size_t size,
+                                                               nsapi_msghdr_t *control, nsapi_size_t control_size)
 {
     _lock.lock();
     nsapi_size_or_error_t ret;
@@ -104,7 +114,8 @@ nsapi_size_or_error_t InternetDatagramSocket::recvfrom(SocketAddress *address, v
         }
 
         core_util_atomic_flag_clear(&_pending);
-        nsapi_size_or_error_t recv = _stack->socket_recvfrom(_socket, address, buffer, size);
+        nsapi_size_or_error_t recv = _stack->socket_recvfrom_control(_socket, address, buffer, size, control,
+                                                                     control_size);
 
         // Filter incomming packets using connected peer address
         if (recv >= 0 && _remote_peer && _remote_peer != *address) {
@@ -141,6 +152,11 @@ nsapi_size_or_error_t InternetDatagramSocket::recvfrom(SocketAddress *address, v
 
     _lock.unlock();
     return ret;
+}
+
+nsapi_size_or_error_t InternetDatagramSocket::recvfrom(SocketAddress *address, void *buffer, nsapi_size_t size)
+{
+    return recvfrom_control(address, buffer, size, NULL, 0);
 }
 
 nsapi_size_or_error_t InternetDatagramSocket::recv(void *buffer, nsapi_size_t size)

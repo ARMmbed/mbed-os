@@ -136,6 +136,12 @@ protected:
     {
         return return_value;
     };
+    virtual nsapi_size_or_error_t socket_sendto_control(nsapi_socket_t handle, const SocketAddress &address,
+                                                        const void *data, nsapi_size_t size,
+                                                        nsapi_msghdr_t *control, nsapi_size_t control_size) override
+    {
+        return return_value;
+    };
     virtual nsapi_size_or_error_t socket_recvfrom(nsapi_socket_t handle, SocketAddress *address,
                                                   void *buffer, nsapi_size_t size)
     {
@@ -148,6 +154,16 @@ protected:
             return ret;
         }
         return return_value;
+    };
+    virtual nsapi_size_or_error_t socket_recvfrom_control(nsapi_socket_t handle, SocketAddress *address,
+                                                          void *data, nsapi_size_t size,
+                                                          nsapi_msghdr_t *control, nsapi_size_t control_size) override
+    {
+        if (control != NULL) {
+            return NSAPI_ERROR_UNSUPPORTED;
+        }
+
+        return socket_recvfrom(handle, address, data, size);
     };
     virtual void socket_attach(nsapi_socket_t handle, void (*callback)(void *), void *data) {};
 

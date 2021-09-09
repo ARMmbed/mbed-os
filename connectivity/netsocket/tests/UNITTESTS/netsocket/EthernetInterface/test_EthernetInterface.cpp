@@ -68,7 +68,7 @@ protected:
     /* Enclose the heavily-used connection procedure to improve code redability */
     void doConnect(bool dhcp = true, bool blocking = true)
     {
-        EXPECT_CALL(*stackMock, add_ethernet_interface(testing::Ref(*emacMock), true, _))
+        EXPECT_CALL(*stackMock, add_ethernet_interface_mock(testing::Ref(*emacMock), true, _, _))
         .Times(1)
         .WillOnce(DoAll(SetArgPointee<2>(netStackIface), Return(NSAPI_ERROR_OK)));
         EXPECT_CALL(*netStackIface, attach(_))
@@ -113,7 +113,7 @@ TEST_F(TestEthernetInterface, connect)
 
 TEST_F(TestEthernetInterface, connect_failure)
 {
-    EXPECT_CALL(*stackMock, add_ethernet_interface(testing::Ref(*emacMock), true, _))
+    EXPECT_CALL(*stackMock, add_ethernet_interface_mock(testing::Ref(*emacMock), true, _, _))
     .Times(1)
     .WillOnce(DoAll(SetArgPointee<2>(netStackIface), Return(NSAPI_ERROR_NO_MEMORY)));
     EXPECT_EQ(NSAPI_ERROR_NO_MEMORY, iface->connect());
@@ -158,7 +158,7 @@ TEST_F(TestEthernetInterface, set_network)
     EXPECT_EQ(NSAPI_ERROR_OK, iface->set_network(ipAddress, netmask, gateway));
 
     // Now the bringup should have different arguments. We can't use doConnect method.
-    EXPECT_CALL(*stackMock, add_ethernet_interface(testing::Ref(*emacMock), true, _))
+    EXPECT_CALL(*stackMock, add_ethernet_interface_mock(testing::Ref(*emacMock), true, _, _))
     .Times(1)
     .WillOnce(DoAll(SetArgPointee<2>(netStackIface), Return(NSAPI_ERROR_OK)));
     EXPECT_CALL(*netStackIface, attach(_))
