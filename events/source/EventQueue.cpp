@@ -83,12 +83,18 @@ int EventQueue::time_left(int id)
 
 void EventQueue::background(Callback<void(int)> update)
 {
+    // Start by setting the background callback to nullptr
+    // as equeue_background calls the existing handler with a timeout
+    // of -1 to indicate to the callback that the tineout process is
+    // not further required.
+    // Updating _update before would prevent calling into the
+    // old callback as the callbacks share the same memory locations.
+    equeue_background(&_equeue, 0, 0);
+
     _update = update;
 
     if (_update) {
         equeue_background(&_equeue, &Callback<void(int)>::thunk, &_update);
-    } else {
-        equeue_background(&_equeue, 0, 0);
     }
 }
 
