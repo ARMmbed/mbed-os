@@ -5196,7 +5196,7 @@
             "function": "ArmMuscaB1Code.binary_hook"
         },
         "secure_image_filename": "tfm_s.bin",
-        "tfm_target_name": "musca_b1/sse_200",
+        "tfm_target_name": "arm/musca_b1/sse_200",
         "tfm_bootloader_supported": true,
         "tfm_default_toolchain": "ARMCLANG",
         "tfm_supported_toolchains": [
@@ -5252,7 +5252,7 @@
             "function": "ArmMuscaS1Code.binary_hook"
         },
         "secure_image_filename": "tfm_s.bin",
-        "tfm_target_name": "musca_s1",
+        "tfm_target_name": "arm/musca_s1",
         "tfm_bootloader_supported": true,
         "tfm_default_toolchain": "ARMCLANG",
         "tfm_supported_toolchains": [
