@@ -34,8 +34,10 @@ void wifi_connect_disconnect_repeat(void)
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, error);
 
     for (int i = 0; i < 10; i++) {
+        printf("#%u connecting...\n", i);
         error = wifi->connect();
         TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, error);
+        printf("#%u diconnecting...\n", i);
         error = wifi->disconnect();
         TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, error);
     }
