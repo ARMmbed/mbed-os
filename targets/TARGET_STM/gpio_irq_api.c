@@ -502,7 +502,7 @@ void gpio_irq_enable(gpio_irq_t *obj)
 
     /*  Select Source  */
 
-#if defined(STM32G0) || defined(STM32L5)
+#if defined(STM32G0) || defined(STM32L5) || defined(STM32U5)
     temp = EXTI->EXTICR[pin_index >> 2];
     CLEAR_BIT(temp, (0x0FU) << (8U * (pin_index & 0x03U)));
     SET_BIT(temp, port_index << (8U * (pin_index & 0x03U)));

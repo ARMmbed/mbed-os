@@ -137,7 +137,7 @@ watchdog_features_t hal_watchdog_get_platform_features(void)
     features.clock_max_frequency = 47000;
 #elif defined(STM32F0) || defined(STM32F3)
     features.clock_max_frequency = 50000;
-#elif defined(STM32H7) || defined(STM32L4)
+#elif defined(STM32H7) || defined(STM32L4) || defined(STM32U5)
     features.clock_max_frequency = 33600;
 #elif defined(STM32G0) || defined(STM32L5) || defined(STM32G4) || defined(STM32WB) || defined(STM32WL)
     features.clock_max_frequency = 34000;
