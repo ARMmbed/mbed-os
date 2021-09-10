@@ -242,7 +242,17 @@ void lp_ticker_init(void)
     LptimHandle.State = HAL_LPTIM_STATE_RESET;
     LptimHandle.Init.Clock.Source = LPTIM_CLOCKSOURCE_APBCLOCK_LPOSC;
 #if defined(MBED_CONF_TARGET_LPTICKER_LPTIM_CLOCK)
-#if (MBED_CONF_TARGET_LPTICKER_LPTIM_CLOCK == 4)
+#if (MBED_CONF_TARGET_LPTICKER_LPTIM_CLOCK == 128)
+    LptimHandle.Init.Clock.Prescaler = LPTIM_PRESCALER_DIV128;
+#elif (MBED_CONF_TARGET_LPTICKER_LPTIM_CLOCK == 64)
+    LptimHandle.Init.Clock.Prescaler = LPTIM_PRESCALER_DIV64;
+#elif (MBED_CONF_TARGET_LPTICKER_LPTIM_CLOCK == 32)
+    LptimHandle.Init.Clock.Prescaler = LPTIM_PRESCALER_DIV32;
+#elif (MBED_CONF_TARGET_LPTICKER_LPTIM_CLOCK == 16)
+    LptimHandle.Init.Clock.Prescaler = LPTIM_PRESCALER_DIV16;
+#elif (MBED_CONF_TARGET_LPTICKER_LPTIM_CLOCK == 8)
+    LptimHandle.Init.Clock.Prescaler = LPTIM_PRESCALER_DIV8;
+#elif (MBED_CONF_TARGET_LPTICKER_LPTIM_CLOCK == 4)
     LptimHandle.Init.Clock.Prescaler = LPTIM_PRESCALER_DIV4;
 #elif (MBED_CONF_TARGET_LPTICKER_LPTIM_CLOCK == 2)
     LptimHandle.Init.Clock.Prescaler = LPTIM_PRESCALER_DIV2;
