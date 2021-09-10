@@ -50,7 +50,7 @@ Baremetal is supported.
 mbed_app.json:
 ```
 {
-    "requires": ["bare-metal", "lora", "stm32wl-lora-driver"]
+    "requires": ["bare-metal", "stm32wl-lora-driver"]
 }
 ```
 

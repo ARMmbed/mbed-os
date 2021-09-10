@@ -1,5 +1,6 @@
 {
     "name": "stm32wl-lora-driver",
+    "requires": ["lora"],
     "config": {
         "buffer-size": {
             "help": "Max. buffer size the radio can handle, Default: 255 B",
