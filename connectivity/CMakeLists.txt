@@ -27,6 +27,7 @@ add_library(mbed-wifi INTERFACE)
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
     # Add these subdirectories for tests
     add_subdirectory(cellular)
+    add_subdirectory(drivers)
     add_subdirectory(FEATURE_BLE)
     add_subdirectory(libraries)
     add_subdirectory(lorawan)
