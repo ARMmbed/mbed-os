@@ -92,6 +92,13 @@ QSPI::QSPI(const qspi_pinmap_t &pinmap, int mode) : _qspi()
     MBED_ASSERT(success);
 }
 
+QSPI::~QSPI()
+{
+    lock();
+    qspi_free(&_qspi);
+    unlock();
+}
+
 qspi_status_t QSPI::configure_format(qspi_bus_width_t inst_width, qspi_bus_width_t address_width, qspi_address_size_t address_size, qspi_bus_width_t alt_width, qspi_alt_size_t alt_size, qspi_bus_width_t data_width, int dummy_cycles)
 {
     // Check that alt_size/alt_width are a valid combination

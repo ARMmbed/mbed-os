@@ -17,7 +17,7 @@
 
 #include "blockdevice/internal/SFDP.h"
 #include "platform/Callback.h"
-#include "QSPIFBlockDevice.h"
+#include "QSPIF/QSPIFBlockDevice.h"
 #include <string.h>
 #include "rtos/ThisThread.h"
 
@@ -25,7 +25,7 @@
 #define MBED_CONF_MBED_TRACE_ENABLE        0
 #endif
 
-#include "mbed_trace.h"
+#include "mbed-trace/mbed_trace.h"
 #define TRACE_GROUP "QSPIF"
 
 using namespace std::chrono;
@@ -176,6 +176,9 @@ QSPIFBlockDevice::QSPIFBlockDevice(PinName io0, PinName io1, PinName io2, PinNam
     // Set default 4-byte addressing extension register write instruction
     _attempt_4_byte_addressing = true;
     _4byte_msb_reg_write_inst = QSPIF_INST_4BYTE_REG_WRITE_DEFAULT;
+
+    // Quirk for Cypress S25FS512S
+    _S25FS512S_quirk = false;
 }
 
 int QSPIFBlockDevice::init()
@@ -614,12 +617,19 @@ int QSPIFBlockDevice::remove_csel_instance(PinName csel)
 /*********************************************************/
 /********** SFDP Parsing and Detection Functions *********/
 /*********************************************************/
-int QSPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader,
+int QSPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, mbed::sfdp_cmd_addr_size_t, uint8_t, uint8_t, void *, bd_size_t)> sfdp_reader,
                                                     sfdp_hdr_info &sfdp_info)
 {
     uint8_t param_table[SFDP_BASIC_PARAMS_TBL_SIZE]; /* Up To 20 DWORDS = 80 Bytes */
 
-    int status = sfdp_reader(sfdp_info.bptbl.addr, param_table, sfdp_info.bptbl.size);
+    int status = sfdp_reader(
+                     sfdp_info.bptbl.addr,
+                     SFDP_READ_CMD_ADDR_TYPE,
+                     SFDP_READ_CMD_INST,
+                     SFDP_READ_CMD_DUMMY_CYCLES,
+                     param_table,
+                     sfdp_info.bptbl.size
+                 );
     if (status != QSPI_STATUS_OK) {
         tr_error("Init - Read SFDP First Table Failed");
         return -1;
@@ -1092,6 +1102,23 @@ int QSPIFBlockDevice::_handle_vendor_quirks()
             tr_debug("Applying quirks for ISSI");
             _num_status_registers = 1;
             break;
+        case 0x01:
+            if (vendor_device_ids[1] == 0x02 && vendor_device_ids[2] == 0x20) {
+                tr_debug("Applying quirks for Cypress S25FS512S");
+                // On a Cypress S25FS512S flash chip
+                // * The SFDP table expects the register bitfield CR3NV[1] to be 1
+                //   but its actual value on the hardware is 0. In order for SFDP parsing
+                //   to work, the quirk reports CR3NV[1] as 1.
+                // * All three possible configurations support 256KB sectors across
+                //   the entire chip. But when CR3NV[3] is 0, eight 4KB sectors overlay
+                //   either the first 32KB or the last 32KB of the chip, whereas when
+                //   CR3NV[3] is 1 there are no overlaying 4KB sectors. Mbed OS can't
+                //   handle this type of overlay, so the quirk reports CR3NV[3] as 1 to
+                //   let the code treat the chip as if it has no overlay. (Also CR1NV[2]
+                //   is required to be 0 when CR3NV[3] is 1.)
+                _S25FS512S_quirk = true;
+            }
+            break;
     }
 
     return 0;
@@ -1405,23 +1432,53 @@ qspi_status_t QSPIFBlockDevice::_qspi_send_general_command(qspi_inst_t instructi
     return QSPI_STATUS_OK;
 }
 
-int QSPIFBlockDevice::_qspi_send_read_sfdp_command(bd_addr_t addr, void *rx_buffer, bd_size_t rx_length)
+int QSPIFBlockDevice::_qspi_send_read_sfdp_command(mbed::bd_addr_t addr, mbed::sfdp_cmd_addr_size_t addr_size,
+                                                   uint8_t inst, uint8_t dummy_cycles,
+                                                   void *rx_buffer, mbed::bd_size_t rx_length)
 {
-    size_t rx_len = rx_length;
+    // Set default here to avoid uninitialized variable warning
+    qspi_address_size_t address_size = _address_size;
+    int address = addr;
+    switch (addr_size) {
+        case SFDP_CMD_ADDR_3_BYTE:
+            address_size = QSPI_CFG_ADDR_SIZE_24;
+            break;
+        case SFDP_CMD_ADDR_4_BYTE:
+            address_size = QSPI_CFG_ADDR_SIZE_32;
+            break;
+        case SFDP_CMD_ADDR_SIZE_VARIABLE: // use current setting
+            break;
+        case SFDP_CMD_ADDR_NONE: // no address in command
+            address = static_cast<int>(QSPI_NO_ADDRESS_COMMAND);
+            break;
+        default:
+            tr_error("Invalid SFDP command address size: 0x%02X", addr_size);
+            return -1;
+    }
 
-    // SFDP read instruction requires 1-1-1 bus mode with 8 dummy cycles and a 3-byte address
-    qspi_status_t status = _qspi.configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, 0, QSPI_CFG_BUS_SINGLE, QSPIF_RSFDP_DUMMY_CYCLES);
+    if (dummy_cycles == SFDP_CMD_DUMMY_CYCLES_VARIABLE) {
+        // use current setting
+        dummy_cycles = _dummy_cycles;
+    }
+
+    qspi_status_t status = _qspi.configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE,
+                                                  address_size, QSPI_CFG_BUS_SINGLE,
+                                                  0, QSPI_CFG_BUS_SINGLE, dummy_cycles);
     if (QSPI_STATUS_OK != status) {
         tr_error("_qspi_configure_format failed");
         return status;
     }
 
-    // Don't check the read status until after we've configured the format back to 1-1-1, to avoid leaving the interface in an
-    // incorrect state if the read fails.
-    status = _qspi.read(QSPIF_INST_RSFDP, -1, (unsigned int) addr, (char *) rx_buffer, &rx_len);
+    // Don't check the read status until after we've configured the format back to 1-1-1,
+    // to avoid leaving the interface in an incorrect state if the read fails.
+    size_t rx_len = rx_length;
+    status = _qspi.read(inst, -1, address, static_cast<char *>(rx_buffer), &rx_len);
 
-    qspi_status_t format_status = _qspi.configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, _address_size, QSPI_CFG_BUS_SINGLE, 0, QSPI_CFG_BUS_SINGLE, 0);
-    // All commands other than Read and RSFDP use default 1-1-1 bus mode (Program/Erase are constrained by flash memory performance more than bus performance)
+    qspi_status_t format_status = _qspi.configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE,
+                                                         address_size, QSPI_CFG_BUS_SINGLE,
+                                                         0, QSPI_CFG_BUS_SINGLE, 0);
+    // All commands other than Read and RSFDP use default 1-1-1 bus mode
+    // (Program/Erase are constrained by flash memory performance more than bus performance)
     if (QSPI_STATUS_OK != format_status) {
         tr_error("_qspi_configure_format failed");
         return format_status;
@@ -1430,6 +1487,20 @@ int QSPIFBlockDevice::_qspi_send_read_sfdp_command(bd_addr_t addr, void *rx_buff
     if (QSPI_STATUS_OK != status) {
         tr_error("Sending SFDP read instruction");
         return status;
+    }
+
+    // Handle S25FS512S quirk.
+    const mbed::bd_addr_t S25FS512S_CR1NV = 0x2;
+    const mbed::bd_addr_t S25FS512S_CR3NV = 0x4;
+    if (_S25FS512S_quirk) {
+        if (addr == S25FS512S_CR3NV) {
+            // If we reach here, rx_buffer is guaranteed to be non-null
+            // because it's been checked by _qspi.read() above.
+            static_cast<uint8_t *>(rx_buffer)[0] |= (1 << 1);
+            static_cast<uint8_t *>(rx_buffer)[0] |= (1 << 3);
+        } else if (addr == S25FS512S_CR1NV) {
+            static_cast<uint8_t *>(rx_buffer)[0] &= ~(1 << 2);
+        }
     }
 
     return QSPI_STATUS_OK;

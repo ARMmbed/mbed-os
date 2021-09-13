@@ -7849,12 +7849,8 @@
             "CYW43XXX",
             "UDB_SDIO_P12"
         ],
-        "components_remove": [
-            "QSPIF"
-        ],
         "device_has_remove": [
-            "ANALOGOUT",
-            "QSPI"
+            "ANALOGOUT"
         ],
         "extra_labels_add": [
             "PSOC6_01",

@@ -221,10 +221,12 @@ private:
     /* SFDP Detection and Parsing Functions */
     /****************************************/
     // Send SFDP Read command to Driver
-    int _spi_send_read_sfdp_command(mbed::bd_addr_t addr, void *rx_buffer, mbed::bd_size_t rx_length);
+    int _spi_send_read_sfdp_command(mbed::bd_addr_t addr, mbed::sfdp_cmd_addr_size_t addr_size,
+                                    uint8_t inst, uint8_t dummy_cycles,
+                                    void *rx_buffer, mbed::bd_size_t rx_length);
 
     // Parse and Detect required Basic Parameters from Table
-    int _sfdp_parse_basic_param_table(mbed::Callback<int(mbed::bd_addr_t, void *, mbed::bd_size_t)> sfdp_reader,
+    int _sfdp_parse_basic_param_table(mbed::Callback<int(bd_addr_t, mbed::sfdp_cmd_addr_size_t, uint8_t, uint8_t, void *, bd_size_t)> sfdp_reader,
                                       mbed::sfdp_hdr_info &hdr_info);
 
     // Detect fastest read Bus mode supported by device
