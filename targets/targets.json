@@ -4147,6 +4147,7 @@
         },
         "device_has_add": [
             "ANALOGOUT",
+            "CAN",
             "CRC",
             "FLASH",
             "MPU",
@@ -4262,6 +4263,7 @@
         },
         "device_has_add": [
             "ANALOGOUT",
+            "CAN",
             "CRC",
             "FLASH",
             "MPU",
