@@ -1,20 +1,22 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
+include(mbed_greentea)
 
-set(MBED_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../.. CACHE INTERNAL "")
-set(TEST_TARGET mbed-connectivity-lorawan-loraradio)
+set(SUPPORTED_LABELS ${MBED_TARGET_LABELS})
+list(FILTER SUPPORTED_LABELS INCLUDE REGEX "^(SX126X|SX1272|SX1276|STM32WL)$")
 
-include(${MBED_PATH}/tools/cmake/mbed_greentea.cmake)
-
-project(${TEST_TARGET})
+if(SUPPORTED_LABELS STREQUAL "")
+    set(TEST_SKIPPED "Lora radio is not configured")
+endif()
 
 mbed_greentea_add_test(
     TEST_NAME
-        ${TEST_TARGET}
+        mbed-connectivity-lorawan-loraradio
     TEST_SOURCES
         main.cpp
     TEST_REQUIRED_LIBS
         mbed-lorawan
+    TEST_SKIPPED
+        ${TEST_SKIPPED}
 )
