@@ -27,7 +27,7 @@
 #include "em_cmu.h"
 #include "em_can.h"
 
-static uint32_t can_irq_ids[CAN_COUNT] = {0};
+static uintptr_t can_irq_contexts[CAN_COUNT] = {0};
 static can_irq_handler irq_handler;
 
 // CAN bus interfaces
@@ -104,7 +104,7 @@ void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
 	CAN_SetIdAndFilter(obj->instance, CAN_RX_IF, true, &receiver, true);
 }
 
-void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id)
+void can_irq_init(can_t *obj, can_irq_handler handler, uintptr_t context)
 {
 	int index = 0;
 
@@ -122,7 +122,7 @@ void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id)
     }
 
 	irq_handler = handler;
-    can_irq_ids[index] = id;
+    can_irq_contexts[index] = context;
 }
 
 void can_irq_free(can_t *obj)
@@ -294,12 +294,12 @@ static void can_irq(CANName name, int id)
 	can = (CAN_TypeDef *)name;
 
 	if (can->STATUS & CAN_STATUS_RXOK) {
-		irq_handler(can_irq_ids[id], IRQ_RX);
+		irq_handler(can_irq_contexts[id], IRQ_RX);
 	    CAN_MessageIntClear(can, 0xFFFFFFFF);
 	}
 
 	if (can->STATUS & CAN_STATUS_TXOK) {
-		irq_handler(can_irq_ids[id], IRQ_TX);
+		irq_handler(can_irq_contexts[id], IRQ_TX);
 	    CAN_MessageIntClear(can, 0xFFFFFFFF);
 	}
 }

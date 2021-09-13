@@ -382,17 +382,17 @@ volatile int g_normal_bitrate[CHANNEL_MAX];
 volatile int g_data_bitrate[CHANNEL_MAX] = {D_CH0_BITRATE, D_CH1_BITRATE};
 uint32_t rx_buf[RX_BUFFER_MAX];
 static can_irq_handler irq_handler[CHANNEL_MAX] = {NULL};
-static uint32_t can_irq_id[CHANNEL_MAX] = {0};
+static uintptr_t can_irq_contexts[CHANNEL_MAX] = {0};
 
-void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id)
+void can_irq_init(can_t *obj, can_irq_handler handler, uintptr_t context)
 {
     irq_handler[obj->ch] = handler;
-    can_irq_id[obj->ch] = id;
+    can_irq_contexts[obj->ch] = context;
 }
 
 void can_irq_free(can_t *obj)
 {
-    can_irq_id[obj->ch] = 0;
+    can_irq_contexts[obj->ch] = 0;
     *g_regtbl_cfcc[obj->ch][CAN_RX] &= ~CFCC_CFRXIE;
     *g_regtbl_cfcc[obj->ch][CAN_TX] &= ~CFCC_CFTXIE;
     *g_regtbl_ctr[obj->ch] &= ~(CTR_EWIE | CTR_OLIE | CTR_EPIE | CTR_ALIE | CTR_BEIE);
@@ -454,13 +454,13 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
 static void can_rec_irq(uint32_t ch)
 {
     *g_regtbl_cfsts[ch][CAN_RX] &= ~CFSTS_CFRXIF;
-    irq_handler[ch](can_irq_id[ch], IRQ_RX);
+    irq_handler[ch](can_irq_contexts[ch], IRQ_RX);
 }
 
 static void can_trx_irq(uint32_t ch)
 {
     *g_regtbl_cfsts[ch][CAN_TX] &= ~CFSTS_CFTXIF;
-    irq_handler[ch](can_irq_id[ch], IRQ_TX);
+    irq_handler[ch](can_irq_contexts[ch], IRQ_TX);
 }
 
 static void can_err_irq(uint32_t ch)
@@ -468,32 +468,32 @@ static void can_err_irq(uint32_t ch)
     /* error warning */
     if (*g_regtbl_erfl[ch] & ERFL_EWF) {
         *g_regtbl_erfl[ch] &= ~ERFL_EWF;
-        irq_handler[ch](can_irq_id[ch], IRQ_ERROR);
+        irq_handler[ch](can_irq_contexts[ch], IRQ_ERROR);
     }
 
     /* over load */
     if (*g_regtbl_erfl[ch] & ERFL_OVLF) {
         *g_regtbl_erfl[ch] &= ~ERFL_OVLF;
-        irq_handler[ch](can_irq_id[ch], IRQ_OVERRUN);
+        irq_handler[ch](can_irq_contexts[ch], IRQ_OVERRUN);
     }
 
     /* error passive */
     if (*g_regtbl_erfl[ch] & ERFL_EPF) {
         *g_regtbl_erfl[ch] &= ~ERFL_EPF;
-        irq_handler[ch](can_irq_id[ch], IRQ_PASSIVE);
+        irq_handler[ch](can_irq_contexts[ch], IRQ_PASSIVE);
     }
 
     /* arbitration lost */
     if (*g_regtbl_erfl[ch] & ERFL_ALF) {
         *g_regtbl_erfl[ch] &= ~ERFL_ALF;
-        irq_handler[ch](can_irq_id[ch], IRQ_ARB);
+        irq_handler[ch](can_irq_contexts[ch], IRQ_ARB);
     }
 
     /* bus error */
     if (*g_regtbl_erfl[ch] & ERFL_ALLERR) {
         *g_regtbl_erfl[ch] &= ~ERFL_ALLERR;
         *g_regtbl_erfl[ch] &= ~ERFL_BEF;
-        irq_handler[ch](can_irq_id[ch], IRQ_BUS);
+        irq_handler[ch](can_irq_contexts[ch], IRQ_BUS);
     }
 }
 

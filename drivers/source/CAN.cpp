@@ -26,28 +26,28 @@ CAN::CAN(PinName rd, PinName td) : _can(), _irq()
 {
     // No lock needed in constructor
     can_init(&_can, rd, td);
-    can_irq_init(&_can, (&CAN::_irq_handler), (uint32_t)this);
+    can_irq_init(&_can, (&CAN::_irq_handler), reinterpret_cast<uintptr_t>(this));
 }
 
 CAN::CAN(PinName rd, PinName td, int hz) : _can(), _irq()
 {
     // No lock needed in constructor
     can_init_freq(&_can, rd, td, hz);
-    can_irq_init(&_can, (&CAN::_irq_handler), (uint32_t)this);
+    can_irq_init(&_can, (&CAN::_irq_handler), reinterpret_cast<uintptr_t>(this));
 }
 
 CAN::CAN(const can_pinmap_t &pinmap) : _can(), _irq()
 {
     // No lock needed in constructor
     can_init_direct(&_can, &pinmap);
-    can_irq_init(&_can, (&CAN::_irq_handler), (uint32_t)this);
+    can_irq_init(&_can, (&CAN::_irq_handler), reinterpret_cast<uintptr_t>(this));
 }
 
 CAN::CAN(const can_pinmap_t &pinmap, int hz) : _can(), _irq()
 {
     // No lock needed in constructor
     can_init_freq_direct(&_can, &pinmap, hz);
-    can_irq_init(&_can, (&CAN::_irq_handler), (uint32_t)this);
+    can_irq_init(&_can, (&CAN::_irq_handler), reinterpret_cast<uintptr_t>(this));
 }
 
 CAN::~CAN()
@@ -153,9 +153,9 @@ void CAN::attach(Callback<void()> func, IrqType type)
     unlock();
 }
 
-void CAN::_irq_handler(uint32_t id, CanIrqType type)
+void CAN::_irq_handler(uintptr_t context, CanIrqType type)
 {
-    CAN *handler = (CAN *)id;
+    CAN *handler = reinterpret_cast<CAN *>(context);
     if (handler->_irq[type]) {
         handler->_irq[type].call();
     }

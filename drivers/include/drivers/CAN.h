@@ -205,7 +205,7 @@ public:
      */
     void attach(Callback<void()> func, IrqType type = IrqType::RxIrq);
 
-    static void _irq_handler(uint32_t id, CanIrqType type);
+    static void _irq_handler(uintptr_t context, CanIrqType type);
 
 #if !defined(DOXYGEN_ONLY)
 protected:

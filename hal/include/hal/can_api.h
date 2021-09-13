@@ -63,7 +63,7 @@ typedef struct {
     int td_function;
 } can_pinmap_t;
 
-typedef void (*can_irq_handler)(uint32_t id, CanIrqType type);
+typedef void (*can_irq_handler)(uintptr_t context, CanIrqType type);
 
 typedef struct can_s can_t;
 
@@ -74,7 +74,7 @@ void          can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int h
 void          can_free(can_t *obj);
 int           can_frequency(can_t *obj, int hz);
 
-void          can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id);
+void          can_irq_init(can_t *obj, can_irq_handler handler, uintptr_t context);
 void          can_irq_free(can_t *obj);
 void          can_irq_set(can_t *obj, CanIrqType irq, uint32_t enable);
 

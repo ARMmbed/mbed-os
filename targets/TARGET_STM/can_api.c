@@ -24,7 +24,7 @@
 #include "PeripheralPins.h"
 #include "mbed_error.h"
 
-static uint32_t can_irq_ids[2] = {0};
+static uintptr_t can_irq_contexts[2] = {0};
 static can_irq_handler irq_handler;
 
 /** Call all the init functions
@@ -222,10 +222,10 @@ void can_init(can_t *obj, PinName rd, PinName td)
     can_init_freq(obj, rd, td, 100000);
 }
 
-void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id)
+void can_irq_init(can_t *obj, can_irq_handler handler, uintptr_t context)
 {
     irq_handler = handler;
-    can_irq_ids[obj->index] = id;
+    can_irq_contexts[obj->index] = context;
 }
 
 void can_irq_free(can_t *obj)
@@ -253,7 +253,7 @@ void can_irq_free(can_t *obj)
 #ifndef TARGET_STM32G4
     HAL_NVIC_DisableIRQ(FDCAN_CAL_IRQn);
 #endif
-    can_irq_ids[obj->index] = 0;
+    can_irq_contexts[obj->index] = 0;
 }
 
 void can_free(can_t *obj)
@@ -517,42 +517,42 @@ static void can_irq(CANName name, int id)
     if (__HAL_FDCAN_GET_IT_SOURCE(&CanHandle, FDCAN_IT_TX_COMPLETE)) {
         if (__HAL_FDCAN_GET_FLAG(&CanHandle, FDCAN_FLAG_TX_COMPLETE)) {
             __HAL_FDCAN_CLEAR_FLAG(&CanHandle, FDCAN_FLAG_TX_COMPLETE);
-            irq_handler(can_irq_ids[id], IRQ_TX);
+            irq_handler(can_irq_contexts[id], IRQ_TX);
         }
     }
 #ifndef TARGET_STM32G4
     if (__HAL_FDCAN_GET_IT_SOURCE(&CanHandle, FDCAN_IT_RX_BUFFER_NEW_MESSAGE)) {
         if (__HAL_FDCAN_GET_FLAG(&CanHandle, FDCAN_IT_RX_BUFFER_NEW_MESSAGE)) {
             __HAL_FDCAN_CLEAR_FLAG(&CanHandle, FDCAN_IT_RX_BUFFER_NEW_MESSAGE);
-            irq_handler(can_irq_ids[id], IRQ_RX);
+            irq_handler(can_irq_contexts[id], IRQ_RX);
         }
     }
 #else
     if (__HAL_FDCAN_GET_IT_SOURCE(&CanHandle, FDCAN_IT_RX_FIFO0_NEW_MESSAGE)) {
         if (__HAL_FDCAN_GET_FLAG(&CanHandle, FDCAN_IT_RX_FIFO0_NEW_MESSAGE)) {
             __HAL_FDCAN_CLEAR_FLAG(&CanHandle, FDCAN_IT_RX_FIFO0_NEW_MESSAGE);
-            irq_handler(can_irq_ids[id], IRQ_RX);
+            irq_handler(can_irq_contexts[id], IRQ_RX);
         }
     }
 #endif
     if (__HAL_FDCAN_GET_IT_SOURCE(&CanHandle, FDCAN_IT_ERROR_WARNING)) {
         if (__HAL_FDCAN_GET_FLAG(&CanHandle, FDCAN_FLAG_ERROR_WARNING)) {
             __HAL_FDCAN_CLEAR_FLAG(&CanHandle, FDCAN_FLAG_ERROR_WARNING);
-            irq_handler(can_irq_ids[id], IRQ_ERROR);
+            irq_handler(can_irq_contexts[id], IRQ_ERROR);
         }
     }
 
     if (__HAL_FDCAN_GET_IT_SOURCE(&CanHandle, FDCAN_IT_ERROR_PASSIVE)) {
         if (__HAL_FDCAN_GET_FLAG(&CanHandle, FDCAN_FLAG_ERROR_PASSIVE)) {
             __HAL_FDCAN_CLEAR_FLAG(&CanHandle, FDCAN_FLAG_ERROR_PASSIVE);
-            irq_handler(can_irq_ids[id], IRQ_PASSIVE);
+            irq_handler(can_irq_contexts[id], IRQ_PASSIVE);
         }
     }
 
     if (__HAL_FDCAN_GET_IT_SOURCE(&CanHandle, FDCAN_IT_BUS_OFF)) {
         if (__HAL_FDCAN_GET_FLAG(&CanHandle, FDCAN_FLAG_BUS_OFF)) {
             __HAL_FDCAN_CLEAR_FLAG(&CanHandle, FDCAN_FLAG_BUS_OFF);
-            irq_handler(can_irq_ids[id], IRQ_BUS);
+            irq_handler(can_irq_contexts[id], IRQ_BUS);
         }
     }
 }
@@ -666,7 +666,7 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
 
 #define DEFAULT_RXFIFO    0 // default rx fifo for can by hardware is FIFO0
 
-static uint32_t can_irq_ids[CAN_NUM] = {0};
+static uint32_t can_irq_contexts[CAN_NUM] = {0};
 static can_irq_handler irq_handler;
 
 static void can_registers_init(can_t *obj)
@@ -774,10 +774,10 @@ void can_init(can_t *obj, PinName rd, PinName td)
     can_init_freq(obj, rd, td, 100000);
 }
 
-void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id)
+void can_irq_init(can_t *obj, can_irq_handler handler, uintptr_t context)
 {
     irq_handler = handler;
-    can_irq_ids[obj->index] = id;
+    can_irq_contexts[obj->index] = context;
     obj->rxIrqEnabled = false;
 }
 
@@ -787,7 +787,7 @@ void can_irq_free(can_t *obj)
 
     can->IER &= ~(CAN_IT_FMP0 | CAN_IT_FMP1 | CAN_IT_TME | \
                   CAN_IT_ERR | CAN_IT_EPV | CAN_IT_BOF);
-    can_irq_ids[obj->index] = 0;
+    can_irq_contexts[obj->index] = 0;
     obj->rxIrqEnabled = false;
 }
 
@@ -1177,7 +1177,7 @@ static void can_irq(CANName name, int id)
             __HAL_CAN_CLEAR_FLAG(&CanHandle, CAN_FLAG_RQCP2);
         }
         if (tmp1 || tmp2 || tmp3) {
-            irq_handler(can_irq_ids[id], IRQ_TX);
+            irq_handler(can_irq_contexts[id], IRQ_TX);
         }
     }
 
@@ -1191,7 +1191,7 @@ static void can_irq(CANName name, int id)
     __HAL_CAN_DISABLE_IT(&CanHandle, CAN_IT_FMP0);
 
     if ((tmp1 != 0) && tmp2) {
-        irq_handler(can_irq_ids[id], IRQ_RX);
+        irq_handler(can_irq_contexts[id], IRQ_RX);
     }
 
     tmp1 = __HAL_CAN_GET_FLAG(&CanHandle, CAN_FLAG_EPV);
@@ -1199,19 +1199,19 @@ static void can_irq(CANName name, int id)
     tmp3 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_ERR);
 
     if (tmp1 && tmp2 && tmp3) {
-        irq_handler(can_irq_ids[id], IRQ_PASSIVE);
+        irq_handler(can_irq_contexts[id], IRQ_PASSIVE);
     }
 
     tmp1 = __HAL_CAN_GET_FLAG(&CanHandle, CAN_FLAG_BOF);
     tmp2 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_BOF);
     tmp3 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_ERR);
     if (tmp1 && tmp2 && tmp3) {
-        irq_handler(can_irq_ids[id], IRQ_BUS);
+        irq_handler(can_irq_contexts[id], IRQ_BUS);
     }
 
     tmp3 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_ERR);
     if (tmp1 && tmp2 && tmp3) {
-        irq_handler(can_irq_ids[id], IRQ_ERROR);
+        irq_handler(can_irq_contexts[id], IRQ_ERROR);
     }
 }
 
