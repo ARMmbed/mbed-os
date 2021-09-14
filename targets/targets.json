@@ -2536,49 +2536,7 @@
             "ANALOGOUT",
             "CAN",
             "TRNG"
-        ]
-    },
-    "WIO_3G": {
-        "inherits": [
-            "MCU_STM32F439xI"
         ],
-        "config": {
-            "clock_source_usb": {
-                "help": "As 48 Mhz clock is configured for USB, SYSCLK has to be reduced from 180 to 168 MHz (set 0 for the max SYSCLK value)",
-                "value": "1",
-                "macro_name": "CLOCK_SOURCE_USB"
-            }
-        },
-        "overrides": {
-            "clock_source": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
-            "network-default-interface-type": "CELLULAR"
-        },
-        "detect_code": [
-            "9014"
-        ]
-    },
-    "WIO_BG96": {
-        "inherits": [
-            "MCU_STM32F439xI"
-        ],
-        "config": {
-            "clock_source_usb": {
-                "help": "As 48 Mhz clock is configured for USB, SYSCLK has to be reduced from 180 to 168 MHz (set 0 for the max SYSCLK value)",
-                "value": "0",
-                "macro_name": "CLOCK_SOURCE_USB"
-            }
-        },
-        "overrides": {
-            "clock_source": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
-            "network-default-interface-type": "CELLULAR"
-        },
-        "device_has_remove": [
-            "CAN"
-        ],
-        "detect_code": [
-            "9015"
-        ],
-        "device_name": "STM32F439VITx",
         "mbed_rom_start": "0x8000000",
         "mbed_rom_size": "0x200000",
         "mbed_ram_start": "0x20000000",
@@ -2618,7 +2576,50 @@
                 536854528,
                 8
             ]
+        ]
+    },
+    "WIO_3G": {
+        "inherits": [
+            "MCU_STM32F439xI"
         ],
+        "config": {
+            "clock_source_usb": {
+                "help": "As 48 Mhz clock is configured for USB, SYSCLK has to be reduced from 180 to 168 MHz (set 0 for the max SYSCLK value)",
+                "value": "1",
+                "macro_name": "CLOCK_SOURCE_USB"
+            }
+        },
+        "overrides": {
+            "clock_source": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
+            "network-default-interface-type": "CELLULAR"
+        },
+        "detect_code": [
+            "9014"
+        ],
+        "device_name": "STM32F439VITx"
+    },
+    "WIO_BG96": {
+        "inherits": [
+            "MCU_STM32F439xI"
+        ],
+        "config": {
+            "clock_source_usb": {
+                "help": "As 48 Mhz clock is configured for USB, SYSCLK has to be reduced from 180 to 168 MHz (set 0 for the max SYSCLK value)",
+                "value": "0",
+                "macro_name": "CLOCK_SOURCE_USB"
+            }
+        },
+        "overrides": {
+            "clock_source": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
+            "network-default-interface-type": "CELLULAR"
+        },
+        "device_has_remove": [
+            "CAN"
+        ],
+        "detect_code": [
+            "9015"
+        ],
+        "device_name": "STM32F439VITx",
         "components_add": [
             "SD"
         ]
@@ -3200,9 +3201,9 @@
         ],
         "device_name": "STM32F767VITx",
         "mbed_rom_start": "0x8000000",
-        "mbed_rom_size": "0x100000",
+        "mbed_rom_size": "0x200000",
         "mbed_rom1_start": "0x200000",
-        "mbed_rom1_size": "0x100000",
+        "mbed_rom1_size": "0x200000",
         "mbed_ram_start": "0x20020000",
         "mbed_ram_size": "0x60000",
         "mbed_ram1_start": "0x20000000",
@@ -3473,7 +3474,7 @@
         "device_name": "STM32G031K8Tx",
         "mbed_rom_start": "0x8000000",
         "mbed_rom_size": "0x10000",
-        "mbed_ram_start": "20000000",
+        "mbed_ram_start": "0x20000000",
         "mbed_ram_size": "0x2000",
         "sectors": [
             [
@@ -3545,7 +3546,7 @@
         "device_name": "STM32G071RBTx",
         "mbed_rom_start": "0x8000000",
         "mbed_rom_size": "0x20000",
-        "mbed_ram_start": "20000000",
+        "mbed_ram_start": "0x20000000",
         "mbed_ram_size": "0x90000",
         "sectors": [
             [
@@ -3626,7 +3627,7 @@
         ],
         "mbed_rom_start": "0x8000000",
         "mbed_rom_size": "0x20000",
-        "mbed_ram_start": "20000000",
+        "mbed_ram_start": "0x20000000",
         "mbed_ram_size": "0x8000",
         "sectors": [
             [
@@ -3727,7 +3728,7 @@
         "device_name": "STM32G474RETx",
         "mbed_rom_start": "0x8000000",
         "mbed_rom_size": "0x80000",
-        "mbed_ram_start": "20000000",
+        "mbed_ram_start": "0x20000000",
         "mbed_ram_size": "0x20000",
         "sectors": [
             [
@@ -3890,9 +3891,12 @@
             "0836"
         ],
         "device_name": "STM32H743ZITx",
+        "mbed_rom_start": "0x8000000",
         "mbed_rom_size": "0x100000",
-        "mbed_rom1_start": "0x08100000",
+        "mbed_rom1_start": "0x8100000",
         "mbed_rom1_size": "0x100000",
+        "mbed_ram_start": "0x20000000",
+        "mbed_ram_size": "0x20000",
         "mbed_ram1_start": "0x24000000",
         "mbed_ram1_size": "0x80000",
         "sectors": [
@@ -5670,70 +5674,7 @@
         "mbed_ram_start": "0x20000000",
         "mbed_ram_size": "0xC000",
         "sectors" : [
-            [ 134217728, 4096 ],
-            [ 134221824, 4096 ],
-            [ 134225920, 4096 ],
-            [ 134230016, 4096 ],
-            [ 134234112, 4096 ],
-            [ 134238208, 4096 ],
-            [ 134242304, 4096 ],
-            [ 134246400, 4096 ],
-            [ 134250496, 4096 ],
-            [ 134254592, 4096 ],
-            [ 134258688, 4096 ],
-            [ 134262784, 4096 ],
-            [ 134266880, 4096 ],
-            [ 134270976, 4096 ],
-            [ 134275072, 4096 ],
-            [ 134279168, 4096 ],
-            [ 134283264, 4096 ],
-            [ 134287360, 4096 ],
-            [ 134291456, 4096 ],
-            [ 134295552, 4096 ],
-            [ 134299648, 4096 ],
-            [ 134303744, 4096 ],
-            [ 134307840, 4096 ],
-            [ 134311936, 4096 ],
-            [ 134316032, 4096 ],
-            [ 134320128, 4096 ],
-            [ 134324224, 4096 ],
-            [ 134328320, 4096 ],
-            [ 134332416, 4096 ],
-            [ 134336512, 4096 ],
-            [ 134340608, 4096 ],
-            [ 134344704, 4096 ],
-            [ 134348800, 4096 ],
-            [ 134352896, 4096 ],
-            [ 134356992, 4096 ],
-            [ 134361088, 4096 ],
-            [ 134365184, 4096 ],
-            [ 134369280, 4096 ],
-            [ 134373376, 4096 ],
-            [ 134377472, 4096 ],
-            [ 134381568, 4096 ],
-            [ 134385664, 4096 ],
-            [ 134389760, 4096 ],
-            [ 134393856, 4096 ],
-            [ 134397952, 4096 ],
-            [ 134402048, 4096 ],
-            [ 134406144, 4096 ],
-            [ 134410240, 4096 ],
-            [ 134414336, 4096 ],
-            [ 134418432, 4096 ],
-            [ 134422528, 4096 ],
-            [ 134426624, 4096 ],
-            [ 134430720, 4096 ],
-            [ 134434816, 4096 ],
-            [ 134438912, 4096 ],
-            [ 134443008, 4096 ],
-            [ 134447104, 4096 ],
-            [ 134451200, 4096 ],
-            [ 134455296, 4096 ],
-            [ 134459392, 4096 ],
-            [ 134463488, 4096 ],
-            [ 134467584, 4096 ],
-            [ 134471680, 4096 ],
-            [ 134475776, 4096 ]
+            [ 134217728, 4096 ]
         ]
     },
     "MCU_STM32WB55xG": {
@@ -6686,7 +6627,7 @@
             "network-default-interface-type": "ETHERNET"
         },
         "device_name": "LPC54628J512ET180",
-        "mbed_rom_start": "0x8000000",
+        "mbed_rom_start": "0x0",
         "mbed_rom_size": "0x80000",
         "mbed_ram_start": "0x20000000",
         "mbed_ram_size": "0x28000",
@@ -7208,10 +7149,7 @@
                 "std",
                 "small"
             ]
-        },
-        "mbed_rom_start": "0x18000000",
-        "mbed_rom_size": "0x800000",
-        "mbed_ram_start": "0x20000000"
+        }
     },
     "RZ_A1H": {
         "inherits": [
@@ -7240,6 +7178,9 @@
         ],
         "device_name": "R7S72100",
         "bootloader_supported": true,
+        "mbed_rom_start": "0x18000000",
+        "mbed_rom_size": "0x800000",
+        "mbed_ram_start": "0x20000000",
         "mbed_ram_size": "0xA00000",
         "sectors": [
             [
@@ -7280,6 +7221,8 @@
         ],
         "device_name": "R7S72103",
         "bootloader_supported": true,
+        "mbed_rom_start": "0x18000000",
+        "mbed_rom_size": "0x800000",
         "mbed_ram_size": "0x300000",
         "sectors": [
             [
