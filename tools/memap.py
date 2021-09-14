@@ -247,7 +247,7 @@ class _GccParser(_Parser):
 class _ArmccParser(_Parser):
     RE = re.compile(
         r'^\s+0x(\w{8})\s+0x(\w{8})\s+(\w+)\s+(\w+)\s+(\d+)\s+[*]?.+\s+(.+)$')
-    RE_OBJECT = re.compile(r'(.+\.(l|ar))\((.+\.o(bj)?)\)')
+    RE_OBJECT = re.compile(r'(.+\.(l|a|ar))\((.+\.o(bj)?)\)')
     OBJECT_EXTENSIONS = (".o", ".obj")
 
     def parse_object_name(self, line):
