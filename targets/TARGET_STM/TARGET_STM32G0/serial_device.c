@@ -17,11 +17,34 @@
 
 #include "serial_api_hal.h"
 
-
-#if defined (STM32G031xx)
+#if defined (STM32G030xx) || defined (STM32G050xx)
+#define UART_NUM (2)
+#elif defined (STM32G031xx) || defined (STM32G041xx) || defined (STM32G051xx) || defined (STM32G061xx)
 #define UART_NUM (3)
-#else
+#elif defined (STM32G070xx)
+#define UART_NUM (4)
+#define USART3_IRQn USART3_4_IRQn
+#define USART4_IRQn USART3_4_IRQn
+#elif defined (STM32G071xx) || defined (STM32G081xx)
 #define UART_NUM (5)
+#define USART3_IRQn USART3_4_LPUART1_IRQn
+#define USART4_IRQn USART3_4_LPUART1_IRQn
+#define LPUART1_IRQn USART3_4_LPUART1_IRQn
+#elif defined (STM32G0B0xx)
+#define UART_NUM (6)
+#define USART3_IRQn USART3_4_5_6_IRQn
+#define USART4_IRQn USART3_4_5_6_IRQn
+#define USART5_IRQn USART3_4_5_6_IRQn
+#define USART6_IRQn USART3_4_5_6_IRQn
+#elif defined (STM32G0B1xx) || defined (STM32G0C1xx)
+#define UART_NUM (8)
+#define USART2_IRQn USART2_LPUART2_IRQn
+#define USART3_IRQn USART3_4_5_6_LPUART1_IRQn
+#define USART4_IRQn USART3_4_5_6_LPUART1_IRQn
+#define USART5_IRQn USART3_4_5_6_LPUART1_IRQn
+#define USART6_IRQn USART3_4_5_6_LPUART1_IRQn
+#define LPUART1_IRQn USART3_4_5_6_LPUART1_IRQn
+#define LPUART2_IRQn USART2_LPUART2_IRQn
 #endif
 
 uint32_t serial_irq_ids[UART_NUM] = {0};
@@ -91,10 +114,31 @@ static void uart4_irq(void)
 }
 #endif
 
+#if defined(USART5_BASE)
+static void uart5_irq(void)
+{
+    uart_irq(UART_5);
+}
+#endif
+
+#if defined(USART6_BASE)
+static void uart6_irq(void)
+{
+    uart_irq(UART_6);
+}
+#endif
+
 #if defined(LPUART1_BASE)
 static void lpuart1_irq(void)
 {
     uart_irq(LPUART_1);
+}
+#endif
+
+#if defined(LPUART2_BASE)
+static void lpuart2_irq(void)
+{
+    uart_irq(LPUART_2);
 }
 #endif
 
@@ -129,34 +173,43 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 
 #if defined(USART3_BASE)
     if (obj_s->uart == UART_3) {
-#if defined(LPUART1_BASE)
-        irq_n = USART3_4_LPUART1_IRQn;
-#else
-        irq_n = USART3_4_IRQn;
-#endif
+        irq_n = USART3_IRQn;
         vector = (uint32_t)&uart3_irq;
     }
 #endif
 
 #if defined(USART4_BASE)
     if (obj_s->uart == UART_4) {
-#if defined(LPUART1_BASE)
-        irq_n = USART3_4_LPUART1_IRQn;
-#else
-        irq_n = USART3_4_IRQn;
-#endif
+        irq_n = USART4_IRQn;
         vector = (uint32_t)&uart4_irq;
+    }
+#endif
+
+#if defined(USART5_BASE)
+    if (obj_s->uart == UART_5) {
+        irq_n = USART5_IRQn;
+        vector = (uint32_t)&uart5_irq;
+    }
+#endif
+
+#if defined(USART6_BASE)
+    if (obj_s->uart == UART_6) {
+        irq_n = USART6_IRQn;
+        vector = (uint32_t)&uart6_irq;
     }
 #endif
 
 #if defined(LPUART1_BASE)
     if (obj_s->uart == LPUART_1) {
-#if defined(USART3_BASE)
-        irq_n = USART3_4_LPUART1_IRQn;
-#else
         irq_n = LPUART1_IRQn;
-#endif
         vector = (uint32_t)&lpuart1_irq;
+    }
+#endif
+
+#if defined(LPUART2_BASE)
+    if (obj_s->uart == LPUART_2) {
+        irq_n = LPUART2_IRQn;
+        vector = (uint32_t)&lpuart2_irq;
     }
 #endif
 
@@ -334,30 +387,32 @@ static IRQn_Type serial_get_irq_n(UARTName uart_name)
 #endif
 #if defined(USART3_BASE)
         case UART_3:
-#if defined(LPUART1_BASE)
-            irq_n = USART3_4_LPUART1_IRQn;
-#else
-            irq_n = USART3_4_IRQn;
-#endif
+            irq_n = USART3_IRQn;
             break;
 #endif
 #if defined(USART4_BASE)
         case UART_4:
-#if defined(LPUART1_BASE)
-            irq_n = USART3_4_LPUART1_IRQn;
-#else
-            irq_n = USART3_4_IRQn;
-#endif
+            irq_n = USART4_IRQn;
             break;
 #endif
-
+#if defined(USART5_BASE)
+        case UART_5:
+            irq_n = USART5_IRQn;
+            break;
+#endif
+#if defined(USART6_BASE)
+        case UART_6:
+            irq_n = USART6_IRQn;
+            break;
+#endif
 #if defined(LPUART1_BASE)
         case LPUART_1:
-#if defined(USART3_BASE)
-            irq_n = USART3_4_LPUART1_IRQn;
-#else
             irq_n = LPUART1_IRQn;
+            break;
 #endif
+#if defined(LPUART2_BASE)
+        case LPUART_2:
+            irq_n = LPUART2_IRQn;
             break;
 #endif
         default:
