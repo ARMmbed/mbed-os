@@ -18,6 +18,10 @@
  * limitations under the License.
  */
 
+#if !defined(BL2)
+  #define BL2
+#endif
+
 #include "../../partition/region_defs.h"
 #include "../cmsis_nvic.h"
 
