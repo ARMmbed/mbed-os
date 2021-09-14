@@ -73,83 +73,63 @@ extern "C" {
 #if !defined  (USE_HAL_ADC_REGISTER_CALLBACKS)
 #define USE_HAL_ADC_REGISTER_CALLBACKS        0u
 #endif
-
 #if !defined  (USE_HAL_CEC_REGISTER_CALLBACKS)
 #define USE_HAL_CEC_REGISTER_CALLBACKS        0u
 #endif
-
 #if !defined  (USE_HAL_COMP_REGISTER_CALLBACKS)
 #define USE_HAL_COMP_REGISTER_CALLBACKS       0u
 #endif
-
 #if !defined  (USE_HAL_CRYP_REGISTER_CALLBACKS)
 #define USE_HAL_CRYP_REGISTER_CALLBACKS       0u
 #endif
-
 #if !defined  (USE_HAL_DAC_REGISTER_CALLBACKS)
 #define USE_HAL_DAC_REGISTER_CALLBACKS        0u
 #endif
-
 #if !defined  (USE_HAL_FDCAN_REGISTER_CALLBACKS)
 #define USE_HAL_FDCAN_REGISTER_CALLBACKS      0u
 #endif
-
 #if !defined  (USE_HAL_I2C_REGISTER_CALLBACKS)
 #define USE_HAL_I2C_REGISTER_CALLBACKS        0u
 #endif
-
 #if !defined  (USE_HAL_I2S_REGISTER_CALLBACKS)
 #define USE_HAL_I2S_REGISTER_CALLBACKS        0u
 #endif
-
 #if !defined  (USE_HAL_IRDA_REGISTER_CALLBACKS)
 #define USE_HAL_IRDA_REGISTER_CALLBACKS       0u
 #endif
-
 #if !defined  (USE_HAL_LPTIM_REGISTER_CALLBACKS)
 #define USE_HAL_LPTIM_REGISTER_CALLBACKS      0u
 #endif
-
 #if !defined  (USE_HAL_HCD_REGISTER_CALLBACKS)
 #define USE_HAL_HCD_REGISTER_CALLBACKS        0u
 #endif
-
 #if !defined  (USE_HAL_PCD_REGISTER_CALLBACKS)
 #define USE_HAL_PCD_REGISTER_CALLBACKS        0u
 #endif
-
 #if !defined  (USE_HAL_RNG_REGISTER_CALLBACKS)
 #define USE_HAL_RNG_REGISTER_CALLBACKS        0u
 #endif
-
 #if !defined  (USE_HAL_RTC_REGISTER_CALLBACKS)
 #define USE_HAL_RTC_REGISTER_CALLBACKS        0u
 #endif
-
 #if !defined  (USE_HAL_SMARTCARD_REGISTER_CALLBACKS)
 #define USE_HAL_SMARTCARD_REGISTER_CALLBACKS  0u
 #endif
-
 #if !defined  (USE_HAL_SMBUS_REGISTER_CALLBACKS)
 #define USE_HAL_SMBUS_REGISTER_CALLBACKS      0u
 #endif
-
 #if !defined  (USE_HAL_SPI_REGISTER_CALLBACKS)
 #define USE_HAL_SPI_REGISTER_CALLBACKS        0u
 #endif
-
 #if !defined  (USE_HAL_TIM_REGISTER_CALLBACKS)
 #define USE_HAL_TIM_REGISTER_CALLBACKS        0u
 #endif
-
 #if !defined  (USE_HAL_UART_REGISTER_CALLBACKS)
 #define USE_HAL_UART_REGISTER_CALLBACKS       0u
 #endif
-
 #if !defined  (USE_HAL_USART_REGISTER_CALLBACKS)
 #define USE_HAL_USART_REGISTER_CALLBACKS      0u
 #endif
-
 #if !defined  (USE_HAL_WWDG_REGISTER_CALLBACKS)
 #define USE_HAL_WWDG_REGISTER_CALLBACKS       0u
 #endif
@@ -258,6 +238,7 @@ in voltage and temperature.*/
 #if !defined  (USE_HAL_CRYP_SUSPEND_RESUME)
 #define USE_HAL_CRYP_SUSPEND_RESUME     1U
 #endif
+
 
 /* ########################## Assert Selection ############################## */
 /**
@@ -394,17 +375,7 @@ in voltage and temperature.*/
 
 /* Exported macro ------------------------------------------------------------*/
 #ifdef  USE_FULL_ASSERT
-/**
-  * @brief  The assert_param macro is used for functions parameters check.
-  * @param  expr If expr is false, it calls assert_failed function
-  *         which reports the name of the source file and the source
-  *         line number of the call that failed.
-  *         If expr is true, it returns no value.
-  * @retval None
-  */
-#define assert_param(expr) ((expr) ? (void)0U : assert_failed((uint8_t *)__FILE__, __LINE__))
-/* Exported functions ------------------------------------------------------- */
-void assert_failed(uint8_t *file, uint32_t line);
+#include "stm32_assert.h" // MBED patch
 #else
 #define assert_param(expr) ((void)0U)
 #endif /* USE_FULL_ASSERT */
