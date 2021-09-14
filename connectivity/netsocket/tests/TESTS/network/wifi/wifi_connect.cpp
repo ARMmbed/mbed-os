@@ -30,6 +30,10 @@ using namespace utest::v1;
 void wifi_connect(void)
 {
     WiFiInterface *wifi = get_interface();
+    TEST_ASSERT(wifi);
+    if (wifi == NULL) {
+        return;
+    }
 
     char ssid[SSID_MAX_LEN + 1] = MBED_CONF_APP_WIFI_UNSECURE_SSID;
 

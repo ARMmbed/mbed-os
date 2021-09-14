@@ -27,6 +27,10 @@ using namespace utest::v1;
 void wifi_scan(void)
 {
     WiFiInterface *wifi = get_interface();
+    TEST_ASSERT(wifi);
+    if (wifi == NULL) {
+        return;
+    }
 
     WiFiAccessPoint ap[MBED_CONF_APP_MAX_SCAN_SIZE];
 

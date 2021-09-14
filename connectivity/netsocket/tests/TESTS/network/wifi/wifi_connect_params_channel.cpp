@@ -28,6 +28,10 @@ using namespace utest::v1;
 void wifi_connect_params_channel(void)
 {
     WiFiInterface *wifi = get_interface();
+    TEST_ASSERT(wifi);
+    if (wifi == NULL) {
+        return;
+    }
 
     if (wifi->set_channel(1) == NSAPI_ERROR_UNSUPPORTED && wifi->set_channel(36) == NSAPI_ERROR_UNSUPPORTED) {
         TEST_IGNORE_MESSAGE("set_channel() not supported");

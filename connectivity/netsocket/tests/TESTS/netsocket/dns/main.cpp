@@ -168,6 +168,7 @@ static void net_bringup()
     MBED_ASSERT(MBED_CONF_APP_DNS_TEST_HOSTS_NUM >= MBED_CONF_NSAPI_DNS_CACHE_SIZE && MBED_CONF_APP_DNS_TEST_HOSTS_NUM >= MBED_CONF_APP_DNS_SIMULT_QUERIES + 1);
 
     net = NetworkInterface::get_default_instance();
+    TEST_ASSERT_NOT_NULL_MESSAGE(net, "No NetworkInterface configured");
     nsapi_error_t err = net->connect();
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
     SocketAddress address;
