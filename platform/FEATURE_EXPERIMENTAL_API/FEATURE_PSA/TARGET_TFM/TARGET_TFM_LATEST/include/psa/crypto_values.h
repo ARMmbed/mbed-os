@@ -1228,6 +1228,29 @@
  * of the ciphertext.
  *
  * \param aead_alg      An AEAD algorithm identifier (value of type
+ *                      #psa_algorithm_t such that #PSA_ALG_IS_AEAD(\p alg)
+ *                      is true).
+ * \param tag_length    Desired length of the authentication tag in bytes.
+ *
+ * \return              The corresponding AEAD algorithm with the specified
+ *                      length.
+ * \return              Unspecified if \p alg is not a supported
+ *                      AEAD algorithm or if \p tag_length is not valid
+ *                      for the specified AEAD algorithm.
+ */
+#define PSA_ALG_AEAD_WITH_TAG_LENGTH(aead_alg, tag_length)              \
+    (((aead_alg) & ~PSA_ALG_AEAD_TAG_LENGTH_MASK) |                     \
+     ((tag_length) << PSA_AEAD_TAG_LENGTH_OFFSET &                      \
+      PSA_ALG_AEAD_TAG_LENGTH_MASK))
+
+/** Macro to build a shortened AEAD algorithm.
+ *
+ * A shortened AEAD algorithm is similar to the corresponding AEAD
+ * algorithm, but has an authentication tag that consists of fewer bytes.
+ * Depending on the algorithm, the tag length may affect the calculation
+ * of the ciphertext.
+ *
+ * \param aead_alg      An AEAD algorithm identifier (value of type
  *                      #psa_algorithm_t such that #PSA_ALG_IS_AEAD(\p aead_alg)
  *                      is true).
  * \param tag_length    Desired length of the authentication tag in bytes.
