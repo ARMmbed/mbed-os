@@ -21,10 +21,6 @@
 
 #include "flash_layout.h"
 
-#ifndef BL2
-#define BL2
-#endif
-
 #define BL2_HEAP_SIZE           (0x0001000)
 #define BL2_MSP_STACK_SIZE      (0x0001800)
 
@@ -89,7 +85,7 @@
 #define IMAGE_NS_CODE_SIZE \
             (FLASH_NS_PARTITION_SIZE - BL2_HEADER_SIZE - BL2_TRAILER_SIZE)
 
-#define CMSE_VENEER_REGION_SIZE     (0x340)
+#define CMSE_VENEER_REGION_SIZE     (0x380)
 
 /* Alias definitions for secure and non-secure areas*/
 #define S_ROM_ALIAS(x)  (S_ROM_ALIAS_BASE + (x))
@@ -111,6 +107,12 @@
 
 /* CMSE Veneers region */
 #define CMSE_VENEER_REGION_START  (S_CODE_LIMIT + 1)
+
+/* Shared memory used by PSA Proxy partition */
+#ifdef TFM_PARTITION_PSA_PROXY
+#define PSA_PROXY_SHARED_MEMORY_BASE (0x1A408000)
+#define PSA_PROXY_SHARED_MEMORY_SIZE (0x00078000) /* 476 KiB */
+#endif /* TFM_PARTITION_PSA_PROXY */
 
 /* Non-secure regions */
 #define NS_IMAGE_PRIMARY_AREA_OFFSET \
@@ -157,11 +159,23 @@
 #define BL2_DATA_LIMIT    (BL2_DATA_START + BL2_DATA_SIZE - 1)
 #endif /* BL2 */
 
+/* Shared symbol area between bootloader and runtime firmware. Global variables
+ * in the shared code can be placed here.
+ */
+#ifdef CODE_SHARING
+#define SHARED_SYMBOL_AREA_BASE S_RAM_ALIAS_BASE
+#define SHARED_SYMBOL_AREA_SIZE 0x20
+#else
+#define SHARED_SYMBOL_AREA_BASE S_RAM_ALIAS_BASE
+#define SHARED_SYMBOL_AREA_SIZE 0x0
+#endif /* CODE_SHARING */
+
 /* Shared data area between bootloader and runtime firmware.
- * Shared data area is allocated at the beginning of the RAM, it is overlapping
+ * These areas are allocated at the beginning of the RAM, it is overlapping
  * with TF-M Secure code's MSP stack
  */
-#define BOOT_TFM_SHARED_DATA_BASE S_RAM_ALIAS_BASE
+#define BOOT_TFM_SHARED_DATA_BASE (SHARED_SYMBOL_AREA_BASE + \
+                                   SHARED_SYMBOL_AREA_SIZE)
 #define BOOT_TFM_SHARED_DATA_SIZE (0x400)
 #define BOOT_TFM_SHARED_DATA_LIMIT (BOOT_TFM_SHARED_DATA_BASE + \
                                     BOOT_TFM_SHARED_DATA_SIZE - 1)
