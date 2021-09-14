@@ -3,7 +3,7 @@
 
 include(mbed_greentea)
 
-if(DEFINED TARGET_ARM_FM)
+if("TARGET_ARM_FM" IN_LIST MBED_TARGET_DEFINITIONS)
     set(TEST_SKIPPED "Wait ns test not supported.")
 endif()
 
