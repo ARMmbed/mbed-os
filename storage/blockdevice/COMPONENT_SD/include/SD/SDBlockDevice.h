@@ -29,6 +29,7 @@
 #include "platform/platform.h"
 #include "platform/PlatformMutex.h"
 #include "hal/static_pinmap.h"
+#include "assert.h"
 
 #ifndef MBED_CONF_SD_SPI_MOSI
 #define MBED_CONF_SD_SPI_MOSI NC
@@ -52,6 +53,13 @@
 #define MBED_CONF_SD_CRC_ENABLED 0
 #endif
 
+#ifdef MBED_CONF_SD_DEFAULT_ERASE_VALUE
+#define DEFAULT_SD_ERASE_VALUE MBED_CONF_SD_DEFAULT_ERASE_VALUE
+static_assert((0 <= MBED_CONF_SD_DEFAULT_ERASE_VALUE) && (MBED_CONF_SD_DEFAULT_ERASE_VALUE <= 0xFF), "MBED_CONF_SD_DEFAULT_ERASE_VALUE must be a valid byte value, ie: [0,255]");
+#else
+#define DEFAULT_SD_ERASE_VALUE -1
+#endif
+
 /** SDBlockDevice class
  *
  * Access an SD Card using SPI bus
@@ -66,24 +74,30 @@ public:
      *  @param cs       SPI chip select pin
      *  @param hz       Clock speed of the SPI bus (defaults to 1MHz)
      *  @param crc_on   Enable cyclic redundancy check (defaults to disabled)
+     *  @param erase_value Byte value to program when erase is called. If set to -1, erase is a no-op.
+     *  @param
      */
     SDBlockDevice(PinName mosi = MBED_CONF_SD_SPI_MOSI,
                   PinName miso = MBED_CONF_SD_SPI_MISO,
                   PinName sclk = MBED_CONF_SD_SPI_CLK,
                   PinName cs = MBED_CONF_SD_SPI_CS,
                   uint64_t hz = MBED_CONF_SD_TRX_FREQUENCY,
-                  bool crc_on = MBED_CONF_SD_CRC_ENABLED);
+                  bool crc_on = MBED_CONF_SD_CRC_ENABLED,
+                  int erase_value = DEFAULT_SD_ERASE_VALUE);
 
     /** Creates an SDBlockDevice on a SPI bus specified by pins (using static pin-map)
      *
      *  @param spi_pinmap Static SPI pin-map
      *  @param hz         Clock speed of the SPI bus (defaults to 1MHz)
      *  @param crc_on     Enable cyclic redundancy check (defaults to disabled)
+     *  @param erase_value Byte value to program when erase is called. If set to -1, erase is a no-op.
+     *
      */
     SDBlockDevice(const spi_pinmap_t &spi_pinmap,
                   PinName cs = MBED_CONF_SD_SPI_CS,
                   uint64_t hz = MBED_CONF_SD_TRX_FREQUENCY,
-                  bool crc_on = MBED_CONF_SD_CRC_ENABLED);
+                  bool crc_on = MBED_CONF_SD_CRC_ENABLED,
+                  int erase_value = DEFAULT_SD_ERASE_VALUE);
 
     virtual ~SDBlockDevice();
 
@@ -135,6 +149,17 @@ public:
      */
     virtual int program(const void *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size);
 
+    /** Erase blocks on a block device
+     *
+     *  The state of an erased block is undefined until it has been programmed,
+     *  unless get_erase_value returns a non-negative byte value
+     *
+     *  @param addr     Address of block to begin erasing
+     *  @param size     Size to erase in bytes, must be a multiple of the erase block size
+     *  @return         0 on success or a negative error code on failure
+     */
+    virtual int erase(bd_addr_t addr, bd_size_t size);
+
     /** Mark blocks as no longer in use
      *
      *  This function provides a hint to the underlying block device that a region of blocks
@@ -166,6 +191,20 @@ public:
      *  @note Must be a multiple of the read size
      */
     virtual mbed::bd_size_t get_program_size() const;
+
+    /** Get the value of storage when erased
+     *
+     *  If get_erase_value returns a non-negative byte value, the underlying
+     *  storage is set to that value when erased, and storage containing
+     *  that value can be programmed without another erase.
+     *
+     *  @return         The value of storage when erased, or -1 if you can't
+     *                  rely on the value of the erased storage
+     */
+    virtual int get_erase_value() const
+    {
+        return _erase_value;
+    }
 
     /** Get the total size of the underlying device
      *
@@ -291,10 +330,12 @@ private:
     bool _is_initialized;
     bool _dbg;
     uint32_t _init_ref_count;
-
 #if MBED_CONF_SD_CRC_ENABLED
     bool _crc_on;
 #endif
+
+    int _erase_value;
+
 };
 
 #endif  /* DEVICE_SPI */

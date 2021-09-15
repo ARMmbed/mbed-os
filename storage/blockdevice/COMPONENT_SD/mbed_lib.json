@@ -11,7 +11,11 @@
         "INIT_FREQUENCY": 100000,
         "TRX_FREQUENCY": 1000000,
         "CRC_ENABLED": 0,
-        "TEST_BUFFER": 8192
+        "TEST_BUFFER": 8192,
+        "default-erase-value": {
+            "help": "This sets the default erase value. By default, an SDBlockDevice does not have a known erase value. Setting this to a non-null value will program the given value to the SD card when BlockDevice::erase is called on it. Otherwise, erase is a no-op. This value will also be returned by BlockDevice::get_erase_value. The value must be a valid byte value, ie: [0,255]. This value can be configured at runtime when constructing an SDBlockDevice",
+            "value": null
+        }
     },
     "target_overrides": {
         "NUCLEO_F070RB": {

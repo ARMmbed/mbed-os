@@ -252,13 +252,13 @@ using namespace std::chrono;
 const uint32_t SDBlockDevice::_block_size = BLOCK_SIZE_HC;
 
 #if MBED_CONF_SD_CRC_ENABLED
-SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs, uint64_t hz, bool crc_on)
+SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs, uint64_t hz, bool crc_on, int erase_value)
     : _sectors(0), _spi(mosi, miso, sclk, cs, use_gpio_ssel), _is_initialized(0),
       _init_ref_count(0), _crc_on(crc_on)
 #else
-SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs, uint64_t hz, bool crc_on)
+SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs, uint64_t hz, bool crc_on, int erase_value)
     : _sectors(0), _spi(mosi, miso, sclk, cs, use_gpio_ssel), _is_initialized(0),
-      _init_ref_count(0)
+      _init_ref_count(0), _erase_value(erase_value)
 #endif
 {
     _card_type = SDCARD_NONE;
@@ -273,13 +273,14 @@ SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName c
 }
 
 #if MBED_CONF_SD_CRC_ENABLED
-SDBlockDevice::SDBlockDevice(const spi_pinmap_t &spi_pinmap, PinName cs, uint64_t hz, bool crc_on)
+SDBlockDevice::SDBlockDevice(const spi_pinmap_t &spi_pinmap, PinName cs, uint64_t hz, bool crc_on, int erase_value)
     : _sectors(0), _spi(spi_pinmap, cs), _is_initialized(0),
       _init_ref_count(0), _crc_on(crc_on)
 #else
-SDBlockDevice::SDBlockDevice(const spi_pinmap_t &spi_pinmap, PinName cs, uint64_t hz, bool crc_on)
+SDBlockDevice::SDBlockDevice(const spi_pinmap_t &spi_pinmap, PinName cs, uint64_t hz, bool crc_on, int erase_value)
     : _sectors(0), _spi(spi_pinmap, cs), _is_initialized(0),
-      _init_ref_count(0)
+      _init_ref_count(0),
+      _erase_value(erase_value)
 #endif
 {
     _card_type = SDCARD_NONE;
@@ -592,6 +593,29 @@ int SDBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
     }
     unlock();
     return status;
+}
+
+int SDBlockDevice::erase(bd_addr_t addr, bd_size_t size) {
+
+    /* Erase value must be a valid byte value, otherwise erase is a no-op */
+    if((0 <= _erase_value) && (_erase_value <= 0xFF)) {
+
+        if(!is_valid_erase(addr, size)) {
+            return SD_BLOCK_DEVICE_ERROR_PARAMETER;
+        }
+
+        /* size is guaranteed to be a multiple of BLOCK_SIZE_HC now */
+        uint8_t temp[BLOCK_SIZE_HC];
+        memset(temp, _erase_value, BLOCK_SIZE_HC);
+        for(int i = 0; i < (size / BLOCK_SIZE_HC); i++) {
+            int err = program(temp, (addr+(i*BLOCK_SIZE_HC)), BLOCK_SIZE_HC);
+            if(err) {
+                return err;
+            }
+        }
+    }
+
+    return 0;
 }
 
 bool SDBlockDevice::_is_valid_trim(bd_addr_t addr, bd_size_t size)
