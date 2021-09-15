@@ -5,11 +5,9 @@
  *
  */
 #include <stdint.h>
-#include <stdbool.h>
 
 #include "os_wrapper/mutex.h"
 
-#include "tfm_api.h"
 #include "tfm_ns_interface.h"
 
 /**
@@ -17,7 +15,6 @@
  */
 static void *ns_lock_handle = NULL;
 
-__attribute__((weak))
 int32_t tfm_ns_interface_dispatch(veneer_fn fn,
                                   uint32_t arg0, uint32_t arg1,
                                   uint32_t arg2, uint32_t arg3)
@@ -35,16 +32,15 @@ int32_t tfm_ns_interface_dispatch(veneer_fn fn,
     return result;
 }
 
-__attribute__((weak))
-enum tfm_status_e tfm_ns_interface_init(void)
+uint32_t tfm_ns_interface_init(void)
 {
     void *handle;
 
     handle = os_wrapper_mutex_create();
     if (!handle) {
-        return TFM_ERROR_GENERIC;
+        return OS_WRAPPER_ERROR;
     }
 
     ns_lock_handle = handle;
-    return TFM_SUCCESS;
+    return OS_WRAPPER_SUCCESS;
 }

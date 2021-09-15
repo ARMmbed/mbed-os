@@ -53,6 +53,7 @@ enum tfm_status_e
     TFM_ERROR_NOT_INITIALIZED,
     TFM_ERROR_NO_ACTIVE_PARTITION,
     TFM_ERROR_INVALID_EXC_MODE,
+    TFM_ERROR_NOT_IN_RANGE,
     TFM_SECURE_LOCK_FAILED,
     TFM_SECURE_UNLOCK_FAILED,
     TFM_ERROR_GENERIC = 0x1F,
@@ -112,17 +113,17 @@ psa_handle_t tfm_psa_connect_veneer(uint32_t sid, uint32_t version);
  * \brief Call a secure function referenced by a connection handle.
  *
  * \param[in] handle            Handle to connection.
- * \param[in] ctrl_param        Parameter structure, includes request type,
- *                              in_num and out_num.
+ * \param[in] ctrl_param        Parameters combined in uint32_t,
+ *                              includes request type, in_num and out_num.
  * \param[in] in_vec            Array of input \ref psa_invec structures.
  * \param[in,out] out_vec       Array of output \ref psa_outvec structures.
  *
  * \return Returns \ref psa_status_t status code.
  */
 psa_status_t tfm_psa_call_veneer(psa_handle_t handle,
-                               const struct tfm_control_parameter_t *ctrl_param,
-                               const psa_invec *in_vec,
-                               psa_outvec *out_vec);
+                                 uint32_t ctrl_param,
+                                 const psa_invec *in_vec,
+                                 psa_outvec *out_vec);
 
 /**
  * \brief Close connection to secure function referenced by a connection handle.

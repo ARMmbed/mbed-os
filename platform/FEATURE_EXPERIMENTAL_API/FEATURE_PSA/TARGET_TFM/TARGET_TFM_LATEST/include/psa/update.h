@@ -207,6 +207,8 @@ psa_status_t psa_fwu_request_reboot(void);
 /**
  * \brief Indicates to the implementation that the upgrade was successful.
  *
+ * \param[in] image_id         The image_id of the image to query
+ *
  * \return A status indicating the success/failure of the operation
  *
  * \retval PSA_SUCCESS                  The image and its dependencies have
@@ -217,7 +219,7 @@ psa_status_t psa_fwu_request_reboot(void);
  * \retval PSA_ERROR_NOT_PERMITTED      The caller is not permitted to make
  *                                      this call
  */
-psa_status_t psa_fwu_accept(void);
+psa_status_t psa_fwu_accept(psa_image_id_t image_id);
 
 /**
  * \brief Stores a manifest object and associates it with a particular image ID.

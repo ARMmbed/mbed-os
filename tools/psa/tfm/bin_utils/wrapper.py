@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 #
 # -----------------------------------------------------------------------------
-# Copyright (c) 2020, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2021, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -26,6 +26,7 @@ import macro_parser
 
 sign_bin_size_re = re.compile(r"^\s*RE_SIGN_BIN_SIZE\s*=\s*(.*)")
 load_addr_re = re.compile(r"^\s*RE_IMAGE_LOAD_ADDRESS\s*=\s*(.*)")
+rom_fixed_re = re.compile(r"^\s*RE_IMAGE_ROM_FIXED\s*=\s*(.*)")
 
 #This works around Python 2 and Python 3 handling character encodings
 #differently. More information about this issue at
@@ -91,7 +92,7 @@ def wrap(key, align, version, header_size, pad_header, layout, pad, confirm,
 
     slot_size = macro_parser.evaluate_macro(layout, sign_bin_size_re, 0, 1)
     load_addr = macro_parser.evaluate_macro(layout, load_addr_re, 0, 1)
-
+    rom_fixed = macro_parser.evaluate_macro(layout, rom_fixed_re, 0, 1)
     if "_s" in layout:
         boot_record = "SPE"
     elif "_ns" in layout:
@@ -104,7 +105,8 @@ def wrap(key, align, version, header_size, pad_header, layout, pad, confirm,
                               pad=pad, confirm=confirm, align=int(align),
                               slot_size=slot_size, max_sectors=max_sectors,
                               overwrite_only=overwrite_only, endian=endian,
-                              load_addr=load_addr, erased_val=erased_val,
+                              load_addr=load_addr, rom_fixed=rom_fixed,
+                              erased_val=erased_val,
                               save_enctlv=save_enctlv,
                               security_counter=security_counter)
 
