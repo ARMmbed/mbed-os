@@ -278,6 +278,12 @@
             "bare-metal"
         ],
         "device_name": "LPC1114FN28/102",
+        "config": {
+            "rom-size": {
+                "help": "Target ROM size",
+                "value": "0x8000"
+            }
+        },
         "detect_code": [
             "1114"
         ]
@@ -2977,6 +2983,12 @@
         "mbed_rom_size": "0x200000",
         "mbed_ram_start": "0x24000000",
         "mbed_ram_size": "0x80000",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x200000"
+            }
+        },
         "extra_labels_add": [
             "STM32H743xI"
         ],
@@ -3046,6 +3058,12 @@
         "mbed_rom_size": "0x100000",
         "mbed_ram_start": "0x10000000",
         "mbed_ram_size": "0x48000",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            }
+        },
         "macros_add": [
             "CORE_CM4"
         ]
@@ -3063,6 +3081,12 @@
         "mbed_rom_size": "0x100000",
         "mbed_ram_start": "0x24000000",
         "mbed_ram_size": "0x80000",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            }
+        },
         "macros_add": [
             "CORE_CM7"
         ]
@@ -3095,6 +3119,12 @@
         "mbed_rom_size": "0x100000",
         "mbed_ram_start": "0x24000000",
         "mbed_ram_size": "0x80000",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            }
+        },
         "macros_add": [
             "CORE_CM7"
         ]
@@ -3141,6 +3171,12 @@
         "mbed_rom_size": "0x100000",
         "mbed_ram_start": "0x10000000",
         "mbed_ram_size": "0x48000",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            }
+        },
         "macros_add": [
             "CORE_CM4"
         ],
@@ -3225,6 +3261,12 @@
         "mbed_rom_size" : "0x100000",
         "mbed_ram_start": "0x24000000",
         "mbed_ram_size" : "0x80000",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            }
+        },
         "extra_labels_add": [
             "STM32H747xI_CM7"
         ],
@@ -3239,6 +3281,12 @@
         "mbed_rom_size" : "0x100000",
         "mbed_ram_start": "0x10000000",
         "mbed_ram_size" : "0x48000",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            }
+        },
         "extra_labels_add": [
             "STM32H747xI_CM4"
         ],
@@ -4375,6 +4423,12 @@
             "STM32WB15xC"
         ],
         "mbed_rom_size": "0x32800",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x32800"
+            }
+        },
         "overrides": {
             "boot-stack-size": "0x400"
         },
@@ -4403,6 +4457,12 @@
             "STM32WB55xG"
         ],
         "mbed_rom_size": "0xCA000",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0xCA000"
+            }
+        },
         "macros_add": [
             "STM32WB55xx",
             "MBEDTLS_CONFIG_HW_SUPPORT"
@@ -4432,6 +4492,12 @@
             "STM32WB5MxG"
         ],
         "mbed_rom_size": "0xCA000",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0xCA000"
+            }
+        },
         "macros_add": [
             "STM32WB5Mxx",
             "MBEDTLS_CONFIG_HW_SUPPORT"
@@ -4527,7 +4593,13 @@
         "mbed_rom_start": "0x8000000",
         "mbed_rom_size": "0x40000",
         "mbed_ram_start": "0x20000000",
-        "mbed_ram_size": "0x10000"
+        "mbed_ram_size": "0x10000",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x40000"
+            }
+        }
     },
     "MIMXRT1050_EVK": {
         "supported_form_factors": [
@@ -5347,6 +5419,12 @@
         "bootloader_supported": true,
         "mbed_rom_start": "0x18000000",
         "mbed_rom_size": "0x800000",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x800000"
+            }
+        },
         "sectors": [
             [
                 402653184,
@@ -5388,6 +5466,12 @@
         "bootloader_supported": true,
         "mbed_rom_start": "0x18000000",
         "mbed_rom_size": "0x800000",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x800000"
+            }
+        },
         "sectors": [
             [
                 402653184,
@@ -5453,6 +5537,12 @@
         "bootloader_supported": true,
         "mbed_rom_start"        : "0x50000000",
         "mbed_rom_size"         : "0x1000000",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x1000000"
+            }
+        },
         "sectors": [[1342177280,4096]],
         "overrides": {
             "network-default-interface-type": "ETHERNET"
@@ -8059,6 +8149,10 @@
             "np_wifi_enable": {
                 "help": "Value: Tells the np to connect to wifi with its network credentials or wait till cp provides network credentials to it",
                 "value": false
+            },
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x80000"
             }
         }
     },
