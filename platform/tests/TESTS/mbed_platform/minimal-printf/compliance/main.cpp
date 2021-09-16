@@ -42,6 +42,8 @@
 #define LLONG_MIN INT64_MIN
 #endif
 
+#define TEST_MIN_REQ_ROM_SIZE (36 * 1024)
+
 using namespace utest::v1;
 
 #define MAX_STRING_SIZE 100
@@ -1420,13 +1422,15 @@ Case cases[] = {
 #endif
     Case("snprintf buffer overflow %d", test_snprintf_buffer_overflow_d),
     Case("snprintf buffer overflow %ld", test_snprintf_buffer_overflow_ld),
-    Case("snprintf buffer overflow %lld", test_snprintf_buffer_overflow_lld),
     Case("snprintf buffer overflow %u", test_snprintf_buffer_overflow_u),
     Case("snprintf buffer overflow %lu", test_snprintf_buffer_overflow_lu),
-    Case("snprintf buffer overflow %llu", test_snprintf_buffer_overflow_llu),
     Case("snprintf buffer overflow %x", test_snprintf_buffer_overflow_x),
     Case("snprintf buffer overflow %lx", test_snprintf_buffer_overflow_lx),
+#if !defined(MBED_CONF_TARGET_ROM_SIZE) || (MBED_CONF_TARGET_ROM_SIZE >= TEST_MIN_REQ_ROM_SIZE)
+    Case("snprintf buffer overflow %lld", test_snprintf_buffer_overflow_lld),
+    Case("snprintf buffer overflow %llu", test_snprintf_buffer_overflow_llu),
     Case("snprintf buffer overflow %llx", test_snprintf_buffer_overflow_llx),
+#endif
 };
 
 Specification specification(greentea_setup, cases, greentea_test_teardown_handler);
