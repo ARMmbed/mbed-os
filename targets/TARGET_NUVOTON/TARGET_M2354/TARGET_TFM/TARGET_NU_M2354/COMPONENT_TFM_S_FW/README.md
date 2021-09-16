@@ -5,12 +5,12 @@ This document guides how to rebuild TF-M and integrate with Mbed for M2354.
 ### Downloading TF-M source
 
 The M2354 port in TF-M must patch to enable TF-M integration with Mbed.
-For TF-M 1.3/Mbed integration for M2354, the [mainstream TF-M](https://git.trustedfirmware.org/TF-M/trusted-firmware-m.git) is patched as follows:
+For TF-M 1.4/Mbed integration for M2354, the [mainstream TF-M](https://git.trustedfirmware.org/TF-M/trusted-firmware-m.git) is patched as follows:
 -   Apply Mbed-enabled patch to `nuvoton/m2354` TF-M target.
 
 Run the following command to fetch and switch to the intended version:
 ```
-$ git clone https://github.com/OpenNuvoton/trusted-firmware-m -b nuvoton_mbed_m2354_tfm-1.3
+$ git clone https://github.com/OpenNuvoton/trusted-firmware-m -b nuvoton_mbed_m2354_tfm-1.4
 ```
 
 ## Customizing TF-M
@@ -96,7 +96,7 @@ $ cmake -S . \
 -DTFM_PLATFORM=nuvoton/m2354 \
 -DTFM_TOOLCHAIN_FILE=toolchain_GNUARM.cmake \
 -DTFM_PSA_API=ON \
--DTFM_ISOLATION_LEVEL=2 \
+-DCMAKE_BUILD_TYPE=Release \
 -G"Unix Makefiles"
 ```
 
@@ -132,6 +132,7 @@ The following TF-M exported stuffs must update into Mbed:
 Below summarize the copy paths from TF-M into Mbed:
 
 -   trusted-firmware-m/cmake_build/install/outputs/NUVOTON/M2354/bl2.bin → bl2.bin
+-   trusted-firmware-m/cmake_build/install/outputs/NUVOTON/M2354/tfm_s.axf → tfm_s.axf
 -   trusted-firmware-m/cmake_build/install/outputs/NUVOTON/M2354/tfm_s.bin → tfm_s.bin
 -   trusted-firmware-m/cmake_build/install/interface/lib/s_veneers.o → s_veneers.o
 -   trusted-firmware-m/platform/ext/target/nuvoton/m2354/partition/flash_layout.h → partition/flash_layout.h
