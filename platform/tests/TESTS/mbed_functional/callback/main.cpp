@@ -886,7 +886,7 @@ Case cases[] = {
     Case("Testing callbacks with 2 uint64s", test_dispatch2<uint64_t>),
     Case("Testing callbacks with 3 uint64s", test_dispatch3<uint64_t>),
     Case("Testing callbacks with 4 uint64s", test_dispatch4<uint64_t>),
-#if !defined(__ICCARM__) && (!defined(MBED_ROM_SIZE) || (MBED_ROM_SIZE >= TEST_MIN_REQ_ROM_SIZE))
+#if !defined(__ICCARM__) && (!defined(MBED_CONF_TARGET_ROM_SIZE) || (MBED_CONF_TARGET_ROM_SIZE >= TEST_MIN_REQ_ROM_SIZE))
     Case("Testing callbacks with 5 uint64s", test_dispatch5<uint64_t>),
 #endif
 #elif DO_SMALL_TEST
