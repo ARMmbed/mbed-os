@@ -32,6 +32,7 @@
 
 #include "cmsis.h"
 #include "stm32f1xx_ll_gpio.h"
+#include "PeripheralPins.h"
 
 extern const uint32_t ll_pin_defines[16];
 
@@ -58,38 +59,56 @@ static inline void stm_pin_SetAFPin(GPIO_TypeDef *gpio, PinName pin, uint32_t af
 
     if (afnum > 0) {
         switch (afnum) {
-            case 1: // Remap SPI1
+            case AFIO_REMAP_SPI1_ENABLE:
                 __HAL_AFIO_REMAP_SPI1_ENABLE();
                 break;
-            case 2: // Remap I2C1
+            case AFIO_REMAP_I2C1_ENABLE:
                 __HAL_AFIO_REMAP_I2C1_ENABLE();
                 break;
-            case 3: // Remap USART1
+            case AFIO_REMAP_USART1_ENABLE:
                 __HAL_AFIO_REMAP_USART1_ENABLE();
                 break;
-            case 4: // Remap USART2
+            case AFIO_REMAP_USART2_ENABLE:
                 __HAL_AFIO_REMAP_USART2_ENABLE();
                 break;
-            case 5: // Partial Remap USART3
+            case AFIO_REMAP_USART3_PARTIAL:
                 __HAL_AFIO_REMAP_USART3_PARTIAL();
                 break;
-            case 6: // Partial Remap TIM1
+            case AFIO_REMAP_TIM1_PARTIAL:
                 __HAL_AFIO_REMAP_TIM1_PARTIAL();
                 break;
-            case 7: // Partial Remap TIM3
+            case AFIO_REMAP_TIM3_PARTIAL:
                 __HAL_AFIO_REMAP_TIM3_PARTIAL();
                 break;
-            case 8: // Full Remap TIM2
+            case AFIO_REMAP_TIM2_ENABLE:
                 __HAL_AFIO_REMAP_TIM2_ENABLE();
                 break;
-            case 9: // Full Remap TIM3
+            case AFIO_REMAP_TIM3_ENABLE:
                 __HAL_AFIO_REMAP_TIM3_ENABLE();
                 break;
 #if defined(AFIO_MAPR_CAN_REMAP_REMAP1)
-            case 10: // CAN_RX mapped to PB8, CAN_TX mapped to PB9
+            case AFIO_REMAP_CAN1_2:
                 __HAL_AFIO_REMAP_CAN1_2();
                 break;
 #endif
+            case AFIO_REMAP_TIM1_ENABLE:
+                __HAL_AFIO_REMAP_TIM1_ENABLE();
+                break;
+            case AFIO_REMAP_USART3_ENABLE:
+                __HAL_AFIO_REMAP_USART3_ENABLE();
+                break;
+            case AFIO_REMAP_CAN1_3:
+                __HAL_AFIO_REMAP_CAN1_3();
+                break;
+            case AFIO_REMAP_TIM2_PARTIAL_1:
+                __HAL_AFIO_REMAP_TIM2_PARTIAL_1();
+                break;
+            case AFIO_REMAP_TIM2_PARTIAL_2:
+                __HAL_AFIO_REMAP_TIM2_PARTIAL_2();
+                break;
+            case AFIO_REMAP_TIM4_ENABLE:
+                __HAL_AFIO_REMAP_TIM4_ENABLE();
+                break;
             default:
                 break;
         }
