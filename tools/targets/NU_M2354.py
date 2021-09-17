@@ -98,7 +98,7 @@ def m2354_tfm_bin(t_self, non_secure_image, secure_bin):
     #
     modified_timestamp = int(datetime.now().timestamp()) - int(datetime(2020, 1, 1).timestamp())
     img_ver_major = 1       # Instead of (modified_timestamp >> 24) & 0xFF
-    img_ver_minor = 3       # Instead of (modified_timestamp >> 16) & 0xFF
+    img_ver_minor = 4       # Instead of (modified_timestamp >> 16) & 0xFF
     img_ver_revision = 0    # Instead of modified_timestamp & 0xFFFF
     img_ver_build = modified_timestamp
 
