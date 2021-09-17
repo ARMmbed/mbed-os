@@ -139,7 +139,7 @@ typedef enum {
 #endif
 } PWMName;
 
-#if DEVICE_CAN
+#if CAN1_BASE
 typedef enum {
     CAN_1 = (int)CAN1_BASE,
 #if defined CAN2_BASE

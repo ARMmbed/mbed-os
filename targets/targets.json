@@ -1798,6 +1798,7 @@
         ],
         "device_has_add": [
             "ANALOGOUT",
+            "CAN",
             "TRNG"
         ]
     },
@@ -1816,6 +1817,7 @@
             "EMAC"
         ],
         "device_has_remove": [
+            "CAN",
             "LPTICKER",
             "SERIAL_FC"
         ],
