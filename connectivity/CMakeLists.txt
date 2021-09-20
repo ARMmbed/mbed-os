@@ -33,6 +33,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
     add_subdirectory(lorawan)
     add_subdirectory(mbedtls)
     add_subdirectory(netsocket)
+    add_subdirectory(nfc)
 else()
     # The directories below contain optional target libraries
     add_subdirectory(FEATURE_BLE EXCLUDE_FROM_ALL)
