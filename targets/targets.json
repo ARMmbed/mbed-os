@@ -278,6 +278,16 @@
             "bare-metal"
         ],
         "device_name": "LPC1114FN28/102",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x8000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x1000"
+            }
+        },
         "detect_code": [
             "1114"
         ]
@@ -334,6 +344,16 @@
             "5"
         ],
         "device_name": "LPC1768",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x80000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x8000"
+            }
+        },
         "bootloader_supported": true,
         "config": {
             "us-ticker-timer": {
@@ -421,6 +441,16 @@
             "RESET_REASON"
         ],
         "device_name": "LPC1768",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x80000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x8000"
+            }
+        },
         "bootloader_supported": true,
         "overrides": {
             "network-default-interface-type": "ETHERNET"
@@ -471,6 +501,16 @@
             "5"
         ],
         "device_name": "MKL25Z128xxx4",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x20000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x4000"
+            }
+        },
         "supported_c_libs": {
             "arm": [
                 "std",
@@ -529,6 +569,16 @@
             "5"
         ],
         "device_name": "MKL46Z256xxx4",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x40000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x8000"
+            }
+        },
         "bootloader_supported": true,
         "supported_c_libs": {
             "arm": [
@@ -599,6 +649,16 @@
             "FLASH"
         ],
         "device_name": "MK22DN512xxx5",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x80000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x8000"
+            }
+        },
         "supported_c_libs": {
             "arm": [
                 "std",
@@ -685,6 +745,16 @@
             "5"
         ],
         "device_name": "MKL43Z256xxx4",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x40000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x8000"
+            }
+        },
         "supported_c_libs": {
             "arm": [
                 "std",
@@ -753,6 +823,16 @@
             "5"
         ],
         "device_name": "MKW41Z512xxx4",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x80000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x20000"
+            }
+        },
         "bootloader_supported": true,
         "overrides": {
             "network-default-interface-type": "MESH"
@@ -828,6 +908,16 @@
         ],
         "device_name": "MK64FN1M0xxx12",
         "bootloader_supported": true,
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x30000"
+            }
+        },
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         },
@@ -904,6 +994,16 @@
             "MPU"
         ],
         "device_name": "ADuCM4050",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x7f000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x4000"
+            }
+        },
         "detect_code": [
             "0603"
         ],
@@ -958,6 +1058,16 @@
             "MPU"
         ],
         "device_name": "ADuCM3029",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x40000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x4000"
+            }
+        },
         "detect_code": [
             "0602"
         ],
@@ -1038,6 +1148,16 @@
             "5"
         ],
         "device_name": "MK64FN1M0xxx12",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x30000"
+            }
+        },
         "bootloader_supported": true
     },
     "K66F": {
@@ -1102,6 +1222,16 @@
             "5"
         ],
         "device_name": "MK66FN2M0xxx18",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x200000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x30000"
+            }
+        },
         "bootloader_supported": true,
         "overrides": {
             "network-default-interface-type": "ETHERNET"
@@ -1181,6 +1311,16 @@
             "5"
         ],
         "device_name": "MK82FN256xxx15",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x40000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x30000"
+            }
+        },
         "supported_c_libs": {
             "arm": [
                 "std",
@@ -1371,7 +1511,17 @@
         "detect_code": [
             "0755"
         ],
-        "device_name": "STM32F070RBTx"
+        "device_name": "STM32F070RBTx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x20000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x4000"
+            }
+        }
     },
     "MCU_STM32F072xB": {
         "inherits": [
@@ -1399,7 +1549,17 @@
         "detect_code": [
             "0730"
         ],
-        "device_name": "STM32F072RBTx"
+        "device_name": "STM32F072RBTx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x20000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x4000"
+            }
+        }
     },
     "MCU_STM32F091xC": {
         "inherits": [
@@ -1427,7 +1587,17 @@
         "detect_code": [
             "0750"
         ],
-        "device_name": "STM32F091RCTx"
+        "device_name": "STM32F091RCTx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x40000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x8000"
+            }
+        }
     },
     "MCU_STM32F1": {
         "inherits": [
@@ -1489,7 +1659,17 @@
         "detect_code": [
             "0700"
         ],
-        "device_name": "STM32F103RB"
+        "device_name": "STM32F103RB",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x20000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x5000"
+            }
+        }
     },
     "MCU_STM32F103xE": {
         "inherits": [
@@ -1584,6 +1764,16 @@
             "USBDEVICE"
         ],
         "device_name": "STM32F207ZGTx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x20000"
+            }
+        },
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
@@ -1658,7 +1848,17 @@
         "detect_code": [
             "0775"
         ],
-        "device_name": "STM32F303K8Tx"
+        "device_name": "STM32F303K8Tx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x10000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x3000"
+            }
+        }
     },
     "MCU_STM32F303xC": {
         "inherits": [
@@ -1694,7 +1894,17 @@
             "SERIAL_ASYNCH",
             "FLASH",
             "MPU"
-        ]
+        ],
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x80000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x10000"
+            }
+        }
     },
     "NUCLEO_F303RE": {
         "inherits": [
@@ -1783,7 +1993,17 @@
         "detect_code": [
             "0720"
         ],
-        "device_name": "STM32F401RETx"
+        "device_name": "STM32F401RETx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x80000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x18000"
+            }
+        }
     },
     "MCU_STM32F407xE": {
         "inherits": [
@@ -1820,6 +2040,16 @@
             "SERIAL_FC"
         ],
         "device_name": "STM32F407VETx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x80000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x20000"
+            }
+        },
         "overrides": {
             "clock_source": "USE_PLL_HSE_XTAL",
             "lse_available": 0,
@@ -1839,7 +2069,17 @@
         ],
         "extra_labels_add": [
             "STM32F411xE"
-        ]
+        ],
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x80000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x20000"
+            }
+        }
     },
     "NUCLEO_F411RE": {
         "inherits": [
@@ -1911,7 +2151,17 @@
         "device_has_add": [
             "CAN",
             "TRNG"
-        ]
+        ],
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x40000"
+            }
+        }
     },
     "NUCLEO_F412ZG": {
         "inherits": [
@@ -1970,7 +2220,17 @@
             "ANALOGOUT",
             "CAN",
             "TRNG"
-        ]
+        ],
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x180000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x50000"
+            }
+        }
     },
     "MTS_DRAGONFLY_F413RH": {
         "inherits": [
@@ -2053,7 +2313,17 @@
             "ANALOGOUT",
             "CAN",
             "TRNG"
-        ]
+        ],
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x200000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x30000"
+            }
+        }
     },
     "NUCLEO_F429ZI": {
         "inherits": [
@@ -2128,7 +2398,17 @@
             "ANALOGOUT",
             "CAN",
             "TRNG"
-        ]
+        ],
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x200000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x30000"
+            }
+        }
     },
     "WIO_3G": {
         "inherits": [
@@ -2202,6 +2482,16 @@
             "0797"
         ],
         "device_name": "STM32F439ZITx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x200000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x30000"
+            }
+        },
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
@@ -2220,7 +2510,17 @@
         "device_has_add": [
             "ANALOGOUT",
             "CAN"
-        ]
+        ],
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x80000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x20000"
+            }
+        }
     },
     "NUCLEO_F446RE": {
         "inherits": [
@@ -2270,7 +2570,17 @@
             "ANALOGOUT",
             "CAN",
             "TRNG"
-        ]
+        ],
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x200000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x50000"
+            }
+        }
     },
     "DISCO_F469NI": {
         "inherits": [
@@ -2416,7 +2726,17 @@
             "QSPI",
             "USBDEVICE"
         ],
-        "device_name": "STM32F746NGHx"
+        "device_name": "STM32F746NGHx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x40000"
+            }
+        }
     },
     "NUCLEO_F746ZG": {
         "inherits": [
@@ -2447,6 +2767,16 @@
             "USBDEVICE"
         ],
         "device_name": "STM32F746ZGTx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x40000"
+            }
+        },
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
@@ -2481,6 +2811,16 @@
             "USBDEVICE"
         ],
         "device_name": "STM32F756ZGTx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x40000"
+            }
+        },
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
@@ -2511,7 +2851,17 @@
         "features": [
             "LWIP"
         ],
-        "device_name": "STM32F767VITx"
+        "device_name": "STM32F767VITx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x200000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x60000"
+            }
+        }
     },
     "NUCLEO_F767ZI": {
         "inherits": [
@@ -2546,6 +2896,16 @@
             "USBDEVICE"
         ],
         "device_name": "STM32F767ZITx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x200000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x60000"
+            }
+        },
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
@@ -2583,6 +2943,16 @@
             "QSPI"
         ],
         "device_name": "STM32F769NIHx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x200000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x60000"
+            }
+        },
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
@@ -2657,7 +3027,17 @@
         "detect_code": [
             "0852"
         ],
-        "device_name": "STM32G031K8Tx"
+        "device_name": "STM32G031K8Tx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x10000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x2000"
+            }
+        }
     },
     "MCU_STM32G070xx": {
         "inherits": [
@@ -2711,7 +3091,17 @@
         "detect_code": [
             "0221"
         ],
-        "device_name": "STM32G071RBTx"
+        "device_name": "STM32G071RBTx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x20000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x90000"
+            }
+        }
     },
     "MCU_STM32G4": {
         "inherits": [
@@ -2774,7 +3164,17 @@
         ],
         "macros_add": [
             "STM32G431xx"
-        ]
+        ],
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x20000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x8000"
+            }
+        }
     },
     "NUCLEO_G431RB": {
         "inherits": [
@@ -2865,7 +3265,17 @@
         "detect_code": [
             "0841"
         ],
-        "device_name": "STM32G474RETx"
+        "device_name": "STM32G474RETx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x80000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x20000"
+            }
+        }
     },
     "MCU_STM32G483xE": {
         "inherits": [
@@ -3016,7 +3426,17 @@
         "detect_code": [
             "0836"
         ],
-        "device_name": "STM32H743ZITx"
+        "device_name": "STM32H743ZITx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x20000"
+            }
+        }
     },
     "MCU_STM32H745xI": {
         "inherits": [
@@ -3095,6 +3515,16 @@
         "mbed_rom_size": "0x100000",
         "mbed_ram_start": "0x24000000",
         "mbed_ram_size": "0x80000",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x80000"
+            }
+        },
         "macros_add": [
             "CORE_CM7"
         ]
@@ -3216,7 +3646,17 @@
             "network-default-interface-type": "ETHERNET",
             "i2c_timing_value_algo": true
         },
-        "device_name": "STM32H747XIHx"
+        "device_name": "STM32H747XIHx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x48000"
+            }
+        }
     },
     "PORTENTA_H7_M7": {
         "inherits": ["PORTENTA_H7"],
@@ -3280,6 +3720,16 @@
             "ARDUINO_UNO"
         ],
         "device_name": "STM32H7A3ZITxQ",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x200000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x100000"
+            }
+        },
         "detect_code": [
             "0860"
         ]
@@ -3394,7 +3844,17 @@
         "detect_code": [
             "0833"
         ],
-        "device_name": "STM32L072CZTx"
+        "device_name": "STM32L072CZTx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x30000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x5000"
+            }
+        }
     },
     "MCU_STM32L073xZ": {
         "inherits": [
@@ -3422,7 +3882,17 @@
         "detect_code": [
             "0760"
         ],
-        "device_name": "STM32L073RZTx"
+        "device_name": "STM32L073RZTx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x30000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x5000"
+            }
+        }
     },
     "MCU_STM32L082xZ": {
         "inherits": [
@@ -3495,6 +3965,16 @@
             "SERIAL_FC"
         ],
         "device_name": "STM32L151CCTx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x40000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x8000"
+            }
+        },
         "detect_code": [
             "0350"
         ]
@@ -3535,7 +4015,17 @@
         "device_has_remove": [
             "SERIAL_FC"
         ],
-        "device_name": "STM32L152RCTx"
+        "device_name": "STM32L152RCTx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x40000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x8000"
+            }
+        }
     },
     "MCU_STM32L152xE": {
         "inherits": [
@@ -3559,7 +4049,17 @@
         "detect_code": [
             "0710"
         ],
-        "device_name": "STM32L152RETx"
+        "device_name": "STM32L152RETx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x80000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x14000"
+            }
+        }
     },
     "MCU_STM32L4": {
         "inherits": [
@@ -3626,7 +4126,17 @@
         "detect_code": [
             "0770"
         ],
-        "device_name": "STM32L432KCUx"
+        "device_name": "STM32L432KCUx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x40000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0xC000"
+            }
+        }
     },
     "MCU_STM32L433xC": {
         "inherits": [
@@ -3650,7 +4160,17 @@
         "detect_code": [
             "0779"
         ],
-        "device_name": "STM32L433RCTx"
+        "device_name": "STM32L433RCTx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x40000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0xC000"
+            }
+        }
     },
     "MCU_STM32L443xC": {
         "inherits": [
@@ -3678,6 +4198,16 @@
             "LPTICKER"
         ],
         "device_name": "STM32L443RCTx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x40000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0xC000"
+            }
+        },
         "detect_code": [
             "0458"
         ]
@@ -3705,7 +4235,17 @@
         "detect_code": [
             "0829"
         ],
-        "device_name": "STM32L452RETx"
+        "device_name": "STM32L452RETx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x80000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x20000"
+            }
+        }
     },
     "MCU_STM32L471xG": {
         "inherits": [
@@ -3730,7 +4270,17 @@
         "detect_code": [
             "0312"
         ],
-        "device_name": "STM32L471QGIx"
+        "device_name": "STM32L471QGIx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x18000"
+            }
+        }
     },
     "MCU_STM32L475xG": {
         "inherits": [
@@ -3776,7 +4326,17 @@
         "features": [
             "BLE"
         ],
-        "device_name": "STM32L475VGTx"
+        "device_name": "STM32L475VGTx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x18000"
+            }
+        }
     },
     "MCU_STM32L476xG": {
         "inherits": [
@@ -3795,7 +4355,17 @@
         "macros_add": [
             "STM32L476xx",
             "MBED_SPLIT_HEAP"
-        ]
+        ],
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x18000"
+            }
+        }
     },
     "NUCLEO_L476RG": {
         "inherits": [
@@ -3861,7 +4431,17 @@
             "STM32L486xx",
             "MBEDTLS_CONFIG_HW_SUPPORT",
             "MBED_SPLIT_HEAP"
-        ]
+        ],
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x18000"
+            }
+        }
     },
     "NUCLEO_L486RG": {
         "inherits": [
@@ -3907,7 +4487,17 @@
         },
         "macros_add": [
             "STM32L496xx"
-        ]
+        ],
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x40000"
+            }
+        }
     },
     "DISCO_L496AG": {
         "inherits": [
@@ -4007,7 +4597,17 @@
         "device_has_add": [
             "USBDEVICE"
         ],
-        "device_name": "STM32L4R5ZITx"
+        "device_name": "STM32L4R5ZITx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x200000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0xA0000"
+            }
+        }
     },
     "NUCLEO_L4R5ZI_P": {
         "inherits": [
@@ -4037,6 +4637,16 @@
             "MCU_STM32L4R9xI"
         ],
         "device_name": "STM32L4R9AIIx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x200000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0xA0000"
+            }
+        },
         "supported_form_factors": [
             "ARDUINO_UNO",
             "STMOD",
@@ -4105,7 +4715,17 @@
         "features": [
             "BLE"
         ],
-        "device_name": "STM32L4S5VITx"
+        "device_name": "STM32L4S5VITx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x200000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0xA0000"
+            }
+        }
     },
     "MCU_STM32L5": {
         "inherits": [
@@ -4175,6 +4795,16 @@
             "ARDUINO_UNO"
         ],
         "device_name": "STM32L552ZETxQ",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x80000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x40000"
+            }
+        },
         "detect_code": [
             "0854"
         ]
@@ -4217,6 +4847,16 @@
             "BLE"
         ],
         "device_name": "STM32L562QEIxQ",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x80000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x40000"
+            }
+        },
         "detect_code": [
             "0854"
         ]
@@ -4392,7 +5032,17 @@
         "detect_code": [
             "0883"
         ],
-        "device_name": "STM32WB15CCUx"
+        "device_name": "STM32WB15CCUx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x50000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0xC000"
+            }
+        }
     },
     "MCU_STM32WB55xG": {
         "inherits": [
@@ -4421,7 +5071,17 @@
         "device_has_add": [
             "USBDEVICE"
         ],
-        "device_name": "STM32WB55RGVx"
+        "device_name": "STM32WB55RGVx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x40000"
+            }
+        }
     },
     "MCU_STM32WB5MxG": {
         "inherits": [
@@ -4447,7 +5107,17 @@
         "detect_code": [
             "0884"
         ],
-        "device_name": "STM32WB55VGYx"
+        "device_name": "STM32WB55VGYx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x40000"
+            }
+        }
     },
     "MCU_STM32WL": {
         "inherits": [
@@ -4511,7 +5181,17 @@
         "detect_code": [
             "0866"
         ],
-        "device_name": "STM32WL55JCIx"
+        "device_name": "STM32WL55JCIx",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x40000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x10000"
+            }
+        }
     },
     "MCU_STM32WLE5xC": {
         "inherits": [
@@ -4609,6 +5289,12 @@
             "LWIP"
         ],
         "device_name": "MIMXRT1052",
+        "config": {
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x60000"
+            }
+        },
         "bootloader_supported": true,
         "overrides": {
             "deep-sleep-latency": 10,
@@ -4737,6 +5423,12 @@
             "function": "LPCTargetCode.lpc_patch"
         },
         "device_name": "LPC54114J256BD64",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x40000"
+            }
+        },
         "supported_c_libs": {
             "arm": [
                 "std", "small"
@@ -4798,6 +5490,16 @@
             "network-default-interface-type": "ETHERNET"
         },
         "device_name": "LPC54628J512ET180",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x80000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x28000"
+            }
+        },
         "post_binary_hook": {
             "function": "LPCTargetCode.lpc_patch"
         },
@@ -5347,6 +6049,16 @@
         "bootloader_supported": true,
         "mbed_rom_start": "0x18000000",
         "mbed_rom_size": "0x800000",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x800000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0xA00000"
+            }
+        },
         "sectors": [
             [
                 402653184,
@@ -5388,6 +6100,16 @@
         "bootloader_supported": true,
         "mbed_rom_start": "0x18000000",
         "mbed_rom_size": "0x800000",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x800000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x300000"
+            }
+        },
         "sectors": [
             [
                 402653184,
@@ -5453,6 +6175,16 @@
         "bootloader_supported": true,
         "mbed_rom_start"        : "0x50000000",
         "mbed_rom_size"         : "0x1000000",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x1000000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x1000000"
+            }
+        },
         "sectors": [[1342177280,4096]],
         "overrides": {
             "network-default-interface-type": "ETHERNET"
@@ -5608,6 +6340,16 @@
             "USTICKER"
         ],
         "device_name": "MAX32625",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x80000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x28000"
+            }
+        },
         "public": false,
         "supported_application_profiles" : ["full", "bare-metal"],
         "supported_c_libs": {
@@ -5760,6 +6502,16 @@
             "5"
         ],
         "device_name": "EFM32GG990F1024",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x20000"
+            }
+        },
         "public": false,
         "bootloader_supported": true,
         "supported_c_libs": {
@@ -5876,6 +6628,16 @@
             "5"
         ],
         "device_name": "EFR32MG12P332F1024GL125",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x40000"
+            }
+        },
         "public": false,
         "bootloader_supported": true,
         "supported_c_libs": {
@@ -5897,6 +6659,16 @@
             "EFR32MG12P332F1024GL125"
         ],
         "device_name": "EFR32MG12P332F1024GL125",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x40000"
+            }
+        },
         "device_has": [
             "802_15_4_PHY",
             "ANALOGIN",
@@ -5987,6 +6759,16 @@
             "5"
         ],
         "device_name": "EFM32GG11B820F2048GL192",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x200000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x80000"
+            }
+        },
         "public": false,
         "bootloader_supported": true,
         "supported_c_libs": {
@@ -6188,6 +6970,16 @@
                 "std",
                 "small"
             ]
+        },
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x80000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x10000"
+            }
         }
     },
     "NRF52_DK": {
@@ -6334,6 +7126,16 @@
             "5"
         ],
         "device_name": "nRF52840_xxAA",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x40000"
+            }
+        },
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
         "supported_toolchains": [
@@ -6490,6 +7292,16 @@
             ]
         ],
         "device_name": "NUC472HI8AE",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x80000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x10000"
+            }
+        },
         "bootloader_supported": true,
         "overrides": {
             "hxt-present": false,
@@ -6627,6 +7439,16 @@
             ]
         ],
         "device_name": "M453VG6AE",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x40000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x8000"
+            }
+        },
         "bootloader_supported": true,
         "overrides": {
             "hxt-present": false,
@@ -6741,6 +7563,16 @@
             "bare-metal"
         ],
         "device_name": "NANO130KE3BN",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x20000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x4000"
+            }
+        },
         "overrides": {
             "hxt-present": false,
             "lxt-present": true,
@@ -6891,7 +7723,17 @@
         },
         "supported_application_profiles": [
             "full", "bare-metal"
-        ]
+        ],
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x80000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x28000"
+            }
+        }
     },
     "NUMAKER_PFM_M487": {
         "inherits": [
@@ -6975,6 +7817,16 @@
             "SLEEP"
         ],
         "device_name": "TMPM46BF10FG",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x80000"
+            }
+        },
         "detect_code": [
             "7013"
         ],
@@ -7238,6 +8090,16 @@
             "1312"
         ],
         "device_name": "M2354KJFAE",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x80000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x20000"
+            }
+        },
         "overrides": {
             "hxt-present": false,
             "usb-uart": "UART_0",
@@ -7408,6 +8270,16 @@
             "5"
         ],
         "device_name": "M252KG6AE",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x40000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x8000"
+            }
+        },
         "overrides": {
             "usb-uart": "UART_0",
             "usb-uart-tx": "PB_13",
@@ -7455,6 +8327,16 @@
             "MPU"
         ],
         "device_name": "TMPM4G9F15FG",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x180000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x30000"
+            }
+        },
         "detect_code": [
             "7015"
         ],
@@ -7602,6 +8484,16 @@
         "device_name": "CY8C624ABZI-D44",
         "mbed_ram_start": "0x08002000",
         "mbed_ram_size": "0x000FD800",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x200000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x000FD800"
+            }
+        },
         "detect_code": [
             "1901"
         ],
@@ -7650,6 +8542,16 @@
         "device_name": "CY8C624ABZI-D44",
         "mbed_ram_start": "0x08002000",
         "mbed_ram_size": "0x000FD800",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x200000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x000FD800"
+            }
+        },
         "detect_code": [
             "190B"
         ],
@@ -7689,6 +8591,16 @@
         "device_name": "CY8C6245LQI-S3D72",
         "mbed_ram_start": "0x08002000",
         "mbed_ram_size": "0x0003D800",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x80000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x0003D800"
+            }
+        },
         "detect_code": [
             "190E"
         ],
@@ -7729,6 +8641,16 @@
         "device_name": "CY8C6247BZI-D54",
         "mbed_ram_start": "0x08002000",
         "mbed_ram_size": "0x00045800",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x00045800"
+            }
+        },
         "detect_code": [
             "1900"
         ],
@@ -7770,6 +8692,16 @@
         "device_name": "CY8C6347BZI-BLD53",
         "mbed_ram_start": "0x08002000",
         "mbed_ram_size": "0x00045800",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x00045800"
+            }
+        },
         "detect_code": [
             "1902"
         ],
@@ -7814,6 +8746,16 @@
         "device_name": "CY8C6247BZI-D54",
         "mbed_ram_start": "0x08002000",
         "mbed_ram_size": "0x00045800",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x00045800"
+            }
+        },
         "detect_code": [
             "1900"
         ],
@@ -7865,6 +8807,16 @@
         "device_name": "CY8C6247FDI-D52",
         "mbed_ram_start": "0x08002000",
         "mbed_ram_size": "0x00045800",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x00045800"
+            }
+        },
         "detect_code": [
             "1903"
         ],
@@ -8176,6 +9128,16 @@
             "TRNG"
         ],
         "device_name": "GD32F450ZI",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x200000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x70000"
+            }
+        },
         "detect_code": [
             "1702"
         ],
@@ -8347,6 +9309,16 @@
             "MCU_M261"
         ],
         "device_name": "M263KIAAE",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x80000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x18000"
+            }
+        },
         "detect_code": [
             "1310"
         ],
@@ -8393,6 +9365,16 @@
     "EP_ATLAS": {
         "inherits": ["MCU_NRF52840"],
         "device_name": "nRF52840_xxAA",
+        "config": {
+            "rom-size": {
+                "help": "ROM size",
+                "value": "0x100000"
+            },
+            "ram-size": {
+                "help": "RAM size",
+                "value": "0x40000"
+            }
+        },
         "supported_form_factors": [],
         "config": {
             "modem_is_on_board": {
