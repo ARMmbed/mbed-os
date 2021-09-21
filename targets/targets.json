@@ -2967,6 +2967,46 @@
             "MPU"
         ]
     },
+    "MCU_STM32H723xG": {
+        "inherits": [
+            "MCU_STM32H7"
+        ],
+        "public": false,
+        "core": "Cortex-M7FD",
+        "mbed_rom_start": "0x08000000",
+        "mbed_rom_size": "0x100000",
+        "mbed_ram_start": "0x24000000",
+        "mbed_ram_size": "0x50000",
+        "extra_labels_add": [
+            "STM32H723xG"
+        ],
+        "macros_add": [
+            "STM32H723xx"
+        ],
+        "overrides": {
+            "system_power_supply": "PWR_LDO_SUPPLY"
+        }
+    },
+    "MCU_STM32H725xE": {
+        "inherits": [
+            "MCU_STM32H7"
+        ],
+        "public": false,
+        "core": "Cortex-M7FD",
+        "mbed_rom_start": "0x08000000",
+        "mbed_rom_size": "0x80000",
+        "mbed_ram_start": "0x24000000",
+        "mbed_ram_size": "0x50000",
+        "extra_labels_add": [
+            "STM32H725xE"
+        ],
+        "macros_add": [
+            "STM32H725xx"
+        ],
+        "overrides": {
+            "system_power_supply": "PWR_LDO_SUPPLY"
+        }
+    },
     "MCU_STM32H743xI": {
         "inherits": [
             "MCU_STM32H7"
@@ -3250,12 +3290,36 @@
             "MPU"
         ]
     },
+    "MCU_STM32H750xB": {
+        "inherits": [
+            "MCU_STM32H7"
+        ],
+        "public": false,
+        "core": "Cortex-M7FD",
+        "mbed_rom_start": "0x08000000",
+        "mbed_rom_size": "0x20000",
+        "mbed_ram_start": "0x24000000",
+        "mbed_ram_size": "0x80000",
+        "extra_labels_add": [
+            "STM32H750xB"
+        ],
+        "macros_add": [
+            "STM32H750xx"
+        ],
+        "overrides": {
+            "system_power_supply": "PWR_LDO_SUPPLY"
+        }
+    },
     "MCU_STM32H7A3xIQ": {
         "inherits": [
             "MCU_STM32H7"
         ],
         "public": false,
         "core": "Cortex-M7FD",
+        "mbed_rom_start": "0x08000000",
+        "mbed_rom_size": "0x200000",
+        "mbed_ram_start": "0x24000000",
+        "mbed_ram_size": "0x100000",
         "extra_labels_add": [
             "STM32H7A3xIQ"
         ],

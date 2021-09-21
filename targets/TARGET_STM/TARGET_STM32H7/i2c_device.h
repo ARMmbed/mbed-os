@@ -41,6 +41,7 @@ extern "C" {
 #define I2CAPI_I2C2_CLKSRC RCC_I2C2CLKSOURCE_D2PCLK1
 #define I2CAPI_I2C3_CLKSRC RCC_I2C3CLKSOURCE_D2PCLK1
 #define I2CAPI_I2C4_CLKSRC RCC_I2C4CLKSOURCE_D3PCLK1
+#define I2CAPI_I2C5_CLKSRC RCC_I2C5CLKSOURCE_D2PCLK1
 
 uint32_t i2c_get_pclk(I2CName i2c);
 uint32_t i2c_get_timing(I2CName i2c, uint32_t current_timing, int current_hz, int hz);

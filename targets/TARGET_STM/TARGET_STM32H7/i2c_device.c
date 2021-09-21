@@ -77,6 +77,30 @@ uint32_t i2c_get_pclk(I2CName i2c)
         }
     }
 #endif
+#if defined I2C5_BASE
+    else if (i2c == I2C_5) {
+        clocksource = __HAL_RCC_GET_I2C5_SOURCE();
+        switch (clocksource) {
+            case RCC_I2C5CLKSOURCE_D2PCLK1:
+                pclk = HAL_RCCEx_GetD2PCLK1Freq();
+                break;
+            case RCC_I2C5CLKSOURCE_PLL3:
+                HAL_RCCEx_GetPLL3ClockFreq(&pll3_clocks);
+                pclk = pll3_clocks.PLL3_R_Frequency;
+                break;
+            case RCC_I2C5CLKSOURCE_HSI:
+                pclk = HSI_VALUE;
+                break;
+            case RCC_I2C5CLKSOURCE_CSI:
+                pclk = CSI_VALUE;
+                break;
+            default:
+                // should not happend
+                error("I2C5: Invalid clock source");
+                break;
+        }
+    }
+#endif
     else {
         // should not happend
         error("I2C: unknown instance");

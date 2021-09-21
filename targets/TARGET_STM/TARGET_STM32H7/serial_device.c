@@ -17,7 +17,12 @@
 
 #include "serial_api_hal.h"
 
+#if defined (STM32h742xx) || defined (STM32h743xx) || defined (STM32h745xx) || defined (STM32h747xx) || defined (STM32h750xx) || defined (STM32h753xx) || defined (STM32h755xx) || defined (STM32h757xx)
 #define UART_NUM (9)
+#else
+#define UART_NUM (11)
+#endif
+
 uint32_t serial_irq_ids[UART_NUM] = {0};
 UART_HandleTypeDef uart_handlers[UART_NUM];
 
@@ -113,6 +118,20 @@ static void uart8_irq(void)
 }
 #endif
 
+#if defined(UART9_BASE)
+static void uart9_irq(void)
+{
+    uart_irq(UART_9);
+}
+#endif
+
+#if defined(USART10_BASE)
+static void uart10_irq(void)
+{
+    uart_irq(UART_10);
+}
+#endif
+
 #if defined(LPUART1_BASE)
 static void lpuart1_irq(void)
 {
@@ -182,6 +201,18 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         case UART_8:
             irq_n = UART8_IRQn;
             vector = (uint32_t)&uart8_irq;
+            break;
+#endif
+#if defined(UART9_BASE)
+        case UART_9:
+            irq_n = UART9_IRQn;
+            vector = (uint32_t)&uart9_irq;
+            break;
+#endif
+#if defined(USART10_BASE)
+        case UART_10:
+            irq_n = USART10_IRQn;
+            vector = (uint32_t)&uart10_irq;
             break;
 #endif
 #if defined(LPUART1_BASE)
@@ -392,6 +423,16 @@ static IRQn_Type serial_get_irq_n(UARTName uart_name)
 #if defined(UART8_BASE)
         case UART_8:
             irq_n = UART8_IRQn;
+            break;
+#endif
+#if defined(UART9_BASE)
+        case UART_9:
+            irq_n = UART9_IRQn;
+            break;
+#endif
+#if defined(USART10_BASE)
+        case UART_10:
+            irq_n = USART10_IRQn;
             break;
 #endif
         default:
