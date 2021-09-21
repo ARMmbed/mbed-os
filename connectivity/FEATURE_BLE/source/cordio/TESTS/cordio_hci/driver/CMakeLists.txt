@@ -1,21 +1,23 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
+include(mbed_greentea)
 
-set(MBED_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../.. CACHE INTERNAL "")
-set(TEST_TARGET mbed-connectivity-ble-cordio-hci-driver)
-
-include(${MBED_PATH}/tools/cmake/mbed_greentea.cmake)
-
-project(${TEST_TARGET})
+if(NOT "BLE" IN_LIST MBED_TARGET_LABELS)
+    set(TEST_SKIPPED "BLE required")
+elseif(MBED_GREENTEA_TEST_BAREMETAL)
+    # Drivers for some BLE chips require RTOS which we need to check.
+    set(TEST_SKIPPED "RTOS required")
+endif()
 
 mbed_greentea_add_test(
     TEST_NAME
-        ${TEST_TARGET}
+        mbed-connectivity-ble-cordio-hci-driver
     TEST_SOURCES
         main.cpp
     TEST_REQUIRED_LIBS
         mbed-ble
         mbed-events
+    TEST_SKIPPED
+        ${TEST_SKIPPED}
 )
