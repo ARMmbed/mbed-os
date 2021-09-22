@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#if ((!defined(FEATURE_EXPERIMENTAL_API)) || (!defined(FEATURE_PSA)) || (!defined(TARGET_MBED_PSA_SRV)))
+#if !defined(FEATURE_EXPERIMENTAL_API) || !defined(FEATURE_PSA)
 /*
 * Currenlty in Mbed OS, PSA is marked as experimental and only few targets
 * enable experimental feature by default (ARM_MUSCA_B1, ARM_MUSCA_S1 and
@@ -24,14 +24,6 @@
 * target. In that case use the option
 * "--app-config TESTS/configs/experimental.json" while invoking "mbed test".
 */
-
-/*
-* These PSA tests are only supported for PSA targets (Arm-v7M) in emulation
-* mode. For Arm-v8M PSA targets, crypto regression tests provided by TF-M are
-* used. Refer to https://github.com/ARMmbed/mbed-os-tf-m-regression-tests
-* for more information.
-*/
-#error [NOT_SUPPORTED] Only PSA targets (Arm-v7M) in emulation mode are supported.
 #else
 #include "mbedtls/config.h"
 #if (!defined(MBEDTLS_PSA_CRYPTO_C))
@@ -276,7 +268,7 @@ void test_crypto_asymmetric_sign_verify(void)
     unsigned char signature[sizeof(expected_signature)];
     size_t signature_len;
 
-    psa_set_key_usage_flags(&attributes, PSA_KEY_USAGE_SIGN | PSA_KEY_USAGE_VERIFY);
+    psa_set_key_usage_flags(&attributes, PSA_KEY_USAGE_SIGN_HASH | PSA_KEY_USAGE_VERIFY_HASH);
     psa_set_key_algorithm(&attributes, alg);
     psa_set_key_type(&attributes, key_type);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_import_key(&attributes, key, sizeof(key), &key_handle));
@@ -461,7 +453,6 @@ utest::v1::status_t case_setup_handler(const Case *const source, const size_t in
 
 utest::v1::status_t case_teardown_handler(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
-    mbedtls_psa_crypto_free();
     return greentea_case_teardown_handler(source, passed, failed, failure);
 }
 
