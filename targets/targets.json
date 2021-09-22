@@ -7225,7 +7225,7 @@
             ]
         ],
         "bootloader_supported": true,
-        "forced_reset_timeout": 5
+        "forced_reset_timeout": 10
     },
     "NU_M2354": {
         "inherits": [
