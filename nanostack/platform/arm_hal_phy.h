@@ -143,6 +143,7 @@ typedef struct phy_signal_info_s {
 typedef struct phy_csma_params {
     uint32_t backoff_time;           /**< CSMA Backoff us time before start CCA & TX. 0 should disable current backoff*/
     bool cca_enabled;                /**< True will affect CCA check false start TX direct after backoff */
+    bool mode_switch_phr;            /**< True - Frame is a mode switch PHR. In this case PHY driver should skip FCS and send two byte PHR as it is given by TX callback */
 } phy_csma_params_t;
 
 /** PHY modulation scheme */

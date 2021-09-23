@@ -133,6 +133,11 @@ struct buffer *rpl_control_source_route_error_handler(struct buffer *buf, struct
 
 /* Manually send DIS packets for bootstrap */
 void rpl_control_transmit_dis(struct rpl_domain *domain, struct protocol_interface_info_entry *cur, uint8_t pred, uint8_t instance_id, const uint8_t *dodagid, const uint8_t version, const uint8_t *dst);
+/* Manually send DIO packets for bootstrap */
+void rpl_control_transmit_dio_trigger(struct protocol_interface_info_entry *cur, struct rpl_domain *domain);
+/* Manually trigger RPL parent selection */
+void rpl_control_parent_selection_trigger(struct rpl_domain *domain);
+
 bool rpl_control_have_dodag(struct rpl_domain *domain);
 
 /* APIs used to manipulate configuration at the root */

@@ -294,7 +294,7 @@ static int8_t ws_pae_supp_gtk_hash_mismatch_check(pae_supp_t *pae_supp)
     }
 
     // Check GTK hashes and initiate EAPOL procedure if mismatch is detected */
-    gtk_mismatch_e mismatch = sec_prot_keys_gtks_hash_update(pae_supp->sec_keys_nw_info->gtks, gtkhash);
+    gtk_mismatch_e mismatch = sec_prot_keys_gtks_hash_update(pae_supp->sec_keys_nw_info->gtks, gtkhash, false);
     if (mismatch != GTK_NO_MISMATCH) {
         return -1;
     }
@@ -303,7 +303,7 @@ static int8_t ws_pae_supp_gtk_hash_mismatch_check(pae_supp_t *pae_supp)
     return 0;
 }
 
-int8_t ws_pae_supp_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash)
+int8_t ws_pae_supp_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash, bool del_gtk_on_mismatch)
 {
     pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
     if (!pae_supp) {
@@ -311,7 +311,7 @@ int8_t ws_pae_supp_gtk_hash_update(protocol_interface_info_entry_t *interface_pt
     }
 
     // Check GTK hashes and initiate EAPOL procedure if mismatch is detected */
-    gtk_mismatch_e mismatch = sec_prot_keys_gtks_hash_update(pae_supp->sec_keys_nw_info->gtks, gtkhash);
+    gtk_mismatch_e mismatch = sec_prot_keys_gtks_hash_update(pae_supp->sec_keys_nw_info->gtks, gtkhash, del_gtk_on_mismatch);
     if (mismatch > GTK_NO_MISMATCH) {
         tr_info("GTK hash update %s %s %s %s",
                 trace_array(&gtkhash[0], 8),

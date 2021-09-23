@@ -26,6 +26,7 @@
 #include "ws_management_api.h"
 #include "ws_bbr_api.h"
 #include "Service_Libs/utils/ns_file.h"
+#include "Service_Libs/utils/ns_time.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "6LoWPAN/ws/ws_config.h"
 #include "6LoWPAN/ws/ws_cfg_settings.h"
@@ -51,7 +52,7 @@ typedef void ws_pae_timer(uint16_t ticks);
 typedef int8_t ws_pae_br_addr_write(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64);
 typedef int8_t ws_pae_br_addr_read(protocol_interface_info_entry_t *interface_ptr, uint8_t *eui_64);
 typedef void ws_pae_gtks_updated(protocol_interface_info_entry_t *interface_ptr);
-typedef int8_t ws_pae_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash);
+typedef int8_t ws_pae_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash, bool del_gtk_on_mismatch);
 typedef int8_t ws_pae_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
 typedef int8_t ws_pae_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name, bool updated);
 
@@ -119,6 +120,7 @@ static void ws_pae_controller_nw_info_updated_check(protocol_interface_info_entr
 #ifdef HAVE_PAE_AUTH
 static void ws_pae_controller_auth_ip_addr_get(protocol_interface_info_entry_t *interface_ptr, uint8_t *address);
 static bool ws_pae_controller_auth_congestion_get(protocol_interface_info_entry_t *interface_ptr, uint16_t active_supp);
+static int8_t  ws_pae_controller_auth_nw_frame_counter_read(protocol_interface_info_entry_t *interface_ptr, uint32_t *counter, uint8_t gtk_index);
 #endif
 static pae_controller_t *ws_pae_controller_get(protocol_interface_info_entry_t *interface_ptr);
 static void ws_pae_controller_frame_counter_timer(uint16_t seconds, pae_controller_t *entry);
@@ -140,8 +142,8 @@ static int8_t ws_pae_controller_frame_counter_read(pae_controller_t *controller)
 static void ws_pae_controller_frame_counter_reset(frame_counters_t *frame_counters);
 static void ws_pae_controller_frame_counter_index_reset(frame_counters_t *frame_counters, uint8_t index);
 static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller, sec_prot_gtk_keys_t *gtks);
-static int8_t ws_pae_controller_nvm_nw_info_write(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks);
-static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t *interface_ptr, uint16_t *pan_id, char *network_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks);
+static int8_t ws_pae_controller_nvm_nw_info_write(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks, uint64_t stored_time, uint8_t time_changed);
+static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t *interface_ptr, uint16_t *pan_id, char *network_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks, uint64_t current_time, uint8_t *time_changed);
 
 
 static const char *FRAME_COUNTER_FILE = FRAME_COUNTER_FILE_NAME;
@@ -196,7 +198,7 @@ int8_t ws_pae_controller_bootstrap_done(protocol_interface_info_entry_t *interfa
 
     /* Trigger GTK hash update to supplicant, so it can check whether keys have been updated
        during bootstrap. Does nothing if GTKs are up to date. */
-    ws_pae_supp_gtk_hash_update(interface_ptr, controller->gtkhash);
+    ws_pae_supp_gtk_hash_update(interface_ptr, controller->gtkhash, false);
 #endif
 
     return 0;
@@ -239,7 +241,7 @@ int8_t ws_pae_controller_authenticator_start(protocol_interface_info_entry_t *in
         ws_pae_auth_node_limit_set(controller->interface_ptr, pae_controller_config.node_limit);
     }
 
-    ws_pae_auth_cb_register(interface_ptr, ws_pae_controller_gtk_hash_set, ws_pae_controller_nw_key_check_and_insert, ws_pae_controller_nw_key_index_check_and_set, ws_pae_controller_nw_info_updated_check, ws_pae_controller_auth_ip_addr_get, ws_pae_controller_auth_congestion_get);
+    ws_pae_auth_cb_register(interface_ptr, ws_pae_controller_gtk_hash_set, ws_pae_controller_nw_key_check_and_insert, ws_pae_controller_nw_key_index_check_and_set, ws_pae_controller_nw_info_updated_check, ws_pae_controller_auth_ip_addr_get, ws_pae_controller_auth_congestion_get, ws_pae_controller_auth_nw_frame_counter_read);
 
     controller->auth_started = true;
 
@@ -376,7 +378,8 @@ static void ws_pae_controller_nw_info_updated_check(protocol_interface_info_entr
         if (arm_nwk_mac_address_read(interface_ptr->id, &mac_params) >= 0) {
             memcpy(gtk_eui64, mac_params.mac_long, 8);
         }
-        ws_pae_controller_nvm_nw_info_write(interface_ptr, controller->sec_keys_nw_info.key_pan_id, controller->sec_keys_nw_info.network_name, gtk_eui64, controller->sec_keys_nw_info.gtks);
+        uint64_t system_time = ws_pae_current_time_get();
+        ws_pae_controller_nvm_nw_info_write(interface_ptr, controller->sec_keys_nw_info.key_pan_id, controller->sec_keys_nw_info.network_name, gtk_eui64, controller->sec_keys_nw_info.gtks, system_time, controller->sec_keys_nw_info.system_time_changed);
         controller->sec_keys_nw_info.updated = false;
         sec_prot_keys_gtks_updated_reset(controller->sec_keys_nw_info.gtks);
     }
@@ -409,6 +412,21 @@ static bool ws_pae_controller_auth_congestion_get(protocol_interface_info_entry_
     }
 
     return controller->congestion_get(interface_ptr, active_supp);
+}
+
+static int8_t ws_pae_controller_auth_nw_frame_counter_read(protocol_interface_info_entry_t *interface_ptr, uint32_t *counter, uint8_t gtk_index)
+{
+    if (!interface_ptr) {
+        return -1;
+    }
+
+    pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
+    if (!controller) {
+        return -1;
+    }
+
+    controller->nw_frame_counter_read(interface_ptr, counter, gtk_index);
+    return 0;
 }
 #endif
 
@@ -546,19 +564,31 @@ static int8_t ws_pae_controller_gak_from_gtk(uint8_t *gak, uint8_t *gtk, char *n
 
     mbedtls_sha256_init(&ctx);
 
+#if (MBEDTLS_VERSION_MAJOR >= 3)
+    if (mbedtls_sha256_starts(&ctx, 0) != 0) {
+#else
     if (mbedtls_sha256_starts_ret(&ctx, 0) != 0) {
+#endif
         ret_val = -1;
         goto error;
     }
 
+#if (MBEDTLS_VERSION_MAJOR >= 3)
+    if (mbedtls_sha256_update(&ctx, input, network_name_len + GTK_LEN) != 0) {
+#else
     if (mbedtls_sha256_update_ret(&ctx, input, network_name_len + GTK_LEN) != 0) {
+#endif
         ret_val = -1;
         goto error;
     }
 
     uint8_t output[32];
 
+#if (MBEDTLS_VERSION_MAJOR >= 3)
+    if (mbedtls_sha256_finish(&ctx, output) != 0) {
+#else
     if (mbedtls_sha256_finish_ret(&ctx, output) != 0) {
+#endif
         ret_val = -1;
         goto error;
     }
@@ -792,8 +822,8 @@ static int8_t ws_pae_controller_frame_counter_read(pae_controller_t *controller)
 
     // Read frame counters
     if (ws_pae_controller_nvm_frame_counter_read(&controller->restart_cnt, &stored_time, &controller->sec_keys_nw_info.pan_version, &controller->frame_counters) >= 0) {
-        // Current time is not valid
-        if (ws_pae_current_time_set(stored_time) < 0) {
+        // Check if stored time is not valid
+        if (ws_pae_stored_time_check_and_set(stored_time) < 0) {
             ret_value = -1;
         }
         // This is used to ensure that PMK replay counters are fresh after each re-start.
@@ -837,15 +867,22 @@ static void ws_pae_controller_frame_counter_index_reset(frame_counters_t *frame_
     memset(frame_counters->counter[index].gtk, 0, GTK_LEN);
     frame_counters->counter[index].frame_counter = 0;
     frame_counters->counter[index].stored_frame_counter = 0;
+    frame_counters->counter[index].max_frame_counter_chg = 0;
     frame_counters->counter[index].set = false;
 }
 
 static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller, sec_prot_gtk_keys_t *gtks)
 {
     uint8_t nvm_gtk_eui64[8];
-    if (ws_pae_controller_nvm_nw_info_read(controller->interface_ptr, &controller->sec_keys_nw_info.key_pan_id, controller->sec_keys_nw_info.network_name, nvm_gtk_eui64, gtks) < 0) {
+    uint64_t system_time = ws_pae_current_time_get();
+
+    uint8_t system_time_changed = controller->sec_keys_nw_info.system_time_changed;
+    if (ws_pae_controller_nvm_nw_info_read(controller->interface_ptr, &controller->sec_keys_nw_info.key_pan_id, controller->sec_keys_nw_info.network_name, nvm_gtk_eui64, gtks, system_time, &controller->sec_keys_nw_info.system_time_changed) < 0) {
         // If no stored GTKs and network info (pan_id and network name) exits
         return -1;
+    }
+    if (system_time_changed != controller->sec_keys_nw_info.system_time_changed) {
+        controller->sec_keys_nw_info.updated = true;
     }
 
     /* Get own EUI-64 and compare to the one read from the NVM. In case of mismatch delete GTKs and make
@@ -867,21 +904,21 @@ static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller, sec_p
     return 0;
 }
 
-static int8_t ws_pae_controller_nvm_nw_info_write(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks)
+static int8_t ws_pae_controller_nvm_nw_info_write(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks, uint64_t stored_time, uint8_t time_changed)
 {
     nw_info_nvm_tlv_t *tlv = (nw_info_nvm_tlv_t *) ws_pae_controller_nvm_tlv_get(interface_ptr);
     if (!tlv) {
         return -1;
     }
 
-    ws_pae_nvm_store_nw_info_tlv_create(tlv, pan_id, network_name, gtk_eui64, gtks);
+    ws_pae_nvm_store_nw_info_tlv_create(tlv, pan_id, network_name, gtk_eui64, gtks, stored_time, time_changed);
 
     ws_pae_nvm_store_tlv_file_write(NW_INFO_FILE, (nvm_tlv_t *) tlv);
 
     return 0;
 }
 
-static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t *interface_ptr, uint16_t *pan_id, char *network_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks)
+static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t *interface_ptr, uint16_t *pan_id, char *network_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks, uint64_t current_time, uint8_t *time_changed)
 {
     nw_info_nvm_tlv_t *tlv_entry = (nw_info_nvm_tlv_t *) ws_pae_controller_nvm_tlv_get(interface_ptr);
     if (!tlv_entry) {
@@ -894,7 +931,7 @@ static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t
         return -1;
     }
 
-    if (ws_pae_nvm_store_nw_info_tlv_read(tlv_entry, pan_id, network_name, gtk_eui64, gtks) < 0) {
+    if (ws_pae_nvm_store_nw_info_tlv_read(tlv_entry, pan_id, network_name, gtk_eui64, gtks, current_time, time_changed) < 0) {
         return -1;
     }
 
@@ -939,9 +976,12 @@ int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_pt
         return -1;
     }
 
-    if (ws_pae_auth_init(controller->interface_ptr, &controller->next_gtks, &controller->certs, &controller->sec_cfg, &controller->sec_keys_nw_info) < 0) {
+    if (ws_pae_auth_init(controller->interface_ptr, &controller->next_gtks, &controller->certs, &controller->sec_cfg, &controller->sec_keys_nw_info, &controller->frame_counters) < 0) {
         return -1;
     }
+
+    // For Border Router enable the time acquired as default
+    ns_time_system_time_acquired_set();
 
     controller->pae_delete = ws_pae_auth_delete;
     controller->pae_fast_timer = ws_pae_auth_fast_timer;
@@ -967,21 +1007,21 @@ int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_pt
         sec_prot_keys_gtks_updated_reset(&controller->gtks);
     }
 #endif
-
-    if (ws_pae_controller_nw_info_read(controller, read_gtks_to) >= 0) {
+    if (read_gtks_to && ws_pae_controller_nw_info_read(controller, read_gtks_to) >= 0) {
         /* If network information i.e pan_id and network name exists updates bootstrap with it,
            (in case already configured by application then no changes are made) */
         if (controller->nw_info_updated) {
             controller->nw_info_updated(interface_ptr, controller->sec_keys_nw_info.key_pan_id, controller->sec_keys_nw_info.pan_version, controller->sec_keys_nw_info.network_name);
         }
-        if (!read_gtks_to || sec_prot_keys_gtk_count(read_gtks_to) == 0) {
+        if (sec_prot_keys_gtk_count(read_gtks_to) == 0) {
             // Key material invalid or GTKs are expired, delete GTKs from NVM
             uint8_t gtk_eui64[8] = {0}; // Set GTK EUI-64 to zero
-            ws_pae_controller_nvm_nw_info_write(controller->interface_ptr, controller->sec_keys_nw_info.key_pan_id, controller->sec_keys_nw_info.network_name, gtk_eui64, NULL);
+            uint64_t system_time = ws_pae_current_time_get();
+            ws_pae_controller_nvm_nw_info_write(controller->interface_ptr, controller->sec_keys_nw_info.key_pan_id, controller->sec_keys_nw_info.network_name, gtk_eui64, NULL, system_time, controller->sec_keys_nw_info.system_time_changed);
         }
     }
-
     ws_pae_key_storage_init();
+
     if (read_gtks_to) {
         ws_pae_key_storage_read(controller->restart_cnt);
     } else {
@@ -1662,7 +1702,7 @@ int8_t ws_pae_controller_gtk_hash_update(protocol_interface_info_entry_t *interf
     memcpy(controller->gtkhash, gtkhash, 32);
 
     if (controller->pae_gtk_hash_update) {
-        return controller->pae_gtk_hash_update(interface_ptr, controller->gtkhash);
+        return controller->pae_gtk_hash_update(interface_ptr, controller->gtkhash, true);
     }
 
     return 0;
@@ -1731,9 +1771,12 @@ static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool 
                 }
                 uint32_t frame_counter = entry->frame_counters.counter[i].frame_counter;
 
-                // If threshold check is disabled or frame counter has advanced for the threshold value, stores the new value
-                if (!use_threshold ||
-                        frame_counter > entry->frame_counters.counter[i].stored_frame_counter + FRAME_COUNTER_STORE_THRESHOLD) {
+                /* If threshold check is disabled or frame counter has advanced for the threshold value, stores the new value.
+                   If frame counter is at maximum at storage, do not initiate storing */
+                if (!use_threshold || (
+                            (frame_counter > entry->frame_counters.counter[i].stored_frame_counter + FRAME_COUNTER_STORE_THRESHOLD) &&
+                            !(entry->frame_counters.counter[i].stored_frame_counter == UINT32_MAX &&
+                              frame_counter >= UINT32_MAX - FRAME_COUNTER_STORE_THRESHOLD))) {
                     entry->frame_counters.counter[i].stored_frame_counter = frame_counter;
                     update_needed = true;
                     tr_debug("Stored updated frame counter: index %i value %"PRIu32"", i, frame_counter);
@@ -1761,8 +1804,9 @@ static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool 
 
     if (update_needed || entry->frame_cnt_store_force_timer == 0) {
         tr_debug("Write frame counters: system time %"PRIu32"", protocol_core_monotonic_time / 10);
+        uint64_t system_time = ws_pae_current_time_get();
         // Writes modified frame counters
-        ws_pae_nvm_store_frame_counter_tlv_create((frame_cnt_nvm_tlv_t *) &entry->pae_nvm_buffer, entry->restart_cnt, entry->sec_keys_nw_info.pan_version, &entry->frame_counters);
+        ws_pae_nvm_store_frame_counter_tlv_create((frame_cnt_nvm_tlv_t *) &entry->pae_nvm_buffer, entry->restart_cnt, entry->sec_keys_nw_info.pan_version, &entry->frame_counters, system_time);
         ws_pae_controller_nvm_frame_counter_write((frame_cnt_nvm_tlv_t *) &entry->pae_nvm_buffer);
 
         // Reset force interval when ever values are stored
