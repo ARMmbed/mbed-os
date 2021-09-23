@@ -821,7 +821,9 @@
             "TRNG",
             "FLASH",
             "USBDEVICE",
-            "WATCHDOG"
+            "WATCHDOG",
+            "LED",
+            "BUTTON"
         ],
         "release_versions": [
             "5"
@@ -1371,7 +1373,11 @@
         "detect_code": [
             "0755"
         ],
-        "device_name": "STM32F070RBTx"
+        "device_name": "STM32F070RBTx",
+        "device_has_add": [
+            "LED",
+            "BUTTON"
+        ]
     },
     "MCU_STM32F072xB": {
         "inherits": [
@@ -1399,7 +1405,11 @@
         "detect_code": [
             "0730"
         ],
-        "device_name": "STM32F072RBTx"
+        "device_name": "STM32F072RBTx",
+        "device_has_add": [
+            "LED",
+            "BUTTON"
+        ]
     },
     "MCU_STM32F091xC": {
         "inherits": [
@@ -1427,7 +1437,11 @@
         "detect_code": [
             "0750"
         ],
-        "device_name": "STM32F091RCTx"
+        "device_name": "STM32F091RCTx",
+        "device_has_add": [
+            "LED",
+            "BUTTON"
+        ]
     },
     "MCU_STM32F1": {
         "inherits": [
@@ -1489,7 +1503,11 @@
         "detect_code": [
             "0700"
         ],
-        "device_name": "STM32F103RB"
+        "device_name": "STM32F103RB",
+        "device_has_add": [
+            "LED",
+            "BUTTON"
+        ]
     },
     "MCU_STM32F103xE": {
         "inherits": [
@@ -1581,7 +1599,9 @@
             "0835"
         ],
         "device_has_add": [
-            "USBDEVICE"
+            "USBDEVICE",
+            "LED",
+            "BUTTON"
         ],
         "device_name": "STM32F207ZGTx",
         "overrides": {
@@ -1658,7 +1678,10 @@
         "detect_code": [
             "0775"
         ],
-        "device_name": "STM32F303K8Tx"
+        "device_name": "STM32F303K8Tx",
+        "device_has_add": [
+            "LED"
+        ]
     },
     "MCU_STM32F303xC": {
         "inherits": [
@@ -1706,7 +1729,11 @@
         "detect_code": [
             "0745"
         ],
-        "device_name": "STM32F303RETx"
+        "device_name": "STM32F303RETx",
+        "device_has_add": [
+            "LED",
+            "BUTTON"
+        ]
     },
     "NUCLEO_F303ZE": {
         "inherits": [
@@ -1718,7 +1745,11 @@
         "detect_code": [
             "0747"
         ],
-        "device_name": "STM32F303ZETx"
+        "device_name": "STM32F303ZETx",
+        "device_has_add": [
+            "LED",
+            "BUTTON"
+        ]
     },
     "MCU_STM32F334x8": {
         "inherits": [
@@ -1783,7 +1814,11 @@
         "detect_code": [
             "0720"
         ],
-        "device_name": "STM32F401RETx"
+        "device_name": "STM32F401RETx",
+        "device_has_add": [
+            "LED",
+            "BUTTON"
+        ]
     },
     "MCU_STM32F407xE": {
         "inherits": [
@@ -1813,7 +1848,8 @@
             "SD"
         ],
         "device_has_add": [
-            "EMAC"
+            "EMAC",
+            "LED"
         ],
         "device_has_remove": [
             "LPTICKER",
@@ -1851,7 +1887,11 @@
         "detect_code": [
             "0740"
         ],
-        "device_name": "STM32F411RETx"
+        "device_name": "STM32F411RETx",
+        "device_has_add": [
+            "LED",
+            "BUTTON"
+        ]
     },
     "MTS_DRAGONFLY_F411RE": {
         "inherits": [
@@ -1873,6 +1913,10 @@
         "device_name": "STM32F411RETx",
         "detect_code": [
             "0454"
+        ],
+        "device_has_add": [
+            "LED",
+            "BUTTON"
         ]
     },
     "MTS_MDOT_F411RE": {
@@ -1895,6 +1939,9 @@
         "device_name": "STM32F411RETx",
         "detect_code": [
             "0320"
+        ],
+        "device_has_add": [
+            "LED"
         ]
     },
     "MCU_STM32F412xG": {
@@ -1924,7 +1971,9 @@
             "0826"
         ],
         "device_has_add": [
-            "USBDEVICE"
+            "USBDEVICE",
+            "LED",
+            "BUTTON"
         ],
         "device_name": "STM32F412ZGTx"
     },
@@ -1943,6 +1992,10 @@
         },
         "detect_code": [
             "0451"
+        ],
+        "device_has_add": [
+            "LED",
+            "BUTTON"
         ]
     },
     "MCU_STM32F413xH": {
@@ -1999,7 +2052,10 @@
         "components_add": [
             "SPIF"
         ],
-        "device_name": "STM32F413RHTx"
+        "device_name": "STM32F413RHTx",
+        "device_has_add": [
+            "LED"
+        ]
     },
     "DISCO_F413ZH": {
         "inherits": [
@@ -2019,7 +2075,9 @@
         ],
         "device_has_add": [
             "QSPI",
-            "USBDEVICE"
+            "USBDEVICE",
+            "LED",
+            "BUTTON"
         ],
         "device_name": "STM32F413ZHTx"
     },
@@ -2034,7 +2092,9 @@
             "0743"
         ],
         "device_has_add": [
-            "USBDEVICE"
+            "USBDEVICE",
+            "LED",
+            "BUTTON"
         ],
         "device_name": "STM32F413ZHTx"
     },
@@ -2081,7 +2141,9 @@
         ],
         "device_has_add": [
             "EMAC",
-            "USBDEVICE"
+            "USBDEVICE",
+            "LED",
+            "BUTTON"
         ],
         "detect_code": [
             "0796"
@@ -2110,6 +2172,10 @@
         "device_name": "STM32F429ZITx",
         "detect_code": [
             "0795"
+        ],
+        "device_has_add": [
+            "LED",
+            "BUTTON"
         ]
     },
     "MCU_STM32F439xI": {
@@ -2148,7 +2214,11 @@
         "detect_code": [
             "9014"
         ],
-        "device_name": "STM32F439VITx"
+        "device_name": "STM32F439VITx",
+        "device_has_add": [
+            "LED",
+            "BUTTON"
+        ]
     },
     "WIO_BG96": {
         "inherits": [
@@ -2174,6 +2244,10 @@
         "device_name": "STM32F439VITx",
         "components_add": [
             "SD"
+        ],
+        "device_has_add": [
+            "LED",
+            "BUTTON"
         ]
     },
     "NUCLEO_F439ZI": {
@@ -2196,7 +2270,9 @@
         },
         "device_has_add": [
             "EMAC",
-            "USBDEVICE"
+            "USBDEVICE",
+            "LED",
+            "BUTTON"
         ],
         "detect_code": [
             "0797"
@@ -2232,7 +2308,11 @@
         "detect_code": [
             "0777"
         ],
-        "device_name": "STM32F446RETx"
+        "device_name": "STM32F446RETx",
+        "device_has_add": [
+            "LED",
+            "BUTTON"
+        ]
     },
     "NUCLEO_F446ZE": {
         "inherits": [
@@ -2293,7 +2373,9 @@
         ],
         "device_has_add": [
             "QSPI",
-            "USBDEVICE"
+            "USBDEVICE",
+            "LED",
+            "BUTTON"
         ],
         "device_name": "STM32F469NIHx"
     },
@@ -2321,7 +2403,8 @@
         },
         "device_has_add": [
             "QSPI",
-            "USBDEVICE"
+            "USBDEVICE",
+            "LED"
         ],
         "device_has_remove": [
             "LPTICKER"
@@ -2414,7 +2497,9 @@
         "device_has_add": [
             "EMAC",
             "QSPI",
-            "USBDEVICE"
+            "USBDEVICE",
+            "LED",
+            "BUTTON"
         ],
         "device_name": "STM32F746NGHx"
     },
@@ -2444,7 +2529,9 @@
         ],
         "device_has_add": [
             "EMAC",
-            "USBDEVICE"
+            "USBDEVICE",
+            "LED",
+            "BUTTON"
         ],
         "device_name": "STM32F746ZGTx",
         "overrides": {
@@ -2478,7 +2565,9 @@
         ],
         "device_has_add": [
             "EMAC",
-            "USBDEVICE"
+            "USBDEVICE",
+            "LED",
+            "BUTTON"
         ],
         "device_name": "STM32F756ZGTx",
         "overrides": {
@@ -2511,7 +2600,11 @@
         "features": [
             "LWIP"
         ],
-        "device_name": "STM32F767VITx"
+        "device_name": "STM32F767VITx",
+        "device_has_add": [
+            "LED",
+            "BUTTON"
+        ]
     },
     "NUCLEO_F767ZI": {
         "inherits": [
@@ -2543,7 +2636,9 @@
         ],
         "device_has_add": [
             "EMAC",
-            "USBDEVICE"
+            "USBDEVICE",
+            "LED",
+            "BUTTON"
         ],
         "device_name": "STM32F767ZITx",
         "overrides": {
@@ -2580,7 +2675,9 @@
         "device_has_add": [
             "EMAC",
             "USBDEVICE",
-            "QSPI"
+            "QSPI",
+            "LED",
+            "BUTTON"
         ],
         "device_name": "STM32F769NIHx",
         "overrides": {
@@ -2657,7 +2754,10 @@
         "detect_code": [
             "0852"
         ],
-        "device_name": "STM32G031K8Tx"
+        "device_name": "STM32G031K8Tx",
+        "device_has_add": [
+            "LED"
+        ]
     },
     "MCU_STM32G070xx": {
         "inherits": [
@@ -2711,7 +2811,11 @@
         "detect_code": [
             "0221"
         ],
-        "device_name": "STM32G071RBTx"
+        "device_name": "STM32G071RBTx",
+        "device_has_add": [
+            "LED",
+            "BUTTON"
+        ]
     },
     "MCU_STM32G4": {
         "inherits": [
@@ -2789,7 +2893,11 @@
         "overrides": {
             "hse_value": 24000000
         },
-        "device_name": "STM32G431RBTx"
+        "device_name": "STM32G431RBTx",
+        "device_has_add": [
+            "LED",
+            "BUTTON"
+        ]
     },
     "NUCLEO_G431KB": {
         "inherits": [
@@ -2802,7 +2910,10 @@
       "detect_code": [
         "0851"
       ],
-      "device_name": "STM32G431KBTx"
+      "device_name": "STM32G431KBTx",
+        "device_has_add": [
+            "LED"
+        ]
     },
     "MCU_STM32G441xB": {
         "inherits": [
@@ -2865,7 +2976,11 @@
         "detect_code": [
             "0841"
         ],
-        "device_name": "STM32G474RETx"
+        "device_name": "STM32G474RETx",
+        "device_has_add": [
+            "LED",
+            "BUTTON"
+        ]
     },
     "MCU_STM32G483xE": {
         "inherits": [
@@ -3005,7 +3120,9 @@
         },
         "device_has_add": [
             "EMAC",
-            "USBDEVICE"
+            "USBDEVICE",
+            "LED",
+            "BUTTON"
         ],
         "overrides": {
             "network-default-interface-type": "ETHERNET"
@@ -3126,6 +3243,10 @@
     "DISCO_H747I": {
         "inherits": [
             "DISCO_H747I_CM7"
+        ],
+        "device_has_add": [
+            "LED",
+            "BUTTON"
         ]
     },
     "MCU_STM32H747xI_CM4": {
@@ -3206,7 +3327,9 @@
         "device_has_add": [
             "USBDEVICE",
             "EMAC",
-            "QSPI"
+            "QSPI",
+            "LED",
+            "BUTTON"
         ],
         "overrides": {
             "system_power_supply": "PWR_SMPS_1V8_SUPPLIES_LDO",
@@ -3282,6 +3405,10 @@
         "device_name": "STM32H7A3ZITxQ",
         "detect_code": [
             "0860"
+        ],
+        "device_has_add": [
+            "LED",
+            "BUTTON"
         ]
     },
     "MCU_STM32L0": {
@@ -3394,7 +3521,10 @@
         "detect_code": [
             "0833"
         ],
-        "device_name": "STM32L072CZTx"
+        "device_name": "STM32L072CZTx",
+        "device_has_add": [
+            "LED"
+        ]
     },
     "MCU_STM32L073xZ": {
         "inherits": [
@@ -3422,7 +3552,11 @@
         "detect_code": [
             "0760"
         ],
-        "device_name": "STM32L073RZTx"
+        "device_name": "STM32L073RZTx",
+        "device_has_add": [
+            "LED",
+            "BUTTON"
+        ]
     },
     "MCU_STM32L082xZ": {
         "inherits": [
@@ -3497,6 +3631,9 @@
         "device_name": "STM32L151CCTx",
         "detect_code": [
             "0350"
+        ],
+        "device_has_add": [
+            "LED"
         ]
     },
     "FF1705_L151CC": {
@@ -3535,7 +3672,10 @@
         "device_has_remove": [
             "SERIAL_FC"
         ],
-        "device_name": "STM32L152RCTx"
+        "device_name": "STM32L152RCTx",
+        "device_has_add": [
+            "LED"
+        ]
     },
     "MCU_STM32L152xE": {
         "inherits": [
@@ -3559,7 +3699,11 @@
         "detect_code": [
             "0710"
         ],
-        "device_name": "STM32L152RETx"
+        "device_name": "STM32L152RETx",
+        "device_has_add": [
+            "LED",
+            "BUTTON"
+        ]
     },
     "MCU_STM32L4": {
         "inherits": [
@@ -3626,7 +3770,10 @@
         "detect_code": [
             "0770"
         ],
-        "device_name": "STM32L432KCUx"
+        "device_name": "STM32L432KCUx",
+        "device_has_add": [
+            "LED"
+        ]
     },
     "MCU_STM32L433xC": {
         "inherits": [
@@ -3650,7 +3797,11 @@
         "detect_code": [
             "0779"
         ],
-        "device_name": "STM32L433RCTx"
+        "device_name": "STM32L433RCTx",
+        "device_has_add": [
+            "LED",
+            "BUTTON"
+        ]
     },
     "MCU_STM32L443xC": {
         "inherits": [
@@ -3680,6 +3831,9 @@
         "device_name": "STM32L443RCTx",
         "detect_code": [
             "0458"
+        ],
+        "device_has_add": [
+            "LED"
         ]
     },
     "MCU_STM32L452xE": {
@@ -3705,7 +3859,11 @@
         "detect_code": [
             "0829"
         ],
-        "device_name": "STM32L452RETx"
+        "device_name": "STM32L452RETx",
+        "device_has_add": [
+            "LED",
+            "BUTTON"
+        ]
     },
     "MCU_STM32L471xG": {
         "inherits": [
@@ -3730,7 +3888,10 @@
         "detect_code": [
             "0312"
         ],
-        "device_name": "STM32L471QGIx"
+        "device_name": "STM32L471QGIx",
+        "device_has_add": [
+            "LED"
+        ]
     },
     "MCU_STM32L475xG": {
         "inherits": [
@@ -3771,7 +3932,9 @@
         ],
         "device_has_add": [
             "QSPI",
-            "USBDEVICE"
+            "USBDEVICE",
+            "LED",
+            "BUTTON"
         ],
         "features": [
             "BLE"
@@ -3807,7 +3970,11 @@
         "detect_code": [
             "0765"
         ],
-        "device_name": "STM32L476RGTx"
+        "device_name": "STM32L476RGTx",
+        "device_has_add": [
+            "LED",
+            "BUTTON"
+        ]
     },
     "DISCO_L476VG": {
         "inherits": [
@@ -3824,7 +3991,9 @@
         ],
         "device_has_add": [
             "QSPI",
-            "USBDEVICE"
+            "USBDEVICE",
+            "LED",
+            "BUTTON"
         ],
         "device_name": "STM32L476VGTx"
     },
@@ -3839,7 +4008,9 @@
             "1500"
         ],
         "device_has_add": [
-            "QSPI"
+            "QSPI",
+            "LED",
+            "BUTTON"
         ],
         "device_name": "STM32L476VGTx"
     },
@@ -3873,7 +4044,11 @@
         "detect_code": [
             "0827"
         ],
-        "device_name": "STM32L486RGTx"
+        "device_name": "STM32L486RGTx",
+        "device_has_add": [
+            "LED",
+            "BUTTON"
+        ]
     },
     "ADV_WISE_1570": {
         "inherits": [
@@ -3889,7 +4064,11 @@
             "WISE_1570"
         ],
         "device_name": "STM32L486RGTx",
-        "OUTPUT_EXT": "hex"
+        "OUTPUT_EXT": "hex",
+        "device_has_add": [
+            "LED",
+            "BUTTON"
+        ]
     },
     "MCU_STM32L496xG": {
         "inherits": [
@@ -3929,7 +4108,9 @@
         ],
         "device_has_add": [
             "USBDEVICE",
-            "QSPI"
+            "QSPI",
+            "LED",
+            "BUTTON"
         ],
         "device_name": "STM32L496AGIx"
     },
@@ -3944,7 +4125,9 @@
             "0823"
         ],
         "device_has_add": [
-            "USBDEVICE"
+            "USBDEVICE",
+            "LED",
+            "BUTTON"
         ],
         "device_name": "STM32L496ZGTx"
     },
@@ -3968,7 +4151,8 @@
         ],
         "device_has_add": [
             "USBDEVICE",
-            "QSPI"
+            "QSPI",
+            "LED"
         ],
         "detect_code": [
             "0313"
@@ -4005,7 +4189,9 @@
             "0776"
         ],
         "device_has_add": [
-            "USBDEVICE"
+            "USBDEVICE",
+            "LED",
+            "BUTTON"
         ],
         "device_name": "STM32L4R5ZITx"
     },
@@ -4057,7 +4243,9 @@
         "device_has_add": [
             "QSPI",
             "OSPI",
-            "USBDEVICE"
+            "USBDEVICE",
+            "LED",
+            "BUTTON"
         ]
     },
     "MCU_STM32L4S5xI": {
@@ -4100,7 +4288,9 @@
         ],
         "device_has_add": [
             "USBDEVICE",
-            "QSPI"
+            "QSPI",
+            "LED",
+            "BUTTON"
         ],
         "features": [
             "BLE"
@@ -4177,6 +4367,10 @@
         "device_name": "STM32L552ZETxQ",
         "detect_code": [
             "0854"
+        ],
+        "device_has_add": [
+            "LED",
+            "BUTTON"
         ]
     },
     "MCU_STM32L562xE": {
@@ -4211,7 +4405,9 @@
         ],
         "device_has_add": [
             "QSPI",
-            "OSPI"
+            "OSPI",
+            "LED",
+            "BUTTON"
         ],
         "features": [
             "BLE"
@@ -4392,7 +4588,11 @@
         "detect_code": [
             "0883"
         ],
-        "device_name": "STM32WB15CCUx"
+        "device_name": "STM32WB15CCUx",
+        "device_has_add": [
+            "LED",
+            "BUTTON"
+        ]
     },
     "MCU_STM32WB55xG": {
         "inherits": [
@@ -4419,7 +4619,9 @@
             "0839"
         ],
         "device_has_add": [
-            "USBDEVICE"
+            "USBDEVICE",
+            "LED",
+            "BUTTON"
         ],
         "device_name": "STM32WB55RGVx"
     },
@@ -4511,7 +4713,11 @@
         "detect_code": [
             "0866"
         ],
-        "device_name": "STM32WL55JCIx"
+        "device_name": "STM32WL55JCIx",
+        "device_has_add": [
+            "LED",
+            "BUTTON"
+        ]
     },
     "MCU_STM32WLE5xC": {
         "inherits": [
@@ -4600,7 +4806,8 @@
             "TRNG",
             "WATCHDOG",
             "FLASH",
-            "USBDEVICE"
+            "USBDEVICE",
+            "LED"
         ],
         "release_versions": [
             "5"
@@ -4663,7 +4870,8 @@
             "SPI",
             "SPISLAVE",
             "LPTICKER",
-            "USTICKER"
+            "USTICKER",
+            "LED"
         ],
         "release_versions": [
             "5"
@@ -7259,7 +7467,11 @@
             "ARMCLANG",
             "GNUARM"
         ],
-        "tfm_delivery_dir": "TARGET_NUVOTON/TARGET_M2354/TARGET_TFM/TARGET_NU_M2354/COMPONENT_TFM_S_FW"
+        "tfm_delivery_dir": "TARGET_NUVOTON/TARGET_M2354/TARGET_TFM/TARGET_NU_M2354/COMPONENT_TFM_S_FW",
+        "device_has_add": [
+            "LED",
+            "BUTTON"
+        ]
     },
     "MCU_M251": {
         "core": "Cortex-M23",
@@ -7521,7 +7733,9 @@
             "TRNG",
             "USBDEVICE",
             "USTICKER",
-            "WATCHDOG"
+            "WATCHDOG",
+            "LED",
+            "BUTTON"
         ],
         "release_versions": [
             "5"
