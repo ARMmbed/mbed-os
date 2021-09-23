@@ -48,6 +48,7 @@
 #include "MAC/IEEE802_15_4/mac_header_helper_functions.h"
 #include "MAC/IEEE802_15_4/mac_indirect_data.h"
 #include "MAC/IEEE802_15_4/mac_cca_threshold.h"
+#include "MAC/IEEE802_15_4/mac_mode_switch.h"
 #include "MAC/rf_driver_storage.h"
 
 #include "sw_mac.h"
@@ -156,7 +157,7 @@ void mcps_sap_data_req_handler(protocol_interface_rf_mac_setup_s *rf_mac_setup, 
 {
     mcps_data_req_ie_list_t ie_list;
     memset(&ie_list, 0, sizeof(mcps_data_req_ie_list_t));
-    mcps_sap_data_req_handler_ext(rf_mac_setup, data_req, &ie_list, NULL, MAC_DATA_NORMAL_PRIORITY);
+    mcps_sap_data_req_handler_ext(rf_mac_setup, data_req, &ie_list, NULL, MAC_DATA_NORMAL_PRIORITY, 0);
 }
 
 static bool mac_ie_vector_length_validate(ns_ie_iovec_t *ie_vector, uint16_t iov_length,  uint16_t *length_out)
@@ -195,8 +196,9 @@ static bool mac_ie_vector_length_validate(ns_ie_iovec_t *ie_vector, uint16_t iov
 }
 
 
-void mcps_sap_data_req_handler_ext(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mcps_data_req_t *data_req, const mcps_data_req_ie_list_t *ie_list, const channel_list_s *asynch_channel_list, mac_data_priority_t priority)
+void mcps_sap_data_req_handler_ext(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mcps_data_req_t *data_req, const mcps_data_req_ie_list_t *ie_list, const channel_list_s *asynch_channel_list, mac_data_priority_t priority, uint8_t phy_mode_id)
 {
+    (void) phy_mode_id;
     uint8_t status = MLME_SUCCESS;
     mac_pre_build_frame_t *buffer = NULL;
 
@@ -292,6 +294,7 @@ void mcps_sap_data_req_handler_ext(protocol_interface_rf_mac_setup_s *rf_mac_set
     buffer->fcf_dsn.frametype = FC_DATA_FRAME;
     buffer->ExtendedFrameExchange = data_req->ExtendedFrameExchange;
     buffer->WaitResponse = data_req->TxAckReq;
+    buffer->phy_mode_id = phy_mode_id;
     if (data_req->ExtendedFrameExchange) {
         buffer->fcf_dsn.ackRequested = false;
     } else {
@@ -1106,6 +1109,10 @@ static void mac_mcps_asynch_finish(protocol_interface_rf_mac_setup_s *rf_mac_set
 
 static bool mcps_sap_check_buffer_timeout(protocol_interface_rf_mac_setup_s *rf_mac_setup, mac_pre_build_frame_t *buffer)
 {
+    // Timestamp is not implemented by virtual RF driver. Do not check buffer age.
+    if (rf_mac_setup->dev_driver->phy_driver->arm_net_virtual_tx_cb) {
+        return false;
+    }
     // Convert from 1us slots to seconds
     uint32_t buffer_age_s = (mac_mcps_sap_get_phy_timestamp(rf_mac_setup) - buffer->request_start_time_us) / 1000000;
     // Do not timeout broadcast frames. Broadcast interval could be very long.
@@ -1834,6 +1841,12 @@ static int8_t mcps_generic_packet_build(protocol_interface_rf_mac_setup_s *rf_pt
         mac_security_authentication_data_params_set(&ccm_ptr, mhr_start, (buffer->mac_header_length_with_security + open_payload));
         ccm_process_run(&ccm_ptr);
     }
+    // Packet is sent using mode switch. Build mode switch PHR
+    if (buffer->phy_mode_id) {
+        if (mac_build_mode_switch_phr(rf_ptr, tx_buf->mode_switch_phr_buf, buffer->phy_mode_id)) {
+            return -1;
+        }
+    }
 
     return 0;
 }
@@ -2083,6 +2096,7 @@ int8_t mcps_generic_ack_build(protocol_interface_rf_mac_setup_s *rf_ptr, bool in
     phy_csma_params_t csma_params;
     csma_params.backoff_time = 0;
     csma_params.cca_enabled = false;
+    csma_params.mode_switch_phr = false;
     rf_ptr->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_CSMA_PARAMETERS, (uint8_t *) &csma_params);
     if (rf_ptr->active_pd_data_request) {
         timer_mac_stop(rf_ptr);
@@ -2197,8 +2211,10 @@ static int8_t mcps_pd_data_cca_trig(protocol_interface_rf_mac_setup_s *rf_ptr, m
                     rf_ptr->mac_edfe_tx_active = true;
                 }
 
+            } else if (buffer->phy_mode_id) {
+                rf_ptr->mac_mode_switch_phr_tx_active = true;
+                cca_enabled = true;
             } else {
-
                 if (rf_ptr->mac_ack_tx_active) {
                     mac_csma_backoff_start(rf_ptr);
                     platform_exit_critical();
@@ -2209,13 +2225,13 @@ static int8_t mcps_pd_data_cca_trig(protocol_interface_rf_mac_setup_s *rf_ptr, m
 
         }
         // Use double CCA check with FHSS for data packets only
-        if (rf_ptr->fhss_api && !rf_ptr->mac_ack_tx_active && !rf_ptr->mac_edfe_tx_active && !rf_ptr->active_pd_data_request->asynch_request) {
+        if (rf_ptr->fhss_api && !rf_ptr->mac_ack_tx_active && !rf_ptr->mac_edfe_tx_active && !rf_ptr->active_pd_data_request->asynch_request && !rf_ptr->mac_mode_switch_phr_tx_active) {
             if ((buffer->tx_time - (rf_ptr->multi_cca_interval * (rf_ptr->number_of_csma_ca_periods - 1))) > mac_mcps_sap_get_phy_timestamp(rf_ptr)) {
                 buffer->csma_periods_left = rf_ptr->number_of_csma_ca_periods - 1;
                 buffer->tx_time -= (rf_ptr->multi_cca_interval * (rf_ptr->number_of_csma_ca_periods - 1));
             }
         }
-        mac_pd_sap_set_phy_tx_time(rf_ptr, buffer->tx_time, cca_enabled);
+        mac_pd_sap_set_phy_tx_time(rf_ptr, buffer->tx_time, cca_enabled, rf_ptr->mac_mode_switch_phr_tx_active);
         if (mac_plme_cca_req(rf_ptr) != 0) {
             if (buffer->fcf_dsn.frametype == MAC_FRAME_ACK || (buffer->ExtendedFrameExchange && rf_ptr->mac_edfe_response_tx_active)) {
                 //ACK or EFDE Response

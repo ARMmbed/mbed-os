@@ -501,7 +501,7 @@ static void mpl_buffer_transmit(mpl_domain_t *domain, mpl_buffered_message_t *me
     memcpy(buf->src_sa.address, message->message + IPV6_HDROFF_SRC_ADDR, 16);
 
     ipv6_transmit_multicast_on_interface(buf, domain->interface);
-    tr_debug("MPL transmit %u", mpl_buffer_sequence(message));
+    tr_info("MPL transmit %u", mpl_buffer_sequence(message));
 }
 
 static void mpl_buffer_inconsistent(const mpl_domain_t *domain, mpl_buffered_message_t *message)
