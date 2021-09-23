@@ -34,7 +34,9 @@
 // Wednesday, January 1, 2020 0:00:00 GMT
 #define CURRENT_TIME_INIT_VALUE        1577836800
 
-static uint64_t current_time = CURRENT_TIME_INIT_VALUE;
+#define SECONDS_IN_WEEK                (7 * 24 * 60 * 60)
+
+static uint64_t ws_pae_current_time = CURRENT_TIME_INIT_VALUE;
 
 uint16_t ws_pae_time_to_short_convert(uint32_t time)
 {
@@ -146,36 +148,76 @@ int8_t ws_pae_time_diff_calc(uint64_t curr_time, uint64_t comp_time, uint32_t *t
     return 0;
 }
 
+uint64_t ws_pae_time_old_or_new_select(uint64_t old_time, uint64_t new_time)
+{
+    // If current time is more than one week in the past use the stored time
+    if (old_time > SECONDS_IN_WEEK && new_time < old_time - SECONDS_IN_WEEK) {
+        return old_time;
+    }
+
+    return new_time;
+}
+
+bool ws_pae_time_old_and_new_validate(uint64_t old_time, uint64_t new_time)
+{
+    /* If new time is more than one week in the past or more than a month in the
+       future the old time is not valid */
+    if ((old_time > SECONDS_IN_WEEK && new_time < old_time - SECONDS_IN_WEEK) ||
+            new_time > (old_time + SYSTEM_TIME_MAXIMUM_DIFF)) {
+        return false;
+    }
+
+    return true;
+}
+
 uint64_t ws_pae_current_time_get(void)
 {
+    if (!ns_time_system_time_acquired_get()) {
+        return ws_pae_current_time;
+    }
+
     uint64_t new_time;
     if (ns_time_system_time_read(&new_time) == 0) {
+        new_time = ws_pae_time_old_or_new_select(ws_pae_current_time, new_time);
         return new_time;
     }
 
-    return current_time;
+    return ws_pae_current_time;
 }
 
 void ws_pae_current_time_update(uint16_t seconds)
 {
-    current_time += seconds;
+    ws_pae_current_time += seconds;
 }
 
-int8_t ws_pae_current_time_set(uint64_t time)
+int8_t ws_pae_stored_time_check_and_set(uint64_t stored_time)
 {
     uint64_t new_system_time;
-    current_time = time;
 
-    tr_debug("Current time set: %"PRIi64, time);
+    tr_debug("Stored time check and set: %"PRIi64, stored_time);
 
-    if (ns_time_system_time_read(&new_system_time) == 0) {
-        // System time has gone backwards
-        if (new_system_time < current_time || new_system_time > current_time + SYSTEM_TIME_MAXIMUM_DIFF) {
-            tr_error("FATAL: system time less than reference time or more than 12 months in future: %"PRIi64" reference time: %"PRIi64, new_system_time, current_time);
-            return -1;
-        }
+    if (!ns_time_system_time_acquired_get()) {
+        ws_pae_current_time = stored_time;
+        return stored_time;
     }
 
+    if (ns_time_system_time_read(&new_system_time) == 0) {
+        // Use either stored time or current time as reference when calculating lifetimes
+        ws_pae_current_time = ws_pae_time_old_or_new_select(stored_time, new_system_time);
+    }
+    return 0;
+}
+
+int8_t ws_pae_current_time_check_and_set(uint64_t current_time)
+{
+    uint64_t new_system_time;
+
+    tr_debug("Current time check and set: %"PRIi64, current_time);
+
+    if (ns_time_system_time_read(&new_system_time) == 0) {
+        // Use either stored time or current time as reference when calculating lifetimes
+        ws_pae_current_time = ws_pae_time_old_or_new_select(current_time, new_system_time);
+    }
     return 0;
 }
 

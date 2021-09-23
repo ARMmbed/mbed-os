@@ -49,13 +49,15 @@ typedef struct wh_ie_sub_list_s {
  * @brief wp_nested_ie_sub_list_t ws asynch Nested Payload sub IE element request list
  */
 typedef struct wp_nested_ie_sub_list_s {
-    bool us_ie: 1;          /**< Unicast Schedule information */
-    bool bs_ie: 1;          /**< Broadcast Schedule information */
-    bool vp_ie: 1;          /**< Vendor Payload information */
-    bool pan_ie: 1;         /**< PAN Information */
-    bool net_name_ie: 1;    /**< Network Name information */
-    bool pan_version_ie: 1; /**< Pan configuration version */
-    bool gtkhash_ie: 1;     /**< GTK Hash information */
+    bool us_ie: 1;                  /**< Unicast Schedule information */
+    bool bs_ie: 1;                  /**< Broadcast Schedule information */
+    bool vp_ie: 1;                  /**< Vendor Payload information */
+    bool pan_ie: 1;                 /**< PAN Information */
+    bool net_name_ie: 1;            /**< Network Name information */
+    bool pan_version_ie: 1;         /**< Pan configuration version */
+    bool gtkhash_ie: 1;             /**< GTK Hash information */
+    bool lfn_gtk_version_ie: 1;     /**<  LFN Version & GTK Hash */
+    bool phy_cap_ie: 1;             /** < Phy Cap information for MDR */
 } wp_nested_ie_sub_list_t;
 
 /**
@@ -124,7 +126,7 @@ typedef void ws_asynch_confirm(struct protocol_interface_info_entry *interface, 
  * @return true when neighbor info is available
  * @return false when no neighbor info
  */
-typedef bool ws_neighbor_info_request(struct protocol_interface_info_entry *interface, const uint8_t *mac_64, llc_neighbour_req_t *neighbor_buffer, bool request_new);
+typedef bool ws_neighbor_info_request(struct protocol_interface_info_entry *interface, const uint8_t *mac_64, struct llc_neighbour_req *neighbor_buffer, bool request_new);
 
 /**
  * @brief ws_llc_create ws LLC module create

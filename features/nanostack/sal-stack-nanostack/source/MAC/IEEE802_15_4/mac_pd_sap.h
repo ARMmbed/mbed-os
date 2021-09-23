@@ -43,7 +43,7 @@ int8_t mac_plme_cca_req(struct protocol_interface_rf_mac_setup *rf_mac_setup);
 
 void mac_pd_abort_active_tx(struct protocol_interface_rf_mac_setup *rf_mac_setup);
 
-void mac_pd_sap_set_phy_tx_time(struct protocol_interface_rf_mac_setup *rf_mac_setup, uint32_t tx_time, bool cca_enabled);
+void mac_pd_sap_set_phy_tx_time(struct protocol_interface_rf_mac_setup *rf_mac_setup, uint32_t tx_time, bool cca_enabled, bool mode_switch);
 
 void mac_pd_sap_rf_low_level_function_set(void *mac_ptr, void *driver);
 

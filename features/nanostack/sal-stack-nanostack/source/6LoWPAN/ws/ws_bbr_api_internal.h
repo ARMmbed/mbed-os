@@ -38,6 +38,7 @@ bool ws_bbr_ready_to_start(protocol_interface_info_entry_t *cur);
 bool ws_bbr_backbone_address_get(uint8_t *address);
 
 uint16_t ws_bbr_bsi_generate(protocol_interface_info_entry_t *interface);
+uint16_t ws_bbr_pan_id_get(protocol_interface_info_entry_t *interface);
 void ws_bbr_init(protocol_interface_info_entry_t *interface);
 
 #else
@@ -50,6 +51,7 @@ void ws_bbr_init(protocol_interface_info_entry_t *interface);
 #define ws_bbr_ready_to_start(cur) true
 #define ws_bbr_backbone_address_get(address) 0
 #define ws_bbr_bsi_generate(interface) 0
+#define ws_bbr_pan_id_get(interface) 0
 #define ws_bbr_init(interface) (void) 0
 
 #endif //HAVE_WS_BORDER_ROUTER

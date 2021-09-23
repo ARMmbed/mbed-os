@@ -212,7 +212,7 @@ void dhcp_client_delete(int8_t interface)
     do {
         srv_data_ptr = libdhcpv6_nonTemporal_entry_get_by_instance(dhcp_client->libDhcp_instance);
         if (srv_data_ptr != NULL) {
-            tr_debug("Free DHCPv6 Client\n");
+            tr_debug("Free DHCPv6 Client");
             memcpy(temporary_address, srv_data_ptr->iaNontemporalAddress.addressPrefix, 16);
             dhcp_service_req_remove_all(srv_data_ptr);// remove all pending retransmissions
             libdhcvp6_nontemporalAddress_server_data_free(srv_data_ptr);
