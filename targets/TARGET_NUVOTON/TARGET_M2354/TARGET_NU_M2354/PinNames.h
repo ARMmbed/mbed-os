@@ -89,12 +89,16 @@ typedef enum {
 
 } PinName;
 
+#if DEVICE_LED
 // LED naming
 #define LED1        PD_2
 #define LED2        PD_3
+#endif
 
+#if DEVICE_BUTTON
 // Button naming
 #define BUTTON1     PF_11 // SW2
+#endif
 
 #ifdef __cplusplus
 }
