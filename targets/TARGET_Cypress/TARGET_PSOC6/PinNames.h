@@ -83,27 +83,27 @@
 #endif
 
 // LEDs
-#ifdef CYBSP_USER_LED1
+#if defined(CYBSP_USER_LED1) && DEVICE_LED
 #define LED1 CYBSP_USER_LED1
 #else
 #define LED1 NC
 #endif
-#ifdef CYBSP_USER_LED2
+#if defined(CYBSP_USER_LED2) && DEVICE_LED
 #define LED2 CYBSP_USER_LED2
 #else
 #define LED2 NC
 #endif
-#ifdef CYBSP_USER_LED3
+#if defined(CYBSP_USER_LED3) && DEVICE_LED
 #define LED3 CYBSP_USER_LED3
 #else
 #define LED3 NC
 #endif
-#ifdef CYBSP_USER_LED4
+#if defined(CYBSP_USER_LED4) && DEVICE_LED
 #define LED4 CYBSP_USER_LED4
 #else
 #define LED4 NC
 #endif
-#ifdef CYBSP_USER_LED5
+#if defined(CYBSP_USER_LED5) && DEVICE_LED
 #define LED5 CYBSP_USER_LED5
 #else
 #define LED5 NC
@@ -120,7 +120,7 @@
 #endif
 
 // User button
-#ifdef CYBSP_USER_BTN
+#if defined(CYBSP_USER_BTN) && DEVICE_BUTTON
 #define USER_BUTTON CYBSP_USER_BTN
 #define BUTTON1 CYBSP_USER_BTN
 #endif
