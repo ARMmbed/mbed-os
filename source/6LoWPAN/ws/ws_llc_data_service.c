@@ -34,6 +34,8 @@
 #include "6LoWPAN/ws/ws_bootstrap.h"
 #include "6LoWPAN/ws/ws_ie_lib.h"
 #include "6LoWPAN/ws/ws_llc.h"
+#include "6LoWPAN/ws/ws_neighbor_class.h"
+#include "6LoWPAN/ws/ws_ie_lib.h"
 #include "6LoWPAN/ws/ws_mpx_header.h"
 #include "6LoWPAN/ws/ws_pae_controller.h"
 #include "6LoWPAN/ws/ws_cfg_settings.h"
@@ -42,6 +44,7 @@
 #include "Service_Libs/etx/etx.h"
 #include "fhss_ws_extension.h"
 #include "Service_Libs/random_early_detection/random_early_detection_api.h"
+#include "ws_management_api.h"
 
 #ifdef HAVE_WS
 
@@ -158,7 +161,7 @@ typedef struct {
 
 static NS_LIST_DEFINE(llc_data_base_list, llc_data_base_t, link);
 
-static uint16_t ws_wp_nested_message_length(wp_nested_ie_sub_list_t requested_list, llc_ie_params_t *params);
+static uint16_t ws_wp_nested_message_length(wp_nested_ie_sub_list_t requested_list, llc_data_base_t *llc_base);
 static uint16_t ws_wh_headers_length(wh_ie_sub_list_t requested_list, llc_ie_params_t *params);
 
 /** LLC message local functions */
@@ -378,9 +381,10 @@ static uint16_t ws_wh_headers_length(wh_ie_sub_list_t requested_list, llc_ie_par
     return length;
 }
 
-static uint16_t ws_wp_nested_message_length(wp_nested_ie_sub_list_t requested_list, llc_ie_params_t *params)
+static uint16_t ws_wp_nested_message_length(wp_nested_ie_sub_list_t requested_list, llc_data_base_t *llc_base)
 {
     uint16_t length = 0;
+    llc_ie_params_t *params = &llc_base->ie_params;
     if (requested_list.gtkhash_ie) {
         //Static 32 bytes allways
         length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + params->gtkhash_length;
@@ -411,6 +415,23 @@ static uint16_t ws_wp_nested_message_length(wp_nested_ie_sub_list_t requested_li
             length += 2;
         }
     }
+#ifdef HAVE_WS_VERSION_1_1
+    if (ws_version_1_1(llc_base->interface_ptr)) {
+        if (requested_list.lfn_gtk_version_ie) {
+
+            length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_lfn_version_length();
+            ws_lgtkhash_ie_t ws_lgtkhash;
+            ws_lgtkhash.lgtk0 = llc_base->interface_ptr->ws_info->lfngtk.active_hash_1;
+            ws_lgtkhash.lgtk1 = llc_base->interface_ptr->ws_info->lfngtk.active_hash_2;
+            ws_lgtkhash.lgtk2 = llc_base->interface_ptr->ws_info->lfngtk.active_hash_3;
+            length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_lgtk_hash_length(&ws_lgtkhash);
+        }
+
+        if (requested_list.phy_cap_ie) {
+            length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_pcap_length(llc_base->interface_ptr->ws_info->phy_cap_info.length_of_list);
+        }
+    }
+#endif
 
     if (requested_list.bs_ie) {
         ///Dynamic length
@@ -774,6 +795,11 @@ static void ws_llc_data_indication_cb(const mac_api_t *api, const mcps_data_ind_
             //SET trusted state
             mac_neighbor_table_trusted_neighbor(mac_neighbor_info(interface), neighbor_info.neighbor, true);
         }
+        //
+        //Phy CAP info read and store
+        if (ws_version_1_1(interface)) {
+            ws_neighbor_class_pcap_ie_store(neighbor_info.ws_neighbor, ie_ext);
+        }
     }
 
     mcps_data_ind_t data_ind = *data;
@@ -1010,6 +1036,26 @@ static void ws_llc_lowpan_mpx_header_set(llc_message_t *message, uint16_t user_i
     message->ie_vector_list[1].iovLen = ptr - (uint8_t *)message->ie_vector_list[1].ieBase;
 }
 
+#ifdef HAVE_WS_VERSION_1_1
+uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_req_s *data)
+{
+
+    if (!ws_version_1_1(base->interface_ptr) || !data->TxAckReq || data->msduLength < 500) {
+        return 0;
+    }
+
+    llc_neighbour_req_t neighbor_info;
+
+    if (!base->ws_neighbor_info_request_cb(base->interface_ptr, data->DstAddr, &neighbor_info, false)) {
+        return 0;
+    }
+
+    return neighbor_info.ws_neighbor->phy_mode_id;
+}
+#else
+#define  ws_llc_mdr_phy_mode_get(base, data) 0
+#endif
+
 static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req_s *data, mac_data_priority_t priority)
 {
     wh_ie_sub_list_t ie_header_mask;
@@ -1038,7 +1084,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     nested_wp_id.us_ie = true;
 
     uint16_t ie_header_length = ws_wh_headers_length(ie_header_mask, &base->ie_params);
-    uint16_t nested_ie_length = ws_wp_nested_message_length(nested_wp_id, &base->ie_params);
+    uint16_t nested_ie_length = ws_wp_nested_message_length(nested_wp_id, base);
 
     uint16_t over_head_size = ie_header_length;
     if (nested_ie_length) {
@@ -1066,6 +1112,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     ns_list_add_to_end(&base->llc_message_list, message);
 
     mcps_data_req_t data_req;
+    uint8_t phy_mode_id = ws_llc_mdr_phy_mode_get(base, data);
     message->mpx_user_handle = data->msduHandle;
     message->ack_requested = data->TxAckReq;
     if (data->TxAckReq) {
@@ -1140,7 +1187,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         message->ie_ext.payloadIovLength = 0; //Set Back 2 at response handler
     }
 
-    base->interface_ptr->mac_api->mcps_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, NULL, message->priority);
+    base->interface_ptr->mac_api->mcps_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, NULL, message->priority, phy_mode_id);
 }
 
 static void ws_llc_eapol_data_req_init(mcps_data_req_t *data_req, llc_message_t *message)
@@ -1187,7 +1234,7 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
     ns_list_add_to_end(&base->llc_message_list, message);
     ws_llc_eapol_data_req_init(&data_req, message);
     base->temp_entries->active_eapol_session = true;
-    base->interface_ptr->mac_api->mcps_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, NULL, message->priority);
+    base->interface_ptr->mac_api->mcps_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, NULL, message->priority, 0);
 }
 
 
@@ -1207,7 +1254,7 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
     nested_wp_id.us_ie = true;
 
     uint16_t ie_header_length = ws_wh_headers_length(ie_header_mask, &base->ie_params);
-    uint16_t nested_ie_length = ws_wp_nested_message_length(nested_wp_id, &base->ie_params);
+    uint16_t nested_ie_length = ws_wp_nested_message_length(nested_wp_id, base);
 
     uint16_t over_head_size = ie_header_length;
     if (nested_ie_length) {
@@ -1764,6 +1811,31 @@ mpx_api_t *ws_llc_mpx_api_get(struct protocol_interface_info_entry *interface)
     }
     return &base->mpx_data_base.mpx_api;
 }
+#ifdef HAVE_WS_VERSION_1_1
+
+static void ws_llc_phy_cab_list_generate(struct protocol_interface_info_entry *interface, ws_phy_cap_info_t *phy_cap)
+{
+
+    memset(phy_cap, 0, sizeof(ws_phy_cap_info_t));
+
+    ws_phy_cap_info_t *prefedd_list = &interface->ws_info->phy_cap_info;
+
+    if (!prefedd_list->length_of_list) {
+        return;
+    }
+
+
+    for (int i = 0; i < prefedd_list->length_of_list; i++) {
+        ws_ie_lib_phy_cap_list_update(phy_cap, &prefedd_list->pcap[i]);
+    }
+
+    //Add base support
+    ws_pcap_ie_t base_cap = ws_ie_lib_generate_phy_cap_from_phy_mode_id(interface->ws_info->hopping_schdule.phy_mode_id);
+    if (base_cap.operating_mode) {
+        ws_ie_lib_phy_cap_list_update(phy_cap, &base_cap);
+    }
+}
+#endif
 
 int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, asynch_request_t *request)
 {
@@ -1783,7 +1855,7 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
     request->wh_requested_ie_list.rsl_ie = false; //Never should not be a part Asynch message
     request->wh_requested_ie_list.vh_ie = false;
     uint16_t header_buffer_length = ws_wh_headers_length(request->wh_requested_ie_list, &base->ie_params);
-    uint16_t wp_nested_payload_length = ws_wp_nested_message_length(request->wp_requested_nested_ie_list, &base->ie_params);
+    uint16_t wp_nested_payload_length = ws_wp_nested_message_length(request->wp_requested_nested_ie_list, base);
 
     //Allocated
     uint16_t total_length = header_buffer_length;
@@ -1880,9 +1952,37 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
             //Write Vendor spesific payload
             ptr = ws_wp_nested_vp_write(ptr, base->ie_params.vendor_payload, base->ie_params.vendor_payload_length);
         }
+
+#ifdef HAVE_WS_VERSION_1_1
+        if (ws_version_1_1(interface)) {
+            if (request->wp_requested_nested_ie_list.lfn_gtk_version_ie) {
+                ws_lfnver_ie_t lfn_ver;
+                ws_lgtkhash_ie_t ws_lgtkhash;
+                //Write LFN Version
+                lfn_ver.lfn_version = interface->ws_info->lfngtk.lfn_version;
+                ptr =  ws_wp_nested_lfn_version_write(ptr, &lfn_ver);
+                //Write LFN GTK Hash info
+                ws_lgtkhash.lgtk0 = base->interface_ptr->ws_info->lfngtk.active_hash_1;
+                ws_lgtkhash.lgtk1 = base->interface_ptr->ws_info->lfngtk.active_hash_2;
+                ws_lgtkhash.lgtk2 = base->interface_ptr->ws_info->lfngtk.active_hash_3;
+                ws_lgtkhash.active_lgtk_index = base->interface_ptr->ws_info->lfngtk.active_key_index;
+                ws_lgtkhash.lgtk0_hash = base->interface_ptr->ws_info->lfngtk.lgtkhash;
+                ws_lgtkhash.lgtk1_hash = base->interface_ptr->ws_info->lfngtk.lgtkhash + 8;
+                ws_lgtkhash.lgtk2_hash = base->interface_ptr->ws_info->lfngtk.lgtkhash + 16;
+                ptr = ws_wp_nested_lgtk_hash_write(ptr, &ws_lgtkhash);
+            }
+
+            if (request->wp_requested_nested_ie_list.phy_cap_ie) {
+                ws_phy_cap_info_t phy_cap;
+                ws_llc_phy_cab_list_generate(base->interface_ptr, &phy_cap);
+                ptr = ws_wp_nested_pcap_write(ptr, &phy_cap);
+            }
+        }
+#endif
+
     }
 
-    base->interface_ptr->mac_api->mcps_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, &request->channel_list, message->priority);
+    base->interface_ptr->mac_api->mcps_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, &request->channel_list, message->priority, 0);
 
     return 0;
 }

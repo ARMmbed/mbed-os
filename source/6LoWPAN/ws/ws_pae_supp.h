@@ -130,12 +130,13 @@ int8_t ws_pae_supp_nw_key_valid(protocol_interface_info_entry_t *interface_ptr, 
  *
  * \param interface_ptr interface
  * \param gtkhash GTK hash, 32 bytes
+ * \param del_gtk_on_mismatch Delete GTK in case of mismatch
  *
  * \return < 0 failure
  * \return >= 0 success
  *
  */
-int8_t ws_pae_supp_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash);
+int8_t ws_pae_supp_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash, bool del_gtk_on_mismatch);
 
 /**
  * ws_pae_supp_nw_key_index_update key index been updated (on PAN configuration)

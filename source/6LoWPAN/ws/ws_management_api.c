@@ -51,24 +51,24 @@ int ws_management_node_init(
     }
 
     ws_phy_cfg_t phy_cfg;
-    if (ws_cfg_phy_get(&phy_cfg, NULL) < 0) {
+    if (ws_cfg_phy_get(&phy_cfg) < 0) {
         return -3;
     }
 
     phy_cfg.regulatory_domain = regulatory_domain;
 
-    if (ws_cfg_phy_set(cur, NULL, &phy_cfg, 0) < 0) {
+    if (ws_cfg_phy_set(cur, &phy_cfg, 0) < 0) {
         return -4;
     }
 
     ws_gen_cfg_t gen_cfg;
-    if (ws_cfg_gen_get(&gen_cfg, NULL) < 0) {
+    if (ws_cfg_gen_get(&gen_cfg) < 0) {
         return -3;
     }
 
     strncpy(gen_cfg.network_name, network_name_ptr, 32);
 
-    if (ws_cfg_gen_set(cur, NULL, &gen_cfg, 0) < 0) {
+    if (ws_cfg_gen_set(cur, &gen_cfg, 0) < 0) {
         return -4;
     }
 
@@ -93,13 +93,13 @@ int ws_management_network_name_set(
     }
 
     ws_gen_cfg_t cfg;
-    if (ws_cfg_gen_get(&cfg, NULL) < 0) {
+    if (ws_cfg_gen_get(&cfg) < 0) {
         return -3;
     }
 
     strncpy(cfg.network_name, network_name_ptr, 32);
 
-    if (ws_cfg_gen_set(cur, NULL, &cfg, 0) < 0) {
+    if (ws_cfg_gen_set(cur, &cfg, 0) < 0) {
         return -4;
     }
 
@@ -120,7 +120,7 @@ int ws_management_network_name_get(
     }
 
     ws_gen_cfg_t cfg;
-    if (ws_cfg_gen_get(&cfg, NULL) < 0) {
+    if (ws_cfg_gen_get(&cfg) < 0) {
         return -3;
     }
 
@@ -143,13 +143,13 @@ int ws_management_network_name_validate(
     }
 
     ws_gen_cfg_t cfg;
-    if (ws_cfg_gen_get(&cfg, NULL) < 0) {
+    if (ws_cfg_gen_get(&cfg) < 0) {
         return -3;
     }
 
     strncpy(cfg.network_name, network_name_ptr, 32);
 
-    if (ws_cfg_gen_validate(NULL, &cfg) < 0) {
+    if (ws_cfg_gen_validate(&cfg) < 0) {
         return -4;
     }
 
@@ -170,7 +170,7 @@ int ws_management_domain_configuration_set(
 
     ws_phy_cfg_t cfg;
     ws_phy_cfg_t cfg_default;
-    if (ws_cfg_phy_get(&cfg, NULL) < 0) {
+    if (ws_cfg_phy_get(&cfg) < 0) {
         return -3;
     }
 
@@ -196,7 +196,7 @@ int ws_management_domain_configuration_set(
         cfg.channel_plan_id = channel_plan_id;
     }
 
-    if (ws_cfg_phy_set(cur, NULL, &cfg, 0) < 0) {
+    if (ws_cfg_phy_set(cur, &cfg, 0) < 0) {
         return -4;
     }
 
@@ -216,7 +216,7 @@ int ws_management_domain_configuration_get(
     }
 
     ws_phy_cfg_t cfg;
-    if (ws_cfg_phy_get(&cfg, NULL) < 0) {
+    if (ws_cfg_phy_get(&cfg) < 0) {
         return -2;
     }
 
@@ -246,7 +246,7 @@ int ws_management_domain_configuration_validate(
     }
 
     ws_phy_cfg_t cfg;
-    if (ws_cfg_phy_get(&cfg, NULL) < 0) {
+    if (ws_cfg_phy_get(&cfg) < 0) {
         return -3;
     }
 
@@ -254,7 +254,7 @@ int ws_management_domain_configuration_validate(
     cfg.phy_mode_id = phy_mode_id;
     cfg.channel_plan_id = channel_plan_id;
 
-    if (ws_cfg_phy_validate(NULL, &cfg) < 0) {
+    if (ws_cfg_phy_validate(&cfg) < 0) {
         return -4;
     }
 
@@ -276,7 +276,7 @@ int ws_management_regulatory_domain_set(
 
     ws_phy_cfg_t cfg;
     ws_phy_cfg_t cfg_default;
-    if (ws_cfg_phy_get(&cfg, NULL) < 0) {
+    if (ws_cfg_phy_get(&cfg) < 0) {
         return -3;
     }
 
@@ -300,7 +300,7 @@ int ws_management_regulatory_domain_set(
         cfg.operating_class = cfg_default.operating_class;
     }
 
-    if (ws_cfg_phy_set(cur, NULL, &cfg, 0) < 0) {
+    if (ws_cfg_phy_set(cur, &cfg, 0) < 0) {
         return -4;
     }
 
@@ -323,7 +323,7 @@ int ws_management_regulatory_domain_get(
     }
 
     ws_phy_cfg_t cfg;
-    if (ws_cfg_phy_get(&cfg, NULL) < 0) {
+    if (ws_cfg_phy_get(&cfg) < 0) {
         return -3;
     }
 
@@ -347,7 +347,7 @@ int ws_management_regulatory_domain_validate(
     }
 
     ws_phy_cfg_t cfg;
-    if (ws_cfg_phy_get(&cfg, NULL) < 0) {
+    if (ws_cfg_phy_get(&cfg) < 0) {
         return -3;
     }
 
@@ -355,7 +355,7 @@ int ws_management_regulatory_domain_validate(
     cfg.operating_class = operating_class;
     cfg.operating_mode = operating_mode;
 
-    if (ws_cfg_phy_validate(NULL, &cfg) < 0) {
+    if (ws_cfg_phy_validate(&cfg) < 0) {
         return -4;
     }
 
@@ -374,13 +374,13 @@ int ws_management_network_size_set(
     }
 
     ws_gen_cfg_t cfg;
-    if (ws_cfg_network_size_get(&cfg, NULL) < 0) {
+    if (ws_cfg_network_size_get(&cfg) < 0) {
         return -3;
     }
 
     cfg.network_size = network_size;
 
-    if (ws_cfg_network_size_set(cur, NULL, &cfg, 0) < 0) {
+    if (ws_cfg_network_size_set(cur, &cfg, 0) < 0) {
         return -3;
     }
 
@@ -401,7 +401,7 @@ int ws_management_network_size_get(
     }
 
     ws_gen_cfg_t cfg;
-    if (ws_cfg_network_size_get(&cfg, NULL) < 0) {
+    if (ws_cfg_network_size_get(&cfg) < 0) {
         return -3;
     }
 
@@ -421,13 +421,13 @@ int ws_management_network_size_validate(
     }
 
     ws_gen_cfg_t cfg;
-    if (ws_cfg_network_size_get(&cfg, NULL) < 0) {
+    if (ws_cfg_network_size_get(&cfg) < 0) {
         return -3;
     }
 
     cfg.network_size = network_size;
 
-    if (ws_cfg_network_size_validate(NULL, &cfg) < 0) {
+    if (ws_cfg_network_size_validate(&cfg) < 0) {
         return -4;
     }
 
@@ -446,7 +446,7 @@ int ws_management_channel_mask_set(
     }
 
     ws_fhss_cfg_t cfg;
-    if (ws_cfg_fhss_get(&cfg, NULL) < 0) {
+    if (ws_cfg_fhss_get(&cfg) < 0) {
         return -2;
     }
 
@@ -463,7 +463,7 @@ int ws_management_channel_mask_set(
     }
 
 
-    if (ws_cfg_fhss_set(cur, NULL, &cfg, 0) < 0) {
+    if (ws_cfg_fhss_set(cur, &cfg, 0) < 0) {
         return -3;
     }
 
@@ -484,7 +484,7 @@ int ws_management_channel_mask_get(
     }
 
     ws_fhss_cfg_t cfg;
-    if (ws_cfg_fhss_get(&cfg, NULL) < 0) {
+    if (ws_cfg_fhss_get(&cfg) < 0) {
         return -2;
     }
 
@@ -504,13 +504,13 @@ int ws_management_channel_mask_validate(
     }
 
     ws_fhss_cfg_t cfg;
-    if (ws_cfg_fhss_get(&cfg, NULL) < 0) {
+    if (ws_cfg_fhss_get(&cfg) < 0) {
         return -2;
     }
 
     memcpy(cfg.fhss_channel_mask, channel_mask, sizeof(uint32_t) * 8);
 
-    if (ws_cfg_fhss_validate(NULL, &cfg) < 0) {
+    if (ws_cfg_fhss_validate(&cfg) < 0) {
         return -4;
     }
 
@@ -557,7 +557,7 @@ int ws_management_fhss_timing_configure(
     }
 
     ws_fhss_cfg_t cfg;
-    if (ws_cfg_fhss_get(&cfg, NULL) < 0) {
+    if (ws_cfg_fhss_get(&cfg) < 0) {
         return -2;
     }
 
@@ -584,7 +584,7 @@ int ws_management_fhss_timing_configure(
         cfg.fhss_bc_dwell_interval = fhss_bc_dwell_interval;
     }
 
-    if (ws_cfg_fhss_set(cur, NULL, &cfg, 0) < 0) {
+    if (ws_cfg_fhss_set(cur, &cfg, 0) < 0) {
         return -3;
     }
 
@@ -605,7 +605,7 @@ int ws_management_fhss_unicast_channel_function_configure(
     }
 
     ws_fhss_cfg_t cfg;
-    if (ws_cfg_fhss_get(&cfg, NULL) < 0) {
+    if (ws_cfg_fhss_get(&cfg) < 0) {
         return -2;
     }
 
@@ -631,7 +631,7 @@ int ws_management_fhss_unicast_channel_function_configure(
         cfg.fhss_uc_fixed_channel = cfg_default.fhss_uc_fixed_channel;
     }
 
-    if (ws_cfg_fhss_set(cur, NULL, &cfg, 0) < 0) {
+    if (ws_cfg_fhss_set(cur, &cfg, 0) < 0) {
         return -3;
     }
 
@@ -654,7 +654,7 @@ int ws_management_fhss_unicast_channel_function_get(
     }
 
     ws_fhss_cfg_t cfg;
-    if (ws_cfg_fhss_get(&cfg, NULL) < 0) {
+    if (ws_cfg_fhss_get(&cfg) < 0) {
         return -2;
     }
 
@@ -678,7 +678,7 @@ int ws_management_fhss_unicast_channel_function_validate(
     }
 
     ws_fhss_cfg_t cfg;
-    if (ws_cfg_fhss_get(&cfg, NULL) < 0) {
+    if (ws_cfg_fhss_get(&cfg) < 0) {
         return -2;
     }
 
@@ -686,7 +686,7 @@ int ws_management_fhss_unicast_channel_function_validate(
     cfg.fhss_uc_channel_function = channel_function;
     cfg.fhss_uc_fixed_channel = fixed_channel;
 
-    if (ws_cfg_fhss_validate(NULL, &cfg) < 0) {
+    if (ws_cfg_fhss_validate(&cfg) < 0) {
         return -4;
     }
 
@@ -708,7 +708,7 @@ int ws_management_fhss_broadcast_channel_function_configure(
     }
 
     ws_fhss_cfg_t cfg;
-    if (ws_cfg_fhss_get(&cfg, NULL) < 0) {
+    if (ws_cfg_fhss_get(&cfg) < 0) {
         return -2;
     }
     ws_fhss_cfg_t cfg_default;
@@ -740,7 +740,7 @@ int ws_management_fhss_broadcast_channel_function_configure(
         cfg.fhss_bc_fixed_channel = cfg_default.fhss_bc_fixed_channel;
     }
 
-    if (ws_cfg_fhss_set(cur, NULL, &cfg, 0) < 0) {
+    if (ws_cfg_fhss_set(cur, &cfg, 0) < 0) {
         return -3;
     }
 
@@ -764,7 +764,7 @@ int ws_management_fhss_broadcast_channel_function_get(
     }
 
     ws_fhss_cfg_t cfg;
-    if (ws_cfg_fhss_get(&cfg, NULL) < 0) {
+    if (ws_cfg_fhss_get(&cfg) < 0) {
         return -2;
     }
 
@@ -790,7 +790,7 @@ int ws_management_fhss_broadcast_channel_function_validate(
     }
 
     ws_fhss_cfg_t cfg;
-    if (ws_cfg_fhss_get(&cfg, NULL) < 0) {
+    if (ws_cfg_fhss_get(&cfg) < 0) {
         return -2;
     }
 
@@ -799,7 +799,7 @@ int ws_management_fhss_broadcast_channel_function_validate(
     cfg.fhss_bc_channel_function = channel_function;
     cfg.fhss_bc_fixed_channel = fixed_channel;
 
-    if (ws_cfg_fhss_validate(NULL, &cfg) < 0) {
+    if (ws_cfg_fhss_validate(&cfg) < 0) {
         return -4;
     }
 
@@ -821,7 +821,7 @@ int ws_management_timing_parameters_set(
     }
 
     ws_timing_cfg_t cfg;
-    if (ws_cfg_timing_get(&cfg, NULL) < 0) {
+    if (ws_cfg_timing_get(&cfg) < 0) {
         return -2;
     }
 
@@ -854,7 +854,7 @@ int ws_management_timing_parameters_set(
         cfg.pan_timeout = cfg_default.pan_timeout;;
     }
 
-    if (ws_cfg_timing_set(cur, NULL, &cfg, 0) < 0) {
+    if (ws_cfg_timing_set(cur, &cfg, 0) < 0) {
         return -3;
     }
 
@@ -878,7 +878,7 @@ int ws_management_timing_parameters_get(
     }
 
     ws_timing_cfg_t cfg;
-    if (ws_cfg_timing_get(&cfg, NULL) < 0) {
+    if (ws_cfg_timing_get(&cfg) < 0) {
         return -2;
     }
 
@@ -904,7 +904,7 @@ int ws_management_timing_parameters_validate(
     }
 
     ws_timing_cfg_t cfg;
-    if (ws_cfg_timing_get(&cfg, NULL) < 0) {
+    if (ws_cfg_timing_get(&cfg) < 0) {
         return -2;
     }
 
@@ -913,7 +913,7 @@ int ws_management_timing_parameters_validate(
     cfg.disc_trickle_k = disc_trickle_k;
     cfg.pan_timeout = pan_timeout;
 
-    if (ws_cfg_timing_validate(NULL, &cfg) < 0) {
+    if (ws_cfg_timing_validate(&cfg) < 0) {
         return -4;
     }
 
@@ -956,5 +956,34 @@ int ws_device_min_sens_set(
     ws_info(cur)->device_min_sens = device_min_sens;
     return 0;
 }
+
+int ws_management_phy_capability_set(
+    int8_t interface_id,
+    ws_management_pcap_info_t *pcap_list)
+{
+#ifdef HAVE_WS_VERSION_1_1
+    protocol_interface_info_entry_t *cur;
+    cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur || !ws_info(cur) || pcap_list->length_of_list > 7) {
+        return -1;
+    }
+
+    //Set supported configure for MDR
+    //TODO add validation for Phy_type and operation modes
+    cur->ws_info->phy_cap_info.length_of_list = pcap_list->length_of_list;
+    for (int i = 0; i < pcap_list->length_of_list; i++) {
+        cur->ws_info->phy_cap_info.pcap[i].phy_type = pcap_list->pcap[i].phy_type;
+        cur->ws_info->phy_cap_info.pcap[i].operating_mode = pcap_list->pcap[i].operating_mode;
+    }
+
+    return 0;
+
+#else
+    (void)interface_id;
+    (void)pcap_list;
+    return -1;
+#endif
+}
+
 
 #endif // HAVE_WS

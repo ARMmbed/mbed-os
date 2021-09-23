@@ -66,6 +66,17 @@
  * */
 #define ARM_DHCP_VENDOR_DATA_NETWORK_TIME 298
 
+/* ARM Defined vendor data option to distribute Time configuration
+ *
+ *   uint16_t status        Bit field for status
+ *                              bit 1 Daylight saving time status 0 = false 1 = true
+ *                              Additional bits reserved for future and are ignored on receive
+ *   uint64_t timestamp     Time stamp of the Daylight saving time change
+ *   int16_t deviation      Change that is applied when time stamp is reached
+ *   int16_t timezone       Time zone information in minutes compared to UTC time
+ */
+#define ARM_DHCP_VENDOR_DATA_TIME_CONFIGURATION 299
+
 /* DHCPv6 vendor options to distribute ARM vendor data*/
 
 uint16_t net_dns_option_vendor_option_data_dns_query_length(char *domain);
@@ -78,5 +89,8 @@ uint16_t net_vendor_option_current_time_length(void);
 uint8_t *net_vendor_option_current_time_write(uint8_t *ptr, int32_t era, uint32_t offset, uint32_t fraction);
 uint8_t *net_vendor_option_current_time_read(uint8_t *ptr, uint16_t length, int32_t *era, uint32_t *offset, uint32_t *fraction);
 
+uint16_t net_vendor_option_time_configuration_length(void);
+uint8_t *net_vendor_option_time_configuration_write(uint8_t *ptr, uint64_t timestamp, int16_t timezone, int16_t deviation, uint16_t status);
+uint8_t *net_vendor_option_time_configuration_read(uint8_t *ptr, uint16_t length, uint64_t *timestamp, int16_t *timezone, int16_t *deviation, uint16_t *status);
 
 #endif /* LIBDHCPV6_VENDOR_DATA_H_ */

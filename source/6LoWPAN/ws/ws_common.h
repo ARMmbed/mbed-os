@@ -37,6 +37,8 @@ struct ws_pan_information_s;
 struct ws_neighbor_class_s;
 struct ws_excluded_channel_data_s;
 struct ws_cfg_s;
+struct ws_neighbor_class_entry;
+struct mcps_data_ie_list;
 
 typedef struct parent_info_s {
     uint16_t             pan_id;             /**< PAN ID */
@@ -79,6 +81,30 @@ typedef struct {
     uint16_t old_bsi;
 } ws_bsi_block_t;
 
+typedef struct {
+    uint16_t eapol_trigger_timer;
+    uint16_t pas_trigger_timer;
+    uint16_t pcs_trigger_timer;
+    uint16_t dis_trigger_timer;
+    uint16_t dis_trigger_timer_val;
+    uint16_t rpl_trigger_timer;
+    uint16_t rpl_trigger_timer_val;
+    uint8_t pas_trigger_count;
+    uint8_t pcs_trigger_count;
+    bool auto_trg_enabled;
+} ws_test_proc_trg_t;
+
+typedef struct {
+    uint16_t lfn_version;
+    bool lfn_version_learned: 1;
+    bool active_hash_1: 1;
+    bool active_hash_2: 1;
+    bool active_hash_3: 1;
+    unsigned active_key_index: 2;
+    uint8_t lgtkhash[24];
+} ws_lfn_lgtk_t;
+
+
 typedef NS_LIST_HEAD(ws_nud_table_entry_t, link) ws_nud_table_list_t;
 
 typedef struct ws_info_s {
@@ -87,6 +113,7 @@ typedef struct ws_info_s {
     trickle_t trickle_pan_advertisement_solicit;
     trickle_t trickle_pan_advertisement;
     trickle_params_t trickle_params_pan_discovery;
+    uint8_t version; // Wi-SUN version information 1 = 1.0 2 = 1.x
     uint8_t rpl_state; // state from rpl_event_t
     uint8_t pas_requests; // Amount of PAN solicits sent
     uint8_t device_min_sens; // Device min sensitivity set by the application
@@ -114,6 +141,11 @@ typedef struct ws_info_s {
     ws_nud_table_entry_t nud_table_entrys[ACTIVE_NUD_PROCESS_MAX];
     ws_nud_table_list_t active_nud_process;
     ws_nud_table_list_t free_nud_entries;
+    ws_test_proc_trg_t test_proc_trg;
+#ifdef HAVE_WS_VERSION_1_1
+    ws_lfn_lgtk_t lfngtk;
+    ws_phy_cap_info_t phy_cap_info;
+#endif
     struct ws_cfg_s *cfg;                  /**< Wi-SUN configuration */
     struct ws_pan_information_s pan_information;
     ws_hopping_schedule_t hopping_schdule;
@@ -125,21 +157,9 @@ typedef struct ws_info_s {
 
 #ifdef HAVE_WS
 
-int8_t ws_generate_channel_list(uint32_t *channel_mask, uint16_t number_of_channels, uint8_t regulatory_domain, uint8_t operating_class, uint8_t channel_plan_id);
+int8_t ws_common_generate_channel_list(uint32_t *channel_mask, uint16_t number_of_channels, uint8_t regulatory_domain, uint8_t operating_class, uint8_t channel_plan_id);
 
-uint16_t ws_active_channel_count(uint32_t *channel_mask, uint16_t number_of_channels);
-
-uint32_t ws_decode_channel_spacing(uint8_t channel_spacing);
-
-uint32_t ws_get_datarate_using_operating_mode(uint8_t operating_mode);
-
-uint32_t ws_get_datarate_using_phy_mode_id(uint8_t phy_mode_id);
-
-uint8_t ws_get_ofdm_option_using_phy_mode_id(uint8_t phy_mode_id);
-
-uint8_t ws_get_ofdm_mcs_using_phy_mode_id(uint8_t phy_mode_id);
-
-phy_modulation_index_e ws_get_modulation_index_using_operating_mode(uint8_t operating_mode);
+uint16_t ws_common_active_channel_count(uint32_t *channel_mask, uint16_t number_of_channels);
 
 int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, ws_hopping_schedule_t *hopping_schdule);
 
@@ -150,6 +170,8 @@ int8_t ws_common_allocate_and_init(protocol_interface_info_entry_t *cur);
 void ws_common_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds);
 
 void ws_common_fast_timer(protocol_interface_info_entry_t *cur, uint16_t ticks);
+
+void ws_common_create_ll_address(uint8_t *ll_address, const uint8_t *mac64);
 
 void ws_common_neighbor_update(protocol_interface_info_entry_t *cur, const uint8_t *ll_address);
 
@@ -184,11 +206,35 @@ void ws_common_primary_parent_update(protocol_interface_info_entry_t *interface,
 void ws_common_secondary_parent_update(protocol_interface_info_entry_t *interface);
 
 uint8_t ws_common_temporary_entry_size(uint8_t mac_table_size);
+
 void ws_common_border_router_alive_update(protocol_interface_info_entry_t *interface);
 
+int ws_common_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode);
+
+void ws_common_state_machine(protocol_interface_info_entry_t *cur);
+
+fhss_ws_configuration_t ws_common_get_current_fhss_configuration(protocol_interface_info_entry_t *cur);
+
 #define ws_info(cur) ((cur)->ws_info)
+#ifdef HAVE_WS_VERSION_1_1
+#define ws_version_1_0(cur) (((cur)->ws_info) && ((cur)->ws_info)->version == 1)
+#define ws_version_1_1(cur) (((cur)->ws_info) && ((cur)->ws_info)->version > 1)
+#define ws_lfn_version_learned(cur) ((cur)->ws_info->lfngtk.lfn_version_learned == true)
+#define ws_neighbour_cap_pointer(neighbour) (&neighbour->pcap_info)
+#else
+#define ws_version_1_1(cur) (false)
+#define ws_version_1_0(cur) ((cur)->ws_info)
+#define ws_lfn_version_learned(cur) (false)
+#define ws_neighbour_cap_pointer(neighbour) NULL
+#endif
+#define ws_test_proc_auto_trg(cur) ((cur)->ws_info->test_proc_trg.auto_trg_enabled == true)
 #else
 #define ws_info(cur) ((ws_info_t *) NULL)
+#define ws_version_1_1(cur) (false)
+#define ws_version_1_0(cur) (false)
+#define ws_lfn_version_learned(cur) (false)
+#define ws_neighbour_cap_pointer(neighbour) NULL
+#define ws_test_proc_auto_trg(cur) (false)
 #define ws_common_seconds_timer(cur, seconds)
 #define ws_common_neighbor_update(cur, ll_address) ((void) 0)
 #define ws_common_black_list_neighbour(ll_address, nd_status) ((void) 0)
@@ -207,6 +253,8 @@ void ws_common_border_router_alive_update(protocol_interface_info_entry_t *inter
 #define ws_common_primary_parent_update(interface, neighbor)
 #define ws_common_secondary_parent_update(interface)
 #define ws_common_border_router_alive_update(interface) ((void) 0)
+#define ws_common_init(interface_id, bootstrap_mode) 0
+#define ws_common_state_machine(cur)
 
 
 #endif //HAVE_WS

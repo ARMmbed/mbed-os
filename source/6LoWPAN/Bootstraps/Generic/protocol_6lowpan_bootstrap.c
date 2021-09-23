@@ -1548,7 +1548,7 @@ int8_t arm_network_processor_up(protocol_interface_info_entry_t *cur)
 {
     int8_t ret_val = -1;
     if ((cur->configure_flags & INTERFACE_SETUP_NETWORK_DRIVER_MASK) != INTERFACE_SETUP_NETWORK_DRIVER_READY) {
-        tr_debug("Interface not yet fully configured\n");
+        tr_debug("Interface not yet fully configured");
         ret_val = -5;
     } else {
         protocol_6lowpan_register_handlers(cur);
@@ -2123,7 +2123,7 @@ static void nwk_rpl_dio_scan(protocol_interface_info_entry_t *cur)
         if (nwk_bootstrap_icmp_rpl_dis_msg_tx(cur)) {
             cur->bootsrap_state_machine_cnt = 45 << cur->nwk_rpl_scan_counter;
             cur->nwk_rpl_scan_counter++;
-            tr_debug("MC_DIS\n");
+            tr_debug("MC_DIS");
             cur->nwk_bootstrap_state = ER_RPL_SCAN;
         } else {
             cur->bootsrap_state_machine_cnt = 3;

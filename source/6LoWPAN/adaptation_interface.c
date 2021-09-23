@@ -1137,7 +1137,7 @@ static void lowpan_data_request_to_mac(protocol_interface_info_entry_t *cur, buf
     } else {
         mcps_data_req_ie_list_t ie_list;
         memset(&ie_list, 0, sizeof(mcps_data_req_ie_list_t));
-        cur->mac_api->mcps_data_req_ext(cur->mac_api, &dataReq, &ie_list, NULL, data_priority);
+        cur->mac_api->mcps_data_req_ext(cur->mac_api, &dataReq, &ie_list, NULL, data_priority, 0);
     }
 }
 

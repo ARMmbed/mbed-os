@@ -323,16 +323,16 @@ static void ipv6_nd_bootstrap(protocol_interface_info_entry_t *cur)
             break;
 
         case IPV6_ROUTER_SOLICATION:
-            tr_debug("Waiting for ICMPv6 Router Advertisement");
             if (ipv6_nd_rs(cur)) {
+                tr_debug("Waiting for ICMPv6 Router Advertisement");
                 if (cur->ipv6_configure->routerSolicationRetryCounter != ROUTER_SOL_MAX_COUNTER) {
                     cur->ipv6_configure->routerSolicationRetryCounter++;
                 }
-                cur->ipv6_configure->ND_TIMER = (cur->ipv6_configure->routerSolicationRetryCounter * 25);
-
-            } else {
-                cur->ipv6_configure->ND_TIMER = 1;
             }
+            if (cur->ipv6_configure->routerSolicationRetryCounter == 0) {
+                cur->ipv6_configure->routerSolicationRetryCounter++;
+            }
+            cur->ipv6_configure->ND_TIMER = (cur->ipv6_configure->routerSolicationRetryCounter * 25);
             break;
 
         case IPV6_GP_GEN:
