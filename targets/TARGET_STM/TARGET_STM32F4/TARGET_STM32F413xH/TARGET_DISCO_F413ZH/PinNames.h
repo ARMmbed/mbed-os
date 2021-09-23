@@ -289,12 +289,18 @@ typedef enum {
     NC = (int)0xFFFFFFFF
 } PinName;
 
-// Standardized LED and button names
+#if DEVICE_LED
+// Standardized LED names
 #define LED1     PE_3   // LED1_RED
 #define LED2     PC_5   // LED2_GREEN
 #define LED3     PE_4   // MEMS_LED
 #define LED4     PE_5   // LCD_BL_CTRL [STLD40DPUR_EN]
+#endif
+
+#if DEVICE_BUTTON
+// Standardized button names
 #define BUTTON1  PA_0   // B_USER
+#endif
 
 #ifdef __cplusplus
 }

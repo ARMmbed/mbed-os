@@ -147,11 +147,12 @@ typedef enum {
 } PinName;
 
 // Standardized LED and button names
+#if DEVICE_LED
 #define LED1     PB_5   // Green
 #define LED2     PA_5   // Red
 #define LED3     PB_6   // Blue
 #define LED4     PB_7   // Red
-
+#endif
 // Backward compatibility
 #define A0  ARDUINO_UNO_A0
 #define A1  ARDUINO_UNO_A1

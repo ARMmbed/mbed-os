@@ -260,11 +260,17 @@ typedef enum {
 
 } PinName;
 
-// Standardized LED and button names
+#if DEVICE_LED
+// Standardized LED names
 #define LED1     PB_15  // Green
 #define LED2     PB_1   // Blue
 #define LED3     PB_0   // Red
+#endif
+
+#if DEVICE_BUTTON
+// Standardized button names
 #define BUTTON1  PC_13
+#endif
 
 
 #ifdef __cplusplus

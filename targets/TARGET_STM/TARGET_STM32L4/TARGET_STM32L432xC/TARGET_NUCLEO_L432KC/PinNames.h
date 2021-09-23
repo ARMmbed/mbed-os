@@ -132,7 +132,9 @@ typedef enum {
     NC = (int)0xFFFFFFFF
 } PinName;
 
+#if DEVICE_LED
 #define LED1     PB_3 // LD3 [Green]
+#endif
 
 #ifdef __cplusplus
 }

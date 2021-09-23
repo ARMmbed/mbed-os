@@ -237,8 +237,10 @@ typedef enum {
 #define STDIO_UART_RX PA_10
 #endif
 
-// Standardized LED and button names
+#if DEVICE_LED
+// Standardized LED names
 #define LED1     PA_0   // needed for mbed to build tests
+#endif
 
 #ifdef __cplusplus
 }

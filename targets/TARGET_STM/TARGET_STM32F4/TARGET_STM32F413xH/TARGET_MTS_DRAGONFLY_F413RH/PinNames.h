@@ -207,9 +207,11 @@ typedef enum {
 
 } PinName;
 
-// Standardized LED and button names
+// Standardized LED names
+#if DEVICE_LED
 #define LED1     ARDUINO_UNO_D3
 #define LED_RED  LED1
+#endif
 
 #define ACTIVE_HIGH_POLARITY    1
 #define ACTIVE_LOW_POLARITY     0
