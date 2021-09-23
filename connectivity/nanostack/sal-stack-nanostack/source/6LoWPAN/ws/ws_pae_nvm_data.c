@@ -40,34 +40,7 @@
 #define PAE_NVM_FIELD_NOT_SET            0   // Field is not present
 #define PAE_NVM_FIELD_SET                1   // Field is present
 
-void ws_pae_nvm_store_generic_tlv_create(nvm_tlv_t *tlv_entry, uint16_t tag, uint16_t length)
-{
-    tlv_entry->tag = tag;
-    tlv_entry->len = length;
-}
-
-nvm_tlv_t *ws_pae_nvm_store_generic_tlv_allocate_and_create(uint16_t tag, uint16_t length)
-{
-    nvm_tlv_t *tlv_entry = ns_dyn_mem_alloc(length + sizeof(nvm_tlv_t));
-    if (!tlv_entry) {
-        return NULL;
-    }
-    tlv_entry->tag = tag;
-    tlv_entry->len = length;
-
-    return tlv_entry;
-}
-
-void ws_pae_nvm_store_generic_tlv_free(nvm_tlv_t *tlv_entry)
-{
-    if (!tlv_entry) {
-        return;
-    }
-
-    ns_dyn_mem_free(tlv_entry);
-}
-
-void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry, uint16_t pan_id, char *nw_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks)
+void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry, uint16_t pan_id, char *nw_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks, uint64_t stored_time, uint8_t time_changed)
 {
     int len;
     tlv_entry->tag = PAE_NVM_NW_INFO_TAG;
@@ -90,13 +63,14 @@ void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry, uint16_t 
     memcpy((char *)tlv, gtk_eui64, 8);
     tlv += 8;
 
-    uint64_t current_time = ws_pae_current_time_get();
+    *tlv++ = time_changed;
+    tlv = common_write_64_bit(stored_time, tlv);
 
     for (uint8_t i = 0; i < GTK_NUM; i++) {
         if (gtks && sec_prot_keys_gtk_is_set(gtks, i)) {
             *tlv++ = PAE_NVM_FIELD_SET; // GTK is set
 
-            uint64_t expirytime = sec_prot_keys_gtk_exptime_from_lifetime_get(gtks, i, current_time);
+            uint64_t expirytime = sec_prot_keys_gtk_exptime_from_lifetime_get(gtks, i, stored_time);
             // Sets stored expiration time to GTKs; no need to update anymore to NVM if not changed
             sec_prot_keys_gtk_expirytime_set(gtks, i, expirytime);
 
@@ -118,11 +92,11 @@ void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry, uint16_t 
         }
     }
 
-    tr_debug("NVM NW_INFO write PAN ID %i name: %s", pan_id, nw_name);
+    tr_info("NVM NW_INFO write PAN ID: %i name: %s stored time: %"PRIu64, pan_id, nw_name, stored_time);
 
 }
 
-int8_t ws_pae_nvm_store_nw_info_tlv_read(nw_info_nvm_tlv_t *tlv_entry, uint16_t *pan_id, char *nw_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks)
+int8_t ws_pae_nvm_store_nw_info_tlv_read(nw_info_nvm_tlv_t *tlv_entry, uint16_t *pan_id, char *nw_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks, uint64_t current_time, uint8_t *time_changed)
 {
     if (!tlv_entry || !pan_id || !nw_name) {
         return -1;
@@ -150,9 +124,20 @@ int8_t ws_pae_nvm_store_nw_info_tlv_read(nw_info_nvm_tlv_t *tlv_entry, uint16_t 
     memcpy(gtk_eui64, (char *)tlv, 8);
     tlv += 8;
 
-    uint64_t current_time = ws_pae_current_time_get();
+    *time_changed = *tlv++;
+    uint64_t stored_time = common_read_64_bit(tlv);
+    tlv += 8;
+    // Use either stored time or current time as reference when calculating lifetimes
+    current_time = ws_pae_time_old_or_new_select(stored_time, current_time);
+    /* If the selected time has made a large jump then use the stored time to calculate the lifetime
+       (this implies e.g. that new time has been received from NTP and old time was not valid) */
+    if (*time_changed == SYSTEM_TIME_NOT_CHANGED && !ws_pae_time_old_and_new_validate(stored_time, current_time)) {
+        *time_changed = SYSTEM_TIME_CHANGED;
+        current_time = stored_time;
+        tr_info("NVM NW_INFO system time change");
+    }
 
-    tr_debug("NVM NW_INFO current time: %"PRIi64, current_time);
+    tr_info("NVM NW_INFO current time: %"PRIi64" stored time: %"PRIi64, current_time, stored_time);
 
     if (gtks && sec_prot_keys_gtk_count(gtks) == 0) {
         // If application has not set GTKs read them from NVM
@@ -160,9 +145,10 @@ int8_t ws_pae_nvm_store_nw_info_tlv_read(nw_info_nvm_tlv_t *tlv_entry, uint16_t 
             if (*tlv++ == PAE_NVM_FIELD_SET) { /* GTK is set */
                 uint64_t expirytime = common_read_64_bit(tlv);
                 uint32_t lifetime = 0;
+                // Calculate lifetime
                 if (ws_pae_time_diff_calc(current_time, expirytime, &lifetime, true) < 0) {
                     tlv += 8 + 1 + 1 + GTK_LEN;
-                    tr_debug("GTK index %i, expired expiry time: %"PRIi64", lifetime: %"PRIi32, i, expirytime, lifetime);
+                    tr_info("GTK index %i, expired expiry time: %"PRIi64", lifetime: %"PRIi32, i, expirytime, lifetime);
                     continue;
                 }
                 tlv += 8;
@@ -171,7 +157,7 @@ int8_t ws_pae_nvm_store_nw_info_tlv_read(nw_info_nvm_tlv_t *tlv_entry, uint16_t 
 
                 uint8_t install_order = *tlv++;
 
-                tr_debug("GTK index: %i, status: %i, install order %i, expiry time: %"PRIi64", lifetime: %"PRIi32, i, status, install_order, expirytime, lifetime);
+                tr_info("GTK index: %i, status: %i, install order %i, expiry time: %"PRIi64", lifetime: %"PRIi32, i, status, install_order, expirytime, lifetime);
 
                 sec_prot_keys_gtk_set(gtks, i, tlv, lifetime);
                 sec_prot_keys_gtk_expirytime_set(gtks, i, expirytime);
@@ -185,7 +171,7 @@ int8_t ws_pae_nvm_store_nw_info_tlv_read(nw_info_nvm_tlv_t *tlv_entry, uint16_t 
         sec_prot_keys_gtks_updated_reset(gtks);
     }
 
-    tr_debug("NVM NW_INFO read PAN ID %i name: %s", *pan_id, nw_name);
+    tr_info("NVM NW_INFO read PAN ID %i name: %s", *pan_id, nw_name);
 
     return 0;
 }
@@ -234,7 +220,7 @@ void ws_pae_nvm_store_keys_tlv_create(keys_nvm_tlv_t *tlv_entry, sec_prot_keys_t
     }
     tlv += PTK_LEN;
 
-    tr_debug("NVM KEYS write");
+    tr_info("NVM KEYS write");
 }
 
 int8_t ws_pae_nvm_store_keys_tlv_read(keys_nvm_tlv_t *tlv_entry, sec_prot_keys_t *sec_keys)
@@ -282,12 +268,12 @@ int8_t ws_pae_nvm_store_keys_tlv_read(keys_nvm_tlv_t *tlv_entry, sec_prot_keys_t
 
     sec_prot_keys_updated_reset(sec_keys);
 
-    tr_debug("NVM KEYS read");
+    tr_info("NVM KEYS read");
 
     return 0;
 }
 
-void ws_pae_nvm_store_frame_counter_tlv_create(frame_cnt_nvm_tlv_t *tlv_entry, uint32_t restart_cnt, uint16_t pan_version, frame_counters_t *counters)
+void ws_pae_nvm_store_frame_counter_tlv_create(frame_cnt_nvm_tlv_t *tlv_entry, uint32_t restart_cnt, uint16_t pan_version, frame_counters_t *counters, uint64_t stored_time)
 {
     tlv_entry->tag = PAE_NVM_FRAME_COUNTER_TAG;
     tlv_entry->len = PAE_NVM_FRAME_COUNTER_LEN;
@@ -296,7 +282,6 @@ void ws_pae_nvm_store_frame_counter_tlv_create(frame_cnt_nvm_tlv_t *tlv_entry, u
 
     tlv = common_write_32_bit(restart_cnt, tlv);
 
-    uint64_t stored_time = ws_pae_current_time_get();
     tlv = common_write_64_bit(stored_time, tlv);
 
     tlv = common_write_16_bit(pan_version, tlv);
@@ -304,17 +289,18 @@ void ws_pae_nvm_store_frame_counter_tlv_create(frame_cnt_nvm_tlv_t *tlv_entry, u
     for (uint8_t index = 0; index < GTK_NUM; index++) {
         if (!counters->counter[index].set) {
             *tlv++ = PAE_NVM_FIELD_NOT_SET;
-            memset(tlv, 0, GTK_LEN + 4);
-            tlv += GTK_LEN + 4;
+            memset(tlv, 0, GTK_LEN + 4 + 4);
+            tlv += GTK_LEN + 4 + 4;
             continue;
         }
         *tlv++ = PAE_NVM_FIELD_SET;
         memcpy(tlv, counters->counter[index].gtk, GTK_LEN);
         tlv += GTK_LEN;
         tlv = common_write_32_bit(counters->counter[index].frame_counter, tlv);
+        tlv = common_write_32_bit(counters->counter[index].max_frame_counter_chg, tlv);
     }
 
-    tr_debug("NVM FRAME COUNTER write");
+    tr_info("NVM FRAME COUNTER write; stored time: %"PRIu64, stored_time);
 }
 
 int8_t ws_pae_nvm_store_frame_counter_tlv_read(frame_cnt_nvm_tlv_t *tlv_entry, uint32_t *restart_cnt, uint64_t *stored_time, uint16_t *pan_version, frame_counters_t *counters)
@@ -342,7 +328,7 @@ int8_t ws_pae_nvm_store_frame_counter_tlv_read(frame_cnt_nvm_tlv_t *tlv_entry, u
         // Frame counter not set
         if (*tlv++ == PAE_NVM_FIELD_NOT_SET) {
             counters->counter[index].set = false;
-            tlv += GTK_LEN + 4;
+            tlv += GTK_LEN + 4 + 4;
             continue;
         }
         // Frame counter is set, read GTK key and counter values
@@ -351,9 +337,11 @@ int8_t ws_pae_nvm_store_frame_counter_tlv_read(frame_cnt_nvm_tlv_t *tlv_entry, u
         tlv += GTK_LEN;
         counters->counter[index].frame_counter = common_read_32_bit(tlv);
         tlv += 4;
+        counters->counter[index].max_frame_counter_chg = common_read_32_bit(tlv);
+        tlv += 4;
     }
 
-    tr_debug("NVM FRAME COUNTER read");
+    tr_info("NVM FRAME COUNTER read; stored time: %"PRIu64, *stored_time);
 
     return 0;
 }
@@ -367,7 +355,7 @@ void ws_pae_nvm_store_key_storage_index_tlv_create(nvm_tlv_t *tlv_entry, uint64_
 
     tlv = common_write_64_bit(bitfield, tlv);
 
-    tr_debug("NVM KEY STORAGE INDEX write");
+    tr_info("NVM KEY STORAGE INDEX write");
 }
 
 int8_t ws_pae_nvm_store_key_storage_index_tlv_read(nvm_tlv_t *tlv_entry, uint64_t *bitfield)
@@ -384,7 +372,7 @@ int8_t ws_pae_nvm_store_key_storage_index_tlv_read(nvm_tlv_t *tlv_entry, uint64_
     *bitfield = common_read_64_bit(tlv);
     tlv += 8;
 
-    tr_debug("NVM KEY STORAGE INDEX read");
+    tr_info("NVM KEY STORAGE INDEX read");
 
     return 0;
 }

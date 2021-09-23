@@ -43,6 +43,33 @@ static int8_t ws_pae_nvm_store_create_path(char *fast_data_path, const char *fil
 static int8_t ws_pae_nvm_store_write(const char *file_name, nvm_tlv_t *tlv);
 static int8_t ws_pae_nvm_store_read(const char *file_name, nvm_tlv_t *tlv);
 
+void ws_pae_nvm_store_generic_tlv_create(nvm_tlv_t *tlv_entry, uint16_t tag, uint16_t length)
+{
+    tlv_entry->tag = tag;
+    tlv_entry->len = length;
+}
+
+nvm_tlv_t *ws_pae_nvm_store_generic_tlv_allocate_and_create(uint16_t tag, uint16_t length)
+{
+    nvm_tlv_t *tlv_entry = ns_dyn_mem_alloc(length + sizeof(nvm_tlv_t));
+    if (!tlv_entry) {
+        return NULL;
+    }
+    tlv_entry->tag = tag;
+    tlv_entry->len = length;
+
+    return tlv_entry;
+}
+
+void ws_pae_nvm_store_generic_tlv_free(nvm_tlv_t *tlv_entry)
+{
+    if (!tlv_entry) {
+        return;
+    }
+
+    ns_dyn_mem_free(tlv_entry);
+}
+
 int8_t ws_pae_nvm_store_tlv_file_write(const char *file, nvm_tlv_t *tlv)
 {
     if (!ws_pae_nvm_store_root_path_valid()) {

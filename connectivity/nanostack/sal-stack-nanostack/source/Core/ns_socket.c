@@ -834,12 +834,12 @@ void socket_list_print(route_print_fn_t *print_fn, char sep)
     /* Chuck in a consistency check */
     for (int i = 0; i < SOCKETS_MAX; i++) {
         if (socket_instance[i] && socket_instance[i]->id != i) {
-            tr_err("ID %d points to %p with id %d\n", i, (void *)socket_instance[i], socket_instance[i]->id);
+            tr_err("ID %d points to %p with id %d", i, (void *)socket_instance[i], socket_instance[i]->id);
         }
     }
     ns_list_foreach(socket_t, socket, &socket_list) {
         if (socket->id != -1 && socket_pointer_get(socket->id) != socket) {
-            tr_err("Socket %p has invalid ID %d\n", (void *)socket, socket->id);
+            tr_err("Socket %p has invalid ID %d", (void *)socket, socket->id);
         }
         sockbuf_check(&socket->rcvq);
         sockbuf_check(&socket->sndq);

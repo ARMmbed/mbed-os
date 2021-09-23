@@ -23,7 +23,7 @@
 #include "MAC/IEEE802_15_4/mac_pd_sap.h"
 #include "MAC/IEEE802_15_4/mac_timer.h"
 #include "sw_mac.h"
-
+#define TRACE_GROUP "mTim"
 
 /*-------------------MAC TIMER FUNCTIONS--------------------------*/
 

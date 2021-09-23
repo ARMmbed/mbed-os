@@ -49,6 +49,9 @@ uint16_t mac_ie_payload_discover(uint8_t *payload_ptr, uint16_t length, struct m
 /** Nested IE element discover inside parsed payload element */
 uint16_t mac_ie_nested_discover(uint8_t *payload_ptr, uint16_t length, mac_nested_payload_IE_t *nested_ie);
 
+/** Nested IE element discover with Sub Tag ID inside parsed payload element */
+uint16_t mac_ie_nested_tagged_discover(uint8_t *payload_ptr, uint16_t length, mac_nested_payload_IE_t *nested_ie, uint8_t sub_tag_id);
+
 /** Header IE elemnt discover */
 uint8_t mac_ie_header_discover(uint8_t *header_ptr, uint16_t length, struct mac_header_IE_s *header_ie);
 
