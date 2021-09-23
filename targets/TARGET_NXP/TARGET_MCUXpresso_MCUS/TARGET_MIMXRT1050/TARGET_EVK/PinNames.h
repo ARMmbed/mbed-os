@@ -203,9 +203,11 @@ typedef enum {
     NC = (int)0xFFFFFFFF
 } PinName;
 
-// Standardized LED and button names
+#if DEVICE_LED
+// Standardized LED names
 #define LED1 		GPIO_AD_B0_09		// USER LED (green)
 #define USER_LED	LED1
+#endif
 
 typedef enum {
     PullNone = 0,

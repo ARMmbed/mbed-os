@@ -33,7 +33,11 @@ typedef enum {
 
 #define GPIO_PORT_SHIFT      12
 #define GPIO_MUX_PORT        5
+
+#if DEVICE_LED
+// Standardized led names
 #define LED1 GPIO_AD_04
+#endif
 
 typedef enum {
    
