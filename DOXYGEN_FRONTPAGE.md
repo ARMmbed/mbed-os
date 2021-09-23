@@ -1,5 +1,11 @@
-# Mbed OS code base
+ARM mbed Networking Stack
+=========================
 
-This is the code documentation for Mbed OS.
+## Introduction
+This is Doxygen generated documentation of Nanostack.
+It should be used in conjunction with [ARM mbed Networking Stack](https://docs.mbed.com/docs/arm-ipv66lowpan-stack/en/latest/) manual
+hosted in http://docs.mbed.com
 
-For more information, please see [the Mbed OS API references](https://os.mbed.com/docs/mbed-os/latest/apis/index.html) and [the full list of tutorials and examples](https://os.mbed.com/docs/mbed-os/latest/tutorials/index.html).
+# API documentation
+
+See [Files](files.html) section to find a documentation about specific api.

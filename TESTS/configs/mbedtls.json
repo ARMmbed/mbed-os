@@ -1,7 +1,0 @@
-{
-    "macros": [
-        "MBEDTLS_SELF_TEST",
-        "MBEDTLS_TIMING_C",
-        "MBEDTLS_TIMING_ALT"
-    ]
-}

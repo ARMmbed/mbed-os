@@ -1,4 +1,0 @@
-prettytable==0.7.2
-future==0.16.0
-Jinja2>=2.10.1,<2.11
-intelhex>=2.3.0,<3.0.0

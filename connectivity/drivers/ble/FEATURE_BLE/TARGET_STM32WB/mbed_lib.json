@@ -1,4 +1,0 @@
-{
-    "name": "cordio-stm32wb",
-    "requires": ["cordio", "ble"]
-}
