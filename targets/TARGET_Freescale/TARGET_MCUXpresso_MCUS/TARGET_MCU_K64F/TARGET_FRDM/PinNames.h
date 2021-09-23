@@ -247,20 +247,22 @@ typedef enum {
 #define LED_GREEN PTE26
 #define LED_BLUE  PTB21
 
+#if DEVICE_LED
 // Standardized LED names
 #define LED1 LED_RED
 #define LED2 LED_GREEN
 #define LED3 LED_BLUE
-
+#endif
 
 //Push buttons
 #define SW2 PTC6
 #define SW3 PTA4
 
+#if DEVICE_BUTTON
 // Standardized button names
 #define BUTTON1 SW2
 #define BUTTON2 SW3
-
+#endif
 
 // SPI Pins for SD card.
 // Note: They are different from the Arduino Uno SPI pins
