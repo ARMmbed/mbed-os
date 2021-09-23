@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<View xml_version="1" xmlns="http://cypress.com/xsd/cystudiouddviewdie_v1">
-  <Files>
-    <Clocks visPath="clocks.cyvis" semPath="clocks.cysem" ipPath="clocksResourceMap.txt" />
-    <Analog visPath="analog.cyvis" semPath="analog.cysem" ipPath="analogResourceMap.txt" />
-    <SmartIO visPath="smartio.cyvis" semPath="smartio.cysem" ipPath="smartioResourceMap.txt"  />
-    <Svd path="svd/psoc6_03.svd"/>
-  </Files>
-</View>
