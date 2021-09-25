@@ -124,6 +124,10 @@ void trace_to_ascii_hex_dump(char* prefix, int len, char *data);
 #define LWIP_PLATFORM_HTONS(x)      __REV16(x)
 #define LWIP_PLATFORM_HTONL(x)      __REV(x)
 
+// Provide inline replacements for htons() and htonl()
+#define lwip_htons(x)               __REV16(x)
+#define lwip_htonl(x)               __REV(x)
+
 /* Define the memory area for the lwip's memory pools */
 #ifndef MEMP_SECTION
 #if defined(TARGET_LPC1768)
