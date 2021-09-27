@@ -55,7 +55,7 @@ Supported examples can be identified by the presence of a top level `CMakeLists.
 ## How to build an application
 
 Prerequisities:
-- CMake >=3.19.0
+- CMake >=3.21.0
 - mbed-tools >=4.0.0
 - Python modules defined in [`tools/cmake/requirements.txt`](./requirements.txt)
 
