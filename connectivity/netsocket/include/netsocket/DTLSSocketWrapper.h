@@ -40,6 +40,14 @@ public:
      * @param control      Transport control mode. See @ref control_transport.
      */
     DTLSSocketWrapper(Socket *transport, const char *hostname = NULL, control_transport control = TRANSPORT_CONNECT_AND_CLOSE);
+
+    /** Destroy a socket wrapper.
+     *
+     *  Closes socket wrapper if the socket wrapper is still opened.
+     */
+    ~DTLSSocketWrapper();
+
+    nsapi_error_t close() override;
 private:
     static void timing_set_delay(void *ctx, uint32_t int_ms, uint32_t fin_ms);
     static int timing_get_delay(void *ctx);
