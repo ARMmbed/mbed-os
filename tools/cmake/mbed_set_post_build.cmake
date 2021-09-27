@@ -87,6 +87,12 @@ function(mbed_set_post_build target)
     # The mapfile name includes the top-level target name and the
     # executable suffix for all toolchains as CMake hardcodes the name of the
     # diagnostic output file for some toolchains.
+
+    # COPY_FILE could be used with cmake >=3.21
+    file(COPY_FILE 
+            "${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map" 
+            "${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map.old"
+            RESULT 0)
     mbed_configure_memory_map(${target} "${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map")
     mbed_validate_application_profile(${target})
     mbed_generate_bin_hex(${target})
