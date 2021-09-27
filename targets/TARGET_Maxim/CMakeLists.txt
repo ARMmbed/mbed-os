@@ -5,6 +5,7 @@
 add_subdirectory(TARGET_MAX32620C EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_MAX32625 EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_MAX32630 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_MAX32660 EXCLUDE_FROM_ALL)
 
 add_library(mbed-maxim INTERFACE)
 
