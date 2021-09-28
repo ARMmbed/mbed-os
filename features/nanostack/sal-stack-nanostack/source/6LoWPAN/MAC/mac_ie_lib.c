@@ -144,6 +144,33 @@ uint16_t mac_ie_nested_discover(uint8_t *payload_ptr, uint16_t length, mac_neste
     return 0;
 }
 
+uint16_t mac_ie_nested_tagged_discover(uint8_t *payload_ptr, uint16_t length, mac_nested_payload_IE_t *nested_ie, uint8_t sub_tag_id)
+{
+    mac_nested_payload_IE_t ie_element;
+    uint8_t *sub_tag_ptr;
+    while (length >= 2) {
+        mac_ie_nested_id_parse(&ie_element, payload_ptr);
+
+        if (length < ie_element.length + 2) {
+            return 0;
+        }
+
+        sub_tag_ptr = ie_element.content_ptr;
+        if (ie_element.length > 1 && nested_ie->id == ie_element.id && *sub_tag_ptr == sub_tag_id) {
+            sub_tag_ptr++;
+            ie_element.length--;
+            nested_ie->content_ptr = sub_tag_ptr;
+            nested_ie->length = ie_element.length;
+            return ie_element.length;
+        }
+
+        length -= ie_element.length + 2;
+
+        payload_ptr += ie_element.length + 2;
+    }
+    return 0;
+}
+
 uint8_t mac_ie_header_discover(uint8_t *header_ptr, uint16_t length, mac_header_IE_t *header_ie)
 {
     mac_header_IE_t ie_element;

@@ -61,23 +61,39 @@ static inline void ns_sha256_clone(ns_sha256_context *dst,
 
 static inline void ns_sha256_starts(ns_sha256_context *ctx)
 {
+#if (MBEDTLS_VERSION_MAJOR >= 3)
+    (void)mbedtls_sha256_starts(ctx, 0);
+#else
     (void)mbedtls_sha256_starts_ret(ctx, 0);
+#endif
 }
 
 static inline void ns_sha256_update(ns_sha256_context *ctx, const void *input,
                                     size_t ilen)
 {
+#if (MBEDTLS_VERSION_MAJOR >= 3)
+    (void)mbedtls_sha256_update(ctx, input, ilen);
+#else
     (void)mbedtls_sha256_update_ret(ctx, input, ilen);
+#endif
 }
 
 static inline void ns_sha256_finish(ns_sha256_context *ctx, void *output)
 {
+#if (MBEDTLS_VERSION_MAJOR >= 3)
+    (void)mbedtls_sha256_finish(ctx, output);
+#else
     (void)mbedtls_sha256_finish_ret(ctx, output);
+#endif
 }
 
 static inline void ns_sha256(const void *input, size_t ilen, void *output)
 {
+#if (MBEDTLS_VERSION_MAJOR >= 3)
+    (void)mbedtls_sha256(input, ilen, output, 0);
+#else
     (void)mbedtls_sha256_ret(input, ilen, output, 0);
+#endif
 }
 
 /* Extensions to standard mbed TLS - output the first bits of a hash only */
@@ -85,10 +101,18 @@ static inline void ns_sha256(const void *input, size_t ilen, void *output)
 static inline void ns_sha256_finish_nbits(ns_sha256_context *ctx, void *output, unsigned obits)
 {
     if (obits == 256) {
+#if (MBEDTLS_VERSION_MAJOR >= 3)
+        (void)mbedtls_sha256_finish(ctx, output);
+#else
         (void)mbedtls_sha256_finish_ret(ctx, output);
+#endif
     } else {
         uint8_t sha256[32];
+#if (MBEDTLS_VERSION_MAJOR >= 3)
+        (void)mbedtls_sha256_finish(ctx, sha256);
+#else
         (void)mbedtls_sha256_finish_ret(ctx, sha256);
+#endif
         memcpy(output, sha256, obits / 8);
     }
 }
@@ -96,10 +120,18 @@ static inline void ns_sha256_finish_nbits(ns_sha256_context *ctx, void *output, 
 static inline void ns_sha256_nbits(const void *input, size_t ilen, void *output, unsigned obits)
 {
     if (obits == 256) {
+#if (MBEDTLS_VERSION_MAJOR >= 3)
+        (void)mbedtls_sha256(input, ilen, output, 0);
+#else
         (void)mbedtls_sha256_ret(input, ilen, output, 0);
+#endif
     } else {
         uint8_t sha256[32];
+#if (MBEDTLS_VERSION_MAJOR >= 3)
+        (void)mbedtls_sha256(input, ilen, sha256, 0);
+#else
         (void)mbedtls_sha256_ret(input, ilen, sha256, 0);
+#endif
         memcpy(output, sha256, obits / 8);
     }
 }

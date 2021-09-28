@@ -21,6 +21,7 @@
 #include "ns_list.h"
 #include "nsdynmemLIB.h"
 #include "net_ws_test.h"
+#include "net_ws_test_ext.h"
 #include "fhss_config.h"
 #include "ws_management_api.h"
 #include "mac_api.h"
@@ -32,6 +33,7 @@
 #include "6LoWPAN/ws/ws_bbr_api_internal.h"
 #include "6LoWPAN/ws/ws_pae_controller.h"
 #include "6LoWPAN/ws/ws_cfg_settings.h"
+#include "6LoWPAN/ws/ws_bootstrap.h"
 #include "randLIB.h"
 
 #include "ns_trace.h"
@@ -40,6 +42,25 @@
 #define TRACE_GROUP "wste"
 
 #ifdef HAVE_WS
+
+int ws_test_version_set(int8_t interface_id, uint8_t version)
+{
+    test_pan_version = version;
+
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (cur) {
+        if (!ws_info(cur)) {
+            return -1;
+        }
+        cur->ws_info->version = version;
+        if (ws_version_1_0(cur)) {
+            cur->ws_info->pan_information.version = WS_FAN_VERSION_1_0;
+        } else if (ws_version_1_1(cur)) {
+            cur->ws_info->pan_information.version = WS_FAN_VERSION_1_1;
+        }
+    }
+    return 0;
+}
 
 int ws_test_pan_size_set(int8_t interface_id, uint16_t pan_size)
 {
@@ -88,7 +109,7 @@ int ws_test_key_lifetime_set(int8_t interface_id, uint32_t gtk_lifetime, uint32_
     }
 
     ws_sec_timer_cfg_t cfg;
-    if (ws_cfg_sec_timer_get(&cfg, NULL) < 0) {
+    if (ws_cfg_sec_timer_get(&cfg) < 0) {
         return -2;
     }
 
@@ -102,7 +123,7 @@ int ws_test_key_lifetime_set(int8_t interface_id, uint32_t gtk_lifetime, uint32_
         cfg.ptk_lifetime = ptk_lifetime;
     }
 
-    if (ws_cfg_sec_timer_set(cur, NULL, &cfg, NULL) < 0) {
+    if (ws_cfg_sec_timer_set(cur, &cfg, 0x00) < 0) {
         return -3;
     }
 
@@ -119,7 +140,7 @@ int ws_test_gtk_time_settings_set(int8_t interface_id, uint8_t revocat_lifetime_
     }
 
     ws_sec_timer_cfg_t cfg;
-    if (ws_cfg_sec_timer_get(&cfg, NULL) < 0) {
+    if (ws_cfg_sec_timer_get(&cfg) < 0) {
         return -2;
     }
 
@@ -136,7 +157,7 @@ int ws_test_gtk_time_settings_set(int8_t interface_id, uint8_t revocat_lifetime_
         cfg.gtk_max_mismatch = max_mismatch;
     }
 
-    if (ws_cfg_sec_timer_set(cur, NULL, &cfg, NULL) < 0) {
+    if (ws_cfg_sec_timer_set(cur, &cfg, 0x00) < 0) {
         return -3;
     }
 
@@ -175,6 +196,29 @@ int ws_test_neighbour_temporary_lifetime_set(int8_t interface_id, uint32_t tempo
 
     ws_cfg_neighbour_temporary_lifetime_set(temporary_lifetime);
     return 0;
+}
+
+int ws_test_procedure_trigger(int8_t interface_id, ws_test_proc_t procedure, void *parameters)
+{
+    (void) parameters;
+
+    protocol_interface_info_entry_t *cur = NULL;;
+
+    if (interface_id > 0) {
+        cur = protocol_stack_interface_info_get_by_id(interface_id);
+        if (!cur || !ws_info(cur)) {
+            return -1;
+        }
+    } else {
+        cur = protocol_stack_interface_info_get_wisun_mesh();
+        if (!cur) {
+            if (procedure != PROC_AUTO_ON && procedure != PROC_AUTO_OFF) {
+                return -1;
+            }
+        }
+    }
+
+    return ws_bootstrap_test_procedure_trigger(cur, procedure);
 }
 
 #endif // HAVE_WS

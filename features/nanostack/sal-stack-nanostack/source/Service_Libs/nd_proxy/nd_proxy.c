@@ -349,7 +349,7 @@ int nd_proxy_downstream_interface_register(int8_t interface_id, nd_proxy_req_cb 
     ns_list_foreach(nd_proxy_upstream_list_s, e, &upstream_interface_list) {
 
         if (proxy_cache_interface_enable_proxy(e->id, interface_id) == 0) {
-            tr_debug("Proxy bridge enabled for interface %i to %i\n", e->id, interface_id);
+            tr_debug("Proxy bridge enabled for interface %i to %i", e->id, interface_id);
         }
     }
 
@@ -391,7 +391,7 @@ int nd_proxy_upstream_interface_register(int8_t interface_id, nd_proxy_req_cb *r
     ns_list_foreach(nd_proxy_downstream_list_s, e, &downstream_interface_list) {
 
         if (proxy_cache_interface_enable_proxy(interface_id, e->id) == 0) {
-            tr_debug("Proxy bridge enabled for interface %i to %i \n", interface_id, e->id);
+            tr_debug("Proxy bridge enabled for interface %i to %i", interface_id, e->id);
         }
     }
     return 0;
