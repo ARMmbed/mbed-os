@@ -17,6 +17,11 @@
 
 #include "stm32g0xx_ll_spi.h"
 
+#if defined (STM32G0B0xx) || defined (STM32G0B1xx) || defined (STM32G0C1xx)
+#define SPI2_IRQn  SPI2_3_IRQn
+#define SPI3_IRQn  SPI2_3_IRQn
+#endif
+
 // Defines the word legnth capability of the device where Nth bit allows for N window size
 #define STM32_SPI_CAPABILITY_WORD_LENGTH (0x0000FFF8)
 

@@ -1840,6 +1840,7 @@ uint32_t i2c_get_timing(I2CName i2c, uint32_t current_timing, int current_hz,
                 switch (hz) {
                     case 100000:
                         tim = TIMING_VAL_64M_CLK_100KHZ;
+                        break;
                     case 400000:
                         tim = TIMING_VAL_64M_CLK_400KHZ;
                         break;

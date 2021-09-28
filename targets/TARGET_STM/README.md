@@ -109,7 +109,7 @@ This table summarizes the STM32Cube versions currently used in Mbed OS master br
 | F3          |    1.11.2    | https://github.com/STMicroelectronics/STM32CubeF3 |
 | F4          |    1.26.1    | https://github.com/STMicroelectronics/STM32CubeF4 |
 | F7          |    1.16.1    | https://github.com/STMicroelectronics/STM32CubeF7 |
-| G0          |    1.4.1     | https://github.com/STMicroelectronics/STM32CubeG0 |
+| G0          |    1.5.0     | https://github.com/STMicroelectronics/STM32CubeG0 |
 | G4          |    1.4.0     | https://github.com/STMicroelectronics/STM32CubeG4 |
 | H7          |    1.9.0     | https://github.com/STMicroelectronics/STM32CubeH7 |
 | L0          |    1.12.0    | https://github.com/STMicroelectronics/STM32CubeL0 |
@@ -181,8 +181,8 @@ But also each STM32 Part Number with different FLASH size : STM32F401xC / STM32F
 Mbed OS porting layer specific for this family are placed here.
 
 Example in TARGET_STM32G0:
-- TARGET_STM32G031xx
-- TARGET_STM32G071xx
+- TARGET_STM32G031x8
+- TARGET_STM32G071xB
 - ...
 
 Each STM32 sub-family contains:
@@ -578,6 +578,7 @@ the CAN interface.
 While using RxInterrupt with the CAN object the receive ISR callback registered should defer read to thread context.
 A simple example is as shown below:
 
+```
 #include "mbed.h"
 
 Ticker ticker;
@@ -621,6 +622,7 @@ int main() {
     while(1) {
     }
 }
+```
 
 
 ## Mbed OS Wiki pages

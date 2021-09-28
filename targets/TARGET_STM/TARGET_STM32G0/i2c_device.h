@@ -37,8 +37,15 @@ extern "C" {
 #define I2C1_EV_IRQn I2C1_IRQn
 #define I2C1_ER_IRQn I2C1_IRQn
 
+#if defined (STM32G0B0xx) || defined (STM32G0B1xx) || defined (STM32G0C1xx)
+#define I2C2_EV_IRQn I2C2_3_IRQn
+#define I2C2_ER_IRQn I2C2_3_IRQn
+#define I2C3_EV_IRQn I2C2_3_IRQn
+#define I2C3_ER_IRQn I2C2_3_IRQn
+#else
 #define I2C2_EV_IRQn I2C2_IRQn
 #define I2C2_ER_IRQn I2C2_IRQn
+#endif
 
 #define I2C_IT_ALL (I2C_IT_ERRI|I2C_IT_TCI|I2C_IT_STOPI|I2C_IT_NACKI|I2C_IT_ADDRI|I2C_IT_RXI|I2C_IT_TXI)
 
