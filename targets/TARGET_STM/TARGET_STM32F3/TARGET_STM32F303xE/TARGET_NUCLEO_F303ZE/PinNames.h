@@ -355,6 +355,9 @@ typedef enum {
 #define LED3     PB_14  // LD3 [Red]
 #define BUTTON1  PC_13  // USER_Btn [B1]
 
+// USB
+#define USB_PULLUP_CONTROL  PG_6 // USB_Disconnect in the schematics
+
 #ifdef __cplusplus
 }
 #endif

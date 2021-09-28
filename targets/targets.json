@@ -1718,6 +1718,9 @@
         "detect_code": [
             "0747"
         ],
+        "device_has_add": [
+            "USBDEVICE"
+        ],
         "device_name": "STM32F303ZETx"
     },
     "MCU_STM32F334x8": {

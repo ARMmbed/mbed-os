@@ -192,7 +192,7 @@ USBPhyHw::~USBPhyHw()
 
 }
 
-#if defined(TARGET_STM32F1) || defined(SYSCFG_PMC_USB_PU)
+#if defined(TARGET_STM32F1) || defined(TARGET_STM32F3) || defined(SYSCFG_PMC_USB_PU)
 
 #include "drivers/DigitalOut.h"
 
@@ -203,9 +203,14 @@ void USB_reenumerate()
     LL_SYSCFG_DisableUSBPullUp();
     wait_us(10000); // 10ms
     LL_SYSCFG_EnableUSBPullUp();
+#elif defined(USB_PULLUP_CONTROL)
+    mbed::DigitalOut usb_dp_pin(USB_PULLUP_CONTROL, 0);
+    wait_us(1000);
+    usb_dp_pin = 1;
+    wait_us(1000);
 #else
     // Force USB_DP pin (with external pull up) to 0
-    mbed::DigitalOut usb_dp_pin(USB_DP, 0) ;
+    mbed::DigitalOut usb_dp_pin(USB_DP, 0);
     wait_us(10000); // 10ms
 #endif
 }
@@ -295,7 +300,7 @@ void USBPhyHw::init(USBPhyEvents *events)
 
     map = PinMap_USB_FS;
 
-#if defined(TARGET_STM32F1) || defined(SYSCFG_PMC_USB_PU)
+#if defined(TARGET_STM32F1) || defined(TARGET_STM32F3) || defined(SYSCFG_PMC_USB_PU)
     // USB_DevConnect is empty
     USB_reenumerate();
 #endif
@@ -418,7 +423,7 @@ void USBPhyHw::connect()
     // Initializes the USB controller registers
     USB_DevInit(hpcd.Instance, hpcd.Init); // hpcd.Init not used
 
-#if defined(TARGET_STM32F1) || defined(SYSCFG_PMC_USB_PU)
+#if defined(TARGET_STM32F1) || defined(TARGET_STM32F3) || defined(SYSCFG_PMC_USB_PU)
     // USB_DevConnect is empty
     USB_reenumerate();
 #endif
