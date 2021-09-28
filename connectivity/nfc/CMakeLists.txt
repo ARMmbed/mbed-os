@@ -3,6 +3,12 @@
 
 add_subdirectory(libraries)
 
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+    if(BUILD_GREENTEA_TESTS)
+        add_subdirectory(tests/TESTS)
+    endif()
+endif()
+
 target_include_directories(mbed-nfc
     INTERFACE
         .

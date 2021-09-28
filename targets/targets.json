@@ -3920,7 +3920,8 @@
         ],
         "extra_labels_add": [
             "CORDIO",
-            "MX25R6435F"
+            "MX25R6435F",
+            "M24SR"
         ],
         "supported_form_factors": [
             "ARDUINO_UNO"
