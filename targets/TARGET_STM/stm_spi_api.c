@@ -1011,16 +1011,16 @@ static inline void msp_wait_not_busy(spi_t *obj)
 /**
  * Write data to SPI master interface.
  */
-static inline void msp_write_data(spi_t *obj, int value, int bitshift)
+static inline void msp_write_data(spi_t *obj, const char* value, int bitshift)
 {
     if (bitshift == 1) {
-        LL_SPI_TransmitData16(SPI_INST(obj), (uint16_t)value);
+        LL_SPI_TransmitData16(SPI_INST(obj), *((uint16_t*)value));
 #ifdef HAS_32BIT_SPI_TRANSFERS
     } else if (bitshift == 2) {
-        LL_SPI_TransmitData32(SPI_INST(obj), (uint32_t)value);
+        LL_SPI_TransmitData32(SPI_INST(obj), *((uint32_t*)value));
 #endif /* HAS_32BIT_SPI_TRANSFERS */
     } else {
-        LL_SPI_TransmitData8(SPI_INST(obj), (uint8_t)value);
+        LL_SPI_TransmitData8(SPI_INST(obj), *((uint8_t*)value));
     }
 }
 
@@ -1076,7 +1076,7 @@ static int spi_master_one_wire_transfer(spi_t *obj, const char *tx_buffer, int t
 
         for (int i = 0; i < tx_length; i++) {
             msp_wait_writable(obj);
-            msp_write_data(obj, tx_buffer[i], bitshift);
+            msp_write_data(obj, &tx_buffer[i<<bitshift], bitshift);
         }
 
         /* Wait end of transaction */
@@ -1186,7 +1186,7 @@ int spi_master_write(spi_t *obj, int value)
 
     /* Transmit data */
     msp_wait_writable(obj);
-    msp_write_data(obj, value, bitshift);
+    msp_write_data(obj, (const char*)&value, bitshift);
 
     /* Receive data */
     msp_wait_readable(obj);
