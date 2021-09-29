@@ -83,6 +83,7 @@ target_sources(mbed-nanostack-sal_stack
 
         ws/ws_bbr_api.c
         ws/ws_bootstrap.c
+        ws/ws_bootstrap_6lbr.c
         ws/ws_bootstrap_ffn.c
         ws/ws_bootstrap_lfn.c
         ws/ws_cfg_settings.c
