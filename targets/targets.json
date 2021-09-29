@@ -4543,6 +4543,10 @@
             "ARDUINO_UNO"
         ],
         "device_name": "STM32U585AIIx",
+        "components_add": ["EMW3080B"],
+        "overrides": {
+            "network-default-interface-type": "WIFI"
+        },
         "detect_code": [
             "887"
         ]
