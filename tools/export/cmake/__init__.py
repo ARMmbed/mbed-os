@@ -92,8 +92,8 @@ class CMake(Exporter):
             'asm_flags': " ".join(flag for flag in self.toolchain.asm[1:] if not flag == "-c"),
             'symbols': sorted(self.toolchain.get_symbols()),
             'ld': basename(self.toolchain.ld[0]),
-            # fix the missing underscore '_' (see
-            'ld_flags': re.sub("--wrap,_(?!_)", "--wrap,__", " ".join(self.toolchain.ld[1:])),
+            # Addition of another underscore is no longer needed and actually causes errors
+            'ld_flags': " ".join(self.toolchain.ld[1:]),
             'elf2bin': basename(self.toolchain.elf2bin),
             'link_script_ext': self.toolchain.LINKER_EXT,
             'link_script_option': self.LINK_SCRIPT_OPTION,
