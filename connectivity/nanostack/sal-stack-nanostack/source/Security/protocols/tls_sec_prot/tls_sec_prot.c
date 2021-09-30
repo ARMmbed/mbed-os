@@ -595,7 +595,7 @@ static void tls_sec_prot_tls_export_keys(void *handle, const uint8_t *master_sec
     const uint8_t *print_data = eap_tls_key_material;
     uint16_t print_data_len = 128;
     while (true) {
-        tr_debug("EAP-TLS key material %s\n", trace_array(print_data, print_data_len > 32 ? 32 : print_data_len));
+        tr_debug("EAP-TLS key material %s", trace_array(print_data, print_data_len > 32 ? 32 : print_data_len));
         if (print_data_len > 32) {
             print_data_len -= 32;
             print_data += 32;

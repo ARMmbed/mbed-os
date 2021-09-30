@@ -262,7 +262,7 @@ static int thread_commissioning_active_get_cb(int8_t service_id, uint8_t source_
 
     if ((len = thread_meshcop_tlv_find(response_ptr->payload_ptr, response_ptr->payload_len, MESHCOP_TLV_NETWORK_MESH_LOCAL_ULA, &ptr)) > 0) {
         state = COMMISSIONING_STATE_ACCEPT;
-        tr_debug(" TLV ml prefix=%s\r\n", trace_array(ptr, len));
+        tr_debug(" TLV ml prefix=%s", trace_array(ptr, len));
         memcpy(this->leader_address, ptr, 8);
         memcpy(this->leader_address + 8, ADDR_SHORT_ADR_SUFFIC, 6);
         common_write_16_bit(0xfc00, this->leader_address + 14);

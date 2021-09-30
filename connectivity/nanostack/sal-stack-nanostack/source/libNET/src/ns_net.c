@@ -67,7 +67,7 @@
 #include "6LoWPAN/Thread/thread_routing.h"
 #include "6LoWPAN/Thread/thread_bootstrap.h"
 #include "6LoWPAN/Thread/thread_management_internal.h"
-#include "6LoWPAN/ws/ws_bootstrap.h"
+#include "6LoWPAN/ws/ws_common.h"
 #ifdef HAVE_WS
 #include "6LoWPAN/ws/ws_pae_controller.h"
 #endif
@@ -168,7 +168,7 @@ int8_t arm_net_nwk_scan(int8_t interface_id, channel_list_s *scan_list, void (*p
             if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
                 ret_val = -1;
             } else if (arm_channel_list_validation(scan_list)) {
-                tr_debug("Given channel mask is empty!\n");
+                tr_debug("Given channel mask is empty!");
                 ret_val = -2;
             } else {
                 nwk_scan_params_t *scan_params = &cur->mac_parameters->nwk_scan_params;
@@ -768,7 +768,7 @@ static int arm_net_channel_bit_mask_to_number(const uint32_t *channel_mask)
 
     for (j = 0; j < 8; j++) {
         for (i = 0; i < 32; i++) {
-            if (channel_mask[j] & ((uint32_t)1 << i)) {
+            if (channel_mask[j] & (1U << i)) {
                 break;
             }
         }
@@ -804,7 +804,7 @@ int8_t arm_nwk_interface_network_driver_set(int8_t interface_id, const channel_l
     protocol_interface_info_entry_t *cur = 0;
 
     if (arm_channel_list_validation(nwk_channel_list)) {
-        tr_debug("Given channel mask is empty!\n");
+        tr_debug("Given channel mask is empty!");
         return -5;
     }
 
@@ -981,15 +981,21 @@ int8_t arm_nwk_link_layer_security_mode(int8_t interface_id, net_6lowpan_link_la
 
 int8_t arm_network_certificate_chain_set(const arm_certificate_chain_entry_s *chain_info)
 {
+    int8_t ret = -2;
+
 #if !defined(PANA) && !defined(HAVE_WS)
     (void)chain_info;
 #endif
 
 #ifdef HAVE_WS
-    ws_pae_controller_certificate_chain_set(chain_info);
+    ret = ws_pae_controller_certificate_chain_set(chain_info);
 #endif
 
-    return pana_interface_certificate_chain_set(chain_info);
+#ifdef PANA
+    ret = pana_interface_certificate_chain_set(chain_info);
+#endif
+
+    return ret;
 }
 
 int8_t arm_network_trusted_certificate_add(const arm_certificate_entry_s *cert)
@@ -1207,7 +1213,7 @@ int8_t arm_nwk_interface_configure_6lowpan_bootstrap_set(int8_t interface_id, ne
         if (net_6lowpan_mode_extension == NET_6LOWPAN_THREAD) {
             ret_val = thread_node_bootstrap_init(interface_id, bootstrap_mode);
         } else if (net_6lowpan_mode_extension == NET_6LOWPAN_WS) {
-            ret_val = ws_bootstrap_init(interface_id, bootstrap_mode);
+            ret_val = ws_common_init(interface_id, bootstrap_mode);
         } else {
             ret_val = arm_6lowpan_bootstarp_bootstrap_set(interface_id, bootstrap_mode, net_6lowpan_mode_extension);
         }
@@ -1226,7 +1232,7 @@ int8_t arm_nwk_set_channel_list(int8_t interface_id, const channel_list_s *nwk_c
     }
 
     if (arm_channel_list_validation(nwk_channel_list)) {
-        tr_debug("Given channel mask is empty!\n");
+        tr_debug("Given channel mask is empty!");
         return -2;
     }
 

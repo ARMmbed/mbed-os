@@ -371,7 +371,7 @@ void addr_policy_table_print(void)
     ns_list_foreach(addr_policy_table_entry_t, entry, &addr_policy_table) {
         char addr[40];
         ip6tos(entry->prefix, addr);
-        tr_debug("%3d %3d %s/%u\n", entry->precedence, entry->label, addr, entry->prefix_len);
+        tr_debug("%3d %3d %s/%u", entry->precedence, entry->label, addr, entry->prefix_len);
     }
 }
 

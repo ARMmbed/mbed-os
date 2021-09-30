@@ -22,6 +22,7 @@
  * \file ns_time.h
  * \brief Nanostack internal time handling API.
  */
+#include "ns_time_api.h"
 
 /**
  * Write new time as a platform time
@@ -51,6 +52,33 @@ int ns_time_system_time_write(uint64_t time_write);
  */
 int ns_time_system_time_read(uint64_t *time_read);
 
+/**
+ * Notify Time zone and daylight saving time information
+ *
+ * \param info_ptr time zone information pointer.
+ *
+ * \return 0 in success.
+ * \return <0 in case of errors.
+ *
+ */
+int ns_time_system_timezone_info_notify(timezone_info_t *info_ptr);
 
+/**
+ * Set system time acquired
+ *
+ * Sets system time acquired (e.g. has been acquired from network)
+ *
+ */
+void ns_time_system_time_acquired_set(void);
+
+/**
+ * Get system time acquired
+ *
+ * Checks whether system time has been acquired (e.g. has been written)
+ *
+ * \return TRUE system time has been acquired, FALSE system time has not been acquired
+ *
+ */
+bool ns_time_system_time_acquired_get(void);
 
 #endif /* _NS_TIME_H_ */

@@ -65,7 +65,6 @@
 #include "6LoWPAN/Thread/thread_bootstrap.h"
 #include "6LoWPAN/Thread/thread_routing.h"
 #include "6LoWPAN/Thread/thread_management_internal.h"
-#include "6LoWPAN/ws/ws_bootstrap.h"
 #include "6LoWPAN/ws/ws_common.h"
 #ifdef HAVE_WS
 #include "6LoWPAN/ws/ws_pae_controller.h"
@@ -806,6 +805,18 @@ protocol_interface_info_entry_t *protocol_stack_interface_info_get_by_fhss_api(c
     return NULL;
 }
 
+protocol_interface_info_entry_t *protocol_stack_interface_info_get_wisun_mesh(void)
+{
+#ifdef HAVE_WS
+    ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
+        if (cur->ws_info) {
+            return cur;
+        }
+    }
+#endif //HAVE_WS
+    return NULL;
+}
+
 protocol_interface_info_entry_t *protocol_stack_interface_sleep_possibility(void)
 {
     ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
@@ -1148,7 +1159,7 @@ void net_bootsrap_cb_run(uint8_t event)
             if (thread_info(cur)) {
                 thread_bootstrap_state_machine(cur);
             } else if (ws_info(cur)) {
-                ws_bootstrap_state_machine(cur);
+                ws_common_state_machine(cur);
             } else {
                 protocol_6lowpan_bootstrap(cur);
             }

@@ -476,13 +476,14 @@ void mac_helper_security_key_clean(protocol_interface_info_entry_t *interface)
 
 void mac_helper_coordinator_address_set(protocol_interface_info_entry_t *interface, addrtype_t adr_type, uint8_t *adr_ptr)
 {
+    uint16_t short_addr;
     mlme_set_t set_req;
     set_req.attr_index = 0;
 
     if (adr_type == ADDR_802_15_4_SHORT) {
         memcpy(interface->mac_parameters->mac_cordinator_info.mac_mlme_coord_address, adr_ptr, 2);
         interface->mac_parameters->mac_cordinator_info.cord_adr_mode = MAC_ADDR_MODE_16_BIT;
-        uint16_t short_addr = common_read_16_bit(interface->mac_parameters->mac_cordinator_info.mac_mlme_coord_address);
+        short_addr = common_read_16_bit(interface->mac_parameters->mac_cordinator_info.mac_mlme_coord_address);
         set_req.attr = macCoordShortAddress;
         set_req.value_pointer = &short_addr;
         set_req.value_size = 2;

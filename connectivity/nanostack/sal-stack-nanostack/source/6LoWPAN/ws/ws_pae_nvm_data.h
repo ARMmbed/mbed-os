@@ -35,16 +35,24 @@
 #define PAE_NVM_KEY_STORAGE_INDEX_TAG    4
 #define PAE_NVM_KEY_STORAGE_TAG          5
 
-// pan_id (2) +  network name (33) + GTK EUI-64 (own EUI-64) (8) + (GTK set (1) + GTK expiry timestamp (8) + status (1) + install order (1) + GTK (16)) * 4
-#define PAE_NVM_NW_INFO_LEN              2 + 33 + 8 + (1 + 8 + 1 + 1 + GTK_LEN) * GTK_NUM
+// pan_id (2) + network name (33) + GTK EUI-64 (own EUI-64) (8) + stored time (8) + time changed (1) + (GTK set (1) + GTK expiry timestamp (8) + status (1) + install order (1) + GTK (16)) * 4
+#define PAE_NVM_NW_INFO_LEN              2 + 33 + 8 + 8 + 1 + (1 + 8 + 1 + 1 + GTK_LEN) * GTK_NUM
 
 // PTK EUI-64 set (1) + PTK EUI-64 (8) + PMK set (1) + PMK lifetime (4) + PMK (32) + PMK replay counter (8) + PTK set (1) + PTK lifetime (4) + PTK (48)
 #define PAE_NVM_KEYS_LEN                 1 + 8 + 1 + 4 + PMK_LEN + 8 + 1 + 4 + PTK_LEN
 
-// restart counter + stored time + pan version + (frame counter set (1) + GTK (16) + frame counter (4)) * 4
-#define PAE_NVM_FRAME_COUNTER_LEN        4 + 8 + 2 + (1 + GTK_LEN + 4) * GTK_NUM
+// restart counter + stored time + pan version + (frame counter set (1) + GTK (16) + frame counter (4) + max frame counter change (4)) * 4
+#define PAE_NVM_FRAME_COUNTER_LEN        4 + 8 + 2 + (1 + GTK_LEN + 4 + 4) * GTK_NUM
 
-#define PAE_NVM_DEFAULT_BUFFER_SIZE      sizeof(nvm_tlv_t) + PAE_NVM_NW_INFO_LEN
+#if (PAE_NVM_NW_INFO_LEN >= PAE_NVM_KEYS_LEN) && (PAE_NVM_NW_INFO_LEN >= PAE_NVM_FRAME_COUNTER_LEN)
+#define PAE_NVM_LARGEST_FILE             PAE_NVM_NW_INFO_LEN
+#elif (PAE_NVM_KEYS_LEN >= PAE_NVM_NW_INFO_LEN) && (PAE_NVM_KEYS_LEN >= PAE_NVM_FRAME_COUNTER_LEN)
+#define PAE_NVM_LARGEST_FILE             PAE_NVM_KEYS_LEN
+#else
+#define PAE_NVM_LARGEST_FILE             PAE_NVM_FRAME_COUNTER_LEN
+#endif
+
+#define PAE_NVM_DEFAULT_BUFFER_SIZE      sizeof(nvm_tlv_t) + PAE_NVM_LARGEST_FILE
 
 // key storage index bitfield (8)
 #define PAE_NVM_KEY_STORAGE_INDEX_LEN    8
@@ -91,11 +99,13 @@ void ws_pae_nvm_store_generic_tlv_free(nvm_tlv_t *tlv_entry);
  * \param pan_id PAN ID
  * \param nw_name network name
  * \param gtks GTK keys
+ * \param stored_time stored timestampt
+ * \param time_changed stored time has changed
  *
  * \return TLV entry or NULL
  *
  */
-void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry, uint16_t pan_id, char *nw_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks);
+void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry, uint16_t pan_id, char *nw_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks, uint64_t stored_time, uint8_t time_changed);
 
 /**
  * ws_pae_nvm_store_nw_info_tlv_read read from NVM network info TLV
@@ -104,12 +114,14 @@ void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry, uint16_t 
  * \param pan_id PAN ID
  * \param nw_name network name
  * \param gtks GTK keys
+ * \param current_time current timestampt
+ * \param time_changed stored time has changed
  *
  * \return < 0 failure
  * \return >= 0 success
  *
  */
-int8_t ws_pae_nvm_store_nw_info_tlv_read(nw_info_nvm_tlv_t *tlv_entry, uint16_t *pan_id, char *nw_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks);
+int8_t ws_pae_nvm_store_nw_info_tlv_read(nw_info_nvm_tlv_t *tlv_entry, uint16_t *pan_id, char *nw_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks, uint64_t current_time, uint8_t *time_changed);
 
 /**
  * ws_pae_nvm_store_keys_tlv_create create NVM keys TLV
@@ -139,9 +151,10 @@ int8_t ws_pae_nvm_store_keys_tlv_read(keys_nvm_tlv_t *tlv_entry, sec_prot_keys_t
  * \param restart_cnt re-start counter
  * \param pan_version PAN version
  * \param counters frame counters
+ * \param stored_time stored timestampt
  *
  */
-void ws_pae_nvm_store_frame_counter_tlv_create(frame_cnt_nvm_tlv_t *tlv_entry, uint32_t restart_cnt, uint16_t pan_version, frame_counters_t *counters);
+void ws_pae_nvm_store_frame_counter_tlv_create(frame_cnt_nvm_tlv_t *tlv_entry, uint32_t restart_cnt, uint16_t pan_version, frame_counters_t *counters, uint64_t stored_time);
 
 /**
  * ws_pae_nvm_store_frame_counter_tlv_read read from NVM frame counter TLV
