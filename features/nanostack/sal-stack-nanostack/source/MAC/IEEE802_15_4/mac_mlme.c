@@ -826,7 +826,7 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const m
         case macCCAThreshold:
             pu8 = (uint8_t *) set_req->value_pointer;
             rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_CCA_THRESHOLD, pu8);
-            tr_debug("Set CCA threshold to %u%%", *pu8);
+            tr_info("Set CCA threshold to %u%%", *pu8);
             return 0;
         case macMultiCSMAParameters:
             return mac_mlme_set_multi_csma_parameters(rf_mac_setup, set_req);

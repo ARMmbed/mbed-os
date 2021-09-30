@@ -137,7 +137,7 @@ int8_t mac_cca_threshold_update(protocol_interface_rf_mac_setup_s *rf_ptr, uint8
             return -1;
         }
     }
-    tr_debug("Channel %u CCA threshold to %i", channel, rf_ptr->cca_threshold->ch_thresholds[channel]);
+    tr_info("Channel %u CCA threshold to %i", channel, rf_ptr->cca_threshold->ch_thresholds[channel]);
     return 0;
 }
 

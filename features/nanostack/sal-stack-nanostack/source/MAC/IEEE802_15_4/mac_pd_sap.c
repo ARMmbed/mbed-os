@@ -35,6 +35,7 @@
 #include "MAC/IEEE802_15_4/mac_filter.h"
 #include "MAC/IEEE802_15_4/mac_mcps_sap.h"
 #include "MAC/IEEE802_15_4/mac_cca_threshold.h"
+#include "MAC/IEEE802_15_4/mac_mode_switch.h"
 #include "MAC/rf_driver_storage.h"
 #include "Core/include/ns_monitor.h"
 #include "ns_trace.h"
@@ -48,6 +49,10 @@
 // Typically varies from 500us to several milliseconds depending on packet size and the platform.
 // MAC should learn and make this dynamic by sending first few packets with predefined CSMA period.
 #define MIN_FHSS_CSMA_PERIOD_US    5000
+
+// Add extra CSMA-CA delay for packets using mode switch. The delay between mode switch PHR and data packet equals to MDR_SETTLING_TIME_US
+// Must be between 510 and 1500 us
+#define MDR_SETTLING_TIME_US   510
 
 static int8_t mac_data_interface_tx_done_cb(protocol_interface_rf_mac_setup_s *rf_ptr, phy_link_tx_status_e status, uint8_t cca_retry, uint8_t tx_retry);
 static void  mac_sap_cca_fail_cb(protocol_interface_rf_mac_setup_s *rf_ptr, uint16_t failed_channel);
@@ -106,6 +111,9 @@ uint32_t mac_csma_backoff_get(protocol_interface_rf_mac_setup_s *rf_mac_setup)
         backoff_in_us = 1;
     }
     if (rf_mac_setup->fhss_api) {
+        if (rf_mac_setup->active_pd_data_request->phy_mode_id) {
+            backoff_in_us += MDR_SETTLING_TIME_US;
+        }
         // Synchronization error when backoff time is shorter than allowed.
         // TODO: Make this dynamic.
         if (backoff_in_us < MIN_FHSS_CSMA_PERIOD_US) {
@@ -184,6 +192,9 @@ int8_t mac_plme_cca_req(protocol_interface_rf_mac_setup_s *rf_mac_setup)
     if (rf_mac_setup->mac_ack_tx_active || (rf_mac_setup->mac_edfe_tx_active && rf_mac_setup->mac_edfe_response_tx_active)) {
         buffer = tx_buf->enhanced_ack_buf;
         length = tx_buf->ack_len;
+    } else if (rf_mac_setup->mac_mode_switch_phr_tx_active) {
+        buffer = tx_buf->mode_switch_phr_buf;
+        length = sizeof(tx_buf->mode_switch_phr_buf);
     } else {
         buffer = tx_buf->buf;
         length = tx_buf->len;
@@ -232,6 +243,7 @@ void mac_pd_abort_active_tx(protocol_interface_rf_mac_setup_s *rf_mac_setup)
     phy_csma_params_t csma_params;
     // Set TX time to 0 to abort current transmission
     csma_params.backoff_time = 0;
+    csma_params.mode_switch_phr = false;
     rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_CSMA_PARAMETERS, (uint8_t *) &csma_params);
 }
 
@@ -242,8 +254,12 @@ void mac_pd_abort_active_tx(protocol_interface_rf_mac_setup_s *rf_mac_setup)
  * \param tx_time TX timestamp to be set.
  *
  */
-void mac_pd_sap_set_phy_tx_time(protocol_interface_rf_mac_setup_s *rf_mac_setup, uint32_t tx_time, bool cca_enabled)
+void mac_pd_sap_set_phy_tx_time(protocol_interface_rf_mac_setup_s *rf_mac_setup, uint32_t tx_time, bool cca_enabled, bool mode_switch)
 {
+    // Given tx_time is for the actual data packet. Mode switch PHR must be sent with the offset of MDR settling time.
+    if (mode_switch) {
+        tx_time -= MDR_SETTLING_TIME_US;
+    }
     // With TX time set to zero, PHY sends immediately
     if (!tx_time) {
         tx_time++;
@@ -251,6 +267,7 @@ void mac_pd_sap_set_phy_tx_time(protocol_interface_rf_mac_setup_s *rf_mac_setup,
     phy_csma_params_t csma_params;
     csma_params.backoff_time = tx_time;
     csma_params.cca_enabled = cca_enabled;
+    csma_params.mode_switch_phr = mode_switch;
     rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_CSMA_PARAMETERS, (uint8_t *) &csma_params);
 }
 
@@ -300,7 +317,7 @@ void mac_pd_sap_state_machine(protocol_interface_rf_mac_setup_s *rf_mac_setup)
                     cca_enabled = true;
                 }
 
-                mac_pd_sap_set_phy_tx_time(rf_mac_setup, active_buf->tx_time, cca_enabled);
+                mac_pd_sap_set_phy_tx_time(rf_mac_setup, active_buf->tx_time, cca_enabled, rf_mac_setup->mac_mode_switch_phr_tx_active);
                 if (active_buf->fcf_dsn.frametype == FC_BEACON_FRAME) {
                     // FHSS synchronization info is written in the end of transmitted (Beacon) buffer
                     dev_driver_tx_buffer_s *tx_buf = &rf_mac_setup->dev_driver_tx_buffer;
@@ -334,6 +351,10 @@ void mac_pd_sap_state_machine(protocol_interface_rf_mac_setup_s *rf_mac_setup)
             mac_data_interface_tx_to_cb(rf_mac_setup);
         } else if (rf_mac_setup->mac_tx_result == MAC_TIMER_ACK) {
             mac_data_interface_tx_done_cb(rf_mac_setup, PHY_LINK_TX_FAIL, 0, 0);
+        }
+    } else {
+        if (rf_mac_setup->mac_tx_result == MAC_MODE_SWITCH_TIMEOUT) {
+            mac_update_mode_switch_state(rf_mac_setup, MAC_MS_TIMEOUT, rf_mac_setup->base_phy_mode);
         }
     }
 }
@@ -424,6 +445,7 @@ static bool mac_data_asynch_channel_switch(protocol_interface_rf_mac_setup_s *rf
 static void mac_data_ack_tx_finish(protocol_interface_rf_mac_setup_s *rf_ptr)
 {
     rf_ptr->mac_ack_tx_active = false;
+    mac_update_mode_switch_state(rf_ptr, MAC_MS_DATA_RECEIVED, rf_ptr->base_phy_mode);
     if (rf_ptr->fhss_api) {
         //SET tx completed false because ack isnot never queued
         rf_ptr->fhss_api->data_tx_done(rf_ptr->fhss_api, false, false, 0xff);
@@ -449,7 +471,6 @@ int8_t mac_data_edfe_force_stop(protocol_interface_rf_mac_setup_s *rf_ptr)
 
 static int8_t mac_data_interface_tx_done_cb(protocol_interface_rf_mac_setup_s *rf_ptr, phy_link_tx_status_e status, uint8_t cca_retry, uint8_t tx_retry)
 {
-
     if (!rf_ptr->macRfRadioTxActive) {
         return -1;
     }
@@ -513,7 +534,7 @@ static int8_t mac_data_interface_tx_done_cb(protocol_interface_rf_mac_setup_s *r
             if (active_buf->csma_periods_left > 0) {
                 active_buf->csma_periods_left--;
                 active_buf->tx_time += rf_ptr->multi_cca_interval;
-                mac_pd_sap_set_phy_tx_time(rf_ptr, active_buf->tx_time, true);
+                mac_pd_sap_set_phy_tx_time(rf_ptr, active_buf->tx_time, true, false);
 #ifdef TIMING_TOOL_TRACES
                 tr_info("%u CSMA_start", mac_mcps_sap_get_phy_timestamp(rf_ptr));
 #endif
@@ -555,6 +576,23 @@ VALIDATE_TX_TIME:
                 mac_data_ack_tx_finish(rf_ptr);
                 return 0;
             }
+        } else if (rf_ptr->mac_mode_switch_phr_tx_active) {
+#ifdef TIMING_TOOL_TRACES
+            tr_info("%u TX_done", mac_mcps_sap_get_phy_timestamp(rf_ptr));
+#endif
+            rf_ptr->mac_mode_switch_phr_tx_active = false;
+            if (rf_ptr->fhss_api) {
+                rf_ptr->fhss_api->data_tx_done(rf_ptr->fhss_api, false, true, rf_ptr->active_pd_data_request->msduHandle);
+            }
+            if (!mac_update_mode_switch_state(rf_ptr, MAC_MS_PHR_SEND_READY, rf_ptr->active_pd_data_request->phy_mode_id)) {
+                mac_pd_sap_set_phy_tx_time(rf_ptr, rf_ptr->active_pd_data_request->tx_time, true, rf_ptr->mac_mode_switch_phr_tx_active);
+                if (mac_plme_cca_req(rf_ptr) != 0) {
+                    mac_sap_no_ack_cb(rf_ptr);
+                }
+                return 0;
+            }
+            // Failed to start data transmission after mode switch PHR was sent
+            status = PHY_LINK_TX_FAIL;
         }
 
         // Do not update CCA count when Ack is received, it was already updated with PHY_LINK_TX_SUCCESS event
@@ -580,7 +618,7 @@ VALIDATE_TX_TIME:
         timer_mac_stop(rf_ptr);
     }
     uint16_t failed_channel = rf_ptr->mac_channel;
-    if (rf_ptr->fhss_api && rf_ptr->active_pd_data_request->asynch_request == false) {
+    if (rf_ptr->active_pd_data_request && rf_ptr->active_pd_data_request->asynch_request == false) {
         /* waiting_ack == false allows FHSS to change back to RX channel after transmission
          * tx_completed == true allows FHSS to delete stored failure handles
          */
@@ -610,7 +648,12 @@ VALIDATE_TX_TIME:
             waiting_ack = false;
             tx_completed = true;
         }
-        rf_ptr->fhss_api->data_tx_done(rf_ptr->fhss_api, waiting_ack, tx_completed, rf_ptr->active_pd_data_request->msduHandle);
+        if (waiting_ack == false) {
+            mac_update_mode_switch_state(rf_ptr, MAC_MS_DATA_SEND_READY, rf_ptr->base_phy_mode);
+        }
+        if (rf_ptr->fhss_api) {
+            rf_ptr->fhss_api->data_tx_done(rf_ptr->fhss_api, waiting_ack, tx_completed, rf_ptr->active_pd_data_request->msduHandle);
+        }
     }
 
     switch (status) {
@@ -674,7 +717,7 @@ static int8_t mac_data_interface_tx_done_by_ack_cb(protocol_interface_rf_mac_set
     if (mcps_sap_pd_ack(rf_ptr, buf) != 0) {
         mcps_sap_pre_parsed_frame_buffer_free(buf);
     }
-
+    mac_update_mode_switch_state(rf_ptr, MAC_MS_DATA_SEND_READY, rf_ptr->base_phy_mode);
     if (rf_ptr->fhss_api) {
         rf_ptr->fhss_api->data_tx_done(rf_ptr->fhss_api, false, true, rf_ptr->active_pd_data_request->msduHandle);
     }
@@ -1040,19 +1083,27 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
             goto ERROR_HANDLER;
         }
 
-        if (pd_data_ind->data_len < 3) {
-            return -1;
-        }
 #ifdef TIMING_TOOL_TRACES
         tr_info("%u RX_start", mac_pd_sap_get_phy_rx_time(rf_ptr));
         tr_info("%u RX_done", mac_mcps_sap_get_phy_timestamp(rf_ptr));
 #endif
+
+        if (!mac_parse_mode_switch_phr(rf_ptr, pd_data_ind->data_ptr, pd_data_ind->data_len)) {
+            // TODO: mode switch returned 0, needs some logic to wait frame with new mode
+            goto ERROR_HANDLER;
+        }
+
+        if (pd_data_ind->data_len < 3) {
+            return -1;
+        }
+
         mac_cca_threshold_event_send(rf_ptr, rf_ptr->mac_channel, pd_data_ind->dbm);
         mac_fcf_sequence_t fcf_read;
         const uint8_t *ptr = mac_header_parse_fcf_dsn(&fcf_read, pd_data_ind->data_ptr);
 
         // No need to send Ack - Check if RX channel needs to be updated
         if (fcf_read.ackRequested == false) {
+            mac_update_mode_switch_state(rf_ptr, MAC_MS_DATA_RECEIVED, rf_ptr->base_phy_mode);
             if (rf_ptr->fhss_api) {
                 rf_ptr->fhss_api->data_tx_done(rf_ptr->fhss_api, false, false, 0);
             }

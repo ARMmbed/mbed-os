@@ -96,6 +96,7 @@ typedef struct mac_pre_build_frame {
     uint8_t cca_request_restart_cnt;
     uint8_t tx_request_restart_cnt;
     uint8_t priority;
+    uint8_t phy_mode_id;
     uint32_t blacklist_start_time_us;
     uint16_t blacklist_period_ms;
     uint16_t initial_tx_channel;

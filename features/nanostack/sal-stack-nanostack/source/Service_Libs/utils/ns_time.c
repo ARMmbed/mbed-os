@@ -22,6 +22,9 @@
 
 static ns_time_api_system_time_callback *system_time_read_callback = NULL;
 static ns_time_api_system_time_write_callback *system_time_write_callback = NULL;
+static ns_time_api_time_configuration_notify_callback *system_time_configuration_notify_callback = NULL;
+
+static bool system_time_acquired = false;
 
 void ns_time_api_system_time_callback_set(ns_time_api_system_time_callback callback_rd)
 {
@@ -33,10 +36,16 @@ void ns_time_api_system_time_write_callback_set(ns_time_api_system_time_write_ca
     system_time_write_callback = callback_wr;
 }
 
+void ns_time_api_time_configuration_notify_callback_set(ns_time_api_time_configuration_notify_callback callback_wr)
+{
+    system_time_configuration_notify_callback = callback_wr;
+}
+
 int ns_time_system_time_write(uint64_t time_write)
 {
     if (system_time_write_callback) {
         system_time_write_callback(time_write);
+        system_time_acquired = true;
         return 0;
     }
 
@@ -52,4 +61,24 @@ int ns_time_system_time_read(uint64_t *time_read)
     }
 
     return -1;
+}
+
+int ns_time_system_timezone_info_notify(timezone_info_t *info_ptr)
+{
+    if (system_time_configuration_notify_callback && info_ptr) {
+        system_time_configuration_notify_callback(info_ptr);
+        return 0;
+    }
+
+    return -1;
+}
+
+void ns_time_system_time_acquired_set(void)
+{
+    system_time_acquired = true;
+}
+
+bool ns_time_system_time_acquired_get(void)
+{
+    return system_time_acquired;
 }

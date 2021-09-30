@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Pelion and affiliates.
+ * Copyright (c) 2019-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,12 +15,7 @@
  * limitations under the License.
  */
 
-#define HAVE_6LOWPAN_ROUTER
+#include "cfg_ws_host.h"
+
 #define HAVE_WS_ROUTER
-#define HAVE_RPL
-#define HAVE_IPV6_ND
-#define HAVE_6LOWPAN_ND
-#define HAVE_MPL
-#define HAVE_WS
-#define HAVE_PAE_SUPP
 #define HAVE_EAPOL_RELAY

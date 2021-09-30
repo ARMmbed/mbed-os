@@ -23,6 +23,9 @@ SRCS += \
 	source/6LoWPAN/ws/ws_mpx_header.c \
 	source/6LoWPAN/ws/ws_neighbor_class.c \
 	source/6LoWPAN/ws/ws_bootstrap.c \
+	source/6LoWPAN/ws/ws_bootstrap_6lbr.c \
+	source/6LoWPAN/ws/ws_bootstrap_ffn.c \
+	source/6LoWPAN/ws/ws_bootstrap_lfn.c \
 	source/6LoWPAN/ws/ws_common.c \
 	source/6LoWPAN/ws/ws_management_api.c \
 	source/6LoWPAN/ws/ws_bbr_api.c \
@@ -43,6 +46,7 @@ SRCS += \
 	source/6LoWPAN/ws/ws_eapol_pdu.c \
 	source/6LoWPAN/ws/ws_stats.c \
 	source/6LoWPAN/ws/ws_cfg_settings.c \
+	source/6LoWPAN/ws/ws_phy.c \
 	source/BorderRouter/border_router.c \
 	source/Common_Protocols/icmpv6.c \
 	source/Common_Protocols/icmpv6_prefix.c \
@@ -83,6 +87,7 @@ SRCS += \
 	source/MAC/IEEE802_15_4/sw_mac.c \
 	source/MAC/IEEE802_15_4/mac_fhss_callbacks.c \
 	source/MAC/IEEE802_15_4/mac_cca_threshold.c \
+	source/MAC/IEEE802_15_4/mac_mode_switch.c \
 	source/MAC/ethernet/ethernet_mac_api.c \
 	source/MAC/serial/serial_mac_api.c \
 	source/MAC/virtual_rf/virtual_rf_client.c \

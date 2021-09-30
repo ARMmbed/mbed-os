@@ -2006,7 +2006,7 @@ void thread_reset_neighbour_info(protocol_interface_info_entry_t *cur, mac_neigh
 
     if (!thread_i_am_router(cur) && thread_endnode_parent && thread_endnode_parent->shortAddress == neighbour->mac16) {
         if (cur->nwk_bootstrap_state != ER_CHILD_ID_REQ) {
-            tr_warn("End device lost parent, reset!\n");
+            tr_warn("End device lost parent, reset!");
             thread_bootstrap_connection_error(cur->id, CON_PARENT_CONNECT_DOWN, NULL);
         }
     }
@@ -2238,18 +2238,18 @@ int thread_common_primary_bbr_get(struct protocol_interface_info_entry *cur, uin
                 (service_tlv_ptr[0] & 0x80) && // THREAD_ENTERPRISE_NUMBER
                 service_tlv_ptr[1] == 1 && // length 1
                 service_tlv_ptr[2] == THREAD_SERVICE_DATA_BBR) {
-            //tr_info("BBR service TLV: %s\r\n", trace_array(service_tlv_ptr, service_tlv_len));
+            //tr_info("BBR service TLV: %s", trace_array(service_tlv_ptr, service_tlv_len));
             // try to parse SUB-TLVs
             // network_data_server_tlv_parse(service_tlv_ptr, tlv_length);
             uint16_t server_tlv_len = 0;
             uint8_t *server_tlv_ptr = thread_common_server_tlv_list_get(service_tlv_ptr, service_tlv_len, &server_tlv_len);
             uint16_t found_tlv_len;
             uint8_t *found_tlv = NULL;
-            //tr_info("BBR server TLV: %s\r\n", trace_array(server_tlv_ptr, server_tlv_len));
+            //tr_info("BBR server TLV: %s", trace_array(server_tlv_ptr, server_tlv_len));
             do {
                 found_tlv_len = thread_meshcop_tlv_find_next(server_tlv_ptr, server_tlv_len, THREAD_NWK_DATA_TYPE_SERVER_DATA | THREAD_NWK_STABLE_DATA, &found_tlv);
                 if (found_tlv && found_tlv_len > 8) {
-                    //tr_info("BBR server TLV: %s\r\n", trace_array(found_tlv, found_tlv_len));
+                    //tr_info("BBR server TLV: %s", trace_array(found_tlv, found_tlv_len));
                     if (addr_ptr) {
                         thread_addr_write_mesh_local_16(addr_ptr, common_read_16_bit(found_tlv), cur->thread_info);
                     }
