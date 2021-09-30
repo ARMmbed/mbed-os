@@ -3168,6 +3168,26 @@
             "system_power_supply": "PWR_LDO_SUPPLY"
         }
     },
+    "MCU_STM32H735xG": {
+        "inherits": [
+            "MCU_STM32H7"
+        ],
+        "public": false,
+        "core": "Cortex-M7FD",
+        "mbed_rom_start": "0x08000000",
+        "mbed_rom_size": "0x100000",
+        "mbed_ram_start": "0x24000000",
+        "mbed_ram_size": "0x50000",
+        "extra_labels_add": [
+            "STM32H735xG"
+        ],
+        "macros_add": [
+            "STM32H735xx"
+        ],
+        "overrides": {
+            "system_power_supply": "PWR_LDO_SUPPLY"
+        }
+    },
     "MCU_STM32H743xI": {
         "inherits": [
             "MCU_STM32H7"
