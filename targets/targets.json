@@ -3529,6 +3529,26 @@
             "0860"
         ]
     },
+    "MCU_STM32H7B3xIQ": {
+        "inherits": [
+            "MCU_STM32H7"
+        ],
+        "public": false,
+        "core": "Cortex-M7FD",
+        "mbed_rom_start": "0x08000000",
+        "mbed_rom_size": "0x200000",
+        "mbed_ram_start": "0x24000000",
+        "mbed_ram_size": "0x100000",
+        "extra_labels_add": [
+            "STM32H7B3xIQ"
+        ],
+        "macros_add": [
+            "STM32H7B3xxQ"
+        ],
+        "overrides": {
+            "system_power_supply": "PWR_DIRECT_SMPS_SUPPLY"
+        }
+    },
     "MCU_STM32L0": {
         "inherits": [
             "MCU_STM32"
