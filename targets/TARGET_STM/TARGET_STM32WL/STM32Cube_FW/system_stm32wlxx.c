@@ -138,8 +138,7 @@
 #define VECT_TAB_OFFSET         0x00008000U     /*!< Vector Table base offset field.
                                                      This value must be a multiple of 0x100. */
 #else
-#include "nvic_addr.h"                   // MBED
-  SCB->VTOR = NVIC_FLASH_VECTOR_ADDRESS; // MBED
+#define VECT_TAB_BASE_ADDRESS   FLASH_BASE      /*!< Vector Table base address field.
                                                      This value must be a multiple of 0x100. */
 #define VECT_TAB_OFFSET         0x00020000U        /*!< Vector Table base offset field.
                                                      This value must be a multiple of 0x100. */
@@ -154,8 +153,7 @@
 #define VECT_TAB_OFFSET         0x00000000U     /*!< Vector Table base offset field.
                                                      This value must be a multiple of 0x200. */
 #else
-#include "nvic_addr.h"                   // MBED
-  SCB->VTOR = NVIC_FLASH_VECTOR_ADDRESS; // MBED
+#define VECT_TAB_BASE_ADDRESS   FLASH_BASE      /*!< Vector Table base address field.
                                                      This value must be a multiple of 0x200. */
 #define VECT_TAB_OFFSET         0x00000000U     /*!< Vector Table base offset field.
                                                      This value must be a multiple of 0x200. */
@@ -211,11 +209,12 @@
   * @param  None
   * @retval None
   */
-void SystemInit(void)
+__WEAK void SystemInit(void)
 {
+#include "nvic_addr.h"                   // MBED
+  SCB->VTOR = NVIC_FLASH_VECTOR_ADDRESS; // MBED
 #if defined(USER_VECT_TAB_ADDRESS)
   /* Configure the Vector Table location add offset address ------------------*/
-  SCB->VTOR = VECT_TAB_BASE_ADDRESS | VECT_TAB_OFFSET;
 #endif
 
   /* FPU settings ------------------------------------------------------------*/

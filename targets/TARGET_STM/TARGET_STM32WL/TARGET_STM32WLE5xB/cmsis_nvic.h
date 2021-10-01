@@ -22,7 +22,7 @@
 #endif
 
 #if !defined(MBED_ROM_SIZE)
-#define MBED_ROM_SIZE  0x0  // 0 B
+#define MBED_ROM_SIZE  0x20000  // 128 KB
 #endif
 
 #if !defined(MBED_RAM_START)
@@ -30,7 +30,7 @@
 #endif
 
 #if !defined(MBED_RAM_SIZE)
-#define MBED_RAM_SIZE  0x0  // 0 B
+#define MBED_RAM_SIZE  0xC000  // 48 KB
 #endif
 
 #define NVIC_NUM_VECTORS        78
