@@ -58,6 +58,7 @@ pull_request_rules:
       # Jenkins CI failing
       - check-failure~=continuous-integration/jenkins/pr-head
       - "label!=mergify skip"
+      - -closed
     actions:
       label:
         add: ['needs: work']
