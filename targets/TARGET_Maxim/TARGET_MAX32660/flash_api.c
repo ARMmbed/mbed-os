@@ -89,7 +89,7 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
     int32_t status = E_BUSY;
 
     while ( status == E_BUSY )  {
-        status = MXC_FLC_Write(address, size, data);
+        status = MXC_FLC_Write(address, size, (uint32_t *)data);
     }
 
     if (status != 0) {

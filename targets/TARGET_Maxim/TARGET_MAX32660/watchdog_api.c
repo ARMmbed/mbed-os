@@ -73,9 +73,6 @@ watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
     // WDT Enable RESET
     MXC_WDT_EnableReset(MXC_WDT0);
     
-    //NVIC_SetVector(WDT0_IRQn, WDT0_IRQHandler);     
-    //NVIC_EnableIRQ(WDT0_IRQn);
-    
     // WDT Enable
     MXC_WDT_Enable(MXC_WDT0);  
 
