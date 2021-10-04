@@ -1,0 +1,73 @@
+{
+    "name": "emw3080b",
+    "config": {
+        "wifi-spi-interface": {
+            "help": "SPI interface if true / UART interface if false",
+            "value": "NC"
+        },
+        "wifi-miso": {
+            "help": "SPI-MISO connection to external device",
+            "value": "NC"
+        },
+        "wifi-mosi": {
+            "help": "SPI-MOSI connection to external device",
+            "value": "NC"
+        },
+        "wifi-sclk": {
+            "help": "SPI-CLOCK connection to external device",
+            "value": "NC"
+        },
+        "wifi-nss": {
+            "help": "SPI chip select of external device",
+            "value": "NC"
+        },
+        "wifi-notify": {
+            "help": "EMW3080B notify from externam device",
+            "value": "NC"
+        },
+        "wifi-flow": {
+            "help": "EMW3080B flow from externam device",
+            "value": "NC"
+        },
+        "wifi-reset": {
+            "help": "EMW3080B reset to external device",
+            "value": "NC"
+        },
+        "wifi-tx": {
+            "help": "EMW3080B uart tx to external device",
+            "value": "NC"
+        },
+        "wifi-rx": {
+            "help": "EMW3080B uart rx from external device",
+            "value": "NC"
+        },
+        "wifi-debug": {
+            "help": "Defines whether logging is on or off",
+            "value": false
+        },
+        "provide-default": {
+            "help": "Provide default WifiInterface. [true/false]",
+            "value": false
+        }
+    },
+    "target_overrides": {
+        "B_U585I_IOT02A": {
+            "wifi-spi-interface": true,
+            "wifi-miso":   "PD_3",
+            "wifi-mosi":   "PD_4",
+            "wifi-sclk":   "PD_1",
+            "wifi-nss":    "PB_12",
+            "wifi-notify": "PD_14",
+            "wifi-flow":   "PG_15",
+            "wifi-reset":  "PF_15",
+            "provide-default": true
+        },
+        "B_U585I_IOT02A__ARDUINO_SHIELD": {
+            "wifi-spi-interface": false,
+            "wifi-tx": "ARDUINO_UNO_D1",
+            "wifi-rx": "ARDUINO_UNO_D0",
+            "wifi-reset": "ARDUINO_UNO_D13",
+            "provide-default": true
+        }
+    }
+}
