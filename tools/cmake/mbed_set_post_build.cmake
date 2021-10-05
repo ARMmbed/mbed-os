@@ -88,11 +88,20 @@ function(mbed_set_post_build target)
     # executable suffix for all toolchains as CMake hardcodes the name of the
     # diagnostic output file for some toolchains.
 
-    # COPY_FILE could be used with cmake >=3.21
-    file(COPY_FILE 
-            "${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map" 
-            "${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map.old"
-            RESULT 0)
+    # copy mapfile .map to .map.old for ram/rom statistics diff in memap.py
+    if(EXISTS ${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map)
+        add_custom_command(
+            TARGET
+                ${target}
+            PRE_BUILD
+            COMMAND
+                ${CMAKE_COMMAND} -E rename "${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map" "${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map.old"
+            COMMENT
+                "executable:"
+            VERBATIM
+        )
+    endif()
+    
     mbed_configure_memory_map(${target} "${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map")
     mbed_validate_application_profile(${target})
     mbed_generate_bin_hex(${target})
