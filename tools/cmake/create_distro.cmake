@@ -48,8 +48,6 @@ function(mbed_create_distro NAME) # ARGN: modules...
 
 		list(GET REMAINING_MODULES 0 CURR_MODULE)
 
-		#message("Processing ${CURR_MODULE}")
-
 		copy_append_property(INTERFACE_COMPILE_DEFINITIONS ${CURR_MODULE} ${NAME})
 		copy_append_property(INTERFACE_COMPILE_OPTIONS ${CURR_MODULE} ${NAME})
 		copy_append_property(INTERFACE_INCLUDE_DIRECTORIES ${CURR_MODULE} ${NAME})
@@ -60,7 +58,6 @@ function(mbed_create_distro NAME) # ARGN: modules...
 
 		# find sub-modules of this module
 		get_property(SUBMODULES TARGET ${CURR_MODULE} PROPERTY INTERFACE_LINK_LIBRARIES)
-		#message("Deps of ${CURR_MODULE}: ${SUBMODULES}")
 		foreach(SUBMODULE ${SUBMODULES})
 			if(NOT "${SUBMODULE}" MATCHES "::@") # remove CMake internal CMAKE_DIRECTORY_ID_SEP markers
 				if(NOT ${SUBMODULE} IN_LIST COMPLETED_MODULES)
@@ -68,9 +65,7 @@ function(mbed_create_distro NAME) # ARGN: modules...
 				endif()
 			endif()
 		endforeach()
-
-		#message("REMAINING_MODULES: ${REMAINING_MODULES}")
-
+		
 	endwhile()
 
 endfunction(mbed_create_distro)
