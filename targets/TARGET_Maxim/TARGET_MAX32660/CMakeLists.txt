@@ -56,7 +56,6 @@ target_sources(mbed-max32660
         ${MXM_SOURCE_DIR}/SYS/mxc_lock.c
         ${MXM_SOURCE_DIR}/SYS/pins_me11.c
         ${MXM_SOURCE_DIR}/SYS/sys_me11.c
-        ${MXM_SOURCE_DIR}/SYS/nvic_table.c
 
         ${MXM_SOURCE_DIR}/DMA/dma_me11.c
         ${MXM_SOURCE_DIR}/DMA/dma_reva.c
