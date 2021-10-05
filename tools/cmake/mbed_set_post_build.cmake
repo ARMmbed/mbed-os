@@ -97,8 +97,7 @@ function(mbed_set_post_build target)
             COMMAND
                 ${CMAKE_COMMAND} -E rename "${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map" "${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map.old"
             COMMENT
-                "executable:"
-            VERBATIM
+                "rename mapfile .map to .map.old for memap.py ram/rom diff statistics"
         )
     endif()
     
