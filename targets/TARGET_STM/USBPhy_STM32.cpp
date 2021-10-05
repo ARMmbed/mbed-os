@@ -194,7 +194,7 @@ USBPhyHw::~USBPhyHw()
 
 #if defined(TARGET_STM32F1) || defined(TARGET_STM32F3) || defined(SYSCFG_PMC_USB_PU)
 
-#include "drivers/DigitalOut.h"
+#include "drivers/DigitalInOut.h"
 
 void USB_reenumerate()
 {
@@ -204,14 +204,15 @@ void USB_reenumerate()
     wait_us(10000); // 10ms
     LL_SYSCFG_EnableUSBPullUp();
 #elif defined(USB_PULLUP_CONTROL)
-    mbed::DigitalOut usb_dp_pin(USB_PULLUP_CONTROL, 0);
+    mbed::DigitalInOut usb_dp_pin(USB_PULLUP_CONTROL, PIN_OUTPUT, PullNone, 0);
     wait_us(1000);
     usb_dp_pin = 1;
     wait_us(1000);
 #else
     // Force USB_DP pin (with external pull up) to 0
-    mbed::DigitalOut usb_dp_pin(USB_DP, 0);
+    mbed::DigitalInOut usb_dp_pin(USB_DP, PIN_OUTPUT, PullNone, 0);
     wait_us(10000); // 10ms
+    usb_dp_pin.input(); // revert as input
 #endif
 }
 #endif
