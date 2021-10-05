@@ -57,7 +57,7 @@ typedef enum {
 #define PinDef(port_num, pin_num) P##port_num##_##pin_num = NRF_GPIO_PIN_MAP(port_num, pin_num)
 
 
-typedef enum {    
+typedef enum {
     PinDef(0 , 0), // P0_0 = 0...
     PinDef(0 , 1),
     PinDef(0 , 2),
@@ -159,16 +159,6 @@ typedef enum {
     p45 = P1_13,
     p46 = P1_14,
     p47 = P1_15,
-    
-    LED1    = p13,
-    LED2    = p14,
-    LED3    = p15,
-    LED4    = p16,
-
-    BUTTON1 = p11,
-    BUTTON2 = p12,
-    BUTTON3 = p24,
-    BUTTON4 = p25,
 
     RX_PIN_NUMBER  = p8,
     TX_PIN_NUMBER  = p6,
@@ -190,24 +180,6 @@ typedef enum {
 #endif
     STDIO_UART_CTS = CTS_PIN_NUMBER,
     STDIO_UART_RTS = RTS_PIN_NUMBER,
-
-    SPI_PSELMOSI0 = P1_13,
-    SPI_PSELMISO0 = P1_14,
-    SPI_PSELSS0   = P1_12,
-    SPI_PSELSCK0  = P1_15,
-
-    SPI_PSELMOSI1 = P1_2,
-    SPI_PSELMISO1 = P1_3,
-    SPI_PSELSS1   = P1_1,
-    SPI_PSELSCK1  = P1_4,
-
-    SPIS_PSELMOSI = P1_2,
-    SPIS_PSELMISO = P1_3,
-    SPIS_PSELSS   = P1_1,
-    SPIS_PSELSCK  = P1_4,
-
-    I2C_SDA0 = p26,
-    I2C_SCL0 = p27,
 
     // Arduino Uno pins
     ARDUINO_UNO_D0 = P1_1,
@@ -261,6 +233,34 @@ typedef enum {
     PullUp = 3,
     PullDefault = PullUp
 } PinMode;
+
+#define LED1 p13
+#define LED2 p14
+#define LED3 p15
+#define LED4 p16
+
+#define BUTTON1 p11
+#define BUTTON2 p12
+#define BUTTON3 p24
+#define BUTTON4 p25
+
+#define SPI_PSELMOSI0 P1_13
+#define SPI_PSELMISO0 P1_14
+#define SPI_PSELSS0 P1_12
+#define SPI_PSELSCK0 P1_15
+
+#define SPI_PSELMOSI1 P1_2
+#define SPI_PSELMISO1 P1_3
+#define SPI_PSELSS1 P1_1
+#define SPI_PSELSCK1 P1_4
+
+#define SPIS_PSELMOSI P1_2
+#define SPIS_PSELMISO P1_3
+#define SPIS_PSELSS P1_1
+#define SPIS_PSELSCK P1_4
+
+#define I2C_SDA0 p26
+#define I2C_SCL0 p27
 
 #ifdef __cplusplus
 }
