@@ -25,7 +25,6 @@ function(copy_append_property PROPERTY SOURCE DESTINATION)
 	get_property(PROP_IS_DEFINED TARGET ${SOURCE} PROPERTY ${PROPERTY} SET)
 	if(PROP_IS_DEFINED)
 		get_property(PROP_VALUE TARGET ${SOURCE} PROPERTY ${PROPERTY})
-		#message("Copying ${PROPERTY} from ${SOURCE} -> ${DESTINATION}: ${PROP_VALUE} ")
 		set_property(TARGET ${DESTINATION} APPEND PROPERTY ${PROPERTY} "${PROP_VALUE}")
 	endif()
 endfunction(copy_append_property)
@@ -65,7 +64,7 @@ function(mbed_create_distro NAME) # ARGN: modules...
 				endif()
 			endif()
 		endforeach()
-		
+
 	endwhile()
 
 endfunction(mbed_create_distro)
