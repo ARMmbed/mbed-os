@@ -22,20 +22,34 @@
 #endif
 
 #if !defined(MBED_ROM_SIZE)
+// 0x0x08000000-0x080FFFFF Bank1 (8 x 128K sectors)
+// 0x0x08100000-0x081FFFFF Bank2 (8 x 128K sectors)
 #define MBED_ROM_SIZE  0x200000  // 2.0 MB
 #endif
 
 #if !defined(MBED_RAM_START)
-#define MBED_RAM_START  0x24000000
+#define MBED_RAM_START  0x20000000
 #endif
 
 #if !defined(MBED_RAM_SIZE)
-#define MBED_RAM_SIZE  0x80000  // 512 KB
+// 0x38000000 - 0x3800FFFF 64K  SRAM4
+// 0x30040000 - 0x30047FFF 32K  SRAM3
+// 0x30020000 - 0x3003FFFF 128K SRAM2
+// 0x30000000 - 0x3001FFFF 128K SRAM1
+// 0x24000000 - 0x2407FFFF 512K AXI SRAM
+// 0x20000000 - 0x2001FFFF 128K DTCM
+#define MBED_RAM_SIZE  0x20000  // 128 KB
 #endif
 
-// DON'T USE MBED_RAM1_START and MBED_RAM1_SIZE (wrong values in tools/arm_pack_manager/index.json)
+#if !defined(MBED_RAM1_START)
+#define MBED_RAM1_START  0x24000000
+#endif
+
+#if !defined(MBED_RAM1_SIZE)
+#define MBED_RAM1_SIZE  0x80000  // 512 KB
+#endif
 
 #define NVIC_NUM_VECTORS        166
-#define NVIC_RAM_VECTOR_ADDRESS 0x20000000
+#define NVIC_RAM_VECTOR_ADDRESS MBED_RAM_START
 
 #endif
