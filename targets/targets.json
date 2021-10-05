@@ -5727,6 +5727,7 @@
         "inherits": [
             "Target"
         ],
+        "public": false,
         "core": "Cortex-M4F",
         "macros": [
             "__SYSTEM_HFX=96000000",
