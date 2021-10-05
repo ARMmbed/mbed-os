@@ -134,6 +134,14 @@ typedef enum {
 // Standardized LED and button names
 #define LED1     PB_3
 
+#define I2C_SDA  D4
+#define I2C_SCL  D5
+
+#define SPI_SCK  D10
+#define SPI_MOSI D11
+#define SPI_MISO D12
+#define SPI_CS   D13
+
 #ifdef __cplusplus
 }
 #endif

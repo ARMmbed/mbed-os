@@ -20,12 +20,8 @@
 #include "ns_types.h"
 
 #ifdef NS_USE_EXTERNAL_MBED_TLS
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "mbedtls/config.h"
-#else
 // cppcheck-suppress preprocessorErrorDirective
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "mbedtls/version.h"
 
 #if defined(MBEDTLS_SSL_TLS_C)
 #include "mbedtls/ssl.h"

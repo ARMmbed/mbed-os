@@ -154,10 +154,9 @@ struct dac_s {
 
 #if DEVICE_CAN
 struct can_s {
-    CAN_HandleTypeDef CanHandle;
+    FDCAN_HandleTypeDef CanHandle;
     int index;
     int hz;
-    int rxIrqEnabled;
 };
 #endif
 

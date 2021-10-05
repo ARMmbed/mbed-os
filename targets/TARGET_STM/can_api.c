@@ -24,7 +24,7 @@
 #include "PeripheralPins.h"
 #include "mbed_error.h"
 
-static uint32_t can_irq_ids[2] = {0};
+static uintptr_t can_irq_contexts[2] = {0};
 static can_irq_handler irq_handler;
 
 /** Call all the init functions
@@ -68,7 +68,11 @@ static void _can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz
 {
     MBED_ASSERT((int)pinmap->peripheral != NC);
 
+#if defined(__HAL_RCC_FDCAN1_CLK_ENABLE)
+    __HAL_RCC_FDCAN1_CLK_ENABLE();
+#else
     __HAL_RCC_FDCAN_CLK_ENABLE();
+#endif
 
     if (pinmap->peripheral == CAN_1) {
         obj->index = 0;
@@ -90,8 +94,13 @@ static void _can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz
 
     // Select PLL1Q as source of FDCAN clock
     RCC_PeriphCLKInitTypeDef RCC_PeriphClkInit;
+#if (defined RCC_PERIPHCLK_FDCAN1)
+    RCC_PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_FDCAN1;
+    RCC_PeriphClkInit.Fdcan1ClockSelection = RCC_FDCAN1CLKSOURCE_PLL1;
+#else
     RCC_PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
-    RCC_PeriphClkInit.FdcanClockSelection = RCC_FDCANCLKSOURCE_PLL; // 10 MHz (RCC_OscInitStruct.PLL.PLLQ = 80)
+    RCC_PeriphClkInit.FdcanClockSelection = RCC_FDCANCLKSOURCE_PLL;
+#endif
 #if defined(DUAL_CORE) && (TARGET_STM32H7)
     while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
     }
@@ -128,14 +137,18 @@ static void _can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz
     // !Attention Not all bitrates can be covered with all fdcan-core-clk values. When a clk
     // does not work for the desired bitrate, change system_clock settings for FDCAN_CLK
     // (default FDCAN_CLK is PLLQ)
-#ifdef TARGET_STM32G4
-    int ntq = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN) / hz;
-#else
+#if (defined TARGET_STM32H7)
     // STM32H7 doesn't support yet HAL_RCCEx_GetPeriphCLKFreq for FDCAN
     // We use PLL1.Q clock right now so get its frequency
     PLL1_ClocksTypeDef pll1_clocks;
     HAL_RCCEx_GetPLL1ClockFreq(&pll1_clocks);
     int ntq = pll1_clocks.PLL1_Q_Frequency / hz;
+#else
+#if (defined RCC_PERIPHCLK_FDCAN1)
+    int ntq = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN1) / hz;
+#else
+    int ntq = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN) / hz;
+#endif
 #endif
 
     int nominalPrescaler = 1;
@@ -222,10 +235,10 @@ void can_init(can_t *obj, PinName rd, PinName td)
     can_init_freq(obj, rd, td, 100000);
 }
 
-void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id)
+void can_irq_init(can_t *obj, can_irq_handler handler, uintptr_t context)
 {
     irq_handler = handler;
-    can_irq_ids[obj->index] = id;
+    can_irq_contexts[obj->index] = context;
 }
 
 void can_irq_free(can_t *obj)
@@ -250,10 +263,10 @@ void can_irq_free(can_t *obj)
     else {
         return;
     }
-#ifndef TARGET_STM32G4
+#if (defined TARGET_STM32H7)
     HAL_NVIC_DisableIRQ(FDCAN_CAL_IRQn);
 #endif
-    can_irq_ids[obj->index] = 0;
+    can_irq_contexts[obj->index] = 0;
 }
 
 void can_free(can_t *obj)
@@ -262,12 +275,21 @@ void can_free(can_t *obj)
     while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
     }
 #endif /* DUAL_CORE */
+#if defined(__HAL_RCC_FDCAN1_FORCE_RESET)
+    __HAL_RCC_FDCAN1_FORCE_RESET();
+    __HAL_RCC_FDCAN1_RELEASE_RESET();
+#else
     __HAL_RCC_FDCAN_FORCE_RESET();
     __HAL_RCC_FDCAN_RELEASE_RESET();
+#endif
 #if defined(DUAL_CORE) && (TARGET_STM32H7)
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
 #endif /* DUAL_CORE */
+#if defined(__HAL_RCC_FDCAN1_CLK_DISABLE)
+    __HAL_RCC_FDCAN1_CLK_DISABLE();
+#else
     __HAL_RCC_FDCAN_CLK_DISABLE();
+#endif
 }
 
 
@@ -296,13 +318,17 @@ int can_frequency(can_t *obj, int f)
      * does not work for the desired bitrate, change system_clock settings for FDCAN_CLK
      * (default FDCAN_CLK is PLLQ)
      */
-#ifdef TARGET_STM32G4
-    int ntq = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN) / f;
-#else
+#if (defined TARGET_STM32H7)
     // STM32H7 doesn't support yet HAL_RCCEx_GetPeriphCLKFreq for FDCAN
     PLL1_ClocksTypeDef pll1_clocks;
     HAL_RCCEx_GetPLL1ClockFreq(&pll1_clocks);
     int ntq = pll1_clocks.PLL1_Q_Frequency / f;
+#else
+#if (defined RCC_PERIPHCLK_FDCAN1)
+    int ntq = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN1) / f;
+#else
+    int ntq = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN) / f;
+#endif
 #endif
 
     int nominalPrescaler = 1;
@@ -517,42 +543,42 @@ static void can_irq(CANName name, int id)
     if (__HAL_FDCAN_GET_IT_SOURCE(&CanHandle, FDCAN_IT_TX_COMPLETE)) {
         if (__HAL_FDCAN_GET_FLAG(&CanHandle, FDCAN_FLAG_TX_COMPLETE)) {
             __HAL_FDCAN_CLEAR_FLAG(&CanHandle, FDCAN_FLAG_TX_COMPLETE);
-            irq_handler(can_irq_ids[id], IRQ_TX);
+            irq_handler(can_irq_contexts[id], IRQ_TX);
         }
     }
-#ifndef TARGET_STM32G4
+#if (defined FDCAN_IT_RX_BUFFER_NEW_MESSAGE)
     if (__HAL_FDCAN_GET_IT_SOURCE(&CanHandle, FDCAN_IT_RX_BUFFER_NEW_MESSAGE)) {
         if (__HAL_FDCAN_GET_FLAG(&CanHandle, FDCAN_IT_RX_BUFFER_NEW_MESSAGE)) {
             __HAL_FDCAN_CLEAR_FLAG(&CanHandle, FDCAN_IT_RX_BUFFER_NEW_MESSAGE);
-            irq_handler(can_irq_ids[id], IRQ_RX);
+            irq_handler(can_irq_contexts[id], IRQ_RX);
         }
     }
 #else
     if (__HAL_FDCAN_GET_IT_SOURCE(&CanHandle, FDCAN_IT_RX_FIFO0_NEW_MESSAGE)) {
         if (__HAL_FDCAN_GET_FLAG(&CanHandle, FDCAN_IT_RX_FIFO0_NEW_MESSAGE)) {
             __HAL_FDCAN_CLEAR_FLAG(&CanHandle, FDCAN_IT_RX_FIFO0_NEW_MESSAGE);
-            irq_handler(can_irq_ids[id], IRQ_RX);
+            irq_handler(can_irq_contexts[id], IRQ_RX);
         }
     }
 #endif
     if (__HAL_FDCAN_GET_IT_SOURCE(&CanHandle, FDCAN_IT_ERROR_WARNING)) {
         if (__HAL_FDCAN_GET_FLAG(&CanHandle, FDCAN_FLAG_ERROR_WARNING)) {
             __HAL_FDCAN_CLEAR_FLAG(&CanHandle, FDCAN_FLAG_ERROR_WARNING);
-            irq_handler(can_irq_ids[id], IRQ_ERROR);
+            irq_handler(can_irq_contexts[id], IRQ_ERROR);
         }
     }
 
     if (__HAL_FDCAN_GET_IT_SOURCE(&CanHandle, FDCAN_IT_ERROR_PASSIVE)) {
         if (__HAL_FDCAN_GET_FLAG(&CanHandle, FDCAN_FLAG_ERROR_PASSIVE)) {
             __HAL_FDCAN_CLEAR_FLAG(&CanHandle, FDCAN_FLAG_ERROR_PASSIVE);
-            irq_handler(can_irq_ids[id], IRQ_PASSIVE);
+            irq_handler(can_irq_contexts[id], IRQ_PASSIVE);
         }
     }
 
     if (__HAL_FDCAN_GET_IT_SOURCE(&CanHandle, FDCAN_IT_BUS_OFF)) {
         if (__HAL_FDCAN_GET_FLAG(&CanHandle, FDCAN_FLAG_BUS_OFF)) {
             __HAL_FDCAN_CLEAR_FLAG(&CanHandle, FDCAN_FLAG_BUS_OFF);
-            irq_handler(can_irq_ids[id], IRQ_BUS);
+            irq_handler(can_irq_contexts[id], IRQ_BUS);
         }
     }
 }
@@ -602,7 +628,7 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
             interrupts = FDCAN_IT_TX_COMPLETE;
             break;
         case IRQ_RX:
-#ifndef TARGET_STM32G4
+#if (defined FDCAN_IT_RX_BUFFER_NEW_MESSAGE)
             interrupts = FDCAN_IT_RX_BUFFER_NEW_MESSAGE;
 #else
             interrupts = FDCAN_IT_RX_FIFO0_NEW_MESSAGE;
@@ -666,7 +692,7 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
 
 #define DEFAULT_RXFIFO    0 // default rx fifo for can by hardware is FIFO0
 
-static uint32_t can_irq_ids[CAN_NUM] = {0};
+static uint32_t can_irq_contexts[CAN_NUM] = {0};
 static can_irq_handler irq_handler;
 
 static void can_registers_init(can_t *obj)
@@ -774,10 +800,10 @@ void can_init(can_t *obj, PinName rd, PinName td)
     can_init_freq(obj, rd, td, 100000);
 }
 
-void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id)
+void can_irq_init(can_t *obj, can_irq_handler handler, uintptr_t context)
 {
     irq_handler = handler;
-    can_irq_ids[obj->index] = id;
+    can_irq_contexts[obj->index] = context;
     obj->rxIrqEnabled = false;
 }
 
@@ -787,7 +813,7 @@ void can_irq_free(can_t *obj)
 
     can->IER &= ~(CAN_IT_FMP0 | CAN_IT_FMP1 | CAN_IT_TME | \
                   CAN_IT_ERR | CAN_IT_EPV | CAN_IT_BOF);
-    can_irq_ids[obj->index] = 0;
+    can_irq_contexts[obj->index] = 0;
     obj->rxIrqEnabled = false;
 }
 
@@ -1177,7 +1203,7 @@ static void can_irq(CANName name, int id)
             __HAL_CAN_CLEAR_FLAG(&CanHandle, CAN_FLAG_RQCP2);
         }
         if (tmp1 || tmp2 || tmp3) {
-            irq_handler(can_irq_ids[id], IRQ_TX);
+            irq_handler(can_irq_contexts[id], IRQ_TX);
         }
     }
 
@@ -1191,7 +1217,7 @@ static void can_irq(CANName name, int id)
     __HAL_CAN_DISABLE_IT(&CanHandle, CAN_IT_FMP0);
 
     if ((tmp1 != 0) && tmp2) {
-        irq_handler(can_irq_ids[id], IRQ_RX);
+        irq_handler(can_irq_contexts[id], IRQ_RX);
     }
 
     tmp1 = __HAL_CAN_GET_FLAG(&CanHandle, CAN_FLAG_EPV);
@@ -1199,19 +1225,19 @@ static void can_irq(CANName name, int id)
     tmp3 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_ERR);
 
     if (tmp1 && tmp2 && tmp3) {
-        irq_handler(can_irq_ids[id], IRQ_PASSIVE);
+        irq_handler(can_irq_contexts[id], IRQ_PASSIVE);
     }
 
     tmp1 = __HAL_CAN_GET_FLAG(&CanHandle, CAN_FLAG_BOF);
     tmp2 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_BOF);
     tmp3 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_ERR);
     if (tmp1 && tmp2 && tmp3) {
-        irq_handler(can_irq_ids[id], IRQ_BUS);
+        irq_handler(can_irq_contexts[id], IRQ_BUS);
     }
 
     tmp3 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_ERR);
     if (tmp1 && tmp2 && tmp3) {
-        irq_handler(can_irq_ids[id], IRQ_ERROR);
+        irq_handler(can_irq_contexts[id], IRQ_ERROR);
     }
 }
 

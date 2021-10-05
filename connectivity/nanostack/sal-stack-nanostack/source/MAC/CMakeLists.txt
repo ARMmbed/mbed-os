@@ -19,6 +19,7 @@ target_sources(mbed-nanostack-sal_stack
         IEEE802_15_4/mac_indirect_data.c
         IEEE802_15_4/mac_mcps_sap.c
         IEEE802_15_4/mac_mlme.c
+        IEEE802_15_4/mac_mode_switch.c
         IEEE802_15_4/mac_pd_sap.c
         IEEE802_15_4/mac_security_mib.c
         IEEE802_15_4/mac_timer.c

@@ -43,6 +43,7 @@ target_sources(mbed-stm32g0cube-fw
         STM32G0xx_HAL_Driver/stm32g0xx_hal_smartcard.c
         STM32G0xx_HAL_Driver/stm32g0xx_hal_smartcard_ex.c
         STM32G0xx_HAL_Driver/stm32g0xx_hal_smbus.c
+        STM32G0xx_HAL_Driver/stm32g0xx_hal_smbus_ex.c
         STM32G0xx_HAL_Driver/stm32g0xx_hal_spi.c
         STM32G0xx_HAL_Driver/stm32g0xx_hal_spi_ex.c
         STM32G0xx_HAL_Driver/stm32g0xx_hal_tim.c

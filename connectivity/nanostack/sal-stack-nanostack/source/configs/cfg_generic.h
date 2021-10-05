@@ -32,4 +32,5 @@
 #define TCP_TEST
 #define THREAD_THCI_SUPPORT
 #define HAVE_WS
+#define HAVE_WS_VERSION_1_1
 #define MLE_TEST

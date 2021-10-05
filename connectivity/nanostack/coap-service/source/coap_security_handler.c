@@ -23,12 +23,12 @@
 
 #ifdef COAP_SECURITY_AVAILABLE
 
+#include "mbedtls/version.h"
 #include "mbedtls/sha256.h"
 #include "mbedtls/error.h"
 #include "mbedtls/platform.h"
 #include "mbedtls/ssl_cookie.h"
 #include "mbedtls/entropy.h"
-#include "mbedtls/entropy_poll.h"
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/hmac_drbg.h"
 #include "mbedtls/ssl_ciphersuites.h"
@@ -310,6 +310,7 @@ static int simple_cookie_check(void *ctx,
 
 /**** Key export function ****/
 #if defined(MBEDTLS_KEY_EXCHANGE_ECJPAKE_ENABLED)
+#if (MBEDTLS_VERSION_MAJOR < 3)
 static int export_key_block(void *ctx,
                             const unsigned char *mk, const unsigned char *kb,
                             size_t maclen, size_t keylen, size_t ivlen)
@@ -330,6 +331,7 @@ static int export_key_block(void *ctx,
     return 0;
 }
 #endif
+#endif
 
 static int coap_security_handler_configure_keys(coap_security_t *sec, coap_security_keys_t keys, bool is_server)
 {
@@ -343,9 +345,15 @@ static int coap_security_handler_configure_keys(coap_security_t *sec, coap_secur
                 break;
             }
 
+#if (MBEDTLS_VERSION_MAJOR >= 3)
+            if (mbedtls_pk_parse_key(&sec->_pkey, keys._priv_key, keys._priv_key_len, NULL, 0, DRBG_RANDOM, &sec->_drbg) < 0) {
+                break;
+            }
+#else
             if (mbedtls_pk_parse_key(&sec->_pkey, keys._priv_key, keys._priv_key_len, NULL, 0) < 0) {
                 break;
             }
+#endif
 
             if (0 != mbedtls_ssl_conf_own_cert(&sec->_conf, &sec->_owncert, &sec->_pkey)) {
                 break;
@@ -378,10 +386,15 @@ static int coap_security_handler_configure_keys(coap_security_t *sec, coap_secur
             mbedtls_ssl_conf_ciphersuites(&sec->_conf, ECJPAKE_SUITES);
 #endif /* !defined(MBEDTLS_SSL_CONF_SINGLE_CIPHERSUITE) */
 
+#if (MBEDTLS_VERSION_MAJOR >= 3)
+            tr_error("FATAL ERROR: support for mbedtls_ssl_set_export_keys_cb() not implemented");
+#else
             //NOTE: If thread starts supporting PSK in other modes, then this will be needed!
             mbedtls_ssl_conf_export_keys_cb(&sec->_conf,
                                             export_key_block,
                                             &sec->_keyblk);
+#endif
+
             ret = 0;
 #endif
             break;
@@ -512,9 +525,15 @@ int coap_security_handler_continue_connecting(coap_security_t *sec)
             return ret;
         }
 
+#if (MBEDTLS_VERSION_MAJOR >= 3)
+        if (sec->_ssl.private_state == MBEDTLS_SSL_HANDSHAKE_OVER) {
+            return 0;
+        }
+#else
         if (sec->_ssl.state == MBEDTLS_SSL_HANDSHAKE_OVER) {
             return 0;
         }
+#endif
     }
 
     if (ret == MBEDTLS_ERR_SSL_WANT_READ || ret == MBEDTLS_ERR_SSL_WANT_WRITE) {

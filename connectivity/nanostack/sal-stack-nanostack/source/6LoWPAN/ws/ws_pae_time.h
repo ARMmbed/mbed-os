@@ -38,7 +38,7 @@ typedef enum {
 #define STIME_TIME_GET(stime) (stime & STIME_TIME_MASK)
 
 // Maximum difference in stored and indicated system time
-#define SYSTEM_TIME_MAXIMUM_DIFF   (60 * 60 * 24 * 30 * 12)
+#define SYSTEM_TIME_MAXIMUM_DIFF   (60 * 60 * 24 * 30) // One month
 
 /**
  * ws_pae_time_to_short_convert convert time to short format
@@ -88,6 +88,28 @@ bool ws_pae_time_from_short_time_compare(uint16_t short_time1, uint16_t short_ti
 int8_t ws_pae_time_diff_calc(uint64_t curr_time, uint64_t comp_time, uint32_t *time_diff, bool future);
 
 /**
+ * ws_pae_time_old_or_new_select selected old or new time (based on difference)
+ *
+ * \param old_time old time
+ * \param new_time new time
+ *
+ * \return old or new time
+ *
+ */
+uint64_t ws_pae_time_old_or_new_select(uint64_t old_time, uint64_t new_time);
+
+/**
+ * ws_pae_time_old_and_new_validate validate old and new time (based on difference)
+ *
+ * \param old_time old time
+ * \param new_time new time
+ *
+ * \return TRUE old time is valid, FALSE old time is not valid
+ *
+ */
+bool ws_pae_time_old_and_new_validate(uint64_t old_time, uint64_t new_time);
+
+/**
  * ws_pae_current_time_get gets current time
  *
  * \return current time in seconds after 1970
@@ -96,7 +118,7 @@ int8_t ws_pae_time_diff_calc(uint64_t curr_time, uint64_t comp_time, uint32_t *t
 uint64_t ws_pae_current_time_get(void);
 
 /**
- * ws_pae_current_time_get updates current time
+ * ws_pae_current_time_update updates current time
  *
  * \param seconds seconds to be added to current time
  *
@@ -104,13 +126,13 @@ uint64_t ws_pae_current_time_get(void);
 void ws_pae_current_time_update(uint16_t seconds);
 
 /**
- * ws_pae_current_time_set sets current time
+ * ws_pae_stored_time_check_and_set stored time check and set current time
  *
- * \param time new time
+ * \param stored_time stored time
  *
  * \return < 0 failure
  * \return >= 0 success
  */
-int8_t ws_pae_current_time_set(uint64_t time);
+int8_t ws_pae_stored_time_check_and_set(uint64_t stored_time);
 
 #endif /* WS_PAE_KEY_STORAGE_H_ */

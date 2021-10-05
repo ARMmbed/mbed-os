@@ -507,7 +507,7 @@ uint32_t sec_prot_keys_gtk_lifetime_get(sec_prot_gtk_keys_t *gtks, uint8_t index
     return gtks->gtk[index].lifetime;
 }
 
-uint32_t sec_prot_keys_gtk_lifetime_decrement(sec_prot_gtk_keys_t *gtks, uint8_t index, uint64_t current_time, uint16_t seconds, bool gtk_update_enable)
+uint32_t sec_prot_keys_gtk_lifetime_decrement(sec_prot_gtk_keys_t *gtks, uint8_t index, uint64_t current_time, uint32_t seconds, bool gtk_update_enable)
 {
     if (gtks->gtk[index].lifetime > seconds) {
         gtks->gtk[index].lifetime -= seconds;
@@ -527,6 +527,7 @@ uint32_t sec_prot_keys_gtk_lifetime_decrement(sec_prot_gtk_keys_t *gtks, uint8_t
     // If timestamps differ for more than 5 minutes marks field as updated (and stores to NVM)
     if (diff > 300 && gtk_update_enable) {
         gtks->updated = true;
+        sec_prot_keys_gtk_expirytime_set(gtks, index, expirytime);
     }
 
     return gtks->gtk[index].lifetime;
@@ -716,7 +717,7 @@ int8_t sec_prot_keys_gtk_valid_check(uint8_t *gtk)
     return 0;
 }
 
-gtk_mismatch_e sec_prot_keys_gtks_hash_update(sec_prot_gtk_keys_t *gtks, uint8_t *gtkhash)
+gtk_mismatch_e sec_prot_keys_gtks_hash_update(sec_prot_gtk_keys_t *gtks, uint8_t *gtkhash, bool del_gtk_on_mismatch)
 {
     uint8_t *gtk_hash_ptr = gtkhash;
 
@@ -729,11 +730,15 @@ gtk_mismatch_e sec_prot_keys_gtks_hash_update(sec_prot_gtk_keys_t *gtks, uint8_t
                 uint32_t lifetime = sec_prot_keys_gtk_lifetime_get(gtks, i);
                 if (lifetime > GTK_EXPIRE_MISMATCH_TIME) {
                     tr_info("GTK mismatch %i expired time, lifetime: %"PRIu32"", i, lifetime);
-                    if (mismatch < GTK_LIFETIME_MISMATCH) {
+                    // Only indicate mismatch in case fresh hash is received
+                    if (mismatch < GTK_LIFETIME_MISMATCH && del_gtk_on_mismatch) {
                         mismatch = GTK_LIFETIME_MISMATCH;
                     }
                 }
-                sec_prot_keys_gtk_clear(gtks, i);
+                // Only delete in case fresh hash is received
+                if (del_gtk_on_mismatch) {
+                    sec_prot_keys_gtk_clear(gtks, i);
+                }
             }
         } else {
             // Check is hash matches to existing key
@@ -759,7 +764,10 @@ gtk_mismatch_e sec_prot_keys_gtks_hash_update(sec_prot_gtk_keys_t *gtks, uint8_t
                 if (mismatch < GTK_HASH_MISMATCH) {
                     mismatch = GTK_HASH_MISMATCH;
                 }
-                sec_prot_keys_gtk_clear(gtks, i);
+                // Only delete in case fresh hash is received
+                if (del_gtk_on_mismatch) {
+                    sec_prot_keys_gtk_clear(gtks, i);
+                }
             }
         }
     }

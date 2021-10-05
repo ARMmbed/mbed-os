@@ -101,10 +101,10 @@
                                                }
 #define LPTIM_MST_RESET_ON        __HAL_RCC_LPTIM5_FORCE_RESET
 #define LPTIM_MST_RESET_OFF       __HAL_RCC_LPTIM5_RELEASE_RESET
-#else
+#else // (CORE_CM7) or (CORE_CM4)
 #error "Core not supported"
 #endif
-#else
+#else // (DUAL_CORE) && (TARGET_STM32H7)
 #define LPTIM_MST_BASE            LPTIM1_BASE
 #define LPTIM_MST                 ((LPTIM_TypeDef *)LPTIM_MST_BASE)
 
@@ -112,16 +112,16 @@
 #define RCC_LPTIMCLKSOURCE_LSE    RCC_LPTIM1CLKSOURCE_LSE
 #define RCC_LPTIMCLKSOURCE_LSI    RCC_LPTIM1CLKSOURCE_LSI
 
-#if defined(STM32G071xx)
+#if defined(STM32G051xx) || defined(STM32G061xx) || defined(STM32G071xx) || defined(STM32G081xx) || defined(STM32G0B1xx) || defined(STM32G0C1xx)
 #define LPTIM_MST_IRQ             TIM6_DAC_LPTIM1_IRQn
-#else
+#else // STM32G0xx
 #define LPTIM_MST_IRQ             LPTIM1_IRQn
-#endif
+#endif // STM32G0xx
 #define LPTIM_MST_RCC             __HAL_RCC_LPTIM1_CLK_ENABLE
-
 #define LPTIM_MST_RESET_ON        __HAL_RCC_LPTIM1_FORCE_RESET
 #define LPTIM_MST_RESET_OFF       __HAL_RCC_LPTIM1_RELEASE_RESET
-#endif
+
+#endif // (DUAL_CORE) && (TARGET_STM32H7)
 
 
 

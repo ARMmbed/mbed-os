@@ -45,7 +45,33 @@ uint32_t i2c_get_pclk(I2CName i2c)
                 pclk = HSI_VALUE;
                 break;
         }
-    } else {
+    }
+    else if (i2c == I2C_2) {
+#if defined(RCC_CCIPR_I2C2SEL)
+        clocksource = __HAL_RCC_GET_I2C2_SOURCE();
+        switch (clocksource) {
+            case RCC_I2C2CLKSOURCE_PCLK1:
+                pclk = HAL_RCC_GetPCLK1Freq();
+                break;
+
+            case RCC_I2C2CLKSOURCE_SYSCLK:
+                pclk = HAL_RCC_GetSysClockFreq();
+                break;
+
+            case RCC_I2C2CLKSOURCE_HSI:
+                pclk = HSI_VALUE;
+                break;
+        }
+#else
+        pclk = HAL_RCC_GetPCLK1Freq();
+#endif
+    }
+#if defined I2C3_BASE
+    else if (i2c == I2C_3) {
+        pclk = HAL_RCC_GetPCLK1Freq();
+    }
+#endif
+    else {
         // should not happend
         error("I2C: unknown instance");
     }

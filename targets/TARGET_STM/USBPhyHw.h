@@ -43,8 +43,10 @@
 
 #if MBED_CONF_TARGET_USB_SPEED == USE_USB_NO_OTG
 
-#if defined(TARGET_STM32F1) || defined(TARGET_STM32F3) || defined(TARGET_STM32L1) || defined(TARGET_STM32WB) || defined(TARGET_STM32G4)
+#if defined(TARGET_STM32F1) || defined(TARGET_STM32L1) || defined(TARGET_STM32WB) || defined(TARGET_STM32G4)
 #define USBHAL_IRQn  USB_LP_IRQn
+#elif defined(TARGET_STM32F3)
+#define USBHAL_IRQn  USB_LP_CAN_RX0_IRQn
 #elif defined(TARGET_STM32L5)
 #define USBHAL_IRQn  USB_FS_IRQn
 #else

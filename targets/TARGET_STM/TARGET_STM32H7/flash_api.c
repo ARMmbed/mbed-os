@@ -80,11 +80,15 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
     EraseInitStruct.Sector = GetSector(address);
     EraseInitStruct.NbSectors = 1;
 
+#if defined (DUAL_BANK)
     if (address < FLASH_BANK2_BASE) {
         EraseInitStruct.Banks = FLASH_BANK_1;
     } else {
         EraseInitStruct.Banks = FLASH_BANK_2;
     }
+#else
+    EraseInitStruct.Banks = FLASH_BANK_1;
+#endif
 
     if (HAL_FLASHEx_Erase(&EraseInitStruct, &SectorError) != HAL_OK) {
         status = -1;
@@ -223,7 +227,9 @@ static uint32_t GetSectorBase(uint32_t SectorId, uint32_t BanksId)
     if (BanksId == FLASH_BANK_1) {
         address_sector = FLASH_BANK1_BASE;
     } else {
+#if defined (DUAL_BANK)
         address_sector = FLASH_BANK2_BASE;
+#endif
     }
 
     for (i = 0; i < SectorId; i++) {

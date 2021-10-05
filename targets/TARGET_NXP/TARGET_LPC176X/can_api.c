@@ -64,7 +64,7 @@ struct CANMsg {
 };
 typedef struct CANMsg CANMsg;
 
-static uint32_t can_irq_ids[CAN_NUM] = {0};
+static uintptr_t can_irq_contexts[CAN_NUM] = {0};
 static can_irq_handler irq_handler;
 
 static uint32_t can_disable(can_t *obj) {
@@ -130,18 +130,18 @@ static inline void can_irq(uint32_t icr, uint32_t index) {
     
     for(i = 0; i < 8; i++)
     {
-        if((can_irq_ids[index] != 0) && (icr & (1 << i)))
+        if((can_irq_contexts[index] != 0) && (icr & (1 << i)))
         {
             switch (i) {
-                case 0: irq_handler(can_irq_ids[index], IRQ_RX);      break;
-                case 1: irq_handler(can_irq_ids[index], IRQ_TX);      break;
-                case 2: irq_handler(can_irq_ids[index], IRQ_ERROR);   break;
-                case 3: irq_handler(can_irq_ids[index], IRQ_OVERRUN); break;
-                case 4: irq_handler(can_irq_ids[index], IRQ_WAKEUP);  break;
-                case 5: irq_handler(can_irq_ids[index], IRQ_PASSIVE); break;
-                case 6: irq_handler(can_irq_ids[index], IRQ_ARB);     break;
-                case 7: irq_handler(can_irq_ids[index], IRQ_BUS);     break;
-                case 8: irq_handler(can_irq_ids[index], IRQ_READY);   break;
+                case 0: irq_handler(can_irq_contexts[index], IRQ_RX);      break;
+                case 1: irq_handler(can_irq_contexts[index], IRQ_TX);      break;
+                case 2: irq_handler(can_irq_contexts[index], IRQ_ERROR);   break;
+                case 3: irq_handler(can_irq_contexts[index], IRQ_OVERRUN); break;
+                case 4: irq_handler(can_irq_contexts[index], IRQ_WAKEUP);  break;
+                case 5: irq_handler(can_irq_contexts[index], IRQ_PASSIVE); break;
+                case 6: irq_handler(can_irq_contexts[index], IRQ_ARB);     break;
+                case 7: irq_handler(can_irq_contexts[index], IRQ_BUS);     break;
+                case 8: irq_handler(can_irq_contexts[index], IRQ_READY);   break;
             }
         }
     }
@@ -164,17 +164,17 @@ void can_irq_n() {
 }
 
 // Register CAN object's irq handler
-void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id) {
+void can_irq_init(can_t *obj, can_irq_handler handler, uintptr_t context) {
     irq_handler = handler;
-    can_irq_ids[obj->index] = id;
+    can_irq_contexts[obj->index] = context;
 }
 
 // Unregister CAN object's irq handler
 void can_irq_free(can_t *obj) {
     obj->dev->IER &= ~(1);
-    can_irq_ids[obj->index] = 0;
+    can_irq_contexts[obj->index] = 0;
 
-    if ((can_irq_ids[0] == 0) && (can_irq_ids[1] == 0)) {
+    if ((can_irq_contexts[0] == 0) && (can_irq_contexts[1] == 0)) {
         NVIC_DisableIRQ(CAN_IRQn);
     }
 }

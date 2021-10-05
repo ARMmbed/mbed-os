@@ -69,6 +69,7 @@ endif()
 
 target_link_libraries(mbed-netsocket
     INTERFACE
+        mbed-wifi
         mbed-cellular
         mbed-nanostack-libservice
 )

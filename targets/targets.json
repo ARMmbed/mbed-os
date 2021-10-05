@@ -1718,6 +1718,9 @@
         "detect_code": [
             "0747"
         ],
+        "device_has_add": [
+            "USBDEVICE"
+        ],
         "device_name": "STM32F303ZETx"
     },
     "MCU_STM32F334x8": {
@@ -1798,6 +1801,7 @@
         ],
         "device_has_add": [
             "ANALOGOUT",
+            "CAN",
             "TRNG"
         ]
     },
@@ -1816,6 +1820,7 @@
             "EMAC"
         ],
         "device_has_remove": [
+            "CAN",
             "LPTICKER",
             "SERIAL_FC"
         ],
@@ -2624,6 +2629,7 @@
             "MBED_TICKLESS"
         ],
         "overrides": {
+            "lpuart_clock_source": "USE_LPUART_CLK_HSI",
             "lpticker_delay_ticks": 0
         },
         "device_has_add": [
@@ -2632,7 +2638,7 @@
             "MPU"
         ]
     },
-    "MCU_STM32G031xx": {
+    "MCU_STM32G030x8": {
         "inherits": [
             "MCU_STM32G0"
         ],
@@ -2644,7 +2650,29 @@
             "bare-metal"
         ],
         "extra_labels_add": [
-            "STM32G031xx"
+            "STM32G030x8"
+        ],
+        "macros_add": [
+            "STM32G030xx"
+        ],
+        "overrides": {
+            "lpticker_delay_ticks": 1,
+            "lpticker_lptim": "0"
+        }
+    },
+    "MCU_STM32G031x8": {
+        "inherits": [
+            "MCU_STM32G0"
+        ],
+        "public": false,
+        "overrides": {
+            "boot-stack-size": "0x400"
+        },
+        "supported_application_profiles": [
+            "bare-metal"
+        ],
+        "extra_labels_add": [
+            "STM32G031x8"
         ],
         "macros_add": [
             "STM32G031xx"
@@ -2652,20 +2680,102 @@
     },
     "NUCLEO_G031K8": {
         "inherits": [
-            "MCU_STM32G031xx"
+            "MCU_STM32G031x8"
         ],
         "detect_code": [
             "0852"
         ],
         "device_name": "STM32G031K8Tx"
     },
-    "MCU_STM32G070xx": {
+    "MCU_STM32G041x8": {
+        "inherits": [
+            "MCU_STM32G0"
+        ],
+        "public": false,
+        "overrides": {
+            "boot-stack-size": "0x400"
+        },
+        "supported_application_profiles": [
+            "bare-metal"
+        ],
+        "extra_labels_add": [
+            "STM32G041x8"
+        ],
+        "macros_add": [
+            "STM32G041xx"
+        ]
+    },
+    "MCU_STM32G050x8": {
+        "inherits": [
+            "MCU_STM32G0"
+        ],
+        "public": false,
+        "overrides": {
+            "boot-stack-size": "0x400"
+        },
+        "supported_application_profiles": [
+            "bare-metal"
+        ],
+        "extra_labels_add": [
+            "STM32G050x8"
+        ],
+        "macros_add": [
+            "STM32G050xx"
+        ],
+        "overrides": {
+            "lpticker_delay_ticks": 1,
+            "lpticker_lptim": "0"
+        }
+    },
+    "MCU_STM32G051x8": {
+        "inherits": [
+            "MCU_STM32G0"
+        ],
+        "public": false,
+        "overrides": {
+            "boot-stack-size": "0x400"
+        },
+        "supported_application_profiles": [
+            "bare-metal"
+        ],
+        "extra_labels_add": [
+            "STM32G051x8"
+        ],
+        "macros_add": [
+            "STM32G051xx"
+        ],
+        "device_has_add": [
+            "ANALOGOUT"
+        ]
+    },
+    "MCU_STM32G061x8": {
+        "inherits": [
+            "MCU_STM32G0"
+        ],
+        "public": false,
+        "overrides": {
+            "boot-stack-size": "0x400"
+        },
+        "supported_application_profiles": [
+            "bare-metal"
+        ],
+        "extra_labels_add": [
+            "STM32G061x8"
+        ],
+        "macros_add": [
+            "STM32G061xx"
+        ],
+        "device_has_add": [
+            "ANALOGOUT"
+        ]
+    },
+    "MCU_STM32G070xB": {
         "inherits": [
             "MCU_STM32G0"
         ],
         "public": false,
         "extra_labels_add": [
-            "STM32G070xx"
+            "STM32G070xB"
         ],
         "macros_add": [
             "STM32G070xx"
@@ -2679,13 +2789,13 @@
             "lpticker_lptim": "0"
         }
     },
-    "MCU_STM32G071xx": {
+    "MCU_STM32G071xB": {
         "inherits": [
             "MCU_STM32G0"
         ],
         "public": false,
         "extra_labels_add": [
-            "STM32G071xx"
+            "STM32G071xB"
         ],
         "macros_add": [
             "STM32G071xx"
@@ -2696,22 +2806,76 @@
     },
     "NUCLEO_G071RB": {
         "inherits": [
-            "MCU_STM32G071xx"
+            "MCU_STM32G071xB"
         ],
         "supported_form_factors": [
             "ARDUINO_UNO"
         ],
-        "config": {
-            "hse_value": {
-                "help": "HSE default value is 25MHz in HAL",
-                "value": "8000000",
-                "macro_name": "HSE_VALUE"
-            }
-        },
         "detect_code": [
             "0221"
         ],
         "device_name": "STM32G071RBTx"
+    },
+    "MCU_STM32G081xB": {
+        "inherits": [
+            "MCU_STM32G0"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32G081xB"
+        ],
+        "macros_add": [
+            "STM32G081xx"
+        ],
+        "device_has_add": [
+            "ANALOGOUT"
+        ]
+    },
+    "MCU_STM32G0B0xE": {
+        "inherits": [
+            "MCU_STM32G0"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32G0B0xE"
+        ],
+        "macros_add": [
+            "STM32G0B0xx"
+        ],
+        "overrides": {
+            "lpticker_delay_ticks": 1,
+            "lpticker_lptim": "0"
+        }
+    },
+    "MCU_STM32G0B1xE": {
+        "inherits": [
+            "MCU_STM32G0"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32G0B1xE"
+        ],
+        "macros_add": [
+            "STM32G0B1xx"
+        ],
+        "device_has_add": [
+            "ANALOGOUT"
+        ]
+    },
+    "MCU_STM32G0C1xE": {
+        "inherits": [
+            "MCU_STM32G0"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32G0C1xE"
+        ],
+        "macros_add": [
+            "STM32G0C1xx"
+        ],
+        "device_has_add": [
+            "ANALOGOUT"
+        ]
     },
     "MCU_STM32G4": {
         "inherits": [
@@ -2966,6 +3130,66 @@
             "FLASH",
             "MPU"
         ]
+    },
+    "MCU_STM32H723xG": {
+        "inherits": [
+            "MCU_STM32H7"
+        ],
+        "public": false,
+        "core": "Cortex-M7FD",
+        "mbed_rom_start": "0x08000000",
+        "mbed_rom_size": "0x100000",
+        "mbed_ram_start": "0x24000000",
+        "mbed_ram_size": "0x50000",
+        "extra_labels_add": [
+            "STM32H723xG"
+        ],
+        "macros_add": [
+            "STM32H723xx"
+        ],
+        "overrides": {
+            "system_power_supply": "PWR_LDO_SUPPLY"
+        }
+    },
+    "MCU_STM32H725xE": {
+        "inherits": [
+            "MCU_STM32H7"
+        ],
+        "public": false,
+        "core": "Cortex-M7FD",
+        "mbed_rom_start": "0x08000000",
+        "mbed_rom_size": "0x80000",
+        "mbed_ram_start": "0x24000000",
+        "mbed_ram_size": "0x50000",
+        "extra_labels_add": [
+            "STM32H725xE"
+        ],
+        "macros_add": [
+            "STM32H725xx"
+        ],
+        "overrides": {
+            "system_power_supply": "PWR_LDO_SUPPLY"
+        }
+    },
+    "MCU_STM32H735xG": {
+        "inherits": [
+            "MCU_STM32H7"
+        ],
+        "public": false,
+        "core": "Cortex-M7FD",
+        "mbed_rom_start": "0x08000000",
+        "mbed_rom_size": "0x100000",
+        "mbed_ram_start": "0x24000000",
+        "mbed_ram_size": "0x50000",
+        "extra_labels_add": [
+            "STM32H735xG"
+        ],
+        "macros_add": [
+            "STM32H735xx"
+        ],
+        "overrides": {
+            "system_power_supply": "PWR_LDO_SUPPLY"
+        }
     },
     "MCU_STM32H743xI": {
         "inherits": [
@@ -3250,12 +3474,36 @@
             "MPU"
         ]
     },
+    "MCU_STM32H750xB": {
+        "inherits": [
+            "MCU_STM32H7"
+        ],
+        "public": false,
+        "core": "Cortex-M7FD",
+        "mbed_rom_start": "0x08000000",
+        "mbed_rom_size": "0x20000",
+        "mbed_ram_start": "0x24000000",
+        "mbed_ram_size": "0x80000",
+        "extra_labels_add": [
+            "STM32H750xB"
+        ],
+        "macros_add": [
+            "STM32H750xx"
+        ],
+        "overrides": {
+            "system_power_supply": "PWR_LDO_SUPPLY"
+        }
+    },
     "MCU_STM32H7A3xIQ": {
         "inherits": [
             "MCU_STM32H7"
         ],
         "public": false,
         "core": "Cortex-M7FD",
+        "mbed_rom_start": "0x08000000",
+        "mbed_rom_size": "0x200000",
+        "mbed_ram_start": "0x24000000",
+        "mbed_ram_size": "0x100000",
         "extra_labels_add": [
             "STM32H7A3xIQ"
         ],
@@ -3283,6 +3531,26 @@
         "detect_code": [
             "0860"
         ]
+    },
+    "MCU_STM32H7B3xIQ": {
+        "inherits": [
+            "MCU_STM32H7"
+        ],
+        "public": false,
+        "core": "Cortex-M7FD",
+        "mbed_rom_start": "0x08000000",
+        "mbed_rom_size": "0x200000",
+        "mbed_ram_start": "0x24000000",
+        "mbed_ram_size": "0x100000",
+        "extra_labels_add": [
+            "STM32H7B3xIQ"
+        ],
+        "macros_add": [
+            "STM32H7B3xxQ"
+        ],
+        "overrides": {
+            "system_power_supply": "PWR_DIRECT_SMPS_SUPPLY"
+        }
     },
     "MCU_STM32L0": {
         "inherits": [
@@ -3761,7 +4029,8 @@
         ],
         "extra_labels_add": [
             "CORDIO",
-            "MX25R6435F"
+            "MX25R6435F",
+            "M24SR"
         ],
         "supported_form_factors": [
             "ARDUINO_UNO"
@@ -4147,6 +4416,7 @@
         },
         "device_has_add": [
             "ANALOGOUT",
+            "CAN",
             "CRC",
             "FLASH",
             "MPU",
@@ -4262,6 +4532,7 @@
         },
         "device_has_add": [
             "ANALOGOUT",
+            "CAN",
             "CRC",
             "FLASH",
             "MPU",
@@ -4315,6 +4586,10 @@
             "ARDUINO_UNO"
         ],
         "device_name": "STM32U585AIIx",
+        "components_add": ["EMW3080B"],
+        "overrides": {
+            "network-default-interface-type": "WIFI"
+        },
         "detect_code": [
             "887"
         ]

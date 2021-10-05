@@ -137,7 +137,7 @@ uint8_t *net_vendor_option_current_time_read(uint8_t *ptr, uint16_t length, int3
     }
 
     option_len = common_read_16_bit(ptr + 2);
-    ptr += 4;
+    ptr += 2 * sizeof(uint16_t);
 
     if (option_len < 3 * sizeof(uint32_t)) {
         // Corrupted as not enough room for fields
@@ -147,11 +147,70 @@ uint8_t *net_vendor_option_current_time_read(uint8_t *ptr, uint16_t length, int3
     if (era) {
         *era = (int32_t)common_read_32_bit(ptr);
     }
+
     if (offset) {
         *offset = common_read_32_bit(ptr + sizeof(uint32_t));
     }
+
     if (fraction) {
-        *fraction = common_read_32_bit(ptr + 2 * sizeof(uint32_t));
+        *fraction = common_read_32_bit(ptr + sizeof(uint32_t) + sizeof(uint32_t));
+    }
+
+    return ptr;
+}
+
+uint16_t net_vendor_option_time_configuration_length(void)
+{
+    return 4 + 1 * sizeof(uint64_t) + 2 * sizeof(int16_t) + 1 * sizeof(uint16_t);
+}
+
+uint8_t *net_vendor_option_time_configuration_write(uint8_t *ptr, uint64_t timestamp, int16_t timezone, int16_t deviation, uint16_t status)
+{
+
+    ptr = common_write_16_bit(ARM_DHCP_VENDOR_DATA_TIME_CONFIGURATION, ptr);
+    ptr = common_write_16_bit(1 * sizeof(uint64_t) + 2 * sizeof(int16_t) + 1 * sizeof(uint16_t), ptr);
+    ptr = common_write_16_bit(status, ptr);
+    ptr = common_write_64_bit(timestamp, ptr);
+    ptr = common_write_16_bit((uint16_t)deviation, ptr);
+    ptr = common_write_16_bit((uint16_t)timezone, ptr);
+    return ptr;
+}
+
+uint8_t *net_vendor_option_time_configuration_read(uint8_t *ptr, uint16_t length, uint64_t *timestamp, int16_t *timezone, int16_t *deviation, uint16_t *status)
+{
+    uint16_t option_len;
+
+    if (length < net_vendor_option_time_configuration_length()) {
+        // Corrupted as there is no room for all fields
+        return 0;
+    }
+
+    if (common_read_16_bit(ptr) != ARM_DHCP_VENDOR_DATA_TIME_CONFIGURATION) {
+        return 0;
+    }
+
+    option_len = common_read_16_bit(ptr + sizeof(uint16_t));
+    ptr += 2 * sizeof(uint16_t);
+
+    if (option_len < 1 * sizeof(uint64_t) + 2 * sizeof(int16_t) + 1 * sizeof(uint16_t)) {
+        // Corrupted as not enough room for fields
+        return 0;
+    }
+
+    if (status) {
+        *status = (uint16_t)common_read_16_bit(ptr);
+    }
+
+    if (timestamp) {
+        *timestamp = common_read_64_bit(ptr + sizeof(uint16_t));
+    }
+
+    if (deviation) {
+        *deviation = (int16_t)common_read_16_bit(ptr + sizeof(uint16_t) + sizeof(uint64_t));
+    }
+
+    if (timezone) {
+        *timezone = (int16_t)common_read_16_bit(ptr + sizeof(uint16_t) + sizeof(uint64_t) + sizeof(uint16_t));
     }
 
     return ptr;

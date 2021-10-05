@@ -75,6 +75,20 @@ typedef struct bbr_radius_timing {
 } bbr_radius_timing_t;
 
 /**
+ * \brief Daylights saving time parameters.
+ */
+typedef struct bbr_timezone_configuration {
+    /** Timestamp of the Daylight saving time change*/
+    uint64_t timestamp;
+    /** Time zone information in minutes*/
+    int16_t timezone;
+    /** Change that is applied when timestamp is reached*/
+    int16_t deviation;
+    /** Time configuration status bit field
+     * "bit xxxxxxxxxxxxxxxS"       0 = false 1 = true Daylight saving time status*/
+    uint16_t status;
+} bbr_timezone_configuration_t;
+/**
  * Start backbone border router service.
  *
  * if backbone interface is enabled and allows routing.
@@ -520,5 +534,23 @@ int ws_bbr_radius_timing_validate(int8_t interface_id, bbr_radius_timing_t *timi
  * \return >= 0 success
  */
 int ws_bbr_dns_query_result_set(int8_t interface_id, const uint8_t address[16], char *domain_name_ptr);
+
+/**
+ * \brief A function to set time zone and daylights saving time configuration
+ *
+ * Border router distributes this information in DHCP Reply messages to
+ * all the devices joining to the Wi-SUN mesh network.
+ *
+ * Border router keeps this information until reboot and continues to distribute the information.
+ * If the information is changed the updates are sent to devices in network when they
+ * renew their address. This can take time from 1 to 24 hours
+ *
+ * \param interface_id Network interface ID.
+ * \param daylight_saving_time_ptr daylights saving time configuration. NULL if you want to remove the configuration.
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ */
+int ws_bbr_timezone_configuration_set(int8_t interface_id, bbr_timezone_configuration_t *daylight_saving_time_ptr);
 
 #endif /* WS_BBR_API_H_ */

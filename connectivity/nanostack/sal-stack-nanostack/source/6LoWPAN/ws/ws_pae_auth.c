@@ -80,6 +80,13 @@
 // Short GTK lifetime value, for GTK install check
 #define SHORT_GTK_LIFETIME                     10 * 3600  // 10 hours
 
+// Frame counter exhaust check timer
+#define FRAME_CNT_TIMER                        3600
+
+#define SECONDS_IN_DAY                         (3600 * 24)
+#define TIME_MINIMUM_DIFFERENCE                5
+#define TIME_DIFFERENCE_THRESHOLD              3600
+
 typedef struct {
     ns_list_link_t link;                                     /**< Link */
     uint16_t pan_id;                                         /**< PAN ID */
@@ -93,6 +100,7 @@ typedef struct {
     ws_pae_auth_nw_info_updated *nw_info_updated;            /**< Security keys network info updated callback */
     ws_pae_auth_ip_addr_get *ip_addr_get;                    /**< IP address get callback */
     ws_pae_auth_congestion_get *congestion_get;              /**< Congestion get callback */
+    ws_pae_auth_nw_frame_counter_read *nw_frame_cnt_read;    /**< Network frame counter read callback */
     supp_list_t active_supp_list;                            /**< List of active supplicants */
     supp_list_t waiting_supp_list;                           /**< List of waiting supplicants */
     shared_comp_list_t shared_comp_list;                     /**< Shared component list */
@@ -101,13 +109,20 @@ typedef struct {
     const sec_prot_certs_t *certs;                           /**< Certificates */
     sec_prot_keys_nw_info_t *sec_keys_nw_info;               /**< Security keys network information */
     sec_cfg_t *sec_cfg;                                      /**< Security configuration */
+    frame_counters_t *frame_counters;                        /**< Frame counters */
+    uint64_t prev_system_time;                               /**< Previous system time */
+    uint64_t system_time_diff;                               /**< System time diffence */
+    uint32_t prev_frame_cnt;                                 /**< Previous frame counter */
+    uint16_t prev_frame_cnt_timer;                           /**< Previous frame counter timer */
     uint16_t supp_max_number;                                /**< Max number of stored supplicants */
     uint16_t waiting_supp_list_size;                         /**< Waiting supplicants list size */
     uint8_t relay_socked_msg_if_instance_id;                 /**< Relay socket message interface instance identifier */
     uint8_t radius_socked_msg_if_instance_id;                /**< Radius socket message interface instance identifier */
     bool timer_running : 1;                                  /**< Timer is running */
     bool gtk_new_inst_req_exp : 1;                           /**< GTK new install required timer expired */
-    bool gtk_new_act_time_exp: 1;                            /**< GTK new activation time expired */
+    bool gtk_new_act_time_exp : 1;                           /**< GTK new activation time expired */
+    bool prev_system_time_set : 1;                           /**< Previous system time set */
+    bool prev_frame_cnt_set : 1;                             /**< Previous frame counter set */
 } pae_auth_t;
 
 static int8_t ws_pae_auth_network_keys_from_gtks_set(pae_auth_t *pae_auth, bool force_install);
@@ -118,6 +133,8 @@ static pae_auth_t *ws_pae_auth_get(protocol_interface_info_entry_t *interface_pt
 static pae_auth_t *ws_pae_auth_by_kmp_service_get(kmp_service_t *service);
 static int8_t ws_pae_auth_event_send(kmp_service_t *service, void *data);
 static void ws_pae_auth_tasklet_handler(arm_event_s *event);
+static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, uint8_t gtk_index, uint16_t seconds);
+static uint32_t ws_pae_auth_lifetime_system_time_check(pae_auth_t *pae_auth, int8_t gtk_index, uint16_t seconds, uint32_t dec_extra_seconds);
 static void ws_pae_auth_gtk_key_insert(pae_auth_t *pae_auth);
 static int8_t ws_pae_auth_new_gtk_activate(pae_auth_t *pae_auth);
 static int8_t ws_pae_auth_timer_if_start(kmp_service_t *service, kmp_api_t *kmp);
@@ -145,9 +162,9 @@ static void ws_pae_auth_waiting_supp_deleted(void *pae_auth);
 static int8_t tasklet_id = -1;
 static NS_LIST_DEFINE(pae_auth_list, pae_auth_t, link);
 
-int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *next_gtks, const sec_prot_certs_t *certs, sec_cfg_t *sec_cfg, sec_prot_keys_nw_info_t *sec_keys_nw_info)
+int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *next_gtks, const sec_prot_certs_t *certs, sec_cfg_t *sec_cfg, sec_prot_keys_nw_info_t *sec_keys_nw_info, frame_counters_t *frame_counters)
 {
-    if (!interface_ptr || !next_gtks || !certs || !sec_cfg || !sec_keys_nw_info) {
+    if (!interface_ptr || !next_gtks || !certs || !sec_cfg || !sec_keys_nw_info || !frame_counters) {
         return -1;
     }
 
@@ -175,16 +192,24 @@ int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot
     pae_auth->nw_info_updated = NULL;
     pae_auth->ip_addr_get = NULL;
     pae_auth->congestion_get = NULL;
+    pae_auth->nw_frame_cnt_read = NULL;
 
     pae_auth->next_gtks = next_gtks;
     pae_auth->certs = certs;
     pae_auth->sec_keys_nw_info = sec_keys_nw_info;
     pae_auth->sec_cfg = sec_cfg;
+    pae_auth->frame_counters = frame_counters;
+    pae_auth->prev_system_time = 0;
+    pae_auth->system_time_diff = 0;
+    pae_auth->prev_frame_cnt = 0;
+    pae_auth->prev_frame_cnt_timer = FRAME_CNT_TIMER;
     pae_auth->supp_max_number = SUPPLICANT_MAX_NUMBER;
     pae_auth->waiting_supp_list_size = 0;
 
     pae_auth->gtk_new_inst_req_exp = false;
     pae_auth->gtk_new_act_time_exp = false;
+    pae_auth->prev_frame_cnt_set = false;
+    pae_auth->prev_system_time_set = false;
 
     pae_auth->relay_socked_msg_if_instance_id = 0;
     pae_auth->radius_socked_msg_if_instance_id = 0;
@@ -316,7 +341,7 @@ int8_t ws_pae_auth_delete(protocol_interface_info_entry_t *interface_ptr)
     return 0;
 }
 
-void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_auth_gtk_hash_set *hash_set, ws_pae_auth_nw_key_insert *nw_key_insert, ws_pae_auth_nw_key_index_set *nw_key_index_set, ws_pae_auth_nw_info_updated *nw_info_updated, ws_pae_auth_ip_addr_get *ip_addr_get, ws_pae_auth_congestion_get *congestion_get)
+void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_auth_gtk_hash_set *hash_set, ws_pae_auth_nw_key_insert *nw_key_insert, ws_pae_auth_nw_key_index_set *nw_key_index_set, ws_pae_auth_nw_info_updated *nw_info_updated, ws_pae_auth_ip_addr_get *ip_addr_get, ws_pae_auth_congestion_get *congestion_get, ws_pae_auth_nw_frame_counter_read *nw_frame_cnt_read)
 {
     if (!interface_ptr) {
         return;
@@ -333,6 +358,7 @@ void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_
     pae_auth->nw_info_updated = nw_info_updated;
     pae_auth->ip_addr_get = ip_addr_get;
     pae_auth->congestion_get = congestion_get;
+    pae_auth->nw_frame_cnt_read = nw_frame_cnt_read;
 }
 
 void ws_pae_auth_start(protocol_interface_info_entry_t *interface_ptr)
@@ -364,6 +390,9 @@ void ws_pae_auth_start(protocol_interface_info_entry_t *interface_ptr)
 
     // Sets active key index
     ws_pae_auth_network_key_index_set(pae_auth, index);
+
+    pae_auth->prev_system_time = ws_pae_current_time_get();
+    pae_auth->prev_system_time_set = true;
 }
 
 void ws_pae_auth_gtks_updated(protocol_interface_info_entry_t *interface_ptr)
@@ -734,7 +763,12 @@ void ws_pae_auth_slow_timer(uint16_t seconds)
             if (!sec_prot_keys_gtk_is_set(pae_auth->sec_keys_nw_info->gtks, i)) {
                 continue;
             }
-            uint32_t timer_seconds = sec_prot_keys_gtk_lifetime_decrement(pae_auth->sec_keys_nw_info->gtks, i, current_time, seconds, true);
+            uint32_t gtk_lifetime_dec_extra_seconds = 0;
+            if (active_index == i) {
+                gtk_lifetime_dec_extra_seconds = ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth, i, seconds);
+                gtk_lifetime_dec_extra_seconds = ws_pae_auth_lifetime_system_time_check(pae_auth, i, seconds, gtk_lifetime_dec_extra_seconds);
+            }
+            uint32_t timer_seconds = sec_prot_keys_gtk_lifetime_decrement(pae_auth->sec_keys_nw_info->gtks, i, current_time, seconds + gtk_lifetime_dec_extra_seconds, true);
             if (active_index == i) {
                 if (!pae_auth->gtk_new_inst_req_exp) {
                     pae_auth->gtk_new_inst_req_exp = ws_pae_timers_gtk_new_install_required(pae_auth->sec_cfg, timer_seconds);
@@ -766,6 +800,10 @@ void ws_pae_auth_slow_timer(uint16_t seconds)
                         pae_auth->nw_info_updated(pae_auth->interface_ptr);
                     }
                 }
+                if (gtk_lifetime_dec_extra_seconds != 0) {
+                    // Update keys to NVM as needed
+                    pae_auth->nw_info_updated(pae_auth->interface_ptr);
+                }
             }
 
             if (timer_seconds == 0) {
@@ -784,6 +822,159 @@ void ws_pae_auth_slow_timer(uint16_t seconds)
 
     // Update key storage timer
     ws_pae_key_storage_timer(seconds);
+}
+
+static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, uint8_t gtk_index, uint16_t seconds)
+{
+    uint32_t decrement_seconds = 0;
+
+    if (pae_auth->prev_frame_cnt_timer > seconds) {
+        pae_auth->prev_frame_cnt_timer -= seconds;
+        return 0;
+    }
+    pae_auth->prev_frame_cnt_timer = FRAME_CNT_TIMER;
+
+    uint32_t frame_cnt = 0;
+    if (pae_auth->nw_frame_cnt_read(pae_auth->interface_ptr, &frame_cnt, gtk_index) < 0) {
+        return 0;
+    }
+
+    sec_timer_cfg_t *timer_cfg = &pae_auth->sec_cfg->timer_cfg;
+
+    // For GTK lifetime and frame counter space calculate the percent that has been used
+    uint32_t gtk_lifetime_left = sec_prot_keys_gtk_lifetime_get(pae_auth->sec_keys_nw_info->gtks, gtk_index);
+    uint32_t gtk_lifetime = timer_cfg->gtk_expire_offset;
+    uint32_t gtk_lifetime_left_percent = gtk_lifetime_left * 100 / gtk_lifetime;
+
+    uint32_t frame_cnt_left_percent = ((uint64_t)((UINT32_MAX - frame_cnt))) * 100 / UINT32_MAX;
+
+    tr_info("Active GTK lifetime %"PRIu32", frame counter %"PRIu32" percent, counter %"PRIu32, gtk_lifetime_left_percent, frame_cnt_left_percent, frame_cnt);
+
+    /* If frame counter space has been exhausted faster than should be based on GTK lifetime
+     * decrements GTK lifetime. Do not check until 20% of the frame counter space has been used
+     * so that we have data from longer time period. As sanity check, validate that GTK lifetime
+     * is not more than 105% of the GTK lifetime.
+     */
+    uint32_t gtk_new_install_req_seconds = timer_cfg->gtk_expire_offset - timer_cfg->gtk_new_install_req * timer_cfg->gtk_expire_offset / 100;
+    if ((frame_cnt_left_percent < gtk_lifetime_left_percent && frame_cnt_left_percent < 80) ||
+            gtk_lifetime_left_percent > 105) {
+        // If not yet on GTK update period
+        if (gtk_lifetime_left > (gtk_new_install_req_seconds + SECONDS_IN_DAY)) {
+            uint32_t diff = gtk_lifetime_left_percent - frame_cnt_left_percent;
+            decrement_seconds = gtk_lifetime * diff / 100 + SECONDS_IN_DAY;
+            if (decrement_seconds > gtk_lifetime_left - gtk_new_install_req_seconds) {
+                decrement_seconds = gtk_lifetime_left - gtk_new_install_req_seconds;
+            }
+            tr_info("Decrement GTK lifetime percent, seconds %"PRIu32, decrement_seconds);
+        }
+    }
+
+    // Calculate how much frame counters have changed and store maximum if larger than previous maximum
+    uint32_t frame_cnt_diff = 0;
+    if (pae_auth->prev_frame_cnt_set && frame_cnt > pae_auth->prev_frame_cnt) {
+        frame_cnt_diff = frame_cnt - pae_auth->prev_frame_cnt;
+        if (frame_cnt_diff > pae_auth->frame_counters->counter[gtk_index].max_frame_counter_chg) {
+            pae_auth->frame_counters->counter[gtk_index].max_frame_counter_chg = frame_cnt_diff;
+        }
+    }
+
+    tr_info("Frame counter change %"PRIu32", max %"PRIu32, frame_cnt_diff, pae_auth->frame_counters->counter[gtk_index].max_frame_counter_chg);
+
+    /* Calculates an estimate for how much free frame counter space is needed for the GTK update and
+     * initiates it faster if needed (default length of GTK update is 6 days).
+     */
+    uint32_t max_needed_frame_counters =
+        pae_auth->frame_counters->counter[gtk_index].max_frame_counter_chg * gtk_new_install_req_seconds / 3600;
+    // Adds 20% to calculated value
+    max_needed_frame_counters = max_needed_frame_counters * 120 / 100;
+    // If estimated value is more than is left starts GTK update right away (if not already started)
+    if (max_needed_frame_counters >= (UINT32_MAX - frame_cnt)) {
+        if (gtk_lifetime_left > gtk_new_install_req_seconds) {
+            decrement_seconds = gtk_lifetime_left - gtk_new_install_req_seconds;
+            tr_info("Decrement GTK lifetime update, seconds %"PRIu32, decrement_seconds);
+        }
+    }
+
+    /* Calculates an estimate for how much free frame counter space is needed for the GTK activation and
+     * initiates it faster if needed (default length of GTK activation is 60 minutes).
+     */
+    uint32_t gtk_new_activation_time_seconds = timer_cfg->gtk_expire_offset / timer_cfg->gtk_new_act_time;
+    // Calculates the estimated maximum value for frame counter during GTK update
+    max_needed_frame_counters =
+        pae_auth->frame_counters->counter[gtk_index].max_frame_counter_chg * gtk_new_activation_time_seconds / 3600;
+    // Adds 200% to calculated value
+    max_needed_frame_counters = max_needed_frame_counters * 300 / 100;
+    // If estimated value is more than is left starts GTK update right away (if not already started)
+    if (max_needed_frame_counters >= (UINT32_MAX - frame_cnt)) {
+        if (gtk_lifetime_left > gtk_new_activation_time_seconds) {
+            decrement_seconds = gtk_lifetime_left - gtk_new_activation_time_seconds;
+            tr_info("Decrement GTK lifetime activation, seconds %"PRIu32, decrement_seconds);
+        }
+    }
+
+    pae_auth->prev_frame_cnt = frame_cnt;
+    pae_auth->prev_frame_cnt_set = true;
+
+    return decrement_seconds;
+}
+
+static uint32_t ws_pae_auth_lifetime_system_time_check(pae_auth_t *pae_auth, int8_t gtk_index, uint16_t seconds, uint32_t dec_extra_seconds)
+{
+    // Read current system time and compare it to previous time
+    uint64_t current_time = ws_pae_current_time_get();
+    if (pae_auth->prev_system_time_set) {
+        if (current_time > pae_auth->prev_system_time + TIME_MINIMUM_DIFFERENCE) {
+            pae_auth->system_time_diff += current_time - pae_auth->prev_system_time;
+        }
+    }
+    pae_auth->prev_system_time = current_time;
+    pae_auth->prev_system_time_set = true;
+
+    uint64_t time_diff = 0;
+    // Update lifetimes only if time difference is more than hour
+    if (pae_auth->system_time_diff > TIME_DIFFERENCE_THRESHOLD + seconds + dec_extra_seconds) {
+        time_diff = pae_auth->system_time_diff - seconds - dec_extra_seconds;
+    } else {
+        return dec_extra_seconds;
+    }
+    pae_auth->system_time_diff = 0;
+
+    uint32_t new_dec_extra_seconds = dec_extra_seconds;
+
+    if (time_diff > 0) {
+        /* If the system time has made a large jump then use the stored time to calculate the lifetime
+           (this implies e.g. that new time has been received from NTP and old time was not valid) */
+        if (!ws_pae_time_old_and_new_validate(current_time, current_time + time_diff)) {
+            // Allow one jump without invalidating active GTK
+            if (pae_auth->sec_keys_nw_info->system_time_changed == SYSTEM_TIME_NOT_CHANGED) {
+                pae_auth->sec_keys_nw_info->system_time_changed = SYSTEM_TIME_CHANGED;
+                tr_info("System time large change ignored; difference: %"PRIu64, time_diff);
+                time_diff = 0;
+            }
+        }
+
+        uint32_t gtk_lifetime_left = sec_prot_keys_gtk_lifetime_get(pae_auth->sec_keys_nw_info->gtks, gtk_index);
+        sec_timer_cfg_t *timer_cfg = &pae_auth->sec_cfg->timer_cfg;
+        uint32_t gtk_new_activation_time_seconds = timer_cfg->gtk_expire_offset / timer_cfg->gtk_new_act_time;
+
+        // If there is GTK lifetime left
+        if (gtk_lifetime_left > (seconds + dec_extra_seconds + time_diff)) {
+            // If GTK lifetime would be less than new activation time sets decrements time to activation time
+            if (gtk_lifetime_left - seconds - dec_extra_seconds - time_diff < gtk_new_activation_time_seconds) {
+                new_dec_extra_seconds = gtk_lifetime_left - gtk_new_activation_time_seconds;
+            } else {
+                // Decrements GTK lifetime
+                new_dec_extra_seconds = dec_extra_seconds + time_diff;
+            }
+        } else {
+            // If there is no GTK lifetime left decrements time to activation time
+            new_dec_extra_seconds = gtk_lifetime_left - gtk_new_activation_time_seconds;
+        }
+
+        tr_info("System change difference: %"PRIu64" decrement extra: %"PRIu32" (seconds: %"PRIu16" previous extra %"PRIu32")", time_diff, new_dec_extra_seconds, seconds, dec_extra_seconds);
+    }
+
+    return new_dec_extra_seconds;
 }
 
 static void ws_pae_auth_gtk_key_insert(pae_auth_t *pae_auth)
@@ -962,27 +1153,36 @@ static bool ws_pae_auth_active_limit_reached(uint16_t active_supp, pae_auth_t *p
     return pae_auth->congestion_get(pae_auth->interface_ptr, active_supp);
 }
 
+static void ws_pae_auth_waiting_supp_remove_oldest(pae_auth_t *pae_auth, const kmp_addr_t *addr)
+{
+    supp_entry_t *delete_supp = ns_list_get_last(&pae_auth->waiting_supp_list);
+    if (!delete_supp) {
+        return;
+    }
+    tr_info("PAE: waiting list full, eui-64: %s, deleted eui-64: %s", trace_array(addr->eui_64, 8), trace_array(delete_supp->addr.eui_64, 8));
+    // Create new instance
+    kmp_api_t *new_kmp = ws_pae_auth_kmp_create_and_start(pae_auth->kmp_service, MSG_PROT, pae_auth->relay_socked_msg_if_instance_id, delete_supp, pae_auth->sec_cfg);
+    if (!new_kmp) {
+        return;
+    }
+    kmp_api_create_request(new_kmp, MSG_PROT, &delete_supp->addr, &delete_supp->sec_keys);
+    (void) ws_pae_lib_supp_list_remove(pae_auth, &pae_auth->waiting_supp_list, delete_supp, ws_pae_auth_waiting_supp_deleted);
+}
+
 static supp_entry_t *ws_pae_auth_waiting_supp_list_add(pae_auth_t *pae_auth, supp_entry_t *supp_entry, const kmp_addr_t *addr)
 {
     // Entry is already allocated
     if (supp_entry) {
+        // If the waiting list if full removes the oldest entry from the list
+        if (pae_auth->waiting_supp_list_size >= WAITING_SUPPLICANT_LIST_MAX_SIZE) {
+            ws_pae_auth_waiting_supp_remove_oldest(pae_auth, addr);
+        }
         ns_list_add_to_start(&pae_auth->waiting_supp_list, supp_entry);
         pae_auth->waiting_supp_list_size++;
     } else {
         // If the waiting list if full removes the oldest entry from the list
         if (pae_auth->waiting_supp_list_size >= WAITING_SUPPLICANT_LIST_MAX_SIZE) {
-            supp_entry_t *delete_supp = ns_list_get_last(&pae_auth->waiting_supp_list);
-            if (!delete_supp) {
-                return NULL;
-            }
-            tr_info("PAE: waiting list full, eui-64: %s, deleted eui-64: %s", trace_array(addr->eui_64, 8), trace_array(delete_supp->addr.eui_64, 8));
-            // Create new instance
-            kmp_api_t *new_kmp = ws_pae_auth_kmp_create_and_start(pae_auth->kmp_service, MSG_PROT, pae_auth->relay_socked_msg_if_instance_id, delete_supp, pae_auth->sec_cfg);
-            if (!new_kmp) {
-                return NULL;
-            }
-            kmp_api_create_request(new_kmp, MSG_PROT, &delete_supp->addr, &delete_supp->sec_keys);
-            (void) ws_pae_lib_supp_list_remove(pae_auth, &pae_auth->waiting_supp_list, delete_supp, ws_pae_auth_waiting_supp_deleted);
+            ws_pae_auth_waiting_supp_remove_oldest(pae_auth, addr);
         }
         supp_entry = ws_pae_lib_supp_list_add(&pae_auth->waiting_supp_list, addr);
         if (!supp_entry) {

@@ -38,7 +38,11 @@ extern "C" {
 #else // TIM2_BASE
 
 #define TIM_MST      TIM3
+#if defined (STM32G0B0xx)
+#define TIM_MST_IRQ  TIM3_TIM4_IRQn
+#else
 #define TIM_MST_IRQ  TIM3_IRQn
+#endif
 #define TIM_MST_RCC  __TIM3_CLK_ENABLE()
 #define TIM_MST_DBGMCU_FREEZE  __HAL_DBGMCU_FREEZE_TIM3()
 

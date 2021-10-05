@@ -155,7 +155,9 @@ void UART_test()
 
     // 3. check if Arduino_uno pins are not using the same UART instance as console
     int console_uart = pinmap_peripheral(CONSOLE_TX, serial_tx_pinmap());
-    TEST_ASSERT_NOT_EQUAL(console_uart, pinmap_peripheral(TX_pin, serial_tx_pinmap()));
+    if (console_uart != 0) {
+        TEST_ASSERT_NOT_EQUAL(console_uart, pinmap_peripheral(TX_pin, serial_tx_pinmap()));
+    }
 
     // 4. check if UART pins can be initialized
     BufferedSerial TEST(TX_pin, RX_pin);

@@ -292,7 +292,7 @@ static int32_t fhss_channel_index_from_mask(const uint32_t *channel_mask, int32_
     int32_t active_channels = 0;
     // Set channel maks outside excluded channels
     for (int32_t i = 0; i < number_of_channels; i++) {
-        if (channel_mask[0 + (i / 32)] & (1 << (i % 32))) {
+        if (channel_mask[i / 32] & (1U << (i % 32))) {
             if (channel_index == active_channels) {
                 return i;
             }

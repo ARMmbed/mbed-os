@@ -83,6 +83,9 @@ target_sources(mbed-nanostack-sal_stack
 
         ws/ws_bbr_api.c
         ws/ws_bootstrap.c
+        ws/ws_bootstrap_6lbr.c
+        ws/ws_bootstrap_ffn.c
+        ws/ws_bootstrap_lfn.c
         ws/ws_cfg_settings.c
         ws/ws_common.c
         ws/ws_eapol_auth_relay.c
@@ -104,6 +107,7 @@ target_sources(mbed-nanostack-sal_stack
         ws/ws_pae_supp.c
         ws/ws_pae_time.c
         ws/ws_pae_timers.c
+        ws/ws_phy.c
         ws/ws_stats.c
         ws/ws_test_api.c
 )

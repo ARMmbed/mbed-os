@@ -138,47 +138,47 @@ __SPIN
 
 NMI_Handler             PROC
                         EXPORT NMI_Handler                      [WEAK]     
-                        B       NMI_Handler
+                        B       .
                         ENDP
 
 HardFault_Handler       PROC
                         EXPORT HardFault_Handler                [WEAK]             
-                        B       HardFault_Handler
+                        B       .
                         ENDP
 
 MemManage_Handler       PROC
                         EXPORT MemManage_Handler        [WEAK]
-                        B       MemManage_Handler
+                        B       .
                         ENDP
 
 BusFault_Handler        PROC
                         EXPORT BusFault_Handler         [WEAK]
-                        B       BusFault_Handler
+                        B       .
                         ENDP
 
 UsageFault_Handler      PROC
                         EXPORT UsageFault_Handler       [WEAK]
-                        B       UsageFault_Handler
+                        B       .
                         ENDP
 
 SVC_Handler             PROC
                         EXPORT SVC_Handler              [WEAK]
-                        B       SVC_Handler
+                        B       .
                         ENDP
 
 DebugMon_Handler        PROC
                         EXPORT DebugMon_Handler         [WEAK]
-                        B       DebugMon_Handler
+                        B       .
                         ENDP
 
 PendSV_Handler          PROC
                         EXPORT PendSV_Handler           [WEAK]
-                        B       PendSV_Handler
+                        B       .
                         ENDP
 
 SysTick_Handler         PROC
                         EXPORT SysTick_Handler          [WEAK]
-                        B       SysTick_Handler
+                        B       .
                         ENDP
 
 Default_Handler         PROC
