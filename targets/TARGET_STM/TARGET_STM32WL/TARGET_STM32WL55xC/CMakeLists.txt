@@ -13,14 +13,14 @@ endif()
 
 add_library(mbed-stm32wl55xc INTERFACE)
 
-target_sources(mbed-stm32wl55xc
-    INTERFACE
-        ${STARTUP_FILE}
-)
-
 target_include_directories(mbed-stm32wl55xc
     INTERFACE
         .
+)
+
+target_sources(mbed-stm32wl55xc
+    INTERFACE
+        ${STARTUP_FILE}
 )
 
 mbed_set_linker_script(mbed-stm32wl55xc ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
