@@ -56,6 +56,7 @@ target_sources(mbed-max32660
         us_ticker.c
         lp_ticker.c
         flash_api.c
+        watchdog_api.c
         
         ${MXM_CMSIS_DIR}/${MXM_PARTNUMBER}/Source/system_max32660.c
          
