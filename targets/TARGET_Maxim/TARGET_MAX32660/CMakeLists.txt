@@ -2,10 +2,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 add_subdirectory(TARGET_MAX32660EVSYS EXCLUDE_FROM_ALL)
-add_subdirectory(device EXCLUDE_FROM_ALL)
+
+if(${MBED_TOOLCHAIN} STREQUAL "ARM")
+    set(LINKER_FILE  device/TOOLCHAIN_ARM_STD/MAX32660.sct)
+    set(STARTUP_FILE device/TOOLCHAIN_ARM_STD/startup_MAX32660.S)
+elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
+    set(LINKER_FILE  device/TOOLCHAIN_GCC_ARM/max32660.ld)
+    set(STARTUP_FILE device/TOOLCHAIN_GCC_ARM/startup_max32660.S)
+endif()
 
 add_library(mbed-max32660 INTERFACE)
-
+mbed_set_linker_script(mbed-max32660 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
 set(MXM_PARTNUMBER          MAX32660)
 set(MXM_SOURCE_DIR          ./Libraries/PeriphDrivers/Source)
@@ -15,6 +22,7 @@ set(MXM_CMSIS_DIR           ./Libraries/CMSIS/Device/Maxim)
 target_include_directories(mbed-max32660
     INTERFACE
         .
+        device
         
         ${MXM_PERIPH_DRIVER_DIR}/Include/${MXM_PARTNUMBER}
         ${MXM_CMSIS_DIR}/${MXM_PARTNUMBER}/Include
@@ -99,6 +107,8 @@ target_sources(mbed-max32660
         ${MXM_SOURCE_DIR}/WDT/wdt_common.c
         ${MXM_SOURCE_DIR}/WDT/wdt_me11.c
         ${MXM_SOURCE_DIR}/WDT/wdt_reva.c
+
+        ${STARTUP_FILE}
 )
 
 target_link_libraries(mbed-max32660
