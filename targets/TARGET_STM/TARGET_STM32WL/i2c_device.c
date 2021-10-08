@@ -47,7 +47,7 @@ uint32_t i2c_get_pclk(I2CName i2c)
         }
     }
 #if defined I2C2_BASE
-    if (i2c == I2C_2) {
+    else if (i2c == I2C_2) {
         clocksource = __HAL_RCC_GET_I2C2_SOURCE();
         switch (clocksource) {
             case RCC_I2C2CLKSOURCE_PCLK1:
