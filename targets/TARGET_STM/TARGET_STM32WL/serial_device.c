@@ -65,6 +65,13 @@ static void uart1_irq(void)
 }
 #endif
 
+#if defined(USART2_BASE)
+static void uart2_irq(void)
+{
+    uart_irq(UART_2);
+}
+#endif
+
 #if defined(LPUART1_BASE)
 static void lpuart1_irq(void)
 {
@@ -92,6 +99,12 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         case UART_1:
             irq_n = USART1_IRQn;
             vector = (uint32_t)&uart1_irq;
+            break;
+#endif
+#if defined(USART2_BASE)
+        case UART_2:
+            irq_n = USART2_IRQn;
+            vector = (uint32_t)&uart2_irq;
             break;
 #endif
 #if defined(LPUART1_BASE)
@@ -270,6 +283,11 @@ static IRQn_Type serial_get_irq_n(UARTName uart_name)
 #if defined(USART1_BASE)
         case UART_1:
             irq_n = USART1_IRQn;
+            break;
+#endif
+#if defined(USART2_BASE)
+        case UART_2:
+            irq_n = USART2_IRQn;
             break;
 #endif
 #if defined(LPUART1_BASE)
