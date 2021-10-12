@@ -33,7 +33,7 @@
         (++) max time (mS) = 1000 * (Counter - 0x40) / WWDG clock
     (+) Typical values:
         (++) Counter min (T[5;0] = 0x00) @110MHz (PCLK1) with zero prescaler:
-             max timeout before reset: ~37.23µs
+             max timeout before reset: ~37.23us
         (++) Counter max (T[5;0] = 0x3F) @110MHz (PCLK1) with prescaler dividing by 128:
              max timeout before reset: ~19.07ms
 
