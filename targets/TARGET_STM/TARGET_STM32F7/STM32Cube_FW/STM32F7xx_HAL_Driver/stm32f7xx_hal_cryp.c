@@ -470,7 +470,7 @@ HAL_StatusTypeDef HAL_CRYP_Init(CRYP_HandleTypeDef *hcryp)
   }
 #endif /* (USE_HAL_CRYP_REGISTER_CALLBACKS) */
 
-  /* Set the key size(This bit field is don’t care in the DES or TDES modes) data type and Algorithm */
+  /* Set the key size(This bit field is don't care in the DES or TDES modes) data type and Algorithm */
 #if defined (CRYP)
 
   MODIFY_REG(hcryp->Instance->CR, CRYP_CR_DATATYPE | CRYP_CR_KEYSIZE | CRYP_CR_ALGOMODE,
@@ -589,7 +589,7 @@ HAL_StatusTypeDef HAL_CRYP_SetConfig(CRYP_HandleTypeDef *hcryp, CRYP_ConfigTypeD
     hcryp->Init.KeyIVConfigSkip = pConf->KeyIVConfigSkip;
     hcryp->Init.HeaderWidthUnit = pConf->HeaderWidthUnit;
 
-    /* Set the key size(This bit field is don’t care in the DES or TDES modes) data type, AlgoMode and operating mode*/
+    /* Set the key size(This bit field is don't care in the DES or TDES modes) data type, AlgoMode and operating mode*/
 #if defined (CRYP)
 
     MODIFY_REG(hcryp->Instance->CR, CRYP_CR_DATATYPE | CRYP_CR_KEYSIZE | CRYP_CR_ALGOMODE,
