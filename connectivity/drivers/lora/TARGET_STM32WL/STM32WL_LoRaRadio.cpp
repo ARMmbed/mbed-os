@@ -279,6 +279,7 @@ void HAL_SUBGHZ_MspInit(SUBGHZ_HandleTypeDef *subghzHandle)
 static void RadioIrqProcess()
 {
     radio_irq_masks_t irq_status;
+    core_util_critical_section_enter();
 
     irq_status = (radio_irq_masks_t)STM32WL_LoRaRadio::get_irq_status();
     /* clear IRQs lines after recovering their status */
@@ -300,6 +301,7 @@ static void RadioIrqProcess()
     if ((irq_status & IRQ_RX_TX_TIMEOUT) == IRQ_RX_TX_TIMEOUT) {
         STM32WL_LoRaRadio::HAL_SUBGHZ_RxTxTimeoutCallback();
     }
+    core_util_critical_section_exit();
 }
 
 
