@@ -1,0 +1,41 @@
+#! armclang -E --target=arm-arm-none-eabi -x c -mcpu=cortex-m4
+; MAX32660
+; 256K FLASH (0x200000) @ 0x000000000
+; 96KB RAM (0x18000) @ 0x20000000
+;   - 16KB RAM_0 (0x4000) @ 0x20000000
+;   - 16KB RAM_1 (0x4000) @ 0x20004000
+;   - 32KB RAM_2 (0x8000) @ 0x20008000
+;   - 32KB RAM_3 (0x8000) @ 0x20010000
+
+#include "../nvic_table.h"
+
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+#  if defined(MBED_BOOT_STACK_SIZE)
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE MBED_BOOT_STACK_SIZE
+#  else
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
+#  endif
+#endif
+
+; Round up to 8 bytes
+#define VECTORS_SIZE     (((NVIC_NUM_VECTORS * 4) + 7) AND 0xFFFFFFF8) 
+
+
+LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
+
+    ER_IROM1 MBED_APP_START MBED_APP_SIZE  {  ; load address = execution address 
+        *.o (RESET, +First)
+        *(InRoot$$Sections)
+        .ANY (+RO)
+    }
+
+    RW_IRAM1  (MBED_RAM_START + VECTORS_SIZE)  {  ; RW data
+        .ANY (+RW +ZI)
+    }
+
+    ARM_LIB_HEAP AlignExpr(+0, 16) EMPTY (MBED_RAM_START + MBED_RAM_SIZE - MBED_CONF_TARGET_BOOT_STACK_SIZE - AlignExpr(ImageLimit(RW_IRAM1), 16))  { ; Heap growing up    
+    }
+
+    ARM_LIB_STACK (MBED_RAM_START+MBED_RAM_SIZE) EMPTY - MBED_CONF_TARGET_BOOT_STACK_SIZE { ; stack region growing down
+    }
+}

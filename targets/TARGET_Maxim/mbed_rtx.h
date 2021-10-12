@@ -48,6 +48,12 @@
 #define INITIAL_SP              (0x20080000UL)
 #endif
 
+#elif defined(TARGET_MAX32660)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20018000UL)
+#endif
+
 #endif
 
 #endif  // MBED_MBED_RTX_H

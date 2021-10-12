@@ -5998,6 +5998,86 @@
             ]
         }
     },
+    "MAX32660": {
+        "inherits": [
+            "Target"
+        ],
+        "public": false,
+        "core": "Cortex-M4F",
+        "macros": [
+            "__SYSTEM_HFX=96000000",
+            "TARGET=MAX32660",
+            "TARGET_REV=0x4131",
+            "MBED_MPU_CUSTOM"
+        ],
+        "extra_labels": [
+            "Maxim",
+            "MAX32660"
+        ],
+        "supported_toolchains": [
+            "GCC_ARM",
+            "ARM"
+        ],
+        "device_has": [
+            "SERIAL",
+            "SERIAL_FC",
+            "STDIO_MESSAGES",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "USTICKER",
+            "LPTICKER",
+            "INTERRUPTIN",
+            "SPI",
+            "I2C",
+            "RTC",
+            "SLEEP",
+            "WATCHDOG",
+            "FLASH"
+        ],
+        "supported_application_profiles" : ["full", "bare-metal"],
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
+        }
+    },
+    "MAX32660EVSYS": {
+        "inherits": [
+            "MAX32660"
+        ],
+        "macros_add": [
+            "OPEN_DRAIN_LEDS"
+        ],
+        "device_has_remove": [
+            "LPTICKER"
+        ],
+        "extra_labels_add": [
+            "MAX32660EVSYS"
+        ],
+        "config": {
+            "stdio_uart": {
+                "help": "default STDIO port is defined in PeripheralNames.h file, but it can be overridden, default UART_1",
+                "value": null
+            },
+            "stdio_uart_tx": {
+                "help": "default TX STDIO pins is defined in PinNames.h file, but it can be overridden, default P0_10",
+                "value": null
+            },
+            "stdio_uart_rx": {
+                "help": "default RX STDIO pins is defined in PinNames.h file, but it can be overridden, default P0_11",
+                "value": null
+            }
+        },
+        "detect_code": [
+            "0421"
+        ]
+    },
     "EFM32": {
         "inherits": [
             "Target"
