@@ -98,7 +98,7 @@
           during the Init/DeInit.
           In that case first register the MspInit/MspDeInit user callbacks
           using @ref HAL_CRYP_RegisterCallback before calling @ref HAL_CRYP_DeInit
-          or @ref HAL_¨CRYP_Init function.
+          or @ref HAL_CRYP_Init function.
 
           When The compilation define USE_HAL_CRYP_REGISTER_CALLBACKS is set to 0 or
           not defined, the callback registering feature is not available
