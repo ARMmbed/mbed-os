@@ -27,7 +27,6 @@ from datetime import datetime
 
 SCRIPT_DIR = dirname(abspath(__file__))
 MBED_OS_ROOT = abspath(path_join(SCRIPT_DIR, os.pardir, os.pardir))
-SECURE_ROOT = path_join(MBED_OS_ROOT, 'targets', 'TARGET_NUVOTON', 'TARGET_M2354', 'TARGET_TFM', 'TARGET_NU_M2354', 'COMPONENT_TFM_S_FW')
 
 def m2354_tfm_bin(t_self, non_secure_image, secure_bin):
 
@@ -36,6 +35,8 @@ def m2354_tfm_bin(t_self, non_secure_image, secure_bin):
 
     secure_bin = abspath(secure_bin)
     non_secure_image = abspath(non_secure_image)
+
+    SECURE_ROOT = dirname(secure_bin)
 
     build_dir = dirname(non_secure_image)
     tempdir = path_join(build_dir, 'temp')
