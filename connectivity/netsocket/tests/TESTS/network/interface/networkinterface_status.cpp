@@ -75,6 +75,7 @@ void NETWORKINTERFACE_STATUS()
     current_status = NSAPI_STATUS_ERROR_UNSUPPORTED;
 
     net = NetworkInterface::get_default_instance();
+    TEST_ASSERT_NOT_NULL_MESSAGE(net, "No NetworkInterface configured");
     net->attach(status_cb);
     net->set_blocking(true);
 

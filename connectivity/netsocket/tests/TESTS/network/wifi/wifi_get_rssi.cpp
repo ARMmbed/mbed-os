@@ -28,6 +28,10 @@ using namespace utest::v1;
 void wifi_get_rssi(void)
 {
     WiFiInterface *wifi = get_interface();
+    TEST_ASSERT(wifi);
+    if (wifi == NULL) {
+        return;
+    }
 
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->set_credentials(MBED_CONF_APP_WIFI_SECURE_SSID, MBED_CONF_APP_WIFI_PASSWORD, get_security()));
 

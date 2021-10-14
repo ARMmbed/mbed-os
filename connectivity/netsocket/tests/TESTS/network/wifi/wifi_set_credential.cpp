@@ -26,6 +26,10 @@ using namespace utest::v1;
 void wifi_set_credential(void)
 {
     WiFiInterface *iface = get_interface();
+    TEST_ASSERT(iface);
+    if (iface == NULL) {
+        return;
+    }
     nsapi_error_t error;
 
     error = iface->set_credentials(NULL, NULL, NSAPI_SECURITY_NONE);

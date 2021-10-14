@@ -28,6 +28,10 @@ using namespace utest::v1;
 void wifi_connect_secure_fail(void)
 {
     WiFiInterface *wifi = get_interface();
+    TEST_ASSERT(wifi);
+    if (wifi == NULL) {
+        return;
+    }
 
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->set_credentials(MBED_CONF_APP_WIFI_SECURE_SSID, "aaaaaaaa", get_security()));
     nsapi_error_t error;
