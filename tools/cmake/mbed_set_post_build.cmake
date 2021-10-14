@@ -58,8 +58,6 @@ function(mbed_generate_map_file target)
          COMMAND ${Python3_EXECUTABLE} ${mbed-os_SOURCE_DIR}/tools/memap.py -t ${MBED_TOOLCHAIN} ${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map
          WORKING_DIRECTORY
              ${CMAKE_CURRENT_BINARY_DIR}
-         COMMENT
-             "Displaying memory map for ${target}"
 )
 endfunction()
 
@@ -87,6 +85,18 @@ function(mbed_set_post_build target)
     # The mapfile name includes the top-level target name and the
     # executable suffix for all toolchains as CMake hardcodes the name of the
     # diagnostic output file for some toolchains.
+
+    # copy mapfile .map to .map.old for ram/rom statistics diff in memap.py
+    if(EXISTS ${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map)
+        add_custom_command(
+            TARGET
+                ${target}
+            PRE_BUILD
+            COMMAND
+                ${CMAKE_COMMAND} -E rename "${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map" "${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map.old"
+        )
+    endif()
+    
     mbed_configure_memory_map(${target} "${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map")
     mbed_validate_application_profile(${target})
     mbed_generate_bin_hex(${target})
