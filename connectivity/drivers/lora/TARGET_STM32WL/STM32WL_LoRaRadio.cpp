@@ -39,6 +39,16 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "Timer.h"
 #include "STM32WL_LoRaRadio.h"
 
+#ifndef DEBUG_STDIO
+#define DEBUG_STDIO 0
+#endif
+
+#if DEBUG_STDIO
+#define DEBUG_PRINTF(...) do { printf(__VA_ARGS__); } while(0)
+#else
+#define DEBUG_PRINTF(...) {}
+#endif
+
 uint8_t regulator_mode = MBED_CONF_STM32WL_LORA_DRIVER_REGULATOR_MODE;
 
 uint8_t crystal_select  = MBED_CONF_STM32WL_LORA_DRIVER_CRYSTAL_SELECT;
@@ -136,7 +146,6 @@ STM32WL_LoRaRadio::STM32WL_LoRaRadio()
 
 STM32WL_LoRaRadio::~STM32WL_LoRaRadio()
 {
-
 }
 
 /**
@@ -270,7 +279,7 @@ void HAL_SUBGHZ_MspInit(SUBGHZ_HandleTypeDef *subghzHandle)
 static void RadioIrqProcess()
 {
     radio_irq_masks_t irq_status;
-
+    core_util_critical_section_enter();
 
     irq_status = (radio_irq_masks_t)STM32WL_LoRaRadio::get_irq_status();
     /* clear IRQs lines after recovering their status */
@@ -292,8 +301,10 @@ static void RadioIrqProcess()
     if ((irq_status & IRQ_RX_TX_TIMEOUT) == IRQ_RX_TX_TIMEOUT) {
         STM32WL_LoRaRadio::HAL_SUBGHZ_RxTxTimeoutCallback();
     }
+    core_util_critical_section_exit();
 }
-/* ----- */
+
+
 /* HAL_SUBGHz Callbacks definitions */
 void STM32WL_LoRaRadio::HAL_SUBGHZ_TxCpltCallback(void)
 {
@@ -352,7 +363,6 @@ void STM32WL_LoRaRadio::HAL_SUBGHZ_CADStatusCallback(void)
     }
 }
 
-
 void STM32WL_LoRaRadio::HAL_SUBGHZ_RxTxTimeoutCallback(void)
 {
     if ((_radio_events->tx_timeout) && (_operating_mode == MODE_TX)) {
@@ -373,14 +383,13 @@ void STM32WL_LoRaRadio::HAL_SUBGHZ_RxTxTimeoutCallback(void)
     }
 }
 
-/* ----- */
-/* HAL_SUBGHz Callbacks definitions END */
 
 
 /* STM32WL specific BSP Nucleo board functions */
 void STM32WL_LoRaRadio::SUBGRF_SetSwitch(uint8_t paSelect, RFState_t rxtx)
 {
     RBI_Switch_TypeDef state = RBI_SWITCH_RX;
+    DEBUG_PRINTF("STM32WL_LoRaRadio::SUBGRF_SetSwitch %u %u\n", paSelect, rxtx);
 
     if (rxtx == RFSWITCH_TX) {
         if (paSelect == RFO_LP) {
@@ -400,6 +409,7 @@ void STM32WL_LoRaRadio::SUBGRF_SetSwitch(uint8_t paSelect, RFState_t rxtx)
 
 uint8_t STM32WL_LoRaRadio::SUBGRF_SetRfTxPower(int8_t power)
 {
+    DEBUG_PRINTF("STM32WL_LoRaRadio::SUBGRF_SetRfTxPower %u\n", power);
     uint8_t paSelect = RFO_LP;
 
     int32_t TxConfig = board_rf_switch_config;
@@ -434,6 +444,7 @@ uint8_t STM32WL_LoRaRadio::SUBGRF_SetRfTxPower(int8_t power)
 void STM32WL_LoRaRadio::SUBGRF_SetTxParams(uint8_t paSelect, int8_t power, radio_ramp_time_t rampTime)
 {
     uint8_t buf[2];
+    DEBUG_PRINTF("STM32WL_LoRaRadio::SUBGRF_SetTxParams %u %u\n", paSelect, power);
 
     if (paSelect == RFO_LP) {
         if (power == 15) {
@@ -496,6 +507,7 @@ void STM32WL_LoRaRadio::Radio_SMPS_Set(uint8_t level)
 void STM32WL_LoRaRadio::calibrate_image(uint32_t freq)
 {
     uint8_t cal_freq[2];
+    DEBUG_PRINTF("STM32WL_LoRaRadio::calibrate_image %u\n", freq);
 
     if (freq > 900000000) {
         cal_freq[0] = 0xE1;
@@ -521,6 +533,7 @@ void STM32WL_LoRaRadio::calibrate_image(uint32_t freq)
 
 void STM32WL_LoRaRadio::set_channel(uint32_t frequency)
 {
+    DEBUG_PRINTF("STM32WL_LoRaRadio::set_channel %u\n", frequency);
 #if MBED_CONF_STM32WL_LORA_DRIVER_SLEEP_MODE == 1
     // At this point, we are not sure what is the Modem type, set both
     _mod_params.params.lora.operational_frequency = frequency;
@@ -571,6 +584,7 @@ void STM32WL_LoRaRadio::standby(void)
 void STM32WL_LoRaRadio::SUBGRF_SetTcxoMode(radio_TCXO_ctrl_voltage_t voltage,
                                            uint32_t timeout)
 {
+    DEBUG_PRINTF("STM32WL_LoRaRadio::SUBGRF_SetTcxoMode %u\n", voltage);
     uint8_t buf[4];
 
     buf[0] = voltage & 0x07;
@@ -585,7 +599,7 @@ void STM32WL_LoRaRadio::init_radio(radio_events_t *events)
 {
     HAL_StatusTypeDef error_value;
     uint32_t vector = 0;
-
+    DEBUG_PRINTF("STM32WL_LoRaRadio::init_radio\n");
     _radio_events = events;
 
     _tx_timeout = 0;
@@ -602,7 +616,6 @@ void STM32WL_LoRaRadio::init_radio(radio_events_t *events)
     SUBGRF_SetTxParams(RFO_LP, 0, RADIO_RAMP_200_US);
 
     sleep();
-
 }
 
 
@@ -634,6 +647,7 @@ void STM32WL_LoRaRadio::cold_start_wakeup()
 
 void STM32WL_LoRaRadio::set_public_network(bool enable)
 {
+    DEBUG_PRINTF("STM32WL_LoRaRadio::set_public_network %u\n", enable);
     if (enable) {
         // Change LoRa modem SyncWord
         write_to_register(REG_LR_SYNCWORD, (LORA_MAC_PUBLIC_SYNCWORD >> 8) & 0xFF);
@@ -680,12 +694,14 @@ uint32_t STM32WL_LoRaRadio::time_on_air(radio_modems_t modem, uint8_t pkt_len)
         }
         break;
     }
+    DEBUG_PRINTF("STM32WL_LoRaRadio::time_on_air %u %u => %u\n", modem, pkt_len, air_time);
 
     return air_time;
 }
 
 void STM32WL_LoRaRadio::radio_reset()
 {
+    DEBUG_PRINTF("STM32WL_LoRaRadio::radio_reset\n");
 
     // give some time for automatic image calibration
     rtos::ThisThread::sleep_for(6ms);
@@ -704,10 +720,12 @@ void STM32WL_LoRaRadio::wakeup()
         cold_start_wakeup();
 #endif
     }
+    DEBUG_PRINTF("STM32WL_LoRaRadio::wakeup\n");
 }
 
 void STM32WL_LoRaRadio::sleep(void)
 {
+    DEBUG_PRINTF("STM32WL_LoRaRadio::sleep\n");
 #if MBED_CONF_STM32WL_LORA_DRIVER_SLEEP_MODE == 1
     // cold start, power consumption 160 nA
     sleep_state = 0x00;
@@ -739,7 +757,9 @@ uint32_t STM32WL_LoRaRadio::random(void)
     read_register(RANDOM_NUMBER_GENERATORBASEADDR, buf, 4);
     standby();
 
-    return (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
+    uint32_t random_value = (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3] ;
+    DEBUG_PRINTF("STM32WL_LoRaRadio::random %u\n", random_value);
+    return random_value;
 }
 
 void STM32WL_LoRaRadio::write_opmode_command(uint8_t cmd, uint8_t *buffer, uint16_t size)
@@ -748,7 +768,6 @@ void STM32WL_LoRaRadio::write_opmode_command(uint8_t cmd, uint8_t *buffer, uint1
 
     error_value = HAL_SUBGHZ_ExecSetCmd(&hsubghz, (SUBGHZ_RadioSetCmd_t)cmd, buffer, size);
     MBED_ASSERT(error_value == HAL_OK);
-
 }
 
 void STM32WL_LoRaRadio::read_opmode_command(uint8_t cmd, uint8_t *buffer, uint16_t size)
@@ -757,7 +776,6 @@ void STM32WL_LoRaRadio::read_opmode_command(uint8_t cmd, uint8_t *buffer, uint16
 
     error_value = HAL_SUBGHZ_ExecGetCmd(&hsubghz, (SUBGHZ_RadioGetCmd_t)cmd, buffer, size);
     MBED_ASSERT(error_value == HAL_OK);
-
 }
 
 void STM32WL_LoRaRadio::write_to_register(uint16_t addr, uint8_t data)
@@ -813,6 +831,7 @@ void STM32WL_LoRaRadio::write_fifo(uint8_t *buffer, uint8_t size)
 void STM32WL_LoRaRadio::set_modem(uint8_t modem)
 {
     _active_modem = modem;
+    DEBUG_PRINTF("STM32WL_LoRaRadio::set_modem %u\n", modem);
 
     // setting modem type must happen in standby mode
     if (_operating_mode != MODE_STDBY_RC) {
@@ -875,6 +894,7 @@ void STM32WL_LoRaRadio::set_tx_config(radio_modems_t modem,
                                       bool iq_inverted,
                                       uint32_t timeout)
 {
+    DEBUG_PRINTF("STM32WL_LoRaRadio::set_tx_config %u %u %u %u\n", modem, power, fdev, bandwidth);
 
     uint8_t modem_type = (uint8_t) modem;
     switch (modem_type) {
@@ -966,6 +986,7 @@ void STM32WL_LoRaRadio::set_rx_config(radio_modems_t modem,
     uint8_t max_payload_len;
     (void) freq_hop_on;
     (void) hop_period;
+    DEBUG_PRINTF("STM32WL_LoRaRadio::set_rx_config %u %u %u %u\n", modem, bandwidth, datarate, coderate);
 
     if (rx_continuous) {
         _reception_mode = RECEPTION_MODE_CONTINUOUS;
@@ -1089,6 +1110,7 @@ void STM32WL_LoRaRadio::configure_dio_irq(uint16_t irq_mask, uint16_t dio1_mask,
 
 void STM32WL_LoRaRadio::send(uint8_t *buffer, uint8_t size)
 {
+    DEBUG_PRINTF("STM32WL_LoRaRadio::send %u\n", size);
     set_tx_power(_tx_power);
     configure_dio_irq(IRQ_TX_DONE | IRQ_RX_TX_TIMEOUT,
                       IRQ_TX_DONE | IRQ_RX_TX_TIMEOUT,
@@ -1127,6 +1149,8 @@ void STM32WL_LoRaRadio::send(uint8_t *buffer, uint8_t size)
 
 void STM32WL_LoRaRadio::receive(void)
 {
+    DEBUG_PRINTF("STM32WL_LoRaRadio::receive\n");
+
     if (get_modem() == MODEM_LORA) {
         if (_reception_mode != RECEPTION_MODE_CONTINUOUS) {
             // Data-sheet Table 13-11: StopOnPreambParam
@@ -1243,6 +1267,7 @@ void STM32WL_LoRaRadio::set_pa_config(uint8_t pa_DC, uint8_t hp_max,
                                       uint8_t device_type, uint8_t pa_LUT)
 {
     uint8_t buf[4];
+    DEBUG_PRINTF("STM32WL_LoRaRadio::set_pa_config %u %u %u %u\n", pa_DC, hp_max, device_type, pa_LUT);
 
     buf[0] = pa_DC;
     buf[1] = hp_max;
@@ -1253,6 +1278,7 @@ void STM32WL_LoRaRadio::set_pa_config(uint8_t pa_DC, uint8_t hp_max,
 
 void STM32WL_LoRaRadio::set_crc_seed(uint16_t seed)
 {
+    DEBUG_PRINTF("STM32WL_LoRaRadio::set_crc_seed\n");
     if (_active_modem == MODEM_FSK) {
         uint8_t buf[2];
         buf[0] = (uint8_t)((seed >> 8) & 0xFF);
@@ -1263,6 +1289,7 @@ void STM32WL_LoRaRadio::set_crc_seed(uint16_t seed)
 
 void STM32WL_LoRaRadio::set_crc_polynomial(uint16_t polynomial)
 {
+    DEBUG_PRINTF("STM32WL_LoRaRadio::set_crc_polynomial\n");
     if (_active_modem == MODEM_FSK) {
         uint8_t buf[2];
         buf[0] = (uint8_t)((polynomial >> 8) & 0xFF);
@@ -1273,6 +1300,7 @@ void STM32WL_LoRaRadio::set_crc_polynomial(uint16_t polynomial)
 
 void STM32WL_LoRaRadio::set_whitening_seed(uint16_t seed)
 {
+    DEBUG_PRINTF("STM32WL_LoRaRadio::set_whitening_seed\n");
     if (_active_modem == MODEM_FSK) {
         uint8_t reg_value = read_register(REG_LR_WHITSEEDBASEADDR_MSB) & 0xFE;
         reg_value = ((seed >> 8) & 0x01) | reg_value;
@@ -1286,6 +1314,7 @@ void STM32WL_LoRaRadio::set_packet_params(packet_params_t *packet_params)
     uint8_t n;
     uint8_t crc_val = 0;
     uint8_t buf[9] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    DEBUG_PRINTF("STM32WL_LoRaRadio::set_packet_params %u\n", packet_params->modem_type);
 
     // Check if required configuration corresponds to the stored packet type
     // If not, silently update radio packet type
@@ -1363,6 +1392,7 @@ void STM32WL_LoRaRadio::set_buffer_base_addr(uint8_t tx_base_addr, uint8_t rx_ba
 
 uint8_t STM32WL_LoRaRadio::get_status(void)
 {
+    DEBUG_PRINTF("STM32WL_LoRaRadio::get_status\n");
     switch (_operating_mode) {
         case MODE_TX:
             return RF_TX_RUNNING;
@@ -1382,12 +1412,15 @@ int8_t STM32WL_LoRaRadio::get_rssi()
 
     read_opmode_command((uint8_t) RADIO_GET_RSSIINST, buf, 1);
     rssi = -buf[0] >> 1;
+
+    DEBUG_PRINTF("STM32WL_LoRaRadio::get_rssi %d\n", rssi);
     return rssi;
 }
 
 void STM32WL_LoRaRadio::get_rx_buffer_status(uint8_t *payload_len,
                                              uint8_t *start_ptr)
 {
+    // DEBUG_PRINTF("STM32WL_LoRaRadio::get_rx_buffer_status\n");
     uint8_t status[2];
 
     read_opmode_command((uint8_t) RADIO_GET_RXBUFFERSTATUS, status, 2);
@@ -1406,6 +1439,7 @@ void STM32WL_LoRaRadio::get_rx_buffer_status(uint8_t *payload_len,
 
 void STM32WL_LoRaRadio::get_packet_status(packet_status_t *pkt_status)
 {
+    // DEBUG_PRINTF("STM32WL_LoRaRadio::get_packet_status\n");
     uint8_t status[3];
 
     read_opmode_command((uint8_t) RADIO_GET_PACKETSTATUS, status, 3);
@@ -1437,6 +1471,7 @@ void STM32WL_LoRaRadio::get_packet_status(packet_status_t *pkt_status)
 radio_error_t STM32WL_LoRaRadio::get_device_errors(void)
 {
     radio_error_t error;
+    DEBUG_PRINTF("STM32WL_LoRaRadio::get_device_errors\n");
 
     read_opmode_command((uint8_t) RADIO_GET_ERROR, (uint8_t *)&error, 2);
     return error;
@@ -1444,6 +1479,7 @@ radio_error_t STM32WL_LoRaRadio::get_device_errors(void)
 
 void STM32WL_LoRaRadio::clear_device_errors(void)
 {
+    DEBUG_PRINTF("STM32WL_LoRaRadio::clear_device_errors\n");
     uint8_t buf[2] = {0x00, 0x00};
     write_opmode_command((uint8_t) RADIO_CLR_ERROR, buf, 2);
 }
