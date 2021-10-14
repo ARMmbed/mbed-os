@@ -47,33 +47,36 @@ pull_request_rules:
       - check-failure=cmake-checks
       - check-failure=frozen-tools-check 
       - "label!=mergify skip"
+      - "label!='needs: work'"
     actions:
       label:
         add: ['needs: work']
         remove: ['needs: review', 'needs: CI']
 
-  # From needs: review to needs: work - CI failure
+  # From needs: CI to needs: work - CI failure in jenkins pipeline
   - name: "label needs: work when Jenkins CI failed - pr head"
     conditions:
-      # Jenkins CI failing
+      # Jenkins CI failing, only pr head
       - check-failure~=continuous-integration/jenkins/pr-head
       - "label!=mergify skip"
+      - "label=needs: CI"
       - -closed
     actions:
       label:
         add: ['needs: work']
-        remove: ['needs: review','needs: CI']
+        remove: ['needs: CI']
 
-  # From needs: review to needs: work - CI failure
+  # From needs: CI to needs: work - CI failure
   - name: "label needs: work when Jenkins CI failed - any of the pipeline"
     conditions:
       # Jenkins CI failing - any of the pipeline
       - check-failure~=^jenkins-ci
+      - "label=needs: CI"
       - "label!=mergify skip"
     actions:
       label:
         add: ['needs: work']
-        remove: ['needs: review', 'needs: CI']
+        remove: ['needs: CI']
 
   # From needs: review or needs: work to needs: CI. One approval means we should be good to start CI
   - name: "label needs: CI when at least one reviewers approval"
