@@ -4,6 +4,6 @@
 add_subdirectory(CMSIS_5)
 add_subdirectory(device)
 
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MBED_BUILD_TESTING) AND BUILD_TESTING)
     add_subdirectory(tests/UNITTESTS/doubles)
 endif()

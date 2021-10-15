@@ -24,7 +24,7 @@ add_library(mbed-nfc INTERFACE)
 add_library(mbed-ppp INTERFACE)
 add_library(mbed-wifi INTERFACE)
 
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MBED_BUILD_TESTING) AND BUILD_TESTING)
     # Add these subdirectories for tests
     add_subdirectory(cellular)
     add_subdirectory(drivers)

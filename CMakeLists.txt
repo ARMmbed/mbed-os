@@ -6,6 +6,7 @@
 cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
 
 option(BUILD_GREENTEA_TESTS "Build greentea tests only." OFF)
+option(MBED_BUILD_TESTING "Build tests if mbed-os is used as subproject" OFF)
 
 if(BUILD_GREENTEA_TESTS)
     # Usually we rely on the application to set MBED_CONFIG_PATH and include
@@ -30,14 +31,14 @@ list(APPEND CMAKE_MODULE_PATH
 
 add_subdirectory(extern)
 
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
     include(CTest)
+endif()
 
-    if((NOT BUILD_GREENTEA_TESTS) AND BUILD_TESTING)
-        # Building unit tests only.
-        add_definitions(-DUNITTEST)
-        add_subdirectory(UNITTESTS)
-    endif()
+if((NOT BUILD_GREENTEA_TESTS) AND BUILD_TESTING)
+    # Building unit tests only.
+    add_definitions(-DUNITTEST)
+    add_subdirectory(UNITTESTS)
 endif()
 
 add_library(mbed-core INTERFACE)
