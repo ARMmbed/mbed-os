@@ -99,12 +99,14 @@ public:
 
 
     /** Attach a function to call when a rising edge occurs on the input
+     *  Interrupts are enabled for the pin
      *
      *  @param func A pointer to a void function, or 0 to set as none
      */
     void rise(Callback<void()> func);
 
     /** Attach a function to call when a falling edge occurs on the input
+     *  Interrupts are enabled for the pin
      *
      *  @param func A pointer to a void function, or 0 to set as none
      */
