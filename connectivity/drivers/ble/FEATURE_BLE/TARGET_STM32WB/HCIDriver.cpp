@@ -514,7 +514,7 @@ public:
                         }
                         break;
                     case INFO_STACK_TYPE_BLE_HCI:
-                        if (MBED_ROM_SIZE > 0xE0000)  {
+                        if (MBED_ROM_SIZE > (((p_wireless_info->VersionMajor > 1) || (p_wireless_info->VersionMinor >= 12)) ? 0xE1000 : 0xE0000))  {
                             error("Wrong MBED_ROM_SIZE with HCI FW\n");
                         }
                         break;
