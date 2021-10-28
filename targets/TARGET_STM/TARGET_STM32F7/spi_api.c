@@ -58,7 +58,9 @@ int spi_get_clock_freq(spi_t *obj)
         case SPI_1:
         case SPI_4:
         case SPI_5:
+    #if defined SPI6_BASE
         case SPI_6:
+    #endif // defined SPI6_BASE
             /* SPI_1, SPI_4, SPI_5 and SPI_6. Source CLK is PCKL2 */
             spi_hz = HAL_RCC_GetPCLK2Freq();
             break;
