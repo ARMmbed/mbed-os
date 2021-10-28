@@ -939,6 +939,32 @@ static inline int datasize_to_transfer_bitshift(uint32_t DataSize)
     }
 }
 
+static inline int spi_get_word_from_buffer(const void *buffer, int bitshift)
+{
+    if (bitshift == 1) {
+        return *((uint16_t *)buffer);
+#ifdef HAS_32BIT_SPI_TRANSFERS
+    } else if (bitshift == 2) {
+        return *((uint32_t *)buffer);
+#endif /* HAS_32BIT_SPI_TRANSFERS */
+    } else {
+        return *((uint8_t *)buffer);
+    }
+}
+
+static inline void spi_put_word_to_buffer(void *buffer, int bitshift, int data)
+{
+    if (bitshift == 1) {
+        *((uint16_t *)buffer) = data;
+#ifdef HAS_32BIT_SPI_TRANSFERS
+    } else if (bitshift == 2) {
+        *((uint32_t *)buffer) = data;
+#endif /* HAS_32BIT_SPI_TRANSFERS */
+    } else {
+        *((uint8_t *)buffer) = data;
+    }
+}
+
 /**
  * Check if SPI master interface is writable.
  *
@@ -1011,16 +1037,16 @@ static inline void msp_wait_not_busy(spi_t *obj)
 /**
  * Write data to SPI master interface.
  */
-static inline void msp_write_data(spi_t *obj, const char* value, int bitshift)
+static inline void msp_write_data(spi_t *obj, int value, int bitshift)
 {
     if (bitshift == 1) {
-        LL_SPI_TransmitData16(SPI_INST(obj), *((uint16_t*)value));
+        LL_SPI_TransmitData16(SPI_INST(obj), (uint16_t)value);
 #ifdef HAS_32BIT_SPI_TRANSFERS
     } else if (bitshift == 2) {
-        LL_SPI_TransmitData32(SPI_INST(obj), *((uint32_t*)value));
+        LL_SPI_TransmitData32(SPI_INST(obj), (uint32_t)value);
 #endif /* HAS_32BIT_SPI_TRANSFERS */
     } else {
-        LL_SPI_TransmitData8(SPI_INST(obj), *((uint8_t*)value));
+        LL_SPI_TransmitData8(SPI_INST(obj), (uint8_t)value);
     }
 }
 
@@ -1057,7 +1083,8 @@ static int spi_master_one_wire_transfer(spi_t *obj, const char *tx_buffer, int t
     SPI_HandleTypeDef *handle = &(spiobj->handle);
     const int bitshift = datasize_to_transfer_bitshift(handle->Init.DataSize);
     MBED_ASSERT(bitshift >= 0);
-
+    const int word_size = 0x01 << bitshift;
+    
     /* Ensure that spi is disabled */
     LL_SPI_Disable(SPI_INST(obj));
 
@@ -1074,9 +1101,9 @@ static int spi_master_one_wire_transfer(spi_t *obj, const char *tx_buffer, int t
         LL_SPI_StartMasterTransfer(SPI_INST(obj));
 #endif /* SPI_IP_VERSION_V2 */
 
-        for (int i = 0; i < tx_length; i++) {
+        for (int i = 0; i < tx_length; i += word_size) {
             msp_wait_writable(obj);
-            msp_write_data(obj, &tx_buffer[i<<bitshift], bitshift);
+            msp_write_data(obj, spi_get_word_from_buffer(tx_buffer + i, bitshift), bitshift);
         }
 
         /* Wait end of transaction */
@@ -1103,9 +1130,9 @@ static int spi_master_one_wire_transfer(spi_t *obj, const char *tx_buffer, int t
         LL_SPI_StartMasterTransfer(SPI_INST(obj));
 
         /* Receive data */
-        for (int i = 0; i < rx_length; i++) {
+        for (int i = 0; i < rx_length; i += word_size) {
             msp_wait_readable(obj);
-            rx_buffer[i] = msp_read_data(obj, bitshift);
+            spi_put_word_to_buffer(rx_buffer + i, bitshift, msp_read_data(obj, bitshift));
         }
 
         /* Stop SPI */
@@ -1134,7 +1161,7 @@ static int spi_master_one_wire_transfer(spi_t *obj, const char *tx_buffer, int t
         /* get estimation about one SPI clock cycle */
         uint32_t baudrate_period_ns = 1000000000 / spi_get_baudrate(obj);
 
-        for (int i = 0; i < rx_length; i++) {
+        for (int i = 0; i < rx_length; i += word_size) {
             core_util_critical_section_enter();
             LL_SPI_Enable(SPI_INST(obj));
             /* Wait single SPI clock cycle. */
@@ -1143,7 +1170,7 @@ static int spi_master_one_wire_transfer(spi_t *obj, const char *tx_buffer, int t
             core_util_critical_section_exit();
 
             msp_wait_readable(obj);
-            rx_buffer[i] = msp_read_data(obj, bitshift);
+            spi_put_word_to_buffer(rx_buffer + i, bitshift, msp_read_data(obj, bitshift));
         }
 
 #endif /* SPI_IP_VERSION_V2 */
@@ -1186,7 +1213,7 @@ int spi_master_write(spi_t *obj, int value)
 
     /* Transmit data */
     msp_wait_writable(obj);
-    msp_write_data(obj, (const char*)&value, bitshift);
+    msp_write_data(obj, value, bitshift);
 
     /* Receive data */
     msp_wait_readable(obj);
@@ -1198,13 +1225,23 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
 {
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
+
+    const int bitshift = datasize_to_transfer_bitshift(handle->Init.DataSize);
+    MBED_ASSERT(tx_length >> bitshift << bitshift == tx_length);
+    MBED_ASSERT(rx_length >> bitshift << bitshift == rx_length);
     int total = (tx_length > rx_length) ? tx_length : rx_length;
+    int write_fill_frame = write_fill;
+    for (int i = 0; i < bitshift; i++) {
+        write_fill_frame = (write_fill_frame << 8) | write_fill;
+    }
+
     if (handle->Init.Direction == SPI_DIRECTION_2LINES) {
-        for (int i = 0; i < total; i++) {
-            char out = (i < tx_length) ? tx_buffer[i] : write_fill;
-            char in = spi_master_write(obj, out);
+        const int word_size = 0x01 << bitshift;
+        for (int i = 0; i < total; i += word_size) {
+            int out = (i < tx_length) ? spi_get_word_from_buffer(tx_buffer + i, bitshift) : write_fill_frame;
+            int in = spi_master_write(obj, out);
             if (i < rx_length) {
-                rx_buffer[i] = in;
+                spi_put_word_to_buffer(rx_buffer + i, bitshift, in);
             }
         }
     } else {
