@@ -1185,8 +1185,7 @@ int spi_master_write(spi_t *obj, int value)
     SPI_HandleTypeDef *handle = &(spiobj->handle);
 
     if (handle->Init.Direction == SPI_DIRECTION_1LINE) {
-        int result = spi_master_one_wire_transfer(obj, (const char *)&value, 1, NULL, 0);
-        return result == 1 ? HAL_OK : HAL_ERROR;
+        return HAL_SPI_Transmit(handle, (uint8_t *)&value, 1, TIMEOUT_1_BYTE);
     }
     const int bitshift = datasize_to_transfer_bitshift(handle->Init.DataSize);
     MBED_ASSERT(bitshift >= 0);
