@@ -2385,6 +2385,24 @@
             "MPU"
         ]
     },
+    "NUCLEO_F722ZE": {
+        "inherits": [
+            "MCU_STM32F7"
+        ],
+        "extra_labels_add": [
+            "STM32F722xE"
+        ],
+        "macros_add": [
+            "STM32F722xx"
+        ],
+        "supported_form_factors": [
+            "ARDUINO_UNO"
+        ],
+        "detect_code": [
+            "0812"
+        ],
+        "device_name": "STM32F722ZETx"
+    },
     "DISCO_F746NG": {
         "inherits": [
             "MCU_STM32F7"
