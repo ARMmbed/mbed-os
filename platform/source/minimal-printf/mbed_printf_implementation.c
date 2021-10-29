@@ -287,8 +287,7 @@ static void mbed_minimal_formatted_string_double(char *buffer, size_t length, in
         if (value < 0) {
             /* The part after the dot does not have a sign, so negate the value before rounding */
             decimal = -decimal_double + 0.5;
-            if (decimal >= precision)
-            {
+            if (decimal >= precision) {
                 /* Rounding carries over to value's integer part (e.g. -1.95 with dec_precision=1 -> -2.0) */
                 integer--;
                 decimal = 0;
@@ -296,8 +295,7 @@ static void mbed_minimal_formatted_string_double(char *buffer, size_t length, in
         } else {
             /* Round the value */
             decimal = decimal_double + 0.5;
-            if (decimal >= precision)
-            {
+            if (decimal >= precision) {
                 /* Rounding carries over to value's integer part (e.g. 1.95 with dec_precision=1 -> 2.0) */
                 integer++;
                 decimal = 0;
