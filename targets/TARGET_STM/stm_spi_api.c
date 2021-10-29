@@ -152,14 +152,13 @@ void init_spi(spi_t *obj)
     /* In some cases after SPI object re-creation SPI overrun flag may not
      * be cleared, so clear RX data explicitly to prevent any transmissions errors */
     spi_flush_rx(obj);
-    /* In case of standard 4 wires SPI,PI can be kept enabled all time
-     * and SCK will only be generated during the write operations. But in case
-     * of 3 wires, it should be only enabled during rd/wr unitary operations,
-     * which is handled inside STM32 HAL layer.
-     */
-    if (handle->Init.Direction  == SPI_DIRECTION_2LINES) {
-        __HAL_SPI_ENABLE(handle);
+
+    /* in 3-wire case, this avoids starting immediate clock generation */
+    if (handle->Init.Direction  == SPI_DIRECTION_1LINE) {
+        SPI_1LINE_TX(handle);
     }
+
+     __HAL_SPI_ENABLE(handle);
 }
 
 SPIName spi_get_peripheral_name(PinName mosi, PinName miso, PinName sclk)
@@ -1085,18 +1084,12 @@ static int spi_master_one_wire_transfer(spi_t *obj, const char *tx_buffer, int t
     MBED_ASSERT(bitshift >= 0);
     const int word_size = 0x01 << bitshift;
     
-    /* Ensure that spi is disabled */
-    LL_SPI_Disable(SPI_INST(obj));
-
     /* Transmit data */
     if (tx_length) {
         LL_SPI_SetTransferDirection(SPI_INST(obj), LL_SPI_HALF_DUPLEX_TX);
 #if defined(SPI_IP_VERSION_V2)
         /* Set transaction size */
         LL_SPI_SetTransferSize(SPI_INST(obj), tx_length);
-#endif /* SPI_IP_VERSION_V2 */
-        LL_SPI_Enable(SPI_INST(obj));
-#if defined(SPI_IP_VERSION_V2)
         /* Master transfer start */
         LL_SPI_StartMasterTransfer(SPI_INST(obj));
 #endif /* SPI_IP_VERSION_V2 */
@@ -1108,8 +1101,6 @@ static int spi_master_one_wire_transfer(spi_t *obj, const char *tx_buffer, int t
 
         /* Wait end of transaction */
         msp_wait_not_busy(obj);
-
-        LL_SPI_Disable(SPI_INST(obj));
 
 #if defined(SPI_IP_VERSION_V2)
         /* Clear transaction flags */
@@ -1126,7 +1117,6 @@ static int spi_master_one_wire_transfer(spi_t *obj, const char *tx_buffer, int t
 #if defined(SPI_IP_VERSION_V2)
         /* Set transaction size and run SPI */
         LL_SPI_SetTransferSize(SPI_INST(obj), rx_length);
-        LL_SPI_Enable(SPI_INST(obj));
         LL_SPI_StartMasterTransfer(SPI_INST(obj));
 
         /* Receive data */
@@ -1135,8 +1125,6 @@ static int spi_master_one_wire_transfer(spi_t *obj, const char *tx_buffer, int t
             spi_put_word_to_buffer(rx_buffer + i, bitshift, msp_read_data(obj, bitshift));
         }
 
-        /* Stop SPI */
-        LL_SPI_Disable(SPI_INST(obj));
         /* Clear transaction flags */
         LL_SPI_ClearFlag_EOT(SPI_INST(obj));
         LL_SPI_ClearFlag_TXTF(SPI_INST(obj));
@@ -1185,8 +1173,10 @@ int spi_master_write(spi_t *obj, int value)
     SPI_HandleTypeDef *handle = &(spiobj->handle);
 
     if (handle->Init.Direction == SPI_DIRECTION_1LINE) {
-        return HAL_SPI_Transmit(handle, (uint8_t *)&value, 1, TIMEOUT_1_BYTE);
+        int result = spi_master_one_wire_transfer(obj, (const char *)&value, 1, NULL, 0);
+        return result == 1 ? HAL_OK : HAL_ERROR;
     }
+
     const int bitshift = datasize_to_transfer_bitshift(handle->Init.DataSize);
     MBED_ASSERT(bitshift >= 0);
 
@@ -1540,10 +1530,9 @@ void spi_abort_asynch(spi_t *obj)
     HAL_SPI_Init(handle);
     // cleanup input buffer
     spi_flush_rx(obj);
-    // enable SPI back if it isn't 3-wire mode
-    if (handle->Init.Direction != SPI_DIRECTION_1LINE) {
-        LL_SPI_Enable(SPI_INST(obj));
-    }
+
+    // enable SPI back
+    LL_SPI_Enable(SPI_INST(obj));
 }
 
 #endif //DEVICE_SPI_ASYNCH
