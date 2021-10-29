@@ -21,6 +21,8 @@
 #include "blockdevice/BlockDevice.h"
 #include "platform/Callback.h"
 
+#include "MX31LF4GE4BC_config.h"
+
 #ifndef MBED_CONF_SPINAND_QSPI_IO0
 #define MBED_CONF_SPINAND_QSPI_IO0 NC
 #endif
