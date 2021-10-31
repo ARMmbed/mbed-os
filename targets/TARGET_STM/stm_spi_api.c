@@ -143,12 +143,11 @@ void init_spi(spi_t *obj)
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
 
-    __HAL_SPI_DISABLE(handle);
-
     DEBUG_PRINTF("init_spi: instance=0x%8X\r\n", (int)handle->Instance);
     if (HAL_SPI_Init(handle) != HAL_OK) {
         error("Cannot initialize SPI");
     }
+
     /* In some cases after SPI object re-creation SPI overrun flag may not
      * be cleared, so clear RX data explicitly to prevent any transmissions errors */
     spi_flush_rx(obj);
@@ -156,9 +155,10 @@ void init_spi(spi_t *obj)
     /* in 3-wire case, this avoids starting immediate clock generation */
     if (handle->Init.Direction  == SPI_DIRECTION_1LINE) {
         SPI_1LINE_TX(handle);
+        //LL_SPI_SetTransferDirection(SPI_INST(obj), LL_SPI_HALF_DUPLEX_TX);
     }
 
-     __HAL_SPI_ENABLE(handle);
+    __HAL_SPI_ENABLE(handle);
 }
 
 SPIName spi_get_peripheral_name(PinName mosi, PinName miso, PinName sclk)
@@ -1086,11 +1086,13 @@ static int spi_master_one_wire_transfer(spi_t *obj, const char *tx_buffer, int t
     
     /* Transmit data */
     if (tx_length) {
-        LL_SPI_SetTransferDirection(SPI_INST(obj), LL_SPI_HALF_DUPLEX_TX);
 #if defined(SPI_IP_VERSION_V2)
-        /* Set transaction size */
-        LL_SPI_SetTransferSize(SPI_INST(obj), tx_length);
-        /* Master transfer start */
+        /* TransferDirection and TransferSize can only be set when disabled */
+        LL_SPI_Disable(SPI_INST(obj));
+        LL_SPI_SetTransferDirection(SPI_INST(obj), LL_SPI_HALF_DUPLEX_TX);
+        LL_SPI_SetTransferSize(SPI_INST(obj), tx_length >> bitshift);
+
+        LL_SPI_Enable(SPI_INST(obj));
         LL_SPI_StartMasterTransfer(SPI_INST(obj));
 #endif /* SPI_IP_VERSION_V2 */
 
@@ -1107,7 +1109,7 @@ static int spi_master_one_wire_transfer(spi_t *obj, const char *tx_buffer, int t
         LL_SPI_ClearFlag_EOT(SPI_INST(obj));
         LL_SPI_ClearFlag_TXTF(SPI_INST(obj));
         /* Reset transaction size */
-        LL_SPI_SetTransferSize(SPI_INST(obj), 0);
+        // LL_SPI_SetTransferSize(SPI_INST(obj), 0);
 #endif /* SPI_IP_VERSION_V2 */
     }
 
@@ -1172,14 +1174,18 @@ int spi_master_write(spi_t *obj, int value)
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
 
-    if (handle->Init.Direction == SPI_DIRECTION_1LINE) {
-        int result = spi_master_one_wire_transfer(obj, (const char *)&value, 1, NULL, 0);
-        return result == 1 ? HAL_OK : HAL_ERROR;
-    }
+    // HAL_SPI_Transmit(handle, (uint8_t*)&value, 1, 5);
+    // while(HAL_SPI_GetState(handle) != HAL_SPI_STATE_READY);
+    // return 0;
 
     const int bitshift = datasize_to_transfer_bitshift(handle->Init.DataSize);
     MBED_ASSERT(bitshift >= 0);
 
+    if (handle->Init.Direction == SPI_DIRECTION_1LINE) {
+        int result = spi_master_one_wire_transfer(obj, (const char *)&value, 1 << bitshift, NULL, 0);
+        return result == 1 ? HAL_OK : HAL_ERROR;
+    }
+ 
 #if defined(LL_SPI_RX_FIFO_TH_HALF)
     /*  Configure the default data size */
     if (bitshift == 0) {
@@ -1348,18 +1354,14 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
 {
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
-    // bool is16bit = (handle->Init.DataSize == SPI_DATASIZE_16BIT);
     const int bitshift = datasize_to_transfer_bitshift(handle->Init.DataSize);
     MBED_ASSERT(bitshift >= 0);
-    // the HAL expects number of transfers instead of number of bytes
-    // so the number of transfers depends on the container size
-    size_t words;
-
+    obj->spi.transfer_type = transfer_type;
     DEBUG_PRINTF("SPI inst=0x%8X Start: %u, %u\r\n", (int)handle->Instance, transfer_type, length);
 
-    obj->spi.transfer_type = transfer_type;
-
-    words = length >> bitshift;
+    // the HAL expects number of transfers instead of number of bytes
+    // so the number of transfers depends on the container size
+    size_t words = length >> bitshift;
 
     // enable the interrupt
     IRQn_Type irq_n = spiobj->spiIRQ;
@@ -1373,6 +1375,7 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
     HAL_SPIEx_FlushRxFifo(handle);
 #endif
 
+    __HAL_SPI_DISABLE(handle);
     // enable the right hal transfer
     int rc = 0;
     switch (transfer_type) {
