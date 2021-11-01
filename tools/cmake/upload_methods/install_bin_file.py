@@ -41,7 +41,7 @@ def error(lines, code=-1):
 
 if len(sys.argv) < 3:
     print("Error: Usage: python " + sys.argv[0] + " <path to bin file> <Mbed OS target name> <serial baudrate for sending break> [Target UID for distinguishing multiple targets]")
-    exit(1)
+    sys.exit(1)
 
 bin_file = sys.argv[1]
 target_name = sys.argv[2]

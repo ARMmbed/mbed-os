@@ -12,7 +12,7 @@
 
 set(OpenOCD_PATHS "")
 
-# try to figure out where JLink may be installed.
+# try to figure out where OpenOCD may be installed.
 if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
 
     # on Windows, assume that the user extracted the binaries to Program Files
