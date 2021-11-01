@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (c) 2020 ARM Limited. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 # Bin file installer that uses mbed tools to find the board, install the file, and reset.
 # Code extracted from mbed-cli.
