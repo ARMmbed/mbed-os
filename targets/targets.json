@@ -1902,6 +1902,24 @@
             "0320"
         ]
     },
+    "WEACT_BLACKPILL_F411CE": {
+        "inherits": [
+            "MCU_STM32F411xE"
+        ],
+        "macros_add": [
+            "HSE_VALUE=26000000"
+        ],
+        "overrides": {
+            "clock_source": "USE_PLL_HSI"
+        },
+        "device_has_remove": [
+            "SERIAL_FC"
+        ],
+        "device_name": "STM32F411CEUx",
+        "detect_code": [
+            "1234"
+        ]
+    },
     "MCU_STM32F412xG": {
         "inherits": [
             "MCU_STM32F4"
