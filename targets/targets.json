@@ -1907,7 +1907,7 @@
             "MCU_STM32F411xE"
         ],
         "macros_add": [
-            "HSE_VALUE=26000000"
+            "HSE_VALUE=25000000"
         ],
         "overrides": {
             "clock_source": "USE_PLL_HSI"
