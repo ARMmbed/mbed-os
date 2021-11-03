@@ -149,7 +149,6 @@ typedef enum {
     B13 = PB_13,
     B14 = PB_14,
     B15 = PB_15,
-    LED = PC_13,
     C13 = PC_13,
     C14 = PC_14,
     C15 = PC_15,
@@ -170,7 +169,7 @@ typedef enum {
 #endif
 
 // Standardized LED and button names
-#define LED1     PA_0   // needed for mbed to build tests
+#define LED1     PC_13   // needed for mbed to build tests
 
 #ifdef __cplusplus
 }
