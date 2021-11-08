@@ -27,7 +27,7 @@ from xml.dom.minidom import parse, Node
 from argparse import RawTextHelpFormatter
 import subprocess
 
-GENPINMAP_VERSION = "1.20.4"
+GENPINMAP_VERSION = "1.20.5"
 
 ADD_DEVICE_IF = 0
 ADD_GPIO_PINMAP = 0
@@ -191,6 +191,8 @@ def get_gpio_af_num(pintofind, iptofind):
                                                             if mygpioaf != "":
                                                                 mygpioaf += " "
                                                             mygpioaf += mygpioaflist.data
+    if "STM32L1" in mcu_file and mygpioaf == "GPIO_AF10_USB":
+        mygpioaf = "GPIO_AF_NONE"
     if mygpioaf == "":
         mygpioaf = "GPIO_AF_NONE"
     return mygpioaf

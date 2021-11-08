@@ -3734,6 +3734,33 @@
             "MPU"
         ]
     },
+    "MCU_STM32L151xB": {
+        "inherits": [
+            "MCU_STM32L1"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32L151xB"
+        ],
+        "device_has_remove": [
+            "LPTICKER"
+        ],
+        "macros_add": [
+            "STM32L151xB"
+        ]
+    },
+    "MCU_STM32L151xBA": {
+        "inherits": [
+            "MCU_STM32L1"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32L151xBA"
+        ],
+        "macros_add": [
+            "STM32L151xBA"
+        ]
+    },
     "MCU_STM32L151xC": {
         "inherits": [
             "MCU_STM32L1"
