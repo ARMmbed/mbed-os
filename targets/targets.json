@@ -2621,7 +2621,7 @@
           "CAN",
           "QSPI"
       ],
-      "device_name": "STM32F777ZITx",
+      "device_name": "STM32F777BITx",
       "overrides": {
           "network-default-interface-type": "ETHERNET",
           "clock_source": "USE_PLL_HSE_XTAL"

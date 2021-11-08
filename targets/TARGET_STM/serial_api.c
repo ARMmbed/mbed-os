@@ -632,10 +632,12 @@ HAL_StatusTypeDef init_uart(serial_t *obj)
     huart->FifoMode = UART_FIFOMODE_DISABLE;
 #endif
 
+#if defined(TARGET_TAPIT_MODULE_1)
     if (huart->Instance == USART3){ // BALDER WAS HERE
         huart->AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_SWAP_INIT;
         huart->AdvancedInit.Swap = UART_ADVFEATURE_SWAP_ENABLE;
     }
+#endif
 
 
     if (obj_s->pin_rx == NC) {
