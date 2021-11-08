@@ -19,14 +19,14 @@
 /**
   * This file configures the system clock as follows:
   *--------------------------------------------------------------------
-  * System clock source   | 1- USE_PLL_HSE_EXTC (external 8 MHz clock)
-  *                       | 2- USE_PLL_HSE_XTAL (external 8 MHz xtal)
+  * System clock source   | 1- USE_PLL_HSE_EXTC (external 20 MHz clock)
+  *                       | 2- USE_PLL_HSE_XTAL (external 20 MHz xtal)
   *                       | 3- USE_PLL_HSI (internal 16 MHz clock)
   *--------------------------------------------------------------------
-  * SYSCLK(MHz)           |            216
-  * AHBCLK (MHz)          |            216
-  * APB1CLK (MHz)         |             54
-  * APB2CLK (MHz)         |            108
+  * SYSCLK(MHz)           |            200
+  * AHBCLK (MHz)          |            200
+  * APB1CLK (MHz)         |             50
+  * APB2CLK (MHz)         |            100
   * USB capable (48 MHz)  |            YES
   *--------------------------------------------------------------------
 **/
@@ -115,10 +115,10 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     // Warning: this configuration is for a 8 MHz xtal clock only
     RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLM            = 4;             // VCO input clock = 2 MHz (8 MHz / 4)
-    RCC_OscInitStruct.PLL.PLLN            = 216;           // VCO output clock = 432 MHz (2 MHz * 216)
-    RCC_OscInitStruct.PLL.PLLP            = RCC_PLLP_DIV2; // PLLCLK = 216 MHz (432 MHz / 2)
-    RCC_OscInitStruct.PLL.PLLQ            = 9;             // USB clock = 48 MHz (432 MHz / 9) --> OK for USB
+    RCC_OscInitStruct.PLL.PLLM            = 10;             // VCO input clock = 2 MHz (20 MHz / 10)
+    RCC_OscInitStruct.PLL.PLLN            = 200;           // VCO output clock = 400 MHz (2 MHz * 200)
+    RCC_OscInitStruct.PLL.PLLP            = RCC_PLLP_DIV2; // PLLCLK = 200 MHz (200 MHz / 2)
+    RCC_OscInitStruct.PLL.PLLQ            = 10;             // USB clock = 48 MHz (432 MHz / 9) --> OK for USB
     RCC_OscInitStruct.PLL.PLLR            = 2;             // I2S clock
 
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
@@ -132,18 +132,26 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 
     // Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers
     RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK; // 216 MHz
-    RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;         // 216 MHz
-    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;           //  54 MHz
-    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;           // 108 MHz
+    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK; // 200 MHz
+    RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;         // 200 MHz
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;           //  50 MHz
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;           // 100 MHz
 
     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_7) != HAL_OK) {
         return 0; // FAIL
     }
-
-    RCC_PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_CLK48;
-    RCC_PeriphClkInitStruct.Clk48ClockSelection = RCC_CLK48SOURCE_PLL;
-    if (HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphClkInitStruct) != HAL_OK) {
+    RCC_PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART3 | RCC_PERIPHCLK_I2C2 | RCC_PERIPHCLK_CLK48;
+    RCC_PeriphClkInitStruct.PLLSAI.PLLSAIN = 96;
+    RCC_PeriphClkInitStruct.PLLSAI.PLLSAIR = 2;
+    RCC_PeriphClkInitStruct.PLLSAI.PLLSAIQ = 2;
+    RCC_PeriphClkInitStruct.PLLSAI.PLLSAIP = RCC_PLLSAIP_DIV4;
+    RCC_PeriphClkInitStruct.PLLSAIDivQ = 1;
+    RCC_PeriphClkInitStruct.PLLSAIDivR = RCC_PLLSAIDIVR_2;
+    RCC_PeriphClkInitStruct.Usart3ClockSelection = RCC_USART3CLKSOURCE_SYSCLK;
+    RCC_PeriphClkInitStruct.I2c2ClockSelection = RCC_I2C2CLKSOURCE_PCLK1;
+    RCC_PeriphClkInitStruct.Clk48ClockSelection = RCC_CLK48SOURCE_PLLSAIP;
+    if (HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphClkInitStruct) != HAL_OK)
+    {
         return 0; // FAIL
     }
 

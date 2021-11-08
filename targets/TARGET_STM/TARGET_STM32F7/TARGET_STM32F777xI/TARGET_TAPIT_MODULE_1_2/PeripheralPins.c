@@ -40,174 +40,174 @@
 //*** GPIO ***
 
 MBED_WEAK const PinMap PinMap_GPIO[] = {
-    {PA_0,  0, 0},
-    {PA_1,  0, 0}, // Connected to ETH_REF_CLK
-    {PA_2,  0, 0}, // Connected to ETH_MDIO
-    {PA_3,  0, 0},
-    {PA_4,  0, 0}, // Connected to B8_3
-    {PA_5,  0, 0}, // Connected to B8_4
-    {PA_6,  0, 0}, // Connected to B8_2
-    {PA_7,  0, 0}, // Connected to ETH_CRS_DV
-    {PA_8,  0, 0},
-    {PA_9,  0, 0}, // Connected to USB_OTG_FS_VBUS
-    {PA_10, 0, 0}, // Connected to USB_OTG_FS_ID
-    {PA_11, 0, 0}, // Connected to USB_OTG_FS_DM
-    {PA_12, 0, 0}, // Connected to USB_OTG_FS_DP
-    {PA_13, 0, 0}, // Connected to SYS_JTMS-SWDIO
-    {PA_14, 0, 0}, // Connected to SYS_JTCK-SWCLK
-    {PA_15, 0, 0}, // Connected to RED_LED
-    {PB_0,  0, 0}, // Connected to B8_1
-    {PB_1,  0, 0}, // Connected to FLOW8
-    {PB_2,  0, 0}, // Connected to SOL8
-    {PB_3,  0, 0}, // Connected to SYS_JTDO-SWO
-    {PB_4,  0, 0},
-    {PB_5,  0, 0},
-    {PB_6,  0, 0}, // Connected to QUADSPI_BK1_NCS
-    {PB_7,  0, 0},
-    {PB_8,  0, 0},
-    {PB_9,  0, 0},
-    {PB_10, 0, 0}, // Connected to B4_1
-    {PB_11, 0, 0}, // Connected to FLOW4
-    {PB_12, 0, 0}, // Connected to B2_4
-    {PB_13, 0, 0}, // Connected to ETH_TXD1
-    {PB_14, 0, 0}, // Connected to B2_2
-    {PB_15, 0, 0}, // Connected to B2_1
-    {PC_0,  0, 0},
-    {PC_1,  0, 0}, // Connected to ETH_MDC
-    {PC_2,  0, 0},
-    {PC_3,  0, 0},
-    {PC_4,  0, 0}, // Connected to ETH_RXD0
-    {PC_5,  0, 0}, // Connected to ETH_RXD1
-    {PC_6,  0, 0},
-    {PC_7,  0, 0},
-    {PC_8,  0, 0},
-    {PC_9,  0, 0},
-    {PC_10, 0, 0},
-    {PC_11, 0, 0},
-    {PC_12, 0, 0},
-    {PC_13, 0, 0}, // Connected to CAN_RS
-//  {PC_14, 0, 0}, // Connected to RCC_OSC32_IN
-//  {PC_15, 0, 0}, // Connected to RCC_OSC32_OUT
-    {PD_0,  0, 0}, // Connected to CAN1_RX
-    {PD_1,  0, 0}, // Connected to CAN1_TX
-    {PD_2,  0, 0},
-    {PD_3,  0, 0}, // Connected to FW1
-    {PD_4,  0, 0}, // Connected to FW2
-    {PD_5,  0, 0}, // Connected to FW3
-    {PD_6,  0, 0}, // Connected to GEREEN_LED
-    {PD_7,  0, 0}, // Connected to BLUE_LED
-    {PD_8,  0, 0}, // Connected to USART3_TX
-    {PD_9,  0, 0}, // Connected to USART3_RX
-    {PD_10, 0, 0}, // Connected to SOL2
-    {PD_11, 0, 0}, // Connected to FLOW2
-    {PD_12, 0, 0}, // Connected to TEMP1
-    {PD_13, 0, 0},
-    {PD_14, 0, 0},
-    {PD_15, 0, 0},
-    {PE_0,  0, 0},
-    {PE_1,  0, 0},
-    {PE_2,  0, 0}, // Connected to QUADSPI_BK1_IO2
-    {PE_3,  0, 0},
-    {PE_4,  0, 0},
-    {PE_5,  0, 0},
-    {PE_6,  0, 0},
-    {PE_7,  0, 0}, // Connected to B5_4
-    {PE_8,  0, 0}, // Connected to B5_2
-    {PE_9,  0, 0}, // Connected to B5_1
-    {PE_10, 0, 0},
-    {PE_11, 0, 0}, // Connected to FLOW5
-    {PE_12, 0, 0}, // Connected to SOL5
-    {PE_13, 0, 0}, // Connected to B4_3
-    {PE_14, 0, 0}, // Connected to B4_4
-    {PE_15, 0, 0}, // Connected to B4_2
-    {PF_0,  0, 0}, // Connected to I2C2_SDA
-    {PF_1,  0, 0}, // Connected to I2C2_SCL
-    {PF_2,  0, 0},
-    {PF_3,  0, 0}, // Connected to CURRENT_OUT
-    {PF_4,  0, 0}, // Connected to VOLTAGE_OUT
-    {PF_5,  0, 0},
-    {PF_6,  0, 0}, // Connected to QUADSPI_BK1_IO3
-    {PF_7,  0, 0},
-    {PF_8,  0, 0}, // Connected to QUADSPI_BK1_IO0
-    {PF_9,  0, 0}, // Connected to QUADSPI_BK1_IO1
-    {PF_10, 0, 0}, // Connected to QUADSPI_CLK
-    {PF_11, 0, 0}, // Connected to B6_3
-    {PF_12, 0, 0}, // Connected to B6_4
-    {PF_13, 0, 0}, // Connected to B6_2
-    {PF_14, 0, 0}, // Connected to B6_1
-    {PF_15, 0, 0}, // Connected to FLOW6
-    {PG_0,  0, 0}, // Connected to SOL6
-    {PG_1,  0, 0}, // Connected to B5_3
-    {PG_2,  0, 0},
-    {PG_3,  0, 0},
-    {PG_4,  0, 0},
-    {PG_5,  0, 0},
-    {PG_6,  0, 0}, // Connected to USB_GPIO_IN
-    {PG_7,  0, 0}, // Connected to USB_GPIO_OUT
-    {PG_8,  0, 0},
-    {PG_9,  0, 0},
-    {PG_10, 0, 0},
-    {PG_11, 0, 0}, // Connected to ETH_TX_EN
-    {PG_12, 0, 0},
-    {PG_13, 0, 0}, // Connected to ETH_TXD0
-    {PG_14, 0, 0},
-    {PG_15, 0, 0},
-//  {PH_0,  0, 0}, // Connected to RCC_OSC_IN
-//  {PH_1,  0, 0}, // Connected to RCC_OSC_OUT
-    {PH_2,  0, 0},
-    {PH_3,  0, 0},
-    {PH_4,  0, 0},
-    {PH_5,  0, 0},
-    {PH_6,  0, 0}, // Connected to B3_3
-    {PH_7,  0, 0}, // Connected to B3_4
-    {PH_8,  0, 0}, // Connected to B3_2
-    {PH_9,  0, 0}, // Connected to B3_1
-    {PH_10, 0, 0}, // Connected to SOL3
-    {PH_11, 0, 0}, // Connected to FLOW3
-    {PH_12, 0, 0}, // Connected to B2_3
-    {PH_13, 0, 0},
-    {PH_14, 0, 0},
-    {PH_15, 0, 0},
-    {PI_0,  0, 0},
-    {PI_1,  0, 0},
-    {PI_2,  0, 0},
-    {PI_3,  0, 0},
-    {PI_4,  0, 0},
-    {PI_5,  0, 0},
-    {PI_6,  0, 0},
-    {PI_7,  0, 0},
-    {PI_8,  0, 0},
-    {PI_9,  0, 0},
-    {PI_10, 0, 0},
-    {PI_11, 0, 0},
-    {PI_12, 0, 0},
-    {PI_13, 0, 0},
-    {PI_14, 0, 0},
-    {PI_15, 0, 0}, // Connected to B7_3
-    {PJ_0,  0, 0}, // Connected to B7_4
-    {PJ_1,  0, 0}, // Connected to B7_2
-    {PJ_2,  0, 0}, // Connected to B7_1
-    {PJ_3,  0, 0}, // Connected to FLOW7
-    {PJ_4,  0, 0}, // Connected to SOL7
-    {PJ_5,  0, 0}, // Connected to SOL4
-    {PJ_6,  0, 0}, // Connected to B1_1
-    {PJ_7,  0, 0}, // Connected to B1_2
-    {PJ_8,  0, 0}, // Connected to B1_4
-    {PJ_9,  0, 0}, // Connected to B1_3
-    {PJ_10, 0, 0}, // Connected to SOL1
-    {PJ_11, 0, 0}, // Connected to FLOW1
-    {PJ_12, 0, 0},
-    {PJ_13, 0, 0},
-    {PJ_14, 0, 0},
-    {PJ_15, 0, 0},
-    {PK_0,  0, 0},
-    {PK_1,  0, 0},
-    {PK_2,  0, 0},
-    {PK_3,  0, 0},
-    {PK_4,  0, 0},
-    {PK_5,  0, 0},
-    {PK_6,  0, 0},
-    {PK_7,  0, 0},
+    {PA_0,  0, GPIO_NOPULL},
+    {PA_1,  0, GPIO_NOPULL}, // Connected to ETH_REF_CLK
+    {PA_2,  0, GPIO_NOPULL}, // Connected to ETH_MDIO
+    {PA_3,  0, GPIO_NOPULL},
+    {PA_4,  0, GPIO_NOPULL}, // Connected to B8_3
+    {PA_5,  0, GPIO_NOPULL}, // Connected to B8_4
+    {PA_6,  0, GPIO_NOPULL}, // Connected to B8_2
+    {PA_7,  0, GPIO_NOPULL}, // Connected to ETH_CRS_DV
+    {PA_8,  0, GPIO_NOPULL}, // Connected to USB_OTG_FS_SOF
+    {PA_9,  0, GPIO_NOPULL}, // Connected to USB_OTG_FS_VBUS
+    {PA_10, 0, GPIO_NOPULL}, // Connected to USB_OTG_FS_ID
+    {PA_11, 0, GPIO_NOPULL}, // Connected to USB_OTG_FS_DM
+    {PA_12, 0, GPIO_NOPULL}, // Connected to USB_OTG_FS_DP
+    {PA_13, 0, GPIO_NOPULL}, // Connected to SYS_JTMS-SWDIO
+    {PA_14, 0, GPIO_NOPULL}, // Connected to SYS_JTCK-SWCLK
+    {PA_15, 0, GPIO_NOPULL}, // Connected to RED_LED
+    {PB_0,  0, GPIO_NOPULL}, // Connected to B8_1
+    {PB_1,  0, GPIO_NOPULL}, // Connected to FLOW8
+    {PB_2,  0, GPIO_NOPULL}, // Connected to SOL8
+    {PB_3,  0, GPIO_NOPULL}, // Connected to SYS_JTDO-SWO
+    {PB_4,  0, GPIO_NOPULL},
+    {PB_5,  0, GPIO_NOPULL},
+    {PB_6,  0, GPIO_NOPULL}, // Connected to QUADSPI_BK1_NCS
+    {PB_7,  0, GPIO_NOPULL},
+    {PB_8,  0, GPIO_NOPULL},
+    {PB_9,  0, GPIO_NOPULL},
+    {PB_10, 0, GPIO_NOPULL}, // Connected to B4_1
+    {PB_11, 0, GPIO_NOPULL}, // Connected to FLOW4
+    {PB_12, 0, GPIO_NOPULL}, // Connected to B2_4
+    {PB_13, 0, GPIO_NOPULL}, // Connected to ETH_TXD1
+    {PB_14, 0, GPIO_NOPULL}, // Connected to B2_2
+    {PB_15, 0, GPIO_NOPULL}, // Connected to B2_1
+    {PC_0,  0, GPIO_NOPULL},
+    {PC_1,  0, GPIO_NOPULL}, // Connected to ETH_MDC
+    {PC_2,  0, GPIO_NOPULL},
+    {PC_3,  0, GPIO_NOPULL},
+    {PC_4,  0, GPIO_NOPULL}, // Connected to ETH_RXD0
+    {PC_5,  0, GPIO_NOPULL}, // Connected to ETH_RXD1
+    {PC_6,  0, GPIO_NOPULL},
+    {PC_7,  0, GPIO_NOPULL},
+    {PC_8,  0, GPIO_NOPULL},
+    {PC_9,  0, GPIO_NOPULL},
+    {PC_10, 0, GPIO_NOPULL},
+    {PC_11, 0, GPIO_NOPULL},
+    {PC_12, 0, GPIO_NOPULL},
+    {PC_13, 0, GPIO_NOPULL}, // Connected to CAN_RS
+//  {PC_14, 0, GPIO_NOPULL}, // Connected to RCC_OSC32_IN
+//  {PC_15, 0, GPIO_NOPULL}, // Connected to RCC_OSC32_OUT
+    {PD_0,  0, GPIO_NOPULL}, // Connected to CAN1_RX
+    {PD_1,  0, GPIO_NOPULL}, // Connected to CAN1_TX
+    {PD_2,  0, GPIO_NOPULL},
+    {PD_3,  0, GPIO_NOPULL}, // Connected to FW1
+    {PD_4,  0, GPIO_NOPULL}, // Connected to FW2
+    {PD_5,  0, GPIO_NOPULL}, // Connected to FW3
+    {PD_6,  0, GPIO_NOPULL}, // Connected to GREEN_LED
+    {PD_7,  0, GPIO_NOPULL}, // Connected to BLUE_LED
+    {PD_8,  0, GPIO_NOPULL}, // Connected to USART3_TX
+    {PD_9,  0, GPIO_NOPULL}, // Connected to USART3_RX
+    {PD_10, 0, GPIO_NOPULL}, // Connected to SOL2
+    {PD_11, 0, GPIO_NOPULL}, // Connected to FLOW2
+    {PD_12, 0, GPIO_NOPULL}, // Connected to TEMP1
+    {PD_13, 0, GPIO_NOPULL},
+    {PD_14, 0, GPIO_NOPULL},
+    {PD_15, 0, GPIO_NOPULL},
+    {PE_0,  0, GPIO_NOPULL},
+    {PE_1,  0, GPIO_NOPULL},
+    {PE_2,  0, GPIO_NOPULL}, // Connected to QUADSPI_BK1_IO2
+    {PE_3,  0, GPIO_NOPULL},
+    {PE_4,  0, GPIO_NOPULL},
+    {PE_5,  0, GPIO_NOPULL},
+    {PE_6,  0, GPIO_NOPULL},
+    {PE_7,  0, GPIO_NOPULL}, // Connected to B5_4
+    {PE_8,  0, GPIO_NOPULL}, // Connected to B5_2
+    {PE_9,  0, GPIO_NOPULL}, // Connected to B5_1
+    {PE_10, 0, GPIO_NOPULL},
+    {PE_11, 0, GPIO_NOPULL}, // Connected to FLOW5
+    {PE_12, 0, GPIO_NOPULL}, // Connected to SOL5
+    {PE_13, 0, GPIO_NOPULL}, // Connected to B4_3
+    {PE_14, 0, GPIO_NOPULL}, // Connected to B4_4
+    {PE_15, 0, GPIO_NOPULL}, // Connected to B4_2
+    {PF_0,  0, GPIO_NOPULL}, // Connected to I2C2_SDA
+    {PF_1,  0, GPIO_NOPULL}, // Connected to I2C2_SCL
+    {PF_2,  0, GPIO_NOPULL},
+    {PF_3,  0, GPIO_NOPULL}, // Connected to CURRENT_OUT
+    {PF_4,  0, GPIO_NOPULL}, // Connected to VOLTAGE_OUT
+    {PF_5,  0, GPIO_NOPULL},
+    {PF_6,  0, GPIO_NOPULL}, // Connected to QUADSPI_BK1_IO3
+    {PF_7,  0, GPIO_NOPULL},
+    {PF_8,  0, GPIO_NOPULL}, // Connected to QUADSPI_BK1_IO0
+    {PF_9,  0, GPIO_NOPULL}, // Connected to QUADSPI_BK1_IO1
+    {PF_10, 0, GPIO_NOPULL}, // Connected to QUADSPI_CLK
+    {PF_11, 0, GPIO_NOPULL}, // Connected to B6_3
+    {PF_12, 0, GPIO_NOPULL}, // Connected to B6_4
+    {PF_13, 0, GPIO_NOPULL}, // Connected to B6_2
+    {PF_14, 0, GPIO_NOPULL}, // Connected to B6_1
+    {PF_15, 0, GPIO_NOPULL}, // Connected to FLOW6
+    {PG_0,  0, GPIO_NOPULL}, // Connected to SOL6
+    {PG_1,  0, GPIO_NOPULL}, // Connected to B5_3
+    {PG_2,  0, GPIO_NOPULL},
+    {PG_3,  0, GPIO_NOPULL},
+    {PG_4,  0, GPIO_NOPULL},
+    {PG_5,  0, GPIO_NOPULL},
+    {PG_6,  0, GPIO_NOPULL}, // Connected to USB_GPIO_IN
+    {PG_7,  0, GPIO_NOPULL}, // Connected to USB_GPIO_OUT
+    {PG_8,  0, GPIO_NOPULL},
+    {PG_9,  0, GPIO_NOPULL},
+    {PG_10, 0, GPIO_NOPULL},
+    {PG_11, 0, GPIO_NOPULL}, // Connected to ETH_TX_EN
+    {PG_12, 0, GPIO_NOPULL},
+    {PG_13, 0, GPIO_NOPULL}, // Connected to ETH_TXD0
+    {PG_14, 0, GPIO_NOPULL},
+    {PG_15, 0, GPIO_NOPULL},
+//  {PH_0,  0, GPIO_NOPULL}, // Connected to RCC_OSC_IN
+//  {PH_1,  0, GPIO_NOPULL}, // Connected to RCC_OSC_OUT
+    {PH_2,  0, GPIO_NOPULL},
+    {PH_3,  0, GPIO_NOPULL},
+    {PH_4,  0, GPIO_NOPULL},
+    {PH_5,  0, GPIO_NOPULL},
+    {PH_6,  0, GPIO_NOPULL}, // Connected to B3_3
+    {PH_7,  0, GPIO_NOPULL}, // Connected to B3_4
+    {PH_8,  0, GPIO_NOPULL}, // Connected to B3_2
+    {PH_9,  0, GPIO_NOPULL}, // Connected to B3_1
+    {PH_10, 0, GPIO_NOPULL}, // Connected to SOL3
+    {PH_11, 0, GPIO_NOPULL}, // Connected to FLOW3
+    {PH_12, 0, GPIO_NOPULL}, // Connected to B2_3
+    {PH_13, 0, GPIO_NOPULL},
+    {PH_14, 0, GPIO_NOPULL},
+    {PH_15, 0, GPIO_NOPULL},
+    {PI_0,  0, GPIO_NOPULL},
+    {PI_1,  0, GPIO_NOPULL},
+    {PI_2,  0, GPIO_NOPULL},
+    {PI_3,  0, GPIO_NOPULL},
+    {PI_4,  0, GPIO_NOPULL},
+    {PI_5,  0, GPIO_NOPULL},
+    {PI_6,  0, GPIO_NOPULL},
+    {PI_7,  0, GPIO_NOPULL},
+    {PI_8,  0, GPIO_NOPULL},
+    {PI_9,  0, GPIO_NOPULL},
+    {PI_10, 0, GPIO_NOPULL},
+    {PI_11, 0, GPIO_NOPULL},
+    {PI_12, 0, GPIO_NOPULL},
+    {PI_13, 0, GPIO_NOPULL},
+    {PI_14, 0, GPIO_NOPULL},
+    {PI_15, 0, GPIO_NOPULL}, // Connected to B7_3
+    {PJ_0,  0, GPIO_NOPULL}, // Connected to B7_4
+    {PJ_1,  0, GPIO_NOPULL}, // Connected to B7_2
+    {PJ_2,  0, GPIO_NOPULL}, // Connected to B7_1
+    {PJ_3,  0, GPIO_NOPULL}, // Connected to FLOW7
+    {PJ_4,  0, GPIO_NOPULL}, // Connected to SOL7
+    {PJ_5,  0, GPIO_NOPULL}, // Connected to SOL4
+    {PJ_6,  0, GPIO_NOPULL}, // Connected to B1_1
+    {PJ_7,  0, GPIO_NOPULL}, // Connected to B1_2
+    {PJ_8,  0, GPIO_NOPULL}, // Connected to B1_4
+    {PJ_9,  0, GPIO_NOPULL}, // Connected to B1_3
+    {PJ_10, 0, GPIO_NOPULL}, // Connected to SOL1
+    {PJ_11, 0, GPIO_NOPULL}, // Connected to FLOW1
+    {PJ_12, 0, GPIO_NOPULL},
+    {PJ_13, 0, GPIO_NOPULL},
+    {PJ_14, 0, GPIO_NOPULL},
+    {PJ_15, 0, GPIO_NOPULL},
+    {PK_0,  0, GPIO_NOPULL},
+    {PK_1,  0, GPIO_NOPULL},
+    {PK_2,  0, GPIO_NOPULL},
+    {PK_3,  0, GPIO_NOPULL},
+    {PK_4,  0, GPIO_NOPULL},
+    {PK_5,  0, GPIO_NOPULL},
+    {PK_6,  0, GPIO_NOPULL},
+    {PK_7,  0, GPIO_NOPULL},
     {NC, NC, 0}
 };
 
@@ -300,7 +300,7 @@ MBED_WEAK const PinMap PinMap_I2C_SDA[] = {
 };
 
 MBED_WEAK const PinMap PinMap_I2C_SCL[] = {
-    {PA_8,       I2C_3, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C3)},
+    {PA_8,       I2C_3, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C3)}, // Connected to USB_OTG_FS_SOF
     {PB_6,       I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)}, // Connected to QUADSPI_BK1_NCS
     {PB_6_ALT0,  I2C_4, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF11_I2C4)}, // Connected to QUADSPI_BK1_NCS
     {PB_8,       I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)},
@@ -338,7 +338,7 @@ MBED_WEAK const PinMap PinMap_PWM[] = {
     {PA_7_ALT0,  PWM_3,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF2_TIM3, 2, 0)}, // TIM3_CH2 // Connected to ETH_CRS_DV
     {PA_7_ALT1,  PWM_8,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF3_TIM8, 1, 1)}, // TIM8_CH1N // Connected to ETH_CRS_DV
     {PA_7_ALT2,  PWM_14, STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF9_TIM14, 1, 0)}, // TIM14_CH1 // Connected to ETH_CRS_DV
-    {PA_8,       PWM_1,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF1_TIM1, 1, 0)}, // TIM1_CH1
+    {PA_8,       PWM_1,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF1_TIM1, 1, 0)}, // TIM1_CH1 // Connected to USB_OTG_FS_SOF
     {PA_9,       PWM_1,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF1_TIM1, 2, 0)}, // TIM1_CH2 // Connected to USB_OTG_FS_VBUS
     {PA_10,      PWM_1,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF1_TIM1, 3, 0)}, // TIM1_CH3 // Connected to USB_OTG_FS_ID
     {PA_11,      PWM_1,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF1_TIM1, 4, 0)}, // TIM1_CH4 // Connected to USB_OTG_FS_DM
@@ -441,7 +441,7 @@ MBED_WEAK const PinMap PinMap_UART_TX[] = {
 MBED_WEAK const PinMap PinMap_UART_RX[] = {
     {PA_1,       UART_4,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_UART4)}, // Connected to ETH_REF_CLK
     {PA_3,       UART_2,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)},
-    {PA_8,       UART_7,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF12_UART7)},
+    {PA_8,       UART_7,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF12_UART7)}, // Connected to USB_OTG_FS_SOF
     {PA_10,      UART_1,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)}, // Connected to USB_OTG_FS_ID
     {PA_11,      UART_4,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_UART4)}, // Connected to USB_OTG_FS_DM
     {PB_3,       UART_7,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF12_UART7)}, // Connected to SYS_JTDO-SWO
@@ -456,7 +456,7 @@ MBED_WEAK const PinMap PinMap_UART_RX[] = {
     {PC_11_ALT0, UART_4,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_UART4)},
     {PD_0,       UART_4,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_UART4)}, // Connected to CAN1_RX
     {PD_2,       UART_5,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_UART5)},
-    {PD_6,       UART_2,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)}, // Connected to GEREEN_LED
+    {PD_6,       UART_2,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)}, // Connected to GREEN_LED
     {PD_9,       UART_3,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART3)}, // Connected to USART3_RX
     {PE_0,       UART_8,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_UART8)},
     {PE_7,       UART_7,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_UART7)}, // Connected to B5_4
@@ -514,7 +514,7 @@ MBED_WEAK const PinMap PinMap_SPI_MOSI[] = {
     {PC_1,       SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF5_SPI2)}, // Connected to ETH_MDC
     {PC_3,       SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF5_SPI2)},
     {PC_12,      SPI_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF6_SPI3)},
-    {PD_6,       SPI_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF5_SPI3)}, // Connected to GEREEN_LED
+    {PD_6,       SPI_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF5_SPI3)}, // Connected to GREEN_LED
     {PD_7,       SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF5_SPI1)}, // Connected to BLUE_LED
     {PE_6,       SPI_4, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF5_SPI4)},
     {PE_14,      SPI_4, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF5_SPI4)}, // Connected to B4_4
@@ -590,7 +590,7 @@ MBED_WEAK const PinMap PinMap_SPI_SSEL[] = {
 //*** CAN ***
 
 MBED_WEAK const PinMap PinMap_CAN_RD[] = {
-    {PA_8,       CAN_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF11_CAN3)},
+    {PA_8,       CAN_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF11_CAN3)}, // Connected to USB_OTG_FS_SOF
     {PA_11,      CAN_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF9_CAN1)}, // Connected to USB_OTG_FS_DM
     {PB_3,       CAN_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF11_CAN3)}, // Connected to SYS_JTDO-SWO
     {PB_5,       CAN_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF9_CAN2)},
@@ -658,7 +658,7 @@ MBED_WEAK const PinMap PinMap_QSPI_SSEL[] = {
 //*** USBDEVICE ***
 
 MBED_WEAK const PinMap PinMap_USB_FS[] = {
-//  {PA_8,      USB_FS, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF10_OTG_FS)}, // USB_OTG_FS_SOF
+//  {PA_8,      USB_FS, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF10_OTG_FS)}, // USB_OTG_FS_SOF // Connected to USB_OTG_FS_SOF
     {PA_9,      USB_FS, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF_NONE)}, // USB_OTG_FS_VBUS // Connected to USB_OTG_FS_VBUS
     {PA_10,     USB_FS, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_PULLUP, GPIO_AF10_OTG_FS)}, // USB_OTG_FS_ID // Connected to USB_OTG_FS_ID
     {PA_11,     USB_FS, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF10_OTG_FS)}, // USB_OTG_FS_DM // Connected to USB_OTG_FS_DM
