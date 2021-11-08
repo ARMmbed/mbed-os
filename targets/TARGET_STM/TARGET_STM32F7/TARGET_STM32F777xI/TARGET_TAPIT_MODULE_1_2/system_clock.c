@@ -39,14 +39,13 @@
 #define USE_PLL_HSE_XTAL     0x4  // Use external xtal (X3 on board - not provided by default)
 #define USE_PLL_HSI          0x2  // Use HSI internal clock
 
-#if ( ((CLOCK_SOURCE) & USE_PLL_HSE_XTAL) || ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC) )
+#if (((CLOCK_SOURCE) & USE_PLL_HSE_XTAL) || ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC))
 uint8_t SetSysClock_PLL_HSE(uint8_t bypass);
 #endif /* ((CLOCK_SOURCE) & USE_PLL_HSE_XTAL) || ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC) */
 
 #if ((CLOCK_SOURCE) & USE_PLL_HSI)
 uint8_t SetSysClock_PLL_HSI(void);
 #endif /* ((CLOCK_SOURCE) & USE_PLL_HSI) */
-
 
 /**
   * @brief  Configures the System clock source, PLL Multiplier and Divider factors,
@@ -57,8 +56,7 @@ uint8_t SetSysClock_PLL_HSI(void);
   * @retval None
   */
 
-void SetSysClock(void)
-{
+void SetSysClock(void) {
 #if ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC)
     /* 1- Try to start with HSE and external clock */
     if (SetSysClock_PLL_HSE(1) == 0)
@@ -86,7 +84,7 @@ void SetSysClock(void)
     //HAL_RCC_MCOConfig(RCC_MCO2, RCC_MCO2SOURCE_SYSCLK, RCC_MCODIV_4); // 216 MHz / 4 = 54 MHz
 }
 
-#if ( ((CLOCK_SOURCE) & USE_PLL_HSE_XTAL) || ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC) )
+#if (((CLOCK_SOURCE) & USE_PLL_HSE_XTAL) || ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC))
 /******************************************************************************/
 /*            PLL (clocked by HSE) used as System clock source                */
 /******************************************************************************/
@@ -107,12 +105,8 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 
     // Enable HSE oscillator and activate PLL with HSE as source
     RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSE;
-    if (bypass == 0) {
-        RCC_OscInitStruct.HSEState          = RCC_HSE_ON; /* External xtal on OSC_IN/OSC_OUT */
-    } else {
-        RCC_OscInitStruct.HSEState          = RCC_HSE_BYPASS; /* External clock on OSC_IN */
-    }
-    // Warning: this configuration is for a 8 MHz xtal clock only
+    RCC_OscInitStruct.HSEState            = RCC_HSE_ON; /* External xtal on OSC_IN/OSC_OUT */
+    // Warning: this configuration is for a 20 MHz xtal clock only
     RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM            = 10;             // VCO input clock = 2 MHz (20 MHz / 10)
