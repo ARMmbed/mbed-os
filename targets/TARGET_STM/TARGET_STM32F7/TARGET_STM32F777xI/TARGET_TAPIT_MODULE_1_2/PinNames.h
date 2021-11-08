@@ -307,7 +307,7 @@ typedef enum {
     B8_4 = PA_5,
     BLUE_LED = PD_7,
     CAN_RS = PC_13,
-    CURRENT_OUT = PF_3,
+    ADC_CURRENT_OUT  = PF_3,
     FLOW1 = PJ_11,
     FLOW2 = PD_11,
     FLOW3 = PH_11,
@@ -319,7 +319,7 @@ typedef enum {
     FW1 = PD_3,
     FW2 = PD_4,
     FW3 = PD_5,
-    GEREEN_LED = PD_6,
+    GREEN_LED = PD_6,
     RED_LED = PA_15,
     SOL1 = PJ_10,
     SOL2 = PD_10,
@@ -332,7 +332,7 @@ typedef enum {
     TEMP1 = PD_12,
     USB_GPIO_IN = PG_6,
     USB_GPIO_OUT = PG_7,
-    VOLTAGE_OUT = PF_4,
+    ADC_VOLTAGE_OUT = PF_4,
 
 
     USART3_RX = PD_9,
@@ -350,6 +350,13 @@ typedef enum {
     QUADSPI_BK1_IO3 = PF_6,
     QUADSPI_BK1_NCS = PB_6,
     QUADSPI_CLK = PF_10,
+
+    QSPI_FLASH1_IO0 = QUADSPI_BK1_IO0,
+    QSPI_FLASH1_IO1 = QUADSPI_BK1_IO1,
+    QSPI_FLASH1_IO2 = QUADSPI_BK1_IO2,
+    QSPI_FLASH1_IO3 = QUADSPI_BK1_IO3,
+    QSPI_FLASH1_SCK = QUADSPI_CLK,
+    QSPI_FLASH1_CSN = QUADSPI_BK1_NCS,
 
 
     I2C2_SCL = PF_1,
@@ -450,7 +457,7 @@ typedef enum {
 
 // Standardized LED and button names
 #define LED1     PA_15  // RED_LED
-#define LED2     PD_6   // GEREEN_LED
+#define LED2     PD_6   // GREEN_LED
 #define LED3     PD_7   // BLUE_LED
 #define BUTTON1  Px_x  
 
