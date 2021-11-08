@@ -338,6 +338,9 @@ typedef enum {
     USART3_RX = PD_9,
     USART3_TX = PD_8,
 
+    STDIO_UART_TX = USART3_TX,
+    STDIO_UART_RX = USART3_RX,
+
 
     CAN1_RX = PD_0,
     CAN1_TX = PD_1,
