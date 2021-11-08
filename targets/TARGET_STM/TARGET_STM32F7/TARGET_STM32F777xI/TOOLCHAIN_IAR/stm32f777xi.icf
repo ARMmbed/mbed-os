@@ -1,0 +1,81 @@
+/* Linker script to configure memory regions.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2016-2019 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
+ *
+ ******************************************************************************
+*/
+
+/* STM32F767xI:
+FLASH:   2048K (0x200000) @0x08000000
+SRAM1:    368K (0x5C000)  @0x20020000
+SRAM2:     16K (0x4000)   @0x2007C000
+DTCM-RAM: 128K (0x20000)  @0x20000000
+ITCM-RAM:  16K (0x3FFF)   @0x00000000
+*/
+
+if (!isdefinedsymbol(MBED_ROM_START)) { define symbol MBED_ROM_START  = 0x8000000; }
+if (!isdefinedsymbol(MBED_ROM_SIZE)) { define symbol MBED_ROM_SIZE   = 0x200000; }
+if (!isdefinedsymbol(MBED_RAM_START)) { define symbol MBED_RAM_START  = 0x20020000; }
+if (!isdefinedsymbol(MBED_RAM_SIZE)) { define symbol MBED_RAM_SIZE   = 0x60000; }
+if (!isdefinedsymbol(MBED_RAM1_START)) { define symbol MBED_RAM1_START = 0x20000000; }
+if (!isdefinedsymbol(MBED_RAM1_SIZE)) { define symbol MBED_RAM1_SIZE  = 0x20000; }
+
+if (!isdefinedsymbol(MBED_APP_START)) { define symbol MBED_APP_START = MBED_ROM_START; }
+if (!isdefinedsymbol(MBED_APP_SIZE)) { define symbol MBED_APP_SIZE = MBED_ROM_SIZE; }
+
+define symbol __intvec_start__     = MBED_APP_START;
+define symbol __region_ROM_start__ = MBED_APP_START;
+define symbol __region_ROM_end__   = MBED_APP_START + MBED_APP_SIZE - 1;
+
+define symbol NVIC_NUM_VECTORS     = 114; /* This value must match NVIC_NUM_VECTORS in ../cmsis_nvic.h */
+define symbol MBED_VECTTABLE_RAM_SIZE = ((NVIC_NUM_VECTORS * 4) + 7) & ~7;
+define symbol M_CRASH_DATA_RAM_SIZE   = 0x100;
+
+define symbol __NVIC_start__          = MBED_RAM1_START;
+define symbol __region_CRASH_DATA_RAM_start__ = MBED_RAM1_START + MBED_VECTTABLE_RAM_SIZE;
+define symbol __NVIC_end__            = __region_CRASH_DATA_RAM_start__ - 1;
+define symbol __region_RAM_start__    = __region_CRASH_DATA_RAM_start__ + M_CRASH_DATA_RAM_SIZE;
+define symbol __region_CRASH_DATA_RAM_end__   = __region_RAM_start__ - 1;
+define symbol __region_RAM_end__      = MBED_RAM1_START + MBED_RAM_SIZE + MBED_RAM1_SIZE - 1;
+
+define symbol __region_ITCMRAM_start__ = 0x00000000;
+define symbol __region_ITCMRAM_end__   = 0x00003FFF;
+
+/* Memory regions */
+define memory mem with size = 4G;
+define region ROM_region = mem:[from __region_ROM_start__ to __region_ROM_end__];
+define region CRASH_DATA_RAM_region = mem:[from __region_CRASH_DATA_RAM_start__ to __region_CRASH_DATA_RAM_end__];
+define region RAM_region = mem:[from __region_RAM_start__ to __region_RAM_end__];
+define region ITCMRAM_region = mem:[from __region_ITCMRAM_start__ to __region_ITCMRAM_end__];
+
+/* Define Crash Data Symbols */
+define exported symbol __CRASH_DATA_RAM_START__ = __region_CRASH_DATA_RAM_start__;
+define exported symbol __CRASH_DATA_RAM_END__ = __region_CRASH_DATA_RAM_end__;
+
+/* Stack and Heap */
+if (!isdefinedsymbol(MBED_CONF_TARGET_BOOT_STACK_SIZE)) {
+    define symbol MBED_CONF_TARGET_BOOT_STACK_SIZE = 0x400;
+}
+define symbol __size_cstack__ = MBED_CONF_TARGET_BOOT_STACK_SIZE;
+define symbol __size_heap__   = 0x10000;
+define block CSTACK    with alignment = 8, size = __size_cstack__   { };
+define block HEAP      with alignment = 8, size = __size_heap__     { };
+define block STACKHEAP with fixed order { block HEAP, block CSTACK };
+
+initialize by copy with packing = zeros { readwrite };
+do not initialize  { section .noinit };
+
+place at address mem:__intvec_start__ { readonly section .intvec };
+
+place in ROM_region   { readonly };
+place in RAM_region   { readwrite, block STACKHEAP };
