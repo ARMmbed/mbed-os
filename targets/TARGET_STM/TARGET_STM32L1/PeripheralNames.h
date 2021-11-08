@@ -46,7 +46,9 @@ typedef enum {
 typedef enum {
     SPI_1 = (int)SPI1_BASE,
     SPI_2 = (int)SPI2_BASE,
+#if defined SPI3_BASE
     SPI_3 = (int)SPI3_BASE
+#endif
 } SPIName;
 
 typedef enum {
@@ -58,7 +60,9 @@ typedef enum {
     PWM_2  = (int)TIM2_BASE,
     PWM_3  = (int)TIM3_BASE,
     PWM_4  = (int)TIM4_BASE,
+#if defined TIM5_BASE
     PWM_5  = (int)TIM5_BASE,
+#endif
     PWM_9  = (int)TIM9_BASE,
     PWM_10 = (int)TIM10_BASE,
     PWM_11 = (int)TIM11_BASE

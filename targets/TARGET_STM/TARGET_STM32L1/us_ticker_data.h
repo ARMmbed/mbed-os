@@ -24,6 +24,8 @@ extern "C" {
 #include "stm32l1xx_ll_tim.h"
 #include "cmsis_nvic.h"
 
+#if defined TIM5_BASE
+
 #define TIM_MST      TIM5
 #define TIM_MST_IRQ  TIM5_IRQn
 #define TIM_MST_RCC  __TIM5_CLK_ENABLE()
@@ -33,6 +35,20 @@ extern "C" {
 #define TIM_MST_RESET_OFF  __TIM5_RELEASE_RESET()
 
 #define TIM_MST_BIT_WIDTH  32 // 16 or 32
+
+#else // TIM5_BASE
+
+#define TIM_MST      TIM2
+#define TIM_MST_IRQ  TIM2_IRQn
+#define TIM_MST_RCC  __TIM2_CLK_ENABLE()
+#define TIM_MST_DBGMCU_FREEZE  __HAL_DBGMCU_FREEZE_TIM2()
+
+#define TIM_MST_RESET_ON   __TIM2_FORCE_RESET()
+#define TIM_MST_RESET_OFF  __TIM2_RELEASE_RESET()
+
+#define TIM_MST_BIT_WIDTH  16 // 16 or 32
+
+#endif // TIM5_BASE
 
 #define TIM_MST_PCLK  1 // Select the peripheral clock number (1 or 2)
 
