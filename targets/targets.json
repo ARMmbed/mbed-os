@@ -2607,7 +2607,8 @@
           }
       },
       "macros_add": [
-          "STM32F777xx"
+          "STM32F777xx",
+          "HSE_VALUE=20000000"
       ],
       "detect_code": [
           "0451"
