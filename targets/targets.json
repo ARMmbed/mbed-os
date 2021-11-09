@@ -4631,6 +4631,16 @@
             "ARDUINO_UNO"
         ],
         "device_name": "STM32U585AIIx",
+        "extra_labels_add": [
+            "MX25LM51245G"
+        ],
+        "components_add": [
+            "OSPIF"
+        ],
+        "device_has_add": [
+            "QSPI",
+            "OSPI"
+        ],
         "components_add": ["EMW3080B"],
         "overrides": {
             "network-default-interface-type": "WIFI"
