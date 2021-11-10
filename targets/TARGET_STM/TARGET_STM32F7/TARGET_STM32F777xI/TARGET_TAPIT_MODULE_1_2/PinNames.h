@@ -273,10 +273,10 @@ typedef enum {
     CONSOLE_RX = PD_9,
 #endif
 /**** CUSTOM PINS ****/
-    B1_1 = PJ_6,
-    B1_2 = PJ_7,
-    B1_3 = PJ_9,
-    B1_4 = PJ_8,
+    B1_1 = PJ_9,
+    B1_2 = PJ_8,
+    B1_3 = PJ_6,
+    B1_4 = PJ_7,
     B2_1 = PB_15,
     B2_2 = PB_14,
     B2_3 = PH_12,
