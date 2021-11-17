@@ -30,10 +30,7 @@
 #endif
 
 #if !defined(MBED_RAM_SIZE)
-#define MBED_RAM_SIZE  0x8000  // 32 KB
-//   0x4000 // 16 KB STM32L152CB STM32L152RB STM32L152VB
-//   0x8000 // 32 KB STM32L152CBxxA STM32L152RBxxA STM32L152VBxxA
-#warning "check MBED_RAM_SIZE value in cmsis_nvic.h"
+#define MBED_RAM_SIZE  0x4000  // 16 KB
 #endif
 
 #define NVIC_NUM_VECTORS        61
