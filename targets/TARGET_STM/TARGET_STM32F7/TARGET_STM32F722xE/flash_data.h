@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2015, STMicroelectronics
+ * Copyright (c) 2016, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,53 +27,24 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#include "mbed_assert.h"
-#include "mbed_error.h"
-#include "spi_api.h"
+#ifndef MBED_FLASH_DATA_H
+#define MBED_FLASH_DATA_H
 
-#if DEVICE_SPI
+// #include "device.h"
+// #include <stdint.h>
 
-#include "cmsis.h"
-#include "pinmap.h"
-#include "PeripheralPins.h"
-#include "mbed_error.h"
+#if DEVICE_FLASH
 
-#if DEVICE_SPI_ASYNCH
-#define SPI_S(obj)    (( struct spi_s *)(&(obj->spi)))
-#else
-#define SPI_S(obj)    (( struct spi_s *)(obj))
+#define FLASH_SIZE     0x80000
+
+#define ADDR_FLASH_SECTOR_0     ((uint32_t)0x08000000) /* Base @ of Sector 0, 16 Kbytes */
+#define ADDR_FLASH_SECTOR_1     ((uint32_t)0x08004000) /* Base @ of Sector 1, 16 Kbytes */
+#define ADDR_FLASH_SECTOR_2     ((uint32_t)0x08008000) /* Base @ of Sector 2, 16 Kbytes */
+#define ADDR_FLASH_SECTOR_3     ((uint32_t)0x0800C000) /* Base @ of Sector 3, 16 Kbytes */
+#define ADDR_FLASH_SECTOR_4     ((uint32_t)0x08010000) /* Base @ of Sector 4, 64 Kbytes */
+#define ADDR_FLASH_SECTOR_5     ((uint32_t)0x08020000) /* Base @ of Sector 5, 128 Kbytes */
+#define ADDR_FLASH_SECTOR_6     ((uint32_t)0x08040000) /* Base @ of Sector 6, 128 Kbytes */
+#define ADDR_FLASH_SECTOR_7     ((uint32_t)0x08060000) /* Base @ of Sector 7, 128 Kbytes */
+
 #endif
-
-/*
- * Only the frequency is managed in the family specific part
- * the rest of SPI management is common to all STM32 families
- */
-int spi_get_clock_freq(spi_t *obj)
-{
-    struct spi_s *spiobj = SPI_S(obj);
-    int spi_hz = 0;
-
-    /* Get source clock depending on SPI instance */
-    switch ((int)spiobj->spi) {
-        case SPI_1:
-        case SPI_4:
-        case SPI_5:
-    #if defined SPI6_BASE
-        case SPI_6:
-    #endif // defined SPI6_BASE
-            /* SPI_1, SPI_4, SPI_5 and SPI_6. Source CLK is PCKL2 */
-            spi_hz = HAL_RCC_GetPCLK2Freq();
-            break;
-        case SPI_2:
-        case SPI_3:
-            /* SPI_2 and SPI_3. Source CLK is PCKL1 */
-            spi_hz = HAL_RCC_GetPCLK1Freq();
-            break;
-        default:
-            error("CLK: SPI instance not set");
-            break;
-    }
-    return spi_hz;
-}
-
 #endif

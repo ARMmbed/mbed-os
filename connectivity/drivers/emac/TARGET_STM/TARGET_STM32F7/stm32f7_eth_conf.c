@@ -17,6 +17,8 @@
 
 #include "stm32f7xx_hal.h"
 
+#if defined ETH
+
 void _eth_config_mac(ETH_HandleTypeDef *heth)
 {
     ETH_MACInitTypeDef macconf = {
@@ -59,3 +61,5 @@ void _eth_config_mac(ETH_HandleTypeDef *heth)
 
     (void) HAL_ETH_ConfigMAC(heth, &macconf);
 }
+
+#endif // defined ETH
