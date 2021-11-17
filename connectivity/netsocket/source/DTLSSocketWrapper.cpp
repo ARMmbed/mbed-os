@@ -36,6 +36,11 @@ DTLSSocketWrapper::DTLSSocketWrapper(Socket *transport, const char *hostname, co
 #endif /* !defined(MBEDTLS_SSL_CONF_SET_TIMER) && !defined(MBEDTLS_SSL_CONF_GET_TIMER) */
 }
 
+DTLSSocketWrapper::~DTLSSocketWrapper()
+{
+    close();
+}
+
 void DTLSSocketWrapper::timing_set_delay(void *ctx, uint32_t int_ms, uint32_t fin_ms)
 {
     DTLSSocketWrapper *context = static_cast<DTLSSocketWrapper *>(ctx);
@@ -72,6 +77,16 @@ int DTLSSocketWrapper::timing_get_delay(void *ctx)
     } else {
         return 0;
     }
+}
+
+nsapi_error_t DTLSSocketWrapper::close()
+{
+    if (_timer_event_id != 0) {
+        mbed::mbed_event_queue()->cancel(_timer_event_id);
+        _timer_event_id = 0;
+    }
+
+    return TLSSocketWrapper::close();
 }
 
 void DTLSSocketWrapper::timer_event(void)
