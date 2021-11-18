@@ -36,7 +36,7 @@ class GCC(mbedToolchain):
     STD_LIB_NAME = "lib%s.a"
     DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(?P<col>\d+):? (?P<severity>warning|[eE]rror|fatal error): (?P<message>.+)')
 
-    GCC_RANGE = (LooseVersion("9.0.0"), LooseVersion("10.0.0"))
+    GCC_RANGE = (LooseVersion("10.0.0"), LooseVersion("11.0.0"))
     GCC_VERSION_RE = re.compile(b"\d+\.\d+\.\d+")
     DWARF_PRODUCER_RE = re.compile(r'(DW_AT_producer)(.*:\s*)(?P<producer>.*)')
 
