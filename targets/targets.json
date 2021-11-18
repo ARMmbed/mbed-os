@@ -3512,6 +3512,50 @@
             "system_power_supply": "PWR_LDO_SUPPLY"
         }
     },
+    "MCU_STM32H753xI": {
+        "inherits": [
+            "MCU_STM32H7"
+        ],
+        "public": false,
+        "core": "Cortex-M7FD",
+        "extra_labels_add": [
+            "STM32H753xI"
+        ],
+        "macros_add": [
+            "STM32H753xx"
+        ],
+        "overrides": {
+            "system_power_supply": "PWR_LDO_SUPPLY"
+        }
+    },
+    "NUCLEO_H753ZI": {
+        "inherits": [
+            "MCU_STM32H753xI"
+        ],
+        "config": {
+            "d11_configuration": {
+                "help": "Value: PB_5 for the default board configuration, PA_7 in case of solder bridge update (SB33 on/ SB35 off)",
+                "value": "PB_5",
+                "macro_name": "STM32_D11_SPI_ETHERNET_PIN"
+            },
+            "hse_value": {
+                "help": "HSE default value is 25MHz in HAL",
+                "value": "8000000",
+                "macro_name": "HSE_VALUE"
+            }
+        },
+        "device_has_add": [
+            "EMAC",
+            "USBDEVICE"
+        ],
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        },
+        "supported_form_factors": [
+            "ARDUINO_UNO"
+        ],
+        "device_name": "STM32H753ZITx"
+    },
     "MCU_STM32H7A3xIQ": {
         "inherits": [
             "MCU_STM32H7"

@@ -1,0 +1,77 @@
+#! armclang -E --target=arm-arm-none-eabi -x c -mcpu=cortex-m7
+; Scatter-Loading Description File
+;
+; SPDX-License-Identifier: BSD-3-Clause
+;******************************************************************************
+;* @attention
+;*
+;* Copyright (c) 2016-2020 STMicroelectronics.
+;* All rights reserved.
+;*
+;* This software component is licensed by ST under BSD 3-Clause license,
+;* the "License"; You may not use this file except in compliance with the
+;* License. You may obtain a copy of the License at:
+;*                        opensource.org/licenses/BSD-3-Clause
+;*
+;******************************************************************************
+
+#include "../cmsis_nvic.h"
+
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START  MBED_ROM_START
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE  MBED_ROM_SIZE
+#endif
+
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+/* This value is normally defined by the tools to 0x1000 for bare metal and 0x400 for RTOS */
+#if defined(MBED_BOOT_STACK_SIZE)
+#define MBED_CONF_TARGET_BOOT_STACK_SIZE MBED_BOOT_STACK_SIZE
+#else
+#define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
+#endif
+#endif
+
+/* Round up VECTORS_SIZE to 8 bytes */
+#define VECTORS_SIZE  (((NVIC_NUM_VECTORS * 4) + 7) AND ~7)
+
+#define MBED_CRASH_REPORT_RAM_START (NVIC_RAM_VECTOR_ADDRESS + VECTORS_SIZE)
+#define MBED_CRASH_REPORT_RAM_SIZE  0x100
+
+LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {
+
+  ER_IROM1  MBED_APP_START  MBED_APP_SIZE  {
+    *.o (RESET, +First)
+    *(InRoot$$Sections)
+    .ANY (+RO)
+  }
+
+  RW_m_crash_data MBED_CRASH_REPORT_RAM_START EMPTY MBED_CRASH_REPORT_RAM_SIZE { ; RW data
+  }
+
+  RW_IRAM1  (MBED_RAM1_START)  {  ; RW data
+    .ANY (+RW +ZI)
+  }
+
+  ARM_LIB_HEAP  AlignExpr(+0, 16)  EMPTY  (MBED_RAM1_START + MBED_RAM1_SIZE - MBED_CONF_TARGET_BOOT_STACK_SIZE - AlignExpr(ImageLimit(RW_IRAM1), 16))  { ; Heap growing up
+  }
+
+  ARM_LIB_STACK  (MBED_RAM1_START + MBED_RAM1_SIZE)  EMPTY  -MBED_CONF_TARGET_BOOT_STACK_SIZE  { ; Stack region growing down
+  }
+
+  RW_DMARxDscrTab 0x30040000 0x60 {
+    *(.RxDecripSection)
+  }
+  RW_DMATxDscrTab 0x30040100 0x140 {
+    *(.TxDecripSection)
+  }
+  RW_Rx_Buffb 0x30040400 0x1800 {
+    *(.RxArraySection)
+  }
+  RW_Eth_Ram 0x30044000 0x4000 {
+    *(.ethusbram)
+  }
+
+}
