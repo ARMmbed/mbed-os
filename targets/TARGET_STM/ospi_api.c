@@ -55,7 +55,7 @@ static uint32_t get_alt_bytes_size(const uint32_t num_bytes)
 
 ospi_status_t ospi_prepare_command(const ospi_command_t *command, OSPI_RegularCmdTypeDef *st_command)
 {
-    debug_if(ospi_api_c_debug, "ospi_prepare_command In: instruction.value %x dummy_count %x address.bus_width %x address.disabled %x address.value %x address.size %x\n",
+    debug_if(ospi_api_c_debug, "ospi_prepare_command In: instruction.value %x dummy_count %u address.bus_width %x address.disabled %x address.value %x address.size %x\n",
              command->instruction.value, command->dummy_count, command->address.bus_width, command->address.disabled, command->address.value, command->address.size);
 
     st_command->FlashId = HAL_OSPI_FLASH_ID_1;
@@ -255,17 +255,20 @@ static ospi_status_t _ospi_init_direct(ospi_t *obj, const ospi_pinmap_t *pinmap,
     obj->handle.Init.DeviceSize = 32;
     obj->handle.Init.ChipSelectHighTime = 3;
     obj->handle.Init.FreeRunningClock = HAL_OSPI_FREERUNCLK_DISABLE;
-#if defined(HAL_OSPI_WRAP_NOT_SUPPORTED) // removed in STM32L4
+#if defined(HAL_OSPI_WRAP_NOT_SUPPORTED)
     obj->handle.Init.WrapSize = HAL_OSPI_WRAP_NOT_SUPPORTED;
 #endif
     obj->handle.Init.ClockMode = mode == 0 ? HAL_OSPI_CLOCK_MODE_0 : HAL_OSPI_CLOCK_MODE_3;
     obj->handle.Init.DelayHoldQuarterCycle = HAL_OSPI_DHQC_ENABLE;
     obj->handle.Init.ChipSelectBoundary = 0;
-#if defined(HAL_OSPI_DELAY_BLOCK_USED) // STM32L5
+#if defined(HAL_OSPI_DELAY_BLOCK_USED)
     obj->handle.Init.DelayBlockBypass = HAL_OSPI_DELAY_BLOCK_USED;
 #endif
-#if defined(TARGET_STM32L5)
+#if defined(TARGET_STM32L5) || defined(TARGET_STM32U5)
     obj->handle.Init.Refresh = 0;
+#endif
+#if defined(OCTOSPI_DCR3_MAXTRAN)
+    obj->handle.Init.MaxTran = 0;
 #endif
 
     // tested all combinations, take first
@@ -371,13 +374,13 @@ ospi_status_t ospi_init(ospi_t *obj, PinName io0, PinName io1, PinName io2, PinN
     OSPIName ospiio1name = (OSPIName)pinmap_peripheral(io1, PinMap_OSPI_DATA1);
     OSPIName ospiio2name = (OSPIName)pinmap_peripheral(io2, PinMap_OSPI_DATA2);
     OSPIName ospiio3name = (OSPIName)pinmap_peripheral(io3, PinMap_OSPI_DATA3);
-    OSPIName ospiio4name = (OSPIName)pinmap_peripheral(io4, PinMap_OSPI_DATA4);
-    OSPIName ospiio5name = (OSPIName)pinmap_peripheral(io5, PinMap_OSPI_DATA5);
-    OSPIName ospiio6name = (OSPIName)pinmap_peripheral(io6, PinMap_OSPI_DATA6);
-    OSPIName ospiio7name = (OSPIName)pinmap_peripheral(io7, PinMap_OSPI_DATA7);
+    // OSPIName ospiio4name = (OSPIName)pinmap_peripheral(io4, PinMap_OSPI_DATA4); // IO4 pin not checked
+    // OSPIName ospiio5name = (OSPIName)pinmap_peripheral(io5, PinMap_OSPI_DATA5); // IO5 pin not checked
+    // OSPIName ospiio6name = (OSPIName)pinmap_peripheral(io6, PinMap_OSPI_DATA6); // IO6 pin not checked
+    // OSPIName ospiio7name = (OSPIName)pinmap_peripheral(io7, PinMap_OSPI_DATA7); // IO7 pin not checked
     OSPIName ospiclkname = (OSPIName)pinmap_peripheral(sclk, PinMap_OSPI_SCLK);
     OSPIName ospisselname = (OSPIName)pinmap_peripheral(ssel, PinMap_OSPI_SSEL);
-    OSPIName ospidqsname = (OSPIName)pinmap_peripheral(dqs, PinMap_OSPI_DQS);
+    // OSPIName ospidqsname = (OSPIName)pinmap_peripheral(dqs, PinMap_OSPI_DQS);   // DQS pin not checked
 
     OSPIName ospi_data_first = (OSPIName)pinmap_merge(ospiio0name, ospiio1name);
     OSPIName ospi_data_second = (OSPIName)pinmap_merge(ospiio2name, ospiio3name);
@@ -451,24 +454,29 @@ ospi_status_t ospi_free(ospi_t *obj)
 
 ospi_status_t ospi_frequency(ospi_t *obj, int hz)
 {
-    tr_debug("ospi_frequency hz %d", hz);
     ospi_status_t status = OSPI_STATUS_OK;
 
-    /* HCLK drives OSPI. OSPI clock depends on prescaler value:
+    /* OSPI clock depends on prescaler value:
     *  0: Freq = HCLK
     *  1: Freq = HCLK/2
     *  ...
     *  255: Freq = HCLK/256 (minimum value)
     */
 
-    int div = HAL_RCC_GetHCLKFreq() / hz;
+#if defined(TARGET_STM32L5)
+    uint32_t OSPI_clock_source = HAL_RCC_GetSysClockFreq();
+#else
+    uint32_t OSPI_clock_source = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_OSPI);
+#endif
+    int div = OSPI_clock_source / hz;
     if (div > 255) {
         div = 255;
     } else {
-        if (div == 1) {
+        if (OSPI_clock_source % hz != 0) {
             div = div + 1;
         }
     }
+    tr_debug("ospi_frequency hz %d source %d Prescaler %d", hz, OSPI_clock_source, div);
 
     obj->handle.Init.ClockPrescaler = div;
 
