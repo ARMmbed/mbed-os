@@ -31,13 +31,13 @@
  * 0x0010_0000 Secondary image area (2KB):
  *    0x0010_0000 Secure     image secondary (320KB) (Dummy)
  *    0x0015_0000 Non-secure image secondary (576KB) (Dummy)
- * 0x001E_0000 Scratch area (4KB) (Dummy)
+ * 0x001E_0000 Scratch area (16KB) (Dummy)
  *
  * SDH Flash:
  * 0x0000_0000 Secondary image area (896KB)
  *    0x0000_0000 Secure     image secondary (320KB)
  *    0x0005_0000 Non-secure image secondary (576KB)
- * 0x0020_0000 Scratch area (4 KB)
+ * 0x0020_0000 Scratch area (16 KB)
  *
  * Flash layout on M2354 with BL2 (multiple image boot):
  *
@@ -50,12 +50,12 @@
  * 0x0007_0000 Non-secure image primary slot (576KB)
  * 0x0010_0000 Secure image     secondary slot (320KB) (Dummy)
  * 0x0015_0000 Non-secure image secondary slot (576KB) (Dummy)
- * 0x001E_0000 Scratch area (4KB) (Dummy)
+ * 0x001E_0000 Scratch area (16KB) (Dummy)
  *
  * SDH Flash:
  * 0x0000_0000 Secure image     secondary slot (320KB)
  * 0x0010_0000 Non-secure image secondary slot (576KB)
- * 0x0020_0000 Scratch area (2 KB)
+ * 0x0020_0000 Scratch area (16 KB)
  */
 
 /* This header file is included from linker scatter file as well, where only a
@@ -123,13 +123,13 @@
 #if NU_UPDATE_STAGE_SDH
 #define FLASH_AREA_SCRATCH_ID      (FLASH_AREA_2_ID + 1)
 #define FLASH_AREA_SCRATCH_OFFSET  (0x200000)
-#define FLASH_AREA_SCRATCH_SIZE    (0x1000)
+#define FLASH_AREA_SCRATCH_SIZE    (0x4000)
 #define FLASH_DEVICE_ID_SCRATCH    SDH_FLASH_DEVICE_ID
 #define FLASH_DEV_NAME_SCRATCH     SDH_FLASH_DEV_NAME
 #else
 #define FLASH_AREA_SCRATCH_ID      (FLASH_AREA_2_ID + 1)
 #define FLASH_AREA_SCRATCH_OFFSET  (FLASH_AREA_2_OFFSET + FLASH_AREA_2_SIZE)
-#define FLASH_AREA_SCRATCH_SIZE    (0x1000)
+#define FLASH_AREA_SCRATCH_SIZE    (0x4000)
 #endif
 
 /* The maximum number of status entries supported by the bootloader. */
@@ -181,13 +181,13 @@
 #if NU_UPDATE_STAGE_SDH
 #define FLASH_AREA_SCRATCH_ID      (FLASH_AREA_3_ID + 1)
 #define FLASH_AREA_SCRATCH_OFFSET  (0x200000)
-#define FLASH_AREA_SCRATCH_SIZE    (0x1000)
+#define FLASH_AREA_SCRATCH_SIZE    (0x4000)
 #define FLASH_DEVICE_ID_SCRATCH    SDH_FLASH_DEVICE_ID
 #define FLASH_DEV_NAME_SCRATCH     SDH_FLASH_DEV_NAME
 #else
 #define FLASH_AREA_SCRATCH_ID      (FLASH_AREA_3_ID + 1)
 #define FLASH_AREA_SCRATCH_OFFSET  (FLASH_AREA_3_OFFSET + FLASH_AREA_3_SIZE)
-#define FLASH_AREA_SCRATCH_SIZE    (0x1000)
+#define FLASH_AREA_SCRATCH_SIZE    (0x4000)
 #endif
 
 /* The maximum number of status entries supported by the bootloader. */
