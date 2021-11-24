@@ -10,7 +10,7 @@ elseif("NUCLEO_H743ZI" IN_LIST MBED_TARGET_LABELS)
 elseif("NUCLEO_H743ZI2" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_NUCLEO_H743ZI2)
 elseif("NUCLEO_H753ZI" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_NUCLEO_H743ZI2)
+    add_subdirectory(TARGET_NUCLEO_H753ZI)
 endif()
 
 target_include_directories(mbed-emac
