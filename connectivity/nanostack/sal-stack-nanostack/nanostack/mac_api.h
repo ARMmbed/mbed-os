@@ -129,10 +129,11 @@ typedef void mcps_data_request(const mac_api_t *api, const mcps_data_req_t *data
  * @param ie_ext Information element list to MCPS-DATA.request
  * @param asynch_channel_list Optional channel list to asynch data request. Give NULL when normal data request.
  * @param priority Data request priority level
+ * @param phy_mode_id Use mode switch if given phy_mode_id > 0
  *
  * Asynch data request is mac standard extension. asynch_channel_list include channel mask which channel message is requested to send.
  */
-typedef void mcps_data_request_ext(const mac_api_t *api, const mcps_data_req_t *data, const mcps_data_req_ie_list_t *ie_ext, const struct channel_list_s *asynch_channel_list, mac_data_priority_t priority);
+typedef void mcps_data_request_ext(const mac_api_t *api, const mcps_data_req_t *data, const mcps_data_req_ie_list_t *ie_ext, const struct channel_list_s *asynch_channel_list, mac_data_priority_t priority, uint8_t phy_mode_id);
 
 /**
  * @brief mcps_purge_request MCPS_PURGE request call
@@ -190,6 +191,16 @@ typedef void mcps_ack_data_req_ext(const mac_api_t *api, mcps_ack_data_payload_t
  * @param response_message Enhanced message response data and status
  */
 typedef void mcps_edfe_handler(const mac_api_t *api, mcps_edfe_response_t *response_message);
+
+
+/**
+ * @brief mode_switch_resolver Callback to resolve configuration behind received PHY mode ID
+ * @param api The API which handled the response
+ * @param phy_mode_id PHY mode ID to be resolved
+ * @param rf_config Resolved configuration
+ * @return 0 in case of success, negative otherwise
+ */
+typedef int8_t mode_switch_resolver(const mac_api_t *api, uint8_t phy_mode_id, phy_rf_channel_configuration_s *rf_config);
 
 
 /**
@@ -273,36 +284,48 @@ typedef int8_t mac_api_enable_mcps_edfe_ext(mac_api_t *api,
                                             mcps_edfe_handler *edfe_ind_cb);
 
 /**
+ * @brief mac_api_mode_switch_resolver_ext Initialises mode switch resolver callback. Upper layer must configure function when mode switch is used.
+ * @param api mac_api_t pointer, which is created by application.
+ * @param mode_resolver_cb Upper layer function to resolve received PHY mode ID
+ * @param base_phy_mode Base PHY mode, device returns to this mode after mode switch transmission or reception
+ * @return -1 if error, 0 otherwise
+ */
+typedef int8_t mac_api_mode_switch_resolver_ext(mac_api_t *api,
+                                                mode_switch_resolver *mode_resolver_cb, uint8_t base_phy_mode);
+
+/**
  * \brief Struct mac_api_s defines functions for two-way communications between external MAC and Upper layer.
  * Application creates mac_api_t object by calling external MAC's creator function.
  * Then object is passed to Upper layer which then initializes it's own callback functions.
  * Then MAC is operated by Upper layer by calling MLME or MCPS primitive functions.
  */
 struct mac_api_s {
-    mac_api_initialize          *mac_initialize;                /**< MAC initialize function to use */
-    mac_api_enable_mcps_ext     *mac_mcps_extension_enable;     /**< MAC MCPS IE extension enable function, optional feature */
-    mac_api_enable_mcps_edfe_ext *mac_mcps_edfe_enable;         /**< MAC MCPS MCPS EDFE frame extension enable function, optional feature */
+    mac_api_initialize                  *mac_initialize;                /**< MAC initialize function to use */
+    mac_api_enable_mcps_ext             *mac_mcps_extension_enable;     /**< MAC MCPS IE extension enable function, optional feature */
+    mac_api_enable_mcps_edfe_ext        *mac_mcps_edfe_enable;          /**< MAC MCPS MCPS EDFE frame extension enable function, optional feature */
+    mac_api_mode_switch_resolver_ext    *mac_mode_switch_resolver_set;  /**< MAC Mode switch resolver function set, optional feature */
     //External MAC callbacks
-    mlme_request                *mlme_req;                      /**< MAC MLME request function to use */
-    mcps_data_request           *mcps_data_req;                 /**< MAC MCPS data request function to use */
-    mcps_data_request_ext       *mcps_data_req_ext;             /**< MAC MCPS data request with Information element extension function to use */
-    mcps_purge_request          *mcps_purge_req;                /**< MAC MCPS purge request function to use */
+    mlme_request                        *mlme_req;                      /**< MAC MLME request function to use */
+    mcps_data_request                   *mcps_data_req;                 /**< MAC MCPS data request function to use */
+    mcps_data_request_ext               *mcps_data_req_ext;             /**< MAC MCPS data request with Information element extension function to use */
+    mcps_purge_request                  *mcps_purge_req;                /**< MAC MCPS purge request function to use */
     //Upper layer callbacksMLME_ASSOCIATE
-    mcps_data_confirm           *data_conf_cb;                  /**< MAC MCPS data confirm callback function */
-    mcps_data_confirm_ext       *data_conf_ext_cb;              /**< MAC MCPS data confirm with payload callback function */
-    mcps_data_indication        *data_ind_cb;                   /**< MAC MCPS data indication callback function */
-    mcps_data_indication_ext    *data_ind_ext_cb;               /**< MAC MCPS data indication with IE extension's callback function */
-    mcps_edfe_handler           *edfe_ind_cb;                   /**< MAC MCPS EDFE detection extension's callback function */
-    mcps_ack_data_req_ext       *enhanced_ack_data_req_cb;      /**< Enhanced ACK IE element and payload request from MAC user */
-    mcps_purge_confirm          *purge_conf_cb;                 /**< MAC MCPS purge confirm callback function */
-    mlme_confirm                *mlme_conf_cb;                  /**< MAC MLME confirm callback function */
-    mlme_indication             *mlme_ind_cb;                   /**< MAC MLME indication callback function */
-    mac_ext_mac64_address_set   *mac64_set;                     /**< MAC extension function to set mac64 address */
-    mac_ext_mac64_address_get   *mac64_get;                     /**< MAC extension function to get mac64 address */
-    mac_storage_decription_sizes_get *mac_storage_sizes_get;    /**< Getter function to query data storage sizes from MAC */
+    mcps_data_confirm                   *data_conf_cb;                  /**< MAC MCPS data confirm callback function */
+    mcps_data_confirm_ext               *data_conf_ext_cb;              /**< MAC MCPS data confirm with payload callback function */
+    mcps_data_indication                *data_ind_cb;                   /**< MAC MCPS data indication callback function */
+    mcps_data_indication_ext            *data_ind_ext_cb;               /**< MAC MCPS data indication with IE extension's callback function */
+    mcps_edfe_handler                   *edfe_ind_cb;                   /**< MAC MCPS EDFE detection extension's callback function */
+    mode_switch_resolver                *mode_resolver_cb;              /**< MAC Mode switch resolver callback function */
+    mcps_ack_data_req_ext               *enhanced_ack_data_req_cb;      /**< Enhanced ACK IE element and payload request from MAC user */
+    mcps_purge_confirm                  *purge_conf_cb;                 /**< MAC MCPS purge confirm callback function */
+    mlme_confirm                        *mlme_conf_cb;                  /**< MAC MLME confirm callback function */
+    mlme_indication                     *mlme_ind_cb;                   /**< MAC MLME indication callback function */
+    mac_ext_mac64_address_set           *mac64_set;                     /**< MAC extension function to set mac64 address */
+    mac_ext_mac64_address_get           *mac64_get;                     /**< MAC extension function to get mac64 address */
+    mac_storage_decription_sizes_get    *mac_storage_sizes_get;         /**< Getter function to query data storage sizes from MAC */
 
-    int8_t                      parent_id;                      /**< Upper layer id */
-    uint16_t                    phyMTU;                         /**< Maximum Transmission Unit(MTU) used by MAC*/
+    int8_t                              parent_id;                      /**< Upper layer id */
+    uint16_t                            phyMTU;                         /**< Maximum Transmission Unit(MTU) used by MAC*/
 };
 
 /**

@@ -8,8 +8,8 @@
   *          is using in the C source code, usually in main.c. This file contains:
   *           - Configuration section that allows to select:
   *              - The STM32F0xx device used in the target application
-  *              - To use or not the peripheral’s drivers in application code(i.e. 
-  *                code will be based on direct access to peripheral’s registers 
+  *              - To use or not the peripheral's drivers in application code(i.e.
+  *                code will be based on direct access to peripheral's registers
   *                rather than drivers API), this option is controlled by 
   *                "#define USE_HAL_DRIVER"
   *  
@@ -59,8 +59,8 @@
   * - IRQ channel definition
   * - Peripheral memory mapping and physical registers address definition
   * - Peripheral pointer declaration and driver header file inclusion
-  * - Product miscellaneous configuration: assert macros…
-  * Note: These CMSIS drivers (stm32f0xxxx.h) are always supporting features of the sub-family’s superset.
+  * - Product miscellaneous configuration: assert macros, ...
+  * Note: These CMSIS drivers (stm32f0xxxx.h) are always supporting features of the sub-family's superset.
   */
 
 #if !defined (STM32F030x6) && !defined (STM32F030x8) &&                           \

@@ -184,7 +184,7 @@ bool test_coap_security_handler_connect()
     }
 
     mbedtls_stub.counter = 0;
-    mbedtls_stub.retArray[5] = MBEDTLS_ERR_SSL_BAD_HS_FINISHED;
+    mbedtls_stub.retArray[5] = MBEDTLS_ERR_SSL_BUFFER_TOO_SMALL;
 
     if (-1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys, 0, 1)) {
         return false;
@@ -230,9 +230,9 @@ bool test_coap_security_handler_continue_connecting()
     }
 
     mbedtls_stub.counter = 0;
-    mbedtls_stub.retArray[0] = MBEDTLS_ERR_SSL_BAD_HS_FINISHED;
+    mbedtls_stub.retArray[0] = MBEDTLS_ERR_SSL_BUFFER_TOO_SMALL;
 
-    if (MBEDTLS_ERR_SSL_BAD_HS_FINISHED != coap_security_handler_continue_connecting(handle)) {
+    if (MBEDTLS_ERR_SSL_BUFFER_TOO_SMALL != coap_security_handler_continue_connecting(handle)) {
         return false;
     }
 

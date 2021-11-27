@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -8,6 +8,7 @@
 #include "psa/client.h"
 #include "tfm_ns_interface.h"
 #include "tfm_api.h"
+#include "tfm_psa_call_param.h"
 
 /**** API functions ****/
 
@@ -47,23 +48,17 @@ psa_status_t psa_call(psa_handle_t handle, int32_t type,
                       psa_outvec *out_vec,
                       size_t out_len)
 {
-    /* FixMe: sanity check can be added to offload some NS thread checks from
-     * TFM secure API
-     */
-
-    /* Due to v8M restrictions, TF-M NS API needs to add another layer of
-     * serialization in order for NS to pass arguments to S
-     */
-    const struct tfm_control_parameter_t ctrl_param = {
-        .type = type,
-        .in_len = in_len,
-        .out_len = out_len,
-    };
+    if ((type > INT16_MAX) ||
+        (type < INT16_MIN) ||
+        (in_len > UINT8_MAX) ||
+        (out_len > UINT8_MAX)) {
+        return PSA_ERROR_PROGRAMMER_ERROR;
+    }
 
     return tfm_ns_interface_dispatch(
                                 (veneer_fn)tfm_psa_call_veneer,
                                 (uint32_t)handle,
-                                (uint32_t)&ctrl_param,
+                                PARAM_PACK(type, in_len, out_len),
                                 (uint32_t)in_vec,
                                 (uint32_t)out_vec);
 }

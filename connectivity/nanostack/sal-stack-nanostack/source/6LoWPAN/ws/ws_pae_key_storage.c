@@ -944,7 +944,7 @@ static int8_t ws_pae_key_storage_array_time_update_entry(uint64_t time_differenc
 #endif
     }
 
-    if (storage_array_entry->pmk_lifetime_set) {
+    if (storage_array_entry->ptk_lifetime_set) {
 #ifdef EXTRA_DEBUG_INFO
         tr_debug("KeyS time update diff: %"PRIi64" PTK OLD t: %i %i eui64: %s", time_difference, STIME_TIME_GET(storage_array_entry->ptk_lifetime), STIME_FORMAT_GET(storage_array_entry->ptk_lifetime), tr_array(storage_array_entry->ptk_eui_64, 8));
 #endif

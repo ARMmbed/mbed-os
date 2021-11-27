@@ -118,7 +118,7 @@ static uint8_t protocol_buffer_valid(buffer_t *b, protocol_interface_info_entry_
 
 void protocol_init(void)
 {
-    tr_debug("P.Init\n");
+    tr_debug("P.Init");
 #ifdef PANA
     sec_libray_init();
 #endif
@@ -134,7 +134,7 @@ void protocol_6lowpan_stack(buffer_t *b)
 {
     protocol_interface_info_entry_t *cur = b->interface;
     if (protocol_buffer_valid(b, cur) == 0) {
-        tr_debug("Drop Packets\n");
+        tr_debug("Drop Packets");
         buffer_free(b);
         return;
     }
@@ -230,7 +230,7 @@ void protocol_6lowpan_stack(buffer_t *b)
                     b = tcp_up(b);
                     break;
                 default:
-                    tr_debug("LLL\n");
+                    tr_debug("LLL");
                     b = buffer_free(b);
                     break;
             }
@@ -871,7 +871,7 @@ bool protocol_6lowpan_stagger_estimate_get(int8_t interface_id, uint32_t data_am
     }
 
     // For small networks sets 10 seconds stagger
-    if (network_size <= 100 && ws_info(cur_interface)) {
+    if (ws_info(cur_interface) && (network_size <= 100 || ws_test_proc_auto_trg(cur_interface))) {
         stagger_value = 10;
     } else {
         stagger_value = 1 + ((data_amount * 1024 * 8 * network_size) / datarate);

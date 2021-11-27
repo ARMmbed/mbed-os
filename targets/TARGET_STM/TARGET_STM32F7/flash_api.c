@@ -206,13 +206,37 @@ static uint32_t GetSector(uint32_t address)
         sector += 16 + (tmp >> 17);
     }
 #else // SINGLE BANK
-    if (address < ADDR_FLASH_SECTOR_4) { // Sectors 0 to 3
-        sector += tmp >> 15;
-    } else if (address < ADDR_FLASH_SECTOR_5) { // Sector 4
-        sector += FLASH_SECTOR_4;
-    } else { // Sectors 5 to 11
-        sector += 4 + (tmp >> 18);
+    if (address < ADDR_FLASH_SECTOR_1) {
+        sector = 0;
+    } else if (address < ADDR_FLASH_SECTOR_2) {
+        sector = 1;
+    } else if (address < ADDR_FLASH_SECTOR_3) {
+        sector = 2;
+    } else if (address < ADDR_FLASH_SECTOR_4) {
+        sector = 3;
+    } else if (address < ADDR_FLASH_SECTOR_5) {
+        sector = 4;
+    } else if (address < ADDR_FLASH_SECTOR_6) {
+        sector = 5;
+    } else if (address < ADDR_FLASH_SECTOR_7) {
+        sector = 6;
+#if defined (ADDR_FLASH_SECTOR_8)
+    } else if (address < ADDR_FLASH_SECTOR_8) {
+        sector = 7;
+    } else if (address < ADDR_FLASH_SECTOR_9) {
+        sector = 8;
+    } else if (address < ADDR_FLASH_SECTOR_10) {
+        sector = 9;
+    } else if (address < ADDR_FLASH_SECTOR_11) {
+        sector = 10;
+    } else {
+        sector = 11;
     }
+#else
+    } else {
+        sector = 7;
+    }
+#endif
 #endif
     return sector;
 }
@@ -239,11 +263,11 @@ static uint32_t GetSectorSize(uint32_t Sector)
 #else // SINGLE BANK
     if ((Sector == FLASH_SECTOR_0) || (Sector == FLASH_SECTOR_1) || \
             (Sector == FLASH_SECTOR_2) || (Sector == FLASH_SECTOR_3)) {
-        sectorsize = 32 * 1024;
+        sectorsize = ADDR_FLASH_SECTOR_1 - ADDR_FLASH_SECTOR_0;
     } else if (Sector == FLASH_SECTOR_4) {
-        sectorsize = 128 * 1024;
+        sectorsize = ADDR_FLASH_SECTOR_5 - ADDR_FLASH_SECTOR_4;
     } else {
-        sectorsize = 256 * 1024;
+        sectorsize = ADDR_FLASH_SECTOR_7 - ADDR_FLASH_SECTOR_6;
     }
 #endif
     return sectorsize;

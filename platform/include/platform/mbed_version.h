@@ -38,14 +38,14 @@
   *
   * @note 99 is default value for development version (master branch)
   */
-#define MBED_MINOR_VERSION 14
+#define MBED_MINOR_VERSION 15
 
 /** MBED_PATCH_VERSION
   * Mbed OS patch version
   *
   * @note 99 is default value for development version (master branch)
   */
-#define MBED_PATCH_VERSION 0
+#define MBED_PATCH_VERSION 1
 
 #define MBED_ENCODE_VERSION(major, minor, patch) ((major)*10000 + (minor)*100 + (patch))
 

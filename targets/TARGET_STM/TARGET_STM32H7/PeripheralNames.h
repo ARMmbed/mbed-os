@@ -69,7 +69,10 @@ typedef enum {
     I2C_1 = (int)I2C1_BASE,
     I2C_2 = (int)I2C2_BASE,
     I2C_3 = (int)I2C3_BASE,
-    I2C_4 = (int)I2C4_BASE
+    I2C_4 = (int)I2C4_BASE,
+#if I2C5_BASE
+    I2C_5 = (int)I2C5_BASE,
+#endif
 } I2CName;
 
 typedef enum {
@@ -81,18 +84,29 @@ typedef enum {
     PWM_3  = (int)TIM3_BASE,
     PWM_4  = (int)TIM4_BASE,
     PWM_5  = (int)TIM5_BASE,
+    PWM_6  = (int)TIM6_BASE,
+    PWM_7  = (int)TIM7_BASE,
     PWM_8  = (int)TIM8_BASE,
     PWM_12 = (int)TIM12_BASE,
     PWM_13 = (int)TIM13_BASE,
     PWM_14 = (int)TIM14_BASE,
     PWM_15 = (int)TIM15_BASE,
     PWM_16 = (int)TIM16_BASE,
-    PWM_17 = (int)TIM17_BASE
+    PWM_17 = (int)TIM17_BASE,
+#if TIM23_BASE
+    PWM_23 = (int)TIM23_BASE,
+#endif
+#if TIM24_BASE
+    PWM_24 = (int)TIM24_BASE,
+#endif
 } PWMName;
 
 typedef enum {
     CAN_1 = (int)FDCAN1_BASE,
-    CAN_2 = (int)FDCAN2_BASE
+    CAN_2 = (int)FDCAN2_BASE,
+#if FDCAN3_BASE
+    CAN_3 = (int)FDCAN3_BASE,
+#endif
 } CANName;
 
 typedef enum {

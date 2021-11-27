@@ -28,19 +28,40 @@
 #define WH_IE_MHDS_TYPE             5   /**< MHDS information for mesh routing */
 #define WH_IE_VH_TYPE               6   /**< Vendor header information */
 #define WH_IE_EA_TYPE               9   /**< Eapol Auhtenticator EUI-64 header information */
+/* Wi-SUN FAN dfinition 1.1 */
+#define WH_IE_LUTT_TYPE             10  /**< LFN Unicast Timing and Frame Type information */
+#define WH_IE_LBT_TYPE              11  /**< LFN Broadcast Timing information */
+#define WH_IE_NR_TYPE               12  /**< Node Role IE information */
+#define WH_IE_LUS_TYPE              13  /**< LFN Unicast Schedule information */
+#define WH_IE_FLUS_TYPE             14  /**< FFN for LFN unicast Schedule information */
+#define WH_IE_LBS_TYPE              15  /**<  LFN Broadcast Schedule information */
+#define WH_IE_LND_TYPE              16  /**< LFN Network Discovery information */
+#define WH_IE_LTO_TYPE              17  /**< LFN Timing information */
+#define WH_IE_PANID_TYPE            18  /**< PAN Identifier information */
+
 
 #define WS_WP_NESTED_IE             4 /**< WS nested Payload IE element'selement could include mltiple sub payload IE */
 
 #define WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH 2
 
 /* Payload IE sub elements in side WS_WP_NESTED_IE */
-#define WP_PAYLOAD_IE_US_TYPE       1   /**< Unicast Schedule information */
-#define WP_PAYLOAD_IE_BS_TYPE       2   /**< Broadcast Schedule information */
-#define WP_PAYLOAD_IE_VP_TYPE       3   /**< Vendor Payload information */
+/* Long form subID's */
+#define WP_PAYLOAD_IE_US_TYPE               1   /**< Unicast Schedule information */
+#define WP_PAYLOAD_IE_BS_TYPE               2   /**< Broadcast Schedule information */
+#define WP_PAYLOAD_IE_VP_TYPE               3   /**< Vendor Payload information */
+/* Wi-SUN FAN definition 1.1 */
+#define WP_PAYLOAD_IE_LFN_CHANNEL_PLAN_TYPE 4   /**< LFN Channel Plan information*/
+
+/* Short form subID's */
 #define WP_PAYLOAD_IE_PAN_TYPE      4   /**< PAN Information */
 #define WP_PAYLOAD_IE_NETNAME_TYPE  5   /**< Network Name information */
 #define WP_PAYLOAD_IE_PAN_VER_TYPE  6   /**< Pan configuration version */
 #define WP_PAYLOAD_IE_GTKHASH_TYPE  7   /**< GTK Hash information */
+/* Wi-SUN FAN definition 1.1 */
+#define WP_PAYLOAD_IE_PCAP_TYPE     8   /**< PHY Capability information */
+#define WP_PAYLOAD_IE_LFNVER_TYPE   9   /**< LFN Version information */
+#define WP_PAYLOAD_IE_LGTKHASH_TYPE 10  /**< LFN GTK Hash Information */
+
 
 /* WS frame types to WH_IE_UTT_TYPE */
 #define WS_FT_PAN_ADVERT        0          /**< PAN Advert */
@@ -50,13 +71,24 @@
 #define WS_FT_DATA              4          /**< data type inside MPX */
 #define WS_FT_ACK               5          /**< Enhanced ACK */
 #define WS_FT_EAPOL             6          /**< EAPOL message inside MPX */
+/* Wi-SUN FAN 1.1 */
+#define WS_FT_LPA               9           /**< LFN PAN Advert */
+#define WS_FT_LPAS              10          /**< LFN PAN Advert Solicit */
+#define WS_FT_LPC               11          /**< LFN PAN Config */
+#define WS_FT_LPCS              12          /**< LFN PAN Config Solicit */
+
 
 /* WS exluded channel Control */
 #define WS_EXC_CHAN_CTRL_NONE 0             /**< No excluded channels */
 #define WS_EXC_CHAN_CTRL_RANGE 1            /**< Excluded channels are in 1 or multiple channel range */
-#define WS_EXC_CHAN_CTRL_BITMASK 2         /**< Excluded channels are marked to bitmask which length based on configured channels */
+#define WS_EXC_CHAN_CTRL_BITMASK 2          /**< Excluded channels are marked to bitmask which length based on configured channels */
 
 #define WS_EXCLUDED_MAX_RANGE_TO_SEND 3
+
+
+#define WS_NR_ROLE_BR       0
+#define WS_NR_ROLE_ROUTER   1
+#define WS_NR_ROLE_LFN      2
 
 /**
  * @brief ws_pan_information_t PAN information
@@ -68,6 +100,7 @@ typedef struct ws_pan_information_s {
     bool use_parent_bs: 1;      /**< 1 for force to follow parent broadcast schedule. 0 node may define own schedule. */
     bool rpl_routing_method: 1; /**< 1 when RPL routing is selected and 0 when L2 routing. */
     bool pan_version_set: 1;    /**< 1 PAN version is set. */
+    bool lfn_window_style: 1;   /**< 1 FFN management trasmission. */
     unsigned version: 3;        /**< Pan version support. */
 } ws_pan_information_t;
 
@@ -126,6 +159,101 @@ typedef struct ws_utt_ie {
 } ws_utt_ie_t;
 
 /**
+ * @brief ws_utt_ie_t WS LUTT-IE
+ */
+typedef struct ws_lutt_ie {
+    uint8_t         message_type;
+    uint16_t        slot_number;
+    uint_fast24_t   interval_offset;
+} ws_lutt_ie_t;
+
+/**
+ * @brief ws_lbt_ie_t WS LBT-IE
+ */
+typedef struct ws_lbt_ie {
+    uint16_t        slot_number;
+    uint_fast24_t   interval_offset;
+} ws_lbt_ie_t;
+
+
+/**
+ * @brief ws_nr_ie_t WS NR-IE
+ */
+typedef struct ws_nr_ie {
+    unsigned node_role: 3;
+    uint8_t clock_drift;
+    uint8_t timing_accurancy;
+    uint_fast24_t listen_interval_min;
+    uint_fast24_t listen_interval_max;
+} ws_nr_ie_t;
+
+
+/**
+ * @brief ws_lus_ie_t WS LUS-IE
+ */
+typedef struct ws_lus_ie {
+    uint8_t channel_plan_tag;
+    uint_fast24_t listen_interval;
+} ws_lus_ie_t;
+
+/**
+ * @brief ws_lus_ie_t WS FLUS-IE
+ */
+typedef struct ws_flus_ie {
+    uint8_t channel_plan_tag;
+    uint8_t dwell_interval;
+} ws_flus_ie_t;
+
+/**
+ * @brief ws_lnd_ie_t WS LND-IE
+ */
+typedef struct ws_lnd_ie {
+    uint8_t response_threshold;
+    uint8_t discovery_slot_time;
+    uint8_t discovery_slots;
+    uint16_t discovery_first_slot;
+    uint_fast24_t response_delay;
+} ws_lnd_ie_t;
+
+/**
+ * @brief ws_lto_ie_t WS LTO-IE
+ */
+typedef struct ws_lto_ie {
+    uint_fast24_t offset;
+    uint_fast24_t adjusted_listening_interval;
+} ws_lto_ie_t;
+
+/**
+ * @brief ws_lbs_ie_t WS LBS-IE
+ */
+typedef struct ws_lbs_ie {
+    uint8_t channel_plan_tag;
+    uint16_t broadcast_secheduler_id;
+    uint_fast24_t broadcast_interval;
+} ws_lbs_ie_t;
+
+
+/**
+ * @brief ws_panid_ie_t WS PANID-IE
+ */
+typedef struct ws_panid_ie {
+    uint16_t        panid;
+} ws_panid_ie_t;
+
+/**
+ * @brief ws_pcap_ie_t WS PCAB-IE
+ */
+typedef struct ws_pcap_ie {
+    unsigned phy_type: 3;
+    uint16_t operating_mode;
+} ws_pcap_ie_t;
+
+typedef struct ws_phy_cap_info {
+    unsigned length_of_list: 3;
+    ws_pcap_ie_t pcap[7];
+} ws_phy_cap_info_t;
+
+/**
  * @brief ws_bt_ie_t WS BT-IE read
  */
 typedef struct ws_bt_ie {
@@ -140,6 +268,26 @@ typedef struct ws_fc_ie {
     uint8_t tx_flow_ctrl;
     uint8_t rx_flow_ctrl;
 } ws_fc_ie_t;
+
+/**
+ * @brief ws_lfnver_ie_t WS LFNVER-IE element
+ */
+typedef struct ws_lfnver_ie {
+    uint16_t lfn_version;
+} ws_lfnver_ie_t;
+
+/**
+ * @brief ws_lgtkhash_ie_t WS LGTKHASH-IE element
+ */
+typedef struct ws_lgtkhash_ie {
+    bool lgtk0: 1;                  /**< 1= LGTK0 in line 0 = elided */
+    bool lgtk1: 1;                  /**< 1= LGTK1 in line 0 = elided */
+    bool lgtk2: 1;                  /**< 1= LGTK2 in line 0 = elided */
+    unsigned active_lgtk_index: 2;  /**< Indicate Active LGTK index 0-2 */
+    uint8_t *lgtk0_hash;            /**< LGTK0 64-bit Hash if  lgtk0=1*/
+    uint8_t *lgtk1_hash;            /**< LGTK1 64-bit Hash if  lgtk1=1*/
+    uint8_t *lgtk2_hash;            /**< LGTK2 64-bit Hash if  lgtk2=1*/
+} ws_lgtkhash_ie_t;
 
 /**
  * @brief ws_channel_plan_zero_t WS channel plan 0 define domain and class
@@ -157,6 +305,14 @@ typedef struct ws_channel_plan_one {
     unsigned channel_spacing: 4;
     uint16_t number_of_channel;
 } ws_channel_plan_one_t;
+
+/**
+ * @brief ws_channel_plan_two_t WS channel plan 2 define regulator domain and chanel plan 1
+ */
+typedef struct ws_channel_plan_two {
+    uint8_t regulator_domain;
+    uint8_t channel_plan_id;
+} ws_channel_plan_two_t;
 
 /**
  * @brief ws_channel_function_zero_t WS function 0 fixed channel
@@ -189,6 +345,43 @@ typedef struct ws_excluded_channel_mask {
     uint8_t mask_len_inline;
 } ws_excluded_channel_mask_t;
 
+
+typedef struct ws_excluded_channel_range_out {
+    unsigned excluded_range_length: 3;
+    ws_excluded_channel_range_data_t *exluded_range;
+} ws_excluded_channel_range_out_t;
+
+
+typedef struct ws_excluded_channel_mask_out {
+    uint16_t excluded_channel_count;
+    uint8_t channel_mask_bytes_inline;
+    uint32_t *channel_mask;
+} ws_excluded_channel_mask_out_t;
+
+/**
+ * @brief ws_generic_channel_info_t Generic Channel Info
+ */
+typedef struct ws_generic_channel_info {
+    unsigned channel_plan: 3;
+    unsigned channel_function: 3;
+    unsigned excluded_channel_ctrl: 2;
+    union {
+        ws_channel_plan_zero_t zero;
+        ws_channel_plan_one_t one;
+        ws_channel_plan_two_t two;
+    } plan;
+    union {
+        ws_channel_function_zero_t zero;
+        ws_channel_function_three_t three;
+    } function;
+    union {
+        ws_excluded_channel_range_out_t range;
+        ws_excluded_channel_mask_out_t mask;
+        ws_excluded_channel_range_t range_in;
+        ws_excluded_channel_mask_t mask_in;
+    } excluded_channels;
+} ws_generic_channel_info_t;
+
 /**
  * @brief ws_us_ie_t WS US-IE read
  */
@@ -202,6 +395,7 @@ typedef struct ws_us_ie {
     union {
         ws_channel_plan_zero_t zero;
         ws_channel_plan_one_t one;
+        ws_channel_plan_two_t two;
     } plan;
     union {
         ws_channel_function_zero_t zero;
@@ -228,6 +422,7 @@ typedef struct ws_bs_ie {
     union {
         ws_channel_plan_zero_t zero;
         ws_channel_plan_one_t one;
+        ws_channel_plan_two_t two;
     } plan;
     union {
         ws_channel_function_zero_t zero;
@@ -247,6 +442,7 @@ typedef struct ws_bs_ie {
 #define WS_MPX_MAX_MTU 1576
 
 #define WS_FAN_VERSION_1_0 1
+#define WS_FAN_VERSION_1_1 2
 
 #define WS_NEIGHBOR_LINK_TIMEOUT 2200
 
@@ -381,9 +577,9 @@ typedef struct ws_bs_ie {
 /* Default FHSS timing information
  *
  */
-#define WS_FHSS_UC_DWELL_INTERVAL     255;
-#define WS_FHSS_BC_INTERVAL           1020;
-#define WS_FHSS_BC_DWELL_INTERVAL     255;
+#define WS_FHSS_UC_DWELL_INTERVAL     255
+#define WS_FHSS_BC_INTERVAL           1020
+#define WS_FHSS_BC_DWELL_INTERVAL     255
 
 /*
  * EAPOL relay and PAE authenticator socket settings

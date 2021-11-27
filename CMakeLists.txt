@@ -101,6 +101,7 @@ if(${CMAKE_CROSSCOMPILING})
 
     target_compile_definitions(mbed-core
         INTERFACE
+            TARGET_NAME=${MBED_TARGET}
             ${MBED_TARGET_DEFINITIONS}
             ${MBED_CONFIG_DEFINITIONS}
     )

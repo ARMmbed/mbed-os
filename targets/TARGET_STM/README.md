@@ -109,15 +109,16 @@ This table summarizes the STM32Cube versions currently used in Mbed OS master br
 | F3          |    1.11.2    | https://github.com/STMicroelectronics/STM32CubeF3 |
 | F4          |    1.26.1    | https://github.com/STMicroelectronics/STM32CubeF4 |
 | F7          |    1.16.1    | https://github.com/STMicroelectronics/STM32CubeF7 |
-| G0          |    1.4.1     | https://github.com/STMicroelectronics/STM32CubeG0 |
+| G0          |    1.5.0     | https://github.com/STMicroelectronics/STM32CubeG0 |
 | G4          |    1.4.0     | https://github.com/STMicroelectronics/STM32CubeG4 |
 | H7          |    1.9.0     | https://github.com/STMicroelectronics/STM32CubeH7 |
 | L0          |    1.12.0    | https://github.com/STMicroelectronics/STM32CubeL0 |
 | L1          |    1.10.2    | https://github.com/STMicroelectronics/STM32CubeL1 |
 | L4          |    1.17.0    | https://github.com/STMicroelectronics/STM32CubeL4 |
 | L5          |    1.4.0     | https://github.com/STMicroelectronics/STM32CubeL5 |
+| U5          |    1.0.0     | https://github.com/STMicroelectronics/STM32CubeU5 |
 | WB          |    1.11.1    | https://github.com/STMicroelectronics/STM32CubeWB |
-| WL          |    1.0.0     | https://github.com/STMicroelectronics/STM32CubeWL |
+| WL          |    1.1.0     | https://github.com/STMicroelectronics/STM32CubeWL |
 
 In Mbed OS repository, we try to minimize the difference between "official" and copied files.
 
@@ -168,7 +169,7 @@ You can also check in https://github.com/ARMmbed/stm32customtargets
 STM32 root directory is https://github.com/ARMmbed/mbed-os/tree/master/targets/TARGET_STM
 
 This contains:
-- all STM32 families directories: F0, F1, F2, F3, F4, F7, G0, H7, L0, L1, L4, WB
+- all STM32 families directories: F0, F1, F2, F3, F4, F7, G0, G4, H7, L0, L1, L4, L5, U5, WB, WL
 - Mbed OS porting layer common for all
 
 Each STM32 family contains several "sub-families".
@@ -180,8 +181,8 @@ But also each STM32 Part Number with different FLASH size : STM32F401xC / STM32F
 Mbed OS porting layer specific for this family are placed here.
 
 Example in TARGET_STM32G0:
-- TARGET_STM32G031xx
-- TARGET_STM32G071xx
+- TARGET_STM32G031x8
+- TARGET_STM32G071xB
 - ...
 
 Each STM32 sub-family contains:
@@ -473,6 +474,14 @@ Detailed sleep Mbed OS description : https://os.mbed.com/docs/mbed-os/latest/api
 - debug profile is disabling deepsleep
 - deepsleep can also be disabled by application or drivers using sleep_manager_lock_deep_sleep()
 - deep-sleep-latency value is configured to 4 by default for STM32
+- trace with MBED_SLEEP_TRACING_ENABLED macro is set by default with low verbosity
+```
+    "target_overrides": {
+        "*": {
+            "platform.deepsleep-stats-enabled": true,
+            "platform.deepsleep-stats-verbose": false
+        },
+```
 
 
 ### WiFi configuration
@@ -503,6 +512,22 @@ https://github.com/ARMmbed/mbed-os/blob/master/connectivity/drivers/emac/TARGET_
 Option is also to define your own `HAL_ETH_MspInit` function,
 you then have to add **USE_USER_DEFINED_HAL_ETH_MSPINIT** macro.
 
+#### Custom IRQ Handler and Callback from user application
+To use the custom IRQ Handler and the callbacks, you need to add
+**USE_USER_DEFINED_HAL_ETH_IRQ_CALLBACK** macro
+inside any of the JASON file in either targets.json or in mbed_app.json file.
+
+For example in the targets.json,
+you need to add this line in your target:
+```"macros_add": ["USE_USER_DEFINED_HAL_ETH_IRQ_CALLBACK"],```
+or for example in the mbed_app.json, you need to add:
+``` "macros": ["USE_USER_DEFINED_HAL_ETH_IRQ_CALLBACK"]```
+
+By doing the any of the above json files, the corresponding user defined custom apis like
+HAL_ETH_RxCpltCallback() and STM_HAL_ETH_Handler() can be called from
+the user application.
+
+#### Changing default MAC address in STM32
 To change the default MAC address in STM32,
 If we have the function mbed_otp_mac_address() in the user application,the default ethernet address
 can be changed.
@@ -561,6 +586,7 @@ the CAN interface.
 While using RxInterrupt with the CAN object the receive ISR callback registered should defer read to thread context.
 A simple example is as shown below:
 
+```
 #include "mbed.h"
 
 Ticker ticker;
@@ -604,6 +630,7 @@ int main() {
     while(1) {
     }
 }
+```
 
 
 ## Mbed OS Wiki pages

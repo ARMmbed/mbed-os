@@ -27,7 +27,7 @@ from xml.dom.minidom import parse, Node
 from argparse import RawTextHelpFormatter
 import subprocess
 
-GENPINMAP_VERSION = "1.20.3"
+GENPINMAP_VERSION = "1.20.5"
 
 ADD_DEVICE_IF = 0
 ADD_GPIO_PINMAP = 0
@@ -191,6 +191,8 @@ def get_gpio_af_num(pintofind, iptofind):
                                                             if mygpioaf != "":
                                                                 mygpioaf += " "
                                                             mygpioaf += mygpioaflist.data
+    if "STM32L1" in mcu_file and mygpioaf == "GPIO_AF10_USB":
+        mygpioaf = "GPIO_AF_NONE"
     if mygpioaf == "":
         mygpioaf = "GPIO_AF_NONE"
     return mygpioaf
@@ -240,25 +242,10 @@ def get_gpio_af_num_stm32f1(pintofind, iptofind):
                                                             ) in myc.childNodes:
                                                                 if mygpioaf != "":
                                                                     mygpioaf += " "
-                                                                mygpioaf += mygpioaflist.data.replace(
-                                                                    "__HAL_", ""
-                                                                ).replace(
-                                                                    "_REMAP", ""
-                                                                )
+                                                                mygpioaf += mygpioaflist.data.replace("__HAL_", "")
     if mygpioaf == "":
         mygpioaf = "AFIO_NONE"
-    return mygpioaf.replace("AFIO_NONE", "0")\
-       .replace("AFIO_SPI1_ENABLE", "1")\
-       .replace("AFIO_I2C1_ENABLE", "2")\
-       .replace("AFIO_USART1_ENABLE", "3")\
-       .replace("AFIO_USART3_PARTIAL", "5")\
-       .replace("AFIO_TIM1_PARTIAL", "6")\
-       .replace("AFIO_TIM3_PARTIAL", "7")\
-       .replace("AFIO_TIM2_ENABLE", "8")\
-       .replace("AFIO_TIM2_PARTIAL_1", "8")\
-       .replace("AFIO_TIM2_PARTIAL_2", "8")\
-       .replace("AFIO_TIM3_ENABLE", "9")\
-       .replace("AFIO_CAN1_2", "10")
+    return mygpioaf
 
 def store_pin(pin, name, functionality):
     # store pin I/O
@@ -395,6 +382,9 @@ def store_sys(pin, name, signal):
 
 
 def make_cmakelist():
+    global TARGET_NAME
+    if TARGET_NAME == "":
+        TARGET_NAME = "xxx"
     mbed_target = "mbed-" + TARGET_NAME.replace("_", "-").lower()
     mbed_family = "mbed-" + TARGET_SUBFAMILY.lower()
 
@@ -534,7 +524,10 @@ def print_footer():
 
     for EachLED in sorted(StandardLED):
         led_label = " // %s" % EachLED
-        out_h_file.write("#define LED%i     %-5s %s\n" % (name_counter, re.sub(r'(P.)', r'\1_', StandardLED[EachLED]), led_label))
+        commented_line = ""
+        if "TODO" in led_label:
+            commented_line = "// "
+        out_h_file.write("%s#define LED%i     %-5s %s\n" % (commented_line, name_counter, re.sub(r'(P.)', r'\1_', StandardLED[EachLED]), led_label))
         name_counter += 1
 
     name_counter = 1
@@ -544,7 +537,10 @@ def print_footer():
         button_label = ""
         if EachBUTTON in PinLabel:
             button_label = " // %s" % PinLabel[EachBUTTON]
-        out_h_file.write("#define BUTTON%i  %-5s %s\n" % (name_counter, re.sub(r'(P.)', r'\1_', EachBUTTON).split('/')[0].split('-')[0], button_label))
+        commented_line = ""
+        if "TODO" in button_label:
+            commented_line = "// "
+        out_h_file.write("%s#define BUTTON%i  %-5s %s\n" % (commented_line, name_counter, re.sub(r'(P.)', r'\1_', EachBUTTON).split('/')[0].split('-')[0], button_label))
         name_counter += 1
 
     line_to_write = ("""
@@ -1594,7 +1590,7 @@ specify a custom board .ioc file description to use (use double quotes).
 
 parser.add_argument("-g", "--gpio", help="Add GPIO PinMap table", action="store_true")
 parser.add_argument("-n", "--nopull", help="Avoid STM32_open_pin_data git pull", action="store_true")
-parser.add_argument("-f", "--flat", help="All targets stored in targets_custom/TARGET_STM/", action="store_true")
+parser.add_argument("-f", "--flat", help="All targets stored in TARGET_CUSTOM/TARGET_STM/", action="store_true")
 parser.add_argument("-d", "--debug", help="Few debug info in console", action="store_true")
 
 args = parser.parse_args()
@@ -1846,7 +1842,10 @@ for mcu_file in mcu_list:
         if args.mcu:
             m = re.match("(STM32[\w]{7})", EachTargetName)
             if m:
-                out_path = os.path.join(cur_dir, 'targets_custom', 'TARGET_STM', 'TARGET_%s' %TARGET_FAMILY, 'TARGET_%s' %TARGET_SUBFAMILY, 'TARGET_%s' % m.group(0))
+                if FLAT_DIRECTORY == 0:
+                    out_path = os.path.join(cur_dir, 'TARGET_CUSTOM', 'TARGET_STM', 'TARGET_%s' %TARGET_FAMILY, 'TARGET_%s' %TARGET_SUBFAMILY, 'TARGET_%s' % m.group(0))
+                else:
+                    out_path = os.path.join(cur_dir, 'TARGET_CUSTOM', 'TARGET_%s' % m.group(0))
                 if EachTargetName.endswith('A'):
                     out_path += "_A"
                 elif EachTargetName.endswith('P'):
@@ -1865,9 +1864,9 @@ for mcu_file in mcu_list:
         else:
             if EachTargetName == MCU_USERNAME:
                 if FLAT_DIRECTORY == 0:
-                    out_path = os.path.join(cur_dir, 'targets_custom', 'TARGET_STM', 'TARGET_%s' % TARGET_FAMILY, 'TARGET_%s' % TARGET_SUBFAMILY, 'TARGET_%s' % TARGET_NAME)
+                    out_path = os.path.join(cur_dir, 'TARGET_CUSTOM', 'TARGET_STM', 'TARGET_%s' % TARGET_FAMILY, 'TARGET_%s' % TARGET_SUBFAMILY, 'TARGET_%s' % TARGET_NAME)
                 else:
-                    out_path = os.path.join(cur_dir, 'targets_custom', 'TARGET_STM', 'TARGET_%s' % TARGET_NAME)
+                    out_path = os.path.join(cur_dir, 'TARGET_CUSTOM', 'TARGET_%s' % TARGET_NAME)
             else:
                 continue
 
@@ -1891,6 +1890,7 @@ for mcu_file in mcu_list:
         cmake_file = open(cmake_filename, 'w')
 
         #open input file
+        DUAL_PAD = False
         try:
             xml_mcu = parse(input_file_name)
         except:

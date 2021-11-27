@@ -28,6 +28,10 @@ using namespace utest::v1;
 void wifi_connect_secure(void)
 {
     WiFiInterface *wifi = get_interface();
+    TEST_ASSERT(wifi);
+    if (wifi == NULL) {
+        return;
+    }
 
     // Driver shall cache the credentials
     char ssid[] = MBED_CONF_APP_WIFI_SECURE_SSID;

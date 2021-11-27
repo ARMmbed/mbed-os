@@ -47,16 +47,24 @@ public:
     MOCK_METHOD5(setsockopt, nsapi_error_t(nsapi_socket_t handle, int level, int optname, const void *optval, unsigned optlen));
     MOCK_METHOD5(getsockopt, nsapi_error_t(nsapi_socket_t handle, int level, int optname, const void *optval, unsigned *optlen));
 //    MOCK_METHOD3(socket_attach, void(nsapi_socket_t handle, void (*callback)(void *), void *data));
-    MOCK_METHOD3(add_ethernet_interface, nsapi_error_t(EMAC &emac, bool default_if, OnboardNetworkStack::Interface **interface_out));
     MOCK_METHOD3(add_ppp_interface, nsapi_error_t(PPP &ppp, bool default_if, OnboardNetworkStack::Interface **interface_out));
     MOCK_METHOD1(set_default_interface, void (OnboardNetworkStack::Interface *interface));
+    MOCK_METHOD4(add_ethernet_interface_mock, nsapi_error_t(EMAC &emac, bool default_if,
+                                                            OnboardNetworkStack::Interface **interface_out,
+                                                            NetworkInterface *user_network_interface));
+
+    // Wrapper written to handle function with the default argument in the gmock.
+    nsapi_error_t add_ethernet_interface(EMAC &emac, bool default_if, Interface **interface_out, NetworkInterface *user_network_interface = NULL)
+    {
+        return add_ethernet_interface_mock(emac, default_if, interface_out, user_network_interface);
+    }
+
     void *socket_cb;
     // No need to mock socket_attach really.
     void socket_attach(nsapi_socket_t handle, void (*callback)(void *), void *data)
     {
         socket_cb = data;
     };
-
 
     static OnboardNetworkStackMock &get_instance()
     {

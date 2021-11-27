@@ -11,3 +11,9 @@ target_sources(mbed-storage-qspif
     INTERFACE
         source/QSPIFBlockDevice.cpp
 )
+
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+    if (NOT BUILD_GREENTEA_TESTS)
+        add_subdirectory(UNITTESTS)
+    endif()
+endif()

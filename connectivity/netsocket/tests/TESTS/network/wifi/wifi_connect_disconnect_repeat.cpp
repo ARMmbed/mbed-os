@@ -28,14 +28,20 @@ using namespace utest::v1;
 void wifi_connect_disconnect_repeat(void)
 {
     WiFiInterface *wifi = get_interface();
+    TEST_ASSERT(wifi);
+    if (wifi == NULL) {
+        return;
+    }
     nsapi_error_t error;
 
     error = wifi->set_credentials(MBED_CONF_APP_WIFI_SECURE_SSID, MBED_CONF_APP_WIFI_PASSWORD, get_security());
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, error);
 
     for (int i = 0; i < 10; i++) {
+        printf("#%u connecting...\n", i);
         error = wifi->connect();
         TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, error);
+        printf("#%u diconnecting...\n", i);
         error = wifi->disconnect();
         TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, error);
     }

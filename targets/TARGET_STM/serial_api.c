@@ -417,6 +417,13 @@ void serial_baud(serial_t *obj, int baudrate)
             return;
         }
 #endif
+#if ((MBED_CONF_TARGET_LPUART_CLOCK_SOURCE) & USE_LPUART_CLK_PCLK3)
+        PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_PCLK3;
+        HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
+        if (init_uart(obj) == HAL_OK) {
+            return;
+        }
+#endif
 #if ((MBED_CONF_TARGET_LPUART_CLOCK_SOURCE) & USE_LPUART_CLK_HSI)
         // Enable HSI in case it is not already done
         if (!__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY)) {

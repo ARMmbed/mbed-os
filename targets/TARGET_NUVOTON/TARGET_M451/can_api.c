@@ -31,7 +31,7 @@
  #define NU_CAN_DEBUG    0
  #define CAN_NUM         1
  
- static uint32_t can_irq_ids[CAN_NUM] = {0};
+ static uintptr_t can_irq_contexts[CAN_NUM] = {0};
  static can_irq_handler can0_irq_handler;
 
  
@@ -125,34 +125,34 @@ static void can_irq(CANName name, int id)
         /**************************/
         if(can->STATUS & CAN_STATUS_RXOK_Msk) {
             can->STATUS &= ~CAN_STATUS_RXOK_Msk;   /* Clear Rx Ok status*/
-            can0_irq_handler(can_irq_ids[id], IRQ_RX);
+            can0_irq_handler(can_irq_contexts[id], IRQ_RX);
         }
 
         if(can->STATUS & CAN_STATUS_TXOK_Msk) {
             can->STATUS &= ~CAN_STATUS_TXOK_Msk;    /* Clear Tx Ok status*/
-            can0_irq_handler(can_irq_ids[id], IRQ_TX);
+            can0_irq_handler(can_irq_contexts[id], IRQ_TX);
         }
 
         /**************************/
         /* Error Status interrupt */
         /**************************/
         if(can->STATUS & CAN_STATUS_EWARN_Msk) {
-            can0_irq_handler(can_irq_ids[id], IRQ_ERROR);
+            can0_irq_handler(can_irq_contexts[id], IRQ_ERROR);
         }
 
         if(can->STATUS & CAN_STATUS_BOFF_Msk) {
-            can0_irq_handler(can_irq_ids[id], IRQ_BUS);
+            can0_irq_handler(can_irq_contexts[id], IRQ_BUS);
         }
     } else if (u8IIDRstatus!=0) {
 
-        can0_irq_handler(can_irq_ids[id], IRQ_OVERRUN);
+        can0_irq_handler(can_irq_contexts[id], IRQ_OVERRUN);
         
         CAN_CLR_INT_PENDING_BIT(can, ((can->IIDR) -1));      /* Clear Interrupt Pending */
 
     } else if(can->WU_STATUS == 1) {
 
         can->WU_STATUS = 0;                       /* Write '0' to clear */
-        can0_irq_handler(can_irq_ids[id], IRQ_WAKEUP);
+        can0_irq_handler(can_irq_contexts[id], IRQ_WAKEUP);
     }
 }
 
@@ -161,17 +161,17 @@ void CAN0_IRQHandler(void)
     can_irq(CAN_0, 0);
 }
 
-void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id)
+void can_irq_init(can_t *obj, can_irq_handler handler, uintptr_t context)
 {
     can0_irq_handler = handler;
-    can_irq_ids[obj->index] = id; 
+    can_irq_contexts[obj->index] = context; 
 }
 
 void can_irq_free(can_t *obj)
 {
     CAN_DisableInt((CAN_T *)NU_MODBASE(obj->can), (CAN_CON_IE_Msk|CAN_CON_SIE_Msk|CAN_CON_EIE_Msk));
     
-    can_irq_ids[obj->index] = 0;
+    can_irq_contexts[obj->index] = 0;
     
     NVIC_DisableIRQ(CAN0_IRQn);    
 }
@@ -285,7 +285,17 @@ int can_mode(can_t *obj, CanMode mode)
 
 int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t handle)
 {
-    return CAN_SetRxMsg((CAN_T *)NU_MODBASE(obj->can), handle , (uint32_t)format, id);
+    uint32_t numask = mask;
+    if( numask == 0x0000 )
+    {
+      return CAN_SetRxMsg((CAN_T *)NU_MODBASE(obj->can), handle, (uint32_t)format, id);
+    }
+    if( format == CANStandard )
+    {
+      numask = (mask << 18);
+    }
+    numask = (numask | CAN_IF_MASK2_MDIR_Msk | CAN_IF_MASK2_MXTD_Msk);
+    return CAN_SetRxMsgAndMsk((CAN_T *)NU_MODBASE(obj->can), handle, (uint32_t)format, id, numask);
 }
 
 

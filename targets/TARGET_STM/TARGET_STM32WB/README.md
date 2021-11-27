@@ -126,14 +126,14 @@ Default BLE FW in ST boards is **stm32wb5x_BLE_Stack_full_fw.bin**
 - Default "mbed_rom_size" in targets.json is then "0xCA000" (808K)
 
 To optimize FLASH size, **stm32wb5x_BLE_HCILayer_fw.bin** is supported for MBED-OS use case
-- As explained in Release_Notes.html, this FW is flashed at @ 0x080E0000
-- Then "mbed_rom_size" can be updated to "0xE0000" (896K)
+- As explained in Release_Notes.html, this FW is flashed at @ 0x080E1000 for versions 1.12.0 and 1.12.1 and at @ 0x080E0000 for older versions
+- Then "mbed_rom_size" can be updated to "0xE1000" (900K) or "0xE0000" (896K)
 
 Example in your local mbed_app.json:
 ```
     "target_overrides": {
         "NUCLEO_WB55RG": {
-            "target.mbed_rom_size": "0xE0000"
+            "target.mbed_rom_size": "0xE1000"
         }
 ```
 

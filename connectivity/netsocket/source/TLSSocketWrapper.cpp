@@ -286,10 +286,10 @@ nsapi_error_t TLSSocketWrapper::continue_handshake()
     }
 
     if (ret < 0) {
-        print_mbedtls_error("mbedtls_ssl_handshake", ret);
         if (ret == MBEDTLS_ERR_SSL_WANT_READ || ret == MBEDTLS_ERR_SSL_WANT_WRITE) {
             return NSAPI_ERROR_ALREADY;
         } else {
+            print_mbedtls_error("mbedtls_ssl_handshake", ret);
             return NSAPI_ERROR_AUTH_FAILURE;
         }
     }
@@ -385,6 +385,13 @@ nsapi_size_or_error_t TLSSocketWrapper::sendto(const SocketAddress &, const void
     return send(data, size);
 }
 
+nsapi_size_or_error_t TLSSocketWrapper::sendto_control(const SocketAddress &address, const void *data,
+                                                       nsapi_size_t size, nsapi_msghdr_t *control,
+                                                       nsapi_size_t control_size)
+{
+    return sendto(address, data, size);
+}
+
 nsapi_size_or_error_t TLSSocketWrapper::recv(void *data, nsapi_size_t size)
 {
     int ret;
@@ -443,6 +450,12 @@ nsapi_size_or_error_t TLSSocketWrapper::recvfrom(SocketAddress *address, void *d
         getpeername(address);
     }
     return recv(data, size);
+}
+
+nsapi_size_or_error_t TLSSocketWrapper::recvfrom_control(SocketAddress *address, void *data, nsapi_size_t size,
+                                                         nsapi_msghdr_t *control, nsapi_size_t control_size)
+{
+    return recvfrom(address, data, size);
 }
 
 void TLSSocketWrapper::print_mbedtls_error(MBED_UNUSED const char *name, MBED_UNUSED int err)

@@ -104,7 +104,7 @@ typedef struct {
 } can_info_int_t;
 
 static can_irq_handler irq_handler;
-static uint32_t can_irq_id[CAN_NUM];
+static uintptr_t can_irq_contexts[CAN_NUM];
 static int can_initialized[CAN_NUM] = {0};
 
 
@@ -310,13 +310,13 @@ static __IO uint32_t *dmy_gaflm  = &RSCAN0GAFLM0;
 static __IO uint32_t *dmy_gaflp0 = &RSCAN0GAFLP00;
 static __IO uint32_t *dmy_gaflp1 = &RSCAN0GAFLP10;
 
-void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id) {
+void can_irq_init(can_t *obj, can_irq_handler handler, uintptr_t context) {
     irq_handler = handler;
-    can_irq_id[obj->ch] = id;
+    can_irq_contexts[obj->ch] = context;
 }
 
 void can_irq_free(can_t *obj) {
-    can_irq_id[obj->ch] = 0;
+    can_irq_contexts[obj->ch] = 0;
 }
 
 void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable) {
@@ -358,7 +358,7 @@ static void can_rec_irq(uint32_t ch) {
     dmy_cfsts = CFSTS_TBL[ch][CAN_RECV];
     *dmy_cfsts &= 0xFFFFFFF7;           // Clear CFRXIF
 
-    irq_handler(can_irq_id[ch], IRQ_RX);
+    irq_handler(can_irq_contexts[ch], IRQ_RX);
 }
 
 static void can_trx_irq(uint32_t ch) {
@@ -367,7 +367,7 @@ static void can_trx_irq(uint32_t ch) {
     dmy_cfsts = CFSTS_TBL[ch][CAN_SEND];
     *dmy_cfsts &= 0xFFFFFFEF;           // Clear CFTXIF
 
-    irq_handler(can_irq_id[ch], IRQ_TX);
+    irq_handler(can_irq_contexts[ch], IRQ_TX);
 }
 
 static void can_err_irq(uint32_t ch, CanIrqType type) {
@@ -400,7 +400,7 @@ static void can_err_irq(uint32_t ch, CanIrqType type) {
             break;
     }
     if (val == 1) {
-        irq_handler(can_irq_id[ch], type);
+        irq_handler(can_irq_contexts[ch], type);
     }
 }
 

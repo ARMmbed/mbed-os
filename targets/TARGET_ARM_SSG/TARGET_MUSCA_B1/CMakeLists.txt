@@ -43,6 +43,7 @@ target_sources(mbed-arm-musca-b1
         serial_api.c
         sleep_api.c
         tfm_ioctl_ns_api.c
+        tfm_ns_interface.c
         us_ticker.c
 
         device/device_definition.c

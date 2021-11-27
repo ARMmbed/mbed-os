@@ -40,17 +40,17 @@
         (++) max time (mS) = 1000 * (Counter - 0x40) / WWDG clock
     (+) Typical values (case of STM32H74x/5x devices):
         (++) Counter min (T[5;0] = 0x00) @100MHz (PCLK1) with zero prescaler:
-             max timeout before reset: approximately 40.96µs
+             max timeout before reset: approximately 40.96us
         (++) Counter max (T[5;0] = 0x3F) @100MHz (PCLK1) with prescaler dividing by 128:
              max timeout before reset: approximately 335.54ms
     (+) Typical values (case of STM32H7Ax/Bx devices):
         (++) Counter min (T[5;0] = 0x00) @140MHz (PCLK1) with zero prescaler:
-             max timeout before reset: approximately 29.25µs
+             max timeout before reset: approximately 29.25us
         (++) Counter max (T[5;0] = 0x3F) @140MHz (PCLK1) with prescaler dividing by 128:
              max timeout before reset: approximately 239.67ms
     (+) Typical values (case of STM32H72x/3x devices):
         (++) Counter min (T[5;0] = 0x00) @125MHz (PCLK1) with zero prescaler:
-             max timeout before reset: approximately 32.76µs
+             max timeout before reset: approximately 32.76us
         (++) Counter max (T[5;0] = 0x3F) @125MHz (PCLK1) with prescaler dividing by 128:
              max timeout before reset: approximately 268.43ms
 

@@ -9,4 +9,5 @@ target_include_directories(mbed-lorawan
 target_sources(mbed-lorawan
     INTERFACE
         STM32WL_LoRaRadio.cpp
+        STM32WL_radio_driver.cpp
 )

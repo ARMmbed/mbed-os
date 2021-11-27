@@ -1,18 +1,23 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
+include(mbed_greentea)
 
-set(MBED_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../../.. CACHE INTERNAL "")
-set(TEST_TARGET mbed-rtos-basic)
+if(${MBED_C_LIB} STREQUAL "small" OR MBED_GREENTEA_TEST_BAREMETAL)
+    set(TEST_SKIPPED "RTOS basic test cases require RTOS with multithread to run")
+endif()
 
-include(${MBED_PATH}/tools/cmake/mbed_greentea.cmake)
-
-project(${TEST_TARGET})
+if(NOT "DEVICE_USTICKER=1" IN_LIST MBED_TARGET_DEFINITIONS)
+    set(TEST_SKIPPED "UsTicker need to be enabled for this test.")
+endif()
 
 mbed_greentea_add_test(
     TEST_NAME
-        ${TEST_TARGET}
+        mbed-rtos-basic
     TEST_SOURCES
         main.cpp
+    HOST_TESTS_DIR
+        "${CMAKE_CURRENT_LIST_DIR}/../../host_tests"
+    TEST_SKIPPED
+        ${TEST_SKIPPED}
 )

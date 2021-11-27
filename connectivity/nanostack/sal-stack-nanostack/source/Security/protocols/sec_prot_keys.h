@@ -62,6 +62,10 @@
 
 #define SEC_MAXIMUM_LIFETIME   (60 * 60 * 24 * 30 * 24)   // Maximum life time for PMK, PTK, GTKs etc. is two years
 
+// System time changed
+#define SYSTEM_TIME_NOT_CHANGED     0
+#define SYSTEM_TIME_CHANGED         1
+
 typedef struct {
     uint8_t                key[GTK_LEN];              /**< Group Transient Key (128 bits) */
     uint64_t               expirytime;                /**< GTK expiry time on storage */
@@ -108,7 +112,8 @@ typedef struct {
 typedef struct {
     uint8_t gtk[GTK_LEN];                             /**< GTK of the frame counter */
     uint32_t frame_counter;                           /**< Current frame counter */
-    uint32_t stored_frame_counter;                    /**< Stored Frame counter */
+    uint32_t stored_frame_counter;                    /**< Stored frame counter */
+    uint32_t max_frame_counter_chg;                   /**< Maximum frame counter change */
     bool set : 1;                                     /**< Value has been set */
 } frame_counter_t;
 
@@ -144,6 +149,7 @@ typedef struct {
     uint16_t new_pan_id;                                   /**< new PAN ID indicated by bootstrap */
     uint16_t key_pan_id;                                   /**< PAN ID for keys */
     uint16_t pan_version;                                  /**< PAN version for keys */
+    uint8_t system_time_changed;                           /**< System time changed */
     bool updated : 1;                                      /**< Network info has been updated */
 } sec_prot_keys_nw_info_t;
 
@@ -630,7 +636,7 @@ uint32_t sec_prot_keys_gtk_lifetime_get(sec_prot_gtk_keys_t *gtks, uint8_t index
  * \return new GTK lifetime
  *
  */
-uint32_t sec_prot_keys_gtk_lifetime_decrement(sec_prot_gtk_keys_t *gtks, uint8_t index, uint64_t current_time, uint16_t seconds, bool gtk_update_enable);
+uint32_t sec_prot_keys_gtk_lifetime_decrement(sec_prot_gtk_keys_t *gtks, uint8_t index, uint64_t current_time, uint32_t seconds, bool gtk_update_enable);
 
 /**
  * sec_prot_keys_gtk_exptime_from_lifetime_get converts GTK lifetime to expiry time.
@@ -806,11 +812,12 @@ int8_t sec_prot_keys_gtk_valid_check(uint8_t *gtk);
  *
  * \param gtks GTK keys
  * \param gtk_hash GTK hash
+ * \param del_gtk_on_mismatch Delete GTK in case of mismatch
  *
  * \return GTK mismatch type or no mismatch
  *
  */
-gtk_mismatch_e sec_prot_keys_gtks_hash_update(sec_prot_gtk_keys_t *gtks, uint8_t *gtkhash);
+gtk_mismatch_e sec_prot_keys_gtks_hash_update(sec_prot_gtk_keys_t *gtks, uint8_t *gtkhash, bool del_gtk_on_mismatch);
 
 /**
  * sec_prot_keys_gtk_hash_empty checks if GTK hash field is empty

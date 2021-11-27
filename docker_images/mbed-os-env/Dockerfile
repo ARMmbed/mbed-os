@@ -3,6 +3,11 @@
 FROM ubuntu:20.04
 
 # ------------------------------------------------------------------------------
+# set locale
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
+
+# ------------------------------------------------------------------------------
 # Arguments
 ARG WORKDIR=/root
 
@@ -63,16 +68,16 @@ RUN set -x \
 WORKDIR /opt/mbed-os-toolchain
 RUN set -x \
     && [ "$(uname -m)" = "aarch64" ] && \
-        TARBALL="gcc-arm-none-eabi-9-2019-q4-major-aarch64-linux.tar.bz2" || \
-        TARBALL="gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2" \
-    && wget -q https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2019q4/RC2.1/${TARBALL} \
+        TARBALL="gcc-arm-none-eabi-10.3-2021.07-aarch64-linux.tar.bz2" || \
+        TARBALL="gcc-arm-none-eabi-10.3-2021.07-x86_64-linux.tar.bz2" \
+    && wget -q https://developer.arm.com/-/media/Files/downloads/gnu-rm/10.3-2021.07/${TARBALL} \
     && tar -xjf ${TARBALL} \
     && rm ${TARBALL} \
     && : # last line
 
 # ------------------------------------------------------------------------------
 # Configure environment variables
-ENV MBED_GCC_ARM_PATH=/opt/mbed-os-toolchain/gcc-arm-none-eabi-9-2019-q4-major/bin/
+ENV MBED_GCC_ARM_PATH=/opt/mbed-os-toolchain/gcc-arm-none-eabi-10.3-2021.07/bin/
 ENV PATH="${PATH}:${MBED_GCC_ARM_PATH}"
 
 # ------------------------------------------------------------------------------

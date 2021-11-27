@@ -37,7 +37,7 @@ void trng_init(trng_t *obj)
 {
     uint32_t dummy;
 
-#if defined(RCC_PERIPHCLK_RNG) /* STM32L4 */ /* STM32H7 */ /* STM32WB */ /* STM32G4 */ /* STM32WL */
+#if defined(RCC_PERIPHCLK_RNG)
 
 #if defined(TARGET_STM32WB)
     /*  No need to configure RngClockSelection as already done in SetSysClock */
@@ -98,8 +98,8 @@ void trng_init(trng_t *obj)
         error("RNG clock configuration error\n");
     }
 
-#elif defined(TARGET_STM32L5)
-    /*  No need to reconfigure RngClockSelection as alreday done in SetSysClock */
+#elif defined(TARGET_STM32L5) || defined(TARGET_STM32U5)
+    /*  No need to reconfigure RngClockSelection as already done in SetSysClock */
 
 #else
 #error("RNG clock not configured");

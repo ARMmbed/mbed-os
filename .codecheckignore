@@ -7,6 +7,7 @@
 ^connectivity/drivers/emac
 ^connectivity/drivers/mbedtls
 ^connectivity/drivers/wifi/COMPONENT_WHD
+^connectivity/drivers/wifi/TARGET_STM/COMPONENT_EMW3080B/mx_wifi
 ^connectivity/mbedtls
 ^features/frameworks
 ^connectivity/lwipstack/lwip
@@ -26,6 +27,7 @@
 ^platform/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_TFM
 ^platform/mbed-trace
 ^platform/randlib
+^platform/source/newlib_nano_malloc_workaround.c
 ^platform/tests/UNITTESTS
 ^events/tests/UNITTESTS
 ^rtos/source/TARGET_CORTEX/rtx4

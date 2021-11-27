@@ -47,7 +47,7 @@ extern "C" {
 #error "RTC clock configuration is invalid!"
 #endif
 
-#if (MBED_CONF_TARGET_RTC_CLOCK_SOURCE == USE_RTC_CLK_HSE) && !(TARGET_STM32F2 || TARGET_STM32F4 || TARGET_STM32F7)
+#if (MBED_CONF_TARGET_RTC_CLOCK_SOURCE == USE_RTC_CLK_HSE) && !(TARGET_STM32F2 || TARGET_STM32F4 || TARGET_STM32F7 || TARGET_STM32F1)
 #error "RTC from HSE not supported for this target"
 #endif
 

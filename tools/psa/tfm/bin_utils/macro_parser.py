@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 #
 # -----------------------------------------------------------------------------
-# Copyright (c) 2019, Arm Limited. All rights reserved.
+# Copyright (c) 2019-2021, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -11,7 +11,8 @@
 import re
 import os
 
-expression_re = re.compile(r"[(]?(([(]?(((0x)[0-9a-fA-F]+)|([0-9]+))[)]?)\s*([\+\-]\s*([(]?(((0x)[0-9a-fA-F]+)|([0-9]+))[)]?)\s*)*)[)]?")
+# Match (((x) + (y))) mode and ((x) + (y)) mode. x, y can be HEX or DEC value.
+expression_re = re.compile(r"([(]?[(]?[(]?(([(]?(((0x)[0-9a-fA-F]+)|([0-9]+))[)]?)\s*([\+\-]\s*([(]?(((0x)[0-9a-fA-F]+)|([0-9]+))[)]?)\s*)*)[)]?\s*([\+\-])\s*[(]?(([(]?(((0x)[0-9a-fA-F]+)|([0-9]+))[)]?)\s*([\+\-]\s*([(]?(((0x)[0-9a-fA-F]+)|([0-9]+))[)]?)\s*)*)[)]?[)]?[)]?)|([(]?[(]?[(]?(([(]?(((0x)[0-9a-fA-F]+)|([0-9]+))[)]?)\s*([\+\-]\s*([(]?(((0x)[0-9a-fA-F]+)|([0-9]+))[)]?)\s*)*)[)]?[)]?[)]?)")
 
 # Simple parser that takes a string and evaluates an expression from it.
 # The expression might contain additions and subtractions amongst numbers that

@@ -4,3 +4,4 @@
 add_subdirectory(doubles)
 add_subdirectory(ATCmdParser)
 add_subdirectory(CircularBuffer)
+add_subdirectory(minimal-printf)

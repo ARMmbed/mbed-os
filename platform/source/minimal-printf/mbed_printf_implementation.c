@@ -267,20 +267,51 @@ static void mbed_minimal_formatted_string_double(char *buffer, size_t length, in
 {
     /* get integer part */
     MBED_SIGNED_STORAGE integer = value;
+    /* fractional part represented as the int that will be formatted after the dot, e.g. 95 for 1.95 */
+    MBED_SIGNED_STORAGE decimal = 0;
 
     if (dec_precision == PRECISION_DEFAULT) {
         dec_precision = MBED_CONF_PLATFORM_MINIMAL_PRINTF_SET_FLOATING_POINT_MAX_DECIMALS;
     }
 
     if (dec_precision != 0) {
+        /* get decimal part */
+        MBED_SIGNED_STORAGE precision = 1;
+        for (int index = 0; index < dec_precision; index++) {
+            precision *= 10;
+        }
+
+        /* Multiply the frac part so we get an int value with the required accuracy.
+           E.g. For 0.1234 and dec_precision=3 you'd get 123.4 */
+        double decimal_double = (value - integer) * precision;
+        if (value < 0) {
+            /* The part after the dot does not have a sign, so negate the value before rounding */
+            decimal = -decimal_double + 0.5;
+            if (decimal >= precision) {
+                /* Rounding carries over to value's integer part (e.g. -1.95 with dec_precision=1 -> -2.0) */
+                integer--;
+                decimal = 0;
+            }
+        } else {
+            /* Round the value */
+            decimal = decimal_double + 0.5;
+            if (decimal >= precision) {
+                /* Rounding carries over to value's integer part (e.g. 1.95 with dec_precision=1 -> 2.0) */
+                integer++;
+                decimal = 0;
+            }
+        }
+
         width_size -= dec_precision + 1; // decimal precision plus '.'
         if (width_size < 0) {
             width_size = 0;
         }
     } else {
         value = (value - integer) * 1.0;
-        if (!((value > -0.5) && (value < 0.5))) {
+        if (value > 0.5) {
             integer++;
+        } else if (value < -0.5) {
+            integer--;
         }
     }
 
@@ -294,30 +325,6 @@ static void mbed_minimal_formatted_string_double(char *buffer, size_t length, in
     if (dec_precision != 0) {
         /* write decimal point */
         mbed_minimal_putchar(buffer, length, result, '.', stream);
-
-        /* get decimal part */
-        double precision = 1.0;
-
-        for (size_t index = 0; index < dec_precision; index++) {
-            precision *= 10;
-        }
-
-        value = (value - integer) * precision;
-
-        /* convert to positive number */
-        if (value < 0.0) {
-            value *= -1.0;
-        }
-
-        MBED_UNSIGNED_STORAGE decimal = value;
-
-        /* round up or down */
-        value -= decimal;
-
-        if (!((value > -0.5) && (value < 0.5))) {
-            decimal++;
-        }
-
         /* write decimal part */
         mbed_minimal_formatted_string_integer(buffer, length, result, decimal, INT_UNSIGNED, dec_precision, true, stream);
     }

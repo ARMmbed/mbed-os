@@ -1,4 +1,4 @@
-#! armclang -E --target=arm-arm-none-eabi -x c -mcpu=cortex-M4
+#! armclang -E --target=arm-arm-none-eabi -x c -mcpu=cortex-m4
 ; Scatter-Loading Description File
 ;
 ; SPDX-License-Identifier: BSD-3-Clause

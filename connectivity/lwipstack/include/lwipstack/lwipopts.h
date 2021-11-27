@@ -311,6 +311,8 @@
 
 #endif
 
+#define LWIP_NETBUF_RECVINFO            MBED_CONF_LWIP_NETBUF_RECVINFO_ENABLED
+
 // Make sure we default these to off, so
 // LWIP doesn't default to on
 #ifndef LWIP_ARP

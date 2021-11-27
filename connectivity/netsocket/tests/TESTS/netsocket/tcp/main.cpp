@@ -75,6 +75,7 @@ nsapi_version_t get_ip_version()
 static void _ifup()
 {
     NetworkInterface *net = NetworkInterface::get_default_instance();
+    TEST_ASSERT_NOT_NULL_MESSAGE(net, "No NetworkInterface configured");
     nsapi_error_t err = net->connect();
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
     SocketAddress address;

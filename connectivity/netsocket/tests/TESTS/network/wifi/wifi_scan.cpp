@@ -27,25 +27,25 @@ using namespace utest::v1;
 void wifi_scan(void)
 {
     WiFiInterface *wifi = get_interface();
+    TEST_ASSERT(wifi);
+    if (wifi == NULL) {
+        return;
+    }
 
     WiFiAccessPoint ap[MBED_CONF_APP_MAX_SCAN_SIZE];
 
     int size = wifi->scan(ap, MBED_CONF_APP_MAX_SCAN_SIZE);
+    printf("Scanned %u AP\n", size);
     TEST_ASSERT(size >= 1);
 
     bool secure_found = false;
     bool unsecure_found = false;
 
-    char secure_bssid[6];
-    char unsecure_bssid[6];
-    const char *coversion_string = "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx";
-    TEST_ASSERT_EQUAL_INT_MESSAGE(6, sscanf(MBED_CONF_APP_AP_MAC_SECURE, coversion_string, &secure_bssid[0], &secure_bssid[1], &secure_bssid[2], &secure_bssid[3], &secure_bssid[4], &secure_bssid[5]), "Failed to convert ap-mac-secure from mbed_app.json");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(6, sscanf(MBED_CONF_APP_AP_MAC_UNSECURE, coversion_string, &unsecure_bssid[0], &unsecure_bssid[1], &unsecure_bssid[2], &unsecure_bssid[3], &unsecure_bssid[4], &unsecure_bssid[5]), "Failed to convert ap-mac-unsecure from mbed_app.json");
-
     for (int i = 0; i < size; i++) {
         const char *ssid = ap[i].get_ssid();
         nsapi_security_t security = ap[i].get_security();
         int8_t rssi = ap[i].get_rssi();
+        printf("AP %u ssid %s security %u rssi %d\n", i, ssid, security, rssi);
         TEST_ASSERT_INT8_WITHIN(-10, -100, rssi);
 #if defined(MBED_CONF_APP_WIFI_SECURE_SSID)
         if (strcmp(MBED_CONF_APP_WIFI_SECURE_SSID, ssid) == 0) {

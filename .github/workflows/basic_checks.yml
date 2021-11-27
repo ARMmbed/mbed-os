@@ -25,7 +25,7 @@ jobs:
         name: install dependencies
         shell: bash
         run: |
-          pip install scancode-toolkit
+          pip install -U scancode-toolkit click
 
       - 
         name: license check 

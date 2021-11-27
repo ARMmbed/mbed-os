@@ -22,6 +22,7 @@ target_sources(${TEST_NAME}
         ${mbed-os_SOURCE_DIR}/connectivity/libraries/nanostack-libservice/source/libip6string/stoip6.c
         ${mbed-os_SOURCE_DIR}/connectivity/libraries/nanostack-libservice/source/libBits/common_functions.c
         test_NetworkStack.cpp
+        test_MsgHeaderIterator.cpp
 )
 
 target_link_libraries(${TEST_NAME}

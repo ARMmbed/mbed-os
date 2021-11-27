@@ -48,3 +48,10 @@ target_sources(mbed-core
         mbed_thread.cpp
         mbed_wait_api_no_rtos.c
 )
+
+if(MBED_TOOLCHAIN STREQUAL "GCC_ARM" AND MBED_C_LIB STREQUAL "small")
+    target_sources(mbed-core
+        INTERFACE
+            newlib_nano_malloc_workaround.c
+    )
+endif()

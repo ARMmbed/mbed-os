@@ -1,5 +1,6 @@
 {
     "name": "lora",
+    "requires": ["mbedtls", "events"],
     "config": {
         "phy": {
             "help": "LoRa PHY region: EU868, AS923, AU915, CN470, CN779, EU433, IN865, KR920, US915",

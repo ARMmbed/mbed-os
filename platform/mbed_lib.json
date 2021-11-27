@@ -114,6 +114,17 @@
             "value": null
         },
 
+        "deepsleep-stats-enabled": {
+            "macro_name": "MBED_SLEEP_TRACING_ENABLED",
+            "help": "Set to 1 to enable deepsleep lock stats",
+            "value": null
+        },
+
+        "deepsleep-stats-verbose": {
+            "help": "Stats are logged at each step (need deepsleep-stats-enable)",
+            "value": true
+        },
+
         "cthunk_count_max": {
             "help": "The maximum CThunk objects used at the same time. This must be greater than 0 and less 256",
             "value": 8
@@ -156,6 +167,9 @@
         }
     },
     "target_overrides": {
+        "STM": {
+            "deepsleep-stats-verbose": false
+        },
         "EFM32": {
             "stdio-baud-rate": 115200
         },
@@ -164,7 +178,7 @@
         },
         "UNO_91H": {
             "stdio-baud-rate": 115200
-        }, 
+        },
         "DISCO_L475VG_IOT01A": {
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true

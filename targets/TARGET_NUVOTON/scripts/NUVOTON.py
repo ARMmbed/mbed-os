@@ -54,10 +54,45 @@ def tfm_sign_image(tfm_import_path, signing_key, signing_key_1, non_secure_bin):
     # Find Python 3 command name across platforms
     python3_cmd = "python3" if shutil.which("python3") is not None else "python"
 
-    img_ver_major = 1
-    img_ver_minor = 3
-    img_ver_revision = 0
-    img_ver_build = 0
+    # Specify image version
+    #
+    # MCUboot image version format: Major.Minor.Revision+Build
+    #
+    # Requirements for image version:
+    # 1. Major.Minor.Revision must be non-decremental when used to derive security
+    #    counter (-s 'auto').
+    # 2. Make Major.Minor.Revision+Build incremental to identify the firmware
+    #    itself uniquely through psa_fwu_query().
+    # 3. Get around MCUboot failure with:
+    #    [INF] Starting bootloader
+    #    [INF] Swap type: none
+    #    [ERR] Failed to add Image 0 data to shared memory area
+    #    [ERR] Unable to find bootable image
+    #    This is because TF-M underestimates MAX_BOOT_RECORD_SZ for boot record
+    #    where Major.Minor.Revision will pack into during signing. The more digits
+    #    of the Major.Minor.Revision, the larger the needed boot record size. And
+    #    then MCUboot errors in boot_save_boot_status().
+    #
+    # To meet all the above requirements, we apply the following policy:
+    # 1. To not change MAX_BOOT_RECORD_SZ in TF-M, specify Major.Minor.Revision
+    #    with TF-M version instead of modified Unix timestamp. This needs less digits to
+    #    fit into MAX_BOOT_RECORD_SZ.
+    # 2. To make Major.Minor.Revision+Build incremental, specify the Build part with
+    #    modified Unix timestamp.
+    # 3. To make security counter non-decremental, we can derive it from
+    #    Major.Minor.Revision (-s 'auto') or explicitly specify it with modified
+    #    Unix timestamp, depending on security consideration.
+    #
+    # NOTE: To get around Y2038 problem, we modify Unix timestamp by setting new base
+    #       point. Using 32-bit unsigned integer to hold the modified Unix timestamp,
+    #       it will break (wrap around) after Y2156 (2106 + 2020 - 1970).
+    #       https://en.wikipedia.org/wiki/Year_2038_problem
+    #
+    modified_timestamp = int(datetime.now().timestamp()) - int(datetime(2020, 1, 1).timestamp())
+    img_ver_major = 1       # Instead of (modified_timestamp >> 24) & 0xFF
+    img_ver_minor = 4       # Instead of (modified_timestamp >> 16) & 0xFF
+    img_ver_revision = 0    # Instead of modified_timestamp & 0xFFFF
+    img_ver_build = modified_timestamp
 
     # wrapper.py command template
     cmd_wrapper = [
@@ -82,7 +117,7 @@ def tfm_sign_image(tfm_import_path, signing_key, signing_key_1, non_secure_bin):
         '0x400',
         "--overwrite-only",
         "-s",
-        'auto',
+        'auto', # Or modified_timestamp
         "-d",
         '(IMAGE_ID,MAJOR.MINOR.REVISION+BUILD)',
         "RAW_BIN_PATH",

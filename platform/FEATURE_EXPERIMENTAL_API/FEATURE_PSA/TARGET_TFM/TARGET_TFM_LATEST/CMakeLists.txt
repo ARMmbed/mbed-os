@@ -18,7 +18,6 @@ if("TFM_V8M" IN_LIST MBED_TARGET_LABELS)
         INTERFACE
             TARGET_TFM_V8M/src/cmsis_nvic_virtual.c
             TARGET_TFM_V8M/src/tfm_mbed_boot.c
-            TARGET_TFM_V8M/src/tfm_ns_interface.c
             TARGET_TFM_V8M/src/tfm_psa_ns_api.c
     )
 endif()

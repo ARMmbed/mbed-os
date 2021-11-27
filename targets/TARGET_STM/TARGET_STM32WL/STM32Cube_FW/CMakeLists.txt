@@ -43,6 +43,7 @@ target_sources(mbed-stm32wlcube-fw
         STM32WLxx_HAL_Driver/stm32wlxx_hal_smartcard.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_smartcard_ex.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_smbus.c
+        STM32WLxx_HAL_Driver/stm32wlxx_hal_smbus_ex.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_spi.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_spi_ex.c
         STM32WLxx_HAL_Driver/stm32wlxx_hal_subghz.c

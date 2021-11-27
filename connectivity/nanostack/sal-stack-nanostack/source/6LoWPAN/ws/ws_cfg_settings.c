@@ -39,10 +39,8 @@
 #define CFG_SETTINGS_OK                       0
 #define CFG_SETTINGS_CHANGED                  1
 
-#define CFG_FLAGS_DISABLE_VAL_SET             0x01
-#define CFG_FLAGS_OVERRIDE_DISABLE_VAL_SET    0x02
-#define CFG_FLAGS_FORCE_INTERNAL_CONFIG       0x04
-#define CFG_FLAGS_BOOTSTRAP_RESTART_DISABLE   0x08
+#define CFG_FLAGS_BOOTSTRAP_RESTART_DISABLE   0x01
+#define CFG_FLAGS_BOOTSTRAP_SET_VALUES        0x02
 
 #define TRICKLE_IMIN_60_SECS 60
 #define TRICKLE_IMIN_30_SECS 30
@@ -58,8 +56,8 @@ typedef struct ws_cfg_nw_size_s {
 
 static uint32_t ws_test_temporary_entry_lifetime = 0;
 typedef int8_t (*ws_cfg_default_set)(void *cfg);
-typedef int8_t (*ws_cfg_validate)(void *cfg, void *new_cfg);
-typedef int8_t (*ws_cfg_set)(protocol_interface_info_entry_t *cur, void *cfg, void *new_cfg, uint8_t *flags);
+typedef int8_t (*ws_cfg_validate)(void *new_cfg);
+typedef int8_t (*ws_cfg_set)(protocol_interface_info_entry_t *cur, void *new_cfg, uint8_t flags);
 
 typedef struct {
     ws_cfg_default_set default_set;
@@ -104,9 +102,6 @@ const cfg_devices_in_config_t devices_by_datarate[] = {
     { 2, 20, 50, 100}, // Configuration for 600kbs - 2400kbs
 };
 
-
-static int8_t ws_cfg_to_get(ws_cfgs_t **cfg, ws_cfgs_t *new_cfg, ws_cfg_validate valid_cb, ws_cfgs_t *external_cfg, uint8_t *cfg_flags, uint8_t *flags);
-
 static void ws_cfg_network_size_config_set_small(ws_cfg_nw_size_t *cfg);
 static void ws_cfg_network_size_config_set_medium(ws_cfg_nw_size_t *cfg);
 static void ws_cfg_network_size_config_set_large(ws_cfg_nw_size_t *cfg);
@@ -145,55 +140,6 @@ static const ws_cfg_cb_t cfg_cb[] = {
 
 // Wisun configuration storage
 ws_cfg_t ws_cfg;
-
-// If automatic network size mode; external configuration shown to towards users of external APIs
-ws_cfg_nw_size_t *nw_size_external_cfg = NULL;
-
-static int8_t ws_cfg_to_get(ws_cfgs_t **cfg, ws_cfgs_t *new_cfg, ws_cfg_validate valid_cb, ws_cfgs_t *ws_cfg_ptr, uint8_t *cfg_flags, uint8_t *flags)
-{
-    // In case target configuration is not set, uses ws_cfg storage
-    if (*cfg == NULL) {
-        // In case external configuration is not same as internal
-        if (nw_size_external_cfg && (!flags || !(*flags & CFG_FLAGS_FORCE_INTERNAL_CONFIG))) {
-            if (ws_cfg_ptr == (ws_cfgs_t *) &ws_cfg.gen) {
-                *cfg = (ws_cfgs_t *) &nw_size_external_cfg->gen;
-            } else if (ws_cfg_ptr == (ws_cfgs_t *) &ws_cfg.timing) {
-                *cfg = (ws_cfgs_t *) &nw_size_external_cfg->timing;
-            } else if (ws_cfg_ptr == (ws_cfgs_t *) &ws_cfg.bbr) {
-                *cfg = (ws_cfgs_t *) &nw_size_external_cfg->bbr;
-            } else if (ws_cfg_ptr == (ws_cfgs_t *) &ws_cfg.sec_prot) {
-                *cfg = (ws_cfgs_t *) &nw_size_external_cfg->sec_prot;
-            } else if (ws_cfg_ptr == (ws_cfgs_t *) &ws_cfg.mpl) {
-                *cfg = (ws_cfgs_t *) &nw_size_external_cfg->mpl;
-            } else {
-                *cfg = ws_cfg_ptr;
-            }
-        } else {
-            *cfg = ws_cfg_ptr;
-        }
-
-        if (valid_cb) {
-            int8_t ret = valid_cb(*cfg, new_cfg);
-            // On failure and if nothing is changed, returns
-            if (ret != CFG_SETTINGS_CHANGED) {
-                return ret;
-            }
-        }
-    }
-
-    if (!cfg_flags) {
-        return CFG_SETTINGS_CHANGED;
-    }
-    *cfg_flags = 0;
-    if (flags) {
-        *cfg_flags |= *flags;
-    }
-    if (nw_size_external_cfg && !(*cfg_flags & CFG_FLAGS_OVERRIDE_DISABLE_VAL_SET)) {
-        *cfg_flags |= CFG_FLAGS_DISABLE_VAL_SET;
-    }
-
-    return CFG_SETTINGS_CHANGED;
-}
 
 #ifdef FEA_TRACE_SUPPORT
 static void ws_cfg_trace(ws_cfgs_t *cfg, ws_cfgs_t *new_cfg, uint8_t size, char *name)
@@ -236,19 +182,15 @@ static int8_t ws_cfg_network_size_default_set(ws_gen_cfg_t *cfg)
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_network_size_get(ws_gen_cfg_t *cfg, uint8_t *flags)
+int8_t ws_cfg_network_size_get(ws_gen_cfg_t *cfg)
 {
-    ws_gen_cfg_t *get_cfg = NULL;
-    ws_cfg_to_get((ws_cfgs_t **) &get_cfg, NULL, NULL, (ws_cfgs_t *) &ws_cfg.gen, 0, flags);
-    *cfg = *get_cfg;
-
+    *cfg = ws_cfg.gen;
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_network_size_validate(ws_gen_cfg_t *cfg, ws_gen_cfg_t *new_cfg)
+int8_t ws_cfg_network_size_validate(ws_gen_cfg_t *new_cfg)
 {
-    ws_cfg_to_get((ws_cfgs_t **) &cfg, (ws_cfgs_t *) new_cfg, NULL, (ws_cfgs_t *) &ws_cfg.gen, 0, 0);
-
+    ws_gen_cfg_t *cfg = &ws_cfg.gen;
     if (cfg->network_size != new_cfg->network_size) {
         return CFG_SETTINGS_CHANGED;
     }
@@ -258,29 +200,24 @@ int8_t ws_cfg_network_size_validate(ws_gen_cfg_t *cfg, ws_gen_cfg_t *new_cfg)
 
 typedef void (*ws_cfg_network_size_config_set_size)(ws_cfg_nw_size_t *cfg);
 
-int8_t ws_cfg_network_size_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_t *cfg, ws_gen_cfg_t *new_cfg, uint8_t *flags)
+int8_t ws_cfg_network_size_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_t *new_cfg, uint8_t flags)
 {
-    uint8_t cfg_flags;
-    int8_t ret = ws_cfg_to_get((ws_cfgs_t **) &cfg, (ws_cfgs_t *) new_cfg, (ws_cfg_validate) ws_cfg_network_size_validate, (ws_cfgs_t *) &ws_cfg.gen, &cfg_flags, flags);
-    if (ret != CFG_SETTINGS_CHANGED) {
-        return ret;
-    }
+    (void) flags;
 
-    uint8_t old_network_size = cfg->network_size;
-
-    // If network size configuration has not changed, returns
-    if (cfg->network_size == new_cfg->network_size) {
+    if (ws_cfg_network_size_validate(new_cfg) != CFG_SETTINGS_CHANGED) {
         return CFG_SETTINGS_OK;
     }
+
+    ws_gen_cfg_t *cfg = &ws_cfg.gen;
 
     cfg->network_size = new_cfg->network_size;
 
     ws_cfg_nw_size_t nw_size_cfg;
-    ws_cfg_gen_get(&nw_size_cfg.gen, NULL);
-    ws_cfg_timing_get(&nw_size_cfg.timing, NULL);
-    ws_cfg_bbr_get(&nw_size_cfg.bbr, NULL);
-    ws_cfg_sec_prot_get(&nw_size_cfg.sec_prot, NULL);
-    ws_cfg_mpl_get(&nw_size_cfg.mpl, NULL);
+    ws_cfg_gen_get(&nw_size_cfg.gen);
+    ws_cfg_timing_get(&nw_size_cfg.timing);
+    ws_cfg_bbr_get(&nw_size_cfg.bbr);
+    ws_cfg_sec_prot_get(&nw_size_cfg.sec_prot);
+    ws_cfg_mpl_get(&nw_size_cfg.mpl);
 
     ws_cfg_network_size_config_set_size set_function = NULL;
 
@@ -301,46 +238,13 @@ int8_t ws_cfg_network_size_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_
         set_function(&nw_size_cfg);
     }
 
-    uint8_t cfg_network_size = cfg->network_size;
+    /* Sets values if changed */
+    ws_cfg_gen_set(cur, &nw_size_cfg.gen, 0x00);
+    ws_cfg_timing_set(cur, &nw_size_cfg.timing, 0x00);
+    ws_cfg_bbr_set(cur, &nw_size_cfg.bbr, 0x00);
+    ws_cfg_sec_prot_set(cur, &nw_size_cfg.sec_prot, 0x00);
+    ws_cfg_mpl_set(cur, &nw_size_cfg.mpl, 0x00);
 
-    /* If no longer in an automatic network size mode, frees automatic configuration,
-       so that new configuration is set */
-    if (nw_size_external_cfg && old_network_size == NETWORK_SIZE_AUTOMATIC) {
-        ns_dyn_mem_free(nw_size_external_cfg);
-        nw_size_external_cfg = NULL;
-    }
-
-    uint8_t set_flags = 0;
-    if (cfg_network_size == NETWORK_SIZE_AUTOMATIC) {
-        set_flags = CFG_FLAGS_DISABLE_VAL_SET;
-    }
-    /* Sets values if changed or network size has been previously automatic (to make sure
-       the settings are in sync */
-    if (ws_cfg_gen_validate(&ws_cfg.gen, &nw_size_cfg.gen) == CFG_SETTINGS_CHANGED ||
-            old_network_size == NETWORK_SIZE_AUTOMATIC) {
-        ws_cfg_gen_set(cur, &ws_cfg.gen, &nw_size_cfg.gen, &set_flags);
-    }
-    if (ws_cfg_timing_validate(&ws_cfg.timing, &nw_size_cfg.timing) == CFG_SETTINGS_CHANGED ||
-            old_network_size == NETWORK_SIZE_AUTOMATIC) {
-        ws_cfg_timing_set(cur, &ws_cfg.timing, &nw_size_cfg.timing, &set_flags);
-    }
-    if (ws_cfg_bbr_validate(&ws_cfg.bbr, &nw_size_cfg.bbr) == CFG_SETTINGS_CHANGED ||
-            old_network_size == NETWORK_SIZE_AUTOMATIC) {
-        ws_cfg_bbr_set(cur, &ws_cfg.bbr, &nw_size_cfg.bbr, &set_flags);
-    }
-    if (ws_cfg_sec_prot_validate(&ws_cfg.sec_prot, &nw_size_cfg.sec_prot) == CFG_SETTINGS_CHANGED ||
-            old_network_size == NETWORK_SIZE_AUTOMATIC) {
-        ws_cfg_sec_prot_set(cur, &ws_cfg.sec_prot, &nw_size_cfg.sec_prot, &set_flags);
-    }
-    if (ws_cfg_mpl_validate(&ws_cfg.mpl, &nw_size_cfg.mpl) == CFG_SETTINGS_CHANGED ||
-            old_network_size == NETWORK_SIZE_AUTOMATIC) {
-        ws_cfg_mpl_set(cur, &ws_cfg.mpl, &nw_size_cfg.mpl, &set_flags);
-    }
-
-    // If is in an automatic network size mode, updates automatic configuration
-    if (cfg_network_size == NETWORK_SIZE_AUTOMATIC && cur) {
-        ws_cfg_network_size_configure(cur, cur->ws_info->pan_information.pan_size);
-    }
     return CFG_SETTINGS_OK;
 }
 
@@ -349,7 +253,7 @@ static uint8_t ws_cfg_config_get_by_size(protocol_interface_info_entry_t *cur, u
     (void)cur;
 
     ws_phy_cfg_t phy_cfg;
-    if (ws_cfg_phy_get(&phy_cfg, NULL) < 0) {
+    if (ws_cfg_phy_get(&phy_cfg) < 0) {
         return CONFIG_SMALL;
     }
     uint32_t data_rate = ws_common_datarate_get_from_phy_mode(phy_cfg.phy_mode_id, phy_cfg.operating_mode);
@@ -377,50 +281,6 @@ static uint8_t ws_cfg_config_get_by_size(protocol_interface_info_entry_t *cur, u
     return CONFIG_XLARGE;
 }
 
-int8_t ws_cfg_network_size_configure(protocol_interface_info_entry_t *cur, uint16_t network_size)
-{
-    // Read settings that are affected by network size
-    ws_cfg_nw_size_t new_nw_size_cfg;
-    uint8_t flags = CFG_FLAGS_OVERRIDE_DISABLE_VAL_SET | CFG_FLAGS_FORCE_INTERNAL_CONFIG;
-
-    ws_cfg_gen_get(&new_nw_size_cfg.gen, &flags);
-    ws_cfg_timing_get(&new_nw_size_cfg.timing, &flags);
-    ws_cfg_bbr_get(&new_nw_size_cfg.bbr, &flags);
-    ws_cfg_sec_prot_get(&new_nw_size_cfg.sec_prot, &flags);
-    ws_cfg_mpl_get(&new_nw_size_cfg.mpl, &flags);
-
-    if (!nw_size_external_cfg) {
-        nw_size_external_cfg = ns_dyn_mem_alloc(sizeof(ws_cfg_nw_size_t));
-        if (!nw_size_external_cfg) {
-            return -1;
-        }
-        memcpy(nw_size_external_cfg, &new_nw_size_cfg, sizeof(ws_cfg_nw_size_t));
-    }
-
-    network_size = network_size / 100;
-    if (network_size == 0) {
-        network_size = 1;
-    }
-
-    if (ws_cfg_config_get_by_size(cur, network_size) == CONFIG_SMALL) {
-        ws_cfg_network_size_config_set_small(&new_nw_size_cfg);
-    } else if (ws_cfg_config_get_by_size(cur, network_size) == CONFIG_MEDIUM) {
-        ws_cfg_network_size_config_set_medium(&new_nw_size_cfg);
-    } else if (ws_cfg_config_get_by_size(cur, network_size) == CONFIG_LARGE) {
-        ws_cfg_network_size_config_set_large(&new_nw_size_cfg);
-    } else {
-        ws_cfg_network_size_config_set_xlarge(&new_nw_size_cfg);
-    }
-
-    ws_cfg_gen_set(cur, NULL, &new_nw_size_cfg.gen, &flags);
-    ws_cfg_timing_set(cur, NULL, &new_nw_size_cfg.timing, &flags);
-    ws_cfg_bbr_set(cur, NULL, &new_nw_size_cfg.bbr, &flags);
-    ws_cfg_sec_prot_set(cur, NULL, &new_nw_size_cfg.sec_prot, &flags);
-    ws_cfg_mpl_set(cur, &ws_cfg.mpl, &new_nw_size_cfg.mpl, &flags);
-
-    return CFG_SETTINGS_OK;
-}
-
 cfg_network_size_type_e ws_cfg_network_config_get(protocol_interface_info_entry_t *cur)
 {
     // Get size of the network Amount of devices in the network
@@ -430,7 +290,7 @@ cfg_network_size_type_e ws_cfg_network_config_get(protocol_interface_info_entry_
     (void)cur;
 
     ws_gen_cfg_t cfg;
-    if (ws_cfg_gen_get(&cfg, NULL) < 0) {
+    if (ws_cfg_gen_get(&cfg) < 0) {
         return CONFIG_SMALL;
     }
 
@@ -563,7 +423,6 @@ static void ws_cfg_network_size_config_set_large(ws_cfg_nw_size_t *cfg)
     cfg->mpl.mpl_trickle_k = MPL_LARGE_K;
     cfg->mpl.mpl_trickle_timer_exp = MPL_LARGE_EXPIRATIONS;
     cfg->mpl.seed_set_entry_lifetime = MPL_LARGE_SEED_LIFETIME;
-
 }
 
 static void ws_cfg_network_size_config_set_xlarge(ws_cfg_nw_size_t *cfg)
@@ -653,25 +512,21 @@ static void ws_cfg_network_size_config_set_certificate(ws_cfg_nw_size_t *cfg)
 static int8_t ws_cfg_gen_default_set(ws_gen_cfg_t *cfg)
 {
     memset(cfg->network_name, 0, sizeof(cfg->network_name));
-    cfg->network_pan_id = 0xffff;
     cfg->rpl_parent_candidate_max = WS_RPL_PARENT_CANDIDATE_MAX;
     cfg->rpl_selected_parent_max = WS_RPL_SELECTED_PARENT_MAX;
 
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_gen_get(ws_gen_cfg_t *cfg, uint8_t *flags)
+int8_t ws_cfg_gen_get(ws_gen_cfg_t *cfg)
 {
-    ws_gen_cfg_t *get_cfg = NULL;
-    ws_cfg_to_get((ws_cfgs_t **) &get_cfg, NULL, NULL, (ws_cfgs_t *) &ws_cfg.gen, 0, flags);
-    *cfg = *get_cfg;
-
+    *cfg = ws_cfg.gen;
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_gen_validate(ws_gen_cfg_t *cfg, ws_gen_cfg_t *new_cfg)
+int8_t ws_cfg_gen_validate(ws_gen_cfg_t *new_cfg)
 {
-    ws_cfg_to_get((ws_cfgs_t **) &cfg, (ws_cfgs_t *) new_cfg, NULL, (ws_cfgs_t *) &ws_cfg.gen, 0, 0);
+    ws_gen_cfg_t *cfg = &ws_cfg.gen;
 
     if (strlen(new_cfg->network_name) > 32) {
         return CFG_SETTINGS_ERROR_GEN_CONF;
@@ -679,7 +534,6 @@ int8_t ws_cfg_gen_validate(ws_gen_cfg_t *cfg, ws_gen_cfg_t *new_cfg)
 
     // Regulator domain, operating mode or class has changed
     if (strcmp(cfg->network_name, new_cfg->network_name) != 0 ||
-            cfg->network_pan_id != new_cfg->network_pan_id ||
             cfg->rpl_parent_candidate_max != new_cfg->rpl_parent_candidate_max ||
             cfg->rpl_selected_parent_max != new_cfg->rpl_selected_parent_max) {
         return CFG_SETTINGS_CHANGED;
@@ -688,30 +542,29 @@ int8_t ws_cfg_gen_validate(ws_gen_cfg_t *cfg, ws_gen_cfg_t *new_cfg)
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_gen_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_t *cfg, ws_gen_cfg_t *new_cfg, uint8_t *flags)
+int8_t ws_cfg_gen_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_t *new_cfg, uint8_t flags)
 {
-    (void) cur;
-    (void) flags;
-
-    uint8_t cfg_flags;
-    int8_t ret = ws_cfg_to_get((ws_cfgs_t **) &cfg, (ws_cfgs_t *) new_cfg, (ws_cfg_validate) ws_cfg_gen_validate, (ws_cfgs_t *) &ws_cfg.gen, &cfg_flags, flags);
-    if (ret != CFG_SETTINGS_CHANGED) {
+    int8_t ret = ws_cfg_gen_validate(new_cfg);
+    if (!(flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) && ret != CFG_SETTINGS_CHANGED) {
         return ret;
     }
-    if (cfg == new_cfg) {
+
+    if (flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) {
         return CFG_SETTINGS_OK;
     }
+
+    ws_gen_cfg_t *cfg = &ws_cfg.gen;
+
     ws_cfg_trace((ws_cfgs_t *) cfg, (ws_cfgs_t *) new_cfg, sizeof(ws_gen_cfg_t), "gen");
 
     cfg->network_size = new_cfg->network_size;
     if (&cfg->network_name != &new_cfg->network_name) {
         strncpy(cfg->network_name, new_cfg->network_name, 32);
     }
-    cfg->network_pan_id = new_cfg->network_pan_id;
     cfg->rpl_parent_candidate_max = new_cfg->rpl_parent_candidate_max;
     cfg->rpl_selected_parent_max = new_cfg->rpl_selected_parent_max;
 
-    if (cur && !(cfg_flags & CFG_FLAGS_BOOTSTRAP_RESTART_DISABLE)) {
+    if (cur && !(flags & CFG_FLAGS_BOOTSTRAP_RESTART_DISABLE)) {
         ws_bootstrap_restart_delayed(cur->id);
     }
 
@@ -730,18 +583,15 @@ int8_t ws_cfg_phy_default_set(ws_phy_cfg_t *cfg)
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_phy_get(ws_phy_cfg_t *cfg, uint8_t *flags)
+int8_t ws_cfg_phy_get(ws_phy_cfg_t *cfg)
 {
-    ws_phy_cfg_t *get_cfg = NULL;
-    ws_cfg_to_get((ws_cfgs_t **) &get_cfg, NULL, NULL, (ws_cfgs_t *) &ws_cfg.phy, 0, flags);
-    *cfg = *get_cfg;
-
+    *cfg = ws_cfg.phy;
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_phy_validate(ws_phy_cfg_t *cfg, ws_phy_cfg_t *new_cfg)
+int8_t ws_cfg_phy_validate(ws_phy_cfg_t *new_cfg)
 {
-    ws_cfg_to_get((ws_cfgs_t **) &cfg, (ws_cfgs_t *) new_cfg, NULL, (ws_cfgs_t *) &ws_cfg.phy, 0, 0);
+    ws_phy_cfg_t *cfg = &ws_cfg.phy;
 
     // Regulator domain, operating mode or class has changed
     if (cfg->regulatory_domain != new_cfg->regulatory_domain ||
@@ -770,15 +620,14 @@ int8_t ws_cfg_phy_validate(ws_phy_cfg_t *cfg, ws_phy_cfg_t *new_cfg)
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_phy_set(protocol_interface_info_entry_t *cur, ws_phy_cfg_t *cfg, ws_phy_cfg_t *new_cfg, uint8_t *flags)
+int8_t ws_cfg_phy_set(protocol_interface_info_entry_t *cur, ws_phy_cfg_t *new_cfg, uint8_t flags)
 {
-    uint8_t cfg_flags;
-    int8_t ret = ws_cfg_to_get((ws_cfgs_t **) &cfg, (ws_cfgs_t *) new_cfg, (ws_cfg_validate) ws_cfg_phy_validate, (ws_cfgs_t *) &ws_cfg.phy, &cfg_flags, flags);
-    if (ret != CFG_SETTINGS_CHANGED) {
+    int8_t ret = ws_cfg_phy_validate(new_cfg);
+    if (!(flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) && ret != CFG_SETTINGS_CHANGED) {
         return ret;
     }
     // Check settings and configure interface
-    if (cur && !(cfg_flags & CFG_FLAGS_DISABLE_VAL_SET)) {
+    if (cur) {
         // Set operating mode for FSK if given with PHY mode ID
         if ((new_cfg->phy_mode_id == 1) || (new_cfg->phy_mode_id == 17)) {
             cur->ws_info->hopping_schdule.operating_mode = OPERATING_MODE_1a;
@@ -809,15 +658,17 @@ int8_t ws_cfg_phy_set(protocol_interface_info_entry_t *cur, ws_phy_cfg_t *cfg, w
         }
     }
 
-    if (cfg == new_cfg) {
+    if (flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) {
         return CFG_SETTINGS_OK;
     }
+
+    ws_phy_cfg_t *cfg = &ws_cfg.phy;
 
     ws_cfg_trace((ws_cfgs_t *) cfg, (ws_cfgs_t *) new_cfg, sizeof(ws_phy_cfg_t), "phy");
 
     *cfg = *new_cfg;
 
-    if (cur && !(cfg_flags & CFG_FLAGS_BOOTSTRAP_RESTART_DISABLE)) {
+    if (cur && !(flags & CFG_FLAGS_BOOTSTRAP_RESTART_DISABLE)) {
         ws_bootstrap_restart_delayed(cur->id);
     }
 
@@ -837,18 +688,15 @@ int8_t ws_cfg_timing_default_set(ws_timing_cfg_t *cfg)
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_timing_get(ws_timing_cfg_t *cfg, uint8_t *flags)
+int8_t ws_cfg_timing_get(ws_timing_cfg_t *cfg)
 {
-    ws_timing_cfg_t *get_cfg = NULL;
-    ws_cfg_to_get((ws_cfgs_t **) &get_cfg, NULL, NULL, (ws_cfgs_t *) &ws_cfg.timing, 0, flags);
-    *cfg = *get_cfg;
-
+    *cfg = ws_cfg.timing;
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_timing_validate(ws_timing_cfg_t *cfg, ws_timing_cfg_t *new_cfg)
+int8_t ws_cfg_timing_validate(ws_timing_cfg_t *new_cfg)
 {
-    ws_cfg_to_get((ws_cfgs_t **) &cfg, (ws_cfgs_t *) new_cfg, NULL, (ws_cfgs_t *) &ws_cfg.timing, 0, 0);
+    ws_timing_cfg_t *cfg = &ws_cfg.timing;
 
     if (cfg->disc_trickle_imin != new_cfg->disc_trickle_imin ||
             cfg->disc_trickle_imax != new_cfg->disc_trickle_imax ||
@@ -876,15 +724,16 @@ int8_t ws_cfg_timing_validate(ws_timing_cfg_t *cfg, ws_timing_cfg_t *new_cfg)
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_timing_set(protocol_interface_info_entry_t *cur, ws_timing_cfg_t *cfg, ws_timing_cfg_t *new_cfg, uint8_t *flags)
+int8_t ws_cfg_timing_set(protocol_interface_info_entry_t *cur, ws_timing_cfg_t *new_cfg, uint8_t flags)
 {
-    uint8_t cfg_flags;
-    int8_t ret = ws_cfg_to_get((ws_cfgs_t **) &cfg, (ws_cfgs_t *) new_cfg, (ws_cfg_validate) ws_cfg_timing_validate, (ws_cfgs_t *) &ws_cfg.timing, &cfg_flags, flags);
-    if (ret != CFG_SETTINGS_CHANGED) {
+    (void) flags;
+
+    int8_t ret = ws_cfg_timing_validate(new_cfg);
+    if (!(flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) && ret != CFG_SETTINGS_CHANGED) {
         return ret;
     }
 
-    if (cur && !(cfg_flags & CFG_FLAGS_DISABLE_VAL_SET)) {
+    if (cur) {
         cur->ws_info->trickle_params_pan_discovery.Imin = new_cfg->disc_trickle_imin * 10;
         cur->ws_info->trickle_params_pan_discovery.Imax = new_cfg->disc_trickle_imax * 10;
         cur->ws_info->trickle_params_pan_discovery.k = new_cfg->disc_trickle_k;
@@ -892,9 +741,11 @@ int8_t ws_cfg_timing_set(protocol_interface_info_entry_t *cur, ws_timing_cfg_t *
         ws_pae_controller_configure(cur, NULL, NULL, new_cfg);
     }
 
-    if (cfg == new_cfg) {
+    if (flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) {
         return CFG_SETTINGS_OK;
     }
+
+    ws_timing_cfg_t *cfg = &ws_cfg.timing;
 
     ws_cfg_trace((ws_cfgs_t *) cfg, (ws_cfgs_t *) new_cfg, sizeof(ws_timing_cfg_t), "timing");
 
@@ -922,19 +773,15 @@ static int8_t ws_cfg_bbr_default_set(ws_bbr_cfg_t *cfg)
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_bbr_get(ws_bbr_cfg_t *cfg, uint8_t *flags)
+int8_t ws_cfg_bbr_get(ws_bbr_cfg_t *cfg)
 {
-    ws_bbr_cfg_t *get_cfg = NULL;
-    ws_cfg_to_get((ws_cfgs_t **) &get_cfg, NULL, NULL, (ws_cfgs_t *) &ws_cfg.bbr, 0, flags);
-    *cfg = *get_cfg;
-
+    *cfg = ws_cfg.bbr;
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_bbr_validate(ws_bbr_cfg_t *cfg, ws_bbr_cfg_t *new_cfg)
+int8_t ws_cfg_bbr_validate(ws_bbr_cfg_t *new_cfg)
 {
-    ws_cfg_to_get((ws_cfgs_t **) &cfg, (ws_cfgs_t *) new_cfg, NULL, (ws_cfgs_t *) &ws_cfg.bbr, 0, 0);
-
+    ws_bbr_cfg_t *cfg = &ws_cfg.bbr;
     if (cfg->dio_interval_min != new_cfg->dio_interval_min ||
             cfg->dio_interval_doublings != new_cfg->dio_interval_doublings ||
             cfg->dio_redundancy_constant != new_cfg->dio_redundancy_constant ||
@@ -948,18 +795,16 @@ int8_t ws_cfg_bbr_validate(ws_bbr_cfg_t *cfg, ws_bbr_cfg_t *new_cfg)
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_bbr_set(protocol_interface_info_entry_t *cur, ws_bbr_cfg_t *cfg, ws_bbr_cfg_t *new_cfg, uint8_t *flags)
+int8_t ws_cfg_bbr_set(protocol_interface_info_entry_t *cur, ws_bbr_cfg_t *new_cfg, uint8_t flags)
 {
-    (void) cur;
     (void) flags;
 
-    uint8_t cfg_flags;
-    int8_t ret = ws_cfg_to_get((ws_cfgs_t **) &cfg, (ws_cfgs_t *) new_cfg, (ws_cfg_validate) ws_cfg_bbr_validate, (ws_cfgs_t *) &ws_cfg.bbr, &cfg_flags, flags);
-    if (ret != CFG_SETTINGS_CHANGED) {
+    int8_t ret = ws_cfg_bbr_validate(new_cfg);
+    if (!(flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) && ret != CFG_SETTINGS_CHANGED) {
         return ret;
     }
 
-    if (!(cfg_flags & CFG_FLAGS_DISABLE_VAL_SET)) {
+    if (cur) {
         // cur is optional, default values are for Wi-SUN small network parameters,
         ws_bbr_rpl_config(cur, new_cfg->dio_interval_min, new_cfg->dio_interval_doublings,
                           new_cfg->dio_redundancy_constant, new_cfg->dag_max_rank_increase,
@@ -967,9 +812,11 @@ int8_t ws_cfg_bbr_set(protocol_interface_info_entry_t *cur, ws_bbr_cfg_t *cfg, w
         ws_bbr_dhcp_address_lifetime_set(cur, new_cfg->dhcp_address_lifetime);
     }
 
-    if (cfg == new_cfg) {
+    if (flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) {
         return CFG_SETTINGS_OK;
     }
+
+    ws_bbr_cfg_t *cfg = &ws_cfg.bbr;
 
     ws_cfg_trace((ws_cfgs_t *) cfg, (ws_cfgs_t *) new_cfg, sizeof(ws_bbr_cfg_t), "rpl");
 
@@ -990,18 +837,15 @@ static int8_t ws_cfg_mpl_default_set(ws_mpl_cfg_t *cfg)
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_mpl_get(ws_mpl_cfg_t *cfg, uint8_t *flags)
+int8_t ws_cfg_mpl_get(ws_mpl_cfg_t *cfg)
 {
-    ws_mpl_cfg_t *get_cfg = NULL;
-    ws_cfg_to_get((ws_cfgs_t **) &get_cfg, NULL, NULL, (ws_cfgs_t *) &ws_cfg.mpl, 0, flags);
-    *cfg = *get_cfg;
-
+    *cfg = ws_cfg.mpl;
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_mpl_validate(ws_mpl_cfg_t *cfg, ws_mpl_cfg_t *new_cfg)
+int8_t ws_cfg_mpl_validate(ws_mpl_cfg_t *new_cfg)
 {
-    ws_cfg_to_get((ws_cfgs_t **) &cfg, (ws_cfgs_t *) new_cfg, NULL, (ws_cfgs_t *) &ws_cfg.mpl, 0, 0);
+    ws_mpl_cfg_t *cfg = &ws_cfg.mpl;
 
     // MPL configuration has changed
     if (cfg->mpl_trickle_imin != new_cfg->mpl_trickle_imin ||
@@ -1015,9 +859,9 @@ int8_t ws_cfg_mpl_validate(ws_mpl_cfg_t *cfg, ws_mpl_cfg_t *new_cfg)
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_mpl_set(protocol_interface_info_entry_t *cur, ws_mpl_cfg_t *cfg, ws_mpl_cfg_t *new_cfg, uint8_t *flags)
+int8_t ws_cfg_mpl_set(protocol_interface_info_entry_t *cur, ws_mpl_cfg_t *new_cfg, uint8_t flags)
 {
-    uint8_t cfg_flags;
+    (void) flags;
 
     // In Wi-SUN Border router will have modified settings to improve reliability
     if (cur && cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
@@ -1033,12 +877,12 @@ int8_t ws_cfg_mpl_set(protocol_interface_info_entry_t *cur, ws_mpl_cfg_t *cfg, w
         }
     }
 
-    int8_t ret = ws_cfg_to_get((ws_cfgs_t **) &cfg, (ws_cfgs_t *) new_cfg, (ws_cfg_validate) ws_cfg_mpl_validate, (ws_cfgs_t *) &ws_cfg.mpl, &cfg_flags, flags);
-    if (ret != CFG_SETTINGS_CHANGED) {
+    int8_t ret = ws_cfg_mpl_validate(new_cfg);
+    if (!(flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) && ret != CFG_SETTINGS_CHANGED) {
         return ret;
     }
 
-    if (cur && !(cfg_flags & CFG_FLAGS_DISABLE_VAL_SET)) {
+    if (cur) {
         cur->mpl_data_trickle_params.Imin = MPL_MS_TO_TICKS(new_cfg->mpl_trickle_imin * 1000);
         cur->mpl_data_trickle_params.Imax = MPL_MS_TO_TICKS(new_cfg->mpl_trickle_imax * 1000);
         cur->mpl_data_trickle_params.k = new_cfg->mpl_trickle_k;
@@ -1051,9 +895,11 @@ int8_t ws_cfg_mpl_set(protocol_interface_info_entry_t *cur, ws_mpl_cfg_t *cfg, w
         }
     }
 
-    if (cfg == new_cfg) {
+    if (flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) {
         return CFG_SETTINGS_OK;
     }
+
+    ws_mpl_cfg_t *cfg = &ws_cfg.mpl;
 
     ws_cfg_trace((ws_cfgs_t *) cfg, (ws_cfgs_t *) new_cfg, sizeof(ws_mpl_cfg_t), "mpl");
 
@@ -1080,18 +926,15 @@ int8_t ws_cfg_fhss_default_set(ws_fhss_cfg_t *cfg)
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_fhss_get(ws_fhss_cfg_t *cfg, uint8_t *flags)
+int8_t ws_cfg_fhss_get(ws_fhss_cfg_t *cfg)
 {
-    ws_fhss_cfg_t *get_cfg = NULL;
-    ws_cfg_to_get((ws_cfgs_t **) &get_cfg, NULL, NULL, (ws_cfgs_t *) &ws_cfg.fhss, 0, flags);
-    *cfg = *get_cfg;
-
+    *cfg = ws_cfg.fhss;
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_fhss_validate(ws_fhss_cfg_t *cfg, ws_fhss_cfg_t *new_cfg)
+int8_t ws_cfg_fhss_validate(ws_fhss_cfg_t *new_cfg)
 {
-    ws_cfg_to_get((ws_cfgs_t **) &cfg, (ws_cfgs_t *) new_cfg, NULL, (ws_cfgs_t *) &ws_cfg.fhss, 0, 0);
+    ws_fhss_cfg_t *cfg = &ws_cfg.fhss;
 
     if (memcmp(cfg->fhss_channel_mask, new_cfg->fhss_channel_mask, sizeof(uint32_t) * 8) != 0 ||
             cfg->fhss_uc_dwell_interval != new_cfg->fhss_uc_dwell_interval ||
@@ -1123,19 +966,20 @@ int8_t ws_cfg_fhss_validate(ws_fhss_cfg_t *cfg, ws_fhss_cfg_t *new_cfg)
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_fhss_set(protocol_interface_info_entry_t *cur, ws_fhss_cfg_t *cfg, ws_fhss_cfg_t *new_cfg, uint8_t *flags)
+int8_t ws_cfg_fhss_set(protocol_interface_info_entry_t *cur, ws_fhss_cfg_t *new_cfg, uint8_t flags)
 {
     (void) cur;
 
-    uint8_t cfg_flags;
-    int8_t ret = ws_cfg_to_get((ws_cfgs_t **) &cfg, (ws_cfgs_t *) new_cfg, (ws_cfg_validate) ws_cfg_fhss_validate, (ws_cfgs_t *) &ws_cfg.fhss, &cfg_flags, flags);
-    if (ret != CFG_SETTINGS_CHANGED) {
+    int8_t ret = ws_cfg_fhss_validate(new_cfg);
+    if (!(flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) && ret != CFG_SETTINGS_CHANGED) {
         return ret;
     }
 
-    if (cfg == new_cfg) {
+    if (flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) {
         return CFG_SETTINGS_OK;
     }
+
+    ws_fhss_cfg_t *cfg = &ws_cfg.fhss;
 
     ws_cfg_trace((ws_cfgs_t *) cfg, (ws_cfgs_t *) new_cfg, sizeof(ws_fhss_cfg_t), "fhss");
 
@@ -1159,7 +1003,7 @@ int8_t ws_cfg_fhss_set(protocol_interface_info_entry_t *cur, ws_fhss_cfg_t *cfg,
         cfg->fhss_bc_fixed_channel = 0xffff;
     }
 
-    if (cur && !(cfg_flags & CFG_FLAGS_BOOTSTRAP_RESTART_DISABLE)) {
+    if (cur && !(flags & CFG_FLAGS_BOOTSTRAP_RESTART_DISABLE)) {
         ws_bootstrap_restart_delayed(cur->id);
     }
 
@@ -1181,18 +1025,15 @@ static int8_t ws_cfg_sec_timer_default_set(ws_sec_timer_cfg_t *cfg)
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_sec_timer_get(ws_sec_timer_cfg_t *cfg, uint8_t *flags)
+int8_t ws_cfg_sec_timer_get(ws_sec_timer_cfg_t *cfg)
 {
-    ws_sec_timer_cfg_t *get_cfg = NULL;
-    ws_cfg_to_get((ws_cfgs_t **) &get_cfg, NULL, NULL, (ws_cfgs_t *) &ws_cfg.sec_timer, 0, flags);
-    *cfg = *get_cfg;
-
+    *cfg = ws_cfg.sec_timer;
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_sec_timer_validate(ws_sec_timer_cfg_t *cfg, ws_sec_timer_cfg_t *new_cfg)
+int8_t ws_cfg_sec_timer_validate(ws_sec_timer_cfg_t *new_cfg)
 {
-    ws_cfg_to_get((ws_cfgs_t **) &cfg, (ws_cfgs_t *) new_cfg, NULL, (ws_cfgs_t *) &ws_cfg.sec_timer, 0, 0);
+    ws_sec_timer_cfg_t *cfg = &ws_cfg.sec_timer;
 
     if (cfg->gtk_expire_offset != new_cfg->gtk_expire_offset ||
             cfg->pmk_lifetime != new_cfg->pmk_lifetime ||
@@ -1210,21 +1051,24 @@ int8_t ws_cfg_sec_timer_validate(ws_sec_timer_cfg_t *cfg, ws_sec_timer_cfg_t *ne
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_sec_timer_set(protocol_interface_info_entry_t *cur, ws_sec_timer_cfg_t *cfg, ws_sec_timer_cfg_t *new_cfg, uint8_t *flags)
+int8_t ws_cfg_sec_timer_set(protocol_interface_info_entry_t *cur, ws_sec_timer_cfg_t *new_cfg, uint8_t flags)
 {
-    uint8_t cfg_flags;
-    int8_t ret = ws_cfg_to_get((ws_cfgs_t **) &cfg, (ws_cfgs_t *) new_cfg, (ws_cfg_validate) ws_cfg_sec_timer_validate, (ws_cfgs_t *) &ws_cfg.sec_timer, &cfg_flags, flags);
-    if (ret != CFG_SETTINGS_CHANGED) {
+    (void) flags;
+
+    int8_t ret = ws_cfg_sec_timer_validate(new_cfg);
+    if (!(flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) && ret != CFG_SETTINGS_CHANGED) {
         return ret;
     }
 
-    if (cur && !(cfg_flags & CFG_FLAGS_DISABLE_VAL_SET)) {
+    if (cur) {
         ws_pae_controller_configure(cur, new_cfg, NULL, NULL);
     }
 
-    if (cfg == new_cfg) {
+    if (flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) {
         return CFG_SETTINGS_OK;
     }
+
+    ws_sec_timer_cfg_t *cfg = &ws_cfg.sec_timer;
 
     ws_cfg_trace((ws_cfgs_t *) cfg, (ws_cfgs_t *) new_cfg, sizeof(ws_sec_timer_cfg_t), "sec_timer");
 
@@ -1249,18 +1093,15 @@ static int8_t ws_cfg_sec_prot_default_set(ws_sec_prot_cfg_t *cfg)
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_sec_prot_get(ws_sec_prot_cfg_t *cfg, uint8_t *flags)
+int8_t ws_cfg_sec_prot_get(ws_sec_prot_cfg_t *cfg)
 {
-    ws_sec_prot_cfg_t *get_cfg = NULL;
-    ws_cfg_to_get((ws_cfgs_t **) &get_cfg, NULL, NULL, (ws_cfgs_t *) &ws_cfg.sec_prot, 0, flags);
-    *cfg = *get_cfg;
-
+    *cfg = ws_cfg.sec_prot;
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_sec_prot_validate(ws_sec_prot_cfg_t *cfg, ws_sec_prot_cfg_t *new_cfg)
+int8_t ws_cfg_sec_prot_validate(ws_sec_prot_cfg_t *new_cfg)
 {
-    ws_cfg_to_get((ws_cfgs_t **) &cfg, (ws_cfgs_t *) new_cfg, NULL, (ws_cfgs_t *) &ws_cfg.sec_prot, 0, 0);
+    ws_sec_prot_cfg_t *cfg = &ws_cfg.sec_prot;
 
     if (cfg->sec_prot_trickle_imin != new_cfg->sec_prot_trickle_imin ||
             cfg->sec_prot_trickle_imax != new_cfg->sec_prot_trickle_imax ||
@@ -1279,21 +1120,24 @@ int8_t ws_cfg_sec_prot_validate(ws_sec_prot_cfg_t *cfg, ws_sec_prot_cfg_t *new_c
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_sec_prot_set(protocol_interface_info_entry_t *cur, ws_sec_prot_cfg_t *cfg, ws_sec_prot_cfg_t *new_cfg, uint8_t *flags)
+int8_t ws_cfg_sec_prot_set(protocol_interface_info_entry_t *cur, ws_sec_prot_cfg_t *new_cfg, uint8_t flags)
 {
-    uint8_t cfg_flags;
-    int8_t ret = ws_cfg_to_get((ws_cfgs_t **) &cfg, (ws_cfgs_t *) new_cfg, (ws_cfg_validate) ws_cfg_sec_prot_validate, (ws_cfgs_t *) &ws_cfg.sec_prot, &cfg_flags, flags);
-    if (ret != CFG_SETTINGS_CHANGED) {
+    (void) flags;
+
+    int8_t ret = ws_cfg_sec_prot_validate(new_cfg);
+    if (!(flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) && ret != CFG_SETTINGS_CHANGED) {
         return ret;
     }
 
-    if (cur && !(cfg_flags & CFG_FLAGS_DISABLE_VAL_SET)) {
+    if (cur) {
         ws_pae_controller_configure(cur, NULL, new_cfg, NULL);
     }
 
-    if (cfg == new_cfg) {
+    if (flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) {
         return CFG_SETTINGS_OK;
     }
+
+    ws_sec_prot_cfg_t *cfg = &ws_cfg.sec_prot;
 
     ws_cfg_trace((ws_cfgs_t *) cfg, (ws_cfgs_t *) new_cfg, sizeof(ws_sec_prot_cfg_t), "sec_prot");
 
@@ -1324,11 +1168,9 @@ int8_t ws_cfg_settings_default_set(void)
 
     // Set new configuration values
     for (uint8_t index = 0; index < CFG_CB_NUM; index++) {
-        uint8_t flags = 0;
         if (cfg_cb[index].set(NULL,
                               ((uint8_t *)&ws_cfg) + cfg_cb[index].setting_offset,
-                              ((uint8_t *)&ws_cfg) + cfg_cb[index].setting_offset,
-                              &flags) < 0) {
+                              0x00) < 0) {
             tr_info("FATAL CONFIG FAILURE");
             ret_value = CFG_SETTINGS_OTHER_ERROR;
         }
@@ -1345,13 +1187,11 @@ int8_t ws_cfg_settings_interface_set(protocol_interface_info_entry_t *cur)
 
     // Set new configuration values
     for (uint8_t index = 0; index < CFG_CB_NUM; index++) {
-        uint8_t flags = CFG_FLAGS_BOOTSTRAP_RESTART_DISABLE;
         // Validation
         if (cfg_cb[index].set) {
             if (cfg_cb[index].set(cur,
                                   ((uint8_t *)&ws_cfg) + cfg_cb[index].setting_offset,
-                                  ((uint8_t *)&ws_cfg) + cfg_cb[index].setting_offset,
-                                  &flags) < 0) {
+                                  CFG_FLAGS_BOOTSTRAP_RESTART_DISABLE | CFG_FLAGS_BOOTSTRAP_SET_VALUES) < 0) {
                 tr_info("FATAL CONFIG FAILURE");
                 ret_value = CFG_SETTINGS_OTHER_ERROR;
             }
@@ -1361,30 +1201,19 @@ int8_t ws_cfg_settings_interface_set(protocol_interface_info_entry_t *cur)
     return ret_value;
 }
 
-int8_t ws_cfg_settings_get(protocol_interface_info_entry_t *cur, ws_cfg_t *cfg)
+int8_t ws_cfg_settings_get(ws_cfg_t *cfg)
 {
-    (void) cur;
-
     *cfg = ws_cfg;
-
-    ws_cfg_gen_get(&cfg->gen, NULL);
-    ws_cfg_timing_get(&cfg->timing, NULL);
-    ws_cfg_bbr_get(&cfg->bbr, NULL);
-    ws_cfg_sec_prot_get(&cfg->sec_prot, NULL);
-    ws_cfg_mpl_get(&cfg->mpl, NULL);
 
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_settings_validate(protocol_interface_info_entry_t *cur, struct ws_cfg_s *new_cfg)
+int8_t ws_cfg_settings_validate(struct ws_cfg_s *new_cfg)
 {
-    (void) cur;
-
     // Validate new configuration values
     for (uint8_t index = 0; index < CFG_CB_NUM; index++) {
         if (cfg_cb[index].validate) {
             int8_t ret = cfg_cb[index].validate(
-                             ((uint8_t *)&ws_cfg) + cfg_cb[index].setting_offset,
                              ((uint8_t *)new_cfg) + cfg_cb[index].setting_offset);
             if (ret < 0) {
                 // Validation failed
@@ -1406,7 +1235,6 @@ int8_t ws_cfg_settings_set(protocol_interface_info_entry_t *cur, ws_cfg_t *new_c
     for (uint8_t index = 0; index < CFG_CB_NUM; index++) {
         if (cfg_cb[index].validate) {
             int8_t ret = cfg_cb[index].validate(
-                             ((uint8_t *)&ws_cfg) + cfg_cb[index].setting_offset,
                              ((uint8_t *)new_cfg) + cfg_cb[index].setting_offset);
 
             if (ret < 0) {
@@ -1425,12 +1253,10 @@ int8_t ws_cfg_settings_set(protocol_interface_info_entry_t *cur, ws_cfg_t *new_c
 
     // Set new configuration values
     for (uint8_t index = 0; index < CFG_CB_NUM; index++) {
-        uint8_t flags = 0;
         // Validation
         if (call_cfg_set[index]) {
             if (cfg_cb[index].set(cur,
-                                  ((uint8_t *)&ws_cfg) + cfg_cb[index].setting_offset,
-                                  ((uint8_t *)new_cfg) + cfg_cb[index].setting_offset, &flags) < 0) {
+                                  ((uint8_t *)new_cfg) + cfg_cb[index].setting_offset, 0x00) < 0) {
                 tr_info("FATAL CONFIG FAILURE");
                 ret_value = CFG_SETTINGS_OTHER_ERROR;
             }

@@ -28,10 +28,16 @@ using namespace utest::v1;
 void wifi_connect_secure_fail(void)
 {
     WiFiInterface *wifi = get_interface();
+    TEST_ASSERT(wifi);
+    if (wifi == NULL) {
+        return;
+    }
 
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->set_credentials(MBED_CONF_APP_WIFI_SECURE_SSID, "aaaaaaaa", get_security()));
     nsapi_error_t error;
+    printf("Wifi connection with wrong password\n");
     error = wifi->connect();
+    printf("=> %d => Wifi disconnection\n", error);
     wifi->disconnect();
     TEST_ASSERT(error == NSAPI_ERROR_AUTH_FAILURE ||
                 error == NSAPI_ERROR_CONNECTION_TIMEOUT ||

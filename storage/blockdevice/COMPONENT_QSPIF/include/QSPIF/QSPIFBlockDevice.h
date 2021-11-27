@@ -277,7 +277,9 @@ private:
                                              mbed::bd_size_t tx_length, const char *rx_buffer, mbed::bd_size_t rx_length);
 
     // Send command to read from the SFDP table
-    int _qspi_send_read_sfdp_command(mbed::bd_addr_t addr, void *rx_buffer, mbed::bd_size_t rx_length);
+    int _qspi_send_read_sfdp_command(mbed::bd_addr_t addr, mbed::sfdp_cmd_addr_size_t addr_size,
+                                     uint8_t inst, uint8_t dummy_cycles,
+                                     void *rx_buffer, mbed::bd_size_t rx_length);
 
     // Read the contents of status registers 1 and 2 into a buffer (buffer must have a length of 2)
     qspi_status_t _qspi_read_status_registers(uint8_t *reg_buffer);
@@ -313,7 +315,7 @@ private:
     /* SFDP Detection and Parsing Functions */
     /****************************************/
     // Parse and Detect required Basic Parameters from Table
-    int _sfdp_parse_basic_param_table(mbed::Callback<int(mbed::bd_addr_t, void *, mbed::bd_size_t)> sfdp_reader,
+    int _sfdp_parse_basic_param_table(mbed::Callback<int(mbed::bd_addr_t, mbed::sfdp_cmd_addr_size_t, uint8_t, uint8_t, void *, mbed::bd_size_t)> sfdp_reader,
                                       mbed::sfdp_hdr_info &sfdp_info);
 
     // Detect the soft reset protocol and reset - returns error if soft reset is not supported
@@ -373,6 +375,9 @@ private:
     int _quad_enable_bit;
 
     bool _needs_fast_mode;
+
+    // S25FS512S needs a quirk
+    bool _S25FS512S_quirk;
 
     // Clear block protection
     qspif_clear_protection_method_t _clear_protection_method;

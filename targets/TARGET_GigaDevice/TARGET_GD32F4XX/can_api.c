@@ -38,7 +38,7 @@
 /* CAN1 interrupt vector number */
 #define CAN1_IRQ_BASE_NUM             63
 
-static uint32_t can_irq_ids[2] = {0};
+static uintptr_t can_irq_contexts[2] = {0};
 static can_irq_handler irq_callback;
 
 /** CAN interrupt handle .
@@ -66,13 +66,13 @@ static void dev_can_irq_handle(uint32_t periph, int id)
 
     /* CAN transmit complete interrupt handle */
     if (flag0 || flag1 || flag2) {
-        irq_callback(can_irq_ids[id], IRQ_TX);
+        irq_callback(can_irq_contexts[id], IRQ_TX);
     }
 
     /* CAN receive complete interrupt handle */
     if (CAN_INTEN_RFNEIE0 == (CAN_INTEN(periph) & CAN_INTEN_RFNEIE0)) {
         if (0 != can_receive_message_length_get(periph, CAN_FIFO0)) {
-            irq_callback(can_irq_ids[id], IRQ_RX);
+            irq_callback(can_irq_contexts[id], IRQ_RX);
         }
     }
 
@@ -81,18 +81,18 @@ static void dev_can_irq_handle(uint32_t periph, int id)
         /* passive error interrupt handle */
         if (CAN_INTEN_PERRIE == (CAN_INTEN(periph) & CAN_INTEN_PERRIE)) {
             if (SET == can_flag_get(periph, CAN_FLAG_PERR)) {
-                irq_callback(can_irq_ids[id], IRQ_PASSIVE);
+                irq_callback(can_irq_contexts[id], IRQ_PASSIVE);
             }
         }
 
         /* bus-off interrupt handle */
         if (CAN_INTEN_BOIE == (CAN_INTEN(periph) & CAN_INTEN_BOIE)) {
             if (SET == can_flag_get(periph, CAN_FLAG_BOERR)) {
-                irq_callback(can_irq_ids[id], IRQ_BUS);
+                irq_callback(can_irq_contexts[id], IRQ_BUS);
             }
         }
 
-        irq_callback(can_irq_ids[id], IRQ_ERROR);
+        irq_callback(can_irq_contexts[id], IRQ_ERROR);
     }
 }
 
@@ -331,10 +331,10 @@ int can_frequency(can_t *obj, int hz)
  *  @param handler the interrupt callback.
  *  @param id the CANx index.
  */
-void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id)
+void can_irq_init(can_t *obj, can_irq_handler handler, uintptr_t context)
 {
     irq_callback = handler;
-    can_irq_ids[obj->index] = id;
+    can_irq_contexts[obj->index] = context;
 }
 
 /** disable the interrupt.
@@ -352,7 +352,7 @@ void can_irq_free(can_t *obj)
                               CAN_INTEN_PERRIE | CAN_INTEN_BOIE | CAN_INTEN_ERRIE);
     }
 
-    can_irq_ids[obj->index] = 0;
+    can_irq_contexts[obj->index] = 0;
 }
 
 /** Set the interrupt handle.
