@@ -200,7 +200,7 @@ typedef struct radio_fsk_packet_handler {
     /**
      * Storage for RSSI value of the received signal.
      */
-    int8_t rssi_value;
+    int16_t rssi_value;
 
     /**
      * Automated frequency correction value.
@@ -333,7 +333,7 @@ typedef struct radio_lora_packet_handler {
     /**
      * RSSI value in dBm for the received packet.
      */
-    int8_t rssi_value;
+    int16_t rssi_value;
 
     /**
      * Size of the transmitted or received packet.
