@@ -605,6 +605,10 @@ void STM32WL_LoRaRadio::init_radio(radio_events_t *events)
     _tx_timeout = 0;
     _rx_timeout = 0;
 
+    hsubghz.Init.BaudratePrescaler = 0;
+    hsubghz.ErrorCode = 0;
+    hsubghz.State = HAL_SUBGHZ_STATE_RESET;
+
     //call to HAL_SUBGHZ_Init() for MSPInit and NVIC Radio_IRQ setting
     error_value = HAL_SUBGHZ_Init(&hsubghz);
 
@@ -766,16 +770,20 @@ void STM32WL_LoRaRadio::write_opmode_command(uint8_t cmd, uint8_t *buffer, uint1
 {
     HAL_StatusTypeDef error_value;
 
+    core_util_critical_section_enter();
     error_value = HAL_SUBGHZ_ExecSetCmd(&hsubghz, (SUBGHZ_RadioSetCmd_t)cmd, buffer, size);
     MBED_ASSERT(error_value == HAL_OK);
+    core_util_critical_section_exit();
 }
 
 void STM32WL_LoRaRadio::read_opmode_command(uint8_t cmd, uint8_t *buffer, uint16_t size)
 {
     HAL_StatusTypeDef error_value;
 
+    core_util_critical_section_enter();
     error_value = HAL_SUBGHZ_ExecGetCmd(&hsubghz, (SUBGHZ_RadioGetCmd_t)cmd, buffer, size);
     MBED_ASSERT(error_value == HAL_OK);
+    core_util_critical_section_exit();
 }
 
 void STM32WL_LoRaRadio::write_to_register(uint16_t addr, uint8_t data)
