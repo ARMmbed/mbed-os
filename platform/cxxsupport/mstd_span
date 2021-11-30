@@ -140,6 +140,8 @@ public:
     using element_type = ElementType;
     using value_type = typename mstd::remove_cv_t<element_type>;
     using size_type = size_t;
+    // Typedef because IAR does not allow [[deprecated]] with using
+    [[deprecated("Use size_type instead.")]] typedef size_t index_type;
     using difference_type = ptrdiff_t;
     using pointer = element_type *;
     using const_pointer = const element_type *;
