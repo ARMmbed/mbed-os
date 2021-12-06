@@ -1,3 +1,3 @@
 #include "PinNames.h"
 
-uint32_t SystemCoreClock = 120000000;
+uint32_t SystemCoreClock = 125000000;
