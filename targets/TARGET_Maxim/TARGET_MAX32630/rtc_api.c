@@ -127,10 +127,10 @@ time_t rtc_read(void)
 //******************************************************************************
 void lp_ticker_init(void)
 {
+    init_rtc();
     RTC_DisableINT(MXC_F_RTC_INTEN_COMP0);
     NVIC_SetVector(RTC0_IRQn, (uint32_t)lp_ticker_irq_handler);
     NVIC_EnableIRQ(RTC0_IRQn);
-    init_rtc();
 }
 
 //******************************************************************************
