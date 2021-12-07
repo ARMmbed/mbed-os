@@ -31,11 +31,22 @@ Only M4 core is currently used by mbed-os applications.
 - Total FLASH is 256KB
 - RAM: 64 KB
 
+**[tip] mbed-os export feature**
+
+`mbed export -m NUCLEO_WL55JC -i uvision6`
+
+This needs to locally add a patch:
+https://github.com/ARMmbed/mbed-os/pull/10424/files
+
+`mbed export -m NUCLEO_WL55JC -i iar`
+
+This needs to locally add a patch:
+https://github.com/jeromecoutant/mbed/blob/IAR_EXPORT_SUPPORT/tools/export/iar/iar_definitions.json#L62-L64
+
 
 ## CUSTOM boards
 
-Check https://github.com/ARMmbed/stm32customtargets
-
+Check https://github.com/ARMmbed/stm32customtargets#stm32wl
 
 # LoRa
 
