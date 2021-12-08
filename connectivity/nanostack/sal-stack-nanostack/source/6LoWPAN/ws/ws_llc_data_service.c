@@ -32,6 +32,7 @@
 #include "6LoWPAN/ws/ws_common_defines.h"
 #include "6LoWPAN/ws/ws_common.h"
 #include "6LoWPAN/ws/ws_bootstrap.h"
+#include "6LoWPAN/ws/ws_bootstrap_ffn.h"
 #include "6LoWPAN/ws/ws_ie_lib.h"
 #include "6LoWPAN/ws/ws_llc.h"
 #include "6LoWPAN/ws/ws_neighbor_class.h"
@@ -153,6 +154,7 @@ typedef struct {
     ws_asynch_ind                   *asynch_ind;                    /**< LLC Asynch data indication call back configured by user */
     ws_asynch_confirm               *asynch_confirm;                /**< LLC Asynch data confirmation call back configured by user */
     ws_neighbor_info_request        *ws_neighbor_info_request_cb;   /**< LLC Neighbour discover API*/
+    ws_eapol_relay_active_check     *eapol_relay_active_cb;         /**< EAPOL relay active check callback */
     uint8_t                         ws_enhanced_response_elements[ENHANCED_FRAME_RESPONSE];
     ns_ie_iovec_t                   ws_header_vector;
     bool                            high_priority_mode;
@@ -992,9 +994,9 @@ static uint16_t ws_mpx_header_size_get(llc_data_base_t *base, uint16_t user_id)
     return header_size;
 }
 
-static bool ws_eapol_handshake_first_msg(uint8_t *pdu, uint16_t length, protocol_interface_info_entry_t *cur)
+static bool ws_eapol_handshake_first_msg(llc_data_base_t *base, uint8_t *pdu, uint16_t length, protocol_interface_info_entry_t *cur)
 {
-    if (!ws_eapol_relay_state_active(cur)) {
+    if (!base->eapol_relay_active_cb(cur)) {
         return false;
     }
 
@@ -1246,8 +1248,8 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
     wp_nested_ie_sub_list_t nested_wp_id;
     memset(&nested_wp_id, 0, sizeof(wp_nested_ie_sub_list_t));
     ie_header_mask.utt_ie = true;
-    ie_header_mask.bt_ie = ws_eapol_relay_state_active(base->interface_ptr);
-    ie_header_mask.ea_ie = ws_eapol_handshake_first_msg(data->msdu, data->msduLength, base->interface_ptr);
+    ie_header_mask.bt_ie = base->eapol_relay_active_cb(base->interface_ptr); /* Broadcast timing information  */
+    ie_header_mask.ea_ie = ws_eapol_handshake_first_msg(base, data->msdu, data->msduLength, base->interface_ptr);
     nested_wp_id.bs_ie = ie_header_mask.ea_ie;
 
 
@@ -1746,7 +1748,7 @@ static uint16_t ws_llc_calculate_dynamic_entries_max(uint16_t min_entry, uint16_
 }
 
 
-int8_t ws_llc_create(struct protocol_interface_info_entry *interface, ws_asynch_ind *asynch_ind_cb, ws_asynch_confirm *asynch_cnf_cb, ws_neighbor_info_request *ws_neighbor_info_request_cb)
+int8_t ws_llc_create(struct protocol_interface_info_entry *interface, ws_asynch_ind *asynch_ind_cb, ws_asynch_confirm *asynch_cnf_cb, ws_neighbor_info_request *ws_neighbor_info_request_cb, ws_eapol_relay_active_check eapol_relay_active_cb)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (base) {
@@ -1765,6 +1767,7 @@ int8_t ws_llc_create(struct protocol_interface_info_entry *interface, ws_asynch_
     base->asynch_ind = asynch_ind_cb;
     base->asynch_confirm = asynch_cnf_cb;
     base->ws_neighbor_info_request_cb = ws_neighbor_info_request_cb;
+    base->eapol_relay_active_cb = eapol_relay_active_cb;
     //Register MAC Extensions
     base->interface_ptr->mac_api->mac_mcps_extension_enable(base->interface_ptr->mac_api, &ws_llc_mac_indication_cb, &ws_llc_mac_confirm_cb, &ws_llc_ack_data_req_ext);
     base->interface_ptr->mac_api->mac_mcps_edfe_enable(base->interface_ptr->mac_api, &ws_llc_mcps_edfe_handler);

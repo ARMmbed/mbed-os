@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Pelion and affiliates.
+ * Copyright (c) 2019-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,4 +20,5 @@
 
 #define FEA_TRACE_SUPPORT
 #define EXTRA_CONSISTENCY_CHECKS
+#define HAVE_PAE_SUPP
 

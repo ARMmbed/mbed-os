@@ -218,7 +218,7 @@ int ws_test_procedure_trigger(int8_t interface_id, ws_test_proc_t procedure, voi
         }
     }
 
-    return ws_bootstrap_test_procedure_trigger(cur, procedure);
+    return ws_bootstrap_test_procedure_trigger(cur, (ws_bootsrap_procedure_t) procedure);
 }
 
 #endif // HAVE_WS

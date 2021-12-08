@@ -792,6 +792,13 @@ int8_t ws_cfg_bbr_validate(ws_bbr_cfg_t *new_cfg)
         return CFG_SETTINGS_CHANGED;
     }
 
+    if (cfg->dio_interval_min == 0 ||
+            cfg->min_hop_rank_increase < 32 ||
+            cfg->dhcp_address_lifetime < 60 ||
+            cfg->rpl_default_lifetime < 60) {
+        return CFG_SETTINGS_ERROR_GEN_CONF;
+    }
+
     return CFG_SETTINGS_OK;
 }
 

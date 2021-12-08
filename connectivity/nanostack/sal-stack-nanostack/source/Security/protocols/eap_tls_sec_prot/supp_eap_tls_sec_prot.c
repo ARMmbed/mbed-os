@@ -406,7 +406,7 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             }
 
             // Set retry timeout based on network size
-            data->common.ticks = prot->sec_cfg->prot_cfg.sec_prot_retry_timeout;
+            sec_prot_timeout_set(&data->common, prot->sec_cfg->prot_cfg.sec_prot_retry_timeout);
 
             // Store sequence ID
             supp_eap_tls_sec_prot_seq_id_update(prot);
@@ -451,7 +451,7 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             supp_eap_tls_sec_prot_seq_id_update(prot);
 
             sec_prot_state_set(prot, &data->common, EAP_TLS_STATE_REQUEST);
-            data->common.ticks = prot->sec_cfg->prot_cfg.sec_prot_retry_timeout;
+            sec_prot_timeout_set(&data->common, prot->sec_cfg->prot_cfg.sec_prot_retry_timeout);
 
             // Initialize TLS protocol
             if (supp_eap_tls_sec_prot_init_tls(prot) < 0) {
@@ -485,7 +485,7 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
                 // Store sequence ID
                 if (supp_eap_tls_sec_prot_seq_id_update(prot)) {
                     // When receiving a new sequence number, adds more time for re-send if no response
-                    data->common.ticks = prot->sec_cfg->prot_cfg.sec_prot_retry_timeout;
+                    sec_prot_timeout_set(&data->common, prot->sec_cfg->prot_cfg.sec_prot_retry_timeout);
                 }
 
                 // All fragments received for a message

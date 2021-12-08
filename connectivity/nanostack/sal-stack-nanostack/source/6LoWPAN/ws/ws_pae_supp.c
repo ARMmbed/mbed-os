@@ -1007,6 +1007,7 @@ static int8_t ws_pae_supp_eapol_pdu_address_check(protocol_interface_info_entry_
 static int8_t ws_pae_supp_parent_eui_64_get(protocol_interface_info_entry_t *interface_ptr, uint8_t *eui_64)
 {
     rpl_dodag_info_t dodag_info;
+    (void) dodag_info; // avoid unused warning in ws_host mode
     if (!interface_ptr->rpl_domain) {
         return -1;
     }

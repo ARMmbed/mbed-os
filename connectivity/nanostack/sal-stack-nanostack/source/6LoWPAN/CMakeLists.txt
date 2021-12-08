@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2020-2021, Pelion and affiliates.
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-nanostack-sal_stack
@@ -84,8 +84,9 @@ target_sources(mbed-nanostack-sal_stack
         ws/ws_bbr_api.c
         ws/ws_bootstrap.c
         ws/ws_bootstrap_6lbr.c
+        ws/ws_bootstrap_6ln.c
+        ws/ws_bootstrap_6lr.c
         ws/ws_bootstrap_ffn.c
-        ws/ws_bootstrap_lfn.c
         ws/ws_cfg_settings.c
         ws/ws_common.c
         ws/ws_eapol_auth_relay.c

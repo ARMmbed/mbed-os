@@ -26,7 +26,6 @@
  */
 
 #define EUI64_LEN                     8
-#define SEC_TOTAL_TIMEOUT             30 * 60 * 10 // 30 minutes
 #define SEC_FINISHED_TIMEOUT          5 * 10       // 5 seconds
 
 #define FWH_NONCE_LENGTH              32
@@ -299,11 +298,12 @@ bool sec_prot_result_timeout_check(sec_prot_common_t *data);
 bool sec_prot_result_ok_check(sec_prot_common_t *data);
 
 /**
- * sec_prot_default_timeout_set sets default timeout for protocol
+ * sec_prot_timeout_set sets timeout for protocol
  *
  * \param data common data
+ * \param ticks ticks
  *
  */
-void sec_prot_default_timeout_set(sec_prot_common_t *data);
+void sec_prot_timeout_set(sec_prot_common_t *data, uint16_t ticks);
 
 #endif /* SEC_PROT_LIB_H_ */

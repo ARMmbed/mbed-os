@@ -436,7 +436,7 @@ static void radius_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             tr_info("EAP-TLS: start, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
 
             // Set default timeout for the total maximum length of the negotiation
-            sec_prot_default_timeout_set(&data->common);
+            sec_prot_timeout_set(&data->common, SEC_PROT_RETRYING_PROTOCOL_TIMEOUT);
 
             // KMP-CREATE.confirm
             prot->create_conf(prot, SEC_RESULT_OK);
@@ -482,7 +482,7 @@ static void radius_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             sec_prot_timer_trickle_stop(&data->common);
 
             // Set timeout to wait for RADIUS client to continue
-            data->common.ticks = RADIUS_EAP_TLS_CLIENT_TIMEOUT;
+            sec_prot_timeout_set(&data->common, RADIUS_EAP_TLS_CLIENT_TIMEOUT);
 
             // Send to radius client
             data->radius_client_send(data->radius_client_prot, (void *) &data->recv_eapol_pdu, length);
@@ -547,7 +547,7 @@ static void radius_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             sec_prot_timer_trickle_stop(&data->common);
 
             // Set timeout to wait for RADIUS client to continue
-            data->common.ticks = RADIUS_EAP_TLS_CLIENT_TIMEOUT;
+            sec_prot_timeout_set(&data->common, RADIUS_EAP_TLS_CLIENT_TIMEOUT);
 
             // Send to radius client
             data->radius_client_send(data->radius_client_prot, (void *) &data->recv_eapol_pdu, length);

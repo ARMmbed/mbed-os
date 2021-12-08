@@ -849,6 +849,7 @@ static void nd_update_registration(protocol_interface_info_entry_t *cur_interfac
         /* Register with 2 seconds off the lifetime - don't want the NCE to expire before the route */
         ipv6_route_add_metric(neigh->ip_address, 128, cur_interface->id, neigh->ip_address, ROUTE_ARO, NULL, 0, neigh->lifetime - 2, 32);
 
+#ifdef HAVE_RPL
         /* We need to know peer is a host before publishing - this needs MLE. Not yet established
          * what to do without MLE - might need special external/non-external prioritisation at root.
          * This "publish for RFD" rule comes from ZigBee IP.
@@ -861,6 +862,7 @@ static void nd_update_registration(protocol_interface_info_entry_t *cur_interfac
                 rpl_control_publish_host_address(protocol_6lowpan_rpl_domain, neigh->ip_address, neigh->lifetime);
             }
         }
+#endif // HAVE_RPL
         protocol_6lowpan_neighbor_address_state_synch(cur_interface, aro->eui64, neigh->ip_address + 8);
 
     } else {
@@ -870,10 +872,13 @@ static void nd_update_registration(protocol_interface_info_entry_t *cur_interfac
         neigh->lifetime = 2;
         ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
         ipv6_route_add_metric(neigh->ip_address, 128, cur_interface->id, neigh->ip_address, ROUTE_ARO, NULL, 0, 4, 32);
+#ifdef HAVE_RPL
         rpl_control_unpublish_address(protocol_6lowpan_rpl_domain, neigh->ip_address);
+#endif
     }
 }
 
+#ifdef HAVE_RPL
 void nd_remove_registration(protocol_interface_info_entry_t *cur_interface, addrtype_t ll_type, const uint8_t *ll_address)
 {
     ns_list_foreach_safe(ipv6_neighbour_t, cur, &cur_interface->ipv6_neighbour_cache.list) {
@@ -888,7 +893,9 @@ void nd_remove_registration(protocol_interface_info_entry_t *cur_interface, addr
         }
     }
 }
+#endif // HAVE_RPL
 
+#ifdef HAVE_RPL
 /* Process ICMP Neighbor Solicitation (RFC 4861 + RFC 6775) ARO. */
 bool nd_ns_aro_handler(protocol_interface_info_entry_t *cur_interface, const uint8_t *aro_opt, const uint8_t *slla_opt, const uint8_t *src_addr, aro_t *aro_out)
 {
@@ -1032,6 +1039,7 @@ RESPONSE:
         return false; /* Tell ns_handler to not transmit now */
     }
 }
+#endif //HAVE_RPL
 
 buffer_t *nd_dac_handler(buffer_t *buf, protocol_interface_info_entry_t *cur)
 {
@@ -1304,6 +1312,7 @@ void nd_ra_process_lowpan_context_option(protocol_interface_info_entry_t *cur, c
     lowpan_context_update(&cur->lowpan_contexts, cid_flags, lifetime, opt + 8, ctx_len, true);
 }
 #ifdef HAVE_6LOWPAN_ROUTER
+#ifdef HAVE_RPL
 static void nd_ra_build(nd_router_t *cur, const uint8_t *address, protocol_interface_info_entry_t *cur_interface)
 {
     if (!(cur_interface->lowpan_info & INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY) || !icmp_nd_router_prefix_valid(cur)) {
@@ -1393,7 +1402,6 @@ void nd_ra_build_by_abro(const uint8_t *abro, const uint8_t *dest, protocol_inte
     }
 }
 
-
 void nd_trigger_ras_from_rs(const uint8_t *unicast_adr, protocol_interface_info_entry_t *cur_interface)
 {
     ns_list_foreach(nd_router_t, cur, &nd_router_list) {
@@ -1470,7 +1478,7 @@ static nd_router_t *nd_router_object_scan_by_prefix(const uint8_t *ptr, nwk_inte
 
     return NULL;
 }
-
+#endif //HAVE_RPL
 #endif
 
 void gp_address_add_to_end(gp_ipv6_address_list_t *list, const uint8_t address[static 16])
