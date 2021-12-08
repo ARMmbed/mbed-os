@@ -26,7 +26,7 @@ void rpl_policy_force_tunnel_set(bool enable);
 
 bool rpl_policy_join_instance(rpl_domain_t *domain, uint8_t instance_id, const uint8_t *dodagid);
 bool rpl_policy_join_dodag(rpl_domain_t *domain, uint8_t g_mop_prf, uint8_t instance_id, const uint8_t *dodagid);
-bool rpl_policy_join_config(rpl_domain_t *domain, const rpl_dodag_conf_t *conf, bool *leaf_only);
+bool rpl_policy_join_config(rpl_domain_t *domain, const rpl_dodag_conf_int_t *conf, bool *leaf_only);
 
 bool rpl_policy_request_dao_acks(const rpl_domain_t *domain, uint8_t mop);
 uint16_t rpl_policy_initial_dao_ack_wait(const rpl_domain_t *domain, uint8_t mop);

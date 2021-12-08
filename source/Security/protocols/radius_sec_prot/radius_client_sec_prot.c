@@ -1089,7 +1089,7 @@ static void radius_client_sec_prot_state_machine(sec_prot_t *prot)
             tr_info("Radius: start, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
 
             // Set default timeout for the total maximum length of the negotiation
-            sec_prot_default_timeout_set(&data->common);
+            sec_prot_timeout_set(&data->common, SEC_PROT_RETRYING_PROTOCOL_TIMEOUT);
 
             sec_prot_state_set(prot, &data->common, RADIUS_STATE_CREATE_RESP);
 
@@ -1148,7 +1148,7 @@ static void radius_client_sec_prot_state_machine(sec_prot_t *prot)
             sec_prot_timer_trickle_stop(&data->common);
 
             // Set timeout to wait for EAP-TLS to continue
-            data->common.ticks = prot->sec_cfg->prot_cfg.sec_prot_retry_timeout;
+            sec_prot_timeout_set(&data->common, prot->sec_cfg->prot_cfg.sec_prot_retry_timeout);
 
             // Send to radius EAP-TLS
             if (data->radius_eap_tls_send && data->radius_eap_tls_prot && data->recv_eap_msg && data->recv_eap_msg_len > 0) {

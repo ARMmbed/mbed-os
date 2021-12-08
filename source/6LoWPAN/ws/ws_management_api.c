@@ -327,9 +327,26 @@ int ws_management_regulatory_domain_get(
         return -3;
     }
 
-    *regulatory_domain = cfg.regulatory_domain;
-    *operating_class = cfg.operating_class;
-    *operating_mode = cfg.operating_mode;
+    if (regulatory_domain) {
+        *regulatory_domain = cfg.regulatory_domain;
+    }
+
+    // If phy_mode_id is set the new configuration mode is used and class and mode return invalid value
+    if (operating_class) {
+        if (cfg.phy_mode_id == 0xff) {
+            *operating_class = cfg.operating_class;
+        } else {
+            *operating_class = 0xff;
+        }
+    }
+
+    if (operating_mode) {
+        if (cfg.phy_mode_id == 0xff) {
+            *operating_mode = cfg.operating_mode;
+        } else {
+            *operating_mode = 0xff;
+        }
+    }
 
     return 0;
 }

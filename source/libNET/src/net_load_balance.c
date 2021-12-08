@@ -248,7 +248,7 @@ void net_load_balance_internal_state_activate(protocol_interface_info_entry_t *i
     if (state && interface_ptr->rpl_domain) {
         struct rpl_instance *instance = rpl_control_lookup_instance(interface_ptr->rpl_domain, 1, NULL);
         if (instance) {
-            const rpl_dodag_conf_t *dodag_config = rpl_control_get_dodag_config(instance);
+            const rpl_dodag_conf_int_t *dodag_config = rpl_control_get_dodag_config(instance);
             if (dodag_config) {
                 //dio max Period caluclate in seconds
                 uint32_t Imax_ms = (dodag_config->dio_interval_min + dodag_config->dio_interval_doublings) < 32 ?

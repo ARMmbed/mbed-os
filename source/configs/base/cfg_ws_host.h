@@ -18,9 +18,7 @@
 #define HAVE_WS
 #define HAVE_WS_HOST
 #define HAVE_WS_VERSION_1_1
-#define HAVE_RPL
 #define HAVE_MPL
 #define HAVE_6LOWPAN_ND
 #define HAVE_IPV6_ND
-#define HAVE_PAE_SUPP
 #define HAVE_6LOWPAN_ROUTER

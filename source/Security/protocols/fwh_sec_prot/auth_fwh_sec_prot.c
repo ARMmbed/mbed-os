@@ -120,7 +120,7 @@ static int8_t auth_fwh_sec_prot_init(sec_prot_t *prot)
     sec_prot_init(&data->common);
     sec_prot_state_set(prot, &data->common, FWH_STATE_INIT);
 
-    data->common.ticks = 15 * 10; // 15 seconds
+    sec_prot_timeout_set(&data->common, 15 * 10); // 15 seconds
 
     uint8_t eui64[8] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
     sec_prot_lib_nonce_init(data->nonce, eui64, 1000);
@@ -348,7 +348,7 @@ static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
             tr_info("4WH: start, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
 
             // Set default timeout for the total maximum length of the negotiation
-            sec_prot_default_timeout_set(&data->common);
+            sec_prot_timeout_set(&data->common, SEC_PROT_RETRYING_PROTOCOL_TIMEOUT);
 
             uint8_t *pmk = sec_prot_keys_pmk_get(prot->sec_keys);
             if (!pmk) { // If PMK is not set fails

@@ -265,8 +265,8 @@ void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_
 #define ws_pae_supp_init(interface_ptr, certs, sec_timer_cfg, sec_prot_cfg) 1
 #define ws_pae_supp_delete NULL
 #define ws_pae_supp_timing_adjust(timing) 1
-#define ws_pae_supp_cb_register(interface_ptr, completed, nw_key_insert, nw_key_index_set)
-#define ws_pae_supp_nw_key_valid(interface_ptr) -1
+#define ws_pae_supp_cb_register(interface_ptr, completed, auth_next_target,nw_key_insert, nw_key_index_set, gtk_hash_ptr_get, nw_info_updated)
+#define ws_pae_supp_nw_key_valid(interface_ptr, br_iid) -1
 #define ws_pae_supp_fast_timer NULL
 #define ws_pae_supp_slow_timer NULL
 #define ws_pae_supp_authenticate(interface_ptr, dest_pan_id, dest_eui_64) PAE_SUPP_NOT_ENABLED
@@ -276,6 +276,7 @@ void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_
 #define ws_pae_supp_nw_key_index_update NULL
 #define ws_pae_supp_gtks_set(interface_ptr, gtks)
 #define ws_pae_supp_eapol_target_remove(interface_ptr)
+#define ws_pae_supp_nw_info_set NULL
 
 #endif
 

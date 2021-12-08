@@ -24,8 +24,9 @@ SRCS += \
 	source/6LoWPAN/ws/ws_neighbor_class.c \
 	source/6LoWPAN/ws/ws_bootstrap.c \
 	source/6LoWPAN/ws/ws_bootstrap_6lbr.c \
+	source/6LoWPAN/ws/ws_bootstrap_6lr.c \
+	source/6LoWPAN/ws/ws_bootstrap_6ln.c \
 	source/6LoWPAN/ws/ws_bootstrap_ffn.c \
-	source/6LoWPAN/ws/ws_bootstrap_lfn.c \
 	source/6LoWPAN/ws/ws_common.c \
 	source/6LoWPAN/ws/ws_management_api.c \
 	source/6LoWPAN/ws/ws_bbr_api.c \

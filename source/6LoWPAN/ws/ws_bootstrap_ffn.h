@@ -18,26 +18,15 @@
 #ifndef WS_BOOTSTRAP_FFN_H_
 #define WS_BOOTSTRAP_FFN_H_
 
-#if defined(HAVE_WS) && defined(HAVE_WS_ROUTER)
+#ifdef HAVE_WS
 
-void ws_bootstrap_ffn_asynch_ind(struct protocol_interface_info_entry *cur, const struct mcps_data_ind_s *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type);
-void ws_bootstrap_ffn_asynch_confirm(struct protocol_interface_info_entry *interface, uint8_t asynch_message);
-void ws_bootstrap_ffn_event_handler(protocol_interface_info_entry_t *cur, arm_event_s *event);
-void ws_bootstrap_ffn_state_machine(protocol_interface_info_entry_t *cur);
-void ws_bootstrap_ffn_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds);
+int8_t ws_bootstrap_ffn_up(protocol_interface_info_entry_t *cur);
+int8_t ws_bootstrap_ffn_down(protocol_interface_info_entry_t *cur);
 
-#define wisun_mode_router(cur) (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_ROUTER)
+void ws_dhcp_client_address_request(protocol_interface_info_entry_t *cur, uint8_t *prefix, uint8_t *parent_link_local);
 
-#else
+void ws_bootstrap_ffn_rpl_configure(protocol_interface_info_entry_t *cur);
 
-#define ws_bootstrap_ffn_asynch_ind(cur, data, ie_ext, message_type) ((void) 0)
-#define ws_bootstrap_ffn_asynch_confirm(interface, asynch_message) ((void) 0)
-#define ws_bootstrap_ffn_event_handler(cur, event) ((void) 0)
-#define ws_bootstrap_ffn_state_machine(cur) ((void) 0)
-#define ws_bootstrap_ffn_seconds_timer(cur, seconds) ((void) 0)
+#endif
 
-#define wisun_mode_router(cur) (false)
-
-#endif //HAVE_WS
-
-#endif /* WS_BOOTSTRAP_H_ */
+#endif /* WS_BOOTSTRAP_FFN_H_ */

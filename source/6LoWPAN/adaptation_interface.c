@@ -1747,6 +1747,9 @@ static uint8_t map_mlme_status_to_socket_event(uint8_t mlme_status)
         case MLME_SUCCESS:
             socket_event = SOCKET_TX_DONE;
             break;
+        case MLME_BUSY_CHAN:
+            socket_event = SOCKET_BUSY;
+            break;
         case MLME_TX_NO_ACK:
         case MLME_SECURITY_FAIL:
         case MLME_TRANSACTION_EXPIRED:

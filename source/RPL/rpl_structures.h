@@ -81,7 +81,7 @@ struct rpl_dodag {
     uint32_t timestamp;                             /* How long since we heard a DIO */
     uint8_t id[16];                                 /* Root identifier */
     uint8_t g_mop_prf;                              /* Grounded, Mode, Preference */
-    rpl_dodag_conf_t config;                        /* Configuration from DIO */
+    rpl_dodag_conf_int_t config;                    /* Configuration from DIO */
     uint8_t info_version;                           /* Version for g_mop_prf and config */
     bool root: 1;                                   /* We are the root of this DODAG */
     bool was_root: 1;                               /* If we have ever been a root in this DODAG */

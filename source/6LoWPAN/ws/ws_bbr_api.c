@@ -31,6 +31,7 @@
 #include "6LoWPAN/ws/ws_config.h"
 #include "6LoWPAN/ws/ws_common.h"
 #include "6LoWPAN/ws/ws_bootstrap.h"
+#include "6LoWPAN/ws/ws_bootstrap_ffn.h"
 #include "6LoWPAN/ws/ws_cfg_settings.h"
 #include "6LoWPAN/ws/ws_pae_key_storage.h"
 #include "6LoWPAN/ws/ws_pae_nvm_store.h"
@@ -1206,6 +1207,94 @@ int ws_bbr_ext_certificate_validation_set(int8_t interface_id, uint8_t validatio
     return ws_pae_controller_ext_certificate_validation_set(interface_id, enabled);
 #else
     (void) validation;
+    return -1;
+#endif
+}
+int ws_bbr_configuration_set(int8_t interface_id, bbr_configuration_t *configuration_ptr)
+{
+#ifdef HAVE_WS_BORDER_ROUTER
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+
+    ws_bbr_cfg_t cfg;
+    if (!configuration_ptr || ws_cfg_bbr_get(&cfg) < 0) {
+        return -1;
+    }
+
+    cfg.dio_interval_min = configuration_ptr->dio_interval_min;
+    cfg.dio_interval_doublings = configuration_ptr->dio_interval_doublings;
+    cfg.dio_redundancy_constant = configuration_ptr->dio_redundancy_constant;
+    cfg.dag_max_rank_increase = configuration_ptr->dag_max_rank_increase;
+    cfg.min_hop_rank_increase = configuration_ptr->min_hop_rank_increase;
+    cfg.dhcp_address_lifetime = configuration_ptr->dhcp_address_lifetime;
+    cfg.rpl_default_lifetime = configuration_ptr->rpl_default_lifetime;
+
+    /* Configuration change is different from settings change as it changes
+     * PAN version instead of RPL version.
+     */
+    ws_bbr_configure(interface_id, configuration_ptr->options);
+
+    if (ws_cfg_bbr_set(cur, &cfg, 0) < 0) {
+        return -2;
+    }
+
+    return 0;
+#else
+    (void) interface_id;
+    (void) configuration_ptr;
+    return -1;
+#endif
+}
+
+int ws_bbr_configuration_get(int8_t interface_id, bbr_configuration_t *configuration_ptr)
+{
+#ifdef HAVE_WS_BORDER_ROUTER
+    (void) interface_id;
+    ws_bbr_cfg_t cfg;
+    if (!configuration_ptr || ws_cfg_bbr_get(&cfg) < 0) {
+        return -1;
+    }
+
+    configuration_ptr->dio_interval_min = cfg.dio_interval_min;
+    configuration_ptr->dio_interval_doublings = cfg.dio_interval_doublings;
+    configuration_ptr->dio_redundancy_constant = cfg.dio_redundancy_constant;
+    configuration_ptr->dag_max_rank_increase = cfg.dag_max_rank_increase;
+    configuration_ptr->min_hop_rank_increase = cfg.min_hop_rank_increase;
+    configuration_ptr->dhcp_address_lifetime = cfg.dhcp_address_lifetime;
+    configuration_ptr->rpl_default_lifetime = cfg.rpl_default_lifetime;
+    configuration_ptr->options = configuration;
+    return 0;
+#else
+    (void) interface_id;
+    (void) configuration_ptr;
+    return -1;
+#endif
+}
+
+int ws_bbr_configuration_validate(int8_t interface_id, bbr_configuration_t *configuration_ptr)
+{
+#ifdef HAVE_WS_BORDER_ROUTER
+    (void) interface_id;
+    ws_bbr_cfg_t cfg;
+    if (!configuration_ptr || ws_cfg_bbr_get(&cfg) < 0) {
+        return -1;
+    }
+
+    cfg.dio_interval_min = configuration_ptr->dio_interval_min;
+    cfg.dio_interval_doublings = configuration_ptr->dio_interval_doublings;
+    cfg.dio_redundancy_constant = configuration_ptr->dio_redundancy_constant;
+    cfg.dag_max_rank_increase = configuration_ptr->dag_max_rank_increase;
+    cfg.min_hop_rank_increase = configuration_ptr->min_hop_rank_increase;
+    cfg.dhcp_address_lifetime = configuration_ptr->dhcp_address_lifetime;
+    cfg.rpl_default_lifetime = configuration_ptr->rpl_default_lifetime;
+
+    if (ws_cfg_bbr_validate(&cfg) < 0) {
+        return -3;
+    }
+
+    return 0;
+#else
+    (void) interface_id;
+    (void) configuration_ptr;
     return -1;
 #endif
 }

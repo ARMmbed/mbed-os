@@ -374,9 +374,6 @@ void ws_pae_lib_supp_list_to_inactive(void *instance, supp_list_t *active_supp_l
 
     // Remove supplicant entry
     ws_pae_lib_supp_list_remove(instance, active_supp_list, entry, supp_deleted);
-    if (supp_deleted) {
-        supp_deleted(instance);
-    }
 }
 
 void ws_pae_lib_supp_list_purge(void *instance, supp_list_t *active_supp_list, uint16_t max_number, uint8_t max_purge, ws_pae_lib_supp_deleted supp_deleted)
