@@ -703,7 +703,8 @@ static void rf_handle_rx_done(void)
         rf_state = RF_IDLE;
     }
     if (rf_read_bbc_register(BBC_PC, rf_module) & FCSOK) {
-        if (!rf_read_rx_buffer(cur_rx_packet_len, rf_module)) {
+        uint16_t rx_packet_len = rf_read_rx_frame_length(rf_module);
+        if (!rf_read_rx_buffer(rx_packet_len, rf_module)) {
             uint8_t version = ((rx_buffer[1] & VERSION_FIELD_MASK) >> SHIFT_VERSION_FIELD);
             if (((rx_buffer[0] & MAC_FRAME_TYPE_MASK) == MAC_TYPE_ACK) && (version < MAC_FRAME_VERSION_2)) {
                 rf_handle_ack(rx_buffer[2], rx_buffer[0] & MAC_DATA_PENDING);
@@ -711,11 +712,11 @@ static void rf_handle_rx_done(void)
                 int8_t rssi = (int8_t) rf_read_rf_register(RF_EDV, rf_module);
                 // Cut CRC bytes
                 if (mac_mode == IEEE_802_15_4_2011) {
-                    cur_rx_packet_len -= 2;
+                    rx_packet_len -= 2;
                 } else {
-                    cur_rx_packet_len -= 4;
+                    rx_packet_len -= 4;
                 }
-                device_driver.phy_rx_cb(rx_buffer, cur_rx_packet_len, 0xf0, rssi, rf_radio_driver_id);
+                device_driver.phy_rx_cb(rx_buffer, rx_packet_len, 0xf0, rssi, rf_radio_driver_id);
                 // If auto ack used, must wait until RF returns to RF_TXPREP state
                 if ((version != MAC_FRAME_VERSION_2) && (rx_buffer[0] & FC_AR)) {
                     wait_us(100);
