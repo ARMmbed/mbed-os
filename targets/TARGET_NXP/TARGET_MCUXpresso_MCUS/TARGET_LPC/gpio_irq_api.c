@@ -28,7 +28,7 @@
 
 #define INTERRUPT_PORTS 2
 
-static uint32_t channel_ids[NUMBER_OF_GPIO_INTS] = {0};
+static uintptr_t channel_contexts[NUMBER_OF_GPIO_INTS] = {0};
 static gpio_irq_handler irq_handler;
 /* Array of PORT IRQ number. */
 static const IRQn_Type pint_irqs[] = PINT_IRQS;
@@ -42,24 +42,24 @@ void pint_intr_callback(pint_pin_int_t pintr, uint32_t pmatch_status)
     //   * There is no user handler
     //   * It is a level interrupt, not an edge interrupt
     if (((PINT->IST & ch_bit) == 0) ||
-        (channel_ids[pintr] == 0) ||
+        (channel_contexts[pintr] == 0) ||
         (PINT->ISEL & ch_bit)) {
         return;
     }
 
     if ((PINT->IENR & ch_bit) && (PINT->RISE & ch_bit)){
-        irq_handler(channel_ids[pintr], IRQ_RISE);
+        irq_handler(channel_contexts[pintr], IRQ_RISE);
         PINT->RISE = ch_bit;
     }
 
     if ((PINT->IENF & ch_bit) && (PINT->FALL & ch_bit)) {
-        irq_handler(channel_ids[pintr], IRQ_FALL);
+        irq_handler(channel_contexts[pintr], IRQ_FALL);
         PINT->FALL = ch_bit;
     }
     PINT_PinInterruptClrStatus(PINT, pintr);
 }
 
-int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uintptr_t context)
 {
     int found_free_channel = 0;
     int i = 0;
@@ -78,8 +78,8 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     irq_handler = handler;
 
     for (i = 0; i < NUMBER_OF_GPIO_INTS; i++) {
-        if (channel_ids[i] == 0) {
-            channel_ids[i] = id;
+        if (channel_contexts[i] == 0) {
+            channel_contexts[i] = context;
             obj->ch = i;
             found_free_channel = 1;
             break;
@@ -108,7 +108,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
 
 void gpio_irq_free(gpio_irq_t *obj)
 {
-    channel_ids[obj->ch] = 0;
+    channel_contexts[obj->ch] = 0;
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)

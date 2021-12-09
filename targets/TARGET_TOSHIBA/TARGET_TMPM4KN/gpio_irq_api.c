@@ -49,7 +49,7 @@ const PinMap PinMap_GPIO_IRQ[] = {
 
 
 extern _gpio_t gpio_port_add;
-static uint32_t channel_ids[CHANNEL_NUM] = {0};
+static uintptr_t channel_contexts[CHANNEL_NUM] = {0};
 static gpio_irq_handler hal_irq_handler[CHANNEL_NUM] = {NULL};
 static CG_INTActiveState CurrentState;
 
@@ -141,7 +141,7 @@ void INT21_IRQHandler(void)
     INT_IRQHandler(PG3, 21);
 }
 
-int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uintptr_t context)
 {
     // Get gpio interrupt ID
     obj->irq_id = pinmap_peripheral(pin, PinMap_GPIO_IRQ);
@@ -158,7 +158,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     // Save irq handler
     hal_irq_handler[obj->irq_src] = handler;
     // Save irq id
-    channel_ids[obj->irq_src] = id;
+    channel_contexts[obj->irq_src] = context;
     // Initialize interrupt event as both edges detection
     obj->event = CG_INT_ACTIVE_STATE_BOTH_EDGES;
     // Clear gpio pending interrupt
@@ -177,7 +177,7 @@ void gpio_irq_free(gpio_irq_t *obj)
     // Reset interrupt handler
     hal_irq_handler[obj->irq_src] = NULL;
     // Reset interrupt id
-    channel_ids[obj->irq_src] = 0;
+    channel_contexts[obj->irq_src] = 0;
 
     // Disable GPIO interrupt on obj
     gpio_irq_disable(obj);
@@ -272,11 +272,11 @@ static void INT_IRQHandler(PinName pin, uint32_t index)
     switch (data) {
         // Falling edge detection
         case 0:
-            hal_irq_handler[index](channel_ids[index], IRQ_FALL);
+            hal_irq_handler[index](channel_contexts[index], IRQ_FALL);
             break;
         // Rising edge detection
         case 1:
-            hal_irq_handler[index](channel_ids[index], IRQ_RISE);
+            hal_irq_handler[index](channel_contexts[index], IRQ_RISE);
             break;
         default:
             break;

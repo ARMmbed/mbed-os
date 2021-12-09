@@ -32,7 +32,7 @@
 #define CHANNEL_NUM                     48
 #define MAX_PIN_PER_PORT                16
 static gpio_irq_handler irq_handler;
-static uint32_t channel_ids[CHANNEL_NUM];
+static uintptr_t channel_contexts[CHANNEL_NUM];
 static gpio_irq_event pins_event[CHANNEL_NUM];
 
 static inline void handle_gpio_irq(uint32_t port)
@@ -47,7 +47,7 @@ static inline void handle_gpio_irq(uint32_t port)
             pin_name += i;
             NVIC_ClearPendingIRQ(PORT0_0_IRQn + port * 16 + i);
             gpio_base->INTCLR = 1u << i;
-            irq_handler(channel_ids[pin_name], pins_event[pin_name]);
+            irq_handler(channel_contexts[pin_name], pins_event[pin_name]);
             break;
         }
     }
@@ -70,7 +70,7 @@ void gpio2_irq(void)
 }
 
 int gpio_irq_init(gpio_irq_t *obj, PinName pin,
-                  gpio_irq_handler handler, uint32_t id)
+                  gpio_irq_handler handler, uintptr_t context)
 {
     if (pin == (PinName)NC) {
         return -1;
@@ -78,7 +78,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin,
 
     obj->pin = pin;
     irq_handler = handler;
-    channel_ids[pin] = id;
+    channel_contexts[pin] = context;
 
     bp6a_gpio_set_dir(BP6A_PORT_IDX(obj->pin), BP6A_PIN_IDX(obj->pin), true);
     return 0;
@@ -86,7 +86,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin,
 
 void gpio_irq_free(gpio_irq_t *obj)
 {
-    channel_ids[obj->pin] = 0;
+    channel_contexts[obj->pin] = 0;
     gpio_irq_disable(obj);
 }
 

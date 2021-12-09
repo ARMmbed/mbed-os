@@ -47,7 +47,7 @@
 
 typedef struct gpio_channel {
     uint32_t pin_mask;                   // bitmask representing which pins are configured for receiving interrupts
-    uint32_t channel_ids[MAX_PIN_LINE];  // mbed "gpio_irq_t gpio_irq" field of instance
+    uintptr_t channel_contexts[MAX_PIN_LINE];  // mbed "gpio_irq_t gpio_irq" field of instance
     GPIO_TypeDef *channel_gpio[MAX_PIN_LINE]; // base address of gpio port group
     uint32_t channel_pin[MAX_PIN_LINE];  // pin number in port group
 } gpio_channel_t;
@@ -124,12 +124,12 @@ static void handle_interrupt_in(uint32_t irq_index, uint32_t max_num_pin_line)
             if (LL_EXTI_IsActiveRisingFlag_0_31(pin) != RESET) {
                 LL_EXTI_ClearRisingFlag_0_31(pin);
 
-                if (gpio_channel->channel_ids[gpio_idx] == 0) {
+                if (gpio_channel->channel_contexts[gpio_idx] == 0) {
                     continue;
                 }
 
                 gpio_irq_event event = IRQ_RISE;
-                irq_handler(gpio_channel->channel_ids[gpio_idx], event);
+                irq_handler(gpio_channel->channel_contexts[gpio_idx], event);
 
                 return;
             }
@@ -137,12 +137,12 @@ static void handle_interrupt_in(uint32_t irq_index, uint32_t max_num_pin_line)
             if (LL_EXTI_IsActiveFallingFlag_0_31(pin) != RESET) {
                 LL_EXTI_ClearFallingFlag_0_31(pin);
 
-                if (gpio_channel->channel_ids[gpio_idx] == 0) {
+                if (gpio_channel->channel_contexts[gpio_idx] == 0) {
                     continue;
                 }
 
                 gpio_irq_event event = IRQ_FALL;
-                irq_handler(gpio_channel->channel_ids[gpio_idx], event);
+                irq_handler(gpio_channel->channel_contexts[gpio_idx], event);
 
                 return;
             }
@@ -157,7 +157,7 @@ static void handle_interrupt_in(uint32_t irq_index, uint32_t max_num_pin_line)
             if (__HAL_GPIO_EXTI_GET_FLAG(pin) != RESET) {
                 __HAL_GPIO_EXTI_CLEAR_FLAG(pin);
 #endif
-                if (gpio_channel->channel_ids[gpio_idx] == 0) {
+                if (gpio_channel->channel_contexts[gpio_idx] == 0) {
                     continue;
                 }
 
@@ -183,7 +183,7 @@ static void handle_interrupt_in(uint32_t irq_index, uint32_t max_num_pin_line)
                     }
                 }
 
-                irq_handler(gpio_channel->channel_ids[gpio_idx], event);
+                irq_handler(gpio_channel->channel_contexts[gpio_idx], event);
 
                 return;
             }
@@ -310,7 +310,7 @@ static void gpio_irq15(void)
 extern GPIO_TypeDef *Set_GPIO_Clock(uint32_t port_idx);
 extern void pin_function_gpiomode(PinName pin, uint32_t gpiomode);
 
-int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uintptr_t context)
 {
     uint32_t vector = 0;
     uint32_t irq_index;
@@ -438,7 +438,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     gpio_channel = &channels[irq_index];
     gpio_idx = pin_lines_desc[pin_index].gpio_idx;
     gpio_channel->pin_mask |= (1 << gpio_idx);
-    gpio_channel->channel_ids[gpio_idx] = id;
+    gpio_channel->channel_contexts[gpio_idx] = context;
     gpio_channel->channel_gpio[gpio_idx] = gpio_add;
     gpio_channel->channel_pin[gpio_idx] = pin_index;
 
@@ -462,7 +462,7 @@ void gpio_irq_free(gpio_irq_t *obj)
     gpio_irq_disable(obj);
 
     gpio_channel->pin_mask &= ~(1 << gpio_idx);
-    gpio_channel->channel_ids[gpio_idx] = 0;
+    gpio_channel->channel_contexts[gpio_idx] = 0;
     gpio_channel->channel_gpio[gpio_idx] = 0;
     gpio_channel->channel_pin[gpio_idx] = 0;
 

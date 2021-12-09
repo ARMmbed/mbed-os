@@ -32,7 +32,7 @@
 #define IRQ_FALLING_EDGE   (3)
 #define IRQ_EITHER_EDGE    (4)
 
-static uint32_t channel_ids[CHANNEL_NUM] = {0};
+static uintptr_t channel_contexts[CHANNEL_NUM] = {0};
 
 static gpio_irq_handler irq_handler;
 
@@ -52,7 +52,7 @@ static void handle_interrupt_in(PortName port, int ch_base)
 
     for (i = 0; i < 32; i++) {
         if (interrupt_flags & (1 << i)) {
-            uint32_t id = channel_ids[ch_base + i];
+            uint32_t id = channel_contexts[ch_base + i];
             if (id == 0) {
                 continue;
             }
@@ -117,7 +117,7 @@ void gpio5_irq(void)
     handle_interrupt_in(Gpio5, 128);
 }
 
-int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uintptr_t context)
 {
     if (pin == NC) {
         return -1;
@@ -165,14 +165,14 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     }
 
     obj->ch = ch_base + obj->pin;
-    channel_ids[obj->ch] = id;
+    channel_contexts[obj->ch] = context;
 
     return 0;
 }
 
 void gpio_irq_free(gpio_irq_t *obj)
 {
-    channel_ids[obj->ch] = 0;
+    channel_contexts[obj->ch] = 0;
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)

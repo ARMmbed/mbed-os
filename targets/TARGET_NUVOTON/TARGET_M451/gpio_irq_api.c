@@ -72,7 +72,7 @@ static PinName gpio_irq_debounce_arr[] = {
 #define MBED_CONF_TARGET_GPIO_IRQ_DEBOUNCE_SAMPLE_RATE GPIO_DBCTL_DBCLKSEL_16
 #endif
 
-int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uintptr_t context)
 {
     if (pin == NC) {
         return -1;
@@ -87,7 +87,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     obj->pin = pin;
     obj->irq_types = 0;
     obj->irq_handler = (uint32_t) handler;
-    obj->irq_id = id;
+    obj->irq_id = context;
 
     GPIO_T *gpio_base = NU_PORT_BASE(port_index);
     // NOTE: In InterruptIn constructor, gpio_irq_init() is called with gpio_init_in() which is responsible for multi-function pin setting.
