@@ -65,10 +65,16 @@ target_link_libraries(mbed-cy8ckit-062s2-43012
         mbed-cy8ckit-062s2-43012-bsp-design-modus
         mbed-cm0p-sleep
         mbed-psoc6
-        mbed-cy-psoc6-whd
-        mbed-cy-psoc6-whd-43012
-        mbed-cy8ckit-062s2-43012-whd
 )
+
+if("WHD" IN_LIST MBED_TARGET_LABELS)
+    target_link_libraries(mbed-cy8ckit-062s2-43012
+        INTERFACE
+            mbed-cy-psoc6-whd
+            mbed-cy-psoc6-whd-43012
+            mbed-cy8ckit-062s2-43012-whd
+    )
+endif()
 
 target_compile_definitions(mbed-cy8ckit-062s2-43012
     INTERFACE

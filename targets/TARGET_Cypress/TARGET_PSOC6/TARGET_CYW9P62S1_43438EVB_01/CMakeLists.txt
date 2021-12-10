@@ -66,11 +66,17 @@ target_link_libraries(mbed-cyw9p62s1-43438evb-01
         mbed-cyw9p62s1-43438evb-01-bsp-design-modus
         mbed-cm0p-sleep
         mbed-psoc6
-        mbed-cy-psoc6-whd
-        mbed-cy-psoc6-whd-43438
-        mbed-cyw9p62s1-43438evb-01-whd
         mbed-udb-sdio-p2
 )
+
+if("WHD" IN_LIST MBED_TARGET_LABELS)
+    target_link_libraries(mbed-cyw9p62s1-43438evb-01
+        INTERFACE
+            mbed-cy-psoc6-whd
+            mbed-cy-psoc6-whd-43438
+            mbed-cyw9p62s1-43438evb-01-whd
+    )
+endif()
 
 target_compile_definitions(mbed-cyw9p62s1-43438evb-01
     INTERFACE
