@@ -8945,5 +8945,47 @@
     "__build_tools_metadata__": {
         "version": "1",
         "public": false
+    },
+    "TMPM4KN": {
+        "inherits": ["Target"],
+        "core": "Cortex-M4F",
+        "is_disk_virtual": true,
+        "extra_labels": ["TOSHIBA"],
+        "macros": ["__TMPM4KN__"],
+        "supported_toolchains": ["GCC_ARM","ARMC6"],
+        "printf_lib": "std",
+        "device_has": [
+            "ANALOGIN",
+	    "INTERRUPTIN",
+	    "CRC",
+	    "I2C",
+	    "I2CSLAVE",
+	    "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+	    "PWMOUT",
+	    "RESET_REASON",
+	    "SERIAL",
+	    "SLEEP",
+	    "SPI",
+	    "SPISLAVE",
+	    "USTICKER",
+	    "STDIO_MESSAGES",
+            "MPU",
+	    "FLASH"
+        ],
+        "device_name": "TMPM4KNFYAFG",
+        "detect_code": ["7020"],
+        "release_versions": ["5"],
+        "bootloader_supported": true,
+        "supported_application_profiles" : ["full"],
+        "supported_c_libs": {
+            "arm": [
+                "std"
+            ],
+            "gcc_arm": [
+                "std"
+            ]
+        }
     }
 }

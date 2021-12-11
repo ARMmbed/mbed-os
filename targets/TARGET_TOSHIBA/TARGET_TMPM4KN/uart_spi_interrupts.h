@@ -1,7 +1,5 @@
 /* mbed Microcontroller Library
- *
- * Copyright (C) 2019, Toshiba Electronic Device Solutions Corporation
- *
+ * Copyright(C) Toshiba Electronic Device Solutions Corporation 2021
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,31 +15,15 @@
  * limitations under the License.
  */
 
-#ifndef MBED_MBED_RTX_H
-#define MBED_MBED_RTX_H
+#ifndef TARGETS_TARGET_TOSHIBA_TARGET_TMPM4KNA_UART_SPI_INTERRUPTS_H_
+#define TARGETS_TARGET_TOSHIBA_TARGET_TMPM4KNA_UART_SPI_INTERRUPTS_H_
 
-#if defined(TARGET_TMPM46B)
+#define SPI_PEPIRH    (0)
+#define UART_PERIPH   (1)
 
-#ifndef INITIAL_SP
-#define INITIAL_SP                        (0x20080000UL)
-#endif
+void uart_spi_clear_pending_irq(IRQn_Type irq);
+void uart_spi_enable_irq(IRQn_Type irq, int uart_spi_device);
+void uart_spi_disable_irq(IRQn_Type irq, int uart_spi_device);
 
-#endif
 
-#if defined(TARGET_TMPM4G9)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP                        (0x20030000UL)
-#endif
-
-#endif
-
-#if defined(TARGET_TMPM4KN)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP                        (0x20006000UL)
-#endif
-
-#endif
-
-#endif  // MBED_MBED_RTX_H
+#endif /* TARGETS_TARGET_TOSHIBA_TARGET_TMPM4KNA_UART_SPI_INTERRUPTS_H_ */
