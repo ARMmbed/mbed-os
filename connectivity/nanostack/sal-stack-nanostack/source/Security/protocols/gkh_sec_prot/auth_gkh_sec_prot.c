@@ -295,7 +295,7 @@ static void auth_gkh_sec_prot_state_machine(sec_prot_t *prot)
             tr_info("GKH start, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
 
             // Set default timeout for the total maximum length of the negotiation
-            sec_prot_default_timeout_set(&data->common);
+            sec_prot_timeout_set(&data->common, SEC_PROT_RETRYING_PROTOCOL_TIMEOUT);
 
             // KMP-CREATE.confirm
             prot->create_conf(prot, SEC_RESULT_OK);

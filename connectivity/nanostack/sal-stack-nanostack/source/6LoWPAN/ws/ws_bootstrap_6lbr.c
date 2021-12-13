@@ -54,6 +54,7 @@
 #include "6LoWPAN/ws/ws_common_defines.h"
 #include "6LoWPAN/ws/ws_config.h"
 #include "6LoWPAN/ws/ws_common.h"
+#include "6LoWPAN/ws/ws_bootstrap_ffn.h"
 #include "6LoWPAN/ws/ws_bootstrap.h"
 #include "6LoWPAN/ws/ws_bbr_api_internal.h"
 #include "6LoWPAN/ws/ws_common_defines.h"
@@ -271,6 +272,123 @@ void ws_bootstrap_6lbr_asynch_confirm(struct protocol_interface_info_entry *inte
     }
 }
 
+bool ws_bootstrap_6lbr_eapol_relay_state_active(protocol_interface_info_entry_t *cur)
+{
+    (void) cur;
+
+    return true;
+}
+
+static void ws_bootstrap_6lbr_pan_version_increment(protocol_interface_info_entry_t *cur)
+{
+    (void)cur;
+    ws_bbr_pan_version_increase(cur);
+}
+
+static void ws_bootstrap_6lbr_nw_info_updated(protocol_interface_info_entry_t *cur, uint16_t pan_id, uint16_t pan_version, char *network_name)
+{
+    /* For border router, the PAE controller reads PAN ID, PAN version and network name from storage.
+     * If they are set, takes them into use here.
+     */
+    if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+        // Get network name
+        ws_gen_cfg_t gen_cfg;
+        if (ws_cfg_gen_get(&gen_cfg) < 0) {
+            return;
+        }
+
+        // If PAN ID has not been set, set it
+        if (cur->ws_info->network_pan_id == 0xffff) {
+            cur->ws_info->network_pan_id = pan_id;
+            // Sets PAN version
+            cur->ws_info->pan_information.pan_version = pan_version;
+            cur->ws_info->pan_information.pan_version_set = true;
+        }
+
+        // If network name has not been set, set it
+        if (strlen(gen_cfg.network_name) == 0) {
+            strncpy(gen_cfg.network_name, network_name, 32);
+        }
+
+        // Stores the settings
+        ws_cfg_gen_set(cur, &gen_cfg, 0);
+    }
+}
+
+static bool ws_bootstrap_6lbr_eapol_congestion_get(protocol_interface_info_entry_t *cur, uint16_t active_supp)
+{
+    if (cur == NULL || cur->random_early_detection == NULL || cur->llc_random_early_detection == NULL || cur->llc_eapol_random_early_detection == NULL) {
+        return false;
+    }
+
+    bool return_value = false;
+    static struct red_info_s *red_info = NULL;
+    uint16_t adaptation_average = 0;
+    uint16_t llc_average = 0;
+    uint16_t llc_eapol_average = 0;
+    uint16_t average_sum = 0;
+    uint8_t active_max = 0;
+
+    //TODO implement API for HEAP info request
+    uint32_t heap_size;
+    const mem_stat_t *mem_stats = ns_dyn_mem_get_mem_stat();
+    if (mem_stats) {
+        heap_size = mem_stats->heap_sector_size;
+    } else {
+        heap_size = 0;
+    }
+
+    /*
+      * For different memory sizes the max simultaneous authentications will be
+      * 32k:    (32k / 50k) * 2 + 1 = 1
+      * 65k:    (65k / 50k) * 2 + 1 = 3
+      * 250k:   (250k / 50k) * 2 + 1 = 11
+      * 1000k:  (1000k / 50k) * 2 + 1 = 41
+      * 2000k:  (2000k / 50k) * 2 + 1 = 50 (upper limit)
+      */
+    active_max = (heap_size / 50000) * 2 + 1;
+    if (active_max > 50) {
+        active_max = 50;
+    }
+
+    // Read the values for adaptation and LLC queues
+    adaptation_average = random_early_detetction_aq_read(cur->random_early_detection);
+    llc_average = random_early_detetction_aq_read(cur->llc_random_early_detection);
+    llc_eapol_average  = random_early_detetction_aq_read(cur->llc_eapol_random_early_detection);
+    // Calculate combined average
+    average_sum = adaptation_average + llc_average + llc_eapol_average;
+
+    // Maximum for active supplicants based on memory reached, fail
+    if (active_supp >= active_max) {
+        return_value = true;
+        goto congestion_get_end;
+    }
+
+    // Always allow at least five negotiations (if memory does not limit)
+    if (active_supp < 5) {
+        goto congestion_get_end;
+    }
+
+    if (red_info == NULL) {
+        red_info = random_early_detection_create(
+                       cur->ws_info->cfg->sec_prot.max_simult_sec_neg_tx_queue_min,
+                       cur->ws_info->cfg->sec_prot.max_simult_sec_neg_tx_queue_max,
+                       100, RED_AVERAGE_WEIGHT_DISABLED);
+    }
+    if (red_info == NULL) {
+        goto congestion_get_end;
+    }
+
+    // Check drop probability
+    average_sum = random_early_detetction_aq_calc(red_info, average_sum);
+    return_value = random_early_detection_congestion_check(red_info);
+
+congestion_get_end:
+    tr_info("Active supplicant limit, active: %i max: %i summed averageQ: %i adapt averageQ: %i LLC averageQ: %i LLC EAPOL averageQ: %i drop: %s", active_supp, active_max, average_sum, adaptation_average, llc_average, llc_eapol_average, return_value ? "T" : "F");
+
+    return return_value;
+}
+
 void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_event_s *event)
 {
     ws_bootsrap_event_type_e event_type;
@@ -371,8 +489,11 @@ void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_e
             // Set PAN ID and network name to controller
             ws_pae_controller_nw_info_set(cur, cur->ws_info->network_pan_id, cur->ws_info->pan_information.pan_version, cur->ws_info->cfg->gen.network_name);
 
-            // Set backbone IP address get callback
-            ws_pae_controller_auth_cb_register(cur, ws_bootstrap_6lbr_backbone_ip_addr_get);
+            // Set information callbacks (backbone IP address get callback, network information, congestion)
+            ws_pae_controller_information_cb_register(cur, ws_bootstrap_6lbr_backbone_ip_addr_get, &ws_bootstrap_6lbr_nw_info_updated, &ws_bootstrap_6lbr_eapol_congestion_get);
+
+            // Set PAN version control callbacks
+            ws_pae_controller_pan_version_cb_register(cur, &ws_bootstrap_6lbr_pan_version_increment);
 
             // Set PAE port to 10254 and authenticator relay to 10253 (and to own ll address)
             ws_pae_controller_authenticator_start(cur, PAE_AUTH_SOCKET_PORT, ll_addr, EAPOL_RELAY_SOCKET_PORT);
@@ -402,7 +523,7 @@ void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_e
             // Activate RPL
             // Activate IPv6 stack
             ws_bootstrap_ip_stack_activate(cur);
-            ws_bootstrap_rpl_activate(cur);
+            ws_bootstrap_ffn_rpl_configure(cur);
             ws_bootstrap_network_start(cur);
             // Wait for RPL start
             ws_bootstrap_event_routing_ready(cur);

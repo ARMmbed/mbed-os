@@ -71,6 +71,7 @@ static void mac_mlme_start_confirm_handler(protocol_interface_rf_mac_setup_s *rf
 static void mac_mlme_scan_confirm_handler(protocol_interface_rf_mac_setup_s *rf_ptr, const mlme_scan_conf_t *conf);
 static int mac_mlme_set_symbol_rate(protocol_interface_rf_mac_setup_s *rf_mac_setup);
 static int mac_mlme_allocate_tx_buffers(protocol_interface_rf_mac_setup_s *rf_mac_setup, arm_device_driver_list_s *dev_driver, uint16_t mtu_size);
+static int mac_mlme_allocate_beacon_payload_buffer(protocol_interface_rf_mac_setup_s *rf_mac_setup, uint16_t mtu_size);
 
 static void mac_mlme_energy_scan_start(protocol_interface_rf_mac_setup_s *rf_mac_setup, uint8_t channel)
 {
@@ -1133,7 +1134,6 @@ static int mac_mlme_set_symbol_rate(protocol_interface_rf_mac_setup_s *rf_mac_se
 static int mac_mlme_allocate_tx_buffers(protocol_interface_rf_mac_setup_s *rf_mac_setup, arm_device_driver_list_s *dev_driver, uint16_t mtu_size)
 {
     ns_dyn_mem_free(rf_mac_setup->dev_driver_tx_buffer.buf);
-    ns_dyn_mem_free(rf_mac_setup->mac_beacon_payload);
     uint16_t total_length = 0;
     //Allocate tx buffer by given MTU + header + tail
     total_length = mtu_size;
@@ -1142,14 +1142,25 @@ static int mac_mlme_allocate_tx_buffers(protocol_interface_rf_mac_setup_s *rf_ma
     if (!rf_mac_setup->dev_driver_tx_buffer.buf) {
         return -1;
     }
-    //allocate Beacon Payload buffer
-    rf_mac_setup->max_beacon_payload_length = mtu_size - MAC_IEEE_802_15_4_MAX_BEACON_OVERHEAD;
-    rf_mac_setup->mac_beacon_payload = ns_dyn_mem_alloc(rf_mac_setup->max_beacon_payload_length);
+
+    return 0;
+}
+
+static int mac_mlme_allocate_beacon_payload_buffer(protocol_interface_rf_mac_setup_s *rf_mac_setup, uint16_t mtu_size)
+{
+
+    rf_mac_setup->mac_beacon_payload = ns_dyn_mem_alloc(mtu_size);
     if (!rf_mac_setup->mac_beacon_payload) {
         return -1;
     }
+
+    rf_mac_setup->max_beacon_payload_length = mtu_size;
+    rf_mac_setup->mac_beacon_payload_size = 0;
+    memset(rf_mac_setup->mac_beacon_payload, 0, rf_mac_setup->max_beacon_payload_length);
     return 0;
 }
+
+
 
 protocol_interface_rf_mac_setup_s *mac_mlme_data_base_allocate(uint8_t *mac64, arm_device_driver_list_s *dev_driver, mac_description_storage_size_t *storage_sizes, uint16_t mtu_size)
 {
@@ -1191,6 +1202,11 @@ protocol_interface_rf_mac_setup_s *mac_mlme_data_base_allocate(uint8_t *mac64, a
         mac_mlme_data_base_deallocate(entry);
         return NULL;
     }
+    //Allocate Default Beacon pyload data
+    if (mac_mlme_allocate_beacon_payload_buffer(entry, MAC_IEEE_802_15_4_MAX_BEACON_PAYLOAD_LENGTH)) {
+        mac_mlme_data_base_deallocate(entry);
+        return NULL;
+    }
 
     entry->mac_tasklet_id = mac_mcps_sap_tasklet_init();
     if (entry->mac_tasklet_id < 0) {
@@ -1213,7 +1229,6 @@ protocol_interface_rf_mac_setup_s *mac_mlme_data_base_allocate(uint8_t *mac64, a
     entry->mac_mlme_retry_max = MAC_DEFAULT_MAX_FRAME_RETRIES;
     memset(entry->mac_default_key_source, 0xff, 8);
     memset(entry->mac_auto_request.Keysource, 0xff, 8);
-    memset(entry->mac_beacon_payload, 0, entry->max_beacon_payload_length);
     entry->mac_auto_request.SecurityLevel = 6;
     entry->mac_auto_request.KeyIndex = 0xff;
     mac_pd_sap_rf_low_level_function_set(entry, entry->dev_driver);

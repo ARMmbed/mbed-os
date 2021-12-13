@@ -246,15 +246,21 @@ extern uint8_t DEVICE_MIN_SENS;
  *
  * Trickle is reset on start (inconsistent heard is set)
  */
+#define SEC_PROT_TIMER_EXPIRATIONS 4        // Number of retries
+#define SEC_PROT_END_DELAY  30              // 30 seconds delay
+
 #define SEC_PROT_SMALL_IMIN 60              // Retries done in 60 seconds
 #define SEC_PROT_SMALL_IMAX 120             // Largest value 120 seconds
-#define SEC_PROT_RETRY_TIMEOUT_SMALL 450    // Retry timeout for small network additional 30 seconds for authenticator delay
+// Retry timeout for small network; additional 30 seconds for authenticator delay
+#define SEC_PROT_RETRY_TIMEOUT_SMALL        (SEC_PROT_SMALL_IMAX * SEC_PROT_TIMER_EXPIRATIONS + SEC_PROT_END_DELAY)
 
 #define SEC_PROT_LARGE_IMIN 60              // Retries done in 60 seconds
 #define SEC_PROT_LARGE_IMAX 240             // Largest value 240 seconds
-#define SEC_PROT_RETRY_TIMEOUT_LARGE 750    // Retry timeout for large network additional 30 seconds for authenticator delay
+// Retry timeout for large network; additional 30 seconds for authenticator delay
+#define SEC_PROT_RETRY_TIMEOUT_LARGE        (SEC_PROT_LARGE_IMAX * SEC_PROT_TIMER_EXPIRATIONS + SEC_PROT_END_DELAY)
 
-#define SEC_PROT_TIMER_EXPIRATIONS 4        // Number of retries
+// Timeout for retrying side of the protocol (runs when trickle not running)
+#define SEC_PROT_RETRYING_PROTOCOL_TIMEOUT  (5 * 60 * 10)   // 5 minutes in ticks
 
 // Maximum number of simultaneous security negotiations
 #define MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_TX_QUEUE_MIN   64

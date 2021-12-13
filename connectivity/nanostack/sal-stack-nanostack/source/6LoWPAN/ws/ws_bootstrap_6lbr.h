@@ -22,6 +22,7 @@
 
 void ws_bootstrap_6lbr_asynch_ind(struct protocol_interface_info_entry *cur, const struct mcps_data_ind_s *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type);
 void ws_bootstrap_6lbr_asynch_confirm(struct protocol_interface_info_entry *interface, uint8_t asynch_message);
+bool ws_bootstrap_6lbr_eapol_relay_state_active(protocol_interface_info_entry_t *cur);
 void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_event_s *event);
 void ws_bootstrap_6lbr_state_machine(protocol_interface_info_entry_t *cur);
 void ws_bootstrap_6lbr_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds);
@@ -32,6 +33,7 @@ void ws_bootstrap_6lbr_seconds_timer(protocol_interface_info_entry_t *cur, uint3
 
 #define ws_bootstrap_6lbr_asynch_ind(cur, data, ie_ext, message_type) ((void) 0)
 #define ws_bootstrap_6lbr_asynch_confirm(interface, asynch_message) ((void) 0)
+#define ws_bootstrap_6lbr_eapol_relay_state_active(cur) false
 #define ws_bootstrap_6lbr_event_handler(cur, event) ((void) 0)
 #define ws_bootstrap_6lbr_state_machine(cur) ((void) 0)
 #define ws_bootstrap_6lbr_seconds_timer(cur, seconds) ((void) 0)

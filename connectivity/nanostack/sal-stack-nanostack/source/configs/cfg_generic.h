@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2016-2019, Pelion and affiliates.
+ * Copyright (c) 2014, 2016-2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@
 #include "base/cfg_lowpan_border_router.h"
 #include "base/cfg_local_socket.h"
 #include "base/cfg_rf_tunnel.h"
-#include "base/cfg_ws_border_router.h"
+#include "base/cfg_ws_full.h"
 
 #define FEA_TRACE_SUPPORT
 #define EXTRA_CONSISTENCY_CHECKS

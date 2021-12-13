@@ -18,6 +18,8 @@
 #ifndef WS_PAE_KEY_STORAGE_H_
 #define WS_PAE_KEY_STORAGE_H_
 
+#ifdef HAVE_PAE_AUTH
+
 /*
  * Port access entity key storage functions.
  *
@@ -168,5 +170,23 @@ void ws_pae_key_storage_fast_timer(uint16_t ticks);
  *
  */
 uint16_t ws_pae_key_storage_storing_interval_get(void);
+
+#else
+
+#define ws_pae_key_storage_memory_set(key_storages_number, key_storage_size, key_storages)
+#define ws_pae_key_storage_settings_set(alloc_max_number, alloc_size, storing_interval)
+#define ws_pae_key_storage_init()
+#define ws_pae_key_storage_delete()
+#define ws_pae_key_storage_store()
+#define ws_pae_key_storage_read(restart_cnt)
+#define ws_pae_key_storage_remove()
+#define ws_pae_key_storage_supp_write(instance, pae_supp)
+#define ws_pae_key_storage_supp_read(instance, eui_64, gtks, certs)
+#define ws_pae_key_storage_supp_delete(instance, eui64)
+#define ws_pae_key_storage_timer(seconds)
+#define ws_pae_key_storage_fast_timer(ticks)
+#define ws_pae_key_storage_storing_interval_get() 0
+
+#endif
 
 #endif /* WS_PAE_KEY_STORAGE_H_ */

@@ -115,6 +115,7 @@ extern "C" {
  * |                            |       | TCP: some data acknowledged (d_len = data remaining in send queue)  |
  * | SOCKET_NO_RAM              | 0xA0  | No RAM available.                                                   |
  * | SOCKET_CONNECTION_PROBLEM  | 0xB0  | TCP connection is retrying.                                         |
+ * | SOCKET_BUSY                | 0xC0  | Socket is busy or Radio channel is returning CCA failure.           |
  *
  *
  * \section socket-tcp How to use TCP sockets:

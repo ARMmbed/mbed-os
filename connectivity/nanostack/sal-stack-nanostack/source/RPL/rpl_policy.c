@@ -87,7 +87,7 @@ bool rpl_policy_join_dodag(rpl_domain_t *domain, uint8_t g_mop_prf, uint8_t inst
     return true;
 }
 
-bool rpl_policy_join_config(rpl_domain_t *domain, const rpl_dodag_conf_t *conf, bool *leaf_only)
+bool rpl_policy_join_config(rpl_domain_t *domain, const rpl_dodag_conf_int_t *conf, bool *leaf_only)
 {
     (void)domain;
     (void)conf;
@@ -99,7 +99,7 @@ bool rpl_policy_join_config(rpl_domain_t *domain, const rpl_dodag_conf_t *conf, 
     }
 
     /* We don't support authentication */
-    if (conf->authentication) {
+    if (rpl_conf_option_security(conf)) {
         return false;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Pelion and affiliates.
+ * Copyright (c) 2021, Pelion and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,23 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef NS_TIMER_H_
-#define NS_TIMER_H_
 
-#include "platform/eventloop_config.h"
+#include "cfg_ws_border_router.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#ifndef NS_EXCLUDE_HIGHRES_TIMER
-extern int8_t ns_timer_sleep(void);
-#else
-#define ns_timer_sleep() ((int8_t) 0)
-#endif
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /*NS_TIMER_H_*/
+#define HAVE_PAE_SUPP

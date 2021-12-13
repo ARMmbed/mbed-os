@@ -63,8 +63,9 @@
 #include "6LoWPAN/ws/ws_stats.h"
 #include "6LoWPAN/ws/ws_cfg_settings.h"
 #include "6LoWPAN/ws/ws_bootstrap_6lbr.h"
+#include "6LoWPAN/ws/ws_bootstrap_6lr.h"
 #include "6LoWPAN/ws/ws_bootstrap_ffn.h"
-#include "6LoWPAN/ws/ws_bootstrap_lfn.h"
+#include "6LoWPAN/ws/ws_bootstrap_6ln.h"
 #include "6LoWPAN/ws/ws_phy.h"
 #include "6LoWPAN/lowpan_adaptation_interface.h"
 #include "Service_Libs/etx/etx.h"
@@ -91,24 +92,17 @@
 static void ws_bootstrap_event_handler(arm_event_s *event);
 static int8_t ws_bootsrap_event_trig(ws_bootsrap_event_type_e event_type, int8_t interface_id, arm_library_event_priority_e priority, void *event_data);
 static uint16_t ws_bootstrap_routing_cost_calculate(protocol_interface_info_entry_t *cur);
-static uint16_t ws_bootstrap_rank_get(protocol_interface_info_entry_t *cur);
-static uint16_t ws_bootstrap_min_rank_inc_get(protocol_interface_info_entry_t *cur);
 static void ws_bootstrap_mac_security_enable(protocol_interface_info_entry_t *cur);
 static void ws_bootstrap_nw_key_set(protocol_interface_info_entry_t *cur, uint8_t operation, uint8_t index, uint8_t *key);
 static void ws_bootstrap_nw_key_clear(protocol_interface_info_entry_t *cur, uint8_t slot);
 static void ws_bootstrap_nw_key_index_set(protocol_interface_info_entry_t *cur, uint8_t index);
 static void ws_bootstrap_nw_frame_counter_set(protocol_interface_info_entry_t *cur, uint32_t counter, uint8_t slot);
 static void ws_bootstrap_nw_frame_counter_read(protocol_interface_info_entry_t *cur, uint32_t *counter, uint8_t slot);
-static void ws_bootstrap_nw_info_updated(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, uint16_t pan_version, char *network_name);
 static void ws_bootstrap_authentication_completed(protocol_interface_info_entry_t *cur, auth_result_e result, uint8_t *target_eui_64);
 static const uint8_t *ws_bootstrap_authentication_next_target(protocol_interface_info_entry_t *cur, const uint8_t *previous_eui_64, uint16_t *pan_id);
-static bool ws_bootstrap_eapol_congestion_get(protocol_interface_info_entry_t *interface_ptr, uint16_t active_supp);
-static void ws_bootstrap_pan_version_increment(protocol_interface_info_entry_t *cur);
 static ws_nud_table_entry_t *ws_nud_entry_discover(protocol_interface_info_entry_t *cur, void *neighbor);
 static void ws_nud_entry_remove(protocol_interface_info_entry_t *cur, mac_neighbor_table_entry_t *entry_ptr);
 static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, void *user_data);
-static void ws_bootstrap_dhcp_neighbour_update_cb(int8_t interface_id, uint8_t ll_addr[static 16]);
-static void ws_bootstrap_dhcp_info_notify_cb(int8_t interface, dhcp_option_notify_t *options, dhcp_server_notify_info_t *server_info);
 static void ws_bootstrap_test_procedure_trigger_timer(protocol_interface_info_entry_t *cur, uint32_t seconds);
 
 uint16_t test_pan_version = 1;
@@ -175,7 +169,7 @@ void ws_bootstrap_neighbor_list_clean(struct protocol_interface_info_entry *inte
     mac_neighbor_table_neighbor_list_clean(mac_neighbor_info(interface));
 }
 
-static void ws_address_reregister_trig(struct protocol_interface_info_entry *interface)
+void ws_address_reregister_trig(struct protocol_interface_info_entry *interface)
 {
     if (interface->ws_info->aro_registration_timer == 0) {
         interface->ws_info->aro_registration_timer = WS_NEIGHBOR_NUD_TIMEOUT;
@@ -195,7 +189,7 @@ static void ws_bootstrap_address_notification_cb(struct protocol_interface_info_
             //Trigger Address Registration only when Bootstrap is ready
             if (interface->nwk_bootstrap_state == ER_BOOTSRAP_DONE) {
                 tr_debug("Address registration %s", trace_ipv6(addr->address));
-                ws_address_registration_update(interface, addr->address);
+                ws_bootstrap_6lr_address_registration_update(interface, addr->address);
             }
             ws_address_reregister_trig(interface);
         }
@@ -654,7 +648,7 @@ void ws_bootstrap_fhss_configure_channel_masks(protocol_interface_info_entry_t *
     cur->ws_info->hopping_schdule.channel_plan = ws_bootstrap_generate_exluded_channel_list_from_active_channels(&cur->ws_info->hopping_schdule.excluded_channels, fhss_configuration->unicast_channel_mask, fhss_configuration->channel_mask, cur->ws_info->hopping_schdule.number_of_channels);
 }
 
-static int8_t ws_bootstrap_fhss_initialize(protocol_interface_info_entry_t *cur)
+int8_t ws_bootstrap_fhss_initialize(protocol_interface_info_entry_t *cur)
 {
     fhss_api_t *fhss_api = ns_sw_mac_get_fhss_api(cur->mac_api);
     fhss_ws_configuration_t fhss_configuration;
@@ -784,7 +778,7 @@ void ws_bootstrap_eapol_parent_synch(struct protocol_interface_info_entry *cur, 
     }
 }
 
-static void ws_bootstrap_ll_address_validate(struct protocol_interface_info_entry *cur)
+void ws_bootstrap_ll_address_validate(struct protocol_interface_info_entry *cur)
 {
     // Configure EUI64 for MAC if missing
     uint8_t mac64[8];
@@ -884,7 +878,7 @@ bool ws_bootstrap_nd_ns_transmit(protocol_interface_info_entry_t *cur, ipv6_neig
     // True means we skip the message sending
     return true;
 }
-static void ws_bootstrap_memory_configuration()
+void ws_bootstrap_memory_configuration()
 {
     /* Configure memory limits for garbage collection based on total memory size
      * Starting from these values
@@ -906,118 +900,6 @@ static void ws_bootstrap_memory_configuration()
 
     ns_monitor_heap_gc_threshold_set(3200, 120000, 95, 1280, 40000, 98);
     return;
-}
-
-
-static int8_t ws_bootstrap_up(protocol_interface_info_entry_t *cur)
-{
-    int8_t ret_val = -1;
-
-    if (!cur) {
-        return -1;
-    }
-
-    if ((cur->configure_flags & INTERFACE_SETUP_MASK) != INTERFACE_SETUP_READY) {
-        tr_error("Interface not yet fully configured");
-        return -2;
-    }
-    if (ws_bootstrap_fhss_initialize(cur) != 0) {
-        tr_error("fhss initialization failed");
-        return -3;
-    }
-    if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        //BBR init like NVM read
-        ws_bbr_init(cur);
-    }
-    // Save FHSS api
-    cur->ws_info->fhss_api = ns_sw_mac_get_fhss_api(cur->mac_api);
-
-    ws_bootstrap_ll_address_validate(cur);
-
-    addr_interface_set_ll64(cur, NULL);
-    cur->nwk_nd_re_scan_count = 0;
-    // Trigger discovery for bootstrap
-    ret_val = nwk_6lowpan_up(cur);
-    if (ret_val) {
-        goto cleanup;
-    }
-
-    /* Wi-sun will trig event for stamechine this timer must be zero on init */
-    cur->bootsrap_state_machine_cnt = 0;
-    /* Disable SLLAO send/mandatory receive with the ARO */
-    cur->ipv6_neighbour_cache.use_eui64_as_slla_in_aro = true;
-    /* Omit sending of NA if ARO SUCCESS */
-    cur->ipv6_neighbour_cache.omit_na_aro_success = true;
-    /* Omit sending of NA and consider ACK to be success */
-    cur->ipv6_neighbour_cache.omit_na = true;
-    // do not process AROs from NA. This is overriden by Wi-SUN specific failure handling
-    cur->ipv6_neighbour_cache.recv_na_aro = false;
-    /* Disable NUD Probes */
-    cur->ipv6_neighbour_cache.send_nud_probes = false;
-    cur->ipv6_neighbour_cache.probe_avoided_routers = true;
-    /*Replace NS handler to disable multicast address queries */
-    cur->if_ns_transmit = ws_bootstrap_nd_ns_transmit;
-
-    dhcp_client_init(cur->id, DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE);
-    dhcp_service_link_local_rx_cb_set(cur->id, ws_bootstrap_dhcp_neighbour_update_cb);
-    dhcp_client_configure(cur->id, true, true, true); //RENEW uses SOLICIT, Interface will use 1 instance for address get, IAID address hint is not used.
-
-    dhcp_client_solicit_timeout_set(cur->id, WS_DHCP_SOLICIT_TIMEOUT, WS_DHCP_SOLICIT_MAX_RT, WS_DHCP_SOLICIT_MAX_RC, WS_DHCP_SOLICIT_MAX_DELAY);
-    dhcp_client_option_notification_cb_set(cur->id, ws_bootstrap_dhcp_info_notify_cb);
-
-    // Configure memory limits and garbage collection values;
-    ws_bootstrap_memory_configuration();
-    ws_nud_table_reset(cur);
-
-    ws_bootstrap_candidate_table_reset(cur);
-    // Zero uptime counters
-    cur->ws_info->uptime = 0;
-    cur->ws_info->authentication_time = 0;
-    cur->ws_info->connected_time = 0;
-
-    blacklist_params_set(
-        WS_BLACKLIST_ENTRY_LIFETIME,
-        WS_BLACKLIST_TIMER_MAX_TIMEOUT,
-        WS_BLACKLIST_TIMER_TIMEOUT,
-        WS_BLACKLIST_ENTRY_MAX_NBR,
-        WS_BLACKLIST_PURGE_NBR,
-        WS_BLACKLIST_PURGE_TIMER_TIMEOUT);
-
-    ws_bootstrap_event_discovery_start(cur);
-
-    return 0;
-cleanup:
-    return ret_val;
-}
-
-static int8_t ws_bootstrap_down(protocol_interface_info_entry_t *cur)
-{
-    if (!cur || !(cur->lowpan_info & INTERFACE_NWK_ACTIVE)) {
-        return -1;
-    }
-
-    tr_info("Wi-SUN ifdown");
-    // Reset MAC for safe upper layer memory free
-    protocol_mac_reset(cur);
-    ns_sw_mac_fhss_unregister(cur->mac_api);
-    ns_fhss_delete(cur->ws_info->fhss_api);
-    cur->ws_info->fhss_api = NULL;
-    // Reset WS information
-    ws_bootstrap_asynch_trickle_stop(cur);
-    ws_llc_reset(cur);
-    if (nd_proxy_downstream_interface_unregister(cur->id) != 0) {
-        tr_warn("nd proxy unregister failed");
-    }
-    ws_nud_table_reset(cur);
-    dhcp_client_delete(cur->id);
-    ws_eapol_relay_delete(cur);
-    ws_eapol_auth_relay_delete(cur);
-    ws_pae_controller_stop(cur);
-    ws_bootstrap_candidate_table_reset(cur);
-    blacklist_clear();
-    cur->if_common_forwarding_out_cb = NULL;
-
-    return nwk_6lowpan_down(cur);
 }
 
 void ws_bootstrap_configuration_reset(protocol_interface_info_entry_t *cur)
@@ -1738,17 +1620,17 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
     if (wisun_mode_host(cur)) {
         // Configure for LFN device
 #if defined(HAVE_WS) && defined(HAVE_WS_HOST)
-        ws_llc_create(cur, &ws_bootstrap_lfn_asynch_ind, &ws_bootstrap_lfn_asynch_confirm, &ws_bootstrap_neighbor_info_request);
+        ws_llc_create(cur, & ws_bootstrap_6ln_asynch_ind, & ws_bootstrap_6ln_asynch_confirm, &ws_bootstrap_neighbor_info_request, &ws_bootstrap_6ln_eapol_relay_state_active);
 #endif
     } else if (wisun_mode_router(cur)) {
         // Configure FFN device
 #if defined(HAVE_WS) && defined(HAVE_WS_ROUTER)
-        ws_llc_create(cur, &ws_bootstrap_ffn_asynch_ind, &ws_bootstrap_ffn_asynch_confirm, &ws_bootstrap_neighbor_info_request);
+        ws_llc_create(cur, &ws_bootstrap_6lr_asynch_ind, &ws_bootstrap_6lr_asynch_confirm, &ws_bootstrap_neighbor_info_request, &ws_bootstrap_6lr_eapol_relay_state_active);
 #endif
     } else if (wisun_mode_border_router(cur)) {
         // Configure as Border router
 #if defined(HAVE_WS) && defined(HAVE_WS_BORDER_ROUTER)
-        ws_llc_create(cur, &ws_bootstrap_6lbr_asynch_ind, &ws_bootstrap_6lbr_asynch_confirm, &ws_bootstrap_neighbor_info_request);
+        ws_llc_create(cur, &ws_bootstrap_6lbr_asynch_ind, &ws_bootstrap_6lbr_asynch_confirm, &ws_bootstrap_neighbor_info_request, &ws_bootstrap_6lbr_eapol_relay_state_active);
 #endif
     }
 
@@ -1784,7 +1666,11 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
         ret_val =  -4;
         goto init_fail;
     }
-    if (ws_pae_controller_cb_register(cur, &ws_bootstrap_authentication_completed, &ws_bootstrap_authentication_next_target, &ws_bootstrap_nw_key_set, &ws_bootstrap_nw_key_clear, &ws_bootstrap_nw_key_index_set, &ws_bootstrap_nw_frame_counter_set, &ws_bootstrap_nw_frame_counter_read, &ws_bootstrap_pan_version_increment, &ws_bootstrap_nw_info_updated, &ws_bootstrap_eapol_congestion_get) < 0) {
+    if (ws_pae_controller_nw_key_cb_register(cur, &ws_bootstrap_nw_key_set, &ws_bootstrap_nw_key_clear, &ws_bootstrap_nw_key_index_set, &ws_bootstrap_nw_frame_counter_set, &ws_bootstrap_nw_frame_counter_read) < 0) {
+        ret_val =  -4;
+        goto init_fail;
+    }
+    if (ws_pae_controller_authentication_cb_register(cur, &ws_bootstrap_authentication_completed, &ws_bootstrap_authentication_next_target) < 0) {
         ret_val =  -4;
         goto init_fail;
     }
@@ -1806,8 +1692,21 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
 
     cur->ipv6_neighbour_cache.link_mtu = cur->max_link_mtu = WS_MPX_MAX_MTU;
 
-    cur->if_up = ws_bootstrap_up;
-    cur->if_down = ws_bootstrap_down;
+    switch (bootstrap_mode) {
+        //        case NET_6LOWPAN_SLEEPY_HOST:
+        case NET_6LOWPAN_HOST:
+            cur->if_up =  ws_bootstrap_6ln_up;
+            cur->if_down =  ws_bootstrap_6ln_down;
+            break;
+        case NET_6LOWPAN_ROUTER:
+        case NET_6LOWPAN_BORDER_ROUTER:
+            cur->if_up = ws_bootstrap_ffn_up;
+            cur->if_down = ws_bootstrap_ffn_down;
+            break;
+        default:
+            break;
+    }
+
     cur->ws_info->neighbor_storage = neigh_info;
     cur->etx_read_override = ws_etx_read;
 
@@ -1939,8 +1838,13 @@ static int ws_bootstrap_set_rf_config(protocol_interface_info_entry_t *cur, phy_
     set_request.value_pointer = &multi_csma_params;
     set_request.value_size = sizeof(mlme_multi_csma_ca_param_t);
     cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_request);
-    // Start automatic CCA threshold
-    mac_helper_start_auto_cca_threshold(cur->id, cur->ws_info->hopping_schdule.number_of_channels, CCA_DEFAULT_DBM, CCA_HIGH_LIMIT, CCA_LOW_LIMIT);
+    if (cur->ws_info->hopping_schdule.regulatory_domain == REG_DOMAIN_JP) {
+        // For Japan regulatory domain, use static CCA threshold -80dBm as defined by Wi-SUN FAN specification
+        mac_helper_start_auto_cca_threshold(cur->id, cur->ws_info->hopping_schdule.number_of_channels, -80, -80, -80);
+    } else {
+        // Start automatic CCA threshold
+        mac_helper_start_auto_cca_threshold(cur->id, cur->ws_info->hopping_schdule.number_of_channels, CCA_DEFAULT_DBM, CCA_HIGH_LIMIT, CCA_LOW_LIMIT);
+    }
     // Enable MAC mode switch when base PHY mode ID could be found, otherwise disable the feature
     uint8_t phy_mode_id = cur->ws_info->hopping_schdule.phy_mode_id;
     if (phy_mode_id == 255) {
@@ -2053,527 +1957,6 @@ void ws_bootstrap_ip_stack_activate(protocol_interface_info_entry_t *cur)
     ws_bootstrap_ip_stack_reset(cur);
 }
 
-static void ws_bootstrap_set_fhss_hop(protocol_interface_info_entry_t *cur)
-{
-    uint16_t own_rank = ws_bootstrap_rank_get(cur);
-    uint16_t rank_inc = ws_bootstrap_min_rank_inc_get(cur);
-    if (own_rank == 0xffff || rank_inc == 0xffff) {
-        return;
-    }
-    // Calculate own hop count. This method gets inaccurate when hop count increases.
-    uint8_t own_hop = (own_rank - rank_inc) / rank_inc;
-    ns_fhss_ws_set_hop_count(cur->ws_info->fhss_api, own_hop);
-    if (own_hop == 1) {
-        // Allow transmitting unicast frames only on TX slots in normal mode and always in expedited forwarding mode for first hop
-        ns_fhss_ws_set_tx_allowance_level(cur->ws_info->fhss_api, WS_TX_SLOT, WS_TX_ALWAYS);
-    } else {
-        // Allow transmitting unicast frames only on TX slots in normal and expedited forwarding mode for other hops
-        ns_fhss_ws_set_tx_allowance_level(cur->ws_info->fhss_api, WS_TX_SLOT, WS_TX_SLOT);
-    }
-    tr_debug("own hop: %u, own rank: %u, rank inc: %u", own_hop, own_rank, rank_inc);
-}
-
-static void ws_bootstrap_dhcp_neighbour_update_cb(int8_t interface_id, uint8_t ll_addr[static 16])
-{
-    if (memcmp(ll_addr, ADDR_LINK_LOCAL_PREFIX, 8)) {
-        return;
-    }
-
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur) {
-        return;
-    }
-
-    uint8_t mac64[8];
-    memcpy(mac64, ll_addr + 8, 8);
-    mac64[0] ^= 2;
-    ws_bootstrap_mac_neighbor_short_time_set(cur, mac64, WS_NEIGHBOUR_DHCP_ENTRY_LIFETIME);
-}
-
-static void ws_bootstrap_dhcp_info_notify_cb(int8_t interface, dhcp_option_notify_t *options, dhcp_server_notify_info_t *server_info)
-{
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface);
-    if (!cur) {
-        return;
-    }
-    uint8_t server_ll64[16];
-    memcpy(server_ll64, ADDR_LINK_LOCAL_PREFIX, 8);
-
-    if (server_info->duid_length == 8) {
-        memcpy(server_ll64 + 8, server_info->duid, 8);
-    } else {
-        server_ll64[8] = server_info->duid[0];
-        server_ll64[9] = server_info->duid[1];
-        server_ll64[10] = server_info->duid[2];
-        server_ll64[11] = 0xff;
-        server_ll64[12] = 0xfe;
-        server_ll64[13] = server_info->duid[3];
-        server_ll64[14] = server_info->duid[4];
-        server_ll64[15] = server_info->duid[5];
-    }
-    server_ll64[8] ^= 2;
-
-    switch (options->option_type) {
-        case DHCPV6_OPTION_VENDOR_SPECIFIC_INFO:
-            if (options->option.vendor_spesific.enterprise_number != ARM_ENTERPRISE_NUMBER) {
-                break;
-            }
-            while (options->option.vendor_spesific.data_length) {
-                uint16_t option_type;
-                char *domain;
-                uint8_t *address;
-                uint16_t option_len;
-                option_len = net_dns_option_vendor_option_data_get_next(options->option.vendor_spesific.data, options->option.vendor_spesific.data_length, &option_type);
-                tr_debug("DHCP vendor specific data type:%u length %d", option_type, option_len);
-                //tr_debug("DHCP vendor specific data %s", trace_array(options->option.vendor_spesific.data, options->option.vendor_spesific.data_length));
-
-                if (option_len == 0) {
-                    // Option fields were corrupted
-                    break;
-                }
-                if (option_type == ARM_DHCP_VENDOR_DATA_DNS_QUERY_RESULT) {
-                    // Process ARM DNS query result
-                    domain = NULL;
-                    address = NULL;
-                    if (net_dns_option_vendor_option_data_dns_query_read(options->option.vendor_spesific.data, options->option.vendor_spesific.data_length, &address, &domain) > 0 ||
-                            domain || address) {
-                        // Valid ARM DNS query entry
-                        net_dns_query_result_set(interface, address, domain, server_info->life_time);
-                    }
-                }
-                if (option_type == ARM_DHCP_VENDOR_DATA_TIME_CONFIGURATION) {
-                    timezone_info_t time_configuration;
-                    if (net_vendor_option_time_configuration_read(options->option.vendor_spesific.data, options->option.vendor_spesific.data_length, &time_configuration.timestamp, &time_configuration.timezone, &time_configuration.deviation, &time_configuration.status)) {
-                        int ret = ns_time_system_timezone_info_notify(&time_configuration);
-                        tr_info("Network Time configuration %s status:%"PRIu16" time stamp: %"PRIu64" deviation: %"PRId16" Time Zone: %"PRId16, ret == 0 ? "notified" : "notify FAILED", time_configuration.status, time_configuration.timestamp, time_configuration.deviation, time_configuration.timezone);
-                    }
-                }
-                if (option_type == ARM_DHCP_VENDOR_DATA_NETWORK_TIME) {
-                    // Process ARM Network Time
-                    // Get Current time
-                    // Get Round trip time of the DHCP request
-                    // Estimated error is elapsed time of request
-                    // If current time difference is larger than estimated error update current time
-                    //     set the time for server time + *.5 RTT
-                    int32_t era;
-                    uint32_t offset;
-                    if (net_vendor_option_current_time_read(options->option.vendor_spesific.data, options->option.vendor_spesific.data_length, &era, &offset, NULL)) {
-                        uint64_t current_time;
-                        uint64_t network_time = (era * (uint64_t)(4294967296)) + offset - 2208988800; //Convert to First day of Unix (1 Jan 1970)
-
-                        tr_debug("Network Time option Era:%"PRId32" Offset:%"PRIu32" rtt: %"PRId32" time: %"PRIu64,  era, offset, server_info->rtt, network_time);
-                        if (0 == ns_time_system_time_read(&current_time)) {
-                            uint64_t difference;
-                            // We only adjust clock if time has drifted more than 10 seconds to avoid constant changing of time
-                            // If Round trip time is very high the accuracy is reduced.
-                            uint32_t estimated_error = 10 + server_info->rtt / 10;
-                            // Take into account the round trip time it took the response to arrive from the time server Write the time.
-                            network_time += server_info->rtt / 20;
-
-                            if (current_time > network_time) {
-                                difference = current_time - network_time;
-                            } else {
-                                difference = network_time - current_time;
-                            }
-                            if (difference > estimated_error) {
-                                // Larger than 10 second difference update the time
-                                int ret = ns_time_system_time_write(network_time);
-                                tr_info("Network Time %s: Era:%"PRId32" Offset:%"PRIu32" old time: %"PRIu64" time: %"PRIu64, ret == 0 ? "updated" : "update FAILED", era, offset, current_time, network_time);
-                            }
-                            // System time has been acquired
-                            ns_time_system_time_acquired_set();
-                        }
-                    }
-                }
-
-                options->option.vendor_spesific.data_length -= option_len;
-                options->option.vendor_spesific.data += option_len;
-            }
-            break;
-
-        case DHCPV6_OPTION_DNS_SERVERS:
-            while (options->option.generic.data_length && options->option.generic.data_length >= 16 && options->option.generic.data_length % 16 == 0) {
-                // Validate payload to have full 16 byte length addresses without any extra bytes
-                net_dns_server_address_set(interface, server_ll64, options->option.generic.data, server_info->life_time);
-                options->option.generic.data_length -= 16;
-                options->option.generic.data += 16;
-            }
-            break;
-        case DHCPV6_OPTION_DOMAIN_LIST:
-            net_dns_server_search_list_set(interface, server_ll64, options->option.generic.data, options->option.generic.data_length, server_info->life_time);
-            break;
-        default:
-            break;
-    }
-
-}
-
-static void ws_dhcp_client_global_adress_cb(int8_t interface, uint8_t dhcp_addr[static 16], uint8_t prefix[static 16], bool register_status)
-{
-    (void)prefix;
-    (void)interface;
-    //TODO add handler for negative status
-    tr_debug("DHCPv6 %s status %u with link %s", trace_ipv6(prefix), register_status, trace_ipv6(dhcp_addr));
-    if (register_status) {
-        protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface);
-        if (cur) {
-            ws_address_reregister_trig(cur);
-        }
-    } else {
-        //Delete dhcpv6 client
-        dhcp_client_global_address_delete(interface, dhcp_addr, prefix);
-    }
-}
-
-
-void ws_dhcp_client_address_request(protocol_interface_info_entry_t *cur, uint8_t *prefix, uint8_t *parent_link_local)
-{
-    if (dhcp_client_get_global_address(cur->id, parent_link_local, prefix, ws_dhcp_client_global_adress_cb) != 0) {
-        tr_error("DHCPp client request fail");
-    }
-}
-
-void ws_dhcp_client_address_delete(protocol_interface_info_entry_t *cur, uint8_t *prefix)
-{
-    dhcp_client_global_address_delete(cur->id, NULL, prefix);
-}
-
-void ws_address_registration_update(protocol_interface_info_entry_t *interface, const uint8_t addr[16])
-{
-    rpl_control_register_address(interface, addr);
-    // Timer is used only to track full registrations
-
-    if (addr != NULL && interface->ws_info->aro_registration_timer) {
-        // Single address update and timer is running
-        return;
-    }
-
-    if (interface->ws_info->aro_registration_timer == 0) {
-        // Timer expired and check if we have valid address to register
-        ns_list_foreach(if_address_entry_t, address, &interface->ip_addresses) {
-            if (!addr_is_ipv6_link_local(address->address)) {
-                // We have still valid addresses let the timer run for next period
-                tr_info("ARO registration timer start");
-                interface->ws_info->aro_registration_timer = WS_NEIGHBOR_NUD_TIMEOUT;
-                return;
-            }
-        }
-    }
-}
-
-static void ws_address_parent_update(protocol_interface_info_entry_t *interface)
-{
-    tr_info("RPL parent update ... register ARO");
-    ws_address_registration_update(interface, NULL);
-}
-
-void ws_bootstrap_parent_confirm(protocol_interface_info_entry_t *cur, struct rpl_instance *instance)
-{
-    /* Possible problem with the parent connection
-     * Give some time for parent to rejoin and confirm the connection with ARO and DAO
-     */
-    const rpl_dodag_conf_t *config = NULL;
-    uint32_t Imin_secs = 0;
-
-    if (!ws_bootstrap_state_active(cur)) {
-        // If we are not in Active state no need to confirm parent
-        return;
-    }
-
-    tr_info("RPL parent confirm");
-
-    if (!instance) {
-        // If we dont have instance we take any available to get reference
-        instance = rpl_control_enumerate_instances(cur->rpl_domain, NULL);
-    }
-
-    if (instance) {
-        config = rpl_control_get_dodag_config(instance);
-    }
-
-    if (config) {
-        //dio imin Period caluclate in seconds
-        uint32_t Imin_ms = config->dio_interval_min < 32 ? (1ul << config->dio_interval_min) : 0xfffffffful;
-        //Covert to seconds and multiple by 2 so we give time to recovery so divide by 500 do that operation
-        Imin_secs = (Imin_ms + 499) / 500;
-
-        if (Imin_secs > 0xffff) {
-            Imin_secs = 0xffff;
-        }
-    }
-    if (Imin_secs == 0) {
-        // If we dont have RPL configuration we assume conservative value
-        Imin_secs = 60;
-    }
-
-    /*Speed up the ARO registration*/
-    if (cur->ws_info->aro_registration_timer > Imin_secs) {
-        cur->ws_info->aro_registration_timer = Imin_secs;
-    }
-}
-
-static void ws_rpl_parent_dis_callback(const uint8_t *ll_parent_address, void *handle, struct rpl_instance *instance)
-{
-    (void) ll_parent_address;
-    protocol_interface_info_entry_t *cur = handle;
-    if (!cur->rpl_domain || cur->interface_mode != INTERFACE_UP) {
-        return;
-    }
-    //Multicast DIS from parent indicate that Parent is not valid in short time window possible
-    ws_bootstrap_parent_confirm(cur, instance);
-}
-
-
-static void ws_bootstrap_rpl_callback(rpl_event_t event, void *handle)
-{
-
-    protocol_interface_info_entry_t *cur = handle;
-    if (!cur->rpl_domain || cur->interface_mode != INTERFACE_UP) {
-        return;
-    }
-
-    if (event == RPL_EVENT_POISON_FINISHED) {
-        //If we are waiting poison we will trig Discovery after couple seconds
-        if (cur->nwk_bootstrap_state == ER_RPL_NETWORK_LEAVING) {
-            cur->bootsrap_state_machine_cnt = 80; //Give 8 seconds time to send Poison
-        }
-        return;
-    }
-
-    // if waiting for RPL and
-    if (event == RPL_EVENT_DAO_DONE) {
-        // Trigger statemachine check
-        cur->bootsrap_state_machine_cnt = 1;
-        rpl_dodag_info_t dodag_info;
-        struct rpl_instance *instance = rpl_control_enumerate_instances(cur->rpl_domain, NULL);
-
-        if (instance && rpl_control_read_dodag_info(instance, &dodag_info)) {
-            tr_debug("Enable DHCPv6 relay");
-            dhcp_relay_agent_enable(cur->id, dodag_info.dodag_id);
-
-            tr_debug("Start EAPOL relay");
-            // Set both own port and border router port to 10253
-            ws_eapol_relay_start(cur, EAPOL_RELAY_SOCKET_PORT, dodag_info.dodag_id, EAPOL_RELAY_SOCKET_PORT);
-            // Set network information to PAE
-            ws_pae_controller_nw_info_set(cur, cur->ws_info->network_pan_id, cur->ws_info->pan_information.pan_version, cur->ws_info->cfg->gen.network_name);
-            // Network key is valid, indicate border router IID to controller
-            ws_pae_controller_nw_key_valid(cur, &dodag_info.dodag_id[8]);
-            //Update here Suplikant target by validated Primary Parent
-            if (cur->bootsrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-                mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_priority(mac_neighbor_info(cur));
-                if (mac_neighbor) {
-                    ws_pae_controller_set_target(cur, cur->ws_info->network_pan_id, mac_neighbor->mac64);
-                }
-            }
-
-            // After successful DAO ACK connection to border router is verified
-            ws_common_border_router_alive_update(cur);
-        }
-
-        if (!cur->ws_info->trickle_pa_running || !cur->ws_info->trickle_pc_running) {
-            //Enable wi-sun asynch adverisment
-            ws_bootstrap_advertise_start(cur);
-        }
-
-        ws_bootstrap_set_fhss_hop(cur);
-        // Set retry configuration for bootstrap ready state
-        ws_bootstrap_configure_max_retries(cur, WS_MAX_FRAME_RETRIES);
-        // Set TX failure request restart configuration
-        ws_bootstrap_configure_data_request_restart(cur, WS_CCA_REQUEST_RESTART_MAX, WS_TX_REQUEST_RESTART_MAX, WS_REQUEST_RESTART_BLACKLIST_MIN, WS_REQUEST_RESTART_BLACKLIST_MAX);
-    } else if (event == RPL_EVENT_LOCAL_REPAIR_NO_MORE_DIS) {
-        /*
-         * RPL goes to passive mode, but does not require any extra changed
-         *
-         * We could remove our current addresses learned from RPL
-         * We could send solicit for configuration and then select new parent when those arrive
-         *
-         */
-
-    } else if (event == RPL_EVENT_LOCAL_REPAIR_START) {
-        tr_debug("RPL local repair start");
-        //Disable Async and go to state 4 to confirm parent connection
-        ws_bootstrap_parent_confirm(cur, NULL);
-        // Move to state 4 if we see issues with primary parent
-        if (ws_bootstrap_state_active(cur)) {
-            tr_info("Move state 4 to wait parent connection confirmation");
-            ws_bootstrap_rpl_scan_start(cur);
-            ws_bootstrap_network_down(cur);
-        }
-    } else if (event == RPL_EVENT_DAO_PARENT_ADD) {
-        ws_address_parent_update(cur);
-    }
-    cur->ws_info->rpl_state = event;
-    tr_info("RPL event %d", event);
-}
-
-bool ws_eapol_relay_state_active(protocol_interface_info_entry_t *cur)
-{
-    if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER || cur->nwk_bootstrap_state == ER_BOOTSRAP_DONE) {
-        return true;
-    }
-
-    return false;
-}
-
-static void ws_rpl_prefix_callback(prefix_entry_t *prefix, void *handle, uint8_t *parent_link_local)
-{
-    protocol_interface_info_entry_t *cur = (protocol_interface_info_entry_t *) handle;
-    /* Check if A-Flag.
-     * A RPL node may use this option for the purpose of Stateless Address Autoconfiguration (SLAAC)
-     * from a prefix advertised by a parent.
-     */
-    if (prefix->options & PIO_A) {
-
-        if (parent_link_local) {
-            if (icmpv6_slaac_prefix_update(cur, prefix->prefix, prefix->prefix_len, prefix->lifetime, prefix->preftime) != 0) {
-                ipv6_interface_slaac_handler(cur, prefix->prefix, prefix->prefix_len, prefix->lifetime, prefix->preftime);
-                /*
-                 * Give SLAAC addresses a different label and low precedence to indicate that
-                 * they probably shouldn't be used for external traffic. SLAAC use in Wi-SUN is non-standard,
-                 * and we use it for mesh-local traffic we should prefer any DHCP-assigned addresses
-                 * for talking to the outside world
-                 *
-                 */
-                addr_policy_table_add_entry(prefix->prefix, prefix->prefix_len, 2, WS_NON_PREFFRED_LABEL);
-            }
-        } else {
-            icmpv6_slaac_prefix_update(cur, prefix->prefix, prefix->prefix_len, 0, 0);
-        }
-    } else if (prefix->prefix_len) {
-        // Create new address using DHCP
-        if (parent_link_local) {
-            ws_dhcp_client_address_request(cur, prefix->prefix, parent_link_local);
-        } else {
-            /* Deprecate address and remove client */
-            tr_debug("Prefix invalidation %s", trace_ipv6(prefix->prefix));
-            dhcp_client_global_address_delete(cur->id, NULL, prefix->prefix);
-        }
-    }
-}
-
-static bool ws_rpl_candidate_soft_filtering(protocol_interface_info_entry_t *cur, struct rpl_instance *instance)
-{
-    //Already many candidates
-    uint16_t candidate_list_size = rpl_control_candidate_list_size(cur, instance);
-    if (candidate_list_size >= cur->ws_info->cfg->gen.rpl_parent_candidate_max) {
-        return false;
-    }
-
-    uint16_t selected_parents = rpl_control_selected_parent_count(cur, instance);
-
-    //Already enough selected candidates
-    if (selected_parents >= cur->ws_info->cfg->gen.rpl_selected_parent_max) {
-        candidate_list_size -= selected_parents;
-        if (candidate_list_size >= 2) {
-            //We have more candidates than selected
-            return false;
-        }
-    }
-
-    return true;
-}
-
-static bool ws_rpl_new_parent_callback(uint8_t *ll_parent_address, void *handle, struct rpl_instance *instance, uint16_t candidate_rank)
-{
-
-    protocol_interface_info_entry_t *cur = handle;
-    if (!cur->rpl_domain || cur->interface_mode != INTERFACE_UP) {
-        return false;
-    }
-
-    if (blacklist_reject(ll_parent_address)) {
-        // Rejected by blacklist
-        return false;
-    }
-
-    uint8_t mac64[10];
-    //bool replace_ok = false;
-    //bool create_ok = false;
-    llc_neighbour_req_t neigh_buffer;
-
-    //Discover neigh ready here for possible ETX validate
-    memcpy(mac64, ll_parent_address + 8, 8);
-    mac64[0] ^= 2;
-
-
-    ws_bootstrap_neighbor_info_request(cur, mac64, &neigh_buffer, false);
-    //Discover Multicast temporary entry for create neighbour table entry for new candidate
-    ws_neighbor_temp_class_t *entry = ws_llc_get_multicast_temp_entry(cur, mac64);
-
-    if (!ws_rpl_candidate_soft_filtering(cur, instance)) {
-
-        //Acept only better than own rank here
-        if (candidate_rank >= rpl_control_current_rank(instance)) {
-            //Do not accept no more siblings
-            return false;
-        }
-
-        uint16_t candidate_list_size = rpl_control_candidate_list_size(cur, instance);
-        if (candidate_list_size > cur->ws_info->cfg->gen.rpl_parent_candidate_max + 1) {
-            //Accept only 1 better 1 time
-            return false;
-        }
-
-        if (!neigh_buffer.neighbor) {
-            //Do not accept any new in that Place
-            return false;
-        }
-
-        uint8_t replacing[16];
-        //Accept Know neighbour if it is enough good
-        if (!rpl_control_find_worst_neighbor(cur, instance, replacing)) {
-            return false;
-        }
-        // +2 Is for PAN ID space
-        memcpy(mac64, replacing + 8, 8);
-        mac64[0] ^= 2;
-
-        if (ws_local_etx_read(cur, ADDR_802_15_4_LONG, mac64) == 0xffff) {
-            //Not probed yet because ETX is 0xffff
-            return false;
-        }
-
-        uint16_t etx = 0;
-        if (neigh_buffer.neighbor) {
-            etx = ws_local_etx_read(cur, ADDR_802_15_4_LONG, neigh_buffer.neighbor->mac64);
-        }
-
-        // Accept now only better one's when max candidates selected and max candidate list size is reached
-        return rpl_possible_better_candidate(cur, instance, replacing, candidate_rank, etx);
-    }
-
-    //Neighbour allready
-    if (neigh_buffer.neighbor) {
-        return true;
-    }
-
-    if (!entry) {
-        //No Multicast Entry Available
-        return false;
-    }
-
-    //Create entry
-    bool create_ok = ws_bootstrap_neighbor_info_request(cur, entry->mac64, &neigh_buffer, true);
-    if (create_ok) {
-        ws_neighbor_class_entry_t *ws_neigh = neigh_buffer.ws_neighbor;
-        ws_bootstrap_neighbor_set_stable(cur, entry->mac64);
-        //Copy fhss temporary data
-        *ws_neigh = entry->neigh_info_list;
-        mac_neighbor_table_trusted_neighbor(mac_neighbor_info(cur), neigh_buffer.neighbor, true);
-    }
-    ws_llc_free_multicast_temp_entry(cur, entry);
-
-#if 0
-neigh_create_ok:
-
-    if (create_ok && replace_ok) {
-        //Try remove here when accepted new better one possible
-        tr_debug("Remove %s by %s", trace_ipv6(replacing), trace_ipv6(ll_parent_address));
-        rpl_control_neighbor_delete_from_instance(cur, instance, replacing);
-    }
-#endif
-    return create_ok;
-}
 static uint16_t ws_bootstrap_routing_cost_calculate(protocol_interface_info_entry_t *cur)
 {
     mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_priority(mac_neighbor_info(cur));
@@ -2600,92 +1983,6 @@ static uint16_t ws_bootstrap_routing_cost_calculate(protocol_interface_info_entr
     return ws_neighbor->routing_cost + etx;
 }
 
-static struct rpl_instance *ws_bootstrap_get_rpl_instance(protocol_interface_info_entry_t *cur)
-{
-    if (!cur || !cur->rpl_domain) {
-        return NULL;
-    }
-    struct rpl_instance *best_instance = NULL;
-    ns_list_foreach(struct rpl_instance, instance, &cur->rpl_domain->instances) {
-        best_instance = instance;
-        // Select best grounded and lowest rank? But there should be only one really
-    }
-    return best_instance;
-}
-
-static uint16_t ws_bootstrap_rank_get(protocol_interface_info_entry_t *cur)
-{
-    struct rpl_instance *rpl_instance = ws_bootstrap_get_rpl_instance(cur);
-    if (!rpl_instance) {
-        return 0xffff;
-    }
-    return rpl_control_current_rank(rpl_instance);
-}
-
-
-static uint16_t ws_bootstrap_min_rank_inc_get(protocol_interface_info_entry_t *cur)
-{
-    struct rpl_instance *rpl_instance = ws_bootstrap_get_rpl_instance(cur);
-    if (!rpl_instance) {
-        return 0xffff;
-    }
-    struct rpl_dodag_info_t dodag_info;
-    if (!rpl_control_read_dodag_info(rpl_instance, &dodag_info)) {
-        return 0xffff;
-    }
-    return dodag_info.dag_min_hop_rank_inc;
-}
-
-void ws_bootstrap_rpl_scan_start(protocol_interface_info_entry_t *cur)
-{
-    tr_debug("Start RPL learn");
-    // Stop Trickle timers
-    ws_bootstrap_asynch_trickle_stop(cur);
-
-    // routers wait until RPL root is contacted
-    ws_bootstrap_state_change(cur, ER_RPL_SCAN);
-    // Change state as the state is checked in state machine
-    cur->ws_info->rpl_state = RPL_EVENT_LOCAL_REPAIR_START;
-    //For Large network and medium should do passive scan
-    if (ws_cfg_network_config_get(cur) > CONFIG_SMALL) {
-        // Set timeout for check to 30 - 60 seconds
-        cur->bootsrap_state_machine_cnt = randLIB_get_random_in_range(WS_RPL_DIS_INITIAL_TIMEOUT / 2, WS_RPL_DIS_INITIAL_TIMEOUT);
-    }
-}
-
-void ws_bootstrap_rpl_activate(protocol_interface_info_entry_t *cur)
-{
-    tr_debug("RPL Activate");
-    bool downstream = true;
-    bool leaf = false;
-
-    addr_add_router_groups(cur);
-    rpl_control_set_domain_on_interface(cur, protocol_6lowpan_rpl_domain, downstream);
-    rpl_control_set_callback(protocol_6lowpan_rpl_domain, ws_bootstrap_rpl_callback, ws_rpl_prefix_callback, ws_rpl_new_parent_callback, ws_rpl_parent_dis_callback, cur);
-    // If i am router I Do this
-    rpl_control_force_leaf(protocol_6lowpan_rpl_domain, leaf);
-    rpl_control_process_routes(protocol_6lowpan_rpl_domain, false); // Wi-SUN assumes that no default route needed
-    rpl_control_request_parent_link_confirmation(true);
-    rpl_control_set_dio_multicast_min_config_advertisment_count(WS_MIN_DIO_MULTICAST_CONFIG_ADVERTISMENT_COUNT);
-    rpl_control_set_address_registration_timeout((WS_NEIGHBOR_LINK_TIMEOUT / 60) + 1);
-    rpl_control_set_dao_retry_count(WS_MAX_DAO_RETRIES);
-    rpl_control_set_initial_dao_ack_wait(WS_MAX_DAO_INITIAL_TIMEOUT);
-    rpl_control_set_mrhof_parent_set_size(WS_MAX_PARENT_SET_COUNT);
-    rpl_control_set_force_tunnel(true);
-    if (cur->bootsrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        rpl_control_set_memory_limits(WS_NODE_RPL_SOFT_MEM_LIMIT, WS_NODE_RPL_HARD_MEM_LIMIT);
-    }
-    // Set RPL Link ETX Validation Threshold to 2.5 - 33.0
-    // This setup will set ETX 0x800 to report ICMP error 18% probability
-    // When ETX start go over 0x280 forward dropping probability start increase  linear to 100% at 0x2100
-    rpl_policy_forward_link_etx_threshold_set(0x280, 0x2100);
-
-    // Set the minimum target refresh to sen DAO registrations before pan timeout
-    rpl_control_set_minimum_dao_target_refresh(WS_RPL_DAO_MAX_TIMOUT);
-
-    cur->ws_info->rpl_state = 0xff; // Set invalid state and learn from event
-}
-
 void ws_bootstrap_network_start(protocol_interface_info_entry_t *cur)
 {
     //Set Network names, Pan information configure, hopping schedule & GTKHash
@@ -2700,12 +1997,6 @@ void ws_bootstrap_advertise_start(protocol_interface_info_entry_t *cur)
     cur->ws_info->trickle_pc_running = true;
     cur->ws_info->trickle_pc_consistency_block_period = 0;
     trickle_start(&cur->ws_info->trickle_pan_config, &cur->ws_info->trickle_params_pan_discovery);
-}
-
-static void ws_bootstrap_pan_version_increment(protocol_interface_info_entry_t *cur)
-{
-    (void)cur;
-    ws_bbr_pan_version_increase(cur);
 }
 
 // Start authentication
@@ -2760,36 +2051,6 @@ static void ws_bootstrap_nw_frame_counter_read(protocol_interface_info_entry_t *
     mac_helper_key_link_frame_counter_read(cur->id, counter, slot);
 }
 
-static void ws_bootstrap_nw_info_updated(protocol_interface_info_entry_t *cur, uint16_t pan_id, uint16_t pan_version, char *network_name)
-{
-    /* For border router, the PAE controller reads PAN ID, PAN version and network name from storage.
-     * If they are set, takes them into use here.
-     */
-    if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        // Get network name
-        ws_gen_cfg_t gen_cfg;
-        if (ws_cfg_gen_get(&gen_cfg) < 0) {
-            return;
-        }
-
-        // If PAN ID has not been set, set it
-        if (cur->ws_info->network_pan_id == 0xffff) {
-            cur->ws_info->network_pan_id = pan_id;
-            // Sets PAN version
-            cur->ws_info->pan_information.pan_version = pan_version;
-            cur->ws_info->pan_information.pan_version_set = true;
-        }
-
-        // If network name has not been set, set it
-        if (strlen(gen_cfg.network_name) == 0) {
-            strncpy(gen_cfg.network_name, network_name, 32);
-        }
-
-        // Stores the settings
-        ws_cfg_gen_set(cur, &gen_cfg, 0);
-    }
-}
-
 static void ws_bootstrap_authentication_completed(protocol_interface_info_entry_t *cur, auth_result_e result, uint8_t *target_eui_64)
 {
     if (result == AUTH_RESULT_OK) {
@@ -2841,79 +2102,6 @@ static const uint8_t *ws_bootstrap_authentication_next_target(protocol_interface
     return previous_eui_64;
 }
 
-static bool ws_bootstrap_eapol_congestion_get(protocol_interface_info_entry_t *cur, uint16_t active_supp)
-{
-    if (cur == NULL || cur->random_early_detection == NULL || cur->llc_random_early_detection == NULL || cur->llc_eapol_random_early_detection == NULL) {
-        return false;
-    }
-
-    bool return_value = false;
-    static struct red_info_s *red_info = NULL;
-    uint16_t adaptation_average = 0;
-    uint16_t llc_average = 0;
-    uint16_t llc_eapol_average = 0;
-    uint16_t average_sum = 0;
-    uint8_t active_max = 0;
-
-    //TODO implement API for HEAP info request
-    uint32_t heap_size;
-    const mem_stat_t *mem_stats = ns_dyn_mem_get_mem_stat();
-    if (mem_stats) {
-        heap_size = mem_stats->heap_sector_size;
-    } else {
-        heap_size = 0;
-    }
-
-    /*
-      * For different memory sizes the max simultaneous authentications will be
-      * 32k:    (32k / 50k) * 2 + 1 = 1
-      * 65k:    (65k / 50k) * 2 + 1 = 3
-      * 250k:   (250k / 50k) * 2 + 1 = 11
-      * 1000k:  (1000k / 50k) * 2 + 1 = 41
-      * 2000k:  (2000k / 50k) * 2 + 1 = 50 (upper limit)
-      */
-    active_max = (heap_size / 50000) * 2 + 1;
-    if (active_max > 50) {
-        active_max = 50;
-    }
-
-    // Read the values for adaptation and LLC queues
-    adaptation_average = random_early_detetction_aq_read(cur->random_early_detection);
-    llc_average = random_early_detetction_aq_read(cur->llc_random_early_detection);
-    llc_eapol_average  = random_early_detetction_aq_read(cur->llc_eapol_random_early_detection);
-    // Calculate combined average
-    average_sum = adaptation_average + llc_average + llc_eapol_average;
-
-    // Maximum for active supplicants based on memory reached, fail
-    if (active_supp >= active_max) {
-        return_value = true;
-        goto congestion_get_end;
-    }
-
-    // Always allow at least five negotiations (if memory does not limit)
-    if (active_supp < 5) {
-        goto congestion_get_end;
-    }
-
-    if (red_info == NULL) {
-        red_info = random_early_detection_create(
-                       cur->ws_info->cfg->sec_prot.max_simult_sec_neg_tx_queue_min,
-                       cur->ws_info->cfg->sec_prot.max_simult_sec_neg_tx_queue_max,
-                       100, RED_AVERAGE_WEIGHT_DISABLED);
-    }
-    if (red_info == NULL) {
-        goto congestion_get_end;
-    }
-
-    // Check drop probability
-    average_sum = random_early_detetction_aq_calc(red_info, average_sum);
-    return_value = random_early_detection_congestion_check(red_info);
-
-congestion_get_end:
-    tr_info("Active supplicant limit, active: %i max: %i summed averageQ: %i adapt averageQ: %i LLC averageQ: %i LLC EAPOL averageQ: %i drop: %s", active_supp, active_max, average_sum, adaptation_average, llc_average, llc_eapol_average, return_value ? "T" : "F");
-
-    return return_value;
-}
 
 /*
  * Event transitions
@@ -3079,9 +2267,9 @@ static void ws_bootstrap_event_handler(arm_event_s *event)
     }
 
     if (wisun_mode_host(cur)) {
-        ws_bootstrap_lfn_event_handler(cur, event);
+        ws_bootstrap_6ln_event_handler(cur, event);
     } else if (wisun_mode_router(cur)) {
-        ws_bootstrap_ffn_event_handler(cur, event);
+        ws_bootstrap_6lr_event_handler(cur, event);
     } else if (wisun_mode_border_router(cur)) {
         ws_bootstrap_6lbr_event_handler(cur, event);
     }
@@ -3296,32 +2484,6 @@ void ws_bootstrap_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t s
     ws_llc_timer_seconds(cur, seconds);
 
     ws_bootstrap_test_procedure_trigger_timer(cur, seconds);
-}
-
-void ws_bootstrap_primary_parent_update(protocol_interface_info_entry_t *interface, mac_neighbor_table_entry_t *neighbor)
-{
-    if (interface->ws_info) {
-        llc_neighbour_req_t neighbor_info;
-        neighbor_info.neighbor = neighbor;
-        neighbor_info.ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info->neighbor_storage, neighbor->index);
-        ws_bootstrap_primary_parent_set(interface, &neighbor_info, WS_PARENT_HARD_SYNCH);
-        uint8_t link_local_address[16];
-        ws_common_create_ll_address(link_local_address, neighbor->mac64);
-        dhcp_client_server_address_update(interface->id, NULL, link_local_address);
-
-        ws_bootstrap_secondary_parent_update(interface);
-    }
-}
-
-void ws_bootstrap_secondary_parent_update(protocol_interface_info_entry_t *interface)
-{
-    if (interface->ws_info) {
-        ns_list_foreach(if_address_entry_t, address, &interface->ip_addresses) {
-            if (!addr_is_ipv6_link_local(address->address)) {
-                ws_address_parent_update(interface);
-            }
-        }
-    }
 }
 
 int ws_bootstrap_stack_info_get(protocol_interface_info_entry_t *cur, struct ws_stack_info *info_ptr)

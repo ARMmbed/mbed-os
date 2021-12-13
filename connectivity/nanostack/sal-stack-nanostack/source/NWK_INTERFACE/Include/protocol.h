@@ -91,12 +91,10 @@ typedef enum icmp_state {
     ER_SCAN = 2,
     ER_ADDRESS_REQ = 3,
     ER_BIND_COMP = 4,
-#ifdef HAVE_RPL
     ER_RPL_MC       = 5,
     ER_RPL_SCAN     = 6,
     ER_RPL_UNICAST  = 7,
     ER_DAO_TX       = 8,
-#endif
     ER_PANA_AUTH    = 9,
     ER_PANA_AUTH_DONE   = 10,
     ER_PANA_AUTH_ERROR  = 11,
@@ -104,9 +102,7 @@ typedef enum icmp_state {
     ER_MLE_LINK_REQ = 13,
     ER_MLE_LINK_SHORT_SYNCH = 14,
     ER_MLE_LINK_ADDRESS_SYNCH = 15,
-#ifdef HAVE_RPL
     ER_ROUTER_SYNCH = 17,
-#endif
     ER_PANA_PING = 18,
     ER_PARENT_SYNCH_LOST = 19,
     ER_MLE_SCAN = 20,

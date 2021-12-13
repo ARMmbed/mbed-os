@@ -729,7 +729,7 @@ void rpl_delete_dodag_root(rpl_dodag_t *dodag)
 /* Convert RPL configuration to generic trickle parameters. Returns true if
  * the value in the generic object has changed.
  */
-static bool rpl_dodag_conf_convert_trickle_parameters(trickle_params_t *params_out, const rpl_dodag_conf_t *conf)
+static bool rpl_dodag_conf_convert_trickle_parameters(trickle_params_t *params_out, const rpl_dodag_conf_int_t *conf)
 {
     /* Convert trickle parameters into 100ms ticks */
     uint32_t Imin_ms = conf->dio_interval_min < 32 ? (1ul << conf->dio_interval_min) : 0xfffffffful;
@@ -756,7 +756,7 @@ uint8_t rpl_dodag_mop(const rpl_dodag_t *dodag)
     return dodag->g_mop_prf & RPL_MODE_MASK;
 }
 
-bool rpl_dodag_update_config(rpl_dodag_t *dodag, const rpl_dodag_conf_t *conf, const uint8_t *src, bool *become_leaf)
+bool rpl_dodag_update_config(rpl_dodag_t *dodag, const rpl_dodag_conf_int_t *conf, const uint8_t *src, bool *become_leaf)
 {
     /* If already have config, don't update unless it's coming from preferred parent */
     if (dodag->have_config) {
@@ -863,7 +863,7 @@ bool rpl_dodag_is_current(const rpl_dodag_t *dodag)
     return dodag->instance->current_dodag_version && dodag->instance->current_dodag_version->dodag == dodag;
 }
 
-const rpl_dodag_conf_t *rpl_dodag_get_config(const rpl_dodag_t *dodag)
+const rpl_dodag_conf_int_t *rpl_dodag_get_config(const rpl_dodag_t *dodag)
 {
     return dodag->have_config ? &dodag->config : NULL;
 }
@@ -1677,7 +1677,7 @@ void rpl_instance_dio_trigger(rpl_instance_t *instance, protocol_interface_info_
     }
 
     // Always send config in unicasts (as required), never in multicasts (optional)
-    rpl_dodag_conf_t *conf;
+    rpl_dodag_conf_int_t *conf;
     if (addr) {
         conf = &dodag->config;
         //Unicast

@@ -33,9 +33,10 @@
 #include "6LoWPAN/ws/ws_llc.h"
 #include "6LoWPAN/ws/ws_common.h"
 #include "6LoWPAN/ws/ws_bootstrap.h"
+#include "6LoWPAN/ws/ws_bootstrap_6ln.h"
+#include "6LoWPAN/ws/ws_bootstrap_6lr.h"
 #include "6LoWPAN/ws/ws_bootstrap_6lbr.h"
 #include "6LoWPAN/ws/ws_bootstrap_ffn.h"
-#include "6LoWPAN/ws/ws_bootstrap_lfn.h"
 #include "6LoWPAN/ws/ws_bbr_api_internal.h"
 #include "6LoWPAN/ws/ws_pae_controller.h"
 #include "6LoWPAN/ws/ws_cfg_settings.h"
@@ -419,10 +420,10 @@ void ws_common_state_machine(protocol_interface_info_entry_t *cur)
 {
     if (wisun_mode_host(cur)) {
         // Configure for LFN device
-        ws_bootstrap_lfn_state_machine(cur);
+        ws_bootstrap_6ln_state_machine(cur);
     } else if (wisun_mode_router(cur)) {
         // Configure FFN device
-        ws_bootstrap_ffn_state_machine(cur);
+        ws_bootstrap_6lr_state_machine(cur);
     } else if (wisun_mode_border_router(cur)) {
         // Configure as Border router
         ws_bootstrap_6lbr_state_machine(cur);
@@ -435,8 +436,8 @@ void ws_common_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seco
     ws_bbr_seconds_timer(cur, seconds);
     ws_bootstrap_seconds_timer(cur, seconds);
     ws_bootstrap_6lbr_seconds_timer(cur, seconds);
-    ws_bootstrap_ffn_seconds_timer(cur, seconds);
-    ws_bootstrap_lfn_seconds_timer(cur, seconds);
+    ws_bootstrap_6lr_seconds_timer(cur, seconds);
+    ws_bootstrap_6ln_seconds_timer(cur, seconds);
     blacklist_ttl_update(seconds);
 }
 
@@ -661,12 +662,12 @@ uint32_t ws_common_authentication_time_get(protocol_interface_info_entry_t *cur)
 
 void ws_common_primary_parent_update(protocol_interface_info_entry_t *interface, mac_neighbor_table_entry_t *neighbor)
 {
-    ws_bootstrap_primary_parent_update(interface, neighbor);
+    ws_bootstrap_6lr_primary_parent_update(interface, neighbor);
 }
 
 void ws_common_secondary_parent_update(protocol_interface_info_entry_t *interface)
 {
-    ws_bootstrap_secondary_parent_update(interface);
+    ws_bootstrap_6lr_secondary_parent_update(interface);
 }
 
 void ws_common_border_router_alive_update(protocol_interface_info_entry_t *interface)
