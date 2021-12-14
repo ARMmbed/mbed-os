@@ -114,6 +114,7 @@ static void gpiote_pin_uninit(uint8_t pin)
 static void gpio_apply_config(uint8_t pin)
 {
     if (m_gpio_cfg[pin].used_as_gpio || m_gpio_cfg[pin].used_as_irq) {
+        nrfx_err_t err_code = NRFX_SUCCESS;
         if ((m_gpio_cfg[pin].direction == PIN_INPUT)
                 || (m_gpio_cfg[pin].used_as_irq)) {
             //Configure as input.
@@ -135,7 +136,7 @@ static void gpio_apply_config(uint8_t pin)
                     break;
             }
             if (m_gpio_cfg[pin].used_as_irq) {
-                nrfx_gpiote_in_init(pin, &cfg, gpiote_irq_handler);
+                err_code = nrfx_gpiote_in_init(pin, &cfg, gpiote_irq_handler);
                 if ((m_gpio_irq_enabled & ((gpio_mask_t)1 << pin))
                         && (m_gpio_cfg[pin].irq_rise || m_gpio_cfg[pin].irq_fall)) {
                     nrfx_gpiote_in_event_enable(pin, true);
@@ -146,8 +147,9 @@ static void gpio_apply_config(uint8_t pin)
         } else {
             // Configure as output.
             nrfx_gpiote_out_config_t cfg = NRFX_GPIOTE_CONFIG_OUT_SIMPLE(nrf_gpio_pin_out_read(pin));
-            nrfx_gpiote_out_init(pin, &cfg);
+            err_code = nrfx_gpiote_out_init(pin, &cfg);
         }
+        MBED_ASSERT(err_code != NRFX_ERROR_NO_MEM);
         m_gpio_initialized |= ((gpio_mask_t)1UL << pin);
     } else {
         m_gpio_initialized &= ~((gpio_mask_t)1UL << pin);
