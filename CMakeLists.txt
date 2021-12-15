@@ -17,7 +17,10 @@ if(BUILD_GREENTEA_TESTS)
 endif()
 
 if(${CMAKE_CROSSCOMPILING})
-    include(${MBED_CONFIG_PATH}/mbed_config.cmake)
+    if(NOT DEFINED MBED_CONFIG_INCLUDE)
+        include(${MBED_CONFIG_PATH}/mbed_config.cmake)
+        set(MBED_CONFIG_INCLUDE TRUE)
+    endif()
     include(mbed_set_linker_script)
 endif()
 

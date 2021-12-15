@@ -10,7 +10,11 @@ if(CCACHE)
     set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE})
 endif()
 
-include(${MBED_CONFIG_PATH}/mbed_config.cmake)
+if(NOT DEFINED MBED_CONFIG_INCLUDE)
+    include(${MBED_CONFIG_PATH}/mbed_config.cmake)
+    set(MBED_CONFIG_INCLUDE TRUE)
+endif()
+
 include(mbed_set_post_build)
 
 # Load toolchain file
