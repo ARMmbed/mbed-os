@@ -1618,13 +1618,13 @@ HAL_StatusTypeDef HAL_HRTIM_SimpleOCStart_DMA(HRTIM_HandleTypeDef * hhrtim,
   /* Check the parameters */
   assert_param(IS_HRTIM_TIMER_OUTPUT(TimerIdx, OCChannel));
 
-  if((hhrtim->State == HAL_HRTIM_STATE_BUSY))
+  if (hhrtim->State == HAL_HRTIM_STATE_BUSY)
   {
      return HAL_BUSY;
   }
-  if((hhrtim->State == HAL_HRTIM_STATE_READY))
+  if (hhrtim->State == HAL_HRTIM_STATE_READY)
   {
-    if((SrcAddr == 0U ) || (DestAddr == 0U ) || (Length == 0U))
+    if ((SrcAddr == 0U ) || (DestAddr == 0U ) || (Length == 0U))
     {
       return HAL_ERROR;
     }
@@ -2235,13 +2235,13 @@ HAL_StatusTypeDef HAL_HRTIM_SimplePWMStart_DMA(HRTIM_HandleTypeDef * hhrtim,
   /* Check the parameters */
   assert_param(IS_HRTIM_TIMER_OUTPUT(TimerIdx, PWMChannel));
 
-  if((hhrtim->State == HAL_HRTIM_STATE_BUSY))
+  if (hhrtim->State == HAL_HRTIM_STATE_BUSY)
   {
      return HAL_BUSY;
   }
-  if((hhrtim->State == HAL_HRTIM_STATE_READY))
+  if (hhrtim->State == HAL_HRTIM_STATE_READY)
   {
-    if((SrcAddr == 0U ) || (DestAddr == 0U ) || (Length == 0U))
+    if ((SrcAddr == 0U ) || (DestAddr == 0U ) || (Length == 0U))
     {
       return HAL_ERROR;
     }
@@ -5329,7 +5329,7 @@ HAL_StatusTypeDef HAL_HRTIM_WaveformCountStart_DMA(HRTIM_HandleTypeDef * hhrtim,
   /* Check the parameters */
   assert_param(IS_HRTIM_TIMERID(Timers));
 
-  if((hhrtim->State == HAL_HRTIM_STATE_BUSY))
+  if (hhrtim->State == HAL_HRTIM_STATE_BUSY)
   {
      return HAL_BUSY;
   }
@@ -5764,13 +5764,13 @@ HAL_StatusTypeDef HAL_HRTIM_BurstDMATransfer(HRTIM_HandleTypeDef *hhrtim,
   /* Check the parameters */
   assert_param(IS_HRTIM_TIMERINDEX(TimerIdx));
 
-  if((hhrtim->State == HAL_HRTIM_STATE_BUSY))
+  if (hhrtim->State == HAL_HRTIM_STATE_BUSY)
   {
      return HAL_BUSY;
   }
-  if((hhrtim->State == HAL_HRTIM_STATE_READY))
+  if (hhrtim->State == HAL_HRTIM_STATE_READY)
   {
-    if((BurstBufferAddress == 0U ) || (BurstBufferLength == 0U))
+    if ((BurstBufferAddress == 0U ) || (BurstBufferLength == 0U))
     {
       return HAL_ERROR;
     }
