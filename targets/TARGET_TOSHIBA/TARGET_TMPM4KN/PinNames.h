@@ -55,14 +55,6 @@ typedef enum {
     PU0 = 13 << 3, PU1, PU2, PU3, PU4, PU5, PU6, PU7,
     PV0 = 14 << 3, PV1,
 
-    // Other mbed Pin Names
-    LED1 = PB0,
-    LED2 = PB2,
-    LED3 = PB4,
-    LED4 = PV0,
-    LED5 = PV1,
-    LED6 = PB6,
-
     // External data bus Pin Names
     D0 = PF7,
     D1 = PF6,
@@ -100,11 +92,6 @@ typedef enum {
     SW3 = PG5,
     SW4 = PG6,
 
-    // Standardized button names
-    BUTTON1 = SW1,
-    BUTTON2 = SW2,
-    BUTTON3 = SW3,
-    BUTTON4 = SW4,
 
     // TSPI2
     MOSI = D11,
@@ -121,12 +108,28 @@ typedef enum {
     // I2C pins
     SDA = D14,
     SCL = D15,
-    I2C_SDA = SDA,
-    I2C_SCL = SCL,
 
     // Not connected
     NC = (int)0xFFFFFFFF,
 } PinName;
+
+// LED definitions
+#define LED1 PB0
+#define LED2 PB2
+#define LED3 PB4
+#define LED4 PV0
+#define LED5 PV1
+#define LED6 PB6
+
+// Standardized button names
+#define BUTTON1	SW1
+#define BUTTON2 SW2
+#define BUTTON3 SW3
+#define BUTTON4 SW4
+
+//I2C
+#define I2C_SDA SDA
+#define I2C_SCL SCL
 
 typedef enum {
     PullUp = 0,

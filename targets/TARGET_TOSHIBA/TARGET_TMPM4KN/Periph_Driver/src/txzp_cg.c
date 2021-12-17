@@ -7,6 +7,19 @@
  * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LICENSE AGREEMENT.
  *
  * Copyright(C) Toshiba Electronic Device Solutions Corporation 2021
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *******************************************************************************
  */
 
@@ -65,38 +78,38 @@ extern "C" {
 
 #define CG_PRCKST_MASK     ((uint32_t)0x0F000000)    /*!< CG PRCKST mask */
 
-#define CG_PRCKST_1        ((uint32_t)0x00000000)    /*!< CG ƒÓT0 fc register status */
-#define CG_PRCKST_2        ((uint32_t)0x01000000)    /*!< CG ƒÓT0 fc/2 register status */
-#define CG_PRCKST_4        ((uint32_t)0x02000000)    /*!< CG ƒÓT0 fc/4 register status */
-#define CG_PRCKST_8        ((uint32_t)0x03000000)    /*!< CG ƒÓT0 fc/8 register status */
-#define CG_PRCKST_16       ((uint32_t)0x04000000)    /*!< CG ƒÓT0 fc/16 register status */
-#define CG_PRCKST_32       ((uint32_t)0x05000000)    /*!< CG ƒÓT0 fc/32 register status */
-#define CG_PRCKST_64       ((uint32_t)0x06000000)    /*!< CG ƒÓT0 fc/64 register status */
-#define CG_PRCKST_128      ((uint32_t)0x07000000)    /*!< CG ƒÓT0 fc/128 register status */
-#define CG_PRCKST_256      ((uint32_t)0x08000000)    /*!< CG ƒÓT0 fc/256 register status */
-#define CG_PRCKST_512      ((uint32_t)0x09000000)    /*!< CG ƒÓT0 fc/512 register status */
+#define CG_PRCKST_1        ((uint32_t)0x00000000)    /*!< CG T0 fc register status */
+#define CG_PRCKST_2        ((uint32_t)0x01000000)    /*!< CG T0 fc/2 register status */
+#define CG_PRCKST_4        ((uint32_t)0x02000000)    /*!< CG T0 fc/4 register status */
+#define CG_PRCKST_8        ((uint32_t)0x03000000)    /*!< CG T0 fc/8 register status */
+#define CG_PRCKST_16       ((uint32_t)0x04000000)    /*!< CG T0 fc/16 register status */
+#define CG_PRCKST_32       ((uint32_t)0x05000000)    /*!< CG T0 fc/32 register status */
+#define CG_PRCKST_64       ((uint32_t)0x06000000)    /*!< CG T0 fc/64 register status */
+#define CG_PRCKST_128      ((uint32_t)0x07000000)    /*!< CG T0 fc/128 register status */
+#define CG_PRCKST_256      ((uint32_t)0x08000000)    /*!< CG T0 fc/256 register status */
+#define CG_PRCKST_512      ((uint32_t)0x09000000)    /*!< CG T0 fc/512 register status */
 
-#define CG_PRCK_1_DIV     ((uint32_t)0x00000001)    /*!< CG ƒÓT0 fc division value */
-#define CG_PRCK_2_DIV     ((uint32_t)0x00000002)    /*!< CG ƒÓT0 fc/2 division value */
-#define CG_PRCK_4_DIV     ((uint32_t)0x00000004)    /*!< CG ƒÓT0 fc/4 division value */
-#define CG_PRCK_8_DIV     ((uint32_t)0x00000008)    /*!< CG ƒÓT0 fc/8 division value */
-#define CG_PRCK_16_DIV    ((uint32_t)0x00000010)    /*!< CG ƒÓT0 fc/16 division value */
-#define CG_PRCK_32_DIV    ((uint32_t)0x00000020)    /*!< CG ƒÓT0 fc/32 division value */
-#define CG_PRCK_64_DIV    ((uint32_t)0x00000040)    /*!< CG ƒÓT0 fc/64 division value */
-#define CG_PRCK_128_DIV   ((uint32_t)0x00000080)    /*!< CG ƒÓT0 fc/128 division value */
-#define CG_PRCK_256_DIV   ((uint32_t)0x00000100)    /*!< CG ƒÓT0 fc/256 division value */
-#define CG_PRCK_512_DIV   ((uint32_t)0x00000200)    /*!< CG ƒÓT0 fc/512 division value */
+#define CG_PRCK_1_DIV     ((uint32_t)0x00000001)    /*!< CG T0 fc division value */
+#define CG_PRCK_2_DIV     ((uint32_t)0x00000002)    /*!< CG T0 fc/2 division value */
+#define CG_PRCK_4_DIV     ((uint32_t)0x00000004)    /*!< CG T0 fc/4 division value */
+#define CG_PRCK_8_DIV     ((uint32_t)0x00000008)    /*!< CG T0 fc/8 division value */
+#define CG_PRCK_16_DIV    ((uint32_t)0x00000010)    /*!< CG T0 fc/16 division value */
+#define CG_PRCK_32_DIV    ((uint32_t)0x00000020)    /*!< CG T0 fc/32 division value */
+#define CG_PRCK_64_DIV    ((uint32_t)0x00000040)    /*!< CG T0 fc/64 division value */
+#define CG_PRCK_128_DIV   ((uint32_t)0x00000080)    /*!< CG T0 fc/128 division value */
+#define CG_PRCK_256_DIV   ((uint32_t)0x00000100)    /*!< CG T0 fc/256 division value */
+#define CG_PRCK_512_DIV   ((uint32_t)0x00000200)    /*!< CG T0 fc/512 division value */
 
 
 #define CG_MCKSELPST_MASK ((uint32_t)0xC0000000)    /*!< CG MCKSEL mask */
 
-#define CG_MCKSELPST_1    ((uint32_t)0x00000000)    /*!<  CG ƒÓT0 fc/PRCK value */
-#define CG_MCKSELPST_2    ((uint32_t)0x40000000)    /*!<  CG ƒÓT0 fc/PRCK/2 value */
-#define CG_MCKSELPST_4    ((uint32_t)0x80000000)    /*!<  CG ƒÓT0 fc/PRCK/4 value */
+#define CG_MCKSELPST_1    ((uint32_t)0x00000000)    /*!<  CG T0 fc/PRCK value */
+#define CG_MCKSELPST_2    ((uint32_t)0x40000000)    /*!<  CG T0 fc/PRCK/2 value */
+#define CG_MCKSELPST_4    ((uint32_t)0x80000000)    /*!<  CG T0 fc/PRCK/4 value */
 
-#define CG_FSYSM_1_DIV    ((uint32_t)0x00000001)    /*!< CG fsysm ƒÓT0   division value */
-#define CG_FSYSM_2_DIV    ((uint32_t)0x00000002)    /*!< CG fsysm ƒÓT0/2 division value */
-#define CG_FSYSM_4_DIV    ((uint32_t)0x00000004)    /*!< CG fsysm ƒÓT0/4 division value */
+#define CG_FSYSM_1_DIV    ((uint32_t)0x00000001)    /*!< CG fsysm T0   division value */
+#define CG_FSYSM_2_DIV    ((uint32_t)0x00000002)    /*!< CG fsysm T0/2 division value */
+#define CG_FSYSM_4_DIV    ((uint32_t)0x00000004)    /*!< CG fsysm T0/4 division value */
 
 /**
  *  @}
@@ -202,34 +215,34 @@ uint32_t cg_get_mphyt0(cg_t *p_obj)
             break;
     }
     switch (p_obj->p_instance->SYSCR & CG_PRCKST_MASK) {
-        case CG_PRCKST_1:             /* ƒÓT0 -> fc */
+        case CG_PRCKST_1:             /* T0 -> fc */
             result /= CG_PRCK_1_DIV;
             break;
-        case CG_PRCKST_2:             /* ƒÓT0 -> fc/2 */
+        case CG_PRCKST_2:             /* T0 -> fc/2 */
             result /= CG_PRCK_2_DIV;
             break;
-        case CG_PRCKST_4:             /* ƒÓT0 -> fc/4 */
+        case CG_PRCKST_4:             /* T0 -> fc/4 */
             result /= CG_PRCK_4_DIV;
             break;
-        case CG_PRCKST_8:             /* ƒÓT0 -> fc/8 */
+        case CG_PRCKST_8:             /* T0 -> fc/8 */
             result /= CG_PRCK_8_DIV;
             break;
-        case CG_PRCKST_16:            /* ƒÓT0 -> fc/16 */
+        case CG_PRCKST_16:            /* T0 -> fc/16 */
             result /= CG_PRCK_16_DIV;
             break;
-        case CG_PRCKST_32:            /* ƒÓT0 -> fc/32 */
+        case CG_PRCKST_32:            /* T0 -> fc/32 */
             result /= CG_PRCK_32_DIV;
             break;
-        case CG_PRCKST_64:            /* ƒÓT0 -> fc/64 */
+        case CG_PRCKST_64:            /* T0 -> fc/64 */
             result /= CG_PRCK_64_DIV;
             break;
-        case CG_PRCKST_128:           /* ƒÓT0 -> fc/128 */
+        case CG_PRCKST_128:           /* T0 -> fc/128 */
             result /= CG_PRCK_128_DIV;
             break;
-        case CG_PRCKST_256:           /* ƒÓT0 -> fc/256 */
+        case CG_PRCKST_256:           /* T0 -> fc/256 */
             result /= CG_PRCK_256_DIV;
             break;
-        case CG_PRCKST_512:           /* ƒÓT0 -> fc/512 */
+        case CG_PRCKST_512:           /* T0 -> fc/512 */
             result /= CG_PRCK_512_DIV;
             break;
         default:
@@ -238,13 +251,13 @@ uint32_t cg_get_mphyt0(cg_t *p_obj)
     }
 
     switch (p_obj->p_instance->SYSCR & CG_MCKSELPST_MASK) {
-        case CG_MCKSELPST_1:   /* ƒÓT0 -> fc/PRCK */
+        case CG_MCKSELPST_1:   /* T0 -> fc/PRCK */
             result /= CG_FSYSM_1_DIV;
             break;
-        case CG_MCKSELPST_2:   /* ƒÓT0 -> fc/PRCK/2 */
+        case CG_MCKSELPST_2:   /* T0 -> fc/PRCK/2 */
             result /= CG_FSYSM_2_DIV;
             break;
-        case CG_MCKSELPST_4:   /* ƒÓT0 -> fc/PRCK/4 */
+        case CG_MCKSELPST_4:   /* T0 -> fc/PRCK/4 */
             result /= CG_FSYSM_4_DIV;
             break;
         default:
