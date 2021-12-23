@@ -48,11 +48,13 @@ static const PinMap PinMap_SPI_SLAVE_SCLK[] = {
 static const PinMap PinMap_SPI_SSEL[] = {
     {PA1,  SPI_0, PIN_DATA(1, 1)},
     {PG1,  SPI_1, PIN_DATA(1, 1)},
+    {NC,  NC,    0}
 };
 
 static const PinMap PinMap_SPI_SLAVE_SSEL[] = {
     {PA0,  SPI_0, PIN_DATA(1, 0)},
     {PG3,  SPI_1, PIN_DATA(1, 0)},
+    {NC,  NC,    0}
 };
 
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)

@@ -8953,7 +8953,6 @@
         "extra_labels": ["TOSHIBA"],
         "macros": ["__TMPM4KN__"],
         "supported_toolchains": ["GCC_ARM","ARMC6"],
-        "printf_lib": "std",
         "device_has": [
             "ANALOGIN",
 	    "INTERRUPTIN",
