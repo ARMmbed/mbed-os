@@ -2884,6 +2884,18 @@
             "ANALOGOUT"
         ]
     },
+    "NUCLEO_G0B1RE": {
+        "inherits": [
+            "MCU_STM32G0B1xE"
+        ],
+        "supported_form_factors": [
+            "ARDUINO_UNO"
+        ],
+        "detect_code": [
+            "0872"
+        ],
+        "device_name": "STM32G0B1RETx"
+    },
     "MCU_STM32G0C1xE": {
         "inherits": [
             "MCU_STM32G0"
