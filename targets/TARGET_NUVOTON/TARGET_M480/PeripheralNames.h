@@ -101,8 +101,8 @@ typedef enum {
     UART_3 = (int) NU_MODNAME(UART3_BASE, 3, 0),
     UART_4 = (int) NU_MODNAME(UART4_BASE, 4, 0),
     UART_5 = (int) NU_MODNAME(UART5_BASE, 5, 0),
-    UART_6 = (int) NU_MODNAME(UART5_BASE, 6, 0),
-    UART_7 = (int) NU_MODNAME(UART5_BASE, 7, 0),
+    UART_6 = (int) NU_MODNAME(UART6_BASE, 6, 0),
+    UART_7 = (int) NU_MODNAME(UART7_BASE, 7, 0),
     // NOTE: board-specific
 #if defined(MBED_CONF_TARGET_USB_UART)
     USB_UART    = MBED_CONF_TARGET_USB_UART,
