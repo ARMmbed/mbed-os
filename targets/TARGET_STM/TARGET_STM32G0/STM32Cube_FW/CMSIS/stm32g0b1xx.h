@@ -104,7 +104,11 @@ typedef enum
   USART1_IRQn                 = 27,     /*!< USART1 Interrupt                                                  */
   USART2_LPUART2_IRQn         = 28,     /*!< USART2 + LPUART2 Interrupt                                        */
   USART3_4_5_6_LPUART1_IRQn   = 29,     /*!< USART3, USART4, USART5, USART6, LPUART1 globlal Interrupts (combined with EXTI 28) */
-  CEC_IRQn                    = 30,     /*!< CEC Interrupt(combined with EXTI 27)                               */
+  CEC_IRQn                    = 30,     /*!< CEC Interrupt(combined with EXTI 27)                              */
+  FDCAN1_IT0_IRQn             = 31,     /*!< FDCAN1 Interrupt line 0                                           */
+  FDCAN1_IT1_IRQn             = 32,     /*!< FDCAN1 Interrupt line 1                                           */
+  FDCAN2_IT0_IRQn             = 33,     /*!< FDCAN2 Interrupt line 0                                           */
+  FDCAN2_IT1_IRQn             = 34      /*!< FDCAN2 Interrupt line 1                                           */
 } IRQn_Type;
 
 /**

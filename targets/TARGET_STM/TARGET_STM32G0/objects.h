@@ -129,6 +129,14 @@ struct flash_s {
     uint32_t dummy;
 };
 
+#if DEVICE_CAN
+struct can_s {
+    FDCAN_HandleTypeDef CanHandle;
+    int index;
+    int hz;
+};
+#endif
+
 struct analogin_s {
     ADC_HandleTypeDef handle;
     PinName pin;

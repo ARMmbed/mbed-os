@@ -2884,7 +2884,8 @@
             "STM32G0B1xx"
         ],
         "device_has_add": [
-            "ANALOGOUT"
+            "ANALOGOUT",
+            "CAN"
         ]
     },
     "NUCLEO_G0B1RE": {
