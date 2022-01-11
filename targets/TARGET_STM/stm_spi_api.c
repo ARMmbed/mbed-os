@@ -1389,6 +1389,11 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
 
     // enable the right hal transfer
     int rc = 0;
+#if defined(SPI_IP_VERSION_V2)
+    // HAL SPI API assumes that SPI disabled between transfers and
+    // doesn't work properly if SPI is enabled.
+    LL_SPI_Disable(SPI_INST(obj));
+#endif
     switch (transfer_type) {
         case SPI_TRANSFER_TYPE_TXRX:
             rc = HAL_SPI_TransmitReceive_IT(handle, (uint8_t *)tx, (uint8_t *)rx, words);
@@ -1407,6 +1412,12 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
     }
 
     if (rc) {
+#if defined(SPI_IP_VERSION_V2)
+        // enable SPI back in case of error
+        if (handle->Init.Direction != SPI_DIRECTION_1LINE) {
+            LL_SPI_Enable(SPI_INST(obj));
+        }
+#endif
         DEBUG_PRINTF("SPI: RC=%u\n", rc);
         length = 0;
     }
@@ -1505,6 +1516,16 @@ inline uint32_t spi_irq_handler_asynch(spi_t *obj)
              * but let's left it as is for backward compatibility.
              */
             spi_flush_rx(obj);
+        }
+#else
+        // reset transfer size
+        LL_SPI_SetTransferSize(SPI_INST(obj), 0);
+
+        // HAL_SPI_TransmitReceive_IT/HAL_SPI_Transmit_IT/HAL_SPI_Receive_IT
+        // function disable SPI after transfer. So we need enabled it back,
+        // otherwise spi_master_block_write/spi_master_write won't work in 4-wire mode.
+        if (handle->Init.Direction != SPI_DIRECTION_1LINE) {
+            LL_SPI_Enable(SPI_INST(obj));
         }
 #endif /* SPI_IP_VERSION_V2 */
     }
