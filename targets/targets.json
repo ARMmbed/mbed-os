@@ -2395,6 +2395,9 @@
         "macros_add": [
             "STM32F722xx"
         ],
+        "device_has_add": [
+            "USBDEVICE"
+        ],
         "supported_form_factors": [
             "ARDUINO_UNO"
         ],
