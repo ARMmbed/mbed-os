@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_subdirectory(TARGET_NUCLEO_G0B1RE EXCLUDE_FROM_ALL)
+
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(STARTUP_FILE TOOLCHAIN_GCC_ARM/startup_stm32g0b1xx.S)
     set(LINKER_FILE TOOLCHAIN_GCC_ARM/stm32g0b1xe.ld)
