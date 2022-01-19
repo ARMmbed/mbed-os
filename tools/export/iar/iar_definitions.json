@@ -260,6 +260,11 @@
         "IlinkOverrideProgramEntryLabel": 1,
         "IlinkProgramEntryLabel": "Reset_Handler"
     },
+    "M467HJHAE": {
+        "OGChipSelectEditMenu": "M46xxJHAE series\tNuvoton M46xxJHAE series",
+        "IlinkOverrideProgramEntryLabel": 1,
+        "IlinkProgramEntryLabel": "Reset_Handler"
+    },
     "nRF52840_xxAA":{
         "OGChipSelectEditMenu": "nRF52840_xxAA\tNordicSemi nRF52840_xxAA",
         "CExtraOptionsCheck": 1,
