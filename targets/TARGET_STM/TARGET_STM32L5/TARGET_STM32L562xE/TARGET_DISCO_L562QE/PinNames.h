@@ -329,8 +329,8 @@ typedef enum {
 } PinName;
 
 // Standardized LED and button names
-#define LED1     PG_12  // LD7 Green
-#define LED2     PE_1   // LD9 Red
+#define LED1     PG_12  // LD10 Green
+#define LED2     PD_3   // LD9  Red
 #define BUTTON1  PC_13  // USER_BUTTON
 
 #ifdef __cplusplus
