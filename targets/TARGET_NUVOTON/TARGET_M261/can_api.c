@@ -51,7 +51,7 @@ void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
     
     const struct nu_modinit_s *modinit = get_modinit(obj->can, can_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == obj->can);
+    MBED_ASSERT(modinit->modname == (int)obj->can);
 
     obj->pin_rd = rd;
     obj->pin_td = td;
@@ -64,6 +64,9 @@ void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
 
     // Reset this module
     SYS_ResetModule(modinit->rsetidx);
+    
+    // Disable IRQ
+    NVIC_DisableIRQ(CAN0_IRQn);
      
     obj->index = 0;
     
@@ -90,7 +93,7 @@ void can_free(can_t *obj)
     const struct nu_modinit_s *modinit = get_modinit(obj->can, can_modinit_tab);
     
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == obj->can);
+    MBED_ASSERT(modinit->modname == (int)obj->can);
     
     // Reset this module
     SYS_ResetModule(modinit->rsetidx);
