@@ -1,6 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_subdirectory(TARGET_STM32L412xB EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32L432xC EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32L433xC EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32L443xC EXCLUDE_FROM_ALL)
