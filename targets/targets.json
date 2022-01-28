@@ -8731,7 +8731,8 @@
             "FLASH",
             "MPU",
             "WATCHDOG",
-            "USBDEVICE"
+            "USBDEVICE",
+            "CAN"
         ],
         "components_add": [
             "FLASHIAP"

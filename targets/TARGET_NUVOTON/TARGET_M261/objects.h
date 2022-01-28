@@ -130,6 +130,13 @@ struct trng_s {
     uint8_t dummy;
 };
 
+struct can_s {
+    CANName can;
+    PinName pin_rd;
+    PinName pin_td;
+    int index; 
+};
+
 #ifdef __cplusplus
 }
 #endif
