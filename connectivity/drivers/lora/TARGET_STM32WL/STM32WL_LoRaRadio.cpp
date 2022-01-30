@@ -868,6 +868,10 @@ uint8_t STM32WL_LoRaRadio::get_fsk_bw_reg_val(uint32_t bandwidth)
 {
     uint8_t i;
 
+    if (bandwidth == 0) {
+        return 0x1F;
+    }
+
     for (i = 0; i < (sizeof(fsk_bandwidths) / sizeof(fsk_bw_t)) - 1; i++) {
         if ((bandwidth >= fsk_bandwidths[i].bandwidth)
                 && (bandwidth < fsk_bandwidths[i + 1].bandwidth)) {
