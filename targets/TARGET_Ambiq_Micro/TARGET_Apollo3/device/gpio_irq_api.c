@@ -36,7 +36,7 @@ uint32_t ap3_gpio_enable_interrupts(uint32_t ui32Pin, am_hal_gpio_intdir_e eIntD
 */
 typedef struct gpio_irq_s gpio_irq_t;
 
-typedef void (*gpio_irq_handler)(uint32_t id, gpio_irq_event event);
+typedef void (*gpio_irq_handler)(uintptr_t context, gpio_irq_event event);
 extern void am_gpio_isr(void);
 static ap3_gpio_irq_control_t gpio_irq_control[AP3_GPIO_MAX_PADS];
 
@@ -62,10 +62,10 @@ static ap3_gpio_irq_control_t gpio_irq_control[AP3_GPIO_MAX_PADS];
 * @param obj     The GPIO object to initialize
 * @param pin     The GPIO pin name
 * @param handler The handler to be attached to GPIO IRQ
-* @param id      The object ID (id != 0, 0 is reserved)
+* @param context The context to be passed back to the handler (context != 0, 0 is reserved)
 * @return -1 if pin is NC, 0 otherwise
 */
-int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uintptr_t context)
 {
     //grab the correct irq control object
     ap3_gpio_irq_control_t *control = &gpio_irq_control[pin];
@@ -73,7 +73,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     //Register locally
     control->pad = pin;
     control->handler = handler;
-    control->id = id;
+    control->id = context;
     control->events = IRQ_NONE;
 
     //Attach to object

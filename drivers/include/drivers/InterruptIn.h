@@ -129,7 +129,7 @@ public:
      */
     void disable_irq();
 
-    static void _irq_handler(uint32_t id, gpio_irq_event event);
+    static void _irq_handler(uintptr_t context, gpio_irq_event event);
 #if !defined(DOXYGEN_ONLY)
 protected:
     gpio_t gpio;

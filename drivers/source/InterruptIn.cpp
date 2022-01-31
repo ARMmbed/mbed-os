@@ -47,7 +47,7 @@ InterruptIn::InterruptIn(PinName pin, PinMode mode) :
 
 void InterruptIn::irq_init(PinName pin)
 {
-    gpio_irq_init(&gpio_irq, pin, (&InterruptIn::_irq_handler), (uint32_t)this);
+    gpio_irq_init(&gpio_irq, pin, (&InterruptIn::_irq_handler), reinterpret_cast<uintptr_t>(this));
 }
 
 InterruptIn::~InterruptIn()
@@ -95,9 +95,9 @@ void InterruptIn::fall(Callback<void()> func)
     core_util_critical_section_exit();
 }
 
-void InterruptIn::_irq_handler(uint32_t id, gpio_irq_event event)
+void InterruptIn::_irq_handler(uintptr_t context, gpio_irq_event event)
 {
-    InterruptIn *handler = (InterruptIn *)id;
+    InterruptIn *handler = reinterpret_cast<InterruptIn *>(context);
     switch (event) {
         case IRQ_RISE:
             if (handler->_rise) {

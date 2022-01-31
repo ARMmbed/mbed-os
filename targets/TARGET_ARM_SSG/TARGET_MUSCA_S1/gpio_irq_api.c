@@ -29,7 +29,7 @@
 #include "mbed_error.h"
 
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler,
-                  uint32_t id)
+                  uintptr_t context)
 {
    /* Due to a HW limitation, GPIO in Musca-S1 is Secure only, in NS domain,
     * GPIO platform service is used. The current implementation of GPIO

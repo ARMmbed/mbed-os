@@ -49,7 +49,7 @@ __STATIC_INLINE uint32_t countTrailingZeros(uint32_t mask)
 #error Unsupported architecture.
 #endif
 
-static uint32_t channel_ids[NUM_GPIO_CHANNELS] = { 0 }; // Relates pin number with interrupt action id
+static uintptr_t channel_contexts[NUM_GPIO_CHANNELS] = { 0 }; // Relates pin number with interrupt action context
 static uint8_t channel_ports[NUM_GPIO_CHANNELS/2] = { 0 }; // Storing 2 ports in each uint8
 static gpio_irq_handler irq_handler;
 static void GPIOINT_IRQDispatcher(uint32_t iflags);
@@ -57,7 +57,7 @@ static void GPIOINT_IRQDispatcher(uint32_t iflags);
 static void handle_interrupt_in(uint8_t pin)
 {
     // Return if pin not linked with an interrupt function
-    if (channel_ids[pin] == 0) {
+    if (channel_contexts[pin] == 0) {
         return;
     }
 
@@ -83,7 +83,7 @@ static void handle_interrupt_in(uint8_t pin)
         event = (isRise == 1 ? IRQ_RISE : IRQ_FALL);
     }
     GPIO_IntClear(pin);
-    irq_handler(channel_ids[pin], event);
+    irq_handler(channel_contexts[pin], event);
 }
 
 void gpio_irq_preinit(gpio_irq_t *obj, PinName pin)
@@ -98,7 +98,7 @@ void gpio_irq_preinit(gpio_irq_t *obj, PinName pin)
     obj->fallingEdge = 0;
 }
 
-int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uintptr_t context)
 {
     // Init pins
     gpio_irq_preinit(obj, pin);
@@ -110,8 +110,8 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     NVIC_ClearPendingIRQ(GPIO_EVEN_IRQn);
     NVIC_EnableIRQ(GPIO_EVEN_IRQn);
 
-    /* Relate pin to interrupt action id */
-    channel_ids[obj->pin & 0xF] = id;
+    /* Relate pin to interrupt action context */
+    channel_contexts[obj->pin & 0xF] = context;
 
     // Relate the pin number to a port. If pin in is odd store in the 4 most significant bits, if pin is even store in the 4 least significant bits
     channel_ports[(obj->pin >> 1) & 0x7] = (obj->pin & 0x1) ? (channel_ports[(obj->pin >> 1) & 0x7] & 0x0F) | (obj->pin & 0xF0) : (channel_ports[(obj->pin >> 1) & 0x7] & 0xF0) | ((obj->pin >> 4) & 0xF);
@@ -125,7 +125,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
 void gpio_irq_free(gpio_irq_t *obj)
 {
     // Destructor
-    channel_ids[obj->pin & 0xF] = 0;
+    channel_contexts[obj->pin & 0xF] = 0;
     gpio_irq_disable(obj); // Disable interrupt channel
     pin_mode(obj->pin, Disabled); // Disable input pin
 }

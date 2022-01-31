@@ -54,7 +54,7 @@
 
 struct pin_info {
     uint8_t minor;
-    uint32_t ids;
+    uintptr_t context;
     uint32_t pincfg;
     gpio_irq_event event;
 
@@ -152,7 +152,7 @@ static inline void handle_interrupt_in(uint32_t channel)
     event = pins[pin].event;
     MBED_ASSERT(pin < PIN_NUM);
 
-    irq_handler(pins[pin].ids, pins[pin].event); //should be fixed by polarity
+    irq_handler(pins[pin].context, pins[pin].event); //should be fixed by polarity
 #if GPIO_EINT_DEBOUNCE
     hw_delay_us(200000);
 #endif
@@ -199,7 +199,7 @@ int gpio_pin_mode(PinName pin, PinMode mode)
 }
 
 int gpio_irq_init(gpio_irq_t *obj, PinName pin,
-                  gpio_irq_handler handler, uint32_t id)
+                  gpio_irq_handler handler, uintptr_t context)
 {
     if (pin == NC) {
         return -1;
@@ -210,7 +210,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin,
     irq_handler = handler;
 
     // set handler for apps
-    pins[obj->ch].ids = id;
+    pins[obj->ch].context = context;
 
     NVIC_SetVector((IRQn_Type)(PININT_IRQ0), (uint32_t)gpio0_irq);
     NVIC_SetVector((IRQn_Type)(PININT_IRQ1), (uint32_t)gpio1_irq);
