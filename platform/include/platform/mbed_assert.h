@@ -66,7 +66,7 @@ MBED_NORETURN void mbed_assert_internal(const char *expr, const char *file, int 
 #define MBED_ASSERT(expr)                                \
 do {                                                     \
     if (!(expr)) {                                       \
-        mbed_assert_internal(#expr, __FILE__, __LINE__); \
+        mbed_assert_internal(#expr, MBED_FILENAME, __LINE__); \
     }                                                    \
 } while (0)
 #endif
