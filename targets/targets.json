@@ -3934,6 +3934,23 @@
             "TRNG"
         ]
     },
+    "MCU_STM32L412xB": {
+        "inherits": [
+            "MCU_STM32L4"
+        ],
+        "public": false,
+        "c_lib": "small",
+        "extra_labels_add": [
+            "STM32L412xB"
+        ],
+        "macros_add": [
+            "STM32L412xx"
+        ],
+        "device_has_remove": [
+            "ANALOGOUT",
+            "CAN"
+        ]
+    },
     "MCU_STM32L432xC": {
         "inherits": [
             "MCU_STM32L4"
@@ -4303,6 +4320,21 @@
             "0313"
         ],
         "device_name": "STM32L496VGTx"
+    },
+    "MCU_STM32L4P5xG": {
+        "inherits": [
+            "MCU_STM32L4"
+        ],
+        "public": false,
+        "components_add": [
+            "FLASHIAP"
+        ],
+        "extra_labels_add": [
+            "STM32L4P5xG"
+        ],
+        "macros_add": [
+            "STM32L4P5xx"
+        ]
     },
     "MCU_STM32L4R5xI": {
         "inherits": [
