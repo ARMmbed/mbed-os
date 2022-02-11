@@ -908,7 +908,7 @@ typedef struct {
      *
      * Provides a certain QOS level set by network server in LinkADRReq MAC
      * command. The device will transmit the given UNCONFIRMED message nb_trials
-     * time with same frame counter until a downlink is received. Standard defined
+     * time with the same frame counter OR until a downlink is received. Standard defined
      * range is 1:15. Data rates will NOT be adapted according to chapter 18.4.
      */
     uint8_t nb_trials;
