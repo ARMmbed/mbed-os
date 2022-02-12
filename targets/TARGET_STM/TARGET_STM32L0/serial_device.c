@@ -82,12 +82,12 @@ static void uart2_irq(void)
 #if defined(USART4_BASE) || defined(USART5_BASE)
 static void uart4_5_irq(void)
 {
-    #if defined(USART4_BASE)
+#if defined(USART4_BASE)
     uart_irq(UART_4);
-    #endif
-    #if defined(USART4_BASE)
+#endif
+#if defined(USART4_BASE)
     uart_irq(UART_5);
-    #endif
+#endif
 }
 #endif
 

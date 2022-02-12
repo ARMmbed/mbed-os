@@ -91,32 +91,32 @@ static void uart1_irq(void)
 #if defined (USART_GROUP1_IRQn)
 static void uart_group1_irq(void)
 {
-    #if defined(USART2_BASE)
+#if defined(USART2_BASE)
     uart_irq(UART_2);
-    #endif
-    #if defined(LPUART2_BASE)
+#endif
+#if defined(LPUART2_BASE)
     uart_irq(LPUART_2);
-    #endif
+#endif
 }
 
 #if defined(USART_GROUP2_IRQn)
 static void uart_group2_irq(void)
 {
-    #if defined(USART3_BASE)
+#if defined(USART3_BASE)
     uart_irq(UART_3);
-    #endif
-    #if defined(USART4_BASE)
+#endif
+#if defined(USART4_BASE)
     uart_irq(UART_4);
-    #endif
-    #if defined(USART5_BASE)
+#endif
+#if defined(USART5_BASE)
     uart_irq(UART_5);
-    #endif
-    #if defined(USART6_BASE)
+#endif
+#if defined(USART6_BASE)
     uart_irq(UART_6);
-    #endif
-    #if defined(LPUART1_BASE)
+#endif
+#if defined(LPUART1_BASE)
     uart_irq(LPUART_1);
-    #endif
+#endif
 }
 #endif
 
@@ -186,7 +186,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 
 #if defined(LPUART2_BASE)
     if (obj_s->uart == LPUART_2) {
-        irq_n = USART2_LPUART2_IRQn;
+        irq_n = USART_GROUP1_IRQn;
         vector = (uint32_t)&uart_group1_irq;
     }
 #endif
