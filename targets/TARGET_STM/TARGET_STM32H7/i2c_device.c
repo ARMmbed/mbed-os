@@ -82,7 +82,7 @@ uint32_t i2c_get_pclk(I2CName i2c)
         clocksource = __HAL_RCC_GET_I2C5_SOURCE();
         switch (clocksource) {
             case RCC_I2C5CLKSOURCE_D2PCLK1:
-                pclk = HAL_RCCEx_GetD2PCLK1Freq();
+                pclk = HAL_RCC_GetPCLK1Freq();
                 break;
             case RCC_I2C5CLKSOURCE_PLL3:
                 HAL_RCCEx_GetPLL3ClockFreq(&pll3_clocks);
