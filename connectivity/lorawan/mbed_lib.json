@@ -80,7 +80,7 @@
         },
         "downlink-preamble-length": {
             "help": "Number of whole preamble symbols needed to have a firm lock on the signal.",
-            "value": 5
+            "value": 15
         },
         "uplink-preamble-length": {
             "help": "Number of preamble symbols to transmit. Default: 8",
