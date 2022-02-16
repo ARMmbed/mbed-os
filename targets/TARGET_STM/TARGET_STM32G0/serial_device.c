@@ -360,37 +360,37 @@ static IRQn_Type serial_get_irq_n(UARTName uart_name)
 #endif
 #if defined(USART2_BASE)
         case UART_2:
-            irq_n = USART2_IRQn;
+            irq_n = USART_GROUP1_IRQn;
             break;
 #endif
 #if defined(USART3_BASE)
         case UART_3:
-            irq_n = USART3_IRQn;
+            irq_n = USART_GROUP2_IRQn;
             break;
 #endif
 #if defined(USART4_BASE)
         case UART_4:
-            irq_n = USART4_IRQn;
+            irq_n = USART_GROUP2_IRQn;
             break;
 #endif
 #if defined(USART5_BASE)
         case UART_5:
-            irq_n = USART5_IRQn;
+            irq_n = USART_GROUP2_IRQn;
             break;
 #endif
 #if defined(USART6_BASE)
         case UART_6:
-            irq_n = USART6_IRQn;
+            irq_n = USART_GROUP2_IRQn;
             break;
 #endif
 #if defined(LPUART1_BASE)
         case LPUART_1:
-            irq_n = LPUART1_IRQn;
+            irq_n = USART_GROUP2_IRQn;
             break;
 #endif
 #if defined(LPUART2_BASE)
         case LPUART_2:
-            irq_n = LPUART2_IRQn;
+            irq_n = USART_GROUP1_IRQn;
             break;
 #endif
         default:
