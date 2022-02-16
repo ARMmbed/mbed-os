@@ -739,7 +739,10 @@ void LoRaWANStack::process_reception_timeout(bool is_timeout)
     _loramac.on_radio_rx_timeout(is_timeout);
 
     if (slot == RX_SLOT_WIN_2 && !_loramac.nwk_joined()) {
-        state_controller(DEVICE_STATE_JOINING);
+        const int ret = _queue->call_in(
+                            500, this, &LoRaWANStack::state_controller, DEVICE_STATE_JOINING);
+        MBED_ASSERT(ret != 0);
+        (void)ret;
         return;
     }
 
