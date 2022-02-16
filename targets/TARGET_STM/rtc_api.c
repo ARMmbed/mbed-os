@@ -148,9 +148,9 @@ void rtc_init(void)
         error("RTC initialization failed\n");
     }
 
-#if !(TARGET_STM32F1) && !(TARGET_STM32F2)
+#if !(TARGET_STM32F1) && !(TARGET_STM32F2) && !(STM32L151xB)
     /* STM32F1 : there are no shadow registers */
-    /* STM32F2 : shadow registers can not be bypassed */
+    /* STM32F2/STM32L151xB : shadow registers can not be bypassed */
     if (HAL_RTCEx_EnableBypassShadow(&RtcHandle) != HAL_OK) {
         error("EnableBypassShadow error\n");
     }
