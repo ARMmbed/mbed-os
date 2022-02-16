@@ -3527,6 +3527,22 @@
             "system_power_supply": "PWR_LDO_SUPPLY"
         }
     },
+    "MCU_STM32H753xI": {
+        "inherits": [
+            "MCU_STM32H7"
+        ],
+        "public": false,
+        "core": "Cortex-M7FD",
+        "extra_labels_add": [
+            "STM32H753xI"
+        ],
+        "macros_add": [
+            "STM32H753xx"
+        ],
+        "overrides": {
+            "system_power_supply": "PWR_LDO_SUPPLY"
+        }
+    },
     "MCU_STM32H7A3xIQ": {
         "inherits": [
             "MCU_STM32H7"
