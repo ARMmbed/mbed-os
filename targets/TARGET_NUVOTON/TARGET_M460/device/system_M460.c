@@ -93,4 +93,98 @@ void SystemInit (void)
     /* Lock protected registers */
     SYS_LockReg();
 
+#if defined(MBED_CONF_TARGET_HBI_ENABLE) && MBED_CONF_TARGET_HBI_ENABLE
+    /* Initialize HBI for HyperRAM */
+    void nu_hbi_init(void);
+    nu_hbi_init();
+#else
+    int32_t nu_hyperram_used(void);
+    if (nu_hyperram_used()) {
+        /* TODO: Report error: HyperRAM used but HBI not enabled */
+    }
+#endif
 }
+
+/* Detect whether or not HyperRAM is used
+ *
+ * NOTE: For Arm Compiler, Image$$region_name doesn't include ZI. To avoid
+ *       confusion, use Image$$region_name$$RO/Image$$region_name$$RW/
+ *       Image$$region_name$$ZI instead.
+ * NOTE: Compiler e.g. Arm Compiler can optimize assuming (&region_name$$Limit != &region_name$$Base) being true.
+ *       Change to (&region_name$$Limit - &region_name$$Base) instead.
+ * NOTE: Compiler e.g. GCC can optimize assuming &region_name$$Length being non-zero.
+ *       Change to (&region_name$$Limit - &region_name$$Base) instead.
+ */
+#if defined(__ARMCC_VERSION) || defined(__GNUC__)
+extern uint32_t Image$$NU_HYPERRAM$$RO$$Base;
+extern uint32_t Image$$NU_HYPERRAM$$RO$$Limit;
+extern uint32_t Image$$NU_HYPERRAM$$RW$$Base;
+extern uint32_t Image$$NU_HYPERRAM$$RW$$Limit;
+extern uint32_t Image$$NU_HYPERRAM$$ZI$$Base;
+extern uint32_t Image$$NU_HYPERRAM$$ZI$$Limit;
+#define NU_HYPERRAM_USED                                                                            \
+    ((((uint32_t) &Image$$NU_HYPERRAM$$RO$$Limit) - ((uint32_t) &Image$$NU_HYPERRAM$$RO$$Base)) || \
+    (((uint32_t) &Image$$NU_HYPERRAM$$RW$$Limit) - ((uint32_t) &Image$$NU_HYPERRAM$$RW$$Base)) ||  \
+    (((uint32_t) &Image$$NU_HYPERRAM$$ZI$$Limit) - ((uint32_t) &Image$$NU_HYPERRAM$$ZI$$Base)))
+#elif defined(__ICCARM__)
+extern uint32_t NU_HYPERRAM$$Base;
+extern uint32_t NU_HYPERRAM$$Limit;
+#define NU_HYPERRAM_USED                                                                            \
+    (!!(((uint32_t) &NU_HYPERRAM$$Limit) - ((uint32_t) &NU_HYPERRAM$$Base)))
+#endif
+
+int32_t nu_hyperram_used(void)
+{
+    return NU_HYPERRAM_USED;
+}
+
+#if defined(MBED_CONF_TARGET_HBI_ENABLE) && MBED_CONF_TARGET_HBI_ENABLE
+
+/* Simple array size macro without type check */
+#define _NU_ARRAY_SIZE(arr)     (sizeof(arr)/sizeof(arr[0]))
+
+void nu_hbi_init(void)
+{
+    /* Configurable HBI multi-function pin
+     *
+     * NOTE: C runtime not initialized yet, locate at ROM region.
+     */
+    static const uint32_t hbi_mfp_reg_arr[] = {
+        MBED_CONF_TARGET_HBI_MFP_REG_LIST
+    };
+    static const uint32_t hbi_mfp_reg_msk_arr[] = {
+        MBED_CONF_TARGET_HBI_MFP_REG_MSK_LIST
+    };
+    static const uint32_t hbi_mfp_reg_val_arr[] = {
+        MBED_CONF_TARGET_HBI_MFP_REG_VAL_LIST
+    };
+
+    /* Make sure consistent HBI multi-function pin configurations */
+    _Static_assert(_NU_ARRAY_SIZE(hbi_mfp_reg_arr) == _NU_ARRAY_SIZE(hbi_mfp_reg_msk_arr),
+                   "Inconsistent HBI MFP register and mask list length");
+    _Static_assert(_NU_ARRAY_SIZE(hbi_mfp_reg_arr) == _NU_ARRAY_SIZE(hbi_mfp_reg_val_arr),
+                   "Inconsistent HBI MFP register and value list length");
+
+    /* Unlock protected registers */
+    SYS_UnlockReg();
+
+    /* Initialize HBI module */
+    SYS_ResetModule(HBI_RST);
+
+    /* Enable HBI module clock */
+    CLK_EnableModuleClock(HBI_MODULE);
+
+    /* Set HBI multi-function pins */
+    const uint32_t *reg_pos = hbi_mfp_reg_arr;
+    const uint32_t *reg_end = hbi_mfp_reg_arr + _NU_ARRAY_SIZE(hbi_mfp_reg_arr);
+    const uint32_t *msk_pos = hbi_mfp_reg_msk_arr;
+    const uint32_t *val_pos = hbi_mfp_reg_val_arr;
+    for (; reg_pos != reg_end; reg_pos ++, msk_pos ++, val_pos ++) {
+        M32(*reg_pos) = (M32(*reg_pos) & ~*msk_pos) | *val_pos;
+    }
+
+    /* Lock protected registers */
+    SYS_LockReg();
+}
+
+#endif  /* #if defined(MBED_CONF_TARGET_HBI_ENABLE) && MBED_CONF_TARGET_HBI_ENABLE */

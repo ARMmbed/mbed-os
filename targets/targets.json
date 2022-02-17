@@ -7414,6 +7414,19 @@
             "gpio-irq-debounce-sample-rate": {
                 "help": "Select GPIO IRQ debounce sample rate: GPIO_DBCTL_DBCLKSEL_1, GPIO_DBCTL_DBCLKSEL_2, GPIO_DBCTL_DBCLKSEL_4, ..., or GPIO_DBCTL_DBCLKSEL_32768",
                 "value": "GPIO_DBCTL_DBCLKSEL_16"
+            },
+            "hbi-enable": {
+                "help": "Enable HBI for HyperRAM",
+                "options": [false, true]
+            },
+            "hbi-mfp-reg-list": {
+                "help": "Comma separated multi-function pin register list to enable HBI for HyperRAM"
+            },
+            "hbi-mfp-reg-msk-list": {
+                "help": "Comma separated multi-function pin register mask list to enable HBI for HyperRAM"
+            },
+            "hbi-mfp-reg-val-list": {
+                "help": "Comma separated multi-function pin register value list to enable HBI for HyperRAM"
             }
         },
         "inherits": [
@@ -7501,7 +7514,11 @@
             "usb-uart": "UART_0",
             "usb-uart-tx": "PB_13",
             "usb-uart-rx": "PB_12",
-            "network-default-interface-type": "WIFI"
+            "network-default-interface-type": "WIFI",
+            "hbi-enable": false,
+            "hbi-mfp-reg-list": "0x40000534, 0x4000057C, 0x40000590, 0x40000594",
+            "hbi-mfp-reg-msk-list": "0xFFFFFF00, 0xFFFFFFFF, 0xFFFF0000, 0xFFFFFFFF",
+            "hbi-mfp-reg-val-list": "0x10101000, 0x10101010, 0x10100000, 0x10101010"
         }
     },
     "MCU_M480": {

@@ -23,7 +23,15 @@
 #include "../M460_mem.h"
 
 #if !defined(MBED_BOOT_STACK_SIZE)
-#define MBED_BOOT_STACK_SIZE    0x400
+#define MBED_BOOT_STACK_SIZE        0x400
+#endif
+
+#if !defined(NU_HYPERRAM_START)
+#define NU_HYPERRAM_START           0x80000000
+#endif
+
+#if !defined(NU_HYPERRAM_SIZE)
+#define NU_HYPERRAM_SIZE            0x800000
 #endif
 
 M_CRASH_DATA_RAM_SIZE = 0x100;
@@ -34,6 +42,7 @@ MEMORY
   VECTORS (rx)          : ORIGIN = MBED_APP_START, LENGTH = 0x00000400
   FLASH (rx)            : ORIGIN = MBED_APP_START + 0x400, LENGTH = MBED_APP_SIZE - 0x00000400
   RAM_INTERN (rwx)      : ORIGIN = MBED_RAM_APP_START, LENGTH = MBED_RAM_APP_SIZE
+  HYPERRAM (rwx)        : ORIGIN = NU_HYPERRAM_START, LENGTH = NU_HYPERRAM_SIZE
 }
 
 /**
@@ -79,6 +88,52 @@ SECTIONS
          . = ALIGN(8);
     } > VECTORS
 
+    .copy.table : ALIGN(4)
+    {
+        __copy_table_start__ = .;
+
+        /* .data located at internal SRAM */
+        LONG (LOADADDR(.data))
+        LONG (ADDR(.data))
+        LONG (SIZEOF(.data))
+
+        /* .text.nu.hyperram located at HyperRAM */
+        LONG (LOADADDR(.text.nu.hyperram))
+        LONG (ADDR(.text.nu.hyperram))
+        LONG (SIZEOF(.text.nu.hyperram))
+
+        /* .data.nu.hyperram located at HyperRAM */
+        LONG (LOADADDR(.data.nu.hyperram))
+        LONG (ADDR(.data.nu.hyperram))
+        LONG (SIZEOF(.data.nu.hyperram))
+
+        __copy_table_end__ = .;
+    } > FLASH
+
+    .zero.table : ALIGN(4)
+    {
+        __zero_table_start__ = .;
+
+        /* .bss located at internal SRAM */
+        LONG (ADDR(.bss))
+        LONG (SIZEOF(.bss))
+
+        /* .bss.nu.hyperram located at HyperRAM */
+        LONG (ADDR(.bss.nu.hyperram))
+        LONG (SIZEOF(.bss.nu.hyperram))
+
+        __zero_table_end__ = .;
+    } > FLASH
+
+    /* First match used, so place in front of .text */
+    .text.nu.hyperram :
+    {
+        *(.text.nu.hyperram)
+    } >HYPERRAM AT>FLASH
+
+    Image$$NU_HYPERRAM$$RO$$Base = ADDR(.text.nu.hyperram);
+    Image$$NU_HYPERRAM$$RO$$Limit = ADDR(.text.nu.hyperram) + SIZEOF(.text.nu.hyperram);
+    Image$$NU_HYPERRAM$$RO$$Length = SIZEOF(.text.nu.hyperram);
 
     .text :
     {
@@ -156,7 +211,17 @@ SECTIONS
         . = ALIGN(8);
         __CRASH_DATA_RAM_END__ = .; /* Define a global symbol at data end */
     } > RAM_INTERN 
-    
+
+    /* First match used, so place in front of .data */
+    .data.nu.hyperram :
+    {
+        *(.data.nu.hyperram)
+    } >HYPERRAM AT>FLASH
+
+    Image$$NU_HYPERRAM$$RW$$Base = ADDR(.data.nu.hyperram);
+    Image$$NU_HYPERRAM$$RW$$Limit = ADDR(.data.nu.hyperram) + SIZEOF(.data.nu.hyperram);
+    Image$$NU_HYPERRAM$$RW$$Length = SIZEOF(.data.nu.hyperram);
+
     .data :
     {
         PROVIDE( __etext = LOADADDR(.data) );
@@ -205,6 +270,20 @@ SECTIONS
         __uninitialized_end = .;
     } > RAM_INTERN
 
+    /* First match used, so place in front of .bss */
+    /* If a variable defined with __attribute__((section())) keyword the
+     * variable is treated like an initialized variable. To not waste memory
+     * NOLOAD attribute used here. The whole section is zero initialized by
+     * adding section information to .zero.table */
+    .bss.nu.hyperram (NOLOAD):
+    {
+        *(.bss.nu.hyperram)
+    } > HYPERRAM
+
+    Image$$NU_HYPERRAM$$ZI$$Base = ADDR(.bss.nu.hyperram);
+    Image$$NU_HYPERRAM$$ZI$$Limit = ADDR(.bss.nu.hyperram) + SIZEOF(.bss.nu.hyperram);
+    Image$$NU_HYPERRAM$$ZI$$Length = SIZEOF(.bss.nu.hyperram);
+
     .bss (NOLOAD):
     {
         __bss_start__ = .;
@@ -226,5 +305,4 @@ SECTIONS
     PROVIDE(__heap_size = SIZEOF(.heap));
     PROVIDE(__mbed_sbrk_start = ADDR(.heap));
     PROVIDE(__mbed_krbs_start = ADDR(.heap) + SIZEOF(.heap));
-    
 }

@@ -16,6 +16,23 @@
  * limitations under the License.
  */
 
+#if defined(__GNUC__)
+
+/* Get around error: conflicting type qualifiers for '__copy_table_start__'
+ *
+ * cmsis_gcc.h also imports the following symbols but with different type qualifier:
+ *
+ * __copy_table_start__
+ * __copy_table_end__
+ * __zero_table_start__
+ * __zero_table_end__
+ *
+ * Define `__PROGRAM_START` to exclude __cmsis_start() in cmsis_gcc.h.
+ */
+#define __PROGRAM_START
+
+#endif
+
 #include "M460.h"
 
 /* Suppress warning messages */
@@ -64,11 +81,10 @@ extern void __main(void);
 void __iar_program_start(void);
 #elif defined(__GNUC__)
 extern uint32_t __StackTop;
-extern uint32_t __etext;
-extern uint32_t __data_start__;
-extern uint32_t __data_end__;
-extern uint32_t __bss_start__;
-extern uint32_t __bss_end__;
+extern uint32_t __copy_table_start__;
+extern uint32_t __copy_table_end__;
+extern uint32_t __zero_table_start__;
+extern uint32_t __zero_table_end__;
 
 #if defined(TOOLCHAIN_GCC_ARM)
 extern void _start(void);
@@ -466,31 +482,73 @@ void Reset_Handler_1(void)
 
 void Reset_Handler_2(void)
 {
-
 #if defined(__ARMCC_VERSION)
     __main();
 
 #elif defined(__ICCARM__)
-    __iar_program_start();
-
-#elif defined(__GNUC__)
-    uint32_t *src_ind = (uint32_t *) &__etext;
-    uint32_t *dst_ind = (uint32_t *) &__data_start__;
-    uint32_t *dst_end = (uint32_t *) &__data_end__;
-
-    /* Move .data section from ROM to RAM */
-    if (src_ind != dst_ind) {
-        for (; dst_ind < dst_end;) {
-            *dst_ind ++ = *src_ind ++;
+    /* With 'initialize manually { section .text.nu.hyperram }' in .icf, do the
+     * initialization for .text.nu.hyperram manually.
+     *
+     * NOTE: C runtime not initialized yet, don't invoke memcpy() for safe. */
+    {
+        /* BSP not defined yet, define it */
+        #pragma section=".text.nu.hyperram"
+        #pragma section=".text.nu.hyperram_init"
+        uint32_t *src_ind = (uint32_t *) __section_begin(".text.nu.hyperram_init");
+        uint32_t *src_end = (uint32_t *) __section_end(".text.nu.hyperram_init");
+        uint32_t *dst_ind = (uint32_t *) __section_begin(".text.nu.hyperram");
+        if (src_ind != dst_ind) {
+            for (; src_ind < src_end;) {
+                *dst_ind ++ = *src_ind ++;
+            }
         }
     }
 
-    /* Initialize .bss section to zero */
-    dst_ind = (uint32_t *) &__bss_start__;
-    dst_end = (uint32_t *) &__bss_end__;
-    if (dst_ind != dst_end) {
-        for (; dst_ind < dst_end;) {
-            *dst_ind ++ = 0;
+    __iar_program_start();
+
+#elif defined(__GNUC__)
+    /* Move (multiple) .data section(s) from ROM to RAM */
+    {
+        /* Struct of copy table entry which must match linker script */
+        typedef struct copy_table_entry_ {
+            uint32_t    src;            // Address to copy from
+            uint32_t    dst;            // Address to copy to
+            uint32_t    size;           // Copy size in bytes
+        } copy_table_entry;
+
+        copy_table_entry *copy_table_ind = (copy_table_entry *) &__copy_table_start__;
+        copy_table_entry *copy_table_end = (copy_table_entry *) &__copy_table_end__;
+
+        for (; copy_table_ind != copy_table_end; copy_table_ind ++) {
+            uint32_t *src_ind = (uint32_t *) copy_table_ind->src;
+            uint32_t *src_end = (uint32_t *) (copy_table_ind->src + copy_table_ind->size);
+            uint32_t *dst_ind = (uint32_t *) copy_table_ind->dst;
+            if (src_ind != dst_ind) {
+                for (; src_ind < src_end;) {
+                    *dst_ind ++ = *src_ind ++;
+                }
+            }
+        }
+    }
+
+    /* Initialize (multiple) .bss sections to zero */
+    {
+        /* Struct of zero table entry which must match linker script */
+        typedef struct zero_table_entry_ {
+            uint32_t    start;          // Address to start zero'ing
+            uint32_t    size;           // Zero size in bytes
+        } zero_table_entry;
+
+        zero_table_entry *zero_table_ind = (zero_table_entry *) &__zero_table_start__;
+        zero_table_entry *zero_table_end = (zero_table_entry *) &__zero_table_end__;
+
+        for (; zero_table_ind != zero_table_end; zero_table_ind ++) {
+            uint32_t *dst_ind = (uint32_t *) zero_table_ind->start;
+            uint32_t *dst_end = (uint32_t *) (zero_table_ind->start + zero_table_ind->size);
+
+            for (; dst_ind < dst_end; ) {
+                *dst_ind ++ = 0;
+            }
         }
     }
 

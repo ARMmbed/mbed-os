@@ -21,10 +21,18 @@
 #include "../M460_mem.h"
 
 #if !defined(MBED_BOOT_STACK_SIZE)
-#define MBED_BOOT_STACK_SIZE    0x400
+#define MBED_BOOT_STACK_SIZE        0x400
 #endif
 
 #define VECTOR_SIZE                 (4*(16 + 128))
+
+#if !defined(NU_HYPERRAM_START)
+#define NU_HYPERRAM_START           0x80000000
+#endif
+
+#if !defined(NU_HYPERRAM_SIZE)
+#define NU_HYPERRAM_SIZE            0x800000
+#endif
 
 LR_IROM1 MBED_APP_START MBED_APP_SIZE {
   ER_IROM1 MBED_APP_START MBED_APP_SIZE {               ; load address = execution address
@@ -52,6 +60,12 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE {
   }
 
   ARM_LIB_HEAP AlignExpr(+0, 16) EMPTY (MBED_RAM_APP_START + MBED_RAM_APP_SIZE - AlignExpr(ImageLimit(RW_IRAM1), 16)) {
+  }
+
+  NU_HYPERRAM NU_HYPERRAM_START NU_HYPERRAM_SIZE {
+    *(.text.nu.hyperram)
+    *(.data.nu.hyperram)
+    *(.bss.nu.hyperram)
   }
 }
 
