@@ -98,6 +98,7 @@ static void uart_group1_irq(void)
     uart_irq(LPUART_2);
 #endif
 }
+#endif
 
 #if defined(USART_GROUP2_IRQn)
 static void uart_group2_irq(void)
