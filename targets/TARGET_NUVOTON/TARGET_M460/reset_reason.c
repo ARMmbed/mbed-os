@@ -22,7 +22,10 @@
 
 #include "cmsis.h"
 
-/* All reset source flags */
+/* All reset source flags
+ *
+ * NOTE: HRESETRF is combined reset flag. Filter it out to avoid interference with reset reason check.
+ */
 #define SYS_RSTSTS_ALLRF_Msk    \
     (SYS_RSTSTS_PORF_Msk |      \
     SYS_RSTSTS_PINRF_Msk |      \
@@ -30,7 +33,6 @@
     SYS_RSTSTS_LVRF_Msk |       \
     SYS_RSTSTS_BODRF_Msk |      \
     SYS_RSTSTS_MCURF_Msk |      \
-    SYS_RSTSTS_HRESETRF_Msk |   \
     SYS_RSTSTS_CPURF_Msk |      \
     SYS_RSTSTS_CPULKRF_Msk)
 
