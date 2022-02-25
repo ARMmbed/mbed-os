@@ -4,7 +4,7 @@
  */
 
 /* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -67,7 +67,9 @@ extern "C" {
 #ifndef __O
 #define __O  volatile
 #endif
-
+#ifndef __R
+#define __R  volatile const
+#endif
 /// @endcond
 
 /* **** Definitions **** */
@@ -84,11 +86,11 @@ extern "C" {
  * Structure type to access the ICC Registers.
  */
 typedef struct {
-    __I  uint32_t cache_id;             /**< <tt>\b 0x0000:</tt> ICC CACHE_ID Register */
-    __I  uint32_t mem_size;             /**< <tt>\b 0x0004:</tt> ICC MEM_SIZE Register */
-    __I  uint32_t rsv_0x8_0xff[62];
-    __IO uint32_t cache_ctrl;           /**< <tt>\b 0x0100:</tt> ICC CACHE_CTRL Register */
-    __I  uint32_t rsv_0x104_0x6ff[383];
+    __I  uint32_t info;                 /**< <tt>\b 0x0000:</tt> ICC INFO Register */
+    __I  uint32_t sz;                   /**< <tt>\b 0x0004:</tt> ICC SZ Register */
+    __R  uint32_t rsv_0x8_0xff[62];
+    __IO uint32_t ctrl;                 /**< <tt>\b 0x0100:</tt> ICC CTRL Register */
+    __R  uint32_t rsv_0x104_0x6ff[383];
     __IO uint32_t invalidate;           /**< <tt>\b 0x0700:</tt> ICC INVALIDATE Register */
 } mxc_icc_regs_t;
 
@@ -99,56 +101,67 @@ typedef struct {
  * @brief      ICC Peripheral Register Offsets from the ICC Base Peripheral Address. 
  * @{
  */
- #define MXC_R_ICC_CACHE_ID                 ((uint32_t)0x00000000UL) /**< Offset from ICC Base Address: <tt> 0x0000</tt> */ 
- #define MXC_R_ICC_MEM_SIZE                 ((uint32_t)0x00000004UL) /**< Offset from ICC Base Address: <tt> 0x0004</tt> */ 
- #define MXC_R_ICC_CACHE_CTRL               ((uint32_t)0x00000100UL) /**< Offset from ICC Base Address: <tt> 0x0100</tt> */ 
+ #define MXC_R_ICC_INFO                     ((uint32_t)0x00000000UL) /**< Offset from ICC Base Address: <tt> 0x0000</tt> */ 
+ #define MXC_R_ICC_SZ                       ((uint32_t)0x00000004UL) /**< Offset from ICC Base Address: <tt> 0x0004</tt> */ 
+ #define MXC_R_ICC_CTRL                     ((uint32_t)0x00000100UL) /**< Offset from ICC Base Address: <tt> 0x0100</tt> */ 
  #define MXC_R_ICC_INVALIDATE               ((uint32_t)0x00000700UL) /**< Offset from ICC Base Address: <tt> 0x0700</tt> */ 
 /**@} end of group icc_registers */
 
 /**
  * @ingroup  icc_registers
- * @defgroup ICC_CACHE_ID ICC_CACHE_ID
+ * @defgroup ICC_INFO ICC_INFO
  * @brief    Cache ID Register.
  * @{
  */
- #define MXC_F_ICC_CACHE_ID_RELNUM_POS                  0 /**< CACHE_ID_RELNUM Position */
- #define MXC_F_ICC_CACHE_ID_RELNUM                      ((uint32_t)(0x3FUL << MXC_F_ICC_CACHE_ID_RELNUM_POS)) /**< CACHE_ID_RELNUM Mask */
+ #define MXC_F_ICC_INFO_RELNUM_POS                      0 /**< INFO_RELNUM Position */
+ #define MXC_F_ICC_INFO_RELNUM                          ((uint32_t)(0x3FUL << MXC_F_ICC_INFO_RELNUM_POS)) /**< INFO_RELNUM Mask */
 
- #define MXC_F_ICC_CACHE_ID_PARTNUM_POS                 6 /**< CACHE_ID_PARTNUM Position */
- #define MXC_F_ICC_CACHE_ID_PARTNUM                     ((uint32_t)(0xFUL << MXC_F_ICC_CACHE_ID_PARTNUM_POS)) /**< CACHE_ID_PARTNUM Mask */
+ #define MXC_F_ICC_INFO_PARTNUM_POS                     6 /**< INFO_PARTNUM Position */
+ #define MXC_F_ICC_INFO_PARTNUM                         ((uint32_t)(0xFUL << MXC_F_ICC_INFO_PARTNUM_POS)) /**< INFO_PARTNUM Mask */
 
- #define MXC_F_ICC_CACHE_ID_CCHID_POS                   10 /**< CACHE_ID_CCHID Position */
- #define MXC_F_ICC_CACHE_ID_CCHID                       ((uint32_t)(0x3FUL << MXC_F_ICC_CACHE_ID_CCHID_POS)) /**< CACHE_ID_CCHID Mask */
+ #define MXC_F_ICC_INFO_ID_POS                          10 /**< INFO_ID Position */
+ #define MXC_F_ICC_INFO_ID                              ((uint32_t)(0x3FUL << MXC_F_ICC_INFO_ID_POS)) /**< INFO_ID Mask */
 
-/**@} end of group ICC_CACHE_ID_Register */
+/**@} end of group ICC_INFO_Register */
 
 /**
  * @ingroup  icc_registers
- * @defgroup ICC_MEM_SIZE ICC_MEM_SIZE
+ * @defgroup ICC_SZ ICC_SZ
  * @brief    Memory Configuration Register.
  * @{
  */
- #define MXC_F_ICC_MEM_SIZE_CCHSZ_POS                   0 /**< MEM_SIZE_CCHSZ Position */
- #define MXC_F_ICC_MEM_SIZE_CCHSZ                       ((uint32_t)(0xFFFFUL << MXC_F_ICC_MEM_SIZE_CCHSZ_POS)) /**< MEM_SIZE_CCHSZ Mask */
+ #define MXC_F_ICC_SZ_CCH_POS                           0 /**< SZ_CCH Position */
+ #define MXC_F_ICC_SZ_CCH                               ((uint32_t)(0xFFFFUL << MXC_F_ICC_SZ_CCH_POS)) /**< SZ_CCH Mask */
 
- #define MXC_F_ICC_MEM_SIZE_MEMSZ_POS                   16 /**< MEM_SIZE_MEMSZ Position */
- #define MXC_F_ICC_MEM_SIZE_MEMSZ                       ((uint32_t)(0xFFFFUL << MXC_F_ICC_MEM_SIZE_MEMSZ_POS)) /**< MEM_SIZE_MEMSZ Mask */
+ #define MXC_F_ICC_SZ_MEM_POS                           16 /**< SZ_MEM Position */
+ #define MXC_F_ICC_SZ_MEM                               ((uint32_t)(0xFFFFUL << MXC_F_ICC_SZ_MEM_POS)) /**< SZ_MEM Mask */
 
-/**@} end of group ICC_MEM_SIZE_Register */
+/**@} end of group ICC_SZ_Register */
 
 /**
  * @ingroup  icc_registers
- * @defgroup ICC_CACHE_CTRL ICC_CACHE_CTRL
+ * @defgroup ICC_CTRL ICC_CTRL
  * @brief    Cache Control and Status Register.
  * @{
  */
- #define MXC_F_ICC_CACHE_CTRL_ENABLE_POS                0 /**< CACHE_CTRL_ENABLE Position */
- #define MXC_F_ICC_CACHE_CTRL_ENABLE                    ((uint32_t)(0x1UL << MXC_F_ICC_CACHE_CTRL_ENABLE_POS)) /**< CACHE_CTRL_ENABLE Mask */
+ #define MXC_F_ICC_CTRL_EN_POS                          0 /**< CTRL_EN Position */
+ #define MXC_F_ICC_CTRL_EN                              ((uint32_t)(0x1UL << MXC_F_ICC_CTRL_EN_POS)) /**< CTRL_EN Mask */
 
- #define MXC_F_ICC_CACHE_CTRL_READY_POS                 16 /**< CACHE_CTRL_READY Position */
- #define MXC_F_ICC_CACHE_CTRL_READY                     ((uint32_t)(0x1UL << MXC_F_ICC_CACHE_CTRL_READY_POS)) /**< CACHE_CTRL_READY Mask */
+ #define MXC_F_ICC_CTRL_RDY_POS                         16 /**< CTRL_RDY Position */
+ #define MXC_F_ICC_CTRL_RDY                             ((uint32_t)(0x1UL << MXC_F_ICC_CTRL_RDY_POS)) /**< CTRL_RDY Mask */
 
-/**@} end of group ICC_CACHE_CTRL_Register */
+/**@} end of group ICC_CTRL_Register */
+
+/**
+ * @ingroup  icc_registers
+ * @defgroup ICC_INVALIDATE ICC_INVALIDATE
+ * @brief    Invalidate All Registers.
+ * @{
+ */
+ #define MXC_F_ICC_INVALIDATE_INVALID_POS               0 /**< INVALIDATE_INVALID Position */
+ #define MXC_F_ICC_INVALIDATE_INVALID                   ((uint32_t)(0xFFFFFFFFUL << MXC_F_ICC_INVALIDATE_INVALID_POS)) /**< INVALIDATE_INVALID Mask */
+
+/**@} end of group ICC_INVALIDATE_Register */
 
 #ifdef __cplusplus
 }

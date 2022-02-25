@@ -4,7 +4,7 @@
  */
 
 /* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2016 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -86,8 +86,8 @@ extern "C" {
  * Structure type to access the SIR Registers.
  */
 typedef struct {
-    __I  uint32_t status;               /**< <tt>\b 0x00:</tt> SIR STATUS Register */
-    __I  uint32_t addr;                 /**< <tt>\b 0x04:</tt> SIR ADDR Register */
+    __I  uint32_t sir_status;           /**< <tt>\b 0x00:</tt> SIR SIR_STATUS Register */
+    __I  uint32_t sir_addr;             /**< <tt>\b 0x04:</tt> SIR SIR_ADDR Register */
 } mxc_sir_regs_t;
 
 /* Register offsets for module SIR */
@@ -97,36 +97,36 @@ typedef struct {
  * @brief      SIR Peripheral Register Offsets from the SIR Base Peripheral Address. 
  * @{
  */
- #define MXC_R_SIR_STATUS                   ((uint32_t)0x00000000UL) /**< Offset from SIR Base Address: <tt> 0x0000</tt> */ 
- #define MXC_R_SIR_ADDR                     ((uint32_t)0x00000004UL) /**< Offset from SIR Base Address: <tt> 0x0004</tt> */ 
+ #define MXC_R_SIR_SIR_STATUS               ((uint32_t)0x00000000UL) /**< Offset from SIR Base Address: <tt> 0x0000</tt> */ 
+ #define MXC_R_SIR_SIR_ADDR                 ((uint32_t)0x00000004UL) /**< Offset from SIR Base Address: <tt> 0x0004</tt> */ 
 /**@} end of group sir_registers */
 
 /**
  * @ingroup  sir_registers
- * @defgroup SIR_STATUS SIR_STATUS
+ * @defgroup SIR_SIR_STATUS SIR_SIR_STATUS
  * @brief    System Initialization Status Register.
  * @{
  */
- #define MXC_F_SIR_STATUS_CFG_VALID_POS                 0 /**< STATUS_CFG_VALID Position */
- #define MXC_F_SIR_STATUS_CFG_VALID                     ((uint32_t)(0x1UL << MXC_F_SIR_STATUS_CFG_VALID_POS)) /**< STATUS_CFG_VALID Mask */
+ #define MXC_F_SIR_SIR_STATUS_CFG_VALID_POS             0 /**< SIR_STATUS_CFG_VALID Position */
+ #define MXC_F_SIR_SIR_STATUS_CFG_VALID                 ((uint32_t)(0x1UL << MXC_F_SIR_SIR_STATUS_CFG_VALID_POS)) /**< SIR_STATUS_CFG_VALID Mask */
 
- #define MXC_F_SIR_STATUS_CFG_ERR_POS                   1 /**< STATUS_CFG_ERR Position */
- #define MXC_F_SIR_STATUS_CFG_ERR                       ((uint32_t)(0x1UL << MXC_F_SIR_STATUS_CFG_ERR_POS)) /**< STATUS_CFG_ERR Mask */
+ #define MXC_F_SIR_SIR_STATUS_CFG_ERR_POS               1 /**< SIR_STATUS_CFG_ERR Position */
+ #define MXC_F_SIR_SIR_STATUS_CFG_ERR                   ((uint32_t)(0x1UL << MXC_F_SIR_SIR_STATUS_CFG_ERR_POS)) /**< SIR_STATUS_CFG_ERR Mask */
 
-/**@} end of group SIR_STATUS_Register */
+/**@} end of group SIR_SIR_STATUS_Register */
 
 /**
  * @ingroup  sir_registers
- * @defgroup SIR_ADDR SIR_ADDR
+ * @defgroup SIR_SIR_ADDR SIR_SIR_ADDR
  * @brief    Read-only field set by the SIB block if a CRC error occurs during the read of
  *           the OTP memory. Contains the failing address in OTP memory (when CRCERR equals
  *           1).
  * @{
  */
- #define MXC_F_SIR_ADDR_ADDR_POS                        0 /**< ADDR_ADDR Position */
- #define MXC_F_SIR_ADDR_ADDR                            ((uint32_t)(0xFFFFFFFFUL << MXC_F_SIR_ADDR_ADDR_POS)) /**< ADDR_ADDR Mask */
+ #define MXC_F_SIR_SIR_ADDR_ADDR_POS                    0 /**< SIR_ADDR_ADDR Position */
+ #define MXC_F_SIR_SIR_ADDR_ADDR                        ((uint32_t)(0xFFFFFFFFUL << MXC_F_SIR_SIR_ADDR_ADDR_POS)) /**< SIR_ADDR_ADDR Mask */
 
-/**@} end of group SIR_ADDR_Register */
+/**@} end of group SIR_SIR_ADDR_Register */
 
 #ifdef __cplusplus
 }

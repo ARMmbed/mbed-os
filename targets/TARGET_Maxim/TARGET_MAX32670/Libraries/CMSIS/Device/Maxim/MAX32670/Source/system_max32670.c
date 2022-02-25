@@ -1,10 +1,5 @@
-/**
- * @file       system_max32660.c
- * @brief      System-level initialization implementation file
- */
-
 /*******************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -34,52 +29,57 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- * $Date: 2018-12-18 15:37:22 -0600 (Tue, 18 Dec 2018) $
- * $Revision: 40072 $
  *
  ******************************************************************************/
 
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "max32660.h"
+#include "max32670.h"
 #include "gcr_regs.h"
-#include "pwrseq_regs.h"
-#include "tmr_regs.h"
-#include "wdt_regs.h"
 #include "mxc_sys.h"
-#include "icc.h"
 
-uint32_t SystemCoreClock = HIRC96_FREQ;
+
+uint32_t SystemCoreClock = HIRC_FREQ;
 
 __weak void SystemCoreClockUpdate(void)
 {
-    uint32_t base_freq, div, clk_src,ovr;
+    uint32_t base_freq, div, clk_src;
 
     // Get the clock source and frequency
-    clk_src = (MXC_GCR->clk_ctrl & MXC_F_GCR_CLK_CTRL_CLKSEL);
-    
-    if (clk_src == MXC_S_GCR_CLK_CTRL_CLKSEL_HFXIN) {
-        base_freq = HFX_FREQ;
-    } else {
-	if (clk_src == MXC_S_GCR_CLK_CTRL_CLKSEL_NANORING) {
-	    base_freq = NANORING_FREQ;
-	} else {
-	    ovr = (MXC_PWRSEQ->lp_ctrl & MXC_F_PWRSEQ_LP_CTRL_OVR);
-	    if (ovr == MXC_S_PWRSEQ_LP_CTRL_OVR_0_9V) {
-		base_freq = HIRC96_FREQ/4;
-	    } else {
-		if (ovr == MXC_S_PWRSEQ_LP_CTRL_OVR_1_0V) {
-		    base_freq = HIRC96_FREQ/2;
-		} else {
-		    base_freq = HIRC96_FREQ;
-		}
-	    }
-	}
+    clk_src = (MXC_GCR->clkctrl & MXC_F_GCR_CLKCTRL_SYSCLK_SEL);
+    switch (clk_src)
+    {
+        case MXC_S_GCR_CLKCTRL_SYSCLK_SEL_EXTCLK:
+            base_freq = EXTCLK_FREQ;
+            break;
+        case MXC_S_GCR_CLKCTRL_SYSCLK_SEL_ERFO:
+            base_freq = ERFO_FREQ;
+            break;
+        case MXC_S_GCR_CLKCTRL_SYSCLK_SEL_INRO:
+            base_freq = INRO_FREQ;
+            break;
+        case MXC_S_GCR_CLKCTRL_SYSCLK_SEL_IPO:
+        base_freq = IPO_FREQ;
+            break;
+        case MXC_S_GCR_CLKCTRL_SYSCLK_SEL_IBRO:
+        base_freq = IBRO_FREQ;
+            break;
+        case MXC_S_GCR_CLKCTRL_SYSCLK_SEL_ERTCO:
+            base_freq = ERTCO_FREQ;
+            break;
+        default:
+            // Codes 001 and 111 are reserved.
+            // This code should never execute, however, initialize to safe value.
+            base_freq = HIRC_FREQ;
+            break;
     }
-
     // Get the clock divider
-    div = (MXC_GCR->clk_ctrl & MXC_F_GCR_CLK_CTRL_CLKSEL) >> MXC_F_GCR_CLK_CTRL_PSC_POS;
+    if (clk_src == MXC_S_GCR_CLKCTRL_SYSCLK_SEL_IPO)
+    {
+        base_freq = base_freq >> ((MXC_GCR->clkctrl & MXC_F_GCR_CLKCTRL_IPO_DIV)>> MXC_F_GCR_CLKCTRL_IPO_DIV_POS);
+    }
+    div = (MXC_GCR->clkctrl & MXC_F_GCR_CLKCTRL_SYSCLK_DIV) >> MXC_F_GCR_CLKCTRL_SYSCLK_DIV_POS;
 
     SystemCoreClock = base_freq >> div;
 }
@@ -88,37 +88,40 @@ __weak void SystemCoreClockUpdate(void)
  * implemented by the application for early initializations. If a value other
  * than '0' is returned, the C runtime initialization will be skipped.
  *
- * You may over-ride this function in your program by defining a custom
- *  PreInit(), but care should be taken to reproduce the initilization steps
+ * You may over-ride this function in your program by defining a custom 
+ *  PreInit(), but care should be taken to reproduce the initialization steps
  *  or a non-functional system may result.
  */
 __weak int PreInit(void)
 {
-    /* Switch system clock to HIRC, 96 MHz*/
-    MXC_SYS_Clock_Select(MXC_SYS_CLOCK_HIRC);
-
-    /* Enable cache here to reduce boot time */
-    MXC_ICC_Enable();
-
+    /* Do nothing */
     return 0;
 }
 
-/* Override this function for early platform initialization
-*/
-__weak void low_level_init(void) 
+/* This function can be implemented by the application to initialize the board */
+__weak int Board_Init(void)
 {
-    
+    /* Do nothing */
+    return 0;
+}
+
+/* Override this function for early platform initialization */
+__weak void low_level_init(void)
+{
+    /* Do nothing */
+    return;
 }
 
 /* This function is called just before control is transferred to main().
  *
- * You may over-ride this function in your program by defining a custom
+ * You may over-ride this function in your program by defining a custom 
  *  SystemInit(), but care should be taken to reproduce the initialization
  *  steps or a non-functional system may result.
  */
 __weak void SystemInit(void)
 {
-    MXC_WDT0->ctrl &= ~MXC_F_WDT_CTRL_WDT_EN;  /* Turn off watchdog. Application can re-enable as needed. */
+    /* Make sure interrupts are enabled. */
+    __enable_irq();
 
 #if (__FPU_PRESENT == 1)
     /* Enable FPU on Cortex-M4, which occupies coprocessor slots 10 & 11 */
@@ -129,18 +132,12 @@ __weak void SystemInit(void)
     __ISB();
 #endif
 
-    /* Disable clocks to peripherals by default to reduce power */
-    MXC_SYS_ClockDisable(MXC_SYS_PERIPH_CLOCK_DMA);
-    MXC_SYS_ClockDisable(MXC_SYS_PERIPH_CLOCK_SPI0);
-    MXC_SYS_ClockDisable(MXC_SYS_PERIPH_CLOCK_SPI1);
-    MXC_SYS_ClockDisable(MXC_SYS_PERIPH_CLOCK_UART0);
-    MXC_SYS_ClockDisable(MXC_SYS_PERIPH_CLOCK_UART1);
-    MXC_SYS_ClockDisable(MXC_SYS_PERIPH_CLOCK_I2C0);
-    MXC_SYS_ClockDisable(MXC_SYS_PERIPH_CLOCK_TMR0);
-    MXC_SYS_ClockDisable(MXC_SYS_PERIPH_CLOCK_TMR1);
-    MXC_SYS_ClockDisable(MXC_SYS_PERIPH_CLOCK_TMR2);
-    MXC_SYS_ClockDisable(MXC_SYS_PERIPH_CLOCK_I2C1);
-    
-    /* Early platform initialization */
+    /* Change system clock source to the main high-speed clock */
+    MXC_SYS_Clock_Select(MXC_SYS_CLOCK_IPO);
+    SystemCoreClockUpdate();
+
+    MXC_SYS_ClockEnable(MXC_SYS_PERIPH_CLOCK_GPIO0); 
+    MXC_SYS_ClockEnable(MXC_SYS_PERIPH_CLOCK_GPIO1); 
+ 
     low_level_init();
 }
