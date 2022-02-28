@@ -1,5 +1,5 @@
 /* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -33,6 +33,7 @@
  *************************************************************************** */
 
 /* **** Includes **** */
+#include "mxc_device.h"
 #include "mxc_lock.h"
 
 #if USE_LOCK_IN_DRIVERS

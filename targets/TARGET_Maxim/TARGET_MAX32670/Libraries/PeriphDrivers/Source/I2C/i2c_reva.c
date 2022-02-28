@@ -1,5 +1,5 @@
 /* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -50,8 +50,8 @@ typedef struct {
     int master;             // 1 for Master, 0 for slave
     int channelTx;          // DMA channel for TX transaction
     int channelRx;          // DMA channel for RX transaction
-    int writeDone;          // Write done flag
-    int readDone;           // Flag done flag
+    volatile int writeDone;          // Write done flag
+    volatile int readDone;           // Flag done flag
 } mxc_i2c_reva_req_state_t;
 
 static mxc_i2c_reva_req_state_t states[MXC_I2C_INSTANCES];

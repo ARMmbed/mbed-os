@@ -1,5 +1,5 @@
 /* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -59,7 +59,8 @@ typedef struct {
     unsigned defaultTXData;
     int channelTx;
     int channelRx;
-    unsigned drv_ssel;
+    bool txrx_req;
+    uint8_t req_done;
 } spi_req_reva_state_t;
 
 /* states whether to use call back or not */
@@ -75,7 +76,7 @@ static int MXC_SPI_RevA_TransSetup (mxc_spi_reva_req_t * req);
 
 
 int MXC_SPI_RevA_Init (mxc_spi_reva_regs_t* spi, int masterMode, int quadModeUsed, int numSlaves,
-                       unsigned ssPolarity, unsigned int hz, unsigned drv_ssel)
+                       unsigned ssPolarity, unsigned int hz)
 {
     int spi_num;
     
@@ -86,7 +87,6 @@ int MXC_SPI_RevA_Init (mxc_spi_reva_regs_t* spi, int masterMode, int quadModeUse
     states[spi_num].last_size = 0;
     states[spi_num].ssDeassert = 1;
     states[spi_num].defaultTXData = 0;
-    states[spi_num].drv_ssel = drv_ssel;
     
     spi->ctrl0 = (MXC_F_SPI_REVA_CTRL0_EN);
     spi->sstime = ( (0x1 << MXC_F_SPI_REVA_SSTIME_PRE_POS) |
@@ -109,11 +109,22 @@ int MXC_SPI_RevA_Init (mxc_spi_reva_regs_t* spi, int masterMode, int quadModeUse
     // Clear the interrupts
     spi->intfl = spi->intfl;
     
-    // Driver will drive SS pin?
-    if (states[spi_num].drv_ssel) {
+    if (numSlaves == 1) {
         spi->ctrl0 |= MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS0;
     }
-
+    
+    if (numSlaves == 2) {
+        spi->ctrl0 |= (MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS0 | MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS1);
+    }
+    
+    if (numSlaves == 3) {
+        spi->ctrl0 |= (MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS0 | MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS1 | MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS2);
+    }
+    
+    if (numSlaves == 4) {
+        spi->ctrl0 |= (MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS0 | MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS1 | MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS2 | MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS3);
+    }
+    
     //set quad mode
     if (quadModeUsed) {
         spi->ctrl2 |= MXC_S_SPI_REVA_CTRL2_DATA_WIDTH_QUAD;
@@ -185,11 +196,7 @@ int MXC_SPI_RevA_SetFrequency (mxc_spi_reva_regs_t* spi, unsigned int hz)
     
     // Set the clock high and low
     freq_div = MXC_SPI_GetPeripheralClock((mxc_spi_regs_t*) spi);
-  #if TARGET_NUM == 32570 || TARGET_NUM == 32680
-    freq_div = (freq_div / hz / 2);
-  #else
     freq_div = (freq_div / hz);
-  #endif
 
     hi_clk = freq_div / 2;
     lo_clk = freq_div / 2;
@@ -301,11 +308,11 @@ int MXC_SPI_RevA_SetSlave (mxc_spi_reva_regs_t* spi, int ssIdx)
     MXC_ASSERT (spi_num >= 0);
     (void)spi_num;
     
-    if (states[spi_num].drv_ssel) {
-        // Setup the slave select
-        // Activate chosen SS pin
-        spi->ctrl0 |= (1 << ssIdx) << MXC_F_SPI_REVA_CTRL0_SS_ACTIVE_POS;   
-    }
+    // Setup the slave select
+    // Activate chosen SS pin
+    spi->ctrl0 |= (1 << ssIdx) << MXC_F_SPI_REVA_CTRL0_SS_ACTIVE_POS;   
+    // Deactivate all unchosen pins
+    spi->ctrl0 &= ~MXC_F_SPI_REVA_CTRL0_SS_ACTIVE | ((1 << ssIdx) << MXC_F_SPI_REVA_CTRL0_SS_ACTIVE_POS);
     return E_NO_ERROR;
 }
 
@@ -682,13 +689,14 @@ int MXC_SPI_RevA_TransSetup (mxc_spi_reva_req_t * req)
     
     states[spi_num].req = req;
     states[spi_num].started = 0;
+    states[spi_num].req_done = 0;
     
     // HW requires disabling/renabling SPI block at end of each transaction (when SS is inactive).
     if (states[spi_num].ssDeassert == 1) {
         (req->spi)->ctrl0 &= ~ (MXC_F_SPI_REVA_CTRL0_EN);
     }
     
-    //if  master
+    //if master
     if ((req->spi)->ctrl0 & MXC_F_SPI_REVA_CTRL0_MST_MODE) {
         // Setup the slave select
         MXC_SPI_SetSlave ((mxc_spi_regs_t*) req->spi, req->ssIdx);
@@ -705,7 +713,7 @@ int MXC_SPI_RevA_TransSetup (mxc_spi_reva_req_t * req)
         (req->spi)->dma &= ~ (MXC_F_SPI_REVA_DMA_RX_FIFO_EN);
     }
     
-    // Must use TXFIFO and NUM in full duplex//start  editing here
+    // Must use TXFIFO and NUM in full duplex//start editing here
     if ((mxc_spi_reva_width_t) MXC_SPI_GetWidth ((mxc_spi_regs_t*) req->spi) == SPI_REVA_WIDTH_STANDARD
             && ! ( ( (req->spi)->ctrl2 & MXC_F_SPI_REVA_CTRL2_THREE_WIRE) >> MXC_F_SPI_REVA_CTRL2_THREE_WIRE_POS)) {
         if (req->txData == NULL) {
@@ -725,6 +733,13 @@ int MXC_SPI_RevA_TransSetup (mxc_spi_reva_req_t * req)
     else {
         (req->spi)->ctrl1 &= ~(MXC_F_SPI_REVA_CTRL1_TX_NUM_CHAR);
         (req->spi)->dma &= ~(MXC_F_SPI_REVA_DMA_TX_FIFO_EN);
+    }
+
+    if((req->txData != NULL && req->txLen) && (req->rxData != NULL && req->rxLen)) {
+        states[spi_num].txrx_req = true;
+    }
+    else {
+        states[spi_num].txrx_req = false;
     }
     
     (req->spi)->dma |= (MXC_F_SPI_REVA_DMA_TX_FLUSH | MXC_F_SPI_REVA_DMA_RX_FLUSH);
@@ -777,10 +792,7 @@ uint32_t MXC_SPI_RevA_TransHandler (mxc_spi_reva_regs_t *spi, mxc_spi_reva_req_t
     uint32_t tx_length = 0, rx_length = 0;
     uint8_t bits;
     spi_num = MXC_SPI_GET_IDX ((mxc_spi_regs_t*) spi);
-    if (spi_num < 0) {
-        MXC_ASSERT(0);
-    }
-
+    
     bits = MXC_SPI_GetDataSize ((mxc_spi_regs_t*) req->spi);
     
     //MXC_F_SPI_REVA_CTRL2_NUMBITS data bits
@@ -1242,33 +1254,32 @@ void MXC_SPI_RevA_DMACallback(int ch, int error)
     mxc_spi_reva_req_t * temp_req;
     
     for (int i = 0; i < MXC_SPI_INSTANCES; i ++) {
-        if (states[i].channelTx == ch) {
-            //save the request
-            temp_req = states[i].req;
-            MXC_FreeLock((uint32_t*) &states[i].req);
-            // Callback if not NULL
-            if (temp_req->completeCB != NULL) {
-                temp_req->completeCB(temp_req, E_NO_ERROR);
-            }            
-            break;
-        }
-        
-        else if (states[i].channelRx == ch) {
-            //save the request
-            temp_req = states[i].req;
-            MXC_FreeLock((uint32_t*) &states[i].req);
-            
-            if (MXC_SPI_GetDataSize ((mxc_spi_regs_t*) temp_req->spi) > 8) {
-                MXC_SPI_RevA_SwapByte (temp_req->rxData, temp_req->rxLen);
-            }
+    	if(states[i].req != NULL) {
+			if (states[i].channelTx == ch) {
+				states[i].req_done++;
+			}
 
-            // Callback if not NULL
-            if (temp_req->completeCB != NULL) {
-                temp_req->completeCB(temp_req, E_NO_ERROR);
-            } 
-                        
-            break;
-        }
+			else if (states[i].channelRx == ch) {
+                states[i].req_done++;
+				//save the request
+				temp_req = states[i].req;
+
+				if (MXC_SPI_GetDataSize ((mxc_spi_regs_t*) temp_req->spi) > 8) {
+					MXC_SPI_RevA_SwapByte (temp_req->rxData, temp_req->rxLen);
+				}
+			}
+
+            if(!states[i].txrx_req || (states[i].txrx_req && states[i].req_done == 2)) {
+                //save the request
+                temp_req = states[i].req;
+                MXC_FreeLock((uint32_t*) &states[i].req);
+                // Callback if not NULL
+                if (temp_req->completeCB != NULL) {
+                    temp_req->completeCB(temp_req, E_NO_ERROR);
+                }
+                break;
+            }
+    	}
     }
 }
 

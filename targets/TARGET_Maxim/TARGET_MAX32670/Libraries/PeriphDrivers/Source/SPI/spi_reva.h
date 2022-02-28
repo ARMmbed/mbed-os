@@ -1,5 +1,5 @@
 /* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -74,7 +74,7 @@ struct _mxc_spi_reva_req_t {
 };
 
 int MXC_SPI_RevA_Init (mxc_spi_reva_regs_t* spi, int masterMode, int quadModeUsed, int numSlaves,
-                       unsigned ssPolarity, unsigned int hz, unsigned drv_ssel);
+                       unsigned ssPolarity, unsigned int hz);
 int MXC_SPI_RevA_Shutdown (mxc_spi_reva_regs_t* spi);
 int MXC_SPI_RevA_ReadyForSleep (mxc_spi_reva_regs_t* spi);
 int MXC_SPI_RevA_SetFrequency (mxc_spi_reva_regs_t* spi, unsigned int hz);

@@ -4,7 +4,7 @@
  * @details    This driver can be used to operate on the embedded flash memory.
  */
 /* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -65,6 +65,10 @@ int MXC_FLC_RevA_PageErase (mxc_flc_reva_regs_t *flc,uint32_t addr);
 int MXC_FLC_RevA_Write32 (mxc_flc_reva_regs_t *flc, uint32_t locgialAddr, uint32_t data, uint32_t physicalAddr);
 
 int MXC_FLC_RevA_Write128 (mxc_flc_reva_regs_t *flc, uint32_t addr, uint32_t *data);
+
+void MXC_FLC_RevA_SetFLCInt (mxc_flc_reva_regs_t *flc);
+
+mxc_flc_reva_regs_t* MXC_FLC_RevA_GetFLCInt (void);
 
 int MXC_FLC_RevA_EnableInt (uint32_t mask);
 

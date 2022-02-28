@@ -1,5 +1,5 @@
 /* *****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -153,6 +153,9 @@ int MXC_GPIO_RevA_SetVSSEL (mxc_gpio_reva_regs_t* port, mxc_gpio_vssel_t vssel, 
 
 int MXC_GPIO_RevA_SetAF (mxc_gpio_reva_regs_t* port, mxc_gpio_func_t func, uint32_t mask)
 {
+	//This is required for new devices going forward.
+	port->inen |=  mask;
+	
     switch (func) {
     case MXC_GPIO_FUNC_IN:
         port->outen_clr  = mask;
@@ -169,28 +172,28 @@ int MXC_GPIO_RevA_SetAF (mxc_gpio_reva_regs_t* port, mxc_gpio_func_t func, uint3
         break;
         
     case MXC_GPIO_FUNC_ALT1:
-        port->en0_clr    = mask;
-        port->en1_clr    = mask;
         port->en2_clr    = mask;
+        port->en1_clr    = mask;
+        port->en0_clr    = mask;
         break;
         
     case MXC_GPIO_FUNC_ALT2:
-        port->en0_clr    = mask;
-        port->en1_set    = mask;
         port->en2_clr    = mask;
+        port->en1_set    = mask;
+        port->en0_clr    = mask;
         break;
 
   #if TARGET_NUM != 32650
     case MXC_GPIO_FUNC_ALT3:
-        port->en0_clr    = mask;
-        port->en1_clr    = mask;
         port->en2_set    = mask;
+        port->en1_clr    = mask;
+        port->en0_clr    = mask;
         break;
         
     case MXC_GPIO_FUNC_ALT4:
-        port->en0_clr    = mask;
-        port->en1_set    = mask;
         port->en2_set    = mask;
+        port->en1_set    = mask;
+        port->en0_clr    = mask;
         break;
   #endif
     default:

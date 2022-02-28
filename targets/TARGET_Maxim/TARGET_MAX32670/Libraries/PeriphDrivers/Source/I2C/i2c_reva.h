@@ -1,5 +1,5 @@
 /* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -89,6 +89,8 @@ typedef enum {
 typedef int (*mxc_i2c_reva_slave_handler_t) (mxc_i2c_reva_regs_t* i2c,
                                         mxc_i2c_reva_slave_event_t event, void* data);
 /* **** Variable Declaration **** */
+
+extern void* AsyncRequests[MXC_I2C_INSTANCES];
 
 /* **** Function Prototypes **** */
 

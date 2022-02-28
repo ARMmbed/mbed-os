@@ -1,5 +1,5 @@
 /* ****************************************************************************
- * Copyright(C) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright(C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files(the "Software"),
@@ -65,7 +65,6 @@ typedef struct {
 static unsigned int dma_initialized[MXC_DMA_INSTANCES] = {0};
 static mxc_dma_channel_t dma_resource[MXC_DMA_CHANNELS];
 static mxc_dma_highlevel_t memcpy_resource[MXC_DMA_CHANNELS];
-
 #if USE_LOCK_IN_DRIVERS
     static uint32_t dma_lock;
 #endif
