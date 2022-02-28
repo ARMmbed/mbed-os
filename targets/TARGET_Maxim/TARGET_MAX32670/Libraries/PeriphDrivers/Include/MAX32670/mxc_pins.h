@@ -4,7 +4,7 @@
  */
 
 /* *****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -43,43 +43,59 @@
 #include "gpio.h"
 
 /***** Global Variables *****/
-
-typedef enum {
-	MAP_A,
-	MAP_B,
-	MAP_C
-} sys_map_t;
-
 // Predefined GPIO Configurations
-extern const mxc_gpio_cfg_t gpio_cfg_swda;
-extern const mxc_gpio_cfg_t gpio_cfg_swdb;
-
+extern const mxc_gpio_cfg_t gpio_cfg_extclk;
 extern const mxc_gpio_cfg_t gpio_cfg_i2c0;
 extern const mxc_gpio_cfg_t gpio_cfg_i2c1;
+extern const mxc_gpio_cfg_t gpio_cfg_i2c2;
+extern const mxc_gpio_cfg_t gpio_cfg_i2c2b;
+extern const mxc_gpio_cfg_t gpio_cfg_i2c2c;
 
 
 extern const mxc_gpio_cfg_t gpio_cfg_uart0;
 extern const mxc_gpio_cfg_t gpio_cfg_uart0_flow;
-extern const mxc_gpio_cfg_t gpio_cfg_uart1a;
-extern const mxc_gpio_cfg_t gpio_cfg_uart1b;
-extern const mxc_gpio_cfg_t gpio_cfg_uart1c;
+extern const mxc_gpio_cfg_t gpio_cfg_uart0_flow_disable;
+extern const mxc_gpio_cfg_t gpio_cfg_uart1;
 extern const mxc_gpio_cfg_t gpio_cfg_uart1_flow;
+extern const mxc_gpio_cfg_t gpio_cfg_uart1_flow_disable;
+extern const mxc_gpio_cfg_t gpio_cfg_uart2;
+extern const mxc_gpio_cfg_t gpio_cfg_uart2_flow;
+extern const mxc_gpio_cfg_t gpio_cfg_uart2_flow_disable;
+extern const mxc_gpio_cfg_t gpio_cfg_uart3;
+extern const mxc_gpio_cfg_t gpio_cfg_uart3_flow;
+extern const mxc_gpio_cfg_t gpio_cfg_uart3_flow_disable;
 
 
 extern const mxc_gpio_cfg_t gpio_cfg_spi0;
-extern const mxc_gpio_cfg_t gpio_cfg_spi0_ss;
-extern const mxc_gpio_cfg_t gpio_cfg_spi1a;
-extern const mxc_gpio_cfg_t gpio_cfg_spi1a_ss;
-extern const mxc_gpio_cfg_t gpio_cfg_spi1b;
-extern const mxc_gpio_cfg_t gpio_cfg_spi1b_ss;
+// NOTE: SPI1 definied here with SS1 only, SS0 is on port0 by itself.
+extern const mxc_gpio_cfg_t gpio_cfg_spi1;
+// NOTE: SPI2 defined here with SS0 only, and NOT SS1 and SS2
+extern const mxc_gpio_cfg_t gpio_cfg_spi2;
+extern const mxc_gpio_cfg_t gpio_cfg_spi2b;
+// NOTE: SPI3 defined here with SS0 only, and NOT SS1, SS2, or SS3
+extern const mxc_gpio_cfg_t gpio_cfg_spi3;
 
 // Timers are only defined once, depending on package, each timer could be mapped to other pins
 extern const mxc_gpio_cfg_t gpio_cfg_tmr0;
-extern const mxc_gpio_cfg_t gpio_cfg_32kcal;
+extern const mxc_gpio_cfg_t gpio_cfg_tmr1;
+extern const mxc_gpio_cfg_t gpio_cfg_tmr2;
+extern const mxc_gpio_cfg_t gpio_cfg_tmr3;
+extern const mxc_gpio_cfg_t gpio_cfg_tmr4;
+extern const mxc_gpio_cfg_t gpio_cfg_tmr5;
 
-extern const mxc_gpio_cfg_t gpio_cfg_i2s0a;
-extern const mxc_gpio_cfg_t gpio_cfg_i2s0b;
+extern const mxc_gpio_cfg_t gpio_cfg_i2s0;
 
+extern const mxc_gpio_cfg_t gpio_cfg_rtcsqw;
+extern const mxc_gpio_cfg_t gpio_cfg_rtcsqwb;
+
+extern const mxc_gpio_cfg_t gpio_cfg_lc1;
+extern const mxc_gpio_cfg_t gpio_cfg_mon_lc1;
+extern const mxc_gpio_cfg_t gpio_cfg_cmd_rs_lc1;
+extern const mxc_gpio_cfg_t gpio_cfg_chrg_lc1;
+extern const mxc_gpio_cfg_t gpio_cfg_lc2;
+extern const mxc_gpio_cfg_t gpio_cfg_mon_lc2;
+extern const mxc_gpio_cfg_t gpio_cfg_cmd_rs_lc2;
+extern const mxc_gpio_cfg_t gpio_cfg_chrg_lc2;
 
 #endif /* _MXC_PINS_H_ */
 

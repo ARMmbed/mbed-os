@@ -4,7 +4,7 @@
  */
 
 /* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -42,7 +42,7 @@
 /* **** Includes **** */
 #include "mxc_sys.h"
 #include "dma.h"
-#include "spimss_regs.h"
+#include "i2s_regs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,133 +56,188 @@ extern "C" {
 
 /* **** Definitions **** */
 
+/** @brief I2S stereo mode select */
 typedef enum {
-    I2S_MAP_A = 0,
-    I2S_MAP_B = 1,
-} mxc_i2s_sys_map_t;
+    MXC_I2S_MONO_LEFT_CH = 2,
+    MXC_I2S_MONO_RIGHT_CH = 3
+} mxc_i2s_stereo_t;
 
+/** @brief I2S polarity configuration */
 typedef enum {
-    LEFT_JUSTIFIED= 0,
-    RIGHT_JUSTIFIED = 1,
+    MXC_I2S_POL_NORMAL,
+    MXC_I2S_POL_INVERSE
+} mxc_i2s_polarity_t;
+
+/** @brief I2S transaction bit order */
+typedef enum {
+    MXC_I2S_MSB_FIRST,
+    MXC_I2S_LSB_FIRST
+} mxc_i2s_bitorder_t;
+
+/** @brief I2S transaction justify order */
+typedef enum {
+    MXC_I2S_MSB_JUSTIFY,
+    MXC_I2S_LSB_JUSTIFY
 } mxc_i2s_justify_t;
 
+/** @brief  I2S transaction word size */
 typedef enum {
-    STEREO_MODE = 0,
-    MONO_MODE = 1,
-} mxc_i2s_audio_mode_t;
+    MXC_I2S_DATASIZE_BYTE,
+    MXC_I2S_DATASIZE_HALFWORD,
+    MXC_I2S_DATASIZE_WORD
+} mxc_i2s_wsize_t;
 
-/** @brief I2S audio directions */
+/** @brief  I2S transaction sample size */
 typedef enum {
-    AUDIO_OUT = 1,
-    AUDIO_IN = 2,
-} mxc_i2s_direction_t;
+    MXC_I2S_SAMPLESIZE_EIGHT,
+    MXC_I2S_SAMPLESIZE_SIXTEEN,
+    MXC_I2S_SAMPLESIZE_TWENTY,
+    MXC_I2S_SAMPLESIZE_TWENTYFOUR,
+    MXC_I2S_SAMPLESIZE_THIRTYTWO,
+} mxc_i2s_samplesize_t;
 
+/** @brief  I2S channel mode */
+typedef enum {
+    MXC_I2S_INTERNAL_SCK_WS_0,
+    MXC_I2S_INTERNAL_SCK_WS_1,
+    MXC_I2S_EXTERNAL_SCK_INTERNAL_WS,
+    MXC_I2S_EXTERNAL_SCK_EXTERNAL_WS,
+} mxc_i2s_ch_mode_t;
 
 /** @brief I2S Configuration Struct */
 typedef struct {
-    mxc_i2s_sys_map_t       map;
+    mxc_i2s_ch_mode_t       channelMode;
+    mxc_i2s_stereo_t        stereoMode;
+    mxc_i2s_wsize_t         wordSize;
     mxc_i2s_justify_t       justify;
-    mxc_i2s_audio_mode_t    audio_mode;
-    mxc_i2s_direction_t     audio_direction;
-    uint16_t                sample_rate; 
-    unsigned int            start_immediately;
-    unsigned int            dma_reload_en;
-    void                    *src_addr;
-    void                    *dst_addr;
+    mxc_i2s_bitorder_t      bitOrder;
+    mxc_i2s_polarity_t      wsPolarity;
+    mxc_i2s_samplesize_t    sampleSize;
+    uint16_t                clkdiv;  
+    void                    *rawData;
+    void                    *txData;
+    void                    *rxData;
     uint32_t                length;
-} mxc_i2s_config_t;
+} mxc_i2s_req_t;
     
 /* **** Function Prototypes **** */
 
 /**
  * @brief   Initialize I2S resources 
  * 
- * @param   config        see \ref mxc_i2s_config_t I2S Config Struct
- * @param   dma_ctz_cb    Function pointer to Count-to-Zero callback function.
+ * @param   req           see \ref mxc_i2s_req_t I2S Request Struct 
  * @return  Success/Fail, see \ref MXC_Error_Codes for a list of return codes.
  */
-int MXC_I2S_Init(const mxc_i2s_config_t *config, void(*dma_ctz_cb)(int, int));
+int MXC_I2S_Init(mxc_i2s_req_t *req);
 
 /**
- * @brief      Release I2S
- * @details    De-configures the I2S protocol and stops DMA request
- * @return   \c #E_BAD_PARAM if DMA cannot be stopped, #E_NO_ERROR otherwise
+ * @brief   Release I2S, clear configuration and flush FIFOs
+ * 
+ * @return  Success/Fail, see \ref MXC_Error_Codes for a list of return codes.
  */  
 int MXC_I2S_Shutdown(void);
 
 /**
- * @brief      Mute I2S Output
- * @details    Sets I2S data to zero, continues sending clock and accessing DMA
- * @return   \c #E_NO_ERROR
- */  
-int MXC_I2S_Mute(void);
+ * @brief   Configure data to be transmitted based on word and sample size
+ * 
+ * @param   req           see \ref mxc_i2s_req_t I2S Request Struct 
+ * @return  Success/Fail, see \ref MXC_Error_Codes for a list of return codes.   
+ */ 
+int MXC_I2S_ConfigData(mxc_i2s_req_t *req);
 
 /**
- * @brief      Unmute I2S Output
- * @details    Restores I2S data
- * @return   \c #E_NO_ERROR
- */  
-int MXC_I2S_Unmute(void);
+ * @brief   Enable TX channel
+ */
+void MXC_I2S_TXEnable(void);
 
 /**
- * @brief      Pause I2S Output
- * @details    Similar to mute, but stops FIFO and DMA access, clocks continue
- * @return   \c #E_NO_ERROR
- */  
-int MXC_I2S_Pause(void);
+ * @brief   Disable TX channel
+ */
+void MXC_I2S_TXDisable(void);
 
 /**
- * @brief      Unpause I2S Output
- * @details    Similar to mute, but restarts FIFO and DMA access
- * @return   \c #E_NO_ERROR
- */  
-int MXC_I2S_Unpause(void);
+ * @brief   Enable RX channel
+ */
+void MXC_I2S_RXEnable(void);
 
 /**
- * @brief      Stops I2S Output
- * @details    Similar to pause, but also halts clock
- * @return   \c #E_NO_ERROR
- */  
-int MXC_I2S_Stop(void);
+ * @brief   Disable RX channel
+ */
+void MXC_I2S_RXDisable(void);
 
 /**
- * @brief      Starts I2S Output
- * @details    Starts I2S Output, automatically called by configure if requested
- * @return   \c #E_NO_ERROR
- */  
-int MXC_I2S_Start(void);
+ * @brief   Set threshold for RX FIFO  
+ * 
+ * @param   threshold  RX FIFO interrupt threshold.
+ * @return  Success/Fail, see \ref MXC_Error_Codes for a list of return codes.
+ */
+int MXC_I2S_SetRXThreshold(uint8_t threshold);
 
 /**
- * @brief      Clears DMA Interrupt Flags
- * @details    Clears the DMA Interrupt flags, should be called at the end of a dma_ctz_cb
- * @return   \c #E_NO_ERROR
+ * @brief   Set I2S Frequency, automatically called by I2S_Init
+ * 
+ * @param   mode    Channel mode to select clock
+ * @param   clkdiv  clock divider to set baudrate
+ * @return  Success/Fail, see \ref MXC_Error_Codes for a list of return codes.
  */  
-int MXC_I2S_DMA_ClearFlags(void);
+int MXC_I2S_SetFrequency(mxc_i2s_ch_mode_t mode, uint16_t clkdiv);
 
 /**
- * @brief      Set DMA Addr (Source or Dest) and bytes to transfer
- * @param      src_addr The address to read data from (Audio Out)
- * @param      dst_addr The address to write data to (Audio In)    
- * @param      count    The length of the transfer in bytes
- * @details    Sets the address to read/write data in memory and the length of
- *             the transfer. The unused addr parameter is ignored.
- * @return   \c #E_NO_ERROR
+ * @brief   Flush I2S FIFO
+ * 
  */  
-int MXC_I2S_DMA_SetAddrCnt(void *src_addr, void *dst_addr, unsigned int count);
+void MXC_I2S_Flush(void);
 
 /**
- * @brief      Sets the DMA reload address and count
- * @param      src_addr The address to read data from (Audio Out)
- * @param      dst_addr The address to write data to (Audio In)    
- * @param      count    The length of the transfer in bytes
- * @details    If DMA reload is enabled, when the DMA has transfered $count bytes
- *             (a CTZ event occurs) the src, dst, and count registers will be 
- *             set to these. The DMA reload flag clears after a reload occurs.
- * @return   \c #E_NO_ERROR
- */  
-int MXC_I2S_DMA_SetReload(void *src_addr, void *dst_addr, unsigned int count);
-/**@} end of group i2s */
+ * @brief   Enable Interrupts
+ * 
+ * @param   flags   Interrupt mask 
+ */
+void MXC_I2S_EnableInt(uint32_t flags);
 
+/**
+ * @brief   Disable Interrupt
+ * 
+ * @param   flags   Interrupt mask
+ */
+void MXC_I2S_DisableInt(uint32_t flags);
+
+/**
+ * @brief   Get the set interrupt flags
+ * 
+ * @return  int     return the mask of the set interrupt flags     
+ */
+int MXC_I2S_GetFlags(void);
+
+/**
+ * @brief   Clears Interrupt Flags
+ * 
+ * @param   flags   Interrupt flags to be cleared
+ */  
+void MXC_I2S_ClearFlags(uint32_t flags);
+
+/**
+ * @brief   Configure TX DMA transaction
+ * 
+ * @param   src_addr    source address of data
+ * @param   len         length od the data to be transmitted    
+ */
+void MXC_I2S_TXDMAConfig(void *src_addr, int len);
+
+/**
+ * @brief   Configure RX DMA transaction
+ * 
+ * @param   dest_addr   destination address
+ * @param   len         length of the data to be received
+ */
+void MXC_I2S_RXDMAConfig(void *dest_addr, int len);
+
+/**
+ * @brief   Set the callback function pointer for I2S DMA transactions
+ * 
+ * @param   callback    Function pointer to the DMA callback function
+ */
+void MXC_I2S_RegisterDMACallback(void(*callback)(int, int));
 
 #ifdef __cplusplus
 }

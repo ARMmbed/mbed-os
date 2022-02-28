@@ -4,7 +4,7 @@
  */
 
 /* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -61,9 +61,9 @@ extern "C" {
  * @brief   Bitmasks for each of the RTC's Frequency.
  */
 typedef enum {
-    MXC_RTC_F_1HZ   = MXC_S_RTC_CTRL_FT_FREQ1HZ,   ///< 1Hz (Compensated)
-    MXC_RTC_F_512HZ = MXC_S_RTC_CTRL_FT_FREQ512HZ, ///< 512Hz (Compensated)
-    MXC_RTC_F_4KHZ  = MXC_S_RTC_CTRL_FT_FREQ4KHZ,  ///< 4Khz
+    MXC_RTC_F_1HZ   = MXC_S_RTC_CTRL_SQW_SEL_FREQ1HZ,   ///< 1Hz (Compensated)   
+    MXC_RTC_F_512HZ = MXC_S_RTC_CTRL_SQW_SEL_FREQ512HZ, ///< 512Hz (Compensated) 
+    MXC_RTC_F_4KHZ  = MXC_S_RTC_CTRL_SQW_SEL_FREQ4KHZ,  ///< 4Khz                
     MXC_RTC_F_32KHZ = 32,                               ///< 32Khz               
 } mxc_rtc_freq_sel_t;
 
@@ -71,17 +71,17 @@ typedef enum {
  * @brief   Bitmasks for each of the RTC's interrupt enables.
  */
 typedef enum {
-    MXC_RTC_INT_EN_LONG  = MXC_F_RTC_CTRL_ADE,     ///< Long-interval alarm interrupt enable
-    MXC_RTC_INT_EN_SHORT = MXC_F_RTC_CTRL_ASE,    ///< Short-interval alarm interrupt enable
-    MXC_RTC_INT_EN_READY = MXC_F_RTC_CTRL_RDYE,           ///< Timer ready interrupt enable
+    MXC_RTC_INT_EN_LONG  = MXC_F_RTC_CTRL_TOD_ALARM_IE,     ///< Long-interval alarm interrupt enable 
+    MXC_RTC_INT_EN_SHORT = MXC_F_RTC_CTRL_SSEC_ALARM_IE,    ///< Short-interval alarm interrupt enable 
+    MXC_RTC_INT_EN_READY = MXC_F_RTC_CTRL_RDY_IE,           ///< Timer ready interrupt enable 
 } mxc_rtc_int_en_t;
 
 /**
  * @brief     Bitmasks for each of the RTC's interrupt flags.
  */
 typedef enum {
-    MXC_RTC_INT_FL_LONG  = MXC_F_RTC_CTRL_ALDF,        ///< Long-interval alarm interrupt flag
-    MXC_RTC_INT_FL_SHORT = MXC_F_RTC_CTRL_ALSF,       ///< Short-interval alarm interrupt flag
+    MXC_RTC_INT_FL_LONG  = MXC_F_RTC_CTRL_TOD_ALARM,        ///< Long-interval alarm interrupt flag 
+    MXC_RTC_INT_FL_SHORT = MXC_F_RTC_CTRL_SSEC_ALARM,       ///< Short-interval alarm interrupt flag 
     MXC_RTC_INT_FL_READY = MXC_F_RTC_CTRL_RDY,              ///< Timer ready interrupt flag 
 } mxc_rtc_int_fl_t;
 
@@ -101,18 +101,18 @@ int MXC_RTC_SetTimeofdayAlarm (uint32_t ras);
 int MXC_RTC_SetSubsecondAlarm (uint32_t rssa);
 
 /**
- * @brief     Start the Real Time Clock
+ * @brief     Start the Real Time Clock (Blocking function)
  * @retval    returns Success or Fail, see \ref MXC_Error_Codes
  */
 int MXC_RTC_Start (void);
 /**
- * @brief     Stop the Real Time Clock
+ * @brief     Stop the Real Time Clock (Blocking function)
  * @retval    returns Success or Fail, see \ref MXC_Error_Codes
  */
 int MXC_RTC_Stop (void);
 
 /**
- * @brief     Initialize the sec and ssec registers and enable RTC
+ * @brief     Initialize the sec and ssec registers and enable RTC (Blocking function)
  * @param     sec    set the RTC Sec counter (32-bit)
  * @param     ssec   set the RTC Sub-second counter (8-bit)
  * @retval    returns Success or Fail, see \ref MXC_Error_Codes
@@ -120,27 +120,27 @@ int MXC_RTC_Stop (void);
 int MXC_RTC_Init (uint32_t sec, uint8_t ssec);
 
 /**
- * @brief     Allow generation of Square Wave on the SQW pin
+ * @brief     Allow generation of Square Wave on the SQW pin (Blocking function)
  * @param     fq     Frequency output selection
  * @retval    returns Success or Fail, see \ref MXC_Error_Codes
  */
 int MXC_RTC_SquareWaveStart (mxc_rtc_freq_sel_t fq);
                              
 /**
- * @brief     Stop the generation of square wave
+ * @brief     Stop the generation of square wave (Blocking function)
  * @retval    returns Success or Fail, see \ref MXC_Error_Codes
  */
 int MXC_RTC_SquareWaveStop (void);
 
 /**
- * @brief     Set Trim register value
+ * @brief     Set Trim register value (Blocking function)
  * @param     trm    set the RTC Trim (8-bit, +/- 127)
  * @retval    returns Success or Fail, see \ref MXC_Error_Codes
  */
 int MXC_RTC_Trim (int8_t trm);
 
 /**
- * @brief     Enable Interurpts
+ * @brief     Enable Interurpts (Blocking function)
  * @param     mask   The bitwise OR of interrupts to enable.
  *                   See #mxc_rtc_int_en_t for available choices.
  * @retval    returns Success or Fail, see \ref MXC_Error_Codes
@@ -148,7 +148,7 @@ int MXC_RTC_Trim (int8_t trm);
 int MXC_RTC_EnableInt (uint32_t mask);
 
 /**
- * @brief     Disable Interurpts
+ * @brief     Disable Interurpts (Blocking function)
  * @param     mask   The mask of interrupts to disable.
  *                   See #mxc_rtc_int_en_t for available choices.
  * @retval    returns Success or Fail, see \ref MXC_Error_Codes
@@ -173,13 +173,13 @@ int MXC_RTC_ClearFlags (int flags);
 
 /**
  * @brief     Get SubSecond
- * @retval    Returns subsecond value
+ * @retval    Returns subsecond value or E_BUSY, see /ref MXC_ERROR_CODES
  */
 int MXC_RTC_GetSubSecond (void);
 
 /**
  * @brief     Get Second
- * @retval    returns second value
+ * @retval    returns second value or E_BUSY, see /ref MXC_ERROR_CODES
  */
 int MXC_RTC_GetSecond (void);
 
@@ -190,6 +190,12 @@ int MXC_RTC_GetSecond (void);
  * @retval    returns Success or Fail, see \ref MXC_Error_Codes
  */
 int MXC_RTC_GetTime (uint32_t* sec, uint32_t* subsec);
+
+/**
+ * @brief     Get RTC busy flag.
+ * @retval    returns Success or E_BUSY, see /ref MXC_ERROR_CODES
+ */
+int MXC_RTC_GetBusyFlag(void);
 
 /**@} end of group rtc */
 #ifdef __cplusplus

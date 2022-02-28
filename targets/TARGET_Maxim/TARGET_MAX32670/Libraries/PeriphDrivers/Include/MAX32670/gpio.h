@@ -4,7 +4,7 @@
  */
 
 /* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -63,6 +63,9 @@ extern "C" {
  * @{
  */
 #define MXC_GPIO_PORT_0      ((uint32_t)(1UL << 0))        ///< Port 0  Define
+#define MXC_GPIO_PORT_1      ((uint32_t)(1UL << 1))        ///< Port 1  Define
+#define MXC_GPIO_PORT_2      ((uint32_t)(1UL << 2))        ///< Port 2  Define
+#define MXC_GPIO_PORT_3      ((uint32_t)(1UL << 3))        ///< Port 3  Define
 /**@} end of gpio_port group*/
 /**
  * @defgroup gpio_pin Pin Definitions
@@ -82,7 +85,25 @@ extern "C" {
 #define MXC_GPIO_PIN_10      ((uint32_t)(1UL << 10))      ///< Pin 10 Define 
 #define MXC_GPIO_PIN_11      ((uint32_t)(1UL << 11))      ///< Pin 11 Define 
 #define MXC_GPIO_PIN_12      ((uint32_t)(1UL << 12))      ///< Pin 12 Define 
-#define MXC_GPIO_PIN_13      ((uint32_t)(1UL << 13))      ///< Pin 13 Define
+#define MXC_GPIO_PIN_13      ((uint32_t)(1UL << 13))      ///< Pin 13 Define 
+#define MXC_GPIO_PIN_14      ((uint32_t)(1UL << 14))      ///< Pin 14 Define 
+#define MXC_GPIO_PIN_15      ((uint32_t)(1UL << 15))      ///< Pin 15 Define 
+#define MXC_GPIO_PIN_16      ((uint32_t)(1UL << 16))      ///< Pin 16 Define 
+#define MXC_GPIO_PIN_17      ((uint32_t)(1UL << 17))      ///< Pin 17 Define 
+#define MXC_GPIO_PIN_18      ((uint32_t)(1UL << 18))      ///< Pin 18 Define 
+#define MXC_GPIO_PIN_19      ((uint32_t)(1UL << 19))      ///< Pin 19 Define 
+#define MXC_GPIO_PIN_20      ((uint32_t)(1UL << 20))      ///< Pin 20 Define 
+#define MXC_GPIO_PIN_21      ((uint32_t)(1UL << 21))      ///< Pin 21 Define 
+#define MXC_GPIO_PIN_22      ((uint32_t)(1UL << 22))      ///< Pin 22 Define 
+#define MXC_GPIO_PIN_23      ((uint32_t)(1UL << 23))      ///< Pin 23 Define 
+#define MXC_GPIO_PIN_24      ((uint32_t)(1UL << 24))      ///< Pin 24 Define 
+#define MXC_GPIO_PIN_25      ((uint32_t)(1UL << 25))      ///< Pin 25 Define 
+#define MXC_GPIO_PIN_26      ((uint32_t)(1UL << 26))      ///< Pin 26 Define 
+#define MXC_GPIO_PIN_27      ((uint32_t)(1UL << 27))      ///< Pin 27 Define 
+#define MXC_GPIO_PIN_28      ((uint32_t)(1UL << 28))      ///< Pin 28 Define 
+#define MXC_GPIO_PIN_29      ((uint32_t)(1UL << 29))      ///< Pin 29 Define 
+#define MXC_GPIO_PIN_30      ((uint32_t)(1UL << 30))      ///< Pin 30 Define 
+#define MXC_GPIO_PIN_31      ((uint32_t)(1UL << 31))      ///< Pin 31 Define 
 /**@} end of gpio_pin group */
 /**@} end of gpio_port_pin group */
 
@@ -187,30 +208,30 @@ int MXC_GPIO_Config (const mxc_gpio_cfg_t *cfg);
 
 /**
  * @brief      Gets the pin(s) input state.
- * @param      port  Pointer to the GPIO port registers
- * @param      mask  Mask of the pin(s) to read
+ * @param      port  Pointer to GPIO port.
+ * @param      mask  Mask of the pin to read
  * @return     The requested pin state.
  */
 uint32_t MXC_GPIO_InGet (mxc_gpio_regs_t* port, uint32_t mask);
 
 /**
  * @brief      Sets the pin(s) to a high level output.
- * @param      port  Pointer to the GPIO port registers
- * @param      mask  Mask of the pin(s) to set
+ * @param      port  Pointer to GPIO port.
+ * @param      mask  Mask of the pin to set
  */
 void MXC_GPIO_OutSet (mxc_gpio_regs_t* port, uint32_t mask);
 
 /**
  * @brief      Clears the pin(s) to a low level output.
- * @param      port  Pointer to the GPIO port registers
- * @param      mask  Mask of the pin(s) to clear
+ * @param      port  Pointer to GPIO port.
+ * @param      mask  Mask of the pin to clear
  */
 void MXC_GPIO_OutClr (mxc_gpio_regs_t* port, uint32_t mask);
 
 /**
  * @brief      Gets the pin(s) output state.
- * @param      port  Pointer to the GPIO port registers
- * @param      mask  Mask of the pin(s) to read the output state of
+ * @param      port  Pointer to GPIO port.
+ * @param      mask  Mask of the pin to read the output state of
  * @return     The state of the requested pin.
  *
  */
@@ -218,8 +239,8 @@ uint32_t MXC_GPIO_OutGet (mxc_gpio_regs_t* port, uint32_t mask);
 
 /**
  * @brief      Write the pin(s) to a desired output level.
- * @param      port  Pointer to the GPIO port registers
- * @param      mask  Mask of the pin(s) to set output level of
+ * @param      port  Pointer to GPIO port.
+ * @param      mask  Mask of the pin to set output level of
  * @param      val   Desired output level of the pin(s). This will be masked
  *                   with the configuration mask.
  */
@@ -227,8 +248,8 @@ void MXC_GPIO_OutPut (mxc_gpio_regs_t* port, uint32_t mask, uint32_t val);
 
 /**
  * @brief      Toggles the the pin(s) output level.
- * @param      port  Pointer to the GPIO port registers
- * @param      mask  Mask of the pin(s) to toggle
+ * @param      port  Pointer to GPIO port.
+ * @param      mask  Mask of the pin to toggle the output
  */
 void MXC_GPIO_OutToggle (mxc_gpio_regs_t* port, uint32_t mask);
 
@@ -242,23 +263,23 @@ int MXC_GPIO_IntConfig (const mxc_gpio_cfg_t *cfg, mxc_gpio_int_pol_t pol);
 
 /**
  * @brief      Enables the specified GPIO interrupt
- * @param      port  Pointer to the GPIO port registers
- * @param      mask  Mask of the pin(s) to enable interrupts for
+ * @param      port  Pointer to GPIO port.
+ * @param      mask  mask of the pin to enable interrupt
  * 
  */
 void MXC_GPIO_EnableInt (mxc_gpio_regs_t* port, uint32_t mask);
 
 /**
  * @brief      Disables the specified GPIO interrupt.
- * @param      port  Pointer to the GPIO port registers
- * @param      mask  Mask of the pin(s) to disable interrupts for
+ * @param      port  Pointer to GPIO port.
+ * @param      mask  mask of the pin to disable interrupt
  */
 void MXC_GPIO_DisableInt (mxc_gpio_regs_t* port, uint32_t mask);
 
 /**
  * @brief      Gets the interrupt(s) status on a GPIO port
  *
- * @param      port   Pointer to the port requested
+ * @param      port  Pointer to GPIO port.
  *
  * @return     The requested interrupt status.
  */
@@ -267,7 +288,7 @@ uint32_t MXC_GPIO_GetFlags (mxc_gpio_regs_t* port);
 /**
  * @brief      Gets the interrupt(s) status on a GPIO port
  *
- * @param      port   Pointer to the port requested
+ * @param      port  Pointer to GPIO port.
  * @param      flags  The flags to clear
  */
 void MXC_GPIO_ClearFlags (mxc_gpio_regs_t* port, uint32_t flags);
@@ -285,7 +306,7 @@ void MXC_GPIO_RegisterCallback (const mxc_gpio_cfg_t *cfg, mxc_gpio_callback_fn 
  * @brief      GPIO IRQ Handler. @note If a callback is registered for a given
  *             interrupt, the callback function will be called.
  *
- * @param      port Number of the port that generated the interrupt service routine.
+ * @param      port number of the port that generated the interrupt service routine.
  *
  */
 void MXC_GPIO_Handler (unsigned int port);

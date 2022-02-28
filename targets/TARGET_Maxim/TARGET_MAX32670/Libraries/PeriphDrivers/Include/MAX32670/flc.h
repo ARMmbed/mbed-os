@@ -5,7 +5,7 @@
  */
 
 /* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -43,7 +43,6 @@
 /* **** Includes **** */
 #include "flc_regs.h"
 #include "mxc_sys.h"
-#include "mxc_errors.h"
 
 #ifdef __cplusplus
 extern "C" {

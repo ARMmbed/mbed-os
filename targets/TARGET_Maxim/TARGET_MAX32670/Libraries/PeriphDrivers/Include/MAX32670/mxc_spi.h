@@ -4,7 +4,7 @@
  */
 
 /* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -46,14 +46,17 @@
 #include "mxc_pins.h"
 #include "mxc_lock.h"
 
-
-/***** Definitions *****/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @defgroup spi SPI
  * @ingroup periphlibs
  * @{
  */
+
+/***** Definitions *****/
 
 /**
  * @brief   The list of SPI Widths supported
@@ -114,26 +117,26 @@ typedef void (*spi_complete_cb_t) (void * req, int result);
  * @brief   The information required to perform a complete SPI transaction
  *
  * This structure is used by blocking, async, and DMA based transactions.
- * @param   "completeCB" only needs to be initialized for interrupt driven (Async) and DMA transactions.
+ * @note    "completeCB" only needs to be initialized for interrupt driven (Async) and DMA transactions.
  */
 struct _mxc_spi_req_t {
-    mxc_spi_regs_t*     spi;        ///<Point to SPI registers
-    int                 ssIdx;      ///< Slave select line to use (Master only, ignored in slave mode)
-    int                 ssDeassert; ///< 1 - Deassert SS at end of transaction, 0 - leave SS asserted
-    uint8_t            *txData;     ///< Buffer containing transmit data. For character sizes
+    mxc_spi_regs_t*     spi;            ///<Point to SPI registers
+    int                 ssIdx;          ///< Slave select line to use (Master only, ignored in slave mode)
+    int                 ssDeassert;     ///< 1 - Deassert SS at end of transaction, 0 - leave SS asserted
+    uint8_t            *txData;         ///< Buffer containing transmit data. For character sizes
     ///< < 8 bits, pad the MSB of each byte with zeros. For
     ///< character sizes > 8 bits, use two bytes per character
     ///< and pad the MSB of the upper byte with zeros
-    uint8_t            *rxData;     ///< Buffer to store received data For character sizes
+    uint8_t            *rxData;         ///< Buffer to store received data For character sizes
     ///< < 8 bits, pad the MSB of each byte with zeros. For
     ///< character sizes > 8 bits, use two bytes per character
     ///< and pad the MSB of the upper byte with zeros
-    uint32_t            txLen;      ///< Number of bytes to be sent from txData
-    uint32_t            rxLen;      ///< Number of bytes to be stored in rxData
-    uint32_t            txCnt;      ///< Number of bytes actually transmitted from txData
-    uint32_t            rxCnt;      ///< Number of bytes stored in rxData
+    uint32_t            txLen;          ///< Number of bytes to be sent from txData
+    uint32_t            rxLen;          ///< Number of bytes to be stored in rxData
+    uint32_t            txCnt;          ///< Number of bytes actually transmitted from txData
+    uint32_t            rxCnt;          ///< Number of bytes stored in rxData
 
-    spi_complete_cb_t   completeCB; ///< Pointer to function called when transaction is complete
+    spi_complete_cb_t   completeCB;     ///< Pointer to function called when transaction is complete
 };
 
 /* ************************************************************************* */
@@ -165,15 +168,12 @@ struct _mxc_spi_req_t {
  * @param   hz              The requested clock frequency. The actual clock frequency
  *                          will be returned by the function if successful. Used in
  *                          master mode only.
- * @param   drv_ssel        Hardware block able to drive SS pin, or it can be leaved as it is
- *                          To upper layer firmware drive it.
- *                          1:Driver will drive SS pin, 0:Driver will NOT drive it     
  *
  * @return  If successful, the actual clock frequency is returned. Otherwise, see
  *          \ref MXC_Error_Codes for a list of return codes.
  */
 int MXC_SPI_Init (mxc_spi_regs_t* spi, int masterMode, int quadModeUsed, int numSlaves,
-                  unsigned ssPolarity, unsigned int hz, unsigned drv_ssel);
+                  unsigned ssPolarity, unsigned int hz);
 
 /**
  * @brief   Disable and shutdown SPI peripheral.
@@ -199,6 +199,15 @@ int MXC_SPI_Shutdown (mxc_spi_regs_t* spi);
 int MXC_SPI_ReadyForSleep (mxc_spi_regs_t* spi);
 
 /**
+ * @brief   Returns the frequency of the clock used as the bit rate generator for a given SPI instance.
+ *
+ * @param   spi         Pointer to SPI registers (selects the SPI block used.)
+ *
+ * @return  Frequency of the clock used as the bit rate generator
+ */
+int MXC_SPI_GetPeripheralClock(mxc_spi_regs_t* spi);
+
+/**
  * @brief   Set the frequency of the SPI interface.
  *
  * This function is applicable in Master mode only
@@ -210,8 +219,6 @@ int MXC_SPI_ReadyForSleep (mxc_spi_regs_t* spi);
  *          MXC_Error_Codes for the list of error return codes.
  */
 int MXC_SPI_SetFrequency (mxc_spi_regs_t* spi, unsigned int hz);
-
-int MXC_SPI_GetPeripheralClock(mxc_spi_regs_t* spi);
 
 /**
  * @brief   Get the frequency of the SPI interface.
@@ -639,6 +646,7 @@ void MXC_SPI_AbortAsync (mxc_spi_regs_t* spi);
  * @param   spi         Pointer to SPI registers (selects the SPI block used.)
  */
 void MXC_SPI_AsyncHandler (mxc_spi_regs_t* spi);
+
 /**@} end of group spi */
 
 #ifdef __cplusplus

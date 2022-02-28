@@ -4,7 +4,7 @@
 */
 
 /* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -98,8 +98,8 @@ int MXC_Delay (unsigned long us);
  *             running, it will be started.
  * @note       MXC_Delay_handler() must be called from the SysTick interrupt service
  *             routine or at a rate greater than the SysTick overflow rate.
- * @param      us        microseconds to delay
- * @param      callback  Function pointer to the function called once the delay expires.
+ * @param      us    microseconds to delay
+ * @param      callback  Function pointer to function called upon delay completion.
  * @return     #E_NO_ERROR if no errors, #E_BUSY if currently servicing another
  *             delay request.
  */

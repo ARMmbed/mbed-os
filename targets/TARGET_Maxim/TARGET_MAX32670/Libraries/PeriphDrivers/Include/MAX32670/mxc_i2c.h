@@ -4,7 +4,7 @@
 */
 
 /* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -191,14 +191,14 @@ typedef int (*mxc_i2c_slave_handler_t) (mxc_i2c_regs_t* i2c,
 int MXC_I2C_Init (mxc_i2c_regs_t* i2c, int masterMode, unsigned int slaveAddr);
 
 /**
- * @brief   Set slave address for I2C instances acting as slaves on the bus.
- * @note    Set idx to zero, multiple I2C instances acting as slaves on the
- *          bus is not yet supported.
+ * @brief   Initialize and enable I2C peripheral.
+ * @note    Set idx to 0, multiple I2C instances acting as slaves is not yet
+ *          supported.
  *
  * @param   i2c         Pointer to I2C registers (selects the I2C block used.)
  * @param   slaveAddr   7-bit or 10-bit address to use when in slave mode.
  *                      This parameter is ignored when masterMode is non-zero.
- * @param   idx         Index of the I2C slave. 
+ * @param   idx         Index of the I2C slave instance.
  *
  * @return  Success/Fail, see \ref MXC_Error_Codes for a list of return codes.
  */
@@ -212,6 +212,16 @@ int MXC_I2C_SetSlaveAddr(mxc_i2c_regs_t* i2c, unsigned int slaveAddr, int idx);
  * @return  Success/Fail, see \ref MXC_Error_Codes for a list of return codes.
  */
 int MXC_I2C_Shutdown (mxc_i2c_regs_t* i2c);
+
+/**
+ * @brief   Reset the I2C peripheral.
+ * @note    The peripheral will need to be initialized with MXC_I2C_Init() before use
+ *
+ * @param   i2c         Pointer to I2C registers (selects the I2C block used.)
+ *
+ * @return  Success/Fail, see \ref MXC_Error_Codes for a list of return codes.
+ */
+int MXC_I2C_Reset (mxc_i2c_regs_t* i2c);
 
 /**
  * @brief   Set the frequency of the I2C interface.
@@ -481,8 +491,8 @@ void MXC_I2C_ClearTXFIFO (mxc_i2c_regs_t* i2c);
  * @brief   Get the presently set interrupt flags.
  *
  * @param   i2c         Pointer to I2C registers (selects the I2C block used.)
- * @param   flags0      Pointer to the variable to store the current status of the interrupt flags in intfl0.
- * @param   flags1      Pointer to the variable to store the current status of the interrupt flags in intfl0.
+ * @param   flags0      Pointer to store flags currently set in interrupt register intfl0.
+ * @param   flags1      Pointer to store flags currently set in interrupt register intfl1.
  *
  * @return  See \ref MXC_Error_Codes for a list of return values
  */
@@ -492,8 +502,8 @@ int MXC_I2C_GetFlags (mxc_i2c_regs_t* i2c, unsigned int *flags0, unsigned int *f
  * @brief   Clears the Interrupt Flags.
  *
  * @param   i2c         Pointer to I2C registers (selects the I2C block used.)
- * @param   flags0      Flags to clear in the intfl0 interrupt register.
- * @param   flags1      Flags to clear in the intfl1 interrupt register.
+ * @param   flags0      Flags to be cleared in interrupt register intfl0.
+ * @param   flags1      Flags to be cleared in interrupt register intfl1.
  */
 void MXC_I2C_ClearFlags (mxc_i2c_regs_t* i2c, unsigned int flags0, unsigned int flags1);
 
@@ -722,7 +732,7 @@ int MXC_I2C_SlaveTransaction (mxc_i2c_regs_t* i2c, mxc_i2c_slave_handler_t callb
  *
  * Performs a non-blocking I2C transaction. This request will remain active
  * until a complete transaction with this slave has been performed.  A
- * transaction begins with the masterMXC_I2C_MasterTransactionDMA addressing the
+ * transaction begins with the master  begins with the master addressing the
  * slave and ends with a repeated start condition, a stop condition, or a bus
  * error. The provided callback function will be called for these events:
  *      - A slave address match occurs with the master requesting a write to
