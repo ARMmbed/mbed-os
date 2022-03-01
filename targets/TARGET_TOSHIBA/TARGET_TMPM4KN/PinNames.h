@@ -106,8 +106,8 @@ typedef enum {
     SD_MOSI = MOSI, // Master out Salve in
 
     // I2C pins
-    SDA = D14,
-    SCL = D15,
+    SDA = PD3,
+    SCL = PD4,
 
     // Not connected
     NC = (int)0xFFFFFFFF,
