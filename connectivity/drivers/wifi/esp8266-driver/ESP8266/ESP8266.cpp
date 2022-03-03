@@ -193,7 +193,7 @@ struct ESP8266::fw_at_version ESP8266::at_version()
     return _at_v;
 }
 
-bool ESP8266::stop_uart_hw_flow_ctrl(void)
+bool ESP8266::stop_uart_hw_flow_ctrl(bool board_only)
 {
     bool done = true;
 #if DEVICE_SERIAL_FC
@@ -202,9 +202,11 @@ bool ESP8266::stop_uart_hw_flow_ctrl(void)
         // Stop board's flow control
         _serial.set_flow_control(SerialBase::Disabled, _serial_rts, _serial_cts);
 
-        // Stop ESP8266's flow control
-        done = _parser.send("AT+UART_CUR=%u,8,1,0,0", MBED_CONF_ESP8266_SERIAL_BAUDRATE)
-               && _parser.recv("OK\n");
+        if (!board_only) {
+            // Stop ESP8266's flow control
+            done = _parser.send("AT+UART_CUR=%u,8,1,0,0", MBED_CONF_ESP8266_SERIAL_BAUDRATE)
+                   && _parser.recv("OK\n");
+        }
     }
 
 #endif
