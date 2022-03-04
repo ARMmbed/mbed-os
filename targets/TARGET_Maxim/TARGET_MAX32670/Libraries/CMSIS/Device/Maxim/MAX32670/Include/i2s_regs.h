@@ -67,9 +67,6 @@ extern "C" {
 #ifndef __O
 #define __O  volatile
 #endif
-#ifndef __R
-#define __R  volatile const
-#endif
 /// @endcond
 
 /* **** Definitions **** */
@@ -87,13 +84,13 @@ extern "C" {
  */
 typedef struct {
     __IO uint32_t ctrl0ch0;             /**< <tt>\b 0x00:</tt> I2S CTRL0CH0 Register */
-    __R  uint32_t rsv_0x4_0xf[3];
+    __I  uint32_t rsv_0x4_0xf[3];
     __IO uint32_t ctrl1ch0;             /**< <tt>\b 0x10:</tt> I2S CTRL1CH0 Register */
-    __R  uint32_t rsv_0x14_0x2f[7];
+    __I  uint32_t rsv_0x14_0x2f[7];
     __IO uint32_t dmach0;               /**< <tt>\b 0x30:</tt> I2S DMACH0 Register */
-    __R  uint32_t rsv_0x34_0x3f[3];
+    __I  uint32_t rsv_0x34_0x3f[3];
     __IO uint32_t fifoch0;              /**< <tt>\b 0x40:</tt> I2S FIFOCH0 Register */
-    __R  uint32_t rsv_0x44_0x4f[3];
+    __I  uint32_t rsv_0x44_0x4f[3];
     __IO uint32_t intfl;                /**< <tt>\b 0x50:</tt> I2S INTFL Register */
     __IO uint32_t inten;                /**< <tt>\b 0x54:</tt> I2S INTEN Register */
     __IO uint32_t extsetup;             /**< <tt>\b 0x58:</tt> I2S EXTSETUP Register */

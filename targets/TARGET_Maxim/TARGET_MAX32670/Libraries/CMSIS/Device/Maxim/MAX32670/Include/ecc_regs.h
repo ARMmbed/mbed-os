@@ -67,9 +67,6 @@ extern "C" {
 #ifndef __O
 #define __O  volatile
 #endif
-#ifndef __R
-#define __R  volatile const
-#endif
 /// @endcond
 
 /* **** Definitions **** */
@@ -86,7 +83,7 @@ extern "C" {
  * Structure type to access the ECC Registers.
  */
 typedef struct {
-    __R  uint32_t rsv_0x0_0x7[2];
+    __I  uint32_t rsv_0x0_0x7[2];
     __IO uint32_t en;                   /**< <tt>\b 0x08:</tt> ECC EN Register */
 } mxc_ecc_regs_t;
 

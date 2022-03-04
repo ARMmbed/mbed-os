@@ -67,9 +67,6 @@ extern "C" {
 #ifndef __O
 #define __O  volatile
 #endif
-#ifndef __R
-#define __R  volatile const
-#endif
 /// @endcond
 
 /* **** Definitions **** */
@@ -89,19 +86,19 @@ typedef struct {
     __IO uint32_t addr;                 /**< <tt>\b 0x00:</tt> FLC ADDR Register */
     __IO uint32_t clkdiv;               /**< <tt>\b 0x04:</tt> FLC CLKDIV Register */
     __IO uint32_t ctrl;                 /**< <tt>\b 0x08:</tt> FLC CTRL Register */
-    __R  uint32_t rsv_0xc_0x23[6];
+    __I  uint32_t rsv_0xc_0x23[6];
     __IO uint32_t intr;                 /**< <tt>\b 0x024:</tt> FLC INTR Register */
     __IO uint32_t eccdata;              /**< <tt>\b 0x028:</tt> FLC ECCDATA Register */
-    __R  uint32_t rsv_0x2c;
+    __I  uint32_t rsv_0x2c;
     __IO uint32_t data[4];              /**< <tt>\b 0x30:</tt> FLC DATA Register */
     __O  uint32_t actrl;                /**< <tt>\b 0x40:</tt> FLC ACTRL Register */
-    __R  uint32_t rsv_0x44_0x7f[15];
+    __I  uint32_t rsv_0x44_0x7f[15];
     __IO uint32_t welr0;                /**< <tt>\b 0x80:</tt> FLC WELR0 Register */
-    __R  uint32_t rsv_0x84;
+    __I  uint32_t rsv_0x84;
     __IO uint32_t welr1;                /**< <tt>\b 0x88:</tt> FLC WELR1 Register */
-    __R  uint32_t rsv_0x8c;
+    __I  uint32_t rsv_0x8c;
     __IO uint32_t rlr0;                 /**< <tt>\b 0x90:</tt> FLC RLR0 Register */
-    __R  uint32_t rsv_0x94;
+    __I  uint32_t rsv_0x94;
     __IO uint32_t rlr1;                 /**< <tt>\b 0x98:</tt> FLC RLR1 Register */
 } mxc_flc_regs_t;
 
