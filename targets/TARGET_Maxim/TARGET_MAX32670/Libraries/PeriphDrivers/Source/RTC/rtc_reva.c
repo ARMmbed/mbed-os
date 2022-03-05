@@ -319,19 +319,19 @@ int MXC_RTC_RevA_GetTime(uint32_t* sec, uint32_t* subsec)
     do {
         // Check if an update is about to happen.
         if (!(MXC_RTC->ctrl & MXC_F_RTC_REVA_CTRL_RDY)) {
-            continue;
+            return E_BUSY;
         }
         
         // Read the seconds count.
         temp_sec = MXC_RTC_RevA_GetSecond();
 
         if (temp_sec == E_BUSY) {
-            continue;
+            return E_BUSY;
         }
         
         // Check if an update is about to happen.
         if (!(MXC_RTC->ctrl & MXC_F_RTC_REVA_CTRL_RDY)) {
-            continue;
+            return E_BUSY;
         }
         
         // Read the sub-seconds count.
@@ -339,7 +339,7 @@ int MXC_RTC_RevA_GetTime(uint32_t* sec, uint32_t* subsec)
         
         // Check if an update is about to happen.
         if (!(MXC_RTC->ctrl & MXC_F_RTC_REVA_CTRL_RDY)) {
-            continue;
+            return E_BUSY;
         }
         
         // Read the seconds count.
