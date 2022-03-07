@@ -7356,7 +7356,8 @@
         "extra_labels": [
             "NUVOTON",
             "M460",
-            "FLASH_CMSIS_ALGO"
+            "FLASH_CMSIS_ALGO",
+	    "NUVOTON_EMAC"
         ],
         "is_disk_virtual": true,
         "supported_toolchains": [
@@ -7461,7 +7462,8 @@
             "FLASH",
             "MPU",
             "WATCHDOG",
-            "RESET_REASON"
+            "RESET_REASON",
+	    "EMAC"
         ],
         "components_add": [
             "FLASHIAP"
@@ -7514,7 +7516,7 @@
             "usb-uart": "UART_0",
             "usb-uart-tx": "PB_13",
             "usb-uart-rx": "PB_12",
-            "network-default-interface-type": "WIFI",
+            "network-default-interface-type": "ETHERNET",
             "hbi-enable": false,
             "hbi-mfp-reg-list": "0x40000534, 0x4000057C, 0x40000590, 0x40000594",
             "hbi-mfp-reg-msk-list": "0xFFFFFF00, 0xFFFFFFFF, 0xFFFF0000, 0xFFFFFFFF",
