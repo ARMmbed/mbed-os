@@ -61,6 +61,7 @@ typedef struct {
     int channelRx;
     bool txrx_req;
     uint8_t req_done;
+    unsigned drv_ssel;
 } spi_req_reva_state_t;
 
 /* states whether to use call back or not */
@@ -76,7 +77,7 @@ static int MXC_SPI_RevA_TransSetup (mxc_spi_reva_req_t * req);
 
 
 int MXC_SPI_RevA_Init (mxc_spi_reva_regs_t* spi, int masterMode, int quadModeUsed, int numSlaves,
-                       unsigned ssPolarity, unsigned int hz)
+                       unsigned ssPolarity, unsigned int hz, unsigned drv_ssel)
 {
     int spi_num;
     
@@ -87,6 +88,7 @@ int MXC_SPI_RevA_Init (mxc_spi_reva_regs_t* spi, int masterMode, int quadModeUse
     states[spi_num].last_size = 0;
     states[spi_num].ssDeassert = 1;
     states[spi_num].defaultTXData = 0;
+    states[spi_num].drv_ssel = drv_ssel;
     
     spi->ctrl0 = (MXC_F_SPI_REVA_CTRL0_EN);
     spi->sstime = ( (0x1 << MXC_F_SPI_REVA_SSTIME_PRE_POS) |
@@ -109,22 +111,25 @@ int MXC_SPI_RevA_Init (mxc_spi_reva_regs_t* spi, int masterMode, int quadModeUse
     // Clear the interrupts
     spi->intfl = spi->intfl;
     
-    if (numSlaves == 1) {
-        spi->ctrl0 |= MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS0;
+    // Driver will drive SS pin?
+    if (states[spi_num].drv_ssel) {
+	    if (numSlaves == 1) {
+        	spi->ctrl0 |= MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS0;
+        }
+	    
+	    else if (numSlaves == 2) {
+	        spi->ctrl0 |= (MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS0 | MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS1);
+	    }
+	    
+	    else if (numSlaves == 3) {
+	        spi->ctrl0 |= (MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS0 | MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS1 | MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS2);
+	    }
+	    
+	    else if (numSlaves == 4) {
+	        spi->ctrl0 |= (MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS0 | MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS1 | MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS2 | MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS3);
+	    }    
     }
-    
-    if (numSlaves == 2) {
-        spi->ctrl0 |= (MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS0 | MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS1);
-    }
-    
-    if (numSlaves == 3) {
-        spi->ctrl0 |= (MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS0 | MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS1 | MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS2);
-    }
-    
-    if (numSlaves == 4) {
-        spi->ctrl0 |= (MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS0 | MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS1 | MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS2 | MXC_S_SPI_REVA_CTRL0_SS_ACTIVE_SS3);
-    }
-    
+
     //set quad mode
     if (quadModeUsed) {
         spi->ctrl2 |= MXC_S_SPI_REVA_CTRL2_DATA_WIDTH_QUAD;
@@ -308,11 +313,13 @@ int MXC_SPI_RevA_SetSlave (mxc_spi_reva_regs_t* spi, int ssIdx)
     MXC_ASSERT (spi_num >= 0);
     (void)spi_num;
     
-    // Setup the slave select
-    // Activate chosen SS pin
-    spi->ctrl0 |= (1 << ssIdx) << MXC_F_SPI_REVA_CTRL0_SS_ACTIVE_POS;   
-    // Deactivate all unchosen pins
-    spi->ctrl0 &= ~MXC_F_SPI_REVA_CTRL0_SS_ACTIVE | ((1 << ssIdx) << MXC_F_SPI_REVA_CTRL0_SS_ACTIVE_POS);
+    if (states[spi_num].drv_ssel) {
+        // Setup the slave select
+        // Activate chosen SS pin
+        spi->ctrl0 |= (1 << ssIdx) << MXC_F_SPI_REVA_CTRL0_SS_ACTIVE_POS;   
+        // Deactivate all unchosen pins
+        spi->ctrl0 &= ~MXC_F_SPI_REVA_CTRL0_SS_ACTIVE | ((1 << ssIdx) << MXC_F_SPI_REVA_CTRL0_SS_ACTIVE_POS);
+    }
     return E_NO_ERROR;
 }
 
@@ -761,10 +768,12 @@ uint32_t MXC_SPI_RevA_MasterTransHandler (mxc_spi_reva_regs_t *spi, mxc_spi_reva
     spi_num = MXC_SPI_GET_IDX ((mxc_spi_regs_t*) spi);
     
     // Leave slave select asserted at the end of the transaction
-    if (!req->ssDeassert) {
-        spi->ctrl0 |= MXC_F_SPI_REVA_CTRL0_SS_CTRL;
+    if (states[spi_num].drv_ssel) {
+       if (!req->ssDeassert) {
+            spi->ctrl0 |= MXC_F_SPI_REVA_CTRL0_SS_CTRL;
+        }     
     }
-    
+
     retval = MXC_SPI_RevA_TransHandler(spi, req);
     
     if (!states[spi_num].started) {
@@ -773,10 +782,12 @@ uint32_t MXC_SPI_RevA_MasterTransHandler (mxc_spi_reva_regs_t *spi, mxc_spi_reva
     }
     
     // Deassert slave select at the end of the transaction
-    if (req->ssDeassert) {
-        spi->ctrl0 &= ~MXC_F_SPI_REVA_CTRL0_SS_CTRL;
+    if (states[spi_num].drv_ssel) {
+        if (req->ssDeassert) {
+            spi->ctrl0 &= ~MXC_F_SPI_REVA_CTRL0_SS_CTRL;
+        }  
     }
-    
+
     return retval;
 }
 
