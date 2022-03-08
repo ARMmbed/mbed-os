@@ -493,7 +493,7 @@ s32 synop_handle_received_data(int intf, u8 **buf)      // Chris, to get RX buff
 #endif
                 }
 #else
-                *buf = (u32)((u64)dma_addr1);
+                *buf = (u8 *)(u32)((u64)dma_addr1);
 #endif
                 rb->rdy = 1;
                 rb->len = len;

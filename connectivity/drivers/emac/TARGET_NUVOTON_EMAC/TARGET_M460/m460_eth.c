@@ -52,14 +52,14 @@ void plat_delay(uint32_t delay)
 static void mdio_write(int addr, int reg, int data)
 {
     synopGMACdevice *gmacdev = &GMACdev[NU_M460_INTF];
-    synopGMAC_write_phy_reg(gmacdev->MacBase, addr, reg, data);
+    synopGMAC_write_phy_reg((u32 *) gmacdev->MacBase, addr, reg, data);
 }
 
 static int mdio_read(int addr, int reg)
 {
     synopGMACdevice *gmacdev = &GMACdev[NU_M460_INTF];
     uint16_t data;
-    synopGMAC_read_phy_reg(gmacdev->MacBase, addr, reg, &data);
+    synopGMAC_read_phy_reg((u32 *) gmacdev->MacBase, addr, reg, &data);
     return data;
 }
 
@@ -554,7 +554,7 @@ uint8_t *numaker_eth_get_tx_buf(void)
         return (NULL);
     } else {
         dump_desc(txdesc);
-        return (txdesc->buffer1);
+        return (uint8_t *) (txdesc->buffer1);
     }
         
 }
