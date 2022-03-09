@@ -455,9 +455,10 @@ public:
     /**
      * Stop board's and ESP8266's UART flow control
      *
+     * @param board_only    true to apply to board only, false to apply both
      * @return true if started
      */
-    bool stop_uart_hw_flow_ctrl();
+    bool stop_uart_hw_flow_ctrl(bool board_only = false);
 
     /*
      * From AT firmware v1.7.0.0 onwards enables TCP passive mode
