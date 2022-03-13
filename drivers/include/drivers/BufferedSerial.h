@@ -284,6 +284,10 @@ public:
     void set_flow_control(Flow type, PinName flow1 = NC, PinName flow2 = NC);
 #endif
 
+     /** Send a break signal to the serial wire
+     */
+    void send_break(void);
+        
 private:
 
     /** Acquire mutex
