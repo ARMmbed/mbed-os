@@ -377,6 +377,12 @@ int BufferedSerial::enable_output(bool enabled)
     return 0;
 }
 
+void BufferedSerial::send_break() {
+    api_lock();
+    SerialBase::send_break();
+    api_unlock();
+}
+    
 } // namespace mbed
 
 #endif //(DEVICE_SERIAL && DEVICE_INTERRUPTIN)
