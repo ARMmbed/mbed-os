@@ -25,10 +25,10 @@ extern "C" {
 /*  Define I2C Device */
 #if DEVICE_I2C
 
-// Common settings: I2C clock = 64 MHz, Analog filter = ON, Digital filter coefficient = 0
-#define TIMING_VAL_160M_CLK_100KHZ  0xC0311319  // Standard mode with Rise Time = 400ns and Fall Time = 100ns
-#define TIMING_VAL_160M_CLK_400KHZ  0x10B1102E  // Fast mode with Rise Time = 250ns and Fall Time = 100ns
-#define TIMING_VAL_160M_CLK_1MHZ    0x00710B1E  // Fast mode Plus with Rise Time = 60ns and Fall Time = 100ns
+// Common settings: I2C clock = 160 MHz, Analog filter = ON, Digital filter coefficient = 0
+#define TIMING_VAL_160M_CLK_100KHZ  0x90A13E56  // Standard mode with Rise Time = 400ns and Fall Time = 100ns
+#define TIMING_VAL_160M_CLK_400KHZ  0x30D2153A  // Fast mode with Rise Time = 250ns and Fall Time = 100ns
+#define TIMING_VAL_160M_CLK_1MHZ    0x10830F28  // Fast mode Plus with Rise Time = 60ns and Fall Time = 100ns
 #define I2C_PCLK_160M               160000000   // 160 MHz
 
 /*  Define IP version */
