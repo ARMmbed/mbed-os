@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -108,7 +108,9 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
 uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 {
     /*  1 sector = 1 page */
-    if (address >= (MXC_FLASH_MEM_BASE + MXC_FLASH_MEM_SIZE)) {
+    if ( (address < MXC_FLASH_MEM_BASE) || 
+         (address >= (MXC_FLASH_MEM_BASE + MXC_FLASH_MEM_SIZE))
+    ) {
         return MBED_FLASH_INVALID_SIZE;
     } else {
         return MXC_FLASH_PAGE_SIZE;

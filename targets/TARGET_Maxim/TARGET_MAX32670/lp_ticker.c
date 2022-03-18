@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -149,10 +149,18 @@ const ticker_info_t *lp_ticker_get_info(void)
 
 #include "tmr.h"
 
-#define LP_TIMER          MXC_TMR2
-#define LP_TIMER_IRQn     TMR2_IRQn
-#define LP_TIMER_PRESCALE TMR_PRES_1024
-#define LP_TIMER_FREQ     ((HIRC96_FREQ/2) >> (MXC_V_TMR_CN_PRES_DIV_BY_1024+1))
+#if MBED_CONF_TARGET_LP_TICKER_TIMER == 0
+    #define LP_TIMER          MXC_TMR4
+    #define LP_TIMER_IRQn     TMR4_IRQn
+#elif MBED_CONF_TARGET_LP_TICKER_TIMER == 1
+    #define LP_TIMER          MXC_TMR5
+    #define LP_TIMER_IRQn     TMR5_IRQn
+#else
+    #error "Invalid low power timer selected"
+#endif
+
+#define LP_TIMER_PRESCALE TMR_PRES_8
+#define LP_TIMER_FREQ     (ERTCO_FREQ >> 3)
 #define LP_TIMER_WIDTH    32
 
 //******************************************************************************
@@ -164,7 +172,7 @@ void lp_ticker_init(void)
     cfg.pres    = LP_TIMER_PRESCALE;   
     cfg.mode    = TMR_MODE_COMPARE;        
     cfg.bitMode = TMR_BIT_MODE_32;  
-    cfg.clock   = MXC_TMR_HFIO_CLK;        
+    cfg.clock   = MXC_TMR_32K_CLK;        
     cfg.cmp_cnt = 0;//MXC_TMR_GetCompare(LP_TIMER);              
     cfg.pol     = 0;                  
 
@@ -175,13 +183,25 @@ void lp_ticker_init(void)
     count = MXC_TMR_GetCount(LP_TIMER);
 
     // Configure and enable
-    MXC_TMR_Init(LP_TIMER, &cfg);
+    MXC_TMR_Init(LP_TIMER, &cfg, 0);
+    MXC_TMR_EnableWakeup(LP_TIMER, &cfg);
     MXC_TMR_SetCount(LP_TIMER, count);
-    MXC_TMR_Start(LP_TIMER);
 
     // Enable interrupts
+    MXC_TMR_EnableInt(LP_TIMER);
     NVIC_SetVector(LP_TIMER_IRQn, (uint32_t)lp_ticker_irq_handler);
     NVIC_EnableIRQ(LP_TIMER_IRQn);
+
+#if MBED_CONF_TARGET_LP_TICKER_TIMER == 0
+    MXC_GCR->pm |= MXC_F_GCR_PM_LPTMR0_WE;
+#elif MBED_CONF_TARGET_LP_TICKER_TIMER == 1
+    MXC_GCR->pm |= MXC_F_GCR_PM_LPTMR1_WE;
+#endif
+
+    MXC_PWRSEQ->lpcn |= MXC_F_PWRSEQ_LPCN_ERTCO_EN;
+
+    MXC_LP_EnableTimerWakeup(LP_TIMER);
+    MXC_TMR_Start(LP_TIMER);
 }
 
 //******************************************************************************
@@ -193,13 +213,21 @@ void lp_ticker_free(void)
 //******************************************************************************
 uint32_t lp_ticker_read(void)
 {
-    return LP_TIMER->cnt;
+    uint32_t cnt;
+
+    // read cnt register twice
+    cnt = LP_TIMER->cnt;
+    cnt = LP_TIMER->cnt;
+    //cnt = MXC_TMR_GetCount(LP_TIMER);
+
+    return cnt;
 }
 
 //******************************************************************************
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
-    MXC_TMR_SetCompare(LP_TIMER, (timestamp) ? timestamp : 1);
+    //MXC_TMR_SetCompare(LP_TIMER, (timestamp) ? timestamp : 1);
+    LP_TIMER->cmp = timestamp ? timestamp : 1;
 }
 
 //******************************************************************************

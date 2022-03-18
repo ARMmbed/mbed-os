@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (c) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -40,16 +40,6 @@
 #include "mxc_i2c.h"
 #include "pinmap.h"
 #include "PeripheralPins.h"
-
-#ifndef MXC_I2CM_RX_TIMEOUT
-#define MXC_I2CM_RX_TIMEOUT     0x5000
-#endif
-
-#ifndef I2C_ERROR
-#define I2C_ERROR   (MXC_F_I2C_INT_FL0_ARB_ER | MXC_F_I2C_INT_FL0_TO_ER | MXC_F_I2C_INT_FL0_ADDR_NACK_ER | \
-                    MXC_F_I2C_INT_FL0_DATA_ER | MXC_F_I2C_INT_FL0_DO_NOT_RESP_ER | MXC_F_I2C_INT_FL0_START_ER | \
-                    MXC_F_I2C_INT_FL0_STOP_ER)
-#endif
 
 #define MBED_NAK     0
 #define MBED_ACK     1

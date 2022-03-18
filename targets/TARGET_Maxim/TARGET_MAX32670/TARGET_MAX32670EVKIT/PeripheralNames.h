@@ -43,21 +43,25 @@ extern "C" {
 typedef enum {
     UART_0 = MXC_BASE_UART0,
     UART_1 = MXC_BASE_UART1,
+    UART_2 = MXC_BASE_UART2,
+    UART_3 = MXC_BASE_UART3,
 #if defined(MBED_CONF_TARGET_STDIO_UART)
     STDIO_UART  = MBED_CONF_TARGET_STDIO_UART,
 #else
-    STDIO_UART  = UART_1,
+    STDIO_UART  = UART_0,
 #endif
 } UARTName;
 
 typedef enum {
     I2C_0 = MXC_BASE_I2C0,
     I2C_1 = MXC_BASE_I2C1,
+    I2C_2 = MXC_BASE_I2C2,
 } I2CName;
 
 typedef enum {
-    SPI_0 = MXC_BASE_SPI,
-    SPI_1 = MXC_BASE_SPIMSS,
+    SPI_0 = MXC_BASE_SPI0,
+    SPI_1 = MXC_BASE_SPI1,
+    SPI_2 = MXC_BASE_SPI2,
 } SPIName;
 
 

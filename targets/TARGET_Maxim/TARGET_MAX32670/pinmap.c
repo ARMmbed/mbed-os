@@ -40,31 +40,50 @@ void pin_function(PinName name, int function)
 {
     MBED_ASSERT(name != (PinName)NC);
 
-    if ((function >= 0) && (function <= 0xF)) {
+    uint8_t port = PINNAME_TO_PORT(name);
+    mxc_gpio_regs_t *gpio = MXC_GPIO_GET_GPIO(port);
 
+    if ((function >= 0) && (function <= 0xF)) {
         // Set GPIO Function
         unsigned int pin_val = (1 << PINNAME_TO_PIN(name));
         switch (function) {
             case 0: // GPIO_FUNC_IN
-                MXC_GPIO0->en0		|= 	pin_val;
-                MXC_GPIO0->en1    	&= ~pin_val;
+                //gpio->en0	|= 	pin_val;
+                //gpio->en1   &= ~pin_val;
+                gpio->outen_clr  = pin_val;
+                gpio->en0_set    = pin_val;
+                gpio->en1_clr    = pin_val;
+                gpio->en2_clr    = pin_val;
                 break;
             case 1: // GPIO_FUNC_OUT
-                MXC_GPIO0->en0		|= 	pin_val;
-                MXC_GPIO0->en1    	&= ~pin_val;
-                MXC_GPIO0->out_en	|= 	pin_val;
+                //gpio->en0	|= 	pin_val;
+                //gpio->en1   &= ~pin_val;
+                //gpio->outen	|= 	pin_val;
+                gpio->outen_set  = pin_val;
+                gpio->en0_set    = pin_val;
+                gpio->en1_clr    = pin_val;
+                gpio->en2_clr    = pin_val;
                 break;
             case 2: // GPIO_FUNC_ALT1
-            	MXC_GPIO0->en0		&= ~pin_val;
-            	MXC_GPIO0->en1    	&= ~pin_val;
+            	//gpio->en0	&= ~pin_val;
+            	//gpio->en1   &= ~pin_val;
+                gpio->en2_clr    = pin_val;
+                gpio->en1_clr    = pin_val;
+                gpio->en0_clr    = pin_val;
                 break;
             case 3: // GPIO_FUNC_ALT2
-            	MXC_GPIO0->en0    	&= ~pin_val;
-            	MXC_GPIO0->en1		|= 	pin_val;
+            	//gpio->en0   &= ~pin_val;
+            	//gpio->en1	|= 	pin_val;
+                gpio->en2_clr    = pin_val;
+                gpio->en1_set    = pin_val;
+                gpio->en0_clr    = pin_val;
                 break;
             case 4: // GPIO_FUNC_ALT3
-            	MXC_GPIO0->en0		|= 	pin_val;
-				MXC_GPIO0->en1		|= 	pin_val;
+            	//gpio->en0	|= 	pin_val;
+				//gpio->en1	|= 	pin_val;
+                gpio->en2_set    = pin_val;
+                gpio->en1_clr    = pin_val;
+                gpio->en0_clr    = pin_val;
                 break;
             default:
                 break;
@@ -76,19 +95,22 @@ void pin_mode(PinName name, PinMode mode)
 {
     MBED_ASSERT(name != (PinName)NC);
 
+    unsigned int port = PINNAME_TO_PORT(name);
+    mxc_gpio_regs_t *gpio = MXC_GPIO_GET_GPIO(port);
+
     unsigned int pin_val = (1 << PINNAME_TO_PIN(name));
     switch (mode) {
         case PullUp:
-            MXC_GPIO0->pad_cfg1 |=  pin_val;
-            MXC_GPIO0->ps 		|=  pin_val;
+            gpio->padctrl0  |=  pin_val;
+            gpio->ps 		|=  pin_val;
             break;
         case PullDown:
-        	MXC_GPIO0->pad_cfg1 |=  pin_val;
-        	MXC_GPIO0->ps 		&= ~pin_val;
+        	gpio->padctrl0  |=  pin_val;
+        	gpio->ps 		&= ~pin_val;
             break;
         case PullNone:
-            MXC_GPIO0->pad_cfg1 &= ~pin_val;
-            MXC_GPIO0->ps 		&= ~pin_val;
+            gpio->padctrl0  &= ~pin_val;
+            //gpio->ps 		&= ~pin_val;
             break;
         default:
             break;

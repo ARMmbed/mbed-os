@@ -1,11 +1,9 @@
 #! armclang -E --target=arm-arm-none-eabi -x c -mcpu=cortex-m4
-; MAX32660
-; 256K FLASH (0x200000) @ 0x000000000
-; 96KB RAM (0x18000) @ 0x20000000
-;   - 16KB RAM_0 (0x4000) @ 0x20000000
-;   - 16KB RAM_1 (0x4000) @ 0x20004000
-;   - 32KB RAM_2 (0x8000) @ 0x20008000
-;   - 32KB RAM_3 (0x8000) @ 0x20010000
+; MAX32670
+; 384K FLASH (0x60000) @ 0x100000000
+; 160KB RAM (0x28000) @ 0x20000000
+;
+;
 
 #include "../nvic_table.h"
 

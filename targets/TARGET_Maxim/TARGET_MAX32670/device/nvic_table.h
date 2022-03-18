@@ -4,7 +4,7 @@
  */
 
 /* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -42,11 +42,11 @@
 #define _NVIC_TABLE_H
 
 #if !defined(MBED_APP_START)
-   #define MBED_APP_START 0x00000000
+   #define MBED_APP_START 0x10000000
 #endif
 
 #if !defined(MBED_APP_SIZE)
-   #define MBED_APP_SIZE  0x40000   // 256 KB
+   #define MBED_APP_SIZE  (0x60000 - 0x2000)  // 384KB-8KB
 #endif
 
 #if !defined(MBED_RAM_START)
@@ -54,10 +54,10 @@
 #endif
 
 #if !defined(MBED_RAM_SIZE)
-#define MBED_RAM_SIZE  0x18000  // 96 KB
+#define MBED_RAM_SIZE  0x28000  // 160 KB
 #endif
 
-#define NVIC_NUM_VECTORS        (16 + 55) // MXC_IRQ_COUNT
+#define NVIC_NUM_VECTORS        (16 + 100) // MXC_IRQ_COUNT
 #define NVIC_RAM_VECTOR_ADDRESS MBED_RAM_START    // Vectors positioned at start of RAM
 
 #endif /* _NVIC_TABLE_H */

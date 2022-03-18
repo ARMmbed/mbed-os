@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -39,7 +39,7 @@
 #include "gpio_api.h"
 #include "uart.h"
 #include "uart_regs.h"
-#include "uart_reva_regs.h"
+#include "uart_revb_regs.h"
 #include "PeripheralPins.h"
 
 #define DEFAULT_BAUD    9600
@@ -53,17 +53,13 @@ static uart_irq_handler irq_handler = NULL;
 static serial_t *objs[MXC_UART_INSTANCES];
 
 
-#define UART_ER_IE      (MXC_F_UART_REVA_INT_EN_RX_FRAME_ERROR | \
-                         MXC_F_UART_REVA_INT_EN_RX_PARITY_ERROR | \
-                         MXC_F_UART_REVA_INT_EN_RX_OVERRUN)
+#define UART_ER_IE      (MXC_F_UART_REVB_INT_EN_RX_FERR | \
+                         MXC_F_UART_REVB_INT_EN_RX_PAR | \
+                         MXC_F_UART_REVB_INT_EN_RX_OV)
 
-#define UART_RX_IE (MXC_F_UART_INT_EN_RX_FIFO_LVL)
+#define UART_RX_IE (MXC_F_UART_REVB_INT_EN_RX_THD)
 
-#define UART_TX_IE (MXC_F_UART_INT_EN_TX_FIFO_AE | \
-                    MXC_F_UART_INT_EN_TX_FIFO_LVL)
-
-#define MXC_F_UART_THRESH_CTRL_TX_FIFO_DEFAULT_THRESH_VAL  (1 << MXC_F_UART_CTRL1_TX_FIFO_LVL_POS)
-#define MXC_F_UART_THRESH_CTRL_RX_FIFO_DEFAULT_THRESH_VAL  (1 << MXC_F_UART_CTRL1_RX_FIFO_LVL_POS)
+#define UART_TX_IE (MXC_F_UART_INT_EN_TX_HE)
 
 static void usurp_pin(PinName, int);
 
@@ -89,13 +85,12 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     obj->rx = rx;
 
     obj->map = MAP_A;
-
-    if (uart == UART_1) {
-        if ( (tx == UART1B_TX) && (rx == UART1B_RX) ) { 
-            obj->map = MAP_B;
-        } else if ( (tx == UART1C_TX) && (rx == UART1C_RX) ) { 
-            obj->map = MAP_C;
-        }
+    if ( (tx == UART0B_TX) && (rx == UART0B_RX) ) { 
+        obj->map = MAP_B;
+    } else if ( (tx == UART1B_TX) && (rx == UART1B_RX) ) { 
+        obj->map = MAP_B;
+    } else if ( (tx == UART2B_TX) && (rx == UART2B_RX) ) { 
+        obj->map = MAP_B;
     }
 
     // Manage stdio UART
@@ -104,7 +99,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         stdio_uart = *obj;
     }
 
-    MXC_UART_Init (obj->uart, DEFAULT_BAUD, obj->map);
+    MXC_UART_Init (obj->uart, DEFAULT_BAUD, MXC_UART_APB_CLK, obj->map);
     //MBED_ASSERT(retval == E_NO_ERROR);
 }
 
@@ -118,7 +113,7 @@ void serial_free(serial_t *obj)
 //******************************************************************************
 void serial_baud(serial_t *obj, int baudrate)
 {
-    MXC_UART_SetFrequency(obj->uart, baudrate);
+    MXC_UART_SetFrequency(obj->uart, baudrate, MXC_UART_APB_CLK);
     //MBED_ASSERT(retval == E_NO_ERROR);
 }
 
@@ -133,10 +128,10 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
             MXC_UART_SetParity (obj->uart, MXC_UART_PARITY_DISABLE);
             break;
         case ParityOdd :
-            MXC_UART_SetParity (obj->uart, MXC_UART_PARITY_ODD);
+            MXC_UART_SetParity (obj->uart, MXC_UART_PARITY_ODD_0);
             break;
         case ParityEven:
-            MXC_UART_SetParity (obj->uart, MXC_UART_PARITY_EVEN);
+            MXC_UART_SetParity (obj->uart, MXC_UART_PARITY_EVEN_0);
             break;
         case ParityForced1:
         case ParityForced0:
@@ -186,6 +181,8 @@ void uart_handler(serial_t *obj)
 
 void uart0_handler(void) { uart_handler(objs[0]); }
 void uart1_handler(void) { uart_handler(objs[1]); }
+void uart2_handler(void) { uart_handler(objs[2]); }
+void uart3_handler(void) { uart_handler(objs[3]); }
 
 //******************************************************************************
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
@@ -209,6 +206,14 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
             NVIC_SetVector(UART1_IRQn, (uint32_t)uart1_handler);
             NVIC_EnableIRQ(UART1_IRQn);
             break;
+        case 2:
+            NVIC_SetVector(UART2_IRQn, (uint32_t)uart2_handler);
+            NVIC_EnableIRQ(UART2_IRQn);
+            break;
+        case 3:
+            NVIC_SetVector(UART3_IRQn, (uint32_t)uart3_handler);
+            NVIC_EnableIRQ(UART3_IRQn);
+            break;
         default:
             MBED_ASSERT(0);
     }
@@ -217,23 +222,21 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     obj->uart->int_fl = obj->uart->int_fl;
 
     // Set TX Almost Empty level to interrupt when empty
-    obj->uart->ctrl1 = (MXC_F_UART_THRESH_CTRL_RX_FIFO_DEFAULT_THRESH_VAL | MXC_F_UART_THRESH_CTRL_TX_FIFO_DEFAULT_THRESH_VAL);
-    
+    MXC_UART_SetRXThreshold(obj->uart, 1);
+
     if (irq == RxIrq) {
         // Enable RX FIFO Threshold Interrupt
         if (enable) {
-            obj->uart->int_en |= UART_RX_IE | UART_ER_IE;
+            MXC_UART_EnableInt(obj->uart, (UART_RX_IE | UART_ER_IE));
         } else {
-            obj->uart->int_en &= ~(UART_RX_IE | UART_ER_IE);
+            MXC_UART_DisableInt(obj->uart, (UART_RX_IE | UART_ER_IE));
         }
     } else if (irq == TxIrq) {
         // Enable TX Almost Empty Interrupt
         if (enable) {
-            //obj->uart->int_en |= MXC_F_UART_INT_EN_TX_FIFO_ALMOST_EMPTY;
-            obj->uart->int_en |= UART_TX_IE | UART_ER_IE;
+            MXC_UART_EnableInt(obj->uart, (UART_TX_IE | UART_ER_IE));
         } else {
-            //obj->uart->int_en &= ~MXC_F_UART_INT_EN_TX_FIFO_ALMOST_EMPTY;
-            obj->uart->int_en &= ~(UART_TX_IE | UART_ER_IE);
+            MXC_UART_DisableInt(obj->uart, (UART_TX_IE | UART_ER_IE));
         }
     } else {
         MBED_ASSERT(0);
@@ -247,7 +250,7 @@ int serial_getc(serial_t *obj)
 
     if (obj->rx != NC) {
         // Wait for data to be available
-        while( (obj->uart->stat & MXC_F_UART_STAT_RX_NUM) == 0);
+        while( (obj->uart->status & MXC_F_UART_STATUS_RX_LVL) == 0);
         c = obj->uart->fifo;
     }
 
@@ -261,7 +264,6 @@ void serial_putc(serial_t *obj, int c)
         // Wait for room in the FIFO without blocking interrupts.
         while (MXC_UART_GetTXFIFOAvailable(obj->uart) == 0);
 
-        //obj->uart->int_fl |= MXC_F_UART_INT_FL_TX_FIFO_ALMOST_EMPTY;
         obj->uart->fifo = (uint8_t)c;
     }
 }
@@ -292,7 +294,7 @@ void serial_clear(serial_t *obj)
 void serial_break_set(serial_t *obj)
 {
     // Make sure that nothing is being sent
-    while ( (obj->uart->stat & MXC_F_UART_REVA_STATUS_TX_BUSY) );
+    while ( (obj->uart->status & MXC_F_UART_STATUS_TX_BUSY) );
 
     // Configure TX to output 0
     usurp_pin(obj->tx, 0);
@@ -324,7 +326,7 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
         MBED_ASSERT(uart != (UARTName)NC);
     }
 
-    MXC_UART_SetFlowCtrl (obj->uart, MXC_UART_FLOW_EN_LOW, 1);
+    MXC_UART_SetFlowCtrl (obj->uart, MXC_UART_FLOW_EN, 1, obj->map);
     //MBED_ASSERT(retval == E_NO_ERROR);
 }
 

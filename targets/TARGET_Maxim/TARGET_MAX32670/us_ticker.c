@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (c) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -35,10 +35,24 @@
 #include "us_ticker_api.h"
 #include "tmr.h"
 
-#define US_TIMER          MXC_TMR1
-#define US_TIMER_IRQn     TMR1_IRQn
+#if MBED_CONF_TARGET_US_TICKER_TIMER == 0
+    #define US_TIMER          MXC_TMR0
+    #define US_TIMER_IRQn     TMR0_IRQn
+#elif MBED_CONF_TARGET_US_TICKER_TIMER == 1
+    #define US_TIMER          MXC_TMR1
+    #define US_TIMER_IRQn     TMR1_IRQn
+#elif MBED_CONF_TARGET_US_TICKER_TIMER == 2
+    #define US_TIMER          MXC_TMR2
+    #define US_TIMER_IRQn     TMR2_IRQn
+#elif MBED_CONF_TARGET_US_TICKER_TIMER == 3
+    #define US_TIMER          MXC_TMR3
+    #define US_TIMER_IRQn     TMR3_IRQn
+#else
+    #error "Invalid timer selected"
+#endif
+
 #define US_TIMER_PRESCALE TMR_PRES_32
-#define US_TIMER_FREQ     ((HIRC96_FREQ/2) >> MXC_V_TMR_CN_PRES_DIV_BY_32)
+#define US_TIMER_FREQ     ((IPO_FREQ/2) >> MXC_V_TMR_CTRL0_CLKDIV_A_DIV_BY_32)
 #define US_TIMER_WIDTH    32
 
 
@@ -51,7 +65,7 @@ void us_ticker_init(void)
     cfg.pres    = US_TIMER_PRESCALE;   
     cfg.mode    = TMR_MODE_COMPARE;        
     cfg.bitMode = TMR_BIT_MODE_32;  
-    cfg.clock   = MXC_TMR_HFIO_CLK;        
+    cfg.clock   = MXC_TMR_APB_CLK;        
     cfg.cmp_cnt = 0;//MXC_TMR_GetCompare(US_TIMER);              
     cfg.pol     = 0;                  
 
@@ -62,9 +76,11 @@ void us_ticker_init(void)
     count = MXC_TMR_GetCount(US_TIMER);
 
     // Configure and enable
-    MXC_TMR_Init(US_TIMER, &cfg);
+    MXC_TMR_Init(US_TIMER, &cfg, 0);
     MXC_TMR_SetCount(US_TIMER, count);
     MXC_TMR_Start(US_TIMER);
+
+    MXC_TMR_EnableInt(US_TIMER);
 
     // Enable interrupts
     NVIC_SetVector(US_TIMER_IRQn, (uint32_t)us_ticker_irq_handler);
@@ -80,7 +96,8 @@ void us_ticker_free(void)
 //******************************************************************************
 uint32_t us_ticker_read(void)
 {
-    return US_TIMER->cnt;
+    //return US_TIMER->cnt;
+    return MXC_TMR_GetCount(US_TIMER);
 }
 
 //******************************************************************************

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (c) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -38,7 +38,7 @@
 #include "mxc_sys.h"
 #include "wdt_regs.h"
 #include "wdt.h"
-#include "system_max32660.h"
+#include "system_max32670.h"
 
 
 watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
@@ -65,16 +65,24 @@ watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
     } else if (i < 16) {
         i = 16; // min
     }
-
-    MXC_WDT_SetResetPeriod(MXC_WDT0, (mxc_wdt_period_t)(31-i) );
     
+    mxc_wdt_cfg_t wdt_cfg;
+
+    wdt_cfg.mode = MXC_WDT_COMPATIBILITY;
+    
+    wdt_cfg.upperResetPeriod = (mxc_wdt_period_t)(31-i);
+    wdt_cfg.lowerResetPeriod = (mxc_wdt_period_t)(31-i);
+    wdt_cfg.upperIntPeriod   = (mxc_wdt_period_t)(31-i);
+    wdt_cfg.lowerIntPeriod   = (mxc_wdt_period_t)(31-i);
+
+    MXC_WDT_Init(MXC_WDT0, &wdt_cfg);
+
+    MXC_WDT_SetResetPeriod(MXC_WDT0, &wdt_cfg);
+    //MXC_WDT_SetIntPeriod(MXC_WDT0, &wdt_cfg);
     hal_watchdog_kick();
 
-    // WDT Enable RESET
     MXC_WDT_EnableReset(MXC_WDT0);
-    
-    // WDT Enable
-    MXC_WDT_Enable(MXC_WDT0);  
+    MXC_WDT_Enable(MXC_WDT0); 
 
     return WATCHDOG_STATUS_OK;
 }
@@ -94,7 +102,7 @@ watchdog_status_t hal_watchdog_stop(void)
 
 uint32_t hal_watchdog_get_reload_value(void)
 {
-    uint32_t rst_period = (MXC_WDT0->ctrl & MXC_F_WDT_CTRL_RST_PERIOD) >> MXC_F_WDT_CTRL_RST_PERIOD_POS;
+    uint32_t rst_period = (MXC_WDT0->ctrl & MXC_F_WDT_CTRL_RST_LATE_VAL) >> MXC_F_WDT_CTRL_RST_LATE_VAL_POS;
     uint32_t val = (1<<(31-rst_period));
 
     return ( (float)val / (float)PeripheralClock) * 1000;

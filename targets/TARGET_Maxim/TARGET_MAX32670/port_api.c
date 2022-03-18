@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -44,7 +44,7 @@ PinName port_pin(PortName port, int pin_n)
 void port_init(port_t *obj, PortName port, int mask, PinDirection direction)
 {
     uint32_t pin_per_port;
-    mxc_gpio_regs_t *gpio = MXC_GPIO0; //MXC_GPIO_GET_GPIO(port);
+    mxc_gpio_regs_t *gpio = MXC_GPIO_GET_GPIO(port);
     obj->port = port;
     obj->mask = mask;
     obj->reg_out = &gpio->out;
@@ -53,7 +53,9 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection direction)
 
     // Ensure that the GPIO clock is enabled
     if (port == Port0) {
-        MXC_GCR->pclk_dis0 &= ~MXC_F_GCR_PCLK_DIS0_GPIO0D;
+        MXC_GCR->pclkdis0 &= ~MXC_F_GCR_PCLKDIS0_GPIO0;
+    } else if (port == Port1) {
+        MXC_GCR->pclkdis0 &= ~MXC_F_GCR_PCLKDIS0_GPIO1;
     }
 
     // Obtain pin number of the port

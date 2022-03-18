@@ -40,6 +40,7 @@ extern "C" {
 
 typedef enum {
     Port0 = 0,
+    Port1 = 1,
 } PortName;
 
 #ifdef __cplusplus

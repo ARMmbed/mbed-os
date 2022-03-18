@@ -44,7 +44,7 @@
 void rtc_init(void)
 {
     // Enable clock
-    MXC_GCR->clk_ctrl |= MXC_F_GCR_CLK_CTRL_X32K_EN;
+    MXC_SYS_RTCClockEnable();
     
     while(MXC_RTC_Start() == E_BUSY) {
         ;
@@ -60,7 +60,7 @@ void rtc_free(void)
 //******************************************************************************
 int rtc_isenabled(void)
 {
-    return ((MXC_RTC->ctrl & MXC_F_RTC_CTRL_RTCE) >> MXC_F_RTC_CTRL_RTCE_POS);
+    return ((MXC_RTC->ctrl & MXC_F_RTC_CTRL_EN) >> MXC_F_RTC_CTRL_EN_POS);
 }
 
 //******************************************************************************
@@ -82,6 +82,11 @@ time_t rtc_read(void)
     
     while (MXC_RTC_GetTime (&sec, &subsec) != 0) {
         ;
+    }
+
+    subsec &= 0xFFF; //It is 12 bits, 0xFFF = (1<<12)-1
+    if (subsec > 2048) {
+        sec += 1; // rolover
     }
 
     return sec;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -51,15 +51,19 @@ void gpio_init(gpio_t *obj, PinName name)
         return;
     }
     // Obtain pin number
+    unsigned int port = PINNAME_TO_PORT(name);
     unsigned int pin = PINNAME_TO_PIN(name);
 
+    mxc_gpio_regs_t *gpio = MXC_GPIO_GET_GPIO(port);
+
     // Set register pointers
-    obj->reg_out = (uint32_t*)BITBAND(&MXC_GPIO0->out, pin);
-    obj->reg_in = (uint32_t*)BITBAND(&MXC_GPIO0->in, pin);
+    obj->reg_out = (uint32_t*)BITBAND(&gpio->out, pin);
+    obj->reg_in = (uint32_t*)BITBAND(&gpio->in, pin);
     obj->mode = PullNone;
 
     // Ensure that the GPIO clock is enabled
-    MXC_GCR->pclk_dis0 &= ~MXC_F_GCR_PCLK_DIS0_GPIO0D;
+    MXC_GCR->pclkdis0 &= ~MXC_F_GCR_PCLKDIS0_GPIO0;
+    MXC_GCR->pclkdis0 &= ~MXC_F_GCR_PCLKDIS0_GPIO1;
 }
 
 void gpio_mode(gpio_t *obj, PinMode mode)
@@ -75,13 +79,16 @@ void pin_dir_mode(PinName name, PinDirection direction, PinMode mode)
             pin_function(name, 0);
 
             unsigned int pin = PINNAME_TO_PIN(name);
+            unsigned int port = PINNAME_TO_PORT(name);
+
+            mxc_gpio_regs_t *gpio = MXC_GPIO_GET_GPIO(port);
 
             if (mode == PullUp) {
-                MXC_GPIO0->out |= 1 << pin;
+                gpio->out |= 1 << pin;
             } else if (mode == PullDown) {
-                MXC_GPIO0->out &= ~(1 << pin);
+                gpio->out &= ~(1 << pin);
             } else { // PullNone
-                MXC_GPIO0->out &= ~(1 << pin);
+                gpio->out &= ~(1 << pin);
             }
             break;
         case PIN_OUTPUT:

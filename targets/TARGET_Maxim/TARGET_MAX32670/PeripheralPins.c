@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (c) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -44,75 +44,89 @@
  * the pointers to the "function" data members.
  */
 
-
 /************I2C***************/
 const PinMap PinMap_I2C_SDA[] = {
-    { P0_9,  I2C_0, 1 },
-    { P0_3,  I2C_1, 1 },
-    { NC, 	 NC,	0 }
+    { P0_7 , I2C_0, 1 }, // I2C0_SDA
+    { P0_13, I2C_1, 1 }, // I2C1_SDA
+    { P0_19, I2C_2, 1 }, // I2C2_SDA
+    { NC,    NC,    0 }
 };
 
 const PinMap PinMap_I2C_SCL[] = {
-    { P0_8,  I2C_0, 1 },
-    { P0_2,	 I2C_1, 1 },
-	{ NC,    NC,    0 }
+    { P0_6,  I2C_0, 1 }, // I2C0_SCL
+    { P0_12, I2C_1, 1 }, // I2C1_SCL
+    { P0_18, I2C_2, 1 }, // I2C2_SCL
+    { NC,    NC,    0 }
 };
+
 
 /************UART***************/
 const PinMap PinMap_UART_TX[] = {
-    {P0_4, 	UART_0, 2},
-    {P0_10, UART_1, 2},
-    {P0_0, 	UART_1, 3},
-    {P0_6, 	UART_1, 3},
-    {NC,    NC,     0}
+    { P0_9 ,  UART_0, 1 }, // UART0A_TX
+    { P0_25,  UART_0, 2 }, // UART0B_TX
+    { P0_29,  UART_1, 1 }, // UART1A_TX
+    { P0_3,   UART_1, 2 }, // UART1B_TX
+    { P0_15,  UART_2, 2 }, // UART2B_TX
+    { P0_27,  UART_3, 1 }, // LPUART0_TX
+    { NC,     NC,     0 }
 };
 
 const PinMap PinMap_UART_RX[] = {
-	{P0_5, 	UART_0, 2},
-	{P0_11, UART_1,	2},
-	{P0_1, 	UART_1, 3},
-	{P0_7, 	UART_1, 3},
-    {NC,    NC,     0}
+    { P0_8,   UART_0, 1 },  // UART0A_RX
+    { P0_24,  UART_0, 2 },  // UART0B_RX
+    { P0_28,  UART_1, 1 },  // UART1A_RX
+    { P0_2,   UART_1, 2 },  // UART1B_RX
+    { P0_14,  UART_2, 2 },  // UART2B_RX
+    { P0_26,  UART_3, 1 },  // LPUART0_RX
+    { NC,     NC,     0 }
 };
 
 const PinMap PinMap_UART_CTS[] = {
-	{P0_6, 	UART_0, 2},
-	{P0_12, UART_1, 2},
-    {NC,    NC,     0}
+    { P0_10,  UART_0, 1 }, // UART0A_CTS
+    { P0_26,  UART_0, 2 }, // UART0B_CTS
+    { P0_30,  UART_1, 1 }, // UART1A_CTS
+    { P0_4,   UART_1, 2 }, // UART1B_CTS
+    { P0_16,  UART_2, 2 }, // UART2B_CTS
+    { P0_24,  UART_3, 1 }, // LPUART0_CTS
+    { NC,     NC,     0 }
 };
 
 const PinMap PinMap_UART_RTS[] = {
-	{P0_7, 	UART_0, 2},
-	{P0_13, UART_1, 2},
-    {NC,    NC,     0}
+    { P0_11,  UART_0, 1 }, // UART0A_RTS
+    { P0_27,  UART_0, 2 }, // UART0B_RTS
+    { P0_31,  UART_1, 1 }, // UART1A_RTS
+    { P0_5,   UART_1, 2 }, // UART1B_RTS
+    { P0_17,  UART_2, 2 }, // UART2B_RTS
+    { P0_25,  UART_3, 1 }, // LPUART0_RTS
+    { NC,     NC,     0 }
 };
+
 
 /************SPI***************/
 const PinMap PinMap_SPI_SCLK[] = {
-    { P0_6,  SPI_0, 1 },
-    { P0_12, SPI_1, 1 },
-    { P0_2,  SPI_1, 2 },
-    { NC,    NC,    0 }
+    { P0_4,   SPI_0, 1 }, // SPI0_SCK
+    { P0_16,  SPI_1, 1 }, // SPI1_SCK
+    { P1_3,   SPI_2, 1 }, // SPI2_SCK
+    { NC,     NC,    0 }
 };
 
 const PinMap PinMap_SPI_MOSI[] = {
-    { P0_5,  SPI_0, 1 },
-    { P0_11, SPI_1, 1 },
-    { P0_1,  SPI_1, 2 },
-    { NC,    NC,    0 }
+    { P0_3,   SPI_0, 1 }, // SPI0_MOSI
+    { P0_15,  SPI_1, 1 }, // SPI1_MOSI
+    { P1_2,   SPI_2, 1 }, // SPI2_MOSI
+    { NC,     NC,    0 }
 };
 
 const PinMap PinMap_SPI_MISO[] = {
-    { P0_4,  SPI_0, 1 },
-    { P0_10, SPI_1, 1 },
-    { P0_0,  SPI_1, 2 },
-    { NC,    NC,    0 }
+    { P0_2,   SPI_0, 1 }, // SPI0_MISO
+    { P0_14,  SPI_1, 1 }, // SPI1_MISO
+    { P1_1,   SPI_2, 1 }, // SPI2_MISO
+    { NC,     NC,    0 }
 };
 
 const PinMap PinMap_SPI_SSEL[] = {
-    { P0_7,  SPI_0, 1 },
-    { P0_13, SPI_1, 1 },
-    { P0_3,  SPI_1, 2 },
-    { NC,    NC,    0 }
+    { P0_5,   SPI_0, 1 }, // SPI0_SS
+    { P0_17,  SPI_1, 1 }, // SPI1_SS
+    { P1_4,   SPI_2, 1 }, // SPI2_SS
+    { NC,     NC,    0 }
 };
-

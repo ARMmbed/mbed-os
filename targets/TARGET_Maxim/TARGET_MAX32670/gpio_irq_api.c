@@ -39,29 +39,29 @@
 static gpio_irq_t *objs[MXC_CFG_GPIO_INSTANCES][MXC_CFG_GPIO_PINS_PORT] = {{0}};
 static gpio_irq_handler irq_handler;
 
-void gpio_irq_0(void)
+static void handle_irq(unsigned int port)
 {
     uint32_t intfl, in_val;
     uint32_t mask;
     unsigned int pin;
 
     /* Get GPIO Register Structure */
-    mxc_gpio_regs_t *gpio = MXC_GPIO0; //MXC_GPIO_GET_GPIO(port);
+    mxc_gpio_regs_t *gpio = MXC_GPIO_GET_GPIO(port);
 
     /* Read pin state */
     in_val = gpio->in;
 
     /* Read interrupts */
-    intfl = gpio->int_stat & gpio->int_en;
+    intfl = gpio->intfl & gpio->inten;
 
     mask = 1;
 
     /* Determine related routine*/
     for (pin = 0; pin < MXC_CFG_GPIO_PINS_PORT; pin++) {
         if (intfl & mask) {
-            gpio->int_clr |= mask;/* clear interrupt */
+            gpio->intfl_clr |= mask;/* clear interrupt */
             gpio_irq_event event = (in_val & mask) ? IRQ_RISE : IRQ_FALL;
-            gpio_irq_t *obj = objs[0][pin];
+            gpio_irq_t *obj = objs[port][pin];
             if (obj && obj->id) {
                 if ((event == IRQ_RISE) && obj->rise_en) {
                     irq_handler(obj->id, IRQ_RISE);
@@ -74,7 +74,10 @@ void gpio_irq_0(void)
     }
 }
 
-int gpio_irq_init(gpio_irq_t *obj, PinName name, gpio_irq_handler handler, uint32_t id)
+void gpio_irq_0(void) { handle_irq(0); }
+void gpio_irq_1(void) { handle_irq(1); }
+
+int gpio_irq_init(gpio_irq_t *obj, PinName name, gpio_irq_handler handler, uintptr_t id)
 {
     if (name == NC) {
         return -1;
@@ -87,6 +90,11 @@ int gpio_irq_init(gpio_irq_t *obj, PinName name, gpio_irq_handler handler, uint3
         return 1;
     }
 
+    /* Do not allow second set if slot is allread allocated and not released */
+    //if (objs[port][pin]) {
+    //    return 1;
+    //}
+
     obj->port = port;
     obj->pin = pin;
     obj->id = id;
@@ -95,49 +103,58 @@ int gpio_irq_init(gpio_irq_t *obj, PinName name, gpio_irq_handler handler, uint3
     /* register handlers */
     irq_handler = handler;
     NVIC_SetVector(GPIO0_IRQn, (uint32_t)gpio_irq_0);
+    if (port == Port1) {
+        NVIC_SetVector(GPIO1_IRQn, (uint32_t)gpio_irq_1);
+    }
+
+    mxc_gpio_regs_t *gpio = MXC_GPIO_GET_GPIO(port);
 
     /* disable the interrupt locally */
-    MXC_GPIO0->int_en &= ~(1 << pin);
-
+    gpio->inten_clr |= (1 << pin);
     /* clear a pending request */
-    MXC_GPIO0->int_stat |= (1 << pin);
+    gpio->intfl_clr |= (1 << pin);
 
-    NVIC_EnableIRQ(GPIO0_IRQn);
+    NVIC_EnableIRQ((IRQn_Type)((uint32_t)GPIO0_IRQn + port));
 
     return 0;
 }
 
 void gpio_irq_free(gpio_irq_t *obj)
 {
-    MXC_GPIO0->int_en &= ~(1 << obj->pin);
+    mxc_gpio_regs_t *gpio = MXC_GPIO_GET_GPIO(obj->port);
+    gpio->inten_clr |= (1 << obj->pin);
     objs[obj->port][obj->pin] = NULL;
-
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 {
-    /* Note that MAX32660 supports only one edge interrupt at a time */
+    mxc_gpio_regs_t *gpio = MXC_GPIO_GET_GPIO(obj->port);
+
     if (event == IRQ_FALL) {
        obj->fall_en = enable;
-       MXC_GPIO0->int_mod |= (1 << obj->pin);
-       MXC_GPIO0->int_pol  &= ~(1 << obj->pin);
-       MXC_GPIO0->int_en |= (1 << obj->pin);
+       gpio->intmode  |= (1 << obj->pin);
+       gpio->intpol   &= ~(1 << obj->pin);
+       gpio->dualedge &= ~(1 << obj->pin);
+       gpio->inten_set |= (1 << obj->pin);
     } else if (event == IRQ_RISE) {
        obj->rise_en = enable;
-       MXC_GPIO0->int_mod |= (1 << obj->pin);
-       MXC_GPIO0->int_pol  |= (1 << obj->pin);
-       MXC_GPIO0->int_en |= (1 << obj->pin);
+       gpio->intmode  |= (1 << obj->pin);
+       gpio->intpol   |= (1 << obj->pin);
+       gpio->dualedge &= ~(1 << obj->pin);
+       gpio->inten_set |= (1 << obj->pin);
     }
 }
 
 void gpio_irq_enable(gpio_irq_t *obj)
 {
-    MXC_GPIO0->int_en |= (1 << obj->pin);
+    mxc_gpio_regs_t *gpio = MXC_GPIO_GET_GPIO(obj->port);
+    gpio->inten_set |= (1 << obj->pin);
 }
 
 void gpio_irq_disable(gpio_irq_t *obj)
 {
-    MXC_GPIO0->int_en &= ~(1 << obj->pin);
+    mxc_gpio_regs_t *gpio = MXC_GPIO_GET_GPIO(obj->port);
+    gpio->inten_clr |= (1 << obj->pin);
 }
 
 gpio_irq_t *gpio_irq_get_obj(PinName name)
