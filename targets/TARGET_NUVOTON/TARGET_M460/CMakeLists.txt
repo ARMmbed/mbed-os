@@ -14,6 +14,8 @@ target_sources(mbed-m460
         analogin_api.c
         analogout_api.c
 
+        crypto/crypto-misc.cpp
+
         device/startup_M460.c
         device/system_M460.c
         device/StdDriver/src/m460_acmp.c
@@ -83,6 +85,7 @@ target_sources(mbed-m460
 target_include_directories(mbed-m460
     INTERFACE
         .
+        crypto
         device
         device/Reg
         device/StdDriver/inc

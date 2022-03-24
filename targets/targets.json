@@ -7503,6 +7503,9 @@
         "inherits": [
             "MCU_M460"
         ],
+        "macros_add": [
+            "MBEDTLS_CONFIG_HW_SUPPORT"
+        ],
         "supported_form_factors": [
             "ARDUINO_UNO"
         ],
