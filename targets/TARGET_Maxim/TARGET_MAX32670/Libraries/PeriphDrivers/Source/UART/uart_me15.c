@@ -167,8 +167,8 @@ int MXC_UART_ReadyForSleep(mxc_uart_regs_t* uart)
 int MXC_UART_SetFrequency(mxc_uart_regs_t* uart, unsigned int baud, mxc_uart_clock_t clock)
 {
     int freq;
-    int mod = 0;
-    int clkdiv = 0;
+    unsigned int mod = 0;
+    unsigned int clkdiv = 0;
     int div = 8;
 
     if (MXC_UART_GET_IDX (uart) < 0) {
@@ -230,7 +230,7 @@ int MXC_UART_SetFrequency(mxc_uart_regs_t* uart, unsigned int baud, mxc_uart_clo
         freq = MXC_UART_GetFrequency (uart);
     } 
     else {
-		int clkDiv = 0, mod = 0;
+		unsigned int clkDiv = 0, mod = 0;
 		if (MXC_UART_GET_IDX ((mxc_uart_regs_t*) uart) < 0) {
 			return E_BAD_PARAM;
 		}

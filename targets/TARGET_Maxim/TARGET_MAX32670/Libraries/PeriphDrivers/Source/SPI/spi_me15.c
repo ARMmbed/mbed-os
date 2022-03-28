@@ -51,11 +51,7 @@
 int MXC_SPI_Init(mxc_spi_regs_t* spi, int masterMode, int quadModeUsed, int numSlaves,
                  unsigned ssPolarity, unsigned int hz, unsigned int drv_ssel)
 {
-    int spi_num;
-    
-    spi_num = MXC_SPI_GET_IDX(spi);
-    MXC_ASSERT(spi_num >= 0);
-    
+
     if (numSlaves > MXC_SPI_SS_INSTANCES) {
         return E_BAD_PARAM;
     }
@@ -91,11 +87,7 @@ int MXC_SPI_Init(mxc_spi_regs_t* spi, int masterMode, int quadModeUsed, int numS
 }
 
 int MXC_SPI_Shutdown(mxc_spi_regs_t* spi)
-{
-    int spi_num;
-    spi_num = MXC_SPI_GET_IDX(spi);
-    MXC_ASSERT(spi_num >= 0);
-    
+{    
     MXC_SPI_RevA_Shutdown ((mxc_spi_reva_regs_t*) spi);
     
     if (spi == MXC_SPI0) {

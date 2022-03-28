@@ -803,7 +803,10 @@ uint32_t MXC_SPI_RevA_TransHandler (mxc_spi_reva_regs_t *spi, mxc_spi_reva_req_t
     uint32_t tx_length = 0, rx_length = 0;
     uint8_t bits;
     spi_num = MXC_SPI_GET_IDX ((mxc_spi_regs_t*) spi);
-    
+    if (spi_num == -1) {
+        return E_BAD_PARAM;
+    }
+
     bits = MXC_SPI_GetDataSize ((mxc_spi_regs_t*) req->spi);
     
     //MXC_F_SPI_REVA_CTRL2_NUMBITS data bits

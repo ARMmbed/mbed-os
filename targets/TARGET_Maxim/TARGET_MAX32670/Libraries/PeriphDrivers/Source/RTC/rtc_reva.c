@@ -325,7 +325,7 @@ int MXC_RTC_RevA_GetTime(uint32_t* sec, uint32_t* subsec)
         // Read the seconds count.
         temp_sec = MXC_RTC_RevA_GetSecond();
 
-        if (temp_sec == E_BUSY) {
+        if ((int)temp_sec == E_BUSY) {
             return E_BUSY;
         }
         

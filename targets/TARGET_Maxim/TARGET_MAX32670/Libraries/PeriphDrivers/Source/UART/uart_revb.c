@@ -115,7 +115,7 @@ int MXC_UART_RevB_ReadyForSleep (mxc_uart_revb_regs_t* uart)
 
 int MXC_UART_RevB_SetFrequency (mxc_uart_revb_regs_t* uart, unsigned int baud, mxc_uart_revb_clock_t clock)
 {  
-    int clkDiv = 0, mod = 0;
+    unsigned int clkDiv = 0, mod = 0;
     if (MXC_UART_GET_IDX ((mxc_uart_regs_t*) uart) < 0) {
         return E_BAD_PARAM;
     }
