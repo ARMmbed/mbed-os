@@ -1491,6 +1491,18 @@
         ],
         "device_name": "STM32F103RB"
     },
+    "MCU_STM32F103xC": {
+        "inherits": [
+            "MCU_STM32F1"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32F103xC"
+        ],
+        "macros_add": [
+            "STM32F103xE"
+        ]
+    },
     "MCU_STM32F103xE": {
         "inherits": [
             "MCU_STM32F1"
