@@ -93,8 +93,6 @@ if(${CMAKE_CROSSCOMPILING})
     target_compile_definitions(mbed-core
         INTERFACE
             TARGET_NAME=${MBED_TARGET}
-            ${MBED_TARGET_DEFINITIONS}
-            ${MBED_CONFIG_DEFINITIONS}
     )
 
     # Add MBED_TEST_MODE for backward compatibility with Greentea tests written for use with Mbed CLI 1
@@ -137,6 +135,10 @@ if(${CMAKE_CROSSCOMPILING})
         )
     endif()
 endif()
+
+# Generate target config header and include it in all files
+mbed_write_target_config_header(${CMAKE_CURRENT_BINARY_DIR}/mbed-target-config.h MBED_TARGET_DEFINITIONS MBED_CONFIG_DEFINITIONS)
+target_compile_options(mbed-core INTERFACE -include ${CMAKE_CURRENT_BINARY_DIR}/mbed-target-config.h)
 
 # Include mbed.h and config from generate folder
 target_include_directories(mbed-core
