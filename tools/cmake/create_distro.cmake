@@ -32,8 +32,7 @@ endfunction(copy_append_property)
 # Create a "distribution" of Mbed OS containing the base Mbed and certain modules.
 # This distribution only needs to be compiled once and can be referenced in an arbitrary amount of targets.
 function(mbed_create_distro NAME) # ARGN: modules...
-	add_library(${NAME} OBJECT)
-	mbed_configure_app_target(${NAME})
+	add_library(${NAME} OBJECT EXCLUDE_FROM_ALL)
 
 	# First link as private dependencies
 	target_link_libraries(${NAME} PRIVATE ${ARGN})

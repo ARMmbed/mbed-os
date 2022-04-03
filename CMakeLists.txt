@@ -40,22 +40,13 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     endif()
 endif()
 
-add_library(mbed-core INTERFACE)
+# These targets are made visible here so their source files which
+# are spread in different directories can be referenced and can be linked against
+# by libraries that depend on them.
+add_library(mbed-device_key INTERFACE)
+add_library(mbed-rtos INTERFACE) # Collects source files and flags that are in mbed-os but not mbed-baremetal
+add_library(mbed-core INTERFACE) # Collects source files and flags common to mbed-baremetal and mbed-os
 
-add_library(mbed-os INTERFACE)
-
-target_link_libraries(mbed-os
-    INTERFACE
-        mbed-rtos
-        mbed-core
-)
-
-add_library(mbed-baremetal INTERFACE)
-
-target_link_libraries(mbed-baremetal
-    INTERFACE
-        mbed-core
-)
 # Validate selected C library type
 # The C library type selected has to match the library that the target can support
 if(${CMAKE_CROSSCOMPILING})
@@ -153,13 +144,6 @@ target_include_directories(mbed-core
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-# These targets are made visible here so their source files which
-# are spread in different directories can be referenced and can be linked against
-# by libraries that depend on them.
-# TODO CMake: Should the source files be moved?
-add_library(mbed-device_key INTERFACE)
-add_library(mbed-rtos INTERFACE)
-
 # Include targets/ first, because any post-build hook needs to be defined
 # before other parts of Mbed OS can add greentea tests which require
 # mbed_set_post_build().
@@ -187,9 +171,15 @@ if(${CMAKE_CROSSCOMPILING})
     string(TOLOWER ${MBED_TARGET} MBED_TARGET_CONVERTED)
     string(REPLACE "_" "-" MBED_TARGET_CONVERTED ${MBED_TARGET_CONVERTED})
     string(PREPEND MBED_TARGET_CONVERTED "mbed-")
-
-    target_link_libraries(mbed-core INTERFACE ${MBED_TARGET_CONVERTED})
 endif()
+
+# Core Mbed OS library
+# mbed-baremetal contains baremetal sources + target sources + target compile flags.
+# mbed-os will be a superset of mbed-baremetal, also containing the RTOS sources and RTOS flags.
+# Note that many different source files will compile differently depending on if the RTOS is in use.
+# So, it's needed to compile the core sources twice, once for RTOS and once for non-RTOS.
+mbed_create_distro(mbed-baremetal mbed-core ${MBED_TARGET_CONVERTED})
+mbed_create_distro(mbed-os mbed-core mbed-rtos ${MBED_TARGET_CONVERTED})
 
 # Ninja requires to be forced for response files
 if ("${CMAKE_GENERATOR}" MATCHES "Ninja")
