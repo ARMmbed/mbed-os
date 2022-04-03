@@ -18,7 +18,7 @@
 #ifndef RETARGET_H
 #define RETARGET_H
 
-#include <inttypes.h>
+#include <cinttypes>
 #include <sys/types.h>
 #include <stdio.h>
 

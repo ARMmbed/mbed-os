@@ -4,22 +4,78 @@
 # This is the boilerplate for Mbed OS
 
 cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
+cmake_policy(VERSION 3.16...3.22)
 
-option(BUILD_GREENTEA_TESTS "Build greentea tests only." OFF)
+# Setup build type (target type, tests/unit tests/real build) ----------------------------------------------------------------------------------
+# This block sets up the following variables for all subdirs to use:
+# - MBED_OS_IS_STANDALONE: True if Mbed OS is the top-level project.  False if Mbed is being built as part of an application.
+# - MBED_IS_NATIVE_BUILD: True if we are building for the host machine.  False if we are building for a microcontroller
+# - MBED_OS_ENABLE_TESTS: True if we are building *any* internal Mbed OS tests at all.  Enabled by -DBUILD_TESTING=TRUE (which is enabled by default when standalone).
+# - BUILD_GREENTEA_TESTS: True to build greentea on-target tests.  False to build host UNITTESTS.
 
-if(BUILD_GREENTEA_TESTS)
-    # Usually we rely on the application to set MBED_CONFIG_PATH and include
-    # app.cmake. They are both required if we're building an application to run
-    # on an mbed-target.
-    set(MBED_CONFIG_PATH ${CMAKE_CURRENT_BINARY_DIR} CACHE STRING "")
-    # TODO: Remove when https://github.com/ARMmbed/mbed-os/issues/14518 is fixed
-    include(${CMAKE_CURRENT_LIST_DIR}/tools/cmake/app.cmake)
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    # We are the top level project, so tests or unittests are being built.
+    set(MBED_OS_IS_STANDALONE TRUE)
+else()
+    # Not the top level project
+    set(MBED_OS_IS_STANDALONE FALSE)
 endif()
 
-if(${CMAKE_CROSSCOMPILING})
+if(CMAKE_CROSSCOMPILING)
+    set(MBED_IS_NATIVE_BUILD FALSE)
+else()
+    set(MBED_IS_NATIVE_BUILD TRUE)
+endif()
+
+if(MBED_IS_NATIVE_BUILD)
+    # Pick up some include files that are needed later
+    list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/tools/cmake)
+endif()
+
+if(MBED_IS_NATIVE_BUILD)
+    # Pick up some include files that are needed later
+    list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/tools/cmake)
+    include(mbed_create_distro)
+else()
+    # Grab the Mbed configs for this target
     include(${MBED_CONFIG_PATH}/mbed_config.cmake)
     include(mbed_set_linker_script)
 endif()
+
+# Set up options for testing
+option(BUILD_TESTING "Whether to enable CTest tests in this project" ${MBED_OS_IS_STANDALONE}) # This option is also created by include(CTest) but we need it here earlier on.
+if(MBED_OS_IS_STANDALONE AND BUILD_TESTING)
+    set(MBED_OS_ENABLE_TESTS TRUE)
+    option(BUILD_GREENTEA_TESTS "Build greentea tests instead of unit tests" ${CMAKE_CROSSCOMPILING})
+endif()
+
+if(MBED_OS_IS_STANDALONE)
+    # For standalong builds, look for mbed-config.cmake in the top level mbed os dir
+    set(MBED_CONFIG_PATH ${CMAKE_CURRENT_BINARY_DIR} CACHE STRING "")
+endif()
+
+if(MBED_IS_NATIVE_BUILD)
+    # Pick up some include files that are needed later
+    list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/tools/cmake)
+    include(mbed_create_distro)
+else()
+    # Grab the Mbed configs for this target
+    include(${MBED_CONFIG_PATH}/mbed_config.cmake)
+    include(mbed_set_linker_script)
+endif()
+
+# Print build type
+if(MBED_OS_ENABLE_TESTS)
+    if(BUILD_GREENTEA_TESTS)
+        message(STATUS "Mbed: Compiling Greentea on-target tests for ${MBED_TARGET}")
+    else()
+        message(STATUS "Mbed: Compiling host UNITTESTS for native execution")
+    endif()
+else()
+    message(STATUS "Mbed: Not building any Mbed OS tests.")
+endif()
+
+# Create core Mbed OS targets and set up build flags  ----------------------------------------------------------------------------------
 
 project(mbed-os)
 
@@ -30,7 +86,7 @@ list(APPEND CMAKE_MODULE_PATH
 
 add_subdirectory(extern)
 
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+if(MBED_OS_IS_STANDALONE)
     include(CTest)
 
     if((NOT BUILD_GREENTEA_TESTS) AND BUILD_TESTING)
@@ -49,7 +105,7 @@ add_library(mbed-core INTERFACE) # Collects source files and flags common to mbe
 
 # Validate selected C library type
 # The C library type selected has to match the library that the target can support
-if(${CMAKE_CROSSCOMPILING})
+if(NOT MBED_IS_NATIVE_BUILD)
     if(${MBED_C_LIB} STREQUAL "small")
         if(NOT "small" IN_LIST MBED_TARGET_SUPPORTED_C_LIBS)
             if("std" IN_LIST MBED_TARGET_SUPPORTED_C_LIBS)
@@ -96,7 +152,7 @@ if(${CMAKE_CROSSCOMPILING})
     )
 
     # Add MBED_TEST_MODE for backward compatibility with Greentea tests written for use with Mbed CLI 1
-    if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+    if(MBED_OS_ENABLE_TESTS)
         if(NOT BUILD_GREENTEA_TESTS)
             target_compile_definitions(${PROJECT_NAME}
                 INTERFACE
@@ -136,15 +192,26 @@ if(${CMAKE_CROSSCOMPILING})
     endif()
 endif()
 
+if(MBED_IS_NATIVE_BUILD)
+    # Fix issue on Windows with object files hitting a limit for number of sections
+    if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+        add_compile_options(-Wa,-mbig-obj)
+    endif()
+endif()
+
 # Generate target config header and include it in all files
-mbed_write_target_config_header(${CMAKE_CURRENT_BINARY_DIR}/mbed-target-config.h MBED_TARGET_DEFINITIONS MBED_CONFIG_DEFINITIONS)
-target_compile_options(mbed-core INTERFACE -include ${CMAKE_CURRENT_BINARY_DIR}/mbed-target-config.h)
+if(NOT MBED_IS_NATIVE_BUILD)
+    mbed_write_target_config_header(${CMAKE_CURRENT_BINARY_DIR}/mbed-target-config.h MBED_TARGET_DEFINITIONS MBED_CONFIG_DEFINITIONS)
+    target_compile_options(mbed-core INTERFACE -include ${CMAKE_CURRENT_BINARY_DIR}/mbed-target-config.h)
+endif()
 
 # Include mbed.h and config from generate folder
 target_include_directories(mbed-core
     INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+# Recurse to subdirs  ----------------------------------------------------------------------------------
 
 # Include targets/ first, because any post-build hook needs to be defined
 # before other parts of Mbed OS can add greentea tests which require
@@ -167,21 +234,24 @@ add_subdirectory(features EXCLUDE_FROM_ALL)
 add_subdirectory(cmsis/CMSIS_5/CMSIS/RTOS2 EXCLUDE_FROM_ALL)
 add_subdirectory(cmsis/device/rtos EXCLUDE_FROM_ALL)
 
+# Create top-level targets  ----------------------------------------------------------------------------------
 
-if(${CMAKE_CROSSCOMPILING})
+if(NOT MBED_IS_NATIVE_BUILD)
     # Ensure the words that make up the Mbed target name are separated with a hyphen, lowercase, and with the `mbed-` prefix.
     string(TOLOWER ${MBED_TARGET} MBED_TARGET_CONVERTED)
     string(REPLACE "_" "-" MBED_TARGET_CONVERTED ${MBED_TARGET_CONVERTED})
     string(PREPEND MBED_TARGET_CONVERTED "mbed-")
 endif()
 
-# Core Mbed OS library
-# mbed-baremetal contains baremetal sources + target sources + target compile flags.
-# mbed-os will be a superset of mbed-baremetal, also containing the RTOS sources and RTOS flags.
-# Note that many different source files will compile differently depending on if the RTOS is in use.
-# So, it's needed to compile the core sources twice, once for RTOS and once for non-RTOS.
-mbed_create_distro(mbed-baremetal mbed-core ${MBED_TARGET_CONVERTED})
-mbed_create_distro(mbed-os mbed-core mbed-rtos ${MBED_TARGET_CONVERTED})
+if(NOT MBED_IS_NATIVE_BUILD)
+    # Core Mbed OS library
+    # mbed-baremetal contains baremetal sources + target sources + target compile flags.
+    # mbed-os will be a superset of mbed-baremetal, also containing the RTOS sources and RTOS flags.
+    # Note that many different source files will compile differently depending on if the RTOS is in use.
+    # So, it's needed to compile the core sources twice, once for RTOS and once for non-RTOS.
+    mbed_create_distro(mbed-baremetal mbed-core ${MBED_TARGET_CONVERTED})
+    mbed_create_distro(mbed-os mbed-core mbed-rtos ${MBED_TARGET_CONVERTED})
+endif()
 
 # Ninja requires to be forced for response files
 if ("${CMAKE_GENERATOR}" MATCHES "Ninja")
@@ -193,7 +263,3 @@ if ("${CMAKE_GENERATOR}" MATCHES "Ninja")
         set(CMAKE_NINJA_FORCE_RESPONSE_FILE 1 CACHE INTERNAL "")
     endif()
 endif()
-
-# TODO: Remove once all example applications have removed it
-function(mbed_configure_app_target target)
-endfunction()

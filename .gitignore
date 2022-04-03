@@ -104,3 +104,6 @@ cmake_install.cmake
 CMakeFiles/
 cmake_build/
 Testing/
+
+# CLion
+cmake-build-*/
