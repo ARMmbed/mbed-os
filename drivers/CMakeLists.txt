@@ -9,7 +9,7 @@ if(MBED_OS_ENABLE_TESTS)
     endif()
 endif()
 
-target_include_directories(mbed-core
+target_include_directories(mbed-core-flags
     INTERFACE
         .
         ./include
@@ -17,7 +17,7 @@ target_include_directories(mbed-core
         ./include/drivers/internal
 )
 
-target_sources(mbed-core
+target_sources(mbed-core-sources
     INTERFACE
         source/AnalogIn.cpp
         source/AnalogOut.cpp

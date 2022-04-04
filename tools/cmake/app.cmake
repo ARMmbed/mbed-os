@@ -13,6 +13,7 @@ endif()
 include(${MBED_CONFIG_PATH}/mbed_config.cmake)
 include(mbed_set_post_build)
 include(mbed_generate_config_header)
+include(mbed_create_distro)
 
 # Load toolchain file
 if(NOT CMAKE_TOOLCHAIN_FILE OR MBED_TOOLCHAIN_FILE_USED)
@@ -61,7 +62,4 @@ else()
     set(HAVE_MEMAP_DEPS FALSE)
     message(STATUS "Missing Python dependencies (python3, intelhex, prettytable) so the memory map cannot be printed")
 endif()
-
-# load mbed_create_distro
-include(${CMAKE_CURRENT_LIST_DIR}/create_distro.cmake)
 

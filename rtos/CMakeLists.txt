@@ -9,7 +9,7 @@ if(MBED_OS_ENABLE_TESTS)
     endif()
 endif()
 
-target_include_directories(mbed-core
+target_include_directories(mbed-core-flags
     INTERFACE
         .
         ./include
@@ -18,7 +18,7 @@ target_include_directories(mbed-core
         ./source
 )
 
-target_sources(mbed-core
+target_sources(mbed-core-sources
     INTERFACE
         source/EventFlags.cpp
         source/Kernel.cpp
@@ -30,7 +30,7 @@ target_sources(mbed-core
 )
 
 
-target_compile_definitions(mbed-core
+target_compile_definitions(mbed-core-flags
     INTERFACE
         MBED_CONF_RTOS_API_PRESENT=1
 )

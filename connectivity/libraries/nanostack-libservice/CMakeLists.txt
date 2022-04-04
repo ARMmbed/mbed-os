@@ -22,16 +22,16 @@ target_sources(mbed-nanostack-libservice
 
 # The definition, source files and include directories below
 # are needed by mbed-trace which is part of the mbed-core CMake target
-target_compile_definitions(mbed-core
+target_compile_definitions(mbed-core-flags
     INTERFACE
         MBED_CONF_NANOSTACK_LIBSERVICE_PRESENT=1
 )
-target_include_directories(mbed-core
+target_include_directories(mbed-core-flags
     INTERFACE
         .
         ./mbed-client-libservice
 )
-target_sources(mbed-core
+target_sources(mbed-core-sources
     INTERFACE
         source/libBits/common_functions.c
         source/libip6string/ip6tos.c

@@ -3,7 +3,7 @@
 
 add_subdirectory(RTE)
 
-target_include_directories(mbed-core
+target_include_directories(mbed-core-flags
     INTERFACE
         .
 )

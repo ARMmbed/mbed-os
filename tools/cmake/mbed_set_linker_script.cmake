@@ -6,6 +6,7 @@
 # Called once for each MCU target in the build system.
 #
 function(mbed_set_linker_script input_target raw_linker_script_path)
+
     set(LINKER_SCRIPT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${input_target}.link_script.ld)
     # To avoid path limits on Windows, we create a "response file" and set the path to it as a
     # global property. We need this solely to pass the compile definitions to GCC's preprocessor,

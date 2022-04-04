@@ -7,12 +7,12 @@ endif()
 
 add_subdirectory(minimal-printf)
 
-target_include_directories(mbed-core
+target_include_directories(mbed-core-flags
     INTERFACE
         .
 )
 
-target_sources(mbed-core
+target_sources(mbed-core-sources
     INTERFACE
         ATCmdParser.cpp
         CThunkBase.cpp
@@ -50,7 +50,7 @@ target_sources(mbed-core
 )
 
 if(MBED_TOOLCHAIN STREQUAL "GCC_ARM" AND MBED_C_LIB STREQUAL "small")
-    target_sources(mbed-core
+    target_sources(mbed-core-sources
         INTERFACE
             newlib_nano_malloc_workaround.c
     )

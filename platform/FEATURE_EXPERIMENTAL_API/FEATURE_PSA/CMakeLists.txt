@@ -20,7 +20,7 @@ target_sources(mbed-psa
         src/psa_hrng.c
 )
 
-target_link_libraries(mbed-core
+target_link_libraries(mbed-core-flags
     INTERFACE
         mbed-psa
 )

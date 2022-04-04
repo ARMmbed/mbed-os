@@ -3,13 +3,13 @@
 
 add_subdirectory(source)
 
-target_include_directories(mbed-core
+target_include_directories(mbed-core-flags
     INTERFACE
         include
         include/mbed-trace
 )
 
-target_sources(mbed-core
+target_sources(mbed-core-sources
     INTERFACE
         source/mbed_trace.c
 )

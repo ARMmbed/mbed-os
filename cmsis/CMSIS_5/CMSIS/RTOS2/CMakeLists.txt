@@ -3,12 +3,12 @@
 
 add_subdirectory(RTX)
 
-target_include_directories(mbed-rtos
+target_include_directories(mbed-rtos-flags
     INTERFACE
         Include
 )
 
-target_sources(mbed-rtos
+target_sources(mbed-rtos-sources
     INTERFACE
         Source/os_systick.c
         Source/os_tick_ptim.c

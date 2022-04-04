@@ -22,7 +22,7 @@ if(${CMAKE_CROSSCOMPILING})
                 set(STARTUP_RTX_FILE TARGET_RTOS_M4_M7/irq_cm4f.S)
             endif()
 
-            target_sources(mbed-rtos
+            target_sources(mbed-rtos-sources
                 INTERFACE
                     Source/${toolchain_dir}/${STARTUP_RTX_FILE}
             )
@@ -42,7 +42,7 @@ if(${CMAKE_CROSSCOMPILING})
     _mbed_get_cortex_m_exception_handlers(TOOLCHAIN_GCC)
 endif()
 
-target_include_directories(mbed-rtos
+target_include_directories(mbed-rtos-flags
     INTERFACE
         Config
         Include
@@ -50,7 +50,7 @@ target_include_directories(mbed-rtos
         Source
 )
 
-target_sources(mbed-rtos
+target_sources(mbed-rtos-sources
     INTERFACE
         Config/RTX_Config.c
 

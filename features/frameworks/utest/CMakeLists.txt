@@ -2,13 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-utest
-    INTERFACE
+    PUBLIC
         .
         utest
+		../greentea-client
 )
 
 target_sources(mbed-utest
-    INTERFACE
+    PRIVATE
         mbed-utest-shim.cpp
         source/unity_handler.cpp
         source/utest_case.cpp
@@ -20,3 +21,5 @@ target_sources(mbed-utest
         source/utest_stack_trace.cpp
         source/utest_types.cpp
 )
+
+target_link_libraries(mbed-utest PUBLIC mbed-core-flags)

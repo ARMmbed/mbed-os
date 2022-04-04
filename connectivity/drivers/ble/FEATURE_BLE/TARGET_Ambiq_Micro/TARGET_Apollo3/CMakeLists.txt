@@ -14,5 +14,5 @@ target_sources(mbed-ble
 
 target_link_libraries(mbed-ble
     INTERFACE
-        mbed-core
+        mbed-core-flags
 )

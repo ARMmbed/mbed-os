@@ -78,13 +78,6 @@ function(mbed_greentea_add_test)
         return()
     endif()
 
-    # TODO: After we convert all greentea tests to use CTest, remove this
-    # add_subdirectory call. We will attach the tests to the mbed-os project,
-    # rather than creating a new project for each test that depends on mbed-os.
-    if(NOT BUILD_GREENTEA_TESTS)
-        add_subdirectory(${MBED_ROOT} build)
-    endif()
-
     add_executable(${MBED_GREENTEA_TEST_NAME})
 
     target_include_directories(${MBED_GREENTEA_TEST_NAME}
@@ -117,6 +110,12 @@ function(mbed_greentea_add_test)
         set(MBED_GREENTEA_TEST_IMAGE_NAME "${MBED_GREENTEA_TEST_NAME}.${MBED_OUTPUT_EXT}")
     else()
         set(MBED_GREENTEA_TEST_IMAGE_NAME "${MBED_GREENTEA_TEST_NAME}.bin")
+    endif()
+
+    # User can set this cache variable to supply extra arguments to greentea.
+    # such as: -d to set the drive path, -p to set the COM port.
+    if(DEFINED MBED_GREENTEA_EXTRA_HTRUN_ARGUMENTS)
+        list(APPEND MBED_HTRUN_ARGUMENTS ${MBED_GREENTEA_EXTRA_HTRUN_ARGUMENTS})
     endif()
 
     if(DEFINED MBED_GREENTEA_HOST_TESTS_DIR)

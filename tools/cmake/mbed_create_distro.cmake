@@ -34,9 +34,6 @@ endfunction(copy_append_property)
 function(mbed_create_distro NAME) # ARGN: modules...
 	add_library(${NAME} OBJECT EXCLUDE_FROM_ALL)
 
-	# First link as private dependencies
-	target_link_libraries(${NAME} PRIVATE ${ARGN})
-
 	# Now copy include dirs, compile defs, and compile options (but NOT interface source files) over
 	# to the distribution target so they will be passed into things that link to it.
 	# To do this, we need to recursively traverse the tree of dependencies.
@@ -51,6 +48,27 @@ function(mbed_create_distro NAME) # ARGN: modules...
 		copy_append_property(INTERFACE_INCLUDE_DIRECTORIES ${CURR_MODULE} ${NAME})
 		copy_append_property(INTERFACE_LINK_OPTIONS ${CURR_MODULE} ${NAME})
 
+		# Make sure that linking to the distro pulls in the compiled code from CURR_MODULE
+		target_link_libraries(${NAME} PRIVATE ${CURR_MODULE})
+
+		# CMake currently has a limitation that OBJECT libraries cannot link to other OBJECT libraries
+		# via the LINK_LIBRARIES property -- CMake will not link the objects in properly :/.
+		# see: https://cmake.org/pipermail/cmake/2019-May/069453.html
+		# Once the INTERFACE_LINK_LIBRARIES_DIRECT property becomes widely available we could use that instead to fix this.
+		get_property(CURR_MODULE_TYPE TARGET ${CURR_MODULE} PROPERTY TYPE)
+		if("${CURR_MODULE_TYPE}" STREQUAL "OBJECT_LIBRARY")
+			target_sources(${NAME} INTERFACE $<TARGET_OBJECTS:${CURR_MODULE}>)
+
+			# Check if this object library has any other libraries exported through its INTERFACE_SOURCES.
+			# If it does, we need to propagate those too.
+			get_property(OBJ_INTERFACE_SOURCES TARGET ${NAME} PROPERTY INTERFACE_SOURCES)
+			foreach(INTERFACE_SOURCE ${OBJ_INTERFACE_SOURCES})
+				if(INTERFACE_SOURCE MATCHES "\\$<TARGET_OBJECTS:.*>")
+					target_sources(${NAME} INTERFACE ${INTERFACE_SOURCE})
+				endif()
+			endforeach()
+		endif()
+
 		list(REMOVE_AT REMAINING_MODULES 0)
 		list(APPEND COMPLETED_MODULES ${CURR_MODULE})
 
@@ -58,8 +76,12 @@ function(mbed_create_distro NAME) # ARGN: modules...
 		get_property(SUBMODULES TARGET ${CURR_MODULE} PROPERTY INTERFACE_LINK_LIBRARIES)
 		foreach(SUBMODULE ${SUBMODULES})
 			if(NOT "${SUBMODULE}" MATCHES "::@") # remove CMake internal CMAKE_DIRECTORY_ID_SEP markers
-				if(NOT ${SUBMODULE} IN_LIST COMPLETED_MODULES)
-					list(APPEND REMAINING_MODULES ${SUBMODULE})
+				# Remove LINK_ONLY genexes from target_link_libraries(... PRIVATE).  We can ignore things wrapped in these
+				# because they will already have been handled by the target_link_libraries earlier on.
+				if(NOT "${SUBMODULE}" MATCHES "\\$<LINK_ONLY:.*>")
+					if(NOT ${SUBMODULE} IN_LIST COMPLETED_MODULES)
+						list(APPEND REMAINING_MODULES ${SUBMODULE})
+					endif()
 				endif()
 			endif()
 		endforeach()

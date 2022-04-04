@@ -13,13 +13,13 @@ add_subdirectory(TARGET_FLASH_CMSIS_ALGO EXCLUDE_FROM_ALL)
 
 add_subdirectory(usb)
 
-target_include_directories(mbed-core
+target_include_directories(mbed-core-flags
     INTERFACE
         include
         include/hal
 )
 
-target_sources(mbed-core
+target_sources(mbed-core-sources
     INTERFACE
         source/LowPowerTickerWrapper.cpp
         source/mbed_compat.c
