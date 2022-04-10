@@ -65,8 +65,25 @@ target_sources(mbed-arm-musca-s1
         ${STARTUP_FILE}
 )
 
+# Create a library to wrap the veneers object (which is closed source)
+# This is needed because if we just added the .o file to the sources, it would get lost by the create_distro() call.
+add_library(mbed-arm-musca-s1-veneers STATIC EXCLUDE_FROM_ALL ${CMAKE_CURRENT_SOURCE_DIR}/s_veneers.o)
+set_property(TARGET mbed-arm-musca-s1-veneers PROPERTY LINKER_LANGUAGE C) # Force to C since it has no sources of any language
+
 target_link_libraries(mbed-arm-musca-s1
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}/s_veneers.o
         mbed-arm-ssg
+        mbed-psa-headers
+        mbed-arm-musca-s1-veneers
 )
+
+# pick up rtx_lib.h
+# Not quite sure why this code seems to need RTX headers even on baremetal, but...
+target_include_directories(mbed-arm-musca-s1
+    INTERFACE
+        ../../../cmsis/CMSIS_5/CMSIS/RTOS2/RTX/Source
+        ../../../cmsis/CMSIS_5/CMSIS/RTOS2/RTX/Include
+        ../../../cmsis/CMSIS_5/CMSIS/RTOS2/RTX/Config
+        ../../../cmsis/CMSIS_5/CMSIS/RTOS2/Include
+)
+

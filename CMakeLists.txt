@@ -257,6 +257,10 @@ if(NOT MBED_IS_NATIVE_BUILD)
     mbed_create_distro(${MBED_TARGET_CMAKE_NAME}-obj ${MBED_TARGET_CMAKE_NAME} mbed-core-flags)
 
     # Now make core flags depend on that distro, ensuring everything has access to the uC's flags and objects.
+    # Note that this enforces a hard restriction: none of the libraries folded into the mbed target cmake target can link to
+    # mbed-core-flags, because otherwise there would be a circular dependency.  I'm not sure if that limit will
+    # be a dealbreaker or not in the future.  If it is, we might need to also split each mbed target cmake target
+    # into a -flags and a -sources version.
     target_link_libraries(mbed-core-flags INTERFACE ${MBED_TARGET_CMAKE_NAME}-obj)
 
     # Core Mbed OS libraries

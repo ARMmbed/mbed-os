@@ -16,6 +16,7 @@
 # limitations under the License.
 
 import os
+import sys
 from os.path import abspath, basename, dirname, splitext, isdir
 from os.path import join as path_join
 import re
@@ -50,7 +51,7 @@ def sign_and_merge_tfm_bin(target_name, target_path, non_secure_bin, secure_bin)
 
     #1. Run wrapper to sign the TF-M secure binary
     cmd = [
-        "python3",
+        sys.executable,
         path_join(MBED_OS_ROOT, "tools", "psa","tfm", "bin_utils","wrapper.py"),
         "-v",
         '1.2.0',
@@ -82,7 +83,7 @@ def sign_and_merge_tfm_bin(target_name, target_path, non_secure_bin, secure_bin)
 
     #2. Run wrapper to sign the non-secure mbed binary
     cmd = [
-        "python3",
+        sys.executable,
         path_join(MBED_OS_ROOT, "tools", "psa","tfm", "bin_utils","wrapper.py"),
         "-v",
         '1.2.0',
@@ -114,7 +115,7 @@ def sign_and_merge_tfm_bin(target_name, target_path, non_secure_bin, secure_bin)
 
     #3. Concatenate signed secure TFM and non-secure mbed binaries
     cmd = [
-        "python3",
+        sys.executable,
         path_join(MBED_OS_ROOT, "tools", "psa","tfm", "bin_utils","assemble.py"),
         "--layout",
         image_macros_s,

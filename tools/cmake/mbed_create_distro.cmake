@@ -41,6 +41,8 @@ function(mbed_create_distro NAME) # ARGN: modules...
 	set(COMPLETED_MODULES ${ARGN})
 	while(NOT "${REMAINING_MODULES}" STREQUAL "")
 
+		#message("Distro: ${NAME}.  REMAINING_MODULES: ${REMAINING_MODULES}")
+
 		list(GET REMAINING_MODULES 0 CURR_MODULE)
 
 		copy_append_property(INTERFACE_COMPILE_DEFINITIONS ${CURR_MODULE} ${NAME})
