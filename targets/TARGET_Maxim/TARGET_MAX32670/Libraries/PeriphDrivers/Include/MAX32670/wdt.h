@@ -41,7 +41,7 @@
 #define _WDT_H_
 
 #ifdef __CC_ARM 
-#pragma diag_suppress 66  // enumeration value is out of “int” range
+#pragma diag_suppress 66  // enumeration value is out of "int" range
 #endif
 
 /* **** Includes **** */
