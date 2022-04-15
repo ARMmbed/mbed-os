@@ -199,57 +199,57 @@ typedef struct e_curve_t
 /* RSA working buffer for normal mode */
 typedef struct
 {
-    uint32_t au32RsaOutput[128]; /* The RSA answer. */
-    uint32_t au32RsaN[128]; /* The base of modulus operation word. */
-    uint32_t au32RsaM[128]; /* The base of exponentiation words. */
-    uint32_t au32RsaE[128]; /* The exponent of exponentiation words. */
+    __attribute__((aligned(16))) uint32_t au32RsaOutput[128]; /* The RSA answer. */
+    __attribute__((aligned(16))) uint32_t au32RsaN[128]; /* The base of modulus operation word. */
+    __attribute__((aligned(16))) uint32_t au32RsaM[128]; /* The base of exponentiation words. */
+    __attribute__((aligned(16))) uint32_t au32RsaE[128]; /* The exponent of exponentiation words. */
 } RSA_BUF_NORMAL_T;
 
 /* RSA working buffer for CRT ( + CRT bypass) mode */
 typedef struct
 {
-    uint32_t au32RsaOutput[128]; /* The RSA answer. */
-    uint32_t au32RsaN[128]; /* The base of modulus operation word. */
-    uint32_t au32RsaM[128]; /* The base of exponentiation words. */
-    uint32_t au32RsaE[128]; /* The exponent of exponentiation words. */
-    uint32_t au32RsaP[128]; /* The Factor of Modulus Operation. */
-    uint32_t au32RsaQ[128]; /* The Factor of Modulus Operation. */
-    uint32_t au32RsaTmpCp[128]; /* The Temporary Value(Cp) of RSA CRT. */
-    uint32_t au32RsaTmpCq[128]; /* The Temporary Value(Cq) of RSA CRT. */
-    uint32_t au32RsaTmpDp[128]; /* The Temporary Value(Dp) of RSA CRT. */
-    uint32_t au32RsaTmpDq[128]; /* The Temporary Value(Dq) of RSA CRT. */
-    uint32_t au32RsaTmpRp[128]; /* The Temporary Value(Rp) of RSA CRT. */
-    uint32_t au32RsaTmpRq[128]; /* The Temporary Value(Rq) of RSA CRT. */
+    __attribute__((aligned(16))) uint32_t au32RsaOutput[128]; /* The RSA answer. */
+    __attribute__((aligned(16))) uint32_t au32RsaN[128]; /* The base of modulus operation word. */
+    __attribute__((aligned(16))) uint32_t au32RsaM[128]; /* The base of exponentiation words. */
+    __attribute__((aligned(16))) uint32_t au32RsaE[128]; /* The exponent of exponentiation words. */
+    __attribute__((aligned(16))) uint32_t au32RsaP[128]; /* The Factor of Modulus Operation. */
+    __attribute__((aligned(16))) uint32_t au32RsaQ[128]; /* The Factor of Modulus Operation. */
+    __attribute__((aligned(16))) uint32_t au32RsaTmpCp[128]; /* The Temporary Value(Cp) of RSA CRT. */
+    __attribute__((aligned(16))) uint32_t au32RsaTmpCq[128]; /* The Temporary Value(Cq) of RSA CRT. */
+    __attribute__((aligned(16))) uint32_t au32RsaTmpDp[128]; /* The Temporary Value(Dp) of RSA CRT. */
+    __attribute__((aligned(16))) uint32_t au32RsaTmpDq[128]; /* The Temporary Value(Dq) of RSA CRT. */
+    __attribute__((aligned(16))) uint32_t au32RsaTmpRp[128]; /* The Temporary Value(Rp) of RSA CRT. */
+    __attribute__((aligned(16))) uint32_t au32RsaTmpRq[128]; /* The Temporary Value(Rq) of RSA CRT. */
 } RSA_BUF_CRT_T;
 
 /* RSA working buffer for SCAP mode */
 typedef struct
 {
-    uint32_t au32RsaOutput[128]; /* The RSA answer. */
-    uint32_t au32RsaN[128]; /* The base of modulus operation word. */
-    uint32_t au32RsaM[128]; /* The base of exponentiation words. */
-    uint32_t au32RsaE[128]; /* The exponent of exponentiation words. */
-    uint32_t au32RsaP[128]; /* The Factor of Modulus Operation. */
-    uint32_t au32RsaQ[128]; /* The Factor of Modulus Operation. */
-    uint32_t au32RsaTmpBlindKey[128]; /* The Temporary Value(blind key) of RSA SCAP. */
+    __attribute__((aligned(16))) uint32_t au32RsaOutput[128]; /* The RSA answer. */
+    __attribute__((aligned(16))) uint32_t au32RsaN[128]; /* The base of modulus operation word. */
+    __attribute__((aligned(16))) uint32_t au32RsaM[128]; /* The base of exponentiation words. */
+    __attribute__((aligned(16))) uint32_t au32RsaE[128]; /* The exponent of exponentiation words. */
+    __attribute__((aligned(16))) uint32_t au32RsaP[128]; /* The Factor of Modulus Operation. */
+    __attribute__((aligned(16))) uint32_t au32RsaQ[128]; /* The Factor of Modulus Operation. */
+    __attribute__((aligned(16))) uint32_t au32RsaTmpBlindKey[128+4]; /* The Temporary Value(blind key) of RSA SCAP. */
 } RSA_BUF_SCAP_T;
 
 /* RSA working buffer for CRT ( + CRT bypass ) + SCAP mode */
 typedef struct
 {
-    uint32_t au32RsaOutput[128]; /* The RSA answer. */
-    uint32_t au32RsaN[128]; /* The base of modulus operation word. */
-    uint32_t au32RsaM[128]; /* The base of exponentiation words. */
-    uint32_t au32RsaE[128]; /* The exponent of exponentiation words. */
-    uint32_t au32RsaP[128]; /* The Factor of Modulus Operation. */
-    uint32_t au32RsaQ[128]; /* The Factor of Modulus Operation. */
-    uint32_t au32RsaTmpCp[128]; /* The Temporary Value(Cp) of RSA CRT. */
-    uint32_t au32RsaTmpCq[128]; /* The Temporary Value(Cq) of RSA CRT. */
-    uint32_t au32RsaTmpDp[128]; /* The Temporary Value(Dp) of RSA CRT. */
-    uint32_t au32RsaTmpDq[128]; /* The Temporary Value(Dq) of RSA CRT. */
-    uint32_t au32RsaTmpRp[128]; /* The Temporary Value(Rp) of RSA CRT. */
-    uint32_t au32RsaTmpRq[128]; /* The Temporary Value(Rq) of RSA CRT. */
-    uint32_t au32RsaTmpBlindKey[128]; /* The Temporary Value(blind key) of RSA SCAP. */
+    __attribute__((aligned(16))) uint32_t au32RsaOutput[128]; /* The RSA answer. */
+    __attribute__((aligned(16))) uint32_t au32RsaN[128]; /* The base of modulus operation word. */
+    __attribute__((aligned(16))) uint32_t au32RsaM[128]; /* The base of exponentiation words. */
+    __attribute__((aligned(16))) uint32_t au32RsaE[128]; /* The exponent of exponentiation words. */
+    __attribute__((aligned(16))) uint32_t au32RsaP[128]; /* The Factor of Modulus Operation. */
+    __attribute__((aligned(16))) uint32_t au32RsaQ[128]; /* The Factor of Modulus Operation. */
+    __attribute__((aligned(16))) uint32_t au32RsaTmpCp[128]; /* The Temporary Value(Cp) of RSA CRT. */
+    __attribute__((aligned(16))) uint32_t au32RsaTmpCq[128]; /* The Temporary Value(Cq) of RSA CRT. */
+    __attribute__((aligned(16))) uint32_t au32RsaTmpDp[128]; /* The Temporary Value(Dp) of RSA CRT. */
+    __attribute__((aligned(16))) uint32_t au32RsaTmpDq[128]; /* The Temporary Value(Dq) of RSA CRT. */
+    __attribute__((aligned(16))) uint32_t au32RsaTmpRp[128]; /* The Temporary Value(Rp) of RSA CRT. */
+    __attribute__((aligned(16))) uint32_t au32RsaTmpRq[128]; /* The Temporary Value(Rq) of RSA CRT. */
+    __attribute__((aligned(16))) uint32_t au32RsaTmpBlindKey[128]; /* The Temporary Value(blind key) of RSA SCAP. */
 } RSA_BUF_CRT_SCAP_T;
 
 /* RSA working buffer for using key store */

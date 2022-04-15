@@ -15,6 +15,7 @@ target_sources(mbed-mbedtls
     INTERFACE
         aes/aes_alt.c
         ecp/ecp_internal_alt.c
+        rsa/crypto_rsa_hw.c
         rsa/rsa_alt.c
         sha/sha1_alt.c
         sha/sha256_alt.c
