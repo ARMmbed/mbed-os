@@ -121,8 +121,8 @@ int semihost_rename(const char *old_name, const char *new_name)
     uint32_t args[4];
     args[0] = (uint32_t)old_name;
     args[1] = (uint32_t)strlen(old_name);
-    args[0] = (uint32_t)new_name;
-    args[1] = (uint32_t)strlen(new_name);
+    args[2] = (uint32_t)new_name;
+    args[3] = (uint32_t)strlen(new_name);
     return __semihost(SYS_RENAME, args);
 }
 #endif
