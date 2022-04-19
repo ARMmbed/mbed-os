@@ -7,8 +7,13 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+    - name: Work around https://github.com/actions/checkout/issues/766
+      run: |
+        cd "${GITHUB_WORKSPACE}" || exit 1
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install Python environment
         uses: actions/setup-python@v2
@@ -16,7 +21,7 @@ jobs:
           python-version: 3.8
 
       - name: Checkout mbed-os-scripts repo (This repo is currently private)
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: ARMmbed/mbed-os-ci-scripts
           token: ${{ secrets.ISSUE_TRIAGING_PERMS }}

@@ -35,7 +35,7 @@ jobs:
 
       -
         name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -117,7 +117,7 @@ jobs:
 
       -
         name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       -
         name: Build docker containers
@@ -164,7 +164,7 @@ jobs:
 
       -
         name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - 
         name: Find DEV DOCKER DIGEST
@@ -178,7 +178,7 @@ jobs:
       # development branch of blinky
       - 
         name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: ARMmbed/mbed-os-example-blinky
           path: mbed-os-example-blinky
