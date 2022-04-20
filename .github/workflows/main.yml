@@ -7,11 +7,6 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Work around https://github.com/actions/checkout/issues/766
-      run: |
-        cd "${GITHUB_WORKSPACE}" || exit 1
-        git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
       - name: Checkout repo
         uses: actions/checkout@v3
 

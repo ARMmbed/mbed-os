@@ -20,6 +20,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          
 
       - 
         name: install dependencies
@@ -32,7 +33,7 @@ jobs:
         run: |
           set -x
           mkdir -p SCANCODE
-          
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git diff --name-only --diff-filter=d origin/${GITHUB_BASE_REF} \
             | ( grep '.\(c\|cpp\|h\|hpp\|py\)$' || true )
           echo $?
@@ -67,6 +68,7 @@ jobs:
       - 
         name: include check
         run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           # checks mbed.h is not included in MbedOS files except in tests
           ! git grep '^#include\s["'"']mbed.h['"'"]$' -- '*.c' '*.h' '*.cpp' '*.hpp' \
               ':!*platform_mbed.h' ':!*TESTS/*' ':!TEST_APPS/' ':!UNITTESTS/' \
@@ -88,6 +90,7 @@ jobs:
       - 
         name: UTF-8 Check
         run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           # Make sure we're not introducing any text which is not UTF-8 encoded
           git diff origin/${GITHUB_BASE_REF} -U0 | ( grep -a '^+' || true ) | ( ! grep -axv '.*' )
           
@@ -96,6 +99,7 @@ jobs:
         name: astyle checks
         run: |
           set -x
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git diff --name-only --diff-filter=d origin/${GITHUB_BASE_REF} \
             | ( grep '.*\.\(c\|cpp\|h\|hpp\)$' || true ) \
             | ( grep -v -f .codecheckignore || true ) \
@@ -192,6 +196,7 @@ jobs:
         name: validate pins
         run: |
           set -x
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git diff --name-only --diff-filter=d origin/${GITHUB_BASE_REF} \
             | ( grep '.*[\\|\/]PinNames.h$' || true ) \
             | while read file; do python ./hal/tests/pinvalidate/pinvalidate.py -vvvfp "${file}"; done
@@ -245,6 +250,7 @@ jobs:
           name: frozen tool check
           run: |
               set -x
+              git config --global --add safe.directory "$GITHUB_WORKSPACE"
               git diff --name-only origin/${GITHUB_BASE_REF} \
                       | egrep \
                         -e "^tools/build_api*" \
