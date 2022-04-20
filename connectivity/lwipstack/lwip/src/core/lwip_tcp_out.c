@@ -2002,7 +2002,7 @@ tcp_rst(const struct tcp_pcb *pcb, u32_t seqno, u32_t ackno,
     LWIP_DEBUGF(TCP_DEBUG, ("tcp_rst: could not allocate memory for pbuf\n"));
     return;
   }
-  tcp_output_fill_options(pcb, p, 0, optlen);
+  tcp_output_fill_options(pcb, p, 0, 0);
 
   MIB2_STATS_INC(mib2.tcpoutrsts);
 
@@ -2096,7 +2096,7 @@ tcp_keepalive(struct tcp_pcb *pcb)
                 ("tcp_keepalive: could not allocate memory for pbuf\n"));
     return ERR_MEM;
   }
-  tcp_output_fill_options(pcb, p, 0, optlen);
+  tcp_output_fill_options(pcb, p, 0, 0);
   err = tcp_output_control_segment(pcb, p, &pcb->local_ip, &pcb->remote_ip);
 
   LWIP_DEBUGF(TCP_DEBUG, ("tcp_keepalive: seqno %"U32_F" ackno %"U32_F" err %d.\n",
@@ -2178,7 +2178,7 @@ tcp_zero_window_probe(struct tcp_pcb *pcb)
   if (TCP_SEQ_LT(pcb->snd_nxt, snd_nxt)) {
     pcb->snd_nxt = snd_nxt;
   }
-  tcp_output_fill_options(pcb, p, 0, optlen);
+  tcp_output_fill_options(pcb, p, 0, 0);
 
   err = tcp_output_control_segment(pcb, p, &pcb->local_ip, &pcb->remote_ip);
 
