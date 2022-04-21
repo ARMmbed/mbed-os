@@ -377,6 +377,7 @@ int BufferedSerial::enable_output(bool enabled)
     return 0;
 }
 
+/* inherited from superclass to make send_break() public */
 void BufferedSerial::send_break() 
 {
     api_lock();
