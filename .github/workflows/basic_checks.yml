@@ -158,7 +158,7 @@ jobs:
         name: install dependencies
         run: |
           pip install -r requirements.txt
-          pip install mock==2.0.0 attrs==19.1.0 pytest==3.3.0 'pylint>=1.9,<2' 'hypothesis>=3,<4' 'coverage>=4.5,<5'
+          pip install mock==2.0.0 attrs==19.1.0 pytest==3.3.0 'pylint>=1.9,<2' 'hypothesis>=3,<4' 'coverage>=4.5,<5' MarkupSafe==2.0.1
       -
         name: pytest
         run: |
