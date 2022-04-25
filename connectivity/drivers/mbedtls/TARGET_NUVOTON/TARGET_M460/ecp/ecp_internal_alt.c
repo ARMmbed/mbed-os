@@ -16,11 +16,7 @@
  * limitations under the License.
  */
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "mbedtls/config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "mbedtls/common.h"
 
 /* Some internal functions are used for Nuvoton internal self-test.
  * Remove the static modifier for self-test compile. */
@@ -39,17 +35,6 @@
 #include <string.h>
 
 #if !defined(MBEDTLS_ECP_ALT)
-
-#if defined(MBEDTLS_PLATFORM_C)
-#include "mbedtls/platform.h"
-#else
-#include <stdlib.h>
-#include <stdio.h>
-#define mbedtls_printf     printf
-#define mbedtls_calloc    calloc
-#define mbedtls_free       free
-#endif
-
 #if defined(MBEDTLS_ECP_INTERNAL_ALT)
 
 #include "mbedtls/platform.h"
@@ -60,63 +45,8 @@
 #include "mbed_toolchain.h"
 #include "nu_bitutil.h"
 #include "crypto-misc.h"
-
-/* Max key size supported */
-#define NU_ECC_MAXKEYBITS           571
-/* Max ECC big-number words */
-#define NU_ECC_BIGNUM_MAXWORD       18
-/* words in limb  */
-#define wiL                         (sizeof (mbedtls_mpi_uint) / sizeof (uint32_t))
-/* Min MPI limbs for ECC big-number */
-#define NU_ECC_BIGNUM_MINLIMB       (NU_ECC_BIGNUM_MAXWORD / wiL)
-
-/*
- * Convert between words and number of limbs
- * Divide first in order to avoid potential overflows
- */
-#define WORDS_TO_LIMBS(i) ( (i) / wiL + ( (i) % wiL != 0 ) )
-
-
-#define ECCOP_POINT_MUL     (0x0UL << CRPT_ECC_CTL_ECCOP_Pos)
-#define ECCOP_MODULE        (0x1UL << CRPT_ECC_CTL_ECCOP_Pos)
-#define ECCOP_POINT_ADD     (0x2UL << CRPT_ECC_CTL_ECCOP_Pos)
-#define ECCOP_POINT_DOUBLE  (0x3UL << CRPT_ECC_CTL_ECCOP_Pos)
-
-#define MODOP_DIV           (0x0UL << CRPT_ECC_CTL_MODOP_Pos)
-#define MODOP_MUL           (0x1UL << CRPT_ECC_CTL_MODOP_Pos)
-#define MODOP_ADD           (0x2UL << CRPT_ECC_CTL_MODOP_Pos)
-#define MODOP_SUB           (0x3UL << CRPT_ECC_CTL_MODOP_Pos)
-
-/**
- * \brief           Check if MPI has been normalized
- *
- * \param N         Input MPI which is to check
- * \param P         Prime modulus
- *
- * \return          0 if not normalized,
- *                  1 if normalized
- */
-#define INTERNAL_MPI_IS_NORM(N, P)                          \
-    ((mbedtls_mpi_cmp_int(&N, 0) >= 0) && (mbedtls_mpi_cmp_mpi(&N, &P) < 0))
-  
-        
-/**
- * \brief           Normalize MPI if it is not normalized yet
- *
- * \param R         Holds pointer to normalized MPI (N1 or N2)
- * \param N1        Input MPI which is to normalize
- * \param N2        Output MPI which holds normalized N1 if N1 is not normalized yet
- * \param P         Prime modulus
- */
-#define INTERNAL_MPI_NORM(R, N1, N2, P)                     \
-    do {                                                            \
-        if (INTERNAL_MPI_IS_NORM(N1, P)) {                  \
-            *R = &N1;                                               \
-        } else {                                                    \
-            MBEDTLS_MPI_CHK(mbedtls_mpi_mod_mpi(&N2, &N1, &P));     \
-            *R = &N2;                                               \
-        }                                                           \
-    } while(0)
+#include "crypto_ecc_hw.h"
+#include "ecp_helper.h"
 
 /**
  * \brief           Normalize Jacobian coordinates or Montgomery x/z coordinates, dependent on curve type.
@@ -132,99 +62,43 @@ NU_STATIC int internal_ecp_normalize(const mbedtls_ecp_group *grp,
                                      mbedtls_ecp_point *pt);
 
 /**
- * \brief           Configure ECCOP operation, start it, and wait for its completion
- *
- * \param grp       ECP group
- * \param R         Destination point
- * \param m         Integer by which to multiply P
- * \param P         Point to multiply by m
- * \param n         Integer by which to multiply Q
- * \param Q         Point to be multiplied by n
- * \param eccop     ECCOP code. Could be ECCOP_POINT_MUL/ADD/DOUBLE
- *                  Dependent on passed-in eccop, only partial parameters among m/P/n/Q are needed and checked.
- *                  ECCOP_POINT_MUL     R = m*P
- *                  ECCOP_POINT_ADD     R = P + Q
- *                  ECCOP_POINT_DOUBLE  R = 2*P
- *
- * \return          0 if successful
- *
- * \note            P/Q must be normalized (= affine). R would be normalized.
- *
- * \note            m/n could be negative.
- *
- * \note            ECC accelerator doesn't support R = 0, and we need to detect it additionally.
- *                  For R = P + Q or R = 2*P, we can detect all R = 0 cases.
- *                  For R = m*P, we can detect all R = 0 cases only if grp->N (order) is a prime.
- *
- * \note            According to ECCOP operation, n is unnecessary. But to be consistent with R = m*P + n*Q,
- *                  n is kept with unused modifier.
- *                  
+ * \note            See \c crypto_ecc_run_eccop.                  
  */
 NU_STATIC int internal_run_eccop(const mbedtls_ecp_group *grp,
-                                    mbedtls_ecp_point *R,
-                                    const mbedtls_mpi *m,
-                                    const mbedtls_ecp_point *P,
-                                    MBED_UNUSED const mbedtls_mpi *n,
-                                    const mbedtls_ecp_point *Q,
-                                    uint32_t eccop);
+                                 mbedtls_ecp_point *R,
+                                 const mbedtls_mpi *m,
+                                 const mbedtls_ecp_point *P,
+                                 const mbedtls_mpi *n,
+                                 const mbedtls_ecp_point *Q,
+                                 uint32_t eccop);
 
 /**
- * \brief           Configure MODOP operation and wait for its completion
- *
- * \param r         Destination MPI
- * \param o1        Input MPI for first operand of MODOP
- * \param o2        Input MPI for second operand of MODOP
- * \param p         Prime modulus
- * \param pbits     Bit number of p
- * \param modop     ECCOP code. Could be MODOP_ADD/SUB/MUL/DIV
- *                  MODOP_ADD       r = o1 + o2 mod p
- *                  MODOP_SUB       r = o1 - o2 mod p
- *                  MODOP_MUL       r = o1 * o2 mod p
- *                  MODOP_DIV       r = o1 / o2 mod p
- *
- * \return          0 if successful
- *
- * \note            o1/o2 must be normalized (within [0, p - 1]). r would be normalized.
+ * \note            See \c crypto_ecc_run_modop.                  
  */
 NU_STATIC int internal_run_modop(mbedtls_mpi *r,
-                                    const mbedtls_mpi *o1,
-                                    const mbedtls_mpi *o2,
-                                    const mbedtls_mpi *p,
-                                    uint32_t pbits,
-                                    uint32_t modop);
+                                 const mbedtls_mpi *o1,
+                                 const mbedtls_mpi *o2,
+                                 const mbedtls_mpi *p,
+                                 uint32_t pbits,
+                                 uint32_t modop);
 
 /**
- * \brief               Import X from ECC registers, little endian
- *
- * \param X             Destination MPI
- * \param eccreg        Start of input ECC register
- * \param eccreg_num    Number of input ECC register
- *
- * \return              0 if successful
- *
- * \note                Destination MPI is always non-negative.
+ * \note            See \c crypto_ecc_mpi_read_eccreg.                  
  */
 NU_STATIC int internal_mpi_read_eccreg( mbedtls_mpi *X, const volatile uint32_t *eccreg, size_t eccreg_num );
 
 /**
- * \brief               Export X into ECC registers, little endian
- *
- * \param X             Source MPI
- * \param eccreg        Start of ECC output registers
- * \param eccreg_num    Number of ECC output registers
- *
- * \return              0 if successful
- *
- * \note                Source MPI cannot be negative.
- * \note                Fills the remaining MSB ECC registers with zeros if X doesn't cover all.
+ * \note            See \c crypto_ecc_mpi_write_eccreg.                  
  */
 NU_STATIC int internal_mpi_write_eccreg( const mbedtls_mpi *X, volatile uint32_t *eccreg, size_t eccreg_num );
 
 unsigned char mbedtls_internal_ecp_grp_capable( const mbedtls_ecp_group *grp )
 {
-    /* Support types
-     * 1. Short Weierstrass
-     * 2. Montgomery */
+    /* Curve types
+     *
+     * - Short Weierstrass
+     * - Montgomery
+     */
     mbedtls_ecp_curve_type curve_type = mbedtls_ecp_get_type(grp);
     if (curve_type == MBEDTLS_ECP_TYPE_SHORT_WEIERSTRASS ||
         curve_type == MBEDTLS_ECP_TYPE_MONTGOMERY) {
@@ -236,38 +110,12 @@ unsigned char mbedtls_internal_ecp_grp_capable( const mbedtls_ecp_group *grp )
 
 int mbedtls_internal_ecp_init( const mbedtls_ecp_group *grp )
 {
-    /* Behavior of mbedtls_internal_ecp_init()/mbedtls_internal_ecp_free()
-     *
-     * mbedtls_internal_ecp_init()/mbedtls_internal_ecp_free() are like pre-op/post-op calls
-     * and they guarantee:
-     *
-     * 1. Paired
-     * 2. No overlapping
-     * 3. Upper public function cannot return when ECP alter. is still activated.
-     */
-    
-    /* Acquire ownership of ECC accelerator */
-    crypto_ecc_acquire();
-    
-    /* Initialize crypto module */
-    crypto_init();
-    
-    /* Enable ECC interrupt */
-    ECC_ENABLE_INT(CRPT);
-
-    return 0;
+    return crypto_ecc_init( grp );
 }
 
 void mbedtls_internal_ecp_free( const mbedtls_ecp_group *grp )
 {
-    /* Disable ECC interrupt */
-    ECC_DISABLE_INT(CRPT);
-
-    /* Uninit crypto module */
-    crypto_uninit();
-
-    /* Release ownership of ECC accelerator */
-    crypto_ecc_release();
+    crypto_ecc_free( grp );
 }
 
 #if defined(MBEDTLS_ECP_SHORT_WEIERSTRASS_ENABLED)
@@ -482,7 +330,7 @@ int mbedtls_internal_ecp_normalize_jac( const mbedtls_ecp_group *grp,
     mbedtls_mpi_init(&Zi);
     mbedtls_mpi_init(&ZZi);
 
-    /* Use INTERNAL_MPI_NORM(Np, N1, N_, P) to get normalized MPI
+    /* Use ECP_HELPER_MPI_NORM(Np, N1, N_, P) to get normalized MPI
      *
      * N_: Holds normalized MPI if the passed-in MPI N1 is not
      * Np: Pointer to normalized MPI, which could be N1 or N_
@@ -490,18 +338,18 @@ int mbedtls_internal_ecp_normalize_jac( const mbedtls_ecp_group *grp,
 
     /* Zi = 1 / Z */
     mbedtls_mpi_lset(&Zi, 1);
-    INTERNAL_MPI_NORM(&Np, pt->Z, N, grp->P);
+    ECP_HELPER_MPI_NORM(&Np, pt->Z, N, grp->P);
     MBEDTLS_MPI_CHK(internal_run_modop(&Zi, &Zi, Np, &grp->P, grp->pbits, MODOP_DIV));
 
     /* ZZi = 1 / Z^2 = Zi * Zi */
     MBEDTLS_MPI_CHK(internal_run_modop(&ZZi, &Zi, &Zi, &grp->P, grp->pbits, MODOP_MUL));
 
     /* X = X / Z^2 = X * ZZi */
-    INTERNAL_MPI_NORM(&Np, pt->X, N, grp->P);
+    ECP_HELPER_MPI_NORM(&Np, pt->X, N, grp->P);
     MBEDTLS_MPI_CHK(internal_run_modop(&pt->X, Np, &ZZi, &grp->P, grp->pbits, MODOP_MUL));
 
     /* Y = Y / Z^3 = Y * ZZi * Zi */
-    INTERNAL_MPI_NORM(&Np, pt->Y, N, grp->P);
+    ECP_HELPER_MPI_NORM(&Np, pt->Y, N, grp->P);
     MBEDTLS_MPI_CHK(internal_run_modop(&pt->Y, Np, &ZZi, &grp->P, grp->pbits, MODOP_MUL));
     MBEDTLS_MPI_CHK(internal_run_modop(&pt->Y, &pt->Y, &Zi, &grp->P, grp->pbits, MODOP_MUL));
 
@@ -699,7 +547,7 @@ int mbedtls_internal_ecp_normalize_mxz( const mbedtls_ecp_group *grp,
     mbedtls_mpi_init(&N);
     mbedtls_mpi_init(&Zi);
 
-    /* Use INTERNAL_MPI_NORM(Np, N1, N_, P) to get normalized MPI
+    /* Use ECP_HELPER_MPI_NORM(Np, N1, N_, P) to get normalized MPI
      *
      * N_: Holds normalized MPI if the passed-in MPI N1 is not
      * Np: Pointer to normalized MPI, which could be N1 or N_
@@ -707,11 +555,11 @@ int mbedtls_internal_ecp_normalize_mxz( const mbedtls_ecp_group *grp,
 
     /* Zi = 1 / Z */
     mbedtls_mpi_lset(&Zi, 1);
-    INTERNAL_MPI_NORM(&Np, pt->Z, N, grp->P);
+    ECP_HELPER_MPI_NORM(&Np, pt->Z, N, grp->P);
     MBEDTLS_MPI_CHK(internal_run_modop(&Zi, &Zi, Np, &grp->P, grp->pbits, MODOP_DIV));
 
     /* X = X / Z = X * Zi */
-    INTERNAL_MPI_NORM(&Np, pt->X, N, grp->P);
+    ECP_HELPER_MPI_NORM(&Np, pt->X, N, grp->P);
     MBEDTLS_MPI_CHK(internal_run_modop(&pt->X, Np, &Zi, &grp->P, grp->pbits, MODOP_MUL));
 
     /* Z = 1 */
@@ -745,208 +593,11 @@ NU_STATIC int internal_run_eccop(const mbedtls_ecp_group *grp,
                                     mbedtls_ecp_point *R,
                                     const mbedtls_mpi *m,
                                     const mbedtls_ecp_point *P,
-                                    MBED_UNUSED const mbedtls_mpi *n,
+                                    const mbedtls_mpi *n,
                                     const mbedtls_ecp_point *Q,
                                     uint32_t eccop)
 {
-    /* Check necessary arguments for all ECC operations */
-    if (grp == NULL || R == NULL) {
-        return MBEDTLS_ERR_ECP_BAD_INPUT_DATA;
-    }
-
-    /* Check grp->P is positive */
-    if (mbedtls_mpi_cmp_int(&grp->P, 0) <= 0) {
-        return MBEDTLS_ERR_ECP_BAD_INPUT_DATA;
-    }
-
-    /* Check supported maximum key bits */
-    if (grp->pbits > NU_ECC_MAXKEYBITS) {
-        return MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED;
-    }
-
-    int ret = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED;
-    bool ecc_done;
-
-    mbedtls_mpi N_;
-    const mbedtls_mpi *Np;
-
-    mbedtls_mpi_init(&N_);
-
-    /* Use INTERNAL_MPI_NORM(Np, N1, N_, P) to get normalized MPI
-     *
-     * N_: Holds normalized MPI if the passed-in MPI N1 is not
-     * Np: Pointer to normalized MPI, which could be N1 or N_
-     */
-
-    /* Check necessary arguments and handle special cases for specified ECC operation 
-     *
-     * ECCOP_POINT_MUL      R = m*P
-     * ECCOP_POINT_ADD      R = P + Q
-     * ECCOP_POINT_DOUBLE   R = 2*P
-     *
-     * ECC accelerator doesn't support R = 0, and we need to detect it.
-     */
-    if (eccop == ECCOP_POINT_MUL) {
-        /* R = m*P */
-        if (m == NULL || P == NULL) {
-            ret = MBEDTLS_ERR_ECP_BAD_INPUT_DATA;
-            goto cleanup;
-        }
-
-         /* R = 0*P = 0 or R = P = 0 */
-        if (mbedtls_mpi_cmp_int(m, 0) == 0 || mbedtls_mpi_cmp_int(&P->Z, 0) == 0) {
-            ret = mbedtls_ecp_set_zero(R);
-            goto cleanup;
-        }
-
-        /* R = 1*P */
-        if (mbedtls_mpi_cmp_int(m, 1) == 0) {
-            MBEDTLS_MPI_CHK(mbedtls_ecp_copy(R, P));
-            MBEDTLS_MPI_CHK(internal_ecp_normalize(grp, R));
-            goto cleanup;
-        }
-
-        /* R = m*P = (multiple of order)*G = 0 */
-        /* NOTE: If grp->N (order) is a prime, we could detect R = 0 for all m*P cases
-         *       by just checking if m is a multiple of grp->N. Otherwise, sigh. */
-        /* TODO: Find an approach to detecting R = 0 for all m*P cases */
-        INTERNAL_MPI_NORM(&Np, *m, N_, grp->N);
-        if (mbedtls_mpi_cmp_int(Np, 0) == 0) {
-            MBEDTLS_MPI_CHK(mbedtls_ecp_set_zero(R));
-            goto cleanup;
-        }
-    } else if (eccop == ECCOP_POINT_ADD) {
-        /* R = P + Q */
-        if (P == NULL || Q == NULL) {
-            ret = MBEDTLS_ERR_ECP_BAD_INPUT_DATA;
-            goto cleanup;
-        }
-
-        /* R = 0 + Q = Q */
-        if (mbedtls_mpi_cmp_int(&P->Z, 0) == 0) {
-            MBEDTLS_MPI_CHK(mbedtls_ecp_copy(R, Q));
-            MBEDTLS_MPI_CHK(internal_ecp_normalize(grp, R));
-            goto cleanup;
-        }
-
-        /* R = P + 0 = P */
-        if (mbedtls_mpi_cmp_int(&Q->Z, 0) == 0) {
-            MBEDTLS_MPI_CHK(mbedtls_ecp_copy(R, P));
-            MBEDTLS_MPI_CHK(internal_ecp_normalize(grp, R));
-            goto cleanup;
-        }
-
-        /* R = P + Q = P + (-P) = 0 */
-        MBEDTLS_MPI_CHK(internal_run_modop(&N_, &P->Y, &Q->Y, &grp->P, grp->pbits, MODOP_ADD));
-        if (mbedtls_mpi_cmp_int(&N_, 0) == 0) {
-            MBEDTLS_MPI_CHK(mbedtls_ecp_set_zero(R));
-            goto cleanup;
-        }
-    } else if (eccop == ECCOP_POINT_DOUBLE) {
-        /* R = 2*P */
-        if (P == NULL) {
-            ret = MBEDTLS_ERR_ECP_BAD_INPUT_DATA;
-            goto cleanup;
-        }
-
-        /* R = 2*0 = 0 */
-        if (mbedtls_mpi_cmp_int(&P->Z, 0) == 0) {
-            MBEDTLS_MPI_CHK(mbedtls_ecp_set_zero(R));
-            goto cleanup;
-        }
-
-        /* R = 2*P = P + P = P + (-P) = 0 */
-        MBEDTLS_MPI_CHK(internal_run_modop(&N_, &P->Y, &P->Y, &grp->P, grp->pbits, MODOP_ADD));
-        if (mbedtls_mpi_cmp_int(&N_, 0) == 0) {
-            MBEDTLS_MPI_CHK(mbedtls_ecp_set_zero(R));
-            goto cleanup;
-        }
-    } else {
-        ret = MBEDTLS_ERR_ECP_BAD_INPUT_DATA;
-        goto cleanup;
-    }
-
-    /* Configure ECC curve coefficients A/B */
-    /* Special case for A = -3 */
-    if (grp->A.p == NULL) {
-        MBEDTLS_MPI_CHK(mbedtls_mpi_lset(&N_, -3));
-        INTERNAL_MPI_NORM(&Np, N_, N_, grp->P);
-    } else {
-        INTERNAL_MPI_NORM(&Np, grp->A, N_, grp->P);
-    }
-    MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_A, NU_ECC_BIGNUM_MAXWORD));
-    INTERNAL_MPI_NORM(&Np, grp->B, N_, grp->P);
-    MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_B, NU_ECC_BIGNUM_MAXWORD));
-
-    /* Configure ECC prime modulus */ 
-    MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(&grp->P, (uint32_t *) CRPT->ECC_N, NU_ECC_BIGNUM_MAXWORD));
-
-    /* Configure ECC scalar for point multiplication 
-     *
-     * Normalize m to within [1, order - 1] which ECCOP_POINT_MUL supports
-     * Special cases R = 0 should have been detected out above.
-     */
-    if (eccop == ECCOP_POINT_MUL) {
-        INTERNAL_MPI_NORM(&Np, *m, N_, grp->N);
-        MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_K, NU_ECC_BIGNUM_MAXWORD));
-    }
-
-    /* Configure ECC point (X1, Y1) */
-    INTERNAL_MPI_NORM(&Np, P->X, N_, grp->P);
-    MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_X1, NU_ECC_BIGNUM_MAXWORD));
-    INTERNAL_MPI_NORM(&Np, P->Y, N_, grp->P);
-    MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_Y1, NU_ECC_BIGNUM_MAXWORD));
-
-    /* Configure ECC points (X2, Y2) */
-    if (eccop == ECCOP_POINT_ADD) {
-        INTERNAL_MPI_NORM(&Np, Q->X, N_, grp->P);
-        MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_X2, NU_ECC_BIGNUM_MAXWORD));
-        INTERNAL_MPI_NORM(&Np, Q->Y, N_, grp->P);
-        MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_Y2, NU_ECC_BIGNUM_MAXWORD));
-    }
-
-    /* ECC curve type */
-    mbedtls_ecp_curve_type curve_type = mbedtls_ecp_get_type(grp);
-    uint32_t curve_sel = 0;
-    switch (curve_type) {
-    case MBEDTLS_ECP_TYPE_SHORT_WEIERSTRASS:
-        curve_sel = 0;                      // Short Weierstrass
-        break;
-
-    case MBEDTLS_ECP_TYPE_MONTGOMERY:
-        curve_sel = CRPT_ECC_CTL_CSEL_Msk;  // Montgomery
-        break;
-
-    default:
-        ret = MBEDTLS_ERR_ECP_BAD_INPUT_DATA;
-        goto cleanup;
-    }
-
-    /* Configure for point operation */
-    uint32_t ecc_ctl = 0 |
-        CRPT_ECC_CTL_START_Msk |                    // Start
-        CRPT_ECC_CTL_FSEL_Msk |                     // Prime field (GF(p))
-        eccop |                                     // Point operation
-        curve_sel |                                 // Curve selection
-        (grp->pbits << CRPT_ECC_CTL_CURVEM_Pos) |   // Key length of elliptic curve
-        0;
-
-    crypto_ecc_prestart();
-    CRPT->ECC_CTL = ecc_ctl;
-    ecc_done = crypto_ecc_wait();
-
-    MBEDTLS_MPI_CHK(ecc_done ? 0 : MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED);
-
-    /* (X1, Y1) hold the normalized result. */
-    MBEDTLS_MPI_CHK(internal_mpi_read_eccreg(&R->X, (uint32_t *) CRPT->ECC_X1, NU_ECC_BIGNUM_MAXWORD));
-    MBEDTLS_MPI_CHK(internal_mpi_read_eccreg(&R->Y, (uint32_t *) CRPT->ECC_Y1, NU_ECC_BIGNUM_MAXWORD));
-    MBEDTLS_MPI_CHK(mbedtls_mpi_lset(&R->Z, 1));
-
-cleanup:
-
-    mbedtls_mpi_free(&N_);
-
-    return ret;
+    return crypto_ecc_run_eccop( grp, R, m, P, n, Q, eccop, false );
 }
 
 NU_STATIC int internal_run_modop(mbedtls_mpi *r,
@@ -956,157 +607,17 @@ NU_STATIC int internal_run_modop(mbedtls_mpi *r,
                                     uint32_t pbits,
                                     uint32_t modop)
 {
-    if (r == NULL || 
-        o1 == NULL ||
-        o2 == NULL ||
-        p == NULL) {
-        return MBEDTLS_ERR_ECP_BAD_INPUT_DATA;
-    }
-
-    /* Check o1/o2 are not negative */
-    if (mbedtls_mpi_cmp_int(o1, 0) < 0 ||
-        mbedtls_mpi_cmp_int(o2, 0) < 0) {
-        return MBEDTLS_ERR_MPI_NEGATIVE_VALUE;
-    }
-
-    /* Check p is positive */
-    if (mbedtls_mpi_cmp_int(p, 0) <= 0) {
-        return MBEDTLS_ERR_ECP_BAD_INPUT_DATA;
-    }
-
-    /* Check supported maximum key bits */
-    if (pbits > NU_ECC_MAXKEYBITS) {
-        return MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED;
-    }
-
-    /* Check MODOP operations are legal */
-    if (modop != MODOP_DIV &&
-        modop != MODOP_MUL &&
-        modop != MODOP_ADD &&
-        modop != MODOP_SUB) {
-        return MBEDTLS_ERR_ECP_BAD_INPUT_DATA;
-    }
-
-    /* Check divisor is not zero in MODOP_DIV operation */
-    if (modop == MODOP_DIV && mbedtls_mpi_cmp_int(o2, 0) == 0) {
-        return MBEDTLS_ERR_ECP_BAD_INPUT_DATA;
-    }
-
-    int ret = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED;
-    bool ecc_done;
-
-    mbedtls_mpi N_;
-    const mbedtls_mpi *Np;
-
-    mbedtls_mpi_init(&N_);
-
-    /* Use INTERNAL_MPI_NORM(Np, N1, N_, P) to get normalized MPI
-     *
-     * N_: Holds normalized MPI if the passed-in MPI N1 is not
-     * Np: Pointer to normalized MPI, which could be N1 or N_
-     */
-
-    if (modop == MODOP_MUL ||
-        modop == MODOP_ADD ||
-        modop == MODOP_SUB) {
-        INTERNAL_MPI_NORM(&Np, *o1, N_, *p);
-        MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_X1, NU_ECC_BIGNUM_MAXWORD));
-        INTERNAL_MPI_NORM(&Np, *o2, N_, *p);
-        MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_Y1, NU_ECC_BIGNUM_MAXWORD));
-    } else if (modop == MODOP_DIV) {
-        INTERNAL_MPI_NORM(&Np, *o2, N_, *p);
-        MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_X1, NU_ECC_BIGNUM_MAXWORD));
-        INTERNAL_MPI_NORM(&Np, *o1, N_, *p);
-        MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_Y1, NU_ECC_BIGNUM_MAXWORD));
-    } else {
-        MBEDTLS_MPI_CHK(MBEDTLS_ERR_ECP_BAD_INPUT_DATA);
-    }
-
-    MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(p, (uint32_t *) CRPT->ECC_N, NU_ECC_BIGNUM_MAXWORD));
-
-    /* Configure for modulus operation */
-    uint32_t ecc_ctl = 0 |
-        CRPT_ECC_CTL_START_Msk |                    // Start
-        CRPT_ECC_CTL_FSEL_Msk |                     // Prime field (GF(p))
-        ECCOP_MODULE |                              // No point operation
-        modop |                                     // Modulus operation
-        (pbits << CRPT_ECC_CTL_CURVEM_Pos) |        // Key length of elliptic curve
-        0;
-
-    crypto_ecc_prestart();
-    CRPT->ECC_CTL = ecc_ctl;
-    ecc_done = crypto_ecc_wait();
-
-    MBEDTLS_MPI_CHK(ecc_done ? 0 : MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED);
-
-    /* X1 holds the result. */
-    MBEDTLS_MPI_CHK(internal_mpi_read_eccreg(r, (uint32_t *) CRPT->ECC_X1, NU_ECC_BIGNUM_MAXWORD));
-
-cleanup:
-
-    mbedtls_mpi_free(&N_);
-
-    return ret;
+    return crypto_ecc_run_modop( r, o1, o2, p, pbits, modop );
 }
 
 NU_STATIC int internal_mpi_read_eccreg(mbedtls_mpi *x, const volatile uint32_t *eccreg, size_t eccreg_num)
 {
-    if (x == NULL) {
-        return MBEDTLS_ERR_MPI_BAD_INPUT_DATA;
-    }
-    
-    int ret = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED;
-    size_t i, n;
-
-    for (n = eccreg_num; n > 0; n --) {
-        if (eccreg[n - 1] != 0) {
-            break;
-        }
-    }
-    
-    MBEDTLS_MPI_CHK(mbedtls_mpi_lset(x, 0));
-    MBEDTLS_MPI_CHK(mbedtls_mpi_grow(x, WORDS_TO_LIMBS(n)));
-
-    for (i = 0; i < n; i ++) {
-        x->p[i / wiL] |= ((mbedtls_mpi_uint) eccreg[i]) << ((i % wiL) << 5);
-    }
-
-cleanup:
-
-    return ret;
+    return crypto_ecc_mpi_read_eccreg( x, eccreg, eccreg_num);
 }
 
 NU_STATIC int internal_mpi_write_eccreg( const mbedtls_mpi *x, volatile uint32_t *eccreg, size_t eccreg_num )
 {
-    if (x == NULL) {
-        return MBEDTLS_ERR_MPI_BAD_INPUT_DATA;
-    }
-    
-    if (mbedtls_mpi_cmp_int(x, 0) < 0) {
-        return MBEDTLS_ERR_MPI_NEGATIVE_VALUE;
-    }
-    
-    size_t i, n;
-
-    /* How many words needed? */
-    n = (mbedtls_mpi_size(x) + sizeof (uint32_t) - 1) / sizeof (uint32_t);
-
-    if (eccreg_num < n) {
-        return MBEDTLS_ERR_MPI_BUFFER_TOO_SMALL;
-    }
-
-    /* Fill non-zero part */
-    for (i = 0; i < n; i ++) {
-        eccreg[i] = (uint32_t) (x->p[i / wiL] >> ((i % wiL) << 5));
-    }
-    
-    /* Zeroize remaining part
-     *
-     * crypto_zeroize32() has excluded optimization doubt, so we can safely set H/W registers to 0 via it.
-     */
-    crypto_zeroize32((uint32_t *) eccreg + n, eccreg_num - n);
-    
-    return 0;
+    return crypto_ecc_mpi_write_eccreg( x, eccreg, eccreg_num );
 }
 
 #endif /* MBEDTLS_ECP_INTERNAL_ALT */

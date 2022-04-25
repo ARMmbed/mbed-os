@@ -27,17 +27,25 @@
 #define MBEDTLS_GCM_ALT
 #define MBEDTLS_CCM_ALT
 
+#define MBEDTLS_ECP_ALT
+
+#if !defined(MBEDTLS_ECP_ALT)
+
 #define MBEDTLS_ECP_INTERNAL_ALT
+
 /* Support for Weierstrass curves with Jacobi representation */
 #define MBEDTLS_ECP_RANDOMIZE_JAC_ALT
 #define MBEDTLS_ECP_ADD_MIXED_ALT
 #define MBEDTLS_ECP_DOUBLE_JAC_ALT
 #define MBEDTLS_ECP_NORMALIZE_JAC_ALT
 #define MBEDTLS_ECP_NORMALIZE_JAC_MANY_ALT
+
 /* Support for curves with Montgomery arithmetic */
 //#define MBEDTLS_ECP_DOUBLE_ADD_MXZ_ALT
 #define MBEDTLS_ECP_RANDOMIZE_MXZ_ALT
 #define MBEDTLS_ECP_NORMALIZE_MXZ_ALT
+
+#endif  /* !MBEDTLS_ECP_ALT */
 
 #define MBEDTLS_RSA_ALT
 

@@ -15,6 +15,10 @@ target_include_directories(mbed-mbedtls
 target_sources(mbed-mbedtls
     INTERFACE
         aes/aes_alt.c
+        ecp/crypto_ecc_hw.c
+        ecp/ecp_alt.c
+        ecp/ecp_curves_alt.c
+        ecp/ecp_helper.c
         ecp/ecp_internal_alt.c
         rsa/crypto_rsa_hw.c
         rsa/rsa_alt.c
