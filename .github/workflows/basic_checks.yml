@@ -18,16 +18,17 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - 
-        name: license check 
+      -
+        name: license check
         run: |
           set -x
           mkdir -p SCANCODE
-          
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
           git diff --name-only --diff-filter=d origin/${GITHUB_BASE_REF} \
             | ( grep '.\(c\|cpp\|h\|hpp\|py\)$' || true )
           echo $?
@@ -56,11 +57,12 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - 
+      -
         name: "include check"
         run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           ! git grep '^#include\s["'"']mbed.h['"'"]$' -- '*.c' '*.h' '*.cpp' '*.hpp' \
               ':!*platform_mbed.h' ':!*TESTS/*' ':!TEST_APPS/' ':!UNITTESTS/' \
               ':!*tests/*' ':!*targets/*' ':!*TARGET_*' ':!*unsupported/*'
@@ -72,9 +74,9 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - 
+      -
         name: spell checks
         run: |
           ./tools/test/ci/doxy-spellchecker/spell.sh drivers
@@ -83,7 +85,7 @@ jobs:
           ./tools/test/ci/doxy-spellchecker/spell.sh rtos
           ./tools/test/ci/doxy-spellchecker/spell.sh connectivity/netsocket
 
-      - 
+      -
         name: doxygen
         run: |
           mkdir BUILD
@@ -104,7 +106,7 @@ jobs:
           # that do end with .s
           find  -name "*.s" | tee BUILD/badasm |
           sed -e "s/^/Bad Assembler file name found: /" && [ ! -s BUILD/badasm ]
-  
+
 
   style-check:
     runs-on: ubuntu-latest
@@ -113,22 +115,24 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - 
+      -
         name: astyle checks
         run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git diff --name-only --diff-filter=d origin/${GITHUB_BASE_REF} \
             | ( grep '.*\.\(c\|cpp\|h\|hpp\)$' || true ) \
             | ( grep -v -f .astyleignore || true ) \
             | while read file; do astyle -n --options=.astylerc "${file}"; done
           git diff --exit-code --diff-filter=d --color
 
-      - 
+      -
         name: "UTF-8 Check"
         run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           # Make sure we're not introducing any text which is not UTF-8 encoded
           git diff origin/${GITHUB_BASE_REF} -U0 | ( grep -a '^+' || true ) | ( ! grep -axv '.*' )
 
@@ -138,12 +142,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ '3.5', '3.6', '3.7' ]
-        
+        python-version: [ '3.7' ]
+
     steps:
       -
         name: Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
 
       - uses: actions/setup-python@v2
@@ -153,12 +157,12 @@ jobs:
       -
         name: install dependencies
         run: |
-          pip install -r requirements.txt 
-          pip install mock==2.0.0 attrs==19.1.0 pytest==3.3.0 'pylint>=1.9,<2' 'hypothesis>=3,<4' 'coverage>=4.5,<5'
+          pip install -r requirements.txt
+          pip install mock==2.0.0 attrs==19.1.0 pytest==3.3.0 'pylint>=1.9,<2' 'hypothesis>=3,<4' 'coverage>=4.5,<5' MarkupSafe==2.0.1
       -
         name: pytest
         run: |
-          # PYTHONPATH=. 
+          # PYTHONPATH=.
           coverage run -a -m pytest tools/test
           python tools/test/pylint.py
           coverage run -a tools/project.py -S | sed -n '/^Total/p'
@@ -173,7 +177,7 @@ jobs:
 
       -
         name: Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
