@@ -17,8 +17,13 @@
 
 #include "serial_api_hal.h"
 
+#if defined (STM32GBK1CB)
+#define UART_NUM (4)
+#elif defined (STM32G431xx) || defined (STM32G441xx)
+#define UART_NUM (5)
+#else
 #define UART_NUM (6)
-
+#endif
 
 uint32_t serial_irq_ids[UART_NUM] = {0};
 UART_HandleTypeDef uart_handlers[UART_NUM];
@@ -80,10 +85,17 @@ static void uart3_irq(void)
 }
 #endif
 
-#if defined(USART4_BASE)
+#if defined(UART4_BASE)
 static void uart4_irq(void)
 {
     uart_irq(UART_4);
+}
+#endif
+
+#if defined(UART5_BASE)
+static void uart5_irq(void)
+{
+    uart_irq(UART_5);
 }
 #endif
 
@@ -130,10 +142,17 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     }
 #endif
 
-#if defined(USART4_BASE)
+#if defined(UART4_BASE)
     if (obj_s->uart == UART_4) {
-        irq_n = USART3_4_LPUART1_IRQn;
+        irq_n = UART4_IRQn;
         vector = (uint32_t)&uart4_irq;
+    }
+#endif
+
+#if defined(UART5_BASE)
+    if (obj_s->uart == UART_5) {
+        irq_n = UART5_IRQn;
+        vector = (uint32_t)&uart5_irq;
     }
 #endif
 
@@ -318,18 +337,22 @@ static IRQn_Type serial_get_irq_n(UARTName uart_name)
 #endif
 #if defined(USART3_BASE)
         case UART_3:
-            irq_n = USART3_4_LPUART1_IRQn;
+            irq_n = USART3_IRQn;
             break;
 #endif
-#if defined(USART4_BASE)
+#if defined(UART4_BASE)
         case UART_4:
-            irq_n = USART3_4_LPUART1_IRQn;
+            irq_n = UART4_IRQn;
             break;
 #endif
-
+#if defined(UART5_BASE)
+        case UART_5:
+            irq_n = UART5_IRQn;
+            break;
+#endif
 #if defined(LPUART1_BASE)
         case LPUART_1:
-            irq_n = USART3_4_LPUART1_IRQn;
+            irq_n = LPUART1_IRQn;
             break;
 #endif
         default:

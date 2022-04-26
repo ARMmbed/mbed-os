@@ -2973,6 +2973,7 @@
             "ANALOGOUT",
             "FLASH",
             "MPU",
+            "SERIAL_ASYNCH",
             "TRNG",
             "CAN"
         ]
