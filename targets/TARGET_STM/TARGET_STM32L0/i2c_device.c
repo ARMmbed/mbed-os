@@ -46,6 +46,11 @@ uint32_t i2c_get_pclk(I2CName i2c)
                 break;
         }
     }
+#if defined I2C2_BASE
+    else if (i2c == I2C_2) {
+        pclk = HAL_RCC_GetPCLK1Freq();
+    }
+#endif
 #if defined I2C3_BASE
     else if (i2c == I2C_3) {
         clocksource = __HAL_RCC_GET_I2C3_SOURCE();
