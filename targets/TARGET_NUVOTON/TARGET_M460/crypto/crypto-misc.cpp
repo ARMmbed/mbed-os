@@ -28,6 +28,7 @@
 #include "crypto-misc.h"
 #include "platform/SingletonPtr.h"
 #include "platform/PlatformMutex.h"
+#include "hal/trng_api.h"
 
 /* Consideration for choosing proper synchronization mechanism
  *
@@ -93,8 +94,33 @@ void crypto_init(void)
         CLK_EnableModuleClock(CRPT_MODULE);
         SYS_ResetModule(CRPT_RST);
         SYS_LockReg();      // Lock protected register
-        
+
         NVIC_EnableIRQ(CRPT_IRQn);
+
+        /* Seed PRNG with TRNG to enable SCAP
+         *
+         * According to TRM, it is suggested PRNG be seeded by TRNG on
+         * every Crypto H/W reset.
+         *
+         * To serialize access to TRNG, we invoke Mbed OS TRNG HAL API whose
+         * implementations are thread-safe, instead of BSP RNG driver.
+         */
+        trng_t trng_ctx;
+        trng_init(&trng_ctx);
+
+        /* Wait for PRNG free */
+        while (CRPT->PRNG_CTL & CRPT_PRNG_CTL_BUSY_Msk);
+
+        /* Reload seed from TRNG for the first time */
+        CRPT->PRNG_CTL = (PRNG_KEY_SIZE_256 << CRPT_PRNG_CTL_KEYSZ_Pos) | CRPT_PRNG_CTL_START_Msk | CRPT_PRNG_CTL_SEEDRLD_Msk | PRNG_CTL_SEEDSRC_TRNG;
+
+        /* Wait for PRNG done */
+        while (CRPT->PRNG_CTL & CRPT_PRNG_CTL_BUSY_Msk);
+
+        /* No reload seed for following times */
+        CRPT->PRNG_CTL = 0;
+
+        trng_free(&trng_ctx);
     }
     core_util_critical_section_exit();
 }
