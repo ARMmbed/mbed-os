@@ -3679,6 +3679,18 @@
             "TRNG"
         ]
     },
+    "MCU_STM32L071xB": {
+        "inherits": [
+            "MCU_STM32L0"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32L071xB"
+        ],
+        "macros_add": [
+            "STM32L071xx"
+        ]
+    },
     "MCU_STM32L071xZ": {
         "inherits": [
             "MCU_STM32L0"
