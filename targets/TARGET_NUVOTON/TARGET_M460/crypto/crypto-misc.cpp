@@ -24,6 +24,7 @@
 #include <limits.h>
 #include "nu_modutil.h"
 #include "nu_bitutil.h"
+#include "nu_timer.h"
 #include "crypto-misc.h"
 #include "platform/SingletonPtr.h"
 #include "platform/PlatformMutex.h"
@@ -72,7 +73,7 @@ static volatile uint16_t crypto_ecc_done;
 static volatile uint16_t crypto_rsa_done;
 
 static void crypto_submodule_prestart(volatile uint16_t *submodule_done);
-static bool crypto_submodule_wait(volatile uint16_t *submodule_done);
+static bool crypto_submodule_wait(volatile uint16_t *submodule_done, int32_t timeout_us);
 
 /* As crypto init counter changes from 0 to 1:
  *
@@ -206,7 +207,12 @@ void crypto_prng_prestart(void)
 
 bool crypto_prng_wait(void)
 {
-    return crypto_submodule_wait(&crypto_prng_done);
+    return crypto_prng_wait2(-1);
+}
+
+bool crypto_prng_wait2(int32_t timeout_us)
+{
+    return crypto_submodule_wait(&crypto_prng_done, timeout_us);
 }
 
 void crypto_aes_prestart(void)
@@ -216,7 +222,12 @@ void crypto_aes_prestart(void)
 
 bool crypto_aes_wait(void)
 {
-    return crypto_submodule_wait(&crypto_aes_done);
+    return crypto_aes_wait2(-1);
+}
+
+bool crypto_aes_wait2(int32_t timeout_us)
+{
+    return crypto_submodule_wait(&crypto_aes_done, timeout_us);
 }
 
 void crypto_sha_prestart(void)
@@ -226,7 +237,12 @@ void crypto_sha_prestart(void)
 
 bool crypto_sha_wait(void)
 {
-    return crypto_submodule_wait(&crypto_sha_done);
+    return crypto_sha_wait2(-1);
+}
+
+bool crypto_sha_wait2(int32_t timeout_us)
+{
+    return crypto_submodule_wait(&crypto_sha_done, timeout_us);
 }
 
 void crypto_ecc_prestart(void)
@@ -236,7 +252,12 @@ void crypto_ecc_prestart(void)
 
 bool crypto_ecc_wait(void)
 {
-    return crypto_submodule_wait(&crypto_ecc_done);
+    return crypto_ecc_wait2(-1);
+}
+
+bool crypto_ecc_wait2(int32_t timeout_us)
+{
+    return crypto_submodule_wait(&crypto_ecc_done, timeout_us);
 }
 
 void crypto_rsa_prestart(void)
@@ -246,7 +267,12 @@ void crypto_rsa_prestart(void)
 
 bool crypto_rsa_wait(void)
 {
-    return crypto_submodule_wait(&crypto_rsa_done);
+    return crypto_rsa_wait2(-1);
+}
+
+bool crypto_rsa_wait2(int32_t timeout_us)
+{
+    return crypto_submodule_wait(&crypto_rsa_done, timeout_us);
 }
 
 bool crypto_dma_buff_compat(const void *buff, size_t buff_size, size_t size_aligned_to)
@@ -304,9 +330,21 @@ static void crypto_submodule_prestart(volatile uint16_t *submodule_done)
     __DSB();
 }
 
-static bool crypto_submodule_wait(volatile uint16_t *submodule_done)
+static bool crypto_submodule_wait(volatile uint16_t *submodule_done, int32_t timeout_us)
 {
-    while (! *submodule_done);
+    /* Translate indefinite to extremely large */
+    if (timeout_us < 0) {
+        timeout_us = 0x7FFFFFFF;
+    }
+
+    struct nu_countdown_ctx_s ctx;
+    nu_countdown_init(&ctx, timeout_us);
+    while (! *submodule_done) {
+        if (nu_countdown_expired(&ctx)) {
+            break;
+        }
+    }
+    nu_countdown_free(&ctx);
 
     /* Ensure while loop above and subsequent code are not reordered */
     __DSB();

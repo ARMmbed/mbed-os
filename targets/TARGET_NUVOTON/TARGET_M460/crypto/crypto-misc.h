@@ -71,14 +71,19 @@ void crypto_rsa_release(void);
  */
 void crypto_prng_prestart(void);
 bool crypto_prng_wait(void);
+bool crypto_prng_wait2(int32_t timeout_us);
 void crypto_aes_prestart(void);
 bool crypto_aes_wait(void);
+bool crypto_aes_wait2(int32_t timeout_us);
 void crypto_sha_prestart(void);
 bool crypto_sha_wait(void);
+bool crypto_sha_wait2(int32_t timeout_us);
 void crypto_ecc_prestart(void);
 bool crypto_ecc_wait(void);
+bool crypto_ecc_wait2(int32_t timeout_us);
 void crypto_rsa_prestart(void);
 bool crypto_rsa_wait(void);
+bool crypto_rsa_wait2(int32_t timeout_us);
 
 
 /* Check if buffer can be used for crypto DMA. It has the following requirements:
