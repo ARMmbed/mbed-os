@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 add_subdirectory(TARGET_STM32L053x8 EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32L071xB EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32L071xZ EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32L072xZ EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32L073xZ EXCLUDE_FROM_ALL)
