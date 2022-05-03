@@ -27,7 +27,7 @@
 #if DEVICE_WATCHDOG
 #   include "hal/watchdog_api.h"
 #   define MSG_VALUE_WATCHDOG_STATUS 1
-#   define WDG_TIMEOUT_MS 50UL
+#   define WDG_TIMEOUT_MS 50ms
 #else
 #   define MSG_VALUE_WATCHDOG_STATUS 0
 #endif
@@ -60,7 +60,7 @@
  * (1 start_bit + 8 data_bits + 1 stop_bit) * 128 * 1000 / 9600 = 133.3 ms.
  * To be on the safe side, set the wait time to 150 ms.
  */
-#define SERIAL_FLUSH_TIME_MS 150
+#define SERIAL_FLUSH_TIME_MS 150ms
 
 typedef enum {
     CMD_STATUS_CONTINUE,
@@ -108,7 +108,7 @@ static cmd_status_t handle_command(const char *key, const char *value)
     if (strcmp(key, MSG_KEY_DEVICE_RESET) == 0 && strcmp(value, MSG_VALUE_DEVICE_RESET_WATCHDOG) == 0) {
         greentea_send_kv(MSG_KEY_DEVICE_RESET, MSG_VALUE_DEVICE_RESET_ACK);
         ThisThread::sleep_for(SERIAL_FLUSH_TIME_MS); // Wait for the serial buffers to flush.
-        watchdog_config_t config = { .timeout_ms = WDG_TIMEOUT_MS };
+        watchdog_config_t config = { .timeout_ms = std::chrono::duration_cast<chrono::milliseconds>(WDG_TIMEOUT_MS).count() };
         if (hal_watchdog_init(&config) != WATCHDOG_STATUS_OK) {
             TEST_ASSERT_MESSAGE(0, "hal_watchdog_init() error.");
             return CMD_STATUS_ERROR;

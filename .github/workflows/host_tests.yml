@@ -17,4 +17,4 @@ jobs:
             mkdir __build && cd __build
             cmake .. -GNinja -DBUILD_GREENTEA_TESTS=FALSE -DBUILD_TESTING=TRUE
             ninja
-            ctest . --output-on-failure -V
+            ctest . --output-on-failure
