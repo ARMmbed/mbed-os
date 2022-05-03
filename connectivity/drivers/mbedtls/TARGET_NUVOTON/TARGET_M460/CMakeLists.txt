@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2022 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-mbedtls
@@ -8,6 +8,7 @@ target_include_directories(mbed-mbedtls
         ./ecp
         ./rsa
         ./sha
+        ./gcm
 )
 
 target_sources(mbed-mbedtls
@@ -19,4 +20,5 @@ target_sources(mbed-mbedtls
         sha/sha256_alt.c
         sha/sha512_alt.c
         sha/sha_alt_hw.c
+        gcm/gcm_alt.c
 )
