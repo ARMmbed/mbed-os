@@ -30,7 +30,9 @@
 #endif
 
 #if !defined(MBED_RAM_SIZE)
-#define MBED_RAM_SIZE  0x4000  // 16 KB
+// 0x20000000 - 0x20002FFF 12K SRAM
+// 0x10000000 - 0x20000FFF  4K CCM SRAM
+#define MBED_RAM_SIZE  0x3000  // 12 KB
 #endif
 
 #define NVIC_NUM_VECTORS        98
