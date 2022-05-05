@@ -9061,7 +9061,8 @@
             "FLASH",
             "SPI",
             "I2C",
-            "SLEEP"
+            "SLEEP",
+            "ITM"
         ],
         "components": [
             "FLASHIAP"
