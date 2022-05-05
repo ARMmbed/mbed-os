@@ -563,6 +563,90 @@ gcm_exit:
 }
 
 
+//#define NVT_GCM_USE_GHASH_CTR_MODE
+
+#ifndef NVT_GCM_USE_GHASH_CTR_MODE
+/* 
+* Apply GCM mode only for Decrypt, Encrypt & Tag
+*/
+int mbedtls_gcm_crypt_and_tag( mbedtls_gcm_context *ctx,
+                       int mode,
+                       size_t length,
+                       const unsigned char *iv,
+                       size_t iv_len,
+                       const unsigned char *add,
+                       size_t add_len,
+                       const unsigned char *input,
+                       unsigned char *output,
+                       size_t tag_len,
+                       unsigned char *tag )
+{
+    int ret = MBEDTLS_ERR_GCM_AUTH_FAILED;
+
+    GCM_VALIDATE_RET( ctx != NULL );
+    GCM_VALIDATE_RET( iv != NULL );
+    GCM_VALIDATE_RET( add_len == 0 || add != NULL );
+    GCM_VALIDATE_RET( length == 0 || input != NULL );
+    GCM_VALIDATE_RET( length == 0 || output != NULL );
+    GCM_VALIDATE_RET( tag != NULL );
+
+    if( ( ret = mbedtls_gcm_starts( ctx, mode, iv, iv_len, add, add_len ) ) != 0 )
+        return( ret );
+
+    if( ( ret = mbedtls_gcm_update( ctx, length, input, output ) ) != 0 )
+        return( ret );
+
+    if( ( ret = mbedtls_gcm_finish( ctx, tag, tag_len ) ) != 0 )
+        return( ret );
+
+    return( 0 );
+}
+
+int mbedtls_gcm_auth_decrypt( mbedtls_gcm_context *ctx,
+                      size_t length,
+                      const unsigned char *iv,
+                      size_t iv_len,
+                      const unsigned char *add,
+                      size_t add_len,
+                      const unsigned char *tag,
+                      size_t tag_len,
+                      const unsigned char *input,
+                      unsigned char *output )
+{
+    int ret = MBEDTLS_ERR_GCM_AUTH_FAILED;
+    unsigned char check_tag[16];
+    size_t i;
+    int diff;
+
+    GCM_VALIDATE_RET( ctx != NULL );
+    GCM_VALIDATE_RET( iv != NULL );
+    GCM_VALIDATE_RET( add_len == 0 || add != NULL );
+    GCM_VALIDATE_RET( tag != NULL );
+    GCM_VALIDATE_RET( length == 0 || input != NULL );
+    GCM_VALIDATE_RET( length == 0 || output != NULL );
+
+    if( ( ret = mbedtls_gcm_crypt_and_tag( ctx, MBEDTLS_GCM_DECRYPT, length,
+                                   iv, iv_len, add, add_len,
+                                   input, output, tag_len, check_tag ) ) != 0 )
+    {
+        return( ret );
+    }
+
+    /* Check tag in "constant-time" */
+    for( diff = 0, i = 0; i < tag_len; i++ )
+        diff |= tag[i] ^ check_tag[i];
+
+    if( diff != 0 )
+    {
+        mbedtls_platform_zeroize( output, length );
+        return( MBEDTLS_ERR_GCM_AUTH_FAILED );
+    }
+
+    return( 0 );
+}
+
+#else /* NVT_GCM_USE_GHASH_CTR_MODE */
+
 /* 
 * Apply GHASH & CTR mode for Tag calculation @GCMEnc
 */
@@ -1006,5 +1090,6 @@ int mbedtls_gcm_auth_decrypt( mbedtls_gcm_context *ctx,
 }
 
 
+#endif /* NVT_GCM_USE_GHASH_CTR_MODE */
 #endif /* MBEDTLS_GCM_ALT */
 #endif /* MBEDTLS_GCM_C */
