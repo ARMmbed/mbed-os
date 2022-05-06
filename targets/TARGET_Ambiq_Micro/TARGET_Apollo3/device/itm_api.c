@@ -25,13 +25,24 @@
 
 /* SWO frequency: 1000 kHz */
 
-// As SWO has to be accessible everywhere, including ISRs, we can't easily
-// communicate the dependency on clocks etc. to other components - so this
-// function checks that things appear to be set up, and if not re-configures
-// everything
+#ifndef AM_BSP_GPIO_ITM_SWO
+#define AM_GPIO_ITM_SWO             	22
+
+const am_hal_gpio_pincfg_t g_AM_GPIO_ITM_SWO =
+{
+    .uFuncSel            = AM_HAL_PIN_22_SWO,
+    .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
+};
+#endif 
+
+
 void itm_init(void)
 {
+    #ifdef AM_BSP_GPIO_ITM_SWO
     am_bsp_itm_printf_enable();
+    #else
+    am_bsp_itm_printf_enable(AM_GPIO_ITM_SWO,g_AM_GPIO_ITM_SWO);
+    #endif
 }
 
 #endif
