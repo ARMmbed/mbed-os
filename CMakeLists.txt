@@ -102,6 +102,10 @@ if(MBED_OS_IS_STANDALONE)
     endif()
 endif()
 
+if(BUILD_GREENTEA_TESTS)
+    include(mbed_greentea)
+endif()
+
 # These targets are made visible here so their source files which
 # are spread in different directories can be referenced and can be linked against
 # by libraries that depend on them.

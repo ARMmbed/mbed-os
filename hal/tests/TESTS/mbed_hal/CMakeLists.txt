@@ -1,1 +1,8 @@
+add_subdirectory(common_tickers)
+add_subdirectory(common_tickers_freq)
+add_subdirectory(crc)
+add_subdirectory(critical_section)
+add_subdirectory(flash/functional_tests)
+add_subdirectory(lp_ticker)
+add_subdirectory(minimum_requirements)
 add_subdirectory(reset_reason)

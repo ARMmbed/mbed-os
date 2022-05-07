@@ -102,7 +102,7 @@ static int time_cpu_cycles(uint32_t cycles)
 
     core_util_critical_section_exit();
 
-    return timer.read_us();
+    return std::chrono::duration_cast<std::chrono::microseconds>(timer.elapsed_time()).count();
 }
 
 void flash_init_test()
