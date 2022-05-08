@@ -49,7 +49,7 @@ RUN set -x \
     && pip3 install -r requirements.txt  \
     && : # last line
 
-COPY tools/test/requirements.txt .
+COPY tools/requirements-ci-build.txt .
 RUN set -x \
     && pip3 install -r requirements.txt  \
     && : # last line

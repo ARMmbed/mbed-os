@@ -1,0 +1,7 @@
+# This file contains the requirements needed to run CI builds for Mbed OS.
+# It installs flashing support through the mbed tools packages and also the mbedhtrun test runner.
+mbed-tools
+mbed-host-tests
+mbed-greentea
+mbed-ls
+mbed-os-tools
