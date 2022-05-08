@@ -44,12 +44,12 @@ RUN set -x \
 
 # Set up Mbed environment
 WORKDIR /tmp/
-COPY requirements.txt .
+COPY tools/requirements.txt .
 RUN set -x \
     && pip3 install -r requirements.txt  \
     && : # last line
 
-COPY tools/cmake/requirements.txt .
+COPY tools/test/requirements.txt .
 RUN set -x \
     && pip3 install -r requirements.txt  \
     && : # last line

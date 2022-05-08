@@ -10,7 +10,7 @@ on:
     paths:
       - docker_images/mbed-os-env/**
       - .github/workflows/docker_management.*
-      - requirements.txt
+      - tools/requirements.txt
 
 jobs:
 
