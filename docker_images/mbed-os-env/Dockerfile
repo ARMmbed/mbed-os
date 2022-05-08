@@ -51,7 +51,7 @@ RUN set -x \
 
 COPY tools/requirements-ci-build.txt .
 RUN set -x \
-    && pip3 install -r requirements.txt  \
+    && pip3 install -r requirements-ci-build.txt  \
     && : # last line
 
 
@@ -60,7 +60,6 @@ RUN set -x \
 RUN set -x \
     && pip3 install -U \
     mbed-cli \
-    mbed-tools \
     && : # last line
 
 # ------------------------------------------------------------------------------
