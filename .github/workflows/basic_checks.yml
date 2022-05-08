@@ -169,8 +169,8 @@ jobs:
       -
         name: install dependencies
         run: |
-          pip install -r requirements.txt 
-          pip install mock==2.0.0 attrs==19.1.0 pytest==3.3.0 'pylint>=1.9,<2' 'hypothesis>=3,<4' 'coverage>=4.5,<5'
+          pip install -r tools/requirements.txt 
+          pip install -r tools/test/requirements.txt
 
       -
         name: pytest
@@ -232,44 +232,3 @@ jobs:
           ctest --build-and-test . build --build-generator Ninja --build-options -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=ON --test-command ctest        
           gcovr --gcov-executable gcov -r . ./build -s -e ".*\.h" --exclude-directories=${GITHUB_WORKSPACE}/build/UNITTESTS --exclude-directories=${GITHUB_WORKSPACE}/build/_deps
           ccache -s
-
-  # Reject any changes to tools that would require a re-release of the
-  # tools for the online compiler.
-  frozen-tools-check:
-      runs-on: ubuntu-latest
-      container:
-        image: ghcr.io/armmbed/mbed-os-env:master-latest
-      steps:
-        -
-          name: Checkout repo
-          uses: actions/checkout@v3
-          with:
-            fetch-depth: 0
-
-        -
-          name: frozen tool check
-          run: |
-              set -x
-              git config --global --add safe.directory "$GITHUB_WORKSPACE"
-              git diff --name-only origin/${GITHUB_BASE_REF} \
-                      | egrep \
-                        -e "^tools/build_api*" \
-                        -e "^tools/config*" \
-                        -e "^tools/export*" \
-                        -e "^tools/notifier*" \
-                        -e "^tools/paths*" \
-                        -e "^tools/resources*" \
-                        -e "^tools/targets*" \
-                        -e "^tools/toolchains*" \
-                        -e "^tools/utils*" \
-                        -e "^$" > output.log | true
-              frozen_files=`cat output.log`
-
-              if [ -z "$frozen_files" ]; then
-                  echo "Success!";
-              else
-                  echo -e "Failure: Frozen files were modified\n$frozen_files";
-                  echo -e "Please see https://os.mbed.com/blog/entry/Introducing-the-new-Mbed-Tools/" \
-                          "\nfor why we've frozen the legacy tools.";
-                  false;
-              fi

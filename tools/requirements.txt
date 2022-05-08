@@ -1,0 +1,5 @@
+PrettyTable<=1.0.1; python_version < '3.6'
+prettytable>=2.0,<3.0; python_version >= '3.6'
+future>=0.18.0,<1.0
+jinja2>=2.11.3
+intelhex>=2.3.0,<3.0.0

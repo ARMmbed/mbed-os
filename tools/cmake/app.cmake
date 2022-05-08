@@ -37,7 +37,7 @@ find_package(Python3 COMPONENTS Interpreter)
 include(CheckPythonPackage)
 
 # Check python packages from requirements.txt
-file(STRINGS ${CMAKE_CURRENT_LIST_DIR}/requirements.txt PYTHON_REQUIREMENTS)
+file(STRINGS ${CMAKE_CURRENT_LIST_DIR}/../requirements.txt PYTHON_REQUIREMENTS)
 foreach(REQUIREMENT ${PYTHON_REQUIREMENTS})
     # Look for a string from the start of each line that does not contain "<", ">", "=", or " ".
     if(REQUIREMENT MATCHES "^([^<>= ]+)")

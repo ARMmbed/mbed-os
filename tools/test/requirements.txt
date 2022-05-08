@@ -1,0 +1,7 @@
+# This file contains the Python requirements to run the mbed tools tests.
+mock>=2.0.0,<3
+attrs>=19.1.0,<20
+pytest>=3.3.0,<4
+pylint>=2.13,<3
+hypothesis>=3,<4
+coverage>=4.5,<5

@@ -51,9 +51,7 @@ def execute_pylint(filename):
     status = process.poll()
     return status, stout, sterr
 
-FILES = ["build_api.py", "config.py", "colorize.py", "detect_targets.py",
-         "hooks.py", "libraries.py", "memap.py", "options.py", "paths.py",
-         "targets.py", "test/pylint.py"]
+FILES = ["memap.py", "test/pylint.py"]
 
 if __name__ == "__main__":
     for python_module in FILES:
