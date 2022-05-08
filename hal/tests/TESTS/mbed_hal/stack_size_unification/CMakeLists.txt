@@ -1,7 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if(NOT "TARGET_CORTEX_A" IN_LIST MBED_TARGET_DEFINITIONS)
+if("TARGET_CORTEX_A" IN_LIST MBED_TARGET_DEFINITIONS)
 	set(TEST_SKIPPED "Not supported for Cortex-A targets")
 endif()
 
