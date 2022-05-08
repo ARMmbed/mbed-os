@@ -64,8 +64,14 @@ else()
 endif()
 
 # load mbed_create_distro
-include(${CMAKE_CURRENT_LIST_DIR}/create_distro.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/mbed_create_distro.cmake)
 
-# load upload method
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/upload_methods)
-include(${CMAKE_CURRENT_LIST_DIR}/UploadMethodManager.cmake)
+# load upload method configuration defaults for this target
+set(EXPECTED_MBED_UPLOAD_CFG_FILE_PATH targets/upload_method_cfg/${MBED_TARGET}.cmake)
+if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/../../${EXPECTED_MBED_UPLOAD_CFG_FILE_PATH})
+    message(STATUS "Mbed: Loading default upload method configuration from ${EXPECTED_MBED_UPLOAD_CFG_FILE_PATH}")
+    include(${CMAKE_CURRENT_LIST_DIR}/../../${EXPECTED_MBED_UPLOAD_CFG_FILE_PATH})
+else()
+    message(STATUS "Mbed: Target does not have any upload method configuration.  'make flash-' commands will not be available unless configured by the upper-level project.")
+    set(UPLOAD_METHOD_DEFAULT "NONE")
+endif()

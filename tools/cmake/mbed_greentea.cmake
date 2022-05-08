@@ -5,14 +5,6 @@ option(MBED_GREENTEA_TEST_BAREMETAL "Select baremetal greentea tests" OFF)
 
 set(MBED_HTRUN_ARGUMENTS "" CACHE STRING "Argument list to forward to htrun.")
 
-# TODO: After we convert all greentea tests to use CTest, remove this code. We
-# define these parameters in mbed-os/CMakeLists.txt for greentea tests.
-if(NOT BUILD_GREENTEA_TESTS)
-    set(MBED_CONFIG_PATH ${CMAKE_CURRENT_BINARY_DIR} CACHE INTERNAL "")
-    include(${CMAKE_CURRENT_LIST_DIR}/app.cmake)
-    set(MBED_ROOT ${CMAKE_CURRENT_LIST_DIR}/../.. CACHE INTERNAL "")
-endif()
-
 # CMake Macro for generalizing CMake configuration across the greentea test suite with configurable parameters
 # Macro args:
 # TEST_NAME - Test suite name
@@ -137,17 +129,22 @@ function(mbed_greentea_add_test)
         list(APPEND MBED_HTRUN_ARGUMENTS "--baud-rate=${BAUD_RATE}")
     endif()
 
+    # Configure the CMake script which runs the test.
+    # We have to use a helper script in order to run both the flashing and htrun in one test
+    configure_file(
+        ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/mbed-run-greentea-test.in.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/mbed-run-greentea-${MBED_GREENTEA_TEST_NAME}.cmake
+        @ONLY)
+
+    # Make sure the cmake script gets removed later
+    set_property(DIRECTORY APPEND PROPERTY ADDITIONAL_CLEAN_FILES ${CMAKE_CURRENT_BINARY_DIR}/mbed-run-greentea-${MBED_GREENTEA_TEST_NAME}.cmake)
+
     add_test(
         NAME ${MBED_GREENTEA_TEST_NAME}
-        COMMAND mbedhtrun
-            -f ${MBED_GREENTEA_TEST_IMAGE_NAME}
-            ${MBED_HTRUN_ARGUMENTS}
-        COMMAND_EXPAND_LISTS
+        COMMAND
+            ${CMAKE_COMMAND} -P mbed-run-greentea-${MBED_GREENTEA_TEST_NAME}.cmake
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
 
-    option(VERBOSE_BUILD "Have a verbose build process")
-    if(VERBOSE_BUILD)
-        set(CMAKE_VERBOSE_MAKEFILE ON)
-    endif()
 
 endfunction()

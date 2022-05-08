@@ -85,9 +85,13 @@ endif()
 # Create project and find compilers (if not already found)
 project(mbed-os LANGUAGES C CXX ASM)
 
-# Add all paths to the list files within Mbed OS
+# Add all paths to the module files within Mbed OS
 list(APPEND CMAKE_MODULE_PATH
-    "${mbed-os_SOURCE_DIR}/platform/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_TFM/TARGET_TFM_LATEST/scripts;${mbed-os_SOURCE_DIR}/targets/TARGET_Cypress/scripts;${mbed-os_SOURCE_DIR}/targets/TARGET_NXP/scripts;${mbed-os_SOURCE_DIR}/targets/TARGET_NUVOTON/scripts/"
+    ${mbed-os_SOURCE_DIR}/platform/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_TFM/TARGET_TFM_LATEST/scripts
+    ${mbed-os_SOURCE_DIR}/targets/TARGET_Cypress/scripts
+    ${mbed-os_SOURCE_DIR}/targets/TARGET_NXP/scripts
+    ${mbed-os_SOURCE_DIR}/targets/TARGET_NUVOTON/scripts/
+    ${mbed-os_SOURCE_DIR}/tools/cmake/upload_methods
 )
 
 add_subdirectory(extern)
@@ -208,6 +212,9 @@ if(NOT MBED_IS_NATIVE_BUILD)
     string(TOLOWER ${MBED_TARGET} MBED_TARGET_CMAKE_NAME)
     string(REPLACE "_" "-" MBED_TARGET_CMAKE_NAME ${MBED_TARGET_CMAKE_NAME})
     string(PREPEND MBED_TARGET_CMAKE_NAME "mbed-")
+
+    # Load upload method if one is set up
+    include(UploadMethodManager)
 
 endif()
 

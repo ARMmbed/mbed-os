@@ -4,12 +4,15 @@
 # ----------------------------------------------
 # Load the upload method that the user selects
 
+# This variable should have been set in app.cmake or by the upload method cfg file, sanity check here
 if(NOT DEFINED UPLOAD_METHOD_DEFAULT)
-	message(STATUS "Note: UPLOAD_METHOD_DEFAULT not found.  Please create an upload method config file if you wish to use CMake's auto uploading and debugging support.")
-	set(UPLOAD_METHOD_DEFAULT "NONE")
+	message(FATAL_ERROR "UPLOAD_METHOD_DEFAULT not found.")
 endif()
 
 set(UPLOAD_METHOD "${UPLOAD_METHOD_DEFAULT}" CACHE STRING "Method for uploading programs to the mbed")
+
+# use a higher numbered port to allow use without root on Linux/Mac
+set(GDB_PORT 23331 CACHE STRING "Port that the GDB server will be started on.")
 
 include(UploadMethod${UPLOAD_METHOD})
 
@@ -42,7 +45,7 @@ endif()
 
 function(mbed_generate_upload_debug_targets target)
 	# add upload target
-	gen_upload_target(${target} ${CMAKE_BINARY_DIR}/${target}.bin ${CMAKE_BINARY_DIR}/${target}.hex)
+	gen_upload_target(${target} ${CMAKE_CURRENT_BINARY_DIR}/${target}.bin ${CMAKE_CURRENT_BINARY_DIR}/${target}.hex)
 
 	# add debug target
 	if(UPLOAD_SUPPORTS_DEBUG)

@@ -21,13 +21,15 @@ To debug, first run `make gdbserver` in one terminal to start up the debug probe
 |STM32Cube|`-DUPLOAD_METHOD=STM32CUBE`|✔️|✔️|Fast|All STMicroelectronics Mbed boards, custom boards with ST_Link probes.
 
 
-### Common Parameters (for all methods)
+### Common Parameter (for all methods)
 
 > UPLOAD_METHOD_DEFAULT
 
 **Type:** String
 
 This sets the default upload method that CMake will use if one is not explicitly set.
+
+### Common Options (for all methods)
 
 > GDB_PORT
 
