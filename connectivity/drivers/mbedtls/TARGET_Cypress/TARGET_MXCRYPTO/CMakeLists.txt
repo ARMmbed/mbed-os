@@ -8,12 +8,12 @@ elseif("MXCRYPTO_02" IN_LIST MBED_TARGET_LABELS)
 endif()
 
 target_include_directories(mbed-mbedtls
-    INTERFACE
+    PUBLIC
         .
 )
 
 target_sources(mbed-mbedtls
-    INTERFACE
+    PRIVATE
         aes_alt.c
         crypto_common.c
         ecdsa_alt.c

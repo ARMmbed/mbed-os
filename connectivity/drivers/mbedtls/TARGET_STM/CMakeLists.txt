@@ -20,7 +20,7 @@ elseif("STM32WB" IN_LIST MBED_TARGET_LABELS)
 endif()
 
 target_sources(mbed-mbedtls
-    INTERFACE
+    PRIVATE
         aes_alt.cpp
         aes_alt_stm32l4.c
         ccm_alt.cpp
@@ -33,6 +33,6 @@ target_sources(mbed-mbedtls
 )
 
 target_include_directories(mbed-mbedtls
-    INTERFACE
+    PUBLIC
         .
 )

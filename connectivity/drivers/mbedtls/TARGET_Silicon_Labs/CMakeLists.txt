@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-mbedtls
-    INTERFACE
+    PUBLIC
         .
 )
 
 target_sources(mbed-mbedtls
-    INTERFACE
+    PRIVATE
         aes_aes.c
         crypto_aes.c
         crypto_ecp.c

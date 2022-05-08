@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-mbedtls
-    INTERFACE
+    PUBLIC
         .
         ./aes
         ./des
@@ -10,7 +10,7 @@ target_include_directories(mbed-mbedtls
 )
 
 target_sources(mbed-mbedtls
-    INTERFACE
+    PRIVATE
         aes/aes_alt.c
 
         des/des_alt.c

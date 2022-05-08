@@ -10,17 +10,17 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
 endif()
 
 target_include_directories(mbed-mbedtls
-    INTERFACE
+    PUBLIC
         .
 )
 
 target_sources(mbed-mbedtls
-    INTERFACE
+    PRIVATE
         crypto_device_platform.c
 )
 
 target_link_libraries(mbed-mbedtls
-    INTERFACE
+    PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/${LIBCC_310_EXT}
         ${CMAKE_CURRENT_SOURCE_DIR}/${LIBCC_310_TRNG}
 )

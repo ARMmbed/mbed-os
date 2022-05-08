@@ -56,7 +56,7 @@ function(mbed_create_distro NAME) # ARGN: modules...
 		# CMake currently has a limitation that OBJECT libraries cannot link to other OBJECT libraries
 		# via the LINK_LIBRARIES property -- CMake will not link the objects in properly :/.
 		# see: https://cmake.org/pipermail/cmake/2019-May/069453.html
-		# Once the INTERFACE_LINK_LIBRARIES_DIRECT property becomes widely available we could use that instead to fix this.
+		# also: https://gitlab.kitware.com/cmake/cmake/-/issues/18090
 		get_property(CURR_MODULE_TYPE TARGET ${CURR_MODULE} PROPERTY TYPE)
 		if("${CURR_MODULE_TYPE}" STREQUAL "OBJECT_LIBRARY")
 			target_sources(${NAME} INTERFACE $<TARGET_OBJECTS:${CURR_MODULE}>)

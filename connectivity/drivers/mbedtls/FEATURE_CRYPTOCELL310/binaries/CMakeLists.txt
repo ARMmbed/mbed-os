@@ -8,6 +8,6 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
 endif()
 
 target_link_libraries(mbed-mbedtls
-    INTERFACE
+    PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/${LIBCC_310_CORE}
 )

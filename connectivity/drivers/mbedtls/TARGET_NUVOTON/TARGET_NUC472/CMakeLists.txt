@@ -6,7 +6,7 @@ if("NUMAKER_PFM_NUC472" IN_LIST MBED_TARGET_LABELS)
 endif()
 
 target_include_directories(mbed-mbedtls
-    INTERFACE
+    PUBLIC
         .
         ./aes
         ./des
@@ -14,7 +14,7 @@ target_include_directories(mbed-mbedtls
 )
 
 target_sources(mbed-mbedtls
-    INTERFACE
+    PRIVATE
         aes/aes_alt.c
 
         des/des_alt.c
