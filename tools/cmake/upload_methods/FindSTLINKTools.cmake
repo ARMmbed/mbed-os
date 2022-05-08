@@ -17,15 +17,24 @@
 
 # first try to locate STM32Cube IDE in its default location
 set(STM32CUBE_IDE_LINUX_HINTS "")
+set(STM32CUBE_IDE_WINDOWS_HINTS "")
 if(EXISTS "/opt/st")
     # Linux directory has version number
     file(GLOB STM32CUBE_IDE_LINUX_HINTS LIST_DIRECTORIES TRUE "/opt/st/*")
+endif()
+if(EXISTS "C:/ST/")
+    # On Windows, STM32CubeIDE by default is installed into a subdirectory of
+    # C:\ST\STM32CubeIDE_<version>\STM32CubeIDE, but may also be installed into
+    # C:\ST\STM32CubeIDE directly
+
+    # Identify all the subdirectories and sub-subdirectories of C:\ST
+    file(GLOB STM32CUBE_IDE_WINDOWS_HINTS LIST_DIRECTORIES TRUE "C:/ST/*/*" "C:/ST/*")
 endif()
 find_path(STM32CUBE_IDE_PATH
     NAMES stm32cubeide.ini
     DOC "Path to STM32Cube IDE.  Used to find the ST-Link Tools"
     PATHS
-        C:/ST/STM32CubeIDE # default Windows path
+        ${STM32CUBE_IDE_WINDOWS_HINTS} # Windows
         ${STM32CUBE_IDE_LINUX_HINTS} # Linux
         /Applications/STM32CubeIDE.app/Contents/Eclipse # OS X
         )
@@ -35,13 +44,15 @@ if(EXISTS "${STM32CUBE_IDE_PATH}")
     message(STATUS "Located STM32CubeIDE: ${STM32CUBE_IDE_PATH}")
 
     # find install dirs inside IDE, which also have version numbers
-    file(GLOB GDB_SERVER_INSTALL_DIR LIST_DIRECTORIES TRUE "${STM32CUBE_IDE_PATH}/plugins/com.st.stm32cube.ide.mcu.externaltools.stlink-gdb-server*/tools/bin")
+    file(GLOB GDB_SERVER_INSTALL_DIRS LIST_DIRECTORIES TRUE "${STM32CUBE_IDE_PATH}/plugins/com.st.stm32cube.ide.mcu.externaltools.stlink-gdb-server*/tools/bin")
+    list(GET GDB_SERVER_INSTALL_DIRS 0 GDB_SERVER_INSTALL_DIR) # If glob returns multiple just pick one
     if(EXISTS "${GDB_SERVER_INSTALL_DIR}")
         list(APPEND STLINKTools_HINTS ${GDB_SERVER_INSTALL_DIR})
     endif()
 
-    file(GLOB CUBEPROG_INSTALL_DIR LIST_DIRECTORIES TRUE "${STM32CUBE_IDE_PATH}/plugins/com.st.stm32cube.ide.mcu.externaltools.cubeprogrammer*/tools/bin")
-    if(EXISTS "${GDB_SERVER_INSTALL_DIR}")
+    file(GLOB CUBEPROG_INSTALL_DIRS LIST_DIRECTORIES TRUE "${STM32CUBE_IDE_PATH}/plugins/com.st.stm32cube.ide.mcu.externaltools.cubeprogrammer*/tools/bin")
+    list(GET CUBEPROG_INSTALL_DIRS 0 CUBEPROG_INSTALL_DIR) # If glob returns multiple just pick one
+    if(EXISTS "${CUBEPROG_INSTALL_DIR}")
         list(APPEND STLINKTools_HINTS ${CUBEPROG_INSTALL_DIR})
     endif()
 elseif()
