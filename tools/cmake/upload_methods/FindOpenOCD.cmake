@@ -32,14 +32,13 @@ endif()
 
 find_program(OpenOCD NAMES openocd PATHS ${OpenOCD_PATHS} DOC "Path to the openocd executable")
 
-# guess a script dir for each path found
+# guess a script dir based on the executable path
 set(OpenOCD_SCRIPT_DIR_HINTS "")
-if(NOT "${OpenOCD_PATHS}" STREQUAL "")
-    list(APPEND OpenOCD_SCRIPT_DIR_HINTS HINTS)
-    foreach(PATH ${OpenOCD_PATHS})
-        # location relative to executable in Windows package
-        list(APPEND OpenOCD_SCRIPT_DIR_HINTS ${PATH}/../scripts)
-    endforeach()
+if(EXISTS ${OpenOCD})
+    get_filename_component(OpenOCD_EXECUTABLE_DIR ${OpenOCD} DIRECTORY)
+
+    # on Windows it's in ../scripts, on Linux it's in ../share/openocd/scripts
+    set(OpenOCD_SCRIPT_DIR_HINTS HINTS ${OpenOCD_EXECUTABLE_DIR}/../scripts ${OpenOCD_EXECUTABLE_DIR}/../share/openocd/scripts)
 endif()
 
 find_path(OpenOCD_SCRIPT_DIR
