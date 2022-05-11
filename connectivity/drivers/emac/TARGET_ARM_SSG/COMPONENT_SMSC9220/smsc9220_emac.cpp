@@ -89,7 +89,7 @@ emac_mem_buf_t *SMSC9220_EMAC::low_level_input()
         message_length -= CRC_LENGTH_BYTES;
     }
 
-    p = _memory_manager->alloc_heap(SMSC9220_ETH_MAX_FRAME_SIZE,
+    p = _memory_manager->alloc_heap(message_length,
                                     SMSC9220_BUFF_ALIGNMENT);
 
     if (p != NULL) {
