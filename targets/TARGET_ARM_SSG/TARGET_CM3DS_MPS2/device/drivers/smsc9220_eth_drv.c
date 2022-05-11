@@ -1060,6 +1060,7 @@ uint32_t smsc9220_receive_by_chunks(const struct smsc9220_eth_dev_t* dev,
     }
 
     empty_rx_fifo(dev, (uint8_t *)data, packet_length_byte);
+    (void) (register_map->rx_data_port); /* Discard last word (CRC) */
     dev->data->current_rx_size_words = 0;
     return packet_length_byte;
 }
