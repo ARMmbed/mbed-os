@@ -94,9 +94,8 @@ emac_mem_buf_t *SMSC9220_EMAC::low_level_input()
 
     if (p != NULL) {
         _RXLockMutex.lock();
-        received_bytes = smsc9220_receive_by_chunks(dev,
-                                  (char*)_memory_manager->get_ptr(p),
-                                  _memory_manager->get_len(p));
+        received_bytes = smsc9220_receive_packet(dev,
+                                  _memory_manager->get_ptr(p));
         if(received_bytes == 0){
             _memory_manager->free(p);
             p = nullptr;
@@ -148,7 +147,6 @@ bool SMSC9220_EMAC::link_out(emac_mem_buf_t *buf)
     if(buf == NULL) {
         return false;
     } else {
-        uint32_t buffer_chain_length = 0;
         enum smsc9220_error_t error = SMSC9220_ERROR_NONE;
         /* If buffer is chained or not aligned then
          * make a contiguous aligned copy of it */
@@ -170,16 +168,12 @@ bool SMSC9220_EMAC::link_out(emac_mem_buf_t *buf)
             buf = copy_buf;
         }
 
-        buffer_chain_length = _memory_manager->get_total_len(buf);
-
         _TXLockMutex.lock();
-        error = smsc9220_send_by_chunks(dev,
-                                      buffer_chain_length,
-                                      true,
-                                      (const char*)_memory_manager->get_ptr(buf),
+        error = smsc9220_send_packet(dev,
+                                      _memory_manager->get_ptr(buf),
                                       _memory_manager->get_len(buf));
         _memory_manager->free(buf);
-        _TXLockMutex.unlock();
+        _TXLockMutex.unlock();        
         return (error == SMSC9220_ERROR_NONE);
     }
 }
