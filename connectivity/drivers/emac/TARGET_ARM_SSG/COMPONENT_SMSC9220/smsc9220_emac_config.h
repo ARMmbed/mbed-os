@@ -36,7 +36,7 @@
 #define FLAG_RX                              1U
 #define LINK_STATUS_THREAD_PRIORITY          (osPriorityNormal)
 #define LINK_STATUS_THREAD_STACKSIZE         512U
-#define LINK_STATUS_TASK_PERIOD_MS           200U
+#define LINK_STATUS_TASK_PERIOD_MS           200ms
 #define PHY_STATE_LINK_DOWN                  false
 #define PHY_STATE_LINK_UP                    true
 #define CRC_LENGTH_BYTES                     4U

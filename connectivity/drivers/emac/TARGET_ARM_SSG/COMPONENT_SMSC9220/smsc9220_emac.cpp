@@ -211,7 +211,7 @@ bool SMSC9220_EMAC::power_up()
                                    this));
 
     /* Initialize the hardware */
-    enum smsc9220_error_t init_successful = smsc9220_init(dev, &ThisThread::sleep_for);
+    enum smsc9220_error_t init_successful = smsc9220_init(dev, &thread_sleep_for);
     if (init_successful != SMSC9220_ERROR_NONE) {
         return false;
     }
@@ -237,7 +237,7 @@ bool SMSC9220_EMAC::power_up()
                                              &SMSC9220_EMAC::link_status_task));
 
     /* Allow the Link Status task to detect the initial link state */
-    ThisThread::sleep_for(10);
+    ThisThread::sleep_for(10ms);
     _link_status_task_handle = mbed::mbed_event_queue()->call_every(
                               LINK_STATUS_TASK_PERIOD_MS,
                               mbed::callback(this,
