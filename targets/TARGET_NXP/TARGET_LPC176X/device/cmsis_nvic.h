@@ -34,4 +34,6 @@
 #define NVIC_NUM_VECTORS        (16 + 33)
 #define NVIC_RAM_VECTOR_ADDRESS 0x10000000    // Location of vectors in RAM
 
+#define MBED_RAM_SIZE 0x7F18 // Linker script defines main RAM as 32K - 0xC8 - 32
+
 #endif
