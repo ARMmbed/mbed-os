@@ -17,12 +17,8 @@ if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
 
     # on Windows, assume that the user extracted the binaries to Program Files
 
-    # if the host is 64 bit, there will be a Program Files (x86) folder
-    if(EXISTS "C:/Program Files (x86)")
-        file(GLOB OpenOCD_PATHS "C:/Program Files*/openocd-*/bin-x64")
-    else()
-        file(GLOB OpenOCD_PATHS "C:/Program Files/openocd-*/bin")
-    endif()
+    # if the host is 64 bit, there will be a Program Files (x86) folder, this covers both
+    file(GLOB OpenOCD_PATHS "C:/Program Files*/openocd*/bin*")
 
     # if we found multiple paths, check the one with the highest version number first
     list(SORT OpenOCD_PATHS)
