@@ -80,6 +80,8 @@
 #define GHASH_MODE  (AES_MODE_GHASH << CRPT_AES_CTL_OPMODE_Pos)
 #define CTR_MODE    (AES_MODE_CTR << CRPT_AES_CTL_OPMODE_Pos)
 
+#define Debug_GCM_Info(x) {} 
+//#define Debug_GCM_Info(x) { printf x; }
 
 /*
  * Initialize a context
@@ -351,7 +353,11 @@ int mbedtls_gcm_starts( mbedtls_gcm_context *ctx,
     uint32_t size;
     size_t *pSz;
     int32_t ret;
-
+    
+    if( ctx-> pcntLen == 0 ) ctx-> pcntLen = -1;
+    ctx->len= 0x00;
+    
+    Debug_GCM_Info(("## FUNC: %s, mode=%s, pcnt=%d, ctx->len=%d\n", __FUNCTION__, (mode) ? "Enc":"Dec", ctx-> pcntLen, ctx->len));
     /* Acquire ownership of AES H/W */
     crypto_aes_acquire();
     
@@ -387,16 +393,18 @@ int mbedtls_gcm_starts( mbedtls_gcm_context *ctx,
     CRPT->AES_CNT   = ctx->gcm_buf_bytes;
     
     /* Set a big number for unknown P length */
-    CRPT->AES_GCM_PCNT[0] = (uint32_t)-1;
+    CRPT->AES_GCM_PCNT[0] = ctx-> pcntLen; //(uint32_t)-1;
     CRPT->AES_GCM_PCNT[1] = 0;
 
     /* Start with cascade mode */
-    if((ret = AES_Run(ctx, ctx->basicOpt | FBOUT)))
+//    if((ret = AES_Run(ctx, ctx->basicOpt | FBOUT)))
+    if((ret = AES_Run(ctx, ctx->basicOpt | GCM_MODE | FBOUT | DMAEN)))
     {
         return ret;
     }
 
-    ctx->firstFlag = 1;    
+    ctx->firstFlag = 1;
+    ctx->endFlag = 0;
     
     return( 0 );
 }
@@ -413,11 +421,11 @@ int mbedtls_gcm_update( mbedtls_gcm_context *ctx,
     int32_t ret;
     int32_t len, len_aligned;
     uint32_t u32Size;
-    
+    Debug_GCM_Info(("## FUNC: %s, input_length=%d\n", __FUNCTION__, input_length));    
     GCM_VALIDATE_RET( ctx != NULL );
     GCM_VALIDATE_RET( input_length == 0 || input != NULL );
     GCM_VALIDATE_RET( input_length == 0 || output != NULL );
-
+    
     len = (int32_t)input_length;
     /* Error if length too large */
     if( (size_t)len != input_length)
@@ -474,6 +482,7 @@ int mbedtls_gcm_update( mbedtls_gcm_context *ctx,
         }
         else
         {
+
             /* Over buffer size */
             return (MBEDTLS_ERR_GCM_BAD_INPUT);
         }
@@ -481,9 +490,10 @@ int mbedtls_gcm_update( mbedtls_gcm_context *ctx,
         /* Do GCM with cascade */
         if(len & 0xf)
         {
-            
             /* No 16 bytes alignment, it should be last */
+            
             CRPT->AES_GCM_PCNT[0] = ctx->len;
+            CRPT->AES_GCM_PCNT[1] = 0;
             CRPT->AES_CNT = u32Size;
 
             if((ret = AES_Run(ctx, ctx->basicOpt | FBIN | FBOUT | DMACC | DMALAST)))
@@ -526,9 +536,8 @@ int mbedtls_gcm_finish( mbedtls_gcm_context *ctx,
                 size_t tag_len )
 {
 
-
     int32_t ret = 0;
-    
+    Debug_GCM_Info(("## FUNC: %s, tag_len=%d, pcnt=%d\n", __FUNCTION__, tag_len, ctx->len));    
     GCM_VALIDATE_RET( ctx != NULL );
     GCM_VALIDATE_RET( tag != NULL );
     
@@ -581,6 +590,11 @@ int mbedtls_gcm_crypt_and_tag( mbedtls_gcm_context *ctx,
                        size_t tag_len,
                        unsigned char *tag )
 {
+    int32_t plen_cur;
+    int32_t len, len_aligned;
+    const uint8_t *pin;
+    uint8_t *pout;
+
     int ret = MBEDTLS_ERR_GCM_AUTH_FAILED;
 
     GCM_VALIDATE_RET( ctx != NULL );
@@ -589,13 +603,37 @@ int mbedtls_gcm_crypt_and_tag( mbedtls_gcm_context *ctx,
     GCM_VALIDATE_RET( length == 0 || input != NULL );
     GCM_VALIDATE_RET( length == 0 || output != NULL );
     GCM_VALIDATE_RET( tag != NULL );
-
+    ctx-> pcntLen = length;
     if( ( ret = mbedtls_gcm_starts( ctx, mode, iv, iv_len, add, add_len ) ) != 0 )
         return( ret );
 
-    if( ( ret = mbedtls_gcm_update( ctx, length, input, output ) ) != 0 )
-        return( ret );
+    if( length == 0 )  /* if P length > 0, mbedtls_gcm_update not need gcm_buf_bytes for AES_CNT */
+    {
+        ctx->gcm_buf_bytes = 16;
+    }else{
+        ctx->gcm_buf_bytes = 0;
+    }
+    plen_cur = length;
+    pin = input;
+    pout = output;
+    do
+    {
+        len = plen_cur;
+        if(len > GCM_PBLOCK_SIZE)
+        {
+            len = GCM_PBLOCK_SIZE;
+        }
+        plen_cur -= len;
 
+        /* Prepare the blocked buffer for GCM */
+        memcpy(ctx->gcm_buf, pin, len);
+
+        if( ( ret = mbedtls_gcm_update( ctx, len, pin, pout ) ) != 0 )
+            return( ret );
+        pin += len;
+        pout += len;
+    }while(plen_cur);
+    
     if( ( ret = mbedtls_gcm_finish( ctx, tag, tag_len ) ) != 0 )
         return( ret );
 
@@ -665,7 +703,8 @@ static int32_t _GCMTag(mbedtls_gcm_context *ctx, const uint8_t *iv, uint32_t ivl
     uint32_t u32OptBasic;
     uint32_t u32OptKeySize;
     uint32_t tag[4];
-
+    
+    Debug_GCM_Info(("## FUNC: %s\n", __FUNCTION__));
     /* Prepare key size option */
     i = ctx->keySize >> 3;
     u32OptKeySize = (((i >> 2) << 1) | (i & 1)) << CRPT_AES_CTL_KEYSZ_Pos;
@@ -712,10 +751,7 @@ static int32_t _GCMTag(mbedtls_gcm_context *ctx, const uint8_t *iv, uint32_t ivl
         CRPT->AES_DADDR = (uint32_t)&ghashbuf[0];
         CRPT->AES_CNT = len;
 
-
         AES_Run(ctx, u32OptBasic | GHASH_MODE | DMAEN /*| DMALAST*/);
-        
-
     }
     else
     {
@@ -855,7 +891,8 @@ static int32_t _GCMTag(mbedtls_gcm_context *ctx, const uint8_t *iv, uint32_t ivl
     ret = AES_Run(ctx, u32OptBasic | CTR_MODE | DMAEN /*| DMALAST*/);
 
     memcpy(tagbuf, tag, 16);
-
+    Debug_GCM_Info(("## FUNC: %s finish tag 0x%x, 0x%x, 0x%x, 0x%x\n", __FUNCTION__, tag[0], tag[1], tag[2], tag[3]));
+    
     return ret;
 }
 
@@ -891,7 +928,8 @@ static int32_t _GCM(mbedtls_gcm_context *ctx, const uint8_t *iv, uint32_t ivlen,
     CRPT->AES_GCM_PCNT[1] = 0;
 
     plen_aligned = (plen & 0xful) ? ((plen + 16) / 16) * 16 : plen;
-    if(plen <= GCM_PBLOCK_SIZE)
+    
+    if(plen == 0)   /* For AWS-IoT connection case, force go cascade instead of if(plen <= GCM_PBLOCK_SIZE) */
     {
         /* Just one shot */
 
@@ -903,10 +941,10 @@ static int32_t _GCM(mbedtls_gcm_context *ctx, const uint8_t *iv, uint32_t ivlen,
         CRPT->AES_CNT = size;
 
         ret = AES_Run(ctx, u32OptBasic | GCM_MODE | DMAEN);
-        
+
         memcpy(buf, ctx->out_buf, plen);
         memcpy(tag, ctx->out_buf + plen_aligned, tag_len);
-
+      
     }
     else
     {
@@ -980,13 +1018,15 @@ static int32_t _GCM(mbedtls_gcm_context *ctx, const uint8_t *iv, uint32_t ivlen,
         }
         
         memcpy(tag, ctx->out_buf+len_aligned, tag_len);
+        Debug_GCM_Info(("## Tag in FUNC: %s, plen=%d, tag=0x%x, 0x%x, 0x%x, 0x%x\n", __FUNCTION__, plen,  
+                            *((uint32_t*)tag), *((uint32_t*)(tag+4)), *((uint32_t*)(tag+8)), *((uint32_t*)(tag+16)) )); 
     }
     
     if(ctx->mode)
     {
         /* H/W limitation under plen%16 as 1 or 15, need re-calculate tag by _GCMTag */
         /* Need to calculate Tag when plen % 16 == 1 or 15 */
-        if(((plen & 0xf) == 1) || ((plen & 0xf) == 15))
+        if(( (plen & 0xf) == 1) || ((plen & 0xf) == 15))
         {
             if((ret = _GCMTag(ctx, iv, ivlen, A, alen, ctx->out_buf, plen, tag)))
             {
@@ -1011,7 +1051,7 @@ int mbedtls_gcm_crypt_and_tag( mbedtls_gcm_context *ctx,
                                unsigned char *tag )
 {
     int ret;
-
+    Debug_GCM_Info(("## FUNC: %s, mode=%s, length=%d, tag_len=%d, in/out=0x%x/0x%x\n", __FUNCTION__, (mode) ? "Enc":"Dec", length, tag_len, input, output));
     GCM_VALIDATE_RET( ctx != NULL );
     GCM_VALIDATE_RET( iv != NULL );
     GCM_VALIDATE_RET( add_len == 0 || add != NULL );
@@ -1042,7 +1082,7 @@ int mbedtls_gcm_crypt_and_tag( mbedtls_gcm_context *ctx,
 
     /* Release ownership of AES H/W */
     crypto_aes_release();
-    
+
     return (ret);
 }
 
@@ -1061,7 +1101,7 @@ int mbedtls_gcm_auth_decrypt( mbedtls_gcm_context *ctx,
     unsigned char check_tag[16];
     size_t i;
     int diff;
-
+    Debug_GCM_Info(("## FUNC: %s\n", __FUNCTION__));
     GCM_VALIDATE_RET( ctx != NULL );
     GCM_VALIDATE_RET( iv != NULL );
     GCM_VALIDATE_RET( add_len == 0 || add != NULL );

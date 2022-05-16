@@ -32,9 +32,9 @@
 #define MBEDTLS_GCM_ALT_H
 
 #if defined(MBEDTLS_GCM_ALT)
-
+#include "mbed_toolchain.h"
 #define MAX_GCM_BUF      256
-#define GCM_PBLOCK_SIZE  MAX_GCM_BUF     /* NOTE: This value must be 16 bytes alignment. This value must > size of A */
+#define GCM_PBLOCK_SIZE  (MAX_GCM_BUF)     /* NOTE: This value must be 16 bytes alignment. This value must > size of A */
 
 
 /**
@@ -42,7 +42,7 @@
  */
 typedef struct mbedtls_gcm_context
 {
-    uint64_t len;                         /*!< The total length of the encrypted data. */
+    uint32_t len;                         /*!< The total length of the encrypted data. */
     int mode;                             /*!< The operation to perform:
                                                #MBEDTLS_GCM_ENCRYPT or
                                                #MBEDTLS_GCM_DECRYPT. */
@@ -53,15 +53,15 @@ typedef struct mbedtls_gcm_context
     uint32_t iv[4];         		/* IV for next block cipher */
     uint32_t keys[8];       		/* Cipher key */
     uint32_t basicOpt;      		/* Basic option of AES controller */
-    uint8_t  gcm_buf[MAX_GCM_BUF]; 	/* buffer for GCM DMA input */
-    uint8_t  out_buf[MAX_GCM_BUF+16]; 	/* buffer for GCM DMA output */
-    uint8_t  fb_buf[72];    		/* feedback buffer for GCM DMA */
-    uint8_t  fb_buf2[72];   		/* feedback buffer 2 for GCM DMA */
+    MBED_ALIGN(4) uint8_t  gcm_buf[MAX_GCM_BUF]; 	/* buffer for GCM DMA input */
+    MBED_ALIGN(4) uint8_t  out_buf[MAX_GCM_BUF+16]; 	/* buffer for GCM DMA output */
+    MBED_ALIGN(4) uint8_t  fb_buf[72];    		/* feedback buffer for GCM DMA */
+    MBED_ALIGN(4) uint8_t  fb_buf2[72];   		/* feedback buffer 2 for GCM DMA */
     uint8_t  tag[16];       		/* Tag */
     uint32_t gcm_buf_bytes; 		/* Bytes in gcm_buf */
     uint32_t firstFlag;     		/* A flag for the first data block */
     uint32_t endFlag;       		/* final block is done */
-    
+    uint32_t pcntLen;               /* PCNT length*/ 
 //    uint8_t *add;
 //    size_t addlen;
 }
