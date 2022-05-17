@@ -430,10 +430,7 @@ int mbedtls_gcm_update( mbedtls_gcm_context *ctx,
     /* Error if length too large */
     if( (size_t)len != input_length)
         return( MBEDTLS_ERR_GCM_BAD_INPUT );
-        
-    if(len + ctx->gcm_buf_bytes > MAX_GCM_BUF)
-        return (MBEDTLS_ERR_GCM_BAD_INPUT);
-    
+            
     
     len_aligned = (len & 0xf) ? (int32_t)(len & (~0xful))+16:len;
 
@@ -508,7 +505,6 @@ int mbedtls_gcm_update( mbedtls_gcm_context *ctx,
             memcpy(ctx->fb_buf2, ctx->fb_buf, 72);
 //            ctx->firstFlag = 0;
             CRPT->AES_CNT = u32Size;
-            ctx->gcm_buf_bytes = u32Size;
 
             if((ret = AES_Run(ctx, ctx->basicOpt | FBIN | FBOUT | DMACC)))
             {
