@@ -25,6 +25,7 @@
 
 #define MBEDTLS_AES_ALT
 #define MBEDTLS_GCM_ALT
+#define MBEDTLS_CCM_ALT
 
 #define MBEDTLS_ECP_INTERNAL_ALT
 /* Support for Weierstrass curves with Jacobi representation */

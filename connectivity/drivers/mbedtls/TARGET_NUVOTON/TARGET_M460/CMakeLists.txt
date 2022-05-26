@@ -9,6 +9,7 @@ target_include_directories(mbed-mbedtls
         ./rsa
         ./sha
         ./gcm
+	./ccm
 )
 
 target_sources(mbed-mbedtls
@@ -22,4 +23,5 @@ target_sources(mbed-mbedtls
         sha/sha512_alt.c
         sha/sha_alt_hw.c
         gcm/gcm_alt.c
+        ccm/ccm_alt.c
 )
