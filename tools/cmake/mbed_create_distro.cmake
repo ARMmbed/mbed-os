@@ -46,14 +46,15 @@ function(mbed_create_distro NAME) # ARGN: modules...
 		list(GET REMAINING_MODULES 0 CURR_MODULE)
 		list(REMOVE_AT REMAINING_MODULES 0)
 
-		# Make sure that linking to the distro pulls in the compiled code from CURR_MODULE
-		target_link_libraries(${NAME} PRIVATE ${CURR_MODULE})
-
 		get_property(CURR_MODULE_TYPE TARGET ${CURR_MODULE} PROPERTY TYPE)
 
 		if("${CURR_MODULE_TYPE}" STREQUAL "STATIC_LIBRARY")
 			# Don't need to do anything other than linking it
+			target_link_libraries(${NAME} PUBLIC ${CURR_MODULE})
 		else()
+			# Make sure that linking to the distro pulls in the compiled code from CURR_MODULE
+			target_link_libraries(${NAME} PRIVATE ${CURR_MODULE})
+
 			copy_append_property(INTERFACE_COMPILE_DEFINITIONS ${CURR_MODULE} ${NAME})
 			copy_append_property(INTERFACE_COMPILE_OPTIONS ${CURR_MODULE} ${NAME})
 			copy_append_property(INTERFACE_INCLUDE_DIRECTORIES ${CURR_MODULE} ${NAME})
