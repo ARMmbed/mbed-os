@@ -44,49 +44,55 @@ function(mbed_create_distro NAME) # ARGN: modules...
 		#message("Distro: ${NAME}.  REMAINING_MODULES: ${REMAINING_MODULES}")
 
 		list(GET REMAINING_MODULES 0 CURR_MODULE)
-
-		copy_append_property(INTERFACE_COMPILE_DEFINITIONS ${CURR_MODULE} ${NAME})
-		copy_append_property(INTERFACE_COMPILE_OPTIONS ${CURR_MODULE} ${NAME})
-		copy_append_property(INTERFACE_INCLUDE_DIRECTORIES ${CURR_MODULE} ${NAME})
-		copy_append_property(INTERFACE_LINK_OPTIONS ${CURR_MODULE} ${NAME})
+		list(REMOVE_AT REMAINING_MODULES 0)
 
 		# Make sure that linking to the distro pulls in the compiled code from CURR_MODULE
 		target_link_libraries(${NAME} PRIVATE ${CURR_MODULE})
 
-		# CMake currently has a limitation that OBJECT libraries cannot link to other OBJECT libraries
-		# via the LINK_LIBRARIES property -- CMake will not link the objects in properly :/.
-		# see: https://cmake.org/pipermail/cmake/2019-May/069453.html
-		# also: https://gitlab.kitware.com/cmake/cmake/-/issues/18090
 		get_property(CURR_MODULE_TYPE TARGET ${CURR_MODULE} PROPERTY TYPE)
-		if("${CURR_MODULE_TYPE}" STREQUAL "OBJECT_LIBRARY")
-			target_sources(${NAME} INTERFACE $<TARGET_OBJECTS:${CURR_MODULE}>)
 
-			# Check if this object library has any other libraries exported through its INTERFACE_SOURCES.
-			# If it does, we need to propagate those too.
-			get_property(OBJ_INTERFACE_SOURCES TARGET ${NAME} PROPERTY INTERFACE_SOURCES)
-			foreach(INTERFACE_SOURCE ${OBJ_INTERFACE_SOURCES})
-				if(INTERFACE_SOURCE MATCHES "\\$<TARGET_OBJECTS:.*>")
-					target_sources(${NAME} INTERFACE ${INTERFACE_SOURCE})
+		if("${CURR_MODULE_TYPE}" STREQUAL "STATIC_LIBRARY")
+			# Don't need to do anything other than linking it
+		else()
+			copy_append_property(INTERFACE_COMPILE_DEFINITIONS ${CURR_MODULE} ${NAME})
+			copy_append_property(INTERFACE_COMPILE_OPTIONS ${CURR_MODULE} ${NAME})
+			copy_append_property(INTERFACE_INCLUDE_DIRECTORIES ${CURR_MODULE} ${NAME})
+			copy_append_property(INTERFACE_LINK_OPTIONS ${CURR_MODULE} ${NAME})
+
+			# CMake currently has a limitation that OBJECT libraries cannot link to other OBJECT libraries
+			# via the LINK_LIBRARIES property -- CMake will not link the objects in properly :/.
+			# see: https://cmake.org/pipermail/cmake/2019-May/069453.html
+			# also: https://gitlab.kitware.com/cmake/cmake/-/issues/18090
+
+			if("${CURR_MODULE_TYPE}" STREQUAL "OBJECT_LIBRARY")
+				target_sources(${NAME} INTERFACE $<TARGET_OBJECTS:${CURR_MODULE}>)
+
+				# Check if this object library has any other libraries exported through its INTERFACE_SOURCES.
+				# If it does, we need to propagate those too.
+				get_property(OBJ_INTERFACE_SOURCES TARGET ${NAME} PROPERTY INTERFACE_SOURCES)
+				foreach(INTERFACE_SOURCE ${OBJ_INTERFACE_SOURCES})
+					if(INTERFACE_SOURCE MATCHES "\\$<TARGET_OBJECTS:.*>")
+						target_sources(${NAME} INTERFACE ${INTERFACE_SOURCE})
+					endif()
+				endforeach()
+			endif()
+
+			list(APPEND COMPLETED_MODULES ${CURR_MODULE})
+
+			# find sub-modules of this module
+			get_property(SUBMODULES TARGET ${CURR_MODULE} PROPERTY INTERFACE_LINK_LIBRARIES)
+			foreach(SUBMODULE ${SUBMODULES})
+				if(NOT "${SUBMODULE}" MATCHES "::@") # remove CMake internal CMAKE_DIRECTORY_ID_SEP markers
+					# Remove LINK_ONLY genexes from target_link_libraries(... PRIVATE).  We can ignore things wrapped in these
+					# because they will already have been handled by the target_link_libraries earlier on.
+					if(NOT "${SUBMODULE}" MATCHES "\\$<LINK_ONLY:.*>")
+						if(NOT ${SUBMODULE} IN_LIST COMPLETED_MODULES)
+							list(APPEND REMAINING_MODULES ${SUBMODULE})
+						endif()
+					endif()
 				endif()
 			endforeach()
 		endif()
-
-		list(REMOVE_AT REMAINING_MODULES 0)
-		list(APPEND COMPLETED_MODULES ${CURR_MODULE})
-
-		# find sub-modules of this module
-		get_property(SUBMODULES TARGET ${CURR_MODULE} PROPERTY INTERFACE_LINK_LIBRARIES)
-		foreach(SUBMODULE ${SUBMODULES})
-			if(NOT "${SUBMODULE}" MATCHES "::@") # remove CMake internal CMAKE_DIRECTORY_ID_SEP markers
-				# Remove LINK_ONLY genexes from target_link_libraries(... PRIVATE).  We can ignore things wrapped in these
-				# because they will already have been handled by the target_link_libraries earlier on.
-				if(NOT "${SUBMODULE}" MATCHES "\\$<LINK_ONLY:.*>")
-					if(NOT ${SUBMODULE} IN_LIST COMPLETED_MODULES)
-						list(APPEND REMAINING_MODULES ${SUBMODULE})
-					endif()
-				endif()
-			endif()
-		endforeach()
 
 	endwhile()
 

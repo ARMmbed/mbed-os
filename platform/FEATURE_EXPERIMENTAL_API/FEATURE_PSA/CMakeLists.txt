@@ -12,7 +12,7 @@ if("TFM" IN_LIST MBED_TARGET_LABELS)
 endif()
 
 target_include_directories(mbed-psa
-    INTERFACE
+    PUBLIC
         inc
         inc/psa
 )
@@ -22,5 +22,6 @@ target_sources(mbed-psa
         src/psa_hrng.c
 )
 
-# For now, on devices with PSA, PSA functions are used by the HAL so PSA needs to be included in the core Mbed build.
-target_link_libraries(mbed-core-flags INTERFACE mbed-psa)
+# Make sure that mbed-psa can include headers from Mbed OS and the target
+# Must be private so that we do not commit to a baremetal or OS choice
+target_link_libraries(mbed-psa PRIVATE mbed-core-flags ${MBED_TARGET_CMAKE_NAME}-lib)

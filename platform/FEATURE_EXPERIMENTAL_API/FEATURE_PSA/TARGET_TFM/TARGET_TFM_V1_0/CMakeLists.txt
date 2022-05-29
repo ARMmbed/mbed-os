@@ -3,7 +3,7 @@
 
 if("TFM_DUALCPU" IN_LIST MBED_TARGET_LABELS)
     target_sources(mbed-psa
-        INTERFACE
+        PRIVATE
             TARGET_TFM_DUALCPU/src/platform_multicore.c
             TARGET_TFM_DUALCPU/src/platform_ns_mailbox.c
             TARGET_TFM_DUALCPU/src/tfm_mbed_boot.c
@@ -15,7 +15,7 @@ endif()
 
 if("TFM_V8M" IN_LIST MBED_TARGET_LABELS)
     target_sources(mbed-psa
-        INTERFACE
+        PRIVATE
             TARGET_TFM_V8M/src/cmsis_nvic_virtual.c
             TARGET_TFM_V8M/src/tfm_mbed_boot.c
             TARGET_TFM_V8M/src/tfm_ns_interface.c
@@ -31,7 +31,7 @@ target_include_directories(mbed-psa
 )
 
 target_sources(mbed-psa
-    INTERFACE
+    PRIVATE
         src/tfm_crypto_ipc_api.c
         src/tfm_initial_attestation_ipc_api.c
         src/tfm_its_ipc_api.c

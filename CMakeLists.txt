@@ -265,7 +265,7 @@ add_subdirectory(cmsis/device/rtos EXCLUDE_FROM_ALL)
 if(NOT MBED_IS_NATIVE_BUILD)
 
     # Create a distro for the microcontroller cmake target, ensuring its sources are only compiled once
-    mbed_create_distro(${MBED_TARGET_CMAKE_NAME}-obj ${MBED_TARGET_CMAKE_NAME} mbed-core-flags)
+    mbed_create_distro(${MBED_TARGET_CMAKE_NAME}-lib ${MBED_TARGET_CMAKE_NAME} mbed-core-flags)
 
     # Core Mbed OS libraries
     # mbed-baremetal contains baremetal sources + target sources + target compile flags.
@@ -276,8 +276,8 @@ if(NOT MBED_IS_NATIVE_BUILD)
     mbed_create_distro(mbed-os mbed-core-flags mbed-core-sources mbed-rtos-flags mbed-rtos-sources)
 
     # Now make the Mbed OS code depend on the target, ensuring everything has access to the uC's flags and objects.
-    target_link_libraries(mbed-baremetal PUBLIC ${MBED_TARGET_CMAKE_NAME}-obj)
-    target_link_libraries(mbed-os PUBLIC ${MBED_TARGET_CMAKE_NAME}-obj)
+    target_link_libraries(mbed-baremetal PUBLIC ${MBED_TARGET_CMAKE_NAME}-lib)
+    target_link_libraries(mbed-os PUBLIC ${MBED_TARGET_CMAKE_NAME}-lib)
 endif()
 
 # Ninja requires to be forced for response files

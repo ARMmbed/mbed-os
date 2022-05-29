@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-psa
-    INTERFACE
+    PUBLIC
         inc
         inc/psa
         mbedtls
@@ -19,7 +19,7 @@ target_include_directories(mbed-psa
 )
 
 target_sources(mbed-psa
-    INTERFACE
+    PRIVATE
         mbedtls/psa_crypto.c
         mbedtls/psa_crypto_se.c
         mbedtls/psa_crypto_driver_wrappers.c
@@ -63,7 +63,7 @@ target_sources(mbed-psa
 )
 
 target_link_libraries(mbed-psa
-    INTERFACE
+    PUBLIC
         mbed-mbedtls
         mbed-storage-kvstore
         mbed-storage-tdbstore
