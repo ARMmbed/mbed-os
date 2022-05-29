@@ -36,23 +36,16 @@ set(CMAKE_EXECUTABLE_SUFFIX .elf)
 find_package(Python3 COMPONENTS Interpreter)
 include(CheckPythonPackage)
 
-# Check python packages from requirements.txt
-file(STRINGS ${CMAKE_CURRENT_LIST_DIR}/../requirements.txt PYTHON_REQUIREMENTS)
-foreach(REQUIREMENT ${PYTHON_REQUIREMENTS})
-    # Look for a string from the start of each line that does not contain "<", ">", "=", or " ".
-    if(REQUIREMENT MATCHES "^([^<>= ]+)")
-        set(PACKAGE_NAME ${CMAKE_MATCH_1})
-        string(TOUPPER ${PACKAGE_NAME} PACKAGE_NAME_UCASE) # Ucase name needed for CMake variable
-        string(TOLOWER ${PACKAGE_NAME} PACKAGE_NAME_LCASE) # Lcase name needed for import statement
+# Check python packages
+set(PYTHON_PACKAGES_TO_CHECK prettytable future jinja2 mbed_tools)
+foreach(PACKAGE_NAME ${PYTHON_PACKAGES_TO_CHECK})
+    string(TOUPPER ${PACKAGE_NAME} PACKAGE_NAME_UCASE) # Ucase name needed for CMake variable
+    string(TOLOWER ${PACKAGE_NAME} PACKAGE_NAME_LCASE) # Lcase name needed for import statement
 
-        check_python_package(${PACKAGE_NAME_LCASE} HAVE_PYTHON_${PACKAGE_NAME_UCASE})
-        if(NOT HAVE_PYTHON_${PACKAGE_NAME_UCASE})
-            message(WARNING "Missing Python dependency ${PACKAGE_NAME}")
-        endif()
-    else()
-        message(FATAL_ERROR "Cannot parse line \"${REQUIREMENT}\" in requirements.txt")
+    check_python_package(${PACKAGE_NAME_LCASE} HAVE_PYTHON_${PACKAGE_NAME_UCASE})
+    if(NOT HAVE_PYTHON_${PACKAGE_NAME_UCASE})
+        message(WARNING "Missing Python dependency ${PACKAGE_NAME}")
     endif()
-
 endforeach()
 
 # Check deps for memap

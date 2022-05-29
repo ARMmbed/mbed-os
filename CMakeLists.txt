@@ -276,8 +276,7 @@ if(NOT MBED_IS_NATIVE_BUILD)
     mbed_create_distro(mbed-os mbed-core-flags mbed-core-sources mbed-rtos-flags mbed-rtos-sources)
 
     # Now make the Mbed OS code depend on the target, ensuring everything has access to the uC's flags and objects.
-    target_link_libraries(mbed-baremetal PUBLIC ${MBED_TARGET_CMAKE_NAME}-lib)
-    target_link_libraries(mbed-os PUBLIC ${MBED_TARGET_CMAKE_NAME}-lib)
+    target_link_libraries(mbed-core-flags INTERFACE ${MBED_TARGET_CMAKE_NAME}-lib)
 endif()
 
 # Ninja requires to be forced for response files

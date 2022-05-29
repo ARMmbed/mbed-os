@@ -19,6 +19,7 @@ list(APPEND link_options
     "-Wl,--end-group"
     "-specs=nosys.specs"
     "-Wl,--cref"
+    "-Wl,--allow-multiple-definition"
 )
 
 # Add the -Wl,--whole-archive flag as a hack to fix resolution of weak symbols between .a libraries.
