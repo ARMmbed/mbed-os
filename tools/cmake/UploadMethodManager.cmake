@@ -29,16 +29,17 @@ message(STATUS "Board upload method set to ${UPLOAD_METHOD}")
 # ----------------------------------------------
 # Generate gdbinit if needed
 
-# path where the gdbinit file will be written
-set(GDBINIT_PATH ${CMAKE_CURRENT_BINARY_DIR}/mbed-cmake.gdbinit)
-
 if(UPLOAD_SUPPORTS_DEBUG)
 	# create init file for GDB client
-	file(GENERATE OUTPUT ${GDBINIT_PATH} CONTENT
+	file(GENERATE OUTPUT ${CMAKE_BINARY_DIR}/mbed-cmake.gdbinit CONTENT
 "# connect to GDB server
 target remote localhost:${GDB_PORT}
 ")
 endif()
+
+# UPLOAD_SUPPORTS_DEBUG needs to be made into a cache variable so that it can
+# be seen by higher level directories when they call mbed_generate_upload_debug_targets()
+set(MBED_UPLOAD_SUPPORTS_DEBUG ${UPLOAD_SUPPORTS_DEBUG} CACHE INTERNAL "" FORCE)
 
 # ----------------------------------------------
 # Function for creating targets
@@ -48,11 +49,11 @@ function(mbed_generate_upload_debug_targets target)
 	gen_upload_target(${target} ${CMAKE_CURRENT_BINARY_DIR}/${target}.bin ${CMAKE_CURRENT_BINARY_DIR}/${target}.hex)
 
 	# add debug target
-	if(UPLOAD_SUPPORTS_DEBUG)
+	if(MBED_UPLOAD_SUPPORTS_DEBUG)
 		add_custom_target(debug-${target}
 			COMMENT "starting GDB to debug ${target}..."
 			COMMAND arm-none-eabi-gdb
-			--command=${GDBINIT_PATH}
+			--command=${CMAKE_BINARY_DIR}/mbed-cmake.gdbinit
 			$<TARGET_FILE:${target}>
 			USES_TERMINAL)
 	endif()

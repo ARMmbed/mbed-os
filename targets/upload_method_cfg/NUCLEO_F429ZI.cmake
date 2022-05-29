@@ -35,9 +35,7 @@ set(PYOCD_CLOCK_SPEED 4000k)
 
 set(OPENOCD_UPLOAD_ENABLED TRUE)
 set(OPENOCD_CHIP_CONFIG_COMMANDS
-    -f ${CMAKE_CURRENT_LIST_DIR}/openocd_cfgs/stm32f429-disco.cfg
-    -c "gdb_memory_map disable" # prevents OpenOCD crash on GDB connect
-    )
+    -f ${CMAKE_CURRENT_LIST_DIR}/openocd_cfgs/stm32f429-disco.cfg)
 
 # Config options for STM32Cube
 # -------------------------------------------------------------
