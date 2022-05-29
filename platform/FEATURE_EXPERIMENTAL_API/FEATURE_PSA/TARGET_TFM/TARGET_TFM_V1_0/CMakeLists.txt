@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 if("TFM_DUALCPU" IN_LIST MBED_TARGET_LABELS)
-    target_sources(mbed-psa-sources
+    target_sources(mbed-psa
         INTERFACE
             TARGET_TFM_DUALCPU/src/platform_multicore.c
             TARGET_TFM_DUALCPU/src/platform_ns_mailbox.c
@@ -14,7 +14,7 @@ if("TFM_DUALCPU" IN_LIST MBED_TARGET_LABELS)
 endif()
 
 if("TFM_V8M" IN_LIST MBED_TARGET_LABELS)
-    target_sources(mbed-psa-sources
+    target_sources(mbed-psa
         INTERFACE
             TARGET_TFM_V8M/src/cmsis_nvic_virtual.c
             TARGET_TFM_V8M/src/tfm_mbed_boot.c
@@ -23,14 +23,14 @@ if("TFM_V8M" IN_LIST MBED_TARGET_LABELS)
     )
 endif()
 
-target_include_directories(mbed-psa-headers
+target_include_directories(mbed-psa
     PUBLIC
         include
         include/psa
         include/psa_manifest
 )
 
-target_sources(mbed-psa-sources
+target_sources(mbed-psa
     INTERFACE
         src/tfm_crypto_ipc_api.c
         src/tfm_initial_attestation_ipc_api.c

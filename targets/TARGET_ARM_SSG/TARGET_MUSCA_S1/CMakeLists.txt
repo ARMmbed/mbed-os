@@ -63,18 +63,14 @@ target_sources(mbed-arm-musca-s1
         Libraries/mt25ql_flash_lib.c
 
         ${STARTUP_FILE}
-)
 
-# Create a library to wrap the veneers object (which is closed source)
-# This is needed because if we just added the .o file to the sources, it would get lost by the create_distro() call.
-add_library(mbed-arm-musca-s1-veneers STATIC EXCLUDE_FROM_ALL ${CMAKE_CURRENT_SOURCE_DIR}/s_veneers.o)
-set_property(TARGET mbed-arm-musca-s1-veneers PROPERTY LINKER_LANGUAGE C) # Force to C since it has no sources of any language
+        ${CMAKE_CURRENT_SOURCE_DIR}/s_veneers.o
+)
 
 target_link_libraries(mbed-arm-musca-s1
     INTERFACE
         mbed-arm-ssg
-        mbed-psa-headers
-        mbed-arm-musca-s1-veneers
+        mbed-psa
 )
 
 # pick up rtx_lib.h

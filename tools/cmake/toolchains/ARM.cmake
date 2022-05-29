@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+message(FATAL_ERROR "Mbed CE has dropped support for Arm Clang.  This can only be fixed if armclang implements an equivalent to GCC's -Wl,--whole-archive flag.")
+
 set(CMAKE_ASM_COMPILER "armclang")
 set(CMAKE_C_COMPILER "armclang")
 set(CMAKE_CXX_COMPILER "armclang")

@@ -21,6 +21,11 @@ list(APPEND link_options
     "-Wl,--cref"
 )
 
+# Add the -Wl,--whole-archive flag as a hack to fix resolution of weak symbols between .a libraries.
+# This basically causes the linker to process each object in each .a library as if it was its own file.
+set(CMAKE_C_LINK_EXECUTABLE "<CMAKE_C_COMPILER> <FLAGS> <CMAKE_C_LINK_FLAGS> <LINK_FLAGS> -Wl,--whole-archive <OBJECTS> -o <TARGET> <LINK_LIBRARIES> -Wl,--no-whole-archive")
+set(CMAKE_CXX_LINK_EXECUTABLE "<CMAKE_CXX_COMPILER> <FLAGS> <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> -Wl,--whole-archive <OBJECTS> -o <TARGET> <LINK_LIBRARIES> -Wl,--no-whole-archive")
+
 # Add linking time preprocessor macro for TFM targets
 if("TFM" IN_LIST MBED_TARGET_LABELS)
     list(APPEND link_options
@@ -42,7 +47,6 @@ list(APPEND common_options
     "-g3"
 )
 
-
 # Configure the toolchain to select the selected C library
 function(mbed_set_c_lib target lib_type)
     if (${lib_type} STREQUAL "small")
@@ -57,6 +61,7 @@ function(mbed_set_c_lib target lib_type)
                 "--specs=nano.specs"
         )
     endif()
+
 endfunction()
 
 # Configure the toolchain to select the selected printf library

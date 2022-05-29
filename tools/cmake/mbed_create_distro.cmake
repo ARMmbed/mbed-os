@@ -32,7 +32,7 @@ endfunction(copy_append_property)
 # Create a "distribution" of Mbed OS containing the base Mbed and certain modules.
 # This distribution only needs to be compiled once and can be referenced in an arbitrary amount of targets.
 function(mbed_create_distro NAME) # ARGN: modules...
-	add_library(${NAME} OBJECT EXCLUDE_FROM_ALL)
+	add_library(${NAME} STATIC EXCLUDE_FROM_ALL)
 
 	# Now copy include dirs, compile defs, and compile options (but NOT interface source files) over
 	# to the distribution target so they will be passed into things that link to it.

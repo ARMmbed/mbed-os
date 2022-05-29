@@ -1,7 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-psa-headers
+target_include_directories(mbed-psa
     INTERFACE
         inc
         inc/psa
@@ -18,7 +18,7 @@ target_include_directories(mbed-psa-headers
         services/storage/its
 )
 
-target_sources(mbed-psa-sources
+target_sources(mbed-psa
     INTERFACE
         mbedtls/psa_crypto.c
         mbedtls/psa_crypto_se.c
@@ -62,7 +62,7 @@ target_sources(mbed-psa-sources
         src/default_random_seed.cpp
 )
 
-target_link_libraries(mbed-psa-sources
+target_link_libraries(mbed-psa
     INTERFACE
         mbed-mbedtls
         mbed-storage-kvstore

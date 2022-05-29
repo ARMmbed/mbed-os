@@ -267,13 +267,6 @@ if(NOT MBED_IS_NATIVE_BUILD)
     # Create a distro for the microcontroller cmake target, ensuring its sources are only compiled once
     mbed_create_distro(${MBED_TARGET_CMAKE_NAME}-obj ${MBED_TARGET_CMAKE_NAME} mbed-core-flags)
 
-    # Now make core flags depend on that distro, ensuring everything has access to the uC's flags and objects.
-    # Note that this enforces a hard restriction: none of the libraries folded into the mbed target cmake target can link to
-    # mbed-core-flags, because otherwise there would be a circular dependency.  I'm not sure if that limit will
-    # be a dealbreaker or not in the future.  If it is, we might need to also split each mbed target cmake target
-    # into a -flags and a -sources version.
-    target_link_libraries(mbed-core-flags INTERFACE ${MBED_TARGET_CMAKE_NAME}-obj)
-
     # Core Mbed OS libraries
     # mbed-baremetal contains baremetal sources + target sources + target compile flags.
     # mbed-os will be a superset of mbed-baremetal, also containing the RTOS sources and RTOS flags.
@@ -281,6 +274,10 @@ if(NOT MBED_IS_NATIVE_BUILD)
     # So, it's needed to compile the core sources twice, once for RTOS and once for non-RTOS.
     mbed_create_distro(mbed-baremetal mbed-core-flags mbed-core-sources)
     mbed_create_distro(mbed-os mbed-core-flags mbed-core-sources mbed-rtos-flags mbed-rtos-sources)
+
+    # Now make the Mbed OS code depend on the target, ensuring everything has access to the uC's flags and objects.
+    target_link_libraries(mbed-baremetal PUBLIC ${MBED_TARGET_CMAKE_NAME}-obj)
+    target_link_libraries(mbed-os PUBLIC ${MBED_TARGET_CMAKE_NAME}-obj)
 endif()
 
 # Ninja requires to be forced for response files
