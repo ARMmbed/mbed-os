@@ -9,21 +9,17 @@ if(MBED_OS_ENABLE_TESTS)
     endif()
 endif()
 
-# TODO CMake: Perhaps move this/these file(s) into connectivity/drivers/cellular
-target_sources(mbed-cellular
-    INTERFACE
-        source/CellularNonIPSocket.cpp
-)
+add_library(mbed-netsocket STATIC EXCLUDE_FROM_ALL)
 
 target_include_directories(mbed-netsocket
-    INTERFACE
+    PUBLIC
         .
         ./include
         ./include/netsocket
 )
 
 target_sources(mbed-netsocket
-    INTERFACE
+    PRIVATE
         source/DTLSSocket.cpp
         source/DTLSSocketWrapper.cpp
         source/EMACInterface.cpp
@@ -49,26 +45,27 @@ target_sources(mbed-netsocket
 )
 
 target_compile_definitions(mbed-netsocket
-    INTERFACE
+    PUBLIC
         MBED_CONF_NSAPI_PRESENT=1
 )
 
 target_link_libraries(mbed-netsocket
-    INTERFACE
+    PUBLIC
         mbed-mbedtls
         mbed-lwipstack
         mbed-events
+        mbed-core-flags
 )
 
 if("DEVICE_EMAC=1" IN_LIST MBED_TARGET_DEFINITIONS)
     target_link_libraries(mbed-netsocket
-        INTERFACE
+        PUBLIC
             mbed-emac
     )
 endif()
 
 target_link_libraries(mbed-netsocket
-    INTERFACE
+    PUBLIC
         mbed-wifi
         mbed-cellular
         mbed-nanostack-libservice

@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-nanostack-sal_stack
-    INTERFACE
+    PUBLIC
         .
         ./src
 )
 
 target_sources(mbed-nanostack-sal_stack
-    INTERFACE
+    PRIVATE
         src/multicast_api.c
         src/net_6lowpan_parameter_api.c
         src/net_dns.c

@@ -2,14 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-nanostack-sal_stack
-    INTERFACE
+    PUBLIC
         .
         ./IEEE802_15_4
         ./virtual_rf
 )
 
 target_sources(mbed-nanostack-sal_stack
-    INTERFACE
+    PRIVATE
         rf_driver_storage.c
 
         IEEE802_15_4/mac_cca_threshold.c

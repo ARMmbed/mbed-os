@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-nanostack-sal_stack
-    INTERFACE
+    PUBLIC
         .
         ./Neighbor_cache
         ./Trickle
@@ -36,7 +36,7 @@ target_include_directories(mbed-nanostack-sal_stack
 )
 
 target_sources(mbed-nanostack-sal_stack
-    INTERFACE
+    PRIVATE
         CCM_lib/ccm_security.c
 
         CCM_lib/mbedOS/aes_mbedtls_adapter.c

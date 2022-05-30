@@ -1,15 +1,17 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_library(mbed-nanostack-libservice STATIC EXCLUDE_FROM_ALL)
+
 target_include_directories(mbed-nanostack-libservice
-    INTERFACE
+    PUBLIC
         .
         ./mbed-client-libservice
         ./mbed-client-libservice/platform
 )
 
 target_sources(mbed-nanostack-libservice
-    INTERFACE
+    PRIVATE
         source/IPv6_fcf_lib/ip_fsc.c
         source/libList/ns_list.c
         source/libip4string/ip4tos.c

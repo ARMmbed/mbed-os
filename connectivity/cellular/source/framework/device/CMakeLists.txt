@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_sources(mbed-cellular
-    INTERFACE
+    PRIVATE
         ATHandler.cpp
         CellularContext.cpp
         CellularDevice.cpp

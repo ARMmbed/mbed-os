@@ -1,8 +1,10 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_library(mbed-lwipstack STATIC EXCLUDE_FROM_ALL)
+
 target_include_directories(mbed-lwipstack
-    INTERFACE
+    PUBLIC
         .
         ./include
         ./include/lwipstack
@@ -13,7 +15,7 @@ target_include_directories(mbed-lwipstack
 )
 
 target_sources(mbed-lwipstack
-    INTERFACE
+    PRIVATE
         lwip/src/api/lwip_api_lib.c
         lwip/src/api/lwip_api_msg.c
         lwip/src/api/lwip_err.c
@@ -88,13 +90,15 @@ target_sources(mbed-lwipstack
 )
 
 target_compile_definitions(mbed-lwipstack
-    INTERFACE
+    PUBLIC
         MBED_CONF_LWIPSTACK_PRESENT=1
 )
 
 target_link_libraries(mbed-lwipstack
-    INTERFACE
+    PUBLIC
         mbed-netsocket
         mbed-ppp
         mbed-randlib
+    PRIVATE
+        mbed-rtos-flags
 )

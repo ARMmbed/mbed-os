@@ -19,7 +19,7 @@
 #if MBED_CONF_CELLULAR_PRESENT
 
 #include "platform/Callback.h"
-#include "netsocket/CellularNonIPSocket.h"
+#include "CellularNonIPSocket.h"
 #include <stdio.h>
 
 using namespace mbed;

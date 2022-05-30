@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-nanostack-sal_stack
-    INTERFACE
+    PUBLIC
         .
         ./Common
         ./PANA
@@ -19,7 +19,7 @@ target_include_directories(mbed-nanostack-sal_stack
 )
 
 target_sources(mbed-nanostack-sal_stack
-    INTERFACE
+    PRIVATE
         Common/security_lib.c
 
         PANA/eap_protocol.c

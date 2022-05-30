@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-nanostack-sal_stack
-    INTERFACE
+    PUBLIC
         .
         ./Bootstraps
         ./Fragmentation
@@ -16,7 +16,7 @@ target_include_directories(mbed-nanostack-sal_stack
 )
 
 target_sources(mbed-nanostack-sal_stack
-    INTERFACE
+    PRIVATE
         adaptation_interface.c
 
         Bootstraps/Generic/network_lib.c

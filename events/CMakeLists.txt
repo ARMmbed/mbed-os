@@ -9,10 +9,10 @@ if(MBED_OS_ENABLE_TESTS)
     endif()
 endif()
 
-add_library(mbed-events INTERFACE)
+add_library(mbed-events STATIC EXCLUDE_FROM_ALL)
 
 target_include_directories(mbed-events
-    INTERFACE
+    PUBLIC
         .
         ./include
         ./include/events
@@ -20,7 +20,7 @@ target_include_directories(mbed-events
 )
 
 target_sources(mbed-events
-    INTERFACE
+    PRIVATE
         source/EventQueue.cpp
         source/equeue.c
         source/equeue_mbed.cpp
@@ -29,6 +29,11 @@ target_sources(mbed-events
 )
 
 target_compile_definitions(mbed-events
-    INTERFACE
+    PUBLIC
         MBED_CONF_EVENTS_PRESENT=1
+)
+
+target_link_libraries(mbed-events
+    PUBLIC
+        mbed-core-flags
 )
