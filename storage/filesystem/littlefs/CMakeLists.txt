@@ -1,8 +1,10 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_library(mbed-storage-littlefs STATIC EXCLUDE_FROM_ALL)
+
 target_include_directories(mbed-storage-littlefs
-    INTERFACE
+    PUBLIC
         .
         ./include
         ./include/littlefs
@@ -10,7 +12,7 @@ target_include_directories(mbed-storage-littlefs
 )
 
 target_sources(mbed-storage-littlefs
-    INTERFACE
+    PRIVATE
         source/LittleFileSystem.cpp
 
         littlefs/lfs.c
@@ -18,7 +20,7 @@ target_sources(mbed-storage-littlefs
 )
 
 target_link_libraries(mbed-storage-littlefs
-    INTERFACE
+    PUBLIC
         mbed-storage-blockdevice
         mbed-storage-filesystem
 )

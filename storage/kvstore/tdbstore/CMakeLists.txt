@@ -9,20 +9,22 @@ if(MBED_OS_ENABLE_TESTS)
     endif()
 endif()
 
+add_library(mbed-storage-tdbstore STATIC EXCLUDE_FROM_ALL)
+
 target_include_directories(mbed-storage-tdbstore
-    INTERFACE
+    PUBLIC
         .
         include
         include/tdbstore
 )
 
 target_sources(mbed-storage-tdbstore
-    INTERFACE
+    PRIVATE
         source/TDBStore.cpp
 )
 
 target_link_libraries(mbed-storage-tdbstore
-    INTERFACE
+    PUBLIC
         mbed-storage-kvstore
         mbed-storage-blockdevice
 )

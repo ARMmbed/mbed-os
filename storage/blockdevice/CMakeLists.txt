@@ -10,6 +10,8 @@ if(MBED_OS_ENABLE_TESTS)
     endif()
 endif()
 
+add_library(mbed-storage-blockdevice STATIC EXCLUDE_FROM_ALL)
+
 if("DATAFLASH" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(COMPONENT_DATAFLASH)
 endif()
@@ -38,9 +40,8 @@ if("SPIF" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(COMPONENT_SPIF)
 endif()
 
-
 target_include_directories(mbed-storage-blockdevice
-    INTERFACE
+    PUBLIC
         .
         ./include
         ./include/blockdevice
@@ -48,7 +49,7 @@ target_include_directories(mbed-storage-blockdevice
 )
 
 target_sources(mbed-storage-blockdevice
-    INTERFACE
+    PRIVATE
         source/BufferedBlockDevice.cpp
         source/ChainingBlockDevice.cpp
         source/ExhaustibleBlockDevice.cpp
@@ -61,3 +62,5 @@ target_sources(mbed-storage-blockdevice
         source/SFDP.cpp
         source/SlicingBlockDevice.cpp
 )
+
+target_link_libraries(mbed-storage-blockdevice PUBLIC mbed-core-flags)

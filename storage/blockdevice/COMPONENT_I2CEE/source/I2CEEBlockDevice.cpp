@@ -17,6 +17,7 @@
 #include "I2CEEBlockDevice.h"
 #include "rtos/ThisThread.h"
 using namespace mbed;
+using namespace std::chrono_literals;
 
 #define I2CEE_TIMEOUT 10000
 
@@ -156,7 +157,7 @@ int I2CEEBlockDevice::_sync()
             return 0;
         }
 
-        rtos::ThisThread::sleep_for(1);
+        rtos::ThisThread::sleep_for(1s);
     }
 
     return BD_ERROR_DEVICE_ERROR;

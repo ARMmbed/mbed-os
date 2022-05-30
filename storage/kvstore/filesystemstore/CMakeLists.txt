@@ -9,20 +9,22 @@ if(MBED_OS_ENABLE_TESTS)
     endif()
 endif()
 
+add_library(mbed-storage-filesystemstore STATIC EXCLUDE_FROM_ALL)
+
 target_include_directories(mbed-storage-filesystemstore
-    INTERFACE
+    PUBLIC
         .
         include
         include/filesystemstore
 )
 
 target_sources(mbed-storage-filesystemstore
-    INTERFACE
+    PRIVATE
         source/FileSystemStore.cpp
 )
 
 target_link_libraries(mbed-storage-filesystemstore
-    INTERFACE
+    PUBLIC
         mbed-storage-kvstore
         mbed-storage-filesystem
         mbed-storage-kv-config

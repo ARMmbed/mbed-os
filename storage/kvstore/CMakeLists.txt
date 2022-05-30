@@ -9,6 +9,8 @@ if(MBED_OS_ENABLE_TESTS)
     endif()
 endif()
 
+add_library(mbed-storage-kvstore INTERFACE)
+
 add_subdirectory(tdbstore)
 add_subdirectory(filesystemstore)
 add_subdirectory(securestore)

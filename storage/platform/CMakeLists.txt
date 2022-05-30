@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_sources(mbed-storage
-    INTERFACE
+    PRIVATE
         source/PlatformStorage.cpp
 )
 
@@ -34,6 +34,6 @@ if("SPIF" IN_LIST MBED_TARGET_LABELS)
 endif()
 
 target_link_libraries(mbed-storage
-    INTERFACE
+    PUBLIC
         ${mbed-storage-libs}
 )
