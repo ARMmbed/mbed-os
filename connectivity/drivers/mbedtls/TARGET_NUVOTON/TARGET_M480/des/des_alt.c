@@ -375,7 +375,7 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
      * 1. BE for byte sequence in word
      * 2. BE for word sequence in double-word
      */
-    TDES_Open(CRPT
+    TDES_Open(CRPT,
             0,                                                // Channel number (0~4) 
             enc,                                                // 0: decode, 1: encode
             (tdes_opmode & CRPT_TDES_CTL_TMODE_Msk) ? 1 : 0,    // 0: DES, 1: TDES 
