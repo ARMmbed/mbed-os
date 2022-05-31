@@ -4,12 +4,12 @@
 add_subdirectory(lwip-wifi)
 
 target_include_directories(mbed-emac
-    INTERFACE
+    PUBLIC
         .
 )
 
 target_sources(mbed-emac
-    INTERFACE
+    PRIVATE
         RdaWiFiInterface.cpp
         rda5981x_emac.cpp
 )

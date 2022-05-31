@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-emac
-    INTERFACE
+    PUBLIC
         .
 )
 
 target_sources(mbed-emac
-    INTERFACE
+    PRIVATE
         rza1_emac.cpp
         rza1_eth.cpp
 )

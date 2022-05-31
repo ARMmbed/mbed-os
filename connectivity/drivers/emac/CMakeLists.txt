@@ -1,6 +1,12 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+if(NOT "DEVICE_EMAC=1" IN_LIST MBED_TARGET_DEFINITIONS)
+    return()
+endif()
+
+add_library(mbed-emac STATIC EXCLUDE_FROM_ALL)
+
 if("ARM_FM" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_ARM_FM)
 elseif("ARM_SSG" IN_LIST MBED_TARGET_LABELS)
@@ -30,6 +36,8 @@ if("WHD" IN_LIST MBED_TARGET_LABELS)
 endif()
 
 target_link_libraries(mbed-emac
-    INTERFACE
-        mbed-netsocket
+    PUBLIC
+        mbed-netsocket-api
+    PRIVATE
+        mbed-rtos-flags
 )

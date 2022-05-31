@@ -34,7 +34,7 @@ target_link_libraries(mbed-nanostack-mbed_mesh_api
     PUBLIC
         mbed-nanostack-hal_mbed_cmsis_rtos
         mbed-nanostack-sal_stack
-        mbed-netsocket
+        mbed-netsocket-api
         mbed-core-flags
     PRIVATE
         mbed-rtos-flags

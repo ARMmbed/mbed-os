@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-cellular
-    INTERFACE
+    PUBLIC
         .
 )
 
 target_sources(mbed-cellular
-    INTERFACE
+    PRIVATE
         TELIT_ME910.cpp
         TELIT_ME910_CellularContext.cpp
         TELIT_ME910_CellularNetwork.cpp

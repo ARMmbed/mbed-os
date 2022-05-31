@@ -8,11 +8,11 @@ elseif("NUC472" IN_LIST MBED_TARGET_LABELS)
 endif()
 
 target_include_directories(mbed-emac
-    INTERFACE
+    PUBLIC
         .
 )
 
 target_sources(mbed-emac
-    INTERFACE
+    PRIVATE
         numaker_emac.cpp
 )

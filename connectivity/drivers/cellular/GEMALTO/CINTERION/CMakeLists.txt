@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-cellular
-    INTERFACE
+    PUBLIC
         .
 )
 
 target_sources(mbed-cellular
-    INTERFACE
+    PRIVATE
         GEMALTO_CINTERION.cpp
         GEMALTO_CINTERION_CellularContext.cpp
         GEMALTO_CINTERION_CellularInformation.cpp

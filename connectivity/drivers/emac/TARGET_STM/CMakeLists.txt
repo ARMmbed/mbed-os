@@ -12,12 +12,12 @@ elseif("STM32H7" IN_LIST MBED_TARGET_LABELS)
 endif()
 
 target_include_directories(mbed-emac
-    INTERFACE
+    PUBLIC
         .
 )
 
 target_sources(mbed-emac
-    INTERFACE
+    PRIVATE
         stm32xx_emac.cpp
         stm32xx_eth_irq_callback.cpp
 )

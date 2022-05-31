@@ -96,7 +96,7 @@ target_compile_definitions(mbed-lwipstack
 
 target_link_libraries(mbed-lwipstack
     PUBLIC
-        mbed-netsocket
+        mbed-netsocket-api
         mbed-ppp
         mbed-randlib
     PRIVATE

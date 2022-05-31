@@ -8,11 +8,11 @@ elseif("GD32F4XX" IN_LIST MBED_TARGET_LABELS)
 endif()
 
 target_include_directories(mbed-emac
-    INTERFACE
+    PUBLIC
         .
 )
 
 target_sources(mbed-emac
-    INTERFACE
+    PRIVATE
         gd32xx_emac.cpp
 )

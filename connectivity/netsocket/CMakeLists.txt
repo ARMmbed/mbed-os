@@ -3,22 +3,22 @@
 
 if(MBED_OS_ENABLE_TESTS)
     if(BUILD_GREENTEA_TESTS)
-        # add greentea test
+        add_subdirectory(tests/TESTS)
     else()
         add_subdirectory(tests/UNITTESTS)
     endif()
 endif()
 
-add_library(mbed-netsocket STATIC EXCLUDE_FROM_ALL)
+add_library(mbed-netsocket-api STATIC EXCLUDE_FROM_ALL)
 
-target_include_directories(mbed-netsocket
+target_include_directories(mbed-netsocket-api
     PUBLIC
         .
         ./include
         ./include/netsocket
 )
 
-target_sources(mbed-netsocket
+target_sources(mbed-netsocket-api
     PRIVATE
         source/DTLSSocket.cpp
         source/DTLSSocketWrapper.cpp
@@ -44,28 +44,35 @@ target_sources(mbed-netsocket
         source/nsapi_ppp.cpp
 )
 
-target_compile_definitions(mbed-netsocket
+target_compile_definitions(mbed-netsocket-api
     PUBLIC
         MBED_CONF_NSAPI_PRESENT=1
 )
 
-target_link_libraries(mbed-netsocket
+target_link_libraries(mbed-netsocket-api
     PUBLIC
+        mbed-core-flags
+        mbed-mbedtls
+        mbed-events
+)
+
+add_library(mbed-netsocket INTERFACE)
+
+target_link_libraries(mbed-netsocket
+    INTERFACE
         mbed-mbedtls
         mbed-lwipstack
-        mbed-events
-        mbed-core-flags
 )
 
 if("DEVICE_EMAC=1" IN_LIST MBED_TARGET_DEFINITIONS)
     target_link_libraries(mbed-netsocket
-        PUBLIC
+        INTERFACE
             mbed-emac
     )
 endif()
 
 target_link_libraries(mbed-netsocket
-    PUBLIC
+    INTERFACE
         mbed-wifi
         mbed-cellular
         mbed-nanostack-libservice

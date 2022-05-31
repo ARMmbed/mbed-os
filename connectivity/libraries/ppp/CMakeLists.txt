@@ -1,8 +1,10 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_library(mbed-ppp STATIC EXCLUDE_FROM_ALL)
+
 target_include_directories(mbed-ppp
-    INTERFACE
+    PUBLIC
         .
         ./include
         ./include/polarssl
@@ -10,7 +12,7 @@ target_include_directories(mbed-ppp
 )
 
 target_sources(mbed-ppp
-    INTERFACE
+    PRIVATE
         source/auth.c
         source/ccp.c
         source/chap-md5.c
@@ -47,6 +49,14 @@ target_sources(mbed-ppp
 )
 
 target_compile_definitions(mbed-ppp
-    INTERFACE
+    PUBLIC
         MBED_CONF_PPP_PRESENT=1
+)
+
+target_link_libraries(mbed-ppp
+    PUBLIC
+        mbed-events
+        mbed-netsocket-api
+    PRIVATE
+        mbed-rtos-flags
 )

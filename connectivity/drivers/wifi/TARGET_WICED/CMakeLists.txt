@@ -1,7 +1,7 @@
 # Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-wiced INTERFACE)
+add_library(mbed-wiced STATIC EXCLUDE_FROM_ALL)
 
 if(${CMAKE_CROSSCOMPILING})
     if(${MBED_TOOLCHAIN} STREQUAL "ARM")
@@ -10,15 +10,15 @@ if(${CMAKE_CROSSCOMPILING})
         set(LIB_WICED_DRIVERS TOOLCHAIN_GCC_ARM/TARGET_WIO_EMW3166/libwiced_drivers.a)
     endif()
 
-target_link_libraries(mbed-wiced INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/${LIB_WICED_DRIVERS})
+    target_link_libraries(mbed-wiced INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/${LIB_WICED_DRIVERS})
 endif()
 
 target_include_directories(mbed-wiced
-    INTERFACE
+    PUBLIC
         wiced_interface
 )
 
 target_sources(mbed-wiced
-    INTERFACE
+    PRIVATE
         wiced_interface/default_wifi_interface.cpp
 )

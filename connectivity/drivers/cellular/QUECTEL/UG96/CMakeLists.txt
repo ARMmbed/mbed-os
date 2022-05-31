@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-cellular
-    INTERFACE
+    PUBLIC
         .
 )
 
 target_sources(mbed-cellular
-    INTERFACE
+    PRIVATE
         QUECTEL_UG96.cpp
         QUECTEL_UG96_CellularContext.cpp
 )

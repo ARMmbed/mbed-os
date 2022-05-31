@@ -111,6 +111,8 @@ target_compile_definitions(mbed-mbedtls
         MBED_CONF_MBEDTLS_PRESENT=1
 )
 
+target_link_libraries(mbed-mbedtls PUBLIC mbed-core-flags)
+
 # Workaround for https://github.com/ARMmbed/mbedtls/issues/1077
 # which affects cores without __thumb2__ set by the compiler
 # due to the lack of full Thumb-2 support

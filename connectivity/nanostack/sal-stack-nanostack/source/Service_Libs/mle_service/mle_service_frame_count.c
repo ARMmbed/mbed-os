@@ -27,7 +27,7 @@
 #include "MLE/mle.h"
 #include "mac_common_defines.h"
 #include "Service_Libs/mle_service/mle_service_api.h"
-#include "Service_Libs/mle_service/mle_service_frame_counter_table.h"
+#include "Service_Libs/mle_service/mle_service_frame_count.h"
 
 
 

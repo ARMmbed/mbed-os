@@ -119,7 +119,7 @@ void UDPSOCKET_ECHOTEST_BURST()
             } else if (recvd < 0) {
                 pkg_fail += BURST_PKTS - j; // Assume all the following packets of the burst to be lost
                 tr_warn("[%02d] network error %d", i, recvd);
-                ThisThread::sleep_for(recv_timeout * 1000);
+                ThisThread::sleep_for(recv_timeout * 1000ms);
                 recv_timeout *= 2; // Back off,
                 break;
             } else if (temp_addr != udp_addr) {

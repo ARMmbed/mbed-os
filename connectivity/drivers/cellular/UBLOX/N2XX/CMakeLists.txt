@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-cellular
-    INTERFACE
+    PUBLIC
         .
 )
 
 target_sources(mbed-cellular
-    INTERFACE
+    PRIVATE
         UBLOX_N2XX.cpp
         UBLOX_N2XX_CellularContext.cpp
         UBLOX_N2XX_CellularNetwork.cpp

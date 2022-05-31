@@ -31,12 +31,13 @@ target_compile_definitions(mbed-cellular
 )
 
 target_sources(mbed-cellular
-    PUBLIC
+    PRIVATE
         source/CellularNonIPSocket.cpp
 )
 
 target_link_libraries(mbed-cellular
     PUBLIC
-        mbed-netsocket
+        mbed-netsocket-api
         mbed-core-flags
+        mbed-randlib
 )

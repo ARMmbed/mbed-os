@@ -12,7 +12,6 @@ target_sources(mbed-nanostack-hal_mbed_cmsis_rtos
     PRIVATE
         arm_hal_fhss_timer.cpp
         arm_hal_interrupt.c
-        arm_hal_random.c
         arm_hal_timer.cpp
         ns_event_loop.c
         ns_event_loop_mbed.cpp
@@ -26,6 +25,11 @@ target_sources(mbed-nanostack-hal_mbed_cmsis_rtos
 target_link_libraries(mbed-nanostack-hal_mbed_cmsis_rtos
     PUBLIC
         mbed-core-flags
+        mbed-randlib
+        mbed-nanostack-sal_stack-event_loop
+        mbed-events
+        mbed-nanostack-libservice
+        mbed-nanostack-sal_stack
     PRIVATE
         mbed-rtos-flags
 )

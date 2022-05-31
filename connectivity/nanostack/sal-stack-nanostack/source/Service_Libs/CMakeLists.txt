@@ -85,7 +85,7 @@ target_sources(mbed-nanostack-sal_stack
 
         mle_service/mle_service.c
         mle_service/mle_service_buffer.c
-        mle_service/mle_service_frame_counter_table.c
+    mle_service/mle_service_frame_count.c
         mle_service/mle_service_interface.c
         mle_service/mle_service_security.c
 

@@ -31,5 +31,5 @@ target_link_libraries(mbed-nanostack
         mbed-nanostack-mbed_mesh_api
         mbed-nanostack-sal_stack-event_loop
         mbed-nanostack-sal_stack
-        mbed-netsocket
+        mbed-netsocket-api
 )

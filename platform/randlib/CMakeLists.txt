@@ -13,4 +13,11 @@ target_include_directories(mbed-randlib
 target_sources(mbed-randlib
     PRIVATE
         source/randLIB.c
+        source/arm_hal_random.c
+)
+
+target_link_libraries(mbed-randlib
+    PUBLIC
+        mbed-mbedtls
+        mbed-core-flags
 )

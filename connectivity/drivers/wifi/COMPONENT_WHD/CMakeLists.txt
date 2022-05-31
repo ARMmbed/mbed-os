@@ -3,39 +3,39 @@
 
 add_subdirectory(whd-bsp-integration EXCLUDE_FROM_ALL)
 
-add_library(mbed-cy-psoc6-whd-43012 INTERFACE)
+add_library(mbed-cy-psoc6-whd-43012 STATIC EXCLUDE_FROM_ALL)
 target_include_directories(mbed-cy-psoc6-whd-43012
-    INTERFACE
+    PUBLIC
         wifi-host-driver/resources/firmware/COMPONENT_43012
 )
 target_sources(mbed-cy-psoc6-whd-43012 
-    INTERFACE
+    PRIVATE
         wifi-host-driver/resources/firmware/COMPONENT_43012/43012C0-mfgtest_bin.c
         wifi-host-driver/resources/firmware/COMPONENT_43012/43012C0-mfgtest_clm_blob.c
         wifi-host-driver/resources/firmware/COMPONENT_43012/43012C0_bin.c
         wifi-host-driver/resources/firmware/COMPONENT_43012/43012C0_clm_blob.c
 )
 
-add_library(mbed-cy-psoc6-whd-43438 INTERFACE)
+add_library(mbed-cy-psoc6-whd-43438 STATIC EXCLUDE_FROM_ALL)
 target_include_directories(mbed-cy-psoc6-whd-43438
-    INTERFACE
+    PUBLIC
         wifi-host-driver/resources/firmware/COMPONENT_43438
 )
 target_sources(mbed-cy-psoc6-whd-43438 
-    INTERFACE
+    PRIVATE
         wifi-host-driver/resources/firmware/COMPONENT_43438/43438A1-mfgtest_bin.c
         wifi-host-driver/resources/firmware/COMPONENT_43438/43438A1-mfgtest_clm_blob.c
         wifi-host-driver/resources/firmware/COMPONENT_43438/43438A1_bin.c
         wifi-host-driver/resources/firmware/COMPONENT_43438/43438A1_clm_blob.c
 )
 
-add_library(mbed-cy-psoc6-whd-4343w INTERFACE)
+add_library(mbed-cy-psoc6-whd-4343w STATIC EXCLUDE_FROM_ALL)
 target_include_directories(mbed-cy-psoc6-whd-4343w
-    INTERFACE
+    PUBLIC
         wifi-host-driver/resources/firmware/COMPONENT_4343W
 )
 target_sources(mbed-cy-psoc6-whd-4343w 
-    INTERFACE
+    PRIVATE
         wifi-host-driver/resources/firmware/COMPONENT_4343W/4343WA1-mfgtest_bin.c
         wifi-host-driver/resources/firmware/COMPONENT_4343W/4343WA1-mfgtest_clm_blob.c
         wifi-host-driver/resources/firmware/COMPONENT_4343W/4343WA1_bin.c
@@ -97,10 +97,10 @@ add_library(mbed-cy8ckit-064b0s2-4343w-whd INTERFACE)
 target_include_directories(mbed-cy8ckit-064b0s2-4343w-whd INTERFACE wifi-host-driver/resources/nvram/TARGET_CY8CKIT_064B0S2_4343W)
 
 
-add_library(mbed-cy-psoc6-whd INTERFACE)
+add_library(mbed-cy-psoc6-whd STATIC EXCLUDE_FROM_ALL)
 
 target_include_directories(mbed-cy-psoc6-whd
-    INTERFACE
+    PUBLIC
         wifi-host-driver
         wifi-host-driver/inc
         wifi-host-driver/resources/resource_imp
@@ -110,7 +110,7 @@ target_include_directories(mbed-cy-psoc6-whd
 )
 
 target_sources(mbed-cy-psoc6-whd
-    INTERFACE
+    PRIVATE
         wifi-host-driver/resources/resource_imp/whd_resources.c
 
         wifi-host-driver/src/whd_ap.c
@@ -139,6 +139,6 @@ target_sources(mbed-cy-psoc6-whd
 )
 
 target_compile_definitions(mbed-cy-psoc6-whd
-    INTERFACE
+    PUBLIC
         MBED_CONF_CY_PSOC6_WHD_PRESENT=1
 )

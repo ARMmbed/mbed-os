@@ -2,6 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_sources(mbed-emac
-    INTERFACE
+    PRIVATE
         stm32h7_eth_init.c
 )

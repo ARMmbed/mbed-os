@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_sources(mbed-wifi
-    INTERFACE
+    PRIVATE
         ESP8266Interface.cpp
         ESP8266/ESP8266.cpp
 )
 
 target_include_directories(mbed-wifi
-    INTERFACE
+    PUBLIC
         .
         ./ESP8266
 )

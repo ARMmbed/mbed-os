@@ -8,11 +8,11 @@ elseif("K66F" IN_LIST MBED_TARGET_LABELS)
 endif()
 
 target_include_directories(mbed-emac
-    INTERFACE
+    PUBLIC
         .
 )
 
 target_sources(mbed-emac
-    INTERFACE
+    PRIVATE
         kinetis_emac.cpp
 )

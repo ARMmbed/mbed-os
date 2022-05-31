@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef MLE_SERVICE_FRAME_COUNTER_TABLE_H_
-#define MLE_SERVICE_FRAME_COUNTER_TABLE_H_
+#ifndef MLE_SERVICE_FRAME_COUNT_H_
+#define MLE_SERVICE_FRAME_COUNT_H_
 
 #include <ns_types.h>
 /*
@@ -32,4 +32,4 @@ typedef struct {
 //Internal use
 mle_neighbor_security_counter_info_t *mle_service_counter_info_get(int8_t interface_id, uint8_t attribute_index);
 
-#endif /* MLE_SERVICE_FRAME_COUNTER_TABLE_H_ */
+#endif /* MLE_SERVICE_FRAME_COUNT_H_ */

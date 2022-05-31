@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-emac
-    INTERFACE
+    PUBLIC
         .
         ./interface
 )
 
 target_sources(mbed-emac
-    INTERFACE
+    PRIVATE
         interface/default_wifi_interface.cpp
         interface/scl_emac.cpp
         interface/SclAccessPoint.cpp
