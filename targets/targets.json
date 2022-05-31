@@ -1900,7 +1900,7 @@
             "HSE_VALUE=26000000"
         ],
         "overrides": {
-            "clock_source": "USE_PLL_HSI"
+            "clock_source": "USE_PLL_HSE_XTAL"
         },
         "components_remove": [
             "FLASHIAP"
