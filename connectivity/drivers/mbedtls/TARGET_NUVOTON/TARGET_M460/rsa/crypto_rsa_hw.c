@@ -50,6 +50,7 @@
  * 1. For non-CRT+SCAP (excluding CRT+SCAP) mode, DMA buffer for MADDR6 must be key length plus 128 bits.
  * 2. DMA buffer must be 4-word aligned, or RSA H/W will trap.
  * 3. CRT is not well-tested yet, esp with 4096 key bits.
+ * 4. Following designer's resolution, disable SCAP.
  */
 
 /* RSA context for DMA */
@@ -223,6 +224,9 @@ int crypto_rsa_crypt(mbedtls_rsa_context *ctx,
     bool rsa_done;
     size_t olen;
     uint32_t keybits;
+
+    /* NOTE: Check above RSA H/W comment for disabling blinding */
+    blinding = false;
 
 #if defined(NU_CRYPTO_RSA_ENABLE_DEBUG)
     mbedtls_printf("[CRPT][RSA] decrypt=%d, crt=%d, blinding=%d\n", decrypt, crt, blinding);
