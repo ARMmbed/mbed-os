@@ -8,12 +8,12 @@ add_subdirectory(generic)
 add_subdirectory(pal)
 
 target_include_directories(mbed-ble
-    INTERFACE
+    PUBLIC
         .
 )
 
 target_sources(mbed-ble
-    INTERFACE
+    PRIVATE
         BLE.cpp
         Gap.cpp
         GattClient.cpp
@@ -23,6 +23,6 @@ target_sources(mbed-ble
 )
 
 target_link_libraries(mbed-ble
-    INTERFACE
+    PUBLIC
         mbed-ble-cordio
 )

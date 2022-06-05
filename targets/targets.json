@@ -6998,7 +6998,8 @@
         ],
         "macros_add": [
             "CONFIG_GPIO_AS_PINRESET"
-        ]
+        ],
+        "OUTPUT_EXT": "bin"
     },
     "NUMAKER_PFM_NUC472": {
         "core": "Cortex-M4F",

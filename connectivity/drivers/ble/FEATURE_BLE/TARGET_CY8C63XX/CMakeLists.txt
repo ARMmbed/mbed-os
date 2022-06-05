@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-ble
-    INTERFACE
+    PUBLIC
         .
         drivers
 )
 
 target_sources(mbed-ble
-    INTERFACE
+    PRIVATE
         Psoc6BLE.cpp
         drivers/IPCPipeTransportDriver.cpp
 )

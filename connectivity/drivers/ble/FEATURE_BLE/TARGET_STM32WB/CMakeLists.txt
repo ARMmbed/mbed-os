@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-ble
-    INTERFACE
+    PUBLIC
         .
         ./STM32Cube_FW
 )
 
 target_sources(mbed-ble
-    INTERFACE
+    PRIVATE
         HCIDriver.cpp
         hw_ipcc.c
 

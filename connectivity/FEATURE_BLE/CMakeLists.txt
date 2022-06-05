@@ -7,11 +7,14 @@ if(MBED_OS_ENABLE_TESTS)
     endif()
 endif()
 
+add_library(mbed-ble STATIC EXCLUDE_FROM_ALL)
+add_library(mbed-ble-cordio_ll STATIC EXCLUDE_FROM_ALL)
+
 add_subdirectory(libraries)
 add_subdirectory(source)
 
 target_include_directories(mbed-ble
-    INTERFACE
+    PUBLIC
         .
         include
         include/ble
@@ -28,6 +31,6 @@ target_include_directories(mbed-ble
 )
 
 target_compile_definitions(mbed-ble
-    INTERFACE
+    PUBLIC
         MBED_CONF_BLE_PRESENT=1
 )

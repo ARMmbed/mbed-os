@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-ble-cordio
-    INTERFACE
+    PUBLIC
         include
         sources/hci/dual_chip
         sources/sec/common
@@ -15,7 +15,7 @@ target_include_directories(mbed-ble-cordio
 )
 
 target_sources(mbed-ble-cordio
-    INTERFACE
+    PRIVATE
         sources/hci/common/hci_core.c
 
         sources/hci/dual_chip/hci_cmd.c

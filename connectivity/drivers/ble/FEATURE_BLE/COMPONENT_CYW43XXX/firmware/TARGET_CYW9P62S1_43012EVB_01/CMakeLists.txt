@@ -2,6 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_sources(mbed-ble
-    INTERFACE
+    PRIVATE
         w_bt_firmware_controller.c
 )

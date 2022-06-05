@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-ble
-    INTERFACE
+    PUBLIC
         .
 )
 
 target_sources(mbed-ble
-    INTERFACE
+    PRIVATE
         BlueNrgMsHCIDriver.cpp
 )

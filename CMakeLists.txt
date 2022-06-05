@@ -113,7 +113,6 @@ endif()
 # These targets are made visible here so their source files which
 # are spread in different directories can be referenced and can be linked against
 # by libraries that depend on them.
-add_library(mbed-device_key INTERFACE)
 add_library(mbed-rtos-flags INTERFACE) # Collects source files that are in mbed-os but not mbed-baremetal
 add_library(mbed-rtos-sources INTERFACE) # Collects flags that are in mbed-os but not mbed-baremetal
 add_library(mbed-core-flags INTERFACE) # Collects flags common to mbed-baremetal and mbed-os

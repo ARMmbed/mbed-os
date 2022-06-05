@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-ble-cordio_ll
-    INTERFACE
+    PUBLIC
         .
         ./stack
         ./stack/controller
@@ -23,7 +23,7 @@ target_include_directories(mbed-ble-cordio_ll
 )
 
 target_sources(mbed-ble-cordio_ll
-    INTERFACE
+    PRIVATE
         stack/controller/sources/ble/bb/bb_ble_adv_master.c
         stack/controller/sources/ble/bb/bb_ble_adv_master_ae.c
         stack/controller/sources/ble/bb/bb_ble_adv_slave.c
@@ -46,13 +46,13 @@ target_sources(mbed-ble-cordio_ll
 )
 
 target_sources(mbed-ble-cordio_ll
-    INTERFACE
+    PRIVATE
         stack/controller/sources/ble/init/init.c
         stack/controller/sources/ble/init/init_ctr.c
 )
 
 target_sources(mbed-ble-cordio_ll
-    INTERFACE
+    PRIVATE
         stack/controller/sources/ble/lctr/lctr_act_adv_master.c
         stack/controller/sources/ble/lctr/lctr_act_adv_master_ae.c
         stack/controller/sources/ble/lctr/lctr_act_adv_slave.c
@@ -146,7 +146,7 @@ target_sources(mbed-ble-cordio_ll
 )
 
 target_sources(mbed-ble-cordio_ll
-    INTERFACE
+    PRIVATE
         stack/controller/sources/ble/lhci/lhci_cmd.c
         stack/controller/sources/ble/lhci/lhci_cmd_adv_master.c
         stack/controller/sources/ble/lhci/lhci_cmd_adv_master_ae.c
@@ -225,7 +225,7 @@ target_sources(mbed-ble-cordio_ll
 )
 
 target_sources(mbed-ble-cordio_ll
-    INTERFACE
+    PRIVATE
         stack/controller/sources/ble/ll/ll_init.c
         stack/controller/sources/ble/ll/ll_init_adv_master.c
         stack/controller/sources/ble/ll/ll_init_adv_master_ae.c
@@ -276,7 +276,7 @@ target_sources(mbed-ble-cordio_ll
 )
 
 target_sources(mbed-ble-cordio_ll
-    INTERFACE
+    PRIVATE
         stack/controller/sources/ble/lmgr/lmgr_events.c
         stack/controller/sources/ble/lmgr/lmgr_main.c
         stack/controller/sources/ble/lmgr/lmgr_main_adv_master_ae.c
@@ -291,14 +291,14 @@ target_sources(mbed-ble-cordio_ll
 )
 
 target_sources(mbed-ble-cordio_ll
-    INTERFACE
+    PRIVATE
         stack/controller/sources/ble/sch/sch_ble.c
         stack/controller/sources/ble/sch/sch_rm.c
         stack/controller/sources/ble/sch/sch_tm.c
 )
 
 target_sources(mbed-ble-cordio_ll
-    INTERFACE
+    PRIVATE
         stack/controller/sources/common/bb/bb_main.c
 
         stack/controller/sources/common/chci/chci_tr.c
@@ -308,7 +308,7 @@ target_sources(mbed-ble-cordio_ll
 )
 
 target_sources(mbed-ble-cordio_ll
-    INTERFACE
+    PRIVATE
         stack/thirdparty/nordic-bsp/components/boards/boards.c
 
         stack/thirdparty/uecc/asm_arm.inc
@@ -317,11 +317,11 @@ target_sources(mbed-ble-cordio_ll
 )
 
 target_sources(mbed-ble-cordio_ll
-    INTERFACE
+    PRIVATE
         stack_adaptation/custom_chci_tr.cpp
 )
 
 target_link_libraries(mbed-ble-cordio_ll
-    INTERFACE
+    PUBLIC
         mbed-ble-cordio
 )

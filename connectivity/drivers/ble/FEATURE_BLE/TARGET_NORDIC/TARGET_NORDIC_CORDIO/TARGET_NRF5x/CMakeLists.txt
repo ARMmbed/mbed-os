@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-ble-cordio
-    INTERFACE
+    PUBLIC
         .
         ./stack/include
 )
 
 target_sources(mbed-ble-cordio
-    INTERFACE
+    PRIVATE
         NRFCordioHCIDriver.cpp
         NRFCordioHCITransportDriver.cpp
 
@@ -21,7 +21,7 @@ target_sources(mbed-ble-cordio
 )
 
 target_link_libraries(mbed-ble-cordio
-    INTERFACE
+    PUBLIC
         mbed-ble-cordio_ll
         mbed-mbedtls
 )

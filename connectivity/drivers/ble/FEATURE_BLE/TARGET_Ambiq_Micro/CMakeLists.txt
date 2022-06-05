@@ -6,11 +6,11 @@ if("Apollo3" IN_LIST MBED_TARGET_LABELS)
 endif()
 
 target_include_directories(mbed-ble
-    INTERFACE
+    PUBLIC
         hal/apollo3
 )
 
 target_sources(mbed-ble
-    INTERFACE
+    PRIVATE
         hal/apollo3/hci_drv_apollo3.c
 )

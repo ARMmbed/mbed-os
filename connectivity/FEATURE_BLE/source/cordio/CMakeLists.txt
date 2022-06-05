@@ -1,15 +1,21 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+if(MBED_OS_ENABLE_TESTS)
+    if(BUILD_GREENTEA_TESTS)
+        add_subdirectory(TESTS)
+    endif()
+endif()
+
 target_include_directories(mbed-ble-cordio
-    INTERFACE
+    PUBLIC
         .
         source
         stack_adaptation
 )
 
 target_sources(mbed-ble-cordio
-    INTERFACE
+    PRIVATE
         driver/CordioHCIDriver.cpp
         driver/CordioHCITransportDriver.cpp
         driver/H4TransportDriver.cpp

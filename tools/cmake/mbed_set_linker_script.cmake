@@ -22,6 +22,8 @@ function(mbed_set_linker_script input_target raw_linker_script_path)
                 -E -x assembler-with-cpp
                 -P ${raw_linker_script_path}
                 -o ${LINKER_SCRIPT_PATH}
+            DEPENDS
+                ${raw_linker_script_path}
             WORKING_DIRECTORY
                 ${CMAKE_CURRENT_SOURCE_DIR}
             COMMENT

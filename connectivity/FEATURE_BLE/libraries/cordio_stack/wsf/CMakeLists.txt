@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-ble-cordio
-    INTERFACE
+    PUBLIC
         include
         include/util
 )
 
 target_sources(mbed-ble-cordio
-    INTERFACE
+    PRIVATE
         sources/port/baremetal/wsf_assert.c
         sources/port/baremetal/wsf_buf.c
         sources/port/baremetal/wsf_bufio.c
