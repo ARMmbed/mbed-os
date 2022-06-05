@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-802.15.4-rf
-    INTERFACE
+    PUBLIC
         .
 )
 
 target_sources(mbed-802.15.4-rf
-    INTERFACE
+    PRIVATE
         NanostackRfPhyEfr32.cpp
 )

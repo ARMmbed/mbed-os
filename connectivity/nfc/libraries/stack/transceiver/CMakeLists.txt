@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-nfc
-    INTERFACE
+    PUBLIC
         .
 )
 
 target_sources(mbed-nfc
-    INTERFACE
+    PRIVATE
         transceiver.c
 )

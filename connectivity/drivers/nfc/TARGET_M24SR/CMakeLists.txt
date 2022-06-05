@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-nfc
-    INTERFACE
+    PUBLIC
         include
         include/nfc
 )
 
 target_sources(mbed-nfc
-    INTERFACE
+    PRIVATE
         source/m24sr_driver.cpp
 )

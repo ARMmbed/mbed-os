@@ -17,13 +17,13 @@
 #################################################################################
 
 target_include_directories(mbed-802.15.4-rf
-    INTERFACE
+    PUBLIC
         atmel-rf-driver
         source
 )
 
 target_sources(mbed-802.15.4-rf
-    INTERFACE
+    PRIVATE
         source/NanostackRfPhyAT86RF215.cpp
         source/NanostackRfPhyAtmel.cpp
         source/at24mac.cpp

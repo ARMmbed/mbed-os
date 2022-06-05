@@ -17,13 +17,13 @@
 #################################################################################
 
 target_include_directories(mbed-802.15.4-rf
-    INTERFACE
+    PUBLIC
         stm-s2lp-rf-driver
         source
 )
 
 target_sources(mbed-802.15.4-rf
-    INTERFACE
+    PRIVATE
         source/NanostackRfPhys2lp.cpp
         source/at24mac_s2lp.cpp
         source/rf_configuration.c

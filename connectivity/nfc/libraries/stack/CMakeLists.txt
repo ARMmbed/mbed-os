@@ -5,14 +5,14 @@ add_subdirectory(tech)
 add_subdirectory(transceiver)
 
 target_include_directories(mbed-nfc
-    INTERFACE
+    PUBLIC
         .
         ./ndef
         ./platform
 )
 
 target_sources(mbed-nfc
-    INTERFACE
+    PRIVATE
         ndef/ndef.c
 
         platform/nfc_scheduler.c
