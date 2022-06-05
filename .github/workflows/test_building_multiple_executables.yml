@@ -2,6 +2,9 @@ name: test building multiple executables with CMake
 
 on: [pull_request]
 
+permissions:
+  contents: read
+
 jobs:
   multiple-executables-example:
     runs-on: ubuntu-latest

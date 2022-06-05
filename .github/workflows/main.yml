@@ -2,6 +2,9 @@ on:
   issues:
     types: [ opened, reopened ]
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest

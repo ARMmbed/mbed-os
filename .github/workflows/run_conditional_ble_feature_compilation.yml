@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - 'connectivity/FEATURE_BLE/**'
+permissions:
+  contents: read
+
 jobs:
   run-conditional-feature-compilation-test:
     name: Conditional BLE features compilation tested

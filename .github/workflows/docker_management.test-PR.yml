@@ -12,6 +12,9 @@ on:
       - .github/workflows/docker_management.*
       - requirements.txt
 
+permissions:
+  contents: read
+
 jobs:
 
   build-container:
