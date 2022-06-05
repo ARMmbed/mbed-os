@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-lorawan
-    INTERFACE
+    PUBLIC
         .
         ./registers
 )
 
 target_sources(mbed-lorawan
-    INTERFACE
+    PRIVATE
         SX1276_LoRaRadio.cpp
 )

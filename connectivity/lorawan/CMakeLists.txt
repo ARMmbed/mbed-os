@@ -9,11 +9,13 @@ if(MBED_OS_ENABLE_TESTS)
     endif()
 endif()
 
+add_library(mbed-lorawan STATIC EXCLUDE_FROM_ALL)
+
 add_subdirectory(lorastack)
 add_subdirectory(system)
 
 target_include_directories(mbed-lorawan
-    INTERFACE
+    PUBLIC
         ..
         .
         ./include
@@ -21,18 +23,18 @@ target_include_directories(mbed-lorawan
 )
 
 target_sources(mbed-lorawan
-    INTERFACE
+    PRIVATE
         source/LoRaWANInterface.cpp
         source/LoRaWANStack.cpp
 )
 
 target_compile_definitions(mbed-lorawan
-    INTERFACE
+    PUBLIC
         MBED_CONF_LORAWAN_PRESENT=1
 )
 
 target_link_libraries(mbed-lorawan
-    INTERFACE
+    PUBLIC
         mbed-events
         mbed-mbedtls
 )

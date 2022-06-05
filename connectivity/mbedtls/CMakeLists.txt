@@ -7,6 +7,8 @@ if(MBED_OS_ENABLE_TESTS)
     endif()
 endif()
 
+add_library(mbed-mbedtls STATIC EXCLUDE_FROM_ALL)
+
 target_include_directories(mbed-mbedtls
     PUBLIC
         .

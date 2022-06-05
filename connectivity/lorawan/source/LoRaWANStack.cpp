@@ -49,6 +49,7 @@ SPDX-License-Identifier: BSD-3-Clause
 
 using namespace mbed;
 using namespace events;
+using namespace std::chrono_literals;
 
 /**
  * Bit mask for message flags
@@ -740,7 +741,7 @@ void LoRaWANStack::process_reception_timeout(bool is_timeout)
 
     if (slot == RX_SLOT_WIN_2 && !_loramac.nwk_joined()) {
         const int ret = _queue->call_in(
-                            500, this, &LoRaWANStack::state_controller, DEVICE_STATE_JOINING);
+                            500ms, this, &LoRaWANStack::state_controller, DEVICE_STATE_JOINING);
         MBED_ASSERT(ret != 0);
         (void)ret;
         return;
