@@ -18,11 +18,11 @@
 
 /* Default to no softdevice */
 #if !defined(MBED_APP_START)
-  #define MBED_APP_START 0x10000
+  #define MBED_APP_START 0x0
 #endif
 
 #if !defined(MBED_APP_SIZE)
-  #define MBED_APP_SIZE 0xf0000
+  #define MBED_APP_SIZE 0x100000
 #endif
 
 #if !defined(MBED_RAM_START)
@@ -35,7 +35,7 @@
 #endif
 
 #define MBED_RAM0_START MBED_RAM_START
-#define MBED_RAM0_SIZE  0x200
+#define MBED_RAM0_SIZE  0x100
 
 #define MBED_CRASH_REPORT_RAM_START (MBED_RAM0_START + MBED_RAM0_SIZE)
 #define MBED_CRASH_REPORT_RAM_SIZE  0x100
