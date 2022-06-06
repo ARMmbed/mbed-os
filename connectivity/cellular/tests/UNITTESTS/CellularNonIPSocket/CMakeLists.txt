@@ -18,8 +18,13 @@ target_compile_definitions(${TEST_NAME}
 
 target_sources(${TEST_NAME}
     PRIVATE
-        ${mbed-os_SOURCE_DIR}/connectivity/netsocket/source/CellularNonIPSocket.cpp
+        ../../../source/CellularNonIPSocket.cpp
         test_CellularNonIPSocket.cpp
+)
+
+target_include_directories(${TEST_NAME}
+	PRIVATE
+		../../../include
 )
 
 target_link_libraries(${TEST_NAME}
