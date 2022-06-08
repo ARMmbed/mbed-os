@@ -113,14 +113,14 @@ MBED_WEAK uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 
         RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
         RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-        RCC_OscInitStruct.PLL.PLLM            = HSE_VALUE / 1000000;             // VCO input clock = 2 MHz (8 MHz / 4)
+        RCC_OscInitStruct.PLL.PLLM            = HSE_VALUE / 1000000;  // VCO input clock
 #if (DEVICE_USBDEVICE)
         RCC_OscInitStruct.PLL.PLLN            = 192;           // VCO output clock = 384 MHz (2 MHz * 192)
 #else /* DEVICE_USBDEVICE */
         RCC_OscInitStruct.PLL.PLLN            = 200;           // VCO output clock = 400 MHz (2 MHz * 200)
 #endif /* DEVICE_USBDEVICE */
         RCC_OscInitStruct.PLL.PLLP            = RCC_PLLP_DIV2; // PLLCLK = 100 MHz or 96 MHz (depending on DEVICE_USBDEVICE)
-        RCC_OscInitStruct.PLL.PLLQ            = 8;             // USB clock = 48 MHz (DEVICE_USBDEVICE=1)
+        RCC_OscInitStruct.PLL.PLLQ            = 4;             // USB clock = 48 MHz (DEVICE_USBDEVICE=1)
         if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
             return 0; // FAIL
         }
