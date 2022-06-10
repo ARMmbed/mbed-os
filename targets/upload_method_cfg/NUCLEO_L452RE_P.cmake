@@ -45,3 +45,10 @@ set(OPENOCD_CHIP_CONFIG_COMMANDS
 set(STM32CUBE_UPLOAD_ENABLED TRUE)
 set(STM32CUBE_CONNECT_COMMAND -c port=SWD reset=HWrst)
 set(STM32CUBE_GDBSERVER_ARGS --swd)
+
+# Config options for stlink
+# -------------------------------------------------------------
+
+set(STLINK_UPLOAD_ENABLED TRUE)
+set(STLINK_LOAD_ADDRESS 0x8000000)
+set(STLINK_ARGS --connect-under-reset) # STM32L4 seems to need this to work

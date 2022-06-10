@@ -80,6 +80,11 @@ else()
     message(STATUS "Mbed: Not building any Mbed OS tests.")
 endif()
 
+# If this is Mbed CI and we have an upload method file, include it
+if(DEFINED MBED_OS_CI_UPLOAD_METHOD_CONFIG)
+    include(${MBED_OS_CI_UPLOAD_METHOD_CONFIG})
+endif()
+
 # Create core Mbed OS targets and set up build flags  ----------------------------------------------------------------------------------
 
 # Create project and find compilers (if not already found)

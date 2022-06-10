@@ -181,6 +181,37 @@ Arguments to pass to the ST-Link gdbserver.  `--swd` should be all that's needed
 
 Serial number of the ST-Link probe to connect to.  If blank, will connect to any probe.  You can get the list of serial numbers plugged into your machine with `STM32_Programmer_CLI -l`.
 
+## stlink
+
+This upload method is an open-source version of ST's STM32CUBE application, supporting a wider range of devices and host machines.  It can be downloaded from [the project releases page](https://github.com/stlink-org/stlink/releases), and also installed through your package manager on many linux distributions.  
+
+### Parameters
+
+> STLINK_UPLOAD_ENABLED
+
+**Type:** Bool
+
+Whether the STLINK upload method can be activated.
+
+> STLINK_LOAD_ADDRESS
+
+**Type:** String
+
+Load address argument to pass to stlink.  
+
+> STLINK_ARGS
+
+**Type:** List of Strings
+
+Arguments to pass to stlink programs.  The list of valid options is [here](https://github.com/stlink-org/stlink/blob/develop/doc/tutorial.md).
+
+### Options:
+
+> STLINK_PROBE_SN
+
+**Type:** String
+
+Serial number of the ST-Link probe to connect to.  If blank, will connect to any probe.  You can get the list of serial numbers plugged into your machine with `st-info --serial`.
 
 # Further Customization
 
