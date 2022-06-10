@@ -109,7 +109,7 @@ class _Parser(with_metaclass(ABCMeta, object)):
 class _GccParser(_Parser):
     RE_OBJECT_FILE = re.compile(r'^(.+\/.+\.o(bj)?)$')
     RE_LIBRARY_OBJECT = re.compile(
-        r'^.+' + r''.format(sep) + r'lib((.+\.a)\((.+\.o(bj)?)\))$'
+        r'^.*' + r''.format(sep) + r'lib((.+\.a)\((.+\.o(bj)?)\))$'
     )
     RE_STD_SECTION = re.compile(r'^\s+.*0x(\w{8,16})\s+0x(\w+)\s(.+)$')
     RE_FILL_SECTION = re.compile(r'^\s*\*fill\*\s+0x(\w{8,16})\s+0x(\w+).*$')
