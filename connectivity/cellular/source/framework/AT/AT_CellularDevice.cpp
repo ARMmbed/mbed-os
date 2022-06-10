@@ -39,9 +39,9 @@ using namespace std::chrono_literals;
 #define DEFAULT_AT_TIMEOUT 1s // at default timeout
 const int MAX_SIM_RESPONSE_LENGTH = 16;
 
-AT_CellularDevice::AT_CellularDevice(FileHandle *fh) :
+AT_CellularDevice::AT_CellularDevice(FileHandle *fh, char *delim):
     CellularDevice(),
-    _at(fh, _queue, DEFAULT_AT_TIMEOUT, "\r"),
+    _at(fh, _queue, DEFAULT_AT_TIMEOUT, delim),
 #if MBED_CONF_CELLULAR_USE_SMS
     _sms(0),
 #endif // MBED_CONF_CELLULAR_USE_SMS
