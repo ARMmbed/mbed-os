@@ -4,6 +4,7 @@
 option(MBED_GREENTEA_TEST_BAREMETAL "Select baremetal greentea tests" OFF)
 
 set(MBED_HTRUN_ARGUMENTS "" CACHE STRING "Argument list to forward to htrun.")
+set(MBED_GREENTEA_SERIAL_PORT "" CACHE STRING "Serial port name to talk to the Mbed device on.  Should look like 'COM3' on Windows or '/dev/ttyACM1' on Linux.")
 
 # CMake Macro for generalizing CMake configuration across the greentea test suite with configurable parameters
 # Macro args:
@@ -53,6 +54,10 @@ function(mbed_greentea_add_test)
         "${multipleValueArgs}"
         ${ARGN}
     )
+
+    if("${MBED_GREENTEA_SERIAL_PORT}" STREQUAL "")
+        message(FATAL_ERROR "Will not be able to run greentea tests without MBED_GREENTEA_SERIAL_PORT defined!")
+    endif()
 
     if(NOT "${MBED_GREENTEA_TEST_SKIPPED}" STREQUAL "")
         add_test(
@@ -105,7 +110,9 @@ function(mbed_greentea_add_test)
     endif()
 
     # User can set this cache variable to supply extra arguments to greentea.
-    # such as: -d to set the drive path, -p to set the COM port.
+    # such as: -d to set the drive path
+    list(APPEND MBED_HTRUN_ARGUMENTS -p ${MBED_GREENTEA_SERIAL_PORT})
+
     if(DEFINED MBED_GREENTEA_EXTRA_HTRUN_ARGUMENTS)
         list(APPEND MBED_HTRUN_ARGUMENTS ${MBED_GREENTEA_EXTRA_HTRUN_ARGUMENTS})
     endif()

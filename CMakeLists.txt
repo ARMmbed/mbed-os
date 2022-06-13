@@ -102,6 +102,8 @@ list(APPEND CMAKE_MODULE_PATH
 add_subdirectory(extern)
 
 if(MBED_IS_STANDALONE)
+    include(CTest)
+
     if((NOT MBED_BUILD_GREENTEA_TESTS) AND MBED_ENABLE_TESTING)
         # Building unit tests only.
         add_definitions(-DUNITTEST)
@@ -110,8 +112,6 @@ if(MBED_IS_STANDALONE)
 endif()
 
 if(MBED_ENABLE_TESTING)
-    include(CTest)
-
     include(mbed_greentea)
 endif()
 
