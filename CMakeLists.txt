@@ -8,32 +8,32 @@ cmake_policy(VERSION 3.16...3.22)
 
 # Setup build type (target type, tests/unit tests/real build) ----------------------------------------------------------------------------------
 # This block sets up the following variables for all subdirs to use:
-# - MBED_OS_IS_STANDALONE: True if Mbed OS is the top-level project.  False if Mbed is being built as part of an application.
+# - MBED_IS_STANDALONE: True if Mbed OS is the top-level project.  False if Mbed is being built as part of an application.
 # - MBED_IS_NATIVE_BUILD: True if we are building for the host machine.  False if we are building for a microcontroller
-# - MBED_OS_ENABLE_TESTS: True if we are building *any* internal Mbed OS tests at all.  Enabled by -DBUILD_TESTING=TRUE (which is enabled by default when standalone).
-# - BUILD_GREENTEA_TESTS: True to build greentea on-target tests.  False to build host UNITTESTS.  Defaults to false when standalone.
+# - MBED_ENABLE_OS_INTERNAL_TESTS: True if we are building *any* internal Mbed OS tests at all.  Enabled by -DMBED_ENABLE_TESTING=TRUE (which is enabled by default when standalone).
+# - MBED_BUILD_GREENTEA_TESTS: True to build greentea on-target tests.  False to build host UNITTESTS.  Defaults to false when standalone.
 
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     # We are the top level project, so tests or unittests are being built.
-    set(MBED_OS_IS_STANDALONE TRUE)
+    set(MBED_IS_STANDALONE TRUE)
 else()
     # Not the top level project
-    set(MBED_OS_IS_STANDALONE FALSE)
+    set(MBED_IS_STANDALONE FALSE)
 endif()
 
 # Set up options for testing
-option(BUILD_TESTING "Whether to enable CTest tests in this project" ${MBED_OS_IS_STANDALONE}) # This option is also created by include(CTest) but we need it here earlier on.
-if(MBED_OS_IS_STANDALONE AND BUILD_TESTING)
-    set(MBED_OS_ENABLE_TESTS TRUE)
-    option(BUILD_GREENTEA_TESTS "Build greentea tests instead of unit tests" FALSE)
+option(MBED_ENABLE_TESTING "Whether to enable CTest tests in this project" ${MBED_IS_STANDALONE}) # This option is also created by include(CTest) but we need it here earlier on.
+if(MBED_IS_STANDALONE AND MBED_ENABLE_TESTING)
+    set(MBED_ENABLE_OS_INTERNAL_TESTS TRUE)
+    option(MBED_BUILD_GREENTEA_TESTS "Build greentea tests instead of unit tests" FALSE)
 endif()
 
 # Figure out if this is a native build
-if(MBED_OS_IS_STANDALONE)
+if(MBED_IS_STANDALONE)
 
-    # Standalone build, use BUILD_GREENTEA_TESTS to determine if we are building for native or not (user can select)
-    if(BUILD_GREENTEA_TESTS)
+    # Standalone build, use MBED_BUILD_GREENTEA_TESTS to determine if we are building for native or not (user can select)
+    if(MBED_BUILD_GREENTEA_TESTS)
         set(MBED_IS_NATIVE_BUILD FALSE)
     else()
         set(MBED_IS_NATIVE_BUILD TRUE)
@@ -51,7 +51,7 @@ else()
 
 endif()
 
-if(MBED_OS_IS_STANDALONE AND NOT MBED_IS_NATIVE_BUILD)
+if(MBED_IS_STANDALONE AND NOT MBED_IS_NATIVE_BUILD)
     # For standalone builds, default to looking for mbed-config.cmake in the binary dir
     set(MBED_CONFIG_PATH ${CMAKE_CURRENT_BINARY_DIR} CACHE STRING "")
 
@@ -70,8 +70,8 @@ else()
 endif()
 
 # Print build type
-if(MBED_OS_ENABLE_TESTS)
-    if(BUILD_GREENTEA_TESTS)
+if(MBED_ENABLE_OS_INTERNAL_TESTS)
+    if(MBED_BUILD_GREENTEA_TESTS)
         message(STATUS "Mbed: Compiling Greentea on-target tests for ${MBED_TARGET}")
     else()
         message(STATUS "Mbed: Compiling host UNITTESTS for native execution")
@@ -101,17 +101,17 @@ list(APPEND CMAKE_MODULE_PATH
 
 add_subdirectory(extern)
 
-if(MBED_OS_IS_STANDALONE)
-    include(CTest)
-
-    if((NOT BUILD_GREENTEA_TESTS) AND BUILD_TESTING)
+if(MBED_IS_STANDALONE)
+    if((NOT MBED_BUILD_GREENTEA_TESTS) AND MBED_ENABLE_TESTING)
         # Building unit tests only.
         add_definitions(-DUNITTEST)
         add_subdirectory(UNITTESTS)
     endif()
 endif()
 
-if(BUILD_GREENTEA_TESTS)
+if(MBED_ENABLE_TESTING)
+    include(CTest)
+
     include(mbed_greentea)
 endif()
 
@@ -172,8 +172,8 @@ if(NOT MBED_IS_NATIVE_BUILD)
     )
 
     # Add MBED_TEST_MODE for backward compatibility with Greentea tests written for use with Mbed CLI 1
-    if(MBED_OS_ENABLE_TESTS)
-        if(NOT BUILD_GREENTEA_TESTS)
+    if(MBED_ENABLE_OS_INTERNAL_TESTS)
+        if(NOT MBED_BUILD_GREENTEA_TESTS)
             target_compile_definitions(${PROJECT_NAME}
                 INTERFACE
                     MBED_TEST_MODE

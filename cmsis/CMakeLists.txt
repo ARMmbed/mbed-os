@@ -4,6 +4,6 @@
 add_subdirectory(CMSIS_5)
 add_subdirectory(device)
 
-if(MBED_OS_ENABLE_TESTS)
+if(MBED_ENABLE_OS_INTERNAL_TESTS)
     add_subdirectory(tests/UNITTESTS/doubles)
 endif()

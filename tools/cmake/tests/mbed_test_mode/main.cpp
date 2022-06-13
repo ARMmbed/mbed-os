@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#if BUILD_TESTING && !defined(MBED_TEST_MODE)
-#error "MBED_TEST_MODE not defined with BUILD_TESTING on"
+#if MBED_ENABLE_TESTING && !defined(MBED_TEST_MODE)
+#error "MBED_TEST_MODE not defined with MBED_ENABLE_TESTING on"
 #else
 int main(){
     return 0;

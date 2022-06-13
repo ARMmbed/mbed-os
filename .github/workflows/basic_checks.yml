@@ -229,6 +229,6 @@ jobs:
         name: cmake unittest
         run: |
           set -x     
-          ctest --build-and-test . build --build-generator Ninja --build-options -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=ON --test-command ctest        
+          ctest --build-and-test . build --build-generator Ninja --build-options -DMBED_ENABLE_TESTING=ON -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=ON --test-command ctest        
           gcovr --gcov-executable gcov -r . ./build -s -e ".*\.h" --exclude-directories=${GITHUB_WORKSPACE}/build/UNITTESTS --exclude-directories=${GITHUB_WORKSPACE}/build/_deps
           ccache -s

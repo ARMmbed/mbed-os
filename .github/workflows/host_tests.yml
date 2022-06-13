@@ -15,6 +15,6 @@ jobs:
       - name: Compile and test for host
         run: |
             mkdir __build && cd __build
-            cmake .. -GNinja -DBUILD_GREENTEA_TESTS=FALSE -DBUILD_TESTING=TRUE
+            cmake .. -GNinja -DMBED_BUILD_GREENTEA_TESTS=FALSE -DMBED_ENABLE_TESTING=TRUE
             ninja
             ctest . --output-on-failure

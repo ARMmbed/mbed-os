@@ -5,8 +5,8 @@ add_library(mbed-nfc STATIC EXCLUDE_FROM_ALL)
 
 add_subdirectory(libraries)
 
-if(MBED_OS_ENABLE_TESTS)
-    if(BUILD_GREENTEA_TESTS)
+if(MBED_ENABLE_OS_INTERNAL_TESTS)
+    if(MBED_BUILD_GREENTEA_TESTS)
         add_subdirectory(tests/TESTS)
     endif()
 endif()

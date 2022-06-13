@@ -73,8 +73,8 @@ target_link_libraries(mbed-psa
 
 add_subdirectory(test_abstraction_layers)
 
-if(MBED_OS_ENABLE_TESTS)
-    if(BUILD_GREENTEA_TESTS)
+if(MBED_ENABLE_OS_INTERNAL_TESTS)
+    if(MBED_BUILD_GREENTEA_TESTS)
         add_subdirectory(TESTS)
     endif()
 endif()

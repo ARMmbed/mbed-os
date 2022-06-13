@@ -16,8 +16,8 @@ target_sources(mbed-storage-qspif
 
 target_link_libraries(mbed-storage-qspif PUBLIC mbed-storage-blockdevice)
 
-if(MBED_OS_ENABLE_TESTS)
-    if (NOT BUILD_GREENTEA_TESTS)
+if(MBED_ENABLE_OS_INTERNAL_TESTS)
+    if (NOT MBED_BUILD_GREENTEA_TESTS)
         add_subdirectory(UNITTESTS)
     endif()
 endif()

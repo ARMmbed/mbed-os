@@ -84,9 +84,8 @@ endif()
 
 # Create COMMAND variables
 if(EXISTS "${STM32CubeProg_PATH}")
-    set(STM32CubeProg_COMMAND ${STM32CubeProg_PATH})
+    set(STM32CubeProg_COMMAND ${STM32CubeProg_PATH} CACHE INTERNAL "" FORCE)
 endif()
-
 
 # on Linux and Mac the GDB server needs help to find libSTLinkUSBDriver dll which is in a subfolder
 if(EXISTS "${STLINK_gdbserver_PATH}")
@@ -97,13 +96,13 @@ if(EXISTS "${STLINK_gdbserver_PATH}")
 
     if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
         # Linux: set LD_LIBRARY_PATH
-        set(STLINK_gdbserver_COMMAND ${CMAKE_COMMAND} -E env "LD_LIBRARY_PATH=${STLINK_NATIVE_DIR}" ${STLINK_gdbserver_PATH})
+        set(STLINK_gdbserver_COMMAND ${CMAKE_COMMAND} -E env "LD_LIBRARY_PATH=${STLINK_NATIVE_DIR}" ${STLINK_gdbserver_PATH} CACHE INTERNAL "" FORCE)
     elseif("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Darwin")
         # OS X: set DYLD_FALLBACK_LIBRARY_PATH
-        set(STLINK_gdbserver_COMMAND ${CMAKE_COMMAND} -E env "DYLD_FALLBACK_LIBRARY_PATH=${STLINK_NATIVE_DIR}" ${STLINK_gdbserver_PATH})
+        set(STLINK_gdbserver_COMMAND ${CMAKE_COMMAND} -E env "DYLD_FALLBACK_LIBRARY_PATH=${STLINK_NATIVE_DIR}" ${STLINK_gdbserver_PATH} CACHE INTERNAL "" FORCE)
     else()
         # Windows -- doesn't need help
-        set(STLINK_gdbserver_COMMAND ${STLINK_gdbserver_PATH})
+        set(STLINK_gdbserver_COMMAND ${STLINK_gdbserver_PATH} CACHE INTERNAL "" FORCE)
     endif()
 endif()
 
