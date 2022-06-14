@@ -23,6 +23,8 @@
 #include "utest/utest_stack_trace.h"
 #include "utest/utest_print.h"
 
+#include "unity_internals.h"
+
 using namespace utest::v1;
 
 static void test_failure_handler(const failure_t failure);
@@ -53,6 +55,7 @@ utest::v1::status_t utest::v1::verbose_test_setup_handler(const size_t number_of
 {
     UTEST_LOG_FUNCTION();
     utest_printf(">>> Running %u test cases...\n", number_of_cases);
+	UnityBegin("<greentea test suite>");
     return STATUS_CONTINUE;
 }
 
@@ -66,6 +69,7 @@ void utest::v1::verbose_test_teardown_handler(const size_t passed, const size_t 
         utest_printf(" with reason '%s'\n", stringify(failure.reason));
     }
     if (failed) utest_printf(">>> TESTS FAILED!\n");
+	UnityEnd();
 }
 
 void utest::v1::verbose_test_failure_handler(const failure_t failure)
@@ -91,6 +95,9 @@ utest::v1::status_t utest::v1::verbose_case_teardown_handler(const Case *const s
     } else  {
         utest_printf(" with reason '%s'\n", stringify(failure.reason));
     }
+
+	UnityConcludeTest();
+
     return STATUS_CONTINUE;
 }
 

@@ -22,4 +22,4 @@ target_sources(mbed-utest
         source/utest_types.cpp
 )
 
-target_link_libraries(mbed-utest PUBLIC mbed-core-flags)
+target_link_libraries(mbed-utest PUBLIC mbed-core-flags mbed-unity)
