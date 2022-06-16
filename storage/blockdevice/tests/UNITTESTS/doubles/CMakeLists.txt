@@ -34,4 +34,5 @@ target_link_libraries(mbed-stubs-blockdevice
     PRIVATE
         mbed-headers-platform
         mbed-headers-blockdevice
+        mbed-stubs-rtos
 )

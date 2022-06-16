@@ -41,5 +41,6 @@ target_link_libraries(mbed-stubs-platform
     PUBLIC
         mbed-headers-hal
         mbed-headers-platform
+        mbed-stubs-rtos
         gmock_main
 )

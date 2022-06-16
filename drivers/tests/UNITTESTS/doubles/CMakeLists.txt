@@ -31,4 +31,5 @@ target_link_libraries(mbed-stubs-drivers
         mbed-headers-hal
         mbed-headers-drivers
         mbed-headers-platform
+        mbed-stubs-rtos
 )

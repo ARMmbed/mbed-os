@@ -48,7 +48,7 @@ extern "C" {
 // Platform includes
 #if defined(EQUEUE_PLATFORM_POSIX)
 #include <pthread.h>
-#elif defined(EQUEUE_PLATFORM_MBED) && defined(MBED_CONF_RTOS_PRESENT)
+#elif defined(EQUEUE_PLATFORM_MBED)
 #include "cmsis_os2.h"
 #include "mbed_rtos_storage.h"
 #endif
@@ -118,12 +118,9 @@ typedef struct equeue_sema {
 typedef struct equeue_sema {
     // We will actually store a C++ rtos:EventQueue in here;
     // attempt to match layout for storage, and assert size in equeue_mbed.cpp
-#if MBED_CONF_RTOS_PRESENT
     osEventFlagsId_t                _id;
     mbed_rtos_storage_event_flags_t _obj_mem;
-#else
     uint32_t _flags;
-#endif
 } equeue_sema_t;
 #elif defined(EQUEUE_PLATFORM_MBED)
 typedef int equeue_sema_t;

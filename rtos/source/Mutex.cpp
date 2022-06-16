@@ -27,8 +27,7 @@
 #include "platform/mbed_error.h"
 #include "platform/mbed_assert.h"
 
-namespace rtos
-{
+namespace rtos {
 
 #if MBED_CONF_RTOS_PRESENT
 // Actual Mutex implementation, enabled in Mbed OS

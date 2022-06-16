@@ -15,6 +15,7 @@ add_library(mbed-stubs-rtos)
 target_include_directories(mbed-stubs-rtos
     INTERFACE
         .
+        rtos
 )
 
 target_compile_definitions(mbed-stubs-rtos
@@ -40,4 +41,5 @@ target_link_libraries(mbed-stubs-rtos
         mbed-headers-platform
         mbed-headers-drivers
         mbed-headers-hal
+        mbed-headers-cmsis
 )
