@@ -88,3 +88,74 @@ const PinMap PinMap_PWM[] = {
     {NC   , NC    , 0}
 };
 
+/************SEMC***************/
+const PinMap PinMap_SEMC_DATA00[] = {
+    {ONFI_FLASH_D0  , SEMC_0, 0},
+    {NC   , NC    , 0}
+};
+
+const PinMap PinMap_SEMC_DATA01[] = {
+    {ONFI_FLASH_D1  , SEMC_0, 0},
+    {NC   , NC    , 0}
+};
+
+const PinMap PinMap_SEMC_DATA02[] = {
+    {ONFI_FLASH_D2  , SEMC_0, 0},
+    {NC   , NC    , 0}
+};
+
+const PinMap PinMap_SEMC_DATA03[] = {
+    {ONFI_FLASH_D3  , SEMC_0, 0},
+    {NC   , NC    , 0}
+};
+
+const PinMap PinMap_SEMC_DATA04[] = {
+    {ONFI_FLASH_D4  , SEMC_0, 0},
+    {NC   , NC    , 0}
+};
+
+const PinMap PinMap_SEMC_DATA05[] = {
+    {ONFI_FLASH_D5  , SEMC_0, 0},
+    {NC   , NC    , 0}
+};
+
+const PinMap PinMap_SEMC_DATA06[] = {
+    {ONFI_FLASH_D6  , SEMC_0, 0},
+    {NC   , NC    , 0}
+};
+
+const PinMap PinMap_SEMC_DATA07[] = {
+    {ONFI_FLASH_D7  , SEMC_0, 0},
+    {NC   , NC    , 0}
+};
+
+const PinMap PinMap_SEMC_ADD09[] = {
+    {ONFI_FLASH_ADD09  , SEMC_0, 0},
+    {NC   , NC    , 0}
+};
+
+const PinMap PinMap_SEMC_ADD11[] = {
+    {ONFI_FLASH_ADD11  , SEMC_0, 0},
+    {NC   , NC    , 0}
+};
+
+const PinMap PinMap_SEMC_ADD12[] = {
+    {ONFI_FLASH_ADD12  , SEMC_0, 0},
+    {NC   , NC    , 0}
+};
+
+const PinMap PinMap_SEMC_BA1[] = {
+    {ONFI_FLASH_BA1  , SEMC_0, 0},
+    {NC   , NC    , 0}
+};
+
+const PinMap PinMap_SEMC_RDY[] = {
+    {ONFI_FLASH_RDY  , SEMC_0, 0},
+    {NC   , NC    , 0}
+};
+
+const PinMap PinMap_SEMC_CSX00[] = {
+    {ONFI_FLASH_CSX  , SEMC_0, 0},
+    {NC   , NC    , 0}
+};
+

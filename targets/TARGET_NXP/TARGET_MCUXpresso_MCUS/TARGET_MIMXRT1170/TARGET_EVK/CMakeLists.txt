@@ -19,6 +19,7 @@ target_sources(mbed-rt1170-evk
         pinmap.c
         serial_api.c
         us_ticker.c
+        onfi_api.c
         
         
         xip/evkmimxrt1170_flexspi_nor_config.c

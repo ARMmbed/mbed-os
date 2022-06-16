@@ -5070,9 +5070,13 @@
         "detect_code": [
             "0228"
         ],
+        "components_add": [
+            "ONFINAND"
+        ],
         "device_has": [
             "ANALOGIN",
             "FLASH",
+            "ONFI",
             "INTERRUPTIN",
             "I2C",
             "I2CSLAVE",

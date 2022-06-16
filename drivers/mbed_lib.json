@@ -85,6 +85,62 @@
         "ospi_dqs": {
             "help": "OSPI dqs pin",
             "value": "OSPI_FLASH1_DQS"
+        },
+        "onfi_d0": {
+            "help": "SEMC data00 pin",
+            "value": "ONFI_FLASH_D0"
+        },
+        "onfi_d1": {
+            "help": "SEMC data01 pin",
+            "value": "ONFI_FLASH_D1"
+        },
+        "onfi_d2": {
+            "help": "SEMC data02 pin",
+            "value": "ONFI_FLASH_D2"
+        },
+        "onfi_d3": {
+            "help": "SEMC data03 pin",
+            "value": "ONFI_FLASH_D3"
+        },
+        "onfi_d4": {
+            "help": "SEMC data04 pin",
+            "value": "ONFI_FLASH_D4"
+        },
+        "onfi_d5": {
+            "help": "SEMC data05 pin",
+            "value": "ONFI_FLASH_D5"
+        },
+        "onfi_d6": {
+            "help": "SEMC data06 pin",
+            "value": "ONFI_FLASH_D6"
+        },
+        "onfi_d7": {
+            "help": "SEMC data07 pin",
+            "value": "ONFI_FLASH_D7"
+        },
+        "onfi_add09": {
+            "help": "SEMC addr09 pin",
+            "value": "ONFI_FLASH_ADD09"
+        },
+        "onfi_add11": {
+            "help": "SEMC addr11 pin",
+            "value": "ONFI_FLASH_ADD11"
+        },
+        "onfi_add12": {
+            "help": "SEMC addr12 pin",
+            "value": "ONFI_FLASH_ADD12"
+        }, 
+        "onfi_ba1": {
+            "help": "SEMC ba1 pin",
+            "value": "ONFI_FLASH_BA1"
+        },
+        "onfi_rdy": {
+            "help": "SEMC ready pin",
+            "value": "ONFI_FLASH_RDY"
+        },
+        "onfi_csx": {
+            "help": "SEMC csx pin",
+            "value": "ONFI_FLASH_CSX"
         }
     }
 }

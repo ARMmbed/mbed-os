@@ -41,6 +41,7 @@ static uint32_t iomux_base_addrs[FSL_FEATURE_SOC_IGPIO_COUNT] = { 0x400E8010, 0x
 
 void pin_function(PinName pin, int function)
 {
+    #if 1
     MBED_ASSERT(pin != (PinName)NC);
     uint32_t muxregister = iomux_base_addrs[(pin >> GPIO_PORT_SHIFT) - 1];
     uint32_t daisyregister;
@@ -57,17 +58,18 @@ void pin_function(PinName pin, int function)
     /* Write to the mux register */
     *((volatile uint32_t *)muxregister) = IOMUXC_SW_MUX_CTL_PAD_MUX_MODE(function) |
                                           IOMUXC_SW_MUX_CTL_PAD_SION((function >> SION_BIT_SHIFT) & 0x1);
-
     /* If required write to the input daisy register */
     daisyregister = (function >> DAISY_REG_SHIFT) & 0xFFF;
     if (daisyregister != 0) {
         daisyregister = daisyregister + 0x401F8000;
         *((volatile uint32_t *)daisyregister) = IOMUXC_SELECT_INPUT_DAISY(((function >> DAISY_REG_VALUE_SHIFT) & 0xF));
     }
+    #endif
 }
 
 void pin_mode(PinName pin, PinMode mode)
 {
+    #if 1
     MBED_ASSERT(pin != (PinName)NC);
     uint32_t instance = pin >> GPIO_PORT_SHIFT;
     uint32_t reg;
@@ -127,10 +129,12 @@ void pin_mode(PinName pin, PinMode mode)
 
     /* Write value to the pad register */
     *((volatile uint32_t *)configregister) = reg;
+    #endif
 }
 
 void pin_mode_opendrain(PinName pin, bool enable)
 {
+    #if 1
     MBED_ASSERT(pin != (PinName)NC);
 
     uint32_t instance = pin >> GPIO_PORT_SHIFT;
@@ -155,5 +159,6 @@ void pin_mode_opendrain(PinName pin, bool enable)
     } else {
         *((volatile uint32_t *)configregister) &= ~IOMUXC_SW_PAD_CTL_PAD_ODE_MASK;
     }
+    #endif
 }
 

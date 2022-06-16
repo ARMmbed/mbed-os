@@ -206,12 +206,27 @@ typedef enum {
     GPIO_LPSR_13 = ((6 << GPIO_PORT_SHIFT) | 13),
     GPIO_LPSR_14 = ((6 << GPIO_PORT_SHIFT) | 14),
     GPIO_LPSR_15 = ((6 << GPIO_PORT_SHIFT) | 15),
- 
- 
+
+
     // USB Pins
     CONSOLE_TX = GPIO_AD_24,
     CONSOLE_RX = GPIO_AD_25,
- 
+
+    // SEMC Pins
+    ONFI_FLASH_D0 = GPIO_EMC_B1_00,
+    ONFI_FLASH_D1 = GPIO_EMC_B1_01,
+    ONFI_FLASH_D2 = GPIO_EMC_B1_02,
+    ONFI_FLASH_D3 = GPIO_EMC_B1_03,
+    ONFI_FLASH_D4 = GPIO_EMC_B1_04,
+    ONFI_FLASH_D5 = GPIO_EMC_B1_05,
+    ONFI_FLASH_D6 = GPIO_EMC_B1_06,
+    ONFI_FLASH_D7 = GPIO_EMC_B1_07,
+    ONFI_FLASH_ADD09 = GPIO_EMC_B1_18,
+    ONFI_FLASH_ADD11 = GPIO_EMC_B1_19,
+    ONFI_FLASH_ADD12 = GPIO_EMC_B1_20,
+    ONFI_FLASH_BA1 = GPIO_EMC_B1_22,
+    ONFI_FLASH_RDY = GPIO_EMC_B1_40,
+    ONFI_FLASH_CSX = GPIO_EMC_B1_41,
 
     // Arduino Headers
     ARDUINO_UNO_D0 = GPIO_DISP_B2_11,
@@ -253,7 +268,8 @@ typedef enum {
     PullUp_100K = 3,
     PullUp_22K  = 4,
     PullDefault = PullUp_47K,
-    PullUp = PullUp_47K
+    PullUp = PullUp_47K,
+    Pull_8 = 8
 } PinMode;
 
 #ifdef __cplusplus

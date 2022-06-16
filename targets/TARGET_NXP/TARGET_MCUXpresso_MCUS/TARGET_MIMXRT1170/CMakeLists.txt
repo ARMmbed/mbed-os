@@ -42,6 +42,7 @@ target_sources(mbed-mimxrt1170-evk
         drivers/fsl_pmu.c
         drivers/fsl_pwm.c
         drivers/fsl_xbara.c
+        drivers/fsl_semc.c
         
         ${STARTUP_FILE}
 )

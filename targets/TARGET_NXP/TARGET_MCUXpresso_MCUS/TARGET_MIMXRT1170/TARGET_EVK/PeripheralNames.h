@@ -128,6 +128,9 @@ typedef enum {
     DAC_0 = 0
 } DACName;
 
+typedef enum {
+    SEMC_0 = 0
+} SEMCName;
 
 typedef enum {
     SPI_1 = 1,

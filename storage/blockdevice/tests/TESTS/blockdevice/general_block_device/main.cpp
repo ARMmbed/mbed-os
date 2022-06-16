@@ -57,6 +57,10 @@
 #include "SPINANDBlockDevice.h"
 #endif
 
+#if COMPONENT_ONFINAND
+#include "ONFINANDBlockDevice.h"
+#endif
+
 // Debug available
 #ifndef MODE_DEBUG
 #define MODE_DEBUG      0
@@ -97,10 +101,11 @@ enum bd_type {
     flashiap,
     ospif,
     spinand,
+    onfinand,
     default_bd
 };
 
-uint8_t bd_arr[6] = {0};
+uint8_t bd_arr[7] = {0};
 
 static uint8_t test_iteration = 0;
 
@@ -185,6 +190,28 @@ static BlockDevice *get_bd_instance(uint8_t bd_type)
             break;
         }
 
+        case onfinand: {
+#if COMPONENT_ONFINAND
+            static ONFINANDBlockDevice default_bd(
+                MBED_CONF_ONFINAND_ONFINAND_D0,
+                MBED_CONF_ONFINAND_ONFINAND_D1,
+                MBED_CONF_ONFINAND_ONFINAND_D2,
+                MBED_CONF_ONFINAND_ONFINAND_D3,
+                MBED_CONF_ONFINAND_ONFINAND_D4,
+                MBED_CONF_ONFINAND_ONFINAND_D5,
+                MBED_CONF_ONFINAND_ONFINAND_D6,
+                MBED_CONF_ONFINAND_ONFINAND_D7,
+                MBED_CONF_ONFINAND_ONFINAND_ADD09,
+                MBED_CONF_ONFINAND_ONFINAND_ADD11,
+                MBED_CONF_ONFINAND_ONFINAND_ADD12,
+                MBED_CONF_ONFINAND_ONFINAND_BA1,
+                MBED_CONF_ONFINAND_ONFINAND_RDY,
+                MBED_CONF_ONFINAND_ONFINAND_CSX
+            );
+            return &default_bd;
+#endif
+            break;
+        }
         case dataflash: {
 #if COMPONENT_DATAFLASH
             static DataFlashBlockDevice default_bd(
@@ -320,7 +347,7 @@ void test_init_bd()
         if (curr_sector_size > max_sector_size) {
             max_sector_size = curr_sector_size;
         }
-#if COMPONENT_SPINAND
+#if COMPONENT_SPINAND || COMPONENT_ONFINAND
         start_address += 0x40000;
 #else
         start_address += curr_sector_size;
@@ -659,7 +686,7 @@ void test_contiguous_erase_write_read()
     // helping to avoid test timeouts. Try 256-byte chunks if contiguous_erase_size
     // (which should be a power of 2) is greater than that. If it's less than
     // that, the test finishes quickly anyway...
-#if COMPONENT_SPINAND
+#if COMPONENT_SPINAND || COMPONENT_ONFINAND
     if ((program_size < 2048) && (2048 % program_size == 0)
             && (contiguous_erase_size >= 2048) && (contiguous_erase_size % 2048 == 0)) {
         utest_printf("using 2048-byte write/read buffer\n");
@@ -684,7 +711,7 @@ void test_contiguous_erase_write_read()
 
     // Pre-fill the to-be-erased region. By pre-filling the region,
     // we can be sure the test will not pass if the erase doesn't work.
-#if COMPONENT_SPINAND
+#if COMPONENT_SPINAND || COMPONENT_ONFINAND
     for (bd_size_t offset = 0; start_address + offset < stop_address; offset += 0x40000) {
 #else
     for (bd_size_t offset = 0; start_address + offset < stop_address; offset += write_read_buf_size) {
@@ -705,7 +732,7 @@ void test_contiguous_erase_write_read()
 
     // Loop through all write/read regions
     int region = 0;
-#if COMPONENT_SPINAND
+#if COMPONENT_SPINAND || COMPONENT_ONFINAND
     for (; start_address < stop_address; start_address += 0x40000) {
 #else
     for (; start_address < stop_address; start_address += write_read_buf_size) {
@@ -911,6 +938,8 @@ void test_get_type_functionality()
     TEST_ASSERT_EQUAL(0, strcmp(bd_type, "FLASHIAP"));
 #elif COMPONENT_SPINAND
     TEST_ASSERT_EQUAL(0, strcmp(bd_type, "SPINAND"));
+#elif COMPONENT_ONFINAND
+    TEST_ASSERT_EQUAL(0, strcmp(bd_type, "ONFINAND"));
 #endif
 }
 
@@ -975,11 +1004,14 @@ int get_bd_count()
 #if COMPONENT_SPINAND
     bd_arr[count++] = spinand;        //6
 #endif
+#if COMPONENT_ONFINAND
+    bd_arr[count++] = onfinand;        //7
+#endif
 
     return count;
 }
 
-static const char *prefix[] = {"SPIF ", "QSPIF ", "DATAFLASH ", "SD ", "FLASHIAP ", "OSPIF ", "SPINAND ", "DEFAULT "};
+static const char *prefix[] = {"SPIF ", "QSPIF ", "DATAFLASH ", "SD ", "FLASHIAP ", "OSPIF ", "SPINAND ", "ONFINAND", "DEFAULT "};
 
 int main()
 {

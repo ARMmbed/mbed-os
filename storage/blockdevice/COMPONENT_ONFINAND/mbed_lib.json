@@ -1,0 +1,37 @@
+{
+    "name": "onfinand",
+    "config": {
+        "enable-and-reset": {
+            "help": "(Legacy SFDP 1.0 ONLY) Reset sequence is enable reset (0x66) then reset (0x99)",
+            "value": false
+        },
+        "direct-reset": {
+            "help": "(Legacy SFDP 1.0 ONLY) Reset involves a single command (0xF0)",
+            "value": false
+        },
+        "ONFINAND_D0": "MBED_CONF_DRIVERS_ONFI_D0",
+        "ONFINAND_D1": "MBED_CONF_DRIVERS_ONFI_D1",
+        "ONFINAND_D2": "MBED_CONF_DRIVERS_ONFI_D2",
+        "ONFINAND_D3": "MBED_CONF_DRIVERS_ONFI_D3",
+        "ONFINAND_D4": "MBED_CONF_DRIVERS_ONFI_D4",
+        "ONFINAND_D5": "MBED_CONF_DRIVERS_ONFI_D5",
+        "ONFINAND_D6": "MBED_CONF_DRIVERS_ONFI_D6",
+        "ONFINAND_D7": "MBED_CONF_DRIVERS_ONFI_D7",
+        "ONFINAND_ADD09":"MBED_CONF_DRIVERS_ONFI_ADD09", 
+        "ONFINAND_ADD11":"MBED_CONF_DRIVERS_ONFI_ADD11", 
+        "ONFINAND_ADD12":"MBED_CONF_DRIVERS_ONFI_ADD12",
+        "ONFINAND_BA1":"MBED_CONF_DRIVERS_ONFI_BA1",  
+        "ONFINAND_RDY":"MBED_CONF_DRIVERS_ONFI_RDY", 
+        "ONFINAND_CSX":"MBED_CONF_DRIVERS_ONFI_CSX", 
+        "ONFINAND_MIN_READ_SIZE": "512",
+        "ONFINAND_MIN_PROG_SIZE": "512",
+        "ONFINAND_FLASH_SIZE": "2048*64*512",
+        "ONFINAND_BLOCK_SIZE": "2048*64",
+        "ONFINAND_PAGE_SIZE": "2048"
+    },
+    "target_overrides": {
+        "MX30LF2GE8AB": {
+            "ONFINAND_FREQ": "16000000"
+        }
+    }
+}

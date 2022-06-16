@@ -48,4 +48,20 @@ extern const PinMap PinMap_SPI_SSEL[];
 /************PWM***************/
 extern const PinMap PinMap_PWM[];
 
+extern const PinMap PinMap_SEMC_DATA00[];
+extern const PinMap PinMap_SEMC_DATA01[];
+extern const PinMap PinMap_SEMC_DATA02[];
+extern const PinMap PinMap_SEMC_DATA03[];
+extern const PinMap PinMap_SEMC_DATA04[];
+extern const PinMap PinMap_SEMC_DATA05[];
+extern const PinMap PinMap_SEMC_DATA06[];
+extern const PinMap PinMap_SEMC_DATA07[];
+extern const PinMap PinMap_SEMC_ADD09[];
+extern const PinMap PinMap_SEMC_ADD11[];
+extern const PinMap PinMap_SEMC_ADD12[];
+extern const PinMap PinMap_SEMC_BA1[];
+extern const PinMap PinMap_SEMC_RDY[];
+extern const PinMap PinMap_SEMC_CSX00[];
+
+
 #endif

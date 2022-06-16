@@ -21,6 +21,7 @@
 #include "PortNames.h"
 #include "PeripheralNames.h"
 #include "PinNames.h"
+#include "fsl_nand_flash.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -65,6 +66,11 @@ struct dac_s {
 
 struct trng_s {
     uint8_t dummy;
+};
+
+struct onfi_s {
+    uint32_t instance;
+    nand_handle_t nandHandle;
 };
 
 #if DEVICE_FLASH
