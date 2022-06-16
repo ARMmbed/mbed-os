@@ -33,7 +33,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "DigitalOut.h"
 #include "DigitalInOut.h"
 #include "SPI.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 #ifdef MBED_CONF_RTOS_PRESENT
 #include "rtos/Thread.h"
 #endif
@@ -385,7 +385,7 @@ private:
 #endif
 
     // Access protection
-    PlatformMutex mutex;
+    rtos::Mutex mutex;
 
     uint8_t radio_variant;
 

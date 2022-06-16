@@ -21,7 +21,7 @@
 
 #if DEVICE_SPI || defined(DOXYGEN_ONLY)
 
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include "hal/spi_api.h"
 #include "drivers/DigitalOut.h"
 #include "platform/SingletonPtr.h"
@@ -389,7 +389,7 @@ protected:
         /* Internal SPI object handling the resources' state. */
         spi_t spi{};
         /* Used by lock and unlock for thread safety */
-        SingletonPtr<PlatformMutex> mutex;
+        SingletonPtr<rtos::Mutex> mutex;
         /* Current user of the SPI */
         SPI *owner = nullptr;
 #if DEVICE_SPI_ASYNCH && TRANSACTION_QUEUE_SIZE_SPI

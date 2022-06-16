@@ -38,10 +38,10 @@
 #include "mbedtls/platform.h"
 #include "mbedtls/platform_util.h"
 
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include "platform/SingletonPtr.h"
 
-static SingletonPtr<PlatformMutex> ccm_mutex;
+static SingletonPtr<rtos::Mutex> ccm_mutex;
 
 #define MBEDTLS_DEBUG 0
 

@@ -249,7 +249,7 @@ public:
     }
 
 protected:
-    PlatformMutex _mutex;
+    rtos::Mutex _mutex;
 
     virtual void lock()
     {

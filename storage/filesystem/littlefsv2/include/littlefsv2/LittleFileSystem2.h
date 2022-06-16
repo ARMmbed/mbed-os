@@ -23,7 +23,7 @@
 
 #include "FileSystem.h"
 #include "BlockDevice.h"
-#include "PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include "lfs2.h"
 
 namespace mbed {
@@ -294,7 +294,7 @@ private:
     mbed::BlockDevice *_bd; // The block device
 
     // thread-safe locking
-    PlatformMutex _mutex;
+    rtos::Mutex _mutex;
 };
 
 } // namespace mbed

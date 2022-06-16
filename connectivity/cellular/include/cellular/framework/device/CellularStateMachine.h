@@ -20,7 +20,7 @@
 #include "events/EventQueue.h"
 #include "CellularNetwork.h"
 #include "CellularCommon.h"
-#include "PlatformMutex.h"
+#include "rtos/Mutex.h"
 
 namespace mbed {
 
@@ -191,7 +191,7 @@ private:
     cell_callback_data_t _cb_data;
     cellular_connection_status_t _current_event;
     int _status;
-    PlatformMutex _mutex;
+    rtos::Mutex _mutex;
 
     // Cellular state timeouts
     std::chrono::duration<int, std::milli> _state_timeout_power_on;

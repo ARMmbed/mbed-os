@@ -23,7 +23,7 @@
 namespace mbed {
 
 FileBase *FileBase::_head = NULL;
-SingletonPtr<PlatformMutex> FileBase::_mutex;
+SingletonPtr<rtos::Mutex> FileBase::_mutex;
 FileBase *FileBase::_default = NULL;
 
 FileBase::FileBase(const char *name, PathType t) : _next(NULL),

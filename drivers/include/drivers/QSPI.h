@@ -22,7 +22,7 @@
 #if DEVICE_QSPI || defined(DOXYGEN_ONLY)
 
 #include "hal/qspi_api.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include "platform/SingletonPtr.h"
 #include "platform/NonCopyable.h"
 
@@ -218,7 +218,7 @@ protected:
 
     qspi_t _qspi;
 
-    static SingletonPtr<PlatformMutex> _mutex;
+    static SingletonPtr<rtos::Mutex> _mutex;
     qspi_bus_width_t _inst_width; //Bus width for Instruction phase
     qspi_bus_width_t _address_width; //Bus width for Address phase
     qspi_address_size_t _address_size;

@@ -24,7 +24,7 @@
 
 #include "hal/i2c_api.h"
 #include "platform/SingletonPtr.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include "platform/NonCopyable.h"
 
 #if DEVICE_I2C_ASYNCH
@@ -234,7 +234,7 @@ protected:
 
     i2c_t _i2c;
     int    _hz;
-    SingletonPtr<PlatformMutex> _mutex;
+    SingletonPtr<rtos::Mutex> _mutex;
     PinName _sda;
     PinName _scl;
 

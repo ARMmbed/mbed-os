@@ -19,7 +19,7 @@
 
 #include "platform/platform.h"
 #include "drivers/DigitalIn.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include "platform/NonCopyable.h"
 
 namespace mbed {
@@ -120,7 +120,7 @@ protected:
      */
     int _nc_mask;
 
-    PlatformMutex _mutex;
+    rtos::Mutex _mutex;
 
 private:
     virtual void lock();

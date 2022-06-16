@@ -26,7 +26,7 @@
 #include "interfaces/InterfaceCAN.h"
 #include "hal/can_api.h"
 #include "platform/Callback.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 
 namespace mbed {
 #ifndef FEATURE_EXPERIMENTAL_API

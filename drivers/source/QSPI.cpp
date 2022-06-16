@@ -23,7 +23,7 @@
 
 namespace mbed {
 
-SingletonPtr<PlatformMutex> QSPI::_mutex;
+SingletonPtr<rtos::Mutex> QSPI::_mutex;
 
 uint8_t convert_bus_width_to_line_count(qspi_bus_width_t width)
 {

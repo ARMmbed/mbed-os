@@ -22,7 +22,7 @@
 #if DEVICE_LOCALFILESYSTEM
 
 #include "platform/FileSystemLike.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include "platform/NonCopyable.h"
 
 namespace mbed {
@@ -63,7 +63,7 @@ protected:
     virtual void unlock();
     FILEHANDLE _fh;
     int pos;
-    PlatformMutex _mutex;
+    rtos::Mutex _mutex;
 };
 
 /** A filesystem for accessing the local mbed Microcontroller USB disk drive

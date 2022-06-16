@@ -38,7 +38,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "KVStore.h"
-#include "PlatformMutex.h"
+#include "rtos/Mutex.h"
 
 // Forward declarations
 struct  mbedtls_entropy_context;
@@ -275,7 +275,7 @@ private:
     // Forward declaration
     struct inc_set_handle_t;
 
-    PlatformMutex _mutex;
+    rtos::Mutex _mutex;
     bool _is_initialized;
     KVStore *_underlying_kv, *_rbp_kv;
     mbedtls_entropy_context *_entropy;

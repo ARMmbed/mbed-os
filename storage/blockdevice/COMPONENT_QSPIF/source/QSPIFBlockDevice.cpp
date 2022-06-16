@@ -119,7 +119,7 @@ using namespace mbed;
 static PinName *generate_initialized_active_qspif_csel_arr();
 // Static Members for different devices csel
 // _devices_mutex is used to lock csel list - only one QSPIFBlockDevice instance per csel is allowed
-SingletonPtr<PlatformMutex> QSPIFBlockDevice::_devices_mutex;
+SingletonPtr<rtos::Mutex> QSPIFBlockDevice::_devices_mutex;
 int QSPIFBlockDevice::_number_of_active_qspif_flash_csel = 0;
 PinName *QSPIFBlockDevice::_active_qspif_flash_csel_arr = generate_initialized_active_qspif_csel_arr();
 

@@ -29,7 +29,7 @@
 #include "events/EventQueue.h"
 #include "netsocket/OnboardNetworkStack.h"
 #include "rtos/Kernel.h"
-#include "PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include "SingletonPtr.h"
 
 using namespace std::chrono;
@@ -127,14 +127,14 @@ static nsapi_addr_t dns_servers[DNS_SERVERS_SIZE] = {
 #if (MBED_CONF_NSAPI_DNS_CACHE_SIZE > 0)
 static DNS_CACHE *dns_cache[MBED_CONF_NSAPI_DNS_CACHE_SIZE];
 // Protects cache shared between blocking and asynchronous calls
-static SingletonPtr<PlatformMutex> dns_cache_mutex;
+static SingletonPtr<rtos::Mutex> dns_cache_mutex;
 #endif
 
 static uint16_t dns_message_id = 1;
 static intptr_t dns_unique_id = 1;
 static DNS_QUERY *dns_query_queue[DNS_QUERY_QUEUE_SIZE];
 // Protects from several threads running asynchronous DNS
-static SingletonPtr<PlatformMutex> dns_mutex;
+static SingletonPtr<rtos::Mutex> dns_mutex;
 static SingletonPtr<call_in_callback_cb_t> dns_call_in;
 static bool dns_timer_running = false;
 

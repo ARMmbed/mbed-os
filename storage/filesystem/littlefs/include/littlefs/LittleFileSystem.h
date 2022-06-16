@@ -23,7 +23,7 @@
 
 #include "filesystem/FileSystem.h"
 #include "blockdevice/BlockDevice.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include "littlefs/lfs.h"
 
 namespace mbed {
@@ -298,7 +298,7 @@ private:
     const lfs_size_t _lookahead;
 
     // thread-safe locking
-    PlatformMutex _mutex;
+    rtos::Mutex _mutex;
 };
 
 } // namespace mbed

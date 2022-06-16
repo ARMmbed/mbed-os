@@ -160,12 +160,12 @@ private:
     uint32_t wait_for(uint32_t flags, uint32_t opt, Kernel::Clock::duration_u32 rel_time, bool clear);
     uint32_t wait_until(uint32_t flags, uint32_t opt, Kernel::Clock::time_point abs_time, bool clear);
 
-#if MBED_CONF_RTOS_PRESENT
+    // RTOS event flags type
     osEventFlagsId_t                _id;
     mbed_rtos_storage_event_flags_t _obj_mem;
-#else
+
+    // Baremetal event flags
     uint32_t _flags;
-#endif
 };
 
 /** @}*/

@@ -35,7 +35,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "DigitalIn.h"
 #include "AnalogIn.h"
 #include "SPI.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 #ifdef MBED_CONF_RTOS_PRESENT
 #include "rtos/Thread.h"
 #include "rtos/ThisThread.h"
@@ -340,7 +340,7 @@ private:
 #endif
 
     // Access protection
-    PlatformMutex mutex;
+    rtos::Mutex mutex;
 
     // helper functions
     void wakeup();

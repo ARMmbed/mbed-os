@@ -19,9 +19,9 @@
 
 #include "hal/trng_api.h"
 #include "platform/SingletonPtr.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 
-SingletonPtr<PlatformMutex> mbedtls_mutex;
+SingletonPtr<rtos::Mutex> mbedtls_mutex;
 
 extern "C"
 int mbedtls_hardware_poll( void *data, unsigned char *output, size_t len, size_t *olen ) {

@@ -18,7 +18,7 @@
 #define MBED_BUSINOUT_H
 
 #include "drivers/DigitalInOut.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include "platform/NonCopyable.h"
 
 namespace mbed {
@@ -146,7 +146,7 @@ protected:
      */
     int _nc_mask;
 
-    PlatformMutex _mutex;
+    rtos::Mutex _mutex;
 #endif //!defined(DOXYGEN_ONLY)
 };
 

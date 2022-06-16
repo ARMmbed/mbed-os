@@ -254,8 +254,8 @@ private:
     int _verify_key_file(const char *key, key_metadata_t *key_metadata, File *kv_file);
 
     FileSystem *_fs;
-    PlatformMutex _mutex;
-    PlatformMutex _inc_data_add_mutex;
+    rtos::Mutex _mutex;
+    rtos::Mutex _inc_data_add_mutex;
 
     bool _is_initialized;
     char *_cfg_fs_path; /* FileSystemStore path name on FileSystem */

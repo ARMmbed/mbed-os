@@ -33,10 +33,10 @@
 #include "mbedtls/platform.h"
 #include "mbedtls/platform_util.h"
 
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include "platform/SingletonPtr.h"
 
-static SingletonPtr<PlatformMutex> sha1_mutex;
+static SingletonPtr<rtos::Mutex> sha1_mutex;
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/

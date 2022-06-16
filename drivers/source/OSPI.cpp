@@ -23,7 +23,7 @@
 
 namespace mbed {
 
-SingletonPtr<PlatformMutex> OSPI::_mutex;
+SingletonPtr<rtos::Mutex> OSPI::_mutex;
 
 uint8_t convert_bus_width_to_line_count(ospi_bus_width_t width)
 {

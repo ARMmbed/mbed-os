@@ -19,7 +19,7 @@
 #define SOCKET_STATS_H
 
 #include "platform/SingletonPtr.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include "netsocket/Socket.h"
 #include "SocketAddress.h"
 #include "hal/ticker_api.h"
@@ -144,7 +144,7 @@ public:
 #if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
 private:
     static mbed_stats_socket_t _stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT];
-    static SingletonPtr<PlatformMutex> _mutex;
+    static SingletonPtr<rtos::Mutex> _mutex;
     static uint32_t _size;
 
     /** Internal function to scan the array and get the position of the element in the list.

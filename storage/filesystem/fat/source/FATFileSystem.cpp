@@ -137,7 +137,7 @@ static Deferred<const char *> fat_path_prefix(int id, const char *path)
 
 // Global access to block device from FAT driver
 static mbed::BlockDevice *_ffs[FF_VOLUMES] = {0};
-static SingletonPtr<PlatformMutex> _ffs_mutex;
+static SingletonPtr<rtos::Mutex> _ffs_mutex;
 
 // FAT driver functions
 extern "C" DWORD get_fattime(void)

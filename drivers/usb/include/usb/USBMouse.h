@@ -19,7 +19,7 @@
 #define USBMOUSE_H
 
 #include "USBHID.h"
-#include "PlatformMutex.h"
+#include "rtos/Mutex.h"
 
 #define REPORT_ID_MOUSE   2
 
@@ -233,7 +233,7 @@ private:
     MOUSE_TYPE _mouse_type;
     uint8_t _button;
     uint8_t _configuration_descriptor[41];
-    PlatformMutex _mutex;
+    rtos::Mutex _mutex;
 
     bool mouse_send(int8_t x, int8_t y, uint8_t buttons, int8_t z);
 };

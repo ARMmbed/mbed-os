@@ -25,7 +25,7 @@
 #include "platform/FileHandle.h"
 #include "drivers/SerialBase.h"
 #include "drivers/InterruptIn.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include "platform/CircularBuffer.h"
 #include "platform/NonCopyable.h"
 
@@ -328,7 +328,7 @@ private:
     CircularBuffer<char, MBED_CONF_DRIVERS_UART_SERIAL_RXBUF_SIZE> _rxbuf;
     CircularBuffer<char, MBED_CONF_DRIVERS_UART_SERIAL_TXBUF_SIZE> _txbuf;
 
-    PlatformMutex _mutex;
+    rtos::Mutex _mutex;
 
     Callback<void()> _sigio_cb;
 

@@ -182,7 +182,7 @@ static const uint8_t _sfdp_4_byte_inst_table[8] = {0x7F, 0xEF, 0xFF, 0xFF, 0x21,
 static PinName *generate_initialized_active_ospif_csel_arr();
 // Static Members for different devices csel
 // _devices_mutex is used to lock csel list - only one OSPIFBlockDevice instance per csel is allowed
-SingletonPtr<PlatformMutex> OSPIFBlockDevice::_devices_mutex;
+SingletonPtr<rtos::Mutex> OSPIFBlockDevice::_devices_mutex;
 int OSPIFBlockDevice::_number_of_active_ospif_flash_csel = 0;
 PinName *OSPIFBlockDevice::_active_ospif_flash_csel_arr = generate_initialized_active_ospif_csel_arr();
 

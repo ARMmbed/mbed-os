@@ -15,7 +15,8 @@ if(${CMAKE_CROSSCOMPILING})
     endif()
 endif()
 
-target_include_directories(mbed-rtos-flags
+# Note: RTOS headers needed even for mbed-baremetal in order to get type sizes
+target_include_directories(mbed-core-flags
     INTERFACE
         include
 )

@@ -22,7 +22,7 @@
 #if DEVICE_OSPI || defined(DOXYGEN_ONLY)
 
 #include "hal/ospi_api.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include "platform/SingletonPtr.h"
 #include "platform/NonCopyable.h"
 
@@ -229,7 +229,7 @@ protected:
 
     ospi_t _ospi;
 
-    static SingletonPtr<PlatformMutex> _mutex;
+    static SingletonPtr<rtos::Mutex> _mutex;
     ospi_bus_width_t _inst_width; //Bus width for Instruction phase
     ospi_inst_size_t _inst_size; //Instruction Size
     ospi_bus_width_t _address_width; //Bus width for Address phase

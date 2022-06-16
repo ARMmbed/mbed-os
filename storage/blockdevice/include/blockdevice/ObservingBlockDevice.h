@@ -22,7 +22,7 @@
 #define MBED_OBSERVING_BLOCK_DEVICE_H
 
 #include "BlockDevice.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include "platform/Callback.h"
 
 namespace mbed {

@@ -292,7 +292,7 @@ private:
     // Static List of different QSPI based Flash devices csel that already exist
     // Each QSPI Flash device csel can have only 1 SPINANDBlockDevice instance
     // _devices_mutex is used to lock csel list - only one SPINANDBlockDevice instance per csel is allowed
-    static SingletonPtr<PlatformMutex> _devices_mutex;
+    static SingletonPtr<rtos::Mutex> _devices_mutex;
     static int _number_of_active_spinand_flash_csel;
     static PinName *_active_spinand_flash_csel_arr;
 
@@ -301,7 +301,7 @@ private:
 
     // Mutex is used to protect Flash device for some QSPI Driver commands that must be done sequentially with no other commands in between
     // e.g. (1)Set Write Enable, (2)Program, (3)Wait Memory Ready
-    PlatformMutex _mutex;
+    rtos::Mutex _mutex;
 
     // Command Instructions
     mbed::qspi_inst_t _read_instruction;

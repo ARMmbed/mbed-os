@@ -22,13 +22,7 @@
 #include <new>
 #include "platform/mbed_assert.h"
 #include "platform/mbed_atomic.h"
-#ifdef MBED_CONF_RTOS_PRESENT
-#include "cmsis_os2.h"
-#endif
 
-#ifdef MBED_CONF_RTOS_PRESENT
-extern osMutexId_t singleton_mutex_id;
-#endif
 
 /** \addtogroup platform-public-api */
 /** @{*/
@@ -44,16 +38,7 @@ extern osMutexId_t singleton_mutex_id;
  * exclusive access when initializing a
  * global object.
  */
-inline static void singleton_lock(void)
-{
-#ifdef MBED_CONF_RTOS_PRESENT
-    if (!singleton_mutex_id) {
-        // RTOS has not booted yet so no mutex is needed
-        return;
-    }
-    osMutexAcquire(singleton_mutex_id, osWaitForever);
-#endif
-}
+void singleton_lock(void);
 
 /** Unlock the singleton mutex
  *
@@ -61,16 +46,7 @@ inline static void singleton_lock(void)
  * exclusive access when initializing a
  * global object.
  */
-inline static void singleton_unlock(void)
-{
-#ifdef MBED_CONF_RTOS_PRESENT
-    if (!singleton_mutex_id) {
-        // RTOS has not booted yet so no mutex is needed
-        return;
-    }
-    osMutexRelease(singleton_mutex_id);
-#endif
-}
+void singleton_unlock(void);
 
 /** Utility class for creating and using a singleton
  *

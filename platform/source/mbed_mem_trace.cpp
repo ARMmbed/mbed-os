@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include "platform/mbed_mem_trace.h"
 #include "platform/SingletonPtr.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 
 /******************************************************************************
  * Internal variables, functions and helpers
@@ -33,7 +33,7 @@ static mbed_mem_trace_cb_t mem_trace_cb_reserve;
  * of realloc() might call malloc() internally, and since malloc() is also traced, this could
  * result in two calls to the callback function instead of one. */
 static uint8_t trace_lock_count;
-static SingletonPtr<PlatformMutex> mem_trace_mutex;
+static SingletonPtr<rtos::Mutex> mem_trace_mutex;
 
 #define TRACE_FIRST_LOCK() (trace_lock_count < 2)
 

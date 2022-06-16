@@ -22,7 +22,7 @@
 #if DEVICE_ANALOGOUT || defined(DOXYGEN_ONLY)
 
 #include "hal/analogout_api.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 
 namespace mbed {
 /**
@@ -153,7 +153,7 @@ protected:
     }
 
     dac_t _dac;
-    PlatformMutex _mutex;
+    rtos::Mutex _mutex;
 #endif //!defined(DOXYGEN_ONLY)
 };
 

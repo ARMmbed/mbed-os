@@ -27,7 +27,7 @@
 #include "drivers/MbedCRC.h"
 #include "drivers/DigitalOut.h"
 #include "platform/platform.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include "hal/static_pinmap.h"
 
 #ifndef MBED_CONF_SD_SPI_MOSI
@@ -285,7 +285,7 @@ private:
         _mutex.unlock();
     }
 
-    PlatformMutex _mutex;
+    rtos::Mutex _mutex;
     static const uint32_t _block_size;
     uint32_t _erase_size;
     bool _is_initialized;

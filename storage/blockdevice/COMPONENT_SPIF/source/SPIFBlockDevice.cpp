@@ -81,7 +81,7 @@ enum spif_default_instructions {
 
 // Mutex is used for some SPI Driver commands that must be done sequentially with no other commands in between
 // e.g. (1)Set Write Enable, (2)Program, (3)Wait Memory Ready
-SingletonPtr<PlatformMutex> SPIFBlockDevice::_mutex;
+SingletonPtr<rtos::Mutex> SPIFBlockDevice::_mutex;
 
 //***********************
 // SPIF Block Device APIs

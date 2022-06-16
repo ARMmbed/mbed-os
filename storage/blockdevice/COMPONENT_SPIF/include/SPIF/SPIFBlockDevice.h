@@ -271,7 +271,7 @@ private:
 
     // Mutex is used to protect Flash device for some SPI Driver commands that must be done sequentially with no other commands in between
     // e.g. (1)Set Write Enable, (2)Program, (3)Wait Memory Ready
-    static SingletonPtr<PlatformMutex> _mutex;
+    static SingletonPtr<rtos::Mutex> _mutex;
 
     // Command Instructions
     int _read_instruction;

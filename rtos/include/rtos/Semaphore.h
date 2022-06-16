@@ -142,16 +142,17 @@ public:
 private:
     void constructor(int32_t count, uint16_t max_count);
 
-#if MBED_CONF_RTOS_PRESENT
-    int32_t _wait(uint32_t millisec);
+#if !MBED_CONF_RTOS_PRESENT
+    static bool semaphore_available(void *);
+#endif
 
+    // RTOS semaphore type, used on mbed-os
     osSemaphoreId_t               _id;
     mbed_rtos_storage_semaphore_t _obj_mem;
-#else
-    static bool semaphore_available(void *);
+
+    // Bare-metal semaphore data, used for mbed-baremetal
     int32_t _count;
     uint16_t _max_count;
-#endif
 };
 /** @}*/
 /** @}*/

@@ -25,7 +25,7 @@
 #include "blockdevice/BlockDevice.h"
 #include "FileHandle.h"
 #include <stdint.h>
-#include "PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include "storage/filesystem/fat/ChaN/ff.h"
 
 namespace mbed {

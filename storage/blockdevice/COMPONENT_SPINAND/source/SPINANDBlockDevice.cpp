@@ -116,7 +116,7 @@ using namespace mbed;
 static PinName *generate_initialized_active_spinand_csel_arr();
 // Static Members for different devices csel
 // _devices_mutex is used to lock csel list - only one SPINANDBlockDevice instance per csel is allowed
-SingletonPtr<PlatformMutex> SPINANDBlockDevice::_devices_mutex;
+SingletonPtr<rtos::Mutex> SPINANDBlockDevice::_devices_mutex;
 int SPINANDBlockDevice::_number_of_active_spinand_flash_csel = 0;
 PinName *SPINANDBlockDevice::_active_spinand_flash_csel_arr = generate_initialized_active_spinand_csel_arr();
 

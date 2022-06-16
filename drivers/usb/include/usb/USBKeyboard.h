@@ -20,7 +20,7 @@
 
 #include "USBHID.h"
 #include "platform/Stream.h"
-#include "PlatformMutex.h"
+#include "rtos/Mutex.h"
 
 /* Modifiers, left keys then right keys. */
 enum MODIFIER_KEY {
@@ -211,7 +211,7 @@ private:
 
     uint8_t _configuration_descriptor[41];
     uint8_t _lock_status;
-    PlatformMutex _mutex;
+    rtos::Mutex _mutex;
 
 };
 

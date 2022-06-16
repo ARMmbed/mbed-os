@@ -37,7 +37,7 @@ SPDX-License-Identifier: BSD-3-Clause
 
 #include "platform/mbed_critical.h"
 #include "drivers/DigitalOut.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include "lorawan/LoRaRadio.h"
 
 #include "STM32WL_radio_driver.h"
@@ -314,7 +314,7 @@ public:
 private:
 
     // Access protection
-    PlatformMutex mutex;
+    rtos::Mutex mutex;
 
     // helper functions
     void wakeup();

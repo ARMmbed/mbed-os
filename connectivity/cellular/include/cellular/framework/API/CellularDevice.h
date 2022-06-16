@@ -464,7 +464,7 @@ private: //Member variables
     CellularNetwork *_nw;
     char _sim_pin[MAX_PIN_SIZE + 1];
     char _plmn[MAX_PLMN_SIZE + 1];
-    PlatformMutex _mutex;
+    rtos::Mutex _mutex;
 
 #ifdef MBED_CONF_RTOS_PRESENT
     rtos::Thread _queue_thread;

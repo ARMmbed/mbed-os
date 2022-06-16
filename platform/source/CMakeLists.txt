@@ -23,6 +23,7 @@ target_sources(mbed-core-sources
         FilePath.cpp
         FileSystemHandle.cpp
         LocalFileSystem.cpp
+        SingletonPtr.cpp
         Stream.cpp
         SysTimer.cpp
         mbed_alloc_wrappers.cpp

@@ -28,7 +28,7 @@
 
 #include "flash_api.h"
 #include "platform/SingletonPtr.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include "platform/NonCopyable.h"
 #include <algorithm>
 
@@ -164,7 +164,7 @@ private:
 
     flash_t _flash;
     uint8_t *_page_buf;
-    static SingletonPtr<PlatformMutex> _mutex;
+    static SingletonPtr<rtos::Mutex> _mutex;
 #endif
 };
 

@@ -25,7 +25,7 @@
 #include "nu_bitutil.h"
 #include "crypto-misc.h"
 #include "platform/SingletonPtr.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 
 #if defined(MBEDTLS_CONFIG_HW_SUPPORT)
 
@@ -46,13 +46,13 @@
  */
 
 /* Mutex for crypto AES AC management */
-static SingletonPtr<PlatformMutex> crypto_aes_mutex;
+static SingletonPtr<rtos::Mutex> crypto_aes_mutex;
 
 /* Mutex for crypto DES AC management */
-static SingletonPtr<PlatformMutex> crypto_des_mutex;
+static SingletonPtr<rtos::Mutex> crypto_des_mutex;
 
 /* Mutex for crypto ECC AC management */
-static SingletonPtr<PlatformMutex> crypto_ecc_mutex;
+static SingletonPtr<rtos::Mutex> crypto_ecc_mutex;
 
 /* Atomic flag for crypto SHA AC management */
 static core_util_atomic_flag crypto_sha_atomic_flag = CORE_UTIL_ATOMIC_FLAG_INIT;

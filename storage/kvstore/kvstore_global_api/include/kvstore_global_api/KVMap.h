@@ -17,7 +17,7 @@
 #define _KV_MAP
 
 #include "kvstore/KVStore.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include "platform/SingletonPtr.h"
 #include "blockdevice/BlockDevice.h"
 #include "filesystem/FileSystem.h"
@@ -232,7 +232,7 @@ private:
     kv_map_entry_t _kv_map_table[MAX_ATTACHED_KVS];
     int _kv_num_attached_kvs;
     int _is_initialized;
-    SingletonPtr<PlatformMutex> _mutex;
+    SingletonPtr<rtos::Mutex> _mutex;
 #endif
 };
 }

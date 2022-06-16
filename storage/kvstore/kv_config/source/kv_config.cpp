@@ -165,7 +165,7 @@ static const int STORE_SECTORS = 2;
 /** Minimum number of internal flash pages required for TDBStore */
 static const int STORE_PAGES = 14;
 
-static SingletonPtr<PlatformMutex> mutex;
+static SingletonPtr<rtos::Mutex> mutex;
 static bool is_kv_config_initialize = false;
 static kvstore_config_t kvstore_config;
 

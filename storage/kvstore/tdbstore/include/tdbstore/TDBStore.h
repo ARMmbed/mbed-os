@@ -22,7 +22,7 @@
 #include "kvstore/KVStore.h"
 #include "blockdevice/BlockDevice.h"
 #include "blockdevice/BufferedBlockDevice.h"
-#include "PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include "mbed_error.h"
 
 namespace mbed {
@@ -288,8 +288,8 @@ private:
     static const int _num_areas = 2;
     static const int _max_open_iterators = 16;
 
-    PlatformMutex _mutex;
-    PlatformMutex _inc_set_mutex;
+    rtos::Mutex _mutex;
+    rtos::Mutex _inc_set_mutex;
     void *_ram_table;
     size_t _max_keys;
     size_t _num_keys;

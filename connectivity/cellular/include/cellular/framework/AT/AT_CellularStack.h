@@ -20,7 +20,7 @@
 
 #include "ATHandler.h"
 #include "netsocket/NetworkStack.h"
-#include "PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include "AT_CellularDevice.h"
 
 namespace mbed {
@@ -209,7 +209,7 @@ protected:
     nsapi_version_t _ip_ver_sendto;
 
     // mutex for write/read to a _socket array, needed when multiple threads may use sockets simultaneously
-    PlatformMutex _socket_mutex;
+    rtos::Mutex _socket_mutex;
 
     ATHandler &_at;
     AT_CellularDevice &_device;

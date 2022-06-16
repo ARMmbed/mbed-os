@@ -47,7 +47,7 @@ typedef struct {
 } ppp_sys_timeout_t;
 
 static ppp_sys_timeout_t *timeout[PPP_TIMER_NUM];
-static SingletonPtr<PlatformMutex> ppp_service_if_mutex;
+static SingletonPtr<rtos::Mutex> ppp_service_if_mutex;
 static uint8_t ppp_service_sys_timeout_id = 0;
 static pbuf pbuf_handles[PPP_PBUF_HANDLE_NUM];
 

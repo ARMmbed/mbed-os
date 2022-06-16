@@ -29,10 +29,10 @@
 #include "mbedtls/platform_util.h"
 #include "mbedtls/platform.h"
 
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include "platform/SingletonPtr.h"
 
-static SingletonPtr<PlatformMutex> gcm_mutex;
+static SingletonPtr<rtos::Mutex> gcm_mutex;
 
 
 /* Parameter validation macros */

@@ -21,10 +21,10 @@
 #include "mbedtls/platform.h"
 #if defined(MBEDTLS_PLATFORM_SETUP_TEARDOWN_ALT)
 #include "platform/SingletonPtr.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 
 mbedtls_platform_context plat_ctx = { { 0 } };
-extern SingletonPtr<PlatformMutex> mbedtls_mutex;
+extern SingletonPtr<rtos::Mutex> mbedtls_mutex;
 
 int mbedtls_platform_setup( mbedtls_platform_context *unused_ctx )
 {

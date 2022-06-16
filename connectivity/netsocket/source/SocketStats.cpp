@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
-SingletonPtr<PlatformMutex> SocketStats::_mutex;
+SingletonPtr<rtos::Mutex> SocketStats::_mutex;
 mbed_stats_socket_t SocketStats::_stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT];
 uint32_t SocketStats::_size = 0;
 

@@ -104,7 +104,7 @@ uint8_t bd_arr[6] = {0};
 
 static uint8_t test_iteration = 0;
 
-static SingletonPtr<PlatformMutex> _mutex;
+static SingletonPtr<rtos::Mutex> _mutex;
 
 BlockDevice *block_device = NULL;
 

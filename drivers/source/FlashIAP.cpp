@@ -37,7 +37,7 @@ namespace mbed {
 
 const unsigned int num_write_retries = 16;
 
-SingletonPtr<PlatformMutex> FlashIAP::_mutex;
+SingletonPtr<rtos::Mutex> FlashIAP::_mutex;
 
 static inline bool is_aligned(uint32_t number, uint32_t alignment)
 {

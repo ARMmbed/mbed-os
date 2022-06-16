@@ -27,7 +27,7 @@
 #ifdef __cplusplus
 
 #include "platform/SingletonPtr.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 
 #include <mstd_type_traits>
 
@@ -39,7 +39,7 @@ namespace mbed {
  * @{
  */
 
-extern SingletonPtr<PlatformMutex> mbed_crc_mutex;
+extern SingletonPtr<rtos::Mutex> mbed_crc_mutex;
 
 /** CRC mode selection
  */

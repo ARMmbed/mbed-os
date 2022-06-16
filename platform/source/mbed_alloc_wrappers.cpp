@@ -19,7 +19,7 @@
 #include "platform/mbed_stats.h"
 #include "platform/mbed_toolchain.h"
 #include "platform/SingletonPtr.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
@@ -49,7 +49,7 @@ typedef struct {
 #if MBED_HEAP_STATS_ENABLED
 #define MBED_HEAP_STATS_SIGNATURE       (0xdeadbeef)
 
-static SingletonPtr<PlatformMutex> malloc_stats_mutex;
+static SingletonPtr<rtos::Mutex> malloc_stats_mutex;
 static mbed_stats_heap_t heap_stats = {0, 0, 0, 0, 0, 0, 0};
 
 typedef struct mbed_heap_overhead  {

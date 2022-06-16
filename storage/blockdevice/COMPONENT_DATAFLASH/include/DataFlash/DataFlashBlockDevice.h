@@ -18,7 +18,7 @@
 #ifndef MBED_DATAFLASH_BLOCK_DEVICE_H
 #define MBED_DATAFLASH_BLOCK_DEVICE_H
 
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include "PinNames.h"
 #include "blockdevice/BlockDevice.h"
 #include "drivers/SPI.h"
@@ -200,7 +200,7 @@ private:
     uint32_t _translate_address(mbed::bd_addr_t addr);
 
     // Mutex for thread safety
-    mutable PlatformMutex _mutex;
+    mutable rtos::Mutex _mutex;
 };
 
 

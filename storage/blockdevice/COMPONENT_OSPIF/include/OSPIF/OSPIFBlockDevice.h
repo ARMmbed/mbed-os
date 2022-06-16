@@ -407,7 +407,7 @@ private:
     // Static List of different OSPI based Flash devices csel that already exist
     // Each OSPI Flash device csel can have only 1 OSPIFBlockDevice instance
     // _devices_mutex is used to lock csel list - only one OSPIFBlockDevice instance per csel is allowed
-    static SingletonPtr<PlatformMutex> _devices_mutex;
+    static SingletonPtr<rtos::Mutex> _devices_mutex;
     static int _number_of_active_ospif_flash_csel;
     static PinName *_active_ospif_flash_csel_arr;
 
@@ -416,7 +416,7 @@ private:
 
     // Mutex is used to protect Flash device for some OSPI Driver commands that must be done sequentially with no other commands in between
     // e.g. (1)Set Write Enable, (2)Program, (3)Wait Memory Ready
-    PlatformMutex _mutex;
+    rtos::Mutex _mutex;
 
     // Command Instructions
     mbed::ospi_inst_t _read_instruction;
@@ -471,7 +471,7 @@ private:
     };
     uint32_t _busy_bank;    // Current busy bank
     wait_flag _wait_flag;  // wait flag
-    PlatformMutex _busy_mutex;
+    rtos::Mutex _busy_mutex;
 #endif
 };
 

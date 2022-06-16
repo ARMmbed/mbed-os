@@ -24,7 +24,7 @@
 #include "interfaces/InterfaceCAN.h"
 #include "hal/can_api.h"
 #include "platform/Callback.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 
 namespace mbed {
 
@@ -214,7 +214,7 @@ protected:
 
     can_t               _can;
     Callback<void()>    _irq[IrqType::IrqCnt];
-    PlatformMutex       _mutex;
+    rtos::Mutex       _mutex;
 #endif
 };
 

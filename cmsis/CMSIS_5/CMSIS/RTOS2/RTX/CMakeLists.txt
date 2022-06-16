@@ -42,7 +42,8 @@ if(${CMAKE_CROSSCOMPILING})
     _mbed_get_cortex_m_exception_handlers(TOOLCHAIN_GCC)
 endif()
 
-target_include_directories(mbed-rtos-flags
+# Note: RTOS headers needed even for mbed-baremetal in order to get type sizes
+target_include_directories(mbed-core-flags
     INTERFACE
         Config
         Include

@@ -27,13 +27,15 @@
 #include "platform/mbed_error.h"
 #include "platform/mbed_assert.h"
 
+namespace rtos
+{
+
 #if MBED_CONF_RTOS_PRESENT
+// Actual Mutex implementation, enabled in Mbed OS
 
 using namespace std::chrono_literals;
 using std::milli;
 using std::chrono::duration;
-
-namespace rtos {
 
 Mutex::Mutex()
 {
@@ -145,6 +147,53 @@ Mutex::~Mutex()
     osMutexDelete(_id);
 }
 
+#else
+// Stub Mutex implementation, enabled in Mbed Baremetal
+
+Mutex::Mutex()
+{
 }
 
+Mutex::Mutex(const char *)
+{
+}
+
+Mutex::~Mutex()
+{
+}
+
+void Mutex::lock()
+{
+}
+
+bool Mutex::trylock()
+{
+    return true;
+}
+
+bool Mutex::trylock_for(uint32_t)
+{
+    return true;
+}
+
+bool Mutex::trylock_for(Kernel::Clock::duration_u32)
+{
+    return true;
+}
+
+bool Mutex::trylock_until(uint64_t)
+{
+    return true;
+}
+
+bool Mutex::trylock_until(Kernel::Clock::time_point)
+{
+    return true;
+}
+
+void Mutex::unlock()
+{
+}
 #endif
+
+}

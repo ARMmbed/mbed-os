@@ -16,11 +16,12 @@
  */
 #include "I2CEEBlockDevice.h"
 #include "rtos/ThisThread.h"
+#include "mbed_wait_api.h"
+
 using namespace mbed;
 using namespace std::chrono_literals;
 
 #define I2CEE_TIMEOUT 10000
-
 
 I2CEEBlockDevice::I2CEEBlockDevice(
     PinName sda, PinName scl, uint8_t addr,
@@ -156,8 +157,7 @@ int I2CEEBlockDevice::_sync()
         if (_i2c->write(_i2c_addr | 0, 0, 0) < 1) {
             return 0;
         }
-
-        rtos::ThisThread::sleep_for(1s);
+        wait_us(100);
     }
 
     return BD_ERROR_DEVICE_ERROR;

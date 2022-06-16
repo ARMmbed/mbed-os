@@ -23,7 +23,7 @@
 
 #include "hal/analogin_api.h"
 #include "platform/SingletonPtr.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 
 #include <cmath>
 
@@ -169,7 +169,7 @@ protected:
     }
 
     analogin_t _adc;
-    static SingletonPtr<PlatformMutex> _mutex;
+    static SingletonPtr<rtos::Mutex> _mutex;
 
     float _vref;
 

@@ -30,7 +30,7 @@
 #include "platform/mbed_semihost_api.h"
 #include "platform/mbed_interface.h"
 #include "platform/SingletonPtr.h"
-#include "platform/PlatformMutex.h"
+#include "rtos/Mutex.h"
 #include "platform/mbed_error.h"
 #include "platform/mbed_atomic.h"
 #include "platform/mbed_critical.h"
@@ -49,7 +49,7 @@
 #include <errno.h>
 #include "platform/mbed_retarget.h"
 
-static SingletonPtr<PlatformMutex> _mutex;
+static SingletonPtr<rtos::Mutex> _mutex;
 
 /* DIR is typedeffed to struct DIR_impl in header */
 struct DIR_impl {
@@ -121,7 +121,7 @@ uint32_t mbed_heap_size = 0;
  * put it in a filehandles array and return the index into that array
  */
 static FileHandle *filehandles[RETARGET_OPEN_MAX] = { FILE_HANDLE_RESERVED, FILE_HANDLE_RESERVED, FILE_HANDLE_RESERVED };
-static SingletonPtr<PlatformMutex> filehandle_mutex;
+static SingletonPtr<rtos::Mutex> filehandle_mutex;
 #endif // !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
 
 static char stdio_in_prev[RETARGET_OPEN_MAX];
@@ -1939,7 +1939,8 @@ extern "C" MBED_WEAK long int _scanf_mbtowc(
     return 0;
 }
 
-static  void validate_errno_values(int value)
+// This function is not used, it's just to test the errno values exist
+static void __attribute__((unused)) validate_errno_values(int value)
 {
 
     switch (value) {

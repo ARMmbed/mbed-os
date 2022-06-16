@@ -21,7 +21,7 @@
 
 namespace mbed {
 
-SingletonPtr<PlatformMutex> AnalogIn::_mutex;
+SingletonPtr<rtos::Mutex> AnalogIn::_mutex;
 
 
 AnalogIn::AnalogIn(PinName pin, float vref) : _vref(vref)

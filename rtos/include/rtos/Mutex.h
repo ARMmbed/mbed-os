@@ -171,62 +171,13 @@ public:
     ~Mutex();
 
 private:
-#if MBED_CONF_RTOS_PRESENT
     void constructor(const char *name = nullptr);
     friend class ConditionVariable;
 
     osMutexId_t               _id;
     mbed_rtos_storage_mutex_t _obj_mem;
     uint32_t                  _count;
-#endif
 };
-
-#if !MBED_CONF_RTOS_PRESENT
-inline Mutex::Mutex()
-{
-}
-
-inline Mutex::Mutex(const char *)
-{
-}
-
-inline Mutex::~Mutex()
-{
-}
-
-inline void Mutex::lock()
-{
-}
-
-inline bool Mutex::trylock()
-{
-    return true;
-}
-
-inline bool Mutex::trylock_for(uint32_t)
-{
-    return true;
-}
-
-inline bool Mutex::trylock_for(Kernel::Clock::duration_u32)
-{
-    return true;
-}
-
-inline bool Mutex::trylock_until(uint64_t)
-{
-    return true;
-}
-
-inline bool Mutex::trylock_until(Kernel::Clock::time_point)
-{
-    return true;
-}
-
-inline void Mutex::unlock()
-{
-}
-#endif
 
 /** @}*/
 /** @}*/
