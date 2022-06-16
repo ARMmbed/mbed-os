@@ -14,7 +14,6 @@ set(MBED_GREENTEA_SERIAL_PORT "" CACHE STRING "Serial port name to talk to the M
 # TEST_REQUIRED_LIBS - Test suite required libraries
 # HOST_TESTS_DIR - Path to the "host_tests" directory
 # TEST_SKIPPED - Reason if suite is skipped
-# TEST_BAREMETAL - If provided, test against mbed-baremetal
 #
 # calling the macro:
 # if(MBED_GREENTEA_TEST_BAREMETAL)
@@ -38,9 +37,7 @@ set(MBED_GREENTEA_SERIAL_PORT "" CACHE STRING "Serial port name to talk to the M
 # )
 
 function(mbed_greentea_add_test)
-    set(options
-        TEST_BAREMETAL
-    )
+    set(options)
     set(singleValueArgs
         TEST_NAME
         TEST_SKIPPED
