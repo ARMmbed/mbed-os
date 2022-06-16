@@ -135,6 +135,7 @@ void test_get_empty_timeout()
 
     uint32_t *v;
     bool stat = q.try_get_for(50ms, &v);
+    timer.stop();
     TEST_ASSERT_FALSE(stat);
     TEST_ASSERT_DURATION_WITHIN(5ms, 50ms, timer.elapsed_time());
 }
