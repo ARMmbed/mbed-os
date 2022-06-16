@@ -39,8 +39,13 @@ if (!isdefinedsymbol(MBED_CONF_TARGET_BOOT_STACK_SIZE)) {
 
 /* Round up VECTORS_SIZE to 8 bytes */
 define symbol VECTORS_SIZE = ((VECTORS * 4) + 7) & ~7;
-define symbol RAM_REGION_START = MBED_RAM_START + VECTORS_SIZE;
-define symbol RAM_REGION_SIZE = MBED_RAM_SIZE - VECTORS_SIZE;
+
+define symbol CRASH_DATA_START = MBED_RAM_START + VECTORS_SIZE;
+define symbol CRASH_DATA_SIZE  = 0x100;
+define exported symbol __CRASH_DATA_RAM_START__ = CRASH_DATA_START;
+
+define symbol RAM_REGION_START = CRASH_DATA_START + CRASH_DATA_SIZE;
+define symbol RAM_REGION_SIZE  = MBED_RAM_SIZE - VECTORS_SIZE - CRASH_DATA_SIZE;
 
 define memory mem with size = 4G;
 define region ROM_region = mem:[from MBED_APP_START size MBED_APP_SIZE];
