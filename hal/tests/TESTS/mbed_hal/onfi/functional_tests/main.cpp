@@ -51,7 +51,7 @@ void flash_init_test()
 {
     onfi_t test_onfi;
     int32_t ret = onfi_init(&test_onfi, DATA_0, DATA_1, DATA_2, DATA_3, DATA_4, DATA_5,
-                                 DATA_6, DATA_7, ADD_09, ADD_11, ADD_12, BA_1, RDY, CSX);
+                            DATA_6, DATA_7, ADD_09, ADD_11, ADD_12, BA_1, RDY, CSX);
     TEST_ASSERT_EQUAL_INT32(0, ret);
     ret = onfi_free(&test_onfi);
     TEST_ASSERT_EQUAL_INT32(0, ret);
@@ -61,7 +61,7 @@ void flash_erase_block_test()
 {
     onfi_t test_onfi;
     int32_t ret = onfi_init(&test_onfi, DATA_0, DATA_1, DATA_2, DATA_3, DATA_4, DATA_5,
-                                 DATA_6, DATA_7, ADD_09, ADD_11, ADD_12, BA_1, RDY, CSX);
+                            DATA_6, DATA_7, ADD_09, ADD_11, ADD_12, BA_1, RDY, CSX);
     uint32_t start_address = 0;
     TEST_ASSERT_EQUAL_INT32(0, ret);
 
@@ -80,7 +80,7 @@ void flash_write_read_test()
 {
     onfi_t test_onfi;
     int32_t ret = onfi_init(&test_onfi, DATA_0, DATA_1, DATA_2, DATA_3, DATA_4, DATA_5,
-                                 DATA_6, DATA_7, ADD_09, ADD_11, ADD_12, BA_1, RDY, CSX);
+                            DATA_6, DATA_7, ADD_09, ADD_11, ADD_12, BA_1, RDY, CSX);
     uint32_t start_address = 0;
     TEST_ASSERT_EQUAL_INT32(0, ret);
 

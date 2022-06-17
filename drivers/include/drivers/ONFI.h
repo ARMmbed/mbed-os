@@ -42,7 +42,7 @@ namespace mbed {
 class ONFI : private NonCopyable<ONFI> {
 public:
     ONFI(PinName d0, PinName d1, PinName d2, PinName d3, PinName d4, PinName d5, PinName d6, PinName d7,
-              PinName add09, PinName add11, PinName add12, PinName ba1, PinName rdy, PinName csx);
+         PinName add09, PinName add11, PinName add12, PinName ba1, PinName rdy, PinName csx);
 
     /** Initialize a ONFI NAND Flash device
      *
@@ -62,7 +62,7 @@ public:
      *  This method invokes memcpy - reads number of bytes from the address
      *
      *  @param addr   Flash address to begin reading from
-     *  @param buffer Buffer to write to     
+     *  @param buffer Buffer to write to
      *  @param size   Size to read in bytes
      *  @return       0 on success, negative error code on failure
      */
@@ -73,7 +73,7 @@ public:
      *  The sectors must have been erased prior to being programmed
      *
      *  @param addr   Address of a page to begin writing to
-     *  @param buffer Buffer of data to be written     
+     *  @param buffer Buffer of data to be written
      *  @param size   Size to write in bytes, must be a multiple of program size
      *  @return       0 on success, negative error code on failure
      */

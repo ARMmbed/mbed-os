@@ -28,7 +28,7 @@ namespace mbed {
 SingletonPtr<PlatformMutex> ONFI::_mutex;
 
 ONFI::ONFI(PinName d0, PinName d1, PinName d2, PinName d3, PinName d4, PinName d5, PinName d6, PinName d7,
-                     PinName add09, PinName add11, PinName add12, PinName ba1, PinName rdy, PinName csx): _onfi()
+           PinName add09, PinName add11, PinName add12, PinName ba1, PinName rdy, PinName csx): _onfi()
 {
     _onfi_d0 = d0;
     _onfi_d1 = d1;
@@ -53,7 +53,7 @@ int ONFI::init()
     lock();
 
     ret = onfi_init(&_onfi, _onfi_d0, _onfi_d1, _onfi_d2, _onfi_d3, _onfi_d4, _onfi_d5, _onfi_d6, _onfi_d7,
-                         _onfi_add09, _onfi_add11, _onfi_add12, _onfi_ba1, _onfi_rdy, _onfi_csx);
+                    _onfi_add09, _onfi_add11, _onfi_add12, _onfi_ba1, _onfi_rdy, _onfi_csx);
 
     if (!ret) {
         _initialized = true;

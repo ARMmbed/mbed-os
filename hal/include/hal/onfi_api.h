@@ -54,7 +54,7 @@ extern "C" {
  * @return 0 for success, -1 for error
  */
 int32_t onfi_init(onfi_t *obj, PinName d0, PinName d1, PinName d2, PinName d3, PinName d4, PinName d5,
-                       PinName d6, PinName d7, PinName add09, PinName add11, PinName add12, PinName ba1, PinName rdy, PinName csx);
+                  PinName d6, PinName d7, PinName add09, PinName add11, PinName add12, PinName ba1, PinName rdy, PinName csx);
 
 /** Uninitialize the ONFI NAND Flash peripheral and the onfi_t object
  *
