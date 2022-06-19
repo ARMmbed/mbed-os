@@ -58,12 +58,12 @@
  */
 class SDBlockDevice : public mbed::BlockDevice {
 public:
-    /** Creates an SDBlockDevice on a SPI bus specified by pins (using dynamic pin-map)
+    /** Creates an SDBlockDevice on a SPI bus specified by pins (using dynamic pin-map).
      *
      *  @param mosi     SPI master out, slave in pin
      *  @param miso     SPI master in, slave out pin
      *  @param sclk     SPI clock pin
-     *  @param cs       SPI chip select pin
+     *  @param cs       SPI chip select pin.   This constructor needs a *hardware* chip select pin.
      *  @param hz       Clock speed of the SPI bus (defaults to 1MHz)
      *  @param crc_on   Enable cyclic redundancy check (defaults to disabled)
      */
@@ -74,13 +74,47 @@ public:
                   uint64_t hz = MBED_CONF_SD_TRX_FREQUENCY,
                   bool crc_on = MBED_CONF_SD_CRC_ENABLED);
 
-    /** Creates an SDBlockDevice on a SPI bus specified by pins (using static pin-map)
+    /** Creates an SDBlockDevice on a SPI bus specified by pins (using dynamic pin-map).
+     * This version creates an SPI object that uses GPIO for its chip select line instead of
+     * a dedicated hardware CS pin.
+     *
+     *  @param mosi     SPI master out, slave in pin
+     *  @param miso     SPI master in, slave out pin
+     *  @param sclk     SPI clock pin
+     *  @param cs       SPI chip select pin.  May be any GPIO pin.
+     *  @param hz       Clock speed of the SPI bus (defaults to 1MHz)
+     *  @param crc_on   Enable cyclic redundancy check (defaults to disabled)
+     */
+    SDBlockDevice(mbed::use_gpio_ssel_t,
+                  PinName mosi = MBED_CONF_SD_SPI_MOSI,
+                  PinName miso = MBED_CONF_SD_SPI_MISO,
+                  PinName sclk = MBED_CONF_SD_SPI_CLK,
+                  PinName cs = MBED_CONF_SD_SPI_CS,
+                  uint64_t hz = MBED_CONF_SD_TRX_FREQUENCY,
+                  bool crc_on = MBED_CONF_SD_CRC_ENABLED);
+
+
+    /** Creates an SDBlockDevice on a SPI bus specified by pins (using static pin-map).
+     * This version needs a pinmap containing a hardware chip select pin.
      *
      *  @param spi_pinmap Static SPI pin-map
      *  @param hz         Clock speed of the SPI bus (defaults to 1MHz)
      *  @param crc_on     Enable cyclic redundancy check (defaults to disabled)
      */
     SDBlockDevice(const spi_pinmap_t &spi_pinmap,
+                  uint64_t hz = MBED_CONF_SD_TRX_FREQUENCY,
+                  bool crc_on = MBED_CONF_SD_CRC_ENABLED);
+
+    /** Creates an SDBlockDevice on a SPI bus specified by pins (using static pin-map).
+     * This version creates an SPI object that uses GPIO for its chip select line instead of
+     * a dedicated hardware CS pin.
+     *
+     *  @param spi_pinmap Static SPI pin-map
+     *  @param hz         Clock speed of the SPI bus (defaults to 1MHz)
+     *  @param crc_on     Enable cyclic redundancy check (defaults to disabled)
+     */
+    SDBlockDevice(const spi_pinmap_t &spi_pinmap,
+                  mbed::use_gpio_ssel_t,
                   PinName cs = MBED_CONF_SD_SPI_CS,
                   uint64_t hz = MBED_CONF_SD_TRX_FREQUENCY,
                   bool crc_on = MBED_CONF_SD_CRC_ENABLED);
