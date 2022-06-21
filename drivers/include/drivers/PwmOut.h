@@ -135,7 +135,7 @@ public:
      *  @returns
      *   The PWM pulsewith, specified in microseconds (int)
      */
-    int read_pulsewitdth_us();
+    int read_pulsewidth_us();
 
     /** Suspend PWM operation
      *
