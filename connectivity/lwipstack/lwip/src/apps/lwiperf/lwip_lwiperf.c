@@ -263,7 +263,7 @@ lwiperf_tcp_close(lwiperf_state_tcp_t *conn, enum lwiperf_report_type report_typ
       /* don't want to wait for free memory here... */
       tcp_abort(conn->conn_pcb);
     }
-  } else {
+  } else if (conn->server_pcb != NULL) {
     /* no conn pcb, this is the listener pcb */
     err = tcp_close(conn->server_pcb);
     LWIP_ASSERT("error", err == ERR_OK);
@@ -565,6 +565,11 @@ lwiperf_tcp_err(void *arg, err_t err)
 {
   lwiperf_state_tcp_t *conn = (lwiperf_state_tcp_t *)arg;
   LWIP_UNUSED_ARG(err);
+
+  /* pcb is already deallocated, prevent double-free */
+  conn->conn_pcb = NULL;
+  conn->server_pcb = NULL;
+
   lwiperf_tcp_close(conn, LWIPERF_TCP_ABORTED_REMOTE);
 }
 
