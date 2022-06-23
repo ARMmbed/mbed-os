@@ -121,6 +121,11 @@ int PwmOut::read_pulsewidth_us()
     return val;
 }
 
+int PwmOut::read_pulsewitdth_us()
+{
+    return read_pulsewidth_us();
+}
+
 void PwmOut::suspend()
 {
     core_util_critical_section_enter();
