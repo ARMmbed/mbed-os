@@ -133,8 +133,15 @@ public:
 
     /** Read the PWM pulsewidth
      *  @returns
-     *   The PWM pulsewith, specified in microseconds (int)
+     *   The PWM pulsewidth, specified in microseconds (int)
      */
+    int read_pulsewidth_us();
+
+    /** Read the PWM pulsewidth
+     *  @returns
+     *   The PWM pulsewidth, specified in microseconds (int)
+     */
+    MBED_DEPRECATED("use read_pulsewidth_us() instead")
     int read_pulsewitdth_us();
 
     /** Suspend PWM operation
