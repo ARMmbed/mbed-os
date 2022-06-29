@@ -1914,6 +1914,22 @@
             "0320"
         ]
     },
+    "MCU_STM32F412xE": {
+        "inherits": [
+            "MCU_STM32F4"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32F412xE"
+        ],
+        "macros_add": [
+            "STM32F412Zx"
+        ],
+        "device_has_add": [
+            "CAN",
+            "TRNG"
+        ]
+    },
     "MCU_STM32F412xG": {
         "inherits": [
             "MCU_STM32F4"
