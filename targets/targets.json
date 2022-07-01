@@ -7428,6 +7428,10 @@
             },
             "hbi-mfp-reg-val-list": {
                 "help": "Comma separated multi-function pin register value list to enable HBI for HyperRAM"
+            },
+            "usb-device-hsusbd": {
+                "help": "Select high-speed USB device or not",
+                "value": 0
             }
         },
         "inherits": [
@@ -7463,7 +7467,8 @@
             "MPU",
             "WATCHDOG",
             "RESET_REASON",
-	    "EMAC"
+            "EMAC",
+            "USBDEVICE"
         ],
         "components_add": [
             "FLASHIAP"
