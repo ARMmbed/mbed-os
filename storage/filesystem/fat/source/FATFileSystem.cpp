@@ -755,6 +755,7 @@ int FATFileSystem::file_truncate(fs_file_t file, off_t length)
         return fat_error_remap(res);
     }
 
+    unlock();
     return 0;
 }
 
