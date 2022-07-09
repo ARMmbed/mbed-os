@@ -46,7 +46,10 @@ set(MBED_UPLOAD_SUPPORTS_DEBUG ${UPLOAD_SUPPORTS_DEBUG} CACHE INTERNAL "" FORCE)
 
 function(mbed_generate_upload_debug_targets target)
 	# add upload target
-	gen_upload_target(${target} ${CMAKE_CURRENT_BINARY_DIR}/${target}.bin ${CMAKE_CURRENT_BINARY_DIR}/${target}.hex)
+	gen_upload_target(${target} 
+		${CMAKE_CURRENT_BINARY_DIR}/$<TARGET_FILE_BASE_NAME:${target}>.bin
+		${CMAKE_CURRENT_BINARY_DIR}/$<TARGET_FILE_BASE_NAME:${target}>.hex
+	)
 
 	# add debug target
 	if(MBED_UPLOAD_SUPPORTS_DEBUG)

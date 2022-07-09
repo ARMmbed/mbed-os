@@ -6,12 +6,8 @@
 #
 function(mbed_generate_bin_hex target)
     get_property(elf_to_bin GLOBAL PROPERTY ELF2BIN)
-    get_target_property(artifact_name ${target} ARTIFACT_NAME)
 
-    # set to the target name if the property is unset
-    if(artifact_name STREQUAL "artifact_name-NOTFOUND" OR artifact_name STREQUAL "")
-        set(artifact_name ${target})
-    endif()
+    set(artifact_name $<TARGET_FILE_BASE_NAME:${target}>)
 
     if (MBED_TOOLCHAIN STREQUAL "GCC_ARM")
         # The first condition is quoted in case MBED_OUTPUT_EXT is unset
