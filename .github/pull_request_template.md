@@ -1,10 +1,3 @@
-<!--
-For more information on the requirements for pull requests, please see [the contributing guidelines](https://os.mbed.com/docs/mbed-os/latest/contributing/workflow.html).
-
-NOTE: Do not remove any of the template headings (even for optional sections) as this
-template is automatically parsed. 
--->
-
 ### Summary of changes <!-- Required -->
 
 <!-- 
@@ -14,9 +7,6 @@ template is automatically parsed.
 
     Why the change is needed (if this is fixing a reported issue please summarize what
     the issue is and add the reference. E.g. Fixes #17119).
-
-    NOTE: This section is automatically written to release notes for Feature and 
-    Major releases and should contain enough details for a user.
     
 -->
 
@@ -24,17 +14,11 @@ template is automatically parsed.
 <!-- 
     If there are any implications for users taking this change then they must be 
     provided here. For Major PR types this field is MANDATORY.
-
-    NOTE: This section is automatically written to release notes for Feature and 
-    Major releases and should contain enough details for a user.
 -->
 
 #### Migration actions required <!-- Optional -->
 <!-- 
     This should only be applicable in Major PR types for which this field is MANDATORY.
-
-    NOTE: This section is automatically written to release notes for Feature and 
-    Major releases and should contain enough details for a user.
 -->
 
 ### Documentation <!-- Required -->
@@ -50,8 +34,7 @@ template is automatically parsed.
 ### Pull request type <!-- Required -->
 
 <!--
-    Please add only one X to one of the following types. Do not fill multiple types (split the pull request otherwise).
-    Please note this is not a GitHub task list, indenting the boxes or changing the format to add a '.' or '*' in front of them would change the meaning incorrectly. 
+    Add an X to any of the following boxes that this PR functions as.
 -->
     [] Patch update (Bug fix / Target update / Docs update / Test update / Refactor)
     [] Feature update (New feature / Functionality change / New API)

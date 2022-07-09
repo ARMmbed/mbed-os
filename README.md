@@ -1,7 +1,7 @@
 [![Mbed OS][mbed-os-logo]][mbed-os-link]
+# Mbed OS Community Edition
 
 [![Build status master][mbed-master-svg]][mbed-master]
-[![Tools coverage status][mbed-coveralls-tools-svg]][mbed-coveralls-tools]
 
 [mbed-os-logo]: logo.png
 [mbed-os-link]: https://www.mbed.com/en/platform/mbed-os/
@@ -16,8 +16,7 @@ Mbed OS provides a platform that includes:
 - Cloud management services.
 - Drivers for sensors, I/O devices and connectivity.
 
-## Release notes
-The [release notes](https://os.mbed.com/releases) detail the current release. You can also find information about previous versions.
+This is Mbed OS Community Edition (CE), a fork focused on improving the build system and tooling, fixing bugs, and keeping maintenance going after ARM's step back from the Mbed project.
 
 ## License and contributions
 
@@ -28,6 +27,8 @@ This project contains code from other projects. The original license text is inc
 Folders containing files under different permissive license than Apache 2.0 are listed in the [LICENSE](LICENSE.md) file.
 
 ## Getting started for developers
+
+To start a new project that uses Mbed CE, see the setup guide [here](https://github.com/mbed-ce/mbed-os/wiki/New-Project-Setup-Guide).
 
 We have a [developer website](https://os.mbed.com) for asking questions, engaging with others, finding information on boards and components, using an online IDE and compiler, reading the documentation and learning about what's new and what's coming next in Mbed OS.
 
