@@ -1,4 +1,4 @@
- This workflow performs the checks like license check,
+# This workflow performs the checks like license check,
 # doxygen, unit tests etc.
 name: Basic Checks
 
