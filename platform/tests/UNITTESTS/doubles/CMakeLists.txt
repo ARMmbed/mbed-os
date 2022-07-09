@@ -32,6 +32,7 @@ target_sources(mbed-stubs-platform
         nvic_wrapper_stub.c
         randLIB_stub.c
         randLIB_stub.cpp
+        ../../../source/SingletonPtr.cpp
 )
 target_include_directories(mbed-stubs-platform
     PUBLIC
