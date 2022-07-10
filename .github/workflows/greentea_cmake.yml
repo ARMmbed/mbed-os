@@ -18,7 +18,7 @@ jobs:
       - name: Build NUCLEO_G031K8 with baremetal profile
         run: |
             rm -rf __build
-            cmake -S . -B __build -GNinja -DCMAKE_CTEST_ARGUMENTS="--output-on-failure;-V" -DMBED_BUILD_GREENTEA_TESTS=ON -DMBED_GREENTEA_TEST_BAREMETAL=ON -DMBED_GREENTEA_SERIAL_PORT=/dev/ttyDUMMY -DMBED_TARGET=NUCLEO_G031K8 -DMBED_APP_JSON=TESTS/configs/baremetal.json
+            cmake -S . -B __build -GNinja -DCMAKE_CTEST_ARGUMENTS="--output-on-failure;-V" -DMBED_BUILD_GREENTEA_TESTS=ON -DMBED_GREENTEA_TEST_BAREMETAL=ON -DMBED_GREENTEA_SERIAL_PORT=/dev/ttyDUMMY -DMBED_TARGET=NUCLEO_G031K8 -DMBED_APP_JSON_PATH=TESTS/configs/baremetal.json
             cmake --build __build
 
       - name: Build ARM_MUSCA_S1 with full profile

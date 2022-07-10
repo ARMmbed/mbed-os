@@ -35,11 +35,12 @@ get_filename_component(CUSTOM_TARGETS_JSON_PATH "${CUSTOM_TARGETS_JSON_PATH}" AB
 # Check if mbed_app.json was modified
 # Note: if the path is an empty string, get_filename_component(ABSOLUTE) will convert it to a directory,
 # so we have to verify that the path we have is a file, not a dir.
-if(NOT EXISTS "${MBED_APP_JSON_PATH}" OR IS_DIRECTORY "${MBED_APP_JSON_PATH}")
-    message(FATAL_ERROR "Failed to find mbed_app.json at ${MBED_APP_JSON_PATH}")
+if(EXISTS "${MBED_APP_JSON_PATH}" AND (NOT IS_DIRECTORY "${MBED_APP_JSON_PATH}"))
+    file(TIMESTAMP "${MBED_APP_JSON_PATH}" MBED_APP_JSON_TIMESTAMP "%s" UTC)
+else()
+    set(MBED_APP_JSON_TIMESTAMP "<none>")
 endif()
 
-file(TIMESTAMP "${MBED_APP_JSON_PATH}" MBED_APP_JSON_TIMESTAMP "%s" UTC)
 if(NOT MBED_NEED_TO_RECONFIGURE)
     if(NOT "${MBED_INTERNAL_LAST_MBED_APP_JSON_TIMESTAMP}" STREQUAL "${MBED_APP_JSON_TIMESTAMP}")
         message(STATUS "Mbed: mbed_app.json modified, regenerating configs...")
@@ -76,6 +77,12 @@ endif()
 
 if(MBED_NEED_TO_RECONFIGURE)
     # Generate mbed_config.cmake for this target
+    if(EXISTS "${MBED_APP_JSON_PATH}" AND (NOT IS_DIRECTORY "${MBED_APP_JSON_PATH}"))
+        set(APP_CONFIG_ARGUMENT --app-config "${MBED_APP_JSON_PATH}")
+    else()
+        set(APP_CONFIG_ARGUMENT "")
+    endif()
+
     if(EXISTS "${CUSTOM_TARGETS_JSON_PATH}" AND (NOT IS_DIRECTORY "${CUSTOM_TARGETS_JSON_PATH}"))
         set(CUSTOM_TARGET_ARGUMENT --custom-targets-json "${CUSTOM_TARGETS_JSON_PATH}")
     else()
@@ -92,7 +99,7 @@ if(MBED_NEED_TO_RECONFIGURE)
         -m "${MBED_TARGET}"
         --mbed-os-path ${CMAKE_CURRENT_LIST_DIR}/../..
         --output-dir ${CMAKE_CURRENT_BINARY_DIR}
-        --app-config "${MBED_APP_JSON_PATH}"
+        ${APP_CONFIG_ARGUMENT}
         ${CUSTOM_TARGET_ARGUMENT})
 
     execute_process(

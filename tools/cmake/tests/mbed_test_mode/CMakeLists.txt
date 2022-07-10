@@ -4,7 +4,6 @@
 cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
 
 set(MBED_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../.. CACHE INTERNAL "")
-set(MBED_CONFIG_PATH ${CMAKE_CURRENT_BINARY_DIR} CACHE STATIC "")
 
 include(${MBED_PATH}/tools/cmake/app.cmake)
 
