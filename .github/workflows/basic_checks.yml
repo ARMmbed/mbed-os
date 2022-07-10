@@ -221,8 +221,7 @@ jobs:
         name: cmake build
         run: |
           set -x
-          mbedtools configure -p ${{ env.ROOT}} -t ${{ env.TOOLCHAIN }} -m ${{ env.TARGET_NAME }} --mbed-os-path .
-          cmake -S ${{env.ROOT}} -B ${{ env.ROOT }}/cmake_build/${{env.TARGET_NAME}}/${{ env.PROFILE }}/${{ env.TOOLCHAIN }}/ -GNinja -DCMAKE_BUILD_TYPE=${{ env.PROFILE }}
+          cmake -S ${{env.ROOT}} -B ${{ env.ROOT }}/cmake_build/${{env.TARGET_NAME}}/${{ env.PROFILE }}/${{ env.TOOLCHAIN }}/ -GNinja -DCMAKE_BUILD_TYPE=${{ env.PROFILE }} -DMBED_TARGET=${{ env.TARGET_NAME }}
           cmake --build ${{ env.ROOT }}/cmake_build/${{ env.TARGET_NAME }}/${{ env.PROFILE }}/${{ env.TOOLCHAIN }}/
 
       -

@@ -12,11 +12,10 @@ jobs:
 
       - name: Build the multiple_executables example
         run: |
-            mbedtools compile \
-              -t GCC_ARM \
-              -m ARM_MUSCA_S1 \
-              --program-path tools/cmake/tests/multiple_executables/ \
-              --mbed-os-path .
+            cd tools/cmake/tests/multiple_executables/
+            mkdir cmake_build
+            cd cmake_build
+            cmake -DMBED_TARGET=ARM_MUSCA_S1 ..
 
       - name: Verify the post-build command has run successfully on each image
         run: |
