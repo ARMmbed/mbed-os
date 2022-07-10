@@ -65,13 +65,11 @@ endif()
 
 set(MBED_INTERNAL_LAST_CUSTOM_TARGETS_JSON_TIMESTAMP "${CUSTOM_TARGETS_JSON_TIMESTAMP}" CACHE INTERNAL "Previous UTC modification timestamp for custom_targets.json" FORCE)
 
-# Check if a previous configure failed
-if(DEFINED MBED_INTERNAL_CONFIGURE_SUCCEEDED)
+# Check if the include file is missing (e.g. because a previous attempt to generate it failed)
+if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/mbed_config.cmake)
     if(NOT MBED_NEED_TO_RECONFIGURE)
-        if(NOT MBED_INTERNAL_CONFIGURE_SUCCEEDED)
-            message(STATUS "Mbed: previous generation attempt did not succeed, regenerating configs...")
-            set(MBED_NEED_TO_RECONFIGURE TRUE)
-        endif()
+        message(STATUS "Mbed: mbed_config.cmake not found, regenerating configs...")
+        set(MBED_NEED_TO_RECONFIGURE TRUE)
     endif()
 endif()
 
@@ -113,11 +111,8 @@ if(MBED_NEED_TO_RECONFIGURE)
     )
 
     if((NOT MBEDTOOLS_CONFIGURE_RESULT EQUAL 0) OR (NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/mbed_config.cmake))
-        set(MBED_INTERNAL_CONFIGURE_SUCCEEDED FALSE CACHE INTERNAL "Whether the mbedtools configure command succeeded on the most recent try" FORCE)
         string(JOIN " " MBEDTOOLS_COMMAND_SPC_SEP ${MBEDTOOLS_CONFIGURE_COMMAND})
         message(FATAL_ERROR "mbedtools configure failed!  Cannot build this project.  Command was ${MBEDTOOLS_COMMAND_SPC_SEP}")
-    else()
-        set(MBED_INTERNAL_CONFIGURE_SUCCEEDED TRUE CACHE INTERNAL "Whether the mbedtools configure command succeeded on the most recent try" FORCE)
     endif()
 
 endif()
