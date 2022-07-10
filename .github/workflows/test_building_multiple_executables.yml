@@ -16,6 +16,7 @@ jobs:
             mkdir cmake_build
             cd cmake_build
             cmake -DMBED_TARGET=ARM_MUSCA_S1 ..
+            cmake --build .
 
       - name: Verify the post-build command has run successfully on each image
         run: |
