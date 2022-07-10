@@ -10,30 +10,8 @@ if(CCACHE)
     set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE})
 endif()
 
-include(${MBED_CONFIG_PATH}/mbed_config.cmake)
-include(mbed_set_post_build)
-include(mbed_generate_config_header)
-include(mbed_create_distro)
-
-# Load toolchain file
-if(NOT CMAKE_TOOLCHAIN_FILE OR MBED_TOOLCHAIN_FILE_USED)
-    set(MBED_TOOLCHAIN_FILE_USED TRUE CACHE INTERNAL "")
-    # We want to bring CMP0123 we set in mbed_toolchain.cmake
-    # to the whole Mbed OS.
-    include(mbed_toolchain NO_POLICY_SCOPE)
-endif()
-
-# Specify available build profiles and add options for the selected build profile
-include(mbed_profile)
-
-enable_language(C CXX ASM)
-
-# set executable suffix (has to be done after enabling languages)
-# Note: This is nice to have, but is also required because STM32Cube will only work on files with a .elf extension
-set(CMAKE_EXECUTABLE_SUFFIX .elf)
-
-# Find Python
-find_package(Python3 COMPONENTS Interpreter)
+# Find Python (needed to generate configurations)
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
 include(CheckPythonPackage)
 
 # Check python packages
@@ -56,10 +34,33 @@ else()
     message(STATUS "Missing Python dependencies (at least one of: python3, intelhex, prettytable) so the memory map cannot be printed")
 endif()
 
-# load mbed_create_distro
-include(${CMAKE_CURRENT_LIST_DIR}/mbed_create_distro.cmake)
+include(mbed_generate_config_header)
+include(mbed_set_post_build)
+include(mbed_create_distro)
 
-# load upload method configuration defaults for this target
+# Load toolchain and mbed configuration, generating it if needed
+include(mbed_generate_configuration)
+
+# Load toolchain file
+if(NOT CMAKE_TOOLCHAIN_FILE OR MBED_TOOLCHAIN_FILE_USED)
+    set(MBED_TOOLCHAIN_FILE_USED TRUE CACHE INTERNAL "")
+    # We want to bring CMP0123 we set in mbed_toolchain.cmake
+    # to the whole Mbed OS.
+    include(mbed_toolchain NO_POLICY_SCOPE)
+endif()
+
+# Specify available build profiles and add options for the selected build profile
+include(mbed_profile)
+
+enable_language(C CXX ASM)
+
+# set executable suffix (has to be done after enabling languages)
+# Note: This is nice in general, but is also required because STM32Cube will only work on files with a .elf extension
+set(CMAKE_EXECUTABLE_SUFFIX .elf)
+
+# Load upload method configuration defaults for this target.
+# Loading the settings here makes sure they are set at global scope, and also makes sure that
+# the user can override them by changing variable values after including app.cmake.
 set(EXPECTED_MBED_UPLOAD_CFG_FILE_PATH targets/upload_method_cfg/${MBED_TARGET}.cmake)
 if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/../../${EXPECTED_MBED_UPLOAD_CFG_FILE_PATH})
     message(STATUS "Mbed: Loading default upload method configuration from ${EXPECTED_MBED_UPLOAD_CFG_FILE_PATH}")

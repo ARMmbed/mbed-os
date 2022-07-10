@@ -64,8 +64,6 @@ if(MBED_IS_NATIVE_BUILD)
     list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/tools/cmake)
     include(mbed_create_distro)
 else()
-    # Grab the Mbed configs for this target
-    include(${MBED_CONFIG_PATH}/mbed_config.cmake)
     include(mbed_set_linker_script)
 endif()
 
