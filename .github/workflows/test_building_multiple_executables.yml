@@ -19,8 +19,8 @@ jobs:
 
       - name: Verify the post-build command has run successfully on each image
         run: |
-            APP1=tools/cmake/tests/multiple_executables/cmake_build/ARM_MUSCA_S1/develop/GCC_ARM/app1/app1.bin
-            APP2=tools/cmake/tests/multiple_executables/cmake_build/ARM_MUSCA_S1/develop/GCC_ARM/app2/app2.bin
+            APP1=tools/cmake/tests/multiple_executables/cmake_build/app1/app1.bin
+            APP2=tools/cmake/tests/multiple_executables/cmake_build/app2/app2.bin
             BOOTLOADER=targets/TARGET_ARM_SSG/TARGET_MUSCA_S1/bl2.bin
             BOOTLOADER_SIZE=`du -b targets/TARGET_ARM_SSG/TARGET_MUSCA_S1/bl2.bin | cut -f1`
             cmp -n $BOOTLOADER_SIZE $APP1 $BOOTLOADER
