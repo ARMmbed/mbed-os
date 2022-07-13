@@ -26,8 +26,13 @@ set(MBED_RESET_BAUDRATE 115200)
 # Config options for OPENOCD
 # -------------------------------------------------------------
 
+# One note about OpenOCD for LPC1768:
+# If you issue a "monitor reset" command, GDB will think that the program is halted, but it actually will have
+# resumed.  So, issue a "c" command after "monitor reset" to get things synchronized again.
+
 set(OPENOCD_UPLOAD_ENABLED TRUE)
 set(OPENOCD_CHIP_CONFIG_COMMANDS
     -f ${CMAKE_CURRENT_LIST_DIR}/openocd_cfgs/lpc1768.cfg
     -c "gdb_memory_map disable" # prevents OpenOCD crash on GDB connect
+	-c "gdb_breakpoint_override hard" # Make sure GDB uses HW breakpoints
     )
