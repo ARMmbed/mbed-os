@@ -677,9 +677,9 @@ utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
     GREENTEA_SETUP(20, "default_auto");
 
 #ifdef DEVICE_SEMIHOST
-	// Disconnect semihosting now, because otherwise it will get disconnected on the first sleep call and
-	// cause said call to take several milliseconds, leading to a test failure.
-	mbed_interface_disconnect();
+    // Disconnect semihosting now, because otherwise it will get disconnected on the first sleep call and
+    // cause said call to take several milliseconds, leading to a test failure.
+    mbed_interface_disconnect();
 #endif
 
     return greentea_test_setup_handler(number_of_cases);
