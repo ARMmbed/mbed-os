@@ -156,6 +156,7 @@ void CellularContext::do_connect_with_retry()
             rtos::ThisThread::sleep_for(_retry_timeout_array[_retry_count] * 1s);
             do_connect();
             if (_cb_data.error == NSAPI_ERROR_OK) {
+                call_network_cb(NSAPI_STATUS_GLOBAL_UP);
                 return;
             }
             _retry_count++;
