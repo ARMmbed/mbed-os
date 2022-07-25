@@ -17,9 +17,18 @@
 #define RFO_HP                                      2
 
 /* STM32WL Nucleo antenna switch defines */
-#define RBI_CONF_RFO_LP_HP  0
-#define RBI_CONF_RFO_LP     1
-#define RBI_CONF_RFO_HP     2
+#define RBI_CONF_RFO_LP_HP      0
+#define RBI_CONF_RFO_LP         1
+#define RBI_CONF_RFO_HP         2
+// Some boards such as LoRa-E5 and RAK3172 have only RFO_HP path wired
+// thus, in EU868 mode, TX peak is 80mA (over consumption)
+// We made a fix that decrease consumption according datasheet but
+// since fix breaks HW machting network, transmit range may be lowered so
+// it's depending on what you want to achieve, hi range or low consumption
+// Setting RBI_CONF_RFO_HP_LPFIX decrease power according datasheet but can
+// reduce range (long ones) due to bad HW macthing network on the both modules
+// See https://github.com/ARMmbed/mbed-os/pull/15017#issuecomment-1173455762
+#define RBI_CONF_RFO_HP_LPFIX   3
 
 typedef enum {
     RBI_SWITCH_OFF    = 0,
