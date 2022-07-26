@@ -181,8 +181,13 @@ int crypto_ecc_run_eccop(const mbedtls_ecp_group *grp,
     }
 
     /* NOTE: Engine doesn't support P + Q when P and Q are the same. Workaround by 2*P */
-    if (mbedtls_ecp_point_cmp(P, Q) == 0) {
-        return crypto_ecc_run_eccop(grp, R, NULL, P, NULL, NULL, ECCOP_POINT_DOUBLE, blinding);
+    if (eccop == ECCOP_POINT_ADD) {
+        if (P == NULL || Q == NULL) {
+            return MBEDTLS_ERR_ECP_BAD_INPUT_DATA;
+        }
+        if (mbedtls_ecp_point_cmp(P, Q) == 0) {
+            return crypto_ecc_run_eccop(grp, R, NULL, P, NULL, NULL, ECCOP_POINT_DOUBLE, blinding);
+        }
     }
 
     /* Acquire ownership of ECC accelerator */
