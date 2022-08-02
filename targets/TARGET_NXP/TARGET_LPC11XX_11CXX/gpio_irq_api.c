@@ -24,7 +24,7 @@
 // PIO0_0..PIO0_11, PIO1_0..PIO1_11, PIO2_0..PIO2_11, PIO3_0..PIO3_5
 #define CHANNEL_NUM 42
 
-static uint32_t channel_ids[CHANNEL_NUM] = {0};
+static uintptr_t channel_contexts[CHANNEL_NUM] = {0};
 static gpio_irq_handler irq_handler;
 
 static inline int numofbits(uint32_t bits)
@@ -53,15 +53,15 @@ static inline void handle_interrupt_in(uint32_t port) {
     if (port_reg->MIS & port_reg->IBE) {
         // both edge, read the level of pin
         if ((port_reg->DATA & port_reg->MIS) != 0)
-            irq_handler(channel_ids[channel], IRQ_RISE);
+            irq_handler(channel_contexts[channel], IRQ_RISE);
         else
-            irq_handler(channel_ids[channel], IRQ_FALL);
+            irq_handler(channel_contexts[channel], IRQ_FALL);
     }
     else if (port_reg->MIS & port_reg->IEV) {
-        irq_handler(channel_ids[channel], IRQ_RISE);
+        irq_handler(channel_contexts[channel], IRQ_RISE);
     }
     else {
-        irq_handler(channel_ids[channel], IRQ_FALL);
+        irq_handler(channel_contexts[channel], IRQ_FALL);
     }
 
     // Clear the interrupt...
@@ -73,7 +73,7 @@ void gpio_irq1(void) {handle_interrupt_in(1);}
 void gpio_irq2(void) {handle_interrupt_in(2);}
 void gpio_irq3(void) {handle_interrupt_in(3);}
 
-int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uintptr_t context) {
     int channel;
     uint32_t port_num;
     
@@ -116,14 +116,14 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     // PIO3_0 - PIO3_5  : 36..41
     channel = (port_num * 12) + ((pin & 0x0F00) >> PIN_SHIFT);
     
-    channel_ids[channel] = id;
+    channel_contexts[channel] = context;
     obj->ch = channel;
     
     return 0;
 }
 
 void gpio_irq_free(gpio_irq_t *obj) {
-    channel_ids[obj->ch] = 0;
+    channel_contexts[obj->ch] = 0;
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {

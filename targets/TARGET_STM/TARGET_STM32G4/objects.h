@@ -113,8 +113,8 @@ struct i2c_s {
     volatile uint8_t pending_slave_tx_master_rx;
     volatile uint8_t pending_slave_rx_maxter_tx;
     uint8_t *slave_rx_buffer;
-    volatile uint8_t slave_rx_buffer_size;
-    volatile uint8_t slave_rx_count;
+    volatile uint16_t slave_rx_buffer_size;
+    volatile uint16_t slave_rx_count;
 #endif
 #if DEVICE_I2C_ASYNCH
     uint32_t address;
@@ -154,6 +154,19 @@ struct flash_s {
 struct trng_s {
     RNG_HandleTypeDef handle;
 };
+
+#if DEVICE_QSPI
+struct qspi_s {
+    QSPI_HandleTypeDef handle;
+    QSPIName qspi;
+    PinName io0;
+    PinName io1;
+    PinName io2;
+    PinName io3;
+    PinName sclk;
+    PinName ssel;
+};
+#endif
 
 //#include "common_objects.h"
 #include "gpio_object.h"

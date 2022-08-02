@@ -29,7 +29,7 @@ extern uint32_t gpio_clock_enable(uint32_t port_idx);
 static gpio_irq_handler irq_handler;
 
 typedef struct {
-    uint32_t exti_idx;
+    uintptr_t exti_contextx;
     uint32_t exti_gpiox; /* base address of gpio */
     uint32_t exti_pinx;  /* pin number */
 } gpio_exti_info_struct;
@@ -54,9 +54,9 @@ static void exti_handle_interrupt(uint32_t irq_index)
         exti_interrupt_flag_clear((exti_line_enum)pin);
         /* check which edge has generated the irq */
         if ((GPIO_ISTAT(gpio) & pin) == 0) {
-            irq_handler(gpio_exti->exti_idx, IRQ_FALL);
+            irq_handler(gpio_exti->exti_contextx, IRQ_FALL);
         } else {
-            irq_handler(gpio_exti->exti_idx, IRQ_RISE);
+            irq_handler(gpio_exti->exti_contextx, IRQ_RISE);
         }
     }
 
@@ -148,10 +148,10 @@ static void gpio_irq_exti15(void)
  * @param obj     The GPIO object to initialize
  * @param pin     The GPIO pin name
  * @param handler The handler to be attached to GPIO IRQ
- * @param id      The object ID (id != 0, 0 is reserved)
+ * @param context The context to be passed back to the handler (context != 0, 0 is reserved)
  * @return -1 if pin is NC, 0 otherwise
  */
-int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uintptr_t context)
 {
     uint32_t vector = 0;
     gpio_exti_info_struct *gpio_exti;
@@ -243,7 +243,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     obj->pin = pin;
 
     gpio_exti = &exti_info_array[obj->irq_index];
-    gpio_exti->exti_idx = id;
+    gpio_exti->exti_contextx = context;
     gpio_exti->exti_gpiox = gpio_add;
     gpio_exti->exti_pinx = pin_index;
 
@@ -267,7 +267,7 @@ void gpio_irq_free(gpio_irq_t *obj)
     /* Disable EXTI interrupt */
     gpio_irq_disable(obj);
     /* Reset struct of exti information */
-    gpio_exti->exti_idx = 0;
+    gpio_exti->exti_contextx = 0;
     gpio_exti->exti_gpiox = 0;
     gpio_exti->exti_pinx = 0;
 }

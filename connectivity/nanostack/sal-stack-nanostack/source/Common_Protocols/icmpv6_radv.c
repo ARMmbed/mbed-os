@@ -326,6 +326,7 @@ void icmpv6_stop_router_advertisements(protocol_interface_info_entry_t *cur, con
 static void icmpv6_send_ra(protocol_interface_info_entry_t *cur, const uint8_t *dest, const uint8_t *abro)
 {
 #ifndef HAVE_RPL
+    (void) dest;
     (void) abro;
 #endif
     if (cur->nwk_id == IF_6LoWPAN) {

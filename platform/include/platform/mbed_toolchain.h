@@ -33,6 +33,11 @@
 #endif
 #endif
 
+/* Fix strrchr() not declared for IAR, used in MBED_FILENAME */
+#if defined(__ICCARM__)
+#include <string.h>
+#endif
+
 // Warning for unsupported compilers
 #if !defined(__GNUC__)   /* GCC        */ \
  && !defined(__clang__)  /* LLVM/Clang */ \

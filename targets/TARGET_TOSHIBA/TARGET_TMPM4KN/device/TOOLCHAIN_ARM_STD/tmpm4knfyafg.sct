@@ -1,0 +1,74 @@
+#! armclang -E --target=arm-arm-none-eabi -x c -mcpu=cortex-m4
+/*
+ * Copyright(C) 2020, Toshiba Electronic Device Solutions Corporation
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+;;  TMPM4KNA scatter file
+
+;;  Vector table starts at 0
+;;    Initial SP == |Image$$ARM_LIB_STACK$$ZI$$Limit| (for two region model)
+;;               or |Image$$ARM_LIB_STACKHEAP$$ZI$$Limit| (for one region model)
+;;    Initial PC == &__main (with LSB set to indicate Thumb)
+;;    These two values are provided by the library
+;;    Other vectors must be provided by the user
+;;  Code starts after the last possible vector
+;;  Data starts at 0x20000000
+;;    Heap is positioned by ARM_LIB_HEAB (this is the heap managed by the ARM libraries)
+;;    Stack is positioned by ARM_LIB_STACK (library will use this to set SP - see above)
+
+;; Compatible with ISSM model
+
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x00000000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 0x00040000
+#endif
+
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+#  if defined(MBED_BOOT_STACK_SIZE)
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE MBED_BOOT_STACK_SIZE
+#  else
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
+#  endif
+#endif
+
+#define Stack_Size MBED_CONF_TARGET_BOOT_STACK_SIZE
+
+; TMPM4KNA: 256 KB FLASH (0x40000) + 24 KB SRAM (0x6000)
+
+LR_IROM1 MBED_APP_START MBED_APP_SIZE ; load region size_region
+{
+  ER_IROM1 MBED_APP_START MBED_APP_SIZE
+  {
+   *.o (RESET, +First)
+   *(InRoot$$Sections)
+   .ANY (+RO)
+  }
+
+  RW_IRAM1 0x20000238 (0x6000 - 0x238 - Stack_Size)
+  {
+    .ANY (+RW, +ZI)
+    rda_flash512ud32_b.o(+RO)
+  }
+
+  ARM_LIB_HEAP  AlignExpr(+0, 16)  EMPTY  (0x20000000+0x6000 - MBED_CONF_TARGET_BOOT_STACK_SIZE - AlignExpr(ImageLimit(RW_IRAM1), 16))  { ; Heap growing up
+  }
+  
+  ARM_LIB_STACK (0x20000000+0x6000) EMPTY -Stack_Size { ; stack
+  }
+}

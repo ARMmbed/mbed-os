@@ -295,7 +295,7 @@ void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_
 #define ws_pae_auth_timing_adjust(timing)
 #define ws_pae_auth_addresses_set(interface_ptr, local_port, remote_addr, remote_port) 1
 #define ws_pae_auth_delete NULL
-#define ws_pae_auth_cb_register(interface_ptr, hash_set, nw_key_insert, nw_key_index_set, nw_info_updated, ip_addr_get, congestion_get, nw_frame_cnt_read) {(void) hash_set;}
+#define ws_pae_auth_cb_register(interface_ptr, hash_set, nw_key_insert, nw_key_index_set, nw_info_updated, ip_addr_get, congestion_get, nw_frame_cnt_read)
 #define ws_pae_auth_start(interface_ptr)
 #define ws_pae_auth_gtks_updated NULL
 #define ws_pae_auth_nw_key_index_update NULL

@@ -1438,6 +1438,10 @@ buffer_t *socket_tx_buffer_event(buffer_t *buf, uint8_t status)
     if (buf->ack_receive_cb) {
         buf->ack_receive_cb(buf, status);
     }
+    if (status == SOCKET_BUSY) {
+        //SOCKET_BUSY shuold not be forward further and switched back orginal behaviour
+        status = SOCKET_TX_FAIL;
+    }
 
     /* Suppress events once socket orphaned */
     if (!buf->socket || (buf->socket->flags & (SOCKET_FLAG_PENDING | SOCKET_FLAG_CLOSED))) {

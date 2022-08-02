@@ -188,8 +188,9 @@ uint32_t flash_get_size(const flash_t *obj)
 static uint32_t GetSector(uint32_t address)
 {
     uint32_t sector = 0;
-    uint32_t tmp = address - ADDR_FLASH_SECTOR_0;
+
 #if (MBED_CONF_TARGET_FLASH_DUAL_BANK) && defined(FLASH_OPTCR_nDBANK)
+    uint32_t tmp = address - ADDR_FLASH_SECTOR_0;
     if (address < ADDR_FLASH_SECTOR_4) { // Sectors 0 to 3
         sector += tmp >> 14;
     } else if (address < ADDR_FLASH_SECTOR_5) { // Sector 4

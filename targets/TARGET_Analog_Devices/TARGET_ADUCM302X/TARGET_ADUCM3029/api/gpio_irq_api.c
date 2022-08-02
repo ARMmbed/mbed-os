@@ -49,7 +49,7 @@
 #define MAX_GPIO_PORTS    ADI_GPIO_NUM_PORTS
 
 typedef struct {
-    unsigned int id;
+    uintptr_t context;
     gpio_irq_event event;
     uint8_t int_enable;
 } gpio_chan_info_t;
@@ -59,7 +59,7 @@ typedef struct {
  *******************************************************************************/
 extern uint32_t gpioMemory[(ADI_GPIO_MEMORY_SIZE + 3)/4];
 extern uint8_t  gpio_initialized;
-static gpio_chan_info_t channel_ids[MAX_GPIO_PORTS][MAX_GPIO_LINES];
+static gpio_chan_info_t channel_contexts[MAX_GPIO_PORTS][MAX_GPIO_LINES];
 static gpio_irq_handler irq_handler = NULL;
 
 
@@ -75,7 +75,7 @@ static void gpio_irq_callback(void *pCBParam, uint32_t Event, void *pArg)
         if (pin & 0x01) {
             // call the user ISR. The argument Event is the port number of the GPIO line.
             if (irq_handler != NULL)
-                irq_handler((uint32_t)channel_ids[Event][index].id, channel_ids[Event][index].event);
+                irq_handler(channel_contexts[Event][index].context, channel_contexts[Event][index].event);
         }
         index++;
         pin >>= 1;
@@ -178,16 +178,16 @@ static void enable_pin_interrupt(ADI_GPIO_PORT port, uint32_t pin_number, IRQn_T
  * @param obj     The GPIO object to initialize
  * @param pin     The GPIO pin name
  * @param handler The handler to be attached to GPIO IRQ
- * @param id      The object ID (id != 0, 0 is reserved)
+ * @param context The context to be passed back to the handler (context != 0, 0 is reserved)
  * @return -1 if pin is NC, 0 otherwise
  */
-int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uintptr_t context)
 {
     uint32_t port = pin >> GPIO_PORT_SHIFT;
     uint32_t pin_num = pin & 0xFF;
 
-    // check for valid pin and ID
-    if ((pin == NC) || (id == 0)) {
+    // check for valid pin and context
+    if ((pin == NC) || (context == 0)) {
         return -1;
     }
 
@@ -208,11 +208,11 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     // set the port pin as input
     adi_gpio_InputEnable(port, 1 << pin_num, true);
 
-    // save the ID for future reference
-    channel_ids[port][pin_num].id = (uint32_t)id;
-    channel_ids[port][pin_num].event = IRQ_NONE;
-    channel_ids[port][pin_num].int_enable = 0;
-    obj->id = id;
+    // save the context for future reference
+    channel_contexts[port][pin_num].context = context;
+    channel_contexts[port][pin_num].event = IRQ_NONE;
+    channel_contexts[port][pin_num].int_enable = 0;
+    obj->id = context;
     obj->pinname = pin;
 
     return 0;
@@ -231,9 +231,9 @@ void gpio_irq_free(gpio_irq_t *obj)
     gpio_irq_disable(obj);
 
     // clear the status table
-    channel_ids[port][pin_num].id = (uint32_t)0;
-    channel_ids[port][pin_num].event = IRQ_NONE;
-    channel_ids[port][pin_num].int_enable = 0;
+    channel_contexts[port][pin_num].context = (uintptr_t)0;
+    channel_contexts[port][pin_num].event = IRQ_NONE;
+    channel_contexts[port][pin_num].int_enable = 0;
 }
 
 /** Enable/disable pin IRQ event
@@ -264,7 +264,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
     // set the polarity register
     adi_gpio_SetGroupInterruptPolarity((ADI_GPIO_PORT)port, int_polarity_reg);
 
-    channel_ids[port][pin_num].event = event;
+    channel_contexts[port][pin_num].event = event;
 
     // enable interrupt for this pin if enable flag is set
     if (enable) {
@@ -284,22 +284,22 @@ void gpio_irq_enable(gpio_irq_t *obj)
     uint32_t port = obj->pinname >> GPIO_PORT_SHIFT;
     uint32_t pin_num = obj->pinname & 0xFF;
 
-    if (channel_ids[port][pin_num].event == IRQ_NONE) {
+    if (channel_contexts[port][pin_num].event == IRQ_NONE) {
         return;
     }
 
     // Group all RISE interrupts in INTA and FALL interrupts in INTB
-    if (channel_ids[port][pin_num].event == IRQ_RISE) {
+    if (channel_contexts[port][pin_num].event == IRQ_RISE) {
         // set the callback routine
         adi_gpio_RegisterCallback(SYS_GPIO_INTA_IRQn, gpio_irq_callback, obj);
         enable_pin_interrupt((ADI_GPIO_PORT)port, pin_num, SYS_GPIO_INTA_IRQn);
-    } else if (channel_ids[port][pin_num].event == IRQ_FALL) {
+    } else if (channel_contexts[port][pin_num].event == IRQ_FALL) {
         // set the callback routine
         adi_gpio_RegisterCallback(SYS_GPIO_INTB_IRQn, gpio_irq_callback, obj);
         enable_pin_interrupt((ADI_GPIO_PORT)port, pin_num, SYS_GPIO_INTB_IRQn);
     }
 
-    channel_ids[port][pin_num].int_enable = 1;
+    channel_contexts[port][pin_num].int_enable = 1;
 }
 
 /** Disable GPIO IRQ
@@ -312,19 +312,19 @@ void gpio_irq_disable(gpio_irq_t *obj)
     uint32_t port = obj->pinname >> GPIO_PORT_SHIFT;
     uint32_t pin_num = obj->pinname & 0xFF;
 
-    if (channel_ids[port][pin_num].event == IRQ_NONE) {
+    if (channel_contexts[port][pin_num].event == IRQ_NONE) {
         return;
     }
 
     // Group all RISE interrupts in INTA and FALL interrupts in INTB
-    if (channel_ids[port][pin_num].event == IRQ_RISE) {
+    if (channel_contexts[port][pin_num].event == IRQ_RISE) {
         disable_pin_interrupt((ADI_GPIO_PORT)port, pin_num);
     }
-    else if (channel_ids[port][pin_num].event == IRQ_FALL) {
+    else if (channel_contexts[port][pin_num].event == IRQ_FALL) {
         disable_pin_interrupt((ADI_GPIO_PORT)port, pin_num);
     }
 
-    channel_ids[port][pin_num].int_enable = 0;
+    channel_contexts[port][pin_num].int_enable = 0;
 }
 
 #endif 	// #if DEVICE_INTERRUPTIN

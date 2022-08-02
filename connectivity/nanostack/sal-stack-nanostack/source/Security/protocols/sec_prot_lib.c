@@ -174,9 +174,9 @@ bool sec_prot_result_ok_check(sec_prot_common_t *data)
     return false;
 }
 
-void sec_prot_default_timeout_set(sec_prot_common_t *data)
+void sec_prot_timeout_set(sec_prot_common_t *data, uint16_t ticks)
 {
-    data->ticks = SEC_TOTAL_TIMEOUT;
+    data->ticks = ticks;
 }
 
 void sec_prot_lib_nonce_generate(uint8_t *nonce)

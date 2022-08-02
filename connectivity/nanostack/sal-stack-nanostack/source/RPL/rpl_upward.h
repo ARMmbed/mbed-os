@@ -108,7 +108,7 @@ uint8_t rpl_dodag_get_version_number_as_root(const rpl_dodag_t *dodag);
 void rpl_dodag_set_version_number_as_root(rpl_dodag_t *dodag, uint8_t number);
 void rpl_dodag_set_leaf(rpl_dodag_t *dodag, bool leaf);
 bool rpl_dodag_am_leaf(const rpl_dodag_t *dodag);
-const rpl_dodag_conf_t *rpl_dodag_get_config(const rpl_dodag_t *dodag);
+const rpl_dodag_conf_int_t *rpl_dodag_get_config(const rpl_dodag_t *dodag);
 void rpl_dodag_inconsistency(rpl_dodag_t *dodag);
 void rpl_dodag_increment_dtsn(rpl_dodag_t *dodag);
 rpl_cmp_t rpl_dodag_pref_compare(const rpl_dodag_t *a, const rpl_dodag_t *b);
@@ -138,7 +138,7 @@ rpl_neighbour_t *rpl_lookup_neighbour_by_ll_address(const rpl_instance_t *instan
 rpl_neighbour_t *rpl_lookup_last_candidate_from_list(const rpl_instance_t *instance);
 rpl_neighbour_t *rpl_create_neighbour(rpl_dodag_version_t *instance, const uint8_t *ll_addr, int8_t if_id, uint8_t g_mop_prf, uint8_t dtsn);
 void rpl_delete_neighbour(rpl_instance_t *instance, rpl_neighbour_t *neighbour);
-bool rpl_dodag_update_config(rpl_dodag_t *dodag, const rpl_dodag_conf_t *conf, const uint8_t *src, bool *become_leaf);
+bool rpl_dodag_update_config(rpl_dodag_t *dodag, const rpl_dodag_conf_int_t *conf, const uint8_t *src, bool *become_leaf);
 const uint8_t *rpl_neighbour_ll_address(const rpl_neighbour_t *neighbour);
 const uint8_t *rpl_neighbour_global_address(const rpl_neighbour_t *neighbour);
 void rpl_neighbour_update_global_address(rpl_neighbour_t *neighbour, const uint8_t *addr);

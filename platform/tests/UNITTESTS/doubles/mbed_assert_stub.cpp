@@ -26,7 +26,11 @@ extern "C" void mbed_assert_internal(const char *expr, const char *file, int lin
 {
     fprintf(stderr, "mbed assertation failed: %s, file: %s, line %d \n", expr, file, line);
     if (mbed_assert_throw_errors) {
+#ifdef __EXCEPTIONS
         throw 1;
+#else
+        FAIL();
+#endif
     }
 
     /* Ensure we fail the unit test if the Mbed assertion fails. Without this,

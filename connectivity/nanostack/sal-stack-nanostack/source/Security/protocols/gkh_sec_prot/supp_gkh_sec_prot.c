@@ -247,7 +247,7 @@ static void supp_gkh_sec_prot_state_machine(sec_prot_t *prot)
             }
 
             // Set default timeout for the total maximum length of the negotiation
-            sec_prot_default_timeout_set(&data->common);
+            sec_prot_timeout_set(&data->common, prot->sec_cfg->prot_cfg.sec_prot_retry_timeout);
 
             supp_gkh_sec_prot_security_replay_counter_update(prot);
 

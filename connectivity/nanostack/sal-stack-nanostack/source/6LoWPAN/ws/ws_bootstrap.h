@@ -18,7 +18,6 @@
 #ifndef WS_BOOTSTRAP_H_
 #define WS_BOOTSTRAP_H_
 
-
 typedef enum {
     WS_INIT_EVENT = 0,       /**< tasklet initializion event*/
     WS_DISCOVERY_START,      /**< discovery start*/
@@ -76,8 +75,6 @@ extern uint16_t test_pan_version;
 
 int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode);
 
-void ws_bootstrap_state_machine(protocol_interface_info_entry_t *cur);
-
 int ws_bootstrap_restart(int8_t interface_id);
 
 int ws_bootstrap_restart_delayed(int8_t interface_id);
@@ -92,21 +89,19 @@ void ws_bootstrap_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t s
 
 void ws_bootstrap_trickle_timer(protocol_interface_info_entry_t *cur, uint16_t ticks);
 
-void ws_bootstrap_primary_parent_update(protocol_interface_info_entry_t *interface, mac_neighbor_table_entry_t *neighbor);
-
-void ws_bootstrap_secondary_parent_update(protocol_interface_info_entry_t *interface);
-
 void ws_nud_entry_remove_active(protocol_interface_info_entry_t *cur, void *neighbor);
 
 void ws_nud_active_timer(protocol_interface_info_entry_t *cur, uint16_t ticks);
 
-void ws_dhcp_client_address_request(protocol_interface_info_entry_t *cur, uint8_t *prefix, uint8_t *parent_link_local);
-
-void ws_dhcp_client_address_delete(protocol_interface_info_entry_t *cur, uint8_t *prefix);
-
-bool ws_eapol_relay_state_active(protocol_interface_info_entry_t *cur);
-
 void ws_bootstrap_eapol_parent_synch(struct protocol_interface_info_entry *cur, struct llc_neighbour_req *neighbor_info);
+
+void ws_bootstrap_ll_address_validate(struct protocol_interface_info_entry *cur);
+
+uint16_t ws_local_etx_read(protocol_interface_info_entry_t *interface, addrtype_t addr_type, const uint8_t *mac_adddress);
+
+bool ws_bootstrap_nd_ns_transmit(protocol_interface_info_entry_t *cur, ipv6_neighbour_t *entry,  bool unicast, uint8_t seq);
+
+void ws_bootstrap_memory_configuration();
 
 bool ws_bootstrap_validate_channel_plan(struct ws_us_ie *ws_us, struct protocol_interface_info_entry *cur);
 
@@ -166,16 +161,15 @@ void ws_bootstrap_candidate_parent_sort(struct protocol_interface_info_entry *cu
 parent_info_t *ws_bootstrap_candidate_parent_get_best(protocol_interface_info_entry_t *cur);
 
 void ws_bootstrap_primary_parent_set(struct protocol_interface_info_entry *cur, struct llc_neighbour_req *neighbor_info, ws_parent_synch_e synch_req);
-void ws_bootstrap_parent_confirm(protocol_interface_info_entry_t *cur, struct rpl_instance *instance);
 bool ws_bootstrap_neighbor_info_request(struct protocol_interface_info_entry *interface, const uint8_t *mac_64, struct llc_neighbour_req *neighbor_buffer, bool request_new);
 void ws_bootstrap_neighbor_list_clean(struct protocol_interface_info_entry *interface);
 int8_t ws_bootstrap_neighbor_set(protocol_interface_info_entry_t *cur, parent_info_t *parent_ptr, bool clear_list);
+void ws_address_reregister_trig(struct protocol_interface_info_entry *interface);
 void ws_nud_table_reset(protocol_interface_info_entry_t *cur);
-void ws_address_registration_update(protocol_interface_info_entry_t *interface, const uint8_t addr[16]);
-
 
 void ws_bootstrap_configure_csma_ca_backoffs(protocol_interface_info_entry_t *cur, uint8_t max_backoffs, uint8_t min_be, uint8_t max_be);
 void ws_bootstrap_fhss_configure_channel_masks(protocol_interface_info_entry_t *cur, fhss_ws_configuration_t *fhss_configuration);
+int8_t ws_bootstrap_fhss_initialize(protocol_interface_info_entry_t *cur);
 int8_t ws_bootstrap_fhss_set_defaults(protocol_interface_info_entry_t *cur, fhss_ws_configuration_t *fhss_configuration);
 void ws_bootstrap_fhss_activate(protocol_interface_info_entry_t *cur);
 uint16_t ws_bootstrap_randomize_fixed_channel(uint16_t configured_fixed_channel, uint8_t number_of_channels, uint32_t *channel_mask);
@@ -185,9 +179,6 @@ void ws_bootstrap_configure_data_request_restart(protocol_interface_info_entry_t
 
 
 void ws_bootstrap_llc_hopping_update(struct protocol_interface_info_entry *cur, const fhss_ws_configuration_t *fhss_configuration);
-
-void ws_bootstrap_rpl_activate(protocol_interface_info_entry_t *cur);
-void ws_bootstrap_rpl_scan_start(protocol_interface_info_entry_t *cur);
 
 void ws_bootstrap_ip_stack_reset(protocol_interface_info_entry_t *cur);
 void ws_bootstrap_ip_stack_activate(protocol_interface_info_entry_t *cur);
@@ -201,13 +192,10 @@ void ws_bootstrap_network_start(protocol_interface_info_entry_t *cur);
 #else
 
 #define ws_bootstrap_init(interface_id, bootstrap_mode) (-1)
-#define ws_bootstrap_state_machine(cur)
 #define ws_bootstrap_restart(cur)
 #define ws_bootstrap_neighbor_remove(cur, ll_address)
 #define ws_bootstrap_aro_failure(cur, ll_address)
 #define ws_bootstrap_neighbor_set_stable(interface, src64)
-#define ws_bootstrap_primary_parent_update(interface, neighbor)
-#define ws_bootstrap_secondary_parent_update(interface)
 #define ws_bootstrap_stack_info_get(cur, info_ptr)
 #define ws_bootstrap_neighbor_info_get(cur, neighbor_ptr, count)
 #define ws_bootstrap_test_procedure_trigger(cur, procedure);

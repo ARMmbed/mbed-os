@@ -46,14 +46,16 @@ target_sources(mbed-cm0p-secure
         psoc6cm0p/COMPONENT_CM0P_SECURE/psoc6_03_cm0p_secure.c
 )
 
-add_library(mbed-cm0p-sleep INTERFACE)
-target_sources(mbed-cm0p-sleep
-    INTERFACE
-        psoc6cm0p/COMPONENT_CM0P_SLEEP/psoc6_01_cm0p_sleep.c
-        psoc6cm0p/COMPONENT_CM0P_SLEEP/psoc6_02_cm0p_sleep.c
-        psoc6cm0p/COMPONENT_CM0P_SLEEP/psoc6_03_cm0p_sleep.c
-        psoc6cm0p/COMPONENT_CM0P_SLEEP/psoc6_04_cm0p_sleep.c
-)
+if("CM0P_SLEEP" IN_LIST MBED_TARGET_LABELS)
+    add_library(mbed-cm0p-sleep INTERFACE)
+    target_sources(mbed-cm0p-sleep
+        INTERFACE
+            psoc6cm0p/COMPONENT_CM0P_SLEEP/psoc6_01_cm0p_sleep.c
+            psoc6cm0p/COMPONENT_CM0P_SLEEP/psoc6_02_cm0p_sleep.c
+            psoc6cm0p/COMPONENT_CM0P_SLEEP/psoc6_03_cm0p_sleep.c
+            psoc6cm0p/COMPONENT_CM0P_SLEEP/psoc6_04_cm0p_sleep.c
+    )
+endif()
 
 add_library(mbed-udb-sdio-p12 INTERFACE)
 target_include_directories(mbed-udb-sdio-p12

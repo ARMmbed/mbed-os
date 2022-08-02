@@ -722,8 +722,14 @@ bool ESP8266Interface::_get_firmware_ok()
 nsapi_error_t ESP8266Interface::_init(void)
 {
     if (!_initialized) {
-        _pwr_pin.power_off();
-        _pwr_pin.power_on();
+        if (_pwr_pin.is_connected()) {
+            _pwr_pin.power_off();
+            _pwr_pin.power_on();
+            /* Align board's serial flow control with ESP8266's, resetting to disabled on re-power or reset */
+            if (!_esp.stop_uart_hw_flow_ctrl(true)) {
+                return NSAPI_ERROR_DEVICE_ERROR;
+            }
+        }
 
         if (_reset() != NSAPI_ERROR_OK) {
             return NSAPI_ERROR_DEVICE_ERROR;
@@ -780,6 +786,10 @@ nsapi_error_t ESP8266Interface::_reset()
         ThisThread::sleep_for(delay);
         _esp.flush();
         _rst_pin.rst_deassert();
+        /* Align board's serial flow control with ESP8266's, resetting to disabled on re-power or reset */
+        if (!_esp.stop_uart_hw_flow_ctrl(true)) {
+            return NSAPI_ERROR_DEVICE_ERROR;
+        }
     } else {
         _esp.flush();
         if (!_esp.at_available()) {

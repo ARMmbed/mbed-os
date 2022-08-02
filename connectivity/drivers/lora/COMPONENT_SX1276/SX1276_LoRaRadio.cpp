@@ -35,7 +35,8 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "sx1276Regs-LoRa.h"
 
 #include <math.h> //rint
-
+#include <chrono>
+using namespace std::chrono_literals;
 using namespace rtos;
 using namespace mbed;
 
@@ -210,6 +211,8 @@ SX1276_LoRaRadio::SX1276_LoRaRadio(PinName spi_mosi,
 
     if (tcxo != NC) {
         _tcxo = 1;
+        // TCXO startup time
+        ThisThread::sleep_for(5ms);
     }
 
 #ifdef MBED_CONF_RTOS_PRESENT
@@ -288,9 +291,9 @@ void SX1276_LoRaRadio::radio_reset()
 {
     _reset_ctl.output();
     _reset_ctl = 0;
-    ThisThread::sleep_for(2);
+    ThisThread::sleep_for(2ms);
     _reset_ctl.input();
-    ThisThread::sleep_for(6);
+    ThisThread::sleep_for(6ms);
 }
 
 /**
@@ -357,7 +360,7 @@ uint32_t SX1276_LoRaRadio::random(void)
     set_operation_mode(RF_OPMODE_RECEIVER);
 
     for (i = 0; i < 32; i++) {
-        ThisThread::sleep_for(1);
+        ThisThread::sleep_for(1ms);
         // Unfiltered RSSI value reading. Only takes the LSB value
         rnd |= ((uint32_t) read_register(REG_LR_RSSIWIDEBAND) & 0x01) << i;
     }
@@ -805,7 +808,7 @@ void SX1276_LoRaRadio::send(uint8_t *buffer, uint8_t size)
             // FIFO operations can not take place in Sleep mode
             if ((read_register(REG_OPMODE) & ~RF_OPMODE_MASK) == RF_OPMODE_SLEEP) {
                 standby();
-                ThisThread::sleep_for(1);
+                ThisThread::sleep_for(1ms);
             }
             // write_to_register payload buffer
             write_fifo(buffer, size);
@@ -1025,7 +1028,7 @@ bool SX1276_LoRaRadio::perform_carrier_sense(radio_modems_t modem,
     set_operation_mode(RF_OPMODE_RECEIVER);
 
     // hold on a bit, radio turn-around time
-    ThisThread::sleep_for(1);
+    ThisThread::sleep_for(1ms);
 
     Timer elapsed_time;
     elapsed_time.start();
@@ -1263,13 +1266,27 @@ void SX1276_LoRaRadio::read_fifo(uint8_t *buffer, uint8_t size)
 void SX1276_LoRaRadio::set_operation_mode(uint8_t mode)
 {
     if (mode == RF_OPMODE_SLEEP) {
+        write_to_register(REG_OPMODE, (read_register(REG_OPMODE) & RF_OPMODE_MASK) | mode);
         set_low_power_mode();
+        /* FIXME taken from set_modem, it reduces the power consumption
+         *from 300µA to 1.5µA */
+        write_to_register(REG_DIOMAPPING1, 0x00); // sets DIO0-DI03 in default mode
+        write_to_register(REG_DIOMAPPING2, 0x30); // bits 4-5 are turned on i.e.,
+        if (_rf_ctrls.tcxo != NC) {
+            ThisThread::sleep_for(1ms);
+            _tcxo = 0;
+        }
     } else {
+        if (_rf_ctrls.tcxo != NC) {
+            _tcxo = 1;
+            // TCXO startup time
+            ThisThread::sleep_for(5ms);
+        }
         set_low_power_mode();
+        write_to_register(REG_OPMODE, (read_register(REG_OPMODE) & RF_OPMODE_MASK) | mode);
         set_antenna_switch(mode);
     }
 
-    write_to_register(REG_OPMODE, (read_register(REG_OPMODE) & RF_OPMODE_MASK) | mode);
 }
 
 /**
@@ -1327,14 +1344,14 @@ void SX1276_LoRaRadio::set_sx1276_variant_type()
 {
     if (_rf_ctrls.ant_switch != NC) {
         _ant_switch.input();
-        ThisThread::sleep_for(1);
+        ThisThread::sleep_for(1ms);
         if (_ant_switch == 1) {
             radio_variant = SX1276MB1LAS;
         } else {
             radio_variant = SX1276MB1MAS;
         }
         _ant_switch.output();
-        ThisThread::sleep_for(1);
+        ThisThread::sleep_for(1ms);
     } else {
         radio_variant = MBED_CONF_SX1276_LORA_DRIVER_RADIO_VARIANT;
     }

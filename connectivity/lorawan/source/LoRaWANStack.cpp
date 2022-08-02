@@ -619,29 +619,12 @@ void LoRaWANStack::post_process_tx_with_reception()
             }
         }
     } else {
-        // handle UNCONFIRMED case here, RX slots were turned off due to
-        // valid packet reception.
-        uint8_t prev_QOS_level = _loramac.get_prev_QOS_level();
-        uint8_t QOS_level = _loramac.get_QOS_level();
-
-        // We will not apply QOS on the post-processing of the previous
-        // outgoing message as we would have received QOS instruction in response
-        // to that particular message
-        if (QOS_level > LORAWAN_DEFAULT_QOS && _qos_cnt < QOS_level
-                && (prev_QOS_level == QOS_level)) {
-            _ctrl_flags &= ~TX_DONE_FLAG;
-            const int ret = _queue->call(this, &LoRaWANStack::state_controller,
-                                         DEVICE_STATE_SCHEDULING);
-            MBED_ASSERT(ret != 0);
-            (void) ret;
-            _qos_cnt++;
-            tr_info("QOS: repeated transmission #%d queued", _qos_cnt);
-        } else {
-            _loramac.post_process_mcps_req();
-            _ctrl_flags |= TX_DONE_FLAG;
-            make_tx_metadata_available();
-            state_controller(DEVICE_STATE_STATUS_CHECK);
-        }
+        // On reception, end-device shall stop sending retransmission as stated in lorawan v1.0.2
+        // specification, page 24, line 25-27
+        _loramac.post_process_mcps_req();
+        _ctrl_flags |= TX_DONE_FLAG;
+        make_tx_metadata_available();
+        state_controller(DEVICE_STATE_STATUS_CHECK);
     }
 }
 
@@ -756,7 +739,10 @@ void LoRaWANStack::process_reception_timeout(bool is_timeout)
     _loramac.on_radio_rx_timeout(is_timeout);
 
     if (slot == RX_SLOT_WIN_2 && !_loramac.nwk_joined()) {
-        state_controller(DEVICE_STATE_JOINING);
+        const int ret = _queue->call_in(
+                            500, this, &LoRaWANStack::state_controller, DEVICE_STATE_JOINING);
+        MBED_ASSERT(ret != 0);
+        (void)ret;
         return;
     }
 

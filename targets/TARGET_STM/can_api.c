@@ -142,16 +142,16 @@ static void _can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz
     // We use PLL1.Q clock right now so get its frequency
     PLL1_ClocksTypeDef pll1_clocks;
     HAL_RCCEx_GetPLL1ClockFreq(&pll1_clocks);
-    int ntq = pll1_clocks.PLL1_Q_Frequency / hz;
+    uint32_t ntq = pll1_clocks.PLL1_Q_Frequency / (uint32_t)hz;
 #else
 #if (defined RCC_PERIPHCLK_FDCAN1)
-    int ntq = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN1) / hz;
+    uint32_t ntq = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN1) / (uint32_t)hz;
 #else
-    int ntq = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN) / hz;
+    uint32_t ntq = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN) / (uint32_t)hz;
 #endif
 #endif
 
-    int nominalPrescaler = 1;
+    uint32_t nominalPrescaler = 1;
     // !When the sample point should be lower than 50%, this must be changed to
     // !IS_FDCAN_NOMINAL_TSEG2(ntq/nominalPrescaler), since
     // NTSEG2 and SJW max values are lower. For now the sample point is fix @75%
@@ -322,16 +322,16 @@ int can_frequency(can_t *obj, int f)
     // STM32H7 doesn't support yet HAL_RCCEx_GetPeriphCLKFreq for FDCAN
     PLL1_ClocksTypeDef pll1_clocks;
     HAL_RCCEx_GetPLL1ClockFreq(&pll1_clocks);
-    int ntq = pll1_clocks.PLL1_Q_Frequency / f;
+    uint32_t ntq = pll1_clocks.PLL1_Q_Frequency / (uint32_t)f;
 #else
 #if (defined RCC_PERIPHCLK_FDCAN1)
-    int ntq = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN1) / f;
+    uint32_t ntq = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN1) / (uint32_t)f;
 #else
-    int ntq = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN) / f;
+    uint32_t ntq = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN) / (uint32_t)f;
 #endif
 #endif
 
-    int nominalPrescaler = 1;
+    uint32_t nominalPrescaler = 1;
     // !When the sample point should be lower than 50%, this must be changed to
     // !IS_FDCAN_DATA_TSEG2(ntq/nominalPrescaler), since
     // NTSEG2 and SJW max values are lower. For now the sample point is fix @75%

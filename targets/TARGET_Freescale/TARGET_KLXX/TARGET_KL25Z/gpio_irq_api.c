@@ -23,7 +23,7 @@
 
 #define CHANNEL_NUM    64
 
-static uint32_t channel_ids[CHANNEL_NUM] = {0};
+static uintptr_t channel_contexts[CHANNEL_NUM] = {0};
 static gpio_irq_handler irq_handler;
 
 #define IRQ_DISABLED        (0)
@@ -44,7 +44,7 @@ static void handle_interrupt_in(PORT_Type *port, int ch_base) {
                 location += 1 << (4 - i);
         }
         
-        uint32_t id = channel_ids[ch_base + location];
+        uint32_t id = channel_contexts[ch_base + location];
         if (id == 0) {
             continue;
         }
@@ -75,7 +75,7 @@ static void handle_interrupt_in(PORT_Type *port, int ch_base) {
 void gpio_irqA(void) {handle_interrupt_in(PORTA, 0);}
 void gpio_irqD(void) {handle_interrupt_in(PORTD, 32);}
 
-int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uintptr_t context) {
     if (pin == NC) return -1;
 
     irq_handler = handler;
@@ -102,13 +102,13 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     NVIC_EnableIRQ(irq_n);
 
     obj->ch = ch_base + obj->pin;
-    channel_ids[obj->ch] = id;
+    channel_contexts[obj->ch] = context;
 
     return 0;
 }
 
 void gpio_irq_free(gpio_irq_t *obj) {
-    channel_ids[obj->ch] = 0;
+    channel_contexts[obj->ch] = 0;
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {

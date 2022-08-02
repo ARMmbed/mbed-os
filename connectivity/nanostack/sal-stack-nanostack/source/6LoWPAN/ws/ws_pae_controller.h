@@ -574,6 +574,22 @@ typedef void ws_pae_controller_nw_frame_counter_set(protocol_interface_info_entr
 typedef void ws_pae_controller_nw_frame_counter_read(protocol_interface_info_entry_t *interface_ptr, uint32_t *counter, uint8_t slot);
 
 /**
+ * ws_pae_controller_nw_key_cb_register register network key control callbacks
+ *
+ * \param interface_ptr interface
+ * \param nw_key_set network key set callback
+ * \param nw_key_clear network key clear callback
+ * \param nw_send_key_index_set network send key index set callback
+ * \param nw_frame_counter_set network frame counter set callback
+ * \param nw_frame_counter_read network frame counter read callback
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_nw_key_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_controller_nw_key_set *nw_key_set, ws_pae_controller_nw_key_clear *nw_key_clear, ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set, ws_pae_controller_nw_frame_counter_set *nw_frame_counter_set, ws_pae_controller_nw_frame_counter_read *nw_frame_counter_read);
+
+/**
  * ws_pae_controller_auth_completed authentication completed callback
  *
  * \param interface_ptr interface
@@ -596,12 +612,29 @@ typedef void ws_pae_controller_auth_completed(protocol_interface_info_entry_t *i
 typedef const uint8_t *ws_pae_controller_auth_next_target(protocol_interface_info_entry_t *interface_ptr, const uint8_t *previous_eui_64, uint16_t *pan_id);
 
 /**
- * ws_pae_controller_pan_ver_increment PAN version increment callback
+ * ws_pae_controller_authentication_cb_register register supplicant authentication control callbacks
  *
  * \param interface_ptr interface
+ * \param completed authentication completed callback
+ * \param next_target authentication next target callback
+ *
+ * \return < 0 failure
+ * \return >= 0 success
  *
  */
-typedef void ws_pae_controller_pan_ver_increment(protocol_interface_info_entry_t *interface_ptr);
+int8_t ws_pae_controller_authentication_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_controller_auth_completed *completed, ws_pae_controller_auth_next_target *auth_next_target);
+
+/**
+ * ws_pae_controller_ip_addr_get gets IP addressing information
+ *
+ * \param interface_ptr interface
+ * \param address IP address
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+typedef int8_t ws_pae_controller_ip_addr_get(protocol_interface_info_entry_t *interface_ptr, uint8_t *address);
 
 /**
  * ws_pae_controller_nw_info_updated network information is updated (read from memory)
@@ -626,17 +659,10 @@ typedef void ws_pae_controller_nw_info_updated(protocol_interface_info_entry_t *
 typedef bool ws_pae_controller_congestion_get(protocol_interface_info_entry_t *interface_ptr, uint16_t active_supp);
 
 /**
- * ws_pae_controller_cb_register register controller callbacks
+ * ws_pae_controller_information_cb_register register information callbacks
  *
  * \param interface_ptr interface
- * \param completed authentication completed callback
- * \param next_target authentication next target callback
- * \param nw_key_set network key set callback
- * \param nw_key_clear network key clear callback
- * \param nw_send_key_index_set network send key index set callback
- * \param nw_frame_counter_set network frame counter set callback
- * \param nw_frame_counter_read network frame counter read callback
- * \param pan_ver_increment PAN version increment callback
+ * \param ip_addr_get IP address get callback
  * \param nw_info_updated network information updated callback
  * \param congestion_get congestion get callback
  *
@@ -644,31 +670,27 @@ typedef bool ws_pae_controller_congestion_get(protocol_interface_info_entry_t *i
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_controller_auth_completed *completed, ws_pae_controller_auth_next_target *auth_next_target, ws_pae_controller_nw_key_set *nw_key_set, ws_pae_controller_nw_key_clear *nw_key_clear, ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set, ws_pae_controller_nw_frame_counter_set *nw_frame_counter_set, ws_pae_controller_nw_frame_counter_read *nw_frame_counter_read, ws_pae_controller_pan_ver_increment *pan_ver_increment, ws_pae_controller_nw_info_updated *nw_info_updated, ws_pae_controller_congestion_get *congestion_get);
+int8_t ws_pae_controller_information_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_controller_ip_addr_get *ip_addr_get, ws_pae_controller_nw_info_updated *nw_info_updated, ws_pae_controller_congestion_get *congestion_get);
 
 /**
- * ws_pae_controller_ip_addr_get gets IP addressing information
+ * ws_pae_controller_pan_ver_increment PAN version increment callback
  *
  * \param interface_ptr interface
- * \param address IP address
+ *
+ */
+typedef void ws_pae_controller_pan_ver_increment(protocol_interface_info_entry_t *interface_ptr);
+
+/**
+ * ws_pae_controller_bbr_control_cb_register register PAN version control callbacks
+ *
+ * \param interface_ptr interface
+ * \param pan_ver_increment PAN version increment callback
  *
  * \return < 0 failure
  * \return >= 0 success
  *
  */
-typedef int8_t ws_pae_controller_ip_addr_get(protocol_interface_info_entry_t *interface_ptr, uint8_t *address);
-
-/**
- * ws_pae_controller_auth_cb_register register authenticator callbacks
- *
- * \param interface_ptr interface
- * \param ip_addr_get IP address get callback
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_controller_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_controller_ip_addr_get *ip_addr_get);
+int8_t ws_pae_controller_pan_version_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_controller_pan_ver_increment *pan_ver_increment);
 
 /**
  * ws_pae_controller_fast_timer PAE controller fast timer call

@@ -139,7 +139,7 @@ static int8_t supp_fwh_sec_prot_init(sec_prot_t *prot)
     sec_prot_init(&data->common);
     sec_prot_state_set(prot, &data->common, FWH_STATE_INIT);
 
-    data->common.ticks = prot->sec_cfg->prot_cfg.sec_prot_retry_timeout;
+    sec_prot_timeout_set(&data->common, prot->sec_cfg->prot_cfg.sec_prot_retry_timeout);
     data->msg3_received = false;
     data->msg3_retry_wait = false;
     data->recv_replay_cnt = 0;
@@ -314,7 +314,7 @@ static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot)
             }
 
             // Set default timeout for the total maximum length of the negotiation
-            sec_prot_default_timeout_set(&data->common);
+            sec_prot_timeout_set(&data->common, prot->sec_cfg->prot_cfg.sec_prot_retry_timeout);
 
             tr_info("4WH: start");
 
@@ -337,7 +337,7 @@ static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot)
             if (sec_prot_result_ok_check(&data->common)) {
                 // Send 4WH message 2
                 supp_fwh_sec_prot_message_send(prot, FWH_MESSAGE_2);
-                data->common.ticks = prot->sec_cfg->prot_cfg.sec_prot_retry_timeout;
+                sec_prot_timeout_set(&data->common, prot->sec_cfg->prot_cfg.sec_prot_retry_timeout);
                 sec_prot_state_set(prot, &data->common, FWH_STATE_MESSAGE_3);
             } else {
                 // Ready to be deleted
@@ -365,7 +365,7 @@ static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot)
 
                 // Send 4WH message 2
                 supp_fwh_sec_prot_message_send(prot, FWH_MESSAGE_2);
-                data->common.ticks = prot->sec_cfg->prot_cfg.sec_prot_retry_timeout;
+                sec_prot_timeout_set(&data->common, prot->sec_cfg->prot_cfg.sec_prot_retry_timeout);
                 return;
             } else if (data->recv_msg != FWH_MESSAGE_3) {
                 return;
@@ -392,7 +392,7 @@ static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot)
 
             // Sends 4WH Message 4
             supp_fwh_sec_prot_message_send(prot, FWH_MESSAGE_4);
-            data->common.ticks = prot->sec_cfg->prot_cfg.sec_prot_retry_timeout;
+            sec_prot_timeout_set(&data->common, prot->sec_cfg->prot_cfg.sec_prot_retry_timeout);
             sec_prot_state_set(prot, &data->common, FWH_STATE_FINISH);
             break;
 
@@ -412,7 +412,7 @@ static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot)
                 sec_prot_keys_ptk_write(prot->sec_keys, data->new_ptk, prot->sec_cfg->timer_cfg.ptk_lifetime);
                 sec_prot_keys_ptk_eui_64_write(prot->sec_keys, data->remote_eui64);
 
-                data->common.ticks = 60 * 10; // 60 seconds
+                sec_prot_timeout_set(&data->common, 60 * 10); // 60 seconds
                 // KMP-FINISHED.indication
                 prot->finished_ind(prot, sec_prot_result_get(&data->common), prot->sec_keys);
                 sec_prot_state_set(prot, &data->common, FWH_STATE_MESSAGE_3_RETRY_WAIT);

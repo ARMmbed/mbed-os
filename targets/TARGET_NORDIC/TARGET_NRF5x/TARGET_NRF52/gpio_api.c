@@ -56,7 +56,7 @@ static gpio_cfg_t  m_gpio_cfg[GPIO_PIN_COUNT];
 ***********/
 
 static gpio_irq_handler m_irq_handler;
-static uint32_t m_channel_ids[GPIO_PIN_COUNT] = {0};
+static uintptr_t m_channel_contexts[GPIO_PIN_COUNT] = {0};
 static gpio_mask_t m_gpio_irq_enabled;
 
 
@@ -68,7 +68,7 @@ static void gpiote_irq_handler(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t acti
     if (m_gpio_irq_enabled & ((gpio_mask_t)1 << pin)) {
         if (((event == IRQ_RISE) && m_gpio_cfg[pin].irq_rise)
                 || ((event == IRQ_FALL) && m_gpio_cfg[pin].irq_fall)) {
-            m_irq_handler(m_channel_ids[pin], event);
+            m_irq_handler(m_channel_contexts[pin], event);
         }
     }
 }
@@ -114,6 +114,7 @@ static void gpiote_pin_uninit(uint8_t pin)
 static void gpio_apply_config(uint8_t pin)
 {
     if (m_gpio_cfg[pin].used_as_gpio || m_gpio_cfg[pin].used_as_irq) {
+        nrfx_err_t err_code = NRFX_SUCCESS;
         if ((m_gpio_cfg[pin].direction == PIN_INPUT)
                 || (m_gpio_cfg[pin].used_as_irq)) {
             //Configure as input.
@@ -135,7 +136,7 @@ static void gpio_apply_config(uint8_t pin)
                     break;
             }
             if (m_gpio_cfg[pin].used_as_irq) {
-                nrfx_gpiote_in_init(pin, &cfg, gpiote_irq_handler);
+                err_code = nrfx_gpiote_in_init(pin, &cfg, gpiote_irq_handler);
                 if ((m_gpio_irq_enabled & ((gpio_mask_t)1 << pin))
                         && (m_gpio_cfg[pin].irq_rise || m_gpio_cfg[pin].irq_fall)) {
                     nrfx_gpiote_in_event_enable(pin, true);
@@ -146,8 +147,9 @@ static void gpio_apply_config(uint8_t pin)
         } else {
             // Configure as output.
             nrfx_gpiote_out_config_t cfg = NRFX_GPIOTE_CONFIG_OUT_SIMPLE(nrf_gpio_pin_out_read(pin));
-            nrfx_gpiote_out_init(pin, &cfg);
+            err_code = nrfx_gpiote_out_init(pin, &cfg);
         }
+        MBED_ASSERT(err_code != NRFX_ERROR_NO_MEM);
         m_gpio_initialized |= ((gpio_mask_t)1UL << pin);
     } else {
         m_gpio_initialized &= ~((gpio_mask_t)1UL << pin);
@@ -193,7 +195,7 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
   GPIO IRQ
 ***********/
 
-int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uintptr_t context)
 {
     if (pin == NC) {
         return -1;
@@ -205,10 +207,9 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
 
     m_gpio_cfg[pin].used_as_irq = true;
     m_gpio_cfg[pin].pull = PullNone;
-    m_channel_ids[pin] = id;
+    m_channel_contexts[pin] = context;
     obj->ch            = pin;
     m_irq_handler      = handler;
-    m_channel_ids[pin] = id;
 
     gpio_apply_config(pin);
     return 0;
@@ -219,7 +220,7 @@ void gpio_irq_free(gpio_irq_t *obj)
 {
     nrfx_gpiote_in_uninit(obj->ch);
     m_gpio_cfg[obj->ch].used_as_irq = false;
-    m_channel_ids[obj->ch] = 0;
+    m_channel_contexts[obj->ch] = 0;
 
     gpio_apply_config(obj->ch);
 }

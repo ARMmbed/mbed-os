@@ -41,7 +41,7 @@ typedef enum {
  */
 typedef struct gpio_irq_s gpio_irq_t;
 
-typedef void (*gpio_irq_handler)(uint32_t id, gpio_irq_event event);
+typedef void (*gpio_irq_handler)(uintptr_t context, gpio_irq_event event);
 
 /**
  * \defgroup hal_gpioirq GPIO IRQ HAL functions
@@ -75,10 +75,10 @@ typedef void (*gpio_irq_handler)(uint32_t id, gpio_irq_event event);
  * @param obj     The GPIO object to initialize
  * @param pin     The GPIO pin name
  * @param handler The handler to be attached to GPIO IRQ
- * @param id      The object ID (id != 0, 0 is reserved)
+ * @param context The context to be passed back to the handler (context != 0, 0 is reserved)
  * @return -1 if pin is NC, 0 otherwise
  */
-int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id);
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uintptr_t context);
 
 /** Release the GPIO IRQ PIN
  *

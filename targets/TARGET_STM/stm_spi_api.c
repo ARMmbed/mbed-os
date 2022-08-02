@@ -939,6 +939,33 @@ static inline int datasize_to_transfer_bitshift(uint32_t DataSize)
     }
 }
 
+static inline int spi_get_word_from_buffer(const void *buffer, int bitshift)
+{
+    if (bitshift == 1) {
+        return *((uint16_t *)buffer);
+#ifdef HAS_32BIT_SPI_TRANSFERS
+    } else if (bitshift == 2) {
+        return *((uint32_t *)buffer);
+#endif /* HAS_32BIT_SPI_TRANSFERS */
+    } else {
+        return *((uint8_t *)buffer);
+    }
+}
+
+static inline void spi_put_word_to_buffer(void *buffer, int bitshift, int data)
+{
+    if (bitshift == 1) {
+        *((uint16_t *)buffer) = data;
+#ifdef HAS_32BIT_SPI_TRANSFERS
+    } else if (bitshift == 2) {
+        *((uint32_t *)buffer) = data;
+#endif /* HAS_32BIT_SPI_TRANSFERS */
+    } else {
+        *((uint8_t *)buffer) = data;
+    }
+}
+
+
 /**
  * Check if SPI master interface is writable.
  *
@@ -1057,6 +1084,7 @@ static int spi_master_one_wire_transfer(spi_t *obj, const char *tx_buffer, int t
     SPI_HandleTypeDef *handle = &(spiobj->handle);
     const int bitshift = datasize_to_transfer_bitshift(handle->Init.DataSize);
     MBED_ASSERT(bitshift >= 0);
+    const int word_size = 0x01 << bitshift;
 
     /* Ensure that spi is disabled */
     LL_SPI_Disable(SPI_INST(obj));
@@ -1066,7 +1094,7 @@ static int spi_master_one_wire_transfer(spi_t *obj, const char *tx_buffer, int t
         LL_SPI_SetTransferDirection(SPI_INST(obj), LL_SPI_HALF_DUPLEX_TX);
 #if defined(SPI_IP_VERSION_V2)
         /* Set transaction size */
-        LL_SPI_SetTransferSize(SPI_INST(obj), tx_length);
+        LL_SPI_SetTransferSize(SPI_INST(obj), tx_length >> bitshift);
 #endif /* SPI_IP_VERSION_V2 */
         LL_SPI_Enable(SPI_INST(obj));
 #if defined(SPI_IP_VERSION_V2)
@@ -1074,9 +1102,9 @@ static int spi_master_one_wire_transfer(spi_t *obj, const char *tx_buffer, int t
         LL_SPI_StartMasterTransfer(SPI_INST(obj));
 #endif /* SPI_IP_VERSION_V2 */
 
-        for (int i = 0; i < tx_length; i++) {
+        for (int i = 0; i < tx_length; i += word_size) {
             msp_wait_writable(obj);
-            msp_write_data(obj, tx_buffer[i], bitshift);
+            msp_write_data(obj, spi_get_word_from_buffer(tx_buffer + i, bitshift), bitshift);
         }
 
         /* Wait end of transaction */
@@ -1098,14 +1126,14 @@ static int spi_master_one_wire_transfer(spi_t *obj, const char *tx_buffer, int t
         LL_SPI_SetTransferDirection(SPI_INST(obj), LL_SPI_HALF_DUPLEX_RX);
 #if defined(SPI_IP_VERSION_V2)
         /* Set transaction size and run SPI */
-        LL_SPI_SetTransferSize(SPI_INST(obj), rx_length);
+        LL_SPI_SetTransferSize(SPI_INST(obj), rx_length >> bitshift);
         LL_SPI_Enable(SPI_INST(obj));
         LL_SPI_StartMasterTransfer(SPI_INST(obj));
 
         /* Receive data */
-        for (int i = 0; i < rx_length; i++) {
+        for (int i = 0; i < rx_length; i += word_size) {
             msp_wait_readable(obj);
-            rx_buffer[i] = msp_read_data(obj, bitshift);
+            spi_put_word_to_buffer(rx_buffer + i, bitshift, msp_read_data(obj, bitshift));
         }
 
         /* Stop SPI */
@@ -1134,7 +1162,7 @@ static int spi_master_one_wire_transfer(spi_t *obj, const char *tx_buffer, int t
         /* get estimation about one SPI clock cycle */
         uint32_t baudrate_period_ns = 1000000000 / spi_get_baudrate(obj);
 
-        for (int i = 0; i < rx_length; i++) {
+        for (int i = 0; i < rx_length; i += word_size) {
             core_util_critical_section_enter();
             LL_SPI_Enable(SPI_INST(obj));
             /* Wait single SPI clock cycle. */
@@ -1143,7 +1171,7 @@ static int spi_master_one_wire_transfer(spi_t *obj, const char *tx_buffer, int t
             core_util_critical_section_exit();
 
             msp_wait_readable(obj);
-            rx_buffer[i] = msp_read_data(obj, bitshift);
+            spi_put_word_to_buffer(rx_buffer + i, bitshift, msp_read_data(obj, bitshift));
         }
 
 #endif /* SPI_IP_VERSION_V2 */
@@ -1198,13 +1226,25 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
 {
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
+    const int bitshift = datasize_to_transfer_bitshift(handle->Init.DataSize);
+    /* check buffer sizes are multiple of spi word size */
+    MBED_ASSERT(tx_length >> bitshift << bitshift == tx_length);
+    MBED_ASSERT(rx_length >> bitshift << bitshift == rx_length);
     int total = (tx_length > rx_length) ? tx_length : rx_length;
+
     if (handle->Init.Direction == SPI_DIRECTION_2LINES) {
-        for (int i = 0; i < total; i++) {
-            char out = (i < tx_length) ? tx_buffer[i] : write_fill;
-            char in = spi_master_write(obj, out);
+        int write_fill_frame = write_fill;
+        /* extend fill symbols for 16/32 bit modes */
+        for (int i = 0; i < bitshift; i++) {
+            write_fill_frame = (write_fill_frame << 8) | write_fill;
+        }
+
+        const int word_size = 0x01 << bitshift;
+        for (int i = 0; i < total; i += word_size) {
+            int out = (i < tx_length) ? spi_get_word_from_buffer(tx_buffer + i, bitshift) : write_fill_frame;
+            int in = spi_master_write(obj, out);
             if (i < rx_length) {
-                rx_buffer[i] = in;
+                spi_put_word_to_buffer(rx_buffer + i, bitshift, in);
             }
         }
     } else {
@@ -1349,6 +1389,11 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
 
     // enable the right hal transfer
     int rc = 0;
+#if defined(SPI_IP_VERSION_V2)
+    // HAL SPI API assumes that SPI disabled between transfers and
+    // doesn't work properly if SPI is enabled.
+    LL_SPI_Disable(SPI_INST(obj));
+#endif
     switch (transfer_type) {
         case SPI_TRANSFER_TYPE_TXRX:
             rc = HAL_SPI_TransmitReceive_IT(handle, (uint8_t *)tx, (uint8_t *)rx, words);
@@ -1367,6 +1412,12 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
     }
 
     if (rc) {
+#if defined(SPI_IP_VERSION_V2)
+        // enable SPI back in case of error
+        if (handle->Init.Direction != SPI_DIRECTION_1LINE) {
+            LL_SPI_Enable(SPI_INST(obj));
+        }
+#endif
         DEBUG_PRINTF("SPI: RC=%u\n", rc);
         length = 0;
     }
@@ -1465,6 +1516,16 @@ inline uint32_t spi_irq_handler_asynch(spi_t *obj)
              * but let's left it as is for backward compatibility.
              */
             spi_flush_rx(obj);
+        }
+#else
+        // reset transfer size
+        LL_SPI_SetTransferSize(SPI_INST(obj), 0);
+
+        // HAL_SPI_TransmitReceive_IT/HAL_SPI_Transmit_IT/HAL_SPI_Receive_IT
+        // function disable SPI after transfer. So we need enabled it back,
+        // otherwise spi_master_block_write/spi_master_write won't work in 4-wire mode.
+        if (handle->Init.Direction != SPI_DIRECTION_1LINE) {
+            LL_SPI_Enable(SPI_INST(obj));
         }
 #endif /* SPI_IP_VERSION_V2 */
     }

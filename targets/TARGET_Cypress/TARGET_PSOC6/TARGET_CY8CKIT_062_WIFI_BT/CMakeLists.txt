@@ -63,13 +63,25 @@ target_link_libraries(mbed-cy8ckit-062-wifi-bt
         mbed-cat1a
         mbed-cy8ckit-062-wifi-bt-cm4
         mbed-cy8ckit-062-wifi-bt-bsp-design-modus
-        mbed-cm0p-sleep
         mbed-psoc6
-        mbed-cy-psoc6-whd
-        mbed-cy-psoc6-whd-4343w
-        mbed-cy8ckit-062-wifi-bt-whd
         mbed-udb-sdio-p12
 )
+
+if("CM0P_SLEEP" IN_LIST MBED_TARGET_LABELS)
+    target_link_libraries(mbed-cy8ckit-062-wifi-bt
+        INTERFACE
+            mbed-cm0p-sleep
+    )
+endif()
+
+if("WHD" IN_LIST MBED_TARGET_LABELS)
+    target_link_libraries(mbed-cy8ckit-062-wifi-bt
+        INTERFACE
+            mbed-cy-psoc6-whd
+            mbed-cy-psoc6-whd-4343w
+            mbed-cy8ckit-062-wifi-bt-whd
+    )
+endif()
 
 target_compile_definitions(mbed-cy8ckit-062-wifi-bt
     INTERFACE

@@ -46,11 +46,11 @@ void cy_gpio_irq_handler_impl(void *handler_arg, cyhal_gpio_irq_event_t event)
     }
 }
 
-int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uintptr_t context)
 {
     obj->pin = pin;
     obj->handler = (void *)handler;
-    obj->id = id;
+    obj->id = context;
     obj->mask = CYHAL_GPIO_IRQ_NONE;
     if (pin != NC) {
         gpio_irq_enable(obj);   // InterruptIn expects IRQ to be initially enabled

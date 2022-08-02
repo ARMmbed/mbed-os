@@ -284,73 +284,6 @@ enum gpio_cfg_bits_t{
     GPIO_CFG_GPIO2_LED_INDEX = 30U       /*< GPIO2 set to LED3 */
 };
 
-
-static void fill_tx_fifo(const struct smsc9220_eth_dev_t* dev,
-                               uint8_t *data, uint32_t size_bytes)
-{
-    struct smsc9220_eth_reg_map_t* register_map =
-            (struct smsc9220_eth_reg_map_t*)dev->cfg->base;
-
-    uint32_t tx_data_port_tmp = 0;
-    uint8_t *tx_data_port_tmp_ptr = (uint8_t *)&tx_data_port_tmp;
-
-    /*If the data length is not a multiple of 4, then the beginning of the first
-     * DWORD of the TX DATA FIFO gets filled up with zeros and a byte offset is
-     * set accordingly to guarantee proper transmission.*/
-    uint32_t remainder_bytes = (size_bytes % 4);
-    uint32_t filler_bytes = (4 - remainder_bytes);
-    for(uint32_t i = 0; i < 4; i++){
-        if(i < filler_bytes){
-            tx_data_port_tmp_ptr[i] = 0;
-        } else {
-            tx_data_port_tmp_ptr[i] = data[i-filler_bytes];
-        }
-    }
-    register_map->tx_data_port = tx_data_port_tmp;
-    size_bytes -= remainder_bytes;
-    data += remainder_bytes;
-
-    while (size_bytes > 0) {
-        /* Keep the same endianness in data as in the temp variable */
-        tx_data_port_tmp_ptr[0] = data[0];
-        tx_data_port_tmp_ptr[1] = data[1];
-        tx_data_port_tmp_ptr[2] = data[2];
-        tx_data_port_tmp_ptr[3] = data[3];
-        register_map->tx_data_port = tx_data_port_tmp;
-        data += 4;
-        size_bytes -= 4;
-    }
-}
-
-static void empty_rx_fifo(const struct smsc9220_eth_dev_t* dev,
-                               uint8_t *data, uint32_t size_bytes)
-{
-    struct smsc9220_eth_reg_map_t* register_map =
-            (struct smsc9220_eth_reg_map_t*)dev->cfg->base;
-
-    uint32_t rx_data_port_tmp = 0;
-    uint8_t *rx_data_port_tmp_ptr = (uint8_t *)&rx_data_port_tmp;
-
-    uint32_t remainder_bytes = (size_bytes % 4);
-    size_bytes -= remainder_bytes;
-
-    while (size_bytes > 0) {
-        /* Keep the same endianness in data as in the temp variable */
-        rx_data_port_tmp = register_map->rx_data_port;
-        data[0] = rx_data_port_tmp_ptr[0];
-        data[1] = rx_data_port_tmp_ptr[1];
-        data[2] = rx_data_port_tmp_ptr[2];
-        data[3] = rx_data_port_tmp_ptr[3];
-        data += 4;
-        size_bytes -= 4;
-    }
-
-    rx_data_port_tmp = register_map->rx_data_port;
-    for(uint32_t i = 0; i < remainder_bytes; i++) {
-        data[i] = rx_data_port_tmp_ptr[i];
-    }
-}
-
 enum smsc9220_error_t smsc9220_mac_regread(
         const struct smsc9220_eth_dev_t* dev,
         enum smsc9220_mac_reg_offsets_t regoffset,
@@ -949,30 +882,16 @@ enum smsc9220_error_t smsc9220_init(
     return SMSC9220_ERROR_NONE;
 }
 
-enum smsc9220_error_t smsc9220_send_by_chunks(
+enum smsc9220_error_t smsc9220_send_packet (
                             const struct smsc9220_eth_dev_t* dev,
-                            uint32_t total_payload_length,
-                            bool is_new_packet,
-                            const char *data, uint32_t current_size)
+                            void *data, uint32_t dlen)
 {
     struct smsc9220_eth_reg_map_t* register_map =
             (struct smsc9220_eth_reg_map_t*)dev->cfg->base;
-    bool is_first_segment = false;
-    bool is_last_segment = false;
-    uint32_t txcmd_a, txcmd_b = 0;
+    uint32_t txcmd_a = 0, txcmd_b = 0;
     uint32_t tx_buffer_free_space = 0;
-    volatile uint32_t xmit_stat = 0;
 
     if (!data) {
-        return SMSC9220_ERROR_PARAM;
-    }
-
-    if (is_new_packet) {
-        is_first_segment = true;
-        dev->data->ongoing_packet_length = total_payload_length;
-        dev->data->ongoing_packet_length_sent = 0;
-    } else if (dev->data->ongoing_packet_length != total_payload_length ||
-             dev->data->ongoing_packet_length_sent >= total_payload_length) {
         return SMSC9220_ERROR_PARAM;
     }
 
@@ -980,46 +899,28 @@ enum smsc9220_error_t smsc9220_send_by_chunks(
     tx_buffer_free_space = GET_BIT_FIELD(register_map->tx_fifo_inf,
                                          FIFO_USED_SPACE_MASK,
                                          DATA_FIFO_USED_SPACE_POS);
-    if (current_size > tx_buffer_free_space) {
+    if (dlen > tx_buffer_free_space) {
         return SMSC9220_ERROR_INTERNAL; /* Not enough space in FIFO */
     }
-    if ((dev->data->ongoing_packet_length_sent + current_size) ==
-         total_payload_length) {
-        is_last_segment = true;
-    }
 
-    txcmd_a = 0;
-    txcmd_b = 0;
-
-    if (is_last_segment) {
-        SET_BIT(txcmd_a, TX_COMMAND_A_LAST_SEGMENT_INDEX);
-    }
-    if (is_first_segment) {
-        SET_BIT(txcmd_a, TX_COMMAND_A_FIRST_SEGMENT_INDEX);
-    }
-
-    uint32_t data_start_offset_bytes = (4 - (current_size % 4));
-
-    SET_BIT_FIELD(txcmd_a, TX_CMD_PKT_LEN_BYTES_MASK, 0, current_size);
-    SET_BIT_FIELD(txcmd_a, TX_CMD_DATA_START_OFFSET_BYTES_MASK,
-                           TX_CMD_DATA_START_OFFSET_BYTES_POS,
-                           data_start_offset_bytes);
-
-    SET_BIT_FIELD(txcmd_b, TX_CMD_PKT_LEN_BYTES_MASK, 0, current_size);
-    SET_BIT_FIELD(txcmd_b, TX_CMD_PKT_TAG_MASK, TX_CMD_PKT_TAG_POS,
-                  current_size);
-
+    SET_BIT(txcmd_a, TX_COMMAND_A_LAST_SEGMENT_INDEX);
+    SET_BIT(txcmd_a, TX_COMMAND_A_FIRST_SEGMENT_INDEX);
+    SET_BIT_FIELD(txcmd_a, TX_CMD_PKT_LEN_BYTES_MASK, 0, dlen);
+    SET_BIT_FIELD(txcmd_b, TX_CMD_PKT_LEN_BYTES_MASK, 0, dlen);
+    SET_BIT_FIELD(txcmd_b, TX_CMD_PKT_TAG_MASK, TX_CMD_PKT_TAG_POS, dlen);
     register_map->tx_data_port = txcmd_a;
     register_map->tx_data_port = txcmd_b;
 
-    fill_tx_fifo(dev, (uint8_t *)data, current_size);
-
-    if (is_last_segment) {
-        /* Pop status port for error check */
-        xmit_stat = register_map->tx_status_port;
-        (void)xmit_stat;
+    /* Ethernet data port is padding to 32bit aligned data */
+    uint32_t dwords_to_write = (dlen + 3) >> 2;
+    uint32_t *data_ptr = (uint32_t *) data;
+    for(uint32_t i = 0; i < dwords_to_write; i++) {
+        register_map->tx_data_port = data_ptr[i];
     }
-    dev->data->ongoing_packet_length_sent += current_size;
+
+    /* Pop status port for error check */
+    (void) (register_map->tx_status_port);
+
     return SMSC9220_ERROR_NONE;
 }
 
@@ -1033,10 +934,9 @@ uint32_t smsc9220_get_rxfifo_data_used_space(const struct
                          DATA_FIFO_USED_SPACE_POS);
 }
 
-uint32_t smsc9220_receive_by_chunks(const struct smsc9220_eth_dev_t* dev,
-                                        char *data, uint32_t dlen)
+uint32_t smsc9220_receive_packet(const struct smsc9220_eth_dev_t* dev,
+                                    void *data)
 {
-    uint32_t rxfifo_inf = 0;
     uint32_t rxfifo_stat = 0;
     uint32_t packet_length_byte = 0;
     struct smsc9220_eth_reg_map_t* register_map =
@@ -1045,22 +945,22 @@ uint32_t smsc9220_receive_by_chunks(const struct smsc9220_eth_dev_t* dev,
     if (!data) {
         return 0; /* Invalid input parameter, cannot read */
     }
-    rxfifo_inf = register_map->rx_fifo_inf;
 
-    if(rxfifo_inf & 0xFFFF) { /* If there's data */
-        rxfifo_stat = register_map->rx_status_port;
-        if(rxfifo_stat != 0) {   /* Fetch status of this packet */
-                /* Ethernet controller is padding to 32bit aligned data */
-                packet_length_byte = GET_BIT_FIELD(rxfifo_stat,
-                                        RX_FIFO_STATUS_PKT_LENGTH_MASK,
-                                        RX_FIFO_STATUS_PKT_LENGTH_POS);
-                packet_length_byte -= 4;
-                dev->data->current_rx_size_words = packet_length_byte;
-        }
+    /* Status port not empty from smsc9220_peek_next_packet_size */
+    rxfifo_stat = register_map->rx_status_port;
+    packet_length_byte = GET_BIT_FIELD(rxfifo_stat,
+                        RX_FIFO_STATUS_PKT_LENGTH_MASK,
+                        RX_FIFO_STATUS_PKT_LENGTH_POS);
+    packet_length_byte -= 4; /* Discard last word (CRC) */
+
+    /* Ethernet data port is padding to 32bit aligned data */
+    uint32_t dwords_to_read = (packet_length_byte + 3) >> 2;
+    uint32_t *data_ptr = (uint32_t *) data;
+    for(uint32_t i = 0; i < dwords_to_read; i++) {
+        data_ptr[i] = register_map->rx_data_port;
     }
+    (void) (register_map->rx_data_port); /* Discard last word (CRC) */
 
-    empty_rx_fifo(dev, (uint8_t *)data, packet_length_byte);
-    dev->data->current_rx_size_words = 0;
     return packet_length_byte;
 }
 

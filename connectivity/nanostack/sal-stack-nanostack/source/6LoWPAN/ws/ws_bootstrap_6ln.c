@@ -85,7 +85,7 @@
 #define TRACE_GROUP "wsbs"
 
 
-void ws_bootstrap_lfn_asynch_ind(struct protocol_interface_info_entry *cur, const struct mcps_data_ind_s *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
+void  ws_bootstrap_6ln_asynch_ind(struct protocol_interface_info_entry *cur, const struct mcps_data_ind_s *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
 {
     (void)ie_ext;
     // Store weakest heard packet RSSI
@@ -101,13 +101,20 @@ void ws_bootstrap_lfn_asynch_ind(struct protocol_interface_info_entry *cur, cons
     tr_warn("Wi-SUN LFN Mode received message id: %x", message_type);
 }
 
-void ws_bootstrap_lfn_asynch_confirm(struct protocol_interface_info_entry *interface, uint8_t asynch_message)
+void  ws_bootstrap_6ln_asynch_confirm(struct protocol_interface_info_entry *interface, uint8_t asynch_message)
 {
     (void)asynch_message;
     ws_stats_update(interface, STATS_WS_ASYNCH_TX, 1);
 }
 
-void ws_bootstrap_lfn_event_handler(protocol_interface_info_entry_t *cur, arm_event_s *event)
+bool ws_bootstrap_6ln_eapol_relay_state_active(protocol_interface_info_entry_t *cur)
+{
+    (void) cur;
+
+    return false;
+}
+
+void  ws_bootstrap_6ln_event_handler(protocol_interface_info_entry_t *cur, arm_event_s *event)
 {
     (void)cur;
     ws_bootsrap_event_type_e event_type;
@@ -130,7 +137,7 @@ void ws_bootstrap_lfn_event_handler(protocol_interface_info_entry_t *cur, arm_ev
     }
 }
 
-void ws_bootstrap_lfn_state_machine(protocol_interface_info_entry_t *cur)
+void  ws_bootstrap_6ln_state_machine(protocol_interface_info_entry_t *cur)
 {
 
     switch (cur->nwk_bootstrap_state) {
@@ -162,11 +169,111 @@ void ws_bootstrap_lfn_state_machine(protocol_interface_info_entry_t *cur)
     }
 }
 
-void ws_bootstrap_lfn_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds)
+void  ws_bootstrap_6ln_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds)
 {
     (void)cur;
     (void)seconds;
 }
 
+int8_t  ws_bootstrap_6ln_up(protocol_interface_info_entry_t *cur)
+{
+    int8_t ret_val = -1;
+
+    if (!cur) {
+        return -1;
+    }
+
+    if ((cur->configure_flags & INTERFACE_SETUP_MASK) != INTERFACE_SETUP_READY) {
+        tr_error("Interface not yet fully configured");
+        return -2;
+    }
+    if (ws_bootstrap_fhss_initialize(cur) != 0) {
+        tr_error("fhss initialization failed");
+        return -3;
+    }
+    if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+        //BBR init like NVM read
+        ws_bbr_init(cur);
+    }
+    // Save FHSS api
+    cur->ws_info->fhss_api = ns_sw_mac_get_fhss_api(cur->mac_api);
+
+    ws_bootstrap_ll_address_validate(cur);
+
+    addr_interface_set_ll64(cur, NULL);
+    cur->nwk_nd_re_scan_count = 0;
+    // Trigger discovery for bootstrap
+    ret_val = nwk_6lowpan_up(cur);
+    if (ret_val) {
+        goto cleanup;
+    }
+
+    /* Wi-sun will trig event for stamechine this timer must be zero on init */
+    cur->bootsrap_state_machine_cnt = 0;
+    /* Disable SLLAO send/mandatory receive with the ARO */
+    cur->ipv6_neighbour_cache.use_eui64_as_slla_in_aro = true;
+    /* Omit sending of NA if ARO SUCCESS */
+    cur->ipv6_neighbour_cache.omit_na_aro_success = true;
+    /* Omit sending of NA and consider ACK to be success */
+    cur->ipv6_neighbour_cache.omit_na = true;
+    // do not process AROs from NA. This is overriden by Wi-SUN specific failure handling
+    cur->ipv6_neighbour_cache.recv_na_aro = false;
+    /* Disable NUD Probes */
+    cur->ipv6_neighbour_cache.send_nud_probes = false;
+    cur->ipv6_neighbour_cache.probe_avoided_routers = true;
+    /*Replace NS handler to disable multicast address queries */
+    cur->if_ns_transmit = ws_bootstrap_nd_ns_transmit;
+
+    // Configure memory limits and garbage collection values;
+    ws_bootstrap_memory_configuration();
+    ws_nud_table_reset(cur);
+
+    ws_bootstrap_candidate_table_reset(cur);
+    // Zero uptime counters
+    cur->ws_info->uptime = 0;
+    cur->ws_info->authentication_time = 0;
+    cur->ws_info->connected_time = 0;
+
+    blacklist_params_set(
+        WS_BLACKLIST_ENTRY_LIFETIME,
+        WS_BLACKLIST_TIMER_MAX_TIMEOUT,
+        WS_BLACKLIST_TIMER_TIMEOUT,
+        WS_BLACKLIST_ENTRY_MAX_NBR,
+        WS_BLACKLIST_PURGE_NBR,
+        WS_BLACKLIST_PURGE_TIMER_TIMEOUT);
+
+    ws_bootstrap_event_discovery_start(cur);
+
+    return 0;
+cleanup:
+    return ret_val;
+}
+
+int8_t  ws_bootstrap_6ln_down(protocol_interface_info_entry_t *cur)
+{
+    if (!cur || !(cur->lowpan_info & INTERFACE_NWK_ACTIVE)) {
+        return -1;
+    }
+
+    tr_info("Wi-SUN ifdown");
+    // Reset MAC for safe upper layer memory free
+    protocol_mac_reset(cur);
+    ns_sw_mac_fhss_unregister(cur->mac_api);
+    ns_fhss_delete(cur->ws_info->fhss_api);
+    cur->ws_info->fhss_api = NULL;
+    // Reset WS information
+    ws_bootstrap_asynch_trickle_stop(cur);
+    ws_llc_reset(cur);
+    if (nd_proxy_downstream_interface_unregister(cur->id) != 0) {
+        tr_warn("nd proxy unregister failed");
+    }
+    ws_nud_table_reset(cur);
+    ws_pae_controller_stop(cur);
+    ws_bootstrap_candidate_table_reset(cur);
+    blacklist_clear();
+    cur->if_common_forwarding_out_cb = NULL;
+
+    return nwk_6lowpan_down(cur);
+}
 
 #endif //HAVE_WS_BORDER_ROUTER && HAVE_WS

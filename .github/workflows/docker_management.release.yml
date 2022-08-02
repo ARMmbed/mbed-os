@@ -24,7 +24,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -134,7 +134,7 @@ jobs:
 
       -
         name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: refs/tags/${{ steps.build_info.outputs.MBED_OS_VERSION }}
 
@@ -198,7 +198,7 @@ jobs:
       # development branch of blinky
       - 
         name: Checkout example blinky
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: ARMmbed/mbed-os-example-blinky
           path: mbed-os-example-blinky
@@ -224,7 +224,7 @@ jobs:
 
       - 
         name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: refs/tags/${{ steps.build_info.outputs.MBED_OS_VERSION }}
           path: mbed-os-example-blinky/mbed-os

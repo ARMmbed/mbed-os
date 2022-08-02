@@ -161,6 +161,10 @@
         "nd6-queueing": {
             "help": "queue outgoing IPv6 packets while MAC address is being resolved",
             "value": 0
+        },
+        "netbuf-recvinfo-enabled": {
+            "help": "Enable LWIP option to append destination addr and port to every netbuf",
+            "value": false
         }
     },
     "target_overrides": {
