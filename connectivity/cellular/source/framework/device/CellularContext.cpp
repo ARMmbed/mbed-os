@@ -156,6 +156,12 @@ void CellularContext::do_connect_with_retry()
             rtos::ThisThread::sleep_for(_retry_timeout_array[_retry_count] * 1s);
             do_connect();
             if (_cb_data.error == NSAPI_ERROR_OK) {
+#if !NSAPI_PPP_AVAILABLE
+                if (!_nonip_req && !_cp_in_use) { // don't validate if non-ip case
+                    validate_ip_address();
+                }
+                call_network_cb(NSAPI_STATUS_GLOBAL_UP);
+#endif
                 return;
             }
             _retry_count++;
