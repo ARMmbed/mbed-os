@@ -9077,6 +9077,7 @@
             "FLASH",
             "SPI",
             "I2C",
+            "I2C_ASYNCH",
             "SLEEP",
             "ITM"
         ],
