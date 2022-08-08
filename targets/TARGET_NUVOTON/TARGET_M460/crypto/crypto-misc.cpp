@@ -30,6 +30,8 @@
 #include "platform/PlatformMutex.h"
 #include "hal/trng_api.h"
 
+#if defined(MBEDTLS_CONFIG_HW_SUPPORT)
+
 /* Consideration for choosing proper synchronization mechanism
  *
  * We choose mutex to synchronize access to crypto ACC. We can guarantee:
@@ -461,3 +463,5 @@ extern "C" void CRPT_IRQHandler()
         RSA_CLR_INT_FLAG(CRPT);
     }
 }
+
+#endif /* #if defined(MBEDTLS_CONFIG_HW_SUPPORT) */

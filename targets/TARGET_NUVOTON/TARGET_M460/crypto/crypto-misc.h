@@ -21,6 +21,8 @@
 
 #include <stdbool.h>
 
+#if defined(MBEDTLS_CONFIG_HW_SUPPORT)
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -99,5 +101,7 @@ bool crypto_dma_buffs_overlap(const void *in_buff, size_t in_buff_size, const vo
 #ifdef __cplusplus
 }
 #endif
+
+#endif  /* #if defined(MBEDTLS_CONFIG_HW_SUPPORT) */
 
 #endif
