@@ -50,7 +50,7 @@ static volatile bool g_IOM3DMAComplete = true;
 static volatile bool g_IOM4DMAComplete = true;
 static volatile bool g_IOM5DMAComplete = true;
 
-static i2c_t * _dma_i2c_obj;
+static i2c_t *_dma_i2c_obj;
 static void (*_dma0_isr_handler)(int) = NULL;
 static void (*_dma1_isr_handler)(int) = NULL;
 static void (*_dma2_isr_handler)(int) = NULL;
@@ -89,12 +89,19 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     obj->i2c.iom_obj.iom.cfg.eInterfaceMode = AM_HAL_IOM_I2C_MODE;
     obj->i2c.iom_obj.iom.cfg.ui32ClockFreq = DEFAULT_CLK_FREQ;
 #if DEVICE_I2C_ASYNCH
-    if(iom == 0) obj->i2c.iom_obj.iom.cfg.pNBTxnBuf = &DMA0TCBBuffer[0];
-    else if(iom == 1) obj->i2c.iom_obj.iom.cfg.pNBTxnBuf = &DMA1TCBBuffer[0];
-    else if(iom == 2) obj->i2c.iom_obj.iom.cfg.pNBTxnBuf = &DMA2TCBBuffer[0];
-    else if(iom == 3) obj->i2c.iom_obj.iom.cfg.pNBTxnBuf = &DMA3TCBBuffer[0];
-    else if(iom == 4) obj->i2c.iom_obj.iom.cfg.pNBTxnBuf = &DMA4TCBBuffer[0];
-    else if(iom == 5) obj->i2c.iom_obj.iom.cfg.pNBTxnBuf = &DMA5TCBBuffer[0];
+    if (iom == 0) {
+        obj->i2c.iom_obj.iom.cfg.pNBTxnBuf = &DMA0TCBBuffer[0];
+    } else if (iom == 1) {
+        obj->i2c.iom_obj.iom.cfg.pNBTxnBuf = &DMA1TCBBuffer[0];
+    } else if (iom == 2) {
+        obj->i2c.iom_obj.iom.cfg.pNBTxnBuf = &DMA2TCBBuffer[0];
+    } else if (iom == 3) {
+        obj->i2c.iom_obj.iom.cfg.pNBTxnBuf = &DMA3TCBBuffer[0];
+    } else if (iom == 4) {
+        obj->i2c.iom_obj.iom.cfg.pNBTxnBuf = &DMA4TCBBuffer[0];
+    } else if (iom == 5) {
+        obj->i2c.iom_obj.iom.cfg.pNBTxnBuf = &DMA5TCBBuffer[0];
+    }
     obj->i2c.iom_obj.iom.cfg.ui32NBTxnBufLength = DMATCBBuffer_size / 4;
 #else
     obj->i2c.iom_obj.iom.cfg.pNBTxnBuf = NULL;
@@ -122,12 +129,19 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 #if DEVICE_I2C_ASYNCH
     // Enable interrupts for NB send to work
     am_hal_iom_interrupt_enable(obj->i2c.iom_obj.iom.handle, 0x7FFF);
-    if(iom == 0) NVIC_EnableIRQ(IOMSTR0_IRQn);
-    else if(iom == 1) NVIC_EnableIRQ(IOMSTR1_IRQn);
-    else if(iom == 2) NVIC_EnableIRQ(IOMSTR2_IRQn);
-    else if(iom == 3) NVIC_EnableIRQ(IOMSTR3_IRQn);
-    else if(iom == 4) NVIC_EnableIRQ(IOMSTR4_IRQn);
-    else if(iom == 5) NVIC_EnableIRQ(IOMSTR4_IRQn);
+    if (iom == 0) {
+        NVIC_EnableIRQ(IOMSTR0_IRQn);
+    } else if (iom == 1) {
+        NVIC_EnableIRQ(IOMSTR1_IRQn);
+    } else if (iom == 2) {
+        NVIC_EnableIRQ(IOMSTR2_IRQn);
+    } else if (iom == 3) {
+        NVIC_EnableIRQ(IOMSTR3_IRQn);
+    } else if (iom == 4) {
+        NVIC_EnableIRQ(IOMSTR4_IRQn);
+    } else if (iom == 5) {
+        NVIC_EnableIRQ(IOMSTR4_IRQn);
+    }
 #endif
 }
 
@@ -247,14 +261,14 @@ void
 am_iomaster0_isr(void)
 {
     uint32_t iomStatus = 0;
-    if (!am_hal_iom_interrupt_status_get(_dma_i2c_obj->i2c.iom_obj.iom.handle, true, &iomStatus))
-    {
-        if ( iomStatus )
-        {
+    if (!am_hal_iom_interrupt_status_get(_dma_i2c_obj->i2c.iom_obj.iom.handle, true, &iomStatus)) {
+        if (iomStatus) {
             iom0Status = iomStatus;
             am_hal_iom_interrupt_clear(_dma_i2c_obj->i2c.iom_obj.iom.handle, iomStatus);
             am_hal_iom_interrupt_service(_dma_i2c_obj->i2c.iom_obj.iom.handle, iomStatus);
-            if(_dma0_isr_handler) _dma0_isr_handler(iomStatus);
+            if (_dma0_isr_handler) {
+                _dma0_isr_handler(iomStatus);
+            }
         }
     }
 }
@@ -263,14 +277,14 @@ void
 am_iomaster1_isr(void)
 {
     uint32_t iomStatus = 0;
-    if (!am_hal_iom_interrupt_status_get(_dma_i2c_obj->i2c.iom_obj.iom.handle, true, &iomStatus))
-    {
-        if ( iomStatus )
-        {
+    if (!am_hal_iom_interrupt_status_get(_dma_i2c_obj->i2c.iom_obj.iom.handle, true, &iomStatus)) {
+        if (iomStatus) {
             iom1Status = iomStatus;
             am_hal_iom_interrupt_clear(_dma_i2c_obj->i2c.iom_obj.iom.handle, iomStatus);
             am_hal_iom_interrupt_service(_dma_i2c_obj->i2c.iom_obj.iom.handle, iomStatus);
-            if(_dma1_isr_handler) _dma1_isr_handler(iomStatus);
+            if (_dma1_isr_handler) {
+                _dma1_isr_handler(iomStatus);
+            }
         }
     }
 }
@@ -279,14 +293,14 @@ void
 am_iomaster2_isr(void)
 {
     uint32_t iomStatus = 0;
-    if (!am_hal_iom_interrupt_status_get(_dma_i2c_obj->i2c.iom_obj.iom.handle, true, &iomStatus))
-    {
-        if ( iomStatus )
-        {
+    if (!am_hal_iom_interrupt_status_get(_dma_i2c_obj->i2c.iom_obj.iom.handle, true, &iomStatus)) {
+        if (iomStatus) {
             iom2Status = iomStatus;
             am_hal_iom_interrupt_clear(_dma_i2c_obj->i2c.iom_obj.iom.handle, iomStatus);
             am_hal_iom_interrupt_service(_dma_i2c_obj->i2c.iom_obj.iom.handle, iomStatus);
-            if(_dma2_isr_handler) _dma2_isr_handler(iomStatus);
+            if (_dma2_isr_handler) {
+                _dma2_isr_handler(iomStatus);
+            }
         }
     }
 }
@@ -295,14 +309,14 @@ void
 am_iomaster3_isr(void)
 {
     uint32_t iomStatus = 0;
-    if (!am_hal_iom_interrupt_status_get(_dma_i2c_obj->i2c.iom_obj.iom.handle, true, &iomStatus))
-    {
-        if ( iomStatus )
-        {
+    if (!am_hal_iom_interrupt_status_get(_dma_i2c_obj->i2c.iom_obj.iom.handle, true, &iomStatus)) {
+        if (iomStatus) {
             iom3Status = iomStatus;
             am_hal_iom_interrupt_clear(_dma_i2c_obj->i2c.iom_obj.iom.handle, iomStatus);
             am_hal_iom_interrupt_service(_dma_i2c_obj->i2c.iom_obj.iom.handle, iomStatus);
-            if(_dma3_isr_handler) _dma3_isr_handler(iomStatus);
+            if (_dma3_isr_handler) {
+                _dma3_isr_handler(iomStatus);
+            }
         }
     }
 }
@@ -311,14 +325,14 @@ void
 am_iomaster4_isr(void)
 {
     uint32_t iomStatus = 0;
-    if (!am_hal_iom_interrupt_status_get(_dma_i2c_obj->i2c.iom_obj.iom.handle, true, &iomStatus))
-    {
-        if ( iomStatus )
-        {
+    if (!am_hal_iom_interrupt_status_get(_dma_i2c_obj->i2c.iom_obj.iom.handle, true, &iomStatus)) {
+        if (iomStatus) {
             iom4Status = iomStatus;
             am_hal_iom_interrupt_clear(_dma_i2c_obj->i2c.iom_obj.iom.handle, iomStatus);
             am_hal_iom_interrupt_service(_dma_i2c_obj->i2c.iom_obj.iom.handle, iomStatus);
-            if(_dma4_isr_handler) _dma4_isr_handler(iomStatus);
+            if (_dma4_isr_handler) {
+                _dma4_isr_handler(iomStatus);
+            }
         }
     }
 }
@@ -327,14 +341,14 @@ void
 am_iomaster5_isr(void)
 {
     uint32_t iomStatus = 0;
-    if (!am_hal_iom_interrupt_status_get(_dma_i2c_obj->i2c.iom_obj.iom.handle, true, &iomStatus))
-    {
-        if ( iomStatus )
-        {
+    if (!am_hal_iom_interrupt_status_get(_dma_i2c_obj->i2c.iom_obj.iom.handle, true, &iomStatus)) {
+        if (iomStatus) {
             iom5Status = iomStatus;
             am_hal_iom_interrupt_clear(_dma_i2c_obj->i2c.iom_obj.iom.handle, iomStatus);
             am_hal_iom_interrupt_service(_dma_i2c_obj->i2c.iom_obj.iom.handle, iomStatus);
-            if(_dma5_isr_handler) _dma5_isr_handler(iomStatus);
+            if (_dma5_isr_handler) {
+                _dma5_isr_handler(iomStatus);
+            }
         }
     }
 }
@@ -392,21 +406,22 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
 
     _dma_i2c_obj = obj;
 
-    if( (tx_length == 0) && (rx_length == 0)) return;
+    if ((tx_length == 0) && (rx_length == 0)) {
+        return;
+    }
 
     am_hal_iom_transfer_t       Transaction;
 
     Transaction.ui8Priority     = 1;        // High priority for now.
     Transaction.ui32InstrLen    = 1;
-    if(rx == NULL) {
+    if (rx == NULL) {
         Transaction.eDirection      = AM_HAL_IOM_TX;
-        char * ptr = (char *)tx;
+        char *ptr = (char *)tx;
         Transaction.ui32Instr       = *ptr;
         Transaction.ui32NumBytes    = tx_length;
         ptr++;
         Transaction.pui32TxBuffer   = (const uint32_t *)ptr;
-    }
-    else if(tx == NULL) {
+    } else if (tx == NULL) {
         Transaction.eDirection      = AM_HAL_IOM_RX;
         Transaction.ui32Instr       = *(char *)rx;
         Transaction.ui32NumBytes    = rx_length;
@@ -419,51 +434,41 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
     Transaction.uPeerInfo.ui32I2CDevAddr = address;
 
     void *pCallbackCtxt;
-    bool * g_IOMDMAComplete;
+    bool *g_IOMDMAComplete;
 
-    if(obj->i2c.iom_obj.iom.inst == 0) {
+    if (obj->i2c.iom_obj.iom.inst == 0) {
         pCallbackCtxt = pfnIOM0_DMA_Callback;
         g_IOM0DMAComplete = false ;
         g_IOMDMAComplete = &g_IOM0DMAComplete;
         _dma0_isr_handler =  handler;
-    }
-    else if(obj->i2c.iom_obj.iom.inst == 1)
-    {
+    } else if (obj->i2c.iom_obj.iom.inst == 1) {
         pCallbackCtxt = pfnIOM1_DMA_Callback;
         g_IOM1DMAComplete = false ;
         g_IOMDMAComplete = &g_IOM1DMAComplete;
         _dma1_isr_handler =  handler;
-    }
-    else if(obj->i2c.iom_obj.iom.inst == 2)
-    {
+    } else if (obj->i2c.iom_obj.iom.inst == 2) {
         pCallbackCtxt = pfnIOM2_DMA_Callback;
         g_IOM2DMAComplete = false ;
         g_IOMDMAComplete = &g_IOM2DMAComplete;
         _dma2_isr_handler =  handler;
-    }
-    else if(obj->i2c.iom_obj.iom.inst == 3)
-    {
+    } else if (obj->i2c.iom_obj.iom.inst == 3) {
         pCallbackCtxt = pfnIOM3_DMA_Callback;
         g_IOM3DMAComplete = false ;
         g_IOMDMAComplete = &g_IOM3DMAComplete;
         _dma3_isr_handler =  handler;
-    }
-    else if(obj->i2c.iom_obj.iom.inst == 4)
-    {
+    } else if (obj->i2c.iom_obj.iom.inst == 4) {
         pCallbackCtxt = pfnIOM4_DMA_Callback;
         g_IOM4DMAComplete = false ;
         g_IOMDMAComplete = &g_IOM4DMAComplete;
         _dma4_isr_handler =  handler;
-    }
-    else if(obj->i2c.iom_obj.iom.inst == 5)
-    {
+    } else if (obj->i2c.iom_obj.iom.inst == 5) {
         pCallbackCtxt = pfnIOM5_DMA_Callback;
         g_IOM4DMAComplete = false ;
         g_IOMDMAComplete = &g_IOM5DMAComplete;
         _dma4_isr_handler =  handler;
     }
 
-    am_hal_iom_nonblocking_transfer(obj->i2c.iom_obj.iom.handle, &Transaction,pCallbackCtxt, NULL);
+    am_hal_iom_nonblocking_transfer(obj->i2c.iom_obj.iom.handle, &Transaction, pCallbackCtxt, NULL);
 
 #if 1
     while (!(*g_IOMDMAComplete)) {
@@ -490,15 +495,21 @@ uint32_t i2c_irq_handler_asynch(i2c_t *obj)
 {
     MBED_ASSERT(obj);
     uint32_t iomStatus;
-    if(obj->i2c.iom_obj.iom.inst == 0) iomStatus = iom0Status;
-    else if(obj->i2c.iom_obj.iom.inst == 1) iomStatus = iom1Status;
-    else if(obj->i2c.iom_obj.iom.inst == 2) iomStatus = iom2Status;
-    else if(obj->i2c.iom_obj.iom.inst == 3) iomStatus = iom3Status;
-    else if(obj->i2c.iom_obj.iom.inst == 4) iomStatus = iom4Status;
-    else if(obj->i2c.iom_obj.iom.inst == 5) iomStatus = iom5Status;
+    if (obj->i2c.iom_obj.iom.inst == 0) {
+        iomStatus = iom0Status;
+    } else if (obj->i2c.iom_obj.iom.inst == 1) {
+        iomStatus = iom1Status;
+    } else if (obj->i2c.iom_obj.iom.inst == 2) {
+        iomStatus = iom2Status;
+    } else if (obj->i2c.iom_obj.iom.inst == 3) {
+        iomStatus = iom3Status;
+    } else if (obj->i2c.iom_obj.iom.inst == 4) {
+        iomStatus = iom4Status;
+    } else if (obj->i2c.iom_obj.iom.inst == 5) {
+        iomStatus = iom5Status;
+    }
 
-    if(iomStatus & AM_HAL_IOM_INT_DCMP) // DMA transfer complete
-    {
+    if (iomStatus & AM_HAL_IOM_INT_DCMP) { // DMA transfer complete
         return 1;
     }
     return 0;
@@ -510,17 +521,25 @@ uint8_t i2c_active(i2c_t *obj)
 
     int active;
 
-    if(obj->i2c.iom_obj.iom.inst == 0) active = g_IOM0DMAComplete;
-    else if(obj->i2c.iom_obj.iom.inst == 1) active = g_IOM1DMAComplete;
-    else if(obj->i2c.iom_obj.iom.inst == 2) active = g_IOM2DMAComplete;
-    else if(obj->i2c.iom_obj.iom.inst == 3) active = g_IOM3DMAComplete;
-    else if(obj->i2c.iom_obj.iom.inst == 4) active = g_IOM4DMAComplete;
-    else if(obj->i2c.iom_obj.iom.inst == 5) active = g_IOM5DMAComplete;
+    if (obj->i2c.iom_obj.iom.inst == 0) {
+        active = g_IOM0DMAComplete;
+    } else if (obj->i2c.iom_obj.iom.inst == 1) {
+        active = g_IOM1DMAComplete;
+    } else if (obj->i2c.iom_obj.iom.inst == 2) {
+        active = g_IOM2DMAComplete;
+    } else if (obj->i2c.iom_obj.iom.inst == 3) {
+        active = g_IOM3DMAComplete;
+    } else if (obj->i2c.iom_obj.iom.inst == 4) {
+        active = g_IOM4DMAComplete;
+    } else if (obj->i2c.iom_obj.iom.inst == 5) {
+        active = g_IOM5DMAComplete;
+    }
 
-    if(active)
-        return 0;  // no transaction ongoing
-    else
-        return 1;   // transaction ongoing
+    if (active) {
+        return 0;    // no transaction ongoing
+    } else {
+        return 1;    // transaction ongoing
+    }
 }
 
 void i2c_abort_asynch(i2c_t *obj)
