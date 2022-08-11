@@ -65,48 +65,48 @@
  * Define the Frequencies for teh SUB REGION within AS923 for AS1,AS2, AS3,AS4.
  */
 #if ( LORA_AS923_SUB_REGION == LORA_AS923_SUB_REGION_AS1 )
-    // Singapore, Japan, Malaysia, Myanmar ....
-    // Historical AS923 =>RP002-1.0.0 LoRaWAN - 923..928Mhz
-    /*!
-    * Default transmit channel frequency's definition.
-    */
-    #define AS923_LC1_FREQ          923200000
-    #define AS923_LC2_FREQ          923400000
-    /*!
-    * channel frequnetie range.
-    */
-    #define AS923_LOWER_FREQ        923000000
-    #define AS923_UPPER_FREQ        928000000
-    /*!
-    * Second reception window channel frequency definition.
-    */
-    #define AS923_RX_WND_2_FREQ     923200000
+// Singapore, Japan, Malaysia, Myanmar ....
+// Historical AS923 =>RP002-1.0.0 LoRaWAN - 923..928Mhz
+/*!
+* Default transmit channel frequency's definition.
+*/
+#define AS923_LC1_FREQ          923200000
+#define AS923_LC2_FREQ          923400000
+/*!
+* channel frequnetie range.
+*/
+#define AS923_LOWER_FREQ        923000000
+#define AS923_UPPER_FREQ        928000000
+/*!
+* Second reception window channel frequency definition.
+*/
+#define AS923_RX_WND_2_FREQ     923200000
 #elif ( LORA_AS923_SUB_REGION == LORA_AS923_SUB_REGION_AS2 )
-    // Brunei, Hong Kong, Indonesia, Laos, Cambodia, Thaland, Taiwan, Vietnam
-    // OFFSET -1.8 MHz AS923-1 =>RP002-1.0.1 LoRaWAN - 920..923Mhz
-    #define AS923_LC1_FREQ          921400000
-    #define AS923_LC2_FREQ          921600000
-    #define AS923_LOWER_FREQ        920000000
-    #define AS923_UPPER_FREQ        923000000
-    #define AS923_RX_WND_2_FREQ     921400000
+// Brunei, Hong Kong, Indonesia, Laos, Cambodia, Thaland, Taiwan, Vietnam
+// OFFSET -1.8 MHz AS923-1 =>RP002-1.0.1 LoRaWAN - 920..923Mhz
+#define AS923_LC1_FREQ          921400000
+#define AS923_LC2_FREQ          921600000
+#define AS923_LOWER_FREQ        920000000
+#define AS923_UPPER_FREQ        923000000
+#define AS923_RX_WND_2_FREQ     921400000
 #elif ( LORA_AS923_SUB_REGION == LORA_AS923_SUB_REGION_AS3 )
-    // Philipines, Quatar, Switzerland, Hungary, Cuba, Denmark .... 18 countries
-    // OFFSET -6.6Mhz AS923-1 =>RP002-1.0.1 LoRaWAN - 915..921Mhz
-    #define AS923_LC1_FREQ          916600000
-    #define AS923_LC2_FREQ          916800000
-    #define AS923_LOWER_FREQ        915000000
-    #define AS923_UPPER_FREQ        921000000
-    #define AS923_RX_WND_2_FREQ     916600000
+// Philipines, Quatar, Switzerland, Hungary, Cuba, Denmark .... 18 countries
+// OFFSET -6.6Mhz AS923-1 =>RP002-1.0.1 LoRaWAN - 915..921Mhz
+#define AS923_LC1_FREQ          916600000
+#define AS923_LC2_FREQ          916800000
+#define AS923_LOWER_FREQ        915000000
+#define AS923_UPPER_FREQ        921000000
+#define AS923_RX_WND_2_FREQ     916600000
 #elif ( LORA_AS923_SUB_REGION == LORA_AS923_SUB_REGION_AS4 )
-    // Israel
-    // OFFSET -5.9MHz AS923-1 =>RP002-1.0.3 LoRaWAN - 917..920Mhz
-    #define AS923_LC1_FREQ          917300000
-    #define AS923_LC2_FREQ          917500000
-    #define AS923_LOWER_FREQ        917000000
-    #define AS923_UPPER_FREQ        920000000
-    #define AS923_RX_WND_2_FREQ     917300000
+// Israel
+// OFFSET -5.9MHz AS923-1 =>RP002-1.0.3 LoRaWAN - 917..920Mhz
+#define AS923_LC1_FREQ          917300000
+#define AS923_LC2_FREQ          917500000
+#define AS923_LOWER_FREQ        917000000
+#define AS923_UPPER_FREQ        920000000
+#define AS923_RX_WND_2_FREQ     917300000
 #else
-    #error "Invalid SUB region configuration, update mbed_app.json with correct MBED_CONF_LORA_PHY_AS923_SUB_REGION value"
+#error "Invalid SUB region configuration, update mbed_app.json with correct MBED_CONF_LORA_PHY_AS923_SUB_REGION value"
 #endif
 
 
@@ -411,8 +411,8 @@ int8_t LoRaPHYAS923::get_alternate_DR(uint8_t nb_trials)
 }
 
 lorawan_status_t LoRaPHYAS923::set_next_channel(channel_selection_params_t *next_channel_prams,
-                                                uint8_t *channel, lorawan_time_t *time,
-                                                lorawan_time_t *aggregate_timeoff)
+        uint8_t *channel, lorawan_time_t *time,
+        lorawan_time_t *aggregate_timeoff)
 {
     uint8_t next_channel_idx = 0;
     uint8_t nb_enabled_channels = 0;
@@ -436,8 +436,8 @@ lorawan_status_t LoRaPHYAS923::set_next_channel(channel_selection_params_t *next
 
         // Search how many channels are enabled
         nb_enabled_channels = enabled_channel_count(next_channel_prams->current_datarate,
-                                                    channel_mask,
-                                                    enabled_channels, &delay_tx);
+                              channel_mask,
+                              enabled_channels, &delay_tx);
     }  else {
         delay_tx++;
         next_tx_delay = next_channel_prams->aggregate_timeoff - _lora_time->get_elapsed_time(next_channel_prams->last_aggregate_tx_time);
