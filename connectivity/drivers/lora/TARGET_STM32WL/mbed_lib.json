@@ -26,9 +26,17 @@
             "help": "Default: Internal XO = 0, IS_TCXO_SUPPORTED = 1",
             "value": "IS_TCXO_SUPPORTED"
         },
+        "tcxo_ctrl": {
+            "help": "TCXO Control voltage. Default: TCXO control TCXO_CTRL_1_7V (RAK3172SIP use TCXO_CTRL_3_0V)",
+            "value": "TCXO_CTRL_1_7V"
+        },
         "rf_switch_config": {
             "help": "Default: RBI_CONF_RFO_LP_HP = 0, RBI_CONF_RFO_LP = 1, RBI_CONF_RFO_HP = 2",
             "value": "RBI_CONF_RFO_LP_HP"
+        },
+        "rf_rfo_hp_lpfix": {
+            "help": "Fix high power consumption when only RFO_HP is used on some boards. No fix = 0, Fix = 1",
+            "value": 1
         },
         "rf_wakeup_time": {
             "help": "Radio maximum wakeup time (in ms)",

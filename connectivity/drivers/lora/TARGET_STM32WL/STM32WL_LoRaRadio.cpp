@@ -55,6 +55,8 @@ uint8_t crystal_select  = MBED_CONF_STM32WL_LORA_DRIVER_CRYSTAL_SELECT;
 
 uint8_t board_rf_switch_config  = MBED_CONF_STM32WL_LORA_DRIVER_RF_SWITCH_CONFIG;
 
+radio_TCXO_ctrl_voltage_t tcxo_ctrl = MBED_CONF_STM32WL_LORA_DRIVER_TCXO_CTRL;
+
 
 static void SUBGHZ_Radio_IRQHandler(void);
 
@@ -75,12 +77,6 @@ static uint8_t _active_modem;
 
 using namespace std::chrono;
 using namespace mbed;
-
-
-/**
-  * @brief voltage of vdd tcxo.
-  */
-#define TCXO_CTRL_VOLTAGE           TCXO_CTRL_1_7V
 
 /*!
  * FSK bandwidth definition
@@ -466,7 +462,9 @@ void STM32WL_LoRaRadio::SUBGRF_SetTxParams(uint8_t paSelect, int8_t power, radio
         // if in mbed_app.json we have configured rf_switch_config in rfo_hp ONLY
         // so "stm32wl-lora-driver.rf_switch_config": "RBI_CONF_RFO_HP"
         // in this particular case it's not optimal settings for power<=20dBm
-        if (board_rf_switch_config == RBI_CONF_RFO_HP) {
+        // So if we set also rfo_hp_lpfix to 1 then optimize power
+        // See https://github.com/ARMmbed/mbed-os/pull/15017#issuecomment-1173455762
+        if (board_rf_switch_config == RBI_CONF_RFO_HP && MBED_CONF_STM32WL_LORA_DRIVER_RF_RFO_HP_LPFIX == 1) {
             // See Section 5.1.2 of the following Application Note
             // https://www.st.com/resource/en/application_note/an5457-rf-matching-network-design-guide-for-stm32wl-series-stmicroelectronics.pdf
             if (power > 20) {
@@ -633,7 +631,7 @@ void STM32WL_LoRaRadio::cold_start_wakeup()
     if (crystal_select == 1) {
         calibration_params_t calib_param;
 
-        SUBGRF_SetTcxoMode(TCXO_CTRL_VOLTAGE, MBED_CONF_STM32WL_LORA_DRIVER_RF_WAKEUP_TIME << 6); //100 ms
+        SUBGRF_SetTcxoMode(tcxo_ctrl, MBED_CONF_STM32WL_LORA_DRIVER_RF_WAKEUP_TIME << 6); //100 ms
 
         calib_param.value = 0x7F;
         write_opmode_command(RADIO_CALIBRATE, &calib_param.value, 1);
