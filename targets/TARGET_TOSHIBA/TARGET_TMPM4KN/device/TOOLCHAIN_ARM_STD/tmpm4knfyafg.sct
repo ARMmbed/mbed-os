@@ -65,8 +65,13 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE ; load region size_region
     .ANY (+RW, +ZI)
     rda_flash512ud32_b.o(+RO)
   }
+  
+  FLASH_CODE_RAM  AlignExpr(+0, 16) (0x6000 - 0x238 - Stack_Size - Imagelength(RW_IRAM1))
+  {
+   system_TMPM4KyA.o(FLASH_ROM)
+  }
 
-  ARM_LIB_HEAP  AlignExpr(+0, 16)  EMPTY  (0x20000000+0x6000 - MBED_CONF_TARGET_BOOT_STACK_SIZE - AlignExpr(ImageLimit(RW_IRAM1), 16))  { ; Heap growing up
+  ARM_LIB_HEAP  AlignExpr(+0, 16)  EMPTY  (0x20000000+0x6000 - MBED_CONF_TARGET_BOOT_STACK_SIZE - AlignExpr(ImageLimit(FLASH_CODE_RAM), 16))  { ; Heap growing up
   }
   
   ARM_LIB_STACK (0x20000000+0x6000) EMPTY -Stack_Size { ; stack

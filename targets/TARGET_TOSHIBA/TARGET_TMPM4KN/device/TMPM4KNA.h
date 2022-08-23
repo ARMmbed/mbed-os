@@ -7,7 +7,7 @@
  * $Date::            #$
  *
  * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LICENSE AGREEMENT.
- * 
+ *
  * Copyright(C) Toshiba Electronic Device Solutions Corporation 2021
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -1322,6 +1322,7 @@ typedef struct {
 
 /* Clock Control and Operation Mode (CG) */
 #define TSB_CG_OSCCR_IHOSC1EN                     (*((__IO uint32_t *)BITBAND_PERI(&TSB_CG->OSCCR,0)))
+#define TSB_CG_OSCCR_IHOSC2EN                     (*((__IO uint32_t *)BITBAND_PERI(&TSB_CG->OSCCR,3)))
 #define TSB_CG_OSCCR_OSCSEL                       (*((__IO uint32_t *)BITBAND_PERI(&TSB_CG->OSCCR,8)))
 #define TSB_CG_OSCCR_OSCF                         (*((__I  uint32_t *)BITBAND_PERI(&TSB_CG->OSCCR,9)))
 #define TSB_CG_OSCCR_IHOSC1F                      (*((__I  uint32_t *)BITBAND_PERI(&TSB_CG->OSCCR,16)))
