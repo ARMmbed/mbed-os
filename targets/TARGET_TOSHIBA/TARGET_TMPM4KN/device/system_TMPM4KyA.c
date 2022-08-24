@@ -47,20 +47,20 @@
 #define CG_GEAR_FC_4            (0x00000002UL)      /*!< CG fc/4 register value */
 #define CG_GEAR_FC_8            (0x00000003UL)      /*!< CG fc/8 register value */
 #define CG_GEAR_FC_16           (0x00000004UL)      /*!< CG fc/16 register value */
-#define CG_PRCK_FC_1            (0x00000000UL)      /*!< CG ƒÓT0 fc register value */
-#define CG_PRCK_FC_2            (0x00000100UL)      /*!< CG ƒÓT0 fc/2 register value */
-#define CG_PRCK_FC_4            (0x00000200UL)      /*!< CG ƒÓT0 fc/4 register value */
-#define CG_PRCK_FC_8            (0x00000300UL)      /*!< CG ƒÓT0 fc/8 register value */
-#define CG_PRCK_FC_16           (0x00000400UL)      /*!< CG ƒÓT0 fc/16 register value */
-#define CG_PRCK_FC_32           (0x00000500UL)      /*!< CG ƒÓT0 fc/32 register value */
-#define CG_PRCK_FC_64           (0x00000600UL)      /*!< CG ƒÓT0 fc/64 register value */
-#define CG_PRCK_FC_128          (0x00000700UL)      /*!< CG ƒÓT0 fc/128 register value */
-#define CG_PRCK_FC_256          (0x00000800UL)      /*!< CG ƒÓT0 fc/256 register value */
-#define CG_PRCK_FC_512          (0x00000900UL)      /*!< CG ƒÓT0 fc/512 register value */
+#define CG_PRCK_FC_1            (0x00000000UL)      /*!< CG PhiT0 fc register value */
+#define CG_PRCK_FC_2            (0x00000100UL)      /*!< CG PhiT0 fc/2 register value */
+#define CG_PRCK_FC_4            (0x00000200UL)      /*!< CG PhiT0 fc/4 register value */
+#define CG_PRCK_FC_8            (0x00000300UL)      /*!< CG PhiT0 fc/8 register value */
+#define CG_PRCK_FC_16           (0x00000400UL)      /*!< CG PhiT0 fc/16 register value */
+#define CG_PRCK_FC_32           (0x00000500UL)      /*!< CG PhiT0 fc/32 register value */
+#define CG_PRCK_FC_64           (0x00000600UL)      /*!< CG PhiT0 fc/64 register value */
+#define CG_PRCK_FC_128          (0x00000700UL)      /*!< CG PhiT0 fc/128 register value*/
+#define CG_PRCK_FC_256          (0x00000800UL)      /*!< CG PhiT0 fc/256 register value*/
+#define CG_PRCK_FC_512          (0x00000900UL)      /*!< CG PhiT0 fc/512 register value*/
 
-#define CG_MCKSEL_1             (0x00000000UL)      /*!< CG fsysm, mƒÓT0 fc value */
-#define CG_MCKSEL_2             (0x00000040UL)      /*!< CG fsysm, mƒÓT0 fc/2 value */
-#define CG_MCKSEL_4             (0x00000080UL)      /*!< CG fsysm, mƒÓT0 fc/4 value */
+#define CG_MCKSEL_1             (0x00000000UL)      /*!< CG fsysm, mPhiT0 fc value */
+#define CG_MCKSEL_2             (0x00000040UL)      /*!< CG fsysm, mPhiT0 fc/2 value */
+#define CG_MCKSEL_4             (0x00000080UL)      /*!< CG fsysm, mPhiT0 fc/4 value */
 
 #define CG_GEAR_MASK            ((uint32_t)0x00000007)    /*!< CG GEAR mask */
 #define CG_PRCK_MASK            ((uint32_t)0x00000F00)    /*!< CG PRCK mask */
