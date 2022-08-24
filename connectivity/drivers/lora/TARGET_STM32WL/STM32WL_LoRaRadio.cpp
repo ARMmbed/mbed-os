@@ -38,6 +38,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "ThisThread.h"
 #include "Timer.h"
 #include "STM32WL_LoRaRadio.h"
+#include "mbed_wait_api.h"
 
 #ifndef DEBUG_STDIO
 #define DEBUG_STDIO 0
@@ -728,18 +729,18 @@ void STM32WL_LoRaRadio::wakeup()
 void STM32WL_LoRaRadio::sleep(void)
 {
     DEBUG_PRINTF("STM32WL_LoRaRadio::sleep\n");
-#if MBED_CONF_STM32WL_LORA_DRIVER_SLEEP_MODE == 1
-    // cold start, power consumption 160 nA
-    sleep_state = 0x00;
-#endif
 
     /* switch the antenna OFF by SW */
     set_antenna_switch(RBI_SWITCH_OFF);
     Radio_SMPS_Set(SMPS_DRIVE_SETTING_DEFAULT);
 
-
+#if MBED_CONF_STM32WL_LORA_DRIVER_SLEEP_MODE == 1
+    // cold start, power consumption 160 nA
+    uint8_t sleep_state = 0x00;
+#else
     // warm start set , power consumption 600 nA
     uint8_t sleep_state = 0x04;
+#endif
     write_opmode_command(RADIO_SET_SLEEP, &sleep_state, 1);
 
     _operating_mode = MODE_SLEEP;
