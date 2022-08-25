@@ -38,6 +38,80 @@
 #define AS923_NUMB_DEFAULT_CHANNELS                 2
 
 /*!
+ * Set default SUB region if not defined
+ */
+#ifndef MBED_CONF_LORA_PHY_AS923_SUB_REGION
+#define MBED_CONF_LORA_PHY_AS923_SUB_REGION AS1
+#warning "MBED_CONF_LORA_PHY_AS923_SUB_REGION is not set in mbed_app.json, default to `AS1`!"
+#endif
+
+/*!
+ * Define the SUB-REGION's
+ */
+#define LORA_AS923_SUB_REGION_AS1     0x01
+#define LORA_AS923_SUB_REGION_AS2     0x02
+#define LORA_AS923_SUB_REGION_AS3     0x03
+#define LORA_AS923_SUB_REGION_AS4     0x04
+
+/*!
+ * Parse SUB-REGION config
+ */
+#define mbed_lora_concat_(x) LORA_AS923_SUB_REGION_##x
+#define mbed_lora_concat(x) mbed_lora_concat_(x)
+#define LORA_AS923_SUB_REGION mbed_lora_concat(MBED_CONF_LORA_PHY_AS923_SUB_REGION)
+
+
+/*!
+ * Define the Frequencies for teh SUB REGION within AS923 for AS1,AS2, AS3,AS4.
+ */
+#if ( LORA_AS923_SUB_REGION == LORA_AS923_SUB_REGION_AS1 )
+// Singapore, Japan, Malaysia, Myanmar ....
+// Historical AS923 =>RP002-1.0.0 LoRaWAN - 923..928Mhz
+/*!
+* Default transmit channel frequency's definition.
+*/
+#define AS923_LC1_FREQ          923200000
+#define AS923_LC2_FREQ          923400000
+/*!
+* channel frequnetie range.
+*/
+#define AS923_LOWER_FREQ        923000000
+#define AS923_UPPER_FREQ        928000000
+/*!
+* Second reception window channel frequency definition.
+*/
+#define AS923_RX_WND_2_FREQ     923200000
+#elif ( LORA_AS923_SUB_REGION == LORA_AS923_SUB_REGION_AS2 )
+// Brunei, Hong Kong, Indonesia, Laos, Cambodia, Thaland, Taiwan, Vietnam
+// OFFSET -1.8 MHz AS923-1 =>RP002-1.0.1 LoRaWAN - 920..923Mhz
+#define AS923_LC1_FREQ          921400000
+#define AS923_LC2_FREQ          921600000
+#define AS923_LOWER_FREQ        920000000
+#define AS923_UPPER_FREQ        923000000
+#define AS923_RX_WND_2_FREQ     921400000
+#elif ( LORA_AS923_SUB_REGION == LORA_AS923_SUB_REGION_AS3 )
+// Philipines, Quatar, Switzerland, Hungary, Cuba, Denmark .... 18 countries
+// OFFSET -6.6Mhz AS923-1 =>RP002-1.0.1 LoRaWAN - 915..921Mhz
+#define AS923_LC1_FREQ          916600000
+#define AS923_LC2_FREQ          916800000
+#define AS923_LOWER_FREQ        915000000
+#define AS923_UPPER_FREQ        921000000
+#define AS923_RX_WND_2_FREQ     916600000
+#elif ( LORA_AS923_SUB_REGION == LORA_AS923_SUB_REGION_AS4 )
+// Israel
+// OFFSET -5.9MHz AS923-1 =>RP002-1.0.3 LoRaWAN - 917..920Mhz
+#define AS923_LC1_FREQ          917300000
+#define AS923_LC2_FREQ          917500000
+#define AS923_LOWER_FREQ        917000000
+#define AS923_UPPER_FREQ        920000000
+#define AS923_RX_WND_2_FREQ     917300000
+#else
+#error "Invalid SUB region configuration, update mbed_app.json with correct MBED_CONF_LORA_PHY_AS923_SUB_REGION value"
+#endif
+
+
+
+/*!
  * Number of channels to apply for the CF list
  */
 #define AS923_NUMB_CHANNELS_CF_LIST                 5
