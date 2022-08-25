@@ -226,7 +226,7 @@ private:
                                     void *rx_buffer, mbed::bd_size_t rx_length);
 
     // Parse and Detect required Basic Parameters from Table
-    int _sfdp_parse_basic_param_table(mbed::Callback<int(bd_addr_t, mbed::sfdp_cmd_addr_size_t, uint8_t, uint8_t, void *, bd_size_t)> sfdp_reader,
+    int _sfdp_parse_basic_param_table(mbed::Callback<int(mbed::bd_addr_t, mbed::sfdp_cmd_addr_size_t, uint8_t, uint8_t, void *, mbed::bd_size_t)> sfdp_reader,
                                       mbed::sfdp_hdr_info &hdr_info);
 
     // Detect fastest read Bus mode supported by device
