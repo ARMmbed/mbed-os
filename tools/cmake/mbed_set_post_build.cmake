@@ -113,4 +113,13 @@ function(mbed_set_post_build target)
     endif()
 
     mbed_generate_upload_debug_targets(${target})
+    mbed_generate_ide_debug_configuration(${target})
 endfunction()
+
+#
+# Call this at the very end of the build script.  Does some final cleanup tasks such as
+# writing out debug configurations.
+#
+function(mbed_finalize_build)
+    mbed_finalize_ide_debug_configurations()
+endfunction(mbed_finalize_build)

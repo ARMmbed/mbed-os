@@ -291,3 +291,8 @@ if ("${CMAKE_GENERATOR}" MATCHES "Ninja")
         set(CMAKE_NINJA_FORCE_RESPONSE_FILE 1 CACHE INTERNAL "")
     endif()
 endif()
+
+# If this is the top-level buildscript, run finalize tasks
+if(MBED_IS_STANDALONE AND (NOT MBED_IS_NATIVE_BUILD))
+    mbed_finalize_build()
+endif()
