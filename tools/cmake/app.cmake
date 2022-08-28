@@ -66,7 +66,6 @@ find_program(MBED_GDB
     DOC "Path to the GDB client program to use when debugging.")
 
 if(EXISTS "${MBED_GDB}")
-    message(STATUS "Mbed: Found GDB executable: ${MBED_GDB}")
     set(MBED_GDB_FOUND TRUE)
 else()
     message(STATUS "Mbed: Could not find arm-none-eabi-gdb or gdb-mutiarch.  Debugging will be unavailable.  Set the MBED_GDB variable to specify its path.")
