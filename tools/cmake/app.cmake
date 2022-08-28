@@ -58,6 +58,21 @@ enable_language(C CXX ASM)
 # Note: This is nice in general, but is also required because STM32Cube will only work on files with a .elf extension
 set(CMAKE_EXECUTABLE_SUFFIX .elf)
 
+# Find the GDB server, assuming it will be in the same path as the compiler.
+get_filename_component(CMAKE_COMPILER_BIN_DIR ${CMAKE_C_COMPILER} DIRECTORY)
+find_program(MBED_GDB 
+    NAMES arm-none-eabi-gdb gdb-multiarch
+    HINTS ${CMAKE_COMPILER_BIN_DIR}
+    DOC "Path to the GDB client program to use when debugging.")
+
+if(EXISTS "${MBED_GDB}")
+    message(STATUS "Mbed: Found GDB executable: ${MBED_GDB}")
+    set(MBED_GDB_FOUND TRUE)
+else()
+    message(STATUS "Mbed: Could not find arm-none-eabi-gdb or gdb-mutiarch.  Debugging will be unavailable.  Set the MBED_GDB variable to specify its path.")
+    set(MBED_GDB_FOUND FALSE)
+endif()
+
 # Load upload method configuration defaults for this target.
 # Loading the settings here makes sure they are set at global scope, and also makes sure that
 # the user can override them by changing variable values after including app.cmake.

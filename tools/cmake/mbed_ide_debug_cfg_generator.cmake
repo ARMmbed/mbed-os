@@ -58,22 +58,30 @@ elseif(MBED_GENERATE_VS_CODE_DEBUG_CFGS)
 "{
     \"configurations\": [")
 
+	# Find objdump as the extension uses it.  In a sane world it should be in the compiler bin dir.
+	find_program(MBED_OBJDUMP
+		NAMES arm-none-eabi-objdump objdump
+		HINTS ${CMAKE_COMPILER_BIN_DIR}
+		DOC "Path to the GNU objdump program.  Needed for VS Code cortex-debug"
+		REQURED)
+
 	function(mbed_generate_ide_debug_configuration CMAKE_TARGET)
 
 	    # Create name (combine target name, Mbed target, and build config to generate a unique string)
 	    set(CONFIG_NAME "Connect to GDB ${CMAKE_TARGET} ${MBED_TARGET} ${CMAKE_BUILD_TYPE}")
 
-	    # from here: https://stackoverflow.com/questions/38089178/is-it-possible-to-attach-to-a-remote-gdb-target-with-vscode
+	    # property list here: https://github.com/Marus/cortex-debug/blob/master/debug_attributes.md
 	    set_property(GLOBAL APPEND_STRING PROPERTY VSCODE_LAUNCH_JSON_CONTENT "
 	{
-	    \"type\": \"gdb\",
-	    \"request\": \"attach\",
+	    \"type\": \"cortex-debug\",
 	    \"name\": \"${CONFIG_NAME}\",
 	    \"executable\": \"$<TARGET_FILE:${CMAKE_TARGET}>\",
-	    \"target\": \"localhost:${GDB_PORT}\",
-	    \"remote\": true,
 	    \"cwd\": \"\${workspaceRoot}\",
-	    \"gdbpath\": \"arm-none-eabi-gdb\"
+	    \"gdbPath\": \"${MBED_GDB}\",
+		\"objdumpPath\": \"${MBED_OBJDUMP}\",
+		\"servertype\": \"external\",
+		\"gdbTarget\": \"localhost:${GDB_PORT}\",
+		\"request\": \"attach\"
 	},")
 
 	endfunction(mbed_generate_ide_debug_configuration)

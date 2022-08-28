@@ -1,9 +1,10 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-set(CMAKE_ASM_COMPILER "arm-none-eabi-gcc")
-set(CMAKE_C_COMPILER "arm-none-eabi-gcc")
-set(CMAKE_CXX_COMPILER "arm-none-eabi-g++")
+# specify the cross compiler.  Use cache variables so that VS Code can detect the compiler from the cache.
+set(CMAKE_C_COMPILER arm-none-eabi-gcc CACHE FILEPATH "C Compiler")
+set(CMAKE_CXX_COMPILER arm-none-eabi-g++ CACHE FILEPATH "CXX Compiler")
+set(CMAKE_ASM_COMPILER arm-none-eabi-gcc CACHE FILEPATH "ASM Compiler")
 set(GCC_ELF2BIN "arm-none-eabi-objcopy")
 set_property(GLOBAL PROPERTY ELF2BIN ${GCC_ELF2BIN})
 

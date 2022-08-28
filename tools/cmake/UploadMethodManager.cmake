@@ -52,10 +52,10 @@ function(mbed_generate_upload_debug_targets target)
 	)
 
 	# add debug target
-	if(MBED_UPLOAD_SUPPORTS_DEBUG)
+	if(MBED_UPLOAD_SUPPORTS_DEBUG AND MBED_GDB_FOUND)
 		add_custom_target(debug-${target}
 			COMMENT "starting GDB to debug ${target}..."
-			COMMAND arm-none-eabi-gdb
+			COMMAND ${MBED_GDB}
 			--command=${CMAKE_BINARY_DIR}/mbed-cmake.gdbinit
 			$<TARGET_FILE:${target}>
 			USES_TERMINAL)
