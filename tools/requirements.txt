@@ -4,3 +4,4 @@ future>=0.18.0,<1.0
 jinja2>=2.11.3
 intelhex>=2.3.0,<3.0.0
 mbed-tools
+mbed-os-tools

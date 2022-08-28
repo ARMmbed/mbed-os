@@ -3,4 +3,3 @@
 mbed-host-tests
 mbed-greentea
 mbed-ls
-mbed-os-tools
