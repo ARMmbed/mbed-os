@@ -97,10 +97,10 @@ typedef enum {
 #define LED3        PH_6    // LED_GREEN
 
 // Button naming
-#define BUTTON1     PH_0    // SW2
-#define BUTTON2     PH_1    // SW3
-#define SW2         BUTTON1
-#define SW3         BUTTON2
+#define BUTTON1     PH_0    // BTN0
+#define BUTTON2     PH_1    // BTN1
+#define BTN0        BUTTON1
+#define BTN1        BUTTON2
 
 #ifdef __cplusplus
 }
