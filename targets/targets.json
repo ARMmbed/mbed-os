@@ -7416,6 +7416,11 @@
                 "help": "Select GPIO IRQ debounce sample rate: GPIO_DBCTL_DBCLKSEL_1, GPIO_DBCTL_DBCLKSEL_2, GPIO_DBCTL_DBCLKSEL_4, ..., or GPIO_DBCTL_DBCLKSEL_32768",
                 "value": "GPIO_DBCTL_DBCLKSEL_16"
             },
+            "exclude-uno-spi-from-fpga-ci-test-shield-test": {
+                "help": "Exclude UNO SPI pins (D8/D9/D10/D11/D12/D13) from FPGA CI Test Shield test for wiring to on-board SPI flash",
+                "options": [false, true],
+                "value": false
+            },
             "hbi-enable": {
                 "help": "Enable HBI for HyperRAM",
                 "options": [false, true]
@@ -7525,6 +7530,7 @@
             "usb-uart-tx": "PB_13",
             "usb-uart-rx": "PB_12",
             "network-default-interface-type": "ETHERNET",
+            "exclude-uno-spi-from-fpga-ci-test-shield-test": true,
             "hbi-enable": false,
             "hbi-mfp-reg-list": "0x40000534, 0x4000057C, 0x40000590, 0x40000594",
             "hbi-mfp-reg-msk-list": "0xFFFFFF00, 0xFFFFFFFF, 0xFFFF0000, 0xFFFFFFFF",
