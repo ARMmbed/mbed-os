@@ -1,0 +1,138 @@
+/* mbed Microcontroller Library
+ * Copyright(C) TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2022
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#ifndef MBED_PINNAMES_H
+#define MBED_PINNAMES_H
+
+#include "cmsis.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define PIN_PORT(X)                     (((uint32_t)(X) >> 3) & 0xFF)
+#define PIN_POS(X)                      ((uint32_t)(X) & 0x7)
+
+// Pin data, bit 31..16: Pin Function, bit 15..0: Pin Direction
+#define PIN_DATA(FUNC, DIR)             (int)(((FUNC) << 16) | ((DIR) << 0))
+#define PIN_FUNC(X)                     (((X) & 0xffff0000) >> 16)
+#define PIN_DIR(X)                      ((X) & 0xffff)
+
+// Other mbed Pin Names
+#define LED1 PW4
+#define LED2 PW5
+#define LED3 PW6
+#define LED4 PW7
+#define I2C_SDA SDA
+#define I2C_SCL SCL
+
+	
+typedef enum {
+    PIN_INPUT,
+    PIN_OUTPUT,
+    PIN_INOUT
+} PinDirection;
+
+typedef enum {
+    // TMPM4NR Pin Names
+    PA0 = 0  << 3, PA1, PA2, PA3, PA4, PA5, PA6, PA7,
+    PB0 = 1  << 3, PB1, PB2, PB3,
+    PC4 = (2  << 3) | 4, PC5, PC6, PC7,
+    PD0 = 3  << 3, PD1, PD2, PD3, PD4, PD5, PD6, PD7,
+    PE0 = 4  << 3, PE1, PE2, PE3, PE4, PE5, PE6, PE7,
+    PF0 = 5  << 3, PF1, PF2, PF3, PF4, PF5, PF6, PF7,
+    PG0 = 6  << 3, PG1, PG2, PG3, PG4, PG5, PG6, PG7,
+    PH0 = 7  << 3, PH1, PH2, PH3, PH4, PH5, PH6, PH7,
+    PJ0 = 8  << 3, PJ1, PJ2, PJ3, PJ4, PJ5, PJ6, PJ7,
+    PK0 = 9  << 3, PK1, PK2, PK3, PK4, PK5, PK6, PK7,
+    PL0 = 10 << 3, PL1, PL2, PL3, PL4, PL5, PL6, PL7,
+    PM0 = 11 << 3, PM1, PM2, PM3, PM4, PM5, PM6, PM7,
+    PN0 = 12 << 3, PN1, PN2, PN3, PN4, PN5, PN6, PN7,
+    PP0 = 13 << 3, PP1, PP2, PP3, PP4, PP5, PP6, PP7,
+    PR0 = 14 << 3, PR1, PR2, PR3, PR4, PR5, PR6, PR7,
+    PT0 = 15 << 3, PT1, PT2, PT3, PT4, PT5,
+    PU0 = 16 << 3,
+    PU2 = (16 << 3) | 2, PU3, PU4, PU5, PU6, PU7,
+    PV0 = 17 << 3, PV1, PV2, PV3, PV4, PV5, PV6, PV7,
+    PW0 = 18 << 3, PW1, PW2, PW3, PW4, PW5, PW6, PW7,
+    PY0 = 19 << 3, PY1, PY2, PY3, PY4,
+
+    // External data bus Pin Names
+    D0 = PJ1,
+    D1 = PJ0,
+    D2 = PM7,
+    D3 = PT5,
+    D4 = PM6,
+    D5 = PW3,
+    D6 = PW2,
+    D7 = PM5,
+    D8 = PM4,
+    D9 = PW1,
+    D10 = PA7,
+    D11 = PA4,
+    D12 = PA5,
+    D13 = PA6,
+    D14 = PF2,
+    D15 = PF3,
+
+    // Analogue in pins
+    A0 = PN0,
+    A1 = PN1,
+    A2 = PN2,
+    A3 = PN3,
+    A4 = PN4,
+    A5 = PN5,
+
+    // USB2_UART
+    CONSOLE_TX = PV1,
+    CONSOLE_RX = PV0,
+    MBEDIF_TXD = CONSOLE_TX,
+    MBEDIF_RXD = CONSOLE_RX,
+
+    MBED_CONF_APP_UART0_TX = PE3,
+    MBED_CONF_APP_UART0_RX = PE2,
+
+    // Switches
+    SW1 = PL5,
+    SW2 = PV2,
+    //SW3 = PV0,
+    //SW4 = PV1,
+
+    // I2C pins
+    SDA = PF2,
+    SCL = PF3,
+
+    // Analogue out
+    DAC0 = PT0,
+    DAC1 = PT1,
+
+    // Not connected
+    NC = (int)0xFFFFFFFF
+} PinName;
+
+typedef enum {
+    PullUp = 0,
+    PullDown,
+    PullNone,
+    OpenDrain,
+    PullDefault = PullDown
+} PinMode;
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
