@@ -15,10 +15,10 @@ set(UPLOAD_METHOD_DEFAULT MBED)
 set(MBED_UPLOAD_ENABLED TRUE)
 set(MBED_RESET_BAUDRATE 115200)
 
-# Config options for JLINK - not tested!
+# Config options for JLINK
 # -------------------------------------------------------------
 
-set(JLINK_UPLOAD_ENABLED FALSE)
+set(JLINK_UPLOAD_ENABLED TRUE)
 set(JLINK_CPU_NAME STM32F767ZI)
 set(JLINK_CLOCK_SPEED 4000)
 set(JLINK_UPLOAD_INTERFACE SWD)
