@@ -599,9 +599,9 @@ extern "C" {
 *  @{
 */
 #define T32A_NF_NON                     ((uint32_t)0x00000000)    /*!< Nothing */
-#define T32A_NF_2                       ((uint32_t)0x00000010)    /*!< Noise Filter less than 2/ƒÓT0 */
-#define T32A_NF_4                       ((uint32_t)0x00000020)    /*!< Noise Filter less than 4/ƒÓT0 */
-#define T32A_NF_8                       ((uint32_t)0x00000030)    /*!< Noise Filter less than 8/ƒÓT0 */
+#define T32A_NF_2                       ((uint32_t)0x00000010)    /*!< Noise Filter less than 2/phiT0 */
+#define T32A_NF_4                       ((uint32_t)0x00000020)    /*!< Noise Filter less than 4/phiT0 */
+#define T32A_NF_8                       ((uint32_t)0x00000030)    /*!< Noise Filter less than 8/phiT0 */
 /**
  *  @}
  */ /* End of group T32A_NF */

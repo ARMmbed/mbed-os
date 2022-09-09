@@ -78,51 +78,51 @@ extern "C" {
 
 #define CG_PRCK_MASK     ((uint32_t)0x00000F00)    /*!< CG PRCK mask */
 
-#define CG_PRCK_1        ((uint32_t)0x00000000)    /*!< CG ƒÓT0 fc register value */
-#define CG_PRCK_2        ((uint32_t)0x00000100)    /*!< CG ƒÓT0 fc/2 register value */
-#define CG_PRCK_4        ((uint32_t)0x00000200)    /*!< CG ƒÓT0 fc/4 register value */
-#define CG_PRCK_8        ((uint32_t)0x00000300)    /*!< CG ƒÓT0 fc/8 register value */
-#define CG_PRCK_16       ((uint32_t)0x00000400)    /*!< CG ƒÓT0 fc/16 register value */
-#define CG_PRCK_32       ((uint32_t)0x00000500)    /*!< CG ƒÓT0 fc/32 register value */
-#define CG_PRCK_64       ((uint32_t)0x00000600)    /*!< CG ƒÓT0 fc/64 register value */
-#define CG_PRCK_128      ((uint32_t)0x00000700)    /*!< CG ƒÓT0 fc/128 register value */
-#define CG_PRCK_256      ((uint32_t)0x00000800)    /*!< CG ƒÓT0 fc/256 register value */
-#define CG_PRCK_512      ((uint32_t)0x00000900)    /*!< CG ƒÓT0 fc/512 register value */
+#define CG_PRCK_1        ((uint32_t)0x00000000)    /*!< CG phiT0 fc register value */
+#define CG_PRCK_2        ((uint32_t)0x00000100)    /*!< CG phiT0 fc/2 register value */
+#define CG_PRCK_4        ((uint32_t)0x00000200)    /*!< CG phiT0 fc/4 register value */
+#define CG_PRCK_8        ((uint32_t)0x00000300)    /*!< CG phiT0 fc/8 register value */
+#define CG_PRCK_16       ((uint32_t)0x00000400)    /*!< CG phiT0 fc/16 register value */
+#define CG_PRCK_32       ((uint32_t)0x00000500)    /*!< CG phiT0 fc/32 register value */
+#define CG_PRCK_64       ((uint32_t)0x00000600)    /*!< CG phiT0 fc/64 register value */
+#define CG_PRCK_128      ((uint32_t)0x00000700)    /*!< CG phiT0 fc/128 register value */
+#define CG_PRCK_256      ((uint32_t)0x00000800)    /*!< CG phiT0 fc/256 register value */
+#define CG_PRCK_512      ((uint32_t)0x00000900)    /*!< CG phiT0 fc/512 register value */
 
 #define CG_PRCKST_MASK     ((uint32_t)0x0F000000)    /*!< CG PRCKST mask */
 
-#define CG_PRCKST_1        ((uint32_t)0x00000000)    /*!< CG ƒÓT0 fc register status */
-#define CG_PRCKST_2        ((uint32_t)0x01000000)    /*!< CG ƒÓT0 fc/2 register status */
-#define CG_PRCKST_4        ((uint32_t)0x02000000)    /*!< CG ƒÓT0 fc/4 register status */
-#define CG_PRCKST_8        ((uint32_t)0x03000000)    /*!< CG ƒÓT0 fc/8 register status */
-#define CG_PRCKST_16       ((uint32_t)0x04000000)    /*!< CG ƒÓT0 fc/16 register status */
-#define CG_PRCKST_32       ((uint32_t)0x05000000)    /*!< CG ƒÓT0 fc/32 register status */
-#define CG_PRCKST_64       ((uint32_t)0x06000000)    /*!< CG ƒÓT0 fc/64 register status */
-#define CG_PRCKST_128      ((uint32_t)0x07000000)    /*!< CG ƒÓT0 fc/128 register status */
-#define CG_PRCKST_256      ((uint32_t)0x08000000)    /*!< CG ƒÓT0 fc/256 register status */
-#define CG_PRCKST_512      ((uint32_t)0x09000000)    /*!< CG ƒÓT0 fc/512 register status */
+#define CG_PRCKST_1        ((uint32_t)0x00000000)    /*!< CG phiT0 fc register status */
+#define CG_PRCKST_2        ((uint32_t)0x01000000)    /*!< CG phiT0 fc/2 register status */
+#define CG_PRCKST_4        ((uint32_t)0x02000000)    /*!< CG phiT0 fc/4 register status */
+#define CG_PRCKST_8        ((uint32_t)0x03000000)    /*!< CG phiT0 fc/8 register status */
+#define CG_PRCKST_16       ((uint32_t)0x04000000)    /*!< CG phiT0 fc/16 register status */
+#define CG_PRCKST_32       ((uint32_t)0x05000000)    /*!< CG phiT0 fc/32 register status */
+#define CG_PRCKST_64       ((uint32_t)0x06000000)    /*!< CG phiT0 fc/64 register status */
+#define CG_PRCKST_128      ((uint32_t)0x07000000)    /*!< CG phiT0 fc/128 register status */
+#define CG_PRCKST_256      ((uint32_t)0x08000000)    /*!< CG phiT0 fc/256 register status */
+#define CG_PRCKST_512      ((uint32_t)0x09000000)    /*!< CG phiT0 fc/512 register status */
 
-#define CG_PRCK_1_DIV     ((uint32_t)0x00000001)    /*!< CG ƒÓT0 fc division value */
-#define CG_PRCK_2_DIV     ((uint32_t)0x00000002)    /*!< CG ƒÓT0 fc/2 division value */
-#define CG_PRCK_4_DIV     ((uint32_t)0x00000004)    /*!< CG ƒÓT0 fc/4 division value */
-#define CG_PRCK_8_DIV     ((uint32_t)0x00000008)    /*!< CG ƒÓT0 fc/8 division value */
-#define CG_PRCK_16_DIV    ((uint32_t)0x00000010)    /*!< CG ƒÓT0 fc/16 division value */
-#define CG_PRCK_32_DIV    ((uint32_t)0x00000020)    /*!< CG ƒÓT0 fc/32 division value */
-#define CG_PRCK_64_DIV    ((uint32_t)0x00000040)    /*!< CG ƒÓT0 fc/64 division value */
-#define CG_PRCK_128_DIV   ((uint32_t)0x00000080)    /*!< CG ƒÓT0 fc/128 division value */
-#define CG_PRCK_256_DIV   ((uint32_t)0x00000100)    /*!< CG ƒÓT0 fc/256 division value */
-#define CG_PRCK_512_DIV   ((uint32_t)0x00000200)    /*!< CG ƒÓT0 fc/512 division value */
+#define CG_PRCK_1_DIV     ((uint32_t)0x00000001)    /*!< CG phiT0 fc division value */
+#define CG_PRCK_2_DIV     ((uint32_t)0x00000002)    /*!< CG phiT0 fc/2 division value */
+#define CG_PRCK_4_DIV     ((uint32_t)0x00000004)    /*!< CG phiT0 fc/4 division value */
+#define CG_PRCK_8_DIV     ((uint32_t)0x00000008)    /*!< CG phiT0 fc/8 division value */
+#define CG_PRCK_16_DIV    ((uint32_t)0x00000010)    /*!< CG phiT0 fc/16 division value */
+#define CG_PRCK_32_DIV    ((uint32_t)0x00000020)    /*!< CG phiT0 fc/32 division value */
+#define CG_PRCK_64_DIV    ((uint32_t)0x00000040)    /*!< CG phiT0 fc/64 division value */
+#define CG_PRCK_128_DIV   ((uint32_t)0x00000080)    /*!< CG phiT0 fc/128 division value */
+#define CG_PRCK_256_DIV   ((uint32_t)0x00000100)    /*!< CG phiT0 fc/256 division value */
+#define CG_PRCK_512_DIV   ((uint32_t)0x00000200)    /*!< CG phiT0 fc/512 division value */
 
 
 #define CG_MCKSELPST_MASK ((uint32_t)0xC0000000)    /*!< CG MCKSEL mask */
 
-#define CG_MCKSELPST_1    ((uint32_t)0x00000000)    /*!<  CG ƒÓT0 fc/PRCK value */
-#define CG_MCKSELPST_2    ((uint32_t)0x40000000)    /*!<  CG ƒÓT0 fc/PRCK/2 value */
-#define CG_MCKSELPST_4    ((uint32_t)0x80000000)    /*!<  CG ƒÓT0 fc/PRCK/4 value */
+#define CG_MCKSELPST_1    ((uint32_t)0x00000000)    /*!<  CG phiT0 fc/PRCK value */
+#define CG_MCKSELPST_2    ((uint32_t)0x40000000)    /*!<  CG phiT0 fc/PRCK/2 value */
+#define CG_MCKSELPST_4    ((uint32_t)0x80000000)    /*!<  CG phiT0 fc/PRCK/4 value */
 
-#define CG_FSYSM_1_DIV    ((uint32_t)0x00000001)    /*!< CG fsysm ƒÓT0   division value */
-#define CG_FSYSM_2_DIV    ((uint32_t)0x00000002)    /*!< CG fsysm ƒÓT0/2 division value */
-#define CG_FSYSM_4_DIV    ((uint32_t)0x00000004)    /*!< CG fsysm ƒÓT0/4 division value */
+#define CG_FSYSM_1_DIV    ((uint32_t)0x00000001)    /*!< CG fsysm phiT0   division value */
+#define CG_FSYSM_2_DIV    ((uint32_t)0x00000002)    /*!< CG fsysm phiT0/2 division value */
+#define CG_FSYSM_4_DIV    ((uint32_t)0x00000004)    /*!< CG fsysm phiT0/4 division value */
 
 #define CG_IHOSC_DISABLE  ((uint32_t)0x00000000)    /*!< Internal high-speed oscillator disable */
 #define CG_IHOSC_ENABLE   ((uint32_t)0x00000001)    /*!< Internal high-speed oscillator enable */
@@ -284,34 +284,34 @@ uint32_t cg_get_phyt0(cg_t *p_obj)
     }
 
     switch (p_obj->p_instance->SYSCR & CG_PRCKST_MASK) {
-        case CG_PRCKST_1:             /* ƒÓT0 -> fc */
+        case CG_PRCKST_1:             /* phiT0 -> fc */
             result /= CG_PRCK_1_DIV;
             break;
-        case CG_PRCKST_2:             /* ƒÓT0 -> fc/2 */
+        case CG_PRCKST_2:             /* phiT0 -> fc/2 */
             result /= CG_PRCK_2_DIV;
             break;
-        case CG_PRCKST_4:             /* ƒÓT0 -> fc/4 */
+        case CG_PRCKST_4:             /* phiT0 -> fc/4 */
             result /= CG_PRCK_4_DIV;
             break;
-        case CG_PRCKST_8:             /* ƒÓT0 -> fc/8 */
+        case CG_PRCKST_8:             /* phiT0 -> fc/8 */
             result /= CG_PRCK_8_DIV;
             break;
-        case CG_PRCKST_16:            /* ƒÓT0 -> fc/16 */
+        case CG_PRCKST_16:            /* phiT0 -> fc/16 */
             result /= CG_PRCK_16_DIV;
             break;
-        case CG_PRCKST_32:            /* ƒÓT0 -> fc/32 */
+        case CG_PRCKST_32:            /* phiT0 -> fc/32 */
             result /= CG_PRCK_32_DIV;
             break;
-        case CG_PRCKST_64:            /* ƒÓT0 -> fc/64 */
+        case CG_PRCKST_64:            /* phiT0 -> fc/64 */
             result /= CG_PRCK_64_DIV;
             break;
-        case CG_PRCKST_128:           /* ƒÓT0 -> fc/128 */
+        case CG_PRCKST_128:           /* phiT0 -> fc/128 */
             result /= CG_PRCK_128_DIV;
             break;
-        case CG_PRCKST_256:           /* ƒÓT0 -> fc/256 */
+        case CG_PRCKST_256:           /* phiT0 -> fc/256 */
             result /= CG_PRCK_256_DIV;
             break;
-        case CG_PRCKST_512:           /* ƒÓT0 -> fc/512 */
+        case CG_PRCKST_512:           /* phiT0 -> fc/512 */
             result /= CG_PRCK_512_DIV;
             break;
         default:
@@ -369,34 +369,34 @@ uint32_t cg_get_mphyt0(cg_t *p_obj)
             break;
     }
     switch (p_obj->p_instance->SYSCR & CG_PRCKST_MASK) {
-        case CG_PRCKST_1:             /* ƒÓT0 -> fc */
+        case CG_PRCKST_1:             /* phiT0 -> fc */
             result /= CG_PRCK_1_DIV;
             break;
-        case CG_PRCKST_2:             /* ƒÓT0 -> fc/2 */
+        case CG_PRCKST_2:             /* phiT0 -> fc/2 */
             result /= CG_PRCK_2_DIV;
             break;
-        case CG_PRCKST_4:             /* ƒÓT0 -> fc/4 */
+        case CG_PRCKST_4:             /* phiT0 -> fc/4 */
             result /= CG_PRCK_4_DIV;
             break;
-        case CG_PRCKST_8:             /* ƒÓT0 -> fc/8 */
+        case CG_PRCKST_8:             /* phiT0 -> fc/8 */
             result /= CG_PRCK_8_DIV;
             break;
-        case CG_PRCKST_16:            /* ƒÓT0 -> fc/16 */
+        case CG_PRCKST_16:            /* phiT0 -> fc/16 */
             result /= CG_PRCK_16_DIV;
             break;
-        case CG_PRCKST_32:            /* ƒÓT0 -> fc/32 */
+        case CG_PRCKST_32:            /* phiT0 -> fc/32 */
             result /= CG_PRCK_32_DIV;
             break;
-        case CG_PRCKST_64:            /* ƒÓT0 -> fc/64 */
+        case CG_PRCKST_64:            /* phiT0 -> fc/64 */
             result /= CG_PRCK_64_DIV;
             break;
-        case CG_PRCKST_128:           /* ƒÓT0 -> fc/128 */
+        case CG_PRCKST_128:           /* phiT0 -> fc/128 */
             result /= CG_PRCK_128_DIV;
             break;
-        case CG_PRCKST_256:           /* ƒÓT0 -> fc/256 */
+        case CG_PRCKST_256:           /* phiT0 -> fc/256 */
             result /= CG_PRCK_256_DIV;
             break;
-        case CG_PRCKST_512:           /* ƒÓT0 -> fc/512 */
+        case CG_PRCKST_512:           /* phiT0 -> fc/512 */
             result /= CG_PRCK_512_DIV;
             break;
         default:
@@ -405,13 +405,13 @@ uint32_t cg_get_mphyt0(cg_t *p_obj)
     }
 
     switch (p_obj->p_instance->SYSCR & CG_MCKSELPST_MASK) {
-        case CG_MCKSELPST_1:   /* ƒÓT0 -> fc/PRCK */
+        case CG_MCKSELPST_1:   /* phiT0 -> fc/PRCK */
             result /= CG_FSYSM_1_DIV;
             break;
-        case CG_MCKSELPST_2:   /* ƒÓT0 -> fc/PRCK/2 */
+        case CG_MCKSELPST_2:   /* phiT0 -> fc/PRCK/2 */
             result /= CG_FSYSM_2_DIV;
             break;
-        case CG_MCKSELPST_4:   /* ƒÓT0 -> fc/PRCK/4 */
+        case CG_MCKSELPST_4:   /* phiT0 -> fc/PRCK/4 */
             result /= CG_FSYSM_4_DIV;
             break;
         default:
