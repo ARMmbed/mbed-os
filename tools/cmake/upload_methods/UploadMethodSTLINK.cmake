@@ -10,6 +10,10 @@ set(UPLOAD_SUPPORTS_DEBUG TRUE)
 find_package(stlink)
 set(UPLOAD_STLINK_FOUND ${stlink_FOUND})
 
+if(stlink_FOUND AND (stlink_VERSION VERSION_LESS 1.7.0))
+	message(WARNING "Mbed OS may not work properly with stlink versions older than 1.7.0 (yours is ${stlink_VERSION}), as its command line options have changed.")
+endif()
+
 ### Figure out --serial argument
 if(DEFINED STLINK_PROBE_SN AND NOT "${STLINK_PROBE_SN}" STREQUAL "")
 	set(STLINK_SERIAL_ARGUMENT --serial ${STLINK_PROBE_SN} CACHE INTERNAL "" FORCE)

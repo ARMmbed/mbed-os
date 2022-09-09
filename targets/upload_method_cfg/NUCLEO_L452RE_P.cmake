@@ -4,7 +4,7 @@
 
 # Notes:
 # 1. Using the JLINK upload method with your dev board requires converting its ST-LINK into a J-Link.  See here for details: https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/
-# 2. Using pyocd with this device requires installing a pack: `pyocd pack -i STM32L4xx_DFP`
+# 2. Using pyocd with this device requires installing a pack: `pyocd pack -i STM32L4xx_DFP`.  Warning: this can take 15+ min to download.
 
 # General config parameters
 # -------------------------------------------------------------
