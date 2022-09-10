@@ -53,7 +53,6 @@ target_link_libraries(mbed-netsocket-api
     PUBLIC
         mbed-core-flags
         mbed-mbedtls
-        mbed-events
 )
 
 add_library(mbed-netsocket INTERFACE)

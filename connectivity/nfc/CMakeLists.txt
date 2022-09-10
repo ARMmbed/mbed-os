@@ -47,8 +47,3 @@ target_compile_definitions(mbed-nfc
     PUBLIC
         MBED_CONF_NFC_PRESENT=1
 )
-
-target_link_libraries(mbed-nfc
-    PUBLIC
-        mbed-events
-)

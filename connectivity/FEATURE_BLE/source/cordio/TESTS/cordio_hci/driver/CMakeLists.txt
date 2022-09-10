@@ -8,5 +8,4 @@ mbed_greentea_add_test(
         main.cpp
     TEST_REQUIRED_LIBS
         mbed-ble
-        mbed-events
 )

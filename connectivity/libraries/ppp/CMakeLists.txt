@@ -55,7 +55,6 @@ target_compile_definitions(mbed-ppp
 
 target_link_libraries(mbed-ppp
     PUBLIC
-        mbed-events
         mbed-netsocket-api
     PRIVATE
         mbed-rtos-flags

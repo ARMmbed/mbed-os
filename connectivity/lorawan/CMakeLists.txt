@@ -35,6 +35,5 @@ target_compile_definitions(mbed-lorawan
 
 target_link_libraries(mbed-lorawan
     PUBLIC
-        mbed-events
         mbed-mbedtls
 )

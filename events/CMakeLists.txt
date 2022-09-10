@@ -9,31 +9,26 @@ if(MBED_ENABLE_OS_INTERNAL_TESTS)
     endif()
 endif()
 
-add_library(mbed-events STATIC EXCLUDE_FROM_ALL)
-
-target_include_directories(mbed-events
-    PUBLIC
+# Note: The event queue library gets a different implementation when the RTOS is or is not included.
+# So, we add it to the core Mbed lib so that it will be built once for each Mbed version.
+target_include_directories(mbed-core-flags
+    INTERFACE
         .
         ./include
         ./include/events
         ./include/events/internal
 )
 
-target_sources(mbed-events
-    PRIVATE
+target_compile_definitions(mbed-core-flags
+    INTERFACE
+        MBED_CONF_EVENTS_PRESENT=1
+)
+
+target_sources(mbed-core-sources
+    INTERFACE
         source/EventQueue.cpp
         source/equeue.c
         source/equeue_mbed.cpp
         source/equeue_posix.c
         source/mbed_shared_queues.cpp
-)
-
-target_compile_definitions(mbed-events
-    PUBLIC
-        MBED_CONF_EVENTS_PRESENT=1
-)
-
-target_link_libraries(mbed-events
-    PUBLIC
-        mbed-core-flags
 )
