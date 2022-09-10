@@ -50,7 +50,7 @@ set(STM32CUBE_GDBSERVER_ARGS --swd)
 
 # Config options for stlink
 # -------------------------------------------------------------
-# It is working, but for some reason is no much stable and I do not know why!
 
 set(STLINK_UPLOAD_ENABLED TRUE)
 set(STLINK_LOAD_ADDRESS 0x8000000)
+set(STLINK_ARGS --connect-under-reset)
