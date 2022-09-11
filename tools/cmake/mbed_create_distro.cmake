@@ -48,6 +48,9 @@ function(mbed_create_distro NAME) # ARGN: modules...
 
 		get_property(CURR_MODULE_TYPE TARGET ${CURR_MODULE} PROPERTY TYPE)
 
+		# Pass up mbed linker script property, which is used by the top level code to select the linker script
+		copy_append_property(INTERFACE_MBED_LINKER_SCRIPT ${CURR_MODULE} ${NAME})
+
 		if("${CURR_MODULE_TYPE}" STREQUAL "STATIC_LIBRARY")
 			# Don't need to do anything other than linking it
 			target_link_libraries(${NAME} PUBLIC ${CURR_MODULE})

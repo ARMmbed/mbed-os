@@ -269,6 +269,9 @@ if(NOT MBED_IS_NATIVE_BUILD)
     # Create a distro for the microcontroller cmake target, ensuring its sources are only compiled once
     mbed_create_distro(${MBED_TARGET_CMAKE_NAME}-lib ${MBED_TARGET_CMAKE_NAME} mbed-core-flags)
 
+    # Set up the linker script and hook it up to the MCU cmake target
+    mbed_setup_linker_script(${MBED_TARGET_CMAKE_NAME}-lib)
+
     # Now make the Mbed OS code depend on the target, ensuring everything has access to the uC's flags and objects.
     target_link_libraries(mbed-core-flags INTERFACE ${MBED_TARGET_CMAKE_NAME}-lib)
 
