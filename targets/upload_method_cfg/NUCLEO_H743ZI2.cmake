@@ -3,7 +3,7 @@
 # include app.cmake and where you add mbed os as a subdirectory.
 
 # Notes:
-# 1. Using the JLINK upload method with your dev board requires converting its ST-LINK into a J-Link, but it is not possible with ST-link V3! I will try regular J-link in the future.
+# 1. Using the JLINK upload method with your dev board requires converting its ST-LINK into a J-Link, but it is not possible to do that with ST-link V3! I will try regular J-link in the future.
 # 2. If your target is not natively supported by the pyOCD, then you need install a keil package for family of your target by hands. Type "pyocd pack show" to console and you will see a list of already installed packages.
 # - If any package for your family is not on the list, then you need install them via command "pyocd pack install stm32h7" (take long time).Then just type "pyocd pack find STM32h7" or "pyocd pack find STM32h743" and you will see the part name of your target.
 
