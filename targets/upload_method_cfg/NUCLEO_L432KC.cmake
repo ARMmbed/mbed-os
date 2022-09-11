@@ -6,7 +6,7 @@
 # 1. Using the JLINK upload method with your dev board requires converting its ST-LINK into a J-Link.  See here for details: https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/
 # 2. If your target is not natively supported by the pyOCD, then you need install a keil package for family of your target by hands. Type "pyocd pack show" to console and you will see a list of already installed packages.
 # - If any package for your family is not on the list, then you need install them via command "pyocd pack install stm32l4".Then just type "pyocd pack find STM32l4" or "pyocd pack find STM32l432" and you will see the part name of your target.
-# 3. ST-link option is false on default, because it is not usable on this target. There is probably a bug in ST-link (stlink.org 1.7.0) and the reset after flash is not performed.
+# 3. The STLINK upload method is disabled by default, because it is not usable on this target. There is probably a bug in ST-link (stlink.org 1.7.0) and the reset after flash is not performed.
 
 # General config parameters
 # -------------------------------------------------------------
