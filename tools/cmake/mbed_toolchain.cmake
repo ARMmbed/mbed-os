@@ -12,7 +12,7 @@ function(mbed_generate_options_for_linker target output_response_file_path)
         "$<$<BOOL:${_compile_definitions}>:'-D$<JOIN:${_compile_definitions},' '-D>'>"
     )
     file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/compile_time_defs.txt" CONTENT "${_compile_definitions}\n")
-    set(${output_response_file_path} @${CMAKE_CURRENT_BINARY_DIR}/compile_time_defs.txt PARENT_SCOPE)
+    set(${output_response_file_path} ${CMAKE_CURRENT_BINARY_DIR}/compile_time_defs.txt PARENT_SCOPE)
 endfunction()
 
 # Backward compatibility with older CMake which uses CMAKE_SYSTEM_PROCESSOR to
