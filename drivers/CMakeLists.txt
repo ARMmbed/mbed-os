@@ -53,3 +53,4 @@ target_sources(mbed-core-sources
         source/Watchdog.cpp
 )
 
+add_subdirectory(usb)

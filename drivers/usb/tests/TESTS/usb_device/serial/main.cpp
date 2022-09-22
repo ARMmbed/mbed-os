@@ -15,11 +15,7 @@
  * limitations under the License.
  */
 
-#if !USB_DEVICE_TESTS
-#error [NOT_SUPPORTED] usb device tests not enabled
-#else
-
-#if !defined(DEVICE_USBDEVICE) || !DEVICE_USBDEVICE
+#if !DEVICE_USBDEVICE
 #error [NOT_SUPPORTED] USB Device not supported for this target
 #else
 
@@ -879,5 +875,4 @@ int main()
     return !Harness::run(specification);
 }
 
-#endif // !defined(DEVICE_USBDEVICE) || !DEVICE_USBDEVICE
-#endif // !defined(USB_DEVICE_TESTS)
+#endif // !DEVICE_USBDEVICE

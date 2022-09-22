@@ -15,10 +15,6 @@
  * limitations under the License.
  */
 
-#if !USB_DEVICE_TESTS
-#error [NOT_SUPPORTED] usb device tests not enabled
-#else
-
 #include <stdio.h>
 #include <string.h>
 #include "mbed.h"
@@ -665,4 +661,3 @@ int main()
 }
 
 #endif // !defined(DEVICE_USBDEVICE) || !DEVICE_USBDEVICE
-#endif // !defined(USB_DEVICE_TESTS)

@@ -3,3 +3,7 @@
 mbed-host-tests
 mbed-greentea
 mbed-ls
+
+# For USB Device host tests
+hidapi>=0.7.99
+pyusb>=1.2.0

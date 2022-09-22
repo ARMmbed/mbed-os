@@ -27,6 +27,12 @@ import serial.tools.list_ports as stlp
 import six
 import mbed_host_tests
 
+# Pyserial 3.5 has a compatibility breaking capitalization change :((
+try:
+    from serial import portNotOpenError as PortNotOpenError
+except ImportError:
+    from serial import PortNotOpenError as PortNotOpenError
+
 
 MSG_KEY_DEVICE_READY = 'ready'
 MSG_KEY_SERIAL_NUMBER = 'usb_dev_sn'
@@ -130,7 +136,11 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
 
     def port_open_wait(self):
         """Open the serial and wait until it's closed by the device."""
-        mbed_serial = serial.Serial(dsrdtr=False)
+
+        # Note: Need to set dsrdtr on open to true to avoid exception on Linux
+        # https://github.com/pyserial/pyserial/issues/67
+        mbed_serial = serial.Serial(dsrdtr=True)
+
         mbed_serial.dtr = False
         try:
             mbed_serial.port = retry_fun_call(
@@ -148,12 +158,12 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
         mbed_serial.dtr = True
         try:
             mbed_serial.read()  # wait until closed
-        except (serial.portNotOpenError, serial.SerialException):
+        except (PortNotOpenError, serial.SerialException):
             pass
 
     def port_open_close(self):
         """Open the serial and close it with a delay."""
-        mbed_serial = serial.Serial(timeout=0.5, write_timeout=0.1, dsrdtr=False)
+        mbed_serial = serial.Serial(timeout=0.5, write_timeout=0.1, dsrdtr=True)
         mbed_serial.dtr = False
         try:
             mbed_serial.port = retry_fun_call(
@@ -179,7 +189,7 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
         chunk_size defines the size of data sent in each write operation.
         The input buffer content is discarded.
         """
-        mbed_serial = serial.Serial(write_timeout=0.1, dsrdtr=False)
+        mbed_serial = serial.Serial(write_timeout=0.1, dsrdtr=True)
         try:
             mbed_serial.port = retry_fun_call(
                 fun=functools.partial(self.get_usb_serial_name, self.dut_usb_dev_sn),  # pylint: disable=not-callable
@@ -214,7 +224,7 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
 
     def loopback(self):
         """Open the serial and send back every byte received."""
-        mbed_serial = serial.Serial(timeout=0.5, write_timeout=0.1, dsrdtr=False)
+        mbed_serial = serial.Serial(timeout=0.5, write_timeout=0.1, dsrdtr=True)
         mbed_serial.dtr = False
         try:
             mbed_serial.port = retry_fun_call(

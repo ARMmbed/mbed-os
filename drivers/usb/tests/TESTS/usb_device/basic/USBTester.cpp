@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#if USB_DEVICE_TESTS
+#if DEVICE_USBDEVICE
 
 #include "stdint.h"
 #include "USBTester.h"
