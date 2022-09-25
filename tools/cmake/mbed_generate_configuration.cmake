@@ -91,7 +91,7 @@ if(MBED_NEED_TO_RECONFIGURE)
     file(REMOVE ${CMAKE_CURRENT_BINARY_DIR}/mbed_config.cmake)
 
     set(MBEDTOOLS_CONFIGURE_COMMAND ${Python3_EXECUTABLE}
-        -c "import mbed_tools.cli.main\; mbed_tools.cli.main.cli()" # This is used instead of invoking mbed_tools as a script, because it might not be on the user's PATH.
+        -c "import mbed_tools.cli.main\; exit(mbed_tools.cli.main.cli())" # This is used instead of invoking mbed_tools as a script, because it might not be on the user's PATH.
         configure
         -t GCC_ARM # GCC_ARM is currently the only supported toolchain
         -m "${MBED_TARGET}"
