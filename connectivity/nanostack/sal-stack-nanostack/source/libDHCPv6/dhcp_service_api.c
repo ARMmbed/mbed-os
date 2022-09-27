@@ -442,6 +442,9 @@ void recv_dhcp_relay_msg(void *cb_res)
 
     msg_len = socket_recvmsg(sckt_data->socket_id, &msghdr, NS_MSG_LEGACY0);
 
+    // Buffer to tell additional data for the socket (such as interface ID)
+    uint8_t ancillary_databuffer[NS_CMSG_SPACE(sizeof(ns_in6_pktinfo_t))];
+
     tr_debug("dhcp Relay recv msg");
 
     //Parse type
@@ -471,6 +474,25 @@ void recv_dhcp_relay_msg(void *cb_res)
         msghdr.msg_iovlen = 1;
         msg_data.iov_base = relay_msg.relay_options.msg_ptr;
         msg_data.iov_len = relay_msg.relay_options.len;
+
+        // Append a control message to tell the socket which interface to use if option is activated
+        if (memcmp(src_address.address, ns_in6addr_any, 16) != 0 && relay_srv->add_interface_id_option) {
+            ns_cmsghdr_t *cmsg;
+            ns_in6_pktinfo_t *pktinfo;
+
+            msghdr.msg_control = ancillary_databuffer;
+            msghdr.msg_controllen = sizeof(ancillary_databuffer);
+
+            cmsg = NS_CMSG_FIRSTHDR(&msghdr);
+            cmsg->cmsg_type = SOCKET_IPV6_PKTINFO;
+            cmsg->cmsg_level = SOCKET_IPPROTO_IPV6;
+            cmsg->cmsg_len = NS_CMSG_LEN(sizeof(ns_in6_pktinfo_t));
+
+            pktinfo = (ns_in6_pktinfo_t *)NS_CMSG_DATA(cmsg);
+            pktinfo->ipi6_ifindex = *relay_msg.relay_interface_id.msg_ptr;
+            memset(pktinfo->ipi6_addr, 0, 16);  // Don't specify address (let socket choose appropriate by routing)
+        }
+
         tr_debug("Forward Original relay msg to client");
 
     } else {
