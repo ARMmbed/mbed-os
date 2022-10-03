@@ -123,3 +123,6 @@ KVStore
 _doxy_
 nothrow
 conf
+transactional
+errored
+natively

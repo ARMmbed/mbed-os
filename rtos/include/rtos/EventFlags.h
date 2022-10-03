@@ -101,7 +101,7 @@ public:
 
     /** Wait for all of the specified event flags to become signaled.
       @param   flags    the flags to wait for.
-      @param   rel_time timeout value.
+      @param   rel_time timeout value.  Use \link Kernel::wait_for_u32_forever \endlink to wait forever.
       @param   clear    clear specified event flags after waiting for them (default: true).
       @return  event flags before clearing or error code if highest bit set (see @a osFlagsError for details).
 
@@ -131,7 +131,7 @@ public:
 
     /** Wait for any of the specified event flags to become signaled.
       @param   flags    the flags to wait for.
-      @param   rel_time timeout value.
+      @param   rel_time timeout value.  Use \link Kernel::wait_for_u32_forever \endlink to wait forever.
       @param   clear    clear specified event flags after waiting for them (default: true).
       @return  event flags before clearing or error code if highest bit set (see @a osFlagsError for details).
 

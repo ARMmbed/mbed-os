@@ -190,7 +190,7 @@ int  i2c_stop(i2c_t *obj);
 /** Blocking reading data
  *
  *  @param obj     The I2C object
- *  @param address 7-bit address (last bit is 1)
+ *  @param address 8/11-bit address (last bit is 1)
  *  @param data    The buffer for receiving
  *  @param length  Number of bytes to read
  *  @param stop    Stop to be generated after the transfer is done
@@ -201,7 +201,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop);
 /** Blocking sending data
  *
  *  @param obj     The I2C object
- *  @param address 7-bit address (last bit is 0)
+ *  @param address 8/11-bit address (last bit is 0)
  *  @param data    The buffer for sending
  *  @param length  Number of bytes to write
  *  @param stop    Stop to be generated after the transfer is done
@@ -334,7 +334,7 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask);
  *  @param tx_length The number of bytes to transmit
  *  @param rx        The receive buffer
  *  @param rx_length The number of bytes to receive
- *  @param address   The address to be set - 7bit or 9bit
+ *  @param address   The address to be set - 8bit or 11bit
  *  @param stop      If true, stop will be generated after the transfer is done
  *  @param handler   The I2C IRQ handler to be set
  *  @param event     Event mask for the transfer. See \ref hal_I2CEvents

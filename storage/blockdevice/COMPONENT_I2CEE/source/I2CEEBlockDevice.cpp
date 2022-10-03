@@ -73,21 +73,25 @@ int I2CEEBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 
     _i2c->start();
 
-    if (1 != _i2c->write(get_paged_device_address(addr))) {
+    if (I2C::ACK != _i2c->write_byte(get_paged_device_address(addr))) {
+        _i2c->stop();
         return BD_ERROR_DEVICE_ERROR;
     }
 
-    if (!_address_is_eight_bit && 1 != _i2c->write((char)(addr >> 8u))) {
+    if (!_address_is_eight_bit && I2C::ACK != _i2c->write_byte((char)(addr >> 8u))) {
+        _i2c->stop();
         return BD_ERROR_DEVICE_ERROR;
     }
 
-    if (1 != _i2c->write((char)(addr & 0xffu))) {
+    if (I2C::ACK != _i2c->write_byte((char)(addr & 0xffu))) {
+        _i2c->stop();
         return BD_ERROR_DEVICE_ERROR;
     }
 
-    _i2c->stop();
+    // Note: We do not send an I2C stop in this case, because we will do a repeated start in the next
+    // call.
 
-    if (0 != _i2c->read(_i2c_addr, pBuffer, size)) {
+    if (I2C::ACK != _i2c->read(_i2c_addr | 1, pBuffer, static_cast<int>(size))) {
         return BD_ERROR_DEVICE_ERROR;
     }
 
@@ -108,20 +112,24 @@ int I2CEEBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size
 
         _i2c->start();
 
-        if (1 != _i2c->write(get_paged_device_address(addr))) {
+        if (I2C::ACK != _i2c->write_byte(get_paged_device_address(addr))) {
+            _i2c->stop();
             return BD_ERROR_DEVICE_ERROR;
         }
 
-        if (!_address_is_eight_bit && 1 != _i2c->write((char)(addr >> 8u))) {
+        if (!_address_is_eight_bit && I2C::ACK != _i2c->write_byte((char)(addr >> 8u))) {
+            _i2c->stop();
             return BD_ERROR_DEVICE_ERROR;
         }
 
-        if (1 != _i2c->write((char)(addr & 0xffu))) {
+        if (I2C::ACK != _i2c->write_byte((char)(addr & 0xffu))) {
+            _i2c->stop();
             return BD_ERROR_DEVICE_ERROR;
         }
 
         for (unsigned i = 0; i < chunk; i++) {
-            if (1 != _i2c->write(pBuffer[i])) {
+            if (I2C::ACK != _i2c->write_byte(pBuffer[i])) {
+                _i2c->stop();
                 return BD_ERROR_DEVICE_ERROR;
             }
         }
@@ -154,7 +162,7 @@ int I2CEEBlockDevice::_sync()
     // so loop trying to do a zero byte write until it is ACKed
     // by the chip.
     for (int i = 0; i < I2CEE_TIMEOUT; i++) {
-        if (_i2c->write(_i2c_addr | 0, 0, 0) < 1) {
+        if (_i2c->write(_i2c_addr | 0, 0, 0) == I2C::ACK) {
             return 0;
         }
         wait_us(100);
