@@ -1,12 +1,11 @@
 # Testing the Mbed OS USB device
 
 ## Setup
-Before running tests, please make sure to use a
-[top-level requirements.txt][LN-requirements] file to install all the
+Before running tests, please make sure to install all the
 required Python modules.
 
 ```
-pip install -r requirements.txt
+pip install -r mbed-os/tools/requirements-ci-build.txt
 ```
 
 Additional, platform-specific setup is described below.
@@ -29,7 +28,7 @@ See also [Known issues](#known-issues).
     1. Plug both USB interfaces (*DAPLink* and *USB device*).
 
 ### Linux
-1.  Install the `hidapi` Python module, otherwise some USB HID test cases will
+1. Install the `hidapi` Python module, otherwise some USB HID test cases will
     be skipped. This module is not installed during the initial setup due to
     external dependencies for Linux.
 
@@ -47,21 +46,26 @@ See also [Known issues](#known-issues).
     ```bash
     pip install -r TESTS/usb_device/hid/requirements.txt
     ```
-
-1.  Update the `udev` rules for Mbed USB CDC device as follows
-    ([source][LN-udev_rules]):
+2. Add your user to the `plugdev` group with `sudo usermod -G plugdev <your username>`
+3. Update the `udev` rules for the USB VIDs/PIDs used in the test as follows:
 
     ```bash
     sudo tee /etc/udev/rules.d/99-ttyacms.rules >/dev/null <<EOF
-    ATTRS{idVendor}=="1f00" ATTRS{idProduct}=="2013", ENV{ID_MM_DEVICE_IGNORE}="1"
-    ATTRS{idVendor}=="1f00" ATTRS{idProduct}=="2012", ENV{ID_MM_DEVICE_IGNORE}="1"
+    # Mbed OS USB Device test suite
+    ATTRS{idVendor}=="0d28", ATTRS{idProduct}=="0007", MODE="660", GROUP="plugdev", TAG+="uaccess"
+    ATTRS{idVendor}=="0d28", ATTRS{idProduct}=="0205", MODE="660", GROUP="plugdev", TAG+="uaccess"
+    ATTRS{idVendor}=="0d28", ATTRS{idProduct}=="0206", MODE="660", GROUP="plugdev", TAG+="uaccess"
+    ATTRS{idVendor}=="1f00" ATTRS{idProduct}=="2013", ENV{ID_MM_DEVICE_IGNORE}="1", MODE="660", GROUP="plugdev"
+    ATTRS{idVendor}=="1f00" ATTRS{idProduct}=="2012", ENV{ID_MM_DEVICE_IGNORE}="1", MODE="660", GROUP="plugdev"
     EOF
     sudo udevadm control --reload-rules
+    sudo udevadm trigger
     ```
 
-    This will prevent the `ModemManager` daemon from automatically opening the
+    Among other things, this will [prevent][LN-udev_rules] the `ModemManager` daemon from automatically opening the
     port and sending the `AT commands`, which it does for every new
     `/dev/ttyACM` device registered in system.
+4. Install the `udisks2` package, which the test script uses to mount USB disks.  Additionally, you may need to disable any automounting of disks provided by your file manager / distro.
 
 ### Mac
 No setup method has been verified for this platform.
@@ -152,7 +156,6 @@ To prevent Windows from writing to removable drives on connect drive indexing ca
 You may want to connect the device directly to the host machine with no hubs on the way.
 
 <!-- LINKS -->
-[LN-requirements]: ../../requirements.txt
 [LN-zadig]: https://zadig.akeo.ie/
 [LN-zadig_conf1]: basic/zadig_conf/mbed_os-usb_test_device1.cfg
 [LN-zadig_conf2]: basic/zadig_conf/mbed_os-usb_test_device2.cfg

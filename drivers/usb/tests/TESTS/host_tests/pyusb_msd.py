@@ -196,12 +196,30 @@ class MSDUtils(object):
 
     @staticmethod
     def _disk_path_linux(serial):
-        output = subprocess.check_output(['lsblk', '-dnoserial,mountpoint']).split(b'\n')
+
+        # This generates a table of serial number, mount point (e.g. /media/foo/DISK), and path (e.g. /dev/sdd)
+        output = subprocess.check_output(['lsblk', '-dnoserial,mountpoint,path']).decode("UTF-8").split('\n')
         for line in output:
-            serial_and_mount_point = line.split()
-            if len(serial_and_mount_point) == 2:
-                if serial_and_mount_point[0] == str(serial):
-                    return serial_and_mount_point[1]
+            fields = line.split()
+
+            if len(fields) >= 2 and fields[0] == str(serial):
+                # Found the correct device
+
+                if len(fields) == 2:
+                    # "mountpoint" column (idx 1) is empty, meaning the device is not mounted.
+                    # Ask the OS to mount it under our user account.
+                    # Note: This requires that no other processes are trying to automount disks at the same
+                    # time -- this often requires changing file manager settings.
+                    subprocess.check_call(['udisksctl', 'mount', '-b', fields[1]])
+
+                    # The OS will now mount the disk.  Return so that the query can be run again and we'll get it
+                    # next time.
+                    return None
+
+                else:
+                    # Disk has a mount point, return it
+                    return fields[1]
+
         return None
 
     @staticmethod
