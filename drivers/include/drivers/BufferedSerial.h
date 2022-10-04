@@ -61,7 +61,8 @@ public:
      *  @param tx Transmit pin
      *  @param rx Receive pin
      *  @param baud The baud rate of the serial port (optional, defaults to
-     *              MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE)
+     *              MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE, which is set via
+     *              platform.default-serial-baud-rate in mbed_app.json)
      */
     BufferedSerial(
         PinName tx,
@@ -73,7 +74,8 @@ public:
      *  receive pins, with a particular baud rate.
      *  @param static_pinmap reference to structure which holds static pinmap
      *  @param baud The baud rate of the serial port (optional, defaults to
-     *              MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE)
+     *              MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE, which is set via
+     *              platform.default-serial-baud-rate in mbed_app.json)
      */
     BufferedSerial(
         const serial_pinmap_t &static_pinmap,

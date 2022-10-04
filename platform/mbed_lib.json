@@ -23,7 +23,7 @@
 
         "stdio-baud-rate": {
             "help": "(Applies if target.console-uart is true.) Baud rate for stdio",
-            "value": 9600
+            "value": 115200
         },
 
         "stdio-flush-at-exit": {
@@ -33,7 +33,7 @@
 
         "default-serial-baud-rate": {
             "help": "Default baud rate for a serial object (if not specified in the constructor)",
-            "value": 9600
+            "value": 115200
         },
 
         "poll-use-lowpower-timer": {
@@ -170,15 +170,6 @@
         "STM": {
             "deepsleep-stats-verbose": false
         },
-        "EFM32": {
-            "stdio-baud-rate": 115200
-        },
-        "EFR32": {
-            "stdio-baud-rate": 115200
-        },
-        "UNO_91H": {
-            "stdio-baud-rate": 115200
-        },
         "DISCO_L475VG_IOT01A": {
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
@@ -219,12 +210,6 @@
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },
-        "NU_PFM_M2351": {
-            "stdio-baud-rate": 115200
-        },
-        "NU_M2354": {
-            "stdio-baud-rate": 115200
-        },
         "NRF52840_DK": {
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
@@ -245,27 +230,19 @@
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },
-        "S5JS100": {
-            "stdio-baud-rate": 115200
-        },
         "NUCLEO_L452RE-P": {
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },
         "ARM_MUSCA_B1": {
-            "stdio-convert-newlines": true,
-            "stdio-baud-rate": 115200
+            "stdio-convert-newlines": true
         },
         "ARM_MUSCA_S1": {
-            "stdio-convert-newlines": true,
-            "stdio-baud-rate": 115200
+            "stdio-convert-newlines": true
         },
         "MTS_DRAGONFLY_L471QG": {
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
-        },
-        "CY8CKIT064B0S2_4343W": {
-            "stdio-baud-rate": 115200
         }
     }
 }

@@ -48,7 +48,7 @@ class SerialBase : private NonCopyable<SerialBase> {
 public:
     /** Set the baud rate of the serial port
      *
-     *  @param baudrate The baudrate of the serial port (default = 9600).
+     *  @param baudrate The baudrate of the serial port (default = platform.default-serial-baud-rate).
      */
     void baud(int baudrate);
 
