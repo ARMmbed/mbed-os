@@ -1,7 +1,7 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(mbed_set_post_build)
+include(mbed_target_functions)
 
 #
 # Merge Cortex-M4 HEX and a Cortex-M0 HEX.

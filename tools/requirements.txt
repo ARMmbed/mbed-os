@@ -5,3 +5,7 @@ jinja2>=2.11.3
 intelhex>=2.3.0,<3.0.0
 mbed-tools
 mbed-os-tools
+
+# needed for signing secure images
+cryptography
+cbor

@@ -145,7 +145,16 @@ extern "C" {
 
 void _eth_config_mac(ETH_HandleTypeDef *heth);
 void ETH_IRQHandler(void);
-MBED_WEAK void STM_HAL_ETH_Handler(ETH_HandleTypeDef *heth);
+
+// We need to give the linker a reason to pull in the stmxx_eth_init.c files, since they only contain
+// weak symbol overrides and would otherwise be ignored.
+void stm32_eth_init_weak_symbol_helper();
+
+#ifdef USE_USER_DEFINED_HAL_ETH_IRQ_CALLBACK
+MBED_WEAK void STM_HAL_ETH_Handler();
+#else
+void STM_HAL_ETH_Handler();
+#endif
 
 #ifdef __cplusplus
 }
@@ -243,16 +252,6 @@ static void MPU_Config(void)
 #endif
 
 /**
- * IRQ Handler
- *
- * @param  heth: ETH handle
- * @retval None
- */
-MBED_WEAK void STM_HAL_ETH_Handler()
-{
-}
-
-/**
  * Ethernet IRQ Handler
  *
  * @param  None
@@ -289,6 +288,9 @@ static osThreadId_t create_new_thread(const char *threadName, void (*thread)(voi
 bool STM32_EMAC::low_level_init_successful()
 #ifndef ETH_IP_VERSION_V2
 {
+    // Generate a reference to this empty function so the linker pulls it in.
+    stm32_eth_init_weak_symbol_helper();
+
     uint32_t PHY_ID;
 
     /* Init ETH */
@@ -359,6 +361,9 @@ bool STM32_EMAC::low_level_init_successful()
 #else // ETH_IP_VERSION_V2
 {
     uint32_t idx;
+
+    // Generate a reference to this empty function so the linker pulls it in.
+    stm32_eth_init_weak_symbol_helper();
 
     MPU_Config();
 
@@ -1084,5 +1089,47 @@ void HAL_ETH_MACErrorCallback(ETH_HandleTypeDef *heth)
                "Error from ethernet HAL (HAL_ETH_MACErrorCallback)\n");
 }
 #endif // ETH_IP_VERSION_V2
+
+#ifndef USE_USER_DEFINED_HAL_ETH_IRQ_CALLBACK
+
+#define FLAG_RX                 1
+
+/**
+ * Override Ethernet Rx Transfer completed callback
+ * @param  heth: ETH handle
+ * @retval None
+ */
+void HAL_ETH_RxCpltCallback(ETH_HandleTypeDef *heth)
+{
+    STM32_EMAC &emac = STM32_EMAC::get_instance();
+    if (emac.thread) {
+        osThreadFlagsSet(emac.thread, FLAG_RX);
+    }
+}
+
+/**
+ * Override the IRQ Handler
+ * @param  None
+ * @retval None
+ */
+void STM_HAL_ETH_Handler()
+{
+   STM32_EMAC &emac = STM32_EMAC::get_instance();
+   HAL_ETH_IRQHandler(&emac.EthHandle);
+}
+
+#else /* USE_USER_DEFINED_HAL_ETH_IRQ_CALLBACK */
+
+/**
+ * IRQ Handler
+ *
+ * @param  heth: ETH handle
+ * @retval None
+ */
+MBED_WEAK void STM_HAL_ETH_Handler()
+{
+}
+
+#endif /* USE_USER_DEFINED_HAL_ETH_IRQ_CALLBACK */
 
 #endif /* DEVICE_EMAC */

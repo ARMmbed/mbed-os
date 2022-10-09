@@ -18,13 +18,14 @@ endfunction(mbed_set_linker_script)
 
 
 #
-# Set up the linker script for the top-level Mbed MCU target.
+# Set up the linker script for the top-level Mbed OS targets.
 # If needed, this also creates another target to preprocess the linker script.
 #
-function(mbed_setup_linker_script mbed_mcu_target)
+function(mbed_setup_linker_script mbed_os_target mbed_baremetal_target)
 
     # Find the path to the desired linker script
-    get_property(RAW_LINKER_SCRIPT_PATHS TARGET ${mbed_mcu_target} PROPERTY INTERFACE_MBED_LINKER_SCRIPT)
+    # (the property should be set on both the OS and baremetal targets in a sane world)
+    get_property(RAW_LINKER_SCRIPT_PATHS TARGET ${mbed_baremetal_target} PROPERTY INTERFACE_MBED_LINKER_SCRIPT)
 
     # Check if two (or more) different linker scripts got used
     list(REMOVE_DUPLICATES RAW_LINKER_SCRIPT_PATHS)
@@ -71,19 +72,26 @@ function(mbed_setup_linker_script mbed_mcu_target)
         # which is then added as a dependency of the MCU target.  This ensures the linker script will exist
         # by the time we need it.
         add_custom_target(mbed-linker-script DEPENDS ${LINKER_SCRIPT_PATH} VERBATIM)
-        add_dependencies(${mbed_mcu_target} mbed-linker-script)
 
-        # Add linker flags to the MCU target to pick up the preprocessed linker script
-        target_link_options(${mbed_mcu_target}
-            INTERFACE
-                "-T" "${LINKER_SCRIPT_PATH}"
-        )
+        foreach(TARGET ${mbed_baremetal_target} ${mbed_os_target})
+
+
+            add_dependencies(${TARGET} mbed-linker-script)
+
+            # Add linker flags to the MCU target to pick up the preprocessed linker script
+            target_link_options(${TARGET}
+                INTERFACE
+                    "-T" "${LINKER_SCRIPT_PATH}"
+            )
+        endforeach()
     elseif(MBED_TOOLCHAIN STREQUAL "ARM")
-        target_link_options(${mbed_mcu_target}
-            INTERFACE
-                "--scatter=${raw_linker_script_path}"
-                "--predefine=${_linker_preprocess_definitions}"
-                "--map"
-        )
+        foreach(TARGET ${mbed_baremetal_target} ${mbed_os_target})
+            target_link_options(${TARGET}
+                INTERFACE
+                    "--scatter=${raw_linker_script_path}"
+                    "--predefine=${_linker_preprocess_definitions}"
+                    "--map"
+            )
+        endforeach()
     endif()
 endfunction(mbed_setup_linker_script)

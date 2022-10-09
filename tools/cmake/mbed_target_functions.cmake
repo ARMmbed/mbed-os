@@ -1,6 +1,8 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# File containing various functions for operating on library and executable targets.
+
 #
 # Converts output file of `target` to binary file and to Intel HEX file.
 #

@@ -1,7 +1,7 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(mbed_set_post_build)
+include(mbed_target_functions)
 
 #
 # Patch an LPC target vector table in the binary file.

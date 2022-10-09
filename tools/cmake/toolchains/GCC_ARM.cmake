@@ -20,13 +20,7 @@ list(APPEND link_options
     "-Wl,--end-group"
     "-specs=nosys.specs"
     "-Wl,--cref"
-    "-Wl,--allow-multiple-definition"
 )
-
-# Add the -Wl,--whole-archive flag as a hack to fix resolution of weak symbols between .a libraries.
-# This basically causes the linker to process each object in each .a library as if it was its own file.
-set(CMAKE_C_LINK_EXECUTABLE "<CMAKE_C_COMPILER> <FLAGS> <CMAKE_C_LINK_FLAGS> <LINK_FLAGS> -Wl,--whole-archive <OBJECTS> -o <TARGET> <LINK_LIBRARIES> -Wl,--no-whole-archive")
-set(CMAKE_CXX_LINK_EXECUTABLE "<CMAKE_CXX_COMPILER> <FLAGS> <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> -Wl,--whole-archive <OBJECTS> -o <TARGET> <LINK_LIBRARIES> -Wl,--no-whole-archive")
 
 # Add linking time preprocessor macro for TFM targets
 if("TFM" IN_LIST MBED_TARGET_LABELS)

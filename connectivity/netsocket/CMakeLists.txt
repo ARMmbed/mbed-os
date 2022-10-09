@@ -55,20 +55,27 @@ target_link_libraries(mbed-netsocket-api
         mbed-mbedtls
 )
 
+# Currently, netsocket-api needs to link to whichever library is providing an implementation
+# of OnboardNetworkStack::get_default_instance().  Otherwise, the link order is not correct.
+if("MBED_CONF_NSAPI_DEFAULT_STACK=LWIP" IN_LIST MBED_CONFIG_DEFINITIONS)
+    target_link_libraries(mbed-netsocket-api PUBLIC mbed-lwipstack)
+elseif("MBED_CONF_NSAPI_DEFAULT_STACK=NANOSTACK" IN_LIST MBED_CONFIG_DEFINITIONS)
+    target_link_libraries(mbed-netsocket-api PUBLIC mbed-nanostack)
+endif()
+
+if("DEVICE_EMAC=1" IN_LIST MBED_TARGET_DEFINITIONS)
+    target_link_libraries(mbed-netsocket-api
+        INTERFACE
+            mbed-emac
+    )
+endif()
+
 add_library(mbed-netsocket INTERFACE)
 
 target_link_libraries(mbed-netsocket
     INTERFACE
         mbed-mbedtls
-        mbed-lwipstack
 )
-
-if("DEVICE_EMAC=1" IN_LIST MBED_TARGET_DEFINITIONS)
-    target_link_libraries(mbed-netsocket
-        INTERFACE
-            mbed-emac
-    )
-endif()
 
 target_link_libraries(mbed-netsocket
     INTERFACE

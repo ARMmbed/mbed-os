@@ -35,7 +35,7 @@ else()
 endif()
 
 include(mbed_generate_config_header)
-include(mbed_set_post_build)
+include(mbed_target_functions)
 include(mbed_create_distro)
 
 # Load toolchain and mbed configuration, generating it if needed
