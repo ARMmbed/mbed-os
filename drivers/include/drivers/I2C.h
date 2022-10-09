@@ -58,15 +58,15 @@ namespace mbed {
  *
  * All three of these APIs let you execute %I2C operations, but they work differently.
  *
- * The I2C class is thread-safe, and uses a mutex to prevent multiple threads from using it at the same time.
- *
  * <h1>Transaction-Based API</h1>
  *
  * The simplest API, which should be appropriate for most use cases, is the transaction-based API, which is
  * accessed through the \link I2C::read(int address, char *data, int length, bool repeated) read() \endlink and the
  * \link write(int address, const char *data, int length, bool repeated) write() \endlink functions.  These functions
  * execute an entire %I2C transaction (the start condition, address, data bytes, and stop condition) in a single
- * function call. The bytes to be read/written are passed in through an array, which requires that you know the
+ * function call.
+ *
+ * The bytes to be read/written are passed in through an array, which requires that you can predict the
  * size of the data ahead of time.  If this information is not known, you may want to use the single-byte API instead
  * (see below).
  *
@@ -127,11 +127,13 @@ namespace mbed {
  *     while (1) {
  *         // read and write takes the 8-bit version of the address.
  *         // set up configuration register (at 0x01)
+ *         i2c.lock();
  *         i2c.start();
  *         I2C::Result result = i2c.write_byte(addr8bit); // Write address, LSBit low to indicate write
  *         i2c.write_byte(0x01);
  *         i2c.write_byte(0x00);
  *         i2c.stop();
+ *         i2c.unlock();
  *
  *         if(result != I2C::ACK)
  *         {
@@ -141,6 +143,7 @@ namespace mbed {
  *         ThisThread::sleep_for(500);
  *
  *         // Set register to read
+ *         i2c.lock();
  *         i2c.start();
  *         i2c.write_byte(addr8bit); // Write address
  *         i2c.write_byte(0x00);
@@ -151,8 +154,10 @@ namespace mbed {
  *
  *         // Read the two byte temperature word
  *         uint16_t temperatureBinary = 0;
- *         temperatureBinary |= static_cast<uint16_t>(i2c.read_byte()) << 8;
- *         temperatureBinary |= static_cast<uint16_t>(i2c.read_byte());
+ *         temperatureBinary |= static_cast<uint16_t>(i2c.read_byte(true)) << 8;
+ *         temperatureBinary |= static_cast<uint16_t>(i2c.read_byte(false)); // send NACK to indicate last byte
+ *         i2c.stop();
+ *         i2c.unlock();
  *
  *         float tmp = (float(temperatureBinary) / 256.0);
  *         printf("Temp = %.2f\n", tmp);
@@ -183,13 +188,15 @@ namespace mbed {
  * addresses to I2C functions.  See the documentation on each function for details.
  *
  * %I2C also has a <a href="https://www.i2c-bus.org/addressing/10-bit-addressing/">10-bit addressing mode</a>, where
- * the address is sent in two logical bytes on the bus.  Some, but not all, Mbed targets support this mode -- refer
+ * the address is sent in two physical bytes on the bus.  Some, but not all, Mbed targets support this mode -- refer
  * to your MCU datasheet and your target's HAL code for details.  For 10-bit addresses, use the same format to
  * pass them to I2C functions -- shift them left by one and set the LSBit to indicate the read/write direction.
  * On MCUs that do not natively support 10-bit addressing, you can emulate support by using the single-byte API
  * to send two address bytes; see the linked page above for details.
  *
  * <h1>Other Info</h1>
+ *
+ * The I2C class is thread-safe, and uses a mutex to prevent multiple threads from using it at the same time.
  *
  * \warning Mbed OS requires that you only create one instance of the I2C class per physical %I2C bus on your chip.
  * This means that if you have multiple sensors connected together on a bus, you must create one I2C object at the
@@ -247,7 +254,7 @@ public:
      */
     void frequency(int hz);
 
-    /** Read from an I2C slave
+    /** Read from an %I2C slave
      *
      * Performs a complete read transaction. The least significant bit of
      * the address must be 1 to indicate a read.
@@ -262,7 +269,7 @@ public:
      */
     Result read(int address, char *data, int length, bool repeated = false);
 
-    /** Write to an I2C slave
+    /** Write to an %I2C slave
      *
      * Performs a complete write transaction. The least significant bit of
      * the address must be 0 to indicate a write.
