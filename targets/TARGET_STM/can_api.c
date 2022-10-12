@@ -333,7 +333,7 @@ int can_frequency(can_t *obj, int f)
 
     uint32_t nominalPrescaler = 1;
     // !When the sample point should be lower than 50%, this must be changed to
-    // !IS_FDCAN_DATA_TSEG2(ntq/nominalPrescaler), since
+    // !IS_FDCAN_NOMINAL_TSEG2(ntq/nominalPrescaler), since
     // NTSEG2 and SJW max values are lower. For now the sample point is fix @75%
     while (!IS_FDCAN_NOMINAL_TSEG1(ntq / nominalPrescaler)) {
         nominalPrescaler ++;
