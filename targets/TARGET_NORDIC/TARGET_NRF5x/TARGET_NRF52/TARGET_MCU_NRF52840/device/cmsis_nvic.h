@@ -35,6 +35,20 @@
 #define NVIC_NUM_VECTORS      (16 + 48)   // CORE + MCU Peripherals
 #define NVIC_USER_IRQ_OFFSET  16
 
+// RAM size defines, same as in the linker script
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x0
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 0x100000
+#endif
+
+#if !defined(MBED_RAM_START)
+  #define MBED_RAM_START 0x20000000
+  #define MBED_RAM_SIZE 0x40000
+#endif
+
 #include "nrf.h"
 #include "cmsis.h"
 

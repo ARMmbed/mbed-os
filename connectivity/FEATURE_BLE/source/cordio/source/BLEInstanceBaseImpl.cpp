@@ -70,17 +70,10 @@ uint8_t *SystemHeapStart;
 uint32_t SystemHeapSize;
 
 /**
- * Weak definition of ble_cordio_get_hci_driver.
- * A runtime error is generated if the user does not define any
- * ble_cordio_get_hci_driver.
+ * Function to get the device's default driver implementation.
+ * Defined by whichever driver library is used.
  */
-MBED_WEAK ble::CordioHCIDriver &ble_cordio_get_hci_driver()
-{
-    MBED_ASSERT("No HCI driver");
-    printf("Please provide an implementation for the HCI driver");
-    ble::CordioHCIDriver *bad_instance = nullptr;
-    return *bad_instance;
-}
+ble::CordioHCIDriver &ble_cordio_get_hci_driver();
 
 /**
  * Low level HCI interface between Cordio stack and the port.

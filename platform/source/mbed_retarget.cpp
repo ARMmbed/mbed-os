@@ -21,6 +21,7 @@
 #endif
 
 #include <mstd_mutex>
+#include <mstd_atomic>
 #include <time.h>
 #include "platform/platform.h"
 #include "platform/FilePath.h"
@@ -48,6 +49,11 @@
 #include <stdio.h>
 #include <errno.h>
 #include "platform/mbed_retarget.h"
+
+// Need to use the USBSerial class for this config option
+#if MBED_CONF_TARGET_CONSOLE_USB
+#include "USBSerial.h"
+#endif
 
 static SingletonPtr<rtos::Mutex> _mutex;
 
@@ -355,6 +361,22 @@ static FileHandle *default_console()
     static const serial_pinmap_t console_pinmap = get_uart_pinmap(CONSOLE_TX, CONSOLE_RX);
     static DirectSerial console(console_pinmap, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
 #  endif
+
+#elif MBED_CONF_TARGET_CONSOLE_USB
+
+// Sanity check that we have USB
+#if !defined(DEVICE_USBDEVICE)
+#error "target.console_usb enabled on device without USB!  Something is wrong here."
+#endif
+
+    static mstd::atomic<bool> consoleInitialized(false);
+    static USBSerial console(false); // Do not connect in blocking mode, otherwise the code won't start until USB is connected
+
+    bool uninitializedVal = false;
+    if (consoleInitialized.compare_exchange_strong(uninitializedVal, true)) {
+        console.connect();
+    }
+
 #else // MBED_CONF_TARGET_CONSOLE_UART && DEVICE_SERIAL
     static Sink console;
 #endif

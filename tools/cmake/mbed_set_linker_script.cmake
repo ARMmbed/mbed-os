@@ -21,7 +21,11 @@ endfunction(mbed_set_linker_script)
 # Set up the linker script for the top-level Mbed OS targets.
 # If needed, this also creates another target to preprocess the linker script.
 #
-function(mbed_setup_linker_script mbed_os_target mbed_baremetal_target)
+# mbed_os_target: CMake target for Mbed OS
+# mbed_baremetal_target: CMake target for Mbed Baremetal
+# target_defines_header: the full path to the header containing all of the Mbed target defines
+#
+function(mbed_setup_linker_script mbed_os_target mbed_baremetal_target target_defines_header)
 
     # Find the path to the desired linker script
     # (the property should be set on both the OS and baremetal targets in a sane world)
@@ -45,53 +49,42 @@ function(mbed_setup_linker_script mbed_os_target mbed_baremetal_target)
     # global property. We need this solely to pass the compile definitions to GCC's preprocessor,
     # so it can expand any macro definitions in the linker script.
     get_property(linker_defs_response_file GLOBAL PROPERTY COMPILE_DEFS_RESPONSE_FILE)
-    if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
 
-        get_filename_component(RAW_LINKER_SCRIPT_NAME ${RAW_LINKER_SCRIPT_PATHS} NAME)
-        get_filename_component(LINKER_SCRIPT_NAME ${LINKER_SCRIPT_PATH} NAME)
-        add_custom_command(
-            OUTPUT
-                ${LINKER_SCRIPT_PATH}
-            PRE_LINK
-            COMMAND
-                ${CMAKE_C_COMPILER} @${linker_defs_response_file}
-                -E -x assembler-with-cpp
-                -P ${RAW_LINKER_SCRIPT_PATHS}
-                -o ${LINKER_SCRIPT_PATH}
-            DEPENDS
-                ${RAW_LINKER_SCRIPT_PATHS}
-                ${linker_defs_response_file}
-            WORKING_DIRECTORY
-                ${CMAKE_CURRENT_SOURCE_DIR}
-            COMMENT
-                "Preprocess linker script: ${RAW_LINKER_SCRIPT_NAME} -> ${LINKER_SCRIPT_NAME}"
-            VERBATIM
+    get_filename_component(RAW_LINKER_SCRIPT_NAME ${RAW_LINKER_SCRIPT_PATHS} NAME)
+    get_filename_component(LINKER_SCRIPT_NAME ${LINKER_SCRIPT_PATH} NAME)
+    add_custom_command(
+        OUTPUT
+            ${LINKER_SCRIPT_PATH}
+        PRE_LINK
+        COMMAND
+            ${CMAKE_C_COMPILER} @${linker_defs_response_file}
+            -E -x assembler-with-cpp
+            -include ${target_defines_header}
+            -P ${RAW_LINKER_SCRIPT_PATHS}
+            -o ${LINKER_SCRIPT_PATH}
+        DEPENDS
+            ${RAW_LINKER_SCRIPT_PATHS}
+            ${linker_defs_response_file}
+            ${target_defines_header}
+        WORKING_DIRECTORY
+            ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT
+            "Preprocess linker script: ${RAW_LINKER_SCRIPT_NAME} -> ${LINKER_SCRIPT_NAME}"
+        VERBATIM
+    )
+
+    # The job to create the linker script gets attached to the mbed-linker-script target,
+    # which is then added as a dependency of the MCU target.  This ensures the linker script will exist
+    # by the time we need it.
+    add_custom_target(mbed-linker-script DEPENDS ${LINKER_SCRIPT_PATH} VERBATIM)
+    foreach(TARGET ${mbed_baremetal_target} ${mbed_os_target})
+        add_dependencies(${TARGET} mbed-linker-script)
+
+        # Add linker flags to the MCU target to pick up the preprocessed linker script
+        target_link_options(${TARGET}
+            INTERFACE
+                "-T" "${LINKER_SCRIPT_PATH}"
         )
+    endforeach()
 
-        # The job to create the linker script gets attached to the mbed-linker-script target,
-        # which is then added as a dependency of the MCU target.  This ensures the linker script will exist
-        # by the time we need it.
-        add_custom_target(mbed-linker-script DEPENDS ${LINKER_SCRIPT_PATH} VERBATIM)
-
-        foreach(TARGET ${mbed_baremetal_target} ${mbed_os_target})
-
-
-            add_dependencies(${TARGET} mbed-linker-script)
-
-            # Add linker flags to the MCU target to pick up the preprocessed linker script
-            target_link_options(${TARGET}
-                INTERFACE
-                    "-T" "${LINKER_SCRIPT_PATH}"
-            )
-        endforeach()
-    elseif(MBED_TOOLCHAIN STREQUAL "ARM")
-        foreach(TARGET ${mbed_baremetal_target} ${mbed_os_target})
-            target_link_options(${TARGET}
-                INTERFACE
-                    "--scatter=${raw_linker_script_path}"
-                    "--predefine=${_linker_preprocess_definitions}"
-                    "--map"
-            )
-        endforeach()
-    endif()
 endfunction(mbed_setup_linker_script)

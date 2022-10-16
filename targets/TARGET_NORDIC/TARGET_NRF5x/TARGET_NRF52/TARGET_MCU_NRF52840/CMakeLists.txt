@@ -72,3 +72,6 @@ target_link_libraries(mbed-arduino-nano33ble INTERFACE mbed-mcu-nrf52840)
 target_link_libraries(mbed-ep-agora INTERFACE mbed-mcu-nrf52840)
 target_link_libraries(mbed-ep-atlas INTERFACE mbed-mcu-nrf52840)
 target_link_libraries(mbed-nrf52840-dk INTERFACE mbed-mcu-nrf52840)
+
+# ARDUINO_NANO33BLE_SWD is the same as the non-SWD one, just with different defines in the linker script.
+add_library(mbed-arduino-nano33ble-swd ALIAS mbed-arduino-nano33ble)

@@ -34,8 +34,12 @@
         ],
         "config": {
             "console-uart": {
-                "help": "Target has UART console on pins CONSOLE_TX, CONSOLE_RX. Value is only significant if target has SERIAL device.",
+                "help": "Target has UART console on pins CONSOLE_TX, CONSOLE_RX. Value is only significant if target has SERIAL device. Mutually exclusive with target.console-usb.",
                 "value": true
+            },
+            "console-usb": {
+                "help": "Target has USB console on the default USB pins.  Mutually exclusive with target.console-uart.",
+                "value": false
             },
             "console-uart-flow-control": {
                 "help": "Console hardware flow control. Options: null, RTS, CTS, RTSCTS.",
@@ -6935,7 +6939,6 @@
             "5"
         ],
         "device_name": "nRF52840_xxAA",
-        "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
         "supported_toolchains": [
             "GCC_ARM",
@@ -6997,9 +7000,33 @@
             "ITM"
         ],
         "macros_add": [
-            "CONFIG_GPIO_AS_PINRESET"
+            "CONFIG_GPIO_AS_PINRESET",
+            "MBED_APP_START=0x10000",
+            "MBED_APP_SIZE=0xf0000"
         ],
+        "overrides": {
+            "console-usb": true,
+            "console-uart": false
+        },
         "OUTPUT_EXT": "bin"
+    },
+    "ARDUINO_NANO33BLE_SWD": {
+        "inherits": [
+            "MCU_NRF52840"
+        ],
+        "features_add": [
+            "STORAGE"
+        ],
+        "components_remove": [
+            "QSPIF"
+        ],
+        "device_has_remove": [
+            "QSPI",
+            "ITM"
+        ],
+        "macros_add": [
+            "CONFIG_GPIO_AS_PINRESET"
+        ]
     },
     "NUMAKER_PFM_NUC472": {
         "core": "Cortex-M4F",

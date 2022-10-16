@@ -7,3 +7,4 @@ mbed-ls
 # For USB Device host tests
 hidapi>=0.7.99
 pyusb>=1.2.0
+wmi>=1.5; platform_system == "Windows"

@@ -261,7 +261,7 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
 
         New line coding params are read from the device serial data.
         """
-        mbed_serial = serial.Serial(timeout=0.5, dsrdtr=False)
+        mbed_serial = serial.Serial(timeout=0.5, dsrdtr=True)
         mbed_serial.dtr = False
         try:
             mbed_serial.port = retry_fun_call(

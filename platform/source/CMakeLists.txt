@@ -56,3 +56,8 @@ if(MBED_TOOLCHAIN STREQUAL "GCC_ARM" AND MBED_C_LIB STREQUAL "small")
             newlib_nano_malloc_workaround.c
     )
 endif()
+
+if("MBED_CONF_TARGET_CONSOLE_USB=1" IN_LIST MBED_CONFIG_DEFINITIONS)
+    # If the stdio console uses USB, we need to link mbed-usb into the default OS build
+    target_link_libraries(mbed-core-flags INTERFACE mbed-usb)
+endif()

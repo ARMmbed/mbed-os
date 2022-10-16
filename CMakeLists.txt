@@ -273,7 +273,7 @@ if(NOT MBED_IS_NATIVE_BUILD)
     mbed_create_distro(mbed-os ${MBED_TARGET_CMAKE_NAME} mbed-core-flags mbed-core-sources mbed-rtos-flags mbed-rtos-sources)
 
     # Set up the linker script and hook it up to the top-level OS targets
-    mbed_setup_linker_script(mbed-baremetal mbed-os)
+    mbed_setup_linker_script(mbed-baremetal mbed-os ${CMAKE_CURRENT_BINARY_DIR}/mbed-target-config.h)
 
     # Make sure that things linking mbed-core-flags can also get the target-specific include dirs and flags.
     mbed_extract_flags(${MBED_TARGET_CMAKE_NAME}-flags ${MBED_TARGET_CMAKE_NAME})

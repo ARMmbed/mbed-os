@@ -24,6 +24,4 @@ target_link_libraries(mbed-storage-kv-config
         mbed-storage-securestore
         mbed-storage-littlefs
         mbed-storage-fat
-        mbed-storage-flashiap
-        mbed-storage-sd
 )
