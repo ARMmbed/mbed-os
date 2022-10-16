@@ -105,6 +105,7 @@ utest::v1::status_t testcase_setup(const Case *const source, const size_t index_
 #if DEVICE_LPTICKER
     lp_ticker_init();
 #endif
+
     return utest::v1::greentea_case_setup_handler(source, index_of_case);
 }
 
@@ -143,17 +144,24 @@ void test_sleep_auto()
     const ticker_irq_handler_type lp_ticker_irq_handler_org = set_lp_ticker_irq_handler(lp_ticker_isr);
     uint32_t us_ts1, us_ts2, lp_ts1, lp_ts2, us_diff1, us_diff2, lp_diff1, lp_diff2;
 
-    /*  Let's avoid the Lp ticker wrap-around case */
-    wraparound_lp_protect();
-    uint32_t lp_wakeup_ts_raw = lp_ticker_read() + us_to_ticks(SLEEP_DURATION_US, lp_ticker_info->frequency);
-    timestamp_t lp_wakeup_ts = overflow_protect(lp_wakeup_ts_raw, lp_ticker_info->bits);
-    lp_ticker_set_interrupt(lp_wakeup_ts);
+    const unsigned int sleep_duration_lp_ticks = us_to_ticks(SLEEP_DURATION_US, lp_ticker_info->frequency);
+    const unsigned int sleep_duration_us_ticks = us_to_ticks(SLEEP_DURATION_US, us_ticker_info->frequency);
+
+    // Wait for hardware serial buffers to flush.  This is because serial transmissions generate
+    // interrupts on some targets, which wake us from sleep.
+    busy_wait_ms(SERIAL_FLUSH_TIME_MS);
 
     /* Some targets may need an interrupt short time after LPTIM interrupt is
      * set and forbid deep_sleep during that period. Let this period pass  */
     TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep_test_check());
 
     sleep_manager_lock_deep_sleep();
+
+    /*  Let's avoid the Lp ticker wrap-around case */
+    wraparound_lp_protect();
+    uint32_t lp_wakeup_ts_raw = lp_ticker_read() + sleep_duration_lp_ticks;
+    timestamp_t lp_wakeup_ts = overflow_protect(lp_wakeup_ts_raw, lp_ticker_info->bits);
+    lp_ticker_set_interrupt(lp_wakeup_ts);
 
     us_ts1 = us_ticker_read();
     lp_ts1 = lp_ticker_read();
@@ -163,23 +171,25 @@ void test_sleep_auto()
     us_ts2 = us_ticker_read();
     lp_ts2 = lp_ticker_read();
 
-    us_diff1 = ticks_to_us((us_ts1 <= us_ts2) ? (us_ts2 - us_ts1) : (us_ticker_mask - us_ts1 + us_ts2 + 1), us_ticker_info->frequency);
-    lp_diff1 = ticks_to_us((lp_ts1 <= lp_ts2) ? (lp_ts2 - lp_ts1) : (lp_ticker_mask - lp_ts1 + lp_ts2 + 1), lp_ticker_info->frequency);
+    us_diff1 = (us_ts1 <= us_ts2) ? (us_ts2 - us_ts1) : (us_ticker_mask - us_ts1 + us_ts2 + 1);
+    lp_diff1 = (lp_ts1 <= lp_ts2) ? (lp_ts2 - lp_ts1) : (lp_ticker_mask - lp_ts1 + lp_ts2 + 1);
 
     // Deep sleep locked -- ordinary sleep mode used:
     // * us_ticker powered ON,
     // * lp_ticker powered ON,
     // so both should increment equally.
 
-    // Verify us and lp tickers incremented equally, with 10% tolerance.
-    TEST_ASSERT_UINT64_WITHIN_MESSAGE(
-        SLEEP_DURATION_US / 10ULL, lp_diff1, us_diff1,
-        "Deep sleep mode locked, but still used");
+    // Verify us and lp tickers incremented the expected amount, with 10% tolerance.
+    TEST_ASSERT_UINT64_WITHIN_MESSAGE(sleep_duration_lp_ticks / 10ULL, sleep_duration_lp_ticks, lp_diff1, "lp ticker sleep time incorrect");
+    TEST_ASSERT_UINT64_WITHIN_MESSAGE(sleep_duration_us_ticks / 10ULL, sleep_duration_us_ticks, us_diff1, "us ticker sleep time incorrect - perhaps deep sleep mode was used?");
 
     sleep_manager_unlock_deep_sleep();
-    TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep());
+    /* Some targets may need an interrupt short time after LPTIM interrupt is
+     * set and forbid deep_sleep during that period. Let this period pass  */
+    TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep_test_check());
 
-    // Wait for hardware serial buffers to flush.
+    // Wait for hardware serial buffers to flush.  This is because serial transmissions generate
+    // interrupts on some targets, which wake us from sleep.
     busy_wait_ms(SERIAL_FLUSH_TIME_MS);
 
     /*  Let's avoid the Lp ticker wrap-around case */
@@ -188,10 +198,6 @@ void test_sleep_auto()
     lp_wakeup_ts = overflow_protect(lp_wakeup_ts_raw, lp_ticker_info->bits);
     lp_ticker_set_interrupt(lp_wakeup_ts);
 
-    /* Some targets may need an interrupt short time after LPTIM interrupt is
-     * set and forbid deep_sleep during that period. Let this period pass  */
-    TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep_test_check());
-
     us_ts1 = us_ticker_read();
     lp_ts1 = lp_ticker_read();
 
@@ -200,8 +206,8 @@ void test_sleep_auto()
     us_ts2 = us_ticker_read();
     lp_ts2 = lp_ticker_read();
 
-    us_diff2 = ticks_to_us((us_ts1 <= us_ts2) ? (us_ts2 - us_ts1) : (us_ticker_mask - us_ts1 + us_ts2 + 1), us_ticker_info->frequency);
-    lp_diff2 = ticks_to_us((lp_ts1 <= lp_ts2) ? (lp_ts2 - lp_ts1) : (lp_ticker_mask - lp_ts1 + lp_ts2 + 1), lp_ticker_info->frequency);
+    us_diff2 = (us_ts1 <= us_ts2) ? (us_ts2 - us_ts1) : (us_ticker_mask - us_ts1 + us_ts2 + 1);
+    lp_diff2 = (lp_ts1 <= lp_ts2) ? (lp_ts2 - lp_ts1) : (lp_ticker_mask - lp_ts1 + lp_ts2 + 1);
 
     // Deep sleep unlocked -- deep sleep mode used:
     // * us_ticker powered OFF,
@@ -211,11 +217,9 @@ void test_sleep_auto()
     // 1. current lp_ticker increment,
     // 2. previous us_ticker increment (locked sleep test above)
 
-    // Verify that the current us_ticker increment:
-    // 1. is at most 10% of lp_ticker increment
-    // 2. is at most 10% of previous us_ticker increment.
-    TEST_ASSERT_MESSAGE(us_diff2 < lp_diff2 / 10ULL, "Deep sleep mode unlocked, but not used");
-    TEST_ASSERT_MESSAGE(us_diff2 < us_diff1 / 10ULL, "Deep sleep mode unlocked, but not used");
+    // us ticker should not have incremented during deep sleep.  It should be zero, plus some tolerance for the time to enter deep sleep.
+    TEST_ASSERT_UINT64_WITHIN_MESSAGE(sleep_duration_us_ticks / 10ULL, 0, us_diff2, "us ticker sleep time incorrect - perhaps deep sleep mode was not used?");
+    TEST_ASSERT_UINT64_WITHIN_MESSAGE(sleep_duration_lp_ticks / 10ULL, sleep_duration_lp_ticks, lp_diff2, "lp ticker sleep time incorrect");
 
     set_us_ticker_irq_handler(us_ticker_irq_handler_org);
     set_lp_ticker_irq_handler(lp_ticker_irq_handler_org);
