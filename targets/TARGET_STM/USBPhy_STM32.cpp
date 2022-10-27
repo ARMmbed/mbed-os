@@ -264,8 +264,17 @@ void USBPhyHw::init(USBPhyEvents *events)
     hpcd.Init.vbus_sensing_enable = DISABLE;
     hpcd.Init.use_external_vbus = DISABLE;
 
+#ifdef __HAL_RCC_OTGPHYC_CLK_ENABLE
+    __HAL_RCC_OTGPHYC_CLK_ENABLE();
+#endif
     __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
 
+#ifdef __HAL_RCC_USB1_OTG_HS_ULPI_CLK_SLEEP_DISABLE
+    __HAL_RCC_USB1_OTG_HS_ULPI_CLK_SLEEP_DISABLE();
+#endif
+#ifdef __HAL_RCC_USB2_OTG_HS_ULPI_CLK_SLEEP_DISABLE
+    __HAL_RCC_USB2_OTG_HS_ULPI_CLK_SLEEP_DISABLE();
+#endif
 #ifdef __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE
     __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
 #endif
