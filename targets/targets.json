@@ -3211,7 +3211,8 @@
             "STM32H723xx"
         ],
         "overrides": {
-            "system_power_supply": "PWR_LDO_SUPPLY"
+            "system_power_supply": "PWR_LDO_SUPPLY",
+            "i2c_timing_value_algo": true
         }
     },
     "MCU_STM32H725xE": {
