@@ -121,6 +121,7 @@ set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_LIBRARIES 1)
 set(link_options "")
 set(common_options "")
 set(c_cxx_compile_options "") # compile options only for C/CXX
+set(cxx_compile_options "") # compile options only for CXX
 set(asm_compile_options "") # compile options only for ASM
 
 include(toolchains/${MBED_TOOLCHAIN})
@@ -140,7 +141,7 @@ endmacro(list_to_space_separated)
 
 # set toolchain flags with CMake (INIT variables will be picked up on first run)
 list_to_space_separated(CMAKE_C_FLAGS_INIT ${common_options} ${c_cxx_compile_options})
-set(CMAKE_CXX_FLAGS_INIT ${CMAKE_C_FLAGS_INIT})
+list_to_space_separated(CMAKE_CXX_FLAGS_INIT ${common_options} ${c_cxx_compile_options} ${cxx_compile_options})
 list_to_space_separated(CMAKE_ASM_FLAGS_INIT ${common_options} ${asm_compile_options})
 list_to_space_separated(CMAKE_EXE_LINKER_FLAGS_INIT ${link_options})
 

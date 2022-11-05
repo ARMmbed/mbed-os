@@ -43,6 +43,10 @@ list(APPEND common_options
     "-g3"
 )
 
+list(APPEND cxx_compile_options
+    "-Wno-register"
+)
+
 # Configure the toolchain to select the selected C library
 function(mbed_set_c_lib target lib_type)
     if (${lib_type} STREQUAL "small")
