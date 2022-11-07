@@ -31,9 +31,15 @@ message(STATUS "Board upload method set to ${UPLOAD_METHOD}")
 
 if(UPLOAD_SUPPORTS_DEBUG)
 	# create init file for GDB client
+	if(UPLOAD_WANTS_EXTENDED_REMOTE)
+		set(UPLOAD_GDB_REMOTE_KEYWORD "extended-remote")
+	else()
+		set(UPLOAD_GDB_REMOTE_KEYWORD "remote")
+	endif()
+
 	file(GENERATE OUTPUT ${CMAKE_BINARY_DIR}/mbed-cmake.gdbinit CONTENT
 "# connect to GDB server
-target remote localhost:${GDB_PORT}
+target ${UPLOAD_GDB_REMOTE_KEYWORD} localhost:${GDB_PORT}
 ")
 endif()
 

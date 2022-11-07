@@ -604,8 +604,8 @@ int32_t flash_free(flash_t *obj)
 uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 {
     uint32_t sectorsize = MBED_FLASH_INVALID_SIZE;
-    uint32_t devicesize = BOARD_FLASH_SIZE;
-    uint32_t startaddr = BOARD_FLASH_START_ADDR;
+    uint32_t devicesize = BOARD_FLASHIAP_SIZE;
+    uint32_t startaddr = BOARD_FLASHIAP_START_ADDR;
 
     if ((address >= startaddr) && (address < (startaddr + devicesize))) {
         sectorsize = BOARD_FLASH_SECTOR_SIZE;

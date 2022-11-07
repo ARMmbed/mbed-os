@@ -42,4 +42,6 @@ extern uint32_t __VECTOR_RAM[];
 #define NVIC_NUM_VECTORS        (16 + 160)        // CORE + MCU Peripherals
 #define NVIC_RAM_VECTOR_ADDRESS (__VECTOR_RAM)    // Vectors positioned at start of RAM
 
+#define MBED_RAM_SIZE 0x01E00000 // from linker script
+
 #endif

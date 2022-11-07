@@ -17,7 +17,7 @@ set(UPLOAD_OPENOCD_FOUND ${OpenOCD_FOUND})
 set(OPENOCD_ADAPTER_SERIAL "" CACHE STRING "Serial number of the debug adapter to select for OpenOCD.  Set to empty to detect any matching adapter.")
 
 ### Function to generate upload target
-set(OPENOCD_ADAPTER_SERIAL_COMMAND "")
+set(OPENOCD_ADAPTER_SERIAL_COMMAND "" CACHE INTERNAL "" FORCE)
 if(NOT "${OPENOCD_ADAPTER_SERIAL}" STREQUAL "")
 
 	# Generate script file that tells OpenOCD how to find the correct debug adapter.
@@ -36,7 +36,7 @@ if { [adapter name] == \"hla\" } {
 	adapter serial $adapter_serial
 }")
 
-	set(OPENOCD_ADAPTER_SERIAL_COMMAND -f ${CMAKE_BINARY_DIR}/openocd_adapter_config.cfg)
+	set(OPENOCD_ADAPTER_SERIAL_COMMAND -f ${CMAKE_BINARY_DIR}/openocd_adapter_config.cfg CACHE INTERNAL "" FORCE)
 endif()
 
 function(gen_upload_target TARGET_NAME BIN_FILE)
@@ -63,3 +63,6 @@ add_custom_target(gdbserver
 	-c "gdb_port ${GDB_PORT}"
 	USES_TERMINAL
 	VERBATIM)
+
+# request extended-remote GDB sessions
+set(UPLOAD_WANTS_EXTENDED_REMOTE TRUE)

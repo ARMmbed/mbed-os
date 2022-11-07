@@ -21,7 +21,7 @@ set(PYOCD_PROBE_UID "" CACHE STRING "Probe UID to pass to pyOCD commands. You ca
 ### Function to generate upload target
 set(PYOCD_PROBE_ARGS "")
 if(NOT "${PYOCD_PROBE_UID}" STREQUAL "")
-	set(PYOCD_PROBE_ARGS --probe ${PYOCD_PROBE_UID})
+	set(PYOCD_PROBE_ARGS --probe ${PYOCD_PROBE_UID} CACHE INTERNAL "" FORCE)
 endif()
 
 function(gen_upload_target TARGET_NAME BIN_FILE)
