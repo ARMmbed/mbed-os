@@ -3306,6 +3306,9 @@
         "inherits": [
             "MCU_STM32H723xG"
         ],
+        "supported_toolchains": [
+            "GCC_ARM"
+        ],
         "extra_labels_add": [
             "STM32H723ZG"
         ],
