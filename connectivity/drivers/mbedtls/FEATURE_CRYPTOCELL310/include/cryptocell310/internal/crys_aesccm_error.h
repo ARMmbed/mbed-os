@@ -49,9 +49,7 @@ extern "C"
 /*!
 @file
 @brief This module contains the definitions of the CRYS AESCCM errors.
-@defgroup crys_aesccm_error CryptoCell AES-CCM specific errors
-@{
-@ingroup crys_aesccm
+
 */
 
 /************************ Defines ******************************/
@@ -125,10 +123,4 @@ extern "C"
 }
 #endif
 
-/**
-@}
- */
-
 #endif
-
-

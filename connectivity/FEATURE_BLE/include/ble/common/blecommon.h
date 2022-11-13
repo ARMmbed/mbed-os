@@ -24,7 +24,8 @@ extern "C" {
 #endif
 
 /**
- * @addtogroup ble
+ * @defgroup ble Bluetooth
+ * @ingroup connectivity-public-api
  * @{
  * @addtogroup common
  * @{

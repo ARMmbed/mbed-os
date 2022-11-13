@@ -46,9 +46,6 @@ extern "C"
 
 /*! @file
 @brief This module contains the definitions of the CRYS HMAC errors.
-@defgroup crys_hmac_error CryptoCell HMAC specific errors
-@{
-@ingroup crys_hmac
 */
 
 
@@ -100,9 +97,6 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif
 
 

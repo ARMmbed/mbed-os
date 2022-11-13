@@ -33,7 +33,7 @@ namespace mbed {
 
 
 /**
- * @addtogroup cellular
+ * @addtogroup Cellular
  * @{
  */
 

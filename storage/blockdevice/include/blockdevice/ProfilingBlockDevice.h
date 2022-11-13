@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-/** \addtogroup storage */
-/** @{*/
 
 #ifndef MBED_PROFILING_BLOCK_DEVICE_H
 #define MBED_PROFILING_BLOCK_DEVICE_H
@@ -25,6 +23,8 @@
 
 namespace mbed {
 
+/** \addtogroup storage-blockdevice */
+/** @{*/
 
 /** Block device for measuring storage operations of another block device
  */
@@ -171,6 +171,8 @@ private:
     bd_size_t _erase_count;
 };
 
+/** @}*/
+
 } // namespace mbed
 
 // Added "using" for backwards compatibility
@@ -180,4 +182,3 @@ using mbed::ProfilingBlockDevice;
 
 #endif
 
-/** @}*/

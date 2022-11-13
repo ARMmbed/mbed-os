@@ -45,9 +45,6 @@ extern "C"
 /*!
 @file
 @brief This file contains HMAC definitions.
-@defgroup crys_hmac_defs CryptoCell Hmac definitions
-@{
-@ingroup crys_hmac
 */
 
 /************************ Defines ******************************/
@@ -58,7 +55,4 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif

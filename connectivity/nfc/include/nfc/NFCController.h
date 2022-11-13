@@ -32,7 +32,8 @@
 namespace mbed {
 namespace nfc {
 
-/** @addtogroup nfc
+/** @defgroup nfc NFC
+ *  @ingroup connectivity-public-api
  * @{
  */
 

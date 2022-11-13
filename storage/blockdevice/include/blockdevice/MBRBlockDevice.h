@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-/** \addtogroup storage */
-/** @{*/
 
 #ifndef MBED_MBR_BLOCK_DEVICE_H
 #define MBED_MBR_BLOCK_DEVICE_H
@@ -24,6 +22,9 @@
 #include "BlockDevice.h"
 
 namespace mbed {
+
+/** \addtogroup storage-blockdevice */
+/** @{*/
 
 /** Additional error codes used for MBR records
  */
@@ -218,6 +219,8 @@ protected:
     bool _is_initialized;
 };
 
+/** @}*/
+
 } // namespace mbed
 
 // Added "using" for backwards compatibility
@@ -227,4 +230,3 @@ using mbed::MBRBlockDevice;
 
 #endif
 
-/** @}*/

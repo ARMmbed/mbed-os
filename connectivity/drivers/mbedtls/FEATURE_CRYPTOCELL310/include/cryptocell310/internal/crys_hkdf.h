@@ -46,9 +46,6 @@ extern "C"
 /*!
 @file
 @brief This module defines the API that supports HMAC Key derivation function as defined by RFC5869.
-@defgroup crys_hkdf CryptoCell HMAC Key Derivation APIs
-@{
-@ingroup cryptocell_api
 */
 
 /*! HKDF maximal key size in words. */
@@ -117,8 +114,5 @@ CEXPORT_C CRYSError_t  CRYS_HKDF_KeyDerivFunc(
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif
 

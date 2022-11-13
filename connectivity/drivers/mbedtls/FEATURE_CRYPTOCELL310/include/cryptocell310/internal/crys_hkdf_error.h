@@ -47,9 +47,6 @@ extern "C"
 /*!
 @file
 @brief This module contains the definitions of the CRYS HKDF errors.
-@defgroup crys_hkdf_error HMAC Key Derivation specific errors
-@{
-@ingroup crys_hkdf
  */
 
 
@@ -81,9 +78,6 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif
 
 

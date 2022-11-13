@@ -19,6 +19,7 @@
 #define LORARADIO_H_
 
 /** @addtogroup LoRaWAN
+ *  @ingroup connectivity-public-api
  * Parent class for a LoRa radio driver
  *  @{
  */

@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-/** \addtogroup storage */
-/** @{*/
 
 #ifndef MBED_EXHAUSTIBLE_BLOCK_DEVICE_H
 #define MBED_EXHAUSTIBLE_BLOCK_DEVICE_H
@@ -24,6 +22,9 @@
 #include "BlockDevice.h"
 
 namespace mbed {
+
+/** \addtogroup storage-blockdevice */
+/** @{*/
 
 /** Heap backed block device which simulates failures
  *
@@ -163,6 +164,8 @@ private:
     bool _is_initialized;
 };
 
+/** @}*/
+
 } // namespace mbed
 
 // Added "using" for backwards compatibility
@@ -171,5 +174,3 @@ using mbed::ExhaustibleBlockDevice;
 #endif
 
 #endif
-
-/** @}*/

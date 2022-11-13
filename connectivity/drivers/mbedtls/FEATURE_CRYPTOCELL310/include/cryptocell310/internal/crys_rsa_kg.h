@@ -49,9 +49,6 @@ extern "C"
 /*!
 @file
 @brief Generates a RSA pair of public and private keys.
-@defgroup crys_rsa_kg CryptoCell RSA key generation APIs
-@{
-@ingroup crys_rsa
 */
 
 /************************ Defines ******************************/
@@ -121,9 +118,6 @@ CIMPORT_C CRYSError_t CRYS_RSA_KG_GenerateKeyPairCRT(
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif
 
 

@@ -1,5 +1,5 @@
 
-/** \addtogroup netsocket */
+/** \addtogroup NetSocket */
 /** @{*/
 /* Socket
  * Copyright (c) 2015 ARM Limited

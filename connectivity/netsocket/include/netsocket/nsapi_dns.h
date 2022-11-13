@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-/** \addtogroup netsocket */
+/** \addtogroup NetSocket */
 /** @{*/
 
 #ifndef NSAPI_DNS_H

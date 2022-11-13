@@ -39,9 +39,6 @@
 /*!
 @file
 @brief This file contains compiler related definitions.
-@defgroup ssi_pal_compiler CryptoCell PAL platform dependant compiler specific definitions
-@{
-@ingroup ssi_pal
 
 */
 
@@ -182,7 +179,4 @@
 #else
 #error Unsupported compiler.
 #endif
-/**
-@}
- */
 #endif /*__SSI_PAL_COMPILER_H__*/

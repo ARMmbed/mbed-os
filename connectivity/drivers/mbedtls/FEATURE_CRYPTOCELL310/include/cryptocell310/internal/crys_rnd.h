@@ -50,9 +50,6 @@ extern "C"
 @file
 @brief This file contains the CRYS APIs used for random number generation.
 The random-number generation module implements referenced standard [SP800-90].
-@defgroup crys_rnd CryptoCell Random Generator APIs
-@{
-@ingroup cryptocell_api
 */
 
 /************************ Defines ******************************/
@@ -373,8 +370,5 @@ CIMPORT_C void CRYS_RND_DisableKatMode(
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif /* #ifndef CRYS_RND_H */
 

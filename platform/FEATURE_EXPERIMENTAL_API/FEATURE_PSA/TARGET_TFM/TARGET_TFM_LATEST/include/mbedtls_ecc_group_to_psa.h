@@ -34,6 +34,7 @@ extern "C" {
 #endif
 
 /** \defgroup psa_tls_helpers TLS helper functions
+    \ingroup experimental-cryto-psa
  * @{
  */
 

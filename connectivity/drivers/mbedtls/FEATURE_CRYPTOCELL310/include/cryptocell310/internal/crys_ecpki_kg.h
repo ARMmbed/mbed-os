@@ -39,9 +39,6 @@
 
 /*! @file
 @brief Defines the API for generation of ECC private and public keys.
-@defgroup crys_ecpki_kg CryptoCell ECC Key Generation APIs
-@{
-@ingroup cryptocell_ecpki
 */
 
 
@@ -78,9 +75,6 @@ CIMPORT_C CRYSError_t CRYS_ECPKI_GenKeyPair(
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif
 
 

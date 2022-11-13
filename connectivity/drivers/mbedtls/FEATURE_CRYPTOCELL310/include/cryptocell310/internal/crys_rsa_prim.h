@@ -47,9 +47,6 @@ extern "C"
 /*!
 @file
 @brief This module defines the API that implements the [PKCS1_2.1] primitive functions.
-@defgroup crys_rsa_prim CryptoCell RSA primitive APIs
-@{
-@ingroup crys_rsa
 
 
 \note Direct use of primitive functions, rather than schemes to protect data, is strongly discouraged as primitive functions are
@@ -119,7 +116,4 @@ since the signature primitive is identical to the decryption primitive.
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif

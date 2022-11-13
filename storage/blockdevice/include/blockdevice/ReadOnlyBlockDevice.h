@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-/** \addtogroup storage */
-/** @{*/
 
 #ifndef MBED_READ_ONLY_BLOCK_DEVICE_H
 #define MBED_READ_ONLY_BLOCK_DEVICE_H
@@ -25,6 +23,9 @@
 #include "rtos/Mutex.h"
 
 namespace mbed {
+
+/** \addtogroup storage-blockdevice BlockDevice */
+/** @{*/
 
 class ReadOnlyBlockDevice : public BlockDevice {
 public:
@@ -138,6 +139,8 @@ private:
     BlockDevice *_bd;
 };
 
+/** @}*/
+
 } // namespace mbed
 
 // Added "using" for backwards compatibility
@@ -147,4 +150,3 @@ using mbed::ReadOnlyBlockDevice;
 
 #endif
 
-/** @}*/

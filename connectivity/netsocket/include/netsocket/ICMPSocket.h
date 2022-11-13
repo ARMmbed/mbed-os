@@ -1,4 +1,4 @@
-/** \addtogroup netsocket */
+/** \addtogroup NetSocket */
 /** @{*/
 /* ICMPSocket
  * Copyright (c) 2015 ARM Limited

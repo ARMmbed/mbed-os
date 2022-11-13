@@ -16,9 +16,6 @@
  */
 #ifndef MBED_FILESYSTEM_API_H
 #define MBED_FILESYSTEM_API_H
-/** \addtogroup filesystem */
-/** @{*/
-
 
 // Standard types
 #include "platform/platform.h"
@@ -34,5 +31,4 @@
 #include "blockdevice/SlicingBlockDevice.h"
 #include "blockdevice/HeapBlockDevice.h"
 
-/** @}*/
 #endif

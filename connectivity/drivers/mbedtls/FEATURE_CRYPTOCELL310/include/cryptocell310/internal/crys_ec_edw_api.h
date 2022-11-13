@@ -47,17 +47,11 @@ extern "C" {
 #endif
 
 /*!
-@defgroup cryptocell_ec CryptoCell EC 25519 curve APIs
-@{
-@ingroup cryptocell_api
 @brief This group is the cryptocell EC 25519 curve root group
 @}
 
 @file
 @brief This file contains the CRYS APIs used for EC EDW (Edwards) ed25519 algorithms.
-@defgroup crys_ec_edw CryptoCell EC Edwards APIs
-@{
-@ingroup cryptocell_ec
 
 \note  Algorithms of Montgomery and Edwards elliptic curves cryptography were developed by
        Daniel.J.Bernstein.
@@ -192,9 +186,6 @@ CIMPORT_C CRYSError_t CRYS_ECEDW_KeyPair (
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif
 
 

@@ -47,9 +47,6 @@ extern "C"
 
 /*! @file
 @brief This module contains the definitions of the CRYS RSA errors.
-@defgroup crys_rsa_error CryptoCell RSA specific errors
-@{
-@ingroup crys_rsa
 */
 
 /************************ Defines ******************************/
@@ -269,9 +266,6 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif
 
 

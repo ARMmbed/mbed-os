@@ -48,9 +48,6 @@ extern "C" {
 /*!
 @file
 @brief This file contains the CRYS APIs used for EC MONT (Montgomery Curve25519) algorithms.
-@defgroup crys_ec_mont CryptoCell EC Montgomery APIs
-@{
-@ingroup cryptocell_ec
 
 
 \note  Implemented algorithms according to Montgomery elliptic curves cryptography,
@@ -204,9 +201,6 @@ CIMPORT_C CRYSError_t CRYS_ECMONT_SeedKeyPair (
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif
 
 

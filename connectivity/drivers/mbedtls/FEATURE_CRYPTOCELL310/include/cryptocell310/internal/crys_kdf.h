@@ -48,9 +48,6 @@ extern "C"
 @file
 @brief This module defines the API that supports Key derivation function in modes
 as defined in PKCS#3, ANSI X9.42-2001, and ANSI X9.63-1999.
-@defgroup crys_kdf CryptoCell Key Derivation APIs
-@{
-@ingroup cryptocell_api
 */
 
 #include "crys_hash.h"
@@ -204,8 +201,5 @@ CIMPORT_C CRYSError_t  CRYS_KDF_KeyDerivFunc(
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif
 

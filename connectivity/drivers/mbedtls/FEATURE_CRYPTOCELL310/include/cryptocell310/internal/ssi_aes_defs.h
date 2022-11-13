@@ -36,9 +36,6 @@
 /*!
 @file
 @brief This file contains definitions that are used for the ARM CryptoCell 3xx version of the CryptoCell AES APIs.
-@defgroup ssi_aes_defs CryptoCell AES definitions
-@{
-@ingroup ssi_aes
 
 */
 
@@ -77,7 +74,4 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif /* #ifndef SSI_AES_DEFS_H */

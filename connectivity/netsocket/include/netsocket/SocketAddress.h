@@ -16,7 +16,7 @@
  */
 
 /** @file SocketAddress.h SocketAddress class */
-/** \addtogroup netsocket
+/** \addtogroup NetSocket
  * @{*/
 
 #ifndef SOCKET_ADDRESS_H

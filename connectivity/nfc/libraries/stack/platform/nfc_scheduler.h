@@ -19,7 +19,8 @@
  * \copyright Copyright (c) ARM Ltd 2014
  * \author Donatien Garnier
  */
-/** \addtogroup Core
+/** \addtogroup nfc-scheduler Scheduler
+ *  \ingroup nfc
  *  @{
  *  \name Scheduler
  *  @{

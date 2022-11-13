@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-/** \addtogroup storage */
-/** @{*/
 
 #ifndef MBED_FATFILESYSTEM_H
 #define MBED_FATFILESYSTEM_H
@@ -29,6 +27,11 @@
 #include "storage/filesystem/fat/ChaN/ff.h"
 
 namespace mbed {
+
+/** \defgroup filesystem Filesystem
+ *  \ingroup storage
+ *  @{
+ */
 
 /**
  * FAT file system based on ChaN's FAT file system library v0.8
@@ -287,6 +290,9 @@ protected:
     virtual int mount(BlockDevice *bd, bool mount);
 };
 
+/** @}
+ */
+
 } // namespace mbed
 
 // Added "using" for backwards compatibility.
@@ -296,4 +302,3 @@ using mbed::FATFileSystem;
 
 #endif
 
-/** @}*/

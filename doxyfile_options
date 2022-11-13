@@ -854,9 +854,11 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */cmsis/* \
                          */connectivity/drivers/emac/* \
                          */features/cryptocell/* \
+                         */features/frameworks/* \
                          */connectivity/mbedtls/* \
                          */features/unsupported/* \
                          */connectivity/lwipstack/* \
+                         */connectivity/lorawan/lorastack/* \
                          */connectivity/nanostack/sal-stack-nanostack/* \
                          */connectivity/nanostack/coap-service/* \
                          */mbed-trace/* \
@@ -865,12 +867,15 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */mbed-client-randlib/* \
                          */nanostack/sal-stack-nanostack-eventloop/* \
                          */connectivity/drivers/802.15.4_RF/* \
+                         */connectivity/drivers/wifi/COMPONENT_WHD/* \
+                         */connectivity/drivers/wifi/TARGET_STM/COMPONENT_EMW3080B/mx_wifi/* \
                          */components/wifi/* \
                          */UNITTESTS/* \
-                         */connectivity/cellular/framework/AT/* \
                          */connectivity/cellular/framework/device/* \
                          */connectivity/cellular/framework/common/* \
-                         */FEATURE_BLE/source/* 
+                         */FEATURE_BLE/source/*  \
+                         */FEATURE_BLE/libraries/cordio_stack/* \
+                         */FEATURE_BLE/libraries/TARGET_*/stack/* 
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the

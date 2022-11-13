@@ -16,7 +16,7 @@
  */
 
 /** @file Socket.h Abstract Socket interface */
-/** @addtogroup netsocket
+/** @addtogroup NetSocket
  * Mbed OS Socket API
  * @{ */
 

@@ -39,9 +39,6 @@
 
 /*! @file
 @brief Defines the API that supports EC Diffie-Hellman shared secret value derivation primitives.
-@defgroup crys_ecpki_dh CryptoCell ECC Diffie-Hellman APIs
-@{
-@ingroup cryptocell_ecpki
 */
 
 
@@ -84,7 +81,4 @@ CIMPORT_C CRYSError_t CRYS_ECDH_SVDP_DH(
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif

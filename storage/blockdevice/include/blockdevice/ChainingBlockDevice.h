@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-/** \addtogroup storage */
-/** @{*/
 
 #ifndef MBED_CHAINING_BLOCK_DEVICE_H
 #define MBED_CHAINING_BLOCK_DEVICE_H
@@ -26,6 +24,9 @@
 #include <stdlib.h>
 
 namespace mbed {
+
+/** \addtogroup storage-blockdevice */
+/** @{*/
 
 /** Block device for chaining multiple block devices
  *  with the similar block sizes at sequential addresses
@@ -185,6 +186,8 @@ protected:
     bool _is_initialized;
 };
 
+/** @}*/
+
 } // namespace mbed
 
 // Added "using" for backwards compatibility
@@ -193,5 +196,3 @@ using mbed::ChainingBlockDevice;
 #endif
 
 #endif
-
-/** @}*/

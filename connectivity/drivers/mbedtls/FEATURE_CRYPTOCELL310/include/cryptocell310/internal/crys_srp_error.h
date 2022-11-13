@@ -47,9 +47,6 @@ extern "C"
 /*!
 @file
 @brief This module contains the definitions of the CRYS SRP errors.
-@defgroup crys_srp_error CryptoCell SRP specific errors
-@{
-@ingroup crys_srp
 */
 
 
@@ -83,9 +80,6 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif
 
 

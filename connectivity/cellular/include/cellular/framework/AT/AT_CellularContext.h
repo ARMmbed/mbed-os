@@ -22,9 +22,16 @@
 #include "rtos/Semaphore.h"
 #include "AT_CellularDevice.h"
 
+
 const int MAX_APN_LENGTH = 63 + 1;
 
 namespace mbed {
+
+/**
+ * @addtogroup at-hayes AT/Hayes Command Set
+ * @ingroup Cellular
+ * @{
+ */
 
 class AT_CellularContext : public CellularContext {
 public:
@@ -140,6 +147,10 @@ protected:
     bool _is_connected;
     ATHandler &_at;
 };
+
+/**
+ * @}
+ */
 
 } // namespace mbed
 

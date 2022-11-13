@@ -41,9 +41,6 @@
 /*!
 @file
 @brief Defines the ecpki build domain API.
-@defgroup crys_ecpki_domain CryptoCell ECC domain APIs
-@{
-@ingroup cryptocell_ecpki
 */
 
 

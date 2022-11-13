@@ -21,7 +21,8 @@
  * \details NFC Error codes
  */
 
-/** \addtogroup Core
+/** \addtogroup nfc-errors Error Codes
+ *  \ingroup nfc
  *  @{
  *  \name Error codes
  *  @{

@@ -15,9 +15,6 @@
  * limitations under the License.
  */
 
-/** \addtogroup storage */
-/** @{*/
-
 #include "blockdevice/ReadOnlyBlockDevice.h"
 #include "platform/mbed_error.h"
 
@@ -104,5 +101,3 @@ const char *ReadOnlyBlockDevice::get_type() const
 }
 
 } // namespace mbed
-
-/** @}*/

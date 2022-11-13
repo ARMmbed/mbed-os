@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-/** \addtogroup storage */
-/** @{*/
 
 #ifndef MBED_BUFFERED_BLOCK_DEVICE_H
 #define MBED_BUFFERED_BLOCK_DEVICE_H
@@ -24,6 +22,9 @@
 #include "BlockDevice.h"
 
 namespace mbed {
+
+/** \addtogroup storage-blockdevice */
+/** @{*/
 
 /** Block device for allowing minimal read and program sizes (of 1) for the underlying BD,
  *  using a buffer on the heap.
@@ -180,6 +181,9 @@ protected:
     void invalidate_write_cache();
 #endif //#if !(DOXYGEN_ONLY)
 };
+
+/** @}*/
+
 } // namespace mbed
 
 // Added "using" for backwards compatibility
@@ -188,5 +192,3 @@ using mbed::BufferedBlockDevice;
 #endif
 
 #endif
-
-/** @}*/

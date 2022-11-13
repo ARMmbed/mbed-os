@@ -43,7 +43,7 @@ const int MAX_PLMN_SIZE = 16;
 const int MAX_SIM_READY_WAITING_TIME = 30;
 
 /**
- * @addtogroup cellular
+ * @addtogroup Cellular
  * @{
  */
 

@@ -27,7 +27,7 @@ const int MAX_ICCID_LENGTH = 20 + 1; // +1 for zero termination
 namespace mbed {
 
 /**
- * @addtogroup cellular
+ * @addtogroup Cellular
  * @{
  */
 

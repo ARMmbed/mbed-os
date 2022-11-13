@@ -32,7 +32,12 @@
 namespace mbed {
 
 /**
- * @addtogroup cellular
+ * @defgroup connectivity-public-api Connectivity
+ * @ingroup mbed-os-public
+ * @{
+
+ * @defgroup Cellular
+ * @ingroup connectivity-public-api
  * @{
  */
 
@@ -396,6 +401,7 @@ protected:
 };
 
 /**
+ * @}
  * @}
  */
 

@@ -37,6 +37,7 @@ extern "C" {
 #endif
 
 /** \defgroup driver_rng Entropy Generation
+ *  \ingroup experimental-crypto-psa
  */
 /**@{*/
 

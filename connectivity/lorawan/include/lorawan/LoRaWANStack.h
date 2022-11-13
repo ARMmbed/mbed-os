@@ -28,7 +28,7 @@
  *
  * \author    Daniel Jaeckle ( STACKFORCE )
  *
- * \defgroup  LoRaWAN stack layer that controls MAC layer underneath
+ * \addtogroup  LoRaWAN
  *
  * License: Revised BSD License, see LICENSE.TXT file include in the project
  *

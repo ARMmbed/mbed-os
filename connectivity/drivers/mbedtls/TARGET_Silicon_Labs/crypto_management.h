@@ -21,12 +21,6 @@
 #define CRYPTO_MANAGEMENT_H
 
 /***************************************************************************//**
- * \addtogroup sl_crypto
- * \{
- ******************************************************************************/
-
-/***************************************************************************//**
- * \addtogroup sl_crypto_management CRYPTO peripheral instance management
  * \brief Management functions for CRYPTO peripherals. These functions take care
  *        of not having two 'owners' simultaneously for the same peripheral,
  *        potentially messing up the internal state of said peripheral.
@@ -122,7 +116,6 @@ void crypto_management_release_preemption( CRYPTO_TypeDef *device );
 
 #endif /* CRYPTO_PRESENT */
 
-/** \} (end addtogroup sl_crypto_management) */
-/** \} (end addtogroup sl_crypto) */
+/** \}*/
 
 #endif /* CRYPTO_MANAGEMENT_H */

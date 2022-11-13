@@ -36,9 +36,6 @@
 /*! @file
 @brief This file contains all of the enums and definitions that are used for the
 CryptoCell AES APIs, as well as the APIs themselves.
-@defgroup ssi_aes CryptoCell AES APIs
-@{
-@ingroup cryptocell_api
 */
 
 #ifndef SSI_AES_H
@@ -318,8 +315,5 @@ CIMPORT_C SaSiError_t  SaSi_AesFree(
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif /* #ifndef SSI_AES_H */
 

@@ -27,7 +27,7 @@
 #include "blockdevice/BlockDevice.h"
 
 namespace mbed {
-/** \addtogroup file system */
+/** \addtogroup filesystem */
 /** @{*/
 
 

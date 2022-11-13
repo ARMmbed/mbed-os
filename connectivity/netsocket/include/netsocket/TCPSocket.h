@@ -16,7 +16,7 @@
  */
 
 /** @file TCPSocket.h TCPSocket class */
-/** \addtogroup netsocket
+/** \addtogroup NetSocket
  * @{*/
 
 #ifndef TCPSOCKET_H

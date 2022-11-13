@@ -15,9 +15,6 @@
  * limitations under the License.
  */
 
-/** \addtogroup storage */
-/** @{*/
-
 #ifndef MBED_LFSFILESYSTEM_H
 #define MBED_LFSFILESYSTEM_H
 
@@ -27,6 +24,9 @@
 #include "littlefs/lfs.h"
 
 namespace mbed {
+/** \addtogroup filesystem
+ *  @{
+ */
 
 /**
  * LittleFileSystem, a little file system
@@ -301,6 +301,8 @@ private:
     rtos::Mutex _mutex;
 };
 
+/** @}*/
+
 } // namespace mbed
 
 // Added "using" for backwards compatibility
@@ -310,4 +312,3 @@ using mbed::LittleFileSystem;
 
 #endif
 
-/** @}*/

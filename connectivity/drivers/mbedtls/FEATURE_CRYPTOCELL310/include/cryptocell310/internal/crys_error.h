@@ -46,9 +46,6 @@ extern "C"
 /*! @file
 @brief This module defines the error return code types and the numbering spaces of the error codes
 for each module of the layers listed below.
-@defgroup crys_error CryptoCell general base error codes
-@{
-@ingroup cryptocell_api
 */
 
 /*! The definitions of the error number space used for the different modules */
@@ -263,9 +260,6 @@ typedef uint32_t CRYSError_t;
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif
 
 

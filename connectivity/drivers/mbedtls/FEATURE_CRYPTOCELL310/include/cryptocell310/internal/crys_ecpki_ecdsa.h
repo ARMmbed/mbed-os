@@ -40,9 +40,6 @@
 /*!
 @file
 @brief Defines the APIs that support the ECDSA functions.
-@defgroup crys_ecpki_ecdsa CryptoCell ECDSA APIs
-@{
-@ingroup cryptocell_ecpki
 */
 
 #include "crys_error.h"
@@ -133,7 +130,4 @@ CIMPORT_C CRYSError_t CRYS_ECDSA_Verify (
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif

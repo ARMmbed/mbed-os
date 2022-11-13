@@ -38,7 +38,7 @@ const uint16_t SMS_SIM_WAIT_TIME_MILLISECONDS = 200;
 const int SMS_ERROR_MULTIPART_ALL_PARTS_NOT_READ = -5001;
 
 /**
- * @addtogroup cellular
+ * @addtogroup Cellular
  * @{
  */
 

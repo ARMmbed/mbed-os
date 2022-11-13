@@ -29,7 +29,7 @@
 
 namespace mbed {
 
-/** \addtogroup netsocket */
+/** \addtogroup NetSocket */
 /** @{*/
 
 /** Socket implementation for cellular Non-IP data delivery(NIDD).

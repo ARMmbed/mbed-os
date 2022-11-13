@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-/** \addtogroup storage */
-/** @{*/
 
 #ifndef MBED_FLASH_SIM_BLOCK_DEVICE_H
 #define MBED_FLASH_SIM_BLOCK_DEVICE_H
@@ -24,6 +22,9 @@
 #include "BlockDevice.h"
 
 namespace mbed {
+
+/** \addtogroup storage-blockdevice */
+/** @{*/
 
 enum {
     BD_ERROR_NOT_ERASED       = -3201,
@@ -146,6 +147,8 @@ private:
     bool _is_initialized;
 };
 
+/** @}*/
+
 } // namespace mbed
 
 // Added "using" for backwards compatibility
@@ -155,4 +158,3 @@ using mbed::FlashSimBlockDevice;
 
 #endif
 
-/** @}*/

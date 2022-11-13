@@ -23,6 +23,9 @@
 #include "OnboardNetworkStack.h"
 #include "SocketAddress.h"
 
+/** \addtogroup netinterface */
+/** @{*/
+
 /** L3IPInterface class
  *  Implementation of the NetworkInterface for an IP-based driver
  *
@@ -161,5 +164,7 @@ protected:
     SocketAddress _gateway;
     mbed::Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
 };
+
+/** @}*/
 
 #endif

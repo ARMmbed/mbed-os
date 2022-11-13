@@ -37,9 +37,6 @@
 @file
 @brief This file contains all of the enums and definitions that are used for the
        CRYS SRP APIs, as well as the APIs themselves.
-@defgroup crys_srp CryptoCell SRP APIs
-@{
-@ingroup cryptocell_api
 
 */
 #ifndef CRYS_SRP_H
@@ -364,9 +361,6 @@ CIMPORT_C CRYSError_t  CRYS_SRP_UserProofVerify(
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif /* #ifndef CRYS_SRP_H */
 
 

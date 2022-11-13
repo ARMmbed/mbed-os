@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2014 - 2019, Nordic Semiconductor ASA
  *
  * All rights reserved.
@@ -37,6 +37,7 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+
 #ifndef BOARDS_H
 #define BOARDS_H
 
@@ -92,7 +93,8 @@
 extern "C" {
 #endif
 
-/**@defgroup BSP_BOARD_INIT_FLAGS Board initialization flags.
+/**
+ * @defgroup BSP_BOARD_INIT_FLAGS Board initialization flags.
  * @{ */
 #define BSP_INIT_NONE    0        /**< No initialization of LEDs or buttons (@ref bsp_board_init).*/
 #define BSP_INIT_LEDS    (1 << 0) /**< Enable LEDs during initialization (@ref bsp_board_init).*/

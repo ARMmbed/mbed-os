@@ -21,7 +21,8 @@
  * \details List of RF protocols
  */
 
-/** \addtogroup Transceiver
+/** \addtogroup nfc-protocols
+ *  \ingroup nfc
  *  @{
  *  \name Protocols and RF configuration
  *  @{

@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-/** \addtogroup storage */
-/** @{*/
 
 #ifndef MBED_BLOCK_DEVICE_H
 #define MBED_BLOCK_DEVICE_H
@@ -24,6 +22,13 @@
 #include <stdint.h>
 
 namespace mbed {
+
+/** \defgroup storage Storage
+ *  \ingroup mbed-os-public
+ *  @{
+ *  \defgroup storage-blockdevice BlockDevice
+ *  \ingroup storage */
+/** @{ */
 
 /** Enum of standard error codes
  *
@@ -242,6 +247,10 @@ public:
     virtual const char *get_type() const = 0;
 };
 
+/** @}
+ *  @}
+ */
+
 } // namespace mbed
 
 // Added "using" for backwards compatibility
@@ -255,4 +264,3 @@ using mbed::BD_ERROR_DEVICE_ERROR;
 
 #endif
 
-/** @}*/

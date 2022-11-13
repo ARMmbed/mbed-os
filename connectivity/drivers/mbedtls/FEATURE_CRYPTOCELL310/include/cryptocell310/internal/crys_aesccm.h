@@ -52,10 +52,6 @@ extern "C"
 @file
 @brief This file contains all of the enums and definitions that are used for the CRYS AESCCM APIs, as well as the APIs themselves.
 The API supports AES-CCM and AES-CCM* as defined in ieee-802.15.4.
-@defgroup crys_aesccm CryptoCell AES-CCM APIs
-@{
-@ingroup cryptocell_api
-
 
 @note
 Regarding the AES-CCM*, the API supports only AES-CCM* as defined in ieee-802.15.4-2011; With the instantiations as defined in B.3.2 and the nonce as defined in 7.3.2.
@@ -306,10 +302,6 @@ CRYSError_t CRYS_AESCCMStar_NonceGenerate(
 #ifdef __cplusplus
 }
 #endif
-
-/**
-@}
- */
 
 #endif /*#ifndef CRYS_AESCCM_H*/
 

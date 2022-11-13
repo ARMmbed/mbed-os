@@ -1,5 +1,5 @@
 
-/** \addtogroup netsocket */
+/** \addtogroup NetSocket */
 /** @{*/
 /* nsapi.h - The network socket API
  * Copyright (c) 2015 ARM Limited

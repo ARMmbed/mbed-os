@@ -41,9 +41,6 @@
 /*!
 @file
 @brief This module contains the definitions of the CRYS ECPKI errors.
-@defgroup crys_ecpki_error CryptoCell ECC specific errors
-@{
-@ingroup cryptocell_ecpki
 */
 
 #include "crys_error.h"
@@ -295,9 +292,6 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif
 
 

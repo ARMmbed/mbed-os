@@ -23,6 +23,12 @@
 
 namespace mbed {
 
+/**
+ * @addtogroup at-hayes AT/Hayes Command Set
+ * @ingroup Cellular
+ * @{
+ */
+
 class AT_CellularInformation;
 class AT_CellularNetwork;
 class AT_CellularSMS;
@@ -201,6 +207,10 @@ private:
     bool _modem_debug_on;
     const intptr_t *_property_array;
 };
+
+/**
+ * @}
+ */
 
 } // namespace mbed
 #endif // AT_CELLULAR_DEVICE_H_

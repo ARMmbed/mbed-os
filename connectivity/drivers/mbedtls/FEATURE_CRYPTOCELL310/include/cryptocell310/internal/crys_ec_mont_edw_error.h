@@ -39,9 +39,6 @@
 /*!
 @file
 @brief This module containes the definitions of the CRYS ECC-25519 errors.
-@defgroup crys_ecmontedw_error CryptoCell ECC-25519 errors
-@{
-@ingroup cryptocell_ec
 */
 
 #include "crys_error.h"

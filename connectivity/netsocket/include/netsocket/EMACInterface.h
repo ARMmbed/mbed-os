@@ -22,6 +22,9 @@
 #include "EMAC.h"
 #include "OnboardNetworkStack.h"
 
+/** \defgroup netinterface Network Interfaces
+ *  \ingroup NetSocket */
+/** @{*/
 
 /** EMACInterface class
  *  Implementation of the NetworkInterface for an EMAC-based driver
@@ -154,5 +157,7 @@ protected:
     uint8_t _hw_mac_addr[NSAPI_MAC_BYTES] {};
     mbed::Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
 };
+
+/** @}*/
 
 #endif

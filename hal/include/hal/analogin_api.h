@@ -1,5 +1,5 @@
 
-/** \addtogroup hal */
+/** \addtogroup hal HAL*/
 /** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited

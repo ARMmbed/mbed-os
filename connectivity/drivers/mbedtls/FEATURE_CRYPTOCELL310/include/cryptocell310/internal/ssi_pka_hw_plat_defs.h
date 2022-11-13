@@ -45,9 +45,6 @@ extern "C"
 /*!
 @file
 @brief Contains the enums and definitions that are used in the PKA code (definitions that are platform dependent).
-@defgroup ssi_pka_hw_plat_defs CryptoCell PKA specific types and definitions
-@{
-@ingroup cryptocell_pka
 
 */
 
@@ -69,9 +66,6 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif //PKA_HW_PLAT_DEFS_H
 
 

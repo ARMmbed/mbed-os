@@ -40,9 +40,6 @@
 /*!
 @file
 @brief Contains all of the enums and definitions that are used for the CRYS ECPKI APIs.
-@defgroup crys_ecpki_types CryptoCell ECC specific types
-@{
-@ingroup cryptocell_ecpki
 */
 
 #include "ssi_pal_types_plat.h"
@@ -472,7 +469,4 @@ typedef struct CRYS_ECDHFipsKatContext_t{
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif

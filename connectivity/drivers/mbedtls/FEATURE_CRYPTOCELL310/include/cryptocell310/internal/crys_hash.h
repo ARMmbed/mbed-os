@@ -37,9 +37,6 @@
 @file
 @brief This file contains all of the enums and definitions
 that are used for the CRYS HASH APIs, as well as the APIs themselves.
-@defgroup crys_hash CryptoCell HASH APIs
-@{
-@ingroup cryptocell_api
 
 
 This product supports the following HASH algorithms (or modes, according to product):
@@ -279,7 +276,4 @@ CIMPORT_C CRYSError_t CRYS_HASH  (
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif

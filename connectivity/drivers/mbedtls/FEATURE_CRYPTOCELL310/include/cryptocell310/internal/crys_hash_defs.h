@@ -39,9 +39,6 @@
 /*!
 @file
 @brief This file contains HASH definitions.
-@defgroup crys_hash_defs CryptoCell Hash definitions
-@{
-@ingroup crys_hash
 */
 
 #ifdef __cplusplus

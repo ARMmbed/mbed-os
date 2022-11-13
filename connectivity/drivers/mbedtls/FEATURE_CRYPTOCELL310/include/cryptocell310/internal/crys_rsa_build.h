@@ -47,17 +47,11 @@ extern "C"
 #endif
 
 /*!
-@defgroup crys_rsa CryptoCell RSA APIs
-@{
-@ingroup cryptocell_api
 @brief This group is the cryptocell ECC root group
 @}
 
 @file
 @brief This module defines some utility functions for working with RSA cryptography.
-@defgroup crys_rsa_build CryptoCell RSA Utility APIs
-@{
-@ingroup crys_rsa
 */
 
 /******************************************************************************************/
@@ -146,7 +140,4 @@ CIMPORT_C CRYSError_t CRYS_RSA_Get_PubKey(
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif

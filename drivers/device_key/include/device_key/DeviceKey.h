@@ -33,8 +33,7 @@
 #if (DEVICEKEY_ENABLED) || defined(DOXYGEN_ONLY)
 
 namespace mbed {
-/** \addtogroup device-security Device Key
- * \ingroup mbed-os-public
+/** \addtogroup drivers-public-api
  * @{
  */
 
@@ -64,9 +63,6 @@ enum DeviceKeyStatus {
  * @ingroup device-key
  */
 /**
- * \defgroup device-security_DeviceKey DeviceKey class
- * \addtogroup device-security
- * @{
  */
 class DeviceKey : private mbed::NonCopyable<DeviceKey> {
 public:
@@ -155,7 +151,6 @@ private:
 
 };
 
-/** @}*/
 /** @}*/
 
 }

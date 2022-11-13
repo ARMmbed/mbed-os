@@ -41,6 +41,7 @@ extern "C" {
 #endif
 
 /** \defgroup se_init Secure element driver initialization
+    \ingroup experimental-crypto-psa
  */
 /**@{*/
 
@@ -151,6 +152,7 @@ typedef uint64_t psa_key_slot_number_t;
 /**@}*/
 
 /** \defgroup se_mac Secure Element Message Authentication Codes
+ *  \ingroup experimental-crypto-psa
  * Generation and authentication of Message Authentication Codes (MACs) using
  * a secure element can be done either as a single function call (via the
  * `psa_drv_se_mac_generate_t` or `psa_drv_se_mac_verify_t` functions), or in
@@ -349,6 +351,7 @@ typedef struct {
 /**@}*/
 
 /** \defgroup se_cipher Secure Element Symmetric Ciphers
+ *  \ingroup experimental-crypto-psa
  *
  * Encryption and Decryption using secure element keys in block modes other
  * than ECB must be done in multiple parts, using the following flow:
@@ -531,6 +534,7 @@ typedef struct {
 /**@}*/
 
 /** \defgroup se_asymmetric Secure Element Asymmetric Cryptography
+ *  \ingroup experimental-crypto-psa
  *
  * Since the amount of data that can (or should) be encrypted or signed using
  * asymmetric keys is limited by the key size, asymmetric key operations using
@@ -693,6 +697,7 @@ typedef struct {
 /**@}*/
 
 /** \defgroup se_aead Secure Element Authenticated Encryption with Additional Data
+ *  \ingroup experimental-crypto-psa
  * Authenticated Encryption with Additional Data (AEAD) operations with secure
  * elements must be done in one function call. While this creates a burden for
  * implementers as there must be sufficient space in memory for the entire
@@ -805,6 +810,7 @@ typedef struct {
 /**@}*/
 
 /** \defgroup se_key_management Secure Element Key Management
+ *  \ingroup experimental-crypto-psa
  * Currently, key management is limited to importing keys in the clear,
  * destroying keys, and exporting keys in the clear.
  * Whether a key may be exported is determined by the key policies in place
@@ -1137,6 +1143,7 @@ typedef struct {
 /**@}*/
 
 /** \defgroup driver_derivation Secure Element Key Derivation and Agreement
+ *  \ingroup experimental-crypto-psa
  * Key derivation is the process of generating new key material using an
  * existing key and additional parameters, iterating through a basic
  * cryptographic function, such as a hash.
@@ -1277,6 +1284,7 @@ typedef struct {
 /**@}*/
 
 /** \defgroup se_registration Secure element driver registration
+ *  \ingroup experimental-crypto-psa
  */
 /**@{*/
 

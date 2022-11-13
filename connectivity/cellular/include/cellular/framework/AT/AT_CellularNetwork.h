@@ -22,7 +22,14 @@
 #include "ATHandler.h"
 #include "AT_CellularDevice.h"
 
+
 namespace mbed {
+
+/**
+ * @addtogroup at-hayes AT/Hayes Command Set
+ * @ingroup Cellular
+ * @{
+ */
 
 #define AT_NETWORK_TRIALS 5
 #define TIMER_UNIT_LENGTH 3
@@ -147,6 +154,10 @@ protected:
     ATHandler &_at;
     AT_CellularDevice &_device;
 };
+
+/**
+ * @}
+ */
 
 } // namespace mbed
 

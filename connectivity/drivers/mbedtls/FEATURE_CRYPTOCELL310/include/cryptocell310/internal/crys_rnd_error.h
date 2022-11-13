@@ -49,9 +49,6 @@ extern "C"
 /*!
 @file
 @brief This module contains the definitions of the CRYS RND errors.
-@defgroup crys_rnd_error CryptoCell RND specific errors
-@{
-@ingroup crys_rnd
 */
 
 
@@ -145,9 +142,6 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif
 
 

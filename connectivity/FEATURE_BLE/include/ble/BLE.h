@@ -475,15 +475,16 @@ private:
     bool event_signaled;
 };
 
+
+/**
+ * @}
+ */
+
 }
 
 using ble::BLE;
 /**
  * @namespace ble Entry namespace for all BLE API definitions.
- */
-
-/**
- * @}
  */
 
 #endif /* ifndef MBED_BLE_H__ */

@@ -319,6 +319,7 @@ psa_status_t mbedtls_psa_inject_entropy(const uint8_t *seed,
                                         size_t seed_size);
 
 /** \addtogroup crypto_types
+ *  \ingroup experimental-crypto-psa
  * @{
  */
 
@@ -559,6 +560,7 @@ psa_status_t psa_get_key_domain_parameters(
 /**@}*/
 
 /** \defgroup psa_tls_helpers TLS helper functions
+ *  \ingroup experimental-crypto-psa
  * @{
  */
 

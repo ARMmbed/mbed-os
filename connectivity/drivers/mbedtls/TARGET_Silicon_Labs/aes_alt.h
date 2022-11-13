@@ -19,16 +19,6 @@
 #ifndef MBEDTLS_AES_ALT_H
 #define MBEDTLS_AES_ALT_H
 
-/***************************************************************************//**
- * \addtogroup sl_crypto
- * \{
- ******************************************************************************/
-
-/***************************************************************************//**
- * \addtogroup sl_crypto_aes AES block cipher
- * \brief Hardware accelerated AES block cipher.
- * \{
- ******************************************************************************/
 
 #if defined(MBEDTLS_AES_ALT)
 /* SiliconLabs CRYPTO hardware acceleration implementation */
@@ -312,7 +302,5 @@ MBEDTLS_DEPRECATED static inline void mbedtls_aes_decrypt(
 
 #endif /* MBEDTLS_AES_ALT */
 
-/** \} (end addtogroup sl_crypto_aes) */
-/** \} (end addtogroup sl_crypto) */
 
 #endif /* MBEDTLS_AES_ALT_H */

@@ -49,9 +49,6 @@ extern "C"
 /*!
 @file
 @brief This file contains error codes definitions for CRYS DH module.
-@defgroup crys_dh_error CryptoCell DH specific errors
-@{
-@ingroup crys_dh
 */
 /************************ Defines ******************************/
 /* DH module on the CRYS layer base address - 0x00F00500 */
@@ -151,8 +148,5 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif
 

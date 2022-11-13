@@ -49,9 +49,6 @@ extern "C"
 /*!
 @file
 @brief This module contains the definitions of the CRYS HASH errors.
-@defgroup crys_hash_error CryptoCell HASH specific errors
-@{
-@ingroup crys_hash
 */
 
 
@@ -100,9 +97,6 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif
 
 

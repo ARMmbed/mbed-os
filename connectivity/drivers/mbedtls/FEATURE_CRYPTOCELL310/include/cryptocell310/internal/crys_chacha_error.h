@@ -47,9 +47,7 @@ extern "C"
 /*!
 @file
 @brief This module contains the definitions of the CRYS CHACHA errors.
-@defgroup crys_chacha_error CryptoCell CHACHA specific errors
-@{
-@ingroup crys_chacha
+
 */
 
 
@@ -95,9 +93,7 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
+
 #endif
 
 

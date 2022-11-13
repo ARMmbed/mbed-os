@@ -25,6 +25,7 @@ extern "C" {
 #endif
 
 /** \addtogroup crypto_types
+ *  \ingroup experimental-crypto-psa
  * @{
  */
 

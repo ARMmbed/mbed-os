@@ -42,17 +42,11 @@
 #include "ssi_pka_hw_plat_defs.h"
 
 /*!
-@defgroup cryptocell_pka CryptoCell PKA group
-@{
-@ingroup cryptocell_api
 @brief This group is the cryptocell PKA root group
 @}
 
 @file
 @brief The file contains all of the enums and definitions that are used in the PKA related code.
-@defgroup crys_pka_defs_hw CryptoCell PKA specific definitions
-@{
-@ingroup cryptocell_pka
 */
 
 

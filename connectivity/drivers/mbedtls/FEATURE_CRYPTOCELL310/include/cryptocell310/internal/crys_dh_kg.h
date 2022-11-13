@@ -49,9 +49,6 @@ extern "C"
 
 /*! @file
 @brief This module defines the API that supports Diffie-Hellman domain.
-@defgroup crys_dh_kg CryptoCell DH Key Generation APIs
-@{
-@ingroup crys_dh
 */
 
 /************************ Defines ******************************/
@@ -197,7 +194,4 @@ CIMPORT_C CRYSError_t CRYS_DH_CheckDomainParams(
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif

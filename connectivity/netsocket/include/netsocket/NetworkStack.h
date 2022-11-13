@@ -26,7 +26,7 @@
 #include "DNS.h"
 
 /** @file NetworkStack.h NetworkStack class */
-/** @addtogroup netsocket
+/** @addtogroup NetSocket
  * @{ */
 
 // Predeclared classes

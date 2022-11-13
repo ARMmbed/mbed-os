@@ -39,6 +39,7 @@ extern "C" {
 #endif
 
 /** \defgroup driver_digest Hardware-Accelerated Message Digests
+ *  \ingroup experimental-crypto-psa
  *
  * Generation and authentication of Message Digests (aka hashes) must be done
  * in parts using the following sequence:
@@ -146,6 +147,7 @@ typedef void (*psa_drv_hash_abort_t)(psa_drv_hash_context_t *p_context);
 /**@}*/
 
 /** \defgroup accel_mac Hardware-Accelerated Message Authentication Code
+ *  \ingroup experimental-crypto-psa
  * Generation and authentication of Message Authentication Codes (MACs) using
  * cryptographic accelerators can be done either as a single function call (via the
  * `psa_drv_accel_mac_generate_t` or `psa_drv_accel_mac_verify_t`
@@ -348,6 +350,7 @@ typedef psa_status_t (*psa_drv_accel_mac_verify_t)(const uint8_t *p_input,
 /**@}*/
 
 /** \defgroup accel_cipher Hardware-Accelerated Block Ciphers
+ *  \ingroup experimental-crypto-psa
  * Encryption and Decryption using hardware-acceleration in block modes other
  * than ECB must be done in multiple parts, using the following flow:
  * - `psa_drv_accel_ciphersetup_t`
@@ -506,6 +509,7 @@ typedef psa_status_t (*psa_drv_accel_cipher_abort_t)(psa_drv_accel_cipher_contex
 /**@}*/
 
 /** \defgroup accel_aead Hardware-Accelerated Authenticated Encryption with Additional Data
+ *  \ingroup experimental-crypto-psa
  *
  * Hardware-accelerated Authenticated Encryption with Additional Data (AEAD)
  * operations must be done in one function call. While this creates a burden
@@ -624,6 +628,7 @@ typedef psa_status_t (*psa_drv_accel_aead_decrypt_t)(const uint8_t *p_key,
 /**@}*/
 
 /** \defgroup accel_asymmetric Hardware-Accelerated Asymmetric Cryptography
+ *  \ingroup experimental-crypto-psa
  *
  * Since the amount of data that can (or should) be encrypted or signed using
  * asymmetric keys is limited by the key size, hardware-accelerated asymmetric

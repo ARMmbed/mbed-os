@@ -397,7 +397,7 @@ uint32_t BbGetTargetTimeDelta(uint32_t targetUsec, uint32_t refUsec);
 /*************************************************************************************************/
 uint8_t BbGetActiveProtocol(void);
 
-/*! \} */    /* BB_API_CTRL */
+/*! \} */        /* BB_API_CTRL */
 
 #ifdef __cplusplus
 };

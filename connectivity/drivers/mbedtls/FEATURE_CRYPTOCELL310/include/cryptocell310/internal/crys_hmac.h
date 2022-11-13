@@ -37,9 +37,6 @@
 @file
 @brief This file contains all of the enums and definitions
 that are used for the CRYS HMAC APIs, as well as the APIs themselves.
-@defgroup crys_hmac CryptoCell HMAC APIs
-@{
-@ingroup cryptocell_api
 
 
 HMAC is a wrapping algorithm that uses a HASH function (one of the supported HASH algorithms, as specified in the HASH chapter) and a key,
@@ -208,7 +205,4 @@ CIMPORT_C CRYSError_t CRYS_HMAC  (
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif

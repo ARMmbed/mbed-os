@@ -31,7 +31,7 @@ const int MAX_OPERATOR_NAME_LONG = 16;
 const int MAX_OPERATOR_NAME_SHORT = 8;
 
 /**
- * @addtogroup cellular
+ * @addtogroup Cellular
  * @{
  */
 

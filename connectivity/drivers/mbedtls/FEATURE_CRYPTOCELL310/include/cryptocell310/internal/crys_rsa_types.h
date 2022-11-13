@@ -53,9 +53,6 @@ extern "C"
 /*!
 @file
 @brief This file contains all of the enums and definitions that are used for the CRYS RSA APIs.
-@defgroup crys_rsa_types CryptoCell RSA used definitions and enums
-@{
-@ingroup crys_rsa
 */
 
 /************************ Defines ******************************/
@@ -610,7 +607,4 @@ typedef struct CRYS_RSAFipsKatContext_t{
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif

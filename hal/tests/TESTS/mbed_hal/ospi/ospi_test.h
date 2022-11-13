@@ -15,12 +15,7 @@
  * limitations under the License.
  */
 
-/** \addtogroup hal_ospi
- *  @{
- *  \defgroup hal_ospi_tests Tests
- *  OSPI tests of the HAL.
- *  @{
- */
+
 #ifndef MBED_OSPI_TEST_H
 #define MBED_OSPI_TEST_H
 
@@ -97,6 +92,3 @@ void ospi_write_read_test(void);
 #endif
 
 #endif
-
-/** @}*/
-/** @}*/

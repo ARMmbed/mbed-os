@@ -36,9 +36,6 @@
 /*!
 @file
 @brief This file contains the definitions of the CryptoCell AES errors.
-@defgroup ssi_aes_error CryptoCell AES specific errors
-@{
-@ingroup ssi_aes
 */
 
 #ifndef SSI_AES_ERROR_H
@@ -127,7 +124,4 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif /* #ifndef SSI_AES_ERROR_H */

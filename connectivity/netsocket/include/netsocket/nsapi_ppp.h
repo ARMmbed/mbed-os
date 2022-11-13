@@ -1,4 +1,4 @@
-/** \addtogroup netsocket */
+/** \addtogroup NetSocket */
 /** @{*/
 /* nsapi_ppp.h
  * Modified work Copyright (c) 2017 ARM Limited

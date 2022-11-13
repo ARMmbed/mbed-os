@@ -26,7 +26,14 @@
 #include "AT_CellularDevice.h"
 #include <time.h>
 
+
 namespace mbed {
+
+/**
+ * @addtogroup at-hayes AT/Hayes Command Set
+ * @ingroup Cellular
+ * @{
+ */
 
 /**
  *  Class AT_CellularSMS
@@ -170,6 +177,10 @@ private:
     ATHandler &_at;
     AT_CellularDevice &_device;
 };
+
+/**
+ * @}
+ */
 
 } // namespace mbed
 

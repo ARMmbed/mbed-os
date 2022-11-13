@@ -51,9 +51,6 @@ extern "C"
 /*!
 @file
 @brief This module defines the API that supports Diffie-Hellman key exchange, as defined in [PKCS3] and in [X9.42] (key lengths 1024 and 2048 bits).
-@defgroup crys_dh CryptoCell DH APIs
-@{
-@ingroup cryptocell_api
 */
 
 
@@ -440,7 +437,4 @@ CIMPORT_C CRYSError_t CRYS_DH_CheckPubKey(
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif

@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-/** \addtogroup storage */
-/** @{*/
 
 #ifndef MBED_OBSERVING_BLOCK_DEVICE_H
 #define MBED_OBSERVING_BLOCK_DEVICE_H
@@ -26,6 +24,9 @@
 #include "platform/Callback.h"
 
 namespace mbed {
+
+/** \addtogroup storage-blockdevice */
+/** @{*/
 
 class ObservingBlockDevice : public BlockDevice {
 public:
@@ -146,6 +147,8 @@ private:
     mbed::Callback<void(BlockDevice *)> _change;
 };
 
+/** @}*/
+
 } // namespace mbed
 
 // Added "using" for backwards compatibility
@@ -154,5 +157,3 @@ using mbed::ObservingBlockDevice;
 #endif
 
 #endif
-
-/** @}*/

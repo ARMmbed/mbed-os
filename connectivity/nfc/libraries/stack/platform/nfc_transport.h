@@ -20,7 +20,8 @@
  * \author Donatien Garnier
  */
 
-/** \addtogroup Implementation
+/** \addtogroup nfc-transport Transport
+ *  \ingroup nfc
  *  @{
  *  \name Transport
  *  @{

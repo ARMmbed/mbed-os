@@ -1497,12 +1497,6 @@ int32_t MX_WIFI_FOTA_start(MX_WIFIObject_t *Obj, const char *url, const char *md
   */
 
 
-/**
-  * @} **
-  */
-
-
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

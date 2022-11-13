@@ -23,7 +23,14 @@
 #include "rtos/Mutex.h"
 #include "AT_CellularDevice.h"
 
+
 namespace mbed {
+
+/**
+ * @addtogroup at-hayes AT/Hayes Command Set
+ * @ingroup Cellular
+ * @{
+ */
 
 // <PDP_addr_1> and <PDP_addr_2>: each is a string type that identifies the MT in the address space applicable to the PDP.
 // The string is given as dot-separated numeric (0-255) parameter of the form:
@@ -214,6 +221,10 @@ protected:
     ATHandler &_at;
     AT_CellularDevice &_device;
 };
+
+/**
+ * @}
+ */
 
 } // namespace mbed
 

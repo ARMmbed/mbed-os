@@ -47,9 +47,6 @@ extern "C"
 /*!
 @file
 @brief This module contains the definitions of the CRYS KDF errors.
-@defgroup crys_kdf_error CryptoCell Key Derivation specific errors
-@{
-@ingroup crys_kdf
  */
 
 
@@ -95,9 +92,6 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif
 
 

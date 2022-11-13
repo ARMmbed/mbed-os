@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-/** \addtogroup storage */
-/** @{*/
 
 #ifndef MBED_MEM_BLOCK_DEVICE_H
 #define MBED_MEM_BLOCK_DEVICE_H
@@ -27,6 +25,9 @@
 #include <stdlib.h>
 
 namespace mbed {
+
+/** \addtogroup storage-blockdevice */
+/** @{*/
 
 /** Lazily allocated heap-backed block device.
  *
@@ -163,6 +164,8 @@ private:
     bool _is_initialized;
 };
 
+/** @}*/
+
 } // namespace mbed
 
 // Added "using" for backwards compatibility
@@ -172,4 +175,3 @@ using mbed::HeapBlockDevice;
 
 #endif
 
-/** @}*/

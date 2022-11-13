@@ -50,9 +50,6 @@ extern "C"
 /*!
 @file
 @brief This module defines APIs that support [PKCS1_1.5] and [PKCS1_2.1] encryption and signature schemes.
-@defgroup crys_rsa_schemes CryptoCell RSA encryption and signature schemes
-@{
-@ingroup crys_rsa
 */
 
 /**********************************************************************************************************/
@@ -515,7 +512,4 @@ it assumes the DataIn_ptr has already been hashed using SHA512.
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif

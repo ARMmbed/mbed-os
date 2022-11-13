@@ -1,5 +1,5 @@
 
-/** \addtogroup netsocket */
+/** \addtogroup NetSocket */
 /** @{*/
 /* UDPSocket
  * Copyright (c) 2015 ARM Limited

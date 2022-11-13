@@ -19,6 +19,17 @@
  *  limitations under the License.
  */
 
+/** \defgroup mbed-os-experimental Experimental APIs */
+
+/** \defgroup experimental-crypto Cryptography
+ * \ingroup mbed-os-experimental
+ */
+
+/** \defgroup experimental-crypto-psa Arm Platform Security Architecture (PSA)
+ *  \ingroup experimental-crypto
+ * @{
+ */
+
 #ifndef PSA_CRYPTO_H
 #define PSA_CRYPTO_H
 
@@ -3749,3 +3760,5 @@ psa_status_t psa_generate_key(const psa_key_attributes_t *attributes,
 #include "crypto_extra.h"
 
 #endif /* PSA_CRYPTO_H */
+
+/** @}*/

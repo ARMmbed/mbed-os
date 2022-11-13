@@ -22,12 +22,6 @@
 #define MBEDTLS_SHA256_ALT_H
 
 /***************************************************************************//**
- * \addtogroup sl_crypto
- * \{
- ******************************************************************************/
-
-/***************************************************************************//**
- * \addtogroup sl_crypto_sha256 SHA-224 and SHA-256 cryptographic hash function
  * \brief CRYPTO hardware accelerated SHA-224 and SHA-256 cryptographic hash function.
  * \{
  ******************************************************************************/
@@ -181,7 +175,6 @@ MBEDTLS_DEPRECATED void mbedtls_sha256_process( mbedtls_sha256_context *ctx,
 
 #endif /* #if defined(MBEDTLS_SHA256_ALT) */
 
-/** \} (end addtogroup sl_crypto_sha256) */
-/** \} (end addtogroup sl_crypto) */
+/** \} */
 
 #endif /* #ifndef MBEDTLS_SHA256_ALT_H */

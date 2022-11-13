@@ -58,9 +58,6 @@ SaSiError_t SaSi_PalTrngParameterGet(uint32_t *SubSamplingRatio /*!< [out] TRNG 
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif
 
 

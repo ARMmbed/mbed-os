@@ -37,17 +37,11 @@
 #define CRYS_ECPKI_BUILD_H
 
 /*!
-@defgroup cryptocell_ecpki CryptoCell ECC APIs
-@{
-@ingroup cryptocell_api
 @brief This group is the cryptocell ECC root group
 @}
 
 @file
 @brief This module defines functions for building key structures used in Elliptic Curves Cryptography (ECC).
-@defgroup crys_ecpki_build CryptoCell key build for ECC APIs
-@{
-@ingroup cryptocell_ecpki
 */
 
 
@@ -201,7 +195,4 @@ CIMPORT_C CRYSError_t CRYS_ECPKI_ExportPublKey(
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif

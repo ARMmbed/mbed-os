@@ -21,6 +21,7 @@
  */
 
 /** \addtogroup NDEF
+ *  \ingroup nfc
  *  @{
  *  \name Generic NDEF Tag
  *  @{

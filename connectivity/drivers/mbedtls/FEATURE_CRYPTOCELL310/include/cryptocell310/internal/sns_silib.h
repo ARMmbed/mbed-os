@@ -37,9 +37,6 @@
 @file
 @brief This file contains all of the enums and definitions that are used for the
         CryptoCell Lib init and finish APIs, as well as the APIs themselves.
-@defgroup sns_silib CryptoCell library basic APIs
-@{
-@ingroup cryptocell_api
 
 */
 
@@ -106,8 +103,5 @@ SA_SilibRetCode_t SaSi_LibFini(void			*rnd_ctx /*!< [in/out] Pointer to the RND 
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif /*__DX_CCLIB_H__*/
 

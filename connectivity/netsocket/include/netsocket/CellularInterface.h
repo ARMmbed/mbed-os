@@ -20,7 +20,7 @@
 #include "netsocket/NetworkInterface.h"
 
 /**
- * @addtogroup cellular
+ * @addtogroup Cellular
  * @{
  */
 
@@ -132,5 +132,9 @@ public:
      */
     void set_default_parameters() override;
 };
+
+/**
+ * @}
+ */
 
 #endif // CELLULAR_INTERFACE_H_

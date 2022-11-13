@@ -27,6 +27,7 @@
 #include "mbedtls_svc_key_id.h"
 
 /** \defgroup error Error codes
+ *  \ingroup experimental-crypto-psa
  * @{
  */
 
@@ -267,6 +268,7 @@
 /**@}*/
 
 /** \defgroup crypto_types Key and algorithm types
+ *  \ingroup experimental-crypto-psa
  * @{
  */
 
@@ -1554,6 +1556,7 @@
 /**@}*/
 
 /** \defgroup key_lifetimes Key lifetimes
+ *  \ingroup experimental-crypto-psa
  * @{
  */
 
@@ -1592,6 +1595,7 @@
 /**@}*/
 
 /** \defgroup policy Key policies
+ *  \ingroup experimental-crypto-psa
  * @{
  */
 
@@ -1673,6 +1677,7 @@
 /**@}*/
 
 /** \defgroup derivation Key derivation
+ *  \ingroup experimental-crypto-psa
  * @{
  */
 

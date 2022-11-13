@@ -47,9 +47,6 @@ extern "C"
 /*!
 @file
 @brief This module contains the definitions of the CRYS POLY errors.
-@defgroup crys_poly_error CryptoCell POLY specific errors
-@{
-@ingroup crys_poly
 */
 
 

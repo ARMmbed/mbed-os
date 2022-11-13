@@ -21,17 +21,6 @@
 #ifndef MBEDTLS_SHA1_ALT_H
 #define MBEDTLS_SHA1_ALT_H
 
-/***************************************************************************//**
- * \addtogroup sl_crypto
- * \{
- ******************************************************************************/
-
-/***************************************************************************//**
- * \addtogroup sl_crypto_sha1 SHA-1 cryptographic hash function
- * \brief CRYPTO hardware accelerated SHA-1 cryptographic hash function.
- * \{
- ******************************************************************************/
-
 #if defined(MBEDTLS_SHA1_ALT)
 
 #include <stdint.h>
@@ -185,8 +174,5 @@ MBEDTLS_DEPRECATED void mbedtls_sha1_process( mbedtls_sha1_context *ctx,
 #endif
 
 #endif /* #if defined(MBEDTLS_SHA1_ALT) */
-
-/** \} (end addtogroup sl_crypto_sha1) */
-/** \} (end addtogroup sl_crypto) */
 
 #endif /* #ifndef MBEDTLS_SHA1_ALT_H */

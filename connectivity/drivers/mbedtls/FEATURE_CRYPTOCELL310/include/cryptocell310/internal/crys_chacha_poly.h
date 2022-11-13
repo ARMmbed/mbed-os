@@ -37,9 +37,6 @@
 @file
 @brief This file contains all of the enums and definitions that are used for the
          CRYS CHACHA-POLY APIs, as well as the APIs themselves.
-@defgroup crys_chacha_poly CryptoCell CHACHA-POLY APIs
-@{
-@ingroup cryptocell_api
 */
 #ifndef CRYS_CHACHA_POLY_H
 #define CRYS_CHACHA_POLY_H
@@ -84,12 +81,4 @@ CIMPORT_C CRYSError_t  CRYS_CHACHA_POLY(
 #ifdef __cplusplus
 }
 #endif
-/**
-@}
- */
 #endif /* #ifndef CRYS_CHACHA_POLY_H */
-
-
-
-
-
