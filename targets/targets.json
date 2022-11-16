@@ -3203,18 +3203,16 @@
         ],
         "public": false,
         "core": "Cortex-M7FD",
-        "mbed_rom_start": "0x08000000",
-        "mbed_rom_size": "0x100000",
-        "mbed_ram_start": "0x24000000",
-        "mbed_ram_size": "0x50000",
         "extra_labels_add": [
             "STM32H723xG"
         ],
         "macros_add": [
+            "MBED_SPLIT_HEAP",
             "STM32H723xx"
         ],
         "overrides": {
-            "system_power_supply": "PWR_LDO_SUPPLY"
+            "system_power_supply": "PWR_LDO_SUPPLY",
+            "i2c_timing_value_algo": true
         }
     },
     "MCU_STM32H725xE": {
@@ -3303,6 +3301,49 @@
             "0836"
         ],
         "device_name": "STM32H743ZITx"
+    },
+    "NUCLEO_H723ZG": {
+        "inherits": [
+            "MCU_STM32H723xG"
+        ],
+        "supported_toolchains": [
+            "GCC_ARM"
+        ],
+        "extra_labels_add": [
+            "STM32H723ZG"
+        ],
+        "config": {
+            "hse_value": {
+                "help": "HSE default value is 25MHz in HAL",
+                "value": "8000000",
+                "macro_name": "HSE_VALUE"
+            },
+            "d11_configuration": {
+                "help": "Value: PB_5 for the default board configuration, PA_7 in case of solder bridge update (SB33 on/ SB35 off)",
+                "value": "PB_5",
+                "macro_name": "STM32_D11_SPI_ETHERNET_PIN"
+            },
+            "usb_speed": {
+                "help": "USE_USB_OTG_HS or USE_USB_HS_IN_FS",
+                "value": "USE_USB_HS_IN_FS"
+            }
+        },
+        "device_has_add": [
+            "EMAC",
+            "USBDEVICE"
+        ],
+        "overrides": {
+            "clock_source": "USE_PLL_HSE_EXTC",
+            "lse_available": 1,
+            "network-default-interface-type": "ETHERNET"
+        },
+        "supported_form_factors": [
+            "ARDUINO_UNO"
+        ],
+        "detect_code": [
+            "0836"
+        ],
+        "device_name": "STM32H723ZGTx"
     },
     "MCU_STM32H745xI": {
         "inherits": [
