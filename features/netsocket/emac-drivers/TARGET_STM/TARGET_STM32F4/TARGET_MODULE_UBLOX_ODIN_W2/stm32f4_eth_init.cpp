@@ -53,7 +53,7 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef* heth)
           RMII_MII_CRS_DV -------------------> PA7
           RMII_MII_RXD0 ---------------------> PC4
           RMII_MII_RXD1 ---------------------> PC5
-          RMII_MII_RXER ---------------------> PG2
+          RMII_MII_RXER ---------------------> none
           RMII_MII_TX_EN --------------------> PB11
           RMII_MII_TXD0 ---------------------> PB12
           RMII_MII_TXD1 ---------------------> PB13
@@ -103,7 +103,7 @@ void HAL_ETH_MspDeInit(ETH_HandleTypeDef* heth)
           RMII_MII_CRS_DV -------------------> PA7
           RMII_MII_RXD0 ---------------------> PC4
           RMII_MII_RXD1 ---------------------> PC5
-          RMII_MII_RXER ---------------------> PG2
+          RMII_MII_RXER ---------------------> none
           RMII_MII_TX_EN --------------------> PB11
           RMII_MII_TXD0 ---------------------> PB12
           RMII_MII_TXD1 ---------------------> PB13

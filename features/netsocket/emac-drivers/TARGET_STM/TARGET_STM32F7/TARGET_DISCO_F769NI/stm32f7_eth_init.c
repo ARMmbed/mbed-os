@@ -53,7 +53,7 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef *heth)
           RMII_MII_CRS_DV -------------------> PA7
           RMII_MII_RXD0 ---------------------> PC4
           RMII_MII_RXD1 ---------------------> PC5
-          RMII_MII_RXER ---------------------> PD5
+          RMII_MII_RXER ---------------------> none
           RMII_MII_TX_EN --------------------> PG11
           RMII_MII_TXD0 ---------------------> PG13
           RMII_MII_TXD1 ---------------------> PG14
@@ -69,10 +69,6 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef *heth)
         /* Configure PC1, PC4 and PC5 */
         GPIO_InitStructure.Pin = GPIO_PIN_1 | GPIO_PIN_4 | GPIO_PIN_5;
         HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
-
-        /* Configure PD5 */
-        GPIO_InitStructure.Pin =  GPIO_PIN_5;
-        HAL_GPIO_Init(GPIOD, &GPIO_InitStructure);
 
         /* Configure PG11, PG13 and PG14 */
         GPIO_InitStructure.Pin =  GPIO_PIN_11 | GPIO_PIN_13 | GPIO_PIN_14;
@@ -103,7 +99,7 @@ void HAL_ETH_MspDeInit(ETH_HandleTypeDef *heth)
           RMII_MII_CRS_DV -------------------> PA7
           RMII_MII_RXD0 ---------------------> PC4
           RMII_MII_RXD1 ---------------------> PC5
-          RMII_MII_RXER ---------------------> PD5
+          RMII_MII_RXER ---------------------> none
           RMII_MII_TX_EN --------------------> PG11
           RMII_MII_TXD0 ---------------------> PG13
           RMII_MII_TXD1 ---------------------> PG14
