@@ -17,7 +17,7 @@ int UNITY_OUTPUT_FLUSH(void);
 #endif
 
 /* Helpful macros for us to use here */
-#define UNITY_FAIL_AND_BAIL   { UNITY_OUTPUT_CHAR('\n'); utest_unity_assert_failure(); }
+#define UNITY_FAIL_AND_BAIL   { UNITY_OUTPUT_CHAR('\n'); utest_unity_assert_failure(); Unity.CurrentTestFailed = 1; }
 #define UNITY_IGNORE_AND_BAIL { UNITY_OUTPUT_CHAR('\n'); utest_unity_ignore_failure(); }
 
 /* return prematurely if we are already in failure or ignore state */
