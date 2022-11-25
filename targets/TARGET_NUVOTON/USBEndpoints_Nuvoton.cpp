@@ -26,7 +26,7 @@ static USBPhyHw *instance;
 #define MBED_CONF_TARGET_USB_DEVICE_HSUSBD 0  /* USB 1.1 Only */
 #elif defined (TARGET_M480) ||  defined(TARGET_M460)
 #define USBD_SET_ADDRESS         0x05ul
-#elif defined (TARGET_M2351) || defined(TARGET_M261)
+#elif defined (TARGET_M2351) || defined(TARGET_M261) || defined(TARGET_M2354)
 #undef  MBED_CONF_TARGET_USB_DEVICE_HSUSBD
 #define MBED_CONF_TARGET_USB_DEVICE_HSUSBD 0  /* USB 1.1 Only */
 #define USBD_SET_ADDRESS         0x05ul
@@ -104,7 +104,22 @@ void chip_config(void)
     /* USBD multi-function pins for VBUS, D+, D-, and ID pins */
     SYS->GPA_MFPH &= ~(SYS_GPA_MFPH_PA12MFP_Msk | SYS_GPA_MFPH_PA13MFP_Msk | SYS_GPA_MFPH_PA14MFP_Msk | SYS_GPA_MFPH_PA15MFP_Msk);
     SYS->GPA_MFPH |= (SYS_GPA_MFPH_PA12MFP_USB_VBUS | SYS_GPA_MFPH_PA13MFP_USB_D_N | SYS_GPA_MFPH_PA14MFP_USB_D_P | SYS_GPA_MFPH_PA15MFP_USB_OTG_ID);
+#elif defined (TARGET_M2354)
 
+    /* To select USBD in TF-M image secure domain */
+    //SYS->USBPHY = (SYS->USBPHY & ~SYS_USBPHY_USBROLE_Msk) | SYS_USBPHY_OTGPHYEN_Msk | SYS_USBPHY_SBO_Msk;
+
+    /* Enable IP clock */
+    CLK_EnableModuleClock_S(USBD_MODULE);
+
+    /* Select IP clock source */
+    CLK_SetModuleClock_S(USBD_MODULE, CLK_CLKSEL0_USBSEL_HIRC48, CLK_CLKDIV0_USB(1));
+
+    /* USBD multi-function pins for VBUS, D+, D-, and ID pins */
+    nu_pin_function_s(0, 12, SYS_GPA_MFPH_PA12MFP_USB_VBUS);
+    nu_pin_function_s(0, 13, SYS_GPA_MFPH_PA13MFP_USB_D_N);
+    nu_pin_function_s(0, 14, SYS_GPA_MFPH_PA14MFP_USB_D_P);
+    nu_pin_function_s(0, 15, SYS_GPA_MFPH_PA15MFP_USB_OTG_ID);
 
 #elif defined (TARGET_NANO100)
 
@@ -178,7 +193,7 @@ void chip_config(void)
 #define HW_TO_DESC(endpoint) (endpoint|(((endpoint&1)?0x0:0x80)))
 
 /* Global variables for Control Pipe */
-#if defined(TARGET_M2351) || defined(TARGET_M261)
+#if defined(TARGET_M2351) || defined(TARGET_M261) || defined(TARGET_M2354)
 extern uint8_t g_USBD_au8SetupPacket[];        /*!< Setup packet buffer */
 uint8_t* g_usbd_SetupPacket=g_USBD_au8SetupPacket;
 #else
@@ -235,9 +250,12 @@ void USBPhyHw::init(USBPhyEvents *events)
         sleep_manager_lock_deep_sleep();
     }
     this->events = events;
-
+#if defined(TARGET_M2354)
+    wait_us(10);    /* To init us_ticker to avoid invoking NSC for us_ticker, it could keep wait_us safe from ISR Context */
+    SYS_UnlockReg_S();
+#else
     SYS_UnlockReg();
-
+#endif
     s_ep_buf_ind = 0;
 
     chip_config();
@@ -515,6 +533,7 @@ void USBPhyHw::ep0_write(uint8_t *buffer, uint32_t size)
     NVT_USB_Debug(("### %s[%d]\n", __FUNCTION__, __LINE__));
     if (buffer && size)
     {
+        NVT_USB_Debug(("### %s[%d]\n", __FUNCTION__, __LINE__));
         if(s_ep_data_bit[0] & 1)
             USBD_SET_DATA1(EP0);
         else
@@ -527,6 +546,7 @@ void USBPhyHw::ep0_write(uint8_t *buffer, uint32_t size)
     }
     else
     {
+        NVT_USB_Debug(("### %s[%d]\n", __FUNCTION__, __LINE__));
         s_ep_data_bit[0] = 1;
         USBD_SET_DATA1(EP0);
         wait_us(500);
@@ -843,7 +863,7 @@ void USBPhyHw::process()
                     ep_status = (USBD->EPSTS >> (ep_hw_index * 4 + 8)) & 0xF;
                 else
                     ep_status = (USBD->EPSTS2 >> ((ep_hw_index - 6) * 4)) & 0x7;
-#elif defined(TARGET_M480) || defined(TARGET_M2351) || defined(TARGET_M261)  || defined(TARGET_M460)
+#elif defined(TARGET_M480) || defined(TARGET_M2351) || defined(TARGET_M261)  || defined(TARGET_M460) || defined(TARGET_M2354)
                 if(ep_hw_index < 8)
                     ep_status = (USBD->EPSTS0 >> (ep_hw_index * 4)) & 0xF;
                 else

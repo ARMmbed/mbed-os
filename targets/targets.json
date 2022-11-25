@@ -8040,7 +8040,8 @@
             "SPI",
             "SPISLAVE",
             "SPI_ASYNCH",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "release_versions": [
             "5"
