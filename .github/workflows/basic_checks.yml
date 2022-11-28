@@ -26,7 +26,7 @@ jobs:
         name: install dependencies
         shell: bash
         run: |
-          pip install -U scancode-toolkit click
+          pip install -U scancode-toolkit click gemfileparser
 
       - 
         name: license check 
