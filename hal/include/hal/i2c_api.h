@@ -87,7 +87,8 @@ typedef struct i2c_s i2c_t;
 
 enum {
     I2C_ERROR_NO_SLAVE = -1,
-    I2C_ERROR_BUS_BUSY = -2
+    I2C_ERROR_BUS_BUSY = -2,
+    I2C_ERROR_INVALID_USAGE = -3 ///< Invalid usage of the I2C API, e.g. by mixing single-byte and transactional function calls.
 };
 
 typedef struct {
@@ -255,7 +256,7 @@ int i2c_byte_read(i2c_t *obj, int last);
  *
  *  @param obj The I2C object
  *  @param data Byte to be written
- *  @return 0 if NAK was received, 1 if ACK was received, 2 for timeout.
+ *  @return 0 if NAK was received, 1 if ACK was received, 2 for timeout, or 3 for other error.
  */
 int i2c_byte_write(i2c_t *obj, int data);
 
