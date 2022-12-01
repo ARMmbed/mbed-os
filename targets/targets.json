@@ -9407,7 +9407,7 @@
             ]
         }
     },
-	"TMPM4NR": {
+    "TMPM4NR": {
         "inherits": [
             "Target"
         ],
@@ -9465,6 +9465,7 @@
                 "small"
             ]
         }
+
     },
     "TMPM4GR": {
         "inherits": [
@@ -9505,7 +9506,6 @@
             "SLEEP",
             "USTICKER",
             "MPU"
-
         ],
         "device_name": "TMPM4GRF20FG",
         "detect_code": [
@@ -9524,5 +9524,6 @@
                 "std",
                 "small"
             ]
+    	}
     }
 }
