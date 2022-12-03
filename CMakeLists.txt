@@ -246,6 +246,17 @@ target_include_directories(mbed-core-flags
 # mbed_set_post_build().
 add_subdirectory(targets)
 
+if((NOT MBED_IS_NATIVE_BUILD) AND (NOT TARGET ${MBED_TARGET_CMAKE_NAME}))
+    message(FATAL_ERROR "CMake target ${MBED_TARGET_CMAKE_NAME} was not found after scanning the mbed-os/targets \
+directory.  If this is a custom target, you need to define a target called ${MBED_TARGET_CMAKE_NAME} before doing: \
+add_subdirectory(mbed-os)")
+endif()
+
+if(NOT MBED_IS_NATIVE_BUILD)
+    # Disable any requested files from the targets/ directory.
+    mbed_apply_mcu_target_file_disables()
+endif()
+
 add_subdirectory(cmsis)
 add_subdirectory(drivers)
 add_subdirectory(hal)

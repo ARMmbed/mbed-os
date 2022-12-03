@@ -3,6 +3,8 @@
 
 # File containing various functions for operating on library and executable targets.
 
+include_guard(GLOBAL)
+
 #
 # Converts output file of `target` to binary file and to Intel HEX file.
 #
@@ -190,3 +192,66 @@ endfunction()
 function(mbed_finalize_build)
     mbed_finalize_ide_debug_configurations()
 endfunction(mbed_finalize_build)
+
+# Lists that mbed_disable_mcu_target_file stores data in
+set(MBED_DISABLE_MCU_TARGET_FILE_TARGETS "" CACHE INTERNAL "" FORCE)
+set(MBED_DISABLE_MCU_TARGET_FILE_FILES "" CACHE INTERNAL "" FORCE)
+
+# Use this function to disable a source file from one of the MCU targets in the targets/ directory.
+# This allows you to override this file from a custom target.
+# This function may only be used with a target in the mbed-os/targets directory, and may only be
+# called after including app.cmake and before adding mbed-os as a subdirectory.
+function(mbed_disable_mcu_target_file TARGET FILENAME)
+
+    # Record this file for later disablement
+    set(MBED_DISABLE_MCU_TARGET_FILE_TARGETS ${MBED_DISABLE_MCU_TARGET_FILE_TARGETS} ${TARGET} CACHE INTERNAL "" FORCE)
+    set(MBED_DISABLE_MCU_TARGET_FILE_FILES ${MBED_DISABLE_MCU_TARGET_FILE_FILES} ${FILENAME} CACHE INTERNAL "" FORCE)
+
+endfunction(mbed_disable_mcu_target_file)
+
+# Called later, midway through the Mbed configure, to apply the file disables that were recorded earlier.
+function(mbed_apply_mcu_target_file_disables)
+
+    # Iterate through each disable request
+    list(LENGTH MBED_DISABLE_MCU_TARGET_FILE_TARGETS NUM_DISABLES)
+    set(DISABLE_IDX 0)
+    while(DISABLE_IDX LESS NUM_DISABLES)
+
+        # Get the target and the file
+        list(GET MBED_DISABLE_MCU_TARGET_FILE_TARGETS ${DISABLE_IDX} CURR_TARGET)
+        list(GET MBED_DISABLE_MCU_TARGET_FILE_FILES ${DISABLE_IDX} CURR_FILE)
+
+        if(TARGET ${CURR_TARGET})
+            get_property(CURR_TARGET_TYPE TARGET ${CURR_TARGET} PROPERTY TYPE)
+            if("${CURR_TARGET_TYPE}" STREQUAL "INTERFACE_LIBRARY")
+
+                # Iterate through the list of sources and remove the target one
+                get_property(CURR_TARGET_IFACE_SOURCES TARGET ${CURR_TARGET} PROPERTY INTERFACE_SOURCES)
+                set(FOUND FALSE)
+                foreach(SOURCE_FILE ${CURR_TARGET_IFACE_SOURCES})
+                    get_filename_component(SOURCE_FILE_NAME ${SOURCE_FILE} NAME)
+                    if("${SOURCE_FILE_NAME}" STREQUAL CURR_FILE)
+                        set(FOUND TRUE)
+                        list(REMOVE_ITEM CURR_TARGET_IFACE_SOURCES "${SOURCE_FILE}")
+                    endif()
+                endforeach()
+
+                if(FOUND)
+                    message(STATUS "Disabled file '${CURR_FILE}' in target '${CURR_TARGET}'")
+                else()
+                    message(WARNING "mbed_disable_mcu_target_file(): File '${CURR_FILE}' not found in target '${CURR_TARGET}'")
+                endif()
+
+                set_property(TARGET ${CURR_TARGET} PROPERTY INTERFACE_SOURCES ${CURR_TARGET_IFACE_SOURCES})
+
+            else()
+                message(FATAL_ERROR "mbed_disable_mcu_target_file(): Target '${CURR_TARGET}' is not an interface target.")
+            endif()
+        else()
+            message(FATAL_ERROR "mbed_disable_mcu_target_file(): Failed to find target '${CURR_TARGET}'.")
+        endif()
+
+        math(EXPR DISABLE_IDX "${DISABLE_IDX} + 1")
+    endwhile()
+
+endfunction(mbed_apply_mcu_target_file_disables)
