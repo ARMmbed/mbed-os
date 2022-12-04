@@ -82,6 +82,11 @@ struct i2c_s {
     /// Specifies which events (the I2C_EVENT_xxx defines) can be passed up to the application from the IRQ handler
     uint8_t available_events;
 #endif
+
+#if STATIC_PINMAP_READY
+    int sda_func;
+    int scl_func;
+#endif
 };
 
 #endif
