@@ -155,6 +155,8 @@ As an example, the target overide section for the `NUCLEO_F401RE` would be:
         }
 ```
 
+Then, you must link the `mbed-bluenrg-2` CMake target to your application.  Note that the BlueNRG 2 driver requires Mbed RTOS and does not work with mbed-baremetal.
+
 ### Known limitations
 
 Security does not work with privacy due to pairing failure.

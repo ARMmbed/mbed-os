@@ -122,3 +122,5 @@ As an example, the target overide section for the `NUCLEO_F401RE` would be:
             "target.extra_labels_add": ["CORDIO"]
         }
 ```
+
+Then, you must link the `mbed-bluenrg-ms` CMake target to your application.  Note that the BlueNRG 2 driver requires Mbed RTOS and does not work with mbed-baremetal.
