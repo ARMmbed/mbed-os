@@ -8,7 +8,6 @@ if(MBED_ENABLE_OS_INTERNAL_TESTS)
 endif()
 
 add_library(mbed-ble STATIC EXCLUDE_FROM_ALL)
-add_library(mbed-ble-cordio_ll STATIC EXCLUDE_FROM_ALL)
 
 add_subdirectory(libraries)
 add_subdirectory(source)
