@@ -35,10 +35,36 @@
  *
  * @{
  */
+
+/**
+ * Indicates that an unspecified error has occurred in the transfer.  This usually means
+ * either an internal error in the Mbed MCU's I2C module, or something like an arbitration loss.
+ * Does not indicate a NACK.
+ */
 #define I2C_EVENT_ERROR               (1 << 1)
+
+/**
+ * Indicates that the slave did not respond to the address byte of the transfer.
+ */
 #define I2C_EVENT_ERROR_NO_SLAVE      (1 << 2)
+
+/**
+ * Indicates that the transfer completed successfully.
+ */
 #define I2C_EVENT_TRANSFER_COMPLETE   (1 << 3)
+
+/**
+ * Indicates that a NACK was received after the address byte, but before the requested number of bytes
+ * could be transferred.
+ *
+ * Note: Not every manufacturer HAL is able to make a distinction between this flag and #I2C_EVENT_ERROR_NO_SLAVE.
+ * On a NACK, you might conceivably get one or both of these flags.
+ */
 #define I2C_EVENT_TRANSFER_EARLY_NACK (1 << 4)
+
+/**
+ * Use this macro to request all possible I2C events.
+ */
 #define I2C_EVENT_ALL                 (I2C_EVENT_ERROR |  I2C_EVENT_TRANSFER_COMPLETE | I2C_EVENT_ERROR_NO_SLAVE | I2C_EVENT_TRANSFER_EARLY_NACK)
 
 /**@}*/
@@ -61,7 +87,8 @@ typedef struct i2c_s i2c_t;
 
 enum {
     I2C_ERROR_NO_SLAVE = -1,
-    I2C_ERROR_BUS_BUSY = -2
+    I2C_ERROR_BUS_BUSY = -2,
+    I2C_ERROR_INVALID_USAGE = -3 ///< Invalid usage of the I2C API, e.g. by mixing single-byte and transactional function calls.
 };
 
 typedef struct {
@@ -229,7 +256,7 @@ int i2c_byte_read(i2c_t *obj, int last);
  *
  *  @param obj The I2C object
  *  @param data Byte to be written
- *  @return 0 if NAK was received, 1 if ACK was received, 2 for timeout.
+ *  @return 0 if NAK was received, 1 if ACK was received, 2 for timeout, or 3 for other error.
  */
 int i2c_byte_write(i2c_t *obj, int data);
 

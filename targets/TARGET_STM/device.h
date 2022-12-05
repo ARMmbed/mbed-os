@@ -36,6 +36,7 @@
 #define DEVICE_ID_LENGTH       24
 
 #include "objects.h"
+#include "stm_i2c_api.h"
 
 #if DEVICE_USTICKER
 #include "us_ticker_defines.h"
