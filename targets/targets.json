@@ -9407,7 +9407,7 @@
             ]
         }
     },
-	"TMPM4NR": {
+    "TMPM4NR": {
         "inherits": [
             "Target"
         ],
@@ -9466,5 +9466,64 @@
             ]
         }
 
-    }    
+    },
+    "TMPM4GR": {
+        "inherits": [
+            "Target"
+        ],
+        "core": "Cortex-M4F",
+        "is_disk_virtual": true,
+        "extra_labels": [
+            "TOSHIBA"
+        ],
+        "macros": [
+            "__TMPM4GR__"
+        ],
+        "supported_toolchains": [
+            "GCC_ARM",
+            "ARM"
+	],
+        "device_has": [
+            "ANALOGIN",
+            "ANALOGOUT",
+            "INTERRUPTIN",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "PWMOUT",
+            "RESET_REASON",
+            "SERIAL",
+            "SERIAL_FC",
+            "SPI",
+            "SPISLAVE",
+            "SPI_ASYNCH",
+            "I2C",
+            "I2CSLAVE",
+            "I2C_ASYNCH",
+            "RTC",
+            "STDIO_MESSAGES",
+            "FLASH",
+            "SLEEP",
+            "USTICKER",
+            "MPU"
+        ],
+        "device_name": "TMPM4GRF20FG",
+        "detect_code": [
+            "7021"
+        ],
+        "release_versions": [
+            "5"
+        ],
+        "bootloader_supported": true,
+         "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
+    	}
+    }
 }
