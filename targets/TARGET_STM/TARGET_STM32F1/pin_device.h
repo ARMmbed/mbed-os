@@ -109,6 +109,31 @@ static inline void stm_pin_SetAFPin(GPIO_TypeDef *gpio, PinName pin, uint32_t af
             case AFIO_REMAP_TIM4_ENABLE:
                 __HAL_AFIO_REMAP_TIM4_ENABLE();
                 break;
+#if defined(AFIO_MAPR2_TIM9_REMAP)
+            case AFIO_REMAP_TIM9_ENABLE:
+                __HAL_AFIO_REMAP_TIM9_ENABLE();
+                break;
+#endif
+#if defined(AFIO_MAPR2_TIM10_REMAP)
+            case AFIO_REMAP_TIM10_ENABLE:
+                __HAL_AFIO_REMAP_TIM10_ENABLE();
+                break;
+#endif
+#if defined(AFIO_MAPR2_TIM11_REMAP)
+            case AFIO_REMAP_TIM11_ENABLE:
+                __HAL_AFIO_REMAP_TIM11_ENABLE();
+                break;
+#endif
+#if defined(AFIO_MAPR2_TIM13_REMAP)
+            case AFIO_REMAP_TIM13_ENABLE:
+                __HAL_AFIO_REMAP_TIM13_ENABLE();
+                break;
+#endif
+#if defined(AFIO_MAPR2_TIM14_REMAP)
+            case AFIO_REMAP_TIM14_ENABLE:
+                __HAL_AFIO_REMAP_TIM14_ENABLE();
+                break;
+#endif
             default:
                 break;
         }

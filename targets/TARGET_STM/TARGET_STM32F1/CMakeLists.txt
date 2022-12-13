@@ -6,6 +6,7 @@ add_subdirectory(TARGET_STM32F103xB EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32F103xC EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32F103xD EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32F103xE EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_STM32F103xG EXCLUDE_FROM_ALL)
 add_subdirectory(STM32Cube_FW EXCLUDE_FROM_ALL)
 
 add_library(mbed-stm32f1 INTERFACE)
