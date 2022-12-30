@@ -142,10 +142,18 @@ public:
             return NSAPI_ERROR_UNSUPPORTED;
         }
 
-        /** @copydoc NetworkStack::get_netmask */
+        /** Writes the netmask of the network interface into a user-supplied #SocketAddress.
+         *
+         * @param    address    Structure to write netmask into.
+         * @return              Error code or success.
+         */
         virtual nsapi_error_t get_netmask(SocketAddress *address) = 0;
 
-        /** @copydoc NetworkStack::get_gateway */
+        /** Writes the gateway address of the network interface into a user-supplied #SocketAddress.
+         *
+         * @param    address    Structure to write netmask into.
+         * @return              Error code or success.
+         */
         virtual nsapi_error_t get_gateway(SocketAddress *address) = 0;
     };
 
@@ -157,7 +165,8 @@ public:
      *
      * @param      emac             EMAC HAL implementation for this network interface
      * @param      default_if       true if the interface should be treated as the default one
-     * @param[out] interface_out    pointer to stack interface object controlling the EMAC
+     * @param[out] interface_out    Network stack's representation of the network interface will be saved to this pointer.
+     * @param[in] user_network_interface Pointer to NetworkInterface that represents the ethernet interface being added.
      * @return                      NSAPI_ERROR_OK on success, or error code
      */
     virtual nsapi_error_t add_ethernet_interface(EMAC &emac, bool default_if, Interface **interface_out, NetworkInterface *user_network_interface = NULL) = 0;

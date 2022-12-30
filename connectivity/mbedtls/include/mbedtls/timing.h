@@ -30,6 +30,13 @@
 
 #include <stdint.h>
 
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_timing_module Timing
+ * \{
+ */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -147,5 +154,8 @@ int mbedtls_timing_self_test( int verbose );
 #ifdef __cplusplus
 }
 #endif
+
+/// \}
+/// \}
 
 #endif /* timing.h */

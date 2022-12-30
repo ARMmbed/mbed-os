@@ -218,8 +218,7 @@ public: //Pure virtual functions
 
     /** Creates a new CellularContext interface.
      *
-     *  @param fh       file handle used in communication to modem. This can be, for example, UART handle. If null, then the default
-     *                  file handle is used.
+     *
      *  @param apn      access point to use with context, can be null.
      *  @param cp_req       flag indicating if EPS control plane optimization is required
      *  @param nonip_req    flag indicating if this context is required to be Non-IP
@@ -297,8 +296,6 @@ public: //Pure virtual functions
 
     /** Create new CellularNetwork interface.
      *
-     *  @param fh    file handle used in communication to modem. This can be, for example, UART handle. If null, then the default
-     *               file handle is used.
      *  @return      New instance of interface CellularNetwork.
      */
     virtual CellularNetwork *open_network() = 0;
@@ -306,8 +303,6 @@ public: //Pure virtual functions
 #if MBED_CONF_CELLULAR_USE_SMS || defined(DOXYGEN_ONLY)
     /** Create new CellularSMS interface.
      *
-     *  @param fh    file handle used in communication to modem. This can be, for example, UART handle. If null, then the default
-     *               file handle is used.
      *  @return      New instance of interface CellularSMS.
      */
     virtual CellularSMS *open_sms() = 0;
@@ -320,8 +315,6 @@ public: //Pure virtual functions
 
     /** Create new CellularInformation interface.
      *
-     *  @param fh    file handle used in communication to modem. This can be, for example, UART handle. If null, then the default
-     *               file handle is used.
      *  @return      New instance of interface CellularInformation.
      */
     virtual CellularInformation *open_information() = 0;

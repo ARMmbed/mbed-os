@@ -40,8 +40,3 @@
 #include "acore/ac_stream.h"
 
 #endif /* NFC_COMMON_H_ */
-
-/**
- * @}
- * @}
- * */

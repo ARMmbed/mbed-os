@@ -307,7 +307,7 @@ public:
 
     /** Get a mail from the queue.
      *
-     * @param rel_time Timeout value (default: Kernel::wait_for_u32_forever).
+     * @param millisec Timeout value (default: osWaitForever).
      *
      * @return Event that contains mail information and status code. The status code
      *         is stored in the status member:
@@ -316,7 +316,7 @@ public:
      *         @a osEventTimeout   No mail has arrived during the given timeout period.
      *         @a osErrorParameter A parameter is invalid or outside of a permitted range.
      *
-     * @note You may call this function from ISR context if the millisec parameter is set to 0.
+     * @note You may call this function from ISR context if the \c millisec parameter is set to 0.
      * @deprecated Replaced with try_get and try_get_for. In future get will be an untimed blocking call.
      */
     MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Replaced with try_get and try_get_for. In future get will be an untimed blocking call.")

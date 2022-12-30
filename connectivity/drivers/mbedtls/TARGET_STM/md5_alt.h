@@ -1,5 +1,5 @@
 /**
- * \file md5.h
+ * \file
  *
  * \brief MD5 message digest algorithm (hash function)
  *

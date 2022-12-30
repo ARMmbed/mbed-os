@@ -35,6 +35,11 @@
 #endif
 
 /**
+ * \ingroup mbedtls_ssl_module
+ * \{
+ */
+
+/**
  * \name SECTION: Module settings
  *
  * The configuration options you can set for this module are in this section.
@@ -45,7 +50,7 @@
 #define MBEDTLS_SSL_COOKIE_TIMEOUT     60 /**< Default expiration delay of DTLS cookies, in seconds if HAVE_TIME, or in number of cookies issued */
 #endif
 
-/* \} name SECTION: Module settings */
+/** \} name SECTION: Module settings */
 
 #ifdef __cplusplus
 extern "C" {
@@ -109,5 +114,7 @@ mbedtls_ssl_cookie_check_t mbedtls_ssl_cookie_check;
 #ifdef __cplusplus
 }
 #endif
+
+/// \}
 
 #endif /* ssl_cookie.h */

@@ -32,9 +32,9 @@ extern "C" {
  * Low level interface to the microsecond ticker of a target
  *
  * # Defined behavior
- * * Has a reported frequency between 250KHz and 8MHz for counters which are less than 32 bits wide - Verified by test ::us_ticker_info_test
- * * Has a reported frequency up to 100MHz for counters which are 32 bits wide - Verified by test ::us_ticker_info_test
- * * Has a counter that is at least 16 bits wide - Verified by test ::us_ticker_info_test
+ * * Has a reported frequency between 250KHz and 8MHz for counters which are less than 32 bits wide - Verified by test us_ticker_info_test
+ * * Has a reported frequency up to 100MHz for counters which are 32 bits wide - Verified by test us_ticker_info_test
+ * * Has a counter that is at least 16 bits wide - Verified by test us_ticker_info_test
  * * All behavior defined by the @ref hal_ticker_shared "ticker specification"
  *
  * # Undefined behavior
@@ -55,7 +55,7 @@ extern "C" {
  * US_TICKER_MASK: The value mask for the ticker - eg 0x07FFFFFF for a 27-bit ticker.
  *
  * If any are defined, all 3 must be defined, and the macros are checked for consistency with
- * us_ticker_get_info by test ::us_ticker_info_test.
+ * us_ticker_get_info by test us_ticker_info_test.
 
  * @{
  */
@@ -77,19 +77,19 @@ extern "C" {
  * Low level interface to the ticker of a target
  *
  * # Defined behavior
- * * The function ticker_init is safe to call repeatedly - Verified by test ::ticker_init_test
- * * The function ticker_init allows the ticker to keep counting and disables the ticker interrupt - Verified by test ::ticker_init_test
- * * Ticker frequency is non-zero and counter is at least 8 bits - Verified by ::ticker_info_test
- * * The ticker rolls over at (1 << bits) and continues counting starting from 0 - Verified by ::ticker_overflow_test
- * * The ticker counts at the specified frequency +- 10% - Verified by ::ticker_frequency_test
- * * The ticker increments by 1 each tick - Verified by ::ticker_increment_test
+ * * The function ticker_init is safe to call repeatedly - Verified by test ticker_init_test
+ * * The function ticker_init allows the ticker to keep counting and disables the ticker interrupt - Verified by test ticker_init_test
+ * * Ticker frequency is non-zero and counter is at least 8 bits - Verified by ticker_info_test
+ * * The ticker rolls over at (1 << bits) and continues counting starting from 0 - Verified by ticker_overflow_test
+ * * The ticker counts at the specified frequency +- 10% - Verified by ticker_frequency_test
+ * * The ticker increments by 1 each tick - Verified by ticker_increment_test
  * * The ticker interrupt fires only when the ticker times increments to or past the value set by ticker_set_interrupt.
- * Verified by ::ticker_interrupt_test and ::ticker_past_test
- * * It is safe to call ticker_set_interrupt repeatedly before the handler is called - Verified by ::ticker_repeat_reschedule_test
+ * Verified by ticker_interrupt_test and ticker_past_test
+ * * It is safe to call ticker_set_interrupt repeatedly before the handler is called - Verified by ticker_repeat_reschedule_test
  * * The function ticker_fire_interrupt causes ticker_irq_handler to be called immediately from interrupt context -
- * Verified by ::ticker_fire_now_test
+ * Verified by ticker_fire_now_test
  * * The ticker operations ticker_read, ticker_clear_interrupt, ticker_set_interrupt and ticker_fire_interrupt
- * take less than 20us to complete - Verified by ::ticker_speed_test
+ * take less than 20us to complete - Verified by ticker_speed_test
  * * The ticker operations ticker_init and ticker_read are atomic.
  *
  * # Undefined behavior
@@ -99,10 +99,10 @@ extern "C" {
  * * Calling any function other than us_ticker_init after calling us_ticker_free
  *
  * # Potential bugs
- * * Drift due to reschedule - Verified by ::ticker_repeat_reschedule_test
- * * Incorrect overflow handling of timers - Verified by ::ticker_overflow_test
- * * Interrupting at a time of 0 - Verified by ::ticker_overflow_test
- * * Interrupt triggered more than once - Verified by ::ticker_interrupt_test
+ * * Drift due to reschedule - Verified by ticker_repeat_reschedule_test
+ * * Incorrect overflow handling of timers - Verified by ticker_overflow_test
+ * * Interrupting at a time of 0 - Verified by ticker_overflow_test
+ * * Interrupt triggered more than once - Verified by ticker_interrupt_test
  *
  * @ingroup hal_us_ticker
  * @ingroup hal_lp_ticker
@@ -155,7 +155,7 @@ void us_ticker_irq_handler(void);
  * clocking and prescaler registers, along with disabling
  * the compare interrupt.
  *
- * @note Initialization properties tested by ::ticker_init_test
+ * @note Initialization properties tested by ticker_init_test
  *
  * Pseudo Code:
  * @code

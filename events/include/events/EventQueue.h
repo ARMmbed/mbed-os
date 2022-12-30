@@ -122,7 +122,7 @@ public:
     /** Dispatch events without a timeout
      *
      * Executes events indefinitely unless the dispatch loop is forcibly broken.
-     * @See break_dispatch()
+     * @see break_dispatch()
      *
      */
     void dispatch_forever();
@@ -725,6 +725,7 @@ public:
      * @endcode
      *
      *  @param f        Function to execute when the event is dispatched
+     *  @param args     List of arguments that will be passed to \c f
      *  @return         Event that will dispatch on the specific queue
      */
     template <typename F, typename... ArgTs>

@@ -30,6 +30,13 @@
 
 #include "mbedtls/asn1.h"
 
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_asn1write_module ASN.1 Write
+ * \{
+ */
+
 #define MBEDTLS_ASN1_CHK_ADD(g, f)                      \
     do                                                  \
     {                                                   \
@@ -362,6 +369,9 @@ mbedtls_asn1_named_data *mbedtls_asn1_store_named_data( mbedtls_asn1_named_data 
                                         const char *oid, size_t oid_len,
                                         const unsigned char *val,
                                         size_t val_len );
+
+/// \}
+/// \}
 
 #ifdef __cplusplus
 }

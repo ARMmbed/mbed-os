@@ -26,7 +26,7 @@ jobs:
         name: install dependencies
         shell: bash
         run: |
-          pip install -U scancode-toolkit click gemfileparser
+          pip install -U scancode-toolkit "click>=7,<8"
 
       - 
         name: license check 
@@ -42,6 +42,7 @@ jobs:
             | ( grep -v '^tools/test/toolchains/api_test.py' || true ) \
             | while read file; do cp --parents "${file}" SCANCODE; done
           ls SCANCODE
+          scancode --reindex-licenses # workaround for scancode-toolkit#3179
           scancode -l --json-pp scancode.json SCANCODE
           python ./tools/test/ci/scancode-evaluate.py scancode.json || true
           cat scancode-evaluate.log
@@ -106,21 +107,7 @@ jobs:
             | while read file; do astyle -n --options=.astylerc "${file}"; done
           git diff --exit-code --diff-filter=d --color
 
-
-  docs-check:
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/armmbed/mbed-os-env:master-latest
-
-    steps:
-
-      - name: Checkout repo
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-    
-      - 
-        name: spell checks
+      - name: Spell Checks
         run: |
           set -x
           ./tools/test/ci/doxy-spellchecker/spell.sh drivers .codecheckignore
@@ -129,18 +116,9 @@ jobs:
           ./tools/test/ci/doxy-spellchecker/spell.sh rtos .codecheckignore
           ./tools/test/ci/doxy-spellchecker/spell.sh connectivity/netsocket .codecheckignore
 
-      - 
-        name: doxygen
+      - name: File Naming Checks
         run: |
           set -x
-          ccache -s
-          mkdir BUILD
-          # Assert that the Doxygen build produced no warnings.
-          # The strange command below asserts that the Doxygen command had an
-          # output of zero length
-          doxygen doxyfile_options 2>&1
-          # Once Mbed OS has been fixed, enable the full test by replacing the top line with this:
-          # - ( ! doxygen doxyfile_options 2>&1 | grep . )
           # Assert that all binary libraries are named correctly
           # The strange command below asserts that there are exactly 0 libraries
           # that do not start with lib
@@ -152,6 +130,26 @@ jobs:
           # that do end with .s
           find  -name "*.s" | tee BUILD/badasm |
           sed -e "s/^/Bad Assembler file name found: /" && [ ! -s BUILD/badasm ]
+
+  docs-check:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Create BUILD folder
+        run: |
+          mkdir -p ${{ github.workspace }}/BUILD
+
+      - name: Doxygen Action
+        uses: mattnotmitt/doxygen-action@v1.9.1
+        with:
+          doxyfile-path: ./doxyfile_options
 
   python-tests:
     # these tests run in 3.7, hence running in vm not in pre-built docker

@@ -66,7 +66,7 @@ int32_t hash_alg_id_from_sig_alg_id(int32_t cose_sig_alg_id);
  *
  * \retval T_COSE_ERR_SIG_STRUCT
  *         Most likely this is because the protected_headers passed in
- *         is larger than \ref T_COSE_SIGN1_MAX_PROT_HEADER.
+ *         is larger than T_COSE_SIGN1_MAX_PROT_HEADER.
  * \retval T_COSE_ERR_UNSUPPORTED_HASH
  *         If the hash algorithm is not known.
  * \retval T_COSE_ERR_HASH_GENERAL_FAIL

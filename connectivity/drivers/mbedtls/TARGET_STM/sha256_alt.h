@@ -1,5 +1,5 @@
 /**
- * \file sha256.h
+ * \file sha256_alt.h
  *
  * \brief This file contains SHA-224 and SHA-256 definitions and functions.
  *

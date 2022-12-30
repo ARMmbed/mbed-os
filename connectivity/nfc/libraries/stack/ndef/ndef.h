@@ -41,13 +41,15 @@ typedef struct __ndef_msg ndef_msg_t;
 
 /** Function called to generate the tag's content on read (target mode)
  * \param pTag pointer to ndef_tag_t instance
- * \param type pMem buffer in which to store the generated content
+ * \param pBufferBldr buffer in which to store the generated content
+ * \param pUserData User data pointer passed to #ndef_msg_init
  */
 typedef nfc_err_t (*ndef_encode_fn_t)(ndef_msg_t *pTag, ac_buffer_builder_t *pBufferBldr, void *pUserData);
 
 /** Function called to decode the tag's content on write (target mode) or read (reader mode)
  * \param pTag pointer to ndef_tag_t instance
- * \param type pMem buffer containing the tag's content
+ * \param pBuffer buffer containing the tag's content
+ * \param pUserData User data pointer passed to #ndef_msg_init
  */
 typedef nfc_err_t (*ndef_decode_fn_t)(ndef_msg_t *pTag, ac_buffer_t *pBuffer, void *pUserData);
 
@@ -58,6 +60,14 @@ struct __ndef_msg {
     void *pUserData;
 };
 
+/** Initialize NDEF tag abstraction
+ * \param pNdef pointer to ndef_tag_t structure to initialize
+ * \param encode function that will be called to generate the NDEF message before sending it to the other party
+ * \param decode function that will be called to parse the NDEF message after receiving it from the other party
+ * \param data underlying buffer to use (it should be big enough so that any NDEF message you might need could be stored inside)
+ * \param size size of the underlying buffer
+ * \param pUserData User data pointer to pass to callbacks.
+ */
 void ndef_msg_init(ndef_msg_t *pNdef, ndef_encode_fn_t encode, ndef_decode_fn_t decode, uint8_t *data, size_t size, void *pUserData);
 
 static inline nfc_err_t ndef_msg_encode(ndef_msg_t *pNdef)

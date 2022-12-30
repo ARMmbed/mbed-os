@@ -34,7 +34,7 @@ enum attest_memory_access_t {
  *
  * \param[in]   major_type  Major type of TLV entries to copy
  * \param[out]  ptr         Pointer to the buffer to store the boot data
- * \parma[in]   len         Size of the buffer to store the boot data
+ * \param[in]   len         Size of the buffer to store the boot data
  *
  * \return Returns error code as specified in \ref psa_attest_err_t
  */
@@ -57,7 +57,7 @@ attest_get_caller_client_id(int32_t *caller_id);
  * \param[in]  addr    Pointer to the base of the address range to check
  * \param[in]  size    Size of the address range to check
  * \param[in]  access  Type of memory access as specified in
- *                     \ref attest_memory_access
+ *                     \ref attest_memory_access_t
  *
  * \return Returns error code as specified in \ref psa_attest_err_t
  */
@@ -81,7 +81,7 @@ enum psa_attest_err_t attest_init(void);
  * \param[in]     in_vec     Pointer to in_vec array, which contains input data
  *                           to attestation service
  * \param[in]     num_invec  Number of elements in in_vec array
- * \param[in/out] out_vec    Pointer out_vec array, which contains output data
+ * \param[inout] out_vec    Pointer out_vec array, which contains output data
  *                           to attestation service
  * \param[in]     num_outvec Number of elements in out_vec array
  *

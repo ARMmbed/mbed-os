@@ -41,6 +41,13 @@
 #include "mbedtls/md.h"
 #endif
 
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_oid_module Object Identifier Database
+ * \{
+ */
+
 #define MBEDTLS_ERR_OID_NOT_FOUND                         -0x002E  /**< OID is not found. */
 #define MBEDTLS_ERR_OID_BUF_TOO_SMALL                     -0x000B  /**< output buffer is too small */
 
@@ -643,5 +650,8 @@ int mbedtls_oid_get_pkcs12_pbe_alg( const mbedtls_asn1_buf *oid, mbedtls_md_type
 #ifdef __cplusplus
 }
 #endif
+
+/// \}
+/// \}
 
 #endif /* oid.h */

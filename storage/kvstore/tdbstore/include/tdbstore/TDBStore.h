@@ -27,9 +27,19 @@
 
 namespace mbed {
 
-/** TDBStore class
+/**
+* \addtogroup kvstore
+* @{
+*/
+
+/**
+ * Tiny Database Storage (TDBStore) is a lightweight module that stores data on flash storage. It is part of of
+ * the KVStore class family, meaning it supports the get/set interface. It is designed to optimize performance
+ * (speed of access), reduce wearing of the flash and minimize storage overhead. It is also resilient to power
+ * failures.
  *
- *  Lightweight Key Value storage over a block device
+ * TDBStore assumes the underlying block device is fully dedicated to it (starting offset 0). If you want to
+ * dedicate only a part of the device to TDBStore, use a sliced block device, typically with SlicingBlockDevice.
  */
 
 class TDBStore : public KVStore {

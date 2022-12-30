@@ -36,6 +36,13 @@
 #include <stddef.h>
 #include <stdint.h>
 
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_des_module DES
+ * \{
+ */
+
 #define MBEDTLS_DES_ENCRYPT     1
 #define MBEDTLS_DES_DECRYPT     0
 
@@ -346,6 +353,9 @@ void mbedtls_des_setkey( uint32_t SK[32],
 int mbedtls_des_self_test( int verbose );
 
 #endif /* MBEDTLS_SELF_TEST */
+
+/// \}
+/// \}
 
 #ifdef __cplusplus
 }

@@ -67,19 +67,7 @@ public:
      */
     virtual uint8_t get_hwaddr_size() const;
 
-    /**
-     * Return interface-supplied HW address
-     *
-     * Copies HW address to provided memory, @param addr has to be of correct size see @a get_hwaddr_size
-     *
-     * HW address need not be provided if this interface does not have its own HW
-     * address configuration; stack will choose address from central system
-     * configuration if the function returns false and does not write to addr.
-     *
-     * @param addr HW address for underlying interface
-     * @return     true if HW address is available
-     */
-    virtual bool get_hwaddr(uint8_t *addr) const;
+    bool get_hwaddr(uint8_t *addr) const override;
 
     /**
      * Set HW address for interface

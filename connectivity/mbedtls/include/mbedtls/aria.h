@@ -40,6 +40,13 @@
 
 #include "mbedtls/platform_util.h"
 
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_aria_module ARIA
+ * \{
+ */
+
 #define MBEDTLS_ARIA_ENCRYPT     1 /**< ARIA encryption. */
 #define MBEDTLS_ARIA_DECRYPT     0 /**< ARIA decryption. */
 
@@ -352,6 +359,9 @@ int mbedtls_aria_crypt_ctr( mbedtls_aria_context *ctx,
                             const unsigned char *input,
                             unsigned char *output );
 #endif /* MBEDTLS_CIPHER_MODE_CTR */
+
+/// \}
+/// \}
 
 #if defined(MBEDTLS_SELF_TEST)
 /**

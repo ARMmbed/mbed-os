@@ -1,5 +1,5 @@
 /**
- * \file psa/crypto_extra.h
+ * \file
  *
  * \brief PSA cryptography module: Mbed TLS vendor extensions
  *
@@ -36,7 +36,7 @@
 extern "C" {
 #endif
 
-/* UID for secure storage seed */
+/** UID for secure storage seed */
 #define PSA_CRYPTO_ITS_RANDOM_SEED_UID 0xFFFFFF52
 
 

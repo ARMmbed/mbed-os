@@ -34,6 +34,14 @@
 #include <stddef.h>
 #include <stdint.h>
 
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_sha256_module SHA-224 and SHA-256
+ * \{
+ */
+
+
 /* MBEDTLS_ERR_SHA256_HW_ACCEL_FAILED is deprecated and should not be used. */
 #define MBEDTLS_ERR_SHA256_HW_ACCEL_FAILED                -0x0037  /**< SHA-256 hardware accelerator failed */
 #define MBEDTLS_ERR_SHA256_BAD_INPUT_DATA                 -0x0074  /**< SHA-256 input data was malformed. */
@@ -291,5 +299,8 @@ int mbedtls_sha256_self_test( int verbose );
 #ifdef __cplusplus
 }
 #endif
+
+/// \}
+/// \}
 
 #endif /* mbedtls_sha256.h */

@@ -23,6 +23,13 @@
 extern "C" {
 #endif
 
+/**
+ * \addtogroup kvstore
+ * @{
+ * \defgroup kvstore_global_api KVStore Global API
+ * @{
+ */
+
 typedef struct _opaque_kv_key_iterator *kv_iterator_t;
 
 #define KV_WRITE_ONCE_FLAG                      (1 << 0)
@@ -137,6 +144,9 @@ int kv_iterator_close(kv_iterator_t it);
  * @returns MBED_SUCCESS on success or an error code from underlying KVStore instances
  */
 int kv_reset(const char *kvstore_path);
+
+/// @}
+/// @}
 
 #ifdef __cplusplus
 } // closing brace for extern "C"

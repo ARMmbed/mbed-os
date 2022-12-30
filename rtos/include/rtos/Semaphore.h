@@ -112,7 +112,7 @@ public:
     bool try_acquire_until(uint64_t millisec);
 
     /** Wait until a Semaphore resource becomes available.
-      @param   millisec  absolute timeout time, referenced to Kernel::Clock
+      @param abs_time absolute timeout time, referenced to Kernel::Clock
       @return true if a resource was acquired, false otherwise.
       @note the underlying RTOS may have a limit to the maximum wait time
             due to internal 32-bit computations, but this is guaranteed to work if the

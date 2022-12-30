@@ -31,6 +31,9 @@
 #include <stddef.h>
 
 /**
+ * \defgroup mbedtls_errors Error Codes
+ * \ingroup mbedtls
+ *
  * Error code layout.
  *
  * Currently we try to keep all error codes within the negative space of 16
@@ -42,14 +45,16 @@
  *
  * 16 bit error code bit-segmentation
  *
- * 1 bit  - Unused (sign bit)
- * 3 bits - High level module ID
- * 5 bits - Module-dependent error code
- * 7 bits - Low level module errors
+ *
+ * \li 1 bit  - Unused (sign bit)
+ * \li 3 bits - High level module ID
+ * \li 5 bits - Module-dependent error code
+ * \li 7 bits - Low level module errors
  *
  * For historical reasons, low-level error codes are divided in even and odd,
  * even codes were assigned first, and -1 is reserved for other errors.
  *
+ * \code{.unparsed}
  * Low-level module errors (0x0002-0x007E, 0x0001-0x007F)
  *
  * Module   Nr  Codes assigned
@@ -105,11 +110,17 @@
  * SSL       7   32
  *
  * Module dependent error code (5 bits 0x.00.-0x.F8.)
+ * \endcode
  */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * \addtogroup mbedtls_errors
+ * \{
+ */
 
 #define MBEDTLS_ERR_ERROR_GENERIC_ERROR       -0x0001  /**< Generic error */
 #define MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED -0x006E  /**< This is a bug in the library */
@@ -154,6 +165,8 @@ const char * mbedtls_high_level_strerr( int error_code );
  *         code is unknown.
  */
 const char * mbedtls_low_level_strerr( int error_code );
+
+/// \}
 
 #ifdef __cplusplus
 }

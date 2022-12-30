@@ -41,6 +41,13 @@
 #include <stdint.h>
 #include <stddef.h>
 
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_poly1305_module Poly1305
+ * \{
+ */
+
 #define MBEDTLS_ERR_POLY1305_BAD_INPUT_DATA         -0x0057 /**< Invalid input parameter(s). */
 
 /* MBEDTLS_ERR_POLY1305_FEATURE_UNAVAILABLE is deprecated and should not be
@@ -187,5 +194,8 @@ int mbedtls_poly1305_self_test( int verbose );
 #ifdef __cplusplus
 }
 #endif
+
+/// \}
+/// \}
 
 #endif /* MBEDTLS_POLY1305_H */

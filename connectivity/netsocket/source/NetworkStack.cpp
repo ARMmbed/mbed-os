@@ -216,7 +216,7 @@ NO_MEM:
                "NetworkStack::call_in() unable to add event to queue. Increase \"events.shared-eventsize\"\n");
 }
 
-call_in_callback_cb_t NetworkStack::get_call_in_callback()
+NetworkStack::call_in_callback_cb_t NetworkStack::get_call_in_callback()
 {
     call_in_callback_cb_t cb(this, &NetworkStack::call_in);
     return cb;

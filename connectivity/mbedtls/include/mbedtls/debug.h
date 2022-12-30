@@ -34,6 +34,14 @@
 #include "mbedtls/ecp.h"
 #endif
 
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_debug_module Debug
+ * \{
+ */
+
+
 #if defined(MBEDTLS_DEBUG_C)
 
 #define MBEDTLS_DEBUG_STRIP_PARENS( ... )   __VA_ARGS__
@@ -254,6 +262,9 @@ void mbedtls_debug_printf_ecdh( const mbedtls_ssl_context *ssl, int level,
                                 const mbedtls_ecdh_context *ecdh,
                                 mbedtls_debug_ecdh_attr attr );
 #endif
+
+/// \}
+/// \}
 
 #ifdef __cplusplus
 }

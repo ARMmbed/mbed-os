@@ -31,6 +31,13 @@
 #include <stddef.h>
 #include <stdint.h>
 
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_ripemd160_module RIPE MD-160
+ * \{
+ */
+
 /* MBEDTLS_ERR_RIPEMD160_HW_ACCEL_FAILED is deprecated and should not be used.
  */
 #define MBEDTLS_ERR_RIPEMD160_HW_ACCEL_FAILED             -0x0031  /**< RIPEMD160 hardware accelerator failed */
@@ -231,5 +238,8 @@ int mbedtls_ripemd160_self_test( int verbose );
 #ifdef __cplusplus
 }
 #endif
+
+/// \}
+/// \}
 
 #endif /* mbedtls_ripemd160.h */

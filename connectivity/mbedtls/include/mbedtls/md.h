@@ -33,6 +33,14 @@
 #include MBEDTLS_CONFIG_FILE
 #endif
 
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_md_module Message Digest (MD)
+ * \{
+ */
+
+
 #define MBEDTLS_ERR_MD_FEATURE_UNAVAILABLE                -0x5080  /**< The selected feature is not available. */
 #define MBEDTLS_ERR_MD_BAD_INPUT_DATA                     -0x5100  /**< Bad input parameters to function. */
 #define MBEDTLS_ERR_MD_ALLOC_FAILED                       -0x5180  /**< Failed to allocate memory. */
@@ -466,6 +474,9 @@ int mbedtls_md_hmac( const mbedtls_md_info_t *md_info, const unsigned char *key,
 
 /* Internal use */
 int mbedtls_md_process( mbedtls_md_context_t *ctx, const unsigned char *data );
+
+/// \}
+/// \}
 
 #ifdef __cplusplus
 }

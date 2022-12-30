@@ -1,5 +1,5 @@
 /**
- * \file psa/crypto_types.h
+ * \file
  *
  * \brief PSA cryptography module: type aliases.
  *
@@ -231,6 +231,9 @@ typedef uint32_t psa_key_location_t;
 typedef uint32_t psa_key_id_t;
 
 #if !defined(MBEDTLS_PSA_CRYPTO_KEY_ID_ENCODES_OWNER)
+/**
+ * Identifier for persistent keys. See #psa_key_lifetime_t.
+ */
 typedef psa_key_id_t mbedtls_svc_key_id_t;
 
 #else /* MBEDTLS_PSA_CRYPTO_KEY_ID_ENCODES_OWNER */

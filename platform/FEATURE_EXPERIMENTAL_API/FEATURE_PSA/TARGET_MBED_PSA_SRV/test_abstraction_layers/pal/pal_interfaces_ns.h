@@ -22,17 +22,17 @@
 #include <stdarg.h>
 
 /**
-    @brief    - This function will read peripherals using SPI commands
-    @param    - addr : address of the peripheral
-              - data : read buffer
-              - len  : length of the read buffer in bytes
-    @return   - error status
+    @brief This function will read peripherals using SPI commands
+    @param addr address of the peripheral
+    @param data read buffer
+    @param len length of the read buffer in bytes
+    @return error status
 **/
 int pal_spi_read(addr_t addr, uint8_t *data, uint32_t len);
 
 /**
- * @brief    - Retrieve the version of the PSA Framework API that is implemented.
- *             This is a wrapper API for psa_framework_version API.
+ * @brief Retrieve the version of the PSA Framework API that is implemented.
+ * This is a wrapper API for psa_framework_version API.
  * @param    - void
  * @return   - The PSA Framework API version.
  *             Note - Return PAL_STATUS_ERROR if PSA IPC is not implemented.

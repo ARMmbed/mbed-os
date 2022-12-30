@@ -58,14 +58,13 @@ nsapi_size_or_error_t nsapi_dns_query_multiple(nsapi_stack_t *stack, const char 
 /** Add a domain name server to list of servers to query
  *
  *  @param addr     Destination for the host address
+ *  @param interface_name Currently unused, the server is added for all interfaces.
  *  @return         0 on success, negative error code on failure
  */
 nsapi_error_t nsapi_dns_add_server(nsapi_addr_t addr, const char *interface_name);
 
 
 #else
-
-typedef mbed::Callback<nsapi_error_t (int delay_ms, mbed::Callback<void()> user_cb)> call_in_callback_cb_t;
 
 /** Query a domain name server for an IP address of a given hostname
  *
@@ -84,7 +83,7 @@ nsapi_error_t nsapi_dns_query(NetworkStack *stack, const char *host,
  *  @param stack    Network stack as target for DNS query
  *  @param host     Hostname to resolve
  *  @param addr     Destination for the host address
- *  @param interface_name Network interface name
+ *  @param interface_name If not NULL, only this interface is used to make the DNS query.
  *  @param version  IP version to resolve (defaults to NSAPI_IPv4)
  *  @return         See @ref nsapi_dns_query_multiple
  */
@@ -98,12 +97,14 @@ nsapi_error_t nsapi_dns_query(NetworkStack *stack, const char *host,
  *  @param host     Hostname to resolve
  *  @param callback Callback that is called for result
  *  @param version  IP version to resolve (defaults to NSAPI_IPv4)
+ *  @param call_in_cb Call-in callback from the network stack (see #NetworkStack::call_in_callback_cb_t)
  *  @return         0 on success, negative error code on failure or an unique id that
  *                  represents the hostname translation operation and can be passed to
  *                  cancel, NSAPI_ERROR_DNS_FAILURE indicates the host could not be found
  */
 nsapi_error_t nsapi_dns_query_async(NetworkStack *stack, const char *host,
-                                    NetworkStack::hostbyname_cb_t callback, call_in_callback_cb_t call_in_cb,
+                                    NetworkStack::hostbyname_cb_t callback,
+                                    NetworkStack::call_in_callback_cb_t call_in_cb,
                                     nsapi_version_t version = NSAPI_IPv4);
 
 /** Query a domain name server for an IP address of a given hostname using Network interface name
@@ -111,14 +112,16 @@ nsapi_error_t nsapi_dns_query_async(NetworkStack *stack, const char *host,
  *  @param stack    Network stack as target for DNS query
  *  @param host     Hostname to resolve
  *  @param callback Callback that is called for result
- *  @param interface_name Network interface name
+ *  @param call_in_cb Call-in callback from the network stack (see #NetworkStack::call_in_callback_cb_t)
+ *  @param interface_name If not NULL, only this interface is used to make the DNS query.
  *  @param version  IP version to resolve (defaults to NSAPI_IPv4)
  *  @return         0 on success, negative error code on failure or an unique id that
  *                  represents the hostname translation operation and can be passed to
  *                  cancel, NSAPI_ERROR_DNS_FAILURE indicates the host could not be found
  */
 nsapi_error_t nsapi_dns_query_async(NetworkStack *stack, const char *host,
-                                    NetworkStack::hostbyname_cb_t callback, call_in_callback_cb_t call_in_cb,
+                                    NetworkStack::hostbyname_cb_t callback,
+                                    NetworkStack::call_in_callback_cb_t call_in_cb,
                                     const char *interface_name, nsapi_version_t version = NSAPI_IPv4);
 
 /** Query a domain name server for an IP address of a given hostname (asynchronous)
@@ -155,6 +158,7 @@ nsapi_error_t nsapi_dns_query(S *stack, const char *host,
  *  @param host       Hostname to resolve
  *  @param addr       Array for the host addresses
  *  @param addr_count Number of addresses allocated in the array
+ *  @param interface_name If not NULL, only this interface is used to make the DNS query.
  *  @param version    IP version to resolve (defaults to NSAPI_IPv4)
  *  @return           Positive number of addresses found on success
  *  @retval           NSAPI_ERROR_PARAMETER if provided parameters are invalid
@@ -172,14 +176,17 @@ nsapi_size_or_error_t nsapi_dns_query_multiple(NetworkStack *stack, const char *
  *  @param host       Hostname to resolve
  *  @param callback   Callback that is called for result
  *  @param addr_count Number of addresses allocated in the array
+ *  @param call_in_cb Call-in callback from the network stack (see #NetworkStack::call_in_callback_cb_t)
  *  @param version    IP version to resolve (defaults to NSAPI_IPv4)
+ *  @param interface_name If not NULL, only this interface is used to make the DNS query.
  *  @return           0 on success, negative error code on failure or an unique id that
                       represents the hostname translation operation and can be passed to
  *                    cancel, NSAPI_ERROR_DNS_FAILURE indicates the host could not be found
  */
 nsapi_size_or_error_t nsapi_dns_query_multiple_async(NetworkStack *stack, const char *host,
                                                      NetworkStack::hostbyname_cb_t callback, nsapi_size_t addr_count,
-                                                     call_in_callback_cb_t call_in_cb, const char *interface_name, nsapi_version_t version = NSAPI_IPv4);
+                                                     NetworkStack::call_in_callback_cb_t call_in_cb,
+                                                     const char *interface_name, nsapi_version_t version = NSAPI_IPv4);
 
 /** Query a domain name server for multiple IP address of a given hostname
  *
@@ -187,6 +194,7 @@ nsapi_size_or_error_t nsapi_dns_query_multiple_async(NetworkStack *stack, const 
  *  @param host       Hostname to resolve
  *  @param addr       Array for the host addresses
  *  @param addr_count Number of addresses allocated in the array
+ *  @param interface_name If not NULL, only this interface is used to make the DNS query.
  *  @param version    IP version to resolve (defaults to NSAPI_IPv4)
  *  @return           Number of addresses found on success, negative error code on failure
  *                    NSAPI_ERROR_DNS_FAILURE indicates the host could not be found
@@ -230,7 +238,7 @@ nsapi_error_t nsapi_dns_query_async_cancel(nsapi_size_or_error_t id);
  *
  *  @param callback  Callback
  */
-void nsapi_dns_call_in_set(call_in_callback_cb_t callback);
+void nsapi_dns_call_in_set(NetworkStack::call_in_callback_cb_t callback);
 
 /**
  * @brief nsapi_dns_reset Resets all internal states and frees reserved memory, see NOTE!
@@ -243,6 +251,7 @@ void nsapi_dns_reset();
 /** Add a domain name server to list of servers to query
  *
  *  @param addr     Destination for the host address
+ *  @param interface_name Currently unused, the server is added for all interfaces.
  *  @return         0 on success, negative error code on failure
  */
 extern "C" nsapi_error_t nsapi_dns_add_server(nsapi_addr_t addr, const char *interface_name);
@@ -250,6 +259,7 @@ extern "C" nsapi_error_t nsapi_dns_add_server(nsapi_addr_t addr, const char *int
 /** Add a domain name server to list of servers to query
  *
  *  @param addr     Destination for the host address
+ *  @param interface_name Currently unused, the server is added for all interfaces.
  *  @return         0 on success, negative error code on failure
  */
 static inline nsapi_error_t nsapi_dns_add_server(const SocketAddress &address, const char *interface_name)
@@ -260,6 +270,7 @@ static inline nsapi_error_t nsapi_dns_add_server(const SocketAddress &address, c
 /** Add a domain name server to list of servers to query
  *
  *  @param addr     Destination for the host address
+ *  @param interface_name Currently unused, the server is added for all interfaces.
  *  @return         0 on success, negative error code on failure
  */
 static inline nsapi_error_t nsapi_dns_add_server(const char *address, const char *interface_name)

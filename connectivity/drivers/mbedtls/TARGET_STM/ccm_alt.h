@@ -1,5 +1,5 @@
 /**
- * \file ccm.h
+ * \file ccm_alt.h
  *
  * \brief This file provides an API for the CCM authenticated encryption
  *        mode for block ciphers.

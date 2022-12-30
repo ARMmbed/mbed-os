@@ -42,6 +42,13 @@
 
 #include "mbedtls/bignum.h"
 
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_ecp_module Elliptic Curves over GF(P)
+ * \{
+ */
+
 /*
  * ECP error codes
  */
@@ -293,7 +300,7 @@ mbedtls_ecp_group;
 #define MBEDTLS_ECP_FIXED_POINT_OPTIM  1   /**< Enable fixed-point speed-up. */
 #endif /* MBEDTLS_ECP_FIXED_POINT_OPTIM */
 
-/* \} name SECTION: Module settings */
+/** \} name SECTION: Module settings */
 
 #else  /* MBEDTLS_ECP_ALT */
 #include "ecp_alt.h"
@@ -878,7 +885,7 @@ int mbedtls_ecp_tls_write_group( const mbedtls_ecp_group *grp,
  *                  intermediate results to prevent potential timing attacks
  *                  targeting these results. We recommend always providing
  *                  a non-NULL \p f_rng. The overhead is negligible.
- *                  Note: unless #MBEDTLS_ECP_NO_INTERNAL_RNG is defined, when
+ *                  Note: unless MBEDTLS_ECP_NO_INTERNAL_RNG is defined, when
  *                  \p f_rng is NULL, an internal RNG (seeded from the value
  *                  of \p m) will be used instead.
  *
@@ -1246,6 +1253,9 @@ int mbedtls_ecp_check_pub_priv( const mbedtls_ecp_keypair *pub,
 int mbedtls_ecp_self_test( int verbose );
 
 #endif /* MBEDTLS_SELF_TEST */
+
+/// \}
+/// \}
 
 #ifdef __cplusplus
 }

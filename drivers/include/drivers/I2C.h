@@ -426,7 +426,7 @@ public:
      * @param tx_length The length of TX buffer in bytes.  If 0, no transmission is done.
      * @param rx_buffer The RX buffer, which is used for received data.  May be nullptr if tx_length is 0.
      * @param rx_length The length of RX buffer in bytes  If 0, no reception is done.
-     * @param timeout timeout value.  Use @link rtos::Kernel::wait_for_u32_forever to wait forever (the default).
+     * @param timeout timeout value.  Use #rtos::Kernel::wait_for_u32_forever to wait forever (the default).
      * @param repeated Set up for a repeated start.  If true, the Mbed processor does not relinquish the bus after
      *       this operation.  You may then call write(), read(), or start() again to start another operation.
      *

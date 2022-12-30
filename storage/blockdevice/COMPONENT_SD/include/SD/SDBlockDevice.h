@@ -110,6 +110,7 @@ public:
      * a dedicated hardware CS pin.
      *
      *  @param spi_pinmap Static SPI pin-map
+     *  @param cs         Chip select pin (can be any GPIO)
      *  @param hz         Clock speed of the SPI bus (defaults to 1MHz)
      *  @param crc_on     Enable cyclic redundancy check (defaults to disabled)
      */

@@ -61,7 +61,7 @@ struct DNS_CACHE {
 };
 
 struct SOCKET_CB_DATA {
-    call_in_callback_cb_t call_in_cb;
+    NetworkStack::call_in_callback_cb_t call_in_cb;
     NetworkStack *stack;
 };
 
@@ -78,7 +78,7 @@ struct DNS_QUERY {
     char *host;
     const char *interface_name;
     NetworkStack::hostbyname_cb_t callback;
-    call_in_callback_cb_t call_in_cb;
+    NetworkStack::call_in_callback_cb_t call_in_cb;
     nsapi_size_t addr_count;
     nsapi_version_t version;
     UDPSocket *socket;
@@ -135,7 +135,7 @@ static intptr_t dns_unique_id = 1;
 static DNS_QUERY *dns_query_queue[DNS_QUERY_QUEUE_SIZE];
 // Protects from several threads running asynchronous DNS
 static SingletonPtr<rtos::Mutex> dns_mutex;
-static SingletonPtr<call_in_callback_cb_t> dns_call_in;
+static SingletonPtr<NetworkStack::call_in_callback_cb_t> dns_call_in;
 static bool dns_timer_running = false;
 
 // DNS server configuration
@@ -654,20 +654,22 @@ nsapi_error_t nsapi_dns_query(NetworkStack *stack, const char *host,
 }
 
 nsapi_value_or_error_t nsapi_dns_query_async(NetworkStack *stack, const char *host,
-                                             NetworkStack::hostbyname_cb_t callback, call_in_callback_cb_t call_in_cb,
+                                             NetworkStack::hostbyname_cb_t callback,
+                                             NetworkStack::call_in_callback_cb_t call_in_cb,
                                              nsapi_version_t version)
 {
     return nsapi_dns_query_multiple_async(stack, host, callback, 0, call_in_cb, NULL, version);
 }
 
 nsapi_value_or_error_t nsapi_dns_query_async(NetworkStack *stack, const char *host,
-                                             NetworkStack::hostbyname_cb_t callback, call_in_callback_cb_t call_in_cb,
+                                             NetworkStack::hostbyname_cb_t callback,
+                                             NetworkStack::call_in_callback_cb_t call_in_cb,
                                              const char *interface_name, nsapi_version_t version)
 {
     return nsapi_dns_query_multiple_async(stack, host, callback, 0, call_in_cb, interface_name, version);
 }
 
-void nsapi_dns_call_in_set(call_in_callback_cb_t callback)
+void nsapi_dns_call_in_set(NetworkStack::call_in_callback_cb_t callback)
 {
     *dns_call_in.get() = callback;
 }
@@ -679,7 +681,7 @@ void nsapi_dns_reset()
     dns_unique_id = 1;
 }
 
-nsapi_error_t nsapi_dns_call_in(call_in_callback_cb_t cb, int delay, mbed::Callback<void()> func)
+nsapi_error_t nsapi_dns_call_in(NetworkStack::call_in_callback_cb_t cb, int delay, mbed::Callback<void()> func)
 {
     if (*dns_call_in.get()) {
         dns_call_in->call(delay, func);
@@ -691,7 +693,8 @@ nsapi_error_t nsapi_dns_call_in(call_in_callback_cb_t cb, int delay, mbed::Callb
 
 nsapi_value_or_error_t nsapi_dns_query_multiple_async(NetworkStack *stack, const char *host,
                                                       NetworkStack::hostbyname_cb_t callback, nsapi_size_t addr_count,
-                                                      call_in_callback_cb_t call_in_cb, const char *interface_name, nsapi_version_t version)
+                                                      NetworkStack::call_in_callback_cb_t call_in_cb,
+                                                      const char *interface_name, nsapi_version_t version)
 {
     dns_mutex->lock();
 

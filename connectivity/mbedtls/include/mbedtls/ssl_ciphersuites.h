@@ -32,6 +32,11 @@
 #include "mbedtls/cipher.h"
 #include "mbedtls/md.h"
 
+/**
+ * \ingroup mbedtls_ssl_module
+ * \{
+ */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -552,5 +557,7 @@ static inline int mbedtls_ssl_ciphersuite_uses_server_signature( const mbedtls_s
 #ifdef __cplusplus
 }
 #endif
+
+/// \}
 
 #endif /* ssl_ciphersuites.h */

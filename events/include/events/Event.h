@@ -38,7 +38,7 @@ template <typename F>
 class Event;
 
 /**
- * \defgroup events_Event Event<void()> class
+ * \defgroup events_Event Event classes
  * @{
  */
 
@@ -438,6 +438,7 @@ public:
 
 /** @}*/
 
+#if !defined(DOXYGEN_ONLY)
 
 // Convenience functions declared here to avoid cyclic
 // dependency between Event and EventQueue
@@ -656,6 +657,8 @@ Event<void(ArgTs...)> EventQueue::event(mbed::Callback<R(B0, B1, B2, B3, B4, Arg
 {
     return Event<void(ArgTs...)>(this, cb, c0, c1, c2, c3, c4);
 }
+
+#endif // !defined(DOXYGEN_ONLY)
 
 /** @}*/
 }

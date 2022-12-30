@@ -49,6 +49,13 @@
 #include <stddef.h>
 #include <stdint.h>
 
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_aes_module AES
+ * \{
+ */
+
 /* padlock.c and aesni.c rely on these values! */
 #define MBEDTLS_AES_ENCRYPT     1 /**< AES encryption. */
 #define MBEDTLS_AES_DECRYPT     0 /**< AES decryption. */
@@ -654,6 +661,8 @@ MBEDTLS_DEPRECATED void mbedtls_aes_decrypt( mbedtls_aes_context *ctx,
 #undef MBEDTLS_DEPRECATED
 #endif /* !MBEDTLS_DEPRECATED_REMOVED */
 
+/// \}
+/// \}
 
 #if defined(MBEDTLS_SELF_TEST)
 /**

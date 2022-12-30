@@ -35,6 +35,11 @@
 #endif
 
 /**
+ * \ingroup mbedtls_ssl_module
+ * \{
+ */
+
+/**
  * \name SECTION: Module settings
  *
  * The configuration options you can set for this module are in this section.
@@ -50,7 +55,7 @@
 #define MBEDTLS_SSL_CACHE_DEFAULT_MAX_ENTRIES      50   /*!< Maximum entries in cache */
 #endif
 
-/* \} name SECTION: Module settings */
+/** \} name SECTION: Module settings */
 
 #ifdef __cplusplus
 extern "C" {
@@ -145,5 +150,7 @@ void mbedtls_ssl_cache_free( mbedtls_ssl_cache_context *cache );
 #ifdef __cplusplus
 }
 #endif
+
+/// \}
 
 #endif /* ssl_cache.h */

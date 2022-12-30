@@ -82,8 +82,8 @@ public:
 
     /** Set hostname.
      *
-     * @note Implementation is inside following defines:
-     * #if defined(MBEDTLS_X509_CRT_PARSE_C) && !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION)
+     * @note Implementation is a no-op unless MBEDTLS_X509_CRT_PARSE_C is defined and
+     * MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION is not defined.
      *
      * TLSSocket requires hostname used to verify the certificate.
      * If hostname is not given in constructor, this function must be used before
@@ -249,7 +249,6 @@ public:
     mbedtls_ssl_context *get_ssl_context();
 
 protected:
-#ifndef DOXYGEN_ONLY
     /** Initiates TLS Handshake.
      *
      *  Initiates a TLS handshake to a remote peer.
@@ -271,6 +270,7 @@ protected:
      */
     nsapi_error_t start_handshake(bool first_call);
 
+#ifndef DOXYGEN_ONLY
     bool is_handshake_started() const;
 
     void event();

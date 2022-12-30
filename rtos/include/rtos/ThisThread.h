@@ -29,10 +29,12 @@
 #include "rtos/mbed_rtos_types.h"
 
 namespace rtos {
-/** \addtogroup rtos-public-api */
-/** @{*/
+namespace ThisThread {
+
 
 /**
+ * \addtogroup rtos-public-api
+ * @{
  * \defgroup rtos_ThisThread ThisThread namespace
  * @{
  */
@@ -66,7 +68,6 @@ namespace rtos {
  *  @endcode
  *
  */
-namespace ThisThread {
 /** Clears the specified Thread Flags of the currently running thread.
   @param   flags  specifies the flags of the thread that should be cleared.
   @return  thread flags before clearing.
@@ -265,12 +266,12 @@ osThreadId_t get_id();
 */
 const char *get_name();
 
+/** @}*/
+/** @}*/
 };
-/** @}*/
-/** @}*/
-
 
 namespace internal {
+
 /** \addtogroup rtos-internal-api */
 /** @{*/
 
@@ -284,7 +285,7 @@ struct flags_check_capture {
 
 bool non_rtos_check_flags(void *handle);
 
-}
 /** @}*/
+}
 }
 #endif

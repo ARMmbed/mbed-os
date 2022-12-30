@@ -1,5 +1,5 @@
 /**
- * \file psa/crypto_platform.h
+ * \file
  *
  * \brief PSA cryptography module: Mbed TLS platform definitions
  *

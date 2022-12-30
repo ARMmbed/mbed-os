@@ -58,7 +58,7 @@ protected:
     Nanostack();
 
     /** @copydoc NetworkStack::get_ip_address */
-    nsapi_error_t get_ip_address(SocketAddress *sockAddr) override;
+    nsapi_error_t get_ip_address(SocketAddress *address) override;
 
     /** Translate a hostname to an IP address with specific version using network interface name.
      *
@@ -75,7 +75,7 @@ protected:
      *  @param interface_name  Network interface name
      *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
-    virtual nsapi_error_t gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version, const char *interface_name) override;
+    virtual nsapi_error_t gethostbyname(const char *host, SocketAddress *address, nsapi_version_t version, const char *interface_name) override;
 
     /** Translate a hostname to an IP address (asynchronous) using network interface name.
      *
@@ -99,7 +99,7 @@ protected:
      *                  a positive unique id that represents the hostname translation operation
      *                  and can be passed to cancel.
      */
-    virtual nsapi_value_or_error_t gethostbyname_async(const char *name, hostbyname_cb_t callback, nsapi_version_t version, const char *interface_name) override;
+    virtual nsapi_value_or_error_t gethostbyname_async(const char *host, hostbyname_cb_t callback, nsapi_version_t version, const char *interface_name) override;
 
     /** Get a domain name server from a list of servers to query
      *
@@ -304,24 +304,6 @@ protected:
 
 private:
 
-    /** Call in callback
-      *
-      *  Callback is used to call the call in method of the network stack.
-      */
-    typedef mbed::Callback<nsapi_error_t (int delay_ms, mbed::Callback<void()> user_cb)> call_in_callback_cb_t;
-
-    /** Get a call in callback
-     *
-     *  Get a call in callback from the network stack context.
-     *
-     *  Callback should not take more than 10ms to execute, otherwise it might
-     *  prevent underlying thread processing. A portable user of the callback
-     *  should not make calls to network operations due to stack size limitations.
-     *  The callback should not perform expensive operations such as socket recv/send
-     *  calls or blocking operations.
-     *
-     *  @return         Call in callback
-     */
     call_in_callback_cb_t get_call_in_callback() override;
 
     /** Call a callback after a delay

@@ -41,6 +41,11 @@
 #include "mbedtls/threading.h"
 #endif
 
+/**
+ * \ingroup mbedtls_ssl_module
+ * \{
+ */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -136,5 +141,7 @@ void mbedtls_ssl_ticket_free( mbedtls_ssl_ticket_context *ctx );
 #ifdef __cplusplus
 }
 #endif
+
+/// \}
 
 #endif /* ssl_ticket.h */

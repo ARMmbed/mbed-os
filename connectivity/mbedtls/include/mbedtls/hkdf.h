@@ -34,11 +34,18 @@
 #include "mbedtls/md.h"
 
 /**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_hkdf_module HKDF
+ * \{
+ */
+
+/**
  *  \name HKDF Error codes
  *  \{
  */
 #define MBEDTLS_ERR_HKDF_BAD_INPUT_DATA  -0x5F80  /**< Bad input parameters to function. */
-/* \} name */
+/** \} name */
 
 #ifdef __cplusplus
 extern "C" {
@@ -135,5 +142,8 @@ int mbedtls_hkdf_expand( const mbedtls_md_info_t *md, const unsigned char *prk,
 #ifdef __cplusplus
 }
 #endif
+
+/// \}
+/// \}
 
 #endif /* hkdf.h */

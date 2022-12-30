@@ -51,16 +51,6 @@ typedef struct analogin_s analogin_t;
  * @{
  */
 
-/**
- * \defgroup hal_analogin_tests Analogin hal tests
- * The Analogin HAL tests ensure driver conformance to defined behaviour.
- *
- * To run the Analogin hal tests use the command:
- *
- *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal_fpga_ci_test_shield-analogin
- *
- */
-
 /** Initialize the analogin peripheral
  *
  * Configures the pin used by analogin.

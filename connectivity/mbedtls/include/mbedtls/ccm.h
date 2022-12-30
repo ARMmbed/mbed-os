@@ -65,6 +65,13 @@
 extern "C" {
 #endif
 
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_ccm_module CCM
+ * \{
+ */
+
 #if !defined(MBEDTLS_CCM_ALT)
 // Regular implementation
 //
@@ -304,5 +311,8 @@ int mbedtls_ccm_self_test( int verbose );
 #ifdef __cplusplus
 }
 #endif
+
+/// \}
+/// \}
 
 #endif /* MBEDTLS_CCM_H */

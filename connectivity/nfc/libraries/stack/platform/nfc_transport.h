@@ -47,8 +47,8 @@ typedef void (*nfc_transport_write_fn_t)(uint8_t address, const uint8_t *outBuf,
 
 /** Function called to read a register's value
  * \param address address to read packet from
- * \param outBuf buffer to read
- * \param outLen buffer's length
+ * \param inBuf buffer to read
+ * \param inLen buffer's length
  * \param pUser parameter passed to the nfc_transport_init function
  */
 typedef void (*nfc_transport_read_fn_t)(uint8_t address, uint8_t *inBuf, size_t inLen, void *pUser);

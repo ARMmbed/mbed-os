@@ -40,6 +40,13 @@
 #include "mbedtls/md.h"
 
 /**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_ecdsa_module ECDSA
+ * \{
+ */
+
+/**
  * \brief           Maximum ECDSA signature size for a given curve bit size
  *
  * \param bits      Curve size in bits
@@ -329,7 +336,7 @@ int mbedtls_ecdsa_verify( mbedtls_ecp_group *grp,
  *                  multiple threads.
  *
  * \note            The deterministic version is used if
- *                  #MBEDTLS_ECDSA_DETERMINISTIC is defined. For more
+ *                  MBEDTLS_ECDSA_DETERMINISTIC is defined. For more
  *                  information, see <em>RFC-6979: Deterministic Usage
  *                  of the Digital Signature Algorithm (DSA) and Elliptic
  *                  Curve Digital Signature Algorithm (ECDSA)</em>.
@@ -357,7 +364,7 @@ int mbedtls_ecdsa_verify( mbedtls_ecp_group *grp,
  * \param slen      The address at which to store the actual length of
  *                  the signature written. Must not be \c NULL.
  * \param f_rng     The RNG function. This must not be \c NULL if
- *                  #MBEDTLS_ECDSA_DETERMINISTIC is unset. Otherwise,
+ *                  MBEDTLS_ECDSA_DETERMINISTIC is unset. Otherwise,
  *                  it is used only for blinding and may be set to \c NULL, but
  *                  doing so is DEPRECATED.
  * \param p_rng     The RNG context to be passed to \p f_rng. This may be
@@ -399,7 +406,7 @@ int mbedtls_ecdsa_write_signature( mbedtls_ecdsa_context *ctx,
  * \param slen      The address at which to store the actual length of
  *                  the signature written. Must not be \c NULL.
  * \param f_rng     The RNG function. This must not be \c NULL if
- *                  #MBEDTLS_ECDSA_DETERMINISTIC is unset. Otherwise,
+ *                  MBEDTLS_ECDSA_DETERMINISTIC is unset. Otherwise,
  *                  it is unused and may be set to \c NULL.
  * \param p_rng     The RNG context to be passed to \p f_rng. This may be
  *                  \c NULL if \p f_rng is \c NULL or doesn't use a context.
@@ -618,6 +625,9 @@ void mbedtls_ecdsa_restart_init( mbedtls_ecdsa_restart_ctx *ctx );
  */
 void mbedtls_ecdsa_restart_free( mbedtls_ecdsa_restart_ctx *ctx );
 #endif /* MBEDTLS_ECP_RESTARTABLE */
+
+/// \}
+/// \}
 
 #ifdef __cplusplus
 }

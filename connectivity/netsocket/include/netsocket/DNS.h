@@ -16,7 +16,7 @@
  */
 
 /** @file DNS.h Domain Name Service */
-/** @defgroup NetSocket
+/** @defgroup NetSocket NetSocket
   * @ingroup connectivity-public-api
 
  * @{ */

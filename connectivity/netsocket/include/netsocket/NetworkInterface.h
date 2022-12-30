@@ -346,6 +346,7 @@ public:
     /** Add a domain name server to list of servers to query
      *
      *  @param address  Address for the dns host.
+     *  @param interface_name  Network interface name.  Currently unused, the server is added for all interfaces.
      *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t add_dns_server(const SocketAddress &address, const char *interface_name);

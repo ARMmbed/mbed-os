@@ -44,8 +44,6 @@ static inline int mbedtls_svc_key_id_is_null( mbedtls_svc_key_id_t key )
     return( key == 0 );
 }
 
-/**@}*/
-
 #ifdef __cplusplus
 }
 #endif

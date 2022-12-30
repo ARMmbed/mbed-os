@@ -34,6 +34,13 @@
 
 #include <stddef.h>
 
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_arc4_module ARC4
+ * \{
+ */
+
 /* MBEDTLS_ERR_ARC4_HW_ACCEL_FAILED is deprecated and should not be used. */
 #define MBEDTLS_ERR_ARC4_HW_ACCEL_FAILED                  -0x0019  /**< ARC4 hardware accelerator failed. */
 
@@ -120,6 +127,9 @@ void mbedtls_arc4_setup( mbedtls_arc4_context *ctx, const unsigned char *key,
  */
 int mbedtls_arc4_crypt( mbedtls_arc4_context *ctx, size_t length, const unsigned char *input,
                 unsigned char *output );
+
+/// \}
+/// \}
 
 #if defined(MBEDTLS_SELF_TEST)
 

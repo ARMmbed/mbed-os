@@ -78,14 +78,14 @@ extern "C" {
  * \brief          Public key types
  */
 typedef enum {
-    MBEDTLS_PK_NONE=0,
-    MBEDTLS_PK_RSA,
-    MBEDTLS_PK_ECKEY,
-    MBEDTLS_PK_ECKEY_DH,
-    MBEDTLS_PK_ECDSA,
-    MBEDTLS_PK_RSA_ALT,
-    MBEDTLS_PK_RSASSA_PSS,
-    MBEDTLS_PK_OPAQUE,
+    MBEDTLS_PK_NONE=0, ///< None
+    MBEDTLS_PK_RSA, ///< RSA
+    MBEDTLS_PK_ECKEY, ///< ECKEY
+    MBEDTLS_PK_ECKEY_DH, ///< ECKEY DH
+    MBEDTLS_PK_ECDSA, ///< ECDSA
+    MBEDTLS_PK_RSA_ALT, ///< RSA Alt
+    MBEDTLS_PK_RSASSA_PSS, ///< RSASSA PSS
+    MBEDTLS_PK_OPAQUE, ///< OPAQUE
 } mbedtls_pk_type_t;
 
 /**
@@ -642,7 +642,7 @@ const char * mbedtls_pk_get_name( const mbedtls_pk_context *ctx );
 mbedtls_pk_type_t mbedtls_pk_get_type( const mbedtls_pk_context *ctx );
 
 #if defined(MBEDTLS_PK_PARSE_C)
-/** \ingroup pk_module */
+/** \ingroup mbedtls_pk_module */
 /**
  * \brief           Parse a private key in PEM or DER format
  *
@@ -675,7 +675,7 @@ int mbedtls_pk_parse_key( mbedtls_pk_context *ctx,
                   const unsigned char *key, size_t keylen,
                   const unsigned char *pwd, size_t pwdlen );
 
-/** \ingroup pk_module */
+/** \ingroup mbedtls_pk_module */
 /**
  * \brief           Parse a public key in PEM or DER format
  *
@@ -701,7 +701,7 @@ int mbedtls_pk_parse_public_key( mbedtls_pk_context *ctx,
                          const unsigned char *key, size_t keylen );
 
 #if defined(MBEDTLS_FS_IO)
-/** \ingroup pk_module */
+/** \ingroup mbedtls_pk_module */
 /**
  * \brief           Load and parse a private key
  *
@@ -725,7 +725,7 @@ int mbedtls_pk_parse_public_key( mbedtls_pk_context *ctx,
 int mbedtls_pk_parse_keyfile( mbedtls_pk_context *ctx,
                       const char *path, const char *password );
 
-/** \ingroup pk_module */
+/** \ingroup mbedtls_pk_module */
 /**
  * \brief           Load and parse a public key
  *

@@ -32,8 +32,8 @@ extern "C" {
  * \defgroup hal_gpio GPIO HAL functions
  *
  * # Defined behavior
- * * ::gpio_init and other init functions can be called with NC or a valid PinName for the target - Verified by ::gpio_nc_test
- * * ::gpio_is_connected can be used to test whether a gpio_t object was initialized with NC - Verified by ::gpio_nc_test
+ * * ::gpio_init and other init functions can be called with NC or a valid PinName for the target - Verified by gpio_nc_test
+ * * ::gpio_is_connected can be used to test whether a gpio_t object was initialized with NC - Verified by gpio_nc_test
  * * ::gpio_init initializes the GPIO pin
  * * ::gpio_free returns the pin owned by the GPIO object to its reset state
  * * ::gpio_mode sets the mode of the given pin

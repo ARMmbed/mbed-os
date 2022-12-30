@@ -31,6 +31,13 @@
 #include <stddef.h>
 
 /**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_pem_module Privacy Enhanced Mail
+ * \{
+ */
+
+/**
  * \name PEM Error codes
  * These error codes are returned in case of errors reading the
  * PEM data.
@@ -45,7 +52,7 @@
 #define MBEDTLS_ERR_PEM_PASSWORD_MISMATCH                 -0x1380  /**< Given private key password does not allow for correct decryption. */
 #define MBEDTLS_ERR_PEM_FEATURE_UNAVAILABLE               -0x1400  /**< Unavailable feature, e.g. hashing/encryption combination. */
 #define MBEDTLS_ERR_PEM_BAD_INPUT_DATA                    -0x1480  /**< Bad input parameters to function. */
-/* \} name */
+/** \} name */
 
 #ifdef __cplusplus
 extern "C" {
@@ -140,5 +147,8 @@ int mbedtls_pem_write_buffer( const char *header, const char *footer,
 #ifdef __cplusplus
 }
 #endif
+
+/// \}
+/// \}
 
 #endif /* pem.h */

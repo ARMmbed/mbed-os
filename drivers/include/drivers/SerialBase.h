@@ -168,7 +168,7 @@ public:
     /** Set the flow control type on the serial port
      *
      *  @param type the flow control type (Disabled, RTS, CTS, RTSCTS)
-     *  @param pinmap reference to structure which holds static pinmap
+     *  @param static_pinmap reference to structure which holds static pinmap
      */
     void set_flow_control(Flow type, const serial_fc_pinmap_t &static_pinmap);
 #endif

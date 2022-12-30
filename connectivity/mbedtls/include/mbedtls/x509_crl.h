@@ -35,7 +35,7 @@ extern "C" {
 #endif
 
 /**
- * \addtogroup x509_module
+ * \addtogroup mbedtls_x509_module
  * \{ */
 
 /**
@@ -162,8 +162,8 @@ void mbedtls_x509_crl_init( mbedtls_x509_crl *crl );
  */
 void mbedtls_x509_crl_free( mbedtls_x509_crl *crl );
 
-/* \} name */
-/* \} addtogroup x509_module */
+/** \} name */
+/** \} addtogroup mbedtls_x509_module */
 
 #ifdef __cplusplus
 }

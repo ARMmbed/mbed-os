@@ -48,19 +48,7 @@ public:
      */
     virtual void start_reset_sequence();
 
-    /**
-     * Handle HCI messages received during the reset sequence.
-     *
-     * @param msg The HCI message received.
-     * @note The driver should signal to the stack that the initialization
-     * sequence is done by calling the function: signal_reset_sequence_done.
-     */
-    //virtual void handle_reset_sequence(uint8_t *msg);
-
-    /**
-     * @copydoc CordioHCIDriver::get_random_static_address
-     */
-    virtual bool get_random_static_address(ble::address_t& address);
+    bool get_random_static_address(ble::address_t& address) override;
 
 private:
     /**

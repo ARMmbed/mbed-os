@@ -23,13 +23,21 @@
 
 namespace mbed {
 
-/** FileSystemStore for Secure Store.
- *  This class implements the KVStore interface to
- *  create a key value store over FileSystem.
+/**
+ * \addtogroup kvstore
+ * @{
+ */
+
+/** FileSystemStore is a lightweight implementation of the KVStore interface over file systems.
  *
- *  @code
- *  ...
- *  @endcode
+ * FileSystemStore implements the get/set interface using files, where a single file represents each key.
+ * A key is represented by the file name, and its value is stored as file data. Therefore, FileSystemStore
+ * imitates the get/set actions using simple file operations. Set is achieved using open-write-close, get
+ * using open-read-close and so on.
+ *
+ * All files are concentrated under a single directory, whose name is hard coded. So actions such as "reset"
+ * are mapped to the deletion of all files under this directory, and iteration actions use file system APIs to
+ * traverse the directory.
  */
 class FileSystemStore : public KVStore {
 
@@ -266,6 +274,7 @@ private:
 #endif
 };
 
+/// @}
 
 } //namespace mbed
 #endif //MBED_FILE_SYSTEM_STORE_H

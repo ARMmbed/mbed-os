@@ -65,11 +65,11 @@ public:
      *  @param address  Destination for the source address or NULL.
      *  @param data     Destination buffer for RAW data to be received from the host.
      *  @param size     Size of the buffer in bytes.
-     *  @retval         int Number of received bytes on success.
+     *  @retval         Number of received bytes on success.
      *  @retval         NSAPI_ERROR_NO_SOCKET in case socket was not created correctly.
      *  @retval         NSAPI_ERROR_WOULD_BLOCK in case non-blocking mode is enabled
      *                  and send cannot be performed immediately.
-     *  @retval         int Other negative error codes for stack-related failures.
+     *  @retval         Other negative error codes for stack-related failures.
      *                  See \ref NetworkStack::socket_recv.
      */
     nsapi_size_or_error_t recvfrom(SocketAddress *address,
@@ -81,12 +81,11 @@ public:
      *  nonblocking or times out, NSAPI_ERROR_WOULD_BLOCK is returned
      *  immediately.
      *
-     *  It uses sendto_control with zero ancillary data
      *  @param address  The SocketAddress of the remote host.
      *  @param data     Buffer of data to send to the host.
      *  @param size     Size of the buffer in bytes.
-     *  @param control     Size of the buffer in bytes.
-     *  @param control_size     Size of the buffer in bytes.
+     *  @param control  Control data, for instance a populated #nsapi_pktinfo structure.
+     *  @param control_size Size of \c control in bytes.
      *  @retval         NSAPI_ERROR_NO_SOCKET in case socket was not created correctly.
      *  @retval         NSAPI_ERROR_WOULD_BLOCK in case non-blocking mode is enabled
      *                  and send cannot be performed immediately.
@@ -103,7 +102,12 @@ public:
     *  By default, recvfrom blocks until a datagram is received. If socket is set to
     *  nonblocking or times out with no datagram, NSAPI_ERROR_WOULD_BLOCK
     *  is returned.
-    *  Ancillary data  is stored in msghdr struct
+    *
+    *  Ancillary data is stored into \c control.  The caller needs to allocate a buffer
+    *  that is large enough to contain the data they want to receive, then pass the pointer in
+    *  through the \c control member.  The data will be filled into \c control, beginning with a header
+    *  specifying what data was received.  See #MsgHeaderIterator for how to parse this data.
+    *
     *  @note If the datagram is larger than the buffer, the excess data is silently discarded.
     *
     *  @note If socket is connected, only packets coming from connected peer address
@@ -114,13 +118,13 @@ public:
     *  @param address  Destination for the source address or NULL.
     *  @param data     Destination buffer for RAW data to be received from the host.
     *  @param size     Size of the buffer in bytes.
-    *  @param control     Size of the buffer in bytes.
-    *  @param control_size     Size of the buffer in bytes.
-    *  @retval         int Number of received bytes on success.
+    *  @param control  Caller-allocated buffer to store ancillary data.
+    *  @param control_size Size of the \c control buffer that the caller has allocated.
+    *  @retval         Number of received bytes on success.
     *  @retval         NSAPI_ERROR_NO_SOCKET in case socket was not created correctly.
     *  @retval         NSAPI_ERROR_WOULD_BLOCK in case non-blocking mode is enabled
     *                  and send cannot be performed immediately.
-    *  @retval         int Other negative error codes for stack-related failures.
+    *  @retval         Other negative error codes for stack-related failures.
     *                  See \ref NetworkStack::socket_recv.
     */
     nsapi_size_or_error_t recvfrom_control(SocketAddress *address,
@@ -146,12 +150,12 @@ public:
      *
      *  @param data     Buffer of data to send to the host.
      *  @param size     Size of the buffer in bytes.
-     *  @retval         int Number of sent bytes on success.
+     *  @retval         Number of sent bytes on success.
      *  @retval         NSAPI_ERROR_NO_SOCKET in case socket was not created correctly.
      *  @retval         NSAPI_ERROR_WOULD_BLOCK in case non-blocking mode is enabled
      *                  and send cannot be performed immediately.
-     *  #retval         NSAPI_ERROR_NO_ADDRESS if the address was not set with connect().
-     *  @retval         int Other negative error codes for stack-related failures.
+     *  @retval         NSAPI_ERROR_NO_ADDRESS if the address was not set with connect().
+     *  @retval         Other negative error codes for stack-related failures.
      *                  See \ref NetworkStack::socket_send.
      */
     nsapi_size_or_error_t send(const void *data, nsapi_size_t size) override;
@@ -168,11 +172,11 @@ public:
      *
      *  @param data     Pointer to buffer for data received from the host.
      *  @param size     Size of the buffer in bytes.
-     *  @retval         int Number of received bytes on success.
+     *  @retval         Number of received bytes on success.
      *  @retval         NSAPI_ERROR_NO_SOCKET in case socket was not created correctly.
      *  @retval         NSAPI_ERROR_WOULD_BLOCK in case non-blocking mode is enabled
      *                  and send cannot be performed immediately.
-     *  @retval         int Other negative error codes for stack-related failures.
+     *  @retval         Other negative error codes for stack-related failures.
      *                  See \ref NetworkStack::socket_recv.
      */
     nsapi_size_or_error_t recv(void *data, nsapi_size_t size) override;

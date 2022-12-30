@@ -53,7 +53,7 @@ public:
      *      Size of read/program caches. Each file uses 1 cache, and littlefs
      *      allocates 2 caches for internal operations. Larger values should be
      *      faster but uses more RAM.
-     *  @param lookahead_size
+     *  @param lookahead
      *      Size of the lookahead buffer. A larger lookahead reduces the
      *      allocation scans and results in a faster filesystem but uses
      *      more RAM.

@@ -100,8 +100,6 @@ public:
     /** Initialize CAN interface
       *
       * @param pinmap reference to structure which holds static pinmap
-      * @param td the transmit pin
-      * @param hz the bus frequency in hertz
       */
     CAN(const can_pinmap_t &pinmap);
     CAN(const can_pinmap_t &&) = delete; // prevent passing of temporary objects
@@ -109,7 +107,6 @@ public:
     /** Initialize CAN interface and set the frequency
       *
       * @param pinmap reference to structure which holds static pinmap
-      * @param td the transmit pin
       * @param hz the bus frequency in hertz
       */
     CAN(const can_pinmap_t &pinmap, int hz);

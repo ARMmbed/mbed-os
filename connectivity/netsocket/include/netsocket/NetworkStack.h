@@ -187,7 +187,7 @@ public:
     /** Add a domain name server to list of servers to query
      *
      *  @param address  Destination for the host address
-     *  @param interface_name  Network interface name
+     *  @param interface_name  Network interface name.  Currently unused, the server is added for all interfaces.
      *  @return         NSAPI_ERROR_OK on success, negative error code on failure
      */
     virtual nsapi_error_t add_dns_server(const SocketAddress &address, const char *interface_name = NULL);
@@ -238,8 +238,15 @@ public:
     /** Dynamic downcast to a OnboardNetworkStack */
     virtual OnboardNetworkStack *onboardNetworkStack()
     {
-        return 0;
+        return nullptr;
     }
+
+    /**
+     * Type for a call-in callback.
+     * This is a pointer to a function that will call the provided callback from the network stack
+     * after a given delay, or immediately if \p delay_ms is 0.
+     */
+    typedef mbed::Callback<nsapi_error_t (int delay_ms, mbed::Callback<void()> user_cb)> call_in_callback_cb_t;
 
 protected:
     friend class InternetSocket;
@@ -428,17 +435,19 @@ protected:
      *  Receives data and stores the source address in address if address
      *  is not NULL. Returns the number of bytes received into the buffer.
      *
-     *  Additional information related to the message can be retrieved with
-     *  the control data.
+     *  Ancillary data is stored into \c control.  The caller needs to allocate a buffer
+     *  that is large enough to contain the data they want to receive, then pass the pointer in
+     *  through the \c control member.  The data will be filled into \c control, beginning with a header
+     *  specifying what data was received.  See #MsgHeaderIterator for how to parse this data.
      *
      *  This call is non-blocking. If recvfrom would block,
      *  NSAPI_ERROR_WOULD_BLOCK is returned immediately.
      *
      *  @param handle   Socket handle
      *  @param address  Destination for the source address or NULL
-     *  @param buffer   Destination buffer for data received from the host
+     *  @param data     Destination buffer for data received from the host
      *  @param size     Size of the buffer in bytes
-     *  @param control     Storage for ancillary data
+     *  @param control  Storage for ancillary data
      *  @param control_size   Size of  ancillary data
      *  @return         Number of received bytes on success, negative error
      *                  code on failure
@@ -502,12 +511,6 @@ protected:
                                      int optname, void *optval, unsigned *optlen);
 
 private:
-
-    /** Call in callback
-      *
-      *  Callback is used to call the call in method of the network stack.
-      */
-    typedef mbed::Callback<nsapi_error_t (int delay_ms, mbed::Callback<void()> user_cb)> call_in_callback_cb_t;
 
     /** Get a call in callback
      *

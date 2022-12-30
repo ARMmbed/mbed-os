@@ -41,6 +41,13 @@
 #include <stdint.h>
 #include <stddef.h>
 
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_chacha20_module ChaCha20
+ * \{
+ */
+
 #define MBEDTLS_ERR_CHACHA20_BAD_INPUT_DATA         -0x0051 /**< Invalid input parameter(s). */
 
 /* MBEDTLS_ERR_CHACHA20_FEATURE_UNAVAILABLE is deprecated and should not be
@@ -217,6 +224,9 @@ int mbedtls_chacha20_crypt( const unsigned char key[32],
  */
 int mbedtls_chacha20_self_test( int verbose );
 #endif /* MBEDTLS_SELF_TEST */
+
+/// \}
+/// \}
 
 #ifdef __cplusplus
 }

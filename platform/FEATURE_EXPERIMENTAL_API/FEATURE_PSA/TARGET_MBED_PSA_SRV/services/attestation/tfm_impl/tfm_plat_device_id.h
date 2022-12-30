@@ -62,12 +62,12 @@ extern "C" {
  * 128 & 256 bits but this implementation will use the full 256 bits to
  * accommodate a hash result.
  *
- * \param[in/out] size  As an input value it indicates the size of the caller
+ * \param[inout] size  As an input value it indicates the size of the caller
  *                      allocated buffer (in bytes) to store the UEID. At return
  *                      its value is updated with the exact size of the UEID.
  * \param[out]    buf   Pointer to the buffer to store the UEID
  *
- * \return  Returns error code specified in \ref tfm_plat_err_t
+ * \return  Returns error code specified in #tfm_plat_err_t
  */
 enum tfm_plat_err_t tfm_plat_get_instance_id(uint32_t *size, uint8_t *buf);
 
@@ -81,13 +81,13 @@ enum tfm_plat_err_t tfm_plat_get_instance_id(uint32_t *size, uint8_t *buf);
  * custom EAT claim with a value consisting of a CBOR byte string. The size of
  * this string will normally be 32 bytes to accommodate a 256 bit hash.
  *
- * \param[in/out] size  As an input value it indicates the size of the caller
+ * \param[inout] size  As an input value it indicates the size of the caller
  *                      allocated buffer (in bytes) to store the implementation
  *                      ID. At return its value is updated with the exact size
  *                      of the implementation ID.
  * \param[out]    buf   Pointer to the buffer to store the implementation ID
  *
- * \return  Returns error code specified in \ref tfm_plat_err_t
+ * \return  Returns error code specified in #tfm_plat_err_t
  */
 enum tfm_plat_err_t tfm_plat_get_implementation_id(uint32_t *size,
                                                    uint8_t  *buf);
@@ -100,13 +100,13 @@ enum tfm_plat_err_t tfm_plat_get_implementation_id(uint32_t *size,
  * It is recommended to use for identification the format of the European
  * Article Number: EAN-13+5.
  *
- * \param[in/out] size  As an input value it indicates the size of the caller
+ * \param[inout] size  As an input value it indicates the size of the caller
  *                      allocated buffer (in bytes) to store the HW version. At
  *                      return its value is updated with the exact size of the
  *                      HW version.
  * \param[out]    buf   Pointer to the buffer to store the HW version
  *
- * \return  Returns error code specified in \ref tfm_plat_err_t
+ * \return  Returns error code specified in #tfm_plat_err_t
  */
 enum tfm_plat_err_t tfm_plat_get_hw_version(uint32_t *size, uint8_t *buf);
 

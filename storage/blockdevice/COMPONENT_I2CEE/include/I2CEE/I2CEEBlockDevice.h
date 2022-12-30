@@ -62,10 +62,10 @@ public:
      *
      *  @param sda                  The pin name for the sda line of the I2C bus.
      *  @param scl                  The pin name for the scl line of the I2C bus.
-     *  @param addr                 The 8bit I2C address of the chip, common range 0xa0 - 0xae.
+     *  @param address              The 8bit I2C address of the chip, common range 0xa0 - 0xae.
      *  @param size                 The size of the device in bytes
      *  @param block                The page size of the device in bytes, defaults to 32bytes
-     *  @param freq                 The frequency of the I2C bus, defaults to 400K.
+     *  @param bus_speed            The frequency of the I2C bus, defaults to 400kHz.
      *  @param address_is_eight_bit Specifies whether the EEPROM device is using eight bit
      *                              addresses instead of 16 bit addresses. This is used for example
      *                              in AT24C series chips.
@@ -76,13 +76,12 @@ public:
         int bus_speed = 400000,
         bool address_is_eight_bit = false);
 
-    /** Constructor to create an I2CEEBlockDevice on I2C pins
+    /** Constructor to create an I2CEEBlockDevice using the pins and frequency of an existing I2C bus
      *
-     *  @param i2c                  The I2C instance pointer
-     *  @param addr                 The 8bit I2C address of the chip, common range 0xa0 - 0xae.
+     *  @param i2c_obj              The I2C instance pointer
+     *  @param address              The 8bit I2C address of the chip, common range 0xa0 - 0xae.
      *  @param size                 The size of the device in bytes
      *  @param block                The page size of the device in bytes, defaults to 32bytes
-     *  @param freq                 The frequency of the I2C bus, defaults to 400K.
      *  @param address_is_eight_bit Specifies whether the EEPROM device is using eight bit
      *                              addresses instead of 16 bit addresses. This is used for example
      *                              in AT24C series chips.

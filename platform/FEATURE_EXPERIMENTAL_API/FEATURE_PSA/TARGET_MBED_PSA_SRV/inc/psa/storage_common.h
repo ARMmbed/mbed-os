@@ -51,7 +51,7 @@ struct psa_storage_info_t {
     psa_storage_create_flags_t flags;    /**< The flags set when the uid was created **/
 };
 
-/** \brief Flag indicating that \ref psa_storage_create and \ref psa_storage_set_extended are supported */
+/** Flag indicating that \ref psa_ps_create and \ref psa_ps_set_extended are supported */
 #define PSA_STORAGE_SUPPORT_SET_EXTENDED (1 << 0)
 
 /** \brief PSA storage specific error codes */

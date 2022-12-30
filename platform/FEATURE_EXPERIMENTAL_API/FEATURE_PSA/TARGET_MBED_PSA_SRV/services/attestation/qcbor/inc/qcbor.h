@@ -1706,6 +1706,8 @@ QCBORError QCBORDecode_SetMemPool(QCBORDecodeContext *pCtx, UsefulBuf MemPool, b
 
  @param[in] pCtx The decoder context to set up an allocator for
  @param[in] pAllocator The string allocator "object"
+ @param[in] bAllocAll Force copying of even definite length strings using this allocator.
+   Otherwise, if false, definite-length byte and text strings are simply decoded as pointers into the source data.
 
  See QCBORStringAllocator for the requirements of the string allocator.
 
@@ -1719,7 +1721,7 @@ QCBORError QCBORDecode_SetMemPool(QCBORDecodeContext *pCtx, UsefulBuf MemPool, b
  You can also write your own allocator. Create the allocate, free,
  and destroy functions and put pointers to them in a QCBORStringAllocator.
  */
-void QCBORDecode_SetUpAllocator(QCBORDecodeContext *pCtx, const QCBORStringAllocator *pAllocator, bool bAllStrings);
+void QCBORDecode_SetUpAllocator(QCBORDecodeContext *pCtx, const QCBORStringAllocator *pAllocator, bool bAllocAll);
 
 
 /**

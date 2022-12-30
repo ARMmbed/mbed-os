@@ -38,6 +38,13 @@ extern "C" {
 #endif
 
 /**
+* \addtogroup mbedtls
+* \{
+* \defgroup mbedtls_havege_module HAVEGE
+* \{
+*/
+
+/**
  * \brief          HAVEGE state structure
  */
 typedef struct mbedtls_havege_state
@@ -72,6 +79,9 @@ void mbedtls_havege_free( mbedtls_havege_state *hs );
  * \return         0
  */
 int mbedtls_havege_random( void *p_rng, unsigned char *output, size_t len );
+
+/// \}
+/// \}
 
 #ifdef __cplusplus
 }

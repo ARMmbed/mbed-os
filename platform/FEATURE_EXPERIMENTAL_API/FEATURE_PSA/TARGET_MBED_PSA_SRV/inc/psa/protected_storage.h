@@ -145,9 +145,9 @@ psa_status_t psa_ps_remove(psa_storage_uid_t uid);
  *                                          has its own UID space, making other partitions' data unadressable
  * \retval PSA_ERROR_STORAGE_FAILURE        The create action has a physical storage error
  * \retval PSA_ERROR_INSUFFICIENT_STORAGE   The maximum size is bigger of the current available space
- * \retval PSA_ERROR_NOT_SUPPORTED          One or more create_flags are not valid or supported
+ * \retval PSA_ERROR_NOT_SUPPORTED          One or more create_flags are not valid or supported.
+ *     Or, the implementation of the API does not support this function
  * \retval PSA_ERROR_INVALID_ARGUMENT       The asset exists and the input paramters are not the same as the existing asset
- * \retval PSA_ERROR_NOT_SUPPORTED          The implementation of the API does not support this function
  * \retval PSA_ERROR_GENERIC_ERROR          The operation has failed due to an unspecified error
  */
 psa_status_t psa_ps_create(psa_storage_uid_t uid,

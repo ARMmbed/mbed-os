@@ -1,5 +1,5 @@
 /**
- * \file psa/crypto_struct.h
+ * \file
  *
  * \brief PSA cryptography module: Mbed TLS structured type implementations
  *

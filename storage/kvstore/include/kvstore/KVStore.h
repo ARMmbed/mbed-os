@@ -23,9 +23,17 @@
 
 namespace mbed {
 
+/**
+ * \addtogroup storage
+ * @{
+ * \defgroup kvstore KVStore
+ * Classes for key-value storage.
+ * @{
+ */
+
 /** KVStore class
  *
- *  Interface class for Key Value Storage
+ *  Interface class for all Key Value Storage providers.
  */
 class KVStore {
 public:
@@ -210,6 +218,7 @@ public:
     }
 
 };
+/** @}*/
 /** @}*/
 
 } // namespace mbed

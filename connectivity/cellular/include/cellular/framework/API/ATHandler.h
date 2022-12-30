@@ -205,7 +205,7 @@ public:
      *        command when you need multiple response parameters to be handled.
      *        NOTE: Does not lock ATHandler for process!
      *
-     * @param cmd AT command in form +<CMD> (will be used also in response reading, no extra chars allowed)
+     * @param cmd AT command in form +&lt;CMD&lt; (will be used also in response reading, no extra chars allowed)
      * @param cmd_chr Char to be added to specific AT command: '?', '=' or ''. Will be used as such so '=1' is valid as well.
      * @param format Format string for variadic arguments to be added to AT command; No separator needed.
      *        Use %d for integer, %s for string and %b for byte string (requires 2 arguments: string and length)
@@ -214,7 +214,7 @@ public:
 
     /**
      * @brief at_cmd_str Send an AT command and read a single string response. Locks and unlocks ATHandler for operation
-     * @param cmd AT command in form +<CMD> (will be used also in response reading, no extra chars allowed)
+     * @param cmd AT command in form +&lt;CMD&lt; (will be used also in response reading, no extra chars allowed)
      * @param cmd_chr Char to be added to specific AT command: '?', '=' or ''. Will be used as such so '=1' is valid as well.
      * @param resp_buf Response buffer
      * @param resp_buf_size Response buffer size
@@ -226,7 +226,7 @@ public:
 
     /**
      * @brief at_cmd_int Send an AT command and read a single integer response. Locks and unlocks ATHandler for operation
-     * @param cmd AT command in form +<CMD> (will be used also in response reading, no extra chars allowed)
+     * @param cmd AT command in form +&lt;CMD&lt; (will be used also in response reading, no extra chars allowed)
      * @param cmd_chr Char to be added to specific AT command: '?', '=' or ''. Will be used as such so '=1' is valid as well.
      * @param resp Integer to hold response
      * @param format Format string for variadic arguments to be added to AT command; No separator needed.
@@ -237,7 +237,7 @@ public:
 
     /**
      * @brief at_cmd_discard Send an AT command and read and discard a response. Locks and unlocks ATHandler for operation
-     * @param cmd AT command in form +<CMD> (will be used also in response reading, no extra chars allowed)
+     * @param cmd AT command in form +&lt;CMD&lt; (will be used also in response reading, no extra chars allowed)
      * @param cmd_chr Char to be added to specific AT command: '?', '=' or ''. Will be used as such so '=1' is valid as well.
      * @param format Format string for variadic arguments to be added to AT command; No separator needed.
      *        Use %d for integer, %s for string and %b for byte string (requires 2 arguments: string and length)

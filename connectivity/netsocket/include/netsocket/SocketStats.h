@@ -158,6 +158,7 @@ private:
 };
 
 #if !MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
+#if !defined(DOXYGEN_ONLY)
 inline size_t SocketStats::mbed_stats_socket_get_each(mbed_stats_socket_t *, size_t)
 {
     return 0;
@@ -186,6 +187,7 @@ inline void SocketStats::stats_update_sent_bytes(const Socket *, size_t)
 inline void SocketStats::stats_update_recv_bytes(const Socket *, size_t)
 {
 }
+#endif // !defined(DOXYGEN_ONLY)
 #endif // !MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
 
 #endif

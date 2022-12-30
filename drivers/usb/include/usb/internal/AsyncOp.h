@@ -40,6 +40,11 @@
  * \ingroup drivers-internal-api-usb
  * @{
  */
+
+/**
+ * Base class for asynchronous operations in the USB stack.
+ * Classes such as USBCDC use this to submit operations to be processed by an ISR.
+ */
 class AsyncOp: public LinkEntry {
 public:
 

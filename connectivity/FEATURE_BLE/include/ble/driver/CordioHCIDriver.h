@@ -115,6 +115,8 @@ public:
     /**
      * Get the random static address of the controller
      *
+     * @param[out] address MAC address is written here.
+     *
      * @return false if the address has not been set and true otherwise.
      */
     virtual bool get_random_static_address(ble::address_t& address);

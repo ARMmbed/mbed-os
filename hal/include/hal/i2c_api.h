@@ -155,7 +155,7 @@ extern "C" {
  * * Specifying an invalid address when calling any `read` or `write` functions
  * * Setting the length of the transfer or receive buffers to larger than the buffers are
  * * Passing an invalid pointer as `handler`
- * * Calling ::i2c_abort_async when no transfer is currently in progress
+ * * Calling ::i2c_abort_asynch when no transfer is currently in progress
  *
  *
  * @{

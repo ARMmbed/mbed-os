@@ -45,7 +45,12 @@ public:
     /** Clock to use with attach_absolute, running always */
     using steady_clock = LowPowerClock;
 
-    /** @copydoc TimeoutBase::scheduled_time() */
+    /** Return scheduled callback time
+     *
+     * @return scheduled callback time
+     *
+     * @note if the callback is overdue, or has already run, the returned value will be in the past
+     */
     LowPowerClock::time_point scheduled_time() const
     {
         /* Massage from virtual TickerDataClock::time_point used internally to true LowPowerClock::time_point */

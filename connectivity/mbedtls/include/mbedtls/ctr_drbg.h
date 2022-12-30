@@ -53,6 +53,13 @@
 #include "mbedtls/threading.h"
 #endif
 
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_ctr_drbg_module CTR_DRBG
+ * \{
+ */
+
 #define MBEDTLS_ERR_CTR_DRBG_ENTROPY_SOURCE_FAILED        -0x0034  /**< The entropy source failed. */
 #define MBEDTLS_ERR_CTR_DRBG_REQUEST_TOO_BIG              -0x0036  /**< The requested random buffer length is too big. */
 #define MBEDTLS_ERR_CTR_DRBG_INPUT_TOO_BIG                -0x0038  /**< The input (entropy + additional data) is too large. */
@@ -134,7 +141,7 @@
 /**< The maximum size of seed or reseed buffer in bytes. */
 #endif
 
-/* \} name SECTION: Module settings */
+/** \} name SECTION: Module settings */
 
 #define MBEDTLS_CTR_DRBG_PR_OFF             0
 /**< Prediction resistance is disabled. */
@@ -558,6 +565,9 @@ int mbedtls_ctr_drbg_update_seed_file( mbedtls_ctr_drbg_context *ctx, const char
 int mbedtls_ctr_drbg_self_test( int verbose );
 
 #endif /* MBEDTLS_SELF_TEST */
+
+/// \}
+/// \}
 
 #ifdef __cplusplus
 }

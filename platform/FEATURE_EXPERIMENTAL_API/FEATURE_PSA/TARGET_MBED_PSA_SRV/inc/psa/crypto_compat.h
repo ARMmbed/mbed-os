@@ -1,5 +1,5 @@
 /**
- * \file psa/crypto_compat.h
+ * \file
  *
  * \brief PSA cryptography module: Backward compatibility aliases
  *
@@ -84,14 +84,29 @@ typedef MBEDTLS_PSA_DEPRECATED psa_algorithm_t mbedtls_deprecated_psa_algorithm_
 /*
  * Deprecated PSA Crypto error code definitions (PSA Crypto API  <= 1.0 beta2)
  */
+/**
+ * \deprecated Replaced by #PSA_ERROR_GENERIC_ERROR
+ */
 #define PSA_ERROR_UNKNOWN_ERROR \
     MBEDTLS_DEPRECATED_CONSTANT( psa_status_t, PSA_ERROR_GENERIC_ERROR )
+/**
+ * \deprecated Replaced by #PSA_ERROR_ALREADY_EXISTS
+ */
 #define PSA_ERROR_OCCUPIED_SLOT \
     MBEDTLS_DEPRECATED_CONSTANT( psa_status_t, PSA_ERROR_ALREADY_EXISTS )
+/**
+ * \deprecated Replaced by #PSA_ERROR_DOES_NOT_EXIST
+ */
 #define PSA_ERROR_EMPTY_SLOT \
     MBEDTLS_DEPRECATED_CONSTANT( psa_status_t, PSA_ERROR_DOES_NOT_EXIST )
+/**
+ * \deprecated Replaced by #PSA_ERROR_INSUFFICIENT_DATA
+ */
 #define PSA_ERROR_INSUFFICIENT_CAPACITY \
     MBEDTLS_DEPRECATED_CONSTANT( psa_status_t, PSA_ERROR_INSUFFICIENT_DATA )
+/**
+ * \deprecated Replaced by #PSA_ERROR_CORRUPTION_DETECTED
+ */
 #define PSA_ERROR_TAMPERING_DETECTED \
     MBEDTLS_DEPRECATED_CONSTANT( psa_status_t, PSA_ERROR_CORRUPTION_DETECTED )
 

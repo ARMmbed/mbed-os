@@ -172,6 +172,8 @@ public:
      *  @param address  Remote address
      *  @param data     Buffer of data to send to the host
      *  @param size     Size of the buffer in bytes
+     *  @param control  Control data, for instance a populated #nsapi_pktinfo structure.
+     *  @param control_size Size of \c control in bytes.
      *  @return         Number of sent bytes on success, negative subclass-dependent error
      *                  code on failure
      */
@@ -188,7 +190,10 @@ public:
      *  If socket is connected, only packets coming from connected peer address
      *  are accepted.
      *
-     * Additional information related to the message can be retrieved with the control data.
+     *  Ancillary data is stored into \c control.  The caller needs to allocate a buffer
+     *  that is large enough to contain the data they want to receive, then pass the pointer in
+     *  through the \c control member.  The data will be filled into \c control, beginning with a header
+     *  specifying what data was received.  See #MsgHeaderIterator for how to parse this data.
      *
      *  @note recvfrom_control() is allowed write to address and data buffers even if error occurs.
      *
@@ -199,6 +204,8 @@ public:
      *  @param address  Destination for the source address or NULL
      *  @param data     Destination buffer for datagram received from the host
      *  @param size     Size of the buffer in bytes
+     *  @param control  Caller-allocated buffer to store ancillary data.
+     *  @param control_size Size of the \c control buffer that the caller has allocated.
      *  @return         Number of received bytes on success, negative subclass-dependent
      *                  error code on failure
      */

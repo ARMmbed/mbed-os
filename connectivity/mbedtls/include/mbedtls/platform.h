@@ -41,6 +41,13 @@
 #include "mbedtls/platform_time.h"
 #endif
 
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_platform_module Platform Abstraction Layer
+ * \{
+ */
+
 #define MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED     -0x0070 /**< Hardware accelerator failed */
 #define MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED -0x0072 /**< The requested feature is not supported by the platform */
 
@@ -125,7 +132,7 @@ extern "C" {
 #endif /* MBEDTLS_PLATFORM_NO_STD_FUNCTIONS */
 
 
-/* \} name SECTION: Module settings */
+/** \} name SECTION: Module settings */
 
 /*
  * The function pointers for calloc and free.
@@ -413,5 +420,8 @@ void mbedtls_platform_teardown( mbedtls_platform_context *ctx );
 #ifdef __cplusplus
 }
 #endif
+
+/// \}
+/// \}
 
 #endif /* platform.h */

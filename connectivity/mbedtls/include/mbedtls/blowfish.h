@@ -33,8 +33,15 @@
 
 #include "mbedtls/platform_util.h"
 
-#define MBEDTLS_BLOWFISH_ENCRYPT     1
-#define MBEDTLS_BLOWFISH_DECRYPT     0
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_blowfish_module Blowfish
+ * \{
+ */
+
+#define MBEDTLS_BLOWFISH_ENCRYPT     1 ///< Constant to select blowfish encryption
+#define MBEDTLS_BLOWFISH_DECRYPT     0 ///< Constant to select blowfish decryption
 #define MBEDTLS_BLOWFISH_MAX_KEY_BITS     448
 #define MBEDTLS_BLOWFISH_MIN_KEY_BITS     32
 #define MBEDTLS_BLOWFISH_ROUNDS      16         /**< Rounds to use. When increasing this value, make sure to extend the initialisation vectors */
@@ -277,6 +284,9 @@ int mbedtls_blowfish_crypt_ctr( mbedtls_blowfish_context *ctx,
                         const unsigned char *input,
                         unsigned char *output );
 #endif /* MBEDTLS_CIPHER_MODE_CTR */
+
+/// \}
+/// \}
 
 #ifdef __cplusplus
 }

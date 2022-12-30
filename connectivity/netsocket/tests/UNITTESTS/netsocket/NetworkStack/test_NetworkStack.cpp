@@ -45,7 +45,7 @@ static void noarg_callback(void)
     noarg_callback_is_called = true;
 }
 
-extern call_in_callback_cb_t callin_callback;
+extern NetworkStack::call_in_callback_cb_t callin_callback;
 
 namespace mbed {
 extern events::EventQueue *mbed_shared_queue_stub;

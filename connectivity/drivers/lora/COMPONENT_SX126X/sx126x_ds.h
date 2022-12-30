@@ -1,9 +1,9 @@
 /*!
- * \file      sx126x.h
+ * \file      sx126x_ds.h
  *
  * \brief     SX126x driver implementation
  *
- * \copyright Revised BSD License, see section \ref LICENSE.
+ * \copyright Revised BSD License
  *
  * \code
  *                ______                              _

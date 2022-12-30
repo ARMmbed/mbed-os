@@ -34,6 +34,11 @@
 extern "C" {
 #endif
 
+/**
+ * \addtogroup mbedtls_entropy_module
+ * \{
+ */
+
 /*
  * Default thresholds for built-in sources, in bytes
  */
@@ -100,6 +105,8 @@ int mbedtls_hardware_poll( void *data,
 int mbedtls_nv_seed_poll( void *data,
                           unsigned char *output, size_t len, size_t *olen );
 #endif
+
+/// \}
 
 #ifdef __cplusplus
 }

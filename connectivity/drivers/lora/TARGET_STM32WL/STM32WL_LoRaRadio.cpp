@@ -1401,7 +1401,7 @@ void STM32WL_LoRaRadio::set_buffer_base_addr(uint8_t tx_base_addr, uint8_t rx_ba
     write_opmode_command((uint8_t) RADIO_SET_BUFFERBASEADDRESS, buf, 2);
 }
 
-uint8_t STM32WL_LoRaRadio::get_status(void)
+radio_state_t STM32WL_LoRaRadio::get_status(void)
 {
     DEBUG_PRINTF("STM32WL_LoRaRadio::get_status\n");
     switch (_operating_mode) {

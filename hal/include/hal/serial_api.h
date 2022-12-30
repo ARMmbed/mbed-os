@@ -194,8 +194,8 @@ extern "C" {
  * * Calling any function other than ::serial_init on am uninitialized or freed `serial_t`.
  * * Passing an invalid pointer as `obj` to any function.
  * * Passing an invalid pointer as `handler` to ::serial_irq_handler, ::serial_tx_asynch, ::serial_rx_asynch.
- * * Calling ::serial_tx_abort while no async TX transfer is being processed.
- * * Calling ::serial_rx_abort while no async RX transfer is being processed.
+ * * Calling ::serial_tx_abort_asynch while no async TX transfer is being processed.
+ * * Calling ::serial_rx_abort_asynch while no async RX transfer is being processed.
  * * Devices behavior is undefined when the interrupt latency is longer than one packet transfer time
  * (packet_bits / baudrate) if the flow control is not used.
  * @{

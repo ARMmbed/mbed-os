@@ -1,5 +1,5 @@
 /**
- * \file psa/crypto_compat.h
+ * \file
  *
  * \brief PSA cryptography module: Backward compatibility aliases
  *

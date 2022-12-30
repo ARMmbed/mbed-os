@@ -1,5 +1,5 @@
 /**
- * \file sha256.h
+ * \file sha256_alt_sw.h
  *
  * \brief SHA-224 and SHA-256 cryptographic hash function
  *

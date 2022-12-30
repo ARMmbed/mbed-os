@@ -1,5 +1,5 @@
 /**
- * \file sha1.h
+ * \file
  *
  * \brief SHA-1 cryptographic hash function
  *

@@ -33,7 +33,7 @@ bool AT_CellularDevice_stub::pin_needed = false;
 bool AT_CellularDevice_stub::supported_bool = false;
 int AT_CellularDevice_stub::max_sock_value = 1;
 
-AT_CellularDevice::AT_CellularDevice(FileHandle *fh, char *delim) :
+AT_CellularDevice::AT_CellularDevice(FileHandle *fh, char const *delim) :
     CellularDevice(),
     _at(fh, _queue, get_property(AT_CellularDevice::PROPERTY_AT_SEND_DELAY), delim),
 #if MBED_CONF_CELLULAR_USE_SMS

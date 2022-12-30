@@ -33,8 +33,15 @@
 
 #include "mbedtls/platform_util.h"
 
-#define MBEDTLS_CAMELLIA_ENCRYPT     1
-#define MBEDTLS_CAMELLIA_DECRYPT     0
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_camellia_module Camellia
+ * \{
+ */
+
+#define MBEDTLS_CAMELLIA_ENCRYPT     1 ///< Constant to select camellia encryption
+#define MBEDTLS_CAMELLIA_DECRYPT     0 ///< Constant to select camellia decryption
 
 #if !defined(MBEDTLS_DEPRECATED_REMOVED)
 #define MBEDTLS_ERR_CAMELLIA_INVALID_KEY_LENGTH   MBEDTLS_DEPRECATED_NUMERIC_CONSTANT( -0x0024 )
@@ -305,6 +312,9 @@ int mbedtls_camellia_crypt_ctr( mbedtls_camellia_context *ctx,
                        const unsigned char *input,
                        unsigned char *output );
 #endif /* MBEDTLS_CIPHER_MODE_CTR */
+
+/// \}
+/// \}
 
 #if defined(MBEDTLS_SELF_TEST)
 

@@ -41,8 +41,15 @@
 
 #include <stdint.h>
 
-#define MBEDTLS_GCM_ENCRYPT     1
-#define MBEDTLS_GCM_DECRYPT     0
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_gcm_module Galois/Counter Mode
+ * \{
+ */
+
+#define MBEDTLS_GCM_ENCRYPT     1 ///< Encrypt operation
+#define MBEDTLS_GCM_DECRYPT     0 ///< Decrypt operation
 
 #define MBEDTLS_ERR_GCM_AUTH_FAILED                       -0x0012  /**< Authenticated decryption failed. */
 
@@ -315,6 +322,9 @@ void mbedtls_gcm_free( mbedtls_gcm_context *ctx );
 int mbedtls_gcm_self_test( int verbose );
 
 #endif /* MBEDTLS_SELF_TEST */
+
+/// \}
+/// \}
 
 #ifdef __cplusplus
 }

@@ -8,6 +8,8 @@
 #ifndef __TFM_PLAT_DEFS_H__
 #define __TFM_PLAT_DEFS_H__
 /**
+ * \file
+ *
  * \note The interfaces defined in this file must be implemented for each
  *       target.
  */
@@ -15,6 +17,9 @@
 #include <stdint.h>
 #include <limits.h>
 
+/**
+ * Error enum for TFM platform functions
+ */
 enum tfm_plat_err_t {
     TFM_PLAT_ERR_SUCCESS = 0,
     TFM_PLAT_ERR_SYSTEM_ERR,

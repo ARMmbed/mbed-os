@@ -28,6 +28,13 @@
 #include MBEDTLS_CONFIG_FILE
 #endif
 
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_ssl_module SSL/TLS
+ * \{
+ */
+
 #include "mbedtls/bignum.h"
 #include "mbedtls/ecp.h"
 
@@ -291,7 +298,7 @@
 #define MBEDTLS_SSL_TLS1_3_PADDING_GRANULARITY 1
 #endif
 
-/* \} name SECTION: Module settings */
+/** \} name SECTION: Module settings */
 
 /*
  * Length of the verify data for secure renegotiation
@@ -4348,5 +4355,8 @@ int  mbedtls_ssl_tls_prf( const mbedtls_tls_prf_types prf,
 #ifdef __cplusplus
 }
 #endif
+
+/// \}
+/// \}
 
 #endif /* ssl.h */

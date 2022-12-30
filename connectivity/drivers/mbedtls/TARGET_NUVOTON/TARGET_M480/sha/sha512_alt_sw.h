@@ -1,5 +1,5 @@
 /**
- * \file sha512.h
+ * \file sha512_alt_sw.h
  *
  * \brief SHA-384 and SHA-512 cryptographic hash function
  *

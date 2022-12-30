@@ -98,7 +98,7 @@ public:
 
     /** Allocate a memory block from a memory pool, without blocking.
 
-      This method works like `std::malloc` or `std::allocator<T>::allocate` in that the
+      This method works like \c std\::malloc or \c std\::allocator&lt;T&gt;\::allocate in that the
       returned memory block is not initialized. For types with a non-trivial constructor
       placement new must be used to construct an object in the returned storage.
 
@@ -280,7 +280,7 @@ public:
 
     /** Free a memory block.
 
-      This method works like `std::free` or `std::allocator<T>::deallocate` in that any
+      This method works like \c std\::free or \c std\::allocator&lt;T&gt;\::deallocate in that any
       object in the memory is not destroyed. For types with a non-trivial destructor
       that destructor must be called manually before freeing the memory.
 

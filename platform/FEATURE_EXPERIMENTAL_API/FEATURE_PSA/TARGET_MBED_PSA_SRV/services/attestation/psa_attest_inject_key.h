@@ -47,11 +47,11 @@ extern "C"
  *                          In case of private key generation - 0 will pass.
  * \param type              Key type -  must be a ECC key type
  *                          (a \c PSA_KEY_TYPE_ECC_KEYPAIR(PSA_ECC_CURVE_XXX) value).
- * \param[out] data         Buffer where the key data is to be written.
- * \param data_size         Size of the \p data buffer in bytes -
- *                          needs to be bigger then the max size of the public part.
- * \param[out] data_length  On success, the number of bytes
- *                          that make up the key data.
+ * \param[out] public_key_data Buffer where the key data is to be written.
+ * \param public_key_data_size Size of the \p public_key_data buffer in bytes -
+ *                             needs to be bigger then the max size of the public part.
+ * \param[out] public_key_data_length  On success, the number of bytes
+ *                                     that make up the key data.
  *
  * \retval #PSA_SUCCESS
  *         Success.

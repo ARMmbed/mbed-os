@@ -65,27 +65,27 @@ extern "C" {
  * # Defined behaviour
  *
  * * Macro HAL_CRC_IS_SUPPORTED() evaluates true if platform supports hardware
- *   CRC for the given polynomial/width - verified by test ::crc_is_supported_test.
+ *   CRC for the given polynomial/width - verified by test crc_is_supported_test.
  * * Macro HAL_CRC_IS_SUPPORTED() evaluates false if platform does not support hardware
- *   CRC for the given polynomial/width - verified by test ::crc_is_supported_test.
+ *   CRC for the given polynomial/width - verified by test crc_is_supported_test.
  * * If CRC module does not support any of the following settings: initial_xor, final_xor
  *   reflect_in, reflect_out, then these operations must be handled by the driver
- *   - Verified by test ::crc_calc_single_test.
+ *   - Verified by test crc_calc_single_test.
  * * Platform which supports hardware CRC must be able to handle at least one of the predefined
  *   polynomial/width configurations that can be constructed in the MbedCRC class: POLY_8BIT_CCITT,
  *   POLY_7BIT_SD, POLY_16BIT_CCITT, POLY_16BIT_IBM, POLY_32BIT_ANSI
- *   - verified by test ::crc_is_supported_test, ::crc_calc_single_test.
+ *   - verified by test crc_is_supported_test, crc_calc_single_test.
  * * Function hal_crc_compute_partial_start() configures CRC module with the given configuration
- *   - Verified by test ::crc_calc_single_test.
+ *   - Verified by test crc_calc_single_test.
  * * Calling hal_crc_compute_partial_start() without finalising the
- *   CRC calculation overrides the current configuration - Verified by test ::crc_reconfigure_test.
- * * Function hal_crc_compute_partial() writes data to the CRC module - verified by test ::crc_calc_single_test.
+ *   CRC calculation overrides the current configuration - Verified by test crc_reconfigure_test.
+ * * Function hal_crc_compute_partial() writes data to the CRC module - verified by test crc_calc_single_test.
  * * Function hal_crc_compute_partial() can be call multiple times in succession in order to
- *   provide additional data to CRC module - verified by test ::crc_calc_multi_test.
+ *   provide additional data to CRC module - verified by test crc_calc_multi_test.
  * * Function hal_crc_compute_partial() does nothing if pointer to buffer is undefined or
- *   data length is equal to 0 - verified by test ::crc_compute_partial_invalid_param_test.
+ *   data length is equal to 0 - verified by test crc_compute_partial_invalid_param_test.
  * * Function hal_crc_get_result() returns the checksum result from the CRC module
- *   - verified by tests ::crc_calc_single_test, ::crc_calc_multi_test, ::crc_reconfigure_test.
+ *   - verified by tests crc_calc_single_test, crc_calc_multi_test, crc_reconfigure_test.
  *
  * # Undefined behaviour
  *
@@ -121,8 +121,11 @@ extern "C" {
  *
  * Example:
  *
+ * @code
  *    #define HAL_CRC_IS_SUPPORTED(polynomial, width) \
  *         ((width) == 16 || ((width) == 32 && (polynomial) == POLY_32BIT_ANSI)
+ * @endcode
+ *
  * @{
  */
 

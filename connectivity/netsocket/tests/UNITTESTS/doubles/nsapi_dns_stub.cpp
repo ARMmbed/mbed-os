@@ -20,7 +20,7 @@
 
 nsapi_error_t nsapi_stub_return_value = NSAPI_ERROR_DNS_FAILURE;
 NetworkStack::hostbyname_cb_t query_callback;
-call_in_callback_cb_t callin_callback;
+NetworkStack::call_in_callback_cb_t callin_callback;
 
 nsapi_error_t nsapi_dns_query(NetworkStack *stack, const char *host,
                               SocketAddress *addr, const char *interface_name, nsapi_version_t version)
@@ -35,7 +35,8 @@ nsapi_size_or_error_t nsapi_dns_query_multiple(NetworkStack *stack, const char *
 }
 
 nsapi_error_t nsapi_dns_query_async(NetworkStack *stack, const char *host,
-                                    NetworkStack::hostbyname_cb_t callback, call_in_callback_cb_t call_in_cb, const char *interface_name,
+                                    NetworkStack::hostbyname_cb_t callback,
+                                    NetworkStack::call_in_callback_cb_t call_in_cb, const char *interface_name,
                                     nsapi_version_t version)
 {
     query_callback = callback;
@@ -45,7 +46,8 @@ nsapi_error_t nsapi_dns_query_async(NetworkStack *stack, const char *host,
 
 nsapi_value_or_error_t nsapi_dns_query_multiple_async(NetworkStack *stack, const char *host,
                                                       NetworkStack::hostbyname_cb_t callback, nsapi_size_t addr_count,
-                                                      call_in_callback_cb_t call_in_cb, const char *interface_name, nsapi_version_t version)
+                                                      NetworkStack::call_in_callback_cb_t call_in_cb,
+                                                      const char *interface_name, nsapi_version_t version)
 {
     query_callback = callback;
     callin_callback = call_in_cb;

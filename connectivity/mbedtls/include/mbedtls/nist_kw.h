@@ -43,6 +43,13 @@
 
 #include "mbedtls/cipher.h"
 
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_nist_kw_module NIST Key Wrapping
+ * \{
+ */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -178,5 +185,8 @@ int mbedtls_nist_kw_self_test( int verbose );
 #ifdef __cplusplus
 }
 #endif
+
+/// \}
+/// \}
 
 #endif /* MBEDTLS_NIST_KW_H */

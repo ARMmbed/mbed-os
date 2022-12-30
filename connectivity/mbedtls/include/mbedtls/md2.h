@@ -35,6 +35,11 @@
 
 #include <stddef.h>
 
+/**
+ * \ingroup mbedtls_md_module
+ * \{
+ */
+
 /* MBEDTLS_ERR_MD2_HW_ACCEL_FAILED is deprecated and should not be used. */
 #define MBEDTLS_ERR_MD2_HW_ACCEL_FAILED                   -0x002B  /**< MD2 hardware accelerator failed */
 
@@ -300,5 +305,7 @@ int mbedtls_md2_self_test( int verbose );
 #ifdef __cplusplus
 }
 #endif
+
+/// \}
 
 #endif /* mbedtls_md2.h */

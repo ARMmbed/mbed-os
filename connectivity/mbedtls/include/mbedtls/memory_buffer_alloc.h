@@ -31,6 +31,13 @@
 #include <stddef.h>
 
 /**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_memory_buffer_alloc_module Memory Buffer Alloc
+ * \{
+ */
+
+/**
  * \name SECTION: Module settings
  *
  * The configuration options you can set for this module are in this section.
@@ -42,7 +49,7 @@
 #define MBEDTLS_MEMORY_ALIGN_MULTIPLE       4 /**< Align on multiples of this value */
 #endif
 
-/* \} name SECTION: Module settings */
+/** \} name SECTION: Module settings */
 
 #define MBEDTLS_MEMORY_VERIFY_NONE         0
 #define MBEDTLS_MEMORY_VERIFY_ALLOC        (1 << 0)
@@ -145,5 +152,8 @@ int mbedtls_memory_buffer_alloc_self_test( int verbose );
 #ifdef __cplusplus
 }
 #endif
+
+/// \}
+/// \}
 
 #endif /* memory_buffer_alloc.h */

@@ -36,11 +36,11 @@ extern "C" {
  * execution from ram.
  *
  * # Defined behavior
- * * The function ::mbed_mpu_init is safe to call repeatedly - Verified by ::mpu_init_test
- * * The function ::mbed_mpu_free disables MPU protection - Verified by ::mpu_free_test
+ * * The function ::mbed_mpu_init is safe to call repeatedly - Verified by mpu_init_test
+ * * The function ::mbed_mpu_free disables MPU protection - Verified by mpu_free_test
  * * Execution from RAM results in a fault when execute never is enabled.
- *      This RAM includes heap, stack, data and zero init - Verified  by ::mpu_fault_test_data,
- *      ::mpu_fault_test_bss, ::mpu_fault_test_stack and ::mpu_fault_test_heap.
+ *      This RAM includes heap, stack, data and zero init - Verified by mpu_fault_test_data,
+ *      mpu_fault_test_bss, mpu_fault_test_stack and mpu_fault_test_heap.
  * * Writing to ROM results in a fault when write never is enabled - Not verified
  *
  * # Undefined behavior

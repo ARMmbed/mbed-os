@@ -137,20 +137,8 @@ public:
          */
         nsapi_error_t get_ipv6_link_local_address(SocketAddress *address) override;
 
-        /** Copies netmask of the network interface to user supplied buffer
-         *
-         * @param    buf        buffer to which netmask will be copied as "W:X:Y:Z"
-         * @param    buflen     size of supplied buffer
-         * @return              Pointer to a buffer, or NULL if the buffer is too small
-         */
         nsapi_error_t get_netmask(SocketAddress *address) override;
 
-        /** Copies gateway address of the network interface to user supplied buffer
-         *
-         * @param    buf        buffer to which gateway address will be copied as "W:X:Y:Z"
-         * @param    buflen     size of supplied buffer
-         * @return              Pointer to a buffer, or NULL if the buffer is too small
-         */
         nsapi_error_t get_gateway(SocketAddress *address) override;
 
     private:

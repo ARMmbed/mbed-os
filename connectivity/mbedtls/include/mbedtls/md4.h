@@ -36,6 +36,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
+/**
+ * \ingroup mbedtls_md_module
+ * \{
+ */
+
 /* MBEDTLS_ERR_MD4_HW_ACCEL_FAILED is deprecated and should not be used. */
 #define MBEDTLS_ERR_MD4_HW_ACCEL_FAILED                   -0x002D  /**< MD4 hardware accelerator failed */
 
@@ -305,5 +310,7 @@ int mbedtls_md4_self_test( int verbose );
 #ifdef __cplusplus
 }
 #endif
+
+/// \}
 
 #endif /* mbedtls_md4.h */

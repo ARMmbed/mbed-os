@@ -409,7 +409,9 @@ typedef struct nsapi_stagger_req {
     uint16_t stagger_rand;  /* [OUT] Randomized stagger value in seconds */
 } nsapi_stagger_req_t;
 
-/** nsapi_msghdr
+/**
+ * Header structure for control info.
+ * See #MsgHeaderIterator.
  */
 typedef struct nsapi_msghdr {
     /* In C alignment can't be specified in the type declaration.

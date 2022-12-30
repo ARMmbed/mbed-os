@@ -33,12 +33,20 @@
 #endif
 
 /**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_version_module Versioning
+ * \{
+ */
+
+
+/*
  * The version number x.y.z is split into three parts.
  * Major, Minor, Patchlevel
  */
-#define MBEDTLS_VERSION_MAJOR  2
-#define MBEDTLS_VERSION_MINOR  25
-#define MBEDTLS_VERSION_PATCH  0
+#define MBEDTLS_VERSION_MAJOR  2 ///< Major Mbed TLS version
+#define MBEDTLS_VERSION_MINOR  25 ///< Minor Mbed TLS version
+#define MBEDTLS_VERSION_PATCH  0 ///< Patch Mbed TLS version
 
 /**
  * The single version number has the following structure:
@@ -46,7 +54,15 @@
  *    Major version | Minor version | Patch version
  */
 #define MBEDTLS_VERSION_NUMBER         0x02190000
+
+/**
+ * String constant containing the version number in the form "xx.yy.zz"
+ */
 #define MBEDTLS_VERSION_STRING         "2.25.0"
+
+/**
+ * String constant containing the library name and version, in the form "mbed TLS xx.yy.zz"
+ */
 #define MBEDTLS_VERSION_STRING_FULL    "mbed TLS 2.25.0"
 
 #if defined(MBEDTLS_VERSION_C)
@@ -106,5 +122,8 @@ int mbedtls_version_check_feature( const char *feature );
 #endif
 
 #endif /* MBEDTLS_VERSION_C */
+
+/// \}
+/// \}
 
 #endif /* version.h */

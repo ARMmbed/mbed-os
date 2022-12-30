@@ -580,9 +580,9 @@ public:
     /**
      *  Gets the radio status.
      *
-     *  @return              The current radio status.
+     *  @return The current radio status (#RF_IDLE, #RF_RX_RUNNING, #RF_TX_RUNNING, etc.)
      */
-    virtual uint8_t get_status(void) = 0;
+    virtual radio_state_t get_status(void) = 0;
 
     /**
      *  Sets the maximum payload length.

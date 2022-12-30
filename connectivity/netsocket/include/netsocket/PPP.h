@@ -79,8 +79,9 @@ public:
      *
      * That cannot be called from an interrupt context.
      *
-     * @param buf  Packet to be sent
-     * @return     True if the packet was sent, false otherwise
+     * @param buf Packet to be sent
+     * @param ip_stack IP version to use (4 or 6) to send the packet.
+     * @return True if the packet was sent, false otherwise
      */
     virtual bool link_out(net_stack_mem_buf_t *buf, nsapi_ip_stack_t ip_stack) = 0;
 

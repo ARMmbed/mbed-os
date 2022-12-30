@@ -45,9 +45,16 @@ struct  mbedtls_entropy_context;
 
 namespace mbed {
 
-/** TDBStore class
+/**
+ * \addtogroup kvstore
+ * @{
+ */
+
+/** SecureStore class
  *
- *  Lightweight Key Value storage over a block device
+ * SecureStore is a KVStore-based storage solution, providing security features on the stored data, such as encryption, authentication, rollback protection and write once, over an underlying KVStore class. It references an additional KVStore class for storing the rollback protection keys.
+ *
+ * Only available if your device has Flash IAP and a hardware entropy source (TRNG).
  */
 
 class SecureStore : public KVStore {

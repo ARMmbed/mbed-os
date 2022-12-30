@@ -21,6 +21,16 @@
 #ifndef __PLATFORM_MBED__H__
 #define __PLATFORM_MBED__H__
 
+// Create doxygen group for mbedtls
+/** \defgroup public-crypto Cryptography
+ * \ingroup mbed-os-public
+ */
+
+/**
+ * \defgroup mbedtls Mbed TLS
+ * \ingroup public-crypto
+ */
+
 #if defined(FEATURE_EXPERIMENTAL_API) && defined(FEATURE_PSA)
 
 #if defined(MBEDTLS_ENTROPY_NV_SEED)

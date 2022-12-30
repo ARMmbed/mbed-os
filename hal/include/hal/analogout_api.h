@@ -53,16 +53,6 @@ typedef struct dac_s dac_t;
  * @{
  */
 
-/**
- * \defgroup hal_analogin_tests Analogout hal tests
- * The Analogout HAL tests ensure driver conformance to defined behaviour.
- *
- * To run the Analogout hal tests use the command:
- *
- *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal_fpga_ci_test_shield-analogout
- *
- */
-
 /** Initialize the analogout peripheral
  *
  * Configures the pin used by analogout.

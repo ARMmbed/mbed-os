@@ -79,14 +79,6 @@ public:
      */
     void get_ifname(char *name, uint8_t size) const override;
 
-    /**
-     * Sends the packet over the link
-     *
-     * That cannot be called from an interrupt context.
-     *
-     * @param buf  Packet to be send
-     * @return     True if the packet was send successfully, false otherwise
-     */
     bool link_out(net_stack_mem_buf_t *buf, nsapi_ip_stack_t ip_stack) override;
 
     /**

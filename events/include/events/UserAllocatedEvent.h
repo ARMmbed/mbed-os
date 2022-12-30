@@ -23,16 +23,11 @@
 
 namespace events {
 /**
- * \addtogroup events-public-api
+ * \addtogroup events_Event
  * @{
  */
 template <typename F, typename A>
 class UserAllocatedEvent;
-
-/**
- * \defgroup events_Event UserAllocatedEvent class
- * @{
- */
 
 /** UserAllocatedEvent
  *
@@ -460,8 +455,6 @@ constexpr UserAllocatedEvent<mbed::Callback<void(ArgTs...)>, void(ArgTs...)> mak
 {
     return UserAllocatedEvent<mbed::Callback<void(ArgTs...)>, void(ArgTs...)>(mbed::callback(obj, method), args...);
 }
-
-/** @}*/
 
 /** @}*/
 }

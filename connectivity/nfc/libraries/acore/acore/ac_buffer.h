@@ -20,7 +20,7 @@
  * \author Donatien Garnier
  */
 
-/** \defgroup ACore
+/** \defgroup ACore ACore
  *  \ingroup nfc
  *  @{
  *  \name Buffer

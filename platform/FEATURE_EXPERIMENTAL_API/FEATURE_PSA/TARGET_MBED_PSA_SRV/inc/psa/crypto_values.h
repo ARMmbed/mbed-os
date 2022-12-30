@@ -1,5 +1,5 @@
 /**
- * \file psa/crypto_values.h
+ * \file
  *
  * \brief PSA cryptography module: macros to build and analyze integer values.
  *
@@ -1600,9 +1600,15 @@
  */
 #define PSA_KEY_PERSISTENCE_READ_ONLY           ((psa_key_persistence_t)0xff)
 
+/**
+ * Get the persistence (see #psa_key_persistence_t) from a #psa_key_lifetime_t.
+ */
 #define PSA_KEY_LIFETIME_GET_PERSISTENCE(lifetime)      \
     ((psa_key_persistence_t)((lifetime) & 0x000000ff))
 
+/**
+ * Get the location (see #psa_key_location_t) from a #psa_key_lifetime_t.
+ */
 #define PSA_KEY_LIFETIME_GET_LOCATION(lifetime)      \
     ((psa_key_location_t)((lifetime) >> 8))
 

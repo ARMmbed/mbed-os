@@ -5,7 +5,7 @@
  *
  */
 /**
- * \file psa/crypto_sizes.h
+ * \file
  *
  * \brief PSA cryptography module: Mbed TLS buffer size macros
  *

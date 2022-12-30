@@ -225,9 +225,6 @@ enum Communication_t {
  * In async mode each function call returns immediately and the answer will be notified
  * through a callback.
  * The default behaviour is sync mode.
- * To enable the async mode ManageI2CGPO(I2C_ANSWER_READY) function must be called.
- * When the component notifies an interrupt user must call  {@link ManageEvent} function.
- * Note that passing a parameter other than I2C_ANSWER_READY to ManageI2CGPO initialize the component in sync mode.
  */
 class M24srDriver : public NFCEEPROMDriver {
 public:

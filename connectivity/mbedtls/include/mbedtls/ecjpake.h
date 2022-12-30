@@ -52,6 +52,13 @@ extern "C" {
 #endif
 
 /**
+* \addtogroup mbedtls
+* \{
+* \defgroup mbedtls_ecjpake_module Elliptic Curve J-PAKE
+* \{
+*/
+
+/**
  * Roles in the EC J-PAKE exchange
  */
 typedef enum {
@@ -266,6 +273,9 @@ void mbedtls_ecjpake_free( mbedtls_ecjpake_context *ctx );
 int mbedtls_ecjpake_self_test( int verbose );
 
 #endif /* MBEDTLS_SELF_TEST */
+
+/// \}
+/// \}
 
 #ifdef __cplusplus
 }

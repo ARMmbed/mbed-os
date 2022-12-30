@@ -48,6 +48,11 @@
 extern "C" {
 #endif
 
+/**
+* \addtogroup mbedtls_chacha20_module
+* \{
+*/
+
 typedef enum
 {
     MBEDTLS_CHACHAPOLY_ENCRYPT,     /**< The mode value for performing encryption. */
@@ -349,6 +354,8 @@ int mbedtls_chachapoly_auth_decrypt( mbedtls_chachapoly_context *ctx,
  */
 int mbedtls_chachapoly_self_test( int verbose );
 #endif /* MBEDTLS_SELF_TEST */
+
+/// \}
 
 #ifdef __cplusplus
 }

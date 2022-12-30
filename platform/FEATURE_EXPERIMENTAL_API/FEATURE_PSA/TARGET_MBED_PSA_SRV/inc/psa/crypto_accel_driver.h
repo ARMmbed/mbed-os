@@ -657,6 +657,7 @@ typedef psa_status_t (*psa_drv_accel_aead_decrypt_t)(const uint8_t *p_key,
  * \param[in] key_size              The size in bytes of the `p_key` data
  * \param[in] alg                   A signature algorithm that is compatible
  *                                  with the type of `p_key`
+ * \param[in] key_type              Key type (one of the PSA_KEY_TYPE_xxx constants)
  * \param[in] p_hash                The hash or message to sign
  * \param[in] hash_length           Size of the `p_hash` buffer in bytes
  * \param[out] p_signature          Buffer where the signature is to be written
@@ -696,6 +697,7 @@ typedef psa_status_t (*psa_drv_accel_asymmetric_sign_t)(const uint8_t *p_key,
  * \param[in] key_size          The size in bytes of the `p_key` data
  * \param[in] alg               A signature algorithm that is compatible with
  *                              the type of `key`
+ * \param[in] key_type          Key type (one of the PSA_KEY_TYPE_xxx constants)
  * \param[in] p_hash            The hash or message whose signature is to be
  *                              verified
  * \param[in] hash_length       Size of the `p_hash` buffer in bytes
@@ -734,6 +736,7 @@ typedef psa_status_t (*psa_drv_accel_asymmetric_verify_t)(const uint8_t *p_key,
  * \param[in] key_size          The size in bytes of the `p_key` data
  * \param[in] alg               An asymmetric encryption algorithm that is
  *                              compatible with the type of `key`
+ * \param[in] key_type          Key type (one of the PSA_KEY_TYPE_xxx constants)
  * \param[in] p_input           The message to encrypt
  * \param[in] input_length      Size of the `p_input` buffer in bytes
  * \param[in] p_salt            A salt or label, if supported by the
@@ -786,6 +789,7 @@ typedef psa_status_t (*psa_drv_accel_asymmetric_encrypt_t)(const uint8_t *p_key,
  * \param[in] key_size          The size in bytes of the `p_key` data
  * \param[in] alg               An asymmetric encryption algorithm that is
  *                              compatible with the type of `key`
+ * \param[in] key_type          Key type (one of the PSA_KEY_TYPE_xxx constants)
  * \param[in] p_input           The message to decrypt
  * \param[in] input_length      Size of the `p_input` buffer in bytes
  * \param[in] p_salt            A salt or label, if supported by the

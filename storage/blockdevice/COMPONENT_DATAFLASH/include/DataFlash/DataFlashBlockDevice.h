@@ -86,9 +86,9 @@ public:
      *  @param miso     SPI master in, slave out pin
      *  @param sclk     SPI clock pin
      *  @param csel     SPI chip select pin
-     *  @param nowp     GPIO not-write-protect
      *  @param freq     Clock speed of the SPI bus (defaults to 40MHz)
-     *  @param nwp      Not-write-protected pin
+     *  @param nwp      Not-write-protected pin.  When writing to the chip, this pin is driven high.  May be left NC
+     *                  to disable this functionality in the driver.
      */
     DataFlashBlockDevice(PinName mosi = MBED_CONF_DATAFLASH_SPI_MOSI,
                          PinName miso = MBED_CONF_DATAFLASH_SPI_MISO,

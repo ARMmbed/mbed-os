@@ -6,7 +6,7 @@
  */
 
 /**
- * \file psa/error.h
+ * \file
  * \brief Standard error codes for the SPM and RoT Services
  */
 

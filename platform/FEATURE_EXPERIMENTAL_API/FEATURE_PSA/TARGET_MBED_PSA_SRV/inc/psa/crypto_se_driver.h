@@ -1245,6 +1245,8 @@ typedef psa_status_t (*psa_drv_se_key_derivation_derive_t)(void *op_context,
 /** \brief A function that performs the final step of a secure element key
  * agreement and place the generated key material in a buffer
  *
+ * \param[in,out] op_context    A hardware-specific structure containing any
+ *                              context information for the implementation
  * \param[out] p_output         Buffer in which to place the generated key
  *                              material
  * \param[in] output_size       The size in bytes of `p_output`

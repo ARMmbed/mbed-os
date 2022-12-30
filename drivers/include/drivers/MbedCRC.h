@@ -49,6 +49,9 @@ enum class CrcMode {
     BITWISE     /// Always use bitwise manual computation
 };
 
+/** @}*/
+/** @}*/
+
 #ifndef DOXYGEN_ONLY
 namespace impl {
 template<uint32_t polynomial, uint8_t width, CrcMode mode>
@@ -80,6 +83,10 @@ constexpr CrcMode choose_crc_mode(uint32_t polynomial, uint8_t width, CrcMode mo
 
 } // namespace impl
 
+/**
+ * \ingroup drivers_MbedCRC
+ * @{
+ */
 /** CRC object provides CRC generation through hardware or software
  *
  *  CRC sums can be generated using three different methods: hardware, software ROM tables
@@ -297,6 +304,8 @@ public:
         return width;
     }
 };
+
+/// @}
 
 #if !defined(DOXYGEN_ONLY)
 /* Internal implementation - basically same as public, but actual mode locked in */
@@ -864,8 +873,7 @@ const uint32_t MbedCRC<POLY_32BIT_ANSI, 32, CrcMode::TABLE>::_crc_table[MBED_CRC
 
 #endif // !defined(DOXYGEN_ONLY)
 
-/** @}*/
-/** @}*/
+
 
 } // namespace mbed
 

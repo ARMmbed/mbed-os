@@ -36,9 +36,13 @@
 #endif
 
 /**
- * \addtogroup x509_module
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_x509_module X.509
+ * Structures for parsing X.509 certificates, CRLs and CSRs
  * \{
  */
+
 
 #if !defined(MBEDTLS_X509_MAX_INTERMEDIATE_CA)
 /**
@@ -76,7 +80,7 @@
 #define MBEDTLS_ERR_X509_FILE_IO_ERROR                    -0x2900  /**< Read/write of file failed. */
 #define MBEDTLS_ERR_X509_BUFFER_TOO_SMALL                 -0x2980  /**< Destination buffer is too small. */
 #define MBEDTLS_ERR_X509_FATAL_ERROR                      -0x3000  /**< A fatal error occurred, eg the chain is too long or the vrfy callback failed. */
-/* \} name */
+/** \} name */
 
 /**
  * \name X509 Verify codes
@@ -104,8 +108,7 @@
 #define MBEDTLS_X509_BADCRL_BAD_PK           0x040000  /**< The CRL is signed with an unacceptable PK alg (eg RSA vs ECDSA). */
 #define MBEDTLS_X509_BADCRL_BAD_KEY          0x080000  /**< The CRL is signed with an unacceptable key (eg bad curve, RSA too short). */
 
-/* \} name */
-/* \} addtogroup x509_module */
+/** \} name */
 
 /*
  * X.509 v3 Subject Alternative Name types.
@@ -197,10 +200,6 @@ extern "C" {
 #endif
 
 /**
- * \addtogroup x509_module
- * \{ */
-
-/**
  * \name Structures for parsing X.509 certificates, CRLs and CSRs
  * \{
  */
@@ -235,8 +234,6 @@ typedef struct mbedtls_x509_time
 mbedtls_x509_time;
 
 /** \} name Structures for parsing X.509 certificates, CRLs and CSRs */
-/** \} addtogroup x509_module */
-
 /**
  * \brief          Store the certificate DN in printable form into buf;
  *                 no more than size characters will be written.
@@ -355,5 +352,8 @@ int mbedtls_x509_write_sig( unsigned char **p, unsigned char *start,
 #ifdef __cplusplus
 }
 #endif
+
+/// \}
+/// \}
 
 #endif /* x509.h */

@@ -69,8 +69,6 @@ void lp_ticker_wrapper_suspend(void);
  */
 void lp_ticker_wrapper_resume(void);
 
-/**@}*/
-
 #ifdef __cplusplus
 }
 #endif

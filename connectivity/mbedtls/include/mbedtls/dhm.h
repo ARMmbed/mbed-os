@@ -70,6 +70,14 @@
 #endif
 #include "mbedtls/bignum.h"
 
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_dhm_module Diffie-Hellman-Merkle
+ * \{
+ */
+
+
 /*
  * DHM Error codes
  */
@@ -1088,5 +1096,8 @@ int mbedtls_dhm_self_test( int verbose );
      0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }
 
 #define MBEDTLS_DHM_RFC7919_FFDHE8192_G_BIN { 0x02 }
+
+/// \}
+/// \}
 
 #endif /* dhm.h */

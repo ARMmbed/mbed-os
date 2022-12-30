@@ -34,6 +34,13 @@
 
 #include <stddef.h>
 
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_pkcs12_module PKCS#12
+ * \{
+ */
+
 #define MBEDTLS_ERR_PKCS12_BAD_INPUT_DATA                 -0x1F80  /**< Bad input parameters to function. */
 #define MBEDTLS_ERR_PKCS12_FEATURE_UNAVAILABLE            -0x1F00  /**< Feature not available, e.g. unsupported encryption scheme. */
 #define MBEDTLS_ERR_PKCS12_PBE_INVALID_FORMAT             -0x1E80  /**< PBE ASN.1 data not as expected. */
@@ -124,5 +131,8 @@ int mbedtls_pkcs12_derivation( unsigned char *data, size_t datalen,
 #ifdef __cplusplus
 }
 #endif
+
+/// \}
+/// \}
 
 #endif /* pkcs12.h */

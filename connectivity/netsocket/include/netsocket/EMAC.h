@@ -91,7 +91,7 @@ public:
     /**
      * Return interface-supplied HW address
      *
-     * Copies HW address to provided memory, @param addr has to be of correct size see @a get_hwaddr_size
+     * Copies HW address to provided memory, \c addr has to be of correct size see #get_hwaddr_size
      *
      * HW address need not be provided if this interface does not have its own HW
      * address configuration; stack will choose address from central system

@@ -35,9 +35,9 @@ extern "C" {
  * Low level interface to the low power ticker of a target
  *
  * # Defined behavior
- * * Has a reported frequency between 4KHz and 64KHz - verified by ::lp_ticker_info_test
- * * Has a counter that is at least 12 bits wide - verified by ::lp_ticker_info_test
- * * Continues operating in deep sleep mode - verified by ::lp_ticker_deepsleep_test
+ * * Has a reported frequency between 4KHz and 64KHz - verified by lp_ticker_info_test
+ * * Has a counter that is at least 12 bits wide - verified by lp_ticker_info_test
+ * * Continues operating in deep sleep mode - verified by lp_ticker_deepsleep_test
  * * All behavior defined by the @ref hal_ticker_shared "ticker specification"
  *
  * # Undefined behavior
@@ -45,7 +45,7 @@ extern "C" {
  * * Calling any function other than lp_ticker_init after calling lp_ticker_free
  *
  * # Potential bugs
- * * Glitches due to ripple counter - Verified by ::lp_ticker_glitch_test
+ * * Glitches due to ripple counter - Verified by lp_ticker_glitch_test
  *
  * @see hal_lp_ticker_tests
  *
@@ -63,7 +63,7 @@ extern "C" {
  * LP_TICKER_MASK: The value mask for the ticker - eg 0x07FFFFFF for a 27-bit ticker.
  *
  * If any are defined, all 3 must be defined, and the macros are checked for consistency with
- * lp_ticker_get_info by test ::lp_ticker_info_test.
+ * lp_ticker_get_info by test lp_ticker_info_test.
 
  * @{
  */

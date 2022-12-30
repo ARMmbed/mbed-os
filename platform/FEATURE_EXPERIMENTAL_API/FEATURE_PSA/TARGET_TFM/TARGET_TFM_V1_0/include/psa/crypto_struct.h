@@ -5,7 +5,7 @@
  *
  */
 /**
- * \file psa/crypto_struct.h
+ * \file
  *
  * \brief PSA cryptography module: structured type implementations
  *

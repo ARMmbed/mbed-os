@@ -644,8 +644,8 @@ public:
      *
      * Function reads CCA threshold table from nanostack.
      *
-     ** \param ws_cca_threshold_table_t Structure given to stack where information will be stored
-     **
+     * \param table Structure given to stack where information will be stored
+     *
      * \return MESH_ERROR_NONE on success.
      * \return MESH_ERROR_UNKNOWN in case of failure.
      * */

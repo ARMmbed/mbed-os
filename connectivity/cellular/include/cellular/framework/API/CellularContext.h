@@ -36,7 +36,7 @@ namespace mbed {
  * @ingroup mbed-os-public
  * @{
 
- * @defgroup Cellular
+ * @defgroup Cellular Cellular
  * @ingroup connectivity-public-api
  * @{
  */

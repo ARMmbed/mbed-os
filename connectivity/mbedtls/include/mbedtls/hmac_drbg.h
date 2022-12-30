@@ -38,6 +38,13 @@
 #include "mbedtls/threading.h"
 #endif
 
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_hrmac_drbg_module HMAC_DRBG
+ * \{
+ */
+
 /*
  * Error codes
  */
@@ -70,7 +77,7 @@
 #define MBEDTLS_HMAC_DRBG_MAX_SEED_INPUT    384     /**< Maximum size of (re)seed buffer */
 #endif
 
-/* \} name SECTION: Module settings */
+/** \} name SECTION: Module settings */
 
 #define MBEDTLS_HMAC_DRBG_PR_OFF   0   /**< No prediction resistance       */
 #define MBEDTLS_HMAC_DRBG_PR_ON    1   /**< Prediction resistance enabled  */
@@ -410,6 +417,9 @@ int mbedtls_hmac_drbg_update_seed_file( mbedtls_hmac_drbg_context *ctx, const ch
  */
 int mbedtls_hmac_drbg_self_test( int verbose );
 #endif
+
+/// \}
+/// \}
 
 #ifdef __cplusplus
 }

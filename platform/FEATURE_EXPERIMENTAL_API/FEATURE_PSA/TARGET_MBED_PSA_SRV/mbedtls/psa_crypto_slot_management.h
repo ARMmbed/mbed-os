@@ -1,5 +1,7 @@
-/*
- *  PSA crypto layer on top of Mbed TLS crypto
+/**
+ * \file
+ *
+ * \brief PSA crypto layer on top of Mbed TLS crypto
  */
 /*
  *  Copyright The Mbed TLS Contributors
@@ -25,7 +27,7 @@
 #include "psa_crypto_core.h"
 #include "psa_crypto_se.h"
 
-/* Number of key slots (plus one because 0 is not used).
+/** Number of key slots (plus one because 0 is not used).
  * The value is a compile-time constant for now, for simplicity. */
 #define PSA_KEY_SLOT_COUNT 32
 

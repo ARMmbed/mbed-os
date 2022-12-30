@@ -1269,13 +1269,18 @@ void SX126X_LoRaRadio::set_buffer_base_addr(uint8_t tx_base_addr, uint8_t rx_bas
     write_opmode_command((uint8_t) RADIO_SET_BUFFERBASEADDRESS, buf, 2);
 }
 
-uint8_t SX126X_LoRaRadio::get_status(void)
+radio_state_t SX126X_LoRaRadio::get_status(void)
 {
-    if (_operation_mode != MODE_STDBY_RC || _operation_mode != MODE_SLEEP) {
-        return 0;
+    switch (_operation_mode) {
+        case MODE_TX:
+            return RF_TX_RUNNING;
+        case MODE_RX:
+            return RF_RX_RUNNING;
+        case MODE_CAD:
+            return RF_CAD;
+        default: // various standby states
+            return RF_IDLE;
     }
-
-    return 0xFF;
 }
 
 int8_t SX126X_LoRaRadio::get_rssi()

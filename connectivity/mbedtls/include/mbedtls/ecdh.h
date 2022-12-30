@@ -50,6 +50,14 @@ extern "C" {
 #endif
 
 /**
+* \addtogroup mbedtls
+* \{
+* \defgroup mbedtls_ecdh_module Elliptic Curve Diffie-Hellman
+* \{
+*/
+
+
+/**
  * Defines the source of the imported EC key.
  */
 typedef enum
@@ -438,6 +446,9 @@ int mbedtls_ecdh_calc_secret( mbedtls_ecdh_context *ctx, size_t *olen,
  */
 void mbedtls_ecdh_enable_restart( mbedtls_ecdh_context *ctx );
 #endif /* MBEDTLS_ECP_RESTARTABLE */
+
+/// \}
+/// \}
 
 #ifdef __cplusplus
 }

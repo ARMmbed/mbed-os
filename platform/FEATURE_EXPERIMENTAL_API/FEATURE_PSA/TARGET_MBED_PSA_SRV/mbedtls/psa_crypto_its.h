@@ -51,7 +51,7 @@ struct psa_storage_info_t
     psa_storage_create_flags_t flags;    /**< The flags set when the uid was created **/
 };
 
-/** Flag indicating that \ref psa_storage_create and \ref psa_storage_set_extended are supported */
+/** Flag indicating that \ref psa_ps_create and \ref psa_ps_set_extended are supported */
 #define PSA_STORAGE_SUPPORT_SET_EXTENDED (1 << 0)
 
 /** \brief PSA storage specific error codes
@@ -99,7 +99,6 @@ psa_status_t psa_its_set(psa_storage_uid_t uid,
  *
  * \retval     #PSA_SUCCESS                  The operation completed successfully
  * \retval     #PSA_ERROR_DOES_NOT_EXIST     The operation failed because the provided `uid` value was not found in the storage
- * \retval     #PSA_ERROR_INVALID_SIZE       The operation failed because the data associated with provided uid is larger than `data_size`
  * \retval     #PSA_ERROR_STORAGE_FAILURE    The operation failed because the physical storage has failed (Fatal error)
  * \retval     #PSA_ERROR_INVALID_ARGUMENT   The operation failed because one of the provided pointers(`p_data`, `p_data_length`)
  *                                           is invalid. For example is `NULL` or references memory the caller cannot access.

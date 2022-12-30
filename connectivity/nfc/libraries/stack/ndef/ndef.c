@@ -30,14 +30,6 @@
  *  @{
  */
 
-/** Initialize NDEF tag abstraction
- * \param pNdefTag pointer to ndef_tag_t structure to initialize
- * \param encode function that will be called to generate the NDEF message before sending it to the other party
- * \param decode function that will be called to parse the NDEF message after receiving it from the other party
- * \param buffer underlying buffer to use (it should be big enough so that any NDEF message you might need could be stored inside)
- * \param buffer_size size of the underlying buffer
- * \param pImpl pointer to actual implementation
- */
 void ndef_msg_init(ndef_msg_t *pNdef, ndef_encode_fn_t encode, ndef_decode_fn_t decode, uint8_t *data, size_t size, void *pUserData)
 {
     pNdef->encode = encode;

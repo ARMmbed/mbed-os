@@ -28,6 +28,11 @@
 #include MBEDTLS_CONFIG_FILE
 #endif
 
+/**
+ * \ingroup mbedtls_platform_module
+ * \{
+ */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -73,8 +78,12 @@ int mbedtls_platform_set_time( mbedtls_time_t (*time_func)( mbedtls_time_t* time
 #endif /* MBEDTLS_PLATFORM_TIME_MACRO */
 #endif /* MBEDTLS_PLATFORM_TIME_ALT */
 
+/// \}
+
 #ifdef __cplusplus
 }
 #endif
+
+/// \}
 
 #endif /* platform_time.h */

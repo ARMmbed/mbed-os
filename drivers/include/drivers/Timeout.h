@@ -97,7 +97,12 @@ public:
     /** Clock to use with attach_absolute, guaranteeing running only while attached or manually locked */
     using clock = HighResClock;
 
-    /** @copydoc TimeoutBase::scheduled_time() */
+    /** Return scheduled callback time
+     *
+     * @return scheduled callback time
+     *
+     * @note if the callback is overdue, or has already run, the returned value will be in the past
+     */
     HighResClock::time_point scheduled_time() const
     {
         /* Massage from virtual TickerDataClock::time_point used internally to true HighResClock::time_point */

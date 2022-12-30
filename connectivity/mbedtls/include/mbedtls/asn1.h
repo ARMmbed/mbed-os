@@ -35,7 +35,9 @@
 #endif
 
 /**
- * \addtogroup asn1_module
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_asn1_module ASN.1
  * \{
  */
 
@@ -54,7 +56,7 @@
 #define MBEDTLS_ERR_ASN1_ALLOC_FAILED                     -0x006A  /**< Memory allocation failed */
 #define MBEDTLS_ERR_ASN1_BUF_TOO_SMALL                    -0x006C  /**< Buffer too small when writing ASN.1 data structure. */
 
-/* \} name */
+/** \} name */
 
 /**
  * \name DER constants
@@ -67,26 +69,26 @@
  * Such sequences are typically read into \c ::mbedtls_x509_buf.
  * \{
  */
-#define MBEDTLS_ASN1_BOOLEAN                 0x01
-#define MBEDTLS_ASN1_INTEGER                 0x02
-#define MBEDTLS_ASN1_BIT_STRING              0x03
-#define MBEDTLS_ASN1_OCTET_STRING            0x04
-#define MBEDTLS_ASN1_NULL                    0x05
-#define MBEDTLS_ASN1_OID                     0x06
-#define MBEDTLS_ASN1_ENUMERATED              0x0A
-#define MBEDTLS_ASN1_UTF8_STRING             0x0C
-#define MBEDTLS_ASN1_SEQUENCE                0x10
-#define MBEDTLS_ASN1_SET                     0x11
-#define MBEDTLS_ASN1_PRINTABLE_STRING        0x13
-#define MBEDTLS_ASN1_T61_STRING              0x14
-#define MBEDTLS_ASN1_IA5_STRING              0x16
-#define MBEDTLS_ASN1_UTC_TIME                0x17
-#define MBEDTLS_ASN1_GENERALIZED_TIME        0x18
-#define MBEDTLS_ASN1_UNIVERSAL_STRING        0x1C
-#define MBEDTLS_ASN1_BMP_STRING              0x1E
-#define MBEDTLS_ASN1_PRIMITIVE               0x00
-#define MBEDTLS_ASN1_CONSTRUCTED             0x20
-#define MBEDTLS_ASN1_CONTEXT_SPECIFIC        0x80
+#define MBEDTLS_ASN1_BOOLEAN                 0x01 ///< Boolean
+#define MBEDTLS_ASN1_INTEGER                 0x02 ///< Integer
+#define MBEDTLS_ASN1_BIT_STRING              0x03 ///< Bit String
+#define MBEDTLS_ASN1_OCTET_STRING            0x04 ///< Octet String
+#define MBEDTLS_ASN1_NULL                    0x05 ///< Null
+#define MBEDTLS_ASN1_OID                     0x06 ///< OID
+#define MBEDTLS_ASN1_ENUMERATED              0x0A ///< Enumerated
+#define MBEDTLS_ASN1_UTF8_STRING             0x0C ///< UTF-8 String
+#define MBEDTLS_ASN1_SEQUENCE                0x10 ///< Sequence
+#define MBEDTLS_ASN1_SET                     0x11 ///< Set
+#define MBEDTLS_ASN1_PRINTABLE_STRING        0x13 ///< Printable String
+#define MBEDTLS_ASN1_T61_STRING              0x14 ///< T61 String
+#define MBEDTLS_ASN1_IA5_STRING              0x16 ///< IA5 String
+#define MBEDTLS_ASN1_UTC_TIME                0x17 ///< UTC Time
+#define MBEDTLS_ASN1_GENERALIZED_TIME        0x18 ///< Generalized Time
+#define MBEDTLS_ASN1_UNIVERSAL_STRING        0x1C ///< Universal String
+#define MBEDTLS_ASN1_BMP_STRING              0x1E ///< BMP String
+#define MBEDTLS_ASN1_PRIMITIVE               0x00 ///< Primitive
+#define MBEDTLS_ASN1_CONSTRUCTED             0x20 ///< Constructed
+#define MBEDTLS_ASN1_CONTEXT_SPECIFIC        0x80 ///< Context Specific
 
 /* Slightly smaller way to check if tag is a string tag
  * compared to canonical implementation. */
@@ -114,8 +116,7 @@
 #define MBEDTLS_ASN1_TAG_PC_MASK             0x20
 #define MBEDTLS_ASN1_TAG_VALUE_MASK          0x1F
 
-/* \} name */
-/* \} addtogroup asn1_module */
+/** \} name */
 
 /** Returns the size of the binary string, without the trailing \\0 */
 #define MBEDTLS_OID_SIZE(x) (sizeof(x) - 1)
@@ -137,11 +138,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/**
- * \name Functions to parse ASN.1 data structures
- * \{
- */
 
 /**
  * Type-length-value structure that allows for ASN1 using DER.
@@ -186,6 +182,7 @@ typedef struct mbedtls_asn1_named_data
     unsigned char next_merged;      /**< Merge next item into the current one? */
 }
 mbedtls_asn1_named_data;
+
 
 /**
  * \brief       Get the length of an ASN.1 element.
@@ -603,5 +600,8 @@ void mbedtls_asn1_free_named_data_list( mbedtls_asn1_named_data **head );
 #ifdef __cplusplus
 }
 #endif
+
+/// \}
+/// \}
 
 #endif /* asn1.h */

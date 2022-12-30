@@ -31,6 +31,13 @@
 #include <stddef.h>
 #include <stdint.h>
 
+/**
+ * \addtogroup mbedtls
+ * \{
+ * \defgroup mbedtls_xtea_module XTEA
+ * \{
+ */
+
 #define MBEDTLS_XTEA_ENCRYPT     1
 #define MBEDTLS_XTEA_DECRYPT     0
 
@@ -133,5 +140,8 @@ int mbedtls_xtea_self_test( int verbose );
 #ifdef __cplusplus
 }
 #endif
+
+/// \}
+/// \}
 
 #endif /* xtea.h */

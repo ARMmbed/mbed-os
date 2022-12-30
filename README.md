@@ -32,13 +32,13 @@ To start a new project that uses Mbed CE, see the setup guide [here](https://git
 
 We have a [developer website](https://os.mbed.com) for asking questions, engaging with others, finding information on boards and components, using an online IDE and compiler, reading the documentation and learning about what's new and what's coming next in Mbed OS.
 
-## Getting started for contributors
-
-We also have a [contributing and publishing guide](https://os.mbed.com/contributing/) that covers licensing, contributor agreements and style guidelines.
+Additionally, the [discussions page](https://github.com/mbed-ce/mbed-os/discussions) on this repo can be used for proposing and discussing specific code changes.
 
 ## Documentation
 
-For more information about Mbed OS, please see [our published documentation](https://os.mbed.com/docs/latest). It includes Doxygen for our APIs, step-by-step tutorials, porting information and background reference materials about our architecture and tools.
+For more information about Mbed OS, please see [our published documentation](https://os.mbed.com/docs/latest). It includes general overview information, step-by-step tutorials, porting information and background reference materials about our architecture and tools.
+
+For the Mbed OS CE class-level documentation, see [here](https://mbed-ce.github.io/mbed-os/group__mbed-os-public.html)
 
 To contribute to this documentation, please see the [mbed-os-5-docs repository](https://github.com/ARMmbed/mbed-os-5-docs).
 
