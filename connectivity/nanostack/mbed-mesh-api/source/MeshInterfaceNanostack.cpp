@@ -174,6 +174,7 @@ void Nanostack::Interface::network_handler(mesh_connection_status_t status)
             connect_semaphore.release();
         } else if (status == MESH_DISCONNECTED) {
             disconnect_semaphore.release();
+            connect_semaphore.release();
         }
     }
 
