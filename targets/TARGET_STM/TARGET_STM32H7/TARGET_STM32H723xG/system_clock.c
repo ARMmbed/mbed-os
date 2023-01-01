@@ -20,12 +20,12 @@
   *                       | 2- USE_PLL_HSE_XTAL (external 8 MHz xtal)
   *                       | 3- USE_PLL_HSI (internal 64 MHz clock)
   *--------------------------------------------------------------------
-  * SYSCLK(MHz)           |            480
-  * AHBCLK (MHz)          |            240
-  * APB1CLK (MHz)         |            120
-  * APB2CLK (MHz)         |            120
-  * APB3CLK (MHz)         |            120
-  * APB4CLK (MHz)         |            120
+  * SYSCLK(MHz)           |            550
+  * AHBCLK (MHz)          |            275
+  * APB1CLK (MHz)         |            137.5
+  * APB2CLK (MHz)         |            137.5
+  * APB3CLK (MHz)         |            137.5
+  * APB4CLK (MHz)         |            137.5
   * USB capable (48 MHz)  |            YES
   *--------------------------------------------------------------------
 **/
@@ -85,17 +85,23 @@ void SetSysClock(void)
 /******************************************************************************/
 MBED_WEAK uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 {
-    RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
+    RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+
+    /* Supply configuration update enable */
+    HAL_PWREx_ConfigSupply(PWR_LDO_SUPPLY);
 
     /* Configure the main internal regulator output voltage */
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE0);
-
     while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {}
 
-    /* Enable HSE Oscillator and activate PLL with HSE as source */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI48;
+    /* Configure LSE Drive Capability */
+    HAL_PWR_EnableBkUpAccess();
+    __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_LOW);
+
+    /* Initializes the RCC Oscillators according to the specified parameters
+     * in the RCC_OscInitTypeDef structure. */
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48|RCC_OSCILLATORTYPE_HSE;
     if (bypass) {
         RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
     } else {
@@ -104,38 +110,36 @@ MBED_WEAK uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-#if HSE_VALUE==8000000
-    RCC_OscInitStruct.PLL.PLLM = 4;   // 2 MHz
-    RCC_OscInitStruct.PLL.PLLN = 275; // 550 MHz
-#else
-#error Unsupported externall clock value, check HSE_VALUE define
-#endif
-    RCC_OscInitStruct.PLL.PLLP = 1;   // PLLCLK = SYSCLK = 550 MHz
-    RCC_OscInitStruct.PLL.PLLQ = 5;
-    RCC_OscInitStruct.PLL.PLLR = 2;
-    RCC_OscInitStruct.PLL.PLLFRACN = 0;
+    RCC_OscInitStruct.PLL.PLLM = 1;    // 8 MHz
+    RCC_OscInitStruct.PLL.PLLN = 68;   // 550 MHz (see PLLFRACN)
+    RCC_OscInitStruct.PLL.PLLP = 1;    // 550 MHz
+    RCC_OscInitStruct.PLL.PLLQ = 5;    // 110 MHz
+    RCC_OscInitStruct.PLL.PLLR = 2;    // 275 MHz
+    RCC_OscInitStruct.PLL.PLLRGE = RCC_PLL1VCIRANGE_3;
     RCC_OscInitStruct.PLL.PLLVCOSEL = RCC_PLL1VCOWIDE;
-    RCC_OscInitStruct.PLL.PLLRGE = RCC_PLL1VCIRANGE_1;
+    RCC_OscInitStruct.PLL.PLLFRACN = 6144;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         return 0; // FAIL
     }
 
-    /* Select PLL as system clock source and configure bus clocks dividers */
-    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK |
-                                  RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2 |
-                                  RCC_CLOCKTYPE_D1PCLK1 | RCC_CLOCKTYPE_D3PCLK1;
+    /* Initializes the CPU, AHB and APB buses clocks */
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2
+                |RCC_CLOCKTYPE_D3PCLK1|RCC_CLOCKTYPE_D1PCLK1;
     RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
     RCC_ClkInitStruct.SYSCLKDivider = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.AHBCLKDivider = RCC_HCLK_DIV2;
+    RCC_ClkInitStruct.APB3CLKDivider = RCC_APB3_DIV2;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_APB1_DIV2;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV2;
-    RCC_ClkInitStruct.APB3CLKDivider = RCC_APB3_DIV2;
     RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV2;
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK) {
+
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK) {
         return 0; // FAIL
     }
 
 #if DEVICE_USBDEVICE
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
     PeriphClkInitStruct.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
@@ -155,6 +159,67 @@ MBED_WEAK uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 /******************************************************************************/
 uint8_t SetSysClock_PLL_HSI(void)
 {
-    return 0; // FAIL
+    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+    RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+
+    /* Supply configuration update enable */
+    HAL_PWREx_ConfigSupply(PWR_LDO_SUPPLY);
+
+    /* Configure the main internal regulator output voltage */
+    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE0);
+    while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {}
+
+    /* Configure LSE Drive Capability */
+    HAL_PWR_EnableBkUpAccess();
+    __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_LOW);
+
+    /* Initializes the RCC Oscillators according to the specified parameters
+     * in the RCC_OscInitTypeDef structure. */
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48|RCC_OSCILLATORTYPE_HSI;
+    RCC_OscInitStruct.HSIState = RCC_HSI_DIV1;
+    RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+    RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
+    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+    RCC_OscInitStruct.PLL.PLLM = 4;    // 16 MHz
+    RCC_OscInitStruct.PLL.PLLN = 34;   // 550 MHz (see PLLFRACN)
+    RCC_OscInitStruct.PLL.PLLP = 1;    // 550 MHz
+    RCC_OscInitStruct.PLL.PLLQ = 5;    // 110 MHz
+    RCC_OscInitStruct.PLL.PLLR = 2;    // 275 MHz
+    RCC_OscInitStruct.PLL.PLLRGE = RCC_PLL1VCIRANGE_3;
+    RCC_OscInitStruct.PLL.PLLVCOSEL = RCC_PLL1VCOWIDE;
+    RCC_OscInitStruct.PLL.PLLFRACN = 3072;
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+        return 0; // FAIL
+    }
+
+    /* Initializes the CPU, AHB and APB buses clocks */
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2
+                |RCC_CLOCKTYPE_D3PCLK1|RCC_CLOCKTYPE_D1PCLK1;
+    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+    RCC_ClkInitStruct.SYSCLKDivider = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.AHBCLKDivider = RCC_HCLK_DIV2;
+    RCC_ClkInitStruct.APB3CLKDivider = RCC_APB3_DIV2;
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_APB1_DIV2;
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV2;
+    RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV2;
+
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK) {
+        return 0; // FAIL
+    }
+
+#if DEVICE_USBDEVICE
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
+    PeriphClkInitStruct.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+        return 0; // FAIL
+    }
+
+    HAL_PWREx_EnableUSBVoltageDetector();
+#endif /* DEVICE_USBDEVICE */
+
+    return 1; // OK
 }
 #endif /* ((CLOCK_SOURCE) & USE_PLL_HSI) */

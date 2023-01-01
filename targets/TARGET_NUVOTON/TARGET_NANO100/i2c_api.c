@@ -468,14 +468,14 @@ static int i2c_do_trsn(i2c_t *obj, uint32_t i2c_ctl, int sync)
         case 0x08:  // Start
         case 0x10:  // Master Repeat Start
             if (i2c_ctl & I2C_CON_START_Msk) {
-                return 0;
+                goto cleanup;
             }
             else {
                 break;
             }
         case 0xF8:  // Bus Released
             if ((i2c_ctl & (I2C_CON_START_Msk | I2C_CON_STOP_Msk)) == I2C_CON_STOP_Msk) {
-                return 0;
+                goto cleanup;
             }
             else {
                 break;
@@ -492,8 +492,10 @@ static int i2c_do_trsn(i2c_t *obj, uint32_t i2c_ctl, int sync)
         }
     }
 
+cleanup:
+
     i2c_enable_int(obj);
-    
+
     return err;
 }
 

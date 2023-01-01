@@ -3207,18 +3207,16 @@
         ],
         "public": false,
         "core": "Cortex-M7FD",
-        "mbed_rom_start": "0x08000000",
-        "mbed_rom_size": "0x100000",
-        "mbed_ram_start": "0x24000000",
-        "mbed_ram_size": "0x50000",
         "extra_labels_add": [
             "STM32H723xG"
         ],
         "macros_add": [
+            "MBED_SPLIT_HEAP",
             "STM32H723xx"
         ],
         "overrides": {
-            "system_power_supply": "PWR_LDO_SUPPLY"
+            "system_power_supply": "PWR_LDO_SUPPLY",
+            "i2c_timing_value_algo": true
         }
     },
     "MCU_STM32H725xE": {
@@ -3307,6 +3305,49 @@
             "0836"
         ],
         "device_name": "STM32H743ZITx"
+    },
+    "NUCLEO_H723ZG": {
+        "inherits": [
+            "MCU_STM32H723xG"
+        ],
+        "supported_toolchains": [
+            "GCC_ARM"
+        ],
+        "extra_labels_add": [
+            "STM32H723ZG"
+        ],
+        "config": {
+            "hse_value": {
+                "help": "HSE default value is 25MHz in HAL",
+                "value": "8000000",
+                "macro_name": "HSE_VALUE"
+            },
+            "d11_configuration": {
+                "help": "Value: PB_5 for the default board configuration, PA_7 in case of solder bridge update (SB33 on/ SB35 off)",
+                "value": "PB_5",
+                "macro_name": "STM32_D11_SPI_ETHERNET_PIN"
+            },
+            "usb_speed": {
+                "help": "USE_USB_OTG_HS or USE_USB_HS_IN_FS",
+                "value": "USE_USB_HS_IN_FS"
+            }
+        },
+        "device_has_add": [
+            "EMAC",
+            "USBDEVICE"
+        ],
+        "overrides": {
+            "clock_source": "USE_PLL_HSE_EXTC",
+            "lse_available": 1,
+            "network-default-interface-type": "ETHERNET"
+        },
+        "supported_form_factors": [
+            "ARDUINO_UNO"
+        ],
+        "detect_code": [
+            "0836"
+        ],
+        "device_name": "STM32H723ZGTx"
     },
     "MCU_STM32H745xI": {
         "inherits": [
@@ -7380,6 +7421,194 @@
             "1306"
         ]
     },
+    "MCU_M460": {
+        "core": "Cortex-M4F",
+        "default_toolchain": "ARM",
+        "public": false,
+        "extra_labels": [
+            "NUVOTON",
+            "M460",
+            "FLASH_CMSIS_ALGO",
+	    "NUVOTON_EMAC"
+        ],
+        "is_disk_virtual": true,
+        "supported_toolchains": [
+            "ARM",
+            "GCC_ARM",
+            "IAR"
+        ],
+        "config": {
+            "hxt-present": {
+                "help": "High-speed external crystal oscillator HXT is present",
+                "options": [false, true],
+                "value": false
+            },
+            "lxt-present": {
+                "help": "Low-speed external crystal oscillator LXT is present",
+                "options": [false, true],
+                "value": true
+            },
+            "usb-uart": {
+                "help": "Configure USB_UART. USB_UART and USB_UART_TX/USB_UART_RX must be consistent.",
+                "value": null
+            },
+            "usb-uart-tx": {
+                "help": "Configure CONSOLE_TX. USB_UART and CONSOLE_TX/CONSOLE_RX must be consistent.",
+                "value": null
+            },
+            "usb-uart-rx": {
+                "help": "Configure CONSOLE_RX. USB_UART and CONSOLE_TX/CONSOLE_RX must be consistent.",
+                "value": null
+            },
+            "stdio-uart": {
+                "help": "Configure STDIO_UART. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART defaults to USB_UART.",
+                "value": null
+            },
+            "stdio-uart-tx": {
+                "help": "Configure STDIO_UART_TX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_TX defaults to CONSOLE_TX.",
+                "value": null
+            },
+            "stdio-uart-rx": {
+                "help": "Configure STDIO_UART_RX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_RX defaults to CONSOLE_RX.",
+                "value": null
+            },
+            "gpio-irq-debounce-enable": {
+                "help": "Enable GPIO IRQ debounce",
+                "value": 0
+            },
+            "gpio-irq-debounce-enable-list": {
+                "help": "Comma separated pin list to enable GPIO IRQ debounce",
+                "value": "NC"
+            },
+            "gpio-irq-debounce-clock-source": {
+                "help": "Select GPIO IRQ debounce clock source: GPIO_DBCTL_DBCLKSRC_HCLK or GPIO_DBCTL_DBCLKSRC_LIRC",
+                "value": "GPIO_DBCTL_DBCLKSRC_LIRC"
+            },
+            "gpio-irq-debounce-sample-rate": {
+                "help": "Select GPIO IRQ debounce sample rate: GPIO_DBCTL_DBCLKSEL_1, GPIO_DBCTL_DBCLKSEL_2, GPIO_DBCTL_DBCLKSEL_4, ..., or GPIO_DBCTL_DBCLKSEL_32768",
+                "value": "GPIO_DBCTL_DBCLKSEL_16"
+            },
+            "exclude-uno-spi-from-fpga-ci-test-shield-test": {
+                "help": "Exclude UNO SPI pins (D8/D9/D10/D11/D12/D13) from FPGA CI Test Shield test for wiring to on-board SPI flash",
+                "options": [false, true],
+                "value": false
+            },
+            "hbi-enable": {
+                "help": "Enable HBI for HyperRAM",
+                "options": [false, true]
+            },
+            "hbi-mfp-reg-list": {
+                "help": "Comma separated multi-function pin register list to enable HBI for HyperRAM"
+            },
+            "hbi-mfp-reg-msk-list": {
+                "help": "Comma separated multi-function pin register mask list to enable HBI for HyperRAM"
+            },
+            "hbi-mfp-reg-val-list": {
+                "help": "Comma separated multi-function pin register value list to enable HBI for HyperRAM"
+            },
+            "usb-device-hsusbd": {
+                "help": "Select high-speed USB device or not",
+                "value": 0
+            }
+        },
+        "inherits": [
+            "Target"
+        ],
+        "macros_add": [
+            "LPTICKER_DELAY_TICKS=4"
+        ],
+        "device_has": [
+            "USTICKER",
+            "LPTICKER",
+            "RTC",
+            "ANALOGIN",
+            "ANALOGOUT",
+            "I2C",
+            "I2CSLAVE",
+            "I2C_ASYNCH",
+            "INTERRUPTIN",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "PWMOUT",
+            "SERIAL",
+            "SERIAL_ASYNCH",
+            "SERIAL_FC",
+            "STDIO_MESSAGES",
+            "SLEEP",
+            "SPI",
+            "SPISLAVE",
+            "SPI_ASYNCH",
+            "TRNG",
+            "FLASH",
+            "MPU",
+            "WATCHDOG",
+            "RESET_REASON",
+            "EMAC",
+            "USBDEVICE"
+        ],
+        "components_add": [
+            "FLASHIAP"
+        ],
+        "release_versions": [
+            "5"
+        ],
+        "sectors": [
+            [
+                0,
+                4096
+            ]
+        ],
+        "bootloader_supported": true,
+        "overrides": {
+            "deep-sleep-latency": 1,
+            "tickless-from-us-ticker": true
+        },
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ],
+            "iar": [
+                "std"
+            ]
+        },
+        "supported_application_profiles": [
+            "full", "bare-metal"
+        ]
+    },
+    "NUMAKER_IOT_M467": {
+        "inherits": [
+            "MCU_M460"
+        ],
+        "macros_add": [
+            "MBEDTLS_CONFIG_HW_SUPPORT"
+        ],
+        "supported_form_factors": [
+            "ARDUINO_UNO"
+        ],
+        "detect_code": [
+            "1313"
+        ],
+        "device_name": "M467HJHAE",
+        "overrides": {
+            "hxt-present": false,
+            "lxt-present": true,
+            "usb-uart": "UART_0",
+            "usb-uart-tx": "PB_13",
+            "usb-uart-rx": "PB_12",
+            "network-default-interface-type": "ETHERNET",
+            "exclude-uno-spi-from-fpga-ci-test-shield-test": true,
+            "hbi-enable": false,
+            "hbi-mfp-reg-list": "0x40000534, 0x4000057C, 0x40000590, 0x40000594",
+            "hbi-mfp-reg-msk-list": "0xFFFFFF00, 0xFFFFFFFF, 0xFFFF0000, 0xFFFFFFFF",
+            "hbi-mfp-reg-val-list": "0x10101000, 0x10101010, 0x10100000, 0x10101010"
+        }
+    },
     "MCU_M480": {
         "core": "Cortex-M4F",
         "default_toolchain": "ARM",
@@ -7842,7 +8071,8 @@
             "SPI",
             "SPISLAVE",
             "SPI_ASYNCH",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "release_versions": [
             "5"
@@ -9207,5 +9437,124 @@
                 "std"
             ]
         }
+    },
+    "TMPM4NR": {
+        "inherits": [
+            "Target"
+        ],
+        "core": "Cortex-M4F",
+        "is_disk_virtual": true,
+        "extra_labels": [
+            "TOSHIBA"
+        ],
+        "macros": [
+            "TMPM4NR"
+        ],
+        "supported_toolchains": [
+            "GCC_ARM",
+            "ARM"
+	],
+        "device_has": [
+            "ANALOGIN",
+            "ANALOGOUT",
+            "INTERRUPTIN",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "PWMOUT",
+            "RESET_REASON",
+            "SERIAL",
+            "SERIAL_FC",
+            "SPI",
+            "SPISLAVE",
+            "SPI_ASYNCH",
+            "I2C",
+            "I2CSLAVE",
+            "I2C_ASYNCH",
+            "RTC",
+            "STDIO_MESSAGES",
+            "FLASH",
+            "SLEEP",
+            "USTICKER",
+            "MPU"
+        ],
+        "device_name": "TMPM4NRF20FG",
+        "detect_code": [
+            "7022"
+        ],
+        "release_versions": [
+            "5"
+        ],
+        "bootloader_supported": true,
+	    "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
+        }
+
+    },
+    "TMPM4GR": {
+        "inherits": [
+            "Target"
+        ],
+        "core": "Cortex-M4F",
+        "is_disk_virtual": true,
+        "extra_labels": [
+            "TOSHIBA"
+        ],
+        "macros": [
+            "__TMPM4GR__"
+        ],
+        "supported_toolchains": [
+            "GCC_ARM",
+            "ARM"
+	],
+        "device_has": [
+            "ANALOGIN",
+            "ANALOGOUT",
+            "INTERRUPTIN",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "PWMOUT",
+            "RESET_REASON",
+            "SERIAL",
+            "SERIAL_FC",
+            "SPI",
+            "SPISLAVE",
+            "SPI_ASYNCH",
+            "I2C",
+            "I2CSLAVE",
+            "I2C_ASYNCH",
+            "RTC",
+            "STDIO_MESSAGES",
+            "FLASH",
+            "SLEEP",
+            "USTICKER",
+            "MPU"
+        ],
+        "device_name": "TMPM4GRF20FG",
+        "detect_code": [
+            "7021"
+        ],
+        "release_versions": [
+            "5"
+        ],
+        "bootloader_supported": true,
+         "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
+    	}
     }
 }

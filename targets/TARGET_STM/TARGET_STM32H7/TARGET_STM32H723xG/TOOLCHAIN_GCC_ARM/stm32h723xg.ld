@@ -26,19 +26,29 @@
   #define MBED_APP_SIZE  MBED_ROM_SIZE
 #endif
 
+M_CRASH_DATA_RAM_SIZE = 0x100;
+
 #if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
     /* This value is normally defined by the tools
        to 0x1000 for bare metal and 0x400 for RTOS */
     #define MBED_CONF_TARGET_BOOT_STACK_SIZE  0x400
 #endif
 
-/* Round up VECTORS_SIZE to 8 bytes */
-#define VECTORS_SIZE  (((NVIC_NUM_VECTORS * 4) + 7) & 0xFFFFFFF8)
+STACK_SIZE = MBED_CONF_TARGET_BOOT_STACK_SIZE;
+
+/* Round up MBED_VECTTABLE_RAM_SIZE to 8 bytes */
+#define MBED_VECTTABLE_RAM_SIZE  (((NVIC_NUM_VECTORS * 4) + 7) & 0xFFFFFFF8)
+#define MBED_RAM0_START  (MBED_RAM_START + MBED_VECTTABLE_RAM_SIZE)
+#define MBED_RAM0_SIZE   (MBED_RAM_SIZE - MBED_VECTTABLE_RAM_SIZE)
 
 MEMORY
 {
-    FLASH (rx)   : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
-    RAM (rwx)    : ORIGIN = MBED_RAM_START + VECTORS_SIZE, LENGTH = MBED_RAM_SIZE - VECTORS_SIZE
+    FLASH       (rx)  : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
+    SRAM_DTC   (xrw)  : ORIGIN = MBED_RAM0_START, LENGTH = MBED_RAM0_SIZE
+    SRAM       (xrw)  : ORIGIN = MBED_RAM1_START, LENGTH = MBED_RAM1_SIZE
+    SRAM_LOWER (xrw)  : ORIGIN = 0x30000000, LENGTH = 32K
+    SRAM_UPPER (xrw)  : ORIGIN = 0x38000000, LENGTH = 16K
+    SRAM_ITC   (xrw)  : ORIGIN = 0x00000000, LENGTH = 64K
 }
 
 /* Linker script to place sections and symbol values. Should be used together
@@ -113,7 +123,48 @@ SECTIONS
 
     __etext = .;
     _sidata = .;
-    
+
+    .crash_data_ram :
+    {
+        . = ALIGN(8);
+        __CRASH_DATA_RAM__ = .;
+        __CRASH_DATA_RAM_START__ = .; /* Create a global symbol at data start */
+        KEEP(*(.keep.crash_data_ram))
+        *(.m_crash_data_ram)     /* This is a user defined section */
+        . += M_CRASH_DATA_RAM_SIZE;
+        . = ALIGN(8);
+        __CRASH_DATA_RAM_END__ = .; /* Define a global symbol at data end */
+    } > SRAM_UPPER
+
+    /* .stack section doesn't contains any symbols. It is only
+     * used for linker to reserve space for the isr stack section
+     * WARNING: .stack should come immediately after the last secure memory
+     * section.  This provides stack overflow detection. */
+    .stack (NOLOAD):
+    {
+        __StackLimit = .;
+        *(.stack*);
+        . += STACK_SIZE - (. - __StackLimit);
+    } > SRAM_DTC
+
+    /* Set stack top to end of SRAM, and stack limit move down by
+     * size of stack_dummy section */
+    __StackTop = ADDR(.stack) + SIZEOF(.stack);
+    _estack = __StackTop;
+    __StackLimit = ADDR(.stack);
+    PROVIDE(__stack = __StackTop);
+
+    /* Place holder for additional heap */
+    .heap_0 (COPY):
+    {
+        __mbed_sbrk_start_0 = .;
+        . += (ORIGIN(SRAM_DTC) + LENGTH(SRAM_DTC) - .);
+        __mbed_krbs_start_0 = .;
+    } > SRAM_DTC
+
+    /* Check if heap exceeds SRAM_DTC */
+    ASSERT(__mbed_krbs_start_0 <= (ORIGIN(SRAM_DTC)+LENGTH(SRAM_DTC)), "Heap is too big for SRAM_DTC")
+
     .data : AT (__etext)
     {
         __data_start__ = .;
@@ -147,7 +198,10 @@ SECTIONS
         __data_end__ = .;
         _edata = .;
 
-    } > RAM
+    } > SRAM
+
+    /* Check if bss exceeds SRAM */
+    ASSERT(__data_end__ <= (ORIGIN(SRAM)+LENGTH(SRAM)), ".data is too big for SRAM")
 
     /* Uninitialized data section
      * This region is not initialized by the C/C++ library and can be used to
@@ -160,8 +214,8 @@ SECTIONS
         KEEP(*(.keep.uninitialized))
         . = ALIGN(32);
         __uninitialized_end = .;
-    } > RAM
-    
+    } > SRAM
+
     .bss :
     {
         . = ALIGN(8);
@@ -172,32 +226,22 @@ SECTIONS
         . = ALIGN(8);
         __bss_end__ = .;
         _ebss = .;
-    } > RAM
+    } > SRAM
+
+    /* Check if bss exceeds SRAM */
+    ASSERT(__bss_end__ <= (ORIGIN(SRAM)+LENGTH(SRAM)), "BSS is too big for SRAM")
 
     .heap (COPY):
     {
         __end__ = .;
-        PROVIDE(end = .);
+        end = __end__;
+        __mbed_sbrk_start = .;
         *(.heap*)
-        . = ORIGIN(RAM) + LENGTH(RAM) - MBED_CONF_TARGET_BOOT_STACK_SIZE;
+        . += (ORIGIN(SRAM) + LENGTH(SRAM) - .);
+        __mbed_krbs_start = .;
         __HeapLimit = .;
-    } > RAM
+    } > SRAM
 
-    /* .stack_dummy section doesn't contains any symbols. It is only
-     * used for linker to calculate size of stack sections, and assign
-     * values to stack symbols later */
-    .stack_dummy (COPY):
-    {
-        *(.stack*)
-    } > RAM
-
-    /* Set stack top to end of RAM, and stack limit move down by
-     * size of stack_dummy section */
-    __StackTop = ORIGIN(RAM) + LENGTH(RAM);
-    _estack = __StackTop;
-    __StackLimit = __StackTop - MBED_CONF_TARGET_BOOT_STACK_SIZE;
-    PROVIDE(__stack = __StackTop);
-
-    /* Check if data + heap + stack exceeds RAM limit */
-    ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
+    /* Check if data + heap exceeds SRAM limit */
+    ASSERT(__HeapLimit <= (ORIGIN(SRAM)+LENGTH(SRAM)), "Heap is too big for SRAM")
 }

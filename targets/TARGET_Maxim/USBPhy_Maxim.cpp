@@ -16,7 +16,7 @@
  */
 
 #if defined(DEVICE_USBDEVICE) && (DEVICE_USBDEVICE) && \
-    (defined(TARGET_MAX32620) || defined(TARGET_MAX32625) || defined(TARGET_MAX32630))
+    (defined(TARGET_MAX32620C) || defined(TARGET_MAX32625) || defined(TARGET_MAX32630))
 
 #include "mbed.h"
 #include "USBPhyHw.h"
@@ -111,7 +111,7 @@ void USBPhyHw::init(USBPhyEvents *events)
     NVIC_DisableIRQ(USB_IRQn);
 
     // Enable the USB clock
-#if defined(TARGET_MAX32620)
+#if defined(TARGET_MAX32620C)
     MXC_CLKMAN->clk_ctrl |= MXC_F_CLKMAN_CLK_CTRL_USB_CLOCK_ENABLE;
 #elif defined(TARGET_MAX32625) || defined(TARGET_MAX32630)
     MXC_PWRMAN->pwr_rst_ctrl |= MXC_F_PWRMAN_PWR_RST_CTRL_USB_POWERED;

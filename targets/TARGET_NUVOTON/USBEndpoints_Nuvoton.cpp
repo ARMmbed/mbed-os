@@ -24,9 +24,9 @@ static USBPhyHw *instance;
 #if defined (TARGET_M451)
 #undef  MBED_CONF_TARGET_USB_DEVICE_HSUSBD
 #define MBED_CONF_TARGET_USB_DEVICE_HSUSBD 0  /* USB 1.1 Only */
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) ||  defined(TARGET_M460)
 #define USBD_SET_ADDRESS         0x05ul
-#elif defined (TARGET_M2351) || defined(TARGET_M261)
+#elif defined (TARGET_M2351) || defined(TARGET_M261) || defined(TARGET_M2354)
 #undef  MBED_CONF_TARGET_USB_DEVICE_HSUSBD
 #define MBED_CONF_TARGET_USB_DEVICE_HSUSBD 0  /* USB 1.1 Only */
 #define USBD_SET_ADDRESS         0x05ul
@@ -43,8 +43,12 @@ static USBPhyHw *instance;
 
 extern "C" void USBD_IRQHandler(void);
 
+//#define NVT_USB_Debug(x) { mbed_error_printf x;}
+#define NVT_USB_Debug(x)
+
 void chip_config(void)
 {
+    NVT_USB_Debug(("### %s[%d]\n", __FUNCTION__, __LINE__));
 #if defined(TARGET_M451)
     /* Enable USBD module clock */
     CLK_EnableModuleClock(USBD_MODULE);
@@ -67,7 +71,7 @@ void chip_config(void)
 
     /* Enable IP clock */
     CLK_EnableModuleClock(USBD_MODULE);
-
+    
     /* Configure pins for USB 1.1 port: VBUS/D+/D-/ID */
     pin_function(PA_12, SYS_GPA_MFPH_PA12MFP_USB_VBUS);
     pin_function(PA_13, SYS_GPA_MFPH_PA13MFP_USB_D_N);
@@ -100,7 +104,22 @@ void chip_config(void)
     /* USBD multi-function pins for VBUS, D+, D-, and ID pins */
     SYS->GPA_MFPH &= ~(SYS_GPA_MFPH_PA12MFP_Msk | SYS_GPA_MFPH_PA13MFP_Msk | SYS_GPA_MFPH_PA14MFP_Msk | SYS_GPA_MFPH_PA15MFP_Msk);
     SYS->GPA_MFPH |= (SYS_GPA_MFPH_PA12MFP_USB_VBUS | SYS_GPA_MFPH_PA13MFP_USB_D_N | SYS_GPA_MFPH_PA14MFP_USB_D_P | SYS_GPA_MFPH_PA15MFP_USB_OTG_ID);
+#elif defined (TARGET_M2354)
 
+    /* To select USBD in TF-M image secure domain */
+    //SYS->USBPHY = (SYS->USBPHY & ~SYS_USBPHY_USBROLE_Msk) | SYS_USBPHY_OTGPHYEN_Msk | SYS_USBPHY_SBO_Msk;
+
+    /* Enable IP clock */
+    CLK_EnableModuleClock_S(USBD_MODULE);
+
+    /* Select IP clock source */
+    CLK_SetModuleClock_S(USBD_MODULE, CLK_CLKSEL0_USBSEL_HIRC48, CLK_CLKDIV0_USB(1));
+
+    /* USBD multi-function pins for VBUS, D+, D-, and ID pins */
+    nu_pin_function_s(0, 12, SYS_GPA_MFPH_PA12MFP_USB_VBUS);
+    nu_pin_function_s(0, 13, SYS_GPA_MFPH_PA13MFP_USB_D_N);
+    nu_pin_function_s(0, 14, SYS_GPA_MFPH_PA14MFP_USB_D_P);
+    nu_pin_function_s(0, 15, SYS_GPA_MFPH_PA15MFP_USB_OTG_ID);
 
 #elif defined (TARGET_NANO100)
 
@@ -117,6 +136,51 @@ void chip_config(void)
     /* Enable USB PHY's LDO33. Run as USB device. */
     SYS->USBPHY = SYS_USBPHY_USBROLE_OTG_V33_EN | SYS_USBPHY_USBROLE_STD_USBD;
 
+#elif defined(TARGET_M460)
+#if (MBED_CONF_TARGET_USB_DEVICE_HSUSBD == 0)
+  #if MBED_CONF_TARGET_HXT_PRESENT /* CLK src from HXT/PLL */
+    /* Enable HXT clock */
+    //CLK_EnableXtalRC(CLK_PWRCTL_HXTEN_Msk);
+    /* Wait for HXT clock ready */
+    //CLK_WaitClockReady(CLK_STATUS_HXTSTB_Msk);
+    /* Select USB clock source as PLL/2 and USB clock divider as 2 */
+    CLK_SetModuleClock(USBD_MODULE, CLK_CLKSEL0_USBSEL_PLL_DIV2, CLK_CLKDIV0_USB(2));
+  #else /* For CRYSTAL_LESS */
+    /* Enable HIRC48M clock */
+    CLK_EnableXtalRC(CLK_PWRCTL_HIRC48MEN_Msk);
+    /* Waiting for HIRC48M clock ready */
+    CLK_WaitClockReady(CLK_STATUS_HIRC48MSTB_Msk);
+    /* Select USB clock source as HIRC48M and USB clock divider as 1 */
+    CLK_SetModuleClock(USBD_MODULE, CLK_CLKSEL0_USBSEL_HIRC48M, CLK_CLKDIV0_USB(1));
+  #endif
+    
+    /* Configure USB to Device mode */
+    SYS->USBPHY = (SYS->USBPHY & ~SYS_USBPHY_USBROLE_Msk) | SYS_USBPHY_USBROLE_STD_USBD;
+    
+    /* Enable USB PHY */
+    SYS->USBPHY |= SYS_USBPHY_USBEN_Msk | SYS_USBPHY_SBO_Msk;
+    
+    /* Enable IP clock */
+    CLK_EnableModuleClock(USBD_MODULE);
+    
+    /* Configure pins for USB 1.1 port: VBUS/D+/D-/ID */
+    SET_USB_VBUS_PA12();
+    SET_USB_D_N_PA13();
+    SET_USB_D_P_PA14();
+    SET_USB_OTG_ID_PA15();
+#else
+    /* Configure HSUSB to Device mode */
+    SYS->USBPHY = (SYS->USBPHY & ~SYS_USBPHY_HSUSBROLE_Msk) | SYS_USBPHY_HSUSBROLE_STD_USBD;
+    /* Enable HSUSB PHY */
+    SYS->USBPHY = (SYS->USBPHY & ~(SYS_USBPHY_HSUSBEN_Msk | SYS_USBPHY_HSUSBACT_Msk)) | SYS_USBPHY_HSUSBEN_Msk;
+    /* Delay >10 us and then switch HSUSB PHY from reset state to active state */
+    wait_us(10);
+    SYS->USBPHY |= SYS_USBPHY_HSUSBACT_Msk;
+
+    /* Enable USBD module clock */
+    CLK_EnableModuleClock(HSUSBD_MODULE);
+#endif
+    
 #endif
 }
 
@@ -129,7 +193,7 @@ void chip_config(void)
 #define HW_TO_DESC(endpoint) (endpoint|(((endpoint&1)?0x0:0x80)))
 
 /* Global variables for Control Pipe */
-#if defined(TARGET_M2351) || defined(TARGET_M261)
+#if defined(TARGET_M2351) || defined(TARGET_M261) || defined(TARGET_M2354)
 extern uint8_t g_USBD_au8SetupPacket[];        /*!< Setup packet buffer */
 uint8_t* g_usbd_SetupPacket=g_USBD_au8SetupPacket;
 #else
@@ -161,6 +225,7 @@ volatile uint32_t frame_cnt = 0;
 USBPhy *get_usb_phy()
 {
     static USBPhyHw usbphy;
+    NVT_USB_Debug(("### %s\n", __FUNCTION__));
     return &usbphy;
 }
 
@@ -180,13 +245,17 @@ USBPhyHw::~USBPhyHw()
 */
 void USBPhyHw::init(USBPhyEvents *events)
 {
+    NVT_USB_Debug(("### %s[%d]\n", __FUNCTION__, __LINE__));
     if (this->events == NULL) {
         sleep_manager_lock_deep_sleep();
     }
     this->events = events;
-
+#if defined(TARGET_M2354)
+    wait_us(10);    /* To init us_ticker to avoid invoking NSC for us_ticker, it could keep wait_us safe from ISR Context */
+    SYS_UnlockReg_S();
+#else
     SYS_UnlockReg();
-
+#endif
     s_ep_buf_ind = 0;
 
     chip_config();
@@ -209,6 +278,7 @@ void USBPhyHw::init(USBPhyEvents *events)
 
 void USBPhyHw::deinit()
 {
+    NVT_USB_Debug(("### %s[%d]\n", __FUNCTION__, __LINE__));
     NVIC_DisableIRQ(USBD_IRQn);
     USBD_SET_SE0();
     USBD_DISABLE_PHY();
@@ -233,7 +303,8 @@ void EpInit(void);
 
 void USBPhyHw::connect()
 {
-    int volatile i = 0;
+    NVT_USB_Debug(("### %s[%d]\n", __FUNCTION__, __LINE__));
+
     memset(read_buffers, 0, sizeof(read_buffers));
     memset(read_sizes, 0, sizeof(read_sizes));
 
@@ -255,6 +326,7 @@ void USBPhyHw::connect()
 void USBPhyHw::disconnect()
 {
     uint32_t volatile i = 0;
+    NVT_USB_Debug(("### %s[%d]\n", __FUNCTION__, __LINE__));
 #if 1
 #if defined (TARGET_NANO100)
     SYS->IPRST_CTL2 = SYS_IPRST_CTL2_USBD_RST_Msk;
@@ -301,7 +373,7 @@ void USBPhyHw::disconnect()
 void EpInit(void)
 {
     uint32_t volatile i = 0;
-
+    NVT_USB_Debug(("### %s[%d]\n", __FUNCTION__, __LINE__));
 #if defined (TARGET_NANO100)
     USBD->BUFSEG = 0;
 #else
@@ -437,6 +509,7 @@ void USBPhyHw::ep0_read(uint8_t *data, uint32_t size)
 */
 uint32_t USBPhyHw::ep0_read_result()
 {
+    NVT_USB_Debug(("### %s[%d]\n", __FUNCTION__, __LINE__));
     uint32_t i;
     uint8_t *buf = (uint8_t *)(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP1));
     uint8_t *buffer = read_buffers[0];
@@ -457,8 +530,10 @@ uint32_t USBPhyHw::ep0_read_result()
 /* Write a packet on endpoint 0. */
 void USBPhyHw::ep0_write(uint8_t *buffer, uint32_t size)
 {
+    NVT_USB_Debug(("### %s[%d]\n", __FUNCTION__, __LINE__));
     if (buffer && size)
     {
+        NVT_USB_Debug(("### %s[%d]\n", __FUNCTION__, __LINE__));
         if(s_ep_data_bit[0] & 1)
             USBD_SET_DATA1(EP0);
         else
@@ -471,6 +546,7 @@ void USBPhyHw::ep0_write(uint8_t *buffer, uint32_t size)
     }
     else
     {
+        NVT_USB_Debug(("### %s[%d]\n", __FUNCTION__, __LINE__));
         s_ep_data_bit[0] = 1;
         USBD_SET_DATA1(EP0);
         wait_us(500);
@@ -483,6 +559,7 @@ void USBPhyHw::ep0_write(uint8_t *buffer, uint32_t size)
 
 void stallEndpoint(uint8_t endpoint)
 {
+    NVT_USB_Debug(("### %s[%d]\n", __FUNCTION__, __LINE__));
     uint32_t ep_logic_index = DESC_TO_LOG(endpoint);
     if (ep_logic_index >= NUMBER_OF_LOGICAL_ENDPOINTS)
         return;
@@ -496,6 +573,7 @@ void stallEndpoint(uint8_t endpoint)
 */
 void USBPhyHw::ep0_stall()
 {
+    NVT_USB_Debug(("### %s[%d]\n", __FUNCTION__, __LINE__));
     stallEndpoint(0);
     stallEndpoint(1);
 }
@@ -509,6 +587,7 @@ void USBPhyHw::ep0_stall()
 */
 bool USBPhyHw::endpoint_add(usb_ep_t endpoint, uint32_t max_packet, usb_ep_type_t type)
 {
+    NVT_USB_Debug(("### %s[%d]\n", __FUNCTION__, __LINE__));
     uint32_t ep_type = 0;
     uint32_t ep_logic_index = DESC_TO_LOG(endpoint);
     uint32_t ep_hw_index = NU_EPL2EPH(ep_logic_index);
@@ -539,6 +618,7 @@ void USBPhyHw::endpoint_remove(usb_ep_t endpoint)
 */
 void USBPhyHw::endpoint_stall(usb_ep_t endpoint)
 {
+    NVT_USB_Debug(("### %s[%d]\n", __FUNCTION__, __LINE__));
     USBD_SetStall(DESC_TO_LOG(endpoint));
 }
 
@@ -548,6 +628,7 @@ void USBPhyHw::endpoint_stall(usb_ep_t endpoint)
  */
 void USBPhyHw::endpoint_unstall(usb_ep_t endpoint)
 {
+    NVT_USB_Debug(("### %s[%d]\n", __FUNCTION__, __LINE__));
     uint32_t ep_logic_index = DESC_TO_LOG(endpoint);
     uint32_t ep_hw_index = NU_EPL2EPH(ep_logic_index);
     if (ep_logic_index >= NUMBER_OF_LOGICAL_ENDPOINTS)
@@ -561,6 +642,7 @@ void USBPhyHw::endpoint_unstall(usb_ep_t endpoint)
 /* Start a read on the given endpoint. */
 bool USBPhyHw::endpoint_read(usb_ep_t endpoint, uint8_t *data, uint32_t size)
 {
+    NVT_USB_Debug(("### %s[%d]\n", __FUNCTION__, __LINE__));
     /* Store the buffer address & length */
     uint32_t ep_logic_index = DESC_TO_LOG(endpoint);
     uint32_t ep_hw_index = NU_EPL2EPH(ep_logic_index);
@@ -576,6 +658,7 @@ bool USBPhyHw::endpoint_read(usb_ep_t endpoint, uint8_t *data, uint32_t size)
 */
 uint32_t USBPhyHw::endpoint_read_result(usb_ep_t endpoint)
 {
+    NVT_USB_Debug(("### %s[%d]\n", __FUNCTION__, __LINE__));
     uint8_t ep_logic_index = DESC_TO_LOG(endpoint);
     uint32_t bytes_read = 0;
     endpoint_read_result_core(endpoint, read_buffers[ep_logic_index], read_sizes[ep_logic_index], &bytes_read);
@@ -586,6 +669,7 @@ uint32_t USBPhyHw::endpoint_read_result(usb_ep_t endpoint)
 
 bool USBPhyHw::endpoint_read_result_core(usb_ep_t endpoint, uint8_t *data, uint32_t size, uint32_t *bytes_read)
 {
+    NVT_USB_Debug(("### %s[%d]\n", __FUNCTION__, __LINE__));
     uint32_t i;
     uint8_t ep_logic_index = DESC_TO_LOG(endpoint);
     uint32_t ep_hw_index = NU_EPL2EPH(ep_logic_index);
@@ -603,6 +687,7 @@ bool USBPhyHw::endpoint_read_result_core(usb_ep_t endpoint, uint8_t *data, uint3
 */
 bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
 {
+    NVT_USB_Debug(("### %s[%d]\n", __FUNCTION__, __LINE__));
     uint32_t ep_logic_index = DESC_TO_LOG(endpoint);
     uint32_t ep_hw_index = NU_EPL2EPH(ep_logic_index);
 
@@ -631,6 +716,7 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
 /* Abort the current transfer if it has not yet been sent. */
 void USBPhyHw::endpoint_abort(usb_ep_t endpoint)
 {
+    NVT_USB_Debug(("### %s[%d]\n", __FUNCTION__, __LINE__));
     uint32_t ep_logic_index = DESC_TO_LOG(endpoint);
     uint32_t ep_hw_index = NU_EPL2EPH(ep_logic_index);
     USBD_STOP_TRANSACTION(ep_hw_index);
@@ -644,6 +730,7 @@ void USBPhyHw::endpoint_abort(usb_ep_t endpoint)
 */
 void USBPhyHw::process()
 {
+//    NVT_USB_Debug(("### %s[%d]\n", __FUNCTION__, __LINE__));
     uint32_t u32IntSts = USBD_GET_INT_FLAG();
     uint32_t u32State = USBD_GET_BUS_STATE();
 
@@ -741,7 +828,7 @@ void USBPhyHw::process()
             /* Control IN */
             events->ep0_in();
             /* In ACK for Set address */
-#if defined(TARGET_M480) || defined(TARGET_M451)
+#if defined(TARGET_M480) || defined(TARGET_M451) || defined(TARGET_M460)
             if((g_usbd_SetupPacket[0] == REQ_STANDARD) && (g_usbd_SetupPacket[1] == USBD_SET_ADDRESS))
 #else
             if((g_usbd_SetupPacket[0] == REQ_STANDARD) && (g_usbd_SetupPacket[1] == SET_ADDRESS))
@@ -776,7 +863,7 @@ void USBPhyHw::process()
                     ep_status = (USBD->EPSTS >> (ep_hw_index * 4 + 8)) & 0xF;
                 else
                     ep_status = (USBD->EPSTS2 >> ((ep_hw_index - 6) * 4)) & 0x7;
-#elif defined(TARGET_M480) || defined(TARGET_M2351) || defined(TARGET_M261)
+#elif defined(TARGET_M480) || defined(TARGET_M2351) || defined(TARGET_M261)  || defined(TARGET_M460) || defined(TARGET_M2354)
                 if(ep_hw_index < 8)
                     ep_status = (USBD->EPSTS0 >> (ep_hw_index * 4)) & 0xF;
                 else
@@ -808,6 +895,7 @@ void USBPhyHw::process()
 
 extern "C" void USBD_IRQHandler(void)
 {
+//    NVT_USB_Debug(("### %s[%d]\n", __FUNCTION__, __LINE__));
     instance->events->start_process();
 }
 #else
@@ -823,7 +911,7 @@ static volatile int epComplete = 0;
 #define EP_DIR_OUT        0x00
 #define EP_DIR_IN         0x80
 
-#if defined (TARGET_M480)
+#if defined (TARGET_M480) || defined (TARGET_M460)
 #define HSUSBD_GET_EP_MAX_PAYLOAD(ep)     HSUSBD->EP[ep].EPMPS
 #define HSUSBD_GET_EP_DATA_COUNT(ep)      (HSUSBD->EP[ep].EPDATCNT & 0xFFFFF)
 #define HSUSBD_SET_EP_SHORT_PACKET(ep)    HSUSBD->EP[ep].EPRSPCTL = ((HSUSBD->EP[ep].EPRSPCTL & 0x10) | 0x40)
@@ -843,7 +931,7 @@ static volatile uint32_t s_ep_buf_ind = 0;
 static volatile uint32_t s_ep0_max_packet_size = 64;
 static volatile uint8_t s_usb_addr = 0;
 
-#if defined (TARGET_M480)
+#if defined (TARGET_M480) || defined (TARGET_M460)
 static volatile S_HSUSBD_CMD_T s_setup;
 #elif defined (TARGET_NUC472)
 static volatile S_USBD_CMD_T s_setup;
@@ -879,7 +967,7 @@ void USBD_CtrlInput(void)
         g_usb_CtrlInSize = 0;
     }
 }
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
 void HSUSBD_CtrlInput(void)
 {
     unsigned volatile i;
@@ -954,7 +1042,7 @@ void USBPhyHw::init(USBPhyEvents *events)
     NVIC_SetVector(USBD_IRQn, (uint32_t) &USBD_IRQHandler);
     NVIC_EnableIRQ(USBD_IRQn);
     
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
     HSUSBD_ENABLE_PHY();
 
     while (1)
@@ -985,7 +1073,7 @@ void USBPhyHw::deinit()
     USBD_SET_SE0();
     USBD_DISABLE_PHY();
     
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
 
     NVIC_DisableIRQ(USBD20_IRQn);
 
@@ -1043,7 +1131,7 @@ void USBPhyHw::connect()
     /* Clear SE0 (connect) */
     USBD_CLR_SE0();
 
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
     HSUSBD_ResetDMA();
     HSUSBD_SET_ADDR(0);
 
@@ -1081,7 +1169,7 @@ void USBPhyHw::disconnect()
     /* Set SE0 (disconnect) */
 #if defined (TARGET_NUC472)
     USBD_SET_SE0();
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
     HSUSBD_SET_SE0();
 #endif
 }
@@ -1107,7 +1195,7 @@ void USBPhyHw::sof_enable()
 {
 #if defined (TARGET_NUC472)
     USBD->BUSINTEN |= USBD_BUSINTEN_SOFIEN_Msk;
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
     HSUSBD->BUSINTEN |= HSUSBD_BUSINTEN_SOFIEN_Msk;
 #endif
 }
@@ -1117,7 +1205,7 @@ void USBPhyHw::sof_disable()
 {
 #if defined (TARGET_NUC472)
     USBD->BUSINTEN &= ~USBD_BUSINTEN_SOFIEN_Msk;
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
     HSUSBD->BUSINTEN &= ~HSUSBD_BUSINTEN_SOFIEN_Msk;
 #endif
 }
@@ -1133,7 +1221,7 @@ void USBPhyHw::remote_wakeup()
 {
 #if defined (TARGET_NUC472)
     USBD->OPER |= USBD_OPER_RESUMEEN_Msk;
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
     HSUSBD->OPER |= HSUSBD_OPER_RESUMEEN_Msk;
 #endif
 }
@@ -1190,7 +1278,7 @@ void USBPhyHw::ep0_setup_read_result(uint8_t *buffer, uint32_t size)
     s_setup.wValue = (uint16_t) USBD->SETUP3_2;
     s_setup.wIndex = (uint16_t) USBD->SETUP5_4;
     s_setup.wLength = (uint16_t) USBD->SETUP7_6;
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
     *((uint16_t *) (buffer + 0)) = (uint16_t) HSUSBD->SETUP1_0;
     *((uint16_t *) (buffer + 2)) = (uint16_t) HSUSBD->SETUP3_2;
     *((uint16_t *) (buffer + 4)) = (uint16_t) HSUSBD->SETUP5_4;
@@ -1224,7 +1312,7 @@ void USBPhyHw::ep0_read(uint8_t *data, uint32_t size)
         USBD_SET_CEP_STATE(USB_CEPCTL_NAKCLR);
         USBD_ENABLE_CEP_INT(USBD_CEPINTEN_STSDONEIEN_Msk|USBD_CEPINTEN_INTKIEN_Msk);
     }
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
     if (s_setup.wLength && ! (s_setup.bmRequestType & 0x80))
     {
         /* Control OUT */
@@ -1256,7 +1344,7 @@ uint32_t USBPhyHw::ep0_read_result()
     
     for (i = 0; i < ceprxcnt; i ++)
         ep0_data[i] = USBD->CEPDAT_BYTE;
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
     uint32_t ceprxcnt = HSUSBD->CEPRXCNT;
     
     for (i = 0; i < ceprxcnt; i ++)
@@ -1283,7 +1371,7 @@ void USBPhyHw::ep0_write(uint8_t *buffer, uint32_t size)
         USBD_SET_CEP_STATE(USB_CEPCTL_NAKCLR);
         USBD_ENABLE_CEP_INT(USBD_CEPINTEN_STSDONEIEN_Msk);
     }
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
     if (buffer && size)
     {
         g_usbd_CtrlInPointer = buffer;
@@ -1308,7 +1396,7 @@ void stallEndpoint(uint8_t endpoint)
         return;
 #if defined (TARGET_NUC472)
     USBD_SetStall(ep_hw_index);
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
     HSUSBD_SetStall(ep_hw_index);
 #endif
 }
@@ -1321,7 +1409,7 @@ void USBPhyHw::ep0_stall()
 {
 #if defined (TARGET_NUC472)
     USBD_SetStall(0);
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
     HSUSBD_SetStall(0);
 #endif
 }
@@ -1367,7 +1455,7 @@ bool USBPhyHw::endpoint_add(usb_ep_t endpoint, uint32_t max_packet, usb_ep_type_
 
     if (ep_dir != 0)
         USBD_ENABLE_EP_INT(ep_hw_index, USBD_EPINTEN_TXPKIEN_Msk);
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
     HSUSBD_SetEpBufAddr(ep_hw_index, s_ep_buf_ind, max_packet);
     s_ep_buf_ind += max_packet;
     HSUSBD_SET_MAX_PAYLOAD(ep_hw_index, max_packet);
@@ -1402,7 +1490,7 @@ void USBPhyHw::endpoint_remove(usb_ep_t endpoint)
     uint32_t ep_hw_index = NU_EPL2EPH(DESC_TO_LOG(endpoint));
 #if defined (TARGET_NUC472)
     *((__IO uint32_t *) ((uint32_t)&USBD->EPACFG + (uint32_t)(ep_hw_index*0x28))) = (*((__IO uint32_t *)((uint32_t)&USBD->EPACFG+(uint32_t)(ep_hw_index*0x28))) & ~USB_EP_CFG_VALID);
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
     HSUSBD->EP[ep_hw_index].EPCFG = HSUSBD->EP[ep_hw_index].EPCFG  & ~HSUSBD_EP_CFG_VALID;
 #endif
 }
@@ -1420,7 +1508,7 @@ void USBPhyHw::endpoint_stall(usb_ep_t endpoint)
         USBD_SetStall(0);
     else
         USBD_SetStall(ep_logic_index);
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
     if(ep_logic_index == 0)
         HSUSBD_SetEpStall(CEP);
     else
@@ -1439,7 +1527,7 @@ void USBPhyHw::endpoint_unstall(usb_ep_t endpoint)
 #if defined (TARGET_NUC472)
     if(ep_logic_index != 0)
         USBD_ClearStall(ep_logic_index);
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
     if(ep_logic_index != 0)
         HSUSBD_ClearEpStall(ep_hw_index);
 #endif
@@ -1455,7 +1543,7 @@ bool USBPhyHw::endpoint_read(usb_ep_t endpoint, uint8_t *data, uint32_t size)
     read_sizes[ep_logic_index] = size;
 #if defined (TARGET_NUC472)    
     USBD_ENABLE_EP_INT(ep_hw_index, USBD_GET_EP_INT_EN(ep_hw_index) | USBD_EPINTEN_RXPKIEN_Msk);
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
     HSUSBD->EP[ep_hw_index].EPINTEN |= HSUSBD_EPINTEN_RXPKIEN_Msk;
 #endif
     return true;
@@ -1485,7 +1573,7 @@ bool USBPhyHw::endpoint_read_result_core(usb_ep_t endpoint, uint8_t *data, uint3
     uint32_t mps = USBD_GET_EP_MAX_PAYLOAD(ep_hw_index);
 
     gEpReadCnt = USBD_GET_EP_DATA_COUNT(ep_hw_index);
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
     uint32_t mps = HSUSBD_GET_EP_MAX_PAYLOAD(ep_hw_index);
     
     gEpReadCnt = HSUSBD_GET_EP_DATA_COUNT(ep_hw_index);
@@ -1512,7 +1600,7 @@ bool USBPhyHw::endpoint_read_result_core(usb_ep_t endpoint, uint8_t *data, uint3
                 break;
             else if (!USBD_IS_ATTACHED())
                 break;
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
             if (!(HSUSBD->DMACTL & HSUSBD_DMACTL_DMAEN_Msk))
                 break;
             else if (!HSUSBD_IS_ATTACHED())
@@ -1524,7 +1612,7 @@ bool USBPhyHw::endpoint_read_result_core(usb_ep_t endpoint, uint8_t *data, uint3
         USBD_SET_DMA_ADDR((uint32_t)tmp_buffer);
         USBD_SET_DMA_WRITE(ep_logic_index);
         USBD_ENABLE_DMA();
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
         HSUSBD_SET_DMA_LEN(len);
         HSUSBD_SET_DMA_ADDR((uint32_t)tmp_buffer);
         HSUSBD_SET_DMA_WRITE(ep_logic_index);
@@ -1538,7 +1626,7 @@ bool USBPhyHw::endpoint_read_result_core(usb_ep_t endpoint, uint8_t *data, uint3
                 break;
             else if (!USBD_IS_ATTACHED())
                 break;
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
             if (!(HSUSBD->DMACTL & HSUSBD_DMACTL_DMAEN_Msk))
                 break;
             else if (!HSUSBD_IS_ATTACHED())
@@ -1568,7 +1656,7 @@ bool USBPhyHw::endpoint_read_result_core(usb_ep_t endpoint, uint8_t *data, uint3
             else if (!USBD_IS_ATTACHED())
                 break;
         }
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
         HSUSBD_SET_DMA_LEN(len);
         HSUSBD_SET_DMA_ADDR(buffer);
         HSUSBD_SET_DMA_WRITE(ep_logic_index);
@@ -1603,7 +1691,7 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
     {
 #if defined (TARGET_NUC472)
         uint32_t mps = USBD_GET_EP_MAX_PAYLOAD(ep_hw_index);
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
         uint32_t mps = HSUSBD_GET_EP_MAX_PAYLOAD(ep_hw_index);
 #endif
 
@@ -1617,7 +1705,7 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
             USBD_SET_EP_SHORT_PACKET(ep_hw_index);
             return false;
         }
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
         if(HSUSBD->EP[ep_hw_index].EPDATCNT & 0xFFFF)
         {
             HSUSBD_SET_EP_SHORT_PACKET(ep_hw_index);
@@ -1635,7 +1723,7 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
                 break;
             else if (!USBD_IS_ATTACHED())
                 break;
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
             if (!(HSUSBD->DMACTL & HSUSBD_DMACTL_DMAEN_Msk))
                 break;
             else if (!HSUSBD_IS_ATTACHED())
@@ -1664,7 +1752,7 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
                 else if (!USBD_IS_ATTACHED())
                     break;
             }
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
             HSUSBD_SET_DMA_LEN(len);
             HSUSBD_SET_DMA_ADDR((uint32_t)tmp_buffer);
             HSUSBD_SET_DMA_READ(ep_logic_index);
@@ -1697,7 +1785,7 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
                 else if (!USBD_IS_ATTACHED())
                     break;
             }
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
             HSUSBD_SET_DMA_LEN(len);
             HSUSBD_SET_DMA_ADDR((uint32_t)buffer);
             HSUSBD_SET_DMA_READ(ep_logic_index);
@@ -1716,7 +1804,7 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
         if(g_usb_ShortPacket)
             USBD_SET_EP_SHORT_PACKET(ep_hw_index);
     USBD_ENABLE_EP_INT(ep_hw_index, USBD_GET_EP_INT_EN(ep_hw_index) | USBD_EPINTEN_TXPKIEN_Msk);
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
         if(g_usb_ShortPacket)
             HSUSBD_SET_EP_SHORT_PACKET(ep_hw_index);
     HSUSBD->EP[ep_hw_index].EPINTEN |= HSUSBD_EPINTEN_TXPKIEN_Msk;
@@ -1734,7 +1822,7 @@ void USBPhyHw::endpoint_abort(usb_ep_t endpoint)
    USBD_CLR_EP_INT(ep_hw_index, USBD_GET_EP_INT(ep_hw_index));
    USBD_ENABLE_EP_INT(ep_hw_index, 0);
    USBD_SET_EP_BUF_FLUSH(ep_hw_index);
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
    HSUSBD->EP[ep_hw_index].EPINTEN = 0;
    HSUSBD->EP[ep_hw_index].EPINTSTS = HSUSBD->EP[ep_hw_index].EPINTSTS;
    HSUSBD->EP[ep_hw_index].EPRSPCTL = HSUSBD_EPRSPCTL_FLUSH_Msk;
@@ -2045,7 +2133,7 @@ void USBPhyHw::process()
         gintsts_epx = gintsts_epx >> 1;
         ep_hw_index++;
     }
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
     uint32_t gintsts = HSUSBD->GINTSTS & HSUSBD->GINTEN;
     uint32_t gintsts_epx = gintsts >> 2;     /* EPA, EPB, EPC, ... EPL interrupts */
     uint32_t ep_hw_index = 0;
@@ -2366,7 +2454,7 @@ extern "C" void USBD_IRQHandler(void)
 
     NVIC_ClearPendingIRQ(USBD_IRQn);
     NVIC_EnableIRQ(USBD_IRQn);
-#elif defined (TARGET_M480)
+#elif defined (TARGET_M480) || defined (TARGET_M460)
      NVIC_DisableIRQ(USBD20_IRQn);
 
     instance->events->start_process();

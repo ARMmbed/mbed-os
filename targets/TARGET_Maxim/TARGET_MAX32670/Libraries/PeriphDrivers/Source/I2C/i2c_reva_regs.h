@@ -37,8 +37,8 @@
  *
  *************************************************************************** */
 
-#ifndef _I2C_REVA_REGS_H_
-#define _I2C_REVA_REGS_H_
+#ifndef LIBRARIES_PERIPHDRIVERS_SOURCE_I2C_I2C_REVA_REGS_H_
+#define LIBRARIES_PERIPHDRIVERS_SOURCE_I2C_I2C_REVA_REGS_H_
 
 /* **** Includes **** */
 #include <stdint.h>
@@ -46,11 +46,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
- 
+
 #if defined (__ICCARM__)
   #pragma system_include
 #endif
- 
+
 #if defined (__CC_ARM)
   #pragma anon_unions
 #endif
@@ -115,25 +115,25 @@ typedef struct {
  * @brief      I2C Peripheral Register Offsets from the I2C Base Peripheral Address. 
  * @{
  */
- #define MXC_R_I2C_REVA_CTRL                     ((uint32_t)0x00000000UL) /**< Offset from I2C Base Address: <tt> 0x0000</tt> */ 
- #define MXC_R_I2C_REVA_STATUS                   ((uint32_t)0x00000004UL) /**< Offset from I2C Base Address: <tt> 0x0004</tt> */ 
- #define MXC_R_I2C_REVA_INTFL0                   ((uint32_t)0x00000008UL) /**< Offset from I2C Base Address: <tt> 0x0008</tt> */ 
- #define MXC_R_I2C_REVA_INTEN0                   ((uint32_t)0x0000000CUL) /**< Offset from I2C Base Address: <tt> 0x000C</tt> */ 
- #define MXC_R_I2C_REVA_INTFL1                   ((uint32_t)0x00000010UL) /**< Offset from I2C Base Address: <tt> 0x0010</tt> */ 
- #define MXC_R_I2C_REVA_INTEN1                   ((uint32_t)0x00000014UL) /**< Offset from I2C Base Address: <tt> 0x0014</tt> */ 
- #define MXC_R_I2C_REVA_FIFOLEN                  ((uint32_t)0x00000018UL) /**< Offset from I2C Base Address: <tt> 0x0018</tt> */ 
- #define MXC_R_I2C_REVA_RXCTRL0                  ((uint32_t)0x0000001CUL) /**< Offset from I2C Base Address: <tt> 0x001C</tt> */ 
- #define MXC_R_I2C_REVA_RXCTRL1                  ((uint32_t)0x00000020UL) /**< Offset from I2C Base Address: <tt> 0x0020</tt> */ 
- #define MXC_R_I2C_REVA_TXCTRL0                  ((uint32_t)0x00000024UL) /**< Offset from I2C Base Address: <tt> 0x0024</tt> */ 
- #define MXC_R_I2C_REVA_TXCTRL1                  ((uint32_t)0x00000028UL) /**< Offset from I2C Base Address: <tt> 0x0028</tt> */ 
- #define MXC_R_I2C_REVA_FIFO                     ((uint32_t)0x0000002CUL) /**< Offset from I2C Base Address: <tt> 0x002C</tt> */ 
- #define MXC_R_I2C_REVA_MSTCTRL                  ((uint32_t)0x00000030UL) /**< Offset from I2C Base Address: <tt> 0x0030</tt> */ 
- #define MXC_R_I2C_REVA_CLKLO                    ((uint32_t)0x00000034UL) /**< Offset from I2C Base Address: <tt> 0x0034</tt> */ 
- #define MXC_R_I2C_REVA_CLKHI                    ((uint32_t)0x00000038UL) /**< Offset from I2C Base Address: <tt> 0x0038</tt> */ 
- #define MXC_R_I2C_REVA_HSCLK                    ((uint32_t)0x0000003CUL) /**< Offset from I2C Base Address: <tt> 0x003C</tt> */ 
- #define MXC_R_I2C_REVA_TIMEOUT                  ((uint32_t)0x00000040UL) /**< Offset from I2C Base Address: <tt> 0x0040</tt> */ 
- #define MXC_R_I2C_REVA_DMA                      ((uint32_t)0x00000048UL) /**< Offset from I2C Base Address: <tt> 0x0048</tt> */ 
- #define MXC_R_I2C_REVA_SLAVE                    ((uint32_t)0x0000004CUL) /**< Offset from I2C Base Address: <tt> 0x004C</tt> */ 
+#define MXC_R_I2C_REVA_CTRL                     ((uint32_t)0x00000000UL) /**< Offset from I2C Base Address: <tt> 0x0000</tt> */
+#define MXC_R_I2C_REVA_STATUS                   ((uint32_t)0x00000004UL) /**< Offset from I2C Base Address: <tt> 0x0004</tt> */
+#define MXC_R_I2C_REVA_INTFL0                   ((uint32_t)0x00000008UL) /**< Offset from I2C Base Address: <tt> 0x0008</tt> */
+#define MXC_R_I2C_REVA_INTEN0                   ((uint32_t)0x0000000CUL) /**< Offset from I2C Base Address: <tt> 0x000C</tt> */
+#define MXC_R_I2C_REVA_INTFL1                   ((uint32_t)0x00000010UL) /**< Offset from I2C Base Address: <tt> 0x0010</tt> */
+#define MXC_R_I2C_REVA_INTEN1                   ((uint32_t)0x00000014UL) /**< Offset from I2C Base Address: <tt> 0x0014</tt> */
+#define MXC_R_I2C_REVA_FIFOLEN                  ((uint32_t)0x00000018UL) /**< Offset from I2C Base Address: <tt> 0x0018</tt> */
+#define MXC_R_I2C_REVA_RXCTRL0                  ((uint32_t)0x0000001CUL) /**< Offset from I2C Base Address: <tt> 0x001C</tt> */
+#define MXC_R_I2C_REVA_RXCTRL1                  ((uint32_t)0x00000020UL) /**< Offset from I2C Base Address: <tt> 0x0020</tt> */
+#define MXC_R_I2C_REVA_TXCTRL0                  ((uint32_t)0x00000024UL) /**< Offset from I2C Base Address: <tt> 0x0024</tt> */
+#define MXC_R_I2C_REVA_TXCTRL1                  ((uint32_t)0x00000028UL) /**< Offset from I2C Base Address: <tt> 0x0028</tt> */
+#define MXC_R_I2C_REVA_FIFO                     ((uint32_t)0x0000002CUL) /**< Offset from I2C Base Address: <tt> 0x002C</tt> */
+#define MXC_R_I2C_REVA_MSTCTRL                  ((uint32_t)0x00000030UL) /**< Offset from I2C Base Address: <tt> 0x0030</tt> */
+#define MXC_R_I2C_REVA_CLKLO                    ((uint32_t)0x00000034UL) /**< Offset from I2C Base Address: <tt> 0x0034</tt> */
+#define MXC_R_I2C_REVA_CLKHI                    ((uint32_t)0x00000038UL) /**< Offset from I2C Base Address: <tt> 0x0038</tt> */
+#define MXC_R_I2C_REVA_HSCLK                    ((uint32_t)0x0000003CUL) /**< Offset from I2C Base Address: <tt> 0x003C</tt> */
+#define MXC_R_I2C_REVA_TIMEOUT                  ((uint32_t)0x00000040UL) /**< Offset from I2C Base Address: <tt> 0x0040</tt> */
+#define MXC_R_I2C_REVA_DMA                      ((uint32_t)0x00000048UL) /**< Offset from I2C Base Address: <tt> 0x0048</tt> */
+#define MXC_R_I2C_REVA_SLAVE                    ((uint32_t)0x0000004CUL) /**< Offset from I2C Base Address: <tt> 0x004C</tt> */
 /**@} end of group i2c_registers */
 
 /**
@@ -142,47 +142,47 @@ typedef struct {
  * @brief    Control Register0.
  * @{
  */
- #define MXC_F_I2C_REVA_CTRL_EN_POS                          0 /**< CTRL_EN Position */
- #define MXC_F_I2C_REVA_CTRL_EN                              ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_EN_POS)) /**< CTRL_EN Mask */
+#define MXC_F_I2C_REVA_CTRL_EN_POS                          0 /**< CTRL_EN Position */
+#define MXC_F_I2C_REVA_CTRL_EN                              ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_EN_POS)) /**< CTRL_EN Mask */
 
- #define MXC_F_I2C_REVA_CTRL_MST_MODE_POS                    1 /**< CTRL_MST_MODE Position */
- #define MXC_F_I2C_REVA_CTRL_MST_MODE                        ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_MST_MODE_POS)) /**< CTRL_MST_MODE Mask */
+#define MXC_F_I2C_REVA_CTRL_MST_MODE_POS                    1 /**< CTRL_MST_MODE Position */
+#define MXC_F_I2C_REVA_CTRL_MST_MODE                        ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_MST_MODE_POS)) /**< CTRL_MST_MODE Mask */
 
- #define MXC_F_I2C_REVA_CTRL_GC_ADDR_EN_POS                  2 /**< CTRL_GC_ADDR_EN Position */
- #define MXC_F_I2C_REVA_CTRL_GC_ADDR_EN                      ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_GC_ADDR_EN_POS)) /**< CTRL_GC_ADDR_EN Mask */
+#define MXC_F_I2C_REVA_CTRL_GC_ADDR_EN_POS                  2 /**< CTRL_GC_ADDR_EN Position */
+#define MXC_F_I2C_REVA_CTRL_GC_ADDR_EN                      ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_GC_ADDR_EN_POS)) /**< CTRL_GC_ADDR_EN Mask */
 
- #define MXC_F_I2C_REVA_CTRL_IRXM_EN_POS                     3 /**< CTRL_IRXM_EN Position */
- #define MXC_F_I2C_REVA_CTRL_IRXM_EN                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_IRXM_EN_POS)) /**< CTRL_IRXM_EN Mask */
+#define MXC_F_I2C_REVA_CTRL_IRXM_EN_POS                     3 /**< CTRL_IRXM_EN Position */
+#define MXC_F_I2C_REVA_CTRL_IRXM_EN                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_IRXM_EN_POS)) /**< CTRL_IRXM_EN Mask */
 
- #define MXC_F_I2C_REVA_CTRL_IRXM_ACK_POS                    4 /**< CTRL_IRXM_ACK Position */
- #define MXC_F_I2C_REVA_CTRL_IRXM_ACK                        ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_IRXM_ACK_POS)) /**< CTRL_IRXM_ACK Mask */
+#define MXC_F_I2C_REVA_CTRL_IRXM_ACK_POS                    4 /**< CTRL_IRXM_ACK Position */
+#define MXC_F_I2C_REVA_CTRL_IRXM_ACK                        ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_IRXM_ACK_POS)) /**< CTRL_IRXM_ACK Mask */
 
- #define MXC_F_I2C_REVA_CTRL_SCL_OUT_POS                     6 /**< CTRL_SCL_OUT Position */
- #define MXC_F_I2C_REVA_CTRL_SCL_OUT                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_SCL_OUT_POS)) /**< CTRL_SCL_OUT Mask */
+#define MXC_F_I2C_REVA_CTRL_SCL_OUT_POS                     6 /**< CTRL_SCL_OUT Position */
+#define MXC_F_I2C_REVA_CTRL_SCL_OUT                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_SCL_OUT_POS)) /**< CTRL_SCL_OUT Mask */
 
- #define MXC_F_I2C_REVA_CTRL_SDA_OUT_POS                     7 /**< CTRL_SDA_OUT Position */
- #define MXC_F_I2C_REVA_CTRL_SDA_OUT                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_SDA_OUT_POS)) /**< CTRL_SDA_OUT Mask */
+#define MXC_F_I2C_REVA_CTRL_SDA_OUT_POS                     7 /**< CTRL_SDA_OUT Position */
+#define MXC_F_I2C_REVA_CTRL_SDA_OUT                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_SDA_OUT_POS)) /**< CTRL_SDA_OUT Mask */
 
- #define MXC_F_I2C_REVA_CTRL_SCL_POS                         8 /**< CTRL_SCL Position */
- #define MXC_F_I2C_REVA_CTRL_SCL                             ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_SCL_POS)) /**< CTRL_SCL Mask */
+#define MXC_F_I2C_REVA_CTRL_SCL_POS                         8 /**< CTRL_SCL Position */
+#define MXC_F_I2C_REVA_CTRL_SCL                             ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_SCL_POS)) /**< CTRL_SCL Mask */
 
- #define MXC_F_I2C_REVA_CTRL_SDA_POS                         9 /**< CTRL_SDA Position */
- #define MXC_F_I2C_REVA_CTRL_SDA                             ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_SDA_POS)) /**< CTRL_SDA Mask */
+#define MXC_F_I2C_REVA_CTRL_SDA_POS                         9 /**< CTRL_SDA Position */
+#define MXC_F_I2C_REVA_CTRL_SDA                             ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_SDA_POS)) /**< CTRL_SDA Mask */
 
- #define MXC_F_I2C_REVA_CTRL_BB_MODE_POS                     10 /**< CTRL_BB_MODE Position */
- #define MXC_F_I2C_REVA_CTRL_BB_MODE                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_BB_MODE_POS)) /**< CTRL_BB_MODE Mask */
+#define MXC_F_I2C_REVA_CTRL_BB_MODE_POS                     10 /**< CTRL_BB_MODE Position */
+#define MXC_F_I2C_REVA_CTRL_BB_MODE                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_BB_MODE_POS)) /**< CTRL_BB_MODE Mask */
 
- #define MXC_F_I2C_REVA_CTRL_READ_POS                        11 /**< CTRL_READ Position */
- #define MXC_F_I2C_REVA_CTRL_READ                            ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_READ_POS)) /**< CTRL_READ Mask */
+#define MXC_F_I2C_REVA_CTRL_READ_POS                        11 /**< CTRL_READ Position */
+#define MXC_F_I2C_REVA_CTRL_READ                            ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_READ_POS)) /**< CTRL_READ Mask */
 
- #define MXC_F_I2C_REVA_CTRL_CLKSTR_DIS_POS                  12 /**< CTRL_CLKSTR_DIS Position */
- #define MXC_F_I2C_REVA_CTRL_CLKSTR_DIS                      ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_CLKSTR_DIS_POS)) /**< CTRL_CLKSTR_DIS Mask */
+#define MXC_F_I2C_REVA_CTRL_CLKSTR_DIS_POS                  12 /**< CTRL_CLKSTR_DIS Position */
+#define MXC_F_I2C_REVA_CTRL_CLKSTR_DIS                      ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_CLKSTR_DIS_POS)) /**< CTRL_CLKSTR_DIS Mask */
 
- #define MXC_F_I2C_REVA_CTRL_ONE_MST_MODE_POS                13 /**< CTRL_ONE_MST_MODE Position */
- #define MXC_F_I2C_REVA_CTRL_ONE_MST_MODE                    ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_ONE_MST_MODE_POS)) /**< CTRL_ONE_MST_MODE Mask */
+#define MXC_F_I2C_REVA_CTRL_ONE_MST_MODE_POS                13 /**< CTRL_ONE_MST_MODE Position */
+#define MXC_F_I2C_REVA_CTRL_ONE_MST_MODE                    ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_ONE_MST_MODE_POS)) /**< CTRL_ONE_MST_MODE Mask */
 
- #define MXC_F_I2C_REVA_CTRL_HS_EN_POS                       15 /**< CTRL_HS_EN Position */
- #define MXC_F_I2C_REVA_CTRL_HS_EN                           ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_HS_EN_POS)) /**< CTRL_HS_EN Mask */
+#define MXC_F_I2C_REVA_CTRL_HS_EN_POS                       15 /**< CTRL_HS_EN Position */
+#define MXC_F_I2C_REVA_CTRL_HS_EN                           ((uint32_t)(0x1UL << MXC_F_I2C_REVA_CTRL_HS_EN_POS)) /**< CTRL_HS_EN Mask */
 
 /**@} end of group I2C_CTRL_Register */
 
@@ -192,23 +192,23 @@ typedef struct {
  * @brief    Status Register.
  * @{
  */
- #define MXC_F_I2C_REVA_STATUS_BUSY_POS                      0 /**< STATUS_BUSY Position */
- #define MXC_F_I2C_REVA_STATUS_BUSY                          ((uint32_t)(0x1UL << MXC_F_I2C_REVA_STATUS_BUSY_POS)) /**< STATUS_BUSY Mask */
+#define MXC_F_I2C_REVA_STATUS_BUSY_POS                      0 /**< STATUS_BUSY Position */
+#define MXC_F_I2C_REVA_STATUS_BUSY                          ((uint32_t)(0x1UL << MXC_F_I2C_REVA_STATUS_BUSY_POS)) /**< STATUS_BUSY Mask */
 
- #define MXC_F_I2C_REVA_STATUS_RX_EM_POS                     1 /**< STATUS_RX_EM Position */
- #define MXC_F_I2C_REVA_STATUS_RX_EM                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_STATUS_RX_EM_POS)) /**< STATUS_RX_EM Mask */
+#define MXC_F_I2C_REVA_STATUS_RX_EM_POS                     1 /**< STATUS_RX_EM Position */
+#define MXC_F_I2C_REVA_STATUS_RX_EM                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_STATUS_RX_EM_POS)) /**< STATUS_RX_EM Mask */
 
- #define MXC_F_I2C_REVA_STATUS_RX_FULL_POS                   2 /**< STATUS_RX_FULL Position */
- #define MXC_F_I2C_REVA_STATUS_RX_FULL                       ((uint32_t)(0x1UL << MXC_F_I2C_REVA_STATUS_RX_FULL_POS)) /**< STATUS_RX_FULL Mask */
+#define MXC_F_I2C_REVA_STATUS_RX_FULL_POS                   2 /**< STATUS_RX_FULL Position */
+#define MXC_F_I2C_REVA_STATUS_RX_FULL                       ((uint32_t)(0x1UL << MXC_F_I2C_REVA_STATUS_RX_FULL_POS)) /**< STATUS_RX_FULL Mask */
 
- #define MXC_F_I2C_REVA_STATUS_TX_EM_POS                     3 /**< STATUS_TX_EM Position */
- #define MXC_F_I2C_REVA_STATUS_TX_EM                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_STATUS_TX_EM_POS)) /**< STATUS_TX_EM Mask */
+#define MXC_F_I2C_REVA_STATUS_TX_EM_POS                     3 /**< STATUS_TX_EM Position */
+#define MXC_F_I2C_REVA_STATUS_TX_EM                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_STATUS_TX_EM_POS)) /**< STATUS_TX_EM Mask */
 
- #define MXC_F_I2C_REVA_STATUS_TX_FULL_POS                   4 /**< STATUS_TX_FULL Position */
- #define MXC_F_I2C_REVA_STATUS_TX_FULL                       ((uint32_t)(0x1UL << MXC_F_I2C_REVA_STATUS_TX_FULL_POS)) /**< STATUS_TX_FULL Mask */
+#define MXC_F_I2C_REVA_STATUS_TX_FULL_POS                   4 /**< STATUS_TX_FULL Position */
+#define MXC_F_I2C_REVA_STATUS_TX_FULL                       ((uint32_t)(0x1UL << MXC_F_I2C_REVA_STATUS_TX_FULL_POS)) /**< STATUS_TX_FULL Mask */
 
- #define MXC_F_I2C_REVA_STATUS_MST_BUSY_POS                  5 /**< STATUS_MST_BUSY Position */
- #define MXC_F_I2C_REVA_STATUS_MST_BUSY                      ((uint32_t)(0x1UL << MXC_F_I2C_REVA_STATUS_MST_BUSY_POS)) /**< STATUS_MST_BUSY Mask */
+#define MXC_F_I2C_REVA_STATUS_MST_BUSY_POS                  5 /**< STATUS_MST_BUSY Position */
+#define MXC_F_I2C_REVA_STATUS_MST_BUSY                      ((uint32_t)(0x1UL << MXC_F_I2C_REVA_STATUS_MST_BUSY_POS)) /**< STATUS_MST_BUSY Mask */
 
 /**@} end of group I2C_STATUS_Register */
 
@@ -218,62 +218,62 @@ typedef struct {
  * @brief    Interrupt Status Register.
  * @{
  */
- #define MXC_F_I2C_REVA_INTFL0_DONE_POS                      0 /**< INTFL0_DONE Position */
- #define MXC_F_I2C_REVA_INTFL0_DONE                          ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_DONE_POS)) /**< INTFL0_DONE Mask */
+#define MXC_F_I2C_REVA_INTFL0_DONE_POS                      0 /**< INTFL0_DONE Position */
+#define MXC_F_I2C_REVA_INTFL0_DONE                          ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_DONE_POS)) /**< INTFL0_DONE Mask */
 
- #define MXC_F_I2C_REVA_INTFL0_IRXM_POS                      1 /**< INTFL0_IRXM Position */
- #define MXC_F_I2C_REVA_INTFL0_IRXM                          ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_IRXM_POS)) /**< INTFL0_IRXM Mask */
+#define MXC_F_I2C_REVA_INTFL0_IRXM_POS                      1 /**< INTFL0_IRXM Position */
+#define MXC_F_I2C_REVA_INTFL0_IRXM                          ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_IRXM_POS)) /**< INTFL0_IRXM Mask */
 
- #define MXC_F_I2C_REVA_INTFL0_GC_ADDR_MATCH_POS             2 /**< INTFL0_GC_ADDR_MATCH Position */
- #define MXC_F_I2C_REVA_INTFL0_GC_ADDR_MATCH                 ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_GC_ADDR_MATCH_POS)) /**< INTFL0_GC_ADDR_MATCH Mask */
+#define MXC_F_I2C_REVA_INTFL0_GC_ADDR_MATCH_POS             2 /**< INTFL0_GC_ADDR_MATCH Position */
+#define MXC_F_I2C_REVA_INTFL0_GC_ADDR_MATCH                 ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_GC_ADDR_MATCH_POS)) /**< INTFL0_GC_ADDR_MATCH Mask */
 
- #define MXC_F_I2C_REVA_INTFL0_ADDR_MATCH_POS                3 /**< INTFL0_ADDR_MATCH Position */
- #define MXC_F_I2C_REVA_INTFL0_ADDR_MATCH                    ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_ADDR_MATCH_POS)) /**< INTFL0_ADDR_MATCH Mask */
+#define MXC_F_I2C_REVA_INTFL0_ADDR_MATCH_POS                3 /**< INTFL0_ADDR_MATCH Position */
+#define MXC_F_I2C_REVA_INTFL0_ADDR_MATCH                    ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_ADDR_MATCH_POS)) /**< INTFL0_ADDR_MATCH Mask */
 
- #define MXC_F_I2C_REVA_INTFL0_RX_THD_POS                    4 /**< INTFL0_RX_THD Position */
- #define MXC_F_I2C_REVA_INTFL0_RX_THD                        ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_RX_THD_POS)) /**< INTFL0_RX_THD Mask */
+#define MXC_F_I2C_REVA_INTFL0_RX_THD_POS                    4 /**< INTFL0_RX_THD Position */
+#define MXC_F_I2C_REVA_INTFL0_RX_THD                        ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_RX_THD_POS)) /**< INTFL0_RX_THD Mask */
 
- #define MXC_F_I2C_REVA_INTFL0_TX_THD_POS                    5 /**< INTFL0_TX_THD Position */
- #define MXC_F_I2C_REVA_INTFL0_TX_THD                        ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_TX_THD_POS)) /**< INTFL0_TX_THD Mask */
+#define MXC_F_I2C_REVA_INTFL0_TX_THD_POS                    5 /**< INTFL0_TX_THD Position */
+#define MXC_F_I2C_REVA_INTFL0_TX_THD                        ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_TX_THD_POS)) /**< INTFL0_TX_THD Mask */
 
- #define MXC_F_I2C_REVA_INTFL0_STOP_POS                      6 /**< INTFL0_STOP Position */
- #define MXC_F_I2C_REVA_INTFL0_STOP                          ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_STOP_POS)) /**< INTFL0_STOP Mask */
+#define MXC_F_I2C_REVA_INTFL0_STOP_POS                      6 /**< INTFL0_STOP Position */
+#define MXC_F_I2C_REVA_INTFL0_STOP                          ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_STOP_POS)) /**< INTFL0_STOP Mask */
 
- #define MXC_F_I2C_REVA_INTFL0_ADDR_ACK_POS                  7 /**< INTFL0_ADDR_ACK Position */
- #define MXC_F_I2C_REVA_INTFL0_ADDR_ACK                      ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_ADDR_ACK_POS)) /**< INTFL0_ADDR_ACK Mask */
+#define MXC_F_I2C_REVA_INTFL0_ADDR_ACK_POS                  7 /**< INTFL0_ADDR_ACK Position */
+#define MXC_F_I2C_REVA_INTFL0_ADDR_ACK                      ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_ADDR_ACK_POS)) /**< INTFL0_ADDR_ACK Mask */
 
- #define MXC_F_I2C_REVA_INTFL0_ARB_ERR_POS                   8 /**< INTFL0_ARB_ERR Position */
- #define MXC_F_I2C_REVA_INTFL0_ARB_ERR                       ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_ARB_ERR_POS)) /**< INTFL0_ARB_ERR Mask */
+#define MXC_F_I2C_REVA_INTFL0_ARB_ERR_POS                   8 /**< INTFL0_ARB_ERR Position */
+#define MXC_F_I2C_REVA_INTFL0_ARB_ERR                       ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_ARB_ERR_POS)) /**< INTFL0_ARB_ERR Mask */
 
- #define MXC_F_I2C_REVA_INTFL0_TO_ERR_POS                    9 /**< INTFL0_TO_ERR Position */
- #define MXC_F_I2C_REVA_INTFL0_TO_ERR                        ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_TO_ERR_POS)) /**< INTFL0_TO_ERR Mask */
+#define MXC_F_I2C_REVA_INTFL0_TO_ERR_POS                    9 /**< INTFL0_TO_ERR Position */
+#define MXC_F_I2C_REVA_INTFL0_TO_ERR                        ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_TO_ERR_POS)) /**< INTFL0_TO_ERR Mask */
 
- #define MXC_F_I2C_REVA_INTFL0_ADDR_NACK_ERR_POS             10 /**< INTFL0_ADDR_NACK_ERR Position */
- #define MXC_F_I2C_REVA_INTFL0_ADDR_NACK_ERR                 ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_ADDR_NACK_ERR_POS)) /**< INTFL0_ADDR_NACK_ERR Mask */
+#define MXC_F_I2C_REVA_INTFL0_ADDR_NACK_ERR_POS             10 /**< INTFL0_ADDR_NACK_ERR Position */
+#define MXC_F_I2C_REVA_INTFL0_ADDR_NACK_ERR                 ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_ADDR_NACK_ERR_POS)) /**< INTFL0_ADDR_NACK_ERR Mask */
 
- #define MXC_F_I2C_REVA_INTFL0_DATA_ERR_POS                  11 /**< INTFL0_DATA_ERR Position */
- #define MXC_F_I2C_REVA_INTFL0_DATA_ERR                      ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_DATA_ERR_POS)) /**< INTFL0_DATA_ERR Mask */
+#define MXC_F_I2C_REVA_INTFL0_DATA_ERR_POS                  11 /**< INTFL0_DATA_ERR Position */
+#define MXC_F_I2C_REVA_INTFL0_DATA_ERR                      ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_DATA_ERR_POS)) /**< INTFL0_DATA_ERR Mask */
 
- #define MXC_F_I2C_REVA_INTFL0_DNR_ERR_POS                   12 /**< INTFL0_DNR_ERR Position */
- #define MXC_F_I2C_REVA_INTFL0_DNR_ERR                       ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_DNR_ERR_POS)) /**< INTFL0_DNR_ERR Mask */
+#define MXC_F_I2C_REVA_INTFL0_DNR_ERR_POS                   12 /**< INTFL0_DNR_ERR Position */
+#define MXC_F_I2C_REVA_INTFL0_DNR_ERR                       ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_DNR_ERR_POS)) /**< INTFL0_DNR_ERR Mask */
 
- #define MXC_F_I2C_REVA_INTFL0_START_ERR_POS                 13 /**< INTFL0_START_ERR Position */
- #define MXC_F_I2C_REVA_INTFL0_START_ERR                     ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_START_ERR_POS)) /**< INTFL0_START_ERR Mask */
+#define MXC_F_I2C_REVA_INTFL0_START_ERR_POS                 13 /**< INTFL0_START_ERR Position */
+#define MXC_F_I2C_REVA_INTFL0_START_ERR                     ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_START_ERR_POS)) /**< INTFL0_START_ERR Mask */
 
- #define MXC_F_I2C_REVA_INTFL0_STOP_ERR_POS                  14 /**< INTFL0_STOP_ERR Position */
- #define MXC_F_I2C_REVA_INTFL0_STOP_ERR                      ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_STOP_ERR_POS)) /**< INTFL0_STOP_ERR Mask */
+#define MXC_F_I2C_REVA_INTFL0_STOP_ERR_POS                  14 /**< INTFL0_STOP_ERR Position */
+#define MXC_F_I2C_REVA_INTFL0_STOP_ERR                      ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_STOP_ERR_POS)) /**< INTFL0_STOP_ERR Mask */
 
- #define MXC_F_I2C_REVA_INTFL0_TX_LOCKOUT_POS                15 /**< INTFL0_TX_LOCKOUT Position */
- #define MXC_F_I2C_REVA_INTFL0_TX_LOCKOUT                    ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_TX_LOCKOUT_POS)) /**< INTFL0_TX_LOCKOUT Mask */
+#define MXC_F_I2C_REVA_INTFL0_TX_LOCKOUT_POS                15 /**< INTFL0_TX_LOCKOUT Position */
+#define MXC_F_I2C_REVA_INTFL0_TX_LOCKOUT                    ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_TX_LOCKOUT_POS)) /**< INTFL0_TX_LOCKOUT Mask */
 
- #define MXC_F_I2C_REVA_INTFL0_MAMI_POS                      16 /**< INTFL0_MAMI Position */
- #define MXC_F_I2C_REVA_INTFL0_MAMI                          ((uint32_t)(0x3FUL << MXC_F_I2C_REVA_INTFL0_MAMI_POS)) /**< INTFL0_MAMI Mask */
+#define MXC_F_I2C_REVA_INTFL0_MAMI_POS                      16 /**< INTFL0_MAMI Position */
+#define MXC_F_I2C_REVA_INTFL0_MAMI                          ((uint32_t)(0x3FUL << MXC_F_I2C_REVA_INTFL0_MAMI_POS)) /**< INTFL0_MAMI Mask */
 
- #define MXC_F_I2C_REVA_INTFL0_RD_ADDR_MATCH_POS             22 /**< INTFL0_RD_ADDR_MATCH Position */
- #define MXC_F_I2C_REVA_INTFL0_RD_ADDR_MATCH                 ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_RD_ADDR_MATCH_POS)) /**< INTFL0_RD_ADDR_MATCH Mask */
+#define MXC_F_I2C_REVA_INTFL0_RD_ADDR_MATCH_POS             22 /**< INTFL0_RD_ADDR_MATCH Position */
+#define MXC_F_I2C_REVA_INTFL0_RD_ADDR_MATCH                 ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_RD_ADDR_MATCH_POS)) /**< INTFL0_RD_ADDR_MATCH Mask */
 
- #define MXC_F_I2C_REVA_INTFL0_WR_ADDR_MATCH_POS             23 /**< INTFL0_WR_ADDR_MATCH Position */
- #define MXC_F_I2C_REVA_INTFL0_WR_ADDR_MATCH                 ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_WR_ADDR_MATCH_POS)) /**< INTFL0_WR_ADDR_MATCH Mask */
+#define MXC_F_I2C_REVA_INTFL0_WR_ADDR_MATCH_POS             23 /**< INTFL0_WR_ADDR_MATCH Position */
+#define MXC_F_I2C_REVA_INTFL0_WR_ADDR_MATCH                 ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL0_WR_ADDR_MATCH_POS)) /**< INTFL0_WR_ADDR_MATCH Mask */
 
 /**@} end of group I2C_INTFL0_Register */
 
@@ -283,62 +283,62 @@ typedef struct {
  * @brief    Interrupt Enable Register.
  * @{
  */
- #define MXC_F_I2C_REVA_INTEN0_DONE_POS                      0 /**< INTEN0_DONE Position */
- #define MXC_F_I2C_REVA_INTEN0_DONE                          ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_DONE_POS)) /**< INTEN0_DONE Mask */
+#define MXC_F_I2C_REVA_INTEN0_DONE_POS                      0 /**< INTEN0_DONE Position */
+#define MXC_F_I2C_REVA_INTEN0_DONE                          ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_DONE_POS)) /**< INTEN0_DONE Mask */
 
- #define MXC_F_I2C_REVA_INTEN0_IRXM_POS                      1 /**< INTEN0_IRXM Position */
- #define MXC_F_I2C_REVA_INTEN0_IRXM                          ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_IRXM_POS)) /**< INTEN0_IRXM Mask */
+#define MXC_F_I2C_REVA_INTEN0_IRXM_POS                      1 /**< INTEN0_IRXM Position */
+#define MXC_F_I2C_REVA_INTEN0_IRXM                          ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_IRXM_POS)) /**< INTEN0_IRXM Mask */
 
- #define MXC_F_I2C_REVA_INTEN0_GC_ADDR_MATCH_POS             2 /**< INTEN0_GC_ADDR_MATCH Position */
- #define MXC_F_I2C_REVA_INTEN0_GC_ADDR_MATCH                 ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_GC_ADDR_MATCH_POS)) /**< INTEN0_GC_ADDR_MATCH Mask */
+#define MXC_F_I2C_REVA_INTEN0_GC_ADDR_MATCH_POS             2 /**< INTEN0_GC_ADDR_MATCH Position */
+#define MXC_F_I2C_REVA_INTEN0_GC_ADDR_MATCH                 ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_GC_ADDR_MATCH_POS)) /**< INTEN0_GC_ADDR_MATCH Mask */
 
- #define MXC_F_I2C_REVA_INTEN0_ADDR_MATCH_POS                3 /**< INTEN0_ADDR_MATCH Position */
- #define MXC_F_I2C_REVA_INTEN0_ADDR_MATCH                    ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_ADDR_MATCH_POS)) /**< INTEN0_ADDR_MATCH Mask */
+#define MXC_F_I2C_REVA_INTEN0_ADDR_MATCH_POS                3 /**< INTEN0_ADDR_MATCH Position */
+#define MXC_F_I2C_REVA_INTEN0_ADDR_MATCH                    ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_ADDR_MATCH_POS)) /**< INTEN0_ADDR_MATCH Mask */
 
- #define MXC_F_I2C_REVA_INTEN0_RX_THD_POS                    4 /**< INTEN0_RX_THD Position */
- #define MXC_F_I2C_REVA_INTEN0_RX_THD                        ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_RX_THD_POS)) /**< INTEN0_RX_THD Mask */
+#define MXC_F_I2C_REVA_INTEN0_RX_THD_POS                    4 /**< INTEN0_RX_THD Position */
+#define MXC_F_I2C_REVA_INTEN0_RX_THD                        ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_RX_THD_POS)) /**< INTEN0_RX_THD Mask */
 
- #define MXC_F_I2C_REVA_INTEN0_TX_THD_POS                    5 /**< INTEN0_TX_THD Position */
- #define MXC_F_I2C_REVA_INTEN0_TX_THD                        ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_TX_THD_POS)) /**< INTEN0_TX_THD Mask */
+#define MXC_F_I2C_REVA_INTEN0_TX_THD_POS                    5 /**< INTEN0_TX_THD Position */
+#define MXC_F_I2C_REVA_INTEN0_TX_THD                        ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_TX_THD_POS)) /**< INTEN0_TX_THD Mask */
 
- #define MXC_F_I2C_REVA_INTEN0_STOP_POS                      6 /**< INTEN0_STOP Position */
- #define MXC_F_I2C_REVA_INTEN0_STOP                          ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_STOP_POS)) /**< INTEN0_STOP Mask */
+#define MXC_F_I2C_REVA_INTEN0_STOP_POS                      6 /**< INTEN0_STOP Position */
+#define MXC_F_I2C_REVA_INTEN0_STOP                          ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_STOP_POS)) /**< INTEN0_STOP Mask */
 
- #define MXC_F_I2C_REVA_INTEN0_ADDR_ACK_POS                  7 /**< INTEN0_ADDR_ACK Position */
- #define MXC_F_I2C_REVA_INTEN0_ADDR_ACK                      ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_ADDR_ACK_POS)) /**< INTEN0_ADDR_ACK Mask */
+#define MXC_F_I2C_REVA_INTEN0_ADDR_ACK_POS                  7 /**< INTEN0_ADDR_ACK Position */
+#define MXC_F_I2C_REVA_INTEN0_ADDR_ACK                      ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_ADDR_ACK_POS)) /**< INTEN0_ADDR_ACK Mask */
 
- #define MXC_F_I2C_REVA_INTEN0_ARB_ERR_POS                   8 /**< INTEN0_ARB_ERR Position */
- #define MXC_F_I2C_REVA_INTEN0_ARB_ERR                       ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_ARB_ERR_POS)) /**< INTEN0_ARB_ERR Mask */
+#define MXC_F_I2C_REVA_INTEN0_ARB_ERR_POS                   8 /**< INTEN0_ARB_ERR Position */
+#define MXC_F_I2C_REVA_INTEN0_ARB_ERR                       ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_ARB_ERR_POS)) /**< INTEN0_ARB_ERR Mask */
 
- #define MXC_F_I2C_REVA_INTEN0_TO_ERR_POS                    9 /**< INTEN0_TO_ERR Position */
- #define MXC_F_I2C_REVA_INTEN0_TO_ERR                        ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_TO_ERR_POS)) /**< INTEN0_TO_ERR Mask */
+#define MXC_F_I2C_REVA_INTEN0_TO_ERR_POS                    9 /**< INTEN0_TO_ERR Position */
+#define MXC_F_I2C_REVA_INTEN0_TO_ERR                        ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_TO_ERR_POS)) /**< INTEN0_TO_ERR Mask */
 
- #define MXC_F_I2C_REVA_INTEN0_ADDR_NACK_ERR_POS             10 /**< INTEN0_ADDR_NACK_ERR Position */
- #define MXC_F_I2C_REVA_INTEN0_ADDR_NACK_ERR                 ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_ADDR_NACK_ERR_POS)) /**< INTEN0_ADDR_NACK_ERR Mask */
+#define MXC_F_I2C_REVA_INTEN0_ADDR_NACK_ERR_POS             10 /**< INTEN0_ADDR_NACK_ERR Position */
+#define MXC_F_I2C_REVA_INTEN0_ADDR_NACK_ERR                 ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_ADDR_NACK_ERR_POS)) /**< INTEN0_ADDR_NACK_ERR Mask */
 
- #define MXC_F_I2C_REVA_INTEN0_DATA_ERR_POS                  11 /**< INTEN0_DATA_ERR Position */
- #define MXC_F_I2C_REVA_INTEN0_DATA_ERR                      ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_DATA_ERR_POS)) /**< INTEN0_DATA_ERR Mask */
+#define MXC_F_I2C_REVA_INTEN0_DATA_ERR_POS                  11 /**< INTEN0_DATA_ERR Position */
+#define MXC_F_I2C_REVA_INTEN0_DATA_ERR                      ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_DATA_ERR_POS)) /**< INTEN0_DATA_ERR Mask */
 
- #define MXC_F_I2C_REVA_INTEN0_DNR_ERR_POS                   12 /**< INTEN0_DNR_ERR Position */
- #define MXC_F_I2C_REVA_INTEN0_DNR_ERR                       ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_DNR_ERR_POS)) /**< INTEN0_DNR_ERR Mask */
+#define MXC_F_I2C_REVA_INTEN0_DNR_ERR_POS                   12 /**< INTEN0_DNR_ERR Position */
+#define MXC_F_I2C_REVA_INTEN0_DNR_ERR                       ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_DNR_ERR_POS)) /**< INTEN0_DNR_ERR Mask */
 
- #define MXC_F_I2C_REVA_INTEN0_START_ERR_POS                 13 /**< INTEN0_START_ERR Position */
- #define MXC_F_I2C_REVA_INTEN0_START_ERR                     ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_START_ERR_POS)) /**< INTEN0_START_ERR Mask */
+#define MXC_F_I2C_REVA_INTEN0_START_ERR_POS                 13 /**< INTEN0_START_ERR Position */
+#define MXC_F_I2C_REVA_INTEN0_START_ERR                     ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_START_ERR_POS)) /**< INTEN0_START_ERR Mask */
 
- #define MXC_F_I2C_REVA_INTEN0_STOP_ERR_POS                  14 /**< INTEN0_STOP_ERR Position */
- #define MXC_F_I2C_REVA_INTEN0_STOP_ERR                      ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_STOP_ERR_POS)) /**< INTEN0_STOP_ERR Mask */
+#define MXC_F_I2C_REVA_INTEN0_STOP_ERR_POS                  14 /**< INTEN0_STOP_ERR Position */
+#define MXC_F_I2C_REVA_INTEN0_STOP_ERR                      ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_STOP_ERR_POS)) /**< INTEN0_STOP_ERR Mask */
 
- #define MXC_F_I2C_REVA_INTEN0_TX_LOCKOUT_POS                15 /**< INTEN0_TX_LOCKOUT Position */
- #define MXC_F_I2C_REVA_INTEN0_TX_LOCKOUT                    ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_TX_LOCKOUT_POS)) /**< INTEN0_TX_LOCKOUT Mask */
+#define MXC_F_I2C_REVA_INTEN0_TX_LOCKOUT_POS                15 /**< INTEN0_TX_LOCKOUT Position */
+#define MXC_F_I2C_REVA_INTEN0_TX_LOCKOUT                    ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_TX_LOCKOUT_POS)) /**< INTEN0_TX_LOCKOUT Mask */
 
- #define MXC_F_I2C_REVA_INTEN0_MAMI_POS                      16 /**< INTEN0_MAMI Position */
- #define MXC_F_I2C_REVA_INTEN0_MAMI                          ((uint32_t)(0x3FUL << MXC_F_I2C_REVA_INTEN0_MAMI_POS)) /**< INTEN0_MAMI Mask */
+#define MXC_F_I2C_REVA_INTEN0_MAMI_POS                      16 /**< INTEN0_MAMI Position */
+#define MXC_F_I2C_REVA_INTEN0_MAMI                          ((uint32_t)(0x3FUL << MXC_F_I2C_REVA_INTEN0_MAMI_POS)) /**< INTEN0_MAMI Mask */
 
- #define MXC_F_I2C_REVA_INTEN0_RD_ADDR_MATCH_POS             22 /**< INTEN0_RD_ADDR_MATCH Position */
- #define MXC_F_I2C_REVA_INTEN0_RD_ADDR_MATCH                 ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_RD_ADDR_MATCH_POS)) /**< INTEN0_RD_ADDR_MATCH Mask */
+#define MXC_F_I2C_REVA_INTEN0_RD_ADDR_MATCH_POS             22 /**< INTEN0_RD_ADDR_MATCH Position */
+#define MXC_F_I2C_REVA_INTEN0_RD_ADDR_MATCH                 ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_RD_ADDR_MATCH_POS)) /**< INTEN0_RD_ADDR_MATCH Mask */
 
- #define MXC_F_I2C_REVA_INTEN0_WR_ADDR_MATCH_POS             23 /**< INTEN0_WR_ADDR_MATCH Position */
- #define MXC_F_I2C_REVA_INTEN0_WR_ADDR_MATCH                 ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_WR_ADDR_MATCH_POS)) /**< INTEN0_WR_ADDR_MATCH Mask */
+#define MXC_F_I2C_REVA_INTEN0_WR_ADDR_MATCH_POS             23 /**< INTEN0_WR_ADDR_MATCH Position */
+#define MXC_F_I2C_REVA_INTEN0_WR_ADDR_MATCH                 ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN0_WR_ADDR_MATCH_POS)) /**< INTEN0_WR_ADDR_MATCH Mask */
 
 /**@} end of group I2C_INTEN0_Register */
 
@@ -348,14 +348,14 @@ typedef struct {
  * @brief    Interrupt Status Register 1.
  * @{
  */
- #define MXC_F_I2C_REVA_INTFL1_RX_OV_POS                     0 /**< INTFL1_RX_OV Position */
- #define MXC_F_I2C_REVA_INTFL1_RX_OV                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL1_RX_OV_POS)) /**< INTFL1_RX_OV Mask */
+#define MXC_F_I2C_REVA_INTFL1_RX_OV_POS                     0 /**< INTFL1_RX_OV Position */
+#define MXC_F_I2C_REVA_INTFL1_RX_OV                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL1_RX_OV_POS)) /**< INTFL1_RX_OV Mask */
 
- #define MXC_F_I2C_REVA_INTFL1_TX_UN_POS                     1 /**< INTFL1_TX_UN Position */
- #define MXC_F_I2C_REVA_INTFL1_TX_UN                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL1_TX_UN_POS)) /**< INTFL1_TX_UN Mask */
+#define MXC_F_I2C_REVA_INTFL1_TX_UN_POS                     1 /**< INTFL1_TX_UN Position */
+#define MXC_F_I2C_REVA_INTFL1_TX_UN                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL1_TX_UN_POS)) /**< INTFL1_TX_UN Mask */
 
- #define MXC_F_I2C_REVA_INTFL1_START_POS                     2 /**< INTFL1_START Position */
- #define MXC_F_I2C_REVA_INTFL1_START                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL1_START_POS)) /**< INTFL1_START Mask */
+#define MXC_F_I2C_REVA_INTFL1_START_POS                     2 /**< INTFL1_START Position */
+#define MXC_F_I2C_REVA_INTFL1_START                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTFL1_START_POS)) /**< INTFL1_START Mask */
 
 /**@} end of group I2C_INTFL1_Register */
 
@@ -365,14 +365,14 @@ typedef struct {
  * @brief    Interrupt Staus Register 1.
  * @{
  */
- #define MXC_F_I2C_REVA_INTEN1_RX_OV_POS                     0 /**< INTEN1_RX_OV Position */
- #define MXC_F_I2C_REVA_INTEN1_RX_OV                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN1_RX_OV_POS)) /**< INTEN1_RX_OV Mask */
+#define MXC_F_I2C_REVA_INTEN1_RX_OV_POS                     0 /**< INTEN1_RX_OV Position */
+#define MXC_F_I2C_REVA_INTEN1_RX_OV                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN1_RX_OV_POS)) /**< INTEN1_RX_OV Mask */
 
- #define MXC_F_I2C_REVA_INTEN1_TX_UN_POS                     1 /**< INTEN1_TX_UN Position */
- #define MXC_F_I2C_REVA_INTEN1_TX_UN                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN1_TX_UN_POS)) /**< INTEN1_TX_UN Mask */
+#define MXC_F_I2C_REVA_INTEN1_TX_UN_POS                     1 /**< INTEN1_TX_UN Position */
+#define MXC_F_I2C_REVA_INTEN1_TX_UN                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN1_TX_UN_POS)) /**< INTEN1_TX_UN Mask */
 
- #define MXC_F_I2C_REVA_INTEN1_START_POS                     2 /**< INTEN1_START Position */
- #define MXC_F_I2C_REVA_INTEN1_START                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN1_START_POS)) /**< INTEN1_START Mask */
+#define MXC_F_I2C_REVA_INTEN1_START_POS                     2 /**< INTEN1_START Position */
+#define MXC_F_I2C_REVA_INTEN1_START                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_INTEN1_START_POS)) /**< INTEN1_START Mask */
 
 /**@} end of group I2C_INTEN1_Register */
 
@@ -382,11 +382,11 @@ typedef struct {
  * @brief    FIFO Configuration Register.
  * @{
  */
- #define MXC_F_I2C_REVA_FIFOLEN_RX_DEPTH_POS                 0 /**< FIFOLEN_RX_DEPTH Position */
- #define MXC_F_I2C_REVA_FIFOLEN_RX_DEPTH                     ((uint32_t)(0xFFUL << MXC_F_I2C_REVA_FIFOLEN_RX_DEPTH_POS)) /**< FIFOLEN_RX_DEPTH Mask */
+#define MXC_F_I2C_REVA_FIFOLEN_RX_DEPTH_POS                 0 /**< FIFOLEN_RX_DEPTH Position */
+#define MXC_F_I2C_REVA_FIFOLEN_RX_DEPTH                     ((uint32_t)(0xFFUL << MXC_F_I2C_REVA_FIFOLEN_RX_DEPTH_POS)) /**< FIFOLEN_RX_DEPTH Mask */
 
- #define MXC_F_I2C_REVA_FIFOLEN_TX_DEPTH_POS                 8 /**< FIFOLEN_TX_DEPTH Position */
- #define MXC_F_I2C_REVA_FIFOLEN_TX_DEPTH                     ((uint32_t)(0xFFUL << MXC_F_I2C_REVA_FIFOLEN_TX_DEPTH_POS)) /**< FIFOLEN_TX_DEPTH Mask */
+#define MXC_F_I2C_REVA_FIFOLEN_TX_DEPTH_POS                 8 /**< FIFOLEN_TX_DEPTH Position */
+#define MXC_F_I2C_REVA_FIFOLEN_TX_DEPTH                     ((uint32_t)(0xFFUL << MXC_F_I2C_REVA_FIFOLEN_TX_DEPTH_POS)) /**< FIFOLEN_TX_DEPTH Mask */
 
 /**@} end of group I2C_FIFOLEN_Register */
 
@@ -396,14 +396,14 @@ typedef struct {
  * @brief    Receive Control Register 0.
  * @{
  */
- #define MXC_F_I2C_REVA_RXCTRL0_DNR_POS                      0 /**< RXCTRL0_DNR Position */
- #define MXC_F_I2C_REVA_RXCTRL0_DNR                          ((uint32_t)(0x1UL << MXC_F_I2C_REVA_RXCTRL0_DNR_POS)) /**< RXCTRL0_DNR Mask */
+#define MXC_F_I2C_REVA_RXCTRL0_DNR_POS                      0 /**< RXCTRL0_DNR Position */
+#define MXC_F_I2C_REVA_RXCTRL0_DNR                          ((uint32_t)(0x1UL << MXC_F_I2C_REVA_RXCTRL0_DNR_POS)) /**< RXCTRL0_DNR Mask */
 
- #define MXC_F_I2C_REVA_RXCTRL0_FLUSH_POS                    7 /**< RXCTRL0_FLUSH Position */
- #define MXC_F_I2C_REVA_RXCTRL0_FLUSH                        ((uint32_t)(0x1UL << MXC_F_I2C_REVA_RXCTRL0_FLUSH_POS)) /**< RXCTRL0_FLUSH Mask */
+#define MXC_F_I2C_REVA_RXCTRL0_FLUSH_POS                    7 /**< RXCTRL0_FLUSH Position */
+#define MXC_F_I2C_REVA_RXCTRL0_FLUSH                        ((uint32_t)(0x1UL << MXC_F_I2C_REVA_RXCTRL0_FLUSH_POS)) /**< RXCTRL0_FLUSH Mask */
 
- #define MXC_F_I2C_REVA_RXCTRL0_THD_LVL_POS                  8 /**< RXCTRL0_THD_LVL Position */
- #define MXC_F_I2C_REVA_RXCTRL0_THD_LVL                      ((uint32_t)(0xFUL << MXC_F_I2C_REVA_RXCTRL0_THD_LVL_POS)) /**< RXCTRL0_THD_LVL Mask */
+#define MXC_F_I2C_REVA_RXCTRL0_THD_LVL_POS                  8 /**< RXCTRL0_THD_LVL Position */
+#define MXC_F_I2C_REVA_RXCTRL0_THD_LVL                      ((uint32_t)(0xFUL << MXC_F_I2C_REVA_RXCTRL0_THD_LVL_POS)) /**< RXCTRL0_THD_LVL Mask */
 
 /**@} end of group I2C_RXCTRL0_Register */
 
@@ -413,11 +413,11 @@ typedef struct {
  * @brief    Receive Control Register 1.
  * @{
  */
- #define MXC_F_I2C_REVA_RXCTRL1_CNT_POS                      0 /**< RXCTRL1_CNT Position */
- #define MXC_F_I2C_REVA_RXCTRL1_CNT                          ((uint32_t)(0xFFUL << MXC_F_I2C_REVA_RXCTRL1_CNT_POS)) /**< RXCTRL1_CNT Mask */
+#define MXC_F_I2C_REVA_RXCTRL1_CNT_POS                      0 /**< RXCTRL1_CNT Position */
+#define MXC_F_I2C_REVA_RXCTRL1_CNT                          ((uint32_t)(0xFFUL << MXC_F_I2C_REVA_RXCTRL1_CNT_POS)) /**< RXCTRL1_CNT Mask */
 
- #define MXC_F_I2C_REVA_RXCTRL1_LVL_POS                      8 /**< RXCTRL1_LVL Position */
- #define MXC_F_I2C_REVA_RXCTRL1_LVL                          ((uint32_t)(0xFUL << MXC_F_I2C_REVA_RXCTRL1_LVL_POS)) /**< RXCTRL1_LVL Mask */
+#define MXC_F_I2C_REVA_RXCTRL1_LVL_POS                      8 /**< RXCTRL1_LVL Position */
+#define MXC_F_I2C_REVA_RXCTRL1_LVL                          ((uint32_t)(0xFUL << MXC_F_I2C_REVA_RXCTRL1_LVL_POS)) /**< RXCTRL1_LVL Mask */
 
 /**@} end of group I2C_RXCTRL1_Register */
 
@@ -427,29 +427,29 @@ typedef struct {
  * @brief    Transmit Control Register 0.
  * @{
  */
- #define MXC_F_I2C_REVA_TXCTRL0_PRELOAD_MODE_POS             0 /**< TXCTRL0_PRELOAD_MODE Position */
- #define MXC_F_I2C_REVA_TXCTRL0_PRELOAD_MODE                 ((uint32_t)(0x1UL << MXC_F_I2C_REVA_TXCTRL0_PRELOAD_MODE_POS)) /**< TXCTRL0_PRELOAD_MODE Mask */
+#define MXC_F_I2C_REVA_TXCTRL0_PRELOAD_MODE_POS             0 /**< TXCTRL0_PRELOAD_MODE Position */
+#define MXC_F_I2C_REVA_TXCTRL0_PRELOAD_MODE                 ((uint32_t)(0x1UL << MXC_F_I2C_REVA_TXCTRL0_PRELOAD_MODE_POS)) /**< TXCTRL0_PRELOAD_MODE Mask */
 
- #define MXC_F_I2C_REVA_TXCTRL0_TX_READY_MODE_POS            1 /**< TXCTRL0_TX_READY_MODE Position */
- #define MXC_F_I2C_REVA_TXCTRL0_TX_READY_MODE                ((uint32_t)(0x1UL << MXC_F_I2C_REVA_TXCTRL0_TX_READY_MODE_POS)) /**< TXCTRL0_TX_READY_MODE Mask */
+#define MXC_F_I2C_REVA_TXCTRL0_TX_READY_MODE_POS            1 /**< TXCTRL0_TX_READY_MODE Position */
+#define MXC_F_I2C_REVA_TXCTRL0_TX_READY_MODE                ((uint32_t)(0x1UL << MXC_F_I2C_REVA_TXCTRL0_TX_READY_MODE_POS)) /**< TXCTRL0_TX_READY_MODE Mask */
 
- #define MXC_F_I2C_REVA_TXCTRL0_GC_ADDR_FLUSH_DIS_POS        2 /**< TXCTRL0_GC_ADDR_FLUSH_DIS Position */
- #define MXC_F_I2C_REVA_TXCTRL0_GC_ADDR_FLUSH_DIS            ((uint32_t)(0x1UL << MXC_F_I2C_REVA_TXCTRL0_GC_ADDR_FLUSH_DIS_POS)) /**< TXCTRL0_GC_ADDR_FLUSH_DIS Mask */
+#define MXC_F_I2C_REVA_TXCTRL0_GC_ADDR_FLUSH_DIS_POS        2 /**< TXCTRL0_GC_ADDR_FLUSH_DIS Position */
+#define MXC_F_I2C_REVA_TXCTRL0_GC_ADDR_FLUSH_DIS            ((uint32_t)(0x1UL << MXC_F_I2C_REVA_TXCTRL0_GC_ADDR_FLUSH_DIS_POS)) /**< TXCTRL0_GC_ADDR_FLUSH_DIS Mask */
 
- #define MXC_F_I2C_REVA_TXCTRL0_WR_ADDR_FLUSH_DIS_POS        3 /**< TXCTRL0_WR_ADDR_FLUSH_DIS Position */
- #define MXC_F_I2C_REVA_TXCTRL0_WR_ADDR_FLUSH_DIS            ((uint32_t)(0x1UL << MXC_F_I2C_REVA_TXCTRL0_WR_ADDR_FLUSH_DIS_POS)) /**< TXCTRL0_WR_ADDR_FLUSH_DIS Mask */
+#define MXC_F_I2C_REVA_TXCTRL0_WR_ADDR_FLUSH_DIS_POS        3 /**< TXCTRL0_WR_ADDR_FLUSH_DIS Position */
+#define MXC_F_I2C_REVA_TXCTRL0_WR_ADDR_FLUSH_DIS            ((uint32_t)(0x1UL << MXC_F_I2C_REVA_TXCTRL0_WR_ADDR_FLUSH_DIS_POS)) /**< TXCTRL0_WR_ADDR_FLUSH_DIS Mask */
 
- #define MXC_F_I2C_REVA_TXCTRL0_RD_ADDR_FLUSH_DIS_POS        4 /**< TXCTRL0_RD_ADDR_FLUSH_DIS Position */
- #define MXC_F_I2C_REVA_TXCTRL0_RD_ADDR_FLUSH_DIS            ((uint32_t)(0x1UL << MXC_F_I2C_REVA_TXCTRL0_RD_ADDR_FLUSH_DIS_POS)) /**< TXCTRL0_RD_ADDR_FLUSH_DIS Mask */
+#define MXC_F_I2C_REVA_TXCTRL0_RD_ADDR_FLUSH_DIS_POS        4 /**< TXCTRL0_RD_ADDR_FLUSH_DIS Position */
+#define MXC_F_I2C_REVA_TXCTRL0_RD_ADDR_FLUSH_DIS            ((uint32_t)(0x1UL << MXC_F_I2C_REVA_TXCTRL0_RD_ADDR_FLUSH_DIS_POS)) /**< TXCTRL0_RD_ADDR_FLUSH_DIS Mask */
 
- #define MXC_F_I2C_REVA_TXCTRL0_NACK_FLUSH_DIS_POS           5 /**< TXCTRL0_NACK_FLUSH_DIS Position */
- #define MXC_F_I2C_REVA_TXCTRL0_NACK_FLUSH_DIS               ((uint32_t)(0x1UL << MXC_F_I2C_REVA_TXCTRL0_NACK_FLUSH_DIS_POS)) /**< TXCTRL0_NACK_FLUSH_DIS Mask */
+#define MXC_F_I2C_REVA_TXCTRL0_NACK_FLUSH_DIS_POS           5 /**< TXCTRL0_NACK_FLUSH_DIS Position */
+#define MXC_F_I2C_REVA_TXCTRL0_NACK_FLUSH_DIS               ((uint32_t)(0x1UL << MXC_F_I2C_REVA_TXCTRL0_NACK_FLUSH_DIS_POS)) /**< TXCTRL0_NACK_FLUSH_DIS Mask */
 
- #define MXC_F_I2C_REVA_TXCTRL0_FLUSH_POS                    7 /**< TXCTRL0_FLUSH Position */
- #define MXC_F_I2C_REVA_TXCTRL0_FLUSH                        ((uint32_t)(0x1UL << MXC_F_I2C_REVA_TXCTRL0_FLUSH_POS)) /**< TXCTRL0_FLUSH Mask */
+#define MXC_F_I2C_REVA_TXCTRL0_FLUSH_POS                    7 /**< TXCTRL0_FLUSH Position */
+#define MXC_F_I2C_REVA_TXCTRL0_FLUSH                        ((uint32_t)(0x1UL << MXC_F_I2C_REVA_TXCTRL0_FLUSH_POS)) /**< TXCTRL0_FLUSH Mask */
 
- #define MXC_F_I2C_REVA_TXCTRL0_THD_LVL_POS                  8 /**< TXCTRL0_THD_LVL Position */
- #define MXC_F_I2C_REVA_TXCTRL0_THD_LVL                      ((uint32_t)(0xFUL << MXC_F_I2C_REVA_TXCTRL0_THD_LVL_POS)) /**< TXCTRL0_THD_LVL Mask */
+#define MXC_F_I2C_REVA_TXCTRL0_THD_LVL_POS                  8 /**< TXCTRL0_THD_LVL Position */
+#define MXC_F_I2C_REVA_TXCTRL0_THD_LVL                      ((uint32_t)(0xFUL << MXC_F_I2C_REVA_TXCTRL0_THD_LVL_POS)) /**< TXCTRL0_THD_LVL Mask */
 
 /**@} end of group I2C_TXCTRL0_Register */
 
@@ -459,11 +459,11 @@ typedef struct {
  * @brief    Transmit Control Register 1.
  * @{
  */
- #define MXC_F_I2C_REVA_TXCTRL1_PRELOAD_RDY_POS              0 /**< TXCTRL1_PRELOAD_RDY Position */
- #define MXC_F_I2C_REVA_TXCTRL1_PRELOAD_RDY                  ((uint32_t)(0x1UL << MXC_F_I2C_REVA_TXCTRL1_PRELOAD_RDY_POS)) /**< TXCTRL1_PRELOAD_RDY Mask */
+#define MXC_F_I2C_REVA_TXCTRL1_PRELOAD_RDY_POS              0 /**< TXCTRL1_PRELOAD_RDY Position */
+#define MXC_F_I2C_REVA_TXCTRL1_PRELOAD_RDY                  ((uint32_t)(0x1UL << MXC_F_I2C_REVA_TXCTRL1_PRELOAD_RDY_POS)) /**< TXCTRL1_PRELOAD_RDY Mask */
 
- #define MXC_F_I2C_REVA_TXCTRL1_LVL_POS                      8 /**< TXCTRL1_LVL Position */
- #define MXC_F_I2C_REVA_TXCTRL1_LVL                          ((uint32_t)(0xFUL << MXC_F_I2C_REVA_TXCTRL1_LVL_POS)) /**< TXCTRL1_LVL Mask */
+#define MXC_F_I2C_REVA_TXCTRL1_LVL_POS                      8 /**< TXCTRL1_LVL Position */
+#define MXC_F_I2C_REVA_TXCTRL1_LVL                          ((uint32_t)(0xFUL << MXC_F_I2C_REVA_TXCTRL1_LVL_POS)) /**< TXCTRL1_LVL Mask */
 
 /**@} end of group I2C_TXCTRL1_Register */
 
@@ -473,8 +473,8 @@ typedef struct {
  * @brief    Data Register.
  * @{
  */
- #define MXC_F_I2C_REVA_FIFO_DATA_POS                        0 /**< FIFO_DATA Position */
- #define MXC_F_I2C_REVA_FIFO_DATA                            ((uint32_t)(0xFFUL << MXC_F_I2C_REVA_FIFO_DATA_POS)) /**< FIFO_DATA Mask */
+#define MXC_F_I2C_REVA_FIFO_DATA_POS                        0 /**< FIFO_DATA Position */
+#define MXC_F_I2C_REVA_FIFO_DATA                            ((uint32_t)(0xFFUL << MXC_F_I2C_REVA_FIFO_DATA_POS)) /**< FIFO_DATA Mask */
 
 /**@} end of group I2C_FIFO_Register */
 
@@ -484,17 +484,17 @@ typedef struct {
  * @brief    Master Control Register.
  * @{
  */
- #define MXC_F_I2C_REVA_MSTCTRL_START_POS                    0 /**< MSTCTRL_START Position */
- #define MXC_F_I2C_REVA_MSTCTRL_START                        ((uint32_t)(0x1UL << MXC_F_I2C_REVA_MSTCTRL_START_POS)) /**< MSTCTRL_START Mask */
+#define MXC_F_I2C_REVA_MSTCTRL_START_POS                    0 /**< MSTCTRL_START Position */
+#define MXC_F_I2C_REVA_MSTCTRL_START                        ((uint32_t)(0x1UL << MXC_F_I2C_REVA_MSTCTRL_START_POS)) /**< MSTCTRL_START Mask */
 
- #define MXC_F_I2C_REVA_MSTCTRL_RESTART_POS                  1 /**< MSTCTRL_RESTART Position */
- #define MXC_F_I2C_REVA_MSTCTRL_RESTART                      ((uint32_t)(0x1UL << MXC_F_I2C_REVA_MSTCTRL_RESTART_POS)) /**< MSTCTRL_RESTART Mask */
+#define MXC_F_I2C_REVA_MSTCTRL_RESTART_POS                  1 /**< MSTCTRL_RESTART Position */
+#define MXC_F_I2C_REVA_MSTCTRL_RESTART                      ((uint32_t)(0x1UL << MXC_F_I2C_REVA_MSTCTRL_RESTART_POS)) /**< MSTCTRL_RESTART Mask */
 
- #define MXC_F_I2C_REVA_MSTCTRL_STOP_POS                     2 /**< MSTCTRL_STOP Position */
- #define MXC_F_I2C_REVA_MSTCTRL_STOP                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_MSTCTRL_STOP_POS)) /**< MSTCTRL_STOP Mask */
+#define MXC_F_I2C_REVA_MSTCTRL_STOP_POS                     2 /**< MSTCTRL_STOP Position */
+#define MXC_F_I2C_REVA_MSTCTRL_STOP                         ((uint32_t)(0x1UL << MXC_F_I2C_REVA_MSTCTRL_STOP_POS)) /**< MSTCTRL_STOP Mask */
 
- #define MXC_F_I2C_REVA_MSTCTRL_EX_ADDR_EN_POS               7 /**< MSTCTRL_EX_ADDR_EN Position */
- #define MXC_F_I2C_REVA_MSTCTRL_EX_ADDR_EN                   ((uint32_t)(0x1UL << MXC_F_I2C_REVA_MSTCTRL_EX_ADDR_EN_POS)) /**< MSTCTRL_EX_ADDR_EN Mask */
+#define MXC_F_I2C_REVA_MSTCTRL_EX_ADDR_EN_POS               7 /**< MSTCTRL_EX_ADDR_EN Position */
+#define MXC_F_I2C_REVA_MSTCTRL_EX_ADDR_EN                   ((uint32_t)(0x1UL << MXC_F_I2C_REVA_MSTCTRL_EX_ADDR_EN_POS)) /**< MSTCTRL_EX_ADDR_EN Mask */
 
 /**@} end of group I2C_MSTCTRL_Register */
 
@@ -504,8 +504,8 @@ typedef struct {
  * @brief    Clock Low Register.
  * @{
  */
- #define MXC_F_I2C_REVA_CLKLO_LO_POS                         0 /**< CLKLO_LO Position */
- #define MXC_F_I2C_REVA_CLKLO_LO                             ((uint32_t)(0x1FFUL << MXC_F_I2C_REVA_CLKLO_LO_POS)) /**< CLKLO_LO Mask */
+#define MXC_F_I2C_REVA_CLKLO_LO_POS                         0 /**< CLKLO_LO Position */
+#define MXC_F_I2C_REVA_CLKLO_LO                             ((uint32_t)(0x1FFUL << MXC_F_I2C_REVA_CLKLO_LO_POS)) /**< CLKLO_LO Mask */
 
 /**@} end of group I2C_CLKLO_Register */
 
@@ -515,8 +515,8 @@ typedef struct {
  * @brief    Clock high Register.
  * @{
  */
- #define MXC_F_I2C_REVA_CLKHI_HI_POS                         0 /**< CLKHI_HI Position */
- #define MXC_F_I2C_REVA_CLKHI_HI                             ((uint32_t)(0x1FFUL << MXC_F_I2C_REVA_CLKHI_HI_POS)) /**< CLKHI_HI Mask */
+#define MXC_F_I2C_REVA_CLKHI_HI_POS                         0 /**< CLKHI_HI Position */
+#define MXC_F_I2C_REVA_CLKHI_HI                             ((uint32_t)(0x1FFUL << MXC_F_I2C_REVA_CLKHI_HI_POS)) /**< CLKHI_HI Mask */
 
 /**@} end of group I2C_CLKHI_Register */
 
@@ -526,11 +526,11 @@ typedef struct {
  * @brief    Clock high Register.
  * @{
  */
- #define MXC_F_I2C_REVA_HSCLK_LO_POS                         0 /**< HSCLK_LO Position */
- #define MXC_F_I2C_REVA_HSCLK_LO                             ((uint32_t)(0xFFUL << MXC_F_I2C_REVA_HSCLK_LO_POS)) /**< HSCLK_LO Mask */
+#define MXC_F_I2C_REVA_HSCLK_LO_POS                         0 /**< HSCLK_LO Position */
+#define MXC_F_I2C_REVA_HSCLK_LO                             ((uint32_t)(0xFFUL << MXC_F_I2C_REVA_HSCLK_LO_POS)) /**< HSCLK_LO Mask */
 
- #define MXC_F_I2C_REVA_HSCLK_HI_POS                         8 /**< HSCLK_HI Position */
- #define MXC_F_I2C_REVA_HSCLK_HI                             ((uint32_t)(0xFFUL << MXC_F_I2C_REVA_HSCLK_HI_POS)) /**< HSCLK_HI Mask */
+#define MXC_F_I2C_REVA_HSCLK_HI_POS                         8 /**< HSCLK_HI Position */
+#define MXC_F_I2C_REVA_HSCLK_HI                             ((uint32_t)(0xFFUL << MXC_F_I2C_REVA_HSCLK_HI_POS)) /**< HSCLK_HI Mask */
 
 /**@} end of group I2C_HSCLK_Register */
 
@@ -540,8 +540,8 @@ typedef struct {
  * @brief    Timeout Register
  * @{
  */
- #define MXC_F_I2C_REVA_TIMEOUT_SCL_TO_VAL_POS               0 /**< TIMEOUT_SCL_TO_VAL Position */
- #define MXC_F_I2C_REVA_TIMEOUT_SCL_TO_VAL                   ((uint32_t)(0xFFFFUL << MXC_F_I2C_REVA_TIMEOUT_SCL_TO_VAL_POS)) /**< TIMEOUT_SCL_TO_VAL Mask */
+#define MXC_F_I2C_REVA_TIMEOUT_SCL_TO_VAL_POS               0 /**< TIMEOUT_SCL_TO_VAL Position */
+#define MXC_F_I2C_REVA_TIMEOUT_SCL_TO_VAL                   ((uint32_t)(0xFFFFUL << MXC_F_I2C_REVA_TIMEOUT_SCL_TO_VAL_POS)) /**< TIMEOUT_SCL_TO_VAL Mask */
 
 /**@} end of group I2C_TIMEOUT_Register */
 
@@ -551,11 +551,11 @@ typedef struct {
  * @brief    DMA Register.
  * @{
  */
- #define MXC_F_I2C_REVA_DMA_TX_EN_POS                        0 /**< DMA_TX_EN Position */
- #define MXC_F_I2C_REVA_DMA_TX_EN                            ((uint32_t)(0x1UL << MXC_F_I2C_REVA_DMA_TX_EN_POS)) /**< DMA_TX_EN Mask */
+#define MXC_F_I2C_REVA_DMA_TX_EN_POS                        0 /**< DMA_TX_EN Position */
+#define MXC_F_I2C_REVA_DMA_TX_EN                            ((uint32_t)(0x1UL << MXC_F_I2C_REVA_DMA_TX_EN_POS)) /**< DMA_TX_EN Mask */
 
- #define MXC_F_I2C_REVA_DMA_RX_EN_POS                        1 /**< DMA_RX_EN Position */
- #define MXC_F_I2C_REVA_DMA_RX_EN                            ((uint32_t)(0x1UL << MXC_F_I2C_REVA_DMA_RX_EN_POS)) /**< DMA_RX_EN Mask */
+#define MXC_F_I2C_REVA_DMA_RX_EN_POS                        1 /**< DMA_RX_EN Position */
+#define MXC_F_I2C_REVA_DMA_RX_EN                            ((uint32_t)(0x1UL << MXC_F_I2C_REVA_DMA_RX_EN_POS)) /**< DMA_RX_EN Mask */
 
 /**@} end of group I2C_DMA_Register */
 
@@ -565,11 +565,11 @@ typedef struct {
  * @brief    Slave Address Register.
  * @{
  */
- #define MXC_F_I2C_REVA_SLAVE_ADDR_POS                       0 /**< SLAVE_ADDR Position */
- #define MXC_F_I2C_REVA_SLAVE_ADDR                           ((uint32_t)(0x3FFUL << MXC_F_I2C_REVA_SLAVE_ADDR_POS)) /**< SLAVE_ADDR Mask */
+#define MXC_F_I2C_REVA_SLAVE_ADDR_POS                       0 /**< SLAVE_ADDR Position */
+#define MXC_F_I2C_REVA_SLAVE_ADDR                           ((uint32_t)(0x3FFUL << MXC_F_I2C_REVA_SLAVE_ADDR_POS)) /**< SLAVE_ADDR Mask */
 
- #define MXC_F_I2C_REVA_SLAVE_EXT_ADDR_EN_POS                15 /**< SLAVE_EXT_ADDR_EN Position */
- #define MXC_F_I2C_REVA_SLAVE_EXT_ADDR_EN                    ((uint32_t)(0x1UL << MXC_F_I2C_REVA_SLAVE_EXT_ADDR_EN_POS)) /**< SLAVE_EXT_ADDR_EN Mask */
+#define MXC_F_I2C_REVA_SLAVE_EXT_ADDR_EN_POS                15 /**< SLAVE_EXT_ADDR_EN Position */
+#define MXC_F_I2C_REVA_SLAVE_EXT_ADDR_EN                    ((uint32_t)(0x1UL << MXC_F_I2C_REVA_SLAVE_EXT_ADDR_EN_POS)) /**< SLAVE_EXT_ADDR_EN Mask */
 
 /**@} end of group I2C_SLAVE_Register */
 
@@ -577,4 +577,5 @@ typedef struct {
 }
 #endif
 
-#endif /* _I2C_REGS_H_ */
+#endif  // LIBRARIES_PERIPHDRIVERS_SOURCE_I2C_I2C_REVA_REGS_H_
+
