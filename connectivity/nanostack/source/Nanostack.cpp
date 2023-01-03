@@ -678,6 +678,8 @@ nsapi_error_t Nanostack::socket_open(void **handle, nsapi_protocol_t protocol)
         ns_proto = SOCKET_UDP;
     } else if (NSAPI_TCP == protocol) {
         ns_proto = SOCKET_TCP;
+    } else if (NSAPI_ICMP == protocol) {
+        ns_proto = SOCKET_ICMP;
     } else {
         MBED_ASSERT(false);
         return NSAPI_ERROR_UNSUPPORTED;
