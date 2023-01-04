@@ -78,14 +78,20 @@ protected:
     ~SysTimer();
 
 public:
+
+#if TARGET_CORTEX_A
     /**
      * Get the interrupt number for the tick
      *
      * @return interrupt number
      */
-#if TARGET_CORTEX_A
     static IRQn_ID_t get_irq_number();
 #elif TARGET_CORTEX_M
+    /**
+     * Get the interrupt number for the tick
+     *
+     * @return interrupt number
+     */
     static IRQn_Type get_irq_number();
 #endif
 

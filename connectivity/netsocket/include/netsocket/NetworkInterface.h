@@ -277,9 +277,10 @@ public:
      *  The callback should not perform expensive operations such as socket recv/send
      *  calls or blocking operations.
      *
-     *  @param result  Negative error code on failure or
-     *                 value that represents the number of DNS records
-     *  @param address On success, destination for the host SocketAddress.
+     * <br>
+     * \c result : Negative error code on failure, or value that represents the number of DNS records
+     * <br>
+     * \c address : On success, destination for the host SocketAddress.
      */
     typedef mbed::Callback<void (nsapi_value_or_error_t result, SocketAddress *address)> hostbyname_cb_t;
 

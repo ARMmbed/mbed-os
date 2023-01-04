@@ -308,7 +308,6 @@ const PinMap *i2c_slave_scl_pinmap(void);
 /** Configure I2C as slave or master.
  *  @param obj The I2C object
  *  @param enable_slave Enable i2c hardware so you can receive events with ::i2c_slave_receive
- *  @return non-zero if a value is available
  */
 void i2c_slave_mode(i2c_t *obj, int enable_slave);
 

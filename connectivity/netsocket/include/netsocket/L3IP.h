@@ -41,17 +41,17 @@ public:
     /**
      * Callback to be registered with L3IP interface and to be called for received packets
      *
-     * @param buf  Received data
+     * <br>
+     * \c buf : Received data
      */
-    //typedef void (*l3ip_link_input_fn)(void *data, net_stack_mem_buf_t *buf);
     typedef mbed::Callback<void (net_stack_mem_buf_t *buf)> l3ip_link_input_cb_t;
 
     /**
      * Callback to be registered with L3IP interface and to be called for link status changes
      *
-     * @param  up   Link status
+     * <br>
+     * \c up : Link status
      */
-    //typedef void (*l3ip_link_state_change_fn)(void *data, bool up);
     typedef mbed::Callback<void (bool up)> l3ip_link_state_change_cb_t;
 
     /**

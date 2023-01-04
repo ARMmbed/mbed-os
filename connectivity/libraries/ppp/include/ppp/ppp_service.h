@@ -41,22 +41,6 @@ public:
     static ppp_service &get_instance();
 
     /**
-     * Callback to be registered with PPP interface and to be called for received packets
-     *
-     * @param buf  Received data
-     */
-    //typedef void (*ppp_link_input_fn)(void *data, net_stack_mem_buf_t *buf);
-    typedef mbed::Callback<void (net_stack_mem_buf_t *buf)> ppp_link_input_cb_t;
-
-    /**
-     * Callback to be registered with PPP interface and to be called for link status changes
-     *
-     * @param  up   Link status
-     */
-    //typedef void (*ppp_link_state_change_fn)(void *data, bool up);
-    typedef mbed::Callback<void (bool up)> ppp_link_state_change_cb_t;
-
-    /**
      * Return maximum transmission unit
      *
      * @return     MTU in bytes

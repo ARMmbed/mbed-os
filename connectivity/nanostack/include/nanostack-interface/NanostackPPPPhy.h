@@ -24,7 +24,8 @@ class NanostackPPPPhy : public NanostackPhy {
 public:
     /** Link state callback function prototype
      *
-     *  @param up       link up
+     * <br>
+     * \c up : link up
      */
     typedef mbed::Callback<void (bool up)> link_state_change_cb_t;
 

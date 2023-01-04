@@ -408,8 +408,12 @@ MBED_FORCEINLINE bool core_util_atomic_compare_exchange_weak_explicit_ptr(void *
 MBED_FORCEINLINE uint8_t core_util_atomic_load_u8(const volatile uint8_t *valuePtr);
 
 /**
- * \copydoc core_util_atomic_load_u8
+ * Atomic load with explicit ordering.
+ *
+ * @param valuePtr Target memory location.
  * @param order memory ordering constraint
+ *
+ * @return The loaded value.
  */
 MBED_FORCEINLINE uint8_t core_util_atomic_load_explicit_u8(const volatile uint8_t *valuePtr, mbed_memory_order order);
 
@@ -452,8 +456,13 @@ MBED_FORCEINLINE int32_t core_util_atomic_load_explicit_s32(const volatile int32
 /** \copydoc core_util_atomic_load_u8 */
 MBED_FORCEINLINE int64_t core_util_atomic_load_s64(const volatile int64_t *valuePtr);
 
-/** \copydoc core_util_atomic_load_u8
+/**
+ * Atomic load with explicit ordering.
+ *
+ * @param valuePtr Target memory location.
  * @param order Currently unused since 64-bit atomic ops must be emulated
+ *
+ * @return The loaded value.
  */
 MBED_FORCEINLINE int64_t core_util_atomic_load_explicit_s64(const volatile int64_t *valuePtr, MBED_UNUSED mbed_memory_order order);
 
@@ -477,7 +486,10 @@ MBED_FORCEINLINE void *core_util_atomic_load_explicit_ptr(void *const volatile *
 MBED_FORCEINLINE void core_util_atomic_store_u8(volatile uint8_t *valuePtr, uint8_t desiredValue);
 
 /**
- * \copydoc core_util_atomic_store_u8
+ * Atomic store with explicit ordering.
+ *
+ * @param valuePtr Target memory location.
+ * @param desiredValue The value to store.
  * @param order memory ordering constraint
  */
 MBED_FORCEINLINE void core_util_atomic_store_explicit_u8(volatile uint8_t *valuePtr, uint8_t desiredValue, mbed_memory_order order);

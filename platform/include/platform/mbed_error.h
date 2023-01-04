@@ -954,9 +954,8 @@ typedef void (*mbed_error_hook_t)(const mbed_error_ctx *error_ctx);
  * Callback/Error hook function. If application implementation needs to receive this callback when an error is reported,
  * mbed_error_hook function should be overridden with custom implementation. When an error happens in the system error handling
  * implementation will invoke this callback with the mbed_error_status_t reported and the error context at the time of error.
- * @param  error_context    Error context structure associated with this error.
- * @return                  void
  *
+ * @param  error_context    Error context structure associated with this error.
  */
 void mbed_error_hook(const mbed_error_ctx *error_context);
 
@@ -970,8 +969,6 @@ void mbed_error_hook(const mbed_error_ctx *error_context);
  * the callback should be aware any resource limitations/availability of resources which are yet to be initialized by application main().
  *
  * @param  error_context    Error context structure associated with this error.
- * @return                  void
- *
  */
 void mbed_error_reboot_callback(mbed_error_ctx *error_context);
 

@@ -110,21 +110,7 @@ public:
      */
     virtual nsapi_value_or_error_t getaddrinfo(const char *hostname, SocketAddress *hints, SocketAddress **res, const char *interface_name = NULL);
 
-    /** Hostname translation callback (asynchronous)
-     *
-     *  Callback will be called after DNS resolution completes or a failure occurs.
-     *
-     *  Callback should not take more than 10ms to execute, otherwise it might
-     *  prevent underlying thread processing. A portable user of the callback
-     *  should not make calls to network operations due to stack size limitations.
-     *  The callback should not perform expensive operations such as socket recv/send
-     *  calls or blocking operations.
-     *
-     *  @param result  Negative error code on failure or
-     *                 value that represents the number of DNS records
-     *  @param address On success, destination for the host SocketAddress
-     */
-    typedef mbed::Callback<void (nsapi_value_or_error_t result, SocketAddress *address)> hostbyname_cb_t;
+    typedef NetworkInterface::hostbyname_cb_t hostbyname_cb_t;
 
     /** Translates a hostname to multiple IP addresses (asynchronous)
      *

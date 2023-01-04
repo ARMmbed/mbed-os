@@ -36,9 +36,8 @@ Additionally, the [discussions page](https://github.com/mbed-ce/mbed-os/discussi
 
 ## Documentation
 
-For more information about Mbed OS, please see [our published documentation](https://os.mbed.com/docs/latest). It includes general overview information, step-by-step tutorials, porting information and background reference materials about our architecture and tools.
+For more information about Mbed OS, please see [the published Mbed OS documentation](https://os.mbed.com/docs/latest). It includes general overview information, step-by-step tutorials, porting information and background reference materials about our architecture and tools.
 
-For the Mbed OS CE class-level documentation, see [here](https://mbed-ce.github.io/mbed-os/group__mbed-os-public.html)
+For the Mbed OS CE code-level documentation (Doxygen), see [here](https://mbed-ce.github.io/mbed-os/group__mbed-os-public.html)
 
-To contribute to this documentation, please see the [mbed-os-5-docs repository](https://github.com/ARMmbed/mbed-os-5-docs).
 

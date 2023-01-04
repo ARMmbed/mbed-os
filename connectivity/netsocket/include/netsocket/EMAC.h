@@ -43,17 +43,17 @@ public:
     /**
      * Callback to be register with EMAC interface and to be called for received packets
      *
-     * @param buf  Received data
+     * <br>
+     * \c buf : Received data
      */
-    //typedef void (*emac_link_input_fn)(void *data, emac_mem_buf_t *buf);
     typedef mbed::Callback<void (emac_mem_buf_t *buf)> emac_link_input_cb_t;
 
     /**
      * Callback to be register with EMAC interface and to be called for link status changes
      *
-     * @param  up   Link status
+     * <br>
+     * \c up : Link status
      */
-    //typedef void (*emac_link_state_change_fn)(void *data, bool up);
     typedef mbed::Callback<void (bool up)> emac_link_state_change_cb_t;
 
     /**

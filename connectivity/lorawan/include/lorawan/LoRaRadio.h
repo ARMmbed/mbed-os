@@ -401,12 +401,12 @@ typedef struct radio_events {
     /**
      * Rx Done callback prototype.
      *
-     *  @param payload Received buffer pointer.
-     *  @param size    Received buffer size.
-     *  @param rssi    RSSI value computed while receiving the frame [dBm].
-     *  @param snr     Raw SNR value given by the radio hardware.
-     *                     FSK : N/A (set to 0)
-     *                     LoRa: SNR value in dB
+     * <br> \c payload  : Received buffer pointer.
+     * <br> \c size     : Received buffer size.
+     * <br> \c rssi     : RSSI value computed while receiving the frame [dBm].
+     * <br> \c snr      : Raw SNR value given by the radio hardware.
+     *                    FSK : N/A (set to 0).
+     *                    LoRa: SNR value in dB.
      */
     mbed::Callback<void(const uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr)> rx_done;
 
@@ -423,14 +423,14 @@ typedef struct radio_events {
     /**
      * FHSS Change Channel callback prototype.
      *
-     *  @param current_channel   The index number of the current channel.
+     * <br> \c current_channel : The index number of the current channel.
      */
     mbed::Callback<void(uint8_t current_channel)> fhss_change_channel;
 
     /**
      * CAD Done callback prototype.
      *
-     *  @param channel_busy    True, if Channel activity detected.
+     * <br> \c channel_busy : True, if Channel activity detected.
      */
     mbed::Callback<void(bool channel_busy)> cad_done;
 } radio_events_t;

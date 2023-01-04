@@ -65,15 +65,11 @@ public:
      *
      * @param[in]  underlying_kv        KVStore that will hold the data.
      * @param[in]  rbp_kv               Additional KVStore used for rollback protection.
-     *
-     * @returns none
      */
     SecureStore(KVStore *underlying_kv, KVStore *rbp_kv = 0);
 
     /**
      * @brief Class destructor
-     *
-     * @returns none
      */
     virtual ~SecureStore();
 

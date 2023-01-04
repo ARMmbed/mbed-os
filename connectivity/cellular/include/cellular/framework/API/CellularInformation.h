@@ -76,6 +76,13 @@ public:
      */
     virtual nsapi_error_t get_revision(char *buf, size_t buf_size) = 0;
 
+    enum SerialNumberType {
+        SN = 0, // Serial Number
+        IMEI = 1, // International Mobile station Equipment Identity
+        IMEISV = 2, // IMEI and Software Version number
+        SVN  = 3 // Software Version Number
+    };
+
     /** Request serial number identification of cellular device
      *
      *  @param buf      serial number as zero terminated string
@@ -86,12 +93,6 @@ public:
      *                  NSAPI_ERROR_UNSUPPORTED if the modem does not support SerialNumberType
      *                  NSAPI_ERROR_DEVICE_ERROR on other failures
      */
-    enum SerialNumberType {
-        SN = 0, // Serial Number
-        IMEI = 1, // International Mobile station Equipment Identity
-        IMEISV = 2, // IMEI and Software Version number
-        SVN  = 3 // Software Version Number
-    };
     virtual nsapi_size_or_error_t get_serial_number(char *buf, size_t buf_size, SerialNumberType type = SN) = 0;
 
     /** Get IMSI from the sim card

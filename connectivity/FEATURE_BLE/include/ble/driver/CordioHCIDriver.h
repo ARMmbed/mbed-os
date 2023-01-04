@@ -156,7 +156,6 @@ public:
       *
       * @param success True if the TEST END command was a success.
       * @param packets Number of packets received during the test.
-      * @return BLE_ERROR_NONE on success.
       */
      void handle_test_end(bool success, uint16_t packets);
 

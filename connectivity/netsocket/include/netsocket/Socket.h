@@ -284,7 +284,7 @@ public:
      *  @param optlen   Length of the option value.
      *  @retval         NSAPI_ERROR_OK on success.
      *  @retval         NSAPI_ERROR_NO_SOCKET if socket is not open.
-     *  @retval         int Negative error code on failure, see @ref NetworkStack::setsockopt.
+     *  @retval         Negative error code on failure, see #NetworkStack::setsockopt
      */
     virtual nsapi_error_t setsockopt(int level, int optname, const void *optval, unsigned optlen) = 0;
 
@@ -303,7 +303,7 @@ public:
      *  @param optlen   Length of the option value.
      *  @retval         NSAPI_ERROR_OK on success.
      *  @retval         NSAPI_ERROR_NO_SOCKET if socket is not open.
-     *  @retval         int Negative error code on failure, see @ref NetworkStack::getsockopt.
+     *  @retval         Negative error code on failure, see #NetworkStack::getsockopt
      */
     virtual nsapi_error_t getsockopt(int level, int optname, void *optval, unsigned *optlen) = 0;
 

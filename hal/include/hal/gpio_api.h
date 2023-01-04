@@ -152,7 +152,6 @@ void gpio_init_in_ex(gpio_t *gpio, PinName pin, PinMode mode);
  *
  * @param gpio The GPIO object
  * @param pin  The pin name (may be NC)
- * @return     An integer value 1 or 0
  */
 void gpio_init_out(gpio_t *gpio, PinName pin);
 

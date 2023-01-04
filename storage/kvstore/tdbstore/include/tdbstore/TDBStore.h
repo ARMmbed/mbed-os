@@ -51,15 +51,11 @@ public:
      * @brief Class constructor
      *
      * @param[in]  bd                   Underlying block device.
-     *
-     * @returns none
      */
     TDBStore(BlockDevice *bd);
 
     /**
      * @brief Class destructor
-     *
-     * @returns none
      */
     virtual ~TDBStore();
 
