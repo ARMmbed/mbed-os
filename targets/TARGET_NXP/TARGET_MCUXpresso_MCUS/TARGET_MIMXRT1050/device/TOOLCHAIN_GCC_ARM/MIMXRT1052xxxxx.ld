@@ -59,11 +59,18 @@ MEMORY
   m_interrupts          (RX)  : ORIGIN = MBED_APP_START, LENGTH = 0x00000400
   m_text                (RX)  : ORIGIN = MBED_APP_START + 0x400, LENGTH = MBED_APP_SIZE - 0x400
 #endif
-  m_text2               (RX)  : ORIGIN = 0x00000000, LENGTH = 0x00020000
-  m_data                (RW)  : ORIGIN = 0x80000000, LENGTH = 0x01E00000
+
+#if MIMXRT105X_BOARD_HAS_EXTERNAL_RAM
+  /* Use the external RAM as main memory */
+  m_data                (RW)  : ORIGIN = 0x80000000, LENGTH = MIMXRT105X_EXTERNAL_RAM_SIZE
+#else
+  /* Use OCRAM as main memory. */
+  m_data                (RW)  : ORIGIN = 0x20200000, LENGTH = 0x00040000
+#endif
+
+  m_itcm               (RX)  : ORIGIN = 0x00000000, LENGTH = 0x00020000
   m_ncache              (RW)  : ORIGIN = 0x81E00000, LENGTH = 0x00200000
-  m_data2               (RW)  : ORIGIN = 0x20000000, LENGTH = 0x00020000
-  m_data3               (RW)  : ORIGIN = 0x20200000, LENGTH = 0x00040000
+  m_dtcm               (RW)  : ORIGIN = 0x20000000, LENGTH = 0x00020000
 }
 
 /* Define output sections */
@@ -80,7 +87,7 @@ SECTIONS
 
   ivt_begin= ORIGIN(m_flash_config) + LENGTH(m_flash_config);
 
-  .ivt : AT(ivt_begin)
+  .ivt :
   {
     . = ALIGN(8);
     KEEP(* (.boot_hdr.ivt))           /* ivt section */
@@ -196,12 +203,12 @@ SECTIONS
     . += M_VECTOR_RAM_SIZE;
     . = ALIGN(8);
     __interrupts_ram_end__ = .; /* Define a global symbol at data end */
-  } > m_data2
+  } > m_dtcm
 
   __VECTOR_RAM = DEFINED(__ram_vector_table__) ? __VECTOR_RAM__ : ORIGIN(m_interrupts);
   __RAM_VECTOR_TABLE_SIZE_BYTES = DEFINED(__ram_vector_table__) ? (__interrupts_ram_end__ - __interrupts_ram_start__) : 0x0;
 
-  .data : AT(__DATA_ROM)
+  .data :
   {
     . = ALIGN(8);
     __DATA_RAM = .;
@@ -212,29 +219,29 @@ SECTIONS
     KEEP(*(.jcr*))
     . = ALIGN(8);
     __data_end__ = .;        /* define a global symbol at data end */
-  } > m_data
+  } > m_data AT> m_text
   __ram_function_flash_start = __DATA_ROM + (__data_end__ - __data_start__); /* Symbol is used by startup for TCM data initialization */
 
-  .ram_function : AT(__ram_function_flash_start)
+  .ram_function :
   {
     . = ALIGN(32);
     __ram_function_start__ = .;
     *(CodeQuickAccess)
     . = ALIGN(128);
     __ram_function_end__ = .;
-  } > m_text2
+  } > m_itcm AT> m_text
 
   __ram_function_size = SIZEOF(.ram_function);
 
   __NDATA_ROM = __ram_function_flash_start + SIZEOF(.ram_function);
 
-  .ncache.init : AT(__NDATA_ROM)
+  .ncache.init :
   {
     __noncachedata_start__ = .;   /* create a global symbol at ncache data start */
     *(NonCacheable.init)
     . = ALIGN(8);
     __noncachedata_init_end__ = .;   /* create a global symbol at initialized ncache data end */
-  } > m_ncache
+  } > m_ncache AT> m_text
   . = __noncachedata_init_end__;
   .ncache :
   {
@@ -243,9 +250,20 @@ SECTIONS
     __noncachedata_end__ = .;     /* define a global symbol at ncache data end */
   } > m_ncache
 
-  __DATA_END = __NDATA_ROM + (__noncachedata_init_end__ - __noncachedata_start__);
+  __TEXT_CSF_ROM = __NDATA_ROM + (__noncachedata_init_end__ - __noncachedata_start__);
+
+  .csf :
+  {
+    FILL(0xFF)
+    . = ALIGN(1024);
+    KEEP(*(.csf))
+    __text_csf_end = .;
+  } > m_text
+
+  __USED_FLASH_END = __TEXT_CSF_ROM + SIZEOF(.csf);
+
   text_end = ORIGIN(m_text) + LENGTH(m_text);
-  ASSERT(__DATA_END <= text_end, "region m_text overflowed with text and data")
+  ASSERT(__USED_FLASH_END <= text_end, "Code and data initializers exceed flash size!")
 
   /* Uninitialized data section */
   .bss :
@@ -287,6 +305,6 @@ SECTIONS
 
   .ARM.attributes 0 : { *(.ARM.attributes) }
 
-  ASSERT(__StackLimit >= __HeapLimit, "region m_data overflowed with stack and heap")
+  ASSERT(__StackLimit >= __HeapLimit, "Stack, heap, and globals exceed main RAM size!")
 }
 

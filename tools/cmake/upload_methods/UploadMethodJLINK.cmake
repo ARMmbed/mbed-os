@@ -37,7 +37,8 @@ exit
 		-JTAGConf -1,-1
 		-AutoConnect 1
 		-ExitOnError
-		-CommandFile ${COMMAND_FILE_PATH})
+		-CommandFile ${COMMAND_FILE_PATH}
+		VERBATIM)
 
 
 	add_dependencies(flash-${TARGET_NAME} ${TARGET_NAME})
@@ -58,4 +59,5 @@ add_custom_target(gdbserver
 	-LocalhostOnly
 	-noIR
 	-port ${GDB_PORT}
-	USES_TERMINAL)
+	USES_TERMINAL
+	VERBATIM)

@@ -170,44 +170,77 @@ typedef enum {
     GPIO_SD_B1_10 = ((3 << GPIO_PORT_SHIFT) | 10),
     GPIO_SD_B1_11 = ((3 << GPIO_PORT_SHIFT) | 11),
 
-    // USB Pins
-    CONSOLE_TX = GPIO_AD_B0_12,
-    CONSOLE_RX = GPIO_AD_B0_13,
+    // Teensy 4.0 pin names -------------------------------------
+    // Digital
+    D0 = GPIO_AD_B0_03,
+    D1 = GPIO_AD_B0_02,
+    D2 = GPIO_EMC_04,
+    D3 = GPIO_EMC_05,
+    D4 = GPIO_EMC_06,
+    D5 = GPIO_EMC_08,
+    D6 = GPIO_B0_10,
+    D7 = GPIO_B1_01,
+    D8 = GPIO_B1_00,
+    D9 = GPIO_B0_11,
+    D10 = GPIO_B0_00,
+    D11 = GPIO_B0_02,
+    D12 = GPIO_B0_01,
+    D13 = GPIO_B0_03,
+    D14 = GPIO_AD_B1_02,
+    D15 = GPIO_AD_B1_03,
+    D16 = GPIO_AD_B1_07,
+    D17 = GPIO_AD_B1_06,
+    D18 = GPIO_AD_B1_01,
+    D19 = GPIO_AD_B1_00,
+    D20 = GPIO_AD_B1_10,
+    D21 = GPIO_AD_B1_11,
+    D22 = GPIO_AD_B1_08,
+    D23 = GPIO_AD_B1_09,
+    D24 = GPIO_AD_B0_12,
+    D25 = GPIO_AD_B0_13,
+    D26 = GPIO_AD_B1_14,
+    D27 = GPIO_AD_B1_15,
+    D28 = GPIO_EMC_32,
+    D29 = GPIO_EMC_31,
+    D30 = GPIO_EMC_37,
+    D31 = GPIO_EMC_36,
+    D32 = GPIO_B0_12,
+    D33 = GPIO_EMC_07,
+    D34 = GPIO_SD_B0_03,
+    D35 = GPIO_SD_B0_02,
+    D36 = GPIO_SD_B0_01,
+    D37 = GPIO_SD_B0_00,
+    D38 = GPIO_SD_B0_05,
+    D39 = GPIO_SD_B0_04,
 
-    // Arduino Uno Headers
-    ARDUINO_UNO_D0 = GPIO_AD_B1_07,
-    ARDUINO_UNO_D1 = GPIO_AD_B1_06,
-    ARDUINO_UNO_D2 = GPIO_AD_B0_11,
-    ARDUINO_UNO_D3 = GPIO_AD_B1_08,
-    ARDUINO_UNO_D4 = GPIO_AD_B0_09,
-    ARDUINO_UNO_D5 = GPIO_AD_B0_10,
-    ARDUINO_UNO_D6 = GPIO_AD_B1_02,
-    ARDUINO_UNO_D7 = GPIO_AD_B1_03,
-    ARDUINO_UNO_D8 = GPIO_AD_B0_03,
-    ARDUINO_UNO_D9 = GPIO_AD_B0_02,
-    ARDUINO_UNO_D10 = GPIO_SD_B0_01,
-    ARDUINO_UNO_D11 = GPIO_SD_B0_02,
-    ARDUINO_UNO_D12 = GPIO_SD_B0_03,
-    ARDUINO_UNO_D13 = GPIO_SD_B0_00,
+    // Analog
+    A0 = GPIO_AD_B1_02,
+    A1 = GPIO_AD_B1_03,
+    A2 = GPIO_AD_B1_07,
+    A3 = GPIO_AD_B1_06,
+    A4 = GPIO_AD_B1_01,
+    A5 = GPIO_AD_B1_00,
+    A6 = GPIO_AD_B1_10,
+    A7 = GPIO_AD_B1_11,
+    A8 = GPIO_AD_B1_08,
+    A9 = GPIO_AD_B1_09,
+    A10 = GPIO_AD_B0_12,
+    A11 = GPIO_AD_B0_13,
+    A12 = GPIO_AD_B1_14,
+    A13 = GPIO_AD_B1_15,
 
-    // Note: MIMXRT1050 EVKB Rev A connected D15 and D15 to AD_B0_01 and AD_B0_00 instead, but this did not comply
-    // with the standard as these pins do not have an I2C instance on them, so it was changed in Rev B.
-    ARDUINO_UNO_D14 = GPIO_AD_B1_01,
-    ARDUINO_UNO_D15 = GPIO_AD_B1_00,
+    // Standard aliases -------------------------------------
 
-    ARDUINO_UNO_A0 = GPIO_AD_B1_10,
-    ARDUINO_UNO_A1 = GPIO_AD_B1_11,
-    ARDUINO_UNO_A2 = GPIO_AD_B1_04,
-    ARDUINO_UNO_A3 = GPIO_AD_B1_05,
-    ARDUINO_UNO_A4 = GPIO_AD_B1_01,
-    ARDUINO_UNO_A5 = GPIO_AD_B1_00,
+    // Even though the UART console is not used by default, we still provide mappings on the standard Arduino pins
+    CONSOLE_TX = D1,
+    CONSOLE_RX = D0,
 
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
 
 // Standardized LED and button names
-#define LED1 		GPIO_AD_B0_09		// USER LED (green)
+#define LED1 		D13
 #define USER_LED	LED1
 
 typedef enum {

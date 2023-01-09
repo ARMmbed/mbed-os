@@ -41,11 +41,21 @@ const PinMap PinMap_DAC[] = {
 /************I2C***************/
 const PinMap PinMap_I2C_SDA[] = {
     {GPIO_AD_B1_01, I2C_1, ((1U << DAISY_REG_VALUE_SHIFT) | (0x4D0 << DAISY_REG_SHIFT) | (1U << SION_BIT_SHIFT) | 3)},
+
+    // I2C3 is ALT1 of GPIO_AD_B1_06
+    // GPIO_AD_B1_06 is daisy chain input 3 of I2C3 per the IOMUXC_LPI2C3_SDA_SELECT_INPUT register description
+    {GPIO_AD_B1_06, I2C_3, ((3U << DAISY_REG_VALUE_SHIFT) | (0x4E0 << DAISY_REG_SHIFT) | (1U << SION_BIT_SHIFT) | 1)},
+
     {NC   , NC   , 0}
 };
 
 const PinMap PinMap_I2C_SCL[] = {
     {GPIO_AD_B1_00, I2C_1, ((1U << DAISY_REG_VALUE_SHIFT) | (0x4CC << DAISY_REG_SHIFT) | (1U << SION_BIT_SHIFT) | 3)},
+
+    // I2C3 is ALT1 of GPIO_AD_B1_07
+    // GPIO_AD_B1_07 is daisy chain input 3 of I2C3 per the IOMUXC_LPI2C3_SCL_SELECT_INPUT register description
+    {GPIO_AD_B1_07, I2C_3, ((3U << DAISY_REG_VALUE_SHIFT) | (0x4DC << DAISY_REG_SHIFT) | (1U << SION_BIT_SHIFT) | 1)},
+
     {NC   , NC   , 0}
 };
 
@@ -53,12 +63,14 @@ const PinMap PinMap_I2C_SCL[] = {
 const PinMap PinMap_UART_TX[] = {
     {GPIO_AD_B0_12, UART_1, 2},
     {GPIO_AD_B1_06, UART_3, 2},
+    {GPIO_AD_B0_02, UART_6, 2},
     {NC  ,  NC    , 0}
 };
 
 const PinMap PinMap_UART_RX[] = {
     {GPIO_AD_B0_13, UART_1, 2},
     {GPIO_AD_B1_07, UART_3, 2},
+    {GPIO_AD_B0_03, UART_6, 2},
     {NC  ,  NC    , 0}
 };
 

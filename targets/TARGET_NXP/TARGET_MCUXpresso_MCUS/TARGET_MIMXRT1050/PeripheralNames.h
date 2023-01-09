@@ -32,6 +32,10 @@ typedef enum {
     UART_2 = 2,
     UART_3 = 3,
     UART_4 = 4,
+    UART_5 = 5,
+    UART_6 = 6,
+    UART_7 = 7,
+    UART_8 = 8
 } UARTName;
 
 #if defined(MBED_CONF_TARGET_STDIO_UART_TX)

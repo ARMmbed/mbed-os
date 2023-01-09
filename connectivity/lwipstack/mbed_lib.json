@@ -219,7 +219,7 @@
             "pbuf-pool-size": 14,
             "mem-size": 65536
         },
-        "MIMXRT1050_EVK": {
+        "MIMXRT105X": {
             "mem-size": 36560
         },
         "PORTENTA_H7": {

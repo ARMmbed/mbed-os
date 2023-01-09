@@ -5008,40 +5008,32 @@
         "mbed_ram_start": "0x20000000",
         "mbed_ram_size": "0x10000"
     },
-    "MIMXRT1050_EVK": {
-        "supported_form_factors": [
-            "ARDUINO_UNO"
-        ],
+    "MIMXRT105X": {
         "core": "Cortex-M7FD",
         "supported_toolchains": [
-            "ARM",
-            "GCC_ARM",
-            "IAR"
+            "GCC_ARM"
         ],
         "supported_application_profiles": [
             "full",
             "bare-metal"
         ],
+        "public": false,
         "extra_labels": [
             "NXP",
             "MCUXpresso_MCUS",
-            "EVK",
             "MIMXRT1050",
             "IMX",
             "NXP_EMAC",
-	    "USB"
+	        "USB"
         ],
-        "is_disk_virtual": true,
         "macros": [
             "CPU_MIMXRT1052DVL6B",
             "FSL_RTOS_MBED",
             "XIP_BOOT_HEADER_ENABLE=1",
             "XIP_EXTERNAL_FLASH=1",
-            "XIP_BOOT_HEADER_DCD_ENABLE=1",
             "HYPERFLASH_BOOT",
             "FSL_SDK_DRIVER_QUICK_ACCESS_ENABLE=1",
             "SKIP_SYSCLK_INIT",
-            "FSL_FEATURE_PHYKSZ8081_USE_RMII50M_MODE",
             "__STARTUP_INITIALIZE_RAMFUNCTION",
             "__STARTUP_INITIALIZE_NONCACHEDATA",
             "MBED_MPU_CUSTOM",
@@ -5054,14 +5046,10 @@
         "inherits": [
             "Target"
         ],
-        "detect_code": [
-            "0227"
-        ],
         "device_has": [
             "RTC",
             "SLEEP",
             "USTICKER",
-            "LPTICKER",
             "ANALOGIN",
             "EMAC",
             "I2C",
@@ -5078,21 +5066,86 @@
             "STDIO_MESSAGES",
             "TRNG",
             "WATCHDOG",
-            "FLASH",
             "USBDEVICE"
-        ],
-        "release_versions": [
-            "5"
         ],
         "features": [
             "LWIP"
         ],
         "device_name": "MIMXRT1052",
-        "bootloader_supported": true,
         "overrides": {
-            "deep-sleep-latency": 10,
+            "deep-sleep-latency": 10
+        }
+    },
+    "MIMXRT1050_EVK": {
+        "inherits": [
+            "MIMXRT105X"
+        ],
+        "extra_labels_add": [
+            "EVK",
+            "1050_EVK"
+        ],
+        "supported_form_factors": [
+            "ARDUINO_UNO"
+        ],
+        "macros_add": [
+            "XIP_BOOT_HEADER_DCD_ENABLE=1",
+            "FSL_FEATURE_PHYKSZ8081_USE_RMII50M_MODE",
+            "MIMXRT105X_BOARD_HAS_EXTERNAL_RAM=1",
+            "MIMXRT105X_EXTERNAL_RAM_SIZE=0x01E00000"
+        ],
+        "device_has_add": [
+            "LPTICKER",
+            "FLASH"
+        ],
+        "detect_code": [
+            "0227"
+        ],
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        },
+        "bootloader_supported": true
+    },
+    "MIMXRT1060_EVK": {
+        "inherits": [
+            "MIMXRT105X"
+        ],
+        "extra_labels_add": [
+            "EVK",
+            "1060_EVK"
+        ],
+        "supported_form_factors": [
+            "ARDUINO_UNO"
+        ],
+        "macros_add": [
+            "XIP_BOOT_HEADER_DCD_ENABLE=1",
+            "FSL_FEATURE_PHYKSZ8081_USE_RMII50M_MODE",
+            "MIMXRT105X_BOARD_HAS_EXTERNAL_RAM=1",
+            "MIMXRT105X_EXTERNAL_RAM_SIZE=0x01E00000",
+            "MBED_APP_SIZE=0x800000"
+        ],
+        "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
+    },
+    "TEENSY_40": {
+        "inherits": [
+            "MIMXRT105X"
+        ],
+        "extra_labels_add": [
+            "TEENSY_4X",
+            "TEENSY_40"
+        ],
+        "macros_add": [
+            "MIMXRT105X_BOARD_HAS_EXTERNAL_RAM=0",
+            "MBED_APP_SIZE=0x1f0000"
+        ],
+        "overrides": {
+            "console-usb": true,
+            "console-uart": false
+        },
+        "device_has_remove": [
+            "EMAC"
+        ]
     },
     "MIMXRT1170_EVK": {
         "supported_form_factors": [

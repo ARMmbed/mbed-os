@@ -165,10 +165,12 @@ void mbed_sdk_init()
     BOARD_ConfigMPU();
     BOARD_BootClockRUN();
 
+#if TARGET_EVK
     /* Since SNVS_PMIC_STBY_REQ_GPIO5_IO02 will output a high-level signal under Stop Mode(Suspend Mode) and this pin is
      * connected to LCD power switch circuit. So it needs to be configured as a low-level output GPIO to reduce the
      * current. */
     BOARD_Init_PMIC_STBY_REQ();
+#endif
 
     LPM_Init();
 }

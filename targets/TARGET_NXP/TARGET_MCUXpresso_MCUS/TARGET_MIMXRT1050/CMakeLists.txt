@@ -1,8 +1,6 @@
 # Copyright (c) 2020-2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_subdirectory(TARGET_EVK EXCLUDE_FROM_ALL)
-
 if(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(STARTUP_FILE device/TOOLCHAIN_ARM_STD/startup_MIMXRT1052.S)
     set(LINKER_FILE device/TOOLCHAIN_ARM_STD/MIMXRT1052xxxxx.sct)
@@ -11,19 +9,31 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(LINKER_FILE device/TOOLCHAIN_GCC_ARM/MIMXRT1052xxxxx.ld)
 endif()
 
-add_library(mbed-mimxrt1050-evk INTERFACE)
+# Target for MIMXRT106x/106x common code.
+add_library(mbed-mimxrt105x INTERFACE)
 
-target_include_directories(mbed-mimxrt1050-evk
+target_include_directories(mbed-mimxrt105x
     INTERFACE
         .
         device
         drivers
 )
 
-target_sources(mbed-mimxrt1050-evk
+target_sources(mbed-mimxrt105x
     INTERFACE
         usb_device_ch9.c
         usb_device_class.c
+        analogin_api.c
+        serial_api.c
+        sleep.c
+        trng_api.c
+        us_ticker.c
+        fsl_clock_config.c
+        PeripheralPins.c
+        pinmap.c
+        specific.c
+        lpm.c
+        mbed_overrides.c
 
         device/system_MIMXRT1052.c
 
@@ -60,7 +70,6 @@ target_sources(mbed-mimxrt1050-evk
         drivers/fsl_flexio_uart_edma.c
         drivers/fsl_flexram.c
         drivers/fsl_flexspi.c
-        drivers/fsl_flexspi_nor_boot.c
         drivers/fsl_gpc.c
         drivers/fsl_gpio.c
         drivers/fsl_gpt.c
@@ -97,12 +106,14 @@ target_sources(mbed-mimxrt1050-evk
         ${STARTUP_FILE}
 )
 
-target_link_libraries(mbed-mimxrt1050-evk
+target_link_libraries(mbed-mimxrt105x
     INTERFACE
         mbed-mcuxpresso-mcus
-        mbed-evk
         mbed-imx
         mbed-nxp-usb
 )
 
-mbed_set_linker_script(mbed-mimxrt1050-evk ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+mbed_set_linker_script(mbed-mimxrt105x ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
+
+add_subdirectory(TARGET_EVK EXCLUDE_FROM_ALL)
+add_subdirectory(TARGET_TEENSY_4X)
