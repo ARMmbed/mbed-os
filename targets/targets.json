@@ -1918,6 +1918,25 @@
             "0320"
         ]
     },
+    "BLACKPILL_F411CE": {
+        "inherits": [
+            "MCU_STM32F411xE"
+        ],
+        "macros_add": [
+            "HSE_VALUE=25000000U"
+        ],
+        "overrides": {
+            "clock_source": "USE_PLL_HSI | USE_PLL_HSE_XTAL"
+        },
+        "device_has_add": [
+            "USBDEVICE"
+        ],
+        "bootloader_supported": true,
+        "detect_code": [
+            "0740"
+        ],
+        "device_name": "MCU_STM32F411CE"
+    },
     "MCU_STM32F412xE": {
         "inherits": [
             "MCU_STM32F4"
