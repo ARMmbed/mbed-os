@@ -31,7 +31,7 @@
 #include "stm32f4xx.h"
 #include "mbed_error.h"
 
-// For clock debugging purpose - output on MCO2 pin(PC9) 
+// For clock debugging purpose - output on MCO1 pin(PA_8)
 #define FREQDEBUG  0 
 
 // clock source is selected with CLOCK_SOURCE in json config

@@ -169,11 +169,6 @@ typedef enum {
     CONSOLE_RX = PA_3,
 #endif
 
-    // Generic signals namings
-#define LED1        = PC_13,
-    // Standardized button names
-#define BUTTON1     = USER_BUTTON,
-
     /**** USB FS pins ****/
     USB_OTG_FS_DM = PA_11,
     USB_OTG_FS_DP = PA_12,
@@ -196,6 +191,13 @@ typedef enum {
     SYS_WKUP = PA_0,
 
 } PinName;
+
+// Standardized LED and button names
+#define LED1     PC_13   // LD1 [BLUE]
+#define BUTTON1  PA_0
+
+// legacy name
+#define USER_BUTTON  BUTTON1
 
 #ifdef __cplusplus
 }
