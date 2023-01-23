@@ -19,6 +19,7 @@
 #if DEVICE_CAN
 
 #include "platform/mbed_power_mgmt.h"
+#include "platform/mbed_error.h"
 
 namespace mbed {
 
@@ -82,6 +83,9 @@ int CAN::read(CANMessage &msg, int handle)
 {
     lock();
     int ret = can_read(&_can, &msg, handle);
+    if (msg.len > 8) {
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_CAN, MBED_ERROR_CODE_READ_FAILED), "Read tried to write more than 8 bytes");
+    }
     unlock();
     return ret;
 }
