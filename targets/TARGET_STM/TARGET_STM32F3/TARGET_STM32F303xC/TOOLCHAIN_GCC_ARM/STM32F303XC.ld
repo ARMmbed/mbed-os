@@ -37,8 +37,9 @@
 
 MEMORY
 {
-    FLASH (rx)   : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
-    RAM (rwx)    : ORIGIN = MBED_RAM_START + VECTORS_SIZE, LENGTH = MBED_RAM_SIZE - VECTORS_SIZE
+    FLASH (rx)    : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
+    RAM (rwx)     : ORIGIN = MBED_RAM_START + VECTORS_SIZE, LENGTH = MBED_RAM_SIZE - VECTORS_SIZE
+    RAM_CCM (rwx) : ORIGIN = MBED_RAM1_START, LENGTH = MBED_RAM1_SIZE
 }
 
 /* Linker script to place sections and symbol values. Should be used together
@@ -113,7 +114,7 @@ SECTIONS
 
     __etext = .;
     _sidata = .;
-    
+
     .data : AT (__etext)
     {
         __data_start__ = .;
@@ -161,7 +162,7 @@ SECTIONS
         . = ALIGN(32);
         __uninitialized_end = .;
     } > RAM
-    
+
     .bss :
     {
         . = ALIGN(8);
@@ -182,6 +183,14 @@ SECTIONS
         . = ORIGIN(RAM) + LENGTH(RAM) - MBED_CONF_TARGET_BOOT_STACK_SIZE;
         __HeapLimit = .;
     } > RAM
+
+   .ram_ccm_section  (NOLOAD):
+    {
+        __ram_ccm_start__ = .;
+        *(.RAM_CCM_section)
+        . = ORIGIN(RAM_CCM) + LENGTH(RAM_CCM);
+        __ram_ccm_end__ = .;
+    } >RAM_CCM
 
     /* .stack_dummy section doesn't contains any symbols. It is only
      * used for linker to calculate size of stack sections, and assign
