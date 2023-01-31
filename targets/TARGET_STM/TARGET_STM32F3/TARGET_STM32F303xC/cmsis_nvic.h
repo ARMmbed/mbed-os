@@ -30,7 +30,7 @@
 #endif
 
 #if !defined(MBED_RAM_SIZE)
-#define MBED_RAM_SIZE  0xc000  // 48 KB
+#define MBED_RAM_SIZE  0xa000  // 40 KB
 #endif
 
 #if !defined(MBED_RAM1_START)
