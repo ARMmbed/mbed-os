@@ -1,6 +1,7 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2018, STMicroelectronics
  * All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -55,7 +56,7 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef *heth)
           RMII_MII_CRS_DV -------------------> PA7
           RMII_MII_RXD0 ---------------------> PC4
           RMII_MII_RXD1 ---------------------> PC5
-          RMII_MII_RXER ---------------------> PG2
+          RMII_MII_RXER ---------------------> none
           RMII_MII_TX_EN --------------------> PG11
           RMII_MII_TXD0 ---------------------> PG13
           RMII_MII_TXD1 ---------------------> PG14
@@ -72,8 +73,8 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef *heth)
         GPIO_InitStructure.Pin = GPIO_PIN_1 | GPIO_PIN_4 | GPIO_PIN_5;
         HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 
-        /* Configure PG2, PG11, PG13 and PG14 */
-        GPIO_InitStructure.Pin =  GPIO_PIN_2 | GPIO_PIN_11 | GPIO_PIN_13 | GPIO_PIN_14;
+        /* Configure PG11, PG13 and PG14 */
+        GPIO_InitStructure.Pin = GPIO_PIN_11 | GPIO_PIN_13 | GPIO_PIN_14;
         HAL_GPIO_Init(GPIOG, &GPIO_InitStructure);
 
         /* Enable the Ethernet global Interrupt */
@@ -101,14 +102,14 @@ void HAL_ETH_MspDeInit(ETH_HandleTypeDef *heth)
           RMII_MII_CRS_DV -------------------> PA7
           RMII_MII_RXD0 ---------------------> PC4
           RMII_MII_RXD1 ---------------------> PC5
-          RMII_MII_RXER ---------------------> PG2
+          RMII_MII_RXER ---------------------> none
           RMII_MII_TX_EN --------------------> PG11
           RMII_MII_TXD0 ---------------------> PG13
           RMII_MII_TXD1 ---------------------> PG14
          */
         HAL_GPIO_DeInit(GPIOA, GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_7);
         HAL_GPIO_DeInit(GPIOC, GPIO_PIN_1 | GPIO_PIN_4 | GPIO_PIN_5);
-        HAL_GPIO_DeInit(GPIOG, GPIO_PIN_2 | GPIO_PIN_11 | GPIO_PIN_13 | GPIO_PIN_14);
+        HAL_GPIO_DeInit(GPIOG, GPIO_PIN_11 | GPIO_PIN_13 | GPIO_PIN_14);
 
         /* Disable the Ethernet global Interrupt */
         NVIC_DisableIRQ(ETH_IRQn);
