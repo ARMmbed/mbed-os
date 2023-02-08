@@ -3,7 +3,7 @@
 // The only changes made were:
 // - Section names had to be modified to match what is expected by Mbed's linker script.
 // - #define names had to be modified to match Mbed
-// - _flashimagelen replaced with __USED_FLASH_END
+// - _flashimagelen replaced with __USED_FLASH_SIZE
 // - ResetHandler replaced with Reset_Handler
 
 /* Teensyduino Core Library
@@ -40,14 +40,14 @@
 
 extern void Reset_Handler(void);
 extern unsigned long _estack;
-extern unsigned long __USED_FLASH_END;
+extern unsigned long __USED_FLASH_SIZE;
 
 
 
 __attribute__ ((section(".boot_hdr.boot_data"), used))
 const uint32_t BootData[3] = {
 	0x60000000,
-	(uint32_t)&__USED_FLASH_END,
+	(uint32_t)&__USED_FLASH_SIZE,
 	0
 };
 
