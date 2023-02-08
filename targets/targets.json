@@ -5110,7 +5110,7 @@
             "XIP_BOOT_HEADER_DCD_ENABLE=1",
             "FSL_FEATURE_PHYKSZ8081_USE_RMII50M_MODE",
             "MIMXRT105X_BOARD_HAS_EXTERNAL_RAM=1",
-            "MIMXRT105X_EXTERNAL_RAM_SIZE=0x01E00000"
+            "MIMXRT105X_EXTERNAL_RAM_SIZE=0x02000000"
         ],
         "device_has_add": [
             "LPTICKER",
