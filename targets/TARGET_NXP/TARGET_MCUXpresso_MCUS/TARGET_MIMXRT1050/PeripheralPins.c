@@ -17,6 +17,39 @@
 
 #include "PeripheralPins.h"
 
+// Note on MIMXRT pin functions:
+// The MIMXRT's pin function system is pretty dang complicated, and Mbed's pin function data for this chip
+// (the 3rd element in each pinmap entry) has to be pretty complicated to match.
+// It's a 32-bit bitfield with the following format:
+// __________________________________________________________________________________________________
+// |                               |                            |              |                     |
+// |  Daisy Reg Value (bits 19:16) | Daisy Register (bits 15:4) | SION (bit 3) | Mux Mode (bits 2:0) |
+// |_______________________________|____________________________|______________|_____________________|
+//
+// Mux mode:
+//    This value gets written to the IOMUXC_SW_MUX_CTL_PAD_xxx.MUX_MODE bitfield for the given pin.
+//    It's a number from 0 to 7 that selects the possible mux mode.
+//    See Table 10-1 in the datasheet for the possible muxing options
+//
+// SION:
+//    This is a somewhat unusual setting used to "force the pin mode to input regardless of MUX_MODE
+//    functionality".  It's a setting needed for certain peripherals to work that use pins in input mode.
+//    I'm not quite sure of the logic for when to use it...
+//
+// Daisy Register:
+//    If nonzero, this field specifies the offset for a "daisy chain register" to use when setting up the pin
+//    function.  "Daisy chain" is actually kinda a misnomer, this register is used to select which of multiple
+//    pin options a peripheral is connected to, it doesn't daisy chain pins together.  It would be better to
+//    call it "top-level mux register" or something.
+//
+//    The daisy register is specified as an offset relative to the IOMUXC peripheral base.  For example, for the
+//    LPI2C3 peripheral, the daisy chain register for SCL is IOMUXC_LPI2C3_SDA_SELECT_INPUT.  So, since the address
+//    of that register is IOMUXC + 0x4E0, I'd put 0x4E0 as the daisy register.
+//
+// Daisy Reg Value:
+//    Numeric option to select in the above daisy register, if the address is given.
+//
+
 /************RTC***************/
 const PinMap PinMap_RTC[] = {
     {NC, OSC32KCLK, 0},
@@ -62,15 +95,15 @@ const PinMap PinMap_I2C_SCL[] = {
 /************UART***************/
 const PinMap PinMap_UART_TX[] = {
     {GPIO_AD_B0_12, UART_1, 2},
-    {GPIO_AD_B1_06, UART_3, 2},
-    {GPIO_AD_B0_02, UART_6, 2},
+    {GPIO_AD_B1_06, UART_3, ((0 << DAISY_REG_VALUE_SHIFT) | (0x53C << DAISY_REG_SHIFT) | 2)},
+    {GPIO_AD_B0_02, UART_6, ((1 << DAISY_REG_VALUE_SHIFT) | (0x554 << DAISY_REG_SHIFT) | 2)},
     {NC  ,  NC    , 0}
 };
 
 const PinMap PinMap_UART_RX[] = {
     {GPIO_AD_B0_13, UART_1, 2},
-    {GPIO_AD_B1_07, UART_3, 2},
-    {GPIO_AD_B0_03, UART_6, 2},
+    {GPIO_AD_B1_07, UART_3, ((0 << DAISY_REG_VALUE_SHIFT) | (0x538 << DAISY_REG_SHIFT) | 2)},
+    {GPIO_AD_B0_03, UART_6, ((1 << DAISY_REG_VALUE_SHIFT) | (0x550 << DAISY_REG_SHIFT) | 2)},
     {NC  ,  NC    , 0}
 };
 
