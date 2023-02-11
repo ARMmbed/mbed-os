@@ -5093,8 +5093,14 @@
         "device_name": "MIMXRT1052",
         "overrides": {
             "deep-sleep-latency": 10
-        }
-    },
+        },
+         "config": {
+             "enable-overdrive-mode": {
+                 "help": "Enable 'overdrive mode' and raise core clock from 528MHz to 600MHz.  Only allowed on MIMXRT10xxD parts, not MIMXRT10xxC",
+                 "value": 1
+             }
+         }
+     },
     "MIMXRT1050_EVK": {
         "inherits": [
             "MIMXRT105X"

@@ -7,7 +7,6 @@ function(mbed_set_profile_options target mbed_toolchain)
 
     if(${mbed_toolchain} STREQUAL "GCC_ARM")
         list(APPEND profile_c_compile_options
-            "-c"
             "-Os"
         )
         target_compile_options(${target}
@@ -16,7 +15,6 @@ function(mbed_set_profile_options target mbed_toolchain)
         )
 
         list(APPEND profile_cxx_compile_options
-            "-c"
             "-fno-rtti"
             "-Wvla"
             "-Os"
@@ -27,7 +25,6 @@ function(mbed_set_profile_options target mbed_toolchain)
         )
 
         list(APPEND profile_asm_compile_options
-            "-c"
             "-x" "assembler-with-cpp"
         )
         target_compile_options(${target}

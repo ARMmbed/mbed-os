@@ -165,6 +165,13 @@ void mbed_sdk_init()
     BOARD_ConfigMPU();
     BOARD_BootClockRUN();
 
+#if MBED_CONF_TARGET_ENABLE_OVERDRIVE_MODE
+    //LPM_OverDriveRun();
+#else
+    //LPM_FullSpeedRun();
+#endif
+
+
 #if TARGET_EVK
     /* Since SNVS_PMIC_STBY_REQ_GPIO5_IO02 will output a high-level signal under Stop Mode(Suspend Mode) and this pin is
      * connected to LCD power switch circuit. So it needs to be configured as a low-level output GPIO to reduce the
@@ -345,5 +352,25 @@ uint32_t USB_DeviceGetIrqNumber(void)
     irqNumber                  = usbDeviceEhciIrq[CONTROLLER_ID - kUSB_ControllerEhci0];
 
     return irqNumber;
+}
+
+void vPortPRE_SLEEP_PROCESSING(clock_mode_t powermode)
+{
+    LPM_EnableWakeupSource(GPT2_IRQn);
+
+    LPM_EnterLowPowerIdle();
+}
+
+void vPortPOST_SLEEP_PROCESSING(clock_mode_t powermode)
+{
+    LPM_ExitLowPowerIdle();
+
+#if MBED_CONF_TARGET_ENABLE_OVERDRIVE_MODE
+    LPM_OverDriveRun();
+#else
+    LPM_FullSpeedRun();
+#endif
+
+    LPM_DisableWakeupSource(GPT2_IRQn);
 }
 

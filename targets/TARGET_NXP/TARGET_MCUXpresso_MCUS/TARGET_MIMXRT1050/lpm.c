@@ -505,30 +505,3 @@ void LPM_DisableWakeupSource(uint32_t irq)
 {
     GPC_DisableIRQ(GPC, irq);
 }
-
-GPT_Type *vPortGetGptBase(void)
-{
-    return GPT2;
-}
-
-IRQn_Type vPortGetGptIrqn(void)
-{
-    return GPT2_IRQn;
-}
-
-void vPortPRE_SLEEP_PROCESSING(clock_mode_t powermode)
-{
-    LPM_EnableWakeupSource(vPortGetGptIrqn());
-
-    LPM_EnterLowPowerIdle();
-}
-
-void vPortPOST_SLEEP_PROCESSING(clock_mode_t powermode)
-{
-    LPM_ExitLowPowerIdle();
-
-    LPM_OverDriveRun();
-
-    LPM_DisableWakeupSource(vPortGetGptIrqn());
-}
-
