@@ -28,16 +28,9 @@ typedef enum _lpm_power_mode
 
     LPM_PowerModeFullRun, /* Full RUN mode, CPU won't stop running */
 
-    LPM_PowerModeLowSpeedRun,
-
     LPM_PowerModeLowPowerRun,
 
     LPM_PowerModeRunEnd = LPM_PowerModeLowPowerRun,
-    /* In system wait mode, cpu clock is gated.
-     * All peripheral can remain active, clock gating decided by CCGR setting.
-     * DRAM enters auto-refresh mode when there is no access.
-     */
-    LPM_PowerModeSysIdle, /* System WAIT mode, also system low speed idle */
 
     /* In low power idle mode, all PLL/PFD is off, cpu power is off.
      * Analog modules running in low power mode.

@@ -319,7 +319,6 @@ void LPM_AdjustSystemSettings(lpm_power_mode_t curRunMode, lpm_power_mode_t targ
             }
             break;
         case LPM_PowerModeFullRun:
-        case LPM_PowerModeLowSpeedRun:
             if (targetMode == LPM_PowerModeOverRun)
             {
                 /* Adjust SOC voltage to 1.275V */
@@ -380,63 +379,12 @@ void LPM_FullSpeedRun(lpm_power_mode_t curRunMode)
     }
 }
 
-void LPM_LowSpeedRun(lpm_power_mode_t curRunMode)
-{
-    if (curRunMode == LPM_PowerModeLowPowerRun)
-    {
-        /* Increase power supply before increasing core frequency */
-        LPM_AdjustSystemSettings(curRunMode, LPM_PowerModeLowSpeedRun);
-        ClockSetToLowSpeedRun();
-    }
-    else
-    {
-        /* Decrease core frequency before decreasing power supply */
-        ClockSetToLowSpeedRun();
-        LPM_AdjustSystemSettings(curRunMode, LPM_PowerModeLowSpeedRun);
-    }
-}
 
 void LPM_LowPowerRun(lpm_power_mode_t curRunMode)
 {
     /* Decrease core frequency before decreasing power supply */
     ClockSetToLowPowerRun();
     LPM_AdjustSystemSettings(curRunMode, LPM_PowerModeLowPowerRun);
-}
-
-void LPM_EnterSystemIdle(lpm_power_mode_t curRunMode)
-{
-    /* SystemIdle is the idle state of LowSpeedRun. Enter LowSpeedRun mode first, then enter idle state. */
-    if (curRunMode != LPM_PowerModeLowSpeedRun)
-    {
-        LPM_LowSpeedRun(curRunMode);
-    }
-    LPM_SetWaitModeConfig();
-    PeripheralEnterDozeMode();
-}
-
-void LPM_ExitSystemIdle(lpm_power_mode_t curRunMode)
-{
-    PeripheralExitDozeMode();
-    LPM_SetRunModeConfig();
-
-    if (curRunMode != LPM_PowerModeLowSpeedRun)
-    {
-        /* Recover to previous run mode from LowSpeedRun mode */
-        switch (curRunMode)
-        {
-            case LPM_PowerModeOverRun:
-                LPM_OverDriveRun(LPM_PowerModeLowSpeedRun);
-                break;
-            case LPM_PowerModeFullRun:
-                LPM_FullSpeedRun(LPM_PowerModeLowSpeedRun);
-                break;
-            case LPM_PowerModeLowPowerRun:
-                LPM_LowPowerRun(LPM_PowerModeLowSpeedRun);
-                break;
-            default:
-                break;
-        }
-    }
 }
 
 void LPM_EnterLowPowerIdle(lpm_power_mode_t curRunMode)
@@ -465,9 +413,6 @@ void LPM_ExitLowPowerIdle(lpm_power_mode_t curRunMode)
                 break;
             case LPM_PowerModeFullRun:
                 LPM_FullSpeedRun(LPM_PowerModeLowPowerRun);
-                break;
-            case LPM_PowerModeLowSpeedRun:
-                LPM_LowSpeedRun(LPM_PowerModeLowPowerRun);
                 break;
             default:
                 break;

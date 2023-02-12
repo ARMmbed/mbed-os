@@ -32,8 +32,6 @@ void ClockSetToLowSpeedRun(void);
 void ClockSetToLowPowerRun(void);
 void ClockSetToSystemIdle(void);
 void ClockSetToLowPowerIdle(void);
-void ConfigUartRxPinToGpio(void);
-void ReConfigUartRxPin(void);
 void PeripheralEnterDozeMode(void);
 void PeripheralExitDozeMode(void);
 void PeripheralEnterStopMode(void);

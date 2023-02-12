@@ -5085,7 +5085,8 @@
             "STDIO_MESSAGES",
             "TRNG",
             "WATCHDOG",
-            "USBDEVICE"
+            "USBDEVICE",
+            "LPTICKER"
         ],
         "features": [
             "LWIP"
@@ -5119,7 +5120,6 @@
             "MIMXRT105X_EXTERNAL_RAM_SIZE=0x02000000"
         ],
         "device_has_add": [
-            "LPTICKER",
             "FLASH"
         ],
         "detect_code": [

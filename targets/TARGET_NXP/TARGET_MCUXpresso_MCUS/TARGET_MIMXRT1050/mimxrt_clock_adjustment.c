@@ -6,6 +6,15 @@
  *
  * Mbed: This file was imported from "specific.c" in the "power_mode_switch_bm" SDK example.
  * It's responsible for switching around the clocks for low-power/full-speed/overdrive running.
+ * We modified it a bit to make it pull clock info from clock_config.h, so you don't have to enter
+ * clock configurations in two places.
+ *
+ * Not every clock configuration can be deduced, but it can at least pull in the dividers for
+ * IPG_CLK_ROOT, SEMC_CLK_ROOT, and PERCLK_CLK_ROOT.
+ *
+ * We also removed parts of the file that control the FlexSPI clock source, because we could
+ * not determine, based on available info, whether this might perturb the code flash (FlexSPI)
+ * clock timing.
  *
  * Note: This file has to be used instead of just calling the clock init functions in
  * clock_config.c, because those functions turn off clocks for all the peripherals,
@@ -46,40 +55,27 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
     {
         case LPM_PowerModeOverRun:
             CLOCK_SET_DIV(kCLOCK_SemcDiv, BOARD_CLOCKOVERDRIVE_AHB_CLK_ROOT / BOARD_CLOCKOVERDRIVE_SEMC_CLK_ROOT - 1); // Deduce SEMC divider from clock_config.h defines
-            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 6);
-            CLOCK_SET_MUX(kCLOCK_FlexspiMux, 3); // FLEXSPI mux to PLL3 PFD0
             /* CORE CLK to 600MHz, AHB, IPG to 150MHz, PERCLK to 75MHz */
             CLOCK_SET_DIV(kCLOCK_PerclkDiv, BOARD_CLOCKFULLSPEED_IPG_CLK_ROOT / BOARD_CLOCKFULLSPEED_PERCLK_CLK_ROOT - 1); // Deduce PERCLK divider
-            CLOCK_SET_DIV(kCLOCK_IpgDiv, 3);
+            CLOCK_SET_DIV(kCLOCK_IpgDiv, BOARD_CLOCKOVERDRIVE_AHB_CLK_ROOT / BOARD_CLOCKFULLSPEED_IPG_CLK_ROOT - 1);
             CLOCK_SET_DIV(kCLOCK_AhbDiv, 0);
             CLOCK_SET_MUX(kCLOCK_PerclkMux, 0);    // PERCLK mux to IPG CLK
             CLOCK_SET_MUX(kCLOCK_PrePeriphMux, 3); // PRE_PERIPH_CLK mux to ARM PLL
             CLOCK_SET_MUX(kCLOCK_PeriphMux, 0);    // PERIPH_CLK mux to PRE_PERIPH_CLK
+
+            CLOCK_SET_MUX(kCLOCK_FlexspiMux, 3); // FLEXSPI mux to PLL3 PFD0, matches setting used by ROM bootloader
             break;
         case LPM_PowerModeFullRun:
             CLOCK_SET_DIV(kCLOCK_SemcDiv, BOARD_CLOCKFULLSPEED_AHB_CLK_ROOT / BOARD_CLOCKFULLSPEED_SEMC_CLK_ROOT - 1); // Deduce SEMC divider from clock_config.h defines
-            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 3);
-            CLOCK_SET_MUX(kCLOCK_FlexspiMux, 2); // FLEXSPI mux to PLL2 PFD2
             /* CORE CLK to 528MHz, AHB, IPG to 132MHz, PERCLK to 66MHz */
             CLOCK_SET_DIV(kCLOCK_PerclkDiv, BOARD_CLOCKFULLSPEED_IPG_CLK_ROOT / BOARD_CLOCKFULLSPEED_PERCLK_CLK_ROOT - 1); // Deduce PERCLK divider
-            CLOCK_SET_DIV(kCLOCK_IpgDiv, 3);
+            CLOCK_SET_DIV(kCLOCK_IpgDiv, BOARD_CLOCKFULLSPEED_AHB_CLK_ROOT / BOARD_CLOCKFULLSPEED_IPG_CLK_ROOT - 1);
             CLOCK_SET_DIV(kCLOCK_AhbDiv, 0);
             CLOCK_SET_MUX(kCLOCK_PerclkMux, 0);    // PERCLK mux to IPG CLK
             CLOCK_SET_MUX(kCLOCK_PrePeriphMux, 0); // PRE_PERIPH_CLK mux to SYS PLL
             CLOCK_SET_MUX(kCLOCK_PeriphMux, 0);    // PERIPH_CLK mux to PRE_PERIPH_CLK
-            break;
-        case LPM_PowerModeLowSpeedRun:
-        case LPM_PowerModeSysIdle:
-            CLOCK_SET_DIV(kCLOCK_SemcDiv, BOARD_CLOCKFULLSPEED_AHB_CLK_ROOT / BOARD_CLOCKFULLSPEED_SEMC_CLK_ROOT - 1); // SEMC CLK should not exceed 166MHz
-            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 3);
-            CLOCK_SET_MUX(kCLOCK_FlexspiMux, 2); // FLEXSPI mux to PLL2 PFD2
-            /* CORE CLK to 132MHz and AHB, IPG, PERCLK to 33MHz */
-            CLOCK_SET_DIV(kCLOCK_PerclkDiv, 0);
-            CLOCK_SET_DIV(kCLOCK_IpgDiv, 3);
-            CLOCK_SET_DIV(kCLOCK_AhbDiv, 3);
-            CLOCK_SET_MUX(kCLOCK_PerclkMux, 0);    // PERCLK mux to IPG CLK
-            CLOCK_SET_MUX(kCLOCK_PrePeriphMux, 0); // Switch PRE_PERIPH_CLK to SYS PLL
-            CLOCK_SET_MUX(kCLOCK_PeriphMux, 0);    // Switch PERIPH_CLK to PRE_PERIPH_CLK
+
+            CLOCK_SET_MUX(kCLOCK_FlexspiMux, 3); // FLEXSPI mux to PLL3 PFD0, matches setting used by ROM bootloader
             break;
         case LPM_PowerModeLowPowerRun:
         case LPM_PowerModeLPIdle:
@@ -88,11 +84,10 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
             CLOCK_SET_MUX(kCLOCK_PeriphMux, 1);     // PERIPH_CLK mux to PERIPH_CLK2
             CLOCK_SET_DIV(kCLOCK_SemcDiv, BOARD_CLOCKLOWPOWER_AHB_CLK_ROOT / BOARD_CLOCKLOWPOWER_SEMC_CLK_ROOT - 1); // Deduce SEMC divider from clock_config.h defines
             CLOCK_SET_MUX(kCLOCK_SemcMux, 0); // SEMC mux to PERIPH_CLK
-            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 0);
             CLOCK_SET_MUX(kCLOCK_FlexspiMux, 0); // FLEXSPI mux to semc_clk_root_pre
             /* CORE CLK to 24MHz and AHB, IPG, PERCLK to 12MHz */
             CLOCK_SET_DIV(kCLOCK_PerclkDiv, BOARD_CLOCKLOWPOWER_IPG_CLK_ROOT / BOARD_CLOCKLOWPOWER_PERCLK_CLK_ROOT - 1); // Deduce PERCLK divider
-            CLOCK_SET_DIV(kCLOCK_IpgDiv, 1);
+            CLOCK_SET_DIV(kCLOCK_IpgDiv, BOARD_CLOCKLOWPOWER_AHB_CLK_ROOT / BOARD_CLOCKLOWPOWER_IPG_CLK_ROOT - 1);
             CLOCK_SET_DIV(kCLOCK_AhbDiv, 0);
             CLOCK_SET_MUX(kCLOCK_PerclkMux, 0); // PERCLK mux to IPG CLK
             break;
@@ -127,25 +122,9 @@ void ClockSetToOverDriveRun(void)
 
     /* Init SYS PLL*/
     CLOCK_InitSysPll(&sysPllConfig_BOARD_ClockOverdrive);
-    /* Init System pfd0. */
-    CLOCK_InitSysPfd(kCLOCK_Pfd0, 27);
-    /* Init System pfd1. */
-    CLOCK_InitSysPfd(kCLOCK_Pfd1, 16);
-    /* Init System pfd2. */
-    CLOCK_InitSysPfd(kCLOCK_Pfd2, 24);
-    /* Init System pfd3. */
-    CLOCK_InitSysPfd(kCLOCK_Pfd3, 16);
 
     /* Init USB1 PLL. */
     CLOCK_InitUsb1Pll(&usb1PllConfig_BOARD_ClockOverdrive);
-    /* Init Usb1 pfd0. */
-    CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 12);
-    /* Init Usb1 pfd1. */
-    CLOCK_InitUsb1Pfd(kCLOCK_Pfd1, 16);
-    /* Init Usb1 pfd2. */
-    CLOCK_InitUsb1Pfd(kCLOCK_Pfd2, 17);
-    /* Init Usb1 pfd3. */
-    CLOCK_InitUsb1Pfd(kCLOCK_Pfd3, 19);
 
     SwitchSystemClocks(LPM_PowerModeOverRun);
 }
@@ -161,75 +140,11 @@ void ClockSetToFullSpeedRun(void)
 
     /* Init SYS PLL. */
     CLOCK_InitSysPll(&sysPllConfig_BOARD_ClockFullSpeed);
-    /* Init System pfd0. */
-    CLOCK_InitSysPfd(kCLOCK_Pfd0, 27);
-    /* Init System pfd1. */
-    CLOCK_InitSysPfd(kCLOCK_Pfd1, 16);
-    /* Init System pfd2. */
-    CLOCK_InitSysPfd(kCLOCK_Pfd2, 24);
-    /* Init System pfd3. */
-    CLOCK_InitSysPfd(kCLOCK_Pfd3, 16);
 
     /* Init USB1 PLL. */
     CLOCK_InitUsb1Pll(&usb1PllConfig_BOARD_ClockFullSpeed);
-    /* Init Usb1 pfd0. */
-    CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 12);
-    /* Init Usb1 pfd1. */
-    CLOCK_InitUsb1Pfd(kCLOCK_Pfd1, 16);
-    /* Init Usb1 pfd2. */
-    CLOCK_InitUsb1Pfd(kCLOCK_Pfd2, 17);
-    /* Init Usb1 pfd3. */
-    CLOCK_InitUsb1Pfd(kCLOCK_Pfd3, 19);
 
     SwitchSystemClocks(LPM_PowerModeFullRun);
-}
-
-void ClockSetToLowSpeedRun(void)
-{
-    // CORE CLK mux to 24M before reconfigure PLLs
-    SwitchSystemClocks(LPM_PowerModeLowPowerRun);
-
-    /* Deinit ARM PLL */
-    CLOCK_DeinitArmPll();
-
-    /* Init SYS PLL */
-    const clock_sys_pll_config_t sysPllConfig = {
-        .loopDivider = 1, /* PLL loop divider, Fout = Fin * ( 20 + loopDivider*2 + numerator / denominator ) */
-        .numerator   = 0, /* 30 bit numerator of fractional loop divider */
-        .denominator = 1, /* 30 bit denominator of fractional loop divider */
-        .src         = 0, /* Bypass clock source, 0 - OSC 24M, 1 - CLK1_P and CLK1_N */
-    };
-    CLOCK_InitSysPll(&sysPllConfig);
-
-    /* Deinit SYS PLL PFD 0 1 3 */
-    CLOCK_DeinitSysPfd(kCLOCK_Pfd0);
-    CLOCK_DeinitSysPfd(kCLOCK_Pfd1);
-    /* Init System pfd2. */
-    CLOCK_InitSysPfd(kCLOCK_Pfd2, 24);
-    CLOCK_DeinitSysPfd(kCLOCK_Pfd3);
-
-    /* Deinit USB1 PLL */
-    CLOCK_DeinitUsb1Pll();
-
-    /* Deinit USB1 PLL PFD 0 1 2 3 */
-    CLOCK_DeinitUsb1Pfd(kCLOCK_Pfd0);
-    CLOCK_DeinitUsb1Pfd(kCLOCK_Pfd1);
-    CLOCK_DeinitUsb1Pfd(kCLOCK_Pfd2);
-    CLOCK_DeinitUsb1Pfd(kCLOCK_Pfd3);
-
-    /* Deinit USB2 PLL */
-    CLOCK_DeinitUsb2Pll();
-
-    /* Deinit AUDIO PLL */
-    CLOCK_DeinitAudioPll();
-
-    /* Deinit VIDEO PLL */
-    CLOCK_DeinitVideoPll();
-
-    /* Deinit ENET PLL */
-    CLOCK_DeinitEnetPll();
-
-    SwitchSystemClocks(LPM_PowerModeLowSpeedRun);
 }
 
 void ClockSetToLowPowerRun(void)
@@ -243,22 +158,10 @@ void ClockSetToLowPowerRun(void)
     /* Deinit SYS PLL */
     CLOCK_DeinitSysPll();
 
-    /* Deinit SYS PLL PFD 0 1 2 3 */
-    CLOCK_DeinitSysPfd(kCLOCK_Pfd0);
-    CLOCK_DeinitSysPfd(kCLOCK_Pfd1);
-    CLOCK_DeinitSysPfd(kCLOCK_Pfd2);
-    CLOCK_DeinitSysPfd(kCLOCK_Pfd3);
-
     /* Power Down USB1 PLL */
     CCM_ANALOG->PLL_USB1_SET = CCM_ANALOG_PLL_USB1_BYPASS_MASK;
     CCM_ANALOG->PLL_USB1_CLR = CCM_ANALOG_PLL_USB1_POWER_MASK;
     CCM_ANALOG->PLL_USB1_CLR = CCM_ANALOG_PLL_USB1_ENABLE_MASK;
-
-    /* Deinit USB1 PLL PFD 0 1 2 3 */
-    CLOCK_DeinitUsb1Pfd(kCLOCK_Pfd0);
-    CLOCK_DeinitUsb1Pfd(kCLOCK_Pfd1);
-    CLOCK_DeinitUsb1Pfd(kCLOCK_Pfd2);
-    CLOCK_DeinitUsb1Pfd(kCLOCK_Pfd3);
 
     /* Deinit USB2 PLL */
     CLOCK_DeinitUsb2Pll();
@@ -271,19 +174,6 @@ void ClockSetToLowPowerRun(void)
 
     /* Deinit ENET PLL */
     CLOCK_DeinitEnetPll();
-}
-
-void ConfigUartRxPinToGpio(void)
-{
-    IOMUXC_SetPinMux(IOMUXC_GPIO_AD_B0_13_GPIO1_IO13, 0);
-    IOMUXC_SetPinConfig(IOMUXC_GPIO_AD_B0_13_GPIO1_IO13,
-                        IOMUXC_SW_PAD_CTL_PAD_PKE_MASK | IOMUXC_SW_PAD_CTL_PAD_PUS(2) | IOMUXC_SW_PAD_CTL_PAD_PUE_MASK);
-}
-
-void ReConfigUartRxPin(void)
-{
-    IOMUXC_SetPinMux(IOMUXC_GPIO_AD_B0_13_LPUART1_RX, 0);
-    IOMUXC_SetPinConfig(IOMUXC_GPIO_AD_B0_13_LPUART1_RX, IOMUXC_SW_PAD_CTL_PAD_SPEED(2));
 }
 
 #define GPR4_STOP_REQ_BITS                                                                                          \
