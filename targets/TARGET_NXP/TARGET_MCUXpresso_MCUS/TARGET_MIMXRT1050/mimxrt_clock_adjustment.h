@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 NXP
+ * Copyright 2021 NXP
  * All rights reserved.
  *
  *
@@ -14,8 +14,9 @@
  * Definitions
  ******************************************************************************/
 
-#define FLEXSPI_INST FLEXSPI
-#define HAS_WAKEUP_PIN (1)
+#define FLEXSPI_INST                 FLEXSPI
+#define HAS_WAKEUP_PIN               (1)
+#define CCM_CLPCR_BYPASS_LPM_HS_BITS (CCM_CLPCR_BYPASS_LPM_HS0_MASK | CCM_CLPCR_BYPASS_LPM_HS1_MASK)
 
 /*******************************************************************************
  * API
@@ -31,10 +32,6 @@ void ClockSetToLowSpeedRun(void);
 void ClockSetToLowPowerRun(void);
 void ClockSetToSystemIdle(void);
 void ClockSetToLowPowerIdle(void);
-
-void SetLowPowerClockGate(void);
-void SetRestoreClockGate(void);
-void PowerDownUSBPHY(void);
 void ConfigUartRxPinToGpio(void);
 void ReConfigUartRxPin(void);
 void PeripheralEnterDozeMode(void);

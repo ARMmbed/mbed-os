@@ -28,10 +28,10 @@ target_sources(mbed-mimxrt105x
         sleep.c
         trng_api.c
         us_ticker.c
-        fsl_clock_config.c
+        clock_config.c
         PeripheralPins.c
         pinmap.c
-        specific.c
+        mimxrt_clock_adjustment.c
         lpm.c
         mbed_overrides.c
 

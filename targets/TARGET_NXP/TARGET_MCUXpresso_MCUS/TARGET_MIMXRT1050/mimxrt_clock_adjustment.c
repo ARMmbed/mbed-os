@@ -1,43 +1,38 @@
 /*
- * Copyright 2019 NXP
+ * Copyright 2021 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * Mbed: This file was imported from "specific.c" in the "power_mode_switch_bm" SDK example.
+ * It's responsible for switching around the clocks for low-power/full-speed/overdrive running.
+ *
+ * Note: This file has to be used instead of just calling the clock init functions in
+ * clock_config.c, because those functions turn off clocks for all the peripherals,
+ * which makes things like the UART and timers die (or even crash the entire chip if
+ * code tries to use them while they're unclocked).
  */
 
-#include "specific.h"
+#include "mimxrt_clock_adjustment.h"
 #include "fsl_common.h"
 #include "fsl_clock.h"
 #include "lpm.h"
 #include "fsl_iomuxc.h"
+#include "clock_config.h"
+
+#include <stdio.h>
+#include <inttypes.h>
 
 /*******************************************************************************
  * Code
  ******************************************************************************/
 
-const clock_arm_pll_config_t armPllConfig_PowerMode = {
-    .loopDivider = 100, /* PLL loop divider, Fout = Fin * 50 */
-    .src         = 0,   /* Bypass clock source, 0 - OSC 24M, 1 - CLK1_P and CLK1_N */
-};
-const clock_sys_pll_config_t sysPllConfig_PowerMode = {
-    .loopDivider = 1, /* PLL loop divider, Fout = Fin * ( 20 + loopDivider*2 + numerator / denominator ) */
-    .numerator   = 0, /* 30 bit numerator of fractional loop divider */
-    .denominator = 1, /* 30 bit denominator of fractional loop divider */
-    .src         = 0, /* Bypass clock source, 0 - OSC 24M, 1 - CLK1_P and CLK1_N */
-};
-const clock_usb_pll_config_t usb1PllConfig_PowerMode = {
-    .loopDivider = 0, /* PLL loop divider, Fout = Fin * 20 */
-    .src         = 0, /* Bypass clock source, 0 - OSC 24M, 1 - CLK1_P and CLK1_N */
-};
-
 AT_QUICKACCESS_SECTION_CODE(void SwitchSystemClocks(lpm_power_mode_t power_mode));
-
-#define NUMBER_OF_CCM_GATE_REGS   7
-static uint32_t clock_gate_values[NUMBER_OF_CCM_GATE_REGS];
 
 void SwitchSystemClocks(lpm_power_mode_t power_mode)
 {
 #if (defined(XIP_EXTERNAL_FLASH) && (XIP_EXTERNAL_FLASH == 1))
+    LPM_EnterCritical();
     while (!((FLEXSPI_INST->STS0 & FLEXSPI_STS0_ARBIDLE_MASK) && (FLEXSPI_INST->STS0 & FLEXSPI_STS0_SEQIDLE_MASK)))
     {
     }
@@ -46,26 +41,27 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
     /* Disable clock gate of flexspi. */
     CCM->CCGR6 &= (~CCM_CCGR6_CG5_MASK);
 #endif
+
     switch (power_mode)
     {
         case LPM_PowerModeOverRun:
-            CLOCK_SET_DIV(kCLOCK_SemcDiv, 3);    // SEMC CLK should not exceed 166MHz
-            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 0); // FLEXSPI in DDR mode
+            CLOCK_SET_DIV(kCLOCK_SemcDiv, BOARD_CLOCKOVERDRIVE_AHB_CLK_ROOT / BOARD_CLOCKOVERDRIVE_SEMC_CLK_ROOT - 1); // Deduce SEMC divider from clock_config.h defines
+            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 6);
             CLOCK_SET_MUX(kCLOCK_FlexspiMux, 3); // FLEXSPI mux to PLL3 PFD0
             /* CORE CLK to 600MHz, AHB, IPG to 150MHz, PERCLK to 75MHz */
-            //CLOCK_SET_DIV(kCLOCK_PerclkDiv, 1);
+            CLOCK_SET_DIV(kCLOCK_PerclkDiv, BOARD_CLOCKFULLSPEED_IPG_CLK_ROOT / BOARD_CLOCKFULLSPEED_PERCLK_CLK_ROOT - 1); // Deduce PERCLK divider
             CLOCK_SET_DIV(kCLOCK_IpgDiv, 3);
             CLOCK_SET_DIV(kCLOCK_AhbDiv, 0);
-            //CLOCK_SET_MUX(kCLOCK_PerclkMux, 0);    // PERCLK mux to IPG CLK
+            CLOCK_SET_MUX(kCLOCK_PerclkMux, 0);    // PERCLK mux to IPG CLK
             CLOCK_SET_MUX(kCLOCK_PrePeriphMux, 3); // PRE_PERIPH_CLK mux to ARM PLL
             CLOCK_SET_MUX(kCLOCK_PeriphMux, 0);    // PERIPH_CLK mux to PRE_PERIPH_CLK
             break;
         case LPM_PowerModeFullRun:
-            CLOCK_SET_DIV(kCLOCK_SemcDiv, 3);    // SEMC CLK should not exceed 166MHz
-            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 0); // FLEXSPI in DDR mode
-            CLOCK_SET_MUX(kCLOCK_FlexspiMux, 3); // FLEXSPI mux to PLL3 PFD0
+            CLOCK_SET_DIV(kCLOCK_SemcDiv, BOARD_CLOCKFULLSPEED_AHB_CLK_ROOT / BOARD_CLOCKFULLSPEED_SEMC_CLK_ROOT - 1); // Deduce SEMC divider from clock_config.h defines
+            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 3);
+            CLOCK_SET_MUX(kCLOCK_FlexspiMux, 2); // FLEXSPI mux to PLL2 PFD2
             /* CORE CLK to 528MHz, AHB, IPG to 132MHz, PERCLK to 66MHz */
-            CLOCK_SET_DIV(kCLOCK_PerclkDiv, 1);
+            CLOCK_SET_DIV(kCLOCK_PerclkDiv, BOARD_CLOCKFULLSPEED_IPG_CLK_ROOT / BOARD_CLOCKFULLSPEED_PERCLK_CLK_ROOT - 1); // Deduce PERCLK divider
             CLOCK_SET_DIV(kCLOCK_IpgDiv, 3);
             CLOCK_SET_DIV(kCLOCK_AhbDiv, 0);
             CLOCK_SET_MUX(kCLOCK_PerclkMux, 0);    // PERCLK mux to IPG CLK
@@ -74,12 +70,8 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
             break;
         case LPM_PowerModeLowSpeedRun:
         case LPM_PowerModeSysIdle:
-            CLOCK_SET_DIV(kCLOCK_SemcDiv, 3);    // SEMC CLK should not exceed 166MHz
-#ifdef HYPERFLASH_BOOT
-            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 1); // FLEXSPI in DDR mode
-#else
-            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 3); // FLEXSPI in SDR mode
-#endif
+            CLOCK_SET_DIV(kCLOCK_SemcDiv, BOARD_CLOCKFULLSPEED_AHB_CLK_ROOT / BOARD_CLOCKFULLSPEED_SEMC_CLK_ROOT - 1); // SEMC CLK should not exceed 166MHz
+            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 3);
             CLOCK_SET_MUX(kCLOCK_FlexspiMux, 2); // FLEXSPI mux to PLL2 PFD2
             /* CORE CLK to 132MHz and AHB, IPG, PERCLK to 33MHz */
             CLOCK_SET_DIV(kCLOCK_PerclkDiv, 0);
@@ -94,15 +86,15 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
             CLOCK_SET_DIV(kCLOCK_PeriphClk2Div, 0);
             CLOCK_SET_MUX(kCLOCK_PeriphClk2Mux, 1); // PERIPH_CLK2 mux to OSC
             CLOCK_SET_MUX(kCLOCK_PeriphMux, 1);     // PERIPH_CLK mux to PERIPH_CLK2
-            CLOCK_SET_DIV(kCLOCK_SemcDiv, 0);
-            CLOCK_SET_MUX(kCLOCK_SemcMux, 0);    // SEMC mux to PERIPH_CLK
-            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 0); // FLEXSPI in DDR mode
+            CLOCK_SET_DIV(kCLOCK_SemcDiv, BOARD_CLOCKLOWPOWER_AHB_CLK_ROOT / BOARD_CLOCKLOWPOWER_SEMC_CLK_ROOT - 1); // Deduce SEMC divider from clock_config.h defines
+            CLOCK_SET_MUX(kCLOCK_SemcMux, 0); // SEMC mux to PERIPH_CLK
+            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 0);
             CLOCK_SET_MUX(kCLOCK_FlexspiMux, 0); // FLEXSPI mux to semc_clk_root_pre
             /* CORE CLK to 24MHz and AHB, IPG, PERCLK to 12MHz */
-            //CLOCK_SET_DIV(kCLOCK_PerclkDiv, 0);
+            CLOCK_SET_DIV(kCLOCK_PerclkDiv, BOARD_CLOCKLOWPOWER_IPG_CLK_ROOT / BOARD_CLOCKLOWPOWER_PERCLK_CLK_ROOT - 1); // Deduce PERCLK divider
             CLOCK_SET_DIV(kCLOCK_IpgDiv, 1);
             CLOCK_SET_DIV(kCLOCK_AhbDiv, 0);
-            //CLOCK_SET_MUX(kCLOCK_PerclkMux, 0); // PERCLK mux to IPG CLK
+            CLOCK_SET_MUX(kCLOCK_PerclkMux, 0); // PERCLK mux to IPG CLK
             break;
         default:
             break;
@@ -112,17 +104,6 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
     /* Enable clock gate of flexspi. */
     CCM->CCGR6 |= (CCM_CCGR6_CG5_MASK);
 
-#ifdef HYPERFLASH_BOOT
-    if ((LPM_PowerModeLowPowerRun == power_mode) || (LPM_PowerModeLPIdle == power_mode))
-    {
-        FLEXSPI_INST->DLLCR[0] = FLEXSPI_DLLCR_OVRDEN(1) | FLEXSPI_DLLCR_OVRDVAL(19);
-    }
-    else
-    {
-        FLEXSPI_INST->DLLCR[0] = FLEXSPI_DLLCR_DLLEN(1) | FLEXSPI_DLLCR_SLVDLYTARGET(15);
-    }
-#endif
-    
     FLEXSPI_INST->MCR0 &= ~FLEXSPI_MCR0_MDIS_MASK;
     FLEXSPI_INST->MCR0 |= FLEXSPI_MCR0_SWRESET_MASK;
     while (FLEXSPI_INST->MCR0 & FLEXSPI_MCR0_SWRESET_MASK)
@@ -131,23 +112,21 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
     while (!((FLEXSPI_INST->STS0 & FLEXSPI_STS0_ARBIDLE_MASK) && (FLEXSPI_INST->STS0 & FLEXSPI_STS0_SEQIDLE_MASK)))
     {
     }
+    LPM_ExitCritical();
 #endif
 }
 
 void ClockSetToOverDriveRun(void)
 {
     // CORE CLK mux to 24M before reconfigure PLLs
-    LPM_EnterCritical();
     SwitchSystemClocks(LPM_PowerModeLowPowerRun);
-    LPM_ExitCritical();
-    //ClockSelectXtalOsc();
 
     /* Init ARM PLL */
     CLOCK_SetDiv(kCLOCK_ArmDiv, 1);
-    CLOCK_InitArmPll(&armPllConfig_PowerMode);
+    CLOCK_InitArmPll(&armPllConfig_BOARD_ClockOverdrive);
 
     /* Init SYS PLL*/
-    CLOCK_InitSysPll(&sysPllConfig_PowerMode);
+    CLOCK_InitSysPll(&sysPllConfig_BOARD_ClockOverdrive);
     /* Init System pfd0. */
     CLOCK_InitSysPfd(kCLOCK_Pfd0, 27);
     /* Init System pfd1. */
@@ -158,74 +137,30 @@ void ClockSetToOverDriveRun(void)
     CLOCK_InitSysPfd(kCLOCK_Pfd3, 16);
 
     /* Init USB1 PLL. */
-    CLOCK_InitUsb1Pll(&usb1PllConfig_PowerMode);
+    CLOCK_InitUsb1Pll(&usb1PllConfig_BOARD_ClockOverdrive);
     /* Init Usb1 pfd0. */
-    CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 33);
+    CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 12);
     /* Init Usb1 pfd1. */
     CLOCK_InitUsb1Pfd(kCLOCK_Pfd1, 16);
     /* Init Usb1 pfd2. */
     CLOCK_InitUsb1Pfd(kCLOCK_Pfd2, 17);
     /* Init Usb1 pfd3. */
     CLOCK_InitUsb1Pfd(kCLOCK_Pfd3, 19);
-    /* Disable Usb1 PLL output for USBPHY1. */
-    CCM_ANALOG->PLL_USB1 &= ~CCM_ANALOG_PLL_USB1_EN_USB_CLKS_MASK;
 
-    /* Init USB2 PLL*/
-    CCM_ANALOG->PLL_USB2_SET = CCM_ANALOG_PLL_USB2_BYPASS_MASK;
-    CCM_ANALOG->PLL_USB2_SET = CCM_ANALOG_PLL_USB2_ENABLE_MASK;
-    CCM_ANALOG->PLL_USB2_SET = CCM_ANALOG_PLL_USB2_POWER_MASK;
-    while ((CCM_ANALOG->PLL_USB2 & CCM_ANALOG_PLL_USB2_LOCK_MASK) == 0)
-    {
-    }
-    CCM_ANALOG->PLL_USB2_CLR = CCM_ANALOG_PLL_USB2_BYPASS_MASK;
-
-    /* Init AUDIO PLL */
-    CCM_ANALOG->PLL_AUDIO_SET = CCM_ANALOG_PLL_AUDIO_BYPASS_MASK;
-    CCM_ANALOG->PLL_AUDIO_CLR = CCM_ANALOG_PLL_AUDIO_POWERDOWN_MASK;
-    CCM_ANALOG->PLL_AUDIO_SET = CCM_ANALOG_PLL_AUDIO_ENABLE_MASK;
-    while ((CCM_ANALOG->PLL_AUDIO & CCM_ANALOG_PLL_AUDIO_LOCK_MASK) == 0)
-    {
-    }
-    CCM_ANALOG->PLL_AUDIO_CLR = CCM_ANALOG_PLL_AUDIO_BYPASS_MASK;
-
-    /* Init VIDEO PLL */
-    CCM_ANALOG->PLL_VIDEO_SET = CCM_ANALOG_PLL_VIDEO_BYPASS_MASK;
-    CCM_ANALOG->PLL_VIDEO_CLR = CCM_ANALOG_PLL_VIDEO_POWERDOWN_MASK;
-    CCM_ANALOG->PLL_VIDEO_SET = CCM_ANALOG_PLL_VIDEO_ENABLE_MASK;
-    while ((CCM_ANALOG->PLL_VIDEO & CCM_ANALOG_PLL_VIDEO_LOCK_MASK) == 0)
-    {
-    }
-    CCM_ANALOG->PLL_VIDEO_CLR = CCM_ANALOG_PLL_VIDEO_BYPASS_MASK;
-
-    /* Init ENET PLL */
-    CCM_ANALOG->PLL_ENET_SET = CCM_ANALOG_PLL_ENET_BYPASS_MASK;
-    CCM_ANALOG->PLL_ENET_CLR = CCM_ANALOG_PLL_ENET_POWERDOWN_MASK;
-    CCM_ANALOG->PLL_ENET_SET = CCM_ANALOG_PLL_ENET_ENABLE_MASK;
-    CCM_ANALOG->PLL_ENET_SET = CCM_ANALOG_PLL_ENET_ENET_25M_REF_EN_MASK;
-    while ((CCM_ANALOG->PLL_ENET & CCM_ANALOG_PLL_ENET_LOCK_MASK) == 0)
-    {
-    }
-    CCM_ANALOG->PLL_ENET_CLR = CCM_ANALOG_PLL_ENET_BYPASS_MASK;
-
-    LPM_EnterCritical();
     SwitchSystemClocks(LPM_PowerModeOverRun);
-    LPM_ExitCritical();
 }
 
 void ClockSetToFullSpeedRun(void)
 {
     // CORE CLK mux to 24M before reconfigure PLLs
-    LPM_EnterCritical();
     SwitchSystemClocks(LPM_PowerModeLowPowerRun);
-    LPM_ExitCritical();
-    ClockSelectXtalOsc();
 
     /* Init ARM PLL */
     CLOCK_SetDiv(kCLOCK_ArmDiv, 1);
-    CLOCK_InitArmPll(&armPllConfig_PowerMode);
+    CLOCK_InitArmPll(&armPllConfig_BOARD_ClockFullSpeed);
 
     /* Init SYS PLL. */
-    CLOCK_InitSysPll(&sysPllConfig_PowerMode);
+    CLOCK_InitSysPll(&sysPllConfig_BOARD_ClockFullSpeed);
     /* Init System pfd0. */
     CLOCK_InitSysPfd(kCLOCK_Pfd0, 27);
     /* Init System pfd1. */
@@ -236,79 +171,41 @@ void ClockSetToFullSpeedRun(void)
     CLOCK_InitSysPfd(kCLOCK_Pfd3, 16);
 
     /* Init USB1 PLL. */
-    CLOCK_InitUsb1Pll(&usb1PllConfig_PowerMode);
+    CLOCK_InitUsb1Pll(&usb1PllConfig_BOARD_ClockFullSpeed);
     /* Init Usb1 pfd0. */
-    CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 33);
+    CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 12);
     /* Init Usb1 pfd1. */
     CLOCK_InitUsb1Pfd(kCLOCK_Pfd1, 16);
     /* Init Usb1 pfd2. */
     CLOCK_InitUsb1Pfd(kCLOCK_Pfd2, 17);
     /* Init Usb1 pfd3. */
     CLOCK_InitUsb1Pfd(kCLOCK_Pfd3, 19);
-    /* Disable Usb1 PLL output for USBPHY1. */
-    CCM_ANALOG->PLL_USB1 &= ~CCM_ANALOG_PLL_USB1_EN_USB_CLKS_MASK;
 
-    /* Init USB2 PLL*/
-    CCM_ANALOG->PLL_USB2_SET = CCM_ANALOG_PLL_USB2_BYPASS_MASK;
-    CCM_ANALOG->PLL_USB2_SET = CCM_ANALOG_PLL_USB2_ENABLE_MASK;
-    CCM_ANALOG->PLL_USB2_SET = CCM_ANALOG_PLL_USB2_POWER_MASK;
-    while ((CCM_ANALOG->PLL_USB2 & CCM_ANALOG_PLL_USB2_LOCK_MASK) == 0)
-    {
-    }
-    CCM_ANALOG->PLL_USB2_CLR = CCM_ANALOG_PLL_USB2_BYPASS_MASK;
-
-    /* Init AUDIO PLL */
-    CCM_ANALOG->PLL_AUDIO_SET = CCM_ANALOG_PLL_AUDIO_BYPASS_MASK;
-    CCM_ANALOG->PLL_AUDIO_CLR = CCM_ANALOG_PLL_AUDIO_POWERDOWN_MASK;
-    CCM_ANALOG->PLL_AUDIO_SET = CCM_ANALOG_PLL_AUDIO_ENABLE_MASK;
-    while ((CCM_ANALOG->PLL_AUDIO & CCM_ANALOG_PLL_AUDIO_LOCK_MASK) == 0)
-    {
-    }
-    CCM_ANALOG->PLL_AUDIO_CLR = CCM_ANALOG_PLL_AUDIO_BYPASS_MASK;
-
-    /* Init VIDEO PLL */
-    CCM_ANALOG->PLL_VIDEO_SET = CCM_ANALOG_PLL_VIDEO_BYPASS_MASK;
-    CCM_ANALOG->PLL_VIDEO_CLR = CCM_ANALOG_PLL_VIDEO_POWERDOWN_MASK;
-    CCM_ANALOG->PLL_VIDEO_SET = CCM_ANALOG_PLL_VIDEO_ENABLE_MASK;
-    while ((CCM_ANALOG->PLL_VIDEO & CCM_ANALOG_PLL_VIDEO_LOCK_MASK) == 0)
-    {
-    }
-    CCM_ANALOG->PLL_VIDEO_CLR = CCM_ANALOG_PLL_VIDEO_BYPASS_MASK;
-
-    /* Init ENET PLL */
-    CCM_ANALOG->PLL_ENET_SET = CCM_ANALOG_PLL_ENET_BYPASS_MASK;
-    CCM_ANALOG->PLL_ENET_CLR = CCM_ANALOG_PLL_ENET_POWERDOWN_MASK;
-    CCM_ANALOG->PLL_ENET_SET = CCM_ANALOG_PLL_ENET_ENABLE_MASK;
-    CCM_ANALOG->PLL_ENET_SET = CCM_ANALOG_PLL_ENET_ENET_25M_REF_EN_MASK;
-    while ((CCM_ANALOG->PLL_ENET & CCM_ANALOG_PLL_ENET_LOCK_MASK) == 0)
-    {
-    }
-    CCM_ANALOG->PLL_ENET_CLR = CCM_ANALOG_PLL_ENET_BYPASS_MASK;
-
-    LPM_EnterCritical();
     SwitchSystemClocks(LPM_PowerModeFullRun);
-    LPM_ExitCritical();
 }
 
 void ClockSetToLowSpeedRun(void)
 {
     // CORE CLK mux to 24M before reconfigure PLLs
-    LPM_EnterCritical();
     SwitchSystemClocks(LPM_PowerModeLowPowerRun);
-    LPM_ExitCritical();
-    ClockSelectXtalOsc();
 
     /* Deinit ARM PLL */
     CLOCK_DeinitArmPll();
 
     /* Init SYS PLL */
-    CLOCK_InitSysPll(&sysPllConfig_PowerMode);
+    const clock_sys_pll_config_t sysPllConfig = {
+        .loopDivider = 1, /* PLL loop divider, Fout = Fin * ( 20 + loopDivider*2 + numerator / denominator ) */
+        .numerator   = 0, /* 30 bit numerator of fractional loop divider */
+        .denominator = 1, /* 30 bit denominator of fractional loop divider */
+        .src         = 0, /* Bypass clock source, 0 - OSC 24M, 1 - CLK1_P and CLK1_N */
+    };
+    CLOCK_InitSysPll(&sysPllConfig);
 
     /* Deinit SYS PLL PFD 0 1 3 */
     CLOCK_DeinitSysPfd(kCLOCK_Pfd0);
     CLOCK_DeinitSysPfd(kCLOCK_Pfd1);
     /* Init System pfd2. */
-    CLOCK_InitSysPfd(kCLOCK_Pfd2, 18);
+    CLOCK_InitSysPfd(kCLOCK_Pfd2, 24);
     CLOCK_DeinitSysPfd(kCLOCK_Pfd3);
 
     /* Deinit USB1 PLL */
@@ -332,18 +229,13 @@ void ClockSetToLowSpeedRun(void)
     /* Deinit ENET PLL */
     CLOCK_DeinitEnetPll();
 
-    LPM_EnterCritical();
     SwitchSystemClocks(LPM_PowerModeLowSpeedRun);
-    LPM_ExitCritical();
 }
 
 void ClockSetToLowPowerRun(void)
 {
     // CORE CLK mux to 24M before reconfigure PLLs
-    LPM_EnterCritical();
     SwitchSystemClocks(LPM_PowerModeLowPowerRun);
-    LPM_ExitCritical();
-    ClockSelectRcOsc();
 
     /* Deinit ARM PLL */
     CLOCK_DeinitArmPll();
@@ -379,141 +271,6 @@ void ClockSetToLowPowerRun(void)
 
     /* Deinit ENET PLL */
     CLOCK_DeinitEnetPll();
-}
-
-void ClockSetToSystemIdle(void)
-{
-    // CORE CLK mux to 24M before reconfigure PLLs
-    LPM_EnterCritical();
-    SwitchSystemClocks(LPM_PowerModeLowPowerRun);
-    LPM_ExitCritical();
-    ClockSelectXtalOsc();
-
-    /* Deinit ARM PLL */
-    CLOCK_DeinitArmPll();
-
-    /* Init SYS PLL */
-    CLOCK_InitSysPll(&sysPllConfig_PowerMode);
-
-    /* Deinit SYS PLL PFD 0 1 3 */
-    CLOCK_DeinitSysPfd(kCLOCK_Pfd0);
-    CLOCK_DeinitSysPfd(kCLOCK_Pfd1);
-    /* Init System pfd2. */
-    CLOCK_InitSysPfd(kCLOCK_Pfd2, 18);
-    CLOCK_DeinitSysPfd(kCLOCK_Pfd3);
-
-    /* Deinit USB1 PLL */
-    CLOCK_DeinitUsb1Pll();
-
-    /* Deinit USB1 PLL PFD 0 1 2 3 */
-    CLOCK_DeinitUsb1Pfd(kCLOCK_Pfd0);
-    CLOCK_DeinitUsb1Pfd(kCLOCK_Pfd1);
-    CLOCK_DeinitUsb1Pfd(kCLOCK_Pfd2);
-    CLOCK_DeinitUsb1Pfd(kCLOCK_Pfd3);
-
-    /* Deinit USB2 PLL */
-    CLOCK_DeinitUsb2Pll();
-
-    /* Deinit AUDIO PLL */
-    CLOCK_DeinitAudioPll();
-
-    /* Deinit VIDEO PLL */
-    CLOCK_DeinitVideoPll();
-
-    /* Deinit ENET PLL */
-    CLOCK_DeinitEnetPll();
-
-    LPM_EnterCritical();
-    SwitchSystemClocks(LPM_PowerModeSysIdle);
-    LPM_ExitCritical();
-}
-
-void ClockSetToLowPowerIdle(void)
-{
-    // CORE CLK mux to 24M before reconfigure PLLs
-    LPM_EnterCritical();
-    SwitchSystemClocks(LPM_PowerModeLowPowerRun);
-    LPM_ExitCritical();
-    //ClockSelectRcOsc();
-
-    /* Deinit ARM PLL */
-    CLOCK_DeinitArmPll();
-
-    /* Deinit SYS PLL */
-    CLOCK_DeinitSysPll();
-
-    /* Deinit SYS PLL PFD 0 1 2 3 */
-    CLOCK_DeinitSysPfd(kCLOCK_Pfd0);
-    CLOCK_DeinitSysPfd(kCLOCK_Pfd1);
-    CLOCK_DeinitSysPfd(kCLOCK_Pfd2);
-    CLOCK_DeinitSysPfd(kCLOCK_Pfd3);
-
-    /* Deinit USB1 PLL */
-    CLOCK_DeinitUsb1Pll();
-
-    /* Deinit USB1 PLL PFD 0 1 2 3 */
-    CLOCK_DeinitUsb1Pfd(kCLOCK_Pfd0);
-    CLOCK_DeinitUsb1Pfd(kCLOCK_Pfd1);
-    CLOCK_DeinitUsb1Pfd(kCLOCK_Pfd2);
-    CLOCK_DeinitUsb1Pfd(kCLOCK_Pfd3);
-
-    /* Deinit USB2 PLL */
-    CLOCK_DeinitUsb2Pll();
-
-    /* Deinit AUDIO PLL */
-    CLOCK_DeinitAudioPll();
-
-    /* Deinit VIDEO PLL */
-    CLOCK_DeinitVideoPll();
-
-    /* Deinit ENET PLL */
-    CLOCK_DeinitEnetPll();
-
-    LPM_EnterCritical();
-    SwitchSystemClocks(LPM_PowerModeLPIdle);
-    LPM_ExitCritical();
-}
-
-void SetLowPowerClockGate(void)
-{
-    /* Save of the clock gate registers */
-    clock_gate_values[0] = CCM->CCGR0;
-    clock_gate_values[1] = CCM->CCGR1;
-    clock_gate_values[2] = CCM->CCGR2;
-    clock_gate_values[3] = CCM->CCGR3;
-    clock_gate_values[4] = CCM->CCGR4;
-    clock_gate_values[5] = CCM->CCGR5;
-    clock_gate_values[6] = CCM->CCGR6;
-
-    /* Set low power gate values */
-    CCM->CCGR0 = CCM_CCGR0_CG0(1) | CCM_CCGR0_CG1(1) | CCM_CCGR0_CG3(3) | CCM_CCGR0_CG11(1) | CCM_CCGR0_CG12(1);
-    CCM->CCGR1 = CCM_CCGR1_CG9(3) | CCM_CCGR1_CG10(1) | CCM_CCGR1_CG13(1) | CCM_CCGR1_CG14(1) | CCM_CCGR1_CG15(1);
-    CCM->CCGR2 = CCM_CCGR2_CG2(1) | CCM_CCGR2_CG8(1) | CCM_CCGR2_CG9(1) | CCM_CCGR2_CG10(1);
-    CCM->CCGR3 = CCM_CCGR3_CG2(1) | CCM_CCGR3_CG4(1) | CCM_CCGR3_CG9(1) | CCM_CCGR3_CG14(3) | CCM_CCGR3_CG15(1);
-    CCM->CCGR4 =
-        CCM_CCGR4_CG1(1) | CCM_CCGR4_CG2(1) | CCM_CCGR4_CG4(1) | CCM_CCGR4_CG5(1) | CCM_CCGR4_CG6(1) | CCM_CCGR4_CG7(1);
-    CCM->CCGR5 = CCM_CCGR5_CG0(1) | CCM_CCGR5_CG1(1) | CCM_CCGR5_CG4(1) | CCM_CCGR5_CG6(1) | CCM_CCGR5_CG12(1) |
-                 CCM_CCGR5_CG14(1) | CCM_CCGR5_CG15(1);
-    /* We can enable DCDC when need to config it and close it after configuration */
-    CCM->CCGR6 = CCM_CCGR6_CG3(1) | CCM_CCGR6_CG4(1) | CCM_CCGR6_CG5(1) | CCM_CCGR6_CG9(1) | CCM_CCGR6_CG10(1) |
-                 CCM_CCGR6_CG11(1);
-}
-
-void SetRestoreClockGate(void)
-{
-    CCM->CCGR0 = clock_gate_values[0];
-    CCM->CCGR1 = clock_gate_values[1];
-    CCM->CCGR2 = clock_gate_values[2];
-    CCM->CCGR3 = clock_gate_values[3];
-    CCM->CCGR4 = clock_gate_values[4];
-    CCM->CCGR5 = clock_gate_values[5];
-    CCM->CCGR6 = clock_gate_values[6];
-}
-
-void PowerDownUSBPHY(void)
-{
-    USBPHY1->CTRL = 0xFFFFFFFF;
-    USBPHY2->CTRL = 0xFFFFFFFF;
 }
 
 void ConfigUartRxPinToGpio(void)
@@ -613,3 +370,36 @@ void PeripheralEnterStopMode(void)
     }
 }
 
+void APP_PrintRunFrequency(int32_t run_freq_only)
+{
+    printf("\r\n");
+    printf("***********************************************************\r\n");
+    printf("CPU:             %" PRIu32 " Hz\r\n", CLOCK_GetFreq(kCLOCK_CpuClk));
+    printf("AHB:             %" PRIu32 " Hz\r\n", CLOCK_GetFreq(kCLOCK_AhbClk));
+    printf("SEMC:            %" PRIu32 " Hz\r\n", CLOCK_GetFreq(kCLOCK_SemcClk));
+    printf("IPG:             %" PRIu32 " Hz\r\n", CLOCK_GetFreq(kCLOCK_IpgClk));
+    printf("PER:             %" PRIu32 " Hz\r\n", CLOCK_GetFreq(kCLOCK_PerClk));
+    printf("OSC:             %" PRIu32 " Hz\r\n", CLOCK_GetFreq(kCLOCK_OscClk));
+    printf("RTC:             %" PRIu32 " Hz\r\n", CLOCK_GetFreq(kCLOCK_RtcClk));
+    if (!run_freq_only)
+    {
+        printf("ARMPLL:          %" PRIu32 " Hz\r\n", CLOCK_GetFreq(kCLOCK_ArmPllClk));
+        printf("USB1PLL:         %" PRIu32 " Hz\r\n", CLOCK_GetFreq(kCLOCK_Usb1PllClk));
+        printf("USB1PLLPFD0:     %" PRIu32 " Hz\r\n", CLOCK_GetFreq(kCLOCK_Usb1PllPfd0Clk));
+        printf("USB1PLLPFD1:     %" PRIu32 " Hz\r\n", CLOCK_GetFreq(kCLOCK_Usb1PllPfd1Clk));
+        printf("USB1PLLPFD2:     %" PRIu32 " Hz\r\n", CLOCK_GetFreq(kCLOCK_Usb1PllPfd2Clk));
+        printf("USB1PLLPFD3:     %" PRIu32 " Hz\r\n", CLOCK_GetFreq(kCLOCK_Usb1PllPfd3Clk));
+        printf("USB2PLL:         %" PRIu32 " Hz\r\n", CLOCK_GetFreq(kCLOCK_Usb2PllClk));
+        printf("SYSPLL:          %" PRIu32 " Hz\r\n", CLOCK_GetFreq(kCLOCK_SysPllClk));
+        printf("SYSPLLPFD0:      %" PRIu32 " Hz\r\n", CLOCK_GetFreq(kCLOCK_SysPllPfd0Clk));
+        printf("SYSPLLPFD1:      %" PRIu32 " Hz\r\n", CLOCK_GetFreq(kCLOCK_SysPllPfd1Clk));
+        printf("SYSPLLPFD2:      %" PRIu32 " Hz\r\n", CLOCK_GetFreq(kCLOCK_SysPllPfd2Clk));
+        printf("SYSPLLPFD3:      %" PRIu32 " Hz\r\n", CLOCK_GetFreq(kCLOCK_SysPllPfd3Clk));
+        printf("ENETPLL0:        %" PRIu32 " Hz\r\n", CLOCK_GetFreq(kCLOCK_EnetPll0Clk));
+        printf("ENETPLL1:        %" PRIu32 " Hz\r\n", CLOCK_GetFreq(kCLOCK_EnetPll1Clk));
+        printf("AUDIOPLL:        %" PRIu32 " Hz\r\n", CLOCK_GetFreq(kCLOCK_AudioPllClk));
+        printf("VIDEOPLL:        %" PRIu32 " Hz\r\n", CLOCK_GetFreq(kCLOCK_VideoPllClk));
+    }
+    printf("***********************************************************\r\n");
+    printf("\r\n");
+}

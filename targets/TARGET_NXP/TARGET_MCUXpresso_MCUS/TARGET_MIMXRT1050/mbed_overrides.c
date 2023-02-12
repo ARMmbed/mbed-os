@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #include "pinmap.h"
-#include "fsl_clock_config.h"
+#include "clock_config.h"
 #include "fsl_clock.h"
 #include "fsl_xbara.h"
 #include "fsl_iomuxc.h"
@@ -163,12 +163,13 @@ void BOARD_Init_PMIC_STBY_REQ(void) {
 void mbed_sdk_init()
 {
     BOARD_ConfigMPU();
-    BOARD_BootClockRUN();
 
 #if MBED_CONF_TARGET_ENABLE_OVERDRIVE_MODE
-    //LPM_OverDriveRun();
+    //BOARD_ClockFullSpeed();
+    BOARD_ClockOverdrive();
+    //BOARD_ClockLowPower();
 #else
-    //LPM_FullSpeedRun();
+    BOARD_ClockFullSpeed();
 #endif
 
 
@@ -354,23 +355,21 @@ uint32_t USB_DeviceGetIrqNumber(void)
     return irqNumber;
 }
 
+#if MBED_CONF_TARGET_ENABLE_OVERDRIVE_MODE
+#define LPM_POWER_MODE LPM_PowerModeOverRun
+#else
+#define LPM_POWER_MODE LPM_PowerModeFullRun
+#endif
+
 void vPortPRE_SLEEP_PROCESSING(clock_mode_t powermode)
 {
     LPM_EnableWakeupSource(GPT2_IRQn);
-
-    LPM_EnterLowPowerIdle();
+    LPM_EnterLowPowerIdle(LPM_POWER_MODE);
 }
 
 void vPortPOST_SLEEP_PROCESSING(clock_mode_t powermode)
 {
-    LPM_ExitLowPowerIdle();
-
-#if MBED_CONF_TARGET_ENABLE_OVERDRIVE_MODE
-    LPM_OverDriveRun();
-#else
-    LPM_FullSpeedRun();
-#endif
-
+    LPM_ExitLowPowerIdle(LPM_POWER_MODE);
     LPM_DisableWakeupSource(GPT2_IRQn);
 }
 

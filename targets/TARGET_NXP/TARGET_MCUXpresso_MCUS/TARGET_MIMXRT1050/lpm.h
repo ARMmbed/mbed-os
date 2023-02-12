@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NXP
+ * Copyright 2020 NXP
  * All rights reserved.
  *
  *
@@ -9,53 +9,18 @@
 #ifndef _LPM_H_
 #define _LPM_H_
 
-#include "fsl_clock.h"
 #include <stdint.h>
+#include "fsl_clock.h"
 
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-extern void vPortGPTIsr(void);
-extern uint32_t g_savedPrimask;
 
-#define vPortGptIsr GPT1_IRQHandler
-
-#define CLOCK_CCM_HANDSHAKE_WAIT() \
-                                   \
-    do                             \
-    {                              \
-        while (CCM->CDHIPR != 0)   \
-        {                          \
-        }                          \
-                                   \
-    } while (0)
-
-#if defined(XIP_EXTERNAL_FLASH) && (XIP_EXTERNAL_FLASH == 1)
-#define LPM_EnterCritical()                        \
-                                                   \
-    do                                             \
-    {                                              \
-        g_savedPrimask = DisableGlobalIRQ();       \
-        SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk; \
-                                                   \
-    } while (0)
-
-#define LPM_ExitCritical()                        \
-                                                  \
-    do                                            \
-    {                                             \
-        EnableGlobalIRQ(g_savedPrimask);          \
-        SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk; \
-                                                  \
-    } while (0)
-
-#else
 #define LPM_EnterCritical()
 #define LPM_ExitCritical()
-#endif
 
-/* Power mode definition of low power management.
- * Waken up duration Off > Dsm > Idle > Wait > Run.
+/*
+ * Power mode definition of low power management.
  */
 typedef enum _lpm_power_mode
 {
@@ -106,35 +71,18 @@ extern "C" {
 
 AT_QUICKACCESS_SECTION_CODE(void CLOCK_SET_MUX(clock_mux_t mux, uint32_t value));
 AT_QUICKACCESS_SECTION_CODE(void CLOCK_SET_DIV(clock_div_t divider, uint32_t value));
-
-/* Initialize the Low Power Management */
-bool LPM_Init(void);
-
-/* Deinitialize the Low Power Management */
-void LPM_Deinit(void);
-
-/* Enable wakeup source in low power mode */
-void LPM_EnableWakeupSource(uint32_t irq);
-
-/* Disable wakeup source in low power mode */
-void LPM_DisableWakeupSource(uint32_t irq);
-
-void ClockSelectXtalOsc(void);
-void ClockSelectRcOsc(void);
+AT_QUICKACCESS_SECTION_CODE(void LPM_EnterSleepMode(clock_mode_t mode));
+void LPM_Init(void);
 void LPM_EnableWakeupSource(uint32_t irq);
 void LPM_DisableWakeupSource(uint32_t irq);
-void LPM_PreEnterWaitMode(void);
-void LPM_PostExitWaitMode(void);
-void LPM_PreEnterStopMode(void);
-void LPM_PostExitStopMode(void);
-void LPM_OverDriveRun(void);
-void LPM_FullSpeedRun(void);
-void LPM_LowSpeedRun(void);
-void LPM_LowPowerRun(void);
-void LPM_EnterSystemIdle(void);
-void LPM_ExitSystemIdle(void);
-void LPM_EnterLowPowerIdle(void);
-void LPM_ExitLowPowerIdle(void);
+void LPM_OverDriveRun(lpm_power_mode_t curRunMode);
+void LPM_FullSpeedRun(lpm_power_mode_t curRunMode);
+void LPM_LowSpeedRun(lpm_power_mode_t curRunMode);
+void LPM_LowPowerRun(lpm_power_mode_t curRunMode);
+void LPM_EnterSystemIdle(lpm_power_mode_t curRunMode);
+void LPM_ExitSystemIdle(lpm_power_mode_t curRunMode);
+void LPM_EnterLowPowerIdle(lpm_power_mode_t curRunMode);
+void LPM_ExitLowPowerIdle(lpm_power_mode_t curRunMode);
 void LPM_EnterSuspend(void);
 void LPM_EnterSNVS(void);
 
