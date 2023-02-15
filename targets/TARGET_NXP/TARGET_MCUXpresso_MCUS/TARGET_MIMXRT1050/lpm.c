@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NXP
+ * Copyright 2020 NXP
  * All rights reserved.
  *
  *
@@ -9,11 +9,7 @@
 #include "lpm.h"
 #include "fsl_gpc.h"
 #include "fsl_dcdc.h"
-#include "fsl_gpt.h"
-#include "fsl_clock_config.h"
-#include "mbed_critical.h"
-#include "cmsis.h"
-#include "specific.h"
+#include "mimxrt_clock_adjustment.h"
 
 /*******************************************************************************
  * Definitions
@@ -23,10 +19,7 @@
 /*******************************************************************************
  * Variables
  ******************************************************************************/
-
-uint32_t g_savedPrimask;
-GPT_Type *vPortGetGptBase(void);
-IRQn_Type vPortGetGptIrqn(void);
+static uint32_t g_savedPrimask;
 
 /*******************************************************************************
  * Code
@@ -92,15 +85,15 @@ void CLOCK_SET_MUX(clock_mux_t mux, uint32_t value)
     CCM_TUPLE_REG(CCM, mux) = (CCM_TUPLE_REG(CCM, mux) & (~CCM_TUPLE_MASK(mux))) |
                               (((uint32_t)((value) << CCM_TUPLE_SHIFT(mux))) & CCM_TUPLE_MASK(mux));
 
-    //assert(busyShift <= CCM_NO_BUSY_WAIT);
+    assert(busyShift <= CCM_NO_BUSY_WAIT);
 
     /* Clock switch need Handshake? */
     if (CCM_NO_BUSY_WAIT != busyShift)
     {
         /* Wait until CCM internal handshake finish. */
         while (CCM->CDHIPR & (1U << busyShift))
-    {
-    }
+        {
+        }
     }
 }
 
@@ -118,7 +111,7 @@ void CLOCK_SET_DIV(clock_div_t divider, uint32_t value)
     CCM_TUPLE_REG(CCM, divider) = (CCM_TUPLE_REG(CCM, divider) & (~CCM_TUPLE_MASK(divider))) |
                                   (((uint32_t)((value) << CCM_TUPLE_SHIFT(divider))) & CCM_TUPLE_MASK(divider));
 
-    //assert(busyShift <= CCM_NO_BUSY_WAIT);
+    assert(busyShift <= CCM_NO_BUSY_WAIT);
 
     /* Clock switch need Handshake? */
     if (CCM_NO_BUSY_WAIT != busyShift)
@@ -132,321 +125,33 @@ void CLOCK_SET_DIV(clock_div_t divider, uint32_t value)
 
 void ClockSelectXtalOsc(void)
 {
+    /* Enable XTAL 24MHz clock source. */
+    CLOCK_InitExternalClk(0);
+    /* Wait for XTAL stable */
+    SDK_DelayAtLeastUs(200);
     /* Switch clock source to external OSC. */
     CLOCK_SwitchOsc(kCLOCK_XtalOsc);
+    /*
+     * Some board will failed to wake up from suspend mode if rcosc is powered down when clock source switch from rcosc
+     * to external osc. Root cause is not found. Workaround: keep rcosc on.
+     */
+#ifndef KEEP_RCOSC_ON
+    /* Power Down internal RC. */
+    CLOCK_DeinitRcOsc24M();
+#endif
 }
 
 void ClockSelectRcOsc(void)
 {
+    /* Enable internal RC. */
+    CLOCK_InitRcOsc24M();
     /* Switch clock source to internal RC. */
-    XTALOSC24M->LOWPWR_CTRL_SET = XTALOSC24M_LOWPWR_CTRL_SET_OSC_SEL_MASK;
+    CLOCK_SwitchOsc(kCLOCK_RcOsc);
+    /* Disable XTAL 24MHz clock source. */
+    CLOCK_DeinitExternalClk();
 }
 
-void LPM_SetRunModeConfig(void)
-{
-    CCM->CLPCR &= ~(CCM_CLPCR_LPM_MASK | CCM_CLPCR_ARM_CLK_DIS_ON_LPM_MASK);
-}
-
-void LPM_SetWaitModeConfig(void)
-{
-    uint32_t clpcr;
-
-    /*
-     * ERR007265: CCM: When improper low-power sequence is used,
-     * the SoC enters low power mode before the ARM core executes WFI.
-     *
-     * Software workaround:
-     * 1) Software should trigger IRQ #41 (GPR_IRQ) to be always pending
-     *      by setting IOMUXC_GPR_GPR1_GINT.
-     * 2) Software should then unmask IRQ #41 in GPC before setting CCM
-     *      Low-Power mode.
-     * 3) Software should mask IRQ #41 right after CCM Low-Power mode
-     *      is set (set bits 0-1 of CCM_CLPCR).
-     */
-    GPC_EnableIRQ(GPC, GPR_IRQ_IRQn);
-    clpcr      = CCM->CLPCR & (~(CCM_CLPCR_LPM_MASK | CCM_CLPCR_ARM_CLK_DIS_ON_LPM_MASK));
-    CCM->CLPCR = clpcr | CCM_CLPCR_LPM(kCLOCK_ModeWait) | CCM_CLPCR_MASK_SCU_IDLE_MASK | CCM_CLPCR_MASK_L2CC_IDLE_MASK |
-                 CCM_CLPCR_ARM_CLK_DIS_ON_LPM_MASK | CCM_CLPCR_STBY_COUNT_MASK | CCM_CLPCR_BYPASS_LPM_HS0_MASK |
-                 CCM_CLPCR_BYPASS_LPM_HS1_MASK;
-    GPC_DisableIRQ(GPC, GPR_IRQ_IRQn);
-}
-
-void LPM_SetStopModeConfig(void)
-{
-    uint32_t clpcr;
-
-    /*
-     * ERR007265: CCM: When improper low-power sequence is used,
-     * the SoC enters low power mode before the ARM core executes WFI.
-     *
-     * Software workaround:
-     * 1) Software should trigger IRQ #41 (GPR_IRQ) to be always pending
-     *      by setting IOMUXC_GPR_GPR1_GINT.
-     * 2) Software should then unmask IRQ #41 in GPC before setting CCM
-     *      Low-Power mode.
-     * 3) Software should mask IRQ #41 right after CCM Low-Power mode
-     *      is set (set bits 0-1 of CCM_CLPCR).
-     */
-    GPC_EnableIRQ(GPC, GPR_IRQ_IRQn);
-    clpcr      = CCM->CLPCR & (~(CCM_CLPCR_LPM_MASK | CCM_CLPCR_ARM_CLK_DIS_ON_LPM_MASK));
-    CCM->CLPCR = clpcr | CCM_CLPCR_LPM(kCLOCK_ModeStop) | CCM_CLPCR_MASK_L2CC_IDLE_MASK | CCM_CLPCR_MASK_SCU_IDLE_MASK |
-                 CCM_CLPCR_VSTBY_MASK | CCM_CLPCR_STBY_COUNT_MASK | CCM_CLPCR_SBYOS_MASK |
-                 CCM_CLPCR_ARM_CLK_DIS_ON_LPM_MASK | CCM_CLPCR_BYPASS_LPM_HS0_MASK | CCM_CLPCR_BYPASS_LPM_HS1_MASK;
-    GPC_DisableIRQ(GPC, GPR_IRQ_IRQn);
-}
-
-void LPM_OverDriveRun(void)
-{
-    /* CCM Mode */
-    DCDC_BootIntoCCM(DCDC);
-    /* Connect internal the load resistor */
-    DCDC->REG1 |= DCDC_REG1_REG_RLOAD_SW_MASK;
-    /* Adjust SOC voltage to 1.275V */
-    DCDC_AdjustTargetVoltage(DCDC, 0x13, 0x1);
-
-    /* Disable FET ODRIVE */
-    PMU->REG_CORE_CLR = PMU_REG_CORE_FET_ODRIVE_MASK;
-    /* Connect vdd_high_in and connect vdd_snvs_in */
-    PMU->MISC0_CLR = PMU_MISC0_DISCON_HIGH_SNVS_MASK;
-
-    BandgapOn();
-    EnableRegularLDO();
-    DisableWeakLDO();
-
-    ClockSetToOverDriveRun();
-    SetRestoreClockGate();
-}
-
-void LPM_FullSpeedRun(void)
-{
-    /* CCM Mode */
-    DCDC_BootIntoCCM(DCDC);
-    /* Connect internal the load resistor */
-    DCDC->REG1 |= DCDC_REG1_REG_RLOAD_SW_MASK;
-    /* Adjust SOC voltage to 1.275V */
-    DCDC_AdjustTargetVoltage(DCDC, 0x13, 0x1);
-
-    /* Disable FET ODRIVE */
-    PMU->REG_CORE_CLR = PMU_REG_CORE_FET_ODRIVE_MASK;
-    /* Connect vdd_high_in and connect vdd_snvs_in */
-    PMU->MISC0_CLR = PMU_MISC0_DISCON_HIGH_SNVS_MASK;
-
-    BandgapOn();
-    EnableRegularLDO();
-    DisableWeakLDO();
-
-    ClockSetToFullSpeedRun();
-
-    /* Adjust SOC voltage to 1.15V */
-    DCDC_AdjustTargetVoltage(DCDC, 0xe, 0x1);
-}
-
-void LPM_LowSpeedRun(void)
-{
-    /* CCM Mode */
-    DCDC_BootIntoCCM(DCDC);
-    /* Connect internal the load resistor */
-    DCDC->REG1 |= DCDC_REG1_REG_RLOAD_SW_MASK;
-    /* Adjust SOC voltage to 1.275V */
-    DCDC_AdjustTargetVoltage(DCDC, 0x13, 0x1);
-
-    /* Disable FET ODRIVE */
-    PMU->REG_CORE_CLR = PMU_REG_CORE_FET_ODRIVE_MASK;
-    /* Connect vdd_high_in and connect vdd_snvs_in */
-    PMU->MISC0_CLR = PMU_MISC0_DISCON_HIGH_SNVS_MASK;
-
-    BandgapOn();
-    EnableRegularLDO();
-    DisableWeakLDO();
-
-    ClockSetToLowSpeedRun();
-
-    /* Adjust SOC voltage to 1.15V */
-    DCDC_AdjustTargetVoltage(DCDC, 0xe, 0x1);
-}
-
-void LPM_LowPowerRun(void)
-{
-    ClockSetToLowPowerRun();
-
-    /* Power down USBPHY */
-    PowerDownUSBPHY();
-
-    /* Adjust SOC voltage to 0.95V */
-    DCDC_AdjustTargetVoltage(DCDC, 0x6, 0x1);
-    /* DCM Mode */
-    DCDC_BootIntoDCM(DCDC);
-    /* Disconnect internal the load resistor */
-    DCDC->REG1 &= ~DCDC_REG1_REG_RLOAD_SW_MASK;
-    /* Power Down output range comparator */
-    DCDC->REG0 |= DCDC_REG0_PWD_CMP_OFFSET_MASK;
-
-    /* Enable FET ODRIVE */
-    PMU->REG_CORE_SET = PMU_REG_CORE_FET_ODRIVE_MASK;
-    /* Connect vdd_high_in and connect vdd_snvs_in */
-    PMU->MISC0_CLR = PMU_MISC0_DISCON_HIGH_SNVS_MASK;
-
-    EnableWeakLDO();
-    DisableRegularLDO();
-    BandgapOff();
-}
-
-void LPM_EnterSystemIdle(void)
-{
-    LPM_SetWaitModeConfig();
-    SetLowPowerClockGate();
-
-    ClockSetToSystemIdle();
-
-    /* Power down USBPHY */
-    PowerDownUSBPHY();
-
-    /* DCDC to 1.15V */
-    DCDC_AdjustTargetVoltage(DCDC, 0xe, 0x1);
-    /* DCM Mode */
-    DCDC_BootIntoDCM(DCDC);
-    /* Disconnect internal the load resistor */
-    DCDC->REG1 &= ~DCDC_REG1_REG_RLOAD_SW_MASK;
-    /* Power Down output range comparator */
-    DCDC->REG0 |= DCDC_REG0_PWD_CMP_OFFSET_MASK;
-
-    /* Enable FET ODRIVE */
-    PMU->REG_CORE_SET = PMU_REG_CORE_FET_ODRIVE_MASK;
-    /* Connect vdd_high_in and connect vdd_snvs_in */
-    PMU->MISC0_CLR = PMU_MISC0_DISCON_HIGH_SNVS_MASK;
-
-    EnableRegularLDO();
-    DisableWeakLDO();
-    BandgapOn();
-
-    PeripheralEnterDozeMode();
-}
-
-void LPM_ExitSystemIdle(void)
-{
-    PeripheralExitDozeMode();
-    LPM_SetRunModeConfig();
-}
-
-void LPM_EnterLowPowerIdle(void)
-{
-    LPM_SetWaitModeConfig();
-    SetLowPowerClockGate();
-
-    ClockSetToLowPowerIdle();
-
-    /* Power down USBPHY */
-    PowerDownUSBPHY();
-
-    /* Adjust SOC voltage to 0.95V */
-    DCDC_AdjustTargetVoltage(DCDC, 0x6, 0x1);
-    /* DCM Mode */
-    DCDC_BootIntoDCM(DCDC);
-    /* Disconnect internal the load resistor */
-    DCDC->REG1 &= ~DCDC_REG1_REG_RLOAD_SW_MASK;
-    /* Power Down output range comparator */
-    DCDC->REG0 |= DCDC_REG0_PWD_CMP_OFFSET_MASK;
-
-    /* Enable FET ODRIVE */
-    PMU->REG_CORE_SET = PMU_REG_CORE_FET_ODRIVE_MASK;
-    /* Connect vdd_high_in and connect vdd_snvs_in */
-    PMU->MISC0_CLR = PMU_MISC0_DISCON_HIGH_SNVS_MASK;
-
-    EnableWeakLDO();
-    DisableRegularLDO();
-    BandgapOff();
-
-    PeripheralEnterDozeMode();
-}
-
-void LPM_ExitLowPowerIdle(void)
-{
-    PeripheralExitDozeMode();
-    LPM_SetRunModeConfig();
-}
-
-void LPM_EnterSuspend(void)
-{
-    uint32_t i;
-    uint32_t gpcIMR[LPM_GPC_IMR_NUM];
-
-    LPM_SetStopModeConfig();
-    SetLowPowerClockGate();
-
-    /* Disconnect internal the load resistor */
-    DCDC->REG1 &= ~DCDC_REG1_REG_RLOAD_SW_MASK;
-
-    /* Turn off FlexRAM0 */
-    GPC->CNTR |= GPC_CNTR_PDRAM0_PGE_MASK;
-    /* Turn off FlexRAM1 */
-    PGC->MEGA_CTRL |= PGC_MEGA_CTRL_PCR_MASK;
-
-    /* Clean and disable data cache to make sure context is saved into RAM */
-    SCB_CleanDCache();
-    SCB_DisableDCache();
-
-    /* Adjust LP voltage to 0.925V */
-    DCDC_AdjustTargetVoltage(DCDC, 0x13, 0x1);
-    /* Switch DCDC to use DCDC internal OSC */
-    DCDC_SetClockSource(DCDC, kDCDC_ClockInternalOsc);
-
-    /* Power down USBPHY */
-    PowerDownUSBPHY();
-
-    /* Power down CPU when requested */
-    PGC->CPU_CTRL = PGC_CPU_CTRL_PCR_MASK;
-
-    /* Enable FET ODRIVE */
-    PMU->REG_CORE_SET = PMU_REG_CORE_FET_ODRIVE_MASK;
-    /* Connect vdd_high_in and connect vdd_snvs_in */
-    PMU->MISC0_CLR = PMU_MISC0_DISCON_HIGH_SNVS_MASK;
-    /* STOP_MODE config, turn off all analog except RTC in stop mode */
-    PMU->MISC0_CLR = PMU_MISC0_STOP_MODE_CONFIG_MASK;
-
-    /* Mask all GPC interrupts before enabling the RBC counters to
-     * avoid the counter starting too early if an interupt is already
-     * pending.
-     */
-    for (i = 0; i < LPM_GPC_IMR_NUM; i++)
-    {
-        gpcIMR[i]   = GPC->IMR[i];
-        GPC->IMR[i] = 0xFFFFFFFFU;
-    }
-
-    /*
-     * ERR006223: CCM: Failure to resuem from wait/stop mode with power gating
-     *   Configure REG_BYPASS_COUNTER to 2
-     *   Enable the RBC bypass counter here to hold off the interrupts. RBC counter
-     *  needs to be no less than 2.
-     */
-    CCM->CCR = (CCM->CCR & ~CCM_CCR_REG_BYPASS_COUNT_MASK) | CCM_CCR_REG_BYPASS_COUNT(2);
-    CCM->CCR |= (CCM_CCR_OSCNT(0xAF) | CCM_CCR_COSC_EN_MASK | CCM_CCR_RBC_EN_MASK);
-
-    /* Now delay for a short while (3usec) at this point
-     * so a short loop should be enough. This delay is required to ensure that
-     * the RBC counter can start counting in case an interrupt is already pending
-     * or in case an interrupt arrives just as ARM is about to assert DSM_request.
-     */
-    SDK_DelayAtLeastUs(3);
-
-    /* Recover all the GPC interrupts. */
-    for (i = 0; i < LPM_GPC_IMR_NUM; i++)
-    {
-        GPC->IMR[i] = gpcIMR[i];
-    }
-
-    PeripheralEnterStopMode();
-}
-
-void LPM_EnterSNVS(void)
-{
-    SNVS->LPCR |= SNVS_LPCR_TOP_MASK;
-    while (1) /* Shutdown */
-    {
-    }
-}
-
-bool LPM_Init(void)
+void LPM_Init(void)
 {
     uint32_t i;
     uint32_t tmp_reg = 0;
@@ -475,10 +180,10 @@ bool LPM_Init(void)
     tmp_reg |= XTALOSC24M_OSC_CONFIG2_COUNT_1M_TRG(0x2d7);
     XTALOSC24M->OSC_CONFIG2 = tmp_reg;
     /* Hardware requires to read OSC_CONFIG0 or OSC_CONFIG1 to make OSC_CONFIG2 write work */
-    tmp_reg = XTALOSC24M->OSC_CONFIG1;
+    tmp_reg                 = XTALOSC24M->OSC_CONFIG1;
     XTALOSC24M->OSC_CONFIG1 = tmp_reg;
 
-    /* ERR007265 */
+    /* ERR050143 */
     IOMUXC_GPR->GPR1 |= IOMUXC_GPR_GPR1_GINT_MASK;
 
     /* Initialize GPC to mask all IRQs */
@@ -486,14 +191,19 @@ bool LPM_Init(void)
     {
         GPC->IMR[i] = 0xFFFFFFFFU;
     }
+    GPC->IMR5 = 0xFFFFFFFFU;
 
-    return true;
-}
+    /* DCM Mode */
+    DCDC_BootIntoDCM(DCDC);
+    /* Adjust SOC voltage to 1.275V */
+    DCDC_AdjustTargetVoltage(DCDC, 0x13, 0x1);
+    /* Disconnect internal the load resistor */
+    DCDC->REG1 &= ~DCDC_REG1_REG_RLOAD_SW_MASK;
 
-void LPM_Deinit(void)
-{
-    /* ERR007265 */
-    IOMUXC_GPR->GPR1 &= ~IOMUXC_GPR_GPR1_GINT_MASK;
+    /* Enable FET ODRIVE */
+    PMU->REG_CORE_SET = PMU_REG_CORE_FET_ODRIVE_MASK;
+    /* Connect vdd_high_in and connect vdd_snvs_in */
+    PMU->MISC0_CLR = PMU_MISC0_DISCON_HIGH_SNVS_MASK;
 }
 
 void LPM_EnableWakeupSource(uint32_t irq)
@@ -506,29 +216,282 @@ void LPM_DisableWakeupSource(uint32_t irq)
     GPC_DisableIRQ(GPC, irq);
 }
 
-GPT_Type *vPortGetGptBase(void)
+void LPM_EnterSleepMode(clock_mode_t mode)
 {
-    return GPT2;
+    assert(mode != kCLOCK_ModeRun);
+
+    g_savedPrimask = DisableGlobalIRQ();
+    __DSB();
+    __ISB();
+
+    if (mode == kCLOCK_ModeWait)
+    {
+        /* Clear the SLEEPDEEP bit to go into sleep mode (WAIT) */
+        SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
+    }
+    else
+    {
+        /* Set the SLEEPDEEP bit to enable deep sleep mode (STOP) */
+        SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+    }
+    /* WFI instruction will start entry into WAIT/STOP mode */
+    __WFI();
+
+    EnableGlobalIRQ(g_savedPrimask);
+    __DSB();
+    __ISB();
 }
 
-IRQn_Type vPortGetGptIrqn(void)
+void LPM_SetRunModeConfig(void)
 {
-    return GPT2_IRQn;
+    CCM->CLPCR &= ~(CCM_CLPCR_LPM_MASK | CCM_CLPCR_ARM_CLK_DIS_ON_LPM_MASK);
 }
 
-void vPortPRE_SLEEP_PROCESSING(clock_mode_t powermode)
+void LPM_SetWaitModeConfig(void)
 {
-    LPM_EnableWakeupSource(vPortGetGptIrqn());
+    uint32_t clpcr;
 
-    LPM_EnterLowPowerIdle();
+    /*
+     * ERR050143: CCM: When improper low-power sequence is used,
+     * the SoC enters low power mode before the ARM core executes WFI.
+     *
+     * Software workaround:
+     * 1) Software should trigger IRQ #41 (GPR_IRQ) to be always pending
+     *      by setting IOMUXC_GPR_GPR1_GINT.
+     * 2) Software should then unmask IRQ #41 in GPC before setting CCM
+     *      Low-Power mode.
+     * 3) Software should mask IRQ #41 right after CCM Low-Power mode
+     *      is set (set bits 0-1 of CCM_CLPCR).
+     */
+    GPC_EnableIRQ(GPC, GPR_IRQ_IRQn);
+    clpcr      = CCM->CLPCR & (~(CCM_CLPCR_LPM_MASK | CCM_CLPCR_ARM_CLK_DIS_ON_LPM_MASK));
+    CCM->CLPCR = clpcr | CCM_CLPCR_LPM(kCLOCK_ModeWait) | CCM_CLPCR_MASK_SCU_IDLE_MASK | CCM_CLPCR_MASK_L2CC_IDLE_MASK |
+                 CCM_CLPCR_ARM_CLK_DIS_ON_LPM_MASK | CCM_CLPCR_STBY_COUNT_MASK | CCM_CLPCR_BYPASS_LPM_HS_BITS;
+    GPC_DisableIRQ(GPC, GPR_IRQ_IRQn);
 }
 
-void vPortPOST_SLEEP_PROCESSING(clock_mode_t powermode)
+void LPM_SetStopModeConfig(void)
 {
-    LPM_ExitLowPowerIdle();
+    uint32_t clpcr;
 
-    LPM_OverDriveRun();
-
-    LPM_DisableWakeupSource(vPortGetGptIrqn());
+    /*
+     * ERR050143: CCM: When improper low-power sequence is used,
+     * the SoC enters low power mode before the ARM core executes WFI.
+     *
+     * Software workaround:
+     * 1) Software should trigger IRQ #41 (GPR_IRQ) to be always pending
+     *      by setting IOMUXC_GPR_GPR1_GINT.
+     * 2) Software should then unmask IRQ #41 in GPC before setting CCM
+     *      Low-Power mode.
+     * 3) Software should mask IRQ #41 right after CCM Low-Power mode
+     *      is set (set bits 0-1 of CCM_CLPCR).
+     */
+    GPC_EnableIRQ(GPC, GPR_IRQ_IRQn);
+    clpcr      = CCM->CLPCR & (~(CCM_CLPCR_LPM_MASK | CCM_CLPCR_ARM_CLK_DIS_ON_LPM_MASK));
+    CCM->CLPCR = clpcr | CCM_CLPCR_LPM(kCLOCK_ModeStop) | CCM_CLPCR_MASK_L2CC_IDLE_MASK | CCM_CLPCR_MASK_SCU_IDLE_MASK |
+                 CCM_CLPCR_VSTBY_MASK | CCM_CLPCR_STBY_COUNT_MASK | CCM_CLPCR_SBYOS_MASK |
+                 CCM_CLPCR_ARM_CLK_DIS_ON_LPM_MASK | CCM_CLPCR_BYPASS_LPM_HS_BITS;
+    GPC_DisableIRQ(GPC, GPR_IRQ_IRQn);
 }
 
+/* Adjust system settings according to current run mode and target mode */
+void LPM_AdjustSystemSettings(lpm_power_mode_t curRunMode, lpm_power_mode_t targetMode)
+{
+    if (curRunMode == targetMode)
+        return;
+
+    switch (curRunMode)
+    {
+        case LPM_PowerModeOverRun:
+            if (targetMode == LPM_PowerModeLowPowerRun)
+            {
+                ClockSelectRcOsc();
+                /* Adjust SOC voltage to 0.95V */
+                DCDC_AdjustTargetVoltage(DCDC, 0x6, 0x1);
+                EnableWeakLDO();
+                DisableRegularLDO();
+                BandgapOff();
+            }
+            else
+            {
+                /* Adjust SOC voltage to 1.15V */
+                DCDC_AdjustTargetVoltage(DCDC, 0xe, 0x1);
+            }
+            break;
+        case LPM_PowerModeFullRun:
+            if (targetMode == LPM_PowerModeOverRun)
+            {
+                /* Adjust SOC voltage to 1.275V */
+                DCDC_AdjustTargetVoltage(DCDC, 0x13, 0x1);
+            }
+            else if (targetMode == LPM_PowerModeLowPowerRun)
+            {
+                ClockSelectRcOsc();
+                /* Adjust SOC voltage to 0.95V */
+                DCDC_AdjustTargetVoltage(DCDC, 0x6, 0x1);
+                EnableWeakLDO();
+                DisableRegularLDO();
+                BandgapOff();
+            }
+            break;
+        case LPM_PowerModeLowPowerRun:
+            if (targetMode == LPM_PowerModeOverRun)
+            {
+                /* Adjust SOC voltage to 1.275V */
+                DCDC_AdjustTargetVoltage(DCDC, 0x13, 0x1);
+            }
+            else
+            {
+                /* Adjust SOC voltage to 1.15V */
+                DCDC_AdjustTargetVoltage(DCDC, 0xe, 0x1);
+            }
+            BandgapOn();
+            EnableRegularLDO();
+            DisableWeakLDO();
+            ClockSelectXtalOsc();
+            break;
+        default:
+            assert(false);
+            break;
+    }
+}
+
+void LPM_OverDriveRun(lpm_power_mode_t curRunMode)
+{
+    /* Increase power supply before increasing core frequency */
+    LPM_AdjustSystemSettings(curRunMode, LPM_PowerModeOverRun);
+    ClockSetToOverDriveRun();
+}
+
+void LPM_FullSpeedRun(lpm_power_mode_t curRunMode)
+{
+    if (curRunMode == LPM_PowerModeOverRun)
+    {
+        /* Decrease core frequency before decreasing power supply */
+        ClockSetToFullSpeedRun();
+        LPM_AdjustSystemSettings(curRunMode, LPM_PowerModeFullRun);
+    }
+    else
+    {
+        /* Increase power supply before increasing core frequency */
+        LPM_AdjustSystemSettings(curRunMode, LPM_PowerModeFullRun);
+        ClockSetToFullSpeedRun();
+    }
+}
+
+
+void LPM_LowPowerRun(lpm_power_mode_t curRunMode)
+{
+    /* Decrease core frequency before decreasing power supply */
+    ClockSetToLowPowerRun();
+    LPM_AdjustSystemSettings(curRunMode, LPM_PowerModeLowPowerRun);
+}
+
+void LPM_EnterLowPowerIdle(lpm_power_mode_t curRunMode)
+{
+    /* LowPowerIdle is the idle state of LowPowerRun. Enter LowPowerRun mode first, then enter idle state. */
+    if (curRunMode != LPM_PowerModeLowPowerRun)
+    {
+        LPM_LowPowerRun(curRunMode);
+    }
+    LPM_SetWaitModeConfig();
+    PeripheralEnterDozeMode();
+}
+
+void LPM_ExitLowPowerIdle(lpm_power_mode_t curRunMode)
+{
+    PeripheralExitDozeMode();
+    LPM_SetRunModeConfig();
+
+    if (curRunMode != LPM_PowerModeLowPowerRun)
+    {
+        /* Recover to previous run mode from LowPowerRun mode */
+        switch (curRunMode)
+        {
+            case LPM_PowerModeOverRun:
+                LPM_OverDriveRun(LPM_PowerModeLowPowerRun);
+                break;
+            case LPM_PowerModeFullRun:
+                LPM_FullSpeedRun(LPM_PowerModeLowPowerRun);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+void LPM_EnterSuspend(void)
+{
+    uint32_t i;
+    uint32_t gpcIMR[LPM_GPC_IMR_NUM];
+    uint32_t gpcIMR5;
+
+    LPM_SetStopModeConfig();
+
+    /* Connect internal the load resistor */
+    DCDC->REG1 |= DCDC_REG1_REG_RLOAD_SW_MASK;
+
+    /* Turn off FlexRAM0 */
+    GPC->CNTR |= GPC_CNTR_PDRAM0_PGE_MASK;
+    /* Turn off FlexRAM1 */
+    PGC->MEGA_CTRL |= PGC_MEGA_CTRL_PCR_MASK;
+
+    /* Clean data cache to make sure context is saved into RAM */
+    SCB_CleanDCache();
+
+    /* Adjust LP voltage to 0.925V */
+    DCDC_AdjustTargetVoltage(DCDC, 0x13, 0x1);
+    /* Switch DCDC to use DCDC internal OSC */
+    DCDC_SetClockSource(DCDC, kDCDC_ClockInternalOsc);
+
+    /* Power down CPU when requested */
+    PGC->CPU_CTRL = PGC_CPU_CTRL_PCR_MASK;
+
+    /* STOP_MODE config, turn off all analog except RTC in stop mode */
+    PMU->MISC0_CLR = PMU_MISC0_STOP_MODE_CONFIG_MASK;
+
+    /* Mask all GPC interrupts before enabling the RBC counters to
+     * avoid the counter starting too early if an interupt is already
+     * pending.
+     */
+    for (i = 0; i < LPM_GPC_IMR_NUM; i++)
+    {
+        gpcIMR[i]   = GPC->IMR[i];
+        GPC->IMR[i] = 0xFFFFFFFFU;
+    }
+    gpcIMR5   = GPC->IMR5;
+    GPC->IMR5 = 0xFFFFFFFFU;
+
+    /*
+     * ERR006223: CCM: Failure to resuem from wait/stop mode with power gating
+     *   Configure REG_BYPASS_COUNTER to 2
+     *   Enable the RBC bypass counter here to hold off the interrupts. RBC counter
+     *  needs to be no less than 2.
+     */
+    CCM->CCR = (CCM->CCR & ~CCM_CCR_REG_BYPASS_COUNT_MASK) | CCM_CCR_REG_BYPASS_COUNT(2);
+    CCM->CCR |= (CCM_CCR_OSCNT(0xAF) | CCM_CCR_COSC_EN_MASK | CCM_CCR_RBC_EN_MASK);
+
+    /* Now delay for a short while (3usec) at this point
+     * so a short loop should be enough. This delay is required to ensure that
+     * the RBC counter can start counting in case an interrupt is already pending
+     * or in case an interrupt arrives just as ARM is about to assert DSM_request.
+     */
+    SDK_DelayAtLeastUs(3);
+
+    /* Recover all the GPC interrupts. */
+    for (i = 0; i < LPM_GPC_IMR_NUM; i++)
+    {
+        GPC->IMR[i] = gpcIMR[i];
+    }
+    GPC->IMR5 = gpcIMR5;
+
+    PeripheralEnterStopMode();
+}
+
+void LPM_EnterSNVS(void)
+{
+    SNVS->LPCR |= SNVS_LPCR_TOP_MASK;
+    while (1) /* Shutdown */
+    {
+    }
+}

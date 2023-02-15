@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #include "pinmap.h"
-#include "fsl_clock_config.h"
+#include "clock_config.h"
 #include "fsl_clock.h"
 #include "fsl_xbara.h"
 #include "fsl_iomuxc.h"
@@ -163,7 +163,13 @@ void BOARD_Init_PMIC_STBY_REQ(void) {
 void mbed_sdk_init()
 {
     BOARD_ConfigMPU();
-    BOARD_BootClockRUN();
+
+#if MBED_CONF_TARGET_ENABLE_OVERDRIVE_MODE
+    BOARD_ClockOverdrive();
+#else
+    BOARD_ClockFullSpeed();
+#endif
+
 
 #if TARGET_EVK
     /* Since SNVS_PMIC_STBY_REQ_GPIO5_IO02 will output a high-level signal under Stop Mode(Suspend Mode) and this pin is
@@ -345,5 +351,23 @@ uint32_t USB_DeviceGetIrqNumber(void)
     irqNumber                  = usbDeviceEhciIrq[CONTROLLER_ID - kUSB_ControllerEhci0];
 
     return irqNumber;
+}
+
+#if MBED_CONF_TARGET_ENABLE_OVERDRIVE_MODE
+#define LPM_POWER_MODE LPM_PowerModeOverRun
+#else
+#define LPM_POWER_MODE LPM_PowerModeFullRun
+#endif
+
+void vPortPRE_SLEEP_PROCESSING(clock_mode_t powermode)
+{
+    LPM_EnableWakeupSource(GPT2_IRQn);
+    LPM_EnterLowPowerIdle(LPM_POWER_MODE);
+}
+
+void vPortPOST_SLEEP_PROCESSING(clock_mode_t powermode)
+{
+    LPM_ExitLowPowerIdle(LPM_POWER_MODE);
+    LPM_DisableWakeupSource(GPT2_IRQn);
 }
 

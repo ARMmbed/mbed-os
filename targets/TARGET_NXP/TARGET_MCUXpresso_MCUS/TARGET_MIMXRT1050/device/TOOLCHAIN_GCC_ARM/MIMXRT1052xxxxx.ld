@@ -69,7 +69,6 @@ MEMORY
 #endif
 
   m_itcm               (RX)  : ORIGIN = 0x00000000, LENGTH = 0x00020000
-  m_ncache              (RW)  : ORIGIN = 0x81E00000, LENGTH = 0x00200000
   m_dtcm               (RW)  : ORIGIN = 0x20000000, LENGTH = 0x00020000
 }
 
@@ -85,7 +84,7 @@ SECTIONS
     . = ALIGN(8);
   } > m_flash_config
 
-  ivt_begin= ORIGIN(m_flash_config) + LENGTH(m_flash_config);
+  ivt_begin = ORIGIN(m_flash_config) + LENGTH(m_flash_config);
 
   .ivt :
   {
@@ -241,14 +240,14 @@ SECTIONS
     *(NonCacheable.init)
     . = ALIGN(8);
     __noncachedata_init_end__ = .;   /* create a global symbol at initialized ncache data end */
-  } > m_ncache AT> m_text
+  } > m_data AT> m_text
   . = __noncachedata_init_end__;
   .ncache :
   {
     *(NonCacheable)
     . = ALIGN(8);
     __noncachedata_end__ = .;     /* define a global symbol at ncache data end */
-  } > m_ncache
+  } > m_data
 
   __TEXT_CSF_ROM = __NDATA_ROM + (__noncachedata_init_end__ - __noncachedata_start__);
 
@@ -260,7 +259,14 @@ SECTIONS
     __text_csf_end = .;
   } > m_text
 
-  __USED_FLASH_END = __TEXT_CSF_ROM + SIZEOF(.csf);
+
+  /* __USED_FLASH_END gives the end of all data written to the flash memory, including code and data
+      initializers. */
+  PROVIDE(__USED_FLASH_END = __TEXT_CSF_ROM + SIZEOF(.csf));
+
+  /* __USED_FLASH_SIZE gives the size of all data written to the flash memory, including code and data
+      initializers. */
+  PROVIDE(__USED_FLASH_SIZE = __USED_FLASH_END - ORIGIN(m_text));
 
   text_end = ORIGIN(m_text) + LENGTH(m_text);
   ASSERT(__USED_FLASH_END <= text_end, "Code and data initializers exceed flash size!")
@@ -304,6 +310,14 @@ SECTIONS
   PROVIDE(__stack = __StackTop);
 
   .ARM.attributes 0 : { *(.ARM.attributes) }
+
+  /* Teensy model identifier symbol (used by Teensy Loader) */
+  /* See here https://forum.pjrc.com/threads/72107-Testers-Needed-Mbed-OS-Port-for-Teensy-4-0?p=320414&viewfull=1#post320414 */
+#if defined(TARGET_TEENSY_40)
+	_teensy_model_identifier = 0x24;
+#elif defined(TARGET_TEENSY_41)
+	_teensy_model_identifier = 0x25;
+#endif
 
   ASSERT(__StackLimit >= __HeapLimit, "Stack, heap, and globals exceed main RAM size!")
 }

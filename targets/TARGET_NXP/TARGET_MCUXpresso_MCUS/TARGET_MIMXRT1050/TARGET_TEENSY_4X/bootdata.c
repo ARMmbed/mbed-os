@@ -1,14 +1,17 @@
+
 // This file is adapted from bootdata.c in the Teensy4 Arduino core.
 // https://github.com/PaulStoffregen/cores/blob/a2368ad57e9470608a234d942c55a2278c6cd72b/teensy4/bootdata.c
 // The only changes made were:
 // - Section names had to be modified to match what is expected by Mbed's linker script.
 // - #define names had to be modified to match Mbed
-// - _flashimagelen replaced with __USED_FLASH_END
+// - _flashimagelen replaced with __USED_FLASH_SIZE
 // - ResetHandler replaced with Reset_Handler
 
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
  * Copyright (c) 2017 PJRC.COM, LLC.
+ *
+ * SPDX-License-Identifier: MIT
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -40,14 +43,14 @@
 
 extern void Reset_Handler(void);
 extern unsigned long _estack;
-extern unsigned long __USED_FLASH_END;
+extern unsigned long __USED_FLASH_SIZE;
 
 
 
 __attribute__ ((section(".boot_hdr.boot_data"), used))
 const uint32_t BootData[3] = {
 	0x60000000,
-	(uint32_t)&__USED_FLASH_END,
+	(uint32_t)&__USED_FLASH_SIZE,
 	0
 };
 

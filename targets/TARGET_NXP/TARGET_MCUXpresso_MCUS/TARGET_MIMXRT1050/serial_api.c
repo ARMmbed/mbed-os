@@ -28,7 +28,7 @@
 #include "pinmap.h"
 #include "fsl_lpuart.h"
 #include "PeripheralPins.h"
-#include "fsl_clock_config.h"
+#include "clock_config.h"
 
 /* LPUART starts from index 1 */
 static uint32_t serial_irq_ids[FSL_FEATURE_SOC_LPUART_COUNT + 1] = {0};
@@ -164,6 +164,30 @@ void uart4_irq()
     uart_irq((status_flags & kLPUART_TxDataRegEmptyFlag), (status_flags & kLPUART_RxDataRegFullFlag), 4);
 }
 
+void uart5_irq()
+{
+    uint32_t status_flags = LPUART5->STAT;
+    uart_irq((status_flags & kLPUART_TxDataRegEmptyFlag), (status_flags & kLPUART_RxDataRegFullFlag), 5);
+}
+
+void uart6_irq()
+{
+    uint32_t status_flags = LPUART6->STAT;
+    uart_irq((status_flags & kLPUART_TxDataRegEmptyFlag), (status_flags & kLPUART_RxDataRegFullFlag), 6);
+}
+
+void uart7_irq()
+{
+    uint32_t status_flags = LPUART7->STAT;
+    uart_irq((status_flags & kLPUART_TxDataRegEmptyFlag), (status_flags & kLPUART_RxDataRegFullFlag), 7);
+}
+
+void uart8_irq()
+{
+    uint32_t status_flags = LPUART8->STAT;
+    uart_irq((status_flags & kLPUART_TxDataRegEmptyFlag), (status_flags & kLPUART_RxDataRegFullFlag), 8);
+}
+
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
     irq_handler = handler;
@@ -188,8 +212,20 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         case 4:
             vector = (uint32_t)&uart4_irq;
             break;
-        default:
+        case 5:
+            vector = (uint32_t)&uart5_irq;
             break;
+        case 6:
+            vector = (uint32_t)&uart6_irq;
+            break;
+        case 7:
+            vector = (uint32_t)&uart7_irq;
+            break;
+        case 8:
+            vector = (uint32_t)&uart8_irq;
+            break;
+        default:
+            MBED_ASSERT(false);
     }
 
     if (enable) {
