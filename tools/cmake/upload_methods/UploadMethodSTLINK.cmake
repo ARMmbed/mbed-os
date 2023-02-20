@@ -35,12 +35,24 @@ function(gen_upload_target TARGET_NAME BIN_FILE)
 	add_dependencies(flash-${TARGET_NAME} ${TARGET_NAME})
 endfunction(gen_upload_target)
 
-### Function to generate debug target
-add_custom_target(gdbserver
-	COMMENT "Starting st-util GDB server"
-	COMMAND
+### Commands to run the debug server.
+set(UPLOAD_WANTS_EXTENDED_REMOTE TRUE)
+set(UPLOAD_GDBSERVER_DEBUG_COMMAND
 	${st-util_PATH}
 	${STLINK_SERIAL_ARGUMENT}
 	${STLINK_ARGS}
 	--listen_port=${GDB_PORT}
-	USES_TERMINAL)
+	--multi)
+
+# Reference: https://github.com/Marus/cortex-debug/blob/056c03f01e008828e6527c571ef5c9adaf64083f/src/stutil.ts#L39
+# (except I had to change target-download to load for some reason)
+set(UPLOAD_LAUNCH_COMMANDS
+	"monitor halt"
+	"monitor reset"
+	"load"
+	"break main"
+	"monitor reset"
+)
+set(UPLOAD_RESTART_COMMANDS
+	"monitor reset"
+)

@@ -181,7 +181,7 @@ function(mbed_set_post_build target)
         mbed_generate_map_file(${target})
     endif()
 
-    mbed_generate_upload_debug_targets(${target})
+    mbed_generate_upload_target(${target})
     mbed_generate_ide_debug_configuration(${target})
 endfunction()
 

@@ -44,18 +44,26 @@ function(gen_upload_target TARGET_NAME BIN_FILE HEX_FILE)
 
 endfunction(gen_upload_target)
 
-### Function to generate debug target
+### Commands to run the debug server.
 
 # The debugger needs to be passed the directory containing STM32CubeProg
 get_filename_component(CUBE_PROG_DIR ${STM32CubeProg_PATH} DIRECTORY)
 
-add_custom_target(gdbserver
-	COMMENT "Starting ST-LINK GDB server"
-	COMMAND
+set(UPLOAD_GDBSERVER_DEBUG_COMMAND
 	${STLINK_gdbserver_COMMAND}
 	${STM32CUBE_GDBSERVER_ARGS}
 	-cp "${CUBE_PROG_DIR}"
-	--persistent # don't close debugger after GDB disconnects, matches behavior of other tools like J-Link
 	-p ${GDB_PORT}
-	${STM32CUBE_GDB_PROBE_ARGS}
-	USES_TERMINAL)
+	--halt
+	${STM32CUBE_GDB_PROBE_ARGS})
+
+# Reference: https://github.com/Marus/cortex-debug/blob/056c03f01e008828e6527c571ef5c9adaf64083f/src/stlink.ts#L113
+set(UPLOAD_LAUNCH_COMMANDS
+	"monitor reset"
+	"load"
+	"break main"
+	"monitor reset"
+)
+set(UPLOAD_RESTART_COMMANDS
+	"monitor reset"
+)

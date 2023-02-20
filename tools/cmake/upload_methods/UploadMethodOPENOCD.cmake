@@ -53,16 +53,30 @@ function(gen_upload_target TARGET_NAME BIN_FILE)
 	add_dependencies(flash-${TARGET_NAME} ${TARGET_NAME})
 endfunction(gen_upload_target)
 
-### Function to generate debug target
-add_custom_target(gdbserver
-	COMMENT "Starting OpenOCD GDB server"
-	COMMAND
+### Commands to run the debug server.
+set(UPLOAD_GDBSERVER_DEBUG_COMMAND
 	${OpenOCD}
 	${OPENOCD_CHIP_CONFIG_COMMANDS}
 	${OPENOCD_ADAPTER_SERIAL_COMMAND}
-	-c "gdb_port ${GDB_PORT}"
-	USES_TERMINAL
-	VERBATIM)
+	# Shut down OpenOCD when GDB disconnects.
+	# see https://github.com/Marus/cortex-debug/issues/371#issuecomment-999727626
+	-c "[target current] configure -event gdb-detach {shutdown}"
+	-c "gdb_port ${GDB_PORT}")
 
 # request extended-remote GDB sessions
 set(UPLOAD_WANTS_EXTENDED_REMOTE TRUE)
+
+# Reference: https://github.com/Marus/cortex-debug/blob/056c03f01e008828e6527c571ef5c9adaf64083f/src/openocd.ts#L100
+set(UPLOAD_LAUNCH_COMMANDS
+	"monitor reset halt"
+	"load"
+	"break main"
+	"monitor reset halt"
+)
+set(UPLOAD_RESTART_COMMANDS
+	"monitor reset halt"
+
+	# The following will force an sync between gdb and openocd
+	"monitor gdb_sync"
+	"stepi"
+)
