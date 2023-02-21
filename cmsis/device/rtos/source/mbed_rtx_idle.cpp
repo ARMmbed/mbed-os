@@ -148,7 +148,7 @@ extern "C" {
         // critical section to complete sleep with locked deepsleep
         core_util_critical_section_enter();
         sleep_manager_lock_deep_sleep();
-        sleep();
+        mbed_sleep();
         sleep_manager_unlock_deep_sleep();
         core_util_critical_section_exit();
     }

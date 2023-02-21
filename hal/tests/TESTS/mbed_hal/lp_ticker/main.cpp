@@ -142,7 +142,7 @@ void lp_ticker_deepsleep_test()
     TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep_test_check());
 
     while (!intFlag) {
-        sleep();
+        mbed_sleep();
     }
 
     TEST_ASSERT_EQUAL(1, intFlag);

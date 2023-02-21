@@ -210,7 +210,6 @@ using std::is_trivial;
 using std::is_trivially_copyable;
 using std::is_standard_layout;
 using std::is_pod;
-using std::is_literal_type;
 using std::is_empty;
 using std::is_polymorphic;
 using std::is_abstract;
@@ -274,8 +273,6 @@ using std::decay;
 using std::decay_t;
 using std::common_type;
 using std::common_type_t;
-using std::result_of;
-using std::result_of_t;
 
 /* C++20 remove_cvref */
 template <typename T>

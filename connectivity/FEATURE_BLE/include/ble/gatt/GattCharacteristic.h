@@ -1915,7 +1915,7 @@ public:
      * attribute value that equals sizeof(T). For a variable length alternative,
      * use GattCharacteristic directly.
      */
-    ReadOnlyGattCharacteristic<T>(
+    ReadOnlyGattCharacteristic(
         const UUID &uuid,
         T *valuePtr,
         uint8_t additionalProperties = BLE_GATT_CHAR_PROPERTIES_NONE,
@@ -1958,7 +1958,7 @@ public:
      * attribute value with maximum size equal to sizeof(T). For a fixed length
      * alternative, use GattCharacteristic directly.
      */
-    WriteOnlyGattCharacteristic<T>(
+    WriteOnlyGattCharacteristic(
         const UUID &uuid,
         T *valuePtr,
         uint8_t additionalProperties = BLE_GATT_CHAR_PROPERTIES_NONE,
@@ -2000,7 +2000,7 @@ public:
      * attribute value with maximum size equal to sizeof(T). For a fixed length
      * alternative, use GattCharacteristic directly.
      */
-    ReadWriteGattCharacteristic<T>(
+    ReadWriteGattCharacteristic(
         const UUID &uuid,
         T *valuePtr,
         uint8_t additionalProperties = BLE_GATT_CHAR_PROPERTIES_NONE,
@@ -2043,7 +2043,7 @@ public:
      * attribute value with maximum size equal to sizeof(T) * NUM_ELEMENTS.
      * For a fixed length alternative, use GattCharacteristic directly.
      */
-    WriteOnlyArrayGattCharacteristic<T, NUM_ELEMENTS>(
+    WriteOnlyArrayGattCharacteristic(
         const UUID &uuid,
         T valuePtr[NUM_ELEMENTS],
         uint8_t additionalProperties = BLE_GATT_CHAR_PROPERTIES_NONE,
@@ -2087,7 +2087,7 @@ public:
      * attribute value that equals sizeof(T) * NUM_ELEMENTS. For a variable
      * length alternative, use GattCharacteristic directly.
      */
-    ReadOnlyArrayGattCharacteristic<T, NUM_ELEMENTS>(
+    ReadOnlyArrayGattCharacteristic(
         const UUID    &uuid,
         T valuePtr[NUM_ELEMENTS],
         uint8_t additionalProperties = BLE_GATT_CHAR_PROPERTIES_NONE,
@@ -2132,7 +2132,7 @@ public:
      * attribute value with maximum size equal to sizeof(T) * NUM_ELEMENTS.
      * For a fixed length alternative, use GattCharacteristic directly.
      */
-    ReadWriteArrayGattCharacteristic<T, NUM_ELEMENTS>(
+    ReadWriteArrayGattCharacteristic(
         const UUID    &uuid,
         T valuePtr[NUM_ELEMENTS],
         uint8_t additionalProperties = BLE_GATT_CHAR_PROPERTIES_NONE,

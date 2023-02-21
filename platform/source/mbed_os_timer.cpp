@@ -170,7 +170,7 @@ void do_sleep_operation(OpT &op)
             // we go round to set the timer again.
             if (op.sleep_prepared()) {
                 // Enter HAL sleep (normal or deep)
-                sleep();
+                mbed_sleep();
             }
         }
 

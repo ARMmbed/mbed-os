@@ -218,7 +218,7 @@ bool equeue_sema_wait(equeue_sema_t *s, int ms)
 
     core_util_critical_section_enter();
     while (!*s && ms != 0) {
-        sleep();
+        mbed_sleep();
         core_util_critical_section_exit();
         __ISB();
         core_util_critical_section_enter();

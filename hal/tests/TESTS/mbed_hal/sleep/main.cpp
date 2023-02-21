@@ -79,7 +79,7 @@ void sleep_usticker_test()
 
         us_ticker_set_interrupt(next_match_timestamp);
 
-        sleep();
+        mbed_sleep();
 
         const unsigned int wakeup_timestamp = us_ticker_read();
 
@@ -130,7 +130,7 @@ void deepsleep_lpticker_test()
            Since this interrupt wakes-up the board from the sleep we need to go to sleep after CMPOK is handled. */
         TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep_test_check());
 
-        sleep();
+        mbed_sleep();
 
         /* On some targets like STM family boards with LPTIM enabled an interrupt is triggered on counter rollover.
            We need special handling for cases when next_match_timestamp < start_timestamp (interrupt is to be fired after rollover).
@@ -140,7 +140,7 @@ void deepsleep_lpticker_test()
         if ((next_match_timestamp < start_timestamp) && lp_ticker_read() < next_match_timestamp) {
             lp_ticker_set_interrupt(next_match_timestamp);
             wait_ns(200000);
-            sleep();
+            mbed_sleep();
         }
 #endif
 
@@ -182,7 +182,7 @@ void deepsleep_high_speed_clocks_turned_off_test()
 
     const unsigned int us_ticks_before_sleep = us_ticker_read();
 
-    sleep();
+    mbed_sleep();
 
     const unsigned int us_ticks_after_sleep = us_ticker_read();
     const unsigned int lp_ticks_after_sleep = lp_ticker_read();

@@ -192,7 +192,7 @@ void sleep_manager_sleep_auto(void);
  * Flash re-programming and the USB serial port will remain active, but the mbed program will no longer be
  * able to access the LocalFileSystem
  */
-static inline void sleep(void)
+static inline void mbed_sleep(void)
 {
 #if DEVICE_SLEEP
 #if (MBED_CONF_RTOS_PRESENT == 0) || (DEVICE_SYSTICK_CLK_OFF_DURING_SLEEP == 0) || defined(MBED_TICKLESS)

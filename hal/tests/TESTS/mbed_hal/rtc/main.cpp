@@ -80,7 +80,7 @@ void rtc_sleep_test_support(bool deepsleep_mode)
     TEST_ASSERT(sleep_manager_can_deep_sleep_test_check() == deepsleep_mode);
 
     while (!expired) {
-        sleep();
+        mbed_sleep();
     }
 
     const auto stop = RealTimeClock::now();

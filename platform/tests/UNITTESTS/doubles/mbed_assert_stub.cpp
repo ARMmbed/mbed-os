@@ -20,6 +20,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#pragma GCC diagnostic ignored "-Winvalid-noreturn"
+
 bool mbed_assert_throw_errors = false;
 
 extern "C" void mbed_assert_internal(const char *expr, const char *file, int line)

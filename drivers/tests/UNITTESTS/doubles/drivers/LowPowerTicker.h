@@ -17,6 +17,8 @@
 #ifndef MBED_LOWPOWERTICKER_H
 #define MBED_LOWPOWERTICKER_H
 
+#include <chrono>
+
 #include "hal/ticker_api.h"
 #include "Callback.h"
 
@@ -28,21 +30,23 @@ namespace mbed {
 class LowPowerTicker {
 
 public:
-    LowPowerTicker()
-    {
-    }
+    LowPowerTicker() = default;
 
-    virtual ~LowPowerTicker()
+    virtual ~LowPowerTicker() = default;
+
+    void attach(Callback<void()> func, std::chrono::microseconds t)
     {
+        func();
     }
 
     void attach_us(Callback<void()> func, us_timestamp_t t)
     {
-
+        func();
     }
+
     void detach()
     {
-
+        // nothing to do
     }
 };
 

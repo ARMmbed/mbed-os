@@ -36,3 +36,8 @@ osStatus rtos::Mutex::unlock()
 {
     return osOK;
 }
+
+bool rtos::Mutex::trylock()
+{
+    return true;
+}
