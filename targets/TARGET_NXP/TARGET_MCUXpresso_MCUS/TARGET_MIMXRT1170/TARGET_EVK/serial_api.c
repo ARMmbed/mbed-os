@@ -91,7 +91,7 @@ void serial_baud(serial_t *obj, int baudrate)
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
 {
     LPUART_Type *base = uart_addrs[obj->index];
-    uint8_t temp;
+    uint32_t temp;
     /* Set bit count and parity mode. */
     temp = base->CTRL & ~(LPUART_CTRL_PE_MASK | LPUART_CTRL_PT_MASK | LPUART_CTRL_M_MASK);
     if (parity != ParityNone) {
