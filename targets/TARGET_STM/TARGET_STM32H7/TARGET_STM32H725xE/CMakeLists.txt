@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_subdirectory(TARGET_WIO_H725AE EXCLUDE_FROM_ALL)
+
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     set(STARTUP_FILE TOOLCHAIN_GCC_ARM/startup_stm32h725xx.S)
     set(LINKER_FILE TOOLCHAIN_GCC_ARM/stm32h725xe.ld)
@@ -18,6 +20,7 @@ target_include_directories(mbed-stm32h725xe
 
 target_sources(mbed-stm32h725xe
     INTERFACE
+	system_clock.c
         ${STARTUP_FILE}
 )
 

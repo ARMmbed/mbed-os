@@ -3244,19 +3244,42 @@
         ],
         "public": false,
         "core": "Cortex-M7FD",
-        "mbed_rom_start": "0x08000000",
-        "mbed_rom_size": "0x80000",
-        "mbed_ram_start": "0x24000000",
-        "mbed_ram_size": "0x50000",
         "extra_labels_add": [
             "STM32H725xE"
         ],
         "macros_add": [
+            "MBED_SPLIT_HEAP",
             "STM32H725xx"
         ],
         "overrides": {
             "system_power_supply": "PWR_LDO_SUPPLY"
         }
+    },
+	"WIO_H725AE": {
+        "inherits": [
+            "MCU_STM32H725xE"
+        ],
+        "config": {
+            "hse_value": {
+                "help": "HSE default value is 25MHz in HAL",
+                "value": "25000000",
+                "macro_name": "HSE_VALUE"
+            },
+            "usb_speed": {
+                "help": "USE_USB_OTG_HS or USE_USB_HS_IN_FS",
+                "value": "USE_USB_HS_IN_FS"
+            }
+        },
+        "device_has_add": [
+            "USBDEVICE"
+        ],
+        "overrides": {
+            "lse_available":  1,
+            "system_power_supply": "PWR_DIRECT_SMPS_SUPPLY",
+            "clock_source": "USE_PLL_HSI | USE_PLL_HSE_XTAL",
+            "lse_drive_load_level": "RCC_LSEDRIVE_MEDIUMLOW"
+        },
+        "device_name": "STM32H725AEIx"
     },
     "MCU_STM32H735xG": {
         "inherits": [
