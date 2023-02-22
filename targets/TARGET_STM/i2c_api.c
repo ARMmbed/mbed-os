@@ -893,7 +893,7 @@ int i2c_byte_write(i2c_t *obj, int data)
  * Return whether the given state is a state where we can start a new I2C transaction with the
  * STM32 HAL.
  */
-inline bool i2c_is_ready_for_transaction_start(stm_i2c_state state)
+bool i2c_is_ready_for_transaction_start(stm_i2c_state state)
 {
     // Note: We can safely send a transaction start in the middle of any single byte operation; this creates a
     // repeated start.
