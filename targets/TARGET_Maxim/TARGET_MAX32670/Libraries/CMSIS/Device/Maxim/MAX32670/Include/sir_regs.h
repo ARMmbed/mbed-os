@@ -1,10 +1,11 @@
 /**
  * @file    sir_regs.h
  * @brief   Registers, Bit Masks and Bit Positions for the SIR Peripheral Module.
+ * @note    This file is @generated.
  */
 
-/* ****************************************************************************
- * Copyright (C) 2016 Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -34,11 +35,10 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- *
- *************************************************************************** */
+ ******************************************************************************/
 
-#ifndef _SIR_REGS_H_
-#define _SIR_REGS_H_
+#ifndef LIBRARIES_CMSIS_DEVICE_MAXIM_MAX32670_INCLUDE_SIR_REGS_H_
+#define LIBRARIES_CMSIS_DEVICE_MAXIM_MAX32670_INCLUDE_SIR_REGS_H_
 
 /* **** Includes **** */
 #include <stdint.h>
@@ -46,11 +46,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
- 
+
 #if defined (__ICCARM__)
   #pragma system_include
 #endif
- 
+
 #if defined (__CC_ARM)
   #pragma anon_unions
 #endif
@@ -67,6 +67,9 @@ extern "C" {
 #ifndef __O
 #define __O  volatile
 #endif
+#ifndef __R
+#define __R  volatile const
+#endif
 /// @endcond
 
 /* **** Definitions **** */
@@ -75,7 +78,7 @@ extern "C" {
  * @ingroup     sir
  * @defgroup    sir_registers SIR_Registers
  * @brief       Registers, Bit Masks and Bit Positions for the SIR Peripheral Module.
- * @details System Initialization Registers.
+ * @details     System Initialization Registers.
  */
 
 /**
@@ -91,11 +94,11 @@ typedef struct {
 /**
  * @ingroup    sir_registers
  * @defgroup   SIR_Register_Offsets Register Offsets
- * @brief      SIR Peripheral Register Offsets from the SIR Base Peripheral Address. 
+ * @brief      SIR Peripheral Register Offsets from the SIR Base Peripheral Address.
  * @{
  */
- #define MXC_R_SIR_SIR_STATUS               ((uint32_t)0x00000000UL) /**< Offset from SIR Base Address: <tt> 0x0000</tt> */ 
- #define MXC_R_SIR_SIR_ADDR                 ((uint32_t)0x00000004UL) /**< Offset from SIR Base Address: <tt> 0x0004</tt> */ 
+#define MXC_R_SIR_SIR_STATUS               ((uint32_t)0x00000000UL) /**< Offset from SIR Base Address: <tt> 0x0000</tt> */
+#define MXC_R_SIR_SIR_ADDR                 ((uint32_t)0x00000004UL) /**< Offset from SIR Base Address: <tt> 0x0004</tt> */
 /**@} end of group sir_registers */
 
 /**
@@ -104,11 +107,11 @@ typedef struct {
  * @brief    System Initialization Status Register.
  * @{
  */
- #define MXC_F_SIR_SIR_STATUS_CFG_VALID_POS             0 /**< SIR_STATUS_CFG_VALID Position */
- #define MXC_F_SIR_SIR_STATUS_CFG_VALID                 ((uint32_t)(0x1UL << MXC_F_SIR_SIR_STATUS_CFG_VALID_POS)) /**< SIR_STATUS_CFG_VALID Mask */
+#define MXC_F_SIR_SIR_STATUS_CFG_VALID_POS             0 /**< SIR_STATUS_CFG_VALID Position */
+#define MXC_F_SIR_SIR_STATUS_CFG_VALID                 ((uint32_t)(0x1UL << MXC_F_SIR_SIR_STATUS_CFG_VALID_POS)) /**< SIR_STATUS_CFG_VALID Mask */
 
- #define MXC_F_SIR_SIR_STATUS_CFG_ERR_POS               1 /**< SIR_STATUS_CFG_ERR Position */
- #define MXC_F_SIR_SIR_STATUS_CFG_ERR                   ((uint32_t)(0x1UL << MXC_F_SIR_SIR_STATUS_CFG_ERR_POS)) /**< SIR_STATUS_CFG_ERR Mask */
+#define MXC_F_SIR_SIR_STATUS_CFG_ERR_POS               1 /**< SIR_STATUS_CFG_ERR Position */
+#define MXC_F_SIR_SIR_STATUS_CFG_ERR                   ((uint32_t)(0x1UL << MXC_F_SIR_SIR_STATUS_CFG_ERR_POS)) /**< SIR_STATUS_CFG_ERR Mask */
 
 /**@} end of group SIR_SIR_STATUS_Register */
 
@@ -120,8 +123,8 @@ typedef struct {
  *           1).
  * @{
  */
- #define MXC_F_SIR_SIR_ADDR_ADDR_POS                    0 /**< SIR_ADDR_ADDR Position */
- #define MXC_F_SIR_SIR_ADDR_ADDR                        ((uint32_t)(0xFFFFFFFFUL << MXC_F_SIR_SIR_ADDR_ADDR_POS)) /**< SIR_ADDR_ADDR Mask */
+#define MXC_F_SIR_SIR_ADDR_ADDR_POS                    0 /**< SIR_ADDR_ADDR Position */
+#define MXC_F_SIR_SIR_ADDR_ADDR                        ((uint32_t)(0xFFFFFFFFUL << MXC_F_SIR_SIR_ADDR_ADDR_POS)) /**< SIR_ADDR_ADDR Mask */
 
 /**@} end of group SIR_SIR_ADDR_Register */
 
@@ -129,4 +132,4 @@ typedef struct {
 }
 #endif
 
-#endif /* _SIR_REGS_H_ */
+#endif // LIBRARIES_CMSIS_DEVICE_MAXIM_MAX32670_INCLUDE_SIR_REGS_H_

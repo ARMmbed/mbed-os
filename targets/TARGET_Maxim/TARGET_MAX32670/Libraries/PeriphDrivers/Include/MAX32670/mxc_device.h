@@ -3,8 +3,8 @@
  * @brief   Device specific header file.
 */
 
-/*******************************************************************************
- * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -36,16 +36,16 @@
  *
  ******************************************************************************/
 
-#ifndef _MXC_DEVICE_H_
-#define _MXC_DEVICE_H_
+#ifndef LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32670_MXC_DEVICE_H_
+#define LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32670_MXC_DEVICE_H_
 
 #include "max32670.h"
 #include "mxc_errors.h"
 #include "mxc_pins.h"
 
-#if defined ( __ICCARM__ ) || (__CC_ARM)
+#if defined(__ICCARM__) || (__CC_ARM)
 #include "RTE_Components.h"
-#endif 
+#endif
 
 #ifndef TARGET
 #error TARGET NOT DEFINED
@@ -54,23 +54,21 @@
 // Create a string definition for the TARGET
 #define STRING_ARG(arg) #arg
 #define STRING_NAME(name) STRING_ARG(name)
-#if MBED_VERSION && MBED_VERSION < 51200
 #define TARGET_NAME STRING_NAME(TARGET)
-#endif
 
 // Define which revisions of the IP we are using
 #ifndef TARGET_REV
 #error TARGET_REV NOT DEFINED
 #endif
 
-#if(TARGET_REV == 0x4131)
+#if (TARGET_REV == 0x4131)
 // A1
-#define MXC_TMR_REV         0
-#define MXC_UART_REV        0
+#define MXC_TMR_REV 0
+#define MXC_UART_REV 0
 #else
 
 #error TARGET_REV NOT SUPPORTED
 
 #endif /* if(TARGET_REV == ...) */
 
-#endif  /* _MXC_DEVICE_H_ */
+#endif // LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32670_MXC_DEVICE_H_

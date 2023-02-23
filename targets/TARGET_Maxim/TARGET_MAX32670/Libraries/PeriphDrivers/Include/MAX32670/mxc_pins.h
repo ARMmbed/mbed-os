@@ -3,8 +3,8 @@
  * @brief   This file contains constant pin configurations for the peripherals.
  */
 
-/* *****************************************************************************
- * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -34,52 +34,35 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- **************************************************************************** */
+ ******************************************************************************/
 
-
-#ifndef _MXC_PINS_H_
-#define _MXC_PINS_H_
+#ifndef LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32670_MXC_PINS_H_
+#define LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32670_MXC_PINS_H_
 
 #include "gpio.h"
 
-typedef enum {
-    MAP_A,
-    MAP_B,
-    MAP_C
-} sys_map_t;
-
 /***** Global Variables *****/
 // Predefined GPIO Configurations
-extern const mxc_gpio_cfg_t gpio_cfg_extclk;
+extern const mxc_gpio_cfg_t gpio_cfg_lpextclk;
+extern const mxc_gpio_cfg_t gpio_cfg_hfextclk;
 extern const mxc_gpio_cfg_t gpio_cfg_i2c0;
 extern const mxc_gpio_cfg_t gpio_cfg_i2c1;
 extern const mxc_gpio_cfg_t gpio_cfg_i2c2;
 extern const mxc_gpio_cfg_t gpio_cfg_i2c2b;
 extern const mxc_gpio_cfg_t gpio_cfg_i2c2c;
 
-
-extern const mxc_gpio_cfg_t gpio_cfg_uart0a;
-extern const mxc_gpio_cfg_t gpio_cfg_uart0a_flow;
-extern const mxc_gpio_cfg_t gpio_cfg_uart0a_flow_disable;
-extern const mxc_gpio_cfg_t gpio_cfg_uart0b;
-extern const mxc_gpio_cfg_t gpio_cfg_uart0b_flow;
-extern const mxc_gpio_cfg_t gpio_cfg_uart0b_flow_disable;
-
-extern const mxc_gpio_cfg_t gpio_cfg_uart1a;
-extern const mxc_gpio_cfg_t gpio_cfg_uart1a_flow;
-extern const mxc_gpio_cfg_t gpio_cfg_uart1a_flow_disable;
-extern const mxc_gpio_cfg_t gpio_cfg_uart1b;
-extern const mxc_gpio_cfg_t gpio_cfg_uart1b_flow;
-extern const mxc_gpio_cfg_t gpio_cfg_uart1b_flow_disable;
-
-extern const mxc_gpio_cfg_t gpio_cfg_uart2b;
-extern const mxc_gpio_cfg_t gpio_cfg_uart2b_flow;
-extern const mxc_gpio_cfg_t gpio_cfg_uart2b_flow_disable;
-
+extern const mxc_gpio_cfg_t gpio_cfg_uart0;
+extern const mxc_gpio_cfg_t gpio_cfg_uart0_flow;
+extern const mxc_gpio_cfg_t gpio_cfg_uart0_flow_disable;
+extern const mxc_gpio_cfg_t gpio_cfg_uart1;
+extern const mxc_gpio_cfg_t gpio_cfg_uart1_flow;
+extern const mxc_gpio_cfg_t gpio_cfg_uart1_flow_disable;
+extern const mxc_gpio_cfg_t gpio_cfg_uart2;
+extern const mxc_gpio_cfg_t gpio_cfg_uart2_flow;
+extern const mxc_gpio_cfg_t gpio_cfg_uart2_flow_disable;
 extern const mxc_gpio_cfg_t gpio_cfg_uart3;
 extern const mxc_gpio_cfg_t gpio_cfg_uart3_flow;
 extern const mxc_gpio_cfg_t gpio_cfg_uart3_flow_disable;
-
 
 extern const mxc_gpio_cfg_t gpio_cfg_spi0;
 // NOTE: SPI1 definied here with SS1 only, SS0 is on port0 by itself.
@@ -112,5 +95,4 @@ extern const mxc_gpio_cfg_t gpio_cfg_mon_lc2;
 extern const mxc_gpio_cfg_t gpio_cfg_cmd_rs_lc2;
 extern const mxc_gpio_cfg_t gpio_cfg_chrg_lc2;
 
-#endif /* _MXC_PINS_H_ */
-
+#endif // LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32670_MXC_PINS_H_

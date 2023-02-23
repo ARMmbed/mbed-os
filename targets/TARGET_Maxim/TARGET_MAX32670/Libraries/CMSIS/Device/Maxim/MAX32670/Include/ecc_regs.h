@@ -1,10 +1,11 @@
 /**
  * @file    ecc_regs.h
  * @brief   Registers, Bit Masks and Bit Positions for the ECC Peripheral Module.
+ * @note    This file is @generated.
  */
 
-/* ****************************************************************************
- * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -34,11 +35,10 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- *
- *************************************************************************** */
+ ******************************************************************************/
 
-#ifndef _ECC_REGS_H_
-#define _ECC_REGS_H_
+#ifndef LIBRARIES_CMSIS_DEVICE_MAXIM_MAX32670_INCLUDE_ECC_REGS_H_
+#define LIBRARIES_CMSIS_DEVICE_MAXIM_MAX32670_INCLUDE_ECC_REGS_H_
 
 /* **** Includes **** */
 #include <stdint.h>
@@ -46,11 +46,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
- 
+
 #if defined (__ICCARM__)
   #pragma system_include
 #endif
- 
+
 #if defined (__CC_ARM)
   #pragma anon_unions
 #endif
@@ -67,6 +67,9 @@ extern "C" {
 #ifndef __O
 #define __O  volatile
 #endif
+#ifndef __R
+#define __R  volatile const
+#endif
 /// @endcond
 
 /* **** Definitions **** */
@@ -75,7 +78,7 @@ extern "C" {
  * @ingroup     ecc
  * @defgroup    ecc_registers ECC_Registers
  * @brief       Registers, Bit Masks and Bit Positions for the ECC Peripheral Module.
- * @details Error Correction Code
+ * @details     Trim System Initilazation Registers. ECC Registers for MAX32670.
  */
 
 /**
@@ -83,7 +86,7 @@ extern "C" {
  * Structure type to access the ECC Registers.
  */
 typedef struct {
-    __I  uint32_t rsv_0x0_0x7[2];
+    __R  uint32_t rsv_0x0_0x7[2];
     __IO uint32_t en;                   /**< <tt>\b 0x08:</tt> ECC EN Register */
 } mxc_ecc_regs_t;
 
@@ -91,26 +94,26 @@ typedef struct {
 /**
  * @ingroup    ecc_registers
  * @defgroup   ECC_Register_Offsets Register Offsets
- * @brief      ECC Peripheral Register Offsets from the ECC Base Peripheral Address. 
+ * @brief      ECC Peripheral Register Offsets from the ECC Base Peripheral Address.
  * @{
  */
- #define MXC_R_ECC_EN                       ((uint32_t)0x00000008UL) /**< Offset from ECC Base Address: <tt> 0x0008</tt> */ 
+#define MXC_R_ECC_EN                       ((uint32_t)0x00000008UL) /**< Offset from ECC Base Address: <tt> 0x0008</tt> */
 /**@} end of group ecc_registers */
 
 /**
  * @ingroup  ecc_registers
  * @defgroup ECC_EN ECC_EN
- * @brief    ECC Enable Register
+ * @brief    ECC Enable Register.
  * @{
  */
- #define MXC_F_ECC_EN_RAM_POS                           8 /**< EN_RAM Position */
- #define MXC_F_ECC_EN_RAM                               ((uint32_t)(0x1UL << MXC_F_ECC_EN_RAM_POS)) /**< EN_RAM Mask */
+#define MXC_F_ECC_EN_SRAM_POS                          8 /**< EN_SRAM Position */
+#define MXC_F_ECC_EN_SRAM                              ((uint32_t)(0x1UL << MXC_F_ECC_EN_SRAM_POS)) /**< EN_SRAM Mask */
 
- #define MXC_F_ECC_EN_ICC0_POS                          9 /**< EN_ICC0 Position */
- #define MXC_F_ECC_EN_ICC0                              ((uint32_t)(0x1UL << MXC_F_ECC_EN_ICC0_POS)) /**< EN_ICC0 Mask */
+#define MXC_F_ECC_EN_ICC_POS                           9 /**< EN_ICC Position */
+#define MXC_F_ECC_EN_ICC                               ((uint32_t)(0x1UL << MXC_F_ECC_EN_ICC_POS)) /**< EN_ICC Mask */
 
- #define MXC_F_ECC_EN_FLASH_POS                         10 /**< EN_FLASH Position */
- #define MXC_F_ECC_EN_FLASH                             ((uint32_t)(0x1UL << MXC_F_ECC_EN_FLASH_POS)) /**< EN_FLASH Mask */
+#define MXC_F_ECC_EN_FLASH_POS                         10 /**< EN_FLASH Position */
+#define MXC_F_ECC_EN_FLASH                             ((uint32_t)(0x1UL << MXC_F_ECC_EN_FLASH_POS)) /**< EN_FLASH Mask */
 
 /**@} end of group ECC_EN_Register */
 
@@ -118,4 +121,4 @@ typedef struct {
 }
 #endif
 
-#endif /* _ECC_REGS_H_ */
+#endif // LIBRARIES_CMSIS_DEVICE_MAXIM_MAX32670_INCLUDE_ECC_REGS_H_

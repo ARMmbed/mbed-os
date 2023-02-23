@@ -1,5 +1,5 @@
-/* ****************************************************************************
- * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -29,7 +29,7 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- *************************************************************************** */
+ ******************************************************************************/
 
 #include <stdio.h>
 #include <stddef.h>
@@ -42,7 +42,7 @@
 #include "mxc_delay.h"
 #include "i2c_regs.h"
 #include "dma_regs.h"
-#include "mxc_i2c.h"
+#include "i2c.h"
 #include "i2c_reva.h"
 
 /* **** Definitions **** */

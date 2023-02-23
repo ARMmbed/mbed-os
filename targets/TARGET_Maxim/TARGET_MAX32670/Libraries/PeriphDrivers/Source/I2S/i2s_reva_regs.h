@@ -3,8 +3,8 @@
  * @brief   Registers, Bit Masks and Bit Positions for the I2S_REVA Peripheral Module.
  */
 
-/* ****************************************************************************
- * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -34,11 +34,10 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- *
- *************************************************************************** */
+ ******************************************************************************/
 
-#ifndef _I2S_REVA_REGS_H_
-#define _I2S_REVA_REGS_H_
+#ifndef LIBRARIES_PERIPHDRIVERS_SOURCE_I2S_I2S_REVA_REGS_H_
+#define LIBRARIES_PERIPHDRIVERS_SOURCE_I2S_I2S_REVA_REGS_H_
 
 /* **** Includes **** */
 #include <stdint.h>
@@ -46,11 +45,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
- 
+
 #if defined (__ICCARM__)
   #pragma system_include
 #endif
- 
+
 #if defined (__CC_ARM)
   #pragma anon_unions
 #endif
@@ -106,13 +105,13 @@ typedef struct {
  * @brief      I2S_REVA Peripheral Register Offsets from the I2S_REVA Base Peripheral Address. 
  * @{
  */
- #define MXC_R_I2S_REVA_CTRL0CH0            ((uint32_t)0x00000000UL) /**< Offset from I2S_REVA Base Address: <tt> 0x0000</tt> */ 
- #define MXC_R_I2S_REVA_CTRL1CH0            ((uint32_t)0x00000010UL) /**< Offset from I2S_REVA Base Address: <tt> 0x0010</tt> */ 
- #define MXC_R_I2S_REVA_DMACH0              ((uint32_t)0x00000030UL) /**< Offset from I2S_REVA Base Address: <tt> 0x0030</tt> */ 
- #define MXC_R_I2S_REVA_FIFOCH0             ((uint32_t)0x00000040UL) /**< Offset from I2S_REVA Base Address: <tt> 0x0040</tt> */ 
- #define MXC_R_I2S_REVA_INTFL               ((uint32_t)0x00000050UL) /**< Offset from I2S_REVA Base Address: <tt> 0x0050</tt> */ 
- #define MXC_R_I2S_REVA_INTEN               ((uint32_t)0x00000054UL) /**< Offset from I2S_REVA Base Address: <tt> 0x0054</tt> */ 
- #define MXC_R_I2S_REVA_EXTSETUP            ((uint32_t)0x00000058UL) /**< Offset from I2S_REVA Base Address: <tt> 0x0058</tt> */ 
+#define MXC_R_I2S_REVA_CTRL0CH0            ((uint32_t)0x00000000UL) /**< Offset from I2S_REVA Base Address: <tt> 0x0000</tt> */
+#define MXC_R_I2S_REVA_CTRL1CH0            ((uint32_t)0x00000010UL) /**< Offset from I2S_REVA Base Address: <tt> 0x0010</tt> */
+#define MXC_R_I2S_REVA_DMACH0              ((uint32_t)0x00000030UL) /**< Offset from I2S_REVA Base Address: <tt> 0x0030</tt> */
+#define MXC_R_I2S_REVA_FIFOCH0             ((uint32_t)0x00000040UL) /**< Offset from I2S_REVA Base Address: <tt> 0x0040</tt> */
+#define MXC_R_I2S_REVA_INTFL               ((uint32_t)0x00000050UL) /**< Offset from I2S_REVA Base Address: <tt> 0x0050</tt> */
+#define MXC_R_I2S_REVA_INTEN               ((uint32_t)0x00000054UL) /**< Offset from I2S_REVA Base Address: <tt> 0x0054</tt> */
+#define MXC_R_I2S_REVA_EXTSETUP            ((uint32_t)0x00000058UL) /**< Offset from I2S_REVA Base Address: <tt> 0x0058</tt> */
 /**@} end of group i2s_reva_registers */
 
 /**
@@ -121,47 +120,47 @@ typedef struct {
  * @brief    Global mode channel.
  * @{
  */
- #define MXC_F_I2S_REVA_CTRL0CH0_LSB_FIRST_POS          1 /**< CTRL0CH0_LSB_FIRST Position */
- #define MXC_F_I2S_REVA_CTRL0CH0_LSB_FIRST              ((uint32_t)(0x1UL << MXC_F_I2S_REVA_CTRL0CH0_LSB_FIRST_POS)) /**< CTRL0CH0_LSB_FIRST Mask */
+#define MXC_F_I2S_REVA_CTRL0CH0_LSB_FIRST_POS          1 /**< CTRL0CH0_LSB_FIRST Position */
+#define MXC_F_I2S_REVA_CTRL0CH0_LSB_FIRST              ((uint32_t)(0x1UL << MXC_F_I2S_REVA_CTRL0CH0_LSB_FIRST_POS)) /**< CTRL0CH0_LSB_FIRST Mask */
 
- #define MXC_F_I2S_REVA_CTRL0CH0_CH_MODE_POS            6 /**< CTRL0CH0_CH_MODE Position */
- #define MXC_F_I2S_REVA_CTRL0CH0_CH_MODE                ((uint32_t)(0x3UL << MXC_F_I2S_REVA_CTRL0CH0_CH_MODE_POS)) /**< CTRL0CH0_CH_MODE Mask */
+#define MXC_F_I2S_REVA_CTRL0CH0_CH_MODE_POS            6 /**< CTRL0CH0_CH_MODE Position */
+#define MXC_F_I2S_REVA_CTRL0CH0_CH_MODE                ((uint32_t)(0x3UL << MXC_F_I2S_REVA_CTRL0CH0_CH_MODE_POS)) /**< CTRL0CH0_CH_MODE Mask */
 
- #define MXC_F_I2S_REVA_CTRL0CH0_WS_POL_POS             8 /**< CTRL0CH0_WS_POL Position */
- #define MXC_F_I2S_REVA_CTRL0CH0_WS_POL                 ((uint32_t)(0x1UL << MXC_F_I2S_REVA_CTRL0CH0_WS_POL_POS)) /**< CTRL0CH0_WS_POL Mask */
+#define MXC_F_I2S_REVA_CTRL0CH0_WS_POL_POS             8 /**< CTRL0CH0_WS_POL Position */
+#define MXC_F_I2S_REVA_CTRL0CH0_WS_POL                 ((uint32_t)(0x1UL << MXC_F_I2S_REVA_CTRL0CH0_WS_POL_POS)) /**< CTRL0CH0_WS_POL Mask */
 
- #define MXC_F_I2S_REVA_CTRL0CH0_MSB_LOC_POS            9 /**< CTRL0CH0_MSB_LOC Position */
- #define MXC_F_I2S_REVA_CTRL0CH0_MSB_LOC                ((uint32_t)(0x1UL << MXC_F_I2S_REVA_CTRL0CH0_MSB_LOC_POS)) /**< CTRL0CH0_MSB_LOC Mask */
+#define MXC_F_I2S_REVA_CTRL0CH0_MSB_LOC_POS            9 /**< CTRL0CH0_MSB_LOC Position */
+#define MXC_F_I2S_REVA_CTRL0CH0_MSB_LOC                ((uint32_t)(0x1UL << MXC_F_I2S_REVA_CTRL0CH0_MSB_LOC_POS)) /**< CTRL0CH0_MSB_LOC Mask */
 
- #define MXC_F_I2S_REVA_CTRL0CH0_ALIGN_POS              10 /**< CTRL0CH0_ALIGN Position */
- #define MXC_F_I2S_REVA_CTRL0CH0_ALIGN                  ((uint32_t)(0x1UL << MXC_F_I2S_REVA_CTRL0CH0_ALIGN_POS)) /**< CTRL0CH0_ALIGN Mask */
+#define MXC_F_I2S_REVA_CTRL0CH0_ALIGN_POS              10 /**< CTRL0CH0_ALIGN Position */
+#define MXC_F_I2S_REVA_CTRL0CH0_ALIGN                  ((uint32_t)(0x1UL << MXC_F_I2S_REVA_CTRL0CH0_ALIGN_POS)) /**< CTRL0CH0_ALIGN Mask */
 
- #define MXC_F_I2S_REVA_CTRL0CH0_EXT_SEL_POS            11 /**< CTRL0CH0_EXT_SEL Position */
- #define MXC_F_I2S_REVA_CTRL0CH0_EXT_SEL                ((uint32_t)(0x1UL << MXC_F_I2S_REVA_CTRL0CH0_EXT_SEL_POS)) /**< CTRL0CH0_EXT_SEL Mask */
+#define MXC_F_I2S_REVA_CTRL0CH0_EXT_SEL_POS            11 /**< CTRL0CH0_EXT_SEL Position */
+#define MXC_F_I2S_REVA_CTRL0CH0_EXT_SEL                ((uint32_t)(0x1UL << MXC_F_I2S_REVA_CTRL0CH0_EXT_SEL_POS)) /**< CTRL0CH0_EXT_SEL Mask */
 
- #define MXC_F_I2S_REVA_CTRL0CH0_STEREO_POS             12 /**< CTRL0CH0_STEREO Position */
- #define MXC_F_I2S_REVA_CTRL0CH0_STEREO                 ((uint32_t)(0x3UL << MXC_F_I2S_REVA_CTRL0CH0_STEREO_POS)) /**< CTRL0CH0_STEREO Mask */
+#define MXC_F_I2S_REVA_CTRL0CH0_STEREO_POS             12 /**< CTRL0CH0_STEREO Position */
+#define MXC_F_I2S_REVA_CTRL0CH0_STEREO                 ((uint32_t)(0x3UL << MXC_F_I2S_REVA_CTRL0CH0_STEREO_POS)) /**< CTRL0CH0_STEREO Mask */
 
- #define MXC_F_I2S_REVA_CTRL0CH0_WSIZE_POS              14 /**< CTRL0CH0_WSIZE Position */
- #define MXC_F_I2S_REVA_CTRL0CH0_WSIZE                  ((uint32_t)(0x3UL << MXC_F_I2S_REVA_CTRL0CH0_WSIZE_POS)) /**< CTRL0CH0_WSIZE Mask */
+#define MXC_F_I2S_REVA_CTRL0CH0_WSIZE_POS              14 /**< CTRL0CH0_WSIZE Position */
+#define MXC_F_I2S_REVA_CTRL0CH0_WSIZE                  ((uint32_t)(0x3UL << MXC_F_I2S_REVA_CTRL0CH0_WSIZE_POS)) /**< CTRL0CH0_WSIZE Mask */
 
- #define MXC_F_I2S_REVA_CTRL0CH0_TX_EN_POS              16 /**< CTRL0CH0_TX_EN Position */
- #define MXC_F_I2S_REVA_CTRL0CH0_TX_EN                  ((uint32_t)(0x1UL << MXC_F_I2S_REVA_CTRL0CH0_TX_EN_POS)) /**< CTRL0CH0_TX_EN Mask */
+#define MXC_F_I2S_REVA_CTRL0CH0_TX_EN_POS              16 /**< CTRL0CH0_TX_EN Position */
+#define MXC_F_I2S_REVA_CTRL0CH0_TX_EN                  ((uint32_t)(0x1UL << MXC_F_I2S_REVA_CTRL0CH0_TX_EN_POS)) /**< CTRL0CH0_TX_EN Mask */
 
- #define MXC_F_I2S_REVA_CTRL0CH0_RX_EN_POS              17 /**< CTRL0CH0_RX_EN Position */
- #define MXC_F_I2S_REVA_CTRL0CH0_RX_EN                  ((uint32_t)(0x1UL << MXC_F_I2S_REVA_CTRL0CH0_RX_EN_POS)) /**< CTRL0CH0_RX_EN Mask */
+#define MXC_F_I2S_REVA_CTRL0CH0_RX_EN_POS              17 /**< CTRL0CH0_RX_EN Position */
+#define MXC_F_I2S_REVA_CTRL0CH0_RX_EN                  ((uint32_t)(0x1UL << MXC_F_I2S_REVA_CTRL0CH0_RX_EN_POS)) /**< CTRL0CH0_RX_EN Mask */
 
- #define MXC_F_I2S_REVA_CTRL0CH0_FLUSH_POS              18 /**< CTRL0CH0_FLUSH Position */
- #define MXC_F_I2S_REVA_CTRL0CH0_FLUSH                  ((uint32_t)(0x1UL << MXC_F_I2S_REVA_CTRL0CH0_FLUSH_POS)) /**< CTRL0CH0_FLUSH Mask */
+#define MXC_F_I2S_REVA_CTRL0CH0_FLUSH_POS              18 /**< CTRL0CH0_FLUSH Position */
+#define MXC_F_I2S_REVA_CTRL0CH0_FLUSH                  ((uint32_t)(0x1UL << MXC_F_I2S_REVA_CTRL0CH0_FLUSH_POS)) /**< CTRL0CH0_FLUSH Mask */
 
- #define MXC_F_I2S_REVA_CTRL0CH0_RST_POS                19 /**< CTRL0CH0_RST Position */
- #define MXC_F_I2S_REVA_CTRL0CH0_RST                    ((uint32_t)(0x1UL << MXC_F_I2S_REVA_CTRL0CH0_RST_POS)) /**< CTRL0CH0_RST Mask */
+#define MXC_F_I2S_REVA_CTRL0CH0_RST_POS                19 /**< CTRL0CH0_RST Position */
+#define MXC_F_I2S_REVA_CTRL0CH0_RST                    ((uint32_t)(0x1UL << MXC_F_I2S_REVA_CTRL0CH0_RST_POS)) /**< CTRL0CH0_RST Mask */
 
- #define MXC_F_I2S_REVA_CTRL0CH0_FIFO_LSB_POS           19 /**< CTRL0CH0_FIFO_LSB Position */
- #define MXC_F_I2S_REVA_CTRL0CH0_FIFO_LSB               ((uint32_t)(0x1UL << MXC_F_I2S_REVA_CTRL0CH0_FIFO_LSB_POS)) /**< CTRL0CH0_FIFO_LSB Mask */
+#define MXC_F_I2S_REVA_CTRL0CH0_FIFO_LSB_POS           19 /**< CTRL0CH0_FIFO_LSB Position */
+#define MXC_F_I2S_REVA_CTRL0CH0_FIFO_LSB               ((uint32_t)(0x1UL << MXC_F_I2S_REVA_CTRL0CH0_FIFO_LSB_POS)) /**< CTRL0CH0_FIFO_LSB Mask */
 
- #define MXC_F_I2S_REVA_CTRL0CH0_RX_THD_VAL_POS         24 /**< CTRL0CH0_RX_THD_VAL Position */
- #define MXC_F_I2S_REVA_CTRL0CH0_RX_THD_VAL             ((uint32_t)(0xFFUL << MXC_F_I2S_REVA_CTRL0CH0_RX_THD_VAL_POS)) /**< CTRL0CH0_RX_THD_VAL Mask */
+#define MXC_F_I2S_REVA_CTRL0CH0_RX_THD_VAL_POS         24 /**< CTRL0CH0_RX_THD_VAL Position */
+#define MXC_F_I2S_REVA_CTRL0CH0_RX_THD_VAL             ((uint32_t)(0xFFUL << MXC_F_I2S_REVA_CTRL0CH0_RX_THD_VAL_POS)) /**< CTRL0CH0_RX_THD_VAL Mask */
 
 /**@} end of group I2S_REVA_CTRL0CH0_Register */
 
@@ -171,20 +170,20 @@ typedef struct {
  * @brief    Local channel Setup.
  * @{
  */
- #define MXC_F_I2S_REVA_CTRL1CH0_BITS_WORD_POS          0 /**< CTRL1CH0_BITS_WORD Position */
- #define MXC_F_I2S_REVA_CTRL1CH0_BITS_WORD              ((uint32_t)(0x1FUL << MXC_F_I2S_REVA_CTRL1CH0_BITS_WORD_POS)) /**< CTRL1CH0_BITS_WORD Mask */
+#define MXC_F_I2S_REVA_CTRL1CH0_BITS_WORD_POS          0 /**< CTRL1CH0_BITS_WORD Position */
+#define MXC_F_I2S_REVA_CTRL1CH0_BITS_WORD              ((uint32_t)(0x1FUL << MXC_F_I2S_REVA_CTRL1CH0_BITS_WORD_POS)) /**< CTRL1CH0_BITS_WORD Mask */
 
- #define MXC_F_I2S_REVA_CTRL1CH0_EN_POS                 8 /**< CTRL1CH0_EN Position */
- #define MXC_F_I2S_REVA_CTRL1CH0_EN                     ((uint32_t)(0x1UL << MXC_F_I2S_REVA_CTRL1CH0_EN_POS)) /**< CTRL1CH0_EN Mask */
+#define MXC_F_I2S_REVA_CTRL1CH0_EN_POS                 8 /**< CTRL1CH0_EN Position */
+#define MXC_F_I2S_REVA_CTRL1CH0_EN                     ((uint32_t)(0x1UL << MXC_F_I2S_REVA_CTRL1CH0_EN_POS)) /**< CTRL1CH0_EN Mask */
 
- #define MXC_F_I2S_REVA_CTRL1CH0_SMP_SIZE_POS           9 /**< CTRL1CH0_SMP_SIZE Position */
- #define MXC_F_I2S_REVA_CTRL1CH0_SMP_SIZE               ((uint32_t)(0x1FUL << MXC_F_I2S_REVA_CTRL1CH0_SMP_SIZE_POS)) /**< CTRL1CH0_SMP_SIZE Mask */
+#define MXC_F_I2S_REVA_CTRL1CH0_SMP_SIZE_POS           9 /**< CTRL1CH0_SMP_SIZE Position */
+#define MXC_F_I2S_REVA_CTRL1CH0_SMP_SIZE               ((uint32_t)(0x1FUL << MXC_F_I2S_REVA_CTRL1CH0_SMP_SIZE_POS)) /**< CTRL1CH0_SMP_SIZE Mask */
 
- #define MXC_F_I2S_REVA_CTRL1CH0_ADJUST_POS             15 /**< CTRL1CH0_ADJUST Position */
- #define MXC_F_I2S_REVA_CTRL1CH0_ADJUST                 ((uint32_t)(0x1UL << MXC_F_I2S_REVA_CTRL1CH0_ADJUST_POS)) /**< CTRL1CH0_ADJUST Mask */
+#define MXC_F_I2S_REVA_CTRL1CH0_ADJUST_POS             15 /**< CTRL1CH0_ADJUST Position */
+#define MXC_F_I2S_REVA_CTRL1CH0_ADJUST                 ((uint32_t)(0x1UL << MXC_F_I2S_REVA_CTRL1CH0_ADJUST_POS)) /**< CTRL1CH0_ADJUST Mask */
 
- #define MXC_F_I2S_REVA_CTRL1CH0_CLKDIV_POS             16 /**< CTRL1CH0_CLKDIV Position */
- #define MXC_F_I2S_REVA_CTRL1CH0_CLKDIV                 ((uint32_t)(0xFFFFUL << MXC_F_I2S_REVA_CTRL1CH0_CLKDIV_POS)) /**< CTRL1CH0_CLKDIV Mask */
+#define MXC_F_I2S_REVA_CTRL1CH0_CLKDIV_POS             16 /**< CTRL1CH0_CLKDIV Position */
+#define MXC_F_I2S_REVA_CTRL1CH0_CLKDIV                 ((uint32_t)(0xFFFFUL << MXC_F_I2S_REVA_CTRL1CH0_CLKDIV_POS)) /**< CTRL1CH0_CLKDIV Mask */
 
 /**@} end of group I2S_REVA_CTRL1CH0_Register */
 
@@ -194,23 +193,23 @@ typedef struct {
  * @brief    DMA Control.
  * @{
  */
- #define MXC_F_I2S_REVA_DMACH0_DMA_TX_THD_VAL_POS       0 /**< DMACH0_DMA_TX_THD_VAL Position */
- #define MXC_F_I2S_REVA_DMACH0_DMA_TX_THD_VAL           ((uint32_t)(0x7FUL << MXC_F_I2S_REVA_DMACH0_DMA_TX_THD_VAL_POS)) /**< DMACH0_DMA_TX_THD_VAL Mask */
+#define MXC_F_I2S_REVA_DMACH0_DMA_TX_THD_VAL_POS       0 /**< DMACH0_DMA_TX_THD_VAL Position */
+#define MXC_F_I2S_REVA_DMACH0_DMA_TX_THD_VAL           ((uint32_t)(0x7FUL << MXC_F_I2S_REVA_DMACH0_DMA_TX_THD_VAL_POS)) /**< DMACH0_DMA_TX_THD_VAL Mask */
 
- #define MXC_F_I2S_REVA_DMACH0_DMA_TX_EN_POS            7 /**< DMACH0_DMA_TX_EN Position */
- #define MXC_F_I2S_REVA_DMACH0_DMA_TX_EN                ((uint32_t)(0x1UL << MXC_F_I2S_REVA_DMACH0_DMA_TX_EN_POS)) /**< DMACH0_DMA_TX_EN Mask */
+#define MXC_F_I2S_REVA_DMACH0_DMA_TX_EN_POS            7 /**< DMACH0_DMA_TX_EN Position */
+#define MXC_F_I2S_REVA_DMACH0_DMA_TX_EN                ((uint32_t)(0x1UL << MXC_F_I2S_REVA_DMACH0_DMA_TX_EN_POS)) /**< DMACH0_DMA_TX_EN Mask */
 
- #define MXC_F_I2S_REVA_DMACH0_DMA_RX_THD_VAL_POS       8 /**< DMACH0_DMA_RX_THD_VAL Position */
- #define MXC_F_I2S_REVA_DMACH0_DMA_RX_THD_VAL           ((uint32_t)(0x7FUL << MXC_F_I2S_REVA_DMACH0_DMA_RX_THD_VAL_POS)) /**< DMACH0_DMA_RX_THD_VAL Mask */
+#define MXC_F_I2S_REVA_DMACH0_DMA_RX_THD_VAL_POS       8 /**< DMACH0_DMA_RX_THD_VAL Position */
+#define MXC_F_I2S_REVA_DMACH0_DMA_RX_THD_VAL           ((uint32_t)(0x7FUL << MXC_F_I2S_REVA_DMACH0_DMA_RX_THD_VAL_POS)) /**< DMACH0_DMA_RX_THD_VAL Mask */
 
- #define MXC_F_I2S_REVA_DMACH0_DMA_RX_EN_POS            15 /**< DMACH0_DMA_RX_EN Position */
- #define MXC_F_I2S_REVA_DMACH0_DMA_RX_EN                ((uint32_t)(0x1UL << MXC_F_I2S_REVA_DMACH0_DMA_RX_EN_POS)) /**< DMACH0_DMA_RX_EN Mask */
+#define MXC_F_I2S_REVA_DMACH0_DMA_RX_EN_POS            15 /**< DMACH0_DMA_RX_EN Position */
+#define MXC_F_I2S_REVA_DMACH0_DMA_RX_EN                ((uint32_t)(0x1UL << MXC_F_I2S_REVA_DMACH0_DMA_RX_EN_POS)) /**< DMACH0_DMA_RX_EN Mask */
 
- #define MXC_F_I2S_REVA_DMACH0_TX_LVL_POS               16 /**< DMACH0_TX_LVL Position */
- #define MXC_F_I2S_REVA_DMACH0_TX_LVL                   ((uint32_t)(0xFFUL << MXC_F_I2S_REVA_DMACH0_TX_LVL_POS)) /**< DMACH0_TX_LVL Mask */
+#define MXC_F_I2S_REVA_DMACH0_TX_LVL_POS               16 /**< DMACH0_TX_LVL Position */
+#define MXC_F_I2S_REVA_DMACH0_TX_LVL                   ((uint32_t)(0xFFUL << MXC_F_I2S_REVA_DMACH0_TX_LVL_POS)) /**< DMACH0_TX_LVL Mask */
 
- #define MXC_F_I2S_REVA_DMACH0_RX_LVL_POS               24 /**< DMACH0_RX_LVL Position */
- #define MXC_F_I2S_REVA_DMACH0_RX_LVL                   ((uint32_t)(0xFFUL << MXC_F_I2S_REVA_DMACH0_RX_LVL_POS)) /**< DMACH0_RX_LVL Mask */
+#define MXC_F_I2S_REVA_DMACH0_RX_LVL_POS               24 /**< DMACH0_RX_LVL Position */
+#define MXC_F_I2S_REVA_DMACH0_RX_LVL                   ((uint32_t)(0xFFUL << MXC_F_I2S_REVA_DMACH0_RX_LVL_POS)) /**< DMACH0_RX_LVL Mask */
 
 /**@} end of group I2S_REVA_DMACH0_Register */
 
@@ -220,8 +219,8 @@ typedef struct {
  * @brief    I2S Fifo.
  * @{
  */
- #define MXC_F_I2S_REVA_FIFOCH0_DATA_POS                0 /**< FIFOCH0_DATA Position */
- #define MXC_F_I2S_REVA_FIFOCH0_DATA                    ((uint32_t)(0xFFFFFFFFUL << MXC_F_I2S_REVA_FIFOCH0_DATA_POS)) /**< FIFOCH0_DATA Mask */
+#define MXC_F_I2S_REVA_FIFOCH0_DATA_POS                0 /**< FIFOCH0_DATA Position */
+#define MXC_F_I2S_REVA_FIFOCH0_DATA                    ((uint32_t)(0xFFFFFFFFUL << MXC_F_I2S_REVA_FIFOCH0_DATA_POS)) /**< FIFOCH0_DATA Mask */
 
 /**@} end of group I2S_REVA_FIFOCH0_Register */
 
@@ -231,17 +230,17 @@ typedef struct {
  * @brief    ISR Status.
  * @{
  */
- #define MXC_F_I2S_REVA_INTFL_RX_OV_CH0_POS             0 /**< INTFL_RX_OV_CH0 Position */
- #define MXC_F_I2S_REVA_INTFL_RX_OV_CH0                 ((uint32_t)(0x1UL << MXC_F_I2S_REVA_INTFL_RX_OV_CH0_POS)) /**< INTFL_RX_OV_CH0 Mask */
+#define MXC_F_I2S_REVA_INTFL_RX_OV_CH0_POS             0 /**< INTFL_RX_OV_CH0 Position */
+#define MXC_F_I2S_REVA_INTFL_RX_OV_CH0                 ((uint32_t)(0x1UL << MXC_F_I2S_REVA_INTFL_RX_OV_CH0_POS)) /**< INTFL_RX_OV_CH0 Mask */
 
- #define MXC_F_I2S_REVA_INTFL_RX_THD_CH0_POS            1 /**< INTFL_RX_THD_CH0 Position */
- #define MXC_F_I2S_REVA_INTFL_RX_THD_CH0                ((uint32_t)(0x1UL << MXC_F_I2S_REVA_INTFL_RX_THD_CH0_POS)) /**< INTFL_RX_THD_CH0 Mask */
+#define MXC_F_I2S_REVA_INTFL_RX_THD_CH0_POS            1 /**< INTFL_RX_THD_CH0 Position */
+#define MXC_F_I2S_REVA_INTFL_RX_THD_CH0                ((uint32_t)(0x1UL << MXC_F_I2S_REVA_INTFL_RX_THD_CH0_POS)) /**< INTFL_RX_THD_CH0 Mask */
 
- #define MXC_F_I2S_REVA_INTFL_TX_OB_CH0_POS             2 /**< INTFL_TX_OB_CH0 Position */
- #define MXC_F_I2S_REVA_INTFL_TX_OB_CH0                 ((uint32_t)(0x1UL << MXC_F_I2S_REVA_INTFL_TX_OB_CH0_POS)) /**< INTFL_TX_OB_CH0 Mask */
+#define MXC_F_I2S_REVA_INTFL_TX_OB_CH0_POS             2 /**< INTFL_TX_OB_CH0 Position */
+#define MXC_F_I2S_REVA_INTFL_TX_OB_CH0                 ((uint32_t)(0x1UL << MXC_F_I2S_REVA_INTFL_TX_OB_CH0_POS)) /**< INTFL_TX_OB_CH0 Mask */
 
- #define MXC_F_I2S_REVA_INTFL_TX_HE_CH0_POS             3 /**< INTFL_TX_HE_CH0 Position */
- #define MXC_F_I2S_REVA_INTFL_TX_HE_CH0                 ((uint32_t)(0x1UL << MXC_F_I2S_REVA_INTFL_TX_HE_CH0_POS)) /**< INTFL_TX_HE_CH0 Mask */
+#define MXC_F_I2S_REVA_INTFL_TX_HE_CH0_POS             3 /**< INTFL_TX_HE_CH0 Position */
+#define MXC_F_I2S_REVA_INTFL_TX_HE_CH0                 ((uint32_t)(0x1UL << MXC_F_I2S_REVA_INTFL_TX_HE_CH0_POS)) /**< INTFL_TX_HE_CH0 Mask */
 
 /**@} end of group I2S_REVA_INTFL_Register */
 
@@ -251,17 +250,17 @@ typedef struct {
  * @brief    Interrupt Enable.
  * @{
  */
- #define MXC_F_I2S_REVA_INTEN_RX_OV_CH0_POS             0 /**< INTEN_RX_OV_CH0 Position */
- #define MXC_F_I2S_REVA_INTEN_RX_OV_CH0                 ((uint32_t)(0x1UL << MXC_F_I2S_REVA_INTEN_RX_OV_CH0_POS)) /**< INTEN_RX_OV_CH0 Mask */
+#define MXC_F_I2S_REVA_INTEN_RX_OV_CH0_POS             0 /**< INTEN_RX_OV_CH0 Position */
+#define MXC_F_I2S_REVA_INTEN_RX_OV_CH0                 ((uint32_t)(0x1UL << MXC_F_I2S_REVA_INTEN_RX_OV_CH0_POS)) /**< INTEN_RX_OV_CH0 Mask */
 
- #define MXC_F_I2S_REVA_INTEN_RX_THD_CH0_POS            1 /**< INTEN_RX_THD_CH0 Position */
- #define MXC_F_I2S_REVA_INTEN_RX_THD_CH0                ((uint32_t)(0x1UL << MXC_F_I2S_REVA_INTEN_RX_THD_CH0_POS)) /**< INTEN_RX_THD_CH0 Mask */
+#define MXC_F_I2S_REVA_INTEN_RX_THD_CH0_POS            1 /**< INTEN_RX_THD_CH0 Position */
+#define MXC_F_I2S_REVA_INTEN_RX_THD_CH0                ((uint32_t)(0x1UL << MXC_F_I2S_REVA_INTEN_RX_THD_CH0_POS)) /**< INTEN_RX_THD_CH0 Mask */
 
- #define MXC_F_I2S_REVA_INTEN_TX_OB_CH0_POS             2 /**< INTEN_TX_OB_CH0 Position */
- #define MXC_F_I2S_REVA_INTEN_TX_OB_CH0                 ((uint32_t)(0x1UL << MXC_F_I2S_REVA_INTEN_TX_OB_CH0_POS)) /**< INTEN_TX_OB_CH0 Mask */
+#define MXC_F_I2S_REVA_INTEN_TX_OB_CH0_POS             2 /**< INTEN_TX_OB_CH0 Position */
+#define MXC_F_I2S_REVA_INTEN_TX_OB_CH0                 ((uint32_t)(0x1UL << MXC_F_I2S_REVA_INTEN_TX_OB_CH0_POS)) /**< INTEN_TX_OB_CH0 Mask */
 
- #define MXC_F_I2S_REVA_INTEN_TX_HE_CH0_POS             3 /**< INTEN_TX_HE_CH0 Position */
- #define MXC_F_I2S_REVA_INTEN_TX_HE_CH0                 ((uint32_t)(0x1UL << MXC_F_I2S_REVA_INTEN_TX_HE_CH0_POS)) /**< INTEN_TX_HE_CH0 Mask */
+#define MXC_F_I2S_REVA_INTEN_TX_HE_CH0_POS             3 /**< INTEN_TX_HE_CH0 Position */
+#define MXC_F_I2S_REVA_INTEN_TX_HE_CH0                 ((uint32_t)(0x1UL << MXC_F_I2S_REVA_INTEN_TX_HE_CH0_POS)) /**< INTEN_TX_HE_CH0 Mask */
 
 /**@} end of group I2S_REVA_INTEN_Register */
 
@@ -271,8 +270,8 @@ typedef struct {
  * @brief    Ext Control.
  * @{
  */
- #define MXC_F_I2S_REVA_EXTSETUP_EXT_BITS_WORD_POS      0 /**< EXTSETUP_EXT_BITS_WORD Position */
- #define MXC_F_I2S_REVA_EXTSETUP_EXT_BITS_WORD          ((uint32_t)(0x1FUL << MXC_F_I2S_REVA_EXTSETUP_EXT_BITS_WORD_POS)) /**< EXTSETUP_EXT_BITS_WORD Mask */
+#define MXC_F_I2S_REVA_EXTSETUP_EXT_BITS_WORD_POS      0 /**< EXTSETUP_EXT_BITS_WORD Position */
+#define MXC_F_I2S_REVA_EXTSETUP_EXT_BITS_WORD          ((uint32_t)(0x1FUL << MXC_F_I2S_REVA_EXTSETUP_EXT_BITS_WORD_POS)) /**< EXTSETUP_EXT_BITS_WORD Mask */
 
 /**@} end of group I2S_REVA_EXTSETUP_Register */
 
@@ -280,4 +279,5 @@ typedef struct {
 }
 #endif
 
-#endif /* _I2S_REVA_REGS_H_ */
+#endif  // LIBRARIES_PERIPHDRIVERS_SOURCE_I2S_I2S_REVA_REGS_H_
+

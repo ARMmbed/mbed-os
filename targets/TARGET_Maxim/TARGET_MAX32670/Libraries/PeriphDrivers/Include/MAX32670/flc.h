@@ -4,8 +4,8 @@
  * @details    This driver can be used to operate on the embedded flash memory.
  */
 
-/* ****************************************************************************
- * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -35,10 +35,10 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- *************************************************************************** */
+ ******************************************************************************/
 
-#ifndef _FLC_H_
-#define _FLC_H_
+#ifndef LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32670_FLC_H_
+#define LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32670_FLC_H_
 
 /* **** Includes **** */
 #include "flc_regs.h"
@@ -57,10 +57,10 @@ extern "C" {
 /***** Definitions *****/
 
 /// Bit mask that can be used to find the starting address of a page in flash
-#define MXC_FLASH_PAGE_MASK         ~(MXC_FLASH_PAGE_SIZE - 1)
+#define MXC_FLASH_PAGE_MASK ~(MXC_FLASH_PAGE_SIZE - 1)
 
 /// Calculate the address of a page in flash from the page number
-#define MXC_FLASH_PAGE_ADDR(page)   (MXC_FLASH_MEM_BASE + ((unsigned long)page * MXC_FLASH_PAGE_SIZE))
+#define MXC_FLASH_PAGE_ADDR(page) (MXC_FLASH_MEM_BASE + ((uint32_t)page * MXC_FLASH_PAGE_SIZE))
 
 /***** Function Prototypes *****/
 
@@ -76,14 +76,14 @@ int MXC_FLC_Init();
  *             with an erase or write operation.
  * @return     If non-zero, flash operation is in progress
  */
-int MXC_FLC_Busy (void);
+int MXC_FLC_Busy(void);
 
 /**
  * @brief      Erases the entire flash array.
  * @note       This function must be executed from RAM.
  * @return     #E_NO_ERROR If function is successful.
  */
-int MXC_FLC_MassErase (void);
+int MXC_FLC_MassErase(void);
 
 /**
  * @brief      Erases the page of flash at the specified address.
@@ -91,7 +91,7 @@ int MXC_FLC_MassErase (void);
  * @param      address  Any address within the page to erase.
  * @return     #E_NO_ERROR If function is successful.
  */
-int MXC_FLC_PageErase (uint32_t address);
+int MXC_FLC_PageErase(uint32_t address);
 
 /**
  * @brief      Read Data out of Flash from an address
@@ -101,7 +101,7 @@ int MXC_FLC_PageErase (uint32_t address);
  * @param[in]  len      The length of the buffer
  *
  */
-void MXC_FLC_Read (int address, void* buffer, int len);
+void MXC_FLC_Read(int address, void *buffer, int len);
 
 /**
  * @brief      Writes data to flash.
@@ -112,7 +112,7 @@ void MXC_FLC_Read (int address, void* buffer, int len);
  * @return     #E_NO_ERROR If function is successful.
  * @note       make sure to disable ICC with ICC_Disable(); before Running this function
  */
-int MXC_FLC_Write (uint32_t address, uint32_t length, uint32_t *buffer);
+int MXC_FLC_Write(uint32_t address, uint32_t length, uint32_t *buffer);
 
 /**
  * @brief      Writes 32 bits of data to flash.
@@ -122,7 +122,7 @@ int MXC_FLC_Write (uint32_t address, uint32_t length, uint32_t *buffer);
  * @return     #E_NO_ERROR If function is successful.
  * @note       make sure to disable ICC with ICC_Disable(); before Running this function
  */
-int MXC_FLC_Write32 (uint32_t address, uint32_t data);
+int MXC_FLC_Write32(uint32_t address, uint32_t data);
 
 /**
  * @brief      Writes 128 bits of data to flash.
@@ -132,27 +132,27 @@ int MXC_FLC_Write32 (uint32_t address, uint32_t data);
  * @return     #E_NO_ERROR If function is successful.
  * @note       make sure to disable ICC with ICC_Disable(); before Running this function
  */
-int MXC_FLC_Write128 (uint32_t address, uint32_t *data);
+int MXC_FLC_Write128(uint32_t address, uint32_t *data);
 
 /**
  * @brief      Enable flash interrupts
  * @param      flags   Interrupts to enable
  * @return     #E_NO_ERROR If function is successful.
  */
-int MXC_FLC_EnableInt (uint32_t flags);
+int MXC_FLC_EnableInt(uint32_t flags);
 
 /**
  * @brief      Disable flash interrupts
  * @param      flags   Interrupts to disable
  * @return     #E_NO_ERROR If function is successful.
  */
-int MXC_FLC_DisableInt (uint32_t flags);
+int MXC_FLC_DisableInt(uint32_t flags);
 
 /**
  * @brief      Retrieve flash interrupt flags
  * @return     Interrupt flags registers
  */
-int MXC_FLC_GetFlags (void);
+int MXC_FLC_GetFlags(void);
 
 /**
  * @brief      Clear flash interrupt flags
@@ -160,7 +160,7 @@ int MXC_FLC_GetFlags (void);
  * @param      flags Flag bit(s) to clear
  * @return     #E_NO_ERROR If function is successful.
  */
-int MXC_FLC_ClearFlags (uint32_t flags);
+int MXC_FLC_ClearFlags(uint32_t flags);
 
 /**
  * @brief      Unlock info block
@@ -169,7 +169,7 @@ int MXC_FLC_ClearFlags (uint32_t flags);
  *
  * @return     #E_NO_ERROR If function is successful.
  */
-int MXC_FLC_UnlockInfoBlock (uint32_t address);
+int MXC_FLC_UnlockInfoBlock(uint32_t address);
 
 /**
  * @brief      Lock info block
@@ -177,7 +177,27 @@ int MXC_FLC_UnlockInfoBlock (uint32_t address);
  * @param[in]  address  The address in the info block that was written to
  * @return     #E_NO_ERROR If function is successful.
  */
-int MXC_FLC_LockInfoBlock (uint32_t address);
+int MXC_FLC_LockInfoBlock(uint32_t address);
+
+/**
+ * @brief       Blocks write operations to the flash page associated with the 'address' argument
+ * @note        Flash pages cannot be unblocked except for on POR and external resets
+ * 
+ * @param       address     Absolute address located anywhere in the flash page to be locked (does not need to be word-aligned)
+ * 
+ * @return      #E_NO_ERROR If function is successful.
+ */
+int MXC_FLC_BlockPageWrite(uint32_t address);
+
+/**
+ * @brief       Blocks read operations from the flash page associated with the 'address' argument
+ * @note        Flash pages cannot be unblocked except for on POR and external resets
+ * 
+ * @param       address     Absolute address located anywhere in the flash page to be locked (does not need to be word-aligned)
+ * 
+ * @return      #E_NO_ERROR If function is successful.
+ */
+int MXC_FLC_BlockPageRead(uint32_t address);
 
 /**@} end of group flc */
 
@@ -185,4 +205,4 @@ int MXC_FLC_LockInfoBlock (uint32_t address);
 }
 #endif
 
-#endif /* _FLC_H_ */
+#endif // LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32670_FLC_H_
