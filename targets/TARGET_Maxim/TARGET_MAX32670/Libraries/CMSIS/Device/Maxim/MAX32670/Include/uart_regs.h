@@ -67,9 +67,6 @@ extern "C" {
 #ifndef __O
 #define __O  volatile
 #endif
-#ifndef __R
-#define __R  volatile const
-#endif
 /// @endcond
 
 /* **** Definitions **** */
@@ -95,7 +92,7 @@ typedef struct {
     __IO uint32_t txpeek;               /**< <tt>\b 0x0018:</tt> UART TXPEEK Register */
     __IO uint32_t pnr;                  /**< <tt>\b 0x001C:</tt> UART PNR Register */
     __IO uint32_t fifo;                 /**< <tt>\b 0x0020:</tt> UART FIFO Register */
-    __R  uint32_t rsv_0x24_0x2f[3];
+    __I  uint32_t rsv_0x24_0x2f[3];
     __IO uint32_t dma;                  /**< <tt>\b 0x0030:</tt> UART DMA Register */
     __IO uint32_t wken;                 /**< <tt>\b 0x0034:</tt> UART WKEN Register */
     __IO uint32_t wkfl;                 /**< <tt>\b 0x0038:</tt> UART WKFL Register */

@@ -84,7 +84,6 @@ target_sources(mbed-max32670
         ${MXM_SOURCE_DIR}/FLC/flc_common.c
         ${MXM_SOURCE_DIR}/FLC/flc_me15.c
         ${MXM_SOURCE_DIR}/FLC/flc_reva.c
-        ${MXM_SOURCE_DIR}/FLC/flc_revb.c
 
         ${MXM_SOURCE_DIR}/GPIO/gpio_common.c
         ${MXM_SOURCE_DIR}/GPIO/gpio_me15.c

@@ -39,10 +39,6 @@
 #include "pwrseq_regs.h"
 #include "mxc_sys.h"
 
-extern void (*const __vector_table[])(void);
-
-extern void (*const __isr_vector[])(void);
-
 uint32_t SystemCoreClock = HIRC_FREQ;
 
 __weak void SystemCoreClockUpdate(void)
@@ -107,6 +103,12 @@ __weak int Board_Init(void)
     return 0;
 }
 
+/* Override this function for early platform initialization */
+__weak void low_level_init(void) 
+{
+    /* Do nothing */
+}
+
 /* This function is called just before control is transferred to main().
  *
  * You may over-ride this function in your program by defining a custom 
@@ -115,58 +117,24 @@ __weak int Board_Init(void)
  */
 __weak void SystemInit(void)
 {
-    /* Configure the interrupt controller to use the application vector table in */
-    /* the application space */
-#if defined(__CC_ARM) || defined(__GNUC__)
-    /* IAR sets the VTOR pointer incorrectly and causes stack corruption */
-    SCB->VTOR = (uint32_t)__isr_vector;
-#endif /* __CC_ARM || __GNUC__ */
-
-#if defined __ICCARM__
-    SCB->VTOR = (uint32_t)__vector_table;
-#endif
-
     /* Make sure interrupts are enabled. */
     __enable_irq();
 
+#if (__FPU_PRESENT == 1)
     /* Enable FPU on Cortex-M4, which occupies coprocessor slots 10 & 11 */
     /* Grant full access, per "Table B3-24 CPACR bit assignments". */
     /* DDI0403D "ARMv7-M Architecture Reference Manual" */
     SCB->CPACR |= SCB_CPACR_CP10_Msk | SCB_CPACR_CP11_Msk;
     __DSB();
     __ISB();
+#endif
 
     /* Change system clock source to the main high-speed clock */
     MXC_SYS_Clock_Select(MXC_SYS_CLOCK_IPO);
     SystemCoreClockUpdate();
 
-    /* Make sure INRO is enabled. INRO should already be enabled during power up. */
-    MXC_PWRSEQ->lpcn |= MXC_F_PWRSEQ_LPCN_INRO_EN;
-
     MXC_SYS_ClockEnable(MXC_SYS_PERIPH_CLOCK_GPIO0);
     MXC_SYS_ClockEnable(MXC_SYS_PERIPH_CLOCK_GPIO1);
 
-    Board_Init();
+    low_level_init();
 }
-
-#if defined(__CC_ARM)
-/* Global variable initialization does not occur until post scatterload in Keil tools.*/
-
-/* External function called after our post scatterload function implementation. */
-extern void $Super$$__main_after_scatterload(void);
-
-/**
- * @brief   Initialization function for SystemCoreClock and Board_Init.
- * @details $Sub$$__main_after_scatterload is called during system startup in the Keil
- *          toolset. Global variable and static variable space must be set up by the compiler
- *          prior to using these memory spaces. Setting up the SystemCoreClock and Board_Init
- *          require global memory for variable storage and are called from this function in
- *          the Keil tool chain.
- */
-void $Sub$$__main_after_scatterload(void)
-{
-    SystemInit();
-    $Super$$__main_after_scatterload();
-    while (1) {}
-}
-#endif /* __CC_ARM */

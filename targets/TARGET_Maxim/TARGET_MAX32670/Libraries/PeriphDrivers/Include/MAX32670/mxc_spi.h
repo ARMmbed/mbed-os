@@ -174,7 +174,7 @@ struct _mxc_spi_req_t {
  *          \ref MXC_Error_Codes for a list of return codes.
  */
 int MXC_SPI_Init(mxc_spi_regs_t *spi, int masterMode, int quadModeUsed, int numSlaves,
-                 unsigned ssPolarity, unsigned int hz);
+                 unsigned ssPolarity, unsigned int hz, unsigned int drv_ssel);
 
 /**
  * @brief   Disable and shutdown SPI peripheral.

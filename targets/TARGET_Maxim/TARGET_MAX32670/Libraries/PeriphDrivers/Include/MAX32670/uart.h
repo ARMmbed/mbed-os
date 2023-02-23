@@ -166,7 +166,7 @@ struct _mxc_uart_req_t {
  *
  * @return  Success/Fail, see \ref MXC_Error_Codes for a list of return codes.
  */
-int MXC_UART_Init(mxc_uart_regs_t *uart, unsigned int baud, mxc_uart_clock_t clock);
+int MXC_UART_Init(mxc_uart_regs_t *uart, unsigned int baud, mxc_uart_clock_t clock, sys_map_t map);
 
 /**
  * @brief   Disable and shutdown UART peripheral.
@@ -253,7 +253,7 @@ int MXC_UART_SetParity(mxc_uart_regs_t *uart, mxc_uart_parity_t parity);
  *
  * @return  Success/Fail, see \ref MXC_Error_Codes for a list of return codes.
  */
-int MXC_UART_SetFlowCtrl(mxc_uart_regs_t *uart, mxc_uart_flow_t flowCtrl, int rtsThreshold);
+int MXC_UART_SetFlowCtrl(mxc_uart_regs_t *uart, mxc_uart_flow_t flowCtrl, int rtsThreshold, sys_map_t map);
 
 /**
  * @brief   Sets the clock source for the baud rate generator

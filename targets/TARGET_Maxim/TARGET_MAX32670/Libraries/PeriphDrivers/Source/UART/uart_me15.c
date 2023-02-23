@@ -55,7 +55,7 @@ int MXC_UART_AsyncStop(mxc_uart_regs_t *uart)
     return MXC_UART_RevB_AsyncStop((mxc_uart_revb_regs_t *)uart);
 }
 
-int MXC_UART_Init(mxc_uart_regs_t *uart, unsigned int baud, mxc_uart_clock_t clock)
+int MXC_UART_Init(mxc_uart_regs_t *uart, unsigned int baud, mxc_uart_clock_t clock, sys_map_t map)
 {
     int retval;
 
@@ -96,17 +96,25 @@ int MXC_UART_Init(mxc_uart_regs_t *uart, unsigned int baud, mxc_uart_clock_t clo
 
     switch (MXC_UART_GET_IDX(uart)) {
     case 0:
-        MXC_GPIO_Config(&gpio_cfg_uart0);
+        if (map == MAP_B) {
+            MXC_GPIO_Config(&gpio_cfg_uart0b);
+        } else {
+            MXC_GPIO_Config(&gpio_cfg_uart0a);
+        }
         MXC_SYS_ClockEnable(MXC_SYS_PERIPH_CLOCK_UART0);
         break;
 
     case 1:
-        MXC_GPIO_Config(&gpio_cfg_uart1);
+        if (map == MAP_B) {
+            MXC_GPIO_Config(&gpio_cfg_uart1b);
+        } else {
+            MXC_GPIO_Config(&gpio_cfg_uart1a);
+        }
         MXC_SYS_ClockEnable(MXC_SYS_PERIPH_CLOCK_UART1);
         break;
 
     case 2:
-        MXC_GPIO_Config(&gpio_cfg_uart2);
+        MXC_GPIO_Config(&gpio_cfg_uart2b);
         MXC_SYS_ClockEnable(MXC_SYS_PERIPH_CLOCK_UART2);
         break;
 
@@ -285,20 +293,28 @@ int MXC_UART_SetParity(mxc_uart_regs_t *uart, mxc_uart_parity_t parity)
     return MXC_UART_RevB_SetParity((mxc_uart_revb_regs_t *)uart, parity);
 }
 
-int MXC_UART_SetFlowCtrl(mxc_uart_regs_t *uart, mxc_uart_flow_t flowCtrl, int rtsThreshold)
+int MXC_UART_SetFlowCtrl(mxc_uart_regs_t *uart, mxc_uart_flow_t flowCtrl, int rtsThreshold, sys_map_t map)
 {
     if (flowCtrl == MXC_UART_FLOW_EN) {
         switch (MXC_UART_GET_IDX(uart)) {
         case 0:
-            MXC_GPIO_Config(&gpio_cfg_uart0_flow);
+            if (map == MAP_B) {
+                MXC_GPIO_Config(&gpio_cfg_uart0b_flow);
+            } else {
+                MXC_GPIO_Config(&gpio_cfg_uart0a_flow);
+            }
             break;
 
         case 1:
-            MXC_GPIO_Config(&gpio_cfg_uart1_flow);
+            if (map == MAP_B) {
+                MXC_GPIO_Config(&gpio_cfg_uart1b_flow);
+            } else {
+                MXC_GPIO_Config(&gpio_cfg_uart1a_flow);
+            }
             break;
 
         case 2:
-            MXC_GPIO_Config(&gpio_cfg_uart2_flow);
+            MXC_GPIO_Config(&gpio_cfg_uart2b_flow);
             break;
 
         case 3:
@@ -311,15 +327,23 @@ int MXC_UART_SetFlowCtrl(mxc_uart_regs_t *uart, mxc_uart_flow_t flowCtrl, int rt
     } else {
         switch (MXC_UART_GET_IDX(uart)) {
         case 0:
-            MXC_GPIO_Config(&gpio_cfg_uart0_flow_disable);
+            if (map == MAP_B) {
+                MXC_GPIO_Config(&gpio_cfg_uart0b_flow_disable);
+            } else {
+                MXC_GPIO_Config(&gpio_cfg_uart0a_flow_disable);
+            }
             break;
 
         case 1:
-            MXC_GPIO_Config(&gpio_cfg_uart1_flow_disable);
+            if (map == MAP_B) {
+                MXC_GPIO_Config(&gpio_cfg_uart1b_flow_disable);
+            } else {
+                MXC_GPIO_Config(&gpio_cfg_uart1a_flow_disable);
+            }
             break;
 
         case 2:
-            MXC_GPIO_Config(&gpio_cfg_uart2_flow_disable);
+            MXC_GPIO_Config(&gpio_cfg_uart2b_flow_disable);
             break;
 
         case 3:

@@ -67,9 +67,6 @@ extern "C" {
 #ifndef __O
 #define __O  volatile
 #endif
-#ifndef __R
-#define __R  volatile const
-#endif
 /// @endcond
 
 /* **** Definitions **** */
@@ -86,11 +83,11 @@ extern "C" {
  * Structure type to access the MCR Registers.
  */
 typedef struct {
-    __R  uint32_t rsv_0x0;
+    __I  uint32_t rsv_0x0;
     __IO uint32_t rst;                  /**< <tt>\b 0x04:</tt> MCR RST Register */
-    __R  uint32_t rsv_0x8_0xf[2];
+    __I  uint32_t rsv_0x8_0xf[2];
     __IO uint32_t lppioctrl;            /**< <tt>\b 0x10:</tt> MCR LPPIOCTRL Register */
-    __R  uint32_t rsv_0x14_0x23[4];
+    __I  uint32_t rsv_0x14_0x23[4];
     __IO uint32_t clkdis;               /**< <tt>\b 0x24:</tt> MCR CLKDIS Register */
 } mxc_mcr_regs_t;
 

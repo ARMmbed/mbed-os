@@ -190,29 +190,29 @@ void MXC_LP_ClearWakeStatus(void)
     MXC_PWRSEQ->lppwkst = 0xFFFFFFFF;
 }
 
-void MXC_LP_EnableGPIOWakeup(mxc_gpio_cfg_t *wu_pins)
+void MXC_LP_EnableGPIOWakeup(unsigned int port, unsigned int mask)
 {
     MXC_GCR->pm |= MXC_F_GCR_PM_GPIO_WE;
 
-    switch (1 << MXC_GPIO_GET_IDX(wu_pins->port)) {
+    switch (1 << port) {
     case MXC_GPIO_PORT_0:
-        MXC_PWRSEQ->lpwken0 |= wu_pins->mask;
+        MXC_PWRSEQ->lpwken0 |= mask;
         break;
 
     case MXC_GPIO_PORT_1:
-        MXC_PWRSEQ->lpwken1 |= wu_pins->mask;
+        MXC_PWRSEQ->lpwken1 |= mask;
     }
 }
 
-void MXC_LP_DisableGPIOWakeup(mxc_gpio_cfg_t *wu_pins)
+void MXC_LP_DisableGPIOWakeup(unsigned int port, unsigned int mask)
 {
-    switch (1 << MXC_GPIO_GET_IDX(wu_pins->port)) {
+    switch (1 << port) {
     case MXC_GPIO_PORT_0:
-        MXC_PWRSEQ->lpwken0 &= ~wu_pins->mask;
+        MXC_PWRSEQ->lpwken0 &= ~mask;
         break;
 
     case MXC_GPIO_PORT_1:
-        MXC_PWRSEQ->lpwken1 &= ~wu_pins->mask;
+        MXC_PWRSEQ->lpwken1 &= ~mask;
     }
 
     if (MXC_PWRSEQ->lpwken1 == 0 && MXC_PWRSEQ->lpwken0 == 0) {

@@ -203,18 +203,18 @@ void MXC_LP_ClearWakeStatus(void);
  * @brief      Enables the selected GPIO port and its selected pins to wake up the device from any low power mode.
  *             Call this function multiple times to enable pins on multiple ports.  This function does not configure
  *             the GPIO pins nor does it setup their interrupt functionality.
- * @param      wu_pins      The port and pins to configure as wakeup sources.  Only the gpio and mask fields of the
- *                          structure are used.  The func and pad fields are ignored. \ref mxc_gpio_cfg_t
+ * @param      port      The port to configure as wakeup sources.
+ * @param      mask      The pins to configure as wakeup sources.
  */
-void MXC_LP_EnableGPIOWakeup(mxc_gpio_cfg_t *wu_pins);
+void MXC_LP_EnableGPIOWakeup(unsigned int port, unsigned int mask);
 
 /**
  * @brief      Disables the selected GPIO port and its selected pins as a wake up source.
  *             Call this function multiple times to disable pins on multiple ports.
- * @param      wu_pins      The port and pins to disable as wakeup sources.  Only the gpio and mask fields of the
- *                          structure are used.  The func and pad fields are ignored. \ref mxc_gpio_cfg_t
+ * @param      port      The port to configure as wakeup sources.
+ * @param      mask      The pins to configure as wakeup sources.
  */
-void MXC_LP_DisableGPIOWakeup(mxc_gpio_cfg_t *wu_pins);
+void MXC_LP_DisableGPIOWakeup(unsigned int port, unsigned int mask);
 
 /**
  * @brief      Enables the RTC alarm to wake up the device from any low power mode.

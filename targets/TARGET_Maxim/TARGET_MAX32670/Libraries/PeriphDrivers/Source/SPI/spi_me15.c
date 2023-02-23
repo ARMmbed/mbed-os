@@ -45,7 +45,7 @@
 /* **** Functions **** */
 
 int MXC_SPI_Init(mxc_spi_regs_t *spi, int masterMode, int quadModeUsed, int numSlaves,
-                 unsigned ssPolarity, unsigned int hz)
+                 unsigned ssPolarity, unsigned int hz, unsigned int drv_ssel)
 {
     int spi_num;
 
@@ -81,7 +81,7 @@ int MXC_SPI_Init(mxc_spi_regs_t *spi, int masterMode, int quadModeUsed, int numS
     }
 
     return MXC_SPI_RevA_Init((mxc_spi_reva_regs_t *)spi, masterMode, quadModeUsed, numSlaves,
-                             ssPolarity, hz);
+                             ssPolarity, hz, drv_ssel);
 }
 
 int MXC_SPI_Shutdown(mxc_spi_regs_t *spi)

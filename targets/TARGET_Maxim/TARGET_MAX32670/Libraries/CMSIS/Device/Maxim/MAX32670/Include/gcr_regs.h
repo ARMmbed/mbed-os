@@ -67,9 +67,6 @@ extern "C" {
 #ifndef __O
 #define __O  volatile
 #endif
-#ifndef __R
-#define __R  volatile const
-#endif
 /// @endcond
 
 /* **** Definitions **** */
@@ -90,20 +87,20 @@ typedef struct {
     __IO uint32_t rst0;                 /**< <tt>\b 0x04:</tt> GCR RST0 Register */
     __IO uint32_t clkctrl;              /**< <tt>\b 0x08:</tt> GCR CLKCTRL Register */
     __IO uint32_t pm;                   /**< <tt>\b 0x0C:</tt> GCR PM Register */
-    __R  uint32_t rsv_0x10_0x17[2];
+    __I  uint32_t rsv_0x10_0x17[2];
     __IO uint32_t pclkdiv;              /**< <tt>\b 0x18:</tt> GCR PCLKDIV Register */
-    __R  uint32_t rsv_0x1c_0x23[2];
+    __I  uint32_t rsv_0x1c_0x23[2];
     __IO uint32_t pclkdis0;             /**< <tt>\b 0x24:</tt> GCR PCLKDIS0 Register */
     __IO uint32_t memctrl;              /**< <tt>\b 0x28:</tt> GCR MEMCTRL Register */
     __IO uint32_t memz;                 /**< <tt>\b 0x2C:</tt> GCR MEMZ Register */
-    __R  uint32_t rsv_0x30_0x3f[4];
+    __I  uint32_t rsv_0x30_0x3f[4];
     __IO uint32_t sysst;                /**< <tt>\b 0x40:</tt> GCR SYSST Register */
     __IO uint32_t rst1;                 /**< <tt>\b 0x44:</tt> GCR RST1 Register */
     __IO uint32_t pclkdis1;             /**< <tt>\b 0x48:</tt> GCR PCLKDIS1 Register */
     __IO uint32_t eventen;              /**< <tt>\b 0x4C:</tt> GCR EVENTEN Register */
     __I  uint32_t revision;             /**< <tt>\b 0x50:</tt> GCR REVISION Register */
     __IO uint32_t sysie;                /**< <tt>\b 0x54:</tt> GCR SYSIE Register */
-    __R  uint32_t rsv_0x58_0x63[3];
+    __I  uint32_t rsv_0x58_0x63[3];
     __IO uint32_t eccerr;               /**< <tt>\b 0x64:</tt> GCR ECCERR Register */
     __IO uint32_t eccced;               /**< <tt>\b 0x68:</tt> GCR ECCCED Register */
     __IO uint32_t eccie;                /**< <tt>\b 0x6C:</tt> GCR ECCIE Register */

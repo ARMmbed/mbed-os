@@ -67,9 +67,6 @@ extern "C" {
 #ifndef __O
 #define __O  volatile
 #endif
-#ifndef __R
-#define __R  volatile const
-#endif
 /// @endcond
 
 /* **** Definitions **** */
@@ -103,12 +100,12 @@ typedef struct {
     __IO uint32_t inten_set;            /**< <tt>\b 0x38:</tt> GPIO INTEN_SET Register */
     __IO uint32_t inten_clr;            /**< <tt>\b 0x3C:</tt> GPIO INTEN_CLR Register */
     __I  uint32_t intfl;                /**< <tt>\b 0x40:</tt> GPIO INTFL Register */
-    __R  uint32_t rsv_0x44;
+    __I  uint32_t rsv_0x44;
     __IO uint32_t intfl_clr;            /**< <tt>\b 0x48:</tt> GPIO INTFL_CLR Register */
     __IO uint32_t wken;                 /**< <tt>\b 0x4C:</tt> GPIO WKEN Register */
     __IO uint32_t wken_set;             /**< <tt>\b 0x50:</tt> GPIO WKEN_SET Register */
     __IO uint32_t wken_clr;             /**< <tt>\b 0x54:</tt> GPIO WKEN_CLR Register */
-    __R  uint32_t rsv_0x58;
+    __I  uint32_t rsv_0x58;
     __IO uint32_t dualedge;             /**< <tt>\b 0x5C:</tt> GPIO DUALEDGE Register */
     __IO uint32_t padctrl0;             /**< <tt>\b 0x60:</tt> GPIO PADCTRL0 Register */
     __IO uint32_t padctrl1;             /**< <tt>\b 0x64:</tt> GPIO PADCTRL1 Register */
@@ -118,7 +115,7 @@ typedef struct {
     __IO uint32_t en2;                  /**< <tt>\b 0x74:</tt> GPIO EN2 Register */
     __IO uint32_t en2_set;              /**< <tt>\b 0x78:</tt> GPIO EN2_SET Register */
     __IO uint32_t en2_clr;              /**< <tt>\b 0x7C:</tt> GPIO EN2_CLR Register */
-    __R  uint32_t rsv_0x80_0xa7[10];
+    __I  uint32_t rsv_0x80_0xa7[10];
     __IO uint32_t hysen;                /**< <tt>\b 0xA8:</tt> GPIO HYSEN Register */
     __IO uint32_t srsel;                /**< <tt>\b 0xAC:</tt> GPIO SRSEL Register */
     __IO uint32_t ds0;                  /**< <tt>\b 0xB0:</tt> GPIO DS0 Register */

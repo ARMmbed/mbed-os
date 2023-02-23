@@ -35,7 +35,7 @@
 #define LIBRARIES_PERIPHDRIVERS_SOURCE_AES_AES_REVB_H_
 
 #include <stdint.h>
-#include "aes.h"
+#include "mxc_aes.h"
 #include "aes_revb_regs.h"
 #include "aeskeys_revb_regs.h"
 #include "trng_revb_regs.h"

@@ -42,7 +42,7 @@
 #include "mxc_delay.h"
 #include "i2c_regs.h"
 #include "dma_regs.h"
-#include "i2c.h"
+#include "mxc_i2c.h"
 #include "i2c_reva.h"
 
 /* **** Definitions **** */
