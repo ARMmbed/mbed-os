@@ -6,7 +6,7 @@
 # Detect IDEs
 # -------------------------------------------------------------
 
-if($ENV{CLION_IDE})
+if("$ENV{CLION_IDE}" AND MBED_UPLOAD_SUPPORTS_DEBUG)
 	message(STATUS "Mbed: Detected CLion IDE, will generate CLion debug configurations")
 	set(MBED_GENERATE_CLION_DEBUG_CFGS TRUE)
 
@@ -16,7 +16,7 @@ if($ENV{CLION_IDE})
 		message(FATAL_ERROR "In order to generate CLion configuration files, Mbed CE needs to know the name of the current CLion build profile.  This name is the string typed into the Name textbox under Settings > Build, Execution, Deployment > CMake.  Pass this name with '-DMBED_CLION_PROFILE_NAME=<name>'.")
 	endif()
 
-elseif(CMAKE_EXPORT_COMPILE_COMMANDS) # TODO: Is this actually a reliable way of detecting VS Code? Not sure if it will create false positives.
+elseif(CMAKE_EXPORT_COMPILE_COMMANDS AND MBED_UPLOAD_SUPPORTS_DEBUG) # TODO: Is this actually a reliable way of detecting VS Code? Not sure if it will create false positives.
 	message(STATUS "Mbed: Detected VS Code IDE, will generate VS Code debug configurations")
 	set(MBED_GENERATE_VS_CODE_DEBUG_CFGS TRUE)
 
