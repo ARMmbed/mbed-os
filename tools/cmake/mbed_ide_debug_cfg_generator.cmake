@@ -3,6 +3,11 @@
 
 # Script to automatically generate debug configurations for various IDEs.
 
+# Options
+# -------------------------------------------------------------
+option(MBED_GENERATE_VSCODE_CONFIG "If TRUE, Mbed will generate launch.json and tasks.json files allowing you to flash and debug code from the IDE" TRUE)
+
+
 # Detect IDEs
 # -------------------------------------------------------------
 
@@ -16,7 +21,7 @@ if("$ENV{CLION_IDE}" AND MBED_UPLOAD_SUPPORTS_DEBUG)
 		message(FATAL_ERROR "In order to generate CLion configuration files, Mbed CE needs to know the name of the current CLion build profile.  This name is the string typed into the Name textbox under Settings > Build, Execution, Deployment > CMake.  Pass this name with '-DMBED_CLION_PROFILE_NAME=<name>'.")
 	endif()
 
-elseif(CMAKE_EXPORT_COMPILE_COMMANDS AND MBED_UPLOAD_SUPPORTS_DEBUG) # TODO: Is this actually a reliable way of detecting VS Code? Not sure if it will create false positives.
+elseif(CMAKE_EXPORT_COMPILE_COMMANDS AND MBED_UPLOAD_SUPPORTS_DEBUG AND MBED_GENERATE_VSCODE_CONFIG) # TODO: Is this actually a reliable way of detecting VS Code? Not sure if it will create false positives.
 	message(STATUS "Mbed: Detected VS Code IDE, will generate VS Code debug configurations")
 	set(MBED_GENERATE_VS_CODE_DEBUG_CFGS TRUE)
 
@@ -171,14 +176,14 @@ elseif(MBED_GENERATE_VS_CODE_DEBUG_CFGS)
 		get_property(VSCODE_LAUNCH_JSON_CONTENT GLOBAL PROPERTY VSCODE_LAUNCH_JSON_CONTENT)
 	    file(GENERATE OUTPUT ${VSCODE_LAUNCH_JSON_PATH} CONTENT ${VSCODE_LAUNCH_JSON_CONTENT})
 
-	
+
 		# Convert the CMake list into the correct format for tasks.json
 		list(GET MBED_UPLOAD_GDBSERVER_DEBUG_COMMAND 0 GDBSERVER_EXECUTABLE)
 		list(SUBLIST MBED_UPLOAD_GDBSERVER_DEBUG_COMMAND 1 -1 GDBSERVER_ARGS)
 		set(GDBSERVER_ARGS_STR "")
 		set(IS_FIRST_ARG TRUE)
 		foreach(ELEMENT ${GDBSERVER_ARGS})
-		
+
 			if(IS_FIRST_ARG)
 				set(IS_FIRST_ARG FALSE)
 			else()
