@@ -88,9 +88,9 @@ MBED_WEAK uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
     RCC_PeriphCLKInitTypeDef RCC_PeriphCLKInitStruct = { 0 };
 
-//#if HSE_VALUE != 24000000
-//#error Unsupported externall clock value, check HSE_VALUE define
-//#endif
+#if HSE_VALUE > 48000000 || HSE_VALUE < 4000000
+#error Unsupported externall clock value, check HSE_VALUE define
+#endif
 
     /* Configure the main internal regulator output voltage */
     __HAL_RCC_PWR_CLK_ENABLE();
