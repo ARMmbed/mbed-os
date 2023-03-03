@@ -8,6 +8,7 @@ function(mbed_set_profile_options target mbed_toolchain)
     if(${mbed_toolchain} STREQUAL "GCC_ARM")
         list(APPEND profile_c_compile_options
             "-Os"
+            "-g0"
         )
         target_compile_options(${target}
             INTERFACE
@@ -18,6 +19,7 @@ function(mbed_set_profile_options target mbed_toolchain)
             "-fno-rtti"
             "-Wvla"
             "-Os"
+            "-g0"
         )
         target_compile_options(${target}
             INTERFACE
@@ -33,6 +35,7 @@ function(mbed_set_profile_options target mbed_toolchain)
         )
 
         list(APPEND profile_link_options
+            "-Wl,--compress-debug-sections=zlib"
             "-Wl,--gc-sections"
             "-Wl,--wrap,main"
             "-Wl,--wrap,_malloc_r"
