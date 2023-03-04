@@ -88,7 +88,7 @@ MBED_WEAK uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
     RCC_PeriphCLKInitTypeDef RCC_PeriphCLKInitStruct = { 0 };
 
-#if HSE_VALUE > 48000000 || HSE_VALUE < 4000000
+#if HSE_VALUE != 4000000 && HSE_VALUE != 8000000 && HSE_VALUE != 16000000 && HSE_VALUE != 24000000
 #error Unsupported externall clock value, check HSE_VALUE define
 #endif
 
@@ -100,7 +100,16 @@ MBED_WEAK uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     RCC_OscInitStruct.HSEState = RCC_HSE_ON;
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+#if HSE_VALUE == 4000000
+    RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV1;
+#elif HSE_VALUE == 8000000
+    RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV2;
+#elif HSE_VALUE == 16000000
+    RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV4;
+#elif HSE_VALUE == 24000000
     RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV6;
+#endif
+
     //! 170MHz as a core frequency for FDCAN is not suitable for many frequencies,
     //! as it provides low accuracy. When no FDCAN is used, the full capacity of 170 MHz
     //! should be standard.
