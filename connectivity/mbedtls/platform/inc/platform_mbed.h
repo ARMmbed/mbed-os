@@ -72,6 +72,9 @@
 #include "mbedtls_device.h"
 #endif
 
+// Include SHA1 certificate support.  Used for a lot of root CAs.
+#define MBEDTLS_SHA1_C 1
+
 /*
  * MBEDTLS_ERR_PLATFORM_HW_FAILED is deprecated and should not be used.
  */
