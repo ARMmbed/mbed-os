@@ -17,3 +17,4 @@ target_include_directories(mbed-teensy-40 INTERFACE TARGET_TEENSY_40)
 add_library(mbed-teensy-41 INTERFACE)
 target_link_libraries(mbed-teensy-41 INTERFACE
 	mbed-teensy-4x)
+target_include_directories(mbed-teensy-41 INTERFACE TARGET_TEENSY_41)

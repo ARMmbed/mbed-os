@@ -97,11 +97,6 @@ static FLEXSPI_Type *const s_flexspiBases[] = FLEXSPI_BASE_PTRS;
 /*! @brief Pointers to flexspi IRQ number for each instance. */
 static const IRQn_Type s_flexspiIrqs[] = FLEXSPI_IRQS;
 
-#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
-/* Clock name array */
-static const clock_ip_name_t s_flexspiClock[] = FLEXSPI_CLOCKS;
-#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
-
 #if defined(FSL_DRIVER_TRANSFER_DOUBLE_WEAK_IRQ) && FSL_DRIVER_TRANSFER_DOUBLE_WEAK_IRQ
 /*! @brief Pointers to flexspi handles for each instance. */
 static flexspi_handle_t *s_flexspiHandle[ARRAY_SIZE(s_flexspiBases)];
@@ -245,9 +240,8 @@ void FLEXSPI_Init(FLEXSPI_Type *base, const flexspi_config_t *config)
     uint8_t i            = 0;
 
 #if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
-    /* Enable the flexspi clock */
-    //CLOCK_EnableClock(s_flexspiClock[FLEXSPI_GetInstance(base)]);
-    /* Access the register directly to avoid warnings accessing non ran functions */
+    /* Enable the flexspi clock. */
+    /* Do this by accessing the register directly to avoid warnings accessing non-RAM functions */
     CCM->CCGR6 |= CCM_CCGR6_CG5_MASK;
 #endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 

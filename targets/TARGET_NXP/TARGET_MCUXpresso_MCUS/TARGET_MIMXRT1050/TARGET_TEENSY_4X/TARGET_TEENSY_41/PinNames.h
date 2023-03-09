@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-/* MBED TARGET LIST: TEENSY_40 */
+/* MBED TARGET LIST: TEENSY_41 */
 
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
@@ -170,7 +170,7 @@ typedef enum {
     GPIO_SD_B1_10 = ((3 << GPIO_PORT_SHIFT) | 10),
     GPIO_SD_B1_11 = ((3 << GPIO_PORT_SHIFT) | 11),
 
-    // Teensy 4.0 pin names -------------------------------------
+    // Teensy 4.1 pin names -------------------------------------
     // Digital
     D0 = GPIO_AD_B0_03,
     D1 = GPIO_AD_B0_02,
@@ -205,13 +205,15 @@ typedef enum {
     D30 = GPIO_EMC_37,
     D31 = GPIO_EMC_36,
     D32 = GPIO_B0_12,
-    D33 = GPIO_EMC_07,
-    D34 = GPIO_SD_B0_03,
-    D35 = GPIO_SD_B0_02,
-    D36 = GPIO_SD_B0_01,
-    D37 = GPIO_SD_B0_00,
-    D38 = GPIO_SD_B0_05,
-    D39 = GPIO_SD_B0_04,
+    D33 = GPIO_EMC_07, // note: All above here are the same as TEENSY4_0
+    D34 = GPIO_B1_13,
+    D35 = GPIO_B1_12,
+    D36 = GPIO_B1_02,
+    D37 = GPIO_B1_07,
+    D38 = GPIO_AD_B1_12,
+    D39 = GPIO_AD_B1_13,
+    D40 = GPIO_AD_B1_04,
+    D41 = GPIO_AD_B1_05,
 
     // Analog
     A0 = GPIO_AD_B1_02,
@@ -228,6 +230,17 @@ typedef enum {
     A11 = GPIO_AD_B0_13,
     A12 = GPIO_AD_B1_14,
     A13 = GPIO_AD_B1_15,
+    A14 = GPIO_AD_B1_12,
+    A15 = GPIO_AD_B1_13,
+    A16 = GPIO_AD_B1_04,
+    A17 = GPIO_AD_B1_05,
+
+    // SD card pins
+    SD_CLK = GPIO_SD_B0_01,
+    SD_DAT0 = GPIO_SD_B0_02,
+    SD_DAT1 = GPIO_SD_B0_03,
+    SD_DAT2 = GPIO_SD_B0_04,
+    SD_DAT3 = GPIO_SD_B0_05,
 
     // Standard aliases -------------------------------------
 

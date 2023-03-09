@@ -218,6 +218,8 @@ if(NOT MBED_IS_NATIVE_BUILD)
     # Load upload method if one is set up
     include(UploadMethodManager)
 
+    # Load debug config generator for IDEs
+    include(mbed_ide_debug_cfg_generator)
 endif()
 
 if(MBED_IS_NATIVE_BUILD)

@@ -64,6 +64,11 @@ static void _ifup()
     NetworkInterface *net = NetworkInterface::get_default_instance();
     TEST_ASSERT_NOT_NULL_MESSAGE(net, "No NetworkInterface configured");
     nsapi_error_t err = net->connect();
+
+    if (err != NSAPI_ERROR_OK) {
+        printf("Failed to initialize networking.  Error: %d", err);
+    }
+
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
     SocketAddress address;
     net->get_ip_address(&address);

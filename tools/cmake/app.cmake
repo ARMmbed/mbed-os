@@ -83,6 +83,3 @@ else()
     message(STATUS "Mbed: Target does not have any upload method configuration.  'make flash-' commands will not be available unless configured by the upper-level project.")
     set(UPLOAD_METHOD_DEFAULT "NONE")
 endif()
-
-# Load debug config generator for IDEs
-include(mbed_ide_debug_cfg_generator)

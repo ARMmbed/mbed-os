@@ -200,7 +200,7 @@ status_t FLEXRAM_AllocateRam(flexram_allocate_ram_t *config)
             continue;
         }
 
-        if (i < (dtcmBankNum + ocramBankNum + itcmBankNum))
+        if (i < (uint32_t)(dtcmBankNum + ocramBankNum + itcmBankNum))
         {
             bankCfg |= ((uint32_t)kFLEXRAM_BankITCM) << (i * 2);
             continue;

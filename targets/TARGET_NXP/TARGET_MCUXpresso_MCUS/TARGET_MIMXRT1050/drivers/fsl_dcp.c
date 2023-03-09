@@ -96,7 +96,7 @@ static dcp_context_t s_dcpContextSwitchingBuffer;
 
 static void dcp_reverse_and_copy(uint8_t *src, uint8_t *dest, size_t src_len)
 {
-    for (int i = 0; i < src_len; i++)
+    for (size_t i = 0; i < src_len; i++)
     {
         dest[i] = src[src_len - 1 - i];
     }

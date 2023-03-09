@@ -11,7 +11,6 @@ target_include_directories(mbed-mimxrt1050-evk
 
 target_sources(mbed-mimxrt1050-evk
     INTERFACE
-        fsl_phy.c
 		fsl_flexspi_nor_boot.c
 
 	    TARGET_1050_EVK/flash_api.c

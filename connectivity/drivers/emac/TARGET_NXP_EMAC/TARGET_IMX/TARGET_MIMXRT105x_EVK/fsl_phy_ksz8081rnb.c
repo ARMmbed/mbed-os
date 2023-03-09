@@ -7,6 +7,8 @@
  */
 
 #include "fsl_phy.h"
+#include "ksz8081rnb_regs.h"
+
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -82,121 +84,15 @@ status_t PHY_Init(ENET_Type *base, uint32_t phyAddr, uint32_t srcClock_Hz)
         }
 #endif  /* FSL_FEATURE_PHYKSZ8081_USE_RMII50M_MODE */
     }
-    return result;
-}
 
-status_t PHY_AutoNegotiation(ENET_Type *base, uint32_t phyAddr)
-{
-    status_t result = kStatus_Success;
-    uint32_t bssReg;
-    uint32_t counter = PHY_TIMEOUT_COUNT;
-    uint32_t timeDelay;
-    uint32_t ctlReg = 0;
-
-    /* Set the negotiation. */
-    result = PHY_Write(base, phyAddr, PHY_AUTONEG_ADVERTISE_REG,
+    // Enable autonegotiation, allow negotiating for all ethernet types
+    PHY_Write(base, phyAddr, PHY_AUTONEG_ADVERTISE_REG,
                        (PHY_100BASETX_FULLDUPLEX_MASK | PHY_100BASETX_HALFDUPLEX_MASK |
                         PHY_10BASETX_FULLDUPLEX_MASK | PHY_10BASETX_HALFDUPLEX_MASK | 0x1U));
-    if (result == kStatus_Success)
-    {
-        result = PHY_Write(base, phyAddr, PHY_BASICCONTROL_REG,
-                           (PHY_BCTL_AUTONEG_MASK | PHY_BCTL_RESTART_AUTONEG_MASK));
-        if (result == kStatus_Success)
-        {
-            /* Check auto negotiation complete. */
-            while (counter--)
-            {
-                result = PHY_Read(base, phyAddr, PHY_BASICSTATUS_REG, &bssReg);
-                if (result == kStatus_Success)
-                {
-                    PHY_Read(base, phyAddr, PHY_CONTROL1_REG, &ctlReg);
-                    if (((bssReg & PHY_BSTATUS_AUTONEGCOMP_MASK) != 0) && (ctlReg & PHY_LINK_READY_MASK))
-                    {
-                        /* Wait a moment for Phy status stable. */
-                        for (timeDelay = 0; timeDelay < PHY_TIMEOUT_COUNT; timeDelay++)
-                        {
-                            __ASM("nop");
-                        }
-                        break;
-                    }
-                }
 
-                if (!counter)
-                {
-                    return kStatus_PHY_AutoNegotiateFail;
-                }
-            }
-        }
-    }
+    PHY_Write(base, phyAddr, PHY_BASICCONTROL_REG, (PHY_BCTL_AUTONEG_MASK));
 
     return result;
-}
-
-status_t PHY_Write(ENET_Type *base, uint32_t phyAddr, uint32_t phyReg, uint32_t data)
-{
-    uint32_t counter;
-
-    /* Clear the SMI interrupt event. */
-    ENET_ClearInterruptStatus(base, ENET_EIR_MII_MASK);
-
-    /* Starts a SMI write command. */
-    ENET_StartSMIWrite(base, phyAddr, phyReg, kENET_MiiWriteValidFrame, data);
-
-    /* Wait for SMI complete. */
-    for (counter = PHY_TIMEOUT_COUNT; counter > 0; counter--)
-    {
-        if (ENET_GetInterruptStatus(base) & ENET_EIR_MII_MASK)
-        {
-            break;
-        }
-    }
-
-    /* Check for timeout. */
-    if (!counter)
-    {
-        return kStatus_PHY_SMIVisitTimeout;
-    }
-
-    /* Clear MII interrupt event. */
-    ENET_ClearInterruptStatus(base, ENET_EIR_MII_MASK);
-
-    return kStatus_Success;
-}
-
-status_t PHY_Read(ENET_Type *base, uint32_t phyAddr, uint32_t phyReg, uint32_t *dataPtr)
-{
-    assert(dataPtr);
-
-    uint32_t counter;
-
-    /* Clear the MII interrupt event. */
-    ENET_ClearInterruptStatus(base, ENET_EIR_MII_MASK);
-
-    /* Starts a SMI read command operation. */
-    ENET_StartSMIRead(base, phyAddr, phyReg, kENET_MiiReadValidFrame);
-
-    /* Wait for MII complete. */
-    for (counter = PHY_TIMEOUT_COUNT; counter > 0; counter--)
-    {
-        if (ENET_GetInterruptStatus(base) & ENET_EIR_MII_MASK)
-        {
-            break;
-        }
-    }
-
-    /* Check for timeout. */
-    if (!counter)
-    {
-        return kStatus_PHY_SMIVisitTimeout;
-    }
-
-    /* Get data from MII register. */
-    *dataPtr = ENET_ReadSMIData(base);
-
-    /* Clear MII interrupt event. */
-    ENET_ClearInterruptStatus(base, ENET_EIR_MII_MASK);
-
-    return kStatus_Success;
 }
 
 status_t PHY_EnableLoopback(ENET_Type *base, uint32_t phyAddr, phy_loop_t mode, phy_speed_t speed, bool enable)
@@ -250,31 +146,6 @@ status_t PHY_EnableLoopback(ENET_Type *base, uint32_t phyAddr, phy_loop_t mode, 
             {
                 return PHY_Write(base, phyAddr, PHY_CONTROL2_REG, (data & ~PHY_CTL2_REMOTELOOP_MASK));
             }
-        }
-    }
-    return result;
-}
-
-status_t PHY_GetLinkStatus(ENET_Type *base, uint32_t phyAddr, bool *status)
-{
-    assert(status);
-
-    status_t result = kStatus_Success;
-    uint32_t data;
-
-    /* Read the basic status register. */
-    result = PHY_Read(base, phyAddr, PHY_BASICSTATUS_REG, &data);
-    if (result == kStatus_Success)
-    {
-        if (!(PHY_BSTATUS_LINKSTATUS_MASK & data))
-        {
-            /* link down. */
-            *status = false;
-        }
-        else
-        {
-            /* link up. */
-            *status = true;
         }
     }
     return result;

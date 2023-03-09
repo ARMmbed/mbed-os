@@ -34,11 +34,11 @@ endif()
 
 if(MBED_GENERATE_CLION_DEBUG_CFGS)
 
-	# Find CLion run config dir
-	set(CLION_RUN_CONF_DIR ${CMAKE_SOURCE_DIR}/.idea/runConfigurations)
-	file(MAKE_DIRECTORY ${CLION_RUN_CONF_DIR})
-
 	function(mbed_generate_ide_debug_configuration CMAKE_TARGET)
+
+		# Find CLion run config dir
+		set(CLION_RUN_CONF_DIR ${CMAKE_SOURCE_DIR}/.idea/runConfigurations)
+		file(MAKE_DIRECTORY ${CLION_RUN_CONF_DIR})
 
 		# Create name (combine target name, Mbed target, and build type to generate a unique string)
 	    set(CONFIG_NAME "GDB ${CMAKE_TARGET} ${MBED_TARGET} ${CMAKE_BUILD_TYPE}")
@@ -94,8 +94,6 @@ if(MBED_GENERATE_CLION_DEBUG_CFGS)
 # VS Code generator
 # -------------------------------------------------------------
 elseif(MBED_GENERATE_VS_CODE_DEBUG_CFGS)
-
-	set(VSCODE_LAUNCH_JSON_PATH ${CMAKE_SOURCE_DIR}/.vscode/launch.json)
 
 	# Start building up json file.  Needs to be a global property so we can append to it from anywhere.
 	# Note: Cannot use a cache variable for this because cache variables aren't allowed to contain newlines.
@@ -167,6 +165,7 @@ elseif(MBED_GENERATE_VS_CODE_DEBUG_CFGS)
 	# Take all generated debug configurations and write them to launch.json.
 	function(mbed_finalize_ide_debug_configurations)
 
+		set(VSCODE_LAUNCH_JSON_PATH ${CMAKE_SOURCE_DIR}/.vscode/launch.json)
 
 		# Add footer
 	    set_property(GLOBAL APPEND_STRING PROPERTY VSCODE_LAUNCH_JSON_CONTENT "

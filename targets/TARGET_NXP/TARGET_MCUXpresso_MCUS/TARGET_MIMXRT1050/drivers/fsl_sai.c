@@ -1395,7 +1395,7 @@ void SAI_TxSetConfig(I2S_Type *base, sai_transceiver_t *config)
         config->channelMask = 1U << config->startChannel;
     }
 
-    for (i = 0U; i < FSL_FEATURE_SAI_CHANNEL_COUNTn(base); i++)
+    for (i = 0U; i < (uint32_t)FSL_FEATURE_SAI_CHANNEL_COUNTn(base); i++)
     {
         if (((uint32_t)1 << i) & config->channelMask)
         {
@@ -1408,7 +1408,7 @@ void SAI_TxSetConfig(I2S_Type *base, sai_transceiver_t *config)
             config->endChannel = i;
         }
     }
-    assert(channelNums <= FSL_FEATURE_SAI_CHANNEL_COUNTn(base));
+    assert(channelNums <= (uint32_t)FSL_FEATURE_SAI_CHANNEL_COUNTn(base));
     config->channelNums = channelNums;
 #if defined(FSL_FEATURE_SAI_HAS_FIFO_COMBINE_MODE) && (FSL_FEATURE_SAI_HAS_FIFO_COMBINE_MODE)
     /* make sure combine mode disabled while multipe channel is used */
@@ -1518,7 +1518,7 @@ void SAI_RxSetConfig(I2S_Type *base, sai_transceiver_t *config)
         config->channelMask = 1U << config->startChannel;
     }
 
-    for (i = 0U; i < FSL_FEATURE_SAI_CHANNEL_COUNTn(base); i++)
+    for (i = 0U; i < (uint32_t)FSL_FEATURE_SAI_CHANNEL_COUNTn(base); i++)
     {
         if (((uint32_t)1 << i) & config->channelMask)
         {
@@ -1531,7 +1531,7 @@ void SAI_RxSetConfig(I2S_Type *base, sai_transceiver_t *config)
             config->endChannel = i;
         }
     }
-    assert(channelNums <= FSL_FEATURE_SAI_CHANNEL_COUNTn(base));
+    assert(channelNums <= (uint32_t)FSL_FEATURE_SAI_CHANNEL_COUNTn(base));
     config->channelNums = channelNums;
 #if defined(FSL_FEATURE_SAI_HAS_FIFO_COMBINE_MODE) && (FSL_FEATURE_SAI_HAS_FIFO_COMBINE_MODE)
     /* make sure combine mode disabled while multipe channel is used */
@@ -1851,7 +1851,7 @@ void SAI_TxSetFormat(I2S_Type *base,
     }
 
     /* if channel nums is not set, calculate it here according to channelMask*/
-    for (i = 0U; i < FSL_FEATURE_SAI_CHANNEL_COUNTn(base); i++)
+    for (i = 0U; i < (uint32_t)FSL_FEATURE_SAI_CHANNEL_COUNTn(base); i++)
     {
         if (((uint32_t)1 << i) & format->channelMask)
         {
@@ -1990,7 +1990,7 @@ void SAI_RxSetFormat(I2S_Type *base,
     }
 
     /* if channel nums is not set, calculate it here according to channelMask*/
-    for (i = 0U; i < FSL_FEATURE_SAI_CHANNEL_COUNTn(base); i++)
+    for (i = 0U; i < (uint32_t)FSL_FEATURE_SAI_CHANNEL_COUNTn(base); i++)
     {
         if (((uint32_t)1 << i) & format->channelMask)
         {
@@ -2087,7 +2087,7 @@ void SAI_WriteMultiChannelBlocking(
     bytesPerWord = (size_t)((FSL_FEATURE_SAI_FIFO_COUNT - base->TCR1) * bytesPerWord);
 #endif
 
-    for (i = 0U; (i < FSL_FEATURE_SAI_CHANNEL_COUNTn(base)); i++)
+    for (i = 0U; (i < (uint32_t)FSL_FEATURE_SAI_CHANNEL_COUNTn(base)); i++)
     {
         if ((1U << i) & (channelMask))
         {
@@ -2096,7 +2096,7 @@ void SAI_WriteMultiChannelBlocking(
         }
     }
 
-    assert(channelNums <= FSL_FEATURE_SAI_CHANNEL_COUNTn(base));
+    assert(channelNums <= (uint32_t)FSL_FEATURE_SAI_CHANNEL_COUNTn(base));
     bytesPerWord *= channelNums;
 
     while (j < size)
@@ -2140,7 +2140,7 @@ void SAI_ReadMultiChannelBlocking(
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
     bytesPerWord = (size_t)(base->RCR1 * bytesPerWord);
 #endif
-    for (i = 0U; (i < FSL_FEATURE_SAI_CHANNEL_COUNTn(base)); i++)
+    for (i = 0U; (i < (uint32_t)FSL_FEATURE_SAI_CHANNEL_COUNTn(base)); i++)
     {
         if ((1U << i) & (channelMask))
         {
@@ -2149,7 +2149,7 @@ void SAI_ReadMultiChannelBlocking(
         }
     }
 
-    assert(channelNums <= FSL_FEATURE_SAI_CHANNEL_COUNTn(base));
+    assert(channelNums <= (uint32_t)FSL_FEATURE_SAI_CHANNEL_COUNTn(base));
     bytesPerWord *= channelNums;
 
     while (j < size)

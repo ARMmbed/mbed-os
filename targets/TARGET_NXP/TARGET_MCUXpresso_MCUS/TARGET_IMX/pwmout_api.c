@@ -243,6 +243,7 @@ int pwmout_read_pulsewidth_us(pwmout_t *obj) {
     {
         count = (base->SM[module].VAL5) & PWM_VAL5_VAL5_MASK;
     }
+    return count;
 }
 
 const PinMap *pwmout_pinmap()

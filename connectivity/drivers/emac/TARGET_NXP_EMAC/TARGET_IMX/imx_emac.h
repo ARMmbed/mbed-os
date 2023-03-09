@@ -171,9 +171,7 @@ private:
     EMACMemoryManager *memory_manager; /**< Memory manager */
     int phy_task_handle; /**< Handle for phy task event */
     struct PHY_STATE {
-        int connected;
-        phy_speed_t speed;
-        phy_duplex_t duplex;
+        bool link_up;
     };
     PHY_STATE prev_state;
     uint8_t hwaddr[KINETIS_HWADDR_SIZE];

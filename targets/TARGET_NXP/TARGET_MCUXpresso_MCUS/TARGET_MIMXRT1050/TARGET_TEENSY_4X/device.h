@@ -25,6 +25,9 @@
  to be as vector table */
 #undef __VECTOR_TABLE
 
+// Set to 1 by MIMXRT pullups/pulldowns on CRS_DV and RXD0
+#define BOARD_ENET_PHY_ADDR 1
+
 #include "objects.h"
 
 #endif

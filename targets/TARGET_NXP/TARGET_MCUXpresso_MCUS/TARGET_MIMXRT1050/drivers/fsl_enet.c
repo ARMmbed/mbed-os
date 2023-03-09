@@ -762,7 +762,7 @@ static void ENET_SetTxBufferDescriptors(enet_handle_t *handle,
     /* Check the input parameters. */
     for (ringNum = 0; ringNum < config->ringNum; ringNum++)
     {
-        if (buffCfg->txBdStartAddrAlign > 0)
+        if (buffCfg->txBdStartAddrAlign != 0)
         {
             volatile enet_tx_bd_struct_t *curBuffDescrip = buffCfg->txBdStartAddrAlign;
             txBuffSizeAlign = buffCfg->txBuffSizeAlign;
@@ -780,7 +780,7 @@ static void ENET_SetTxBufferDescriptors(enet_handle_t *handle,
                 /* Sets the crc. */
                 curBuffDescrip->control = ENET_BUFFDESCRIPTOR_TX_TRANMITCRC_MASK;
                 /* Sets the last buffer descriptor with the wrap flag. */
-                if (count == buffCfg->txBdNumber - 1)
+                if (count == (uint32_t)(buffCfg->txBdNumber - 1))
                 {
                     curBuffDescrip->control |= ENET_BUFFDESCRIPTOR_TX_WRAP_MASK;
                 }
@@ -811,7 +811,7 @@ static void ENET_SetRxBufferDescriptors(enet_handle_t *handle,
     /* Default single ring is supported. */
     uint8_t ringNum;
     uint32_t count;
-    uint32_t rxBuffSizeAlign;
+    uint32_t __attribute__((unused)) rxBuffSizeAlign;
     uint8_t *rxBuffer;
     const enet_buffer_config_t *buffCfg = bufferConfig;
 #ifdef ENET_ENHANCEDBUFFERDESCRIPTOR_MODE
@@ -835,7 +835,7 @@ static void ENET_SetRxBufferDescriptors(enet_handle_t *handle,
 #endif /* FSL_FEATURE_ENET_QUEUE > 1 */
 #endif /* ENET_ENHANCEDBUFFERDESCRIPTOR_MODE */
 
-        if ((buffCfg->rxBdStartAddrAlign > 0) && (buffCfg->rxBufferAlign > 0))
+        if ((buffCfg->rxBdStartAddrAlign != 0) && (buffCfg->rxBufferAlign != 0))
         {
             volatile enet_rx_bd_struct_t *curBuffDescrip = buffCfg->rxBdStartAddrAlign;
             rxBuffSizeAlign = buffCfg->rxBuffSizeAlign;
@@ -859,7 +859,7 @@ static void ENET_SetRxBufferDescriptors(enet_handle_t *handle,
                 /* Initializes the buffer descriptors with empty bit. */
                 curBuffDescrip->control = ENET_BUFFDESCRIPTOR_RX_EMPTY_MASK;
                 /* Sets the last buffer descriptor with the wrap flag. */
-                if (count == buffCfg->rxBdNumber - 1)
+                if (count == (uint32_t)(buffCfg->rxBdNumber - 1))
                 {
                     curBuffDescrip->control |= ENET_BUFFDESCRIPTOR_RX_WRAP_MASK;
                 }

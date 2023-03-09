@@ -289,6 +289,8 @@ void mbed_mac_address(char *mac) {
 }
 
 uint8_t mbed_otp_mac_address(char *mac) {
+
+#if TARGET_MIMXRT1050_EVK
     /* Check if a valid MAC address is programmed to the fuse bank */
     if ((OCOTP->MAC0 != 0) &&
         (OCOTP->MAC1 != 0) &&
@@ -308,10 +310,26 @@ uint8_t mbed_otp_mac_address(char *mac) {
         mac[3] = MAC[1];
         mac[4] = MAC[2] >> 8;
         mac[5] = MAC[2];
-    } else {
-        return 0;
+
+        return 1;
     }
-    return 1;
+#endif
+
+#if TARGET_TEENSY_4X
+    if(OCOTP->MAC0 != 0 || OCOTP->MAC1 != 0)
+    {
+        mac[0] = OCOTP->MAC1 >> 8;
+        mac[1] = OCOTP->MAC1 >> 0;
+        mac[2] = OCOTP->MAC0 >> 24;
+        mac[3] = OCOTP->MAC0 >> 16;
+        mac[4] = OCOTP->MAC0 >> 8;
+        mac[5] = OCOTP->MAC0 >> 0;
+
+        return 1;
+    }
+#endif
+
+    return 0;
 }
 
 void mbed_default_mac_address(char *mac) {
