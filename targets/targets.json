@@ -1507,6 +1507,18 @@
             "STM32F103xE"
         ]
     },
+	"MCU_STM32F103xD": {
+        "inherits": [
+            "MCU_STM32F1"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32F103xD"
+        ],
+        "macros_add": [
+            "STM32F103xE"
+        ]
+    },
     "MCU_STM32F103xE": {
         "inherits": [
             "MCU_STM32F1"
@@ -1530,6 +1542,21 @@
             "ANALOGOUT",
             "SD",
             "PWM"
+        ]
+    },
+    "MCU_STM32F103xG": {
+        "inherits": [
+            "MCU_STM32F1"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32F103xG"
+        ],
+        "macros_add": [
+            "STM32F103xG"
+        ],
+        "device_has_add": [
+            "MPU"
         ]
     },
     "MCU_STM32F2": {
