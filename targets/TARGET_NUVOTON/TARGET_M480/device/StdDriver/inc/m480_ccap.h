@@ -83,7 +83,6 @@ extern "C"
 #define CCAP_INT_MDIEN_ENABLE       (0x1ul<<CCAP_INT_MDIEN_Pos)       /*!< VININT setting for Motion Detection Output Finish Interrupt Enable enable  \hideinitializer */
 
 
-static uint32_t u32EscapeFrame = 0;
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Define Error Code                                                                                      */
 /*---------------------------------------------------------------------------------------------------------*/
