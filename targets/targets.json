@@ -3018,7 +3018,8 @@
             "MPU",
             "SERIAL_ASYNCH",
             "TRNG",
-            "CAN"
+            "CAN",
+            "CRC"
         ]
     },
     "MCU_STM32G431xB": {

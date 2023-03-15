@@ -136,6 +136,8 @@ struct qspi_s {
 //#include "common_objects.h"
 #include "gpio_object.h"
 
+#define HAL_CRC_IS_SUPPORTED(polynomial, width) ((width) == 7 || (width) == 8 || (width) == 16 || (width) == 32)
+
 #ifdef __cplusplus
 }
 #endif
