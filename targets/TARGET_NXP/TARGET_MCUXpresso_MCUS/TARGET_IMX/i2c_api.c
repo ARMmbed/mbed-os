@@ -138,8 +138,10 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
         /* Send the STOP signal */
         base->MTDR = LPI2C_MTDR_CMD(0x2U);
 
-        /* Wait till STOP has been sent successfully */
-        while (!(base->MSR & kLPI2C_MasterStopDetectFlag)) {
+        // Wait until:
+        // - Stop has been generated
+        // - Bus ready to transmit data again
+        while(!(base->MSR & kLPI2C_MasterStopDetectFlag) || !(base->MSR & kLPI2C_MasterTxReadyFlag)) {
         }
 
         if (base->MSR & kLPI2C_MasterNackDetectFlag) {
