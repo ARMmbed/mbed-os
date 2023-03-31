@@ -125,7 +125,6 @@ struct can_s {
     CANName can;
     PinName pin_rd;
     PinName pin_td;
-    int index; 
 };
 
 struct trng_s {

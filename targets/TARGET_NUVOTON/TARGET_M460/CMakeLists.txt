@@ -13,6 +13,7 @@ target_sources(mbed-m460
     INTERFACE
         analogin_api.c
         analogout_api.c
+        can_api.c
 
         crypto/crypto-misc.cpp
 

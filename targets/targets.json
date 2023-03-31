@@ -7610,6 +7610,7 @@
             "MPU",
             "WATCHDOG",
             "RESET_REASON",
+            "CAN",
             "EMAC",
             "USBDEVICE"
         ],
