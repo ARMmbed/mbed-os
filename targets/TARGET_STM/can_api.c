@@ -546,7 +546,7 @@ static void can_irq(CANName name, int id)
             irq_handler(can_irq_contexts[id], IRQ_TX);
         }
     }
-#if (defined FDCAN_IT_RX_BUFFER_NEW_MESSAGE)
+#if (defined FDCAN_IT_RX_BUFFER_NEW_MESSAGE) && !defined(TARGET_STM32H7)
     if (__HAL_FDCAN_GET_IT_SOURCE(&CanHandle, FDCAN_IT_RX_BUFFER_NEW_MESSAGE)) {
         if (__HAL_FDCAN_GET_FLAG(&CanHandle, FDCAN_IT_RX_BUFFER_NEW_MESSAGE)) {
             __HAL_FDCAN_CLEAR_FLAG(&CanHandle, FDCAN_IT_RX_BUFFER_NEW_MESSAGE);
@@ -628,7 +628,7 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
             interrupts = FDCAN_IT_TX_COMPLETE;
             break;
         case IRQ_RX:
-#if (defined FDCAN_IT_RX_BUFFER_NEW_MESSAGE)
+#if (defined FDCAN_IT_RX_BUFFER_NEW_MESSAGE) && !defined(TARGET_STM32H7)
             interrupts = FDCAN_IT_RX_BUFFER_NEW_MESSAGE;
 #else
             interrupts = FDCAN_IT_RX_FIFO0_NEW_MESSAGE;
