@@ -106,8 +106,9 @@ MBED_WEAK uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 #if HSE_VALUE==25000000
     RCC_OscInitStruct.PLL.PLLM = 5;   // 5 MHz
     RCC_OscInitStruct.PLL.PLLN = 192; // 960 MHz
-#else
-#error Unsupported externall clock value, check HSE_VALUE define
+#elif HSE_VALUE==8000000
+    RCC_OscInitStruct.PLL.PLLM = 4;   // 2 MHz
+    RCC_OscInitStruct.PLL.PLLN = 480; // 960 MHz
 #endif
     RCC_OscInitStruct.PLL.PLLP = 2;   // PLLCLK = SYSCLK = 480 MHz
     RCC_OscInitStruct.PLL.PLLQ = 96;  // PLL1Q used for FDCAN = 10 MHz
