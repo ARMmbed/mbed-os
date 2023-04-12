@@ -3422,6 +3422,75 @@
             "CORE_CM7"
         ]
     },
+    "NUCLEO_H745ZI_Q_CM7": {
+        "inherits": [
+            "MCU_STM32H745xI_CM7"
+        ],
+        "extra_labels_add": [ "NUCLEO_H745ZI_Q" ],
+        "supported_form_factors": [
+            "ARDUINO_UNO"
+        ],
+        "config": {
+            "d11_configuration": {
+                "help": "Value: PB_5 for the default board configuration, PA_7 in case of solder bridge update (SB33 on/ SB35 off)",
+                "value": "PB_5",
+                "macro_name": "STM32_D11_SPI_ETHERNET_PIN"
+            },
+            "hse_value": {
+                "help": "HSE default value is 25MHz in HAL",
+                "value": "8000000",
+                "macro_name": "HSE_VALUE"
+            },
+            "usb_speed": {
+                "help": "USE_USB_OTG_FS or USE_USB_OTG_HS or USE_USB_HS_IN_FS",
+                "value": "USE_USB_OTG_FS"
+            }
+        },
+        "device_has_add": [
+            "USBDEVICE"
+        ],
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        },
+        "device_name": "STM32H745ZITx"
+    },
+    "NUCLEO_H745ZI_Q_CM4": {
+        "inherits": [
+            "MCU_STM32H745xI_CM4"
+        ],
+        "extra_labels_add": [ "NUCLEO_H745ZI_Q" ],
+        "supported_form_factors": [
+            "ARDUINO_UNO"
+        ],
+        "config": {
+            "d11_configuration": {
+                "help": "Value: PB_5 for the default board configuration, PA_7 in case of solder bridge update (SB33 on/ SB35 off)",
+                "value": "PB_5",
+                "macro_name": "STM32_D11_SPI_ETHERNET_PIN"
+            },
+            "hse_value": {
+                "help": "HSE default value is 25MHz in HAL",
+                "value": "8000000",
+                "macro_name": "HSE_VALUE"
+            },
+            "usb_speed": {
+                "help": "USE_USB_OTG_FS or USE_USB_OTG_HS or USE_USB_HS_IN_FS",
+                "value": "USE_USB_OTG_FS"
+            }
+        },
+        "device_has_add": [
+            "USBDEVICE"
+        ],
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        },
+        "device_name": "STM32H745ZITx"
+    },
+    "NUCLEO_H745ZI_Q" : {
+        "inherits" : [
+            "NUCLEO_H745ZI_Q_CM7"
+        ]
+    },
     "MCU_STM32H747xI": {
         "inherits": [
             "MCU_STM32H7"
