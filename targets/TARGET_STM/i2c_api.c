@@ -931,21 +931,17 @@ static void prep_for_restart_if_needed(struct i2c_s *obj_s) {
  * STOP at the end of the current transaction.
  */
 static uint32_t get_hal_xfer_options(struct i2c_s *obj_s, bool stop) {
-    if (obj_s->state == STM_I2C_SB_READ_IN_PROGRESS || obj_s->state == STM_I2C_SB_WRITE_IN_PROGRESS) {
-        if(stop) {
-            // Generate restart condition and stop at end
-            return I2C_OTHER_AND_LAST_FRAME;
-        } else {
-            // Generate restart condition but don't send STOP
-            return I2C_OTHER_FRAME;
-        }
+    (void)obj_s;
+
+    // Note: The naming used by STM32 HAL is quite counterintuitive.  "OTHER_FRAME" means "always send a
+    // start/restart condition at the start of the frame".  In contrast, "FIRST_FRAME" means "don't send
+    // a start/restart if the previous transfer was going the same direction".
+    if(stop) {
+        // Generate start condition and stop at end
+        return I2C_OTHER_AND_LAST_FRAME;
     } else {
-        if(stop) {
-            // Generate start condition and stop at end
-            return I2C_FIRST_AND_LAST_FRAME;
-        } else {
-            return I2C_LAST_FRAME;
-        }
+        // Generate only the start condition
+        return I2C_OTHER_FRAME;
     }
 }
 
