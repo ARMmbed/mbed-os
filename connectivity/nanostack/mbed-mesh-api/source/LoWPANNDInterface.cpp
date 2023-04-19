@@ -28,7 +28,7 @@ class Nanostack::LoWPANNDInterface final : public Nanostack::MeshInterface {
 public:
     nsapi_error_t bringup(bool dhcp, const char *ip,
                           const char *netmask, const char *gw,
-                          nsapi_ip_stack_t stack = IPV6_STACK,
+                          nsapi_ip_stack_t stack = DEFAULT_STACK,
                           bool blocking = true) override;
     nsapi_error_t bringdown() override;
     nsapi_error_t get_gateway(SocketAddress *sockAddr) override;
