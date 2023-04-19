@@ -789,7 +789,7 @@ int SecureStore::deinit()
             mbedtls_entropy_free(_entropy);
             delete _entropy;
             delete _ih;
-            delete _scratch_buf;
+            delete[] _scratch_buf;
             _entropy = nullptr;
         }
         ret = _underlying_kv->deinit();
