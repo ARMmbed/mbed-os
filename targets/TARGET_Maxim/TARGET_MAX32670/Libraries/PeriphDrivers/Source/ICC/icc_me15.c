@@ -1,8 +1,8 @@
-/* *****************************************************************************
- * Copyright(C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files(the "Software"),
+ * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the
@@ -29,7 +29,7 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- **************************************************************************** */
+ ******************************************************************************/
 
 /* **** Includes **** */
 #include "mxc_device.h"
@@ -44,17 +44,17 @@
 
 int MXC_ICC_ID(mxc_icc_info_t cid)
 {
-    return MXC_ICC_RevA_ID((mxc_icc_reva_regs_t*) MXC_ICC, cid);
+    return MXC_ICC_RevA_ID((mxc_icc_reva_regs_t *)MXC_ICC, cid);
 }
 
 void MXC_ICC_Enable(void)
 {
-    MXC_ICC_RevA_Enable((mxc_icc_reva_regs_t*) MXC_ICC);
+    MXC_ICC_RevA_Enable((mxc_icc_reva_regs_t *)MXC_ICC);
 }
 
 void MXC_ICC_Disable(void)
 {
-    MXC_ICC_RevA_Disable((mxc_icc_reva_regs_t*) MXC_ICC);
+    MXC_ICC_RevA_Disable((mxc_icc_reva_regs_t *)MXC_ICC);
 }
 
 void MXC_ICC_Flush(void)

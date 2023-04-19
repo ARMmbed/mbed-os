@@ -1,8 +1,8 @@
-/* ****************************************************************************
- * Copyright(C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files(the "Software"),
+ * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the
@@ -29,11 +29,13 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- *************************************************************************** */
+ ******************************************************************************/
+
+#ifndef LIBRARIES_PERIPHDRIVERS_SOURCE_CRC_CRC_REVA_H_
+#define LIBRARIES_PERIPHDRIVERS_SOURCE_CRC_CRC_REVA_H_
 
 #include "crc.h"
 #include "crc_reva_regs.h"
-
 
 /***** CRC Definitions *****/
 /**
@@ -41,30 +43,28 @@
   *
   */
 typedef struct _mxc_crc_reva_req_t {
-    uint32_t* dataBuffer;     ///< Pointer to the data 
-    uint32_t dataLen;         ///< Length of the data
-    uint32_t resultCRC;       ///< Calculated CRC value
+    uint32_t *dataBuffer; ///< Pointer to the data
+    uint32_t dataLen; ///< Length of the data
+    uint32_t resultCRC; ///< Calculated CRC value
 } mxc_crc_reva_req_t;
 
 /** 
  * @brief CRC data bit order
  *  
  */
-typedef enum {
-    CRC_REVA_LSB_FIRST,
-    CRC_REVA_MSB_FIRST
-} mxc_crc_reva_bitorder_t;
+typedef enum { CRC_REVA_LSB_FIRST, CRC_REVA_MSB_FIRST } mxc_crc_reva_bitorder_t;
 
-
-int MXC_CRC_RevA_Init(mxc_crc_reva_regs_t* crc);
-int MXC_CRC_RevA_Shutdown(mxc_crc_reva_regs_t* crc);
+int MXC_CRC_RevA_Init(mxc_crc_reva_regs_t *crc);
+int MXC_CRC_RevA_Shutdown(mxc_crc_reva_regs_t *crc);
 int MXC_CRC_RevA_Handler(int ch, int error);
-void MXC_CRC_RevA_SetDirection(mxc_crc_reva_regs_t* crc, mxc_crc_reva_bitorder_t bitOrder);
-mxc_crc_bitorder_t MXC_CRC_RevA_GetDirection(mxc_crc_reva_regs_t* crc);
-void MXC_CRC_RevA_SwapDataIn(mxc_crc_reva_regs_t* crc, mxc_crc_reva_bitorder_t bitOrder);
-void MXC_CRC_RevA_SwapDataOut(mxc_crc_reva_regs_t* crc, mxc_crc_reva_bitorder_t bitOrder);
-void MXC_CRC_RevA_SetPoly(mxc_crc_reva_regs_t* crc, uint32_t poly);
-uint32_t MXC_CRC_RevA_GetPoly(mxc_crc_reva_regs_t* crc);
-uint32_t MXC_CRC_RevA_GetResult(mxc_crc_reva_regs_t* crc);
-int MXC_CRC_RevA_Compute(mxc_crc_reva_regs_t* crc, mxc_crc_reva_req_t* req);
-int MXC_CRC_RevA_ComputeAsync(mxc_crc_reva_regs_t* crc, mxc_crc_reva_req_t* req);
+void MXC_CRC_RevA_SetDirection(mxc_crc_reva_regs_t *crc, mxc_crc_reva_bitorder_t bitOrder);
+mxc_crc_bitorder_t MXC_CRC_RevA_GetDirection(mxc_crc_reva_regs_t *crc);
+void MXC_CRC_RevA_SwapDataIn(mxc_crc_reva_regs_t *crc, mxc_crc_reva_bitorder_t bitOrder);
+void MXC_CRC_RevA_SwapDataOut(mxc_crc_reva_regs_t *crc, mxc_crc_reva_bitorder_t bitOrder);
+void MXC_CRC_RevA_SetPoly(mxc_crc_reva_regs_t *crc, uint32_t poly);
+uint32_t MXC_CRC_RevA_GetPoly(mxc_crc_reva_regs_t *crc);
+uint32_t MXC_CRC_RevA_GetResult(mxc_crc_reva_regs_t *crc);
+int MXC_CRC_RevA_Compute(mxc_crc_reva_regs_t *crc, mxc_crc_reva_req_t *req);
+int MXC_CRC_RevA_ComputeAsync(mxc_crc_reva_regs_t *crc, mxc_crc_reva_req_t *req);
+
+#endif // LIBRARIES_PERIPHDRIVERS_SOURCE_CRC_CRC_REVA_H_
