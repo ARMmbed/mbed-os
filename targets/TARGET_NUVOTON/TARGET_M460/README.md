@@ -1,5 +1,14 @@
 # Nuvoton M460 series
 
+## CAN
+
+Current CAN HAL implementation has the following characteristics:
+
+1.  By default, filter handle 0 is configured to accept all messages as requested.
+1.  Support only single filter handle semantics, that is, filter handle 0.
+    The `handle` argument passed to `can_filter()` or `can_read()` is ignored.
+    All filter related operations are done on filter handle 0.
+
 ## HyperRAM
 
 HyperRAM, via Hyper Bus Interface Controller (HBI), is mapped to two regions: `0x0A00_0000`–`0x0BFF_FFFF` and `0x8000_0000`–`0x81FF_FFFF`, through which CPU can direct access.
