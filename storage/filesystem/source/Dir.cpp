@@ -34,7 +34,7 @@ Dir::Dir(FileSystem *fs, const char *path)
 Dir::~Dir()
 {
     if (_fs) {
-        close();
+        Dir::close();
     }
 }
 

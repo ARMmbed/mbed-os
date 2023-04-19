@@ -138,7 +138,7 @@ int CAN::filter(unsigned int id, unsigned int mask, CANFormat format, int handle
 
 void CAN::attach(Callback<void()> func, IrqType type)
 {
-    lock();
+    CAN::lock();
     if (func) {
         // lock deep sleep only the first time
         if (!_irq[(CanIrqType)type]) {
@@ -154,7 +154,7 @@ void CAN::attach(Callback<void()> func, IrqType type)
         _irq[(CanIrqType)type] = nullptr;
         can_irq_set(&_can, (CanIrqType)type, 0);
     }
-    unlock();
+    CAN::unlock();
 }
 
 void CAN::_irq_handler(uintptr_t context, CanIrqType type)
