@@ -751,8 +751,10 @@ void thread_child_id_request_info_init(thread_pending_child_id_req_t *child_info
 thread_pending_child_id_req_t *thread_child_id_request_allocate(void)
 {
     thread_pending_child_id_req_t *req = ns_dyn_mem_alloc(sizeof(thread_pending_child_id_req_t));
-    memset(req->eiid, 0, 8);
-    thread_child_id_request_info_init(req);
+    if (req) {
+        memset(req->eiid, 0, 8);
+        thread_child_id_request_info_init(req);
+    }
     return req;
 }
 

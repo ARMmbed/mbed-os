@@ -682,6 +682,9 @@ static void thread_bbr_status_check(thread_bbr_t *this, uint32_t seconds)
     }
     // Check if network data as border router is possible or modified
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(this->interface_id);
+    if (!cur) {
+        return;
+    }
     this->br_hosted = thread_bbr_i_host_prefix(cur, bbr_prefix_ptr, &this->br_count, &br_lowest_host);
 
     if (!this->br_info_published && bbr_prefix_ptr && this->br_count == 0) {

@@ -1057,6 +1057,9 @@ static int8_t ws_pae_auth_timer_if_stop(kmp_service_t *service, kmp_api_t *kmp)
     (void) service;
 
     supp_entry_t *supp_entry = kmp_api_data_get(kmp);
+    if (!supp_entry) {
+        return -1;
+    }
 
     kmp_entry_t *entry = ws_pae_lib_kmp_list_entry_get(&supp_entry->kmp_list, kmp);
     if (!entry) {
