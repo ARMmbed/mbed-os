@@ -40,11 +40,11 @@
 #endif
 
 #if !defined(MBED_RAM1_START)
-#define MBED_RAM_1START  0x24000000
+#define MBED_RAM1_START  0x24000000
 #endif
 
 #if !defined(MBED_RAM1_SIZE)
-#define MBED1_RAM_SIZE  0x50000  // 320 KB
+#define MBED_RAM1_SIZE  0x50000  // 320 KB
 #endif
 
 #define NVIC_NUM_VECTORS        180
