@@ -34,7 +34,7 @@ File::File(FileSystem *fs, const char *path, int flags)
 File::~File()
 {
     if (_fs) {
-        close();
+        File::close();
     }
 }
 
