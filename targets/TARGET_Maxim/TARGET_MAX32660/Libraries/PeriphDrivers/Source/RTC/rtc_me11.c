@@ -1,5 +1,5 @@
-/* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -29,7 +29,7 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- **************************************************************************** */
+ ******************************************************************************/
 
 #include "mxc_device.h"
 #include "rtc_regs.h"
@@ -43,77 +43,109 @@
 
 /* ***** Functions ***** */
 
-int MXC_RTC_EnableInt (uint32_t mask)
+int MXC_RTC_EnableInt(uint32_t mask)
 {
-    return MXC_RTC_RevA_EnableInt ((mxc_rtc_reva_regs_t*) MXC_RTC, mask);
+    return MXC_RTC_RevA_EnableInt((mxc_rtc_reva_regs_t *)MXC_RTC, mask);
 }
 
-int MXC_RTC_DisableInt (uint32_t mask)
+int MXC_RTC_DisableInt(uint32_t mask)
 {
-    return MXC_RTC_RevA_DisableInt ((mxc_rtc_reva_regs_t*) MXC_RTC, mask);
+    return MXC_RTC_RevA_DisableInt((mxc_rtc_reva_regs_t *)MXC_RTC, mask);
 }
 
-int MXC_RTC_SetTimeofdayAlarm (uint32_t ras)
+int MXC_RTC_SetTimeofdayAlarm(uint32_t ras)
 {
-    return MXC_RTC_RevA_SetTimeofdayAlarm ((mxc_rtc_reva_regs_t*) MXC_RTC, ras);
+    return MXC_RTC_RevA_SetTimeofdayAlarm((mxc_rtc_reva_regs_t *)MXC_RTC, ras);
 }
 
-int MXC_RTC_SetSubsecondAlarm (uint32_t rssa)
+int MXC_RTC_SetSubsecondAlarm(uint32_t rssa)
 {
-    return MXC_RTC_RevA_SetSubsecondAlarm ((mxc_rtc_reva_regs_t*) MXC_RTC, rssa);
+    return MXC_RTC_RevA_SetSubsecondAlarm((mxc_rtc_reva_regs_t *)MXC_RTC, rssa);
 }
 
-int MXC_RTC_Start (void)
+int MXC_RTC_Start(void)
 {
-    return MXC_RTC_RevA_Start ((mxc_rtc_reva_regs_t*) MXC_RTC);
+    return MXC_RTC_RevA_Start((mxc_rtc_reva_regs_t *)MXC_RTC);
 }
 
-int MXC_RTC_Stop (void)
+int MXC_RTC_Stop(void)
 {
-    return MXC_RTC_RevA_Stop ((mxc_rtc_reva_regs_t*) MXC_RTC);
+    return MXC_RTC_RevA_Stop((mxc_rtc_reva_regs_t *)MXC_RTC);
 }
 
-int MXC_RTC_Init (uint32_t sec, uint8_t ssec)
+int MXC_RTC_Init(uint32_t sec, uint8_t ssec)
 {
     // Enable clock
     MXC_GCR->clk_ctrl |= MXC_F_GCR_CLK_CTRL_X32K_EN;
-    
-    return MXC_RTC_RevA_Init ((mxc_rtc_reva_regs_t*) MXC_RTC, sec, ssec);
+
+    return MXC_RTC_RevA_Init((mxc_rtc_reva_regs_t *)MXC_RTC, sec, (ssec & MXC_F_RTC_SSEC_RTSS));
 }
 
-int MXC_RTC_SquareWave (mxc_rtc_reva_sqwave_en_t sqe, mxc_rtc_freq_sel_t ft)
+int MXC_RTC_SquareWave(mxc_rtc_reva_sqwave_en_t sqe, mxc_rtc_freq_sel_t ft)
 {
-    MXC_GPIO_Config (&gpio_cfg_32kcal);
-    
-    return MXC_RTC_RevA_SquareWave ((mxc_rtc_reva_regs_t*) MXC_RTC, sqe, ft);
+    MXC_GPIO_Config(&gpio_cfg_32kcal);
+
+    return MXC_RTC_RevA_SquareWave((mxc_rtc_reva_regs_t *)MXC_RTC, sqe, ft);
 }
 
-int MXC_RTC_Trim (int8_t trm)
+int MXC_RTC_SquareWaveStart(mxc_rtc_freq_sel_t fq)
 {
-    return MXC_RTC_RevA_Trim ((mxc_rtc_reva_regs_t*) MXC_RTC, trm);
+    MXC_GPIO_Config(&gpio_cfg_32kcal);
+
+    return MXC_RTC_RevA_SquareWave((mxc_rtc_reva_regs_t *)MXC_RTC, MXC_RTC_REVA_SQUARE_WAVE_ENABLED,
+                                   fq);
 }
 
-int MXC_RTC_GetFlags (void)
+int MXC_RTC_SquareWaveStop(void)
 {
-    return MXC_RTC_RevA_GetFlags();
+    return MXC_RTC_RevA_SquareWave((mxc_rtc_reva_regs_t *)MXC_RTC,
+                                   MXC_RTC_REVA_SQUARE_WAVE_DISABLED, 0);
 }
 
-int MXC_RTC_ClearFlags (int flags)
+int MXC_RTC_Trim(int8_t trm)
 {
-    return MXC_RTC_RevA_ClearFlags (flags);
+    return MXC_RTC_RevA_Trim((mxc_rtc_reva_regs_t *)MXC_RTC, trm);
 }
 
-int MXC_RTC_GetSubSecond (void)
+int MXC_RTC_GetFlags(void)
 {
-    return MXC_RTC_RevA_GetSubSecond();
+    return MXC_RTC_RevA_GetFlags((mxc_rtc_reva_regs_t *)MXC_RTC);
 }
 
-int MXC_RTC_GetSecond (void)
+int MXC_RTC_ClearFlags(int flags)
 {
-    return MXC_RTC_RevA_GetSecond();
+    return MXC_RTC_RevA_ClearFlags((mxc_rtc_reva_regs_t *)MXC_RTC, flags);
 }
 
-int MXC_RTC_GetTime (uint32_t* sec, uint32_t* subsec)
+int MXC_RTC_GetSubSecond(void)
 {
-    return MXC_RTC_RevA_GetTime (sec, subsec);
+    MXC_RTC->ctrl &= ~MXC_F_RTC_CTRL_RDY; // Ensure valid data is in SSEC register
+    while (!(MXC_RTC->ctrl & MXC_F_RTC_CTRL_RDY)) {}
+
+    return MXC_RTC_RevA_GetSubSecond((mxc_rtc_reva_regs_t *)MXC_RTC);
+}
+
+int MXC_RTC_GetSecond(void)
+{
+    MXC_RTC->ctrl &= ~MXC_F_RTC_CTRL_RDY; // Ensure valid data is in SEC register
+    while (!(MXC_RTC->ctrl & MXC_F_RTC_CTRL_RDY)) {}
+
+    return MXC_RTC_RevA_GetSecond((mxc_rtc_reva_regs_t *)MXC_RTC);
+}
+
+int MXC_RTC_GetTime(uint32_t *sec, uint32_t *subsec)
+{
+    return MXC_RTC_RevA_GetTime((mxc_rtc_reva_regs_t *)MXC_RTC, sec, subsec);
+}
+
+int MXC_RTC_GetBusyFlag(void)
+{
+    return MXC_RTC_RevA_GetBusyFlag((mxc_rtc_reva_regs_t *)MXC_RTC);
+}
+
+int MXC_RTC_TrimCrystal(mxc_tmr_regs_t *tmr)
+{
+    /* MAX32660 does not have a clock source which can 
+    be used as the reference clock for the trim function */
+    return E_NOT_SUPPORTED;
 }

@@ -1,8 +1,8 @@
-/* ****************************************************************************
- * Copyright(C) Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files(the "Software"),
+ * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the
@@ -29,7 +29,7 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- *************************************************************************** */
+ ******************************************************************************/
 
 /****** Includes *******/
 #include <stddef.h>
@@ -51,17 +51,17 @@
 
 int MXC_DMA_Init(void)
 {
-	if(!MXC_SYS_IsClockEnabled(MXC_SYS_PERIPH_CLOCK_DMA)) {
-		MXC_SYS_ClockEnable(MXC_SYS_PERIPH_CLOCK_DMA);
-    	MXC_SYS_Reset_Periph(MXC_SYS_RESET0_DMA);
-	}
-    
-    return MXC_DMA_RevA_Init((mxc_dma_reva_regs_t*) MXC_DMA);
+    if (!MXC_SYS_IsClockEnabled(MXC_SYS_PERIPH_CLOCK_DMA)) {
+        MXC_SYS_ClockEnable(MXC_SYS_PERIPH_CLOCK_DMA);
+        MXC_SYS_Reset_Periph(MXC_SYS_RESET0_DMA);
+    }
+
+    return MXC_DMA_RevA_Init((mxc_dma_reva_regs_t *)MXC_DMA);
 }
 
 int MXC_DMA_AcquireChannel(void)
 {
-    return MXC_DMA_RevA_AcquireChannel((mxc_dma_reva_regs_t*) MXC_DMA);
+    return MXC_DMA_RevA_AcquireChannel((mxc_dma_reva_regs_t *)MXC_DMA);
 }
 
 int MXC_DMA_ReleaseChannel(int ch)
@@ -80,7 +80,7 @@ int MXC_DMA_AdvConfigChannel(mxc_dma_adv_config_t advConfig)
 }
 
 int MXC_DMA_SetSrcDst(mxc_dma_srcdst_t srcdst)
-{ 
+{
     return MXC_DMA_RevA_SetSrcDst(srcdst);
 }
 
@@ -99,14 +99,14 @@ int MXC_DMA_GetSrcReload(mxc_dma_srcdst_t *srcdst)
     return MXC_DMA_RevA_GetSrcReload(srcdst);
 }
 
-int MXC_DMA_SetCallback(int ch, void(*callback)(int, int))
+int MXC_DMA_SetCallback(int ch, void (*callback)(int, int))
 {
     return MXC_DMA_RevA_SetCallback(ch, callback);
 }
 
 int MXC_DMA_SetChannelInterruptEn(int ch, bool chdis, bool ctz)
 {
-	return MXC_DMA_RevA_SetChannelInterruptEn(ch, chdis, ctz);
+    return MXC_DMA_RevA_SetChannelInterruptEn(ch, chdis, ctz);
 }
 
 int MXC_DMA_ChannelEnableInt(int ch, int flags)
@@ -131,12 +131,12 @@ int MXC_DMA_ChannelClearFlags(int ch, int flags)
 
 int MXC_DMA_EnableInt(int ch)
 {
-    return MXC_DMA_RevA_EnableInt((mxc_dma_reva_regs_t*) MXC_DMA, ch);
+    return MXC_DMA_RevA_EnableInt((mxc_dma_reva_regs_t *)MXC_DMA, ch);
 }
 
 int MXC_DMA_DisableInt(int ch)
 {
-    return MXC_DMA_RevA_DisableInt((mxc_dma_reva_regs_t*) MXC_DMA, ch);
+    return MXC_DMA_RevA_DisableInt((mxc_dma_reva_regs_t *)MXC_DMA, ch);
 }
 
 int MXC_DMA_Start(int ch)
@@ -149,23 +149,23 @@ int MXC_DMA_Stop(int ch)
     return MXC_DMA_RevA_Stop(ch);
 }
 
-mxc_dma_ch_regs_t* MXC_DMA_GetCHRegs(int ch)
+mxc_dma_ch_regs_t *MXC_DMA_GetCHRegs(int ch)
 {
     return MXC_DMA_RevA_GetCHRegs(ch);
 }
 
 void MXC_DMA_Handler(void)
 {
-    MXC_DMA_RevA_Handler((mxc_dma_reva_regs_t*) MXC_DMA);
+    MXC_DMA_RevA_Handler((mxc_dma_reva_regs_t *)MXC_DMA);
 }
 
-int MXC_DMA_MemCpy(void* dest, void* src, int len, mxc_dma_complete_cb_t callback)
+int MXC_DMA_MemCpy(void *dest, void *src, int len, mxc_dma_complete_cb_t callback)
 {
-    return MXC_DMA_RevA_MemCpy((mxc_dma_reva_regs_t*) MXC_DMA, dest, src, len, callback);
+    return MXC_DMA_RevA_MemCpy((mxc_dma_reva_regs_t *)MXC_DMA, dest, src, len, callback);
 }
 
-int MXC_DMA_DoTransfer(mxc_dma_config_t config, mxc_dma_srcdst_t firstSrcDst, mxc_dma_trans_chain_t callback)
+int MXC_DMA_DoTransfer(mxc_dma_config_t config, mxc_dma_srcdst_t firstSrcDst,
+                       mxc_dma_trans_chain_t callback)
 {
-    return MXC_DMA_RevA_DoTransfer((mxc_dma_reva_regs_t*) MXC_DMA, config, firstSrcDst, callback);
+    return MXC_DMA_RevA_DoTransfer((mxc_dma_reva_regs_t *)MXC_DMA, config, firstSrcDst, callback);
 }
-

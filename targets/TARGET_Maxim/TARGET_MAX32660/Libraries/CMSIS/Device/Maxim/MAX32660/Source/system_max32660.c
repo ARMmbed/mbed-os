@@ -3,8 +3,8 @@
  * @brief      System-level initialization implementation file
  */
 
-/*******************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -34,9 +34,6 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- * $Date: 2018-12-18 15:37:22 -0600 (Tue, 18 Dec 2018) $
- * $Revision: 40072 $
- *
  ******************************************************************************/
 
 #include <string.h>
@@ -48,38 +45,38 @@
 #include "tmr_regs.h"
 #include "wdt_regs.h"
 #include "mxc_sys.h"
-#include "icc.h"
 
+extern void (*const __isr_vector[])(void);
 uint32_t SystemCoreClock = HIRC96_FREQ;
 
 __weak void SystemCoreClockUpdate(void)
 {
-    uint32_t base_freq, div, clk_src,ovr;
+    uint32_t base_freq, div, clk_src, ovr;
 
     // Get the clock source and frequency
     clk_src = (MXC_GCR->clk_ctrl & MXC_F_GCR_CLK_CTRL_CLKSEL);
-    
+
     if (clk_src == MXC_S_GCR_CLK_CTRL_CLKSEL_HFXIN) {
         base_freq = HFX_FREQ;
     } else {
-	if (clk_src == MXC_S_GCR_CLK_CTRL_CLKSEL_NANORING) {
-	    base_freq = NANORING_FREQ;
-	} else {
-	    ovr = (MXC_PWRSEQ->lp_ctrl & MXC_F_PWRSEQ_LP_CTRL_OVR);
-	    if (ovr == MXC_S_PWRSEQ_LP_CTRL_OVR_0_9V) {
-		base_freq = HIRC96_FREQ/4;
-	    } else {
-		if (ovr == MXC_S_PWRSEQ_LP_CTRL_OVR_1_0V) {
-		    base_freq = HIRC96_FREQ/2;
-		} else {
-		    base_freq = HIRC96_FREQ;
-		}
-	    }
-	}
+        if (clk_src == MXC_S_GCR_CLK_CTRL_CLKSEL_NANORING) {
+            base_freq = NANORING_FREQ;
+        } else {
+            ovr = (MXC_PWRSEQ->lp_ctrl & MXC_F_PWRSEQ_LP_CTRL_OVR);
+            if (ovr == MXC_S_PWRSEQ_LP_CTRL_OVR_0_9V) {
+                base_freq = HIRC96_FREQ / 4;
+            } else {
+                if (ovr == MXC_S_PWRSEQ_LP_CTRL_OVR_1_0V) {
+                    base_freq = HIRC96_FREQ / 2;
+                } else {
+                    base_freq = HIRC96_FREQ;
+                }
+            }
+        }
     }
 
     // Get the clock divider
-    div = (MXC_GCR->clk_ctrl & MXC_F_GCR_CLK_CTRL_CLKSEL) >> MXC_F_GCR_CLK_CTRL_PSC_POS;
+    div = (MXC_GCR->clk_ctrl & MXC_F_GCR_CLK_CTRL_PSC) >> MXC_F_GCR_CLK_CTRL_PSC_POS;
 
     SystemCoreClock = base_freq >> div;
 }
@@ -94,20 +91,15 @@ __weak void SystemCoreClockUpdate(void)
  */
 __weak int PreInit(void)
 {
-    /* Switch system clock to HIRC, 96 MHz*/
-    MXC_SYS_Clock_Select(MXC_SYS_CLOCK_HIRC);
-
-    /* Enable cache here to reduce boot time */
-    MXC_ICC_Enable();
-
+    /* Do nothing */
     return 0;
 }
 
-/* Override this function for early platform initialization
-*/
-__weak void low_level_init(void) 
+/* This function can be implemented by the application to initialize the board */
+__weak int Board_Init(void)
 {
-    
+    /* Do nothing */
+    return 0;
 }
 
 /* This function is called just before control is transferred to main().
@@ -118,16 +110,23 @@ __weak void low_level_init(void)
  */
 __weak void SystemInit(void)
 {
-    MXC_WDT0->ctrl &= ~MXC_F_WDT_CTRL_WDT_EN;  /* Turn off watchdog. Application can re-enable as needed. */
+    /* Configure the interrupt controller to use the application vector table in */
+    /* the application space */
+    /* IAR & Keil must set vector table after all memory initialization. */
+    SCB->VTOR = (uint32_t)__isr_vector;
 
-#if (__FPU_PRESENT == 1)
+    MXC_WDT0->ctrl &=
+        ~MXC_F_WDT_CTRL_WDT_EN; /* Turn off watchdog. Application can re-enable as needed. */
+
     /* Enable FPU on Cortex-M4, which occupies coprocessor slots 10 & 11 */
     /* Grant full access, per "Table B3-24 CPACR bit assignments". */
     /* DDI0403D "ARMv7-M Architecture Reference Manual" */
     SCB->CPACR |= SCB_CPACR_CP10_Msk | SCB_CPACR_CP11_Msk;
     __DSB();
     __ISB();
-#endif
+
+    /* Switch system clock to HIRC */
+    MXC_SYS_Clock_Select(MXC_SYS_CLOCK_HIRC);
 
     /* Disable clocks to peripherals by default to reduce power */
     MXC_SYS_ClockDisable(MXC_SYS_PERIPH_CLOCK_DMA);
@@ -140,7 +139,27 @@ __weak void SystemInit(void)
     MXC_SYS_ClockDisable(MXC_SYS_PERIPH_CLOCK_TMR1);
     MXC_SYS_ClockDisable(MXC_SYS_PERIPH_CLOCK_TMR2);
     MXC_SYS_ClockDisable(MXC_SYS_PERIPH_CLOCK_I2C1);
-    
-    /* Early platform initialization */
-    low_level_init();
+
+    Board_Init();
 }
+
+#if defined(__CC_ARM)
+/* Global variable initialization does not occur until post scatterload in Keil tools.*/
+
+/* External function called after our post scatterload function implementation. */
+extern void $Super$$__main_after_scatterload(void);
+
+/**
+ * @brief   Initialization function for SystemCoreClock and Board_Init.
+ * @details $Sub$$__main_after_scatterload is called during system startup in the Keil
+ *          toolset. Global variable and static variable space must be set up by the compiler
+ *          prior to using these memory spaces. Setting up the SystemCoreClock and Board_Init
+ *          require global memory for variable storage and are called from this function in
+ *          the Keil tool chain.
+ */
+void $Sub$$__main_after_scatterload(void)
+{
+    SystemInit();
+    $Super$$__main_after_scatterload();
+}
+#endif /* __CC_ARM */

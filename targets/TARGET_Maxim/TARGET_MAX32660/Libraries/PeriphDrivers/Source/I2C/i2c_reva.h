@@ -1,5 +1,5 @@
-/* ****************************************************************************
- * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -29,7 +29,7 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- *************************************************************************** */
+ ******************************************************************************/
 
 #ifndef LIBRARIES_PERIPHDRIVERS_SOURCE_I2C_I2C_REVA_H_
 #define LIBRARIES_PERIPHDRIVERS_SOURCE_I2C_I2C_REVA_H_
@@ -51,7 +51,7 @@
 #define MXC_I2C_REVA_STD_MODE 100000
 #define MXC_I2C_REVA_FAST_SPEED 400000
 #define MXC_I2C_REVA_FASTPLUS_SPEED 1000000
-#define MXC_I2C_REVA_HS_MODE 3400000
+#define MXC_I2C_REVA_HIGH_SPEED 3400000
 
 #define MXC_I2C_REVA_INTFL0_MASK 0x00FFFFFF
 #define MXC_I2C_REVA_INTFL1_MASK 0x00000007
@@ -163,9 +163,8 @@ void MXC_I2C_RevA_AsyncCallback(mxc_i2c_reva_regs_t *i2c, int retVal);
 void MXC_I2C_RevA_AsyncStop(mxc_i2c_reva_regs_t *i2c);
 void MXC_I2C_RevA_AbortAsync(mxc_i2c_reva_regs_t *i2c);
 void MXC_I2C_RevA_MasterAsyncHandler(int i2cNum);
-unsigned int MXC_I2C_RevA_SlaveAsyncHandler(mxc_i2c_reva_regs_t *i2c,
-                                            mxc_i2c_reva_slave_handler_t callback,
-                                            unsigned int interruptEnables, int *retVal);
+void MXC_I2C_RevA_SlaveAsyncHandler(mxc_i2c_reva_regs_t *i2c, mxc_i2c_reva_slave_handler_t callback,
+                                    uint32_t *int_en, int *retVal);
 void MXC_I2C_RevA_AsyncHandler(mxc_i2c_reva_regs_t *i2c, uint32_t interruptCheck);
 void MXC_I2C_RevA_DMACallback(int ch, int error);
 

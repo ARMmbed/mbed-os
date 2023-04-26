@@ -3,9 +3,8 @@
  * @brief   Low power function prototypes and data types.
  */
 
-
-/* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -35,16 +34,14 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- * $Date: 2018-09-26 08:48:30 -0500 (Wed, 26 Sep 2018) $
- * $Revision: 38105 $
- *
- *************************************************************************** */
+ ******************************************************************************/
 
 // Define to prevent redundant inclusion
-#ifndef _LP_H_
-#define _LP_H_
+#ifndef LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_LP_H_
+#define LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_LP_H_
 
 /***** Includes *****/
+#include "gpio.h"
 #include "pwrseq_regs.h"
 
 #ifdef __cplusplus
@@ -59,9 +56,9 @@ extern "C" {
 
 /** @brief System reset0 enumeration. Used in SYS_PeriphReset0 function */
 typedef enum {
-    MXC_LP_OVR_0_9       = MXC_S_PWRSEQ_LP_CTRL_OVR_0_9V,         /**< Reset DMA */
-    MXC_LP_OVR_1_0       = MXC_S_PWRSEQ_LP_CTRL_OVR_1_0V,         /**< Reset DMA */
-    MXC_LP_OVR_1_1       = MXC_S_PWRSEQ_LP_CTRL_OVR_1_1V,         /**< Reset DMA */
+    MXC_LP_OVR_0_9 = MXC_S_PWRSEQ_LP_CTRL_OVR_0_9V, /**< Reset DMA */
+    MXC_LP_OVR_1_0 = MXC_S_PWRSEQ_LP_CTRL_OVR_1_0V, /**< Reset DMA */
+    MXC_LP_OVR_1_1 = MXC_S_PWRSEQ_LP_CTRL_OVR_1_1V, /**< Reset DMA */
 } mxc_lp_ovr_t;
 
 /**
@@ -163,18 +160,18 @@ void MXC_LP_DisableSysRAM0LightSleep(void);
  * @brief      Enables the selected GPIO port and its selected pins to wake up the device from any low power mode.
  *             Call this function multiple times to enable pins on multiple ports.  This function does not configure
  *             the GPIO pins nor does it setup their interrupt functionality.
- * @param      port      The port to configure as wakeup sources.
- * @param      mask      The pins to configure as wakeup sources.
+ * @param      wu_pins      The port and pins to configure as wakeup sources.  Only the gpio and mask fields of the
+ *                          structure are used.  The func and pad fields are ignored.
  */
-void MXC_LP_EnableGPIOWakeup(unsigned int port, unsigned int mask);
+void MXC_LP_EnableGPIOWakeup(const mxc_gpio_cfg_t *wu_pins);
 
 /**
  * @brief      Disables the selected GPIO port and its selected pins as a wake up source.
  *             Call this function multiple times to disable pins on multiple ports.
- * @param      port      The port to configure as wakeup sources.
- * @param      mask      The pins to configure as wakeup sources.
+ * @param      wu_pins      The port and pins to disable as wakeup sources.  Only the gpio and mask fields of the
+ *                          structure are used.  The func and pad fields are ignored.
  */
-void MXC_LP_DisableGPIOWakeup(unsigned int port, unsigned int mask);
+void MXC_LP_DisableGPIOWakeup(const mxc_gpio_cfg_t *wu_pins);
 
 /**
  * @brief      Enables the RTC alarm to wake up the device from any low power mode.
@@ -327,7 +324,6 @@ void MXC_LP_EnableVCoreSVM(void);
  */
 void MXC_LP_DisableVCoreSVM(void);
 
-
 /**
  * @brief     Enables VDDIO Power-On-Reset Monitor
  */
@@ -343,4 +339,4 @@ void MXC_LP_DisableVDDIOPorMonitor(void);
 }
 #endif
 
-#endif /* _LP_H_ */
+#endif // LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_LP_H_

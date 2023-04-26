@@ -3,8 +3,8 @@
  * @brief   Inter-Integrated Sound (I2S) driver implementation.
  */
 
-/* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -34,8 +34,7 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- *
- *************************************************************************** */
+ ******************************************************************************/
 
 #include <stddef.h>
 #include <stdint.h>
@@ -51,61 +50,59 @@
 #include "spimss_regs.h"
 
 #define I2S_CHANNELS 2
-#define I2S_WIDTH    16
+#define I2S_WIDTH 16
 
 int dma_channel = -1;
 
-int MXC_I2S_Init(const mxc_i2s_config_t *config, void(*dma_ctz_cb)(int, int))
+int MXC_I2S_Init(const mxc_i2s_config_t *config, void (*dma_ctz_cb)(int, int))
 {
-    if(config->map == I2S_MAP_A) {
-        MXC_GPIO_Config(&gpio_cfg_spi1a);   // SPIMSS: I2S and SPI share pins
-    }
-    else if(config->map == I2S_MAP_B) {
+    if (config->map == I2S_MAP_A) {
+        MXC_GPIO_Config(&gpio_cfg_spi1a); // SPIMSS: I2S and SPI share pins
+    } else if (config->map == I2S_MAP_B) {
         MXC_GPIO_Config(&gpio_cfg_spi1b);
-    }
-    else {
+    } else {
         return E_BAD_PARAM;
     }
-    
-    MXC_SYS_ClockEnable(MXC_SYS_PERIPH_CLOCK_SPI1);   // SPI1 clock used for SPIMSS
 
-    return MXC_I2S_RevA_Init((mxc_spimss_reva_regs_t*) MXC_SPIMSS, config, dma_ctz_cb);
+    MXC_SYS_ClockEnable(MXC_SYS_PERIPH_CLOCK_SPI1); // SPI1 clock used for SPIMSS
+
+    return MXC_I2S_RevA_Init((mxc_spimss_reva_regs_t *)MXC_SPIMSS, config, dma_ctz_cb);
 }
 
 int MXC_I2S_Shutdown(void)
 {
-    MXC_SYS_ClockDisable(MXC_SYS_PERIPH_CLOCK_SPI1);  // SPI1 used for SPIMSS
-    return MXC_I2S_RevA_Shutdown((mxc_spimss_reva_regs_t*) MXC_SPIMSS);
+    MXC_SYS_ClockDisable(MXC_SYS_PERIPH_CLOCK_SPI1); // SPI1 used for SPIMSS
+    return MXC_I2S_RevA_Shutdown((mxc_spimss_reva_regs_t *)MXC_SPIMSS);
 }
 
 int MXC_I2S_Mute(void)
 {
-    return MXC_I2S_RevA_Mute((mxc_spimss_reva_regs_t*) MXC_SPIMSS);
+    return MXC_I2S_RevA_Mute((mxc_spimss_reva_regs_t *)MXC_SPIMSS);
 }
 
 int MXC_I2S_Unmute(void)
 {
-    return MXC_I2S_RevA_Unmute((mxc_spimss_reva_regs_t*) MXC_SPIMSS);
+    return MXC_I2S_RevA_Unmute((mxc_spimss_reva_regs_t *)MXC_SPIMSS);
 }
 
 int MXC_I2S_Pause(void)
 {
-    return MXC_I2S_RevA_Pause((mxc_spimss_reva_regs_t*) MXC_SPIMSS);
+    return MXC_I2S_RevA_Pause((mxc_spimss_reva_regs_t *)MXC_SPIMSS);
 }
 
 int MXC_I2S_Unpause(void)
 {
-    return MXC_I2S_RevA_Unpause((mxc_spimss_reva_regs_t*) MXC_SPIMSS);
+    return MXC_I2S_RevA_Unpause((mxc_spimss_reva_regs_t *)MXC_SPIMSS);
 }
 
 int MXC_I2S_Stop(void)
 {
-    return MXC_I2S_RevA_Stop((mxc_spimss_reva_regs_t*) MXC_SPIMSS);
+    return MXC_I2S_RevA_Stop((mxc_spimss_reva_regs_t *)MXC_SPIMSS);
 }
 
 int MXC_I2S_Start(void)
 {
-    return MXC_I2S_RevA_Start((mxc_spimss_reva_regs_t*) MXC_SPIMSS);
+    return MXC_I2S_RevA_Start((mxc_spimss_reva_regs_t *)MXC_SPIMSS);
 }
 
 int MXC_I2S_DMA_ClearFlags(void)

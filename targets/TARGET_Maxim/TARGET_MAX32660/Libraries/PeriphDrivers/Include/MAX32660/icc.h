@@ -3,8 +3,8 @@
  * @brief   Instruction Controller Cache(ICC) function prototypes and data types.
  */
 
-/* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -34,11 +34,11 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- *************************************************************************** */
+ ******************************************************************************/
 
 /* Define to prevent redundant inclusion */
-#ifndef _ICC_H_
-#define _ICC_H_
+#ifndef LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_ICC_H_
+#define LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_ICC_H_
 
 /* **** Includes **** */
 #include <stdint.h>
@@ -58,9 +58,9 @@ extern "C" {
  * @brief Enumeration type for the Cache ID Register
  */
 typedef enum {
-    ICC_INFO_RELNUM,    ///< Identifies the RTL release version
-    ICC_INFO_PARTNUM,   ///< Specifies the value of C_ID Port Number
-    ICC_INFO_ID         ///< Specifies the value of Cache ID
+    ICC_INFO_RELNUM, ///< Identifies the RTL release version
+    ICC_INFO_PARTNUM, ///< Specifies the value of C_ID Port Number
+    ICC_INFO_ID ///< Specifies the value of Cache ID
 } mxc_icc_info_t;
 
 /**
@@ -68,22 +68,22 @@ typedef enum {
  * @param   cid Enumeration type for Cache Id Register.
  * @retval  Returns the contents of Cache Id Register.
  */
-int MXC_ICC_ID (mxc_icc_info_t cid);
+int MXC_ICC_ID(mxc_icc_info_t cid);
 
 /**
  * @brief   Enable the instruction cache controller.
  */
-void MXC_ICC_Enable (void);
+void MXC_ICC_Enable(void);
 
 /**
  * @brief   Disable the instruction cache controller.
  */
-void MXC_ICC_Disable (void);
+void MXC_ICC_Disable(void);
 
 /**
  * @brief   Flush the instruction cache controller.
  */
-void MXC_ICC_Flush (void);
+void MXC_ICC_Flush(void);
 
 /**@} end of group icc */
 
@@ -91,4 +91,4 @@ void MXC_ICC_Flush (void);
 }
 #endif
 
-#endif /* _ICC_H_ */
+#endif // LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_ICC_H_

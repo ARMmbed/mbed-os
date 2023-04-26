@@ -3,8 +3,8 @@
  * @brief   Assertion checks for debugging.
  */
 
-/* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -34,14 +34,13 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- *************************************************************************** */
+ ******************************************************************************/
 
 /* Define to prevent redundant inclusion */
-#ifndef _MXC_ASSERT_H_
-#define _MXC_ASSERT_H_
+#ifndef LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_MXC_ASSERT_H_
+#define LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_MXC_ASSERT_H_
 
 /* **** Includes **** */
-
 
 #ifdef __cplusplus
 extern "C" {
@@ -65,11 +64,10 @@ extern "C" {
  * @note       To use debug assertions, the symbol @c MXC_ASSERT_ENABLE must be
  *             defined.
  */
-#define MXC_ASSERT(expr)                                \
-if (!(expr))                                            \
-{                                                       \
-    mxc_assert(#expr, __FILE__, __LINE__);              \
-}
+#define MXC_ASSERT(expr)                       \
+    if (!(expr)) {                             \
+        mxc_assert(#expr, __FILE__, __LINE__); \
+    }
 /**
  * Macro that generates an assertion with the message "FAIL".
  * @note       To use debug assertions, the symbol @c MXC_ASSERT_ENABLE must be
@@ -98,7 +96,7 @@ if (!(expr))                                            \
  * @note       To use debug assertions, the symbol @c MXC_ASSERT_ENABLE must be
  *             defined.
  */
-void mxc_assert (const char *expr, const char *file, int line);
+void mxc_assert(const char *expr, const char *file, int line);
 
 /**@} end of group MXC_Assertions*/
 
@@ -106,4 +104,4 @@ void mxc_assert (const char *expr, const char *file, int line);
 }
 #endif
 
-#endif /* _MXC_ASSERT_H_ */
+#endif // LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_MXC_ASSERT_H_

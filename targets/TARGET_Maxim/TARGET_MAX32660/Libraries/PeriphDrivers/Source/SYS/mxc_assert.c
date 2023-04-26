@@ -1,5 +1,5 @@
-/* *****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -29,8 +29,7 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- *
- *************************************************************************** */
+ ******************************************************************************/
 
 /* **** Includes **** */
 #include "mxc_device.h"
@@ -42,7 +41,7 @@
 /* **** Functions **** */
 
 /* ************************************************************************** */
-__weak void mxc_assert(const char* expr, const char* file, int line)
+__weak void mxc_assert(const char *expr, const char *file, int line)
 {
     while (1) {}
 }
