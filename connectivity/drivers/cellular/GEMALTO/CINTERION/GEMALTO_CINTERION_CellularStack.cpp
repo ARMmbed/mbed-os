@@ -186,8 +186,8 @@ retry_open:
                         }
                     }
                     if (strcmp(paramTag, "conId") == 0) {
-                        char buf[10];
-                        std::sprintf(buf, "%d", _cid);
+                        char buf[12];
+                        std::snprintf(buf, sizeof(buf), "%d", _cid);
                         if (strcmp(paramValue, buf) == 0) {
                             foundConIdType = true;
                         }
