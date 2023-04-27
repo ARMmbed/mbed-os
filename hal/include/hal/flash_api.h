@@ -79,7 +79,14 @@ int32_t flash_read(flash_t *obj, uint32_t address, uint8_t *data, uint32_t size)
 /** Program pages starting at defined address
  *
  * The pages should not cross multiple sectors.
- * This function does not do any check for address alignments or if size is aligned to a page size.
+ *
+ * \note The upper level FlashIAP.cpp code guarantees:
+ * <ul><li>\c data is 32-bit aligned</li>
+ * <li>\c size is a multiple of the page size</li>
+ * <li>\c address is inside a flash sector</li>
+ * <li>\c address is aligned to the page size (but not the sector size)</li>
+ * </ul>So, implementations of this function do not need to check these things.
+ *
  * @param obj The flash object
  * @param address The sector starting address
  * @param data The data buffer to be programmed

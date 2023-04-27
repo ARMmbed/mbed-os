@@ -113,18 +113,23 @@ int32_t flash_program_page(flash_t *obj, uint32_t address,
         const uint8_t *data, uint32_t size)
 {
     unsigned long n;
-    const uint32_t copySize = 1024; // should be 256|512|1024|4096
-    uint8_t *alignedData, *source;
+    const uint32_t pageSize = flash_get_page_size(obj);
+    uint8_t *tempBuffer, *source;
 
-    alignedData = 0;
+    tempBuffer = 0;
     source = (uint8_t *)data;
+    
+    // On LPC1768, the first RAM bank starts at 0x1000000, so anywhere below that has to be flash.
+    // The IAP firmware does not support flash to flash copies, so if the source data is in flash
+    // it must be buffered in RAM.
+    bool isFlashToFlashCopy = (ptrdiff_t)(data) < 0x10000000;
 
     // check word boundary
-    if (((uint32_t)data % 4) != 0) {
+    if (isFlashToFlashCopy) {
         // always malloc outside critical section
-        alignedData = malloc(copySize);
-        if (alignedData == 0) {
-            return (1);
+        tempBuffer = malloc(pageSize);
+        if (tempBuffer == 0) {
+            return -1;
         }
     }
 
@@ -132,10 +137,12 @@ int32_t flash_program_page(flash_t *obj, uint32_t address,
 
     core_util_critical_section_enter();
 
-    while (size) {
-        if (((uint32_t)data % 4) != 0) {
-            memcpy(alignedData, source, copySize);
-            source = alignedData;
+    for(size_t pageIdx = 0; pageIdx < (size / pageSize); ++pageIdx)
+    {
+        uint8_t * pageSourceAddr = source + (pageIdx * pageSize);
+        if (isFlashToFlashCopy) {
+            memcpy(tempBuffer, pageSourceAddr, pageSize);
+            pageSourceAddr = tempBuffer;
         }
 
         /*
@@ -147,28 +154,28 @@ int32_t flash_program_page(flash_t *obj, uint32_t address,
         IAP.par[1] = n;  // End Sector
         IAP_Call (&IAP.cmd, &IAP.stat); // Call IAP Command
         if (IAP.stat) {
-            return (1); // Command Failed
+            core_util_critical_section_exit();
+            return -1; // Command Failed
         }
 
         IAP.cmd = 51; // Copy RAM to Flash
         IAP.par[0] = address; // Destination Flash Address
-        IAP.par[1] = (unsigned long)source; // Source RAM Address        
-        IAP.par[2] = copySize; // number of bytes to be written
+        IAP.par[1] = (unsigned long)pageSourceAddr; // Source RAM Address
+        IAP.par[2] = pageSize; // number of bytes to be written
         IAP.par[3] = CCLK; // CCLK in kHz
         IAP_Call (&IAP.cmd, &IAP.stat); // Call IAP Command
         if (IAP.stat) {
-            return (1); // Command Failed
+            core_util_critical_section_exit();
+            return -1; // Command Failed
         }
 
-        source += copySize;
-        size -= copySize;
-        address += copySize;
+        address += pageSize;
     }
 
     core_util_critical_section_exit();
 
-    if(alignedData != 0) { // We allocated our own memory
-        free(alignedData);
+    if(tempBuffer != 0) { // We allocated our own memory
+        free(tempBuffer);
     }
 
     return (0); // Finished without Errors

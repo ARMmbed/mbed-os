@@ -218,6 +218,53 @@ void flash_program_page_test()
     delete[] data_flashed;
 }
 
+// Tests that one flash page can be copied to another
+void flash_copy_flash_to_flash()
+{
+    flash_t test_flash;
+    int32_t ret = flash_init(&test_flash);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
+
+    uint32_t last_page_address = flash_get_start_address(&test_flash) + flash_get_size(&test_flash) - flash_get_page_size(&test_flash);
+    uint32_t *last_page_pointer = reinterpret_cast<uint32_t *>(last_page_address);
+    uint32_t second_to_last_page_address = last_page_address - flash_get_page_size(&test_flash);
+    uint32_t *second_to_last_page_pointer = reinterpret_cast<uint32_t *>(second_to_last_page_address);
+
+    // Erase the sector(s) which contain the last two pages
+    uint32_t last_page_sector = ALIGN_DOWN(last_page_address, flash_get_sector_size(&test_flash, last_page_address));
+    uint32_t second_to_last_page_sector = ALIGN_DOWN(second_to_last_page_address, flash_get_sector_size(&test_flash, second_to_last_page_address));
+
+    ret = flash_erase_sector(&test_flash, last_page_sector);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
+
+    if (last_page_sector != second_to_last_page_sector) {
+        ret = flash_erase_sector(&test_flash, second_to_last_page_sector);
+        TEST_ASSERT_EQUAL_INT32(0, ret);
+    }
+
+    // Fill second to last page with test data
+    size_t const numDataWords = flash_get_page_size(&test_flash) / sizeof(uint32_t);
+    uint32_t *data = new uint32_t[numDataWords];
+    for (size_t wordIdx = 0; wordIdx < numDataWords; ++wordIdx) {
+        data[wordIdx] = wordIdx;
+    }
+
+    ret = flash_program_page(&test_flash, second_to_last_page_address, reinterpret_cast<const uint8_t *>(data), flash_get_page_size(&test_flash));
+    TEST_ASSERT_EQUAL_INT32(0, ret);
+
+    // Make sure data was written
+    TEST_ASSERT_EQUAL_UINT32_ARRAY(data, second_to_last_page_pointer, numDataWords);
+
+    // Now, program last page from the second to last page
+    ret = flash_program_page(&test_flash, last_page_address, reinterpret_cast<const uint8_t *>(second_to_last_page_pointer), flash_get_page_size(&test_flash));
+    TEST_ASSERT_EQUAL_INT32(0, ret);
+
+    // Make sure data was written
+    TEST_ASSERT_EQUAL_UINT32_ARRAY(data, last_page_pointer, numDataWords);
+
+    delete[] data;
+}
+
 // check the execution speed at the start and end of the test to make sure
 // cache settings weren't changed
 void flash_clock_and_cache_test()
@@ -232,6 +279,7 @@ Case cases[] = {
     Case("Flash - mapping alignment", flash_mapping_alignment_test),
     Case("Flash - erase sector", flash_erase_sector_test),
     Case("Flash - program page", flash_program_page_test),
+    Case("Flash - copy flash to flash", flash_copy_flash_to_flash),
     Case("Flash - clock and cache test", flash_clock_and_cache_test),
 };
 
