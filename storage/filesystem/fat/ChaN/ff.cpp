@@ -537,7 +537,7 @@ static WCHAR LfnBuf[FF_MAX_LFN + 1];		/* LFN working buffer */
 #elif FF_USE_LFN == 3 	/* LFN enabled with dynamic working buffer on the heap */
 #if FF_FS_EXFAT
 #define DEF_NAMBUF		WCHAR *lfn;	/* Pointer to LFN working buffer and directory entry block scratchpad buffer */
-#define INIT_NAMBUF(fs)	{ lfn = ff_memalloc((FF_MAX_LFN+1)*2 + MAXDIRB(FF_MAX_LFN)); if (!lfn) LEAVE_FF(fs, FR_NOT_ENOUGH_CORE); (fs)->lfnbuf = lfn; (fs)->dirbuf = (BYTE*)(lfn+FF_MAX_LFN+1); }
+#define INIT_NAMBUF(fs)	{ lfn = (WCHAR *)(ff_memalloc((FF_MAX_LFN+1)*2 + MAXDIRB(FF_MAX_LFN))); if (!lfn) LEAVE_FF(fs, FR_NOT_ENOUGH_CORE); (fs)->lfnbuf = lfn; (fs)->dirbuf = (BYTE*)(lfn+FF_MAX_LFN+1); }
 #define FREE_NAMBUF()	ff_memfree(lfn)
 #else
 #define DEF_NAMBUF		WCHAR *lfn;	/* Pointer to LFN working buffer */
@@ -552,6 +552,7 @@ static WCHAR LfnBuf[FF_MAX_LFN + 1];		/* LFN working buffer */
 
 #endif	/* FF_USE_LFN == 1 */
 #endif	/* FF_USE_LFN == 0 */
+
 
 
 
