@@ -2095,7 +2095,7 @@ void tls_master_key_cal(tls_heap_t *heap_ptr, sec_suite_t *tls_suite)
 {
     uint8_t *ptr;
     prf_sec_param_t *prf_ptr = shalib_prf_param_get();
-    uint8_t secret_buf[2 + 16 + 2 + 16];
+    static uint8_t secret_buf[2 + 16 + 2 + 16];
     tr_debug("CAL Master secret:");
     //Her have to to be set check is
 #ifdef ECC
