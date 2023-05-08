@@ -10615,6 +10615,8 @@ typedef struct
 /*                                    QUADSPI                                 */
 /*                                                                            */
 /******************************************************************************/
+/* QUADSPI IP version */
+#define QSPI1_V1_0
 /*****************  Bit definition for QUADSPI_CR register  *******************/
 #define QUADSPI_CR_EN_Pos                (0U)
 #define QUADSPI_CR_EN_Msk                (0x1UL << QUADSPI_CR_EN_Pos)           /*!< 0x00000001 */
