@@ -336,9 +336,12 @@ static ospi_status_t _ospi_init_direct(ospi_t *obj, const ospi_pinmap_t *pinmap,
     pin_function(pinmap->dqs_pin, pinmap->dqs_function);
     pin_mode(pinmap->dqs_pin, PullNone);
 
-#if defined(OCTOSPI2)
+#if defined(OCTOSPIM)
+#if defined(TARGET_STM32H7)
+    __HAL_RCC_OCTOSPIM_CLK_ENABLE();
+#else
     __HAL_RCC_OSPIM_CLK_ENABLE();
-
+#endif
     OSPIM_CfgTypeDef OSPIM_Cfg_Struct = {0};
 
     /* The OctoSPI IO Manager OCTOSPIM configuration is supported in a simplified mode in mbed-os

@@ -106,7 +106,11 @@ struct analogin_s {
 
 #if DEVICE_QSPI
 struct qspi_s {
+#if defined(OCTOSPI1)
+    OSPI_HandleTypeDef handle;
+#else
     QSPI_HandleTypeDef handle;
+#endif
     QSPIName qspi;
     PinName io0;
     PinName io1;
@@ -114,6 +118,24 @@ struct qspi_s {
     PinName io3;
     PinName sclk;
     PinName ssel;
+};
+#endif
+
+#if DEVICE_OSPI
+struct ospi_s {
+    OSPI_HandleTypeDef handle;
+    OSPIName ospi;
+    PinName io0;
+    PinName io1;
+    PinName io2;
+    PinName io3;
+    PinName io4;
+    PinName io5;
+    PinName io6;
+    PinName io7;
+    PinName sclk;
+    PinName ssel;
+    PinName dqs;
 };
 #endif
 
