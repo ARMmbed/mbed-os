@@ -73,9 +73,9 @@
 
     The compilation define USE_HAL_DCMI_REGISTER_CALLBACKS when set to 1
     allows the user to configure dynamically the driver callbacks.
-    Use functions @ref HAL_DCMI_RegisterCallback() to register a user callback.
+    Use functions HAL_DCMI_RegisterCallback() to register a user callback.
 
-    Function @ref HAL_DCMI_RegisterCallback() allows to register following callbacks:
+    Function HAL_DCMI_RegisterCallback() allows to register following callbacks:
       (+) FrameEventCallback : callback for DCMI Frame Event.
       (+) VsyncEventCallback : callback for DCMI Vsync Event.
       (+) LineEventCallback  : callback for DCMI Line Event.
@@ -85,9 +85,9 @@
     This function takes as parameters the HAL peripheral handle, the Callback ID
     and a pointer to the user callback function.
 
-    Use function @ref HAL_DCMI_UnRegisterCallback() to reset a callback to the default
+    Use function HAL_DCMI_UnRegisterCallback() to reset a callback to the default
     weak (surcharged) function.
-    @ref HAL_DCMI_UnRegisterCallback() takes as parameters the HAL peripheral handle,
+    HAL_DCMI_UnRegisterCallback() takes as parameters the HAL peripheral handle,
     and the callback ID.
     This function allows to reset following callbacks:
       (+) FrameEventCallback : callback for DCMI Frame Event.
@@ -97,13 +97,13 @@
       (+) MspInitCallback    : callback for DCMI MspInit.
       (+) MspDeInitCallback  : callback for DCMI MspDeInit.
 
-    By default, after the @ref HAL_DCMI_Init and if the state is HAL_DCMI_STATE_RESET
+    By default, after the HAL_DCMI_Init and if the state is HAL_DCMI_STATE_RESET
     all callbacks are reset to the corresponding legacy weak (surcharged) functions:
-    examples @ref FrameEventCallback(), @ref HAL_DCMI_ErrorCallback().
+    examples FrameEventCallback(), HAL_DCMI_ErrorCallback().
     Exception done for MspInit and MspDeInit callbacks that are respectively
-    reset to the legacy weak (surcharged) functions in the @ref HAL_DCMI_Init
-    and @ref  HAL_DCMI_DeInit only when these callbacks are null (not registered beforehand).
-    If not, MspInit or MspDeInit are not null, the @ref HAL_DCMI_Init and @ref HAL_DCMI_DeInit
+    reset to the legacy weak (surcharged) functions in the HAL_DCMI_Init
+    and HAL_DCMI_DeInit only when these callbacks are null (not registered beforehand).
+    If not, MspInit or MspDeInit are not null, the HAL_DCMI_Init and HAL_DCMI_DeInit
     keep and use the user MspInit/MspDeInit callbacks (registered beforehand).
 
     Callbacks can be registered/unregistered in READY state only.
@@ -111,8 +111,8 @@
     in READY or RESET state, thus registered (user) MspInit/DeInit callbacks can be used
     during the Init/DeInit.
     In that case first register the MspInit/MspDeInit user callbacks
-    using @ref HAL_DCMI_RegisterCallback before calling @ref HAL_DCMI_DeInit
-    or @ref HAL_DCMI_Init function.
+    using HAL_DCMI_RegisterCallback before calling HAL_DCMI_DeInit
+    or HAL_DCMI_Init function.
 
     When the compilation define USE_HAL_DCMI_REGISTER_CALLBACKS is set to 0 or
     not defined, the callback registering feature is not available
@@ -1049,7 +1049,7 @@ HAL_StatusTypeDef  HAL_DCMI_ConfigSyncUnmask(DCMI_HandleTypeDef *hdcmi, DCMI_Syn
   *                the configuration information for DCMI.
   * @retval HAL state
   */
-HAL_DCMI_StateTypeDef HAL_DCMI_GetState(DCMI_HandleTypeDef *hdcmi)
+HAL_DCMI_StateTypeDef HAL_DCMI_GetState(const DCMI_HandleTypeDef *hdcmi)
 {
   return hdcmi->State;
 }
@@ -1060,7 +1060,7 @@ HAL_DCMI_StateTypeDef HAL_DCMI_GetState(DCMI_HandleTypeDef *hdcmi)
   *               the configuration information for DCMI.
   * @retval DCMI Error Code
   */
-uint32_t HAL_DCMI_GetError(DCMI_HandleTypeDef *hdcmi)
+uint32_t HAL_DCMI_GetError(const DCMI_HandleTypeDef *hdcmi)
 {
   return hdcmi->ErrorCode;
 }
@@ -1163,7 +1163,7 @@ HAL_StatusTypeDef HAL_DCMI_RegisterCallback(DCMI_HandleTypeDef *hdcmi, HAL_DCMI_
 
 /**
   * @brief  Unregister a DCMI Callback
-  *         DCMI callabck is redirected to the weak predefined callback
+  *         DCMI callback is redirected to the weak predefined callback
   * @param  hdcmi DCMI handle
   * @param  CallbackID ID of the callback to be registered
   *         This parameter can be one of the following values:
@@ -1250,6 +1250,11 @@ HAL_StatusTypeDef HAL_DCMI_UnRegisterCallback(DCMI_HandleTypeDef *hdcmi, HAL_DCM
 /**
   * @}
   */
+
+/**
+  * @}
+  */
+
 /* Private functions ---------------------------------------------------------*/
 /** @defgroup DCMI_Private_Functions DCMI Private Functions
   * @{
@@ -1358,10 +1363,6 @@ static void DCMI_DMAError(DMA_HandleTypeDef *hdma)
 /**
   * @}
   */
-
-/**
-  * @}
-  */
 #endif /* DCMI */
 #endif /* HAL_DCMI_MODULE_ENABLED */
 /**
@@ -1371,4 +1372,3 @@ static void DCMI_DMAError(DMA_HandleTypeDef *hdma)
 /**
   * @}
   */
-

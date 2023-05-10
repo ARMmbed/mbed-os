@@ -70,7 +70,7 @@
   *          - SUCCESS: LPGPIO registers are de-initialized
   *          - ERROR:   Wrong LPGPIO Port
   */
-ErrorStatus LL_LPGPIO_DeInit(GPIO_TypeDef *LPGPIOx)
+ErrorStatus LL_LPGPIO_DeInit(const GPIO_TypeDef *LPGPIOx)
 {
   ErrorStatus status = SUCCESS;
 

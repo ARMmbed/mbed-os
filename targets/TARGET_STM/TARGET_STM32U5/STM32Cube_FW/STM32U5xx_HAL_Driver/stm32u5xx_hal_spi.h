@@ -161,7 +161,7 @@ typedef struct __SPI_HandleTypeDef
 
   SPI_InitTypeDef            Init;                         /*!< SPI communication parameters             */
 
-  uint8_t                    *pTxBuffPtr;                  /*!< Pointer to SPI Tx transfer Buffer        */
+  const uint8_t              *pTxBuffPtr;                  /*!< Pointer to SPI Tx transfer Buffer        */
 
   uint16_t                   TxXferSize;                   /*!< SPI Tx Transfer size                     */
 
@@ -199,6 +199,7 @@ typedef struct __SPI_HandleTypeDef
   void (* TxRxHalfCpltCallback)(struct __SPI_HandleTypeDef *hspi); /*!< SPI TxRx Half Completed callback   */
   void (* ErrorCallback)(struct __SPI_HandleTypeDef *hspi);        /*!< SPI Error callback                 */
   void (* AbortCpltCallback)(struct __SPI_HandleTypeDef *hspi);    /*!< SPI Abort callback                 */
+  void (* SuspendCallback)(struct __SPI_HandleTypeDef *hspi);      /*!< SPI Suspend callback               */
   void (* MspInitCallback)(struct __SPI_HandleTypeDef *hspi);      /*!< SPI Msp Init callback              */
   void (* MspDeInitCallback)(struct __SPI_HandleTypeDef *hspi);    /*!< SPI Msp DeInit callback            */
 
@@ -219,8 +220,9 @@ typedef enum
   HAL_SPI_TX_RX_HALF_COMPLETE_CB_ID     = 0x05UL,    /*!< SPI TxRx Half Completed callback ID  */
   HAL_SPI_ERROR_CB_ID                   = 0x06UL,    /*!< SPI Error callback ID                */
   HAL_SPI_ABORT_CB_ID                   = 0x07UL,    /*!< SPI Abort callback ID                */
-  HAL_SPI_MSPINIT_CB_ID                 = 0x08UL,    /*!< SPI Msp Init callback ID             */
-  HAL_SPI_MSPDEINIT_CB_ID               = 0x09UL     /*!< SPI Msp DeInit callback ID           */
+  HAL_SPI_SUSPEND_CB_ID                 = 0x08UL,    /*!< SPI Suspend callback ID              */
+  HAL_SPI_MSPINIT_CB_ID                 = 0x09UL,    /*!< SPI Msp Init callback ID             */
+  HAL_SPI_MSPDEINIT_CB_ID               = 0x0AUL     /*!< SPI Msp DeInit callback ID           */
 
 } HAL_SPI_CallbackIDTypeDef;
 
@@ -839,18 +841,18 @@ HAL_StatusTypeDef HAL_SPI_UnRegisterCallback(SPI_HandleTypeDef *hspi, HAL_SPI_Ca
   * @{
   */
 /* I/O operation functions  ***************************************************/
-HAL_StatusTypeDef HAL_SPI_Transmit(SPI_HandleTypeDef *hspi, uint8_t *pData, uint16_t Size, uint32_t Timeout);
+HAL_StatusTypeDef HAL_SPI_Transmit(SPI_HandleTypeDef *hspi, const uint8_t *pData, uint16_t Size, uint32_t Timeout);
 HAL_StatusTypeDef HAL_SPI_Receive(SPI_HandleTypeDef *hspi, uint8_t *pData, uint16_t Size, uint32_t Timeout);
-HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, uint8_t *pTxData, uint8_t *pRxData, uint16_t Size,
-                                          uint32_t Timeout);
-HAL_StatusTypeDef HAL_SPI_Transmit_IT(SPI_HandleTypeDef *hspi, uint8_t *pData, uint16_t Size);
+HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, const uint8_t *pTxData, uint8_t *pRxData,
+                                          uint16_t Size, uint32_t Timeout);
+HAL_StatusTypeDef HAL_SPI_Transmit_IT(SPI_HandleTypeDef *hspi, const uint8_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_SPI_Receive_IT(SPI_HandleTypeDef *hspi, uint8_t *pData, uint16_t Size);
-HAL_StatusTypeDef HAL_SPI_TransmitReceive_IT(SPI_HandleTypeDef *hspi, uint8_t *pTxData, uint8_t *pRxData,
+HAL_StatusTypeDef HAL_SPI_TransmitReceive_IT(SPI_HandleTypeDef *hspi, const uint8_t *pTxData, uint8_t *pRxData,
                                              uint16_t Size);
 
-HAL_StatusTypeDef HAL_SPI_Transmit_DMA(SPI_HandleTypeDef *hspi, uint8_t *pData, uint16_t Size);
+HAL_StatusTypeDef HAL_SPI_Transmit_DMA(SPI_HandleTypeDef *hspi, const uint8_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_SPI_Receive_DMA(SPI_HandleTypeDef *hspi, uint8_t *pData, uint16_t Size);
-HAL_StatusTypeDef HAL_SPI_TransmitReceive_DMA(SPI_HandleTypeDef *hspi, uint8_t *pTxData, uint8_t *pRxData,
+HAL_StatusTypeDef HAL_SPI_TransmitReceive_DMA(SPI_HandleTypeDef *hspi, const uint8_t *pTxData, uint8_t *pRxData,
                                               uint16_t Size);
 
 
@@ -871,6 +873,7 @@ void HAL_SPI_RxHalfCpltCallback(SPI_HandleTypeDef *hspi);
 void HAL_SPI_TxRxHalfCpltCallback(SPI_HandleTypeDef *hspi);
 void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi);
 void HAL_SPI_AbortCpltCallback(SPI_HandleTypeDef *hspi);
+void HAL_SPI_SuspendCallback(SPI_HandleTypeDef *hspi);
 /**
   * @}
   */
@@ -880,8 +883,8 @@ void HAL_SPI_AbortCpltCallback(SPI_HandleTypeDef *hspi);
   */
 
 /* Peripheral State and Error functions ***************************************/
-HAL_SPI_StateTypeDef HAL_SPI_GetState(SPI_HandleTypeDef *hspi);
-uint32_t             HAL_SPI_GetError(SPI_HandleTypeDef *hspi);
+HAL_SPI_StateTypeDef HAL_SPI_GetState(const SPI_HandleTypeDef *hspi);
+uint32_t             HAL_SPI_GetError(const SPI_HandleTypeDef *hspi);
 /**
   * @}
   */
@@ -895,19 +898,40 @@ uint32_t             HAL_SPI_GetError(SPI_HandleTypeDef *hspi);
   * @{
   */
 
-/** @brief  Set the SPI transmit-only mode.
+/** @brief  Set the SPI transmit-only mode in 1Line configuration.
   * @param  __HANDLE__: specifies the SPI Handle.
   *         This parameter can be SPI where x: 1, 2, or 3 to select the SPI peripheral.
   * @retval None
   */
-#define SPI_1LINE_TX(__HANDLE__) SET_BIT((__HANDLE__)->Instance->CR1 , SPI_CR1_HDDIR)
+#define SPI_1LINE_TX(__HANDLE__) SET_BIT((__HANDLE__)->Instance->CR1, SPI_CR1_HDDIR)
 
-/** @brief  Set the SPI receive-only mode.
+/** @brief  Set the SPI receive-only mode in 1Line configuration.
   * @param  __HANDLE__: specifies the SPI Handle.
   *         This parameter can be SPI where x: 1, 2, or 3 to select the SPI peripheral.
   * @retval None
   */
-#define SPI_1LINE_RX(__HANDLE__) CLEAR_BIT((__HANDLE__)->Instance->CR1 ,SPI_CR1_HDDIR)
+#define SPI_1LINE_RX(__HANDLE__) CLEAR_BIT((__HANDLE__)->Instance->CR1, SPI_CR1_HDDIR)
+
+/** @brief  Set the SPI transmit-only mode in 2Lines configuration.
+  * @param  __HANDLE__: specifies the SPI Handle.
+  *         This parameter can be SPI where x: 1, 2, or 3 to select the SPI peripheral.
+  * @retval None
+  */
+#define SPI_2LINES_TX(__HANDLE__) MODIFY_REG((__HANDLE__)->Instance->CFG2, SPI_CFG2_COMM, SPI_CFG2_COMM_0)
+
+/** @brief  Set the SPI receive-only mode in 2Lines configuration.
+  * @param  __HANDLE__: specifies the SPI Handle.
+  *         This parameter can be SPI where x: 1, 2, or 3 to select the SPI peripheral.
+  * @retval None
+  */
+#define SPI_2LINES_RX(__HANDLE__) MODIFY_REG((__HANDLE__)->Instance->CFG2, SPI_CFG2_COMM, SPI_CFG2_COMM_1)
+
+/** @brief  Set the SPI Transmit-Receive mode in 2Lines configuration.
+  * @param  __HANDLE__: specifies the SPI Handle.
+  *         This parameter can be SPI where x: 1, 2, or 3 to select the SPI peripheral.
+  * @retval None
+  */
+#define SPI_2LINES(__HANDLE__) MODIFY_REG((__HANDLE__)->Instance->CFG2, SPI_CFG2_COMM, 0x00000000UL)
 
 #define IS_SPI_MODE(MODE)                          (((MODE) == SPI_MODE_SLAVE) || \
                                                     ((MODE) == SPI_MODE_MASTER))
@@ -1006,13 +1030,14 @@ uint32_t             HAL_SPI_GetError(SPI_HandleTypeDef *hspi);
 #define IS_SPI_NSSP(NSSP)                          (((NSSP) == SPI_NSS_PULSE_ENABLE) || \
                                                     ((NSSP) == SPI_NSS_PULSE_DISABLE))
 
-#define IS_SPI_BAUDRATE_PRESCALER(PRESCALER)       (((PRESCALER) == SPI_BAUDRATEPRESCALER_2)   || \
-                                                    ((PRESCALER) == SPI_BAUDRATEPRESCALER_4)   || \
-                                                    ((PRESCALER) == SPI_BAUDRATEPRESCALER_8)   || \
-                                                    ((PRESCALER) == SPI_BAUDRATEPRESCALER_16)  || \
-                                                    ((PRESCALER) == SPI_BAUDRATEPRESCALER_32)  || \
-                                                    ((PRESCALER) == SPI_BAUDRATEPRESCALER_64)  || \
-                                                    ((PRESCALER) == SPI_BAUDRATEPRESCALER_128) || \
+#define IS_SPI_BAUDRATE_PRESCALER(PRESCALER)       (((PRESCALER) == SPI_BAUDRATEPRESCALER_BYPASS) || \
+                                                    ((PRESCALER) == SPI_BAUDRATEPRESCALER_2)      || \
+                                                    ((PRESCALER) == SPI_BAUDRATEPRESCALER_4)      || \
+                                                    ((PRESCALER) == SPI_BAUDRATEPRESCALER_8)      || \
+                                                    ((PRESCALER) == SPI_BAUDRATEPRESCALER_16)     || \
+                                                    ((PRESCALER) == SPI_BAUDRATEPRESCALER_32)     || \
+                                                    ((PRESCALER) == SPI_BAUDRATEPRESCALER_64)     || \
+                                                    ((PRESCALER) == SPI_BAUDRATEPRESCALER_128)    || \
                                                     ((PRESCALER) == SPI_BAUDRATEPRESCALER_256))
 
 #define IS_SPI_FIRST_BIT(BIT)                      (((BIT) == SPI_FIRSTBIT_MSB) || \
@@ -1077,6 +1102,9 @@ uint32_t             HAL_SPI_GetError(SPI_HandleTypeDef *hspi);
 
 #define IS_SPI_RDY_POLARITY(POLARITY)              (((POLARITY) == SPI_RDY_POLARITY_HIGH) || \
                                                     ((POLARITY) == SPI_RDY_POLARITY_LOW))
+
+#define IS_SPI_MASTER_RX_AUTOSUSP(MODE)            (((MODE) == SPI_MASTER_RX_AUTOSUSP_DISABLE) || \
+                                                    ((MODE) == SPI_MASTER_RX_AUTOSUSP_ENABLE))
 /**
   * @}
   */

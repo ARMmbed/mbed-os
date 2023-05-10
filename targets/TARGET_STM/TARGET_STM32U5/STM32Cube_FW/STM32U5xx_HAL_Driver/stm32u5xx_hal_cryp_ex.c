@@ -382,6 +382,7 @@ HAL_StatusTypeDef HAL_CRYPEx_WrapKey(CRYP_HandleTypeDef *hcryp, uint32_t *pInput
 HAL_StatusTypeDef HAL_CRYPEx_UnwrapKey(CRYP_HandleTypeDef *hcryp, uint32_t *pInput, uint32_t Timeout)
 {
   HAL_StatusTypeDef status;
+  uint32_t tickstart;
 
   if (hcryp->State == HAL_CRYP_STATE_READY)
   {
@@ -399,7 +400,25 @@ HAL_StatusTypeDef HAL_CRYPEx_UnwrapKey(CRYP_HandleTypeDef *hcryp, uint32_t *pInp
     __HAL_CRYP_DISABLE(hcryp);
 
     /* Set the operating mode*/
-    MODIFY_REG(hcryp->Instance->CR, AES_CR_KMOD, CRYP_KEYMODE_WRAPPED);
+    MODIFY_REG(hcryp->Instance->CR, AES_CR_KMOD | AES_CR_KEYSEL, CRYP_KEYMODE_WRAPPED | CRYP_KEYSEL_HW);
+
+    /* Wait for Valid KEY flag to set */
+    tickstart = HAL_GetTick();
+    while (HAL_IS_BIT_CLR(hcryp->Instance->SR, AES_SR_KEYVALID))
+    {
+      /* Check for the Timeout */
+      if (Timeout != HAL_MAX_DELAY)
+      {
+        if (((HAL_GetTick() - tickstart) > Timeout) || (Timeout == 0U))
+        {
+          /* Change state */
+          hcryp->ErrorCode |= HAL_CRYP_ERROR_TIMEOUT;
+          hcryp->State = HAL_CRYP_STATE_READY;
+          __HAL_UNLOCK(hcryp);
+          return HAL_ERROR;
+        }
+      }
+    }
 
     status = CRYPEx_KeyDecrypt(hcryp, Timeout);
   }
@@ -417,14 +436,14 @@ HAL_StatusTypeDef HAL_CRYPEx_UnwrapKey(CRYP_HandleTypeDef *hcryp, uint32_t *pInp
   * @}
   */
 
-/** @defgroup CRYPEx_Exported_Functions_Group3 Encrypt/Decrypt Shared key functions
-  * @brief    Encrypt/Decrypt Shared key functions.
+/** @defgroup CRYPEx_Exported_Functions_Group3 Encrypt and Decrypt Shared key functions
+  * @brief    Encrypt and Decrypt Shared key functions.
   *
 @verbatim
   ==============================================================================
-                      ##### Encrypt/Decrypt Shared key functions #####
+                      ##### Encrypt and Decrypt Shared key functions #####
   ==============================================================================
-    [..]  This section provides API allowing to Encrypt/Decrypt Shared key
+    [..]  This section provides API allowing to Encrypt and Decrypt Shared key
 
 @endverbatim
   * @{

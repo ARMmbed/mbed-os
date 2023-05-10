@@ -31,14 +31,10 @@ extern "C" {
   * @{
   */
 
-#if defined(HAL_SD_MODULE_ENABLED) || defined(HAL_QSPI_MODULE_ENABLED)|| defined(HAL_OSPI_MODULE_ENABLED)
-
-/** @addtogroup DLYB
-  * @{
-  */
+#if defined(HAL_SD_MODULE_ENABLED) || defined(HAL_OSPI_MODULE_ENABLED) || defined(HAL_XSPI_MODULE_ENABLED)
 
 /* Exported types ------------------------------------------------------------*/
-/** @defgroup DLYB_LL_Exported_Types DLYB Exported Types
+/** @defgroup DLYB_LL DLYB
   * @{
   */
 
@@ -55,27 +51,23 @@ typedef struct
                                         This parameter can be a value between 0 and DLYB_MAX_SELECT             */
 } LL_DLYB_CfgTypeDef;
 
-/**
-  * @}
-  */
-
 /* Exported constants --------------------------------------------------------*/
 /** @defgroup DLYB_Exported_Constants DLYB Exported Constants
   * @{
   */
 
 #define DLYB_MAX_UNIT   ((uint32_t)0x00000080U) /*!< Max UNIT value (128)  */
-#define DLYB_MAX_SELECT ((uint32_t)0x0000000CU) /*!< Max SELECT value (12)  */
+#define DLYB_MAX_SELECT ((uint32_t)0x0000000CU) /*!< Max SELECT value (12) */
+
+/**
+  * @}
+  */
 
 /** @defgroup DLYB_LL_Flags DLYB Flags
   * @{
   */
 
 #define DLYB_FLAG_LNGF DLYB_CFGR_LNGF
-
-/**
-  * @}
-  */
 
 /**
   * @}
@@ -116,8 +108,7 @@ __STATIC_INLINE void LL_DLYB_Disable(DLYB_TypeDef *DLYBx)
   * @}
   */
 
-
-/** @addtogroup DLYB_Control_Functions DLYB Control functions
+/** @defgroup DLYB_Control_Functions DLYB Control functions
   * @{
   */
 
@@ -137,7 +128,7 @@ uint32_t LL_DLYB_GetClockPeriod(DLYB_TypeDef *DLYBx, LL_DLYB_CfgTypeDef *pdlyb_c
   * @}
   */
 
-#endif /* HAL_SD_MODULE_ENABLED || HAL_QSPI_MODULE_ENABLED || HAL_OSPI_MODULE_ENABLED */
+#endif /* HAL_SD_MODULE_ENABLED || HAL_OSPI_MODULE_ENABLED || HAL_XSPI_MODULE_ENABLED */
 
 /**
   * @}

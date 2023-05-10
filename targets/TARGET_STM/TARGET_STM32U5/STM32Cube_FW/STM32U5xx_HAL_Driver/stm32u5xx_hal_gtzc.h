@@ -41,19 +41,25 @@ extern "C" {
   */
 
 /*!< Values needed for MPCBB_Attribute_ConfigTypeDef structure sizing */
-#define GTZC_MCPBB_NB_VCTR_REG_MAX      (32U)
-#define GTZC_MCPBB_NB_LCK_VCTR_REG_MAX  (1U)
+#if defined (SRAM5_BASE)
+#define GTZC_MPCBB_NB_VCTR_REG_MAX      (52U)     /* Up to 52 super-blocks       */
+#define GTZC_MPCBB_NB_LCK_VCTR_REG_MAX  (2U)      /* More than one 32-bit needed */
+#else
+#define GTZC_MPCBB_NB_VCTR_REG_MAX      (32U)     /* Up to 32 super-blocks       */
+#define GTZC_MPCBB_NB_LCK_VCTR_REG_MAX  (1U)      /* One 32-bit needed           */
+#endif /* SRAM5_BASE */
+
 typedef struct
 {
-  uint32_t MPCBB_SecConfig_array[GTZC_MCPBB_NB_VCTR_REG_MAX];  /*!< Each element specifies secure access mode for
+  uint32_t MPCBB_SecConfig_array[GTZC_MPCBB_NB_VCTR_REG_MAX];  /*!< Each element specifies secure access mode for
                                                                     a super-block. Each bit corresponds to a block
                                                                     inside the super-block. 0 means non-secure,
                                                                     1 means secure */
-  uint32_t MPCBB_PrivConfig_array[GTZC_MCPBB_NB_VCTR_REG_MAX]; /*!< Each element specifies privilege access mode for
+  uint32_t MPCBB_PrivConfig_array[GTZC_MPCBB_NB_VCTR_REG_MAX]; /*!< Each element specifies privilege access mode for
                                                                     a super-block. Each bit corresponds to a block
                                                                     inside the super-block. 0 means non-privilege,
                                                                     1 means privilege */
-  uint32_t MPCBB_LockConfig_array[GTZC_MCPBB_NB_LCK_VCTR_REG_MAX]; /*!< Each bit specifies the lock configuration of
+  uint32_t MPCBB_LockConfig_array[GTZC_MPCBB_NB_LCK_VCTR_REG_MAX]; /*!< Each bit specifies the lock configuration of
                                                                         a super-block (32 blocks). 0 means unlocked,
                                                                         1 means locked */
 } MPCBB_Attribute_ConfigTypeDef;
@@ -190,7 +196,9 @@ typedef struct
 #define GTZC_PERIPH_WWDG          (GTZC1_PERIPH_REG1 | GTZC_CFGR1_WWDG_Pos)
 #define GTZC_PERIPH_IWDG          (GTZC1_PERIPH_REG1 | GTZC_CFGR1_IWDG_Pos)
 #define GTZC_PERIPH_SPI2          (GTZC1_PERIPH_REG1 | GTZC_CFGR1_SPI2_Pos)
+#if defined (USART2)
 #define GTZC_PERIPH_USART2        (GTZC1_PERIPH_REG1 | GTZC_CFGR1_USART2_Pos)
+#endif /* USART2 */
 #define GTZC_PERIPH_USART3        (GTZC1_PERIPH_REG1 | GTZC_CFGR1_USART3_Pos)
 #define GTZC_PERIPH_UART4         (GTZC1_PERIPH_REG1 | GTZC_CFGR1_UART4_Pos)
 #define GTZC_PERIPH_UART5         (GTZC1_PERIPH_REG1 | GTZC_CFGR1_UART5_Pos)
@@ -200,7 +208,18 @@ typedef struct
 #define GTZC_PERIPH_I2C4          (GTZC1_PERIPH_REG1 | GTZC_CFGR1_I2C4_Pos)
 #define GTZC_PERIPH_LPTIM2        (GTZC1_PERIPH_REG1 | GTZC_CFGR1_LPTIM2_Pos)
 #define GTZC_PERIPH_FDCAN1        (GTZC1_PERIPH_REG1 | GTZC_CFGR1_FDCAN1_Pos)
+#if defined (UCPD1)
 #define GTZC_PERIPH_UCPD1         (GTZC1_PERIPH_REG1 | GTZC_CFGR1_UCPD1_Pos)
+#endif /* UCPD1 */
+#if defined (USART6)
+#define GTZC_PERIPH_USART6        (GTZC1_PERIPH_REG1 | GTZC_CFGR1_USART6_Pos)
+#endif /* USART6 */
+#if defined (I2C5)
+#define GTZC_PERIPH_I2C5          (GTZC1_PERIPH_REG1 | GTZC_CFGR1_I2C5_Pos)
+#endif /* I2C5 */
+#if defined (I2C6)
+#define GTZC_PERIPH_I2C6          (GTZC1_PERIPH_REG1 | GTZC_CFGR1_I2C6_Pos)
+#endif /* I2C6 */
 #define GTZC_PERIPH_TIM1          (GTZC1_PERIPH_REG2 | GTZC_CFGR2_TIM1_Pos)
 #define GTZC_PERIPH_SPI1          (GTZC1_PERIPH_REG2 | GTZC_CFGR2_SPI1_Pos)
 #define GTZC_PERIPH_TIM8          (GTZC1_PERIPH_REG2 | GTZC_CFGR2_TIM8_Pos)
@@ -209,47 +228,113 @@ typedef struct
 #define GTZC_PERIPH_TIM16         (GTZC1_PERIPH_REG2 | GTZC_CFGR2_TIM16_Pos)
 #define GTZC_PERIPH_TIM17         (GTZC1_PERIPH_REG2 | GTZC_CFGR2_TIM17_Pos)
 #define GTZC_PERIPH_SAI1          (GTZC1_PERIPH_REG2 | GTZC_CFGR2_SAI1_Pos)
+#if defined (SAI2)
 #define GTZC_PERIPH_SAI2          (GTZC1_PERIPH_REG2 | GTZC_CFGR2_SAI2_Pos)
+#endif /* SAI2 */
+#if defined (LTDC) || defined (USB_DRD_FS)
+#define GTZC_PERIPH_LTDCUSB       (GTZC1_PERIPH_REG2 | GTZC_CFGR2_LTDCUSB_Pos)
+#endif /* LTDC || USB_DRD_FS */
+#if defined (DSI)
+#define GTZC_PERIPH_DSI           (GTZC1_PERIPH_REG2 | GTZC_CFGR2_DSI_Pos)
+#endif /* DSI */
+#if defined (GFXTIM)
+#define GTZC_PERIPH_GFXTIM        (GTZC1_PERIPH_REG2 | GTZC_CFGR2_GFXTIM_Pos)
+#endif /* GFXTIM */
 #define GTZC_PERIPH_MDF1          (GTZC1_PERIPH_REG3 | GTZC_CFGR3_MDF1_Pos)
 #define GTZC_PERIPH_CORDIC        (GTZC1_PERIPH_REG3 | GTZC_CFGR3_CORDIC_Pos)
 #define GTZC_PERIPH_FMAC          (GTZC1_PERIPH_REG3 | GTZC_CFGR3_FMAC_Pos)
 #define GTZC_PERIPH_CRC           (GTZC1_PERIPH_REG3 | GTZC_CFGR3_CRC_Pos)
 #define GTZC_PERIPH_TSC           (GTZC1_PERIPH_REG3 | GTZC_CFGR3_TSC_Pos)
+#if defined (DMA2D)
 #define GTZC_PERIPH_DMA2D         (GTZC1_PERIPH_REG3 | GTZC_CFGR3_DMA2D_Pos)
+#endif /* DMA2D */
 #define GTZC_PERIPH_ICACHE_REG    (GTZC1_PERIPH_REG3 | GTZC_CFGR3_ICACHE_REG_Pos)
 #define GTZC_PERIPH_DCACHE1_REG   (GTZC1_PERIPH_REG3 | GTZC_CFGR3_DCACHE1_REG_Pos)
 #define GTZC_PERIPH_ADC12         (GTZC1_PERIPH_REG3 | GTZC_CFGR3_ADC12_Pos)
-#define GTZC_PERIPH_DCMI          (GTZC1_PERIPH_REG3 | GTZC_CFGR3_DCMI_Pos)
+#define GTZC_PERIPH_DCMI_PSSI     (GTZC1_PERIPH_REG3 | GTZC_CFGR3_DCMI_Pos)
+#if defined (USB_OTG_FS) || defined (USB_OTG_HS)
 #define GTZC_PERIPH_OTG           (GTZC1_PERIPH_REG3 | GTZC_CFGR3_OTG_Pos)
+#endif /* (USB_OTG_FS) || (USB_OTG_HS) */
+#if defined (AES)
 #define GTZC_PERIPH_AES           (GTZC1_PERIPH_REG3 | GTZC_CFGR3_AES_Pos)
+#endif /* AES */
 #define GTZC_PERIPH_HASH          (GTZC1_PERIPH_REG3 | GTZC_CFGR3_HASH_Pos)
 #define GTZC_PERIPH_RNG           (GTZC1_PERIPH_REG3 | GTZC_CFGR3_RNG_Pos)
+#if defined (PKA)
 #define GTZC_PERIPH_PKA           (GTZC1_PERIPH_REG3 | GTZC_CFGR3_PKA_Pos)
+#endif /* PKA */
+#if defined (SAES)
 #define GTZC_PERIPH_SAES          (GTZC1_PERIPH_REG3 | GTZC_CFGR3_SAES_Pos)
+#endif /* SAES */
+#if defined (OCTOSPIM)
 #define GTZC_PERIPH_OCTOSPIM      (GTZC1_PERIPH_REG3 | GTZC_CFGR3_OCTOSPIM_Pos)
+#endif /* OCTOSPIM */
 #define GTZC_PERIPH_SDMMC1        (GTZC1_PERIPH_REG3 | GTZC_CFGR3_SDMMC1_Pos)
+#if defined (SDMMC2)
 #define GTZC_PERIPH_SDMMC2        (GTZC1_PERIPH_REG3 | GTZC_CFGR3_SDMMC2_Pos)
+#endif /* SDMMC2 */
+#if defined (FMC_BASE)
 #define GTZC_PERIPH_FSMC_REG      (GTZC1_PERIPH_REG3 | GTZC_CFGR3_FSMC_REG_Pos)
+#endif /* FMC_BASE */
 #define GTZC_PERIPH_OCTOSPI1_REG  (GTZC1_PERIPH_REG3 | GTZC_CFGR3_OCTOSPI1_REG_Pos)
+#if defined (OCTOSPI2)
 #define GTZC_PERIPH_OCTOSPI2_REG  (GTZC1_PERIPH_REG3 | GTZC_CFGR3_OCTOSPI2_REG_Pos)
+#endif /* OCTOSPI2 */
 #define GTZC_PERIPH_RAMCFG        (GTZC1_PERIPH_REG3 | GTZC_CFGR3_RAMCFG_Pos)
+#if defined (GPU2D)
+#define GTZC_PERIPH_GPU2D         (GTZC1_PERIPH_REG3 | GTZC_CFGR3_GPU2D_Pos)
+#endif /* GPU2D */
+#if defined (GFXMMU)
+#define GTZC_PERIPH_GFXMMU        (GTZC1_PERIPH_REG3 | GTZC_CFGR3_GFXMMU_Pos)
+#define GTZC_PERIPH_GFXMMU_REG    (GTZC1_PERIPH_REG3 | GTZC_CFGR3_GFXMMU_REG_Pos)
+#endif /* GFXMMU */
+#if defined (HSPI1)
+#define GTZC_PERIPH_HSPI1_REG     (GTZC1_PERIPH_REG3 | GTZC_CFGR3_HSPI1_REG_Pos)
+#endif /* HSPI1 */
+#if defined (DCACHE2)
+#define GTZC_PERIPH_DCACHE2_REG   (GTZC1_PERIPH_REG3 | GTZC_CFGR3_DCACHE2_REG_Pos)
+#endif /* DCACHE2 */
+#if defined (JPEG)
+#define GTZC_PERIPH_JPEG          (GTZC1_PERIPH_REG3 | GTZC_CFGR3_JPEG_Pos)
+#endif /* JPEG */
 #define GTZC_PERIPH_GPDMA1        (GTZC1_PERIPH_REG4 | GTZC_CFGR4_GPDMA1_Pos)
 #define GTZC_PERIPH_FLASH_REG     (GTZC1_PERIPH_REG4 | GTZC_CFGR4_FLASH_REG_Pos)
 #define GTZC_PERIPH_FLASH         (GTZC1_PERIPH_REG4 | GTZC_CFGR4_FLASH_Pos)
+#if defined (OTFDEC2)
 #define GTZC_PERIPH_OTFDEC2       (GTZC1_PERIPH_REG4 | GTZC_CFGR4_OTFDEC2_Pos)
+#endif /* OTFDEC2 */
+#if defined (OTFDEC1)
 #define GTZC_PERIPH_OTFDEC1       (GTZC1_PERIPH_REG4 | GTZC_CFGR4_OTFDEC1_Pos)
+#endif /* OTFDEC1 */
 #define GTZC_PERIPH_TZSC1         (GTZC1_PERIPH_REG4 | GTZC_CFGR4_TZSC1_Pos)
 #define GTZC_PERIPH_TZIC1         (GTZC1_PERIPH_REG4 | GTZC_CFGR4_TZIC1_Pos)
 #define GTZC_PERIPH_OCTOSPI1_MEM  (GTZC1_PERIPH_REG4 | GTZC_CFGR4_OCTOSPI1_MEM_Pos)
+#if defined (FMC_BASE)
 #define GTZC_PERIPH_FSMC_MEM      (GTZC1_PERIPH_REG4 | GTZC_CFGR4_FSMC_MEM_Pos)
+#endif /* FMC_BASE */
 #define GTZC_PERIPH_BKPSRAM       (GTZC1_PERIPH_REG4 | GTZC_CFGR4_BKPSRAM_Pos)
+#if defined (OCTOSPI2)
 #define GTZC_PERIPH_OCTOSPI2_MEM  (GTZC1_PERIPH_REG4 | GTZC_CFGR4_OCTOSPI2_MEM_Pos)
+#endif /* OCTOSPI2 */
+#if defined (HSPI1)
+#define GTZC_PERIPH_HSPI1_MEM     (GTZC1_PERIPH_REG4 | GTZC_CFGR4_HSPI1_MEM_Pos)
+#endif /* HSPI1 */
+#if defined (SRAM6_BASE)
+#define GTZC_PERIPH_SRAM6         (GTZC1_PERIPH_REG4 | GTZC_CFGR4_SRAM6_Pos)
+#define GTZC_PERIPH_MPCBB6_REG    (GTZC1_PERIPH_REG4 | GTZC_CFGR4_MPCBB6_REG_Pos)
+#endif /* SRAM6_BASE */
 #define GTZC_PERIPH_SRAM1         (GTZC1_PERIPH_REG4 | GTZC_CFGR4_SRAM1_Pos)
 #define GTZC_PERIPH_MPCBB1_REG    (GTZC1_PERIPH_REG4 | GTZC_CFGR4_MPCBB1_REG_Pos)
 #define GTZC_PERIPH_SRAM2         (GTZC1_PERIPH_REG4 | GTZC_CFGR4_SRAM2_Pos)
 #define GTZC_PERIPH_MPCBB2_REG    (GTZC1_PERIPH_REG4 | GTZC_CFGR4_MPCBB2_REG_Pos)
+#if defined (SRAM3_BASE)
 #define GTZC_PERIPH_SRAM3         (GTZC1_PERIPH_REG4 | GTZC_CFGR4_SRAM3_Pos)
+#endif /* SRAM3_BASE */
 #define GTZC_PERIPH_MPCBB3_REG    (GTZC1_PERIPH_REG4 | GTZC_CFGR4_MPCBB3_REG_Pos)
+#if defined (SRAM5_BASE)
+#define GTZC_PERIPH_SRAM5         (GTZC1_PERIPH_REG4 | GTZC_CFGR4_SRAM5_Pos)
+#define GTZC_PERIPH_MPCBB5_REG    (GTZC1_PERIPH_REG4 | GTZC_CFGR4_MPCBB5_REG_Pos)
+#endif /* SRAM5_BASE */
 
 /* GTZC2 */
 #define GTZC_PERIPH_SPI3          (GTZC2_PERIPH_REG1 | GTZC_CFGR1_SPI3_Pos)
@@ -365,17 +450,17 @@ typedef struct
 /* user-oriented definitions for MPCBB */
 #define GTZC_MPCBB_BLOCK_SIZE           0x200U                        /* 512 Bytes */
 #define GTZC_MPCBB_SUPERBLOCK_SIZE      (GTZC_MPCBB_BLOCK_SIZE * 32U) /* 16 KBytes */
-#define GTZC_MCPBB_SUPERBLOCK_UNLOCKED  (0U)
-#define GTZC_MCPBB_SUPERBLOCK_LOCKED    (1U)
+#define GTZC_MPCBB_SUPERBLOCK_UNLOCKED  (0U)
+#define GTZC_MPCBB_SUPERBLOCK_LOCKED    (1U)
 
-#define GTZC_MCPBB_BLOCK_NSEC           (GTZC_ATTR_SEC_MASK  | 0U)
-#define GTZC_MCPBB_BLOCK_SEC            (GTZC_ATTR_SEC_MASK  | 1U)
-#define GTZC_MCPBB_BLOCK_NPRIV          (GTZC_ATTR_PRIV_MASK | 0U)
-#define GTZC_MCPBB_BLOCK_PRIV           (GTZC_ATTR_PRIV_MASK | 2U)
+#define GTZC_MPCBB_BLOCK_NSEC           (GTZC_ATTR_SEC_MASK  | 0U)
+#define GTZC_MPCBB_BLOCK_SEC            (GTZC_ATTR_SEC_MASK  | 1U)
+#define GTZC_MPCBB_BLOCK_NPRIV          (GTZC_ATTR_PRIV_MASK | 0U)
+#define GTZC_MPCBB_BLOCK_PRIV           (GTZC_ATTR_PRIV_MASK | 2U)
 
 /* user-oriented definitions for HAL_GTZC_MPCBB_GetLock() returned value */
-#define GTZC_MCPBB_LOCK_OFF  (0U)
-#define GTZC_MCPBB_LOCK_ON   (1U)
+#define GTZC_MPCBB_LOCK_OFF  (0U)
+#define GTZC_MPCBB_LOCK_ON   (1U)
 
 /**
   * @}
@@ -481,7 +566,7 @@ HAL_StatusTypeDef HAL_GTZC_TZSC_GetConfigPeriphAttributes(uint32_t PeriphId,
   * @}
   */
 
-#if defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 
 /** @addtogroup GTZC_Exported_Functions_Group2
   * @brief    MPCWM Initialization and Configuration functions
@@ -489,7 +574,7 @@ HAL_StatusTypeDef HAL_GTZC_TZSC_GetConfigPeriphAttributes(uint32_t PeriphId,
   */
 
 HAL_StatusTypeDef HAL_GTZC_TZSC_MPCWM_ConfigMemAttributes(uint32_t MemBaseAddress,
-                                                          MPCWM_ConfigTypeDef *pMPCWM_Desc);
+                                                          const MPCWM_ConfigTypeDef *pMPCWM_Desc);
 HAL_StatusTypeDef HAL_GTZC_TZSC_MPCWM_GetConfigMemAttributes(uint32_t MemBaseAddress,
                                                              MPCWM_ConfigTypeDef *pMPCWM_Desc);
 /**
@@ -502,45 +587,45 @@ HAL_StatusTypeDef HAL_GTZC_TZSC_MPCWM_GetConfigMemAttributes(uint32_t MemBaseAdd
   */
 
 void     HAL_GTZC_TZSC_Lock(GTZC_TZSC_TypeDef *TZSC_Instance);
-uint32_t HAL_GTZC_TZSC_GetLock(GTZC_TZSC_TypeDef *TZSC_Instance);
+uint32_t HAL_GTZC_TZSC_GetLock(const GTZC_TZSC_TypeDef *TZSC_Instance);
 
 /**
   * @}
   */
-#endif /* defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) */
+#endif /* defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) */
 /** @addtogroup GTZC_Exported_Functions_Group4
   * @brief    MPCBB Initialization and Configuration functions
   * @{
   */
 
 HAL_StatusTypeDef HAL_GTZC_MPCBB_ConfigMem(uint32_t MemBaseAddress,
-                                           MPCBB_ConfigTypeDef *pMPCBB_desc);
+                                           const MPCBB_ConfigTypeDef *pMPCBB_desc);
 HAL_StatusTypeDef HAL_GTZC_MPCBB_GetConfigMem(uint32_t MemBaseAddress,
                                               MPCBB_ConfigTypeDef *pMPCBB_desc);
 HAL_StatusTypeDef HAL_GTZC_MPCBB_ConfigMemAttributes(uint32_t MemAddress,
                                                      uint32_t NbBlocks,
-                                                     uint32_t *pMemAttributes);
+                                                     const uint32_t *pMemAttributes);
 HAL_StatusTypeDef HAL_GTZC_MPCBB_GetConfigMemAttributes(uint32_t MemAddress,
                                                         uint32_t NbBlocks,
                                                         uint32_t *pMemAttributes);
 
-#if defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 HAL_StatusTypeDef HAL_GTZC_MPCBB_LockConfig(uint32_t MemAddress,
                                             uint32_t NbSuperBlocks,
-                                            uint32_t *pLockAttributes);
+                                            const uint32_t *pLockAttributes);
 HAL_StatusTypeDef HAL_GTZC_MPCBB_GetLockConfig(uint32_t MemAddress,
                                                uint32_t NbSuperBlocks,
                                                uint32_t *pLockAttributes);
 HAL_StatusTypeDef HAL_GTZC_MPCBB_Lock(uint32_t MemBaseAddress);
 HAL_StatusTypeDef HAL_GTZC_MPCBB_GetLock(uint32_t MemBaseAddress,
                                          uint32_t *pLockState);
-#endif /* defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) */
+#endif /* defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) */
 
 /**
   * @}
   */
 
-#if defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 
 /** @addtogroup GTZC_Exported_Functions_Group5
   * @brief    TZIC functions
@@ -568,7 +653,7 @@ void HAL_GTZC_TZIC_Callback(uint32_t PeriphId);
   * @}
   */
 
-#endif /* defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) */
+#endif /* defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) */
 
 /**
   * @}

@@ -66,7 +66,7 @@ typedef struct
 typedef struct __IWDG_HandleTypeDef
 #else
 typedef struct
-#endif /* (USE_HAL_IWDG_REGISTER_CALLBACKS) */
+#endif /* USE_HAL_IWDG_REGISTER_CALLBACKS */
 {
   IWDG_TypeDef                 *Instance;  /*!< Register base address    */
 

@@ -30,17 +30,17 @@
     [..]
       The FMAC HAL driver can be used as follows:
 
-      (#) Initialize the FMAC low level resources by implementing the @ref HAL_FMAC_MspInit():
-          (++) Enable the FMAC interface clock using @ref __HAL_RCC_FMAC_CLK_ENABLE().
+      (#) Initialize the FMAC low level resources by implementing the HAL_FMAC_MspInit():
+          (++) Enable the FMAC interface clock using __HAL_RCC_FMAC_CLK_ENABLE().
           (++) In case of using interrupts (e.g. access configured as FMAC_BUFFER_ACCESS_IT):
-               (+++) Configure the FMAC interrupt priority using @ref HAL_NVIC_SetPriority().
-               (+++) Enable the FMAC IRQ handler using @ref HAL_NVIC_EnableIRQ().
-               (+++) In FMAC IRQ handler, call @ref HAL_FMAC_IRQHandler().
+               (+++) Configure the FMAC interrupt priority using HAL_NVIC_SetPriority().
+               (+++) Enable the FMAC IRQ handler using HAL_NVIC_EnableIRQ().
+               (+++) In FMAC IRQ handler, call HAL_FMAC_IRQHandler().
           (++) In case of using DMA to control data transfer (e.g. access configured
                as FMAC_BUFFER_ACCESS_DMA):
-               (+++) Enable the DMA interface clock using @ref __HAL_RCC_DMA1_CLK_ENABLE()
-                     or @ref __HAL_RCC_DMA2_CLK_ENABLE() depending on the used DMA instance.
-               (+++) Enable the DMAMUX1 interface clock using @ref __HAL_RCC_DMAMUX1_CLK_ENABLE().
+               (+++) Enable the DMA interface clock using __HAL_RCC_DMA1_CLK_ENABLE()
+                     or __HAL_RCC_DMA2_CLK_ENABLE() depending on the used DMA instance.
+               (+++) Enable the DMAMUX1 interface clock using __HAL_RCC_DMAMUX1_CLK_ENABLE().
                (+++) If the initialization of the internal buffers (coefficients, input,
                      output) is done via DMA, configure and enable one DMA channel for
                      managing data transfer from memory to memory (preload channel).
@@ -51,16 +51,16 @@
                      one DMA channel for managing data transfer from peripheral to
                      memory (output channel).
                (+++) Associate the initialized DMA handle(s) to the FMAC DMA handle(s)
-                     using @ref __HAL_LINKDMA().
+                     using __HAL_LINKDMA().
                (+++) Configure the priority and enable the NVIC for the transfer complete
-                     interrupt on the enabled DMA channel(s) using @ref HAL_NVIC_SetPriority()
-                     and @ref HAL_NVIC_EnableIRQ().
+                     interrupt on the enabled DMA channel(s) using HAL_NVIC_SetPriority()
+                     and HAL_NVIC_EnableIRQ().
 
-      (#) Initialize the FMAC HAL using @ref HAL_FMAC_Init(). This function
-          resorts to @ref HAL_FMAC_MspInit() for low-level initialization.
+      (#) Initialize the FMAC HAL using HAL_FMAC_Init(). This function
+          resorts to HAL_FMAC_MspInit() for low-level initialization.
 
-      (#) Configure the FMAC processing (filter) using @ref HAL_FMAC_FilterConfig()
-          or @ref HAL_FMAC_FilterConfig_DMA().
+      (#) Configure the FMAC processing (filter) using HAL_FMAC_FilterConfig()
+          or HAL_FMAC_FilterConfig_DMA().
           This function:
           (++) Defines the memory area within the FMAC internal memory
                (input, coefficients, output) and the associated threshold (input, output).
@@ -73,61 +73,61 @@
           (++) Enable the error interruptions in the input access and/or the output
                access is done through IT/DMA. If an error occurs, the interruption
                will be triggered in loop. In order to recover, the user will have
-               to reset the IP with the sequence @ref HAL_FMAC_DeInit / @ref HAL_FMAC_Init.
-               Optionally, he can also disable the interrupt using @ref __HAL_FMAC_DISABLE_IT;
+               to reset the IP with the sequence HAL_FMAC_DeInit / HAL_FMAC_Init.
+               Optionally, he can also disable the interrupt using __HAL_FMAC_DISABLE_IT;
                the error status will be kept, but no more interrupt will be triggered.
           (++) Write the provided coefficients into the internal memory using polling
-               mode ( @ref HAL_FMAC_FilterConfig() ) or DMA ( @ref HAL_FMAC_FilterConfig_DMA() ).
-               In the DMA case, @ref HAL_FMAC_FilterConfigCallback() is called when
+               mode ( HAL_FMAC_FilterConfig() ) or DMA ( HAL_FMAC_FilterConfig_DMA() ).
+               In the DMA case, HAL_FMAC_FilterConfigCallback() is called when
                the handling is over.
 
        (#) Optionally, the user can enable the error interruption related to
-           saturation by calling @ref __HAL_FMAC_ENABLE_IT. This helps in debugging the
+           saturation by calling __HAL_FMAC_ENABLE_IT. This helps in debugging the
            filter. If a saturation occurs, the interruption will be triggered in loop.
            In order to recover, the user will have to:
-           (++) Disable the interruption by calling @ref __HAL_FMAC_DISABLE_IT if
+           (++) Disable the interruption by calling __HAL_FMAC_DISABLE_IT if
                 the user wishes to continue all the same.
-           (++) Reset the IP with the sequence @ref HAL_FMAC_DeInit / @ref HAL_FMAC_Init.
+           (++) Reset the IP with the sequence HAL_FMAC_DeInit / HAL_FMAC_Init.
 
        (#) Optionally, preload input (FIR, IIR) and output (IIR) data using
-           @ref HAL_FMAC_FilterPreload() or @ref HAL_FMAC_FilterPreload_DMA().
-           In the DMA case, @ref HAL_FMAC_FilterPreloadCallback() is called when
+           HAL_FMAC_FilterPreload() or HAL_FMAC_FilterPreload_DMA().
+           In the DMA case, HAL_FMAC_FilterPreloadCallback() is called when
            the handling is over.
            This step is optional as the filter can be started without preloaded
            data.
 
-       (#) Start the FMAC processing (filter) using @ref HAL_FMAC_FilterStart().
+       (#) Start the FMAC processing (filter) using HAL_FMAC_FilterStart().
            This function also configures the output buffer that will be filled from
            the circular internal output buffer. The function returns immediately
            without updating the provided buffer. The IP processing will be active until
-           @ref HAL_FMAC_FilterStop() is called.
+           HAL_FMAC_FilterStop() is called.
 
-       (#) If the input internal buffer is accessed via DMA, @ref HAL_FMAC_HalfGetDataCallback()
+       (#) If the input internal buffer is accessed via DMA, HAL_FMAC_HalfGetDataCallback()
            will be called to indicate that half of the input buffer has been handled.
 
-       (#) If the input internal buffer is accessed via DMA or interrupt, @ref HAL_FMAC_GetDataCallback()
+       (#) If the input internal buffer is accessed via DMA or interrupt, HAL_FMAC_GetDataCallback()
            will be called to require new input data. It will be provided through
-           @ref HAL_FMAC_AppendFilterData() if the DMA isn't in circular mode.
+           HAL_FMAC_AppendFilterData() if the DMA isn't in circular mode.
 
-       (#) If the output internal buffer is accessed via DMA, @ref HAL_FMAC_HalfOutputDataReadyCallback()
+       (#) If the output internal buffer is accessed via DMA, HAL_FMAC_HalfOutputDataReadyCallback()
            will be called to indicate that half of the output buffer has been handled.
 
        (#) If the output internal buffer is accessed via DMA or interrupt,
-           @ref HAL_FMAC_OutputDataReadyCallback() will be called to require a new output
-           buffer. It will be provided through @ref HAL_FMAC_ConfigFilterOutputBuffer()
+           HAL_FMAC_OutputDataReadyCallback() will be called to require a new output
+           buffer. It will be provided through HAL_FMAC_ConfigFilterOutputBuffer()
            if the DMA isn't in circular mode.
 
-       (#) In all modes except none, provide new input data to be processed via @ref HAL_FMAC_AppendFilterData().
+       (#) In all modes except none, provide new input data to be processed via HAL_FMAC_AppendFilterData().
            This function should only be called once the previous input data has been handled
            (the preloaded input data isn't concerned).
 
        (#) In all modes except none, provide a new output buffer to be filled via
-           @ref HAL_FMAC_ConfigFilterOutputBuffer(). This function should only be called once the previous
+           HAL_FMAC_ConfigFilterOutputBuffer(). This function should only be called once the previous
            user's output buffer has been filled.
 
-       (#) In polling mode, handle the input and output data using @ref HAL_FMAC_PollFilterData().
+       (#) In polling mode, handle the input and output data using HAL_FMAC_PollFilterData().
            This function:
-           (++) Write the user's input data (provided via @ref HAL_FMAC_AppendFilterData())
+           (++) Write the user's input data (provided via HAL_FMAC_AppendFilterData())
                 into the FMAC input memory area.
            (++) Read the FMAC output memory area and write it into the user's output buffer.
            It will return either when:
@@ -137,10 +137,10 @@
            The user will have to use the updated input and output sizes to keep track
            of them.
 
-       (#) Stop the FMAC processing (filter) using @ref HAL_FMAC_FilterStop().
+       (#) Stop the FMAC processing (filter) using HAL_FMAC_FilterStop().
 
-       (#) Call @ref HAL_FMAC_DeInit() to de-initialize the FMAC peripheral. This function
-           resorts to @ref HAL_FMAC_MspDeInit() for low-level de-initialization.
+       (#) Call HAL_FMAC_DeInit() to de-initialize the FMAC peripheral. This function
+           resorts to HAL_FMAC_MspDeInit() for low-level de-initialization.
 
   ##### Callback registration #####
   ==================================
@@ -150,8 +150,8 @@
       allows the user to configure dynamically the driver callbacks.
 
     [..]
-      Use Function @ref HAL_FMAC_RegisterCallback() to register a user callback.
-      Function @ref HAL_FMAC_RegisterCallback() allows to register following callbacks:
+      Use Function HAL_FMAC_RegisterCallback() to register a user callback.
+      Function HAL_FMAC_RegisterCallback() allows to register following callbacks:
       (+) ErrorCallback               : Error Callback.
       (+) HalfGetDataCallback         : Get Half Data Callback.
       (+) GetDataCallback             : Get Data Callback.
@@ -165,9 +165,9 @@
       and a pointer to the user callback function.
 
     [..]
-      Use function @ref HAL_FMAC_UnRegisterCallback() to reset a callback to the default
+      Use function HAL_FMAC_UnRegisterCallback() to reset a callback to the default
       weak (surcharged) function.
-      @ref HAL_FMAC_UnRegisterCallback() takes as parameters the HAL peripheral handle
+      HAL_FMAC_UnRegisterCallback() takes as parameters the HAL peripheral handle
       and the Callback ID.
       This function allows to reset following callbacks:
       (+) ErrorCallback               : Error Callback.
@@ -181,13 +181,13 @@
       (+) MspDeInitCallback           : FMAC MspDeInit.
 
     [..]
-      By default, after the @ref HAL_FMAC_Init() and when the state is HAL_FMAC_STATE_RESET
+      By default, after the HAL_FMAC_Init() and when the state is HAL_FMAC_STATE_RESET
       all callbacks are set to the corresponding weak (surcharged) functions:
-      examples @ref GetDataCallback(), @ref OutputDataReadyCallback().
+      examples GetDataCallback(), OutputDataReadyCallback().
       Exception done for MspInit and MspDeInit functions that are respectively
-      reset to the legacy weak (surcharged) functions in the @ref HAL_FMAC_Init()
-      and @ref HAL_FMAC_DeInit() only when these callbacks are null (not registered beforehand).
-      If not, MspInit or MspDeInit are not null, the @ref HAL_FMAC_Init() and @ref HAL_FMAC_DeInit()
+      reset to the legacy weak (surcharged) functions in the HAL_FMAC_Init()
+      and HAL_FMAC_DeInit() only when these callbacks are null (not registered beforehand).
+      If not, MspInit or MspDeInit are not null, the HAL_FMAC_Init() and HAL_FMAC_DeInit()
       keep and use the user MspInit/MspDeInit callbacks (registered beforehand).
 
     [..]
@@ -196,8 +196,8 @@
       in HAL_FMAC_STATE_READY or HAL_FMAC_STATE_RESET state, thus registered (user)
       MspInit/DeInit callbacks can be used during the Init/DeInit.
       In that case first register the MspInit/MspDeInit user callbacks
-      using @ref HAL_FMAC_RegisterCallback() before calling @ref HAL_FMAC_DeInit()
-      or @ref HAL_FMAC_Init() function.
+      using HAL_FMAC_RegisterCallback() before calling HAL_FMAC_DeInit()
+      or HAL_FMAC_Init() function.
 
     [..]
       When the compilation define USE_HAL_FMAC_REGISTER_CALLBACKS is set to 0 or
@@ -528,6 +528,8 @@ __weak void HAL_FMAC_MspDeInit(FMAC_HandleTypeDef *hfmac)
 /**
   * @brief  Register a User FMAC Callback.
   * @note   The User FMAC Callback is to be used instead of the weak predefined callback.
+  * @note   The HAL_FMAC_RegisterCallback() may be called before HAL_FMAC_Init() in HAL_FMAC_STATE_RESET to register
+  *         callbacks for HAL_FMAC_MSPINIT_CB_ID and HAL_FMAC_MSPDEINIT_CB_ID.
   * @param  hfmac pointer to a FMAC_HandleTypeDef structure that contains
   *         the configuration information for FMAC module.
   * @param  CallbackID ID of the callback to be registered.
@@ -562,7 +564,6 @@ HAL_StatusTypeDef HAL_FMAC_RegisterCallback(FMAC_HandleTypeDef *hfmac, HAL_FMAC_
 
     return HAL_ERROR;
   }
-  __HAL_LOCK(hfmac);
 
   if (hfmac->State == HAL_FMAC_STATE_READY)
   {
@@ -643,14 +644,14 @@ HAL_StatusTypeDef HAL_FMAC_RegisterCallback(FMAC_HandleTypeDef *hfmac, HAL_FMAC_
     status =  HAL_ERROR;
   }
 
-  __HAL_UNLOCK(hfmac);
-
   return status;
 }
 
 /**
   * @brief  Unregister a FMAC CallBack.
   * @note   The FMAC callback is redirected to the weak predefined callback.
+  * @note   The HAL_FMAC_UnRegisterCallback() may be called before HAL_FMAC_Init() in HAL_FMAC_STATE_RESET to register
+  *         callbacks for HAL_FMAC_MSPINIT_CB_ID and HAL_FMAC_MSPDEINIT_CB_ID.
   * @param  hfmac pointer to a FMAC_HandleTypeDef structure that contains
   *         the configuration information for FMAC module
   * @param  CallbackID ID of the callback to be unregistered.
@@ -675,8 +676,6 @@ HAL_StatusTypeDef HAL_FMAC_UnRegisterCallback(FMAC_HandleTypeDef *hfmac, HAL_FMA
   {
     return HAL_ERROR;
   }
-
-  __HAL_LOCK(hfmac);
 
   if (hfmac->State == HAL_FMAC_STATE_READY)
   {
@@ -759,8 +758,6 @@ HAL_StatusTypeDef HAL_FMAC_UnRegisterCallback(FMAC_HandleTypeDef *hfmac, HAL_FMA
     /* Return error status */
     status = HAL_ERROR;
   }
-
-  __HAL_UNLOCK(hfmac);
 
   return status;
 }
@@ -1530,7 +1527,7 @@ void HAL_FMAC_IRQHandler(FMAC_HandleTypeDef *hfmac)
   *         the configuration information for FMAC module.
   * @retval HAL_FMAC_StateTypeDef FMAC state
   */
-HAL_FMAC_StateTypeDef HAL_FMAC_GetState(FMAC_HandleTypeDef *hfmac)
+HAL_FMAC_StateTypeDef HAL_FMAC_GetState(const FMAC_HandleTypeDef *hfmac)
 {
   /* Return FMAC state */
   return hfmac->State;
@@ -1543,7 +1540,7 @@ HAL_FMAC_StateTypeDef HAL_FMAC_GetState(FMAC_HandleTypeDef *hfmac)
   * @note   The returned error is a bit-map combination of possible errors.
   * @retval uint32_t Error bit-map based on @ref FMAC_Error_Code
   */
-uint32_t HAL_FMAC_GetError(FMAC_HandleTypeDef *hfmac)
+uint32_t HAL_FMAC_GetError(const FMAC_HandleTypeDef *hfmac)
 {
   /* Return FMAC error code */
   return hfmac->ErrorCode;
@@ -1972,7 +1969,7 @@ static HAL_StatusTypeDef FMAC_FilterPreload(FMAC_HandleTypeDef *hfmac, int16_t *
           hfmac->hdmaPreload->LinkedListQueue->Head->LinkRegisters[NODE_CDAR_DEFAULT_OFFSET] =
             (uint32_t)&hfmac->Instance->WDATA;     /* Set DMA destination address */
 
-          status = HAL_DMAEx_List_Start_IT(hfmac->hdmaPreload);
+          return (HAL_DMAEx_List_Start_IT(hfmac->hdmaPreload));
         }
         else
         {
@@ -1982,14 +1979,8 @@ static HAL_StatusTypeDef FMAC_FilterPreload(FMAC_HandleTypeDef *hfmac, int16_t *
       }
       else
       {
-        status = HAL_DMA_Start_IT(hfmac->hdmaPreload, (uint32_t)pInput, \
-                                  (uint32_t)&hfmac->Instance->WDATA, (uint32_t)(2UL * InputSize));
-      }
-
-      if (status != HAL_OK)
-      {
-        /* Return error status */
-        return HAL_ERROR;
+        return (HAL_DMA_Start_IT(hfmac->hdmaPreload, (uint32_t)pInput, \
+                                 (uint32_t)&hfmac->Instance->WDATA, (uint32_t)(2UL * InputSize)));
       }
     }
   }
@@ -2038,7 +2029,7 @@ static HAL_StatusTypeDef FMAC_FilterPreload(FMAC_HandleTypeDef *hfmac, int16_t *
           hfmac->hdmaPreload->LinkedListQueue->Head->LinkRegisters[NODE_CDAR_DEFAULT_OFFSET] =
             (uint32_t)&hfmac->Instance->WDATA; /* Set DMA destination address */
 
-          status = HAL_DMAEx_List_Start_IT(hfmac->hdmaPreload);
+          return (HAL_DMAEx_List_Start_IT(hfmac->hdmaPreload));
         }
         else
         {
@@ -2048,14 +2039,8 @@ static HAL_StatusTypeDef FMAC_FilterPreload(FMAC_HandleTypeDef *hfmac, int16_t *
       }
       else
       {
-        status = HAL_DMA_Start_IT(hfmac->hdmaPreload, (uint32_t)pOutput, \
-                                  (uint32_t)&hfmac->Instance->WDATA, (uint32_t)(2UL * OutputSize));
-      }
-
-      if (status != HAL_OK)
-      {
-        /* Return error status */
-        return HAL_ERROR;
+        return (HAL_DMA_Start_IT(hfmac->hdmaPreload, (uint32_t)pOutput, \
+                                 (uint32_t)&hfmac->Instance->WDATA, (uint32_t)(2UL * OutputSize)));
       }
     }
   }

@@ -83,7 +83,9 @@ typedef struct
 {
   uint32_t               InterleavedFilters; /*!< Number of filters in interleaved mode with filter 0.
                                                   This parameter must be a number between Min_Data = 0
-                                                  and Max_Data = 5.
+                                                  and Max_Data = 1 for STM32U535xx/STM32U545xx devices.
+                                                  This parameter must be a number between Min_Data = 0
+                                                  and Max_Data = 5 for other devices.
                                                   @note This parameter is not used for ADF instance */
   uint32_t               ProcClockDivider;   /*!< Processing clock divider.
                                                   This parameter must be a number between Min_Data = 1
@@ -467,6 +469,7 @@ typedef struct
 #define MDF_BITSTREAM1_RISING   MDF_BSMXCR_BSSEL_1      /*!< @note Not available for ADF instance */
 #define MDF_BITSTREAM1_FALLING (MDF_BSMXCR_BSSEL_0 | \
                                 MDF_BSMXCR_BSSEL_1)     /*!< @note Not available for ADF instance */
+#if !defined(STM32U535xx) && !defined(STM32U545xx)
 #define MDF_BITSTREAM2_RISING   MDF_BSMXCR_BSSEL_2      /*!< @note Not available for ADF instance */
 #define MDF_BITSTREAM2_FALLING (MDF_BSMXCR_BSSEL_0 | \
                                 MDF_BSMXCR_BSSEL_2)     /*!< @note Not available for ADF instance */
@@ -483,6 +486,7 @@ typedef struct
 #define MDF_BITSTREAM5_FALLING (MDF_BSMXCR_BSSEL_0 | \
                                 MDF_BSMXCR_BSSEL_1 | \
                                 MDF_BSMXCR_BSSEL_3)     /*!< @note Not available for ADF instance */
+#endif /* !defined(STM32U535xx) && !defined(STM32U545xx) */
 /**
   * @}
   */
@@ -668,8 +672,10 @@ typedef struct
 #define MDF_DATA_SOURCE_BSMX     0x00000000U            /*!< Data from bitstream matrix */
 #define MDF_DATA_SOURCE_ADCITF1  MDF_DFLTCICR_DATSRC_1  /*!< Data from ADC interface 1.
                                                              @note Not available for ADF instance */
+#if defined(ADC2)
 #define MDF_DATA_SOURCE_ADCITF2  MDF_DFLTCICR_DATSRC    /*!< Data from ADC interface 2.
                                                              @note Not available for ADF instance */
+#endif /* ADC2 */
 /**
   * @}
   */
@@ -837,24 +843,24 @@ HAL_StatusTypeDef HAL_MDF_UnRegisterSndLvlCallback(MDF_HandleTypeDef *hmdf);
 /** @addtogroup MDF_Exported_Functions_Group2
   * @{
   */
-HAL_StatusTypeDef HAL_MDF_AcqStart(MDF_HandleTypeDef *hmdf, MDF_FilterConfigTypeDef *pFilterConfig);
+HAL_StatusTypeDef HAL_MDF_AcqStart(MDF_HandleTypeDef *hmdf, const MDF_FilterConfigTypeDef *pFilterConfig);
 HAL_StatusTypeDef HAL_MDF_PollForAcq(MDF_HandleTypeDef *hmdf, uint32_t Timeout);
 HAL_StatusTypeDef HAL_MDF_PollForSnapshotAcq(MDF_HandleTypeDef *hmdf, uint32_t Timeout);
-HAL_StatusTypeDef HAL_MDF_GetAcqValue(MDF_HandleTypeDef *hmdf, int32_t *pValue);
+HAL_StatusTypeDef HAL_MDF_GetAcqValue(const MDF_HandleTypeDef *hmdf, int32_t *pValue);
 HAL_StatusTypeDef HAL_MDF_GetSnapshotAcqValue(MDF_HandleTypeDef *hmdf, MDF_SnapshotParamTypeDef *pSnapshotParam);
 HAL_StatusTypeDef HAL_MDF_AcqStop(MDF_HandleTypeDef *hmdf);
-HAL_StatusTypeDef HAL_MDF_AcqStart_IT(MDF_HandleTypeDef *hmdf, MDF_FilterConfigTypeDef *pFilterConfig);
+HAL_StatusTypeDef HAL_MDF_AcqStart_IT(MDF_HandleTypeDef *hmdf, const MDF_FilterConfigTypeDef *pFilterConfig);
 HAL_StatusTypeDef HAL_MDF_AcqStop_IT(MDF_HandleTypeDef *hmdf);
-HAL_StatusTypeDef HAL_MDF_AcqStart_DMA(MDF_HandleTypeDef *hmdf, MDF_FilterConfigTypeDef *pFilterConfig,
-                                       MDF_DmaConfigTypeDef *pDmaConfig);
+HAL_StatusTypeDef HAL_MDF_AcqStart_DMA(MDF_HandleTypeDef *hmdf, const MDF_FilterConfigTypeDef *pFilterConfig,
+                                       const MDF_DmaConfigTypeDef *pDmaConfig);
 HAL_StatusTypeDef HAL_MDF_AcqStop_DMA(MDF_HandleTypeDef *hmdf);
-HAL_StatusTypeDef HAL_MDF_GenerateTrgo(MDF_HandleTypeDef *hmdf);
+HAL_StatusTypeDef HAL_MDF_GenerateTrgo(const MDF_HandleTypeDef *hmdf);
 HAL_StatusTypeDef HAL_MDF_SetDelay(MDF_HandleTypeDef *hmdf, uint32_t Delay);
-HAL_StatusTypeDef HAL_MDF_GetDelay(MDF_HandleTypeDef *hmdf, uint32_t *pDelay);
+HAL_StatusTypeDef HAL_MDF_GetDelay(const MDF_HandleTypeDef *hmdf, uint32_t *pDelay);
 HAL_StatusTypeDef HAL_MDF_SetGain(MDF_HandleTypeDef *hmdf, int32_t Gain);
-HAL_StatusTypeDef HAL_MDF_GetGain(MDF_HandleTypeDef *hmdf, int32_t *pGain);
+HAL_StatusTypeDef HAL_MDF_GetGain(const MDF_HandleTypeDef *hmdf, int32_t *pGain);
 HAL_StatusTypeDef HAL_MDF_SetOffset(MDF_HandleTypeDef *hmdf, int32_t Offset);
-HAL_StatusTypeDef HAL_MDF_GetOffset(MDF_HandleTypeDef *hmdf, int32_t *pOffset);
+HAL_StatusTypeDef HAL_MDF_GetOffset(const MDF_HandleTypeDef *hmdf, int32_t *pOffset);
 HAL_StatusTypeDef HAL_MDF_PollForSndLvl(MDF_HandleTypeDef *hmdf, uint32_t Timeout, uint32_t *pSoundLevel,
                                         uint32_t *pAmbientNoise);
 HAL_StatusTypeDef HAL_MDF_PollForSad(MDF_HandleTypeDef *hmdf, uint32_t Timeout);
@@ -881,10 +887,10 @@ HAL_StatusTypeDef HAL_MDF_CkabStop_IT(MDF_HandleTypeDef *hmdf);
 /** @addtogroup MDF_Exported_Functions_Group4
   * @{
   */
-HAL_StatusTypeDef HAL_MDF_ScdStart(MDF_HandleTypeDef *hmdf, MDF_ScdConfigTypeDef *pScdConfig);
+HAL_StatusTypeDef HAL_MDF_ScdStart(MDF_HandleTypeDef *hmdf, const MDF_ScdConfigTypeDef *pScdConfig);
 HAL_StatusTypeDef HAL_MDF_PollForScd(MDF_HandleTypeDef *hmdf, uint32_t Timeout);
 HAL_StatusTypeDef HAL_MDF_ScdStop(MDF_HandleTypeDef *hmdf);
-HAL_StatusTypeDef HAL_MDF_ScdStart_IT(MDF_HandleTypeDef *hmdf, MDF_ScdConfigTypeDef *pScdConfig);
+HAL_StatusTypeDef HAL_MDF_ScdStart_IT(MDF_HandleTypeDef *hmdf, const MDF_ScdConfigTypeDef *pScdConfig);
 HAL_StatusTypeDef HAL_MDF_ScdStop_IT(MDF_HandleTypeDef *hmdf);
 /**
   * @}
@@ -894,10 +900,10 @@ HAL_StatusTypeDef HAL_MDF_ScdStop_IT(MDF_HandleTypeDef *hmdf);
 /** @addtogroup MDF_Exported_Functions_Group5
   * @{
   */
-HAL_StatusTypeDef HAL_MDF_OldStart(MDF_HandleTypeDef *hmdf, MDF_OldConfigTypeDef *pOldConfig);
+HAL_StatusTypeDef HAL_MDF_OldStart(MDF_HandleTypeDef *hmdf, const MDF_OldConfigTypeDef *pOldConfig);
 HAL_StatusTypeDef HAL_MDF_PollForOld(MDF_HandleTypeDef *hmdf, uint32_t Timeout, uint32_t *pThresholdInfo);
 HAL_StatusTypeDef HAL_MDF_OldStop(MDF_HandleTypeDef *hmdf);
-HAL_StatusTypeDef HAL_MDF_OldStart_IT(MDF_HandleTypeDef *hmdf, MDF_OldConfigTypeDef *pOldConfig);
+HAL_StatusTypeDef HAL_MDF_OldStart_IT(MDF_HandleTypeDef *hmdf, const MDF_OldConfigTypeDef *pOldConfig);
 HAL_StatusTypeDef HAL_MDF_OldStop_IT(MDF_HandleTypeDef *hmdf);
 void              HAL_MDF_OldCallback(MDF_HandleTypeDef *hmdf, uint32_t ThresholdInfo);
 /**
@@ -910,8 +916,8 @@ void              HAL_MDF_OldCallback(MDF_HandleTypeDef *hmdf, uint32_t Threshol
   */
 void                 HAL_MDF_IRQHandler(MDF_HandleTypeDef *hmdf);
 void                 HAL_MDF_ErrorCallback(MDF_HandleTypeDef *hmdf);
-HAL_MDF_StateTypeDef HAL_MDF_GetState(MDF_HandleTypeDef *hmdf);
-uint32_t             HAL_MDF_GetError(MDF_HandleTypeDef *hmdf);
+HAL_MDF_StateTypeDef HAL_MDF_GetState(const MDF_HandleTypeDef *hmdf);
+uint32_t             HAL_MDF_GetError(const MDF_HandleTypeDef *hmdf);
 /**
   * @}
   */
@@ -924,15 +930,26 @@ uint32_t             HAL_MDF_GetError(MDF_HandleTypeDef *hmdf);
 /** @defgroup MDF_Private_Macros  MDF Private Macros
   * @{
   */
+#if defined(STM32U535xx) || defined(STM32U545xx)
+#define IS_MDF_INSTANCE(PARAM) (((PARAM) == MDF1_Filter0) || \
+                                ((PARAM) == MDF1_Filter1))
+#else /* defined(STM32U535xx) || defined(STM32U545xx) */
 #define IS_MDF_INSTANCE(PARAM) (((PARAM) == MDF1_Filter0) || \
                                 ((PARAM) == MDF1_Filter1) || \
                                 ((PARAM) == MDF1_Filter2) || \
                                 ((PARAM) == MDF1_Filter3) || \
                                 ((PARAM) == MDF1_Filter4) || \
                                 ((PARAM) == MDF1_Filter5))
+#endif /* defined(STM32U535xx) || defined(STM32U545xx) */
 
 #define IS_ADF_INSTANCE(PARAM) ((PARAM) == ADF1_Filter0)
 
+#if defined(STM32U535xx) || defined(STM32U545xx)
+#define IS_MDF_FILTER_BITSTREAM(PARAM) (((PARAM) == MDF_BITSTREAM0_RISING)  || \
+                                        ((PARAM) == MDF_BITSTREAM0_FALLING) || \
+                                        ((PARAM) == MDF_BITSTREAM1_RISING)  || \
+                                        ((PARAM) == MDF_BITSTREAM1_FALLING))
+#else /* defined(STM32U535xx) || defined(STM32U545xx) */
 #define IS_MDF_FILTER_BITSTREAM(PARAM) (((PARAM) == MDF_BITSTREAM0_RISING)  || \
                                         ((PARAM) == MDF_BITSTREAM0_FALLING) || \
                                         ((PARAM) == MDF_BITSTREAM1_RISING)  || \
@@ -945,8 +962,13 @@ uint32_t             HAL_MDF_GetError(MDF_HandleTypeDef *hmdf);
                                         ((PARAM) == MDF_BITSTREAM4_FALLING) || \
                                         ((PARAM) == MDF_BITSTREAM5_RISING)  || \
                                         ((PARAM) == MDF_BITSTREAM5_FALLING))
+#endif /* defined(STM32U535xx) || defined(STM32U545xx) */
 
+#if defined(STM32U535xx) || defined(STM32U545xx)
+#define IS_MDF_INTERLEAVED_FILTERS(PARAM) ((PARAM) <= 1U)
+#else /* defined(STM32U535xx) || defined(STM32U545xx) */
 #define IS_MDF_INTERLEAVED_FILTERS(PARAM) ((PARAM) <= 5U)
+#endif /* defined(STM32U535xx) || defined(STM32U545xx) */
 
 #define IS_MDF_PROC_CLOCK_DIVIDER(PARAM) ((1U <= (PARAM)) && ((PARAM) <= 128U))
 
@@ -1043,9 +1065,14 @@ uint32_t             HAL_MDF_GetError(MDF_HandleTypeDef *hmdf);
 #define IS_MDF_SNAPSHOT_FORMAT(PARAM) (((PARAM) == MDF_SNAPSHOT_23BITS) || \
                                        ((PARAM) == MDF_SNAPSHOT_16BITS))
 
+#if defined(ADC2)
 #define IS_MDF_DATA_SOURCE(PARAM) (((PARAM) == MDF_DATA_SOURCE_BSMX)    || \
                                    ((PARAM) == MDF_DATA_SOURCE_ADCITF1) || \
                                    ((PARAM) == MDF_DATA_SOURCE_ADCITF2))
+#else /* ADC2 */
+#define IS_MDF_DATA_SOURCE(PARAM) (((PARAM) == MDF_DATA_SOURCE_BSMX)    || \
+                                   ((PARAM) == MDF_DATA_SOURCE_ADCITF1))
+#endif /* ADC2 */
 
 #define IS_ADF_DATA_SOURCE(PARAM) ((PARAM) == MDF_DATA_SOURCE_BSMX)
 

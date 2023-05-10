@@ -65,7 +65,7 @@
 /*       compatibility with other STM32 families.                             */
 #define IS_LL_OPAMP_INPUT_NONINVERTING(__OPAMPX__, __INPUT_NONINVERTING__)     \
   (   ((__INPUT_NONINVERTING__) == LL_OPAMP_INPUT_NONINVERT_IO0)               \
-      || ((__INPUT_NONINVERTING__) == LL_OPAMP_INPUT_NONINV_DAC1_CH1)             \
+      || ((__INPUT_NONINVERTING__) == LL_OPAMP_INPUT_NONINV_DAC1_CH1)          \
   )
 
 /* Note: Comparator non-inverting inputs parameters are the same on all       */
@@ -74,8 +74,8 @@
 /*       compatibility with other STM32 families.                             */
 #define IS_LL_OPAMP_INPUT_INVERTING(__OPAMPX__, __INPUT_INVERTING__)           \
   (   ((__INPUT_INVERTING__) == LL_OPAMP_INPUT_INVERT_IO0)                     \
-      || ((__INPUT_INVERTING__) == LL_OPAMP_INPUT_INVERT_IO1)                     \
-      || ((__INPUT_INVERTING__) == LL_OPAMP_INPUT_INVERT_CONNECT_NO)              \
+      || ((__INPUT_INVERTING__) == LL_OPAMP_INPUT_INVERT_IO1)                  \
+      || ((__INPUT_INVERTING__) == LL_OPAMP_INPUT_INVERT_CONNECT_NO)           \
   )
 
 /**
@@ -129,7 +129,7 @@ ErrorStatus LL_OPAMP_DeInit(OPAMP_TypeDef *OPAMPx)
   *          - SUCCESS: OPAMP registers are initialized
   *          - ERROR: OPAMP registers are not initialized
   */
-ErrorStatus LL_OPAMP_Init(OPAMP_TypeDef *OPAMPx, LL_OPAMP_InitTypeDef *OPAMP_InitStruct)
+ErrorStatus LL_OPAMP_Init(OPAMP_TypeDef *OPAMPx, const LL_OPAMP_InitTypeDef *OPAMP_InitStruct)
 {
   /* Check the parameters */
   assert_param(IS_OPAMP_ALL_INSTANCE(OPAMPx));

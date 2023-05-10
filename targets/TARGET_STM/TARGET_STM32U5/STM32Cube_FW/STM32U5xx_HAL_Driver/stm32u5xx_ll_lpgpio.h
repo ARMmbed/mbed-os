@@ -224,7 +224,7 @@ __STATIC_INLINE void LL_LPGPIO_SetPinMode(GPIO_TypeDef *LPGPIOx, uint32_t Pin, u
   *         @arg @ref LL_LPGPIO_MODE_INPUT
   *         @arg @ref LL_LPGPIO_MODE_OUTPUT
   */
-__STATIC_INLINE uint32_t LL_LPGPIO_GetPinMode(GPIO_TypeDef *LPGPIOx, uint32_t Pin)
+__STATIC_INLINE uint32_t LL_LPGPIO_GetPinMode(const GPIO_TypeDef *LPGPIOx, uint32_t Pin)
 {
   return (uint32_t)(READ_BIT(LPGPIOx->MODER,
                              (LPGPIO_MODER_MOD0 << (POSITION_VAL(Pin)))) >> (POSITION_VAL(Pin)));
@@ -245,7 +245,7 @@ __STATIC_INLINE uint32_t LL_LPGPIO_GetPinMode(GPIO_TypeDef *LPGPIOx, uint32_t Pi
   * @param  LPGPIOx LPGPIO Port
   * @retval Input data register value of port
   */
-__STATIC_INLINE uint32_t LL_LPGPIO_ReadInputPort(GPIO_TypeDef *LPGPIOx)
+__STATIC_INLINE uint32_t LL_LPGPIO_ReadInputPort(const GPIO_TypeDef *LPGPIOx)
 {
   return (uint32_t)(READ_REG(LPGPIOx->IDR));
 }
@@ -274,7 +274,7 @@ __STATIC_INLINE uint32_t LL_LPGPIO_ReadInputPort(GPIO_TypeDef *LPGPIOx)
   *         @arg @ref LL_LPGPIO_PIN_ALL
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_LPGPIO_IsInputPinSet(GPIO_TypeDef *LPGPIOx, uint32_t PinMask)
+__STATIC_INLINE uint32_t LL_LPGPIO_IsInputPinSet(const GPIO_TypeDef *LPGPIOx, uint32_t PinMask)
 {
   return ((READ_BIT(LPGPIOx->IDR, PinMask) == (PinMask)) ? 1UL : 0UL);
 }
@@ -284,6 +284,7 @@ __STATIC_INLINE uint32_t LL_LPGPIO_IsInputPinSet(GPIO_TypeDef *LPGPIOx, uint32_t
   * @rmtoll ODR          ODy           LL_LPGPIO_WriteOutputPort
   * @param  LPGPIOx LPGPIO Port
   * @param  PortValue Level value for each pin of the port
+            Value between 0 and 0xFFFF
   * @retval None
   */
 __STATIC_INLINE void LL_LPGPIO_WriteOutputPort(GPIO_TypeDef *LPGPIOx, uint32_t PortValue)
@@ -297,7 +298,7 @@ __STATIC_INLINE void LL_LPGPIO_WriteOutputPort(GPIO_TypeDef *LPGPIOx, uint32_t P
   * @param  LPGPIOx LPGPIO Port
   * @retval Output data register value of port
   */
-__STATIC_INLINE uint32_t LL_LPGPIO_ReadOutputPort(GPIO_TypeDef *LPGPIOx)
+__STATIC_INLINE uint32_t LL_LPGPIO_ReadOutputPort(const GPIO_TypeDef *LPGPIOx)
 {
   return (uint32_t)(READ_REG(LPGPIOx->ODR));
 }
@@ -326,7 +327,7 @@ __STATIC_INLINE uint32_t LL_LPGPIO_ReadOutputPort(GPIO_TypeDef *LPGPIOx)
   *         @arg @ref LL_LPGPIO_PIN_ALL
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_LPGPIO_IsOutputPinSet(GPIO_TypeDef *LPGPIOx, uint32_t PinMask)
+__STATIC_INLINE uint32_t LL_LPGPIO_IsOutputPinSet(const GPIO_TypeDef *LPGPIOx, uint32_t PinMask)
 {
   return ((READ_BIT(LPGPIOx->ODR, PinMask) == (PinMask)) ? 1UL : 0UL);
 }
@@ -431,7 +432,7 @@ __STATIC_INLINE void LL_LPGPIO_TogglePin(GPIO_TypeDef *LPGPIOx, uint32_t PinMask
   * @{
   */
 
-ErrorStatus LL_LPGPIO_DeInit(GPIO_TypeDef *LPGPIOx);
+ErrorStatus LL_LPGPIO_DeInit(const GPIO_TypeDef *LPGPIOx);
 ErrorStatus LL_LPGPIO_Init(GPIO_TypeDef *LPGPIOx, const LL_LPGPIO_InitTypeDef *const LPGPIO_InitStruct);
 void        LL_LPGPIO_StructInit(LL_LPGPIO_InitTypeDef *LPGPIO_InitStruct);
 

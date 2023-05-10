@@ -52,10 +52,10 @@
   * @{
   */
 /**
-  * @brief STM32U5xx HAL Driver version number 1.0.0
+  * @brief STM32U5xx HAL Driver version number 1.2.0
    */
 #define __STM32U5xx_HAL_VERSION_MAIN   (0x01U) /*!< [31:24] main version */
-#define __STM32U5xx_HAL_VERSION_SUB1   (0x00U) /*!< [23:16] sub1 version */
+#define __STM32U5xx_HAL_VERSION_SUB1   (0x02U) /*!< [23:16] sub1 version */
 #define __STM32U5xx_HAL_VERSION_SUB2   (0x00U) /*!< [15:8]  sub2 version */
 #define __STM32U5xx_HAL_VERSION_RC     (0x00U) /*!< [7:0]  release candidate */
 #define __STM32U5xx_HAL_VERSION         ((__STM32U5xx_HAL_VERSION_MAIN << 24U)\
@@ -346,7 +346,8 @@ HAL_StatusTypeDef HAL_SetTickFreq(HAL_TickFreqTypeDef Freq)
 
 /**
   * @brief Return tick frequency.
-  * @retval tick period in Hz
+  * @retval Tick frequency.
+  *         Value of @ref HAL_TickFreqTypeDef.
   */
 HAL_TickFreqTypeDef HAL_GetTickFreq(void)
 {
@@ -437,6 +438,33 @@ uint32_t HAL_GetREVID(void)
 uint32_t HAL_GetDEVID(void)
 {
   return (DBGMCU->IDCODE & DBGMCU_IDCODE_DEV_ID);
+}
+
+/**
+  * @brief  Return the first word of the unique device identifier (UID based on 96 bits)
+  * @retval Device identifier
+  */
+uint32_t HAL_GetUIDw0(void)
+{
+  return (READ_REG(*((uint32_t *)UID_BASE)));
+}
+
+/**
+  * @brief  Return the second word of the unique device identifier (UID based on 96 bits)
+  * @retval Device identifier
+  */
+uint32_t HAL_GetUIDw1(void)
+{
+  return (READ_REG(*((uint32_t *)(UID_BASE + 4U))));
+}
+
+/**
+  * @brief  Return the third word of the unique device identifier (UID based on 96 bits)
+  * @retval Device identifier
+  */
+uint32_t HAL_GetUIDw2(void)
+{
+  return (READ_REG(*((uint32_t *)(UID_BASE + 8U))));
 }
 
 /**
@@ -620,6 +648,98 @@ void HAL_SYSCFG_DisableIOAnalogSwitchBooster(void)
   CLEAR_BIT(SYSCFG->CFGR1, SYSCFG_CFGR1_BOOSTEN);
 }
 
+#if defined(SYSCFG_CFGR1_SRAMCACHED)
+/**
+  * @brief  Enable the Cacheability of internal SRAMx by DCACHE2
+  *
+  * @retval None
+  */
+void HAL_SYSCFG_EnableSRAMCached(void)
+{
+  SET_BIT(SYSCFG->CFGR1, SYSCFG_CFGR1_SRAMCACHED);
+}
+
+/**
+  * @brief  Disable the Cacheability of internal SRAMx by DCACHE2
+  *
+  * @retval None
+  */
+void HAL_SYSCFG_DisableSRAMCached(void)
+{
+  CLEAR_BIT(SYSCFG->CFGR1, SYSCFG_CFGR1_SRAMCACHED);
+}
+#endif /* SYSCFG_CFGR1_SRAMCACHED */
+
+/**
+  * @brief  Enable the Compensation Cell of GPIO supplied by VDD
+  * @rmtoll CCCSR   EN1    HAL_SYSCFG_EnableVddCompensationCell
+  * @note   The vdd compensation cell can be used only when the device supply
+  *         voltage ranges from 1.71 to 3.6 V
+  * @retval None
+  */
+void HAL_SYSCFG_EnableVddCompensationCell(void)
+{
+  SET_BIT(SYSCFG->CCCSR, SYSCFG_CCCSR_EN1);
+}
+
+/**
+  * @brief  Enable the Compensation Cell of GPIO supplied by VDDIO2
+  * @rmtoll CCCSR   EN2    HAL_SYSCFG_EnableVddIO2CompensationCell
+  * @note   The Vdd I/O compensation cell can be used only when the device supply
+  *         voltage ranges from 1.08 to 3.6 V
+  * @retval None
+  */
+void HAL_SYSCFG_EnableVddIO2CompensationCell(void)
+{
+  SET_BIT(SYSCFG->CCCSR, SYSCFG_CCCSR_EN2);
+}
+
+#if defined(SYSCFG_CCCSR_EN3)
+/**
+  * @brief  Enable the Compensation Cell of HSPI IO supplied by VDD
+  * @rmtoll CCCSR   EN3    HAL_SYSCFG_EnableVddHSPICompensationCell
+  * @retval None
+  */
+void HAL_SYSCFG_EnableVddHSPICompensationCell(void)
+{
+  SET_BIT(SYSCFG->CCCSR, SYSCFG_CCCSR_EN3);
+}
+#endif /* SYSCFG_CCCSR_EN3 */
+/**
+  * @brief  Disable the Compensation Cell of GPIO supplied by VDD
+  * @rmtoll CCCSR   EN1    HAL_SYSCFG_DisableVddCompensationCell
+  * @note   The Vdd compensation cell can be used only when the device supply
+  *         voltage ranges from 1.71 to 3.6 V
+  * @retval None
+  */
+void HAL_SYSCFG_DisableVddCompensationCell(void)
+{
+  CLEAR_BIT(SYSCFG->CCCSR, SYSCFG_CCCSR_EN1);
+}
+
+/**
+  * @brief  Disable the Compensation Cell of GPIO supplied by VDDIO2
+  * @rmtoll CCCSR   EN2    HAL_SYSCFG_DisableVddIO2CompensationCell
+  * @note   The Vdd I/O compensation cell can be used only when the device supply
+  *         voltage ranges from 1.08 to 3.6 V
+  * @retval None
+  */
+void HAL_SYSCFG_DisableVddIO2CompensationCell(void)
+{
+  CLEAR_BIT(SYSCFG->CCCSR, SYSCFG_CCCSR_EN2);
+}
+
+#if defined(SYSCFG_CCCSR_EN3)
+/**
+  * @brief  Disable the Compensation Cell of HSPI IO supplied by VDD
+  * @rmtoll CCCSR   EN3    HAL_SYSCFG_DisableVddHSPICompensationCell
+  * @retval None
+  */
+void HAL_SYSCFG_DisableVddHSPICompensationCell(void)
+{
+  CLEAR_BIT(SYSCFG->CCCSR, SYSCFG_CCCSR_EN3);
+}
+#endif /* SYSCFG_CCCSR_EN3 */
 /**
   * @}
   */
@@ -778,6 +898,99 @@ HAL_StatusTypeDef HAL_SYSCFG_GetConfigAttributes(uint32_t Item, uint32_t *pAttri
   */
 
 #endif /* __ARM_FEATURE_CMSE */
+
+#ifdef SYSCFG_OTGHSPHYCR_EN
+/**
+  * @brief  Enable the OTG PHY .
+  * @param  OTGPHYConfig Defines the OTG PHY configuration.
+            This parameter can be one of @ref SYSCFG_OTG_PHY_Enable
+  * @retval None
+  */
+
+void HAL_SYSCFG_EnableOTGPHY(uint32_t OTGPHYConfig)
+{
+  /* Check the parameter */
+  assert_param(IS_SYSCFG_OTGPHY_CONFIG(OTGPHYConfig));
+
+  MODIFY_REG(SYSCFG->OTGHSPHYCR, SYSCFG_OTGHSPHYCR_EN, OTGPHYConfig);
+}
+
+/**
+  * @brief  Set the OTG PHY  Power Down config.
+  * @param  PowerDownConfig Defines the OTG PHY Power down configuration.
+            This parameter can be one of @ref SYSCFG_OTG_PHY_PowerDown
+  * @retval None
+  */
+void HAL_SYSCFG_SetOTGPHYPowerDownConfig(uint32_t PowerDownConfig)
+{
+  /* Check the parameter */
+  assert_param(IS_SYSCFG_OTGPHY_POWERDOWN_CONFIG(PowerDownConfig));
+
+  MODIFY_REG(SYSCFG->OTGHSPHYCR, SYSCFG_OTGHSPHYCR_PDCTRL, PowerDownConfig);
+}
+
+/**
+  * @brief  Set the OTG PHY reference clock selection.
+  * @param  RefClkSelection Defines the OTG PHY reference clock selection.
+            This parameter can be one of the @ref SYSCFG_OTG_PHY_RefenceClockSelection
+  * @retval None
+  */
+void HAL_SYSCFG_SetOTGPHYReferenceClockSelection(uint32_t RefClkSelection)
+{
+  /* Check the parameter */
+  assert_param(IS_SYSCFG_OTGPHY_REFERENCE_CLOCK(RefClkSelection));
+
+  MODIFY_REG(SYSCFG->OTGHSPHYCR, SYSCFG_OTGHSPHYCR_CLKSEL, RefClkSelection);
+}
+
+/**
+  * @brief  Set the OTG PHY Disconnect Threshold.
+  * @param  DisconnectThreshold Defines the voltage level for the threshold used to detect a disconnect event.
+            This parameter can be one of the @ref SYSCFG_OTG_PHYTUNER_DisconnectThreshold
+  * @retval None
+  */
+
+void HAL_SYSCFG_SetOTGPHYDisconnectThreshold(uint32_t DisconnectThreshold)
+{
+  /* Check the parameter */
+  assert_param(IS_SYSCFG_OTGPHY_DISCONNECT(DisconnectThreshold));
+
+  MODIFY_REG(SYSCFG->OTGHSPHYTUNER2, SYSCFG_OTGHSPHYTUNER2_COMPDISTUNE, DisconnectThreshold);
+}
+
+/**
+  * @brief  Adjust the voltage level for the threshold used to detect valid high speed data.
+  * @param  SquelchThreshold Defines the voltage level.
+            This parameter can be onez of the @ref SYSCFG_OTG_PHYTUNER_SquelchThreshold
+
+  * @retval None
+  */
+
+void HAL_SYSCFG_SetOTGPHYSquelchThreshold(uint32_t SquelchThreshold)
+{
+  /* Check the parameter */
+  assert_param(IS_SYSCFG_OTGPHY_SQUELCH(SquelchThreshold));
+
+  MODIFY_REG(SYSCFG->OTGHSPHYTUNER2, SYSCFG_OTGHSPHYTUNER2_SQRXTUNE, SquelchThreshold);
+}
+
+/**
+  * @brief  Set the OTG PHY Current config.
+  * @param  PreemphasisCurrent Defines the current configuration.
+            This parameter can be one of the @ref SYSCFG_OTG_PHYTUNER_PreemphasisCurrent
+
+  * @retval None
+  */
+
+void HAL_SYSCFG_SetOTGPHYPreemphasisCurrent(uint32_t PreemphasisCurrent)
+{
+  /* Check the parameter */
+  assert_param(IS_SYSCFG_OTGPHY_PREEMPHASIS(PreemphasisCurrent));
+
+  MODIFY_REG(SYSCFG->OTGHSPHYTUNER2, SYSCFG_OTGHSPHYTUNER2_TXPREEMPAMPTUNE, PreemphasisCurrent);
+}
+
+#endif /* SYSCFG_OTGHSPHYCR_EN */
 
 /**
   * @}

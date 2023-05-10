@@ -27,7 +27,7 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32u5xx_ll_usb.h"
 
-#if defined (USB_OTG_FS) || defined (USB_OTG_HS)
+#if defined (USB_OTG_FS) || defined (USB_OTG_HS) || defined (USB_DRD_FS)
 
 /** @addtogroup STM32U5xx_HAL_Driver
   * @{
@@ -85,6 +85,11 @@ typedef USB_OTG_GlobalTypeDef  PCD_TypeDef;
 typedef USB_OTG_CfgTypeDef     PCD_InitTypeDef;
 typedef USB_OTG_EPTypeDef      PCD_EPTypeDef;
 #endif /* defined (USB_OTG_FS) || defined (USB_OTG_HS) */
+#if defined (USB_DRD_FS)
+typedef USB_DRD_TypeDef        PCD_TypeDef;
+typedef USB_DRD_CfgTypeDef     PCD_InitTypeDef;
+typedef USB_DRD_EPTypeDef      PCD_EPTypeDef;
+#endif /* defined (USB_DRD_FS) */
 
 /**
   * @brief  PCD Handle Structure definition
@@ -98,14 +103,21 @@ typedef struct
   PCD_TypeDef             *Instance;   /*!< Register base address             */
   PCD_InitTypeDef         Init;        /*!< PCD required parameters           */
   __IO uint8_t            USB_Address; /*!< USB Address                       */
+#if defined (USB_OTG_FS) || defined (USB_OTG_HS)
   PCD_EPTypeDef           IN_ep[16];   /*!< IN endpoint parameters            */
   PCD_EPTypeDef           OUT_ep[16];  /*!< OUT endpoint parameters           */
+#endif /* defined (USB_OTG_FS) || defined (USB_OTG_HS) */
+#if defined (USB_DRD_FS)
+  PCD_EPTypeDef           IN_ep[8];    /*!< IN endpoint parameters            */
+  PCD_EPTypeDef           OUT_ep[8];   /*!< OUT endpoint parameters           */
+#endif /* defined (USB_DRD_FS) */
   HAL_LockTypeDef         Lock;        /*!< PCD peripheral status             */
   __IO PCD_StateTypeDef   State;       /*!< PCD communication state           */
   __IO  uint32_t          ErrorCode;   /*!< PCD Error code                    */
   uint32_t                Setup[12];   /*!< Setup packet buffer               */
   PCD_LPM_StateTypeDef    LPM_State;   /*!< LPM State                         */
   uint32_t                BESL;
+  uint32_t                FrameNumber; /*!< Store Current Frame number        */
 
 
   uint32_t lpm_active;                 /*!< Enable or disable the Link Power Management .
@@ -189,14 +201,14 @@ typedef struct
   *  @brief macros to handle interrupts and specific clock configurations
   * @{
   */
-#if defined (USB_OTG_FS) || defined (USB_OTG_HS)
 #define __HAL_PCD_ENABLE(__HANDLE__)                       (void)USB_EnableGlobalInt ((__HANDLE__)->Instance)
 #define __HAL_PCD_DISABLE(__HANDLE__)                      (void)USB_DisableGlobalInt ((__HANDLE__)->Instance)
 
 #define __HAL_PCD_GET_FLAG(__HANDLE__, __INTERRUPT__) \
   ((USB_ReadInterrupts((__HANDLE__)->Instance) & (__INTERRUPT__)) == (__INTERRUPT__))
 
-#define __HAL_PCD_CLEAR_FLAG(__HANDLE__, __INTERRUPT__)    (((__HANDLE__)->Instance->GINTSTS) &=  (__INTERRUPT__))
+#if defined (USB_OTG_FS) || defined (USB_OTG_HS)
+#define __HAL_PCD_CLEAR_FLAG(__HANDLE__, __INTERRUPT__)    (((__HANDLE__)->Instance->GINTSTS) &= (__INTERRUPT__))
 #define __HAL_PCD_IS_INVALID_INTERRUPT(__HANDLE__)         (USB_ReadInterrupts((__HANDLE__)->Instance) == 0U)
 
 #define __HAL_PCD_UNGATE_PHYCLOCK(__HANDLE__) \
@@ -209,6 +221,10 @@ typedef struct
   ((*(__IO uint32_t *)((uint32_t)((__HANDLE__)->Instance) + USB_OTG_PCGCCTL_BASE)) & 0x10U)
 #endif /* defined (USB_OTG_FS) || defined (USB_OTG_HS) */
 
+#if defined (USB_DRD_FS)
+#define __HAL_PCD_CLEAR_FLAG(__HANDLE__, __INTERRUPT__)           (((__HANDLE__)->Instance->ISTR)\
+                                                                   &= (uint16_t)(~(__INTERRUPT__)))
+#endif /* defined (USB_DRD_FS) */
 
 /**
   * @}
@@ -268,12 +284,10 @@ typedef void (*pPCD_BcdCallbackTypeDef)(PCD_HandleTypeDef *hpcd, PCD_BCD_MsgType
   * @}
   */
 
-HAL_StatusTypeDef HAL_PCD_RegisterCallback(PCD_HandleTypeDef *hpcd,
-                                           HAL_PCD_CallbackIDTypeDef CallbackID,
+HAL_StatusTypeDef HAL_PCD_RegisterCallback(PCD_HandleTypeDef *hpcd, HAL_PCD_CallbackIDTypeDef CallbackID,
                                            pPCD_CallbackTypeDef pCallback);
 
-HAL_StatusTypeDef HAL_PCD_UnRegisterCallback(PCD_HandleTypeDef *hpcd,
-                                             HAL_PCD_CallbackIDTypeDef CallbackID);
+HAL_StatusTypeDef HAL_PCD_UnRegisterCallback(PCD_HandleTypeDef *hpcd, HAL_PCD_CallbackIDTypeDef CallbackID);
 
 HAL_StatusTypeDef HAL_PCD_RegisterDataOutStageCallback(PCD_HandleTypeDef *hpcd,
                                                        pPCD_DataOutStageCallbackTypeDef pCallback);
@@ -295,14 +309,10 @@ HAL_StatusTypeDef HAL_PCD_RegisterIsoInIncpltCallback(PCD_HandleTypeDef *hpcd,
 
 HAL_StatusTypeDef HAL_PCD_UnRegisterIsoInIncpltCallback(PCD_HandleTypeDef *hpcd);
 
-HAL_StatusTypeDef HAL_PCD_RegisterBcdCallback(PCD_HandleTypeDef *hpcd,
-                                              pPCD_BcdCallbackTypeDef pCallback);
-
+HAL_StatusTypeDef HAL_PCD_RegisterBcdCallback(PCD_HandleTypeDef *hpcd, pPCD_BcdCallbackTypeDef pCallback);
 HAL_StatusTypeDef HAL_PCD_UnRegisterBcdCallback(PCD_HandleTypeDef *hpcd);
 
-HAL_StatusTypeDef HAL_PCD_RegisterLpmCallback(PCD_HandleTypeDef *hpcd,
-                                              pPCD_LpmCallbackTypeDef pCallback);
-
+HAL_StatusTypeDef HAL_PCD_RegisterLpmCallback(PCD_HandleTypeDef *hpcd, pPCD_LpmCallbackTypeDef pCallback);
 HAL_StatusTypeDef HAL_PCD_UnRegisterLpmCallback(PCD_HandleTypeDef *hpcd);
 #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
 /**
@@ -341,22 +351,19 @@ void HAL_PCD_ISOINIncompleteCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum);
 HAL_StatusTypeDef HAL_PCD_DevConnect(PCD_HandleTypeDef *hpcd);
 HAL_StatusTypeDef HAL_PCD_DevDisconnect(PCD_HandleTypeDef *hpcd);
 HAL_StatusTypeDef HAL_PCD_SetAddress(PCD_HandleTypeDef *hpcd, uint8_t address);
-HAL_StatusTypeDef HAL_PCD_EP_Open(PCD_HandleTypeDef *hpcd, uint8_t ep_addr,
-                                  uint16_t ep_mps, uint8_t ep_type);
-
+HAL_StatusTypeDef HAL_PCD_EP_Open(PCD_HandleTypeDef *hpcd, uint8_t ep_addr, uint16_t ep_mps, uint8_t ep_type);
 HAL_StatusTypeDef HAL_PCD_EP_Close(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
-HAL_StatusTypeDef HAL_PCD_EP_Receive(PCD_HandleTypeDef *hpcd, uint8_t ep_addr,
-                                     uint8_t *pBuf, uint32_t len);
-
-HAL_StatusTypeDef HAL_PCD_EP_Transmit(PCD_HandleTypeDef *hpcd, uint8_t ep_addr,
-                                      uint8_t *pBuf, uint32_t len);
-
-
+HAL_StatusTypeDef HAL_PCD_EP_Receive(PCD_HandleTypeDef *hpcd, uint8_t ep_addr, uint8_t *pBuf, uint32_t len);
+HAL_StatusTypeDef HAL_PCD_EP_Transmit(PCD_HandleTypeDef *hpcd, uint8_t ep_addr, uint8_t *pBuf, uint32_t len);
 HAL_StatusTypeDef HAL_PCD_EP_SetStall(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
 HAL_StatusTypeDef HAL_PCD_EP_ClrStall(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
 HAL_StatusTypeDef HAL_PCD_EP_Flush(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
+HAL_StatusTypeDef HAL_PCD_EP_Abort(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
 HAL_StatusTypeDef HAL_PCD_ActivateRemoteWakeup(PCD_HandleTypeDef *hpcd);
 HAL_StatusTypeDef HAL_PCD_DeActivateRemoteWakeup(PCD_HandleTypeDef *hpcd);
+#if defined (USB_OTG_FS) || defined (USB_OTG_HS)
+HAL_StatusTypeDef HAL_PCD_SetTestMode(PCD_HandleTypeDef *hpcd, uint8_t testmode);
+#endif /* defined (USB_OTG_FS) || defined (USB_OTG_HS) */
 
 uint32_t          HAL_PCD_EP_GetRxCount(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
 /**
@@ -380,6 +387,42 @@ PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd);
 /** @defgroup PCD_Private_Constants PCD Private Constants
   * @{
   */
+#if defined (USB_DRD_FS)
+/** @defgroup PCD_EP0_MPS PCD EP0 MPS
+  * @{
+  */
+#define PCD_EP0MPS_64                                                 EP_MPS_64
+#define PCD_EP0MPS_32                                                 EP_MPS_32
+#define PCD_EP0MPS_16                                                 EP_MPS_16
+#define PCD_EP0MPS_08                                                 EP_MPS_8
+/**
+  * @}
+  */
+
+/** @defgroup PCD_ENDP PCD ENDP
+  * @{
+  */
+#define PCD_ENDP0                                                     0U
+#define PCD_ENDP1                                                     1U
+#define PCD_ENDP2                                                     2U
+#define PCD_ENDP3                                                     3U
+#define PCD_ENDP4                                                     4U
+#define PCD_ENDP5                                                     5U
+#define PCD_ENDP6                                                     6U
+#define PCD_ENDP7                                                     7U
+/**
+  * @}
+  */
+
+/** @defgroup PCD_ENDP_Kind PCD Endpoint Kind
+  * @{
+  */
+#define PCD_SNG_BUF                                                   0U
+#define PCD_DBL_BUF                                                   1U
+/**
+  * @}
+  */
+#endif /* defined (USB_DRD_FS) */
 /**
   * @}
   */
@@ -414,6 +457,203 @@ PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd);
 /** @defgroup PCD_Private_Macros PCD Private Macros
   * @{
   */
+#if defined (USB_DRD_FS)
+/* PMA RX counter */
+#ifndef PCD_RX_PMA_CNT
+#define PCD_RX_PMA_CNT                                               10U
+#endif /* PCD_RX_PMA_CNT */
+
+/* SetENDPOINT */
+#define PCD_SET_ENDPOINT                       USB_DRD_SET_CHEP
+
+/* GetENDPOINT Register value*/
+#define PCD_GET_ENDPOINT                       USB_DRD_GET_CHEP
+
+
+/**
+  * @brief free buffer used from the application realizing it to the line
+  *         toggles bit SW_BUF in the double buffered endpoint register
+  * @param USBx USB device.
+  * @param   bEpNum, bDir
+  * @retval None
+  */
+#define PCD_FREE_USER_BUFFER                   USB_DRD_FREE_USER_BUFFER
+
+/**
+  * @brief  sets the status for tx transfer (bits STAT_TX[1:0]).
+  * @param  USBx USB peripheral instance register address.
+  * @param  bEpNum Endpoint Number.
+  * @param  wState new state
+  * @retval None
+  */
+#define PCD_SET_EP_TX_STATUS                   USB_DRD_SET_CHEP_TX_STATUS
+
+/**
+  * @brief  sets the status for rx transfer (bits STAT_TX[1:0])
+  * @param  USBx USB peripheral instance register address.
+  * @param  bEpNum Endpoint Number.
+  * @param  wState new state
+  * @retval None
+  */
+#define PCD_SET_EP_RX_STATUS                   USB_DRD_SET_CHEP_RX_STATUS
+
+/**
+  * @brief  Sets/clears directly EP_KIND bit in the endpoint register.
+  * @param  USBx USB peripheral instance register address.
+  * @param  bEpNum Endpoint Number.
+  * @retval None
+  */
+#define PCD_SET_EP_KIND                        USB_DRD_SET_CHEP_KIND
+#define PCD_CLEAR_EP_KIND                      USB_DRD_CLEAR_CHEP_KIND
+#define PCD_SET_BULK_EP_DBUF                   PCD_SET_EP_KIND
+#define PCD_CLEAR_BULK_EP_DBUF                 PCD_CLEAR_EP_KIND
+
+
+/**
+  * @brief  Clears bit CTR_RX / CTR_TX in the endpoint register.
+  * @param  USBx USB peripheral instance register address.
+  * @param  bEpNum Endpoint Number.
+  * @retval None
+  */
+#define PCD_CLEAR_RX_EP_CTR                    USB_DRD_CLEAR_RX_CHEP_CTR
+#define PCD_CLEAR_TX_EP_CTR                    USB_DRD_CLEAR_TX_CHEP_CTR
+/**
+  * @brief  Toggles DTOG_RX / DTOG_TX bit in the endpoint register.
+  * @param  USBx USB peripheral instance register address.
+  * @param  bEpNum Endpoint Number.
+  * @retval None
+  */
+#define PCD_RX_DTOG                            USB_DRD_RX_DTOG
+#define PCD_TX_DTOG                            USB_DRD_TX_DTOG
+/**
+  * @brief  Clears DTOG_RX / DTOG_TX bit in the endpoint register.
+  * @param  USBx USB peripheral instance register address.
+  * @param  bEpNum Endpoint Number.
+  * @retval None
+  */
+#define PCD_CLEAR_RX_DTOG                      USB_DRD_CLEAR_RX_DTOG
+#define PCD_CLEAR_TX_DTOG                      USB_DRD_CLEAR_TX_DTOG
+
+/**
+  * @brief  Sets address in an endpoint register.
+  * @param  USBx USB peripheral instance register address.
+  * @param  bEpNum Endpoint Number.
+  * @param  bAddr Address.
+  * @retval None
+  */
+#define PCD_SET_EP_ADDRESS                     USB_DRD_SET_CHEP_ADDRESS
+
+/**
+  * @brief  sets address of the tx/rx buffer.
+  * @param  USBx USB peripheral instance register address.
+  * @param  bEpNum Endpoint Number.
+  * @param  wAddr address to be set (must be word aligned).
+  * @retval None
+  */
+#define PCD_SET_EP_TX_ADDRESS                  USB_DRD_SET_CHEP_TX_ADDRESS
+#define PCD_SET_EP_RX_ADDRESS                  USB_DRD_SET_CHEP_RX_ADDRESS
+
+/**
+  * @brief  sets counter for the tx/rx buffer.
+  * @param  USBx USB peripheral instance register address.
+  * @param  bEpNum Endpoint Number.
+  * @param  wCount Counter value.
+  * @retval None
+  */
+#define PCD_SET_EP_TX_CNT                      USB_DRD_SET_CHEP_TX_CNT
+#define PCD_SET_EP_RX_CNT                      USB_DRD_SET_CHEP_RX_CNT
+
+/**
+  * @brief  gets counter of the tx buffer.
+  * @param  USBx USB peripheral instance register address.
+  * @param  bEpNum Endpoint Number.
+  * @retval Counter value
+  */
+#define PCD_GET_EP_TX_CNT                      USB_DRD_GET_CHEP_TX_CNT
+
+/**
+  * @brief  gets counter of the rx buffer.
+  * @param  Instance USB peripheral instance register address.
+  * @param  bEpNum channel Number.
+  * @retval Counter value
+  */
+__STATIC_INLINE uint16_t PCD_GET_EP_RX_CNT(const PCD_TypeDef *Instance, uint16_t bEpNum)
+{
+  UNUSED(Instance);
+  __IO uint32_t count = PCD_RX_PMA_CNT;
+
+  /* WA: few cycles for RX PMA descriptor to update */
+  while (count > 0U)
+  {
+    count--;
+  }
+
+  return (uint16_t)USB_DRD_GET_CHEP_RX_CNT((Instance), (bEpNum));
+}
+
+/**
+  * @brief  Sets addresses in a double buffer endpoint.
+  * @param  USBx USB peripheral instance register address.
+  * @param  bEpNum Endpoint Number.
+  * @param  wBuf0Addr: buffer 0 address.
+  * @param  wBuf1Addr = buffer 1 address.
+  * @retval None
+  */
+#define PCD_SET_EP_DBUF_ADDR                   USB_DRD_SET_CHEP_DBUF_ADDR
+
+/**
+  * @brief  Gets buffer 0/1 address of a double buffer endpoint.
+  * @param  USBx USB peripheral instance register address.
+  * @param  bEpNum Endpoint Number.
+  * @param  bDir endpoint dir  EP_DBUF_OUT = OUT
+  *         EP_DBUF_IN  = IN
+  * @param  wCount: Counter value
+  * @retval None
+  */
+#define PCD_SET_EP_DBUF0_CNT                   USB_DRD_SET_CHEP_DBUF0_CNT
+#define PCD_SET_EP_DBUF1_CNT                   USB_DRD_SET_CHEP_DBUF1_CNT
+#define PCD_SET_EP_DBUF_CNT                    USB_DRD_SET_CHEP_DBUF_CNT
+
+/**
+  * @brief  gets counter of the rx buffer0.
+  * @param  Instance USB peripheral instance register address.
+  * @param  bEpNum channel Number.
+  * @retval Counter value
+  */
+__STATIC_INLINE uint16_t PCD_GET_EP_DBUF0_CNT(const PCD_TypeDef *Instance, uint16_t bEpNum)
+{
+  UNUSED(Instance);
+  __IO uint32_t count = PCD_RX_PMA_CNT;
+
+  /* WA: few cycles for RX PMA descriptor to update */
+  while (count > 0U)
+  {
+    count--;
+  }
+
+  return (uint16_t)USB_DRD_GET_CHEP_DBUF0_CNT((Instance), (bEpNum));
+}
+
+/**
+  * @brief  gets counter of the rx buffer1.
+  * @param  Instance USB peripheral instance register address.
+  * @param  bEpNum channel Number.
+  * @retval Counter value
+  */
+__STATIC_INLINE uint16_t PCD_GET_EP_DBUF1_CNT(const PCD_TypeDef *Instance, uint16_t bEpNum)
+{
+  UNUSED(Instance);
+  __IO uint32_t count = PCD_RX_PMA_CNT;
+
+  /* WA: few cycles for RX PMA descriptor to update */
+  while (count > 0U)
+  {
+    count--;
+  }
+
+  return (uint16_t)USB_DRD_GET_CHEP_DBUF1_CNT((Instance), (bEpNum));
+}
+#endif /* defined (USB_DRD_FS) */
 
 /**
   * @}
@@ -426,7 +666,7 @@ PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd);
 /**
   * @}
   */
-#endif /* defined (USB_OTG_FS) || defined (USB_OTG_HS) */
+#endif /* defined (USB_OTG_FS) || defined (USB_OTG_HS) || defined (USB_DRD_FS) */
 
 #ifdef __cplusplus
 }

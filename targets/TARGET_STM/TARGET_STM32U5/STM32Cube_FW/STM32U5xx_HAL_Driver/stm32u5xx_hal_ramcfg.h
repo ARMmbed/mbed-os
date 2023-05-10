@@ -35,6 +35,7 @@ extern "C" {
   * @{
   */
 
+
 /* Exported types ------------------------------------------------------------*/
 
 /** @defgroup RAMCFG_Exported_Types RAMCFG Exported Types
@@ -91,6 +92,7 @@ typedef struct
   * @}
   */
 
+
 /* Exported constants --------------------------------------------------------*/
 
 /** @defgroup RAMCFG_Exported_Constants RAMCFG Exported Constants
@@ -116,12 +118,11 @@ typedef struct
   * @brief    RAMCFG Interrupts
   * @{
   */
-#define RAMCFG_IT_SINGLEERR   RAMCFG_IER_SEIE      /* RAMCFG Single Error Interrupt                   */
-#define RAMCFG_IT_DOUBLEERR   RAMCFG_IER_DEIE      /* RAMCFG Double Error Interrupt                   */
-#define RAMCFG_IT_NMIERR      RAMCFG_IER_ECCNMI    /* RAMCFG Double Error redirected to NMI Interrupt */
-#define RAMCFG_IT_ALL         (RAMCFG_IER_SEIE | \
-                               RAMCFG_IER_DEIE | \
-                               RAMCFG_IER_ECCNMI)  /* RAMCFG All RAMCFG interrupt                    */
+#define RAMCFG_IT_SINGLEERR   RAMCFG_IER_SEIE           /*!< RAMCFG Single Error Interrupt                   */
+#define RAMCFG_IT_DOUBLEERR   RAMCFG_IER_DEIE           /*!< RAMCFG Double Error Interrupt                   */
+#define RAMCFG_IT_NMIERR      RAMCFG_IER_ECCNMI         /*!< RAMCFG Double Error redirected to NMI Interrupt */
+#define RAMCFG_IT_ALL \
+  (RAMCFG_IER_SEIE | RAMCFG_IER_DEIE |RAMCFG_IER_ECCNMI)  /*!< RAMCFG All RAMCFG interrupt                     */
 /**
   * @}
   */
@@ -130,12 +131,11 @@ typedef struct
   * @brief    RAMCFG Monitor Flags
   * @{
   */
-#define RAMCFG_FLAG_SINGLEERR   RAMCFG_ISR_SEDC        /* RAMCFG Single Error Detected and Corrected Flag */
-#define RAMCFG_FLAG_DOUBLEERR   RAMCFG_ISR_DED         /* RAMCFG Double Error Detected Flag               */
-#define RAMCFG_FLAG_SRAMBUSY    RAMCFG_ISR_SRAMBUSY    /* RAMCFG SRAM busy Flag                           */
-#define RAMCFG_FLAGS_ALL        (RAMCFG_ISR_SEDC | \
-                                 RAMCFG_ISR_DED  | \
-                                 RAMCFG_ISR_SRAMBUSY)  /* RAMCFG All Flags                                */
+#define RAMCFG_FLAG_SINGLEERR   RAMCFG_ISR_SEDC            /*!< RAMCFG Single Error Detected and Corrected Flag */
+#define RAMCFG_FLAG_DOUBLEERR   RAMCFG_ISR_DED             /*!< RAMCFG Double Error Detected Flag               */
+#define RAMCFG_FLAG_SRAMBUSY    RAMCFG_ISR_SRAMBUSY        /*!< RAMCFG SRAM busy Flag                           */
+#define RAMCFG_FLAGS_ALL \
+  (RAMCFG_ISR_SEDC | RAMCFG_ISR_DED  | RAMCFG_ISR_SRAMBUSY)  /*!< RAMCFG All Flags                                */
 /**
   * @}
   */
@@ -144,14 +144,14 @@ typedef struct
   * @brief    RAMCFG Wait State
   * @{
   */
-#define RAMCFG_WAITSTATE_0   (0U)                                                  /* RAMCFG 0 Wait State */
-#define RAMCFG_WAITSTATE_1   (RAMCFG_CR_WSC_0)                                     /* RAMCFG 1 Wait State */
-#define RAMCFG_WAITSTATE_2   (RAMCFG_CR_WSC_1)                                     /* RAMCFG 2 Wait State */
-#define RAMCFG_WAITSTATE_3   (RAMCFG_CR_WSC_0 | RAMCFG_CR_WSC_1)                   /* RAMCFG 3 Wait State */
-#define RAMCFG_WAITSTATE_4   (RAMCFG_CR_WSC_2)                                     /* RAMCFG 4 Wait State */
-#define RAMCFG_WAITSTATE_5   (RAMCFG_CR_WSC_0 | RAMCFG_CR_WSC_2)                   /* RAMCFG 5 Wait State */
-#define RAMCFG_WAITSTATE_6   (RAMCFG_CR_WSC_1 | RAMCFG_CR_WSC_2)                   /* RAMCFG 6 Wait State */
-#define RAMCFG_WAITSTATE_7   (RAMCFG_CR_WSC_0 | RAMCFG_CR_WSC_1 | RAMCFG_CR_WSC_2) /* RAMCFG 7 Wait State */
+#define RAMCFG_WAITSTATE_0   (0U)                                                  /*!< RAMCFG 0 Wait State */
+#define RAMCFG_WAITSTATE_1   (RAMCFG_CR_WSC_0)                                     /*!< RAMCFG 1 Wait State */
+#define RAMCFG_WAITSTATE_2   (RAMCFG_CR_WSC_1)                                     /*!< RAMCFG 2 Wait State */
+#define RAMCFG_WAITSTATE_3   (RAMCFG_CR_WSC_0 | RAMCFG_CR_WSC_1)                   /*!< RAMCFG 3 Wait State */
+#define RAMCFG_WAITSTATE_4   (RAMCFG_CR_WSC_2)                                     /*!< RAMCFG 4 Wait State */
+#define RAMCFG_WAITSTATE_5   (RAMCFG_CR_WSC_0 | RAMCFG_CR_WSC_2)                   /*!< RAMCFG 5 Wait State */
+#define RAMCFG_WAITSTATE_6   (RAMCFG_CR_WSC_1 | RAMCFG_CR_WSC_2)                   /*!< RAMCFG 6 Wait State */
+#define RAMCFG_WAITSTATE_7   (RAMCFG_CR_WSC_0 | RAMCFG_CR_WSC_1 | RAMCFG_CR_WSC_2) /*!< RAMCFG 7 Wait State */
 /**
   * @}
   */
@@ -160,11 +160,11 @@ typedef struct
   * @brief    RAMCFG Keys
   * @{
   */
-#define RAMCFG_ERASE_KEY1  (0xCAU) /* RAMCFG launch Erase Key 1 */
-#define RAMCFG_ERASE_KEY2  (0x53U) /* RAMCFG launch Erase Key 2 */
+#define RAMCFG_ERASE_KEY1  (0xCAU) /*!< RAMCFG launch Erase Key 1 */
+#define RAMCFG_ERASE_KEY2  (0x53U) /*!< RAMCFG launch Erase Key 2 */
 
-#define RAMCFG_ECC_KEY1    (0xAEU) /* RAMCFG launch ECC Key 1 */
-#define RAMCFG_ECC_KEY2    (0x75U) /* RAMCFG launch ECC Key 2 */
+#define RAMCFG_ECC_KEY1    (0xAEU) /*!< RAMCFG launch ECC Key 1 */
+#define RAMCFG_ECC_KEY2    (0x75U) /*!< RAMCFG launch ECC Key 2 */
 /**
   * @}
   */
@@ -173,9 +173,6 @@ typedef struct
 /**
   * @}
   */
-
-
-
 
 
 /* Exported macro ------------------------------------------------------------*/
@@ -367,6 +364,7 @@ HAL_RAMCFG_StateTypeDef HAL_RAMCFG_GetState(RAMCFG_HandleTypeDef *hramcfg);
   * @}
   */
 
+
 /* Private Constants ---------------------------------------------------------*/
 
 /** @defgroup RAMCFG_Private_Constants RAMCFG Private Defines and Constants
@@ -376,6 +374,7 @@ HAL_RAMCFG_StateTypeDef HAL_RAMCFG_GetState(RAMCFG_HandleTypeDef *hramcfg);
 /**
   * @}
   */
+
 
 /* Private macros ------------------------------------------------------------*/
 
@@ -396,13 +395,9 @@ HAL_RAMCFG_StateTypeDef HAL_RAMCFG_GetState(RAMCFG_HandleTypeDef *hramcfg);
 #define IS_RAMCFG_WRITEPROTECTION_PAGE(PAGE)   ((PAGE) <= 64U)
 
 
-
 /**
   * @}
   */
-
-
-
 
 
 /* Private functions ---------------------------------------------------------*/
@@ -426,6 +421,5 @@ HAL_RAMCFG_StateTypeDef HAL_RAMCFG_GetState(RAMCFG_HandleTypeDef *hramcfg);
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif /* STM32U5xx_HAL_RAMCFG_H */

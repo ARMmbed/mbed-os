@@ -214,7 +214,7 @@ __STATIC_INLINE void LL_IWDG_SetPrescaler(IWDG_TypeDef *IWDGx, uint32_t Prescale
   *         @arg @ref LL_IWDG_PRESCALER_512
   *         @arg @ref LL_IWDG_PRESCALER_1024
   */
-__STATIC_INLINE uint32_t LL_IWDG_GetPrescaler(IWDG_TypeDef *IWDGx)
+__STATIC_INLINE uint32_t LL_IWDG_GetPrescaler(const IWDG_TypeDef *IWDGx)
 {
   return (READ_REG(IWDGx->PR));
 }
@@ -237,7 +237,7 @@ __STATIC_INLINE void LL_IWDG_SetReloadCounter(IWDG_TypeDef *IWDGx, uint32_t Coun
   * @param  IWDGx IWDG Instance
   * @retval Value between Min_Data=0 and Max_Data=0x0FFF
   */
-__STATIC_INLINE uint32_t LL_IWDG_GetReloadCounter(IWDG_TypeDef *IWDGx)
+__STATIC_INLINE uint32_t LL_IWDG_GetReloadCounter(const IWDG_TypeDef *IWDGx)
 {
   return (READ_REG(IWDGx->RLR));
 }
@@ -260,7 +260,7 @@ __STATIC_INLINE void LL_IWDG_SetWindow(IWDG_TypeDef *IWDGx, uint32_t Window)
   * @param  IWDGx IWDG Instance
   * @retval Value between Min_Data=0 and Max_Data=0x0FFF
   */
-__STATIC_INLINE uint32_t LL_IWDG_GetWindow(IWDG_TypeDef *IWDGx)
+__STATIC_INLINE uint32_t LL_IWDG_GetWindow(const IWDG_TypeDef *IWDGx)
 {
   return (READ_REG(IWDGx->WINR));
 }
@@ -291,7 +291,7 @@ __STATIC_INLINE void LL_IWDG_SetEwiTime(IWDG_TypeDef *IWDGx, uint32_t Time)
   * @param  IWDGx IWDG Instance
   * @retval Value between Min_Data=0 and Max_Data=0x0FFF
   */
-__STATIC_INLINE uint32_t LL_IWDG_GetEwiTime(IWDG_TypeDef *IWDGx)
+__STATIC_INLINE uint32_t LL_IWDG_GetEwiTime(const IWDG_TypeDef *IWDGx)
 {
   return (READ_BIT(IWDGx->EWCR, IWDG_EWCR_EWIT));
 }
@@ -320,11 +320,11 @@ __STATIC_INLINE void LL_IWDG_DisableIT_EWI(IWDG_TypeDef *IWDGx)
 
 /**
   * @brief  Indicates whether Early wakeup interrupt is enable
-  * @rmtoll EWCR         EWIE          LL_IWDG_IsEnableIT_EWI
+  * @rmtoll EWCR         EWIE          LL_IWDG_IsEnabledIT_EWI
   * @param  IWDGx IWDG Instance
   * @retval None
   */
-__STATIC_INLINE uint32_t LL_IWDG_IsEnableIT_EWI(IWDG_TypeDef *IWDGx)
+__STATIC_INLINE uint32_t LL_IWDG_IsEnabledIT_EWI(const IWDG_TypeDef *IWDGx)
 {
   return ((READ_BIT(IWDGx->EWCR, IWDG_EWCR_EWIE) == (IWDG_EWCR_EWIE)) ? 1UL : 0UL);
 }
@@ -343,7 +343,7 @@ __STATIC_INLINE uint32_t LL_IWDG_IsEnableIT_EWI(IWDG_TypeDef *IWDGx)
   * @param  IWDGx IWDG Instance
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_IWDG_IsActiveFlag_PVU(IWDG_TypeDef *IWDGx)
+__STATIC_INLINE uint32_t LL_IWDG_IsActiveFlag_PVU(const IWDG_TypeDef *IWDGx)
 {
   return ((READ_BIT(IWDGx->SR, IWDG_SR_PVU) == (IWDG_SR_PVU)) ? 1UL : 0UL);
 }
@@ -354,7 +354,7 @@ __STATIC_INLINE uint32_t LL_IWDG_IsActiveFlag_PVU(IWDG_TypeDef *IWDGx)
   * @param  IWDGx IWDG Instance
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_IWDG_IsActiveFlag_RVU(IWDG_TypeDef *IWDGx)
+__STATIC_INLINE uint32_t LL_IWDG_IsActiveFlag_RVU(const IWDG_TypeDef *IWDGx)
 {
   return ((READ_BIT(IWDGx->SR, IWDG_SR_RVU) == (IWDG_SR_RVU)) ? 1UL : 0UL);
 }
@@ -365,7 +365,7 @@ __STATIC_INLINE uint32_t LL_IWDG_IsActiveFlag_RVU(IWDG_TypeDef *IWDGx)
   * @param  IWDGx IWDG Instance
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_IWDG_IsActiveFlag_WVU(IWDG_TypeDef *IWDGx)
+__STATIC_INLINE uint32_t LL_IWDG_IsActiveFlag_WVU(const IWDG_TypeDef *IWDGx)
 {
   return ((READ_BIT(IWDGx->SR, IWDG_SR_WVU) == (IWDG_SR_WVU)) ? 1UL : 0UL);
 }
@@ -376,7 +376,7 @@ __STATIC_INLINE uint32_t LL_IWDG_IsActiveFlag_WVU(IWDG_TypeDef *IWDGx)
   * @param  IWDGx IWDG Instance
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_IWDG_IsActiveFlag_EWU(IWDG_TypeDef *IWDGx)
+__STATIC_INLINE uint32_t LL_IWDG_IsActiveFlag_EWU(const IWDG_TypeDef *IWDGx)
 {
   return ((READ_BIT(IWDGx->SR, IWDG_SR_EWU) == (IWDG_SR_EWU)) ? 1UL : 0UL);
 }
@@ -390,7 +390,7 @@ __STATIC_INLINE uint32_t LL_IWDG_IsActiveFlag_EWU(IWDG_TypeDef *IWDGx)
   * @param  IWDGx IWDG Instance
   * @retval State of bits (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_IWDG_IsReady(IWDG_TypeDef *IWDGx)
+__STATIC_INLINE uint32_t LL_IWDG_IsReady(const IWDG_TypeDef *IWDGx)
 {
   return ((READ_BIT(IWDGx->SR, IWDG_SR_PVU | IWDG_SR_RVU | IWDG_SR_WVU | IWDG_SR_EWU) == 0U) ? 1UL : 0UL);
 }
@@ -401,7 +401,7 @@ __STATIC_INLINE uint32_t LL_IWDG_IsReady(IWDG_TypeDef *IWDGx)
   * @param  IWDGx IWDG Instance
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_IWDG_IsActiveFlag_EWIF(IWDG_TypeDef *IWDGx)
+__STATIC_INLINE uint32_t LL_IWDG_IsActiveFlag_EWIF(const IWDG_TypeDef *IWDGx)
 {
   return ((READ_BIT(IWDGx->SR, IWDG_SR_EWIF) == (IWDG_SR_EWIF)) ? 1UL : 0UL);
 }

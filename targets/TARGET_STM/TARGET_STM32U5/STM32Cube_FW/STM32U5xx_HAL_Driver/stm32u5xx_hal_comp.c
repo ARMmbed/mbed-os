@@ -29,7 +29,8 @@
 
   [..]
       The STM32U5xx device family integrates two analog comparators instances:
-      COMP1, COMP2.
+      COMP1, COMP2 except for the  products featuring only
+      one instance: COMP1 (in this case, all comments related to pair of comparators are not applicable)
       (#) Comparators input minus (inverting input) and input plus (non inverting input)
           can be set to internal references or to GPIO pins
           (refer to GPIO list in reference manual).
@@ -40,7 +41,7 @@
           (refer to GPIO list in reference manual).
 
       (#) The comparators have interrupt capability through the EXTI controller
-          with wake-up from sleep and stop modes:
+          with wake-up from sleep and stop modes.
           (++) COMP1 is internally connected to EXTI Line 20
           (++) COMP2 is internally connected to EXTI Line 21
 
@@ -257,11 +258,15 @@ HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp)
     assert_param(IS_COMP_HYSTERESIS(hcomp->Init.Hysteresis));
     assert_param(IS_COMP_BLANKINGSRCE(hcomp->Init.BlankingSrce));
     assert_param(IS_COMP_TRIGGERMODE(hcomp->Init.TriggerMode));
+#if defined(COMP_WINDOW_MODE_SUPPORT)
+#if defined(COMP2)
     assert_param(IS_COMP_WINDOWMODE(hcomp->Instance, hcomp->Init.WindowMode));
+#endif /* COMP2 */
     if (hcomp->Init.WindowMode != COMP_WINDOWMODE_DISABLE)
     {
       assert_param(IS_COMP_WINDOWOUTPUT(hcomp->Init.WindowOutput));
     }
+#endif /* COMP_WINDOW_MODE_SUPPORT */
 
     if (hcomp->State == HAL_COMP_STATE_RESET)
     {
@@ -270,7 +275,6 @@ HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp)
 
       /* Set COMP error code to none */
       COMP_CLEAR_ERRORCODE(hcomp);
-
 
 #if (USE_HAL_COMP_REGISTER_CALLBACKS == 1)
       /* Init the COMP Callback settings */
@@ -316,6 +320,7 @@ HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp)
                tmp_csr
               );
 
+#if defined(COMP_WINDOW_MODE_SUPPORT)
     /* Set window mode */
     /* Note: Window mode bit is located into 1 out of the 2 pairs of COMP     */
     /*       instances. Therefore, this function can update another COMP      */
@@ -363,6 +368,7 @@ HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp)
         CLEAR_BIT(COMP12_COMMON->CSR_EVEN, COMP_CSR_WINOUT);
         break;
     }
+#endif /* COMP_WINDOW_MODE_SUPPORT */
 
     /* Delay for COMP scaler bridge voltage stabilization */
     /* Apply the delay if voltage scaler bridge is required and not already enabled */
@@ -409,7 +415,6 @@ HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp)
       /* Clear COMP EXTI pending bit (if any) */
       WRITE_REG(EXTI->RPR1, exti_line);
       WRITE_REG(EXTI->FPR1, exti_line);
-
 
       /* Configure EXTI event mode */
       if ((hcomp->Init.TriggerMode & COMP_EXTI_EVENT) != 0UL)
@@ -816,12 +821,16 @@ void HAL_COMP_IRQHandler(COMP_HandleTypeDef *hcomp)
 {
   /* Get the EXTI line corresponding to the selected COMP instance */
   uint32_t exti_line = COMP_GET_EXTI_LINE(hcomp->Instance);
+#if defined(COMP_WINDOW_MODE_SUPPORT)
+  uint32_t comparator_window_mode = READ_BIT(hcomp->Instance->CSR, COMP_CSR_WINMODE);
+#endif /* COMP_WINDOW_MODE_SUPPORT */
 
   /* Check COMP EXTI flag */
   if (READ_BIT(EXTI->RPR1, exti_line) != 0UL)
   {
+#if defined(COMP_WINDOW_MODE_SUPPORT)
     /* Check whether comparator is in independent or window mode */
-    if (READ_BIT(hcomp->Instance->CSR, COMP_CSR_WINMODE) != 0UL)
+    if (comparator_window_mode != 0UL)
     {
       /* Clear COMP EXTI line pending bit of the pair of comparators          */
       /* in window mode.                                                      */
@@ -833,6 +842,7 @@ void HAL_COMP_IRQHandler(COMP_HandleTypeDef *hcomp)
       WRITE_REG(EXTI->RPR1, (COMP_EXTI_LINE_COMP1 | COMP_EXTI_LINE_COMP2));
     }
     else
+#endif /* COMP_WINDOW_MODE_SUPPORT */
     {
       /* Clear COMP EXTI line pending bit */
       WRITE_REG(EXTI->RPR1, exti_line);
@@ -845,10 +855,11 @@ void HAL_COMP_IRQHandler(COMP_HandleTypeDef *hcomp)
     HAL_COMP_TriggerCallback(hcomp);
 #endif /* USE_HAL_COMP_REGISTER_CALLBACKS */
   }
-  else
+  else if (READ_BIT(EXTI->FPR1, exti_line) != 0UL)
   {
+#if defined(COMP_WINDOW_MODE_SUPPORT)
     /* Check whether comparator is in independent or window mode */
-    if (READ_BIT(hcomp->Instance->CSR, COMP_CSR_WINMODE) != 0UL)
+    if (comparator_window_mode != 0UL)
     {
       /* Clear COMP EXTI line pending bit of the pair of comparators          */
       /* in window mode.                                                      */
@@ -860,6 +871,7 @@ void HAL_COMP_IRQHandler(COMP_HandleTypeDef *hcomp)
       WRITE_REG(EXTI->FPR1, (COMP_EXTI_LINE_COMP1 | COMP_EXTI_LINE_COMP2));
     }
     else
+#endif /* COMP_WINDOW_MODE_SUPPORT */
     {
       /* Clear COMP EXTI line pending bit */
       WRITE_REG(EXTI->FPR1, exti_line);
@@ -872,16 +884,10 @@ void HAL_COMP_IRQHandler(COMP_HandleTypeDef *hcomp)
     HAL_COMP_TriggerCallback(hcomp);
 #endif /* USE_HAL_COMP_REGISTER_CALLBACKS */
   }
-
-  /* Change COMP state */
-  hcomp->State = HAL_COMP_STATE_READY;
-
-  /* COMP trigger user callback */
-#if (USE_HAL_COMP_REGISTER_CALLBACKS == 1)
-  hcomp->TriggerCallback(hcomp);
-#else
-  HAL_COMP_TriggerCallback(hcomp);
-#endif /* USE_HAL_COMP_REGISTER_CALLBACKS */
+  else
+  {
+    /* nothing to do */
+  }
 }
 
 /**
@@ -968,7 +974,7 @@ HAL_StatusTypeDef HAL_COMP_Lock(COMP_HandleTypeDef *hcomp)
   *         @arg COMP_OUTPUT_LEVEL_HIGH
   *
   */
-uint32_t HAL_COMP_GetOutputLevel(COMP_HandleTypeDef *hcomp)
+uint32_t HAL_COMP_GetOutputLevel(const COMP_HandleTypeDef *hcomp)
 {
   /* Check the parameter */
   assert_param(IS_COMP_ALL_INSTANCE(hcomp->Instance));
@@ -1016,7 +1022,7 @@ __weak void HAL_COMP_TriggerCallback(COMP_HandleTypeDef *hcomp)
   * @param  hcomp  COMP handle
   * @retval HAL state
   */
-HAL_COMP_StateTypeDef HAL_COMP_GetState(COMP_HandleTypeDef *hcomp)
+HAL_COMP_StateTypeDef HAL_COMP_GetState(const COMP_HandleTypeDef *hcomp)
 {
   /* Check the COMP handle allocation */
   if (hcomp == NULL)
@@ -1036,7 +1042,7 @@ HAL_COMP_StateTypeDef HAL_COMP_GetState(COMP_HandleTypeDef *hcomp)
   * @param hcomp COMP handle
   * @retval COMP error code
   */
-uint32_t HAL_COMP_GetError(COMP_HandleTypeDef *hcomp)
+uint32_t HAL_COMP_GetError(const COMP_HandleTypeDef *hcomp)
 {
   /* Check the parameters */
   assert_param(IS_COMP_ALL_INSTANCE(hcomp->Instance));
@@ -1063,4 +1069,3 @@ uint32_t HAL_COMP_GetError(COMP_HandleTypeDef *hcomp)
 /**
   * @}
   */
-

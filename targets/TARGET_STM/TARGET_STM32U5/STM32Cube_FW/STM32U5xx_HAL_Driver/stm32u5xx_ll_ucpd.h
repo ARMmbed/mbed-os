@@ -1801,13 +1801,13 @@ __STATIC_INLINE uint32_t LL_UCPD_ReadRxOrderSet(UCPD_TypeDef const *const UCPDx)
 
 /**
   * @brief  Read the Rx paysize
-  * @rmtoll TX_PAYSZ          TXPAYSZ            LL_UCPD_ReadRxPaySize
+  * @rmtoll RX_PAYSZ          RXPAYSZ            LL_UCPD_ReadRxPaySize
   * @param  UCPDx UCPD Instance
   * @retval RXPaysize.
   */
 __STATIC_INLINE uint32_t LL_UCPD_ReadRxPaySize(UCPD_TypeDef const *const UCPDx)
 {
-  return READ_BIT(UCPDx->TX_PAYSZ, UCPD_RX_PAYSZ_RXPAYSZ);
+  return READ_BIT(UCPDx->RX_PAYSZ, UCPD_RX_PAYSZ_RXPAYSZ);
 }
 
 /**

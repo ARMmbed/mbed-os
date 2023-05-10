@@ -242,6 +242,7 @@ typedef struct
                                     This parameter can be any value between 0 and 0xFFFF */
 } OSPI_MemoryMappedTypeDef;
 
+#if     defined (OCTOSPIM)
 /**
   * @brief HAL OSPI IO Manager Configuration structure definition
   */
@@ -261,6 +262,7 @@ typedef struct
                                         if some signals are multiplexed in the OSPI IO Manager with the other OSPI.
                                         This parameter can be a value between 1 and 256 */
 } OSPIM_CfgTypeDef;
+#endif
 
 #if defined (USE_HAL_OSPI_REGISTER_CALLBACKS) && (USE_HAL_OSPI_REGISTER_CALLBACKS == 1U)
 /**
@@ -337,7 +339,7 @@ typedef void (*pOSPI_CallbackTypeDef)(OSPI_HandleTypeDef *hospi);
   * @{
   */
 #define HAL_OSPI_DUALQUAD_DISABLE            ((uint32_t)0x00000000U)                                         /*!< Dual-Quad mode disabled */
-#define HAL_OSPI_DUALQUAD_ENABLE             ((uint32_t)OCTOSPI_CR_DQM)                                      /*!< Dual-Quad mode enabled  */
+#define HAL_OSPI_DUALQUAD_ENABLE             ((uint32_t)OCTOSPI_CR_DMM)                                      /*!< Dual-Quad mode enabled  */
 /**
   * @}
   */
@@ -426,7 +428,7 @@ typedef void (*pOSPI_CallbackTypeDef)(OSPI_HandleTypeDef *hospi);
   * @{
   */
 #define HAL_OSPI_FLASH_ID_1                  ((uint32_t)0x00000000U)                                         /*!< FLASH 1 selected */
-#define HAL_OSPI_FLASH_ID_2                  ((uint32_t)OCTOSPI_CR_FSEL)                                     /*!< FLASH 2 selected */
+#define HAL_OSPI_FLASH_ID_2                  ((uint32_t)OCTOSPI_CR_MSEL)                                     /*!< FLASH 2 selected */
 /**
   * @}
   */
@@ -653,6 +655,7 @@ typedef void (*pOSPI_CallbackTypeDef)(OSPI_HandleTypeDef *hospi);
   * @}
   */
 
+#if     defined (OCTOSPIM)
 /** @defgroup OSPIM_IOPort OSPI IO Manager IO Port
   * @{
   */
@@ -676,6 +679,7 @@ typedef void (*pOSPI_CallbackTypeDef)(OSPI_HandleTypeDef *hospi);
 /**
   * @}
   */
+#endif
 /**
   * @}
   */
@@ -873,6 +877,7 @@ uint32_t              HAL_OSPI_GetState(OSPI_HandleTypeDef *hospi);
   * @}
   */
 
+#if     defined (OCTOSPIM)
 /* OSPI IO Manager configuration function  ************************************/
 /** @addtogroup OSPI_Exported_Functions_Group4
   * @{
@@ -883,6 +888,7 @@ HAL_StatusTypeDef     HAL_OSPIM_Config(OSPI_HandleTypeDef *hospi, OSPIM_CfgTypeD
   * @}
   */
 
+#endif
 
 /* OSPI Delay Block function  ************************************/
 /** @addtogroup OSPI_Exported_Functions_Group5 Delay Block function
@@ -1047,6 +1053,7 @@ HAL_StatusTypeDef      HAL_OSPI_DLYB_GetClockPeriod(OSPI_HandleTypeDef *hospi, H
                                             ((MODE) == HAL_OSPI_DELAY_BLOCK_BYPASSED))
 
 #define IS_OSPI_MAXTRAN(NB_BYTES)          ((NB_BYTES) <= 255U)
+#if     defined (OCTOSPIM)
 
 #define IS_OSPIM_PORT(NUMBER)              (((NUMBER) >= 1U) && ((NUMBER) <= 8U))
 
@@ -1073,6 +1080,7 @@ HAL_StatusTypeDef      HAL_OSPI_DLYB_GetClockPeriod(OSPI_HandleTypeDef *hospi, H
 #if defined (OCTOSPIM_CR_MUXEN)
 #define IS_OSPIM_REQ2ACKTIME(TIME)          (((TIME) >= 1U) && ((TIME) <= 256U))
 #endif /*(OCTOSPIM_CR_MUXEN)*/
+#endif
 /**
   @endcond
   */

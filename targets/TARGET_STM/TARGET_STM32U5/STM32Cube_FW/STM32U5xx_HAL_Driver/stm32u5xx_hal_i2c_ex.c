@@ -5,10 +5,10 @@
   * @brief   I2C Extended HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of I2C Extended peripheral:
-  *           + I2C Extended Filter Mode Functions
-  *           + I2C Extended WakeUp Mode Functions
-  *           + I2C I2C Extended FastModePlus Functions
-  *           + I2C I2C Extended Autonomous Mode Functions
+  *           + Filter Mode Functions
+  *           + WakeUp Mode Functions
+  *           + FastModePlus Functions
+  *           + Autonomous Mode Functions
   *
   ******************************************************************************
   * @attention
@@ -33,6 +33,7 @@
        (+) Use of a configured Digital Noise Filter
        (+) Disable or enable wakeup from Stop mode(s)
        (+) Disable or enable Fast Mode Plus
+       (+) Configure Autonomous mode
 
                      ##### How to use this driver #####
   ==============================================================================
@@ -76,12 +77,12 @@
   * @{
   */
 
-/** @defgroup I2CEx_Exported_Functions_Group1 I2C Extended Filter Mode Functions
-  * @brief    I2C Extended Filter Mode Functions
+/** @defgroup I2CEx_Exported_Functions_Group1 Filter Mode Functions
+  * @brief    Filter Mode Functions
   *
 @verbatim
  ===============================================================================
-                ##### Extended Noise Filters functions #####
+                      ##### Filter Mode Functions #####
  ===============================================================================
     [..] This section provides functions allowing to:
       (+) Configure Noise Filters
@@ -185,17 +186,16 @@ HAL_StatusTypeDef HAL_I2CEx_ConfigDigitalFilter(I2C_HandleTypeDef *hi2c, uint32_
     return HAL_BUSY;
   }
 }
-
 /**
   * @}
   */
 
-/** @addtogroup I2CEx_Exported_Functions_Group2 I2C Extended WakeUp Mode Functions
-  * @brief    I2C Extended WakeUp Mode Functions
+/** @defgroup I2CEx_Exported_Functions_Group2 WakeUp Mode Functions
+  * @brief    WakeUp Mode Functions
   *
 @verbatim
  ===============================================================================
-                     ##### Extended WakeUp Mode functions #####
+                      ##### WakeUp Mode Functions #####
  ===============================================================================
     [..] This section provides functions allowing to:
       (+) Configure Wake Up Feature
@@ -281,17 +281,16 @@ HAL_StatusTypeDef HAL_I2CEx_DisableWakeUp(I2C_HandleTypeDef *hi2c)
     return HAL_BUSY;
   }
 }
-
 /**
   * @}
   */
 
-/** @addtogroup I2CEx_Exported_Functions_Group3 I2C Extended FastModePlus Functions
-  * @brief    I2C Extended FastModePlus Functions
+/** @defgroup I2CEx_Exported_Functions_Group3 Fast Mode Plus Functions
+  * @brief    Fast Mode Plus Functions
   *
 @verbatim
  ===============================================================================
-                     ##### Extended FastModePlus functions #####
+                      ##### Fast Mode Plus Functions #####
  ===============================================================================
     [..] This section provides functions allowing to:
       (+) Configure Fast Mode Plus
@@ -353,12 +352,12 @@ HAL_StatusTypeDef HAL_I2CEx_ConfigFastModePlus(I2C_HandleTypeDef *hi2c, uint32_t
   * @}
   */
 
-/** @addtogroup I2CEx_Exported_Functions_Group4 I2C Extended Autonomous Mode Functions
-  * @brief    I2C Extended Autonomous Mode Functions
+/** @defgroup I2CEx_Exported_Functions_Group4 Autonomous Mode Functions
+  * @brief    Autonomous Mode Functions
   *
 @verbatim
  ===============================================================================
-                   ##### Extended Autonomous Mode functions #####
+                     ##### Autonomous Mode functions #####
  ===============================================================================
     [..] This section provides functions allowing to:
       (+) Configure Autonomous Mode
@@ -375,7 +374,8 @@ HAL_StatusTypeDef HAL_I2CEx_ConfigFastModePlus(I2C_HandleTypeDef *hi2c, uint32_t
   *                the configuration information of the autonomous mode for the specified I2Cx peripheral.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_I2CEx_SetConfigAutonomousMode(I2C_HandleTypeDef *hi2c, I2C_AutonomousModeConfTypeDef *sConfig)
+HAL_StatusTypeDef HAL_I2CEx_SetConfigAutonomousMode(I2C_HandleTypeDef *hi2c,
+                                                    const I2C_AutonomousModeConfTypeDef *sConfig)
 {
   if (hi2c->State == HAL_I2C_STATE_READY)
   {
@@ -385,16 +385,18 @@ HAL_StatusTypeDef HAL_I2CEx_SetConfigAutonomousMode(I2C_HandleTypeDef *hi2c, I2C
     hi2c->State = HAL_I2C_STATE_BUSY;
 
     /* Check the parameters */
+    assert_param(IS_I2C_TRIG_INPUT_INSTANCE(hi2c->Instance));
     assert_param(IS_I2C_TRIG_SOURCE(hi2c->Instance, sConfig->TriggerSelection));
-
     assert_param(IS_I2C_AUTO_MODE_TRG_POL(sConfig->TriggerPolarity));
 
     /* Disable the selected I2C peripheral to be able to configure AUTOCR */
     __HAL_I2C_DISABLE(hi2c);
 
     /* I2Cx AUTOCR Configuration */
-    WRITE_REG(hi2c->Instance->AUTOCR, (sConfig->TriggerState | ((sConfig->TriggerSelection) & I2C_AUTOCR_TRIGSEL_Msk) |
-                                       sConfig->TriggerPolarity));
+    WRITE_REG(hi2c->Instance->AUTOCR,
+              (sConfig->TriggerState | \
+               ((sConfig->TriggerSelection) & I2C_AUTOCR_TRIGSEL_Msk) | \
+               sConfig->TriggerPolarity));
 
     /* Enable the selected I2C peripheral */
     __HAL_I2C_ENABLE(hi2c);
@@ -420,9 +422,13 @@ HAL_StatusTypeDef HAL_I2CEx_SetConfigAutonomousMode(I2C_HandleTypeDef *hi2c, I2C
   *                the configuration information of the autonomous mode for the specified I2Cx peripheral.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_I2CEx_GetConfigAutonomousMode(I2C_HandleTypeDef *hi2c, I2C_AutonomousModeConfTypeDef *sConfig)
+HAL_StatusTypeDef HAL_I2CEx_GetConfigAutonomousMode(const I2C_HandleTypeDef *hi2c,
+                                                    I2C_AutonomousModeConfTypeDef *sConfig)
 {
   uint32_t autocr_tmp;
+
+  /* Check the parameters */
+  assert_param(IS_I2C_TRIG_INPUT_INSTANCE(hi2c->Instance));
 
   autocr_tmp = hi2c->Instance->AUTOCR;
 
@@ -455,6 +461,9 @@ HAL_StatusTypeDef HAL_I2CEx_ClearConfigAutonomousMode(I2C_HandleTypeDef *hi2c)
 
     hi2c->State = HAL_I2C_STATE_BUSY;
 
+    /* Check the parameters */
+    assert_param(IS_I2C_TRIG_INPUT_INSTANCE(hi2c->Instance));
+
     /* Disable the selected I2C peripheral to be able to clear AUTOCR */
     __HAL_I2C_DISABLE(hi2c);
 
@@ -475,11 +484,6 @@ HAL_StatusTypeDef HAL_I2CEx_ClearConfigAutonomousMode(I2C_HandleTypeDef *hi2c)
     return HAL_ERROR;
   }
 }
-
-/**
-  * @}
-  */
-
 /**
   * @}
   */

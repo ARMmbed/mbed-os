@@ -20,10 +20,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32u5xx_ll_spi.h"
 #include "stm32u5xx_ll_bus.h"
-#include "stm32u5xx_ll_rcc.h"
-#ifdef GENERATOR_I2S_PRESENT
-#include "stm32u5xx_ll_rcc.h"
-#endif /* GENERATOR_I2S_PRESENT*/
 #ifdef  USE_FULL_ASSERT
 #include "stm32_assert.h"
 #else
@@ -240,7 +236,7 @@
   *          - SUCCESS: SPI registers are de-initialized
   *          - ERROR: SPI registers are not de-initialized
   */
-ErrorStatus LL_SPI_DeInit(SPI_TypeDef *SPIx)
+ErrorStatus LL_SPI_DeInit(const SPI_TypeDef *SPIx)
 {
   ErrorStatus status = ERROR;
 
@@ -343,6 +339,7 @@ ErrorStatus LL_SPI_Init(SPI_TypeDef *SPIx, LL_SPI_InitTypeDef *SPI_InitStruct)
   ErrorStatus status = ERROR;
   uint32_t tmp_nss;
   uint32_t tmp_mode;
+  uint32_t tmp_nss_polarity;
 
   /* Check the SPI Instance SPIx*/
   assert_param(IS_SPI_ALL_INSTANCE(SPIx));
@@ -372,10 +369,13 @@ ErrorStatus LL_SPI_Init(SPI_TypeDef *SPIx, LL_SPI_InitTypeDef *SPI_InitStruct)
 
     tmp_nss  = SPI_InitStruct->NSS;
     tmp_mode = SPI_InitStruct->Mode;
+    tmp_nss_polarity = LL_SPI_GetNSSPolarity(SPIx);
 
     /* Checks to setup Internal SS signal level and avoid a MODF Error */
-    if ((LL_SPI_GetNSSPolarity(SPIx) == LL_SPI_NSS_POLARITY_LOW) && (tmp_nss == LL_SPI_NSS_SOFT) &&
-        (tmp_mode == LL_SPI_MODE_MASTER))
+    if ((tmp_nss == LL_SPI_NSS_SOFT) && (((tmp_nss_polarity == LL_SPI_NSS_POLARITY_LOW)  && \
+                                          (tmp_mode == LL_SPI_MODE_MASTER))              || \
+                                         ((tmp_nss_polarity == LL_SPI_NSS_POLARITY_HIGH) && \
+                                          (tmp_mode == LL_SPI_MODE_SLAVE))))
     {
       LL_SPI_SetInternalSSLevel(SPIx, LL_SPI_SS_LEVEL_HIGH);
     }

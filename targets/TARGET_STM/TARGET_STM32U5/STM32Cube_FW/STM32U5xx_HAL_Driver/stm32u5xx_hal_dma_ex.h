@@ -327,6 +327,33 @@ typedef struct __DMA_QListTypeDef
 #define GPDMA1_TRIGGER_LPDMA1_CH3_TCF  (41U) /*!< GPDMA1 HW Trigger signal is LPDMA1_CH3_TCF  */
 #define GPDMA1_TRIGGER_TIM2_TRGO       (42U) /*!< GPDMA1 HW Trigger signal is TIM2_TRGO       */
 #define GPDMA1_TRIGGER_TIM15_TRGO      (43U) /*!< GPDMA1 HW Trigger signal is TIM15_TRGO      */
+#if defined (TIM3_TRGO_TRIGGER_SUPPORT)
+#define GPDMA1_TRIGGER_TIM3_TRGO       (44U) /*!< GPDMA1 HW Trigger signal is TIM3_TRGO       */
+#endif /* defined (TRIGGER_TIM3_TRGO_SUPPORT) */
+#if defined (TIM4_TRGO_TRIGGER_SUPPORT)
+#define GPDMA1_TRIGGER_TIM4_TRGO       (45U) /*!< GPDMA1 HW Trigger signal is TIM4_TRGO       */
+#endif /* defined (TRIGGER_TIM4_TRGO_SUPPORT) */
+#if defined (TIM5_TRGO_TRIGGER_SUPPORT)
+#define GPDMA1_TRIGGER_TIM5_TRGO       (46U) /*!< GPDMA1 HW Trigger signal is TIM5_TRGO       */
+#endif /* defined (TRIGGER_TIM5_TRGO_SUPPORT) */
+#if defined (LTDC)
+#define GPDMA1_TRIGGER_LTDC_LI         (47U) /*!< GPDMA1 HW Trigger signal is LTDC_LI         */
+#endif /* defined (LTDC) */
+#if defined (DSI)
+#define GPDMA1_TRIGGER_DSI_TE          (48U) /*!< GPDMA1 HW Trigger signal is DSI_TE          */
+#define GPDMA1_TRIGGER_DSI_ER          (49U) /*!< GPDMA1 HW Trigger signal is DSI_ER          */
+#endif /* defined (DSI) */
+#if defined (DMA2D_TRIGGER_SUPPORT)
+#define GPDMA1_TRIGGER_DMA2D_TC        (50U) /*!< GPDMA1 HW Trigger signal is DMA2D_TC        */
+#define GPDMA1_TRIGGER_DMA2D_CTC       (51U) /*!< GPDMA1 HW Trigger signal is DMA2D_CTC       */
+#define GPDMA1_TRIGGER_DMA2D_TW        (52U) /*!< GPDMA1 HW Trigger signal is DMA2D_TW        */
+#endif /* defined (DMA2D_TRIGGER_SUPPORT) */
+#if defined (GPU2D)
+#define GPDMA1_TRIGGER_GPU2D_FLAG0     (53U) /*!< GPDMA1 HW Trigger signal is GPU2D_FLAG0     */
+#define GPDMA1_TRIGGER_GPU2D_FLAG1     (54U) /*!< GPDMA1 HW Trigger signal is GPU2D_FLAG1     */
+#define GPDMA1_TRIGGER_GPU2D_FLAG2     (55U) /*!< GPDMA1 HW Trigger signal is GPU2D_FLAG2     */
+#define GPDMA1_TRIGGER_GPU2D_FLAG3     (56U) /*!< GPDMA1 HW Trigger signal is GPU2D_FLAG3     */
+#endif /* defined (GPU2D) */
 #define GPDMA1_TRIGGER_ADC4_AWD1       (57U) /*!< GPDMA1 HW Trigger signal is ADC4_AWD1       */
 #define GPDMA1_TRIGGER_ADC1_AWD1       (58U) /*!< GPDMA1 HW Trigger signal is ADC1_AWD1       */
 
@@ -418,8 +445,8 @@ HAL_StatusTypeDef HAL_DMAEx_List_DeInit(DMA_HandleTypeDef *const hdma);
   * @}
   */
 
-/** @defgroup DMAEx_Exported_Functions_Group2 Linked-List I/O Operation Functions
-  * @brief    Linked-List I/O Operation Functions
+/** @defgroup DMAEx_Exported_Functions_Group2 Linked-List IO Operation Functions
+  * @brief    Linked-List IO Operation Functions
   * @{
   */
 HAL_StatusTypeDef HAL_DMAEx_List_Start(DMA_HandleTypeDef *const hdma);
@@ -645,8 +672,7 @@ typedef struct
    ((POLARITY) == DMA_TRIG_POLARITY_RISING) || \
    ((POLARITY) == DMA_TRIG_POLARITY_FALLING))
 
-#define IS_DMA_TRIGGER_SELECTION(TRIGGER) \
-  ((TRIGGER) <= GPDMA1_TRIGGER_ADC1_AWD1)
+#define IS_DMA_TRIGGER_SELECTION(TRIGGER) ((TRIGGER) <= GPDMA1_TRIGGER_ADC1_AWD1)
 
 #define IS_DMA_NODE_TYPE(TYPE)          \
   (((TYPE) == DMA_LPDMA_LINEAR_NODE) || \

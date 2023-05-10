@@ -39,7 +39,7 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private constants ---------------------------------------------------------*/
 /* Private macros ------------------------------------------------------------*/
-/** @addtogroup ICACHE_LL_Private_Macros
+/** @defgroup ICACHE_LL_Private_Macros ICACHE Private Macros
   * @{
   */
 

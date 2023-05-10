@@ -267,12 +267,16 @@ HAL_StatusTypeDef HAL_UARTEx_SetRxFifoThreshold(UART_HandleTypeDef *huart, uint3
 HAL_StatusTypeDef HAL_UARTEx_ReceiveToIdle(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size, uint16_t *RxLen,
                                            uint32_t Timeout);
 HAL_StatusTypeDef HAL_UARTEx_ReceiveToIdle_IT(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size);
+#if defined(HAL_DMA_MODULE_ENABLED)
 HAL_StatusTypeDef HAL_UARTEx_ReceiveToIdle_DMA(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size);
+#endif /* HAL_DMA_MODULE_ENABLED */
+
+HAL_UART_RxEventTypeTypeDef HAL_UARTEx_GetRxEventType(const UART_HandleTypeDef *huart);
 
 /* Autonomous Mode Control functions  **********************************************/
 HAL_StatusTypeDef HAL_UARTEx_SetConfigAutonomousMode(UART_HandleTypeDef *huart,
-                                                     UART_AutonomousModeConfTypeDef *sConfig);
-HAL_StatusTypeDef HAL_UARTEx_GetConfigAutonomousMode(UART_HandleTypeDef *huart,
+                                                     const UART_AutonomousModeConfTypeDef *sConfig);
+HAL_StatusTypeDef HAL_UARTEx_GetConfigAutonomousMode(const UART_HandleTypeDef *huart,
                                                      UART_AutonomousModeConfTypeDef *sConfig);
 HAL_StatusTypeDef HAL_UARTEx_ClearConfigAutonomousMode(UART_HandleTypeDef *huart);
 
@@ -296,72 +300,100 @@ HAL_StatusTypeDef HAL_UARTEx_ClearConfigAutonomousMode(UART_HandleTypeDef *huart
   * @retval UART clocking source, written in __CLOCKSOURCE__.
   */
 #if defined(USART6)
-#define UART_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
-  do {                                                  \
-    if((__HANDLE__)->Instance == USART1)                \
-    {                                                   \
-      (__CLOCKSOURCE__) = RCC_PERIPHCLK_USART1;         \
-    }                                                   \
-    else if((__HANDLE__)->Instance == USART2)           \
-    {                                                   \
-      (__CLOCKSOURCE__) = RCC_PERIPHCLK_USART2;         \
-    }                                                   \
-    else if((__HANDLE__)->Instance == USART3)           \
-    {                                                   \
-      (__CLOCKSOURCE__) = RCC_PERIPHCLK_USART3;         \
-    }                                                   \
-    else if((__HANDLE__)->Instance == UART4)            \
-    {                                                   \
-      (__CLOCKSOURCE__) = RCC_PERIPHCLK_UART4;          \
-    }                                                   \
-    else if((__HANDLE__)->Instance == UART5)            \
-    {                                                   \
-      (__CLOCKSOURCE__) = RCC_PERIPHCLK_UART5;          \
-    }                                                   \
-    else if((__HANDLE__)->Instance == USART6)           \
-    {                                                   \
-      (__CLOCKSOURCE__) = RCC_PERIPHCLK_USART6;         \
-    }                                                   \
-    else if((__HANDLE__)->Instance == LPUART1)          \
-    {                                                   \
-      (__CLOCKSOURCE__) = RCC_PERIPHCLK_LPUART1;        \
-    }                                                   \
-    else                                                \
-    {                                                   \
-      (__CLOCKSOURCE__) = 0U;                           \
-    }                                                   \
+#define UART_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__)           \
+  do {                                                            \
+    if((__HANDLE__)->Instance == USART1)                          \
+    {                                                             \
+      (__CLOCKSOURCE__) = (uint32_t)RCC_PERIPHCLK_USART1;         \
+    }                                                             \
+    else if((__HANDLE__)->Instance == USART2)                     \
+    {                                                             \
+      (__CLOCKSOURCE__) = (uint32_t)RCC_PERIPHCLK_USART2;         \
+    }                                                             \
+    else if((__HANDLE__)->Instance == USART3)                     \
+    {                                                             \
+      (__CLOCKSOURCE__) = (uint32_t)RCC_PERIPHCLK_USART3;         \
+    }                                                             \
+    else if((__HANDLE__)->Instance == UART4)                      \
+    {                                                             \
+      (__CLOCKSOURCE__) = (uint32_t)RCC_PERIPHCLK_UART4;          \
+    }                                                             \
+    else if((__HANDLE__)->Instance == UART5)                      \
+    {                                                             \
+      (__CLOCKSOURCE__) = (uint32_t)RCC_PERIPHCLK_UART5;          \
+    }                                                             \
+    else if((__HANDLE__)->Instance == USART6)                     \
+    {                                                             \
+      (__CLOCKSOURCE__) = (uint32_t)RCC_PERIPHCLK_USART6;         \
+    }                                                             \
+    else if((__HANDLE__)->Instance == LPUART1)                    \
+    {                                                             \
+      (__CLOCKSOURCE__) = (uint32_t)RCC_PERIPHCLK_LPUART1;        \
+    }                                                             \
+    else                                                          \
+    {                                                             \
+      (__CLOCKSOURCE__) = 0U;                                     \
+    }                                                             \
+  } while(0U)
+#elif defined(USART2)
+#define UART_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__)           \
+  do {                                                            \
+    if((__HANDLE__)->Instance == USART1)                          \
+    {                                                             \
+      (__CLOCKSOURCE__) = (uint32_t)RCC_PERIPHCLK_USART1;         \
+    }                                                             \
+    else if((__HANDLE__)->Instance == USART2)                     \
+    {                                                             \
+      (__CLOCKSOURCE__) = (uint32_t)RCC_PERIPHCLK_USART2;         \
+    }                                                             \
+    else if((__HANDLE__)->Instance == USART3)                     \
+    {                                                             \
+      (__CLOCKSOURCE__) = (uint32_t)RCC_PERIPHCLK_USART3;         \
+    }                                                             \
+    else if((__HANDLE__)->Instance == UART4)                      \
+    {                                                             \
+      (__CLOCKSOURCE__) = (uint32_t)RCC_PERIPHCLK_UART4;          \
+    }                                                             \
+    else if((__HANDLE__)->Instance == UART5)                      \
+    {                                                             \
+      (__CLOCKSOURCE__) = (uint32_t)RCC_PERIPHCLK_UART5;          \
+    }                                                             \
+    else if((__HANDLE__)->Instance == LPUART1)                    \
+    {                                                             \
+      (__CLOCKSOURCE__) = (uint32_t)RCC_PERIPHCLK_LPUART1;        \
+    }                                                             \
+    else                                                          \
+    {                                                             \
+      (__CLOCKSOURCE__) = 0U;                                     \
+    }                                                             \
   } while(0U)
 #else
-#define UART_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
-  do {                                                  \
-    if((__HANDLE__)->Instance == USART1)                \
-    {                                                   \
-      (__CLOCKSOURCE__) = RCC_PERIPHCLK_USART1;         \
-    }                                                   \
-    else if((__HANDLE__)->Instance == USART2)           \
-    {                                                   \
-      (__CLOCKSOURCE__) = RCC_PERIPHCLK_USART2;         \
-    }                                                   \
-    else if((__HANDLE__)->Instance == USART3)           \
-    {                                                   \
-      (__CLOCKSOURCE__) = RCC_PERIPHCLK_USART3;         \
-    }                                                   \
-    else if((__HANDLE__)->Instance == UART4)            \
-    {                                                   \
-      (__CLOCKSOURCE__) = RCC_PERIPHCLK_UART4;          \
-    }                                                   \
-    else if((__HANDLE__)->Instance == UART5)            \
-    {                                                   \
-      (__CLOCKSOURCE__) = RCC_PERIPHCLK_UART5;          \
-    }                                                   \
-    else if((__HANDLE__)->Instance == LPUART1)          \
-    {                                                   \
-      (__CLOCKSOURCE__) = RCC_PERIPHCLK_LPUART1;        \
-    }                                                   \
-    else                                                \
-    {                                                   \
-      (__CLOCKSOURCE__) = 0U;                           \
-    }                                                   \
+#define UART_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__)           \
+  do {                                                            \
+    if((__HANDLE__)->Instance == USART1)                          \
+    {                                                             \
+      (__CLOCKSOURCE__) = (uint32_t)RCC_PERIPHCLK_USART1;         \
+    }                                                             \
+    else if((__HANDLE__)->Instance == USART3)                     \
+    {                                                             \
+      (__CLOCKSOURCE__) = (uint32_t)RCC_PERIPHCLK_USART3;         \
+    }                                                             \
+    else if((__HANDLE__)->Instance == UART4)                      \
+    {                                                             \
+      (__CLOCKSOURCE__) = (uint32_t)RCC_PERIPHCLK_UART4;          \
+    }                                                             \
+    else if((__HANDLE__)->Instance == UART5)                      \
+    {                                                             \
+      (__CLOCKSOURCE__) = (uint32_t)RCC_PERIPHCLK_UART5;          \
+    }                                                             \
+    else if((__HANDLE__)->Instance == LPUART1)                    \
+    {                                                             \
+      (__CLOCKSOURCE__) = (uint32_t)RCC_PERIPHCLK_LPUART1;        \
+    }                                                             \
+    else                                                          \
+    {                                                             \
+      (__CLOCKSOURCE__) = 0U;                                     \
+    }                                                             \
   } while(0U)
 #endif /* USART6 */
 
@@ -512,3 +544,4 @@ HAL_StatusTypeDef HAL_UARTEx_ClearConfigAutonomousMode(UART_HandleTypeDef *huart
 #endif
 
 #endif /* STM32U5xx_HAL_UART_EX_H */
+

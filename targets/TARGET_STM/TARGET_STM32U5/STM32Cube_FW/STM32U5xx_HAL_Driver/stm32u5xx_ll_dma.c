@@ -160,9 +160,13 @@
 #define IS_LL_DMA_BLKHW_REQUEST(__VALUE__)                (((__VALUE__) == LL_DMA_HWREQUEST_SINGLEBURST) || \
                                                            ((__VALUE__) == LL_DMA_HWREQUEST_BLK))
 
-#define IS_LL_DMA_TRIGGER_SELECTION(__VALUE__)             ((__VALUE__) <= LL_GPDMA1_TRIGGER_TIM15_TRGO)
+#define IS_LL_DMA_TRIGGER_SELECTION(__VALUE__)             ((__VALUE__) <= LL_GPDMA1_TRIGGER_ADC1_AWD1)
 
+#if defined (LL_GPDMA1_REQUEST_ADC2)
+#define IS_LL_DMA_REQUEST_SELECTION(__VALUE__)             ((__VALUE__) <= LL_GPDMA1_REQUEST_ADC2)
+#else
 #define IS_LL_DMA_REQUEST_SELECTION(__VALUE__)             ((__VALUE__) <= LL_GPDMA1_REQUEST_LPTIM3_UE)
+#endif /* LL_GPDMA1_REQUEST_ADC2 */
 
 #define IS_LL_DMA_TRANSFER_EVENT_MODE(__VALUE__)          (((__VALUE__) == LL_DMA_TCEM_BLK_TRANSFER)         || \
                                                            ((__VALUE__) == LL_DMA_TCEM_RPT_BLK_TRANSFER)     || \
@@ -645,7 +649,7 @@ void LL_DMA_StructInit(LL_DMA_InitTypeDef *DMA_InitStruct)
   DMA_InitStruct->BlkRptDestAddrOffset     = 0x00000000U;
   DMA_InitStruct->LinkedListBaseAddr       = 0x00000000U;
   DMA_InitStruct->LinkedListAddrOffset     = 0x00000000U;
-};
+}
 
 /**
   * @brief  Set each @ref LL_DMA_InitLinkedListTypeDef field to default value.
@@ -660,7 +664,7 @@ void LL_DMA_ListStructInit(LL_DMA_InitLinkedListTypeDef *DMA_InitLinkedListStruc
   DMA_InitLinkedListStruct->LinkStepMode      = LL_DMA_LSM_FULL_EXECUTION;
   DMA_InitLinkedListStruct->TransferEventMode = LL_DMA_TCEM_LAST_LLITEM_TRANSFER;
   DMA_InitLinkedListStruct->LinkAllocatedPort = LL_DMA_LINK_ALLOCATED_PORT0;
-};
+}
 
 /**
   * @brief De-initialize the DMA linked list.
@@ -814,7 +818,7 @@ void LL_DMA_NodeStructInit(LL_DMA_InitNodeTypeDef *DMA_InitNodeStruct)
                                                   LL_DMA_UPDATE_CDAR | LL_DMA_UPDATE_CTR3 | \
                                                   LL_DMA_UPDATE_CBR2 | LL_DMA_UPDATE_CLLR);
   DMA_InitNodeStruct->NodeType                 = LL_DMA_GPDMA_LINEAR_NODE;
-};
+}
 
 /**
   * @brief  Initializes DMA linked list node according to the specified

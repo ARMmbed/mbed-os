@@ -64,7 +64,7 @@ typedef struct
 {
   CORDIC_TypeDef                *Instance;   /*!< Register base address */
 
-  int32_t                       *pInBuff;    /*!< Pointer to CORDIC input data buffer */
+  const int32_t                 *pInBuff;    /*!< Pointer to CORDIC input data buffer */
 
   int32_t                       *pOutBuff;   /*!< Pointer to CORDIC output data buffer */
 
@@ -546,14 +546,14 @@ HAL_StatusTypeDef HAL_CORDIC_UnRegisterCallback(CORDIC_HandleTypeDef *hcordic, H
   */
 #endif /* USE_HAL_CORDIC_REGISTER_CALLBACKS */
 /* Peripheral Control functions ***********************************************/
-HAL_StatusTypeDef HAL_CORDIC_Configure(CORDIC_HandleTypeDef *hcordic, CORDIC_ConfigTypeDef *sConfig);
-HAL_StatusTypeDef HAL_CORDIC_Calculate(CORDIC_HandleTypeDef *hcordic, int32_t *pInBuff, int32_t *pOutBuff,
+HAL_StatusTypeDef HAL_CORDIC_Configure(CORDIC_HandleTypeDef *hcordic, const CORDIC_ConfigTypeDef *sConfig);
+HAL_StatusTypeDef HAL_CORDIC_Calculate(CORDIC_HandleTypeDef *hcordic, const int32_t *pInBuff, int32_t *pOutBuff,
                                        uint32_t NbCalc, uint32_t Timeout);
-HAL_StatusTypeDef HAL_CORDIC_CalculateZO(CORDIC_HandleTypeDef *hcordic, int32_t *pInBuff, int32_t *pOutBuff,
+HAL_StatusTypeDef HAL_CORDIC_CalculateZO(CORDIC_HandleTypeDef *hcordic, const int32_t *pInBuff, int32_t *pOutBuff,
                                          uint32_t NbCalc, uint32_t Timeout);
-HAL_StatusTypeDef HAL_CORDIC_Calculate_IT(CORDIC_HandleTypeDef *hcordic, int32_t *pInBuff, int32_t *pOutBuff,
+HAL_StatusTypeDef HAL_CORDIC_Calculate_IT(CORDIC_HandleTypeDef *hcordic, const int32_t *pInBuff, int32_t *pOutBuff,
                                           uint32_t NbCalc);
-HAL_StatusTypeDef HAL_CORDIC_Calculate_DMA(CORDIC_HandleTypeDef *hcordic, int32_t *pInBuff, int32_t *pOutBuff,
+HAL_StatusTypeDef HAL_CORDIC_Calculate_DMA(CORDIC_HandleTypeDef *hcordic, const int32_t *pInBuff, int32_t *pOutBuff,
                                            uint32_t NbCalc, uint32_t DMADirection);
 /**
   * @}
@@ -582,8 +582,8 @@ void HAL_CORDIC_IRQHandler(CORDIC_HandleTypeDef *hcordic);
   * @{
   */
 /* Peripheral State functions *************************************************/
-HAL_CORDIC_StateTypeDef HAL_CORDIC_GetState(CORDIC_HandleTypeDef *hcordic);
-uint32_t HAL_CORDIC_GetError(CORDIC_HandleTypeDef *hcordic);
+HAL_CORDIC_StateTypeDef HAL_CORDIC_GetState(const CORDIC_HandleTypeDef *hcordic);
+uint32_t HAL_CORDIC_GetError(const CORDIC_HandleTypeDef *hcordic);
 /**
   * @}
   */
