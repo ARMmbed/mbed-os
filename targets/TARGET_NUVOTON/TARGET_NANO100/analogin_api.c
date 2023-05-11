@@ -23,6 +23,7 @@
 #include "pinmap.h"
 #include "PeripheralPins.h"
 #include "nu_modutil.h"
+#include "hal/PinNameAliases.h"
 
 static uint32_t adc_modinit_mask = 0;
 
@@ -40,6 +41,18 @@ static const struct nu_modinit_s adc_modinit_tab[] = {
     {ADC_0_10, ADC_MODULE, CLK_CLKSEL1_ADC_S_HIRC, CLK_ADC_CLK_DIVIDER(1), ADC_RST, ADC_IRQn, NULL},
     {ADC_0_11, ADC_MODULE, CLK_CLKSEL1_ADC_S_HIRC, CLK_ADC_CLK_DIVIDER(1), ADC_RST, ADC_IRQn, NULL},
 };
+
+#if defined(MBED_CONF_TARGET_ADC_SMPLCNT_LIST)
+/* Structure for extending sampling time on per-pin basis */
+struct nu_eadc_smplcnt {
+    PinName     pin;
+    uint32_t    value;
+};
+
+static struct nu_eadc_smplcnt eadc_smplcnt_arr[] = {
+    MBED_CONF_TARGET_ADC_SMPLCNT_LIST
+};
+#endif
 
 void analogin_init(analogin_t *obj, PinName pin)
 {
@@ -81,6 +94,18 @@ void analogin_init(analogin_t *obj, PinName pin)
         // Just enable channel N
         adc_base->CHEN |= 1 << chn;
     }
+
+#if defined(MBED_CONF_TARGET_ADC_SMPLCNT_LIST)
+    // Extend sampling time in EADC clocks on per-pin basis
+    struct nu_eadc_smplcnt *eadc_extsmpt_pos = eadc_smplcnt_arr;
+    struct nu_eadc_smplcnt *eadc_extsmpt_end = eadc_smplcnt_arr + sizeof (eadc_smplcnt_arr) / sizeof (eadc_smplcnt_arr[0]);
+    for (; eadc_extsmpt_pos != eadc_extsmpt_end; eadc_extsmpt_pos ++) {
+        if (eadc_extsmpt_pos->pin == pin) {
+            ADC_SetExtraSampleTime(adc_base, chn, eadc_extsmpt_pos->value);
+            break;
+        }
+    }
+#endif
 
     adc_modinit_mask |= 1 << chn;
 }

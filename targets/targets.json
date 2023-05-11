@@ -7179,6 +7179,9 @@
             "gpio-irq-debounce-sample-rate": {
                 "help": "Select GPIO IRQ debounce sample rate: GPIO_DBCTL_DBCLKSEL_1, GPIO_DBCTL_DBCLKSEL_2, GPIO_DBCTL_DBCLKSEL_4, ..., or GPIO_DBCTL_DBCLKSEL_32768",
                 "value": "GPIO_DBCTL_DBCLKSEL_16"
+            },
+            "eadc-extsmpt-list": {
+                "help": "For EADC, comma separated {pin, value} list to extend sampling time in EADC clocks on per-pin basis. Value must be in the range [0, 255]."
             }
         },
         "inherits": [
@@ -7293,6 +7296,9 @@
             "gpio-irq-debounce-sample-rate": {
                 "help": "Select GPIO IRQ debounce sample rate: GPIO_DBCTL_DBCLKSEL_1, GPIO_DBCTL_DBCLKSEL_2, GPIO_DBCTL_DBCLKSEL_4, ..., or GPIO_DBCTL_DBCLKSEL_32768",
                 "value": "GPIO_DBCTL_DBCLKSEL_16"
+            },
+            "eadc-extsmpt-list": {
+                "help": "For EADC, comma separated {pin, value} list to extend sampling time in EADC clocks on per-pin basis. Value must be in the range [0, 255]."
             }
         },
         "inherits": [
@@ -7414,6 +7420,9 @@
             "gpio-irq-debounce-sample-rate": {
                 "help": "Select GPIO IRQ debounce sample rate: GPIO_DBCLKSEL_1, GPIO_DBCLKSEL_2, GPIO_DBCLKSEL_4, ..., or GPIO_DBCLKSEL_32768",
                 "value": "GPIO_DBCLKSEL_16"
+            },
+            "adc-smplcnt-list": {
+                "help": "For ADC, comma separated {pin, value} list to extend sampling time in ADC clocks on per-pin basis. Value must be in the range [0, 15]."
             },
             "clock-pll": {
                 "help": "Choose clock source to clock PLL: NU_HXT_PLL or NU_HIRC_PLL",
@@ -7553,6 +7562,9 @@
             "gpio-irq-debounce-sample-rate": {
                 "help": "Select GPIO IRQ debounce sample rate: GPIO_DBCTL_DBCLKSEL_1, GPIO_DBCTL_DBCLKSEL_2, GPIO_DBCTL_DBCLKSEL_4, ..., or GPIO_DBCTL_DBCLKSEL_32768",
                 "value": "GPIO_DBCTL_DBCLKSEL_16"
+            },
+            "eadc-extsmpt-list": {
+                "help": "For EADC, comma separated {pin, value} list to extend sampling time in EADC clocks on per-pin basis. Value must be in the range [0, 255]."
             },
             "exclude-uno-spi-from-fpga-ci-test-shield-test": {
                 "help": "Exclude UNO SPI pins (D8/D9/D10/D11/D12/D13) from FPGA CI Test Shield test for wiring to on-board SPI flash",
@@ -7745,6 +7757,9 @@
             "gpio-irq-debounce-sample-rate": {
                 "help": "Select GPIO IRQ debounce sample rate: GPIO_DBCTL_DBCLKSEL_1, GPIO_DBCTL_DBCLKSEL_2, GPIO_DBCTL_DBCLKSEL_4, ..., or GPIO_DBCTL_DBCLKSEL_32768",
                 "value": "GPIO_DBCTL_DBCLKSEL_16"
+            },
+            "eadc-extsmpt-list": {
+                "help": "For EADC, comma separated {pin, value} list to extend sampling time in EADC clocks on per-pin basis. Value must be in the range [0, 255]."
             },
             "usb-device-hsusbd": {
                 "help": "Select high-speed USB device or not",
@@ -8109,6 +8124,9 @@
             "gpio-irq-debounce-sample-rate": {
                 "help": "Select GPIO IRQ debounce sample rate: GPIO_DBCTL_DBCLKSEL_1, GPIO_DBCTL_DBCLKSEL_2, GPIO_DBCTL_DBCLKSEL_4, ..., or GPIO_DBCTL_DBCLKSEL_32768",
                 "value": "GPIO_DBCTL_DBCLKSEL_16"
+            },
+            "eadc-extsmpt-list": {
+                "help": "For EADC, comma separated {pin, value} list to extend sampling time in EADC clocks on per-pin basis. Value must be in the range [0, 255]."
             }
         },
         "overrides": {
@@ -8255,6 +8273,9 @@
             "gpio-irq-debounce-sample-rate": {
                 "help": "Select GPIO IRQ debounce sample rate: GPIO_DBCTL_DBCLKSEL_1, GPIO_DBCTL_DBCLKSEL_2, GPIO_DBCTL_DBCLKSEL_4, ..., or GPIO_DBCTL_DBCLKSEL_32768",
                 "value": "GPIO_DBCTL_DBCLKSEL_16"
+            },
+            "eadc-extsmpt-list": {
+                "help": "For EADC, comma separated {pin, value} list to extend sampling time in EADC clocks on per-pin basis. Value must be in the range [0, 255]."
             },
             "hxt-enable": {
                 "help": "Enable external high-speed crystal (HXT)",
@@ -9201,6 +9222,9 @@
             "gpio-irq-debounce-sample-rate": {
                 "help": "Select GPIO IRQ debounce sample rate: GPIO_DBCTL_DBCLKSEL_1, GPIO_DBCTL_DBCLKSEL_2, GPIO_DBCTL_DBCLKSEL_4, ..., or GPIO_DBCTL_DBCLKSEL_32768",
                 "value": "GPIO_DBCTL_DBCLKSEL_16"
+            },
+            "eadc-extsmpt-list": {
+                "help": "For EADC, comma separated {pin, value} list to extend sampling time in EADC clocks on per-pin basis. Value must be in the range [0, 255]."
             }
         },
         "inherits": [
