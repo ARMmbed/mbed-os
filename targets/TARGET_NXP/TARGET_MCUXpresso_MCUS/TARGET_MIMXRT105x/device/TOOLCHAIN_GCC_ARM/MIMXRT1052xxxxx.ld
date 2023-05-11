@@ -63,13 +63,38 @@ MEMORY
 #if MIMXRT105X_BOARD_HAS_EXTERNAL_RAM
   /* Use the external RAM as main memory */
   m_data                (RW)  : ORIGIN = 0x80000000, LENGTH = MIMXRT105X_EXTERNAL_RAM_SIZE
+
+  /* DTCM memory.
+     Startup code configures size to 256k (stealing space from OCRAM). */
+  m_dtcm                (RW)  : ORIGIN = 0x20000000, LENGTH = 0x00040000
 #else
-  /* Use OCRAM as main memory. */
-  m_data                (RW)  : ORIGIN = 0x20200000, LENGTH = 0x00040000
+  /* Use DTCM as main memory (significantly faster than OCRAM).
+     Startup code configures size to 256k (stealing space from OCRAM). */
+  m_dtcm                (RW)  : ORIGIN = 0x20000000, LENGTH = 0x00040000
+
+  /* No external data memory, store data in DTCM */
+#define m_data m_dtcm
+
 #endif
 
+  /* ITCM bank -- used for functions that need to execute from RAM
+     (which is faster than having to load them from flash).
+     Startup code configures size to 128k. */
   m_itcm               (RX)  : ORIGIN = 0x00000000, LENGTH = 0x00020000
-  m_dtcm               (RW)  : ORIGIN = 0x20000000, LENGTH = 0x00020000
+
+  /* OCRAM bank -- extra RAM, available for misc storage but slower to access.
+     Startup code configures size to 128k.
+     Note that address is different on the 105x and the 106x. */
+#if MBED_TARGET_MIMXRT1050
+  m_ocram              (RW)  : ORIGIN = 0x20200000, LENGTH = 0x00020000
+#else /* MIMXRT1060 */
+  m_ocram              (RW)  : ORIGIN = 0x20280000, LENGTH = 0x00020000
+#endif
+
+#if MBED_TARGET_MIMXRT1060
+  /* OCRAM2 bank -- extra RAM, available on MIMXRT106x only. */
+  m_ocram2             (RW)  : ORIGIN = 0x20200000, LENGTH = 0x00080000
+#endif
 }
 
 /* Define output sections */
@@ -234,6 +259,8 @@ SECTIONS
 
   __NDATA_ROM = __ram_function_flash_start + SIZEOF(.ram_function);
 
+  /* Always store noncacheable data (e.g. DMA descriptors) in DTCM, since this memory
+     does not use a cache. */
   .ncache.init :
   {
     __noncachedata_start__ = .;   /* create a global symbol at ncache data start */
@@ -298,14 +325,16 @@ SECTIONS
     __heap_limit = .; /* Add for _sbrk */
   } > m_data
 
+  /* Reserve space for stack (even though stack is always at the end of DTCM regardless
+     of where this section is located) */
   .stack :
   {
     . = ALIGN(8);
     . += STACK_SIZE;
-  } > m_data
+  } > m_dtcm
 
   /* Initializes stack on the end of block */
-  __StackTop   = ORIGIN(m_data) + LENGTH(m_data);
+  __StackTop   = ORIGIN(m_dtcm) + LENGTH(m_dtcm);
   __StackLimit = __StackTop - STACK_SIZE;
   PROVIDE(__stack = __StackTop);
 
@@ -318,7 +347,5 @@ SECTIONS
 #elif defined(TARGET_TEENSY_41)
 	_teensy_model_identifier = 0x25;
 #endif
-
-  ASSERT(__StackLimit >= __HeapLimit, "Stack, heap, and globals exceed main RAM size!")
 }
 

@@ -58,8 +58,8 @@ if(MBED_GENERATE_CLION_DEBUG_CFGS)
 			endif()
 
 			# Escape quotes and ampersands
-			string(REPLACE "\"" "&quot;" ELEMENT "${ELEMENT}")
 			string(REPLACE "&" "&amp;" ELEMENT "${ELEMENT}")
+			string(REPLACE "\"" "&quot;" ELEMENT "${ELEMENT}")
 
 			if("${ELEMENT}" MATCHES " ")
 				string(APPEND GDBSERVER_ARGS_STR "&quot;${ELEMENT}&quot;")

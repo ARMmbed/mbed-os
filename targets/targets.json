@@ -5090,10 +5090,10 @@
         "extra_labels": [
             "NXP",
             "MCUXpresso_MCUS",
-            "MIMXRT1050",
             "IMX",
             "NXP_EMAC",
-	        "USB"
+	        "USB",
+            "MIMXRT105X"
         ],
         "macros": [
             "CPU_MIMXRT1052DVL6B",
@@ -5158,7 +5158,8 @@
         ],
         "extra_labels_add": [
             "EVK",
-            "1050_EVK"
+            "1050_EVK",
+            "MIMXRT1050"
         ],
         "supported_form_factors": [
             "ARDUINO_UNO"
@@ -5186,7 +5187,8 @@
         ],
         "extra_labels_add": [
             "EVK",
-            "1060_EVK"
+            "1060_EVK",
+            "MIMXRT1060"
         ],
         "supported_form_factors": [
             "ARDUINO_UNO"
@@ -5208,7 +5210,8 @@
         ],
         "extra_labels_add": [
             "TEENSY_4X",
-            "TEENSY_40"
+            "TEENSY_40",
+            "MIMXRT1060"
         ],
         "macros_add": [
             "MIMXRT105X_BOARD_HAS_EXTERNAL_RAM=0",
@@ -5228,7 +5231,8 @@
         ],
         "extra_labels_add": [
             "TEENSY_4X",
-            "TEENSY_41"
+            "TEENSY_41",
+            "MIMXRT1060"
         ],
         "macros_add": [
             "MIMXRT105X_BOARD_HAS_EXTERNAL_RAM=0",

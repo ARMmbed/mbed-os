@@ -34,7 +34,6 @@ target_include_directories(mbed-mimxrt1060-evk
 
 target_sources(mbed-mimxrt1060-evk
     INTERFACE
-        fsl_phy.c
 		fsl_flexspi_nor_boot.c
 
         TARGET_1060_EVK/xip/evkbmimxrt1060_flexspi_nor_config.c

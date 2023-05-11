@@ -295,6 +295,27 @@ __isr_vector:
     .type    Reset_Handler, %function
 Reset_Handler:
     cpsid   i               /* Mask interrupts */
+
+    /* Update FlexRAM configuration to:
+       - 128kiB OCRAM
+       - 256kiB DTCM
+       - 128kiB ITCM
+       See AN12077 from NXP for info about this register value. */
+    .equ IOMUXC_GPR16_ADDR, 0x400AC040
+    .equ GPR16_LOAD_VALUE, 0x00200007
+    .equ IOMUXC_GPR17_ADDR, 0x400AC044
+    .equ GPR17_LOAD_VALUE, 0x5AAFFAA5
+
+    /* First, update FlexRAM configuration in GPR17 */
+    ldr   r0, =IOMUXC_GPR17_ADDR
+    ldr   r1, =GPR17_LOAD_VALUE
+    str   r1, [r0]
+
+    /* Now, use GPR16 to select the configuration in GPR17 instead of the one in the fuses */
+    ldr   r0, =IOMUXC_GPR16_ADDR
+    ldr   r1, =GPR16_LOAD_VALUE
+    str   r1, [r0]
+
     .equ    VTOR, 0xE000ED08
     ldr     r0, =VTOR
     ldr     r1, =__isr_vector

@@ -93,30 +93,44 @@ void BOARD_ConfigMPU(void)
     MPU->RBAR = ARM_MPU_RBAR(3, 0x00000000U);
     MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 2, 0, 0, 0, 0, ARM_MPU_REGION_SIZE_1GB);
 
-    /* Region 4 setting: Memory with Normal type, not shareable, outer/inner write back */
+    /* Region 4 setting: Memory with Normal type, not shareable, outer/inner write back [ITCM] */
     MPU->RBAR = ARM_MPU_RBAR(4, 0x00000000U);
     MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 0, 0, 1, 1, 0, ARM_MPU_REGION_SIZE_128KB);
 
-    /* Region 5 setting: Memory with Normal type, not shareable, not cacheable */
-    /* DTCM is set to non-cacheable so that we can use it for things like Ethernet and
-     * USB DMA buffers which will not work if they are cached. */
+    /* Region 5 setting: Memory with Normal type, not shareable, outer/inner write back [DTCM] */
     MPU->RBAR = ARM_MPU_RBAR(5, 0x20000000U);
-    MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 0, 0, 0, 0, 0, ARM_MPU_REGION_SIZE_128KB);
-
-    /* Region 6 setting: Memory with Normal type, not shareable, outer/inner write back */
-    MPU->RBAR = ARM_MPU_RBAR(6, 0x20200000U);
     MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 0, 0, 1, 1, 0, ARM_MPU_REGION_SIZE_256KB);
+
+#if MBED_TARGET_MIMXRT1050
+
+    /* Region 6 setting: Memory with Normal type, not shareable, outer/inner write back [OCRAM] */
+    MPU->RBAR = ARM_MPU_RBAR(6, 0x20200000U);
+    MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 0, 0, 1, 1, 0, ARM_MPU_REGION_SIZE_128KB);
+
+#else // MIMXRT1060
+
+    /* Region 6 setting: Memory with Normal type, not shareable, outer/inner write back [OCRAM] */
+    MPU->RBAR = ARM_MPU_RBAR(6, 0x20280000U);
+    MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 0, 0, 1, 1, 0, ARM_MPU_REGION_SIZE_128KB);
+
+    /* Region 7 setting: Memory with Normal type, not shareable, outer/inner write back [OCRAM2] */
+    MPU->RBAR = ARM_MPU_RBAR(7, 0x20200000U);
+    MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 0, 0, 1, 1, 0, ARM_MPU_REGION_SIZE_512KB);
+
+#endif
+
+
 
 /* The define sets the cacheable memory to shareable,
  * this suggestion is referred from chapter 2.2.1 Memory regions,
  * types and attributes in Cortex-M7 Devices, Generic User Guide */
 #if defined(SDRAM_IS_SHAREABLE)
-    /* Region 7 setting: Memory with Normal type, shareable, outer/inner write back, write/read allocate */
-    MPU->RBAR = ARM_MPU_RBAR(7, 0x80000000U);
+    /* Region 8 setting: Memory with Normal type, shareable, outer/inner write back, write/read allocate */
+    MPU->RBAR = ARM_MPU_RBAR(8, 0x80000000U);
     MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 1, 1, 1, 1, 0, ARM_MPU_REGION_SIZE_32MB);
 #else
-    /* Region 7 setting: Memory with Normal type, not shareable, outer/inner write back, write/read allocate */
-    MPU->RBAR = ARM_MPU_RBAR(7, 0x80000000U);
+    /* Region 8 setting: Memory with Normal type, not shareable, outer/inner write back, write/read allocate */
+    MPU->RBAR = ARM_MPU_RBAR(8, 0x80000000U);
     MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 1, 0, 1, 1, 0, ARM_MPU_REGION_SIZE_32MB);
 #endif
 
