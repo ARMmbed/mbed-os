@@ -31,7 +31,6 @@ const ticker_info_t* us_ticker_get_info()
 
 static bool us_ticker_inited = false;
 
-extern void us_ticker_setup_clock();
 extern uint32_t us_ticker_get_clock();
 
 static void pit_isr(void)
@@ -51,8 +50,6 @@ void us_ticker_init(void)
 {
     /* Common for ticker/timer. */
     uint32_t busClock;
-
-    us_ticker_setup_clock();
 
     busClock = us_ticker_get_clock();
 

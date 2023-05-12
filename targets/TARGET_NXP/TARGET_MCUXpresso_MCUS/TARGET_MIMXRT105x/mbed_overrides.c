@@ -20,9 +20,12 @@
 #include "fsl_xbara.h"
 #include "fsl_iomuxc.h"
 #include "fsl_gpio.h"
+#include "fsl_pit.h"
 #include "lpm.h"
 #include "usb_phy.h"
 #include "usb_device_config.h"
+#include "us_ticker_defines.h"
+#include "us_ticker_api.h"
 
 #define LPSPI_CLOCK_SOURCE_DIVIDER (7U)
 #define LPI2C_CLOCK_SOURCE_DIVIDER (5U)
@@ -180,6 +183,9 @@ void mbed_sdk_init()
     BOARD_ClockFullSpeed();
 #endif
 
+    // Initialize us ticker before LPM, because LPM uses it for timing
+    us_ticker_init();
+
 
 #if TARGET_EVK
     /* Since SNVS_PMIC_STBY_REQ_GPIO5_IO02 will output a high-level signal under Stop Mode(Suspend Mode) and this pin is
@@ -193,59 +199,32 @@ void mbed_sdk_init()
 
 void spi_setup_clock()
 {
-    /*Set clock source for LPSPI*/
-    CLOCK_SetMux(kCLOCK_LpspiMux, 1U);
-    CLOCK_SetDiv(kCLOCK_LpspiDiv, LPSPI_CLOCK_SOURCE_DIVIDER);
+    // Not needed on MIMXRT105x
 }
 
 uint32_t spi_get_clock(void)
 {
-    return (CLOCK_GetFreq(kCLOCK_Usb1PllPfd0Clk) / (LPSPI_CLOCK_SOURCE_DIVIDER + 1U));
-}
-
-void us_ticker_setup_clock()
-{
-    /* Set PERCLK_CLK source to OSC_CLK*/
-    CLOCK_SetMux(kCLOCK_PerclkMux, 1U);
-    /* Set PERCLK_CLK divider to 1 */
-    CLOCK_SetDiv(kCLOCK_PerclkDiv, 0U);
+    return BOARD_CLOCKFULLSPEED_LPSPI_CLK_ROOT;
 }
 
 uint32_t us_ticker_get_clock()
 {
-    return CLOCK_GetFreq(kCLOCK_OscClk);
-}
-
-void serial_setup_clock(void)
-{
-    /* Configure UART divider to default */
-    CLOCK_SetMux(kCLOCK_UartMux, 1); /* Set UART source to OSC 24M */
-    CLOCK_SetDiv(kCLOCK_UartDiv, 0); /* Set UART divider to 1 */
+    return BOARD_CLOCKFULLSPEED_PERCLK_CLK_ROOT;
 }
 
 uint32_t serial_get_clock(void)
 {
-    uint32_t clock_freq;
-
-    if (CLOCK_GetMux(kCLOCK_UartMux) == 0) /* PLL3 div6 80M */ {
-        clock_freq = (CLOCK_GetPllFreq(kCLOCK_PllUsb1) / 6U) / (CLOCK_GetDiv(kCLOCK_UartDiv) + 1U);
-    } else {
-        clock_freq = CLOCK_GetOscFreq() / (CLOCK_GetDiv(kCLOCK_UartDiv) + 1U);
-    }
-
-    return clock_freq;
+    return BOARD_CLOCKFULLSPEED_UART_CLK_ROOT;
 }
 
 void i2c_setup_clock()
 {
-    /* Select USB1 PLL (480 MHz) as master lpi2c clock source */
-    CLOCK_SetMux(kCLOCK_Lpi2cMux, 0U);
-    CLOCK_SetDiv(kCLOCK_Lpi2cDiv, LPI2C_CLOCK_SOURCE_DIVIDER);
+    // Not needed on MIMXRT105x
 }
 
 uint32_t i2c_get_clock()
 {
-    return ((CLOCK_GetFreq(kCLOCK_Usb1PllClk) / 8) / (LPI2C_CLOCK_SOURCE_DIVIDER + 1U));
+    return BOARD_CLOCKFULLSPEED_LPI2C_CLK_ROOT;
 }
 
 void pwm_setup(uint32_t instance)
@@ -391,11 +370,38 @@ void vPortPRE_SLEEP_PROCESSING(clock_mode_t powermode)
 {
     LPM_EnableWakeupSource(GPT2_IRQn);
     LPM_EnterLowPowerIdle(LPM_POWER_MODE);
+
+    // Disable us ticker during deep sleep.
+    // Note: Must do this last because SDK_DelayAtLeastUs() uses the us ticker
+    PIT_StopTimer(PIT, kPIT_Chnl_0);
+    PIT_StopTimer(PIT, kPIT_Chnl_2);
 }
 
 void vPortPOST_SLEEP_PROCESSING(clock_mode_t powermode)
 {
+    // reenable us ticker
+    // Note: Must do this first because SDK_DelayAtLeastUs() uses the us ticker
+    PIT_StartTimer(PIT, kPIT_Chnl_0);
+    PIT_StartTimer(PIT, kPIT_Chnl_2);
+
     LPM_ExitLowPowerIdle(LPM_POWER_MODE);
     LPM_DisableWakeupSource(GPT2_IRQn);
 }
 
+// Override of MIMXRT SDK delay function.
+// The default delay function used the full CPU clock frequency, so it produced massive overshoots
+// (delaying 30x longer than intended) when the MCU is exiting sleep (and core clock is reduced to 24MHz).
+// This delay function uses the us ticker which always ticks at the same speed even when the CPU clock is reduced.
+void SDK_DelayAtLeastUs(uint32_t delay_us)
+{
+    uint32_t initialTickerValue = us_ticker_read();
+    uint32_t targetTickerValue = delay_us + initialTickerValue;
+
+    // Wait for rollover if needed
+    if(targetTickerValue < initialTickerValue) {
+        while(us_ticker_read() > initialTickerValue) {}
+    }
+
+    // Wait until target time
+    while(us_ticker_read() < targetTickerValue) {}
+}

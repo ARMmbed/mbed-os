@@ -54,6 +54,7 @@ function(gen_upload_target TARGET_NAME BIN_FILE HEX_FILE)
 	file(GENERATE OUTPUT ${COMMAND_FILE_PATH} CONTENT
 "loadfile ${HEX_FILE}
 r
+go
 exit
 ")
 	add_custom_target(flash-${TARGET_NAME}

@@ -185,6 +185,7 @@ void test_multi_ticker(void)
     }
 
     ThisThread::sleep_for(MULTI_TICKER_TIME + extra_wait);
+
     TEST_ASSERT_EQUAL(TICKER_COUNT, multi_counter);
 
     for (int i = 0; i < TICKER_COUNT; i++) {

@@ -56,10 +56,10 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
         case LPM_PowerModeOverRun:
             CLOCK_SET_DIV(kCLOCK_SemcDiv, BOARD_CLOCKOVERDRIVE_AHB_CLK_ROOT / BOARD_CLOCKOVERDRIVE_SEMC_CLK_ROOT - 1); // Deduce SEMC divider from clock_config.h defines
             /* CORE CLK to 600MHz, AHB, IPG to 150MHz, PERCLK to 75MHz */
-            CLOCK_SET_DIV(kCLOCK_PerclkDiv, BOARD_CLOCKFULLSPEED_IPG_CLK_ROOT / BOARD_CLOCKFULLSPEED_PERCLK_CLK_ROOT - 1); // Deduce PERCLK divider
+            CLOCK_SET_DIV(kCLOCK_PerclkDiv, BOARD_XTAL0_CLK_HZ / BOARD_CLOCKFULLSPEED_PERCLK_CLK_ROOT - 1); // Deduce PERCLK divider
             CLOCK_SET_DIV(kCLOCK_IpgDiv, BOARD_CLOCKOVERDRIVE_AHB_CLK_ROOT / BOARD_CLOCKFULLSPEED_IPG_CLK_ROOT - 1);
             CLOCK_SET_DIV(kCLOCK_AhbDiv, 0);
-            CLOCK_SET_MUX(kCLOCK_PerclkMux, 0);    // PERCLK mux to IPG CLK
+            CLOCK_SET_MUX(kCLOCK_PerclkMux, 1); // PERCLK mux to OSC CLK
             CLOCK_SET_MUX(kCLOCK_PrePeriphMux, 3); // PRE_PERIPH_CLK mux to ARM PLL
             CLOCK_SET_MUX(kCLOCK_PeriphMux, 0);    // PERIPH_CLK mux to PRE_PERIPH_CLK
 
@@ -68,10 +68,10 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
         case LPM_PowerModeFullRun:
             CLOCK_SET_DIV(kCLOCK_SemcDiv, BOARD_CLOCKFULLSPEED_AHB_CLK_ROOT / BOARD_CLOCKFULLSPEED_SEMC_CLK_ROOT - 1); // Deduce SEMC divider from clock_config.h defines
             /* CORE CLK to 528MHz, AHB, IPG to 132MHz, PERCLK to 66MHz */
-            CLOCK_SET_DIV(kCLOCK_PerclkDiv, BOARD_CLOCKFULLSPEED_IPG_CLK_ROOT / BOARD_CLOCKFULLSPEED_PERCLK_CLK_ROOT - 1); // Deduce PERCLK divider
+            CLOCK_SET_DIV(kCLOCK_PerclkDiv, BOARD_XTAL0_CLK_HZ / BOARD_CLOCKFULLSPEED_PERCLK_CLK_ROOT - 1); // Deduce PERCLK divider
             CLOCK_SET_DIV(kCLOCK_IpgDiv, BOARD_CLOCKFULLSPEED_AHB_CLK_ROOT / BOARD_CLOCKFULLSPEED_IPG_CLK_ROOT - 1);
             CLOCK_SET_DIV(kCLOCK_AhbDiv, 0);
-            CLOCK_SET_MUX(kCLOCK_PerclkMux, 0);    // PERCLK mux to IPG CLK
+            CLOCK_SET_MUX(kCLOCK_PerclkMux, 1); // PERCLK mux to OSC CLK
             CLOCK_SET_MUX(kCLOCK_PrePeriphMux, 0); // PRE_PERIPH_CLK mux to SYS PLL
             CLOCK_SET_MUX(kCLOCK_PeriphMux, 0);    // PERIPH_CLK mux to PRE_PERIPH_CLK
 
@@ -86,10 +86,10 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
             CLOCK_SET_MUX(kCLOCK_SemcMux, 0); // SEMC mux to PERIPH_CLK
             CLOCK_SET_MUX(kCLOCK_FlexspiMux, 0); // FLEXSPI mux to semc_clk_root_pre
             /* CORE CLK to 24MHz and AHB, IPG, PERCLK to 12MHz */
-            CLOCK_SET_DIV(kCLOCK_PerclkDiv, BOARD_CLOCKLOWPOWER_IPG_CLK_ROOT / BOARD_CLOCKLOWPOWER_PERCLK_CLK_ROOT - 1); // Deduce PERCLK divider
+            CLOCK_SET_DIV(kCLOCK_PerclkDiv, BOARD_XTAL0_CLK_HZ / BOARD_CLOCKLOWPOWER_PERCLK_CLK_ROOT - 1); // Deduce PERCLK divider
             CLOCK_SET_DIV(kCLOCK_IpgDiv, BOARD_CLOCKLOWPOWER_AHB_CLK_ROOT / BOARD_CLOCKLOWPOWER_IPG_CLK_ROOT - 1);
             CLOCK_SET_DIV(kCLOCK_AhbDiv, 0);
-            CLOCK_SET_MUX(kCLOCK_PerclkMux, 0); // PERCLK mux to IPG CLK
+            CLOCK_SET_MUX(kCLOCK_PerclkMux, 1); // PERCLK mux to OSC CLK
             break;
         default:
             break;

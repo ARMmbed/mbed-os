@@ -17,6 +17,10 @@
 #include "sleep_api.h"
 #include "cmsis.h"
 #include "fsl_clock.h"
+#include "lp_ticker_api.h"
+#include "stdio.h"
+#include "inttypes.h"
+#include "fsl_gpt.h"
 
 extern void vPortPRE_SLEEP_PROCESSING(clock_mode_t powermode);
 extern void vPortPOST_SLEEP_PROCESSING(clock_mode_t powermode);

@@ -28,7 +28,12 @@
 #error [NOT_SUPPORTED] test not supported
 #else
 
-#define SLEEP_DURATION_US 20000ULL
+#define SLEEP_DURATION_US 50000ULL
+
+// Tolerance for extra sleep time in the deep sleep test.
+// Current leader is the MIMXRT105x, which takes almost 5ms to enter/exit deep sleep.
+#define DEEP_SLEEP_TOLERANCE_US 5000ULL
+
 #define DEEP_SLEEP_TEST_CHECK_WAIT_US 2000
 // As sleep_manager_can_deep_sleep_test_check() is based on wait_ns
 // and wait_ns can be up to 40% slower, use a 50% delta here.
@@ -217,9 +222,12 @@ void test_sleep_auto()
     // 1. current lp_ticker increment,
     // 2. previous us_ticker increment (locked sleep test above)
 
+    const unsigned int deepsleep_tolerance_lp_ticks = us_to_ticks(DEEP_SLEEP_TOLERANCE_US, lp_ticker_info->frequency);
+    const unsigned int deepsleep_tolerance_us_ticks = us_to_ticks(DEEP_SLEEP_TOLERANCE_US, us_ticker_info->frequency);
+
     // us ticker should not have incremented during deep sleep.  It should be zero, plus some tolerance for the time to enter deep sleep.
-    TEST_ASSERT_UINT64_WITHIN_MESSAGE(sleep_duration_us_ticks / 10ULL, 0, us_diff2, "us ticker sleep time incorrect - perhaps deep sleep mode was not used?");
-    TEST_ASSERT_UINT64_WITHIN_MESSAGE(sleep_duration_lp_ticks / 10ULL, sleep_duration_lp_ticks, lp_diff2, "lp ticker sleep time incorrect");
+    TEST_ASSERT_UINT64_WITHIN_MESSAGE(deepsleep_tolerance_us_ticks, 0, us_diff2, "us ticker sleep time incorrect - perhaps deep sleep mode was not used?");
+    TEST_ASSERT_UINT64_WITHIN_MESSAGE(deepsleep_tolerance_lp_ticks, sleep_duration_lp_ticks, lp_diff2, "lp ticker sleep time incorrect");
 
     set_us_ticker_irq_handler(us_ticker_irq_handler_org);
     set_lp_ticker_irq_handler(lp_ticker_irq_handler_org);

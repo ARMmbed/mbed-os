@@ -39,7 +39,6 @@ static LPUART_Type *const uart_addrs[] = LPUART_BASE_PTRS;
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 
-extern void serial_setup_clock(void);
 extern uint32_t serial_get_clock(void);
 
 void serial_init(serial_t *obj, PinName tx, PinName rx)
@@ -48,8 +47,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     uint32_t uart_rx = pinmap_peripheral(rx, PinMap_UART_RX);
     obj->index = pinmap_merge(uart_tx, uart_rx);
     MBED_ASSERT((int)obj->index != NC);
-
-    serial_setup_clock();
 
     lpuart_config_t config;
     LPUART_GetDefaultConfig(&config);
