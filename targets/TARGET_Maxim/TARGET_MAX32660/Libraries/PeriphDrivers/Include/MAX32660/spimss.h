@@ -116,7 +116,7 @@ struct mxc_spimss_req {
  *
  * @return \c #E_NO_ERROR if successful, appropriate error otherwise
  */
-int MXC_SPIMSS_Init(mxc_spimss_regs_t *spi, unsigned mode, unsigned freq, const sys_map_t sys_cfg);
+int MXC_SPIMSS_Init(mxc_spimss_regs_t *spi, unsigned mode, unsigned freq, const sys_map_t sys_cfg, unsigned drv_ssel);
 
 /**
  * @brief      Shutdown SPI module.
@@ -174,6 +174,19 @@ int MXC_SPIMSS_MasterTransAsync(mxc_spimss_regs_t *spi, mxc_spimss_req_t *req);
  *             MXC_Error_Codes "error" if unsuccessful.
  */
 int MXC_SPIMSS_SlaveTransAsync(mxc_spimss_regs_t *spi, mxc_spimss_req_t *req);
+
+/**
+ * @brief   Sets the TX data to transmit as a 'dummy' byte
+ *
+ * In single wire master mode, this data is transmitted on MOSI when performing
+ * an RX (MISO) only transaction. This defaults to 0.
+ *
+ * @param   spi             Pointer to SPI registers (selects the SPI block used.)
+ * @param   defaultTXData   Data to shift out in RX-only transactions
+ *
+ * @return  Success/Fail, see \ref MXC_Error_Codes for a list of return codes.
+ */
+int MXC_SPIMSS_SetDefaultTXData (mxc_spimss_req_t* spi, unsigned int defaultTXData);
 
 /**
  * @brief      Aborts an Asynchronous request

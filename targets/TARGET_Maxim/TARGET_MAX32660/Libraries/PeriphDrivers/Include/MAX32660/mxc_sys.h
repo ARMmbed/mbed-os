@@ -122,7 +122,7 @@ typedef struct {
     int in_critical;
 } mxc_crit_state_t;
 
-static mxc_crit_state_t _state = { .ie_status = 0xFFFFFFFF, .in_critical = 0 };
+static mxc_crit_state_t _state = { .ie_status = (int)0xFFFFFFFF, .in_critical = 0 };
 
 static inline void _mxc_crit_get_state()
 {

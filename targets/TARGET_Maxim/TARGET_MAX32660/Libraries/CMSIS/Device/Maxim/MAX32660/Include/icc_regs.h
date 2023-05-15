@@ -67,9 +67,7 @@ extern "C" {
 #ifndef __O
 #define __O  volatile
 #endif
-#ifndef __R
-#define __R  volatile const
-#endif
+
 /// @endcond
 
 /* **** Definitions **** */
@@ -88,9 +86,9 @@ extern "C" {
 typedef struct {
     __I  uint32_t cache_id;             /**< <tt>\b 0x0000:</tt> ICC CACHE_ID Register */
     __I  uint32_t mem_size;             /**< <tt>\b 0x0004:</tt> ICC MEM_SIZE Register */
-    __R  uint32_t rsv_0x8_0xff[62];
+    __I  uint32_t rsv_0x8_0xff[62];
     __IO uint32_t cache_ctrl;           /**< <tt>\b 0x0100:</tt> ICC CACHE_CTRL Register */
-    __R  uint32_t rsv_0x104_0x6ff[383];
+    __I  uint32_t rsv_0x104_0x6ff[383];
     __IO uint32_t invalidate;           /**< <tt>\b 0x0700:</tt> ICC INVALIDATE Register */
 } mxc_icc_regs_t;
 

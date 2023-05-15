@@ -67,9 +67,7 @@ extern "C" {
 #ifndef __O
 #define __O  volatile
 #endif
-#ifndef __R
-#define __R  volatile const
-#endif
+
 /// @endcond
 
 /* **** Definitions **** */
@@ -89,9 +87,9 @@ typedef struct {
     __IO uint32_t addr;                 /**< <tt>\b 0x00:</tt> FLC ADDR Register */
     __IO uint32_t clkdiv;               /**< <tt>\b 0x04:</tt> FLC CLKDIV Register */
     __IO uint32_t ctrl;                 /**< <tt>\b 0x08:</tt> FLC CTRL Register */
-    __R  uint32_t rsv_0xc_0x23[6];
+    __I  uint32_t rsv_0xc_0x23[6];
     __IO uint32_t intr;                 /**< <tt>\b 0x024:</tt> FLC INTR Register */
-    __R  uint32_t rsv_0x28_0x2f[2];
+    __I  uint32_t rsv_0x28_0x2f[2];
     __IO uint32_t data[4];              /**< <tt>\b 0x30:</tt> FLC DATA Register */
     __O  uint32_t actrl;                /**< <tt>\b 0x40:</tt> FLC ACTRL Register */
 } mxc_flc_regs_t;

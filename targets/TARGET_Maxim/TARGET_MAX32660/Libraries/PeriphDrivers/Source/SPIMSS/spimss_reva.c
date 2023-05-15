@@ -57,6 +57,8 @@
 /* **** Globals **** */
 typedef struct {
     spimss_reva_req_t *req;
+    unsigned defaultTXData;
+    unsigned drv_ssel;
 } spimss_reva_req_state_t;
 
 static spimss_reva_req_state_t states[MXC_SPIMSS_INSTANCES];
@@ -71,7 +73,7 @@ static uint32_t MXC_SPIMSS_RevA_SlaveTransHandler(mxc_spimss_reva_regs_t *spi,
                                                   spimss_reva_req_t *req);
 
 /* ************************************************************************** */
-int MXC_SPIMSS_RevA_Init(mxc_spimss_reva_regs_t *spi, unsigned mode, unsigned freq)
+int MXC_SPIMSS_RevA_Init(mxc_spimss_reva_regs_t *spi, unsigned mode, unsigned freq, unsigned drv_ssel)
 {
     int spi_num;
     unsigned int spimss_clk;
@@ -79,6 +81,8 @@ int MXC_SPIMSS_RevA_Init(mxc_spimss_reva_regs_t *spi, unsigned mode, unsigned fr
 
     spi_num = MXC_SPIMSS_GET_IDX((mxc_spimss_regs_t *)spi);
     states[spi_num].req = NULL;
+    states[spi_num].defaultTXData = 0;
+    states[spi_num].drv_ssel = drv_ssel;
     spi->ctrl &= ~(MXC_F_SPIMSS_REVA_CTRL_ENABLE); // Keep the SPI Disabled (This is the SPI Start)
 
     // Set the bit rate
@@ -164,10 +168,12 @@ int MXC_SPIMSS_RevA_TransSetup(mxc_spimss_reva_regs_t *spi, spimss_reva_req_t *r
 
     if (master) { // Enable master mode
         spi->ctrl |= MXC_F_SPIMSS_REVA_CTRL_MMEN; // SPI configured as master.
-        spi->mode |= MXC_F_SPIMSS_REVA_CTRL_MMEN; // SSEL pin is an output.
+        if (states[spi_num].drv_ssel) {
+            spi->mode |= MXC_F_SPIMSS_REVA_MODE_SS_IO; // SSEL pin is an output.
+        }
     } else { // Enable slave mode
         spi->ctrl &= ~(MXC_F_SPIMSS_REVA_CTRL_MMEN); // SPI configured as slave.
-        spi->mode &= ~(MXC_F_SPIMSS_REVA_CTRL_MMEN); // SSEL pin is an input.
+        spi->mode &= ~(MXC_F_SPIMSS_REVA_MODE_SS_IO); // SSEL pin is an input.		
     }
 
     // Setup the character size
@@ -180,13 +186,21 @@ int MXC_SPIMSS_RevA_TransSetup(mxc_spimss_reva_regs_t *spi, spimss_reva_req_t *r
         MXC_SETFIELD(spi->mode, MXC_F_SPIMSS_REVA_MODE_NUMBITS,
                      0 << MXC_F_SPIMSS_REVA_MODE_NUMBITS_POS);
     }
-
-    // Setup the slave select
-    spi->mode |= MXC_F_SPIMSS_REVA_MODE_SSV; // Assert a high on Slave Select,
-        // to get the line ready for active low later
+    
+    if (req->tx_data == NULL) {
+        // Must have something to send, so we'll use the rx_data buffer initialized to 0.
+        memset(req->rx_data, states[spi_num].defaultTXData, (req->bits > 8 ? req->len << 1 : req->len));
+        req->tx_data = req->rx_data;
+    }
 
     // Clear the TX and RX FIFO
     spi->dma |= (MXC_F_SPIMSS_REVA_DMA_TX_FIFO_CLR | MXC_F_SPIMSS_REVA_DMA_RX_FIFO_CLR);
+
+    if (states[spi_num].drv_ssel) {
+        // Setup the slave select
+        spi->mode |= MXC_F_SPIMSS_REVA_MODE_SSV; // Assert a high on Slave Select,
+                                      // to get the line ready for active low later
+    }
 
     return E_NO_ERROR;
 }
@@ -223,6 +237,7 @@ void MXC_SPIMSS_RevA_Handler(mxc_spimss_reva_regs_t *spi) // From the IRQ
 int MXC_SPIMSS_RevA_MasterTrans(mxc_spimss_reva_regs_t *spi, spimss_reva_req_t *req)
 {
     int error;
+    int spi_num = MXC_SPIMSS_GET_IDX((mxc_spimss_regs_t*) spi);
 
     if ((error = MXC_SPIMSS_RevA_TransSetup(spi, req, 1)) != E_NO_ERROR) {
         return error;
@@ -230,16 +245,18 @@ int MXC_SPIMSS_RevA_MasterTrans(mxc_spimss_reva_regs_t *spi, spimss_reva_req_t *
 
     req->callback = NULL;
 
-    spi->mode &= ~(MXC_F_SPIMSS_REVA_MODE_SSV); // This will assert the Slave Select.
-    spi->ctrl |= MXC_F_SPIMSS_REVA_CTRL_ENABLE; // Enable/Start SPI
+    spi->ctrl |= MXC_F_SPIMSS_REVA_CTRL_ENABLE;  // Enable/Start SPI
+    if (states[spi_num].drv_ssel) {
+        spi->mode &= ~(MXC_F_SPIMSS_REVA_MODE_SSV);  // This will assert the Slave Select.
+    }
 
     while (MXC_SPIMSS_RevA_MasterTransHandler(spi, req) != 0) {}
 
-    spi->mode |= MXC_F_SPIMSS_REVA_MODE_SSV;
-
-    spi->ctrl &=
-        ~(MXC_F_SPIMSS_REVA_CTRL_ENABLE); // Last of the SPIMSS value has been transmitted...
-    // stop the transmission...
+    if (states[spi_num].drv_ssel) {
+        spi->mode |= MXC_F_SPIMSS_REVA_MODE_SSV;
+    }
+    spi->ctrl &= ~(MXC_F_SPIMSS_REVA_CTRL_ENABLE); // Last of the SPIMSS value has been transmitted...
+                                             // stop the transmission...
     return E_NO_ERROR;
 }
 
@@ -268,9 +285,7 @@ int MXC_SPIMSS_RevA_MasterTransAsync(mxc_spimss_reva_regs_t *spi, spimss_reva_re
 {
     int error;
     uint8_t int_enable;
-
-    // Clear state for next transaction
-    MXC_SPIMSS_AbortAsync((mxc_spimss_req_t *)req);
+    int spi_num = MXC_SPIMSS_GET_IDX((mxc_spimss_regs_t*) spi);
 
     if ((error = MXC_SPIMSS_RevA_TransSetup(spi, req, 1)) != E_NO_ERROR) {
         return error;
@@ -278,9 +293,10 @@ int MXC_SPIMSS_RevA_MasterTransAsync(mxc_spimss_reva_regs_t *spi, spimss_reva_re
 
     int_enable = MXC_SPIMSS_RevA_MasterTransHandler(spi, req);
 
-    spi->mode ^= MXC_F_SPIMSS_REVA_MODE_SSV; // This will assert the Slave Select.
-
-    spi->ctrl |= MXC_F_SPIMSS_REVA_CTRL_ENABLE; // Enable/Start SPI
+    spi->ctrl |= MXC_F_SPIMSS_REVA_CTRL_ENABLE;  // Enable/Start SPI
+    if (states[spi_num].drv_ssel) {
+        spi->mode ^= MXC_F_SPIMSS_REVA_MODE_SSV;      // This will assert the Slave Select.
+    }
 
     if (int_enable == 1) {
         spi->ctrl |= (MXC_F_SPIMSS_REVA_CTRL_IRQE | MXC_F_SPIMSS_REVA_CTRL_STR);
@@ -339,6 +355,10 @@ uint32_t MXC_SPIMSS_RevA_TransHandler(mxc_spimss_reva_regs_t *spi, spimss_reva_r
 
     spi_num = MXC_SPIMSS_GET_IDX((mxc_spimss_regs_t *)spi);
 
+    if (spi_num < 0) {
+        MXC_ASSERT(0);
+    }
+    
     // Read the RX FIFO
     if (req->rx_data != NULL) {
         // Wait for there to be data in the RX FIFO
@@ -459,6 +479,15 @@ uint32_t MXC_SPIMSS_RevA_TransHandler(mxc_spimss_reva_regs_t *spi, spimss_reva_r
     }
 
     return int_en;
+}
+
+/* ************************************************************************* */
+int MXC_SPIMSS_RevA_SetDefaultTXData (spimss_reva_req_t* spi, unsigned int defaultTXData)
+{
+    int spi_num = MXC_SPIMSS_GET_IDX((mxc_spimss_regs_t*) spi);
+    MXC_ASSERT (spi_num >= 0);
+    states[spi_num].defaultTXData = defaultTXData;
+    return E_NO_ERROR;
 }
 
 /* ************************************************************************* */

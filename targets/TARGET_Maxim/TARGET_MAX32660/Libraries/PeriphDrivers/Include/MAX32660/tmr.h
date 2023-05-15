@@ -116,11 +116,24 @@ typedef enum {
 } mxc_tmr_unit_t;
 
 /**
+ * @brief       Clock settings 
+ * @note        8M and 32M clocks can be used for Timers 0,1,2 and 3
+ *              32K and 80K clocks can only be used for Timers 4 and 5
+ */
+typedef enum {
+    MXC_TMR_HFIO_CLK,           ///< HFIO Clock
+    MXC_TMR_NANORING_CLK,       ///< 8KHz Nanoring Clock
+	MXC_TMR_EXT_CLK,            ///< External Clock
+} mxc_tmr_clock_t;
+
+/**
  * @brief Timer Configuration
  */
 typedef struct {
     mxc_tmr_pres_t pres; ///< Desired timer prescaler
     mxc_tmr_mode_t mode; ///< Desired timer mode
+    mxc_tmr_bit_mode_t bitMode;    ///< Desired timer bits  
+    mxc_tmr_clock_t clock;         ///< Desired clock source 
     uint32_t cmp_cnt; ///< Compare register value in timer ticks
     unsigned pol; ///< Polarity (0 or 1)
 } mxc_tmr_cfg_t;

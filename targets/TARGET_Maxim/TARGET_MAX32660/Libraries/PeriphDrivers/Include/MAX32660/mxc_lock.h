@@ -40,12 +40,17 @@
 #ifndef LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_MXC_LOCK_H_
 #define LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_MXC_LOCK_H_
 
+// To enable disable this module
+#define USE_LOCK_IN_DRIVERS  0
+
 /* **** Includes **** */
 #include "mxc_device.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#if USE_LOCK_IN_DRIVERS
 
 /**
  * @ingroup    syscfg
@@ -87,5 +92,12 @@ void MXC_FreeLock(uint32_t *lock);
 #ifdef __cplusplus
 }
 #endif
+
+#else // USE_LOCK_IN_DRIVERS
+
+#define MXC_GetLock(x, y)  E_NO_ERROR
+#define MXC_FreeLock(x)    
+
+#endif // USE_LOCK_IN_DRIVERS
 
 #endif // LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_MXC_LOCK_H_

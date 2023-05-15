@@ -35,6 +35,8 @@
 #include "mxc_device.h"
 #include "mxc_lock.h"
 
+#if USE_LOCK_IN_DRIVERS
+
 #ifndef __riscv
 /* ************************************************************************** */
 int MXC_GetLock(uint32_t *lock, uint32_t value)
@@ -75,3 +77,5 @@ void MXC_FreeLock(uint32_t *lock)
 #warning "Unimplemented for RISCV"
 }
 #endif
+
+#endif // USE_LOCK_IN_DRIVERS

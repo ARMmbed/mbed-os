@@ -169,12 +169,14 @@ struct _mxc_spi_req_t {
  * @param   hz              The requested clock frequency. The actual clock frequency
  *                          will be returned by the function if successful. Used in
  *                          master mode only.
- *
+ * @param   drv_ssel        Hardware block able to drive SS pin, or it can be leaved as it is
+ *                          To upper layer firmware drive it.
+ *                          1:Driver will drive SS pin, 0:Driver will NOT drive it     
  * @return  If successful, the actual clock frequency is returned. Otherwise, see
  *          \ref MXC_Error_Codes for a list of return codes.
  */
 int MXC_SPI_Init(mxc_spi_regs_t *spi, int masterMode, int quadModeUsed, int numSlaves,
-                 unsigned ssPolarity, unsigned int hz);
+                 unsigned ssPolarity, unsigned int hz, unsigned drv_ssel);
 
 /**
  * @brief   Disable and shutdown SPI peripheral.

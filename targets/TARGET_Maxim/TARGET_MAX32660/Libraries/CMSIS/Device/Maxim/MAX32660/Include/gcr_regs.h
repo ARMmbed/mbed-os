@@ -67,9 +67,7 @@ extern "C" {
 #ifndef __O
 #define __O  volatile
 #endif
-#ifndef __R
-#define __R  volatile const
-#endif
+
 /// @endcond
 
 /* **** Definitions **** */
@@ -90,11 +88,11 @@ typedef struct {
     __IO uint32_t rst0;                 /**< <tt>\b 0x04:</tt> GCR RST0 Register */
     __IO uint32_t clk_ctrl;             /**< <tt>\b 0x08:</tt> GCR CLK_CTRL Register */
     __IO uint32_t pm;                   /**< <tt>\b 0x0C:</tt> GCR PM Register */
-    __R  uint32_t rsv_0x10_0x23[5];
+    __I  uint32_t rsv_0x10_0x23[5];
     __IO uint32_t pclk_dis0;            /**< <tt>\b 0x24:</tt> GCR PCLK_DIS0 Register */
     __IO uint32_t mem_ctrl;             /**< <tt>\b 0x28:</tt> GCR MEM_CTRL Register */
     __IO uint32_t mem_zctrl;            /**< <tt>\b 0x2C:</tt> GCR MEM_ZCTRL Register */
-    __R  uint32_t rsv_0x30_0x3f[4];
+    __I  uint32_t rsv_0x30_0x3f[4];
     __IO uint32_t sys_stat;             /**< <tt>\b 0x40:</tt> GCR SYS_STAT Register */
     __IO uint32_t rst1;                 /**< <tt>\b 0x44:</tt> GCR RST1 Register */
     __IO uint32_t pclk_dis1;            /**< <tt>\b 0x48:</tt> GCR PCLK_DIS1 Register */

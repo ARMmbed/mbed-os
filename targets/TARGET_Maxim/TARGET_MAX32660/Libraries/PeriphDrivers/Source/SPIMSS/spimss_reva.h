@@ -95,13 +95,14 @@ struct spimss_reva_req {
     spimss_reva_callback_fn callback; /**< Callback function if desired, NULL otherwise */
 };
 
-int MXC_SPIMSS_RevA_Init(mxc_spimss_reva_regs_t *spi, unsigned mode, unsigned freq);
+int MXC_SPIMSS_RevA_Init(mxc_spimss_reva_regs_t *spi, unsigned mode, unsigned freq, unsigned drv_ssel);
 int MXC_SPIMSS_RevA_Shutdown(mxc_spimss_reva_regs_t *spi);
 void MXC_SPIMSS_RevA_Handler(mxc_spimss_reva_regs_t *spi);
 int MXC_SPIMSS_RevA_MasterTrans(mxc_spimss_reva_regs_t *spi, spimss_reva_req_t *req);
 int MXC_SPIMSS_RevA_SlaveTrans(mxc_spimss_reva_regs_t *spi, spimss_reva_req_t *req);
 int MXC_SPIMSS_RevA_MasterTransAsync(mxc_spimss_reva_regs_t *spi, spimss_reva_req_t *req);
 int MXC_SPIMSS_RevA_SlaveTransAsync(mxc_spimss_reva_regs_t *spi, spimss_reva_req_t *req);
+int MXC_SPIMSS_RevA_SetDefaultTXData (spimss_reva_req_t* spi, unsigned int defaultTXData);
 int MXC_SPIMSS_RevA_AbortAsync(spimss_reva_req_t *req);
 
 #endif // LIBRARIES_PERIPHDRIVERS_SOURCE_SPIMSS_SPIMSS_REVA_H_

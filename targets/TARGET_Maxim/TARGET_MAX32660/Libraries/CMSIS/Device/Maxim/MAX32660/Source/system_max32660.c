@@ -46,7 +46,6 @@
 #include "wdt_regs.h"
 #include "mxc_sys.h"
 
-extern void (*const __isr_vector[])(void);
 uint32_t SystemCoreClock = HIRC96_FREQ;
 
 __weak void SystemCoreClockUpdate(void)
@@ -76,7 +75,7 @@ __weak void SystemCoreClockUpdate(void)
     }
 
     // Get the clock divider
-    div = (MXC_GCR->clk_ctrl & MXC_F_GCR_CLK_CTRL_PSC) >> MXC_F_GCR_CLK_CTRL_PSC_POS;
+    div = (MXC_GCR->clk_ctrl & MXC_F_GCR_CLK_CTRL_CLKSEL) >> MXC_F_GCR_CLK_CTRL_PSC_POS;
 
     SystemCoreClock = base_freq >> div;
 }
@@ -91,7 +90,12 @@ __weak void SystemCoreClockUpdate(void)
  */
 __weak int PreInit(void)
 {
-    /* Do nothing */
+    /* Switch system clock to HIRC, 96 MHz*/
+    MXC_SYS_Clock_Select(MXC_SYS_CLOCK_HIRC);
+
+    /* Enable cache here to reduce boot time */
+    MXC_ICC_Enable();
+
     return 0;
 }
 
@@ -102,6 +106,12 @@ __weak int Board_Init(void)
     return 0;
 }
 
+/* Override this function for early platform initialization */
+__weak void low_level_init(void) 
+{
+    /* Do nothing */
+}
+
 /* This function is called just before control is transferred to main().
  *
  * You may over-ride this function in your program by defining a custom
@@ -110,23 +120,16 @@ __weak int Board_Init(void)
  */
 __weak void SystemInit(void)
 {
-    /* Configure the interrupt controller to use the application vector table in */
-    /* the application space */
-    /* IAR & Keil must set vector table after all memory initialization. */
-    SCB->VTOR = (uint32_t)__isr_vector;
+    MXC_WDT0->ctrl &= ~MXC_F_WDT_CTRL_WDT_EN;  /* Turn off watchdog. Application can re-enable as needed. */
 
-    MXC_WDT0->ctrl &=
-        ~MXC_F_WDT_CTRL_WDT_EN; /* Turn off watchdog. Application can re-enable as needed. */
-
+#if (__FPU_PRESENT == 1)
     /* Enable FPU on Cortex-M4, which occupies coprocessor slots 10 & 11 */
     /* Grant full access, per "Table B3-24 CPACR bit assignments". */
     /* DDI0403D "ARMv7-M Architecture Reference Manual" */
     SCB->CPACR |= SCB_CPACR_CP10_Msk | SCB_CPACR_CP11_Msk;
     __DSB();
     __ISB();
-
-    /* Switch system clock to HIRC */
-    MXC_SYS_Clock_Select(MXC_SYS_CLOCK_HIRC);
+#endif
 
     /* Disable clocks to peripherals by default to reduce power */
     MXC_SYS_ClockDisable(MXC_SYS_PERIPH_CLOCK_DMA);
@@ -140,26 +143,6 @@ __weak void SystemInit(void)
     MXC_SYS_ClockDisable(MXC_SYS_PERIPH_CLOCK_TMR2);
     MXC_SYS_ClockDisable(MXC_SYS_PERIPH_CLOCK_I2C1);
 
-    Board_Init();
+    /* Early platform initialization */
+    low_level_init();
 }
-
-#if defined(__CC_ARM)
-/* Global variable initialization does not occur until post scatterload in Keil tools.*/
-
-/* External function called after our post scatterload function implementation. */
-extern void $Super$$__main_after_scatterload(void);
-
-/**
- * @brief   Initialization function for SystemCoreClock and Board_Init.
- * @details $Sub$$__main_after_scatterload is called during system startup in the Keil
- *          toolset. Global variable and static variable space must be set up by the compiler
- *          prior to using these memory spaces. Setting up the SystemCoreClock and Board_Init
- *          require global memory for variable storage and are called from this function in
- *          the Keil tool chain.
- */
-void $Sub$$__main_after_scatterload(void)
-{
-    SystemInit();
-    $Super$$__main_after_scatterload();
-}
-#endif /* __CC_ARM */

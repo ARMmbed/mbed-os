@@ -60,8 +60,11 @@ extern const mxc_gpio_cfg_t gpio_cfg_uart1c;
 extern const mxc_gpio_cfg_t gpio_cfg_uart1_flow;
 
 extern const mxc_gpio_cfg_t gpio_cfg_spi0;
+extern const mxc_gpio_cfg_t gpio_cfg_spi0_ss;
 extern const mxc_gpio_cfg_t gpio_cfg_spi1a;
+extern const mxc_gpio_cfg_t gpio_cfg_spi1a_ss;
 extern const mxc_gpio_cfg_t gpio_cfg_spi1b;
+extern const mxc_gpio_cfg_t gpio_cfg_spi1b_ss;
 
 // Timers are only defined once, depending on package, each timer could be mapped to other pins
 extern const mxc_gpio_cfg_t gpio_cfg_tmr0;

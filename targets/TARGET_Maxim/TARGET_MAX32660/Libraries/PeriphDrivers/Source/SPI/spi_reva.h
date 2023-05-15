@@ -44,7 +44,7 @@
 #include "mxc_delay.h"
 #include "spi_regs.h"
 #include "spi_reva_regs.h"
-#include "spi.h"
+#include "mxc_spi.h"
 #include "dma.h"
 
 #ifdef __cplusplus
@@ -81,7 +81,7 @@ struct _mxc_spi_reva_req_t {
 };
 
 int MXC_SPI_RevA_Init(mxc_spi_reva_regs_t *spi, int masterMode, int quadModeUsed, int numSlaves,
-                      unsigned ssPolarity, unsigned int hz);
+                      unsigned ssPolarity, unsigned int hz, unsigned int drv_ssel);
 int MXC_SPI_RevA_Shutdown(mxc_spi_reva_regs_t *spi);
 int MXC_SPI_RevA_ReadyForSleep(mxc_spi_reva_regs_t *spi);
 int MXC_SPI_RevA_SetFrequency(mxc_spi_reva_regs_t *spi, unsigned int hz);

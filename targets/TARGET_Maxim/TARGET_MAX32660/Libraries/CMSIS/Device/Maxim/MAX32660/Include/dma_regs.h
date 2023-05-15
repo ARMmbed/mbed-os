@@ -67,9 +67,7 @@ extern "C" {
 #ifndef __O
 #define __O  volatile
 #endif
-#ifndef __R
-#define __R  volatile const
-#endif
+
 /// @endcond
 
 /* **** Definitions **** */
@@ -99,7 +97,7 @@ typedef struct {
 typedef struct {
     __IO uint32_t int_en;               /**< <tt>\b 0x000:</tt> DMA INT_EN Register */
     __I  uint32_t int_fl;               /**< <tt>\b 0x004:</tt> DMA INT_FL Register */
-    __R  uint32_t rsv_0x8_0xff[62];
+    __I  uint32_t rsv_0x8_0xff[62];
     __IO mxc_dma_ch_regs_t    ch[4];    /**< <tt>\b 0x100:</tt> DMA CH Register */
 } mxc_dma_regs_t;
 

@@ -230,7 +230,7 @@ int MXC_UART_RevA_GetFrequency(mxc_uart_reva_regs_t *uart)
         decimalDiv += 3;
     }
 
-    uartDiv += decimalDiv / 128.0;
+    uartDiv += decimalDiv / (float)128;
     uartDiv *= (1 << (7 - (uart->baud0 & MXC_F_UART_REVA_BAUD0_FACTOR)));
 
     return (int)((float)periphClock / uartDiv);

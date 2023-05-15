@@ -45,7 +45,7 @@
 /* **** Functions **** */
 
 /* ************************************************************************** */
-int MXC_SPIMSS_Init(mxc_spimss_regs_t *spi, unsigned mode, unsigned freq, const sys_map_t sys_cfg)
+int MXC_SPIMSS_Init(mxc_spimss_regs_t *spi, unsigned mode, unsigned freq, const sys_map_t sys_cfg, unsigned drv_ssel)
 {
     int spi_num;
 
@@ -78,7 +78,7 @@ int MXC_SPIMSS_Init(mxc_spimss_regs_t *spi, unsigned mode, unsigned freq, const 
         return E_NO_DEVICE;
     }
 
-    return MXC_SPIMSS_RevA_Init((mxc_spimss_reva_regs_t *)spi, mode, freq);
+    return MXC_SPIMSS_RevA_Init((mxc_spimss_reva_regs_t *)spi, mode, freq, drv_ssel);
 }
 /* ************************************************************************* */
 int MXC_SPIMSS_Shutdown(mxc_spimss_regs_t *spi)
@@ -124,6 +124,13 @@ int MXC_SPIMSS_SlaveTransAsync(mxc_spimss_regs_t *spi, mxc_spimss_req_t *req)
 {
     return MXC_SPIMSS_RevA_SlaveTransAsync((mxc_spimss_reva_regs_t *)spi, (spimss_reva_req_t *)req);
 }
+
+/* ************************************************************************* */
+int MXC_SPIMSS_SetDefaultTXData(mxc_spimss_req_t* spi, unsigned int defaultTXData)
+{
+    return MXC_SPIMSS_RevA_SetDefaultTXData((spimss_reva_req_t*) spi, defaultTXData);
+}
+
 /* ************************************************************************* */
 int MXC_SPIMSS_AbortAsync(mxc_spimss_req_t *req)
 {

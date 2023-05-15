@@ -67,9 +67,7 @@ extern "C" {
 #ifndef __O
 #define __O  volatile
 #endif
-#ifndef __R
-#define __R  volatile const
-#endif
+
 /// @endcond
 
 /* **** Definitions **** */
@@ -89,7 +87,7 @@ typedef struct {
     __IO uint32_t lp_ctrl;              /**< <tt>\b 0x00:</tt> PWRSEQ LP_CTRL Register */
     __IO uint32_t lp_wakefl;            /**< <tt>\b 0x04:</tt> PWRSEQ LP_WAKEFL Register */
     __IO uint32_t lpwk_en;              /**< <tt>\b 0x08:</tt> PWRSEQ LPWK_EN Register */
-    __R  uint32_t rsv_0xc_0x3f[13];
+    __I  uint32_t rsv_0xc_0x3f[13];
     __IO uint32_t lpmemsd;              /**< <tt>\b 0x40:</tt> PWRSEQ LPMEMSD Register */
 } mxc_pwrseq_regs_t;
 

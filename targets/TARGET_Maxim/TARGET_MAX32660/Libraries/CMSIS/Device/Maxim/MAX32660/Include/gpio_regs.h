@@ -67,9 +67,6 @@ extern "C" {
 #ifndef __O
 #define __O  volatile
 #endif
-#ifndef __R
-#define __R  volatile const
-#endif
 /// @endcond
 
 /* **** Definitions **** */
@@ -102,13 +99,13 @@ typedef struct {
     __IO uint32_t int_en;               /**< <tt>\b 0x34:</tt> GPIO INT_EN Register */
     __IO uint32_t int_en_set;           /**< <tt>\b 0x38:</tt> GPIO INT_EN_SET Register */
     __IO uint32_t int_en_clr;           /**< <tt>\b 0x3C:</tt> GPIO INT_EN_CLR Register */
-    __I  uint32_t int_stat;             /**< <tt>\b 0x40:</tt> GPIO INT_STAT Register */
-    __R  uint32_t rsv_0x44;
+    __IO uint32_t int_stat;             /**< <tt>\b 0x40:</tt> GPIO INT_STAT Register */
+    __I  uint32_t rsv_0x44;
     __IO uint32_t int_clr;              /**< <tt>\b 0x48:</tt> GPIO INT_CLR Register */
     __IO uint32_t wake_en;              /**< <tt>\b 0x4C:</tt> GPIO WAKE_EN Register */
     __IO uint32_t wake_en_set;          /**< <tt>\b 0x50:</tt> GPIO WAKE_EN_SET Register */
     __IO uint32_t wake_en_clr;          /**< <tt>\b 0x54:</tt> GPIO WAKE_EN_CLR Register */
-    __R  uint32_t rsv_0x58;
+    __I  uint32_t rsv_0x58;
     __IO uint32_t int_dual_edge;        /**< <tt>\b 0x5C:</tt> GPIO INT_DUAL_EDGE Register */
     __IO uint32_t pad_cfg1;             /**< <tt>\b 0x60:</tt> GPIO PAD_CFG1 Register */
     __IO uint32_t pad_cfg2;             /**< <tt>\b 0x64:</tt> GPIO PAD_CFG2 Register */
@@ -118,13 +115,13 @@ typedef struct {
     __IO uint32_t en2;                  /**< <tt>\b 0x74:</tt> GPIO EN2 Register */
     __IO uint32_t en2_set;              /**< <tt>\b 0x78:</tt> GPIO EN2_SET Register */
     __IO uint32_t en2_clr;              /**< <tt>\b 0x7C:</tt> GPIO EN2_CLR Register */
-    __R  uint32_t rsv_0x80_0xa7[10];
+    __I  uint32_t rsv_0x80_0xa7[10];
     __IO uint32_t is;                   /**< <tt>\b 0xA8:</tt> GPIO IS Register */
     __IO uint32_t sr;                   /**< <tt>\b 0xAC:</tt> GPIO SR Register */
     __IO uint32_t ds0;                  /**< <tt>\b 0xB0:</tt> GPIO DS0 Register */
     __IO uint32_t ds1;                  /**< <tt>\b 0xB4:</tt> GPIO DS1 Register */
     __IO uint32_t ps;                   /**< <tt>\b 0xB8:</tt> GPIO PS Register */
-    __R  uint32_t rsv_0xbc;
+    __I  uint32_t rsv_0xbc;
     __IO uint32_t vssel;                /**< <tt>\b 0xC0:</tt> GPIO VSSEL Register */
 } mxc_gpio_regs_t;
 

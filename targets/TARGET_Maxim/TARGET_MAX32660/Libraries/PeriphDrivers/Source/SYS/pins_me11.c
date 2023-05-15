@@ -67,18 +67,15 @@ const mxc_gpio_cfg_t gpio_cfg_uart1c = { MXC_GPIO0, (MXC_GPIO_PIN_6 | MXC_GPIO_P
 const mxc_gpio_cfg_t gpio_cfg_uart1_flow = { MXC_GPIO0, (MXC_GPIO_PIN_12 | MXC_GPIO_PIN_13),
                                              MXC_GPIO_FUNC_ALT2, MXC_GPIO_PAD_NONE };
 
-const mxc_gpio_cfg_t gpio_cfg_spi0 = {
-    MXC_GPIO0, (MXC_GPIO_PIN_4 | MXC_GPIO_PIN_5 | MXC_GPIO_PIN_6 | MXC_GPIO_PIN_7),
-    MXC_GPIO_FUNC_ALT1, MXC_GPIO_PAD_NONE
-};
-const mxc_gpio_cfg_t gpio_cfg_spi1a = {
-    MXC_GPIO0, (MXC_GPIO_PIN_10 | MXC_GPIO_PIN_11 | MXC_GPIO_PIN_12 | MXC_GPIO_PIN_13),
-    MXC_GPIO_FUNC_ALT1, MXC_GPIO_PAD_NONE
-};
-const mxc_gpio_cfg_t gpio_cfg_spi1b = {
-    MXC_GPIO0, (MXC_GPIO_PIN_0 | MXC_GPIO_PIN_1 | MXC_GPIO_PIN_2 | MXC_GPIO_PIN_3),
-    MXC_GPIO_FUNC_ALT2, MXC_GPIO_PAD_NONE
-};
+//SPI0
+const mxc_gpio_cfg_t gpio_cfg_spi0              =   { MXC_GPIO0, (MXC_GPIO_PIN_4 | MXC_GPIO_PIN_5 | MXC_GPIO_PIN_6), MXC_GPIO_FUNC_ALT1, MXC_GPIO_PAD_NONE };
+const mxc_gpio_cfg_t gpio_cfg_spi0_ss           =   { MXC_GPIO0, MXC_GPIO_PIN_7, MXC_GPIO_FUNC_ALT1, MXC_GPIO_PAD_NONE };
+// SPI1A
+const mxc_gpio_cfg_t gpio_cfg_spi1a             =   { MXC_GPIO0, (MXC_GPIO_PIN_10| MXC_GPIO_PIN_11| MXC_GPIO_PIN_12), MXC_GPIO_FUNC_ALT1, MXC_GPIO_PAD_NONE };
+const mxc_gpio_cfg_t gpio_cfg_spi1a_ss          =   { MXC_GPIO0, MXC_GPIO_PIN_13, MXC_GPIO_FUNC_ALT1, MXC_GPIO_PAD_NONE };
+//SPI1B
+const mxc_gpio_cfg_t gpio_cfg_spi1b             =   { MXC_GPIO0, (MXC_GPIO_PIN_0 | MXC_GPIO_PIN_1 | MXC_GPIO_PIN_2), MXC_GPIO_FUNC_ALT2, MXC_GPIO_PAD_NONE };
+const mxc_gpio_cfg_t gpio_cfg_spi1b_ss          =   { MXC_GPIO0, MXC_GPIO_PIN_3, MXC_GPIO_FUNC_ALT2, MXC_GPIO_PAD_NONE };
 
 // Timers are only defined once, depending on package, each timer could be mapped to other pins
 const mxc_gpio_cfg_t gpio_cfg_tmr0 = { MXC_GPIO0, MXC_GPIO_PIN_3, MXC_GPIO_FUNC_ALT3,

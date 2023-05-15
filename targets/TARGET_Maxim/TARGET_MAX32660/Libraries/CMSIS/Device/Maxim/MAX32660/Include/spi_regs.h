@@ -67,9 +67,7 @@ extern "C" {
 #ifndef __O
 #define __O  volatile
 #endif
-#ifndef __R
-#define __R  volatile const
-#endif
+
 /// @endcond
 
 /* **** Definitions **** */
@@ -92,7 +90,7 @@ typedef struct {
     __IO uint32_t ctrl2;                /**< <tt>\b 0x0C:</tt> SPI CTRL2 Register */
     __IO uint32_t ss_time;              /**< <tt>\b 0x10:</tt> SPI SS_TIME Register */
     __IO uint32_t clk_cfg;              /**< <tt>\b 0x14:</tt> SPI CLK_CFG Register */
-    __R  uint32_t rsv_0x18;
+    __I  uint32_t rsv_0x18;
     __IO uint32_t dma;                  /**< <tt>\b 0x1C:</tt> SPI DMA Register */
     __IO uint32_t int_fl;               /**< <tt>\b 0x20:</tt> SPI INT_FL Register */
     __IO uint32_t int_en;               /**< <tt>\b 0x24:</tt> SPI INT_EN Register */

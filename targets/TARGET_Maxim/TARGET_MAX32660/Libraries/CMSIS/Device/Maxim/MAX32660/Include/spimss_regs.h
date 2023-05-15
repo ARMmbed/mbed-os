@@ -67,9 +67,7 @@ extern "C" {
 #ifndef __O
 #define __O  volatile
 #endif
-#ifndef __R
-#define __R  volatile const
-#endif
+
 /// @endcond
 
 /* **** Definitions **** */
@@ -87,11 +85,11 @@ extern "C" {
  */
 typedef struct {
     __IO uint16_t data;                 /**< <tt>\b 0x00:</tt> SPIMSS DATA Register */
-    __R  uint16_t rsv_0x2;
+    __I  uint16_t rsv_0x2;
     __IO uint32_t ctrl;                 /**< <tt>\b 0x04:</tt> SPIMSS CTRL Register */
     __IO uint32_t int_fl;               /**< <tt>\b 0x08:</tt> SPIMSS INT_FL Register */
     __IO uint32_t mode;                 /**< <tt>\b 0x0C:</tt> SPIMSS MODE Register */
-    __R  uint32_t rsv_0x10;
+    __I  uint32_t rsv_0x10;
     __IO uint32_t brg;                  /**< <tt>\b 0x14:</tt> SPIMSS BRG Register */
     __IO uint32_t dma;                  /**< <tt>\b 0x18:</tt> SPIMSS DMA Register */
     __IO uint32_t i2s_ctrl;             /**< <tt>\b 0x1C:</tt> SPIMSS I2S_CTRL Register */

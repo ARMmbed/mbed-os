@@ -156,23 +156,24 @@ void MXC_LP_DisableRTCAlarmWakeup(void)
     MXC_GCR->pm &= ~MXC_F_GCR_PM_RTCWK_EN;
 }
 
-void MXC_LP_EnableGPIOWakeup(const mxc_gpio_cfg_t *wu_pins)
+void MXC_LP_EnableGPIOWakeup(unsigned int port, unsigned int mask)
 {
     MXC_GCR->pm |= MXC_F_GCR_PM_GPIOWK_EN;
-    //switch(wu_pins->port)
+    //switch(port)
     //{
-    /*case 0:*/ MXC_PWRSEQ->lpwk_en |= wu_pins->mask; //break;
+      /*case 0:*/ MXC_PWRSEQ->lpwk_en |= mask; //break;
     //}
 }
 
-void MXC_LP_DisableGPIOWakeup(const mxc_gpio_cfg_t *wu_pins)
+void MXC_LP_DisableGPIOWakeup(unsigned int port, unsigned int mask)
 {
-    //switch(wu_pins->port)
+    //switch(port)
     //{
-    /*  case 0:*/ MXC_PWRSEQ->lpwk_en &= ~wu_pins->mask; //break;
+    /*  case 0:*/ MXC_PWRSEQ->lpwk_en &= ~mask; //break;
     //}
-
-    if (MXC_PWRSEQ->lpwk_en == 0) {
+    
+    if(MXC_PWRSEQ->lpwk_en == 0)
+    {
         MXC_GCR->pm &= ~MXC_F_GCR_PM_GPIOWK_EN;
     }
 }
