@@ -242,9 +242,7 @@
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
         ],
         "supported_toolchains": [
-            "ARM",
-            "GCC_ARM",
-            "IAR"
+            "GCC_ARM"
         ],
         "device_has": [
             "ANALOGIN",
@@ -298,7 +296,6 @@
             "NXP_EMAC"
         ],
         "supported_toolchains": [
-            "ARM",
             "GCC_ARM"
         ],
         "detect_code": [
@@ -366,9 +363,7 @@
         ],
         "core": "Cortex-M3",
         "supported_toolchains": [
-            "ARM",
-            "GCC_ARM",
-            "IAR"
+            "GCC_ARM"
         ],
          "supported_application_profiles": [
             "full", "bare-metal"
@@ -444,7 +439,6 @@
         ],
         "is_disk_virtual": true,
         "supported_toolchains": [
-            "ARM",
             "GCC_ARM"
         ],
         "inherits": [
@@ -501,8 +495,7 @@
         ],
         "is_disk_virtual": true,
         "supported_toolchains": [
-            "GCC_ARM",
-            "ARM"
+            "GCC_ARM"
         ],
         "inherits": [
             "Target"
@@ -551,7 +544,6 @@
     "MCU_K22F512": {
         "core": "Cortex-M4F",
         "supported_toolchains": [
-            "ARM",
             "GCC_ARM"
         ],
         "components_add": [
@@ -640,8 +632,7 @@
         ],
         "core": "Cortex-M0+",
         "supported_toolchains": [
-            "GCC_ARM",
-            "ARM"
+            "GCC_ARM"
         ],
         "extra_labels": [
             "Freescale",
@@ -709,7 +700,6 @@
         ],
         "core": "Cortex-M0+",
         "supported_toolchains": [
-            "ARM",
             "GCC_ARM"
         ],
         "extra_labels": [
@@ -772,7 +762,6 @@
         ],
         "core": "Cortex-M4F",
         "supported_toolchains": [
-            "ARM",
             "GCC_ARM"
         ],
         "extra_labels_add": [
@@ -879,7 +868,6 @@
         ],
         "core": "Cortex-M4F",
         "supported_toolchains": [
-            "ARM",
             "GCC_ARM"
         ],
         "macros": [
@@ -933,7 +921,6 @@
         ],
         "core": "Cortex-M3",
         "supported_toolchains": [
-            "ARM",
             "GCC_ARM"
         ],
         "macros": [
@@ -993,9 +980,7 @@
             "MCU_K64F"
         ],
         "supported_toolchains": [
-            "ARM",
-            "GCC_ARM",
-            "IAR"
+            "GCC_ARM"
         ],
         "supported_application_profiles": [
             "full",
@@ -1054,9 +1039,7 @@
         ],
         "core": "Cortex-M4F",
         "supported_toolchains": [
-            "ARM",
-            "GCC_ARM",
-            "IAR"
+            "GCC_ARM"
         ],
         "extra_labels_add": [
             "Freescale",
@@ -1137,7 +1120,6 @@
         ],
         "core": "Cortex-M4F",
         "supported_toolchains": [
-            "ARM",
             "GCC_ARM"
         ],
         "extra_labels": [
@@ -1208,8 +1190,6 @@
             "STM"
         ],
         "supported_toolchains": [
-            "ARM",
-            "IAR",
             "GCC_ARM"
         ],
         "supported_c_libs": {
@@ -5250,7 +5230,6 @@
         ],
         "core": "Cortex-M7FD",
         "supported_toolchains": [
-            "ARM",
             "GCC_ARM"
         ],
         "extra_labels": [
@@ -5315,7 +5294,6 @@
         ],
         "core": "Cortex-M4F",
         "supported_toolchains": [
-            "ARM",
             "GCC_ARM"
         ],
         "extra_labels": [
@@ -5381,7 +5359,6 @@
     "MCU_LPC546XX": {
         "core": "Cortex-M4F",
         "supported_toolchains": [
-            "ARM",
             "GCC_ARM"
         ],
         "extra_labels": [
@@ -5515,7 +5492,6 @@
         ],
         "core": "Cortex-M0",
         "supported_toolchains": [
-            "ARM",
             "GCC_ARM"
         ],
         "extra_labels": [
@@ -5556,7 +5532,6 @@
         ],
         "core": "Cortex-M0+",
         "supported_toolchains": [
-            "ARM",
             "GCC_ARM"
         ],
         "extra_labels": [
@@ -5595,7 +5570,6 @@
         ],
         "core": "Cortex-M3",
         "supported_toolchains": [
-            "ARM",
             "GCC_ARM"
         ],
         "extra_labels": [
@@ -5635,7 +5609,6 @@
         ],
         "core": "Cortex-M4F",
         "supported_toolchains": [
-            "ARM",
             "GCC_ARM"
         ],
         "extra_labels": [
@@ -5675,7 +5648,6 @@
         ],
         "core": "Cortex-M7FD",
         "supported_toolchains": [
-            "ARM",
             "GCC_ARM"
         ],
         "extra_labels": [
@@ -5737,9 +5709,7 @@
         ],
         "core": "Cortex-M3",
         "supported_toolchains": [
-            "ARM",
-            "GCC_ARM",
-            "IAR"
+            "GCC_ARM"
         ],
         "components_add": [
             "SMSC9220"
@@ -5796,7 +5766,6 @@
         ],
         "core": "Cortex-M33-NS",
         "supported_toolchains": [
-            "ARMC6",
             "GCC_ARM"
         ],
         "device_has_add": [
@@ -5852,7 +5821,6 @@
         ],
         "core": "Cortex-M33-NS",
         "supported_toolchains": [
-            "ARMC6",
             "GCC_ARM"
         ],
         "device_has_add": [
@@ -5904,7 +5872,6 @@
         "public": false,
         "core": "Cortex-A9",
         "supported_toolchains": [
-            "ARM",
             "GCC_ARM"
         ],
         "extra_labels": [
@@ -6037,7 +6004,7 @@
         "inherits": ["Target"],
         "public": false,
         "core": "Cortex-A9",
-        "supported_toolchains": ["ARM", "GCC_ARM"],
+        "supported_toolchains": ["GCC_ARM"],
         "extra_labels": ["RENESAS", "RZ_A2XX"],
         "device_has": [
             "SLEEP",
@@ -6110,9 +6077,7 @@
             "MAX32620C"
         ],
         "supported_toolchains": [
-            "GCC_ARM",
-            "IAR",
-            "ARM"
+            "GCC_ARM"
         ],
         "device_has": [
             "ANALOGIN",
@@ -6168,8 +6133,7 @@
             "MAX32620C"
         ],
         "supported_toolchains": [
-            "GCC_ARM",
-            "ARM"
+            "GCC_ARM"
         ],
         "device_has": [
             "ANALOGIN",
@@ -6218,9 +6182,7 @@
             "MAX32625"
         ],
         "supported_toolchains": [
-            "GCC_ARM",
-            "IAR",
-            "ARM"
+            "GCC_ARM"
         ],
         "device_has": [
             "ANALOGIN",
@@ -6308,9 +6270,7 @@
             "MAX32630"
         ],
         "supported_toolchains": [
-            "GCC_ARM",
-            "IAR",
-            "ARM"
+            "GCC_ARM"
         ],
         "features_add": [
             "STORAGE"
@@ -6372,8 +6332,7 @@
             "MAX32660"
         ],
         "supported_toolchains": [
-            "GCC_ARM",
-            "ARM"
+            "GCC_ARM"
         ],
         "device_has": [
             "SERIAL",
@@ -6451,8 +6410,7 @@
             "MAX32670"
         ],
         "supported_toolchains": [
-            "GCC_ARM",
-            "ARM"
+            "GCC_ARM"
         ],
         "device_has": [
             "SERIAL",
@@ -6549,8 +6507,7 @@
             "TRANSACTION_QUEUE_SIZE_SPI=4"
         ],
         "supported_toolchains": [
-            "GCC_ARM",
-            "ARM"
+            "GCC_ARM"
         ],
         "release_versions": [
             "5"
@@ -6665,8 +6622,7 @@
             "TRANSACTION_QUEUE_SIZE_SPI=4"
         ],
         "supported_toolchains": [
-            "GCC_ARM",
-            "ARM"
+            "GCC_ARM"
         ],
         "release_versions": [
             "5"
@@ -6776,8 +6732,7 @@
             "TRANSACTION_QUEUE_SIZE_SPI=4"
         ],
         "supported_toolchains": [
-            "GCC_ARM",
-            "ARM"
+            "GCC_ARM"
         ],
         "release_versions": [
             "5"
@@ -6965,8 +6920,7 @@
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
         "supported_toolchains": [
-            "GCC_ARM",
-            "ARM"
+            "GCC_ARM"
         ],
         "public": false,
         "detect_code": [
@@ -7132,8 +7086,7 @@
         "device_name": "nRF52840_xxAA",
         "is_disk_virtual": true,
         "supported_toolchains": [
-            "GCC_ARM",
-            "ARM"
+            "GCC_ARM"
         ],
         "public": false,
         "detect_code": [
@@ -7234,7 +7187,6 @@
         ],
         "is_disk_virtual": true,
         "supported_toolchains": [
-            "ARM",
             "GCC_ARM"
         ],
         "config": {
@@ -7347,9 +7299,7 @@
         ],
         "is_disk_virtual": true,
         "supported_toolchains": [
-            "ARM",
-            "GCC_ARM",
-            "IAR"
+            "GCC_ARM"
         ],
         "config": {
             "hxt-present": {
@@ -7468,9 +7418,7 @@
         ],
         "is_disk_virtual": true,
         "supported_toolchains": [
-            "ARM",
-            "GCC_ARM",
-            "IAR"
+            "GCC_ARM"
         ],
         "config": {
             "hxt-present": {
@@ -7583,9 +7531,7 @@
         ],
         "is_disk_virtual": true,
         "supported_toolchains": [
-            "ARM",
-            "GCC_ARM",
-            "IAR"
+            "GCC_ARM"
         ],
         "config": {
             "hxt-present": {
@@ -7771,7 +7717,6 @@
         ],
         "is_disk_virtual": true,
         "supported_toolchains": [
-            "ARM",
             "GCC_ARM"
         ],
         "config": {
@@ -7956,8 +7901,7 @@
             "__TMPM46B__"
         ],
         "supported_toolchains": [
-            "GCC_ARM",
-            "ARM"
+            "GCC_ARM"
         ],
         "device_has": [
             "USTICKER",
@@ -8023,8 +7967,7 @@
         ],
         "public": false,
         "supported_toolchains": [
-            "GCC_ARM",
-            "ARM"
+            "GCC_ARM"
         ],
         "OUTPUT_EXT": "elf",
         "device_has": [
@@ -8131,9 +8074,7 @@
         "core": "Cortex-M23-NS",
         "default_toolchain": "ARMC6",
         "supported_toolchains": [
-            "ARMC6",
-            "GCC_ARM",
-            "IAR"
+            "GCC_ARM"
         ],
         "features_add": [
             "EXPERIMENTAL_API"
@@ -8285,7 +8226,6 @@
             "LPTICKER_DELAY_TICKS=4"
         ],
         "supported_toolchains": [
-            "ARM",
             "GCC_ARM"
         ],
         "config": {
@@ -8436,8 +8376,7 @@
             "__TMPM4G9__"
         ],
         "supported_toolchains": [
-            "GCC_ARM",
-            "ARM"
+            "GCC_ARM"
         ],
         "device_has": [
             "ANALOGIN",
@@ -8496,9 +8435,7 @@
         ],
         "default_toolchain": "GCC_ARM",
         "supported_toolchains": [
-            "ARM",
-            "GCC_ARM",
-            "IAR"
+            "GCC_ARM"
         ],
         "core": "Cortex-M4F",
         "OUTPUT_EXT": "hex",
@@ -9080,7 +9017,6 @@
             "GigaDevice"
         ],
         "supported_toolchains": [
-            "ARM",
             "GCC_ARM"
         ],
         "device_has_add": [
@@ -9231,7 +9167,6 @@
         ],
         "is_disk_virtual": true,
         "supported_toolchains": [
-            "ARM",
             "GCC_ARM"
         ],
         "config": {
@@ -9372,8 +9307,7 @@
         ],
         "core": "Cortex-M7",
         "supported_toolchains": [
-            "GCC_ARM",
-            "ARM"
+            "GCC_ARM"
         ],
         "default_toolchain": "GCC_ARM",
         "extra_labels": [
@@ -9427,8 +9361,7 @@
         "inherits": ["Target"],
         "core": "Cortex-M4F",
         "supported_toolchains": [
-            "GCC_ARM",
-            "ARM"
+            "GCC_ARM"
         ],
         "default_toolchain": "GCC_ARM",
         "extra_labels": [
@@ -9469,8 +9402,7 @@
         "features": ["BLE"],
         "default_toolchain": "GCC_ARM",
         "supported_toolchains": [
-            "GCC_ARM",
-            "ARMC6"
+            "GCC_ARM"
         ],
         "public": false,
         "extra_labels": [
@@ -9553,7 +9485,7 @@
         "is_disk_virtual": true,
         "extra_labels": ["TOSHIBA"],
         "macros": ["__TMPM4KN__"],
-        "supported_toolchains": ["GCC_ARM","ARMC6"],
+        "supported_toolchains": ["GCC_ARM"],
         "device_has": [
             "ANALOGIN",
 	    "INTERRUPTIN",
@@ -9601,8 +9533,7 @@
             "TMPM4NR"
         ],
         "supported_toolchains": [
-            "GCC_ARM",
-            "ARM"
+            "GCC_ARM"
 	],
         "device_has": [
             "ANALOGIN",
@@ -9661,8 +9592,7 @@
             "__TMPM4GR__"
         ],
         "supported_toolchains": [
-            "GCC_ARM",
-            "ARM"
+            "GCC_ARM"
 	],
         "device_has": [
             "ANALOGIN",
