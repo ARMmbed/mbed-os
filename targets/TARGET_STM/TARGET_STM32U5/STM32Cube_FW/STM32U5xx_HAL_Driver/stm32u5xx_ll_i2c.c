@@ -30,7 +30,7 @@
   * @{
   */
 
-#if defined (I2C1) || defined (I2C2) || defined (I2C3) || defined (I2C4)
+#if defined (I2C1) || defined (I2C2) || defined (I2C3) || defined (I2C4) || defined (I2C5) || defined (I2C6)
 
 /** @defgroup I2C_LL I2C
   * @{
@@ -83,7 +83,7 @@
   *          - SUCCESS: I2C registers are de-initialized
   *          - ERROR: I2C registers are not de-initialized
   */
-ErrorStatus LL_I2C_DeInit(I2C_TypeDef *I2Cx)
+ErrorStatus LL_I2C_DeInit(const I2C_TypeDef *I2Cx)
 {
   ErrorStatus status = SUCCESS;
 
@@ -123,6 +123,26 @@ ErrorStatus LL_I2C_DeInit(I2C_TypeDef *I2Cx)
     /* Release reset of I2C clock */
     LL_APB1_GRP2_ReleaseReset(LL_APB1_GRP2_PERIPH_I2C4);
   }
+#if defined(I2C5)
+  else if (I2Cx == I2C5)
+  {
+    /* Force reset of I2C clock */
+    LL_APB1_GRP2_ForceReset(LL_APB1_GRP2_PERIPH_I2C5);
+
+    /* Release reset of I2C clock */
+    LL_APB1_GRP2_ReleaseReset(LL_APB1_GRP2_PERIPH_I2C5);
+  }
+#endif /* I2C5 */
+#if defined(I2C6)
+  else if (I2Cx == I2C6)
+  {
+    /* Force reset of I2C clock */
+    LL_APB1_GRP2_ForceReset(LL_APB1_GRP2_PERIPH_I2C6);
+
+    /* Release reset of I2C clock */
+    LL_APB1_GRP2_ReleaseReset(LL_APB1_GRP2_PERIPH_I2C6);
+  }
+#endif /* I2C6 */
   else
   {
     status = ERROR;
@@ -139,7 +159,7 @@ ErrorStatus LL_I2C_DeInit(I2C_TypeDef *I2Cx)
   *          - SUCCESS: I2C registers are initialized
   *          - ERROR: Not applicable
   */
-ErrorStatus LL_I2C_Init(I2C_TypeDef *I2Cx, LL_I2C_InitTypeDef *I2C_InitStruct)
+ErrorStatus LL_I2C_Init(I2C_TypeDef *I2Cx, const LL_I2C_InitTypeDef *I2C_InitStruct)
 {
   /* Check the I2C Instance I2Cx */
   assert_param(IS_I2C_ALL_INSTANCE(I2Cx));
@@ -231,7 +251,7 @@ void LL_I2C_StructInit(LL_I2C_InitTypeDef *I2C_InitStruct)
   * @}
   */
 
-#endif /* I2C1 || I2C2 || I2C3 || I2C4 */
+#endif /* I2C1 || I2C2 || I2C3 || I2C4 || I2C5 || I2C6 */
 
 /**
   * @}

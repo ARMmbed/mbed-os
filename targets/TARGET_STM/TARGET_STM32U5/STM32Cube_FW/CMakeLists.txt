@@ -22,12 +22,15 @@ target_sources(mbed-stm32u5cube-fw
         STM32U5xx_HAL_Driver/stm32u5xx_hal_dma.c
         STM32U5xx_HAL_Driver/stm32u5xx_hal_dma2d.c
         STM32U5xx_HAL_Driver/stm32u5xx_hal_dma_ex.c
+        STM32U5xx_HAL_Driver/stm32u5xx_hal_dsi.c
         STM32U5xx_HAL_Driver/stm32u5xx_hal_exti.c
         STM32U5xx_HAL_Driver/stm32u5xx_hal_fdcan.c
         STM32U5xx_HAL_Driver/stm32u5xx_hal_flash.c
         STM32U5xx_HAL_Driver/stm32u5xx_hal_flash_ex.c
         STM32U5xx_HAL_Driver/stm32u5xx_hal_fmac.c
+        STM32U5xx_HAL_Driver/stm32u5xx_hal_gfxmmu.c
         STM32U5xx_HAL_Driver/stm32u5xx_hal_gpio.c
+        STM32U5xx_HAL_Driver/stm32u5xx_hal_gpu2d.c
         STM32U5xx_HAL_Driver/stm32u5xx_hal_gtzc.c
         STM32U5xx_HAL_Driver/stm32u5xx_hal_hash.c
         STM32U5xx_HAL_Driver/stm32u5xx_hal_hash_ex.c
@@ -38,6 +41,8 @@ target_sources(mbed-stm32u5cube-fw
         STM32U5xx_HAL_Driver/stm32u5xx_hal_irda.c
         STM32U5xx_HAL_Driver/stm32u5xx_hal_iwdg.c
         STM32U5xx_HAL_Driver/stm32u5xx_hal_lptim.c
+        STM32U5xx_HAL_Driver/stm32u5xx_hal_ltdc.c
+        STM32U5xx_HAL_Driver/stm32u5xx_hal_ltdc_ex.c
         STM32U5xx_HAL_Driver/stm32u5xx_hal_mdf.c
         STM32U5xx_HAL_Driver/stm32u5xx_hal_mmc.c
         STM32U5xx_HAL_Driver/stm32u5xx_hal_mmc_ex.c
@@ -79,6 +84,7 @@ target_sources(mbed-stm32u5cube-fw
         STM32U5xx_HAL_Driver/stm32u5xx_hal_usart.c
         STM32U5xx_HAL_Driver/stm32u5xx_hal_usart_ex.c
         STM32U5xx_HAL_Driver/stm32u5xx_hal_wwdg.c
+        STM32U5xx_HAL_Driver/stm32u5xx_hal_xspi.c
         STM32U5xx_HAL_Driver/stm32u5xx_ll_adc.c
         STM32U5xx_HAL_Driver/stm32u5xx_ll_comp.c
         STM32U5xx_HAL_Driver/stm32u5xx_ll_cordic.c

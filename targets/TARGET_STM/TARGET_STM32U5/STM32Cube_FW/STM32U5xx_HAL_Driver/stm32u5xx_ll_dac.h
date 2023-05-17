@@ -295,9 +295,12 @@ typedef struct
 #define LL_DAC_TRIG_EXT_TIM7_TRGO          (                 DAC_CR_TSEL1_2 | DAC_CR_TSEL1_1                 ) /*!< DAC channel conversion trigger from external peripheral: TIM7 TRGO. */
 #define LL_DAC_TRIG_EXT_TIM8_TRGO          (                 DAC_CR_TSEL1_2 | DAC_CR_TSEL1_1 | DAC_CR_TSEL1_0) /*!< DAC channel conversion trigger from external peripheral: TIM8 TRGO. */
 #define LL_DAC_TRIG_EXT_TIM15_TRGO         (DAC_CR_TSEL1_3                                                   ) /*!< DAC channel conversion trigger from external peripheral: TIM15 TRGO. */
-#define LL_DAC_TRIG_EXT_LPTIM1_OUT         (DAC_CR_TSEL1_3                  | DAC_CR_TSEL1_1 | DAC_CR_TSEL1_0) /*!< DAC channel conversion trigger from external peripheral: LPTIM1 TRGO. */
-#define LL_DAC_TRIG_EXT_LPTIM3_OUT         (DAC_CR_TSEL1_3 | DAC_CR_TSEL1_2                                  ) /*!< DAC channel conversion trigger from external peripheral: LPTIM3 TRGO. */
+#define LL_DAC_TRIG_EXT_LPTIM1_CH1         (DAC_CR_TSEL1_3                  | DAC_CR_TSEL1_1 | DAC_CR_TSEL1_0) /*!< DAC channel conversion trigger from external peripheral: LPTIM1 CH1. */
+#define LL_DAC_TRIG_EXT_LPTIM3_CH1         (DAC_CR_TSEL1_3 | DAC_CR_TSEL1_2                                  ) /*!< DAC channel conversion trigger from external peripheral: LPTIM3 CH1. */
 #define LL_DAC_TRIG_EXT_EXTI_LINE9         (DAC_CR_TSEL1_3 | DAC_CR_TSEL1_2                  | DAC_CR_TSEL1_0) /*!< DAC channel conversion trigger from external peripheral: external interrupt line 9. */
+
+#define LL_DAC_TRIG_EXT_LPTIM1_OUT         LL_DAC_TRIG_EXT_LPTIM1_CH1 /*!< Keep old definition for compatibility */
+#define LL_DAC_TRIG_EXT_LPTIM3_OUT         LL_DAC_TRIG_EXT_LPTIM3_CH1 /*!< Keep old definition for compatibility */
 /**
   * @}
   */
@@ -596,13 +599,14 @@ __STATIC_INLINE void LL_DAC_SetHighFrequencyMode(DAC_TypeDef *DACx, uint32_t Hig
   *         @arg @ref LL_DAC_HIGH_FREQ_MODE_ABOVE_80MHZ
   *         @arg @ref LL_DAC_HIGH_FREQ_MODE_ABOVE_160MHZ
   */
-__STATIC_INLINE uint32_t LL_DAC_GetHighFrequencyMode(DAC_TypeDef *DACx)
+__STATIC_INLINE uint32_t LL_DAC_GetHighFrequencyMode(const DAC_TypeDef *DACx)
 {
   return (uint32_t)(READ_BIT(DACx->MCR, DAC_MCR_HFSEL));
 }
 /**
   * @}
   */
+
 
 /** @defgroup DAC_LL_EF_Configuration Configuration of DAC channels
   * @{
@@ -642,7 +646,7 @@ __STATIC_INLINE void LL_DAC_SetMode(DAC_TypeDef *DACx, uint32_t DAC_Channel, uin
   *         @arg @ref LL_DAC_MODE_NORMAL_OPERATION
   *         @arg @ref LL_DAC_MODE_CALIBRATION
   */
-__STATIC_INLINE uint32_t LL_DAC_GetMode(DAC_TypeDef *DACx, uint32_t DAC_Channel)
+__STATIC_INLINE uint32_t LL_DAC_GetMode(const DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
   return (uint32_t)(READ_BIT(DACx->CR, DAC_CR_CEN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
                     >> (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)
@@ -681,7 +685,7 @@ __STATIC_INLINE void LL_DAC_SetTrimmingValue(DAC_TypeDef *DACx, uint32_t DAC_Cha
   *         @arg @ref LL_DAC_CHANNEL_2
   * @retval TrimmingValue Value between Min_Data=0x00 and Max_Data=0x1F
   */
-__STATIC_INLINE uint32_t LL_DAC_GetTrimmingValue(DAC_TypeDef *DACx, uint32_t DAC_Channel)
+__STATIC_INLINE uint32_t LL_DAC_GetTrimmingValue(const DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
   return (uint32_t)(READ_BIT(DACx->CCR, DAC_CCR_OTRIM1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
                     >> (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)
@@ -712,8 +716,8 @@ __STATIC_INLINE uint32_t LL_DAC_GetTrimmingValue(DAC_TypeDef *DACx, uint32_t DAC
   *         @arg @ref LL_DAC_TRIG_EXT_TIM7_TRGO
   *         @arg @ref LL_DAC_TRIG_EXT_TIM8_TRGO
   *         @arg @ref LL_DAC_TRIG_EXT_TIM15_TRGO
-  *         @arg @ref LL_DAC_TRIG_EXT_LPTIM1_OUT
-  *         @arg @ref LL_DAC_TRIG_EXT_LPTIM3_OUT
+  *         @arg @ref LL_DAC_TRIG_EXT_LPTIM1_CH1
+  *         @arg @ref LL_DAC_TRIG_EXT_LPTIM3_CH1
   *         @arg @ref LL_DAC_TRIG_EXT_EXTI_LINE9
   * @retval None
   */
@@ -746,11 +750,11 @@ __STATIC_INLINE void LL_DAC_SetTriggerSource(DAC_TypeDef *DACx, uint32_t DAC_Cha
   *         @arg @ref LL_DAC_TRIG_EXT_TIM7_TRGO
   *         @arg @ref LL_DAC_TRIG_EXT_TIM8_TRGO
   *         @arg @ref LL_DAC_TRIG_EXT_TIM15_TRGO
-  *         @arg @ref LL_DAC_TRIG_EXT_LPTIM1_OUT
-  *         @arg @ref LL_DAC_TRIG_EXT_LPTIM3_OUT
+  *         @arg @ref LL_DAC_TRIG_EXT_LPTIM1_CH1
+  *         @arg @ref LL_DAC_TRIG_EXT_LPTIM3_CH1
   *         @arg @ref LL_DAC_TRIG_EXT_EXTI_LINE9
   */
-__STATIC_INLINE uint32_t LL_DAC_GetTriggerSource(DAC_TypeDef *DACx, uint32_t DAC_Channel)
+__STATIC_INLINE uint32_t LL_DAC_GetTriggerSource(const DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
   return (uint32_t)(READ_BIT(DACx->CR, DAC_CR_TSEL1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
                     >> (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)
@@ -793,7 +797,7 @@ __STATIC_INLINE void LL_DAC_SetWaveAutoGeneration(DAC_TypeDef *DACx, uint32_t DA
   *         @arg @ref LL_DAC_WAVE_AUTO_GENERATION_NOISE
   *         @arg @ref LL_DAC_WAVE_AUTO_GENERATION_TRIANGLE
   */
-__STATIC_INLINE uint32_t LL_DAC_GetWaveAutoGeneration(DAC_TypeDef *DACx, uint32_t DAC_Channel)
+__STATIC_INLINE uint32_t LL_DAC_GetWaveAutoGeneration(const DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
   return (uint32_t)(READ_BIT(DACx->CR, DAC_CR_WAVE1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
                     >> (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)
@@ -859,7 +863,7 @@ __STATIC_INLINE void LL_DAC_SetWaveNoiseLFSR(DAC_TypeDef *DACx, uint32_t DAC_Cha
   *         @arg @ref LL_DAC_NOISE_LFSR_UNMASK_BITS10_0
   *         @arg @ref LL_DAC_NOISE_LFSR_UNMASK_BITS11_0
   */
-__STATIC_INLINE uint32_t LL_DAC_GetWaveNoiseLFSR(DAC_TypeDef *DACx, uint32_t DAC_Channel)
+__STATIC_INLINE uint32_t LL_DAC_GetWaveNoiseLFSR(const DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
   return (uint32_t)(READ_BIT(DACx->CR, DAC_CR_MAMP1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
                     >> (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)
@@ -926,7 +930,7 @@ __STATIC_INLINE void LL_DAC_SetWaveTriangleAmplitude(DAC_TypeDef *DACx, uint32_t
   *         @arg @ref LL_DAC_TRIANGLE_AMPLITUDE_2047
   *         @arg @ref LL_DAC_TRIANGLE_AMPLITUDE_4095
   */
-__STATIC_INLINE uint32_t LL_DAC_GetWaveTriangleAmplitude(DAC_TypeDef *DACx, uint32_t DAC_Channel)
+__STATIC_INLINE uint32_t LL_DAC_GetWaveTriangleAmplitude(const DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
   return (uint32_t)(READ_BIT(DACx->CR, DAC_CR_MAMP1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
                     >> (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)
@@ -1024,7 +1028,7 @@ __STATIC_INLINE void LL_DAC_SetOutputMode(DAC_TypeDef *DACx, uint32_t DAC_Channe
   *         @arg @ref LL_DAC_OUTPUT_MODE_NORMAL
   *         @arg @ref LL_DAC_OUTPUT_MODE_SAMPLE_AND_HOLD
   */
-__STATIC_INLINE uint32_t LL_DAC_GetOutputMode(DAC_TypeDef *DACx, uint32_t DAC_Channel)
+__STATIC_INLINE uint32_t LL_DAC_GetOutputMode(const DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
   return (uint32_t)(READ_BIT(DACx->MCR, (uint32_t)DAC_MCR_MODE1_2 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
                     >> (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)
@@ -1067,7 +1071,7 @@ __STATIC_INLINE void LL_DAC_SetOutputBuffer(DAC_TypeDef *DACx, uint32_t DAC_Chan
   *         @arg @ref LL_DAC_OUTPUT_BUFFER_ENABLE
   *         @arg @ref LL_DAC_OUTPUT_BUFFER_DISABLE
   */
-__STATIC_INLINE uint32_t LL_DAC_GetOutputBuffer(DAC_TypeDef *DACx, uint32_t DAC_Channel)
+__STATIC_INLINE uint32_t LL_DAC_GetOutputBuffer(const DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
   return (uint32_t)(READ_BIT(DACx->MCR, (uint32_t)DAC_MCR_MODE1_1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
                     >> (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)
@@ -1126,7 +1130,7 @@ __STATIC_INLINE void LL_DAC_SetOutputConnection(DAC_TypeDef *DACx, uint32_t DAC_
   *         @arg @ref LL_DAC_OUTPUT_CONNECT_GPIO
   *         @arg @ref LL_DAC_OUTPUT_CONNECT_INTERNAL
   */
-__STATIC_INLINE uint32_t LL_DAC_GetOutputConnection(DAC_TypeDef *DACx, uint32_t DAC_Channel)
+__STATIC_INLINE uint32_t LL_DAC_GetOutputConnection(const DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
   return (uint32_t)(READ_BIT(DACx->MCR, (uint32_t)DAC_MCR_MODE1_0 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
                     >> (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)
@@ -1168,7 +1172,7 @@ __STATIC_INLINE void LL_DAC_SetSampleAndHoldSampleTime(DAC_TypeDef *DACx, uint32
   *         @arg @ref LL_DAC_CHANNEL_2
   * @retval Value between Min_Data=0x000 and Max_Data=0x3FF
   */
-__STATIC_INLINE uint32_t LL_DAC_GetSampleAndHoldSampleTime(DAC_TypeDef *DACx, uint32_t DAC_Channel)
+__STATIC_INLINE uint32_t LL_DAC_GetSampleAndHoldSampleTime(const DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
   __IO uint32_t const *preg = __DAC_PTR_REG_OFFSET(DACx->SHSR1, (DAC_Channel >> DAC_REG_SHSRX_REGOFFSET_BITOFFSET_POS)
                                                    & DAC_REG_SHSRX_REGOFFSET_MASK_POSBIT0);
@@ -1206,7 +1210,7 @@ __STATIC_INLINE void LL_DAC_SetSampleAndHoldHoldTime(DAC_TypeDef *DACx, uint32_t
   *         @arg @ref LL_DAC_CHANNEL_2
   * @retval Value between Min_Data=0x000 and Max_Data=0x3FF
   */
-__STATIC_INLINE uint32_t LL_DAC_GetSampleAndHoldHoldTime(DAC_TypeDef *DACx, uint32_t DAC_Channel)
+__STATIC_INLINE uint32_t LL_DAC_GetSampleAndHoldHoldTime(const DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
   return (uint32_t)(READ_BIT(DACx->SHHR, DAC_SHHR_THOLD1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
                     >> (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)
@@ -1243,7 +1247,7 @@ __STATIC_INLINE void LL_DAC_SetSampleAndHoldRefreshTime(DAC_TypeDef *DACx, uint3
   *         @arg @ref LL_DAC_CHANNEL_2
   * @retval Value between Min_Data=0x00 and Max_Data=0xFF
   */
-__STATIC_INLINE uint32_t LL_DAC_GetSampleAndHoldRefreshTime(DAC_TypeDef *DACx, uint32_t DAC_Channel)
+__STATIC_INLINE uint32_t LL_DAC_GetSampleAndHoldRefreshTime(const DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
   return (uint32_t)(READ_BIT(DACx->SHRR, DAC_SHRR_TREFRESH1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
                     >> (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)
@@ -1289,7 +1293,7 @@ __STATIC_INLINE void LL_DAC_SetSignedFormat(DAC_TypeDef *DACx, uint32_t DAC_Chan
   *         @arg @ref LL_DAC_SIGNED_FORMAT_ENABLE
   *         @arg @ref LL_DAC_SIGNED_FORMAT_DISABLE
   */
-__STATIC_INLINE uint32_t LL_DAC_GetSignedFormat(DAC_TypeDef *DACx, uint32_t DAC_Channel)
+__STATIC_INLINE uint32_t LL_DAC_GetSignedFormat(const DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
   return (uint32_t)(READ_BIT(DACx->MCR, DAC_MCR_SINFORMAT1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
                     >> (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)
@@ -1351,7 +1355,7 @@ __STATIC_INLINE void LL_DAC_DisableDMAReq(DAC_TypeDef *DACx, uint32_t DAC_Channe
   *         @arg @ref LL_DAC_CHANNEL_2
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_DAC_IsDMAReqEnabled(DAC_TypeDef *DACx, uint32_t DAC_Channel)
+__STATIC_INLINE uint32_t LL_DAC_IsDMAReqEnabled(const DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
   return ((READ_BIT(DACx->CR,
                     DAC_CR_DMAEN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
@@ -1401,7 +1405,7 @@ __STATIC_INLINE void LL_DAC_DisableDMADoubleDataMode(DAC_TypeDef *DACx, uint32_t
   *         @arg @ref LL_DAC_CHANNEL_2
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_DAC_IsDMADoubleDataModeEnabled(DAC_TypeDef *DACx, uint32_t DAC_Channel)
+__STATIC_INLINE uint32_t LL_DAC_IsDMADoubleDataModeEnabled(const DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
   return ((READ_BIT(DACx->MCR,
                     DAC_MCR_DMADOUBLE1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
@@ -1440,7 +1444,7 @@ __STATIC_INLINE uint32_t LL_DAC_IsDMADoubleDataModeEnabled(DAC_TypeDef *DACx, ui
   *         @arg @ref LL_DAC_DMA_REG_DATA_8BITS_RIGHT_ALIGNED
   * @retval DAC register address
   */
-__STATIC_INLINE uint32_t LL_DAC_DMA_GetRegAddr(DAC_TypeDef *DACx, uint32_t DAC_Channel, uint32_t Register)
+__STATIC_INLINE uint32_t LL_DAC_DMA_GetRegAddr(const DAC_TypeDef *DACx, uint32_t DAC_Channel, uint32_t Register)
 {
   /* Retrieve address of register DHR12Rx, DHR12Lx or DHR8Rx depending on     */
   /* DAC channel selected.                                                    */
@@ -1501,7 +1505,7 @@ __STATIC_INLINE void LL_DAC_Disable(DAC_TypeDef *DACx, uint32_t DAC_Channel)
   *         @arg @ref LL_DAC_CHANNEL_2
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_DAC_IsEnabled(DAC_TypeDef *DACx, uint32_t DAC_Channel)
+__STATIC_INLINE uint32_t LL_DAC_IsEnabled(const DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
   return ((READ_BIT(DACx->CR,
                     DAC_CR_EN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
@@ -1519,7 +1523,7 @@ __STATIC_INLINE uint32_t LL_DAC_IsEnabled(DAC_TypeDef *DACx, uint32_t DAC_Channe
   *         @arg @ref LL_DAC_CHANNEL_2
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_DAC_IsReady(DAC_TypeDef *DACx, uint32_t DAC_Channel)
+__STATIC_INLINE uint32_t LL_DAC_IsReady(const DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
   return ((READ_BIT(DACx->SR,
                     DAC_SR_DAC1RDY << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
@@ -1577,7 +1581,7 @@ __STATIC_INLINE void LL_DAC_DisableTrigger(DAC_TypeDef *DACx, uint32_t DAC_Chann
   *         @arg @ref LL_DAC_CHANNEL_2
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_DAC_IsTriggerEnabled(DAC_TypeDef *DACx, uint32_t DAC_Channel)
+__STATIC_INLINE uint32_t LL_DAC_IsTriggerEnabled(const DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
   return ((READ_BIT(DACx->CR,
                     DAC_CR_TEN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
@@ -1750,7 +1754,7 @@ __STATIC_INLINE void LL_DAC_ConvertDualData8RightAligned(DAC_TypeDef *DACx, uint
   *         @arg @ref LL_DAC_CHANNEL_2
   * @retval Value between Min_Data=0x000 and Max_Data=0xFFF
   */
-__STATIC_INLINE uint32_t LL_DAC_RetrieveOutputData(DAC_TypeDef *DACx, uint32_t DAC_Channel)
+__STATIC_INLINE uint32_t LL_DAC_RetrieveOutputData(const DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
   __IO uint32_t const *preg = __DAC_PTR_REG_OFFSET(DACx->DOR1, (DAC_Channel >> DAC_REG_DORX_REGOFFSET_BITOFFSET_POS)
                                                    & DAC_REG_DORX_REGOFFSET_MASK_POSBIT0);
@@ -1765,13 +1769,14 @@ __STATIC_INLINE uint32_t LL_DAC_RetrieveOutputData(DAC_TypeDef *DACx, uint32_t D
 /** @defgroup DAC_LL_EF_FLAG_Management FLAG Management
   * @{
   */
+
 /**
   * @brief  Get DAC calibration offset flag for DAC channel 1
   * @rmtoll SR       CAL_FLAG1      LL_DAC_IsActiveFlag_CAL1
   * @param  DACx DAC instance
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_CAL1(DAC_TypeDef *DACx)
+__STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_CAL1(const DAC_TypeDef *DACx)
 {
   return ((READ_BIT(DACx->SR, LL_DAC_FLAG_CAL1) == (LL_DAC_FLAG_CAL1)) ? 1UL : 0UL);
 }
@@ -1783,7 +1788,7 @@ __STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_CAL1(DAC_TypeDef *DACx)
   * @param  DACx DAC instance
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_CAL2(DAC_TypeDef *DACx)
+__STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_CAL2(const DAC_TypeDef *DACx)
 {
   return ((READ_BIT(DACx->SR, LL_DAC_FLAG_CAL2) == (LL_DAC_FLAG_CAL2)) ? 1UL : 0UL);
 }
@@ -1795,7 +1800,7 @@ __STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_CAL2(DAC_TypeDef *DACx)
   * @param  DACx DAC instance
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_BWST1(DAC_TypeDef *DACx)
+__STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_BWST1(const DAC_TypeDef *DACx)
 {
   return ((READ_BIT(DACx->SR, LL_DAC_FLAG_BWST1) == (LL_DAC_FLAG_BWST1)) ? 1UL : 0UL);
 }
@@ -1806,7 +1811,7 @@ __STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_BWST1(DAC_TypeDef *DACx)
   * @param  DACx DAC instance
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_BWST2(DAC_TypeDef *DACx)
+__STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_BWST2(const DAC_TypeDef *DACx)
 {
   return ((READ_BIT(DACx->SR, LL_DAC_FLAG_BWST2) == (LL_DAC_FLAG_BWST2)) ? 1UL : 0UL);
 }
@@ -1818,7 +1823,7 @@ __STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_BWST2(DAC_TypeDef *DACx)
   * @param  DACx DAC instance
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_DAC1RDY(DAC_TypeDef *DACx)
+__STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_DAC1RDY(const DAC_TypeDef *DACx)
 {
   return ((READ_BIT(DACx->SR, LL_DAC_FLAG_DAC1RDY) == (LL_DAC_FLAG_DAC1RDY)) ? 1UL : 0UL);
 }
@@ -1830,7 +1835,7 @@ __STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_DAC1RDY(DAC_TypeDef *DACx)
   * @param  DACx DAC instance
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_DAC2RDY(DAC_TypeDef *DACx)
+__STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_DAC2RDY(const DAC_TypeDef *DACx)
 {
   return ((READ_BIT(DACx->SR, LL_DAC_FLAG_DAC2RDY) == (LL_DAC_FLAG_DAC2RDY)) ? 1UL : 0UL);
 }
@@ -1842,7 +1847,7 @@ __STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_DAC2RDY(DAC_TypeDef *DACx)
   * @param  DACx DAC instance
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_DORSTAT1(DAC_TypeDef *DACx)
+__STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_DORSTAT1(const DAC_TypeDef *DACx)
 {
   return ((READ_BIT(DACx->SR, LL_DAC_FLAG_DORSTAT1) == (LL_DAC_FLAG_DORSTAT1)) ? 1UL : 0UL);
 }
@@ -1854,7 +1859,7 @@ __STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_DORSTAT1(DAC_TypeDef *DACx)
   * @param  DACx DAC instance
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_DORSTAT2(DAC_TypeDef *DACx)
+__STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_DORSTAT2(const DAC_TypeDef *DACx)
 {
   return ((READ_BIT(DACx->SR, LL_DAC_FLAG_DORSTAT2) == (LL_DAC_FLAG_DORSTAT2)) ? 1UL : 0UL);
 }
@@ -1865,7 +1870,7 @@ __STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_DORSTAT2(DAC_TypeDef *DACx)
   * @param  DACx DAC instance
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_DMAUDR1(DAC_TypeDef *DACx)
+__STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_DMAUDR1(const DAC_TypeDef *DACx)
 {
   return ((READ_BIT(DACx->SR, LL_DAC_FLAG_DMAUDR1) == (LL_DAC_FLAG_DMAUDR1)) ? 1UL : 0UL);
 }
@@ -1877,7 +1882,7 @@ __STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_DMAUDR1(DAC_TypeDef *DACx)
   * @param  DACx DAC instance
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_DMAUDR2(DAC_TypeDef *DACx)
+__STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_DMAUDR2(const DAC_TypeDef *DACx)
 {
   return ((READ_BIT(DACx->SR, LL_DAC_FLAG_DMAUDR2) == (LL_DAC_FLAG_DMAUDR2)) ? 1UL : 0UL);
 }
@@ -1969,7 +1974,7 @@ __STATIC_INLINE void LL_DAC_DisableIT_DMAUDR2(DAC_TypeDef *DACx)
   * @param  DACx DAC instance
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_DAC_IsEnabledIT_DMAUDR1(DAC_TypeDef *DACx)
+__STATIC_INLINE uint32_t LL_DAC_IsEnabledIT_DMAUDR1(const DAC_TypeDef *DACx)
 {
   return ((READ_BIT(DACx->CR, LL_DAC_IT_DMAUDRIE1) == (LL_DAC_IT_DMAUDRIE1)) ? 1UL : 0UL);
 }
@@ -1981,7 +1986,7 @@ __STATIC_INLINE uint32_t LL_DAC_IsEnabledIT_DMAUDR1(DAC_TypeDef *DACx)
   * @param  DACx DAC instance
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_DAC_IsEnabledIT_DMAUDR2(DAC_TypeDef *DACx)
+__STATIC_INLINE uint32_t LL_DAC_IsEnabledIT_DMAUDR2(const DAC_TypeDef *DACx)
 {
   return ((READ_BIT(DACx->CR, LL_DAC_IT_DMAUDRIE2) == (LL_DAC_IT_DMAUDRIE2)) ? 1UL : 0UL);
 }
@@ -2015,7 +2020,7 @@ __STATIC_INLINE void LL_DAC_DisableAutonomousMode(DAC_TypeDef *DACx)
   * @param  DACx DAC instance
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_DAC_IsAutonomousModeEnabled(DAC_TypeDef *DACx)
+__STATIC_INLINE uint32_t LL_DAC_IsAutonomousModeEnabled(const DAC_TypeDef *DACx)
 {
   return ((READ_BIT(DACx->AUTOCR, DAC_AUTOCR_AUTOMODE) == (DAC_AUTOCR_AUTOMODE)) ? 1UL : 0UL);
 }
@@ -2030,7 +2035,7 @@ __STATIC_INLINE uint32_t LL_DAC_IsAutonomousModeEnabled(DAC_TypeDef *DACx)
   */
 
 ErrorStatus LL_DAC_DeInit(DAC_TypeDef *DACx);
-ErrorStatus LL_DAC_Init(DAC_TypeDef *DACx, uint32_t DAC_Channel, LL_DAC_InitTypeDef *DAC_InitStruct);
+ErrorStatus LL_DAC_Init(DAC_TypeDef *DACx, uint32_t DAC_Channel, const LL_DAC_InitTypeDef *DAC_InitStruct);
 void        LL_DAC_StructInit(LL_DAC_InitTypeDef *DAC_InitStruct);
 
 /**

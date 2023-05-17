@@ -110,6 +110,11 @@
                                          ((MODE) == LL_DMA2D_ALPHA_MODE_REPLACE)  || \
                                          ((MODE) == LL_DMA2D_ALPHA_MODE_COMBINE))
 
+#if defined(DMA2D_FGPFCCR_CSS)
+#define IS_LL_DMA2D_CHROMA_SUB_SAMPLING(CSS) (((CSS) == LL_DMA2D_CSS_444) || \
+                                              ((CSS) == LL_DMA2D_CSS_422) || \
+                                              ((CSS) == LL_DMA2D_CSS_420))
+#endif /* DMA2D_FGPFCCR_CSS */
 
 /**
   * @}
@@ -133,7 +138,7 @@
   *          - SUCCESS: DMA2D registers are de-initialized
   *          - ERROR: DMA2D registers are not de-initialized
   */
-ErrorStatus LL_DMA2D_DeInit(DMA2D_TypeDef *DMA2Dx)
+ErrorStatus LL_DMA2D_DeInit(const DMA2D_TypeDef *DMA2Dx)
 {
   ErrorStatus status = SUCCESS;
 
@@ -290,6 +295,9 @@ void LL_DMA2D_ConfigLayer(DMA2D_TypeDef *DMA2Dx, LL_DMA2D_LayerCfgTypeDef *DMA2D
   assert_param(IS_LL_DMA2D_ALPHA(DMA2D_LayerCfg->Alpha));
   assert_param(IS_LL_DMA2D_ALPHAINV(DMA2D_LayerCfg->AlphaInversionMode));
   assert_param(IS_LL_DMA2D_RBSWAP(DMA2D_LayerCfg->RBSwapMode));
+#if defined(DMA2D_FGPFCCR_CSS)
+  assert_param(IS_LL_DMA2D_CHROMA_SUB_SAMPLING(DMA2D_LayerCfg->ChromaSubSampling));
+#endif /* DMA2D_FGPFCCR_CSS */
 
 
   if (LayerIdx == 0U)
@@ -324,6 +332,17 @@ void LL_DMA2D_ConfigLayer(DMA2D_TypeDef *DMA2Dx, LL_DMA2D_LayerCfgTypeDef *DMA2D
     /* Configure the foreground line offset */
     LL_DMA2D_FGND_SetLineOffset(DMA2Dx, DMA2D_LayerCfg->LineOffset);
 
+#if defined(DMA2D_FGPFCCR_CSS)
+    /* Configure the foreground Alpha value, Alpha mode, RB swap, Alpha inversion
+       CLUT size, CLUT Color mode and Color mode */
+    MODIFY_REG(DMA2Dx->FGPFCCR, \
+               (DMA2D_FGPFCCR_ALPHA | DMA2D_FGPFCCR_RBS | DMA2D_FGPFCCR_AI | DMA2D_FGPFCCR_CSS | DMA2D_FGPFCCR_AM | \
+                DMA2D_FGPFCCR_CS | DMA2D_FGPFCCR_CCM | DMA2D_FGPFCCR_CM), \
+               ((DMA2D_LayerCfg->Alpha << DMA2D_FGPFCCR_ALPHA_Pos) | DMA2D_LayerCfg->RBSwapMode | \
+                DMA2D_LayerCfg->AlphaInversionMode | DMA2D_LayerCfg->ChromaSubSampling | \
+                DMA2D_LayerCfg->AlphaMode | (DMA2D_LayerCfg->CLUTSize << DMA2D_FGPFCCR_CS_Pos) | \
+                DMA2D_LayerCfg->CLUTColorMode | DMA2D_LayerCfg->ColorMode));
+#else
     /* Configure the foreground Alpha value, Alpha mode, RB swap, Alpha inversion
        CLUT size, CLUT Color mode and Color mode */
     MODIFY_REG(DMA2Dx->FGPFCCR, \
@@ -333,6 +352,7 @@ void LL_DMA2D_ConfigLayer(DMA2D_TypeDef *DMA2Dx, LL_DMA2D_LayerCfgTypeDef *DMA2D
                 DMA2D_LayerCfg->AlphaInversionMode | DMA2D_LayerCfg->AlphaMode | \
                 (DMA2D_LayerCfg->CLUTSize << DMA2D_FGPFCCR_CS_Pos) | DMA2D_LayerCfg->CLUTColorMode | \
                 DMA2D_LayerCfg->ColorMode));
+#endif /* DMA2D_FGPFCCR_CSS */
 
     /* Configure the foreground color */
     LL_DMA2D_FGND_SetColor(DMA2Dx, DMA2D_LayerCfg->Red, DMA2D_LayerCfg->Green, DMA2D_LayerCfg->Blue);
@@ -364,6 +384,9 @@ void LL_DMA2D_LayerCfgStructInit(LL_DMA2D_LayerCfgTypeDef *DMA2D_LayerCfg)
   DMA2D_LayerCfg->CLUTMemoryAddress  = 0x0U;
   DMA2D_LayerCfg->AlphaInversionMode = LL_DMA2D_ALPHA_REGULAR;
   DMA2D_LayerCfg->RBSwapMode         = LL_DMA2D_RB_MODE_REGULAR;
+#if defined(DMA2D_FGPFCCR_CSS)
+  DMA2D_LayerCfg->ChromaSubSampling  = LL_DMA2D_CSS_444;
+#endif /* DMA2D_FGPFCCR_CSS */
 }
 
 /**
@@ -433,7 +456,7 @@ void LL_DMA2D_ConfigOutputColor(DMA2D_TypeDef *DMA2Dx, LL_DMA2D_ColorTypeDef *DM
   *         @arg @ref LL_DMA2D_OUTPUT_MODE_ARGB4444
   * @retval Output Blue color value between Min_Data=0 and Max_Data=0xFF
   */
-uint32_t LL_DMA2D_GetOutputBlueColor(DMA2D_TypeDef *DMA2Dx, uint32_t ColorMode)
+uint32_t LL_DMA2D_GetOutputBlueColor(const DMA2D_TypeDef *DMA2Dx, uint32_t ColorMode)
 {
   uint32_t color;
 
@@ -477,7 +500,7 @@ uint32_t LL_DMA2D_GetOutputBlueColor(DMA2D_TypeDef *DMA2Dx, uint32_t ColorMode)
   *         @arg @ref LL_DMA2D_OUTPUT_MODE_ARGB4444
   * @retval Output Green color value between Min_Data=0 and Max_Data=0xFF
   */
-uint32_t LL_DMA2D_GetOutputGreenColor(DMA2D_TypeDef *DMA2Dx, uint32_t ColorMode)
+uint32_t LL_DMA2D_GetOutputGreenColor(const DMA2D_TypeDef *DMA2Dx, uint32_t ColorMode)
 {
   uint32_t color;
 
@@ -521,7 +544,7 @@ uint32_t LL_DMA2D_GetOutputGreenColor(DMA2D_TypeDef *DMA2Dx, uint32_t ColorMode)
   *         @arg @ref LL_DMA2D_OUTPUT_MODE_ARGB4444
   * @retval Output Red color value between Min_Data=0 and Max_Data=0xFF
   */
-uint32_t LL_DMA2D_GetOutputRedColor(DMA2D_TypeDef *DMA2Dx, uint32_t ColorMode)
+uint32_t LL_DMA2D_GetOutputRedColor(const DMA2D_TypeDef *DMA2Dx, uint32_t ColorMode)
 {
   uint32_t color;
 
@@ -565,7 +588,7 @@ uint32_t LL_DMA2D_GetOutputRedColor(DMA2D_TypeDef *DMA2Dx, uint32_t ColorMode)
   *         @arg @ref LL_DMA2D_OUTPUT_MODE_ARGB4444
   * @retval Output Alpha color value between Min_Data=0 and Max_Data=0xFF
   */
-uint32_t LL_DMA2D_GetOutputAlphaColor(DMA2D_TypeDef *DMA2Dx, uint32_t ColorMode)
+uint32_t LL_DMA2D_GetOutputAlphaColor(const DMA2D_TypeDef *DMA2Dx, uint32_t ColorMode)
 {
   uint32_t color;
 
@@ -626,5 +649,3 @@ void LL_DMA2D_ConfigSize(DMA2D_TypeDef *DMA2Dx, uint32_t NbrOfLines, uint32_t Nb
   */
 
 #endif /* USE_FULL_LL_DRIVER */
-
-

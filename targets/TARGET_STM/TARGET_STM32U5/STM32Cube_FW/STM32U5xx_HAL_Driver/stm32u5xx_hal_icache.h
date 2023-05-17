@@ -226,6 +226,7 @@ typedef struct
 /* Peripheral Control functions **********************************************/
 HAL_StatusTypeDef HAL_ICACHE_Enable(void);
 HAL_StatusTypeDef HAL_ICACHE_Disable(void);
+uint32_t HAL_ICACHE_IsEnabled(void);
 HAL_StatusTypeDef HAL_ICACHE_ConfigAssociativityMode(uint32_t AssociativityMode);
 HAL_StatusTypeDef HAL_ICACHE_DeInit(void);
 

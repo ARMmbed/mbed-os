@@ -68,7 +68,7 @@ HAL_StatusTypeDef HAL_CRYPEx_WrapKey(CRYP_HandleTypeDef *hcryp, uint32_t *pInput
   * @}
   */
 
-/** @addtogroup CRYPEx_Exported_Functions_Group3 Encrypt/Decrypt Shared key functions
+/** @addtogroup CRYPEx_Exported_Functions_Group3 Encrypt and Decrypt Shared key functions
   * @{
   */
 HAL_StatusTypeDef HAL_CRYPEx_EncryptSharedKey(CRYP_HandleTypeDef *hcryp, uint32_t *pKey, uint32_t *pOutput, uint32_t ID,

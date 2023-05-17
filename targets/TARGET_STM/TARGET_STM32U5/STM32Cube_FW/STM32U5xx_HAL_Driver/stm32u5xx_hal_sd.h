@@ -126,7 +126,7 @@ typedef struct
 
   HAL_LockTypeDef              Lock;             /*!< SD locking object                   */
 
-  uint8_t                      *pTxBuffPtr;      /*!< Pointer to SD Tx transfer Buffer    */
+  const uint8_t                *pTxBuffPtr;      /*!< Pointer to SD Tx transfer Buffer    */
 
   uint32_t                     TxXferSize;       /*!< SD Tx Transfer size                 */
 
@@ -293,7 +293,7 @@ typedef void (*pSD_TransceiverCallbackTypeDef)(FlagStatus status);
   */
 
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup SD_Exported_Constants Exported Constants
+/** @defgroup SD_Exported_Constants SD Exported Constants
   * @{
   */
 
@@ -630,18 +630,18 @@ void              HAL_SD_MspDeInit(SD_HandleTypeDef *hsd);
 /* Blocking mode: Polling */
 HAL_StatusTypeDef HAL_SD_ReadBlocks(SD_HandleTypeDef *hsd, uint8_t *pData, uint32_t BlockAdd, uint32_t NumberOfBlocks,
                                     uint32_t Timeout);
-HAL_StatusTypeDef HAL_SD_WriteBlocks(SD_HandleTypeDef *hsd, uint8_t *pData, uint32_t BlockAdd, uint32_t NumberOfBlocks,
-                                     uint32_t Timeout);
+HAL_StatusTypeDef HAL_SD_WriteBlocks(SD_HandleTypeDef *hsd, const uint8_t *pData, uint32_t BlockAdd,
+                                     uint32_t NumberOfBlocks, uint32_t Timeout);
 HAL_StatusTypeDef HAL_SD_Erase(SD_HandleTypeDef *hsd, uint32_t BlockStartAdd, uint32_t BlockEndAdd);
 /* Non-Blocking mode: IT */
 HAL_StatusTypeDef HAL_SD_ReadBlocks_IT(SD_HandleTypeDef *hsd, uint8_t *pData, uint32_t BlockAdd,
                                        uint32_t NumberOfBlocks);
-HAL_StatusTypeDef HAL_SD_WriteBlocks_IT(SD_HandleTypeDef *hsd, uint8_t *pData, uint32_t BlockAdd,
+HAL_StatusTypeDef HAL_SD_WriteBlocks_IT(SD_HandleTypeDef *hsd, const uint8_t *pData, uint32_t BlockAdd,
                                         uint32_t NumberOfBlocks);
 /* Non-Blocking mode: DMA */
 HAL_StatusTypeDef HAL_SD_ReadBlocks_DMA(SD_HandleTypeDef *hsd, uint8_t *pData, uint32_t BlockAdd,
                                         uint32_t NumberOfBlocks);
-HAL_StatusTypeDef HAL_SD_WriteBlocks_DMA(SD_HandleTypeDef *hsd, uint8_t *pData, uint32_t BlockAdd,
+HAL_StatusTypeDef HAL_SD_WriteBlocks_DMA(SD_HandleTypeDef *hsd, const uint8_t *pData, uint32_t BlockAdd,
                                          uint32_t NumberOfBlocks);
 
 void              HAL_SD_IRQHandler(SD_HandleTypeDef *hsd);

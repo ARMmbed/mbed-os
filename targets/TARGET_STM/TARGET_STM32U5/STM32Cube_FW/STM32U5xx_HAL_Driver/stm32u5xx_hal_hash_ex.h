@@ -172,3 +172,4 @@ HAL_StatusTypeDef HAL_HMACEx_SHA256_Step2_3_DMA(HASH_HandleTypeDef *hhash, uint8
 
 
 #endif /* STM32U5xx_HAL_HASH_EX_H */
+

@@ -43,7 +43,7 @@
       (+) Configure the AHB and APB busses prescalers
       (+) Enable the clock for the peripheral(s) to be used
       (+) Configure the clock source(s) for peripherals which clocks are not
-          derived from the System clock (SAIx, SYSTICK, RTC, ADC, USB OTG FS/SDMMC1/RNG)
+          derived from the System clock (SAIx, SYSTICK, RTC, ADC, USB OTG FS/USB FS/SDMMC1/RNG)
 
   @endverbatim
   ******************************************************************************
@@ -69,6 +69,7 @@
   * @{
   */
 #define PLLDIVR_RESET_VALUE      (0x01010280U)
+#define PLL_FRAC_WAIT_VALUE       1U            /* PLL Fractional part waiting time before new latch enable : 1 ms */
 /**
   * @}
   */
@@ -83,6 +84,7 @@
                               ((__HSE__) == RCC_HSE_BYPASS) || ((__HSE__) == RCC_HSE_BYPASS_DIGITAL))
 
 #define IS_RCC_LSE(__LSE__)  (((__LSE__) == RCC_LSE_OFF) || ((__LSE__) == RCC_LSE_ON) || \
+                              ((__LSE__) == RCC_LSE_ON_RTC_ONLY) || ((__LSE__) == RCC_LSE_BYPASS_RTC_ONLY) || \
                               ((__LSE__) == RCC_LSE_BYPASS))
 
 #define IS_RCC_HSI(__HSI__)  (((__HSI__) == RCC_HSI_OFF) || ((__HSI__) == RCC_HSI_ON))
@@ -124,7 +126,7 @@
 #define IS_RCC_PLLRGE_VALUE(VALUE) (((VALUE) == RCC_PLLVCIRANGE_0) || \
                                     ((VALUE) == RCC_PLLVCIRANGE_1))
 
-#define IS_RCC_PLLFRACN_VALUE(VALUE) ((VALUE) <= 8191U)
+#define IS_RCC_PLL_FRACN_VALUE(VALUE) ((VALUE) <= 8191U)
 
 #define IS_RCC_CLOCKTYPE(CLK) ((1U <= (CLK)) && ((CLK) <= 0x1FU))
 
@@ -183,7 +185,8 @@
 /** @defgroup RCC_Private_Constants RCC Private Constants
   * @{
   */
-#define LSI_TIMEOUT_VALUE          2UL    /* 2 ms (minimum Tick + 1) */
+#define LSI_TIMEOUT_VALUE          5UL    /* 5 ms (LSI maximum timeout is LSI startup time + LSI_VALUE/128 when
+                                             LSI prediv is used) */
 #define HSI48_TIMEOUT_VALUE        2UL    /* 2 ms (minimum Tick + 1) */
 #define SHSI_TIMEOUT_VALUE         2UL    /* 2 ms (minimum Tick + 1) */
 #define MSIK_TIMEOUT_VALUE         2UL    /* 2 ms (minimum Tick + 1) */
@@ -245,7 +248,7 @@ static HAL_StatusTypeDef RCC_SetFlashLatencyFromMSIRange(uint32_t msirange);
              the PLL as System clock source.
 
          (+) MSI (Multiple Speed Internal): Its frequency is software trimmable from 100KHZ to 48MHZ.
-             It can be used to generate the clock for the USB OTG FS (48 MHz).
+             It can be used to generate the clock for the USB FS or USB OTG FS (48 MHz).
              The number of flash wait states is automatically adjusted when MSI range is updated with
              HAL_RCC_OscConfig() and the MSI is used as System clock source.
 
@@ -259,14 +262,14 @@ static HAL_StatusTypeDef RCC_SetFlashLatencyFromMSIRange(uint32_t msirange);
 
          (+) PLL (clocked by HSI, HSE or MSI) providing up to three independent output clocks:
            (++) The first output is used to generate the high speed system clock (up to 80MHz).
-           (++) The second output is used to generate the clock for the USB OTG FS (48 MHz),
+           (++) The second output is used to generate the clock for the USB FS or USB OTG FS (48 MHz),
                 the random analog generator (<=48 MHz) and the SDMMC1 (<= 48 MHz).
            (++) The third output is used to generate an accurate clock to achieve
                 high-quality audio performance on SAI interface.
 
          (+) PLL2 (clocked by HSI, HSE or MSI) providing up to three independent output clocks:
            (++) The first output is used to generate SAR ADC1 clock.
-           (++) The second output is used to generate the clock for the USB OTG FS (48 MHz),
+           (++) The second output is used to generate the clock for the USB Fs or USB OTG FS (48 MHz),
                 the random analog generator (<=48 MHz) and the SDMMC1 (<= 48 MHz).
            (++) The Third output is used to generate an accurate clock to achieve
                 high-quality audio performance on SAI interface.
@@ -304,7 +307,7 @@ static HAL_StatusTypeDef RCC_SetFlashLatencyFromMSIRange(uint32_t msirange);
                 divided by 2 to 31.
                 You have to use __HAL_RCC_RTC_ENABLE() and HAL_RCCEx_PeriphCLKConfig() function
                 to configure this clock.
-           (+@) USB OTG FS, SDMMC1 and RNG: USB OTG FS requires a frequency equal to 48 MHz
+           (+@) USB FS, USB OTG FS, SDMMC1 and RNG: USB OTG FS or USB FS requires a frequency equal to 48 MHz
                 to work correctly, while the SDMMC1 and RNG peripherals require a frequency
                 equal or lower than to 48 MHz. This clock is derived of the main PLL or PLL2
                 through PLLQ divider. You have to enable the peripheral clock and use
@@ -353,6 +356,7 @@ static HAL_StatusTypeDef RCC_SetFlashLatencyFromMSIRange(uint32_t msirange);
   *            - LSI, LSE and RTC clocks
   * @retval HAL status
   */
+
 HAL_StatusTypeDef HAL_RCC_DeInit(void)
 {
   uint32_t tickstart;
@@ -369,6 +373,7 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
     {
       return HAL_ERROR;
     }
+
   }
 
   tickstart = HAL_GetTick();
@@ -534,13 +539,15 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
   *         first and then HSE On or HSE Bypass.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *pRCC_OscInitStruct)
+HAL_StatusTypeDef HAL_RCC_OscConfig(const RCC_OscInitTypeDef  *pRCC_OscInitStruct)
 {
   uint32_t tickstart;
   HAL_StatusTypeDef status;
   uint32_t sysclk_source;
   uint32_t pll_config;
   FlagStatus pwrboosten = RESET;
+  uint32_t temp1_pllckcfg;
+  uint32_t temp2_pllckcfg;
 
   /* Check Null pointer */
   if (pRCC_OscInitStruct == NULL)
@@ -567,7 +574,7 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *pRCC_OscInitStruct)
     if ((sysclk_source == RCC_SYSCLKSOURCE_STATUS_MSI) ||
         ((sysclk_source == RCC_SYSCLKSOURCE_STATUS_PLLCLK) && (pll_config == RCC_PLLSOURCE_MSI)))
     {
-      if ((READ_BIT(RCC->CR, RCC_CR_MSISRDY) != 0U) && (pRCC_OscInitStruct->MSIState == RCC_MSI_OFF))
+      if (pRCC_OscInitStruct->MSIState == RCC_MSI_OFF)
       {
         return HAL_ERROR;
       }
@@ -580,10 +587,14 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *pRCC_OscInitStruct)
            (HCLK) and the supply voltage of the device */
         if (pRCC_OscInitStruct->MSIClockRange > __HAL_RCC_GET_MSI_RANGE())
         {
-          /* First increase number of wait states update if necessary */
-          if (RCC_SetFlashLatencyFromMSIRange(pRCC_OscInitStruct->MSIClockRange) != HAL_OK)
+          /* Decrease number of wait states update if necessary */
+          /* Only possible when MSI is the System clock source  */
+          if (sysclk_source == RCC_SYSCLKSOURCE_STATUS_MSI)
           {
-            return HAL_ERROR;
+            if (RCC_SetFlashLatencyFromMSIRange(pRCC_OscInitStruct->MSIClockRange) != HAL_OK)
+            {
+              return HAL_ERROR;
+            }
           }
 
           /* Selects the Multiple Speed oscillator (MSI) clock range */
@@ -601,10 +612,12 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *pRCC_OscInitStruct)
           __HAL_RCC_MSI_CALIBRATIONVALUE_ADJUST((pRCC_OscInitStruct->MSICalibrationValue), \
                                                 (pRCC_OscInitStruct->MSIClockRange));
 
-          /* Decrease number of wait states update if necessary */
-          if (RCC_SetFlashLatencyFromMSIRange(pRCC_OscInitStruct->MSIClockRange) != HAL_OK)
+          if (sysclk_source == RCC_SYSCLKSOURCE_STATUS_MSI)
           {
-            return HAL_ERROR;
+            if (RCC_SetFlashLatencyFromMSIRange(pRCC_OscInitStruct->MSIClockRange) != HAL_OK)
+            {
+              return HAL_ERROR;
+            }
           }
         }
 
@@ -671,7 +684,7 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *pRCC_OscInitStruct)
     if ((sysclk_source == RCC_SYSCLKSOURCE_STATUS_HSE) ||
         ((sysclk_source == RCC_SYSCLKSOURCE_STATUS_PLLCLK) && (pll_config == RCC_PLLSOURCE_HSE)))
     {
-      if ((READ_BIT(RCC->CR, RCC_CR_HSERDY) != 0U) && (pRCC_OscInitStruct->HSEState == RCC_HSE_OFF))
+      if (pRCC_OscInitStruct->HSEState == RCC_HSE_OFF)
       {
         return HAL_ERROR;
       }
@@ -722,7 +735,7 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *pRCC_OscInitStruct)
         ((sysclk_source == RCC_SYSCLKSOURCE_STATUS_PLLCLK) && (pll_config == RCC_PLLSOURCE_HSI)))
     {
       /* When HSI is used as system clock it will not be disabled */
-      if ((READ_BIT(RCC->CR, RCC_CR_HSIRDY) != 0U) && (pRCC_OscInitStruct->HSIState == RCC_HSI_OFF))
+      if (pRCC_OscInitStruct->HSIState == RCC_HSI_OFF)
       {
         return HAL_ERROR;
       }
@@ -1148,6 +1161,8 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *pRCC_OscInitStruct)
 
   if ((pRCC_OscInitStruct->PLL.PLLState) != RCC_PLL_NONE)
   {
+    FlagStatus  pwrclkchanged = RESET;
+
     /* Check if the PLL is used as system clock or not */
     if (__HAL_RCC_GET_SYSCLK_SOURCE() != RCC_SYSCLKSOURCE_STATUS_PLLCLK)
     {
@@ -1167,7 +1182,7 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *pRCC_OscInitStruct)
 
         tickstart = HAL_GetTick();
 
-        /* Wait till PLL is ready */
+        /* Wait till PLL is disabled */
         while (READ_BIT(RCC->CR, RCC_CR_PLL1RDY) != 0U)
         {
           if ((HAL_GetTick() - tickstart) > PLL_TIMEOUT_VALUE)
@@ -1176,8 +1191,12 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *pRCC_OscInitStruct)
           }
         }
 
-        /* Enable PWR CLK */
-        __HAL_RCC_PWR_CLK_ENABLE();
+        /* Requires to enable write access to Backup Domain of necessary */
+        if (__HAL_RCC_PWR_IS_CLK_DISABLED())
+        {
+          __HAL_RCC_PWR_CLK_ENABLE();
+          pwrclkchanged = SET;
+        }
 
         /*Disable EPOD to configure PLL1MBOOST*/
         if (READ_BIT(PWR->VOSR, PWR_VOSR_BOOSTEN) == PWR_VOSR_BOOSTEN)
@@ -1195,16 +1214,16 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *pRCC_OscInitStruct)
                              pRCC_OscInitStruct->PLL.PLLQ,
                              pRCC_OscInitStruct->PLL.PLLR);
 
-        assert_param(IS_RCC_PLLFRACN_VALUE(pRCC_OscInitStruct->PLL.PLLFRACN));
+        assert_param(IS_RCC_PLL_FRACN_VALUE(pRCC_OscInitStruct->PLL.PLLFRACN));
 
         /* Disable PLL1FRACN  */
-        __HAL_RCC_PLLFRACN_DISABLE();
+        __HAL_RCC_PLL_FRACN_DISABLE();
 
         /* Configure PLL  PLL1FRACN */
-        __HAL_RCC_PLLFRACN_CONFIG(pRCC_OscInitStruct->PLL.PLLFRACN);
+        __HAL_RCC_PLL_FRACN_CONFIG(pRCC_OscInitStruct->PLL.PLLFRACN);
 
         /* Enable PLL1FRACN  */
-        __HAL_RCC_PLLFRACN_ENABLE();
+        __HAL_RCC_PLL_FRACN_ENABLE();
 
         assert_param(IS_RCC_PLLRGE_VALUE(pRCC_OscInitStruct->PLL.PLLRGE));
 
@@ -1217,8 +1236,11 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *pRCC_OscInitStruct)
           SET_BIT(PWR->VOSR, PWR_VOSR_BOOSTEN);
         }
 
-        /*Disable PWR clk */
-        __HAL_RCC_PWR_CLK_DISABLE();
+        /* Restore clock configuration if changed */
+        if (pwrclkchanged == SET)
+        {
+          __HAL_RCC_PWR_CLK_DISABLE();
+        }
 
         /* Enable PLL System Clock output */
         __HAL_RCC_PLLCLKOUT_ENABLE(RCC_PLL1_DIVR);
@@ -1242,9 +1264,6 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *pRCC_OscInitStruct)
         /* Disable the main PLL */
         __HAL_RCC_PLL_DISABLE();
 
-        /* Disable main PLL outputs to save power if no PLLs on */
-        __HAL_RCC_PLLCLKOUT_DISABLE(RCC_PLL1_DIVP | RCC_PLL1_DIVQ | RCC_PLL1_DIVR);
-
         tickstart = HAL_GetTick();
 
         /* Wait till PLL is disabled */
@@ -1255,11 +1274,57 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *pRCC_OscInitStruct)
             return HAL_TIMEOUT;
           }
         }
+
+        /* Unselect main PLL clock source and disable main PLL outputs to save power */
+        RCC->PLL1CFGR &= ~(RCC_PLL1CFGR_PLL1SRC | RCC_PLL1CFGR_PLL1PEN | RCC_PLL1CFGR_PLL1QEN | RCC_PLL1CFGR_PLL1REN);
+
       }
     }
     else
     {
-      return HAL_ERROR;
+      /* Do not return HAL_ERROR if request repeats the current configuration */
+      temp1_pllckcfg = RCC->PLL1CFGR;
+      temp2_pllckcfg = RCC->PLL1DIVR;
+      if (((pRCC_OscInitStruct->PLL.PLLState) == RCC_PLL_OFF) ||
+          (READ_BIT(temp1_pllckcfg, RCC_PLL1CFGR_PLL1SRC) != pRCC_OscInitStruct->PLL.PLLSource) ||
+          ((READ_BIT(temp1_pllckcfg, RCC_PLL1CFGR_PLL1M) >> \
+            RCC_PLL1CFGR_PLL1M_Pos) != (pRCC_OscInitStruct->PLL.PLLM - 1U)) ||
+          (READ_BIT(temp1_pllckcfg, RCC_PLL1CFGR_PLL1MBOOST) != pRCC_OscInitStruct->PLL.PLLMBOOST) ||
+          (READ_BIT(temp2_pllckcfg, RCC_PLL1DIVR_PLL1N) != (pRCC_OscInitStruct->PLL.PLLN - 1U)) ||
+          ((READ_BIT(temp2_pllckcfg, RCC_PLL1DIVR_PLL1P) >> \
+            RCC_PLL1DIVR_PLL1P_Pos) != (pRCC_OscInitStruct->PLL.PLLP - 1U)) ||
+          ((READ_BIT(temp2_pllckcfg, RCC_PLL1DIVR_PLL1Q) >> \
+            RCC_PLL1DIVR_PLL1Q_Pos) != (pRCC_OscInitStruct->PLL.PLLQ - 1U)) ||
+          ((READ_BIT(temp2_pllckcfg, RCC_PLL1DIVR_PLL1R) >> \
+            RCC_PLL1DIVR_PLL1R_Pos) != (pRCC_OscInitStruct->PLL.PLLR - 1U)))
+      {
+        return HAL_ERROR;
+      }
+
+      /* FRACN1 on-the-fly value update */
+      if ((READ_BIT(RCC->PLL1FRACR, RCC_PLL1FRACR_PLL1FRACN) >> \
+           RCC_PLL1FRACR_PLL1FRACN_Pos) != (pRCC_OscInitStruct->PLL.PLLFRACN))
+      {
+        assert_param(IS_RCC_PLL_FRACN_VALUE(pRCC_OscInitStruct->PLL.PLLFRACN));
+
+        /* Disable PLL1FRACN. */
+        __HAL_RCC_PLL_FRACN_DISABLE();
+
+        /* Get Start Tick*/
+        tickstart = HAL_GetTick();
+
+        /* Wait at least 2 CK_REF (PLL1 input source divided by M) period to make sure next latched value
+           will be taken into account. */
+        while ((HAL_GetTick() - tickstart) < PLL_FRAC_WAIT_VALUE)
+        {
+        }
+
+        /* Configure PLL PLL1FRACN */
+        __HAL_RCC_PLL_FRACN_CONFIG(pRCC_OscInitStruct->PLL.PLLFRACN);
+
+        /* Enable PLL1FRACN to latch the new value. */
+        __HAL_RCC_PLL_FRACN_ENABLE();
+      }
     }
   }
   return HAL_OK;
@@ -1333,15 +1398,60 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(const RCC_ClkInitTypeDef   *const pRCC_Clk
     }
   }
 
+  /* Increasing the BUS frequency divider */
+  /*-------------------------- PCLK3 Configuration ---------------------------*/
+  if (((pRCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_PCLK3) == RCC_CLOCKTYPE_PCLK3)
+  {
+    if ((pRCC_ClkInitStruct->APB3CLKDivider) > (RCC->CFGR3 & RCC_CFGR3_PPRE3))
+    {
+      assert_param(IS_RCC_PCLK(pRCC_ClkInitStruct->APB3CLKDivider));
+      MODIFY_REG(RCC->CFGR3, RCC_CFGR3_PPRE3, pRCC_ClkInitStruct->APB3CLKDivider);
+    }
+  }
+  /*-------------------------- PCLK2 Configuration ---------------------------*/
+  if (((pRCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_PCLK2) == RCC_CLOCKTYPE_PCLK2)
+  {
+    if ((pRCC_ClkInitStruct->APB2CLKDivider) > ((RCC->CFGR2 & RCC_CFGR2_PPRE2) >> 4))
+    {
+      assert_param(IS_RCC_PCLK(pRCC_ClkInitStruct->APB2CLKDivider));
+      MODIFY_REG(RCC->CFGR2, RCC_CFGR2_PPRE2, ((pRCC_ClkInitStruct->APB2CLKDivider) << 4));
+    }
+  }
+
+  /*-------------------------- PCLK1 Configuration ---------------------------*/
+  if (((pRCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_PCLK1) == RCC_CLOCKTYPE_PCLK1)
+  {
+    if ((pRCC_ClkInitStruct->APB1CLKDivider) > (RCC->CFGR2 & RCC_CFGR2_PPRE1))
+    {
+      assert_param(IS_RCC_PCLK(pRCC_ClkInitStruct->APB1CLKDivider));
+      MODIFY_REG(RCC->CFGR2, RCC_CFGR2_PPRE1, pRCC_ClkInitStruct->APB1CLKDivider);
+    }
+  }
+
+  /*-------------------------- HCLK Configuration --------------------------*/
+  if (((pRCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_HCLK) == RCC_CLOCKTYPE_HCLK)
+  {
+    if ((pRCC_ClkInitStruct->AHBCLKDivider) > (RCC->CFGR2 & RCC_CFGR2_HPRE))
+    {
+      assert_param(IS_RCC_HCLK(pRCC_ClkInitStruct->AHBCLKDivider));
+      MODIFY_REG(RCC->CFGR2, RCC_CFGR2_HPRE, pRCC_ClkInitStruct->AHBCLKDivider);
+    }
+  }
+
   /*------------------------- SYSCLK Configuration ---------------------------*/
   if (((pRCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_SYSCLK) == RCC_CLOCKTYPE_SYSCLK)
   {
     assert_param(IS_RCC_SYSCLKSOURCE(pRCC_ClkInitStruct->SYSCLKSource));
+    FlagStatus  pwrclkchanged = RESET;
 
     /* PLL is selected as System Clock Source */
     if (pRCC_ClkInitStruct->SYSCLKSource == RCC_SYSCLKSOURCE_PLLCLK)
     {
-      __HAL_RCC_PWR_CLK_ENABLE();
+      if (__HAL_RCC_PWR_IS_CLK_DISABLED())
+      {
+        __HAL_RCC_PWR_CLK_ENABLE();
+        pwrclkchanged = SET;
+      }
       tickstart = HAL_GetTick();
       /* Check if EPOD is enabled */
       if (READ_BIT(PWR->VOSR, PWR_VOSR_BOOSTEN) != 0U)
@@ -1356,7 +1466,11 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(const RCC_ClkInitTypeDef   *const pRCC_Clk
         }
       }
 
-      __HAL_RCC_PWR_CLK_DISABLE();
+      /* Restore clock configuration if changed */
+      if (pwrclkchanged == SET)
+      {
+        __HAL_RCC_PWR_CLK_DISABLE();
+      }
 
       /* Check the PLL ready flag */
       if (READ_BIT(RCC->CR, RCC_CR_PLL1RDY) == 0U)
@@ -1444,32 +1558,15 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(const RCC_ClkInitTypeDef   *const pRCC_Clk
     }
   }
 
+  /* Decreasing the BUS frequency divider */
   /*-------------------------- HCLK Configuration --------------------------*/
   if (((pRCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_HCLK) == RCC_CLOCKTYPE_HCLK)
   {
-    assert_param(IS_RCC_HCLK(pRCC_ClkInitStruct->AHBCLKDivider));
-    MODIFY_REG(RCC->CFGR2, RCC_CFGR2_HPRE, pRCC_ClkInitStruct->AHBCLKDivider);
-  }
-
-  /*-------------------------- PCLK1 Configuration ---------------------------*/
-  if (((pRCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_PCLK1) == RCC_CLOCKTYPE_PCLK1)
-  {
-    assert_param(IS_RCC_PCLK(pRCC_ClkInitStruct->APB1CLKDivider));
-    MODIFY_REG(RCC->CFGR2, RCC_CFGR2_PPRE1, pRCC_ClkInitStruct->APB1CLKDivider);
-  }
-
-  /*-------------------------- PCLK2 Configuration ---------------------------*/
-  if (((pRCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_PCLK2) == RCC_CLOCKTYPE_PCLK2)
-  {
-    assert_param(IS_RCC_PCLK(pRCC_ClkInitStruct->APB2CLKDivider));
-    MODIFY_REG(RCC->CFGR2, RCC_CFGR2_PPRE2, ((pRCC_ClkInitStruct->APB2CLKDivider) << 4));
-  }
-
-  /*-------------------------- PCLK3 Configuration ---------------------------*/
-  if (((pRCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_PCLK3) == RCC_CLOCKTYPE_PCLK3)
-  {
-    assert_param(IS_RCC_PCLK(pRCC_ClkInitStruct->APB3CLKDivider));
-    MODIFY_REG(RCC->CFGR3, RCC_CFGR3_PPRE3, pRCC_ClkInitStruct->APB3CLKDivider);
+    if ((pRCC_ClkInitStruct->AHBCLKDivider) < (RCC->CFGR2 & RCC_CFGR2_HPRE))
+    {
+      assert_param(IS_RCC_HCLK(pRCC_ClkInitStruct->AHBCLKDivider));
+      MODIFY_REG(RCC->CFGR2, RCC_CFGR2_HPRE, pRCC_ClkInitStruct->AHBCLKDivider);
+    }
   }
 
   /* Decreasing the number of wait states because of lower CPU frequency */
@@ -1483,6 +1580,36 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(const RCC_ClkInitTypeDef   *const pRCC_Clk
     if (__HAL_FLASH_GET_LATENCY() != FLatency)
     {
       return HAL_ERROR;
+    }
+  }
+
+  /*-------------------------- PCLK1 Configuration ---------------------------*/
+  if (((pRCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_PCLK1) == RCC_CLOCKTYPE_PCLK1)
+  {
+    if ((pRCC_ClkInitStruct->APB1CLKDivider) < (RCC->CFGR2 & RCC_CFGR2_PPRE1))
+    {
+      assert_param(IS_RCC_PCLK(pRCC_ClkInitStruct->APB1CLKDivider));
+      MODIFY_REG(RCC->CFGR2, RCC_CFGR2_PPRE1, pRCC_ClkInitStruct->APB1CLKDivider);
+    }
+  }
+
+  /*-------------------------- PCLK2 Configuration ---------------------------*/
+  if (((pRCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_PCLK2) == RCC_CLOCKTYPE_PCLK2)
+  {
+    if ((pRCC_ClkInitStruct->APB2CLKDivider) < ((RCC->CFGR2 & RCC_CFGR2_PPRE2) >> 4))
+    {
+      assert_param(IS_RCC_PCLK(pRCC_ClkInitStruct->APB2CLKDivider));
+      MODIFY_REG(RCC->CFGR2, RCC_CFGR2_PPRE2, ((pRCC_ClkInitStruct->APB2CLKDivider) << 4));
+    }
+  }
+
+  /*-------------------------- PCLK3 Configuration ---------------------------*/
+  if (((pRCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_PCLK3) == RCC_CLOCKTYPE_PCLK3)
+  {
+    if ((pRCC_ClkInitStruct->APB3CLKDivider) < (RCC->CFGR3 & RCC_CFGR3_PPRE3))
+    {
+      assert_param(IS_RCC_PCLK(pRCC_ClkInitStruct->APB3CLKDivider));
+      MODIFY_REG(RCC->CFGR3, RCC_CFGR3_PPRE3, (pRCC_ClkInitStruct->APB3CLKDivider));
     }
   }
 
@@ -1529,7 +1656,7 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(const RCC_ClkInitTypeDef   *const pRCC_Clk
   *            @arg @ref RCC_MCO1SOURCE_SYSCLK  system  clock selected as MCO source
   *            @arg @ref RCC_MCO1SOURCE_MSI  MSI clock selected as MCO source
   *            @arg @ref RCC_MCO1SOURCE_HSI  HSI clock selected as MCO source
-  *            @arg @ref RCC_MCO1SOURCE_HSE  HSE clock selected as MCO sourcee
+  *            @arg @ref RCC_MCO1SOURCE_HSE  HSE clock selected as MCO source
   *            @arg @ref RCC_MCO1SOURCE_PLL1CLK  main PLL clock selected as MCO source
   *            @arg @ref RCC_MCO1SOURCE_LSI  LSI clock selected as MCO source
   *            @arg @ref RCC_MCO1SOURCE_LSE  LSE clock selected as MCO source
@@ -1751,6 +1878,10 @@ uint32_t HAL_RCC_GetPCLK3Freq(void)
   */
 void HAL_RCC_GetOscConfig(RCC_OscInitTypeDef  *pRCC_OscInitStruct)
 {
+  uint32_t regval;
+  uint32_t reg1val;
+  uint32_t reg2val;
+
   /* Check the parameters */
   assert_param(pRCC_OscInitStruct != (void *)NULL);
 
@@ -1758,104 +1889,62 @@ void HAL_RCC_GetOscConfig(RCC_OscInitTypeDef  *pRCC_OscInitStruct)
   pRCC_OscInitStruct->OscillatorType = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_MSI | \
                                        RCC_OSCILLATORTYPE_LSE | RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSI48;
 
+  /* Get Control register */
+  regval = RCC->CR;
+
   /* Get the HSE configuration -----------------------------------------------*/
-  if ((RCC->CR & (RCC_CR_HSEBYP | RCC_CR_HSEEXT)) == RCC_CR_HSEBYP)
-  {
-    pRCC_OscInitStruct->HSEState = RCC_HSE_BYPASS;
-  }
-  else if ((RCC->CR & (RCC_CR_HSEBYP | RCC_CR_HSEEXT)) == (RCC_CR_HSEBYP | RCC_CR_HSEEXT))
-  {
-    pRCC_OscInitStruct->HSEState = RCC_HSE_BYPASS_DIGITAL;
-  }
-  else if ((RCC->CR & RCC_CR_HSEON) == RCC_CR_HSEON)
-  {
-    pRCC_OscInitStruct->HSEState = RCC_HSE_ON;
-  }
-  else
-  {
-    pRCC_OscInitStruct->HSEState = RCC_HSE_OFF;
-  }
+  pRCC_OscInitStruct->HSEState = (regval & (RCC_CR_HSEON | RCC_CR_HSEBYP | RCC_CR_HSEEXT));
 
   /* Get the MSI configuration -----------------------------------------------*/
-  if ((RCC->CR & RCC_CR_MSISON) == RCC_CR_MSISON)
-  {
-    pRCC_OscInitStruct->MSIState = RCC_MSI_ON;
-  }
-  else
-  {
-    pRCC_OscInitStruct->MSIState = RCC_MSI_OFF;
-  }
+  pRCC_OscInitStruct->MSIState = regval & RCC_CR_MSISON;
 
-  pRCC_OscInitStruct->MSIClockRange = (uint32_t)((RCC->CR & RCC_ICSCR1_MSISRANGE));
+  reg1val = RCC->ICSCR1;
+  reg2val = RCC->ICSCR2;
+
+  pRCC_OscInitStruct->MSIClockRange = (uint32_t)((reg1val & RCC_ICSCR1_MSISRANGE));
   if (pRCC_OscInitStruct->MSIClockRange >= RCC_MSIRANGE_12)
   {
-    pRCC_OscInitStruct->MSICalibrationValue = (uint32_t)((RCC->ICSCR2 & RCC_ICSCR2_MSITRIM3) >> \
+    pRCC_OscInitStruct->MSICalibrationValue = (uint32_t)((reg2val & RCC_ICSCR2_MSITRIM3) >> \
                                                          RCC_ICSCR2_MSITRIM3_Pos);
   }
   else if (pRCC_OscInitStruct->MSIClockRange >= RCC_MSIRANGE_8)
   {
-    pRCC_OscInitStruct->MSICalibrationValue = (uint32_t)((RCC->ICSCR2 & RCC_ICSCR2_MSITRIM2) >> \
+    pRCC_OscInitStruct->MSICalibrationValue = (uint32_t)((reg2val & RCC_ICSCR2_MSITRIM2) >> \
                                                          RCC_ICSCR2_MSITRIM2_Pos);
   }
   else if (pRCC_OscInitStruct->MSIClockRange >= RCC_MSIRANGE_4)
   {
-    pRCC_OscInitStruct->MSICalibrationValue = (uint32_t)((RCC->ICSCR2 & RCC_ICSCR2_MSITRIM1) >> \
+    pRCC_OscInitStruct->MSICalibrationValue = (uint32_t)((reg2val & RCC_ICSCR2_MSITRIM1) >> \
                                                          RCC_ICSCR2_MSITRIM1_Pos);
   }
   else /*if (pRCC_OscInitStruct->MSIClockRange >= RCC_MSIRANGE_0)*/
   {
-    pRCC_OscInitStruct->MSICalibrationValue = (uint32_t)((RCC->ICSCR2 & RCC_ICSCR2_MSITRIM0) >> \
+    pRCC_OscInitStruct->MSICalibrationValue = (uint32_t)((reg2val & RCC_ICSCR2_MSITRIM0) >> \
                                                          RCC_ICSCR2_MSITRIM0_Pos);
   }
 
-  /* Get the HSI configuration -----------------------------------------------*/
-  if ((RCC->CR & RCC_CR_HSION) == RCC_CR_HSION)
-  {
-    pRCC_OscInitStruct->HSIState = RCC_HSI_ON;
-  }
-  else
-  {
-    pRCC_OscInitStruct->HSIState = RCC_HSI_OFF;
-  }
 
+  /* Get the HSI configuration -----------------------------------------------*/
+  pRCC_OscInitStruct->HSIState = regval & RCC_CR_HSION;
   pRCC_OscInitStruct->HSICalibrationValue = (uint32_t)((RCC->ICSCR3 & RCC_ICSCR3_HSITRIM) >> RCC_ICSCR3_HSITRIM_Pos);
 
+  /* Get BDCR register */
+  regval = RCC->BDCR;
+
   /* Get the LSE configuration -----------------------------------------------*/
-  if ((RCC->BDCR & RCC_BDCR_LSEBYP) == RCC_BDCR_LSEBYP)
-  {
-    pRCC_OscInitStruct->LSEState = RCC_LSE_BYPASS;
-  }
-  else if ((RCC->BDCR & RCC_BDCR_LSEON) == RCC_BDCR_LSEON)
-  {
-    pRCC_OscInitStruct->LSEState = RCC_LSE_ON;
-  }
-  else
-  {
-    pRCC_OscInitStruct->LSEState = RCC_LSE_OFF;
-  }
+  pRCC_OscInitStruct->LSEState = (regval & (RCC_BDCR_LSEON | RCC_BDCR_LSEBYP | RCC_BDCR_LSESYSEN));
 
   /* Get the LSI configuration -----------------------------------------------*/
-  if ((RCC->BDCR & RCC_BDCR_LSION) == RCC_BDCR_LSION)
-  {
-    pRCC_OscInitStruct->LSIState = RCC_LSI_ON;
-  }
-  else
-  {
-    pRCC_OscInitStruct->LSIState = RCC_LSI_OFF;
-  }
+  pRCC_OscInitStruct->LSIState = regval & RCC_BDCR_LSION;
+
+  /* Get Control register */
+  regval = RCC->CR;
 
   /* Get the HSI48 configuration ---------------------------------------------*/
-  if ((RCC->CR & RCC_CR_HSI48ON) == RCC_CR_HSI48ON)
-  {
-    pRCC_OscInitStruct->HSI48State = RCC_HSI48_ON;
-  }
-  else
-  {
-    pRCC_OscInitStruct->HSI48State = RCC_HSI48_OFF;
-  }
+  pRCC_OscInitStruct->HSI48State = regval & RCC_CR_HSI48ON;
 
   /* Get the PLL configuration -----------------------------------------------*/
-  if ((RCC->CR & RCC_CR_PLL1ON) == RCC_CR_PLL1ON)
+  if ((regval & RCC_CR_PLL1ON) == RCC_CR_PLL1ON)
   {
     pRCC_OscInitStruct->PLL.PLLState = RCC_PLL_ON;
   }
@@ -1863,17 +1952,21 @@ void HAL_RCC_GetOscConfig(RCC_OscInitTypeDef  *pRCC_OscInitStruct)
   {
     pRCC_OscInitStruct->PLL.PLLState = RCC_PLL_OFF;
   }
-  pRCC_OscInitStruct->PLL.PLLSource = (uint32_t)(RCC->PLL1CFGR & RCC_PLL1CFGR_PLL1SRC);
-  pRCC_OscInitStruct->PLL.PLLM = (uint32_t)(((RCC->PLL1CFGR & RCC_PLL1CFGR_PLL1M) >> RCC_PLL1CFGR_PLL1M_Pos) + 1U);
-  pRCC_OscInitStruct->PLL.PLLN = (uint32_t)(((RCC->PLL1DIVR & RCC_PLL1DIVR_PLL1N) >> RCC_PLL1DIVR_PLL1N_Pos) + 1U);
-  pRCC_OscInitStruct->PLL.PLLQ = (uint32_t)(((RCC->PLL1DIVR & RCC_PLL1DIVR_PLL1Q) >> RCC_PLL1DIVR_PLL1Q_Pos) + 1U);
-  pRCC_OscInitStruct->PLL.PLLR = (uint32_t)(((RCC->PLL1DIVR & RCC_PLL1DIVR_PLL1R) >> RCC_PLL1DIVR_PLL1R_Pos) + 1U);
-  pRCC_OscInitStruct->PLL.PLLP = (uint32_t)(((RCC->PLL1DIVR & RCC_PLL1DIVR_PLL1P) >> RCC_PLL1DIVR_PLL1P_Pos) + 1U);
-  pRCC_OscInitStruct->PLL.PLLRGE = (uint32_t)((RCC->PLL1CFGR & RCC_PLL1CFGR_PLL1RGE));
+
+  reg1val = RCC->PLL1CFGR;
+  reg2val = RCC->PLL1DIVR;
+
+  pRCC_OscInitStruct->PLL.PLLSource = (uint32_t)(reg1val & RCC_PLL1CFGR_PLL1SRC);
+  pRCC_OscInitStruct->PLL.PLLM = (uint32_t)(((reg1val & RCC_PLL1CFGR_PLL1M) >> RCC_PLL1CFGR_PLL1M_Pos) + 1U);
+  pRCC_OscInitStruct->PLL.PLLN = (uint32_t)(((reg2val & RCC_PLL1DIVR_PLL1N) >> RCC_PLL1DIVR_PLL1N_Pos) + 1U);
+  pRCC_OscInitStruct->PLL.PLLQ = (uint32_t)(((reg2val & RCC_PLL1DIVR_PLL1Q) >> RCC_PLL1DIVR_PLL1Q_Pos) + 1U);
+  pRCC_OscInitStruct->PLL.PLLR = (uint32_t)(((reg2val & RCC_PLL1DIVR_PLL1R) >> RCC_PLL1DIVR_PLL1R_Pos) + 1U);
+  pRCC_OscInitStruct->PLL.PLLP = (uint32_t)(((reg2val & RCC_PLL1DIVR_PLL1P) >> RCC_PLL1DIVR_PLL1P_Pos) + 1U);
+  pRCC_OscInitStruct->PLL.PLLRGE = (uint32_t)((reg1val & RCC_PLL1CFGR_PLL1RGE));
   pRCC_OscInitStruct->PLL.PLLFRACN = (uint32_t)(((RCC->PLL1FRACR & RCC_PLL1FRACR_PLL1FRACN) >> \
                                                  RCC_PLL1FRACR_PLL1FRACN_Pos));
-  pRCC_OscInitStruct->PLL.PLLMBOOST = (uint32_t)(((RCC->PLL1CFGR & RCC_PLL1CFGR_PLL1MBOOST) >> \
-                                                  RCC_PLL1CFGR_PLL1MBOOST_Pos) + 1U);
+  pRCC_OscInitStruct->PLL.PLLMBOOST = (uint32_t)(((reg1val & RCC_PLL1CFGR_PLL1MBOOST) >> \
+                                                  RCC_PLL1CFGR_PLL1MBOOST_Pos));
 }
 
 /**
@@ -2152,7 +2245,6 @@ static HAL_StatusTypeDef RCC_SetFlashLatencyFromMSIRange(uint32_t msirange)
     else
     {
       if (msirange > RCC_MSIRANGE_2)
-
       {
         if (vos == PWR_REGULATOR_VOLTAGE_SCALE4)
         {
@@ -2173,7 +2265,6 @@ static HAL_StatusTypeDef RCC_SetFlashLatencyFromMSIRange(uint32_t msirange)
       else
       {
         if (msirange == RCC_MSIRANGE_1)
-
         {
           if (vos == PWR_REGULATOR_VOLTAGE_SCALE3)
           {

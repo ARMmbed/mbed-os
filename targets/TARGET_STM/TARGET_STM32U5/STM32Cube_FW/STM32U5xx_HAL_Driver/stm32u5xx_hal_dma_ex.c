@@ -162,6 +162,8 @@
               in memory.
               Placing DMA linked-list in SRAM must be done in accordance to product specification to ensure that the
               link access port can access to the specified SRAM.
+              (++) The DMA linked-list node parameter address should be 32bit aligned and should not exceed the 64 KByte
+              addressable space.
 
           (+) Use HAL_DMAEx_List_GetNodeConfig() to get the specified configuration parameter on building node.
               This API can be used when need to change few parameter to build new node.
@@ -376,7 +378,7 @@
       In order to avoid some CPU data processing in several cases, the DMA channel provides some features related to
       FIFO capabilities titled data handling.
                 (++) Padding pattern
-                     Padding selected patter (zero padding or sign extension) when the source data width is smaller than
+                     Padding selected pattern (zero padding or sign extension) when the source data width is smaller than
                      the destination data width at single level.
                      Zero padding       (Source : 0xABAB ------> Destination : 0xABAB0000)
                      Sign bit extension (Source : 0x0ABA ------> Destination : 0x00000ABA)
@@ -536,12 +538,10 @@ static void DMA_List_GetNodeConfig(DMA_NodeConfTypeDef *const pNodeConfig,
                                    DMA_NodeTypeDef const *const pNode);
 static uint32_t DMA_List_CheckNodesBaseAddresses(DMA_NodeTypeDef const *const pNode1,
                                                  DMA_NodeTypeDef const *const pNode2,
-                                                 DMA_NodeTypeDef const *const pNode3,
-                                                 DMA_NodeTypeDef const *const pNode4);
+                                                 DMA_NodeTypeDef const *const pNode3);
 static uint32_t DMA_List_CheckNodesTypes(DMA_NodeTypeDef const *const pNode1,
                                          DMA_NodeTypeDef const *const pNode2,
-                                         DMA_NodeTypeDef const *const pNode3,
-                                         DMA_NodeTypeDef const *const pNode4);
+                                         DMA_NodeTypeDef const *const pNode3);
 static void DMA_List_GetCLLRNodeInfo(DMA_NodeTypeDef const *const pNode,
                                      uint32_t *const cllr_mask,
                                      uint32_t *const cllr_offset);
@@ -743,9 +743,10 @@ HAL_StatusTypeDef HAL_DMAEx_List_DeInit(DMA_HandleTypeDef *const hdma)
   hdma->XferAbortCallback    = NULL;
   hdma->XferSuspendCallback  = NULL;
 
-  /* Update the queue state and error code */
-  if(hdma->LinkedListQueue != NULL)
+  /* Check the linked-list queue */
+  if (hdma->LinkedListQueue != NULL)
   {
+    /* Update the queue state and error code */
     hdma->LinkedListQueue->State     = HAL_DMA_QUEUE_STATE_READY;
     hdma->LinkedListQueue->ErrorCode = HAL_DMA_QUEUE_ERROR_NONE;
 
@@ -781,7 +782,7 @@ HAL_StatusTypeDef HAL_DMAEx_List_DeInit(DMA_HandleTypeDef *const hdma)
   *
 @verbatim
   ======================================================================================================================
-                         ############### Linked-List I/O Operation Functions ###############
+                         ############### Linked-List IO Operation Functions ###############
   ======================================================================================================================
     [..]
       This section provides functions allowing to :
@@ -1031,6 +1032,8 @@ HAL_StatusTypeDef HAL_DMAEx_List_Start_IT(DMA_HandleTypeDef *const hdma)
   *                       specified DMA linked-list Node.
   * @param  pNode       : Pointer to a DMA_NodeTypeDef structure that contains linked-list node registers
   *                       configurations.
+  * @note   The DMA linked-list node parameter address should be 32bit aligned and should not exceed the 64 KByte
+  *         addressable space.
   * @retval HAL status.
   */
 HAL_StatusTypeDef HAL_DMAEx_List_BuildNode(DMA_NodeConfTypeDef const *const pNodeConfig,
@@ -1155,7 +1158,7 @@ HAL_StatusTypeDef HAL_DMAEx_List_InsertNode(DMA_QListTypeDef *const pQList,
   }
 
   /* Check nodes base addresses */
-  if (DMA_List_CheckNodesBaseAddresses(pQList->Head, pPrevNode, pNewNode, NULL) != 0U)
+  if (DMA_List_CheckNodesBaseAddresses(pQList->Head, pPrevNode, pNewNode) != 0U)
   {
     /* Update the queue error code */
     pQList->ErrorCode = HAL_DMA_QUEUE_ERROR_OUTOFRANGE;
@@ -1164,7 +1167,7 @@ HAL_StatusTypeDef HAL_DMAEx_List_InsertNode(DMA_QListTypeDef *const pQList,
   }
 
   /* Check nodes types compatibility */
-  if (DMA_List_CheckNodesTypes(pQList->Head, pPrevNode, pNewNode, NULL) != 0U)
+  if (DMA_List_CheckNodesTypes(pQList->Head, pPrevNode, pNewNode) != 0U)
   {
     /* Update the queue error code */
     pQList->ErrorCode = HAL_DMA_QUEUE_ERROR_INVALIDTYPE;
@@ -1283,7 +1286,7 @@ HAL_StatusTypeDef HAL_DMAEx_List_InsertNode_Head(DMA_QListTypeDef *const pQList,
   }
 
   /* Check nodes base addresses */
-  if (DMA_List_CheckNodesBaseAddresses(pQList->Head, pNewNode, NULL, NULL) != 0U)
+  if (DMA_List_CheckNodesBaseAddresses(pQList->Head, pNewNode, NULL) != 0U)
   {
     /* Update the queue error code */
     pQList->ErrorCode = HAL_DMA_QUEUE_ERROR_OUTOFRANGE;
@@ -1292,7 +1295,7 @@ HAL_StatusTypeDef HAL_DMAEx_List_InsertNode_Head(DMA_QListTypeDef *const pQList,
   }
 
   /* Check nodes types compatibility */
-  if (DMA_List_CheckNodesTypes(pQList->Head, pNewNode, NULL, NULL) != 0U)
+  if (DMA_List_CheckNodesTypes(pQList->Head, pNewNode, NULL) != 0U)
   {
     /* Update the queue error code */
     pQList->ErrorCode = HAL_DMA_QUEUE_ERROR_INVALIDTYPE;
@@ -1363,7 +1366,7 @@ HAL_StatusTypeDef HAL_DMAEx_List_InsertNode_Tail(DMA_QListTypeDef *const pQList,
   }
 
   /* Check nodes base addresses */
-  if (DMA_List_CheckNodesBaseAddresses(pQList->Head, pNewNode, NULL, NULL) != 0U)
+  if (DMA_List_CheckNodesBaseAddresses(pQList->Head, pNewNode, NULL) != 0U)
   {
     /* Update the queue error code */
     pQList->ErrorCode = HAL_DMA_QUEUE_ERROR_OUTOFRANGE;
@@ -1372,7 +1375,7 @@ HAL_StatusTypeDef HAL_DMAEx_List_InsertNode_Tail(DMA_QListTypeDef *const pQList,
   }
 
   /* Check nodes types compatibility */
-  if (DMA_List_CheckNodesTypes(pQList->Head, pNewNode, NULL, NULL) != 0U)
+  if (DMA_List_CheckNodesTypes(pQList->Head, pNewNode, NULL) != 0U)
   {
     /* Update the queue error code */
     pQList->ErrorCode = HAL_DMA_QUEUE_ERROR_INVALIDTYPE;
@@ -1793,7 +1796,7 @@ HAL_StatusTypeDef HAL_DMAEx_List_ReplaceNode(DMA_QListTypeDef *const pQList,
   }
 
   /* Check nodes base addresses */
-  if (DMA_List_CheckNodesBaseAddresses(pQList->Head, pOldNode, pNewNode, NULL) != 0U)
+  if (DMA_List_CheckNodesBaseAddresses(pQList->Head, pOldNode, pNewNode) != 0U)
   {
     /* Update the queue error code */
     pQList->ErrorCode = HAL_DMA_QUEUE_ERROR_OUTOFRANGE;
@@ -1802,7 +1805,7 @@ HAL_StatusTypeDef HAL_DMAEx_List_ReplaceNode(DMA_QListTypeDef *const pQList,
   }
 
   /* Check nodes types compatibility */
-  if (DMA_List_CheckNodesTypes(pQList->Head, pOldNode, pNewNode, NULL) != 0U)
+  if (DMA_List_CheckNodesTypes(pQList->Head, pOldNode, pNewNode) != 0U)
   {
     /* Update the queue error code */
     pQList->ErrorCode = HAL_DMA_QUEUE_ERROR_INVALIDTYPE;
@@ -1955,7 +1958,7 @@ HAL_StatusTypeDef HAL_DMAEx_List_ReplaceNode_Head(DMA_QListTypeDef *const pQList
   }
 
   /* Check nodes base addresses */
-  if (DMA_List_CheckNodesBaseAddresses(pQList->Head, pNewNode, NULL, NULL) != 0U)
+  if (DMA_List_CheckNodesBaseAddresses(pQList->Head, pNewNode, NULL) != 0U)
   {
     /* Update the queue error code */
     pQList->ErrorCode = HAL_DMA_QUEUE_ERROR_OUTOFRANGE;
@@ -1964,7 +1967,7 @@ HAL_StatusTypeDef HAL_DMAEx_List_ReplaceNode_Head(DMA_QListTypeDef *const pQList
   }
 
   /* Check nodes types compatibility */
-  if (DMA_List_CheckNodesTypes(pQList->Head, pNewNode, NULL, NULL) != 0U)
+  if (DMA_List_CheckNodesTypes(pQList->Head, pNewNode, NULL) != 0U)
   {
     /* Update the queue error code */
     pQList->ErrorCode = HAL_DMA_QUEUE_ERROR_INVALIDTYPE;
@@ -2235,7 +2238,7 @@ HAL_StatusTypeDef HAL_DMAEx_List_InsertQ(DMA_QListTypeDef *const pSrcQList,
   }
 
   /* Check nodes base addresses */
-  if (DMA_List_CheckNodesBaseAddresses(pSrcQList->Head, pPrevNode, pDestQList->Head, NULL) != 0U)
+  if (DMA_List_CheckNodesBaseAddresses(pSrcQList->Head, pPrevNode, pDestQList->Head) != 0U)
   {
     /* Update the source queue error code */
     pSrcQList->ErrorCode = HAL_DMA_QUEUE_ERROR_OUTOFRANGE;
@@ -2247,7 +2250,7 @@ HAL_StatusTypeDef HAL_DMAEx_List_InsertQ(DMA_QListTypeDef *const pSrcQList,
   }
 
   /* Check nodes types compatibility */
-  if (DMA_List_CheckNodesTypes(pSrcQList->Head, pPrevNode, pDestQList->Head, NULL) != 0U)
+  if (DMA_List_CheckNodesTypes(pSrcQList->Head, pPrevNode, pDestQList->Head) != 0U)
   {
     /* Update the source queue error code */
     pSrcQList->ErrorCode = HAL_DMA_QUEUE_ERROR_INVALIDTYPE;
@@ -2433,7 +2436,7 @@ HAL_StatusTypeDef HAL_DMAEx_List_InsertQ_Head(DMA_QListTypeDef *const pSrcQList,
   }
 
   /* Check nodes base addresses */
-  if (DMA_List_CheckNodesBaseAddresses(pSrcQList->Head, pDestQList->Head, NULL, NULL) != 0U)
+  if (DMA_List_CheckNodesBaseAddresses(pSrcQList->Head, pDestQList->Head, NULL) != 0U)
   {
     /* Update the source queue error code */
     pSrcQList->ErrorCode = HAL_DMA_QUEUE_ERROR_OUTOFRANGE;
@@ -2445,7 +2448,7 @@ HAL_StatusTypeDef HAL_DMAEx_List_InsertQ_Head(DMA_QListTypeDef *const pSrcQList,
   }
 
   /* Check nodes types compatibility */
-  if (DMA_List_CheckNodesTypes(pSrcQList->Head, pDestQList->Head, NULL, NULL) != 0U)
+  if (DMA_List_CheckNodesTypes(pSrcQList->Head, pDestQList->Head, NULL) != 0U)
   {
     /* Update the source queue error code */
     pSrcQList->ErrorCode = HAL_DMA_QUEUE_ERROR_INVALIDTYPE;
@@ -2570,7 +2573,7 @@ HAL_StatusTypeDef HAL_DMAEx_List_InsertQ_Tail(DMA_QListTypeDef *const pSrcQList,
   }
 
   /* Check nodes base addresses */
-  if (DMA_List_CheckNodesBaseAddresses(pSrcQList->Head, pDestQList->Head, NULL, NULL) != 0U)
+  if (DMA_List_CheckNodesBaseAddresses(pSrcQList->Head, pDestQList->Head, NULL) != 0U)
   {
     /* Update the source queue error code */
     pSrcQList->ErrorCode = HAL_DMA_QUEUE_ERROR_OUTOFRANGE;
@@ -2582,7 +2585,7 @@ HAL_StatusTypeDef HAL_DMAEx_List_InsertQ_Tail(DMA_QListTypeDef *const pSrcQList,
   }
 
   /* Check nodes types compatibility */
-  if (DMA_List_CheckNodesTypes(pSrcQList->Head, pDestQList->Head, NULL, NULL) != 0U)
+  if (DMA_List_CheckNodesTypes(pSrcQList->Head, pDestQList->Head, NULL) != 0U)
   {
     /* Update the source queue error code */
     pSrcQList->ErrorCode = HAL_DMA_QUEUE_ERROR_INVALIDTYPE;
@@ -3495,7 +3498,7 @@ HAL_StatusTypeDef HAL_DMAEx_Suspend(DMA_HandleTypeDef *const hdma)
     hdma->Instance->CCR |= DMA_CCR_SUSP;
 
     /* Check if the DMA channel is suspended */
-    while ((hdma->Instance->CSR & DMA_CSR_SUSPF) != 0U)
+    while ((hdma->Instance->CSR & DMA_CSR_SUSPF) == 0U)
     {
       /* Check for the timeout */
       if ((HAL_GetTick() - tickstart) > HAL_TIMEOUT_DMA_ABORT)
@@ -3511,10 +3514,10 @@ HAL_StatusTypeDef HAL_DMAEx_Suspend(DMA_HandleTypeDef *const hdma)
 
         return HAL_ERROR;
       }
-
-      /* Update the DMA channel state */
-      hdma->State = HAL_DMA_STATE_SUSPEND;
     }
+
+    /* Update the DMA channel state */
+    hdma->State = HAL_DMA_STATE_SUSPEND;
   }
 
   return HAL_OK;
@@ -3650,7 +3653,13 @@ static void DMA_List_Init(DMA_HandleTypeDef const *const hdma)
   uint32_t tmpreg;
 
   /* Prepare DMA Channel Control Register (CCR) value */
-  tmpreg = hdma->InitLinkedList.Priority | hdma->InitLinkedList.LinkStepMode | hdma->InitLinkedList.LinkAllocatedPort;
+  tmpreg = hdma->InitLinkedList.Priority | hdma->InitLinkedList.LinkStepMode;
+
+  /* Check DMA channel instance */
+  if (IS_GPDMA_INSTANCE(hdma->Instance) != 0U)
+  {
+    tmpreg |= hdma->InitLinkedList.LinkAllocatedPort;
+  }
 
   /* Write DMA Channel Control Register (CCR) */
   MODIFY_REG(hdma->Instance->CCR, DMA_CCR_PRIO | DMA_CCR_LAP | DMA_CCR_LSM, tmpreg);
@@ -4070,15 +4079,13 @@ static void DMA_List_GetNodeConfig(DMA_NodeConfTypeDef *const pNodeConfig,
   * @param  pNode1 : Pointer to a DMA_NodeTypeDef structure that contains linked-list node 1 registers configurations.
   * @param  pNode2 : Pointer to a DMA_NodeTypeDef structure that contains linked-list node 2 registers configurations.
   * @param  pNode3 : Pointer to a DMA_NodeTypeDef structure that contains linked-list node 3 registers configurations.
-  * @param  pNode4 : Pointer to a DMA_NodeTypeDef structure that contains linked-list node 4 registers configurations.
   * @retval Return 0 when nodes addresses are compatible, 1 otherwise.
   */
 static uint32_t DMA_List_CheckNodesBaseAddresses(DMA_NodeTypeDef const *const pNode1,
                                                  DMA_NodeTypeDef const *const pNode2,
-                                                 DMA_NodeTypeDef const *const pNode3,
-                                                 DMA_NodeTypeDef const *const pNode4)
+                                                 DMA_NodeTypeDef const *const pNode3)
 {
-  uint32_t temp = (((uint32_t)pNode1 | (uint32_t)pNode2 | (uint32_t)pNode3 | (uint32_t)pNode4) & DMA_CLBAR_LBA);
+  uint32_t temp = (((uint32_t)pNode1 | (uint32_t)pNode2 | (uint32_t)pNode3) & DMA_CLBAR_LBA);
   uint32_t ref  = 0U;
 
   /* Check node 1 address */
@@ -4095,11 +4102,6 @@ static uint32_t DMA_List_CheckNodesBaseAddresses(DMA_NodeTypeDef const *const pN
   else if ((uint32_t)pNode3 != 0U)
   {
     ref = (uint32_t)pNode3;
-  }
-  /* Check node 4 address */
-  else if ((uint32_t)pNode4 != 0U)
-  {
-    ref = (uint32_t)pNode4;
   }
   else
   {
@@ -4120,13 +4122,11 @@ static uint32_t DMA_List_CheckNodesBaseAddresses(DMA_NodeTypeDef const *const pN
   * @param  pNode1 : Pointer to a DMA_NodeTypeDef structure that contains linked-list node 1 registers configurations.
   * @param  pNode2 : Pointer to a DMA_NodeTypeDef structure that contains linked-list node 2 registers configurations.
   * @param  pNode3 : Pointer to a DMA_NodeTypeDef structure that contains linked-list node 3 registers configurations.
-  * @param  pNode4 : Pointer to a DMA_NodeTypeDef structure that contains linked-list node 4 registers configurations.
   * @retval Return 0 when nodes types are compatible, otherwise nodes types are not compatible.
   */
 static uint32_t DMA_List_CheckNodesTypes(DMA_NodeTypeDef const *const pNode1,
                                          DMA_NodeTypeDef const *const pNode2,
-                                         DMA_NodeTypeDef const *const pNode3,
-                                         DMA_NodeTypeDef const *const pNode4)
+                                         DMA_NodeTypeDef const *const pNode3)
 {
   uint32_t ref = 0U;
 
@@ -4145,24 +4145,9 @@ static uint32_t DMA_List_CheckNodesTypes(DMA_NodeTypeDef const *const pNode1,
   {
     ref = pNode3->NodeInfo & NODE_TYPE_MASK;
   }
-  /* Check node 4 parameter */
-  else if (pNode4 != NULL)
-  {
-    ref = pNode4->NodeInfo & NODE_TYPE_MASK;
-  }
   else
   {
     /* Prevent MISRA-C2012-Rule-15.7 */
-  }
-
-  /* Check node 1 parameter */
-  if (pNode1 != NULL)
-  {
-    /* Check node type compatibility */
-    if (ref != (pNode1->NodeInfo & NODE_TYPE_MASK))
-    {
-      return 1U;
-    }
   }
 
   /* Check node 2 parameter */
@@ -4182,16 +4167,6 @@ static uint32_t DMA_List_CheckNodesTypes(DMA_NodeTypeDef const *const pNode1,
     if (ref != (pNode3->NodeInfo & NODE_TYPE_MASK))
     {
       return 3U;
-    }
-  }
-
-  /* Check node 4 parameter */
-  if (pNode4 != NULL)
-  {
-    /* Check node type compatibility */
-    if (ref != (pNode4->NodeInfo & NODE_TYPE_MASK))
-    {
-      return 4U;
     }
   }
 

@@ -69,7 +69,8 @@ typedef struct
 /** @addtogroup SAIEx_Exported_Functions_Group1 Peripheral Control functions
   * @{
   */
-HAL_StatusTypeDef HAL_SAIEx_ConfigPdmMicDelay(SAI_HandleTypeDef *hsai, SAIEx_PdmMicDelayParamTypeDef *pdmMicDelay);
+HAL_StatusTypeDef HAL_SAIEx_ConfigPdmMicDelay(const SAI_HandleTypeDef *hsai,
+                                              const SAIEx_PdmMicDelayParamTypeDef *pdmMicDelay);
 /**
   * @}
   */

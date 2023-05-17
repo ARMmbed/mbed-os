@@ -18,8 +18,8 @@
 
 /* Tools provide -DMBED_ROM_START=xxx -DMBED_ROM_SIZE=xxx -DMBED_RAM_START=xxx -DMBED_RAM_SIZE=xxx */
 
-define symbol VECTORS     = 141; /* This value must match NVIC_NUM_VECTORS in cmsis_nvic.h */
-define symbol HEAP_SIZE   = 0x11000;
+define symbol VECTORS     = 142; /* This value must match NVIC_NUM_VECTORS in cmsis_nvic.h */
+define symbol HEAP_SIZE   = 0x10000;
 
 /* Common - Do not change */
 

@@ -123,7 +123,7 @@
       (#) HAL in interruption mode (interruptions driven)
 
         (##)Due to HASH peripheral hardware design, the peripheral interruption is triggered every 64 bytes.
-        This is why, for driver implementation simplicity’s sake, user is requested to enter a message the
+        This is why, for driver implementation simplicity's sake, user is requested to enter a message the
         length of which is a multiple of 4 bytes.
 
         (##) When the message length (in bytes) is not a multiple of words, a specific field exists in HASH_STR
@@ -158,9 +158,9 @@
      [..]
       (#) The compilation define  USE_HAL_HASH_REGISTER_CALLBACKS when set to 1
           allows the user to configure dynamically the driver callbacks.
-          Use function @ref HAL_HASH_RegisterCallback() to register a user callback.
+          Use function HAL_HASH_RegisterCallback() to register a user callback.
 
-      (#) Function @ref HAL_HASH_RegisterCallback() allows to register following callbacks:
+      (#) Function HAL_HASH_RegisterCallback() allows to register following callbacks:
             (+) InCpltCallback    : callback for input completion.
             (+) DgstCpltCallback  : callback for digest computation completion.
             (+) ErrorCallback     : callback for error.
@@ -169,9 +169,9 @@
           This function takes as parameters the HAL peripheral handle, the Callback ID
           and a pointer to the user callback function.
 
-      (#) Use function @ref HAL_HASH_UnRegisterCallback() to reset a callback to the default
+      (#) Use function HAL_HASH_UnRegisterCallback() to reset a callback to the default
           weak (surcharged) function.
-          @ref HAL_HASH_UnRegisterCallback() takes as parameters the HAL peripheral handle,
+          HAL_HASH_UnRegisterCallback() takes as parameters the HAL peripheral handle,
           and the Callback ID.
           This function allows to reset following callbacks:
             (+) InCpltCallback    : callback for input completion.
@@ -180,13 +180,13 @@
             (+) MspInitCallback   : HASH MspInit.
             (+) MspDeInitCallback : HASH MspDeInit.
 
-      (#) By default, after the @ref HAL_HASH_Init and if the state is HAL_HASH_STATE_RESET
+      (#) By default, after the HAL_HASH_Init and if the state is HAL_HASH_STATE_RESET
           all callbacks are reset to the corresponding legacy weak (surcharged) functions:
-          examples @ref HAL_HASH_InCpltCallback(), @ref HAL_HASH_DgstCpltCallback()
+          examples HAL_HASH_InCpltCallback(), HAL_HASH_DgstCpltCallback()
           Exception done for MspInit and MspDeInit callbacks that are respectively
-          reset to the legacy weak (surcharged) functions in the @ref HAL_HASH_Init
-          and @ref HAL_HASH_DeInit only when these callbacks are null (not registered beforehand)
-          If not, MspInit or MspDeInit are not null, the @ref HAL_HASH_Init and @ref HAL_HASH_DeInit
+          reset to the legacy weak (surcharged) functions in the HAL_HASH_Init
+          and HAL_HASH_DeInit only when these callbacks are null (not registered beforehand)
+          If not, MspInit or MspDeInit are not null, the HAL_HASH_Init and HAL_HASH_DeInit
           keep and use the user MspInit/MspDeInit callbacks (registered beforehand).
 
           Callbacks can be registered/unregistered in READY state only.
@@ -194,8 +194,8 @@
           in READY or RESET state, thus registered (user) MspInit/DeInit callbacks can be used
           during the Init/DeInit.
           In that case first register the MspInit/MspDeInit user callbacks
-          using @ref HAL_HASH_RegisterCallback before calling @ref HAL_HASH_DeInit
-          or @ref HAL_HASH_Init function.
+          using HAL_HASH_RegisterCallback before calling HAL_HASH_DeInit
+          or HAL_HASH_Init function.
 
           When The compilation define USE_HAL_HASH_REGISTER_CALLBACKS is set to 0 or
           not defined, the callback registering feature is not available
@@ -2941,6 +2941,14 @@ HAL_StatusTypeDef HASH_Start_IT(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, u
         return HAL_OK;
       }
     } /*  if (polling_step == 1) */
+    else
+	{
+      /* otherwise, carry on in interrupt-mode */
+      hhash->HashInCount = SizeVar;                   /* Counter used to keep track of number of data
+                                                         to be fed to the Peripheral */
+      hhash->pHashInBuffPtr = (uint8_t *)inputaddr;   /* Points at data which will be fed to the Peripheral at
+                                                         the next interruption */
+	}
 
 
     /* Process Unlock */
@@ -3556,3 +3564,4 @@ HAL_StatusTypeDef HMAC_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, 
 /**
   * @}
   */
+

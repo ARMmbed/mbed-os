@@ -80,6 +80,8 @@ extern HAL_TickFreqTypeDef      uwTickFreq;
   * @}
   */
 
+
+
 /** @defgroup SYSCFG_Exported_Constants SYSCFG Exported Constants
   * @{
   */
@@ -191,6 +193,85 @@ extern HAL_TickFreqTypeDef      uwTickFreq;
 
 #endif /* __ARM_FEATURE_CMSE */
 
+#ifdef SYSCFG_OTGHSPHYCR_EN
+/** @defgroup SYSCFG_OTG_PHY_RefenceClockSelection  OTG PHY Reference Clock Selection
+  * @{
+  */
+
+/** @brief  OTG HS PHY reference clock frequency selection
+  */
+#define SYSCFG_OTG_HS_PHY_CLK_SELECT_1    (SYSCFG_OTGHSPHYCR_CLKSEL_0 | SYSCFG_OTGHSPHYCR_CLKSEL_1)                               /*!< 16Mhz */
+#define SYSCFG_OTG_HS_PHY_CLK_SELECT_2    SYSCFG_OTGHSPHYCR_CLKSEL_3                                                              /*!< 19.2Mhz */
+#define SYSCFG_OTG_HS_PHY_CLK_SELECT_3    (SYSCFG_OTGHSPHYCR_CLKSEL_0 | SYSCFG_OTGHSPHYCR_CLKSEL_3)                               /*!< 20Mhz */
+#define SYSCFG_OTG_HS_PHY_CLK_SELECT_4    (SYSCFG_OTGHSPHYCR_CLKSEL_1 | SYSCFG_OTGHSPHYCR_CLKSEL_3)                               /*!< 24Mhz */
+#define SYSCFG_OTG_HS_PHY_CLK_SELECT_5    (SYSCFG_OTGHSPHYCR_CLKSEL_1 | SYSCFG_OTGHSPHYCR_CLKSEL_2 | SYSCFG_OTGHSPHYCR_CLKSEL_3)  /*!< 26Mhz */
+#define SYSCFG_OTG_HS_PHY_CLK_SELECT_6    (SYSCFG_OTGHSPHYCR_CLKSEL_0 | SYSCFG_OTGHSPHYCR_CLKSEL_1 | SYSCFG_OTGHSPHYCR_CLKSEL_3)  /*!< 32Mhz */
+/**
+  * @}
+  */
+
+/** @defgroup SYSCFG_OTG_PHY_PowerDown  OTG PHY Power Down
+  * @{
+  */
+
+/** @brief  OTG HS PHY Power Down config
+  */
+
+#define SYSCFG_OTG_HS_PHY_POWER_ON        0x00000000U                /*!< PHY state machine, bias and OTG PHY PLL are powered down */
+#define SYSCFG_OTG_HS_PHY_POWER_DOWN      SYSCFG_OTGHSPHYCR_PDCTRL   /*!< PHY state machine, bias and OTG PHY PLL remain powered */
+
+/**
+  * @}
+  */
+
+/** @defgroup SYSCFG_OTG_PHY_Enable  OTG PHY Enable
+  * @{
+  */
+
+#define SYSCFG_OTG_HS_PHY_UNDERRESET  0x00000000U              /*!< PHY under reset */
+#define SYSCFG_OTG_HS_PHY_ENABLE      SYSCFG_OTGHSPHYCR_EN     /*!< PHY enabled */
+
+/** @defgroup SYSCFG_OTG_PHYTUNER_PreemphasisCurrent  OTG PHYTUNER Preemphasis Current
+  * @{
+  */
+
+/** @brief  High-speed (HS) transmitter preemphasis current control
+  */
+#define SYSCFG_OTG_HS_PHY_PREEMP_DISABLED   0x00000000U                                                                             /*!< HS transmitter preemphasis circuit disabled */
+#define SYSCFG_OTG_HS_PHY_PREEMP_1X         SYSCFG_OTGHSPHYTUNER2_TXPREEMPAMPTUNE_0                                                 /*!< HS transmitter preemphasis circuit sources 1x preemphasis current */
+#define SYSCFG_OTG_HS_PHY_PREEMP_2X         SYSCFG_OTGHSPHYTUNER2_TXPREEMPAMPTUNE_1                                                 /*!< HS transmitter preemphasis circuit sources 2x preemphasis current */
+#define SYSCFG_OTG_HS_PHY_PREEMP_3X         (SYSCFG_OTGHSPHYTUNER2_TXPREEMPAMPTUNE_0 | SYSCFG_OTGHSPHYTUNER2_TXPREEMPAMPTUNE_1)     /*!< HS transmitter preemphasis circuit sources 3x preemphasis current */
+
+/**
+  * @}
+  */
+
+/** @defgroup SYSCFG_OTG_PHYTUNER_SquelchThreshold  OTG PHYTUNER Squelch Threshold
+  * @{
+  */
+
+/** @brief Squelch threshold adjustment
+  */
+#define SYSCFG_OTG_HS_PHY_SQUELCH_15PERCENT       0x00000000U                                                                             /*!< +15% (recommended value) */
+#define SYSCFG_OTG_HS_PHY_SQUELCH_0PERCENT        (SYSCFG_OTGHSPHYTUNER2_SQRXTUNE_0 | SYSCFG_OTGHSPHYTUNER2_SQRXTUNE_1)                   /*!< 0% (default value) */
+
+/**
+  * @}
+  */
+
+/** @defgroup SYSCFG_OTG_PHYTUNER_DisconnectThreshold  OTG PHYTUNER Disconnect Threshold
+  * @{
+  */
+
+/** @brief Disconnect threshold adjustment
+  */
+#define SYSCFG_OTG_HS_PHY_DISCONNECT_5_9PERCENT    SYSCFG_OTGHSPHYTUNER2_COMPDISTUNE_1     /*!< +5.9% (recommended value) */
+#define SYSCFG_OTG_HS_PHY_DISCONNECT_0PERCENT      SYSCFG_OTGHSPHYTUNER2_COMPDISTUNE_0     /*!< 0% (default value) */
+
+/**
+  * @}
+  */
+#endif /* SYSCFG_OTGHSPHYCR_EN */
 /**
   * @}
   */
@@ -258,15 +339,20 @@ extern HAL_TickFreqTypeDef      uwTickFreq;
 #define __HAL_DBGMCU_UNFREEZE_I2C4()            CLEAR_BIT(DBGMCU->APB1FZR2, DBGMCU_APB1FZR2_DBG_I2C4_STOP)
 #endif /* DBGMCU_APB1FZR2_DBG_I2C4_STOP */
 
+#if defined(DBGMCU_APB1FZR2_DBG_I2C5_STOP)
+#define __HAL_DBGMCU_FREEZE_I2C5()              SET_BIT(DBGMCU->APB1FZR2, DBGMCU_APB1FZR2_DBG_I2C5_STOP)
+#define __HAL_DBGMCU_UNFREEZE_I2C5()            CLEAR_BIT(DBGMCU->APB1FZR2, DBGMCU_APB1FZR2_DBG_I2C5_STOP)
+#endif /* DBGMCU_APB1FZR2_DBG_I2C5_STOP */
+
+#if defined(DBGMCU_APB1FZR2_DBG_I2C6_STOP)
+#define __HAL_DBGMCU_FREEZE_I2C6()              SET_BIT(DBGMCU->APB1FZR2, DBGMCU_APB1FZR2_DBG_I2C6_STOP)
+#define __HAL_DBGMCU_UNFREEZE_I2C6()            CLEAR_BIT(DBGMCU->APB1FZR2, DBGMCU_APB1FZR2_DBG_I2C6_STOP)
+#endif /* DBGMCU_APB1FZR2_DBG_I2C6_STOP */
+
 #if defined(DBGMCU_APB1FZR2_DBG_LPTIM2_STOP)
 #define __HAL_DBGMCU_FREEZE_LPTIM2()            SET_BIT(DBGMCU->APB1FZR2, DBGMCU_APB1FZR2_DBG_LPTIM2_STOP)
 #define __HAL_DBGMCU_UNFREEZE_LPTIM2()          CLEAR_BIT(DBGMCU->APB1FZR2, DBGMCU_APB1FZR2_DBG_LPTIM2_STOP)
 #endif /* DBGMCU_APB1FZR2_DBG_LPTIM2_STOP */
-
-#if defined(DBGMCU_APB1FZR2_DBG_FDCAN_STOP)
-#define __HAL_DBGMCU_FREEZE_FDCAN()             SET_BIT(DBGMCU->APB1FZR2, DBGMCU_APB1FZR2_DBG_FDCAN_STOP)
-#define __HAL_DBGMCU_UNFREEZE_FDCAN()           CLEAR_BIT(DBGMCU->APB1FZR2, DBGMCU_APB1FZR2_DBG_FDCAN_STOP)
-#endif /* DBGMCU_APB1FZR2_DBG_FDCAN_STOP */
 
 #if defined(DBGMCU_APB2FZR_DBG_TIM1_STOP)
 #define __HAL_DBGMCU_FREEZE_TIM1()              SET_BIT(DBGMCU->APB2FZR, DBGMCU_APB2FZR_DBG_TIM1_STOP)
@@ -555,6 +641,33 @@ extern HAL_TickFreqTypeDef      uwTickFreq;
 
 
 #endif /* __ARM_FEATURE_CMSE */
+
+#ifdef SYSCFG_OTGHSPHYCR_EN
+#define IS_SYSCFG_OTGPHY_REFERENCE_CLOCK(__VALUE__)   (((__VALUE__) == SYSCFG_OTG_HS_PHY_CLK_SELECT_1) || \
+                                                       ((__VALUE__) == SYSCFG_OTG_HS_PHY_CLK_SELECT_2) || \
+                                                       ((__VALUE__) == SYSCFG_OTG_HS_PHY_CLK_SELECT_3) || \
+                                                       ((__VALUE__) == SYSCFG_OTG_HS_PHY_CLK_SELECT_4) || \
+                                                       ((__VALUE__) == SYSCFG_OTG_HS_PHY_CLK_SELECT_5) || \
+                                                       ((__VALUE__) == SYSCFG_OTG_HS_PHY_CLK_SELECT_6))
+
+#define IS_SYSCFG_OTGPHY_POWERDOWN_CONFIG(__VALUE__)  (((__VALUE__) == SYSCFG_OTG_HS_PHY_POWER_DOWN) || \
+                                                       ((__VALUE__) == SYSCFG_OTG_HS_PHY_POWER_ON))
+
+#define IS_SYSCFG_OTGPHY_CONFIG(__VALUE__)            (((__VALUE__) == SYSCFG_OTG_HS_PHY_UNDERRESET) || \
+                                                       ((__VALUE__) == SYSCFG_OTG_HS_PHY_ENABLE))
+
+#define IS_SYSCFG_OTGPHY_DISCONNECT(__VALUE__)        (((__VALUE__) == SYSCFG_OTG_HS_PHY_DISCONNECT_5_9PERCENT) || \
+                                                       ((__VALUE__) == SYSCFG_OTG_HS_PHY_DISCONNECT_0PERCENT))
+
+#define IS_SYSCFG_OTGPHY_SQUELCH(__VALUE__)           (((__VALUE__) == SYSCFG_OTG_HS_PHY_SQUELCH_0PERCENT) || \
+                                                       ((__VALUE__) == SYSCFG_OTG_HS_PHY_SQUELCH_15PERCENT))
+
+#define IS_SYSCFG_OTGPHY_PREEMPHASIS(__VALUE__)       (((__VALUE__) == SYSCFG_OTG_HS_PHY_PREEMP_DISABLED) || \
+                                                       ((__VALUE__) == SYSCFG_OTG_HS_PHY_PREEMP_1X) || \
+                                                       ((__VALUE__) == SYSCFG_OTG_HS_PHY_PREEMP_2X) || \
+                                                       ((__VALUE__) == SYSCFG_OTG_HS_PHY_PREEMP_3X))
+#endif /* SYSCFG_OTGHSPHYCR_EN */
+
 /**
   * @}
   */
@@ -605,6 +718,9 @@ void HAL_ResumeTick(void);
 uint32_t HAL_GetHalVersion(void);
 uint32_t HAL_GetREVID(void);
 uint32_t HAL_GetDEVID(void);
+uint32_t HAL_GetUIDw0(void);
+uint32_t HAL_GetUIDw1(void);
+uint32_t HAL_GetUIDw2(void);
 
 /**
   * @}
@@ -636,10 +752,28 @@ void HAL_SYSCFG_VREFBUF_HighImpedanceConfig(uint32_t Mode);
 void HAL_SYSCFG_VREFBUF_TrimmingConfig(uint32_t TrimmingValue);
 HAL_StatusTypeDef HAL_SYSCFG_EnableVREFBUF(void);
 void HAL_SYSCFG_DisableVREFBUF(void);
-
+#ifdef SYSCFG_OTGHSPHYCR_EN
+void HAL_SYSCFG_SetOTGPHYReferenceClockSelection(uint32_t RefClkSelection);
+void HAL_SYSCFG_SetOTGPHYPowerDownConfig(uint32_t PowerDownConfig);
+void HAL_SYSCFG_EnableOTGPHY(uint32_t OTGPHYConfig);
+void HAL_SYSCFG_SetOTGPHYDisconnectThreshold(uint32_t DisconnectThreshold);
+void HAL_SYSCFG_SetOTGPHYSquelchThreshold(uint32_t SquelchThreshold);
+void HAL_SYSCFG_SetOTGPHYPreemphasisCurrent(uint32_t PreemphasisCurrent);
+#endif /* SYSCFG_OTGHSPHYCR_EN */
 void HAL_SYSCFG_EnableIOAnalogSwitchBooster(void);
 void HAL_SYSCFG_DisableIOAnalogSwitchBooster(void);
-
+void HAL_SYSCFG_EnableSRAMCached(void);
+void HAL_SYSCFG_DisableSRAMCached(void);
+void HAL_SYSCFG_EnableVddCompensationCell(void);
+void HAL_SYSCFG_EnableVddIO2CompensationCell(void);
+#if defined(SYSCFG_CCCSR_EN3)
+void HAL_SYSCFG_EnableVddHSPICompensationCell(void);
+#endif /* SYSCFG_CCCSR_EN3 */
+void HAL_SYSCFG_DisableVddCompensationCell(void);
+void HAL_SYSCFG_DisableVddIO2CompensationCell(void);
+#if defined(SYSCFG_CCCSR_EN3)
+void HAL_SYSCFG_DisableVddHSPICompensationCell(void);
+#endif /* SYSCFG_CCCSR_EN3 */
 /**
   * @}
   */
@@ -671,6 +805,10 @@ HAL_StatusTypeDef HAL_SYSCFG_GetConfigAttributes(uint32_t Item, uint32_t *pAttri
   */
 
 #endif /* __ARM_FEATURE_CMSE */
+
+/**
+  * @}
+  */
 
 /**
   * @}

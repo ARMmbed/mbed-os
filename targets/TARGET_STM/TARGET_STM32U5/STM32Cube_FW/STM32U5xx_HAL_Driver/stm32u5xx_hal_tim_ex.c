@@ -154,7 +154,7 @@ static void TIM_CCxNChannelCmd(TIM_TypeDef *TIMx, uint32_t Channel, uint32_t Cha
   * @param  sConfig TIM Hall Sensor configuration structure
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_TIMEx_HallSensor_Init(TIM_HandleTypeDef *htim, TIM_HallSensor_InitTypeDef *sConfig)
+HAL_StatusTypeDef HAL_TIMEx_HallSensor_Init(TIM_HandleTypeDef *htim, const TIM_HallSensor_InitTypeDef *sConfig)
 {
   TIM_OC_InitTypeDef OC_Config;
 
@@ -170,6 +170,7 @@ HAL_StatusTypeDef HAL_TIMEx_HallSensor_Init(TIM_HandleTypeDef *htim, TIM_HallSen
   assert_param(IS_TIM_CLOCKDIVISION_DIV(htim->Init.ClockDivision));
   assert_param(IS_TIM_AUTORELOAD_PRELOAD(htim->Init.AutoReloadPreload));
   assert_param(IS_TIM_IC_POLARITY(sConfig->IC1Polarity));
+  assert_param(IS_TIM_PERIOD(htim, htim->Init.Period));
   assert_param(IS_TIM_IC_PRESCALER(sConfig->IC1Prescaler));
   assert_param(IS_TIM_IC_FILTER(sConfig->IC1Filter));
 
@@ -520,7 +521,7 @@ HAL_StatusTypeDef HAL_TIMEx_HallSensor_Start_DMA(TIM_HandleTypeDef *htim, uint32
   else if ((channel_1_state == HAL_TIM_CHANNEL_STATE_READY)
            && (complementary_channel_1_state == HAL_TIM_CHANNEL_STATE_READY))
   {
-    if ((pData == NULL) && (Length > 0U))
+    if ((pData == NULL) || (Length == 0U))
     {
       return HAL_ERROR;
     }
@@ -904,7 +905,8 @@ HAL_StatusTypeDef HAL_TIMEx_OCN_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Channe
   * @param  Length The length of data to be transferred from memory to TIM peripheral
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_TIMEx_OCN_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel, uint32_t *pData, uint16_t Length)
+HAL_StatusTypeDef HAL_TIMEx_OCN_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel, const uint32_t *pData,
+                                          uint16_t Length)
 {
   HAL_StatusTypeDef status = HAL_OK;
   uint32_t tmpsmcr;
@@ -919,7 +921,7 @@ HAL_StatusTypeDef HAL_TIMEx_OCN_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Chan
   }
   else if (TIM_CHANNEL_N_STATE_GET(htim, Channel) == HAL_TIM_CHANNEL_STATE_READY)
   {
-    if ((pData == NULL) && (Length > 0U))
+    if ((pData == NULL) || (Length == 0U))
     {
       return HAL_ERROR;
     }
@@ -1434,7 +1436,8 @@ HAL_StatusTypeDef HAL_TIMEx_PWMN_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Chann
   * @param  Length The length of data to be transferred from memory to TIM peripheral
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_TIMEx_PWMN_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel, uint32_t *pData, uint16_t Length)
+HAL_StatusTypeDef HAL_TIMEx_PWMN_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel, const uint32_t *pData,
+                                           uint16_t Length)
 {
   HAL_StatusTypeDef status = HAL_OK;
   uint32_t tmpsmcr;
@@ -1449,7 +1452,7 @@ HAL_StatusTypeDef HAL_TIMEx_PWMN_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Cha
   }
   else if (TIM_CHANNEL_N_STATE_GET(htim, Channel) == HAL_TIM_CHANNEL_STATE_READY)
   {
-    if ((pData == NULL) && (Length > 0U))
+    if ((pData == NULL) || (Length == 0U))
     {
       return HAL_ERROR;
     }
@@ -2108,7 +2111,7 @@ HAL_StatusTypeDef HAL_TIMEx_ConfigCommutEvent_DMA(TIM_HandleTypeDef *htim, uint3
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_TIMEx_MasterConfigSynchronization(TIM_HandleTypeDef *htim,
-                                                        TIM_MasterConfigTypeDef *sMasterConfig)
+                                                        const TIM_MasterConfigTypeDef *sMasterConfig)
 {
   uint32_t tmpcr2;
   uint32_t tmpsmcr;
@@ -2181,7 +2184,7 @@ HAL_StatusTypeDef HAL_TIMEx_MasterConfigSynchronization(TIM_HandleTypeDef *htim,
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_TIMEx_ConfigBreakDeadTime(TIM_HandleTypeDef *htim,
-                                                TIM_BreakDeadTimeConfigTypeDef *sBreakDeadTimeConfig)
+                                                const TIM_BreakDeadTimeConfigTypeDef *sBreakDeadTimeConfig)
 {
   /* Keep this variable initialized to 0 as it is used to configure BDTR register */
   uint32_t tmpbdtr = 0U;
@@ -2264,7 +2267,7 @@ HAL_StatusTypeDef HAL_TIMEx_ConfigBreakDeadTime(TIM_HandleTypeDef *htim,
   */
 HAL_StatusTypeDef HAL_TIMEx_ConfigBreakInput(TIM_HandleTypeDef *htim,
                                              uint32_t BreakInput,
-                                             TIMEx_BreakInputConfigTypeDef *sBreakInputConfig)
+                                             const TIMEx_BreakInputConfigTypeDef *sBreakInputConfig)
 
 {
   HAL_StatusTypeDef status = HAL_OK;
@@ -2316,7 +2319,8 @@ HAL_StatusTypeDef HAL_TIMEx_ConfigBreakInput(TIM_HandleTypeDef *htim,
     case TIM_BREAKINPUTSOURCE_MDF1:
     {
       bkin_enable_mask = TIM1_AF1_BKDF1BK0E;
-      bkin_enable_bitpos = 8U;
+      bkin_enable_bitpos = TIM1_AF1_BKDF1BK0E_Pos;
+      /* No polarity bit for MDF. Variable bkin_polarity_mask keeps its default value 0 */
       bkin_polarity_mask = 0U;
       bkin_polarity_bitpos = 0U;
       break;
@@ -2388,12 +2392,15 @@ HAL_StatusTypeDef HAL_TIMEx_ConfigBreakInput(TIM_HandleTypeDef *htim,
   *            @arg TIM_TIM1_ETR_COMP2          TIM1 ETR is connected to COMP2 output
   *            @arg TIM_TIM1_ETR_HSI            TIM1 ETR is connected to HSI
   *            @arg TIM_TIM1_ETR_MSIS           TIM1_ETR is connected to MSIS
+  *            @arg TIM_TIM1_ETR_ADC2_AWD2      TIM1_ETR is connected to ADC2 AWD2      (*)
+  *            @arg TIM_TIM1_ETR_ADC2_AWD3      TIM1_ETR is connected to ADC2 AWD3      (*)
   *            @arg TIM_TIM1_ETR_ADC1_AWD1      TIM1 ETR is connected to ADC1 AWD1
   *            @arg TIM_TIM1_ETR_ADC1_AWD2      TIM1 ETR is connected to ADC1 AWD2
   *            @arg TIM_TIM1_ETR_ADC1_AWD3      TIM1 ETR is connected to ADC1 AWD3
   *            @arg TIM_TIM1_ETR_ADC4_AWD1      TIM1 ETR is connected to ADC4 AWD1
   *            @arg TIM_TIM1_ETR_ADC4_AWD2      TIM1 ETR is connected to ADC4 AWD2
   *            @arg TIM_TIM1_ETR_ADC4_AWD3      TIM1 ETR is connected to ADC4 AWD3
+  *            @arg TIM_TIM1_ETR_ADC2_AWD1      TIM1_ETR is connected to ADC2 AWD1      (*)
   *
   *         For TIM2, the parameter can take one of the following values:
   *            @arg TIM_TIM2_ETR_GPIO            TIM2 ETR is connected to GPIO
@@ -2402,10 +2409,15 @@ HAL_StatusTypeDef HAL_TIMEx_ConfigBreakInput(TIM_HandleTypeDef *htim,
   *            @arg TIM_TIM2_ETR_MSIK            TIM2 ETR is connected to MSIK
   *            @arg TIM_TIM2_ETR_HSI             TIM2 ETR is connected to HSI
   *            @arg TIM_TIM2_ETR_MSIS            TIM2_ETR is connected to MSIS
+  *            @arg TIM_TIM2_ETR_DCMI_VSYNC      TIM2_ETR is connected to DCMI VSYNC    (*)
+  *            @arg TIM_TIM2_ETR_LTDC_VSYNC      TIM2_ETR is connected to LTDC_VSYNC    (*)
   *            @arg TIM_TIM2_ETR_TIM3_ETR        TIM2 ETR is connected to TIM3 ETR pin
   *            @arg TIM_TIM2_ETR_TIM4_ETR        TIM2 ETR is connected to TIM4 ETR pin
   *            @arg TIM_TIM2_ETR_TIM5_ETR        TIM2 ETR is connected to TIM5 ETR pin
   *            @arg TIM_TIM2_ETR_LSE             TIM2 ETR is connected to LSE
+  *            @arg TIM_TIM2_ETR_DSI_TE          TIM2_ETR is connected to DSI_TE        (*)
+  *            @arg TIM_TIM2_ETR_DCMI_HSYNC      TIM2_ETR is connected to DCMI HSYNC    (*)
+  *            @arg TIM_TIM2_ETR_LTDC_HSYNC      TIM2_ETR is connected to LTDC HSYNC    (*)
   *
   *         For TIM3, the parameter can take one of the following values:
   *            @arg TIM_TIM3_ETR_GPIO            TIM3 ETR is connected to GPIO
@@ -2414,11 +2426,16 @@ HAL_StatusTypeDef HAL_TIMEx_ConfigBreakInput(TIM_HandleTypeDef *htim,
   *            @arg TIM_TIM3_ETR_MSIK            TIM3 ETR is connected to MSIK
   *            @arg TIM_TIM3_ETR_HSI             TIM3 ETR is connected to HSI
   *            @arg TIM_TIM3_ETR_MSIS            TIM3_ETR is connected to MSIS
+  *            @arg TIM_TIM3_ETR_DCMI_VSYNC      TIM3_ETR is connected to DCMI VSYNC    (*)
+  *            @arg TIM_TIM3_ETR_LTDC_VSYNC      TIM3_ETR is connected to LTDC_VSYNC    (*)
   *            @arg TIM_TIM3_ETR_TIM2_ETR        TIM3 ETR is connected to TIM2 ETR pin
   *            @arg TIM_TIM3_ETR_TIM4_ETR        TIM3 ETR is connected to TIM4 ETR pin
+  *            @arg TIM_TIM3_ETR_DSI_TE          TIM2_ETR is connected to DSI_TE        (*)
   *            @arg TIM_TIM3_ETR_ADC1_AWD1       TIM3 ETR is connected to ADC1 AWD1
   *            @arg TIM_TIM3_ETR_ADC1_AWD2       TIM3 ETR is connected to ADC1 AWD2
   *            @arg TIM_TIM3_ETR_ADC1_AWD3       TIM3 ETR is connected to ADC1 AWD3
+  *            @arg TIM_TIM3_ETR_DCMI_HSYNC      TIM3_ETR is connected to DCMI HSYNC    (*)
+  *            @arg TIM_TIM3_ETR_LTDC_HSYNC      TIM3_ETR is connected to LTDC HSYNC    (*)
   *
   *         For TIM4, the parameter can take one of the following values:
   *            @arg TIM_TIM4_ETR_GPIO              TIM4 ETR is connected to GPIO
@@ -2427,8 +2444,16 @@ HAL_StatusTypeDef HAL_TIMEx_ConfigBreakInput(TIM_HandleTypeDef *htim,
   *            @arg TIM_TIM4_ETR_MSIK              TIM4 ETR is connected to MSIK
   *            @arg TIM_TIM4_ETR_HSI               TIM4 ETR is connected to HSI
   *            @arg TIM_TIM4_ETR_MSIS              TIM4_ETR is connected to MSIS
+  *            @arg TIM_TIM4_ETR_DCMI_VSYNC        TIM4_ETR is connected to DCMI VSYNC  (*)
+  *            @arg TIM_TIM4_ETR_LTDC_VSYNC        TIM4_ETR is connected to LTDC_VSYNC  (*)
   *            @arg TIM_TIM4_ETR_TIM3_ETR          TIM4 ETR is connected to TIM3 ETR pin
   *            @arg TIM_TIM4_ETR_TIM5_ETR          TIM4 ETR is connected to TIM5 ETR pin
+  *            @arg TIM_TIM4_ETR_DSI_TE            TIM2_ETR is connected to DSI_TE      (*)
+  *            @arg TIM_TIM4_ETR_ADC2_AWD1         TIM4_ETR is connected to ADC2 AWD1   (*)
+  *            @arg TIM_TIM4_ETR_ADC2_AWD2         TIM4_ETR is connected to ADC2 AWD2   (*)
+  *            @arg TIM_TIM4_ETR_ADC2_AWD3         TIM4_ETR is connected to ADC2 AWD3   (*)
+  *            @arg TIM_TIM4_ETR_DCMI_HSYNC        TIM4_ETR is connected to DCMI HSYNC  (*)
+  *            @arg TIM_TIM4_ETR_LTDC_HSYNC        TIM4_ETR is connected to LTDC HSYNC  (*)
   *
   *         For TIM5, the parameter can take one of the following values:
   *            @arg TIM_TIM5_ETR_GPIO              TIM5 ETR is connected to GPIO
@@ -2437,8 +2462,13 @@ HAL_StatusTypeDef HAL_TIMEx_ConfigBreakInput(TIM_HandleTypeDef *htim,
   *            @arg TIM_TIM5_ETR_MSIK              TIM5 ETR is connected to MSIK
   *            @arg TIM_TIM5_ETR_HSI               TIM5 ETR is connected to HSI
   *            @arg TIM_TIM5_ETR_MSIS              TIM5_ETR is connected to MSIS
+  *            @arg TIM_TIM5_ETR_DCMI_VSYNC        TIM5_ETR is connected to DCMI VSYNC  (*)
+  *            @arg TIM_TIM5_ETR_LTDC_VSYNC        TIM5_ETR is connected to LTDC_VSYNC  (*)
   *            @arg TIM_TIM5_ETR_TIM2_ETR          TIM5 ETR is connected to TIM2 ETR pin
   *            @arg TIM_TIM5_ETR_TIM3_ETR          TIM5 ETR is connected to TIM3 ETR pin
+  *            @arg TIM_TIM5_ETR_DSI_TE            TIM5_ETR is connected to DSI_TE      (*)
+  *            @arg TIM_TIM5_ETR_DCMI_HSYNC        TIM5_ETR is connected to DCMI HSYNC  (*)
+  *            @arg TIM_TIM5_ETR_LTDC_HSYNC        TIM5_ETR is connected to LTDC HSYNC  (*)
   *
   *         For TIM8, the parameter can take one of the following values:
   *            @arg TIM_TIM8_ETR_GPIO            TIM8 ETR is connected to GPIO
@@ -2447,12 +2477,17 @@ HAL_StatusTypeDef HAL_TIMEx_ConfigBreakInput(TIM_HandleTypeDef *htim,
   *            @arg TIM_TIM8_ETR_MSIK            TIM8 ETR is connected to MSIK
   *            @arg TIM_TIM8_ETR_HSI             TIM8 ETR is connected to HSI
   *            @arg TIM_TIM8_ETR_MSIS            TIM8_ETR is connected to MSIS
+  *            @arg TIM_TIM8_ETR_ADC2_AWD2       TIM8_ETR is connected to ADC2 AWD2     (*)
+  *            @arg TIM_TIM8_ETR_ADC2_AWD3       TIM8_ETR is connected to ADC2 AWD3     (*)
   *            @arg TIM_TIM8_ETR_ADC1_AWD1       TIM8 ETR is connected to ADC1 AWD1
   *            @arg TIM_TIM8_ETR_ADC1_AWD2       TIM8 ETR is connected to ADC1 AWD2
   *            @arg TIM_TIM8_ETR_ADC1_AWD3       TIM8 ETR is connected to ADC1 AWD3
   *            @arg TIM_TIM8_ETR_ADC4_AWD1       TIM8 ETR is connected to ADC4 AWD1
   *            @arg TIM_TIM8_ETR_ADC4_AWD2       TIM8 ETR is connected to ADC4 AWD2
   *            @arg TIM_TIM8_ETR_ADC4_AWD3       TIM8 ETR is connected to ADC4 AWD3
+  *            @arg TIM_TIM8_ETR_ADC2_AWD1       TIM8_ETR is connected to ADC2 AWD1     (*)
+  *
+  *         (*)  Value not defined in all devices.
   *
   * @retval HAL status
   */
@@ -2698,7 +2733,7 @@ HAL_StatusTypeDef HAL_TIMEx_DisarmBreakInput(TIM_HandleTypeDef *htim, uint32_t B
   * @note  Break input is automatically armed as soon as MOE bit is set.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_TIMEx_ReArmBreakInput(TIM_HandleTypeDef *htim, uint32_t BreakInput)
+HAL_StatusTypeDef HAL_TIMEx_ReArmBreakInput(const TIM_HandleTypeDef *htim, uint32_t BreakInput)
 {
   HAL_StatusTypeDef status = HAL_OK;
   uint32_t tickstart;
@@ -3028,6 +3063,7 @@ HAL_StatusTypeDef HAL_TIMEx_ConfigEncoderIndex(TIM_HandleTypeDef *htim,
                     sEncoderIndexConfig->Filter);
 
   /* Configures the encoder index */
+#if defined (STM32U575xx) || defined (STM32U585xx)
   if (HAL_GetREVID() >= REV_ID_B)  /* supported in cut2 */
   {
     MODIFY_REG(htim->Instance->ECR,
@@ -3047,6 +3083,15 @@ HAL_StatusTypeDef HAL_TIMEx_ConfigEncoderIndex(TIM_HandleTypeDef *htim,
                 sEncoderIndexConfig->Position |
                 TIM_ECR_IE));
   }
+#else
+  MODIFY_REG(htim->Instance->ECR,
+             TIM_ECR_IDIR_Msk | TIM_ECR_IBLK_Msk | TIM_ECR_FIDX_Msk | TIM_ECR_IPOS_Msk,
+             (sEncoderIndexConfig->Direction |
+              (sEncoderIndexConfig->Blanking) |
+              ((sEncoderIndexConfig->FirstIndexEnable == ENABLE) ? (0x1U << TIM_ECR_FIDX_Pos) : 0U) |
+              sEncoderIndexConfig->Position |
+              TIM_ECR_IE));
+#endif /* STM32U575xx || STM32U585xx */
 
   __HAL_UNLOCK(htim);
 
@@ -3272,7 +3317,7 @@ __weak void HAL_TIMEx_TransitionErrorCallback(TIM_HandleTypeDef *htim)
   * @param  htim TIM Hall Sensor handle
   * @retval HAL state
   */
-HAL_TIM_StateTypeDef HAL_TIMEx_HallSensor_GetState(TIM_HandleTypeDef *htim)
+HAL_TIM_StateTypeDef HAL_TIMEx_HallSensor_GetState(const TIM_HandleTypeDef *htim)
 {
   return htim->State;
 }
@@ -3288,7 +3333,7 @@ HAL_TIM_StateTypeDef HAL_TIMEx_HallSensor_GetState(TIM_HandleTypeDef *htim)
   *            @arg TIM_CHANNEL_4: TIM Channel 4
   * @retval TIM Complementary channel state
   */
-HAL_TIM_ChannelStateTypeDef HAL_TIMEx_GetChannelNState(TIM_HandleTypeDef *htim,  uint32_t ChannelN)
+HAL_TIM_ChannelStateTypeDef HAL_TIMEx_GetChannelNState(const TIM_HandleTypeDef *htim,  uint32_t ChannelN)
 {
   HAL_TIM_ChannelStateTypeDef channel_state;
 
@@ -3308,7 +3353,7 @@ HAL_TIM_ChannelStateTypeDef HAL_TIMEx_GetChannelNState(TIM_HandleTypeDef *htim, 
   */
 
 /* Private functions ---------------------------------------------------------*/
-/** @defgroup TIMEx_Private_Functions TIMEx Private Functions
+/** @defgroup TIMEx_Private_Functions TIM Extended Private Functions
   * @{
   */
 
@@ -3466,6 +3511,7 @@ HAL_StatusTypeDef HAL_TIMEx_EnableHSE32(TIM_HandleTypeDef *htim)
   /* Check the parameters */
   assert_param(IS_TIM_HSE32_INSTANCE(htim->Instance));
 
+#if defined (STM32U575xx) || defined (STM32U585xx)
   /* The Cut1.x contains a limitation when using HSE/32 as input capture for TIM16
      Bug ID 56: On TIM16, the HSE/32 input capture requires the set of HSE32EN bit of TIM17 Option Register */
   if (HAL_GetREVID() < REV_ID_B)  /* Cut1.x */
@@ -3477,6 +3523,9 @@ HAL_StatusTypeDef HAL_TIMEx_EnableHSE32(TIM_HandleTypeDef *htim)
   {
     SET_BIT(htim->Instance->OR1, TIM_OR1_HSE32EN);
   }
+#else
+  SET_BIT(htim->Instance->OR1, TIM_OR1_HSE32EN);
+#endif /* STM32U575xx || STM32U585xx */
 
   return HAL_OK;
 }
@@ -3492,6 +3541,7 @@ HAL_StatusTypeDef HAL_TIMEx_DisableHSE32(TIM_HandleTypeDef *htim)
   /* Check the parameters */
   assert_param(IS_TIM_HSE32_INSTANCE(htim->Instance));
 
+#if defined (STM32U575xx) || defined (STM32U585xx)
   if (HAL_GetREVID() < REV_ID_B) /* Cut1.x */
   {
     __HAL_RCC_TIM17_CLK_ENABLE();
@@ -3501,6 +3551,9 @@ HAL_StatusTypeDef HAL_TIMEx_DisableHSE32(TIM_HandleTypeDef *htim)
   {
     CLEAR_BIT(htim->Instance->OR1, TIM_OR1_HSE32EN);
   }
+#else
+  CLEAR_BIT(htim->Instance->OR1, TIM_OR1_HSE32EN);
+#endif /* STM32U575xx || STM32U585xx */
 
   return HAL_OK;
 }

@@ -22,12 +22,12 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif
+#endif /* __cplusplus */
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32u5xx_hal_def.h"
 
-#if defined (USB_OTG_FS) || defined (USB_OTG_HS)
+#if defined (USB_OTG_FS) || defined (USB_OTG_HS) || defined (USB_DRD_FS)
 /** @addtogroup STM32U5xx_HAL_Driver
   * @{
   */
@@ -51,15 +51,19 @@ HAL_StatusTypeDef HAL_PCDEx_SetTxFiFo(PCD_HandleTypeDef *hpcd, uint8_t fifo, uin
 HAL_StatusTypeDef HAL_PCDEx_SetRxFiFo(PCD_HandleTypeDef *hpcd, uint16_t size);
 #endif /* defined (USB_OTG_FS) || defined (USB_OTG_HS) */
 
+#if defined (USB_DRD_FS)
+HAL_StatusTypeDef  HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd, uint16_t ep_addr,
+                                       uint16_t ep_kind, uint32_t pmaadress);
+#endif /* defined (USB_DRD_FS) */
 
 HAL_StatusTypeDef HAL_PCDEx_ActivateLPM(PCD_HandleTypeDef *hpcd);
 HAL_StatusTypeDef HAL_PCDEx_DeActivateLPM(PCD_HandleTypeDef *hpcd);
 
-#if defined (STM32U575xx) || defined (STM32U585xx) || defined (STM32U595xx) || defined (STM32U5A5xx) || defined (STM32U599xx) || defined (STM32U5A9xx)
+
 HAL_StatusTypeDef HAL_PCDEx_ActivateBCD(PCD_HandleTypeDef *hpcd);
 HAL_StatusTypeDef HAL_PCDEx_DeActivateBCD(PCD_HandleTypeDef *hpcd);
 void HAL_PCDEx_BCD_VBUSDetect(PCD_HandleTypeDef *hpcd);
-#endif /* defined (STM32U575xx) || defined (STM32U585xx) || defined (STM32U595xx) || defined (STM32U5A5xx) || defined (STM32U599xx) || defined (STM32U5A9xx) */
+
 void HAL_PCDEx_LPM_Callback(PCD_HandleTypeDef *hpcd, PCD_LPM_MsgTypeDef msg);
 void HAL_PCDEx_BCD_Callback(PCD_HandleTypeDef *hpcd, PCD_BCD_MsgTypeDef msg);
 
@@ -78,11 +82,11 @@ void HAL_PCDEx_BCD_Callback(PCD_HandleTypeDef *hpcd, PCD_BCD_MsgTypeDef msg);
 /**
   * @}
   */
-#endif /* defined (USB_OTG_FS) || defined (USB_OTG_HS) */
+#endif /* defined (USB_OTG_FS) || defined (USB_OTG_HS) || defined (USB_DRD_FS) */
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
 
 #endif /* STM32U5xx_HAL_PCD_EX_H */

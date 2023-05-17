@@ -349,14 +349,14 @@ HAL_StatusTypeDef HAL_OTFDEC_RegionKeyLock(OTFDEC_HandleTypeDef *hotfdec, uint32
 HAL_StatusTypeDef HAL_OTFDEC_RegionSetKey(OTFDEC_HandleTypeDef *hotfdec, uint32_t RegionIndex, uint32_t *pKey);
 HAL_StatusTypeDef HAL_OTFDEC_RegionSetMode(OTFDEC_HandleTypeDef *hotfdec, uint32_t RegionIndex, uint32_t mode);
 HAL_StatusTypeDef HAL_OTFDEC_RegionConfig(OTFDEC_HandleTypeDef *hotfdec, uint32_t RegionIndex,
-                                          OTFDEC_RegionConfigTypeDef *Config, uint32_t lock);
+                                          const OTFDEC_RegionConfigTypeDef *Config, uint32_t lock);
 uint32_t HAL_OTFDEC_KeyCRCComputation(uint32_t *pKey);
 HAL_StatusTypeDef HAL_OTFDEC_RegionEnable(OTFDEC_HandleTypeDef *hotfdec, uint32_t RegionIndex);
 HAL_StatusTypeDef HAL_OTFDEC_RegionDisable(OTFDEC_HandleTypeDef *hotfdec, uint32_t RegionIndex);
 HAL_StatusTypeDef HAL_OTFDEC_ConfigAttributes(OTFDEC_HandleTypeDef *hotfdec, uint32_t Attributes);
 HAL_StatusTypeDef HAL_OTFDEC_EnableEnciphering(OTFDEC_HandleTypeDef *hotfdec);
 HAL_StatusTypeDef HAL_OTFDEC_DisableEnciphering(OTFDEC_HandleTypeDef *hotfdec);
-HAL_StatusTypeDef HAL_OTFDEC_Cipher(OTFDEC_HandleTypeDef *hotfdec, uint32_t RegionIndex, uint32_t *input,
+HAL_StatusTypeDef HAL_OTFDEC_Cipher(OTFDEC_HandleTypeDef *hotfdec, uint32_t RegionIndex, const uint32_t *input,
                                     uint32_t *output, uint32_t size, uint32_t start_address);
 /**
   * @}

@@ -58,7 +58,7 @@
   *          - SUCCESS: CORDIC registers are de-initialized
   *          - ERROR: CORDIC registers are not de-initialized
   */
-ErrorStatus LL_CORDIC_DeInit(CORDIC_TypeDef *CORDICx)
+ErrorStatus LL_CORDIC_DeInit(const CORDIC_TypeDef *CORDICx)
 {
   ErrorStatus status = SUCCESS;
 

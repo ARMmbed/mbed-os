@@ -143,7 +143,7 @@ typedef struct
 
   IRDA_InitTypeDef         Init;             /*!< IRDA communication parameters      */
 
-  uint8_t                  *pTxBuffPtr;      /*!< Pointer to IRDA Tx transfer Buffer */
+  const uint8_t            *pTxBuffPtr;      /*!< Pointer to IRDA Tx transfer Buffer */
 
   uint16_t                 TxXferSize;       /*!< IRDA Tx Transfer size              */
 
@@ -157,10 +157,12 @@ typedef struct
 
   uint16_t                 Mask;             /*!< USART RX RDR register mask         */
 
+#if defined(HAL_DMA_MODULE_ENABLED)
   DMA_HandleTypeDef        *hdmatx;          /*!< IRDA Tx DMA Handle parameters      */
 
   DMA_HandleTypeDef        *hdmarx;          /*!< IRDA Rx DMA Handle parameters      */
 
+#endif /* HAL_DMA_MODULE_ENABLED */
   HAL_LockTypeDef          Lock;             /*!< Locking object                     */
 
   __IO HAL_IRDA_StateTypeDef    gState;      /*!< IRDA state information related to global Handle management
@@ -266,7 +268,9 @@ typedef  void (*pIRDA_CallbackTypeDef)(IRDA_HandleTypeDef *hirda);  /*!< pointer
 #define HAL_IRDA_ERROR_NE                   (0x00000002U)          /*!< Noise error             */
 #define HAL_IRDA_ERROR_FE                   (0x00000004U)          /*!< frame error             */
 #define HAL_IRDA_ERROR_ORE                  (0x00000008U)          /*!< Overrun error           */
+#if defined(HAL_DMA_MODULE_ENABLED)
 #define HAL_IRDA_ERROR_DMA                  (0x00000010U)          /*!< DMA transfer error      */
+#endif /* HAL_DMA_MODULE_ENABLED */
 #define HAL_IRDA_ERROR_BUSY                 (0x00000020U)          /*!< Busy Error              */
 #if (USE_HAL_IRDA_REGISTER_CALLBACKS == 1)
 #define HAL_IRDA_ERROR_INVALID_CALLBACK     (0x00000040U)          /*!< Invalid Callback error  */
@@ -827,15 +831,17 @@ HAL_StatusTypeDef HAL_IRDA_UnRegisterCallback(IRDA_HandleTypeDef *hirda, HAL_IRD
   */
 
 /* IO operation functions *****************************************************/
-HAL_StatusTypeDef HAL_IRDA_Transmit(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size, uint32_t Timeout);
+HAL_StatusTypeDef HAL_IRDA_Transmit(IRDA_HandleTypeDef *hirda, const uint8_t *pData, uint16_t Size, uint32_t Timeout);
 HAL_StatusTypeDef HAL_IRDA_Receive(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size, uint32_t Timeout);
-HAL_StatusTypeDef HAL_IRDA_Transmit_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size);
+HAL_StatusTypeDef HAL_IRDA_Transmit_IT(IRDA_HandleTypeDef *hirda, const uint8_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_IRDA_Receive_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size);
-HAL_StatusTypeDef HAL_IRDA_Transmit_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size);
+#if defined(HAL_DMA_MODULE_ENABLED)
+HAL_StatusTypeDef HAL_IRDA_Transmit_DMA(IRDA_HandleTypeDef *hirda, const uint8_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_IRDA_Receive_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_IRDA_DMAPause(IRDA_HandleTypeDef *hirda);
 HAL_StatusTypeDef HAL_IRDA_DMAResume(IRDA_HandleTypeDef *hirda);
 HAL_StatusTypeDef HAL_IRDA_DMAStop(IRDA_HandleTypeDef *hirda);
+#endif /* HAL_DMA_MODULE_ENABLED */
 /* Transfer Abort functions */
 HAL_StatusTypeDef HAL_IRDA_Abort(IRDA_HandleTypeDef *hirda);
 HAL_StatusTypeDef HAL_IRDA_AbortTransmit(IRDA_HandleTypeDef *hirda);
@@ -865,8 +871,8 @@ void HAL_IRDA_AbortReceiveCpltCallback(IRDA_HandleTypeDef *hirda);
   */
 
 /* Peripheral State and Error functions ***************************************/
-HAL_IRDA_StateTypeDef HAL_IRDA_GetState(IRDA_HandleTypeDef *hirda);
-uint32_t              HAL_IRDA_GetError(IRDA_HandleTypeDef *hirda);
+HAL_IRDA_StateTypeDef HAL_IRDA_GetState(const IRDA_HandleTypeDef *hirda);
+uint32_t              HAL_IRDA_GetError(const IRDA_HandleTypeDef *hirda);
 
 /**
   * @}
@@ -889,3 +895,4 @@ uint32_t              HAL_IRDA_GetError(IRDA_HandleTypeDef *hirda);
 #endif
 
 #endif /* STM32U5xx_HAL_IRDA_H */
+

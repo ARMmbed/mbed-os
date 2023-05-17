@@ -27,7 +27,7 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32u5xx_ll_usb.h"
 
-#if defined (USB_OTG_FS) || defined (USB_OTG_HS)
+#if defined (USB_OTG_FS) || defined (USB_OTG_HS) || defined (USB_DRD_FS)
 /** @addtogroup STM32U5xx_HAL_Driver
   * @{
   */
@@ -53,11 +53,35 @@ typedef enum
   HAL_HCD_STATE_TIMEOUT  = 0x04
 } HCD_StateTypeDef;
 
+#if defined (USB_DRD_FS)
+typedef USB_DRD_TypeDef         HCD_TypeDef;
+typedef USB_DRD_CfgTypeDef      HCD_InitTypeDef;
+typedef USB_DRD_HCTypeDef       HCD_HCTypeDef;
+typedef USB_DRD_URBStateTypeDef HCD_URBStateTypeDef;
+typedef USB_DRD_HCStateTypeDef  HCD_HCStateTypeDef;
+#else
 typedef USB_OTG_GlobalTypeDef   HCD_TypeDef;
 typedef USB_OTG_CfgTypeDef      HCD_InitTypeDef;
 typedef USB_OTG_HCTypeDef       HCD_HCTypeDef;
 typedef USB_OTG_URBStateTypeDef HCD_URBStateTypeDef;
 typedef USB_OTG_HCStateTypeDef  HCD_HCStateTypeDef;
+#endif /* defined (USB_DRD_FS) */
+#if defined (USB_DRD_FS)
+typedef enum
+{
+  HCD_HCD_STATE_DISCONNECTED = 0x00U,
+  HCD_HCD_STATE_CONNECTED    = 0x01U,
+  HCD_HCD_STATE_RESETED      = 0x02U,
+  HCD_HCD_STATE_RUN          = 0x03U,
+  HCD_HCD_STATE_SUSPEND      = 0x04U,
+  HCD_HCD_STATE_RESUME       = 0x05U,
+} HCD_HostStateTypeDef;
+
+/* PMA lookup Table size depending on PMA Size
+ * 8Bytes each Block 32Bit in each word
+ */
+#define PMA_BLOCKS        ((USB_DRD_PMA_SIZE) / (8U * 32U))
+#endif /* defined (USB_DRD_FS) */
 /**
   * @}
   */
@@ -74,6 +98,13 @@ typedef struct
   HCD_TypeDef               *Instance;  /*!< Register base address    */
   HCD_InitTypeDef           Init;       /*!< HCD required parameters  */
   HCD_HCTypeDef             hc[16];     /*!< Host channels parameters */
+#if defined (USB_DRD_FS)
+  uint32_t                  ep0_PmaAllocState;  /*!< EP0 PMA allocation State (allocated, virtual Ch, EP0 direction) */
+  uint16_t                  phy_chin_state[8];  /*!< Physical Channel in State (Used/Free) */
+  uint16_t                  phy_chout_state[8]; /*!< Physical Channel out State (Used/Free)*/
+  uint32_t                  PMALookupTable[PMA_BLOCKS]; /*PMA LookUp Table */
+  HCD_HostStateTypeDef      HostState; /*!< USB current state DICONNECT/CONNECT/RUN/SUSPEND/RESUME */
+#endif /* defined (USB_DRD_FS) */
   HAL_LockTypeDef           Lock;       /*!< HCD peripheral status    */
   __IO HCD_StateTypeDef     State;      /*!< HCD communication state  */
   __IO  uint32_t            ErrorCode;  /*!< HCD Error code           */
@@ -159,14 +190,29 @@ typedef struct
 
 #define __HAL_HCD_GET_FLAG(__HANDLE__, __INTERRUPT__)      ((USB_ReadInterrupts((__HANDLE__)->Instance)\
                                                              & (__INTERRUPT__)) == (__INTERRUPT__))
+#if defined (USB_DRD_FS)
+#define __HAL_HCD_CLEAR_FLAG(__HANDLE__, __INTERRUPT__)    (((__HANDLE__)->Instance->ISTR) &= ~(__INTERRUPT__))
+#else
+#define __HAL_HCD_GET_CH_FLAG(__HANDLE__, __chnum__, __INTERRUPT__) \
+  ((USB_ReadChInterrupts((__HANDLE__)->Instance, (__chnum__)) & (__INTERRUPT__)) == (__INTERRUPT__))
+
 #define __HAL_HCD_CLEAR_FLAG(__HANDLE__, __INTERRUPT__)    (((__HANDLE__)->Instance->GINTSTS) = (__INTERRUPT__))
+#endif /* defined (USB_DRD_FS) */
 #define __HAL_HCD_IS_INVALID_INTERRUPT(__HANDLE__)         (USB_ReadInterrupts((__HANDLE__)->Instance) == 0U)
 
+#if defined (USB_DRD_FS)
+#define __HAL_HCD_GET_CHNUM(__HANDLE__)                    (((__HANDLE__)->Instance->ISTR) & USB_ISTR_IDN)
+#define __HAL_HCD_GET_CHDIR(__HANDLE__)                    (((__HANDLE__)->Instance->ISTR) & USB_ISTR_DIR)
+#else
 #define __HAL_HCD_CLEAR_HC_INT(chnum, __INTERRUPT__)  (USBx_HC(chnum)->HCINT = (__INTERRUPT__))
 #define __HAL_HCD_MASK_HALT_HC_INT(chnum)             (USBx_HC(chnum)->HCINTMSK &= ~USB_OTG_HCINTMSK_CHHM)
 #define __HAL_HCD_UNMASK_HALT_HC_INT(chnum)           (USBx_HC(chnum)->HCINTMSK |= USB_OTG_HCINTMSK_CHHM)
 #define __HAL_HCD_MASK_ACK_HC_INT(chnum)              (USBx_HC(chnum)->HCINTMSK &= ~USB_OTG_HCINTMSK_ACKM)
 #define __HAL_HCD_UNMASK_ACK_HC_INT(chnum)            (USBx_HC(chnum)->HCINTMSK |= USB_OTG_HCINTMSK_ACKM)
+#define __HAL_HCD_SET_HC_CSPLT(chnum)                 (USBx_HC(chnum)->HCSPLT   |= USB_OTG_HCSPLT_COMPLSPLT)
+#define __HAL_HCD_CLEAR_HC_CSPLT(chnum)               (USBx_HC(chnum)->HCSPLT   &= ~USB_OTG_HCSPLT_COMPLSPLT)
+#define __HAL_HCD_CLEAR_HC_SSPLT(chnum)               (USBx_HC(chnum)->HCSPLT   &= ~USB_OTG_HCSPLT_SPLITEN)
+#endif /* defined (USB_DRD_FS) */
 /**
   * @}
   */
@@ -186,6 +232,9 @@ HAL_StatusTypeDef HAL_HCD_HC_Init(HCD_HandleTypeDef *hhcd, uint8_t ch_num,
                                   uint8_t speed, uint8_t ep_type, uint16_t mps);
 
 HAL_StatusTypeDef HAL_HCD_HC_Halt(HCD_HandleTypeDef *hhcd, uint8_t ch_num);
+#if defined (USB_DRD_FS)
+HAL_StatusTypeDef HAL_HCD_HC_Close(HCD_HandleTypeDef *hhcd, uint8_t ch_num);
+#endif /* defined (USB_DRD_FS) */
 void              HAL_HCD_MspInit(HCD_HandleTypeDef *hhcd);
 void              HAL_HCD_MspDeInit(HCD_HandleTypeDef *hhcd);
 
@@ -248,6 +297,11 @@ HAL_StatusTypeDef HAL_HCD_HC_SubmitRequest(HCD_HandleTypeDef *hhcd, uint8_t ch_n
                                            uint8_t token, uint8_t *pbuff,
                                            uint16_t length, uint8_t do_ping);
 
+HAL_StatusTypeDef HAL_HCD_HC_SetHubInfo(HCD_HandleTypeDef *hhcd, uint8_t ch_num,
+                                        uint8_t addr, uint8_t PortNbr);
+
+HAL_StatusTypeDef HAL_HCD_HC_ClearHubInfo(HCD_HandleTypeDef *hhcd, uint8_t ch_num);
+
 /* Non-Blocking mode: Interrupt */
 void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd);
 void HAL_HCD_SOF_Callback(HCD_HandleTypeDef *hhcd);
@@ -255,6 +309,10 @@ void HAL_HCD_Connect_Callback(HCD_HandleTypeDef *hhcd);
 void HAL_HCD_Disconnect_Callback(HCD_HandleTypeDef *hhcd);
 void HAL_HCD_PortEnabled_Callback(HCD_HandleTypeDef *hhcd);
 void HAL_HCD_PortDisabled_Callback(HCD_HandleTypeDef *hhcd);
+#if defined (USB_DRD_FS)
+void HAL_HCD_SuspendCallback(HCD_HandleTypeDef *hhcd);
+void HAL_HCD_ResumeCallback(HCD_HandleTypeDef *hhcd);
+#endif /* defined (USB_DRD_FS) */
 void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
                                          HCD_URBStateTypeDef urb_state);
 /**
@@ -268,6 +326,11 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
 HAL_StatusTypeDef HAL_HCD_ResetPort(HCD_HandleTypeDef *hhcd);
 HAL_StatusTypeDef HAL_HCD_Start(HCD_HandleTypeDef *hhcd);
 HAL_StatusTypeDef HAL_HCD_Stop(HCD_HandleTypeDef *hhcd);
+#if defined (USB_DRD_FS)
+HAL_StatusTypeDef HAL_HCD_Suspend(HCD_HandleTypeDef *hhcd);
+HAL_StatusTypeDef HAL_HCD_Resume(HCD_HandleTypeDef *hhcd);
+HAL_StatusTypeDef HAL_HCD_ResumePort(HCD_HandleTypeDef *hhcd);
+#endif /* defined (USB_DRD_FS) */
 /**
   * @}
   */
@@ -283,9 +346,21 @@ uint32_t                HAL_HCD_HC_GetXferCount(HCD_HandleTypeDef *hhcd, uint8_t
 uint32_t                HAL_HCD_GetCurrentFrame(HCD_HandleTypeDef *hhcd);
 uint32_t                HAL_HCD_GetCurrentSpeed(HCD_HandleTypeDef *hhcd);
 
+#if defined (USB_DRD_FS)
+/* PMA Allocation functions  **********************************************/
+/** @addtogroup PMA Allocation
+  * @{
+  */
+HAL_StatusTypeDef  HAL_HCD_PMAlloc(HCD_HandleTypeDef *hhcd, uint8_t ch_num,
+                                   uint16_t ch_kind, uint16_t mps);
+
+HAL_StatusTypeDef  HAL_HCD_PMADeAlloc(HCD_HandleTypeDef *hhcd, uint8_t ch_num);
+HAL_StatusTypeDef  HAL_HCD_PMAReset(HCD_HandleTypeDef *hhcd);
+
 /**
   * @}
   */
+#endif /* defined (USB_DRD_FS) */
 
 /**
   * @}
@@ -295,6 +370,238 @@ uint32_t                HAL_HCD_GetCurrentSpeed(HCD_HandleTypeDef *hhcd);
 /** @defgroup HCD_Private_Macros HCD Private Macros
   * @{
   */
+#if defined (USB_DRD_FS)
+#define HCD_MIN(a, b)  (((a) < (b)) ? (a) : (b))
+#define HCD_MAX(a, b)  (((a) > (b)) ? (a) : (b))
+
+/** @defgroup HCD_LOGICAL_CHANNEL HCD Logical Channel
+  * @{
+  */
+#define HCD_LOGICAL_CH_NOT_OPENED             0xFFU
+#define HCD_FREE_CH_NOT_FOUND                 0xFFU
+/**
+  * @}
+  */
+
+/** @defgroup HCD_ENDP_Kind HCD Endpoint Kind
+  * @{
+  */
+#define HCD_SNG_BUF                            0U
+#define HCD_DBL_BUF                            1U
+/**
+  * @}
+  */
+
+/* Set Channel */
+#define HCD_SET_CHANNEL                        USB_DRD_SET_CHEP
+
+/* Get Channel Register */
+#define HCD_GET_CHANNEL                        USB_DRD_GET_CHEP
+
+
+/**
+  * @brief free buffer used from the application realizing it to the line
+  *         toggles bit SW_BUF in the double buffered endpoint register
+  * @param USBx USB device.
+  * @param   bChNum, bDir
+  * @retval None
+  */
+#define HCD_FREE_USER_BUFFER                   USB_DRD_FREE_USER_BUFFER
+
+/**
+  * @brief Set the Setup bit in the corresponding channel, when a Setup
+     transaction is needed.
+  * @param USBx USB device.
+  * @param   bChNum
+  * @retval None
+  */
+#define HAC_SET_CH_TX_SETUP                    USB_DRD_CHEP_TX_SETUP
+
+/**
+  * @brief  sets the status for tx transfer (bits STAT_TX[1:0]).
+  * @param  USBx USB peripheral instance register address.
+  * @param  bChNum Endpoint Number.
+  * @param  wState new state
+  * @retval None
+  */
+#define HCD_SET_CH_TX_STATUS                   USB_DRD_SET_CHEP_TX_STATUS
+
+/**
+  * @brief  sets the status for rx transfer (bits STAT_TX[1:0])
+  * @param  USBx USB peripheral instance register address.
+  * @param  bChNum Endpoint Number.
+  * @param  wState new state
+  * @retval None
+  */
+#define HCD_SET_CH_RX_STATUS                   USB_DRD_SET_CHEP_RX_STATUS
+/**
+  * @brief  gets the status for tx/rx transfer (bits STAT_TX[1:0]
+  *         /STAT_RX[1:0])
+  * @param  USBx USB peripheral instance register address.
+  * @param  bChNum Endpoint Number.
+  * @retval status
+  */
+#define HCD_GET_CH_TX_STATUS                   USB_DRD_GET_CHEP_TX_STATUS
+#define HCD_GET_CH_RX_STATUS                   USB_DRD_GET_CHEP_RX_STATUS
+/**
+  * @brief  Sets/clears CH_KIND bit in the Channel register.
+  * @param  USBx USB peripheral instance register address.
+  * @param  bChNum Endpoint Number.
+  * @retval None
+  */
+#define HCD_SET_CH_KIND                        USB_DRD_SET_CH_KIND
+#define HCD_CLEAR_CH_KIND                      USB_DRD_CLEAR_CH_KIND
+#define HCD_SET_BULK_CH_DBUF                   HCD_SET_CH_KIND
+#define HCD_CLEAR_BULK_CH_DBUF                 HCD_CLEAR_CH_KIND
+
+/**
+  * @brief  Clears bit ERR_RX in the Channel register
+  * @param  USBx USB peripheral instance register address.
+  * @param  bChNum Endpoint Number.
+  * @retval None
+  */
+#define HCD_CLEAR_RX_CH_ERR                    USB_DRD_CLEAR_CHEP_RX_ERR
+
+/**
+  * @brief  Clears bit ERR_TX in the Channel register
+  * @param  USBx USB peripheral instance register address.
+  * @param  bChNum Endpoint Number.
+  * @retval None
+  */
+#define HCD_CLEAR_TX_CH_ERR                    USB_DRD_CLEAR_CHEP_TX_ERR
+/**
+  * @brief  Clears bit CTR_RX / CTR_TX in the endpoint register.
+  * @param  USBx USB peripheral instance register address.
+  * @param  bChNum Endpoint Number.
+  * @retval None
+  */
+#define HCD_CLEAR_RX_CH_CTR                    USB_DRD_CLEAR_RX_CHEP_CTR
+#define HCD_CLEAR_TX_CH_CTR                    USB_DRD_CLEAR_TX_CHEP_CTR
+
+/**
+  * @brief  Toggles DTOG_RX / DTOG_TX bit in the endpoint register.
+  * @param  USBx USB peripheral instance register address.
+  * @param  bChNum Endpoint Number.
+  * @retval None
+  */
+#define HCD_RX_DTOG                            USB_DRD_RX_DTOG
+#define HCD_TX_DTOG                            USB_DRD_TX_DTOG
+/**
+  * @brief  Clears DTOG_RX / DTOG_TX bit in the endpoint register.
+  * @param  USBx USB peripheral instance register address.
+  * @param  bChNum Endpoint Number.
+  * @retval None
+  */
+#define HCD_CLEAR_RX_DTOG                      USB_DRD_CLEAR_RX_DTOG
+#define HCD_CLEAR_TX_DTOG                      USB_DRD_CLEAR_TX_DTOG
+
+/**
+  * @brief  sets counter for the tx/rx buffer.
+  * @param  USBx USB peripheral instance register address.
+  * @param  bChNum Endpoint Number.
+  * @param  wCount Counter value.
+  * @retval None
+  */
+#define HCD_SET_CH_TX_CNT                      USB_DRD_SET_CHEP_TX_CNT
+#define HCD_SET_CH_RX_CNT                      USB_DRD_SET_CHEP_RX_CNT
+
+/**
+  * @brief  gets counter of the tx buffer.
+  * @param  USBx USB peripheral instance register address.
+  * @param  bChNum channel Number.
+  * @retval Counter value
+  */
+#define HCD_GET_CH_TX_CNT                      USB_DRD_GET_CHEP_TX_CNT
+
+/**
+  * @brief  gets counter of the rx buffer.
+  * @param  Instance USB peripheral instance register address.
+  * @param  bChNum channel Number.
+  * @retval Counter value
+  */
+__STATIC_INLINE uint16_t HCD_GET_CH_RX_CNT(HCD_TypeDef *Instance, uint16_t bChNum)
+{
+  uint32_t HostCoreSpeed;
+  __IO uint32_t count = 10U;
+
+  /* Get Host core Speed */
+  HostCoreSpeed = USB_GetHostSpeed(Instance);
+
+  /* Count depends on device LS */
+  if (HostCoreSpeed == USB_DRD_SPEED_LS)
+  {
+    count = (70U * (HAL_RCC_GetHCLKFreq() / 1000000U)) / 100U;
+  }
+
+  if (count > 15U)
+  {
+    count = HCD_MAX(10U, (count - 15U));
+  }
+
+  /* WA: few cycles for RX PMA descriptor to update */
+  while (count > 0U)
+  {
+    count--;
+  }
+
+  return (uint16_t)USB_DRD_GET_CHEP_RX_CNT((Instance), (bChNum));
+}
+
+/**
+  * @brief  Gets buffer 0/1 address of a double buffer endpoint.
+  * @param  USBx USB peripheral instance register address.
+  * @param  bChNum Endpoint Number.
+  * @param  bDir endpoint dir  EP_DBUF_OUT = OUT
+  *         EP_DBUF_IN  = IN
+  * @param  wCount: Counter value
+  * @retval None
+  */
+#define HCD_SET_CH_DBUF0_CNT                   USB_DRD_SET_CHEP_DBUF0_CNT
+#define HCD_SET_CH_DBUF1_CNT                   USB_DRD_SET_CHEP_DBUF1_CNT
+#define HCD_SET_CH_DBUF_CNT                    USB_DRD_SET_CHEP_DBUF_CNT
+
+
+/**
+  * @brief  gets counter of the rx buffer0.
+  * @param  Instance USB peripheral instance register address.
+  * @param  bChNum channel Number.
+  * @retval Counter value
+  */
+__STATIC_INLINE uint16_t HCD_GET_CH_DBUF0_CNT(const HCD_TypeDef *Instance, uint16_t bChNum)
+{
+  UNUSED(Instance);
+  __IO uint32_t count = 10U;
+
+  /* WA: few cycles for RX PMA descriptor to update */
+  while (count > 0U)
+  {
+    count--;
+  }
+
+  return (uint16_t)USB_DRD_GET_CHEP_DBUF0_CNT((Instance), (bChNum));
+}
+
+/**
+  * @brief  gets counter of the rx buffer1.
+  * @param  Instance USB peripheral instance register address.
+  * @param  bChNum channel Number.
+  * @retval Counter value
+  */
+__STATIC_INLINE uint16_t HCD_GET_CH_DBUF1_CNT(const HCD_TypeDef *Instance, uint16_t bChNum)
+{
+  UNUSED(Instance);
+  __IO uint32_t count = 10U;
+
+  /* WA: few cycles for RX PMA descriptor to update */
+  while (count > 0U)
+  {
+    count--;
+  }
+
+  return (uint16_t)USB_DRD_GET_CHEP_DBUF1_CNT((Instance), (bChNum));
+}
+#endif /* defined (USB_DRD_FS) */
+
 /**
   * @}
   */
@@ -306,7 +613,10 @@ uint32_t                HAL_HCD_GetCurrentSpeed(HCD_HandleTypeDef *hhcd);
 /**
   * @}
   */
-#endif /* defined (USB_OTG_FS) || defined (USB_OTG_HS) */
+/**
+  * @}
+  */
+#endif /* defined (USB_OTG_FS) || defined (USB_OTG_HS) || defined (USB_DRD_FS) */
 
 #ifdef __cplusplus
 }

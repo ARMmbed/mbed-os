@@ -70,7 +70,11 @@
 #define TIMEOUT_1_BYTE 10
 
 #if defined(SPI_FLAG_FRLVL) // STM32F0 STM32F3 STM32F7 STM32L4
+#if defined(STM32U5)
+extern HAL_StatusTypeDef HAL_SPIEx_FlushRxFifo(const SPI_HandleTypeDef *hspi);
+#else
 extern HAL_StatusTypeDef HAL_SPIEx_FlushRxFifo(SPI_HandleTypeDef *hspi);
+#endif
 #endif
 
 #if defined(SPI_DATASIZE_17BIT) || defined(SPI_DATASIZE_18BIT) || defined(SPI_DATASIZE_19BIT) || defined(SPI_DATASIZE_20BIT) || \

@@ -94,6 +94,19 @@ extern "C" {
   * @}
   */
 
+#if defined(SYSCFG_CCCSR_CS3)
+/** @defgroup SYSTEM_LL_EC_CS3 SYSCFG VddHSPI compensation cell Code selection
+  * @{
+  */
+#define LL_SYSCFG_VDDHSPI_CELL_CODE                0U               /*VDD HSPI I/Os code from the cell
+                                                                    (available in the SYSCFG_CCVR)*/
+#define LL_SYSCFG_VDDHSPI_REGISTER_CODE            SYSCFG_CCCSR_CS3 /*VDD HSPI I/Os code from the SYSCFG compensation
+                                                                    cell code register (SYSCFG_CCCR)*/
+/**
+  * @}
+  */
+#endif /* SYSCFG_CCCSR_CS3 */
+
 /** @defgroup SYSTEM_LL_EC_ERASE_MEMORIES_STATUS SYSCFG MEMORIES ERASE STATUS
   * @{
   */
@@ -111,13 +124,13 @@ extern "C" {
   * @{
   */
 
-/** @defgroup SYSTEM_LL_EC_I2C_FASTMODEPLUS SYSCFG I2C FASTMODEPLUS
+/** @defgroup SYSTEM_LL_EC_FASTMODEPLUS SYSCFG FASTMODEPLUS
   * @{
   */
-#define LL_SYSCFG_I2C_FASTMODEPLUS_PB6     SYSCFG_CFGR1_PB6_FMP  /*!< Enable Fast Mode Plus on PB6 */
-#define LL_SYSCFG_I2C_FASTMODEPLUS_PB7     SYSCFG_CFGR1_PB7_FMP  /*!< Enable Fast Mode Plus on PB7 */
-#define LL_SYSCFG_I2C_FASTMODEPLUS_PB8     SYSCFG_CFGR1_PB8_FMP  /*!< Enable Fast Mode Plus on PB8 */
-#define LL_SYSCFG_I2C_FASTMODEPLUS_PB9     SYSCFG_CFGR1_PB9_FMP  /*!< Enable Fast Mode Plus on PB9 */
+#define LL_SYSCFG_FASTMODEPLUS_PB6     SYSCFG_CFGR1_PB6_FMP  /*!< Enable Fast Mode Plus on PB6 */
+#define LL_SYSCFG_FASTMODEPLUS_PB7     SYSCFG_CFGR1_PB7_FMP  /*!< Enable Fast Mode Plus on PB7 */
+#define LL_SYSCFG_FASTMODEPLUS_PB8     SYSCFG_CFGR1_PB8_FMP  /*!< Enable Fast Mode Plus on PB8 */
+#define LL_SYSCFG_FASTMODEPLUS_PB9     SYSCFG_CFGR1_PB9_FMP  /*!< Enable Fast Mode Plus on PB9 */
 /**
   * @}
   */
@@ -186,7 +199,8 @@ extern "C" {
   */
 #define LL_DBGMCU_APB1_GRP2_I2C4_STOP      DBGMCU_APB1FZR2_DBG_I2C4_STOP   /*!< The I2C4 SMBus timeout is frozen*/
 #define LL_DBGMCU_APB1_GRP2_LPTIM2_STOP    DBGMCU_APB1FZR2_DBG_LPTIM2_STOP /*!< The counter clock of LPTIM2 is stopped when the core is halted*/
-#define LL_DBGMCU_APB1_GRP2_FDCAN_STOP     DBGMCU_APB1FZR2_DBG_FDCAN_STOP  /*!< The counter clock of FDCAN is stopped when the core is halted*/
+#define LL_DBGMCU_APB1_GRP2_I2C5_STOP      DBGMCU_APB1FZR2_DBG_I2C5_STOP   /*!< The I2C5 SMBus timeout is frozen*/
+#define LL_DBGMCU_APB1_GRP2_I2C6_STOP      DBGMCU_APB1FZR2_DBG_I2C6_STOP   /*!< The I2C6 SMBus timeout is frozen*/
 /**
   * @}
   */
@@ -215,6 +229,39 @@ extern "C" {
   * @}
   */
 
+/** @defgroup SYSTEM_LL_EC_AHB1_GRP1_STOP_IP DBGMCU AHB1 GRP1 STOP IP
+  * @{
+  */
+#define LL_DBGMCU_AHB1_GRP1_GPDMA0_STOP    DBGMCU_AHB1FZR_DBG_GPDMA0_STOP    /*!< The counter clock of GPDMA0 is stopped when the core is halted*/
+#define LL_DBGMCU_AHB1_GRP1_GPDMA1_STOP    DBGMCU_AHB1FZR_DBG_GPDMA1_STOP    /*!< The counter clock of GPDMA1 is stopped when the core is halted*/
+#define LL_DBGMCU_AHB1_GRP1_GPDMA2_STOP    DBGMCU_AHB1FZR_DBG_GPDMA2_STOP    /*!< The counter clock of GPDMA2 is stopped when the core is halted*/
+#define LL_DBGMCU_AHB1_GRP1_GPDMA3_STOP    DBGMCU_AHB1FZR_DBG_GPDMA3_STOP    /*!< The counter clock of GPDMA3 is stopped when the core is halted*/
+#define LL_DBGMCU_AHB1_GRP1_GPDMA4_STOP    DBGMCU_AHB1FZR_DBG_GPDMA4_STOP    /*!< The counter clock of GPDMA4 is stopped when the core is halted*/
+#define LL_DBGMCU_AHB1_GRP1_GPDMA5_STOP    DBGMCU_AHB1FZR_DBG_GPDMA5_STOP    /*!< The counter clock of GPDMA5 is stopped when the core is halted*/
+#define LL_DBGMCU_AHB1_GRP1_GPDMA6_STOP    DBGMCU_AHB1FZR_DBG_GPDMA6_STOP    /*!< The counter clock of GPDMA6 is stopped when the core is halted*/
+#define LL_DBGMCU_AHB1_GRP1_GPDMA7_STOP    DBGMCU_AHB1FZR_DBG_GPDMA7_STOP    /*!< The counter clock of GPDMA7 is stopped when the core is halted*/
+#define LL_DBGMCU_AHB1_GRP1_GPDMA8_STOP    DBGMCU_AHB1FZR_DBG_GPDMA8_STOP    /*!< The counter clock of GPDMA8 is stopped when the core is halted*/
+#define LL_DBGMCU_AHB1_GRP1_GPDMA9_STOP    DBGMCU_AHB1FZR_DBG_GPDMA9_STOP    /*!< The counter clock of GPDMA9 is stopped when the core is halted*/
+#define LL_DBGMCU_AHB1_GRP1_GPDMA10_STOP   DBGMCU_AHB1FZR_DBG_GPDMA10_STOP   /*!< The counter clock of GPDMA10 is stopped when the core is halted*/
+#define LL_DBGMCU_AHB1_GRP1_GPDMA11_STOP   DBGMCU_AHB1FZR_DBG_GPDMA11_STOP   /*!< The counter clock of GPDMA11 is stopped when the core is halted*/
+#define LL_DBGMCU_AHB1_GRP1_GPDMA12_STOP   DBGMCU_AHB1FZR_DBG_GPDMA12_STOP   /*!< The counter clock of GPDMA12 is stopped when the core is halted*/
+#define LL_DBGMCU_AHB1_GRP1_GPDMA13_STOP   DBGMCU_AHB1FZR_DBG_GPDMA13_STOP   /*!< The counter clock of GPDMA13 is stopped when the core is halted*/
+#define LL_DBGMCU_AHB1_GRP1_GPDMA14_STOP   DBGMCU_AHB1FZR_DBG_GPDMA14_STOP   /*!< The counter clock of GPDMA14 is stopped when the core is halted*/
+#define LL_DBGMCU_AHB1_GRP1_GPDMA15_STOP   DBGMCU_AHB1FZR_DBG_GPDMA15_STOP   /*!< The counter clock of GPDMA15 is stopped when the core is halted*/
+/**
+  * @}
+  */
+
+/** @defgroup SYSTEM_LL_EC_AHB3_GRP1_STOP_IP DBGMCU AHB3 GRP1 STOP IP
+  * @{
+  */
+#define LL_DBGMCU_AHB3_GRP1_LPDMA0_STOP    DBGMCU_AHB3FZR_DBG_LPDMA0_STOP    /*!< The counter clock of LPDMA0 is stopped when the core is halted*/
+#define LL_DBGMCU_AHB3_GRP1_LPDMA1_STOP    DBGMCU_AHB3FZR_DBG_LPDMA1_STOP    /*!< The counter clock of LPDMA1 is stopped when the core is halted*/
+#define LL_DBGMCU_AHB3_GRP1_LPDMA2_STOP    DBGMCU_AHB3FZR_DBG_LPDMA2_STOP    /*!< The counter clock of LPDMA2 is stopped when the core is halted*/
+#define LL_DBGMCU_AHB3_GRP1_LPDMA3_STOP    DBGMCU_AHB3FZR_DBG_LPDMA3_STOP    /*!< The counter clock of LPDMA3 is stopped when the core is halted*/
+/**
+  * @}
+  */
 
 #if defined(VREFBUF)
 /** @defgroup SYSTEM_LL_EC_VOLTAGE VREFBUF VOLTAGE
@@ -268,6 +315,30 @@ extern "C" {
   */
 
 /**
+  * @brief  Enable I/O analog switches supplied by VDD.
+  * @rmtoll SYSCFG_CFGR1 ANASWVDD      LL_SYSCFG_EnableAnalogSwitchVdd
+  * @retval None
+  */
+__STATIC_INLINE void LL_SYSCFG_EnableAnalogSwitchVdd(void)
+{
+  SET_BIT(SYSCFG->CFGR1, SYSCFG_CFGR1_ANASWVDD);
+}
+
+/**
+  * @brief  Disable I/O analog switches supplied by VDD.
+  * @note   I/O analog switches are supplied by VDDA or booster
+  *         when booster in on.
+  *         Dedicated voltage booster (supplied by VDD) is the recommended
+  *         configuration with low VDDA voltage operation.
+  * @rmtoll SYSCFG_CFGR1 ANASWVDD      LL_SYSCFG_DisableAnalogSwitchVdd
+  * @retval None
+  */
+__STATIC_INLINE void LL_SYSCFG_DisableAnalogSwitchVdd(void)
+{
+  CLEAR_BIT(SYSCFG->CFGR1, SYSCFG_CFGR1_ANASWVDD);
+}
+
+/**
   * @brief  Enable I/O analog switch voltage booster.
   * @note   When voltage booster is enabled, I/O analog switches are supplied
   *         by a dedicated voltage booster, from VDD power domain. This is
@@ -306,14 +377,13 @@ __STATIC_INLINE void LL_SYSCFG_DisableAnalogBooster(void)
 }
 
 /**
-  * @brief  Enable the I2C fast mode plus driving capability.
-  * @rmtoll SYSCFG_CFGR1 I2C_PBx_FMP   LL_SYSCFG_EnableFastModePlus\n
-  *         SYSCFG_CFGR1 I2Cx_FMP      LL_SYSCFG_EnableFastModePlus
+  * @brief  Enable the fast mode plus driving capability.
+  * @rmtoll SYSCFG_CFGR1 PBx_FMP   LL_SYSCFG_EnableFastModePlus
   * @param  ConfigFastModePlus This parameter can be a combination of the following values:
-  *         @arg @ref LL_SYSCFG_I2C_FASTMODEPLUS_PB6
-  *         @arg @ref LL_SYSCFG_I2C_FASTMODEPLUS_PB7
-  *         @arg @ref LL_SYSCFG_I2C_FASTMODEPLUS_PB8
-  *         @arg @ref LL_SYSCFG_I2C_FASTMODEPLUS_PB9
+  *         @arg @ref LL_SYSCFG_FASTMODEPLUS_PB6
+  *         @arg @ref LL_SYSCFG_FASTMODEPLUS_PB7
+  *         @arg @ref LL_SYSCFG_FASTMODEPLUS_PB8
+  *         @arg @ref LL_SYSCFG_FASTMODEPLUS_PB9
   * @retval None
   */
 __STATIC_INLINE void LL_SYSCFG_EnableFastModePlus(uint32_t ConfigFastModePlus)
@@ -322,14 +392,13 @@ __STATIC_INLINE void LL_SYSCFG_EnableFastModePlus(uint32_t ConfigFastModePlus)
 }
 
 /**
-  * @brief  Disable the I2C fast mode plus driving capability.
-  * @rmtoll SYSCFG_CFGR1 I2C_PBx_FMP   LL_SYSCFG_DisableFastModePlus\n
-  *         SYSCFG_CFGR1 I2Cx_FMP      LL_SYSCFG_DisableFastModePlus
+  * @brief  Disable the fast mode plus driving capability.
+  * @rmtoll SYSCFG_CFGR1 PBx_FMP   LL_SYSCFG_DisableFastModePlus
   * @param  ConfigFastModePlus This parameter can be a combination of the following values:
-  *         @arg @ref LL_SYSCFG_I2C_FASTMODEPLUS_PB6
-  *         @arg @ref LL_SYSCFG_I2C_FASTMODEPLUS_PB7
-  *         @arg @ref LL_SYSCFG_I2C_FASTMODEPLUS_PB8
-  *         @arg @ref LL_SYSCFG_I2C_FASTMODEPLUS_PB9
+  *         @arg @ref LL_SYSCFG_FASTMODEPLUS_PB6
+  *         @arg @ref LL_SYSCFG_FASTMODEPLUS_PB7
+  *         @arg @ref LL_SYSCFG_FASTMODEPLUS_PB8
+  *         @arg @ref LL_SYSCFG_FASTMODEPLUS_PB9
   * @retval None
   */
 __STATIC_INLINE void LL_SYSCFG_DisableFastModePlus(uint32_t ConfigFastModePlus)
@@ -549,8 +618,8 @@ __STATIC_INLINE void LL_SYSCFG_SetTIMBreakInputs(uint32_t Break)
   */
 __STATIC_INLINE uint32_t LL_SYSCFG_GetTIMBreakInputs(void)
 {
-  return (uint32_t)(READ_BIT(SYSCFG->CFGR2, SYSCFG_CFGR2_CLL | SYSCFG_CFGR2_SPL | SYSCFG_CFGR2_PVDL
-                             | SYSCFG_CFGR2_ECCL));
+  return (uint32_t)(READ_BIT(SYSCFG->CFGR2, SYSCFG_CFGR2_CLL | SYSCFG_CFGR2_SPL | \
+                             SYSCFG_CFGR2_PVDL | SYSCFG_CFGR2_ECCL));
 }
 
 
@@ -649,12 +718,34 @@ __STATIC_INLINE uint32_t LL_SYSCFG_GetNMOSVddIO2CompensationValue(void)
   return (uint32_t)(READ_BIT(SYSCFG->CCVR, SYSCFG_CCVR_NCV2));
 }
 
+#if defined(SYSCFG_CCVR_PCV3)
+/**
+  * @brief  Get the compensation cell value of the HSPI IO PMOS transistor supplied by VDD
+  * @rmtoll CCVR    PCV3   LL_SYSCFG_GetPMOSVddHSPICompensationValue
+  * @retval Returned value is the PMOS compensation cell
+  */
+__STATIC_INLINE uint32_t LL_SYSCFG_GetPMOSVddHSPICompensationValue(void)
+{
+  return (uint32_t)(READ_BIT(SYSCFG->CCVR, SYSCFG_CCVR_PCV3));
+}
+
+/**
+  * @brief  Get the compensation cell value of the HSPI IO NMOS transistor supplied by VDD
+  * @rmtoll CCVR    NCV3   LL_SYSCFG_GetNMOSVddHSPICompensationValue
+  * @retval Returned value is the NMOS compensation cell
+  */
+__STATIC_INLINE uint32_t LL_SYSCFG_GetNMOSVddHSPICompensationValue(void)
+{
+  return (uint32_t)(READ_BIT(SYSCFG->CCVR, SYSCFG_CCVR_NCV3));
+}
+#endif /* SYSCFG_CCVR_PCV3 */
+
 /**
   * @brief  Set the compensation cell code of the GPIO PMOS transistor supplied by VDD
   * @rmtoll CCCR    PCC1  LL_SYSCFG_SetPMOSVddCompensationCode
   * @param  PMOSCode PMOS compensation code
   *         This code is applied to the PMOS compensation cell when the CS1 bit of the
-  *         SYSCFG_CMPCR is set
+  *         SYSCFG_CCCSR is set
   * @retval None
   */
 __STATIC_INLINE void LL_SYSCFG_SetPMOSVddCompensationCode(uint32_t PMOSCode)
@@ -677,7 +768,7 @@ __STATIC_INLINE uint32_t LL_SYSCFG_GetPMOSVddCompensationCode(void)
   * @rmtoll CCCR    PCC2  LL_SYSCFG_SetPMOSVddIO2CompensationCode
   * @param  PMOSCode PMOS compensation code
   *         This code is applied to the PMOS compensation cell when the CS2 bit of the
-  *         SYSCFG_CMPCR is set
+  *         SYSCFG_CCCSR is set
   * @retval None
   */
 __STATIC_INLINE void LL_SYSCFG_SetPMOSVddIO2CompensationCode(uint32_t PMOSCode)
@@ -695,6 +786,31 @@ __STATIC_INLINE uint32_t LL_SYSCFG_GetPMOSVddIO2CompensationCode(void)
 {
   return (uint32_t)(READ_BIT(SYSCFG->CCCR, SYSCFG_CCCR_PCC2));
 }
+
+#if defined(SYSCFG_CCCR_PCC3)
+/**
+  * @brief  Set the compensation cell code of the HSPI IO PMOS transistor supplied by VDD
+  * @rmtoll CCCR    PCC3  LL_SYSCFG_SetPMOSVddHSPICompensationCode
+  * @param  PMOSCode PMOS compensation code
+  *         This code is applied to the PMOS compensation cell when the CS3 bit of the
+  *         SYSCFG_CCCSR is set
+  * @retval None
+  */
+__STATIC_INLINE void LL_SYSCFG_SetPMOSVddHSPICompensationCode(uint32_t PMOSCode)
+{
+  MODIFY_REG(SYSCFG->CCCR, SYSCFG_CCCR_PCC3, PMOSCode << SYSCFG_CCCR_PCC3_Pos);
+}
+
+/**
+  * @brief  Get the compensation cell code of the HSPI IO PMOS transistor supplied by VDD
+  * @rmtoll CCCR    PCC3   LL_SYSCFG_GetPMOSVddHSPICompensationCode
+  * @retval Returned value is the PMOS compensation
+  */
+__STATIC_INLINE uint32_t LL_SYSCFG_GetPMOSVddHSPICompensationCode(void)
+{
+  return (uint32_t)(READ_BIT(SYSCFG->CCCR, SYSCFG_CCCR_PCC3));
+}
+#endif /* SYSCFG_CCCR_PCC3 */
 
 /**
   * @brief  Set the compensation cell code of the GPIO NMOS transistor supplied by VDD
@@ -725,6 +841,7 @@ __STATIC_INLINE uint32_t LL_SYSCFG_GetNMOSVddCompensationCode(void)
   * @param  NMOSCode NMOS compensation code
   *         This code is applied to the NMOS compensation cell when the CS2 bit of the
   *         SYSCFG_CMPCR is set
+  *         Value between 0 and 15
   * @retval None
   */
 __STATIC_INLINE void LL_SYSCFG_SetNMOSVddIO2CompensationCode(uint32_t NMOSCode)
@@ -742,6 +859,32 @@ __STATIC_INLINE uint32_t LL_SYSCFG_GetNMOSVddIO2CompensationCode(void)
 {
   return (uint32_t)(READ_BIT(SYSCFG->CCCR, SYSCFG_CCCR_NCC2));
 }
+
+#if defined(SYSCFG_CCCR_NCC3)
+/**
+  * @brief  Set the compensation cell code of the HSPI IO NMOS transistor supplied by VDD
+  * @rmtoll CCCR    NCC3  LL_SYSCFG_SetNMOSVddHSPICompensationCode
+  * @param  NMOSCode NMOS compensation code
+  *         This code is applied to the NMOS compensation cell when the CS3 bit of the
+  *         SYSCFG_CCCSR is set
+  *         Value between 0 and 15
+  * @retval None
+  */
+__STATIC_INLINE void LL_SYSCFG_SetNMOSVddHSPICompensationCode(uint32_t NMOSCode)
+{
+  MODIFY_REG(SYSCFG->CCCR, SYSCFG_CCCR_NCC3, NMOSCode << SYSCFG_CCCR_NCC3_Pos);
+}
+
+/**
+  * @brief  Get the compensation cell code of the HSPI IO NMOS transistor supplied by VDD
+  * @rmtoll CCCR    NCC3   LL_SYSCFG_GetNMOSVddHSPICompensationCode
+  * @retval Returned value is the NMOS compensation cell code
+  */
+__STATIC_INLINE uint32_t LL_SYSCFG_GetNMOSVddHSPICompensationCode(void)
+{
+  return (uint32_t)(READ_BIT(SYSCFG->CCCR, SYSCFG_CCCR_NCC3));
+}
+#endif /* SYSCFG_CCCR_NCC3 */
 
 /**
   * @brief  Enable the Compensation Cell of GPIO supplied by VDD
@@ -767,9 +910,21 @@ __STATIC_INLINE void LL_SYSCFG_EnableVddIO2CompensationCell(void)
   SET_BIT(SYSCFG->CCCSR, SYSCFG_CCCSR_EN2);
 }
 
+#if defined(SYSCFG_CCCSR_EN3)
+/**
+  * @brief  Enable the Compensation Cell of HSPI IO supplied by VDD
+  * @rmtoll CCCSR   EN3    LL_SYSCFG_EnableVddHSPICompensationCell
+  * @retval None
+  */
+__STATIC_INLINE void LL_SYSCFG_EnableVddHSPICompensationCell(void)
+{
+  SET_BIT(SYSCFG->CCCSR, SYSCFG_CCCSR_EN3);
+}
+#endif /* SYSCFG_CCCSR_EN3 */
+
 /**
   * @brief  Disable the Compensation Cell of GPIO supplied by VDD
-  * @rmtoll CCCSR   EN1    LL_SYSCFG_EnableVddCompensationCell
+  * @rmtoll CCCSR   EN1    LL_SYSCFG_DisableVddCompensationCell
   * @note   The Vdd compensation cell can be used only when the device supply
   *         voltage ranges from 1.71 to 3.6 V
   * @retval None
@@ -781,7 +936,7 @@ __STATIC_INLINE void LL_SYSCFG_DisableVddCompensationCell(void)
 
 /**
   * @brief  Disable the Compensation Cell of GPIO supplied by VDDIO2
-  * @rmtoll CCCSR   EN2    LL_SYSCFG_EnableVddIOCompensationCell
+  * @rmtoll CCCSR   EN2    LL_SYSCFG_DisableVddIO2CompensationCell
   * @note   The Vdd I/O compensation cell can be used only when the device supply
   *         voltage ranges from 1.08 to 3.6 V
   * @retval None
@@ -790,6 +945,18 @@ __STATIC_INLINE void LL_SYSCFG_DisableVddIO2CompensationCell(void)
 {
   CLEAR_BIT(SYSCFG->CCCSR, SYSCFG_CCCSR_EN2);
 }
+
+#if defined(SYSCFG_CCCSR_EN3)
+/**
+  * @brief  Disable the Compensation Cell of HSPI IO supplied by VDD
+  * @rmtoll CCCSR   EN3    LL_SYSCFG_DisableVddHSPICompensationCell
+  * @retval None
+  */
+__STATIC_INLINE void LL_SYSCFG_DisableVddHSPICompensationCell(void)
+{
+  CLEAR_BIT(SYSCFG->CCCSR, SYSCFG_CCCSR_EN3);
+}
+#endif /* SYSCFG_CCCSR_EN3 */
 
 /**
   * @brief  Check if the Compensation Cell of GPIO supplied by VDD is enable
@@ -811,6 +978,18 @@ __STATIC_INLINE uint32_t LL_SYSCFG_IsEnabled_VddIO2CompensationCell(void)
   return ((READ_BIT(SYSCFG->CCCSR, SYSCFG_CCCSR_EN2) == SYSCFG_CCCSR_EN2) ? 1UL : 0UL);
 }
 
+#if defined(SYSCFG_CCCSR_EN3)
+/**
+  * @brief  Check if the Compensation Cell of HSPI IO supplied by VDD is enable
+  * @rmtoll CCCSR   EN3   LL_SYSCFG_IsEnabled_VddHSPICompensationCell
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_SYSCFG_IsEnabled_VddHSPICompensationCell(void)
+{
+  return ((READ_BIT(SYSCFG->CCCSR, SYSCFG_CCCSR_EN3) == SYSCFG_CCCSR_EN3) ? 1UL : 0UL);
+}
+#endif /* SYSCFG_CCCSR_EN3 */
+
 /**
   * @brief  Get Compensation Cell ready Flag of GPIO supplied by VDD
   * @rmtoll CCCSR   RDY1   LL_SYSCFG_IsActiveFlag_VddCMPCR
@@ -823,7 +1002,7 @@ __STATIC_INLINE uint32_t LL_SYSCFG_IsActiveFlag_VddCMPCR(void)
 
 /**
   * @brief  Get Compensation Cell ready Flag of GPIO supplied by VDDIO2
-  * @rmtoll CCCSR   RDY1   LL_SYSCFG_IsActiveFlag_VddIO2CMPCR
+  * @rmtoll CCCSR   RDY2   LL_SYSCFG_IsActiveFlag_VddIO2CMPCR
   * @retval State of bit (1 or 0).
   */
 __STATIC_INLINE uint32_t LL_SYSCFG_IsActiveFlag_VddIO2CMPCR(void)
@@ -831,6 +1010,17 @@ __STATIC_INLINE uint32_t LL_SYSCFG_IsActiveFlag_VddIO2CMPCR(void)
   return ((READ_BIT(SYSCFG->CCCSR, SYSCFG_CCCSR_RDY2) == (SYSCFG_CCCSR_RDY2)) ? 1UL : 0UL);
 }
 
+#if defined(SYSCFG_CCCSR_RDY3)
+/**
+  * @brief  Get Compensation Cell ready Flag of HSPI IO supplied by VDD
+  * @rmtoll CCCSR   RDY3   LL_SYSCFG_IsActiveFlag_VddHSPICMPCR
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_SYSCFG_IsActiveFlag_VddHSPICMPCR(void)
+{
+  return ((READ_BIT(SYSCFG->CCCSR, SYSCFG_CCCSR_RDY3) == (SYSCFG_CCCSR_RDY3)) ? 1UL : 0UL);
+}
+#endif /* SYSCFG_CCCSR_RDY3 */
 
 /**
   * @brief  Set the compensation cell code selection of GPIO supplied by VDD
@@ -860,6 +1050,22 @@ __STATIC_INLINE void LL_SYSCFG_SetVddIO2CellCompensationCode(uint32_t CompCode)
   SET_BIT(SYSCFG->CCCSR, CompCode);
 }
 
+#if defined(SYSCFG_CCCSR_CS3)
+/**
+  * @brief  Set the compensation cell code selection of HSPI IO supplied by VDD
+  * @rmtoll CCCSR   CS3    LL_SYSCFG_SetVddHSPICellCompensationCode
+  * @param  CompCode: Selects the code to be applied for the VddIO compensation cell
+  *   This parameter can be one of the following values:
+  *   @arg LL_SYSCFG_VDDHSPI_CELL_CODE : Select Code from the cell (available in the SYSCFG_CCVR)
+  *   @arg LL_SYSCFG_VDDHSPI_REGISTER_CODE: Select Code from the SYSCFG compensation cell code register (SYSCFG_CCCR)
+  * @retval None
+  */
+__STATIC_INLINE void LL_SYSCFG_SetVddHSPICellCompensationCode(uint32_t CompCode)
+{
+  SET_BIT(SYSCFG->CCCSR, CompCode);
+}
+#endif /* SYSCFG_CCCSR_CS3 */
+
 /**
   * @brief  Get the compensation cell code selection of GPIO supplied by VDD
   * @rmtoll CCCSR   CS1    LL_SYSCFG_GetVddCellCompensationCode
@@ -874,7 +1080,7 @@ __STATIC_INLINE uint32_t LL_SYSCFG_GetVddCellCompensationCode(void)
 
 /**
   * @brief  Get the compensation cell code selection of GPIO supplied by VDDIO2
-  * @rmtoll CCCSR   CS2    LL_SYSCFG_GetVddIOCellCompensationCode
+  * @rmtoll CCCSR   CS2    LL_SYSCFG_GetVddIO2CellCompensationCode
   * @retval Returned value can be one of the following values:
   *   @arg LL_SYSCFG_VDDIO2_CELL_CODE : Selected Code is from the cell (available in the SYSCFG_CCVR)
   *   @arg LL_SYSCFG_VDDIO2_REGISTER_CODE: Selected Code is from the SYSCFG compensation
@@ -885,6 +1091,20 @@ __STATIC_INLINE uint32_t LL_SYSCFG_GetVddIO2CellCompensationCode(void)
   return (uint32_t)(READ_BIT(SYSCFG->CCCSR, SYSCFG_CCCSR_CS2));
 }
 
+#if defined(SYSCFG_CCCSR_CS3)
+/**
+  * @brief  Get the compensation cell code selection of HSPI IO supplied by VDD
+  * @rmtoll CCCSR   CS3    LL_SYSCFG_GetVddHSPICellCompensationCode
+  * @retval Returned value can be one of the following values:
+  *   @arg LL_SYSCFG_VDDHSPI_CELL_CODE : Selected Code is from the cell (available in the SYSCFG_CCVR)
+  *   @arg LL_SYSCFG_VDDHSPI_REGISTER_CODE: Selected Code is from the SYSCFG compensation
+      cell code register (SYSCFG_CCCR)
+  */
+__STATIC_INLINE uint32_t LL_SYSCFG_GetVddHSPICellCompensationCode(void)
+{
+  return (uint32_t)(READ_BIT(SYSCFG->CCCSR, SYSCFG_CCCSR_CS3));
+}
+#endif /* SYSCFG_CCCSR_CS3 */
 /**
   * @}
   */
@@ -1046,8 +1266,10 @@ __STATIC_INLINE void LL_DBGMCU_APB1_GRP1_FreezePeriph(uint32_t Periphs)
   * @param  Periphs This parameter can be a combination of the following values:
   *         @arg @ref LL_DBGMCU_APB1_GRP2_I2C4_STOP
   *         @arg @ref LL_DBGMCU_APB1_GRP2_LPTIM2_STOP
-  *        @arg @ref LL_DBGMCU_APB1_GRP2_FDCAN_STOP
+  *         @arg @ref LL_DBGMCU_APB1_GRP2_I2C5_STOP (*)
+  *         @arg @ref LL_DBGMCU_APB1_GRP2_I2C6_STOP (*)
   * @retval None
+  * @note   (*) Availability depends on devices.
   */
 __STATIC_INLINE void LL_DBGMCU_APB1_GRP2_FreezePeriph(uint32_t Periphs)
 {
@@ -1068,7 +1290,6 @@ __STATIC_INLINE void LL_DBGMCU_APB1_GRP2_FreezePeriph(uint32_t Periphs)
   *         @arg @ref LL_DBGMCU_APB1_GRP1_IWDG_STOP
   *         @arg @ref LL_DBGMCU_APB1_GRP1_I2C1_STOP
   *         @arg @ref LL_DBGMCU_APB1_GRP1_I2C2_STOP
-
   * @retval None
   */
 __STATIC_INLINE void LL_DBGMCU_APB1_GRP1_UnFreezePeriph(uint32_t Periphs)
@@ -1082,7 +1303,6 @@ __STATIC_INLINE void LL_DBGMCU_APB1_GRP1_UnFreezePeriph(uint32_t Periphs)
   * @param  Periphs This parameter can be a combination of the following values:
   *         @arg @ref LL_DBGMCU_APB1_GRP2_I2C4_STOP
   *         @arg @ref LL_DBGMCU_APB1_GRP2_LPTIM2_STOP
-  *         @arg @ref LL_DBGMCU_APB1_GRP2_FDCAN_STOP
   * @retval None
   */
 __STATIC_INLINE void LL_DBGMCU_APB1_GRP2_UnFreezePeriph(uint32_t Periphs)
@@ -1152,6 +1372,90 @@ __STATIC_INLINE void LL_DBGMCU_APB3_GRP1_FreezePeriph(uint32_t Periphs)
 __STATIC_INLINE void LL_DBGMCU_APB3_GRP1_UnFreezePeriph(uint32_t Periphs)
 {
   CLEAR_BIT(DBGMCU->APB3FZR, Periphs);
+}
+
+/**
+  * @brief  Freeze AHB1 peripherals
+  * @rmtoll DBGMCU_AHB1FZ DBG_GPDMAx_STOP  LL_DBGMCU_AHB1_GRP1_FreezePeriph
+  * @param  Periphs This parameter can be a combination of the following values:
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA0_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA1_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA2_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA3_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA4_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA5_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA6_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA7_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA8_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA9_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA10_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA11_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA12_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA13_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA14_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA15_STOP
+  * @retval None
+  */
+__STATIC_INLINE void LL_DBGMCU_AHB1_GRP1_FreezePeriph(uint32_t Periphs)
+{
+  SET_BIT(DBGMCU->AHB1FZR, Periphs);
+}
+
+/**
+  * @brief  Unfreeze AHB1 peripherals
+  * @rmtoll DBGMCU_AHB1FZ DBG_GPDMAx_STOP  LL_DBGMCU_AHB1_GRP1_FreezePeriph
+  * @param  Periphs This parameter can be a combination of the following values:
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA0_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA1_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA2_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA3_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA4_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA5_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA6_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA7_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA8_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA9_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA10_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA11_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA12_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA13_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA14_STOP
+  *         @arg @ref LL_DBGMCU_AHB1_GRP1_GPDMA15_STOP
+  * @retval None
+  */
+__STATIC_INLINE void LL_DBGMCU_AHB1_GRP1_UnFreezePeriph(uint32_t Periphs)
+{
+  CLEAR_BIT(DBGMCU->AHB1FZR, Periphs);
+}
+
+/**
+  * @brief  Freeze AHB3 peripherals
+  * @rmtoll DBGMCU_AHB3FZ DBG_LPDMAx_STOP  LL_DBGMCU_AHB3_GRP1_FreezePeriph
+  * @param  Periphs This parameter can be a combination of the following values:
+  *         @arg @ref LL_DBGMCU_AHB3_GRP1_LPDMA0_STOP
+  *         @arg @ref LL_DBGMCU_AHB3_GRP1_LPDMA1_STOP
+  *         @arg @ref LL_DBGMCU_AHB3_GRP1_LPDMA2_STOP
+  *         @arg @ref LL_DBGMCU_AHB3_GRP1_LPDMA3_STOP
+  * @retval None
+  */
+__STATIC_INLINE void LL_DBGMCU_AHB3_GRP1_FreezePeriph(uint32_t Periphs)
+{
+  SET_BIT(DBGMCU->AHB3FZR, Periphs);
+}
+
+/**
+  * @brief  Unfreeze AHB3 peripherals
+  * @rmtoll DBGMCU_AHB3FZ DBG_LPDMAx_STOP  LL_DBGMCU_AHB3_GRP1_FreezePeriph
+  * @param  Periphs This parameter can be a combination of the following values:
+  *         @arg @ref LL_DBGMCU_AHB3_GRP1_LPDMA0_STOP
+  *         @arg @ref LL_DBGMCU_AHB3_GRP1_LPDMA1_STOP
+  *         @arg @ref LL_DBGMCU_AHB3_GRP1_LPDMA2_STOP
+  *         @arg @ref LL_DBGMCU_AHB3_GRP1_LPDMA3_STOP
+  * @retval None
+  */
+__STATIC_INLINE void LL_DBGMCU_AHB3_GRP1_UnFreezePeriph(uint32_t Periphs)
+{
+  CLEAR_BIT(DBGMCU->AHB3FZR, Periphs);
 }
 
 /**

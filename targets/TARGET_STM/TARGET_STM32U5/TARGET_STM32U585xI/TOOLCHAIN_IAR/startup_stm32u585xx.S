@@ -11,15 +11,15 @@
 ;*                        calls main()).
 ;*                      After Reset the Cortex-M33 processor is in Thread mode,
 ;*                      priority is Privileged, and the Stack is set to Main.
-;********************************************************************************
+;*******************************************************************************
+;* @attention
 ;*
-;* <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
-;* All rights reserved.</center></h2>
+;* Copyright (c) 2021 STMicroelectronics.
+;* All rights reserved.
 ;*
-;* This software component is licensed by ST under BSD 3-Clause license,
-;* the "License"; You may not use this file except in compliance with the
-;* License. You may obtain a copy of the License at:
-;*                        opensource.org/licenses/BSD-3-Clause
+;* This software is licensed under terms that can be found in the LICENSE file
+;* in the root directory of this software component.
+;* If no LICENSE file comes with this software, it is provided AS-IS.
 ;*
 ;*******************************************************************************
 ;
@@ -75,7 +75,7 @@ __vector_table
 
          ; External Interrupts
         DCD     WWDG_IRQHandler                  ; Window WatchDog
-        DCD     PVD_AVD_IRQHandler               ; PVD/AVD through EXTI Line detection Interrupt
+        DCD     PVD_PVM_IRQHandler               ; PVD/PVM through EXTI Line detection Interrupt
         DCD     RTC_IRQHandler                   ; RTC non-secure interrupt
         DCD     RTC_S_IRQHandler                 ; RTC secure interrupt
         DCD     TAMP_IRQHandler                  ; Tamper non-secure interrupt
@@ -199,6 +199,7 @@ __vector_table
         DCD     MDF1_FLT5_IRQHandler             ; MDF1 Filter 5 global interrupt
         DCD     CORDIC_IRQHandler                ; CORDIC global interrupt
         DCD     FMAC_IRQHandler                  ; FMAC global interrupt
+        DCD     LSECSSD_IRQHandler               ; LSECSSD global interrupt
 
 __Vectors_End
 
@@ -273,10 +274,10 @@ SysTick_Handler
 WWDG_IRQHandler
         B WWDG_IRQHandler
 
-        PUBWEAK PVD_AVD_IRQHandler
+        PUBWEAK PVD_PVM_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
-PVD_AVD_IRQHandler
-        B PVD_AVD_IRQHandler
+PVD_PVM_IRQHandler
+        B PVD_PVM_IRQHandler
 
         PUBWEAK RTC_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
@@ -893,5 +894,9 @@ CORDIC_IRQHandler
 FMAC_IRQHandler
         B FMAC_IRQHandler
 
+        PUBWEAK LSECSSD_IRQHandler
+        SECTION .text:CODE:NOROOT:REORDER(1)
+LSECSSD_IRQHandler
+        B LSECSSD_IRQHandler
+
         END
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

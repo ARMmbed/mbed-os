@@ -869,6 +869,9 @@ void HAL_PWR_ConfigAttributes(uint32_t Item, uint32_t Attributes)
     }
   }
 #else
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(Item);
+
   /* NSecure item management (TZEN = 0) */
   if ((Attributes & PWR_ITEM_ATTR_NSEC_PRIV_MASK) == PWR_ITEM_ATTR_NSEC_PRIV_MASK)
   {

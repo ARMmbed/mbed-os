@@ -693,7 +693,7 @@ HAL_StatusTypeDef HAL_OTFDEC_RegionSetMode(OTFDEC_HandleTypeDef *hotfdec, uint32
   * @retval HAL state
   */
 HAL_StatusTypeDef HAL_OTFDEC_RegionConfig(OTFDEC_HandleTypeDef *hotfdec, uint32_t RegionIndex,
-                                          OTFDEC_RegionConfigTypeDef *Config, uint32_t lock)
+                                          const OTFDEC_RegionConfigTypeDef *Config, uint32_t lock)
 {
   OTFDEC_Region_TypeDef *region;
   uint32_t address;
@@ -879,16 +879,19 @@ HAL_StatusTypeDef HAL_OTFDEC_DisableEnciphering(OTFDEC_HandleTypeDef *hotfdec)
   * @retval HAL state
   */
 HAL_StatusTypeDef HAL_OTFDEC_Cipher(OTFDEC_HandleTypeDef *hotfdec, uint32_t RegionIndex,
-                                    uint32_t *input, uint32_t *output, uint32_t size, uint32_t start_address)
+                                    const uint32_t *input, uint32_t *output, uint32_t size, uint32_t start_address)
 {
   uint32_t j;
   __IO uint32_t *extMem_ptr = (uint32_t *)start_address;
-  uint32_t *in_ptr = input;
+  const uint32_t *in_ptr = input;
   uint32_t *out_ptr = output;
 
   /* Check the parameters */
   assert_param(IS_OTFDEC_ALL_INSTANCE(hotfdec->Instance));
   assert_param(IS_OTFDEC_REGIONINDEX(RegionIndex));
+
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(RegionIndex);
 
   if ((input == NULL) || (output == NULL) || (size == 0U))
   {

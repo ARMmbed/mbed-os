@@ -46,6 +46,7 @@ extern "C" {
 /* Defines used to perform offsets*/
 /* Offset used to access to RCC_CCIPR1 and RCC_CCIPR2 registers */
 #define RCC_OFFSET_CCIPR1       0U
+#define RCC_OFFSET_CCIPR2       0x04U
 #define RCC_OFFSET_CCIPR3       0x08U
 
 /* Defines used for security configuration extension */
@@ -223,7 +224,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_MSIKSRANGE  MSIK range after Standby mode
   * @{
   */
-#define LL_RCC_MSIKSRANGE_4                  RCC_CSR_MSISSRANGE_2                                                /*!< MSIK = 4 MHz    */
+#define LL_RCC_MSIKSRANGE_4                  RCC_CSR_MSIKSRANGE_2                                                /*!< MSIK = 4 MHz    */
 #define LL_RCC_MSIKSRANGE_5                 (RCC_CSR_MSIKSRANGE_2 | RCC_CSR_MSIKSRANGE_0)                        /*!< MSIK = 2 MHz    */
 #define LL_RCC_MSIKSRANGE_6                 (RCC_CSR_MSIKSRANGE_2 | RCC_CSR_MSIKSRANGE_1)                        /*!< MSIK = 1.5 MHz  */
 #define LL_RCC_MSIKSRANGE_7                 (RCC_CSR_MSIKSRANGE_2 | RCC_CSR_MSIKSRANGE_1 | RCC_CSR_MSIKSRANGE_0) /*!< MSIK = 1 MHz  */
@@ -297,7 +298,6 @@ typedef struct
   * @}
   */
 
-
 /** @defgroup RCC_LL_EC_SYS_CLKSOURCE_STATUS  System clock switch status
   * @{
   */
@@ -308,7 +308,6 @@ typedef struct
 /**
   * @}
   */
-
 
 /** @defgroup RCC_LL_EC_SYSCLK_DIV  AHB prescaler
   * @{
@@ -326,7 +325,6 @@ typedef struct
 /**
   * @}
   */
-
 
 /** @defgroup RCC_LL_EC_SYSTICK_CLKSOURCE  SYSTICK clock source selection
   * @{
@@ -349,7 +347,6 @@ typedef struct
 /**
   * @}
   */
-
 
 /** @defgroup RCC_LL_EC_APB2_DIV  APB high-speed prescaler (APB2)
   * @{
@@ -376,12 +373,34 @@ typedef struct
   * @}
   */
 
+#if defined(RCC_CFGR2_PPRE_DPHY)
+/** @defgroup RCC_LL_EC_DPHY_DIV  DSI PHY clock prescaler (DCLK)
+  * @{
+  */
+#define LL_RCC_DPHY_DIV_1                    0x00000000U                                                                  /*!< DCLK not divided */
+#define LL_RCC_DPHY_DIV_2                    RCC_CFGR2_PPRE_DPHY_2                                                        /*!< DCLK divided by 2 */
+#define LL_RCC_DPHY_DIV_4                    (RCC_CFGR2_PPRE_DPHY_2 | RCC_CFGR2_PPRE_DPHY_0)                              /*!< DCLK divided by 4 */
+#define LL_RCC_DPHY_DIV_8                    (RCC_CFGR2_PPRE_DPHY_2 | RCC_CFGR2_PPRE_DPHY_1)                              /*!< DCLK divided by 8 */
+#define LL_RCC_DPHY_DIV_16                   (RCC_CFGR2_PPRE_DPHY_2 | RCC_CFGR2_PPRE_DPHY_1 | RCC_CFGR2_PPRE_DPHY_0)      /*!< DCLK divided by 16 */
+/**
+  * @}
+  */
+#endif /* RCC_CFGR2_PPRE_DPHY */
 
 /** @defgroup RCC_LL_EC_STOP_WAKEUPCLOCK  Wakeup from Stop and CSS backup clock selection
   * @{
   */
 #define LL_RCC_STOP_WAKEUPCLOCK_MSIS         0x00000000U             /*!< MSIS selection after wake-up from STOP */
 #define LL_RCC_STOP_WAKEUPCLOCK_HSI          RCC_CFGR1_STOPWUCK      /*!< HSI selection after wake-up from STOP */
+/**
+  * @}
+  */
+
+/** @defgroup RCC_LL_EC_STOP_WAKEUPKERCLOCK  Wakeup from Stop kernel clock automatic enable selection
+  * @{
+  */
+#define LL_RCC_STOP_WAKEUPKERCLOCK_MSIK      0x00000000U             /*!< MSIK oscillator automatically enabled when exiting Stop mode  */
+#define LL_RCC_STOP_WAKEUPKERCLOCK_HSI       RCC_CFGR1_STOPKERWUCK   /*!< HSI oscillator automatically enabled when exiting Stop mode */
 /**
   * @}
   */
@@ -440,18 +459,28 @@ typedef struct
 /** @defgroup RCC_LL_EC_USART_CLKSOURCE  Peripheral USARTx clock source selection
   * @{
   */
-#define LL_RCC_USART1_CLKSOURCE_PCLK2       (RCC_CCIPR1_USART1SEL << 16U)                            /*!< PCLK2 clock used as USART1 clock source */
-#define LL_RCC_USART1_CLKSOURCE_SYSCLK      ((RCC_CCIPR1_USART1SEL << 16U) | RCC_CCIPR1_USART1SEL_0) /*!< SYSCLK clock used as USART1 clock source */
-#define LL_RCC_USART1_CLKSOURCE_HSI         ((RCC_CCIPR1_USART1SEL << 16U) | RCC_CCIPR1_USART1SEL_1) /*!< HSI clock used as USART1 clock source */
-#define LL_RCC_USART1_CLKSOURCE_LSE         ((RCC_CCIPR1_USART1SEL << 16U) | RCC_CCIPR1_USART1SEL)   /*!< LSE clock used as USART1 clock source */
-#define LL_RCC_USART2_CLKSOURCE_PCLK1       (RCC_CCIPR1_USART2SEL << 16U)                            /*!< PCLK1 clock used as USART2 clock source */
-#define LL_RCC_USART2_CLKSOURCE_SYSCLK      ((RCC_CCIPR1_USART2SEL << 16U) | RCC_CCIPR1_USART2SEL_0) /*!< SYSCLK clock used as USART2 clock source */
-#define LL_RCC_USART2_CLKSOURCE_HSI         ((RCC_CCIPR1_USART2SEL << 16U) | RCC_CCIPR1_USART2SEL_1) /*!< HSI clock used as USART2 clock source */
-#define LL_RCC_USART2_CLKSOURCE_LSE         ((RCC_CCIPR1_USART2SEL << 16U) | RCC_CCIPR1_USART2SEL)   /*!< LSE clock used as USART2 clock source */
-#define LL_RCC_USART3_CLKSOURCE_PCLK1       (RCC_CCIPR1_USART3SEL << 16U)                            /*!< PCLK3 clock used as USART3 clock source */
-#define LL_RCC_USART3_CLKSOURCE_SYSCLK      ((RCC_CCIPR1_USART3SEL << 16U) | RCC_CCIPR1_USART3SEL_0) /*!< SYSCLK clock used as USART3 clock source */
-#define LL_RCC_USART3_CLKSOURCE_HSI         ((RCC_CCIPR1_USART3SEL << 16U) | RCC_CCIPR1_USART3SEL_1) /*!< HSI clock used as USART3 clock source */
-#define LL_RCC_USART3_CLKSOURCE_LSE         ((RCC_CCIPR1_USART3SEL << 16U) | RCC_CCIPR1_USART3SEL)   /*!< LSE clock used as USART3 clock source */
+#define LL_RCC_USART1_CLKSOURCE_PCLK2       ((RCC_OFFSET_CCIPR1 << 24U)| (RCC_CCIPR1_USART1SEL_Pos << 16U))  /*!< PCLK2 clock used as USART1 clock source */
+#define LL_RCC_USART1_CLKSOURCE_SYSCLK      ((RCC_OFFSET_CCIPR1 << 24U) |(RCC_CCIPR1_USART1SEL_Pos << 16U) | (RCC_CCIPR1_USART1SEL_0 >> RCC_CCIPR1_USART1SEL_Pos)) /*!< SYSCLK clock used as USART1 clock source */
+#define LL_RCC_USART1_CLKSOURCE_HSI         ((RCC_OFFSET_CCIPR1 << 24U) |(RCC_CCIPR1_USART1SEL_Pos << 16U) | (RCC_CCIPR1_USART1SEL_1 >> RCC_CCIPR1_USART1SEL_Pos)) /*!< HSI clock used as USART1 clock source */
+#define LL_RCC_USART1_CLKSOURCE_LSE         ((RCC_OFFSET_CCIPR1 << 24U) |(RCC_CCIPR1_USART1SEL_Pos << 16U) | (RCC_CCIPR1_USART1SEL >> RCC_CCIPR1_USART1SEL_Pos))   /*!< LSE clock used as USART1 clock source */
+#if defined(USART2)
+#define LL_RCC_USART2_CLKSOURCE_PCLK1       ((RCC_OFFSET_CCIPR1 << 24U) |(RCC_CCIPR1_USART2SEL_Pos << 16U))   /*!< PCLK1 clock used as USART2 clock source */
+#define LL_RCC_USART2_CLKSOURCE_SYSCLK      ((RCC_OFFSET_CCIPR1 << 24U) |(RCC_CCIPR1_USART2SEL_Pos << 16U) | (RCC_CCIPR1_USART2SEL_0 >> RCC_CCIPR1_USART2SEL_Pos)) /*!< SYSCLK clock used as USART2 clock source */
+#define LL_RCC_USART2_CLKSOURCE_HSI         ((RCC_OFFSET_CCIPR1 << 24U) |(RCC_CCIPR1_USART2SEL_Pos << 16U) | (RCC_CCIPR1_USART2SEL_1 >> RCC_CCIPR1_USART2SEL_Pos)) /*!< HSI clock used as USART2 clock source */
+#define LL_RCC_USART2_CLKSOURCE_LSE         ((RCC_OFFSET_CCIPR1 << 24U) |(RCC_CCIPR1_USART2SEL_Pos << 16U) | (RCC_CCIPR1_USART2SEL >> RCC_CCIPR1_USART2SEL_Pos))   /*!< LSE clock used as USART2 clock source */
+#endif /* USART2 */
+#define LL_RCC_USART3_CLKSOURCE_PCLK1       ((RCC_OFFSET_CCIPR1 << 24U) |(RCC_CCIPR1_USART3SEL_Pos << 16U))                           /*!< PCLK3 clock used as USART3 clock source */
+#define LL_RCC_USART3_CLKSOURCE_SYSCLK      ((RCC_OFFSET_CCIPR1 << 24U) |(RCC_CCIPR1_USART3SEL_Pos << 16U) | (RCC_CCIPR1_USART3SEL_0 >> RCC_CCIPR1_USART3SEL_Pos)) /*!< SYSCLK clock used as USART3 clock source */
+#define LL_RCC_USART3_CLKSOURCE_HSI         ((RCC_OFFSET_CCIPR1 << 24U) |(RCC_CCIPR1_USART3SEL_Pos << 16U) | (RCC_CCIPR1_USART3SEL_1 >> RCC_CCIPR1_USART3SEL_Pos)) /*!< HSI clock used as USART3 clock source */
+#define LL_RCC_USART3_CLKSOURCE_LSE         ((RCC_OFFSET_CCIPR1 << 24U) |(RCC_CCIPR1_USART3SEL_Pos << 16U) | (RCC_CCIPR1_USART3SEL >> RCC_CCIPR1_USART3SEL_Pos))   /*!< LSE clock used as USART3 clock source */
+#if defined (RCC_CCIPR2_USART6SEL)
+#define LL_RCC_USART6_CLKSOURCE_PCLK1       ((RCC_OFFSET_CCIPR2 << 24U) | (RCC_CCIPR2_USART6SEL_Pos << 16U))                        /*!< PCLK1 clock used as USART6 clock source */
+#define LL_RCC_USART6_CLKSOURCE_SYSCLK      ((RCC_OFFSET_CCIPR2 << 24U) | (RCC_CCIPR2_USART6SEL_Pos << 16U) | (RCC_CCIPR2_USART6SEL_0 >> RCC_CCIPR2_USART6SEL_Pos)) /*!< SYSCLK clock used as USART6 clock source */
+#define LL_RCC_USART6_CLKSOURCE_HSI         ((RCC_OFFSET_CCIPR2 << 24U) | (RCC_CCIPR2_USART6SEL_Pos << 16U) | (RCC_CCIPR2_USART6SEL_1 >> RCC_CCIPR2_USART6SEL_Pos)) /*!< HSI clock used as USART6 clock source */
+#define LL_RCC_USART6_CLKSOURCE_LSE         ((RCC_OFFSET_CCIPR2 << 24U) | (RCC_CCIPR2_USART6SEL_Pos << 16U) | (RCC_CCIPR2_USART6SEL >> RCC_CCIPR2_USART6SEL_Pos))   /*!< LSE clock used as USART6 clock source */
+/* Legacy define */
+#define LL_RCC_USART6_CLKSOURCE_PCLK2       LL_RCC_USART6_CLKSOURCE_PCLK1
+#endif /* RCC_CCIPR2_USART6SEL */
 /**
   * @}
   */
@@ -493,27 +522,45 @@ typedef struct
                                              (RCC_CCIPR1_I2C1SEL_1 >> RCC_CCIPR1_I2C1SEL_Pos)) /*!< HSI clock used as I2C1 clock source */
 #define LL_RCC_I2C1_CLKSOURCE_MSIK          ((RCC_OFFSET_CCIPR1 << 24U) | (RCC_CCIPR1_I2C1SEL_Pos << 16U) | \
                                              (RCC_CCIPR1_I2C1SEL >> RCC_CCIPR1_I2C1SEL_Pos))   /*!< MSIK clock used as I2C1 clock source */
-#define LL_RCC_I2C2_CLKSOURCE_PCLK1         ((RCC_OFFSET_CCIPR1 << 24U) | (RCC_CCIPR1_I2C2SEL_Pos << 16U))                                                    /*!< PCLK1 clock used as I2C2 clock source */
+#define LL_RCC_I2C2_CLKSOURCE_PCLK1         ((RCC_OFFSET_CCIPR1 << 24U) | (RCC_CCIPR1_I2C2SEL_Pos << 16U)) /*!< PCLK1 clock used as I2C2 clock source */
 #define LL_RCC_I2C2_CLKSOURCE_SYSCLK        ((RCC_OFFSET_CCIPR1 << 24U) | (RCC_CCIPR1_I2C2SEL_Pos << 16U) | \
                                              (RCC_CCIPR1_I2C2SEL_0 >> RCC_CCIPR1_I2C2SEL_Pos)) /*!< SYSCLK clock used as I2C2 clock source */
 #define LL_RCC_I2C2_CLKSOURCE_HSI           ((RCC_OFFSET_CCIPR1 << 24U) | (RCC_CCIPR1_I2C2SEL_Pos << 16U) | \
                                              (RCC_CCIPR1_I2C2SEL_1 >> RCC_CCIPR1_I2C2SEL_Pos)) /*!< HSI clock used as I2C2 clock source */
 #define LL_RCC_I2C2_CLKSOURCE_MSIK          ((RCC_OFFSET_CCIPR1 << 24U) | (RCC_CCIPR1_I2C2SEL_Pos << 16U) | \
                                              (RCC_CCIPR1_I2C2SEL >> RCC_CCIPR1_I2C2SEL_Pos))   /*!< MSIK clock used as I2C2 clock source */
-#define LL_RCC_I2C3_CLKSOURCE_PCLK3         ((RCC_OFFSET_CCIPR3 << 24U) | (RCC_CCIPR3_I2C3SEL_Pos << 16U))                                                    /*!< PCLK3 clock used as I2C3 clock source */
+#define LL_RCC_I2C3_CLKSOURCE_PCLK3         ((RCC_OFFSET_CCIPR3 << 24U) | (RCC_CCIPR3_I2C3SEL_Pos << 16U)) /*!< PCLK3 clock used as I2C3 clock source */
 #define LL_RCC_I2C3_CLKSOURCE_SYSCLK        ((RCC_OFFSET_CCIPR3 << 24U) | (RCC_CCIPR3_I2C3SEL_Pos << 16U) | \
                                              (RCC_CCIPR3_I2C3SEL_0 >> RCC_CCIPR3_I2C3SEL_Pos)) /*!< SYSCLK clock used as I2C3 clock source */
 #define LL_RCC_I2C3_CLKSOURCE_HSI           ((RCC_OFFSET_CCIPR3 << 24U) | (RCC_CCIPR3_I2C3SEL_Pos << 16U) | \
                                              (RCC_CCIPR3_I2C3SEL_1 >> RCC_CCIPR3_I2C3SEL_Pos)) /*!< HSI clock used as I2C3 clock source */
 #define LL_RCC_I2C3_CLKSOURCE_MSIK          ((RCC_OFFSET_CCIPR3 << 24U) | (RCC_CCIPR3_I2C3SEL_Pos << 16U) | \
                                              (RCC_CCIPR3_I2C3SEL >> RCC_CCIPR3_I2C3SEL_Pos))   /*!< MSIK clock used as I2C3 clock source */
-#define LL_RCC_I2C4_CLKSOURCE_PCLK1         ((RCC_OFFSET_CCIPR1 << 24U) | (RCC_CCIPR1_I2C4SEL_Pos << 16U))                                                    /*!< PCLK1 clock used as I2C4 clock source */
+#define LL_RCC_I2C4_CLKSOURCE_PCLK1         ((RCC_OFFSET_CCIPR1 << 24U) | (RCC_CCIPR1_I2C4SEL_Pos << 16U)) /*!< PCLK1 clock used as I2C4 clock source */
 #define LL_RCC_I2C4_CLKSOURCE_SYSCLK        ((RCC_OFFSET_CCIPR1 << 24U) | (RCC_CCIPR1_I2C4SEL_Pos << 16U) | \
                                              (RCC_CCIPR1_I2C4SEL_0 >> RCC_CCIPR1_I2C4SEL_Pos)) /*!< SYSCLK clock used as I2C4 clock source */
 #define LL_RCC_I2C4_CLKSOURCE_HSI           ((RCC_OFFSET_CCIPR1 << 24U) | (RCC_CCIPR1_I2C4SEL_Pos << 16U) | \
                                              (RCC_CCIPR1_I2C4SEL_1 >> RCC_CCIPR1_I2C4SEL_Pos)) /*!< HSI clock used as I2C4 clock source */
 #define LL_RCC_I2C4_CLKSOURCE_MSIK          ((RCC_OFFSET_CCIPR1 << 24U) | (RCC_CCIPR1_I2C4SEL_Pos << 16U) | \
                                              (RCC_CCIPR1_I2C4SEL >> RCC_CCIPR1_I2C4SEL_Pos))   /*!< MSIK clock used as I2C4 clock source */
+#if defined (RCC_CCIPR2_I2C5SEL)
+#define LL_RCC_I2C5_CLKSOURCE_PCLK1         ((RCC_OFFSET_CCIPR2 << 24U) | (RCC_CCIPR2_I2C5SEL_Pos << 16U)) /*!< PCLK1 clock used as I2C5 clock source */
+#define LL_RCC_I2C5_CLKSOURCE_SYSCLK        ((RCC_OFFSET_CCIPR2 << 24U) | (RCC_CCIPR2_I2C5SEL_Pos << 16U) | \
+                                             (RCC_CCIPR2_I2C5SEL_0 >> RCC_CCIPR2_I2C5SEL_Pos)) /*!< SYSCLK clock used as I2C5 clock source */
+#define LL_RCC_I2C5_CLKSOURCE_HSI           ((RCC_OFFSET_CCIPR2 << 24U) | (RCC_CCIPR2_I2C5SEL_Pos << 16U) | \
+                                             (RCC_CCIPR2_I2C5SEL_1 >> RCC_CCIPR2_I2C5SEL_Pos)) /*!< HSI clock used as I2C5 clock source */
+#define LL_RCC_I2C5_CLKSOURCE_MSIK          ((RCC_OFFSET_CCIPR2 << 24U) | (RCC_CCIPR2_I2C5SEL_Pos << 16U) | \
+                                             (RCC_CCIPR2_I2C5SEL >> RCC_CCIPR2_I2C5SEL_Pos))   /*!< MSIK clock used as I2C5 clock source */
+#endif /* RCC_CCIPR2_I2C5SEL */
+#if defined (RCC_CCIPR2_I2C6SEL)
+#define LL_RCC_I2C6_CLKSOURCE_PCLK1         ((RCC_OFFSET_CCIPR2 << 24U) | (RCC_CCIPR2_I2C6SEL_Pos << 16U)) /*!< PCLK1 clock used as I2C6 clock source */
+#define LL_RCC_I2C6_CLKSOURCE_SYSCLK        ((RCC_OFFSET_CCIPR2 << 24U) | (RCC_CCIPR2_I2C6SEL_Pos << 16U) | \
+                                             (RCC_CCIPR2_I2C6SEL_0 >> RCC_CCIPR2_I2C6SEL_Pos)) /*!< SYSCLK clock used as I2C6 clock source */
+#define LL_RCC_I2C6_CLKSOURCE_HSI           ((RCC_OFFSET_CCIPR2 << 24U) | (RCC_CCIPR2_I2C6SEL_Pos << 16U) | \
+                                             (RCC_CCIPR2_I2C6SEL_1 >> RCC_CCIPR2_I2C6SEL_Pos)) /*!< HSI clock used as I2C6 clock source */
+#define LL_RCC_I2C6_CLKSOURCE_MSIK          ((RCC_OFFSET_CCIPR2 << 24U) | (RCC_CCIPR2_I2C6SEL_Pos << 16U) | \
+                                             (RCC_CCIPR2_I2C6SEL >> RCC_CCIPR2_I2C6SEL_Pos))   /*!< MSIK clock used as I2C6 clock source */
+#endif /* RCC_CCIPR2_I2C6SEL */
 /**
   * @}
   */
@@ -593,12 +640,14 @@ typedef struct
 #define LL_RCC_SAI1_CLKSOURCE_HSI           ((RCC_CCIPR2_SAI1SEL << 16U) | RCC_CCIPR2_SAI1SEL_2) /*!< HSI clock used as SAI1 clock source */
 #define LL_RCC_SAI1_CLKSOURCE_PIN           ((RCC_CCIPR2_SAI1SEL << 16U) | (RCC_CCIPR2_SAI1SEL_1 | \
                                                                             RCC_CCIPR2_SAI1SEL_0))  /*!< External input clock used as SAI1 clock source */
+#if defined(SAI2)
 #define LL_RCC_SAI2_CLKSOURCE_PLL2          (RCC_CCIPR2_SAI2SEL << 16U)                          /*!< PLL2 clock used as SAI2 clock source */
 #define LL_RCC_SAI2_CLKSOURCE_PLL3          ((RCC_CCIPR2_SAI2SEL << 16U) | RCC_CCIPR2_SAI2SEL_0) /*!< PLL3 clock used as SAI2 clock source */
 #define LL_RCC_SAI2_CLKSOURCE_PLL1          ((RCC_CCIPR2_SAI2SEL << 16U) | RCC_CCIPR2_SAI2SEL_1) /*!< PLL1clock used as SAI2 clock source */
 #define LL_RCC_SAI2_CLKSOURCE_HSI           ((RCC_CCIPR2_SAI2SEL << 16U) | RCC_CCIPR2_SAI2SEL_2) /*!< HSI clock used as SAI2 clock source */
 #define LL_RCC_SAI2_CLKSOURCE_PIN           ((RCC_CCIPR2_SAI2SEL << 16U) | (RCC_CCIPR2_SAI2SEL_1 | \
                                                                             RCC_CCIPR2_SAI2SEL_0))  /*!< External input clock used as SAI2 clock source */
+#endif /* SAI2 */
 /**
   * @}
   */
@@ -616,9 +665,9 @@ typedef struct
   * @{
   */
 #define LL_RCC_SDMMC12_CLKSOURCE_HSI48      0x00000000U             /*!< HSI48 clock used as SDMMC1/2 clock source */
-#define LL_RCC_SDMMC12_CLKSOURCE_PLL2       RCC_CCIPR1_CLK48MSEL_0  /*!< PLL2 "Q" clock used as SDMMC1/2 clock source */
-#define LL_RCC_SDMMC12_CLKSOURCE_PLL1       RCC_CCIPR1_CLK48MSEL_1  /*!< PLL1 "Q" clock used as SDMMC1/2 clock source */
-#define LL_RCC_SDMMC12_CLKSOURCE_MSIK       RCC_CCIPR1_CLK48MSEL    /*!< MSIK clock used as SDMMC1/2 clock source */
+#define LL_RCC_SDMMC12_CLKSOURCE_PLL2       RCC_CCIPR1_ICLKSEL_0    /*!< PLL2 "Q" clock used as SDMMC1/2 clock source */
+#define LL_RCC_SDMMC12_CLKSOURCE_PLL1       RCC_CCIPR1_ICLKSEL_1    /*!< PLL1 "Q" clock used as SDMMC1/2 clock source */
+#define LL_RCC_SDMMC12_CLKSOURCE_MSIK       RCC_CCIPR1_ICLKSEL      /*!< MSIK clock used as SDMMC1/2 clock source */
 /**
   * @}
   */
@@ -637,9 +686,9 @@ typedef struct
   * @{
   */
 #define LL_RCC_USB_CLKSOURCE_HSI48         0x00000000U            /*!< HSI48 clock used as USB clock source */
-#define LL_RCC_USB_CLKSOURCE_PLL2          RCC_CCIPR1_CLK48MSEL_0 /*!< PLL2 "Q" clock used as USB clock source */
-#define LL_RCC_USB_CLKSOURCE_PLL1          RCC_CCIPR1_CLK48MSEL_1 /*!< PLL1 "Q" clock used as USB clock source */
-#define LL_RCC_USB_CLKSOURCE_MSIK          RCC_CCIPR1_CLK48MSEL   /*!< MSIK clock used as USB clock source */
+#define LL_RCC_USB_CLKSOURCE_PLL2          RCC_CCIPR1_ICLKSEL_0   /*!< PLL2 "Q" clock used as USB clock source */
+#define LL_RCC_USB_CLKSOURCE_PLL1          RCC_CCIPR1_ICLKSEL_1   /*!< PLL1 "Q" clock used as USB clock source */
+#define LL_RCC_USB_CLKSOURCE_MSIK          RCC_CCIPR1_ICLKSEL     /*!< MSIK clock used as USB clock source */
 /**
   * @}
   */
@@ -701,6 +750,19 @@ typedef struct
   * @}
   */
 
+#if defined (HSPI1)
+/** @defgroup RCC_LL_EC_HSPI1_CLKSOURCE  Peripheral HSPI1 kernel clock source selection
+  * @{
+  */
+#define LL_RCC_HSPI_CLKSOURCE_SYSCLK     (0x00000000U)
+#define LL_RCC_HSPI_CLKSOURCE_PLL1       RCC_CCIPR2_HSPISEL_0
+#define LL_RCC_HSPI_CLKSOURCE_PLL2       RCC_CCIPR2_HSPISEL_1
+#define LL_RCC_HSPI_CLKSOURCE_PLL3       RCC_CCIPR2_HSPISEL
+/**
+  * @}
+  */
+#endif /* HSPI1 */
+
 /** @defgroup RCC_LL_EC_TIM_INPUT_CAPTURE_CLOCKSource TIM Input capture clock source selection
   * @{
   */
@@ -728,9 +790,18 @@ typedef struct
 /** @defgroup RCC_LL_EC_USART Peripheral USARTx get clock source
   * @{
   */
-#define LL_RCC_USART1_CLKSOURCE            RCC_CCIPR1_USART1SEL /*!< USART1 Clock source selection */
-#define LL_RCC_USART2_CLKSOURCE            RCC_CCIPR1_USART2SEL /*!< USART2 Clock source selection */
-#define LL_RCC_USART3_CLKSOURCE            RCC_CCIPR1_USART3SEL /*!< USART3 Clock source selection */
+#define LL_RCC_USART1_CLKSOURCE           ((RCC_OFFSET_CCIPR1 << 24U) | (RCC_CCIPR1_USART1SEL_Pos << 16U) | \
+                                           (RCC_CCIPR1_USART1SEL >> RCC_CCIPR1_USART1SEL_Pos)) /*!< USART1 Clock source selection */
+#if defined(USART2)
+#define LL_RCC_USART2_CLKSOURCE           ((RCC_OFFSET_CCIPR1 << 24U) | (RCC_CCIPR1_USART2SEL_Pos << 16U) | \
+                                           (RCC_CCIPR1_USART2SEL >> RCC_CCIPR1_USART2SEL_Pos)) /*!< USART2 Clock source selection */
+#endif /* USART2 */
+#define LL_RCC_USART3_CLKSOURCE           ((RCC_OFFSET_CCIPR1 << 24U) | (RCC_CCIPR1_USART3SEL_Pos << 16U) | \
+                                           (RCC_CCIPR1_USART3SEL >> RCC_CCIPR1_USART3SEL_Pos)) /*!< USART3 Clock source selection */
+#if defined (RCC_CCIPR2_USART6SEL)
+#define LL_RCC_USART6_CLKSOURCE           ((RCC_OFFSET_CCIPR2 << 24U) | (RCC_CCIPR2_USART6SEL_Pos << 16U) | \
+                                           (RCC_CCIPR2_USART6SEL >> RCC_CCIPR2_USART6SEL_Pos)) /*!< USART6 Clock source selection */
+#endif /* RCC_CCIPR2_USART6SEL */
 /**
   * @}
   */
@@ -765,6 +836,41 @@ typedef struct
   * @}
   */
 
+#if defined(DSI)
+/** @defgroup RCC_LL_EC_DSI_CLKSOURCE  Peripheral DSI clock source selection
+  * @{
+  */
+#define LL_RCC_DSI_CLKSOURCE_PHY              (RCC_CCIPR2_DSIHOSTSEL)
+#define LL_RCC_DSI_CLKSOURCE_PLL3             (0x00000000U)
+/**
+  * @}
+  */
+#endif /* DSI */
+
+#if defined(LTDC)
+/** @defgroup RCC_LL_EC_LTDC_CLKSOURCE  Peripheral LTDC clock source selection
+  * @{
+  */
+#define LL_RCC_LTDC_CLKSOURCE_PLL2              (RCC_CCIPR2_LTDCSEL)
+#define LL_RCC_LTDC_CLKSOURCE_PLL3             (0x00000000U)
+/**
+  * @}
+  */
+#endif /* LTDC */
+
+#if defined (RCC_CCIPR2_USBPHYCSEL)
+/** @defgroup RCC_LL_EC_USBPHY_CLKSOURCE  Peripheral USBPHY clock source selection
+  * @{
+  */
+#define LL_RCC_USBPHYCLKSOURCE_HSE                (0x00000000U)   /*!< HSE clock selected as USBPHYC clock */
+#define LL_RCC_USBPHYCLKSOURCE_HSE_DIV2            RCC_CCIPR2_USBPHYCSEL_1      /*!< HSE clock divided by 2 selected as USBPHYC clock */
+#define LL_RCC_USBPHYCLKSOURCE_PLL1                RCC_CCIPR2_USBPHYCSEL_0      /*!< PLL1 divider P selected as USBPHYC clock */
+#define LL_RCC_USBPHYCLKSOURCE_PLL1_DIV2          (RCC_CCIPR2_USBPHYCSEL_1 | RCC_CCIPR2_USBPHYCSEL_0) /*!< PLL1 divider P divided by 2 selected as USBPHYC clock */
+/**
+  * @}
+  */
+#endif /* RCC_CCIPR2_USBPHYCSEL */
+
 /** @defgroup RCC_LL_EC_I2C Peripheral I2Cx get clock source
   * @{
   */
@@ -776,6 +882,14 @@ typedef struct
                                            (RCC_CCIPR3_I2C3SEL >> RCC_CCIPR3_I2C3SEL_Pos)) /*!< I2C3 Clock source selection */
 #define LL_RCC_I2C4_CLKSOURCE             ((RCC_OFFSET_CCIPR1 << 24U) | (RCC_CCIPR1_I2C4SEL_Pos << 16U) | \
                                            (RCC_CCIPR1_I2C4SEL >> RCC_CCIPR1_I2C4SEL_Pos)) /*!< I2C4 Clock source selection */
+#if defined (RCC_CCIPR2_I2C5SEL)
+#define LL_RCC_I2C5_CLKSOURCE             ((RCC_OFFSET_CCIPR2 << 24U) | (RCC_CCIPR2_I2C5SEL_Pos << 16U) | \
+                                           (RCC_CCIPR2_I2C5SEL >> RCC_CCIPR2_I2C5SEL_Pos)) /*!< I2C1 Clock source selection */
+#endif /* RCC_CCIPR2_I2C5SEL */
+#if defined (RCC_CCIPR2_I2C6SEL)
+#define LL_RCC_I2C6_CLKSOURCE             ((RCC_OFFSET_CCIPR2 << 24U) | (RCC_CCIPR2_I2C6SEL_Pos << 16U) | \
+                                           (RCC_CCIPR2_I2C6SEL >> RCC_CCIPR2_I2C6SEL_Pos)) /*!< I2C1 Clock source selection */
+#endif /* RCC_CCIPR2_I2C6SEL */
 /**
   * @}
   */
@@ -797,7 +911,9 @@ typedef struct
   * @{
   */
 #define LL_RCC_SAI1_CLKSOURCE             RCC_CCIPR2_SAI1SEL /*!< SAI1 Clock source selection */
+#if defined (SAI2)
 #define LL_RCC_SAI2_CLKSOURCE             RCC_CCIPR2_SAI2SEL /*!< SAI2 Clock source selection */
+#endif /* SAI2 */
 /**
   * @}
   */
@@ -813,7 +929,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_SDMMC1/2  Peripheral SDMMC get clock source
   * @{
   */
-#define LL_RCC_SDMMC_CLKSOURCE            RCC_CCIPR1_CLK48MSEL /*!< SDMMC1/2 Clock source selection */
+#define LL_RCC_SDMMC_CLKSOURCE            RCC_CCIPR1_ICLKSEL /*!< SDMMC1/2 Clock source selection */
 /**
   * @}
   */
@@ -829,7 +945,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_USB  Peripheral USB get clock source
   * @{
   */
-#define LL_RCC_USB_CLKSOURCE              RCC_CCIPR1_CLK48MSEL /*!< USB Clock source selection */
+#define LL_RCC_USB_CLKSOURCE              RCC_CCIPR1_ICLKSEL /*!< USB Clock source selection */
 /**
   * @}
   */
@@ -881,6 +997,15 @@ typedef struct
 /**
   * @}
   */
+#if defined (HSPI1)
+/** @defgroup RCC_LL_EC_HSPI  Peripheral HSPI get clock source
+  * @{
+  */
+#define LL_RCC_HSPI_CLKSOURCE          RCC_CCIPR2_HSPISEL    /*!< HSPI Clock source selection */
+/**
+  * @}
+  */
+#endif /* HSPI */
 
 /** @defgroup RCC_LL_EC_SAES  Peripheral SAES get clock source
   * @{
@@ -890,6 +1015,36 @@ typedef struct
   * @}
   */
 
+#if defined(DSI)
+/** @defgroup RCC_LL_EC_DSI  Peripheral DSI get clock source
+  * @{
+  */
+#define LL_RCC_DSI_CLKSOURCE             RCC_CCIPR2_DSIHOSTSEL
+/**
+  * @}
+  */
+#endif /* DSI */
+
+#if defined(LTDC)
+/** @defgroup RCC_LL_EC_LTDC  Peripheral LTDC get clock source
+  * @{
+  */
+#define LL_RCC_LTDC_CLKSOURCE             RCC_CCIPR2_LTDCSEL
+/**
+  * @}
+  */
+#endif /* LTDC */
+
+#if defined (RCC_CCIPR2_USBPHYCSEL)
+/** @defgroup RCC_LL_EC_USBPHY  Peripheral USBPHY get clock source
+  * @{
+  */
+#define LL_RCC_USBPHY_CLKSOURCE               RCC_CCIPR2_USBPHYCSEL
+/**
+  * @}
+  */
+#endif /* RCC_CCIPR2_USBPHYCSEL */
+
 /** @defgroup RCC_LL_EC_PLL1SOURCE  PLL1 entry clock source
   * @{
   */
@@ -897,6 +1052,12 @@ typedef struct
 #define LL_RCC_PLL1SOURCE_MSIS             RCC_PLL1CFGR_PLL1SRC_0                            /*!< MSIS clock selected as main PLL1 entry clock source */
 #define LL_RCC_PLL1SOURCE_HSI              RCC_PLL1CFGR_PLL1SRC_1                            /*!< HSI clock selected as main PLL1 entry clock source */
 #define LL_RCC_PLL1SOURCE_HSE              (RCC_PLL1CFGR_PLL1SRC_0 | RCC_PLL1CFGR_PLL1SRC_1) /*!< HSE clock selected as main PLL1 entry clock source */
+
+#define LL_RCC_PLLSOURCE_NONE              LL_RCC_PLL1SOURCE_NONE                            /*!< alias define for compatibility with legacy code */
+#define LL_RCC_PLLSOURCE_MSIS              LL_RCC_PLL1SOURCE_MSIS                            /*!< alias define for compatibility with legacy code */
+#define LL_RCC_PLLSOURCE_HSI               LL_RCC_PLL1SOURCE_HSI                             /*!< alias define for compatibility with legacy code */
+#define LL_RCC_PLLSOURCE_HSE               LL_RCC_PLL1SOURCE_HSE                             /*!< alias define for compatibility with legacy code */
+
 /**
   * @}
   */
@@ -904,8 +1065,8 @@ typedef struct
 /** @defgroup RCC_LL_EC_PLLINPUTRANGE   All PLLs input ranges
   * @{
   */
-#define LL_RCC_PLLINPUTRANGE_4_8           0x00000002U                                       /*!< VCO input range: 4 to 8 MHz  */
-#define LL_RCC_PLLINPUTRANGE_8_16          0x00000003U                                       /*!< VCO input range: 8 to 16 MHz */
+#define LL_RCC_PLLINPUTRANGE_4_8           0x00000000U                                       /*!< VCO input range: 4 to 8 MHz  */
+#define LL_RCC_PLLINPUTRANGE_8_16          RCC_PLL1CFGR_PLL1RGE                              /*!< VCO input range: 8 to 16 MHz */
 /**
   * @}
   */
@@ -968,12 +1129,17 @@ typedef struct
 #define LL_RCC_PLL2_NSEC                   0U                      /*!< main PLL2 clock configuration secure/non-secure access */
 #define LL_RCC_PLL3_SEC                    RCC_SECCFGR_PLL3SEC     /*!< PLL3 clock configuration security */
 #define LL_RCC_PLL3_NSEC                   0U                      /*!< main PLL3 clock configuration secure/non-secure access */
-#define LL_RCC_CLK48M_SEC                  RCC_SECCFGR_CLK48MSEC   /*!< 48MHz clock source selection security */
-#define LL_RCC_CLK48M_NSEC                 0U                      /*!< 48MHz clock source selection secure/non-secure access */
+#define LL_RCC_ICLK_SEC                    RCC_SECCFGR_ICLKSEC     /*!< ICLK clock source selection security */
+#define LL_RCC_ICLK_NSEC                   0U                      /*!< ICLK clock source selection secure/non-secure access */
 #define LL_RCC_HSI48_SEC                   RCC_SECCFGR_HSI48SEC    /*!< HSI48 clock configuration security */
 #define LL_RCC_HSI48_NSEC                  0U                      /*!< HSI48 clock configuration secure/non-secure access */
 #define LL_RCC_RESET_FLAGS_SEC             RCC_SECCFGR_RMVFSEC     /*!< Remove reset flag security */
 #define LL_RCC_RESET_FLAGS_NSEC            0U
+
+#define LL_RCC_PLL_SEC                     LL_RCC_PLL1_NSEC        /*!< alias define for compatibility with legacy code */
+#define LL_RCC_PLL_NSEC                    LL_RCC_PLL1_NSEC        /*!< alias define for compatibility with legacy code */
+#define LL_RCC_CLK48M_SEC                  LL_RCC_ICLK_SEC         /*!< alias define for compatibility with legacy code */
+#define LL_RCC_CLK48M_NSEC                 LL_RCC_ICLK_NSEC        /*!< alias define for compatibility with legacy code */
 /**
   * @}
   */
@@ -1020,12 +1186,12 @@ typedef struct
   * @param __INPUTFREQ__ PLL1 Input frequency (based on MSI/HSE/HSI)
   * @param __PLL1M__ parameter can be a value between 1 and 16
   * @param __PLL1N__ parameter can be a value between 4 and 512
-  * @param __PLL1R__ parameter can be a value between 1 and 128
+  * @param __PLL1R__ parameter can be a value between 1 and 128 (Only division by 1 and even division are allowed)
   * @retval PLL1 clock frequency (in Hz)
   */
-
 #define __LL_RCC_CALC_PLL1CLK_FREQ(__INPUTFREQ__, __PLL1M__, __PLL1N__, __PLL1R__) ((((__INPUTFREQ__) /(__PLL1M__)) * \
     (__PLL1N__)) / (__PLL1R__))
+#define __LL_RCC_CALC_PLLCLK_FREQ     __LL_RCC_CALC_PLL1CLK_FREQ    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Helper macro to calculate the PLL1CLK frequency used on SAI domain
@@ -1034,11 +1200,12 @@ typedef struct
   * @param __INPUTFREQ__ PLL1 Input frequency (based on MSI/HSE/HSI)
   * @param __PLL1M__ parameter can be a value between 1 and 16
   * @param __PLL1N__ parameter can be a value between 4 and 512
-  * @param __PLL1P__ parameter can be a value between 2 and 128
+  * @param __PLL1P__ parameter can be a value between 1 and 128
   * @retval PLL1 clock frequency (in Hz)
   */
 #define __LL_RCC_CALC_PLL1CLK_SAI_FREQ(__INPUTFREQ__, __PLL1M__, __PLL1N__, __PLL1P__) ((((__INPUTFREQ__) \
     /(__PLL1M__)) * (__PLL1N__)) / (__PLL1P__))
+#define __LL_RCC_CALC_PLLCLK_SAI_FREQ     __LL_RCC_CALC_PLL1CLK_SAI_FREQ    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Helper macro to calculate the PLL1CLK frequency used on 48M domain
@@ -1050,9 +1217,9 @@ typedef struct
   * @param __PLL1Q__ parameter can be a value between 1 and 128
   * @retval PLL clock frequency (in Hz)
   */
-
 #define __LL_RCC_CALC_PLL1CLK_48M_FREQ(__INPUTFREQ__, __PLL1M__, __PLL1N__, __PLL1Q__) ((((__INPUTFREQ__) \
     /(__PLL1M__)) * (__PLL1N__)) / (__PLL1Q__))
+#define __LL_RCC_CALC_PLLCLK_48M_FREQ     __LL_RCC_CALC_PLL1CLK_48M_FREQ    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Helper macro to calculate the PLL2 frequency used for SAI domain
@@ -1061,7 +1228,7 @@ typedef struct
   * @param __INPUTFREQ__ PLL Input frequency (based on MSI/HSE/HSI)
   * @param __PLL2M__ parameter can be a value between 1 and 16
   * @param __PLL2N__ parameter can be a value between 4 and 512
-  * @param __PLL2P__ parameter can be a value between 2 and 128
+  * @param __PLL2P__ parameter can be a value between 1 and 128
   * @retval PLL2 clock frequency (in Hz)
   */
 #define __LL_RCC_CALC_PLL2CLK_SAI_FREQ(__INPUTFREQ__, __PLL2M__, __PLL2N__, __PLL2P__) ((((__INPUTFREQ__) \
@@ -1100,7 +1267,7 @@ typedef struct
   * @param __INPUTFREQ__ PLL3 Input frequency (based on MSI/HSE/HSI)
   * @param __PLL3M__ parameter can be a value between 1 and 16
   * @param __PLL3N__ parameter can be a value between 4 and 512
-  * @param __PLL3P__ parameter can be a value between 2 and 128
+  * @param __PLL3P__ parameter can be a value between 1 and 128
   * @retval PLL3 clock frequency (in Hz)
   */
 #define __LL_RCC_CALC_PLL3CLK_SAI_FREQ(__INPUTFREQ__, __PLL3M__, __PLL3N__, __PLL3P__)((((__INPUTFREQ__) \
@@ -1118,6 +1285,23 @@ typedef struct
   */
 #define __LL_RCC_CALC_PLL3CLK_48M_FREQ(__INPUTFREQ__, __PLL3M__, __PLL3N__, __PLL3Q__) ((((__INPUTFREQ__) \
     /(__PLL3M__)) * (__PLL3N__)) / (__PLL3Q__))
+
+#if defined(HSPI1) || defined(LTDC)
+/**
+  * @brief  Helper macro to calculate the PLL3 frequency used on HSPI domain
+  * @note ex: @ref __LL_RCC_CALC_PLL3CLK_HSPI_LTDC_FREQ (HSE_VALUE,@ref LL_RCC_PLL3_GetDivider (),
+  *             @ref LL_RCC_PLL3_GetN (), @ref LL_RCC_PLL3_GetQ ());
+  * @param __INPUTFREQ__ PLL3 Input frequency (based on MSI/HSE/HSI)
+  * @param __PLL3M__ parameter can be a value between 1 and 16
+  * @param __PLL3N__ parameter can be a value between 4 and 512
+  * @param __PLL3R__ parameter can be a value between 1 and 128
+  * @retval PLL3 clock frequency (in Hz)
+  */
+#define __LL_RCC_CALC_PLL3CLK_HSPI_LTDC_FREQ(__INPUTFREQ__, __PLL3M__, __PLL3N__, __PLL3R__) ((((__INPUTFREQ__) \
+    /(__PLL3M__)) * (__PLL3N__)) / (__PLL3R__))
+/* Legacy define */
+#define __LL_RCC_CALC_PLL3CLK_HSPI_FREQ    __LL_RCC_CALC_PLL3CLK_HSPI_LTDC_FREQ
+#endif /* HSPI1 || LTDC */
 
 /**
   * @brief  Helper macro to calculate the HCLK frequency
@@ -1347,7 +1531,7 @@ __STATIC_INLINE void LL_RCC_HSE_SetClockMode(uint32_t HSEMode)
 }
 
 /**
-  * @brief  Get Externel HSE clock mode
+  * @brief  Get External HSE clock mode
   * @rmtoll CR         HSEEXT        LL_RCC_HSE_GetClockMode
   * @retval Returned value can be one of the following values:
   *         @arg @ref LL_RCC_HSE_ANALOG_MODE
@@ -1672,6 +1856,39 @@ __STATIC_INLINE uint32_t LL_RCC_LSE_IsCSSDetected(void)
 }
 
 /**
+  * @brief  Enable LSE clock glitch filter.
+  * @note   The glitches on LSE can be filtred by setting the LSEGFON.
+  * @note   LSEGFON must be written when the LSE is disabled (LSEON = 0 and LSERDY = 0).
+  * @rmtoll BDCR         LSEGFON      LL_RCC_LSE_EnableGlitchFilter
+  * @retval None
+  */
+__STATIC_INLINE void LL_RCC_LSE_EnableGlitchFilter(void)
+{
+  SET_BIT(RCC->BDCR, RCC_BDCR_LSEGFON);
+}
+
+/**
+  * @brief  Disable LSE clock glitch filter.
+  * @note   LSEGFON must be written when the LSE is disabled (LSEON = 0 and LSERDY = 0).
+  * @rmtoll BDCR         LSEGFON      LL_RCC_LSE_DisableGlitchFilter
+  * @retval None
+  */
+__STATIC_INLINE void LL_RCC_LSE_DisableGlitchFilter(void)
+{
+  CLEAR_BIT(RCC->BDCR, RCC_BDCR_LSEGFON);
+}
+
+/**
+  * @brief  Check if LSE clock glitch filter is enabled
+  * @rmtoll BDCR         LSEGFON        LL_RCC_LSE_IsGlitchFilterEnabled
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_RCC_LSE_IsGlitchFilterEnabled(void)
+{
+  return ((READ_BIT(RCC->BDCR, RCC_BDCR_LSEGFON) == RCC_BDCR_LSEGFON) ? 1UL : 0UL);
+}
+
+/**
   * @}
   */
 
@@ -1830,6 +2047,7 @@ __STATIC_INLINE void LL_RCC_MSIS_Enable(void)
 {
   SET_BIT(RCC->CR, RCC_CR_MSISON);
 }
+#define LL_RCC_MSI_Enable   LL_RCC_MSIS_Enable  /*!< alias define for compatibility with legacy code */
 
 /**
   * @brief  Disable MSIS oscillator
@@ -1840,6 +2058,7 @@ __STATIC_INLINE void LL_RCC_MSIS_Disable(void)
 {
   CLEAR_BIT(RCC->CR, RCC_CR_MSISON);
 }
+#define LL_RCC_MSI_Disable   LL_RCC_MSIS_Disable  /*!< alias define for compatibility with legacy code */
 
 /**
   * @brief  Check if MSIS oscillator Ready
@@ -1850,6 +2069,7 @@ __STATIC_INLINE uint32_t LL_RCC_MSIS_IsReady(void)
 {
   return ((READ_BIT(RCC->CR, RCC_CR_MSISRDY) == RCC_CR_MSISRDY) ? 1UL : 0UL);
 }
+#define LL_RCC_MSI_IsReady   LL_RCC_MSIS_IsReady  /*!< alias define for compatibility with legacy code */
 
 /**
   * @brief  Enable MSI PLL-mode (Hardware auto calibration with LSE)
@@ -1875,6 +2095,16 @@ __STATIC_INLINE void LL_RCC_MSI_EnablePLLMode(void)
 __STATIC_INLINE void LL_RCC_MSI_DisablePLLMode(void)
 {
   CLEAR_BIT(RCC->CR, RCC_CR_MSIPLLEN);
+}
+
+/**
+  * @brief  Check if MSI-PLL mode has been enabled or not
+  * @rmtoll CR           MSIPLLEN      LL_RCC_IsEnabledPLLMode
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_RCC_IsEnabledPLLMode(void)
+{
+  return ((READ_BIT(RCC->CR, RCC_CR_MSIPLLEN) == RCC_CR_MSIPLLEN) ? 1UL : 0UL);
 }
 
 /**
@@ -2039,6 +2269,7 @@ __STATIC_INLINE void LL_RCC_MSIS_SetRange(uint32_t Range)
 {
   MODIFY_REG(RCC->ICSCR1, RCC_ICSCR1_MSISRANGE, Range);
 }
+#define LL_RCC_MSI_SetRange   LL_RCC_MSIS_SetRange  /*!< alias define for compatibility with legacy code */
 
 /**
   * @brief  Get the Internal Multi Speed oscillator (MSI) clock range in run mode.
@@ -2065,22 +2296,24 @@ __STATIC_INLINE uint32_t LL_RCC_MSIS_GetRange(void)
 {
   return (uint32_t)(READ_BIT(RCC->ICSCR1, RCC_ICSCR1_MSISRANGE));
 }
+#define LL_RCC_MSI_GetRange   LL_RCC_MSIS_GetRange  /*!< alias define for compatibility with legacy code */
 
 /**
   * @brief  Configure MSIS range used after standby
   * @rmtoll CSR          MSISSRANGE     LL_RCC_MSIS_SetRangeAfterStandby
   * @param  Range This parameter can be one of the following values:
-  *         @arg @ref LL_RCC_MSISRANGE_4
-  *         @arg @ref LL_RCC_MSISRANGE_5
-  *         @arg @ref LL_RCC_MSISRANGE_6
-  *         @arg @ref LL_RCC_MSISRANGE_7
-  *         @arg @ref LL_RCC_MSISRANGE_8
+  *         @arg @ref LL_RCC_MSISSRANGE_4
+  *         @arg @ref LL_RCC_MSISSRANGE_5
+  *         @arg @ref LL_RCC_MSISSRANGE_6
+  *         @arg @ref LL_RCC_MSISSRANGE_7
+  *         @arg @ref LL_RCC_MSISSRANGE_8
   * @retval None
   */
 __STATIC_INLINE void LL_RCC_MSIS_SetRangeAfterStandby(uint32_t Range)
 {
   MODIFY_REG(RCC->CSR, RCC_CSR_MSISSRANGE, Range);
 }
+#define LL_RCC_MSI_SetRangeAfterStandby   LL_RCC_MSIS_SetRangeAfterStandby  /*!< alias define for compatibility with legacy code */
 
 /**
   * @brief  Get MSIS range used after standby
@@ -2096,6 +2329,7 @@ __STATIC_INLINE uint32_t LL_RCC_MSIS_GetRangeAfterStandby(void)
 {
   return (uint32_t)(READ_BIT(RCC->CSR, RCC_CSR_MSISSRANGE));
 }
+#define LL_RCC_MSI_GetRangeAfterStandby   LL_RCC_MSIS_GetRangeAfterStandby  /*!< alias define for compatibility with legacy code */
 
 /**
   * @brief  Set MSI OSCILLATORx Calibration trimming
@@ -2410,6 +2644,24 @@ __STATIC_INLINE void LL_RCC_SetAPB3Prescaler(uint32_t Prescaler)
   MODIFY_REG(RCC->CFGR3, RCC_CFGR3_PPRE3, Prescaler);
 }
 
+#if defined(RCC_CFGR2_PPRE_DPHY)
+/**
+  * @brief  Set DPHY clock prescaler
+  * @rmtoll CFGR2         PPRE_DPHY         LL_RCC_SetDPHYPrescaler
+  * @param  Prescaler This parameter can be one of the following values:
+  *         @arg @ref LL_RCC_DPHY_DIV_1
+  *         @arg @ref LL_RCC_DPHY_DIV_2
+  *         @arg @ref LL_RCC_DPHY_DIV_4
+  *         @arg @ref LL_RCC_DPHY_DIV_8
+  *         @arg @ref LL_RCC_DPHY_DIV_16
+  * @retval None
+  */
+__STATIC_INLINE void LL_RCC_SetDPHYPrescaler(uint32_t Prescaler)
+{
+  MODIFY_REG(RCC->CFGR2, RCC_CFGR2_PPRE_DPHY, Prescaler);
+}
+#endif /* RCC_CFGR2_PPRE_DPHY */
+
 /**
   * @brief  Get AHB prescaler
   * @rmtoll CFGR2         HPRE          LL_RCC_GetAHBPrescaler
@@ -2487,6 +2739,23 @@ __STATIC_INLINE uint32_t LL_RCC_GetAPB3Prescaler(void)
   return (uint32_t)(READ_BIT(RCC->CFGR3, RCC_CFGR3_PPRE3));
 }
 
+#if defined(RCC_CFGR2_PPRE_DPHY)
+/**
+  * @brief  Get DPHY clock prescaler
+  * @rmtoll CFGR2         PPRE_DPHY         LL_RCC_GetDPHYPrescaler
+  * @retval Returned value can be one of the following values:
+  *         @arg @ref LL_RCC_DPHY_DIV_1
+  *         @arg @ref LL_RCC_DPHY_DIV_2
+  *         @arg @ref LL_RCC_DPHY_DIV_4
+  *         @arg @ref LL_RCC_DPHY_DIV_8
+  *         @arg @ref LL_RCC_DPHY_DIV_16
+  */
+__STATIC_INLINE uint32_t LL_RCC_GetDPHYPrescaler(void)
+{
+  return (uint32_t)(READ_BIT(RCC->CFGR2, RCC_CFGR2_PPRE_DPHY));
+}
+#endif /* RCC_CFGR2_PPRE_DPHY */
+
 /**
   * @brief  Set Clock After Wake-Up From Stop mode
   * @rmtoll CFGR1       STOPWUCK      LL_RCC_SetClkAfterWakeFromStop
@@ -2511,6 +2780,32 @@ __STATIC_INLINE uint32_t LL_RCC_GetClkAfterWakeFromStop(void)
 {
   return (uint32_t)(READ_BIT(RCC->CFGR1, RCC_CFGR1_STOPWUCK));
 }
+
+/**
+  * @brief  Set Kernel Clock After Wake-Up From Stop mode
+  * @rmtoll CFGR1       STOPKERWUCK LL_RCC_SetKerClkAfterWakeFromStop
+  * @param  Clock This parameter can be one of the following values:
+  *         @arg @ref LL_RCC_STOP_WAKEUPKERCLOCK_MSIK
+  *         @arg @ref LL_RCC_STOP_WAKEUPKERCLOCK_HSI
+  * @retval None
+  */
+__STATIC_INLINE void LL_RCC_SetKerClkAfterWakeFromStop(uint32_t Clock)
+{
+  MODIFY_REG(RCC->CFGR1, RCC_CFGR1_STOPKERWUCK, Clock);
+}
+
+/**
+  * @brief  Get Kernel Clock After Wake-Up From Stop mode
+  * @rmtoll CFGR1         STOPKERWUCK LL_RCC_GetKerClkAfterWakeFromStop
+  * @retval Returned value can be one of the following values:
+  *         @arg @ref LL_RCC_STOP_WAKEUPKERCLOCK_MSIK
+  *         @arg @ref LL_RCC_STOP_WAKEUPKERCLOCK_HSI
+  */
+__STATIC_INLINE uint32_t LL_RCC_GetKerClkAfterWakeFromStop(void)
+{
+  return (uint32_t)(READ_BIT(RCC->CFGR1, RCC_CFGR1_STOPKERWUCK));
+}
+
 /**
   * @}
   */
@@ -2558,25 +2853,35 @@ __STATIC_INLINE void LL_RCC_ConfigMCO(uint32_t MCOxSource, uint32_t MCOxPrescale
   * @brief  Configure USARTx clock source
   * @rmtoll CCIPR1       USART1SEL     LL_RCC_SetUSARTClockSource\n
   *         CCIPR1       USART2SEL     LL_RCC_SetUSARTClockSource\n
-  *         CCIPR1       USART3SEL     LL_RCC_SetUSARTClockSource
+  *         CCIPR1       USART3SEL     LL_RCC_SetUSARTClockSource\n
+  *         CCIPR2       USART6SEL     LL_RCC_SetUSARTClockSource
   * @param  USARTxSource This parameter can be one of the following values:
   *         @arg @ref LL_RCC_USART1_CLKSOURCE_PCLK2
   *         @arg @ref LL_RCC_USART1_CLKSOURCE_SYSCLK
   *         @arg @ref LL_RCC_USART1_CLKSOURCE_HSI
   *         @arg @ref LL_RCC_USART1_CLKSOURCE_LSE
-  *         @arg @ref LL_RCC_USART2_CLKSOURCE_PCLK1
-  *         @arg @ref LL_RCC_USART2_CLKSOURCE_SYSCLK
-  *         @arg @ref LL_RCC_USART2_CLKSOURCE_HSI
-  *         @arg @ref LL_RCC_USART2_CLKSOURCE_LSE
+  *         @arg @ref LL_RCC_USART2_CLKSOURCE_PCLK1 (*)
+  *         @arg @ref LL_RCC_USART2_CLKSOURCE_SYSCLK (*)
+  *         @arg @ref LL_RCC_USART2_CLKSOURCE_HSI (*)
+  *         @arg @ref LL_RCC_USART2_CLKSOURCE_LSE (*)
   *         @arg @ref LL_RCC_USART3_CLKSOURCE_PCLK1
   *         @arg @ref LL_RCC_USART3_CLKSOURCE_SYSCLK
   *         @arg @ref LL_RCC_USART3_CLKSOURCE_HSI
   *         @arg @ref LL_RCC_USART3_CLKSOURCE_LSE
+  *         @arg @ref LL_RCC_USART6_CLKSOURCE_PCLK1 (*)
+  *         @arg @ref LL_RCC_USART6_CLKSOURCE_SYSCLK (*)
+  *         @arg @ref LL_RCC_USART6_CLKSOURCE_HSI (*)
+  *         @arg @ref LL_RCC_USART6_CLKSOURCE_LSE (*)
+  *
+  *         (*) Availability depends on devices.
+
   * @retval None
   */
 __STATIC_INLINE void LL_RCC_SetUSARTClockSource(uint32_t USARTxSource)
 {
-  MODIFY_REG(RCC->CCIPR1, USARTxSource >> 16U, (USARTxSource & 0x0000FFFFU));
+  __IO uint32_t *reg = (__IO uint32_t *)(uint32_t)(RCC_BASE + 0xE0U + (USARTxSource >> 24U));
+  MODIFY_REG(*reg, 3UL << ((USARTxSource & 0x001F0000U) >> 16U), ((USARTxSource & 0x000000FFU) << \
+                                                                  ((USARTxSource & 0x001F0000U) >> 16U)));
 }
 
 /**
@@ -2729,11 +3034,14 @@ __STATIC_INLINE void LL_RCC_SetFDCANClockSource(uint32_t FDCANxSource)
   *         @arg @ref LL_RCC_SAI1_CLKSOURCE_PLL3
   *         @arg @ref LL_RCC_SAI1_CLKSOURCE_PIN
   *         @arg @ref LL_RCC_SAI1_CLKSOURCE_HSI
-  *         @arg @ref LL_RCC_SAI2_CLKSOURCE_PLL1
-  *         @arg @ref LL_RCC_SAI2_CLKSOURCE_PLL2
-  *         @arg @ref LL_RCC_SAI2_CLKSOURCE_PLL3
-  *         @arg @ref LL_RCC_SAI2_CLKSOURCE_PIN
-  *         @arg @ref LL_RCC_SAI2_CLKSOURCE_HSI
+  *         @arg @ref LL_RCC_SAI2_CLKSOURCE_PLL1 (*)
+  *         @arg @ref LL_RCC_SAI2_CLKSOURCE_PLL2 (*)
+  *         @arg @ref LL_RCC_SAI2_CLKSOURCE_PLL3 (*)
+  *         @arg @ref LL_RCC_SAI2_CLKSOURCE_PIN (*)
+  *         @arg @ref LL_RCC_SAI2_CLKSOURCE_HSI (*)
+  *
+  *         (*) Availability depends on devices.
+  *
   * @retval None
   */
 __STATIC_INLINE void LL_RCC_SetSAIClockSource(uint32_t SAIxSource)
@@ -2756,7 +3064,7 @@ __STATIC_INLINE void LL_RCC_SetSDMMCKernelClockSource(uint32_t SDMMCxSource)
 
 /**
   * @brief  Configure SDMMC1/2 clock source
-  * @rmtoll CCIPR1       CLK48MSEL      LL_RCC_SetSDMMCClockSource
+  * @rmtoll CCIPR1       ICLKSEL      LL_RCC_SetSDMMCClockSource
   * @param  SDMMCxSource This parameter can be one of the following values:
   *         @arg @ref LL_RCC_SDMMC12_CLKSOURCE_HSI48
   *         @arg @ref LL_RCC_SDMMC12_CLKSOURCE_PLL1
@@ -2766,7 +3074,7 @@ __STATIC_INLINE void LL_RCC_SetSDMMCKernelClockSource(uint32_t SDMMCxSource)
   */
 __STATIC_INLINE void LL_RCC_SetSDMMCClockSource(uint32_t SDMMCxSource)
 {
-  MODIFY_REG(RCC->CCIPR1, RCC_CCIPR1_CLK48MSEL, SDMMCxSource);
+  MODIFY_REG(RCC->CCIPR1, RCC_CCIPR1_ICLKSEL, SDMMCxSource);
 }
 
 /**
@@ -2783,9 +3091,26 @@ __STATIC_INLINE void LL_RCC_SetRNGClockSource(uint32_t RNGxSource)
   MODIFY_REG(RCC->CCIPR2, RCC_CCIPR2_RNGSEL, RNGxSource);
 }
 
+#if defined(RCC_CCIPR2_USBPHYCSEL)
+/**
+  * @brief  Configure USBPHY clock source
+  * @rmtoll CCIPR2         USBPHYCSEL        LL_RCC_SetUSBPHYClockSource
+  * @param  Source This parameter can be one of the following values:
+  *         @arg @ref LL_RCC_USBPHYCLKSOURCE_HSE
+  *         @arg @ref LL_RCC_USBPHYCLKSOURCE_HSE_DIV2
+  *         @arg @ref LL_RCC_USBPHYCLKSOURCE_PLL1
+  *         @arg @ref LL_RCC_USBPHYCLKSOURCE_PLL1_DIV2
+  * @retval None
+  */
+__STATIC_INLINE void LL_RCC_SetUSBPHYClockSource(uint32_t Source)
+{
+  MODIFY_REG(RCC->CCIPR2, RCC_CCIPR2_USBPHYCSEL, Source);
+}
+#endif /* RCC_CCIPR2_USBPHYCSEL */
+
 /**
   * @brief  Configure USB clock source
-  * @rmtoll CCIPR1       CLK48MSEL      LL_RCC_SetUSBClockSource
+  * @rmtoll CCIPR1       ICLKSEL      LL_RCC_SetUSBClockSource
   * @param  USBxSource This parameter can be one of the following values:
   *         @arg @ref LL_RCC_USB_CLKSOURCE_HSI48
   *         @arg @ref LL_RCC_USB_CLKSOURCE_PLL1
@@ -2795,7 +3120,7 @@ __STATIC_INLINE void LL_RCC_SetRNGClockSource(uint32_t RNGxSource)
   */
 __STATIC_INLINE void LL_RCC_SetUSBClockSource(uint32_t USBxSource)
 {
-  MODIFY_REG(RCC->CCIPR1, RCC_CCIPR1_CLK48MSEL, USBxSource);
+  MODIFY_REG(RCC->CCIPR1, RCC_CCIPR1_ICLKSEL, USBxSource);
 }
 
 /**
@@ -2875,6 +3200,22 @@ __STATIC_INLINE void LL_RCC_SetOCTOSPIClockSource(uint32_t Source)
   MODIFY_REG(RCC->CCIPR2, RCC_CCIPR2_OCTOSPISEL, Source);
 }
 
+#if defined (HSPI1)
+/**
+  * @brief  Configure HSPI kernel clock source
+  * @rmtoll CCIPR2         HSPISEL        LL_RCC_SetHSPIClockSource
+  * @param  Source This parameter can be one of the following values:
+  *         @arg @ref LL_RCC_HSPI_CLKSOURCE_SYSCLK
+  *         @arg @ref LL_RCC_HSPI_CLKSOURCE_PLL1
+  *         @arg @ref LL_RCC_HSPI_CLKSOURCE_PLL2
+  *         @arg @ref LL_RCC_HSPI_CLKSOURCE_PLL3
+  * @retval None
+  */
+__STATIC_INLINE void LL_RCC_SetHSPIClockSource(uint32_t Source)
+{
+  MODIFY_REG(RCC->CCIPR2, RCC_CCIPR2_HSPISEL, Source);
+}
+#endif /* HSPI1 */
 /**
   * @brief  Configure SAES clock source
   * @rmtoll CCIPR2        SAESSEL        LL_RCC_SetSAESClockSource
@@ -2888,32 +3229,71 @@ __STATIC_INLINE void LL_RCC_SetSAESClockSource(uint32_t Source)
   MODIFY_REG(RCC->CCIPR2, RCC_CCIPR2_SAESSEL, Source);
 }
 
+#if defined(DSI)
+/**
+  * @brief  Configure DSIx clock source
+  * @rmtoll CCIPR2         DSISEL        LL_RCC_SetDSIClockSource
+  * @param  Source This parameter can be one of the following values:
+  *         @arg @ref LL_RCC_DSI_CLKSOURCE_PHY
+  *         @arg @ref LL_RCC_DSI_CLKSOURCE_PLL3
+  * @retval None
+  */
+__STATIC_INLINE void LL_RCC_SetDSIClockSource(uint32_t Source)
+{
+  MODIFY_REG(RCC->CCIPR2, RCC_CCIPR2_DSIHOSTSEL, Source);
+}
+#endif /* DSI */
+
+#if defined(LTDC)
+/**
+  * @brief  Configure LTDCx clock source
+  * @rmtoll CCIPR2         LTDCSEL        LL_RCC_SetLTDCClockSource
+  * @param  Source This parameter can be one of the following values:
+  *         @arg @ref LL_RCC_LTDC_CLKSOURCE_PLL2
+  *         @arg @ref LL_RCC_LTDC_CLKSOURCE_PLL3
+  * @retval None
+  */
+__STATIC_INLINE void LL_RCC_SetLTDCClockSource(uint32_t Source)
+{
+  MODIFY_REG(RCC->CCIPR2, RCC_CCIPR2_LTDCSEL, Source);
+}
+#endif /* LTDC */
 /**
   * @brief  Get USARTx clock source
   * @rmtoll CCIPR1       USART1SEL     LL_RCC_GetUSARTClockSource\n
   *         CCIPR1       USART2SEL     LL_RCC_GetUSARTClockSource\n
-  *         CCIPR1       USART3SEL     LL_RCC_GetUSARTClockSource
+  *         CCIPR1       USART3SEL     LL_RCC_GetUSARTClockSource\n
+  *         CCIPR2       USART6SEL     LL_RCC_GetUSARTClockSource
   * @param  USARTx This parameter can be one of the following values:
   *         @arg @ref LL_RCC_USART1_CLKSOURCE
-  *         @arg @ref LL_RCC_USART2_CLKSOURCE
+  *         @arg @ref LL_RCC_USART2_CLKSOURCE (*)
   *         @arg @ref LL_RCC_USART3_CLKSOURCE
+  *         @arg @ref LL_RCC_USART6_CLKSOURCE (*)
   * @retval Returned value can be one of the following values:
   *         @arg @ref LL_RCC_USART1_CLKSOURCE_PCLK2
   *         @arg @ref LL_RCC_USART1_CLKSOURCE_SYSCLK
   *         @arg @ref LL_RCC_USART1_CLKSOURCE_HSI
   *         @arg @ref LL_RCC_USART1_CLKSOURCE_LSE
-  *         @arg @ref LL_RCC_USART2_CLKSOURCE_PCLK1
-  *         @arg @ref LL_RCC_USART2_CLKSOURCE_SYSCLK
-  *         @arg @ref LL_RCC_USART2_CLKSOURCE_HSI
-  *         @arg @ref LL_RCC_USART2_CLKSOURCE_LSE
+  *         @arg @ref LL_RCC_USART2_CLKSOURCE_PCLK1 (*)
+  *         @arg @ref LL_RCC_USART2_CLKSOURCE_SYSCLK (*)
+  *         @arg @ref LL_RCC_USART2_CLKSOURCE_HSI (*)
+  *         @arg @ref LL_RCC_USART2_CLKSOURCE_LSE (*)
   *         @arg @ref LL_RCC_USART3_CLKSOURCE_PCLK1
   *         @arg @ref LL_RCC_USART3_CLKSOURCE_SYSCLK
   *         @arg @ref LL_RCC_USART3_CLKSOURCE_HSI
   *         @arg @ref LL_RCC_USART3_CLKSOURCE_LSE
+  *         @arg @ref LL_RCC_USART6_CLKSOURCE_PCLK1 (*)
+  *         @arg @ref LL_RCC_USART6_CLKSOURCE_SYSCLK (*)
+  *         @arg @ref LL_RCC_USART6_CLKSOURCE_HSI (*)
+  *         @arg @ref LL_RCC_USART6_CLKSOURCE_LSE (*)
+  *
+  *         (*) Availability depends on devices.
   */
 __STATIC_INLINE uint32_t LL_RCC_GetUSARTClockSource(uint32_t USARTx)
 {
-  return (uint32_t)(READ_BIT(RCC->CCIPR1, USARTx) | (USARTx << 16U));
+  __IO const uint32_t *reg = (__IO uint32_t *)(uint32_t)(RCC_BASE + 0xE0U + (USARTx >> 24U));
+  return (uint32_t)((READ_BIT(*reg, 3UL << ((USARTx & 0x001F0000U) >> 16U)) >> \
+                     ((USARTx & 0x001F0000U) >> 16U)) | (USARTx & 0xFFFF0000U));
 }
 
 /**
@@ -3104,18 +3484,20 @@ __STATIC_INLINE uint32_t LL_RCC_GetFDCANClockSource(uint32_t FDCANx)
   *         CCIPR2       SAI2SEL       LL_RCC_GetSAIClockSource
   * @param  SAIx This parameter can be one of the following values:
   *         @arg @ref LL_RCC_SAI1_CLKSOURCE
-  *         @arg @ref LL_RCC_SAI2_CLKSOURCE
+  *         @arg @ref LL_RCC_SAI2_CLKSOURCE (*)
   * @retval Returned value can be one of the following values:
   *         @arg @ref LL_RCC_SAI1_CLKSOURCE_PLL1
   *         @arg @ref LL_RCC_SAI1_CLKSOURCE_PLL2
   *         @arg @ref LL_RCC_SAI1_CLKSOURCE_PLL3
   *         @arg @ref LL_RCC_SAI1_CLKSOURCE_PIN
   *         @arg @ref LL_RCC_SAI1_CLKSOURCE_HSI
-  *         @arg @ref LL_RCC_SAI2_CLKSOURCE_PLL1
-  *         @arg @ref LL_RCC_SAI2_CLKSOURCE_PLL2
-  *         @arg @ref LL_RCC_SAI2_CLKSOURCE_PLL3
-  *         @arg @ref LL_RCC_SAI2_CLKSOURCE_PIN
-  *         @arg @ref LL_RCC_SAI2_CLKSOURCE_HSI
+  *         @arg @ref LL_RCC_SAI2_CLKSOURCE_PLL1 (*)
+  *         @arg @ref LL_RCC_SAI2_CLKSOURCE_PLL2 (*)
+  *         @arg @ref LL_RCC_SAI2_CLKSOURCE_PLL3 (*)
+  *         @arg @ref LL_RCC_SAI2_CLKSOURCE_PIN (*)
+  *         @arg @ref LL_RCC_SAI2_CLKSOURCE_HSI (*)
+  *
+  *         (*) Availability depends on devices.
   */
 __STATIC_INLINE uint32_t LL_RCC_GetSAIClockSource(uint32_t SAIx)
 {
@@ -3138,7 +3520,7 @@ __STATIC_INLINE uint32_t LL_RCC_GetSDMMCKernelClockSource(uint32_t SDMMCx)
 
 /**
   * @brief  Get SDMMC1/2 clock source
-  * @rmtoll CCIPR1       CLK48MSEL      LL_RCC_GetSDMMC12ClockSource
+  * @rmtoll CCIPR1       ICLKSEL      LL_RCC_GetSDMMCClockSource
   * @param  SDMMCx This parameter can be one of the following values:
   *         @arg @ref LL_RCC_SDMMC_CLKSOURCE
   * @retval Returned value can be one of the following values:
@@ -3167,9 +3549,27 @@ __STATIC_INLINE uint32_t LL_RCC_GetRNGClockSource(uint32_t RNGx)
   return (uint32_t)(READ_BIT(RCC->CCIPR2, RNGx));
 }
 
+#if defined(RCC_CCIPR2_USBPHYCSEL)
+/**
+  * @brief  Get USBPHYx clock source
+  * @rmtoll CCIPR2         USBPHYCSEL        LL_RCC_GetUSBPHYClockSource
+  * @param  USBPHYx This parameter can be one of the following values:
+  *         @arg @ref LL_RCC_USBPHY_CLKSOURCE
+  * @retval Returned value can be one of the following values:
+  *         @arg @ref LL_RCC_USBPHYCLKSOURCE_HSE
+  *         @arg @ref LL_RCC_USBPHYCLKSOURCE_HSE_DIV2
+  *         @arg @ref LL_RCC_USBPHYCLKSOURCE_PLL1
+  *         @arg @ref LL_RCC_USBPHYCLKSOURCE_PLL1_DIV2
+  */
+__STATIC_INLINE uint32_t LL_RCC_GetUSBPHYClockSource(uint32_t USBPHYx)
+{
+  return (uint32_t)(READ_BIT(RCC->CCIPR2, USBPHYx));
+}
+#endif /* RCC_CCIPR2_USBPHYCSEL */
+
 /**
   * @brief  Get USBx clock source
-  * @rmtoll CCIPR1       CLK48MSEL      LL_RCC_GetUSBClockSource
+  * @rmtoll CCIPR1       ICLKSEL      LL_RCC_GetUSBClockSource
   * @param  USBx This parameter can be one of the following values:
   *         @arg @ref LL_RCC_USB_CLKSOURCE
   * @retval Returned value can be one of the following values:
@@ -3263,6 +3663,24 @@ __STATIC_INLINE uint32_t LL_RCC_GetOCTOSPIClockSource(uint32_t OCTOSPIx)
 {
   return (uint32_t)(READ_BIT(RCC->CCIPR2, OCTOSPIx));
 }
+
+#if defined (HSPI1)
+/**
+  * @brief  Get HSPI clock source
+  * @rmtoll CCIPR2         HSPISEL        LL_RCC_GetHSPIClockSource
+  * @param  HSPIx This parameter can be one of the following values:
+  *         @arg @ref LL_RCC_HSPI_CLKSOURCE
+  * @retval Returned value can be one of the following values:
+  *         @arg @ref LL_RCC_HSPI_CLKSOURCE_SYSCLK
+  *         @arg @ref LL_RCC_HSPI_CLKSOURCE_PLL1
+  *         @arg @ref LL_RCC_HSPI_CLKSOURCE_PLL2
+  *         @arg @ref LL_RCC_HSPI_CLKSOURCE_PLL3
+  */
+__STATIC_INLINE uint32_t LL_RCC_GetHSPIClockSource(uint32_t HSPIx)
+{
+  return (uint32_t)(READ_BIT(RCC->CCIPR2, HSPIx));
+}
+#endif /* HSPI1 */
 /**
   * @}
   */
@@ -3280,6 +3698,38 @@ __STATIC_INLINE uint32_t LL_RCC_GetSAESClockSource(uint32_t SAESx)
 {
   return (uint32_t)(READ_BIT(RCC->CCIPR2, SAESx));
 }
+
+#if defined(DSI)
+/**
+  * @brief  Get DSI clock source
+  * @rmtoll CCIPR2         DSISEL        LL_RCC_GetDSIClockSource
+  * @param  DSIx This parameter can be one of the following values:
+  *         @arg @ref LL_RCC_DSI_CLKSOURCE
+  * @retval Returned value can be one of the following values:
+  *         @arg @ref LL_RCC_DSI_CLKSOURCE_PHY
+  *         @arg @ref LL_RCC_DSI_CLKSOURCE_PLL3
+  */
+__STATIC_INLINE uint32_t LL_RCC_GetDSIClockSource(uint32_t DSIx)
+{
+  return (uint32_t)(READ_BIT(RCC->CCIPR2, DSIx));
+}
+#endif /* DSI */
+
+#if defined(LTDC)
+/**
+  * @brief  Get LTDC clock source
+  * @rmtoll CCIPR2         LTDCSEL        LL_RCC_GetLTDCClockSource
+  * @param  LTDCx This parameter can be one of the following values:
+  *         @arg @ref LL_RCC_LTDC_CLKSOURCE
+  * @retval Returned value can be one of the following values:
+  *         @arg @ref LL_RCC_LTDC_CLKSOURCE_PLL2
+  *         @arg @ref LL_RCC_LTDC_CLKSOURCE_PLL3
+  */
+__STATIC_INLINE uint32_t LL_RCC_GetLTDCClockSource(uint32_t LTDCx)
+{
+  return (uint32_t)(READ_BIT(RCC->CCIPR2, LTDCx));
+}
+#endif /* LTDC */
 
 /** @defgroup RCC_LL_EF_RTC RTC
   * @{
@@ -3385,6 +3835,7 @@ __STATIC_INLINE void LL_RCC_PLL1_Enable(void)
 {
   SET_BIT(RCC->CR, RCC_CR_PLL1ON);
 }
+#define LL_RCC_PLL_Enable     LL_RCC_PLL1_Enable    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Disable PLL1
@@ -3396,6 +3847,7 @@ __STATIC_INLINE void LL_RCC_PLL1_Disable(void)
 {
   CLEAR_BIT(RCC->CR, RCC_CR_PLL1ON);
 }
+#define LL_RCC_PLL_Disable     LL_RCC_PLL1_Disable    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Check if PLL1 Ready
@@ -3406,6 +3858,7 @@ __STATIC_INLINE uint32_t LL_RCC_PLL1_IsReady(void)
 {
   return ((READ_BIT(RCC->CR, RCC_CR_PLL1RDY) == RCC_CR_PLL1RDY) ? 1UL : 0UL);
 }
+#define LL_RCC_PLL_IsReady     LL_RCC_PLL1_IsReady    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Configure PLL1 used for SYSCLK Domain
@@ -3421,7 +3874,7 @@ __STATIC_INLINE uint32_t LL_RCC_PLL1_IsReady(void)
   *         @arg @ref LL_RCC_PLL1SOURCE_HSI
   *         @arg @ref LL_RCC_PLL1SOURCE_HSE
   * @param PLLM parameter can be a value between 1 and 16
-  * @param PLLR parameter can be a value between 1 and 128
+  * @param PLLR parameter can be a value between 1 and 128 (Only division by 1 and even division are allowed)
   * @param PLLN parameter can be a value between 4 and 512
   * @retval None
   */
@@ -3433,6 +3886,7 @@ __STATIC_INLINE void LL_RCC_PLL1_ConfigDomain_SYS(uint32_t Source, uint32_t PLLM
                                                                       RCC_PLL1DIVR_PLL1N_Pos) | ((PLLR - 1UL) << \
                                                                           RCC_PLL1DIVR_PLL1R_Pos));
 }
+#define LL_RCC_PLL_ConfigDomain_SYS     LL_RCC_PLL1_ConfigDomain_SYS    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Configure PLL1 used for SAI domain clock
@@ -3449,7 +3903,7 @@ __STATIC_INLINE void LL_RCC_PLL1_ConfigDomain_SYS(uint32_t Source, uint32_t PLLM
   *         @arg @ref LL_RCC_PLL1SOURCE_HSE
   * @param PLLM parameter can be a value between 1 and 16
   * @param PLLN parameter can be a value between 4 and 512
-  * @param PLLP parameter can be a value between 2 and 128
+  * @param PLLP parameter can be a value between 1 and 128
   * @retval None
   */
 __STATIC_INLINE void LL_RCC_PLL1_ConfigDomain_SAI(uint32_t Source, uint32_t PLLM, uint32_t PLLN, uint32_t PLLP)
@@ -3460,6 +3914,7 @@ __STATIC_INLINE void LL_RCC_PLL1_ConfigDomain_SAI(uint32_t Source, uint32_t PLLM
                                                                       RCC_PLL1DIVR_PLL1N_Pos) | ((PLLP - 1UL) << \
                                                                           RCC_PLL1DIVR_PLL1P_Pos));
 }
+#define LL_RCC_PLL_ConfigDomain_SAI     LL_RCC_PLL1_ConfigDomain_SAI    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Configure PLL1 used for 48Mhz domain clock
@@ -3487,6 +3942,7 @@ __STATIC_INLINE void LL_RCC_PLL1_ConfigDomain_48M(uint32_t Source, uint32_t PLLM
                                                                       RCC_PLL1DIVR_PLL1N_Pos) | ((PLLQ - 1UL) << \
                                                                           RCC_PLL1DIVR_PLL1Q_Pos));
 }
+#define LL_RCC_PLL_ConfigDomain_48M     LL_RCC_PLL1_ConfigDomain_48M    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Configure PLL clock source
@@ -3502,6 +3958,7 @@ __STATIC_INLINE void LL_RCC_PLL1_SetMainSource(uint32_t PLL1Source)
 {
   MODIFY_REG(RCC->PLL1CFGR, RCC_PLL1CFGR_PLL1SRC, PLL1Source);
 }
+#define LL_RCC_PLL_SetMainSource     LL_RCC_PLL1_SetMainSource    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Get the oscillator used as PLL1 clock source.
@@ -3516,6 +3973,7 @@ __STATIC_INLINE uint32_t LL_RCC_PLL1_GetMainSource(void)
 {
   return (uint32_t)(READ_BIT(RCC->PLL1CFGR, RCC_PLL1CFGR_PLL1SRC));
 }
+#define LL_RCC_PLL_GetMainSource     LL_RCC_PLL1_GetMainSource    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Set Main PLL1 multiplication factor for VCO
@@ -3526,6 +3984,7 @@ __STATIC_INLINE void LL_RCC_PLL1_SetN(uint32_t PLL1N)
 {
   MODIFY_REG(RCC->PLL1DIVR, RCC_PLL1DIVR_PLL1N, (PLL1N - 1UL) << RCC_PLL1DIVR_PLL1N_Pos);
 }
+#define LL_RCC_PLL_SetN     LL_RCC_PLL1_SetN    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Get Main PLL1 multiplication factor for VCO
@@ -3536,30 +3995,31 @@ __STATIC_INLINE uint32_t LL_RCC_PLL1_GetN(void)
 {
   return (uint32_t)((READ_BIT(RCC->PLL1DIVR, RCC_PLL1DIVR_PLL1N) >>  RCC_PLL1DIVR_PLL1N_Pos) + 1UL);
 }
-
+#define LL_RCC_PLL_GetN     LL_RCC_PLL1_GetN    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Set Main PLL1 division factor for PLL1P
   * @note Used for SAI1 and SAI2 clock
   * @rmtoll PLL1CFGR      PLL1P       LL_RCC_PLL1_SetP
-  * @param PLL1P parameter can be a value between 2 and 128
+  * @param PLL1P parameter can be a value between 1 and 128
   */
 __STATIC_INLINE void LL_RCC_PLL1_SetP(uint32_t PLL1P)
 {
   MODIFY_REG(RCC->PLL1DIVR, RCC_PLL1DIVR_PLL1P, (PLL1P - 1UL) << RCC_PLL1DIVR_PLL1P_Pos);
 }
+#define LL_RCC_PLL_SetP     LL_RCC_PLL1_SetP    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Get Main PLL1 division factor for PLL1P
   * @note Used for SAI1 and SAI2 clock
   * @rmtoll PLL1CFGR      PLL1P      LL_RCC_PLL1_GetP
-  * @retval Between 2 and 128
+  * @retval Between 1 and 128
   */
 __STATIC_INLINE uint32_t LL_RCC_PLL1_GetP(void)
 {
   return (uint32_t)((READ_BIT(RCC->PLL1DIVR, RCC_PLL1DIVR_PLL1P) >>  RCC_PLL1DIVR_PLL1P_Pos) + 1UL);
 }
-
+#define LL_RCC_PLL_GetP     LL_RCC_PLL1_GetP    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Set Main PLL division factor for PLLQ
@@ -3571,6 +4031,7 @@ __STATIC_INLINE void LL_RCC_PLL1_SetQ(uint32_t PLL1Q)
 {
   MODIFY_REG(RCC->PLL1DIVR, RCC_PLL1DIVR_PLL1Q, (PLL1Q - 1UL) << RCC_PLL1DIVR_PLL1Q_Pos);
 }
+#define LL_RCC_PLL_SetQ     LL_RCC_PLL1_SetQ    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Get Main PLL division factor for PLLQ
@@ -3582,17 +4043,19 @@ __STATIC_INLINE uint32_t LL_RCC_PLL1_GetQ(void)
 {
   return (uint32_t)((READ_BIT(RCC->PLL1DIVR, RCC_PLL1DIVR_PLL1Q) >>  RCC_PLL1DIVR_PLL1Q_Pos) + 1UL);
 }
+#define LL_RCC_PLL_GetQ     LL_RCC_PLL1_GetQ    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Set Main PLL division factor for PLL1R
   * @note Used for PLL1CLK selected for USB, SDMMC (48 MHz clock)
   * @rmtoll PLL1DIVR      PLL1R          LL_RCC_PLL1_SetR
-  * @param PLL1R parameter can be a value between 1 and 128
+  * @param PLL1R parameter can be a value between 1 and 128 (Only division by 1 and even division are allowed)
   */
 __STATIC_INLINE void LL_RCC_PLL1_SetR(uint32_t PLL1R)
 {
   MODIFY_REG(RCC->PLL1DIVR, RCC_PLL1DIVR_PLL1R, (PLL1R - 1UL) << RCC_PLL1DIVR_PLL1R_Pos);
 }
+#define LL_RCC_PLL_SetR     LL_RCC_PLL1_SetR    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Get Main PLL1 division factor for PLL1R
@@ -3604,6 +4067,7 @@ __STATIC_INLINE uint32_t LL_RCC_PLL1_GetR(void)
 {
   return (uint32_t)((READ_BIT(RCC->PLL1DIVR, RCC_PLL1DIVR_PLL1R) >>  RCC_PLL1DIVR_PLL1R_Pos) + 1UL);
 }
+#define LL_RCC_PLL_GetR     LL_RCC_PLL1_GetR    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Set Division factor for the main PLL and other PLL
@@ -3614,6 +4078,7 @@ __STATIC_INLINE void LL_RCC_PLL1_SetDivider(uint32_t PLL1M)
 {
   MODIFY_REG(RCC->PLL1CFGR, RCC_PLL1CFGR_PLL1M, (PLL1M - 1UL) << RCC_PLL1CFGR_PLL1M_Pos);
 }
+#define LL_RCC_PLL_SetDivider     LL_RCC_PLL1_SetDivider    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Get Division factor for the main PLL and other PLL
@@ -3624,6 +4089,7 @@ __STATIC_INLINE uint32_t LL_RCC_PLL1_GetDivider(void)
 {
   return (uint32_t)((READ_BIT(RCC->PLL1CFGR, RCC_PLL1CFGR_PLL1M) >>  RCC_PLL1CFGR_PLL1M_Pos) + 1UL);
 }
+#define LL_RCC_PLL_GetDivider     LL_RCC_PLL1_GetDivider    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Enable PLL1 output mapped on SAI domain clock
@@ -3634,6 +4100,7 @@ __STATIC_INLINE void LL_RCC_PLL1_EnableDomain_SAI(void)
 {
   SET_BIT(RCC->PLL1CFGR, RCC_PLL1CFGR_PLL1PEN);
 }
+#define LL_RCC_PLL_EnableDomain_SAI     LL_RCC_PLL1_EnableDomain_SAI    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Disable PLL1 output mapped on SAI domain clock
@@ -3648,6 +4115,18 @@ __STATIC_INLINE void LL_RCC_PLL1_DisableDomain_SAI(void)
 {
   CLEAR_BIT(RCC->PLL1CFGR, RCC_PLL1CFGR_PLL1PEN);
 }
+#define LL_RCC_PLL_DisableDomain_SAI     LL_RCC_PLL1_DisableDomain_SAI    /*!< alias for compatibility with legacy code */
+
+/**
+  * @brief  Check if PLL1 output mapped on SAI domain clock is enabled
+  * @rmtoll PLL1CFGR      PLL1PEN        LL_RCC_PLL1_IsEnabledDomain_SAI
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_RCC_PLL1_IsEnabledDomain_SAI(void)
+{
+  return ((READ_BIT(RCC->PLL1CFGR, RCC_PLL1CFGR_PLL1PEN) == (RCC_PLL1CFGR_PLL1PEN)) ? 1UL : 0UL);
+}
+#define LL_RCC_PLL_IsEnabledDomain_SAI     LL_RCC_PLL1_IsEnabledDomain_SAI    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Enable PLL output mapped on 48MHz domain clock
@@ -3672,6 +4151,18 @@ __STATIC_INLINE void LL_RCC_PLL1_DisableDomain_48M(void)
 {
   CLEAR_BIT(RCC->PLL1CFGR, RCC_PLL1CFGR_PLL1QEN);
 }
+#define LL_RCC_PLL_DisableDomain_48M     LL_RCC_PLL1_DisableDomain_48M    /*!< alias for compatibility with legacy code */
+
+/**
+  * @brief  Check if PLL1 output mapped on 48M domain clock is enabled
+  * @rmtoll PLL1CFGR      PLL1QEN        LL_RCC_PLL1_IsEnabledDomain_48M
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_RCC_PLL1_IsEnabledDomain_48M(void)
+{
+  return ((READ_BIT(RCC->PLL1CFGR, RCC_PLL1CFGR_PLL1QEN) == (RCC_PLL1CFGR_PLL1QEN)) ? 1UL : 0UL);
+}
+#define LL_RCC_PLL_IsEnabledDomain_48M     LL_RCC_PLL1_IsEnabledDomain_48M    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Enable PLL1 output mapped on SYSCLK domain
@@ -3682,6 +4173,7 @@ __STATIC_INLINE void LL_RCC_PLL1_EnableDomain_SYS(void)
 {
   SET_BIT(RCC->PLL1CFGR, RCC_PLL1CFGR_PLL1REN);
 }
+#define LL_RCC_PLL_EnableDomain_SYS     LL_RCC_PLL1_EnableDomain_SYS    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Disable PLL1 output mapped on SYSCLK domain
@@ -3696,6 +4188,18 @@ __STATIC_INLINE void LL_RCC_PLL1_DisableDomain_SYS(void)
 {
   CLEAR_BIT(RCC->PLL1CFGR, RCC_PLL1CFGR_PLL1REN);
 }
+#define LL_RCC_PLL_DisableDomain_SYS     LL_RCC_PLL1_DisableDomain_SYS    /*!< alias for compatibility with legacy code */
+
+/**
+  * @brief  Check if PLL1 output mapped on SYS domain clock is enabled
+  * @rmtoll PLL1CFGR      PLL1REN        LL_RCC_PLL1_IsEnabledDomain_SYS
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_RCC_PLL1_IsEnabledDomain_SYS(void)
+{
+  return ((READ_BIT(RCC->PLL1CFGR, RCC_PLL1CFGR_PLL1REN) == (RCC_PLL1CFGR_PLL1REN)) ? 1UL : 0UL);
+}
+#define LL_RCC_PLL_IsEnabledDomain_SYS     LL_RCC_PLL1_IsEnabledDomain_SYS    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Enable PLL1 FRACN
@@ -3706,6 +4210,7 @@ __STATIC_INLINE void LL_RCC_PLL1FRACN_Enable(void)
 {
   SET_BIT(RCC->PLL1CFGR, RCC_PLL1CFGR_PLL1FRACEN);
 }
+#define LL_RCC_PLLFRACN_Enable     LL_RCC_PLL1FRACN_Enable    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Check if PLL1 FRACN is enabled
@@ -3716,6 +4221,7 @@ __STATIC_INLINE uint32_t LL_RCC_PLL1FRACN_IsEnabled(void)
 {
   return ((READ_BIT(RCC->PLL1CFGR, RCC_PLL1CFGR_PLL1FRACEN) == RCC_PLL1CFGR_PLL1FRACEN) ? 1UL : 0UL);
 }
+#define LL_RCC_PLLFRACN_IsEnabled     LL_RCC_PLL1FRACN_IsEnabled    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Disable PLL1 FRACN
@@ -3726,6 +4232,7 @@ __STATIC_INLINE void LL_RCC_PLL1FRACN_Disable(void)
 {
   CLEAR_BIT(RCC->PLL1CFGR, RCC_PLL1CFGR_PLL1FRACEN);
 }
+#define LL_RCC_PLLFRACN_Disable     LL_RCC_PLL1FRACN_Disable    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Set PLL1 FRACN Coefficient
@@ -3736,6 +4243,7 @@ __STATIC_INLINE void LL_RCC_PLL1_SetFRACN(uint32_t FRACN)
 {
   MODIFY_REG(RCC->PLL1FRACR, RCC_PLL1FRACR_PLL1FRACN, FRACN << RCC_PLL1FRACR_PLL1FRACN_Pos);
 }
+#define LL_RCC_PLL_SetFRACN     LL_RCC_PLL1_SetFRACN    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Get PLL1 FRACN Coefficient
@@ -3746,6 +4254,7 @@ __STATIC_INLINE uint32_t LL_RCC_PLL1_GetFRACN(void)
 {
   return (uint32_t)(READ_BIT(RCC->PLL1FRACR, RCC_PLL1FRACR_PLL1FRACN) >>  RCC_PLL1FRACR_PLL1FRACN_Pos);
 }
+#define LL_RCC_PLL_GetFRACN     LL_RCC_PLL1_GetFRACN    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Set PLL1 VCO Input Range
@@ -3758,8 +4267,9 @@ __STATIC_INLINE uint32_t LL_RCC_PLL1_GetFRACN(void)
   */
 __STATIC_INLINE void LL_RCC_PLL1_SetVCOInputRange(uint32_t InputRange)
 {
-  MODIFY_REG(RCC->PLL1CFGR, RCC_PLL1CFGR_PLL1RGE, InputRange << RCC_PLL1CFGR_PLL1RGE_Pos);
+  MODIFY_REG(RCC->PLL1CFGR, RCC_PLL1CFGR_PLL1RGE, InputRange);
 }
+#define LL_RCC_PLL_SetVCOInputRange     LL_RCC_PLL1_SetVCOInputRange    /*!< alias for compatibility with legacy code */
 
 /**
   * @brief  Set PLL1 EPOD Prescaler booster input clock
@@ -3879,7 +4389,7 @@ __STATIC_INLINE void LL_RCC_PLL2_ConfigDomain_48M(uint32_t Source, uint32_t PLLM
   *         @arg @ref LL_RCC_PLL2SOURCE_HSE
   * @param PLLM parameter can be a value between 1 and 16
   * @param PLLN parameter can be a value between 4 and 512
-  * @param PLLP parameter can be a value between 2 and 128
+  * @param PLLP parameter can be a value between 1 and 128
   * @retval None
   */
 __STATIC_INLINE void LL_RCC_PLL2_ConfigDomain_SAI(uint32_t Source, uint32_t PLLM, uint32_t PLLN, uint32_t PLLP)
@@ -3972,7 +4482,7 @@ __STATIC_INLINE uint32_t LL_RCC_PLL2_GetN(void)
   * @brief  Set Main PLL2 division factor for PLL2P
   * @note Used for SAI1 and SAI2 clock
   * @rmtoll PLL2CFGR      PLL2P       LL_RCC_PLL2_SetP
-  * @param PLL2P parameter can be a value between 2 and 128
+  * @param PLL2P parameter can be a value between 1 and 128
   */
 __STATIC_INLINE void LL_RCC_PLL2_SetP(uint32_t PLL2P)
 {
@@ -3983,7 +4493,7 @@ __STATIC_INLINE void LL_RCC_PLL2_SetP(uint32_t PLL2P)
   * @brief  Get Main PLL2 division factor for PLL2P
   * @note Used for SAI1 and SAI2 clock
   * @rmtoll PLL2CFGR      PLL2P      LL_RCC_PLL2_GetP
-  * @retval Between 2 and 128
+  * @retval Between 1 and 128
   */
 __STATIC_INLINE uint32_t LL_RCC_PLL2_GetP(void)
 {
@@ -4078,6 +4588,16 @@ __STATIC_INLINE void LL_RCC_PLL2_DisableDomain_SAI(void)
 }
 
 /**
+  * @brief  Check if PLL2 output mapped on SAI domain clock is enabled
+  * @rmtoll PLL2CFGR      PLL2PEN        LL_RCC_PLL2_IsEnabledDomain_SAI
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_RCC_PLL2_IsEnabledDomain_SAI(void)
+{
+  return ((READ_BIT(RCC->PLL2CFGR, RCC_PLL2CFGR_PLL2PEN) == (RCC_PLL2CFGR_PLL2PEN)) ? 1UL : 0UL);
+}
+
+/**
   * @brief  Enable PLL2 output mapped on 48MHz domain clock
   * @rmtoll PLL2CFGR  PLL2QEN    LL_RCC_PLL2_EnableDomain_48M
   * @retval None
@@ -4089,7 +4609,7 @@ __STATIC_INLINE void LL_RCC_PLL2_EnableDomain_48M(void)
 
 /**
   * @brief  Disable PLL2 output mapped on 48MHz domain clock
-  * @note In order to save power, when  of the PLLSAI1 is
+  * @note In order to save power, when  of the PLL2 48M is
   *       not used,  should be 0
   * @rmtoll PLL2CFGR  PLL2QEN    LL_RCC_PLL2_DisableDomain_48M
   * @retval None
@@ -4097,6 +4617,16 @@ __STATIC_INLINE void LL_RCC_PLL2_EnableDomain_48M(void)
 __STATIC_INLINE void LL_RCC_PLL2_DisableDomain_48M(void)
 {
   CLEAR_BIT(RCC->PLL2CFGR, RCC_PLL2CFGR_PLL2QEN);
+}
+
+/**
+  * @brief  Check if PLL2 output mapped on 48M domain clock is enabled
+  * @rmtoll PLL2CFGR      PLL2QEN        LL_RCC_PLL2_IsEnabledDomain_48M
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_RCC_PLL2_IsEnabledDomain_48M(void)
+{
+  return ((READ_BIT(RCC->PLL2CFGR, RCC_PLL2CFGR_PLL2QEN) == (RCC_PLL2CFGR_PLL2QEN)) ? 1UL : 0UL);
 }
 
 /**
@@ -4111,14 +4641,24 @@ __STATIC_INLINE void LL_RCC_PLL2_EnableDomain_ADC(void)
 
 /**
   * @brief  Disable PLL2 output mapped on ADC domain clock
-  * @note In order to save power, when  of the PLLSAI1 is
-  *       not used, Main PLLSAI1  should be 0
+  * @note In order to save power, when  of the PLL2 ADC is
+  *       not used, Main PLL2ADC  should be 0
   * @rmtoll PLL2CFGR  PLL2REN    LL_RCC_PLL2_DisableDomain_ADC
   * @retval None
   */
 __STATIC_INLINE void LL_RCC_PLL2_DisableDomain_ADC(void)
 {
   CLEAR_BIT(RCC->PLL2CFGR, RCC_PLL2CFGR_PLL2REN);
+}
+
+/**
+  * @brief  Check if PLL2 output mapped on ADC domain clock is enabled
+  * @rmtoll PLL2CFGR      PLL2REN        LL_RCC_PLL2_IsEnabledDomain_ADC
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_RCC_PLL2_IsEnabledDomain_ADC(void)
+{
+  return ((READ_BIT(RCC->PLL2CFGR, RCC_PLL2CFGR_PLL2REN) == (RCC_PLL2CFGR_PLL2REN)) ? 1UL : 0UL);
 }
 
 /**
@@ -4182,7 +4722,7 @@ __STATIC_INLINE uint32_t LL_RCC_PLL2_GetFRACN(void)
   */
 __STATIC_INLINE void LL_RCC_PLL2_SetVCOInputRange(uint32_t InputRange)
 {
-  MODIFY_REG(RCC->PLL2CFGR, RCC_PLL2CFGR_PLL2RGE, InputRange << RCC_PLL2CFGR_PLL2RGE_Pos);
+  MODIFY_REG(RCC->PLL2CFGR, RCC_PLL2CFGR_PLL2RGE, InputRange);
 }
 
 /**
@@ -4238,7 +4778,7 @@ __STATIC_INLINE uint32_t LL_RCC_PLL3_IsReady(void)
   *         @arg @ref LL_RCC_PLL3SOURCE_HSE
   * @param PLLM parameter can be a value between 1 and 16
   * @param PLLN parameter can be a value between 4 and 512
-  * @param PLLP parameter can be a value between 2 and 128
+  * @param PLLP parameter can be a value between 1 and 128
   * @retval None
   */
 __STATIC_INLINE void LL_RCC_PLL3_ConfigDomain_SAI(uint32_t Source, uint32_t PLLM, uint32_t PLLN, uint32_t PLLP)
@@ -4278,6 +4818,37 @@ __STATIC_INLINE void LL_RCC_PLL3_ConfigDomain_48M(uint32_t Source, uint32_t PLLM
                                                                           RCC_PLL3DIVR_PLL3Q_Pos));
 }
 
+
+#if defined(LTDC) || defined(HSPI1)
+
+/**
+  * @brief  Configure PLL3 used for HSPI_LTDC domain clock
+  * @note PLL3 Source, PLLM, PLLN and PLLR can be written only when PLL3 is disabled.
+  * @note This  can be selected for HSPI and LTDC
+  * @rmtoll PLL3CFGR      PLL3SRC        LL_RCC_PLL3_ConfigDomain_HSPI_LTDC\n
+  *         PLL3CFGR      PLL3M          LL_RCC_PLL3_ConfigDomain_HSPI_LTDC\n
+  *         PLL3CFGR      PLL3N          LL_RCC_PLL3_ConfigDomain_HSPI_LTDC\n
+  *         PLL3CFGR      PLL3R          LL_RCC_PLL3_ConfigDomain_HSPI_LTDC
+  * @param  Source This parameter can be one of the following values:
+  *         @arg @ref LL_RCC_PLL3SOURCE_NONE
+  *         @arg @ref LL_RCC_PLL3SOURCE_MSIS
+  *         @arg @ref LL_RCC_PLL3SOURCE_HSI
+  *         @arg @ref LL_RCC_PLL3SOURCE_HSE
+  * @param PLLM parameter can be a value between 1 and 16
+  * @param PLLN parameter can be a value between 4 and 512
+  * @param PLLR parameter can be a value between 1 and 128
+  * @retval None
+  */
+__STATIC_INLINE void LL_RCC_PLL3_ConfigDomain_HSPI_LTDC(uint32_t Source, uint32_t PLLM, uint32_t PLLN, uint32_t PLLR)
+{
+  MODIFY_REG(RCC->PLL3CFGR, RCC_PLL3CFGR_PLL3SRC | RCC_PLL3CFGR_PLL3M, Source | \
+             ((PLLM - 1UL) << RCC_PLL3CFGR_PLL3M_Pos));
+  MODIFY_REG(RCC->PLL3DIVR, RCC_PLL3DIVR_PLL3N | RCC_PLL3DIVR_PLL3R, ((PLLN - 1UL) << \
+                                                                      RCC_PLL3DIVR_PLL3N_Pos) | ((PLLR - 1UL) << \
+                                                                          RCC_PLL3DIVR_PLL3R_Pos));
+}
+
+#endif /* LTDC || HSPI1 */
 
 /**
   * @brief  Configure PLL3 clock source
@@ -4333,7 +4904,7 @@ __STATIC_INLINE uint32_t LL_RCC_PLL3_GetN(void)
   * @brief  Set Main PLL3 division factor for PLL3P
   * @note Used for SAI1 and SAI2 clock
   * @rmtoll PLL3CFGR      PLL3P       LL_RCC_PLL3_SetP
-  * @param PLL3P parameter can be a value between 2 and 128
+  * @param PLL3P parameter can be a value between 1 and 128
   */
 __STATIC_INLINE void LL_RCC_PLL3_SetP(uint32_t PLL3P)
 {
@@ -4344,7 +4915,7 @@ __STATIC_INLINE void LL_RCC_PLL3_SetP(uint32_t PLL3P)
   * @brief  Get Main PLL3 division factor for PLL3P
   * @note Used for SAI1 and SAI2 clock
   * @rmtoll PLL3CFGR      PLL3P      LL_RCC_PLL3_GetP
-  * @retval Between 2 and 128
+  * @retval Between 1 and 128
   */
 __STATIC_INLINE uint32_t LL_RCC_PLL3_GetP(void)
 {
@@ -4439,6 +5010,16 @@ __STATIC_INLINE void LL_RCC_PLL3_DisableDomain_SAI(void)
 }
 
 /**
+  * @brief  Check if PLL3 output mapped on SAI domain clock is enabled
+  * @rmtoll PLL3CFGR      PLL3PEN        LL_RCC_PLL3_IsEnabledDomain_SAI
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_RCC_PLL3_IsEnabledDomain_SAI(void)
+{
+  return ((READ_BIT(RCC->PLL3CFGR, RCC_PLL3CFGR_PLL3PEN) == (RCC_PLL3CFGR_PLL3PEN)) ? 1UL : 0UL);
+}
+
+/**
   * @brief  Enable PLL2 output mapped on 48MHz domain clock
   * @rmtoll PLL3CFGR  PLL3QEN    LL_RCC_PLL3_EnableDomain_48M
   * @retval None
@@ -4459,6 +5040,53 @@ __STATIC_INLINE void LL_RCC_PLL3_DisableDomain_48M(void)
 {
   CLEAR_BIT(RCC->PLL3CFGR, RCC_PLL3CFGR_PLL3QEN);
 }
+
+/**
+  * @brief  Check if PLL3 output mapped on 48M domain clock is enabled
+  * @rmtoll PLL3CFGR      PLL3QEN        LL_RCC_PLL3_IsEnabledDomain_48M
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_RCC_PLL3_IsEnabledDomain_48M(void)
+{
+  return ((READ_BIT(RCC->PLL3CFGR, RCC_PLL3CFGR_PLL3QEN) == (RCC_PLL3CFGR_PLL3QEN)) ? 1UL : 0UL);
+}
+
+#if defined(LTDC) || defined(HSPI1)
+
+/**
+  * @brief  Enable PLL3 output mapped on HSPI_LTDC domain clock
+  * @rmtoll PLL3CFGR  PLL3REN    LL_RCC_PLL3_EnableDomain_HSPI_LTDC
+  * @retval None
+  */
+__STATIC_INLINE void LL_RCC_PLL3_EnableDomain_HSPI_LTDC(void)
+{
+  SET_BIT(RCC->PLL3CFGR, RCC_PLL3CFGR_PLL3REN);
+}
+
+/**
+  * @brief  Disable PLL3 output mapped on HSPI_LTDC domain clock
+  * @note In order to save power, when  of the PLL3 is
+  *       not used,  should be 0
+  * @rmtoll PLL3CFGR  PLL3REN    LL_RCC_PLL3_DisableDomain_HSPI_LTDC
+  * @retval None
+  */
+__STATIC_INLINE void LL_RCC_PLL3_DisableDomain_HSPI_LTDC(void)
+{
+  CLEAR_BIT(RCC->PLL3CFGR, RCC_PLL3CFGR_PLL3REN);
+}
+
+/**
+  * @brief  Check if PLL3 output mapped on HSPI_LTDC domain clock is enabled
+  * @rmtoll PLL3CFGR      PLL3REN        LL_RCC_PLL3_IsEnabledDomain_HSPI_LTDC
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_RCC_PLL3_IsEnabledDomain_HSPI_LTDC(void)
+{
+  return ((READ_BIT(RCC->PLL3CFGR, RCC_PLL3CFGR_PLL3REN) == (RCC_PLL3CFGR_PLL3REN)) ? 1UL : 0UL);
+}
+
+#endif /* LTDC || HSPI1 */
+
 
 /**
   * @brief  Enable PLL3 FRACN
@@ -4521,7 +5149,7 @@ __STATIC_INLINE uint32_t LL_RCC_PLL3_GetFRACN(void)
   */
 __STATIC_INLINE void LL_RCC_PLL3_SetVCOInputRange(uint32_t InputRange)
 {
-  MODIFY_REG(RCC->PLL3CFGR, RCC_PLL3CFGR_PLL3RGE, InputRange << RCC_PLL3CFGR_PLL3RGE_Pos);
+  MODIFY_REG(RCC->PLL3CFGR, RCC_PLL3CFGR_PLL3RGE, InputRange);
 }
 
 /**
@@ -4532,8 +5160,75 @@ __STATIC_INLINE void LL_RCC_PLL3_SetVCOInputRange(uint32_t InputRange)
   * @{
   */
 
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+/**
+  * @brief  Enable Secure Privileged mode
+  * @rmtoll PRIVCFGR       SPRIV         LL_RCC_EnableSecPrivilegedMode
+  * @retval None
+  */
+__STATIC_INLINE void LL_RCC_EnableSecPrivilegedMode(void)
+{
+  SET_BIT(RCC->PRIVCFGR, RCC_PRIVCFGR_SPRIV);
+}
+
+/**
+  * @brief  Disable Secure Privileged mode
+  * @rmtoll PRIVCFGR           SPRIV          LL_RCC_DisableSecPrivilegedMode
+  * @retval None
+  */
+__STATIC_INLINE void LL_RCC_DisableSecPrivilegedMode(void)
+{
+  CLEAR_BIT(RCC->PRIVCFGR, RCC_PRIVCFGR_SPRIV);
+}
+
+#endif /* __ARM_FEATURE_CMSE && (__ARM_FEATURE_CMSE == 3U) */
+
+/**
+  * @brief  Check if Secure Privileged mode has been enabled or not
+  * @rmtoll PRIVCFGR           SPRIV          LL_RCC_IsEnabledSecPrivilegedMode
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_RCC_IsEnabledSecPrivilegedMode(void)
+{
+  return ((READ_BIT(RCC->PRIVCFGR, RCC_PRIVCFGR_SPRIV) == RCC_PRIVCFGR_SPRIV) ? 1UL : 0UL);
+}
+
+/**
+  * @brief  Enable Non Secure Privileged mode
+  * @rmtoll PRIVCFGR       NSPRIV        LL_RCC_EnableNSecPrivilegedMode
+  * @retval None
+  */
+__STATIC_INLINE void LL_RCC_EnableNSecPrivilegedMode(void)
+{
+  SET_BIT(RCC->PRIVCFGR, RCC_PRIVCFGR_NSPRIV);
+}
+
+/**
+  * @brief  Disable Non Secure Privileged mode
+  * @rmtoll PRIVCFGR           NSPRIV          LL_RCC_DisableNSecPrivilegedMode
+  * @retval None
+  */
+__STATIC_INLINE void LL_RCC_DisableNSecPrivilegedMode(void)
+{
+  CLEAR_BIT(RCC->PRIVCFGR, RCC_PRIVCFGR_NSPRIV);
+}
+
+/**
+  * @brief  Check if Non Secure Privileged mode has been enabled or not
+  * @rmtoll PRIVCFGR           NSPRIV          LL_RCC_IsEnabledNSecPrivilegedMode
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_RCC_IsEnabledNSecPrivilegedMode(void)
+{
+  return ((READ_BIT(RCC->PRIVCFGR, RCC_PRIVCFGR_NSPRIV) == RCC_PRIVCFGR_NSPRIV) ? 1UL : 0UL);
+}
+
+
 /**
   * @brief  Enable privileged mode
+  * @note   User should use LL_RCC_EnableSecPrivilegedMode() to enable Secure privilege
+  *         User should use LL_RCC_EnableNSecPrivilegedMode() to enable Non-secure privilege
+  *         This API is kept for legacy purpose only
   * @rmtoll PRIVCFGR       SPRIV         LL_RCC_EnablePrivilegedMode
   * @rmtoll PRIVCFGR       NSPRIV        LL_RCC_EnablePrivilegedMode
   * @retval None
@@ -4549,6 +5244,9 @@ __STATIC_INLINE void LL_RCC_EnablePrivilegedMode(void)
 
 /**
   * @brief  Disable Privileged mode
+  * @note   User should use LL_RCC_DisableSecPrivilegedMode() to disable Secure privilege
+  *         User should use LL_RCC_DisableNSecPrivilegedMode() to disable Non-secure privilege
+  *         This API is kept for legacy purpose only
   * @rmtoll CR           PRIV          LL_RCC_DisablePrivilegedMode
   * @retval None
   */
@@ -4563,6 +5261,9 @@ __STATIC_INLINE void LL_RCC_DisablePrivilegedMode(void)
 
 /**
   * @brief  Check if Privileged mode has been enabled or not
+  * @note   User should use LL_RCC_IsEnabledSecPrivilegedMode() to check Secure privilege setting
+  *         User should use LL_RCC_IsEnabledNSecPrivilegedMode() to check Non-secure privilege setting
+  *         This API is kept for legacy purpose only
   * @rmtoll CR           PRIV          LL_RCC_IsEnabledPrivilegedMode
   * @retval State of bit (1 or 0).
   */
@@ -4808,7 +5509,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_HSECSS(void)
 
 /**
   * @brief  Check if Clock security system interrupt occurred or not
-  * @rmtoll CIFR         MSIKRDYF          LL_RCC_IsActiveFlag_MSIKRDYF
+  * @rmtoll CIFR         MSIKRDYF          LL_RCC_IsActiveFlag_MSIKRDY
   * @retval State of bit (1 or 0).
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_MSIKRDY(void)
@@ -4819,7 +5520,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_MSIKRDY(void)
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 /**
   * @brief  Check if Clock security system interrupt occurred or not
-  * @rmtoll CIFR         SHSIRDYF          LL_RCC_IsActiveFlag_SHSIRDYF
+  * @rmtoll CIFR         SHSIRDYF          LL_RCC_IsActiveFlag_SHSIRDY
   * @retval State of bit (1 or 0).
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_SHSIRDY(void)
@@ -5372,6 +6073,15 @@ uint32_t    LL_RCC_GetDAC1ClockFreq(uint32_t DAC1Source);
 uint32_t    LL_RCC_GetOCTOSPIClockFreq(uint32_t OCTOSPIxSource);
 uint32_t    LL_RCC_GetSAESClockFreq(uint32_t SAESxSource);
 uint32_t    LL_RCC_GetSPIClockFreq(uint32_t SPIxSource);
+#if defined(DSI)
+uint32_t    LL_RCC_GetDSIClockFreq(uint32_t DSIxSource);
+#endif /* DSI */
+#if defined(HSPI1)
+uint32_t    LL_RCC_GetHSPIClockFreq(uint32_t HSPIxSource);
+#endif /* HSPI1 */
+#if defined(LTDC)
+uint32_t    LL_RCC_GetLTDCClockFreq(uint32_t LTDCxSource);
+#endif /* defined(LTDC) */
 /**
   * @}
   */

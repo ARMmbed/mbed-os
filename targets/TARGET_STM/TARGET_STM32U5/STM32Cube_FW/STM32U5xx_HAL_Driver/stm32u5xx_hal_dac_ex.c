@@ -7,12 +7,22 @@
   *          functionalities of the DAC peripheral.
   *
   *
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2021 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
   @verbatim
   ==============================================================================
                       ##### How to use this driver #####
   ==============================================================================
     [..]
-
      *** Dual mode IO operation ***
      ==============================
      [..]
@@ -34,7 +44,6 @@
           Use HAL_DACEx_DualGetValue() to get digital data to be converted and use
           HAL_DACEx_DualSetValue() to set digital value to converted simultaneously in
           Channel 1 and Channel 2.
-
      *** Signal generation operation ***
      ===================================
      [..]
@@ -55,16 +64,6 @@
       (+) Use HAL_DACx_ClearConfigAutonomousMode() to clear the configuration of the autonomous mode
 
  @endverbatim
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2021 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
   ******************************************************************************
   */
 
@@ -87,6 +86,16 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+
+/* Delay for DAC minimum trimming time.                                       */
+/* Note: minimum time needed between two calibration steps                    */
+/*       The delay below is specified under conditions:                       */
+/*        - DAC channel output buffer enabled                                 */
+/* Literal set to maximum value (refer to device datasheet,                   */
+/* electrical characteristics, parameter "tTRIM").                            */
+/* Unit: us                                                                   */
+#define DAC_DELAY_TRIM_US          (50UL)     /*!< Delay for DAC minimum trimming time */
+
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -125,6 +134,7 @@
 HAL_StatusTypeDef HAL_DACEx_DualStart(DAC_HandleTypeDef *hdac)
 {
   uint32_t tmp_swtrig = 0UL;
+  __IO uint32_t wait_loop_index;
 
 
   /* Process locked */
@@ -137,7 +147,15 @@ HAL_StatusTypeDef HAL_DACEx_DualStart(DAC_HandleTypeDef *hdac)
   __HAL_DAC_ENABLE(hdac, DAC_CHANNEL_1);
   __HAL_DAC_ENABLE(hdac, DAC_CHANNEL_2);
   /* Ensure minimum wait before using peripheral after enabling it */
-  HAL_Delay(1);
+  /* Wait loop initialization and execution */
+  /* Note: Variable divided by 2 to compensate partially              */
+  /*       CPU processing cycles, scaling in us split to not          */
+  /*       exceed 32 bits register capacity and handle low frequency. */
+  wait_loop_index = ((DAC_DELAY_STARTUP_US / 10UL) * ((SystemCoreClock / (100000UL * 2UL)) + 1UL));
+  while (wait_loop_index != 0UL)
+  {
+    wait_loop_index--;
+  }
 
   /* Check if software trigger enabled */
   if ((hdac->Instance->CR & (DAC_CR_TEN1 | DAC_CR_TSEL1)) == DAC_TRIGGER_SOFTWARE)
@@ -173,8 +191,6 @@ HAL_StatusTypeDef HAL_DACEx_DualStop(DAC_HandleTypeDef *hdac)
   /* Disable the Peripheral */
   __HAL_DAC_DISABLE(hdac, DAC_CHANNEL_1);
   __HAL_DAC_DISABLE(hdac, DAC_CHANNEL_2);
-  /* Ensure minimum wait before enabling peripheral after disabling it */
-  HAL_Delay(1);
 
   /* Change DAC state */
   hdac->State = HAL_DAC_STATE_READY;
@@ -200,11 +216,12 @@ HAL_StatusTypeDef HAL_DACEx_DualStop(DAC_HandleTypeDef *hdac)
   *            @arg DAC_ALIGN_12B_R: 12bit right data alignment selected
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_DACEx_DualStart_DMA(DAC_HandleTypeDef *hdac, uint32_t Channel, uint32_t *pData, uint32_t Length,
-                                          uint32_t Alignment)
+HAL_StatusTypeDef HAL_DACEx_DualStart_DMA(DAC_HandleTypeDef *hdac, uint32_t Channel,
+                                          const uint32_t *pData, uint32_t Length, uint32_t Alignment)
 {
   HAL_StatusTypeDef status;
-  uint32_t tmpreg;
+  uint32_t tmpreg = 0UL;
+  __IO uint32_t wait_loop_index;
   uint32_t LengthInBytes;
 
   /* Check the parameters */
@@ -256,9 +273,11 @@ HAL_StatusTypeDef HAL_DACEx_DualStart_DMA(DAC_HandleTypeDef *hdac, uint32_t Chan
       /* Get DHR12L1 address */
       tmpreg = (uint32_t)&hdac->Instance->DHR12LD;
       break;
-    default: /* case DAC_ALIGN_8B_R */
+    case DAC_ALIGN_8B_R:
       /* Get DHR8R1 address */
       tmpreg = (uint32_t)&hdac->Instance->DHR8RD;
+      break;
+    default:
       break;
   }
 
@@ -347,7 +366,15 @@ HAL_StatusTypeDef HAL_DACEx_DualStart_DMA(DAC_HandleTypeDef *hdac, uint32_t Chan
     __HAL_DAC_ENABLE(hdac, DAC_CHANNEL_1);
     __HAL_DAC_ENABLE(hdac, DAC_CHANNEL_2);
     /* Ensure minimum wait before using peripheral after enabling it */
-    HAL_Delay(1);
+    /* Wait loop initialization and execution */
+    /* Note: Variable divided by 2 to compensate partially              */
+    /*       CPU processing cycles, scaling in us split to not          */
+    /*       exceed 32 bits register capacity and handle low frequency. */
+    wait_loop_index = ((DAC_DELAY_STARTUP_US / 10UL) * ((SystemCoreClock / (100000UL * 2UL)) + 1UL));
+    while (wait_loop_index != 0UL)
+    {
+      wait_loop_index--;
+    }
   }
   else
   {
@@ -379,8 +406,6 @@ HAL_StatusTypeDef HAL_DACEx_DualStop_DMA(DAC_HandleTypeDef *hdac, uint32_t Chann
   /* Disable the Peripheral */
   __HAL_DAC_DISABLE(hdac, DAC_CHANNEL_1);
   __HAL_DAC_DISABLE(hdac, DAC_CHANNEL_2);
-  /* Ensure minimum wait before enabling peripheral after disabling it */
-  HAL_Delay(1);
 
   /* Disable the DMA channel */
 
@@ -650,6 +675,7 @@ HAL_StatusTypeDef HAL_DACEx_SelfCalibrate(DAC_HandleTypeDef *hdac, DAC_ChannelCo
   __IO uint32_t tmp;
   uint32_t trimmingvalue;
   uint32_t delta;
+  __IO uint32_t wait_loop_index;
 
   /* store/restore channel configuration structure purpose */
   uint32_t oldmodeconfiguration;
@@ -710,9 +736,15 @@ HAL_StatusTypeDef HAL_DACEx_SelfCalibrate(DAC_HandleTypeDef *hdac, DAC_ChannelCo
       /* Set candidate trimming */
       MODIFY_REG(hdac->Instance->CCR, (DAC_CCR_OTRIM1 << (Channel & 0x10UL)), (trimmingvalue << (Channel & 0x10UL)));
 
-      /* tOFFTRIMmax delay x ms as per datasheet (electrical characteristics */
-      /* i.e. minimum time needed between two calibration steps */
-      HAL_Delay(1);
+      /* Wait minimum time needed between two calibration steps (OTRIM) */
+      /* Wait loop initialization and execution */
+      /* Note: Variable divided by 2 to compensate partially CPU processing cycles, scaling in us split to not exceed */
+      /*       32 bits register capacity and handle low frequency. */
+      wait_loop_index = ((DAC_DELAY_TRIM_US / 10UL) * ((SystemCoreClock / (100000UL * 2UL)) + 1UL));
+      while (wait_loop_index != 0UL)
+      {
+        wait_loop_index--;
+      }
 
       if ((hdac->Instance->SR & (DAC_SR_CAL_FLAG1 << (Channel & 0x10UL))) == (DAC_SR_CAL_FLAG1 << (Channel & 0x10UL)))
       {
@@ -732,9 +764,15 @@ HAL_StatusTypeDef HAL_DACEx_SelfCalibrate(DAC_HandleTypeDef *hdac, DAC_ChannelCo
     /* Set candidate trimming */
     MODIFY_REG(hdac->Instance->CCR, (DAC_CCR_OTRIM1 << (Channel & 0x10UL)), (trimmingvalue << (Channel & 0x10UL)));
 
-    /* tOFFTRIMmax delay x ms as per datasheet (electrical characteristics */
-    /* i.e. minimum time needed between two calibration steps */
-    HAL_Delay(1U);
+    /* Wait minimum time needed between two calibration steps (OTRIM) */
+    /* Wait loop initialization and execution */
+    /* Note: Variable divided by 2 to compensate partially CPU processing cycles, scaling in us split to not exceed */
+    /*       32 bits register capacity and handle low frequency. */
+    wait_loop_index = ((DAC_DELAY_TRIM_US / 10UL) * ((SystemCoreClock / (100000UL * 2UL)) + 1UL));
+    while (wait_loop_index != 0UL)
+    {
+      wait_loop_index--;
+    }
 
     if ((hdac->Instance->SR & (DAC_SR_CAL_FLAG1 << (Channel & 0x10UL))) == 0UL)
     {
@@ -815,7 +853,7 @@ HAL_StatusTypeDef HAL_DACEx_SetUserTrimming(DAC_HandleTypeDef *hdac, DAC_Channel
   * @retval Trimming value : range: 0->31
   *
  */
-uint32_t HAL_DACEx_GetTrimOffset(DAC_HandleTypeDef *hdac, uint32_t Channel)
+uint32_t HAL_DACEx_GetTrimOffset(const DAC_HandleTypeDef *hdac, uint32_t Channel)
 {
   /* Check the parameter */
   assert_param(IS_DAC_CHANNEL(Channel));
@@ -849,7 +887,7 @@ uint32_t HAL_DACEx_GetTrimOffset(DAC_HandleTypeDef *hdac, uint32_t Channel)
   *         the configuration information for the specified DAC.
   * @retval The selected DAC channel data output value.
   */
-uint32_t HAL_DACEx_DualGetValue(DAC_HandleTypeDef *hdac)
+uint32_t HAL_DACEx_DualGetValue(const DAC_HandleTypeDef *hdac)
 {
   uint32_t tmp = 0UL;
 
@@ -873,7 +911,8 @@ uint32_t HAL_DACEx_DualGetValue(DAC_HandleTypeDef *hdac)
   * @param sConfig pointer to Autonomous mode structure parameters.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_DACEx_SetConfigAutonomousMode(DAC_HandleTypeDef *hdac, DAC_AutonomousModeConfTypeDef *sConfig)
+HAL_StatusTypeDef HAL_DACEx_SetConfigAutonomousMode(DAC_HandleTypeDef *hdac,
+                                                    const DAC_AutonomousModeConfTypeDef *sConfig)
 {
   assert_param(IS_DAC_AUTONOMOUS(sConfig->AutonomousModeState));
 
@@ -911,7 +950,8 @@ HAL_StatusTypeDef HAL_DACEx_SetConfigAutonomousMode(DAC_HandleTypeDef *hdac, DAC
   * @param sConfig pointer to Autonomous mode structure parameters.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_DACEx_GetConfigAutonomousMode(DAC_HandleTypeDef *hdac, DAC_AutonomousModeConfTypeDef *sConfig)
+HAL_StatusTypeDef HAL_DACEx_GetConfigAutonomousMode(const DAC_HandleTypeDef *hdac,
+                                                    DAC_AutonomousModeConfTypeDef *sConfig)
 {
   /* Fill Autonomous structure parameter */
   sConfig->AutonomousModeState = READ_BIT(hdac->Instance->AUTOCR, DAC_AUTOCR_AUTOMODE);

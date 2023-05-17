@@ -1081,7 +1081,7 @@ static void FLASH_OB_RDPKeyConfig(uint32_t RDPKeyType, uint32_t RDPKey1, uint32_
   * @param  UserConfig The selected User Option Bytes values.
   *         This parameter can be a combination of @ref FLASH_OB_USER_BOR_LEVEL,
   *         @ref FLASH_OB_USER_nRST_STOP, @ref FLASH_OB_USER_nRST_STANDBY,
-  *         @ref FLASH_OB_USER_nRST_SHUTDOWN, @ref FLASH_OB_USER_SRAM134_RST,
+  *         @ref FLASH_OB_USER_nRST_SHUTDOWN, @ref FLASH_OB_USER_SRAM_RST,
   *         @ref FLASH_OB_USER_IWDG_SW, @ref FLASH_OB_USER_IWDG_STOP,
   *         @ref FLASH_OB_USER_IWDG_STANDBY, @ref FLASH_OB_USER_WWDG_SW,
   *         @ref OB_USER_SWAP_BANK, @ref FLASH_OB_USER_DUALBANK,
@@ -1140,14 +1140,14 @@ static void FLASH_OB_UserConfig(uint32_t UserType, uint32_t UserConfig)
     optr_reg_mask |= FLASH_OPTR_nRST_SHDW;
   }
 
-  if ((UserType & OB_USER_SRAM134_RST) != 0U)
+  if ((UserType & OB_USER_SRAM_RST) != 0U)
   {
-    /* SRAM134_RST option byte should be modified */
-    assert_param(IS_OB_USER_SRAM134_RST(UserConfig & FLASH_OPTR_SRAM134_RST));
+    /* SRAM_RST option byte should be modified */
+    assert_param(IS_OB_USER_SRAM_RST(UserConfig & FLASH_OPTR_SRAM_RST));
 
-    /* Set value and mask for SRAM134_RST option byte */
-    optr_reg_val |= (UserConfig & FLASH_OPTR_SRAM134_RST);
-    optr_reg_mask |= FLASH_OPTR_SRAM134_RST;
+    /* Set value and mask for SRAM_RST option byte */
+    optr_reg_val |= (UserConfig & FLASH_OPTR_SRAM_RST);
+    optr_reg_mask |= FLASH_OPTR_SRAM_RST;
   }
 
   if ((UserType & OB_USER_IWDG_SW) != 0U)
@@ -1219,7 +1219,7 @@ static void FLASH_OB_UserConfig(uint32_t UserType, uint32_t UserConfig)
     optr_reg_val |= (UserConfig & FLASH_OPTR_BKPRAM_ECC);
     optr_reg_mask |= FLASH_OPTR_BKPRAM_ECC;
   }
-
+#if defined(SRAM3_BASE)
   if ((UserType & OB_USER_SRAM3_ECC) != 0U)
   {
     /* SRAM3_ECC option byte should be modified */
@@ -1229,7 +1229,7 @@ static void FLASH_OB_UserConfig(uint32_t UserType, uint32_t UserConfig)
     optr_reg_val |= (UserConfig & FLASH_OPTR_SRAM3_ECC);
     optr_reg_mask |= FLASH_OPTR_SRAM3_ECC;
   }
-
+#endif /* SRAM3_BASE */
   if ((UserType & OB_USER_SRAM2_ECC) != 0U)
   {
     /* SRAM2_ECC option byte should be modified */
@@ -1550,7 +1550,7 @@ static uint32_t FLASH_OB_GetRDP(void)
   * @retval The FLASH User Option Bytes values.
   *         The return value can be a combination of @ref FLASH_OB_USER_BOR_LEVEL,
   *         @ref FLASH_OB_USER_nRST_STOP, @ref FLASH_OB_USER_nRST_STANDBY,
-  *         @ref FLASH_OB_USER_nRST_SHUTDOWN, @ref FLASH_OB_USER_SRAM134_RST,
+  *         @ref FLASH_OB_USER_nRST_SHUTDOWN, @ref FLASH_OB_USER_SRAM_RST,
   *         @ref FLASH_OB_USER_IWDG_SW, @ref FLASH_OB_USER_IWDG_STOP,
   *         @ref FLASH_OB_USER_IWDG_STANDBY, @ref FLASH_OB_USER_WWDG_SW,
   *         @ref OB_USER_SWAP_BANK, @ref FLASH_OB_USER_DUALBANK,
