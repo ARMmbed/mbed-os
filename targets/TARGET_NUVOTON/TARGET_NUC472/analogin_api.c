@@ -22,6 +22,7 @@
 #include "pinmap.h"
 #include "PeripheralPins.h"
 #include "nu_modutil.h"
+#include "hal/PinNameAliases.h"
 
 static uint32_t eadc_modinit_mask = 0;
 
@@ -44,6 +45,18 @@ static const struct nu_modinit_s adc_modinit_tab[] = {
     {ADC_1_6, EADC_MODULE, CLK_CLKSEL1_ADCSEL_PLL, CLK_CLKDIV0_ADC(5), ADC_RST, EADC0_IRQn, NULL},
     {ADC_1_7, EADC_MODULE, CLK_CLKSEL1_ADCSEL_PLL, CLK_CLKDIV0_ADC(5), ADC_RST, EADC0_IRQn, NULL}
 };
+
+#if defined(MBED_CONF_TARGET_EADC_EXTSMPT_LIST)
+/* Structure for extending sampling time on per-pin basis */
+struct nu_eadc_extsmpt {
+    PinName     pin;
+    uint32_t    value;
+};
+
+static struct nu_eadc_extsmpt eadc_extsmpt_arr[] = {
+    MBED_CONF_TARGET_EADC_EXTSMPT_LIST
+};
+#endif
 
 void analogin_init(analogin_t *obj, PinName pin)
 {   
@@ -81,6 +94,18 @@ void analogin_init(analogin_t *obj, PinName pin)
 
     // Configure the sample module Nmod for analog input channel Nch and software trigger source
     EADC_ConfigSampleModule(eadc_base, smp_mod, EADC_SOFTWARE_TRIGGER, smp_chn);
+
+#if defined(MBED_CONF_TARGET_EADC_EXTSMPT_LIST)
+    // Extend sampling time in EADC clocks on per-pin basis
+    struct nu_eadc_extsmpt *eadc_extsmpt_pos = eadc_extsmpt_arr;
+    struct nu_eadc_extsmpt *eadc_extsmpt_end = eadc_extsmpt_arr + sizeof (eadc_extsmpt_arr) / sizeof (eadc_extsmpt_arr[0]);
+    for (; eadc_extsmpt_pos != eadc_extsmpt_end; eadc_extsmpt_pos ++) {
+        if (eadc_extsmpt_pos->pin == pin) {
+            EADC_SetExtendSampleTime(eadc_base, smp_mod, eadc_extsmpt_pos->value);
+            break;
+        }
+    }
+#endif
 
     eadc_modinit_mask |= 1 << smp_mod;
 }

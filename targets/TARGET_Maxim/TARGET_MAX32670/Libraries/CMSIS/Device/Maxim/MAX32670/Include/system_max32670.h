@@ -1,5 +1,5 @@
-/*******************************************************************************
- * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -29,11 +29,10 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- *
  ******************************************************************************/
 
-#ifndef _SYSTEM_MAX32670_H_
-#define _SYSTEM_MAX32670_H_
+#ifndef LIBRARIES_CMSIS_DEVICE_MAXIM_MAX32670_INCLUDE_SYSTEM_MAX32670_H_
+#define LIBRARIES_CMSIS_DEVICE_MAXIM_MAX32670_INCLUDE_SYSTEM_MAX32670_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,42 +52,42 @@ extern "C" {
 
 /* NOTE: EXTCLK needs to be defined by user based on the clock they supply */
 #ifndef EXTCLK_FREQ
-#define EXTCLK_FREQ               75000000
+#define EXTCLK_FREQ 12500000
 #endif
 
 /* NOTE: This is the nominal value for INRO. The actual value may vary from chip to chip. 
          Update if use of this oscillator requires precise timing.*/
 /* NOTE: INRO was previously named NANORING */
 #ifndef INRO_FREQ
-#define INRO_FREQ                 80000
+#define INRO_FREQ 80000
 #endif
 //NOTE: IPO clock bit is documented as 96MHz, but SR says this will be 100.
 #ifndef IPO_FREQ
-#define IPO_FREQ                  100000000
+#define IPO_FREQ 100000000
 #endif
 
 #ifndef IBRO_FREQ
-#define IBRO_FREQ                 7372800
+#define IBRO_FREQ 7372800
 #endif
 
 /* NOTE: ERFO_FREQ (16MHz-32MHz) needs to be defined by user based on the clock they supply */
 #ifndef ERFO_FREQ
-#define ERFO_FREQ                 32000000
+#define ERFO_FREQ 32000000
 #endif
 
 #ifndef ERTCO_FREQ
-#define ERTCO_FREQ                32768
-#endif
-	
-#ifndef HIRC_FREQ
-#define HIRC_FREQ                 IPO_FREQ
+#define ERTCO_FREQ 32768
 #endif
 
-extern uint32_t SystemCoreClock;                            /*!< System Clock Frequency (Core Clock)  */
+#ifndef HIRC_FREQ
+#define HIRC_FREQ IPO_FREQ
+#endif
+
+extern uint32_t SystemCoreClock; /*!< System Clock Frequency (Core Clock)  */
 #ifdef PeripheralClock
 #warning PeripheralClock define is being overidden.
 #else
-#define         PeripheralClock     (SystemCoreClock /2)    /*!< Peripheral Clock Frequency */
+#define PeripheralClock (SystemCoreClock / 2) /*!< Peripheral Clock Frequency */
 #endif
 
 /*
@@ -111,4 +110,4 @@ void SystemCoreClockUpdate(void);
 }
 #endif
 
-#endif /* _SYSTEM_MAX32670_H_ */
+#endif // LIBRARIES_CMSIS_DEVICE_MAXIM_MAX32670_INCLUDE_SYSTEM_MAX32670_H_

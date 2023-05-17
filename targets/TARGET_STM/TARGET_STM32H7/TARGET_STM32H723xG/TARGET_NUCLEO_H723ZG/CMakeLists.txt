@@ -6,7 +6,6 @@ add_library(mbed-nucleo-h723zg INTERFACE)
 target_sources(mbed-nucleo-h723zg
     INTERFACE
         PeripheralPins.c
-        system_clock.c
 )
 
 target_include_directories(mbed-nucleo-h723zg

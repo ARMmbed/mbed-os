@@ -1,10 +1,11 @@
 /**
  * @file    flc_regs.h
  * @brief   Registers, Bit Masks and Bit Positions for the FLC Peripheral Module.
+ * @note    This file is @generated.
  */
 
-/* ****************************************************************************
- * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -34,11 +35,10 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- *
- *************************************************************************** */
+ ******************************************************************************/
 
-#ifndef _FLC_REGS_H_
-#define _FLC_REGS_H_
+#ifndef LIBRARIES_CMSIS_DEVICE_MAXIM_MAX32670_INCLUDE_FLC_REGS_H_
+#define LIBRARIES_CMSIS_DEVICE_MAXIM_MAX32670_INCLUDE_FLC_REGS_H_
 
 /* **** Includes **** */
 #include <stdint.h>
@@ -46,11 +46,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
- 
+
 #if defined (__ICCARM__)
   #pragma system_include
 #endif
- 
+
 #if defined (__CC_ARM)
   #pragma anon_unions
 #endif
@@ -75,7 +75,7 @@ extern "C" {
  * @ingroup     flc
  * @defgroup    flc_registers FLC_Registers
  * @brief       Registers, Bit Masks and Bit Positions for the FLC Peripheral Module.
- * @details Flash Memory Control.
+ * @details     Flash Memory Control.
  */
 
 /**
@@ -106,20 +106,20 @@ typedef struct {
 /**
  * @ingroup    flc_registers
  * @defgroup   FLC_Register_Offsets Register Offsets
- * @brief      FLC Peripheral Register Offsets from the FLC Base Peripheral Address. 
+ * @brief      FLC Peripheral Register Offsets from the FLC Base Peripheral Address.
  * @{
  */
- #define MXC_R_FLC_ADDR                     ((uint32_t)0x00000000UL) /**< Offset from FLC Base Address: <tt> 0x0000</tt> */ 
- #define MXC_R_FLC_CLKDIV                   ((uint32_t)0x00000004UL) /**< Offset from FLC Base Address: <tt> 0x0004</tt> */ 
- #define MXC_R_FLC_CTRL                     ((uint32_t)0x00000008UL) /**< Offset from FLC Base Address: <tt> 0x0008</tt> */ 
- #define MXC_R_FLC_INTR                     ((uint32_t)0x00000024UL) /**< Offset from FLC Base Address: <tt> 0x0024</tt> */ 
- #define MXC_R_FLC_ECCDATA                  ((uint32_t)0x00000028UL) /**< Offset from FLC Base Address: <tt> 0x0028</tt> */ 
- #define MXC_R_FLC_DATA                     ((uint32_t)0x00000030UL) /**< Offset from FLC Base Address: <tt> 0x0030</tt> */ 
- #define MXC_R_FLC_ACTRL                    ((uint32_t)0x00000040UL) /**< Offset from FLC Base Address: <tt> 0x0040</tt> */ 
- #define MXC_R_FLC_WELR0                    ((uint32_t)0x00000080UL) /**< Offset from FLC Base Address: <tt> 0x0080</tt> */ 
- #define MXC_R_FLC_WELR1                    ((uint32_t)0x00000088UL) /**< Offset from FLC Base Address: <tt> 0x0088</tt> */ 
- #define MXC_R_FLC_RLR0                     ((uint32_t)0x00000090UL) /**< Offset from FLC Base Address: <tt> 0x0090</tt> */ 
- #define MXC_R_FLC_RLR1                     ((uint32_t)0x00000098UL) /**< Offset from FLC Base Address: <tt> 0x0098</tt> */ 
+#define MXC_R_FLC_ADDR                     ((uint32_t)0x00000000UL) /**< Offset from FLC Base Address: <tt> 0x0000</tt> */
+#define MXC_R_FLC_CLKDIV                   ((uint32_t)0x00000004UL) /**< Offset from FLC Base Address: <tt> 0x0004</tt> */
+#define MXC_R_FLC_CTRL                     ((uint32_t)0x00000008UL) /**< Offset from FLC Base Address: <tt> 0x0008</tt> */
+#define MXC_R_FLC_INTR                     ((uint32_t)0x00000024UL) /**< Offset from FLC Base Address: <tt> 0x0024</tt> */
+#define MXC_R_FLC_ECCDATA                  ((uint32_t)0x00000028UL) /**< Offset from FLC Base Address: <tt> 0x0028</tt> */
+#define MXC_R_FLC_DATA                     ((uint32_t)0x00000030UL) /**< Offset from FLC Base Address: <tt> 0x0030</tt> */
+#define MXC_R_FLC_ACTRL                    ((uint32_t)0x00000040UL) /**< Offset from FLC Base Address: <tt> 0x0040</tt> */
+#define MXC_R_FLC_WELR0                    ((uint32_t)0x00000080UL) /**< Offset from FLC Base Address: <tt> 0x0080</tt> */
+#define MXC_R_FLC_WELR1                    ((uint32_t)0x00000088UL) /**< Offset from FLC Base Address: <tt> 0x0088</tt> */
+#define MXC_R_FLC_RLR0                     ((uint32_t)0x00000090UL) /**< Offset from FLC Base Address: <tt> 0x0090</tt> */
+#define MXC_R_FLC_RLR1                     ((uint32_t)0x00000098UL) /**< Offset from FLC Base Address: <tt> 0x0098</tt> */
 /**@} end of group flc_registers */
 
 /**
@@ -128,8 +128,8 @@ typedef struct {
  * @brief    Flash Write Address.
  * @{
  */
- #define MXC_F_FLC_ADDR_ADDR_POS                        0 /**< ADDR_ADDR Position */
- #define MXC_F_FLC_ADDR_ADDR                            ((uint32_t)(0xFFFFFFFFUL << MXC_F_FLC_ADDR_ADDR_POS)) /**< ADDR_ADDR Mask */
+#define MXC_F_FLC_ADDR_ADDR_POS                        0 /**< ADDR_ADDR Position */
+#define MXC_F_FLC_ADDR_ADDR                            ((uint32_t)(0xFFFFFFFFUL << MXC_F_FLC_ADDR_ADDR_POS)) /**< ADDR_ADDR Mask */
 
 /**@} end of group FLC_ADDR_Register */
 
@@ -140,8 +140,8 @@ typedef struct {
  *           MHz clock for Flash controller.
  * @{
  */
- #define MXC_F_FLC_CLKDIV_CLKDIV_POS                    0 /**< CLKDIV_CLKDIV Position */
- #define MXC_F_FLC_CLKDIV_CLKDIV                        ((uint32_t)(0xFFUL << MXC_F_FLC_CLKDIV_CLKDIV_POS)) /**< CLKDIV_CLKDIV Mask */
+#define MXC_F_FLC_CLKDIV_CLKDIV_POS                    0 /**< CLKDIV_CLKDIV Position */
+#define MXC_F_FLC_CLKDIV_CLKDIV                        ((uint32_t)(0xFFUL << MXC_F_FLC_CLKDIV_CLKDIV_POS)) /**< CLKDIV_CLKDIV Mask */
 
 /**@} end of group FLC_CLKDIV_Register */
 
@@ -151,36 +151,36 @@ typedef struct {
  * @brief    Flash Control Register.
  * @{
  */
- #define MXC_F_FLC_CTRL_WR_POS                          0 /**< CTRL_WR Position */
- #define MXC_F_FLC_CTRL_WR                              ((uint32_t)(0x1UL << MXC_F_FLC_CTRL_WR_POS)) /**< CTRL_WR Mask */
+#define MXC_F_FLC_CTRL_WR_POS                          0 /**< CTRL_WR Position */
+#define MXC_F_FLC_CTRL_WR                              ((uint32_t)(0x1UL << MXC_F_FLC_CTRL_WR_POS)) /**< CTRL_WR Mask */
 
- #define MXC_F_FLC_CTRL_ME_POS                          1 /**< CTRL_ME Position */
- #define MXC_F_FLC_CTRL_ME                              ((uint32_t)(0x1UL << MXC_F_FLC_CTRL_ME_POS)) /**< CTRL_ME Mask */
+#define MXC_F_FLC_CTRL_ME_POS                          1 /**< CTRL_ME Position */
+#define MXC_F_FLC_CTRL_ME                              ((uint32_t)(0x1UL << MXC_F_FLC_CTRL_ME_POS)) /**< CTRL_ME Mask */
 
- #define MXC_F_FLC_CTRL_PGE_POS                         2 /**< CTRL_PGE Position */
- #define MXC_F_FLC_CTRL_PGE                             ((uint32_t)(0x1UL << MXC_F_FLC_CTRL_PGE_POS)) /**< CTRL_PGE Mask */
+#define MXC_F_FLC_CTRL_PGE_POS                         2 /**< CTRL_PGE Position */
+#define MXC_F_FLC_CTRL_PGE                             ((uint32_t)(0x1UL << MXC_F_FLC_CTRL_PGE_POS)) /**< CTRL_PGE Mask */
 
- #define MXC_F_FLC_CTRL_ERASE_CODE_POS                  8 /**< CTRL_ERASE_CODE Position */
- #define MXC_F_FLC_CTRL_ERASE_CODE                      ((uint32_t)(0xFFUL << MXC_F_FLC_CTRL_ERASE_CODE_POS)) /**< CTRL_ERASE_CODE Mask */
- #define MXC_V_FLC_CTRL_ERASE_CODE_NOP                  ((uint32_t)0x0UL) /**< CTRL_ERASE_CODE_NOP Value */
- #define MXC_S_FLC_CTRL_ERASE_CODE_NOP                  (MXC_V_FLC_CTRL_ERASE_CODE_NOP << MXC_F_FLC_CTRL_ERASE_CODE_POS) /**< CTRL_ERASE_CODE_NOP Setting */
- #define MXC_V_FLC_CTRL_ERASE_CODE_ERASEPAGE            ((uint32_t)0x55UL) /**< CTRL_ERASE_CODE_ERASEPAGE Value */
- #define MXC_S_FLC_CTRL_ERASE_CODE_ERASEPAGE            (MXC_V_FLC_CTRL_ERASE_CODE_ERASEPAGE << MXC_F_FLC_CTRL_ERASE_CODE_POS) /**< CTRL_ERASE_CODE_ERASEPAGE Setting */
- #define MXC_V_FLC_CTRL_ERASE_CODE_ERASEALL             ((uint32_t)0xAAUL) /**< CTRL_ERASE_CODE_ERASEALL Value */
- #define MXC_S_FLC_CTRL_ERASE_CODE_ERASEALL             (MXC_V_FLC_CTRL_ERASE_CODE_ERASEALL << MXC_F_FLC_CTRL_ERASE_CODE_POS) /**< CTRL_ERASE_CODE_ERASEALL Setting */
+#define MXC_F_FLC_CTRL_ERASE_CODE_POS                  8 /**< CTRL_ERASE_CODE Position */
+#define MXC_F_FLC_CTRL_ERASE_CODE                      ((uint32_t)(0xFFUL << MXC_F_FLC_CTRL_ERASE_CODE_POS)) /**< CTRL_ERASE_CODE Mask */
+#define MXC_V_FLC_CTRL_ERASE_CODE_NOP                  ((uint32_t)0x0UL) /**< CTRL_ERASE_CODE_NOP Value */
+#define MXC_S_FLC_CTRL_ERASE_CODE_NOP                  (MXC_V_FLC_CTRL_ERASE_CODE_NOP << MXC_F_FLC_CTRL_ERASE_CODE_POS) /**< CTRL_ERASE_CODE_NOP Setting */
+#define MXC_V_FLC_CTRL_ERASE_CODE_ERASEPAGE            ((uint32_t)0x55UL) /**< CTRL_ERASE_CODE_ERASEPAGE Value */
+#define MXC_S_FLC_CTRL_ERASE_CODE_ERASEPAGE            (MXC_V_FLC_CTRL_ERASE_CODE_ERASEPAGE << MXC_F_FLC_CTRL_ERASE_CODE_POS) /**< CTRL_ERASE_CODE_ERASEPAGE Setting */
+#define MXC_V_FLC_CTRL_ERASE_CODE_ERASEALL             ((uint32_t)0xAAUL) /**< CTRL_ERASE_CODE_ERASEALL Value */
+#define MXC_S_FLC_CTRL_ERASE_CODE_ERASEALL             (MXC_V_FLC_CTRL_ERASE_CODE_ERASEALL << MXC_F_FLC_CTRL_ERASE_CODE_POS) /**< CTRL_ERASE_CODE_ERASEALL Setting */
 
- #define MXC_F_FLC_CTRL_PEND_POS                        24 /**< CTRL_PEND Position */
- #define MXC_F_FLC_CTRL_PEND                            ((uint32_t)(0x1UL << MXC_F_FLC_CTRL_PEND_POS)) /**< CTRL_PEND Mask */
+#define MXC_F_FLC_CTRL_PEND_POS                        24 /**< CTRL_PEND Position */
+#define MXC_F_FLC_CTRL_PEND                            ((uint32_t)(0x1UL << MXC_F_FLC_CTRL_PEND_POS)) /**< CTRL_PEND Mask */
 
- #define MXC_F_FLC_CTRL_LVE_POS                         25 /**< CTRL_LVE Position */
- #define MXC_F_FLC_CTRL_LVE                             ((uint32_t)(0x1UL << MXC_F_FLC_CTRL_LVE_POS)) /**< CTRL_LVE Mask */
+#define MXC_F_FLC_CTRL_LVE_POS                         25 /**< CTRL_LVE Position */
+#define MXC_F_FLC_CTRL_LVE                             ((uint32_t)(0x1UL << MXC_F_FLC_CTRL_LVE_POS)) /**< CTRL_LVE Mask */
 
- #define MXC_F_FLC_CTRL_UNLOCK_POS                      28 /**< CTRL_UNLOCK Position */
- #define MXC_F_FLC_CTRL_UNLOCK                          ((uint32_t)(0xFUL << MXC_F_FLC_CTRL_UNLOCK_POS)) /**< CTRL_UNLOCK Mask */
- #define MXC_V_FLC_CTRL_UNLOCK_UNLOCKED                 ((uint32_t)0x2UL) /**< CTRL_UNLOCK_UNLOCKED Value */
- #define MXC_S_FLC_CTRL_UNLOCK_UNLOCKED                 (MXC_V_FLC_CTRL_UNLOCK_UNLOCKED << MXC_F_FLC_CTRL_UNLOCK_POS) /**< CTRL_UNLOCK_UNLOCKED Setting */
- #define MXC_V_FLC_CTRL_UNLOCK_LOCKED                   ((uint32_t)0x3UL) /**< CTRL_UNLOCK_LOCKED Value */
- #define MXC_S_FLC_CTRL_UNLOCK_LOCKED                   (MXC_V_FLC_CTRL_UNLOCK_LOCKED << MXC_F_FLC_CTRL_UNLOCK_POS) /**< CTRL_UNLOCK_LOCKED Setting */
+#define MXC_F_FLC_CTRL_UNLOCK_POS                      28 /**< CTRL_UNLOCK Position */
+#define MXC_F_FLC_CTRL_UNLOCK                          ((uint32_t)(0xFUL << MXC_F_FLC_CTRL_UNLOCK_POS)) /**< CTRL_UNLOCK Mask */
+#define MXC_V_FLC_CTRL_UNLOCK_UNLOCKED                 ((uint32_t)0x2UL) /**< CTRL_UNLOCK_UNLOCKED Value */
+#define MXC_S_FLC_CTRL_UNLOCK_UNLOCKED                 (MXC_V_FLC_CTRL_UNLOCK_UNLOCKED << MXC_F_FLC_CTRL_UNLOCK_POS) /**< CTRL_UNLOCK_UNLOCKED Setting */
+#define MXC_V_FLC_CTRL_UNLOCK_LOCKED                   ((uint32_t)0x3UL) /**< CTRL_UNLOCK_LOCKED Value */
+#define MXC_S_FLC_CTRL_UNLOCK_LOCKED                   (MXC_V_FLC_CTRL_UNLOCK_LOCKED << MXC_F_FLC_CTRL_UNLOCK_POS) /**< CTRL_UNLOCK_LOCKED Setting */
 
 /**@} end of group FLC_CTRL_Register */
 
@@ -190,17 +190,17 @@ typedef struct {
  * @brief    Flash Interrupt Register.
  * @{
  */
- #define MXC_F_FLC_INTR_DONE_POS                        0 /**< INTR_DONE Position */
- #define MXC_F_FLC_INTR_DONE                            ((uint32_t)(0x1UL << MXC_F_FLC_INTR_DONE_POS)) /**< INTR_DONE Mask */
+#define MXC_F_FLC_INTR_DONE_POS                        0 /**< INTR_DONE Position */
+#define MXC_F_FLC_INTR_DONE                            ((uint32_t)(0x1UL << MXC_F_FLC_INTR_DONE_POS)) /**< INTR_DONE Mask */
 
- #define MXC_F_FLC_INTR_AF_POS                          1 /**< INTR_AF Position */
- #define MXC_F_FLC_INTR_AF                              ((uint32_t)(0x1UL << MXC_F_FLC_INTR_AF_POS)) /**< INTR_AF Mask */
+#define MXC_F_FLC_INTR_AF_POS                          1 /**< INTR_AF Position */
+#define MXC_F_FLC_INTR_AF                              ((uint32_t)(0x1UL << MXC_F_FLC_INTR_AF_POS)) /**< INTR_AF Mask */
 
- #define MXC_F_FLC_INTR_DONEIE_POS                      8 /**< INTR_DONEIE Position */
- #define MXC_F_FLC_INTR_DONEIE                          ((uint32_t)(0x1UL << MXC_F_FLC_INTR_DONEIE_POS)) /**< INTR_DONEIE Mask */
+#define MXC_F_FLC_INTR_DONEIE_POS                      8 /**< INTR_DONEIE Position */
+#define MXC_F_FLC_INTR_DONEIE                          ((uint32_t)(0x1UL << MXC_F_FLC_INTR_DONEIE_POS)) /**< INTR_DONEIE Mask */
 
- #define MXC_F_FLC_INTR_AFIE_POS                        9 /**< INTR_AFIE Position */
- #define MXC_F_FLC_INTR_AFIE                            ((uint32_t)(0x1UL << MXC_F_FLC_INTR_AFIE_POS)) /**< INTR_AFIE Mask */
+#define MXC_F_FLC_INTR_AFIE_POS                        9 /**< INTR_AFIE Position */
+#define MXC_F_FLC_INTR_AFIE                            ((uint32_t)(0x1UL << MXC_F_FLC_INTR_AFIE_POS)) /**< INTR_AFIE Mask */
 
 /**@} end of group FLC_INTR_Register */
 
@@ -210,11 +210,11 @@ typedef struct {
  * @brief    ECC Data Register.
  * @{
  */
- #define MXC_F_FLC_ECCDATA_EVEN_POS                     0 /**< ECCDATA_EVEN Position */
- #define MXC_F_FLC_ECCDATA_EVEN                         ((uint32_t)(0x1FFUL << MXC_F_FLC_ECCDATA_EVEN_POS)) /**< ECCDATA_EVEN Mask */
+#define MXC_F_FLC_ECCDATA_EVEN_POS                     0 /**< ECCDATA_EVEN Position */
+#define MXC_F_FLC_ECCDATA_EVEN                         ((uint32_t)(0x1FFUL << MXC_F_FLC_ECCDATA_EVEN_POS)) /**< ECCDATA_EVEN Mask */
 
- #define MXC_F_FLC_ECCDATA_ODD_POS                      16 /**< ECCDATA_ODD Position */
- #define MXC_F_FLC_ECCDATA_ODD                          ((uint32_t)(0x1FFUL << MXC_F_FLC_ECCDATA_ODD_POS)) /**< ECCDATA_ODD Mask */
+#define MXC_F_FLC_ECCDATA_ODD_POS                      16 /**< ECCDATA_ODD Position */
+#define MXC_F_FLC_ECCDATA_ODD                          ((uint32_t)(0x1FFUL << MXC_F_FLC_ECCDATA_ODD_POS)) /**< ECCDATA_ODD Mask */
 
 /**@} end of group FLC_ECCDATA_Register */
 
@@ -224,8 +224,8 @@ typedef struct {
  * @brief    Flash Write Data.
  * @{
  */
- #define MXC_F_FLC_DATA_DATA_POS                        0 /**< DATA_DATA Position */
- #define MXC_F_FLC_DATA_DATA                            ((uint32_t)(0xFFFFFFFFUL << MXC_F_FLC_DATA_DATA_POS)) /**< DATA_DATA Mask */
+#define MXC_F_FLC_DATA_DATA_POS                        0 /**< DATA_DATA Position */
+#define MXC_F_FLC_DATA_DATA                            ((uint32_t)(0xFFFFFFFFUL << MXC_F_FLC_DATA_DATA_POS)) /**< DATA_DATA Mask */
 
 /**@} end of group FLC_DATA_Register */
 
@@ -239,8 +239,8 @@ typedef struct {
  *           and user information block. Readback of this register is always zero.
  * @{
  */
- #define MXC_F_FLC_ACTRL_ACTRL_POS                      0 /**< ACTRL_ACTRL Position */
- #define MXC_F_FLC_ACTRL_ACTRL                          ((uint32_t)(0xFFFFFFFFUL << MXC_F_FLC_ACTRL_ACTRL_POS)) /**< ACTRL_ACTRL Mask */
+#define MXC_F_FLC_ACTRL_ACTRL_POS                      0 /**< ACTRL_ACTRL Position */
+#define MXC_F_FLC_ACTRL_ACTRL                          ((uint32_t)(0xFFFFFFFFUL << MXC_F_FLC_ACTRL_ACTRL_POS)) /**< ACTRL_ACTRL Mask */
 
 /**@} end of group FLC_ACTRL_Register */
 
@@ -250,8 +250,8 @@ typedef struct {
  * @brief    WELR0
  * @{
  */
- #define MXC_F_FLC_WELR0_WELR0_POS                      0 /**< WELR0_WELR0 Position */
- #define MXC_F_FLC_WELR0_WELR0                          ((uint32_t)(0xFFFFFFFFUL << MXC_F_FLC_WELR0_WELR0_POS)) /**< WELR0_WELR0 Mask */
+#define MXC_F_FLC_WELR0_WELR0_POS                      0 /**< WELR0_WELR0 Position */
+#define MXC_F_FLC_WELR0_WELR0                          ((uint32_t)(0xFFFFFFFFUL << MXC_F_FLC_WELR0_WELR0_POS)) /**< WELR0_WELR0 Mask */
 
 /**@} end of group FLC_WELR0_Register */
 
@@ -261,8 +261,8 @@ typedef struct {
  * @brief    WELR1
  * @{
  */
- #define MXC_F_FLC_WELR1_WELR1_POS                      0 /**< WELR1_WELR1 Position */
- #define MXC_F_FLC_WELR1_WELR1                          ((uint32_t)(0xFFFFFFFFUL << MXC_F_FLC_WELR1_WELR1_POS)) /**< WELR1_WELR1 Mask */
+#define MXC_F_FLC_WELR1_WELR1_POS                      0 /**< WELR1_WELR1 Position */
+#define MXC_F_FLC_WELR1_WELR1                          ((uint32_t)(0xFFFFFFFFUL << MXC_F_FLC_WELR1_WELR1_POS)) /**< WELR1_WELR1 Mask */
 
 /**@} end of group FLC_WELR1_Register */
 
@@ -272,8 +272,8 @@ typedef struct {
  * @brief    RLR0
  * @{
  */
- #define MXC_F_FLC_RLR0_RLR0_POS                        0 /**< RLR0_RLR0 Position */
- #define MXC_F_FLC_RLR0_RLR0                            ((uint32_t)(0xFFFFFFFFUL << MXC_F_FLC_RLR0_RLR0_POS)) /**< RLR0_RLR0 Mask */
+#define MXC_F_FLC_RLR0_RLR0_POS                        0 /**< RLR0_RLR0 Position */
+#define MXC_F_FLC_RLR0_RLR0                            ((uint32_t)(0xFFFFFFFFUL << MXC_F_FLC_RLR0_RLR0_POS)) /**< RLR0_RLR0 Mask */
 
 /**@} end of group FLC_RLR0_Register */
 
@@ -283,8 +283,8 @@ typedef struct {
  * @brief    RLR1
  * @{
  */
- #define MXC_F_FLC_RLR1_RLR1_POS                        0 /**< RLR1_RLR1 Position */
- #define MXC_F_FLC_RLR1_RLR1                            ((uint32_t)(0xFFFFFFFFUL << MXC_F_FLC_RLR1_RLR1_POS)) /**< RLR1_RLR1 Mask */
+#define MXC_F_FLC_RLR1_RLR1_POS                        0 /**< RLR1_RLR1 Position */
+#define MXC_F_FLC_RLR1_RLR1                            ((uint32_t)(0xFFFFFFFFUL << MXC_F_FLC_RLR1_RLR1_POS)) /**< RLR1_RLR1 Mask */
 
 /**@} end of group FLC_RLR1_Register */
 
@@ -292,4 +292,4 @@ typedef struct {
 }
 #endif
 
-#endif /* _FLC_REGS_H_ */
+#endif // LIBRARIES_CMSIS_DEVICE_MAXIM_MAX32670_INCLUDE_FLC_REGS_H_

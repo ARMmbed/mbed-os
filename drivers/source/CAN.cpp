@@ -19,6 +19,7 @@
 #if DEVICE_CAN
 
 #include "platform/mbed_power_mgmt.h"
+#include "platform/mbed_error.h"
 
 namespace mbed {
 
@@ -82,6 +83,9 @@ int CAN::read(CANMessage &msg, int handle)
 {
     lock();
     int ret = can_read(&_can, &msg, handle);
+    if (msg.len > 8) {
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_CAN, MBED_ERROR_CODE_READ_FAILED), "Read tried to write more than 8 bytes");
+    }
     unlock();
     return ret;
 }
@@ -134,7 +138,7 @@ int CAN::filter(unsigned int id, unsigned int mask, CANFormat format, int handle
 
 void CAN::attach(Callback<void()> func, IrqType type)
 {
-    lock();
+    CAN::lock();
     if (func) {
         // lock deep sleep only the first time
         if (!_irq[(CanIrqType)type]) {
@@ -150,7 +154,7 @@ void CAN::attach(Callback<void()> func, IrqType type)
         _irq[(CanIrqType)type] = nullptr;
         can_irq_set(&_can, (CanIrqType)type, 0);
     }
-    unlock();
+    CAN::unlock();
 }
 
 void CAN::_irq_handler(uintptr_t context, CanIrqType type)

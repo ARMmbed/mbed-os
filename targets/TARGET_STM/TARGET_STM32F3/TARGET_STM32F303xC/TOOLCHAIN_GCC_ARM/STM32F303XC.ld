@@ -114,7 +114,7 @@ SECTIONS
 
     __etext = .;
     _sidata = .;
-    
+
     .data : AT (__etext)
     {
         __data_start__ = .;
@@ -162,7 +162,7 @@ SECTIONS
         . = ALIGN(32);
         __uninitialized_end = .;
     } > RAM
-    
+
     .bss :
     {
         . = ALIGN(8);
@@ -185,14 +185,13 @@ SECTIONS
     } > RAM
 
    .ram_ccm_section  (NOLOAD):
-    { 
+    {
         __ram_ccm_start__ = .;
-        *(.RAM_CCM_section) 
+        *(.RAM_CCM_section)
         . = ORIGIN(RAM_CCM) + LENGTH(RAM_CCM);
         __ram_ccm_end__ = .;
     } >RAM_CCM
 
- 
     /* .stack_dummy section doesn't contains any symbols. It is only
      * used for linker to calculate size of stack sections, and assign
      * values to stack symbols later */

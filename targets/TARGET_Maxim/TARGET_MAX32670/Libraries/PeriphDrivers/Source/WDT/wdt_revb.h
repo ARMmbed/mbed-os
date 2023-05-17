@@ -1,8 +1,8 @@
-/* *****************************************************************************
- * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software");,
+ * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the
@@ -29,14 +29,16 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- **************************************************************************** */
+ ******************************************************************************/
+
+#ifndef LIBRARIES_PERIPHDRIVERS_SOURCE_WDT_WDT_REVB_H_
+#define LIBRARIES_PERIPHDRIVERS_SOURCE_WDT_WDT_REVB_H_
 
 /* **** Includes **** */
 #include "mxc_device.h"
 #include "mxc_errors.h"
 #include "mxc_assert.h"
 #include "mxc_sys.h"
-//#include "wdt.h"
 #include "wdt_revb_regs.h"
 
 /* **** Definitions **** */
@@ -70,23 +72,25 @@ typedef enum {
 } mxc_wdt_revb_en_t;
 
 typedef struct {
-    mxc_wdt_revb_mode_t   mode;               ///< WDT mode
-    mxc_wdt_revb_period_t upperResetPeriod;   ///< Reset upper limit
-    mxc_wdt_revb_period_t lowerResetPeriod;   ///< Reset lower limit
-    mxc_wdt_revb_period_t upperIntPeriod;     ///< Interrupt upper limit
-    mxc_wdt_revb_period_t lowerIntPeriod;     ///< Interrupt lower limit
+    mxc_wdt_revb_mode_t mode; ///< WDT mode
+    mxc_wdt_revb_period_t upperResetPeriod; ///< Reset upper limit
+    mxc_wdt_revb_period_t lowerResetPeriod; ///< Reset lower limit
+    mxc_wdt_revb_period_t upperIntPeriod; ///< Interrupt upper limit
+    mxc_wdt_revb_period_t lowerIntPeriod; ///< Interrupt lower limit
 } mxc_wdt_revb_cfg_t;
 
 /* **** Functions **** */
-int MXC_WDT_RevB_Init (mxc_wdt_revb_regs_t* wdt, mxc_wdt_revb_cfg_t *cfg);
-void MXC_WDT_RevB_SetIntPeriod (mxc_wdt_revb_regs_t* wdt, mxc_wdt_revb_cfg_t *cfg);
-void MXC_WDT_RevB_SetResetPeriod (mxc_wdt_revb_regs_t* wdt, mxc_wdt_revb_cfg_t *cfg);
-void MXC_WDT_RevB_Enable (mxc_wdt_revb_regs_t* wdt);
-void MXC_WDT_RevB_Disable (mxc_wdt_revb_regs_t* wdt);
-void MXC_WDT_RevB_EnableInt (mxc_wdt_revb_regs_t* wdt, mxc_wdt_revb_en_t enable);
-void MXC_WDT_RevB_EnableReset (mxc_wdt_revb_regs_t* wdt, mxc_wdt_revb_en_t enable);
-void MXC_WDT_RevB_ResetTimer (mxc_wdt_revb_regs_t* wdt);
-int MXC_WDT_RevB_GetResetFlag (mxc_wdt_revb_regs_t* wdt);
-void MXC_WDT_RevB_ClearResetFlag (mxc_wdt_revb_regs_t* wdt);
-int MXC_WDT_RevB_GetIntFlag (mxc_wdt_revb_regs_t* wdt);
-void MXC_WDT_RevB_ClearIntFlag (mxc_wdt_revb_regs_t* wdt);
+int MXC_WDT_RevB_Init(mxc_wdt_revb_regs_t *wdt, mxc_wdt_revb_cfg_t *cfg);
+void MXC_WDT_RevB_SetIntPeriod(mxc_wdt_revb_regs_t *wdt, mxc_wdt_revb_cfg_t *cfg);
+void MXC_WDT_RevB_SetResetPeriod(mxc_wdt_revb_regs_t *wdt, mxc_wdt_revb_cfg_t *cfg);
+void MXC_WDT_RevB_Enable(mxc_wdt_revb_regs_t *wdt);
+void MXC_WDT_RevB_Disable(mxc_wdt_revb_regs_t *wdt);
+void MXC_WDT_RevB_EnableInt(mxc_wdt_revb_regs_t *wdt, mxc_wdt_revb_en_t enable);
+void MXC_WDT_RevB_EnableReset(mxc_wdt_revb_regs_t *wdt, mxc_wdt_revb_en_t enable);
+void MXC_WDT_RevB_ResetTimer(mxc_wdt_revb_regs_t *wdt);
+int MXC_WDT_RevB_GetResetFlag(mxc_wdt_revb_regs_t *wdt);
+void MXC_WDT_RevB_ClearResetFlag(mxc_wdt_revb_regs_t *wdt);
+int MXC_WDT_RevB_GetIntFlag(mxc_wdt_revb_regs_t *wdt);
+void MXC_WDT_RevB_ClearIntFlag(mxc_wdt_revb_regs_t *wdt);
+
+#endif // LIBRARIES_PERIPHDRIVERS_SOURCE_WDT_WDT_REVB_H_

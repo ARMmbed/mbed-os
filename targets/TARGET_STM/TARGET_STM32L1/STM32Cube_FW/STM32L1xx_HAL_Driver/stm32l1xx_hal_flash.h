@@ -121,7 +121,9 @@ typedef struct
   * @{
   */ 
 
-#define FLASH_SIZE                (uint32_t)((*((uint32_t *)FLASHSIZE_BASE)&0xFFFFU) * 1024U)
+#define FLASH_SIZE_RAW            (uint32_t)(*((uint32_t *)FLASHSIZE_BASE)&0xFFFFU)
+#define FLASH_SIZE                (((FLASH_SIZE_RAW) == 0 ? 384 : ((FLASH_SIZE_RAW) == 1 ? 256 : (FLASH_SIZE_RAW))) * 1024)
+
 #define FLASH_PAGE_SIZE           (256U)  /*!< FLASH Page Size in bytes */
 
 /**

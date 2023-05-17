@@ -122,7 +122,7 @@ protected:
      *  NSAPI_ERROR_NO_SOCKET is returned if no socket is available.
      *
      *  @param handle   Destination for the handle to a newly created socket
-     *  @param proto    Protocol of socket to open, NSAPI_TCP or NSAPI_UDP
+     *  @param proto    Protocol of socket to open, NSAPI_TCP, NSAPI_UDP or NSAPI_ICMP
      *  @return         0 on success, negative error code on failure
      */
     nsapi_error_t socket_open(void **handle, nsapi_protocol_t proto) override;

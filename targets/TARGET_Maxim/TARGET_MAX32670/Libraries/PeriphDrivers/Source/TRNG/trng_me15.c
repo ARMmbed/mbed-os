@@ -1,8 +1,8 @@
-/* ****************************************************************************
- * Copyright(C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files(the "Software"),
+ * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the
@@ -29,7 +29,7 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- *************************************************************************** */
+ ******************************************************************************/
 
 #include "mxc_device.h"
 #include "mxc_errors.h"
@@ -37,7 +37,6 @@
 #include "mxc_sys.h"
 #include "trng_revb.h"
 #include "trng.h"
-
 
 /* ************************************************************************* */
 /* Global Control/Configuration functions                                    */
@@ -56,26 +55,26 @@ int MXC_TRNG_Init(void)
 
 void MXC_TRNG_EnableInt(void)
 {
-    MXC_TRNG_RevB_EnableInt((mxc_trng_revb_regs_t*) MXC_TRNG);
+    MXC_TRNG_RevB_EnableInt((mxc_trng_revb_regs_t *)MXC_TRNG);
 }
 
 void MXC_TRNG_DisableInt(void)
 {
-    MXC_TRNG_RevB_DisableInt((mxc_trng_revb_regs_t*) MXC_TRNG);
+    MXC_TRNG_RevB_DisableInt((mxc_trng_revb_regs_t *)MXC_TRNG);
 }
 
 int MXC_TRNG_Shutdown(void)
 {
     int error = MXC_TRNG_RevB_Shutdown();
-    
+
     MXC_SYS_ClockDisable(MXC_SYS_PERIPH_CLOCK_TRNG);
-    
+
     return error;
 }
 
 void MXC_TRNG_Handler(void)
 {
-    MXC_TRNG_RevB_Handler((mxc_trng_revb_regs_t*) MXC_TRNG);
+    MXC_TRNG_RevB_Handler((mxc_trng_revb_regs_t *)MXC_TRNG);
 }
 
 /* ************************************************************************* */
@@ -84,20 +83,29 @@ void MXC_TRNG_Handler(void)
 
 int MXC_TRNG_RandomInt(void)
 {
-    return MXC_TRNG_RevB_RandomInt((mxc_trng_revb_regs_t*) MXC_TRNG);
+    return MXC_TRNG_RevB_RandomInt((mxc_trng_revb_regs_t *)MXC_TRNG);
 }
 
-int MXC_TRNG_Random(uint8_t* data, uint32_t len)
+int MXC_TRNG_Random(uint8_t *data, uint32_t len)
 {
     return MXC_TRNG_RevB_Random(data, len);
 }
 
-void MXC_TRNG_RandomAsync(uint8_t* data, uint32_t len, mxc_trng_complete_t callback)
+void MXC_TRNG_RandomAsync(uint8_t *data, uint32_t len, mxc_trng_complete_t callback)
 {
-    MXC_TRNG_RevB_RandomAsync((mxc_trng_revb_regs_t*) MXC_TRNG, data, len, callback);
+    MXC_TRNG_RevB_RandomAsync((mxc_trng_revb_regs_t *)MXC_TRNG, data, len, callback);
 }
 
 void MXC_TRNG_GenerateKey(void)
 {
-    MXC_TRNG_RevB_GenerateKey((mxc_trng_revb_regs_t*) MXC_TRNG);
+    MXC_TRNG_RevB_GenerateKey((mxc_trng_revb_regs_t *)MXC_TRNG);
+}
+
+int MXC_TRNG_HealthTest(void)
+{
+    if ((MXC_GCR->revision & 0xF0) == 0xA0) { // ME15 Rev. A does not support health tests.
+        return E_NOT_SUPPORTED;
+    }
+
+    return MXC_TRNG_RevB_HealthTest((mxc_trng_revb_regs_t *)MXC_TRNG);
 }
