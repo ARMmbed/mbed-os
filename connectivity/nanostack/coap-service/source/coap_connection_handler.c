@@ -480,7 +480,7 @@ static int secure_session_recvfrom(int8_t socket_id, unsigned char *buf, size_t 
 {
     (void)len;
     internal_socket_t *sock = int_socket_find_by_socket_id(socket_id);
-    if (sock->data && sock->data_len > 0) {
+    if (sock && sock->data && sock->data_len > 0) {
         memcpy(buf, sock->data, sock->data_len);
         int l = sock->data_len;
         ns_dyn_mem_free(sock->data);

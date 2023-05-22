@@ -1661,6 +1661,9 @@ void SecurityManager::on_connected(
     cb->db_entry = _db->open_entry(peer_address_type, peer_address);
 
     SecurityDistributionFlags_t* flags = _db->get_distribution_flags(cb->db_entry);
+    if (!flags) {
+        return;
+    }
 
     flags->peer_address = peer_address;
     flags->peer_address_is_public =

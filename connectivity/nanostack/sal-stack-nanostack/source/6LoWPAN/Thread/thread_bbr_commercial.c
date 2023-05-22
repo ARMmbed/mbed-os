@@ -545,6 +545,9 @@ static int thread_pbbr_bb_qry_cb(int8_t service_id, uint8_t source_address[16], 
     // Test code for b/ba response override
     if (ba_response_status_count) {
         device_configuration_s *device_config = thread_joiner_application_get_device_config(this->interface_id);
+        if (!device_config) {
+            return -1;
+        }
         ml_eid_ptr = device_config->eui64;
         last_transaction_time = protocol_core_monotonic_time;
         ba_response_status_count--;
@@ -617,7 +620,7 @@ static int thread_pbbr_dua_duplicate_address_detection(int8_t service_id, uint8_
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(this->interface_id);
     duplicate_dua_tr_t *tr_ptr = thread_border_router_dup_tr_find(this->interface_id, addr_data_ptr);
 
-    if (!tr_ptr) {
+    if (!cur || !tr_ptr) {
         return -1;
     }
 

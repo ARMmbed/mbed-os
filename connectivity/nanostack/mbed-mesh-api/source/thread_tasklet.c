@@ -238,6 +238,9 @@ void thread_tasklet_poll_network_status(void *param)
         } else {
             memcpy(thread_tasklet_data_ptr->ip, temp_ipv6, 16);
             link_configuration_s *link_cfg = thread_management_configuration_get(thread_tasklet_data_ptr->nwk_if_id);
+            if (!link_cfg) {
+                return;
+            }
             if (memcmp(thread_tasklet_data_ptr->ip, link_cfg->mesh_local_ula_prefix, 8) == 0) {
                 thread_tasklet_network_state_changed(MESH_CONNECTED_LOCAL);
             } else {

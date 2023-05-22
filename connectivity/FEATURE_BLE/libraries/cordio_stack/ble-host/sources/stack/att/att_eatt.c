@@ -267,7 +267,7 @@ static uint8_t eattL2cCocAcceptCback(dmConnId_t connId, uint8_t numChans)
 {
   eattConnCb_t *pCcb = eattGetConnCb(connId);
 
-  if ((pCcb->state == EATT_CONN_STATE_INITIATING) || (pCcb->state == EATT_CONN_STATE_RECONFIG))
+  if (!pCcb || (pCcb->state == EATT_CONN_STATE_INITIATING) || (pCcb->state == EATT_CONN_STATE_RECONFIG))
   {
     // Reject all requests while busy connecting and configuring channels
     return 0;
@@ -348,6 +348,10 @@ static void eattReqNextChannels(dmConnId_t connId)
   eattConnCb_t  *pConnCb = eattGetConnCb(connId);
   uint8_t       numChans = pEattCfg->numChans - EattGetNumChannelsInUse(connId);
   
+  if (!pConnCb) {
+    return;
+  }
+
   numChans = (numChans > L2C_MAX_EN_CHAN) ? L2C_MAX_EN_CHAN : numChans;
   
   EATT_TRACE_INFO1("eattReqNextChannels: numChans: %d", numChans);
@@ -783,7 +787,7 @@ static void eattDmCback(dmEvt_t *pDmEvt)
  *  \param  connId  DM channel ID.
  *  \param  slot    EATT slot.
  *
- *  \return None
+ *  \return L2CAP channel identifier.
  */
 /*************************************************************************************************/
 uint16_t eattGetCid(dmConnId_t connId, uint8_t slot)
@@ -795,6 +799,7 @@ uint16_t eattGetCid(dmConnId_t connId, uint8_t slot)
   else
   {
     eattConnCb_t *pCcb = eattGetConnCb(connId);
+    WSF_ASSERT(pCcb);
     return pCcb->pChanCb[slot-1].cid;
   }
 }
