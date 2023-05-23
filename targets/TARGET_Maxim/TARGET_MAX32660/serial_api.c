@@ -213,9 +213,6 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
             MBED_ASSERT(0);
     }
 
-    // Clear pending interrupts
-    obj->uart->int_fl = obj->uart->int_fl;
-
     // Set TX Almost Empty level to interrupt when empty
     obj->uart->ctrl1 = (MXC_F_UART_THRESH_CTRL_RX_FIFO_DEFAULT_THRESH_VAL | MXC_F_UART_THRESH_CTRL_TX_FIFO_DEFAULT_THRESH_VAL);
     

@@ -218,9 +218,6 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
             MBED_ASSERT(0);
     }
 
-    // Clear pending interrupts
-    obj->uart->int_fl = obj->uart->int_fl;
-
     // Set TX Almost Empty level to interrupt when empty
     MXC_UART_SetRXThreshold(obj->uart, 1);
 
