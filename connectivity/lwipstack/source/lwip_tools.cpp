@@ -110,12 +110,6 @@ const ip_addr_t *LWIP::get_ipv6_addr(const struct netif *netif)
             return netif_ip_addr6(netif, i);
         }
     }
-
-    for (int i = 0; i < LWIP_IPV6_NUM_ADDRESSES; i++) {
-        if (ip6_addr_isvalid(netif_ip6_addr_state(netif, i))) {
-            return netif_ip_addr6(netif, i);
-        }
-    }
 #endif
     return NULL;
 }
@@ -164,6 +158,9 @@ const ip_addr_t *LWIP::get_ip_addr(bool any_addr, const struct netif *netif)
     pref_ip_addr = get_ipv6_addr(netif);
     npref_ip_addr = get_ipv4_addr(netif);
 #endif
+    if (!npref_ip_addr) {
+        npref_ip_addr = get_ipv6_link_local_addr(netif);
+    }
 #elif LWIP_IPV6
     pref_ip_addr = get_ipv6_addr(netif);
 #elif LWIP_IPV4
