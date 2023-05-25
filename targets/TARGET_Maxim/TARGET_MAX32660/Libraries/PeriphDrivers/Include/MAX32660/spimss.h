@@ -1,10 +1,10 @@
 /**
  * @file    spimss.h
  * @brief   Serial Peripheral Interface (SPIMSS) function prototypes and data types.
- */ 
+ */
 
-/* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -34,12 +34,11 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- *
- *************************************************************************** */
- 
+ ******************************************************************************/
+
 /* Define to prevent redundant inclusion */
-#ifndef _SPIMSS_H_
-#define _SPIMSS_H_
+#ifndef LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_SPIMSS_H_
+#define LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_SPIMSS_H_
 
 /* **** Includes **** */
 #include "mxc_device.h"
@@ -60,14 +59,13 @@ extern "C" {
 
 /* **** Definitions **** */
 
-
 /** 
  * @brief Enumeration type for setting the number data lines to use for communication.
  */
-typedef enum {  // ONLY FOR COMPATIBILITY FOR CONSOLIDATION WITH SPY17, NOT USED OR NEEDED
-    DUMMY_1,    /**< NOT USED                */
-    DUMMY_2,    /**< NOT USED                */
-    DUMMY_3,    /**< NOT USED                */
+typedef enum { // ONLY FOR COMPATIBILITY FOR CONSOLIDATION WITH SPY17, NOT USED OR NEEDED
+    DUMMY_1, /**< NOT USED                */
+    DUMMY_2, /**< NOT USED                */
+    DUMMY_3, /**< NOT USED                */
 } mxc_spimss_width_t;
 
 /**
@@ -87,7 +85,7 @@ typedef struct mxc_spimss_req mxc_spimss_req_t;
  * | \p error_code | An error code if the active transaction had a failure or #E_NO_ERROR if successful. |
  * @note Callback will execute in interrupt context
  */
-typedef void (*mxc_spimss_callback_fn)(mxc_spimss_req_t * req, int error_code);
+typedef void (*mxc_spimss_callback_fn)(mxc_spimss_req_t *req, int error_code);
 
 /**
  * @brief      Structure definition for an SPI Master Transaction request.
@@ -95,16 +93,16 @@ typedef void (*mxc_spimss_callback_fn)(mxc_spimss_req_t * req, int error_code);
  *             structure must remain allocated until the callback is completed.
  */
 struct mxc_spimss_req {
-    uint8_t                 ssel;       /**< Not Used*/
-    uint8_t                 deass;      /**< Not Used*/
-    const void              *tx_data;   /**< Pointer to a buffer to transmit data from. NULL if undesired. */
-    void                    *rx_data;   /**< Pointer to a buffer to store data received. NULL if undesired.*/
-    mxc_spimss_width_t      width;      /**< Not Used */
-    unsigned                len;        /**< Number of transfer units to send from the \p tx_data buffer. */
-    unsigned                bits;       /**< Number of bits in transfer unit (e.g. 8 for byte, 16 for short) */
-    unsigned                rx_num;     /**< Number of bytes actually read into the \p rx_data buffer. */
-    unsigned                tx_num;     /**< Number of bytes actually sent from the \p tx_data buffer */
-    mxc_spimss_callback_fn  callback;   /**< Callback function if desired, NULL otherwise */
+    uint8_t ssel; /**< Not Used*/
+    uint8_t deass; /**< Not Used*/
+    const void *tx_data; /**< Pointer to a buffer to transmit data from. NULL if undesired. */
+    void *rx_data; /**< Pointer to a buffer to store data received. NULL if undesired.*/
+    mxc_spimss_width_t width; /**< Not Used */
+    unsigned len; /**< Number of transfer units to send from the \p tx_data buffer. */
+    unsigned bits; /**< Number of bits in transfer unit (e.g. 8 for byte, 16 for short) */
+    unsigned rx_num; /**< Number of bytes actually read into the \p rx_data buffer. */
+    unsigned tx_num; /**< Number of bytes actually sent from the \p tx_data buffer */
+    mxc_spimss_callback_fn callback; /**< Callback function if desired, NULL otherwise */
 };
 
 /* **** Function Prototypes **** */
@@ -115,8 +113,6 @@ struct mxc_spimss_req {
  * @param     mode    SPI mode for clock phase and polarity.
  * @param     freq    Desired clock frequency.
  * @param     sys_cfg System configuration object
- * @param     drv_ssel 1 SSEL will be drive by driver
- *                     0 SSEL will NOT be drive by driver
  *
  * @return \c #E_NO_ERROR if successful, appropriate error otherwise
  */
@@ -207,4 +203,4 @@ int MXC_SPIMSS_AbortAsync(mxc_spimss_req_t *req);
 }
 #endif
 
-#endif /* _SPIMSS_H_ */
+#endif // LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_SPIMSS_H_

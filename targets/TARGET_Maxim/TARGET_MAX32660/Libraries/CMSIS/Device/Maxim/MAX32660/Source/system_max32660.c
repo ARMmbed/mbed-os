@@ -3,8 +3,8 @@
  * @brief      System-level initialization implementation file
  */
 
-/*******************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -34,9 +34,6 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- * $Date: 2018-12-18 15:37:22 -0600 (Tue, 18 Dec 2018) $
- * $Revision: 40072 $
- *
  ******************************************************************************/
 
 #include <string.h>
@@ -48,34 +45,33 @@
 #include "tmr_regs.h"
 #include "wdt_regs.h"
 #include "mxc_sys.h"
-#include "icc.h"
 
 uint32_t SystemCoreClock = HIRC96_FREQ;
 
 __weak void SystemCoreClockUpdate(void)
 {
-    uint32_t base_freq, div, clk_src,ovr;
+    uint32_t base_freq, div, clk_src, ovr;
 
     // Get the clock source and frequency
     clk_src = (MXC_GCR->clk_ctrl & MXC_F_GCR_CLK_CTRL_CLKSEL);
-    
+
     if (clk_src == MXC_S_GCR_CLK_CTRL_CLKSEL_HFXIN) {
         base_freq = HFX_FREQ;
     } else {
-	if (clk_src == MXC_S_GCR_CLK_CTRL_CLKSEL_NANORING) {
-	    base_freq = NANORING_FREQ;
-	} else {
-	    ovr = (MXC_PWRSEQ->lp_ctrl & MXC_F_PWRSEQ_LP_CTRL_OVR);
-	    if (ovr == MXC_S_PWRSEQ_LP_CTRL_OVR_0_9V) {
-		base_freq = HIRC96_FREQ/4;
-	    } else {
-		if (ovr == MXC_S_PWRSEQ_LP_CTRL_OVR_1_0V) {
-		    base_freq = HIRC96_FREQ/2;
-		} else {
-		    base_freq = HIRC96_FREQ;
-		}
-	    }
-	}
+        if (clk_src == MXC_S_GCR_CLK_CTRL_CLKSEL_NANORING) {
+            base_freq = NANORING_FREQ;
+        } else {
+            ovr = (MXC_PWRSEQ->lp_ctrl & MXC_F_PWRSEQ_LP_CTRL_OVR);
+            if (ovr == MXC_S_PWRSEQ_LP_CTRL_OVR_0_9V) {
+                base_freq = HIRC96_FREQ / 4;
+            } else {
+                if (ovr == MXC_S_PWRSEQ_LP_CTRL_OVR_1_0V) {
+                    base_freq = HIRC96_FREQ / 2;
+                } else {
+                    base_freq = HIRC96_FREQ;
+                }
+            }
+        }
     }
 
     // Get the clock divider
@@ -103,11 +99,17 @@ __weak int PreInit(void)
     return 0;
 }
 
-/* Override this function for early platform initialization
-*/
+/* This function can be implemented by the application to initialize the board */
+__weak int Board_Init(void)
+{
+    /* Do nothing */
+    return 0;
+}
+
+/* Override this function for early platform initialization */
 __weak void low_level_init(void) 
 {
-    
+    /* Do nothing */
 }
 
 /* This function is called just before control is transferred to main().
@@ -140,7 +142,7 @@ __weak void SystemInit(void)
     MXC_SYS_ClockDisable(MXC_SYS_PERIPH_CLOCK_TMR1);
     MXC_SYS_ClockDisable(MXC_SYS_PERIPH_CLOCK_TMR2);
     MXC_SYS_ClockDisable(MXC_SYS_PERIPH_CLOCK_I2C1);
-    
+
     /* Early platform initialization */
     low_level_init();
 }

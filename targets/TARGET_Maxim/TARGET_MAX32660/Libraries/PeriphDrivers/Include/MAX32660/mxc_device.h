@@ -1,5 +1,5 @@
-/*******************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -29,23 +29,21 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- *
  ******************************************************************************/
 
 /**
  * @file    mxc_device.h
  * @brief   contains device and revision specific definitions
  */
- 
-#ifndef _MXC_DEVICE_H_
-#define _MXC_DEVICE_H_
+
+#ifndef LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_MXC_DEVICE_H_
+#define LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_MXC_DEVICE_H_
 
 #include "max32660.h"
 #include "mxc_errors.h"
 
-
 #ifndef TARGET
-    #error TARGET NOT DEFINED
+#error TARGET NOT DEFINED
 #endif
 
 // Create a string definition for the TARGET
@@ -57,18 +55,18 @@
 
 // Define which revisions of the IP we are using
 #ifndef TARGET_REV
-    #error TARGET_REV NOT DEFINED
+#error TARGET_REV NOT DEFINED
 #endif
 
-#if(TARGET_REV == 0x4131) 
-    // A1
-    #define MXC_PBM_REV         0
-    #define MXC_TMR_REV         0
-    #define MXC_UART_REV        1
+#if (TARGET_REV == 0x4131)
+// A1
+#define MXC_PBM_REV 0
+#define MXC_TMR_REV 0
+#define MXC_UART_REV 1
 #else
 
 #error TARGET_REV NOT SUPPORTED
 
-#endif  // if(TARGET_REV == ...) 
+#endif // if(TARGET_REV == ...)
 
-#endif  /* _MXC_DEVICE_H_ */
+#endif // LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_MXC_DEVICE_H_

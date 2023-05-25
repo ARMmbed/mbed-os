@@ -3,9 +3,8 @@
  * @brief   Low power function prototypes and data types.
  */
 
-
-/* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -35,16 +34,14 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- * $Date: 2018-09-26 08:48:30 -0500 (Wed, 26 Sep 2018) $
- * $Revision: 38105 $
- *
- *************************************************************************** */
+ ******************************************************************************/
 
 // Define to prevent redundant inclusion
-#ifndef _LP_H_
-#define _LP_H_
+#ifndef LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_LP_H_
+#define LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_LP_H_
 
 /***** Includes *****/
+#include "gpio.h"
 #include "pwrseq_regs.h"
 
 #ifdef __cplusplus
@@ -59,9 +56,9 @@ extern "C" {
 
 /** @brief System reset0 enumeration. Used in SYS_PeriphReset0 function */
 typedef enum {
-    MXC_LP_OVR_0_9       = MXC_S_PWRSEQ_LP_CTRL_OVR_0_9V,         /**< Reset DMA */
-    MXC_LP_OVR_1_0       = MXC_S_PWRSEQ_LP_CTRL_OVR_1_0V,         /**< Reset DMA */
-    MXC_LP_OVR_1_1       = MXC_S_PWRSEQ_LP_CTRL_OVR_1_1V,         /**< Reset DMA */
+    MXC_LP_OVR_0_9 = MXC_S_PWRSEQ_LP_CTRL_OVR_0_9V, /**< Reset DMA */
+    MXC_LP_OVR_1_0 = MXC_S_PWRSEQ_LP_CTRL_OVR_1_0V, /**< Reset DMA */
+    MXC_LP_OVR_1_1 = MXC_S_PWRSEQ_LP_CTRL_OVR_1_1V, /**< Reset DMA */
 } mxc_lp_ovr_t;
 
 /**
@@ -327,7 +324,6 @@ void MXC_LP_EnableVCoreSVM(void);
  */
 void MXC_LP_DisableVCoreSVM(void);
 
-
 /**
  * @brief     Enables VDDIO Power-On-Reset Monitor
  */
@@ -343,4 +339,4 @@ void MXC_LP_DisableVDDIOPorMonitor(void);
 }
 #endif
 
-#endif /* _LP_H_ */
+#endif // LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_LP_H_

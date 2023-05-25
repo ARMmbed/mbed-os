@@ -1,8 +1,8 @@
-/* *****************************************************************************
- * Copyright(C) Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files(the "Software"),
+ * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the
@@ -29,7 +29,10 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- **************************************************************************** */
+ ******************************************************************************/
+
+#ifndef LIBRARIES_PERIPHDRIVERS_SOURCE_TMR_TMR_REVA_H_
+#define LIBRARIES_PERIPHDRIVERS_SOURCE_TMR_TMR_REVA_H_
 
 /* **** Includes **** */
 #include <stddef.h>
@@ -41,18 +44,20 @@
 #include "tmr_reva_regs.h"
 
 /* **** Functions **** */
-void MXC_TMR_RevA_Init(mxc_tmr_reva_regs_t *tmr, mxc_tmr_cfg_t* cfg);
+void MXC_TMR_RevA_Init(mxc_tmr_reva_regs_t *tmr, mxc_tmr_cfg_t *cfg);
 void MXC_TMR_RevA_Shutdown(mxc_tmr_reva_regs_t *tmr);
-void MXC_TMR_RevA_Start(mxc_tmr_reva_regs_t* tmr);
-void MXC_TMR_RevA_Stop(mxc_tmr_reva_regs_t* tmr);
-int MXC_TMR_RevA_SetPWM(mxc_tmr_reva_regs_t* tmr, uint32_t pwm);
-uint32_t MXC_TMR_RevA_GetCompare(mxc_tmr_reva_regs_t* tmr);
-uint32_t MXC_TMR_RevA_GetCapture(mxc_tmr_reva_regs_t* tmr);
-uint32_t MXC_TMR_RevA_GetCount(mxc_tmr_reva_regs_t* tmr);
-void MXC_TMR_RevA_ClearFlags(mxc_tmr_reva_regs_t* tmr);
-uint32_t MXC_TMR_RevA_GetFlags(mxc_tmr_reva_regs_t* tmr);
+void MXC_TMR_RevA_Start(mxc_tmr_reva_regs_t *tmr);
+void MXC_TMR_RevA_Stop(mxc_tmr_reva_regs_t *tmr);
+int MXC_TMR_RevA_SetPWM(mxc_tmr_reva_regs_t *tmr, uint32_t pwm);
+uint32_t MXC_TMR_RevA_GetCompare(mxc_tmr_reva_regs_t *tmr);
+uint32_t MXC_TMR_RevA_GetCapture(mxc_tmr_reva_regs_t *tmr);
+uint32_t MXC_TMR_RevA_GetCount(mxc_tmr_reva_regs_t *tmr);
+void MXC_TMR_RevA_ClearFlags(mxc_tmr_reva_regs_t *tmr);
+uint32_t MXC_TMR_RevA_GetFlags(mxc_tmr_reva_regs_t *tmr);
 void MXC_TMR_RevA_SetCompare(mxc_tmr_reva_regs_t *tmr, uint32_t cmp_cnt);
 void MXC_TMR_RevA_SetCount(mxc_tmr_reva_regs_t *tmr, uint32_t cnt);
-void MXC_TMR_RevA_TO_Start(mxc_tmr_reva_regs_t *tmr, unsigned long us);
-int MXC_TMR_RevA_GetTime(mxc_tmr_reva_regs_t *tmr, uint32_t ticks, uint32_t *time, mxc_tmr_unit_t *units);
+void MXC_TMR_RevA_TO_Start(mxc_tmr_reva_regs_t *tmr, uint32_t us);
+int MXC_TMR_RevA_GetTime(mxc_tmr_reva_regs_t *tmr, uint32_t ticks, uint32_t *time,
+                         mxc_tmr_unit_t *units);
 
+#endif // LIBRARIES_PERIPHDRIVERS_SOURCE_TMR_TMR_REVA_H_

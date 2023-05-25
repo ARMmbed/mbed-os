@@ -1,10 +1,11 @@
 /**
  * @file    fcr_regs.h
  * @brief   Registers, Bit Masks and Bit Positions for the FCR Peripheral Module.
+ * @note    This file is @generated.
  */
 
-/* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -34,11 +35,10 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- *
- *************************************************************************** */
+ ******************************************************************************/
 
-#ifndef _FCR_REGS_H_
-#define _FCR_REGS_H_
+#ifndef LIBRARIES_CMSIS_DEVICE_MAXIM_MAX32660_INCLUDE_FCR_REGS_H_
+#define LIBRARIES_CMSIS_DEVICE_MAXIM_MAX32660_INCLUDE_FCR_REGS_H_
 
 /* **** Includes **** */
 #include <stdint.h>
@@ -46,11 +46,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
- 
+
 #if defined (__ICCARM__)
   #pragma system_include
 #endif
- 
+
 #if defined (__CC_ARM)
   #pragma anon_unions
 #endif
@@ -76,7 +76,7 @@ extern "C" {
  * @ingroup     fcr
  * @defgroup    fcr_registers FCR_Registers
  * @brief       Registers, Bit Masks and Bit Positions for the FCR Peripheral Module.
- * @details Function Control.
+ * @details     Function Control.
  */
 
 /**
@@ -91,10 +91,10 @@ typedef struct {
 /**
  * @ingroup    fcr_registers
  * @defgroup   FCR_Register_Offsets Register Offsets
- * @brief      FCR Peripheral Register Offsets from the FCR Base Peripheral Address. 
+ * @brief      FCR Peripheral Register Offsets from the FCR Base Peripheral Address.
  * @{
  */
- #define MXC_R_FCR_REG0                     ((uint32_t)0x00000000UL) /**< Offset from FCR Base Address: <tt> 0x0000</tt> */ 
+#define MXC_R_FCR_REG0                     ((uint32_t)0x00000000UL) /**< Offset from FCR Base Address: <tt> 0x0000</tt> */
 /**@} end of group fcr_registers */
 
 /**
@@ -103,17 +103,17 @@ typedef struct {
  * @brief    Register 0.
  * @{
  */
- #define MXC_F_FCR_REG0_I2C0_SDA_FILTER_EN_POS          20 /**< REG0_I2C0_SDA_FILTER_EN Position */
- #define MXC_F_FCR_REG0_I2C0_SDA_FILTER_EN              ((uint32_t)(0x1UL << MXC_F_FCR_REG0_I2C0_SDA_FILTER_EN_POS)) /**< REG0_I2C0_SDA_FILTER_EN Mask */
+#define MXC_F_FCR_REG0_I2C0_SDA_FILTER_EN_POS          20 /**< REG0_I2C0_SDA_FILTER_EN Position */
+#define MXC_F_FCR_REG0_I2C0_SDA_FILTER_EN              ((uint32_t)(0x1UL << MXC_F_FCR_REG0_I2C0_SDA_FILTER_EN_POS)) /**< REG0_I2C0_SDA_FILTER_EN Mask */
 
- #define MXC_F_FCR_REG0_I2C0_SCL_FILTER_EN_POS          21 /**< REG0_I2C0_SCL_FILTER_EN Position */
- #define MXC_F_FCR_REG0_I2C0_SCL_FILTER_EN              ((uint32_t)(0x1UL << MXC_F_FCR_REG0_I2C0_SCL_FILTER_EN_POS)) /**< REG0_I2C0_SCL_FILTER_EN Mask */
+#define MXC_F_FCR_REG0_I2C0_SCL_FILTER_EN_POS          21 /**< REG0_I2C0_SCL_FILTER_EN Position */
+#define MXC_F_FCR_REG0_I2C0_SCL_FILTER_EN              ((uint32_t)(0x1UL << MXC_F_FCR_REG0_I2C0_SCL_FILTER_EN_POS)) /**< REG0_I2C0_SCL_FILTER_EN Mask */
 
- #define MXC_F_FCR_REG0_I2C1_SDA_FILTER_EN_POS          22 /**< REG0_I2C1_SDA_FILTER_EN Position */
- #define MXC_F_FCR_REG0_I2C1_SDA_FILTER_EN              ((uint32_t)(0x1UL << MXC_F_FCR_REG0_I2C1_SDA_FILTER_EN_POS)) /**< REG0_I2C1_SDA_FILTER_EN Mask */
+#define MXC_F_FCR_REG0_I2C1_SDA_FILTER_EN_POS          22 /**< REG0_I2C1_SDA_FILTER_EN Position */
+#define MXC_F_FCR_REG0_I2C1_SDA_FILTER_EN              ((uint32_t)(0x1UL << MXC_F_FCR_REG0_I2C1_SDA_FILTER_EN_POS)) /**< REG0_I2C1_SDA_FILTER_EN Mask */
 
- #define MXC_F_FCR_REG0_I2C1_SCL_FILTER_EN_POS          23 /**< REG0_I2C1_SCL_FILTER_EN Position */
- #define MXC_F_FCR_REG0_I2C1_SCL_FILTER_EN              ((uint32_t)(0x1UL << MXC_F_FCR_REG0_I2C1_SCL_FILTER_EN_POS)) /**< REG0_I2C1_SCL_FILTER_EN Mask */
+#define MXC_F_FCR_REG0_I2C1_SCL_FILTER_EN_POS          23 /**< REG0_I2C1_SCL_FILTER_EN Position */
+#define MXC_F_FCR_REG0_I2C1_SCL_FILTER_EN              ((uint32_t)(0x1UL << MXC_F_FCR_REG0_I2C1_SCL_FILTER_EN_POS)) /**< REG0_I2C1_SCL_FILTER_EN Mask */
 
 /**@} end of group FCR_REG0_Register */
 
@@ -121,4 +121,4 @@ typedef struct {
 }
 #endif
 
-#endif /* _FCR_REGS_H_ */
+#endif // LIBRARIES_CMSIS_DEVICE_MAXIM_MAX32660_INCLUDE_FCR_REGS_H_

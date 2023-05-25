@@ -162,9 +162,7 @@ void lp_ticker_init(void)
     unsigned int count;
 
     cfg.pres    = LP_TIMER_PRESCALE;   
-    cfg.mode    = TMR_MODE_COMPARE;        
-    cfg.bitMode = TMR_BIT_MODE_32;  
-    cfg.clock   = MXC_TMR_HFIO_CLK;        
+    cfg.mode    = TMR_MODE_COMPARE;             
     cfg.cmp_cnt = 0;//MXC_TMR_GetCompare(LP_TIMER);              
     cfg.pol     = 0;                  
 

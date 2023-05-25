@@ -1,5 +1,5 @@
-/* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -29,37 +29,35 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- *
- *************************************************************************** */
+ ******************************************************************************/
 
 /* **** Includes **** */
+#include "mxc_device.h"
 #include "mxc_lock.h"
 
 #if USE_LOCK_IN_DRIVERS
 
 #ifndef __riscv
 /* ************************************************************************** */
-int MXC_GetLock(uint32_t* lock, uint32_t value)
+int MXC_GetLock(uint32_t *lock, uint32_t value)
 {
     do {
-    
         // Return if the lock is taken by a different thread
-        if (__LDREXW((volatile unsigned long*) lock) != 0) {
+        if (__LDREXW((volatile uint32_t *)lock) != 0) {
             return E_BUSY;
         }
-        
+
         // Attempt to take the lock
-    }
-    while (__STREXW(value, (volatile unsigned long*) lock) != 0);
-    
+    } while (__STREXW(value, (volatile uint32_t *)lock) != 0);
+
     // Do not start any other memory access until memory barrier is complete
     __DMB();
-    
+
     return E_NO_ERROR;
 }
 
 /* ************************************************************************** */
-void MXC_FreeLock(uint32_t* lock)
+void MXC_FreeLock(uint32_t *lock)
 {
     // Ensure memory operations complete before releasing lock
     __DMB();
@@ -67,16 +65,16 @@ void MXC_FreeLock(uint32_t* lock)
 }
 #else // __riscv
 /* ************************************************************************** */
-int MXC_GetLock(uint32_t* lock, uint32_t value)
-{   
-    #warning "Unimplemented for RISCV"
+int MXC_GetLock(uint32_t *lock, uint32_t value)
+{
+#warning "Unimplemented for RISCV"
     return E_NO_ERROR;
 }
 
 /* ************************************************************************** */
-void MXC_FreeLock(uint32_t* lock)
+void MXC_FreeLock(uint32_t *lock)
 {
-    #warning "Unimplemented for RISCV"
+#warning "Unimplemented for RISCV"
 }
 #endif
 

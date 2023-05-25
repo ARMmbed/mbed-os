@@ -1,5 +1,5 @@
-/* ****************************************************************************
- * Copyright (C) 2022 Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -29,7 +29,7 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- *************************************************************************** */
+ ******************************************************************************/
 
 #include <stdio.h>
 #include <stddef.h>
@@ -66,9 +66,8 @@ void MXC_I2C_RevA_AsyncStop(mxc_i2c_reva_regs_t *i2c);
 void MXC_I2C_RevA_AbortAsync(mxc_i2c_reva_regs_t *i2c);
 void MXC_I2C_RevA_MasterAsyncHandler(int i2cNum);
 int MXC_I2C_RevA_DMAHandler(mxc_i2c_reva_req_t *req);
-unsigned int MXC_I2C_RevA_SlaveAsyncHandler(mxc_i2c_reva_regs_t *i2c,
-                                            mxc_i2c_reva_slave_handler_t callback,
-                                            unsigned int interruptEnables, int *retVal);
+void MXC_I2C_RevA_SlaveAsyncHandler(mxc_i2c_reva_regs_t *i2c, mxc_i2c_reva_slave_handler_t callback,
+                                    uint32_t *int_en, int *retVal);
 
 /* ************************************************************************* */
 /* Control/Configuration functions                                           */
@@ -145,8 +144,8 @@ int MXC_I2C_RevA_SetFrequency(mxc_i2c_reva_regs_t *i2c, unsigned int hz)
         return E_NULL_PTR;
     }
 
-    if (hz > MXC_I2C_REVA_FASTPLUS_SPEED) {
-        // We're going to enable high speed
+    if (hz > MXC_I2C_REVA_FASTPLUS_SPEED && hz <= MXC_I2C_REVA_HIGH_SPEED) {
+        // Enable high speed mode
         int hsLowClks, hsHiClks;
 
         // Calculate the period of SCL and set up 33% duty cycle
@@ -164,7 +163,17 @@ int MXC_I2C_RevA_SetFrequency(mxc_i2c_reva_regs_t *i2c, unsigned int hz)
             return E_BAD_PARAM;
         }
 
+        hsLowClks = (hsLowClks << MXC_F_I2C_REVA_HSCLK_LO_POS) & MXC_F_I2C_REVA_HSCLK_LO;
+        hsHiClks = (hsHiClks << MXC_F_I2C_REVA_HSCLK_HI_POS) & MXC_F_I2C_REVA_HSCLK_HI;
+
+        i2c->hsclk = (hsLowClks | hsHiClks);
+
+        i2c->ctrl |= MXC_F_I2C_REVA_CTRL_HS_EN;
+
         hz = MXC_I2C_REVA_FAST_SPEED; // High speed preambles will be sent at 400kHz
+
+    } else if (hz > MXC_I2C_REVA_HIGH_SPEED) {
+        return E_BAD_PARAM;
     }
 
     // Calculate the period of SCL, 50% duty cycle
@@ -805,7 +814,7 @@ int MXC_I2C_RevA_MasterTransaction(mxc_i2c_reva_req_t *req)
         i2c->mstctrl |= MXC_F_I2C_REVA_MSTCTRL_RESTART;
     } else {
         i2c->mstctrl |= MXC_F_I2C_REVA_MSTCTRL_STOP;
-        
+
         while (!(i2c->intfl0 & MXC_F_I2C_REVA_INTFL0_STOP)) {}
         // Wait for Transaction to finish
     }
@@ -1017,8 +1026,11 @@ void MXC_I2C_RevA_DMACallback(int ch, int error)
 int MXC_I2C_RevA_SlaveTransaction(mxc_i2c_reva_regs_t *i2c, mxc_i2c_reva_slave_handler_t callback,
                                   uint32_t interruptCheck)
 {
-    unsigned int interruptEnables = interruptCheck;
     int retVal = E_NO_ERROR;
+
+    uint32_t int_en[2];
+    int_en[0] = interruptCheck;
+    int_en[1] = 0;
 
     if (MXC_I2C_GET_IDX((mxc_i2c_regs_t *)i2c) < 0) {
         return E_BAD_PARAM;
@@ -1050,8 +1062,8 @@ int MXC_I2C_RevA_SlaveTransaction(mxc_i2c_reva_regs_t *i2c, mxc_i2c_reva_slave_h
     // I2C_EVT_UNDERFLOW
     // I2C_EVT_OVERFLOW
 
-    while (interruptEnables > 0) {
-        interruptEnables = MXC_I2C_RevA_SlaveAsyncHandler(i2c, callback, interruptEnables, &retVal);
+    while (int_en[0] > 0 || int_en[1] > 0) {
+        MXC_I2C_RevA_SlaveAsyncHandler(i2c, callback, int_en, &retVal);
     }
 
     return retVal;
@@ -1270,9 +1282,8 @@ void MXC_I2C_RevA_MasterAsyncHandler(int i2cNum)
     }
 }
 
-unsigned int MXC_I2C_RevA_SlaveAsyncHandler(mxc_i2c_reva_regs_t *i2c,
-                                            mxc_i2c_reva_slave_handler_t callback,
-                                            unsigned int interruptEnables, int *retVal)
+void MXC_I2C_RevA_SlaveAsyncHandler(mxc_i2c_reva_regs_t *i2c, mxc_i2c_reva_slave_handler_t callback,
+                                    uint32_t *int_en, int *retVal)
 {
     uint32_t tFlags = i2c->intfl0;
     *retVal = E_NO_ERROR;
@@ -1294,9 +1305,8 @@ unsigned int MXC_I2C_RevA_SlaveAsyncHandler(mxc_i2c_reva_regs_t *i2c,
     // I2C_EVT_TRANS_COMP
     // I2C_EVT_UNDERFLOW
     // I2C_EVT_OVERFLOW
-    if (!(interruptEnables &
-          (MXC_F_I2C_REVA_INTFL0_RD_ADDR_MATCH | MXC_F_I2C_REVA_INTFL0_WR_ADDR_MATCH |
-           MXC_F_I2C_REVA_INTFL0_ADDR_MATCH))) {
+    if (!(int_en[0] & (MXC_F_I2C_REVA_INTFL0_RD_ADDR_MATCH | MXC_F_I2C_REVA_INTFL0_WR_ADDR_MATCH |
+                       MXC_F_I2C_REVA_INTFL0_ADDR_MATCH))) {
         // The STOPERR/STARTERR interrupt that's enabled here could fire before we are addressed
         // (fires anytime a stop/start is detected out of sequence).
         if (tFlags & MXC_I2C_REVA_ERROR) {
@@ -1310,11 +1320,12 @@ unsigned int MXC_I2C_RevA_SlaveAsyncHandler(mxc_i2c_reva_regs_t *i2c,
                                MXC_I2C_REVA_INTFL1_MASK); // Clear all I2C Interrupts
             MXC_I2C_ClearTXFIFO((mxc_i2c_regs_t *)i2c);
             MXC_I2C_ClearRXFIFO((mxc_i2c_regs_t *)i2c);
-            interruptEnables = 0;
+            int_en[0] = 0;
+            int_en[1] = 0;
             AsyncRequests[MXC_I2C_GET_IDX((mxc_i2c_regs_t *)i2c)] = NULL;
         }
 
-        if (interruptEnables & (MXC_F_I2C_REVA_INTFL0_RX_THD | MXC_F_I2C_REVA_INTFL1_RX_OV)) {
+        if (int_en[0] & MXC_F_I2C_REVA_INTFL0_RX_THD || int_en[1] & MXC_F_I2C_REVA_INTFL1_RX_OV) {
             if (tFlags & MXC_F_I2C_REVA_INTFL0_RX_THD) {
                 if (callback != NULL) {
                     callback(i2c, MXC_I2C_REVA_EVT_RX_THRESH, NULL);
@@ -1332,8 +1343,8 @@ unsigned int MXC_I2C_RevA_SlaveAsyncHandler(mxc_i2c_reva_regs_t *i2c,
             }
         }
 
-        if (interruptEnables & (MXC_F_I2C_REVA_INTFL0_TX_THD | MXC_F_I2C_REVA_INTFL1_TX_UN |
-                                MXC_F_I2C_REVA_INTFL0_TX_LOCKOUT)) {
+        if (int_en[0] & (MXC_F_I2C_REVA_INTFL0_TX_THD | MXC_F_I2C_REVA_INTFL0_TX_LOCKOUT) ||
+            int_en[1] & MXC_F_I2C_REVA_INTFL1_TX_UN) {
             if (tFlags & MXC_F_I2C_REVA_INTFL0_TX_THD) {
                 if (callback != NULL) {
                     callback(i2c, MXC_I2C_REVA_EVT_TX_THRESH, NULL);
@@ -1358,7 +1369,8 @@ unsigned int MXC_I2C_RevA_SlaveAsyncHandler(mxc_i2c_reva_regs_t *i2c,
                 }
 
                 i2c->intfl0 = MXC_F_I2C_REVA_INTFL0_TX_LOCKOUT;
-                interruptEnables = 0;
+                int_en[0] = 0;
+                int_en[1] = 0;
                 AsyncRequests[MXC_I2C_GET_IDX((mxc_i2c_regs_t *)i2c)] = NULL;
             }
         }
@@ -1371,7 +1383,8 @@ unsigned int MXC_I2C_RevA_SlaveAsyncHandler(mxc_i2c_reva_regs_t *i2c,
             }
 
             i2c->intfl0 = MXC_F_I2C_REVA_INTFL0_STOP;
-            interruptEnables = 0;
+            int_en[0] = 0;
+            int_en[1] = 0;
             AsyncRequests[MXC_I2C_GET_IDX((mxc_i2c_regs_t *)i2c)] = NULL;
         }
     }
@@ -1383,8 +1396,10 @@ unsigned int MXC_I2C_RevA_SlaveAsyncHandler(mxc_i2c_reva_regs_t *i2c,
 
         i2c->intfl0 = MXC_F_I2C_REVA_INTFL0_RD_ADDR_MATCH;
         i2c->intfl0 = MXC_F_I2C_REVA_INTFL0_ADDR_MATCH;
-        interruptEnables = MXC_F_I2C_REVA_INTFL0_RX_THD | MXC_F_I2C_REVA_INTFL1_RX_OV |
-                           MXC_I2C_REVA_ERROR;
+        i2c->intfl0 = MXC_F_I2C_REVA_INTFL0_TX_LOCKOUT;
+
+        int_en[0] = MXC_F_I2C_REVA_INTFL0_RX_THD | MXC_F_I2C_REVA_INTFL0_DONE | MXC_I2C_REVA_ERROR;
+        int_en[1] = MXC_F_I2C_REVA_INTFL1_RX_OV;
     }
 
     if (tFlags & MXC_F_I2C_REVA_INTFL0_WR_ADDR_MATCH) {
@@ -1394,8 +1409,9 @@ unsigned int MXC_I2C_RevA_SlaveAsyncHandler(mxc_i2c_reva_regs_t *i2c,
 
         i2c->intfl0 = MXC_F_I2C_REVA_INTFL0_WR_ADDR_MATCH;
         i2c->intfl0 = MXC_F_I2C_REVA_INTFL0_ADDR_MATCH;
-        interruptEnables = MXC_F_I2C_REVA_INTFL0_TX_THD | MXC_F_I2C_REVA_INTFL1_TX_UN |
-                           MXC_F_I2C_REVA_INTFL0_TX_LOCKOUT | MXC_I2C_REVA_ERROR;
+        int_en[0] = MXC_F_I2C_REVA_INTFL0_TX_THD | MXC_F_I2C_REVA_INTFL0_TX_LOCKOUT |
+                    MXC_I2C_REVA_ERROR;
+        int_en[1] = MXC_F_I2C_REVA_INTFL1_TX_UN;
     }
 
     if (tFlags & MXC_F_I2C_REVA_INTFL0_ADDR_MATCH) {
@@ -1404,19 +1420,23 @@ unsigned int MXC_I2C_RevA_SlaveAsyncHandler(mxc_i2c_reva_regs_t *i2c,
                 callback(i2c, MXC_I2C_REVA_EVT_MASTER_RD, NULL);
             }
 
+            i2c->intfl0 = MXC_F_I2C_REVA_INTFL0_RD_ADDR_MATCH;
             i2c->intfl0 = MXC_F_I2C_REVA_INTFL0_ADDR_MATCH;
-            i2c->intfl0 = MXC_F_I2C_REVA_INTFL0_ADDR_MATCH;
-            interruptEnables = MXC_F_I2C_REVA_INTFL0_TX_THD | MXC_F_I2C_REVA_INTFL1_TX_UN |
-                               MXC_F_I2C_REVA_INTFL0_TX_LOCKOUT | MXC_I2C_REVA_ERROR;
+            i2c->intfl0 = MXC_F_I2C_REVA_INTFL0_TX_LOCKOUT;
+
+            int_en[0] = MXC_F_I2C_REVA_INTFL0_TX_THD | MXC_F_I2C_REVA_INTFL0_TX_LOCKOUT |
+                        MXC_I2C_REVA_ERROR;
+            int_en[1] = MXC_F_I2C_REVA_INTFL1_TX_UN;
         } else {
             if (callback != NULL) {
                 callback(i2c, MXC_I2C_REVA_EVT_MASTER_WR, NULL);
             }
 
+            i2c->intfl0 = MXC_F_I2C_REVA_INTFL0_WR_ADDR_MATCH;
             i2c->intfl0 = MXC_F_I2C_REVA_INTFL0_ADDR_MATCH;
-            i2c->intfl0 = MXC_F_I2C_REVA_INTFL0_ADDR_MATCH;
-            interruptEnables = MXC_F_I2C_REVA_INTFL0_RX_THD | MXC_F_I2C_REVA_INTFL1_RX_OV |
-                               MXC_I2C_REVA_ERROR;
+            int_en[0] = MXC_F_I2C_REVA_INTFL0_RX_THD | MXC_F_I2C_REVA_INTFL0_DONE |
+                        MXC_I2C_REVA_ERROR;
+            int_en[1] = MXC_F_I2C_REVA_INTFL1_RX_OV;
         }
     } else if (tFlags & MXC_I2C_REVA_ERROR) {
         *retVal = E_COMM_ERR;
@@ -1429,17 +1449,17 @@ unsigned int MXC_I2C_RevA_SlaveAsyncHandler(mxc_i2c_reva_regs_t *i2c,
                                 MXC_I2C_REVA_INTFL1_MASK); // clear all i2c interrupts
         MXC_I2C_RevA_ClearTXFIFO(i2c);
         MXC_I2C_RevA_ClearRXFIFO(i2c);
-        interruptEnables = 0;
+        int_en[0] = 0;
+        int_en[1] = 0;
         AsyncRequests[MXC_I2C_GET_IDX((mxc_i2c_regs_t *)i2c)] = NULL;
     }
-
-    return interruptEnables;
 }
 
 void MXC_I2C_RevA_AsyncHandler(mxc_i2c_reva_regs_t *i2c, uint32_t interruptCheck)
 {
     int i2cNum = MXC_I2C_GET_IDX((mxc_i2c_regs_t *)i2c);
     int slaveRetVal;
+    uint32_t int_en[2];
 
     if (i2cNum < 0) {
         return;
@@ -1449,6 +1469,13 @@ void MXC_I2C_RevA_AsyncHandler(mxc_i2c_reva_regs_t *i2c, uint32_t interruptCheck
         MXC_I2C_RevA_MasterAsyncHandler(i2cNum);
     } else {
         mxc_i2c_reva_slave_handler_t callback = (mxc_i2c_reva_slave_handler_t)AsyncRequests[i2cNum];
-        i2c->inten0 = MXC_I2C_RevA_SlaveAsyncHandler(i2c, callback, i2c->inten0, &slaveRetVal);
+
+        int_en[0] = i2c->inten0;
+        int_en[1] = i2c->inten1;
+
+        MXC_I2C_RevA_SlaveAsyncHandler(i2c, callback, int_en, &slaveRetVal);
+
+        i2c->inten0 = int_en[0];
+        i2c->inten1 = int_en[1];
     }
 }
