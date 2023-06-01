@@ -42,7 +42,6 @@ jobs:
             | ( grep -v '^tools/test/toolchains/api_test.py' || true ) \
             | while read file; do cp --parents "${file}" SCANCODE; done
           ls SCANCODE
-          scancode --reindex-licenses # workaround for https://github.com/nexB/scancode-toolkit/issues/3179
           scancode -l --json-pp scancode.json SCANCODE
           python ./tools/test/ci/scancode-evaluate.py scancode.json || true
           cat scancode-evaluate.log
