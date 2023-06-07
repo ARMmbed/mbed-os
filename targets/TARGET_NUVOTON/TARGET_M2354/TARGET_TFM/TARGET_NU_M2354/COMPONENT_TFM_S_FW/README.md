@@ -136,6 +136,7 @@ Below summarize the copy paths from TF-M into Mbed:
 -   trusted-firmware-m/cmake_build/install/outputs/NUVOTON/M2354/tfm_s.bin → tfm_s.bin
 -   trusted-firmware-m/cmake_build/install/interface/lib/s_veneers.o → s_veneers.o
 -   trusted-firmware-m/platform/ext/target/nuvoton/m2354/partition/flash_layout.h → partition/flash_layout.h
+-   trusted-firmware-m/platform/ext/target/nuvoton/m2354/partition/partition_M2354.h → partition/partition_M2354_im.h
 -   trusted-firmware-m/platform/ext/target/nuvoton/m2354/partition/region_defs.h → partition/region_defs.h
 -   trusted-firmware-m/cmake_build/install/image_signing/layout_files/signing_layout_s.o → partition/signing_layout_s_preprocessed.h
 -   trusted-firmware-m/cmake_build/install/image_signing/layout_files/signing_layout_ns.o → partition/signing_layout_ns_preprocessed.h

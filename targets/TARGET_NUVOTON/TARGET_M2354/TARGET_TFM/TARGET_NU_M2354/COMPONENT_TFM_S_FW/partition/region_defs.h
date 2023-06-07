@@ -2,6 +2,8 @@
  * Copyright (c) 2017-2020 Arm Limited. All rights reserved.
  * Copyright (c) 2020 Nuvoton Technology Corp. All rights reserved.
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -69,12 +71,35 @@
  * by the bootloader.
  */
 #ifdef BL2
-#define BL2_HEADER_SIZE      (0x400)       /* 1 KB */
-#define BL2_TRAILER_SIZE     (0x800)       /* 2 KB */
+#define BL2_HEADER_SIZE      (0x1000)       /* 4 KB */
+/* Evaluate image trailer size for 'SWAP' upgrade strategy
+ *
+ * Check the link below for necessary trailer size:
+ * https://www.mcuboot.com/documentation/design/
+ *
+ * With the formula:
+ * Swap status (BOOT_MAX_IMG_SECTORS * min-write-size * 3)
+ *
+ * Where for the platform:
+ * BOOT_MAX_IMG_SECTORS = 512 (= 1MiB / 2KiB)
+ * min-write-size = 4 bytes (per flash_area_align())
+ * Swap status = 512 * 4 * 3 = 6KiB
+ *
+ * 6KiB plus other fields for image trailer plus TLV, we reserve 8KiB in total.
+ *
+ * Notes for above estimation:
+ * 1. In image signing such as bl2/ext/mcuboot/CMakeLists.txt, `--align` must fix to 4 and `--max-sectors` must specify as 512 to catch trailer size overrun error.
+ * 2. 2KiB is taken from smaller of internal/external Flash's sector sizes.
+ * 3. Continuing above, SDH Flash's sector size should have adapted to larger from 512 bytes.
+ * 4. BL2_TRAILER_SIZE must include TLV area, though not mentioned.
+ * 5. For consistency, BL2_TRAILER_SIZE doesn't change across 'OVERWRITE_ONLY' and "SWAP" upgrade strategies.
+ * 6. For consistency, (BL2_HEADER_SIZE + BL2_TRAILER_SIZE) doesn't change across w/ and w/o BL2.
+ */
+#define BL2_TRAILER_SIZE     (0x2000)       /* 8 KB */
 #else
 /* No header if no bootloader, but keep IMAGE_CODE_SIZE the same */
 #define BL2_HEADER_SIZE      (0x0)
-#define BL2_TRAILER_SIZE     (0x800)
+#define BL2_TRAILER_SIZE     (0x3000)
 #endif /* BL2 */
 
 #define IMAGE_S_CODE_SIZE    (FLASH_S_PARTITION_SIZE - BL2_HEADER_SIZE - BL2_TRAILER_SIZE)
