@@ -68,6 +68,35 @@ static serial_t *objs[MXC_UART_INSTANCES];
 static void usurp_pin(PinName, int);
 
 //******************************************************************************
+void uart_handler(serial_t *obj)
+{
+    // clear interrupts
+    volatile uint32_t flags = obj->uart->int_fl;
+    
+    if (flags & UART_ER_IE) {
+        // clear error flags
+        obj->uart->int_fl = UART_ER_IE;
+    }
+    
+    if (flags & UART_RX_IE) {
+        obj->uart->int_fl = UART_RX_IE;
+        if (obj && irq_handler) {
+            irq_handler(obj->id, RxIrq);
+        }
+    }
+    
+    if (flags & UART_TX_IE) {
+        obj->uart->int_fl = UART_TX_IE;
+        if (obj && irq_handler) {
+            irq_handler(obj->id, TxIrq);
+        }
+    }
+}
+
+void uart0_handler(void) { uart_handler(objs[0]); }
+void uart1_handler(void) { uart_handler(objs[1]); }
+
+//******************************************************************************
 void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
     // Determine which uart is associated with each pin
@@ -106,6 +135,19 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     MXC_UART_Init (obj->uart, DEFAULT_BAUD, obj->map);
     //MBED_ASSERT(retval == E_NO_ERROR);
+
+    switch (obj->index) {
+        case 0:
+            NVIC_SetVector(UART0_IRQn, (uint32_t)uart0_handler);
+            NVIC_EnableIRQ(UART0_IRQn);
+            break;
+        case 1:
+            NVIC_SetVector(UART1_IRQn, (uint32_t)uart1_handler);
+            NVIC_EnableIRQ(UART1_IRQn);
+            break;
+    }
+
+    return;
 }
 
 void serial_free(serial_t *obj)
@@ -159,35 +201,6 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 }
 
 //******************************************************************************
-void uart_handler(serial_t *obj)
-{
-    // clear interrupts
-    volatile uint32_t flags = obj->uart->int_fl;
-    
-    if (flags & UART_ER_IE) {
-        // clear error flags
-        obj->uart->int_fl = UART_ER_IE;
-    }
-    
-    if (flags & UART_RX_IE) {
-        obj->uart->int_fl = UART_RX_IE;
-        if (obj && irq_handler) {
-            irq_handler(obj->id, RxIrq);
-        }
-    }
-    
-    if (flags & UART_TX_IE) {
-        obj->uart->int_fl = UART_TX_IE;
-        if (obj && irq_handler) {
-            irq_handler(obj->id, TxIrq);
-        }
-    }
-}
-
-void uart0_handler(void) { uart_handler(objs[0]); }
-void uart1_handler(void) { uart_handler(objs[1]); }
-
-//******************************************************************************
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
     irq_handler = handler;
@@ -199,22 +212,6 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 {
     MBED_ASSERT(obj->index < MXC_UART_INSTANCES);
     objs[obj->index] = obj;
-
-    switch (obj->index) {
-        case 0:
-            NVIC_SetVector(UART0_IRQn, (uint32_t)uart0_handler);
-            NVIC_EnableIRQ(UART0_IRQn);
-            break;
-        case 1:
-            NVIC_SetVector(UART1_IRQn, (uint32_t)uart1_handler);
-            NVIC_EnableIRQ(UART1_IRQn);
-            break;
-        default:
-            MBED_ASSERT(0);
-    }
-
-    // Clear pending interrupts
-    obj->uart->int_fl = obj->uart->int_fl;
 
     // Set TX Almost Empty level to interrupt when empty
     obj->uart->ctrl1 = (MXC_F_UART_THRESH_CTRL_RX_FIFO_DEFAULT_THRESH_VAL | MXC_F_UART_THRESH_CTRL_TX_FIFO_DEFAULT_THRESH_VAL);
