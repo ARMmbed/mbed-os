@@ -137,7 +137,7 @@ void SPI::_do_construct()
     }
     core_util_critical_section_exit();
 
-#if DEVICE_SPI_ASYNCH && TRANSACTION_QUEUE_SIZE_SPI
+#if DEVICE_SPI_ASYNCH && MBED_CONF_DRIVERS_SPI_TRANSACTION_QUEUE_LEN
     // prime the SingletonPtr, so we don't have a problem trying to
     // construct the buffer if asynch operation initiated from IRQ
     _peripheral->transaction_buffer.get();
@@ -291,14 +291,14 @@ void SPI::abort_transfer()
 {
     spi_abort_asynch(&_peripheral->spi);
     unlock_deep_sleep();
-#if TRANSACTION_QUEUE_SIZE_SPI
+#if MBED_CONF_DRIVERS_SPI_TRANSACTION_QUEUE_LEN
     dequeue_transaction();
 #endif
 }
 
 void SPI::clear_transfer_buffer()
 {
-#if TRANSACTION_QUEUE_SIZE_SPI
+#if MBED_CONF_DRIVERS_SPI_TRANSACTION_QUEUE_LEN
     _peripheral->transaction_buffer->reset();
 #endif
 }
@@ -320,7 +320,7 @@ int SPI::set_dma_usage(DMAUsage usage)
 
 int SPI::queue_transfer(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t &callback, int event)
 {
-#if TRANSACTION_QUEUE_SIZE_SPI
+#if MBED_CONF_DRIVERS_SPI_TRANSACTION_QUEUE_LEN
     transaction_t t;
 
     t.tx_buffer = const_cast<void *>(tx_buffer);
@@ -373,7 +373,7 @@ void SPI::unlock_deep_sleep()
     }
 }
 
-#if TRANSACTION_QUEUE_SIZE_SPI
+#if MBED_CONF_DRIVERS_SPI_TRANSACTION_QUEUE_LEN
 
 void SPI::start_transaction(transaction_t *data)
 {
@@ -400,7 +400,7 @@ void SPI::irq_handler_asynch(void)
         unlock_deep_sleep();
         _callback.call(event & SPI_EVENT_ALL);
     }
-#if TRANSACTION_QUEUE_SIZE_SPI
+#if MBED_CONF_DRIVERS_SPI_TRANSACTION_QUEUE_LEN
     if (event & (SPI_EVENT_ALL | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE)) {
         // SPI peripheral is free (event happened), dequeue transaction
         dequeue_transaction();

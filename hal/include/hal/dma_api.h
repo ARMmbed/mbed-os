@@ -1,6 +1,8 @@
-
-/** \addtogroup hal */
-/** @{*/
+/**
+ * @file
+ * \addtogroup hal
+ * @{
+ */
 /* mbed Microcontroller Library
  * Copyright (c) 2014-2015 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
@@ -24,12 +26,15 @@
 
 #define DMA_ERROR_OUT_OF_CHANNELS (-1)
 
+/**
+ * @brief Enumeration of possible DMA usage hints
+ */
 typedef enum {
-    DMA_USAGE_NEVER,
-    DMA_USAGE_OPPORTUNISTIC,
-    DMA_USAGE_ALWAYS,
-    DMA_USAGE_TEMPORARY_ALLOCATED,
-    DMA_USAGE_ALLOCATED
+    DMA_USAGE_NEVER, ///< Never use DMA
+    DMA_USAGE_OPPORTUNISTIC, ///< Use DMA if possible but deallocate DMA resources when not being used.
+    DMA_USAGE_ALWAYS, ///< Always use DMA when possible
+    DMA_USAGE_TEMPORARY_ALLOCATED, // Seems to be used as an internal state indicator for "we need to deallocate these channels."
+    DMA_USAGE_ALLOCATED // Seems to be used as an internal state indicator for "we have allocated DMA channels."
 } DMAUsage;
 
 #ifdef __cplusplus

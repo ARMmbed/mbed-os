@@ -27,10 +27,34 @@
 
 #if DEVICE_SPI
 
+/**
+ * @defgroup hal_SPIEvents SPI Events Macros
+ *
+ * @{
+ */
+
+/**
+ * Indicates that some kind of error occurred when starting the transfer.
+ */
 #define SPI_EVENT_ERROR       (1 << 1)
+
+/**
+ * Indicates that the transfer completed successfully.
+ */
 #define SPI_EVENT_COMPLETE    (1 << 2)
+
+/**
+ * Indicates an Rx overflow: the interrupt system or DMA controller was not able to
+ * keep up with the flow of bytes from the SPI peripheral and data was lost.
+ */
 #define SPI_EVENT_RX_OVERFLOW (1 << 3)
+
+/**
+ * Union of all of the above events.
+ */
 #define SPI_EVENT_ALL         (SPI_EVENT_ERROR | SPI_EVENT_COMPLETE | SPI_EVENT_RX_OVERFLOW)
+
+/// @}
 
 #define SPI_EVENT_INTERNAL_TRANSFER_COMPLETE (1 << 30) // Internal flag to report that an event occurred
 

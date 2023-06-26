@@ -396,7 +396,7 @@ public:
      * @param tx_length The length of TX buffer in bytes.  If 0, no transmission is done.
      * @param rx_buffer The RX buffer, which is used for received data.  May be nullptr if tx_length is 0.
      * @param rx_length The length of RX buffer in bytes  If 0, no reception is done.
-     * @param event     The logical OR of events to modify.  May be I2C_EVENT_ALL, or some combination
+     * @param event     The logical OR of events to subscribe to.  May be I2C_EVENT_ALL, or some combination
      *        of the flags I2C_EVENT_ERROR, I2C_EVENT_ERROR_NO_SLAVE, I2C_EVENT_TRANSFER_COMPLETE, or I2C_EVENT_TRANSFER_EARLY_NACK
      * @param callback  The event callback function
      * @param repeated Set up for a repeated start.  If true, the Mbed processor does not relinquish the bus after

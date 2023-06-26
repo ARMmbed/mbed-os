@@ -25,8 +25,6 @@
 
 
 
-#define TRANSACTION_QUEUE_SIZE_SPI 16
-
 
 
 

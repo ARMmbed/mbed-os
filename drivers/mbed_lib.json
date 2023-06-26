@@ -18,6 +18,10 @@
             "help": "The maximum number of SPI peripherals used at the same time. Determines RAM allocated for SPI peripheral management. If null, limit determined by hardware.",
             "value": null
         },
+        "spi_transaction_queue_len": {
+            "help": "Size of the asynchronous transaction queue for each SPI peripheral on the processor. 0 means no queueing support.  Only takes effect if the mbed target supports async SPI.",
+            "value": 2
+        },
         "qspi_io0": {
             "help": "QSPI data I/O 0 pin",
             "value": "QSPI_FLASH1_IO0"
@@ -85,6 +89,35 @@
         "ospi_dqs": {
             "help": "OSPI dqs pin",
             "value": "OSPI_FLASH1_DQS"
+        }
+    },
+    "target_overrides": {
+        "EFM32GG990F1024":{
+            "spi_transaction_queue_len": 4
+        },
+        "EFR32MG12P332F1024GL125":{
+            "spi_transaction_queue_len": 4
+        },
+        "EFM32GG11B820F2048GL192": {
+            "spi_transaction_queue_len": 4
+        },
+        "RZ_A1XX":{
+            "spi_transaction_queue_len": 16
+        },
+        "RZ_A2XX":{
+            "spi_transaction_queue_len": 16
+        },
+        "TMPM46B":{
+            "spi_transaction_queue_len": 4
+        },
+        "TMPM4G9":{
+            "spi_transaction_queue_len": 4
+        },
+        "TMPM4GR":{
+            "spi_transaction_queue_len": 4
+        },
+        "TMPM4NR":{
+            "spi_transaction_queue_len": 4
         }
     }
 }

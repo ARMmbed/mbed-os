@@ -1211,8 +1211,7 @@
         ],
         "macros": [
             "USE_HAL_DRIVER",
-            "USE_FULL_LL_DRIVER",
-            "TRANSACTION_QUEUE_SIZE_SPI=2"
+            "USE_FULL_LL_DRIVER"
         ],
         "bootloader_supported": true,
         "config": {
@@ -6573,8 +6572,7 @@
         ],
         "core": "Cortex-M3",
         "macros_add": [
-            "EFM32GG990F1024",
-            "TRANSACTION_QUEUE_SIZE_SPI=4"
+            "EFM32GG990F1024"
         ],
         "supported_toolchains": [
             "GCC_ARM"
@@ -6688,8 +6686,7 @@
         ],
         "core": "Cortex-M4F",
         "macros_add": [
-            "EFR32MG12P332F1024GL125",
-            "TRANSACTION_QUEUE_SIZE_SPI=4"
+            "EFR32MG12P332F1024GL125"
         ],
         "supported_toolchains": [
             "GCC_ARM"
@@ -6798,8 +6795,7 @@
         ],
         "core": "Cortex-M4F",
         "macros_add": [
-            "EFM32GG11B820F2048GL192",
-            "TRANSACTION_QUEUE_SIZE_SPI=4"
+            "EFM32GG11B820F2048GL192"
         ],
         "supported_toolchains": [
             "GCC_ARM"
