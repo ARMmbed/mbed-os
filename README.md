@@ -43,3 +43,5 @@ For more information about Mbed OS, please see [our published documentation](htt
 
 To contribute to this documentation, please see the [mbed-os-5-docs repository](https://github.com/ARMmbed/mbed-os-5-docs).
 
+:warning: Please note that if you intend to use Mbed OS in a real product then you should consider the security implications of your application. Mbed OS provides user hooks (functions prefixed with WEAK symbol) that are intended to be overridden. We recommend that you carefully consider the threat model of your application and override the default user hooks provided by Mbed OS to fit your application's security needs.
+
