@@ -43,5 +43,8 @@ For more information about Mbed OS, please see [our published documentation](htt
 
 To contribute to this documentation, please see the [mbed-os-5-docs repository](https://github.com/ARMmbed/mbed-os-5-docs).
 
-:warning: Please note that if you intend to use Mbed OS in a real product then you should consider the security implications of your application. Mbed OS provides user hooks (functions prefixed with WEAK symbol) that are intended to be overridden. We recommend that you carefully consider the threat model of your application and override the default user hooks provided by Mbed OS to fit your application's security needs.
+## Security considerations for production application
 
+Please note that if you intend to use Mbed OS in a real product then you should consider the security implications of your application. Mbed OS provides user hooks (functions prefixed with WEAK symbol) that are intended to be overridden. We recommend that you carefully consider the threat model of your application and override the default user hooks provided by Mbed OS to fit your application's security needs.
+
+For example, Mbed OS executes [`mbed_die`](https://github.com/ARMmbed/mbed-os/blob/master/platform/source/mbed_board.c#L26) when there is an error. `mbed_die` by default halts the system. A production application should override weakly linked `mbed_die` function and provide own implementation suitable for their needs taking care of any security vulnerabilities and production considerations. 
