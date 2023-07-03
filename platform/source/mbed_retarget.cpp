@@ -656,6 +656,10 @@ extern "C" int PREFIX(_close)(FILEHANDLE fh)
 #if !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
 extern "C" int close(int fildes)
 {
+    if (fildes < 0) {
+        errno = EBADF;
+        return -1;
+    }
     FileHandle *fhc = mbed_file_handle(fildes);
     filehandles[fildes] = NULL;
     if (fhc == NULL) {
