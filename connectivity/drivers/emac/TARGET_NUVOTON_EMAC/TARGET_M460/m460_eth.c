@@ -325,6 +325,7 @@ void EMAC0_IRQHandler(void)
     uint32_t interrupt,dma_status_reg, mac_status_reg;
     int status;
     uint32_t dma_addr;
+    uint32_t dma_ie = DmaIntEnable;
 
     // Check GMAC interrupt
     mac_status_reg = synopGMACReadReg((u32 *)gmacdev->MacBase, GmacInterruptStatus);
@@ -401,6 +402,7 @@ void EMAC0_IRQHandler(void)
     if(interrupt & synopGMACDmaRxNormal) {
     	//NU_RAW_Debug(("rx\n"));
         NU_RAW_Debug(("%s:: Rx Normal \r\n", __FUNCTION__));
+	dma_ie &= ~DmaIntRxNormMask;  // disable RX interrupt
         // to handle received data
         if (nu_eth_txrx_cb != NULL) {
             nu_eth_txrx_cb('R', nu_userData);
@@ -409,16 +411,17 @@ void EMAC0_IRQHandler(void)
 
     if(interrupt & synopGMACDmaRxAbnormal) {
         mbed_error_printf("%s::Abnormal Rx Interrupt Seen \r\n",__FUNCTION__);
-    	gmacdev->synopGMACNetStats.rx_over_errors++;
-        if(gmacdev->GMAC_Power_down == 0) {	// If Mac is not in powerdown
-            synopGMAC_resume_dma_rx(gmacdev);//To handle GBPS with 12 descriptors
+        if(gmacdev->GMAC_Power_down == 0) {    // If Mac is not in powerdown
+            gmacdev->synopGMACNetStats.rx_over_errors++;
+            dma_ie &= ~DmaIntRxAbnMask;
+            synopGMAC_resume_dma_rx(gmacdev);  //To handle GBPS with 12 descriptors
         }
     }
 
     if(interrupt & synopGMACDmaRxStopped) {
         mbed_error_printf("%s::Receiver stopped seeing Rx interrupts \r\n",__FUNCTION__); //Receiver gone in to stopped state
         if(gmacdev->GMAC_Power_down == 0) {	// If Mac is not in powerdown
-        	gmacdev->synopGMACNetStats.rx_over_errors++;
+            gmacdev->synopGMACNetStats.rx_over_errors++;
             synopGMAC_enable_dma_rx(gmacdev);
         }
     }
@@ -450,13 +453,13 @@ void EMAC0_IRQHandler(void)
             synopGMAC_take_desc_ownership_tx(gmacdev);
 
             synopGMAC_enable_dma_tx(gmacdev);
-            mbed_error_printf("%s::Transmission Resumed\n",__FUNCTION__);
+            mbed_error_printf("%s::Transmission Resumed\n", __FUNCTION__);
         }
     }
 
     /* Enable the interrupt before returning from ISR*/
 //    if( !(interrupt & synopGMACDmaRxNormal)) {  /* RxNormal will enable INT in numaker_eth_trigger_rx */
-        synopGMAC_enable_interrupt(gmacdev,DmaIntEnable);
+        synopGMAC_enable_interrupt(gmacdev, dma_ie);
 //    }
     return;
 }
@@ -515,7 +518,10 @@ int numaker_eth_get_rx_buf(uint16_t *len, uint8_t **buf)
 //    synopGMAC_disable_dma_rx(gmacdev);    // it will encounter DMA interrupt status as "Receiver stopped seeing Rx interrupts"
     *len = synop_handle_received_data(NU_M460_INTF, buf);
     dump_desc(gmacdev->RxBusyDesc);
-    if( *len <= 0 ) return -1; /* No available RX frame */
+    if( *len <= 0 ) {
+        synopGMAC_enable_interrupt(gmacdev, DmaIntEnable);
+        return -1; /* No available RX frame */
+    }
 
     // length of payload should be <= 1514
     if (*len > (NU_ETH_MAX_FLEN - 4)) {
