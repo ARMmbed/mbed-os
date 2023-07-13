@@ -29,12 +29,12 @@
 #include <stdlib.h>
 
 /* The shortest timeout value, this test suite is able to handle correctly. */
-#define WDG_MIN_TIMEOUT_MS 50UL
+#define WDG_MIN_TIMEOUT_MS 50ms
 
 // Do not set watchdog timeout shorter than WDG_MIN_TIMEOUT_MS, as it may
 // cause the host-test-runner return 'TIMEOUT' instead of 'FAIL' / 'PASS'
 // if watchdog performs reset during test suite teardown.
-#define WDG_TIMEOUT_MS 100UL
+#define WDG_TIMEOUT_MS 100ms
 
 #define MSG_VALUE_DUMMY "0"
 #define MSG_VALUE_LEN 24
@@ -57,7 +57,7 @@
  * (1 start_bit + 8 data_bits + 1 stop_bit) * 128 * 1000 / 9600 = 133.3 ms.
  * To be on the safe side, set the wait time to 150 ms.
  */
-#define SERIAL_FLUSH_TIME_MS 150
+#define SERIAL_FLUSH_TIME_MS 150ms
 
 int CASE_INDEX_START;
 int CASE_INDEX_CURRENT;
@@ -67,7 +67,7 @@ using utest::v1::Case;
 using utest::v1::Specification;
 using utest::v1::Harness;
 
-const watchdog_config_t WDG_CONFIG_DEFAULT = { .timeout_ms = WDG_TIMEOUT_MS };
+const watchdog_config_t WDG_CONFIG_DEFAULT = { .timeout_ms = WDG_TIMEOUT_MS.count() };
 
 void test_max_timeout_is_valid()
 {
@@ -115,12 +115,12 @@ void test_update_config()
     }
 
     watchdog_config_t config = WDG_CONFIG_DEFAULT;
-    uint32_t timeouts[] = {
-        features.max_timeout / 4,
-        features.max_timeout / 8,
-        features.max_timeout / 16
+    std::chrono::milliseconds timeouts[] = {
+        std::chrono::milliseconds(features.max_timeout / 4),
+        std::chrono::milliseconds(features.max_timeout / 8),
+        std::chrono::milliseconds(features.max_timeout / 16)
     };
-    int num_timeouts = sizeof timeouts / sizeof timeouts[0];
+    size_t num_timeouts = sizeof timeouts / sizeof timeouts[0];
 
     for (size_t i = 0; i < num_timeouts; i++) {
         if (timeouts[i] < WDG_MIN_TIMEOUT_MS) {
@@ -129,9 +129,10 @@ void test_update_config()
             return;
         }
 
-        config.timeout_ms = timeouts[i];
+        config.timeout_ms = timeouts[i].count();
         TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
-        uint32_t reload_value = hal_watchdog_get_reload_value();
+
+        auto reload_value = std::chrono::milliseconds(hal_watchdog_get_reload_value());
         // The watchdog should trigger at, or after the timeout value.
         TEST_ASSERT(reload_value >= timeouts[i]);
         // The watchdog should trigger before twice the timeout value.
@@ -155,7 +156,7 @@ utest::v1::status_t case_teardown_sync_on_reset(const Case *const source, const 
     // Start kicking the watchdog during teardown.
     hal_watchdog_kick();
     Ticker wdg_kicking_ticker;
-    wdg_kicking_ticker.attach_us(mbed::callback(hal_watchdog_kick), 20000);
+    wdg_kicking_ticker.attach(mbed::callback(hal_watchdog_kick), 20ms);
     utest::v1::status_t status = utest::v1::greentea_case_teardown_handler(source, passed, failed, failure);
     if (failed) {
         /* Return immediately and skip the device reset, if the test case failed.
@@ -193,7 +194,7 @@ utest::v1::status_t case_teardown_wdg_stop_or_reset(const Case *const source, co
 template<uint32_t timeout_ms>
 void test_init()
 {
-    if (timeout_ms < WDG_MIN_TIMEOUT_MS) {
+    if (std::chrono::milliseconds(timeout_ms) < WDG_MIN_TIMEOUT_MS) {
         CASE_IGNORED = true;
         TEST_IGNORE_MESSAGE("Requested timeout value is too short -- ignoring test case.");
         return;
@@ -216,7 +217,7 @@ void test_init_max_timeout()
     TEST_ASSERT(hal_watchdog_get_reload_value() >= features.max_timeout);
 }
 
-int testsuite_setup_sync_on_reset(const size_t number_of_cases)
+utest::v1::status_t testsuite_setup_sync_on_reset(const size_t number_of_cases)
 {
     GREENTEA_SETUP(45, "sync_on_reset");
     utest::v1::status_t status = utest::v1::greentea_test_setup_handler(number_of_cases);
@@ -243,7 +244,7 @@ int testsuite_setup_sync_on_reset(const size_t number_of_cases)
     }
 
     utest_printf("Starting with test case index %i of all %i defined test cases.\n", CASE_INDEX_START, number_of_cases);
-    return CASE_INDEX_START;
+    return static_cast<utest::v1::status_t>(CASE_INDEX_START);
 }
 
 Case cases[] = {
@@ -262,7 +263,7 @@ Case cases[] = {
          test_init_max_timeout, (utest::v1::case_teardown_handler_t) case_teardown_sync_on_reset),
 };
 
-Specification specification((utest::v1::test_setup_handler_t) testsuite_setup_sync_on_reset, cases);
+Specification specification(testsuite_setup_sync_on_reset, cases);
 
 int main()
 {

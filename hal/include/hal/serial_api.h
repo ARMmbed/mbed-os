@@ -255,8 +255,10 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 /** The serial interrupt handler registration
  *
  * @param obj     The serial object
- * @param handler The interrupt handler which will be invoked when the interrupt fires
- * @param id      The SerialBase object
+ * @param handler The interrupt handler function which will be invoked when the interrupt fires.  The handler
+ *     function pointer must be common among all serial instances.
+ * @param id      The SerialBase object.  This shall be passed to \c handler when it's
+ *     invoked for this serial instance.
  */
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id);
 

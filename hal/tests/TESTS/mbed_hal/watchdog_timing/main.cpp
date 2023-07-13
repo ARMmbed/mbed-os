@@ -157,7 +157,7 @@ void test_timeout_lower_limit()
     wait_us(sleep_time_ms * 1000);
     hal_watchdog_kick();
 
-    if (send_reset_notification(&current_case, 2 * TIMEOUT_LOWER_LIMIT_MS) == false) {
+    if (!send_reset_notification(&current_case, 2 * TIMEOUT_LOWER_LIMIT_MS)) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
@@ -178,7 +178,7 @@ utest::v1::status_t case_setup(const Case *const source, const size_t index_of_c
     return utest::v1::greentea_case_setup_handler(source, index_of_case);
 }
 
-int testsuite_setup(const size_t number_of_cases)
+utest::v1::status_t testsuite_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(90, "watchdog_reset");
     utest::v1::status_t status = utest::v1::greentea_test_setup_handler(number_of_cases);
@@ -205,7 +205,9 @@ int testsuite_setup(const size_t number_of_cases)
 
     utest_printf("This test suite is composed of %i test cases. Starting at index %i.\n", number_of_cases,
                  current_case.start_index);
-    return current_case.start_index;
+
+    // Return a positive value to ask utest to start from the given case number
+    return static_cast<utest::v1::status_t>(current_case.start_index);
 }
 
 Case cases[] = {

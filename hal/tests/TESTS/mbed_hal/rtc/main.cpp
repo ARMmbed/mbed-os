@@ -29,6 +29,7 @@
 #include "rtc_api.h"
 #include <type_traits>
 #include <mstd_atomic>
+#include <cinttypes>
 
 using namespace utest::v1;
 using namespace std::chrono;
@@ -135,6 +136,7 @@ void rtc_persist_test()
     const bool enabled = RealTimeClock::isenabled();
     RealTimeClock::free();
 
+    printf("start = %" PRIi64 ", stop = %" PRIi64 "\n", start.time_since_epoch().count(), stop.time_since_epoch().count());
     TEST_ASSERT_TRUE(enabled);
     TEST_ASSERT_DURATION_WITHIN(WAIT_TOLERANCE, WAIT_TIME, stop - start);
 }
@@ -199,15 +201,23 @@ void rtc_accuracy_test()
 void rtc_write_read_test()
 {
     RealTimeClock::init();
+    RealTimeClock::write(RealTimeClock::time_point(1s));
 
     /* NB: IAR compilation issue with "auto init_val = RealTimeClock::time_point(100s)" */
     for (auto init_val = RealTimeClock::time_point(seconds(100)); init_val < RealTimeClock::time_point(400s); init_val += 100s) {
+
         core_util_critical_section_enter();
+
+        // To prevent the RTC from ticking during the read-write operation, busy wait until it ticks.
+        // That gives us a second in which to execute the test.
+        auto initialVal = RealTimeClock::now();
+        while (RealTimeClock::now() == initialVal) {}
 
         RealTimeClock::write(init_val);
         const auto read_val = RealTimeClock::now();
-
         core_util_critical_section_exit();
+
+        printf("Wrote: %" PRIi64 ", Read: %" PRIi64 "\n", init_val.time_since_epoch().count(), read_val.time_since_epoch().count());
 
         /* No tolerance is provided since we should have 1 second to
          * execute this case after the RTC time is set.

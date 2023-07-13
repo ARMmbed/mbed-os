@@ -25,7 +25,9 @@
 #include "watchdog_reset_tests.h"
 #include "mbed.h"
 
-#define TIMEOUT_MS 100UL
+#include <cinttypes>
+
+#define TIMEOUT_MS 100ms
 
 /* This value is used to calculate the time to kick the watchdog.
  * Given the watchdog timeout is set to TIMEOUT_MS, the kick will be performed
@@ -40,7 +42,7 @@
  * and as short as 66 ms.
  * The value of 35 ms is used to cover the worst case scenario (66 ms).
  */
-#define KICK_ADVANCE_MS 35UL
+#define KICK_ADVANCE_MS 35ms
 
 #define MSG_VALUE_DUMMY "0"
 #define CASE_DATA_INVALID 0xffffffffUL
@@ -66,11 +68,8 @@
  * (1 start_bit + 8 data_bits + 1 stop_bit) * 128 * 1000 / 9600 = 133.3 ms.
  * To be on the safe side, set the wait time to 150 ms.
  */
-#define SERIAL_FLUSH_TIME_MS 150
+#define SERIAL_FLUSH_TIME_MS 150ms
 
-#define TIMEOUT_US (1000 * (TIMEOUT_MS))
-#define KICK_ADVANCE_US (1000 * (KICK_ADVANCE_MS))
-#define SERIAL_FLUSH_TIME_US (1000 * (SERIAL_FLUSH_TIME_MS))
 
 using utest::v1::Case;
 using utest::v1::Specification;
@@ -86,10 +85,10 @@ testcase_data current_case;
 
 Ticker wdg_kicking_ticker;
 
-bool send_reset_notification(testcase_data *tcdata, uint32_t delay_ms)
+bool send_reset_notification(testcase_data *tcdata, std::chrono::milliseconds delay_ms)
 {
     char msg_value[12];
-    int str_len = snprintf(msg_value, sizeof msg_value, "%02x,%08lx", tcdata->start_index + tcdata->index, delay_ms);
+    int str_len = snprintf(msg_value, sizeof msg_value, "%02x,%08" PRIx64, tcdata->start_index + tcdata->index, delay_ms.count());
     if (str_len < 0) {
         utest_printf("Failed to compose a value string to be sent to host.");
         return false;
@@ -110,20 +109,20 @@ void test_simple_reset()
 
     // Phase 1. -- run the test code.
     // Init the watchdog and wait for a device reset.
-    watchdog_config_t config = { TIMEOUT_MS };
-    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS + SERIAL_FLUSH_TIME_MS) == false) {
+    watchdog_config_t config = { TIMEOUT_MS.count() };
+    if (!send_reset_notification(&current_case, 2 * TIMEOUT_MS + SERIAL_FLUSH_TIME_MS)) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
-    wait_us(SERIAL_FLUSH_TIME_US); // Wait for the serial buffers to flush.
+    wait_us(std::chrono::duration_cast<std::chrono::microseconds>(SERIAL_FLUSH_TIME_MS).count()); // Wait for the serial buffers to flush.
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
     // Watchdog should fire before twice the timeout value.
-    wait_us(2 * TIMEOUT_US); // Device reset expected.
+    wait_us(2 * std::chrono::duration_cast<std::chrono::microseconds>(TIMEOUT_MS).count()); // Device reset expected.
 
     // Watchdog reset should have occurred during a wait above.
 
     hal_watchdog_kick();
-    wdg_kicking_ticker.attach_us(mbed::callback(hal_watchdog_kick), 20000); // For testsuite failure handling.
+    wdg_kicking_ticker.attach(mbed::callback(hal_watchdog_kick), 20ms); // For testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
 }
 
@@ -138,12 +137,12 @@ void test_sleep_reset()
     }
 
     // Phase 1. -- run the test code.
-    watchdog_config_t config = { TIMEOUT_MS };
-    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS + SERIAL_FLUSH_TIME_MS) == false) {
+    watchdog_config_t config = { TIMEOUT_MS.count() };
+    if (!send_reset_notification(&current_case, 2 * TIMEOUT_MS + SERIAL_FLUSH_TIME_MS)) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
-    wait_us(SERIAL_FLUSH_TIME_US); // Wait for the serial buffers to flush.
+    wait_us(std::chrono::duration_cast<std::chrono::microseconds>(SERIAL_FLUSH_TIME_MS).count()); // Wait for the serial buffers to flush.
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
     sleep_manager_lock_deep_sleep();
     if (sleep_manager_can_deep_sleep()) {
@@ -157,7 +156,7 @@ void test_sleep_reset()
     // Watchdog reset should have occurred during the sleep above.
 
     hal_watchdog_kick();
-    wdg_kicking_ticker.attach_us(mbed::callback(hal_watchdog_kick), 20000); // For testsuite failure handling.
+    wdg_kicking_ticker.attach(mbed::callback(hal_watchdog_kick), 20ms); // For testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
 }
 
@@ -172,13 +171,13 @@ void test_deepsleep_reset()
     }
 
     // Phase 1. -- run the test code.
-    watchdog_config_t config = { TIMEOUT_MS };
-    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS + SERIAL_FLUSH_TIME_MS) == false) {
+    watchdog_config_t config = { TIMEOUT_MS.count() };
+    if (!send_reset_notification(&current_case, 2 * TIMEOUT_MS + SERIAL_FLUSH_TIME_MS)) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
-    wait_us(SERIAL_FLUSH_TIME_US); // Wait for the serial buffers to flush.
-    wait_us(SERIAL_FLUSH_TIME_US); // Wait for the serial buffers to flush.
+    wait_us(std::chrono::duration_cast<std::chrono::microseconds>(SERIAL_FLUSH_TIME_MS).count()); // Wait for the serial buffers to flush.
+    wait_us(std::chrono::duration_cast<std::chrono::microseconds>(SERIAL_FLUSH_TIME_MS).count()); // Wait for the serial buffers to flush.
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
     if (!sleep_manager_can_deep_sleep()) {
         TEST_ASSERT_MESSAGE(0, "Deepsleep should be allowed.");
@@ -193,7 +192,7 @@ void test_deepsleep_reset()
     // Watchdog reset should have occurred during the deepsleep above.
 
     hal_watchdog_kick();
-    wdg_kicking_ticker.attach_us(mbed::callback(hal_watchdog_kick), 20000); // For testsuite failure handling.
+    wdg_kicking_ticker.attach(mbed::callback(hal_watchdog_kick), 20ms); // For testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
 }
 #endif
@@ -215,28 +214,29 @@ void test_restart_reset()
     }
 
     // Phase 1. -- run the test code.
-    watchdog_config_t config = { TIMEOUT_MS };
+    watchdog_config_t config = { TIMEOUT_MS.count() };
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
-    wait_us(TIMEOUT_US / 2);
+    wait_us(std::chrono::duration_cast<std::chrono::microseconds>(TIMEOUT_MS / 2).count());
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_stop());
     // Check that stopping the Watchdog prevents a device reset.
     // The watchdog should trigger at, or after the timeout value.
     // The watchdog should trigger before twice the timeout value.
-    wait_us(TIMEOUT_US / 2 + TIMEOUT_US);
+    wait_us(std::chrono::duration_cast<std::chrono::microseconds>(TIMEOUT_MS + TIMEOUT_MS / 2).count());
 
-    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS + SERIAL_FLUSH_TIME_MS) == false) {
+
+    if (!send_reset_notification(&current_case, 2 * TIMEOUT_MS + SERIAL_FLUSH_TIME_MS)) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
-    wait_us(SERIAL_FLUSH_TIME_US); // Wait for the serial buffers to flush.
+    wait_us(std::chrono::duration_cast<std::chrono::microseconds>(SERIAL_FLUSH_TIME_MS).count()); // Wait for the serial buffers to flush.
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
     // Watchdog should fire before twice the timeout value.
-    wait_us(2 * TIMEOUT_US); // Device reset expected.
+    wait_us(2 * std::chrono::duration_cast<std::chrono::microseconds>(TIMEOUT_MS).count()); // Device reset expected.
 
     // Watchdog reset should have occurred during a wait above.
 
     hal_watchdog_kick();
-    wdg_kicking_ticker.attach_us(mbed::callback(hal_watchdog_kick), 20000); // For testsuite failure handling.
+    wdg_kicking_ticker.attach(mbed::callback(hal_watchdog_kick), 20ms); // For testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
 }
 
@@ -250,21 +250,21 @@ void test_kick_reset()
     }
 
     // Phase 1. -- run the test code.
-    watchdog_config_t config = { TIMEOUT_MS };
+    watchdog_config_t config = { TIMEOUT_MS.count() };
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
     for (int i = 3; i; i--) {
         // The reset is prevented as long as the watchdog is kicked
         // anytime before the timeout.
-        wait_us(TIMEOUT_US - KICK_ADVANCE_US);
+        wait_us(2 * std::chrono::duration_cast<std::chrono::microseconds>(TIMEOUT_MS - KICK_ADVANCE_MS).count());
         hal_watchdog_kick();
     }
-    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS + SERIAL_FLUSH_TIME_MS) == false) {
+    if (!send_reset_notification(&current_case, 2 * TIMEOUT_MS + SERIAL_FLUSH_TIME_MS)) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
-    wait_us(SERIAL_FLUSH_TIME_US); // Wait for the serial buffers to flush.
+    wait_us(std::chrono::duration_cast<std::chrono::microseconds>(SERIAL_FLUSH_TIME_MS).count()); // Wait for the serial buffers to flush.
     // Watchdog should fire before twice the timeout value.
-    wait_us(2 * TIMEOUT_US); // Device reset expected.
+    wait_us(2 * std::chrono::duration_cast<std::chrono::microseconds>(TIMEOUT_MS).count()); // Device reset expected.
 
     // Watchdog reset should have occurred during a wait above.
 
@@ -279,7 +279,7 @@ utest::v1::status_t case_setup(const Case *const source, const size_t index_of_c
     return utest::v1::greentea_case_setup_handler(source, index_of_case);
 }
 
-int testsuite_setup(const size_t number_of_cases)
+utest::v1::status_t testsuite_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(90, "watchdog_reset");
     utest::v1::status_t status = utest::v1::greentea_test_setup_handler(number_of_cases);
@@ -306,7 +306,7 @@ int testsuite_setup(const size_t number_of_cases)
 
     utest_printf("This test suite is composed of %i test cases. Starting at index %i.\n", number_of_cases,
                  current_case.start_index);
-    return current_case.start_index;
+    return static_cast<utest::v1::status_t>(current_case.start_index);
 }
 
 Case cases[] = {
@@ -321,7 +321,7 @@ Case cases[] = {
     Case("Kicking the Watchdog prevents reset", case_setup, test_kick_reset),
 };
 
-Specification specification((utest::v1::test_setup_handler_t) testsuite_setup, cases);
+Specification specification(testsuite_setup, cases);
 
 int main()
 {

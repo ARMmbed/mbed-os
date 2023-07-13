@@ -9727,5 +9727,57 @@
                 "small"
             ]
     	}
+    },
+    "RP2040": {
+		"public": false,
+        "inherits": ["Target"],
+        "core": "Cortex-M0+",
+        "supported_toolchains": ["GCC_ARM"],
+        "supported_application_profiles": [
+            "full", "bare-metal"
+        ],
+        "extra_labels": [
+            "RASPBERRYPI",
+            "memmap_default"
+        ],
+        "components_add": ["FLASHIAP"],
+        "overrides": {
+            "xip-enable": true
+        },
+        "device_has": [
+            "ANALOGIN",
+            "FLASH",
+            "I2C",
+            "I2CSLAVE",
+            "INTERRUPTIN",
+            "PORT_IN",
+            "PORT_OUT",
+            "PWMOUT",
+            "SERIAL",
+            "SERIAL_FC",
+            "SPI",
+            "USTICKER",
+            "WATCHDOG",
+            "USBDEVICE",
+            "RESET_REASON",
+            "RTC"
+        ]
+    },
+    "RASPBERRY_PI_PICO_SWD": {
+        "inherits": ["RP2040"],
+        "macros_add": [
+            "PICO_RP2040_USB_DEVICE_ENUMERATION_FIX=1",
+            "MBED_MPU_CUSTOM",
+            "PICO_TIME_DEFAULT_ALARM_POOL_DISABLED",
+            "PICO_ON_DEVICE=1",
+            "PICO_UART_ENABLE_CRLF_SUPPORT=0"
+        ]
+    },
+    "RASPBERRY_PI_PICO": {
+        "inherits": ["RASPBERRY_PI_PICO_SWD"],
+        "overrides": {
+            "console-usb": true,
+            "console-uart": false
+        }
     }
 }

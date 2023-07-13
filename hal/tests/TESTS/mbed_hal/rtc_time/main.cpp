@@ -128,7 +128,7 @@ void test_mk_time_boundary()
         pTestCases = test_mk_time_arr_partial;
     }
 
-    for (int i = 0; i < (sizeof(test_mk_time_arr_full) / (sizeof(test_mk_time_struct))); i++) {
+    for (size_t i = 0; i < (sizeof(test_mk_time_arr_full) / (sizeof(test_mk_time_struct))); i++) {
         time_t seconds;
         bool result = _rtc_maketime(&pTestCases[i].timeinfo, &seconds, rtc_leap_year_support);
 
@@ -187,7 +187,7 @@ void test_set_time_twice()
     TEST_ASSERT_EQUAL(true, (current_time == NEW_TIME));
 
     /* Wait 2 seconds */
-    ThisThread::sleep_for(2000);
+    ThisThread::sleep_for(2s);
 
     /* set the time to NEW_TIME again and check it */
     set_time(NEW_TIME);
