@@ -178,13 +178,22 @@ static const uint8_t _sfdp_basic_param_table[64] = {0x30, 0xFF, 0xFB, 0xFF, 0xFF
 static const uint8_t _sfdp_4_byte_inst_table[8] = {0x7F, 0xEF, 0xFF, 0xFF, 0x21, 0x5C, 0xDC, 0x14};
 #endif
 
-/* Init function to initialize Different Devices CS static list */
-static PinName *generate_initialized_active_ospif_csel_arr();
-// Static Members for different devices csel
-// _devices_mutex is used to lock csel list - only one OSPIFBlockDevice instance per csel is allowed
-SingletonPtr<rtos::Mutex> OSPIFBlockDevice::_devices_mutex;
+/*
+ * Get the global mutex used to protect the chip select pin array (below).
+ * It will be initialized on first use.
+ */
+static rtos::Mutex &get_devices_mutex();
+
+/*
+ * Get the global array of active chip select pins.
+ * Each OSPI Flash device csel can have only 1 OSPIFBlockDevice instance.
+ *
+ * This function should be called with the devices mutex locked.
+ */
+static PinName *get_active_ospif_csel_arr();
+
+
 int OSPIFBlockDevice::_number_of_active_ospif_flash_csel = 0;
-PinName *OSPIFBlockDevice::_active_ospif_flash_csel_arr = generate_initialized_active_ospif_csel_arr();
 
 /********* Public API Functions *********/
 /****************************************/
@@ -859,63 +868,79 @@ int OSPIFBlockDevice::change_mode(int mode)
 /********************************/
 /*   Different Device Csel Mgmt */
 /********************************/
-static PinName *generate_initialized_active_ospif_csel_arr()
+
+static rtos::Mutex &get_devices_mutex()
 {
-    PinName *init_arr = new PinName[OSPIF_MAX_ACTIVE_FLASH_DEVICES];
-    for (int i_ind = 0; i_ind < OSPIF_MAX_ACTIVE_FLASH_DEVICES; i_ind++) {
-        init_arr[i_ind] = NC;
+    static rtos::Mutex devicesMutex;
+    return devicesMutex;
+}
+
+
+static PinName *get_active_ospif_csel_arr()
+{
+    // Declare the active csel array info as local static variables.
+    // This makes sure it's initialized on first use, so even if an OSPIFBlockDevice is declared
+    // globally and constructed before the globals in this file, things will still work correctly.
+    static bool active_csel_arr_initialized = false;
+    static PinName active_csel_arr[OSPIF_MAX_ACTIVE_FLASH_DEVICES];
+
+    if (!active_csel_arr_initialized) {
+        for (int i_ind = 0; i_ind < OSPIF_MAX_ACTIVE_FLASH_DEVICES; i_ind++) {
+            active_csel_arr[i_ind] = NC;
+        }
+        active_csel_arr_initialized = true;
     }
-    return init_arr;
+
+    return active_csel_arr;
 }
 
 int OSPIFBlockDevice::add_new_csel_instance(PinName csel)
 {
-    int status = 0;
-    _devices_mutex->lock();
+    rtos::ScopedMutexLock lock(get_devices_mutex());
+
+    PinName *active_ospif_flash_csel_arr = get_active_ospif_csel_arr();
+
     if (_number_of_active_ospif_flash_csel >= OSPIF_MAX_ACTIVE_FLASH_DEVICES) {
-        status = -2;
-        goto exit_point;
+        return -2;
     }
 
     // verify the device is unique(no identical csel already exists)
     for (int i_ind = 0; i_ind < OSPIF_MAX_ACTIVE_FLASH_DEVICES; i_ind++) {
-        if (_active_ospif_flash_csel_arr[i_ind] == csel) {
-            status = -1;
-            goto exit_point;
+        if (active_ospif_flash_csel_arr[i_ind] == csel) {
+            return -1;
         }
     }
 
     // Insert new csel into existing device list
     for (int i_ind = 0; i_ind < OSPIF_MAX_ACTIVE_FLASH_DEVICES; i_ind++) {
-        if (_active_ospif_flash_csel_arr[i_ind] == NC) {
-            _active_ospif_flash_csel_arr[i_ind] = csel;
+        if (active_ospif_flash_csel_arr[i_ind] == NC) {
+            active_ospif_flash_csel_arr[i_ind] = csel;
             break;
         }
     }
     _number_of_active_ospif_flash_csel++;
 
-exit_point:
-    _devices_mutex->unlock();
-    return status;
+    return 0;
 }
 
 int OSPIFBlockDevice::remove_csel_instance(PinName csel)
 {
-    int status = -1;
-    _devices_mutex->lock();
+    rtos::ScopedMutexLock lock(get_devices_mutex());
+
+    PinName *active_ospif_flash_csel_arr = get_active_ospif_csel_arr();
+
     // remove the csel from existing device list
     for (int i_ind = 0; i_ind < OSPIF_MAX_ACTIVE_FLASH_DEVICES; i_ind++) {
-        if (_active_ospif_flash_csel_arr[i_ind] == csel) {
-            _active_ospif_flash_csel_arr[i_ind] = NC;
+        if (active_ospif_flash_csel_arr[i_ind] == csel) {
+            active_ospif_flash_csel_arr[i_ind] = NC;
             if (_number_of_active_ospif_flash_csel > 0) {
                 _number_of_active_ospif_flash_csel--;
             }
-            status = 0;
-            break;
+            return 0;
         }
     }
-    _devices_mutex->unlock();
-    return status;
+
+    return -1;
 }
 
 /*********************************************************/

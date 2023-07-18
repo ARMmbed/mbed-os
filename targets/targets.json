@@ -4902,13 +4902,13 @@
             "MX25LM51245G"
         ],
         "components_add": [
-            "OSPIF"
+            "OSPIF",
+            "EMW3080B"
         ],
         "device_has_add": [
             "QSPI",
             "OSPI"
         ],
-        "components_add": ["EMW3080B"],
         "overrides": {
             "network-default-interface-type": "WIFI"
         },

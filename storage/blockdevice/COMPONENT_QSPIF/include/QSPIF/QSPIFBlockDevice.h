@@ -343,12 +343,8 @@ private:
     // QSPI Driver Object
     mbed::QSPI _qspi;
 
-    // Static List of different QSPI based Flash devices csel that already exist
-    // Each QSPI Flash device csel can have only 1 QSPIFBlockDevice instance
-    // _devices_mutex is used to lock csel list - only one QSPIFBlockDevice instance per csel is allowed
-    static SingletonPtr<rtos::Mutex> _devices_mutex;
+    // Number of active OSPIFBlockDevice chip select pins
     static int _number_of_active_qspif_flash_csel;
-    static PinName *_active_qspif_flash_csel_arr;
 
     int _unique_device_status;
     PinName _csel;

@@ -20,8 +20,12 @@
 #include <inttypes.h>
 #include "rtos/mbed_rtos_types.h"
 #include "rtos/internal/mbed_rtos1_types.h"
+#include "ScopedLock.h"
 
 namespace rtos {
+
+class Mutex;
+typedef mbed::ScopedLock<Mutex> ScopedMutexLock;
 
 class Mutex {
 public:

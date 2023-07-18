@@ -14,6 +14,14 @@ set(UPLOAD_METHOD "${UPLOAD_METHOD_DEFAULT}" CACHE STRING "Method for uploading 
 # use a higher numbered port to allow use without root on Linux/Mac
 set(GDB_PORT 23331 CACHE STRING "Port that the GDB server will be started on.")
 
+# Upload methods must be uppercase, guard against the user making a mistake (since Windows will allow opening
+# an include file with the wrong case, the error message gets confusing)
+string(TOUPPER "${UPLOAD_METHOD}" UPLOAD_METHOD_UCASE)
+if(NOT "${UPLOAD_METHOD_UCASE}" STREQUAL "${UPLOAD_METHOD}")
+	message(WARNING "UPLOAD_METHOD value should be uppercase.  It has been automatically changed to \"${UPLOAD_METHOD_UCASE}\".")
+	set(UPLOAD_METHOD "${UPLOAD_METHOD_UCASE}" CACHE STRING "" FORCE)
+endif()
+
 # Load the upload method.  This is expected to set the following variables:
 # UPLOAD_${UPLOAD_METHOD}_FOUND - True iff the dependencies for this upload method were found
 # UPLOAD_SUPPORTS_DEBUG - True iff this upload method supports debugging

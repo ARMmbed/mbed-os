@@ -25,6 +25,10 @@ if("QSPIF" IN_LIST MBED_TARGET_LABELS)
     list(APPEND mbed-storage-libs mbed-storage-qspif)
 endif()
 
+if("OSPIF" IN_LIST MBED_TARGET_LABELS)
+    list(APPEND mbed-storage-libs mbed-storage-ospif)
+endif()
+
 if("SD" IN_LIST MBED_TARGET_LABELS)
     list(APPEND mbed-storage-libs mbed-storage-sd)
 endif()

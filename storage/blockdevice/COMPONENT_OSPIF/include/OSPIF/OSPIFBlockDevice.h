@@ -404,12 +404,8 @@ private:
     // OSPI Driver Object
     mbed::OSPI _ospi;
 
-    // Static List of different OSPI based Flash devices csel that already exist
-    // Each OSPI Flash device csel can have only 1 OSPIFBlockDevice instance
-    // _devices_mutex is used to lock csel list - only one OSPIFBlockDevice instance per csel is allowed
-    static SingletonPtr<rtos::Mutex> _devices_mutex;
+    // Number of active OSPIFBlockDevice chip select pins
     static int _number_of_active_ospif_flash_csel;
-    static PinName *_active_ospif_flash_csel_arr;
 
     int _unique_device_status;
     PinName _csel;

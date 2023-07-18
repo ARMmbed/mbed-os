@@ -28,6 +28,19 @@
     "target_overrides": {
         "MX25LM51245G": {
             "OSPI_FREQ": "66000000"
+        },
+        "B_U585_IOT02A": {
+            "OSPI_IO0": "PF_0",
+            "OSPI_IO1": "PF_1",
+            "OSPI_IO2": "PF_2",
+            "OSPI_IO3": "PF_3",
+            "OSPI_IO4": "PH_9",
+            "OSPI_IO5": "PH_10",
+            "OSPI_IO6": "PH_11",
+            "OSPI_IO7": "PH_12",
+            "OSPI_SCK": "PF_4",
+            "OSPI_CSN": "PI_5",
+            "OSPI_DQS": "PF_12"
         }
     }
 }

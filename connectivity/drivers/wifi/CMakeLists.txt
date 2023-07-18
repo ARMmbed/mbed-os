@@ -14,6 +14,7 @@ endif()
 add_subdirectory(esp8266-driver)
 
 target_link_libraries(mbed-wifi
-    INTERFACE
+    PUBLIC
+        mbed-rtos-flags
         mbed-netsocket-api
 )
