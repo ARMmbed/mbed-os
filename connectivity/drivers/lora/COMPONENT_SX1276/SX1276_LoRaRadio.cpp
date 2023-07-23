@@ -309,7 +309,7 @@ bool SX1276_LoRaRadio::check_rf_frequency(uint32_t frequency)
 /**
  * Returns current status of the radio state machine
  */
-uint8_t SX1276_LoRaRadio::get_status(void)
+radio_state_t SX1276_LoRaRadio::get_status(void)
 {
     return _rf_settings.state;
 }

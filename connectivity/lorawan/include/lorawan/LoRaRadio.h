@@ -349,7 +349,7 @@ typedef struct radio_settings {
     /**
      * Current state of the radio, such as RF_IDLE.
      */
-    uint8_t                     state;
+    radio_state_t               state;
 
     /**
      * Current modem operation, such as MODEM_LORA.

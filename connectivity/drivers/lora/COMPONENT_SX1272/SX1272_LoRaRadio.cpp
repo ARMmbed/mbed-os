@@ -297,7 +297,7 @@ void SX1272_LoRaRadio::set_channel(uint32_t freq)
 /**
  * Returns current status of the radio state machine
  */
-uint8_t SX1272_LoRaRadio::get_status(void)
+radio_state_t SX1272_LoRaRadio::get_status(void)
 {
     return _rf_settings.state;
 }
