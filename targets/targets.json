@@ -4974,7 +4974,7 @@
         "extra_labels_add": [
             "STM32WB55xG"
         ],
-        "mbed_rom_size": "0xCA000",
+        "mbed_rom_size": "0xCE000",
         "macros_add": [
             "STM32WB55xx",
             "MBEDTLS_CONFIG_HW_SUPPORT"
@@ -5003,7 +5003,7 @@
         "extra_labels_add": [
             "STM32WB5MxG"
         ],
-        "mbed_rom_size": "0xCA000",
+        "mbed_rom_size": "0xCE000",
         "macros_add": [
             "STM32WB5Mxx",
             "MBEDTLS_CONFIG_HW_SUPPORT"

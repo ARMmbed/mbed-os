@@ -509,7 +509,7 @@ public:
 #if STM32WB55xx
                 switch (p_wireless_info->StackType) {
                     case INFO_STACK_TYPE_BLE_FULL:
-                        if (MBED_ROM_SIZE > 0xCA000)  {
+                        if (MBED_ROM_SIZE > 0xCE000)  {
                             error("Wrong MBED_ROM_SIZE with BLE FW\n");
                         }
                         break;

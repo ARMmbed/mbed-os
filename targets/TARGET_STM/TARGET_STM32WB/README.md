@@ -122,8 +122,8 @@ All available BLE FW for M0 core are provided in ths ST STM32CubeWB repo:
 https://github.com/STMicroelectronics/STM32CubeWB/tree/master/Projects/STM32WB_Copro_Wireless_Binaries/STM32WB5x
 
 Default BLE FW in ST boards is **stm32wb5x_BLE_Stack_full_fw.bin**
-- As explained in Release_Notes.html, this FW is flashed at @ 0x080CA000
-- Default "mbed_rom_size" in targets.json is then "0xCA000" (808K)
+- As explained in Release_Notes.html, this FW is flashed at @ 0x080CE000 (for version v1.14.1+)
+- Default "mbed_rom_size" in targets.json is then "0xCE000" (824K)
 
 To optimize FLASH size, **stm32wb5x_BLE_HCILayer_fw.bin** is supported for MBED-OS use case
 - As explained in Release_Notes.html, this FW is flashed at @ 0x080E1000 for versions 1.12.0 and 1.12.1 and at @ 0x080E0000 for older versions
