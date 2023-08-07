@@ -41,7 +41,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     gpio_set_function(miso, GPIO_FUNC_SPI);
 
     /* Initialize SPI at 1 MHz bitrate */
-    _spi_init(obj->dev, SPI_MASTER_DEFAULT_BITRATE);
+    pico_sdk_spi_init(obj->dev, SPI_MASTER_DEFAULT_BITRATE);
 }
 
 void spi_format(spi_t *obj, int bits, int mode, int slave)

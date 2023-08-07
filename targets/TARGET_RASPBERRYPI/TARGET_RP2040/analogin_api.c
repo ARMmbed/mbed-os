@@ -26,7 +26,7 @@ void analogin_init(analogin_t *obj, PinName pin)
     /* Lookup the corresponding ADC channel for a given pin. */
     obj->channel = pinmap_find_function(pin, PinMap_ADC);
     /* Make sure GPIO is high-impedance, no pullups etc. */
-    adc_gpio_init(pin);
+    adc_pico_sdk_gpio_init(pin);
     /* Check if the ADC channel we just configured belongs to the
      * temperature sensor. If that's the case, enable the temperature
      * sensor.

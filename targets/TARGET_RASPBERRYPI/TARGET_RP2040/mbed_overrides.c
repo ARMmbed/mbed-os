@@ -43,6 +43,7 @@ void mbed_sdk_init()
     // After calling preinit we have enough runtime to do the exciting maths
     // in clocks_init
     clocks_init();
+    SystemCoreClockUpdate();
 
     // Peripheral clocks should now all be running
     unreset_block_wait(RESETS_RESET_BITS);
@@ -72,9 +73,7 @@ void mbed_sdk_init()
 	mbed_sdk_inited = 1;
 }
 
-// Note we put at most 4 pieces of binary info in the reset section because that's how much spare space we had
-// (picked the most common ones)... if there is a link failure because of .reset section overflow then move
-// more out.
+// Add a basic "binary info" note which says that this is an Mbed OS program
 #define reset_section_attr __attribute__((section(".reset")))
 bi_decl_with_attr(bi_program_name("Mbed OS CE Program"), reset_section_attr)
 

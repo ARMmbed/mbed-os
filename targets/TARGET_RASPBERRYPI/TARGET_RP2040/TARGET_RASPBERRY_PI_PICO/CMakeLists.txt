@@ -10,7 +10,6 @@ target_include_directories(mbed-raspberry-pi-pico
 
 target_sources(mbed-raspberry-pi-pico
     INTERFACE
-        board.c
         bs2_default_padded_checksummed.S
 )
 

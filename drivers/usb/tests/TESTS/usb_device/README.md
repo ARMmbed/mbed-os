@@ -12,6 +12,7 @@ Additional, platform-specific setup is described below.
 See also [Known issues](#known-issues).
 
 ### Windows
+1. Install libusb0.dll somewhere on your PATH.  The bitness of the DLL should match the bitness of your python interpreter.  This DLL can be downloaded from the project [here](https://sourceforge.net/projects/libusb-win32/files/libusb-win32-releases/).  Note that libusb1 does NOT work, it has to be libusb0!  See the comments in host_tests/pyusb_basic.py for details.
 1.  Install a **generic USB driver** for two test devices.
     1. Download `Zadig` application from [the Zadig website][LN-zadig].
     1. Unplug the Mbed device.

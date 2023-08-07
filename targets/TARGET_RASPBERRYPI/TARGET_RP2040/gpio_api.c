@@ -28,7 +28,7 @@ void gpio_init(gpio_t *obj, PinName pin)
         return;
     }
 
-    _gpio_init(obj->pin);
+    pico_sdk_gpio_init(obj->pin);
 }
 
 static uint32_t gpio_convert_event(gpio_irq_event event)

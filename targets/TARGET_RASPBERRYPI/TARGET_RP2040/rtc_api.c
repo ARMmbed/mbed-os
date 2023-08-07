@@ -17,7 +17,7 @@ void rtc_init(void)
     static bool rtc_initted = false;
     if(!rtc_initted)
     {
-        _rtc_init();
+        pico_sdk_rtc_init();
         rtc_initted = true;
     }
 

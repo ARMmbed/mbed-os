@@ -318,11 +318,12 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave);
  */
 int  i2c_slave_receive(i2c_t *obj);
 
-/** Configure I2C as slave or master.
+/**
+ *  @brief Read specified number of bytes from an I2C master.
  *  @param obj The I2C object
  *  @param data    The buffer for receiving
  *  @param length  Number of bytes to read
- *  @return non-zero if a value is available
+ *  @return non-zero if a value is available, or zero on error
  */
 int  i2c_slave_read(i2c_t *obj, char *data, int length);
 

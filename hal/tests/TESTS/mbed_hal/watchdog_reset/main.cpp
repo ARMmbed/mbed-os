@@ -255,7 +255,7 @@ void test_kick_reset()
     for (int i = 3; i; i--) {
         // The reset is prevented as long as the watchdog is kicked
         // anytime before the timeout.
-        wait_us(2 * std::chrono::duration_cast<std::chrono::microseconds>(TIMEOUT_MS - KICK_ADVANCE_MS).count());
+        wait_us(std::chrono::duration_cast<std::chrono::microseconds>(TIMEOUT_MS - KICK_ADVANCE_MS).count());
         hal_watchdog_kick();
     }
     if (!send_reset_notification(&current_case, 2 * TIMEOUT_MS + SERIAL_FLUSH_TIME_MS)) {
@@ -269,7 +269,7 @@ void test_kick_reset()
     // Watchdog reset should have occurred during a wait above.
 
     hal_watchdog_kick();
-    wdg_kicking_ticker.attach_us(mbed::callback(hal_watchdog_kick), 20000); // For testsuite failure handling.
+    wdg_kicking_ticker.attach(mbed::callback(hal_watchdog_kick), 20ms); // For testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
 }
 

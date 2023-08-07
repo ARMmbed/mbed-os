@@ -107,6 +107,10 @@ function(mbed_greentea_add_test)
     # such as: -d to set the drive path
     list(APPEND MBED_HTRUN_ARGUMENTS -p ${MBED_GREENTEA_SERIAL_PORT})
 
+    # All of the upload methods already reset the chip after uploading so we don't need to reset via
+    # the serial port.  Doing that type of reset also seems to give the Pitaya-Link probe trouble.
+    list(APPEND MBED_HTRUN_ARGUMENTS --skip-reset)
+
     if(DEFINED MBED_GREENTEA_EXTRA_HTRUN_ARGUMENTS)
         list(APPEND MBED_HTRUN_ARGUMENTS ${MBED_GREENTEA_EXTRA_HTRUN_ARGUMENTS})
     endif()

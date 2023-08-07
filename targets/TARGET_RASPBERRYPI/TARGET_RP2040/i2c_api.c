@@ -57,7 +57,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     //i2c_frequency(obj->dev, DEFAULT_I2C_BAUDRATE);
 
     /* Initialize the I2C module. */
-    _i2c_init(obj->dev, DEFAULT_I2C_BAUDRATE);
+    pico_sdk_i2c_init(obj->dev, DEFAULT_I2C_BAUDRATE);
 
     /* Configure GPIO for I2C as alternate function. */
     gpio_set_function(sda, GPIO_FUNC_I2C);
@@ -119,7 +119,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
 void i2c_reset(i2c_t *obj)
 {
     i2c_deinit(obj->dev);
-    _i2c_init(obj->dev, obj->baudrate);
+    pico_sdk_i2c_init(obj->dev, obj->baudrate);
 }
 
 const PinMap *i2c_master_sda_pinmap()
@@ -144,7 +144,7 @@ const PinMap *i2c_slave_scl_pinmap()
 
 int i2c_stop(i2c_t *obj)
 {
-
+    return 0;
 }
 
 #if DEVICE_I2CSLAVE
@@ -193,11 +193,28 @@ int i2c_slave_receive(i2c_t *obj)
  */
 int i2c_slave_read(i2c_t *obj, char *data, int length)
 {
-    size_t read_len = i2c_read_raw_blocking(obj->dev, (uint8_t *)data, length);
+    int bytes_read = 0;
+    for (size_t i = 0; i < (size_t)length; ++i) {
+        while (!i2c_get_read_available(obj->dev)) {
+            tight_loop_contents();
+        }
 
-    DEBUG_PRINTF("i2c_slave read %d bytes\r\n", read_len);
+        *data = obj->dev->hw->data_cmd;
+        bytes_read++;
 
-    return read_len;
+        // Check stop condition
+        bool stop = (obj->dev->hw->raw_intr_stat & I2C_IC_RAW_INTR_STAT_STOP_DET_BITS) != 0;
+        if (stop && !i2c_get_read_available(obj->dev)) {
+            // Clear stop (by reading the register)
+            int clear_stop = obj->dev->hw->clr_stop_det;
+            (void)clear_stop;
+            break;
+        } else {
+            data++;
+        }
+    }
+
+    return bytes_read;
 }
 
 /** Configure I2C as slave or master.
@@ -212,8 +229,9 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length)
 
     i2c_write_raw_blocking(obj->dev, (const uint8_t *)data, (size_t)length);
 
-    //Clear interrupt
+    // Clear interrupt (by reading the register)
     int clear_read_req = i2c_get_hw(obj->dev)->clr_rd_req;
+    (void)clear_read_req;
     DEBUG_PRINTF("clear_read_req: %d\n", clear_read_req);
 
     return length;

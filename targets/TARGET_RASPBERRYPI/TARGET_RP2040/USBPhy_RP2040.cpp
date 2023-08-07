@@ -69,7 +69,7 @@ void USBPhyHw::init(USBPhyEvents *events)
     instance = this;
 
     // Disable IRQ
-    NVIC_DisableIRQ(USBCTRL_IRQn);
+    NVIC_DisableIRQ(USBCTRL_IRQ_IRQn);
 
     // Reset usb controller
     reset_block(RESETS_RESET_USBCTRL_BITS);
@@ -88,15 +88,15 @@ void USBPhyHw::init(USBPhyEvents *events)
     usb_hw->main_ctrl = USB_MAIN_CTRL_CONTROLLER_EN_BITS;
 
     // Enable IRQ
-    NVIC_SetVector(USBCTRL_IRQn, (uint32_t)&_usbisr);
-    NVIC_EnableIRQ(USBCTRL_IRQn);
+    NVIC_SetVector(USBCTRL_IRQ_IRQn, (uint32_t)&_usbisr);
+    NVIC_EnableIRQ(USBCTRL_IRQ_IRQn);
 }
 
 void USBPhyHw::deinit()
 {
     // Disconnect and disable interrupt
     disconnect();
-    NVIC_DisableIRQ(USBCTRL_IRQn);
+    NVIC_DisableIRQ(USBCTRL_IRQ_IRQn);
 }
 
 bool USBPhyHw::powered()
@@ -412,8 +412,8 @@ again:
         events->reset();
 
         // Re-enable interrupt
-        NVIC_ClearPendingIRQ(USBCTRL_IRQn);
-        NVIC_EnableIRQ(USBCTRL_IRQn);
+        NVIC_ClearPendingIRQ(USBCTRL_IRQ_IRQn);
+        NVIC_EnableIRQ(USBCTRL_IRQ_IRQn);
         return;
     }
 
@@ -503,20 +503,20 @@ again:
     // This is only for debug while developing the driver
     if(usb_hw->ints & ~16)
     {
-        volatile int ints = usb_hw->ints;
-        volatile int going = 1;
-        goto again;
+        //volatile int ints = usb_hw->ints;
+        //volatile int going = 1;
         //while(ints && going);
+        goto again;
     }
 
 
     // Re-enable interrupt
-    NVIC_ClearPendingIRQ(USBCTRL_IRQn);
-    NVIC_EnableIRQ(USBCTRL_IRQn);
+    NVIC_ClearPendingIRQ(USBCTRL_IRQ_IRQn);
+    NVIC_EnableIRQ(USBCTRL_IRQ_IRQn);
 }
 
 void USBPhyHw::_usbisr(void)
 {
-    NVIC_DisableIRQ(USBCTRL_IRQn);
+    NVIC_DisableIRQ(USBCTRL_IRQ_IRQn);
     instance->events->start_process();
 }
