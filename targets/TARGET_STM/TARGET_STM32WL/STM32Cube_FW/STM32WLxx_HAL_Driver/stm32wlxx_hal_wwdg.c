@@ -7,6 +7,17 @@
   *          functionalities of the Window Watchdog (WWDG) peripheral:
   *           + Initialization and Configuration functions
   *           + IO operation functions
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2020 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
   @verbatim
   ==============================================================================
                       ##### WWDG Specific features #####
@@ -55,7 +66,7 @@
     (+) Enable WWDG APB1 clock using __HAL_RCC_WWDG_CLK_ENABLE().
     (+) Configure the WWDG prescaler, refresh window value, counter value and early
         interrupt status using HAL_WWDG_Init() function. This will automatically
-        enable WWDG and start its downcounter. Time reference can be taken from 
+        enable WWDG and start its downcounter. Time reference can be taken from
         function exit. Care must be taken to provide a counter value
         greater than 0x40 to prevent generation of immediate reset.
     (+) If the Early Wakeup Interrupt (EWI) feature is enabled, an interrupt is
@@ -111,17 +122,6 @@
       (+) __HAL_WWDG_ENABLE_IT: Enable the WWDG early wakeup interrupt
 
   @endverbatim
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
   ******************************************************************************
   */
 
@@ -421,4 +421,3 @@ __weak void HAL_WWDG_EarlyWakeupCallback(WWDG_HandleTypeDef *hwwdg)
   */
 
 #endif /* CORE_CM0PLUS */
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

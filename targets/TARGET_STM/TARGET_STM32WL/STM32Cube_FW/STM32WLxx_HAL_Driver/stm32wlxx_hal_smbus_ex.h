@@ -6,13 +6,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2020 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -37,7 +36,6 @@ extern "C" {
   */
 
 /* Exported types ------------------------------------------------------------*/
-
 /* Exported constants --------------------------------------------------------*/
 /** @defgroup SMBUSEx_Exported_Constants SMBUS Extended Exported Constants
   * @{
@@ -75,7 +73,17 @@ extern "C" {
   * @{
   */
 
-/** @addtogroup SMBUSEx_Exported_Functions_Group3 SMBUS Extended FastModePlus Functions
+/** @addtogroup SMBUSEx_Exported_Functions_Group2 WakeUp Mode Functions
+  * @{
+  */
+/* Peripheral Control functions  ************************************************/
+HAL_StatusTypeDef HAL_SMBUSEx_EnableWakeUp(SMBUS_HandleTypeDef *hsmbus);
+HAL_StatusTypeDef HAL_SMBUSEx_DisableWakeUp(SMBUS_HandleTypeDef *hsmbus);
+/**
+  * @}
+  */
+
+/** @addtogroup SMBUSEx_Exported_Functions_Group3 Fast Mode Plus Functions
   * @{
   */
 void HAL_SMBUSEx_EnableFastModePlus(uint32_t ConfigFastModePlus);
@@ -134,5 +142,3 @@ void HAL_SMBUSEx_DisableFastModePlus(uint32_t ConfigFastModePlus);
 #endif
 
 #endif /* STM32WLxx_HAL_SMBUS_EX_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

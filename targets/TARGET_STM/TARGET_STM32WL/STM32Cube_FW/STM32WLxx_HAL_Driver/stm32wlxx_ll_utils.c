@@ -6,13 +6,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2020 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                       opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -377,6 +376,7 @@ ErrorStatus LL_PLL_ConfigSystemClock_MSI(LL_UTILS_PLLInitTypeDef *UTILS_PLLInitS
 {
   ErrorStatus status = SUCCESS;
   uint32_t pllrfreq = 0;
+  uint32_t range_sel;
   uint32_t msi_range;
 #if defined(DUAL_CORE)
   uint32_t hclk2freq;
@@ -386,8 +386,9 @@ ErrorStatus LL_PLL_ConfigSystemClock_MSI(LL_UTILS_PLLInitTypeDef *UTILS_PLLInitS
   if (UTILS_PLL_IsBusy() == SUCCESS)
   {
     /* Get the current MSI range */
-    if (LL_RCC_MSI_IsEnabledRangeSelect()  == 0U)
+    if (LL_RCC_MSI_IsEnabledRangeSelect() == 1U)
     {
+      range_sel = LL_RCC_MSIRANGESEL_RUN;
       msi_range =  LL_RCC_MSI_GetRange();
       switch (msi_range)
       {
@@ -413,6 +414,7 @@ ErrorStatus LL_PLL_ConfigSystemClock_MSI(LL_UTILS_PLLInitTypeDef *UTILS_PLLInitS
     }
     else
     {
+      range_sel = LL_RCC_MSIRANGESEL_STANDBY;
       msi_range = LL_RCC_MSI_GetRangeAfterStandby();
       switch (msi_range)
       {
@@ -434,7 +436,7 @@ ErrorStatus LL_PLL_ConfigSystemClock_MSI(LL_UTILS_PLLInitTypeDef *UTILS_PLLInitS
     {
       /* Calculate the new PLL output frequency & verify all PLL stages are correct (VCO input ranges,
          VCO output ranges & SYSCLK max) when assert activated */
-      pllrfreq = UTILS_GetPLLOutputFrequency(__LL_RCC_CALC_MSI_FREQ(LL_RCC_MSI_IsEnabledRangeSelect(), msi_range),
+      pllrfreq = UTILS_GetPLLOutputFrequency(__LL_RCC_CALC_MSI_FREQ(range_sel, msi_range),
                                              UTILS_PLLInitStruct);
 
 #if defined(DUAL_CORE)
@@ -581,8 +583,16 @@ ErrorStatus LL_PLL_ConfigSystemClock_HSE(LL_UTILS_PLLInitTypeDef *UTILS_PLLInitS
   if (UTILS_PLL_IsBusy() == SUCCESS)
   {
     /* Calculate the new PLL output frequency */
-    pllrfreq = UTILS_GetPLLOutputFrequency(HSE_VALUE, UTILS_PLLInitStruct);
-
+    if (LL_RCC_HSE_IsEnabledDiv2() != 1UL)
+    {
+      pllrfreq = UTILS_GetPLLOutputFrequency(HSE_VALUE, UTILS_PLLInitStruct);
+    } 
+    else
+    {
+      /* HSE Pre is set */
+      pllrfreq = UTILS_GetPLLOutputFrequency(HSE_VALUE/2UL, UTILS_PLLInitStruct);
+    }
+    
 #if defined(DUAL_CORE)
     hclk2freq = __LL_RCC_CALC_HCLK2_FREQ(pllrfreq, UTILS_ClkInitStruct->CPU2CLKDivider);
 
@@ -788,5 +798,3 @@ static ErrorStatus UTILS_EnablePLLAndSwitchSystem(uint32_t SYSCLK_Frequency,
 /**
   * @}
   */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -11,6 +11,17 @@
   *           + Peripheral State and Errors functions
   *
   *
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2020 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
   @verbatim
   ==============================================================================
                       ##### DAC Peripheral features #####
@@ -52,13 +63,6 @@
       [..]
       (@) Refer to the device datasheet for more details about output
           impedance value with and without output buffer.
-
-      *** DAC connect feature ***
-      ===============================
-      [..]
-      Each DAC channel can be connected internally.
-      To connect, use
-      sConfig.DAC_ConnectOnChipPeripheral = DAC_CHIPCONNECT_ENABLE;
 
       *** GPIO configurations guidelines ***
       =====================
@@ -142,7 +146,7 @@
        DAC_OUTx = VREF+ * DOR / 4095
        (+) with  DOR is the Data Output Register
        [..]
-          VEF+ is the input voltage reference (refer to the device datasheet)
+          VREF+ is the input voltage reference (refer to the device datasheet)
        [..]
         e.g. To set DAC_OUT1 to 0.7V, use
        (+) Assuming that VREF+ = 3.3V, DAC_OUT1 = (3.3 * 868) / 4095 = 0.7V
@@ -209,7 +213,7 @@
       The compilation define  USE_HAL_DAC_REGISTER_CALLBACKS when set to 1
       allows the user to configure dynamically the driver callbacks.
 
-    Use Functions HAL_DAC_RegisterCallback() to register a user callback,
+    Use Functions @ref HAL_DAC_RegisterCallback() to register a user callback,
       it allows to register following callbacks:
       (+) ConvCpltCallbackCh1     : callback when a half transfer is completed on Ch1.
       (+) ConvHalfCpltCallbackCh1 : callback when a transfer is completed on Ch1.
@@ -220,7 +224,7 @@
       This function takes as parameters the HAL peripheral handle, the Callback ID
       and a pointer to the user callback function.
 
-    Use function HAL_DAC_UnRegisterCallback() to reset a callback to the default
+    Use function @ref HAL_DAC_UnRegisterCallback() to reset a callback to the default
       weak (surcharged) function. It allows to reset following callbacks:
       (+) ConvCpltCallbackCh1     : callback when a half transfer is completed on Ch1.
       (+) ConvHalfCpltCallbackCh1 : callback when a transfer is completed on Ch1.
@@ -231,12 +235,12 @@
       (+) All Callbacks
       This function) takes as parameters the HAL peripheral handle and the Callback ID.
 
-      By default, after the HAL_DAC_Init and if the state is HAL_DAC_STATE_RESET
+      By default, after the @ref HAL_DAC_Init and if the state is HAL_DAC_STATE_RESET
       all callbacks are reset to the corresponding legacy weak (surcharged) functions.
       Exception done for MspInit and MspDeInit callbacks that are respectively
-      reset to the legacy weak (surcharged) functions in the HAL_DAC_Init
-      and HAL_DAC_DeInit only when these callbacks are null (not registered beforehand).
-      If not, MspInit or MspDeInit are not null, the HAL_DAC_Init and HAL_DAC_DeInit
+      reset to the legacy weak (surcharged) functions in the @ref HAL_DAC_Init
+      and @ref  HAL_DAC_DeInit only when these callbacks are null (not registered beforehand).
+      If not, MspInit or MspDeInit are not null, the @ref HAL_DAC_Init and @ref HAL_DAC_DeInit
       keep and use the user MspInit/MspDeInit callbacks (registered beforehand)
 
       Callbacks can be registered/unregistered in READY state only.
@@ -244,8 +248,8 @@
       in READY or RESET state, thus registered (user) MspInit/DeInit callbacks can be used
       during the Init/DeInit.
       In that case first register the MspInit/MspDeInit user callbacks
-      using HAL_DAC_RegisterCallback before calling HAL_DAC_DeInit
-      or HAL_DAC_Init function.
+      using @ref HAL_DAC_RegisterCallback before calling @ref HAL_DAC_DeInit
+      or @ref HAL_DAC_Init function.
 
       When The compilation define USE_HAL_DAC_REGISTER_CALLBACKS is set to 0 or
       not defined, the callback registering feature is not available
@@ -265,17 +269,6 @@
       (@) You can refer to the DAC HAL driver header file for more useful macros
 
 @endverbatim
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
   ******************************************************************************
   */
 
@@ -355,8 +348,6 @@ HAL_StatusTypeDef HAL_DAC_Init(DAC_HandleTypeDef *hdac)
     hdac->ConvHalfCpltCallbackCh1       = HAL_DAC_ConvHalfCpltCallbackCh1;
     hdac->ErrorCallbackCh1              = HAL_DAC_ErrorCallbackCh1;
     hdac->DMAUnderrunCallbackCh1        = HAL_DAC_DMAUnderrunCallbackCh1;
-
-
     if (hdac->MspInitCallback == NULL)
     {
       hdac->MspInitCallback             = HAL_DAC_MspInit;
@@ -558,7 +549,7 @@ HAL_StatusTypeDef HAL_DAC_Stop(DAC_HandleTypeDef *hdac, uint32_t Channel)
   * @param  Channel The selected DAC channel.
   *          This parameter can be one of the following values:
   *            @arg DAC_CHANNEL_1: DAC Channel1 selected
-  * @param  pData The destination peripheral Buffer address.
+  * @param  pData The source Buffer address.
   * @param  Length The length of data to be transferred from memory to DAC peripheral
   * @param  Alignment Specifies the data alignment for DAC channel.
   *          This parameter can be one of the following values:
@@ -567,7 +558,7 @@ HAL_StatusTypeDef HAL_DAC_Stop(DAC_HandleTypeDef *hdac, uint32_t Channel)
   *            @arg DAC_ALIGN_12B_R: 12bit right data alignment selected
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef *hdac, uint32_t Channel, uint32_t *pData, uint32_t Length,
+HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef *hdac, uint32_t Channel, const uint32_t *pData, uint32_t Length,
                                     uint32_t Alignment)
 {
   HAL_StatusTypeDef status;
@@ -608,16 +599,13 @@ HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef *hdac, uint32_t Channel, u
         /* Get DHR12L1 address */
         tmpreg = (uint32_t)&hdac->Instance->DHR12L1;
         break;
-      case DAC_ALIGN_8B_R:
+      default: /* case DAC_ALIGN_8B_R */
         /* Get DHR8R1 address */
         tmpreg = (uint32_t)&hdac->Instance->DHR8R1;
-        break;
-      default:
         break;
     }
   }
 
-  /* Enable the DMA channel */
   /* Enable the DAC DMA underrun interrupt */
   __HAL_DAC_ENABLE_IT(hdac, DAC_IT_DMAUDR1);
 
@@ -652,8 +640,6 @@ HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef *hdac, uint32_t Channel, u
   */
 HAL_StatusTypeDef HAL_DAC_Stop_DMA(DAC_HandleTypeDef *hdac, uint32_t Channel)
 {
-  HAL_StatusTypeDef status;
-
   /* Check the parameters */
   assert_param(IS_DAC_CHANNEL(Channel));
 
@@ -666,25 +652,16 @@ HAL_StatusTypeDef HAL_DAC_Stop_DMA(DAC_HandleTypeDef *hdac, uint32_t Channel)
   /* Disable the DMA channel */
 
   /* Disable the DMA channel */
-  status = HAL_DMA_Abort(hdac->DMA_Handle1);
+  (void)HAL_DMA_Abort(hdac->DMA_Handle1);
 
   /* Disable the DAC DMA underrun interrupt */
   __HAL_DAC_DISABLE_IT(hdac, DAC_IT_DMAUDR1);
 
-  /* Check if DMA Channel effectively disabled */
-  if (status != HAL_OK)
-  {
-    /* Update DAC state machine to error */
-    hdac->State = HAL_DAC_STATE_ERROR;
-  }
-  else
-  {
-    /* Change DAC state */
-    hdac->State = HAL_DAC_STATE_READY;
-  }
+  /* Change DAC state */
+  hdac->State = HAL_DAC_STATE_READY;
 
   /* Return function status */
-  return status;
+  return HAL_OK;
 }
 
 /**
@@ -697,22 +674,25 @@ HAL_StatusTypeDef HAL_DAC_Stop_DMA(DAC_HandleTypeDef *hdac, uint32_t Channel)
   */
 void HAL_DAC_IRQHandler(DAC_HandleTypeDef *hdac)
 {
-  if (__HAL_DAC_GET_IT_SOURCE(hdac, DAC_IT_DMAUDR1))
+  uint32_t itsource = hdac->Instance->CR;
+  uint32_t itflag   = hdac->Instance->SR;
+
+  if ((itsource & DAC_IT_DMAUDR1) == DAC_IT_DMAUDR1)
   {
     /* Check underrun flag of DAC channel 1 */
-    if (__HAL_DAC_GET_FLAG(hdac, DAC_FLAG_DMAUDR1))
+    if ((itflag & DAC_FLAG_DMAUDR1) == DAC_FLAG_DMAUDR1)
     {
       /* Change DAC state to error state */
       hdac->State = HAL_DAC_STATE_ERROR;
 
-      /* Set DAC error code to chanel1 DMA underrun error */
+      /* Set DAC error code to channel1 DMA underrun error */
       SET_BIT(hdac->ErrorCode, HAL_DAC_ERROR_DMAUNDERRUNCH1);
 
       /* Clear the underrun flag */
       __HAL_DAC_CLEAR_FLAG(hdac, DAC_FLAG_DMAUDR1);
 
       /* Disable the selected DAC channel1 DMA request */
-      CLEAR_BIT(hdac->Instance->CR, DAC_CR_DMAEN1);
+      __HAL_DAC_DISABLE_IT(hdac, DAC_CR_DMAEN1);
 
       /* Error callback */
 #if (USE_HAL_DAC_REGISTER_CALLBACKS == 1)
@@ -741,7 +721,7 @@ void HAL_DAC_IRQHandler(DAC_HandleTypeDef *hdac)
   */
 HAL_StatusTypeDef HAL_DAC_SetValue(DAC_HandleTypeDef *hdac, uint32_t Channel, uint32_t Alignment, uint32_t Data)
 {
-  __IO uint32_t tmp = 0;
+  __IO uint32_t tmp = 0UL;
 
   /* Check the parameters */
   assert_param(IS_DAC_CHANNEL(Channel));
@@ -853,13 +833,17 @@ __weak void HAL_DAC_DMAUnderrunCallbackCh1(DAC_HandleTypeDef *hdac)
   *            @arg DAC_CHANNEL_1: DAC Channel1 selected
   * @retval The selected DAC channel data output value.
   */
-uint32_t HAL_DAC_GetValue(DAC_HandleTypeDef *hdac, uint32_t Channel)
+uint32_t HAL_DAC_GetValue(const DAC_HandleTypeDef *hdac, uint32_t Channel)
 {
+  uint32_t result;
+
   /* Check the parameters */
   assert_param(IS_DAC_CHANNEL(Channel));
 
+  result = hdac->Instance->DOR1;
+
   /* Returns the DAC channel data output register value */
-  return hdac->Instance->DOR1;
+  return result;
 }
 
 /**
@@ -872,8 +856,10 @@ uint32_t HAL_DAC_GetValue(DAC_HandleTypeDef *hdac, uint32_t Channel)
   *            @arg DAC_CHANNEL_1: DAC Channel1 selected
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef *hdac, DAC_ChannelConfTypeDef *sConfig, uint32_t Channel)
+HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef *hdac,
+                                        const DAC_ChannelConfTypeDef *sConfig, uint32_t Channel)
 {
+  HAL_StatusTypeDef status = HAL_OK;
   uint32_t tmpreg1;
   uint32_t tmpreg2;
   uint32_t tickstart;
@@ -902,10 +888,9 @@ HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef *hdac, DAC_ChannelConf
   /* Change DAC state */
   hdac->State = HAL_DAC_STATE_BUSY;
 
+  /* Sample and hold configuration */
   if (sConfig->DAC_SampleAndHold == DAC_SAMPLEANDHOLD_ENABLE)
-    /* Sample on old configuration */
   {
-    /* SampleTime */
     /* Get timeout */
     tickstart = HAL_GetTick();
 
@@ -915,22 +900,27 @@ HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef *hdac, DAC_ChannelConf
       /* Check for the Timeout */
       if ((HAL_GetTick() - tickstart) > TIMEOUT_DAC_CALIBCONFIG)
       {
-        /* Update error code */
-        SET_BIT(hdac->ErrorCode, HAL_DAC_ERROR_TIMEOUT);
+        /* New check to avoid false timeout detection in case of preemption */
+        if (((hdac->Instance->SR) & DAC_SR_BWST1) != 0UL)
+        {
+          /* Update error code */
+          SET_BIT(hdac->ErrorCode, HAL_DAC_ERROR_TIMEOUT);
 
-        /* Change the DMA state */
-        hdac->State = HAL_DAC_STATE_TIMEOUT;
+          /* Change the DMA state */
+          hdac->State = HAL_DAC_STATE_TIMEOUT;
 
-        return HAL_TIMEOUT;
+          return HAL_TIMEOUT;
+        }
       }
     }
-    HAL_Delay(1);
     hdac->Instance->SHSR1 = sConfig->DAC_SampleAndHoldConfig.DAC_SampleTime;
 
     /* HoldTime */
-    MODIFY_REG(hdac->Instance->SHHR, DAC_SHHR_THOLD1 << (Channel & 0x10UL), (sConfig->DAC_SampleAndHoldConfig.DAC_HoldTime) << (Channel & 0x10UL));
+    MODIFY_REG(hdac->Instance->SHHR, DAC_SHHR_THOLD1 << (Channel & 0x10UL),
+               (sConfig->DAC_SampleAndHoldConfig.DAC_HoldTime) << (Channel & 0x10UL));
     /* RefreshTime */
-    MODIFY_REG(hdac->Instance->SHRR, DAC_SHRR_TREFRESH1 << (Channel & 0x10UL), (sConfig->DAC_SampleAndHoldConfig.DAC_RefreshTime) << (Channel & 0x10UL));
+    MODIFY_REG(hdac->Instance->SHRR, DAC_SHRR_TREFRESH1 << (Channel & 0x10UL),
+               (sConfig->DAC_SampleAndHoldConfig.DAC_RefreshTime) << (Channel & 0x10UL));
   }
 
   if (sConfig->DAC_UserTrimming == DAC_TRIMMING_USER)
@@ -976,7 +966,7 @@ HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef *hdac, DAC_ChannelConf
   /* Write to DAC CR */
   hdac->Instance->CR = tmpreg1;
   /* Disable wave generation */
-  hdac->Instance->CR &= ~(DAC_CR_WAVE1 << (Channel & 0x10UL));
+  CLEAR_BIT(hdac->Instance->CR, (DAC_CR_WAVE1 << (Channel & 0x10UL)));
 
   /* Change DAC state */
   hdac->State = HAL_DAC_STATE_READY;
@@ -985,7 +975,7 @@ HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef *hdac, DAC_ChannelConf
   __HAL_UNLOCK(hdac);
 
   /* Return function status */
-  return HAL_OK;
+  return status;
 }
 
 /**
@@ -1014,7 +1004,7 @@ HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef *hdac, DAC_ChannelConf
   *         the configuration information for the specified DAC.
   * @retval HAL state
   */
-HAL_DAC_StateTypeDef HAL_DAC_GetState(DAC_HandleTypeDef *hdac)
+HAL_DAC_StateTypeDef HAL_DAC_GetState(const DAC_HandleTypeDef *hdac)
 {
   /* Return DAC handle state */
   return hdac->State;
@@ -1027,7 +1017,7 @@ HAL_DAC_StateTypeDef HAL_DAC_GetState(DAC_HandleTypeDef *hdac)
   *         the configuration information for the specified DAC.
   * @retval DAC Error Code
   */
-uint32_t HAL_DAC_GetError(DAC_HandleTypeDef *hdac)
+uint32_t HAL_DAC_GetError(const DAC_HandleTypeDef *hdac)
 {
   return hdac->ErrorCode;
 }
@@ -1051,6 +1041,8 @@ uint32_t HAL_DAC_GetError(DAC_HandleTypeDef *hdac)
 /**
   * @brief  Register a User DAC Callback
   *         To be used instead of the weak (surcharged) predefined callback
+  * @note   The HAL_DAC_RegisterCallback() may be called before HAL_DAC_Init() in HAL_DAC_STATE_RESET to register 
+  *         callbacks for HAL_DAC_MSPINIT_CB_ID and HAL_DAC_MSPDEINIT_CB_ID
   * @param  hdac DAC handle
   * @param  CallbackID ID of the callback to be registered
   *         This parameter can be one of the following values:
@@ -1076,9 +1068,6 @@ HAL_StatusTypeDef HAL_DAC_RegisterCallback(DAC_HandleTypeDef *hdac, HAL_DAC_Call
     hdac->ErrorCode |= HAL_DAC_ERROR_INVALID_CALLBACK;
     return HAL_ERROR;
   }
-
-  /* Process locked */
-  __HAL_LOCK(hdac);
 
   if (hdac->State == HAL_DAC_STATE_READY)
   {
@@ -1136,14 +1125,14 @@ HAL_StatusTypeDef HAL_DAC_RegisterCallback(DAC_HandleTypeDef *hdac, HAL_DAC_Call
     status =  HAL_ERROR;
   }
 
-  /* Release Lock */
-  __HAL_UNLOCK(hdac);
   return status;
 }
 
 /**
   * @brief  Unregister a User DAC Callback
   *         DAC Callback is redirected to the weak (surcharged) predefined callback
+  * @note   The HAL_DAC_UnRegisterCallback() may be called before HAL_DAC_Init() in HAL_DAC_STATE_RESET to un-register 
+  *         callbacks for HAL_DAC_MSPINIT_CB_ID and HAL_DAC_MSPDEINIT_CB_ID
   * @param  hdac DAC handle
   * @param  CallbackID ID of the callback to be unregistered
   *         This parameter can be one of the following values:
@@ -1159,9 +1148,6 @@ HAL_StatusTypeDef HAL_DAC_RegisterCallback(DAC_HandleTypeDef *hdac, HAL_DAC_Call
 HAL_StatusTypeDef HAL_DAC_UnRegisterCallback(DAC_HandleTypeDef *hdac, HAL_DAC_CallbackIDTypeDef CallbackID)
 {
   HAL_StatusTypeDef status = HAL_OK;
-
-  /* Process locked */
-  __HAL_LOCK(hdac);
 
   if (hdac->State == HAL_DAC_STATE_READY)
   {
@@ -1227,8 +1213,6 @@ HAL_StatusTypeDef HAL_DAC_UnRegisterCallback(DAC_HandleTypeDef *hdac, HAL_DAC_Ca
     status =  HAL_ERROR;
   }
 
-  /* Release Lock */
-  __HAL_UNLOCK(hdac);
   return status;
 }
 #endif /* USE_HAL_DAC_REGISTER_CALLBACKS */
@@ -1314,9 +1298,6 @@ void DAC_DMAErrorCh1(DMA_HandleTypeDef *hdma)
 #endif /* DAC */
 
 #endif /* HAL_DAC_MODULE_ENABLED */
-
 /**
   * @}
   */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -6,13 +6,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2020 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -52,7 +51,8 @@ extern "C" {
 #define RCC_FLAG_MASK             0x1FU
 
 /* Defines Oscillator Masks */
-#define RCC_OSCILLATORTYPE_ALL          (RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_MSI | RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE)  /*!< All Oscillator to configure */
+#define RCC_OSCILLATORTYPE_ALL    (RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_MSI | \
+                                   RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE)  /*!< All Oscillator to configure */
 
 /** @defgroup RCC_Timeout_Value Timeout Values
   * @{
@@ -118,8 +118,7 @@ extern "C" {
 #define IS_RCC_PLL(__PLL__) (((__PLL__) == RCC_PLL_NONE) ||((__PLL__) == RCC_PLL_OFF) || \
                              ((__PLL__) == RCC_PLL_ON))
 
-#define IS_RCC_PLLSOURCE(__SOURCE__) (((__SOURCE__) == RCC_PLLSOURCE_NONE) || \
-                                      ((__SOURCE__) == RCC_PLLSOURCE_MSI)  || \
+#define IS_RCC_PLLSOURCE(__SOURCE__) (((__SOURCE__) == RCC_PLLSOURCE_MSI)  || \
                                       ((__SOURCE__) == RCC_PLLSOURCE_HSI)  || \
                                       ((__SOURCE__) == RCC_PLLSOURCE_HSE))
 
@@ -190,7 +189,7 @@ extern "C" {
                                          ((__SOURCE__) == RCC_RTCCLKSOURCE_LSI)  || \
                                          ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV32))
 
-#define IS_RCC_MCO(__MCOX__) (((__MCOX__) == RCC_MCO1))
+#define IS_RCC_MCO(__MCOX__) ((__MCOX__) == RCC_MCO1_PA8)
 
 #define IS_RCC_MCO1SOURCE(__SOURCE__) (((__SOURCE__) == RCC_MCO1SOURCE_NOCLOCK) || \
                                        ((__SOURCE__) == RCC_MCO1SOURCE_SYSCLK)  || \
@@ -235,7 +234,7 @@ typedef struct
                             This parameter must be a value of @ref RCC_PLLM_Clock_Divider                         */
 
   uint32_t PLLN;       /*!< PLLN: Multiplication factor for PLL VCO output clock.
-                            This parameter must be a number between Min_Data = 6 and Max_Data = 127                */
+                            This parameter must be a number between Min_Data = 6 and Max_Data = 127               */
 
   uint32_t PLLP;       /*!< PLLP: Division factor for ADC clock.
                             This parameter must be a value of @ref RCC_PLLP_Clock_Divider                         */
@@ -632,8 +631,29 @@ typedef struct
 /** @defgroup RCC_MCO_Index MCO Index
   * @{
   */
-#define RCC_MCO1                       0x00000000U  /*!< MCO1 index                                         */
-#define RCC_MCO                        RCC_MCO1     /*!< MCO to be compliant with other families with 1 MCO */
+
+/* @cond */
+  /* 32     28      20       16      0
+   --------------------------------
+   | MCO   | GPIO  | GPIO  | GPIO  |
+   | Index |  AF   | Port  |  Pin  |
+   -------------------------------*/
+
+#define RCC_MCO_GPIOPORT_POS   16U
+#define RCC_MCO_GPIOPORT_MASK  (0xFUL << RCC_MCO_GPIOPORT_POS)
+#define RCC_MCO_GPIOAF_POS     20U
+#define RCC_MCO_GPIOAF_MASK    (0xFFUL << RCC_MCO_GPIOAF_POS)
+#define RCC_MCO_INDEX_POS      28U
+#define RCC_MCO_INDEX_MASK     (0x1UL << RCC_MCO_INDEX_POS)
+
+#define RCC_MCO1_INDEX         (0x0UL << RCC_MCO_INDEX_POS)             /*!< MCO1 index */
+/* @endcond */
+
+#define RCC_MCO1_PA8           (RCC_MCO1_INDEX | (GPIO_AF0_MCO << RCC_MCO_GPIOAF_POS) | \
+                                (GPIO_GET_INDEX(GPIOA) << RCC_MCO_GPIOPORT_POS) | GPIO_PIN_8)
+#define RCC_MCO1               RCC_MCO1_PA8
+
+#define RCC_MCO                RCC_MCO1     /*!< MCO1 to be compliant with other families with 1 MCO */
 /**
   * @}
   */
@@ -641,16 +661,16 @@ typedef struct
 /** @defgroup RCC_MCO1_Clock_Source MCO1 Clock Source
   * @{
   */
-#define RCC_MCO1SOURCE_NOCLOCK         LL_RCC_MCO1SOURCE_NOCLOCK  /*!< MCO1 output disabled, no clock on MCO1          */
-#define RCC_MCO1SOURCE_SYSCLK          LL_RCC_MCO1SOURCE_SYSCLK   /*!< SYSCLK selected as MCO1 source                  */
-#define RCC_MCO1SOURCE_MSI             LL_RCC_MCO1SOURCE_MSI      /*!< MSI selected as MCO1 source                     */
-#define RCC_MCO1SOURCE_HSI             LL_RCC_MCO1SOURCE_HSI      /*!< HSI selected as MCO1 source                     */
-#define RCC_MCO1SOURCE_HSE             LL_RCC_MCO1SOURCE_HSE      /*!< HSE after stabilization selected as MCO1 source */
-#define RCC_MCO1SOURCE_PLLCLK          LL_RCC_MCO1SOURCE_PLLCLK   /*!< Main PLLRCLK selected as MCO1 source            */
-#define RCC_MCO1SOURCE_LSI             LL_RCC_MCO1SOURCE_LSI      /*!< LSI selected as MCO1 source                     */
-#define RCC_MCO1SOURCE_LSE             LL_RCC_MCO1SOURCE_LSE      /*!< LSE selected as MCO1 source                     */
-#define RCC_MCO1SOURCE_PLLPCLK         LL_RCC_MCO1SOURCE_PLLPCLK  /*!< Main PLLPCLK selected as MCO1 source            */
-#define RCC_MCO1SOURCE_PLLQCLK         LL_RCC_MCO1SOURCE_PLLQCLK  /*!< Main PLLQCLK selected as MCO1 source            */
+#define RCC_MCO1SOURCE_NOCLOCK        LL_RCC_MCO1SOURCE_NOCLOCK  /*!< MCO1 output disabled, no clock on MCO1          */
+#define RCC_MCO1SOURCE_SYSCLK         LL_RCC_MCO1SOURCE_SYSCLK   /*!< SYSCLK selected as MCO1 source                  */
+#define RCC_MCO1SOURCE_MSI            LL_RCC_MCO1SOURCE_MSI      /*!< MSI selected as MCO1 source                     */
+#define RCC_MCO1SOURCE_HSI            LL_RCC_MCO1SOURCE_HSI      /*!< HSI selected as MCO1 source                     */
+#define RCC_MCO1SOURCE_HSE            LL_RCC_MCO1SOURCE_HSE      /*!< HSE after stabilization selected as MCO1 source */
+#define RCC_MCO1SOURCE_PLLCLK         LL_RCC_MCO1SOURCE_PLLCLK   /*!< Main PLLRCLK selected as MCO1 source            */
+#define RCC_MCO1SOURCE_LSI            LL_RCC_MCO1SOURCE_LSI      /*!< LSI selected as MCO1 source                     */
+#define RCC_MCO1SOURCE_LSE            LL_RCC_MCO1SOURCE_LSE      /*!< LSE selected as MCO1 source                     */
+#define RCC_MCO1SOURCE_PLLPCLK        LL_RCC_MCO1SOURCE_PLLPCLK  /*!< Main PLLPCLK selected as MCO1 source            */
+#define RCC_MCO1SOURCE_PLLQCLK        LL_RCC_MCO1SOURCE_PLLQCLK  /*!< Main PLLQCLK selected as MCO1 source            */
 /**
   * @}
   */
@@ -658,7 +678,7 @@ typedef struct
 /** @defgroup RCC_MCOx_Clock_Prescaler MCO Clock Prescaler
   * @{
   */
-#define RCC_MCODIV_1                   LL_RCC_MCO1_DIV_1    /*!< MCO not divided */
+#define RCC_MCODIV_1                   LL_RCC_MCO1_DIV_1    /*!< MCO not divided  */
 #define RCC_MCODIV_2                   LL_RCC_MCO1_DIV_2    /*!< MCO divided by 2 */
 #define RCC_MCODIV_4                   LL_RCC_MCO1_DIV_4    /*!< MCO divided by 4 */
 #define RCC_MCODIV_8                   LL_RCC_MCO1_DIV_8    /*!< MCO divided by 8 */
@@ -2206,7 +2226,7 @@ typedef struct
   *            @arg @ref RCC_MCO1SOURCE_SYSCLK  System  clock selected as MCO source
   *            @arg @ref RCC_MCO1SOURCE_MSI     MSI clock selected as MCO source
   *            @arg @ref RCC_MCO1SOURCE_HSI     HSI clock selected as MCO source
-  *            @arg @ref RCC_MCO1SOURCE_HSE     HSE clock selected as MCO sourcee
+  *            @arg @ref RCC_MCO1SOURCE_HSE     HSE clock selected as MCO source
   *            @arg @ref RCC_MCO1SOURCE_PLLCLK  Main PLL clock selected as MCO source
   *            @arg @ref RCC_MCO1SOURCE_LSI  LSI clock selected as MCO source
   *            @arg @ref RCC_MCO1SOURCE_LSE  LSE clock selected as MCO source
@@ -2397,7 +2417,3 @@ uint32_t          HAL_RCC_GetResetSource(void);
 #endif
 
 #endif /* STM32WLxx_HAL_RCC_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-
-

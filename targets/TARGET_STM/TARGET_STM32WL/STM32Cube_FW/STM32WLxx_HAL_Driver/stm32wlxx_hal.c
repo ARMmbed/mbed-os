@@ -5,6 +5,17 @@
   * @brief   HAL module driver.
   *          This is the common part of the HAL initialization
   *
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2020 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
   @verbatim
   ==============================================================================
                      ##### How to use this driver #####
@@ -18,17 +29,6 @@
          (+) Services HAL APIs
 
   @endverbatim
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                       opensource.org/licenses/BSD-3-Clause
-  *
   ******************************************************************************
   */
 
@@ -53,18 +53,29 @@
   * @{
   */
 /**
- * @brief STM32WLxx HAL Driver version number
-   */
+  * @brief STM32WLxx HAL Driver version number
+  */
 #define __STM32WLxx_HAL_VERSION_MAIN   (0x01U) /*!< [31:24] main version */
-#define __STM32WLxx_HAL_VERSION_SUB1   (0x01U) /*!< [23:16] sub1 version */
+#define __STM32WLxx_HAL_VERSION_SUB1   (0x03U) /*!< [23:16] sub1 version */
 #define __STM32WLxx_HAL_VERSION_SUB2   (0x00U) /*!< [15:8]  sub2 version */
 #define __STM32WLxx_HAL_VERSION_RC     (0x00U) /*!< [7:0]  release candidate */
 #define __STM32WLxx_HAL_VERSION         ((__STM32WLxx_HAL_VERSION_MAIN << 24U)\
-                                        |(__STM32WLxx_HAL_VERSION_SUB1 << 16U)\
-                                        |(__STM32WLxx_HAL_VERSION_SUB2 << 8U )\
-                                        |(__STM32WLxx_HAL_VERSION_RC))
+                                         |(__STM32WLxx_HAL_VERSION_SUB1 << 16U)\
+                                         |(__STM32WLxx_HAL_VERSION_SUB2 << 8U )\
+                                         |(__STM32WLxx_HAL_VERSION_RC))
 
 #define VREFBUF_TIMEOUT_VALUE     10U   /* 10 ms */
+
+#if defined(STM32WL5Mxx)
+#define RADIO_SWITCH_CTRL_GPIO_PORT                    GPIOC
+#define RADIO_SWITCH_CTRL_GPIO_CLK_ENABLE()            __HAL_RCC_GPIOC_CLK_ENABLE()
+#define RADIO_SWITCH_CTRL_GPIO_CLK_DISABLE()           __HAL_RCC_GPIOC_CLK_DISABLE()
+
+#define RADIO_SWITCH_CTRL3_PIN                         GPIO_PIN_3
+#define RADIO_SWITCH_CTRL1_PIN                         GPIO_PIN_4
+#define RADIO_SWITCH_CTRL2_PIN                         GPIO_PIN_5
+
+#endif /* STM32WL5Mxx */
 
 /**
   * @}
@@ -90,8 +101,8 @@ HAL_TickFreqTypeDef uwTickFreq = HAL_TICK_FREQ_DEFAULT;  /* 1KHz */
   */
 
 /** @addtogroup HAL_Exported_Functions_Group1
- *  @brief    HAL Initialization and Configuration functions
- *
+  *  @brief    HAL Initialization and Configuration functions
+  *
 @verbatim
  ===============================================================================
            ##### HAL Initialization and Configuration functions #####
@@ -304,8 +315,8 @@ __weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
   */
 
 /** @addtogroup HAL_Exported_Functions_Group2
- *  @brief    HAL Control functions
- *
+  *  @brief    HAL Control functions
+  *
 @verbatim
  ===============================================================================
                       ##### HAL Control functions #####
@@ -329,7 +340,7 @@ __weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
   *        used as application time base.
   * @note In the default implementation, this variable is incremented each 1ms
   *       in SysTick ISR.
- * @note This function is declared as __weak to be overwritten in case of other
+  * @note This function is declared as __weak to be overwritten in case of other
   *      implementations in user file.
   * @retval None
   */
@@ -520,8 +531,8 @@ uint32_t HAL_GetUIDw2(void)
   */
 
 /** @addtogroup HAL_Exported_Functions_Group3
- *  @brief    HAL Debug functions
- *
+  *  @brief    HAL Debug functions
+  *
 @verbatim
  ===============================================================================
                       ##### HAL Debug functions #####
@@ -601,8 +612,8 @@ void HAL_DBGMCU_DisableDBGStandbyMode(void)
   */
 
 /** @defgroup HAL_Exported_Functions_Group4 HAL System Configuration functions
- *  @brief    HAL System Configuration functions
- *
+  *  @brief    HAL System Configuration functions
+  *
 @verbatim
  ===============================================================================
                  ##### HAL system configuration functions #####
@@ -649,17 +660,17 @@ void HAL_SYSCFG_VREFBUF_VoltageScalingConfig(uint32_t VoltageScaling)
 
   /* Check the parameters */
   assert_param(IS_SYSCFG_VREFBUF_VOLTAGE_SCALE(VoltageScaling));
-  
+
   LL_VREFBUF_SetVoltageScaling(VoltageScaling);
-  
+
   /* Restrieve Calibration data and store them into trimming field */
   if (VoltageScaling == SYSCFG_VREFBUF_VOLTAGE_SCALE0)
   {
-    TrimmingValue = ((uint32_t) *VREFBUF_SC0_CAL_ADDR) & 0x3FU;
+    TrimmingValue = ((uint32_t) * VREFBUF_SC0_CAL_ADDR) & 0x3FU;
   }
   else
   {
-    TrimmingValue = ((uint32_t) *VREFBUF_SC1_CAL_ADDR) & 0x3FU;
+    TrimmingValue = ((uint32_t) * VREFBUF_SC1_CAL_ADDR) & 0x3FU;
   }
   assert_param(IS_SYSCFG_VREFBUF_TRIMMING(TrimmingValue));
 
@@ -687,7 +698,7 @@ void HAL_SYSCFG_VREFBUF_HighImpedanceConfig(uint32_t Mode)
   * @brief Tune the Internal Voltage Reference buffer (VREFBUF).
   * @note  Each VrefBuf voltage scale is calibrated in production for each device,
   *        data stored in flash memory.
-  *        Function @ref HAL_SYSCFG_VREFBUF_VoltageScalingConfig retrieves and 
+  *        Function @ref HAL_SYSCFG_VREFBUF_VoltageScalingConfig retrieves and
   *        applies this calibration data as trimming value at each scale change.
   *        Therefore, optionally, function @ref HAL_SYSCFG_VREFBUF_TrimmingConfig
   *        can be used in a second time to fine tune the trimming.
@@ -816,6 +827,181 @@ void HAL_SYSCFG_DisableIT(SYSCFG_InterruptTypeDef *Interrupt)
   * @}
   */
 
+#if defined(STM32WL5Mxx)
+/** @defgroup HAL_Exported_Functions_Group5 HAL Radio Configuration functions
+  * @brief    HAL Radio Configuration functions
+  *
+@verbatim
+ ===============================================================================
+                 ##### HAL Radio configuration functions #####
+ ===============================================================================
+    [..]  This section provides functions allowing to:
+      (+) Enable/Disable the Radio
+      (+) Configure the Radio to Rx, Tx Low Power or Tx High Power
+
+@endverbatim
+  * @{
+  */
+
+/* RADIO Control functions  ****************************************************/
+/**
+  * @brief  Init Radio Switch
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_RADIO_Init(void)
+{
+  HAL_StatusTypeDef status;
+  GPIO_InitTypeDef gpio_init_structure;
+
+  /* Enable the Radio Switch Clock */
+  RADIO_SWITCH_CTRL_GPIO_CLK_ENABLE();
+
+  /* Configure the Radio Switch pin */
+  gpio_init_structure.Pin   = (RADIO_SWITCH_CTRL1_PIN | RADIO_SWITCH_CTRL2_PIN | RADIO_SWITCH_CTRL3_PIN);
+  gpio_init_structure.Mode  = GPIO_MODE_OUTPUT_PP;
+  gpio_init_structure.Pull  = GPIO_NOPULL;
+  gpio_init_structure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+
+  HAL_GPIO_Init(RADIO_SWITCH_CTRL_GPIO_PORT, &gpio_init_structure);
+
+  /* Lock RF Switch GPIOs configuration to avoid any user change */
+  /* Only a MCU reset will unlock this configuration */
+  status = HAL_GPIO_LockPin(RADIO_SWITCH_CTRL_GPIO_PORT, (RADIO_SWITCH_CTRL1_PIN | RADIO_SWITCH_CTRL2_PIN | RADIO_SWITCH_CTRL3_PIN));
+  if (status == HAL_OK)
+  {
+    /* By default, the RF Switch is off */
+    HAL_GPIO_WritePin(RADIO_SWITCH_CTRL_GPIO_PORT,
+                      (RADIO_SWITCH_CTRL1_PIN | RADIO_SWITCH_CTRL2_PIN | RADIO_SWITCH_CTRL3_PIN), GPIO_PIN_RESET);
+  }
+
+  return status;
+}
+
+/**
+  * @brief  DeInit Radio Switch
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_RADIO_DeInit(void)
+{
+  /* Enable the Radio Switch Clock */
+  RADIO_SWITCH_CTRL_GPIO_CLK_ENABLE();
+
+  /* Turn off switch */
+  HAL_GPIO_WritePin(RADIO_SWITCH_CTRL_GPIO_PORT,
+                    (RADIO_SWITCH_CTRL1_PIN | RADIO_SWITCH_CTRL2_PIN | RADIO_SWITCH_CTRL3_PIN), GPIO_PIN_RESET);
+
+  /* Disable the Radio Switch Clock */
+  RADIO_SWITCH_CTRL_GPIO_CLK_DISABLE();
+
+  return HAL_OK;
+}
+
+/**
+  * @brief  Configure Radio Switch.
+  * @param  Config: Specifies the Radio RF switch path to be set.
+  *         This parameter can be one of following parameters:
+  *           @arg RADIO_SWITCH_OFF
+  *           @arg RADIO_SWITCH_RX
+  *           @arg RADIO_SWITCH_RFO_LP
+  *           @arg RADIO_SWITCH_RFO_HP
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_RADIO_SetSwitchConfig(HAL_RADIO_SwitchConfig_TypeDef Config)
+{
+  HAL_StatusTypeDef status = HAL_OK;
+
+  switch (Config)
+  {
+    case RADIO_SWITCH_OFF:
+    {
+      /* Turn off switch */
+      HAL_GPIO_WritePin(RADIO_SWITCH_CTRL_GPIO_PORT,
+                        (RADIO_SWITCH_CTRL1_PIN | RADIO_SWITCH_CTRL2_PIN | RADIO_SWITCH_CTRL3_PIN), GPIO_PIN_RESET);
+      break;
+    }
+    case RADIO_SWITCH_RX:
+    {
+      /* Turns On in Rx Mode the RF Switch */
+      HAL_GPIO_WritePin(RADIO_SWITCH_CTRL_GPIO_PORT,
+                        (RADIO_SWITCH_CTRL1_PIN | RADIO_SWITCH_CTRL2_PIN | RADIO_SWITCH_CTRL3_PIN), GPIO_PIN_SET);
+
+      break;
+    }
+    case RADIO_SWITCH_RFO_LP:
+    {
+      /* Turns On in Tx Low Power the RF Switch */
+      HAL_GPIO_WriteMultipleStatePin(RADIO_SWITCH_CTRL_GPIO_PORT, RADIO_SWITCH_CTRL2_PIN,
+                                     (RADIO_SWITCH_CTRL1_PIN | RADIO_SWITCH_CTRL3_PIN));
+      break;
+    }
+    case RADIO_SWITCH_RFO_HP:
+    {
+      /* Turns On in Tx High Power the RF Switch */
+      HAL_GPIO_WriteMultipleStatePin(RADIO_SWITCH_CTRL_GPIO_PORT, RADIO_SWITCH_CTRL1_PIN,
+                                     (RADIO_SWITCH_CTRL2_PIN | RADIO_SWITCH_CTRL3_PIN));
+      break;
+    }
+    default:
+    {
+      status = HAL_ERROR;
+      break;
+    }
+  }
+
+  return status;
+}
+
+/**
+  * @brief  Get If TCXO is to be present on board
+  * @note   never remove called by MW,
+  * @retval
+  *  RADIO_CONF_TCXO_NOT_SUPPORTED
+  *  RADIO_CONF_TCXO_SUPPORTED
+  */
+uint8_t HAL_RADIO_IsTCXO(void)
+{
+  return RADIO_CONF_TCXO_SUPPORTED;
+}
+
+/**
+  * @brief  Get If DCDC is to be present on board
+  * @note   never remove called by MW,
+  * @retval
+  *  RADIO_CONF_DCDC_NOT_SUPPORTED
+  *  RADIO_CONF_DCDC_SUPPORTED
+  */
+uint8_t HAL_RADIO_IsDCDC(void)
+{
+  return RADIO_CONF_DCDC_SUPPORTED;
+}
+
+/**
+  * @brief  Return RF Output Max Power Configuration
+  * @retval
+  *    RADIO_CONF_RFO_LP_MAX_15_dBm for LP mode
+  *    RADIO_CONF_RFO_HP_MAX_22_dBm for HP mode
+  */
+int32_t HAL_RADIO_GetRFOMaxPowerConfig(HAL_RADIO_RFOMaxPowerConfig_TypeDef Config)
+{
+  int32_t ret;
+
+  if (Config == RADIO_RFO_LP_MAXPOWER)
+  {
+    ret = RADIO_CONF_RFO_LP_MAX_15_dBm;
+  }
+  else
+  {
+    ret = RADIO_CONF_RFO_HP_MAX_22_dBm;
+  }
+
+  return ret;
+}
+
+/**
+  * @}
+  */
+#endif /* STM32WL5Mxx */
+
 /**
   * @}
   */
@@ -828,5 +1014,3 @@ void HAL_SYSCFG_DisableIT(SYSCFG_InterruptTypeDef *Interrupt)
 /**
   * @}
   */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

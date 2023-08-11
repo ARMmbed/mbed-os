@@ -16,7 +16,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2020(-2021) STMicroelectronics.
+  * Copyright (c) 2020-2021 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -56,12 +56,13 @@
    application
   */
 
-#if !defined (STM32WL55xx) && !defined (STM32WL54xx) && !defined (STM32WLE5xx) && !defined (STM32WLE4xx)
+#if !defined (STM32WL55xx) && !defined (STM32WL54xx) && !defined (STM32WLE5xx) && !defined (STM32WLE4xx) && !defined(STM32WL5Mxx)
   /* #define STM32WL55xx */   /*!< STM32WL55xx Devices */
   /* #define STM32WL54xx */   /*!< STM32WL54xx Devices */
   /* #define STM32WLE5xx */   /*!< STM32WLE5xx Devices */
   /* #define STM32WLE4xx */   /*!< STM32WLE4xx Devices */
-#endif
+  /* #define STM32WL5Mxx */   /*!< STM32WL5Mxx Devices */
+#endif /* STM32WL55xx ... */
 
 /*  Tip: To avoid modifying this file each time you need to switch between these
         devices, you can define the device in your toolchain compiler preprocessor.
@@ -79,7 +80,7 @@
   * @brief CMSIS Device version number
   */
 #define __STM32WLxx_CMSIS_VERSION_MAIN   (0x01U) /*!< [31:24] main version */
-#define __STM32WLxx_CMSIS_VERSION_SUB1   (0x01U) /*!< [23:16] sub1 version */
+#define __STM32WLxx_CMSIS_VERSION_SUB1   (0x02U) /*!< [23:16] sub1 version */
 #define __STM32WLxx_CMSIS_VERSION_SUB2   (0x00U) /*!< [15:8]  sub2 version */
 #define __STM32WLxx_CMSIS_VERSION_RC     (0x00U) /*!< [7:0]  release candidate */
 #define __STM32WLxx_CMSIS_DEVICE_VERSION        ((__STM32WLxx_CMSIS_VERSION_MAIN << 24)\
@@ -103,9 +104,11 @@
   #include "stm32wl54xx.h"
 #elif defined(STM32WLE4xx)
   #include "stm32wle4xx.h"
+#elif defined(STM32WL5Mxx)
+  #include "stm32wl5mxx.h"
 #else
  #error "Please select first the target STM32WLxx device used in your application, for instance xxx (in stm32wlxx.h file)"
-#endif
+#endif /* STM32WL55xx ... */
 
 /**
   * @}
@@ -275,8 +278,3 @@ typedef enum
 /**
   * @}
   */
-
-
-
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

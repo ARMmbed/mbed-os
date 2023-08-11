@@ -7,7 +7,17 @@
   *          functionalities of the General Purpose Input/Output (GPIO) peripheral:
   *           + Initialization and de-initialization functions
   *           + IO operation functions
+  ******************************************************************************
+  * @attention
   *
+  * Copyright (c) 2020 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
   @verbatim
   ==============================================================================
                     ##### GPIO Peripheral features #####
@@ -73,6 +83,10 @@
     (#) To set/reset the level of a pin configured in output mode use
         HAL_GPIO_WritePin()/HAL_GPIO_TogglePin().
 
+    (#) To set the level of several pins and reset level of several other pins in
+        same cycle, use HAL_GPIO_WriteMultipleStatePin().
+
+
    (#) To lock pin configuration until next reset use HAL_GPIO_LockPin().
 
     (#) During and just after reset, the alternate functions are not
@@ -88,17 +102,6 @@
         The HSE has priority over the GPIO function.
 
   @endverbatim
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
   ******************************************************************************
   */
 
@@ -230,6 +233,23 @@ void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
         temp |= (GPIO_GET_INDEX(GPIOx) << (4U * (position & 0x03U)));
         SYSCFG->EXTICR[position >> 2u] = temp;
 
+        /* Clear Rising Falling edge configuration */
+        temp = EXTI->RTSR1;
+        temp &= ~(iocurrent);
+        if ((GPIO_Init->Mode & TRIGGER_RISING) != 0x00u)
+        {
+          temp |= iocurrent;
+        }
+        EXTI->RTSR1 = temp;
+
+        temp = EXTI->FTSR1;
+        temp &= ~(iocurrent);
+        if ((GPIO_Init->Mode & TRIGGER_FALLING) != 0x00u)
+        {
+          temp |= iocurrent;
+        }
+        EXTI->FTSR1 = temp;
+
         /* Clear EXTI line configuration */
 #ifdef CORE_CM0PLUS
         temp = EXTI->C2IMR1;
@@ -262,23 +282,6 @@ void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
 #else
         EXTI->EMR1 = temp;
 #endif /* CORE_CM0PLUS */
-
-        /* Clear Rising Falling edge configuration */
-        temp = EXTI->RTSR1;
-        temp &= ~(iocurrent);
-        if ((GPIO_Init->Mode & TRIGGER_RISING) != 0x00u)
-        {
-          temp |= iocurrent;
-        }
-        EXTI->RTSR1 = temp;
-
-        temp = EXTI->FTSR1;
-        temp &= ~(iocurrent);
-        if ((GPIO_Init->Mode & TRIGGER_FALLING) != 0x00u)
-        {
-          temp |= iocurrent;
-        }
-        EXTI->FTSR1 = temp;
       }
     }
 
@@ -400,11 +403,9 @@ GPIO_PinState HAL_GPIO_ReadPin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
 
 /**
   * @brief  Set or clear the selected data port bit.
-  *
   * @note   This function uses GPIOx_BSRR and GPIOx_BRR registers to allow atomic read/modify
   *         accesses. In this way, there is no risk of an IRQ occurring between
   *         the read and the modify access.
-  *
   * @param GPIOx where x can be (A..F) to select the GPIO peripheral for STM32WLxx family
   * @param GPIO_Pin specifies the port bit to be written.
   *         This parameter can be any combination of GPIO_PIN_x where x can be (0..15).
@@ -428,6 +429,33 @@ void HAL_GPIO_WritePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, GPIO_PinState Pin
   {
     GPIOx->BRR = (uint32_t)GPIO_Pin;
   }
+}
+
+/**
+  * @brief  Set and clear several pins of a dedicated port in same cycle.
+  * @note   This function uses GPIOx_BSRR and GPIOx_BRR registers to allow atomic read/modify
+  *         accesses.
+  * @param  GPIOx where x can be (A..F) to select the GPIO peripheral for STM32WLxx family
+  * @param  PinReset specifies the port bits to be reset
+  *         This parameter can be any combination of GPIO_Pin_x where x can be (0..15) or zero.
+  * @param  PinSet specifies the port bits to be set
+  *         This parameter can be any combination of GPIO_Pin_x where x can be (0..15) or zero.
+  * @note   Both PinReset and PinSet combinations shall not get any common bit, else
+  *         assert would be triggered.
+  * @note   At least one of the two parameters used to set or reset shall be different from zero.
+  * @retval None
+  */
+void HAL_GPIO_WriteMultipleStatePin(GPIO_TypeDef *GPIOx, uint16_t PinReset, uint16_t PinSet)
+{
+  uint32_t tmp;
+
+  /* Check the parameters */
+  /* Make sure at least one parameter is different from zero and that there is no common pin */
+  assert_param(IS_GPIO_PIN((uint32_t)PinReset | (uint32_t)PinSet));
+  assert_param(IS_GPIO_COMMON_PIN(PinReset, PinSet));
+
+  tmp = (((uint32_t)PinReset << 16) | PinSet);
+  GPIOx->BSRR = tmp;
 }
 
 /**
@@ -539,5 +567,3 @@ __weak void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 /**
   * @}
   */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
