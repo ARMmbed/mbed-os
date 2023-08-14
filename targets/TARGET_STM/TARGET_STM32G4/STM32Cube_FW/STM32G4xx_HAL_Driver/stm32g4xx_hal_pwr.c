@@ -473,6 +473,9 @@ void HAL_PWR_EnterSLEEPMode(uint32_t Regulator, uint8_t SLEEPEntry)
   {
     /* Request Wait For Interrupt */
     __WFI();
+    __ISB(); // Workaround for STM32G4 errata
+             // see chapter 2.2.8 - Wrong instruction fetches from flash memory upon wakeup from Sleep or Stop mode when debug in low-power mode is enabled
+             // https://www.st.com/resource/en/errata_sheet/es0430-stm32g471xx473xx474xx483xx484xx-device-errata-stmicroelectronics.pdf
   }
   else
   {
