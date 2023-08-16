@@ -24,7 +24,13 @@
 #include "PeripheralPins.h"
 #include "mbed_error.h"
 
+// Some STM32G4 series (and others) have 3 FDCAN devices
+// while others have 2
+#ifdef FDCAN3
+static uintptr_t can_irq_contexts[3] = {0};
+#else
 static uintptr_t can_irq_contexts[2] = {0};
+#endif
 static can_irq_handler irq_handler;
 
 /** Call all the init functions
