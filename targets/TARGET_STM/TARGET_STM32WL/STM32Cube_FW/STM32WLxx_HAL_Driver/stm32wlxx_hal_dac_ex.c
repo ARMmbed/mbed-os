@@ -2,25 +2,30 @@
   ******************************************************************************
   * @file    stm32wlxx_hal_dac_ex.c
   * @author  MCD Application Team
-  * @brief   DAC HAL module driver.
+  * @brief   Extended DAC HAL module driver.
   *          This file provides firmware functions to manage the extended
   *          functionalities of the DAC peripheral.
   *
   *
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2020 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
   @verbatim
   ==============================================================================
                       ##### How to use this driver #####
   ==============================================================================
     [..]
-     *** Dual mode IO operation ***
-     ==============================
-      (+) When Dual mode is enabled (i.e. DAC Channel1 and Channel2 are used simultaneously) :
-          Use HAL_DACEx_DualGetValue() to get digital data to be converted and use
-          HAL_DACEx_DualSetValue() to set digital value to converted simultaneously in
-          Channel 1 and Channel 2.
-
      *** Signal generation operation ***
      ===================================
+     [..]
       (+) Use HAL_DACEx_TriangleWaveGenerate() to generate Triangle signal.
       (+) Use HAL_DACEx_NoiseWaveGenerate() to generate Noise signal.
 
@@ -31,17 +36,6 @@
           at least one time after reset).
 
  @endverbatim
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
   ******************************************************************************
   */
 
@@ -64,6 +58,16 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+
+/* Delay for DAC minimum trimming time.                                       */
+/* Note: minimum time needed between two calibration steps                    */
+/*       The delay below is specified under conditions:                       */
+/*        - DAC channel output buffer enabled                                 */
+/* Literal set to maximum value (refer to device datasheet,                   */
+/* electrical characteristics, parameter "tTRIM").                            */
+/* Unit: us                                                                   */
+#define DAC_DELAY_TRIM_US          (50UL)     /*!< Delay for DAC minimum trimming time */
+
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -128,7 +132,8 @@ HAL_StatusTypeDef HAL_DACEx_TriangleWaveGenerate(DAC_HandleTypeDef *hdac, uint32
   hdac->State = HAL_DAC_STATE_BUSY;
 
   /* Enable the triangle wave generation for the selected DAC channel */
-  MODIFY_REG(hdac->Instance->CR, ((DAC_CR_WAVE1) | (DAC_CR_MAMP1)) << (Channel & 0x10UL), (DAC_CR_WAVE1_1 | Amplitude) << (Channel & 0x10UL));
+  MODIFY_REG(hdac->Instance->CR, ((DAC_CR_WAVE1) | (DAC_CR_MAMP1)) << (Channel & 0x10UL),
+             (DAC_CR_WAVE1_1 | Amplitude) << (Channel & 0x10UL));
 
   /* Change DAC state */
   hdac->State = HAL_DAC_STATE_READY;
@@ -176,7 +181,8 @@ HAL_StatusTypeDef HAL_DACEx_NoiseWaveGenerate(DAC_HandleTypeDef *hdac, uint32_t 
   hdac->State = HAL_DAC_STATE_BUSY;
 
   /* Enable the noise wave generation for the selected DAC channel */
-  MODIFY_REG(hdac->Instance->CR, ((DAC_CR_WAVE1) | (DAC_CR_MAMP1)) << (Channel & 0x10UL), (DAC_CR_WAVE1_0 | Amplitude) << (Channel & 0x10UL));
+  MODIFY_REG(hdac->Instance->CR, ((DAC_CR_WAVE1) | (DAC_CR_MAMP1)) << (Channel & 0x10UL),
+             (DAC_CR_WAVE1_0 | Amplitude) << (Channel & 0x10UL));
 
   /* Change DAC state */
   hdac->State = HAL_DAC_STATE_READY;
@@ -201,7 +207,6 @@ HAL_StatusTypeDef HAL_DACEx_NoiseWaveGenerate(DAC_HandleTypeDef *hdac, uint32_t 
   * @retval HAL status
   * @note   Calibration runs about 7 ms.
   */
-
 HAL_StatusTypeDef HAL_DACEx_SelfCalibrate(DAC_HandleTypeDef *hdac, DAC_ChannelConfTypeDef *sConfig, uint32_t Channel)
 {
   HAL_StatusTypeDef status = HAL_OK;
@@ -209,6 +214,7 @@ HAL_StatusTypeDef HAL_DACEx_SelfCalibrate(DAC_HandleTypeDef *hdac, DAC_ChannelCo
   __IO uint32_t tmp;
   uint32_t trimmingvalue;
   uint32_t delta;
+  __IO uint32_t wait_loop_index;
 
   /* store/restore channel configuration structure purpose */
   uint32_t oldmodeconfiguration;
@@ -263,9 +269,15 @@ HAL_StatusTypeDef HAL_DACEx_SelfCalibrate(DAC_HandleTypeDef *hdac, DAC_ChannelCo
       /* Set candidate trimming */
       MODIFY_REG(hdac->Instance->CCR, (DAC_CCR_OTRIM1 << (Channel & 0x10UL)), (trimmingvalue << (Channel & 0x10UL)));
 
-      /* tOFFTRIMmax delay x ms as per datasheet (electrical characteristics */
-      /* i.e. minimum time needed between two calibration steps */
-      HAL_Delay(1);
+      /* Wait minimum time needed between two calibration steps (OTRIM) */
+      /* Wait loop initialization and execution */
+      /* Note: Variable divided by 2 to compensate partially CPU processing cycles, scaling in us split to not exceed */
+      /*       32 bits register capacity and handle low frequency. */
+      wait_loop_index = ((DAC_DELAY_TRIM_US / 10UL) * ((SystemCoreClock / (100000UL * 2UL)) + 1UL));
+      while(wait_loop_index != 0UL)
+      {
+        wait_loop_index--;
+      }
 
       if ((hdac->Instance->SR & (DAC_SR_CAL_FLAG1 << (Channel & 0x10UL))) == (DAC_SR_CAL_FLAG1 << (Channel & 0x10UL)))
       {
@@ -285,13 +297,19 @@ HAL_StatusTypeDef HAL_DACEx_SelfCalibrate(DAC_HandleTypeDef *hdac, DAC_ChannelCo
     /* Set candidate trimming */
     MODIFY_REG(hdac->Instance->CCR, (DAC_CCR_OTRIM1 << (Channel & 0x10UL)), (trimmingvalue << (Channel & 0x10UL)));
 
-    /* tOFFTRIMmax delay x ms as per datasheet (electrical characteristics */
-    /* i.e. minimum time needed between two calibration steps */
-    HAL_Delay(1U);
+    /* Wait minimum time needed between two calibration steps (OTRIM) */
+    /* Wait loop initialization and execution */
+    /* Note: Variable divided by 2 to compensate partially CPU processing cycles, scaling in us split to not exceed */
+    /*       32 bits register capacity and handle low frequency. */
+    wait_loop_index = ((DAC_DELAY_TRIM_US / 10UL) * ((SystemCoreClock / (100000UL * 2UL)) + 1UL));
+    while(wait_loop_index != 0UL)
+    {
+      wait_loop_index--;
+    }
 
     if ((hdac->Instance->SR & (DAC_SR_CAL_FLAG1 << (Channel & 0x10UL))) == 0UL)
     {
-      /* OPAMP_CSR_OUTCAL is actually one value more */
+      /* Trimming is actually one value more */
       trimmingvalue++;
       /* Set right trimming */
       MODIFY_REG(hdac->Instance->CCR, (DAC_CCR_OTRIM1 << (Channel & 0x10UL)), (trimmingvalue << (Channel & 0x10UL)));
@@ -325,7 +343,6 @@ HAL_StatusTypeDef HAL_DACEx_SelfCalibrate(DAC_HandleTypeDef *hdac, DAC_ChannelCo
   * @param  NewTrimmingValue DAC new trimming value
   * @retval HAL status
   */
-
 HAL_StatusTypeDef HAL_DACEx_SetUserTrimming(DAC_HandleTypeDef *hdac, DAC_ChannelConfTypeDef *sConfig, uint32_t Channel,
                                             uint32_t NewTrimmingValue)
 {
@@ -367,7 +384,7 @@ HAL_StatusTypeDef HAL_DACEx_SetUserTrimming(DAC_HandleTypeDef *hdac, DAC_Channel
   * @retval Trimming value : range: 0->31
   *
  */
-uint32_t HAL_DACEx_GetTrimOffset(DAC_HandleTypeDef *hdac, uint32_t Channel)
+uint32_t HAL_DACEx_GetTrimOffset(const DAC_HandleTypeDef *hdac, uint32_t Channel)
 {
   /* Check the parameter */
   assert_param(IS_DAC_CHANNEL(Channel));
@@ -395,5 +412,3 @@ uint32_t HAL_DACEx_GetTrimOffset(DAC_HandleTypeDef *hdac, uint32_t Channel)
 /**
   * @}
   */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

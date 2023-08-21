@@ -12,13 +12,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2020 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -1018,36 +1017,11 @@ __weak void HAL_RCCEx_LSECSS_Callback(void)
   */
 void HAL_RCCEx_EnableLSCO(uint32_t LSCOSource)
 {
-  GPIO_InitTypeDef GPIO_InitStruct;
-  FlagStatus       backupchanged = RESET;
-
   /* Check the parameters */
   assert_param(IS_RCC_LSCOSOURCE(LSCOSource));
 
-  /* LSCO Pin Clock Enable */
-  __LSCO1_CLK_ENABLE();
-
-  /* Configure the LSCO pin in analog mode */
-  GPIO_InitStruct.Pin   = LSCO1_PIN;
-  GPIO_InitStruct.Mode  = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-  GPIO_InitStruct.Pull  = GPIO_NOPULL;
-  GPIO_InitStruct.Alternate = GPIO_AF0_LSCO;
-  HAL_GPIO_Init(LSCO1_GPIO_PORT, &GPIO_InitStruct);
-
-  /* Update LSCOSEL clock source in Backup Domain control register */
-  if (LL_PWR_IsEnabledBkUpAccess() == 0U)
-  {
-    HAL_PWR_EnableBkUpAccess();
-    backupchanged = SET;
-  }
-
+  /* Update LSCO selection according to parameter and enable LSCO */
   MODIFY_REG(RCC->BDCR, RCC_BDCR_LSCOSEL | RCC_BDCR_LSCOEN, LSCOSource | RCC_BDCR_LSCOEN);
-
-  if (backupchanged == SET)
-  {
-    HAL_PWR_DisableBkUpAccess();
-  }
 }
 
 /**
@@ -1056,23 +1030,8 @@ void HAL_RCCEx_EnableLSCO(uint32_t LSCOSource)
   */
 void HAL_RCCEx_DisableLSCO(void)
 {
-  FlagStatus       backupchanged = RESET;
-
-  if (LL_PWR_IsEnabledBkUpAccess() == 0U)
-  {
-    /* Enable access to the backup domain */
-    HAL_PWR_EnableBkUpAccess();
-    backupchanged = SET;
-  }
-
+  /* Clear LSCOEN in BDCR register */
   LL_RCC_LSCO_Disable();
-
-  /* Restore previous configuration */
-  if (backupchanged == SET)
-  {
-    /* Disable access to the backup domain */
-    HAL_PWR_DisableBkUpAccess();
-  }
 }
 
 /**
@@ -1221,6 +1180,3 @@ static uint32_t RCC_PLL_GetFreqDomain_Q(void)
 /**
   * @}
   */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-

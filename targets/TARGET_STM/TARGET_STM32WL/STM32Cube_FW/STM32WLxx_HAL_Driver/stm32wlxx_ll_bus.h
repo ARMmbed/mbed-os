@@ -3,6 +3,17 @@
   * @file    stm32wlxx_ll_bus.h
   * @author  MCD Application Team
   * @brief   Header file of BUS LL module.
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2020 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
   @verbatim
                       ##### RCC Limitations #####
   ==============================================================================
@@ -19,17 +30,6 @@
           inserted in each LL_{BUS}_GRP{x}_EnableClock() function.
 
   @endverbatim
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                       opensource.org/licenses/BSD-3-Clause
-  *
   ******************************************************************************
   */
 
@@ -2523,5 +2523,3 @@ __STATIC_INLINE void LL_C2_APB3_GRP1_DisableClockSleep(uint32_t Periphs)
 #endif
 
 #endif /* __STM32WLxx_LL_BUS_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

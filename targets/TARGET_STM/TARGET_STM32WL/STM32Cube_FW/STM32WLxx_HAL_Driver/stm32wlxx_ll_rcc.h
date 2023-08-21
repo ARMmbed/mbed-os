@@ -6,13 +6,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2020 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                       opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -346,8 +345,8 @@ typedef struct
 /** @defgroup RCC_LL_EC_PERIPH_FREQUENCY Peripheral clock frequency
   * @{
   */
-#define LL_RCC_PERIPH_FREQUENCY_NO         0x00000000U                 /*!< No clock enabled for the peripheral            */
-#define LL_RCC_PERIPH_FREQUENCY_NA         0xFFFFFFFFU                 /*!< Frequency cannot be provided as external clock */
+#define LL_RCC_PERIPH_FREQUENCY_NO         0x00000000U            /*!< No clock enabled for the peripheral            */
+#define LL_RCC_PERIPH_FREQUENCY_NA         0xFFFFFFFFU            /*!< Frequency cannot be provided as external clock */
 /**
   * @}
   */
@@ -428,10 +427,10 @@ typedef struct
 /** @defgroup RCC_LL_EC_ADC_CLKSRC ADC CLKSRC
   * @{
   */
-#define LL_RCC_ADC_CLKSOURCE_NONE             0x00000000U        /*!< no Clock used as ADC clock*/
-#define LL_RCC_ADC_CLKSOURCE_HSI              RCC_CCIPR_ADCSEL_0 /*!< HSI selected as ADC clock*/
-#define LL_RCC_ADC_CLKSOURCE_PLL              RCC_CCIPR_ADCSEL_1 /*!< PLL selected as ADC clock*/
-#define LL_RCC_ADC_CLKSOURCE_SYSCLK           RCC_CCIPR_ADCSEL   /*!< SYSCLK selected as ADC clock*/
+#define LL_RCC_ADC_CLKSOURCE_NONE           0x00000000U        /*!< no Clock used as ADC clock   */
+#define LL_RCC_ADC_CLKSOURCE_HSI            RCC_CCIPR_ADCSEL_0 /*!< HSI selected as ADC clock    */
+#define LL_RCC_ADC_CLKSOURCE_PLL            RCC_CCIPR_ADCSEL_1 /*!< PLL selected as ADC clock    */
+#define LL_RCC_ADC_CLKSOURCE_SYSCLK         RCC_CCIPR_ADCSEL   /*!< SYSCLK selected as ADC clock */
 /**
   * @}
   */
@@ -439,10 +438,10 @@ typedef struct
 /** @defgroup RCC_LL_EC_RNG_CLKSRC RNG CLKSRC
   * @{
   */
-#define LL_RCC_RNG_CLKSOURCE_PLL              0x00000000U        /*!< PLL selected as RNG Clock */
-#define LL_RCC_RNG_CLKSOURCE_LSI              RCC_CCIPR_RNGSEL_0 /*!< LSI selected as RNG clock*/
-#define LL_RCC_RNG_CLKSOURCE_LSE              RCC_CCIPR_RNGSEL_1 /*!< LSE selected as RNG clock*/
-#define LL_RCC_RNG_CLKSOURCE_MSI              (RCC_CCIPR_RNGSEL_1 | RCC_CCIPR_RNGSEL_0)  /*!< MSI selected as RNG clock*/
+#define LL_RCC_RNG_CLKSOURCE_PLL            0x00000000U        /*!< PLL selected as RNG Clock */
+#define LL_RCC_RNG_CLKSOURCE_LSI            RCC_CCIPR_RNGSEL_0 /*!< LSI selected as RNG clock */
+#define LL_RCC_RNG_CLKSOURCE_LSE            RCC_CCIPR_RNGSEL_1 /*!< LSE selected as RNG clock */
+#define LL_RCC_RNG_CLKSOURCE_MSI            (RCC_CCIPR_RNGSEL_1 | RCC_CCIPR_RNGSEL_0)  /*!< MSI selected as RNG clock */
 /**
   * @}
   */
@@ -525,7 +524,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_PLLSOURCE  PLL entry clock source
   * @{
   */
-#define LL_RCC_PLLSOURCE_NONE              0x00000000U             /*!< No clock */
+#define LL_RCC_PLLSOURCE_NONE              0x00000000U           /*!< No clock */
 #define LL_RCC_PLLSOURCE_MSI               RCC_PLLCFGR_PLLSRC_0  /*!< MSI clock selected as PLL entry clock source */
 #define LL_RCC_PLLSOURCE_HSI               RCC_PLLCFGR_PLLSRC_1  /*!< HSI clock selected as PLL entry clock source */
 #define LL_RCC_PLLSOURCE_HSE               (RCC_PLLCFGR_PLLSRC_1 | RCC_PLLCFGR_PLLSRC_0)  /*!< HSE clock selected as PLL entry clock source */
@@ -618,7 +617,7 @@ typedef struct
   * @{
   */
 #define LL_RCC_MSIRANGESEL_STANDBY         0U                  /*!< MSI Range is provided by MSISRANGE */
-#define LL_RCC_MSIRANGESEL_RUN             1U                  /*!< MSI Range is provided by MSIRANGE */
+#define LL_RCC_MSIRANGESEL_RUN             1U                  /*!< MSI Range is provided by MSIRANGE  */
 /**
   * @}
   */
@@ -2721,6 +2720,15 @@ __STATIC_INLINE void LL_RCC_PLL_DisableDomain_ADC(void)
   CLEAR_BIT(RCC->PLLCFGR, RCC_PLLCFGR_PLLPEN);
 }
 
+/**
+  * @brief  Check if PLL output mapped on ADC domain clock is enabled
+  * @rmtoll PLLCFGR      RCC_PLLCFGR_PLLPEN        LL_RCC_PLL_IsEnabledDomain_ADC
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_RCC_PLL_IsEnabledDomain_ADC(void)
+{
+  return ((READ_BIT(RCC->PLLCFGR, RCC_PLLCFGR_PLLPEN) == (RCC_PLLCFGR_PLLPEN)) ? 1UL : 0UL);
+}
 
 /**
   * @brief  Enable PLL output mapped on RNG domain clock
@@ -2742,6 +2750,16 @@ __STATIC_INLINE void LL_RCC_PLL_EnableDomain_RNG(void)
 __STATIC_INLINE void LL_RCC_PLL_DisableDomain_RNG(void)
 {
   CLEAR_BIT(RCC->PLLCFGR, RCC_PLLCFGR_PLLQEN);
+}
+
+/**
+  * @brief  Check if PLL output mapped on RNG domain clock is enabled
+  * @rmtoll PLLCFGR      PLLQEN        LL_RCC_PLL_IsEnabledDomain_RNG
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_RCC_PLL_IsEnabledDomain_RNG(void)
+{
+  return ((READ_BIT(RCC->PLLCFGR, RCC_PLLCFGR_PLLQEN) == (RCC_PLLCFGR_PLLQEN)) ? 1UL : 0UL);
 }
 
 /**
@@ -2767,6 +2785,16 @@ __STATIC_INLINE void LL_RCC_PLL_DisableDomain_I2S(void)
 }
 
 /**
+  * @brief  Check if PLL output mapped on I2S domain clock is enabled
+  * @rmtoll PLLCFGR      PLLQEN        LL_RCC_PLL_IsEnabledDomain_I2S
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_RCC_PLL_IsEnabledDomain_I2S(void)
+{
+  return ((READ_BIT(RCC->PLLCFGR, RCC_PLLCFGR_PLLQEN) == (RCC_PLLCFGR_PLLQEN)) ? 1UL : 0UL);
+}
+
+/**
   * @brief  Enable PLL output mapped on SYSCLK domain
   * @rmtoll PLLCFGR      PLLREN        LL_RCC_PLL_EnableDomain_SYS
   * @retval None
@@ -2787,6 +2815,16 @@ __STATIC_INLINE void LL_RCC_PLL_EnableDomain_SYS(void)
 __STATIC_INLINE void LL_RCC_PLL_DisableDomain_SYS(void)
 {
   CLEAR_BIT(RCC->PLLCFGR, RCC_PLLCFGR_PLLREN);
+}
+
+/**
+  * @brief  Check if PLL output mapped on SYS domain clock is enabled
+  * @rmtoll PLLCFGR      PLLREN        LL_RCC_PLL_IsEnabledDomain_SYS
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_RCC_PLL_IsEnabledDomain_SYS(void)
+{
+  return ((READ_BIT(RCC->PLLCFGR, RCC_PLLCFGR_PLLREN) == (RCC_PLLCFGR_PLLREN)) ? 1UL : 0UL);
 }
 
 /**
@@ -3400,5 +3438,3 @@ uint32_t    LL_RCC_GetRTCClockFreq(void);
 #endif
 
 #endif /* __STM32WLxx_LL_RCC_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
