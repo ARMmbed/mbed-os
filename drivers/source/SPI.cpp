@@ -16,6 +16,7 @@
  */
 #include "drivers/SPI.h"
 #include "platform/mbed_critical.h"
+#include "mbed_error.h"
 
 #if DEVICE_SPI_ASYNCH
 #include "platform/mbed_power_mgmt.h"
@@ -31,6 +32,7 @@ int SPI::_peripherals_used;
 SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel) :
 #if DEVICE_SPI_ASYNCH
     _irq(this),
+    _transfer_and_wait_flags("SPI::transfer_and_wait() flags"),
 #endif
     _mosi(mosi),
     _miso(miso),
@@ -53,6 +55,7 @@ SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel) :
 SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel, use_gpio_ssel_t) :
 #if DEVICE_SPI_ASYNCH
     _irq(this),
+    _transfer_and_wait_flags("SPI::transfer_and_wait() flags"),
 #endif
     _mosi(mosi),
     _miso(miso),
@@ -74,6 +77,7 @@ SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel, use_gpio_ssel_t
 SPI::SPI(const spi_pinmap_t &pinmap) :
 #if DEVICE_SPI_ASYNCH
     _irq(this),
+    _transfer_and_wait_flags("SPI::transfer_and_wait() flags"),
 #endif
     _mosi(pinmap.mosi_pin),
     _miso(pinmap.miso_pin),
@@ -91,6 +95,7 @@ SPI::SPI(const spi_pinmap_t &pinmap) :
 SPI::SPI(const spi_pinmap_t &pinmap, PinName ssel) :
 #if DEVICE_SPI_ASYNCH
     _irq(this),
+    _transfer_and_wait_flags("SPI::transfer_and_wait() flags"),
 #endif
     _mosi(pinmap.mosi_pin),
     _miso(pinmap.miso_pin),
@@ -106,12 +111,20 @@ SPI::SPI(const spi_pinmap_t &pinmap, PinName ssel) :
 
 void SPI::_do_init(SPI *obj)
 {
+    obj->_peripheral->initialized = true;
     spi_init(&obj->_peripheral->spi, obj->_mosi, obj->_miso, obj->_sclk, obj->_hw_ssel);
 }
 
 void SPI::_do_init_direct(SPI *obj)
 {
+    obj->_peripheral->initialized = true;
     spi_init_direct(&obj->_peripheral->spi, obj->_static_pinmap);
+}
+
+rtos::Mutex &SPI::_get_peripherals_mutex()
+{
+    static rtos::Mutex peripherals_mutex;
+    return peripherals_mutex;
 }
 
 void SPI::_do_construct()
@@ -127,15 +140,23 @@ void SPI::_do_construct()
     _hz = 1000000;
     _write_fill = SPI_FILL_CHAR;
 
-    core_util_critical_section_enter();
-    // lookup in a critical section if we already have it else initialize it
+    {
+        rtos::ScopedMutexLock lock(_get_peripherals_mutex());
 
-    _peripheral = SPI::_lookup(_peripheral_name);
-    if (!_peripheral) {
-        _peripheral = SPI::_alloc();
-        _peripheral->name = _peripheral_name;
+        // lookup and claim the peripheral with the mutex locked in case another thread is
+        // also trying to claim it
+        _peripheral = SPI::_lookup(_peripheral_name);
+        if (!_peripheral) {
+            _peripheral = SPI::_alloc();
+            _peripheral->name = _peripheral_name;
+        }
+
+        if (_peripheral->numUsers == std::numeric_limits<uint8_t>::max()) {
+            MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_MUTEX_LOCK_FAILED), "Ref count at max!");
+        }
+
+        _peripheral->numUsers++;
     }
-    core_util_critical_section_exit();
 
 #if DEVICE_SPI_ASYNCH && MBED_CONF_DRIVERS_SPI_TRANSACTION_QUEUE_LEN
     // prime the SingletonPtr, so we don't have a problem trying to
@@ -148,32 +169,58 @@ void SPI::_do_construct()
 
 SPI::~SPI()
 {
-    SPI::lock();
-    /* Make sure a stale pointer isn't left in peripheral's owner field */
-    if (_peripheral->owner == this) {
-        _peripheral->owner = nullptr;
+    if (_peripheral->numUsers == 0) {
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_MUTEX_UNLOCK_FAILED), "Ref count at 0?");
     }
-    SPI::unlock();
+
+    {
+        rtos::ScopedMutexLock lock(_get_peripherals_mutex());
+
+        /* Make sure a stale pointer isn't left in peripheral's owner field */
+        if (_peripheral->owner == this) {
+            _peripheral->owner = nullptr;
+        }
+
+        if (--_peripheral->numUsers == 0) {
+            _dealloc(_peripheral);
+        }
+    }
 }
 
 SPI::spi_peripheral_s *SPI::_lookup(SPI::SPIName name)
 {
     SPI::spi_peripheral_s *result = nullptr;
-    core_util_critical_section_enter();
     for (int idx = 0; idx < _peripherals_used; idx++) {
-        if (_peripherals[idx].name == name) {
+        if (_peripherals[idx].numUsers > 0 && _peripherals[idx].name == name) {
             result = &_peripherals[idx];
             break;
         }
     }
-    core_util_critical_section_exit();
     return result;
 }
 
 SPI::spi_peripheral_s *SPI::_alloc()
 {
     MBED_ASSERT(_peripherals_used < SPI_PERIPHERALS_USED);
-    return &_peripherals[_peripherals_used++];
+
+    // Find an unused peripheral to return
+    for (spi_peripheral_s &peripheral : _peripherals) {
+        if (peripheral.numUsers == 0) {
+            _peripherals_used++;
+            return &peripheral;
+        }
+    }
+
+    MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_INVALID_DATA_DETECTED), "Can't find new peripheral!");
+}
+
+void SPI::_dealloc(SPI::spi_peripheral_s *peripheral)
+{
+    if (peripheral->initialized) {
+        spi_free(&peripheral->spi);
+        peripheral->initialized = false;
+    }
+    --_peripherals_used;
 }
 
 void SPI::format(int bits, int mode)
@@ -226,10 +273,13 @@ int SPI::write(int value)
     return ret;
 }
 
-int SPI::write(const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length)
+int SPI::write_internal(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_length)
 {
     select();
-    int ret = spi_master_block_write(&_peripheral->spi, tx_buffer, tx_length, rx_buffer, rx_length, _write_fill);
+    int ret = spi_master_block_write(&_peripheral->spi,
+                                     reinterpret_cast<char const *>(tx_buffer), tx_length,
+                                     reinterpret_cast<char *>(rx_buffer), rx_length,
+                                     _write_fill);
     deselect();
     return ret;
 }
@@ -278,22 +328,78 @@ void SPI::set_default_write_value(char data)
 
 #if DEVICE_SPI_ASYNCH
 
-int SPI::transfer(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t &callback, int event)
+int SPI::transfer_internal(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, const event_callback_t &callback, int event)
 {
     if (spi_active(&_peripheral->spi)) {
-        return queue_transfer(tx_buffer, tx_length, rx_buffer, rx_length, bit_width, callback, event);
+        return queue_transfer(tx_buffer, tx_length, rx_buffer, rx_length, _bits, callback, event);
     }
-    start_transfer(tx_buffer, tx_length, rx_buffer, rx_length, bit_width, callback, event);
+    start_transfer(tx_buffer, tx_length, rx_buffer, rx_length, _bits, callback, event);
     return 0;
 }
 
+int SPI::transfer_and_wait_internal(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, rtos::Kernel::Clock::duration_u32 timeout)
+{
+    // Simple callback from the transfer that sets the EventFlags using the I2C result event
+    event_callback_t transferCallback([&](int event) {
+        _transfer_and_wait_flags.set(event);
+    });
+
+    int txRet = transfer_internal(tx_buffer, tx_length, rx_buffer, rx_length, transferCallback, SPI_EVENT_ALL);
+    if (txRet != 0) {
+        return txRet;
+    }
+
+    // Wait until transfer complete, error, or timeout
+    uint32_t result = _transfer_and_wait_flags.wait_any_for(SPI_EVENT_ALL, timeout);
+
+    if (result & osFlagsError) {
+        if (result == osFlagsErrorTimeout) {
+            // Timeout expired, cancel transfer.
+            abort_transfer();
+            return 1;
+        } else {
+            // Other event flags error.  Transfer might be still running so cancel it.
+            abort_transfer();
+            return 2;
+        }
+    } else {
+        // Note: Cannot use a switch here because multiple flags might be set at the same time (possible
+        // in the STM32 HAL code at least).
+        if (result == SPI_EVENT_COMPLETE) {
+            return 0;
+        } else {
+            // SPI peripheral level error
+            return 2;
+        }
+    }
+}
+
+
 void SPI::abort_transfer()
 {
-    spi_abort_asynch(&_peripheral->spi);
-    unlock_deep_sleep();
+    // There is a potential for race condition here which we need to be aware of.
+    // There may or may not be a transfer actually running when we enter this function.
+    // To work through this, if there is a transfer in progress, we use spi_abort_asynch
+    // which disables the transfer interrupt.
+    // Then, we check _transfer_in_progress again.  If it is true, then it means the ISR
+    // fired during the call to spi_abort_async, so the transfer has already completed normally.
+
+    if (_transfer_in_progress) {
+        spi_abort_asynch(&_peripheral->spi);
+    }
+
+    if (_transfer_in_progress) {
+        // End-of-transfer ISR never fired, clean up.
+        unlock_deep_sleep();
+
+        if (--_select_count == 0) {
+            _set_ssel(1);
+        }
+
 #if MBED_CONF_DRIVERS_SPI_TRANSACTION_QUEUE_LEN
-    dequeue_transaction();
+        dequeue_transaction();
 #endif
+    }
 }
 
 void SPI::clear_transfer_buffer()
@@ -350,10 +456,17 @@ int SPI::queue_transfer(const void *tx_buffer, int tx_length, void *rx_buffer, i
 void SPI::start_transfer(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t &callback, int event)
 {
     lock_deep_sleep();
-    _acquire();
-    _set_ssel(0);
+
+    // Acquire the hardware and (if using GPIO CS mode) select the chip.
+    // But, if the user has already called select(), we can skip this step.
+    if (_select_count++ == 0) {
+        _acquire();
+        _set_ssel(0);
+    }
+
     _callback = callback;
     _irq.callback(&SPI::irq_handler_asynch);
+    _transfer_in_progress = true;
     spi_master_transfer(&_peripheral->spi, tx_buffer, tx_length, rx_buffer, rx_length, bit_width, _irq.entry(), event, _usage);
 }
 
@@ -396,7 +509,14 @@ void SPI::irq_handler_asynch(void)
 {
     int event = spi_irq_handler_asynch(&_peripheral->spi);
     if (_callback && (event & SPI_EVENT_ALL)) {
-        _set_ssel(1);
+        // If using GPIO CS mode, unless we were asked to keep the peripheral selected, deselect it.
+        // If there's another transfer queued, we *do* want to deselect the peripheral now.
+        // It will be reselected in start_transfer() which is called by dequeue_transaction() below.
+        if (--_select_count == 0) {
+            _set_ssel(1);
+        }
+        _transfer_in_progress = false;
+
         unlock_deep_sleep();
         _callback.call(event & SPI_EVENT_ALL);
     }

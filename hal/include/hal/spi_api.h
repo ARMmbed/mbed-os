@@ -214,9 +214,6 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
 /** Release a SPI object
  *
- * TODO: spi_free is currently unimplemented
- * This will require reference counting at the C++ level to be safe
- *
  * Return the pins owned by the SPI object to their reset state
  * Disable the SPI peripheral
  * Disable the SPI clock
