@@ -48,6 +48,10 @@
         "at-handler-buffer-size" : {
             "help": "Size of the AT handler buffer",
             "value": 32
+        },
+        "event-queue-size": {
+            "help": "The amount of events the default EventQueue should store",
+            "value": 10
         }
     }
 }
