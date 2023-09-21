@@ -1464,6 +1464,10 @@ extern "C" WEAK void __cxa_pure_virtual(void)
 // SP.  This make it compatible with RTX RTOS thread stacks.
 #if defined(TOOLCHAIN_GCC_ARM)
 
+// Turn off the errno macro and use actual global variable instead.
+#undef errno
+extern "C" int errno;
+
 #if defined(MBED_SPLIT_HEAP)
 
 // Default RAM memory used for heap
@@ -1506,10 +1510,6 @@ extern "C" WEAK caddr_t _sbrk(int incr)
 extern "C" uint32_t         __end__;
 extern "C" uint32_t         __HeapLimit;
 
-// Turn off the errno macro and use actual global variable instead.
-#undef errno
-extern "C" int errno;
-
 // Weak attribute allows user to override, e.g. to use external RAM for dynamic memory.
 extern "C" WEAK caddr_t _sbrk(int incr)
 {
@@ -1527,6 +1527,27 @@ extern "C" WEAK caddr_t _sbrk(int incr)
     return (caddr_t) prev_heap;
 }
 #endif
+#endif
+
+#if defined(TOOLCHAIN_GCC_ARM)
+
+// Implementation of getpid for Newlib, following signature here:
+// https://github.com/bminor/newlib/blob/55485616ba2afedca05da40f5cde59ee336b9f28/newlib/libc/sys/arm/syscalls.c#L32
+extern "C" pid_t _getpid()
+{
+    // Since PIDs aren't a thing on embedded, just return 0
+    return 0;
+}
+
+// Implementation of kill for Newlib, following signature here:
+// https://github.com/bminor/newlib/blob/55485616ba2afedca05da40f5cde59ee336b9f28/newlib/libc/sys/arm/syscalls.c#L33
+extern "C" int _kill(int pid, int signal)
+{
+    // Always return error
+    errno = ENOSYS;
+    return -1;
+}
+
 #endif
 
 #if defined(TOOLCHAIN_GCC_ARM)
