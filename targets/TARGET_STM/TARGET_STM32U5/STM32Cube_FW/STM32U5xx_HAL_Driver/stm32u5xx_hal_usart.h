@@ -124,7 +124,7 @@ typedef struct __USART_HandleTypeDef
 
   USART_InitTypeDef             Init;                    /*!< USART communication parameters      */
 
-  uint8_t                       *pTxBuffPtr;             /*!< Pointer to USART Tx transfer Buffer */
+  const uint8_t                 *pTxBuffPtr;             /*!< Pointer to USART Tx transfer Buffer */
 
   uint16_t                      TxXferSize;              /*!< USART Tx Transfer size              */
 
@@ -152,10 +152,12 @@ typedef struct __USART_HandleTypeDef
 
   void (*TxISR)(struct __USART_HandleTypeDef *husart);   /*!< Function pointer on Tx IRQ handler  */
 
+#if defined(HAL_DMA_MODULE_ENABLED)
   DMA_HandleTypeDef             *hdmatx;                 /*!< USART Tx DMA Handle parameters      */
 
   DMA_HandleTypeDef             *hdmarx;                 /*!< USART Rx DMA Handle parameters      */
 
+#endif /* HAL_DMA_MODULE_ENABLED */
   HAL_LockTypeDef               Lock;                    /*!< Locking object                      */
 
   __IO HAL_USART_StateTypeDef   State;                   /*!< USART communication state           */
@@ -224,7 +226,9 @@ typedef  void (*pUSART_CallbackTypeDef)(USART_HandleTypeDef *husart);  /*!< poin
 #define HAL_USART_ERROR_NE               (0x00000002U)    /*!< Noise error               */
 #define HAL_USART_ERROR_FE               (0x00000004U)    /*!< Frame error               */
 #define HAL_USART_ERROR_ORE              (0x00000008U)    /*!< Overrun error             */
+#if defined(HAL_DMA_MODULE_ENABLED)
 #define HAL_USART_ERROR_DMA              (0x00000010U)    /*!< DMA transfer error        */
+#endif /* HAL_DMA_MODULE_ENABLED */
 #define HAL_USART_ERROR_UDR              (0x00000020U)    /*!< SPI slave underrun error  */
 #if (USE_HAL_USART_REGISTER_CALLBACKS == 1)
 #define HAL_USART_ERROR_INVALID_CALLBACK (0x00000040U)    /*!< Invalid Callback error    */
@@ -814,7 +818,7 @@ typedef  void (*pUSART_CallbackTypeDef)(USART_HandleTypeDef *husart);  /*!< poin
       (__CLOCKSOURCE__) = USART_CLOCKSOURCE_UNDEFINED;         \
     }                                                          \
   } while(0U)
-#else
+#elif defined(USART2)
 #define USART_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__)       \
   do {                                                         \
     if((__HANDLE__)->Instance == USART1)                       \
@@ -852,6 +856,56 @@ typedef  void (*pUSART_CallbackTypeDef)(USART_HandleTypeDef *husart);  /*!< poin
           (__CLOCKSOURCE__) = USART_CLOCKSOURCE_HSI;           \
           break;                                               \
         case RCC_USART2CLKSOURCE_LSE:                          \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_LSE;           \
+          break;                                               \
+        default:                                               \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_UNDEFINED;     \
+          break;                                               \
+      }                                                        \
+    }                                                          \
+    else if((__HANDLE__)->Instance == USART3)                  \
+    {                                                          \
+      switch(__HAL_RCC_GET_USART3_SOURCE())                    \
+      {                                                        \
+        case RCC_USART3CLKSOURCE_PCLK1:                        \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_PCLK1;         \
+          break;                                               \
+        case RCC_USART3CLKSOURCE_SYSCLK:                       \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_SYSCLK;        \
+          break;                                               \
+        case RCC_USART3CLKSOURCE_HSI:                          \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_HSI;           \
+          break;                                               \
+        case RCC_USART3CLKSOURCE_LSE:                          \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_LSE;           \
+          break;                                               \
+        default:                                               \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_UNDEFINED;     \
+          break;                                               \
+      }                                                        \
+    }                                                          \
+    else                                                       \
+    {                                                          \
+      (__CLOCKSOURCE__) = USART_CLOCKSOURCE_UNDEFINED;         \
+    }                                                          \
+  } while(0U)
+#else
+#define USART_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__)       \
+  do {                                                         \
+    if((__HANDLE__)->Instance == USART1)                       \
+    {                                                          \
+      switch(__HAL_RCC_GET_USART1_SOURCE())                    \
+      {                                                        \
+        case RCC_USART1CLKSOURCE_PCLK2:                        \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_PCLK2;         \
+          break;                                               \
+        case RCC_USART1CLKSOURCE_SYSCLK:                       \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_SYSCLK;        \
+          break;                                               \
+        case RCC_USART1CLKSOURCE_HSI:                          \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_HSI;           \
+          break;                                               \
+        case RCC_USART1CLKSOURCE_LSE:                          \
           (__CLOCKSOURCE__) = USART_CLOCKSOURCE_LSE;           \
           break;                                               \
         default:                                               \
@@ -1014,21 +1068,24 @@ HAL_StatusTypeDef HAL_USART_UnRegisterCallback(USART_HandleTypeDef *husart, HAL_
   */
 
 /* IO operation functions *****************************************************/
-HAL_StatusTypeDef HAL_USART_Transmit(USART_HandleTypeDef *husart, uint8_t *pTxData, uint16_t Size, uint32_t Timeout);
+HAL_StatusTypeDef HAL_USART_Transmit(USART_HandleTypeDef *husart, const uint8_t *pTxData, uint16_t Size,
+                                     uint32_t Timeout);
 HAL_StatusTypeDef HAL_USART_Receive(USART_HandleTypeDef *husart, uint8_t *pRxData, uint16_t Size, uint32_t Timeout);
-HAL_StatusTypeDef HAL_USART_TransmitReceive(USART_HandleTypeDef *husart, uint8_t *pTxData, uint8_t *pRxData,
+HAL_StatusTypeDef HAL_USART_TransmitReceive(USART_HandleTypeDef *husart, const uint8_t *pTxData, uint8_t *pRxData,
                                             uint16_t Size, uint32_t Timeout);
-HAL_StatusTypeDef HAL_USART_Transmit_IT(USART_HandleTypeDef *husart, uint8_t *pTxData, uint16_t Size);
+HAL_StatusTypeDef HAL_USART_Transmit_IT(USART_HandleTypeDef *husart, const uint8_t *pTxData, uint16_t Size);
 HAL_StatusTypeDef HAL_USART_Receive_IT(USART_HandleTypeDef *husart, uint8_t *pRxData, uint16_t Size);
-HAL_StatusTypeDef HAL_USART_TransmitReceive_IT(USART_HandleTypeDef *husart, uint8_t *pTxData, uint8_t *pRxData,
+HAL_StatusTypeDef HAL_USART_TransmitReceive_IT(USART_HandleTypeDef *husart, const uint8_t *pTxData, uint8_t *pRxData,
                                                uint16_t Size);
-HAL_StatusTypeDef HAL_USART_Transmit_DMA(USART_HandleTypeDef *husart, uint8_t *pTxData, uint16_t Size);
+#if defined(HAL_DMA_MODULE_ENABLED)
+HAL_StatusTypeDef HAL_USART_Transmit_DMA(USART_HandleTypeDef *husart, const uint8_t *pTxData, uint16_t Size);
 HAL_StatusTypeDef HAL_USART_Receive_DMA(USART_HandleTypeDef *husart, uint8_t *pRxData, uint16_t Size);
-HAL_StatusTypeDef HAL_USART_TransmitReceive_DMA(USART_HandleTypeDef *husart, uint8_t *pTxData, uint8_t *pRxData,
+HAL_StatusTypeDef HAL_USART_TransmitReceive_DMA(USART_HandleTypeDef *husart, const uint8_t *pTxData, uint8_t *pRxData,
                                                 uint16_t Size);
 HAL_StatusTypeDef HAL_USART_DMAPause(USART_HandleTypeDef *husart);
 HAL_StatusTypeDef HAL_USART_DMAResume(USART_HandleTypeDef *husart);
 HAL_StatusTypeDef HAL_USART_DMAStop(USART_HandleTypeDef *husart);
+#endif /* HAL_DMA_MODULE_ENABLED */
 /* Transfer Abort functions */
 HAL_StatusTypeDef HAL_USART_Abort(USART_HandleTypeDef *husart);
 HAL_StatusTypeDef HAL_USART_Abort_IT(USART_HandleTypeDef *husart);
@@ -1051,8 +1108,8 @@ void HAL_USART_AbortCpltCallback(USART_HandleTypeDef *husart);
   */
 
 /* Peripheral State and Error functions ***************************************/
-HAL_USART_StateTypeDef HAL_USART_GetState(USART_HandleTypeDef *husart);
-uint32_t               HAL_USART_GetError(USART_HandleTypeDef *husart);
+HAL_USART_StateTypeDef HAL_USART_GetState(const USART_HandleTypeDef *husart);
+uint32_t               HAL_USART_GetError(const USART_HandleTypeDef *husart);
 
 /**
   * @}
@@ -1075,3 +1132,4 @@ uint32_t               HAL_USART_GetError(USART_HandleTypeDef *husart);
 #endif
 
 #endif /* STM32U5xx_HAL_USART_H */
+

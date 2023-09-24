@@ -79,7 +79,7 @@
 ErrorStatus LL_EXTI_DeInit(void)
 {
   /* Interrupt mask register set to default reset values */
-  LL_EXTI_WriteReg(IMR1,   0xFF9E0000U);
+  LL_EXTI_WriteReg(IMR1,   0x00000000U);
   /* Event mask register set to default reset values */
   LL_EXTI_WriteReg(EMR1,   0x00000000U);
   /* Rising Trigger selection register set to default reset values */

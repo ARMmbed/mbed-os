@@ -244,6 +244,8 @@ typedef enum
   */
 #define SAI_DEFAULT_TIMEOUT      4U
 #define SAI_LONG_TIMEOUT         1000U
+#define SAI_SPDIF_FRAME_LENGTH   64U
+#define SAI_AC97_FRAME_LENGTH    256U
 /**
   * @}
   */
@@ -367,7 +369,9 @@ HAL_StatusTypeDef HAL_SAI_InitProtocol(SAI_HandleTypeDef *hsai, uint32_t protoco
   */
 HAL_StatusTypeDef HAL_SAI_Init(SAI_HandleTypeDef *hsai)
 {
+#if defined(SAI2)
   uint32_t tmpregisterGCR;
+#endif /* SAI2 */
   uint32_t ckstr_bits;
   uint32_t syncen_bits;
 
@@ -459,6 +463,7 @@ HAL_StatusTypeDef HAL_SAI_Init(SAI_HandleTypeDef *hsai)
 
   hsai->State = HAL_SAI_STATE_BUSY;
 
+#if defined(SAI2)
   /* SAI Block Synchro Configuration -----------------------------------------*/
   /* This setting must be done with both audio block (A & B) disabled         */
   switch (hsai->Init.SynchroExt)
@@ -476,6 +481,7 @@ HAL_StatusTypeDef HAL_SAI_Init(SAI_HandleTypeDef *hsai)
       tmpregisterGCR = 0;
       break;
   }
+#endif /* SAI2 */
 
   switch (hsai->Init.Synchro)
   {
@@ -485,6 +491,7 @@ HAL_StatusTypeDef HAL_SAI_Init(SAI_HandleTypeDef *hsai)
     case SAI_SYNCHRONOUS :
       syncen_bits = SAI_xCR1_SYNCEN_0;
       break;
+#if defined(SAI2)
     case SAI_SYNCHRONOUS_EXT_SAI1 :
       syncen_bits = SAI_xCR1_SYNCEN_1;
       break;
@@ -492,11 +499,13 @@ HAL_StatusTypeDef HAL_SAI_Init(SAI_HandleTypeDef *hsai)
       syncen_bits = SAI_xCR1_SYNCEN_1;
       tmpregisterGCR |= SAI_GCR_SYNCIN_0;
       break;
+#endif /* SAI2 */
     default :
       syncen_bits = 0;
       break;
   }
 
+#if defined(SAI2)
   if ((hsai->Instance == SAI1_Block_A) || (hsai->Instance == SAI1_Block_B))
   {
     SAI1->GCR = tmpregisterGCR;
@@ -505,21 +514,28 @@ HAL_StatusTypeDef HAL_SAI_Init(SAI_HandleTypeDef *hsai)
   {
     SAI2->GCR = tmpregisterGCR;
   }
+#else /* SAI2 */
+  SAI1->GCR = 0;
+#endif /* SAI2 */
 
   if (hsai->Init.AudioFrequency != SAI_AUDIO_FREQUENCY_MCKDIV)
   {
-    uint32_t freq = 0;
+    uint32_t freq;
     uint32_t tmpval;
 
     /* In this case, the MCKDIV value is calculated to get AudioFrequency */
+#if defined(SAI2)
     if ((hsai->Instance == SAI1_Block_A) || (hsai->Instance == SAI1_Block_B))
     {
       freq = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_SAI1);
     }
-    if ((hsai->Instance == SAI2_Block_A) || (hsai->Instance == SAI2_Block_B))
+    else
     {
       freq = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_SAI2);
     }
+#else /* SAI2 */
+    freq = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_SAI1);
+#endif /* SAI2 */
 
     /* Configure Master Clock Divider using the following formula :
        - If NODIV = 1 :
@@ -534,12 +550,12 @@ HAL_StatusTypeDef HAL_SAI_Init(SAI_HandleTypeDef *hsai)
       if (hsai->Init.Protocol == SAI_SPDIF_PROTOCOL)
       {
         /* For SPDIF protocol, frame length is set by hardware to 64 */
-        tmpframelength = 64U;
+        tmpframelength = SAI_SPDIF_FRAME_LENGTH;
       }
       else if (hsai->Init.Protocol == SAI_AC97_PROTOCOL)
       {
         /* For AC97 protocol, frame length is set by hardware to 256 */
-        tmpframelength = 256U;
+        tmpframelength = SAI_AC97_FRAME_LENGTH;
       }
       else
       {
@@ -2202,7 +2218,7 @@ __weak void HAL_SAI_ErrorCallback(SAI_HandleTypeDef *hsai)
   *              the configuration information for SAI module.
   * @retval HAL state
   */
-HAL_SAI_StateTypeDef HAL_SAI_GetState(SAI_HandleTypeDef *hsai)
+HAL_SAI_StateTypeDef HAL_SAI_GetState(const SAI_HandleTypeDef *hsai)
 {
   return hsai->State;
 }
@@ -2213,7 +2229,7 @@ HAL_SAI_StateTypeDef HAL_SAI_GetState(SAI_HandleTypeDef *hsai)
   *              the configuration information for the specified SAI Block.
   * @retval SAI Error Code
   */
-uint32_t HAL_SAI_GetError(SAI_HandleTypeDef *hsai)
+uint32_t HAL_SAI_GetError(const SAI_HandleTypeDef *hsai)
 {
   return hsai->ErrorCode;
 }

@@ -90,7 +90,6 @@ extern "C" {
   * @}
   */
 
-
 /* Exported types ------------------------------------------------------------*/
 #if defined(USE_FULL_LL_DRIVER)
 /** @defgroup OPAMP_LL_ES_INIT OPAMP Exported Init structure
@@ -195,7 +194,7 @@ typedef struct
   * @{
   */
 #define LL_OPAMP_INPUT_NONINVERT_IO0       0x00000000U             /*!< OPAMP non inverting input connected to GPIO pin (pin PA0 for OPAMP1, pin PA6 for OPAMP2)             */
-#define LL_OPAMP_INPUT_NONINV_DAC1_CH1    (OPAMP_CSR_VP_SEL)      /*!< OPAMP non inverting input connected to DAC1 channel output(channel1 for OPAMP1, channel2 for OPAMP2) */
+#define LL_OPAMP_INPUT_NONINV_DAC1_CH1     (OPAMP_CSR_VP_SEL)      /*!< OPAMP non inverting input connected to DAC1 channel output(channel1 for OPAMP1, channel2 for OPAMP2) */
 /**
   * @}
   */
@@ -298,6 +297,45 @@ typedef struct
   * @}
   */
 
+/** @defgroup OPAMP_LL_EM_HELPER_MACRO OPAMP helper macro
+  * @{
+  */
+
+/**
+  * @brief  Helper macro to select the OPAMP common instance
+  *         to which is belonging the selected OPAMP instance.
+  * @note   OPAMP common register instance can be used to
+  *         set parameters common to several OPAMP instances.
+  *         Refer to functions having argument "OPAMPxy_COMMON" as parameter.
+  * @param  __OPAMPx__ OPAMP instance
+  * @retval OPAMP common instance
+  */
+#define __LL_OPAMP_COMMON_INSTANCE(__OPAMPx__) (OPAMP12_COMMON)
+
+/**
+  * @brief  Helper macro to check if all OPAMP instances sharing the same
+  *         OPAMP common instance are disabled.
+  * @note   This check is required by functions with setting conditioned to
+  *         OPAMP state:
+  *         All OPAMP instances of the OPAMP common group must be disabled.
+  *         Refer to functions having argument "OPAMPxy_COMMON" as parameter.
+  * @retval 0: All OPAMP instances sharing the same OPAMP common instance
+  *            are disabled.
+  *         1: At least one OPAMP instance sharing the same OPAMP common instance
+  *            is enabled
+  */
+#if defined(OPAMP1) && defined(OPAMP2)
+#define __LL_OPAMP_IS_ENABLED_ALL_COMMON_INSTANCE()                            \
+  (LL_OPAMP_IsEnabled(OPAMP1) |                                                \
+   LL_OPAMP_IsEnabled(OPAMP2)  )
+#else
+#define __LL_OPAMP_IS_ENABLED_ALL_COMMON_INSTANCE()                            \
+  (LL_OPAMP_IsEnabled(OPAMP1))
+#endif /* defined(OPAMP1) && defined(OPAMP2) */
+/**
+  * @}
+  */
+
 /* Exported functions --------------------------------------------------------*/
 /** @defgroup OPAMP_LL_Exported_Functions OPAMP Exported Functions
   * @{
@@ -325,7 +363,7 @@ typedef struct
   *         @arg @ref LL_OPAMP_POWERSUPPLY_RANGE_HIGH
   * @retval None
   */
-__STATIC_INLINE void LL_OPAMP_SetCommonPowerRange(OPAMP_Common_TypeDef *OPAMPxy_COMMON, uint32_t PowerRange)
+__STATIC_INLINE void LL_OPAMP_SetCommonPowerRange(const OPAMP_Common_TypeDef *OPAMPxy_COMMON, uint32_t PowerRange)
 {
   /* Prevent unused parameter warning */
   (void)(*OPAMPxy_COMMON);
@@ -343,7 +381,7 @@ __STATIC_INLINE void LL_OPAMP_SetCommonPowerRange(OPAMP_Common_TypeDef *OPAMPxy_
   *         @arg @ref LL_OPAMP_POWERSUPPLY_RANGE_LOW
   *         @arg @ref LL_OPAMP_POWERSUPPLY_RANGE_HIGH
   */
-__STATIC_INLINE uint32_t LL_OPAMP_GetCommonPowerRange(OPAMP_Common_TypeDef *OPAMPxy_COMMON)
+__STATIC_INLINE uint32_t LL_OPAMP_GetCommonPowerRange(const OPAMP_Common_TypeDef *OPAMPxy_COMMON)
 {
   /* Prevent unused parameter warning */
   (void)(*OPAMPxy_COMMON);
@@ -386,7 +424,7 @@ __STATIC_INLINE void LL_OPAMP_SetPowerMode(OPAMP_TypeDef *OPAMPx, uint32_t Power
   *         @arg @ref LL_OPAMP_POWERMODE_LOWPOWER_NORMALSPEED
   *         @arg @ref LL_OPAMP_POWERMODE_LOWPOWER_HIGHSPEED
   */
-__STATIC_INLINE uint32_t LL_OPAMP_GetPowerMode(OPAMP_TypeDef *OPAMPx)
+__STATIC_INLINE uint32_t LL_OPAMP_GetPowerMode(const OPAMP_TypeDef *OPAMPx)
 {
   uint32_t power_mode = (READ_BIT(OPAMPx->CSR, OPAMP_POWERMODE_CSR_BIT_MASK));
 
@@ -432,7 +470,7 @@ __STATIC_INLINE void LL_OPAMP_SetMode(OPAMP_TypeDef *OPAMPx, uint32_t Mode)
   *         @arg @ref LL_OPAMP_MODE_FUNCTIONAL
   *         @arg @ref LL_OPAMP_MODE_CALIBRATION
   */
-__STATIC_INLINE uint32_t LL_OPAMP_GetMode(OPAMP_TypeDef *OPAMPx)
+__STATIC_INLINE uint32_t LL_OPAMP_GetMode(const OPAMP_TypeDef *OPAMPx)
 {
   return (uint32_t)(READ_BIT(OPAMPx->CSR, OPAMP_CSR_CALON));
 }
@@ -468,7 +506,7 @@ __STATIC_INLINE void LL_OPAMP_SetFunctionalMode(OPAMP_TypeDef *OPAMPx, uint32_t 
   *         @arg @ref LL_OPAMP_MODE_FOLLOWER
   *         @arg @ref LL_OPAMP_MODE_PGA
   */
-__STATIC_INLINE uint32_t LL_OPAMP_GetFunctionalMode(OPAMP_TypeDef *OPAMPx)
+__STATIC_INLINE uint32_t LL_OPAMP_GetFunctionalMode(const OPAMP_TypeDef *OPAMPx)
 {
   return (uint32_t)(READ_BIT(OPAMPx->CSR, OPAMP_CSR_OPAMODE));
 }
@@ -503,7 +541,7 @@ __STATIC_INLINE void LL_OPAMP_SetPGAGain(OPAMP_TypeDef *OPAMPx, uint32_t PGAGain
   *         @arg @ref LL_OPAMP_PGA_GAIN_8
   *         @arg @ref LL_OPAMP_PGA_GAIN_16
   */
-__STATIC_INLINE uint32_t LL_OPAMP_GetPGAGain(OPAMP_TypeDef *OPAMPx)
+__STATIC_INLINE uint32_t LL_OPAMP_GetPGAGain(const OPAMP_TypeDef *OPAMPx)
 {
   return (uint32_t)(READ_BIT(OPAMPx->CSR, OPAMP_CSR_PGA_GAIN));
 }
@@ -538,7 +576,7 @@ __STATIC_INLINE void LL_OPAMP_SetInputNonInverting(OPAMP_TypeDef *OPAMPx, uint32
   *         @arg @ref LL_OPAMP_INPUT_NONINVERT_IO0
   *         @arg @ref LL_OPAMP_INPUT_NONINV_DAC1_CH1
   */
-__STATIC_INLINE uint32_t LL_OPAMP_GetInputNonInverting(OPAMP_TypeDef *OPAMPx)
+__STATIC_INLINE uint32_t LL_OPAMP_GetInputNonInverting(const OPAMP_TypeDef *OPAMPx)
 {
   return (uint32_t)(READ_BIT(OPAMPx->CSR, OPAMP_CSR_VP_SEL));
 }
@@ -571,7 +609,7 @@ __STATIC_INLINE void LL_OPAMP_SetInputInverting(OPAMP_TypeDef *OPAMPx, uint32_t 
   *         @arg @ref LL_OPAMP_INPUT_INVERT_IO1
   *         @arg @ref LL_OPAMP_INPUT_INVERT_CONNECT_NO
   */
-__STATIC_INLINE uint32_t LL_OPAMP_GetInputInverting(OPAMP_TypeDef *OPAMPx)
+__STATIC_INLINE uint32_t LL_OPAMP_GetInputInverting(const OPAMP_TypeDef *OPAMPx)
 {
   return (uint32_t)(READ_BIT(OPAMPx->CSR, OPAMP_CSR_VM_SEL));
 }
@@ -625,7 +663,7 @@ __STATIC_INLINE void LL_OPAMP_SetTrimmingMode(OPAMP_TypeDef *OPAMPx, uint32_t Tr
   *         @arg @ref LL_OPAMP_TRIMMING_FACTORY
   *         @arg @ref LL_OPAMP_TRIMMING_USER
   */
-__STATIC_INLINE uint32_t LL_OPAMP_GetTrimmingMode(OPAMP_TypeDef *OPAMPx)
+__STATIC_INLINE uint32_t LL_OPAMP_GetTrimmingMode(const OPAMP_TypeDef *OPAMPx)
 {
   return (uint32_t)(READ_BIT(OPAMPx->CSR, OPAMP_CSR_USERTRIM));
 }
@@ -660,7 +698,7 @@ __STATIC_INLINE void LL_OPAMP_SetCalibrationSelection(OPAMP_TypeDef *OPAMPx, uin
   *         @arg @ref LL_OPAMP_TRIMMING_NMOS
   *         @arg @ref LL_OPAMP_TRIMMING_PMOS
   */
-__STATIC_INLINE uint32_t LL_OPAMP_GetCalibrationSelection(OPAMP_TypeDef *OPAMPx)
+__STATIC_INLINE uint32_t LL_OPAMP_GetCalibrationSelection(const OPAMP_TypeDef *OPAMPx)
 {
   uint32_t CalibrationSelection = (uint32_t)(READ_BIT(OPAMPx->CSR, OPAMP_CSR_CALSEL));
 
@@ -677,7 +715,7 @@ __STATIC_INLINE uint32_t LL_OPAMP_GetCalibrationSelection(OPAMP_TypeDef *OPAMPx)
   * @param  OPAMPx OPAMP instance
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_OPAMP_IsCalibrationOutputSet(OPAMP_TypeDef *OPAMPx)
+__STATIC_INLINE uint32_t LL_OPAMP_IsCalibrationOutputSet(const OPAMP_TypeDef *OPAMPx)
 {
   return ((READ_BIT(OPAMPx->CSR, OPAMP_CSR_CALOUT) == OPAMP_CSR_CALOUT) ? 1UL : 0UL);
 }
@@ -705,7 +743,7 @@ __STATIC_INLINE uint32_t LL_OPAMP_IsCalibrationOutputSet(OPAMP_TypeDef *OPAMPx)
 __STATIC_INLINE void LL_OPAMP_SetTrimmingValue(OPAMP_TypeDef *OPAMPx, uint32_t PowerMode, uint32_t TransistorsDiffPair,
                                                uint32_t TrimmingValue)
 {
-  uint32_t *preg = __OPAMP_PTR_REG_OFFSET(OPAMPx->OTR, (PowerMode & OPAMP_POWERMODE_OTR_REGOFFSET_MASK));
+  __IO uint32_t *preg = __OPAMP_PTR_REG_OFFSET(OPAMPx->OTR, (PowerMode & OPAMP_POWERMODE_OTR_REGOFFSET_MASK));
 
   /* Set bits with position in register depending on parameter                */
   /* "TransistorsDiffPair".                                                   */
@@ -737,10 +775,10 @@ __STATIC_INLINE void LL_OPAMP_SetTrimmingValue(OPAMP_TypeDef *OPAMPx, uint32_t P
   *         @arg @ref LL_OPAMP_TRIMMING_PMOS
   * @retval 0x0...0x1F
   */
-__STATIC_INLINE uint32_t LL_OPAMP_GetTrimmingValue(OPAMP_TypeDef *OPAMPx, uint32_t PowerMode,
+__STATIC_INLINE uint32_t LL_OPAMP_GetTrimmingValue(const OPAMP_TypeDef *OPAMPx, uint32_t PowerMode,
                                                    uint32_t TransistorsDiffPair)
 {
-  const uint32_t *preg = __OPAMP_PTR_REG_OFFSET(OPAMPx->OTR, (PowerMode & OPAMP_POWERMODE_OTR_REGOFFSET_MASK));
+  const __IO uint32_t *preg = __OPAMP_PTR_REG_OFFSET(OPAMPx->OTR, (PowerMode & OPAMP_POWERMODE_OTR_REGOFFSET_MASK));
 
   /* Retrieve bits with position in register depending on parameter           */
   /* "TransistorsDiffPair".                                                   */
@@ -791,7 +829,7 @@ __STATIC_INLINE void LL_OPAMP_Disable(OPAMP_TypeDef *OPAMPx)
   * @param  OPAMPx OPAMP instance
   * @retval State of bit (1 or 0).
   */
-__STATIC_INLINE uint32_t LL_OPAMP_IsEnabled(OPAMP_TypeDef *OPAMPx)
+__STATIC_INLINE uint32_t LL_OPAMP_IsEnabled(const OPAMP_TypeDef *OPAMPx)
 {
   return ((READ_BIT(OPAMPx->CSR, OPAMP_CSR_OPAEN) == (OPAMP_CSR_OPAEN)) ? 1UL : 0UL);
 }
@@ -806,7 +844,7 @@ __STATIC_INLINE uint32_t LL_OPAMP_IsEnabled(OPAMP_TypeDef *OPAMPx)
   */
 
 ErrorStatus LL_OPAMP_DeInit(OPAMP_TypeDef *OPAMPx);
-ErrorStatus LL_OPAMP_Init(OPAMP_TypeDef *OPAMPx, LL_OPAMP_InitTypeDef *OPAMP_InitStruct);
+ErrorStatus LL_OPAMP_Init(OPAMP_TypeDef *OPAMPx, const LL_OPAMP_InitTypeDef *OPAMP_InitStruct);
 void        LL_OPAMP_StructInit(LL_OPAMP_InitTypeDef *OPAMP_InitStruct);
 
 /**

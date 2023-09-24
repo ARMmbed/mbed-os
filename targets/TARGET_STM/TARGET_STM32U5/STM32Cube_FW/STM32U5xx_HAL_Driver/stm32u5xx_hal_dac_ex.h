@@ -45,7 +45,7 @@ extern "C" {
 typedef struct
 {
   uint32_t AutonomousModeState;    /*!< Specifies the autonomous mode state.
-                                        This parameter can be a value of @ref DACx_Autonomous_mode */
+                                        This parameter can be a value of @ref DAC_AutonomousMode */
 
 } DAC_AutonomousModeConfTypeDef;
 
@@ -91,26 +91,6 @@ typedef struct
   * @}
   */
 
-/** @defgroup DACx_Autonomous_mode DACx Autonomous Mode
-  * @brief    DAC Autonomous mode
-  * @{
-  */
-#define DAC_AUTONOMOUS_MODE_DISABLE  0x00000000U          /*!< Autonomous mode disable */
-#define DAC_AUTONOMOUS_MODE_ENABLE   DAC_AUTOCR_AUTOMODE  /*!< Autonomous mode enable  */
-/**
-  * @}
-  */
-
-/** @defgroup DACx_Trigger_Stop_mode DACx Trigger Stop Mode
-  * @brief    DAC Trigger stop mode
-  * @{
-  */
-#define DAC_TRIGGER_STOP_LPTIM1_OUT DAC_TRIGGER_LPTIM1_OUT /*!< LPTIM1 output selected as DAC trigger in stop mode */
-#define DAC_TRIGGER_STOP_LPTIM3_OUT DAC_TRIGGER_LPTIM3_OUT /*!< LPTIM3 output selected as DAC trigger in stop mode */
-#define DAC_TRIGGER_STOP_EXT_IT9    DAC_TRIGGER_EXT_IT9    /*!< EXTI line 9 selected as DAC trigger in stop mode   */
-/**
-  * @}
-  */
 
 /**
   * @}
@@ -133,11 +113,11 @@ typedef struct
                                  ((TRIGGER) == DAC_TRIGGER_T7_TRGO)         || \
                                  ((TRIGGER) == DAC_TRIGGER_T8_TRGO)         || \
                                  ((TRIGGER) == DAC_TRIGGER_T15_TRGO)        || \
-                                 ((TRIGGER) == DAC_TRIGGER_LPTIM1_OUT)      || \
-                                 ((TRIGGER) == DAC_TRIGGER_LPTIM3_OUT)      || \
+                                 ((TRIGGER) == DAC_TRIGGER_LPTIM1_CH1)      || \
+                                 ((TRIGGER) == DAC_TRIGGER_LPTIM3_CH1)      || \
                                  ((TRIGGER) == DAC_TRIGGER_EXT_IT9)         || \
-                                 ((TRIGGER) == DAC_TRIGGER_STOP_LPTIM1_OUT) || \
-                                 ((TRIGGER) == DAC_TRIGGER_STOP_LPTIM3_OUT) || \
+                                 ((TRIGGER) == DAC_TRIGGER_STOP_LPTIM1_CH1) || \
+                                 ((TRIGGER) == DAC_TRIGGER_STOP_LPTIM3_CH1) || \
                                  ((TRIGGER) == DAC_TRIGGER_STOP_EXT_IT9)    || \
                                  ((TRIGGER) == DAC_TRIGGER_SOFTWARE))
 
@@ -212,11 +192,11 @@ HAL_StatusTypeDef HAL_DACEx_NoiseWaveGenerate(DAC_HandleTypeDef *hdac, uint32_t 
 
 HAL_StatusTypeDef HAL_DACEx_DualStart(DAC_HandleTypeDef *hdac);
 HAL_StatusTypeDef HAL_DACEx_DualStop(DAC_HandleTypeDef *hdac);
-HAL_StatusTypeDef HAL_DACEx_DualStart_DMA(DAC_HandleTypeDef *hdac, uint32_t Channel, uint32_t *pData, uint32_t Length,
-                                          uint32_t Alignment);
+HAL_StatusTypeDef HAL_DACEx_DualStart_DMA(DAC_HandleTypeDef *hdac, uint32_t Channel,
+                                          const uint32_t *pData, uint32_t Length, uint32_t Alignment);
 HAL_StatusTypeDef HAL_DACEx_DualStop_DMA(DAC_HandleTypeDef *hdac, uint32_t Channel);
 HAL_StatusTypeDef HAL_DACEx_DualSetValue(DAC_HandleTypeDef *hdac, uint32_t Alignment, uint32_t Data1, uint32_t Data2);
-uint32_t HAL_DACEx_DualGetValue(DAC_HandleTypeDef *hdac);
+uint32_t HAL_DACEx_DualGetValue(const DAC_HandleTypeDef *hdac);
 
 void HAL_DACEx_ConvCpltCallbackCh2(DAC_HandleTypeDef *hdac);
 void HAL_DACEx_ConvHalfCpltCallbackCh2(DAC_HandleTypeDef *hdac);
@@ -236,11 +216,13 @@ void HAL_DACEx_DMAUnderrunCallbackCh2(DAC_HandleTypeDef *hdac);
 HAL_StatusTypeDef HAL_DACEx_SelfCalibrate(DAC_HandleTypeDef *hdac, DAC_ChannelConfTypeDef *sConfig, uint32_t Channel);
 HAL_StatusTypeDef HAL_DACEx_SetUserTrimming(DAC_HandleTypeDef *hdac, DAC_ChannelConfTypeDef *sConfig, uint32_t Channel,
                                             uint32_t NewTrimmingValue);
-uint32_t HAL_DACEx_GetTrimOffset(DAC_HandleTypeDef *hdac, uint32_t Channel);
+uint32_t HAL_DACEx_GetTrimOffset(const DAC_HandleTypeDef *hdac, uint32_t Channel);
 
 /* Autonomous Mode Control functions  **********************************************/
-HAL_StatusTypeDef HAL_DACEx_SetConfigAutonomousMode(DAC_HandleTypeDef *hdac, DAC_AutonomousModeConfTypeDef *sConfig);
-HAL_StatusTypeDef HAL_DACEx_GetConfigAutonomousMode(DAC_HandleTypeDef *hdac, DAC_AutonomousModeConfTypeDef *sConfig);
+HAL_StatusTypeDef HAL_DACEx_SetConfigAutonomousMode(DAC_HandleTypeDef *hdac,
+                                                    const DAC_AutonomousModeConfTypeDef *sConfig);
+HAL_StatusTypeDef HAL_DACEx_GetConfigAutonomousMode(const DAC_HandleTypeDef *hdac,
+                                                    DAC_AutonomousModeConfTypeDef *sConfig);
 HAL_StatusTypeDef HAL_DACEx_ClearConfigAutonomousMode(DAC_HandleTypeDef *hdac);
 
 /**

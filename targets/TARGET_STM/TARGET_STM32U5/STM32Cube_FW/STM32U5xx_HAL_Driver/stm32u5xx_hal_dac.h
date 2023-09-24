@@ -122,7 +122,9 @@ typedef struct
                                               This parameter can be a value of @ref DAC_HighFrequency */
 
   uint32_t DAC_AutonomousMode;           /*!< Specifies whether the autonomous mode state
-                                              This parameter can be a value of @ref DACx_Autonomous_mode */
+                                              This parameter can be a value of @ref DAC_AutonomousMode
+                                              Note: HAL_DACEx_SetConfigAutonomousMode() API allows to select and update
+                                                    the autonomous mode state afterwards */
 
   FunctionalState DAC_DMADoubleDataMode; /*!< Specifies if DMA double data mode should be enabled or not for the selected channel.
                                               This parameter can be ENABLE or DISABLE */
@@ -139,7 +141,7 @@ typedef struct
   uint32_t DAC_OutputBuffer;             /*!< Specifies whether the DAC channel output buffer is enabled or disabled.
                                                This parameter can be a value of @ref DAC_output_buffer */
 
-  uint32_t DAC_ConnectOnChipPeripheral ; /*!< Specifies whether the DAC output is connected or not to on chip peripheral .
+  uint32_t DAC_ConnectOnChipPeripheral ; /*!< Specifies whether the DAC output is connected or not to on chip peripheral.
                                               This parameter can be a value of @ref DAC_ConnectOnChipPeripheral */
 
   uint32_t DAC_UserTrimming;             /*!< Specifies the trimming mode
@@ -218,8 +220,8 @@ typedef void (*pDAC_CallbackTypeDef)(DAC_HandleTypeDef *hdac);
 #define DAC_TRIGGER_T7_TRGO             (                 DAC_CR_TSEL1_2 | DAC_CR_TSEL1_1                  | DAC_CR_TEN1) /*!< TIM7 TRGO selected as external conversion trigger for DAC channel */
 #define DAC_TRIGGER_T8_TRGO             (                 DAC_CR_TSEL1_2 | DAC_CR_TSEL1_1 | DAC_CR_TSEL1_0 | DAC_CR_TEN1) /*!< TIM8 TRGO selected as external conversion trigger for DAC channel */
 #define DAC_TRIGGER_T15_TRGO            (DAC_CR_TSEL1_3                                                    | DAC_CR_TEN1) /*!< TIM15 TRGO selected as external conversion trigger for DAC channel */
-#define DAC_TRIGGER_LPTIM1_OUT          (DAC_CR_TSEL1_3 |                  DAC_CR_TSEL1_1 | DAC_CR_TSEL1_0 | DAC_CR_TEN1) /*!< LPTIM1 OUT TRGO selected as external conversion trigger for DAC channel */
-#define DAC_TRIGGER_LPTIM3_OUT          (DAC_CR_TSEL1_3 | DAC_CR_TSEL1_2                                   | DAC_CR_TEN1) /*!< LPTIM3 OUT TRGO selected as external conversion trigger for DAC channel */
+#define DAC_TRIGGER_LPTIM1_CH1          (DAC_CR_TSEL1_3 |                  DAC_CR_TSEL1_1 | DAC_CR_TSEL1_0 | DAC_CR_TEN1) /*!< LPTIM1 CH1 selected as external conversion trigger for DAC channel */
+#define DAC_TRIGGER_LPTIM3_CH1          (DAC_CR_TSEL1_3 | DAC_CR_TSEL1_2                                   | DAC_CR_TEN1) /*!< LPTIM3 CH1 selected as external conversion trigger for DAC channel */
 #define DAC_TRIGGER_EXT_IT9             (DAC_CR_TSEL1_3 | DAC_CR_TSEL1_2                  | DAC_CR_TSEL1_0 | DAC_CR_TEN1) /*!< EXTI Line9 event selected as external conversion trigger for DAC channel */
 
 /**
@@ -315,6 +317,27 @@ typedef void (*pDAC_CallbackTypeDef)(DAC_HandleTypeDef *hdac);
 /**
   * @}
   */
+/** @defgroup DAC_AutonomousMode DAC Autonomous Mode
+  * @brief    DAC Autonomous mode
+  * @{
+  */
+#define DAC_AUTONOMOUS_MODE_DISABLE  0x00000000U          /*!< Autonomous mode disable */
+#define DAC_AUTONOMOUS_MODE_ENABLE   DAC_AUTOCR_AUTOMODE  /*!< Autonomous mode enable  */
+/**
+  * @}
+  */
+
+/** @defgroup DAC_Trigger_Stop_mode DAC Trigger Stop Mode
+  * @brief    DAC Trigger stop mode
+  * @{
+  */
+#define DAC_TRIGGER_STOP_LPTIM1_CH1 DAC_TRIGGER_LPTIM1_CH1 /*!< LPTIM1 output selected as DAC trigger in stop mode */
+#define DAC_TRIGGER_STOP_LPTIM3_CH1 DAC_TRIGGER_LPTIM3_CH1 /*!< LPTIM3 output selected as DAC trigger in stop mode */
+#define DAC_TRIGGER_STOP_EXT_IT9    DAC_TRIGGER_EXT_IT9    /*!< EXTI line 9 selected as DAC trigger in stop mode   */
+/**
+  * @}
+  */
+
 /** @defgroup DAC_HighFrequency DAC high frequency interface mode
   * @{
   */
@@ -330,6 +353,20 @@ typedef void (*pDAC_CallbackTypeDef)(DAC_HandleTypeDef *hdac);
 /**
   * @}
   */
+
+/* Delay for DAC channel voltage settling time from DAC channel startup       */
+/* (transition from disable to enable).                                       */
+/* Note: DAC channel startup time depends on board application environment:   */
+/*       impedance connected to DAC channel output.                           */
+/*       The delay below is specified under conditions:                       */
+/*        - voltage maximum transition (lowest to highest value)              */
+/*        - until voltage reaches final value +-1LSB                          */
+/*        - DAC channel output buffer enabled                                 */
+/*        - load impedance of 5kOhm (min), 50pF (max)                         */
+/* Literal set to maximum value (refer to device datasheet,                   */
+/* parameter "tWAKEUP").                                                      */
+/* Unit: us                                                                   */
+#define DAC_DELAY_STARTUP_US          (15UL)  /*!< Delay for DAC channel voltage settling time from DAC channel startup (transition from disable to enable) */
 
 /* Exported macro ------------------------------------------------------------*/
 
@@ -495,7 +532,7 @@ void HAL_DAC_MspDeInit(DAC_HandleTypeDef *hdac);
 /* IO operation functions *****************************************************/
 HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef *hdac, uint32_t Channel);
 HAL_StatusTypeDef HAL_DAC_Stop(DAC_HandleTypeDef *hdac, uint32_t Channel);
-HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef *hdac, uint32_t Channel, uint32_t *pData, uint32_t Length,
+HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef *hdac, uint32_t Channel, const uint32_t *pData, uint32_t Length,
                                     uint32_t Alignment);
 HAL_StatusTypeDef HAL_DAC_Stop_DMA(DAC_HandleTypeDef *hdac, uint32_t Channel);
 void HAL_DAC_IRQHandler(DAC_HandleTypeDef *hdac);
@@ -521,8 +558,9 @@ HAL_StatusTypeDef     HAL_DAC_UnRegisterCallback(DAC_HandleTypeDef *hdac, HAL_DA
   * @{
   */
 /* Peripheral Control functions ***********************************************/
-uint32_t HAL_DAC_GetValue(DAC_HandleTypeDef *hdac, uint32_t Channel);
-HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef *hdac, DAC_ChannelConfTypeDef *sConfig, uint32_t Channel);
+uint32_t HAL_DAC_GetValue(const DAC_HandleTypeDef *hdac, uint32_t Channel);
+HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef *hdac,
+                                        const DAC_ChannelConfTypeDef *sConfig, uint32_t Channel);
 /**
   * @}
   */
@@ -531,8 +569,8 @@ HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef *hdac, DAC_ChannelConf
   * @{
   */
 /* Peripheral State and Error functions ***************************************/
-HAL_DAC_StateTypeDef HAL_DAC_GetState(DAC_HandleTypeDef *hdac);
-uint32_t HAL_DAC_GetError(DAC_HandleTypeDef *hdac);
+HAL_DAC_StateTypeDef HAL_DAC_GetState(const DAC_HandleTypeDef *hdac);
+uint32_t HAL_DAC_GetError(const DAC_HandleTypeDef *hdac);
 
 /**
   * @}

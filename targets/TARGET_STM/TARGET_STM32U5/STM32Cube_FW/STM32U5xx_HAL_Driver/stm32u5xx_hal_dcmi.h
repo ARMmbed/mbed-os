@@ -584,8 +584,8 @@ HAL_StatusTypeDef     HAL_DCMI_ConfigSyncUnmask(DCMI_HandleTypeDef *hdcmi, DCMI_
   * @{
   */
 /* Peripheral State functions *************************************************/
-HAL_DCMI_StateTypeDef HAL_DCMI_GetState(DCMI_HandleTypeDef *hdcmi);
-uint32_t              HAL_DCMI_GetError(DCMI_HandleTypeDef *hdcmi);
+HAL_DCMI_StateTypeDef HAL_DCMI_GetState(const DCMI_HandleTypeDef *hdcmi);
+uint32_t              HAL_DCMI_GetError(const DCMI_HandleTypeDef *hdcmi);
 /**
   * @}
   */
@@ -696,4 +696,3 @@ uint32_t              HAL_DCMI_GetError(DCMI_HandleTypeDef *hdcmi);
 #endif
 
 #endif /* STM32U5xx_HAL_DCMI_H */
-

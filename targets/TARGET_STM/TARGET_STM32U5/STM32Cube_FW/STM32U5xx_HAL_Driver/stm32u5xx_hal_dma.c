@@ -884,9 +884,17 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *const hdma)
 {
   DMA_TypeDef *p_dma_instance = GET_DMA_INSTANCE(hdma);
   uint32_t global_it_flag =  1UL << (GET_DMA_CHANNEL(hdma) & 0x1FU);
+  uint32_t global_active_flag_ns = IS_DMA_GLOBAL_ACTIVE_FLAG_NS(p_dma_instance, global_it_flag);
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+  uint32_t global_active_flag_s = IS_DMA_GLOBAL_ACTIVE_FLAG_S(p_dma_instance, global_it_flag);
+#endif /* defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) */
 
   /* Global Interrupt Flag management *********************************************************************************/
-  if (IS_DMA_GLOBAL_ACTIVE_FLAG(p_dma_instance, global_it_flag) == 0U)
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+  if ((global_active_flag_s == 0U) && (global_active_flag_ns == 0U))
+#else
+  if (global_active_flag_ns == 0U)
+#endif /* defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) */
   {
     return; /* the global interrupt flag for the current channel is down , nothing to do */
   }
@@ -999,6 +1007,9 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *const hdma)
         {
           /* Update the linked-list queue state */
           hdma->LinkedListQueue->State = HAL_DMA_QUEUE_STATE_READY;
+
+          /* Clear remaining data size to ensure loading linked-list from memory next start */
+          hdma->Instance->CBR1 = 0U;
         }
 
         /* Process Unlocked */
@@ -1113,6 +1124,8 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *const hdma)
 
 /**
   * @brief  Register callback according to specified ID.
+  * @note   The HAL_DMA_RegisterCallback() may be called before HAL_DMA_Init() in HAL_DMA_STATE_RESET
+  *         to register callbacks for HAL_DMA_MSPINIT_CB_ID and HAL_DMA_MSPDEINIT_CB_ID.
   * @param  hdma       : Pointer to a DMA_HandleTypeDef structure that contains the configuration information for the
   *                      specified DMA Channel.
   * @param  CallbackID : User Callback identifier which could be a value of HAL_DMA_CallbackIDTypeDef enumeration.
@@ -1130,9 +1143,6 @@ HAL_StatusTypeDef HAL_DMA_RegisterCallback(DMA_HandleTypeDef *const hdma,
   {
     return HAL_ERROR;
   }
-
-  /* Process locked */
-  __HAL_LOCK(hdma);
 
   /* Check DMA channel state */
   if (hdma->State == HAL_DMA_STATE_READY)
@@ -1177,6 +1187,8 @@ HAL_StatusTypeDef HAL_DMA_RegisterCallback(DMA_HandleTypeDef *const hdma,
 
       default:
       {
+        /* Update error status */
+        status = HAL_ERROR;
         break;
       }
     }
@@ -1187,14 +1199,13 @@ HAL_StatusTypeDef HAL_DMA_RegisterCallback(DMA_HandleTypeDef *const hdma,
     status =  HAL_ERROR;
   }
 
-  /* Release Lock */
-  __HAL_UNLOCK(hdma);
-
   return status;
 }
 
 /**
   * @brief  Unregister callback according to specified ID.
+  * @note   The HAL_DMA_UnRegisterCallback() may be called before HAL_DMA_Init() in HAL_DMA_STATE_RESET
+  *         to un-register callbacks for HAL_DMA_MSPINIT_CB_ID and HAL_DMA_MSPDEINIT_CB_ID.
   * @param  hdma       : Pointer to a DMA_HandleTypeDef structure that contains the configuration information for the
   *                      specified DMA Channel.
   * @param  CallbackID : User Callback identifier which could be a value of HAL_DMA_CallbackIDTypeDef enum.
@@ -1210,9 +1221,6 @@ HAL_StatusTypeDef HAL_DMA_UnRegisterCallback(DMA_HandleTypeDef *const hdma,
   {
     return HAL_ERROR;
   }
-
-  /* Process locked */
-  __HAL_LOCK(hdma);
 
   /* Check DMA channel state */
   if (hdma->State == HAL_DMA_STATE_READY)
@@ -1279,9 +1287,6 @@ HAL_StatusTypeDef HAL_DMA_UnRegisterCallback(DMA_HandleTypeDef *const hdma,
     /* Update error status */
     status = HAL_ERROR;
   }
-
-  /* Release Lock */
-  __HAL_UNLOCK(hdma);
 
   return status;
 }
@@ -1542,7 +1547,7 @@ HAL_StatusTypeDef HAL_DMA_GetLockChannelAttributes(DMA_HandleTypeDef const *cons
   uint32_t channel_idx;
 
   /* Check the DMA peripheral handle and lock state parameters */
-  if (hdma == NULL)
+  if ((hdma == NULL) || (pLockState == NULL))
   {
     return HAL_ERROR;
   }

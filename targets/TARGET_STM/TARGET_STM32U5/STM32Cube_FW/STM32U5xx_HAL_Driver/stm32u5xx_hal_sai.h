@@ -808,8 +808,8 @@ void HAL_SAI_ErrorCallback(SAI_HandleTypeDef *hsai);
   * @{
   */
 /* Peripheral State functions  ************************************************/
-HAL_SAI_StateTypeDef HAL_SAI_GetState(SAI_HandleTypeDef *hsai);
-uint32_t HAL_SAI_GetError(SAI_HandleTypeDef *hsai);
+HAL_SAI_StateTypeDef HAL_SAI_GetState(const SAI_HandleTypeDef *hsai);
+uint32_t HAL_SAI_GetError(const SAI_HandleTypeDef *hsai);
 /**
   * @}
   */
@@ -822,9 +822,13 @@ uint32_t HAL_SAI_GetError(SAI_HandleTypeDef *hsai);
 /** @defgroup SAI_Private_Macros SAI Private Macros
   * @{
   */
+#if defined(SAI2)
 #define IS_SAI_BLOCK_SYNCEXT(STATE) (((STATE) == SAI_SYNCEXT_DISABLE) ||\
                                      ((STATE) == SAI_SYNCEXT_OUTBLOCKA_ENABLE) ||\
                                      ((STATE) == SAI_SYNCEXT_OUTBLOCKB_ENABLE))
+#else /* SAI2 */
+#define IS_SAI_BLOCK_SYNCEXT(STATE)  ((STATE) == SAI_SYNCEXT_DISABLE)
+#endif /* SAI2 */
 
 #define IS_SAI_SUPPORTED_PROTOCOL(PROTOCOL)   (((PROTOCOL) == SAI_I2S_STANDARD)     ||\
                                                ((PROTOCOL) == SAI_I2S_MSBJUSTIFIED) ||\
@@ -878,10 +882,15 @@ uint32_t HAL_SAI_GetError(SAI_HandleTypeDef *hsai);
 #define IS_SAI_BLOCK_CLOCK_STROBING(CLOCK) (((CLOCK) == SAI_CLOCKSTROBING_FALLINGEDGE) || \
                                             ((CLOCK) == SAI_CLOCKSTROBING_RISINGEDGE))
 
+#if defined(SAI2)
 #define IS_SAI_BLOCK_SYNCHRO(SYNCHRO) (((SYNCHRO) == SAI_ASYNCHRONOUS)         || \
                                        ((SYNCHRO) == SAI_SYNCHRONOUS)          || \
                                        ((SYNCHRO) == SAI_SYNCHRONOUS_EXT_SAI1) || \
                                        ((SYNCHRO) == SAI_SYNCHRONOUS_EXT_SAI2))
+#else /* SAI2 */
+#define IS_SAI_BLOCK_SYNCHRO(SYNCHRO) (((SYNCHRO) == SAI_ASYNCHRONOUS)         || \
+                                       ((SYNCHRO) == SAI_SYNCHRONOUS))
+#endif /* SAI2 */
 
 #define IS_SAI_BLOCK_MCK_OUTPUT(VALUE) (((VALUE) == SAI_MCK_OUTPUT_ENABLE) || \
                                         ((VALUE) == SAI_MCK_OUTPUT_DISABLE))

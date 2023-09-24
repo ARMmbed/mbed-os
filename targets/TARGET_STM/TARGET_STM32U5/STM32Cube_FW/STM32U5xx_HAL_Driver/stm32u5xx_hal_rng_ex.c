@@ -30,7 +30,7 @@
 
 #if defined(RNG)
 
-/** @addtogroup RNGEx
+/** @addtogroup RNG_Ex
   * @brief RNG Extended HAL module driver.
   * @{
   */
@@ -41,7 +41,7 @@
 /* Private defines -----------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private constants ---------------------------------------------------------*/
-/** @defgroup RNGEx_Private_Constants RNGEx Private Constants
+/** @addtogroup RNG_Ex_Private_Constants
   * @{
   */
 #define RNG_TIMEOUT_VALUE     2U
@@ -53,11 +53,11 @@
 /* Private functions  --------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
 
-/** @addtogroup RNGEx_Exported_Functions
+/** @defgroup RNG_Ex_Exported_Functions RNG_Ex Exported Functions
   * @{
   */
 
-/** @addtogroup RNGEx_Exported_Functions_Group1
+/** @defgroup RNG_Ex_Exported_Functions_Group1 Configuration and lock functions
   *  @brief   Configuration functions
   *
 @verbatim
@@ -82,7 +82,7 @@
 
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_RNGEx_SetConfig(RNG_HandleTypeDef *hrng, RNG_ConfigTypeDef *pConf)
+HAL_StatusTypeDef HAL_RNGEx_SetConfig(RNG_HandleTypeDef *hrng, const RNG_ConfigTypeDef *pConf)
 {
   uint32_t tickstart;
   uint32_t cr_value;
@@ -123,7 +123,7 @@ HAL_StatusTypeDef HAL_RNGEx_SetConfig(RNG_HandleTypeDef *hrng, RNG_ConfigTypeDef
                           | (pConf->Config3 << RNG_CR_RNG_CONFIG3_Pos));
 
     MODIFY_REG(hrng->Instance->CR, RNG_CR_NISTC | RNG_CR_CLKDIV | RNG_CR_RNG_CONFIG1
-               | RNG_CR_RNG_CONFIG2 | RNG_CR_RNG_CONFIG3,
+               | RNG_CR_RNG_CONFIG2 | RNG_CR_RNG_CONFIG3 | RNG_CR_ARDIS,
                (uint32_t)(RNG_CR_CONDRST | cr_value));
 
     /* RNG health test control in accordance with NIST */
@@ -269,12 +269,12 @@ HAL_StatusTypeDef HAL_RNGEx_LockConfig(RNG_HandleTypeDef *hrng)
   * @}
   */
 
-/** @addtogroup RNGEx_Exported_Functions_Group2
+/** @defgroup RNG_Ex_Exported_Functions_Group2 Recover from seed error function
   *  @brief   Recover from seed error function
   *
 @verbatim
  ===============================================================================
-          ##### Configuration and lock functions #####
+          ##### Recover from seed error function #####
  ===============================================================================
     [..]  This section provide function allowing to:
       (+) Recover from a seed error
@@ -336,3 +336,4 @@ HAL_StatusTypeDef HAL_RNGEx_RecoverSeedError(RNG_HandleTypeDef *hrng)
 /**
   * @}
   */
+

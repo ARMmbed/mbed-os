@@ -235,7 +235,7 @@ __STATIC_INLINE void LL_CRC_SetOutputDataReverseMode(CRC_TypeDef *CRCx, uint32_t
 }
 
 /**
-  * @brief  Configure the reversal of the bit order of the Output data
+  * @brief  Return type of reversal of the bit order of the Output data
   * @rmtoll CR           REV_OUT       LL_CRC_GetOutputDataReverseMode
   * @param  CRCx CRC Instance
   * @retval Returned value can be one of the following values:

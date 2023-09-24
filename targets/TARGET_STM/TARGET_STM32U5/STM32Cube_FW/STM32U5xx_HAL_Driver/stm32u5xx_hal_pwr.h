@@ -137,6 +137,9 @@ typedef struct
 #define PWR_FLAG_TEMPH       (0x0CU) /*!< Temperature level flag (versus high threshold)           */
 #define PWR_FLAG_TEMPL       (0x0DU) /*!< Temperature level flag (versus low threshold)            */
 #define PWR_FLAG_VBATH       (0x0EU) /*!< Backup domain voltage level flag (versus high threshold) */
+#if defined (PWR_VOSR_USBBOOSTRDY)
+#define PWR_FLAG_USBBOOSTRDY (0x0FU) /*!< USB EPOD booster ready flag                              */
+#endif /* defined (PWR_VOSR_USBBOOSTRDY) */
 /**
   * @}
   */
@@ -306,6 +309,11 @@ typedef struct
   *                    @arg @ref PWR_FLAG_BOOSTRDY    : EPOD booster ready flag.
   *                                                     Indicates that EPOD booster ready,
   *                                                     frequency could be higher than 50 MHz.
+  *                    @arg @ref PWR_FLAG_USBBOOSTRDY : USB EPOD booster ready flag.
+  *                                                     Indicates that USB EPOD booster ready,
+  *                                                     frequency could be higher than 50 MHz.
+  *                                                     This flag is available only for STM32U59xxx and STM32U5Axxx
+  *                                                     devices.
   *                    @arg @ref PWR_FLAG_STOPF       : Stop flag.
   *                                                     Indicates that the device was resumed from Stop mode.
   *                    @arg @ref PWR_FLAG_SBF         : Standby flag.
@@ -355,8 +363,35 @@ typedef struct
   *                                                     Indicates that a wakeup event was received from the WKUP line 8.
   * @retval The state of __FLAG__ (TRUE or FALSE).
   */
-#define __HAL_PWR_GET_FLAG(__FLAG__)                                                                            \
-  (                                                                                                             \
+#if defined (PWR_FLAG_USBBOOSTRDY)
+#define __HAL_PWR_GET_FLAG(__FLAG__)                                                                           \
+  (                                                                                                              \
+      ((__FLAG__) == PWR_FLAG_VOSRDY)      ? (READ_BIT(PWR->VOSR, PWR_VOSR_VOSRDY)      == PWR_VOSR_VOSRDY)      : \
+      ((__FLAG__) == PWR_FLAG_BOOSTRDY)    ? (READ_BIT(PWR->VOSR, PWR_VOSR_BOOSTRDY)    == PWR_VOSR_BOOSTRDY)    : \
+      ((__FLAG__) == PWR_FLAG_USBBOOSTRDY) ? (READ_BIT(PWR->VOSR, PWR_VOSR_USBBOOSTRDY) == PWR_VOSR_USBBOOSTRDY) : \
+      ((__FLAG__) == PWR_FLAG_STOPF)       ? (READ_BIT(PWR->SR, PWR_SR_STOPF)           == PWR_SR_STOPF)         : \
+      ((__FLAG__) == PWR_FLAG_SBF)         ? (READ_BIT(PWR->SR, PWR_SR_SBF)             == PWR_SR_SBF)           : \
+      ((__FLAG__) == PWR_FLAG_VDDA2RDY)    ? (READ_BIT(PWR->SVMSR, PWR_SVMSR_VDDA2RDY)  == PWR_SVMSR_VDDA2RDY)   : \
+      ((__FLAG__) == PWR_FLAG_VDDA1RDY)    ? (READ_BIT(PWR->SVMSR, PWR_SVMSR_VDDA1RDY)  == PWR_SVMSR_VDDA1RDY)   : \
+      ((__FLAG__) == PWR_FLAG_VDDIO2RDY)   ? (READ_BIT(PWR->SVMSR, PWR_SVMSR_VDDIO2RDY) == PWR_SVMSR_VDDIO2RDY)  : \
+      ((__FLAG__) == PWR_FLAG_VDDUSBRDY)   ? (READ_BIT(PWR->SVMSR, PWR_SVMSR_VDDUSBRDY) == PWR_SVMSR_VDDUSBRDY)  : \
+      ((__FLAG__) == PWR_FLAG_ACTVOSRDY)   ? (READ_BIT(PWR->SVMSR, PWR_SVMSR_ACTVOSRDY) == PWR_SVMSR_ACTVOSRDY)  : \
+      ((__FLAG__) == PWR_FLAG_PVDO)        ? (READ_BIT(PWR->SVMSR, PWR_SVMSR_PVDO)      == PWR_SVMSR_PVDO)       : \
+      ((__FLAG__) == PWR_FLAG_REGS)        ? (READ_BIT(PWR->SVMSR, PWR_SVMSR_REGS)      == PWR_SVMSR_REGS)       : \
+      ((__FLAG__) == PWR_FLAG_TEMPH)       ? (READ_BIT(PWR->BDSR, PWR_BDSR_TEMPH)       == PWR_BDSR_TEMPH)       : \
+      ((__FLAG__) == PWR_FLAG_TEMPL)       ? (READ_BIT(PWR->BDSR, PWR_BDSR_TEMPL)       == PWR_BDSR_TEMPL)       : \
+      ((__FLAG__) == PWR_FLAG_VBATH)       ? (READ_BIT(PWR->BDSR, PWR_BDSR_VBATH)       == PWR_BDSR_VBATH)       : \
+      ((__FLAG__) == PWR_WAKEUP_FLAG1)     ? (READ_BIT(PWR->WUSR, PWR_WUSR_WUF1)        == PWR_WUSR_WUF1)        : \
+      ((__FLAG__) == PWR_WAKEUP_FLAG2)     ? (READ_BIT(PWR->WUSR, PWR_WUSR_WUF2)        == PWR_WUSR_WUF2)        : \
+      ((__FLAG__) == PWR_WAKEUP_FLAG3)     ? (READ_BIT(PWR->WUSR, PWR_WUSR_WUF3)        == PWR_WUSR_WUF3)        : \
+      ((__FLAG__) == PWR_WAKEUP_FLAG4)     ? (READ_BIT(PWR->WUSR, PWR_WUSR_WUF4)        == PWR_WUSR_WUF4)        : \
+      ((__FLAG__) == PWR_WAKEUP_FLAG5)     ? (READ_BIT(PWR->WUSR, PWR_WUSR_WUF5)        == PWR_WUSR_WUF5)        : \
+      ((__FLAG__) == PWR_WAKEUP_FLAG6)     ? (READ_BIT(PWR->WUSR, PWR_WUSR_WUF6)        == PWR_WUSR_WUF6)        : \
+      ((__FLAG__) == PWR_WAKEUP_FLAG7)     ? (READ_BIT(PWR->WUSR, PWR_WUSR_WUF7)        == PWR_WUSR_WUF7)        : \
+      (READ_BIT(PWR->WUSR, PWR_WUSR_WUF8) == PWR_WUSR_WUF8))
+#else
+#define __HAL_PWR_GET_FLAG(__FLAG__)                                                                        \
+  (                                                                                                           \
       ((__FLAG__) == PWR_FLAG_VOSRDY)    ? (READ_BIT(PWR->VOSR, PWR_VOSR_VOSRDY)      == PWR_VOSR_VOSRDY)     : \
       ((__FLAG__) == PWR_FLAG_BOOSTRDY)  ? (READ_BIT(PWR->VOSR, PWR_VOSR_BOOSTRDY)    == PWR_VOSR_BOOSTRDY)   : \
       ((__FLAG__) == PWR_FLAG_STOPF)     ? (READ_BIT(PWR->SR, PWR_SR_STOPF)           == PWR_SR_STOPF)        : \
@@ -379,6 +414,7 @@ typedef struct
       ((__FLAG__) == PWR_WAKEUP_FLAG6)   ? (READ_BIT(PWR->WUSR, PWR_WUSR_WUF6)        == PWR_WUSR_WUF6)       : \
       ((__FLAG__) == PWR_WAKEUP_FLAG7)   ? (READ_BIT(PWR->WUSR, PWR_WUSR_WUF7)        == PWR_WUSR_WUF7)       : \
       (READ_BIT(PWR->WUSR, PWR_WUSR_WUF8) == PWR_WUSR_WUF8))
+#endif /* defined (PWR_FLAG_USBBOOSTRDY) */
 
 /** @brief  Clear PWR flags.
   * @param  __FLAG__ : Specifies the flag to clear.

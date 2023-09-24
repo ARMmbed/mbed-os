@@ -83,7 +83,10 @@
     (#) To set/reset the level of a pin configured in output mode use
         HAL_GPIO_WritePin()/HAL_GPIO_TogglePin().
 
-   (#) To lock pin configuration until next reset use HAL_GPIO_LockPin().
+    (#) To set the level of several pins and reset level of several other pins in
+        same cycle, use HAL_GPIO_WriteMultipleStatePin().
+
+    (#) To lock pin configuration until next reset use HAL_GPIO_LockPin().
 
     (#) During and just after reset, the alternate functions are not
         active and the GPIO pins are configured in input floating mode (except JTAG
@@ -238,7 +241,7 @@ void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, const GPIO_InitTypeDef *pGPIO_Init)
         /* Configure Alternate function mapped with the current IO */
         tmp = p_gpio->AFR[(pin_position) >> 3U];
         tmp &= ~(0x0FUL << (((pin_position) & 0x07U) * 4U));
-        tmp |= ((GPIO_AF11_LPGPIO & 0x0FUL) << (((pin_position) & 0x07U) * 4U));
+        tmp |= ((GPIO_AF11_LPGPIO1 & 0x0FUL) << (((pin_position) & 0x07U) * 4U));
         p_gpio->AFR[(pin_position) >> 3U] = tmp;
 
         /* Configure IO Direction mode (Alternate) */
@@ -319,23 +322,6 @@ void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, const GPIO_InitTypeDef *pGPIO_Init)
         tmp |= (GPIO_GET_INDEX(GPIOx) << (8U * (position & 0x03U)));
         EXTI->EXTICR[position >> 2U] = tmp;
 
-        /* Clear EXTI line configuration */
-        tmp = EXTI->IMR1;
-        tmp &= ~((uint32_t)iocurrent);
-        if ((pGPIO_Init->Mode & GPIO_MODE_IT) == GPIO_MODE_IT)
-        {
-          tmp |= iocurrent;
-        }
-        EXTI->IMR1 = tmp;
-
-        tmp = EXTI->EMR1;
-        tmp &= ~((uint32_t)iocurrent);
-        if ((pGPIO_Init->Mode & GPIO_MODE_EVT) == GPIO_MODE_EVT)
-        {
-          tmp |= iocurrent;
-        }
-        EXTI->EMR1 = tmp;
-
         /* Clear Rising Falling edge configuration */
         tmp = EXTI->RTSR1;
         tmp &= ~((uint32_t)iocurrent);
@@ -352,6 +338,23 @@ void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, const GPIO_InitTypeDef *pGPIO_Init)
           tmp |= iocurrent;
         }
         EXTI->FTSR1 = tmp;
+
+        /* Clear EXTI line configuration */
+        tmp = EXTI->EMR1;
+        tmp &= ~((uint32_t)iocurrent);
+        if ((pGPIO_Init->Mode & GPIO_MODE_EVT) == GPIO_MODE_EVT)
+        {
+          tmp |= iocurrent;
+        }
+        EXTI->EMR1 = tmp;
+
+        tmp = EXTI->IMR1;
+        tmp &= ~((uint32_t)iocurrent);
+        if ((pGPIO_Init->Mode & GPIO_MODE_IT) == GPIO_MODE_IT)
+        {
+          tmp |= iocurrent;
+        }
+        EXTI->IMR1 = tmp;
       }
     }
     position++;
@@ -468,7 +471,7 @@ void HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin)
   *         This parameter can be GPIO_PIN_x where x can be (0..15).
   * @retval The input port pin value.
   */
-GPIO_PinState HAL_GPIO_ReadPin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
+GPIO_PinState HAL_GPIO_ReadPin(const GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
 {
   GPIO_PinState bitstatus;
 
@@ -516,6 +519,34 @@ void HAL_GPIO_WritePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, GPIO_PinState Pin
   {
     GPIOx->BRR  = (uint32_t)GPIO_Pin;
   }
+}
+
+/**
+  * @brief  Set and clear several pins of a dedicated port in same cycle.
+  * @note   This function uses GPIOx_BSRR and GPIOx_BRR registers to allow atomic read/modify
+  *         accesses.
+  * @param  GPIOx or LPGPIOx: where x can be (A..I) for the GPIO and (1) for LPGPIO to select the the corresponding
+  *         peripheral for STM32U5 family
+  * @param  PinReset specifies the port bits to be reset
+  *         This parameter can be any combination of GPIO_Pin_x where x can be (0..15) or zero.
+  * @param  PinSet specifies the port bits to be set
+  *         This parameter can be any combination of GPIO_Pin_x where x can be (0..15) or zero.
+  * @note   Both PinReset and PinSet combinations shall not get any common bit, else
+  *         assert would be triggered.
+  * @note   At least one of the two parameters used to set or reset shall be different from zero.
+  * @retval None
+  */
+void HAL_GPIO_WriteMultipleStatePin(GPIO_TypeDef *GPIOx, uint16_t PinReset, uint16_t PinSet)
+{
+  uint32_t tmp;
+
+  /* Check the parameters */
+  /* Make sure at least one parameter is different from zero and that there is no common pin */
+  assert_param(IS_GPIO_PIN((uint32_t)PinReset | (uint32_t)PinSet));
+  assert_param(IS_GPIO_COMMON_PIN(PinReset, PinSet));
+
+  tmp = (((uint32_t)PinReset << 16) | PinSet);
+  GPIOx->BSRR = tmp;
 }
 
 /**
@@ -875,12 +906,13 @@ void HAL_GPIO_ConfigPinAttributes(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, uint32
   * @param  pPinAttributes: pointer to return the pin attributes.
   * @retval HAL Status.
   */
-HAL_StatusTypeDef HAL_GPIO_GetConfigPinAttributes(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, uint32_t *pPinAttributes)
+HAL_StatusTypeDef HAL_GPIO_GetConfigPinAttributes(const GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin,
+                                                  uint32_t *pPinAttributes)
 {
   uint32_t iocurrent;
   uint32_t pin_position;
   uint32_t position = 0U;
-  GPIO_TypeDef  *p_gpio;
+  const GPIO_TypeDef  *p_gpio;
 
   /* Check the parameters */
   assert_param(IS_GPIO_ALL_INSTANCE(GPIOx));

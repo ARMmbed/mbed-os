@@ -18,6 +18,7 @@
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
 #include <limits.h>
+#include <cinttypes>
 #include "mbed.h"
 #include "mbed_lp_ticker_wrapper.h"
 #include "hal/us_ticker_api.h"
@@ -31,6 +32,8 @@
 #define SLEEP_DURATION_US 50000ULL
 
 // Tolerance for extra sleep time in the deep sleep test.
+// This accounts for the time that the processor spends going to sleep and waking up.
+// The hal_deepsleep() docs specify this to be less than 10ms
 // Current leader is the MIMXRT105x, which takes almost 5ms to enter/exit deep sleep.
 #define DEEP_SLEEP_TOLERANCE_US 5000ULL
 
@@ -147,7 +150,7 @@ void test_sleep_auto()
     const ticker_info_t *lp_ticker_info = get_lp_ticker_data()->interface->get_info();
     const unsigned lp_ticker_mask = ((1 << lp_ticker_info->bits) - 1);
     const ticker_irq_handler_type lp_ticker_irq_handler_org = set_lp_ticker_irq_handler(lp_ticker_isr);
-    uint32_t us_ts1, us_ts2, lp_ts1, lp_ts2, us_diff1, us_diff2, lp_diff1, lp_diff2;
+    uint32_t us_diff1, us_diff2, lp_diff1, lp_diff2;
 
     const unsigned int sleep_duration_lp_ticks = us_to_ticks(SLEEP_DURATION_US, lp_ticker_info->frequency);
     const unsigned int sleep_duration_us_ticks = us_to_ticks(SLEEP_DURATION_US, us_ticker_info->frequency);
@@ -156,28 +159,28 @@ void test_sleep_auto()
     // interrupts on some targets, which wake us from sleep.
     busy_wait_ms(SERIAL_FLUSH_TIME_MS);
 
+    /*  Let's avoid the Lp ticker wrap-around case */
+    wraparound_lp_protect();
+
+    uint32_t start_lp_time = lp_ticker_read();
+    uint32_t start_us_time = us_ticker_read();
+    uint32_t lp_wakeup_ts_raw = start_lp_time + sleep_duration_lp_ticks;
+    timestamp_t lp_wakeup_ts = overflow_protect(lp_wakeup_ts_raw, lp_ticker_info->bits);
+    lp_ticker_set_interrupt(lp_wakeup_ts);
+
     /* Some targets may need an interrupt short time after LPTIM interrupt is
      * set and forbid deep_sleep during that period. Let this period pass  */
     TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep_test_check());
 
     sleep_manager_lock_deep_sleep();
 
-    /*  Let's avoid the Lp ticker wrap-around case */
-    wraparound_lp_protect();
-    uint32_t lp_wakeup_ts_raw = lp_ticker_read() + sleep_duration_lp_ticks;
-    timestamp_t lp_wakeup_ts = overflow_protect(lp_wakeup_ts_raw, lp_ticker_info->bits);
-    lp_ticker_set_interrupt(lp_wakeup_ts);
-
-    us_ts1 = us_ticker_read();
-    lp_ts1 = lp_ticker_read();
-
     sleep_manager_sleep_auto();
 
-    us_ts2 = us_ticker_read();
-    lp_ts2 = lp_ticker_read();
+    uint32_t end_us_time = us_ticker_read();
+    uint32_t end_lp_time = lp_ticker_read();
 
-    us_diff1 = (us_ts1 <= us_ts2) ? (us_ts2 - us_ts1) : (us_ticker_mask - us_ts1 + us_ts2 + 1);
-    lp_diff1 = (lp_ts1 <= lp_ts2) ? (lp_ts2 - lp_ts1) : (lp_ticker_mask - lp_ts1 + lp_ts2 + 1);
+    us_diff1 = (start_us_time <= end_us_time) ? (end_us_time - start_us_time) : (us_ticker_mask - start_us_time + end_us_time + 1);
+    lp_diff1 = (start_lp_time <= end_lp_time) ? (end_lp_time - start_lp_time) : (lp_ticker_mask - start_lp_time + end_lp_time + 1);
 
     // Deep sleep locked -- ordinary sleep mode used:
     // * us_ticker powered ON,
@@ -189,9 +192,6 @@ void test_sleep_auto()
     TEST_ASSERT_UINT64_WITHIN_MESSAGE(sleep_duration_us_ticks / 10ULL, sleep_duration_us_ticks, us_diff1, "us ticker sleep time incorrect - perhaps deep sleep mode was used?");
 
     sleep_manager_unlock_deep_sleep();
-    /* Some targets may need an interrupt short time after LPTIM interrupt is
-     * set and forbid deep_sleep during that period. Let this period pass  */
-    TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep_test_check());
 
     // Wait for hardware serial buffers to flush.  This is because serial transmissions generate
     // interrupts on some targets, which wake us from sleep.
@@ -199,20 +199,23 @@ void test_sleep_auto()
 
     /*  Let's avoid the Lp ticker wrap-around case */
     wraparound_lp_protect();
-    lp_wakeup_ts_raw = lp_ticker_read() + us_to_ticks(SLEEP_DURATION_US, lp_ticker_info->frequency);
+    start_lp_time = lp_ticker_read();
+    start_us_time = us_ticker_read();
+    lp_wakeup_ts_raw = start_lp_time + us_to_ticks(SLEEP_DURATION_US, lp_ticker_info->frequency);
     lp_wakeup_ts = overflow_protect(lp_wakeup_ts_raw, lp_ticker_info->bits);
     lp_ticker_set_interrupt(lp_wakeup_ts);
 
-    us_ts1 = us_ticker_read();
-    lp_ts1 = lp_ticker_read();
+    /* Some targets may need an interrupt short time after LPTIM interrupt is
+     * set and forbid deep_sleep during that period. Let this period pass  */
+    TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep_test_check());
 
     sleep_manager_sleep_auto();
 
-    us_ts2 = us_ticker_read();
-    lp_ts2 = lp_ticker_read();
+    end_us_time = us_ticker_read();
+    end_lp_time = lp_ticker_read();
 
-    us_diff2 = (us_ts1 <= us_ts2) ? (us_ts2 - us_ts1) : (us_ticker_mask - us_ts1 + us_ts2 + 1);
-    lp_diff2 = (lp_ts1 <= lp_ts2) ? (lp_ts2 - lp_ts1) : (lp_ticker_mask - lp_ts1 + lp_ts2 + 1);
+    us_diff2 = (start_us_time <= end_us_time) ? (end_us_time - start_us_time) : (us_ticker_mask - start_us_time + end_us_time + 1);
+    lp_diff2 = (start_lp_time <= end_lp_time) ? (end_lp_time - start_lp_time) : (lp_ticker_mask - start_lp_time + end_lp_time + 1);
 
     // Deep sleep unlocked -- deep sleep mode used:
     // * us_ticker powered OFF,
@@ -224,6 +227,7 @@ void test_sleep_auto()
 
     const unsigned int deepsleep_tolerance_lp_ticks = us_to_ticks(DEEP_SLEEP_TOLERANCE_US, lp_ticker_info->frequency);
     const unsigned int deepsleep_tolerance_us_ticks = us_to_ticks(DEEP_SLEEP_TOLERANCE_US, us_ticker_info->frequency);
+
 
     // us ticker should not have incremented during deep sleep.  It should be zero, plus some tolerance for the time to enter deep sleep.
     TEST_ASSERT_UINT64_WITHIN_MESSAGE(deepsleep_tolerance_us_ticks, 0, us_diff2, "us ticker sleep time incorrect - perhaps deep sleep mode was not used?");

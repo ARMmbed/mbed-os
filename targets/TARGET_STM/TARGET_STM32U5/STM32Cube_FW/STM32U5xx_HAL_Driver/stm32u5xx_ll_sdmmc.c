@@ -147,6 +147,7 @@
          By the same approach, you could implement a command and check the response.
 
   @endverbatim
+  ******************************************************************************
   */
 
 /* Includes ------------------------------------------------------------------*/
@@ -1059,6 +1060,31 @@ uint32_t SDMMC_CmdSetRelAddMmc(SDMMC_TypeDef *SDMMCx, uint16_t RCA)
 }
 
 /**
+  * @brief  Send the Sleep command to MMC card (not SD card).
+  * @param  SDMMCx Pointer to SDMMC register base
+  * @param  Argument Argument of the command (RCA and Sleep/Awake)
+  * @retval HAL status
+  */
+uint32_t SDMMC_CmdSleepMmc(SDMMC_TypeDef *SDMMCx, uint32_t Argument)
+{
+  SDMMC_CmdInitTypeDef  sdmmc_cmdinit;
+  uint32_t errorstate;
+
+  /* Send CMD5 SDMMC_CMD_MMC_SLEEP_AWAKE */
+  sdmmc_cmdinit.Argument         = Argument;
+  sdmmc_cmdinit.CmdIndex         = SDMMC_CMD_MMC_SLEEP_AWAKE;
+  sdmmc_cmdinit.Response         = SDMMC_RESPONSE_SHORT;
+  sdmmc_cmdinit.WaitForInterrupt = SDMMC_WAIT_NO;
+  sdmmc_cmdinit.CPSM             = SDMMC_CPSM_ENABLE;
+  (void)SDMMC_SendCommand(SDMMCx, &sdmmc_cmdinit);
+
+  /* Check for error conditions */
+  errorstate = SDMMC_GetCmdResp1(SDMMCx, SDMMC_CMD_MMC_SLEEP_AWAKE, SDMMC_CMDTIMEOUT);
+
+  return errorstate;
+}
+
+/**
   * @brief  Send the Status command and check the response.
   * @param  SDMMCx: Pointer to SDMMC register base
   * @param  Argument: Command Argument
@@ -1143,7 +1169,7 @@ uint32_t SDMMC_CmdSwitch(SDMMC_TypeDef *SDMMCx, uint32_t Argument)
 
   /* Send CMD6 to activate SDR50 Mode and Power Limit 1.44W */
   /* CMD Response: R1 */
-  sdmmc_cmdinit.Argument         = Argument; /* SDMMC_SDR25_SWITCH_PATTERN;*/
+  sdmmc_cmdinit.Argument         = Argument; /* SDMMC_SDR25_SWITCH_PATTERN*/
   sdmmc_cmdinit.CmdIndex         = SDMMC_CMD_HS_SWITCH;
   sdmmc_cmdinit.Response         = SDMMC_RESPONSE_SHORT;
   sdmmc_cmdinit.WaitForInterrupt = SDMMC_WAIT_NO;
@@ -1541,7 +1567,7 @@ uint32_t SDMMC_GetCmdResp7(SDMMC_TypeDef *SDMMCx)
 
   if (__SDMMC_GET_FLAG(SDMMCx, SDMMC_FLAG_CTIMEOUT))
   {
-    /* Card is SD V2.0 compliant */
+    /* Card is not SD V2.0 compliant */
     __SDMMC_CLEAR_FLAG(SDMMCx, SDMMC_FLAG_CTIMEOUT);
 
     return SDMMC_ERROR_CMD_RSP_TIMEOUT;
@@ -1549,7 +1575,7 @@ uint32_t SDMMC_GetCmdResp7(SDMMC_TypeDef *SDMMCx)
 
   else if (__SDMMC_GET_FLAG(SDMMCx, SDMMC_FLAG_CCRCFAIL))
   {
-    /* Card is SD V2.0 compliant */
+    /* Card is not SD V2.0 compliant */
     __SDMMC_CLEAR_FLAG(SDMMCx, SDMMC_FLAG_CCRCFAIL);
 
     return SDMMC_ERROR_CMD_CRC_FAIL;
@@ -1683,7 +1709,8 @@ uint32_t SDMMC_DMALinkedList_RemoveNode(SDMMC_DMALinkedListTypeDef *pLinkedList,
 {
   uint32_t count = 0U;
   uint32_t linked_list_offset;
-  SDMMC_DMALinkNodeTypeDef *prev_node, * curr_node ;
+  SDMMC_DMALinkNodeTypeDef *prev_node = NULL;
+  SDMMC_DMALinkNodeTypeDef *curr_node ;
 
   /* First Node */
   if (pLinkedList->NodesCounter == 0U)

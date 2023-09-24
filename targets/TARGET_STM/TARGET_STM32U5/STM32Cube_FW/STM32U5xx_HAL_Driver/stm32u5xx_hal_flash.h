@@ -81,7 +81,7 @@ typedef struct
   uint32_t USERConfig;     /*!< Value of the user option byte (used for OPTIONBYTE_USER).
                                 This parameter can be a combination of @ref FLASH_OB_USER_BOR_LEVEL,
                                 @ref FLASH_OB_USER_nRST_STOP, @ref FLASH_OB_USER_nRST_STANDBY,
-                                @ref FLASH_OB_USER_nRST_SHUTDOWN, @ref FLASH_OB_USER_SRAM134_RST,
+                                @ref FLASH_OB_USER_nRST_SHUTDOWN, @ref FLASH_OB_USER_SRAM_RST,
                                 @ref FLASH_OB_USER_IWDG_SW, @ref FLASH_OB_USER_IWDG_STOP,
                                 @ref FLASH_OB_USER_IWDG_STANDBY, @ref FLASH_OB_USER_WWDG_SW,
                                 @ref FLASH_OB_USER_SWAP_BANK, @ref FLASH_OB_USER_DUALBANK,
@@ -324,7 +324,7 @@ typedef struct
 #define OB_USER_NRST_STOP         0x00000002U     /*!< Reset generated when entering the stop mode */
 #define OB_USER_NRST_STDBY        0x00000004U     /*!< Reset generated when entering the standby mode */
 #define OB_USER_NRST_SHDW         0x00000008U     /*!< Reset generated when entering the shutdown mode */
-#define OB_USER_SRAM134_RST       0x00000010U     /*!< SRAM1, SRAM3 and SRAM4 erase upon system reset */
+#define OB_USER_SRAM_RST          0x00000010U     /*!< All SRAMs (except SRAM2 and BKPSRAM) erase upon system reset */
 #define OB_USER_IWDG_SW           0x00000020U     /*!< Independent watchdog selection */
 #define OB_USER_IWDG_STOP         0x00000040U     /*!< Independent watchdog counter freeze in stop mode */
 #define OB_USER_IWDG_STDBY        0x00000080U     /*!< Independent watchdog counter freeze in standby mode */
@@ -332,7 +332,9 @@ typedef struct
 #define OB_USER_SWAP_BANK         0x00000200U     /*!< Swap banks */
 #define OB_USER_DUALBANK          0x00000400U     /*!< Dual-Bank on 1MB/512kB Flash memory devices */
 #define OB_USER_BKPRAM_ECC        0x00000800U     /*!< Backup RAM ECC detection and correction enable */
+#if defined(SRAM3_BASE)
 #define OB_USER_SRAM3_ECC         0x00001000U     /*!< SRAM3 ECC detection and correction enable */
+#endif /* SRAM3_BASE */
 #define OB_USER_SRAM2_ECC         0x00002000U     /*!< SRAM2 ECC detection and correction enable */
 #define OB_USER_SRAM2_RST         0x00004000U     /*!< SRAM2 Erase when system reset */
 #define OB_USER_NSWBOOT0          0x00008000U     /*!< Software BOOT0 */
@@ -389,13 +391,13 @@ typedef struct
   * @}
   */
 
-/** @defgroup FLASH_OB_USER_SRAM134_RST FLASH Option Bytes User SRAM134 Erase On Reset Type
+/** @defgroup FLASH_OB_USER_SRAM_RST FLASH Option Bytes User SRAM Erase On Reset Type
   * @{
   */
-#define OB_SRAM134_RST_ERASE      0x00000000U            /*!< SRAM1, SRAM3 and SRAM4 erased
-                                                              when a system reset occurs */
-#define OB_SRAM134_RST_NOT_ERASE  FLASH_OPTR_SRAM134_RST /*!< SRAM1, SRAM3 and SRAM4 are not erased
-                                                              when a system reset occurs */
+#define OB_SRAM_RST_ERASE      0x00000000U                 /*!< All SRAMs (except SRAM2 and BKPSRAM) erased
+                                                                when a system reset occurs */
+#define OB_SRAM_RST_NOT_ERASE  FLASH_OPTR_SRAM_RST         /*!< All SRAMs (except SRAM2 and BKPSRAM) not erased
+                                                                when a system reset occurs */
 /**
   * @}
   */
@@ -1020,7 +1022,7 @@ extern FLASH_ProcessTypeDef pFlash;
 
 #define IS_OB_USER_SHUTDOWN(VALUE)         (((VALUE) == OB_SHUTDOWN_RST) || ((VALUE) == OB_SHUTDOWN_NORST))
 
-#define IS_OB_USER_SRAM134_RST(VALUE)      (((VALUE) == OB_SRAM134_RST_ERASE) || ((VALUE) == OB_SRAM134_RST_NOT_ERASE))
+#define IS_OB_USER_SRAM_RST(VALUE)         (((VALUE) == OB_SRAM_RST_ERASE) || ((VALUE) == OB_SRAM_RST_NOT_ERASE))
 
 #define IS_OB_USER_IWDG(VALUE)             (((VALUE) == OB_IWDG_HW) || ((VALUE) == OB_IWDG_SW))
 

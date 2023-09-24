@@ -5,6 +5,8 @@
 # Notes:
 # 1. To use this target with PyOCD, you need to install a pack: `pyocd pack install STM32U585AIIxQ`.
 #    You might also need to run `pyocd pack update` first.
+# 2. PyOCD 0.35 can flash this device but not debug -- it is unable to hit breakpoints in my testing.
+# 3. Flashing via OpenOCD seems somewhat unreliable with this processor (at least with OpenOCD 0.12).
 
 # General config parameters
 # -------------------------------------------------------------
@@ -28,9 +30,7 @@ set(PYOCD_CLOCK_SPEED 4000k)
 
 set(OPENOCD_UPLOAD_ENABLED TRUE)
 set(OPENOCD_CHIP_CONFIG_COMMANDS
-    -f ${OpenOCD_SCRIPT_DIR}/interface/stlink.cfg
-	-c "transport select hla_swd"
-	-f ${CMAKE_CURRENT_LIST_DIR}/openocd_cfgs/stm32u5x.cfg)
+    -f ${CMAKE_CURRENT_LIST_DIR}/openocd_cfgs/st_nucleo_u5x.cfg)
 
 # Config options for STM32Cube
 # -------------------------------------------------------------
@@ -38,10 +38,3 @@ set(OPENOCD_CHIP_CONFIG_COMMANDS
 set(STM32CUBE_UPLOAD_ENABLED TRUE)
 set(STM32CUBE_CONNECT_COMMAND -c port=SWD reset=HWrst)
 set(STM32CUBE_GDBSERVER_ARGS --swd)
-
-# Config options for stlink
-# -------------------------------------------------------------
-
-set(STLINK_UPLOAD_ENABLED TRUE)
-set(STLINK_LOAD_ADDRESS 0x8000000)
-set(STLINK_ARGS --connect-under-reset)

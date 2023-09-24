@@ -627,8 +627,8 @@ static void MPU_ConfigRegion(MPU_Type *MPUx, const MPU_Region_InitTypeDef *const
   }
   else
   {
-    MPUx->RBAR = 0U;
     MPUx->RLAR = 0U;
+    MPUx->RBAR = 0U;
   }
 }
 

@@ -119,15 +119,15 @@ typedef struct
   uint32_t InputDataFormat;                /*!< This parameter is a value of @ref CRC_Input_Buffer_Format and specifies input data format.
                                             Can be either
                                             @arg @ref CRC_INPUTDATA_FORMAT_BYTES       input data is a stream of bytes
-                           (8-bit data)
+                                            (8-bit data)
                                             @arg @ref CRC_INPUTDATA_FORMAT_HALFWORDS   input data is a stream of
-                           half-words (16-bit data)
+                                            half-words (16-bit data)
                                             @arg @ref CRC_INPUTDATA_FORMAT_WORDS       input data is a stream of words
-                           (32-bit data)
+                                            (32-bit data)
 
                                           Note that constant CRC_INPUT_FORMAT_UNDEFINED is defined but an initialization
                                           error must occur if InputBufferFormat is not one of the three values listed
-                           above  */
+                                          above  */
 } CRC_HandleTypeDef;
 /**
   * @}

@@ -97,19 +97,19 @@ typedef struct
                         This parameter can be a value of @ref RCC_LL_EC_PLL1MBOOST_DIV
 
                         This feature can be modified afterwards using unitary function
-                        @ref LL_RCC_PLL_ConfigDomain_SYS(). */
+                        @ref LL_RCC_PLL1_ConfigDomain_SYS(). */
 
   uint32_t PLLN;   /*!< Multiplication factor for PLL VCO output clock.
                         This parameter must be a number between Min_Data = 8 and Max_Data = 86
 
                         This feature can be modified afterwards using unitary function
-                        @ref LL_RCC_PLL_ConfigDomain_SYS(). */
+                        @ref LL_RCC_PLL1_ConfigDomain_SYS(). */
 
   uint32_t PLLR;   /*!< Division for the main system clock.
-                        This parameter can be a value of @ref RCC_LL_EC_PLLR_DIV
+                        This parameter must be a number between Min_Data = 1 and Max_Data = 128
 
                         This feature can be modified afterwards using unitary function
-                        @ref LL_RCC_PLL_ConfigDomain_SYS(). */
+                        @ref LL_RCC_PLL1_ConfigDomain_SYS(). */
 } LL_UTILS_PLLInitTypeDef;
 
 /**
@@ -164,19 +164,29 @@ typedef struct
 /** @defgroup UTILS_EC_PACKAGETYPE PACKAGE TYPE
   * @{
   */
-#define LL_UTILS_PACKAGETYPE_LQFP64           0x00000000U /*!< LQFP64 package type                                 */
-#define LL_UTILS_PACKAGETYPE_LQFP100          0x00000002U /*!< LQFP100 package type                                */
-#define LL_UTILS_PACKAGETYPE_UFBGA132         0x00000003U /*!< UFBGA132 package type                               */
-#define LL_UTILS_PACKAGETYPE_LQFP144          0x00000004U /*!< LQFP144 package type                                */
-#define LL_UTILS_PACKAGETYPE_LQFP48           0x00000005U /*!< LQFP48 package type                                 */
-#define LL_UTILS_PACKAGETYPE_UFBGA169         0x00000007U /*!< UFBGA169 package type                               */
-#define LL_UTILS_PACKAGETYPE_LQFP64_SMPS      0x00000008U /*!< LQFP64 with internal SMPS package type              */
-#define LL_UTILS_PACKAGETYPE_WLSCP90_SMPS     0x00000009U /*!< WLSCP90 with internal SMPS package type             */
-#define LL_UTILS_PACKAGETYPE_LQFP100_SMPS     0x0000000AU /*!< LQFP100 with internal SMPS package type             */
-#define LL_UTILS_PACKAGETYPE_UFBGA132_SMPS    0x0000000BU /*!< UFBGA132 with internal SMPS package type            */
-#define LL_UTILS_PACKAGETYPE_LQFP144_SMPS     0x0000000CU /*!< LQFP144 with internal SMPS package type             */
-#define LL_UTILS_PACKAGETYPE_LQFP48_SMPS      0x0000000DU /*!< LQFP48 with internal SMPS package type              */
-#define LL_UTILS_PACKAGETYPE_UFBGA169_SMPS    0x0000000FU /*!< UFBGA169 with internal SMPS package type            */
+#define LL_UTILS_PACKAGETYPE_LQFP64           0x00000000U /*!< LQFP64 package type                                        */
+#define LL_UTILS_PACKAGETYPE_LQFP100          0x00000002U /*!< LQFP100 package type                                       */
+#define LL_UTILS_PACKAGETYPE_UFBGA132         0x00000003U /*!< UFBGA132 package type                                      */
+#define LL_UTILS_PACKAGETYPE_LQFP144          0x00000004U /*!< LQFP144 package type                                       */
+#define LL_UTILS_PACKAGETYPE_LQFP48           0x00000005U /*!< LQFP48 package type                                        */
+#define LL_UTILS_PACKAGETYPE_UFBGA169         0x00000007U /*!< UFBGA169 package type                                      */
+#define LL_UTILS_PACKAGETYPE_LQFP64_SMPS      0x00000008U /*!< LQFP64 with internal SMPS package type                     */
+#define LL_UTILS_PACKAGETYPE_WLSCP90_SMPS     0x00000009U /*!< WLSCP90 with internal SMPS package type                    */
+#define LL_UTILS_PACKAGETYPE_LQFP100_SMPS     0x0000000AU /*!< LQFP100 with internal SMPS package type                    */
+#define LL_UTILS_PACKAGETYPE_UFBGA132_SMPS    0x0000000BU /*!< UFBGA132 with internal SMPS package type                   */
+#define LL_UTILS_PACKAGETYPE_LQFP144_SMPS     0x0000000CU /*!< LQFP144 with internal SMPS package type                    */
+#define LL_UTILS_PACKAGETYPE_LQFP48_SMPS      0x0000000DU /*!< LQFP48 with internal SMPS package type                     */
+#define LL_UTILS_PACKAGETYPE_UFBGA169_SMPS    0x0000000FU /*!< UFBGA169 with internal SMPS package type                   */
+#define LL_UTILS_PACKAGETYPE_WLCSP144         0x00000010U /*!< WLCSP144 package type                                      */
+#define LL_UTILS_PACKAGETYPE_UFBGA144         0x00000011U /*!< UFBGA144 package type                                      */
+#define LL_UTILS_PACKAGETYPE_WLCSP144_SMPS    0x00000018U /*!< WLCSP144 with internal SMPS package t                      */
+#define LL_UTILS_PACKAGETYPE_UFBGA144_SMPS    0x00000019U /*!< UFBGA144 with internal SMPS package type                   */
+#define LL_UTILS_PACKAGETYPE_WLCSP208_SMPS    0x0000001BU /*!< WLCSP208 with internal SMPS package type                   */
+#define LL_UTILS_PACKAGETYPE_TFBGA216_SMPS    0x0000001CU /*!< TFBGA216 with internal SMPS package type                   */
+#define LL_UTILS_PACKAGETYPE_UFBGA100_SMPS    0x0000001DU /*!< UFBGA100 with internal SMPS package type                   */
+#define LL_UTILS_PACKAGETYPE_WLCSP56_SMPS     0x0000001EU /*!< WLCSP56  with internal SMPS package type                   */
+#define LL_UTILS_PACKAGETYPE_WLCSP150_SMPS    0x0000001FU /*!< WLCSP150 or WLCSP150 DSI with internal  package type       */
+
 /**
   * @}
   */
@@ -250,6 +260,12 @@ __STATIC_INLINE uint32_t LL_GetFlashSize(void)
   *         @arg @ref LL_UTILS_PACKAGETYPE_LQFP144_SMPS
   *         @arg @ref LL_UTILS_PACKAGETYPE_LQFP48_SMPS
   *         @arg @ref LL_UTILS_PACKAGETYPE_UFBGA169_SMPS
+  *         @arg @ref LL_UTILS_PACKAGETYPE_WLCSP144
+  *         @arg @ref LL_UTILS_PACKAGETYPE_UFBGA144
+  *         @arg @ref LL_UTILS_PACKAGETYPE_WLCSP144_SMPS
+  *         @arg @ref LL_UTILS_PACKAGETYPE_UFBGA144_SMPS
+  *         @arg @ref LL_UTILS_PACKAGETYPE_WLCSP208_SMPS
+  *         @arg @ref LL_UTILS_PACKAGETYPE_TFBGA216_SMPS
   */
 __STATIC_INLINE uint32_t LL_GetPackageType(void)
 {
@@ -304,12 +320,12 @@ void        LL_mDelay(uint32_t Delay);
 
 void        LL_SetSystemCoreClock(uint32_t HCLKFrequency);
 ErrorStatus LL_PLL_ConfigSystemClock_MSI(LL_UTILS_PLLInitTypeDef *UTILS_PLLInitStruct,
-                                          LL_UTILS_ClkInitTypeDef *UTILS_ClkInitStruct);
+                                         LL_UTILS_ClkInitTypeDef *UTILS_ClkInitStruct);
 ErrorStatus LL_PLL_ConfigSystemClock_HSI(LL_UTILS_PLLInitTypeDef *UTILS_PLLInitStruct,
-                                          LL_UTILS_ClkInitTypeDef *UTILS_ClkInitStruct);
+                                         LL_UTILS_ClkInitTypeDef *UTILS_ClkInitStruct);
 ErrorStatus LL_PLL_ConfigSystemClock_HSE(uint32_t HSEFrequency, uint32_t HSEBypass,
-                                          LL_UTILS_PLLInitTypeDef *UTILS_PLLInitStruct,
-                                          LL_UTILS_ClkInitTypeDef *UTILS_ClkInitStruct);
+                                         LL_UTILS_PLLInitTypeDef *UTILS_PLLInitStruct,
+                                         LL_UTILS_ClkInitTypeDef *UTILS_ClkInitStruct);
 ErrorStatus LL_SetFlashLatency(uint32_t HCLK_Frequency);
 /**
   * @}

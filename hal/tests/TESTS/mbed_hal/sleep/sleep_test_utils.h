@@ -78,7 +78,7 @@ bool compare_timestamps(unsigned int delta_ticks, unsigned int ticker_width, uns
             return false;
         }
     } else {
-        if ((actual >= lower_bound && actual <= counter_mask) || (actual >= 0 && actual <= upper_bound)) {
+        if ((actual >= lower_bound && actual <= counter_mask) || (actual <= upper_bound)) {
             return true;
         } else {
             return false;

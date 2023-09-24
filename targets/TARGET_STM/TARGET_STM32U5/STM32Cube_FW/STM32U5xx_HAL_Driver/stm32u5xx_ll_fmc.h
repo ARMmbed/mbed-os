@@ -479,11 +479,13 @@ typedef struct
   * @}
   */
 
+#if defined(FMC_BCR1_WFDIS)
 /** @defgroup FMC_Write_FIFO FMC Write FIFO
   * @{
   */
 #define FMC_WRITE_FIFO_DISABLE                  FMC_BCR1_WFDIS
 #define FMC_WRITE_FIFO_ENABLE                   (0x00000000U)
+#endif /* FMC_BCR1_WFDIS */
 /**
   * @}
   */
@@ -828,4 +830,3 @@ HAL_StatusTypeDef  FMC_NAND_GetECC(FMC_NAND_TypeDef *Device, uint32_t *ECCval, u
 #endif
 
 #endif /* STM32U5xx_LL_FMC_H */
-

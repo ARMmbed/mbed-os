@@ -90,7 +90,7 @@
   *          - SUCCESS: LPTIMx registers are de-initialized
   *          - ERROR: invalid LPTIMx instance
   */
-ErrorStatus LL_LPTIM_DeInit(LPTIM_TypeDef *LPTIMx)
+ErrorStatus LL_LPTIM_DeInit(const LPTIM_TypeDef *LPTIMx)
 {
   ErrorStatus result = SUCCESS;
 
@@ -149,7 +149,7 @@ void LL_LPTIM_StructInit(LL_LPTIM_InitTypeDef *LPTIM_InitStruct)
   *          - SUCCESS: LPTIMx instance has been initialized
   *          - ERROR: LPTIMx instance hasn't been initialized
   */
-ErrorStatus LL_LPTIM_Init(LPTIM_TypeDef *LPTIMx, LL_LPTIM_InitTypeDef *LPTIM_InitStruct)
+ErrorStatus LL_LPTIM_Init(LPTIM_TypeDef *LPTIMx, const LL_LPTIM_InitTypeDef *LPTIM_InitStruct)
 {
   ErrorStatus result = SUCCESS;
   /* Check the parameters */

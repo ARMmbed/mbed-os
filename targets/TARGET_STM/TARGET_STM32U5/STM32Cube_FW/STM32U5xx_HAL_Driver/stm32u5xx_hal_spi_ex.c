@@ -72,7 +72,7 @@
   *               the configuration information for the specified SPI module.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_SPIEx_FlushRxFifo(SPI_HandleTypeDef *hspi)
+HAL_StatusTypeDef HAL_SPIEx_FlushRxFifo(const SPI_HandleTypeDef *hspi)
 {
   uint8_t  count  = 0;
   uint32_t itflag = hspi->Instance->SR;
@@ -217,7 +217,8 @@ HAL_StatusTypeDef HAL_SPIEx_ConfigureUnderrun(SPI_HandleTypeDef *hspi, uint32_t 
   *                the configuration information of the autonomous mode for the specified SPIx peripheral.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_SPIEx_SetConfigAutonomousMode(SPI_HandleTypeDef *hspi, SPI_AutonomousModeConfTypeDef *sConfig)
+HAL_StatusTypeDef HAL_SPIEx_SetConfigAutonomousMode(SPI_HandleTypeDef *hspi,
+                                                    const SPI_AutonomousModeConfTypeDef *sConfig)
 {
   if (hspi->State == HAL_SPI_STATE_READY)
   {
@@ -227,8 +228,8 @@ HAL_StatusTypeDef HAL_SPIEx_SetConfigAutonomousMode(SPI_HandleTypeDef *hspi, SPI
     hspi->State = HAL_SPI_STATE_BUSY;
 
     /* Check the parameters */
+    assert_param(IS_SPI_AUTONOMOUS_INSTANCE(hspi->Instance));
     assert_param(IS_SPI_TRIG_SOURCE(hspi->Instance, sConfig->TriggerSelection));
-
     assert_param(IS_SPI_AUTO_MODE_TRG_POL(sConfig->TriggerPolarity));
 
     /* Disable the selected SPI peripheral to be able to configure AUTOCR */
@@ -259,13 +260,18 @@ HAL_StatusTypeDef HAL_SPIEx_SetConfigAutonomousMode(SPI_HandleTypeDef *hspi, SPI
   *                the configuration information of the autonomous mode for the specified SPIx peripheral.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_SPIEx_GetConfigAutonomousMode(SPI_HandleTypeDef *hspi, SPI_AutonomousModeConfTypeDef *sConfig)
+HAL_StatusTypeDef HAL_SPIEx_GetConfigAutonomousMode(const SPI_HandleTypeDef *hspi,
+                                                    SPI_AutonomousModeConfTypeDef *sConfig)
 {
   uint32_t autocr_tmp;
+
+  /* Check the parameters */
+  assert_param(IS_SPI_AUTONOMOUS_INSTANCE(hspi->Instance));
 
   autocr_tmp = hspi->Instance->AUTOCR;
 
   sConfig->TriggerState     = (autocr_tmp & SPI_AUTOCR_TRIGEN);
+#if defined(SPI_TRIG_GRP2)
   if (IS_SPI_GRP2_INSTANCE(hspi->Instance))
   {
     sConfig->TriggerSelection = ((autocr_tmp & SPI_AUTOCR_TRIGSEL) | SPI_TRIG_GRP2);
@@ -274,6 +280,9 @@ HAL_StatusTypeDef HAL_SPIEx_GetConfigAutonomousMode(SPI_HandleTypeDef *hspi, SPI
   {
     sConfig->TriggerSelection = ((autocr_tmp & SPI_AUTOCR_TRIGSEL) | SPI_TRIG_GRP1);
   }
+#else
+  sConfig->TriggerSelection = ((autocr_tmp & SPI_AUTOCR_TRIGSEL) | SPI_TRIG_GRP1);
+#endif /* SPI_TRIG_GRP2 */
   sConfig->TriggerPolarity  = (autocr_tmp & SPI_AUTOCR_TRIGPOL);
 
   return HAL_OK;
@@ -293,6 +302,9 @@ HAL_StatusTypeDef HAL_SPIEx_ClearConfigAutonomousMode(SPI_HandleTypeDef *hspi)
     __HAL_LOCK(hspi);
 
     hspi->State = HAL_SPI_STATE_BUSY;
+
+    /* Check the parameters */
+    assert_param(IS_SPI_AUTONOMOUS_INSTANCE(hspi->Instance));
 
     /* Disable the selected SPI peripheral to be able to clear AUTOCR */
     __HAL_SPI_DISABLE(hspi);

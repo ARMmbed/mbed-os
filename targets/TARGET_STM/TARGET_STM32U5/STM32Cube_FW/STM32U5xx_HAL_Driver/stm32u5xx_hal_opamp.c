@@ -118,7 +118,7 @@
            and a pointer to the user callback function.
 
       (++) Use function @ref HAL_OPAMP_UnRegisterCallback() to reset a callback to the default
-           weak (surcharged) function. It allows to reset following callbacks:
+           weak (overridden) function. It allows to reset following callbacks:
       (+++) MspInitCallback         : OPAMP MspInit.
       (+++) MspDeInitCallback       : OPAMP MspdeInit.
       (+++) All Callbacks
@@ -904,10 +904,11 @@ HAL_StatusTypeDef HAL_OPAMP_Lock(OPAMP_HandleTypeDef *hopamp)
   *
   */
 
-HAL_OPAMP_TrimmingValueTypeDef HAL_OPAMP_GetTrimOffset(OPAMP_HandleTypeDef *hopamp, uint32_t trimmingoffset)
+HAL_OPAMP_TrimmingValueTypeDef HAL_OPAMP_GetTrimOffset(const OPAMP_HandleTypeDef *hopamp, uint32_t trimmingoffset)
 {
   HAL_OPAMP_TrimmingValueTypeDef trimmingvalue;
-  __IO uint32_t *tmp_opamp_reg_trimming;  /* Selection of register of trimming depending on power mode: OTR or LPOTR */
+  __IO const uint32_t *tmp_opamp_reg_trimming;  /* Selection of register of trimming depending on power mode: OTR or
+  LPOTR */
 
   /* Check the OPAMP handle allocation */
   /* Value can be retrieved in HAL_OPAMP_STATE_READY state */
@@ -941,11 +942,11 @@ HAL_OPAMP_TrimmingValueTypeDef HAL_OPAMP_GetTrimOffset(OPAMP_HandleTypeDef *hopa
       if ((hopamp->Init.PowerMode == OPAMP_POWERMODE_NORMALPOWER_NORMALSPEED) || \
           (hopamp->Init.PowerMode == OPAMP_POWERMODE_NORMALPOWER_HIGHSPEED))
       {
-        tmp_opamp_reg_trimming = &OPAMP->OTR;
+        tmp_opamp_reg_trimming = &(hopamp->Instance->OTR);
       }
       else
       {
-        tmp_opamp_reg_trimming = &OPAMP->LPOTR;
+        tmp_opamp_reg_trimming = &(hopamp->Instance->LPOTR);
       }
 
       /* Get factory trimming  */
@@ -992,7 +993,7 @@ HAL_OPAMP_TrimmingValueTypeDef HAL_OPAMP_GetTrimOffset(OPAMP_HandleTypeDef *hopa
   * @param  hopamp : OPAMP handle
   * @retval HAL state
   */
-HAL_OPAMP_StateTypeDef HAL_OPAMP_GetState(OPAMP_HandleTypeDef *hopamp)
+HAL_OPAMP_StateTypeDef HAL_OPAMP_GetState(const OPAMP_HandleTypeDef *hopamp)
 {
   /* Check the OPAMP handle allocation */
   if (hopamp == NULL)
@@ -1028,7 +1029,7 @@ HAL_OPAMP_StateTypeDef HAL_OPAMP_GetState(OPAMP_HandleTypeDef *hopamp)
 #if (USE_HAL_OPAMP_REGISTER_CALLBACKS == 1)
 /**
   * @brief  Register a User OPAMP Callback
-  *         To be used instead of the weak (surcharged) predefined callback
+  *         To be used instead of the weak (overridden) predefined callback
   * @param hopamp : OPAMP handle
   * @param CallbackID : ID of the callback to be registered
   *        This parameter can be one of the following values:
@@ -1095,7 +1096,7 @@ HAL_StatusTypeDef HAL_OPAMP_RegisterCallback(OPAMP_HandleTypeDef *hopamp, HAL_OP
 
 /**
   * @brief  Unregister a User OPAMP Callback
-  *         OPAMP Callback is redirected to the weak (surcharged) predefined callback
+  *         OPAMP Callback is redirected to the weak (overridden) predefined callback
   * @param hopamp : OPAMP handle
   * @param CallbackID : ID of the callback to be unregistered
   *        This parameter can be one of the following values:

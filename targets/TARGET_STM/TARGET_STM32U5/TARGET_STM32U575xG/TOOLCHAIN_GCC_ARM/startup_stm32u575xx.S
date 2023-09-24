@@ -12,18 +12,17 @@
   *                  calls main()).
   *            After Reset the Cortex-M33 processor is in Thread mode,
   *            priority is Privileged, and the Stack is set to Main.
-  ******************************************************************************
+  *******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2021 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
-  ******************************************************************************
+  *******************************************************************************
   */
 
   .syntax unified
@@ -61,6 +60,8 @@ defined in linker script */
 	.type	Reset_Handler, %function
 Reset_Handler:
   ldr   sp, =_estack    /* set stack pointer */
+/* Call the clock system initialization function.*/
+  bl  SystemInit
 
 /* Copy the data segment initializers from flash to SRAM */
   movs	r1, #0
@@ -90,8 +91,6 @@ LoopFillZerobss:
 	cmp	r2, r3
 	bcc	FillZerobss
 
-/* Call the clock system initialization function.*/
-    bl  SystemInit
 	bl _start
 	bx lr
 
@@ -143,7 +142,7 @@ g_pfnVectors:
 	.word	PendSV_Handler
 	.word	SysTick_Handler
 	.word	WWDG_IRQHandler
-	.word	PVD_AVD_IRQHandler
+	.word	PVD_PVM_IRQHandler
 	.word	RTC_IRQHandler
 	.word	RTC_S_IRQHandler
 	.word	TAMP_IRQHandler
@@ -267,6 +266,7 @@ g_pfnVectors:
 	.word	MDF1_FLT5_IRQHandler
 	.word	CORDIC_IRQHandler
 	.word	FMAC_IRQHandler
+	.word	LSECSSD_IRQHandler
 
 
 /*******************************************************************************
@@ -310,8 +310,8 @@ g_pfnVectors:
 	.weak	WWDG_IRQHandler
 	.thumb_set WWDG_IRQHandler,Default_Handler
 
-	.weak	PVD_AVD_IRQHandler
-	.thumb_set PVD_AVD_IRQHandler,Default_Handler
+	.weak	PVD_PVM_IRQHandler
+	.thumb_set PVD_PVM_IRQHandler,Default_Handler
 
 	.weak	RTC_IRQHandler
 	.thumb_set RTC_IRQHandler,Default_Handler
@@ -534,13 +534,13 @@ g_pfnVectors:
 
 	.weak	OCTOSPI1_IRQHandler
 	.thumb_set OCTOSPI1_IRQHandler,Default_Handler
-	
+
 	.weak	PWR_S3WU_IRQHandler
 	.thumb_set PWR_S3WU_IRQHandler,Default_Handler
 
 	.weak	SDMMC1_IRQHandler
 	.thumb_set SDMMC1_IRQHandler,Default_Handler
-	
+
 	.weak	SDMMC2_IRQHandler
 	.thumb_set SDMMC2_IRQHandler,Default_Handler
 
@@ -621,50 +621,53 @@ g_pfnVectors:
 
 	.weak	ICACHE_IRQHandler
 	.thumb_set ICACHE_IRQHandler,Default_Handler
-	
+
 	.weak	LPTIM4_IRQHandler
 	.thumb_set LPTIM4_IRQHandler,Default_Handler
-	
+
 	.weak	DCACHE1_IRQHandler
 	.thumb_set DCACHE1_IRQHandler,Default_Handler
-	
+
 	.weak	ADF1_IRQHandler
 	.thumb_set ADF1_IRQHandler,Default_Handler
-	
+
 	.weak	ADC4_IRQHandler
 	.thumb_set ADC4_IRQHandler,Default_Handler
-	
+
 	.weak	LPDMA1_Channel0_IRQHandler
 	.thumb_set LPDMA1_Channel0_IRQHandler,Default_Handler
-	
+
 	.weak	LPDMA1_Channel1_IRQHandler
 	.thumb_set LPDMA1_Channel1_IRQHandler,Default_Handler
-	
+
 	.weak	LPDMA1_Channel2_IRQHandler
 	.thumb_set LPDMA1_Channel2_IRQHandler,Default_Handler
-	
+
 	.weak	LPDMA1_Channel3_IRQHandler
 	.thumb_set LPDMA1_Channel3_IRQHandler,Default_Handler
-	
+
 	.weak	DMA2D_IRQHandler
 	.thumb_set DMA2D_IRQHandler,Default_Handler
-	
+
 	.weak	DCMI_PSSI_IRQHandler
 	.thumb_set DCMI_PSSI_IRQHandler,Default_Handler
-	
+
 	.weak	OCTOSPI2_IRQHandler
 	.thumb_set OCTOSPI2_IRQHandler,Default_Handler
-	
+
 	.weak	MDF1_FLT4_IRQHandler
 	.thumb_set MDF1_FLT4_IRQHandler,Default_Handler
-	
+
 	.weak	MDF1_FLT5_IRQHandler
 	.thumb_set MDF1_FLT5_IRQHandler,Default_Handler
-	
+
 	.weak	CORDIC_IRQHandler
 	.thumb_set CORDIC_IRQHandler,Default_Handler
-	
+
 	.weak	FMAC_IRQHandler
 	.thumb_set FMAC_IRQHandler,Default_Handler
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+	.weak	LSECSSD_IRQHandler
+	.thumb_set LSECSSD_IRQHandler,Default_Handler
+
+

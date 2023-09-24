@@ -75,25 +75,25 @@
       The compilation define  USE_HAL_SRAM_REGISTER_CALLBACKS when set to 1
       allows the user to configure dynamically the driver callbacks.
 
-      Use Functions @ref HAL_SRAM_RegisterCallback() to register a user callback,
+      Use Functions HAL_SRAM_RegisterCallback() to register a user callback,
       it allows to register following callbacks:
         (+) MspInitCallback    : SRAM MspInit.
         (+) MspDeInitCallback  : SRAM MspDeInit.
       This function takes as parameters the HAL peripheral handle, the Callback ID
       and a pointer to the user callback function.
 
-      Use function @ref HAL_SRAM_UnRegisterCallback() to reset a callback to the default
+      Use function HAL_SRAM_UnRegisterCallback() to reset a callback to the default
       weak (surcharged) function. It allows to reset following callbacks:
         (+) MspInitCallback    : SRAM MspInit.
         (+) MspDeInitCallback  : SRAM MspDeInit.
       This function) takes as parameters the HAL peripheral handle and the Callback ID.
 
-      By default, after the @ref HAL_SRAM_Init and if the state is HAL_SRAM_STATE_RESET
+      By default, after the HAL_SRAM_Init and if the state is HAL_SRAM_STATE_RESET
       all callbacks are reset to the corresponding legacy weak (surcharged) functions.
       Exception done for MspInit and MspDeInit callbacks that are respectively
-      reset to the legacy weak (surcharged) functions in the @ref HAL_SRAM_Init
-      and @ref  HAL_SRAM_DeInit only when these callbacks are null (not registered beforehand).
-      If not, MspInit or MspDeInit are not null, the @ref HAL_SRAM_Init and @ref HAL_SRAM_DeInit
+      reset to the legacy weak (surcharged) functions in the HAL_SRAM_Init
+      and  HAL_SRAM_DeInit only when these callbacks are null (not registered beforehand).
+      If not, MspInit or MspDeInit are not null, the HAL_SRAM_Init and HAL_SRAM_DeInit
       keep and use the user MspInit/MspDeInit callbacks (registered beforehand)
 
       Callbacks can be registered/unregistered in READY state only.
@@ -101,8 +101,8 @@
       in READY or RESET state, thus registered (user) MspInit/DeInit callbacks can be used
       during the Init/DeInit.
       In that case first register the MspInit/MspDeInit user callbacks
-      using @ref HAL_SRAM_RegisterCallback before calling @ref HAL_SRAM_DeInit
-      or @ref HAL_SRAM_Init function.
+      using HAL_SRAM_RegisterCallback before calling HAL_SRAM_DeInit
+      or HAL_SRAM_Init function.
 
       When The compilation define USE_HAL_SRAM_REGISTER_CALLBACKS is set to 0 or
       not defined, the callback registering feature is not available
@@ -132,9 +132,15 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
+/** @addtogroup SRAM_Private_Functions SRAM Private Functions
+  * @{
+  */
 static void SRAM_DMACplt(DMA_HandleTypeDef *hdma);
 static void SRAM_DMACpltProt(DMA_HandleTypeDef *hdma);
 static void SRAM_DMAError(DMA_HandleTypeDef *hdma);
+/**
+  * @}
+  */
 
 /* Exported functions --------------------------------------------------------*/
 
@@ -1141,7 +1147,7 @@ HAL_StatusTypeDef HAL_SRAM_WriteOperation_Disable(SRAM_HandleTypeDef *hsram)
   *                the configuration information for SRAM module.
   * @retval HAL state
   */
-HAL_SRAM_StateTypeDef HAL_SRAM_GetState(SRAM_HandleTypeDef *hsram)
+HAL_SRAM_StateTypeDef HAL_SRAM_GetState(const SRAM_HandleTypeDef *hsram)
 {
   return hsram->State;
 }
@@ -1152,6 +1158,10 @@ HAL_SRAM_StateTypeDef HAL_SRAM_GetState(SRAM_HandleTypeDef *hsram)
 
 /**
   * @}
+  */
+
+/** @addtogroup SRAM_Private_Functions SRAM Private Functions
+  * @{
   */
 
 /**
@@ -1224,10 +1234,13 @@ static void SRAM_DMAError(DMA_HandleTypeDef *hdma)
   * @}
   */
 
+/**
+  * @}
+  */
+
 #endif /* HAL_SRAM_MODULE_ENABLED */
 
 /**
   * @}
   */
-
 

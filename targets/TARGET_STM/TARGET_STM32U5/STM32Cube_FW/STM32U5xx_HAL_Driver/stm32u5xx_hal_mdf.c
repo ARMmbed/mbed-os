@@ -237,7 +237,11 @@
 /** @defgroup MDF_Private_Constants  MDF Private Constants
   * @{
   */
+#if defined(STM32U535xx) || defined(STM32U545xx)
+#define MDF_INSTANCE_NUMBER 3U /* 2 instances for MDF1 and 1 instance for ADF1 */
+#else /* defined(STM32U535xx) || defined(STM32U545xx) */
 #define MDF_INSTANCE_NUMBER 7U /* 6 instances for MDF1 and 1 instance for ADF1 */
+#endif /* defined(STM32U535xx) || defined(STM32U545xx) */
 /**
   * @}
   */
@@ -913,7 +917,7 @@ HAL_StatusTypeDef HAL_MDF_UnRegisterSndLvlCallback(MDF_HandleTypeDef *hmdf)
   * @param  pFilterConfig Filter configuration parameters.
   * @retval HAL status.
   */
-HAL_StatusTypeDef HAL_MDF_AcqStart(MDF_HandleTypeDef *hmdf, MDF_FilterConfigTypeDef *pFilterConfig)
+HAL_StatusTypeDef HAL_MDF_AcqStart(MDF_HandleTypeDef *hmdf, const MDF_FilterConfigTypeDef *pFilterConfig)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
@@ -1135,7 +1139,7 @@ HAL_StatusTypeDef HAL_MDF_PollForSnapshotAcq(MDF_HandleTypeDef *hmdf, uint32_t T
   * @param  pValue Acquisition value on 24 MSB.
   * @retval HAL status.
   */
-HAL_StatusTypeDef HAL_MDF_GetAcqValue(MDF_HandleTypeDef *hmdf, int32_t *pValue)
+HAL_StatusTypeDef HAL_MDF_GetAcqValue(const MDF_HandleTypeDef *hmdf, int32_t *pValue)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
@@ -1290,7 +1294,7 @@ HAL_StatusTypeDef HAL_MDF_AcqStop(MDF_HandleTypeDef *hmdf)
   * @param  pFilterConfig Filter configuration parameters.
   * @retval HAL status.
   */
-HAL_StatusTypeDef HAL_MDF_AcqStart_IT(MDF_HandleTypeDef *hmdf, MDF_FilterConfigTypeDef *pFilterConfig)
+HAL_StatusTypeDef HAL_MDF_AcqStart_IT(MDF_HandleTypeDef *hmdf, const MDF_FilterConfigTypeDef *pFilterConfig)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
@@ -1470,8 +1474,8 @@ HAL_StatusTypeDef HAL_MDF_AcqStop_IT(MDF_HandleTypeDef *hmdf)
   * @param  pDmaConfig DMA configuration parameters.
   * @retval HAL status.
   */
-HAL_StatusTypeDef HAL_MDF_AcqStart_DMA(MDF_HandleTypeDef *hmdf, MDF_FilterConfigTypeDef *pFilterConfig,
-                                       MDF_DmaConfigTypeDef *pDmaConfig)
+HAL_StatusTypeDef HAL_MDF_AcqStart_DMA(MDF_HandleTypeDef *hmdf, const MDF_FilterConfigTypeDef *pFilterConfig,
+                                       const MDF_DmaConfigTypeDef *pDmaConfig)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
@@ -1686,7 +1690,7 @@ HAL_StatusTypeDef HAL_MDF_AcqStop_DMA(MDF_HandleTypeDef *hmdf)
   * @param  hmdf MDF handle.
   * @retval HAL status.
   */
-HAL_StatusTypeDef HAL_MDF_GenerateTrgo(MDF_HandleTypeDef *hmdf)
+HAL_StatusTypeDef HAL_MDF_GenerateTrgo(const MDF_HandleTypeDef *hmdf)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
@@ -1766,7 +1770,7 @@ HAL_StatusTypeDef HAL_MDF_SetDelay(MDF_HandleTypeDef *hmdf, uint32_t Delay)
   *         This value is between Min_Data = 0 and Max_Data = 127.
   * @retval HAL status.
   */
-HAL_StatusTypeDef HAL_MDF_GetDelay(MDF_HandleTypeDef *hmdf, uint32_t *pDelay)
+HAL_StatusTypeDef HAL_MDF_GetDelay(const MDF_HandleTypeDef *hmdf, uint32_t *pDelay)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
@@ -1843,7 +1847,7 @@ HAL_StatusTypeDef HAL_MDF_SetGain(MDF_HandleTypeDef *hmdf, int32_t Gain)
   *         This parameter is between Min_Data = -16 and Max_Data = 24.
   * @retval HAL status.
   */
-HAL_StatusTypeDef HAL_MDF_GetGain(MDF_HandleTypeDef *hmdf, int32_t *pGain)
+HAL_StatusTypeDef HAL_MDF_GetGain(const MDF_HandleTypeDef *hmdf, int32_t *pGain)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
@@ -1919,7 +1923,7 @@ HAL_StatusTypeDef HAL_MDF_SetOffset(MDF_HandleTypeDef *hmdf, int32_t Offset)
   * @retval HAL status.
   * @note   This function must not be used with ADF instance.
   */
-HAL_StatusTypeDef HAL_MDF_GetOffset(MDF_HandleTypeDef *hmdf, int32_t *pOffset)
+HAL_StatusTypeDef HAL_MDF_GetOffset(const MDF_HandleTypeDef *hmdf, int32_t *pOffset)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
@@ -2346,7 +2350,7 @@ HAL_StatusTypeDef HAL_MDF_CkabStop_IT(MDF_HandleTypeDef *hmdf)
   * @retval HAL status.
   * @note   This function must not be used with ADF instance.
   */
-HAL_StatusTypeDef HAL_MDF_ScdStart(MDF_HandleTypeDef *hmdf, MDF_ScdConfigTypeDef *pScdConfig)
+HAL_StatusTypeDef HAL_MDF_ScdStart(MDF_HandleTypeDef *hmdf, const MDF_ScdConfigTypeDef *pScdConfig)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
@@ -2502,7 +2506,7 @@ HAL_StatusTypeDef HAL_MDF_ScdStop(MDF_HandleTypeDef *hmdf)
   * @retval HAL status.
   * @note   This function must not be used with ADF instance.
   */
-HAL_StatusTypeDef HAL_MDF_ScdStart_IT(MDF_HandleTypeDef *hmdf, MDF_ScdConfigTypeDef *pScdConfig)
+HAL_StatusTypeDef HAL_MDF_ScdStart_IT(MDF_HandleTypeDef *hmdf, const MDF_ScdConfigTypeDef *pScdConfig)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
@@ -2624,7 +2628,7 @@ HAL_StatusTypeDef HAL_MDF_ScdStop_IT(MDF_HandleTypeDef *hmdf)
   * @retval HAL status.
   * @note   This function must not be used with ADF instance.
   */
-HAL_StatusTypeDef HAL_MDF_OldStart(MDF_HandleTypeDef *hmdf, MDF_OldConfigTypeDef *pOldConfig)
+HAL_StatusTypeDef HAL_MDF_OldStart(MDF_HandleTypeDef *hmdf, const MDF_OldConfigTypeDef *pOldConfig)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
@@ -2835,7 +2839,7 @@ HAL_StatusTypeDef HAL_MDF_OldStop(MDF_HandleTypeDef *hmdf)
   * @retval HAL status.
   * @note   This function must not be used with ADF instance.
   */
-HAL_StatusTypeDef HAL_MDF_OldStart_IT(MDF_HandleTypeDef *hmdf, MDF_OldConfigTypeDef *pOldConfig)
+HAL_StatusTypeDef HAL_MDF_OldStart_IT(MDF_HandleTypeDef *hmdf, const MDF_OldConfigTypeDef *pOldConfig)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
@@ -3233,7 +3237,7 @@ __weak void HAL_MDF_ErrorCallback(MDF_HandleTypeDef *hmdf)
   * @param  hmdf MDF handle.
   * @retval MDF state.
   */
-HAL_MDF_StateTypeDef HAL_MDF_GetState(MDF_HandleTypeDef *hmdf)
+HAL_MDF_StateTypeDef HAL_MDF_GetState(const MDF_HandleTypeDef *hmdf)
 {
   /* Return MDF state */
   return hmdf->State;
@@ -3244,7 +3248,7 @@ HAL_MDF_StateTypeDef HAL_MDF_GetState(MDF_HandleTypeDef *hmdf)
   * @param  hmdf MDF handle.
   * @retval MDF error code.
   */
-uint32_t HAL_MDF_GetError(MDF_HandleTypeDef *hmdf)
+uint32_t HAL_MDF_GetError(const MDF_HandleTypeDef *hmdf)
 {
   /* Return MDF error code */
   return hmdf->ErrorCode;
@@ -3281,6 +3285,7 @@ static uint32_t MDF_GetHandleNumberFromInstance(const MDF_Filter_TypeDef *const 
   {
     handle_number = 1U;
   }
+#if !defined(STM32U535xx) && !defined(STM32U545xx)
   else if (pInstance == MDF1_Filter2)
   {
     handle_number = 2U;
@@ -3301,6 +3306,12 @@ static uint32_t MDF_GetHandleNumberFromInstance(const MDF_Filter_TypeDef *const 
   {
     handle_number = 6U;
   }
+#else /* !defined(STM32U535xx) && !defined(STM32U545xx) */
+  else /* ADF1_Filter0 */
+  {
+    handle_number = 2U;
+  }
+#endif /* !defined(STM32U535xx) && !defined(STM32U545xx) */
 
   return handle_number;
 }

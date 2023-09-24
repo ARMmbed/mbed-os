@@ -121,6 +121,10 @@ typedef struct
   uint32_t             RedBlueSwap;       /*!< Select regular mode (RGB or ARGB) or swap mode (BGR or ABGR).
                                                This parameter can be one value of @ref DMA2D_RB_Swap. */
 
+#if defined(DMA2D_FGPFCCR_CSS)
+  uint32_t             ChromaSubSampling; /*!< Configure the chroma sub-sampling mode for the YCbCr color mode
+                                               This parameter can be one value of @ref DMA2D_Chroma_Sub_Sampling */
+#endif /* DMA2D_FGPFCCR_CSS  */
 
 } DMA2D_LayerCfgTypeDef;
 
@@ -240,6 +244,9 @@ typedef void (*pDMA2D_CallbackTypeDef)(DMA2D_HandleTypeDef *hdma2d); /*!< Pointe
 #define DMA2D_INPUT_L4              0x00000008U  /*!< L4 color mode       */
 #define DMA2D_INPUT_A8              0x00000009U  /*!< A8 color mode       */
 #define DMA2D_INPUT_A4              0x0000000AU  /*!< A4 color mode       */
+#if defined(DMA2D_FGPFCCR_CSS)
+#define DMA2D_INPUT_YCBCR           0x0000000BU  /*!< YCbCr color mode */
+#endif /* DMA2D_FGPFCCR_CSS */
 /**
   * @}
   */
@@ -293,6 +300,17 @@ typedef void (*pDMA2D_CallbackTypeDef)(DMA2D_HandleTypeDef *hdma2d); /*!< Pointe
   * @}
   */
 
+#if defined(DMA2D_FGPFCCR_CSS)
+/** @defgroup DMA2D_Chroma_Sub_Sampling DMA2D Chroma Sub Sampling
+  * @{
+  */
+#define DMA2D_NO_CSS               0x00000000U  /*!< No chroma sub-sampling 4:4:4 */
+#define DMA2D_CSS_422              0x00000001U  /*!< chroma sub-sampling 4:2:2 */
+#define DMA2D_CSS_420              0x00000002U  /*!< chroma sub-sampling 4:2:0 */
+/**
+  * @}
+  */
+#endif /* DMA2D_FGPFCCR_CSS */
 
 /** @defgroup DMA2D_CLUT_CM DMA2D CLUT Color Mode
   * @{
@@ -538,8 +556,8 @@ HAL_StatusTypeDef HAL_DMA2D_ConfigDeadTime(DMA2D_HandleTypeDef *hdma2d, uint8_t 
   */
 
 /* Peripheral State functions ***************************************************/
-HAL_DMA2D_StateTypeDef HAL_DMA2D_GetState(DMA2D_HandleTypeDef *hdma2d);
-uint32_t               HAL_DMA2D_GetError(DMA2D_HandleTypeDef *hdma2d);
+HAL_DMA2D_StateTypeDef HAL_DMA2D_GetState(const DMA2D_HandleTypeDef *hdma2d);
+uint32_t               HAL_DMA2D_GetError(const DMA2D_HandleTypeDef *hdma2d);
 
 /**
   * @}
@@ -640,6 +658,20 @@ uint32_t               HAL_DMA2D_GetError(DMA2D_HandleTypeDef *hdma2d);
 #define IS_DMA2D_PIXEL(PIXEL)                 ((PIXEL) <= DMA2D_PIXEL)
 #define IS_DMA2D_OFFSET(OOFFSET)              ((OOFFSET) <= DMA2D_OFFSET)
 
+#if defined(DMA2D_FGPFCCR_CSS)
+#define IS_DMA2D_INPUT_COLOR_MODE(INPUT_CM)   (((INPUT_CM) == DMA2D_INPUT_ARGB8888) || \
+                                               ((INPUT_CM) == DMA2D_INPUT_RGB888)   || \
+                                               ((INPUT_CM) == DMA2D_INPUT_RGB565)   || \
+                                               ((INPUT_CM) == DMA2D_INPUT_ARGB1555) || \
+                                               ((INPUT_CM) == DMA2D_INPUT_ARGB4444) || \
+                                               ((INPUT_CM) == DMA2D_INPUT_L8)       || \
+                                               ((INPUT_CM) == DMA2D_INPUT_AL44)     || \
+                                               ((INPUT_CM) == DMA2D_INPUT_AL88)     || \
+                                               ((INPUT_CM) == DMA2D_INPUT_L4)       || \
+                                               ((INPUT_CM) == DMA2D_INPUT_A8)       || \
+                                               ((INPUT_CM) == DMA2D_INPUT_A4)       || \
+                                               ((INPUT_CM) == DMA2D_INPUT_YCBCR))
+#else
 #define IS_DMA2D_INPUT_COLOR_MODE(INPUT_CM)   (((INPUT_CM) == DMA2D_INPUT_ARGB8888) || \
                                                ((INPUT_CM) == DMA2D_INPUT_RGB888)   || \
                                                ((INPUT_CM) == DMA2D_INPUT_RGB565)   || \
@@ -651,6 +683,7 @@ uint32_t               HAL_DMA2D_GetError(DMA2D_HandleTypeDef *hdma2d);
                                                ((INPUT_CM) == DMA2D_INPUT_L4)       || \
                                                ((INPUT_CM) == DMA2D_INPUT_A8)       || \
                                                ((INPUT_CM) == DMA2D_INPUT_A4))
+#endif /* DMA2D_FGPFCCR_CSS */
 
 #define IS_DMA2D_ALPHA_MODE(AlphaMode)        (((AlphaMode) == DMA2D_NO_MODIF_ALPHA) || \
                                                ((AlphaMode) == DMA2D_REPLACE_ALPHA)  || \
@@ -668,6 +701,11 @@ uint32_t               HAL_DMA2D_GetError(DMA2D_HandleTypeDef *hdma2d);
 #define IS_DMA2D_BYTES_SWAP(BYTES_SWAP) (((BYTES_SWAP) == DMA2D_BYTES_REGULAR) || \
                                          ((BYTES_SWAP) == DMA2D_BYTES_SWAP))
 
+#if defined(DMA2D_FGPFCCR_CSS)
+#define IS_DMA2D_CHROMA_SUB_SAMPLING(CSS) (((CSS) == DMA2D_NO_CSS)  || \
+                                           ((CSS) == DMA2D_CSS_422) || \
+                                           ((CSS) == DMA2D_CSS_420))
+#endif /* DMA2D_FGPFCCR_CSS */
 
 #define IS_DMA2D_CLUT_CM(CLUT_CM)             (((CLUT_CM) == DMA2D_CCM_ARGB8888) || ((CLUT_CM) == DMA2D_CCM_RGB888))
 #define IS_DMA2D_CLUT_SIZE(CLUT_SIZE)         ((CLUT_SIZE) <= DMA2D_CLUT_SIZE)
@@ -697,5 +735,3 @@ uint32_t               HAL_DMA2D_GetError(DMA2D_HandleTypeDef *hdma2d);
 #endif
 
 #endif /* STM32U5xx_HAL_DMA2D_H */
-
-
