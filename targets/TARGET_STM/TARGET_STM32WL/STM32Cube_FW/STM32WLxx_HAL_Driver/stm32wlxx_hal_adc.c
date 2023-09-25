@@ -6,19 +6,22 @@
   *          functionalities of the Analog to Digital Converter (ADC)
   *          peripheral:
   *           + Initialization and de-initialization functions
-  *             ++ Initialization and Configuration of ADC
-  *           + Operation functions
-  *             ++ Start, stop, get result of conversions of regular
-  *                group, using 3 possible modes: polling, interruption or DMA.
-  *           + Control functions
-  *             ++ Channels configuration on regular group
-  *             ++ Analog Watchdog configuration
-  *           + State functions
-  *             ++ ADC state machine management
-  *             ++ Interrupts and flags management
+  *           + Peripheral Control functions
+  *           + Peripheral State functions
   *          Other functions (extended functions) are available in file
   *          "stm32wlxx_hal_adc_ex.c".
   *
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2020 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
   @verbatim
   ==============================================================================
                      ##### ADC peripheral features #####
@@ -275,18 +278,6 @@
      are set to the corresponding weak functions.
 
   @endverbatim
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
   */
 
 /* Includes ------------------------------------------------------------------*/
@@ -525,6 +516,17 @@ HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef *hadc)
     /*  - Clock configuration                                                 */
     /*  - ADC resolution                                                      */
     /*  - Oversampling                                                        */
+    /*  - discontinuous mode                                                  */
+    /*  - LowPowerAutoWait mode                                               */
+    /*  - LowPowerAutoPowerOff mode                                           */
+    /*  - continuous conversion mode                                          */
+    /*  - overrun                                                             */
+    /*  - external trigger to start conversion                                */
+    /*  - external trigger polarity                                           */
+    /*  - data alignment                                                      */
+    /*  - resolution                                                          */
+    /*  - scan direction                                                      */
+    /*  - DMA continuous request                                              */
     /*  - Trigger frequency mode                                              */
     /* Note: If low power mode AutoPowerOff is enabled, ADC enable            */
     /*       and disable phases are performed automatically by hardware       */
@@ -539,10 +541,62 @@ HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef *hadc)
       /*   - internal measurement paths (VrefInt, ...)                        */
       /*     (set into HAL_ADC_ConfigChannel() )                              */
 
-      /* Configuration of ADC resolution                                      */
+      tmpCFGR1 |= (hadc->Init.Resolution                                          |
+                   ADC_CFGR1_AUTOWAIT((uint32_t)hadc->Init.LowPowerAutoWait)      |
+                   ADC_CFGR1_AUTOOFF((uint32_t)hadc->Init.LowPowerAutoPowerOff)   |
+                   ADC_CFGR1_CONTINUOUS((uint32_t)hadc->Init.ContinuousConvMode)  |
+                   ADC_CFGR1_OVERRUN(hadc->Init.Overrun)                          |
+                   hadc->Init.DataAlign                                           |
+                   ADC_SCAN_SEQ_MODE(hadc->Init.ScanConvMode)                     |
+                   ADC_CFGR1_DMACONTREQ((uint32_t)hadc->Init.DMAContinuousRequests));
+
+      /* Update setting of discontinuous mode only if continuous mode is disabled */
+      if (hadc->Init.DiscontinuousConvMode == ENABLE)
+      {
+        if (hadc->Init.ContinuousConvMode == DISABLE)
+        {
+          /* Enable the selected ADC group regular discontinuous mode */
+          tmpCFGR1 |= ADC_CFGR1_DISCEN;
+        }
+        else
+        {
+          /* ADC regular group discontinuous was intended to be enabled,        */
+          /* but ADC regular group modes continuous and sequencer discontinuous */
+          /* cannot be enabled simultaneously.                                  */
+
+          /* Update ADC state machine to error */
+          SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_CONFIG);
+
+          /* Set ADC error code to ADC peripheral internal error */
+          SET_BIT(hadc->ErrorCode, HAL_ADC_ERROR_INTERNAL);
+        }
+      }
+
+      /* Enable external trigger if trigger selection is different of software  */
+      /* start.                                                                 */
+      /* Note: This configuration keeps the hardware feature of parameter       */
+      /*       ExternalTrigConvEdge "trigger edge none" equivalent to           */
+      /*       software start.                                                  */
+      if (hadc->Init.ExternalTrigConv != ADC_SOFTWARE_START)
+      {
+        tmpCFGR1 |= ((hadc->Init.ExternalTrigConv & ADC_CFGR1_EXTSEL) |
+                     hadc->Init.ExternalTrigConvEdge);
+      }
+
+      /* Update ADC configuration register with previous settings */
       MODIFY_REG(hadc->Instance->CFGR1,
-                 ADC_CFGR1_RES,
-                 hadc->Init.Resolution);
+                 ADC_CFGR1_RES     |
+                 ADC_CFGR1_DISCEN  |
+                 ADC_CFGR1_AUTOFF  |
+                 ADC_CFGR1_WAIT    |
+                 ADC_CFGR1_CONT    |
+                 ADC_CFGR1_OVRMOD  |
+                 ADC_CFGR1_EXTSEL  |
+                 ADC_CFGR1_EXTEN   |
+                 ADC_CFGR1_ALIGN   |
+                 ADC_CFGR1_SCANDIR |
+                 ADC_CFGR1_DMACFG,
+                 tmpCFGR1);
 
       tmpCFGR2 |= ((hadc->Init.ClockPrescaler & ADC_CFGR2_CKMODE) |
                    hadc->Init.TriggerFrequencyMode
@@ -579,81 +633,6 @@ HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef *hadc)
       }
     }
 
-    /* Configuration of ADC:                                                  */
-    /*  - discontinuous mode                                                  */
-    /*  - LowPowerAutoWait mode                                               */
-    /*  - LowPowerAutoPowerOff mode                                           */
-    /*  - continuous conversion mode                                          */
-    /*  - overrun                                                             */
-    /*  - external trigger to start conversion                                */
-    /*  - external trigger polarity                                           */
-    /*  - data alignment                                                      */
-    /*  - resolution                                                          */
-    /*  - scan direction                                                      */
-    /*  - DMA continuous request                                              */
-    tmpCFGR1 |= (ADC_CFGR1_AUTOWAIT((uint32_t)hadc->Init.LowPowerAutoWait)      |
-                 ADC_CFGR1_AUTOOFF((uint32_t)hadc->Init.LowPowerAutoPowerOff)   |
-                 ADC_CFGR1_CONTINUOUS((uint32_t)hadc->Init.ContinuousConvMode)  |
-                 ADC_CFGR1_OVERRUN(hadc->Init.Overrun)                          |
-                 hadc->Init.DataAlign                                           |
-                 ADC_SCAN_SEQ_MODE(hadc->Init.ScanConvMode)                     |
-                 ADC_CFGR1_DMACONTREQ((uint32_t)hadc->Init.DMAContinuousRequests));
-
-    /* Update setting of discontinuous mode only if continuous mode is disabled */
-    if (hadc->Init.DiscontinuousConvMode == ENABLE)
-    {
-      if (hadc->Init.ContinuousConvMode == DISABLE)
-      {
-        /* Enable the selected ADC group regular discontinuous mode */
-        tmpCFGR1 |= ADC_CFGR1_DISCEN;
-      }
-      else
-      {
-        /* ADC regular group discontinuous was intended to be enabled,        */
-        /* but ADC regular group modes continuous and sequencer discontinuous */
-        /* cannot be enabled simultaneously.                                  */
-
-        /* Update ADC state machine to error */
-        SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_CONFIG);
-
-        /* Set ADC error code to ADC peripheral internal error */
-        SET_BIT(hadc->ErrorCode, HAL_ADC_ERROR_INTERNAL);
-      }
-    }
-
-    /* Enable external trigger if trigger selection is different of software  */
-    /* start.                                                                 */
-    /* Note: This configuration keeps the hardware feature of parameter       */
-    /*       ExternalTrigConvEdge "trigger edge none" equivalent to           */
-    /*       software start.                                                  */
-    if (hadc->Init.ExternalTrigConv != ADC_SOFTWARE_START)
-    {
-      tmpCFGR1 |= ((hadc->Init.ExternalTrigConv & ADC_CFGR1_EXTSEL) |
-                   hadc->Init.ExternalTrigConvEdge);
-    }
-
-    /* Update ADC configuration register with previous settings */
-    MODIFY_REG(hadc->Instance->CFGR1,
-               ADC_CFGR1_DISCEN  |
-               ADC_CFGR1_AUTOFF  |
-               ADC_CFGR1_WAIT    |
-               ADC_CFGR1_CONT    |
-               ADC_CFGR1_OVRMOD  |
-               ADC_CFGR1_EXTSEL  |
-               ADC_CFGR1_EXTEN   |
-               ADC_CFGR1_ALIGN   |
-               ADC_CFGR1_SCANDIR |
-               ADC_CFGR1_DMACFG,
-               tmpCFGR1);
-
-    MODIFY_REG(hadc->Instance->CFGR2,
-               ADC_CFGR2_LFTRIG |
-               ADC_CFGR2_OVSE   |
-               ADC_CFGR2_OVSR   |
-               ADC_CFGR2_OVSS   |
-               ADC_CFGR2_TOVS,
-               tmpCFGR2);
-
     /* Channel sampling time configuration */
     LL_ADC_SetSamplingTimeCommonChannels(hadc->Instance, LL_ADC_SAMPLINGTIME_COMMON_1, hadc->Init.SamplingTimeCommon1);
     LL_ADC_SetSamplingTimeCommonChannels(hadc->Instance, LL_ADC_SAMPLINGTIME_COMMON_2, hadc->Init.SamplingTimeCommon2);
@@ -677,53 +656,26 @@ HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef *hadc)
     }
     else if (hadc->Init.ScanConvMode == ADC_SCAN_ENABLE)
     {
-      /* Count number of ranks available in HAL ADC handle variable */
-      uint32_t ADCGroupRegularSequencerRanksCount;
-
-      /* Parse all ranks from 1 to 8 */
-      for (ADCGroupRegularSequencerRanksCount = 0UL; ADCGroupRegularSequencerRanksCount < (8UL); ADCGroupRegularSequencerRanksCount++)
-      {
-        /* Check each sequencer rank until value of end of sequence */
-        if (((hadc->ADCGroupRegularSequencerRanks >> (ADCGroupRegularSequencerRanksCount * 4UL)) & ADC_CHSELR_SQ1) ==
-            ADC_CHSELR_SQ1)
-        {
-          break;
-        }
-      }
-
-      if (ADCGroupRegularSequencerRanksCount == 1UL)
-      {
-        /* Set ADC group regular sequencer:                                   */
-        /* Set sequencer scan length by clearing ranks above rank 1           */
-        /* and do not modify rank 1 value.                                    */
-        SET_BIT(hadc->Instance->CHSELR,
-                ADC_CHSELR_SQ2_TO_SQ8);
-      }
-      else
-      {
-        /* Set ADC group regular sequencer:                                   */
-        /*  - Set ADC group regular sequencer to value memorized              */
-        /*    in HAL ADC handle                                               */
-        /*    Note: This value maybe be initialized at a unknown value,       */
-        /*          therefore after the first call of "HAL_ADC_Init()",       */
-        /*          each rank corresponding to parameter "NbrOfConversion"    */
-        /*          must be set using "HAL_ADC_ConfigChannel()".              */
-        /*  - Set sequencer scan length by clearing ranks above maximum rank  */
-        /*    and do not modify other ranks value.                            */
-        MODIFY_REG(hadc->Instance->CHSELR,
-                   ADC_CHSELR_SQ_ALL,
-                   (ADC_CHSELR_SQ2_TO_SQ8 << (((hadc->Init.NbrOfConversion - 1UL) * ADC_REGULAR_RANK_2) & 0x1FUL)) | (hadc->ADCGroupRegularSequencerRanks)
-                  );
-      }
+      /* Set ADC group regular sequencer:                                   */
+      /*  - Set ADC group regular sequencer to value memorized              */
+      /*    in HAL ADC handle                                               */
+      /*    Note: This value maybe be initialized at a unknown value,       */
+      /*          therefore after the first call of "HAL_ADC_Init()",       */
+      /*          each rank corresponding to parameter "NbrOfConversion"    */
+      /*          must be set using "HAL_ADC_ConfigChannel()".              */
+      /*  - Set sequencer scan length by clearing ranks above maximum rank  */
+      /*    and do not modify other ranks value.                            */
+      MODIFY_REG(hadc->Instance->CHSELR,
+                 ADC_CHSELR_SQ_ALL,
+                 (ADC_CHSELR_SQ2_TO_SQ8 << (((hadc->Init.NbrOfConversion - 1UL) * ADC_REGULAR_RANK_2) & 0x1FUL))
+                 | (hadc->ADCGroupRegularSequencerRanks)
+                );
     }
 
     /* Check back that ADC registers have effectively been configured to      */
     /* ensure of no potential problem of ADC core peripheral clocking.        */
-    /* Check through register CFGR1 (excluding analog watchdog configuration: */
-    /* set into separate dedicated function, and bits of ADC resolution set   */
-    /* out of temporary variable 'tmpCFGR1').                                 */
-    if ((hadc->Instance->CFGR1 & ~(ADC_CFGR1_AWD1CH | ADC_CFGR1_AWD1EN | ADC_CFGR1_AWD1SGL | ADC_CFGR1_RES))
-        == tmpCFGR1)
+    if(LL_ADC_GetSamplingTimeCommonChannels(hadc->Instance, LL_ADC_SAMPLINGTIME_COMMON_1)
+      == hadc->Init.SamplingTimeCommon1)
     {
       /* Set ADC error code to none */
       ADC_CLEAR_ERRORCODE(hadc);
@@ -846,8 +798,10 @@ HAL_StatusTypeDef HAL_ADC_DeInit(ADC_HandleTypeDef *hadc)
   /* Reset register SMPR */
   hadc->Instance->SMPR &= ~ADC_SMPR_SMP1;
 
-  /* Reset register TR1 */
-  hadc->Instance->TR1 &= ~(ADC_TR1_HT1 | ADC_TR1_LT1);
+  /* Reset registers AWDxTR */
+  hadc->Instance->AWD1TR &= ~(ADC_AWD1TR_HT1 | ADC_AWD1TR_LT1);
+  hadc->Instance->AWD2TR &= ~(ADC_AWD2TR_HT2 | ADC_AWD2TR_LT2);
+  hadc->Instance->AWD3TR &= ~(ADC_AWD3TR_HT3 | ADC_AWD3TR_LT3);
 
   /* Reset register CHSELR */
   hadc->Instance->CHSELR &= ~(ADC_CHSELR_SQ_ALL);
@@ -1416,9 +1370,12 @@ HAL_StatusTypeDef HAL_ADC_PollForConversion(ADC_HandleTypeDef *hadc, uint32_t Ti
   * @param EventType the ADC event type.
   *          This parameter can be one of the following values:
   *            @arg @ref ADC_EOSMP_EVENT  ADC End of Sampling event
-  *            @arg @ref ADC_AWD1_EVENT   ADC Analog watchdog 1 event (main analog watchdog, present on all STM32 devices)
-  *            @arg @ref ADC_AWD2_EVENT   ADC Analog watchdog 2 event (additional analog watchdog, not present on all STM32 families)
-  *            @arg @ref ADC_AWD3_EVENT   ADC Analog watchdog 3 event (additional analog watchdog, not present on all STM32 families)
+  *            @arg @ref ADC_AWD1_EVENT   ADC Analog watchdog 1 event (main analog watchdog, present on all
+  *                                       STM32 series)
+  *            @arg @ref ADC_AWD2_EVENT   ADC Analog watchdog 2 event (additional analog watchdog, not present on all
+  *                                       STM32 series)
+  *            @arg @ref ADC_AWD3_EVENT   ADC Analog watchdog 3 event (additional analog watchdog, not present on all
+  *                                       STM32 series)
   *            @arg @ref ADC_OVR_EVENT    ADC Overrun event
   * @param Timeout Timeout value in millisecond.
   * @note   The relevant flag is cleared if found to be set, except for ADC_FLAG_OVR.
@@ -2306,7 +2263,8 @@ HAL_StatusTypeDef HAL_ADC_ConfigChannel(ADC_HandleTypeDef *hadc, ADC_ChannelConf
             wait_loop_index--;
           }
         }
-        else if ((pConfig->Channel == ADC_CHANNEL_VBAT) && ((tmp_config_internal_channel & LL_ADC_PATH_INTERNAL_VBAT) == 0UL))
+        else if ((pConfig->Channel == ADC_CHANNEL_VBAT)
+                 && ((tmp_config_internal_channel & LL_ADC_PATH_INTERNAL_VBAT) == 0UL))
         {
           LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(hadc->Instance),
                                          LL_ADC_PATH_INTERNAL_VBAT | tmp_config_internal_channel);
@@ -2411,6 +2369,7 @@ HAL_StatusTypeDef HAL_ADC_AnalogWDGConfig(ADC_HandleTypeDef *hadc, ADC_AnalogWDG
   HAL_StatusTypeDef tmp_hal_status = HAL_OK;
   uint32_t tmp_awd_high_threshold_shifted;
   uint32_t tmp_awd_low_threshold_shifted;
+  uint32_t backup_setting_adc_enable_state = 0UL;
 
   /* Check the parameters */
   assert_param(IS_ADC_ALL_INSTANCE(hadc->Instance));
@@ -2450,6 +2409,14 @@ HAL_StatusTypeDef HAL_ADC_AnalogWDGConfig(ADC_HandleTypeDef *hadc, ADC_AnalogWDG
     /* Analog watchdog configuration */
     if (pAnalogWDGConfig->WatchdogNumber == ADC_ANALOGWATCHDOG_1)
     {
+      /* Constraint of ADC on this STM32 series: ADC must be disable
+         to modify bitfields of register ADC_CFGR1 */
+      if (LL_ADC_IsEnabled(hadc->Instance) != 0UL)
+      {
+        backup_setting_adc_enable_state = 1UL;
+        tmp_hal_status = ADC_Disable(hadc);
+      }
+
       /* Configuration of analog watchdog:                                    */
       /*  - Set the analog watchdog enable mode: one or overall group of      */
       /*    channels.                                                         */
@@ -2457,7 +2424,8 @@ HAL_StatusTypeDef HAL_ADC_AnalogWDGConfig(ADC_HandleTypeDef *hadc, ADC_AnalogWDG
       {
         case ADC_ANALOGWATCHDOG_SINGLE_REG:
           LL_ADC_SetAnalogWDMonitChannels(hadc->Instance, LL_ADC_AWD1,
-                                          __LL_ADC_ANALOGWD_CHANNEL_GROUP(pAnalogWDGConfig->Channel, LL_ADC_GROUP_REGULAR));
+                                          __LL_ADC_ANALOGWD_CHANNEL_GROUP(pAnalogWDGConfig->Channel, 
+                                                                          LL_ADC_GROUP_REGULAR));
           break;
 
         case ADC_ANALOGWATCHDOG_ALL_REG:
@@ -2467,6 +2435,14 @@ HAL_StatusTypeDef HAL_ADC_AnalogWDGConfig(ADC_HandleTypeDef *hadc, ADC_AnalogWDG
         default: /* ADC_ANALOGWATCHDOG_NONE */
           LL_ADC_SetAnalogWDMonitChannels(hadc->Instance, LL_ADC_AWD1, LL_ADC_AWD_DISABLE);
           break;
+      }
+
+      if (backup_setting_adc_enable_state == 1UL)
+      {
+        if (tmp_hal_status == HAL_OK)
+        {
+          tmp_hal_status = ADC_Enable(hadc);
+        }
       }
 
       /* Update state, clear previous result related to AWD1 */
@@ -2507,7 +2483,9 @@ HAL_StatusTypeDef HAL_ADC_AnalogWDGConfig(ADC_HandleTypeDef *hadc, ADC_AnalogWDG
           break;
 
         case ADC_ANALOGWATCHDOG_ALL_REG:
-          LL_ADC_SetAnalogWDMonitChannels(hadc->Instance, pAnalogWDGConfig->WatchdogNumber, LL_ADC_AWD_ALL_CHANNELS_REG);
+          LL_ADC_SetAnalogWDMonitChannels(hadc->Instance, 
+                                          pAnalogWDGConfig->WatchdogNumber, 
+                                          LL_ADC_AWD_ALL_CHANNELS_REG);
           break;
 
         default: /* ADC_ANALOGWATCHDOG_NONE */
@@ -2743,14 +2721,16 @@ HAL_StatusTypeDef ADC_Enable(ADC_HandleTypeDef *hadc)
     /* Enable the ADC peripheral */
     LL_ADC_Enable(hadc->Instance);
 
-    if ((LL_ADC_GetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(hadc->Instance)) & LL_ADC_PATH_INTERNAL_TEMPSENSOR) != 0UL)
+    if ((LL_ADC_GetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(hadc->Instance)) & LL_ADC_PATH_INTERNAL_TEMPSENSOR) 
+        != 0UL)
     {
       /* Delay for temperature sensor buffer stabilization time */
       /* Wait loop initialization and execution */
       /* Note: Variable divided by 2 to compensate partially              */
       /*       CPU processing cycles, scaling in us split to not          */
       /*       exceed 32 bits register capacity and handle low frequency. */
-      wait_loop_index = ((LL_ADC_DELAY_TEMPSENSOR_BUFFER_STAB_US / 10UL) * ((SystemCoreClock / (100000UL * 2UL)) + 1UL));
+      wait_loop_index = ((LL_ADC_DELAY_TEMPSENSOR_BUFFER_STAB_US / 10UL) 
+                         * ((SystemCoreClock / (100000UL * 2UL)) + 1UL));
       while (wait_loop_index != 0UL)
       {
         wait_loop_index--;
@@ -2997,5 +2977,3 @@ static void ADC_DMAError(DMA_HandleTypeDef *hdma)
 /**
   * @}
   */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

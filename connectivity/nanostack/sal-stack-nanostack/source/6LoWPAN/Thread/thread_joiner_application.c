@@ -719,8 +719,9 @@ static void configuration_set_copy_mandatory(configuration_set_t *destination_pt
 static void configuration_set_generate(int8_t interface_id, configuration_set_t *destination_ptr, link_configuration_s *configuration_ptr)
 {
     uint8_t *response_ptr;
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
-    if (!destination_ptr || !configuration_ptr) {
+    if (!destination_ptr || !configuration_ptr || !cur) {
         return;
     }
     response_ptr = destination_ptr->data;
@@ -739,7 +740,6 @@ static void configuration_set_generate(int8_t interface_id, configuration_set_t 
     response_ptr = thread_tmfcop_tlv_data_write(response_ptr, MESHCOP_TLV_PSKC, 16, configuration_ptr->PSKc);
     response_ptr = thread_tmfcop_tlv_data_write(response_ptr, MESHCOP_TLV_NETWORK_NAME, stringlen((char *)&configuration_ptr->name, 16), configuration_ptr->name);
     *response_ptr++ = MESHCOP_TLV_SECURITY_POLICY; // type
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (thread_info(cur)->version >= THREAD_VERSION_1_2) {
         *response_ptr++ = 4; // length
         response_ptr = common_write_16_bit(configuration_ptr->key_rotation, response_ptr);

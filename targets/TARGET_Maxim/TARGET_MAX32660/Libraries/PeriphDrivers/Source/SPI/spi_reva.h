@@ -1,5 +1,5 @@
-/* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -29,7 +29,10 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- *************************************************************************** */
+ ******************************************************************************/
+
+#ifndef LIBRARIES_PERIPHDRIVERS_SOURCE_SPI_SPI_REVA_H_
+#define LIBRARIES_PERIPHDRIVERS_SOURCE_SPI_SPI_REVA_H_
 
 #include <stdio.h>
 #include <stddef.h>
@@ -44,6 +47,10 @@
 #include "mxc_spi.h"
 #include "dma.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum {
     SPI_REVA_WIDTH_3WIRE,
     SPI_REVA_WIDTH_STANDARD,
@@ -52,7 +59,7 @@ typedef enum {
 } mxc_spi_reva_width_t;
 
 typedef enum {
-    SPI_REVA_MODE_0, 
+    SPI_REVA_MODE_0,
     SPI_REVA_MODE_1,
     SPI_REVA_MODE_2,
     SPI_REVA_MODE_3,
@@ -61,58 +68,68 @@ typedef enum {
 typedef struct _mxc_spi_reva_req_t mxc_spi_reva_req_t;
 
 struct _mxc_spi_reva_req_t {
-    mxc_spi_reva_regs_t*     spi;
-    int                      ssIdx;
-    int                      ssDeassert;
-    uint8_t                  *txData;
-    uint8_t                  *rxData;
-    uint32_t                 txLen;
-    uint32_t                 rxLen;
-    uint32_t                 txCnt;
-    uint32_t                 rxCnt;
-    spi_complete_cb_t        completeCB;
+    mxc_spi_reva_regs_t *spi;
+    int ssIdx;
+    int ssDeassert;
+    uint8_t *txData;
+    uint8_t *rxData;
+    uint32_t txLen;
+    uint32_t rxLen;
+    uint32_t txCnt;
+    uint32_t rxCnt;
+    spi_complete_cb_t completeCB;
 };
 
-int MXC_SPI_RevA_Init (mxc_spi_reva_regs_t* spi, int masterMode, int quadModeUsed, int numSlaves,
-                       unsigned ssPolarity, unsigned int hz, unsigned drv_ssel);
-int MXC_SPI_RevA_Shutdown (mxc_spi_reva_regs_t* spi);
-int MXC_SPI_RevA_ReadyForSleep (mxc_spi_reva_regs_t* spi);
-int MXC_SPI_RevA_SetFrequency (mxc_spi_reva_regs_t* spi, unsigned int hz);
-unsigned int MXC_SPI_RevA_GetFrequency (mxc_spi_reva_regs_t* spi);
-int MXC_SPI_RevA_SetDataSize (mxc_spi_reva_regs_t* spi, int dataSize);
-int MXC_SPI_RevA_GetDataSize (mxc_spi_reva_regs_t* spi);
-int MXC_SPI_RevA_SetSlave (mxc_spi_reva_regs_t* spi, int ssIdx);
-int MXC_SPI_RevA_GetSlave (mxc_spi_reva_regs_t* spi);
-int MXC_SPI_RevA_SetWidth (mxc_spi_reva_regs_t* spi, mxc_spi_reva_width_t spiWidth);
-mxc_spi_reva_width_t MXC_SPI_RevA_GetWidth (mxc_spi_reva_regs_t* spi);
-int MXC_SPI_RevA_SetMode (mxc_spi_reva_regs_t* spi, mxc_spi_reva_mode_t spiMode);
-mxc_spi_reva_mode_t MXC_SPI_RevA_GetMode (mxc_spi_reva_regs_t* spi);
-int MXC_SPI_RevA_StartTransmission (mxc_spi_reva_regs_t* spi);
-int MXC_SPI_RevA_GetActive (mxc_spi_reva_regs_t* spi);
-int MXC_SPI_RevA_AbortTransmission (mxc_spi_reva_regs_t* spi);
-unsigned int MXC_SPI_RevA_ReadRXFIFO (mxc_spi_reva_regs_t* spi, unsigned char* bytes,
+int MXC_SPI_RevA_Init(mxc_spi_reva_regs_t *spi, int masterMode, int quadModeUsed, int numSlaves,
+                      unsigned ssPolarity, unsigned int hz, unsigned int drv_ssel);
+int MXC_SPI_RevA_Shutdown(mxc_spi_reva_regs_t *spi);
+int MXC_SPI_RevA_ReadyForSleep(mxc_spi_reva_regs_t *spi);
+int MXC_SPI_RevA_SetFrequency(mxc_spi_reva_regs_t *spi, unsigned int hz);
+unsigned int MXC_SPI_RevA_GetFrequency(mxc_spi_reva_regs_t *spi);
+int MXC_SPI_RevA_SetDataSize(mxc_spi_reva_regs_t *spi, int dataSize);
+int MXC_SPI_RevA_GetDataSize(mxc_spi_reva_regs_t *spi);
+int MXC_SPI_RevA_SetMTMode(mxc_spi_reva_regs_t *spi, int mtMode);
+int MXC_SPI_RevA_GetMTMode(mxc_spi_reva_regs_t *spi);
+int MXC_SPI_RevA_SetSlave(mxc_spi_reva_regs_t *spi, int ssIdx);
+int MXC_SPI_RevA_GetSlave(mxc_spi_reva_regs_t *spi);
+int MXC_SPI_RevA_SetWidth(mxc_spi_reva_regs_t *spi, mxc_spi_reva_width_t spiWidth);
+mxc_spi_reva_width_t MXC_SPI_RevA_GetWidth(mxc_spi_reva_regs_t *spi);
+int MXC_SPI_RevA_SetMode(mxc_spi_reva_regs_t *spi, mxc_spi_reva_mode_t spiMode);
+mxc_spi_reva_mode_t MXC_SPI_RevA_GetMode(mxc_spi_reva_regs_t *spi);
+int MXC_SPI_RevA_StartTransmission(mxc_spi_reva_regs_t *spi);
+int MXC_SPI_RevA_GetActive(mxc_spi_reva_regs_t *spi);
+int MXC_SPI_RevA_AbortTransmission(mxc_spi_reva_regs_t *spi);
+unsigned int MXC_SPI_RevA_ReadRXFIFO(mxc_spi_reva_regs_t *spi, unsigned char *bytes,
+                                     unsigned int len);
+unsigned int MXC_SPI_RevA_WriteTXFIFO(mxc_spi_reva_regs_t *spi, unsigned char *bytes,
                                       unsigned int len);
-unsigned int MXC_SPI_RevA_WriteTXFIFO (mxc_spi_reva_regs_t* spi, unsigned char* bytes,
-                                       unsigned int len);
-unsigned int MXC_SPI_RevA_GetTXFIFOAvailable (mxc_spi_reva_regs_t* spi);
-unsigned int MXC_SPI_RevA_GetRXFIFOAvailable (mxc_spi_reva_regs_t* spi);
-void MXC_SPI_RevA_ClearRXFIFO (mxc_spi_reva_regs_t* spi);
-void MXC_SPI_RevA_ClearTXFIFO (mxc_spi_reva_regs_t* spi);
-int MXC_SPI_RevA_SetRXThreshold (mxc_spi_reva_regs_t* spi, unsigned int numBytes);
-unsigned int MXC_SPI_RevA_GetRXThreshold (mxc_spi_reva_regs_t* spi);
-int MXC_SPI_RevA_SetTXThreshold (mxc_spi_reva_regs_t* spi, unsigned int numBytes);
-unsigned int MXC_SPI_RevA_GetTXThreshold (mxc_spi_reva_regs_t* spi);
-unsigned int MXC_SPI_RevA_GetFlags (mxc_spi_reva_regs_t* spi);
-void MXC_SPI_RevA_ClearFlags (mxc_spi_reva_regs_t* spi);
-void MXC_SPI_RevA_EnableInt (mxc_spi_reva_regs_t* spi, unsigned int mask);
-void MXC_SPI_RevA_DisableInt (mxc_spi_reva_regs_t* spi, unsigned int mask);
-int MXC_SPI_RevA_MasterTransaction (mxc_spi_reva_req_t* req);
-int MXC_SPI_RevA_MasterTransactionAsync (mxc_spi_reva_req_t* req);
-int MXC_SPI_RevA_MasterTransactionDMA (mxc_spi_reva_req_t* req, int reqselTx, int reqselRx, mxc_dma_regs_t* dma);
-int MXC_SPI_RevA_SlaveTransaction (mxc_spi_reva_req_t* req);
-int MXC_SPI_RevA_SlaveTransactionAsync (mxc_spi_reva_req_t* req);
-int MXC_SPI_RevA_SlaveTransactionDMA (mxc_spi_reva_req_t* req, int reqselTx, int reqselRx, mxc_dma_regs_t* dma);
-void MXC_SPI_RevA_DMACallback (int ch, int error);
-int MXC_SPI_RevA_SetDefaultTXData (mxc_spi_reva_regs_t* spi, unsigned int defaultTXData);
-void MXC_SPI_RevA_AbortAsync (mxc_spi_reva_regs_t* spi);
-void MXC_SPI_RevA_AsyncHandler (mxc_spi_reva_regs_t* spi);
+unsigned int MXC_SPI_RevA_GetTXFIFOAvailable(mxc_spi_reva_regs_t *spi);
+unsigned int MXC_SPI_RevA_GetRXFIFOAvailable(mxc_spi_reva_regs_t *spi);
+void MXC_SPI_RevA_ClearRXFIFO(mxc_spi_reva_regs_t *spi);
+void MXC_SPI_RevA_ClearTXFIFO(mxc_spi_reva_regs_t *spi);
+int MXC_SPI_RevA_SetRXThreshold(mxc_spi_reva_regs_t *spi, unsigned int numBytes);
+unsigned int MXC_SPI_RevA_GetRXThreshold(mxc_spi_reva_regs_t *spi);
+int MXC_SPI_RevA_SetTXThreshold(mxc_spi_reva_regs_t *spi, unsigned int numBytes);
+unsigned int MXC_SPI_RevA_GetTXThreshold(mxc_spi_reva_regs_t *spi);
+unsigned int MXC_SPI_RevA_GetFlags(mxc_spi_reva_regs_t *spi);
+void MXC_SPI_RevA_ClearFlags(mxc_spi_reva_regs_t *spi);
+void MXC_SPI_RevA_EnableInt(mxc_spi_reva_regs_t *spi, unsigned int mask);
+void MXC_SPI_RevA_DisableInt(mxc_spi_reva_regs_t *spi, unsigned int mask);
+int MXC_SPI_RevA_MasterTransaction(mxc_spi_reva_req_t *req);
+int MXC_SPI_RevA_MasterTransactionAsync(mxc_spi_reva_req_t *req);
+int MXC_SPI_RevA_MasterTransactionDMA(mxc_spi_reva_req_t *req, int reqselTx, int reqselRx,
+                                      mxc_dma_regs_t *dma);
+int MXC_SPI_RevA_SlaveTransaction(mxc_spi_reva_req_t *req);
+int MXC_SPI_RevA_SlaveTransactionAsync(mxc_spi_reva_req_t *req);
+int MXC_SPI_RevA_SlaveTransactionDMA(mxc_spi_reva_req_t *req, int reqselTx, int reqselRx,
+                                     mxc_dma_regs_t *dma);
+void MXC_SPI_RevA_DMACallback(int ch, int error);
+int MXC_SPI_RevA_SetDefaultTXData(mxc_spi_reva_regs_t *spi, unsigned int defaultTXData);
+void MXC_SPI_RevA_AbortAsync(mxc_spi_reva_regs_t *spi);
+void MXC_SPI_RevA_AsyncHandler(mxc_spi_reva_regs_t *spi);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // LIBRARIES_PERIPHDRIVERS_SOURCE_SPI_SPI_REVA_H_

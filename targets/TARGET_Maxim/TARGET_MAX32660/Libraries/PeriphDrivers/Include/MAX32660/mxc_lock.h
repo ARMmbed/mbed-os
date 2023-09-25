@@ -3,8 +3,8 @@
  * @brief   Exclusive access lock utility functions.
 */
 
-/* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -34,16 +34,14 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- *************************************************************************** */
+ ******************************************************************************/
 
 /* Define to prevent redundant inclusion */
-#ifndef _MXC_LOCK_H_
-#define _MXC_LOCK_H_
+#ifndef LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_MXC_LOCK_H_
+#define LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_MXC_LOCK_H_
 
 // To enable disable this module
 #define USE_LOCK_IN_DRIVERS  0
-
-#if USE_LOCK_IN_DRIVERS
 
 /* **** Includes **** */
 #include "mxc_device.h"
@@ -51,6 +49,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#if USE_LOCK_IN_DRIVERS
 
 /**
  * @ingroup    syscfg
@@ -78,21 +78,20 @@ extern "C" {
  *
  * @return     #E_NO_ERROR if everything successful, #E_BUSY if lock is taken.
  */
-int MXC_GetLock (uint32_t *lock, uint32_t value);
+int MXC_GetLock(uint32_t *lock, uint32_t value);
 
 /**
  * @brief         Free the given lock.
  * @param[in,out] lock  Pointer to the variable used for the lock. When the lock
  *                      is free, the value pointed to by @p lock is set to zero.
  */
-void MXC_FreeLock (uint32_t *lock);
+void MXC_FreeLock(uint32_t *lock);
 
 /**@} end of group mxc_lock_utilities */
 
 #ifdef __cplusplus
 }
 #endif
-
 
 #else // USE_LOCK_IN_DRIVERS
 
@@ -101,4 +100,4 @@ void MXC_FreeLock (uint32_t *lock);
 
 #endif // USE_LOCK_IN_DRIVERS
 
-#endif /* _MXC_LOCK_H_ */
+#endif // LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_MXC_LOCK_H_

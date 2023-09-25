@@ -107,14 +107,14 @@ def tfm_sign_image(tfm_import_path, signing_key, signing_key_1, non_secure_bin):
         "--public-key-format",
         'full',
         "--align",
-        '1',
+        '4',
         # Reasons for removing padding and boot magic option "--pad":
         # 1. PSA FWU API psa_fwu_install() will be responsible for writing boot magic to enable upgradeable.
         # 2. The image size gets smaller instead of slot size.
         #"--pad",
         "--pad-header",
         "-H",
-        '0x400',
+        '0x1000',
         "--overwrite-only",
         "-s",
         'auto', # Or modified_timestamp

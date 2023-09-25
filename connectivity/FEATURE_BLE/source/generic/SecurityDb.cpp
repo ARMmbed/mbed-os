@@ -63,10 +63,18 @@ void SecurityDb::get_entry_local_keys(
 
         /* set flags connected */
         SecurityDistributionFlags_t* flags = get_distribution_flags(correct_handle);
+        if (!flags) {
+            cb(*db_handle, NULL);
+            return;
+        }
         flags->connected = true;
 
         /* update peer address */
         SecurityDistributionFlags_t* old_flags = get_distribution_flags(*db_handle);
+        if (!old_flags) {
+            cb(*db_handle, NULL);
+            return;
+        }
         flags->peer_address = old_flags->peer_address;
         flags->peer_address_is_public = old_flags->peer_address_is_public;
 

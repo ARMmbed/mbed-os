@@ -287,8 +287,9 @@ nsapi_error_t LWIP::socket_close(nsapi_socket_t handle)
     /* Check if TCP FSM is in ESTABLISHED state.
      * Then give extra time for connection close handshaking  until TIME_WAIT state.
      * The purpose is to prevent eth/wifi driver stop and  FIN ACK corrupt.
-     * This may happend if network interface disconnect follows immediately after socket_close.*/
-    if (NETCONNTYPE_GROUP(s->conn->type) == NETCONN_TCP && s->conn->pcb.tcp->state == ESTABLISHED) {
+     * This may happend if network interface disconnect follows immediately after socket_close.
+     * In case of a TCP RESET flag, the pcb structure is already deleted, therefore check for nullpointer.*/
+    if (NETCONNTYPE_GROUP(s->conn->type) == NETCONN_TCP && (nullptr == s->conn->pcb.tcp || s->conn->pcb.tcp->state == ESTABLISHED)) {
         _event_flag.clear(TCP_CLOSED_FLAG);
         netconn_shutdown(s->conn, false, true);
         _event_flag.wait_any(TCP_CLOSED_FLAG, TCP_CLOSE_TIMEOUT);

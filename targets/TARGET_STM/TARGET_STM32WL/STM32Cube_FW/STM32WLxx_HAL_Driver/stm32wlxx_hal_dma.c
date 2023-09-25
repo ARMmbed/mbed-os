@@ -8,6 +8,17 @@
   *           + Initialization and de-initialization functions
   *           + IO operation functions
   *           + Peripheral State and errors functions
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2020 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
   @verbatim
   ==============================================================================
                         ##### How to use this driver #####
@@ -72,17 +83,6 @@
       (@) You can refer to the DMA HAL driver header file for more useful macros
 
   @endverbatim
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
   ******************************************************************************
   */
 
@@ -229,8 +229,8 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
   }
   else
   {
-    hdma->DMAmuxRequestGen = 0U;
-    hdma->DMAmuxRequestGenStatus = 0U;
+    hdma->DMAmuxRequestGen = NULL;
+    hdma->DMAmuxRequestGenStatus = NULL;
     hdma->DMAmuxRequestGenStatusMask = 0U;
   }
 
@@ -312,8 +312,8 @@ HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma)
     hdma->DMAmuxRequestGenStatus->RGCFR = hdma->DMAmuxRequestGenStatusMask;
   }
 
-  hdma->DMAmuxRequestGen = 0U;
-  hdma->DMAmuxRequestGenStatus = 0U;
+  hdma->DMAmuxRequestGen = NULL;
+  hdma->DMAmuxRequestGenStatus = NULL;
   hdma->DMAmuxRequestGenStatusMask = 0U;
 
   /* Clean callbacks */
@@ -460,7 +460,7 @@ HAL_StatusTypeDef HAL_DMA_Start_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress,
       hdma->DMAmuxChannel->CCR |= DMAMUX_CxCR_SOIE;
     }
 
-    if (hdma->DMAmuxRequestGen != 0U)
+    if (hdma->DMAmuxRequestGen != NULL)
     {
       /* if using DMAMUX request generator, enable the DMAMUX request generator overrun IT*/
       /* enable the request gen overrun IT*/
@@ -526,7 +526,7 @@ HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma)
     /* Clear the DMAMUX synchro overrun flag */
     hdma->DMAmuxChannelStatus->CFR = hdma->DMAmuxChannelStatusMask;
 
-    if (hdma->DMAmuxRequestGen != 0U)
+    if (hdma->DMAmuxRequestGen != NULL)
     {
       /* if using DMAMUX request generator, disable the DMAMUX request generator overrun IT*/
       /* disable the request gen overrun IT*/
@@ -580,7 +580,7 @@ HAL_StatusTypeDef HAL_DMA_Abort_IT(DMA_HandleTypeDef *hdma)
     /* Clear the DMAMUX synchro overrun flag */
     hdma->DMAmuxChannelStatus->CFR = hdma->DMAmuxChannelStatusMask;
 
-    if (hdma->DMAmuxRequestGen != 0U)
+    if (hdma->DMAmuxRequestGen != NULL)
     {
       /* if using DMAMUX request generator, disable the DMAMUX request generator overrun IT*/
       /* disable the request gen overrun IT*/
@@ -688,7 +688,7 @@ HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, HAL_DMA_Level
   }
 
   /*Check for DMAMUX Request generator (if used) overrun status */
-  if (hdma->DMAmuxRequestGen != 0U)
+  if (hdma->DMAmuxRequestGen != NULL)
   {
     /* if using DMAMUX request generator Check for DMAMUX request generator overrun */
     if ((hdma->DMAmuxRequestGenStatus->RGSR & hdma->DMAmuxRequestGenStatusMask) != 0U)
@@ -831,7 +831,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
   *             the configuration information for the specified DMA Channel.
   * @param CallbackID User Callback identifier
   *                   a HAL_DMA_CallbackIDTypeDef ENUM as parameter.
-  * @param pCallback Pointer to private callbacsk function which has pointer to
+  * @param pCallback Pointer to private callback function which has pointer to
   *                  a DMA_HandleTypeDef structure as parameter.
   * @retval HAL status
   */
@@ -1211,7 +1211,7 @@ static void DMA_SetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t
   /* Clear the DMAMUX synchro overrun flag */
   hdma->DMAmuxChannelStatus->CFR = hdma->DMAmuxChannelStatusMask;
 
-  if (hdma->DMAmuxRequestGen != 0U)
+  if (hdma->DMAmuxRequestGen != NULL)
   {
     /* Clear the DMAMUX request generator overrun flag */
     hdma->DMAmuxRequestGenStatus->RGCFR = hdma->DMAmuxRequestGenStatusMask;
@@ -1316,5 +1316,3 @@ static void DMA_CalcDMAMUXRequestGenBaseAndMask(DMA_HandleTypeDef *hdma)
 /**
   * @}
   */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -1,5 +1,5 @@
-/* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -29,7 +29,10 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- *************************************************************************** */
+ ******************************************************************************/
+
+#ifndef LIBRARIES_PERIPHDRIVERS_SOURCE_GPIO_GPIO_REVA_H_
+#define LIBRARIES_PERIPHDRIVERS_SOURCE_GPIO_GPIO_REVA_H_
 
 /* **** Includes **** */
 #include "gpio_reva_regs.h"
@@ -38,36 +41,37 @@
 extern "C" {
 #endif
 
-
-
 /**
  * @brief   Enumeration type for the pullup strength on a given pin.
  */
 typedef enum {
-    MXC_GPIO_PS_NONE,           /**< No pull-up or pull-down strength required*/
-    MXC_GPIO_PS_PULL_SELECT,    /**< Selct pull-up or pull-down strength*/         
+    MXC_GPIO_PS_NONE, /**< No pull-up or pull-down strength required*/
+    MXC_GPIO_PS_PULL_SELECT, /**< Selct pull-up or pull-down strength*/
 } mxc_gpio_ps_t;
 
 /* **** Function Prototypes **** */
 
-uint32_t MXC_GPIO_RevA_InGet (mxc_gpio_reva_regs_t* port, uint32_t mask);
-void MXC_GPIO_RevA_OutSet (mxc_gpio_reva_regs_t* port, uint32_t mask);
-void MXC_GPIO_RevA_OutClr (mxc_gpio_reva_regs_t* port, uint32_t mask);
-uint32_t MXC_GPIO_RevA_OutGet (mxc_gpio_reva_regs_t* port, uint32_t mask);
-void MXC_GPIO_RevA_OutPut (mxc_gpio_reva_regs_t* port, uint32_t mask, uint32_t val);
-void MXC_GPIO_RevA_OutToggle (mxc_gpio_reva_regs_t* port, uint32_t mask);
-int MXC_GPIO_RevA_IntConfig (const mxc_gpio_cfg_t *cfg, mxc_gpio_int_pol_t pol);
-void MXC_GPIO_RevA_EnableInt (mxc_gpio_reva_regs_t* port, uint32_t mask);
-void MXC_GPIO_RevA_DisableInt (mxc_gpio_reva_regs_t* port, uint32_t mask);
-void MXC_GPIO_RevA_ClearFlags (mxc_gpio_reva_regs_t* port, uint32_t flags);
-uint32_t MXC_GPIO_RevA_GetFlags (mxc_gpio_reva_regs_t* port);
-#if TARGET_NUM != 32650
-int MXC_GPIO_RevA_SetVSSEL (mxc_gpio_reva_regs_t* port, mxc_gpio_vssel_t vssel, uint32_t mask);
-#endif
-int MXC_GPIO_RevA_SetAF (mxc_gpio_reva_regs_t* port, mxc_gpio_func_t func, uint32_t mask);
+uint32_t MXC_GPIO_RevA_InGet(mxc_gpio_reva_regs_t *port, uint32_t mask);
+void MXC_GPIO_RevA_OutSet(mxc_gpio_reva_regs_t *port, uint32_t mask);
+void MXC_GPIO_RevA_OutClr(mxc_gpio_reva_regs_t *port, uint32_t mask);
+uint32_t MXC_GPIO_RevA_OutGet(mxc_gpio_reva_regs_t *port, uint32_t mask);
+void MXC_GPIO_RevA_OutPut(mxc_gpio_reva_regs_t *port, uint32_t mask, uint32_t val);
+void MXC_GPIO_RevA_OutToggle(mxc_gpio_reva_regs_t *port, uint32_t mask);
+int MXC_GPIO_RevA_IntConfig(const mxc_gpio_cfg_t *cfg, mxc_gpio_int_pol_t pol);
+void MXC_GPIO_RevA_EnableInt(mxc_gpio_reva_regs_t *port, uint32_t mask);
+void MXC_GPIO_RevA_DisableInt(mxc_gpio_reva_regs_t *port, uint32_t mask);
+void MXC_GPIO_RevA_ClearFlags(mxc_gpio_reva_regs_t *port, uint32_t flags);
+uint32_t MXC_GPIO_RevA_GetFlags(mxc_gpio_reva_regs_t *port);
+int MXC_GPIO_RevA_SetVSSEL(mxc_gpio_reva_regs_t *port, mxc_gpio_vssel_t vssel, uint32_t mask);
+int MXC_GPIO_RevA_SetAF(mxc_gpio_reva_regs_t *port, mxc_gpio_func_t func, uint32_t mask);
+void MXC_GPIO_RevA_SetWakeEn(mxc_gpio_reva_regs_t *port, uint32_t mask);
+void MXC_GPIO_RevA_ClearWakeEn(mxc_gpio_reva_regs_t *port, uint32_t mask);
+uint32_t MXC_GPIO_RevA_GetWakeEn(mxc_gpio_reva_regs_t *port);
 
 /**@} end of group gpio */
 
 #ifdef __cplusplus
 }
 #endif
+
+#endif // LIBRARIES_PERIPHDRIVERS_SOURCE_GPIO_GPIO_REVA_H_

@@ -1,5 +1,5 @@
-/* *****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -29,7 +29,10 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- **************************************************************************** */
+ ******************************************************************************/
+
+#ifndef LIBRARIES_PERIPHDRIVERS_SOURCE_TMR_TMR_COMMON_H_
+#define LIBRARIES_PERIPHDRIVERS_SOURCE_TMR_TMR_COMMON_H_
 
 /* **** Includes **** */
 #include <stddef.h>
@@ -37,12 +40,14 @@
 #include "tmr.h"
 
 /* **** Functions **** */
-void MXC_TMR_Common_Delay (mxc_tmr_regs_t *tmr, unsigned long us);
-void MXC_TMR_Common_TO_Start (mxc_tmr_regs_t *tmr, unsigned long us);
-int MXC_TMR_Common_TO_Check (mxc_tmr_regs_t *tmr);
-void MXC_TMR_Common_TO_Stop (mxc_tmr_regs_t *tmr);
-void MXC_TMR_Common_TO_Clear (mxc_tmr_regs_t *tmr);
-unsigned int MXC_TMR_Common_TO_Elapsed (mxc_tmr_regs_t *tmr);
-unsigned int MXC_TMR_Common_TO_Remaining (mxc_tmr_regs_t *tmr);
-void MXC_TMR_Common_SW_Start (mxc_tmr_regs_t *tmr);
-unsigned int MXC_TMR_Common_SW_Stop (mxc_tmr_regs_t *tmr);
+void MXC_TMR_Common_Delay(mxc_tmr_regs_t *tmr, uint32_t us);
+void MXC_TMR_Common_TO_Start(mxc_tmr_regs_t *tmr, uint32_t us);
+int MXC_TMR_Common_TO_Check(mxc_tmr_regs_t *tmr);
+void MXC_TMR_Common_TO_Stop(mxc_tmr_regs_t *tmr);
+void MXC_TMR_Common_TO_Clear(mxc_tmr_regs_t *tmr);
+unsigned int MXC_TMR_Common_TO_Elapsed(mxc_tmr_regs_t *tmr);
+unsigned int MXC_TMR_Common_TO_Remaining(mxc_tmr_regs_t *tmr);
+void MXC_TMR_Common_SW_Start(mxc_tmr_regs_t *tmr);
+unsigned int MXC_TMR_Common_SW_Stop(mxc_tmr_regs_t *tmr);
+
+#endif // LIBRARIES_PERIPHDRIVERS_SOURCE_TMR_TMR_COMMON_H_

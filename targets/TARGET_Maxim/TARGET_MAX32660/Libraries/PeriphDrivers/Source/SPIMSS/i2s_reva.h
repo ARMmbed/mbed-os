@@ -1,5 +1,5 @@
-/* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -29,7 +29,10 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- *************************************************************************** */
+ ******************************************************************************/
+
+#ifndef LIBRARIES_PERIPHDRIVERS_SOURCE_SPIMSS_I2S_REVA_H_
+#define LIBRARIES_PERIPHDRIVERS_SOURCE_SPIMSS_I2S_REVA_H_
 
 #include <stdio.h>
 #include <stddef.h>
@@ -37,9 +40,8 @@
 #include "i2s.h"
 #include "spimss_reva_regs.h"
 
-
-
-int MXC_I2S_RevA_Init(mxc_spimss_reva_regs_t *spimss, const mxc_i2s_config_t *req, void (*dma_ctz_cb)(int, int));
+int MXC_I2S_RevA_Init(mxc_spimss_reva_regs_t *spimss, const mxc_i2s_config_t *req,
+                      void (*dma_ctz_cb)(int, int));
 int MXC_I2S_RevA_Shutdown(mxc_spimss_reva_regs_t *spimss);
 int MXC_I2S_RevA_Mute(mxc_spimss_reva_regs_t *spimss);
 int MXC_I2S_RevA_Unmute(mxc_spimss_reva_regs_t *spimss);
@@ -50,3 +52,5 @@ int MXC_I2S_RevA_Start(mxc_spimss_reva_regs_t *spimss);
 int MXC_I2S_RevA_DMA_ClearFlags(void);
 int MXC_I2S_RevA_DMA_SetAddrCnt(void *src_addr, void *dst_addr, unsigned int count);
 int MXC_I2S_RevA_DMA_SetReload(void *src_addr, void *dst_addr, unsigned int count);
+
+#endif // LIBRARIES_PERIPHDRIVERS_SOURCE_SPIMSS_I2S_REVA_H_

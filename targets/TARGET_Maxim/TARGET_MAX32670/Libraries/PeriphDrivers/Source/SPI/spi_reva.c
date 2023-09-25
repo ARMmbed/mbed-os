@@ -764,7 +764,7 @@ int MXC_SPI_RevA_TransSetup(mxc_spi_reva_req_t *req)
     states[spi_num].started = 0;
     states[spi_num].req_done = 0;
     // HW requires disabling/renabling SPI block at end of each transaction (when SS is inactive).
-    if (states[spi_num].ssDeassert == 1) {
+    if (states[spi_num].drv_ssel && (states[spi_num].ssDeassert == 1) ) {
         (req->spi)->ctrl0 &= ~(MXC_F_SPI_REVA_CTRL0_EN);
     }
 

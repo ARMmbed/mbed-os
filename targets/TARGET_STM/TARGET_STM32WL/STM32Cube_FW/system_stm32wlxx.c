@@ -4,17 +4,6 @@
   * @author  MCD Application Team
   * @brief   CMSIS Cortex Device Peripheral Access Layer System Source File
   *
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2020(-2021) STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
   *   This file provides two functions and one global variable to be called from
   *   user application:
   *      - SystemInit(): This function is called at startup just after reset and
@@ -68,6 +57,17 @@
   *        SDIO and RNG clock                     |
   *-----------------------------------------------------------------------------
   *=============================================================================
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2020 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
   */
 
 /** @addtogroup CMSIS
@@ -122,7 +122,7 @@
 
 /* Note: Following vector table addresses must be defined in line with linker
          configuration. */
-/*!< Uncomment the following line if you need to relocate CPU1 CM4 and/or CPU2
+/*!< Uncomment the following line if you need to relocate CPU1 CM0+ and/or CPU2
      CM0+ vector table anywhere in Sram or Flash. Else vector table will be kept
      at address 0x00 which correspond to automatic remap of boot address selected */
 /* #define USER_VECT_TAB_ADDRESS */

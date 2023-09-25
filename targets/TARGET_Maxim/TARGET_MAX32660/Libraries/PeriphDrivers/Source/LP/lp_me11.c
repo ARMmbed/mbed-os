@@ -3,8 +3,8 @@
  * @brief   Low power functions
  */
 
-/* ****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -34,14 +34,11 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- *
- *************************************************************************** */
-
+ ******************************************************************************/
 
 /***** Includes *****/
 #include "lp.h"
 #include "pwrseq_regs.h"
-#include "mxc_errors.h"
 #include "gcr_regs.h"
 #include "mxc_device.h"
 #include "mxc_errors.h"
@@ -56,7 +53,7 @@ void MXC_LP_ClearWakeStatus(void)
     MXC_PWRSEQ->lp_wakefl = 0xFFFFFFFF;
 
     /* These flags are slow to clear, so block until they do */
-    while(MXC_PWRSEQ->lp_wakefl & (MXC_PWRSEQ->lpwk_en));
+    while (MXC_PWRSEQ->lp_wakefl & (MXC_PWRSEQ->lpwk_en)) {}
 }
 
 void MXC_LP_EnableSRAM3(void)
@@ -153,7 +150,7 @@ void MXC_LP_EnableRTCAlarmWakeup(void)
 {
     MXC_GCR->pm |= MXC_F_GCR_PM_RTCWK_EN;
 }
-    
+
 void MXC_LP_DisableRTCAlarmWakeup(void)
 {
     MXC_GCR->pm &= ~MXC_F_GCR_PM_RTCWK_EN;
@@ -182,37 +179,37 @@ void MXC_LP_DisableGPIOWakeup(unsigned int port, unsigned int mask)
 }
 
 void MXC_LP_EnterSleepMode(void)
-{    
-    // Clear SLEEPDEEP bit 
+{
+    // Clear SLEEPDEEP bit
     SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
 
-    // Go into Sleep mode and wait for an interrupt to wake the processor 
+    // Go into Sleep mode and wait for an interrupt to wake the processor
     __WFI();
 }
 
 void MXC_LP_EnterDeepSleepMode(void)
-{    
-    // Set SLEEPDEEP bit 
+{
+    // Set SLEEPDEEP bit
     SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
 
-    // Auto-powerdown 96 MHz oscillator when in deep sleep 
+    // Auto-powerdown 96 MHz oscillator when in deep sleep
     MXC_GCR->pm |= MXC_F_GCR_PM_HFIOPD;
-    // Go into Deepsleep mode and wait for an interrupt to wake the processor 
+    // Go into Deepsleep mode and wait for an interrupt to wake the processor
     __WFI();
 }
 
 void MXC_LP_EnterBackupMode(void)
-{    
+{
     MXC_GCR->pm &= ~MXC_F_GCR_PM_MODE;
     MXC_GCR->pm |= MXC_S_GCR_PM_MODE_BACKUP;
-    while(1);
+    while (1) {}
 }
 
 void MXC_LP_EnterShutdownMode(void)
 {
     MXC_GCR->pm &= ~MXC_F_GCR_PM_MODE;
     MXC_GCR->pm |= MXC_S_GCR_PM_MODE_SHUTDOWN;
-    while(1);
+    while (1) {}
 }
 
 int MXC_LP_SetOperatingVoltage(mxc_lp_ovr_t ovr)
@@ -221,28 +218,29 @@ int MXC_LP_SetOperatingVoltage(mxc_lp_ovr_t ovr)
     int error;
 
     // Ensure part is operating from internal LDO for core power
-    if(MXC_PWRSEQ->lp_ctrl & MXC_F_PWRSEQ_LP_CTRL_LDO_DIS) {
+    if (MXC_PWRSEQ->lp_ctrl & MXC_F_PWRSEQ_LP_CTRL_LDO_DIS) {
         return E_BAD_STATE;
     }
 
     // Select the 8KHz nanoring (no guarantee 32KHz is attached) as system clock source
     current_clock = MXC_GCR->clk_ctrl & MXC_F_GCR_CLK_CTRL_CLKSEL;
-    if(current_clock == MXC_SYS_CLOCK_HIRC) {
+    if (current_clock == MXC_SYS_CLOCK_HIRC) {
         error = MXC_SYS_Clock_Select(MXC_SYS_CLOCK_NANORING);
-        if(error != E_NO_ERROR) {
+        if (error != E_NO_ERROR) {
             return error;
         }
     }
 
     // Set flash wait state for any clock so its not to low after clock changes.
-    MXC_GCR->mem_ctrl = (MXC_GCR->mem_ctrl & ~(MXC_F_GCR_MEM_CTRL_FWS)) | (0x5UL << MXC_F_GCR_MEM_CTRL_FWS_POS);
+    MXC_GCR->mem_ctrl = (MXC_GCR->mem_ctrl & ~(MXC_F_GCR_MEM_CTRL_FWS)) |
+                        (0x5UL << MXC_F_GCR_MEM_CTRL_FWS_POS);
 
     // Set the OVR bits
     MXC_PWRSEQ->lp_ctrl &= ~(MXC_F_PWRSEQ_LP_CTRL_OVR);
     MXC_PWRSEQ->lp_ctrl |= ovr;
 
     // Set LVE bit
-    if(ovr == MXC_LP_OVR_0_9) {
+    if (ovr == MXC_LP_OVR_0_9) {
         MXC_FLC->ctrl |= MXC_F_FLC_CTRL_LVE;
 
     } else {
@@ -250,11 +248,11 @@ int MXC_LP_SetOperatingVoltage(mxc_lp_ovr_t ovr)
     }
 
     // Revert the clock to original state if it was HIRC
-    if(current_clock == MXC_SYS_CLOCK_HIRC) {
-       error = MXC_SYS_Clock_Select(MXC_SYS_CLOCK_HIRC);
-       if(error != E_NO_ERROR) {
-           return error;
-       }
+    if (current_clock == MXC_SYS_CLOCK_HIRC) {
+        error = MXC_SYS_Clock_Select(MXC_SYS_CLOCK_HIRC);
+        if (error != E_NO_ERROR) {
+            return error;
+        }
     }
 
     // Update SystemCoreClock variable
@@ -264,132 +262,162 @@ int MXC_LP_SetOperatingVoltage(mxc_lp_ovr_t ovr)
     div = (MXC_GCR->clk_ctrl & MXC_F_GCR_CLK_CTRL_PSC) >> MXC_F_GCR_CLK_CTRL_PSC_POS;
 
     // Set Flash Wait States
-    if(ovr == MXC_LP_OVR_0_9) {
-        if(div == 0) {
-            MXC_GCR->mem_ctrl = (MXC_GCR->mem_ctrl & ~(MXC_F_GCR_MEM_CTRL_FWS)) | (0x2UL << MXC_F_GCR_MEM_CTRL_FWS_POS);
+    if (ovr == MXC_LP_OVR_0_9) {
+        if (div == 0) {
+            MXC_GCR->mem_ctrl = (MXC_GCR->mem_ctrl & ~(MXC_F_GCR_MEM_CTRL_FWS)) |
+                                (0x2UL << MXC_F_GCR_MEM_CTRL_FWS_POS);
 
         } else {
-            MXC_GCR->mem_ctrl = (MXC_GCR->mem_ctrl & ~(MXC_F_GCR_MEM_CTRL_FWS)) | (0x1UL << MXC_F_GCR_MEM_CTRL_FWS_POS);
+            MXC_GCR->mem_ctrl = (MXC_GCR->mem_ctrl & ~(MXC_F_GCR_MEM_CTRL_FWS)) |
+                                (0x1UL << MXC_F_GCR_MEM_CTRL_FWS_POS);
         }
 
-    } else if(ovr == MXC_LP_OVR_1_0) {  
-        if(div == 0) {
-            MXC_GCR->mem_ctrl = (MXC_GCR->mem_ctrl & ~(MXC_F_GCR_MEM_CTRL_FWS)) | (0x2UL << MXC_F_GCR_MEM_CTRL_FWS_POS);
+    } else if (ovr == MXC_LP_OVR_1_0) {
+        if (div == 0) {
+            MXC_GCR->mem_ctrl = (MXC_GCR->mem_ctrl & ~(MXC_F_GCR_MEM_CTRL_FWS)) |
+                                (0x2UL << MXC_F_GCR_MEM_CTRL_FWS_POS);
 
         } else {
-            MXC_GCR->mem_ctrl = (MXC_GCR->mem_ctrl & ~(MXC_F_GCR_MEM_CTRL_FWS)) | (0x1UL << MXC_F_GCR_MEM_CTRL_FWS_POS);
+            MXC_GCR->mem_ctrl = (MXC_GCR->mem_ctrl & ~(MXC_F_GCR_MEM_CTRL_FWS)) |
+                                (0x1UL << MXC_F_GCR_MEM_CTRL_FWS_POS);
         }
 
     } else {
-        if(div == 0) {
-            MXC_GCR->mem_ctrl = (MXC_GCR->mem_ctrl & ~(MXC_F_GCR_MEM_CTRL_FWS)) | (0x4UL << MXC_F_GCR_MEM_CTRL_FWS_POS);
-        
-        } else if(div == 1) {
-            MXC_GCR->mem_ctrl = (MXC_GCR->mem_ctrl & ~(MXC_F_GCR_MEM_CTRL_FWS)) | (0x2UL << MXC_F_GCR_MEM_CTRL_FWS_POS);
+        if (div == 0) {
+            MXC_GCR->mem_ctrl = (MXC_GCR->mem_ctrl & ~(MXC_F_GCR_MEM_CTRL_FWS)) |
+                                (0x4UL << MXC_F_GCR_MEM_CTRL_FWS_POS);
+
+        } else if (div == 1) {
+            MXC_GCR->mem_ctrl = (MXC_GCR->mem_ctrl & ~(MXC_F_GCR_MEM_CTRL_FWS)) |
+                                (0x2UL << MXC_F_GCR_MEM_CTRL_FWS_POS);
 
         } else {
-            MXC_GCR->mem_ctrl = (MXC_GCR->mem_ctrl & ~(MXC_F_GCR_MEM_CTRL_FWS)) | (0x1UL << MXC_F_GCR_MEM_CTRL_FWS_POS);
+            MXC_GCR->mem_ctrl = (MXC_GCR->mem_ctrl & ~(MXC_F_GCR_MEM_CTRL_FWS)) |
+                                (0x1UL << MXC_F_GCR_MEM_CTRL_FWS_POS);
         }
     }
 
     // Caller must perform peripheral reset
 
     return E_NO_ERROR;
-
 }
 
-void MXC_LP_EnableSRamRet0(void){
+void MXC_LP_EnableSRamRet0(void)
+{
     MXC_PWRSEQ->lp_ctrl |= MXC_F_PWRSEQ_LP_CTRL_RAMRET_SEL0;
 }
- 
-void MXC_LP_DisableSRamRet0(void){
+
+void MXC_LP_DisableSRamRet0(void)
+{
     MXC_PWRSEQ->lp_ctrl &= ~MXC_F_PWRSEQ_LP_CTRL_RAMRET_SEL0;
 }
 
-void MXC_LP_EnableSRamRet1(void){
+void MXC_LP_EnableSRamRet1(void)
+{
     MXC_PWRSEQ->lp_ctrl |= MXC_F_PWRSEQ_LP_CTRL_RAMRET_SEL1;
 }
- 
-void MXC_LP_DisableSRamRet1(void){
+
+void MXC_LP_DisableSRamRet1(void)
+{
     MXC_PWRSEQ->lp_ctrl &= ~MXC_F_PWRSEQ_LP_CTRL_RAMRET_SEL1;
 }
 
-void MXC_LP_EnableSRamRet2(void){
+void MXC_LP_EnableSRamRet2(void)
+{
     MXC_PWRSEQ->lp_ctrl |= MXC_F_PWRSEQ_LP_CTRL_RAMRET_SEL2;
 }
- 
-void MXC_LP_DisableSRamRet2(void){
+
+void MXC_LP_DisableSRamRet2(void)
+{
     MXC_PWRSEQ->lp_ctrl &= ~MXC_F_PWRSEQ_LP_CTRL_RAMRET_SEL2;
 }
 
-void MXC_LP_EnableSRamRet3(void){
+void MXC_LP_EnableSRamRet3(void)
+{
     MXC_PWRSEQ->lp_ctrl |= MXC_F_PWRSEQ_LP_CTRL_RAMRET_SEL3;
 }
- 
-void MXC_LP_DisableSRamRet3(void){
+
+void MXC_LP_DisableSRamRet3(void)
+{
     MXC_PWRSEQ->lp_ctrl &= ~MXC_F_PWRSEQ_LP_CTRL_RAMRET_SEL3;
 }
 
-void MXC_LP_EnableBlockDetect(void){
-    MXC_PWRSEQ->lp_ctrl &= ~MXC_F_PWRSEQ_LP_CTRL_VCORE_DET_BYPASS; 
+void MXC_LP_EnableBlockDetect(void)
+{
+    MXC_PWRSEQ->lp_ctrl &= ~MXC_F_PWRSEQ_LP_CTRL_VCORE_DET_BYPASS;
 }
 
-void MXC_LP_DisableBlockDetect(void){
-    MXC_PWRSEQ->lp_ctrl |= MXC_F_PWRSEQ_LP_CTRL_VCORE_DET_BYPASS; 
+void MXC_LP_DisableBlockDetect(void)
+{
+    MXC_PWRSEQ->lp_ctrl |= MXC_F_PWRSEQ_LP_CTRL_VCORE_DET_BYPASS;
 }
 
-void MXC_LP_EnableRamRetReg(void){
+void MXC_LP_EnableRamRetReg(void)
+{
     MXC_PWRSEQ->lp_ctrl |= MXC_F_PWRSEQ_LP_CTRL_RETREG_EN;
 }
 
-void MXC_LP_DisableRamRetReg(void){
+void MXC_LP_DisableRamRetReg(void)
+{
     MXC_PWRSEQ->lp_ctrl &= ~MXC_F_PWRSEQ_LP_CTRL_RETREG_EN;
 }
 
-void MXC_LP_EnableFastWk(void){
+void MXC_LP_EnableFastWk(void)
+{
     MXC_PWRSEQ->lp_ctrl |= MXC_F_PWRSEQ_LP_CTRL_FAST_WK_EN;
 }
 
-void MXC_LP_DisableFastWk(void){
+void MXC_LP_DisableFastWk(void)
+{
     MXC_PWRSEQ->lp_ctrl &= ~MXC_F_PWRSEQ_LP_CTRL_FAST_WK_EN;
 }
 
-void MXC_LP_EnableBandGap(void){
+void MXC_LP_EnableBandGap(void)
+{
     MXC_PWRSEQ->lp_ctrl &= ~MXC_F_PWRSEQ_LP_CTRL_BG_OFF;
 }
 
-void MXC_LP_DisableBandGap(void){
+void MXC_LP_DisableBandGap(void)
+{
     MXC_PWRSEQ->lp_ctrl |= MXC_F_PWRSEQ_LP_CTRL_BG_OFF;
 }
 
-void MXC_LP_EnableVCorePORSignal(void){
+void MXC_LP_EnableVCorePORSignal(void)
+{
     MXC_PWRSEQ->lp_ctrl &= ~MXC_F_PWRSEQ_LP_CTRL_VCORE_POR_DIS;
 }
 
-void MXC_LP_DisableVCorePORSignal(void){
+void MXC_LP_DisableVCorePORSignal(void)
+{
     MXC_PWRSEQ->lp_ctrl |= MXC_F_PWRSEQ_LP_CTRL_VCORE_POR_DIS;
 }
 
-void MXC_LP_EnableLDO(void){
+void MXC_LP_EnableLDO(void)
+{
     MXC_PWRSEQ->lp_ctrl &= ~MXC_F_PWRSEQ_LP_CTRL_LDO_DIS;
 }
 
-void MXC_LP_DisableLDO(void){
+void MXC_LP_DisableLDO(void)
+{
     MXC_PWRSEQ->lp_ctrl |= MXC_F_PWRSEQ_LP_CTRL_LDO_DIS;
 }
 
-void MXC_LP_EnableVCoreSVM(void){
+void MXC_LP_EnableVCoreSVM(void)
+{
     MXC_PWRSEQ->lp_ctrl &= ~MXC_F_PWRSEQ_LP_CTRL_VCORE_SVM_DIS;
 }
 
-void MXC_LP_DisableVCoreSVM(void){
+void MXC_LP_DisableVCoreSVM(void)
+{
     MXC_PWRSEQ->lp_ctrl |= MXC_F_PWRSEQ_LP_CTRL_VCORE_SVM_DIS;
 }
 
-void MXC_LP_EnableVDDIOPorMonitoF(void){
+void MXC_LP_EnableVDDIOPorMonitoF(void)
+{
     MXC_PWRSEQ->lp_ctrl &= ~MXC_F_PWRSEQ_LP_CTRL_VDDIO_POR_DIS;
 }
 
-void MXC_LP_DisableVDDIOPorMonitor(void){
+void MXC_LP_DisableVDDIOPorMonitor(void)
+{
     MXC_PWRSEQ->lp_ctrl |= MXC_F_PWRSEQ_LP_CTRL_VDDIO_POR_DIS;
 }

@@ -40,7 +40,7 @@ extern void restore_timer_ctx(void);
 extern void SetSysClock(void);
 
 /*  Wait loop - assuming tick is 1 us */
-static void wait_loop(uint32_t timeout)
+__WEAK void wait_loop(uint32_t timeout)
 {
     uint32_t t1, t2, elapsed = 0;
     t1 = us_ticker_read();
@@ -52,7 +52,7 @@ static void wait_loop(uint32_t timeout)
 }
 
 
-static void ForcePeriphOutofDeepSleep(void)
+__WEAK void ForcePeriphOutofDeepSleep(void)
 {
     uint32_t pFLatency = 0;
     RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
@@ -84,7 +84,7 @@ static void ForcePeriphOutofDeepSleep(void)
 }
 
 
-static void ForceOscOutofDeepSleep(void)
+__WEAK void ForceOscOutofDeepSleep(void)
 {
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
 

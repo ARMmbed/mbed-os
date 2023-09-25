@@ -3,8 +3,8 @@
  * @brief   This file contains constant pin configurations for the peripherals.
  */
 
-/* *****************************************************************************
- * Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+/******************************************************************************
+ * Copyright (C) 2023 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -34,21 +34,16 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- **************************************************************************** */
+ ******************************************************************************/
 
-
-#ifndef _MXC_PINS_H_
-#define _MXC_PINS_H_
+#ifndef LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_MXC_PINS_H_
+#define LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_MXC_PINS_H_
 
 #include "gpio.h"
 
 /***** Global Variables *****/
 
-typedef enum {
-	MAP_A,
-	MAP_B,
-	MAP_C
-} sys_map_t;
+typedef enum { MAP_A, MAP_B, MAP_C } sys_map_t;
 
 // Predefined GPIO Configurations
 extern const mxc_gpio_cfg_t gpio_cfg_swda;
@@ -57,14 +52,12 @@ extern const mxc_gpio_cfg_t gpio_cfg_swdb;
 extern const mxc_gpio_cfg_t gpio_cfg_i2c0;
 extern const mxc_gpio_cfg_t gpio_cfg_i2c1;
 
-
 extern const mxc_gpio_cfg_t gpio_cfg_uart0;
 extern const mxc_gpio_cfg_t gpio_cfg_uart0_flow;
 extern const mxc_gpio_cfg_t gpio_cfg_uart1a;
 extern const mxc_gpio_cfg_t gpio_cfg_uart1b;
 extern const mxc_gpio_cfg_t gpio_cfg_uart1c;
 extern const mxc_gpio_cfg_t gpio_cfg_uart1_flow;
-
 
 extern const mxc_gpio_cfg_t gpio_cfg_spi0;
 extern const mxc_gpio_cfg_t gpio_cfg_spi0_ss;
@@ -80,6 +73,4 @@ extern const mxc_gpio_cfg_t gpio_cfg_32kcal;
 extern const mxc_gpio_cfg_t gpio_cfg_i2s0a;
 extern const mxc_gpio_cfg_t gpio_cfg_i2s0b;
 
-
-#endif /* _MXC_PINS_H_ */
-
+#endif // LIBRARIES_PERIPHDRIVERS_INCLUDE_MAX32660_MXC_PINS_H_

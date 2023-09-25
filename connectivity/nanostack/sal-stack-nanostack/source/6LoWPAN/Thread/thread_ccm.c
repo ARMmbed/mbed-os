@@ -756,6 +756,11 @@ static int thread_ccm_reenroll_registrar_addr_resp_cb(int8_t service_id, uint8_t
         return -1;
     }
 
+    if (!cur) {
+        tr_debug("Protocol stack interface info get failed");
+        return -1;
+    }
+
     if (!thread_meshcop_tlv_find(response_ptr->payload_ptr, response_ptr->payload_len, MESHCOP_TLV_REGISTRAR_IPV6_ADDRESS, &addr_ptr)) {
         tr_debug("Registrar addr get failed");
         return -1;

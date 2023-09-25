@@ -6,11 +6,20 @@
   *          This file provides firmware functions to manage the following
   *          functionalities of the COMP peripheral:
   *           + Initialization and de-initialization functions
-  *           + Start/Stop operation functions in polling mode
-  *           + Start/Stop operation functions in interrupt mode (through EXTI interrupt)
   *           + Peripheral control functions
   *           + Peripheral state functions
   *
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2020 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
   @verbatim
 ================================================================================
           ##### COMP Peripheral features #####
@@ -145,18 +154,6 @@
   @endverbatim
   ******************************************************************************
 
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
   */
 
 /* Includes ------------------------------------------------------------------*/
@@ -378,7 +375,7 @@ HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp)
         LL_C2_EXTI_EnableEvent_0_31(exti_line);
 #else
         LL_EXTI_EnableEvent_0_31(exti_line);
-#endif
+#endif /* CORE_CM0PLUS */
       }
       else
       {
@@ -386,7 +383,7 @@ HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp)
         LL_C2_EXTI_DisableEvent_0_31(exti_line);
 #else
         LL_EXTI_DisableEvent_0_31(exti_line);
-#endif
+#endif /* CORE_CM0PLUS */
       }
 
       /* Configure EXTI interrupt mode */
@@ -396,7 +393,7 @@ HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp)
         LL_C2_EXTI_EnableIT_0_31(exti_line);
 #else
         LL_EXTI_EnableIT_0_31(exti_line);
-#endif
+#endif /* CORE_CM0PLUS */
       }
       else
       {
@@ -404,7 +401,7 @@ HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp)
         LL_C2_EXTI_DisableIT_0_31(exti_line);
 #else
         LL_EXTI_DisableIT_0_31(exti_line);
-#endif
+#endif /* CORE_CM0PLUS */
       }
     }
     else
@@ -414,14 +411,14 @@ HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp)
         LL_C2_EXTI_DisableEvent_0_31(exti_line);
 #else
         LL_EXTI_DisableEvent_0_31(exti_line);
-#endif
+#endif /* CORE_CM0PLUS */
 
       /* Disable EXTI interrupt mode */
 #if defined(CORE_CM0PLUS)
       LL_C2_EXTI_DisableIT_0_31(exti_line);
 #else
       LL_EXTI_DisableIT_0_31(exti_line);
-#endif
+#endif /* CORE_CM0PLUS */
     }
 
     /* Set HAL COMP handle state */
@@ -917,7 +914,7 @@ HAL_StatusTypeDef HAL_COMP_Lock(COMP_HandleTypeDef *hcomp)
   *         @arg COMP_OUTPUT_LEVEL_HIGH
   *
   */
-uint32_t HAL_COMP_GetOutputLevel(COMP_HandleTypeDef *hcomp)
+uint32_t HAL_COMP_GetOutputLevel(const COMP_HandleTypeDef *hcomp)
 {
   /* Check the parameter */
   assert_param(IS_COMP_ALL_INSTANCE(hcomp->Instance));
@@ -965,7 +962,7 @@ __weak void HAL_COMP_TriggerCallback(COMP_HandleTypeDef *hcomp)
   * @param  hcomp  COMP handle
   * @retval HAL state
   */
-HAL_COMP_StateTypeDef HAL_COMP_GetState(COMP_HandleTypeDef *hcomp)
+HAL_COMP_StateTypeDef HAL_COMP_GetState(const COMP_HandleTypeDef *hcomp)
 {
   /* Check the COMP handle allocation */
   if(hcomp == NULL)
@@ -985,7 +982,7 @@ HAL_COMP_StateTypeDef HAL_COMP_GetState(COMP_HandleTypeDef *hcomp)
   * @param hcomp COMP handle
   * @retval COMP error code
   */
-uint32_t HAL_COMP_GetError(COMP_HandleTypeDef *hcomp)
+uint32_t HAL_COMP_GetError(const COMP_HandleTypeDef *hcomp)
 {
   /* Check the parameters */
   assert_param(IS_COMP_ALL_INSTANCE(hcomp->Instance));
@@ -1012,5 +1009,3 @@ uint32_t HAL_COMP_GetError(COMP_HandleTypeDef *hcomp)
 /**
   * @}
   */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

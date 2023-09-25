@@ -6,13 +6,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics. 
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2020 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the 
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -125,13 +124,13 @@ typedef struct
 #if defined(DUAL_CORE)
 #define LL_EXTI_LINE_36                 EXTI_IMR2_IM36   /*!< Extended line 36 */
 #define LL_EXTI_LINE_37                 EXTI_IMR2_IM37   /*!< Extended line 37 */
-#endif
+#endif /* DUAL_CORE */
 #define LL_EXTI_LINE_38                 EXTI_IMR2_IM38   /*!< Extended line 38 */
 #if defined(DUAL_CORE)
 #define LL_EXTI_LINE_39                 EXTI_IMR2_IM39   /*!< Extended line 39 */
 #define LL_EXTI_LINE_40                 EXTI_IMR2_IM40   /*!< Extended line 40 */
 #define LL_EXTI_LINE_41                 EXTI_IMR2_IM41   /*!< Extended line 41 */
-#endif
+#endif /* DUAL_CORE */
 #define LL_EXTI_LINE_42                 EXTI_IMR2_IM42   /*!< Extended line 42 */
 #define LL_EXTI_LINE_43                 EXTI_IMR2_IM43   /*!< Extended line 43 */
 #define LL_EXTI_LINE_44                 EXTI_IMR2_IM44   /*!< Extended line 44 */
@@ -139,14 +138,14 @@ typedef struct
 #define LL_EXTI_LINE_46                 EXTI_IMR2_IM46   /*!< Extended line 46 */
 #if defined(DUAL_CORE)
 #define LL_EXTI_LINE_ALL_32_63          (EXTI_IMR2_IM34 | EXTI_IMR2_IM36 | EXTI_IMR2_IM37 | \
-                                        EXTI_IMR2_IM38 | EXTI_IMR2_IM39 | EXTI_IMR2_IM40 |  \
-                                        EXTI_IMR2_IM41 | EXTI_IMR2_IM42 | EXTI_IMR2_IM43 |  \
-                                        EXTI_IMR2_IM44 | EXTI_IMR2_IM45 | EXTI_IMR2_IM46) /*!< All Extended line not reserved*/
+                                         EXTI_IMR2_IM38 | EXTI_IMR2_IM39 | EXTI_IMR2_IM40 |  \
+                                         EXTI_IMR2_IM41 | EXTI_IMR2_IM42 | EXTI_IMR2_IM43 |  \
+                                         EXTI_IMR2_IM44 | EXTI_IMR2_IM45 | EXTI_IMR2_IM46) /*!< All Extended line not reserved*/
 #else
 #define LL_EXTI_LINE_ALL_32_63          (EXTI_IMR2_IM34 | EXTI_IMR2_IM38 | EXTI_IMR2_IM42 | \
-                                        EXTI_IMR2_IM43 | EXTI_IMR2_IM44 | EXTI_IMR2_IM45 |  \
-                                        EXTI_IMR2_IM46) /*!< All Extended line not reserved*/
-#endif
+                                         EXTI_IMR2_IM43 | EXTI_IMR2_IM44 | EXTI_IMR2_IM45 |  \
+                                         EXTI_IMR2_IM46) /*!< All Extended line not reserved*/
+#endif /* DUAL_CORE */
 
 #if defined(USE_FULL_LL_DRIVER)
 #define LL_EXTI_LINE_NONE              (0x00000000U)  /*!< None Extended line */
@@ -218,8 +217,8 @@ typedef struct
 
 /* Exported functions --------------------------------------------------------*/
 /** @defgroup EXTI_LL_Exported_Functions EXTI Exported Functions
- * @{
- */
+  * @{
+  */
 /** @defgroup EXTI_LL_EF_IT_Management IT_Management
   * @{
   */
@@ -312,7 +311,7 @@ __STATIC_INLINE void LL_C2_EXTI_EnableIT_0_31(uint32_t ExtiLine)
 {
   SET_BIT(EXTI->C2IMR1, ExtiLine);
 }
-#endif
+#endif /* DUAL_CORE */
 
 /**
   * @brief  Enable ExtiLine Interrupt request for Lines in range 32 to 63
@@ -364,7 +363,7 @@ __STATIC_INLINE void LL_C2_EXTI_EnableIT_32_63(uint32_t ExtiLine)
 {
   SET_BIT(EXTI->C2IMR2, ExtiLine);
 }
-#endif
+#endif /* DUAL_CORE */
 
 /**
   * @brief  Disable ExtiLine Interrupt request for Lines in range 0 to 31
@@ -454,7 +453,7 @@ __STATIC_INLINE void LL_C2_EXTI_DisableIT_0_31(uint32_t ExtiLine)
 {
   CLEAR_BIT(EXTI->C2IMR1, ExtiLine);
 }
-#endif
+#endif /* DUAL_CORE */
 
 /**
   * @brief  Disable ExtiLine Interrupt request for Lines in range 32 to 63
@@ -506,7 +505,7 @@ __STATIC_INLINE void LL_C2_EXTI_DisableIT_32_63(uint32_t ExtiLine)
 {
   CLEAR_BIT(EXTI->C2IMR2, ExtiLine);
 }
-#endif
+#endif /* DUAL_CORE */
 
 /**
   * @brief  Indicate if ExtiLine Interrupt request is enabled for Lines in range 0 to 31
@@ -596,7 +595,7 @@ __STATIC_INLINE uint32_t LL_C2_EXTI_IsEnabledIT_0_31(uint32_t ExtiLine)
 {
   return ((READ_BIT(EXTI->C2IMR1, ExtiLine) == (ExtiLine)) ? 1UL : 0UL);
 }
-#endif
+#endif /* DUAL_CORE */
 
 /**
   * @brief  Indicate if ExtiLine Interrupt request is enabled for Lines in range 32 to 63
@@ -648,7 +647,7 @@ __STATIC_INLINE uint32_t LL_C2_EXTI_IsEnabledIT_32_63(uint32_t ExtiLine)
 {
   return ((READ_BIT(EXTI->C2IMR2, ExtiLine) == (ExtiLine)) ? 1UL : 0UL);
 }
-#endif
+#endif /* DUAL_CORE */
 
 /**
   * @}
@@ -722,7 +721,7 @@ __STATIC_INLINE void LL_C2_EXTI_EnableEvent_0_31(uint32_t ExtiLine)
 {
   SET_BIT(EXTI->C2EMR1, ExtiLine);
 }
-#endif
+#endif /* DUAL_CORE */
 
 /**
   * @brief  Enable ExtiLine Event request for Lines in range 32 to 63
@@ -752,7 +751,7 @@ __STATIC_INLINE void LL_C2_EXTI_EnableEvent_32_63(uint32_t ExtiLine)
 {
   SET_BIT(EXTI->C2EMR2, ExtiLine);
 }
-#endif
+#endif /* DUAL_CORE */
 
 /**
   * @brief  Disable ExtiLine Event request for Lines in range 0 to 31
@@ -818,7 +817,7 @@ __STATIC_INLINE void LL_C2_EXTI_DisableEvent_0_31(uint32_t ExtiLine)
 {
   CLEAR_BIT(EXTI->C2EMR1, ExtiLine);
 }
-#endif
+#endif /* DUAL_CORE */
 
 /**
   * @brief  Disable ExtiLine Event request for Lines in range 32 to 63
@@ -848,7 +847,7 @@ __STATIC_INLINE void LL_C2_EXTI_DisableEvent_32_63(uint32_t ExtiLine)
 {
   CLEAR_BIT(EXTI->C2EMR2, ExtiLine);
 }
-#endif
+#endif /* DUAL_CORE */
 
 /**
   * @brief  Indicate if ExtiLine Event request is enabled for Lines in range 0 to 31
@@ -914,7 +913,7 @@ __STATIC_INLINE uint32_t LL_C2_EXTI_IsEnabledEvent_0_31(uint32_t ExtiLine)
 {
   return ((READ_BIT(EXTI->C2EMR1, ExtiLine) == (ExtiLine)) ? 1UL : 0UL);
 }
-#endif
+#endif /* DUAL_CORE */
 
 /**
   * @brief  Indicate if ExtiLine Event request is enabled for Lines in range 32 to 63
@@ -944,7 +943,7 @@ __STATIC_INLINE uint32_t LL_C2_EXTI_IsEnabledEvent_32_63(uint32_t ExtiLine)
 {
   return ((READ_BIT(EXTI->C2EMR2, ExtiLine) == (ExtiLine)) ? 1UL : 0UL);
 }
-#endif
+#endif /* DUAL_CORE */
 
 /**
   * @}
@@ -1407,7 +1406,7 @@ __STATIC_INLINE uint32_t LL_EXTI_IsActiveFlag_0_31(uint32_t ExtiLine)
   *         @arg @ref LL_EXTI_LINE_34
   *         @arg @ref LL_EXTI_LINE_40
   *         @arg @ref LL_EXTI_LINE_41
-  *         @arg @ref LL_EXTI_LINE_45  
+  *         @arg @ref LL_EXTI_LINE_45
   * @retval State of bit (1 or 0).
   */
 __STATIC_INLINE uint32_t LL_EXTI_IsActiveFlag_32_63(uint32_t ExtiLine)
@@ -1551,6 +1550,3 @@ void        LL_EXTI_StructInit(LL_EXTI_InitTypeDef *EXTI_InitStruct);
 #endif
 
 #endif /* __STM32WLxx_LL_EXTI_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-
