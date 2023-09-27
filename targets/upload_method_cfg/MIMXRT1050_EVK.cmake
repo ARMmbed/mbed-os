@@ -17,15 +17,8 @@ set(PYOCD_UPLOAD_ENABLED TRUE)
 set(PYOCD_TARGET_NAME mimxrt1050_hyperflash) # Note: change to "mimxrt1050_quadspi" if onboard QSPI flash is used
 set(PYOCD_CLOCK_SPEED 4000k)
 
-# Config options for REDLINK
+# Config options for LINKSERVER
 # -------------------------------------------------------------
-set(REDLINK_UPLOAD_ENABLED TRUE)
-set(REDLINK_PART_NUMBER MIMXRT1052xxxxB)
-set(REDLINK_PART_XML_DIR ${CMAKE_CURRENT_LIST_DIR}/redlink_cfgs)
-set(REDLINK_CLOCK_SPEED 4000)
-set(REDLINK_CONNECT_ARGS
-	--connectscript=RT1050_connect.scp
-	--reset=
-	--coreindex 0
-	--cache disable
-	--no-packed)
+set(LINKSERVER_UPLOAD_ENABLED TRUE)
+# note: might need to change the below to MIMXRT1052xxxxx:EVK-IMXRT1050 if you have an EVK rev A
+set(LINKSERVER_DEVICE MIMXRT1052xxxxB:EVKB-IMXRT1050)

@@ -45,6 +45,12 @@
  */
 #define SERIAL_FLUSH_TIME_MS 150
 
+// Tolerance for extra sleep time in the deep sleep test.
+// This accounts for the time that the processor spends going to sleep and waking up.
+// The hal_deepsleep() docs specify this to be less than 10ms
+// Current leader is the MIMXRT105x, which takes almost 6ms to enter/exit deep sleep.
+#define DEEP_SLEEP_TOLERANCE_US 6000ULL
+
 #define US_PER_S 1000000
 
 unsigned int ticks_to_us(unsigned int ticks, unsigned int freq)

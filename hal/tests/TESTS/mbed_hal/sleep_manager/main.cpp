@@ -31,12 +31,6 @@
 
 #define SLEEP_DURATION_US 50000ULL
 
-// Tolerance for extra sleep time in the deep sleep test.
-// This accounts for the time that the processor spends going to sleep and waking up.
-// The hal_deepsleep() docs specify this to be less than 10ms
-// Current leader is the MIMXRT105x, which takes almost 5ms to enter/exit deep sleep.
-#define DEEP_SLEEP_TOLERANCE_US 5000ULL
-
 #define DEEP_SLEEP_TEST_CHECK_WAIT_US 2000
 // As sleep_manager_can_deep_sleep_test_check() is based on wait_ns
 // and wait_ns can be up to 40% slower, use a 50% delta here.

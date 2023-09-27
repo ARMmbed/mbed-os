@@ -28,7 +28,7 @@ endif()
 # UPLOAD_GDBSERVER_DEBUG_COMMAND - Command to start a new GDB server
 # UPLOAD_WANTS_EXTENDED_REMOTE - True iff GDB should use "target extended-remote" to connect to the GDB server
 # UPLOAD_LAUNCH_COMMANDS - List of GDB commands to run after launching GDB.
-# UPLOAD_RESTART_COMMANDS - List of commands to run when the "restart chip" function is used.
+# UPLOAD_RESTART_COMMANDS - List of GDB commands to run when the "restart chip" function is used.
 # See here for more info: https://github.com/mbed-ce/mbed-os/wiki/Debugger-Commands-and-State-in-Upload-Methods
 include(UploadMethod${UPLOAD_METHOD})
 

@@ -27,15 +27,7 @@ set(PYOCD_UPLOAD_ENABLED TRUE)
 set(PYOCD_TARGET_NAME mimxrt1060) # Note: This seems to use QSPI.  There does not seem to be a pyocd equivalent for hyperflash.
 set(PYOCD_CLOCK_SPEED 4000k)
 
-# Config options for REDLINK
+# Config options for LINKSERVER
 # -------------------------------------------------------------
-set(REDLINK_UPLOAD_ENABLED TRUE)
-set(REDLINK_PART_NUMBER MIMXRT1062xxxxA)
-set(REDLINK_PART_XML_DIR ${CMAKE_CURRENT_LIST_DIR}/redlink_cfgs)
-set(REDLINK_CLOCK_SPEED 4000)
-set(REDLINK_CONNECT_ARGS
-	--connectscript=RT1060_connect.scp
-	--reset=
-	--coreindex 0
-	--cache disable
-	--no-packed)
+set(LINKSERVER_UPLOAD_ENABLED TRUE)
+set(LINKSERVER_DEVICE MIMXRT1062xxxxx:MIMXRT1060-EVKB)

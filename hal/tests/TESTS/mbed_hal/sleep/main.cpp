@@ -192,11 +192,11 @@ void deepsleep_high_speed_clocks_turned_off_test()
     /* High freqency ticker should be disabled in deep-sleep mode. We expect that time difference between
      * ticker reads before and after the sleep represents only code execution time between calls.
      * Since we went to sleep for about 20 ms check if time counted by high frequency timer does not
-     * exceed 1 ms.
+     * exceed the deep sleep enter/exit time.
      */
     const unsigned int us_ticks_diff = (us_ticks_before_sleep <= us_ticks_after_sleep) ? (us_ticks_after_sleep - us_ticks_before_sleep) : (us_ticker_mask - us_ticks_before_sleep + us_ticks_after_sleep + 1);
 
-    TEST_ASSERT_UINT32_WITHIN(1000, 0, ticks_to_us(us_ticks_diff, us_ticker_freq));
+    TEST_ASSERT_UINT32_WITHIN(DEEP_SLEEP_TOLERANCE_US, 0, ticks_to_us(us_ticks_diff, us_ticker_freq));
 
     sprintf(info, "Delta ticks: %u, Ticker width: %u, Expected wake up tick: %" PRIu32 ", Actual wake up tick: %d\n",
             us_to_ticks(deepsleep_mode_delta_us, lp_ticker_freq), lp_ticker_width, wakeup_time, lp_ticks_after_sleep);
