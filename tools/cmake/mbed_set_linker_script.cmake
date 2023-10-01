@@ -46,9 +46,9 @@ function(mbed_setup_linker_script mbed_os_target mbed_baremetal_target target_de
     set(LINKER_SCRIPT_PATH ${CMAKE_BINARY_DIR}/${MBED_TARGET_CMAKE_NAME}.link_script.ld)
 
     # To avoid path limits on Windows, we create a "response file" and set the path to it as a
-    # global property. We need this solely to pass the compile definitions to GCC's preprocessor,
-    # so it can expand any macro definitions in the linker script.
-    get_property(linker_defs_response_file GLOBAL PROPERTY COMPILE_DEFS_RESPONSE_FILE)
+    # global property. We need this solely to pass the compile definitions and include paths
+    # to GCC's preprocessor, so it can expand any macro definitions in the linker script.
+    get_property(linker_defs_response_file GLOBAL PROPERTY LINKER_SCRIPT_PREPROCESS_FLAGS_RESPONSE_FILE)
 
     get_filename_component(RAW_LINKER_SCRIPT_NAME ${RAW_LINKER_SCRIPT_PATHS} NAME)
     get_filename_component(LINKER_SCRIPT_NAME ${LINKER_SCRIPT_PATH} NAME)
@@ -114,7 +114,7 @@ function(mbed_set_custom_linker_script target new_linker_script_path)
     # To avoid path limits on Windows, we create a "response file" and set the path to it as a
     # global property. We need this solely to pass the compile definitions to GCC's preprocessor,
     # so it can expand any macro definitions in the linker script.
-    get_property(linker_defs_response_file GLOBAL PROPERTY COMPILE_DEFS_RESPONSE_FILE)
+    get_property(linker_defs_response_file GLOBAL PROPERTY LINKER_SCRIPT_PREPROCESS_FLAGS_RESPONSE_FILE)
 
     get_filename_component(RAW_LINKER_SCRIPT_NAME ${RAW_LINKER_SCRIPT_PATHS} NAME)
     get_filename_component(LINKER_SCRIPT_NAME ${CUSTOM_LINKER_SCRIPT_PATH} NAME)

@@ -16,9 +16,6 @@
  * Definitions
  ******************************************************************************/
 
-#define LPM_EnterCritical()
-#define LPM_ExitCritical()
-
 /*
  * Power mode definition of low power management.
  */

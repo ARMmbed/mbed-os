@@ -12,6 +12,8 @@
 #define FSL_COMPONENT_ID "platform.drivers.xip_board"
 #endif
 
+#include "mimxrt_memory_info.h"
+
 /*******************************************************************************
  * Code
  ******************************************************************************/
@@ -37,7 +39,7 @@ const flexspi_nor_config_t hyperflash_config = {
         (1u << kFlexSpiMiscOffset_SafeConfigFreqEnable) | (1u << kFlexSpiMiscOffset_DiffClkEnable),
         .sflashPadType = kSerialFlash_8Pads,
         .serialClkFreq = kFlexSpiSerialClk_133MHz,
-        .sflashA1Size = 64u * 1024u * 1024u,
+        .sflashA1Size = BOARD_FLASH_SIZE,
         .dataValidTime = {16u, 16u},
         .lookupTable = {
             // Read LUTs
@@ -66,7 +68,7 @@ const flexspi_nor_config_t qspiflash_config = {
         .sflashPadType = kSerialFlash_4Pads,
         .serialClkFreq = kFlexSpiSerialClk_133MHz,
         .lutCustomSeqEnable = 0u,
-        .sflashA1Size = 0x00800000u, /* 8MB/64Mbit */
+        .sflashA1Size = BOARD_FLASH_SIZE,
         .lookupTable = {
             // Fast read sequence
             [0] = FLEXSPI_LUT_SEQ(CMD_SDR, FLEXSPI_1PAD, 0xEB, RADDR_SDR, FLEXSPI_4PAD, 0x18),

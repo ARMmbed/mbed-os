@@ -268,6 +268,10 @@ void FLEXSPI_Init(FLEXSPI_Type *base, const flexspi_config_t *config)
                   FLEXSPI_MCR0_ARDFEN(config->ahbConfig.enableAHBWriteIpRxFifo) |
 #endif
                   FLEXSPI_MCR0_MDIS_MASK;
+
+    /* Bit 15 is reserved and must be set to 1 */
+    configValue |= (1 << 15);
+
     base->MCR0 = configValue;
 
     /* Configure MCR1 configurations. */

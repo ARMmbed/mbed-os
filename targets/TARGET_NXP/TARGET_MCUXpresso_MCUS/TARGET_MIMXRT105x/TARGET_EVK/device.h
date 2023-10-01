@@ -19,25 +19,9 @@
 #ifndef MBED_DEVICE_H
 #define MBED_DEVICE_H
 
-#define DEVICE_ID_LENGTH       24
+#include <stdint.h>
 
-#ifdef HYPERFLASH_BOOT
-/* 64MB HyperFlash, 4MB reserved for mbed-os */
-#define BOARD_FLASH_SIZE             (0x4000000U)
-#define BOARD_FLASH_START_ADDR       (0x60000000U)
-#define BOARD_FLASHIAP_SIZE          (0x3C00000U)
-#define BOARD_FLASHIAP_START_ADDR    (0x60400000U)
-#define BOARD_FLASH_PAGE_SIZE        (512)
-#define BOARD_FLASH_SECTOR_SIZE      (262144)
-#else
-/* 8MB QSPI Flash, 64KB reserved for mbed_bootloader */
-#define BOARD_FLASH_SIZE             (0x800000U)
-#define BOARD_FLASH_START_ADDR       (0x60000000U)
-#define BOARD_FLASHIAP_SIZE          (0x7F0000U)
-#define BOARD_FLASHIAP_START_ADDR    (0x60010000U)
-#define BOARD_FLASH_PAGE_SIZE        (256)
-#define BOARD_FLASH_SECTOR_SIZE      (4096)
-#endif
+#define DEVICE_ID_LENGTH       24
 
 #define BOARD_ENET_PHY_ADDR    (2)
 
@@ -45,6 +29,12 @@
  to be as vector table */
 #undef __VECTOR_TABLE
 
+// The MIMXRT linker script provides the __USED_FLASH_END symbol to
+// indicate where application data ends in flash
+extern uint8_t __USED_FLASH_END[0];
+#define FLASHIAP_APP_ROM_END_ADDR ((uint32_t)__USED_FLASH_END)
+
+#include "mimxrt_memory_info.h"
 #include "objects.h"
 
 #endif

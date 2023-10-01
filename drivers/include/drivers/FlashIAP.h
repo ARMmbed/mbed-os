@@ -32,7 +32,8 @@
 #include "platform/NonCopyable.h"
 #include <algorithm>
 
-// Export ROM end address
+// Export ROM end address, if not defined by HAL layer
+#ifndef FLASHIAP_APP_ROM_END_ADDR
 #if defined(TOOLCHAIN_GCC_ARM)
 extern uint32_t __etext;
 extern uint32_t __data_start__;
@@ -47,6 +48,7 @@ extern uint32_t Load$$LR$$LR_IROM1$$Limit[];
 #pragma section=".init_array"
 #define FLASHIAP_APP_ROM_END_ADDR std::max(std::max((uint32_t) __section_end(".rodata"), (uint32_t) __section_end(".text")), \
                                   (uint32_t) __section_end(".init_array"))
+#endif
 #endif
 
 namespace mbed {

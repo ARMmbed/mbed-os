@@ -24,6 +24,10 @@
 #include "fsl_flexspi.h"
 #include "fsl_cache.h"
 #include "flash_defines.h"
+#include "mimxrt_flash_api.h"
+
+#include <inttypes.h>
+#include <stdio.h>
 
 AT_QUICKACCESS_SECTION_CODE(void flexspi_update_lut_ram(void));
 AT_QUICKACCESS_SECTION_CODE(status_t flexspi_nor_write_enable_ram(uint32_t baseAddr));
@@ -103,6 +107,13 @@ void flexspi_update_lut_ram(void)
     config.enableSckBDiffOpt = true;
     config.rxSampleClock     = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
     config.enableCombination = true;
+
+    /* Wait for bus idle.  It seems to be important to hold off on calling
+     * FLEXSPI_Init() until after the bus is idle; I was getting random crashes
+     * until I added this. */
+    while (!FLEXSPI_GetBusIdleStatus(FLEXSPI)) {
+    }
+
     FLEXSPI_Init(FLEXSPI, &config);
 
     /* Configure flash settings according to serial flash feature. */
@@ -116,6 +127,10 @@ void flexspi_update_lut_ram(void)
     /* Wait for bus idle. */
     while (!FLEXSPI_GetBusIdleStatus(FLEXSPI)) {
     }
+
+    // Just in case any bad data got into the I-cache while we were reconfiguring
+    // the flash, wipe it.
+    SCB_InvalidateICache();
 }
 
 status_t flexspi_nor_write_enable_ram(uint32_t baseAddr)
@@ -319,13 +334,31 @@ status_t flexspi_nor_flash_page_program_ram(uint32_t address, const uint32_t *sr
 
 #else
 AT_QUICKACCESS_SECTION_CODE(status_t flexspi_nor_enable_quad_mode_ram(void));
+AT_QUICKACCESS_SECTION_CODE(status_t flexspi_nor_read_status_register_ram(uint32_t * result));
+
+/*
+ * Check if quad SPI mode is enabled and, if not, enable it.
+ *
+ * Note that I'm not totally sure if this function is needed because I don't think
+ * that the application could boot without quad mode enabled, but this might be
+ * useful for programming non-boot-device flashes at a later date.
+ * Or, if you must run the application on a flash which does not have quad mode enabled,
+ * you could temporarily change the boot header read command to use 1-pad read,
+ * then rely on this function to update the setting.
+ */
 status_t flexspi_nor_enable_quad_mode_ram(void)
 {
-    flexspi_transfer_t flashXfer;
-    uint32_t writeValue = FLASH_QUAD_ENABLE;
-    status_t status = kStatus_Success;
+    uint32_t readResult = 0;
+    status_t status = flexspi_nor_read_status_register_ram(&readResult);
+    if (status != kStatus_Success) {
+        return status;
+    }
 
-    flexspi_memset(&flashXfer, 0, sizeof(flashXfer));
+    if(readResult & (1 << FLASH_QE_STATUS_OFFSET)) {
+        // QSPI mode already enabled, don't need to do anything
+        return kStatus_Success;
+    }
+
     /* Write enable */
     status = flexspi_nor_write_enable_ram(0);
 
@@ -334,6 +367,8 @@ status_t flexspi_nor_enable_quad_mode_ram(void)
     }
 
     /* Enable quad mode. */
+    flexspi_transfer_t flashXfer = {};
+    uint32_t writeValue = (1 << FLASH_QE_STATUS_OFFSET);
     flashXfer.deviceAddress = 0;
     flashXfer.port          = kFLEXSPI_PortA1;
     flashXfer.cmdType       = kFLEXSPI_Write;
@@ -349,17 +384,12 @@ status_t flexspi_nor_enable_quad_mode_ram(void)
 
     status = flexspi_nor_wait_bus_busy_ram();
 
-    /* Do software reset. */
-    FLEXSPI_SoftwareReset(FLEXSPI);
-
     return status;
 }
 
 void flexspi_update_lut_ram(void)
 {
-    flexspi_config_t config;
-
-    flexspi_memset(&config, 0, sizeof(config));
+    flexspi_config_t config = {};
 
     /*Get FLEXSPI default settings and configure the flexspi. */
     FLEXSPI_GetDefaultConfig(&config);
@@ -370,6 +400,15 @@ void flexspi_update_lut_ram(void)
     config.ahbConfig.enableReadAddressOpt = true;
     config.ahbConfig.enableAHBCachable    = true;
     config.rxSampleClock                  = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+    config.enableDoze                     = false; // matches boot rom setting
+    config.seqTimeoutCycle                = 0xee6c; // matches boot rom setting
+
+    /* Wait for bus idle.  It seems to be important to hold off on calling
+     * FLEXSPI_Init() until after the bus is idle; I was getting random crashes
+     * until I added this. */
+    while (!FLEXSPI_GetBusIdleStatus(FLEXSPI)) {
+    }
+
     FLEXSPI_Init(FLEXSPI, &config);
 
     /* Configure flash settings according to serial flash feature. */
@@ -383,7 +422,12 @@ void flexspi_update_lut_ram(void)
     /* Wait for bus idle. */
     while (!FLEXSPI_GetBusIdleStatus(FLEXSPI)) {
     }
+
     flexspi_nor_enable_quad_mode_ram();
+
+    // Just in case any bad data got into the I-cache while we were reconfiguring
+    // the flash, wipe it.
+    SCB_InvalidateICache();
 }
 
 status_t flexspi_nor_write_enable_ram(uint32_t baseAddr)
@@ -404,47 +448,46 @@ status_t flexspi_nor_write_enable_ram(uint32_t baseAddr)
     return status;
 }
 
-status_t flexspi_nor_wait_bus_busy_ram(void)
+// Read the status register and save the result into the given pointer
+status_t flexspi_nor_read_status_register_ram(uint32_t * result)
 {
-    /* Wait status ready. */
-    bool isBusy;
-    uint32_t readValue;
-    status_t status = kStatus_Success;
-    flexspi_transfer_t flashXfer;
-
-    flexspi_memset(&flashXfer, 0, sizeof(flashXfer));
+    flexspi_transfer_t flashXfer = {};
 
     flashXfer.deviceAddress = 0;
     flashXfer.port          = kFLEXSPI_PortA1;
     flashXfer.cmdType       = kFLEXSPI_Read;
     flashXfer.SeqNumber     = 1;
     flashXfer.seqIndex      = NOR_CMD_LUT_SEQ_IDX_READSTATUSREG;
-    flashXfer.data          = &readValue;
+    flashXfer.data          = result;
     flashXfer.dataSize      = 1;
 
+    return FLEXSPI_TransferBlocking(FLEXSPI, &flashXfer);
+}
+
+status_t flexspi_nor_wait_bus_busy_ram(void)
+{
+    /* Wait status ready. */
+    bool isBusy;
+
     do {
-        status = FLEXSPI_TransferBlocking(FLEXSPI, &flashXfer);
+        uint32_t readResult;
+        status_t status = flexspi_nor_read_status_register_ram(&readResult);
 
         if (status != kStatus_Success) {
             return status;
         }
-        if (FLASH_BUSY_STATUS_POL) {
-            if (readValue & (1U << FLASH_BUSY_STATUS_OFFSET)) {
-                isBusy = true;
-            } else {
-                isBusy = false;
-            }
-        } else {
-            if (readValue & (1U << FLASH_BUSY_STATUS_OFFSET)) {
-                isBusy = false;
-            } else {
-                isBusy = true;
-            }
+
+        if(readResult & (1U << FLASH_BUSY_STATUS_OFFSET)) {
+            isBusy = FLASH_BUSY_STATUS_POL;
+        }
+        else
+        {
+            isBusy = !FLASH_BUSY_STATUS_POL;
         }
 
     } while (isBusy);
 
-    return status;
+    return kStatus_Success;
 }
 
 
@@ -540,12 +583,18 @@ void flexspi_nor_flash_read_data_ram(uint32_t addr, uint32_t *buffer, uint32_t s
     memcpy(buffer, (void *)addr, size);
 }
 
-int32_t flash_init(flash_t *obj)
+void mimxrt_flash_setup(void)
 {
     core_util_critical_section_enter();
     flexspi_update_lut_ram();
     core_util_critical_section_exit();
+}
 
+int32_t flash_init(flash_t *obj)
+{
+    // Setup is already done when the application boots by flash_setup().
+    // Nothing left to do.
+    (void)obj;
     return 0;
 }
 
@@ -581,6 +630,8 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
     if (status != kStatus_Success) {
         ret = -1;
     } else {
+        SCB_InvalidateICache_by_Addr((void*)address, (int32_t)size);
+        SCB_InvalidateDCache_by_Addr((void*)address, (int32_t)size);
         DCACHE_InvalidateByRange(address, size);
     }
 
@@ -604,8 +655,8 @@ int32_t flash_free(flash_t *obj)
 uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 {
     uint32_t sectorsize = MBED_FLASH_INVALID_SIZE;
-    uint32_t devicesize = BOARD_FLASHIAP_SIZE;
-    uint32_t startaddr = BOARD_FLASHIAP_START_ADDR;
+    uint32_t devicesize = BOARD_FLASH_SIZE;
+    uint32_t startaddr = BOARD_FLASH_START_ADDR;
 
     if ((address >= startaddr) && (address < (startaddr + devicesize))) {
         sectorsize = BOARD_FLASH_SECTOR_SIZE;
@@ -621,12 +672,12 @@ uint32_t flash_get_page_size(const flash_t *obj)
 
 uint32_t flash_get_start_address(const flash_t *obj)
 {
-    return BOARD_FLASHIAP_START_ADDR;
+    return BOARD_FLASH_START_ADDR;
 }
 
 uint32_t flash_get_size(const flash_t *obj)
 {
-    return BOARD_FLASHIAP_SIZE;
+    return BOARD_FLASH_SIZE;
 }
 
 uint8_t flash_get_erase_value(const flash_t *obj)

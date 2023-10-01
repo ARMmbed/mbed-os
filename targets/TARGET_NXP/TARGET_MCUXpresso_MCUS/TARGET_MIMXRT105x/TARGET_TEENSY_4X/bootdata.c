@@ -40,6 +40,7 @@
  */
 
 #include <stdint.h>
+#include <mimxrt_flash_info.h>
 
 extern void Reset_Handler(void);
 extern unsigned long _estack;
@@ -105,7 +106,7 @@ uint32_t FlexSPI_NOR_Config[128] = {
 #elif defined(TARGET_TEENSY_41)
 	0x00800000,		// sflashA1Size			0x50
 #else
-#error "Unknow flash chip size";
+#error "Unknown flash chip size";
 #endif
 	0,			// sflashA2Size
 	0,			// sflashB1Size

@@ -5149,7 +5149,6 @@
             "FSL_RTOS_MBED",
             "XIP_BOOT_HEADER_ENABLE=1",
             "XIP_EXTERNAL_FLASH=1",
-            "HYPERFLASH_BOOT",
             "FSL_SDK_DRIVER_QUICK_ACCESS_ENABLE=1",
             "SKIP_SYSCLK_INIT",
             "__STARTUP_INITIALIZE_RAMFUNCTION",
@@ -5214,10 +5213,9 @@
             "ARDUINO_UNO"
         ],
         "macros_add": [
+            "HYPERFLASH_BOOT",
             "XIP_BOOT_HEADER_DCD_ENABLE=1",
-            "FSL_FEATURE_PHYKSZ8081_USE_RMII50M_MODE",
-            "MIMXRT105X_BOARD_HAS_EXTERNAL_RAM=1",
-            "MIMXRT105X_EXTERNAL_RAM_SIZE=0x02000000"
+            "FSL_FEATURE_PHYKSZ8081_USE_RMII50M_MODE"
         ],
         "device_has_add": [
             "FLASH"
@@ -5244,10 +5242,10 @@
         ],
         "macros_add": [
             "XIP_BOOT_HEADER_DCD_ENABLE=1",
-            "FSL_FEATURE_PHYKSZ8081_USE_RMII50M_MODE",
-            "MIMXRT105X_BOARD_HAS_EXTERNAL_RAM=1",
-            "MIMXRT105X_EXTERNAL_RAM_SIZE=0x01E00000",
-            "MBED_APP_SIZE=0x800000"
+            "FSL_FEATURE_PHYKSZ8081_USE_RMII50M_MODE"
+        ],
+        "device_has_add": [
+            "FLASH"
         ],
         "overrides": {
             "network-default-interface-type": "ETHERNET"
@@ -5261,10 +5259,6 @@
             "TEENSY_4X",
             "TEENSY_40",
             "MIMXRT1060"
-        ],
-        "macros_add": [
-            "MIMXRT105X_BOARD_HAS_EXTERNAL_RAM=0",
-            "MBED_APP_SIZE=0x1f0000"
         ],
         "overrides": {
             "console-usb": true,
@@ -5282,10 +5276,6 @@
             "TEENSY_4X",
             "TEENSY_41",
             "MIMXRT1060"
-        ],
-        "macros_add": [
-            "MIMXRT105X_BOARD_HAS_EXTERNAL_RAM=0",
-            "MBED_APP_SIZE=0x7C0000"
         ],
         "overrides": {
             "console-usb": true,

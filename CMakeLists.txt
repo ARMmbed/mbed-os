@@ -187,11 +187,8 @@ if(NOT MBED_IS_NATIVE_BUILD)
     # We must set this global property before the targets subdirectory is added to the project. This is
     # required because the MBED_TARGET depends on the response file. If the path to the response file
     # is not defined when the target requests it the config definitions will not be passed to CPP.
-    #
-    # TODO: Remove this and find a more idiomatic way of passing compile definitions to CPP without
-    # using response files or global properties.
     mbed_generate_options_for_linker(mbed-core-flags RESPONSE_FILE_PATH)
-    set_property(GLOBAL PROPERTY COMPILE_DEFS_RESPONSE_FILE ${RESPONSE_FILE_PATH})
+    set_property(GLOBAL PROPERTY LINKER_SCRIPT_PREPROCESS_FLAGS_RESPONSE_FILE ${RESPONSE_FILE_PATH})
 
     # Add compile definitions for backward compatibility with the toolchain
     # supported. New source files should instead check for __GNUC__ and __clang__

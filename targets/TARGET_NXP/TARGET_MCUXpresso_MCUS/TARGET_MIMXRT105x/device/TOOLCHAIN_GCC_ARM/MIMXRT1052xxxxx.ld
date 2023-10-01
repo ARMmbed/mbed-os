@@ -25,18 +25,13 @@
 ** ###################################################################
 */
 
+/* Pick up memory info for this specific device */
+#include <mimxrt_memory_info.h>
+
 /* Entry Point */
 ENTRY(Reset_Handler)
 
 __ram_vector_table__ = 1;
-
-#if !defined(MBED_APP_START)
-  #define MBED_APP_START 0x60000000
-#endif
-
-#if !defined(MBED_APP_SIZE)
-  #define MBED_APP_SIZE 0x400000
-#endif
 
 #if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
     #define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
@@ -50,31 +45,21 @@ M_VECTOR_RAM_SIZE = DEFINED(__ram_vector_table__) ? 0x0400 : 0x0;
 /* Specify the memory areas */
 MEMORY
 {
-#if !defined(MBED_APP_COMPILE)
   m_flash_config        (RX)  : ORIGIN = MBED_APP_START, LENGTH = 0x00001000
   m_ivt                 (RX)  : ORIGIN = MBED_APP_START + 0x1000, LENGTH = 0x00001000
   m_interrupts          (RX)  : ORIGIN = MBED_APP_START + 0x2000, LENGTH = 0x00000400
   m_text                (RX)  : ORIGIN = MBED_APP_START + 0x2400, LENGTH = MBED_APP_SIZE - 0x2400
-#else
-  m_interrupts          (RX)  : ORIGIN = MBED_APP_START, LENGTH = 0x00000400
-  m_text                (RX)  : ORIGIN = MBED_APP_START + 0x400, LENGTH = MBED_APP_SIZE - 0x400
-#endif
+
+/* DTCM memory.
+     Startup code configures size to 256k (stealing space from OCRAM). */
+  m_dtcm                (RW)  : ORIGIN = 0x20000000, LENGTH = 0x00040000
 
 #if MIMXRT105X_BOARD_HAS_EXTERNAL_RAM
   /* Use the external RAM as main memory */
   m_data                (RW)  : ORIGIN = 0x80000000, LENGTH = MIMXRT105X_EXTERNAL_RAM_SIZE
-
-  /* DTCM memory.
-     Startup code configures size to 256k (stealing space from OCRAM). */
-  m_dtcm                (RW)  : ORIGIN = 0x20000000, LENGTH = 0x00040000
 #else
-  /* Use DTCM as main memory (significantly faster than OCRAM).
-     Startup code configures size to 256k (stealing space from OCRAM). */
-  m_dtcm                (RW)  : ORIGIN = 0x20000000, LENGTH = 0x00040000
-
-  /* No external data memory, store data in DTCM */
+  /* No external data memory, store data in DTCM (significantly faster than OCRAM)*/
 #define m_data m_dtcm
-
 #endif
 
   /* ITCM bank -- used for functions that need to execute from RAM

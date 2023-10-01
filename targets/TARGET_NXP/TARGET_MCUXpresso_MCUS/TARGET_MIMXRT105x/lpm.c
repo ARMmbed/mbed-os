@@ -195,15 +195,8 @@ void LPM_Init(void)
 
     /* DCM Mode */
     DCDC_BootIntoDCM(DCDC);
-    /* Adjust SOC voltage to 1.275V */
-    DCDC_AdjustTargetVoltage(DCDC, 0x13, 0x1);
     /* Disconnect internal the load resistor */
     DCDC->REG1 &= ~DCDC_REG1_REG_RLOAD_SW_MASK;
-
-    /* Enable FET ODRIVE */
-    PMU->REG_CORE_SET = PMU_REG_CORE_FET_ODRIVE_MASK;
-    /* Connect vdd_high_in and connect vdd_snvs_in */
-    PMU->MISC0_CLR = PMU_MISC0_DISCON_HIGH_SNVS_MASK;
 }
 
 void LPM_EnableWakeupSource(uint32_t irq)
@@ -308,6 +301,10 @@ void LPM_AdjustSystemSettings(lpm_power_mode_t curRunMode, lpm_power_mode_t targ
                 ClockSelectRcOsc();
                 /* Adjust SOC voltage to 0.95V */
                 DCDC_AdjustTargetVoltage(DCDC, 0x6, 0x1);
+
+                /* Enable FET ODRIVE */
+                PMU->REG_CORE_SET = PMU_REG_CORE_FET_ODRIVE_MASK;
+
                 EnableWeakLDO();
                 DisableRegularLDO();
                 BandgapOff();
@@ -329,12 +326,18 @@ void LPM_AdjustSystemSettings(lpm_power_mode_t curRunMode, lpm_power_mode_t targ
                 ClockSelectRcOsc();
                 /* Adjust SOC voltage to 0.95V */
                 DCDC_AdjustTargetVoltage(DCDC, 0x6, 0x1);
+
+                /* Enable FET ODRIVE */
+                PMU->REG_CORE_SET = PMU_REG_CORE_FET_ODRIVE_MASK;
+
                 EnableWeakLDO();
                 DisableRegularLDO();
                 BandgapOff();
             }
             break;
         case LPM_PowerModeLowPowerRun:
+             /* Disable FET ODRIVE */
+            PMU->REG_CORE_CLR = PMU_REG_CORE_FET_ODRIVE_MASK;
             if (targetMode == LPM_PowerModeOverRun)
             {
                 /* Adjust SOC voltage to 1.275V */

@@ -1,18 +1,28 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# Generate a file containing compile definitions
+# Generate a file containing compile definitions and include paths
 function(mbed_generate_options_for_linker target output_response_file_path)
     set(_compile_definitions
         "$<TARGET_PROPERTY:${target},INTERFACE_COMPILE_DEFINITIONS>"
+    )
+    set(_include_directories
+        "$<TARGET_PROPERTY:${target},INTERFACE_INCLUDE_DIRECTORIES>"
     )
 
     # Append -D to all macros and quote them as we pass these as response file to cxx compiler
     set(_compile_definitions
         "$<$<BOOL:${_compile_definitions}>:'-D$<JOIN:${_compile_definitions},' '-D>'>"
     )
-    file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/compile_time_defs.txt" CONTENT "${_compile_definitions}\n")
-    set(${output_response_file_path} ${CMAKE_CURRENT_BINARY_DIR}/compile_time_defs.txt PARENT_SCOPE)
+    # Prepend -I to all macros and quote them as we pass these as response file to cxx compiler
+    set(_include_directories
+        "$<$<BOOL:${_compile_definitions}>:'-I$<JOIN:${_include_directories},' '-I>'>"
+    )
+    file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/linker_script_preprocess_flags.txt" CONTENT
+"${_compile_definitions}
+${_include_directories}
+")
+    set(${output_response_file_path} ${CMAKE_CURRENT_BINARY_DIR}/linker_script_preprocess_flags.txt PARENT_SCOPE)
 endfunction()
 
 # Compiler setup

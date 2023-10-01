@@ -26,6 +26,11 @@
 #include "usb_device_config.h"
 #include "us_ticker_defines.h"
 #include "us_ticker_api.h"
+#include "flash_api.h"
+
+#if DEVICE_FLASH
+#include "mimxrt_flash_api.h"
+#endif
 
 #define LPSPI_CLOCK_SOURCE_DIVIDER (7U)
 #define LPI2C_CLOCK_SOURCE_DIVIDER (5U)
@@ -183,9 +188,13 @@ void mbed_sdk_init()
     BOARD_ClockFullSpeed();
 #endif
 
+    // Switch to using an application-owned flexspi config instead of what the bootloader sets up
+#if DEVICE_FLASH
+    mimxrt_flash_setup();
+#endif
+
     // Initialize us ticker before LPM, because LPM uses it for timing
     us_ticker_init();
-
 
 #if TARGET_EVK
     /* Since SNVS_PMIC_STBY_REQ_GPIO5_IO02 will output a high-level signal under Stop Mode(Suspend Mode) and this pin is
@@ -283,7 +292,7 @@ void mbed_mac_address(char *mac) {
 
 uint8_t mbed_otp_mac_address(char *mac) {
 
-#if TARGET_MIMXRT1050_EVK
+#if TARGET_EVK
     /* Check if a valid MAC address is programmed to the fuse bank */
     if ((OCOTP->MAC0 != 0) &&
         (OCOTP->MAC1 != 0) &&

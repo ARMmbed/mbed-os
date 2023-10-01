@@ -19,7 +19,7 @@
 
 #include "fsl_common.h"
 
-#ifdef HYPERFLASH_BOOT /* 64MB Hyperflash */
+#ifdef HYPERFLASH_BOOT /* 64MB Hyperflash S26KS512SDPBHI02 */
 #define HYPERFLASH_CMD_LUT_SEQ_IDX_READDATA 0
 #define HYPERFLASH_CMD_LUT_SEQ_IDX_WRITEDATA 1
 #define HYPERFLASH_CMD_LUT_SEQ_IDX_READSTATUS 2
@@ -177,7 +177,7 @@ flexspi_device_config_t deviceconfig = {
     .AHBWriteWaitUnit     = kFLEXSPI_AhbWriteWaitUnit2AhbCycle,
     .AHBWriteWaitInterval = 20,
 };
-#else /* 8MB QSPI flash */
+#else /* 8MB QSPI flash IS25WP064AJBLE */
 
 #define NOR_CMD_LUT_SEQ_IDX_READ_NORMAL 7
 #define NOR_CMD_LUT_SEQ_IDX_READ_FAST 13
@@ -194,9 +194,15 @@ flexspi_device_config_t deviceconfig = {
 #define NOR_CMD_LUT_SEQ_IDX_READSTATUSREG 12
 #define NOR_CMD_LUT_SEQ_IDX_ERASECHIP 5
 #define CUSTOM_LUT_LENGTH 60
-#define FLASH_QUAD_ENABLE 0x40
+
+// Polarity of the BUSY bit in the status register -- 1 here means the flash is BUSY wheb
 #define FLASH_BUSY_STATUS_POL 1
+
+// Shift of the BUSY bit in the status register
 #define FLASH_BUSY_STATUS_OFFSET 0
+
+// Shift of the Quad Enable bit in the status register
+#define FLASH_QE_STATUS_OFFSET 6
 
 static uint32_t customLUT[CUSTOM_LUT_LENGTH] = {
     /* Normal read mode -SDR */
@@ -245,7 +251,7 @@ static uint32_t customLUT[CUSTOM_LUT_LENGTH] = {
     [4 * NOR_CMD_LUT_SEQ_IDX_READID] =
     FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR, kFLEXSPI_1PAD, 0x9F, kFLEXSPI_Command_READ_SDR, kFLEXSPI_1PAD, 0x04),
 
-    /* Enable Quad mode */
+    /* Write Status Register (used to enable quad mode) */
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITESTATUSREG] =
     FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR, kFLEXSPI_1PAD, 0x01, kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x04),
 
@@ -270,14 +276,14 @@ flexspi_device_config_t deviceconfig = {
     .flexspiRootClk       = 120000000,
     .flashSize            = (BOARD_FLASH_SIZE/1024),
     .CSIntervalUnit       = kFLEXSPI_CsIntervalUnit1SckCycle,
-    .CSInterval           = 2,
+    .CSInterval           = 0,
     .CSHoldTime           = 3,
     .CSSetupTime          = 3,
     .dataValidTime        = 0,
     .columnspace          = 0,
     .enableWordAddress    = 0,
-    .AWRSeqIndex          = 0,
-    .AWRSeqNumber         = 0,
+    .AWRSeqIndex          = NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_SINGLE,
+    .AWRSeqNumber         = 1,
     .ARDSeqIndex          = NOR_CMD_LUT_SEQ_IDX_READ_FAST_QUAD,
     .ARDSeqNumber         = 1,
     .AHBWriteWaitUnit     = kFLEXSPI_AhbWriteWaitUnit2AhbCycle,

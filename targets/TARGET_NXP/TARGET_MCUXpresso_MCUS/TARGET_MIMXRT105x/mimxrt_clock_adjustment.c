@@ -27,7 +27,9 @@
 #include "fsl_clock.h"
 #include "lpm.h"
 #include "fsl_iomuxc.h"
+#include "fsl_flexspi.h"
 #include "clock_config.h"
+#include "mbed_critical.h"
 
 #include <stdio.h>
 #include <inttypes.h>
@@ -40,11 +42,15 @@ AT_QUICKACCESS_SECTION_CODE(void SwitchSystemClocks(lpm_power_mode_t power_mode)
 
 void SwitchSystemClocks(lpm_power_mode_t power_mode)
 {
+    // Make sure no one interrupts us while we're messing with clocks
+    core_util_critical_section_enter();
+
 #if (defined(XIP_EXTERNAL_FLASH) && (XIP_EXTERNAL_FLASH == 1))
-    LPM_EnterCritical();
-    while (!((FLEXSPI_INST->STS0 & FLEXSPI_STS0_ARBIDLE_MASK) && (FLEXSPI_INST->STS0 & FLEXSPI_STS0_SEQIDLE_MASK)))
-    {
+
+    /* Wait for bus idle. */
+    while (!FLEXSPI_GetBusIdleStatus(FLEXSPI)) {
     }
+
     FLEXSPI_INST->MCR0 |= FLEXSPI_MCR0_MDIS_MASK;
 
     /* Disable clock gate of flexspi. */
@@ -100,15 +106,21 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
     CCM->CCGR6 |= (CCM_CCGR6_CG5_MASK);
 
     FLEXSPI_INST->MCR0 &= ~FLEXSPI_MCR0_MDIS_MASK;
-    FLEXSPI_INST->MCR0 |= FLEXSPI_MCR0_SWRESET_MASK;
-    while (FLEXSPI_INST->MCR0 & FLEXSPI_MCR0_SWRESET_MASK)
-    {
+
+    FLEXSPI_SoftwareReset(FLEXSPI);
+
+    /* Wait for bus idle. */
+    while (!FLEXSPI_GetBusIdleStatus(FLEXSPI)) {
     }
-    while (!((FLEXSPI_INST->STS0 & FLEXSPI_STS0_ARBIDLE_MASK) && (FLEXSPI_INST->STS0 & FLEXSPI_STS0_SEQIDLE_MASK)))
-    {
-    }
-    LPM_ExitCritical();
+
+    // TODO it seems like the process of changing the FlexSPI clock introduces corrupt
+    // data into the instruction cache of the processor.  Without this line,
+    // pretty much anything that uses deep sleep will hardfault.
+    // It hurts performance but I wasn't able to figure out a way around it.
+    SCB_InvalidateICache();
 #endif
+
+    core_util_critical_section_exit();
 }
 
 void ClockSetToOverDriveRun(void)
@@ -162,18 +174,6 @@ void ClockSetToLowPowerRun(void)
     CCM_ANALOG->PLL_USB1_SET = CCM_ANALOG_PLL_USB1_BYPASS_MASK;
     CCM_ANALOG->PLL_USB1_CLR = CCM_ANALOG_PLL_USB1_POWER_MASK;
     CCM_ANALOG->PLL_USB1_CLR = CCM_ANALOG_PLL_USB1_ENABLE_MASK;
-
-    /* Deinit USB2 PLL */
-    CLOCK_DeinitUsb2Pll();
-
-    /* Deinit AUDIO PLL */
-    CLOCK_DeinitAudioPll();
-
-    /* Deinit VIDEO PLL */
-    CLOCK_DeinitVideoPll();
-
-    /* Deinit ENET PLL */
-    CLOCK_DeinitEnetPll();
 }
 
 #define GPR4_STOP_REQ_BITS                                                                                          \

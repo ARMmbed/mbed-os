@@ -111,7 +111,10 @@ uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address);
  */
 uint32_t flash_get_page_size(const flash_t *obj);
 
-/** Get start address for the flash region
+/** Get start address for the flash region (as in, where the flash is mapped in main memory).
+ *
+ * \note This should return the start address of the entire flash region, not
+ *   the first address after the end of the program in flash.
  *
  * @param obj The flash object
  * @return The start address for the flash region
