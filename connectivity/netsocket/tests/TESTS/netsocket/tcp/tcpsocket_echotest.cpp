@@ -42,7 +42,7 @@ int bytes2recv;
 int bytes2recv_total;
 
 Timer tc_exec_time;
-int time_allotted;
+std::chrono::microseconds time_allotted;
 bool receive_error;
 }
 
@@ -105,7 +105,7 @@ void tcpsocket_echotest_nonblock_receive()
     while (bytes2recv > 0) {
         int recvd = sock.recv(&(tcp_global::rx_buffer[bytes2recv_total - bytes2recv]), bytes2recv);
         if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
-            if (tc_exec_time.read() >= time_allotted) {
+            if (tc_exec_time.elapsed_time() >= time_allotted) {
                 TEST_FAIL_MESSAGE("time_allotted exceeded");
                 receive_error = true;
             }
@@ -133,7 +133,7 @@ void TCPSOCKET_ECHOTEST_NONBLOCK()
 {
     SKIP_IF_TCP_UNSUPPORTED();
     tc_exec_time.start();
-    time_allotted = split2half_rmng_tcp_test_time(); // [s]
+    time_allotted = split2half_rmng_tcp_test_time();
 
     EventQueue queue(2 * EVENTS_EVENT_SIZE);
     event_queue = &queue;
@@ -154,7 +154,7 @@ void TCPSOCKET_ECHOTEST_NONBLOCK()
 
     TEST_ASSERT_EQUAL(osOK, receiver_thread->start(callback(&queue, &EventQueue::dispatch_forever)));
 
-    for (int s_idx = 0; s_idx < sizeof(pkt_sizes) / sizeof(*pkt_sizes); ++s_idx) {
+    for (size_t s_idx = 0; s_idx < sizeof(pkt_sizes) / sizeof(*pkt_sizes); ++s_idx) {
         int pkt_s = pkt_sizes[s_idx];
         bytes2recv = pkt_s;
         bytes2recv_total = pkt_s;
@@ -165,14 +165,14 @@ void TCPSOCKET_ECHOTEST_NONBLOCK()
         while (bytes2send > 0) {
             sent = sock.send(&(tcp_global::tx_buffer[pkt_s - bytes2send]), bytes2send);
             if (sent == NSAPI_ERROR_WOULD_BLOCK) {
-                if (tc_exec_time.read() >= time_allotted ||
+                if (tc_exec_time.elapsed_time() >= time_allotted ||
                         osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
                     TEST_FAIL();
                     goto END;
                 }
                 continue;
             } else if (sent <= 0) {
-                tr_error("[Sender#%02d] network error %d", s_idx, sent);
+                tr_error("[Sender#%02d] network error %zu", s_idx, sent);
                 TEST_FAIL();
                 goto END;
             }
@@ -188,7 +188,7 @@ void TCPSOCKET_ECHOTEST_NONBLOCK()
         }
         TEST_ASSERT_EQUAL(bytes2send, tcp_stats[j].sent_bytes);
 #endif
-        tx_sem.try_acquire_for(split2half_rmng_tcp_test_time() * 1000); // *1000 to convert s->ms
+        tx_sem.try_acquire_for(std::chrono::duration_cast<Kernel::Clock::duration_u32>(split2half_rmng_tcp_test_time()));
         if (receive_error) {
             break;
         }

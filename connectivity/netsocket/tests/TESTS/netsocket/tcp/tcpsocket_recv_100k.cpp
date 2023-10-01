@@ -145,7 +145,7 @@ void rcv_n_chk_against_rfc864_pattern_nonblock(TCPSocket &sock)
     static const size_t buff_size = 1220;
     uint8_t buff[buff_size];
     size_t recvd_size = 0;
-    int time_allotted = split2half_rmng_tcp_test_time(); // [s]
+    auto time_allotted = split2half_rmng_tcp_test_time(); // [us]
 
     Timer timer;
     timer.start();
@@ -161,7 +161,7 @@ void rcv_n_chk_against_rfc864_pattern_nonblock(TCPSocket &sock)
             check_RFC_864_pattern(buff, rd, recvd_size);
             recvd_size += rd;
         } else if (rd == NSAPI_ERROR_WOULD_BLOCK) {
-            if (timer.read() >= time_allotted) {
+            if (timer.elapsed_time() >= time_allotted) {
                 TEST_FAIL();
                 break;
             }

@@ -41,7 +41,7 @@ events::EventQueue *event_queue;
 static nsapi_error_t event_queue_call(int delay, mbed::Callback<void()> func)
 {
     if (delay) {
-        if (event_queue->call_in(delay, func) == 0) {
+        if (event_queue->call_in(std::chrono::milliseconds(delay), func) == 0) {
             return NSAPI_ERROR_NO_MEMORY;
         }
     } else {
@@ -73,8 +73,8 @@ void ASYNCHRONOUS_DNS_EXTERNAL_EVENT_QUEUE()
     TEST_ASSERT_EQUAL(0, result_exp_timeout);
 
     // Give event queue time to finalise before destructors
-    ThisThread::sleep_for(2000);
+    ThisThread::sleep_for(2s);
 
-    nsapi_dns_call_in_set(0);
+    nsapi_dns_call_in_set(nullptr);
 }
 #endif // defined(MBED_CONF_RTOS_PRESENT)

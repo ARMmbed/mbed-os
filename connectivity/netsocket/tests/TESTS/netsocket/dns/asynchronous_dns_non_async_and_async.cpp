@@ -50,7 +50,7 @@ void ASYNCHRONOUS_DNS_NON_ASYNC_AND_ASYNC()
         TEST_ASSERT(strlen(addr.get_ip_address()) > 1);
     }
 
-    if (!semaphore.try_acquire_for(1000)) {
+    if (!semaphore.try_acquire_for(1s)) {
         get_interface()->gethostbyname_async_cancel(err);
     }
 

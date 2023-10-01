@@ -38,7 +38,7 @@ void SYNCHRONOUS_DNS_CACHE()
 {
     nsapi_dns_reset();
     Ticker ticker;
-    ticker.attach_us(&test_dns_query_ticker, 100);
+    ticker.attach(&test_dns_query_ticker, 100us);
 
     for (unsigned int i = 0; i < 5; i++) {
         SocketAddress address;

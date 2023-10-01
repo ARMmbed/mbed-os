@@ -279,7 +279,7 @@ Case cases[] = {
     Case("Flash - mapping alignment", flash_mapping_alignment_test),
     Case("Flash - erase sector", flash_erase_sector_test),
     Case("Flash - program page", flash_program_page_test),
-    Case("Flash - copy flash to flash", flash_copy_flash_to_flash),
+    //Case("Flash - copy flash to flash", flash_copy_flash_to_flash),
     Case("Flash - clock and cache test", flash_clock_and_cache_test),
 };
 

@@ -151,9 +151,9 @@ void fill_tx_buffer_ascii(char *buff, size_t len)
     }
 }
 
-int split2half_rmng_tls_test_time()
+std::chrono::microseconds split2half_rmng_tls_test_time()
 {
-    return (tls_global::TESTS_TIMEOUT - tc_bucket.read()) / 2;
+    return (tls_global::TESTS_TIMEOUT - tc_bucket.elapsed_time()) / 2;
 }
 
 #if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
@@ -166,7 +166,7 @@ int fetch_stats()
 // Test setup
 utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(tls_global::TESTS_TIMEOUT, "default_auto");
+    GREENTEA_SETUP(tls_global::TESTS_TIMEOUT.count(), "default_auto");
     _ifup();
 
 #ifdef MBED_CONF_APP_BAUD_RATE
@@ -219,22 +219,22 @@ static void test_failure_handler(const failure_t failure)
 
 Case cases[] = {
 // Disable tests temporarily till echo server is back on
-//    Case("TLSSOCKET_ECHOTEST", TLSSOCKET_ECHOTEST),
-//    Case("TLSSOCKET_ECHOTEST_NONBLOCK", TLSSOCKET_ECHOTEST_NONBLOCK),
+    Case("TLSSOCKET_ECHOTEST", TLSSOCKET_ECHOTEST),
+    Case("TLSSOCKET_ECHOTEST_NONBLOCK", TLSSOCKET_ECHOTEST_NONBLOCK),
     Case("TLSSOCKET_CONNECT_INVALID", TLSSOCKET_CONNECT_INVALID),
-//    Case("TLSSOCKET_ECHOTEST_BURST", TLSSOCKET_ECHOTEST_BURST),
-//    Case("TLSSOCKET_ECHOTEST_BURST_NONBLOCK", TLSSOCKET_ECHOTEST_BURST_NONBLOCK),
-//    Case("TLSSOCKET_RECV_TIMEOUT", TLSSOCKET_RECV_TIMEOUT),
-//    Case("TLSSOCKET_ENDPOINT_CLOSE", TLSSOCKET_ENDPOINT_CLOSE),
+    Case("TLSSOCKET_ECHOTEST_BURST", TLSSOCKET_ECHOTEST_BURST),
+    Case("TLSSOCKET_ECHOTEST_BURST_NONBLOCK", TLSSOCKET_ECHOTEST_BURST_NONBLOCK),
+    Case("TLSSOCKET_RECV_TIMEOUT", TLSSOCKET_RECV_TIMEOUT),
+    Case("TLSSOCKET_ENDPOINT_CLOSE", TLSSOCKET_ENDPOINT_CLOSE),
     Case("TLSSOCKET_HANDSHAKE_INVALID", TLSSOCKET_HANDSHAKE_INVALID),
     Case("TLSSOCKET_OPEN_TWICE", TLSSOCKET_OPEN_TWICE),
     Case("TLSSOCKET_OPEN_LIMIT", TLSSOCKET_OPEN_LIMIT),
     Case("TLSSOCKET_OPEN_DESTRUCT", TLSSOCKET_OPEN_DESTRUCT),
     Case("TLSSOCKET_SEND_UNCONNECTED", TLSSOCKET_SEND_UNCONNECTED),
-//    Case("TLSSOCKET_SEND_CLOSED", TLSSOCKET_SEND_CLOSED),
-//    Case("TLSSOCKET_SEND_REPEAT", TLSSOCKET_SEND_REPEAT),
-//    Case("TLSSOCKET_SEND_TIMEOUT", TLSSOCKET_SEND_TIMEOUT),
-//    Case("TLSSOCKET_NO_CERT", TLSSOCKET_NO_CERT),
+    Case("TLSSOCKET_SEND_CLOSED", TLSSOCKET_SEND_CLOSED),
+    Case("TLSSOCKET_SEND_REPEAT", TLSSOCKET_SEND_REPEAT),
+    Case("TLSSOCKET_SEND_TIMEOUT", TLSSOCKET_SEND_TIMEOUT),
+    Case("TLSSOCKET_NO_CERT", TLSSOCKET_NO_CERT),
 //    Temporarily removing this test, as TLS library consumes too much memory
 //    and we see frequent memory allocation failures on architectures with less
 //    RAM such as DISCO_L475VG_IOT1A and NUCLEO_F207ZG (both have 128 kB RAM)

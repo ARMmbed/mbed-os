@@ -25,6 +25,8 @@
 #include "hal/mbed_lp_ticker_wrapper.h"
 #include "hal/us_ticker_api.h"
 
+#include <inttypes.h>
+
 #if !DEVICE_LPTICKER
 #error [NOT_SUPPORTED] Low power timer not supported for this target
 #else
@@ -161,7 +163,12 @@ void lp_ticker_glitch_test()
 
     while (last < (start + TICKER_GLITCH_TEST_TICKS)) {
         const uint32_t cur = lp_ticker_read();
-        TEST_ASSERT(cur >= last);
+
+        if (cur < last) {
+            printf("LP ticker went backward! Went from %" PRIu32 " to %" PRIu32 ", initial count was %" PRIu32 "\n", last, cur, start);
+            TEST_FAIL();
+        }
+
         last = cur;
     }
 }

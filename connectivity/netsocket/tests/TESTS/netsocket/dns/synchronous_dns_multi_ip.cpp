@@ -63,7 +63,7 @@ void do_getaddrinfo(const char hosts[][DNS_TEST_HOST_LEN], unsigned int op_count
             printf("DNS: query \"%s\" => busy\n", hosts[i]);
         } else if (err > NSAPI_ERROR_OK) {
             (*exp_ok)++;
-            for (unsigned int results = 0; results < err; results++) {
+            for (int results = 0; results < err; results++) {
                 printf("DNS: query \"%s\" => \"%s\"\n", hosts[i], result[results].get_ip_address());
             }
         } else if (err == 0) {

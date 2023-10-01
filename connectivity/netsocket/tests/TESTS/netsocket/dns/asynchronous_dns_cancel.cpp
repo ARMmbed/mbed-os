@@ -85,6 +85,6 @@ void ASYNCHRONOUS_DNS_CANCEL()
 
     delete[] data;
 
-    ThisThread::sleep_for(5000);
+    ThisThread::sleep_for(5s);
 }
 #endif // defined(MBED_CONF_RTOS_PRESENT)

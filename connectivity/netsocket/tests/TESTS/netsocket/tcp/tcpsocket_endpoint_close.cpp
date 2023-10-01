@@ -55,7 +55,7 @@ void TCPSOCKET_ENDPOINT_CLOSE()
     SKIP_IF_TCP_UNSUPPORTED();
     static const int MORE_THAN_AVAILABLE = 30;
     char buff[MORE_THAN_AVAILABLE];
-    int time_allotted = split2half_rmng_tcp_test_time(); // [s]
+    auto time_allotted = split2half_rmng_tcp_test_time(); // [us]
     Timer tc_exec_time;
     tc_exec_time.start();
 
@@ -72,17 +72,18 @@ void TCPSOCKET_ENDPOINT_CLOSE()
         recvd = sock.recv(buff, MORE_THAN_AVAILABLE);
         if (recvd_total > 0 && recvd == 0) {
             break; // Endpoint closed socket, success
-        } else if (recvd <= 0) {
-            TEST_ASSERT_EQUAL(0, recvd);
-            break;
         } else if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
-            if (tc_exec_time.read() >= time_allotted ||
+            if (tc_exec_time.elapsed_time() >= time_allotted ||
                     osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
                 TEST_FAIL();
                 break;
             }
             continue;
+        } else if (recvd <= 0) {
+            TEST_ASSERT_EQUAL(0, recvd);
+            break;
         }
+
         recvd_total += recvd;
         TEST_ASSERT(recvd_total < MORE_THAN_AVAILABLE);
     }

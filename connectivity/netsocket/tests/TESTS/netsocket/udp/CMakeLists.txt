@@ -23,6 +23,10 @@ list(APPEND
             udpsocket_echotest_burst.cpp       
 )
 
+if(MBED_GREENTEA_TEST_BAREMETAL)
+    set(TEST_SKIPPED "This test requires an RTOS!")
+endif()
+
 mbed_greentea_add_test(
     TEST_NAME
         mbed-connectivity-netsocket-udp
@@ -30,4 +34,6 @@ mbed_greentea_add_test(
         ${TEST_SOURCE_LIST}
     TEST_REQUIRED_LIBS
         mbed-netsocket
+    TEST_SKIPPED
+        ${TEST_SKIPPED}
 )

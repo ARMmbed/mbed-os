@@ -133,9 +133,10 @@ void NETWORKINTERFACE_STATUS_NONBLOCK()
         status = wait_status_callback();
         TEST_ASSERT_EQUAL(NSAPI_STATUS_DISCONNECTED, status);
 
-        ThisThread::sleep_for(1);    // In cellular there might still come disconnected messages from the network which are sent to callback.
+        // In cellular there might still come disconnected messages from the network which are sent to callback.
         // This would cause this test to fail as next connect is already ongoing. So wait here a while until (hopefully)
         // all messages also from the network have arrived.
+        ThisThread::sleep_for(1ms);
     }
 
     net->attach(NULL);
@@ -154,7 +155,7 @@ void NETWORKINTERFACE_STATUS_GET()
         TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
 
         while (net->get_connection_status() != NSAPI_STATUS_GLOBAL_UP) {
-            ThisThread::sleep_for(500);
+            ThisThread::sleep_for(500ms);
         }
 
 #if MBED_CONF_LWIP_IPV6_ENABLED

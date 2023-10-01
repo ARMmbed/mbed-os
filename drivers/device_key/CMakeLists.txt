@@ -1,6 +1,12 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+if(MBED_ENABLE_OS_INTERNAL_TESTS)
+    if(MBED_BUILD_GREENTEA_TESTS)
+        add_subdirectory(tests/TESTS)
+    endif()
+endif()
+
 add_library(mbed-device_key STATIC EXCLUDE_FROM_ALL)
 
 target_include_directories(mbed-device_key

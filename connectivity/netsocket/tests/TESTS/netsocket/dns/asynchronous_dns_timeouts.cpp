@@ -78,7 +78,7 @@ void ASYNCHRONOUS_DNS_TIMEOUTS()
         if (result == NSAPI_ERROR_OK) {
             return;
         }
-        ThisThread::sleep_for(1000);
+        ThisThread::sleep_for(1s);
         count--;
     } while (result != NSAPI_ERROR_OK && count);
 

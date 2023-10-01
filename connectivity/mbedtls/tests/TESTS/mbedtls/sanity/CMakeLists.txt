@@ -1,20 +1,19 @@
 # Copyright (c) 2021 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
-
-set(MBED_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../.. CACHE INTERNAL "")
-set(TEST_TARGET mbed-connectivity-mbedtls-sanity)
-
-include(${MBED_PATH}/tools/cmake/mbed_greentea.cmake)
-
-project(${TEST_TARGET})
+if((NOT "FEATURE_EXPERIMENTAL_API=1" IN_LIST MBED_TARGET_DEFINITIONS)
+	OR (NOT "FEATURE_PSA=1" IN_LIST MBED_TARGET_DEFINITIONS)
+	OR (NOT "TARGET_MBED_PSA_SRV=1" IN_LIST MBED_TARGET_DEFINITIONS))
+	set(TEST_SKIPPED "Only PSA targets (Arm-v7M) in emulation mode are supported.")
+endif()
 
 mbed_greentea_add_test(
     TEST_NAME
-        ${TEST_TARGET}
+        mbed-connectivity-mbedtls-sanity
     TEST_SOURCES
         main.cpp
     TEST_REQUIRED_LIBS
         mbed-mbedtls
+	TEST_SKIPPED
+		${TEST_SKIPPED}
 )

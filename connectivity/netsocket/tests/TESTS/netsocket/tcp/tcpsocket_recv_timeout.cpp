@@ -40,7 +40,7 @@ void TCPSOCKET_RECV_TIMEOUT()
     SKIP_IF_TCP_UNSUPPORTED();
     static const int DATA_LEN = 100;
     char buff[DATA_LEN] = {0};
-    int time_allotted = split2half_rmng_tcp_test_time(); // [s]
+    auto time_allotted = split2half_rmng_tcp_test_time(); // [us]
     Timer tc_exec_time;
     tc_exec_time.start();
 
@@ -63,17 +63,17 @@ void TCPSOCKET_RECV_TIMEOUT()
             timer.stop();
 
             if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
-                if (tc_exec_time.read() >= time_allotted ||
+                if (tc_exec_time.elapsed_time() >= time_allotted ||
                         (osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout)) {
                     TEST_FAIL();
                     goto CLEANUP;
                 }
-                int recv_time_ms = (timer.read_us() + 500) / 1000;
-                tr_info("MBED: recv() took: %dus", recv_time_ms);
-                if (recv_time_ms > 150) {
-                    TEST_ASSERT(150 - recv_time_ms < 51);
+                std::chrono::microseconds recv_time = (timer.elapsed_time() + 500us);
+                tr_info("MBED: recv() took: %" PRIi64 "us", recv_time.count());
+                if (recv_time > 150ms) {
+                    TEST_ASSERT(150ms - recv_time < 51ms);
                 } else {
-                    TEST_ASSERT(recv_time_ms - 150 < 51);
+                    TEST_ASSERT(recv_time - 150ms < 51ms);
                 }
                 continue;
             } else if (recvd < 0) {

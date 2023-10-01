@@ -43,7 +43,7 @@ int bytes2recv;
 int bytes2recv_total;
 
 Timer tc_exec_time;
-int time_allotted;
+std::chrono::microseconds time_allotted;
 bool receive_error;
 }
 
@@ -109,7 +109,7 @@ void tlssocket_echotest_nonblock_receive()
     while (bytes2recv > 0) {
         int recvd = sock->recv(&(tls_global::rx_buffer[bytes2recv_total - bytes2recv]), bytes2recv);
         if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
-            if (tc_exec_time.read() >= time_allotted) {
+            if (tc_exec_time.elapsed_time() >= time_allotted) {
                 TEST_FAIL_MESSAGE("time_allotted exceeded");
                 receive_error = true;
             }
@@ -138,7 +138,7 @@ void TLSSOCKET_ECHOTEST_NONBLOCK()
     SKIP_IF_TCP_UNSUPPORTED();
     sock = new TLSSocket;
     tc_exec_time.start();
-    time_allotted = split2half_rmng_tls_test_time(); // [s]
+    time_allotted = split2half_rmng_tls_test_time();
 
     tlssocket_connect_to_echo_srv(*sock);
     sock->set_blocking(false);
@@ -146,7 +146,7 @@ void TLSSOCKET_ECHOTEST_NONBLOCK()
 
     int bytes2send;
     int sent;
-    ;
+
     receive_error = false;
     unsigned char *stack_mem = (unsigned char *)malloc(tls_global::TLS_OS_STACK_SIZE);
     TEST_ASSERT_NOT_NULL(stack_mem);
@@ -158,7 +158,7 @@ void TLSSOCKET_ECHOTEST_NONBLOCK()
     event_queue = &queue;
     TEST_ASSERT_EQUAL(osOK, receiver_thread->start(callback(&queue, &EventQueue::dispatch_forever)));
 
-    for (int s_idx = 0; s_idx < sizeof(pkt_sizes) / sizeof(*pkt_sizes); ++s_idx) {
+    for (size_t s_idx = 0; s_idx < sizeof(pkt_sizes) / sizeof(*pkt_sizes); ++s_idx) {
         int pkt_s = pkt_sizes[s_idx];
         bytes2recv = pkt_s;
         bytes2recv_total = pkt_s;
@@ -169,7 +169,7 @@ void TLSSOCKET_ECHOTEST_NONBLOCK()
         while (bytes2send > 0) {
             sent = sock->send(&(tls_global::tx_buffer[pkt_s - bytes2send]), bytes2send);
             if (sent == NSAPI_ERROR_WOULD_BLOCK) {
-                if (tc_exec_time.read() >= time_allotted ||
+                if (tc_exec_time.elapsed_time() >= time_allotted ||
                         osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
                     TEST_FAIL();
                     goto END;

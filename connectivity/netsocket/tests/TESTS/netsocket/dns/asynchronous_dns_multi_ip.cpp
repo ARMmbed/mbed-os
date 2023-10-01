@@ -37,7 +37,7 @@ void getaddrinfo_cb(void *data, nsapi_error_t result, SocketAddress *address)
 {
     dns_application_data_multi_ip *app_data = static_cast<dns_application_data_multi_ip *>(data);
     app_data->result = result;
-    for (unsigned int i = 0; i < result; i++) {
+    for (int i = 0; i < result; i++) {
         if (address) {
             app_data->addr[i] = address[i];
         }
@@ -86,7 +86,7 @@ void do_getaddrinfo_async(const char hosts[][DNS_TEST_HOST_LEN], unsigned int op
                     || data[i].result == NSAPI_ERROR_DNS_FAILURE || data[i].result == NSAPI_ERROR_TIMEOUT);
         if (data[i].result > 0) {
             (*exp_ok)++;
-            for (unsigned int results = 0; results < data[i].result; results++) {
+            for (int results = 0; results < data[i].result; results++) {
                 printf("DNS: query \"%s\" => \"%s\"\n",
                        hosts[i], data[i].addr[results].get_ip_address());
             }

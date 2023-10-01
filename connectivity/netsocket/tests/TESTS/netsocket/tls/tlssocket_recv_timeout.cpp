@@ -41,7 +41,7 @@ void TLSSOCKET_RECV_TIMEOUT()
     SKIP_IF_TCP_UNSUPPORTED();
     static const int DATA_LEN = 100;
     char buff[DATA_LEN] = {0};
-    int time_allotted = split2half_rmng_tls_test_time(); // [s]
+    auto time_allotted = split2half_rmng_tls_test_time(); // [us]
     Timer tc_exec_time;
     tc_exec_time.start();
 
@@ -64,7 +64,7 @@ void TLSSOCKET_RECV_TIMEOUT()
             timer.stop();
 
             if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
-                if (tc_exec_time.read() >= time_allotted ||
+                if (tc_exec_time.elapsed_time() >= time_allotted ||
                         (osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout)) {
                     TEST_FAIL();
                     goto CLEANUP;

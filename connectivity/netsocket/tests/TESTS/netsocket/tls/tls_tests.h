@@ -46,18 +46,18 @@ int fetch_stats(void);
 /**
  * Single testcase might take only half of the remaining execution time
  */
-int split2half_rmng_tls_test_time(); // [s]
+std::chrono::microseconds split2half_rmng_tls_test_time(); // [s]
 
 namespace tls_global {
 #ifdef MBED_GREENTEA_TEST_TLSSOCKET_TIMEOUT_S
-static const int TESTS_TIMEOUT = MBED_GREENTEA_TEST_TLSSOCKET_TIMEOUT_S;
+static const std::chrono::seconds TESTS_TIMEOUT(MBED_GREENTEA_TEST_TLSSOCKET_TIMEOUT_S);
 #else
 #define MESH 3
 #define WISUN 0x2345
 #if MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == MESH && MBED_CONF_NSAPI_DEFAULT_MESH_TYPE == WISUN
-static const int TESTS_TIMEOUT = (25 * 60);
+static const std::chrono::seconds TESTS_TIMEOUT(25 * 60);
 #else
-static const int TESTS_TIMEOUT = (10 * 60);
+static const std::chrono::seconds TESTS_TIMEOUT(10 * 60);
 #endif
 #endif
 

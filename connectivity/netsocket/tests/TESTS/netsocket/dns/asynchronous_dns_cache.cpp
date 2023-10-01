@@ -41,7 +41,7 @@ void ASYNCHRONOUS_DNS_CACHE()
     data.semaphore = &semaphore;
 
     Ticker ticker;
-    ticker.attach_us(&test_dns_query_ticker, 100);
+    ticker.attach(&test_dns_query_ticker, 100us);
 
     nsapi_dns_reset();
 
