@@ -85,7 +85,7 @@ void sleep_usticker_test()
 
         const unsigned int wakeup_timestamp = us_ticker_read();
 
-        sprintf(info, "Delta ticks: %u, Ticker width: %u, Expected wake up tick: %d, Actual wake up tick: %d, delay ticks: %d, wake up after ticks: %d",
+        sprintf(info, "Delta ticks: %u, Ticker width: %u, Expected wake up tick: %" PRIu32 ", Actual wake up tick: %u, delay ticks: %u, wake up after ticks: %" PRIu32,
                 us_to_ticks(sleep_mode_delta_us, ticker_freq), ticker_width, next_match_timestamp, wakeup_timestamp, us_to_ticks(i, ticker_freq), wakeup_timestamp - start_timestamp);
 
         TEST_ASSERT_MESSAGE(compare_timestamps(us_to_ticks(sleep_mode_delta_us, ticker_freq),

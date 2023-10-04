@@ -29,7 +29,9 @@
 using namespace utest::v1;
 
 #define TEST_DELAY_US 50000ULL
-#define DELTA         2
+#define TEST_DELAY_CHRONO std::chrono::microseconds(TEST_DELAY_US)
+#define TEST_DELAY_CHRONO_MS std::chrono::duration_cast<std::chrono::milliseconds>(TEST_DELAY_CHRONO)
+#define DELTA 2ms
 
 class TestTimerEvent: public TimerEvent {
 private:
@@ -62,11 +64,16 @@ public:
     using TimerEvent::insert_absolute;
     using TimerEvent::remove;
 
-    bool sem_try_acquire(uint32_t millisec)
+    bool sem_try_acquire(std::chrono::milliseconds millisec)
     {
         return sem.try_acquire_for(millisec);
     }
 };
+
+// TestTimerEventRelative tests the deprecated insert() function, so
+// don't warn about it being deprecated
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 class TestTimerEventRelative: public TestTimerEvent {
 public:
@@ -93,6 +100,8 @@ public:
     }
 };
 
+#pragma GCC diagnostic pop
+
 class TestTimerEventAbsolute: public TestTimerEvent {
 public:
     static const bool SEM_ACQUIRED_AFTER_PAST_TS_INSERTED = true;
@@ -109,12 +118,12 @@ public:
     // Set absolute timestamp of internal event to present_time + ts
     void set_future_timestamp(us_timestamp_t ts)
     {
-        insert_absolute(::ticker_read_us(_ticker_data) + ts);
+        insert_absolute(_ticker_data.now() + std::chrono::microseconds(ts));
     }
 
-    void set_past_timestamp(void)
+    void set_past_timestamp()
     {
-        insert_absolute(::ticker_read_us(_ticker_data) - 1ULL);
+        insert_absolute(_ticker_data.now() - 1us);
     }
 };
 
@@ -138,10 +147,10 @@ void test_insert(void)
     T tte;
 
     tte.set_future_timestamp(TEST_DELAY_US);
-    bool acquired = tte.sem_try_acquire(0);
+    bool acquired = tte.sem_try_acquire(0ms);
     TEST_ASSERT_FALSE(acquired);
 
-    acquired = tte.sem_try_acquire(TEST_DELAY_US / 1000 + DELTA);
+    acquired = tte.sem_try_acquire(TEST_DELAY_CHRONO_MS + DELTA);
     TEST_ASSERT_TRUE(acquired);
 
     tte.remove();
@@ -167,11 +176,11 @@ void test_remove(void)
     T tte;
 
     tte.set_future_timestamp(TEST_DELAY_US * 2);
-    bool acquired = tte.sem_try_acquire(TEST_DELAY_US / 1000);
+    bool acquired = tte.sem_try_acquire(TEST_DELAY_CHRONO_MS);
     TEST_ASSERT_FALSE(acquired);
     tte.remove();
 
-    acquired = tte.sem_try_acquire(TEST_DELAY_US * 2 / 1000 + DELTA);
+    acquired = tte.sem_try_acquire(TEST_DELAY_CHRONO_MS * 2 + DELTA);
     TEST_ASSERT_FALSE(acquired);
 }
 
@@ -184,8 +193,8 @@ void test_insert_zero(void)
 {
     TestTimerEvent tte;
 
-    tte.insert_absolute(0ULL);
-    bool acquired = tte.sem_try_acquire(0);
+    tte.insert_absolute(TickerDataClock::time_point(0us));
+    bool acquired = tte.sem_try_acquire(0ms);
     TEST_ASSERT_TRUE(acquired);
 
     tte.remove();
@@ -212,7 +221,7 @@ void test_insert_past(void)
     T tte;
 
     tte.set_past_timestamp();
-    bool acquired = tte.sem_try_acquire(0);
+    bool acquired = tte.sem_try_acquire(0ms);
     TEST_ASSERT_EQUAL(tte.SEM_ACQUIRED_AFTER_PAST_TS_INSERTED, acquired);
 
     tte.remove();

@@ -26,6 +26,7 @@
 #include "hal/watchdog_api.h"
 #include "platform/NonCopyable.h"
 #include <cstdio>
+#include <chrono>
 
 namespace mbed {
 /**
@@ -92,7 +93,7 @@ public:
 
     /** Start the Watchdog timer.
      *
-     * @note Asset that the timeout param is supported by the target
+     * @note Asserts that the timeout param is supported by the target
      * (0 < timeout <= Watchdog::get_max_timeout).
      *
      * @param timeout Watchdog timeout in milliseconds.
@@ -102,6 +103,22 @@ public:
      *         a new watchdog timeout was not possible.
      */
     bool start(uint32_t timeout);
+
+    /** Start the Watchdog timer.
+     *
+     * @note Asserts that the timeout param is supported by the target
+     * (0 < timeout <= Watchdog::get_max_timeout).
+     *
+     * @param timeout Watchdog timeout in chrono milliseconds.
+     *
+     * @return true if the Watchdog timer was started successfully;
+     *         false if Watchdog timer was not started or if setting
+     *         a new watchdog timeout was not possible.
+     */
+    bool start(std::chrono::milliseconds timeout)
+    {
+        return start(timeout.count());
+    }
 
     /** Stop the Watchdog timer.
      *

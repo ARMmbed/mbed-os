@@ -1,18 +1,22 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
+if(NOT "DEVICE_WATCHDOG=1" IN_LIST MBED_TARGET_DEFINITIONS)
+	set(TEST_SKIPPED "Watchdog is not supported for this target")
+endif()
 
-set(MBED_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../../.. CACHE INTERNAL "")
-set(TEST_TARGET mbed-drivers-watchdog-reset)
-
-include(${MBED_PATH}/tools/cmake/mbed_greentea.cmake)
-
-project(${TEST_TARGET})
+if("TARGET_MIMXRT105X" IN_LIST MBED_TARGET_DEFINITIONS)
+	# This test causes this target to die.  See https://github.com/mbed-ce/mbed-os/issues/83
+	set(TEST_SKIPPED "Temporarily disabled for this target, see #83")
+endif()
 
 mbed_greentea_add_test(
     TEST_NAME
-        ${TEST_TARGET}
+        mbed-drivers-watchdog-reset
     TEST_SOURCES
         main.cpp
+    HOST_TESTS_DIR
+		../../host_tests
+    TEST_SKIPPED
+        ${TEST_SKIPPED}
 )

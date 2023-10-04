@@ -8,11 +8,12 @@ set(MBED_GREENTEA_SERIAL_PORT "" CACHE STRING "Serial port name to talk to the M
 
 # CMake Macro for generalizing CMake configuration across the greentea test suite with configurable parameters
 # Macro args:
-# TEST_NAME - Test suite name
+# TEST_NAME - Test suite name (will have "test-" prepended to it)
 # TEST_INCLUDE_DIRS - Test suite include directories for the test
 # TEST_SOURCES - Test suite sources
 # TEST_REQUIRED_LIBS - Test suite required libraries
-# HOST_TESTS_DIR - Path to the "host_tests" directory
+# HOST_TESTS_DIR - Path to the "host_tests" directory.  If a relative path is provided, it will be
+#    interpreted relative to the source directory.
 # TEST_SKIPPED - Reason if suite is skipped
 #
 # calling the macro:
@@ -58,6 +59,9 @@ function(mbed_greentea_add_test)
     if("${MBED_GREENTEA_SERIAL_PORT}" STREQUAL "")
         message(FATAL_ERROR "Will not be able to run greentea tests without MBED_GREENTEA_SERIAL_PORT defined!")
     endif()
+
+    # Add a "test-" prefix to help distinguish test targets in the target list
+    set(MBED_GREENTEA_TEST_NAME "test-${MBED_GREENTEA_TEST_NAME}")
 
     if(NOT "${MBED_GREENTEA_TEST_SKIPPED}" STREQUAL "")
         add_test(
@@ -116,6 +120,10 @@ function(mbed_greentea_add_test)
     endif()
 
     if(DEFINED MBED_GREENTEA_HOST_TESTS_DIR)
+
+        # Convert relative path into absolute if given
+        get_filename_component(MBED_GREENTEA_HOST_TESTS_DIR ${MBED_GREENTEA_HOST_TESTS_DIR} ABSOLUTE BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
         list(APPEND MBED_HTRUN_ARGUMENTS "-e;${MBED_GREENTEA_HOST_TESTS_DIR}")
     endif()
 

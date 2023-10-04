@@ -87,11 +87,11 @@ void test_case_blinky()
 }
 #endif
 
+// Check C++ start-up initialisation
+CppTestCaseHelperClass s("Static");
+
 void test_case_cpp_stack()
 {
-    // Check C++ start-up initialisation
-    CppTestCaseHelperClass s("Static");
-
     // Global stack object simple test
     s.stack_test();
     TEST_ASSERT_TRUE_MESSAGE(s.check_init(), "s.check_init() failed");

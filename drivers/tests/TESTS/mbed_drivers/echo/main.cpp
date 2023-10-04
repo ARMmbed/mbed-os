@@ -29,7 +29,7 @@ using namespace utest::v1;
 void fill_buffer(char *buffer, unsigned int length, unsigned int index)
 {
     unsigned int start = length * index;
-    for (int i = 0; i < length - 1; i++) {
+    for (unsigned int i = 0; i < length - 1; i++) {
         buffer[i] = 'a' + ((start + i) % 26);
     }
     buffer[length - 1] = '\0';

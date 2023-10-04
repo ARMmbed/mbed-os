@@ -39,13 +39,13 @@ class TestClass {
 public:
     TestClass()
     {
-        ThisThread::sleep_for(500);
+        ThisThread::sleep_for(500ms);
         instance_count++;
     }
 
     void do_something()
     {
-        ThisThread::sleep_for(100);
+        ThisThread::sleep_for(100ms);
     }
 
     ~TestClass()
@@ -83,7 +83,7 @@ void test_case_func_race()
     // Start start first thread
     t1.start(cb);
     // Start second thread while the first is inside the constructor
-    ThisThread::sleep_for(250);
+    ThisThread::sleep_for(250ms);
     t2.start(cb);
 
     // Wait for the threads to finish
@@ -105,7 +105,7 @@ void test_case_class_race()
     // Start start first thread
     t1.start(cb);
     // Start second thread while the first is inside the constructor
-    ThisThread::sleep_for(250);
+    ThisThread::sleep_for(250ms);
     t2.start(cb);
 
     // Wait for the threads to finish

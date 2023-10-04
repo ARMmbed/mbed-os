@@ -27,6 +27,7 @@
 #include "FlashIAP.h"
 #include "unity.h"
 #include <algorithm>
+#include <cinttypes>
 
 #include "mbed.h"
 
@@ -43,6 +44,17 @@
 
 using namespace utest::v1;
 
+// Get the max of two microsecond values
+static std::chrono::microseconds us_max(std::chrono::microseconds time1, std::chrono::microseconds time2)
+{
+    return time1 > time2 ? time1 : time2;
+}
+
+// Get the min of two microsecond values
+static std::chrono::microseconds us_min(std::chrono::microseconds time1, std::chrono::microseconds time2)
+{
+    return time1 < time2 ? time1 : time2;
+}
 
 void flashiap_init_test()
 {
@@ -54,7 +66,6 @@ void flashiap_init_test()
     uint32_t flash_size = flash_device.get_flash_size();
     utest_printf("Flash address: 0x%08x, size: %d\n", flash_start, flash_size);
     uint32_t address = flash_start;
-    int num = 0;
     while (flash_size) {
         uint32_t sector_size = flash_device.get_sector_size(address);
         // Make sure all sectors sum up to the total flash size
@@ -234,10 +245,12 @@ void flashiap_timing_test()
     uint32_t ret = flash_device.init();
     TEST_ASSERT_EQUAL_INT32(0, ret);
     mbed::Timer timer;
+
+    std::chrono::microseconds curr_time{};
+    std::chrono::microseconds avg_erase_time{};
     unsigned int num_write_sizes;
-    unsigned int curr_time, byte_usec_ratio;
-    unsigned int avg_erase_time = 0;
-    unsigned int max_erase_time = 0, min_erase_time = (unsigned int) -1;
+    unsigned int byte_usec_ratio;
+    std::chrono::microseconds max_erase_time(0), min_erase_time(-1);
     const unsigned int max_writes = 128;
     const unsigned int max_write_sizes = 6;
     const unsigned int max_byte_usec_ratio = 200;
@@ -266,14 +279,14 @@ void flashiap_timing_test()
         memset(buf, 0x5A, write_size);
         timer.reset();
         ret = flash_device.erase(base_address, sector_size);
-        curr_time = timer.read_us();
+        curr_time = timer.elapsed_time();
         avg_erase_time += curr_time;
         TEST_ASSERT_EQUAL_INT32(0, ret);
-        max_erase_time = std::max(max_erase_time, curr_time);
-        min_erase_time = std::min(min_erase_time, curr_time);
+        max_erase_time = us_max(max_erase_time, curr_time);
+        min_erase_time = us_min(min_erase_time, curr_time);
         uint32_t address = base_address;
-        unsigned int avg_write_time = 0;
-        unsigned int max_write_time = 0, min_write_time = (unsigned int) -1;
+        std::chrono::microseconds avg_write_time(0);
+        std::chrono::microseconds max_write_time(0), min_write_time(-1);
         unsigned int num_writes;
         for (num_writes = 0; num_writes < max_writes; num_writes++) {
             if ((address + write_size) > end_address) {
@@ -281,27 +294,27 @@ void flashiap_timing_test()
             }
             timer.reset();
             ret = flash_device.program(buf, address, write_size);
-            curr_time = timer.read_us();
+            curr_time = timer.elapsed_time();
             avg_write_time += curr_time;
             TEST_ASSERT_EQUAL_INT32(0, ret);
-            max_write_time = std::max(max_write_time, curr_time);
-            min_write_time = std::min(min_write_time, curr_time);
+            max_write_time = us_max(max_write_time, curr_time);
+            min_write_time = us_min(min_write_time, curr_time);
             address += write_size;
         }
         delete[] buf;
         avg_write_time /= num_writes;
-        utest_printf("Write size %6u bytes: avg %10u, min %10u, max %10u (usec)\n",
-                     write_size, avg_write_time, min_write_time, max_write_time);
-        byte_usec_ratio = write_size / avg_write_time;
+        byte_usec_ratio = write_size / avg_write_time.count();
+        utest_printf("Write size %6u bytes: avg %10" PRIi64 ", min %10" PRIi64 ", max %10" PRIi64 " (usec), rate %10u bytes/usec\n",
+                     write_size, avg_write_time.count(), min_write_time.count(), max_write_time.count(), byte_usec_ratio);
         TEST_ASSERT(byte_usec_ratio < max_byte_usec_ratio);
         write_size *= 4;
     }
 
     if (num_write_sizes) {
         avg_erase_time /= num_write_sizes;
-        utest_printf("\nErase size %6u bytes: avg %10u, min %10u, max %10u (usec)\n\n",
-                     sector_size, avg_erase_time, min_erase_time, max_erase_time);
-        byte_usec_ratio = sector_size / avg_erase_time;
+        byte_usec_ratio = sector_size / avg_erase_time.count();
+        utest_printf("\nErase size %6u bytes: avg %10" PRIi64 ", min %10" PRIi64 ", max %10" PRIi64" (usec), rate %10u bytes/usec\n\n",
+                     sector_size, avg_erase_time.count(), min_erase_time.count(), max_erase_time.count(), byte_usec_ratio);
         TEST_ASSERT(byte_usec_ratio < max_byte_usec_ratio);
     }
 
