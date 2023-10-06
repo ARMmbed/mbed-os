@@ -47,6 +47,7 @@
 
 
 #include "stm32f4xx.h"
+#include "nvic_addr.h"
 
 #if !defined  (HSE_VALUE) 
   #define HSE_VALUE    ((uint32_t)25000000) /*!< Default value of the External oscillator in Hz */
@@ -92,7 +93,8 @@
 /*!< Uncomment the following line if you need to relocate the vector table
      anywhere in Flash or Sram, else the vector table is kept at the automatic
      remap of boot address selected */
-/* #define USER_VECT_TAB_ADDRESS */
+#define USER_VECT_TAB_ADDRESS
+#define FLASH_BASE NVIC_FLASH_VECTOR_ADDRESS
 
 #if defined(USER_VECT_TAB_ADDRESS)
 /*!< Uncomment the following line if you need to relocate your vector Table
@@ -104,7 +106,8 @@
 #define VECT_TAB_OFFSET         0x00000000U     /*!< Vector Table base offset field.
                                                      This value must be a multiple of 0x200. */
 #else
-
+#define VECT_TAB_BASE_ADDRESS   FLASH_BASE      /*!< Vector Table base address field.
+                                                     This value must be a multiple of 0x200. */
 #define VECT_TAB_OFFSET         0x00000000U     /*!< Vector Table base offset field.
                                                      This value must be a multiple of 0x200. */
 #endif /* VECT_TAB_SRAM */
@@ -164,11 +167,8 @@ const uint8_t APBPrescTable[8]  = {0, 0, 0, 0, 1, 2, 3, 4};
   * @param  None
   * @retval None
   */
-__weak void SystemInit(void)
+void SystemInit(void)
 {
-#include "nvic_addr.h"                   // MBED
-  SCB->VTOR = NVIC_FLASH_VECTOR_ADDRESS; // MBED
-
   /* FPU settings ------------------------------------------------------------*/
   #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
     SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));  /* set CP10 and CP11 Full Access */

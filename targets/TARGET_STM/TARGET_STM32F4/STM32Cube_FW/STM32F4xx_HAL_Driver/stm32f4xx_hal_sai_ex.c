@@ -7,6 +7,17 @@
   *          functionalities of SAI extension peripheral:
   *           + Extension features functions
   *
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
   @verbatim
   ==============================================================================
                ##### SAI peripheral extension features  #####
@@ -22,17 +33,6 @@
   [..] This driver provides functions to manage several sources to clock SAI
 
   @endverbatim
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
   ******************************************************************************
   */
 
@@ -95,7 +95,7 @@
   *               the configuration information for SAI module.
   * @retval SAI Clock Input
   */
-void SAI_BlockSynchroConfig(SAI_HandleTypeDef *hsai)
+void SAI_BlockSynchroConfig(const SAI_HandleTypeDef *hsai)
 {
   uint32_t tmpregisterGCR;
 
@@ -158,7 +158,7 @@ void SAI_BlockSynchroConfig(SAI_HandleTypeDef *hsai)
 *               the configuration information for SAI module.
 * @retval SAI Clock Input
 */
-uint32_t SAI_GetInputClock(SAI_HandleTypeDef *hsai)
+uint32_t SAI_GetInputClock(const SAI_HandleTypeDef *hsai)
 {
   /* This variable used to store the SAI_CK_x (value in Hz) */
   uint32_t saiclocksource = 0U;
@@ -308,4 +308,3 @@ uint32_t SAI_GetInputClock(SAI_HandleTypeDef *hsai)
   * @}
   */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

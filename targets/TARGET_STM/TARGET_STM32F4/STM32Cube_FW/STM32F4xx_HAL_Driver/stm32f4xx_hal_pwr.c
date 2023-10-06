@@ -11,14 +11,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
+  * This software is licensed under terms that can be found in the LICENSE file in
+  * the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   ******************************************************************************
   */ 
 
@@ -380,6 +378,9 @@ void HAL_PWR_DisableWakeUpPin(uint32_t WakeUpPinx)
   */
 void HAL_PWR_EnterSLEEPMode(uint32_t Regulator, uint8_t SLEEPEntry)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(Regulator);
+
   /* Check the parameters */
   assert_param(IS_PWR_REGULATOR(Regulator));
   assert_param(IS_PWR_SLEEP_ENTRY(SLEEPEntry));
@@ -392,9 +393,6 @@ void HAL_PWR_EnterSLEEPMode(uint32_t Regulator, uint8_t SLEEPEntry)
   {   
     /* Request Wait For Interrupt */
     __WFI();
-    __NOP(); // Workaround for STM32F4 errata
-    __NOP(); // see chapter 2.1.3 - Debugging Sleep/Stop mode with WFE/WFI entry
-    __NOP(); // https://www.st.com/resource/en/errata_sheet/dm00037591-stm32f405-407xx-and-stm32f415-417xx-device-limitations-stmicroelectronics.pdf
   }
   else
   {
@@ -574,5 +572,3 @@ void HAL_PWR_DisableSEVOnPend(void)
 /**
   * @}
   */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

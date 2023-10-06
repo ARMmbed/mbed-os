@@ -6,13 +6,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -118,7 +117,7 @@ typedef struct
   uint32_t TriState;            /*!< Specifies the companding mode type.
                                      This parameter can be a value of @ref SAI_TRIState_Management             */
 
-  /* This part of the structure is automatically filled if your are using the high level intialisation
+  /* This part of the structure is automatically filled if your are using the high level initialisation
      function HAL_SAI_InitProtocol                                                                             */
 
   uint32_t Protocol;        /*!< Specifies the SAI Block protocol.
@@ -749,8 +748,8 @@ void HAL_SAI_ErrorCallback(SAI_HandleTypeDef *hsai);
   * @{
   */
 /* Peripheral State functions  ************************************************/
-HAL_SAI_StateTypeDef HAL_SAI_GetState(SAI_HandleTypeDef *hsai);
-uint32_t HAL_SAI_GetError(SAI_HandleTypeDef *hsai);
+HAL_SAI_StateTypeDef HAL_SAI_GetState(const SAI_HandleTypeDef *hsai);
+uint32_t HAL_SAI_GetError(const SAI_HandleTypeDef *hsai);
 /**
   * @}
   */
@@ -894,4 +893,3 @@ uint32_t HAL_SAI_GetError(SAI_HandleTypeDef *hsai);
 
 #endif /* __STM32F4xx_HAL_SAI_H */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -6,13 +6,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2016 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -79,7 +78,7 @@ extern "C" {
   * @{
   */
 
-/** @addtogroup FMPI2CEx_Exported_Functions_Group1 FMPI2C Extended Filter Mode Functions
+/** @addtogroup FMPI2CEx_Exported_Functions_Group1 Filter Mode Functions
   * @{
   */
 /* Peripheral Control functions  ************************************************/
@@ -89,14 +88,7 @@ HAL_StatusTypeDef HAL_FMPI2CEx_ConfigDigitalFilter(FMPI2C_HandleTypeDef *hfmpi2c
   * @}
   */
 
-/** @addtogroup FMPI2CEx_Exported_Functions_Group2 FMPI2C Extended WakeUp Mode Functions
-  * @{
-  */
-/**
-  * @}
-  */
-
-/** @addtogroup FMPI2CEx_Exported_Functions_Group3 FMPI2C Extended FastModePlus Functions
+/** @addtogroup FMPI2CEx_Exported_Functions_Group3 Fast Mode Plus Functions
   * @{
   */
 void HAL_FMPI2CEx_EnableFastModePlus(uint32_t ConfigFastModePlus);
@@ -104,7 +96,6 @@ void HAL_FMPI2CEx_DisableFastModePlus(uint32_t ConfigFastModePlus);
 /**
   * @}
   */
-
 
 /**
   * @}
@@ -138,7 +129,7 @@ void HAL_FMPI2CEx_DisableFastModePlus(uint32_t ConfigFastModePlus);
 /** @defgroup FMPI2CEx_Private_Functions FMPI2C Extended Private Functions
   * @{
   */
-/* Private functions are defined in stm32f4xx_hal_fmpfmpi2c_ex.c file */
+/* Private functions are defined in stm32f4xx_hal_fmpi2c_ex.c file */
 /**
   * @}
   */
@@ -157,5 +148,3 @@ void HAL_FMPI2CEx_DisableFastModePlus(uint32_t ConfigFastModePlus);
 #endif
 
 #endif /* STM32F4xx_HAL_FMPI2C_EX_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

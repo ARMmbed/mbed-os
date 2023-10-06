@@ -7,6 +7,17 @@
   *          functionalities of FMPSMBUS Extended peripheral:
   *           + Extended features functions
   *
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2016 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
   @verbatim
   ==============================================================================
                ##### FMPSMBUS peripheral Extended features  #####
@@ -23,18 +34,6 @@
           (++) HAL_FMPSMBUSEx_EnableFastModePlus()
           (++) HAL_FMPSMBUSEx_DisableFastModePlus()
   @endverbatim
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
   */
 
 /* Includes ------------------------------------------------------------------*/
@@ -63,15 +62,14 @@
   * @{
   */
 
-/** @defgroup FMPSMBUSEx_Exported_Functions_Group1 Extended features functions
-  * @brief    Extended features functions
- *
+/** @defgroup FMPSMBUSEx_Exported_Functions_Group3 Fast Mode Plus Functions
+  * @brief    Fast Mode Plus Functions
+  *
 @verbatim
  ===============================================================================
-                      ##### Extended features functions #####
+                      ##### Fast Mode Plus Functions #####
  ===============================================================================
     [..] This section provides functions allowing to:
-
       (+) Configure Fast Mode Plus
 
 @endverbatim
@@ -83,10 +81,10 @@
   * @param ConfigFastModePlus Selects the pin.
   *   This parameter can be one of the @ref FMPSMBUSEx_FastModePlus values
   * @note  For FMPI2C1, fast mode plus driving capability can be enabled on all selected
-  *        FMPI2C1 pins using FMPI2C_FASTMODEPLUS_FMPI2C1 parameter or independently
+  *        FMPI2C1 pins using FMPSMBUS_FASTMODEPLUS_FMPI2C1 parameter or independently
   *        on each one of the following pins PB6, PB7, PB8 and PB9.
   * @note  For remaining FMPI2C1 pins (PA14, PA15...) fast mode plus driving capability
-  *        can be enabled only by using FMPI2C_FASTMODEPLUS_FMPI2C1 parameter.
+  *        can be enabled only by using FMPSMBUS_FASTMODEPLUS_FMPI2C1 parameter.
   * @retval None
   */
 void HAL_FMPSMBUSEx_EnableFastModePlus(uint32_t ConfigFastModePlus)
@@ -106,10 +104,10 @@ void HAL_FMPSMBUSEx_EnableFastModePlus(uint32_t ConfigFastModePlus)
   * @param ConfigFastModePlus Selects the pin.
   *   This parameter can be one of the @ref FMPSMBUSEx_FastModePlus values
   * @note  For FMPI2C1, fast mode plus driving capability can be disabled on all selected
-  *        FMPI2C1 pins using FMPI2C_FASTMODEPLUS_FMPI2C1 parameter or independently
+  *        FMPI2C1 pins using FMPSMBUS_FASTMODEPLUS_FMPI2C1 parameter or independently
   *        on each one of the following pins PB6, PB7, PB8 and PB9.
   * @note  For remaining FMPI2C1 pins (PA14, PA15...) fast mode plus driving capability
-  *        can be disabled only by using FMPI2C_FASTMODEPLUS_FMPI2C1 parameter.
+  *        can be disabled only by using FMPSMBUS_FASTMODEPLUS_FMPI2C1 parameter.
   * @retval None
   */
 void HAL_FMPSMBUSEx_DisableFastModePlus(uint32_t ConfigFastModePlus)
@@ -124,6 +122,9 @@ void HAL_FMPSMBUSEx_DisableFastModePlus(uint32_t ConfigFastModePlus)
   CLEAR_BIT(SYSCFG->CFGR, (uint32_t)ConfigFastModePlus);
 }
 
+/**
+  * @}
+  */
 
 /**
   * @}
@@ -142,5 +143,3 @@ void HAL_FMPSMBUSEx_DisableFastModePlus(uint32_t ConfigFastModePlus)
 /**
   * @}
   */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

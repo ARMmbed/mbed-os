@@ -8,6 +8,17 @@
   *           + Initialization and de-initialization functions
   *           + IO operation functions
   *
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
   @verbatim
   ==============================================================================
                     ##### GPIO Peripheral features #####
@@ -91,17 +102,6 @@
   
   @endverbatim
   ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
   */ 
 
 /* Includes ------------------------------------------------------------------*/
@@ -172,7 +172,6 @@ void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
   assert_param(IS_GPIO_ALL_INSTANCE(GPIOx));
   assert_param(IS_GPIO_PIN(GPIO_Init->Pin));
   assert_param(IS_GPIO_MODE(GPIO_Init->Mode));
-  assert_param(IS_GPIO_PULL(GPIO_Init->Pull));
 
   /* Configure the port pins */
   for(position = 0U; position < GPIO_NUMBER; position++)
@@ -200,12 +199,15 @@ void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
         /* Configure the IO Output Type */
         temp = GPIOx->OTYPER;
         temp &= ~(GPIO_OTYPER_OT_0 << position) ;
-        temp |= (((GPIO_Init->Mode & GPIO_OUTPUT_TYPE) >> 4U) << position);
+        temp |= (((GPIO_Init->Mode & OUTPUT_TYPE) >> OUTPUT_TYPE_Pos) << position);
         GPIOx->OTYPER = temp;
        }
 
       if((GPIO_Init->Mode & GPIO_MODE) != MODE_ANALOG)
       {
+        /* Check the parameters */
+        assert_param(IS_GPIO_PULL(GPIO_Init->Pull));
+        
         /* Activate the Pull-up or Pull down resistor for the current IO */
         temp = GPIOx->PUPDR;
         temp &= ~(GPIO_PUPDR_PUPDR0 << (position * 2U));
@@ -233,7 +235,7 @@ void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
 
       /*--------------------- EXTI Mode Configuration ------------------------*/
       /* Configure the External Interrupt or event for the current IO */
-      if((GPIO_Init->Mode & EXTI_MODE) == EXTI_MODE)
+      if((GPIO_Init->Mode & EXTI_MODE) != 0x00U)
       {
         /* Enable SYSCFG Clock */
         __HAL_RCC_SYSCFG_CLK_ENABLE();
@@ -243,27 +245,10 @@ void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
         temp |= ((uint32_t)(GPIO_GET_INDEX(GPIOx)) << (4U * (position & 0x03U)));
         SYSCFG->EXTICR[position >> 2U] = temp;
 
-        /* Clear EXTI line configuration */
-        temp = EXTI->IMR;
-        temp &= ~((uint32_t)iocurrent);
-        if((GPIO_Init->Mode & GPIO_MODE_IT) == GPIO_MODE_IT)
-        {
-          temp |= iocurrent;
-        }
-        EXTI->IMR = temp;
-
-        temp = EXTI->EMR;
-        temp &= ~((uint32_t)iocurrent);
-        if((GPIO_Init->Mode & GPIO_MODE_EVT) == GPIO_MODE_EVT)
-        {
-          temp |= iocurrent;
-        }
-        EXTI->EMR = temp;
-
         /* Clear Rising Falling edge configuration */
         temp = EXTI->RTSR;
         temp &= ~((uint32_t)iocurrent);
-        if((GPIO_Init->Mode & RISING_EDGE) == RISING_EDGE)
+        if((GPIO_Init->Mode & TRIGGER_RISING) != 0x00U)
         {
           temp |= iocurrent;
         }
@@ -271,11 +256,28 @@ void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
 
         temp = EXTI->FTSR;
         temp &= ~((uint32_t)iocurrent);
-        if((GPIO_Init->Mode & FALLING_EDGE) == FALLING_EDGE)
+        if((GPIO_Init->Mode & TRIGGER_FALLING) != 0x00U)
         {
           temp |= iocurrent;
         }
         EXTI->FTSR = temp;
+
+        temp = EXTI->EMR;
+        temp &= ~((uint32_t)iocurrent);
+        if((GPIO_Init->Mode & EXTI_EVT) != 0x00U)
+        {
+          temp |= iocurrent;
+        }
+        EXTI->EMR = temp;
+
+        /* Clear EXTI line configuration */
+        temp = EXTI->IMR;
+        temp &= ~((uint32_t)iocurrent);
+        if((GPIO_Init->Mode & EXTI_IT) != 0x00U)
+        {
+          temp |= iocurrent;
+        }
+        EXTI->IMR = temp;
       }
     }
   }
@@ -319,8 +321,8 @@ void HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin)
         EXTI->EMR &= ~((uint32_t)iocurrent);
         
         /* Clear Rising Falling edge configuration */
-        EXTI->RTSR &= ~((uint32_t)iocurrent);
         EXTI->FTSR &= ~((uint32_t)iocurrent);
+        EXTI->RTSR &= ~((uint32_t)iocurrent);
 
         /* Configure the External Interrupt or event for the current IO */
         tmp = 0x0FU << (4U * (position & 0x03U));
@@ -435,7 +437,7 @@ void HAL_GPIO_TogglePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
   /* Check the parameters */
   assert_param(IS_GPIO_PIN(GPIO_Pin));
 
-  /* get current Ouput Data Register value */
+  /* get current Output Data Register value */
   odr = GPIOx->ODR;
 
   /* Set selected pins that were at low level, and reset ones that were high */
@@ -529,4 +531,3 @@ __weak void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   * @}
   */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

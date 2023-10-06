@@ -3,6 +3,18 @@
   * @file    stm32f4xx_ll_system.h
   * @author  MCD Application Team
   * @brief   Header file of SYSTEM LL module.
+  *
+  ******************************************************************************
+  * @attention
+  *
+  *Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
   @verbatim
   ==============================================================================
                      ##### How to use this driver #####
@@ -15,17 +27,6 @@
       (+) Access to SYSCFG registers
 
   @endverbatim
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
   ******************************************************************************
   */
 
@@ -767,7 +768,7 @@ __STATIC_INLINE uint32_t LL_SYSCFG_DFSDM_GetBitstreamClockSourceSelection(void)
 /**
   * @brief  Enables the DFSDM1 or DFSDM2 Delay clock
   * @rmtoll SYSCFG_MCHDLYCR MCHDLYEN      LL_SYSCFG_DFSDM_EnableDelayClock
-  * @param MCHDLY This paramater can be one of the following values
+  * @param MCHDLY This parameter can be one of the following values
   *         @arg @ref LL_SYSCFG_DFSDM1_MCHDLYEN
   *         @arg @ref LL_SYSCFG_DFSDM2_MCHDLYEN
   * @retval None
@@ -780,7 +781,7 @@ __STATIC_INLINE void LL_SYSCFG_DFSDM_EnableDelayClock(uint32_t MCHDLY)
 /**
   * @brief  Disables the DFSDM1 or the DFSDM2 Delay clock
   * @rmtoll SYSCFG_MCHDLYCR MCHDLY1EN      LL_SYSCFG_DFSDM1_DisableDelayClock
-  * @param MCHDLY This paramater can be one of the following values
+  * @param MCHDLY This parameter can be one of the following values
   *         @arg @ref LL_SYSCFG_DFSDM1_MCHDLYEN
   *         @arg @ref LL_SYSCFG_DFSDM2_MCHDLYEN
   * @retval None
@@ -1707,4 +1708,4 @@ __STATIC_INLINE void LL_FLASH_DisableDataCacheReset(void)
 
 #endif /* __STM32F4xx_LL_SYSTEM_H */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

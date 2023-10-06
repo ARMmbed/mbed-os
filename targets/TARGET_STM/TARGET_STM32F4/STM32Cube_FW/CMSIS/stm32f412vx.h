@@ -12,13 +12,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -49,7 +48,9 @@
 #define __MPU_PRESENT             1U       /*!< STM32F4XX provides an MPU                     */
 #define __NVIC_PRIO_BITS          4U       /*!< STM32F4XX uses 4 Bits for the Priority Levels */
 #define __Vendor_SysTickConfig    0U       /*!< Set to 1 if different SysTick Config is used  */
-#define __FPU_PRESENT             1        /*!< FPU present                                   */
+#ifndef __FPU_PRESENT
+#define __FPU_PRESENT             1U       /*!< FPU present                                   */
+#endif
 
 /**
   * @}
@@ -915,8 +916,6 @@ typedef struct
 #define GPIOC_BASE            (AHB1PERIPH_BASE + 0x0800UL)
 #define GPIOD_BASE            (AHB1PERIPH_BASE + 0x0C00UL)
 #define GPIOE_BASE            (AHB1PERIPH_BASE + 0x1000UL)
-#define GPIOF_BASE            (AHB1PERIPH_BASE + 0x1400UL)
-#define GPIOG_BASE            (AHB1PERIPH_BASE + 0x1800UL)
 #define GPIOH_BASE            (AHB1PERIPH_BASE + 0x1C00UL)
 #define CRC_BASE              (AHB1PERIPH_BASE + 0x3000UL)
 #define RCC_BASE              (AHB1PERIPH_BASE + 0x3800UL)
@@ -1065,7 +1064,15 @@ typedef struct
 /** @addtogroup Exported_constants
   * @{
   */
-  
+
+/** @addtogroup Hardware_Constant_Definition
+  * @{
+  */
+#define LSI_STARTUP_TIME                40U /*!< LSI Maximum startup time in us */
+/**
+  * @}
+  */
+
   /** @addtogroup Peripheral_Registers_Bits_Definition
   * @{
   */
@@ -6582,6 +6589,9 @@ typedef struct
 #define FLASH_CR_EOPIE_Pos             (24U)                                   
 #define FLASH_CR_EOPIE_Msk             (0x1UL << FLASH_CR_EOPIE_Pos)            /*!< 0x01000000 */
 #define FLASH_CR_EOPIE                 FLASH_CR_EOPIE_Msk                      
+#define FLASH_CR_ERRIE_Pos             (25U)
+#define FLASH_CR_ERRIE_Msk             (0x1UL << FLASH_CR_ERRIE_Pos)
+#define FLASH_CR_ERRIE                 FLASH_CR_ERRIE_Msk
 #define FLASH_CR_LOCK_Pos              (31U)                                   
 #define FLASH_CR_LOCK_Msk              (0x1UL << FLASH_CR_LOCK_Pos)             /*!< 0x80000000 */
 #define FLASH_CR_LOCK                  FLASH_CR_LOCK_Msk                       
@@ -6712,7 +6722,7 @@ typedef struct
 #define FSMC_BCR1_CBURSTRW           FSMC_BCR1_CBURSTRW_Msk                    /*!<Write burst enable                     */
 #define FSMC_BCR1_CCLKEN_Pos         (20U)                                     
 #define FSMC_BCR1_CCLKEN_Msk         (0x1UL << FSMC_BCR1_CCLKEN_Pos)            /*!< 0x00100000 */
-#define FSMC_BCR1_CCLKEN             FSMC_BCR1_CCLKEN_Msk                      /*!<Continous clock enable     */
+#define FSMC_BCR1_CCLKEN             FSMC_BCR1_CCLKEN_Msk                      /*!<Continuous clock enable     */
 #define FSMC_BCR1_WFDIS_Pos          (21U)                                     
 #define FSMC_BCR1_WFDIS_Msk          (0x1UL << FSMC_BCR1_WFDIS_Pos)             /*!< 0x00200000 */
 #define FSMC_BCR1_WFDIS              FSMC_BCR1_WFDIS_Msk                       /*!<Write FIFO Disable         */
@@ -14202,7 +14212,7 @@ typedef struct
 #define IS_TIM_32B_COUNTER_INSTANCE(INSTANCE)(((INSTANCE) == TIM2) || \
                                               ((INSTANCE) == TIM5))
 
-/***************** TIM Instances : external trigger input availabe ************/
+/***************** TIM Instances : external trigger input available ************/
 #define IS_TIM_ETR_INSTANCE(INSTANCE)  (((INSTANCE) == TIM1) || \
                                         ((INSTANCE) == TIM2) || \
                                         ((INSTANCE) == TIM3) || \
@@ -14502,7 +14512,3 @@ typedef struct
 #endif /* __cplusplus */
 
 #endif /* __STM32F412Vx_H */
-
-
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

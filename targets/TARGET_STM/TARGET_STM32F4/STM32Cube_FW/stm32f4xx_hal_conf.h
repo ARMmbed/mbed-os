@@ -1,18 +1,19 @@
 /**
   ******************************************************************************
-  * @file    stm32f4xx_hal_conf.h
+  * @file    stm32f4xx_hal_conf_template.h
   * @author  MCD Application Team
-  * @brief   HAL configuration file.
+  * @brief   HAL configuration template file. 
+  *          This file should be copied to the application folder and renamed
+  *          to stm32f4xx_hal_conf.h.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */ 
@@ -34,7 +35,7 @@
   */
 #define HAL_MODULE_ENABLED  
 #define HAL_ADC_MODULE_ENABLED
-/* #define HAL_CAN_MODULE_ENABLED */
+// #define HAL_CAN_MODULE_ENABLED
 #define HAL_CAN_LEGACY_MODULE_ENABLED
 #define HAL_CRC_MODULE_ENABLED
 #define HAL_CEC_MODULE_ENABLED
@@ -43,7 +44,8 @@
 #define HAL_DCMI_MODULE_ENABLED
 #define HAL_DMA_MODULE_ENABLED
 #define HAL_DMA2D_MODULE_ENABLED
-#define HAL_ETH_MODULE_ENABLED
+// #define HAL_ETH_MODULE_ENABLED
+#define HAL_ETH_LEGACY_MODULE_ENABLED
 #define HAL_FLASH_MODULE_ENABLED
 #define HAL_NAND_MODULE_ENABLED
 #define HAL_NOR_MODULE_ENABLED
@@ -313,10 +315,17 @@
 
 /* ################## Ethernet peripheral configuration ##################### */
 
-/* Definition of the Ethernet driver buffers size and count */
-#define ETH_RX_BUF_SIZE                ETH_MAX_PACKET_SIZE /* buffer size for receive               */
-#define ETH_TX_BUF_SIZE                ETH_MAX_PACKET_SIZE /* buffer size for transmit              */
+/* Section 1 : Ethernet peripheral configuration */
 
+/* MAC ADDRESS: MAC_ADDR0:MAC_ADDR1:MAC_ADDR2:MAC_ADDR3:MAC_ADDR4:MAC_ADDR5 */
+#define MAC_ADDR0   2U
+#define MAC_ADDR1   0U
+#define MAC_ADDR2   0U
+#define MAC_ADDR3   0U
+#define MAC_ADDR4   0U
+#define MAC_ADDR5   0U
+
+/* Definition of the Ethernet driver buffers size and count */   
 #ifdef MBED_CONF_STM32_EMAC_ETH_RXBUFNB
 /* default value in connectivity/drivers/emac/TARGET_STM/mbed_lib.json */
 #define ETH_RXBUFNB                    MBED_CONF_STM32_EMAC_ETH_RXBUFNB  /* Rx buffers of size ETH_RX_BUF_SIZE  */
@@ -329,25 +338,39 @@
 
 /* Section 2: PHY configuration section */
 
-/* PHY delay */
+/* DP83848 PHY Address*/ 
+#define DP83848_PHY_ADDRESS             0x01U
+/* PHY Reset delay these values are based on a 1 ms Systick interrupt*/ 
 #ifdef MBED_CONF_STM32_EMAC_ETH_PHY_RESET_DELAY
 #define PHY_RESET_DELAY                 MBED_CONF_STM32_EMAC_ETH_PHY_RESET_DELAY
 #else
 #define PHY_RESET_DELAY                 0
 #endif
+/* PHY Configuration delay */
 #define PHY_CONFIG_DELAY                0x00000FFFU
+
 #define PHY_READ_TO                     0x0000FFFFU
 #define PHY_WRITE_TO                    0x0000FFFFU
 
 /* Section 3: Common PHY Registers */
 
-#define PHY_BCR                         ((uint16_t)0x00U)    /*!< Transceiver Basic Control Register   */
-#define PHY_BSR                         ((uint16_t)0x01U)    /*!< Transceiver Basic Status Register    */
+#define PHY_BCR                         ((uint16_t)0x0000)  /*!< Transceiver Basic Control Register   */
+#define PHY_BSR                         ((uint16_t)0x0001)  /*!< Transceiver Basic Status Register    */
  
-#define PHY_RESET                       ((uint16_t)0x8000U)  /*!< PHY Reset */
-#define PHY_AUTONEGOTIATION             ((uint16_t)0x1000U)  /*!< Enable auto-negotiation function     */
-#define PHY_AUTONEGO_COMPLETE           ((uint16_t)0x0020U)  /*!< Auto-Negotiation process completed   */
-#define PHY_LINKED_STATUS               ((uint16_t)0x0004U)  /*!< Valid link established               */
+#define PHY_RESET                       ((uint16_t)0x8000)  /*!< PHY Reset */
+#define PHY_LOOPBACK                    ((uint16_t)0x4000)  /*!< Select loop-back mode */
+#define PHY_FULLDUPLEX_100M             ((uint16_t)0x2100)  /*!< Set the full-duplex mode at 100 Mb/s */
+#define PHY_HALFDUPLEX_100M             ((uint16_t)0x2000)  /*!< Set the half-duplex mode at 100 Mb/s */
+#define PHY_FULLDUPLEX_10M              ((uint16_t)0x0100)  /*!< Set the full-duplex mode at 10 Mb/s  */
+#define PHY_HALFDUPLEX_10M              ((uint16_t)0x0000)  /*!< Set the half-duplex mode at 10 Mb/s  */
+#define PHY_AUTONEGOTIATION             ((uint16_t)0x1000)  /*!< Enable auto-negotiation function     */
+#define PHY_RESTART_AUTONEGOTIATION     ((uint16_t)0x0200)  /*!< Restart auto-negotiation function    */
+#define PHY_POWERDOWN                   ((uint16_t)0x0800)  /*!< Select the power down mode           */
+#define PHY_ISOLATE                     ((uint16_t)0x0400)  /*!< Isolate PHY from MII                 */
+
+#define PHY_AUTONEGO_COMPLETE           ((uint16_t)0x0020)  /*!< Auto-Negotiation process completed   */
+#define PHY_LINKED_STATUS               ((uint16_t)0x0004)  /*!< Valid link established               */
+#define PHY_JABBER_DETECTION            ((uint16_t)0x0002)  /*!< Jabber condition detected            */
   
 /* Section 4: Extended PHY Registers */
 #ifdef MBED_CONF_STM32_EMAC_ETH_PHY_STATUS_REGISTER
@@ -355,10 +378,20 @@
 #define PHY_SPEED_STATUS                MBED_CONF_STM32_EMAC_ETH_PHY_SPEED_STATUS     /*!< PHY Speed mask                                  */
 #define PHY_DUPLEX_STATUS               MBED_CONF_STM32_EMAC_ETH_PHY_DUPLEX_STATUS    /*!< PHY Duplex mask                                 */
 #else
-#define PHY_SR                          0
-#define PHY_SPEED_STATUS                0
-#define PHY_DUPLEX_STATUS               0
+#define PHY_SR                          ((uint16_t)0x0010)  /*!< PHY status register Offset                      */
+#define PHY_SPEED_STATUS                ((uint16_t)0x0002)  /*!< PHY Speed mask                                  */
+#define PHY_DUPLEX_STATUS               ((uint16_t)0x0004)  /*!< PHY Duplex mask                                 */
 #endif
+ 
+#define PHY_MICR                        ((uint16_t)0x0011)  /*!< MII Interrupt Control Register                  */
+#define PHY_MISR                        ((uint16_t)0x0012)  /*!< MII Interrupt Status and Misc. Control Register */
+#define PHY_LINK_STATUS                 ((uint16_t)0x0001)  /*!< PHY Link mask                                   */
+
+#define PHY_MICR_INT_EN                 ((uint16_t)0x0002)  /*!< PHY Enable interrupts                           */
+#define PHY_MICR_INT_OE                 ((uint16_t)0x0001)  /*!< PHY Enable output interrupt events              */
+
+#define PHY_MISR_LINK_INT_EN            ((uint16_t)0x0020)  /*!< Enable Interrupt on change of link status       */
+#define PHY_LINK_INTERRUPT              ((uint16_t)0x2000)  /*!< PHY link status interrupt mask                  */
 
 /* ################## SPI peripheral configuration ########################## */
 
@@ -428,6 +461,10 @@
 
 #ifdef HAL_ETH_MODULE_ENABLED
   #include "stm32f4xx_hal_eth.h"
+#endif /* HAL_ETH_MODULE_ENABLED */
+
+#ifdef HAL_ETH_LEGACY_MODULE_ENABLED
+  #include "stm32f4xx_hal_eth_legacy.h"
 #endif /* HAL_ETH_MODULE_ENABLED */
 
 #ifdef HAL_FLASH_MODULE_ENABLED
@@ -577,7 +614,6 @@
   #define assert_param(expr) ((void)0U)
 #endif /* USE_FULL_ASSERT */
 
-
 #ifdef __cplusplus
 }
 #endif
@@ -585,4 +621,4 @@
 #endif /* __STM32F4xx_HAL_CONF_H */
  
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

@@ -8,6 +8,17 @@
   *           + Initialization and de-initialization functions
   *           + IO operation functions
   *           + Peripheral State and Errors functions
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2016 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
   @verbatim
  ===============================================================================
                   ##### How to use this driver #####
@@ -169,18 +180,7 @@
        and weak (surcharged) callbacks are used.
 
   @endverbatim
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
+
   */
 
 /* Includes ------------------------------------------------------------------*/
@@ -303,12 +303,12 @@ HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
     hi2s->RxCpltCallback       = HAL_I2S_RxCpltCallback;          /* Legacy weak RxCpltCallback       */
 #if defined (SPI_I2S_FULLDUPLEX_SUPPORT)
     hi2s->TxRxCpltCallback     = HAL_I2SEx_TxRxCpltCallback;      /* Legacy weak TxRxCpltCallback     */
-#endif
+#endif /* SPI_I2S_FULLDUPLEX_SUPPORT */
     hi2s->TxHalfCpltCallback   = HAL_I2S_TxHalfCpltCallback;      /* Legacy weak TxHalfCpltCallback   */
     hi2s->RxHalfCpltCallback   = HAL_I2S_RxHalfCpltCallback;      /* Legacy weak RxHalfCpltCallback   */
 #if defined (SPI_I2S_FULLDUPLEX_SUPPORT)
     hi2s->TxRxHalfCpltCallback = HAL_I2SEx_TxRxHalfCpltCallback;  /* Legacy weak TxRxHalfCpltCallback */
-#endif
+#endif /* SPI_I2S_FULLDUPLEX_SUPPORT */
     hi2s->ErrorCallback        = HAL_I2S_ErrorCallback;           /* Legacy weak ErrorCallback        */
 
     if (hi2s->MspInitCallback == NULL)
@@ -368,7 +368,7 @@ HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
     }
 #else
     i2sclk = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_I2S);
-#endif
+#endif /* I2S_APB1_APB2_FEATURE */
 
     /* Compute the Real divider depending on the MCLK output state, with a floating point */
     if (hi2s->Init.MCLKOutput == I2S_MCLKOUTPUT_ENABLE)
@@ -603,7 +603,7 @@ HAL_StatusTypeDef HAL_I2S_RegisterCallback(I2S_HandleTypeDef *hi2s, HAL_I2S_Call
       case HAL_I2S_TX_RX_COMPLETE_CB_ID :
         hi2s->TxRxCpltCallback = pCallback;
         break;
-#endif
+#endif /* SPI_I2S_FULLDUPLEX_SUPPORT */
 
       case HAL_I2S_TX_HALF_COMPLETE_CB_ID :
         hi2s->TxHalfCpltCallback = pCallback;
@@ -617,7 +617,7 @@ HAL_StatusTypeDef HAL_I2S_RegisterCallback(I2S_HandleTypeDef *hi2s, HAL_I2S_Call
       case HAL_I2S_TX_RX_HALF_COMPLETE_CB_ID :
         hi2s->TxRxHalfCpltCallback = pCallback;
         break;
-#endif
+#endif /* SPI_I2S_FULLDUPLEX_SUPPORT */
 
       case HAL_I2S_ERROR_CB_ID :
         hi2s->ErrorCallback = pCallback;
@@ -706,7 +706,7 @@ HAL_StatusTypeDef HAL_I2S_UnRegisterCallback(I2S_HandleTypeDef *hi2s, HAL_I2S_Ca
       case HAL_I2S_TX_RX_COMPLETE_CB_ID :
         hi2s->TxRxCpltCallback = HAL_I2SEx_TxRxCpltCallback;          /* Legacy weak TxRxCpltCallback     */
         break;
-#endif
+#endif /* SPI_I2S_FULLDUPLEX_SUPPORT */
 
       case HAL_I2S_TX_HALF_COMPLETE_CB_ID :
         hi2s->TxHalfCpltCallback = HAL_I2S_TxHalfCpltCallback;        /* Legacy weak TxHalfCpltCallback   */
@@ -720,7 +720,7 @@ HAL_StatusTypeDef HAL_I2S_UnRegisterCallback(I2S_HandleTypeDef *hi2s, HAL_I2S_Ca
       case HAL_I2S_TX_RX_HALF_COMPLETE_CB_ID :
         hi2s->TxRxHalfCpltCallback = HAL_I2SEx_TxRxHalfCpltCallback;  /* Legacy weak TxRxHalfCpltCallback */
         break;
-#endif
+#endif /* SPI_I2S_FULLDUPLEX_SUPPORT */
 
       case HAL_I2S_ERROR_CB_ID :
         hi2s->ErrorCallback = HAL_I2S_ErrorCallback;                  /* Legacy weak ErrorCallback        */
@@ -2092,4 +2092,3 @@ static HAL_StatusTypeDef I2S_WaitFlagStateUntilTimeout(I2S_HandleTypeDef *hi2s, 
 
 #endif /* HAL_I2S_MODULE_ENABLED */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

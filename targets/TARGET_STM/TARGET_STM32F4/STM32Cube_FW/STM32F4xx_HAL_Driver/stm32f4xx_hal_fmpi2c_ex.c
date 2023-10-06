@@ -5,8 +5,20 @@
   * @brief   FMPI2C Extended HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of FMPI2C Extended peripheral:
-  *           + Extended features functions
+  *           + Filter Mode Functions
+  *           + FastModePlus Functions
   *
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2016 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
   @verbatim
   ==============================================================================
                ##### FMPI2C peripheral Extended features  #####
@@ -28,18 +40,6 @@
           (++) HAL_FMPI2CEx_EnableFastModePlus()
           (++) HAL_FMPI2CEx_DisableFastModePlus()
   @endverbatim
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
   */
 
 /* Includes ------------------------------------------------------------------*/
@@ -68,16 +68,15 @@
   * @{
   */
 
-/** @defgroup FMPI2CEx_Exported_Functions_Group1 Extended features functions
-  * @brief    Extended features functions
+/** @defgroup FMPI2CEx_Exported_Functions_Group1 Filter Mode Functions
+  * @brief    Filter Mode Functions
   *
 @verbatim
  ===============================================================================
-                      ##### Extended features functions #####
+                      ##### Filter Mode Functions #####
  ===============================================================================
     [..] This section provides functions allowing to:
       (+) Configure Noise Filters
-      (+) Configure Fast Mode Plus
 
 @endverbatim
   * @{
@@ -178,6 +177,23 @@ HAL_StatusTypeDef HAL_FMPI2CEx_ConfigDigitalFilter(FMPI2C_HandleTypeDef *hfmpi2c
     return HAL_BUSY;
   }
 }
+/**
+  * @}
+  */
+
+/** @defgroup FMPI2CEx_Exported_Functions_Group3 Fast Mode Plus Functions
+  * @brief    Fast Mode Plus Functions
+  *
+@verbatim
+ ===============================================================================
+                      ##### Fast Mode Plus Functions #####
+ ===============================================================================
+    [..] This section provides functions allowing to:
+      (+) Configure Fast Mode Plus
+
+@endverbatim
+  * @{
+  */
 
 /**
   * @brief Enable the FMPI2C fast mode plus driving capability.
@@ -224,11 +240,9 @@ void HAL_FMPI2CEx_DisableFastModePlus(uint32_t ConfigFastModePlus)
   /* Disable fast mode plus driving capability for selected pin */
   CLEAR_BIT(SYSCFG->CFGR, (uint32_t)ConfigFastModePlus);
 }
-
 /**
   * @}
   */
-
 /**
   * @}
   */
@@ -242,5 +256,3 @@ void HAL_FMPI2CEx_DisableFastModePlus(uint32_t ConfigFastModePlus)
 /**
   * @}
   */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
