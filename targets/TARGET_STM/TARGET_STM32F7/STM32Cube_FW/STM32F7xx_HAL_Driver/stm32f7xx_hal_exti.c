@@ -8,6 +8,17 @@
   *           + Initialization and de-initialization functions
   *           + IO operation functions
   *
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2018 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
   @verbatim
   ==============================================================================
                     ##### EXTI Peripheral features #####
@@ -69,18 +80,6 @@
     (#) Generate software interrupt using HAL_EXTI_GenerateSWI().
 
   @endverbatim
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2018 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
   */
 
 /* Includes ------------------------------------------------------------------*/
@@ -276,6 +275,10 @@ HAL_StatusTypeDef HAL_EXTI_GetConfigLine(EXTI_HandleTypeDef *hexti, EXTI_ConfigT
     pExtiConfig->Mode |= EXTI_MODE_EVENT;
   }
 
+  /* Get default Trigger and GPIOSel configuration */
+  pExtiConfig->Trigger = EXTI_TRIGGER_NONE;
+  pExtiConfig->GPIOSel = 0x00u;
+
   /* 2] Get trigger for configurable lines : rising */
   if ((pExtiConfig->Line & EXTI_CONFIG) != 0x00u)
   {
@@ -283,10 +286,6 @@ HAL_StatusTypeDef HAL_EXTI_GetConfigLine(EXTI_HandleTypeDef *hexti, EXTI_ConfigT
     if ((EXTI->RTSR & maskline) != 0x00u)
     {
       pExtiConfig->Trigger = EXTI_TRIGGER_RISING;
-    }
-    else
-    {
-      pExtiConfig->Trigger = EXTI_TRIGGER_NONE;
     }
 
     /* Get falling configuration */
@@ -302,18 +301,8 @@ HAL_StatusTypeDef HAL_EXTI_GetConfigLine(EXTI_HandleTypeDef *hexti, EXTI_ConfigT
       assert_param(IS_EXTI_GPIO_PIN(linepos));
 
       regval = SYSCFG->EXTICR[linepos >> 2u];
-      pExtiConfig->GPIOSel = ((regval << (SYSCFG_EXTICR1_EXTI1_Pos * (3uL - (linepos & 0x03u)))) >> 24);
+      pExtiConfig->GPIOSel = (regval >> (SYSCFG_EXTICR1_EXTI1_Pos * (linepos & 0x03u))) & SYSCFG_EXTICR1_EXTI0;
     }
-    else
-    {
-      pExtiConfig->GPIOSel = 0x00u;
-    }
-  }
-  else
-  {
-    /* No Trigger selected */
-    pExtiConfig->Trigger = EXTI_TRIGGER_NONE;
-    pExtiConfig->GPIOSel = 0x00u;
   }
 
   return HAL_OK;
@@ -556,4 +545,3 @@ void HAL_EXTI_GenerateSWI(EXTI_HandleTypeDef *hexti)
   * @}
   */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
