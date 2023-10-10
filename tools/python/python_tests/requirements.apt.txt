@@ -1,0 +1,7 @@
+python3-pytest
+python3-factory-boy
+python3-requests-mock
+python3-mock
+python3-coverage
+python3-bs4
+python3-lxml

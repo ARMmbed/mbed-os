@@ -51,7 +51,7 @@ def execute_pylint(filename):
     status = process.poll()
     return status, stout, sterr
 
-FILES = ["memap.py", "test/pylint.py"]
+FILES = ["python/memap/memap.py", "test/pylint.py"]
 
 if __name__ == "__main__":
     for python_module in FILES:

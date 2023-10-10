@@ -18,6 +18,6 @@ message("Executing: mbedhtrun ${MBEDHTRUN_ARGS_FOR_DISPLAY}")
 
 # Note: For this command, we need to survive mbedhtrun not being on the PATH, so we import the package and call the main function using "python -c"
 execute_process(
-	COMMAND @Python3_EXECUTABLE@ -c "import mbed_host_tests.mbedhtrun; exit(mbed_host_tests.mbedhtrun.main())" ${MBEDHTRUN_ARGS}
-	WORKING_DIRECTORY "@CMAKE_CURRENT_BINARY_DIR@"
+	COMMAND @Python3_EXECUTABLE@ -m mbed_host_tests.mbedhtrun ${MBEDHTRUN_ARGS}
+	WORKING_DIRECTORY "@mbed-os_SOURCE_DIR@/tools/python"
 	COMMAND_ERROR_IS_FATAL ANY)

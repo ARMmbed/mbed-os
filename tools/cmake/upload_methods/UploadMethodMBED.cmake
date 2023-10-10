@@ -7,8 +7,7 @@
 set(UPLOAD_SUPPORTS_DEBUG FALSE)
 
 ### Check if upload method can be enabled on this machine
-check_python_package(mbed_os_tools HAVE_MBED_OS_TOOLS)
-set(UPLOAD_MBED_FOUND ${HAVE_MBED_OS_TOOLS})
+set(UPLOAD_MBED_FOUND ${Python3_FOUND})
 
 if(NOT DEFINED MBED_RESET_BAUDRATE)
 	set(MBED_RESET_BAUDRATE 9600)
@@ -20,11 +19,14 @@ set(MBED_TARGET_UID "" CACHE STRING "UID of mbed target to upload to if there ar
 function(gen_upload_target TARGET_NAME BIN_FILE)
 
 	add_custom_target(flash-${TARGET_NAME}
-		COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/install_bin_file.py
-		${BIN_FILE}
-		${MBED_TARGET}
-		${MBED_RESET_BAUDRATE}
-		${MBED_TARGET_UID})
+		COMMAND ${Python3_EXECUTABLE} -m install_bin_file
+			${BIN_FILE}
+			${MBED_TARGET}
+			${MBED_RESET_BAUDRATE}
+			${MBED_TARGET_UID}
+		WORKING_DIRECTORY
+			${mbed-os_SOURCE_DIR}/tools/python
+		VERBATIM)
 
 	add_dependencies(flash-${TARGET_NAME} ${TARGET_NAME})
 

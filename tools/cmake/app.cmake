@@ -15,7 +15,7 @@ find_package(Python3 REQUIRED COMPONENTS Interpreter)
 include(CheckPythonPackage)
 
 # Check python packages
-set(PYTHON_PACKAGES_TO_CHECK intelhex prettytable future jinja2 mbed_tools)
+set(PYTHON_PACKAGES_TO_CHECK intelhex prettytable future jinja2)
 foreach(PACKAGE_NAME ${PYTHON_PACKAGES_TO_CHECK})
     string(TOUPPER ${PACKAGE_NAME} PACKAGE_NAME_UCASE) # Ucase name needed for CMake variable
     string(TOLOWER ${PACKAGE_NAME} PACKAGE_NAME_LCASE) # Lcase name needed for import statement

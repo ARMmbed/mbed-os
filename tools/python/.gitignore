@@ -1,0 +1,5 @@
+# Python coverage database
+.coverage
+
+# Coverage report
+htmlcov/

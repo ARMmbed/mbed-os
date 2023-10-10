@@ -1,0 +1,7011 @@
+[
+    {
+        "board_type": "MTB_UBLOX_NINA_B1",
+        "board_name": "u-blox NINA-B1",
+        "product_code": "0455",
+        "target_type": "module",
+        "slug": "u-blox-nina-b1",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "MTB_MTS_XDOT",
+        "board_name": "Multitech xDOT",
+        "product_code": "0453",
+        "target_type": "module",
+        "slug": "multitech-xdot",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "ADV_WISE_1510",
+        "board_name": "Advantech WISE-1510",
+        "product_code": "0458",
+        "target_type": "module",
+        "slug": "advantech-wise-1510",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "MTS_DRAGONFLY_F411RE",
+        "board_name": "Multitech Dragonfly",
+        "product_code": "0454",
+        "target_type": "module",
+        "slug": "multitech-dragonfly",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "ADV_WISE_1530",
+        "board_name": "Advantech WISE-1530",
+        "product_code": "0459",
+        "target_type": "module",
+        "slug": "advantech-wise-1530",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "MTB_UBLOX_ODIN_W2",
+        "board_name": "u-blox ODIN-W2",
+        "product_code": "0450",
+        "target_type": "module",
+        "slug": "u-blox-odin-w2",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "MTB_ADV_WISE_1570",
+        "board_name": "Advantech WISE-1570",
+        "product_code": "0460",
+        "target_type": "module",
+        "slug": "advantech-wise-1570",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "MTB_MXCHIP_EMW3166",
+        "board_name": "MXChip  EMW3166",
+        "product_code": "0451",
+        "target_type": "module",
+        "slug": "mxchip-emw3166",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "MTB_MURATA_ABZ",
+        "board_name": "Murata Type ABZ",
+        "product_code": "0456",
+        "target_type": "module",
+        "slug": "murata-type-abz",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.15"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "EP_AGORA",
+        "board_name": "Embedded Planet Agora",
+        "product_code": "2600",
+        "target_type": "module",
+        "slug": "ep-agora",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "MAX32670EVKIT",
+        "board_name": "MAX32670EVKIT",
+        "product_code": "0424",
+        "target_type": "platform",
+        "slug": "MAX32670EVKIT",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.15"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_U535RE_Q",
+        "board_name": "NUCLEO-U535RE-Q",
+        "product_code": "0838",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-U535RE",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.15"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_WBA55CG",
+        "board_name": "NUCLEO-WBA55CG",
+        "product_code": "0837",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-WBA55CG",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.15"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUMAKER_IOT_M467",
+        "board_name": "NuMaker-IoT-M467",
+        "product_code": "1313",
+        "target_type": "platform",
+        "slug": "NUMAKER-IOT-M467",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.15"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "MIMXRT1040_EVK",
+        "board_name": "MIMXRT1040-EVK",
+        "product_code": "0255",
+        "target_type": "platform",
+        "slug": "MIMXRT1040-EVK",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.15"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_H503RB",
+        "board_name": "NUCLEO-H503RB",
+        "product_code": "0832",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-H503RB",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.15"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "DISCO_H573II",
+        "board_name": "DISCO-H573II",
+        "product_code": "0831",
+        "target_type": "platform",
+        "slug": "ST-Discovery-H573II",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.15"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "MAX32660EVSYS",
+        "board_name": "MAX32660EVSYS",
+        "product_code": "0421",
+        "target_type": "platform",
+        "slug": "MAX32660EVSYS",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.15"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "MTS_DRAGONFLY_L496VG",
+        "board_name": "Multitech Dragonfly L496VG",
+        "product_code": "0313",
+        "target_type": "platform",
+        "slug": "MTS-DRAGONFLY-L496VG",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.11"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "B_G473E_ZEST1S",
+        "board_name": "B-G473E-ZEST1S",
+        "product_code": "0889",
+        "target_type": "platform",
+        "slug": "ST-B-G473E-ZEST1S",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "TMPM4NR",
+        "board_name": "AdBun-M4NR development board",
+        "product_code": "7022",
+        "target_type": "platform",
+        "slug": "TMPM4NR",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.15"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "TMPM4GR",
+        "board_name": "AdBun-M4GR",
+        "product_code": "7021",
+        "target_type": "platform",
+        "slug": "TMPM4GR",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.15"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_H563ZI",
+        "board_name": "NUCLEO-H563ZI",
+        "product_code": "0878",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-H563ZI",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_U595ZJQ",
+        "board_name": "NUCLEO-U595ZJ-Q",
+        "product_code": "0877",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-U595ZJ-Q",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "DISCO_C0316",
+        "board_name": "DISCO-C0316",
+        "product_code": "0869",
+        "target_type": "platform",
+        "slug": "ST-Discovery-C0316",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "DISCO_C0116",
+        "board_name": "DISCO-C0116",
+        "product_code": "0868",
+        "target_type": "platform",
+        "slug": "ST-Discovery-C0116",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_C031C6",
+        "board_name": "NUCLEO-C031C6",
+        "product_code": "0867",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-C031C6",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "ARM_MPS2_M55",
+        "board_name": "arm_mps2_m55",
+        "product_code": "5010",
+        "target_type": "platform",
+        "slug": "arm_mps2_m55",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "TMPM4KN",
+        "board_name": "SBK-M4KN development board",
+        "product_code": "7020",
+        "target_type": "platform",
+        "slug": "TMPM4KN",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.15"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "TMPM3HQA",
+        "board_name": "AdBun-M3HQA development board",
+        "product_code": "7019",
+        "target_type": "platform",
+        "slug": "TMPM3HQA",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.6"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "DISCO_U599J",
+        "board_name": "ST Discovery STM32U599J",
+        "product_code": "0888",
+        "target_type": "platform",
+        "slug": "ST-Discovery-STM32U599J",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "EP_ATLAS",
+        "board_name": "Atlas Product Development Kit",
+        "product_code": "2603",
+        "target_type": "platform",
+        "slug": "ATLAS-DEV",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "MIMXRT1180_EVK",
+        "board_name": "MIMXRT1180-EVK",
+        "product_code": "0239",
+        "target_type": "platform",
+        "slug": "MIMXRT1180-EVK",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "MIMXRT1024_EVK",
+        "board_name": "MIMXRT1024-EVK",
+        "product_code": "0238",
+        "target_type": "platform",
+        "slug": "MIMXRT1024-EVK",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "B_U585I_IOT02A",
+        "board_name": "B-U585I-IOT02A",
+        "product_code": "0887",
+        "target_type": "platform",
+        "slug": "ST-Discovery-B-U585I-IOT02A",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.15"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "S1SBP6A",
+        "board_name": "SIDK S1SBP6A Bio-processor dev kit",
+        "product_code": "3703",
+        "target_type": "platform",
+        "slug": "S1SBP6A",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_L010RB",
+        "board_name": "NUCLEO_L010RB",
+        "product_code": "0783",
+        "target_type": "platform",
+        "slug": "NUCLEO_L010RB",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_U575ZI_Q",
+        "board_name": "NUCLEO-U575ZI-Q",
+        "product_code": "0886",
+        "target_type": "platform",
+        "slug": "NUCLEO-U575ZI-Q",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.15"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "B_L4S5I_IOT01A",
+        "board_name": "DISCO-L4S5I (B-L4S5I-IOT01A)",
+        "product_code": "0885",
+        "target_type": "platform",
+        "slug": "B-L4S5I-IOT01A",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NU_M2354",
+        "board_name": "NUMAKER-M2354",
+        "product_code": "1312",
+        "target_type": "platform",
+        "slug": "NUMAKER-M2354",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.15",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "DISCO_WB5MMG",
+        "board_name": "DISCO-WB5MMG",
+        "product_code": "0884",
+        "target_type": "platform",
+        "slug": "DISCO-WB5MMG",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_WB15CC",
+        "board_name": "NUCLEO-WB15CC",
+        "product_code": "0883",
+        "target_type": "platform",
+        "slug": "ST-NUCLEO-WB15CC",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.15"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_G491RE",
+        "board_name": "NUCLEO-G491RE",
+        "product_code": "0882",
+        "target_type": "platform",
+        "slug": "ST-NUCLEO-G491RE",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "STM32WL55C_DK",
+        "board_name": "STM32WL55C-DK",
+        "product_code": "0881",
+        "target_type": "platform",
+        "slug": "ST-STM32WL55C-DK",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "B_L462E_CELL1",
+        "board_name": "B-L462E-CELL1",
+        "product_code": "0880",
+        "target_type": "platform",
+        "slug": "ST-B-L462E-CELL1",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "CY8CKIT064B0S2_4343W",
+        "board_name": "PSoC 64 Secure Boot, Wi-Fi / BLE Pioneer Kit",
+        "product_code": "1910",
+        "target_type": "platform",
+        "slug": "CY8CKIT-064B0S2-4343W",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "HANI_IOT",
+        "board_name": "HANI-IOT",
+        "product_code": "0360",
+        "target_type": "platform",
+        "slug": "HANI-IOT",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.15"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "TMPM3U6",
+        "board_name": "AdBun-M3U6",
+        "product_code": "7018",
+        "target_type": "platform",
+        "slug": "TMPM3U6",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "TMPM3V6",
+        "board_name": "AdBun-M3V6",
+        "product_code": "7017",
+        "target_type": "platform",
+        "slug": "TMPM3V6",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "TMPM4K4",
+        "board_name": "SBK-M4K4 MB",
+        "product_code": "7016",
+        "target_type": "platform",
+        "slug": "TMPM4K4",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "GR_MANGO",
+        "board_name": "GR-MANGO",
+        "product_code": "5502",
+        "target_type": "platform",
+        "slug": "Renesas-GR-MANGO",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "FRDM-K32L3A6",
+        "board_name": "FRDM-K32L3A6",
+        "product_code": "0237",
+        "target_type": "platform",
+        "slug": "FRDM-K32L3A6",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "EP_AGORA",
+        "board_name": "Agora Product Development Kit",
+        "product_code": "2600",
+        "target_type": "platform",
+        "slug": "AGORA-DEV",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "DISCO_H735G",
+        "board_name": "Disco-H735G",
+        "product_code": "0875",
+        "target_type": "platform",
+        "slug": "Disco-H735G",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_G0B1RE",
+        "board_name": "Nucleo-G0B1RE",
+        "product_code": "0872",
+        "target_type": "platform",
+        "slug": "Nucleo-G0B1RE",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_H723ZG",
+        "board_name": "Nucleo-H723ZG",
+        "product_code": "0871",
+        "target_type": "platform",
+        "slug": "Nucleo-H723ZG",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "WIO_R410",
+        "board_name": "Seeed Wio SARA-R410",
+        "product_code": "9016",
+        "target_type": "platform",
+        "slug": "Seeed-Wio-SARA-R410",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUMAKER_IOT_M263A",
+        "board_name": "NuMaker-IoT-M263A",
+        "product_code": "1310",
+        "target_type": "platform",
+        "slug": "NUMAKER-IOT-M263A",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUMAKER_IOT_M252",
+        "board_name": "NuMaker-LoRaD-M252",
+        "product_code": "1309",
+        "target_type": "platform",
+        "slug": "NuMaker-LoRaD-M252",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.15",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_WL55JC",
+        "board_name": "NUCLEO-WL55JC",
+        "product_code": "0866",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-WL55JC",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_L4P5ZG",
+        "board_name": "NUCLEO-L4P5ZG",
+        "product_code": "0865",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-L4P5ZG",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "B_G474E_DPOW1",
+        "board_name": "B-G474E-DPOW1",
+        "product_code": "0864",
+        "target_type": "platform",
+        "slug": "ST-B-G474E-DPOW1",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "DISCO_L4P5G",
+        "board_name": "DISCO-L4P5G",
+        "product_code": "0863",
+        "target_type": "platform",
+        "slug": "ST-Discovery-L4P5G",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "WIO_EMW3166",
+        "board_name": "Seeed Wio EMW3166",
+        "product_code": "9017",
+        "target_type": "platform",
+        "slug": "Seeed-Wio-WiFi",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "ARM_MUSCA_S1",
+        "board_name": "Arm V2M-Musca-S1",
+        "product_code": "5009",
+        "target_type": "platform",
+        "slug": "Arm-Musca_S1",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_H743ZI2",
+        "board_name": "NUCLEO-H743ZI2",
+        "product_code": "0836",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-H743ZI2",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "CY8CKIT_062_BLE",
+        "board_name": "PSoC 6 BLE Pioneer Kit",
+        "product_code": "1902",
+        "target_type": "platform",
+        "slug": "CY8CKIT-062-BLE",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "CY8CPROTO_062_4343W",
+        "board_name": "PSoC 6 Wi-Fi BT Prototyping Kit",
+        "product_code": "1901",
+        "target_type": "platform",
+        "slug": "CY8CPROTO-062-4343W",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "RHOMBIO_L476DMW1K",
+        "board_name": "RHOMBIO L476DMW1K",
+        "product_code": "1500",
+        "target_type": "platform",
+        "slug": "RHOMBIO-L476DMW1K",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "CY8CKIT_062_WIFI_BT",
+        "board_name": "PSoC 6 WiFi-BT Pioneer Kit",
+        "product_code": "1900",
+        "target_type": "platform",
+        "slug": "CY8CKIT-062-WiFi-BT",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "GD32_E103VB",
+        "board_name": "GD32-E103VB",
+        "product_code": "1703",
+        "target_type": "platform",
+        "slug": "GD32-E103VB",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "LPC55S69_NS",
+        "board_name": "LPCXpresso55S69",
+        "product_code": "0236",
+        "target_type": "platform",
+        "slug": "LPCXpresso55S69",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.14",
+            "Mbed OS 5.15"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "GD32_F450ZI",
+        "board_name": "GD32-F450ZI",
+        "product_code": "1702",
+        "target_type": "platform",
+        "slug": "GD32-F450ZI",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "GD32_F307VG",
+        "board_name": "GD32-F307VG",
+        "product_code": "1701",
+        "target_type": "platform",
+        "slug": "GD32-F307VG",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "SDP_K1",
+        "board_name": "SDP-K1",
+        "product_code": "0604",
+        "target_type": "platform",
+        "slug": "SDP_K1",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_H7B3ZI",
+        "board_name": "NUCLEO-H7B3ZI",
+        "product_code": "0862",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-H7B3ZI",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_H7A3ZI",
+        "board_name": "NUCLEO-H7A3ZI",
+        "product_code": "0861",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-H7A3ZI",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_H7A3ZI_Q",
+        "board_name": "NUCLEO-H7A3ZI-Q",
+        "product_code": "0860",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-H7A3ZI-Q",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "DISCO_H7B3I",
+        "board_name": "DISCO-H7B3I",
+        "product_code": "0859",
+        "target_type": "platform",
+        "slug": "ST-Discovery-H7B3I",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "DISCO_H750B",
+        "board_name": "DISCO-H750B",
+        "product_code": "0858",
+        "target_type": "platform",
+        "slug": "ST-Discovery-H750B",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "DISCO_F7508",
+        "board_name": "DISCO-F7508",
+        "product_code": "0857",
+        "target_type": "platform",
+        "slug": "ST-Discovery-F7508",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "DISCO_F7308",
+        "board_name": "DISCO-F7308",
+        "product_code": "0856",
+        "target_type": "platform",
+        "slug": "ST-Discovery-F7308",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "UBLOX_C030_R412M",
+        "board_name": "u-blox C030-R412M LTE CatM1/NB1 and 2G",
+        "product_code": "C036",
+        "target_type": "platform",
+        "slug": "ublox-C030-R412M",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "SDT32620B",
+        "board_name": "SDT32620B",
+        "product_code": "3101",
+        "target_type": "platform",
+        "slug": "SDT32620B",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "S5JS100",
+        "board_name": "S5JS100",
+        "product_code": "3701",
+        "target_type": "platform",
+        "slug": "S5JS100",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "MIMXRT1064-EVK",
+        "board_name": "MIMXRT1064-EVK",
+        "product_code": "0232",
+        "target_type": "platform",
+        "slug": "MIMXRT1064-EVK",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "DISCO_L562QE",
+        "board_name": "DISCO-L562QE (STM32L562E-DK)",
+        "product_code": "0855",
+        "target_type": "platform",
+        "slug": "ST-Discovery-L562QE",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_L552ZE_Q",
+        "board_name": "NUCLEO-L552ZE-Q",
+        "product_code": "0854",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-L552ZE-Q",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.15"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_F301K8",
+        "board_name": "NUCLEO-F301K8",
+        "product_code": "0853",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F301K8",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_G031K8",
+        "board_name": "NUCLEO-G031K8",
+        "product_code": "0852",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-G031K8",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.2"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_G431KB",
+        "board_name": "NUCLEO-G431KB",
+        "product_code": "0851",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-G431KB",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_G431RB",
+        "board_name": "NUCLEO-G431RB",
+        "product_code": "0850",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-G431RB",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_G070RB",
+        "board_name": "NUCLEO-G070RB",
+        "product_code": "0849",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-G070RB",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUMAKER_IOT_M487",
+        "board_name": "NuMaker-IoT-M487",
+        "product_code": "1308",
+        "target_type": "platform",
+        "slug": "NUMAKER-IOT-M487",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "TMPM4G9",
+        "board_name": "AdBun-M4G9",
+        "product_code": "7015",
+        "target_type": "platform",
+        "slug": "TMPM4G9",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "SDT64B",
+        "board_name": "SDT64B",
+        "product_code": "3105",
+        "target_type": "platform",
+        "slug": "SDT64B",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "SDT52832B",
+        "board_name": "SDT52832B",
+        "product_code": "3104",
+        "target_type": "platform",
+        "slug": "SDT52832B",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "SDT51822B",
+        "board_name": "SDT51822B",
+        "product_code": "3103",
+        "target_type": "platform",
+        "slug": "SDT51822B",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "SDT32625B",
+        "board_name": "SDT32625B",
+        "product_code": "3102",
+        "target_type": "platform",
+        "slug": "SDT32625B",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "TT_M4G9",
+        "board_name": "ThunderSoft TT_M4G9",
+        "product_code": "8013",
+        "target_type": "platform",
+        "slug": "TT-M4G9",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "TT_M3HQ",
+        "board_name": "ThunderSoft TT_M3HQ",
+        "product_code": "8012",
+        "target_type": "platform",
+        "slug": "TT-M3HQ",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.11",
+            "Mbed OS 5.12"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "WIO_BG96",
+        "board_name": "Seeed Wio LTE M1/NB1(BG96)",
+        "product_code": "9015",
+        "target_type": "platform",
+        "slug": "Seeed-Wio-BG96",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "MAX32625PICO",
+        "board_name": "MAX32625PICO_DAPLINK_UNKNOWN",
+        "product_code": "0444",
+        "target_type": "platform",
+        "slug": "MAX32625PICO_DAPLINK_UNKNOWN",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "UHURU_RAVEN",
+        "board_name": "Uhuru RAVEN",
+        "product_code": "9020",
+        "target_type": "platform",
+        "slug": "UH-ENE01",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "WIO_3G",
+        "board_name": "Seeed Wio 3G",
+        "product_code": "9014",
+        "target_type": "platform",
+        "slug": "Seeed-Wio-3G",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "DISCO_G071B",
+        "board_name": "DISCO-G071B",
+        "product_code": "0848",
+        "target_type": "platform",
+        "slug": "ST-Discovery-G071B",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "DISCO_H745I",
+        "board_name": "DISCO-H745I",
+        "product_code": "0847",
+        "target_type": "platform",
+        "slug": "ST-Discovery-H745I",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_L412KB",
+        "board_name": "NUCLEO-L412KB",
+        "product_code": "0846",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-L412KB",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_L412RB_P",
+        "board_name": "NUCLEO-L412RB-P",
+        "product_code": "0845",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-L412RB-P",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_H755ZI_Q",
+        "board_name": "NUCLEO-H755ZI-Q",
+        "product_code": "0844",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-H755ZI-Q",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_H745ZI_Q",
+        "board_name": "NUCLEO-H745ZI-Q",
+        "product_code": "0843",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-H745ZI-Q",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_H753ZI",
+        "board_name": "NUCLEO-H753ZI",
+        "product_code": "0842",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-H753ZI",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_G474RE",
+        "board_name": "NUCLEO-G474RE",
+        "product_code": "0841",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-G474RE",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "FUTURE_SEQUANA",
+        "board_name": "Future Electronics Sequana",
+        "product_code": "6000",
+        "target_type": "platform",
+        "slug": "Future-Sequana",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "MTB_USI_WM_BN_BM_22",
+        "board_name": "MTB_USI_WM_BN_BM_22",
+        "product_code": "0462",
+        "target_type": "platform",
+        "slug": "Reserved-0450-0490-for-MODULE13",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "MTB_LAIRD_BL652",
+        "board_name": "MTB_LAIRD_BL652",
+        "product_code": "0461",
+        "target_type": "platform",
+        "slug": "Reserved-0450-0490-for-MODULE12",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "TMPM3HQ",
+        "board_name": "AdBun-M3HQ",
+        "product_code": "7014",
+        "target_type": "platform",
+        "slug": "TMPM3HQ",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_L4A6ZG",
+        "board_name": "NUCLEO-L4A6ZG",
+        "product_code": "0782",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-L4A6ZG",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "SAKURAIO_EVB_01",
+        "board_name": "sakura.io Evaluation Board",
+        "product_code": "C008",
+        "target_type": "platform",
+        "slug": "SAKURAIO_EVB_01",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "MTS_DRAGONFLY_L471QG",
+        "board_name": "MultiTech Dragonfly Nano",
+        "product_code": "0312",
+        "target_type": "platform",
+        "slug": "MTS-Dragonfly-Nano",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "FF_LPC546XX",
+        "board_name": "L-Tek FF-LPC546XX",
+        "product_code": "8081",
+        "target_type": "platform",
+        "slug": "L-TEK-FF-LPC546XX",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_WB55RG",
+        "board_name": "NUCLEO-WB55RG",
+        "product_code": "0839",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-WB55RG",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_L4R5ZI",
+        "board_name": "NUCLEO-L4R5ZI-P",
+        "product_code": "0781",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-L4R5ZI-P",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_G071RB",
+        "board_name": "NUCLEO-G071RB",
+        "product_code": "0729",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-G071RB",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "MBED_CONNECT_ODIN",
+        "board_name": "Mbed Connect Cloud",
+        "product_code": "2410",
+        "target_type": "platform",
+        "slug": "mbed-Connect-Cloud",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.15"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "ARM_MPS3",
+        "board_name": "ARM V2M-MPS3",
+        "product_code": "5005",
+        "target_type": "platform",
+        "slug": "ARM-MPS3",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "MIMXRT1050_EVK",
+        "board_name": "IMXRT1050-EVKB",
+        "product_code": "0227",
+        "target_type": "platform",
+        "slug": "MIMXRT1050-EVK",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "TMPM46B",
+        "board_name": "AdBun-M46B",
+        "product_code": "7013",
+        "target_type": "platform",
+        "slug": "TMPM46B",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "EFM32GG11_STK3701",
+        "board_name": "EFM32 Giant Gecko 11",
+        "product_code": "2042",
+        "target_type": "platform",
+        "slug": "EFM32-Giant-Gecko-11",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "FF1705_L151CC",
+        "board_name": "L-Tek FF1705",
+        "product_code": "8080",
+        "target_type": "platform",
+        "slug": "L-TEK-FF1705",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "SILICA_SENSOR_NODE",
+        "board_name": "Avnet Silica ST Sensor Node",
+        "product_code": "0766",
+        "target_type": "platform",
+        "slug": "Silica-Sensor-Node",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "EV_COG_AD4050LZ",
+        "board_name": "EV-COG-AD4050LZ",
+        "product_code": "0603",
+        "target_type": "platform",
+        "slug": "EV-COG-AD4050LZ",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "EV_COG_AD3029LZ",
+        "board_name": "EV-COG-AD3029LZ",
+        "product_code": "0602",
+        "target_type": "platform",
+        "slug": "EV-COG-AD3029LZ",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "PLACEHOLDER",
+        "board_name": "MAX35103EVKIT2",
+        "product_code": "0419",
+        "target_type": "platform",
+        "slug": "MAX35103EVKIT2",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "LPC546XX",
+        "board_name": "NXP LPCXpresso54628",
+        "product_code": "1058",
+        "target_type": "platform",
+        "slug": "LPCXpresso54628",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "LPC546XX",
+        "board_name": "NXP LPCXpresso54608",
+        "product_code": "1056",
+        "target_type": "platform",
+        "slug": "LPCXpresso54608",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "MTM_MTCONNECT04S",
+        "board_name": "MtM+ MtConnect04S",
+        "product_code": "C005",
+        "target_type": "platform",
+        "slug": "MtConnect04S",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "UBLOX_C030_R3121",
+        "board_name": "u-blox C030-R3121 IoT Starter Kit",
+        "product_code": "C035",
+        "target_type": "platform",
+        "slug": "ublox-C030-R3121",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "ARM_CM3DS_MPS2",
+        "board_name": "ARM Cortex-M3 DesignStart",
+        "product_code": "5004",
+        "target_type": "platform",
+        "slug": "ARM-CM3DS",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "DISCO_L4R9I",
+        "board_name": "DISCO-L4R9I",
+        "product_code": "0774",
+        "target_type": "platform",
+        "slug": "DISCO-L4R9I",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_L4R5ZI",
+        "board_name": "NUCLEO-L4R5ZI",
+        "product_code": "0776",
+        "target_type": "platform",
+        "slug": "NUCLEO-L4R5ZI",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_L433RC_P",
+        "board_name": "NUCLEO-L433RC-P",
+        "product_code": "0779",
+        "target_type": "platform",
+        "slug": "NUCLEO-L433RC-P",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_L452RE_P",
+        "board_name": "NUCLEO-L452RE-P",
+        "product_code": "0829",
+        "target_type": "platform",
+        "slug": "NUCLEO-L452RE-P",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUMAKER_PFM_NANO130",
+        "board_name": "NuMaker-PFM-NANO130",
+        "product_code": "1306",
+        "target_type": "platform",
+        "slug": "NUMAKER-PFM-NANO130",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUC240",
+        "board_name": "NUMAKER_PFM_NUC240",
+        "product_code": "1307",
+        "target_type": "platform",
+        "slug": "NUMAKER_PFM_NUC240",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "MAX32620FTHR",
+        "board_name": "MAX32620FTHR",
+        "product_code": "0418",
+        "target_type": "platform",
+        "slug": "MAX32620FTHR",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "TB_SENSE_12",
+        "board_name": "Thunderboard Sense 2",
+        "product_code": "2041",
+        "target_type": "platform",
+        "slug": "thunderboard-sense-2",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NU_PFM_M2351_NPSA_NS",
+        "board_name": "NuMaker-PFM-M2351",
+        "product_code": "1305",
+        "target_type": "platform",
+        "slug": "NUMAKER-PFM-M2351",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "THINGOO_101",
+        "board_name": "Thingoo 101",
+        "product_code": "2300",
+        "target_type": "platform",
+        "slug": "Thingoo-101",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "UBLOX_C030_N211",
+        "board_name": "u-blox C030-N211 IoT Starter Kit",
+        "product_code": "C031",
+        "target_type": "platform",
+        "slug": "ublox-C030-N211",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "UBLOX_C030_U201",
+        "board_name": "u-blox C030-U201 IoT Starter Kit",
+        "product_code": "C030",
+        "target_type": "platform",
+        "slug": "ublox-C030-U201",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "REALTEK_RTL8195AM",
+        "board_name": "Realtek RTL8195AM",
+        "product_code": "4600",
+        "target_type": "platform",
+        "slug": "Realtek-RTL8195AM",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "TMPM3H6",
+        "board_name": "AdBun-M3H6",
+        "product_code": "7012",
+        "target_type": "platform",
+        "slug": "TMPM3H6",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "STM32F103T8",
+        "board_name": "MLINKER_F103T8",
+        "product_code": "8011",
+        "target_type": "platform",
+        "slug": "MLINKER_F103T8",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "STM32L476VG",
+        "board_name": "MLINKER_L476QE ",
+        "product_code": "8010",
+        "target_type": "platform",
+        "slug": "MLINKER_L476QE",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_L496ZG_P",
+        "board_name": "NUCLEO-L496ZG-P",
+        "product_code": "0828",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-L496ZG-P",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "TMPM066",
+        "board_name": "AdBun-M066",
+        "product_code": "7011",
+        "target_type": "platform",
+        "slug": "TMPM066",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.5",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "GR_LYCHEE",
+        "board_name": "GR-LYCHEE",
+        "product_code": "5501",
+        "target_type": "platform",
+        "slug": "Renesas-GR-LYCHEE",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NRF52840_DK",
+        "board_name": "Nordic nRF52840-DK",
+        "product_code": "1102",
+        "target_type": "platform",
+        "slug": "Nordic-nRF52840-DK",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "MAX32625PICO",
+        "board_name": "MAX32625PICO",
+        "product_code": "0416",
+        "target_type": "platform",
+        "slug": "MAX32625PICO",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "LPC54114",
+        "board_name": "NXP LPCXpresso54114",
+        "product_code": "1054",
+        "target_type": "platform",
+        "slug": "LPCXpresso54114",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUMAKER_PFM_M487",
+        "board_name": "NuMaker-PFM-M487",
+        "product_code": "1304",
+        "target_type": "platform",
+        "slug": "NUMAKER-PFM-M487",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "MAX32625MBED",
+        "board_name": "MAX32625MBED",
+        "product_code": "0415",
+        "target_type": "platform",
+        "slug": "MAX32625MBED",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "DELTA_DFCM_NNN50",
+        "board_name": "Delta DFCM-NNN50",
+        "product_code": "4502",
+        "target_type": "platform",
+        "slug": "Delta-DFCM-NNN50",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.4"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "UBLOX_EVK_NINA_B1",
+        "board_name": "u-blox EVK-NINA-B1",
+        "product_code": "1237",
+        "target_type": "platform",
+        "slug": "u-blox-EVK-NINA-B1",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "UBLOX_EVA_NINA",
+        "board_name": "NINA-B1 Maker boards with DAPLink compatible interface",
+        "product_code": "1238",
+        "target_type": "platform",
+        "slug": "u-blox-NINA-B1",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "MAX32630FTHR",
+        "board_name": "MAX32630FTHR",
+        "product_code": "0409",
+        "target_type": "platform",
+        "slug": "MAX32630FTHR",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "RO359B",
+        "board_name": "Arch RO359B",
+        "product_code": "1022",
+        "target_type": "platform",
+        "slug": "Arch-RO359B",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "DISCO_L072CZ_LRWAN1",
+        "board_name": "DISCO-L072CZ-LRWAN1",
+        "product_code": "0833",
+        "target_type": "platform",
+        "slug": "ST-Discovery-LRWAN1",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_L486RG",
+        "board_name": "NUCLEO-L486RG",
+        "product_code": "0827",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-L486RG",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.2"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_F756ZG",
+        "board_name": "NUCLEO-F756ZG",
+        "product_code": "0879",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F756ZG",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.2"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_F439ZI",
+        "board_name": "NUCLEO-F439ZI",
+        "product_code": "0797",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F439ZI",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.2"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "MAX32625NEXPAQ",
+        "board_name": "MAX32625NEXPAQ",
+        "product_code": "0408",
+        "target_type": "platform",
+        "slug": "MAX32625NEXPAQ",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "RBLAB_BLENANO2",
+        "board_name": "RedBear BLENANO 2",
+        "product_code": "1093",
+        "target_type": "platform",
+        "slug": "RedBear-BLE-NANO2",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "RBLAB_BLEND2",
+        "board_name": "RedBear BLEND2",
+        "product_code": "1091",
+        "target_type": "platform",
+        "slug": "RedBear-BLEND2",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "KL26Z",
+        "board_name": "FRDM-KL26Z",
+        "product_code": "0260",
+        "target_type": "platform",
+        "slug": "FRDM-KL26Z",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "KL82Z",
+        "board_name": "FRDM-KL82Z",
+        "product_code": "0218",
+        "target_type": "platform",
+        "slug": "FRDM-KL82Z",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "K82F",
+        "board_name": "FRDM-K82F",
+        "product_code": "0217",
+        "target_type": "platform",
+        "slug": "FRDM-K82F",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "K64F",
+        "board_name": "mbed 6LoWPAN Border Router Ethernet",
+        "product_code": "7404",
+        "target_type": "platform",
+        "slug": "mbed-6LoWPAN-Border-Router-Ethernet",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "DISCO_L475VG_IOT01A",
+        "board_name": "DISCO-L475VG-IOT01A (B-L475E-IOT01A)",
+        "product_code": "0764",
+        "target_type": "platform",
+        "slug": "ST-Discovery-L475E-IOT01A",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "DISCO_F413ZH",
+        "board_name": "DISCO-F413ZH",
+        "product_code": "0743",
+        "target_type": "platform",
+        "slug": "ST-Discovery-F413H",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "DISCO_F723E",
+        "board_name": "DISCO-F723E",
+        "product_code": "0811",
+        "target_type": "platform",
+        "slug": "ST-Discovery-F723E",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "DISCO_L496AG",
+        "board_name": "DISCO-L496AG",
+        "product_code": "0822",
+        "target_type": "platform",
+        "slug": "ST-Discovery-L496AG",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "K66F",
+        "board_name": "FRDM-K66F",
+        "product_code": "0311",
+        "target_type": "platform",
+        "slug": "FRDM-K66F",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "KL43Z",
+        "board_name": "FRDM-KL43Z",
+        "product_code": "0262",
+        "target_type": "platform",
+        "slug": "FRDM-KL43Z",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "DELTA_DFBM_NQ620",
+        "board_name": "Delta DFBM-NQ620",
+        "product_code": "4501",
+        "target_type": "platform",
+        "slug": "Delta-DFBM-NQ620",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "MAX32620HSP",
+        "board_name": "MAX32620HSP",
+        "product_code": "0407",
+        "target_type": "platform",
+        "slug": "MAX32620HSP",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "K64F",
+        "board_name": "mbed 6LoWPAN Border Router USB",
+        "product_code": "7403",
+        "target_type": "platform",
+        "slug": "mbed-6LoWPAN-Border-Router-USB",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "K64F",
+        "board_name": "mbed 6LoWPAN Border Router HAT",
+        "product_code": "7402",
+        "target_type": "platform",
+        "slug": "mbed-6LoWPAN-Border-Router-HAT",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_F722ZE",
+        "board_name": "NUCLEO-F722ZE",
+        "product_code": "0812",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F722ZE",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_L452RE",
+        "board_name": "NUCLEO-L452RE",
+        "product_code": "0821",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-L452RE",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_L496ZG",
+        "board_name": "NUCLEO-L496ZG",
+        "product_code": "0823",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-L496ZG",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_F413ZH",
+        "board_name": "NUCLEO-F413ZH",
+        "product_code": "0742",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F413ZH",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "SSCI_CHIBIBIT",
+        "board_name": "chibi:bit",
+        "product_code": "1021",
+        "target_type": "platform",
+        "slug": "SSCI-CHIBIBIT",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUMAKER_PFM_M453",
+        "board_name": "NuMaker-PFM-M453",
+        "product_code": "1303",
+        "target_type": "platform",
+        "slug": "Nuvoton-M453",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "THUNDERBOARD_SENSE",
+        "board_name": "ThunderBoard Sense",
+        "product_code": "2045",
+        "target_type": "platform",
+        "slug": "ThunderBoard-Sense",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_H743ZI",
+        "board_name": "NUCLEO-H743ZI",
+        "product_code": "0813",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-H743ZI",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "DISCO_H747I",
+        "board_name": "DISCO-H747I",
+        "product_code": "0814",
+        "target_type": "platform",
+        "slug": "ST-Discovery-H747I",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "WIZWIKI_W7500PECO",
+        "board_name": "WIZwiki-W7500PECO",
+        "product_code": "2204",
+        "target_type": "platform",
+        "slug": "WIZwiki-W7500PECO",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "VK_RZ_A1H",
+        "board_name": "VK-RZ/A1H",
+        "product_code": "C002",
+        "target_type": "platform",
+        "slug": "VK-RZA1H",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "ARM_BEETLE_SOC",
+        "board_name": "ARM Beetle IoT Evaluation Platform",
+        "product_code": "5002",
+        "target_type": "platform",
+        "slug": "ARM-IoTEP-Beetle",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "LPC812",
+        "board_name": "CoCo-ri-Co!",
+        "product_code": "C000",
+        "target_type": "platform",
+        "slug": "CoCo-ri-Co",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "LPC1768",
+        "board_name": "LPCXpresso1769",
+        "product_code": "1011",
+        "target_type": "platform",
+        "slug": "LPCXpresso1769",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "KL27Z",
+        "board_name": "FRDM-KL27Z",
+        "product_code": "0261",
+        "target_type": "platform",
+        "slug": "FRDM-KL27Z",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "HEXIWEAR",
+        "board_name": "Hexiwear",
+        "product_code": "0214",
+        "target_type": "platform",
+        "slug": "Hexiwear",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "KW41Z",
+        "board_name": "FRDM-KW41Z",
+        "product_code": "0201",
+        "target_type": "platform",
+        "slug": "FRDM-KW41Z",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUMAKER_PFM_NUC472",
+        "board_name": "NuMaker-PFM-NUC472",
+        "product_code": "1302",
+        "target_type": "platform",
+        "slug": "Nuvoton-NUC472",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "XDOT_L151CC",
+        "board_name": "MultiTech xDot",
+        "product_code": "0350",
+        "target_type": "platform",
+        "slug": "MTS-xDot-L151CC",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "UBLOX_EVK_ODIN_W2",
+        "board_name": "u-blox EVK-ODIN-W2",
+        "product_code": "1236",
+        "target_type": "platform",
+        "slug": "ublox-EVK-ODIN-W2",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "SKT1150L",
+        "board_name": "SKT1150L ",
+        "product_code": "1400",
+        "target_type": "platform",
+        "slug": "SKT1150L",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "LPC810",
+        "board_name": "LPC810",
+        "product_code": "1020",
+        "target_type": "platform",
+        "slug": "LPC810",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "PLACEHOLDER",
+        "board_name": "NZ32-SC151",
+        "product_code": "6660",
+        "target_type": "platform",
+        "slug": "NZ32-SC151",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_F767ZI",
+        "board_name": "NUCLEO-F767ZI",
+        "product_code": "0818",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F767ZI",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "EFM32PG12_STK3402",
+        "board_name": "EFM32 Pearl Gecko 12",
+        "product_code": "2040",
+        "target_type": "platform",
+        "slug": "EFM32-Pearl-Gecko-12",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "EFM32PG_STK3401",
+        "board_name": "EFM32 Pearl Gecko",
+        "product_code": "2035",
+        "target_type": "platform",
+        "slug": "EFM32-Pearl-Gecko",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "TY51822R3",
+        "board_name": "Switch Science mbed TY51822r3",
+        "product_code": "1019",
+        "target_type": "platform",
+        "slug": "Switch-Science-mbed-TY51822r3",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NCS36510",
+        "board_name": "DVK-NCS36510-MBED-GEVB",
+        "product_code": "1200",
+        "target_type": "platform",
+        "slug": "NCS36510",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUC472-NUTINY",
+        "board_name": "NUC472-NUTINY",
+        "product_code": "1300",
+        "target_type": "platform",
+        "slug": "NUC472-NUTINY",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "B96B_F446VE",
+        "board_name": "B96B-F446VE",
+        "product_code": "0840",
+        "target_type": "platform",
+        "slug": "ST-B96B-F446VE",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_F429ZI",
+        "board_name": "NUCLEO-F429ZI",
+        "product_code": "0796",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F429ZI",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_F207ZG",
+        "board_name": "NUCLEO-F207ZG",
+        "product_code": "0835",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F207ZG",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_F446ZE",
+        "board_name": "NUCLEO-F446ZE",
+        "product_code": "0778",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F446ZE",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_F303ZE",
+        "board_name": "NUCLEO-F303ZE",
+        "product_code": "0747",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F303ZE",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "DISCO_F746NG",
+        "board_name": "DISCO-F746NG",
+        "product_code": "0815",
+        "target_type": "platform",
+        "slug": "ST-Discovery-F746NG",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "ARM_IOTSS_BEID",
+        "board_name": "CoreLink SSE-100 (IOT Subsystem for Cortex-M)",
+        "product_code": "5001",
+        "target_type": "platform",
+        "slug": "ARM-IoTSS-M3",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "SAMD21J18A",
+        "board_name": "Atmel ATSAMD21-XPRO",
+        "product_code": "0915",
+        "target_type": "platform",
+        "slug": "SAMD21-XPRO",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "SAML21J18A",
+        "board_name": "Atmel ATSAML21-XPRO-B",
+        "product_code": "0910",
+        "target_type": "platform",
+        "slug": "SAML21-XPRO",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "SAMD21G18A",
+        "board_name": "Atmel ATSAMW25-XPRO",
+        "product_code": "0905",
+        "target_type": "platform",
+        "slug": "SAMW25-XPRO",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "SAMR21G18A",
+        "board_name": "Atmel ATSAMR21-XPRO",
+        "product_code": "0900",
+        "target_type": "platform",
+        "slug": "SAMR21-XPRO",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NRF52_DK",
+        "board_name": "Nordic nRF52-DK",
+        "product_code": "1101",
+        "target_type": "platform",
+        "slug": "Nordic-nRF52-DK",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "WIZWIKI_W7500P",
+        "board_name": "WIZwiki-W7500P",
+        "product_code": "2203",
+        "target_type": "platform",
+        "slug": "WIZwiki-W7500P",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "WIZWIKI_W7500ECO",
+        "board_name": "WIZwiki-W7500ECO",
+        "product_code": "2202",
+        "target_type": "platform",
+        "slug": "WIZwiki-W7500ECO",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "DISCO_F407VG",
+        "board_name": "DISCO_F407VG",
+        "product_code": "0830",
+        "target_type": "platform",
+        "slug": "ST-Discovery-F407VG",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "DISCO_F0308",
+        "board_name": "DISCO-F0308",
+        "product_code": "0726",
+        "target_type": "platform",
+        "slug": "ST-Discovery-F0308",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "DISCO_F411E",
+        "board_name": "DISCO-F411E",
+        "product_code": "0741",
+        "target_type": "platform",
+        "slug": "ST-Discovery-F411E",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "DISCO_F303VC",
+        "board_name": "DISCO-F303VC",
+        "product_code": "0746",
+        "target_type": "platform",
+        "slug": "ST-Discovery-F303C",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "DISCO_F072B",
+        "board_name": "DISCO-F072B",
+        "product_code": "0731",
+        "target_type": "platform",
+        "slug": "ST-Discovery-F072B",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "DISCO_F769NI",
+        "board_name": "DISCO-F769NI",
+        "product_code": "0817",
+        "target_type": "platform",
+        "slug": "ST-Discovery-F769NI",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "MTS_MDOT_F411RE",
+        "board_name": "MultiTech mDot Box/EVB",
+        "product_code": "0320",
+        "target_type": "platform",
+        "slug": "mdotevb",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NUCLEO_F746ZG",
+        "board_name": "NUCLEO-F746ZG",
+        "product_code": "0816",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F746ZG",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_F412ZG",
+        "board_name": "NUCLEO-F412ZG",
+        "product_code": "0826",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F412ZG",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "DISCO_F412ZG",
+        "board_name": "DISCO-F412ZG",
+        "product_code": "0825",
+        "target_type": "platform",
+        "slug": "ST-Discovery-F412ZG",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NRF51_MICROBIT",
+        "board_name": "BBC micro:bit",
+        "product_code": "9900",
+        "target_type": "platform",
+        "slug": "Microbit",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_F031K6",
+        "board_name": "NUCLEO-F031K6",
+        "product_code": "0791",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F031K6",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "ARCH_LINK",
+        "board_name": "Seeed Arch Link",
+        "product_code": "9013",
+        "target_type": "platform",
+        "slug": "Seeed-Arch-Link",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "DISCO_F469NI",
+        "board_name": "DISCO-F469NI",
+        "product_code": "0788",
+        "target_type": "platform",
+        "slug": "ST-Discovery-F469NI",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_F410RB",
+        "board_name": "NUCLEO-F410RB",
+        "product_code": "0744",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F410RB",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_F446RE",
+        "board_name": "NUCLEO-F446RE",
+        "product_code": "0777",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F446RE",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "WIZWIKI_W7500",
+        "board_name": "WIZwiki-W7500",
+        "product_code": "2201",
+        "target_type": "platform",
+        "slug": "WIZwiki-W7500",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "KW24D",
+        "board_name": "FRDM-KW24D512",
+        "product_code": "0250",
+        "target_type": "platform",
+        "slug": "FRDM-KW24D512",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "XBED_LPC1768",
+        "board_name": "Smeshlink xbed LPC1768",
+        "product_code": "2100",
+        "target_type": "platform",
+        "slug": "xbed-LPC1768",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "DISCO_L476VG",
+        "board_name": "DISCO-L476VG",
+        "product_code": "0820",
+        "target_type": "platform",
+        "slug": "ST-Discovery-L476VG",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "DISCO_F746NG",
+        "board_name": "DEPRECATED-DISCO-F746NG",
+        "product_code": "1814",
+        "target_type": "platform",
+        "slug": "DEPRECATED-ST-Discovery-F746NG",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "DISCO_L053C8",
+        "board_name": "DISCO-L053C8",
+        "product_code": "0805",
+        "target_type": "platform",
+        "slug": "ST-Discovery-L053C8",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "DISCO_F334C8",
+        "board_name": "DISCO-F334C8",
+        "product_code": "0810",
+        "target_type": "platform",
+        "slug": "ST-Discovery-F334C8",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "CM0_ARM",
+        "board_name": "Cortex M0 ARM",
+        "product_code": "9999",
+        "target_type": "platform",
+        "slug": "Cortex-M0-ARM",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "CM0_UARM",
+        "board_name": "Cortex M0 uARM",
+        "product_code": "9998",
+        "target_type": "platform",
+        "slug": "Cortex-M0-uARM",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "CM0P_ARM",
+        "board_name": "Cortex M0p ARM",
+        "product_code": "9997",
+        "target_type": "platform",
+        "slug": "Cortex-M0p-ARM",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "CM0P_UARM",
+        "board_name": "Cortex M0p uARM",
+        "product_code": "9996",
+        "target_type": "platform",
+        "slug": "Cortex-M0p-uARM",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "CM3_ARM",
+        "board_name": "Cortex M3 ARM",
+        "product_code": "9995",
+        "target_type": "platform",
+        "slug": "Cortex-M3-ARM",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "CM3_UARM",
+        "board_name": "Cortex M3 uARM",
+        "product_code": "9994",
+        "target_type": "platform",
+        "slug": "Cortex-M3-uARM",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "CM4_ARM",
+        "board_name": "Cortex M4 ARM",
+        "product_code": "9993",
+        "target_type": "platform",
+        "slug": "Cortex-M4-ARM",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "CM4_UARM",
+        "board_name": "Cortex M4 uARM",
+        "product_code": "9992",
+        "target_type": "platform",
+        "slug": "Cortex-M4-uARM",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "CM4F_ARM",
+        "board_name": "Cortex M4F ARM",
+        "product_code": "9991",
+        "target_type": "platform",
+        "slug": "Cortex-M4F-ARM",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "MAX32600MBED",
+        "board_name": "MAX32600MBED",
+        "product_code": "0405",
+        "target_type": "platform",
+        "slug": "MAX32600mbed",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "MAXWSNENV",
+        "board_name": "MAXWSNENV",
+        "product_code": "0400",
+        "target_type": "platform",
+        "slug": "MAXWSNENV",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "DISCO_F429ZI",
+        "board_name": "DISCO-F429ZI",
+        "product_code": "0795",
+        "target_type": "platform",
+        "slug": "ST-Discovery-F429ZI",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_L031K6",
+        "board_name": "NUCLEO-L031K6",
+        "product_code": "0790",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-L031K6",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_F042K6",
+        "board_name": "NUCLEO-F042K6",
+        "product_code": "0785",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F042K6",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_L011K4",
+        "board_name": "NUCLEO-L011K4",
+        "product_code": "0780",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-L011K4",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_F303K8",
+        "board_name": "NUCLEO-F303K8",
+        "product_code": "0775",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F303K8",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_L432KC",
+        "board_name": "NUCLEO-L432KC",
+        "product_code": "0770",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-L432KC",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "TEENSY3_1",
+        "board_name": "Teensy 3.1",
+        "product_code": "7778",
+        "target_type": "platform",
+        "slug": "Teensy-3-1",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "CM4F_UARM",
+        "board_name": "Cortex M4F uARM",
+        "product_code": "9990",
+        "target_type": "platform",
+        "slug": "Cortex-M4F-uARM",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "DELTA_DFCM_NNN40",
+        "board_name": "Delta DFCM-NNN40 (EOL)",
+        "product_code": "4500",
+        "target_type": "platform",
+        "slug": "Delta-DFCM-NNN40",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "SEEED_TINY_BLE",
+        "board_name": "Seeed Tiny BLE",
+        "product_code": "9012",
+        "target_type": "platform",
+        "slug": "Seeed-Tiny-BLE",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "MOTE_L152RC",
+        "board_name": "NAMote72",
+        "product_code": "4100",
+        "target_type": "platform",
+        "slug": "NAMote-72",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.4",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NRF51822_Y5_MBUG",
+        "board_name": "y5 nRF51822 mbug",
+        "product_code": "4005",
+        "target_type": "platform",
+        "slug": "Y5-NRF51822-MBUG",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "LPC11U35_Y5_MBUG",
+        "board_name": "y5 LPC11U35 mbug",
+        "product_code": "4000",
+        "target_type": "platform",
+        "slug": "Y5-LPC11U35-MBUG",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "LPC4088_DM",
+        "board_name": "EA LPC4088 Display Module",
+        "product_code": "1062",
+        "target_type": "platform",
+        "slug": "EA-LPC4088-Display-Module",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "HOME_GATEWAY_6LOWPAN",
+        "board_name": "HOME GATEWAY 6LOWPAN",
+        "product_code": "5020",
+        "target_type": "platform",
+        "slug": "HOME-GATEWAY-6LOWPAN",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "MTS_MDOT_F411RE",
+        "board_name": "MultiTech mDot",
+        "product_code": "0315",
+        "target_type": "platform",
+        "slug": "MTS-mDot-F411",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_L476RG",
+        "board_name": "NUCLEO-L476RG",
+        "product_code": "0765",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-L476RG",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_L073RZ",
+        "board_name": "NUCLEO-L073RZ",
+        "product_code": "0760",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-L073RZ",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_F070RB",
+        "board_name": "NUCLEO-F070RB",
+        "product_code": "0755",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F070RB",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "MTS_DRAGONFLY_F411RE",
+        "board_name": "MultiTech Dragonfly",
+        "product_code": "0310",
+        "target_type": "platform",
+        "slug": "MTS-Dragonfly",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "SSCI824",
+        "board_name": "Switch Science mbed LPC824",
+        "product_code": "1018",
+        "target_type": "platform",
+        "slug": "Switch-Science-mbed-LPC824",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "LPC11U24",
+        "board_name": "Robotiky",
+        "product_code": "1045",
+        "target_type": "platform",
+        "slug": "Robotiky",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "WALLBOT_BLE",
+        "board_name": "JKSoft Wallbot BLE",
+        "product_code": "1140",
+        "target_type": "platform",
+        "slug": "JKSoft-Wallbot-BLE",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NRF51822_SBK",
+        "board_name": "Nordic Smart Beacon Kit",
+        "product_code": "1130",
+        "target_type": "platform",
+        "slug": "Nordic-Smart-Beacon-Kit",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "K64F",
+        "board_name": "Ethernet IoT Starter Kit",
+        "product_code": "0245",
+        "target_type": "platform",
+        "slug": "IBMEthernetKit",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NRF51822_OTA",
+        "board_name": "Nordic nRF51822 FOTA",
+        "product_code": "1075",
+        "target_type": "platform",
+        "slug": "Nordic-nRF51822-FOTA",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NRF51_DK_OTA",
+        "board_name": "Nordic nRF51-DK FOTA",
+        "product_code": "1105",
+        "target_type": "platform",
+        "slug": "Nordic-nRF51-DK-FOTA",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "NRF51_DONGLE",
+        "board_name": "Nordic nRF51-Dongle",
+        "product_code": "1120",
+        "target_type": "platform",
+        "slug": "Nordic-nRF51-Dongle",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "RBLAB_BLENANO",
+        "board_name": "RedBearLab BLE Nano",
+        "product_code": "1095",
+        "target_type": "platform",
+        "slug": "RedBearLab-BLE-Nano",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "RZ_A1H",
+        "board_name": "GR-PEACH",
+        "product_code": "5500",
+        "target_type": "platform",
+        "slug": "Renesas-GR-PEACH",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NRF51_DK",
+        "board_name": "Nordic nRF51-DK",
+        "product_code": "1100",
+        "target_type": "platform",
+        "slug": "Nordic-nRF51-DK",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "MTS_GAMBIT",
+        "board_name": "MTS Gambit",
+        "product_code": "0300",
+        "target_type": "platform",
+        "slug": "MTS-Gambit",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "RIOT",
+        "board_name": "RIoT",
+        "product_code": "RIoT",
+        "target_type": "platform",
+        "slug": "RIoT",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "K22F",
+        "board_name": "FRDM-K22F",
+        "product_code": "0231",
+        "target_type": "platform",
+        "slug": "FRDM-K22F",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "LPC824",
+        "board_name": "LPCXpresso824-MAX",
+        "product_code": "0824",
+        "target_type": "platform",
+        "slug": "LPCXpresso824-MAX",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "K20D50M",
+        "board_name": "FRDM-K20D50M",
+        "product_code": "0230",
+        "target_type": "platform",
+        "slug": "FRDM-K20D50M",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "ARCH_MAX",
+        "board_name": "Seeed Arch Max",
+        "product_code": "9011",
+        "target_type": "platform",
+        "slug": "Seeed-Arch-Max",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "EFM32HG_STK3400",
+        "board_name": "EFM32 USB-enabled Happy Gecko",
+        "product_code": "2005",
+        "target_type": "platform",
+        "slug": "EFM32-Happy-Gecko",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "EFM32ZG_STK3200",
+        "board_name": "EFM32 Zero Gecko",
+        "product_code": "2030",
+        "target_type": "platform",
+        "slug": "EFM32-Zero-Gecko",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "EFM32LG_STK3600",
+        "board_name": "EFM32 Leopard Gecko",
+        "product_code": "2020",
+        "target_type": "platform",
+        "slug": "EFM32-Leopard-Gecko",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "EFM32GG_STK3700",
+        "board_name": "EFM32 Giant Gecko",
+        "product_code": "2015",
+        "target_type": "platform",
+        "slug": "EFM32-Giant-Gecko",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "EFM32WG_STK3800",
+        "board_name": "EFM32 Wonder Gecko",
+        "product_code": "2010",
+        "target_type": "platform",
+        "slug": "EFM32-Wonder-Gecko",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "RBLAB_NRF51822",
+        "board_name": "RedBearLab nRF51822",
+        "product_code": "1090",
+        "target_type": "platform",
+        "slug": "RedBearLab-nRF51822",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "ARM_MPS2",
+        "board_name": "ARM MPS2+ FPGA Prototyping System",
+        "product_code": "5000",
+        "target_type": "platform",
+        "slug": "ARM-MPS2",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "MICRONFCBOARD",
+        "board_name": "MicroNFCBoard",
+        "product_code": "1034",
+        "target_type": "platform",
+        "slug": "MicroNFCBoard",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "OC_MBUINO",
+        "board_name": "mBuino",
+        "product_code": "1080",
+        "target_type": "platform",
+        "slug": "mBuino",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "HRM1017",
+        "board_name": "mbed HRM1017",
+        "product_code": "1017",
+        "target_type": "platform",
+        "slug": "mbed-HRM1017",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_F091RC",
+        "board_name": "NUCLEO-F091RC",
+        "product_code": "0750",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F091RC",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_F303RE",
+        "board_name": "NUCLEO-F303RE",
+        "product_code": "0745",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F303RE",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "LPC4337",
+        "board_name": "LPCXpresso4337",
+        "product_code": "4337",
+        "target_type": "platform",
+        "slug": "LPCXpresso4337",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_F411RE",
+        "board_name": "NUCLEO-F411RE",
+        "product_code": "0740",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F411RE",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "ARCH_GPRS",
+        "board_name": "Seeed Arch GPRS V2",
+        "product_code": "9010",
+        "target_type": "platform",
+        "slug": "Seeed-Arch-GPRS",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "ARCH_BLE",
+        "board_name": "Seeed Arch BLE",
+        "product_code": "9009",
+        "target_type": "platform",
+        "slug": "Seeed-Arch-BLE",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "XADOW_M0",
+        "board_name": "Seeed Xadow M0",
+        "product_code": "9008",
+        "target_type": "platform",
+        "slug": "Seeed-Xadow-M0",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "LPC11U68",
+        "board_name": "LPCXpresso11U68",
+        "product_code": "1168",
+        "target_type": "platform",
+        "slug": "LPCXpresso11U68",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "LPC11U35_501",
+        "board_name": "TG-LPC11U35-501",
+        "product_code": "9007",
+        "target_type": "platform",
+        "slug": "TG-LPC11U35-501",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "LPC11U24",
+        "board_name": "RenBED LPC11U24",
+        "product_code": "3001",
+        "target_type": "platform",
+        "slug": "RenBED-LPC11U24",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "LPC1549",
+        "board_name": "LPCXpresso1549",
+        "product_code": "1549",
+        "target_type": "platform",
+        "slug": "LPCXpresso1549",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "LPC4330_M4",
+        "board_name": "Bambino-210E",
+        "product_code": "1605",
+        "target_type": "platform",
+        "slug": "Micromint-Bambino-210E",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "LPC4330_M4",
+        "board_name": "Bambino-210",
+        "product_code": "1600",
+        "target_type": "platform",
+        "slug": "Micromint-Bambino-210",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "KL05Z",
+        "board_name": "FRDM-KL05Z",
+        "product_code": "0210",
+        "target_type": "platform",
+        "slug": "FRDM-KL05Z",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NRF51822",
+        "board_name": "Nordic nRF51822",
+        "product_code": "1070",
+        "target_type": "platform",
+        "slug": "Nordic-nRF51822",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "K64F",
+        "board_name": "FRDM-K64F",
+        "product_code": "0240",
+        "target_type": "platform",
+        "slug": "FRDM-K64F",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Advanced",
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_F334R8",
+        "board_name": "NUCLEO-F334R8",
+        "product_code": "0735",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F334R8",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_F072RB",
+        "board_name": "NUCLEO-F072RB",
+        "product_code": "0730",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F072RB",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_F030R8",
+        "board_name": "NUCLEO-F030R8",
+        "product_code": "0725",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F030R8",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_F401RE",
+        "board_name": "NUCLEO-F401RE",
+        "product_code": "0720",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F401RE",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_L053R8",
+        "board_name": "NUCLEO-L053R8",
+        "product_code": "0715",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-L053R8",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_L152RE",
+        "board_name": "NUCLEO-L152RE",
+        "product_code": "0710",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-L152RE",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_F302R8",
+        "board_name": "NUCLEO-F302R8",
+        "product_code": "0705",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F302R8",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "ARCH_PRO",
+        "board_name": "Seeeduino-Arch-Pro",
+        "product_code": "9004",
+        "target_type": "platform",
+        "slug": "Seeeduino-Arch-Pro",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "KL46Z",
+        "board_name": "FRDM-KL46Z",
+        "product_code": "0220",
+        "target_type": "platform",
+        "slug": "FRDM-KL46Z",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "NUCLEO_F103RB",
+        "board_name": "NUCLEO-F103RB",
+        "product_code": "0700",
+        "target_type": "platform",
+        "slug": "ST-Nucleo-F103RB",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "LPC1768",
+        "board_name": "mbed NXP LPC1768 (exp)",
+        "product_code": "7777",
+        "target_type": "platform",
+        "slug": "mbed-LPC1768-exp",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "LPC11U35_401",
+        "board_name": "EA LPC11U35 QuickStart Board",
+        "product_code": "1061",
+        "target_type": "platform",
+        "slug": "EA-LPC11U35",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "UBLOX_C027",
+        "board_name": "u-blox C027",
+        "product_code": "1234",
+        "target_type": "platform",
+        "slug": "u-blox-C027",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "LPC1114",
+        "board_name": "mbed LPC1114FN28",
+        "product_code": "1114",
+        "target_type": "platform",
+        "slug": "LPC1114FN28",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "LPC11U24",
+        "board_name": "Seeeduino-Arch",
+        "product_code": "9006",
+        "target_type": "platform",
+        "slug": "Seeeduino-Arch",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "LPC1347",
+        "board_name": "WiFi DipCortex",
+        "product_code": "9003",
+        "target_type": "platform",
+        "slug": "WiFi-DipCortex",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "LPC11U24",
+        "board_name": "BlueBoard-LPC11U24",
+        "product_code": "9002",
+        "target_type": "platform",
+        "slug": "BlueBoard-LPC11U24",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "LPC1347",
+        "board_name": "DipCortex M3",
+        "product_code": "9001",
+        "target_type": "platform",
+        "slug": "DipCortex-M3",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "LPC11U24",
+        "board_name": "DipCortex M0",
+        "product_code": "",
+        "target_type": "platform",
+        "slug": "DipCortex-M0",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "LPC4088",
+        "board_name": "EA LPC4088 QuickStart Board",
+        "product_code": "1060",
+        "target_type": "platform",
+        "slug": "EA-LPC4088",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.4"
+        ],
+        "mbed_enabled": []
+    },
+    {
+        "board_type": "LPC812",
+        "board_name": "NXP LPC800-MAX",
+        "product_code": "1050",
+        "target_type": "platform",
+        "slug": "NXP-LPC800-MAX",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "KL25Z",
+        "board_name": "FRDM-KL25Z",
+        "product_code": "0200",
+        "target_type": "platform",
+        "slug": "KL25Z",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "LPC11U24",
+        "board_name": "mbed LPC11U24",
+        "product_code": "1040",
+        "target_type": "platform",
+        "slug": "mbed-LPC11U24",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "LPC1768",
+        "board_name": "mbed LPC1768",
+        "product_code": "1010",
+        "target_type": "platform",
+        "slug": "mbed-LPC1768",
+        "build_variant": [],
+        "mbed_os_support": [
+            "Mbed OS 2",
+            "Mbed OS 5.10",
+            "Mbed OS 5.11",
+            "Mbed OS 5.12",
+            "Mbed OS 5.13",
+            "Mbed OS 5.14",
+            "Mbed OS 5.15",
+            "Mbed OS 5.4",
+            "Mbed OS 5.5",
+            "Mbed OS 5.6",
+            "Mbed OS 5.7",
+            "Mbed OS 5.8",
+            "Mbed OS 5.9",
+            "Mbed OS 6.0",
+            "Mbed OS 6.1",
+            "Mbed OS 6.10",
+            "Mbed OS 6.11",
+            "Mbed OS 6.12",
+            "Mbed OS 6.13",
+            "Mbed OS 6.14",
+            "Mbed OS 6.15",
+            "Mbed OS 6.2",
+            "Mbed OS 6.3",
+            "Mbed OS 6.4",
+            "Mbed OS 6.5",
+            "Mbed OS 6.6",
+            "Mbed OS 6.7",
+            "Mbed OS 6.8",
+            "Mbed OS 6.9"
+        ],
+        "mbed_enabled": [
+            "Baseline"
+        ]
+    },
+    {
+        "board_type": "LPC2368",
+        "board_name": "mbed NXP LPC2368",
+        "product_code": "1000",
+        "target_type": "platform",
+        "slug": "mbed-LPC2368",
+        "build_variant": [],
+        "mbed_os_support": [],
+        "mbed_enabled": []
+    }
+]

@@ -1,0 +1,166 @@
+{
+    "CORE_LABELS": {
+        "Cortex-M0": [
+            "M0",
+            "CORTEX_M",
+            "LIKE_CORTEX_M0",
+            "CORTEX"
+        ],
+        "Cortex-M0+": [
+            "M0P",
+            "CORTEX_M",
+            "LIKE_CORTEX_M0",
+            "CORTEX"
+        ],
+        "Cortex-M1": [
+            "M1",
+            "CORTEX_M",
+            "LIKE_CORTEX_M1",
+            "CORTEX"
+        ],
+        "Cortex-M3": [
+            "M3",
+            "CORTEX_M",
+            "LIKE_CORTEX_M3",
+            "CORTEX"
+        ],
+        "Cortex-M4": [
+            "M4",
+            "CORTEX_M",
+            "RTOS_M4_M7",
+            "LIKE_CORTEX_M4",
+            "CORTEX"
+        ],
+        "Cortex-M4F": [
+            "M4",
+            "CORTEX_M",
+            "RTOS_M4_M7",
+            "LIKE_CORTEX_M4",
+            "CORTEX"
+        ],
+        "Cortex-M7": [
+            "M7",
+            "CORTEX_M",
+            "RTOS_M4_M7",
+            "LIKE_CORTEX_M7",
+            "CORTEX"
+        ],
+        "Cortex-M7F": [
+            "M7",
+            "CORTEX_M",
+            "RTOS_M4_M7",
+            "LIKE_CORTEX_M7",
+            "CORTEX"
+        ],
+        "Cortex-M7FD": [
+            "M7",
+            "CORTEX_M",
+            "RTOS_M4_M7",
+            "LIKE_CORTEX_M7",
+            "CORTEX"
+        ],
+        "Cortex-A5": [
+            "A5",
+            "CORTEX_A",
+            "LIKE_CORTEX_A5",
+            "CORTEX"
+        ],
+        "Cortex-A9": [
+            "A9",
+            "CORTEX_A",
+            "LIKE_CORTEX_A9",
+            "CORTEX"
+        ],
+        "Cortex-M23": [
+            "M23",
+            "CORTEX_M",
+            "LIKE_CORTEX_M23",
+            "CORTEX"
+        ],
+        "Cortex-M23-NS": [
+            "M23",
+            "M23_NS",
+            "CORTEX_M",
+            "LIKE_CORTEX_M23",
+            "CORTEX"
+        ],
+        "Cortex-M33": [
+            "M33",
+            "CORTEX_M",
+            "LIKE_CORTEX_M33",
+            "CORTEX"
+        ],
+        "Cortex-M33-NS": [
+            "M33",
+            "M33_NS",
+            "CORTEX_M",
+            "LIKE_CORTEX_M33",
+            "CORTEX"
+        ],
+        "Cortex-M33F": [
+            "M33",
+            "CORTEX_M",
+            "LIKE_CORTEX_M33",
+            "CORTEX"
+        ],
+        "Cortex-M33F-NS": [
+            "M33",
+            "M33_NS",
+            "CORTEX_M",
+            "LIKE_CORTEX_M33",
+            "CORTEX"
+        ],
+        "Cortex-M33FE": [
+            "M33",
+            "CORTEX_M",
+            "LIKE_CORTEX_M33",
+            "CORTEX"
+        ],
+        "Cortex-M33FE-NS": [
+            "M33",
+            "M33_NS",
+            "CORTEX_M",
+            "LIKE_CORTEX_M33",
+            "CORTEX"
+        ],
+        "Cortex-M55": [
+            "M55",
+            "CORTEX_M",
+            "LIKE_CORTEX_M55",
+            "CORTEX"
+        ],
+        "Cortex-M55-NS": [
+            "M55",
+            "M55_NS",
+            "CORTEX_M",
+            "LIKE_CORTEX_M55",
+            "CORTEX"
+        ],
+        "Cortex-M55F": [
+            "M55",
+            "CORTEX_M",
+            "LIKE_CORTEX_M55",
+            "CORTEX"
+        ],
+        "Cortex-M55F-NS": [
+            "M55",
+            "M55_NS",
+            "CORTEX_M",
+            "LIKE_CORTEX_M55",
+            "CORTEX"
+        ],
+        "Cortex-M55FE": [
+            "M55",
+            "CORTEX_M",
+            "LIKE_CORTEX_M55",
+            "CORTEX"
+        ],
+        "Cortex-M55FE-NS": [
+            "M55",
+            "M55_NS",
+            "CORTEX_M",
+            "LIKE_CORTEX_M55",
+            "CORTEX"
+        ]
+    }
+}

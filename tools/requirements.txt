@@ -1,10 +1,33 @@
+## NOTE: This file must be kept in sync with requirements.apt.txt in the same folder.
+## That file gives the equivalent package names of these packages in the apt package manager
+## for Ubuntu & Debian
+
 PrettyTable<=1.0.1; python_version < '3.6'
-prettytable>=2.0,<3.0; python_version >= '3.6'
+prettytable>=2.0,<4.0; python_version >= '3.6'
 future>=0.18.0,<1.0
 jinja2>=2.11.3
 intelhex>=2.3.0,<3.0.0
-mbed-tools
-mbed-os-tools
+dotenv
+Click>=7.1,<9
+GitPython
+tqdm
+tabulate
+requests>=2.20
+pywin32; platform_system=='Windows'
+psutil; platform_system=='Linux'
+pyudev; platform_system=='Linux'
+typing-extensions
+pyserial
+fasteners
+appdirs>=1.4,<2.0
+junit-xml>=1.0,<2.0
+lockfile
+six>=1.0,<2.0
+colorama>=0.3,<0.5
+
+# beautifulsoup only needed for USB device detection on Mac
+beautifulsoup4; sys_platform == 'darwin'
+lxml; sys_platform == 'darwin'
 
 # needed for signing secure images
 cryptography

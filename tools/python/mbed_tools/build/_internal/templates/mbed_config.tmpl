@@ -1,0 +1,96 @@
+# Copyright (C) 2020 Arm Mbed. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+# Automatically generated configuration file.
+# DO NOT EDIT. Content may be overwritten.
+
+include_guard(GLOBAL)
+
+set(MBED_TOOLCHAIN "{{toolchain_name}}" CACHE STRING "")
+set(MBED_TARGET "{{target_name}}" CACHE STRING "")
+set(MBED_CPU_CORE "{{core}}" CACHE STRING "")
+set(MBED_C_LIB "{{c_lib}}" CACHE STRING "")
+set(MBED_PRINTF_LIB "{{printf_lib}}" CACHE STRING "")
+set(MBED_OUTPUT_EXT "{{OUTPUT_EXT}}" CACHE STRING "")
+set(MBED_GREENTEA_TEST_RESET_TIMEOUT "{{forced_reset_timeout}}" CACHE STRING "")
+
+list(APPEND MBED_TARGET_SUPPORTED_C_LIBS {% for supported_c_lib in supported_c_libs %}
+    {{supported_c_lib}}
+{%- endfor %}
+)
+
+list(APPEND MBED_TARGET_SUPPORTED_APPLICATION_PROFILES {% for supported_application_profile in supported_application_profiles %}
+    {{supported_application_profile}}
+{%- endfor %}
+)
+
+list(APPEND MBED_TARGET_LABELS{% for label in labels %}
+    {{label}}
+{%- endfor %}
+{% for extra_label in extra_labels %}
+    {{extra_label}}
+{%- endfor %}
+{% for component in components %}
+    {{component}}
+{%- endfor %}
+{% for feature in features %}
+    {{feature}}
+{%- endfor %}
+)
+
+# target
+set(MBED_TARGET_DEFINITIONS{% for component in components %}
+    COMPONENT_{{component}}=1
+{%- endfor %}
+{% for feature in features %}
+    FEATURE_{{feature}}=1
+{%- endfor %}
+{% for device in device_has %}
+    DEVICE_{{device}}=1
+{%- endfor %}
+{% for label in labels %}
+    TARGET_{{label}}
+{%- endfor %}
+{% for extra_label in extra_labels %}
+    TARGET_{{extra_label}}
+{%- endfor %}
+{% for form_factor in supported_form_factors %}
+    TARGET_FF_{{form_factor}}
+{%- endfor %}
+{% if mbed_rom_start is defined %}
+    MBED_ROM_START={{ mbed_rom_start | to_hex }}
+{%- endif %}
+{% if mbed_rom_size is defined %}
+    MBED_ROM_SIZE={{ mbed_rom_size | to_hex }}
+{%- endif %}
+{% if mbed_ram_start is defined %}
+    MBED_RAM_START={{ mbed_ram_start | to_hex }}
+{%- endif %}
+{% if mbed_ram_size is defined %}
+    MBED_RAM_SIZE={{ mbed_ram_size | to_hex }}
+{%- endif %}
+    TARGET_LIKE_MBED
+    __MBED__=1
+)
+
+# config
+set(MBED_CONFIG_DEFINITIONS
+{% for setting in config %}
+    {%- if setting.macro_name -%}
+        {%- set setting_name = setting.macro_name -%}
+    {%- else -%}
+        {%- set setting_name = "MBED_CONF_{}_{}".format(setting.namespace.upper()|replace('-', '_'), setting.name.upper()|replace('-', '_')) -%}
+    {%- endif -%}
+    {%- if setting.value is sameas true or setting.value is sameas false -%}
+        {% set value = setting.value|int %}
+    {%- else -%}
+        {% set value = setting.value|replace("\"", "\\\"") -%}
+    {%- endif -%}
+    {%- if setting.value is not none -%}
+    "{{setting_name}}={{value}}"
+    {% endif -%}
+{%- endfor -%}
+{% for macro in macros %}
+    "{{macro|replace("\"", "\\\"")}}"
+{%- endfor %}
+)

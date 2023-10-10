@@ -1,0 +1,16 @@
+## NOTE: This file must be kept in sync with requirements.apt.txt in the same folder.
+## That file gives the equivalent package names of these packages in the apt package manager
+## for Ubuntu & Debian
+
+# These are the requirements for running the Python package tests.
+# They are in addition to the requirements.txt under mbedos/tools/.
+pytest
+factory_boy
+requests-mock
+mock
+coverage
+
+# Even though beautifulsoup4 and lxml are only used by the mac version
+# of mbed ls tools, they're needed on all platforms for its unit test.
+beautifulsoup4
+lxml

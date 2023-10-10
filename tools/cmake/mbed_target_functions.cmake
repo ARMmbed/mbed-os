@@ -53,11 +53,11 @@ function(mbed_generate_map_file target)
         TARGET
             ${target}
         POST_BUILD
-        COMMAND ${Python3_EXECUTABLE} ${mbed-os_SOURCE_DIR}/tools/memap.py 
+        COMMAND ${Python3_EXECUTABLE} -m memap.memap
             -t ${MBED_TOOLCHAIN} ${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map 
             --depth ${MBED_MEMAP_DEPTH} 
         WORKING_DIRECTORY
-            ${CMAKE_CURRENT_BINARY_DIR}
+			${mbed-os_SOURCE_DIR}/tools/python
     )
 
     # generate json file
@@ -66,13 +66,13 @@ function(mbed_generate_map_file target)
             TARGET
                 ${target}
             POST_BUILD
-            COMMAND ${Python3_EXECUTABLE} ${mbed-os_SOURCE_DIR}/tools/memap.py 
+            COMMAND ${Python3_EXECUTABLE} -m memap.memap
             -t ${MBED_TOOLCHAIN} ${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map 
             --depth ${MBED_MEMAP_DEPTH} 
             -e json
             -o ${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.memmap.json
             WORKING_DIRECTORY
-                ${CMAKE_CURRENT_BINARY_DIR}
+			    ${mbed-os_SOURCE_DIR}/tools/python
     )
     endif()
 
@@ -82,13 +82,13 @@ function(mbed_generate_map_file target)
             TARGET
                 ${target}
             POST_BUILD
-            COMMAND ${Python3_EXECUTABLE} ${mbed-os_SOURCE_DIR}/tools/memap.py 
+            COMMAND ${Python3_EXECUTABLE} -m memap.memap
             -t ${MBED_TOOLCHAIN} ${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map 
             --depth ${MBED_MEMAP_DEPTH} 
             -e html
             -o ${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.memmap.html
             WORKING_DIRECTORY
-                ${CMAKE_CURRENT_BINARY_DIR}
+			    ${mbed-os_SOURCE_DIR}/tools/python
     )
     endif()
 endfunction()

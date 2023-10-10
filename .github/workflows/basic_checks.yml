@@ -25,8 +25,11 @@ jobs:
       - 
         name: install dependencies
         shell: bash
+        # TODO scancode 32.0 introduced significant breaking changes to the license
+        # detection output format: https://github.com/nexB/scancode-toolkit/releases/tag/v32.0.0
+        # Need to update Mbed's scripts for the new format.
         run: |
-          pip install -U scancode-toolkit "click>=7,<8"
+          pip install -U "scancode-toolkit<32.0" "click>=7,<8"
 
       - 
         name: license check 
@@ -43,10 +46,14 @@ jobs:
             | while read file; do cp --parents "${file}" SCANCODE; done
           ls SCANCODE
           scancode -l --json-pp scancode.json SCANCODE
-          python ./tools/test/ci/scancode-evaluate.py scancode.json || true
-          cat scancode-evaluate.log
-          COUNT=$(cat scancode-evaluate.log | grep 'File:' | grep -v 'SPDX' | wc -l) || true
-          if [ $COUNT = 0 ]; then
+          cd tools/python
+          
+          # Run the evaluation script, which may fail, and save its exit code.
+          EVALUATE_EXITCODE=0
+          python -m scancode_evaluate.scancode_evaluate ../../scancode.json || EVALUATE_EXITCODE=$?
+          
+          cat scancode_evaluate.log
+          if [ "$EVALUATE_EXITCODE" = 0 ]; then
             echo "License check OK";
             true;
           else
@@ -158,25 +165,18 @@ jobs:
         name: Checkout repo
         uses: actions/checkout@v3
 
-
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.7'
-
       -
         name: install dependencies
         run: |
-          pip install -r tools/requirements.txt 
-          pip install -r tools/test/requirements.txt
+          xargs sudo apt-get install -y < tools/requirements.apt.txt
+          xargs sudo apt-get install -y < tools/python/python_tests/requirements.apt.txt
 
       -
-        name: pytest
+        name: Python Tests
         run: |
-          set -x
-          coverage run -a -m pytest tools/test
-          python tools/test/pylint.py
-          coverage run -a tools/project.py -S | sed -n '/^Total/p'
-          coverage html
+          cd tools/python
+          ./run_python_tests.sh
+
 
   pin-validation:
     runs-on: ubuntu-latest

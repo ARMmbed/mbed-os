@@ -1,9 +1,3 @@
-# This file contains the requirements needed to run CI builds for Mbed OS.
-# It installs flashing support through the mbed tools packages and also the mbedhtrun test runner.
-mbed-host-tests
-mbed-greentea
-mbed-ls
-
 # For USB Device host tests
 hidapi>=0.7.99
 pyusb>=1.2.0

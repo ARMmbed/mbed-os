@@ -1,0 +1,44 @@
+{
+  "builds": {
+      "K64F-ARM": {
+          "platform": "K64F",
+          "toolchain": "ARM",
+          "base_path": "./BUILD/K64F/ARM",
+          "baud_rate": 9600,
+          "tests": {
+              "tests-example-1": {
+                  "binaries": [
+                      {
+                          "binary_type": "bootable",
+                          "path": "./BUILD/K64F/ARM/tests-mbedmicro-rtos-mbed-mail.bin"
+                      }
+                  ]
+              },
+              "tests-example-2": {
+                  "binaries": [
+                      {
+                          "binary_type": "bootable",
+                          "path": "./BUILD/K64F/ARM/tests-mbed_drivers-c_strings.bin"
+                      }
+                  ]
+              }
+          }
+      },
+      "K64F-GCC": {
+          "platform": "K64F",
+          "toolchain": "GCC_ARM",
+          "base_path": "./BUILD/K64F/GCC_ARM",
+          "baud_rate": 9600,
+          "tests": {
+              "tests-example-7": {
+                  "binaries": [
+                      {
+                          "binary_type": "bootable",
+                          "path": "./BUILD/K64F/GCC_ARM/tests-mbedmicro-rtos-mbed-mail.bin"
+                      }
+                  ]
+              }
+          }
+      }
+  }
+}
