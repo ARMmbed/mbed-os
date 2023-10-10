@@ -10,10 +10,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Install the latest mbed-tools
+      - name: Install Python packages
         run: |
-            pip3 install --upgrade mbed-tools
-            mbedtools --version
+            python3 -m pip install -r tools/requirements.txt
 
       - name: Build NUCLEO_G031K8 with baremetal profile
         run: |

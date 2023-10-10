@@ -9,6 +9,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        
+      - name: Install Python packages
+        run: |
+            python3 -m pip install -r tools/requirements.txt
 
       - name: Build the multiple_executables example
         run: |
