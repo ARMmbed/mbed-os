@@ -4022,6 +4022,16 @@
             "0350"
         ]
     },
+    "XDOT_MAX32670": {
+        "inherits": [
+            "MAX32670"
+        ],
+        "device_name": "MAX32670",
+        "bootloader_supported": true,
+        "detect_code": [
+            "0351"
+        ]
+    },
     "FF1705_L151CC": {
         "inherits": [
             "XDOT_L151CC"
