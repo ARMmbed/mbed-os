@@ -83,7 +83,6 @@ typedef enum {
 
 // ----- Start of xDot external pin definitions -----
     WAKE        = P0_19,
-    LED1        = P0_30,
     GPIO0       = P0_30,
     GPIO1       = P0_27,
     GPIO2       = P0_26,
@@ -111,18 +110,12 @@ typedef enum {
     // I2C
     I2C1_SCL    = P0_12,
     I2C1_SDA    = P0_13,
-    I2C_SCL     = I2C1_SCL,
-    I2C_SDA     = I2C1_SDA,
 
     // SPI
     SPI0_SCK    = P0_4,
     SPI0_MOSI   = P0_3,
     SPI0_MISO   = P0_2,
     SPI0_SS     = P0_5,
-    SPI_MISO    = SPI0_MISO,
-    SPI_MOSI    = SPI0_MOSI,
-    SPI_SCK     = SPI0_SCK,
-    SPI_NSS     = SPI0_SS,
 // ----- End of xDot external pin definitions -----
 
 // ----- Start of xDot dedicated internal pins. -----
@@ -168,6 +161,14 @@ typedef enum {
     // Not connected
     NC = NOT_CONNECTED
 } PinName;
+
+#define LED1        P0_30
+#define I2C_SCL     I2C1_SCL
+#define I2C_SDA     I2C1_SDA
+#define SPI_MISO    SPI0_MISO
+#define SPI_MOSI    SPI0_MOSI
+#define SPI_SCK     SPI0_SCK
+#define SPI_NSS     SPI0_SS
 
 typedef enum {
     PullNone = 0,
