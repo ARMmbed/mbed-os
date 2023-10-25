@@ -78,12 +78,6 @@ void SystemCoreClockUpdateXdot(void)
     div = (MXC_GCR->clkctrl & MXC_F_GCR_CLKCTRL_SYSCLK_DIV) >> MXC_F_GCR_CLKCTRL_SYSCLK_DIV_POS;
 
     SystemCoreClock = base_freq >> div;
-
-    // base_freq1 = base_freq;
-    // div1 = div;
-    // sys_core_clk1 = SystemCoreClock;
-    // tries = 25;
-
 }
 
 int PreInit(void)
