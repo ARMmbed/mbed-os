@@ -1216,13 +1216,13 @@ static void can_irq(CANName name, int id)
     tmp1 = __HAL_CAN_MSG_PENDING(&CanHandle, CAN_FIFO0);
     tmp2 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_FMP0);
 
-    // In legacy can (bxCAN and earlier), reading is the only way to clear rx interrupt. But can_read has mutex locks
-    // since mutexes cannot be used in ISR context, rx interrupt is masked here to temporary disable it
-    // rx interrupts will be unamsked in read operation. reads must be deffered to thread context.
-    // refer to the CAN receive interrupt problem due to mutex and resolution section of README doc.
-    __HAL_CAN_DISABLE_IT(&CanHandle, CAN_IT_FMP0);
-
     if ((tmp1 != 0) && tmp2) {
+        // In legacy can (bxCAN and earlier), reading is the only way to clear rx interrupt. But can_read has mutex locks
+        // since mutexes cannot be used in ISR context, rx interrupt is masked here to temporary disable it
+        // rx interrupts will be unamsked in read operation. reads must be deffered to thread context.
+        // refer to the CAN receive interrupt problem due to mutex and resolution section of README doc.
+        __HAL_CAN_DISABLE_IT(&CanHandle, CAN_IT_FMP0);
+
         irq_handler(can_irq_contexts[id], IRQ_RX);
     }
 
