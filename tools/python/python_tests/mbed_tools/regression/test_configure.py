@@ -51,7 +51,7 @@ class TestConfigureRegression(TestCase):
             pathlib.Path(tmpDirPath / "mbed_app.json").write_text(mbed_app_json)
             pathlib.Path(tmpDirPath / "mbed-os").mkdir()
             pathlib.Path(tmpDirPath / "mbed-os" / "targets").mkdir()
-            pathlib.Path(tmpDirPath / "mbed-os" / "targets" / "targets.json").write_text(target_json)
+            pathlib.Path(tmpDirPath / "mbed-os" / "targets" / "targets.json5").write_text(target_json)
 
             result = CliRunner().invoke(
                 configure, ["-m", "Target", "-t", "gcc_arm", "-p", tmpDir], catch_exceptions=False

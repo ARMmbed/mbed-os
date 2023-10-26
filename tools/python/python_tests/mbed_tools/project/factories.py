@@ -5,12 +5,12 @@
 from mbed_tools.project._internal.libraries import MbedLibReference
 from mbed_tools.project._internal.project_data import (
     CMAKELISTS_FILE_NAME,
-    APP_CONFIG_FILE_NAME,
+    APP_CONFIG_FILE_NAME_JSON5,
     MBED_OS_REFERENCE_FILE_NAME,
 )
 
 
-def make_mbed_program_files(root, config_file_name=APP_CONFIG_FILE_NAME):
+def make_mbed_program_files(root, config_file_name=APP_CONFIG_FILE_NAME_JSON5):
     if not root.exists():
         root.mkdir()
 
@@ -42,4 +42,4 @@ def make_mbed_os_files(root):
 
     targets_dir = root / "targets"
     targets_dir.mkdir()
-    (targets_dir / "targets.json").touch()
+    (targets_dir / "targets.json5").touch()

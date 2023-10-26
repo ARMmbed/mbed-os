@@ -19,14 +19,16 @@ from mbed_tools.project._internal.render_templates import (
 logger = logging.getLogger(__name__)
 
 # Mbed program file names and constants.
-APP_CONFIG_FILE_NAME = "mbed_app.json"
+APP_CONFIG_FILE_NAME_JSON = "mbed_app.json"
+APP_CONFIG_FILE_NAME_JSON5 = "mbed_app.json5"
 BUILD_DIR = "cmake_build"
 CMAKELISTS_FILE_NAME = "CMakeLists.txt"
 MAIN_CPP_FILE_NAME = "main.cpp"
 MBED_OS_REFERENCE_FILE_NAME = "mbed-os.lib"
 MBED_OS_DIR_NAME = "mbed-os"
-TARGETS_JSON_FILE_PATH = Path("targets", "targets.json")
+TARGETS_JSON_FILE_PATH = Path("targets", "targets.json5")
 CUSTOM_TARGETS_JSON_FILE_NAME = "custom_targets.json"
+CUSTOM_TARGETS_JSON5_FILE_NAME = "custom_targets.json5"
 
 # Information written to mbed-os.lib
 MBED_OS_REFERENCE_URL = "https://github.com/ARMmbed/mbed-os"
@@ -71,7 +73,7 @@ class MbedProgramFiles:
         Raises:
             ValueError: A program .mbed or mbed-os.lib file already exists at this path.
         """
-        app_config = root_path / APP_CONFIG_FILE_NAME
+        app_config = root_path / APP_CONFIG_FILE_NAME_JSON5
         mbed_os_ref = root_path / MBED_OS_REFERENCE_FILE_NAME
         cmakelists_file = root_path / CMAKELISTS_FILE_NAME
         main_cpp = root_path / MAIN_CPP_FILE_NAME
@@ -103,13 +105,21 @@ class MbedProgramFiles:
             root_path: The path containing the MbedProgramFiles.
             build_subdir: The subdirectory of BUILD_DIR to use for CMake build.
         """
-        app_config: Optional[Path]
-        app_config = root_path / APP_CONFIG_FILE_NAME
-        if not app_config.exists():
+        app_config: Optional[Path] = None
+        if (root_path / APP_CONFIG_FILE_NAME_JSON5).exists():
+            app_config = root_path / APP_CONFIG_FILE_NAME_JSON5
+        elif (root_path / APP_CONFIG_FILE_NAME_JSON).exists():
+            app_config = root_path / APP_CONFIG_FILE_NAME_JSON
+        else:
             logger.info("This program does not contain an mbed_app.json config file.")
-            app_config = None
 
-        custom_targets_json = root_path / CUSTOM_TARGETS_JSON_FILE_NAME
+        # If there's already a custom_targets.json5, use that.
+        # Otherwise, assume json.
+        if (root_path / CUSTOM_TARGETS_JSON5_FILE_NAME).exists():
+            custom_targets_json = root_path / CUSTOM_TARGETS_JSON5_FILE_NAME
+        else:
+            custom_targets_json = root_path / CUSTOM_TARGETS_JSON_FILE_NAME
+
         mbed_os_file = root_path / MBED_OS_REFERENCE_FILE_NAME
 
         cmakelists_file = root_path / CMAKELISTS_FILE_NAME

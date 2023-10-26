@@ -1,6 +1,8 @@
 {
     "name": "drivers",
     "config": {
+        // Note: These are called "uart-serial" because that was the old name
+        // of BufferedSerial before it was officially merged
         "uart-serial-txbuf-size": {
             "help": "Default TX buffer size for a BufferedSerial instance (unit Bytes))",
             "value": 256

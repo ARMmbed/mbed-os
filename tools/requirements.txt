@@ -24,6 +24,7 @@ junit-xml>=1.0,<2.0
 lockfile
 six>=1.0,<2.0
 colorama>=0.3,<0.5
+json5
 
 # beautifulsoup only needed for USB device detection on Mac
 beautifulsoup4; sys_platform == 'darwin'

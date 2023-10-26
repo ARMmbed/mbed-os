@@ -32,14 +32,13 @@ def assemble_config(target_attributes: dict, search_paths: Iterable[Path], mbed_
         search_paths: Iterable of paths to search for mbed_lib.json files.
         mbed_app_file: The path to mbed_app.json. This can be None.
     """
-    mbed_lib_files = list(
-        set(
-            itertools.chain.from_iterable(
-                find_files("mbed_lib.json", path.absolute().resolve()) for path in search_paths
-            )
-        )
-    )
-    return _assemble_config_from_sources(target_attributes, mbed_lib_files, mbed_app_file)
+    mbed_lib_files: Set[Path] = set()
+
+    for path in search_paths:
+        mbed_lib_files.update(find_files("mbed_lib.json", path.absolute().resolve()))
+        mbed_lib_files.update(find_files("mbed_lib.json5", path.absolute().resolve()))
+
+    return _assemble_config_from_sources(target_attributes, list(mbed_lib_files), mbed_app_file)
 
 
 def _assemble_config_from_sources(

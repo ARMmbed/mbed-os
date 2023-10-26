@@ -5126,6 +5126,8 @@
         "mbed_ram_start": "0x20000000",
         "mbed_ram_size": "0x10000"
     },
+    // Note: "MIMXRT105X" target is for the MIMXRT1051, MIMXRT1061=2, MIMXRT1061, and MIMXRT1062
+    // See here for details: https://github.com/mbed-ce/mbed-os/wiki/MCU-Info-Page:-MIMXRT105x-and-106x
     "MIMXRT105X": {
         "core": "Cortex-M7FD",
         "supported_toolchains": [
