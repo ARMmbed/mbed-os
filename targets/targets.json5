@@ -3224,7 +3224,8 @@
             "CRC",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "SPI_32BIT_WORDS"
         ]
     },
     "MCU_STM32H723xG": {
@@ -4849,7 +4850,8 @@
             "FLASH",
             "MPU",
             "TRNG",
-            "SERIAL_ASYNCH"
+            "SERIAL_ASYNCH",
+            "SPI_32BIT_WORDS"
         ]
     },
 	"MCU_STM32U575xI": {

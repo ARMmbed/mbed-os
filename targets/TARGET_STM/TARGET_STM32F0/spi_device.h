@@ -21,4 +21,7 @@
 // Defines the word length capability of the device where Nth bit allows for N window size
 #define STM32_SPI_CAPABILITY_WORD_LENGTH (0x0000FFF8)
 
+// We have DMA support
+#define STM32_SPI_CAPABILITY_DMA 1
+
 #endif

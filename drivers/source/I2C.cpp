@@ -245,7 +245,7 @@ void I2C::abort_transfer(void)
 I2C::Result I2C::transfer_and_wait(int address, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, rtos::Kernel::Clock::duration_u32 timeout, bool repeated)
 {
     // Use EventFlags to suspend the thread until the transfer finishes
-    rtos::EventFlags transferResultFlags("I2C::Result EvFlags");
+    rtos::EventFlags transferResultFlags("I2C::transfer_and_wait EvFlags");
 
     // Simple callback from the transfer that sets the EventFlags using the I2C result event
     event_callback_t transferCallback([&](int event) {

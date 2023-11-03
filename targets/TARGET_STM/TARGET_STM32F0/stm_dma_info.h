@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2019 STMicroelectronics
+ * Copyright (c) 2016-2023 STMicroelectronics
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,15 +15,24 @@
  * limitations under the License.
  */
 
-#ifndef MBED_SPI_DEVICE_H
-#define MBED_SPI_DEVICE_H
+#ifndef MBED_OS_STM_DMA_INFO_H
+#define MBED_OS_STM_DMA_INFO_H
 
-#include "stm32wbxx_ll_spi.h"
+#include "cmsis.h"
+#include "stm_dma_utils.h"
 
-// Defines the word legnth capability of the device where Nth bit allows for N window size
-#define STM32_SPI_CAPABILITY_WORD_LENGTH (0x0000FFF8)
+// See STM32F0 reference manual Table 26.
 
-// We have DMA support
-#define STM32_SPI_CAPABILITY_DMA 1
+/// Mapping from SPI index to DMA link info for Tx
+static const DMALinkInfo SPITxDMALinks[] = {
+        {1, 3}, // SPI1 Tx is DMA1 Channel 3
+        {1, 5}, // SPI2 Tx is DMA1 Channel 5
+};
 
-#endif
+/// Mapping from SPI index to DMA link info for Rx
+static const DMALinkInfo SPIRxDMALinks[] = {
+        {1, 2}, // SPI1 Rx is DMA1 Channel 2
+        {1, 4}, // SPI2 Rx is DMA1 Channel 4
+};
+
+#endif //MBED_OS_STM_DMA_INFO_H

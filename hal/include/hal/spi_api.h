@@ -261,6 +261,9 @@ int  spi_master_write(spi_t *obj, int value);
  *  tx_length and rx_length. The bytes written will be padded with the
  *  value 0xff.
  *
+ * Note: Even if the word size / bits per frame is not 8, \c rx_length and \c tx_length
+ * still give lengths in bytes of input data, not numbers of words.
+ *
  * @param[in] obj        The SPI peripheral to use for sending
  * @param[in] tx_buffer  Pointer to the byte-array of data to write to the device
  * @param[in] tx_length  Number of bytes to write, may be zero

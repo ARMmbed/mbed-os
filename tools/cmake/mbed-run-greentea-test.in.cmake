@@ -14,7 +14,7 @@ set(MBEDHTRUN_ARGS --skip-flashing @MBED_HTRUN_ARGUMENTS@) # filled in by config
 
 # Print out command
 string(REPLACE ";" " " MBEDHTRUN_ARGS_FOR_DISPLAY "${MBEDHTRUN_ARGS}")
-message("Executing: mbedhtrun ${MBEDHTRUN_ARGS_FOR_DISPLAY}")
+message("Executing: @Python3_EXECUTABLE@ -m mbed_host_tests.mbedhtrun ${MBEDHTRUN_ARGS_FOR_DISPLAY}")
 
 # Note: For this command, we need to survive mbedhtrun not being on the PATH, so we import the package and call the main function using "python -c"
 execute_process(

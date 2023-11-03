@@ -37,6 +37,7 @@
 
 #include "objects.h"
 #include "stm_i2c_api.h"
+#include "stm_spi_api.h"
 
 #if DEVICE_USTICKER
 #include "us_ticker_defines.h"

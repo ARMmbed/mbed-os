@@ -202,7 +202,18 @@ HAL_StatusTypeDef HAL_DMAEx_MultiBufferStart_IT(DMA_HandleTypeDef *hdma, uint32_
 
     /* Enable Common interrupts*/
     hdma->Instance->CR  |= DMA_IT_TC | DMA_IT_TE | DMA_IT_DME;
-    hdma->Instance->FCR |= DMA_IT_FE;
+
+    /* Mbed CE mod: Only enable the FIFO Error interrupt if the FIFO is actually enabled.
+     * If it's not enabled, then this interrupt can trigger spuriously from memory bus
+     * stalls that the DMA engine encounters, and this creates random DMA failures.
+     * Reference forum thread here:
+     * https://community.st.com/t5/stm32-mcus-products/spi-dma-fifo-error-issue-feifx/td-p/537074
+     * also: https://community.st.com/t5/stm32-mcus-touch-gfx-and-gui/spi-dma-error-is-occurred-when-the-other-dma-memory-to-memory-is/td-p/191590
+     */
+    if(hdma->Instance->FCR & DMA_SxFCR_DMDIS)
+    {
+      hdma->Instance->FCR |= DMA_IT_FE;
+    }
     
     if((hdma->XferHalfCpltCallback != NULL) || (hdma->XferM1HalfCpltCallback != NULL))
     {
