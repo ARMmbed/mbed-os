@@ -109,11 +109,19 @@ void HAL_PCD_DataInStageCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum)
 {
     USBPhyHw *priv = ((USBPhyHw *)(hpcd->pData));
     uint8_t endpoint = LOG_IN_TO_EP(epnum);
-    priv->epComplete[EP_TO_IDX(endpoint)] = 1;
+    uint8_t &epComplete = priv->epComplete[EP_TO_IDX(endpoint)];
 
     if (epnum) {
-        priv->events->in(endpoint);
+        if (epComplete == 2 && hpcd->IN_ep[epnum].xfer_count == hpcd->IN_ep[epnum].maxpacket) {
+            /* transmit zero-length packet to avoid ongoing multi-packet transaction */
+            epComplete = 3;
+            HAL_PCD_EP_Transmit(hpcd, epnum, NULL, 0);
+        } else {
+            epComplete = 1;
+            priv->events->in(endpoint);
+        }
     } else {
+        epComplete = 1;
         priv->events->ep0_in();
     }
 }
