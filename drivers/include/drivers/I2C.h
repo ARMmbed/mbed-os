@@ -377,7 +377,8 @@ public:
      *
      * The %I2C peripheral will begin a transmit and/or receive operation in the background.  If only a transmit
      * or receive buffer is specified, only a transmit or receive will be done.  If both buffers are specified,
-     * first the transmission is done to the given slave address, then the specified number of bytes are received.
+     * first the transmission is done to the given slave address, then the MCU performs a repeated start
+     * and the specified number of bytes are received.
      *
      * If you wish to find out when the transfer is done, pass a callback function to the callback argument
      * and set the event argument to the events you wish to receive.
@@ -400,7 +401,7 @@ public:
      *        of the flags I2C_EVENT_ERROR, I2C_EVENT_ERROR_NO_SLAVE, I2C_EVENT_TRANSFER_COMPLETE, or I2C_EVENT_TRANSFER_EARLY_NACK
      * @param callback  The event callback function
      * @param repeated Set up for a repeated start.  If true, the Mbed processor does not relinquish the bus after
-     *       this write operation.  You may then call write(), read(), or start() again to start another operation.
+     *       this operation.  You may then call write(), read(), start(), or transfer() again to start another operation.
      *
      * @returns Zero if the transfer has started, or -1 if I2C peripheral is busy
      */
@@ -415,7 +416,8 @@ public:
      *
      * The %I2C peripheral will begin a transmit and/or receive operation in the background.  If only a transmit
      * or receive buffer is specified, only a transmit or receive will be done.  If both buffers are specified,
-     * first the transmission is done to the given slave address, then the specified number of bytes are received.
+     * first the transmission is done to the given slave address, then the MCU performs a repeated start
+     * and the specified number of bytes are received.
      *
      * Internally, the chip vendor may implement this function using either DMA or interrupts.
      *
@@ -428,7 +430,7 @@ public:
      * @param rx_length The length of RX buffer in bytes  If 0, no reception is done.
      * @param timeout timeout value.  Use #rtos::Kernel::wait_for_u32_forever to wait forever (the default).
      * @param repeated Set up for a repeated start.  If true, the Mbed processor does not relinquish the bus after
-     *       this operation.  You may then call write(), read(), or start() again to start another operation.
+     *       this operation.  You may then call write(), read(), start(), or transfer() again to start another operation.
      *
      * @returns Result code describing whether the transfer succeeded or not.
      */

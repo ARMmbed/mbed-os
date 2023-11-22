@@ -1389,7 +1389,7 @@ void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
         if(obj->rx_buff.length > 0)
         {
             // This is a write-then-read transaction, switch to reading.
-            uint32_t xferOptions = obj_s->stop ? I2C_FIRST_AND_LAST_FRAME : I2C_FIRST_FRAME;
+            uint32_t xferOptions = get_hal_xfer_options(obj_s, obj_s->stop);
             HAL_I2C_Master_Seq_Receive_IT(hi2c, obj_s->address, (uint8_t *) obj->rx_buff.buffer, obj->rx_buff.length,
                                           xferOptions);
             obj_s->state = STM_I2C_ASYNC_READ_IN_PROGRESS;
@@ -1784,7 +1784,11 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
 
     prep_for_restart_if_needed(obj_s);
 
-    uint32_t xferOptions = get_hal_xfer_options(obj_s, stop);
+    // If we are doing both a tx and an rx, then we never want to send a stop on the
+    // first transfer.
+    bool sendStopOnFirstTransfer = stop && ((tx_length == 0) || (rx_length == 0));
+
+    uint32_t xferOptions = get_hal_xfer_options(obj_s, sendStopOnFirstTransfer);
 
     if(!i2c_is_ready_for_transaction_start(obj_s->state))
     {
