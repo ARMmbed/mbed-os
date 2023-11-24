@@ -1137,6 +1137,9 @@ lorawan_status_t LoRaMac::schedule_tx()
             if (backoff_time != 0) {
                 tr_debug("DC enforced: Transmitting in %lu ms", backoff_time);
                 _can_cancel_tx = true;
+                if (_device_class != CLASS_C) {
+                    _lora_phy->put_radio_to_sleep();
+                }
                 _lora_time.start(_params.timers.backoff_timer, backoff_time);
             }
             return LORAWAN_STATUS_OK;
