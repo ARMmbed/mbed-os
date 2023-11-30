@@ -7711,7 +7711,8 @@
         "is_disk_virtual": true,
         "supported_toolchains": [
             "ARM",
-            "GCC_ARM"
+            "GCC_ARM",
+            "IAR"
         ],
         "config": {
             "hxt-present": {
@@ -7837,6 +7838,9 @@
             "gcc_arm": [
                 "std",
                 "small"
+            ],
+            "iar": [
+                "std"
             ]
         },
         "supported_application_profiles": [
