@@ -186,6 +186,7 @@ void USBCDC::_init()
     _rx_in_progress = false;
     _rx_buf = _rx_buffer;
     _rx_size = 0;
+    _trans_zlp = false;
 }
 
 void USBCDC::callback_reset()
@@ -387,6 +388,9 @@ void USBCDC::send_nb(uint8_t *buffer, uint32_t size, uint32_t *actual, bool now)
         }
         _tx_size += write_size;
         *actual = write_size;
+        if((CDC_MAX_PACKET_SIZE == size) && (CDC_MAX_PACKET_SIZE == write_size)) {
+            _trans_zlp = true;
+        }
         if (now) {
             _send_isr_start();
         }
@@ -402,6 +406,11 @@ void USBCDC::_send_isr_start()
     if (!_tx_in_progress && _tx_size) {
         if (USBDevice::write_start(_bulk_in, _tx_buffer, _tx_size)) {
             _tx_in_progress = true;
+        }
+    } else if(!_tx_in_progress && _trans_zlp) {
+        if (USBDevice::write_start(_bulk_in, _tx_buffer, 0)) {
+            _tx_in_progress = true;
+            _trans_zlp = false;
         }
     }
 }
