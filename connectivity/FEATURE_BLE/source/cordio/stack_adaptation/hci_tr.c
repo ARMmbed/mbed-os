@@ -182,7 +182,6 @@ void hciTrSerialRxIncoming(uint8_t *pBuf, uint8_t len)
           stateRx = HCI_RX_STATE_IDLE;
           WSF_ASSERT(0);
           return;
-          break;
       }
 
       /* see if entire header has been read */
