@@ -391,7 +391,7 @@ void USBCDC::send_nb(uint8_t *buffer, uint32_t size, uint32_t *actual, bool now)
         uint32_t free = sizeof(_tx_buffer) - _tx_size;
         uint32_t write_size = free > size ? size : free;
         if (size > 0) {
-            memcpy(_tx_buf, buffer, write_size);
+            memcpy(_tx_buf + _tx_size, buffer, write_size);
         }
         _tx_size += write_size;
         *actual = write_size;
