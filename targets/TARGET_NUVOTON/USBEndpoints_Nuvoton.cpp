@@ -921,7 +921,7 @@ static volatile int epComplete = 0;
 #define USBD_GET_EP_MAX_PAYLOAD(ep)       *((__IO uint32_t *) ((uint32_t)&USBD->EPAMPS + (uint32_t)(ep*0x28)))
 #define USBD_GET_EP_DATA_COUNT(ep)        *((__IO uint32_t *) ((uint32_t)&USBD->EPADATCNT + (uint32_t)(ep*0x28)))
 #define USBD_SET_EP_SHORT_PACKET(ep)      *((__IO uint32_t *) ((uint32_t)&USBD->EPARSPCTL + (uint32_t)(ep*0x28))) = ((*((__IO uint32_t *)((uint32_t)&USBD->EPARSPCTL+(uint32_t)(ep*0x28))) & 0x10) | 0x40)
-#define HSUSBD_SET_EP_ZERO_PACKET(ep)     *((__IO uint32_t *) ((uint32_t)&USBD->EPARSPCTL + (uint32_t)(ep*0x28))) = ((*((__IO uint32_t *)((uint32_t)&USBD->EPARSPCTL+(uint32_t)(ep*0x28))) & 0x10)
+#define USBD_SET_EP_ZERO_PACKET(ep)       *((__IO uint32_t *) ((uint32_t)&USBD->EPARSPCTL + (uint32_t)(ep*0x28))) = (*((__IO uint32_t *)((uint32_t)&USBD->EPARSPCTL+(uint32_t)(ep*0x28))) & 0x10)
 #define USBD_SET_EP_BUF_FLUSH(ep)         *((__IO uint32_t *) ((uint32_t)&USBD->EPARSPCTL + (uint32_t)(ep*0x28))) = USBD_EPRSPCTL_FLUSH_Msk
 #define USBD_GET_EP_INT_EN(ep)            *((__IO uint32_t *) ((uint32_t)&USBD->EPAINTEN  + (uint32_t)(ep*0x28)))
 #define USBD_GET_EP_INT(ep)               *((__IO uint32_t *) ((uint32_t)&USBD->EPAINTSTS + (uint32_t)(ep*0x28)))
@@ -1703,8 +1703,13 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
 
         /* Send Zero packet */
         if (size == 0) {
+#if defined (TARGET_NUC472)
+            USBD_SET_EP_ZERO_PACKET(ep_hw_index);
+            USBD_ENABLE_EP_INT(ep_hw_index, USBD_GET_EP_INT_EN(ep_hw_index) | USBD_EPINTEN_TXPKIEN_Msk);
+#elif defined (TARGET_M480) || defined (TARGET_M460)
             HSUSBD_SET_EP_ZERO_PACKET(ep_hw_index);
             HSUSBD->EP[ep_hw_index].EPINTEN |= HSUSBD_EPINTEN_TXPKIEN_Msk;
+#endif
             return true;
         }
 
