@@ -2,6 +2,7 @@
  *******************************************************************************
  * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -1410,13 +1411,15 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
     if (handle->Init.Direction == SPI_DIRECTION_2LINES) {
+        const int word_size = 0x01 << bitshift;
+
         int write_fill_frame = write_fill;
         /* extend fill symbols for 16/32 bit modes */
-        for (int i = 0; i < bitshift; i++) {
+        for (int i = 0; i < word_size; i++) {
             write_fill_frame = (write_fill_frame << 8) | write_fill;
         }
 
-        const int word_size = 0x01 << bitshift;
+
         for (int i = 0; i < total; i += word_size) {
             int out = (i < tx_length) ? spi_get_word_from_buffer(tx_buffer + i, bitshift) : write_fill_frame;
             int in = spi_master_write(obj, out);
@@ -1534,8 +1537,8 @@ typedef enum {
 } transfer_type_t;
 
 
-/// @returns the number of bytes transferred, or `0` if nothing transferred
-static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer_type, const void *tx, void *rx, size_t length, DMAUsage hint)
+/// @returns True if DMA was used, false otherwise
+static bool spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer_type, const void *tx, void *rx, size_t length, DMAUsage hint)
 {
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
@@ -1547,7 +1550,6 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
     size_t words;
 
     obj->spi.transfer_type = transfer_type;
-
     words = length >> bitshift;
 
     bool useDMA = false;
@@ -1579,6 +1581,8 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
 
         useDMA = true;
     }
+
+    obj->spi.curr_transfer_uses_dma = useDMA;
 #endif
 
     DEBUG_PRINTF("SPI inst=0x%8X Start: type=%u, length=%u, DMA=%d\r\n", (int) handle->Instance, transfer_type, length, !!useDMA);
@@ -1589,15 +1593,6 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
     NVIC_ClearPendingIRQ(irq_n);
     NVIC_SetPriority(irq_n, 1);
     NVIC_EnableIRQ(irq_n);
-
-#if defined(STM32_SPI_CAPABILITY_DMA) && defined(__DCACHE_PRESENT)
-    if (useDMA && transfer_type != SPI_TRANSFER_TYPE_RX)
-    {
-        // For chips with a cache (e.g. Cortex-M7), we need to evict the Tx data from cache to main memory.
-        // This ensures that the DMA controller can see the most up-to-date copy of the data.
-        SCB_CleanDCache_by_Addr((volatile void*)tx, length);
-    }
-#endif
 
     // flush FIFO
 #if defined(SPI_FLAG_FRLVL)
@@ -1635,7 +1630,7 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
 
             if (useDMA) {
 #if defined(STM32_SPI_CAPABILITY_DMA) && defined(__DCACHE_PRESENT)
-                // For chips with a cache (e.g. Cortex-M7), we need to evict the Tx data from cache to main memory.
+                // For chips with a cache (e.g. Cortex-M7), we need to evict the Tx fill data from cache to main memory.
                 // This ensures that the DMA controller can see the most up-to-date copy of the data.
                 SCB_CleanDCache_by_Addr(rx, length);
 #endif
@@ -1650,15 +1645,6 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
             length = 0;
     }
 
-#if defined(STM32_SPI_CAPABILITY_DMA) && defined(__DCACHE_PRESENT)
-    if (useDMA && transfer_type != SPI_TRANSFER_TYPE_TX)
-    {
-        // For chips with a cache (e.g. Cortex-M7), we need to invalidate the Rx data in cache.
-        // This ensures that the CPU will fetch the data from SRAM instead of using its cache.
-        SCB_InvalidateDCache_by_Addr(rx, length);
-    }
-#endif
-
     if (rc) {
 #if defined(SPI_IP_VERSION_V2)
         // enable SPI back in case of error
@@ -1667,14 +1653,13 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
         }
 #endif
         DEBUG_PRINTF("SPI: RC=%u\n", rc);
-        length = 0;
     }
 
-    return length;
+    return useDMA;
 }
 
 // asynchronous API
-void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
+bool spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
@@ -1687,7 +1672,7 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
 
     // don't do anything, if the buffers aren't valid
     if (!use_tx && !use_rx) {
-        return;
+        return false;
     }
 
     // copy the buffers to the SPI object
@@ -1717,11 +1702,14 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
             obj->tx_buff.length = size;
             obj->rx_buff.length = size;
         }
-        spi_master_start_asynch_transfer(obj, SPI_TRANSFER_TYPE_TXRX, tx, rx, size, hint);
+        return spi_master_start_asynch_transfer(obj, SPI_TRANSFER_TYPE_TXRX, tx, rx, size, hint);
     } else if (use_tx) {
-        spi_master_start_asynch_transfer(obj, SPI_TRANSFER_TYPE_TX, tx, NULL, tx_length, hint);
+        return spi_master_start_asynch_transfer(obj, SPI_TRANSFER_TYPE_TX, tx, NULL, tx_length, hint);
     } else if (use_rx) {
-        spi_master_start_asynch_transfer(obj, SPI_TRANSFER_TYPE_RX, NULL, rx, rx_length, hint);
+        return spi_master_start_asynch_transfer(obj, SPI_TRANSFER_TYPE_RX, NULL, rx, rx_length, hint);
+    }
+    else {
+        return false;
     }
 }
 
@@ -1830,21 +1818,10 @@ void spi_abort_asynch(spi_t *obj)
     NVIC_ClearPendingIRQ(irq_n);
     NVIC_DisableIRQ(irq_n);
 
-#ifdef STM32_SPI_CAPABILITY_DMA
-    // Abort DMA transfers if DMA channels have been allocated
-    if(spiobj->txDMAInitialized) {
-        HAL_DMA_Abort_IT(spiobj->handle.hdmatx);
-    }
-    if(spiobj->rxDMAInitialized) {
-        HAL_DMA_Abort_IT(spiobj->handle.hdmarx);
-    }
-#endif
-
-    // clean-up
-    LL_SPI_Disable(SPI_INST(obj));
-    HAL_SPI_DeInit(handle);
-
-    init_spi(obj);
+    // Use HAL abort function.
+    // Conveniently, this is smart enough to automatically abort the DMA transfer
+    // if DMA was used.
+    HAL_SPI_Abort_IT(handle);
 }
 
 #endif //DEVICE_SPI_ASYNCH

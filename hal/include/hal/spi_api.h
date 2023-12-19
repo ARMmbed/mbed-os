@@ -25,6 +25,8 @@
 #include "hal/dma_api.h"
 #include "hal/buffer.h"
 
+#include <stdbool.h>
+
 #if DEVICE_SPI
 
 /**
@@ -393,7 +395,11 @@ const PinMap *spi_slave_cs_pinmap(void);
  * @{
  */
 
-/** Begin the SPI transfer. Buffer pointers and lengths are specified in tx_buff and rx_buff
+/** Begin the asynchronous SPI transfer. Buffer pointers and lengths are specified in tx_buff and rx_buff.
+ *
+ * If the device has a data cache, the Tx data is guaranteed to have been flushed from the cache
+ * to main memory already.  Additionally, the Rx buffer is guaranteed to be cache aligned, and will
+ * be invalidated by the SPI layer after the transfer is complete.
  *
  * @param[in] obj       The SPI object that holds the transfer information
  * @param[in] tx        The transmit buffer
@@ -404,8 +410,16 @@ const PinMap *spi_slave_cs_pinmap(void);
  * @param[in] event     The logical OR of events to be registered
  * @param[in] handler   SPI interrupt handler
  * @param[in] hint      A suggestion for how to use DMA with this transfer
+ *
+ * @return True if DMA was actually used for the transfer, false otherwise (if interrupts or another CPU-based
+ * method is used to do the transfer).
+ *
+ * @note On MCUs with a data cache, the return value is used to determine if a cache invalidation needs to be done
+ * after the transfer is complete.  If this function returns true, the driver layer will cache invalidate the Rx buffer under
+ * the assumption that the data needs to be re-read from main memory.  Be careful, because if the read was not actually
+ * done by DMA, and the rx data is in the CPU cache, this invalidation will corrupt it.
  */
-void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint);
+bool spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint);
 
 /** The asynchronous IRQ handler
  *

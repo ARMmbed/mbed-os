@@ -234,7 +234,7 @@ const PinMap *spi_slave_cs_pinmap(void)
 
 #if DEVICE_SPI_ASYNCH
 
-void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, MBED_UNUSED uint8_t bit_width, uint32_t handler, uint32_t event, MBED_UNUSED DMAUsage hint)
+bool spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, MBED_UNUSED uint8_t bit_width, uint32_t handler, uint32_t event, MBED_UNUSED DMAUsage hint)
 {
     struct spi_s *spi = cy_get_spi(obj);
     spi->async_handler = (void (*)(void))handler;
@@ -248,6 +248,8 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
         MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_spi_transfer_async");
     }
     spi->async_in_progress = true;
+
+    return false; // Currently we always use interrupts, not DMA
 }
 
 uint32_t spi_irq_handler_asynch(spi_t *obj)

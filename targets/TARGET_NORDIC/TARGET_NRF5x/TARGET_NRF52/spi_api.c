@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2017 Nordic Semiconductor ASA
  * All rights reserved.
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -882,8 +883,10 @@ static void nordic_nrf5_spi_event_handler(nrfx_spi_evt_t const *p_event, void *p
  * Parameter  event     The logical OR of events to be registered
  * Parameter  handler   SPI interrupt handler
  * Parameter  hint      A suggestion for how to use DMA with this transfer
+ *
+ * Returns    bool      True if DMA was used for the transfer, false otherwise
  */
-void spi_master_transfer(spi_t *obj,
+bool spi_master_transfer(spi_t *obj,
                          const void *tx,
                          size_t tx_length,
                          void *rx,
@@ -949,6 +952,12 @@ void spi_master_transfer(spi_t *obj,
         /* Signal callback handler. */
         callback();
     }
+
+#if NRFX_CHECK(NRFX_SPIM_ENABLED)
+    return true; // We always use DMA when the SPIM preripheral is available
+#else
+    return false; // We always use interrupts when the SPI peripheral is available
+#endif
 }
 
 /** The asynchronous IRQ handler

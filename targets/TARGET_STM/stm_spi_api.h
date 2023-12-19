@@ -36,6 +36,7 @@ struct spi_s {
 #if DEVICE_SPI_ASYNCH
     uint32_t event;
     uint8_t transfer_type;
+    bool curr_transfer_uses_dma;
 
     // Callback function for when we get an interrupt on an async transfer.
     // This will point, through a bit of indirection, to SPI::irq_handler_asynch()

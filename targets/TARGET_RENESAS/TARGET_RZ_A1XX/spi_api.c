@@ -518,7 +518,7 @@ static void spi_async_read(spi_t *obj)
  * ASYNCHRONOUS HAL
  ******************************************************************************/
 
-void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
+bool spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     int i;
     MBED_ASSERT(obj);
@@ -556,6 +556,8 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     spi_irqs_set(obj, 1);
     
     spi_async_write(obj);
+
+    return false; // Currently we always use interrupts, not DMA
 }
 
 uint32_t spi_irq_handler_asynch(spi_t *obj)

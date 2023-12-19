@@ -1116,8 +1116,10 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
 *       * ALWAYS: use DMA if channels are available, and hold on to the channels after the transfer.
 *                 If the previous transfer has kept the channel, that channel will continue to get used.
 *
+*  Returns true if DMA was used, false otherwise.
+*
 ********************************************************************/
-void spi_master_transfer_dma(spi_t *obj, const void *txdata, void *rxdata, int tx_length, int rx_length, void* cb, DMAUsage hint)
+bool spi_master_transfer_dma(spi_t *obj, const void *txdata, void *rxdata, int tx_length, int rx_length, void* cb, DMAUsage hint)
 {
     /* Init DMA here to include it in the power figure */
     dma_init();
@@ -1128,11 +1130,13 @@ void spi_master_transfer_dma(spi_t *obj, const void *txdata, void *rxdata, int t
     if (hint != DMA_USAGE_NEVER && obj->spi.dmaOptionsTX.dmaUsageState == DMA_USAGE_ALLOCATED) {
         /* setup has already been done, so just activate the transfer */
         spi_activate_dma(obj, rxdata, txdata, tx_length, rx_length);
+        return true;
     } else if (hint == DMA_USAGE_NEVER) {
         /* use IRQ */
         obj->spi.spi->IFC = 0xFFFFFFFF;
         spi_master_write_asynch(obj);
         spi_enable_interrupt(obj, (uint32_t)cb, true);
+        return false;
     } else {
         /* try to acquire channels */
         dma_init();
@@ -1147,11 +1151,13 @@ void spi_master_transfer_dma(spi_t *obj, const void *txdata, void *rxdata, int t
             spi_master_dma_channel_setup(obj, cb);
             /* and activate the transfer */
             spi_activate_dma(obj, rxdata, txdata, tx_length, rx_length);
+            return true;
         } else {
             /* DMA is unavailable, so fall back to IRQ */
             obj->spi.spi->IFC = 0xFFFFFFFF;
             spi_master_write_asynch(obj);
             spi_enable_interrupt(obj, (uint32_t)cb, true);
+            return false;
         }
     }
 }
@@ -1167,8 +1173,11 @@ void spi_master_transfer_dma(spi_t *obj, const void *txdata, void *rxdata, int t
  * @param[in] event     The logical OR of events to be registered
  * @param[in] handler   SPI interrupt handler
  * @param[in] hint      A suggestion for how to use DMA with this transfer
+ *
+ * @return True if DMA was actually used for the transfer, false otherwise (if interrupts or another CPU-based
+ * method is used to do the transfer).
  */
-void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
+bool spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     if( spi_active(obj) ) return;
 
@@ -1190,7 +1199,7 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     spi_enable_event(obj, event, true);
 
     /* And kick off the transfer */
-    spi_master_transfer_dma(obj, tx, rx, tx_length, rx_length, (void*)handler, hint);
+    return spi_master_transfer_dma(obj, tx, rx, tx_length, rx_length, (void*)handler, hint);
 }
 
 

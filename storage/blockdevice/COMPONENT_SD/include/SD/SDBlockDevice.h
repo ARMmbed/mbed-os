@@ -57,6 +57,10 @@
  * Access an SD Card using SPI bus
  */
 class SDBlockDevice : public mbed::BlockDevice {
+
+    // Only HC block size is supported. Making this a static constant reduces code size.
+    static constexpr uint32_t _block_size = 512; /*!< Block size supported for SDHC card is 512 bytes  */
+
 public:
     /** Creates an SDBlockDevice on a SPI bus specified by pins (using dynamic pin-map)
      *
@@ -302,7 +306,6 @@ private:
     }
 
     rtos::Mutex _mutex;
-    static const uint32_t _block_size;
     uint32_t _erase_size;
     bool _is_initialized;
     bool _dbg;
@@ -314,6 +317,7 @@ private:
 
 #if DEVICE_SPI_ASYNCH
     bool _async_spi_enabled = false;
+    mbed::StaticCacheAlignedBuffer<uint8_t, _block_size> _async_data_buffer;
 #endif
 };
 

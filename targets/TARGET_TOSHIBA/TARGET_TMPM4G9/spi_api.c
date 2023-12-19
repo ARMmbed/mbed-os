@@ -484,7 +484,7 @@ const PinMap *spi_slave_cs_pinmap()
 
 #ifdef DEVICE_SPI_ASYNCH
 
-void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
+bool spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     struct spi_s *obj_s = SPI_S(obj);
     tspi_t *p_obj = &(obj_s->p_obj);
@@ -535,6 +535,8 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
         NVIC_EnableIRQ(obj_s->rxirqn);
     }
     NVIC_EnableIRQ(obj_s->errirqn);
+
+    return false; // Currently we always use interrupts, not DMA
 }
 
 uint32_t spi_irq_handler_asynch(spi_t *obj)

@@ -2,6 +2,7 @@
  *******************************************************************************
  * (C)Copyright TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2017 All rights reserved
  * All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -409,7 +410,7 @@ const PinMap *spi_slave_cs_pinmap()
 
 #ifdef DEVICE_SPI_ASYNCH
 
-void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width,
+bool spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width,
                          uint32_t handler, uint32_t event, DMAUsage hint)
 {
     struct spi_s *obj_s = SPI_S(obj);
@@ -455,6 +456,8 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
 
     SSP_Enable(spi);
     NVIC_EnableIRQ(obj_s->irqn);
+
+    return false; // Currently we always use interrupts, not DMA
 }
 
 uint32_t spi_irq_handler_asynch(spi_t *obj)

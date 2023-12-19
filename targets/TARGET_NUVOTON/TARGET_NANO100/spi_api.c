@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2015-2017 Nuvoton
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -434,7 +435,7 @@ void spi_slave_write(spi_t *obj, int value)
 #endif
 
 #if DEVICE_SPI_ASYNCH
-void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
+bool spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     SPI_SET_DATA_WIDTH(spi_base, bit_width);
@@ -549,6 +550,8 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
         PDMA_Trigger(obj->spi.dma_chn_id_rx);
         PDMA_Trigger(obj->spi.dma_chn_id_tx);
     }
+
+    return obj->spi.dma_usage != DMA_USAGE_NEVER;
 }
 
 /**

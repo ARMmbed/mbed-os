@@ -181,7 +181,6 @@ using namespace std::chrono;
 #define SD_BLOCK_DEVICE_ERROR_ERASE              -5010  /*!< Erase error: reset/sequence */
 #define SD_BLOCK_DEVICE_ERROR_WRITE              -5011  /*!< SPI Write error: !SPI_DATA_ACCEPTED */
 
-#define BLOCK_SIZE_HC                            512    /*!< Block size supported for SD card is 512 bytes  */
 #define WRITE_BL_PARTIAL                         0      /*!< Partial block write - Not supported */
 #define SPI_CMD(x) (0x40 | (x & 0x3f))
 
@@ -248,9 +247,6 @@ using namespace std::chrono;
 #define SPI_READ_ERROR_ECC_C     (0x1 << 2)  /*!< Card ECC failed */
 #define SPI_READ_ERROR_OFR       (0x1 << 3)  /*!< Out of Range */
 
-// Only HC block size is supported. Making this a static constant reduces code size.
-const uint32_t SDBlockDevice::_block_size = BLOCK_SIZE_HC;
-
 #if MBED_CONF_SD_CRC_ENABLED
 SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs, uint64_t hz, bool crc_on)
     : _sectors(0), _spi(mosi, miso, sclk, cs, use_gpio_ssel), _is_initialized(0),
@@ -269,7 +265,7 @@ SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName c
     _init_sck = MBED_CONF_SD_INIT_FREQUENCY;
     _transfer_sck = hz;
 
-    _erase_size = BLOCK_SIZE_HC;
+    _erase_size = _block_size;
 }
 
 #if MBED_CONF_SD_CRC_ENABLED
@@ -290,7 +286,7 @@ SDBlockDevice::SDBlockDevice(const spi_pinmap_t &spi_pinmap, PinName cs, uint64_
     _init_sck = MBED_CONF_SD_INIT_FREQUENCY;
     _transfer_sck = hz;
 
-    _erase_size = BLOCK_SIZE_HC;
+    _erase_size = _block_size;
 }
 
 SDBlockDevice::~SDBlockDevice()
@@ -925,7 +921,15 @@ int SDBlockDevice::_read_bytes(uint8_t *buffer, uint32_t length)
     // read data
 #if DEVICE_SPI_ASYNCH
     if (_async_spi_enabled) {
-        _spi.transfer_and_wait(nullptr, 0, buffer, length);
+        if (length > _async_data_buffer.capacity()) {
+            return SD_BLOCK_DEVICE_ERROR_PARAMETER;
+        }
+
+        // Do read into cache aligned buffer, then copy data into application buffer
+        if (_spi.transfer_and_wait(nullptr, 0, _async_data_buffer, length) != 0) {
+            return SD_BLOCK_DEVICE_ERROR_WRITE;
+        }
+        memcpy(buffer, _async_data_buffer.data(), length);
     } else
 #endif
     {
@@ -968,9 +972,15 @@ int SDBlockDevice::_read(uint8_t *buffer, uint32_t length)
     // read data
 #if DEVICE_SPI_ASYNCH
     if (_async_spi_enabled) {
-        if (_spi.transfer_and_wait(nullptr, 0, buffer, length) != 0) {
+        if (length > _async_data_buffer.capacity()) {
+            return SD_BLOCK_DEVICE_ERROR_PARAMETER;
+        }
+
+        // Do read into cache aligned buffer, then copy data into application buffer
+        if (_spi.transfer_and_wait(nullptr, 0, _async_data_buffer, length) != 0) {
             return SD_BLOCK_DEVICE_ERROR_WRITE;
         }
+        memcpy(buffer, _async_data_buffer.data(), length);
     } else
 #endif
     {
@@ -1067,7 +1077,13 @@ bd_size_t SDBlockDevice::_sd_sectors()
         debug_if(SD_DBG, "Didn't get a response from the disk\n");
         return 0;
     }
+#ifdef DEVICE_SPI_ASYNCH
+    StaticCacheAlignedBuffer<uint8_t, 16> csd_buffer;
+    uint8_t *csd = csd_buffer.data();
+#else
     uint8_t csd[16];
+#endif
+
     if (_read_bytes(csd, 16) != 0) {
         debug_if(SD_DBG, "Couldn't read csd response from disk\n");
         return 0;
@@ -1091,10 +1107,10 @@ bd_size_t SDBlockDevice::_sd_sectors()
 
             // ERASE_BLK_EN = 1: Erase in multiple of 512 bytes supported
             if (ext_bits(csd, 46, 46)) {
-                _erase_size = BLOCK_SIZE_HC;
+                _erase_size = _block_size;
             } else {
                 // ERASE_BLK_EN = 1: Erase in multiple of SECTOR_SIZE supported
-                _erase_size = BLOCK_SIZE_HC * (ext_bits(csd, 45, 39) + 1);
+                _erase_size = _block_size * (ext_bits(csd, 45, 39) + 1);
             }
             break;
 
@@ -1105,7 +1121,7 @@ bd_size_t SDBlockDevice::_sd_sectors()
             debug_if(SD_DBG, "Sectors: 0x%" PRIx64 "x : %" PRIu64 "\n", blocks, blocks);
             debug_if(SD_DBG, "Capacity: %" PRIu64 " MB\n", (blocks / (2048U)));
             // ERASE_BLK_EN is fixed to 1, which means host can erase one or multiple of 512 bytes.
-            _erase_size = BLOCK_SIZE_HC;
+            _erase_size = _block_size;
             break;
 
         default:

@@ -358,7 +358,7 @@ static void spi_buffer_set(spi_t *obj, const void *tx, uint32_t tx_length, void 
     obj->rx_buff.width = bit_width;
 }
 
-void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
+bool spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     if (spi_active(obj)) {
         return;
@@ -400,6 +400,8 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
         // Can't enter deep sleep as long as SPI transfer is active
         sleep_manager_lock_deep_sleep();
     }
+
+    return hint != DMA_USAGE_NEVER; // DMA will be used as long as the hint is not NEVER
 }
 
 uint32_t spi_irq_handler_asynch(spi_t *obj)

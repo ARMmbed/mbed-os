@@ -396,6 +396,16 @@ void SPI::abort_transfer()
             _set_ssel(1);
         }
 
+#if __DCACHE_PRESENT
+        if (_transfer_in_progress_uses_dma && _transfer_in_progress_rx_len > 0) {
+            // If the cache is present, invalidate the Rx data so it's loaded from main RAM.
+            // We only want to do this if DMA actually got used for the transfer because, if interrupts
+            // were used instead, the cache might have the correct data and NOT the main memory.
+            SCB_InvalidateDCache_by_Addr(_transfer_in_progress_rx_buffer, _transfer_in_progress_rx_len);
+        }
+#endif
+        _transfer_in_progress = false;
+
 #if MBED_CONF_DRIVERS_SPI_TRANSACTION_QUEUE_LEN
         dequeue_transaction();
 #endif
@@ -466,8 +476,31 @@ void SPI::start_transfer(const void *tx_buffer, int tx_length, void *rx_buffer, 
 
     _callback = callback;
     _irq.callback(&SPI::irq_handler_asynch);
+
+#if __DCACHE_PRESENT
+    // On devices with a cache, we need to carefully manage the Tx and Rx buffer cache invalidation.
+    // We can assume that asynchronous SPI implementations might rely on DMA, and that DMA will
+    // not interoperate with the CPU cache.  So, manual flushing/invalidation will be required.
+    // This page is very useful for how to do this correctly:
+    // https://community.st.com/t5/stm32-mcus-products/maintaining-cpu-data-cache-coherence-for-dma-buffers/td-p/95746
+    if (tx_length > 0) {
+        // For chips with a cache, we need to evict the Tx data from cache to main memory.
+        // This ensures that the DMA controller can see the most up-to-date copy of the data.
+        SCB_CleanDCache_by_Addr(const_cast<void *>(tx_buffer), tx_length);
+    }
+
+    // Additionally, we have to make sure that there aren't any pending changes which could be written back
+    // to the Rx buffer memory by the cache at a later date, corrupting the DMA results.
+    if (rx_length > 0) {
+        SCB_InvalidateDCache_by_Addr(rx_buffer, rx_length);
+    }
+    _transfer_in_progress_rx_buffer = rx_buffer;
+    _transfer_in_progress_rx_len = rx_length;
+#endif
+
     _transfer_in_progress = true;
-    spi_master_transfer(&_peripheral->spi, tx_buffer, tx_length, rx_buffer, rx_length, bit_width, _irq.entry(), event, _usage);
+
+    _transfer_in_progress_uses_dma = spi_master_transfer(&_peripheral->spi, tx_buffer, tx_length, rx_buffer, rx_length, bit_width, _irq.entry(), event, _usage);
 }
 
 void SPI::lock_deep_sleep()
@@ -508,7 +541,17 @@ void SPI::dequeue_transaction()
 void SPI::irq_handler_asynch(void)
 {
     int event = spi_irq_handler_asynch(&_peripheral->spi);
-    if (_callback && (event & SPI_EVENT_ALL)) {
+    if ((event & SPI_EVENT_ALL)) {
+
+#if __DCACHE_PRESENT
+        if (_transfer_in_progress_uses_dma && _transfer_in_progress_rx_len > 0) {
+            // If the cache is present, invalidate the Rx data so it's loaded from main RAM.
+            // We only want to do this if DMA actually got used for the transfer because, if interrupts
+            // were used instead, the cache might have the correct data and NOT the main memory.
+            SCB_InvalidateDCache_by_Addr(_transfer_in_progress_rx_buffer, _transfer_in_progress_rx_len);
+        }
+#endif
+
         // If using GPIO CS mode, unless we were asked to keep the peripheral selected, deselect it.
         // If there's another transfer queued, we *do* want to deselect the peripheral now.
         // It will be reselected in start_transfer() which is called by dequeue_transaction() below.
@@ -518,7 +561,10 @@ void SPI::irq_handler_asynch(void)
         _transfer_in_progress = false;
 
         unlock_deep_sleep();
-        _callback.call(event & SPI_EVENT_ALL);
+
+        if (_callback) {
+            _callback.call(event & SPI_EVENT_ALL);
+        }
     }
 #if MBED_CONF_DRIVERS_SPI_TRANSACTION_QUEUE_LEN
     if (event & (SPI_EVENT_ALL | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE)) {

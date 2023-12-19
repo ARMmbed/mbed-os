@@ -72,14 +72,30 @@ def has_spdx_text_in_scancode_output(scancode_output_data_file_licenses):
     )
 
 
+SPDX_LICENSE_REGEX = re.compile(r"SPDX-License-Identifier: *(\S+)")
+
+
 def has_spdx_text_in_analysed_file(scanned_file_content):
     """Returns true if the file analysed by ScanCode contains SPDX identifier."""
-    return bool(re.findall("SPDX-License-Identifier:?", scanned_file_content))
+    return bool(SPDX_LICENSE_REGEX.findall(scanned_file_content))
 
-
-def has_binary_license(scanned_file_content):
-    """Returns true if the file analysed by ScanCode contains a Permissive Binary License."""
-    return bool(re.findall("Permissive Binary License", scanned_file_content))
+def has_exempted_spdx_identifier(scanned_file_content):
+    """
+    Returns true if the file analysed by scancode contains an exempted SPDX identifier.
+    (this is used for licenses like Nordic BSD which are not technically permissive licenses according
+    to SPDX but which are still OK for us)
+    """
+    spdx_find_result = SPDX_LICENSE_REGEX.findall(scanned_file_content)
+    if len(spdx_find_result) == 1:
+        if spdx_find_result[0] == "LicenseRef-Nordic-5-Clause":
+            return True
+        if spdx_find_result[0] == "LicenseRef-PBL":
+            return True
+        else:
+            return False
+    else:
+        # Either 0 or multiple matches, ignore
+        return False
 
 
 def get_file_text(scancode_output_data_file):
@@ -94,6 +110,7 @@ def get_file_text(scancode_output_data_file):
     except UnicodeDecodeError:
         userlog.warning("Unable to decode file text in: %s" % file_path)
         # Ignore files that cannot be decoded
+        return None
 
 
 def license_check(scancode_output_path):
@@ -135,7 +152,10 @@ def license_check(scancode_output_path):
 
         if not has_permissive_text_in_scancode_output(scancode_output_data_file['licenses']):
             scanned_file_content = get_file_text(scancode_output_data_file)
-            if not (scanned_file_content and has_binary_license(scanned_file_content)):
+            if (scanned_file_content is None
+                or has_exempted_spdx_identifier(scanned_file_content)):
+                continue
+            else:
                 scancode_output_data_file['fail_reason'] = MISSING_PERMISSIVE_LICENSE_TEXT
                 license_offenders.append(scancode_output_data_file)
 
