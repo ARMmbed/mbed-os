@@ -230,6 +230,7 @@ protected:
     uint8_t _rx_buffer[CDC_MAX_PACKET_SIZE];
     uint8_t *_rx_buf;
     uint32_t _rx_size;
+    bool _trans_zlp;
 };
 
 /** @}*/
