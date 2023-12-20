@@ -6,13 +6,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2016 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -1288,7 +1287,6 @@ __STATIC_INLINE uint32_t LL_DAC_RetrieveOutputData(DAC_TypeDef *DACx, uint32_t D
   * @{
   */
 
-
 /**
   * @brief  Get DAC underrun flag for DAC channel 1
   * @rmtoll SR       DMAUDR1        LL_DAC_IsActiveFlag_DMAUDR1
@@ -1455,4 +1453,3 @@ void        LL_DAC_StructInit(LL_DAC_InitTypeDef *DAC_InitStruct);
 
 #endif /* STM32F4xx_LL_DAC_H */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

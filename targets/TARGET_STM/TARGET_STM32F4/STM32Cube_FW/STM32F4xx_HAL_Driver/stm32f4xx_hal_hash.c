@@ -12,6 +12,17 @@
   *           + Peripheral State methods
   *           + HASH or HMAC processing suspension/resumption
   *
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2016 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
   @verbatim
  ===============================================================================
                      ##### How to use this driver #####
@@ -147,9 +158,9 @@
      [..]
       (#) The compilation define  USE_HAL_HASH_REGISTER_CALLBACKS when set to 1
           allows the user to configure dynamically the driver callbacks.
-          Use function @ref HAL_HASH_RegisterCallback() to register a user callback.
+          Use function HAL_HASH_RegisterCallback() to register a user callback.
 
-      (#) Function @ref HAL_HASH_RegisterCallback() allows to register following callbacks:
+      (#) Function HAL_HASH_RegisterCallback() allows to register following callbacks:
             (+) InCpltCallback    : callback for input completion.
             (+) DgstCpltCallback  : callback for digest computation completion.
             (+) ErrorCallback     : callback for error.
@@ -158,9 +169,9 @@
           This function takes as parameters the HAL peripheral handle, the Callback ID
           and a pointer to the user callback function.
 
-      (#) Use function @ref HAL_HASH_UnRegisterCallback() to reset a callback to the default
+      (#) Use function HAL_HASH_UnRegisterCallback() to reset a callback to the default
           weak (surcharged) function.
-          @ref HAL_HASH_UnRegisterCallback() takes as parameters the HAL peripheral handle,
+          HAL_HASH_UnRegisterCallback() takes as parameters the HAL peripheral handle,
           and the Callback ID.
           This function allows to reset following callbacks:
             (+) InCpltCallback    : callback for input completion.
@@ -169,13 +180,13 @@
             (+) MspInitCallback   : HASH MspInit.
             (+) MspDeInitCallback : HASH MspDeInit.
 
-      (#) By default, after the @ref HAL_HASH_Init and if the state is HAL_HASH_STATE_RESET
+      (#) By default, after the HAL_HASH_Init and if the state is HAL_HASH_STATE_RESET
           all callbacks are reset to the corresponding legacy weak (surcharged) functions:
-          examples @ref HAL_HASH_InCpltCallback(), @ref HAL_HASH_DgstCpltCallback()
+          examples HAL_HASH_InCpltCallback(), HAL_HASH_DgstCpltCallback()
           Exception done for MspInit and MspDeInit callbacks that are respectively
-          reset to the legacy weak (surcharged) functions in the @ref HAL_HASH_Init
-          and @ref HAL_HASH_DeInit only when these callbacks are null (not registered beforehand)
-          If not, MspInit or MspDeInit are not null, the @ref HAL_HASH_Init and @ref HAL_HASH_DeInit
+          reset to the legacy weak (surcharged) functions in the HAL_HASH_Init
+          and HAL_HASH_DeInit only when these callbacks are null (not registered beforehand)
+          If not, MspInit or MspDeInit are not null, the HAL_HASH_Init and HAL_HASH_DeInit
           keep and use the user MspInit/MspDeInit callbacks (registered beforehand).
 
           Callbacks can be registered/unregistered in READY state only.
@@ -183,25 +194,14 @@
           in READY or RESET state, thus registered (user) MspInit/DeInit callbacks can be used
           during the Init/DeInit.
           In that case first register the MspInit/MspDeInit user callbacks
-          using @ref HAL_HASH_RegisterCallback before calling @ref HAL_HASH_DeInit
-          or @ref HAL_HASH_Init function.
+          using HAL_HASH_RegisterCallback before calling HAL_HASH_DeInit
+          or HAL_HASH_Init function.
 
           When The compilation define USE_HAL_HASH_REGISTER_CALLBACKS is set to 0 or
           not defined, the callback registering feature is not available
           and weak (surcharged) callbacks are used.
 
   @endverbatim
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
   ******************************************************************************
   */
 
@@ -1769,8 +1769,6 @@ static void HASH_DMAXferCplt(DMA_HandleTypeDef *hdma)
                                 (((buffersize % 4U) != 0U) ? ((buffersize + (4U - (buffersize % 4U))) / 4U) : \
                                  (buffersize / 4U)));
 
-
-
       /* Enable DMA requests */
       SET_BIT(HASH->CR, HASH_CR_DMAE);
 
@@ -2909,8 +2907,8 @@ HAL_StatusTypeDef HASH_Start_IT(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, u
            Update HashInCount and pHashInBuffPtr accordingly. */
         hhash->HashInCount = SizeVar;
         hhash->pHashInBuffPtr = (uint8_t *)inputaddr;
-        __HAL_HASH_SET_NBVALIDBITS(
-          SizeVar);  /* Update the configuration of the number of valid bits in last word of the message */
+        /* Update the configuration of the number of valid bits in last word of the message */
+        __HAL_HASH_SET_NBVALIDBITS(SizeVar);
         hhash->pHashOutBuffPtr = pOutBuffer;  /* Points at the computed digest */
         if (initialization_skipped == 1U)
         {
@@ -2978,11 +2976,11 @@ HAL_StatusTypeDef HASH_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, 
   HAL_StatusTypeDef status ;
   HAL_HASH_StateTypeDef State_tmp = hhash->State;
 
-  #if defined (HASH_CR_MDMAT)
+#if defined (HASH_CR_MDMAT)
   /* Make sure the input buffer size (in bytes) is a multiple of 4 when MDMAT bit is set
      (case of multi-buffer HASH processing) */
   assert_param(IS_HASH_DMA_MULTIBUFFER_SIZE(Size));
-  #endif /* MDMA defined*/
+#endif /* MDMA defined*/
   /* If State is ready or suspended, start or resume polling-based HASH processing */
   if ((State_tmp == HAL_HASH_STATE_READY) || (State_tmp == HAL_HASH_STATE_SUSPENDED))
   {
@@ -3478,6 +3476,7 @@ HAL_StatusTypeDef HMAC_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, 
     status = HAL_DMA_Start_IT(hhash->hdmain, inputaddr, (uint32_t)&HASH->DIN,  \
                               (((inputSize % 4U) != 0U) ? ((inputSize + (4U - (inputSize % 4U))) / 4U) \
                               : (inputSize / 4U)));
+
     /* Enable DMA requests */
     SET_BIT(HASH->CR, HASH_CR_DMAE);
 
@@ -3513,6 +3512,3 @@ HAL_StatusTypeDef HMAC_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, 
   * @}
   */
 
-
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

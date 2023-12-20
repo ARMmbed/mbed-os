@@ -9,6 +9,18 @@
   *           + IO operation functions
   *           + Peripheral Control functions
   *           + Peripheral State and Errors functions
+  *
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2016 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
   @verbatim
   ==============================================================================
                         ##### How to use this driver #####
@@ -111,8 +123,8 @@
       allows the user to configure dynamically the driver callbacks.
 
     [..]
-      Use Function @ref HAL_IRDA_RegisterCallback() to register a user callback.
-      Function @ref HAL_IRDA_RegisterCallback() allows to register following callbacks:
+      Use Function HAL_IRDA_RegisterCallback() to register a user callback.
+      Function HAL_IRDA_RegisterCallback() allows to register following callbacks:
        (+) TxHalfCpltCallback        : Tx Half Complete Callback.
        (+) TxCpltCallback            : Tx Complete Callback.
        (+) RxHalfCpltCallback        : Rx Half Complete Callback.
@@ -127,9 +139,9 @@
       and a pointer to the user callback function.
 
     [..]
-      Use function @ref HAL_IRDA_UnRegisterCallback() to reset a callback to the default
+      Use function HAL_IRDA_UnRegisterCallback() to reset a callback to the default
       weak (surcharged) function.
-      @ref HAL_IRDA_UnRegisterCallback() takes as parameters the HAL peripheral handle,
+      HAL_IRDA_UnRegisterCallback() takes as parameters the HAL peripheral handle,
       and the Callback ID.
       This function allows to reset following callbacks:
        (+) TxHalfCpltCallback        : Tx Half Complete Callback.
@@ -144,13 +156,13 @@
        (+) MspDeInitCallback         : IRDA MspDeInit.
 
     [..]
-      By default, after the @ref HAL_IRDA_Init() and when the state is HAL_IRDA_STATE_RESET
+      By default, after the HAL_IRDA_Init() and when the state is HAL_IRDA_STATE_RESET
       all callbacks are set to the corresponding weak (surcharged) functions:
-      examples @ref HAL_IRDA_TxCpltCallback(), @ref HAL_IRDA_RxHalfCpltCallback().
+      examples HAL_IRDA_TxCpltCallback(), HAL_IRDA_RxHalfCpltCallback().
       Exception done for MspInit and MspDeInit functions that are respectively
-      reset to the legacy weak (surcharged) functions in the @ref HAL_IRDA_Init()
-      and @ref HAL_IRDA_DeInit() only when these callbacks are null (not registered beforehand).
-      If not, MspInit or MspDeInit are not null, the @ref HAL_IRDA_Init() and @ref HAL_IRDA_DeInit()
+      reset to the legacy weak (surcharged) functions in the HAL_IRDA_Init()
+      and HAL_IRDA_DeInit() only when these callbacks are null (not registered beforehand).
+      If not, MspInit or MspDeInit are not null, the HAL_IRDA_Init() and HAL_IRDA_DeInit()
       keep and use the user MspInit/MspDeInit callbacks (registered beforehand).
 
     [..]
@@ -159,8 +171,8 @@
       in HAL_IRDA_STATE_READY or HAL_IRDA_STATE_RESET state, thus registered (user)
       MspInit/DeInit callbacks can be used during the Init/DeInit.
       In that case first register the MspInit/MspDeInit user callbacks
-      using @ref HAL_IRDA_RegisterCallback() before calling @ref HAL_IRDA_DeInit()
-      or @ref HAL_IRDA_Init() function.
+      using HAL_IRDA_RegisterCallback() before calling HAL_IRDA_DeInit()
+      or HAL_IRDA_Init() function.
 
     [..]
       When The compilation define USE_HAL_IRDA_REGISTER_CALLBACKS is set to 0 or
@@ -169,7 +181,7 @@
 
   @endverbatim
      [..]
-       (@) Additionnal remark: If the parity is enabled, then the MSB bit of the data written
+       (@) Additional remark: If the parity is enabled, then the MSB bit of the data written
            in the data register is transmitted but is changed by the parity bit.
            Depending on the frame length defined by the M bit (8-bits or 9-bits),
            the possible IRDA frame formats are as listed in the following table:
@@ -184,17 +196,6 @@
     |---------|-----------|---------------------------------------|
     |    1    |    1      |    | SB | 8 bit data | PB | 1 STB |   |
     +-------------------------------------------------------------+
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
   ******************************************************************************
   */
 
@@ -767,9 +768,9 @@ HAL_StatusTypeDef HAL_IRDA_UnRegisterCallback(IRDA_HandleTypeDef *hirda, HAL_IRD
   * @param Timeout Specify timeout value.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_IRDA_Transmit(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size, uint32_t Timeout)
+HAL_StatusTypeDef HAL_IRDA_Transmit(IRDA_HandleTypeDef *hirda, const uint8_t *pData, uint16_t Size, uint32_t Timeout)
 {
-  uint16_t *tmp;
+  const uint16_t *tmp;
   uint32_t tickstart = 0U;
 
   /* Check that a Tx process is not already ongoing */
@@ -786,7 +787,7 @@ HAL_StatusTypeDef HAL_IRDA_Transmit(IRDA_HandleTypeDef *hirda, uint8_t *pData, u
     hirda->ErrorCode = HAL_IRDA_ERROR_NONE;
     hirda->gState = HAL_IRDA_STATE_BUSY_TX;
 
-    /* Init tickstart for timeout managment*/
+    /* Init tickstart for timeout management*/
     tickstart = HAL_GetTick();
 
     hirda->TxXferSize = Size;
@@ -800,7 +801,7 @@ HAL_StatusTypeDef HAL_IRDA_Transmit(IRDA_HandleTypeDef *hirda, uint8_t *pData, u
         {
           return HAL_TIMEOUT;
         }
-        tmp = (uint16_t *) pData;
+        tmp = (const uint16_t *) pData;
         hirda->Instance->DR = (*tmp & (uint16_t)0x01FF);
         if (hirda->Init.Parity == IRDA_PARITY_NONE)
         {
@@ -871,7 +872,7 @@ HAL_StatusTypeDef HAL_IRDA_Receive(IRDA_HandleTypeDef *hirda, uint8_t *pData, ui
     hirda->ErrorCode = HAL_IRDA_ERROR_NONE;
     hirda->RxState = HAL_IRDA_STATE_BUSY_RX;
 
-    /* Init tickstart for timeout managment*/
+    /* Init tickstart for timeout management*/
     tickstart = HAL_GetTick();
 
     hirda->RxXferSize = Size;
@@ -942,7 +943,7 @@ HAL_StatusTypeDef HAL_IRDA_Receive(IRDA_HandleTypeDef *hirda, uint8_t *pData, ui
   * @param Size  Amount of data elements (u8 or u16) to be sent.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_IRDA_Transmit_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size)
+HAL_StatusTypeDef HAL_IRDA_Transmit_IT(IRDA_HandleTypeDef *hirda, const uint8_t *pData, uint16_t Size)
 {
   /* Check that a Tx process is not already ongoing */
   if (hirda->gState == HAL_IRDA_STATE_READY)
@@ -1010,8 +1011,16 @@ HAL_StatusTypeDef HAL_IRDA_Receive_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData,
     /* Process Unlocked */
     __HAL_UNLOCK(hirda);
 
-    /* Enable the IRDA Parity Error and Data Register Not Empty Interrupts */
-    SET_BIT(hirda->Instance->CR1, USART_CR1_PEIE | USART_CR1_RXNEIE);
+    if (hirda->Init.Parity != IRDA_PARITY_NONE)
+    {
+      /* Enable the IRDA Parity Error and Data Register Not Empty Interrupts */
+      SET_BIT(hirda->Instance->CR1, USART_CR1_PEIE | USART_CR1_RXNEIE);
+    }
+    else
+    {
+      /* Enable the IRDA Data Register Not Empty Interrupts */
+       SET_BIT(hirda->Instance->CR1, USART_CR1_RXNEIE); 
+    }
 
     /* Enable the IRDA Error Interrupt: (Frame error, Noise error, Overrun error) */
     SET_BIT(hirda->Instance->CR3, USART_CR3_EIE);
@@ -1035,9 +1044,9 @@ HAL_StatusTypeDef HAL_IRDA_Receive_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData,
   * @param Size  Amount of data elements (u8 or u16) to be sent.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_IRDA_Transmit_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size)
+HAL_StatusTypeDef HAL_IRDA_Transmit_DMA(IRDA_HandleTypeDef *hirda, const uint8_t *pData, uint16_t Size)
 {
-  uint32_t *tmp;
+  const uint32_t *tmp;
 
   /* Check that a Tx process is not already ongoing */
   if (hirda->gState == HAL_IRDA_STATE_READY)
@@ -1070,8 +1079,8 @@ HAL_StatusTypeDef HAL_IRDA_Transmit_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pDat
     hirda->hdmatx->XferAbortCallback = NULL;
 
     /* Enable the IRDA transmit DMA stream */
-    tmp = (uint32_t *)&pData;
-    HAL_DMA_Start_IT(hirda->hdmatx, *(uint32_t *)tmp, (uint32_t)&hirda->Instance->DR, Size);
+    tmp = (const uint32_t *)&pData;
+    HAL_DMA_Start_IT(hirda->hdmatx, *(const uint32_t *)tmp, (uint32_t)&hirda->Instance->DR, Size);
 
     /* Clear the TC flag in the SR register by writing 0 to it */
     __HAL_IRDA_CLEAR_FLAG(hirda, IRDA_FLAG_TC);
@@ -1146,8 +1155,11 @@ HAL_StatusTypeDef HAL_IRDA_Receive_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pData
     /* Process Unlocked */
     __HAL_UNLOCK(hirda);
 
-    /* Enable the IRDA Parity Error Interrupt */
-    SET_BIT(hirda->Instance->CR1, USART_CR1_PEIE);
+    if (hirda->Init.Parity != IRDA_PARITY_NONE)
+    {
+      /* Enable the IRDA Parity Error Interrupt */
+      SET_BIT(hirda->Instance->CR1, USART_CR1_PEIE);
+    }
 
     /* Enable the IRDA Error Interrupt: (Frame error, Noise error, Overrun error) */
     SET_BIT(hirda->Instance->CR3, USART_CR3_EIE);
@@ -1223,8 +1235,11 @@ HAL_StatusTypeDef HAL_IRDA_DMAResume(IRDA_HandleTypeDef *hirda)
     /* Clear the Overrun flag before resuming the Rx transfer */
     __HAL_IRDA_CLEAR_OREFLAG(hirda);
 
-    /* Reenable PE and ERR (Frame error, noise error, overrun error) interrupts */
-    SET_BIT(hirda->Instance->CR1, USART_CR1_PEIE);
+    /* Re-enable PE and ERR (Frame error, noise error, overrun error) interrupts */
+    if (hirda->Init.Parity != IRDA_PARITY_NONE)
+    {    
+      SET_BIT(hirda->Instance->CR1, USART_CR1_PEIE);
+    }
     SET_BIT(hirda->Instance->CR3, USART_CR3_EIE);
 
     /* Enable the IRDA DMA Rx request */
@@ -2015,7 +2030,7 @@ __weak void HAL_IRDA_AbortReceiveCpltCallback(IRDA_HandleTypeDef *hirda)
   *                the configuration information for the specified IRDA.
   * @retval HAL state
   */
-HAL_IRDA_StateTypeDef HAL_IRDA_GetState(IRDA_HandleTypeDef *hirda)
+HAL_IRDA_StateTypeDef HAL_IRDA_GetState(const IRDA_HandleTypeDef *hirda)
 {
   uint32_t temp1 = 0x00U, temp2 = 0x00U;
   temp1 = hirda->gState;
@@ -2030,7 +2045,7 @@ HAL_IRDA_StateTypeDef HAL_IRDA_GetState(IRDA_HandleTypeDef *hirda)
   *              the configuration information for the specified IRDA.
   * @retval IRDA Error Code
   */
-uint32_t HAL_IRDA_GetError(IRDA_HandleTypeDef *hirda)
+uint32_t HAL_IRDA_GetError(const IRDA_HandleTypeDef *hirda)
 {
   return hirda->ErrorCode;
 }
@@ -2215,11 +2230,12 @@ static void IRDA_DMAError(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief  This function handles IRDA Communication Timeout.
+  * @brief  This function handles IRDA Communication Timeout. It waits
+  *         until a flag is no longer in the specified status.
   * @param  hirda  Pointer to a IRDA_HandleTypeDef structure that contains
   *                the configuration information for the specified IRDA.
   * @param  Flag specifies the IRDA flag to check.
-  * @param  Status The new Flag status (SET or RESET).
+  * @param  Status The actual Flag status (SET or RESET).
   * @param  Tickstart Tick start value
   * @param  Timeout Timeout duration
   * @retval HAL status
@@ -2451,14 +2467,14 @@ static void IRDA_DMARxOnlyAbortCallback(DMA_HandleTypeDef *hdma)
  */
 static HAL_StatusTypeDef IRDA_Transmit_IT(IRDA_HandleTypeDef *hirda)
 {
-  uint16_t *tmp;
+  const uint16_t *tmp;
 
   /* Check that a Tx process is ongoing */
   if (hirda->gState == HAL_IRDA_STATE_BUSY_TX)
   {
     if (hirda->Init.WordLength == IRDA_WORDLENGTH_9B)
     {
-      tmp = (uint16_t *) hirda->pTxBuffPtr;
+      tmp = (const uint16_t *) hirda->pTxBuffPtr;
       hirda->Instance->DR = (uint16_t)(*tmp & (uint16_t)0x01FF);
       if (hirda->Init.Parity == IRDA_PARITY_NONE)
       {
@@ -2669,4 +2685,3 @@ static void IRDA_SetConfig(IRDA_HandleTypeDef *hirda)
   * @}
   */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
