@@ -95,6 +95,15 @@
 #define US915_DEFAULT_MAX_ERP                      30.0f
 
 /*!
+ * Default antenna gain
+ */
+#ifdef LORAPHY_ANTENNA_GAIN
+#define US915_DEFAULT_ANTENNA_GAIN                  LORAPHY_ANTENNA_GAIN
+#else
+#define US915_DEFAULT_ANTENNA_GAIN                  0.00f
+#endif
+
+/*!
  * ADR Ack limit
  */
 #define US915_ADR_ACK_LIMIT                         64
@@ -299,7 +308,7 @@ LoRaPHYUS915::LoRaPHYUS915()
     phy_params.max_tx_power = US915_MAX_TX_POWER;
     phy_params.default_tx_power = US915_DEFAULT_TX_POWER;
     phy_params.default_max_eirp = 0;
-    phy_params.default_antenna_gain = 0;
+    phy_params.default_antenna_gain = US915_DEFAULT_ANTENNA_GAIN;
     phy_params.adr_ack_limit = US915_ADR_ACK_LIMIT;
     phy_params.adr_ack_delay = US915_ADR_ACK_DELAY;
     phy_params.max_rx_window = US915_MAX_RX_WINDOW;

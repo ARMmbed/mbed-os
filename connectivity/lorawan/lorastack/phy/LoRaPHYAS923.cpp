@@ -187,7 +187,11 @@
 /*!
  * Default antenna gain
  */
+#ifdef LORAPHY_ANTENNA_GAIN
+#define AS923_DEFAULT_ANTENNA_GAIN                  LORAPHY_ANTENNA_GAIN
+#else
 #define AS923_DEFAULT_ANTENNA_GAIN                  2.15f
+#endif
 
 /*!
  * ADR Ack limit
