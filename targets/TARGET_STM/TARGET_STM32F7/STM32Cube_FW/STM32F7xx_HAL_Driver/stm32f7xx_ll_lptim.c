@@ -6,13 +6,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -28,7 +27,7 @@
 #include "stm32_assert.h"
 #else
 #define assert_param(expr) ((void)0U)
-#endif
+#endif /* USE_FULL_ASSERT */
 
 /** @addtogroup STM32F7xx_LL_Driver
   * @{
@@ -138,7 +137,7 @@ void LL_LPTIM_StructInit(LL_LPTIM_InitTypeDef *LPTIM_InitStruct)
   *          - SUCCESS: LPTIMx instance has been initialized
   *          - ERROR: LPTIMx instance hasn't been initialized
   */
-ErrorStatus LL_LPTIM_Init(LPTIM_TypeDef *LPTIMx, LL_LPTIM_InitTypeDef *LPTIM_InitStruct)
+ErrorStatus LL_LPTIM_Init(LPTIM_TypeDef *LPTIMx, const LL_LPTIM_InitTypeDef *LPTIM_InitStruct)
 {
   ErrorStatus result = SUCCESS;
   /* Check the parameters */
@@ -189,11 +188,14 @@ void LL_LPTIM_Disable(LPTIM_TypeDef *LPTIMx)
   uint32_t tmpCFGR;
   uint32_t tmpCMP;
   uint32_t tmpARR;
+  uint32_t primask_bit;
 
   /* Check the parameters */
   assert_param(IS_LPTIM_INSTANCE(LPTIMx));
 
-  __disable_irq();
+  /* Enter critical section */
+  primask_bit = __get_PRIMASK();
+  __set_PRIMASK(1) ;
 
   /********** Save LPTIM Config *********/
   /* Save LPTIM source clock */
@@ -271,7 +273,8 @@ void LL_LPTIM_Disable(LPTIM_TypeDef *LPTIMx)
   LPTIMx->IER = tmpIER;
   LPTIMx->CFGR = tmpCFGR;
 
-  __enable_irq();
+  /* Exit critical section: restore previous priority mask */
+  __set_PRIMASK(primask_bit);
 }
 
 /**
@@ -293,5 +296,3 @@ void LL_LPTIM_Disable(LPTIM_TypeDef *LPTIMx)
   */
 
 #endif /* USE_FULL_LL_DRIVER */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

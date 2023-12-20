@@ -12,13 +12,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2016 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -165,13 +164,15 @@ typedef enum
  * @brief Configuration of the Cortex-M7 Processor and Core Peripherals
  */
 #define __CM7_REV                 0x0001U  /*!< Cortex-M7 revision r0p1                       */
-#define __MPU_PRESENT             1       /*!< CM7 provides an MPU                           */
-#define __NVIC_PRIO_BITS          4       /*!< CM7 uses 4 Bits for the Priority Levels       */
-#define __Vendor_SysTickConfig    0       /*!< Set to 1 if different SysTick Config is used  */
-#define __FPU_PRESENT             1       /*!< FPU present                                   */
-#define __ICACHE_PRESENT          1       /*!< CM7 instruction cache present                 */
-#define __DCACHE_PRESENT          1       /*!< CM7 data cache present                        */
-#include "core_cm7.h"                     /*!< Cortex-M7 processor and core peripherals      */
+#define __MPU_PRESENT             1U       /*!< CM7 provides an MPU                           */
+#define __NVIC_PRIO_BITS          4U       /*!< CM7 uses 4 Bits for the Priority Levels       */
+#define __Vendor_SysTickConfig    0U       /*!< Set to 1 if different SysTick Config is used  */
+#ifndef __FPU_PRESENT
+#define __FPU_PRESENT             1U       /*!< FPU present                                   */
+#endif
+#define __ICACHE_PRESENT          1U       /*!< CM7 instruction cache present                 */
+#define __DCACHE_PRESENT          1U       /*!< CM7 data cache present                        */
+#include "core_cm7.h"                      /*!< Cortex-M7 processor and core peripherals      */
 
 
 #include "system_stm32f7xx.h"
@@ -1404,6 +1405,15 @@ typedef struct
 /** @addtogroup Exported_constants
   * @{
   */
+
+  /** @addtogroup Hardware_Constant_Definition
+    * @{
+    */
+#define LSI_STARTUP_TIME 40U /*!< LSI Maximum startup time in us */
+
+  /**
+    * @}
+    */
 
   /** @addtogroup Peripheral_Registers_Bits_Definition
   * @{
@@ -15493,33 +15503,36 @@ typedef struct
 /******************************************************************************/
 
 /* Bit definition for Ethernet PTP Time Stamp Contol Register */
+#define ETH_PTPTSCR_TSPFFMAE_Pos                      (18U)
+#define ETH_PTPTSCR_TSPFFMAE_Msk                      (0x1UL << ETH_PTPTSCR_TSPFFMAE_Pos) /*!< 0x00008000 */
+#define ETH_PTPTSCR_TSPFFMAE                          ETH_PTPTSCR_TSPFFMAE_Msk  /* Time stamp PTP frame filtering MAC address enable */
 #define ETH_PTPTSCR_TSCNT_Pos                         (16U)
 #define ETH_PTPTSCR_TSCNT_Msk                         (0x3UL << ETH_PTPTSCR_TSCNT_Pos) /*!< 0x00030000 */
 #define ETH_PTPTSCR_TSCNT                             ETH_PTPTSCR_TSCNT_Msk    /* Time stamp clock node type */
-#define ETH_PTPTSSR_TSSMRME_Pos                       (15U)
-#define ETH_PTPTSSR_TSSMRME_Msk                       (0x1UL << ETH_PTPTSSR_TSSMRME_Pos) /*!< 0x00008000 */
-#define ETH_PTPTSSR_TSSMRME                           ETH_PTPTSSR_TSSMRME_Msk  /* Time stamp snapshot for message relevant to master enable */
-#define ETH_PTPTSSR_TSSEME_Pos                        (14U)
-#define ETH_PTPTSSR_TSSEME_Msk                        (0x1UL << ETH_PTPTSSR_TSSEME_Pos) /*!< 0x00004000 */
-#define ETH_PTPTSSR_TSSEME                            ETH_PTPTSSR_TSSEME_Msk   /* Time stamp snapshot for event message enable */
-#define ETH_PTPTSSR_TSSIPV4FE_Pos                     (13U)
-#define ETH_PTPTSSR_TSSIPV4FE_Msk                     (0x1UL << ETH_PTPTSSR_TSSIPV4FE_Pos) /*!< 0x00002000 */
-#define ETH_PTPTSSR_TSSIPV4FE                         ETH_PTPTSSR_TSSIPV4FE_Msk /* Time stamp snapshot for IPv4 frames enable */
-#define ETH_PTPTSSR_TSSIPV6FE_Pos                     (12U)
-#define ETH_PTPTSSR_TSSIPV6FE_Msk                     (0x1UL << ETH_PTPTSSR_TSSIPV6FE_Pos) /*!< 0x00001000 */
-#define ETH_PTPTSSR_TSSIPV6FE                         ETH_PTPTSSR_TSSIPV6FE_Msk /* Time stamp snapshot for IPv6 frames enable */
-#define ETH_PTPTSSR_TSSPTPOEFE_Pos                    (11U)
-#define ETH_PTPTSSR_TSSPTPOEFE_Msk                    (0x1UL << ETH_PTPTSSR_TSSPTPOEFE_Pos) /*!< 0x00000800 */
-#define ETH_PTPTSSR_TSSPTPOEFE                        ETH_PTPTSSR_TSSPTPOEFE_Msk /* Time stamp snapshot for PTP over ethernet frames enable */
-#define ETH_PTPTSSR_TSPTPPSV2E_Pos                    (10U)
-#define ETH_PTPTSSR_TSPTPPSV2E_Msk                    (0x1UL << ETH_PTPTSSR_TSPTPPSV2E_Pos) /*!< 0x00000400 */
-#define ETH_PTPTSSR_TSPTPPSV2E                        ETH_PTPTSSR_TSPTPPSV2E_Msk /* Time stamp PTP packet snooping for version2 format enable */
-#define ETH_PTPTSSR_TSSSR_Pos                         (9U)
-#define ETH_PTPTSSR_TSSSR_Msk                         (0x1UL << ETH_PTPTSSR_TSSSR_Pos) /*!< 0x00000200 */
-#define ETH_PTPTSSR_TSSSR                             ETH_PTPTSSR_TSSSR_Msk    /* Time stamp Sub-seconds rollover */
-#define ETH_PTPTSSR_TSSARFE_Pos                       (8U)
-#define ETH_PTPTSSR_TSSARFE_Msk                       (0x1UL << ETH_PTPTSSR_TSSARFE_Pos) /*!< 0x00000100 */
-#define ETH_PTPTSSR_TSSARFE                           ETH_PTPTSSR_TSSARFE_Msk  /* Time stamp snapshot for all received frames enable */
+#define ETH_PTPTSCR_TSSMRME_Pos                       (15U)
+#define ETH_PTPTSCR_TSSMRME_Msk                       (0x1UL << ETH_PTPTSCR_TSSMRME_Pos) /*!< 0x00008000 */
+#define ETH_PTPTSCR_TSSMRME                           ETH_PTPTSCR_TSSMRME_Msk  /* Time stamp snapshot for message relevant to master enable */
+#define ETH_PTPTSCR_TSSEME_Pos                        (14U)
+#define ETH_PTPTSCR_TSSEME_Msk                        (0x1UL << ETH_PTPTSCR_TSSEME_Pos) /*!< 0x00004000 */
+#define ETH_PTPTSCR_TSSEME                            ETH_PTPTSCR_TSSEME_Msk   /* Time stamp snapshot for event message enable */
+#define ETH_PTPTSCR_TSSIPV4FE_Pos                     (13U)
+#define ETH_PTPTSCR_TSSIPV4FE_Msk                     (0x1UL << ETH_PTPTSCR_TSSIPV4FE_Pos) /*!< 0x00002000 */
+#define ETH_PTPTSCR_TSSIPV4FE                         ETH_PTPTSCR_TSSIPV4FE_Msk /* Time stamp snapshot for IPv4 frames enable */
+#define ETH_PTPTSCR_TSSIPV6FE_Pos                     (12U)
+#define ETH_PTPTSCR_TSSIPV6FE_Msk                     (0x1UL << ETH_PTPTSCR_TSSIPV6FE_Pos) /*!< 0x00001000 */
+#define ETH_PTPTSCR_TSSIPV6FE                         ETH_PTPTSCR_TSSIPV6FE_Msk /* Time stamp snapshot for IPv6 frames enable */
+#define ETH_PTPTSCR_TSSPTPOEFE_Pos                    (11U)
+#define ETH_PTPTSCR_TSSPTPOEFE_Msk                    (0x1UL << ETH_PTPTSCR_TSSPTPOEFE_Pos) /*!< 0x00000800 */
+#define ETH_PTPTSCR_TSSPTPOEFE                        ETH_PTPTSCR_TSSPTPOEFE_Msk /* Time stamp snapshot for PTP over ethernet frames enable */
+#define ETH_PTPTSCR_TSPTPPSV2E_Pos                    (10U)
+#define ETH_PTPTSCR_TSPTPPSV2E_Msk                    (0x1UL << ETH_PTPTSCR_TSPTPPSV2E_Pos) /*!< 0x00000400 */
+#define ETH_PTPTSCR_TSPTPPSV2E                        ETH_PTPTSCR_TSPTPPSV2E_Msk /* Time stamp PTP packet snooping for version2 format enable */
+#define ETH_PTPTSCR_TSSSR_Pos                         (9U)
+#define ETH_PTPTSCR_TSSSR_Msk                         (0x1UL << ETH_PTPTSCR_TSSSR_Pos) /*!< 0x00000200 */
+#define ETH_PTPTSCR_TSSSR                             ETH_PTPTSCR_TSSSR_Msk    /* Time stamp Sub-seconds rollover */
+#define ETH_PTPTSCR_TSSARFE_Pos                       (8U)
+#define ETH_PTPTSCR_TSSARFE_Msk                       (0x1UL << ETH_PTPTSCR_TSSARFE_Pos) /*!< 0x00000100 */
+#define ETH_PTPTSCR_TSSARFE                           ETH_PTPTSCR_TSSARFE_Msk  /* Time stamp snapshot for all received frames enable */
 
 #define ETH_PTPTSCR_TSARU_Pos                         (5U)
 #define ETH_PTPTSCR_TSARU_Msk                         (0x1UL << ETH_PTPTSCR_TSARU_Pos) /*!< 0x00000020 */
@@ -15604,6 +15617,9 @@ typedef struct
 /******************************************************************************/
 
 /* Bit definition for Ethernet DMA Bus Mode Register */
+#define ETH_DMABMR_MB_Pos                             (26U)
+#define ETH_DMABMR_MB_Msk                             (0x1UL << ETH_DMABMR_MB_Pos) /*!< 0x04000000 */
+#define ETH_DMABMR_MB                                 ETH_DMABMR_MB_Msk       /* Mixed Burst */
 #define ETH_DMABMR_AAB_Pos                            (25U)
 #define ETH_DMABMR_AAB_Msk                            (0x1UL << ETH_DMABMR_AAB_Pos) /*!< 0x02000000 */
 #define ETH_DMABMR_AAB                                ETH_DMABMR_AAB_Msk       /* Address-Aligned beats */
@@ -17887,4 +17903,3 @@ typedef struct
 #endif /* __STM32F746xx_H */
 
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

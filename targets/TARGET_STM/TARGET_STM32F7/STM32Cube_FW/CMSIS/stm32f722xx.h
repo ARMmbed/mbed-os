@@ -12,13 +12,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2016 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -153,13 +152,15 @@ typedef enum
  * @brief Configuration of the Cortex-M7 Processor and Core Peripherals
  */
 #define __CM7_REV                 0x0100U  /*!< Cortex-M7 revision r1p0                       */
-#define __MPU_PRESENT             1       /*!< CM7 provides an MPU                           */
-#define __NVIC_PRIO_BITS          4       /*!< CM7 uses 4 Bits for the Priority Levels       */
-#define __Vendor_SysTickConfig    0       /*!< Set to 1 if different SysTick Config is used  */
-#define __FPU_PRESENT             1       /*!< FPU present                                   */
-#define __ICACHE_PRESENT          1       /*!< CM7 instruction cache present                 */
-#define __DCACHE_PRESENT          1       /*!< CM7 data cache present                        */
-#include "core_cm7.h"                     /*!< Cortex-M7 processor and core peripherals      */
+#define __MPU_PRESENT             1U       /*!< CM7 provides an MPU                           */
+#define __NVIC_PRIO_BITS          4U       /*!< CM7 uses 4 Bits for the Priority Levels       */
+#define __Vendor_SysTickConfig    0U       /*!< Set to 1 if different SysTick Config is used  */
+#ifndef __FPU_PRESENT
+#define __FPU_PRESENT             1U       /*!< FPU present                                   */
+#endif
+#define __ICACHE_PRESENT          1U       /*!< CM7 instruction cache present                 */
+#define __DCACHE_PRESENT          1U       /*!< CM7 data cache present                        */
+#include "core_cm7.h"                      /*!< Cortex-M7 processor and core peripherals      */
 
 
 #include "system_stm32f7xx.h"
@@ -1166,6 +1167,15 @@ typedef struct
 /** @addtogroup Exported_constants
   * @{
   */
+
+  /** @addtogroup Hardware_Constant_Definition
+    * @{
+    */
+#define LSI_STARTUP_TIME 40U /*!< LSI Maximum startup time in us */
+
+  /**
+    * @}
+    */
 
   /** @addtogroup Peripheral_Registers_Bits_Definition
   * @{
@@ -15459,4 +15469,3 @@ typedef struct
 #endif /* __STM32F722xx_H */
 
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

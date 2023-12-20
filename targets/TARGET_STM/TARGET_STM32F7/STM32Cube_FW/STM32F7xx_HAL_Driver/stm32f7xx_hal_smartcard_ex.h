@@ -6,13 +6,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -80,6 +79,9 @@ extern "C" {
 #if defined(USART_TCBGT_SUPPORT)
 #define SMARTCARD_FLAG_TCBGT          USART_ISR_TCBGT         /*!< SMARTCARD transmission complete before guard time completion */
 #endif /* USART_TCBGT_SUPPORT */
+#if defined(USART_ISR_REACK)
+#define SMARTCARD_FLAG_REACK          USART_ISR_REACK         /*!< SMARTCARD receive enable acknowledge flag  */
+#endif /* USART_ISR_REACK */
 #define SMARTCARD_FLAG_TEACK          USART_ISR_TEACK         /*!< SMARTCARD transmit enable acknowledge flag */
 #define SMARTCARD_FLAG_BUSY           USART_ISR_BUSY          /*!< SMARTCARD busy flag                        */
 #define SMARTCARD_FLAG_EOBF           USART_ISR_EOBF          /*!< SMARTCARD end of block flag                */
@@ -264,4 +266,3 @@ HAL_StatusTypeDef HAL_SMARTCARDEx_DisableReceiverTimeOut(SMARTCARD_HandleTypeDef
 
 #endif /* STM32F7xx_HAL_SMARTCARD_EX_H */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

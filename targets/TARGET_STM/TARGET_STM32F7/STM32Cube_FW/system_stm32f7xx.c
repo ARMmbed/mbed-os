@@ -22,13 +22,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2016 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -46,6 +45,7 @@
   */
 
 #include "stm32f7xx.h"
+#include "nvic_addr.h"
 
 #if !defined  (HSE_VALUE) 
   #define HSE_VALUE    ((uint32_t)25000000) /*!< Default value of the External oscillator in Hz */
@@ -78,7 +78,8 @@
 /*!< Uncomment the following line if you need to relocate the vector table
      anywhere in Flash or Sram, else the vector table is kept at the automatic
      remap of boot address selected */
-/* #define USER_VECT_TAB_ADDRESS */
+#define USER_VECT_TAB_ADDRESS // MBED
+#define FLASH_BASE NVIC_FLASH_VECTOR_ADDRESS
 
 #if defined(USER_VECT_TAB_ADDRESS)
 /*!< Uncomment the following line if you need to relocate your vector Table
@@ -90,6 +91,8 @@
 #define VECT_TAB_OFFSET         0x00000000U     /*!< Vector Table base offset field.
                                                      This value must be a multiple of 0x200. */
 #else
+#define VECT_TAB_BASE_ADDRESS   FLASH_BASE      /*!< Vector Table base address field.
+                                                     This value must be a multiple of 0x200. */
 #define VECT_TAB_OFFSET         0x00000000U     /*!< Vector Table base offset field.
                                                      This value must be a multiple of 0x200. */
 #endif /* VECT_TAB_SRAM */
@@ -147,11 +150,8 @@
   * @param  None
   * @retval None
   */
-__weak void SystemInit(void)
+void SystemInit(void)
 {
-#include "nvic_addr.h"                   // MBED
-  SCB->VTOR = NVIC_FLASH_VECTOR_ADDRESS; // MBED
-
   /* FPU settings ------------------------------------------------------------*/
 #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
   SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));  /* set CP10 and CP11 Full Access */

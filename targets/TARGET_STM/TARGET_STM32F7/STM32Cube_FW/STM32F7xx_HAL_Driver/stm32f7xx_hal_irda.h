@@ -6,13 +6,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -141,7 +140,7 @@ typedef struct
 
   IRDA_InitTypeDef         Init;             /*!< IRDA communication parameters      */
 
-  uint8_t                  *pTxBuffPtr;      /*!< Pointer to IRDA Tx transfer Buffer */
+  const uint8_t            *pTxBuffPtr;      /*!< Pointer to IRDA Tx transfer Buffer */
 
   uint16_t                 TxXferSize;       /*!< IRDA Tx Transfer size              */
 
@@ -362,6 +361,9 @@ typedef  void (*pIRDA_CallbackTypeDef)(IRDA_HandleTypeDef *hirda);  /*!< pointer
   *           - 0xXXXX  : Flag mask in the ISR register
   * @{
   */
+#if defined(USART_ISR_REACK)
+#define IRDA_FLAG_REACK                     USART_ISR_REACK         /*!< IRDA receive enable acknowledge flag      */
+#endif /* USART_ISR_REACK */
 #define IRDA_FLAG_TEACK                     USART_ISR_TEACK         /*!< IRDA transmit enable acknowledge flag     */
 #define IRDA_FLAG_BUSY                      USART_ISR_BUSY          /*!< IRDA busy flag                            */
 #define IRDA_FLAG_ABRF                      USART_ISR_ABRF          /*!< IRDA auto Baud rate flag                  */
@@ -521,6 +523,9 @@ typedef  void (*pIRDA_CallbackTypeDef)(IRDA_HandleTypeDef *hirda);  /*!< pointer
   * @param  __HANDLE__ specifies the IRDA Handle.
   * @param  __FLAG__ specifies the flag to check.
   *        This parameter can be one of the following values:
+#if defined(USART_ISR_REACK)
+  *            @arg @ref IRDA_FLAG_REACK Receive enable acknowledge flag
+#endif
   *            @arg @ref IRDA_FLAG_TEACK Transmit enable acknowledge flag
   *            @arg @ref IRDA_FLAG_BUSY  Busy flag
   *            @arg @ref IRDA_FLAG_ABRF  Auto Baud rate detection flag
@@ -787,11 +792,11 @@ HAL_StatusTypeDef HAL_IRDA_UnRegisterCallback(IRDA_HandleTypeDef *hirda, HAL_IRD
   */
 
 /* IO operation functions *****************************************************/
-HAL_StatusTypeDef HAL_IRDA_Transmit(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size, uint32_t Timeout);
+HAL_StatusTypeDef HAL_IRDA_Transmit(IRDA_HandleTypeDef *hirda, const uint8_t *pData, uint16_t Size, uint32_t Timeout);
 HAL_StatusTypeDef HAL_IRDA_Receive(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size, uint32_t Timeout);
-HAL_StatusTypeDef HAL_IRDA_Transmit_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size);
+HAL_StatusTypeDef HAL_IRDA_Transmit_IT(IRDA_HandleTypeDef *hirda, const uint8_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_IRDA_Receive_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size);
-HAL_StatusTypeDef HAL_IRDA_Transmit_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size);
+HAL_StatusTypeDef HAL_IRDA_Transmit_DMA(IRDA_HandleTypeDef *hirda, const uint8_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_IRDA_Receive_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_IRDA_DMAPause(IRDA_HandleTypeDef *hirda);
 HAL_StatusTypeDef HAL_IRDA_DMAResume(IRDA_HandleTypeDef *hirda);
@@ -825,8 +830,8 @@ void HAL_IRDA_AbortReceiveCpltCallback(IRDA_HandleTypeDef *hirda);
   */
 
 /* Peripheral State and Error functions ***************************************/
-HAL_IRDA_StateTypeDef HAL_IRDA_GetState(IRDA_HandleTypeDef *hirda);
-uint32_t              HAL_IRDA_GetError(IRDA_HandleTypeDef *hirda);
+HAL_IRDA_StateTypeDef HAL_IRDA_GetState(const IRDA_HandleTypeDef *hirda);
+uint32_t              HAL_IRDA_GetError(const IRDA_HandleTypeDef *hirda);
 
 /**
   * @}
@@ -850,4 +855,3 @@ uint32_t              HAL_IRDA_GetError(IRDA_HandleTypeDef *hirda);
 
 #endif /* STM32F7xx_HAL_IRDA_H */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
