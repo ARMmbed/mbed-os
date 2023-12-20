@@ -38,6 +38,9 @@ if("SPIF" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(COMPONENT_SPIF)
 endif()
 
+if("SECUREF" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(COMPONENT_SECUREF)
+endif()
 
 target_include_directories(mbed-storage-blockdevice
     INTERFACE

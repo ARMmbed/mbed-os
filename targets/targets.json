@@ -4581,6 +4581,9 @@
         ],
         "detect_code": [
             "0781"
+        ],
+        "components_add": [
+            "SECUREF"
         ]
     },
     "MCU_STM32L4R9xI": {

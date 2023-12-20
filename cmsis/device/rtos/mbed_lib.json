@@ -4,7 +4,7 @@
         "present": 1,
          "main-thread-stack-size": {
             "help": "The size of the main thread's stack",
-            "value": 4096
+            "value": 16384
          },
          "timer-thread-stack-size": {
             "help": "The size of the timer thread's stack",
