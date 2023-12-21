@@ -11,6 +11,7 @@ list(APPEND mbed-storage-libs
     mbed-storage-filesystem
     mbed-storage-fat
     mbed-storage-littlefs
+    mbed-storage-littlefs-v2
 )
 
 if("DATAFLASH" IN_LIST MBED_TARGET_LABELS)

@@ -23,5 +23,6 @@ target_link_libraries(mbed-storage-kv-config
         mbed-storage-filesystemstore
         mbed-storage-securestore
         mbed-storage-littlefs
+        mbed-storage-littlefs-v2
         mbed-storage-fat
 )
