@@ -412,6 +412,9 @@
     },
     "S5JS100": {
         "OGChipSelectEditMenu": "S5JS100\tSamsung S5JS100"
+    },
+    "APM32F407IG": {
+        "OGChipSelectEditMenu": "APM32F407IG\tGeehy APM32F407IG"
     }
 
 }

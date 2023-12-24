@@ -9661,5 +9661,105 @@
                 "small"
             ]
     	}
+    },
+    "MCU_APM32": {
+        "inherits": [
+            "Target"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "Geehy"
+        ],
+        "supported_toolchains": [
+            "ARM",
+            "GCC_ARM"
+        ],
+        "device_has_add": [
+            "USTICKER",
+            "ANALOGIN",
+            "INTERRUPTIN",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "PWMOUT",
+            "SERIAL"
+        ],
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ]
+        },
+        "supported_application_profiles": [
+            "full", "bare-metal"
+        ]
+    },
+    "APM32_F407IG": {
+        "inherits": [
+            "MCU_APM32"
+        ],
+        "supported_form_factors": [
+            "ARDUINO_UNO"
+        ],
+        "core": "Cortex-M4F",
+        "components_add": [
+            "FLASHIAP"
+        ],
+        "extra_labels_add": [
+            "APM32F4XX",
+            "APM32F40X",
+            "APM32F407",
+            "APM32F407xG",
+            "APM32F407IG",
+            "APM_EMAC"
+        ],
+         "config": {
+            "clock_freq": {
+                "help": "Clock frequency in Mhz",
+                "value": "8",
+                "macro_name": "CLOCK_FREQUENCY_MHZ"
+            },
+            "usb_speed":  {
+                "help": "USE_USB_OTG_FS or USE_USB_OTG_HS or USE_USB_HS_IN_FS",
+                "value": "USE_USB_HS_IN_FS"
+            }
+        },
+        "device_has_add": [
+            "RTC",
+            "I2C",
+            "CAN",
+            "I2CSLAVE",
+            "ANALOGOUT",
+            "SPI",
+            "SPISLAVE",
+            "SERIAL_ASYNCH",
+            "SERIAL_FC",
+            "EMAC",
+            "FLASH",
+            "SLEEP",
+            "MPU",
+            "TRNG",
+            "USBDEVICE",
+            "WATCHDOG"
+        ],
+        "device_name": "APM32F407IG",
+        "detect_code": [
+            "1801"
+        ],
+        "macros_add": [
+            "APM32F407IG",
+            "APM32F4",
+            "APM32F4XX",
+            "APM32F40X",
+            "APM32F407"
+        ],
+        "bootloader_supported": true,
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     }
 }

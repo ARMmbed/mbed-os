@@ -23,6 +23,8 @@ elseif("STM" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_STM)
 elseif("Silicon_Labs" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_Silicon_Labs)
+elseif("APM_EMAC" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_APM_EMAC)
 endif()
 
 if("WHD" IN_LIST MBED_TARGET_LABELS)
